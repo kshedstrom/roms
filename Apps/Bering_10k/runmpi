@@ -1,0 +1,48 @@
+#!/bin/ksh
+#PBS -S /bin/ksh
+#PBS -N ROMS_NEP
+
+### This for Galaxy jobs
+###PBS -l select=6:ncpus=16:node_type=16way
+
+### This for Taurus jobs
+###PBS -l select=24:ncpus=4:node_type=4way:mem=15GB
+#PBS -l select=16:ncpus=4:node_type=4way:mem=15GB
+###PBS -l select=1:ncpus=1:node_type=4way:mem=15GB
+
+#PBS -W group_list=akwaters
+####PBS -q debug
+####PBS -l walltime=1:00:00
+#PBS -q standard
+#PBS -l walltime=12:00:00
+#PBS -j oe
+
+PGM_NAME=Bering
+cd $PBS_O_WORKDIR
+export F90_DUMP_MAP=dump_map
+export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/u1/uaf/kate/lib
+
+#
+#  Prolog
+#
+echo " "
+echo "++++ Midnight ++++ $PGM_NAME began:    `date`"
+echo "++++ Midnight ++++ $PGM_NAME hostname: `hostname`"
+echo "++++ Midnight ++++ $PGM_NAME uname -a: `uname -a`"
+echo " "
+TBEGIN=`echo "print time();" | perl`
+
+RUN_CMD="mpirun ./oceanM ocean_bering.in"
+#RUN_CMD="mpirun ./oceanG ocean_bering.in"
+echo "Running: $RUN_CMD"
+$RUN_CMD
+
+#
+#  Epilog
+#
+TEND=`echo "print time();" | perl`
+echo " "
+echo "++++ Midnight ++++ $PGM_NAME pwd:      `pwd`"
+echo "++++ Midnight ++++ $PGM_NAME ended:    `date`"
+echo "++++ Midnight ++++ $PGM_NAME walltime: `expr $TEND - $TBEGIN` seconds"
+
