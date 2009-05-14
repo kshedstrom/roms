@@ -128,6 +128,8 @@
 # endif
 # ifdef NEMURO_SAN
       USE step_fish_mod, ONLY : step_fish
+      USE fish_by_cell_mod, ONLY : fish_by_cell
+      USE ships_by_cell_mod, ONLY : ships_by_cell
 # endif
       USE wvelocity_mod, ONLY : wvelocity
 !
@@ -697,12 +699,15 @@
 !  Compute Lagrangian fish trajectories.
 !-----------------------------------------------------------------------
 !
+!  Find out how many and which fish in each cell - is this daily?
+!
       IF (iyesterday(ng) .ne. idays(ng)) THEN
 !$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(ng,numthreads)
         DO thread=0,numthreads-1
           subs=NtileX(ng)*NtileE(ng)/numthreads
           DO tile=subs*thread,subs*(thread+1)-1,+1
             CALL fish_by_cell (ng, TILE)
+            CALL ships_by_cell (ng, TILE)
           END DO
         END DO
 !$OMP END PARALLEL DO

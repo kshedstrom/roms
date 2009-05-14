@@ -88,7 +88,7 @@
 !=======================================================================
 !
       DEFINE : IF (ldef) THEN
-        CALL netcdf_create (ng, model, TRIM(ncname), ncFISHid(ng))
+        CALL netcdf_create (ng, iNLM, TRIM(ncname), ncFISHid(ng))
         IF (exit_flag.ne.NoError) THEN
           IF (Master) WRITE (stdout,30) TRIM(ncname)
           RETURN
@@ -482,7 +482,7 @@
 !
 !  Open fish file for read/write.
 !
-        CALL netcdf_open (ng, model, ncname, 1, ncFISHid(ng))
+        CALL netcdf_open (ng, iNLM, ncname, 1, ncFISHid(ng))
         IF (exit_flag.ne.NoError) THEN
           WRITE (stdout,60) TRIM(ncname)
           RETURN

@@ -1638,7 +1638,7 @@
           status=nf_fread3d(ng, IDmod, ncname, ncINPid,                 &
      &                        Vname(1,idFspwn), varid,                  &
      &                        InpRec, gtype, Vsize,                     &
-     &                        LBi, UBi, LBj, UBj, 1, Nspecies,          &
+     &                        LBi, UBi, LBj, UBj, 1, Nspecies(ng),      &
      &                        Fscl, Fmin, Fmax,                         &
 # ifdef MASKING
      &                        GRID(ng) % rmask,                         &
