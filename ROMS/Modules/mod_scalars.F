@@ -291,6 +291,8 @@
 # ifdef NEMURO_SAN
         integer, parameter :: ifwwt = 1          ! fish wet weight
         integer, parameter :: ifworth = 2        ! fish worth
+	integer, parameter :: ifage = 3          ! age as stage
+	integer, parameter :: ifbday = 4         ! birthday
 ! Species IDs
 	integer, parameter :: if_none = 0
 	integer, parameter :: if_anchovy = 1

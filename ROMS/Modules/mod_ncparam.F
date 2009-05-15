@@ -367,6 +367,9 @@
         integer  :: idSig22        ! internal ice stress component 22
         integer  :: idSig12        ! internal ice stress component 12
 
+! NEMURO_SAN variables
+        integer  :: idFspwn        ! spawning distribution
+
         integer, allocatable :: idRtrc(:)    ! river runoff for tracers
         integer, allocatable :: idTads(:)    ! tracers adjoint sentivity
         integer, allocatable :: idTbot(:)    ! bottom flux for tracers
@@ -1734,6 +1737,10 @@
                 idRtrc(iDON_)=varid
               CASE ('idRtrc(iPON_)')
                 idRtrc(iPON_)=varid
+#endif
+#ifdef NEMURO_SAN
+              CASE ('idFspwn')
+                idFspwn=varid
 #endif
 #ifdef SEDIMENT
               CASE ('idRtrc(idmud)')

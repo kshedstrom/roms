@@ -148,6 +148,8 @@
 	  type(fishnode), pointer :: fish0
 	  type(fishnode), pointer :: fish_list(:,:)
           integer, pointer :: fish_count(:,:)
+	  type(fishnode), pointer :: ships_list(:,:)
+          integer, pointer :: ships_count(:,:)
 
           real(r8), pointer :: spawn_loc(:,:,:)
 # endif
@@ -400,9 +402,11 @@
 # endif
 
 # if defined NEMURO_SAN
-      allocate ( OCEAN(ng) % spawn_loc(LBi:UBi,LBj:UBj,Nspecies) )
+      allocate ( OCEAN(ng) % spawn_loc(LBi:UBi,LBj:UBj,Nspecies(ng)) )
       allocate ( OCEAN(ng) % fish_count(LBi:UBi,LBj:UBj) )
       allocate ( OCEAN(ng) % fish_list(LBi:UBi,LBj:UBj) )
+      allocate ( OCEAN(ng) % ships_count(LBi:UBi,LBj:UBj) )
+      allocate ( OCEAN(ng) % ships_list(LBi:UBi,LBj:UBj) )
       allocate ( OCEAN(ng) % fish0 )
       OCEAN(ng) % fish0 % fish = 0
       OCEAN(ng) % fish0 % next => OCEAN(ng) % fish0
@@ -785,6 +789,8 @@
           DO i=Imin,Imax
             OCEAN(ng) % fish_count(i,j) = 0
             OCEAN(ng) % fish_list(i,j) % next => OCEAN(ng) % fish0
+            OCEAN(ng) % ships_count(i,j) = 0
+            OCEAN(ng) % ships_list(i,j) % next => OCEAN(ng) % fish0
           END DO
 # endif
 #endif

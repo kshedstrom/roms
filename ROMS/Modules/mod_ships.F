@@ -1,5 +1,5 @@
 #include "cppdefs.h"
-      MODULE mod_fish
+      MODULE mod_ships
 #ifdef NEMURO_SAN
 !
 !svn $Id: mod_fish.F 975 2009-05-05 22:51:13Z kate $
@@ -28,7 +28,7 @@
 !
         implicit none
 
-        TYPE T_FISHES
+        TYPE T_SHIPS
 
           logical, pointer  :: bounded(:)
 
@@ -41,21 +41,18 @@
           real(r8), pointer :: track(:,:,:)
           real(r8), pointer :: Fz0(:)
 
-! Fish fields
-          real(r8), pointer :: bioenergy(:,:)
-          real(r8), pointer :: feedback(:,:)
+! Ship fields
+!         real(r8), pointer :: bioenergy(:,:)
           integer, pointer  :: species(:)
-          integer, pointer  :: lifestage(:)
-          logical, pointer  :: alive(:)
-	  type(fishnode), pointer :: fishnodes(:)
+	  type(fishnode), pointer :: shipnodes(:)
 
-        END TYPE T_FISHES
+        END TYPE T_SHIPS
 
-        TYPE (T_FISHES), allocatable :: FISHES(:)
+        TYPE (T_SHIPS), allocatable :: SHIPS(:)
 
       CONTAINS
 
-      SUBROUTINE allocate_fish (ng)
+      SUBROUTINE allocate_ships (ng)
 !
 !=======================================================================
 !                                                                      !
@@ -80,71 +77,71 @@
 !  Allocate module variables.
 !-----------------------------------------------------------------------
 !
-      IF (ng.eq.1) allocate ( FISHES(Ngrids) )
+      IF (ng.eq.1) allocate ( SHIPS(Ngrids) )
 !
-      allocate ( FISHES(ng) % bounded(Nfish(ng)) )
+      allocate ( SHIPS(ng) % bounded(Nships(ng)) )
 
-      allocate ( FISHES(ng) % Findex(0:Nfish(ng)) )
+      allocate ( SHIPS(ng) % Findex(0:Nships(ng)) )
 
-      allocate ( FISHES(ng) % Ftype(Nfish(ng)) )
+      allocate ( SHIPS(ng) % Ftype(Nships(ng)) )
 
-      allocate ( FISHES(ng) % Flon(Nfish(ng)) )
+      allocate ( SHIPS(ng) % Flon(Nships(ng)) )
 
-      allocate ( FISHES(ng) % Flat(Nfish(ng)) )
+      allocate ( SHIPS(ng) % Flat(Nships(ng)) )
 
-      allocate ( FISHES(ng) % Tinfo(0:izrhs,Nfish(ng)) )
+      allocate ( SHIPS(ng) % Tinfo(0:izrhs,Nships(ng)) )
 
-      allocate ( FISHES(ng) % track(NFV(ng),0:NFT,Nfish(ng)) )
+      allocate ( SHIPS(ng) % track(NFV(ng),0:NFT,Nships(ng)) )
 
-      allocate ( FISHES(ng) % Fz0(Nfish(ng)) )
+      allocate ( SHIPS(ng) % Fz0(Nships(ng)) )
 
-      allocate ( FISHES(ng) % feedback(NBT,Nfloats(ng)) )
+!     allocate ( SHIPS(ng) % feedback(NBT,Nships(ng)) )
 
-      allocate ( FISHES(ng) % bioenergy(NFishV(ng),Nfish(ng)) )
+!     allocate ( SHIPS(ng) % bioenergy(NFishV(ng),Nships(ng)) )
 
-      allocate ( FISHES(ng) % species(Nfish(ng)) )
+!     allocate ( SHIPS(ng) % species(Nships(ng)) )
 
-      allocate ( FISHES(ng) % lifestage(Nfish(ng)) )
+!     allocate ( SHIPS(ng) % lifestage(Nships(ng)) )
 
-      allocate ( FISHES(ng) % alive(Nfish(ng)) )
+!     allocate ( SHIPS(ng) % alive(Nships(ng)) )
 
-      allocate ( FISHES(ng) % fishnodes(Nfish(ng)) )
+      allocate ( SHIPS(ng) % shipnodes(Nships(ng)) )
 !
 !-----------------------------------------------------------------------
 !  Initialize module variables.
 !-----------------------------------------------------------------------
 !
-      FISHES(ng) % Findex(0) = 0
-      DO iflt=1,Nfish(ng)
-        FISHES(ng) % bounded(iflt) = .FALSE.
-        FISHES(ng) % Findex(iflt) = 0
-        FISHES(ng) % Ftype(iflt) = 0
-        FISHES(ng) % Flon(iflt) = IniVal
-        FISHES(ng) % Flat(iflt) = IniVal
-        FISHES(ng) % Fz0(iflt) = 0
-        DO i=1,NBT
-          FISHES(ng) % feedback(i,iflt) = IniVal
-        END DO
+      SHIPS(ng) % Findex(0) = 0
+      DO iflt=1,Nships(ng)
+        SHIPS(ng) % bounded(iflt) = .FALSE.
+        SHIPS(ng) % Findex(iflt) = 0
+        SHIPS(ng) % Ftype(iflt) = 0
+        SHIPS(ng) % Flon(iflt) = IniVal
+        SHIPS(ng) % Flat(iflt) = IniVal
+        SHIPS(ng) % Fz0(iflt) = 0
+!       DO i=1,NBT
+!         SHIPS(ng) % feedback(i,iflt) = IniVal
+!       END DO
         DO i=0,izrhs
-          FISHES(ng) % Tinfo(i,iflt) = IniVal
+          SHIPS(ng) % Tinfo(i,iflt) = IniVal
         END DO
         DO i=1,NFV(ng)
-          FISHES(ng) % track(i,0,iflt) = IniVal
-          FISHES(ng) % track(i,1,iflt) = IniVal
-          FISHES(ng) % track(i,2,iflt) = IniVal
-          FISHES(ng) % track(i,3,iflt) = IniVal
-          FISHES(ng) % track(i,4,iflt) = IniVal
+          SHIPS(ng) % track(i,0,iflt) = IniVal
+          SHIPS(ng) % track(i,1,iflt) = IniVal
+          SHIPS(ng) % track(i,2,iflt) = IniVal
+          SHIPS(ng) % track(i,3,iflt) = IniVal
+          SHIPS(ng) % track(i,4,iflt) = IniVal
         END DO
-        DO i=1,NFishV(ng)
-          FISHES(ng) % bioenergy(i,iflt) = IniVal
-        END DO
-        FISHES(ng) % species(iflt) = if_none
-        FISHES(ng) % lifestage(iflt) = if_none
-        FISHES(ng) % alive(iflt) = .FALSE.
-        FISHES(ng) % fishnodes(iflt) % fish = iflt
+!       DO i=1,NFishV(ng)
+!         SHIPS(ng) % bioenergy(i,iflt) = IniVal
+!       END DO
+!       SHIPS(ng) % species(iflt) = if_none
+!       SHIPS(ng) % lifestage(iflt) = if_none
+!       SHIPS(ng) % alive(iflt) = .FALSE.
+        SHIPS(ng) % shipnodes(iflt) % fish = iflt
       END DO
 
       RETURN
-      END SUBROUTINE allocate_fish
+      END SUBROUTINE allocate_ships
 #endif
-      END MODULE mod_fish
+      END MODULE mod_ships

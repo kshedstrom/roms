@@ -1,8 +1,8 @@
 #include "cppdefs.h"
-      MODULE step_fish_mod
+      MODULE step_ships_mod
 #if defined NONLINEAR && defined NEMURO_SAN
 !
-!svn $Id: step_fish.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: step_ships.F 975 2009-05-05 22:51:13Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group        John M. Klinck   !
 !    Licensed under a MIT/X style license                              !
@@ -29,16 +29,16 @@
       implicit none
 
       PRIVATE
-      PUBLIC  :: step_fish
+      PUBLIC  :: step_ships
 
       CONTAINS
 !
 !***********************************************************************
-      SUBROUTINE step_fish (ng, Lstr, Lend)
+      SUBROUTINE step_ships (ng, Lstr, Lend)
 !***********************************************************************
 !
       USE mod_param
-      USE mod_fish
+      USE mod_ships
       USE mod_stepping
 !
 !  Imported variable declarations.
@@ -48,31 +48,26 @@
 # ifdef PROFILE
       CALL wclock_on (ng, iNLM, 10)
 # endif
-      CALL step_fish_tile (ng, Lstr, Lend,                              &
+      CALL step_ships_tile (ng, Lstr, Lend,                             &
      &                       knew(ng), nnew(ng), nfm3(ng), nfm2(ng),    &
      &                       nfm1(ng), nf(ng), nfp1(ng),                &
-     &                       FISHES(ng) % bounded,                      &
-     &                       FISHES(ng) % Ftype,                        &
-     &                       FISHES(ng) % Tinfo,                        &
-     &                       FISHES(ng) % Fz0,                          &
-     &                       FISHES(ng) % feedback,                     &
-     &                       FISHES(ng) % bioenergy,                    &
-     &                       FISHES(ng) % species,                      &
-     &                       FISHES(ng) % alive,                        &
-     &                       FISHES(ng) % track)
+     &                       SHIPS(ng) % bounded,                       &
+     &                       SHIPS(ng) % Ftype,                         &
+     &                       SHIPS(ng) % Tinfo,                         &
+     &                       SHIPS(ng) % Fz0,                           &
+     &                       SHIPS(ng) % track)
 # ifdef PROFILE
       CALL wclock_off (ng, iNLM, 10)
 # endif
       RETURN
-      END SUBROUTINE step_fish
+      END SUBROUTINE step_ships
 !
 !***********************************************************************
-      SUBROUTINE step_fish_tile (ng, Lstr, Lend,                        &
+      SUBROUTINE step_ships_tile (ng, Lstr, Lend,                       &
      &                             knew, nnew,                          &
      &                             nfm3, nfm2, nfm1, nf, nfp1,          &
      &                             bounded, Ftype, Tinfo, Fz0,          &
-     &                             feedback, bioenergy, species,        &
-     &                             alive, track)
+     &                             track)
 !***********************************************************************
 !
       USE mod_param
@@ -101,24 +96,16 @@
       integer, intent(in) :: Ftype(:)
       real(r8), intent(inout) :: Tinfo(0:,:)
       real(r8), intent(inout) :: Fz0(:)
-      real(r8), intent(inout) :: feedback(:,:)
 
       logical, intent(inout) :: bounded(:)
-      real(r8), intent(inout) :: bioenergy(:,:)
-      integer, intent(inout) :: species(:)
-      logical, intent(inout) :: alive(:)
       real(r8), intent(inout) :: track(:,0:,:)
 # else
-      integer, intent(in) :: Ftype(Nfish(ng))
-      real(r8), intent(inout) :: Tinfo(0:izrhs,Nfish(ng))
-      real(r8), intent(inout) :: Fz0(Nfish(ng))
-      real(r8), intent(inout) :: feedback(NT(ng),Nfloats(ng))
+      integer, intent(in) :: Ftype(Nships(ng))
+      real(r8), intent(inout) :: Tinfo(0:izrhs,Nships(ng))
+      real(r8), intent(inout) :: Fz0(Nships(ng))
 
-      logical, intent(inout) :: bounded(Nfish(ng))
-      real(r8), intent(inout) :: bioenergy(NFishV(ng),Nfish(ng))
-      integer, intent(inout) :: species(Nfish(ng))
-      logical, intent(inout) :: alive(Nfish(ng))
-      real(r8), intent(inout) :: track(NFishV(ng),0:NFT,Nfish(ng))
+      logical, intent(inout) :: bounded(Nships(ng))
+      real(r8), intent(inout) :: track(NFishV(ng),0:NFT,Nships(ng))
 # endif
 !
 !  Local variable declarations.
@@ -150,7 +137,7 @@
 
 # ifdef DISTRIBUTE
       real(r8) :: Xstr, Xend, Ystr, Yend
-      real(r8), dimension(Nfish(ng)*NFishV(ng)*(NFT+1)) :: Fwrk
+      real(r8), dimension(Nships(ng)*NFishV(ng)*(NFT+1)) :: Fwrk
 # endif
 !
 ! Set tile array bounds.
@@ -164,18 +151,19 @@
 !
 !-----------------------------------------------------------------------
 ! In distributed-memory configuration, determine which node bounds the
-! current location of the fish. Assign non-bounded fish to the
+! current location of the ships. Assign non-bounded ships to the
 ! master node.
 !-----------------------------------------------------------------------
 !
-! The strategy here is to build a switch that processes only the fish
+! The strategy here is to build a switch that processes only the
+ships
 ! contained within the node bounds. The trajectory data for the new
 ! time-level (nfp1) is initialized to Fspv. These values are used during
 ! recombining step at the end of the routine.  Since a SUM reduction is
-! carried-out, setting Fspv to zero means the fish only contribute in
+! carried-out, setting Fspv to zero means the ships only contribute in
 ! their own tile.
 !
-      Npts=NFishV(ng)*(NFT+1)*Nfish(ng)
+      Npts=NFishV(ng)*(NFT+1)*Nships(ng)
 
       Xstr=REAL(BOUNDS(ng)%Istr(MyRank),r8)-0.5_r8
       Xend=REAL(BOUNDS(ng)%Iend(MyRank),r8)+0.5_r8
@@ -274,21 +262,19 @@
         nudg(l)=0.0_r8
       END DO
 !
-!  If newly released floats, initialize fish weight
+!  If newly released floats, initialize ships weight
 !
       DO l=Lstr,Lend
         IF (MyThread(l).and.bounded(l).and.                             &
      &      (time(ng)-dt(ng).le.Tinfo(itstr,l).and.                     &
      &       time(ng)+dt(ng).gt.Tinfo(itstr,l))) THEN
-            bioenergy(ifwwt,l)=Fwwt0(ng)
-            bioenergy(ifage,l)=0.0_r8
-	    species(l)=if_herring
-	    alive(l)=.false.
+!           bioenergy(ifwwt,l)=Fwwt0(ng)
+!           bioenergy(ifage,l)=0.0_r8
         END IF
       END DO
 !
 !-----------------------------------------------------------------------
-!  Predictor step: compute first guess fish locations using a
+!  Predictor step: compute first guess ships locations using a
 !                  4th-order Milne time-stepping scheme.
 !-----------------------------------------------------------------------
 !
@@ -296,7 +282,7 @@
       cff2=4.0_r8/3.0_r8
       DO l=Lstr,Lend
         IF (MyThread(l).and.bounded(l)) THEN
-          CALL fish_swim (ng, LBi, UBi, LBj, UBj, 1, N(ng),             &
+          CALL ships_move (ng, LBi, UBi, LBj, UBj, 1, N(ng),            &
      &                        l, nf, nnew,                              &
      &                        diZoo, djZoo, kZmax,                      &
      &                        GRID(ng) % pm(LBi,LBj),                   &
@@ -319,7 +305,7 @@
 
 # if defined SOLVE3D && !defined FLOAT_VWALK
 !
-!  Compute vertical position (grid units) 3D Lagrangian fish.
+!  Compute vertical position (grid units) 3D Lagrangian ships.
 !
           IF (Ftype(l).eq.flt_Lagran) THEN
             track(izgrd,nfp1,l)=track(izgrd,nfm3,l)+                    &
@@ -327,8 +313,8 @@
      &                                  cff2*track(izrhs,nfm1,l)+       &
      &                                  cff1*track(izrhs,nfm2,l))
 !
-!  Compute vertical position (grid units) for isobaric fish
-!  (p=g*(z+zeta)=constant) or geopotential fish (constant depth).
+!  Compute vertical position (grid units) for isobaric ships
+!  (p=g*(z+zeta)=constant) or geopotential ships (constant depth).
 !  Use bilinear interpolation to determine vertical position.
 !
           ELSE IF ((Ftype(l).eq.flt_Isobar).or.                         &
@@ -480,7 +466,7 @@
 # endif
 !
 !-----------------------------------------------------------------------
-!  Corrector step: correct fish locations using a 4th-order
+!  Corrector step: correct ships locations using a 4th-order
 !                  Hamming time-stepping scheme.
 !-----------------------------------------------------------------------
 !
@@ -490,7 +476,7 @@
       cff4=6.0_r8/8.0_r8
       DO l=Lstr,Lend
         IF (MyThread(l).and.bounded(l)) THEN
-          CALL fish_swim (ng, LBi, UBi, LBj, UBj, 1, N(ng),             &
+          CALL ships_move (ng, LBi, UBi, LBj, UBj, 1, N(ng),            &
      &                        l, nfp1, nnew,                            &
      &                        diZoo, djZoo, kZmax,                      &
      &                        GRID(ng) % pm(LBi,LBj),                   &
@@ -515,7 +501,7 @@
 
 # if defined SOLVE3D && !defined FLOAT_VWALK
 !
-!  Compute vertical position (grid units) 3D Lagrangian fish.
+!  Compute vertical position (grid units) 3D Lagrangian ships.
 !
           IF (Ftype(l).eq.flt_Lagran) THEN
             track(izgrd,nfp1,l)=cff1*track(izgrd,nf  ,l)-               &
@@ -524,8 +510,8 @@
      &                                  cff4*track(izrhs,nf  ,l)-       &
      &                                  cff3*track(izrhs,nfm1,l))
 !
-!  Compute vertical position (grid units) for isobaric fish
-!  (p=g*(z+zeta)=constant) or geopotential fish (constant depth).
+!  Compute vertical position (grid units) for isobaric ships
+!  (p=g*(z+zeta)=constant) or geopotential ships (constant depth).
 !  Use bilinear interpolation to determine vertical position.
 !
           ELSE IF ((Ftype(l).eq.flt_Isobar).or.                         &
@@ -612,7 +598,7 @@
       END DO
 !
 !-----------------------------------------------------------------------
-!  Determine fish status.
+!  Determine ships status.
 !-----------------------------------------------------------------------
 !
 # ifdef EW_PERIODIC
@@ -638,7 +624,7 @@
       IF (NtileI(ng).gt.1) THEN
         Fwrk=RESHAPE(track,(/Npts/))
         CALL mp_collect (ng, iNLM, Npts, Fspv, Fwrk)
-        track=RESHAPE(Fwrk,(/NFishV(ng),NFT+1,Nfish(ng)/))
+        track=RESHAPE(Fwrk,(/NFishV(ng),NFT+1,Nships(ng)/))
         DO l=Lstr,Lend
           IF ((Xstr.le.track(ixgrd,nfp1,l)).and.                        &
      &        (track(ixgrd,nfp1,l).lt.Xend).and.                        &
@@ -691,7 +677,7 @@
       IF (NtileJ(ng).gt.1) THEN
         Fwrk=RESHAPE(track,(/Npts/))
         CALL mp_collect (ng, iNLM, Npts, Fspv, Fwrk)
-        track=RESHAPE(Fwrk,(/NFishV(ng),NFT+1,Nfish(ng)/))
+        track=RESHAPE(Fwrk,(/NFishV(ng),NFT+1,Nships(ng)/))
         DO l=Lstr,Lend
           IF ((Xstr.le.track(ixgrd,nfp1,l)).and.                        &
      &        (track(ixgrd,nfp1,l).lt.Xend).and.                        &
@@ -723,7 +709,7 @@
 # endif
 # ifdef SOLVE3D
 !
-!  Reflect fish at surface or bottom.
+!  Reflect ships at surface or bottom.
 !
       DO l=Lstr,Lend
         IF (MyThread(l).and.bounded(l)) THEN
@@ -737,7 +723,7 @@
 # endif
 !
 !-----------------------------------------------------------------------
-!  If appropriate, activate the release of new fish and set initial
+!  If appropriate, activate the release of new ships and set initial
 !  positions for all time levels.
 !-----------------------------------------------------------------------
 !
@@ -846,7 +832,7 @@
      &                    MyThread, bounded, track(1,0,1))
 # endif
 !
-!  If newly released fish, initialize slopes at all time levels.
+!  If newly released ships, initialize slopes at all time levels.
 !
       DO l=Lstr,Lend
         IF (MyThread(l).and.bounded(l).and.                             &
@@ -967,32 +953,27 @@
      &                      OCEAN(ng) % t(LBi,LBj,1,nnew,itrc),         &
      &                      MyThread, bounded, track(1,0,1))
       END DO
-      DO l=Lstr,Lend
-        IF (MyThread(l).and.bounded(l)) THEN
-          CALL fish_growth (ng, l, nfp1, track(1,0,1), feedback(1,1))
-        ENDIF
-      ENDDO
 # endif
 # ifdef DISTRIBUTE
 !
 !-----------------------------------------------------------------------
-!  Collect fish on all nodes.
+!  Collect ships on all nodes.
 !-----------------------------------------------------------------------
 !
       Fwrk=RESHAPE(track,(/Npts/))
       CALL mp_collect (ng, iNLM, Npts, Fspv, Fwrk)
-      track=RESHAPE(Fwrk,(/NFishV(ng),NFT+1,Nfish(ng)/))
+      track=RESHAPE(Fwrk,(/NFishV(ng),NFT+1,Nships(ng)/))
 !
 !  Collect the bounded status switch.
 !
       Fwrk=Fspv
-      DO l=1,Nfish(ng)
+      DO l=1,Nships(ng)
         IF (bounded(l)) THEN
           Fwrk(l)=1.0_r8
         END IF
       END DO
-      CALL mp_collect (ng, iNLM, Nfish(ng), Fspv, Fwrk)
-      DO l=1,Nfish(ng)
+      CALL mp_collect (ng, iNLM, Nships(ng), Fspv, Fwrk)
+      DO l=1,Nships(ng)
         IF (Fwrk(l).ne.Fspv) THEN
           bounded(l)=.TRUE.
         ELSE
@@ -1001,6 +982,6 @@
       END DO
 # endif
       RETURN
-      END SUBROUTINE step_fish_tile
+      END SUBROUTINE step_ships_tile
 #endif
-      END MODULE step_fish_mod
+      END MODULE step_ships_mod
