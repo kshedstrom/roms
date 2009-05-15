@@ -49,6 +49,7 @@
 !  REPname     Input/output representer coefficients file name.        !
 !  Rerror      Running error messages.                                 !
 !  RSTname     Output restart file name.                               !
+!  SHIPname    Output ship file name.                                  !
 !  SSHname     Input SSH observations file name.                       !
 !  SSTname     Input SST observations file name.                       !
 !  TIDEname    Input tide forcing file name.                           !
@@ -145,6 +146,7 @@
         character (len=fname_len), dimension(Ngrids) :: MODname
         character (len=fname_len), dimension(Ngrids) :: OBSname
         character (len=fname_len), dimension(Ngrids) :: REPname
+        character (len=fname_len), dimension(Ngrids) :: SHIPname
         character (len=fname_len), dimension(Ngrids) :: SSHname
         character (len=fname_len), dimension(Ngrids) :: SSTname
         character (len=fname_len), dimension(Ngrids) :: TIDEname
