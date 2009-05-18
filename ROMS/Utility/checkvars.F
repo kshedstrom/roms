@@ -2,7 +2,7 @@
       SUBROUTINE checkvars (ng, model, ncname, string, Nrec, Nvar,      &
      &                      tvarnam, get_var, have_var)
 !
-!svn $Id: checkvars.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: checkvars.F 976 2009-05-18 21:57:59Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -188,9 +188,11 @@
 #  endif
 # endif 
 # if defined SEDIMENT || defined BBL_MODEL
+#  ifndef ANA_SEDIMENT
         DO itrc=1,MBOTP
           get_var(idBott(itrc))=.TRUE.
         END DO
+#  endif
 # endif
 # ifdef ICE_MODEL
         get_var(idUice)=.true.

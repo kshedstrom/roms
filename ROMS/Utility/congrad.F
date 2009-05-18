@@ -4,7 +4,7 @@
       SUBROUTINE congrad (ng, model, outLoop, innLoop, NinnLoop,        &
      &                    Lcgini)
 !
-!svn $Id: congrad.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: congrad.F 976 2009-05-18 21:57:59Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
@@ -195,7 +195,7 @@
               cg_pxsave(iobs)=0.0_r8
             END DO
 
-# if defined TL_W4DPSAS          || defined TL_W4DPSAS || \
+# if defined W4DPSAS             || defined TL_W4DPSAS || \
      defined W4DPSAS_SENSITIVITY
 !
 !  If this is the first outer-loop, save NLmodVal in BCKmodVal.
@@ -214,7 +214,7 @@
 !  observation error standard deviations (i.e. sqrt(ObsErr)).
 !
             DO iobs=1,Ndatum(ng)
-# if defined TL_W4DPSAS          || defined TL_W4DPSAS || \
+# if defined W4DPSAS             || defined TL_W4DPSAS || \
      defined W4DPSAS_SENSITIVITY
               pgrad(iobs)=-ObsScale(iobs)*                              &
      &                    (ObsVal(iobs)-BCKmodVal(iobs))
@@ -293,7 +293,7 @@
 !
               DO iobs=1,Ndatum(ng)
                 ADmodVal(iobs)=cg_pxsave(iobs)
-# if defined TL_W4DPSAS          || defined TL_W4DPSAS || \
+# if defined W4DPSAS             || defined TL_W4DPSAS || \
      defined W4DPSAS_SENSITIVITY
                 cg_innov(iobs)=-ObsScale(iobs)*                         &
      &                         (ObsVal(iobs)-BCKmodVal(iobs))

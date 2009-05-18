@@ -2,7 +2,7 @@
 
       MODULE v2dbc_mod
 !
-!svn $Id: v2dbc_im.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: v2dbc_im.F 976 2009-05-18 21:57:59Z kate $
 !=======================================================================
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -866,7 +866,6 @@
      &                                   vbar(Iend  ,Jend+1,kout))
       END IF
 #endif
-      RETURN
 
 #if defined WET_DRY
 !
@@ -953,6 +952,8 @@
       END IF
 # endif
 #endif
+
+      RETURN
 
       END SUBROUTINE v2dbc_tile
       END MODULE v2dbc_mod

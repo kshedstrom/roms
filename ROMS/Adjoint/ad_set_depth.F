@@ -2,7 +2,7 @@
       MODULE ad_set_depth_mod
 #if defined ADJOINT && defined SOLVE3D
 !
-!svn $Id: ad_set_depth.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: ad_set_depth.F 976 2009-05-18 21:57:59Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
@@ -359,7 +359,7 @@
 # ifdef ICESHELF
               hwater=hwater-ABS(zice(i,j))
 # endif
-              hinv=1.0_r8/hwater
+              hinv=1.0_r8/(hc(ng)+hwater)
               cff2_r=(cff_r+cff1_r*hwater)*hinv
               cff2_w=(cff_w+cff1_w*hwater)*hinv
 !>            tl_Hz(i,j,k)=tl_z_w(i,j,k)-tl_z_w(i,j,k-1)

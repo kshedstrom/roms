@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       SUBROUTINE checkdefs
 !
-!svn $Id: checkdefs.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: checkdefs.F 976 2009-05-18 21:57:59Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -90,19 +90,25 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+9)=' ADJOINT,'
 #endif
-#if defined ADJUST_BOUNDARY && defined IS4DVAR
+#if defined ADJUST_BOUNDARY && \
+   (defined IS4DVAR         || defined SENSITIVITY_4DVAR || \
+    defined W4DPSAS         || defined W4DVAR)
       IF (Master) WRITE (stdout,20) 'ADJUST_BOUNDARY',                  &
      &   'Including boundary conditions in 4DVar state estimation.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+17)=' ADJUST_BOUNDARY,'
 #endif
-#if defined ADJUST_STFLUX && defined IS4DVAR
+#if defined ADJUST_STFLUX && \
+   (defined IS4DVAR       || defined SENSITIVITY_4DVAR || \
+    defined W4DPSAS       || defined W4DVAR)
       IF (Master) WRITE (stdout,20) 'ADJUST_STFLUX',                    &
      &   'Including surface tracer flux in 4DVar state estimation.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+15)=' ADJUST_STFLUX,'
 #endif
-#if defined ADJUST_WSTRESS && defined IS4DVAR
+#if defined ADJUST_WSTRESS && \
+   (defined IS4DVAR        || defined SENSITIVITY_4DVAR || \
+    defined W4DPSAS        || defined W4DVAR)
       IF (Master) WRITE (stdout,20) 'ADJUST_WSTRESS',                   &
      &   'Including surface wind stress in 4DVar state estimation.'
       is=LEN_TRIM(Coptions)+1
@@ -301,7 +307,7 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+10)=' ANA_RDRG,'
 #endif
-#if defined SEDIMENT && defined ANA_SEDIMENT
+#if defined ANA_SEDIMENT && (defined SEDIMENT || defined BBL_MODEL)
       IF (Master) WRITE (stdout,20) 'ANA_SEDIMENT',                     &
      &   'Analytical sediment initial conditions.'
       is=LEN_TRIM(Coptions)+1

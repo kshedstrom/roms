@@ -2,7 +2,7 @@
 #undef KATE_FOO
       SUBROUTINE inp_par (model)
 !
-!svn $Id: inp_par.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: inp_par.F 976 2009-05-18 21:57:59Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -4697,7 +4697,7 @@
      &            'Zooplankton maximum growth rate (day-1).'
             WRITE (out,100) ZooMin(ng), 'ZooMin',                       &
      &            'Zooplankton minimum threshold (mmol_N/m3).'
-            WRITE (out,100) ZooER(ng), 'ZooMR',                         &
+            WRITE (out,100) ZooMR(ng), 'ZooMR',                         &
      &            'Zooplankton mortality rate (day-1).'
             WRITE (out,100) LDeRRN(ng), 'LDeRRN',                       &
      &            'Large detritus N re-mineralization rate (day-1).'

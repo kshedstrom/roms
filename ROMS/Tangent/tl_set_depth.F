@@ -2,7 +2,7 @@
       MODULE tl_set_depth_mod
 #ifdef TANGENT
 !
-!svn $Id: tl_set_depth.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: tl_set_depth.F 976 2009-05-18 21:57:59Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
@@ -207,7 +207,7 @@
               hwater=hwater-ABS(zice(i,j))
 #  endif
               tl_hwater=tl_h(i,j)
-              hinv=1.0_r8/(hc(ng)+hwater)
+              hinv=1.0_r8/hwater
               tl_hinv=-hinv*hinv*tl_hwater
 
               z_w0=cff_w+cff1_w*hwater
@@ -280,7 +280,7 @@
               hwater=hwater-ABS(zice(i,j))
 #  endif
               tl_hwater=tl_h(i,j)
-              hinv=1.0_r8/hwater
+              hinv=1.0_r8/(hc(ng)+hwater)
               tl_hinv=-hinv*hinv*tl_hwater
 
               cff2_w=(cff_w+cff1_w*hwater)*hinv

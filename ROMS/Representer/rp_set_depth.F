@@ -2,7 +2,7 @@
       MODULE rp_set_depth_mod
 #ifdef TL_IOMS
 !
-!svn $Id: rp_set_depth.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: rp_set_depth.F 976 2009-05-18 21:57:59Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
@@ -296,7 +296,7 @@
               hwater=hwater-ABS(zice(i,j))
 #  endif
               tl_hwater=tl_h(i,j)
-              hinv=1.0_r8/hwater
+              hinv=1.0_r8/(hc(ng)+hwater)
 #  if defined SEDIMENT_NOT_YET && defined SED_MORPH_NOT_YET
               tl_hinv=-hinv*hinv*tl_hwater+                             &
 #   ifdef TL_IOMS
