@@ -330,10 +330,9 @@
 #   endif
 # endif
 !------------------------------------------------------------------
-# if defined BIO_FENNEL
+# if defined BIO_FASHAM
 !
-!  Number of tracers for Fennel et al. (2006), Nitrogen-based biological
-!  model.
+!  Number of tracers for Fasham-type, Nitrogen-based biological model.
 !
 #  ifdef CARBON
 #    ifdef OXYGEN
@@ -346,23 +345,6 @@
         integer, parameter :: NBT = 8
 #    else
         integer, parameter :: NBT = 7
-#    endif
-#  endif
-# elif defined BIO_UMaine
-!
-!  Number of tracers for UMaine CoSiNE ecosystem model.
-!
-#  ifdef CARBON
-#    ifdef OXYGEN
-        integer, parameter :: NBT = 13
-#    else
-        integer, parameter :: NBT = 12
-#    endif
-#  else
-#    ifdef OXYGEN
-        integer, parameter :: NBT = 11
-#    else
-        integer, parameter :: NBT = 10
 #    endif
 #  endif
 # elif defined BIO_LIMADONEY
@@ -508,7 +490,7 @@
         integer :: NDM3d                  ! 3D momentum
 !
 !  Number of diagnostic biology fields.  Currenly, only available for
-!  the Fennel model.
+!  the Fasham model.
 !
         integer :: NDbio2d                ! 2D fields
         integer :: NDbio3d                ! 3D fields
@@ -694,7 +676,7 @@
         NDrhs=0
 #  endif
 # endif
-# if defined BIO_FENNEL && defined DIAGNOSTICS_BIO
+# if defined BIO_FASHAM && defined DIAGNOSTICS_BIO
 !
 !  Source and sink biology diagnostic terms.
 !

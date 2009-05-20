@@ -354,11 +354,7 @@
 !  4DVar minimization.
 !
 #  if defined IS4DVAR
-        IF (inner.ne.0) THEN
-          get_adjust=.TRUE.
-        ELSE
-          get_adjust=.FALSE.
-        END IF
+        get_adjust=.TRUE.        
 #  else
         IF (inner.ne.0) THEN
           get_adjust=.TRUE.
@@ -496,7 +492,7 @@
           END IF
         END IF
 
-# if !(defined W4DPSAS || defined TL_W4DPSAS) && defined ADJUST_BOUNDARY
+# if !defined W4DPSAS && defined ADJUST_BOUNDARY
 !
 !  Read in free-surface open boundaries.
 !
@@ -604,7 +600,7 @@
           END IF
         END IF
 
-# if !(defined W4DPSAS || defined TL_W4DPSAS) && defined ADJUST_BOUNDARY
+# if !defined W4DPSAS && defined ADJUST_BOUNDARY
 !
 !  Read in 2D U-momentum component open boundaries.
 !
@@ -712,7 +708,7 @@
           END IF
         END IF
 
-# if !(defined W4DPSAS || defined TL_W4DPSAS) && defined ADJUST_BOUNDARY
+# if !defined W4DPSAS && defined ADJUST_BOUNDARY
 !
 !  Read in 2D V-momentum component open boundaries.
 !
@@ -774,7 +770,7 @@
           END IF
         END IF
 
-# if !(defined W4DPSAS || defined TL_W4DPSAS) && defined ADJUST_WSTRESS
+# if !defined W4DPSAS && defined ADJUST_WSTRESS
 !
 !  Read in surface U-momentum stress.
 !
@@ -882,7 +878,7 @@
           END IF
         END IF
 
-#  if !(defined W4DPSAS || defined TL_W4DPSAS) && defined ADJUST_BOUNDARY
+#  if !defined W4DPSAS && defined ADJUST_BOUNDARY
 !
 !  Read in 3D U-momentum component open boundaries.
 !
@@ -986,7 +982,7 @@
           END IF
         END IF
 
-#  if !(defined W4DPSAS || defined TL_W4DPSAS) && defined ADJUST_BOUNDARY
+#  if !defined W4DPSAS && defined ADJUST_BOUNDARY
 !
 !  Read in 3D V-momentum component open boundaries.
 !
@@ -1093,7 +1089,7 @@
           END IF
         END DO
 
-#  if !(defined W4DPSAS || defined TL_W4DPSAS) && defined ADJUST_BOUNDARY
+#  if !defined W4DPSAS && defined ADJUST_BOUNDARY
 !
 !  Read in 3D tracers open boundaries.
 !
@@ -1126,7 +1122,7 @@
           END IF
         END DO
 #  endif
-#  if !(defined W4DPSAS || defined TL_W4DPSAS) && defined ADJUST_STFLUX
+#  if !defined W4DPSAS && defined ADJUST_STFLUX
 !
 !  Read in surface tracers flux.
 !
@@ -3129,6 +3125,7 @@
 !
         IF (get_var(idSbry(isUbar)).and.                                &
      &        ANY(Lobc(:,isUbar,ng))) THEN
+
           ifield=idSbry(isUbar)
           foundit=find_string(var_name, n_var, TRIM(Vname(1,ifield)),   &
      &                        varid)
@@ -4928,8 +4925,8 @@
       END IF FRC_STATE
 #endif
 
-#if (defined W4DPSAS || defined TL_W4DPSAS)     && \
-    (defined BOUNDARY || defined ADJUST_WSTRESS || defined ADJUST_STFLUX)
+#if defined W4DPSAS && \
+   (defined BOUNDARY || defined ADJUST_WSTRESS || defined ADJUST_STFLUX)
 !
 !-----------------------------------------------------------------------
 !  Read in tangent linear forcing corrections.

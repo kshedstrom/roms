@@ -594,7 +594,7 @@
 #ifdef RDRG_GRID
           cff1=0.5_r8*(rdrg_grid(i,j)+rdrg_grid(i-1,j))
 #else
-          cff1=rdrg2(ng)
+          cff1=rdrg(ng)
 #endif
 #ifdef DRAG_LIMITER
           cff1 = min((cff3*0.5*(Hz(i,j,1)+Hz(i-1,j,1))/(cff2*dt(ng))),  &
@@ -613,7 +613,7 @@
 #ifdef RDRG_GRID
           cff1=0.5_r8*(rdrg_grid(i,j)+rdrg_grid(i,j-1))
 #else
-          cff1=rdrg2(ng)
+          cff1=rdrg(ng)
 #endif
 #ifdef DRAG_LIMITER
           cff1 = min((cff3*0.5*(Hz(i,j,1)+Hz(i,j-1,1))/(cff2*dt(ng))),  &

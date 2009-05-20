@@ -43,7 +43,7 @@
 !
       logical :: got_var(NV)
 
-      integer, parameter :: Natt = 25
+      integer, parameter :: Natt = 24
 
       integer :: i, itrc, j, model, nvd3, nvd4
       integer :: recdim, status

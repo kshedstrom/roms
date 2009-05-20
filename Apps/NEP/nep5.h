@@ -24,6 +24,7 @@
 #define SOLVE3D
 #define SALINITY
 #ifdef SOLVE3D
+# undef VERT_STRETCH
 # undef SPLINES
 #endif
 #undef FLOATS
@@ -180,10 +181,11 @@
 # undef RAMP_TIDES
 # define TIDES_ASTRO
 # define POT_TIDES
-# undef UV_LDRAG
-# undef RDRG_GRID
+
+# define UV_LDRAG
+# define RDRG_GRID
 # define DRAG_LIMITER
-# define UV_QDRAG
+# undef UV_QDRAG
 #else
 # define UV_QDRAG
 #endif

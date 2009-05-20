@@ -67,7 +67,7 @@
 !
       integer :: i, is, itrc, j, k
 
-#if defined BIO_FENNEL || defined NEMURO
+#if defined BIO_FASHAM || defined NEMURO
       real(r8) :: SiO4, cff1, cff2, temp
 #elif defined ECOSIM
       real(r8) :: cff1, cff2, cff3, cff4, cff5, cff6, cff7, cff8, cff9
@@ -77,10 +77,10 @@
 
 #include "set_bounds.h"
 
-#if defined BIO_FENNEL
+#if defined BIO_FASHAM
 !
 !-----------------------------------------------------------------------
-!  Fennel et al. (2006) nitrogen-based biology model.
+!  Fasham type, nitrogen-based biology model.
 !-----------------------------------------------------------------------
 !
       cff1=20.0_r8/3.0_r8

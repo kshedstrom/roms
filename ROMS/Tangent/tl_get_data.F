@@ -170,22 +170,6 @@
 #  endif
 # endif
 
-# if !defined ANA_PAIR && (defined BULK_FLUXES || defined ECOSIM || \
-                           defined ATM_PRESS)
-!
-!-----------------------------------------------------------------------
-!  Surface air pressure.
-!-----------------------------------------------------------------------
-!
-      CALL get_2dfld (ng, iTLM, idPair, ncFRCid(idPair,ng),             &
-     &                nFfiles(ng), FRCname(1,ng), update(1),            &
-     &                LBi, UBi, LBj, UBj, 2, 1,                         &
-#  ifdef MASKING
-     &                GRID(ng) % rmask(LBi,LBj),                        &
-#  endif
-     &                FORCES(ng) % PairG(LBi,LBj,1))
-# endif
-
 # if !defined ANA_WWAVE && defined WAVE_DATA
 !
 !-----------------------------------------------------------------------
@@ -326,6 +310,22 @@
      &                GRID(ng) % rmask(LBi,LBj),                        &
 #   endif
      &                FORCES(ng) % lrflxG(LBi,LBj,1))
+#  endif
+
+#  if !defined ANA_PAIR && (defined BULK_FLUXES || defined ECOSIM || \
+                            defined ATM_PRESS)
+!
+!-----------------------------------------------------------------------
+!  Surface air pressure.
+!-----------------------------------------------------------------------
+!
+      CALL get_2dfld (ng, iTLM, idPair, ncFRCid(idPair,ng),             &
+     &                nFfiles(ng), FRCname(1,ng), update(1),            &
+     &                LBi, UBi, LBj, UBj, 2, 1,                         &
+#   ifdef MASKING
+     &                GRID(ng) % rmask(LBi,LBj),                        &
+#   endif
+     &                FORCES(ng) % PairG(LBi,LBj,1))
 #  endif
 
 #  if !defined ANA_TAIR && \

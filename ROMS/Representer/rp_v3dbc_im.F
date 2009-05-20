@@ -93,7 +93,7 @@
 !
       IF (SOUTHERN_EDGE) THEN
 
-#  if defined SOUTH_M3RADIATION_NOT_YET
+#  if defined SOUTH_M3RADIATION
 
         IF (iic(ng).ne.0) THEN
 !
@@ -212,7 +212,7 @@
 !
        IF (NORTHERN_EDGE) THEN
 
-#  if defined NORTH_M3RADIATION_NOT_YET
+#  if defined NORTH_M3RADIATION
 
          IF (iic(ng).ne.0) THEN
 !
@@ -333,7 +333,7 @@
 !
       IF (WESTERN_EDGE) THEN
 
-#  if defined WEST_M3RADIATION_NOT_YET
+#  if defined WEST_M3RADIATION
 
         IF (iic(ng).ne.0) THEN
 !
@@ -466,7 +466,7 @@
 !
       IF (EASTERN_EDGE) THEN
 
-#  if defined EAST_M3RADIATION_NOT_YET
+#  if defined EAST_M3RADIATION
 
         IF (iic(ng).ne.0) THEN
 !

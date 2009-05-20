@@ -12,10 +12,6 @@
 !  This routine computes the time evolving depths of the model grid    !
 !  and its associated vertical transformation metric (thickness).      !
 !                                                                      !
-!  Currently, two vertical coordinate transformations are available    !
-!  with various possible vertical stretching, C(s), functions, (see    !
-!  routine "set_scoord.F" for details).                                !
-!                                                                      !
 !=======================================================================
 !
       implicit none
@@ -137,164 +133,110 @@
 # endif
       integer :: i, j, k
 
-      real(r8) :: cff_r, cff1_r, cff2_r, cff_w, cff1_w, cff2_w
+      real(r8) :: cff_r, cff1_r, cff_w, cff1_w
       real(r8) :: hinv, hwater, z_r0, z_w0
 # ifdef WET_DRY
       real(r8), parameter :: eps = 1.0E-14_r8
 # endif
 
+# if defined VERT_STRETCH
      real(r8) :: C2_r, C2_w, vert_s0, vert_a, vert_h0, vert_n1, hh2
+# endif
+
 
 # include "set_bounds.h"
 !
 !-----------------------------------------------------------------------
-!  Original formulation: Compute vertical depths (meters, negative) at
-!                        RHO- and W-points, and vertical grid
-!  thicknesses. Various stretching functions are possible.
-!
-!         z_w(x,y,s,t) = Zo_w + zeta(x,y,t) * [1.0 + Zo_w / h(x,y)]
-!
-!                 Zo_w = hc * [s(k) - C(k)] + C(k) * h(x,y)
-!
+!  Compute time evolving depths and vertical thicknesses.
 !-----------------------------------------------------------------------
 !
-      IF (Vtransform(ng).eq.3) THEN
-        vert_s0 = 90./120.
-        vert_n1 = 2./3. !3./5.	  
-        vert_h0 = 60./(vert_s0)**(vert_n1)
-        vert_a = 1./(vert_s0-1)
-      END IF
+!  Compute vertical depths (meters, negative) at RHO- and W-points,
+!  and vertical grid thicknesses.
+!
+# if defined VERT_STRETCH 
+       vert_s0 = 90./120.
+       vert_n1 = 2./3. !3./5.	  
+       vert_h0 = 60./(vert_s0)**(vert_n1)
+       vert_a = 1./(vert_s0-1)
+# endif
 
-      IF (Vtransform(ng).eq.1) THEN
-        DO j=JstrR,JendR
-          DO i=IstrR,IendR
+      DO j=JstrR,JendR
+        DO i=IstrR,IendR
 # if defined SEDIMENT && defined SED_MORPH
-            h(i,j)=h(i,j)-bed_thick(i,j,nstp)+bed_thick(i,j,nnew)
+          h(i,j)=h(i,j)-bed_thick(i,j,nstp)+bed_thick(i,j,nnew)
 # endif
 # if defined WET_DRY
-            IF (h(i,j).eq.0.0_r8) THEN
-              h(i,j)=eps
-            END IF
+          IF (h(i,j).eq.0.0_r8) THEN
+            h(i,j)=eps
+          END IF
 # endif
-            z_w(i,j,0)=-h(i,j)
-          END DO
-          DO k=1,N(ng)
-            cff_r=hc(ng)*(SCALARS(ng)%sc_r(k)-SCALARS(ng)%Cs_r(k))
-            cff_w=hc(ng)*(SCALARS(ng)%sc_w(k)-SCALARS(ng)%Cs_w(k))
-            cff1_r=SCALARS(ng)%Cs_r(k)
-            cff1_w=SCALARS(ng)%Cs_w(k)
-            DO i=IstrR,IendR
-              hwater=h(i,j)
-# ifdef ICESHELF
-              hwater=hwater-ABS(zice(i,j))
-# endif
-              hinv=1.0_r8/hwater
+          z_w(i,j,0)=-h(i,j)
+        END DO
+
+        DO k=1,N(ng)
+# if defined VERT_STRETCH
+          DO i=IstrR,IendR
+            hwater=h(i,j)
+            hinv=1.0_r8/hwater
+
+            hh2=(min(vert_h0,hwater))*hinv
+            IF (SCALARS(ng)%sc_w(k).gt.-vert_s0) THEN 
+              C2_w=-hh2*(-SCALARS(ng)%sc_w(k))**(vert_n1) 
+              C2_r=-hh2*(-SCALARS(ng)%sc_r(k))**(vert_n1)
+
+              cff_w=hc(ng)*(SCALARS(ng)%sc_w(k)-C2_w)
+              cff1_w=C2_w
+              cff_r=hc(ng)*(SCALARS(ng)%sc_r(k)-C2_r)
+              cff1_r=C2_r
+
               z_w0=cff_w+cff1_w*hwater
               z_w(i,j,k)=z_w0+Zt_avg1(i,j)*(1.0_r8+z_w0*hinv)
               z_r0=cff_r+cff1_r*hwater
               z_r(i,j,k)=z_r0+Zt_avg1(i,j)*(1.0_r8+z_r0*hinv)
-# ifdef ICESHELF
-              z_w(i,j,k)=z_w(i,j,k)-ABS(zice(i,j))
-              z_r(i,j,k)=z_r(i,j,k)-ABS(zice(i,j))
-# endif
-              Hz(i,j,k)=z_w(i,j,k)-z_w(i,j,k-1)
-            END DO
-          END DO
-        END DO
-
-      ELSE IF (Vtransform(ng).eq.3) THEN
-        DO j=JstrR,JendR
-          DO k=1,N(ng)
-            DO i=IstrR,IendR
-              hwater=h(i,j)
-              hinv=1.0_r8/hwater
-
-              hh2=(min(vert_h0,hwater))*hinv
-              IF (SCALARS(ng)%sc_w(k).gt.-vert_s0) THEN 
-                C2_w=-hh2*(-SCALARS(ng)%sc_w(k))**(vert_n1) 
-                C2_r=-hh2*(-SCALARS(ng)%sc_r(k))**(vert_n1)
-  
-                cff_w=hc(ng)*(SCALARS(ng)%sc_w(k)-C2_w)
-                cff1_w=C2_w
-                cff_r=hc(ng)*(SCALARS(ng)%sc_r(k)-C2_r)
-                cff1_r=C2_r
-  
-                z_w0=cff_w+cff1_w*hwater
-                z_w(i,j,k)=z_w0+Zt_avg1(i,j)*(1.0_r8+z_w0*hinv)
-                z_r0=cff_r+cff1_r*hwater
-                z_r(i,j,k)=z_r0+Zt_avg1(i,j)*(1.0_r8+z_r0*hinv)
-              ELSE
-                C2_w=-hh2*(-SCALARS(ng)%sc_w(k))**(vert_n1)             &
+            else
+              C2_w=-hh2*(-SCALARS(ng)%sc_w(k))**(vert_n1)               &
      &               -(1-hh2)*(vert_a*(SCALARS(ng)%sc_w(k)+vert_s0))**2
-                C2_r=-hh2*(-SCALARS(ng)%sc_r(k))**(vert_n1)             &
+              C2_r=-hh2*(-SCALARS(ng)%sc_r(k))**(vert_n1)               &
      &               -(1-hh2)*(vert_a*(SCALARS(ng)%sc_r(k)+vert_s0))**2
 
-                cff_w=hc(ng)*(SCALARS(ng)%sc_w(k)-C2_w)
-                cff1_w=C2_w
-                cff_r=hc(ng)*(SCALARS(ng)%sc_r(k)-C2_r)
-                cff1_r=C2_r
+              cff_w=hc(ng)*(SCALARS(ng)%sc_w(k)-C2_w)
+              cff1_w=C2_w
+              cff_r=hc(ng)*(SCALARS(ng)%sc_r(k)-C2_r)
+              cff1_r=C2_r
 
-                z_w0=cff_w+cff1_w*hwater
-                z_w(i,j,k)=z_w0+Zt_avg1(i,j)*(1.0_r8+z_w0*hinv)
-                z_r0=cff_r+cff1_r*hwater
-                z_r(i,j,k)=z_r0+Zt_avg1(i,j)*(1.0_r8+z_r0*hinv)
+              z_w0=cff_w+cff1_w*hwater
+              z_w(i,j,k)=z_w0+Zt_avg1(i,j)*(1.0_r8+z_w0*hinv)
+              z_r0=cff_r+cff1_r*hwater
+              z_r(i,j,k)=z_r0+Zt_avg1(i,j)*(1.0_r8+z_r0*hinv)
 
-              END IF
-              Hz(i,j,k)=z_w(i,j,k)-z_w(i,j,k-1)
-            END DO
-          END DO
-        END DO
-!
-!-----------------------------------------------------------------------
-!  New formulation: Compute vertical depths (meters, negative) at
-!                   RHO- and W-points, and vertical grid thicknesses.
-!  Various stretching functions are possible.
-!
-!         z_w(x,y,s,t) = zeta(x,y,t) + [zeta(x,y,t)+ h(x,y)] * Zo_w
-!
-!                 Zo_w = [hc * s(k) + C(k) * h(x,y)] / [hc + h(x,y)]
-!
-!-----------------------------------------------------------------------
-!
-      ELSE IF (Vtransform(ng).eq.2) THEN
-        DO j=JstrR,JendR
-          DO i=IstrR,IendR
-# if defined SEDIMENT && defined SED_MORPH
-            h(i,j)=h(i,j)-bed_thick(i,j,nstp)+bed_thick(i,j,nnew)
-# endif
-# if defined WET_DRY
-            IF (h(i,j).eq.0.0_r8) THEN
-              h(i,j)=eps
             END IF
-# endif
-            z_w(i,j,0)=-h(i,j)
+            Hz(i,j,k)=z_w(i,j,k)-z_w(i,j,k-1)
           END DO
-          DO k=1,N(ng)
-            cff_r=hc(ng)*SCALARS(ng)%sc_r(k)
-            cff_w=hc(ng)*SCALARS(ng)%sc_w(k)
-            cff1_r=SCALARS(ng)%Cs_r(k)
-            cff1_w=SCALARS(ng)%Cs_w(k)
-            DO i=IstrR,IendR
-              hwater=h(i,j)
-# ifdef ICESHELF
-              hwater=hwater-ABS(zice(i,j))
-# endif
-              hinv=1.0_r8/(hc(ng)+hwater)
-              cff2_r=(cff_r+cff1_r*hwater)*hinv
-              cff2_w=(cff_w+cff1_w*hwater)*hinv
+# else
+          cff_w=hc(ng)*(SCALARS(ng)%sc_w(k)-SCALARS(ng)%Cs_w(k))
+          cff1_w=SCALARS(ng)%Cs_w(k)
+          cff_r=hc(ng)*(SCALARS(ng)%sc_r(k)-SCALARS(ng)%Cs_r(k))
+          cff1_r=SCALARS(ng)%Cs_r(k)
 
-              z_w(i,j,k)=Zt_avg1(i,j)+(Zt_avg1(i,j)+hwater)*cff2_w
-              z_r(i,j,k)=Zt_avg1(i,j)+(Zt_avg1(i,j)+hwater)*cff2_r
-# ifdef ICESHELF
-              z_w(i,j,k)=z_w(i,j,k)-ABS(zice(i,j))
-              z_r(i,j,k)=z_r(i,j,k)-ABS(zice(i,j))
-# endif
-              Hz(i,j,k)=z_w(i,j,k)-z_w(i,j,k-1)
-            END DO
+          DO i=IstrR,IendR
+            hwater=h(i,j)
+#  ifdef ICESHELF
+            hwater=hwater-ABS(zice(i,j))
+#  endif
+            hinv=1.0_r8/hwater
+            z_w0=cff_w+cff1_w*hwater
+            z_w(i,j,k)=z_w0+Zt_avg1(i,j)*(1.0_r8+z_w0*hinv)
+            z_r0=cff_r+cff1_r*hwater
+            z_r(i,j,k)=z_r0+Zt_avg1(i,j)*(1.0_r8+z_r0*hinv)
+#  ifdef ICESHELF
+            z_w(i,j,k)=z_w(i,j,k)-ABS(zice(i,j))
+            z_r(i,j,k)=z_r(i,j,k)-ABS(zice(i,j))
+#  endif
+            Hz(i,j,k)=z_w(i,j,k)-z_w(i,j,k-1)
           END DO
+# endif
         END DO
-      END IF
-
+      END DO
 # if defined EW_PERIODIC || defined NS_PERIODIC || defined DISTRIBUTE
 !
 !-----------------------------------------------------------------------

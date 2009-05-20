@@ -21,8 +21,8 @@
 
       CONTAINS
 
-# if defined BIO_FENNEL
-!!#  include <ad_fennel.h>
+# if defined BIO_FASHAM
+!!#  include <ad_fasham.h>
 # elif defined NEMURO
 !!#  include <ad_nemuro.h>
 # elif defined NPZD_FRANKS

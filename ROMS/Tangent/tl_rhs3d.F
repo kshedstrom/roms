@@ -37,9 +37,6 @@
       USE mod_diags
 # endif
       USE mod_forces
-# if defined W4DVAR_SENSITIVITY && defined RPM_RELAXATION
-      USE mod_fourdvar
-# endif
       USE mod_grid
 # ifdef NEARSHORE_MELLOR
       USE mod_mixing
@@ -59,10 +56,6 @@
 #  ifdef TS_DIF4
       USE tl_t3dmix_mod, ONLY : tl_t3dmix4
 #  endif
-# endif
-# if defined W4DVAR_SENSITIVITY && defined RPM_RELAXATION
-      USE tl_t3drelax_mod, ONLY : tl_t3drelax
-      USE tl_uv3drelax_mod, ONLY : tl_uv3drelax
 # endif
 # ifdef UV_VIS2
       USE tl_uv3dmix_mod, ONLY : tl_uv3dmix2
@@ -108,18 +101,6 @@
 !
       CALL tl_t3dmix4 (ng, tile)
 #  endif
-# endif
-# if defined W4DVAR_SENSITIVITY && defined RPM_RELAXATION
-!
-!-----------------------------------------------------------------------
-!  Improve stability and convergence of the tangent linear representer
-!  model tracer type variables by a "diffusive relaxation" to previous
-!  Picard iteration solution.
-!-----------------------------------------------------------------------
-!
-      IF (LweakRelax(ng)) THEN
-        CALL tl_t3drelax (ng, tile)
-      END IF
 # endif
 !
 !-----------------------------------------------------------------------
@@ -220,18 +201,6 @@
 !-----------------------------------------------------------------------
 !
       CALL tl_uv3dmix4 (ng, tile)
-# endif
-# if defined W4DVAR_SENSITIVITY && defined RPM_RELAXATION
-!
-!-----------------------------------------------------------------------
-!  Improve stability and convergence of the tangent linear representer
-!  model 3D momentum by a "diffusive relaxation" to previous Picard
-!  iteration solution.
-!-----------------------------------------------------------------------
-!
-      IF (LweakRelax(ng)) THEN
-        CALL tl_uv3drelax (ng, tile)
-      END IF
 # endif
       RETURN
       END SUBROUTINE tl_rhs3d

@@ -1,8 +1,7 @@
 #include "cppdefs.h"
       MODULE rp_obc_adjust_mod
 
-#if defined ADJUST_STFLUX   || defined ADJUST_WSTRESS || \
-    defined ADJUST_BOUNDARY
+#if defined ADJUST_STFLUX || defined ADJUST_WSTRESS
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===

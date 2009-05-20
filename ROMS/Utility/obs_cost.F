@@ -10,8 +10,7 @@
 !=======================================================================
 
 # if defined WEAK_CONSTRAINT || defined IOM
-#  if defined IOM    || defined TL_W4DVAR          || \
-      defined W4DVAR || defined W4DVAR_SENSITIVITY
+#  if defined W4DVAR || defined IOM
 !                                                                      !
 !  This routine computes the data penalty function directly in during  !
 !  runs of the representer model:                                      !
@@ -74,9 +73,7 @@
       real(r8) ::  cff, cff1
 
       real(r8), dimension(0:NstateVar(ng)) :: my_ObsCost
-# if defined DATALESS_LOOPS && \
-    (defined IOM            || defined TL_W4DVAR           || \
-     defined W4DVAR         || defined W4DVAR_SENSITIVITY)
+# if (defined W4DVAR || defined IOM) && defined DATALESS_LOOPS
       real(r8), dimension(0:NstateVar(ng)) :: my_ObsCost1
 # endif
 !
@@ -84,8 +81,7 @@
 !  Compute observation misfit cost function (ObsCost).
 !-----------------------------------------------------------------------
 
-# if defined IOM    || defined TL_W4DVAR          || \
-     defined W4DVAR || defined W4DVAR_SENSITIVITY
+# if defined W4DVAR || defined IOM
 !
 !  Compute data penalty function.
 !
@@ -115,8 +111,7 @@
         END DO
       END IF
 
-# elif defined TL_W4DPSAS          || defined W4DPSAS || \
-       defined W4DPSAS_SENSITIVITY
+# elif defined W4DPSAS
 !
 !  Compute nonlinear model data penalty function.
 !
@@ -177,8 +172,7 @@
       tile_count=tile_count+1
       IF (tile_count.eq.NSUB) THEN
         tile_count=0
-# if defined IOM    || defined TL_W4DVAR          || \
-     defined W4DVAR || defined W4DVAR_SENSITIVITY
+# if defined W4DVAR || defined IOM
         IF (model.eq.iRPM) THEN
           DO ivar=0,NstateVar(ng)
             FOURDVAR(ng)%DataPenalty(ivar)=my_ObsCost(ivar)+            &
@@ -189,8 +183,7 @@
 #  endif
           END DO
         END IF
-# elif defined TL_W4DPSAS          || defined W4DPSAS || \
-       defined W4DPSAS_SENSITIVITY
+# elif defined W4DPSAS
         IF (model.eq.iNLM) THEN
           DO ivar=0,NstateVar(ng)
             FOURDVAR(ng)%NLPenalty(ivar)=my_ObsCost(ivar)+              &

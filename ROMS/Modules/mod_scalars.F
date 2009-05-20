@@ -85,7 +85,7 @@
         integer :: iZoop              ! Zooplankton concentration
         integer :: iSDet              ! Small detritus concentration
 #endif
-#ifdef BIO_FENNEL
+#ifdef BIO_FASHAM
         integer, pointer :: idbio(:)  ! Biological tracers
         integer :: iNO3_              ! Nitrate concentration
         integer :: iNH4_              ! Ammonium concentration
@@ -102,26 +102,6 @@
 #  endif
 #  ifdef OXYGEN
         integer :: iOxyg              ! Dissolved oxygen concentration
-#  endif
-#endif
-#ifdef BIO_UMaine
-        integer, pointer :: idbio(:)  ! Biological tracers
-        integer :: iNO3_              ! Nitrate concentration
-        integer :: iNH4_              ! Ammonium concentration
-        integer :: iSiOH              ! Silicate concentration
-        integer :: iSphy              ! Samll phytoplankton
-        integer :: iLphy              ! Diatom concentration
-        integer :: iSzoo              ! Small zooplankotn concentration
-        integer :: iLzoo              ! Mesozooplankotn concentration
-        integer :: iSDet              ! Detritus notrogen concentration
-        integer :: iopal              ! Biogenic silicate concentration
-        integer :: iPO4_              ! Phosphate concentration
-#  ifdef OXYGEN
-        integer :: iOxyg              ! Dissolved oxygen concentration
-#  endif
-#  ifdef CARBON
-        integer :: iTIC_              ! Total inorganic carbon
-        integer :: iTAlk              ! Total alkalinity
 #  endif
 #endif
 #ifdef BIO_LIMADONEY
@@ -426,9 +406,6 @@
         integer :: Nrun = 1                     ! Current counter
         integer :: inner = 0                    ! inner loop counter
         integer :: outer = 0                    ! outer loop counter
-# ifdef SENSITIVITY_4DVAR
-        integer :: NrunSAVE = 0                 ! Loop counter
-# endif
 !
 !  First, starting, and ending timestepping parameters
 !
@@ -550,32 +527,7 @@
         integer, dimension(Ngrids) :: levsfrc
         integer, dimension(Ngrids) :: levbfrc
 !
-!  Vertical coordinates transform.  Currently, there are two vertical
-!  transformation equations (see set_scoord.F for details):
-!
-!    Original transform (Vtransform=1):
-!
-!         z_r(x,y,s,t) = Zo_r + zeta(x,y,t) * [1.0 + Zo_r / h(x,y)]
-!
-!                 Zo_r = hc * [s(k) - C(k)] + C(k) * h(x,y)
-!
-!    New transform (Vtransform=2):
-!
-!         z_r(x,y,s,t) = zeta(x,y,t) + [zeta(x,y,t)+ h(x,y)] * Zo_r
-!
-!                 Zo_r = [hc * s(k) + C(k) * h(x,y)] / [hc + h(x,y)] 
-!
-        integer :: Vtransform(Ngrids)
-!
-!  Vertical grid stretching function flag:
-!
-!    Vstretcing = 1   Original function (Song and Haidvogel, 1994)
-!               = 2   A. Shchepetkin (ROMS-UCLA) function
-!               = 3   R. Geyer BBL function
-!
-        integer :: Vstretching(Ngrids)
-!
-!  Vertical grid stretching parameters.
+!  Vertical grid parameters.
 !
 !    Tcline        Width (m) of surface or bottom boundary layer in
 !                    which higher vertical resolution is required
@@ -1899,9 +1851,9 @@
         idsed(NCS+i)=isand(i)
       END DO
 #endif
-#if defined BIO_FENNEL
+#if defined BIO_FASHAM
 !
-!  Set Fennel et al (2006) Nitrogen-based biological tracer indices.
+!  Set Fasham Nitrogen-based biological tracer indices.
 !
       DO i=1,NBT
         idbio(i)=ic+i
@@ -1925,33 +1877,6 @@
       iOxyg=ic+1
       ic=ic+1
 # endif 
-#elif defined BIO_UMaine
-!
-!  Set UMaine CoSiNE model biological tracer indices.
-!
-      DO i=1,NBT
-        idbio(i)=ic+i
-      END DO
-      iNO3_=ic+1
-      iNH4_=ic+2
-      iSiOH=ic+3
-      iSphy=ic+4
-      iLphy=ic+5
-      iSzoo=ic+6
-      iLzoo=ic+7
-      iSDet=ic+8
-      iopal=ic+9
-      iPO4_=ic+10
-      ic=ic+10
-# ifdef OXYGEN
-      iOxyg=ic+1
-      ic=ic+1
-# endif 
-# ifdef CARBON
-      iTIC_=ic+1
-      iTAlk=ic+2
-      ic=ic+2
-# endif
 #elif defined BIO_LIMADONEY
 !
 !  Set biological tracer indices.
@@ -2236,8 +2161,6 @@
         ntstart(ng)=1
         ntend(ng)=0
         gamma2(ng)=-1.0_r8
-        Vtransform(ng)=1
-        Vstretching(ng)=1
 #if defined AVERAGES_DETIDE && (defined SSH_TIDES || defined UV_TIDES)
         Hcount(ng)=0
 #endif

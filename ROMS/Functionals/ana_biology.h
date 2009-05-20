@@ -85,7 +85,7 @@
 !
       integer :: i, is, itrc, j, k
 
-#if defined BIO_FENNEL || defined NEMURO || defined BIO_UMaine
+#if defined BIO_FASHAM || defined NEMURO
       real(r8) :: SiO4, cff1, cff2, temp
 #elif defined ECOSIM
       real(r8) :: cff1, cff2, cff3, cff4, cff5, cff6, cff7, cff8, cff9
@@ -104,10 +104,10 @@
 
 #include "set_bounds.h"
 
-#if defined BIO_FENNEL
+#if defined BIO_FASHAM
 !
 !-----------------------------------------------------------------------
-!  Fennel et al. (2006), nitrogen-based biology model.
+!  Fasham type, nitrogen-based biology model.
 !-----------------------------------------------------------------------
 !
       cff1=20.0_r8/3.0_r8
@@ -145,52 +145,6 @@
 #endif
 #ifdef OXYGEN
             t(i,j,k,1,iOxyg)=10.0_r8/0.02241_r8
-#endif
-          END DO
-        END DO
-      END DO
-
-#elif defined BIO_UMaine
-!
-!-----------------------------------------------------------------------
-!  UMaine Carbon, Silicate, Nitrogen Ecosystem (CoSiNE) Model
-!-----------------------------------------------------------------------
-!
-      cff1=20.0_r8/3.0_r8
-      cff2= 2.0_r8/3.0_r8
-      DO k=1,N(ng)
-        DO j=JstrR,JendR
-          DO i=IstrR,IendR
-            temp=t(i,j,k,1,itemp)
-            IF (temp.lt.8.0_r8) THEN
-              SiO4=30.0_r8
-            ELSE IF ((temp.ge.8.0_r8).and.(temp.le.11.0_r8)) THEN
-              SiO4=30.0_r8-((temp-8.0_r8)*cff1)
-            ELSE IF ((temp.gt.11.0_r8).and.(temp.le.13.0_r8)) THEN
-              SiO4=10.0_r8-((temp-11.0_r8)*4.0_r8)
-            ELSE IF ((temp.gt.13.0_r8).and.(temp.le.16.0_r8)) THEN
-              SiO4=2.0_r8-((temp-13.0_r8)*cff2)
-            ELSE IF (temp.gt.16.0_r8) THEN
-              SiO4=0.0_r8
-            END IF
-            t(i,j,k,1,iNO3_)=1.67_r8+0.5873_r8*SiO4+                    &
-     &                               0.0144_r8*SiO4**2+                 &
-     &                               0.0003099_r8*SiO4**3
-            t(i,j,k,1,iSiOH)=1.50_r8*t(i,j,k,1,iNO3_)
-            t(i,j,k,1,iSphy)=0.08_r8
-            t(i,j,k,1,iLphy)=0.08_r8
-            t(i,j,k,1,iSzoo)=0.06_r8
-            t(i,j,k,1,iLzoo)=0.06_r8
-            t(i,j,k,1,iNH4_)=0.1_r8
-            t(i,j,k,1,iSDet)=0.02_r8
-            t(i,j,k,1,iopal)=0.04_r8
-            t(i,j,k,1,iPO4_)=t(i,j,k,1,iNO3_)/16.0_r8
-#ifdef OXYGEN
-            t(i,j,k,1,iOxyg)=10.0_r8/0.02241_r8
-#endif
-#ifdef CARBON
-            t(i,j,k,1,iTIC_)=2100.0_r8
-            t(i,j,k,1,iTAlk)=2350.0_r8
 #endif
           END DO
         END DO

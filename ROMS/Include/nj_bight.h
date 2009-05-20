@@ -124,17 +124,17 @@
 # define SOUTH_VOLCONS
 #endif
 
-#undef  BIO_FENNEL
+#undef  BIO_FASHAM
 #undef  ECOSIM
 
-#ifdef BIO_FENNEL
+#ifdef BIO_FASHAM
 # define CARBON
 # define DENITRIFICATION
 # define BIO_SEDIMENT
 # define DIAGNOSTICS_BIO
 #endif
 
-#if defined BIO_FENNEL || defined ECOSIM
+#if defined BIO_FASHAM || defined ECOSIM
 # define ANA_BIOLOGY
 # define ANA_SPFLUX
 # define ANA_BPFLUX

@@ -2,9 +2,8 @@
       MODULE adsen_initial_mod
 
 #if defined ADJOINT          && \
-   (defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
-    defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR || \
-    defined SO_SEMI)
+   (defined AD_SENSITIVITY   || defined OBS_SENSITIVITY || \
+    defined OPT_OBSERVATIONS || defined SO_SEMI)
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===

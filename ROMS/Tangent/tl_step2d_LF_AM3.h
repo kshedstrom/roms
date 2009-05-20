@@ -116,9 +116,6 @@
 # ifndef SOLVE3D
      &                     FORCES(ng) % tl_bustr,                       &
      &                     FORCES(ng) % tl_bvstr,                       &
-#  ifdef ATM_PRESS
-     &                     FORCES(ng) % Pair,                           &
-#  endif
 # else
 #  ifdef VAR_RHO_2D
      &                     COUPLING(ng) % rhoA,                         &
@@ -218,9 +215,6 @@
 # endif
 # ifndef SOLVE3D
      &                           tl_bustr, tl_bvstr,                    &
-#  ifdef ATM_PRESS
-     &                           Pair,                                  &
-#  endif
 # else
 #  ifdef VAR_RHO_2D
      &                           rhoA, tl_rhoA, rhoS, tl_rhoS,          &
@@ -359,9 +353,6 @@
 #  ifndef SOLVE3D
       real(r8), intent(in) :: tl_bustr(LBi:,LBj:)
       real(r8), intent(in) :: tl_bvstr(LBi:,LBj:)
-#   ifdef ATM_PRESS
-      real(r8), intent(in) :: Pair(LBi:,LBj:)
-#   endif
 #  else
 #   ifdef VAR_RHO_2D
       real(r8), intent(in) :: rhoA(LBi:,LBj:)
@@ -498,9 +489,6 @@
 #  ifndef SOLVE3D
       real(r8), intent(in) :: tl_bustr(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: tl_bvstr(LBi:UBi,LBj:UBj)
-#   ifdef ATM_PRESS
-      real(r8), intent(in) :: Pair(LBi:UBi,LBj:UBj)
-#   endif
 #  else
 #   ifdef VAR_RHO_2D
       real(r8), intent(in) :: rhoA(LBi:UBi,LBj:UBj)
@@ -584,7 +572,7 @@
 # endif
 
       real(r8) :: cff, cff1, cff2, cff3, cff4, cff5, cff6, cff7
-      real(r8) :: fac, fac1, fac2, fac3
+      real(r8) :: fac, fac1, fac2
       real(r8) :: tl_cff, tl_cff1, tl_fac, tl_fac1
 
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: Dgrad
@@ -1288,9 +1276,6 @@
 !
       cff1=0.5_r8*g
       cff2=1.0_r8/3.0_r8
-# if !defined SOLVE3D && defined ATM_PRESS
-      fac3=0.5_r8*100.0_r8/rho0
-# endif
       DO j=Jstr,Jend
         DO i=IstrU,Iend
 !>        rhs_ubar(i,j)=cff1*on_u(i,j)*                                 &
@@ -1344,19 +1329,6 @@
 # endif
      &                      (tl_gzeta2(i-1,j)-                          &
      &                       tl_gzeta2(i  ,j)))
-# if defined ATM_PRESS && !defined SOLVE3D
-!>        rhs_ubar(i,j)=rhs_ubar(i,j)+                                  &
-!>   &                  fac3*on_u(i,j)*                                 &
-!>   &                  (h(i-1,j)+h(i,j)+                               &
-!>   &                   gzeta(i-1,j)+gzeta(i,j))*                      &
-!>   &                  (Pair(i-1,j)-Pair(i,j))
-!>
-          tl_rhs_ubar(i,j)=tl_rhs_ubar(i,j)+                            &
-     &                     fac3*on_u(i,j)*                              &
-     &                     (tl_h(i-1,j)+tl_h(i,j)+                      &
-     &                      tl_gzeta(i-1,j)+tl_gzeta(i,j))*             &
-     &                     (Pair(i-1,j)-Pair(i,j))
-# endif
 # ifdef DIAGNOSTICS_UV
 !!        DiaU2rhs(i,j,M2pgrd)=rhs_ubar(i,j)
 # endif
@@ -1414,19 +1386,6 @@
 # endif
      &                        (tl_gzeta2(i,j-1)-                        &
      &                         tl_gzeta2(i,j  )))
-# if defined ATM_PRESS && !defined SOLVE3D
-!>          rhs_vbar(i,j)=rhs_vbar(i,j)+                                &
-!>   &                    fac3*om_v(i,j)*                               &
-!>   &                    (h(i,j-1)+h(i,j)+                             &
-!>   &                     gzeta(i,j-1)+gzeta(i,j))*                    &
-!>   &                    (Pair(i,j-1)-Pair(i,j))
-!>
-            tl_rhs_vbar(i,j)=tl_rhs_vbar(i,j)+                          &
-     &                       fac3*om_v(i,j)*                            &
-     &                       (tl_h(i,j-1)+tl_h(i,j)+                    &
-     &                        tl_gzeta(i,j-1)+tl_gzeta(i,j))*           &
-     &                       (Pair(i,j-1)-Pair(i,j))
-# endif
 # ifdef DIAGNOSTICS_UV
 !!          DiaV2rhs(i,j,M2pgrd)=rhs_vbar(i,j)
 # endif

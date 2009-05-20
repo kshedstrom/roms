@@ -21,8 +21,8 @@
 
       CONTAINS
 
-# if defined BIO_FENNEL
-#  include <fennel.h>
+# if defined BIO_FASHAM
+#  include <fasham.h>
 # elif defined NEMURO
 #  include <nemuro.h>
 # elif defined NPZD_FRANKS
@@ -31,8 +31,6 @@
 #  include <npzd_Powell.h>
 # elif defined ECOSIM
 #  include <ecosim.h>
-# elif defined BIO_UMaine
-#  include <bio_UMAINE.h>
 # elif defined BIO_GOANPZ
 #  include <goanpz.h>
 # else

@@ -88,10 +88,6 @@ ifdef USE_MCT
              LIBS += -L$(MCT_LIBDIR) -lmct -lmpeu
 endif
 
-ifdef USE_MPI
-           FFLAGS += -I/usr/include
-endif
-
 ifdef USE_ESMF
       ESMF_SUBDIR := $(ESMF_OS).$(ESMF_COMPILER).$(ESMF_ABI).$(ESMF_COMM).$(ESMF_SITE)
       ESMF_MK_DIR ?= $(ESMF_DIR)/lib/lib$(ESMF_BOPT)/$(ESMF_SUBDIR)

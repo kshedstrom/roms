@@ -231,6 +231,22 @@
      &                     update)
 #  endif
 
+#  if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS
+!
+!-----------------------------------------------------------------------
+!  Set surface air pressure (mb).
+!-----------------------------------------------------------------------
+!
+#   ifdef ANA_PAIR
+      CALL ana_pair (ng, tile, iRPM)
+#   else
+      CALL set_2dfld_tile (ng, tile, iRPM, idPair,                      &
+     &                     LBi, UBi, LBj, UBj,                          &
+     &                     FORCES(ng)%PairG,                            &
+     &                     FORCES(ng)%Pair,                             &
+     &                     update)
+#   endif
+#  endif
 #  if defined BULK_FLUXES || defined ECOSIM
 !
 !-----------------------------------------------------------------------
@@ -570,23 +586,6 @@
 #  endif
 # endif
 
-# if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS
-!
-!-----------------------------------------------------------------------
-!  Set surface air pressure (mb).
-!-----------------------------------------------------------------------
-!
-#  ifdef ANA_PAIR
-      CALL ana_pair (ng, tile, iRPM)
-#  else
-      CALL set_2dfld_tile (ng, tile, iRPM, idPair,                      &
-     &                     LBi, UBi, LBj, UBj,                          &
-     &                     FORCES(ng)%PairG,                            &
-     &                     FORCES(ng)%Pair,                             &
-     &                     update)
-#  endif
-# endif
-
 # ifdef WAVE_DATA
 !
 !-----------------------------------------------------------------------
@@ -814,51 +813,6 @@
 #   endif
       END IF
 #  endif
-
-#  if defined WET_DRY
-!
-! Ensure that water level on boundary cells is above bed elevation.
-!
-      IF (SOUTH_WEST_TEST) THEN
-#   ifdef WEST_FSOBC
-        DO j=JLB,JUB
-          cff=Dcrit(ng)-GRID(ng)%h(0,j))
-          IF (BOUNDARY(ng)%zeta_west(j).le.cff) THEN
-            BOUNDARY(ng)%zeta_west(j)=cff
-            BOUNDARY(ng)%tl_zeta_west(j)=cff
-          END IF
-        END DO
-#   endif
-#   ifdef EAST_FSOBC
-        DO j=JLB,JUB
-          cff=Dcrit(ng)-GRID(ng)%h(Lm(ng)+1,j)
-          IF (BOUNDARY(ng)%zeta_east(j).le.cff) THEN
-            BOUNDARY(ng)%zeta_east(j)=cff
-            BOUNDARY(ng)%tl_zeta_east(j)=cff
-          END IF
-        END DO
-#   endif
-#   ifdef SOUTH_FSOBC
-        DO i=ILB,IUB
-          cff=Dcrit(ng)-GRID(ng)%h(i,0)
-          IF (BOUNDARY(ng)%zeta_south(i).le.cff) THEN
-            BOUNDARY(ng)%zeta_south(i)=cff
-            BOUNDARY(ng)%tl_zeta_south(i)=cff
-          END IF
-        END DO
-#   endif
-#   ifdef NORTH_FSOBC
-        DO i=ILB,IUB
-          cff=Dcrit(ng)-GRID(ng)%h(i,Mm(ng)+1)
-          IF (BOUNDARY(ng)%zeta_north(i).le.cff) THEN
-            BOUNDARY(ng)%zeta_north(i)=cff
-            BOUNDARY(ng)%tl_zeta_north(i)=cff
-          END IF
-        END DO
-#   endif
-      END IF
-#  endif
-
 #  ifdef ANA_M2OBC
       CALL ana_m2obc (ng, tile, iRPM)
 #  else
@@ -1682,7 +1636,7 @@
       END DO
 #   endif
 #  endif
-#  if defined TL_W4DVAR || defined W4DVAR || defined W4DVAR_SENSITIVITY
+#  ifdef W4DVAR
 !  
 !-----------------------------------------------------------------------
 !  Set weak contraint frequent impulse forcing.

@@ -1,8 +1,7 @@
 #include "cppdefs.h"
       MODULE forcing_mod
 
-#if defined NLM_OUTER  || defined SENSITIVITY_4DVAR || \
-    defined TL_W4DPSAS || defined W4DPSAS
+#if defined W4DPSAS || defined NLM_OUTER
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===

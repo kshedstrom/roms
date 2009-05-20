@@ -50,10 +50,8 @@
 # define ANA_VMIX
 #endif
 
-#define BIO_UMaine
-#if defined BIO_FENNEL  || defined ECOSIM || \
-    defined NPZD_POWELL || defined NEMURO || \
-    defined BIO_UMaine
+#if defined BIO_FASHAM  || defined ECOSIM || \
+    defined NPZD_POWELL || defined NEMURO
 # define ANA_BIOLOGY
 # define ANA_SPFLUX
 # define ANA_BPFLUX
@@ -65,19 +63,11 @@
 # undef  IVLEV_EXPLICIT
 #endif
 
-#ifdef BIO_FENNEL
+#ifdef BIO_FASHAM
 # define CARBON
 # define DENITRIFICATION
 # define BIO_SEDIMENT
 # define DIAGNOSTICS_BIO
-#endif
-
-#ifdef BIO_UMaine
-# define OXYGEN
-# if defined OXYGEN
-#  define xygen_bottom_layer_treatment
-# endif
-# undef CARBON
 #endif
 
 #ifdef PERFECT_RESTART

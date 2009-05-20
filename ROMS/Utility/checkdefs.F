@@ -61,7 +61,7 @@
       Coptions=' '
       IF (Master) WRITE (stdout,10)
   10  FORMAT (/,' Activated C-preprocessing Options:',/)
-  20  FORMAT (1x,a,t22,a)
+  20  FORMAT (2x,a,t22,a)
 !
       IF (Master) THEN
         WRITE (stdout,20) TRIM(ADJUSTL(MyAppCPP)), TRIM(ADJUSTL(title))
@@ -90,25 +90,19 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+9)=' ADJOINT,'
 #endif
-#if defined ADJUST_BOUNDARY && \
-   (defined IS4DVAR         || defined SENSITIVITY_4DVAR || \
-    defined W4DPSAS         || defined W4DVAR)
+#if defined ADJUST_BOUNDARY && defined IS4DVAR
       IF (Master) WRITE (stdout,20) 'ADJUST_BOUNDARY',                  &
      &   'Including boundary conditions in 4DVar state estimation.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+17)=' ADJUST_BOUNDARY,'
 #endif
-#if defined ADJUST_STFLUX && \
-   (defined IS4DVAR       || defined SENSITIVITY_4DVAR || \
-    defined W4DPSAS       || defined W4DVAR)
+#if defined ADJUST_STFLUX && defined IS4DVAR
       IF (Master) WRITE (stdout,20) 'ADJUST_STFLUX',                    &
      &   'Including surface tracer flux in 4DVar state estimation.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+15)=' ADJUST_STFLUX,'
 #endif
-#if defined ADJUST_WSTRESS && \
-   (defined IS4DVAR        || defined SENSITIVITY_4DVAR || \
-    defined W4DPSAS        || defined W4DVAR)
+#if defined ADJUST_WSTRESS && defined IS4DVAR
       IF (Master) WRITE (stdout,20) 'ADJUST_WSTRESS',                   &
      &   'Including surface wind stress in 4DVar state estimation.'
       is=LEN_TRIM(Coptions)+1
@@ -307,7 +301,7 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+10)=' ANA_RDRG,'
 #endif
-#if defined ANA_SEDIMENT && (defined SEDIMENT || defined BBL_MODEL)
+#if defined SEDIMENT && defined ANA_SEDIMENT
       IF (Master) WRITE (stdout,20) 'ANA_SEDIMENT',                     &
      &   'Analytical sediment initial conditions.'
       is=LEN_TRIM(Coptions)+1
@@ -508,11 +502,11 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+17)=' BEDLOAD_SOULSBY,'
 #endif
-#ifdef BIO_FENNEL
-      IF (Master) WRITE (stdout,20) 'BIO_FENNEL',                       &
-     &   'Fennel et al. (2006) nitrogen-based model.'
+#ifdef BIO_FASHAM
+      IF (Master) WRITE (stdout,20) 'BIO_FASHAM',                       &
+     &   'Fasham type nitrogen-based model.'
       is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+12)=' BIO_FENNEL,'
+      Coptions(is:is+12)=' BIO_FASHAM,'
       ibiology=ibiology+1
 #endif
 #ifdef BIO_GOANPZ
@@ -523,18 +517,11 @@
       ibiology=ibiology+1
 #endif
 #if defined BIO_SEDIMENT && \
-   (defined BIO_FENNEL   || defined NEMURO || defined ECOSIM)
+   (defined BIO_FASHAM   || defined NEMURO || defined ECOSIM)
       IF (Master) WRITE (stdout,20) 'BIO_SEDIMENT',                     &
      &   'Restore fallen particulate material to the nutrient pool.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+14)=' BIO_SEDIMENT,'
-#endif
-#ifdef BIO_UMaine
-      IF (Master) WRITE (stdout,20) 'BIO_UMaine',                       &
-     &   'UMaine CoSiNE ecosystem model.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+12)=' BIO_UMaine,'
-      ibiology=ibiology+1
 #endif
 #ifdef BODYFORCE
       IF (Master) WRITE (stdout,20) 'BODYFORCE',                        &
@@ -567,7 +554,7 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+8)=' CANUTO_B,'
 #endif
-#if defined CARBON && defined BIO_FENNEL
+#if defined CARBON && defined BIO_FASHAM
       IF (Master) WRITE (stdout,20) 'CARBON',                           &
      &   'Add Carbon constituents.'
       is=LEN_TRIM(Coptions)+1
@@ -669,13 +656,13 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+9)=' DEFLATE,'
 #endif
-#if defined DENITRIFICATION && defined BIO_FENNEL
+#if defined DENITRIFICATION && defined BIO_FASHAM
       IF (Master) WRITE (stdout,20) 'DENITRIFICATION',                  &
      &   'Add denitrification processes.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+17)=' DENITRIFICATION,'
 #endif
-#if defined DIAGNOSTICS_BIO && defined BIO_FENNEL
+#if defined DIAGNOSTICS_BIO && defined BIO_FASHAM
       IF (Master) WRITE (stdout,20) 'DIAGNOSTICS_BIO',                  &
      &   'Computing and writing biological diagnostic terms.'
       is=LEN_TRIM(Coptions)+1
@@ -1703,7 +1690,7 @@
       Coptions(is:is+18)=' OPT_PERTURBATION,'
       idriver=idriver+1
 #endif
-#if defined OXYGEN && defined BIO_FENNEL
+#if defined OXYGEN && defined BIO_FASHAM
 # ifdef OCMIP_OXYGEN_SC
       IF (Master) WRITE (stdout,20) 'OCMIP_OXYGEN_SC',                  &
      &   'Schmidt number from Keeling et al. (1998).'
@@ -2297,7 +2284,7 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+15)=' SWAN_COUPLING,'
 #endif
-#if defined CARBON && defined BIO_FENNEL
+#if defined CARBON && defined BIO_FASHAM
 # ifdef TALK_NONCONSERV
       IF (Master) WRITE (stdout,20) 'TALK_NONCONSERV',                  &
      &   'Nonconservative computation of alkalinity.'
@@ -2635,6 +2622,12 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+14)=' VERIFICATION,'
 #endif
+#ifdef VERT_STRETCH
+      IF (Master) WRITE (stdout,20) 'VERT_STRETCH',                      &
+     &   'Stretching of vertical coordinate system.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+14)=' VERT_STRETCH,'
+#endif
 #if defined VISC_3DCOEF
       IF (Master) WRITE (stdout,20) 'VISC_3DCOEF',                      &
      &   'Horizontal, time-dependent 3D viscosity coefficient.'
@@ -2648,25 +2641,11 @@
       Coptions(is:is+9)=' W4DPSAS,'
       idriver=idriver+1
 #endif
-#ifdef W4DPSAS_SENSITIVITY
-      IF (Master) WRITE (stdout,20) 'W4DPSAS_SENSITIVITY',              &
-     &   'Weak constraint 4D-PSAS observation sensitivity.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+21)=' W4DPSAS_SENSITIVITY,'
-      idriver=idriver+1
-#endif
 #ifdef W4DVAR
       IF (Master) WRITE (stdout,20) 'W4DVAR',                           &
      &   'Weak constraint 4DVAR data assimilation.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+8)=' W4DVAR,'
-      idriver=idriver+1
-#endif
-#ifdef W4DVAR_SENSITIVITY
-      IF (Master) WRITE (stdout,20) 'W4DVAR_SENSITIVITY',               &
-     &   'Weak constraint 4DVAR observation sensitivity.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+20)=' W4DVAR_SENSITIVITY,'
       idriver=idriver+1
 #endif
 #ifdef WAVES_OCEAN

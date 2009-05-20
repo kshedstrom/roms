@@ -39,9 +39,6 @@
 #ifdef DIAGNOSTICS
       USE mod_diags
 #endif
-#ifdef ATM_PRESS
-      USE mod_forces
-#endif
       USE mod_grid
       USE mod_ocean
       USE mod_stepping
@@ -74,9 +71,6 @@
      &                  GRID(ng) % zice,                                &
 #endif
      &                  OCEAN(ng) % rho,                                &
-#ifdef ATM_PRESS
-     &                  FORCES(ng) % Pair,                              &
-#endif
 #ifdef DIAGNOSTICS_UV
      &                  DIAGS(ng) % DiaRU,                              &
      &                  DIAGS(ng) % DiaRV,                              &
@@ -109,9 +103,6 @@
      &                        zice,                                     &
 # endif
      &                        rho,                                      &
-#ifdef ATM_PRESS
-     &                        Pair,                                     &
-#endif
 #ifdef DIAGNOSTICS_UV
      &                        DiaRU, DiaRV,                             &
 #endif
@@ -148,9 +139,6 @@
       real(r8), intent(in) :: zice(LBi:,LBj:)
 # endif
       real(r8), intent(in) :: rho(LBi:,LBj:,:)
-# ifdef ATM_PRESS
-      real(r8), intent(in) :: Pair(LBi:,LBj:)
-# endif
 # ifdef DIAGNOSTICS_UV
       real(r8), intent(inout) :: DiaRU(LBi:,LBj:,:,:,:)
       real(r8), intent(inout) :: DiaRV(LBi:,LBj:,:,:,:)
@@ -177,9 +165,6 @@
       real(r8), intent(in) :: zice(LBi:UBi,LBj:UBj)
 # endif
       real(r8), intent(in) :: rho(LBi:UBi,LBj:UBj,N(ng))
-# ifdef ATM_PRESS
-      real(r8), intent(in) :: Pair(LBi:UBi,LBj:UBj)
-# endif
 # ifdef DIAGNOSTICS_UV
       real(r8), intent(inout) :: DiaRU(LBi:UBi,LBj:UBj,N(ng),2,NDrhs)
       real(r8), intent(inout) :: DiaRV(LBi:UBi,LBj:UBj,N(ng),2,NDrhs)
@@ -207,9 +192,7 @@
 
       real(r8) :: GRho, GRho0,  HalfGRho
       real(r8) :: cff, cff1, cff2
-#ifdef ATM_PRESS
-      real(r8) :: OneAtm, fac
-#endif
+
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS,N(ng)) :: P
 
       real(r8), dimension(IminS:ImaxS,0:N(ng)) :: dR
@@ -229,10 +212,6 @@
       GRho=g/rho0
       GRho0=1000.0_r8*GRho
       HalfGRho=0.5_r8*GRho
-#ifdef ATM_PRESS
-      OneAtm=1013.25_r8                  ! 1 atm = 1013.25 mb
-      fac=100.0_r8/rho0
-#endif
 !
       DO j=JstrV-1,Jend
         DO k=1,N(ng)-1
@@ -270,9 +249,6 @@
      &                 (z_w(i,j,N(ng))-z_r(i,j,N(ng)))
 #else
           P(i,j,N(ng))=GRho0*z_w(i,j,N(ng))+                            &
-#ifdef ATM_PRESS
-     &                 fac*(Pair(i,j)-OneAtm)+                          &
-#endif
      &                 GRho*(rho(i,j,N(ng))+cff2)*                      &
      &                 (z_w(i,j,N(ng))-z_r(i,j,N(ng)))
 #endif

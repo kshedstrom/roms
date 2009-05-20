@@ -72,7 +72,7 @@ MY_HEADER_DIR ?= Apps/NEP
 #  "User/Functionals".
 #
 #  If applicable, also used this directory to place your customized
-#  biology model header file (like fennel.h, nemuro.h, ecosim.h, etc).
+#  biology model header file (like fasham.h, nemuro.h, ecosim.h, etc).
 
 MY_ANALYTICAL_DIR ?= Apps/NEP
 
@@ -100,7 +100,7 @@ MY_CPP_FLAGS ?=
 #  If parallel applications, use at most one of these definitions
 #  (leave both definitions blank in serial applications):
 
-     USE_MPI ?= 
+     USE_MPI ?= on
   USE_OpenMP ?=
 
 #  If distributed-memory, turn on compilation via the script "mpif90".
@@ -145,7 +145,7 @@ MY_CPP_FLAGS ?=
 #  NetCDF and so on.
 #--------------------------------------------------------------------------
 
-        FORT ?= xlf
+        FORT ?= xt5-pgi
 
 #--------------------------------------------------------------------------
 #  Set directory for executable.

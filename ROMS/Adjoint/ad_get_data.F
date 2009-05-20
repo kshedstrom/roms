@@ -24,15 +24,12 @@
 # if defined FORWARD_READ && defined SOLVE3D
       USE mod_coupling
 # endif
-# if defined AD_SENSITIVITY    || defined CLIMATOLOGY      || \
-     defined OBS_SENSITIVITY   || defined OPT_OBSERVATIONS || \
-     defined SENSITIVITY_4DVAR || defined SO_SEMI
+# if defined AD_SENSITIVITY  || defined CLIMATOLOGY      || \
+     defined OBS_SENSITIVITY || defined OPT_OBSERVATIONS || \
+     defined SO_SEMI
       USE mod_clima
 # endif
       USE mod_forces
-# ifdef SENSITIVITY_4DVAR
-      USE mod_fourdvar
-# endif
       USE mod_grid
       USE mod_iounits
       USE mod_mixing
@@ -176,21 +173,6 @@
 #  endif
 # endif
 
-# if !defined ANA_PAIR && (defined BULK_FLUXES || defined ECOSIM)
-!
-!-----------------------------------------------------------------------
-!  Surface air pressure.
-!-----------------------------------------------------------------------
-!
-      CALL get_2dfldr (ng, iADM, idPair, ncFRCid(idPair,ng),            &
-     &                 nFfiles(ng), FRCname(1,ng), update(1),           &
-     &                 LBi, UBi, LBj, UBj, 2, 1,                        &
-#  ifdef MASKING
-     &                 GRID(ng) % rmask(LBi,LBj),                       &
-#  endif
-     &                 FORCES(ng) % PairG(LBi,LBj,1))
-# endif
-
 # if !defined ANA_WWAVE && defined WAVE_DATA
 !
 !-----------------------------------------------------------------------
@@ -331,6 +313,21 @@
      &                 GRID(ng) % rmask(LBi,LBj),                       &
 #   endif
      &                 FORCES(ng) % lrflxG(LBi,LBj,1))
+#  endif
+
+#  if !defined ANA_PAIR && (defined BULK_FLUXES || defined ECOSIM)
+!
+!-----------------------------------------------------------------------
+!  Surface air pressure.
+!-----------------------------------------------------------------------
+!
+      CALL get_2dfldr (ng, iADM, idPair, ncFRCid(idPair,ng),            &
+     &                 nFfiles(ng), FRCname(1,ng), update(1),           &
+     &                 LBi, UBi, LBj, UBj, 2, 1,                        &
+#   ifdef MASKING
+     &                 GRID(ng) % rmask(LBi,LBj),                       &
+#   endif
+     &                 FORCES(ng) % PairG(LBi,LBj,1))
 #  endif
 
 #  if !defined ANA_TAIR && \
@@ -1283,9 +1280,8 @@
 #  endif
 # endif
 
-# if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
-     defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR || \
-     defined SO_SEMI
+# if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY || \
+     defined OPT_OBSERVATIONS || defined SO_SEMI
 !
 !-----------------------------------------------------------------------
 !  Read in adjoint sensitivity functional.
@@ -1293,81 +1289,75 @@
 !
 !  Read in free-surface.
 !
-#  ifdef SENSITIVITY_4DVAR
-      IF (LsenPSAS(ng)) THEN
-#  endif
-        IF (SCALARS(ng)%Lstate(isFsur)) THEN
-          CALL get_2dfldr (ng, iADM, idZads, ncADSid(ng), 1,            &
-     &                     ADSname(ng), update(1),                      &
-     &                     LBi, UBi, LBj, UBj, 2, 1,                    &
+      IF (SCALARS(ng)%Lstate(isFsur)) THEN
+        CALL get_2dfldr (ng, iADM, idZads, ncADSid(ng), 1,              &
+     &                   ADSname(ng), update(1),                        &
+     &                   LBi, UBi, LBj, UBj, 2, 1,                      &
 #  ifdef MASKING
-     &                     GRID(ng) % rmask(LBi,LBj),                   &
+     &                   GRID(ng) % rmask(LBi,LBj),                     &
 #  endif
-     &                     CLIMA(ng) % zeta_adsG(LBi,LBj,1))
-        END IF
+     &                   CLIMA(ng) % zeta_adsG(LBi,LBj,1))
+      END IF
 !
 !  Read 2D momentum.
 !
-        IF (SCALARS(ng)%Lstate(isUbar)) THEN
-          CALL get_2dfldr (ng, iADM, idUbas, ncADSid(ng), 1,            &
-     &                     ADSname(ng), update(1),                      &
-     &                     LBi, UBi, LBj, UBj, 2, 1,                    &
+      IF (SCALARS(ng)%Lstate(isUbar)) THEN
+        CALL get_2dfldr (ng, iADM, idUbas, ncADSid(ng), 1,              &
+     &                   ADSname(ng), update(1),                        &
+     &                   LBi, UBi, LBj, UBj, 2, 1,                      &
 #  ifdef MASKING
-     &                     GRID(ng) % umask(LBi,LBj),                   &
+     &                   GRID(ng) % umask(LBi,LBj),                     &
 #  endif
-     &                     CLIMA(ng) % ubar_adsG(LBi,LBj,1))
-        END IF
+     &                   CLIMA(ng) % ubar_adsG(LBi,LBj,1))
+      END IF
 !
-        IF (SCALARS(ng)%Lstate(isVbar)) THEN
-          CALL get_2dfldr (ng, iADM, idVbas, ncADSid(ng), 1,            &
-     &                     ADSname(ng), update(1),                      &
-     &                     LBi, UBi, LBj, UBj, 2, 1,                    &
+      IF (SCALARS(ng)%Lstate(isVbar)) THEN
+        CALL get_2dfldr (ng, iADM, idVbas, ncADSid(ng), 1,              &
+     &                   ADSname(ng), update(1),                        &
+     &                   LBi, UBi, LBj, UBj, 2, 1,                      &
 #  ifdef MASKING
-     &                     GRID(ng) % vmask(LBi,LBj),                   &
+     &                   GRID(ng) % vmask(LBi,LBj),                     &
 #  endif
-     &                     CLIMA(ng) % vbar_adsG(LBi,LBj,1))
-        END IF
+     &                   CLIMA(ng) % vbar_adsG(LBi,LBj,1))
+      END IF
 
 #  ifdef SOLVE3D
 !
 !  Read in 3D momentum.
 !
-        IF (SCALARS(ng)%Lstate(isUvel)) THEN
-          CALL get_3dfldr (ng, iADM, idUads, ncADSid(ng), 1,            &
-     &                     ADSname(ng), update(1),                      &
-     &                     LBi, UBi, LBj, UBj, 1, N(ng), 2, 1,          &
+      IF (SCALARS(ng)%Lstate(isUvel)) THEN
+        CALL get_3dfldr (ng, iADM, idUads, ncADSid(ng), 1,              &
+     &                   ADSname(ng), update(1),                        &
+     &                   LBi, UBi, LBj, UBj, 1, N(ng), 2, 1,            &
 #   ifdef MASKING
-     &                     GRID(ng) % umask(LBi,LBj),                   &
+     &                   GRID(ng) % umask(LBi,LBj),                     &
 #   endif
-     &                     CLIMA(ng) % u_adsG(LBi,LBj,1,1))
-        END IF
+     &                   CLIMA(ng) % u_adsG(LBi,LBj,1,1))
+      END IF
 !
-        IF (SCALARS(ng)%Lstate(isVvel)) THEN
-          CALL get_3dfldr (ng, iADM, idVads, ncADSid(ng), 1,            &
-     &                     ADSname(ng), update(1),                      &
-     &                     LBi, UBi, LBj, UBj, 1, N(ng), 2, 1,          &
+      IF (SCALARS(ng)%Lstate(isVvel)) THEN
+        CALL get_3dfldr (ng, iADM, idVads, ncADSid(ng), 1,              &
+     &                   ADSname(ng), update(1),                        &
+     &                   LBi, UBi, LBj, UBj, 1, N(ng), 2, 1,            &
 #   ifdef MASKING
-     &                     GRID(ng) % vmask(LBi,LBj),                   &
+     &                   GRID(ng) % vmask(LBi,LBj),                     &
 #   endif
-     &                     CLIMA(ng) % v_adsG(LBi,LBj,1,1))
-        END IF
+     &                   CLIMA(ng) % v_adsG(LBi,LBj,1,1))
+      END IF
 !
 !  Read in 3D tracers.
 !
-        DO i=1,NT(ng)
-          IF (SCALARS(ng)%Lstate(isTvar(i))) THEN
-            CALL get_3dfldr (ng, iADM, idTads(i), ncADSid(ng), 1,       &
-     &                       ADSname(ng), update(1),                    &
-     &                       LBi, UBi, LBj, UBj, 1, N(ng), 2, 1,        &
+      DO i=1,NT(ng)
+        IF (SCALARS(ng)%Lstate(isTvar(i))) THEN
+          CALL get_3dfldr (ng, iADM, idTads(i), ncADSid(ng), 1,         &
+     &                     ADSname(ng), update(1),                      &
+     &                     LBi, UBi, LBj, UBj, 1, N(ng), 2, 1,          &
 #   ifdef MASKING
-     &                       GRID(ng) % rmask(LBi,LBj),                 &
+     &                     GRID(ng) % rmask(LBi,LBj),                   &
 #   endif
-     &                       CLIMA(ng) % t_adsG(LBi,LBj,1,1,i))
-          END IF
-        END DO
-#  endif
-#  ifdef SENSITIVITY_4DVAR
-      END IF
+     &                     CLIMA(ng) % t_adsG(LBi,LBj,1,1,i))
+        END IF
+      END DO
 #  endif
 # endif
 

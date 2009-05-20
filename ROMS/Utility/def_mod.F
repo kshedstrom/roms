@@ -648,8 +648,7 @@
      &                 SetParAccess = .FALSE.)
         IF (exit_flag.ne.NoError) RETURN
 # endif
-# if defined IOM    || defined TL_W4DVAR          || \
-     defined W4DVAR || defined W4DVAR_SENSITIVITY
+# if defined W4DVAR || defined IOM
 !
 !  Define RPM data penalty function.
 !

@@ -747,6 +747,15 @@
   'r2dvar'
   1.0d0
 
+'Runoff'
+  'Fresh water runoff from land'
+  'kg/s/m^2'
+  'runoff, scalar, series'
+  'runoff_time'
+  'idRunoff'
+  'r2dvar'
+  1.0d0
+
 'sig11'
   'internal ice stress 11 component'
   'Newton meter-1'
@@ -771,15 +780,6 @@
   'ice stress 12, scalar, series'
   'ocean_time'
   'idSig12'
-  'r2dvar'
-  1.0d0
-
-'Runoff'
-  'Fresh water runoff from land'
-  'kg/s/m^2'
-  'runoff, scalar, series'
-  'runoff_time'
-  'idRunoff'
   'r2dvar'
   1.0d0
 
@@ -2118,69 +2118,6 @@
   'nulvar'
   1.0d0
 
-'river_nanophytoplankton'                          ! Input
-  'river runoff nanophytoplankton'
-  'millimole_nitrogen meter-3'                     ! [millimole/m3]
-  'river_nanophytoplankton, scalar, series'
-  'river_time'
-  'idRtrc(iSphy)'
-  'nulvar'
-  1.0d0
-
-'river_diatom'                                     ! Input
-  'river runoff diatom'
-  'millimole_nitrogen meter-3'                     ! [millimole/m3]
-  'river_diatom, scalar, series'
-  'river_time'
-  'idRtrc(iLphy)'
-  'nulvar'
-  1.0d0
-
-'river_microzooplankton'                           ! Input
-  'river runoff microzooplankton'
-  'millimole_nitrogen meter-3'                     ! [millimole/m3]
-  'river_microzooplankton, scalar, series'
-  'river_time'
-  'idRtrc(iSzoo)'
-  'nulvar'
-  1.0d0
-
-'river_mesozooplankton'                            ! Input
-  'river runoff mesozooplankton'
-  'millimole_nitrogen meter-3'                     ! [millimole/m3]
-  'river_mesozooplankton, scalar, series'
-  'river_time'
-  'idRtrc(iLzoo)'
-  'nulvar'
-  1.0d0
-
-'river_SiOH4'                                      ! Input
-  'river runoff SiOH4'
-  'millimole_silica meter-3'                       ! [millimole/m3]
-  'river_SiOH4, scalar, series'
-  'river_time'
-  'idRtrc(iSiOH)'
-  'nulvar'
-  1.0d0
-
-'river_opal'                                       ! Input
-  'river runoff opal'
-  'millimole_silica meter-3'                       ! [millimole/m3]
-  'river_opal, scalar, series'
-  'river_time'
-  'idRtrc(iopal)'
-  'nulvar'
-  1.0d0
-
-'river_PO4'                                        ! Input
-  'river runoff PO4'
-  'millimole_P meter-3'                            ! [millimole/m3]
-  'river_PO4, scalar, series'
-  'river_time'
-  'idRtrc(iPO4_)'
-  'nulvar'
-  1.0d0
-
 'river_NH4'                                        ! Input
   'river runoff NH4'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
@@ -3159,8 +3096,8 @@
 
 !
 !---------------------------------------------------------------------
-!  Define names of variables associated with Fennel et al (2006),
-!  NEMURO, NPZD or UMaine ecosystem models.
+!  Define names of variables associated with Fasham, NEMURO or NPZD
+!  ecosystem models.
 !---------------------------------------------------------------------
 !
 
@@ -3236,12 +3173,30 @@
   'r3dvar'
   1.0d0
 
-'PO4'                                              ! Input/Output
-  'phosphate concentration'
-  'millimole_PO4 meter-3'                          ! [millimole/m3]
-  'PO4, scalar, series'
+'FeSp'                                             ! Input/Output
+  'small phytop. iron concentration'
+  'millimole_iron  meter-3'                        ! [millimole/m3]
+  'iron, scalar, series'
   'ocean_time'
-  'idTvar(iPO4_)'
+  'idTvar(iFeSp)'
+  'r3dvar'
+  1.0d0
+
+'FeLp'                                            ! Input/Output
+  'large phytop. iron concentration'
+  'millimole_iron  meter-3'                       ! [millimole/m3]
+  'iron, scalar, series'
+  'ocean_time'
+  'idTvar(iFeLp)'
+  'r3dvar'
+  1.0d0
+
+'FeD'                                             ! Input/Output
+  'disolved iron concentration'
+  'millimole_iron  meter-3'                       ! [millimole/m3]
+  'iron, scalar, series'
+  'ocean_time'
+  'idTvar(iFeD_)'
   'r3dvar'
   1.0d0
 
@@ -3398,30 +3353,12 @@
   'r3dvar'
   1.0d0
 
-'FeSp'                                             ! Input/Output
-  'small phytop. iron concentration'
-  'millimole_iron  meter-3'                        ! [millimole/m3]
-  'iron, scalar, series'
+'TIC'                                              ! Input/Output
+  'total inorganic carbon'
+  'millimole_carbon meter-3'                       ! [millimole/m3]
+  'TIC, scalar, series'
   'ocean_time'
-  'idTvar(iFeSp)'
-  'r3dvar'
-  1.0d0
-
-'FeLp'                                            ! Input/Output
-  'large phytop. iron concentration'
-  'millimole_iron  meter-3'                       ! [millimole/m3]
-  'iron, scalar, series'
-  'ocean_time'
-  'idTvar(iFeLp)'
-  'r3dvar'
-  1.0d0
-
-'FeD'                                             ! Input/Output
-  'dissolved iron concentration'
-  'millimole_iron  meter-3'                       ! [millimole/m3]
-  'iron, scalar, series'
-  'ocean_time'
-  'idTvar(iFeD_)'
+  'idTvar(iTIC_)'
   'r3dvar'
   1.0d0
 
@@ -3604,42 +3541,6 @@
   'nulvar'
   1.0d0
 
-'PO4_east'                                         ! Input
-  'phosphate eastern boundary condition'
-  'millimole_P meter-3'                     ! [millimole/m3]
-  'PO4_east, scalar, series'
-  'PO4_time'
-  'idTbry(ieast,iPO4_)'
-  'nulvar'
-  1.0d0
-
-'PO4_west'                                         ! Input
-  'phosphate western boundary condition'
-  'millimole_P meter-3'                     ! [millimole/m3]
-  'PO4_west, scalar, series'
-  'PO4_time'
-  'idTbry(iwest,iPO4_)'
-  'nulvar'
-  1.0d0
-
-'PO4_south'                                        ! Input
-  'phosphate southern boundary condition'
-  'millimole_P meter-3'                     ! [millimole/m3]
-  'PO4_south, scalar, series'
-  'PO4_time'
-  'idTbry(isouth,iPO4_)'
-  'nulvar'
-  1.0d0
-
-'PO4_north'                                        ! Input
-  'phosphate northern boundary condition'
-  'millimole_P meter-3'                     ! [millimole/m3]
-  'PO4_north, scalar, series'
-  'PO4_time'
-  'idTbry(inorth,iPO4_)'
-  'nulvar'
-  1.0d0
-
 'TIC_east'                                         ! Input
   'TIC eastern boundary condition'
   'millimole_carbon meter-3'                       ! [millimole/m3]
@@ -3678,7 +3579,7 @@
 
 'oxygen_east'                                      ! Input
   'oxygen eastern boundary condition'
-  'millimole_oxygen meter-3'                       ! [millimole/m3]
+  'millimole_carbon meter-3'                       ! [millimole/m3]
   'oxygen_east, scalar, series'
   'oxygen_time'
   'idTbry(ieast,iOxyg)'
@@ -3687,7 +3588,7 @@
 
 'oxygen_west'                                      ! Input
   'oxygen western boundary condition'
-  'millimole_oxygen meter-3'                       ! [millimole/m3]
+  'millimole_carbon meter-3'                       ! [millimole/m3]
   'oxygen_west, scalar, series'
   'oxygen_time'
   'idTbry(iwest,iOxyg)'
@@ -3696,7 +3597,7 @@
 
 'oxygen_north'                                     ! Input
   'oxygen northern boundary condition'
-  'millimole_oxygen meter-3'                       ! [millimole/m3]
+  'millimole_carbon meter-3'                       ! [millimole/m3]
   'oxygen_north, scalar, series'
   'oxygen_time'
   'idTbry(inorth,iOxyg)'
@@ -3705,7 +3606,7 @@
 
 'oxygen_south'                                     ! Input
   'oxygen southern boundary condition'
-  'millimole_oxygen meter-3'                       ! [millimole/m3]
+  'millimole_carbon meter-3'                       ! [millimole/m3]
   'oxygen_south, scalar, series'
   'oxygen_time'
   'idTbry(isouth,iOxyg)'
@@ -4001,7 +3902,7 @@
   1.0d0
 
 'FeD_east'                                         ! Input
-  'dissolved iron eastern boundary condition'
+  'disolved iron eastern boundary condition'
   'millimole_iron meter-3'                         ! [millimole/m3]
   'FeD_east, scalar, series'
   'bio_time'
@@ -4010,7 +3911,7 @@
   1.0d0
 
 'FeD_west'                                         ! Input
-  'dissolved iron western boundary condition'
+  'disolved iron western boundary condition'
   'millimole_iron meter-3'                         ! [millimole/m3]
   'FeD_west, scalar, series'
   'bio_time'
@@ -4019,7 +3920,7 @@
   1.0d0
 
 'FeD_north'                                        ! Input
-  'dissolved iron northern boundary condition'
+  'disolved iron northern boundary condition'
   'millimole_iron meter-3'                         ! [millimole/m3]
   'FeD_north, scalar, series'
   'bio_time'
@@ -4028,7 +3929,7 @@
   1.0d0
 
 'FeD_south'                                        ! Input
-  'dissolved iron southern boundary condition'
+  'disolved iron southern boundary condition'
   'millimole_iron meter-3'                         ! [millimole/m3]
   'FeD_south, scalar, series'
   'bio_time'
@@ -5552,6 +5453,69 @@
   'nulvar'
   'datum'
   'idMOMf'
+  'nulvar'
+  1.0d0
+
+'RepCoef'                                          ! Output
+  'representer coefficients'
+  'nulvar'
+  'nulvar'
+  'datum'
+  'idRepC'
+  'nulvar'
+  1.0d0
+
+'cg_p'                                             ! Output
+  'conjugate gradient p-vector'
+  'nulvar'
+  'nulvar'
+  'datum'
+  'idCG_P'
+  'nulvar'
+  1.0d0
+
+'cg_r'                                             ! Output
+  'conjugate gradient r-vector'
+  'nulvar'
+  'nulvar'
+  'datum'
+  'idCG_R'
+  'nulvar'
+  1.0d0
+
+'cg_s'                                             ! Output
+  'conjugate gradient s-vector'
+  'nulvar'
+  'nulvar'
+  'datum'
+  'idCG_S'
+  'nulvar'
+  1.0d0
+
+'cg_v'                                             ! Output
+  'conjugate gradient v-vector'
+  'nulvar'
+  'nulvar'
+  'datum'
+  'idCG_V'
+  'nulvar'
+  1.0d0
+
+'cg_x'                                             ! Output
+  'conjugate gradient x-vector'
+  'nulvar'
+  'nulvar'
+  'datum'
+  'idCG_X'
+  'nulvar'
+  1.0d0
+
+'cg_z'                                             ! Output
+  'conjugate gradient z-vector'
+  'nulvar'
+  'nulvar'
+  'datum'
+  'idCG_Z'
   'nulvar'
   1.0d0
 !-------------------------------------------------------------

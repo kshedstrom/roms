@@ -53,9 +53,8 @@
       logical :: NSperiodic=.FALSE.
 #  endif
 # endif
-# if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
-     defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR || \
-     defined SO_SEMI
+# if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY || \
+     defined OPT_OBSERVATIONS || defined SO_SEMI
       logical :: GotScope(6)
 # endif
       integer :: tile, LBi, UBi, LBj, UBj
@@ -1071,9 +1070,8 @@
      &                          NghostPoints, EWperiodic, NSperiodic,   &
      &                          GRID(ng) % angler)
 # endif
-# if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
-     defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR || \
-     defined SO_SEMI
+# if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY || \
+     defined OPT_OBSERVATIONS || defined SO_SEMI
 !
 !  Read in adjoint sensitivity spatial scope masking at RHO-points.
 !
@@ -1180,9 +1178,8 @@
       CALL netcdf_close (ng, model, ncGRDid(ng), ncname)
       IF (exit_flag.ne.NoError) RETURN
 
-# if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
-     defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR || \
-     defined SO_SEMI
+# if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY || \
+     defined OPT_OBSERVATIONS || defined SO_SEMI
 !
 !-----------------------------------------------------------------------
 !  Inquire adjoint sensitivity forcing file. Read scope arrays again.

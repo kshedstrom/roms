@@ -21,12 +21,10 @@
 
       CONTAINS
 
-# if defined BIO_FENNEL
-!!#  include <rp_fennel.h>
+# if defined BIO_FASHAM
+!!#  include <rp_fasham.h>
 # elif defined NEMURO
 !!#  include <rp_nemuro.h>
-# elif defined BIO_UMaine
-!!#  include <rp_UMAINE.h>
 # elif defined NPZD_FRANKS
 #  include <rp_npzd_Franks.h>
 # elif defined NPZD_POWELL

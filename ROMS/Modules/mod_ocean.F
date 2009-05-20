@@ -123,7 +123,7 @@
           real(r8), pointer :: u_stokes(:,:,:)
           real(r8), pointer :: v_stokes(:,:,:)
 # endif
-# if (defined BIO_FENNEL || defined BIO_UMaine) && defined CARBON
+# if defined BIO_FASHAM && defined CARBON
           real(r8), pointer :: pH(:,:)
 # endif
 # if defined SEDIMENT
@@ -369,7 +369,7 @@
       allocate ( OCEAN(ng) % v_stokes(LBi:UBi,LBj:UBj,N(ng)) )
 # endif
 
-# if (defined BIO_FENNEL || defined BIO_UMaine) && defined CARBON
+# if defined BIO_FASHAM && defined CARBON
       allocate ( OCEAN(ng) % pH(LBi:UBi,LBj:UBj) )
 # endif
 
@@ -660,8 +660,7 @@
             OCEAN(ng) % ubar_stokes(i,j) = IniVal
             OCEAN(ng) % vbar_stokes(i,j) = IniVal
 # endif
-# if (defined BIO_FENNEL || defined BIO_UMaine) && \
-     defined CARBON && defined SOLVE3D
+# if defined BIO_FASHAM && defined CARBON && defined SOLVE3D
             OCEAN(ng) % pH(i,j) = 8.0_r8
 # endif
           END DO

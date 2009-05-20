@@ -2,8 +2,8 @@
       MODULE adsen_force_mod
 
 #if defined ADJOINT          && \
-   (defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
-    defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR)
+   (defined AD_SENSITIVITY   || defined OBS_SENSITIVITY || \
+    defined OPT_OBSERVATIONS)
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===

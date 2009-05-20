@@ -1051,6 +1051,10 @@
 
         END DO NL_LOOP2
 !
+!  Compute and report model-observation comparison statistics.
+!
+        CALL stats_modobs (ng)
+!
 !  Write out nonlinear model final misfit cost function into MODname
 !  NetCDF file. Notice that it is written in the Nouter+1 record.
 !
@@ -1080,10 +1084,6 @@
             END IF
           END DO
         END IF
-!
-!  Compute and report model-observation comparison statistics.
-!
-        CALL stats_modobs (ng)
 
       END DO NEST_LOOP
 !

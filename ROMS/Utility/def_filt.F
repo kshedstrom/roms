@@ -31,7 +31,7 @@
 !
 !  Local variable declarations.
 !
-      integer, parameter :: Natt = 25
+      integer, parameter :: Natt = 24
 
       logical :: Ldefine, got_var(NV)
 

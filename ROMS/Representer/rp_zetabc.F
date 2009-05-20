@@ -116,7 +116,7 @@
 !
       IF (WESTERN_EDGE) THEN
 
-#  if defined WEST_FSRADIATION_NOT_YET
+#  if defined WEST_FSRADIATION
 !
 !  Western edge, implicit upstream radiation condition.
 !
@@ -272,7 +272,7 @@
 !
       IF (EASTERN_EDGE) THEN
 
-#  if defined EAST_FSRADIATION_NOT_YET
+#  if defined EAST_FSRADIATION
 
         IF (iic(ng).ne.0) THEN
 !
@@ -432,7 +432,7 @@
 !
       IF (SOUTHERN_EDGE) THEN
 
-#  if defined SOUTH_FSRADIATION_NOT_YET
+#  if defined SOUTH_FSRADIATION
 
         IF (iic(ng).ne.0) THEN
 !
@@ -588,7 +588,7 @@
 !
       IF (NORTHERN_EDGE) THEN
 
-#  if defined NORTH_FSRADIATION_NOT_YET
+#  if defined NORTH_FSRADIATION
 
         IF (iic(ng).ne.0) THEN
 !
