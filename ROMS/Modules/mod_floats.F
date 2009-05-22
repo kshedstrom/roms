@@ -39,10 +39,6 @@
           real(r8), pointer :: Tinfo(:,:)
           real(r8), pointer :: track(:,:,:)
           real(r8), pointer :: Fz0(:)
-# ifdef NEMURO_SAN
-          real(r8), pointer :: Ffish(:,:)
-          real(r8), pointer :: Fgraze(:,:)
-# endif
 
         END TYPE T_FLT
 
@@ -93,10 +89,6 @@
 
       allocate ( FLT(ng) % Fz0(Nfloats(ng)) )
 
-# ifdef NEMURO_SAN
-      allocate ( FLT(ng) % Ffish(NfishT(ng),Nfloats(ng)) )
-      allocate ( FLT(ng) % Fgraze(NBT(ng),Nfloats(ng)) )
-# endif
 !
 !-----------------------------------------------------------------------
 !  Initialize module variables.
@@ -120,14 +112,6 @@
           FLT(ng) % track(i,3,iflt) = IniVal
           FLT(ng) % track(i,4,iflt) = IniVal
         END DO
-# ifdef NEMURO_SAN
-        DO i=1,NfishT(ng)
-          FLT(ng) % Ffish(i,iflt) = IniVal
-        END DO
-        DO i=1,NBT(ng)
-          FLT(ng) % Fgraze(i,iflt) = IniVal
-        END DO
-# endif
       END DO
 
       RETURN

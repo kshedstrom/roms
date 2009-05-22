@@ -107,9 +107,6 @@
           real(r8), pointer :: ru(:,:,:,:)
           real(r8), pointer :: rv(:,:,:,:)
           real(r8), pointer :: t(:,:,:,:,:)
-# ifdef NEMURO_SAN
-          real(r8), pointer :: fish_graze(:,:,:,:)
-# endif
           real(r8), pointer :: u(:,:,:,:)
           real(r8), pointer :: v(:,:,:,:)
           real(r8), pointer :: W(:,:,:)
@@ -348,9 +345,6 @@
       allocate ( OCEAN(ng) % rv(LBi:UBi,LBj:UBj,0:N(ng),2) )
 
       allocate ( OCEAN(ng) % t(LBi:UBi,LBj:UBj,N(ng),3,NT(ng)) )
-# ifdef NEMURO_SAN
-      allocate ( OCEAN(ng) % fish_graze(LBi:UBi,LBj:UBj,N(ng),NBT) )
-# endif
       allocate ( OCEAN(ng) % u(LBi:UBi,LBj:UBj,N(ng),2) )
       allocate ( OCEAN(ng) % v(LBi:UBi,LBj:UBj,N(ng),2) )
       allocate ( OCEAN(ng) % W(LBi:UBi,LBj:UBj,0:N(ng)) )
@@ -702,15 +696,6 @@
               END DO
             END DO
           END DO 
-# ifdef NEMURO_SAN
-          DO itrc=1,NBT
-            DO k=1,N(ng)
-              DO i=Imin,Imax
-                OCEAN(ng) % fish_graze(i,j,k,itrc) = IniVal
-              END DO
-            END DO
-          END DO
-# endif
 # ifdef BIO_GOANPZ
           DO itrc=1,NTS(ng)
             DO k=1,N(ng)

@@ -3036,11 +3036,6 @@
      &          'Number of timesteps between the writing of data',      &
      &          'into floats file.'
 #endif
-#ifdef NEMURO_SAN
-          WRITE (out,130) nFISHES(ng), 'nFISHES',                       &
-     &          'Number of timesteps between the writing of data',      &
-     &          'into fish file.'
-#endif
           WRITE (out,170) ldefout(ng), 'ldefout',                       &
      &          'Switch to create a new output NetCDF file(s).'
           WRITE (out,130) nHIS(ng), 'nHIS',                             &
@@ -9537,10 +9532,6 @@
             Npts=load_l(Nval, Cval, Ngrids, Lfloats)
           ELSE IF (TRIM(KeyWord).eq.'FRREC') THEN
             Npts=load_i(Nval, Rval, Ngrids, frrec)
-#ifdef NEMURO_SAN
-          ELSE IF (TRIM(KeyWord).eq.'FISHRREC') THEN
-            Npts=load_i(Nval, Rval, Ngrids, fishrrec)
-#endif
           ELSE IF (TRIM(KeyWord).eq.'NFLOATS') THEN
             Npts=load_i(Nval, Rval, Ngrids, Nfloats)
           ELSE IF (TRIM(KeyWord).eq.'POS') THEN

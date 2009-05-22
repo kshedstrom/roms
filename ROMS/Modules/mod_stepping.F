@@ -63,7 +63,7 @@
         integer, dimension(Ngrids) :: nrhs = (/ (1, ig=1,Ngrids) /)
         integer, dimension(Ngrids) :: nstp = (/ (1, ig=1,Ngrids) /)
 
-#if defined FLOATS || defined NEMURO_SAN
+#if defined FLOATS
         integer, dimension(Ngrids) :: nf   = (/ (0, ig=1,Ngrids) /)
         integer, dimension(Ngrids) :: nfp1 = (/ (1, ig=1,Ngrids) /)
         integer, dimension(Ngrids) :: nfm3 = (/ (2, ig=1,Ngrids) /)

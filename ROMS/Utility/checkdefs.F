@@ -1378,12 +1378,6 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+8)=' NEMURO,'
       ibiology=ibiology+1
-# ifdef NEMURO_SAN
-      IF (Master) WRITE (stdout,20) 'NEMURO_SAN',                        &
-     &   'Nemuro Lower Trophic Level Ecosystem Model with fish.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+12)=' NEMURO_SAN,'
-# endif
 #endif
 #ifdef SOLVE3D
 # if defined NONLIN_EOS

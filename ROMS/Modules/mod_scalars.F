@@ -247,7 +247,7 @@
 #  endif
 # endif
 #endif
-#if defined FLOATS || defined NEMURO_SAN
+#if defined FLOATS
 !
 !-----------------------------------------------------------------------
 !  Floats fields identification indices.
@@ -933,12 +933,6 @@
 !  Floats restart switch.
 !
         integer, dimension(Ngrids) :: frrec
-#endif
-#ifdef NEMURO_SAN
-!
-!  Fish restart switch.
-!
-        integer, dimension(Ngrids) :: fishrrec
 #endif
 !
 !  Switch to activate processing of input data.  This switch becomes
@@ -2230,9 +2224,6 @@
         LdefDIA(ng)=.TRUE.
 #ifdef FLOATS
         LdefFLT(ng)=.TRUE.
-#endif
-#ifdef NEMURO_SAN
-        LdefFISH(ng)=.TRUE.
 #endif
         LdefHIS(ng)=.TRUE.
         LdefINI(ng)=.FALSE.

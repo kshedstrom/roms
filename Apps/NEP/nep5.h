@@ -258,7 +258,6 @@
 
 /* adding biology */
 # undef NEMURO
-# undef NEMURO_SAN
 # undef BIO_GOANPZ        /* Sarah Hinckley's 11 box model */
 # if defined BIO_GOANPZ
 #   define ANA_BIOLOGY       /* analytical biology initial conditions */
