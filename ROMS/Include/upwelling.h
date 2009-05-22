@@ -50,8 +50,7 @@
 # define ANA_VMIX
 #endif
 
-#define NEMURO
-#define NEMURO_SAN
+#define BIO_UMaine
 #if defined BIO_FENNEL  || defined ECOSIM || \
     defined NPZD_POWELL || defined NEMURO || \
     defined BIO_UMaine

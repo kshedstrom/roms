@@ -5738,18 +5738,6 @@
           ELSE IF (TRIM(KeyWord).eq.'FeRR') THEN
             Npts=load_r(Nval, Rval, Ngrids, FeRR)
 # endif
-# ifdef NEMURO_SAN
-          ELSE IF (TRIM(KeyWord).eq.'Fwwt0') THEN
-            Npts=load_r(Nval, Rval, Ngrids, Fwwt0)
-          ELSE IF (TRIM(KeyWord).eq.'ZSpref') THEN
-            Npts=load_r(Nval, Rval, Ngrids, ZSpref)
-          ELSE IF (TRIM(KeyWord).eq.'ZLpref') THEN
-            Npts=load_r(Nval, Rval, Ngrids, ZLpref)
-          ELSE IF (TRIM(KeyWord).eq.'ZPpref') THEN
-            Npts=load_r(Nval, Rval, Ngrids, ZPpref)
-          ELSE IF (TRIM(KeyWord).eq.'Nfish') THEN
-            Npts=load_r(Nval, Rval, Ngrids, Nfish)
-# endif
           ELSE IF (TRIM(KeyWord).eq.'TNU2') THEN
             Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
             DO ng=1,Ngrids
@@ -6088,18 +6076,6 @@
      &            'Large P Fe:C at F=0.5 (muM-Fe/M-C).'
             WRITE (out,100) FeRR(ng), 'FeRR',                           &
      &            'Fe remineralization rate (day-1).'
-#  endif
-#  ifdef NEMURO_SAN
-            WRITE (out,100) Fwwt0(ng), 'Fwwt0',                         &
-     &            'Fish initial wet weight (g).'
-            WRITE (out,100) ZSpref(ng), 'ZSpref',                       &
-     &            'Fish preference for ZS (-).'
-            WRITE (out,100) ZLpref(ng), 'ZLpref',                       &
-     &            'Fish preference for ZL (-).'
-            WRITE (out,100) ZPpref(ng), 'ZPpref',                       &
-     &            'Fish preference for ZP (-).'
-            WRITE (out,100) Nfish(ng), 'Nfish',                         &
-     &            'Number of fishes per superindividual.'
 #  endif
 #  ifdef TS_DIF2
             DO itrc=1,NBT

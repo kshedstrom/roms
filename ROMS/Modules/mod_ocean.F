@@ -79,13 +79,9 @@
 !  v_stokes     3D V-Stokes drift velocity (m/s).                      !
 !                                                                      !
 #endif
-# if defined NEMURO_SAN
-!  spawn_loc    2D spawning locations for each fish species.           !
-# endif
 !=======================================================================
 !
         USE mod_kinds
-        USE mod_types
 
         implicit none
 
@@ -111,6 +107,9 @@
           real(r8), pointer :: ru(:,:,:,:)
           real(r8), pointer :: rv(:,:,:,:)
           real(r8), pointer :: t(:,:,:,:,:)
+# ifdef NEMURO_SAN
+          real(r8), pointer :: fish_graze(:,:,:,:)
+# endif
           real(r8), pointer :: u(:,:,:,:)
           real(r8), pointer :: v(:,:,:,:)
           real(r8), pointer :: W(:,:,:)
@@ -142,16 +141,6 @@
           real(r8), pointer :: bedldu(:,:,:)
           real(r8), pointer :: bedldv(:,:,:)
 #  endif
-# endif
-
-# if defined NEMURO_SAN
-	  type(fishnode), pointer :: fish0
-	  type(fishnode), pointer :: fish_list(:,:)
-          integer, pointer :: fish_count(:,:)
-	  type(fishnode), pointer :: ships_list(:,:)
-          integer, pointer :: ships_count(:,:)
-
-          real(r8), pointer :: spawn_loc(:,:,:)
 # endif
 #endif
 
@@ -324,9 +313,6 @@
 #if defined SEDIMENT || defined BBL_MODEL
       USE mod_sediment
 #endif
-#ifdef NEMURO_SAN
-      USE mod_types
-#endif
 !
 !  Imported variable declarations.
 !
@@ -362,6 +348,9 @@
       allocate ( OCEAN(ng) % rv(LBi:UBi,LBj:UBj,0:N(ng),2) )
 
       allocate ( OCEAN(ng) % t(LBi:UBi,LBj:UBj,N(ng),3,NT(ng)) )
+# ifdef NEMURO_SAN
+      allocate ( OCEAN(ng) % fish_graze(LBi:UBi,LBj:UBj,N(ng),NBT) )
+# endif
       allocate ( OCEAN(ng) % u(LBi:UBi,LBj:UBj,N(ng),2) )
       allocate ( OCEAN(ng) % v(LBi:UBi,LBj:UBj,N(ng),2) )
       allocate ( OCEAN(ng) % W(LBi:UBi,LBj:UBj,0:N(ng)) )
@@ -399,17 +388,6 @@
       allocate ( OCEAN(ng) % bedldu(LBi:UBi,LBj:UBj,NST) )
       allocate ( OCEAN(ng) % bedldv(LBi:UBi,LBj:UBj,NST) )
 #  endif
-# endif
-
-# if defined NEMURO_SAN
-      allocate ( OCEAN(ng) % spawn_loc(LBi:UBi,LBj:UBj,Nspecies(ng)) )
-      allocate ( OCEAN(ng) % fish_count(LBi:UBi,LBj:UBj) )
-      allocate ( OCEAN(ng) % fish_list(LBi:UBi,LBj:UBj) )
-      allocate ( OCEAN(ng) % ships_count(LBi:UBi,LBj:UBj) )
-      allocate ( OCEAN(ng) % ships_list(LBi:UBi,LBj:UBj) )
-      allocate ( OCEAN(ng) % fish0 )
-      OCEAN(ng) % fish0 % fish = 0
-      OCEAN(ng) % fish0 % next => OCEAN(ng) % fish0
 # endif
 #endif
 
@@ -604,9 +582,6 @@
 #if defined SEDIMENT || defined BBL_MODEL
       USE mod_sediment
 #endif
-#ifdef NEMURO_SAN
-      USE mod_types
-#endif
 !
 !  Imported variable declarations.
 !
@@ -728,6 +703,15 @@
               END DO
             END DO
           END DO 
+# ifdef NEMURO_SAN
+          DO itrc=1,NBT
+            DO k=1,N(ng)
+              DO i=Imin,Imax
+                OCEAN(ng) % fish_graze(i,j,k,itrc) = IniVal
+              END DO
+            END DO
+          END DO
+# endif
 # ifdef BIO_GOANPZ
           DO itrc=1,NTS(ng)
             DO k=1,N(ng)
@@ -779,19 +763,6 @@
             END DO
           END DO
 #  endif
-# endif
-# if defined NEMURO_SAN
-          DO itrc=1,NST
-            DO i=Imin,Imax
-              OCEAN(ng) % spawn_loc(i,j,itrc) = IniVal
-            END DO
-          END DO
-          DO i=Imin,Imax
-            OCEAN(ng) % fish_count(i,j) = 0
-            OCEAN(ng) % fish_list(i,j) % next => OCEAN(ng) % fish0
-            OCEAN(ng) % ships_count(i,j) = 0
-            OCEAN(ng) % ships_list(i,j) % next => OCEAN(ng) % fish0
-          END DO
 # endif
 #endif
         END DO

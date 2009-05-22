@@ -24,7 +24,6 @@
 !=======================================================================
 !
         USE mod_param
-        USE mod_types
 !
         implicit none
 
@@ -32,8 +31,8 @@
 
           logical, pointer  :: bounded(:)
 
-          integer, pointer  :: Findex(:)
-          integer, pointer  :: Ftype(:)
+          integer, pointer :: Findex(:)
+          integer, pointer :: Ftype(:)
 
           real(r8), pointer :: Flon(:)
           real(r8), pointer :: Flat(:)
@@ -41,13 +40,9 @@
           real(r8), pointer :: track(:,:,:)
           real(r8), pointer :: Fz0(:)
 
-! Fish fields
-          real(r8), pointer :: bioenergy(:,:)
-          real(r8), pointer :: feedback(:,:)
-          integer, pointer  :: species(:)
-          integer, pointer  :: lifestage(:)
-          logical, pointer  :: alive(:)
-	  type(fishnode), pointer :: fishnodes(:)
+! this is different from the dead floats
+          real(r8), pointer :: Ffish(:,:)
+          real(r8), pointer :: Fgraze(:,:)
 
         END TYPE T_FISHES
 
@@ -94,21 +89,11 @@
 
       allocate ( FISHES(ng) % Tinfo(0:izrhs,Nfish(ng)) )
 
-      allocate ( FISHES(ng) % track(NFV(ng),0:NFT,Nfish(ng)) )
+      allocate ( FISHES(ng) % track(NFishV(ng),0:NFT,Nfish(ng)) )
 
       allocate ( FISHES(ng) % Fz0(Nfish(ng)) )
 
-      allocate ( FISHES(ng) % feedback(NBT,Nfloats(ng)) )
-
-      allocate ( FISHES(ng) % bioenergy(NFishV(ng),Nfish(ng)) )
-
-      allocate ( FISHES(ng) % species(Nfish(ng)) )
-
-      allocate ( FISHES(ng) % lifestage(Nfish(ng)) )
-
-      allocate ( FISHES(ng) % alive(Nfish(ng)) )
-
-      allocate ( FISHES(ng) % fishnodes(Nfish(ng)) )
+      allocate ( FISHES(ng) % Fgraze(NBT,Nfish(ng)) )
 !
 !-----------------------------------------------------------------------
 !  Initialize module variables.
@@ -122,26 +107,19 @@
         FISHES(ng) % Flon(iflt) = IniVal
         FISHES(ng) % Flat(iflt) = IniVal
         FISHES(ng) % Fz0(iflt) = 0
-        DO i=1,NBT
-          FISHES(ng) % feedback(i,iflt) = IniVal
-        END DO
         DO i=0,izrhs
           FISHES(ng) % Tinfo(i,iflt) = IniVal
         END DO
-        DO i=1,NFV(ng)
+        DO i=1,NFishV(ng)
           FISHES(ng) % track(i,0,iflt) = IniVal
           FISHES(ng) % track(i,1,iflt) = IniVal
           FISHES(ng) % track(i,2,iflt) = IniVal
           FISHES(ng) % track(i,3,iflt) = IniVal
           FISHES(ng) % track(i,4,iflt) = IniVal
         END DO
-        DO i=1,NFishV(ng)
-          FISHES(ng) % bioenergy(i,iflt) = IniVal
+        DO i=1,NBT
+          FISHES(ng) % Fgraze(i,iflt) = IniVal
         END DO
-        FISHES(ng) % species(iflt) = if_none
-        FISHES(ng) % lifestage(iflt) = if_none
-        FISHES(ng) % alive(iflt) = .FALSE.
-        FISHES(ng) % fishnodes(iflt) % fish = iflt
       END DO
 
       RETURN

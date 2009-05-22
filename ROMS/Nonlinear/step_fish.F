@@ -55,10 +55,6 @@
      &                       FISHES(ng) % Ftype,                        &
      &                       FISHES(ng) % Tinfo,                        &
      &                       FISHES(ng) % Fz0,                          &
-     &                       FISHES(ng) % feedback,                     &
-     &                       FISHES(ng) % bioenergy,                    &
-     &                       FISHES(ng) % species,                      &
-     &                       FISHES(ng) % alive,                        &
      &                       FISHES(ng) % track)
 # ifdef PROFILE
       CALL wclock_off (ng, iNLM, 10)
@@ -70,9 +66,7 @@
       SUBROUTINE step_fish_tile (ng, Lstr, Lend,                        &
      &                             knew, nnew,                          &
      &                             nfm3, nfm2, nfm1, nf, nfp1,          &
-     &                             bounded, Ftype, Tinfo, Fz0,          &
-     &                             feedback, bioenergy, species,        &
-     &                             alive, track)
+     &                             bounded, Ftype, Tinfo, Fz0, track)
 !***********************************************************************
 !
       USE mod_param
@@ -85,7 +79,6 @@
       USE mod_ncparam
       USE mod_ocean
       USE mod_scalars
-      USE mod_biology
 !
 # ifdef DISTRIBUTE
       USE distribute_mod, ONLY : mp_collect
@@ -101,23 +94,15 @@
       integer, intent(in) :: Ftype(:)
       real(r8), intent(inout) :: Tinfo(0:,:)
       real(r8), intent(inout) :: Fz0(:)
-      real(r8), intent(inout) :: feedback(:,:)
 
       logical, intent(inout) :: bounded(:)
-      real(r8), intent(inout) :: bioenergy(:,:)
-      integer, intent(inout) :: species(:)
-      logical, intent(inout) :: alive(:)
       real(r8), intent(inout) :: track(:,0:,:)
 # else
       integer, intent(in) :: Ftype(Nfish(ng))
       real(r8), intent(inout) :: Tinfo(0:izrhs,Nfish(ng))
       real(r8), intent(inout) :: Fz0(Nfish(ng))
-      real(r8), intent(inout) :: feedback(NT(ng),Nfloats(ng))
 
       logical, intent(inout) :: bounded(Nfish(ng))
-      real(r8), intent(inout) :: bioenergy(NFishV(ng),Nfish(ng))
-      integer, intent(inout) :: species(Nfish(ng))
-      logical, intent(inout) :: alive(Nfish(ng))
       real(r8), intent(inout) :: track(NFishV(ng),0:NFT,Nfish(ng))
 # endif
 !
@@ -138,8 +123,6 @@
 
       real(r8) :: cff1, cff2, cff3, cff4, cff5, cff6, cff7, cff8, cff9
       real(r8) :: p1, p2, q1, q2, xrhs, yrhs, zrhs, zfloat
-      real(r8) :: diZoo, djZoo
-      integer :: kZmax
 
 # ifdef FLOAT_VWALK
       integer :: ierr
@@ -274,19 +257,6 @@
         nudg(l)=0.0_r8
       END DO
 !
-!  If newly released floats, initialize fish weight
-!
-      DO l=Lstr,Lend
-        IF (MyThread(l).and.bounded(l).and.                             &
-     &      (time(ng)-dt(ng).le.Tinfo(itstr,l).and.                     &
-     &       time(ng)+dt(ng).gt.Tinfo(itstr,l))) THEN
-            bioenergy(ifwwt,l)=Fwwt0(ng)
-            bioenergy(ifage,l)=0.0_r8
-	    species(l)=if_herring
-	    alive(l)=.false.
-        END IF
-      END DO
-!
 !-----------------------------------------------------------------------
 !  Predictor step: compute first guess fish locations using a
 !                  4th-order Milne time-stepping scheme.
@@ -296,26 +266,14 @@
       cff2=4.0_r8/3.0_r8
       DO l=Lstr,Lend
         IF (MyThread(l).and.bounded(l)) THEN
-          CALL fish_swim (ng, LBi, UBi, LBj, UBj, 1, N(ng),             &
-     &                        l, nf, nnew,                              &
-     &                        diZoo, djZoo, kZmax,                      &
-     &                        GRID(ng) % pm(LBi,LBj),                   &
-     &                        GRID(ng) % pn(LBi,LBj),                   &
-     &                        GRID(ng) % Hz(LBi,LBj,1),                 &
-#  ifdef MASKING
-     &                        GRID(ng) % rmask(LBi,LBj),                &
-#  endif
-     &                        OCEAN(ng) % t,                            &
-     &                        track(1,0,1))
-
           track(ixgrd,nfp1,l)=track(ixgrd,nfm3,l)+                      &
-     &                dt(ng)*(cff1*(track(ixrhs,nf  ,l)+diZoo)-         &
-     &                        cff2*(track(ixrhs,nfm1,l)+diZoo)+         &
-     &                        cff1*(track(ixrhs,nfm2,l)+diZoo))
+     &                        dt(ng)*(cff1*track(ixrhs,nf  ,l)-         &
+     &                                cff2*track(ixrhs,nfm1,l)+         &
+     &                                cff1*track(ixrhs,nfm2,l))
           track(iygrd,nfp1,l)=track(iygrd,nfm3,l)+                      &
-     &                dt(ng)*(cff1*(track(iyrhs,nf  ,l)+djZoo)-         &
-     &                        cff2*(track(iyrhs,nfm1,l)+djZoo)+         &
-     &                        cff1*(track(iyrhs,nfm2,l)+djZoo))
+     &                        dt(ng)*(cff1*track(iyrhs,nf  ,l)-         &
+     &                                cff2*track(iyrhs,nfm1,l)+         &
+     &                                cff1*track(iyrhs,nfm2,l))
 
 # if defined SOLVE3D && !defined FLOAT_VWALK
 !
@@ -408,7 +366,6 @@
      &                                  cff2*track(izrhs,nfm1,l)+       &
      &                                  cff1*track(izrhs,nfm2,l))
           END IF
-          track(izgrd,nfp1,l)=REAL(kZmax,r8)
 # endif
         END IF
       END DO
@@ -490,28 +447,16 @@
       cff4=6.0_r8/8.0_r8
       DO l=Lstr,Lend
         IF (MyThread(l).and.bounded(l)) THEN
-          CALL fish_swim (ng, LBi, UBi, LBj, UBj, 1, N(ng),             &
-     &                        l, nfp1, nnew,                            &
-     &                        diZoo, djZoo, kZmax,                      &
-     &                        GRID(ng) % pm(LBi,LBj),                   &
-     &                        GRID(ng) % pn(LBi,LBj),                   &
-     &                        GRID(ng) % Hz(LBi,LBj,1),                 &
-#  ifdef MASKING
-     &                        GRID(ng) % rmask(LBi,LBj),                &
-#  endif
-     &                        OCEAN(ng) % t,                            &
-     &                        track(1,0,1))
-!
           track(ixgrd,nfp1,l)=cff1*track(ixgrd,nf  ,l)-                 &
      &                        cff2*track(ixgrd,nfm2,l)+                 &
-     &                dt(ng)*(cff3*(track(ixrhs,nfp1,l)+diZoo)+         &
-     &                        cff4*(track(ixrhs,nf  ,l)+diZoo)-         &
-     &                        cff3*(track(ixrhs,nfm1,l)+diZoo))
+     &                        dt(ng)*(cff3*track(ixrhs,nfp1,l)+         &
+     &                                cff4*track(ixrhs,nf  ,l)-         &
+     &                                cff3*track(ixrhs,nfm1,l))
           track(iygrd,nfp1,l)=cff1*track(iygrd,nf  ,l)-                 &
      &                        cff2*track(iygrd,nfm2,l)+                 &
-     &                dt(ng)*(cff3*(track(iyrhs,nfp1,l)+djZoo)+         &
-     &                        cff4*(track(iyrhs,nf  ,l)+djZoo)-         &
-     &                        cff3*(track(iyrhs,nfm1,l)+djZoo))
+     &                        dt(ng)*(cff3*track(iyrhs,nfp1,l)+         &
+     &                                cff4*track(iyrhs,nf  ,l)-         &
+     &                                cff3*track(iyrhs,nfm1,l))
 
 # if defined SOLVE3D && !defined FLOAT_VWALK
 !
@@ -606,7 +551,6 @@
      &                                  cff4*track(izrhs,nf  ,l)-       &
      &                                  cff3*track(izrhs,nfm1,l))
           END IF
-          track(izgrd,nfp1,l)=REAL(kZmax,r8)
 # endif
         END IF
       END DO
@@ -967,11 +911,10 @@
      &                      OCEAN(ng) % t(LBi,LBj,1,nnew,itrc),         &
      &                      MyThread, bounded, track(1,0,1))
       END DO
-      DO l=Lstr,Lend
-        IF (MyThread(l).and.bounded(l)) THEN
-          CALL fish_growth (ng, l, nfp1, track(1,0,1), feedback(1,1))
-        ENDIF
-      ENDDO
+# endif
+# ifdef NEMURO_SAN
+!! something happens to compute Float bioenergetics
+!! something happens to compute OCEAN % fish array
 # endif
 # ifdef DISTRIBUTE
 !

@@ -193,11 +193,6 @@
           WRITE (stdout,20) ng, ntstart(ng), ntend(ng)
         END IF
         time(ng)=time(ng)-dt(ng)
-#ifdef NEMURO_SAN
-        tdays(ng)=time(ng)*sec2day
-        idays(ng) = int(tdays(ng))
-        iyesterday(ng) = idays(ng)
-#endif
       END DO
 
  10   FORMAT (' Process Information:',/)
@@ -244,9 +239,6 @@
           iic(ng)=my_iic
           time(ng)=time(ng)+dt(ng)
           tdays(ng)=time(ng)*sec2day
-#ifdef NEMURO_SAN
-          idays(ng) = int(tdays(ng))
-#endif
 !
 !-----------------------------------------------------------------------
 !  Read in required data, if any, from input NetCDF files.

@@ -288,19 +288,6 @@
         integer, parameter :: ifakt = 11         ! diffusivity, Akt
         integer, parameter :: ifdak = 12         ! d(Akt)/d(s)
 # endif
-# ifdef NEMURO_SAN
-        integer, parameter :: ifwwt = 1          ! fish wet weight
-        integer, parameter :: ifworth = 2        ! fish worth
-	integer, parameter :: ifage = 3          ! age as stage
-	integer, parameter :: ifbday = 4         ! birthday
-! Species IDs
-	integer, parameter :: if_none = 0
-	integer, parameter :: if_anchovy = 1
-	integer, parameter :: if_sardine = 2
-	integer, parameter :: if_herring = 3
-	integer, parameter :: if_polluck = 4
-	integer, parameter :: if_pinksalmon = 5
-# endif
 !
 !  Set float tracjectory types:
 !
@@ -373,10 +360,6 @@
         real(r8), dimension(Ngrids) :: IMPtime           ! seconds
         real(r8), dimension(Ngrids) :: ObsTime           ! seconds
         real(r8), dimension(Ngrids) :: FrcTime           ! seconds
-#ifdef NEMURO_SAN
-        integer, dimension(Ngrids) :: idays
-        integer, dimension(Ngrids) :: iyesterday
-#endif
 
         real(r8), dimension(8) :: r_date
         real(r8) :: dstart = 0.0_r8                      ! days

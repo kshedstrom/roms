@@ -81,7 +81,6 @@
 !  Nspecies   Number of fish species
 !  Nyearclass Number of year classes
 !  Nfish      Total number of fish
-!  Nships     Total number of ships and/or predatory fish
 !  Nbatch     Number of days per year an individual will release eggs
 #endif
 !                                                                      !
@@ -442,15 +441,13 @@
         integer, parameter :: NBT = 0
 #endif
 #ifdef NEMURO_SAN
-        integer, dimension(Ngrids) :: Nbox
+        integer, dimension(Ngrids), parameter :: Nbox=6
         integer, dimension(Ngrids), parameter :: Numfish=500
-        integer, dimension(Ngrids), parameter :: Nspecies=2
+        integer, dimension(Ngrids), parameter :: Nspecies=3
         integer, dimension(Ngrids), parameter :: Nyearclass=10
         integer, dimension(Ngrids), parameter :: Nfish=500*3*10
 !       integer, dimension(Ngrids), parameter :: Nfish=Numfish*Nspecies*Nyearclass
         integer, dimension(Ngrids), parameter :: Nbatch=8
-
-        integer, dimension(Ngrids), parameter :: Nships=200
 
 !  Total number of fish variables to process and output.
 !
@@ -727,21 +724,17 @@
           NT(ng)=NAT+NBT+NST+NPT
 #ifdef FLOATS
 # ifdef FLOAT_VWALK
-#  ifdef NEMURO_SAN
-          NFV(ng)=NT(ng)+13
-#  else
           NFV(ng)=NT(ng)+12
-#  endif
 # else
-#  ifdef NEMURO_SAN
-          NFV(ng)=NT(ng)+11
-#  else
           NFV(ng)=NT(ng)+10
-#  endif
 # endif
 #endif
 #ifdef NEMURO_SAN
-          NFishV(ng)=2
+# ifdef FLOAT_VWALK
+          NFishV(ng)=NT(ng)+12
+# else
+          NFishV(ng)=NT(ng)+10
+# endif
 #endif
           NSV(ng)=NT(ng)+5
 #ifdef ADJUST_WSTRESS

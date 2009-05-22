@@ -88,7 +88,7 @@
 !=======================================================================
 !
       DEFINE : IF (ldef) THEN
-        CALL netcdf_create (ng, iNLM, TRIM(ncname), ncFISHid(ng))
+        CALL netcdf_create (ng, model, TRIM(ncname), ncFISHid(ng))
         IF (exit_flag.ne.NoError) THEN
           IF (Master) WRITE (stdout,30) TRIM(ncname)
           RETURN
@@ -398,21 +398,6 @@
      &                   NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END DO
-#  ifdef NEMURO_SAN
-!  Define fish wet weight
-        Vinfo( 1)='fwwt'
-        Vinfo( 2)='fish wet weight'
-        Vinfo( 3)='g'
-        Vinfo(14)='fwwt, scalar, series'
-        Vinfo(16)=Vname(1,idtime)
-#  ifndef NO_4BYTE_REALS
-        Vinfo(24)='_FillValue'
-        Aval(6)=spval
-#  endif
-        status=def_var(ng, iNLM, ncFISHid(ng),fishVid(ifwwt,ng),          &
-     &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
-#  endif
 # endif
 !
 !  Initialize unlimited time record dimension.
@@ -482,7 +467,7 @@
 !
 !  Open fish file for read/write.
 !
-        CALL netcdf_open (ng, iNLM, ncname, 1, ncFISHid(ng))
+        CALL netcdf_open (ng, model, ncname, 1, ncFISHid(ng))
         IF (exit_flag.ne.NoError) THEN
           WRITE (stdout,60) TRIM(ncname)
           RETURN

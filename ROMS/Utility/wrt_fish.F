@@ -199,23 +199,6 @@
      &                        varid = fishTid(itrc,ng))
         IF (exit_flag.ne.NoError) RETURN
       END DO
-#  ifdef NEMURO_SAN
-!  Write fish wet weight.
-!
-      DO l=1,Nfloats(ng)
-        IF (FISHES(ng)%bounded(l)) THEN
-          Tout(l)=FISHES(ng)%bioenergy(ifwwt,l)
-        ELSE
-          Tout(l)=spval
-        END IF
-      END DO
-      CALL netcdf_put_fvar (ng, iNLM, FISHname(ng),                      &
-     &                      TRIM(Vname(1,ifwwt)), Tout,                 &
-     &                      (/1,tFISHindx(ng)/), (/Nfloats(ng),1/),      &
-     &                      ncid = ncFISHid(ng),                         &
-     &                      varid = fishVid(ifwwt,ng))
-      IF (exit_flag.ne.NoError) RETURN
-#  endif
 # endif
 !
 !-----------------------------------------------------------------------

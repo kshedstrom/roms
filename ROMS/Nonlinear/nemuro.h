@@ -76,6 +76,9 @@
      &                   GRID(ng) % z_r,                                &
      &                   GRID(ng) % z_w,                                &
      &                   FORCES(ng) % srflx,                            &
+#ifdef NEMURO_SAN
+     &                   OCEAN(ng) % fish_graze,                        &
+#endif
      &                   OCEAN(ng) % t)
 
 #ifdef PROFILE
@@ -97,6 +100,9 @@
 #endif
      &                         Hz, z_r, z_w,                            &
      &                         srflx,                                   &
+#ifdef NEMURO_SAN
+     &                         fish_graze,                              &
+#endif
      &                         t)
 !-----------------------------------------------------------------------
 !
@@ -104,10 +110,6 @@
       USE mod_biology
       USE mod_ncparam
       USE mod_scalars
-#ifdef NEMURO_SAN
-      USE mod_floats
-      USE mod_grid
-#endif
 !
 !  Imported variable declarations.
 !
@@ -127,6 +129,9 @@
       real(r8), intent(in) :: z_r(LBi:,LBj:,:)
       real(r8), intent(in) :: z_w(LBi:,LBj:,0:)
       real(r8), intent(in) :: srflx(LBi:,LBj:)
+#ifdef NEMURO_SAN
+      real(r8), intent(in) :: fish_graze(LBi:,LBj:,:,:)
+#endif
       real(r8), intent(inout) :: t(LBi:,LBj:,:,:,:)
 #else
 # ifdef MASKING
@@ -139,6 +144,9 @@
       real(r8), intent(in) :: z_r(LBi:UBi,LBj:UBj,UBk)
       real(r8), intent(in) :: z_w(LBi:UBi,LBj:UBj,0:UBk)
       real(r8), intent(in) :: srflx(LBi:UBi,LBj:UBj)
+#ifdef NEMURO_SAN
+      real(r8), intent(inout) :: fish_graze(LBi:UBi,LBj:UBj,UBk,NBT)
+#endif
       real(r8), intent(inout) :: t(LBi:UBi,LBj:UBj,UBk,3,UBt)
 #endif
 !
@@ -148,9 +156,6 @@
 
       integer :: Iter, ibio, indx, isink, itime, itrc, iTrcMax
       integer :: i, j, k, ks
-#ifdef NEMURO_SAN
-      integer :: Ir, Jr, Kr, lflt, dxyG
-#endif
 
       integer, dimension(Nsink) :: idsink
 
@@ -187,9 +192,6 @@
       real(r8), dimension(NT(ng),2) :: BioTrc
       real(r8), dimension(IminS:ImaxS,N(ng),NT(ng)) :: Bio
       real(r8), dimension(IminS:ImaxS,N(ng),NT(ng)) :: Bio_bak
-#ifdef NEMURO_SAN
-      real(r8), dimension(IminS:ImaxS,JminS:JmaxS,N(ng),NT(ng)) :: pfish
-#endif
 
       real(r8), dimension(IminS:ImaxS,0:N(ng)) :: FC
 
@@ -226,46 +228,6 @@
 !
       Wbio(1)=setVPON(ng)             ! particulate organic nitrogen
       Wbio(2)=setVOpal(ng)            ! particulate organic silica
-
-#ifdef NEMURO_SAN
-!
-! Zero out contributions from previous time step
-        DO itrc=1,NT(ng)
-          DO k=1,N(ng)
-            DO j=Jstr,Jend
-              DO i=Istr,Iend
-                pfish(i,j,k,itrc)=0.0_r8
-              END DO
-            END DO
-          END DO
-        END DO
-!
-# ifdef FISH_FEEDBACK
-!  Compute fish contributions to plankton components
-!  TO DO: SPREAD CONTRIBUTION TO ADJACENT CELLS!
-        DO lflt=1,Nfloats(ng)
-          Ir=INT(FLT(ng)%track(ixgrd,nnew,lflt)+0.5_r8)
-          Jr=INT(FLT(ng)%track(iygrd,nnew,lflt)+0.5_r8)
-          Kr=INT(FLT(ng)%track(izgrd,nnew,lflt)+0.5_r8)
-          IF ((Ir.ge.Istr).and.(Ir.le.Iend).and.                        &
-     &        (Jr.ge.Jstr).and.(Jr.le.Jend)) THEN
-! Factor to convert from mmolN/day to mmolN/m3
-            cff=dtdays*GRID(ng)%pm(Ir,Jr)*GRID(ng)%pn(Ir,Jr)/           &
-     &                 Hz(Ir,Jr,Kr)
-! Small zooplankton
-            pfish(Ir,Jr,Kr,iSzoo)=pfish(Ir,Jr,Kr,iSzoo)+                &
-     &                            cff*FLT(ng)%feedback(iSzoo,lflt)
-! Large zooplankton
-            pfish(Ir,Jr,Kr,iLzoo)=pfish(Ir,Jr,Kr,iLzoo)+                &
-     &                            cff*FLT(ng)%feedback(iLzoo,lflt)
-! Predatory zooplankton
-            pfish(Ir,Jr,Kr,iPzoo)=pfish(Ir,Jr,Kr,iPzoo)+                &
-     &                            cff*FLT(ng)%feedback(iPzoo,lflt)
-          END IF
-        END DO
-# endif
-!
-#endif
 !
 !  Compute inverse thickness to avoid repeated divisions.
 !
@@ -330,9 +292,9 @@
           DO i=Istr,Iend
 !  Set concentration for FeD shelf climatology
 !  Fe concentration in (micromol-Fe/m3, or nM-Fe)
-	    h_max = 200.0_r8
+	    h_max = 500.0_r8
             Fe_max = 2.0_r8
-!  Set nudging time scales to 5 (inshore) and 30 (offshore) days
+!  Set nudging time scale to 5 days
             Fe_rel = 5.0_r8
             Fndgcf = 1.0_r8/(Fe_rel*86400.0_r8)
 !  Relaxation for depths < 250m to simulate Fe input at coast
@@ -716,22 +678,6 @@
 #endif
             END DO
           END DO
-
-!#ifdef NEMURO_SAN
-!!-----------------------------------------------------------------------
-!! Phytoplankton Mortality from Fish Predation
-!! NON-CONSERVATIVE TERM, VIOLATES NITROGEN CONSEFVATION IN NEMURO !
-!!-----------------------------------------------------------------------
-!!
-!          DO k=1,N(ng)
-!            DO i=Istr,Iend
-!              cff1=pfish(i,j,k,iSphy)/MAX(MinVal,Bio(i,k,iSphy))
-!              cff2=pfish(i,j,k,iLphy)/MAX(MinVal,Bio(i,k,iLphy))
-!              Bio(i,k,iSphy)=Bio(i,k,iSphy)/(1.0_r8+cff1)
-!              Bio(i,k,iLphy)=Bio(i,k,iLphy)/(1.0_r8+cff2)
-!            END DO
-!          END DO
-!#endif
 !
 !-----------------------------------------------------------------------
 !  Zooplankton grazing, egestion and excretion.
@@ -1059,24 +1005,6 @@
      &                       Bio(i,k,iPzoo)*cff3
             END DO
           END DO
-
-#ifdef NEMURO_SAN
-!-----------------------------------------------------------------------
-! Zooplankton Mortality from Fish Predation
-! NON-CONSERVATIVE TERM, VIOLATES NITROGEN CONSEFVATION IN NEMURO !
-!-----------------------------------------------------------------------
-!
-          DO k=1,N(ng)
-            DO i=Istr,Iend
-              cff1=pfish(i,j,k,iSzoo)/MAX(MinVal,Bio(i,k,iSzoo))
-              cff2=pfish(i,j,k,iLzoo)/MAX(MinVal,Bio(i,k,iLzoo))
-              cff3=pfish(i,j,k,iPzoo)/MAX(MinVal,Bio(i,k,iPzoo))
-              Bio(i,k,iSzoo)=Bio(i,k,iSzoo)/(1.0_r8+cff1)
-              Bio(i,k,iLzoo)=Bio(i,k,iLzoo)/(1.0_r8+cff2)
-              Bio(i,k,iPzoo)=Bio(i,k,iPzoo)/(1.0_r8+cff3)
-            END DO
-          END DO
-#endif
 !
 !-----------------------------------------------------------------------
 !  Nutrient decomposition.

@@ -212,9 +212,6 @@
         get_var(idS0mk)=.true.
         get_var(idT0mk)=.true.
 # endif
-# ifdef NEMURO_SAN
-        get_var(idFspwn)=.true.
-# endif
 # ifdef NCEP_FLUXES
         get_var(idWg2d)=.true.
         get_var(idCdd)=.true.
@@ -469,11 +466,6 @@
             have_var(idS0mk)=.true.
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idT0mk))) THEN
             have_var(idT0mk)=.true.
-          END IF
-# endif
-# ifdef NEMURO_SAN
-          IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idFspwn))) THEN
-            have_var(idFspwn)=.true.
           END IF
 # endif
 # ifdef NCEP_FLUXES
@@ -856,13 +848,6 @@
         END IF
         IF (.not.have_var(idT0mk)) THEN
           WRITE (stdout,10) TRIM(Vname(1,idT0mk)), TRIM(ncname)
-          exit_flag=2
-          RETURN
-        END IF
-# endif
-# ifdef NEMURO_SAN
-        IF (.not.have_var(idFspwn)) THEN
-          WRITE (stdout,10) TRIM(Vname(1,idFspwn)), TRIM(ncname)
           exit_flag=2
           RETURN
         END IF

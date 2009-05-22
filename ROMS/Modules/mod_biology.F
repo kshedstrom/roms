@@ -595,12 +595,6 @@
         real(r8), dimension(Ngrids) :: LK_FeC        ! muM-Fe/M-C
         real(r8), dimension(Ngrids) :: FeRR          ! 1/day
 #  endif
-#  ifdef NEMURO_SAN
-        real(r8), dimension(Ngrids) :: Fwwt0         ! grams
-        real(r8), dimension(Ngrids) :: ZSpref        ! nondimensional
-        real(r8), dimension(Ngrids) :: ZLpref        ! nondimensional
-        real(r8), dimension(Ngrids) :: ZPpref        ! nondimensional
-#  endif
 # endif
 
 # ifdef NPZD_FRANKS
