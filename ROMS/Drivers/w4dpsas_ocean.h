@@ -7,11 +7,12 @@
 !    See License_ROMS.txt                                              !
 !=======================================================================
 !                                                                      !
-!  ROMS/TOMS Weak Constraint Variational (4DVar) Data Assimilation     !
-!      Driver: Physical-space Statistical Analysis System (PSAS)       !
+!  ROMS/TOMS Weak Constraint 4-Dimensional Variational (4DVar) Data    !
+!          Assimilation Driver: Physical-space Statistical Analysis    !
+!          System (PSAS)                                               !
 !                                                                      !
 !  This driver is used for weak constraint 4DVar where errors are      !
-!  considered  in  both model and observations.                        !
+!  considered in both model and observations.                          !
 !                                                                      !
 !  The routines in this driver control the initialization,  time-      !
 !  stepping, and finalization of  ROMS/TOMS  model following ESMF      !
@@ -159,7 +160,7 @@
         STDrec=1
         Tindex=2
         DO ng=1,Ngrids
-          IF (NSA.eq.2) THEN         
+          IF (NSA.eq.2) THEN
             CALL get_state (ng, 6, 6, STDname(2,ng), STDrec, Tindex)
             IF (exit_flag.ne.NoError) RETURN
           END IF
@@ -357,7 +358,6 @@
           IF (exit_flag.ne.NoError) RETURN
 #endif
         END IF
-
 !
 !  Define tangent linear initial conditions file.
 !
@@ -488,7 +488,7 @@
               CALL initialize_forces (ng, TILE, iTLM)
             END DO
           END DO
-!$OMP END PARALLEL DO 
+!$OMP END PARALLEL DO
 !
           INNER_LOOP : DO my_inner=0,Ninner
             inner=my_inner
@@ -496,10 +496,10 @@
 ! Initialize conjugate gradient algorithm depending on hot start or
 ! outer loop index.
 !
-           IF (inner.eq.0) THEN
-             Lcgini=.TRUE.
-             CALL congrad (ng, iRPM, outer, inner, Ninner, Lcgini)
-           END IF
+            IF (inner.eq.0) THEN
+              Lcgini=.TRUE.
+              CALL congrad (ng, iRPM, outer, inner, Ninner, Lcgini)
+            END IF
 !
 !  If initialization step, skip the inner-loop computations.
 !
@@ -631,6 +631,7 @@
                   CALL ad_variability (ng, TILE, Lold(ng), Lweak)
                   CALL ad_convolution (ng, TILE, Lold(ng), Lweak, 2)
                   CALL initialize_ocean (ng, TILE, iTLM)
+                  CALL initialize_forces (ng, TILE, iTLM)
                 END DO
               END DO
 !$OMP END PARALLEL DO
@@ -695,9 +696,6 @@
 !  done for half of the diffusion steps (squared-root filter). Clear
 !  tangent linear state arrays when done.
 !
-!  WARNING: We need to add logic here for new decorrelation scales
-!           and normalization coefficients.
-!
                   add=.FALSE.
 !$OMP PARALLEL DO PRIVATE(ng,thread,subs,tile)                          &
 !$OMP&            SHARED(inner,add,numthreads)
@@ -712,6 +710,7 @@
                       CALL ad_variability (ng, TILE, Lold(ng), Lweak)
                       CALL ad_convolution (ng, TILE, Lold(ng), Lweak, 2)
                       CALL initialize_ocean (ng, TILE, iTLM)
+                      CALL initialize_forces (ng, TILE, iTLM)
                     END DO
                   END DO
 !$OMP END PARALLEL DO
@@ -791,7 +790,7 @@
 !  time-steps.
 !
               IF (FrcRec(ng).gt.3) THEN
-                 FrequentImpulse=.TRUE.
+                FrequentImpulse=.TRUE.
               END IF
 !
 !  Initialize tangent linear model from ITLname, record Rec1. 
@@ -844,7 +843,7 @@
               CALL congrad (ng, iTLM, outer, inner, Ninner, Lcgini)
               IF (exit_flag.ne.NoError) RETURN
 
-           END IF INNER_COMPUTE
+            END IF INNER_COMPUTE
 
           END DO INNER_LOOP
 !
@@ -963,6 +962,7 @@
               CALL ad_variability (ng, TILE, Lold(ng), Lweak)
               CALL ad_convolution (ng, TILE, Lold(ng), Lweak, 2)
               CALL initialize_ocean (ng, TILE, iTLM)
+              CALL initialize_forces (ng, TILE, iTLM)
             END DO
           END DO
 !$OMP END PARALLEL DO
@@ -1032,9 +1032,6 @@
 !  done for half of the diffusion steps (squared-root filter). Clear
 !  tangent linear state arrays when done.
 !
-!  WARNING: We need to add logic here for new decorrelation scales
-!           and normalization coefficients.
-!  
               add=.FALSE.
 !$OMP PARALLEL DO PRIVATE(ng,thread,subs,tile)                          &
 !$OMP&            SHARED(inner,add,numthreads)
@@ -1048,6 +1045,7 @@
                   CALL ad_variability (ng, TILE, Lold(ng), Lweak)
                   CALL ad_convolution (ng, TILE, Lold(ng), Lweak, 2)
                   CALL initialize_ocean (ng, TILE, iTLM)
+                  CALL initialize_forces (ng, TILE, iTLM)
                 END DO
               END DO
 !$OMP END PARALLEL DO

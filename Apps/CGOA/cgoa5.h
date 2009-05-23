@@ -20,7 +20,6 @@
 #define SOLVE3D
 #define SALINITY
 #ifdef SOLVE3D
-# undef VERT_STRETCH
 # define SPLINES
 #endif
 #undef  FLOATS

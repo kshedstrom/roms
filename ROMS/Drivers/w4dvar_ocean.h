@@ -693,6 +693,7 @@
                   CALL ad_variability (ng, TILE, Lold(ng), Lweak)
                   CALL ad_convolution (ng, TILE, Lold(ng), Lweak, 2)
                   CALL initialize_ocean (ng, TILE, iTLM)
+                  CALL initialize_forces (ng, TILE, iTLM)
                 END DO
               END DO
 !$OMP END PARALLEL DO
@@ -771,6 +772,7 @@
                       CALL ad_variability (ng, TILE, Lold(ng), Lweak)
                       CALL ad_convolution (ng, TILE, Lold(ng), Lweak, 2)
                       CALL initialize_ocean (ng, TILE, iTLM)
+                      CALL initialize_forces (ng, TILE, iTLM)
                     END DO
                   END DO
 !$OMP END PARALLEL DO
@@ -1045,6 +1047,7 @@
               CALL ad_variability (ng, TILE, Lold(ng), Lweak)
               CALL ad_convolution (ng, TILE, Lold(ng), Lweak, 2)
               CALL initialize_ocean (ng, TILE, iTLM)
+              CALL initialize_forces (ng, TILE, iTLM)
             END DO
           END DO
 !$OMP END PARALLEL DO
@@ -1110,9 +1113,6 @@
 !  done for half of the diffusion steps (squared-root filter). Clear
 !  tangent linear state arrays when done.
 !
-!  WARNING: We need to add logic here for new decorrelation scales
-!           and normalization coefficients.
-!  
               add=.FALSE.
 !$OMP PARALLEL DO PRIVATE(ng,thread,subs,tile)                          &
 !$OMP&            SHARED(inner,add,numthreads)
@@ -1126,6 +1126,7 @@
                   CALL ad_variability (ng, TILE, Lold(ng), Lweak)
                   CALL ad_convolution (ng, TILE, Lold(ng), Lweak, 2)
                   CALL initialize_ocean (ng, TILE, iTLM)
+                  CALL initialize_forces (ng, TILE, iTLM)
                 END DO
               END DO
 !$OMP END PARALLEL DO
@@ -1264,7 +1265,7 @@
      &                            FOURDVAR(ng)%DataPenalty(i),          &
      &                            TRIM(string)
 #ifdef DATALESS_LOOPS
-                WRITE (stdout,30) outer, inner, 'NLM'                   &
+                WRITE (stdout,30) outer, inner, 'NLM',                  &
      &                            FOURDVAR(ng)%NLPenalty(i),            &
      &                            TRIM(string)
 #endif
