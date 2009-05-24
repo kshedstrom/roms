@@ -31,7 +31,8 @@
 #if defined ASSIMILATION || defined NUDGING
       USE mod_obs
 #endif
-#if defined TLM_CHECK || defined W4DPSAS || defined NLM_OUTER
+#if defined NLM_OUTER || defined TLM_CHECK || defined TL_W4DPSAS || \
+    defined W4DPSAS   || defined W4DPSAS_SENSITIVITY
       USE mod_ocean
 #endif
       USE mod_scalars
@@ -290,6 +291,22 @@
 # endif
 #endif
 
+#if !defined ANA_PAIR && (defined BULK_FLUXES || defined ECOSIM || \
+                          defined ATM_PRESS)
+!
+!-----------------------------------------------------------------------
+!  Surface air pressure.
+!-----------------------------------------------------------------------
+!
+      CALL get_2dfld (ng, iNLM, idPair, ncFRCid(idPair,ng),             &
+     &                nFfiles(ng), FRCname(1,ng), update(1),            &
+     &                LBi, UBi, LBj, UBj, 2, 1,                         &
+# ifdef MASKING
+     &                GRID(ng) % rmask(LBi,LBj),                        &
+# endif
+     &                FORCES(ng) % PairG(LBi,LBj,1))
+#endif
+
 #if !defined ANA_WWAVE && defined WAVE_DATA
 !
 !-----------------------------------------------------------------------
@@ -430,22 +447,6 @@
      &                GRID(ng) % rmask(LBi,LBj),                        &
 #  endif
      &                FORCES(ng) % lrflxG(LBi,LBj,1))
-# endif
-
-# if !defined ANA_PAIR && (defined BULK_FLUXES || defined ECOSIM || \
-                           defined ATM_PRESS)
-!
-!-----------------------------------------------------------------------
-!  Surface air pressure.
-!-----------------------------------------------------------------------
-!
-      CALL get_2dfld (ng, iNLM, idPair, ncFRCid(idPair,ng),             &
-     &                nFfiles(ng), FRCname(1,ng), update(1),            &
-     &                LBi, UBi, LBj, UBj, 2, 1,                         &
-#  ifdef MASKING
-     &                GRID(ng) % rmask(LBi,LBj),                        &
-#  endif
-     &                FORCES(ng) % PairG(LBi,LBj,1))
 # endif
 
 # if !defined ANA_TAIR && \
@@ -1514,7 +1515,8 @@
       END IF
 #endif
 
-#if defined W4DPSAS || defined NLM_OUTER
+#if defined NLM_OUTER || defined TL_W4DPSAS           || \
+    defined W4DPSAS   || defined W4DPSAS_SENSITIVITY
 !
 !-----------------------------------------------------------------------
 !  Read weak contraint forcing snapshots. Notice that the forward

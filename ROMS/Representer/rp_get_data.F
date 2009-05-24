@@ -172,6 +172,22 @@
 #  endif
 # endif
 
+# if !defined ANA_PAIR && (defined BULK_FLUXES || defined ECOSIM || \
+                           defined ATM_PRESS)
+!
+!-----------------------------------------------------------------------
+!  Surface air pressure.
+!-----------------------------------------------------------------------
+!
+      CALL get_2dfld (ng, iRPM, idPair, ncFRCid(idPair,ng),             &
+     &                nFfiles(ng), FRCname(1,ng), update(1),            &
+     &                LBi, UBi, LBj, UBj, 2, 1,                         &
+#  ifdef MASKING
+     &                GRID(ng) % rmask(LBi,LBj),                        &
+#  endif
+     &                FORCES(ng) % PairG(LBi,LBj,1))
+# endif
+
 # if !defined ANA_WWAVE && defined WAVE_DATA
 !
 !-----------------------------------------------------------------------
@@ -312,22 +328,6 @@
      &                GRID(ng) % rmask(LBi,LBj),                        &
 #   endif
      &                FORCES(ng) % lrflxG(LBi,LBj,1))
-#  endif
-
-#  if !defined ANA_PAIR && (defined BULK_FLUXES || defined ECOSIM || \
-                            defined ATM_PRESS)
-!
-!-----------------------------------------------------------------------
-!  Surface air pressure.
-!-----------------------------------------------------------------------
-!
-      CALL get_2dfld (ng, iRPM, idPair, ncFRCid(idPair,ng),             &
-     &                nFfiles(ng), FRCname(1,ng), update(1),            &
-     &                LBi, UBi, LBj, UBj, 2, 1,                         &
-#   ifdef MASKING
-     &                GRID(ng) % rmask(LBi,LBj),                        &
-#   endif
-     &                FORCES(ng) % PairG(LBi,LBj,1))
 #  endif
 
 #  if !defined ANA_TAIR && \
@@ -1277,7 +1277,7 @@
       END DO
 #   endif
 #  endif
-#  ifdef W4DVAR
+#  if defined TL_W4DVAR || defined W4DVAR || defined W4DVAR_SENSITIVITY
 !
 !-----------------------------------------------------------------------
 !  Read frequent impulse forcing for weak constraint.

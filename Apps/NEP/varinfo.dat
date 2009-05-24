@@ -5882,7 +5882,7 @@
   'mg C per m3'
   'cop_north, scalar, series'
   'bio_time'
-  'idTbry(inorth,iCop)'qsub -q debug -l select=1:ncpus=4:node_type=4way -I
+  'idTbry(inorth,iCop)'
   'nulvar'
   1.0d0
 

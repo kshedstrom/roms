@@ -35,7 +35,8 @@
 
       PRIVATE
 # if defined ADJOINT && defined TANGENT
-#  if defined IS4DVAR || defined W4DPSAS
+#  if defined IS4DVAR || defined TL_W4DPSAS          || \
+      defined W4DPSAS || defined W4DPSAS_SENSITIVITY
       PUBLIC :: ini_adjust
 #  endif
 # endif
@@ -46,7 +47,8 @@
 # ifdef TLM_CHECK
       PUBLIC :: ini_perturb
 # endif
-# if defined W4DVAR || defined IOMS
+# if defined IOM    || defined TL_W4DVAR          || \ 
+     defined W4DVAR || defined W4DVAR_SENSITIVITY
       PUBLIC :: rp_ini_adjust
 # endif
 # if defined GRADIENT_CHECK || defined TLM_CHECK
@@ -281,7 +283,8 @@
       END SUBROUTINE ini_adjust_tile
 #  endif
 
-#  if defined W4DPSAS
+#  if defined TL_W4DPSAS          || defined W4DPSAS || \
+      defined W4DPSAS_SENSITIVITY
       SUBROUTINE ini_adjust (ng, tile, Linp, Lout)
 !
 !=======================================================================
@@ -503,7 +506,8 @@
       END SUBROUTINE ini_adjust_tile
 #  endif
 
-#  if defined W4DVAR || defined IOM
+#  if defined IOM    || defined TL_W4DVAR          || \
+      defined W4DVAR || defined W4DVAR_SENSITIVITY
       SUBROUTINE rp_ini_adjust (ng, tile, Linp, Lout)
 !
 !=======================================================================
@@ -1103,7 +1107,7 @@
 #  endif
 #  ifdef SOLVE3D
 #   ifdef ADJUST_STFLUX
-     &                       tl_tflux, tl_tflux,                        &
+     &                       tl_tflux, ad_tflux,                        &
 #   endif
      &                       tl_t, ad_t,                                &
      &                       tl_u, ad_u,                                &

@@ -49,8 +49,10 @@ ifdef USE_NETCDF4
     NETCDF_INCDIR := /archive/u1/uaf/kate/netcdf/include
     NETCDF_LIBDIR := /archive/u1/uaf/kate/netcdf/lib
 else
-     NETCDF_INCDIR ?= /usr/local/include
-     NETCDF_LIBDIR ?= /usr/local/lib
+    NETCDF_INCDIR ?= /usr/local/include
+    NETCDF_LIBDIR ?= /usr/local/lib
+#    NETCDF_INCDIR ?= /archive/u1/uaf/kate/include
+#    NETCDF_LIBDIR ?= /archive/u1/uaf/kate/lib
 endif
              LIBS := -L$(NETCDF_LIBDIR) -lnetcdf
 ifdef USE_NETCDF4
