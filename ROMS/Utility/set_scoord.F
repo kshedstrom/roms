@@ -312,7 +312,6 @@
             SCALARS(ng)%Cs_r(k)=sc_r
           END IF
         END DO
-      END DO
 !
 !-----------------------------------------------------------------------
 !  R. Geyer stretching function for high bottom boundary layer

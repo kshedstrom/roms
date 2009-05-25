@@ -3542,10 +3542,8 @@
 !
       Vinfo( 1)='Vtransform'
       Vinfo( 2)='vertical terrain-following transformation equation'
-      status=def_var(ng, model, ncid, varid, nf90_int,
-
-     &               1, (/0/), Aval, Vinfo, ncname,
-
+      status=def_var(ng, model, ncid, varid, nf90_int,                  &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
      &               SetParAccess = .FALSE.)
       IF (exit_flag.ne.NoError) RETURN
 

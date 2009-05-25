@@ -139,6 +139,7 @@
 
       real(r8) :: cff_r, cff1_r, cff2_r, cff_w, cff1_w, cff2_w
       real(r8) :: hinv, hwater, z_r0, z_w0
+      real(r8) :: C2_r, C2_w, hh2, vert_n1, vert_a, vert_h0, vert_s0
 # ifdef WET_DRY
       real(r8), parameter :: eps = 1.0E-14_r8
 # endif
