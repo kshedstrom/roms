@@ -2657,7 +2657,7 @@
       idriver=idriver+1
 #endif
 #ifdef W4DVAR_SENSITIVITY
-      IF (Master) WRITE (stdout,20) 'W4DVAR_SENSITIVITY', &
+      IF (Master) WRITE (stdout,20) 'W4DVAR_SENSITIVITY',               &
      &   'Weak constraint 4DVAR observation sensitivity.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+20)=' W4DVAR_SENSITIVITY,'

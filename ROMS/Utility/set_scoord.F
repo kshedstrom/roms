@@ -157,7 +157,7 @@
       real(r8) :: cff, cff1, cff2, cff3
 !
 !-----------------------------------------------------------------------
-!  Set thickness controlling vertical coordinate stretching
+!  Set thickness controlling vertical coordinate stretching.
 !-----------------------------------------------------------------------
 !
 !  Set hc <= hmin, in the original formulation (Vtransform=1) to avoid
@@ -171,7 +171,6 @@
         hc(ng)=MIN(MAX(hmin(ng),0.0_r8),Tcline(ng))
 # else
         hc(ng)=MIN(hmin(ng),Tcline(ng))
-      hc(ng)=MIN(hmin(ng),Tcline(ng))
 # endif
       ELSE IF (Vtransform(ng).eq.2) THEN
         hc(ng)=Tcline(ng)
@@ -210,21 +209,21 @@
           SCALARS(ng)%sc_w(k)=ds*REAL(k-N(ng),r8)
           SCALARS(ng)%sc_r(k)=ds*(REAL(k-N(ng),r8)-0.5_r8)
           IF (theta_s(ng).ne.0.0_r8) THEN
-            SCALARS(ng)%Cs_w(k)=(1.0_r8-theta_b(ng))* &
-     &                          cff1*SINH(theta_s(ng)* &
-     &                                    SCALARS(ng)%sc_w(k))+ &
-     &                          theta_b(ng)* &
-     &                          (cff2*TANH(theta_s(ng)* &
-     &                                     (SCALARS(ng)%sc_w(k)+ &
-     &                                      0.5_r8))- &
+            SCALARS(ng)%Cs_w(k)=(1.0_r8-theta_b(ng))*                     &
+     &                          cff1*SINH(theta_s(ng)*                    &
+     &                                    SCALARS(ng)%sc_w(k))+           &
+     &                          theta_b(ng)*                              &
+     &                          (cff2*TANH(theta_s(ng)*                   &
+     &                                     (SCALARS(ng)%sc_w(k)+          &
+     &                                      0.5_r8))-                     &
      &                           0.5_r8)
-            SCALARS(ng)%Cs_r(k)=(1.0_r8-theta_b(ng))* &
-     &                          cff1*SINH(theta_s(ng)* &
-     &                                    SCALARS(ng)%sc_r(k))+ &
-     &                          theta_b(ng)* &
-     &                          (cff2*TANH(theta_s(ng)* &
-     &                                     (SCALARS(ng)%sc_r(k)+ &
-     &                                      0.5_r8))- &
+            SCALARS(ng)%Cs_r(k)=(1.0_r8-theta_b(ng))*                     &
+     &                          cff1*SINH(theta_s(ng)*                    &
+     &                                    SCALARS(ng)%sc_r(k))+           &
+     &                          theta_b(ng)*                              &
+     &                          (cff2*TANH(theta_s(ng)*                   &
+     &                                     (SCALARS(ng)%sc_r(k)+          &
+     &                                      0.5_r8))-                     &
      &                           0.5_r8)
           ELSE
             SCALARS(ng)%Cs_w(k)=SCALARS(ng)%sc_w(k)
@@ -346,7 +345,7 @@
 !                          3.0    super-high bottom resolution
 !            s : stretched vertical coordinate, -1 <= s <= 0
 !                  s(k) = (k-N)/N       k=0:N,    W-points  (s_w)
-!                  s(k) = (k-N-0.5)/N   k=1:N,  RHO-points (s_rho)
+!                  s(k) = (k-N-0.5)/N   k=1:N,  RHO-points  (s_rho)
 !
 !  The stretching exponents (alpha, beta) are specify at input:
 !
@@ -363,9 +362,9 @@
         DO k=N(ng)-1,1,-1
           sc_w=ds*REAL(k-N(ng),r8)
           SCALARS(ng)%sc_w(k)=sc_w
-          Cbot= LOG(COSH(Hscale*(sc_w+1.0_r8)**exp_bot))/ &
+          Cbot= LOG(COSH(Hscale*(sc_w+1.0_r8)**exp_bot))/                 &
      &          LOG(COSH(Hscale))-1.0_r8
-          Csur=-LOG(COSH(Hscale*ABS(sc_w)**exp_sur))/ &
+          Csur=-LOG(COSH(Hscale*ABS(sc_w)**exp_sur))/                     &
      &          LOG(COSH(Hscale))
           Cweight=0.5_r8*(1.0_r8-TANH(Hscale*(sc_w+0.5_r8)))
           SCALARS(ng)%Cs_w(k)=Cweight*Cbot+(1.0_r8-Cweight)*Csur
@@ -376,9 +375,9 @@
         DO k=1,N(ng)
           sc_r=ds*(REAL(k-N(ng),r8)-0.5_r8)
           SCALARS(ng)%sc_r(k)=sc_r
-          Cbot= LOG(COSH(Hscale*(sc_r+1.0_r8)**exp_bot))/ &
+          Cbot= LOG(COSH(Hscale*(sc_r+1.0_r8)**exp_bot))/                 &
      &          LOG(COSH(Hscale))-1.0_r8
-          Csur=-LOG(COSH(Hscale*ABS(sc_r)**exp_sur))/ &
+          Csur=-LOG(COSH(Hscale*ABS(sc_r)**exp_sur))/                     &
      &          LOG(COSH(Hscale))
           Cweight=0.5_r8*(1.0_r8-TANH(Hscale*(sc_r+0.5_r8)))
           SCALARS(ng)%Cs_r(k)=Cweight*Cbot+(1.0_r8-Cweight)*Csur

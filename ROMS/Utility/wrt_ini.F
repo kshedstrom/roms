@@ -99,7 +99,7 @@
      &                   GRID(ng) % rmask,                              &
 # endif
 # ifdef WET_DRY
-     &                   OCEAN(ng) % zeta(:,:,Tindex), &
+     &                   OCEAN(ng) % zeta(:,:,Tindex),                  &
      &                   SetFillVal = .FALSE.)
 # else
      &                   OCEAN(ng) % zeta(:,:,Tindex))

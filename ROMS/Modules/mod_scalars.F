@@ -111,7 +111,7 @@
         integer :: iSiOH              ! Silicate concentration
         integer :: iSphy              ! Samll phytoplankton
         integer :: iLphy              ! Diatom concentration
-        integer :: iSzoo              ! Small zooplankton concentration
+        integer :: iSzoo              ! Small zooplankotn concentration
         integer :: iLzoo              ! Mesozooplankotn concentration
         integer :: iSDet              ! Detritus notrogen concentration
         integer :: iopal              ! Biogenic silicate concentration
@@ -267,7 +267,7 @@
 #  endif
 # endif
 #endif
-#if defined FLOATS
+#if defined FLOATS || defined NEMURO_SAN
 !
 !-----------------------------------------------------------------------
 !  Floats fields identification indices.
@@ -981,6 +981,12 @@
 !  Floats restart switch.
 !
         integer, dimension(Ngrids) :: frrec
+#endif
+#ifdef NEMURO_SAN
+!
+!  Fish restart switch.
+!
+        integer, dimension(Ngrids) :: fishrrec
 #endif
 !
 !  Switch to activate processing of input data.  This switch becomes
@@ -1895,7 +1901,7 @@
 #endif
 #if defined BIO_FENNEL
 !
-!   Set Fennel et al (2006) Nitrogen-based biological tracer indices
+!  Set Fennel et al (2006) Nitrogen-based biological tracer indices.
 !
       DO i=1,NBT
         idbio(i)=ic+i
@@ -1942,7 +1948,7 @@
       ic=ic+1
 # endif 
 # ifdef CARBON
-      iTIC_=ic+1 
+      iTIC_=ic+1
       iTAlk=ic+2
       ic=ic+2
 # endif
@@ -2230,6 +2236,8 @@
         ntstart(ng)=1
         ntend(ng)=0
         gamma2(ng)=-1.0_r8
+        Vtransform(ng)=1
+        Vstretching(ng)=1
 #if defined AVERAGES_DETIDE && (defined SSH_TIDES || defined UV_TIDES)
         Hcount(ng)=0
 #endif
@@ -2299,6 +2307,9 @@
         LdefDIA(ng)=.TRUE.
 #ifdef FLOATS
         LdefFLT(ng)=.TRUE.
+#endif
+#ifdef NEMURO_SAN
+        LdefFISH(ng)=.TRUE.
 #endif
         LdefHIS(ng)=.TRUE.
         LdefINI(ng)=.FALSE.

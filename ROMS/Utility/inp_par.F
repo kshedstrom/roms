@@ -1455,7 +1455,7 @@
           ELSE IF (TRIM(KeyWord).eq.'Vtransform') THEN
             Npts=load_i(Nval, Rval, Ngrids, Vtransform)
             DO ng=1,Ngrids
-              IF ((Vtransform(ng).lt.0).or.  &
+              IF ((Vtransform(ng).lt.0).or.                             &
      &            (Vtransform(ng).gt.3)) THEN
                 IF (Master) WRITE (out,260) 'Vtransform = ',            &
      &                                      Vtransform(ng),             &
@@ -2804,6 +2804,11 @@
      &          'Number of timesteps between the writing of data',      &
      &          'into floats file.'
 #endif
+#ifdef NEMURO_SAN
+          WRITE (out,130) nFLT(ng), 'nFISHES',                          &
+     &          'Number of timesteps between the writing of data',      &
+     &          'into fish file.'
+#endif
           WRITE (out,170) ldefout(ng), 'ldefout',                       &
      &          'Switch to create a new output NetCDF file(s).'
           WRITE (out,130) nHIS(ng), 'nHIS',                             &
@@ -3053,7 +3058,7 @@
      &          'Deepest level to apply surface stress as a',           &
      &          'bodyforce.'
           IF ((levsfrc(ng).lt.1).or.(levsfrc(ng).gt.N(ng))) THEN
-            IF (Master) WRITE (out,260) 'levsfrc.',                     &
+            WRITE (out,260) 'levsfrc.',                                 &
      &            'Out of range surface bodyforce level.'
             exit_flag=5
             RETURN
@@ -4407,7 +4412,7 @@
 # if defined BIO_FENNEL
 !
 !-----------------------------------------------------------------------
-!  Read in Fennel et al. (2006) biological model parameters
+!  Read in Fennel et al. (2006) biological model parameters.
 !-----------------------------------------------------------------------
 !
       DO WHILE (.TRUE.)
@@ -4522,7 +4527,8 @@
               DO itrc=1,NBT
                 i=idTvar(idbio(itrc))
                 IF (i.eq.0) THEN
-                  IF (Master) WRITE (out,120) 'idTvar(idbio(', itrc, '))'
+                  IF (Master) WRITE (out,120)                           &
+     &                              'idTvar(idbio(', itrc, '))'
                   exit_flag=5
                   RETURN
                 END IF                  
@@ -4535,7 +4541,8 @@
               DO itrc=1,NBT
                 i=idTsur(idbio(itrc))
                 IF (i.eq.0) THEN
-                  IF (Master) WRITE (out,120) 'idTsur(idbio(', itrc, '))'
+                  IF (Master) WRITE (out,120)                           &
+     &                              'idTsur(idbio(', itrc, '))'
                   exit_flag=5
                   RETURN
                 END IF                  
@@ -5151,7 +5158,7 @@
 !  be applied to each harmonic operator.
 !
       DO ng=1,Ngrids
-       DO itrc=1,NBT
+        DO itrc=1,NBT
           i=idbio(itrc)
           tnu4(i,ng)=SQRT(ABS(tnu4(i,ng)))
 !
@@ -5304,7 +5311,8 @@
               DO itrc=1,NBT
                 i=idTvar(idbio(itrc))
                 IF (i.eq.0) THEN
-                  IF (Master) WRITE (out,120) 'idTvar(idbio(', itrc, '))'
+                  IF (Master) WRITE (out,120)                           &
+     &                              'idTvar(idbio(', itrc, '))'
                   exit_flag=5
                   RETURN
                 END IF                  
@@ -5317,7 +5325,8 @@
               DO itrc=1,NBT
                 i=idTsur(idbio(itrc))
                 IF (i.eq.0) THEN
-                  IF (Master) WRITE (out,120) 'idTsur(idbio(', itrc, '))'
+                  IF (Master) WRITE (out,120)                           &
+     &                              'idTsur(idbio(', itrc, '))'
                   exit_flag=5
                   RETURN
                 END IF                  
@@ -5768,7 +5777,7 @@
                 i=idTvar(idbio(itrc))
                 IF (i.eq.0) THEN
                   IF (Master) WRITE (out,120)                           &
-     &                        'idTvar(idbio(', itrc, '))'
+     &                              'idTvar(idbio(', itrc, '))'
                   exit_flag=5
                   RETURN
                 END IF                  
@@ -5782,7 +5791,7 @@
                 i=idTsur(idbio(itrc))
                 IF (i.eq.0) THEN
                   IF (Master) WRITE (out,120)                           &
-     &                        'idTsur(idbio(', itrc, '))'
+     &                              'idTsur(idbio(', itrc, '))'
                   exit_flag=5
                   RETURN
                 END IF                  
@@ -6236,7 +6245,7 @@
                 i=idTvar(idbio(itrc))
                 IF (i.eq.0) THEN
                   IF (Master) WRITE (out,120)                           &
-     &                        'idTvar(idbio(', itrc, '))'
+     &                              'idTvar(idbio(', itrc, '))'
                   exit_flag=5
                   RETURN
                 END IF                  
@@ -6250,7 +6259,7 @@
                 i=idTsur(idbio(itrc))
                 IF (i.eq.0) THEN
                   IF (Master) WRITE (out,120)                           &
-     &                        'idTsur(idbio(', itrc, '))'
+     &                              'idTsur(idbio(', itrc, '))'
                   exit_flag=5
                   RETURN
                 END IF                  
@@ -6488,7 +6497,7 @@
                 i=idTvar(idbio(itrc))
                 IF (i.eq.0) THEN
                   IF (Master) WRITE (out,120)                           &
-     &                        'idTvar(idbio(', itrc, '))'
+     &                              'idTvar(idbio(', itrc, '))'
                   exit_flag=5
                   RETURN
                 END IF                  
@@ -6502,7 +6511,7 @@
                 i=idTsur(idbio(itrc))
                 IF (i.eq.0) THEN
                   IF (Master) WRITE (out,120)                           &
-     &                        'idTsur(idbio(', itrc, '))'
+     &                              'idTsur(idbio(', itrc, '))'
                   exit_flag=5
                   RETURN
                 END IF                  
@@ -7320,7 +7329,7 @@
                 i=idTvar(idbio(itrc))
                 IF (i.eq.0) THEN
                   IF (Master) WRITE (out,150)                           &
-     &                        'idTvar(idbio(', itrc, '))'
+     &                              'idTvar(idbio(', itrc, '))'
                   exit_flag=5
                   RETURN
                 END IF
@@ -7334,7 +7343,7 @@
                 i=idTsur(idbio(itrc))
                 IF (i.eq.0) THEN
                   IF (Master) WRITE (out,120)                           &
-     &                        'idTsur(idbio(', itrc, '))'
+     &                              'idTsur(idbio(', itrc, '))'
                   exit_flag=5
                   RETURN
                 END IF                  
@@ -8327,7 +8336,7 @@
             DO ng=1,Ngrids
               DO itrc=NCS+1,NST
                 IF (idUbld(itrc).eq.0) THEN
-                  IF (Master)  WRITE (out,100) 'idUbld'
+                  IF (Master) WRITE (out,100) 'idUbld'
                   exit_flag=5
                   RETURN
                 END IF
@@ -8764,7 +8773,7 @@
               WRITE (out,100) ZoSST(ng), 'zoSST',                       &
      &              'E-folding depth (m) to extend SST error variance.'
               IF (KP.lt.npSST(ng)) THEN
-                IF (Master) WRITE (out,160) 'KP: ', KP, npSST(ng)
+                WRITE (out,160) 'KP: ', KP, npSST(ng)
                 exit_flag=5
                 RETURN
               END IF
@@ -8788,7 +8797,7 @@
      &              'E-folding depth (m) to extend surface currents',   &
      &              'error variance.'
               IF (KP.lt.npUV(ng)) THEN
-                IF (Master) WRITE (out,160) 'KP: ', KP, npUV(ng)
+                WRITE (out,160) 'KP: ', KP, npUV(ng)
                 exit_flag=5
                 RETURN
               END IF
@@ -8848,7 +8857,7 @@
 #   endif
 #  endif
             GO TO 40
-  30        IF (Master) WRITE (out,190) TRIM(fname)
+  30        WRITE (out,190) TRIM(fname)
             exit_flag=4
             RETURN
   40        CONTINUE
@@ -9667,7 +9676,7 @@
      &                    TRIM(MODname(ng))
 #  endif
           GO TO 40
-  30      IF (Master) WRITE (out,200) TRIM(fname)
+  30      WRITE (out,200) TRIM(fname)
           exit_flag=4
           RETURN
   40      CONTINUE
@@ -9758,6 +9767,10 @@
             Npts=load_l(Nval, Cval, Ngrids, Lfloats)
           ELSE IF (TRIM(KeyWord).eq.'FRREC') THEN
             Npts=load_i(Nval, Rval, Ngrids, frrec)
+#ifdef NEMURO_SAN
+          ELSE IF (TRIM(KeyWord).eq.'FRREC') THEN
+            Npts=load_i(Nval, Rval, Ngrids, frrec)
+#endif
           ELSE IF (TRIM(KeyWord).eq.'NFLOATS') THEN
             Npts=load_i(Nval, Rval, Ngrids, Nfloats)
           ELSE IF (TRIM(KeyWord).eq.'POS') THEN

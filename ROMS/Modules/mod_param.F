@@ -324,7 +324,7 @@
 # if defined BIO_FENNEL
 !
 !  Number of tracers for Fennel et al. (2006), Nitrogen-based biological
-!  model
+!  model.
 !
 #  ifdef CARBON
 #    ifdef OXYGEN

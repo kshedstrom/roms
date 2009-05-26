@@ -159,7 +159,7 @@
 !
       IF (Vtransform(ng).eq.3) THEN
         vert_s0 = 90./120.
-        vert_n1 = 2./3. !3./5.   
+        vert_n1 = 2./3. !3./5.
         vert_h0 = 60./(vert_s0)**(vert_n1)
         vert_a = 1./(vert_s0-1)
       END IF

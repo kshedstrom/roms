@@ -2233,7 +2233,7 @@
 
       Vinfo( 1)='beta1'
       Vinfo( 2)='microzooplankton maximum grazing rate'
-      Vinfo( 3)='day-1' 
+      Vinfo( 3)='day-1'
       status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
      &               1, (/0/), Aval, Vinfo, ncname)
       IF (exit_flag.ne.NoError) RETURN

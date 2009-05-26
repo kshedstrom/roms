@@ -640,7 +640,7 @@
 #endif
 #if defined SEDIMENT && defined SED_MORPH
 !
-!  Define  time-varying bathymetry
+!  Define time-varying bathymetry.
 !
         Vinfo( 1)=Vname(1,idbath)
         Vinfo( 2)=Vname(2,idbath)

@@ -2029,7 +2029,7 @@
                 idTvar(iZoop)=varid
               CASE ('idTvar(iSDet)')
                 idTvar(iSDet)=varid
-#if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
+# if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
     defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR || \
     defined SO_SEMI
               CASE ('idTads(iNO3_)')
@@ -2089,7 +2089,7 @@
                 idTvar(iSDeN)=varid
               CASE ('idTvar(iChlo)')
                 idTvar(iChlo)=varid
-#if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
+# if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
     defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR || \
     defined SO_SEMI
               CASE ('idTads(iNO3_)')
@@ -2116,7 +2116,7 @@
                 idTvar(iLDeC)=varid
               CASE ('idTvar(iSDeC)')
                 idTvar(iSDeC)=varid
-#if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
+# if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
     defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR || \
     defined SO_SEMI
               CASE ('idTads(iTIC_)')
@@ -2132,7 +2132,7 @@
 # ifdef OXYGEN
               CASE ('idTvar(iOxyg)')
                 idTvar(iOxyg)=varid
-#if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
+# if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
     defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR || \
     defined SO_SEMI
               CASE ('idTads(iOxyg)')

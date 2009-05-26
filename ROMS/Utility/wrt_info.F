@@ -868,7 +868,7 @@
 #if defined BIOLOGY && defined SOLVE3D
 # ifdef BIO_FENNEL
 !
-!  Write out  Fennel et al. (2006) type biological model parameters.
+!  Write out Fennel et al. (2006) type biological model parameters.
 !
       CALL netcdf_put_ivar (ng, model, ncname, 'BioIter',               &
      &                      BioIter(ng), (/0/), (/0/),                  &
