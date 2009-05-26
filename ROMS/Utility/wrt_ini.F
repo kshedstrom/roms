@@ -2,7 +2,7 @@
 #ifdef FOUR_DVAR
       SUBROUTINE wrt_ini (ng, Tindex)
 !
-!svn $Id: wrt_ini.F 985 2009-05-24 16:35:20Z kate $
+!svn $Id: wrt_ini.F 989 2009-05-26 22:46:51Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !

@@ -1,6 +1,6 @@
       SUBROUTINE biology (ng,tile)
 !
-!svn $Id: nemuro.h 975 2009-05-05 22:51:13Z kate $
+!svn $Id: nemuro.h 982 2009-05-22 20:04:01Z kate $
 !************************************************** Hernan G. Arango ***
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -76,9 +76,6 @@
      &                   GRID(ng) % z_r,                                &
      &                   GRID(ng) % z_w,                                &
      &                   FORCES(ng) % srflx,                            &
-#ifdef NEMURO_SAN
-     &                   OCEAN(ng) % fish_graze,                        &
-#endif
      &                   OCEAN(ng) % t)
 
 #ifdef PROFILE
@@ -100,9 +97,6 @@
 #endif
      &                         Hz, z_r, z_w,                            &
      &                         srflx,                                   &
-#ifdef NEMURO_SAN
-     &                         fish_graze,                              &
-#endif
      &                         t)
 !-----------------------------------------------------------------------
 !
@@ -129,9 +123,6 @@
       real(r8), intent(in) :: z_r(LBi:,LBj:,:)
       real(r8), intent(in) :: z_w(LBi:,LBj:,0:)
       real(r8), intent(in) :: srflx(LBi:,LBj:)
-#ifdef NEMURO_SAN
-      real(r8), intent(in) :: fish_graze(LBi:,LBj:,:,:)
-#endif
       real(r8), intent(inout) :: t(LBi:,LBj:,:,:,:)
 #else
 # ifdef MASKING
@@ -144,9 +135,6 @@
       real(r8), intent(in) :: z_r(LBi:UBi,LBj:UBj,UBk)
       real(r8), intent(in) :: z_w(LBi:UBi,LBj:UBj,0:UBk)
       real(r8), intent(in) :: srflx(LBi:UBi,LBj:UBj)
-#ifdef NEMURO_SAN
-      real(r8), intent(inout) :: fish_graze(LBi:UBi,LBj:UBj,UBk,NBT)
-#endif
       real(r8), intent(inout) :: t(LBi:UBi,LBj:UBj,UBk,3,UBt)
 #endif
 !

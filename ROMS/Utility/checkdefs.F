@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       SUBROUTINE checkdefs
 !
-!svn $Id: checkdefs.F 976 2009-05-18 21:57:59Z kate $
+!svn $Id: checkdefs.F 989 2009-05-26 22:46:51Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -1391,12 +1391,6 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+8)=' NEMURO,'
       ibiology=ibiology+1
-# ifdef NEMURO_SAN
-      IF (Master) WRITE (stdout,20) 'NEMURO_SAN',                        &
-     &   'Nemuro Lower Trophic Level Ecosystem Model with fish.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+12)=' NEMURO_SAN,'
-# endif
 #endif
 #ifdef SOLVE3D
 # if defined NONLIN_EOS

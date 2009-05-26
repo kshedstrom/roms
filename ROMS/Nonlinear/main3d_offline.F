@@ -3,7 +3,7 @@
     (defined OFFLINE_BIOLOGY || defined OFFLINE_FLOATS)
       SUBROUTINE main3d_offline (ng)
 !
-!svn $Id: main3d_offline.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: main3d_offline.F 982 2009-05-22 20:04:01Z kate $
 !=======================================================================
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -120,9 +120,6 @@
 # ifdef FLOATS
       USE step_floats_mod, ONLY : step_floats
 # endif
-# ifdef NEMURO_SAN
-      USE step_fish_mod, ONLY : step_fish
-# endif
       USE wvelocity_mod, ONLY : wvelocity
 !
       implicit none
@@ -134,7 +131,7 @@
 !  Local variable declarations.
 !
       integer :: my_iif, next_indx1, subs, tile, thread
-# if defined FLOATS || defined NEMURO_SAN
+# if defined FLOATS
       integer :: Lend, Lstr, chunk_size
 # endif
 !
@@ -549,23 +546,7 @@
       END DO
 !$OMP END PARALLEL DO
 # endif
-# ifdef NEMURO_SAN
-!
-!-----------------------------------------------------------------------
-!  Compute Lagrangian fish trajectories.
-!-----------------------------------------------------------------------
-!
-!$OMP PARALLEL DO PRIVATE(thread,chunk_size,Lstr,Lend)                  &
-!$OMP&            SHARED(ng,numthreads,Nfish)
-      DO thread=0,numthreads-1
-        chunk_size=(Nfish(ng)+numthreads-1)/numthreads
-        Lstr=1+thread*chunk_size
-        Lend=MIN(Nfish(ng),Lstr+chunk_size-1)
-        CALL step_fish (ng, Lstr, Lend)
-      END DO
-!$OMP END PARALLEL DO
-# endif
-# if defined FLOATS || defined NEMURO_SAN
+# if defined FLOATS
 !
 !  Shift floats time indices.
 !

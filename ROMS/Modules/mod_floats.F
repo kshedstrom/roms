@@ -2,7 +2,7 @@
       MODULE mod_floats
 #ifdef FLOATS
 !
-!svn $Id: mod_floats.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: mod_floats.F 982 2009-05-22 20:04:01Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -39,10 +39,6 @@
           real(r8), pointer :: Tinfo(:,:)
           real(r8), pointer :: track(:,:,:)
           real(r8), pointer :: Fz0(:)
-# ifdef NEMURO_SAN
-          real(r8), pointer :: Ffish(:,:)
-          real(r8), pointer :: Fgraze(:,:)
-# endif
 
         END TYPE T_FLT
 
@@ -93,10 +89,6 @@
 
       allocate ( FLT(ng) % Fz0(Nfloats(ng)) )
 
-# ifdef NEMURO_SAN
-      allocate ( FLT(ng) % Ffish(NfishT(ng),Nfloats(ng)) )
-      allocate ( FLT(ng) % Fgraze(NBT(ng),Nfloats(ng)) )
-# endif
 !
 !-----------------------------------------------------------------------
 !  Initialize module variables.
@@ -120,14 +112,6 @@
           FLT(ng) % track(i,3,iflt) = IniVal
           FLT(ng) % track(i,4,iflt) = IniVal
         END DO
-# ifdef NEMURO_SAN
-        DO i=1,NfishT(ng)
-          FLT(ng) % Ffish(i,iflt) = IniVal
-        END DO
-        DO i=1,NBT(ng)
-          FLT(ng) % Fgraze(i,iflt) = IniVal
-        END DO
-# endif
       END DO
 
       RETURN

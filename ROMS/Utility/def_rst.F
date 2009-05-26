@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       SUBROUTINE def_rst (ng)
 !
-!svn $Id: def_rst.F 984 2009-05-24 01:43:19Z kate $
+!svn $Id: def_rst.F 989 2009-05-26 22:46:51Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !

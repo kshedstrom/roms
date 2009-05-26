@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       MODULE mod_stepping
 !
-!svn $Id: mod_stepping.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: mod_stepping.F 982 2009-05-22 20:04:01Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -63,7 +63,7 @@
         integer, dimension(Ngrids) :: nrhs = (/ (1, ig=1,Ngrids) /)
         integer, dimension(Ngrids) :: nstp = (/ (1, ig=1,Ngrids) /)
 
-#if defined FLOATS || defined NEMURO_SAN
+#if defined FLOATS
         integer, dimension(Ngrids) :: nf   = (/ (0, ig=1,Ngrids) /)
         integer, dimension(Ngrids) :: nfp1 = (/ (1, ig=1,Ngrids) /)
         integer, dimension(Ngrids) :: nfm3 = (/ (2, ig=1,Ngrids) /)

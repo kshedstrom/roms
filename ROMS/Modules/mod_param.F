@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       MODULE mod_param
 !
-!svn $Id: mod_param.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: mod_param.F 989 2009-05-26 22:46:51Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -74,15 +74,6 @@
 !  NDM3d      Number of diagnostic 3D momentum fields.                 !
 !  NDrhs      Number of diagnostic 3D right-hand-side fields.          !
 !
-#ifdef NEMURO_SAN
-! parameters for the fish particle model
-!  Nbox       Number of spawning areas
-!  Numfish    Number of fish per year class per species
-!  Nspecies   Number of fish species
-!  Nyearclass Number of year classes
-!  Nfish      Total number of fish
-!  Nbatch     Number of days per year an individual will release eggs
-#endif
 !                                                                      !
 !=======================================================================
 !
@@ -440,20 +431,7 @@
 #else
         integer, parameter :: NBT = 0
 #endif
-#ifdef NEMURO_SAN
-        integer, dimension(Ngrids), parameter :: Nbox=6
-        integer, dimension(Ngrids), parameter :: Numfish=500
-        integer, dimension(Ngrids), parameter :: Nspecies=3
-        integer, dimension(Ngrids), parameter :: Nyearclass=10
-        integer, dimension(Ngrids), parameter :: Nfish=500*3*10
-!       integer, dimension(Ngrids), parameter :: Nfish=Numfish*Nspecies*Nyearclass
-        integer, dimension(Ngrids), parameter :: Nbatch=8
-
-!  Total number of fish variables to process and output.
-!
-        integer, dimension(Ngrids) :: NFishV
-#endif
-#if defined FLOATS || defined NEMURO_SAN
+#if defined FLOATS
 !
 !-----------------------------------------------------------------------
 !  Floats trajectories parameters.
@@ -464,7 +442,7 @@
         integer, parameter :: NFT = 4
 !
 #endif
-#if defined FLOATS || defined NEMURO_SAN
+#if defined FLOATS
 !  Total number of floats to track.
 !
         integer, dimension(Ngrids) :: Nfloats
@@ -727,13 +705,6 @@
           NFV(ng)=NT(ng)+12
 # else
           NFV(ng)=NT(ng)+10
-# endif
-#endif
-#ifdef NEMURO_SAN
-# ifdef FLOAT_VWALK
-          NFishV(ng)=NT(ng)+12
-# else
-          NFishV(ng)=NT(ng)+10
 # endif
 #endif
           NSV(ng)=NT(ng)+5

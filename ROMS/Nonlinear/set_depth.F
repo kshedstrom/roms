@@ -2,7 +2,7 @@
       MODULE set_depth_mod
 #ifdef SOLVE3D
 !
-!svn $Id: set_depth.F 986 2009-05-25 17:44:31Z kate $
+!svn $Id: set_depth.F 989 2009-05-26 22:46:51Z kate $
 !=======================================================================
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !

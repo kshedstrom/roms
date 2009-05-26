@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       MODULE mod_ocean
 !
-!svn $Id: mod_ocean.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: mod_ocean.F 984 2009-05-24 01:43:19Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -107,9 +107,6 @@
           real(r8), pointer :: ru(:,:,:,:)
           real(r8), pointer :: rv(:,:,:,:)
           real(r8), pointer :: t(:,:,:,:,:)
-# ifdef NEMURO_SAN
-          real(r8), pointer :: fish_graze(:,:,:,:)
-# endif
           real(r8), pointer :: u(:,:,:,:)
           real(r8), pointer :: v(:,:,:,:)
           real(r8), pointer :: W(:,:,:)
@@ -348,9 +345,6 @@
       allocate ( OCEAN(ng) % rv(LBi:UBi,LBj:UBj,0:N(ng),2) )
 
       allocate ( OCEAN(ng) % t(LBi:UBi,LBj:UBj,N(ng),3,NT(ng)) )
-# ifdef NEMURO_SAN
-      allocate ( OCEAN(ng) % fish_graze(LBi:UBi,LBj:UBj,N(ng),NBT) )
-# endif
       allocate ( OCEAN(ng) % u(LBi:UBi,LBj:UBj,N(ng),2) )
       allocate ( OCEAN(ng) % v(LBi:UBi,LBj:UBj,N(ng),2) )
       allocate ( OCEAN(ng) % W(LBi:UBi,LBj:UBj,0:N(ng)) )
@@ -661,7 +655,7 @@
             OCEAN(ng) % vbar_stokes(i,j) = IniVal
 # endif
 # if (defined BIO_FENNEL || defined BIO_UMaine) && \
-     defined CARBON && defined SOLVE3D
+      defined CARBON && defined SOLVED3D
             OCEAN(ng) % pH(i,j) = 8.0_r8
 # endif
           END DO
@@ -703,15 +697,6 @@
               END DO
             END DO
           END DO 
-# ifdef NEMURO_SAN
-          DO itrc=1,NBT
-            DO k=1,N(ng)
-              DO i=Imin,Imax
-                OCEAN(ng) % fish_graze(i,j,k,itrc) = IniVal
-              END DO
-            END DO
-          END DO
-# endif
 # ifdef BIO_GOANPZ
           DO itrc=1,NTS(ng)
             DO k=1,N(ng)
