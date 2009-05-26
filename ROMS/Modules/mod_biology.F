@@ -109,72 +109,72 @@
 
 # endif
 # ifdef BIO_UMaine
-!  !
-!  Parameters for UMaine CoSiNE model:                     !
-!  !
-!   reg1     Microzooplankton excretion rate to ammonium [1/day].  !
-!   reg2     Mesozooplankton excretion rate to ammonium [1/day].  !
-!   gmaxs1   Maximum specific growth rate of small phytoplankton !
-!              [1/day] !
-!   gmaxs2   Maximum specific growth rate of diatom [1/day] !
-!   beta1    Microzooplankton maximum grazing rate [1/day] !
-!   beta2    Mesozooplankton maximum grazing rate [1/day] !
-!   akz1     Half saturation constant for microzooplankton grazing !
-!              [mmol_N/m3] !
-!   akz2     Half saturation constant for mesozooplankton grazing !
-!              [mmol_N/m3] !
-!   PARfrac  Fraction of shortwave radiation that is available for !
-!              photosyntesis [nondimensional].  !
-!   amaxs2   Initial slope of P-I curve of small phytoplankton !
-!              [1/(Watts/m2)/day] !
-!   parsats1 PAR saturation onset parameter of small phytoplankton !
-!              [Watts/m2] !
-!   parsats2 PAR saturation onset parameter of diatom [Watts/m2] !
-!              [Watts/m2] !
-!   pis1     Ammonium inhibition parameter for small phytoplankton !
-!              [mmol_N/m3] !
-!   pis2     Ammonium inhibition parameter for diatom [mmol_N/m3] !
-!   akno3s1  Half saturation concentration for nitrate uptake by !
-!              small phytoplankton [mmol_N/m3].  !
-!   akno3s2  Half saturation concentration for nitrate uptake by !
-!              diatom [mmol_N/m3].  !
-!   aknh4s1  Half saturation concentration for ammonium uptake by !
-!              small phytoplankton [mmol_N/m3].  !
-!   aknh4s2  Half saturation concentration for ammonium uptake by !
-!              diatom [mmol_N/m3].  !
-!   akpo4s1  Half saturation concentration for phosphate uptake by !
-!              small phytoplankton [mmol_P/m3].  !
-!   akpo4s2  Half saturation concentration for phosphate uptake by !
-!              diatom [mmol_P/m3].  !
-!   akco2s1  Half saturation concentration for co2 uptake by !
-!              small phytoplankton [mmol_C/m3].  !
-!   akco2s2  Half saturation concentration for co2 uptake by !
-!              diatom [mmol_C/m3].  !
-!   aksio4s2 Half saturation constant for silicate uptake by !
-!              diatom [mmol_Si/m3].  !
-!   ak1      Light attenuation coefficient of water [1/m] !
-!   ak2      Specific light attenuation coefficient for !
-!              phytoplankton [1/m/(mmol_N/m3)].  !
-!   bgamma0   Mesozooplankton specific mortality rate [1/day].  !
-!   bgamma1   Grazing efficiency of microzooplankton [nondimensional].  !
+!                                                                      !
+!  Parameters for UMaine CoSiNE model:                                 !
+!                                                                      !
+!   reg1     Microzooplankton excretion rate to ammonium [1/day].      !
+!   reg2     Mesozooplankton excretion rate to ammonium [1/day].       !
+!   gmaxs1   Maximum specific growth rate of small phytoplankton       !
+!              [1/day]                                                 !
+!   gmaxs2   Maximum specific growth rate of diatom [1/day]            !
+!   beta1    Microzooplankton maximum grazing rate [1/day]             !
+!   beta2    Mesozooplankton maximum grazing rate [1/day]              !
+!   akz1     Half saturation constant for microzooplankton grazing     !
+!              [mmol_N/m3]                                             !
+!   akz2     Half saturation constant for mesozooplankton grazing      !
+!              [mmol_N/m3]                                             !
+!   PARfrac  Fraction of shortwave radiation that is available for     !
+!              photosyntesis [nondimensional].                         !
+!   amaxs2   Initial slope of P-I curve of small phytoplankton         !
+!              [1/(Watts/m2)/day]                                      !
+!   parsats1 PAR saturation onset parameter of small phytoplankton     !
+!              [Watts/m2]                                              !
+!   parsats2 PAR saturation onset parameter of diatom [Watts/m2]       !
+!              [Watts/m2]                                              !
+!   pis1     Ammonium inhibition parameter for small phytoplankton     !
+!              [mmol_N/m3]                                             !
+!   pis2     Ammonium inhibition parameter for diatom [mmol_N/m3]      !
+!   akno3s1  Half saturation concentration for nitrate uptake by       !
+!              small phytoplankton [mmol_N/m3].                        !
+!   akno3s2  Half saturation concentration for nitrate uptake by       !
+!              diatom [mmol_N/m3].                                     !
+!   aknh4s1  Half saturation concentration for ammonium uptake by      !
+!              small phytoplankton [mmol_N/m3].                        !
+!   aknh4s2  Half saturation concentration for ammonium uptake by      !
+!              diatom [mmol_N/m3].                                     !
+!   akpo4s1  Half saturation concentration for phosphate uptake by     !
+!              small phytoplankton [mmol_P/m3].                        !
+!   akpo4s2  Half saturation concentration for phosphate uptake by     !
+!              diatom [mmol_P/m3].                                     !
+!   akco2s1  Half saturation concentration for co2 uptake by           !
+!              small phytoplankton [mmol_C/m3].                        !
+!   akco2s2  Half saturation concentration for co2 uptake by           !
+!              diatom [mmol_C/m3].                                     !
+!   aksio4s2 Half saturation constant for silicate uptake by           !
+!              diatom [mmol_Si/m3].                                    !
+!   ak1      Light attenuation coefficient of water [1/m]              !
+!   ak2      Specific light attenuation coefficient for                !
+!              phytoplankton [1/m/(mmol_N/m3)].                        !
+!   bgamma0   Mesozooplankton specific mortality rate [1/day].         !
+!   bgamma1   Grazing efficiency of microzooplankton [nondimensional]. !
 !   bgamma2   Grazing efficiency of mesozooplankton [nondimensional].  !
-!   bgamma3   Death rate of small phytoplankton [1/day].  !
-!   bgamma4   Death rate of large phytoplankton [1/day].  !
-!   bgamma5   Decay rate of detritus [1/day].  !
-!   bgamma6 !
-!   bgamma7   Nitrafication rate [1/day].  !
-!   wsd      Sinking velocity of detritus [m/day].  !
-!   wsdsi    Sinking velocity of detritus silicate [m/day].  !
-!   wsp      Sinking velocity of large phytoplankton [m/day].  !
-!   pco2a    Air pCO2 [ppmv].  !
-!   si2n     Silicate to nitrogen ratio [mol_Si/mol_N].  !
-!   p2n      Phosphorus to nitrogen ratio [mol_P/mol_N].  !
-!   o2no     Oxygen to nitrate ratio [mol_O2/mol_NO3].  !
-!   o2nh     Oxygen to ammonium ratio [mol_O2/mol_NH4].  !
-!   c2n      Carbon to nitrogen ratio [mol_C/mol_N].  !
-!   ro5      Grazing preference for diatom [nondimensional].  !
-!   ro6      Grazing preference for mesozooplankton [nondimensional] !
-!   ro7      Grazing preference for detritus [nondimensional].  !
+!   bgamma3   Death rate of small phytoplankton [1/day].               !
+!   bgamma4   Death rate of large phytoplankton [1/day].               !
+!   bgamma5   Decay rate of detritus [1/day].                          !
+!   bgamma6                                                            !
+!   bgamma7   Nitrafication rate [1/day].                              !
+!   wsd      Sinking velocity of detritus [m/day].                     !
+!   wsdsi    Sinking velocity of detritus silicate [m/day].            !
+!   wsp      Sinking velocity of large phytoplankton [m/day].          !
+!   pco2a    Air pCO2 [ppmv].                                          !
+!   si2n     Silicate to nitrogen ratio [mol_Si/mol_N].                !
+!   p2n      Phosphorus to nitrogen ratio [mol_P/mol_N].               !
+!   o2no     Oxygen to nitrate ratio [mol_O2/mol_NO3].                 !
+!   o2nh     Oxygen to ammonium ratio [mol_O2/mol_NH4].                !
+!   c2n      Carbon to nitrogen ratio [mol_C/mol_N].                   !
+!   ro5      Grazing preference for diatom [nondimensional].           !
+!   ro6      Grazing preference for mesozooplankton [nondimensional]   !
+!   ro7      Grazing preference for detritus [nondimensional].         !
 !=======================================================================
 !
         USE mod_param

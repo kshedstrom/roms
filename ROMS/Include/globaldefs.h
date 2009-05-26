@@ -287,7 +287,7 @@
 
 /*
 ** Set 4DVAR sensitivity switch.
- */
+*/
 
 #if defined W4DPSAS_SENSITIVITY || \
     defined W4DVAR_SENSITIVITY  

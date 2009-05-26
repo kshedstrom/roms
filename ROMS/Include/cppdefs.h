@@ -558,7 +558,7 @@
 **                                                                           **
 ** FULL_GRID           use to consider both interior and boundary points     **
 **                                                                           **
-** Fennel et al. (2006) biology model OPTIONS:                               ** 
+** Fennel et al. (2006) biology model OPTIONS:                               **
 **                                                                           **
 ** BIO_FENNEL          use if Fennel et al. (2006) nitrogen-based model      **
 ** BIO_SEDIMENT        use to restore fallen material to the nutrient pool   **
