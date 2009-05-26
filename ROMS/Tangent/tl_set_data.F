@@ -2,7 +2,7 @@
 #ifdef TANGENT
       SUBROUTINE tl_set_data (ng, tile)
 !
-!svn $Id: tl_set_data.F 976 2009-05-18 21:57:59Z kate $
+!svn $Id: tl_set_data.F 984 2009-05-24 01:43:19Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !

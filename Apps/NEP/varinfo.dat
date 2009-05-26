@@ -3425,6 +3425,15 @@
   'r3dvar'
   1.0d0
 
+'TIC'                                              ! Input/Output
+  'total inorganic carbon'
+  'millimole_carbon meter-3'                       ! [millimole/m3]
+  'TIC, scalar, series'
+  'ocean_time'
+  'idTvar(iTIC_)'
+  'r3dvar'
+  1.0d0
+
 'TIC'                                              ! Input
   'total inorganic carbon functional'
   'millimole_carbon meter-3'                       ! [millimole/m3]
@@ -5554,6 +5563,7 @@
   'idMOMf'
   'nulvar'
   1.0d0
+
 !-------------------------------------------------------------
 ! GOANPZ variables
 !-------------------------------------------------------------
@@ -5872,7 +5882,7 @@
   'mg C per m3'
   'cop_north, scalar, series'
   'bio_time'
-  'idTbry(inorth,iCop)'qsub -q debug -l select=1:ncpus=4:node_type=4way -I
+  'idTbry(inorth,iCop)'
   'nulvar'
   1.0d0
 

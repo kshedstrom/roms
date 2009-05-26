@@ -1,7 +1,7 @@
 !
 !  ROMS/TOMS Standard Input parameters.
 !
-!svn $Id: ocean_bio_toy.in 975 2009-05-05 22:51:13Z kate $
+!svn $Id: ocean_bio_toy.in 983 2009-05-23 01:07:05Z kate $
 !========================================================= Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                                !
 !    Licensed under a MIT/X style license                                     !
@@ -423,10 +423,8 @@ Hout(idBott) == T T T T T T T T T F F F F F F F
 
 ! Input NetCDF file names, [1:Ngrids].
 
-     GRDNAME == Data/ROMS/Grid/biotoy_grd.nc
-     ININAME == Data/ROMS/Initial/biotoy_ini_fasham.nc
-!    GRDNAME == biotoy_grd.nc
-!    ININAME == biotoy_ini_ecosim.nc
+     GRDNAME == biotoy_grd.nc
+     ININAME == biotoy_ini_ecosim.nc
      ITLNAME == /dev/null
      IRPNAME == /dev/null
      IADNAME == /dev/null
@@ -447,7 +445,7 @@ Hout(idBott) == T T T T T T T T T F F F F F F F
 
      NFFILES == 1                          ! number of forcing files
 
-     FRCNAME == Data/ROMS/Initial/biotoy_frc.nc   ! forcing file 1, grid 1
+     FRCNAME == biotoy_frc.nc              ! forcing file 1, grid 1
 
 ! Output NetCDF file names, [1:Ngrids].
 

@@ -1,6 +1,6 @@
       SUBROUTINE ana_biology (ng, tile, model)
 !
-!! svn $Id: ana_biology.h 975 2009-05-05 22:51:13Z kate $
+!! svn $Id: ana_biology.h 988 2009-05-26 19:40:39Z kate $
 !!======================================================================
 !! Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !!   Licensed under a MIT/X style license                              !
@@ -80,7 +80,7 @@
 #if defined BIO_FENNEL
 !
 !-----------------------------------------------------------------------
-!  Fennel et al. (2006) nitrogen-based biology model.
+!  Fennel et al. (2006), nitrogen-based biology model.
 !-----------------------------------------------------------------------
 !
       cff1=20.0_r8/3.0_r8

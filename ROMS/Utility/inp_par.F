@@ -2,7 +2,7 @@
 #undef KATE_FOO
       SUBROUTINE inp_par (model)
 !
-!svn $Id: inp_par.F 976 2009-05-18 21:57:59Z kate $
+!svn $Id: inp_par.F 984 2009-05-24 01:43:19Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -142,7 +142,6 @@
  20   IF (Master) WRITE (stdout,30)
       exit_flag=2
       RETURN
- 20   WRITE (stdout,30)
  30   FORMAT (/,' INP_PAR - Unable to open ROMS/TOMS input script ',    &
      &              'file.',                                            &
      &        /,11x,'In distributed-memory applications, the input',    &
@@ -1094,7 +1093,7 @@
             Npts=load_i(Nval, Rval, Ngrids, Mm)
             DO ng=1,Ngrids
               IF (Mm(ng).le.0) THEN
-                IF (Master) WRITE (out,300) 'Mm', ng,                   &
+                IF (MASTER) WRITE (out,300) 'Mm', ng,                   &
      &                                      'must be greater than zero.'
                 exit_flag=5
                 RETURN
@@ -1123,7 +1122,7 @@
 #ifdef SOLVE3D
           ELSE IF (TRIM(KeyWord).eq.'NAT') THEN
             Npts=load_i(Nval, Rval, 1, NAT)
-            IF ((NAT.lt.1).or.(NAT.gt.2)) THEN
+            IF ((NAT.lt.0).or.(NAT.gt.2)) THEN
               IF (Master) WRITE (out,290) 'NAT = ', NAT,                &
      &                          'make sure that NAT is either 1 or 2.'
               exit_flag=5
@@ -1160,7 +1159,7 @@
             LreadNCS=.TRUE.
             IF (LreadNNS.and.((NCS+NNS).le.0)) THEN
               IF (Master) WRITE (out,290) 'NST = ', NCS+NNS,            &
-     &                    'either NCS or NNS must be greater than zero.'
+     &              'either NCS or NNS must be greater than zero.'
               exit_flag=5
               RETURN
             END IF
@@ -1169,14 +1168,14 @@
             Npts=load_i(Nval, Rval, 1, NNS)
             IF (NNS.lt.0) THEN
               IF (Master) WRITE (out,290) 'NNS = ',                     &
-     &                                    'must be greater than zero.'
+     &                        'must be greater than zero.'
               exit_flag=5
               RETURN
             END IF
             LreadNNS=.TRUE.
             IF (LreadNCS.and.((NCS+NNS).le.0)) THEN
               IF (Master) WRITE (out,290) 'NST = ', NCS+NNS,            &
-     &                    'either NCS or NNS must be greater than zero.'
+     &              'either NCS or NNS must be greater than zero.'
               exit_flag=5
               RETURN
             END IF
@@ -1260,7 +1259,7 @@
 # elif defined OPT_PERTURBATION
             IF (NCV.lt.(2*NEV)) THEN
               IF (Master) WRITE (out,260) 'NCV',                        &
-     &                       'Must be greater than or equal to 2*NEV'
+     &                        'Must be greater than or equal to 2*NEV'
               exit_flag=5
               RETURN
             END IF
@@ -1456,10 +1455,10 @@
           ELSE IF (TRIM(KeyWord).eq.'Vtransform') THEN
             Npts=load_i(Nval, Rval, Ngrids, Vtransform)
             DO ng=1,Ngrids
-              IF ((Vtransform(ng).lt.0).or.                               &
+              IF ((Vtransform(ng).lt.0).or.                             &
      &            (Vtransform(ng).gt.3)) THEN
-                IF (Master) WRITE (out,260) 'Vtransform = ',              &
-     &                                      Vtransform(ng),               &
+                IF (Master) WRITE (out,260) 'Vtransform = ',            &
+     &                                      Vtransform(ng),             &
      &                                      'Must be either 1, 2 or 3'
                 exit_flag=5
                 RETURN
@@ -1468,10 +1467,10 @@
           ELSE IF (TRIM(KeyWord).eq.'Vstretching') THEN
             Npts=load_i(Nval, Rval, Ngrids, Vstretching)
             DO ng=1,Ngrids
-              IF ((Vstretching(ng).lt.0).or.                              &
+              IF ((Vstretching(ng).lt.0).or.                            &
      &            (Vstretching(ng).gt.3)) THEN
-                IF (Master) WRITE (out,260) 'Vstretching = ',             &
-     &                                      Vstretching(ng),              &
+                IF (Master) WRITE (out,260) 'Vstretching = ',           &
+     &                                      Vstretching(ng),            &
      &                                      'Must between 1 and 3'
                 exit_flag=5
                 RETURN
@@ -2270,7 +2269,7 @@
 #if defined SOLVE3D && (defined BBL_MODEL || defined SEDIMENT)
           ELSE IF (TRIM(KeyWord).eq.'Hout(idBott)') THEN
             IF (MAXVAL(idBott).eq.0) THEN
-              WRITE (out,280) 'idBott'
+              IF (Master) WRITE (out,280) 'idBott'
               exit_flag=5
               RETURN
             END IF
@@ -2806,7 +2805,7 @@
      &          'into floats file.'
 #endif
 #ifdef NEMURO_SAN
-          WRITE (out,130) nFISHES(ng), 'nFISHES',                       &
+          WRITE (out,130) nFLT(ng), 'nFISHES',                          &
      &          'Number of timesteps between the writing of data',      &
      &          'into fish file.'
 #endif
@@ -4297,9 +4296,9 @@
 
 ! Set ice time step to ocean time step
  
-     DO ng = 1,Ngrids
+      DO ng = 1,Ngrids
         dtice(ng) = dt(ng)
-     ENDDO
+      END DO
 !
 !-----------------------------------------------------------------------
 !  Report input parameters.
@@ -4807,7 +4806,7 @@
   90  FORMAT (1p,e11.4,2x,a,'(',i2.2,')',t30,a,/,t32,a,i2.2,':',1x,a)
  100  FORMAT (1p,e11.4,2x,a,t30,a)
  110  FORMAT (1p,e11.4,2x,a,t30,a,/,t32,a)
- 120  FORMAT (/,' read_BioPar - variable info not yet loaded, ',       &
+ 120  FORMAT (/,' read_BioPar - variable info not yet loaded, ',        &
      &        a,i2.2,a)
  130  FORMAT (/,' read_BioPar - variable info not yet loaded, ',a)
  140  FORMAT (10x,l1,2x,a,t30,a,1x,a)
@@ -4979,8 +4978,9 @@
           END IF
         END IF
       END DO
-  10  WRITE (out,30) line
-      STOP
+  10  IF (Master) WRITE (out,30) line
+      exit_flag=4
+      RETURN
   20  CONTINUE
 !
 !-----------------------------------------------------------------------
@@ -5086,7 +5086,7 @@
             WRITE (out,100) wsdsi(ng), 'wsdsi',                         &
      &            'Sinking velocity of detritus silicate [m/day].'
             WRITE (out,100) wsp(ng), 'wsp',                             &
-     &            'Sinking velocity of large phytoplankton [m/day].'!
+     &            'Sinking velocity of large phytoplankton [m/day].'
             WRITE (out,100) pco2a(ng), 'pco2a',                         &
      &            'Air pCO2 [ppmv].'
             WRITE (out,100) si2n(ng), 'si2n',                           &
@@ -5182,7 +5182,7 @@
   90  FORMAT (1p,e11.4,2x,a,'(',i2.2,')',t30,a,/,t32,a,i2.2,':',1x,a)
  100  FORMAT (1p,e11.4,2x,a,t30,a)
  110  FORMAT (1p,e11.4,2x,a,t30,a,/,t32,a)
- 120  FORMAT (/,' read_BioPar - variable info not yet loaded, ',       &
+ 120  FORMAT (/,' read_BioPar - variable info not yet loaded, ',        &
      &        a,i2.2,a)
  130  FORMAT (/,' read_BioPar - variable info not yet loaded, ',a)
  140  FORMAT (10x,l1,2x,a,t30,a,1x,a)
@@ -7673,7 +7673,7 @@
                 WRITE (out,90) WS(is,ng), TRIM(PhyName(is))
               END DO
             WRITE (out,80) 'HsGRZ',                                     &
-     &            'Phytoplankton grazing parameter (nondimensional):'    
+     &            'Phytoplankton grazing parameter (nondimensional):'
               DO is=1,Nphy
                 WRITE (out,90) HsGRZ(is,ng), TRIM(PhyName(is))
               END DO
@@ -9059,7 +9059,7 @@
               IF (Master) WRITE (out,190) 'isUstr'
               exit_flag=5
               RETURN
-          END IF
+            END IF
             Npts=load_l(Nval, Cval, 1, Cnorm(1,isUstr))
           ELSE IF (TRIM(KeyWord).eq.'CnormF(isVstr)') THEN
             IF (isVstr.eq.0) THEN
@@ -9437,7 +9437,7 @@
 #    if defined SENSITIVITY_4DVAR || \
         defined TL_W4DPSAS        || defined TL_W4DVAR || \
         defined W4DPSAS           || defined W4DVAR
-         IF (nADJ(ng).lt.ntimes(ng)) THEN
+          IF (nADJ(ng).lt.ntimes(ng)) THEN
             WRITE (out,120) Hdecay(2,isFsur,ng), 'HdecayM(isFsur)',     &
      &            'Model decorrelation H-scale (m), free-surface.'
             WRITE (out,120) Hdecay(2,isUbar,ng), 'HdecayM(isUbar)',     &
@@ -9768,8 +9768,8 @@
           ELSE IF (TRIM(KeyWord).eq.'FRREC') THEN
             Npts=load_i(Nval, Rval, Ngrids, frrec)
 #ifdef NEMURO_SAN
-          ELSE IF (TRIM(KeyWord).eq.'FISHRREC') THEN
-            Npts=load_i(Nval, Rval, Ngrids, fishrrec)
+          ELSE IF (TRIM(KeyWord).eq.'FRREC') THEN
+            Npts=load_i(Nval, Rval, Ngrids, frrec)
 #endif
           ELSE IF (TRIM(KeyWord).eq.'NFLOATS') THEN
             Npts=load_i(Nval, Rval, Ngrids, Nfloats)
@@ -9806,7 +9806,7 @@
      &                                   Fdy(nentry(igrid)+1,igrid),    &
      &                                   Fdz(nentry(igrid)+1,igrid)
               IF (igrid.gt.Ngrids) THEN
-                IF (Lwrite) WRITE (out,40) fposnam
+                IF (Master) IF (Lwrite) WRITE (out,40) fposnam
                 exit_flag=4
                 RETURN
               END IF
@@ -9828,7 +9828,7 @@
       IF (Lwrite) THEN
         DO ng=1,Ngrids
           IF (ncount(ng).ne.Nfloats(ng)) THEN
-            WRITE (stdout,60) ncount(ng), Nfloats(ng)
+            IF (Master) WRITE (stdout,60) ncount(ng), Nfloats(ng)
             exit_flag=4
             RETURN
           END IF

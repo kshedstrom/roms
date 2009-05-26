@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       MODULE mod_ncparam
 !
-!svn $Id: mod_ncparam.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: mod_ncparam.F 984 2009-05-24 01:43:19Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -2030,8 +2030,8 @@
               CASE ('idTvar(iSDet)')
                 idTvar(iSDet)=varid
 # if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
-     defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR || \
-     defined SO_SEMI
+    defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR || \
+    defined SO_SEMI
               CASE ('idTads(iNO3_)')
                 idTads(iNO3_)=varid
               CASE ('idTads(iPhyt)')
@@ -2090,8 +2090,8 @@
               CASE ('idTvar(iChlo)')
                 idTvar(iChlo)=varid
 # if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
-     defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR || \
-     defined SO_SEMI
+    defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR || \
+    defined SO_SEMI
               CASE ('idTads(iNO3_)')
                 idTads(iNO3_)=varid
               CASE ('idTads(iNH4_)')
@@ -2116,9 +2116,9 @@
                 idTvar(iLDeC)=varid
               CASE ('idTvar(iSDeC)')
                 idTvar(iSDeC)=varid
-#  if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
-      defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR || \
-      defined SO_SEMI
+# if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
+    defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR || \
+    defined SO_SEMI
               CASE ('idTads(iTIC_)')
                 idTads(iTIC_)=varid
               CASE ('idTads(iTAlk)')
@@ -2132,9 +2132,9 @@
 # ifdef OXYGEN
               CASE ('idTvar(iOxyg)')
                 idTvar(iOxyg)=varid
-#  if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
-      defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR || \
-      defined SO_SEMI
+# if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
+    defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR || \
+    defined SO_SEMI
               CASE ('idTads(iOxyg)')
                 idTads(iOxyg)=varid
 #  endif

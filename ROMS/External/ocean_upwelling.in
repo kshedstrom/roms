@@ -1,7 +1,7 @@
 !
 !  ROMS/TOMS Standard Input parameters.
 !
-!svn $Id: ocean_upwelling.in 975 2009-05-05 22:51:13Z kate $
+!svn $Id: ocean_upwelling.in 983 2009-05-23 01:07:05Z kate $
 !========================================================= Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                                !
 !    Licensed under a MIT/X style license                                     !
@@ -465,7 +465,7 @@ Hout(idBott) == T T T T T T T T T F F F F F F F
      APARNAM =  ROMS/External/s4dvar.in
      SPOSNAM =  ROMS/External/stations.in
      FPOSNAM =  ROMS/External/floats.in
-     BPARNAM =  ROMS/External/bioUMaine.in
+     BPARNAM =  ROMS/External/bio_Fennel.in
      SPARNAM =  ROMS/External/sediment.in
      USRNAME =  ROMS/External/MyFile.dat
 

@@ -6,7 +6,7 @@
 
 #if defined NONLINEAR && defined SEDIMENT && defined SUSPLOAD
 !
-!svn $Id: sed_settling.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: sed_settling.F 984 2009-05-24 01:43:19Z kate $
 !=======================================================================
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license           Hernan G. Arango   !

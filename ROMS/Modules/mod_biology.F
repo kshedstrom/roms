@@ -2,7 +2,7 @@
       MODULE mod_biology
 #ifdef BIOLOGY
 !
-!svn $Id: mod_biology.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: mod_biology.F 987 2009-05-26 19:29:04Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -110,7 +110,7 @@
 # endif
 # ifdef BIO_UMaine
 !                                                                      !
-!  Parameters for UMaine CoSiNE model:                     !
+!  Parameters for UMaine CoSiNE model:                                 !
 !                                                                      !
 !   reg1     Microzooplankton excretion rate to ammonium [1/day].      !
 !   reg2     Mesozooplankton excretion rate to ammonium [1/day].       !
@@ -151,7 +151,7 @@
 !   akco2s2  Half saturation concentration for co2 uptake by           !
 !              diatom [mmol_C/m3].                                     !
 !   aksio4s2 Half saturation constant for silicate uptake by           !
-!              diatom [mmol_Si/m3].                                     !
+!              diatom [mmol_Si/m3].                                    !
 !   ak1      Light attenuation coefficient of water [1/m]              !
 !   ak2      Specific light attenuation coefficient for                !
 !              phytoplankton [1/m/(mmol_N/m3)].                        !
