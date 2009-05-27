@@ -562,7 +562,7 @@
 **                                                                           **
 ** BIO_FENNEL          use if Fennel et al. (2006) nitrogen-based model      **
 ** BIO_SEDIMENT        use to restore fallen material to the nutrient pool   **
-** BIO_UMaine          use if Chai et al. (2002) CoSINE model                **
+** BIO_UMAINE          use if Chai et al. (2002) CoSINE model                **
 ** CARBON              use to add carbon constituents                        **
 ** DENITRIFICATION     use to add denitrification processes                  **
 ** OXYGEN              use to add oxygen dynamics                            **

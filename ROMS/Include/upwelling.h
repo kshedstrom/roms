@@ -50,10 +50,10 @@
 # define ANA_VMIX
 #endif
 
-#define BIO_UMaine
+#define BIO_UMAINE
 #if defined BIO_FENNEL  || defined ECOSIM || \
     defined NPZD_POWELL || defined NEMURO || \
-    defined BIO_UMaine
+    defined BIO_UMAINE
 # define ANA_BIOLOGY
 # define ANA_SPFLUX
 # define ANA_BPFLUX
@@ -72,7 +72,7 @@
 # define DIAGNOSTICS_BIO
 #endif
 
-#ifdef BIO_UMaine
+#ifdef BIO_UMAINE
 # define OXYGEN
 # if defined OXYGEN
 #  define xygen_bottom_layer_treatment

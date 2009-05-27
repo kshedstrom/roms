@@ -529,11 +529,11 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+14)=' BIO_SEDIMENT,'
 #endif
-#ifdef BIO_UMaine
-      IF (Master) WRITE (stdout,20) 'BIO_UMaine',                       &
+#ifdef BIO_UMAINE
+      IF (Master) WRITE (stdout,20) 'BIO_UMAINE',                       &
      &   'UMaine CoSiNE ecosystem model.'
       is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+12)=' BIO_UMaine,'
+      Coptions(is:is+12)=' BIO_UMAINE,'
       ibiology=ibiology+1
 #endif
 #ifdef BODYFORCE

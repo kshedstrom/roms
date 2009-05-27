@@ -104,7 +104,7 @@
         integer :: iOxyg              ! Dissolved oxygen concentration
 #  endif
 #endif
-#ifdef BIO_UMaine
+#ifdef BIO_UMAINE
         integer, pointer :: idbio(:)  ! Biological tracers
         integer :: iNO3_              ! Nitrate concentration
         integer :: iNH4_              ! Ammonium concentration
@@ -1925,7 +1925,7 @@
       iOxyg=ic+1
       ic=ic+1
 # endif 
-#elif defined BIO_UMaine
+#elif defined BIO_UMAINE
 !
 !  Set UMaine CoSiNE model biological tracer indices.
 !

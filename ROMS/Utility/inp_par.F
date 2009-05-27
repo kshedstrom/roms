@@ -4811,7 +4811,7 @@
  130  FORMAT (/,' read_BioPar - variable info not yet loaded, ',a)
  140  FORMAT (10x,l1,2x,a,t30,a,1x,a)
 
-# elif defined BIO_UMaine
+# elif defined BIO_UMAINE
 !
 !-----------------------------------------------------------------------
 !  Read in UMaine CoSiNE biological model parameters.

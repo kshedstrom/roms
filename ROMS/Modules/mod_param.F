@@ -339,7 +339,7 @@
         integer, parameter :: NBT = 7
 #    endif
 #  endif
-# elif defined BIO_UMaine
+# elif defined BIO_UMAINE
 !
 !  Number of tracers for UMaine CoSiNE ecosystem model.
 !

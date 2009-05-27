@@ -963,7 +963,7 @@
 #if defined BIO_FENNEL  || defined ECOSIM      || \
     defined NEMURO      || defined NPZD_FRANKS || \
     defined NPZD_POWELL || defined BIO_GOANPZ  || \
-    defined BIO_UMaine
+    defined BIO_UMAINE
 # define BIOLOGY
 #endif
 

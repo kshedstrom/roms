@@ -1693,7 +1693,7 @@
               CASE ('idSig12')
                 idSig12=varid
 #endif
-#ifdef BIO_UMaine
+#ifdef BIO_UMAINE
               CASE ('idRtrc(iNO3_)')
                 idRtrc(iNO3_)=varid
               CASE ('idRtrc(iNH4_)')
@@ -2258,7 +2258,7 @@
                 iDbio3(iNO3u)=varid
 # endif
 #endif
-#ifdef BIO_UMaine
+#ifdef BIO_UMAINE
               CASE ('idTvar(iNO3_)')
                 idTvar(iNO3_)=varid
               CASE ('idTvar(iNH4_)')

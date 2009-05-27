@@ -85,7 +85,7 @@
 !
       integer :: i, is, itrc, j, k
 
-#if defined BIO_FENNEL || defined NEMURO || defined BIO_UMaine
+#if defined BIO_FENNEL || defined NEMURO || defined BIO_UMAINE
       real(r8) :: SiO4, cff1, cff2, temp
 #elif defined ECOSIM
       real(r8) :: cff1, cff2, cff3, cff4, cff5, cff6, cff7, cff8, cff9
@@ -150,7 +150,7 @@
         END DO
       END DO
 
-#elif defined BIO_UMaine
+#elif defined BIO_UMAINE
 !
 !-----------------------------------------------------------------------
 !  UMaine Carbon, Silicate, Nitrogen Ecosystem (CoSiNE) Model

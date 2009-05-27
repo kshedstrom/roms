@@ -108,7 +108,7 @@
         real(r8), dimension(Ngrids) :: pCO2air       ! ppmv
 
 # endif
-# ifdef BIO_UMaine
+# ifdef BIO_UMAINE
 !                                                                      !
 !  Parameters for UMaine CoSiNE model:                                 !
 !                                                                      !
