@@ -811,6 +811,228 @@
           END IF
         END IF
       END DO
+
+
+# ifdef BEST_NPZ
+# ifdef STATIONARY
+!--------------------------------------
+!  Write out 3D stationary variable array
+!--------------------------------------
+      DO itrc=1,NTS(ng)
+        IF (Hout(idTSvar(itrc),ng)) THEN
+          scale=1.0_r8
+          gtype=gfactor*r3dvar
+!           print*,'st=',OCEAN(ng) % st(:,:,:,NOUT,itrc)
+!          if (hisTSid(itrc,ng) .lt. 0) hisTSid(itrc,ng) = 0
+          status=nf_fwrite3d(ng, iNLM, ncHISid(ng), hisTSid(itrc,ng),   &
+     &                       tHISindx(ng), gtype,                       &
+     &                       LBi, UBi, LBj, UBj, 1, N(ng), scale,       &
+# ifdef MASKING
+     &                       GRID(ng) % rmask,                          &
+# endif
+     &                       OCEAN(ng) % st(:,:,:,NOUT,itrc))
+          !---------------------
+          !Zero the output array
+          !---------------------
+	 
+!	  print*,'st=',OCEAN(ng) % st(:,:,:,1,1)
+!	    print*,'NOUT=',NOUT
+!	    print*,'itrc=',itrc
+	
+          OCEAN(ng) % st(:,:,:,NOUT,itrc) = 0.0_r8
+          IF (status.ne.nf90_noerr) THEN
+            IF (Master) THEN
+	    
+	      WRITE (stdout,10) TRIM(Vname(1,idTSvar(itrc))),            &
+     &                          tHISindx(ng)
+            END IF
+            exit_flag=3
+            ioerror=status
+            RETURN
+          END IF
+        END IF
+      END DO
+# endif
+
+# ifdef STATIONARY2
+!--------------------------------------
+!  Write out 2D stationary variable array
+!--------------------------------------
+      DO itrc=1,NTS2(ng)
+        IF (Hout(idTS2var(itrc),ng)) THEN
+          scale=1.0_r8
+          gtype=gfactor*r2dvar
+          if (hisTS2id(itrc,ng) .lt. 0) hisTS2id(itrc,ng) = 0
+          status=nf_fwrite2d(ng, iNLM, ncHISid(ng), hisTS2id(itrc,ng),   &
+     &                       tHISindx(ng), gtype,                       &
+     &                       LBi, UBi, LBj, UBj,  scale,                &
+# ifdef MASKING
+     &                       GRID(ng) % rmask,                 &
+# endif
+     &                       OCEAN(ng) % st2(:,:,NOUT,itrc))
+          !---------------------
+          !Zero the output array
+	  !---------------------
+          OCEAN(ng) % st2(:,:,NOUT,itrc) = 0.0_r8
+          IF (status.ne.nf90_noerr) THEN
+            IF (Master) THEN
+              WRITE (stdout,10) TRIM(Vname(1,idTS2var(itrc))),            &
+     &                          tHISindx(ng)
+            END IF
+            exit_flag=3
+            ioerror=status
+            RETURN
+          END IF
+        END IF
+      END DO
+# endif
+
+!--------------------------------------
+!  Write out 2D production array
+!--------------------------------------
+
+# ifdef PROD2
+      DO itrc=1,NPT2(ng)
+        IF (Hout(idPT2var(itrc),ng)) THEN
+          scale=1.0_r8
+          gtype=gfactor*r2dvar
+          if (hisPT2id(itrc,ng) .lt. 0) hisPT2id(itrc,ng) = 0
+          status=nf_fwrite2d(ng, iNLM, ncHISid(ng), hisPT2id(itrc,ng),  &
+     &                       tHISindx(ng), gtype,                       &
+     &                       LBi, UBi, LBj, UBj, scale,                 &
+# ifdef MASKING
+     &                       GRID(ng) % rmask,                 &
+# endif
+     &                       OCEAN(ng) % pt2(:,:,NOUT,itrc))
+          !---------------------
+          !Zero the output array
+	  !---------------------
+          OCEAN(ng) % pt2(:,:,NOUT,itrc) = 0.0_r8
+          IF (status.ne.nf90_noerr) THEN
+            IF (Master) THEN
+              WRITE (stdout,10) TRIM(Vname(1,idPT2var(itrc))),          &
+     &                          tHISindx(ng)
+            END IF
+            exit_flag=3
+            ioerror=status
+            RETURN
+          END IF
+        END IF
+      END DO
+# endif
+!--------------------------------------
+!  Write out 3D production array
+!--------------------------------------
+
+# ifdef PROD3
+      DO itrc=1,NPT3(ng)
+        IF (Hout(idPT3var(itrc),ng)) THEN
+          scale=1.0_r8
+          gtype=gfactor*r3dvar
+          if (hisPT3id(itrc,ng) .lt. 0) hisPT3id(itrc,ng) = 0
+          status=nf_fwrite3d(ng, iNLM, ncHISid(ng), hisPT3id(itrc,ng),   &
+     &                       tHISindx(ng), gtype,                       &
+     &                       LBi, UBi, LBj, UBj, 1, N(ng), scale,       &
+# ifdef MASKING
+     &                       GRID(ng) % rmask,                 &
+# endif
+     &                       OCEAN(ng) % pt3(:,:,:,NOUT,itrc))
+          !---------------------
+          !Zero the output array
+	  !---------------------
+          OCEAN(ng) % pt3(:,:,:,NOUT,itrc) = 0.0_r8
+          IF (status.ne.nf90_noerr) THEN
+            IF (Master) THEN
+              WRITE (stdout,10) TRIM(Vname(1,idPT3var(itrc))),           &
+     &                          tHISindx(ng)
+            END IF
+            exit_flag=3
+            ioerror=status
+            RETURN
+          END IF
+        END IF
+      END DO
+# endif
+!------------------------------
+!Write out benthic variables
+!-----------------------------
+
+# if defined BENTHIC
+              DO itrc=1,NBeT(ng)
+              IF (Hout(idBvar(itrc),ng)) THEN
+                 scale=1.0_r8
+                 gtype=gfactor*r2dvar
+             status=nf_fwrite2d(ng, iNLM, ncHISid(ng), hisBid(itrc,ng), &
+     &                          tHISindx(ng), gtype,                    &
+     &                          LBi, UBi, LBj, UBj, scale,              &
+     
+!Will need to switch this if have more than one depth level for benthos 
+!      status=nf_fwrite3d(ng, iNLM, ncHISid(ng), hisBid(itrc,ng), &
+!     &                          tHISindx(ng), gtype,                    &
+!     &                          LBi, UBi, LBj, UBj, 1, NBL(ng), scale,  &
+
+#ifdef MASKING
+     &                     GRID(ng) % rmask,                   &
+# endif
+     &                       OCEAN(ng) % bt(:,:,1,NOUT,itrc))
+!             print*,OCEAN(ng) % bt(LBi,LBj,1,NOUT,itrc)
+!             print *, 'LBi=',LBi,'LBj=',LBj,'NOUT=',NOUT,'itrc=',itrc
+         
+           IF (status.ne.nf90_noerr) THEN
+           IF (Master) THEN
+            WRITE (stdout,10)TRIM(Vname(1,idBvar(itrc))),               &
+     &                       tHISindx(ng)
+           END IF
+              exit_flag=3
+              ioerror=status
+            RETURN
+          END IF
+        END IF
+      END DO
+# endif
+
+!------------------------------
+!Write out ice bio variables
+!-----------------------------
+
+# if defined ICE_BIO
+              DO itrc=1,NIceT(ng)
+              IF (Hout(idIceBvar(itrc),ng)) THEN
+                 scale=1.0_r8
+                 gtype=gfactor*r2dvar
+          status=nf_fwrite2d(ng, iNLM, ncHISid(ng), hisIceBid(itrc,ng), &
+     &                          tHISindx(ng), gtype,                    &
+     &                          LBi, UBi, LBj, UBj, scale,              &
+
+!Will need to switch this if have more than one depth level for benthos
+!      status=nf_fwrite3d(ng, iNLM, ncHISid(ng), hisIceBid(itrc,ng), &
+!     &                          tHISindx(ng), gtype,                    &
+!     &                          LBi, UBi, LBj, UBj, 1, NBL(ng), scale,  &
+
+# ifdef MASKING
+     &                     GRID(ng) % rmask,                   &
+# endif
+#     ifdef CLIM_ICE_1D
+     &                       OCEAN(ng) % it(:,:,NOUT,itrc))
+#else     
+     &                       ICE(ng) % it(:,:,NOUT,itrc))
+#endif     
+
+           IF (status.ne.nf90_noerr) THEN
+           IF (Master) THEN
+            WRITE (stdout,10)TRIM(Vname(1,idIceBvar(itrc))),           &
+     &                       tHISindx(ng)
+           END IF
+              exit_flag=3
+              ioerror=status
+            RETURN
+          END IF
+        END IF
+      END DO
+#endif
+
+   
+# endif
 !--------------------------------------
 !  Write out stationary tracer variable
 !--------------------------------------

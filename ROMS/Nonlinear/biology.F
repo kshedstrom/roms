@@ -20,8 +20,9 @@
       PUBLIC  :: biology
 
       CONTAINS
-
-# if defined BIO_FENNEL
+# if defined BEST_NPZ
+#  include <bestnpz.h>
+# elif defined BIO_FENNEL
 #  include <fennel.h>
 # elif defined NEMURO
 #  include <nemuro.h>
@@ -31,7 +32,7 @@
 #  include <npzd_Powell.h>
 # elif defined ECOSIM
 #  include <ecosim.h>
-# elif defined BIO_UMaine
+# elif defined BIO_UMAINE
 #  include <bio_UMAINE.h>
 # elif defined BIO_GOANPZ
 #  include <goanpz.h>

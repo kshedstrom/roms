@@ -820,6 +820,26 @@
             DO i=Istr,Iend
               cff1=Hz(i,j,k)*t(i,j,k,nstp,itrc)
               cff2=FC(i,k)-FC(i,k-1)
+
+# ifdef BEST_NPZ
+!  Neocalanus and Euphuasiids don't experience vertical diffusion because
+!  they are big enough to swim.
+#  ifdef JELLY
+              IF (itrc.eq.iNCaS.or.itrc.eq.iNCaO.or.itrc.eq.iEupS.or.   &
+     &      itrc.eq.iEupO.or.itrc.eq.iJel ) THEN
+#  else       
+              IF (itrc.eq.iNCaS.or.itrc.eq.iNCaO.or. itrc.eq.ieEupS.or. &
+     &        itrc.eq.iEupO) THEN
+#  endif        
+                 cff2=0.0_r8
+             END IF
+
+!     -Remove effects of mixing on biology - usefull for model testing
+!g              IF ( itrc.gt.2)    THEN
+!g               cff2=0.0_r8
+!g               END IF
+# endif
+
 #  ifdef BIO_GOANPZ
 !  Neocalanus and Euphuasiids don't experience vertical diffusion because
 !  they are big enough to swim.

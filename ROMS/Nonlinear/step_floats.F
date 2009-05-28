@@ -124,17 +124,28 @@
       real(r8) :: cff1, cff2, cff3, cff4, cff5, cff6, cff7, cff8, cff9
       real(r8) :: p1, p2, q1, q2, xrhs, yrhs, zrhs, zfloat
 
+
 # ifdef FLOAT_VWALK
       integer :: ierr
       integer :: iseed = 149876
 # endif
-
+#ifdef FLOATS_DIAPAUSE
+!      logical :: downward , upward 
+      real(r8) :: RiseStart,RiseEnd,SinkStart,SinkEnd
+      real(r8) :: wNCsink,wNCrise
+      integer :: iday, month, year 
+      real(r8) :: yday, hour, dtdays,cff,diapW
+      integer :: FloatPhase
+#endif
       real(r8), dimension(Lstr:Lend) :: nudg
 
 # ifdef DISTRIBUTE
       real(r8) :: Xstr, Xend, Ystr, Yend
       real(r8), dimension(Nfloats(ng)*NFV(ng)*(NFT+1)) :: Fwrk
 # endif
+#ifdef FLOATS_DIAPAUSE
+      CALL caldate (r_date, tdays(ng), year, yday, month, iday, hour)
+#endif
 !
 ! Set tile array bounds.
 !
@@ -186,7 +197,21 @@
         MyThread(l)=.TRUE.
       END DO
 # endif
-!
+
+
+#ifdef FLOATS_DIAPAUSE
+         	 
+	   RiseStart=   1.0d0 ! Date NC begin to move upward (Day of Year)
+           RiseEnd  =  90.00d0	! 90 Date NC stop moving upward (Day of Year)
+           SinkStart= 166.0d0	!166 Date NC begin to move downward (Day of Year)
+           SinkEnd  = 365.0d0	! 365.Date NC stop moving downward (Day of Year)
+	   wNCrise  =  10.0d0
+	   wNCsink  =  -10.0d0
+	   
+	   diapW=0.0
+           dtdays = dt(ng)*sec2day
+        
+#endif 
 !-----------------------------------------------------------------------
 ! Compute nudging velocities for vertical random walk.
 !-----------------------------------------------------------------------
@@ -231,31 +256,99 @@
         END IF
       END DO
 
+#ifdef FLOATS_DIAPAUSE
+
+!  Based on date, determine if NCa are going upwards or downwards
+        
+     
+      IF ( ( RiseStart.lt.RiseEnd .and.                                 &
+     &       yday.ge.RiseStart .and. yday.le.RiseEnd ) .or.             &
+     &     ( RiseStart.gt.RiseEnd .and.                                 &
+     &      ( yday.ge.RiseStart .or. yday.le.RiseEnd ) ) )  THEN
+        FloatPhase=1
+	diapW=wNCrise*sec2day !Scale to m/sec
+        
+	
+      ELSE IF ( ( SinkStart.lt.SinkEnd .and.                            &
+     &       yday.ge.SinkStart .and. yday.le.SinkEnd ) .or.             &
+     &     ( SinkStart.gt.SinkEnd .and.                                 &
+     &      ( yday.ge.SinkStart .or. yday.le.SinkEnd ) ) )  THEN
+       	FloatPhase=3
+	diapW=wNCsink*sec2day !Scale to m/sec
+	
+       ELSE IF ( ( RiseEnd.lt.SinkStart .and.                          &
+     &       yday.ge.RiseEnd .and. yday.le.SinkStart ) .or.            &
+     &     (RiseEnd.gt.SinkStart .and.                                 &
+     &      ( yday.ge.RiseEnd .or. yday.le.SinkStart ) ) )  THEN
+       FloatPhase=2
+       diapW=wNCrise*sec2day
+	ELSE IF ( (SinkEnd.gt.RiseStart .and.                         &
+     &       yday.ge.SinkEnd .or. yday.le.RiseStart ) .or.            &
+     &     (RiseStart.gt.SinkEnd .and.                                &
+     &      ( yday.ge.SinkEnd .and. yday.le.RiseStart ) ) )  THEN
+        FloatPhase=4
+          diapW=999 
+      END IF
+      
+!      print*,'track=',track(idpth,nfp1,l)
+      
+
+!      END DO
+         
+	  IF ( diapW.ne.999)THEN
+	  
+     CALL interp_floats_diapW(ng, LBi, UBi, LBj, UBj, 0, N(ng),         &
+     &                    Lstr, Lend, nf, izrhs,                        &
+     &                    -w3dvar, Lmask, nudg,                         &
+     &                    GRID(ng) % pm(LBi,LBj),                       &
+     &                    GRID(ng) % pn(LBi,LBj),                       &
+     &                    GRID(ng) % Hz(LBi,LBj,1),                     &
+# ifdef MASKING
+     &                    GRID(ng) % rmask(LBi,LBj),                    &
+# endif
+     &                    diapW,                                        &
+     &                    OCEAN(ng) % W(LBi,LBj,0),                     &
+     &                    MyThread, bounded, track(1,0,1),              &
+     &                    FloatPhase      )
+     
+          ENDIF 
+   
+   
+#else   
+
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 0, N(ng),             &
      &                    Lstr, Lend, nf, izrhs,                        &
      &                    -w3dvar, Lmask, nudg,                         &
      &                    GRID(ng) % pm(LBi,LBj),                       &
      &                    GRID(ng) % pn(LBi,LBj),                       &
      &                    GRID(ng) % Hz(LBi,LBj,1),                     &
-#  ifdef MASKING
+# ifdef MASKING
      &                    GRID(ng) % rmask(LBi,LBj),                    &
-#  endif
+# endif
      &                    OCEAN(ng) % W(LBi,LBj,0),                     &
      &                    MyThread, bounded, track(1,0,1))
+
+#endif
+ 
 !
 !  For now, use a forward time step for vertical position.
 !
       DO l=Lstr,Lend
+!      print*,'rhs=',track(izrhs,nf,l)
         IF (MyThread(l).and.bounded(l)) THEN
-          track(izgrd,nfp1,l)=track(izgrd,nf,l)+                        &
-     &                        dt(ng)*track(izrhs,nf,l)
+           track(izgrd,nfp1,l)=track(izgrd,nf,l)+                        &
+     &                        dt(ng)*track(izrhs,nf,l)                   
+     
         END IF
       END DO
 # endif
 
+
       DO l=Lstr,Lend
         nudg(l)=0.0_r8
       END DO
+
+
 !
 !-----------------------------------------------------------------------
 !  Predictor step: compute first guess floats locations using a
@@ -274,6 +367,9 @@
      &                        dt(ng)*(cff1*track(iyrhs,nf  ,l)-         &
      &                                cff2*track(iyrhs,nfm1,l)+         &
      &                                cff1*track(iyrhs,nfm2,l))
+
+
+
 
 # if defined SOLVE3D && !defined FLOAT_VWALK
 !
@@ -399,7 +495,77 @@
      &                    OCEAN(ng) % v(LBi,LBj,1,nnew),                &
      &                    MyThread, bounded, track(1,0,1))
 
+
+
+
+
+
 #  if !defined FLOAT_VWALK
+
+
+#ifdef FLOATS_DIAPAUSE
+!  Based on date, determine if NCa are going upwards or downwards
+         
+!      DO l=Lstr,Lend	 
+!	  cff1=wNCrise *GRID(ng) % Hz(i,j,k)
+	  
+	  
+      IF ( ( RiseStart.lt.RiseEnd .and.                                 &
+     &       yday.ge.RiseStart .and. yday.le.RiseEnd ) .or.             &
+     &     ( RiseStart.gt.RiseEnd .and.                                 &
+     &      ( yday.ge.RiseStart .or. yday.le.RiseEnd ) ) )  THEN
+        FloatPhase=1
+	diapW=wNCrise*sec2day !Scale to m/sec
+        
+	
+      ELSE IF ( ( SinkStart.lt.SinkEnd .and.                            &
+     &       yday.ge.SinkStart .and. yday.le.SinkEnd ) .or.             &
+     &     ( SinkStart.gt.SinkEnd .and.                                 &
+     &      ( yday.ge.SinkStart .or. yday.le.SinkEnd ) ) )  THEN
+       	FloatPhase=3
+	diapW=wNCsink*sec2day !Scale to m/sec
+	
+       ELSE IF ( ( RiseEnd.lt.SinkStart .and.                          &
+     &       yday.ge.RiseEnd .and. yday.le.SinkStart ) .or.            &
+     &     (RiseEnd.gt.SinkStart .and.                                 &
+     &      ( yday.ge.RiseEnd .or. yday.le.SinkStart ) ) )  THEN
+       FloatPhase=2
+       diapW=wNCrise*sec2day
+	ELSE IF ( (SinkEnd.gt.RiseStart .and.                         &
+     &       yday.ge.SinkEnd .or. yday.le.RiseStart ) .or.            &
+     &     (RiseStart.gt.SinkEnd .and.                                &
+     &      ( yday.ge.SinkEnd .and. yday.le.RiseStart ) ) )  THEN
+        FloatPhase=4
+          diapW=999 
+      END IF
+      
+!      print*,'track=',track(idpth,nfp1,l)
+      
+!           print*,'upward=',upward,'downward=',downward
+!      END DO
+         
+	  IF ( diapW.ne.999)THEN
+	  
+     CALL interp_floats_diapW(ng, LBi, UBi, LBj, UBj, 0, N(ng),         &
+     &                    Lstr, Lend, nf, izrhs,                        &
+     &                    -w3dvar, Lmask, nudg,                         &
+     &                    GRID(ng) % pm(LBi,LBj),                       &
+     &                    GRID(ng) % pn(LBi,LBj),                       &
+     &                    GRID(ng) % Hz(LBi,LBj,1),                     &
+# ifdef MASKING
+     &                    GRID(ng) % rmask(LBi,LBj),                    &
+# endif
+     &                    diapW,                                        &
+     &                    OCEAN(ng) % W(LBi,LBj,0),                     &
+     &                    MyThread, bounded, track(1,0,1),              &
+     &                    FloatPhase      )
+     
+          ENDIF 
+  
+#else
+
+
+
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 0, N(ng),             &
      &                    Lstr, Lend, nfp1, izrhs,                      &
      &                    -w3dvar, Lmask, nudg,                         &
@@ -411,7 +577,15 @@
 #   endif
      &                    OCEAN(ng) % W(LBi,LBj,0),                     &
      &                    MyThread, bounded, track(1,0,1))
+     
+#endif     
+     
+     
 #  endif
+
+
+
+
 # else
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,                 &
      &                    Lstr, Lend, nfp1, ixrhs,                      &
@@ -441,6 +615,8 @@
 !                  Hamming time-stepping scheme.
 !-----------------------------------------------------------------------
 !
+    
+	       
       cff1=9.0_r8/8.0_r8
       cff2=1.0_r8/8.0_r8
       cff3=3.0_r8/8.0_r8
@@ -457,17 +633,22 @@
      &                        dt(ng)*(cff3*track(iyrhs,nfp1,l)+         &
      &                                cff4*track(iyrhs,nf  ,l)-         &
      &                                cff3*track(iyrhs,nfm1,l))
-
+          
 # if defined SOLVE3D && !defined FLOAT_VWALK
+
 !
 !  Compute vertical position (grid units) 3D Lagrangian floats.
 !
+
           IF (Ftype(l).eq.flt_Lagran) THEN
             track(izgrd,nfp1,l)=cff1*track(izgrd,nf  ,l)-               &
      &                          cff2*track(izgrd,nfm2,l)+               &
      &                          dt(ng)*(cff3*track(izrhs,nfp1,l)+       &
      &                                  cff4*track(izrhs,nf  ,l)-       &
      &                                  cff3*track(izrhs,nfm1,l))
+
+   
+!
 !
 !  Compute vertical position (grid units) for isobaric floats
 !  (p=g*(z+zeta)=constant) or geopotential floats (constant depth).
@@ -534,7 +715,11 @@
      &             p2*q2*GRID(ng)%z_w(i2,j2,k)
 #  endif
               IF ((zfloat-cff5)*(cff6-zfloat).ge.0.0_r8) THEN
+	      
                 track(izgrd,nfp1,l)=REAL(k,r8)+(zfloat-cff5)/(cff6-cff5)
+		
+	
+		
               END IF
               cff6=cff5
             END DO
@@ -678,13 +863,15 @@
         END IF
       END DO
 # endif
-!
+
+
 !-----------------------------------------------------------------------
 !  If appropriate, activate the release of new floats and set initial
 !  positions for all time levels.
 !-----------------------------------------------------------------------
 !
       DO l=Lstr,Lend
+!      print*,'time=',time(ng),'Tinfo=',Tinfo(itstr,l),'bounded=',bounded
         IF (.not.bounded(l).and.                                        &
      &      (time(ng)-dt(ng).le.Tinfo(itstr,l).and.                     &
      &       time(ng)+dt(ng).gt.Tinfo(itstr,l))) THEN
@@ -700,6 +887,7 @@
 #  ifdef SOLVE3D
               track(izgrd,j,l)=Tinfo(izgrd,l)
 #  endif
+	
             END DO
             MyThread(l)=.TRUE.
           ELSE

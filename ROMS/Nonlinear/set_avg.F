@@ -82,6 +82,39 @@
      &                   OCEAN(ng) % u, OCEAN(ng) % v,                  &
      &                   OCEAN(ng) % W, OCEAN(ng) % wvel,               &
      &                   OCEAN(ng) % t,                                 &
+#  ifdef BEST_NPZ
+#    ifdef STATIONARY
+
+     &                   OCEAN(ng) % st,                                &
+#    endif
+#    ifdef STATIONARY2
+
+     &                   OCEAN(ng) % st2,                               &
+#    endif
+#    ifdef PROD3
+
+     &                   OCEAN(ng) % pt3,                               &
+#    endif
+#    ifdef PROD2
+
+     &                   OCEAN(ng) % pt2,                               &
+#    endif
+#    ifdef BENTHIC
+     &                   OCEAN(ng) % bt,                                &
+#    endif
+#    ifdef ICE_BIO
+#     ifdef CLIM_ICE_1D
+     &                   OCEAN(ng) % it,                               &
+#     else
+     &                   ICE(ng) % it,                                 &
+#     endif
+#    endif
+#    ifdef BIOFLUX
+
+     &                   OCEAN(ng) % bflx,                              &
+#    endif
+#  endif
+
 #  ifdef BIO_GOANPZ
      &                   OCEAN(ng) % st,                                &
 #  endif
@@ -186,6 +219,31 @@
      &                   AVERAGE(ng) % avgw3d,                          &
      &                   AVERAGE(ng) % avgwvel,                         &
      &                   AVERAGE(ng) % avgt,                            &
+
+# ifdef BEST_NPZ
+#  ifdef STATIONARY
+     &                   AVERAGE(ng) % avgst,                           &
+#  endif
+#  ifdef STATIONARY2
+     &                   AVERAGE(ng) % avgst2,                          &
+#  endif
+#  ifdef PROD3
+     &                   AVERAGE(ng) % avgpt3,                          &
+#  endif
+#  ifdef PROD2
+     &                   AVERAGE(ng) % avgpt2,                          &
+#  endif
+#  ifdef BENTHIC
+     &                   AVERAGE(ng) % avgbt,                           &
+#  endif
+#  ifdef ICE_BIO
+     &                   AVERAGE(ng) % avgit,                           &
+#  endif
+#  ifdef BIOFLUX
+     &                   AVERAGE(ng) % avgbflx,                         &
+#  endif
+# endif
+
 # ifdef BIO_GOANPZ
      &                   AVERAGE(ng) % avgst,                           &
 # endif
@@ -319,6 +377,29 @@
 #  endif
      &                         u, v,                                    &
      &                         W, wvel, t,                              &
+# ifdef BEST_NPZ
+#  ifdef STATIONARY
+     &                         st,                                      &
+#  endif
+#  ifdef STATIONARY2
+     &                         st2,                                     &
+#  endif
+#  ifdef PROD3
+     &                         pt3,                                     &
+#  endif
+#  ifdef PROD2
+     &                         pt2,                                     &
+#  endif
+#  ifdef BENTHIC
+     &                         bt,                                      &
+#  endif
+#  ifdef ICE_BIO
+     &                         it,                                     &
+#  endif
+#  ifdef BIOFLUX
+     &                         bflx,                                    &
+#  endif
+# endif
 # ifdef BIO_GOANPZ
      &                         st,                                      &
 # endif
@@ -390,6 +471,30 @@
      &                         avgu3d, avgv3d,                          &
      &                         avgw3d, avgwvel,                         &
      &                         avgt,                                    &
+# ifdef BEST_NPZ
+#  ifdef STATIONARY
+     &                         avgst,                                   &
+#  endif
+#  ifdef STATIONARY2
+     &                         avgst2,                                  &
+#  endif
+#  ifdef PROD3
+    &                         avgpt3,                                   &
+#  endif
+#  ifdef PROD2
+    &                         avgpt2,                                   &
+#  endif
+#  ifdef BENTHIC
+     &                         avgbt,                                   &
+#  endif
+#  ifdef ICE_BIO
+     &                         avgit,                                  &
+#  endif
+#  ifdef BIOFLUX
+     &                         avgbflx,                                 &
+#  endif
+# endif
+
 # ifdef BIO_GOANPZ
      &                         avgst,                                   &
 # endif
@@ -498,6 +603,32 @@
       real(r8), intent(in) :: W(LBi:,LBj:,0:)
       real(r8), intent(in) :: wvel(LBi:,LBj:,0:)
       real(r8), intent(in) :: t(LBi:,LBj:,:,:,:)
+# ifdef BEST_NPZ
+#   ifdef STATIONARY
+      real(r8), intent(in) :: st(LBi:,LBj:,:,:,:)
+#   endif
+#   ifdef STATIONARY2
+      real(r8), intent(in) :: st2(LBi:,LBj:,:,:)
+#   endif
+#   ifdef PROD3
+      real(r8), intent(in) :: pt3(LBi:,LBj:,:,:,:)
+#   endif
+#   ifdef PROD2
+      real(r8), intent(in) :: pt2(LBi:,LBj:,:,:)
+#   endif
+#   ifdef BENTHIC   
+      real(r8), intent(in) :: bt(LBi:,LBj:,:,:,:)
+#   endif
+#   ifdef ICE_BIO   
+      real(r8), intent(in) :: it(LBi:,LBj:,:,:)
+#   endif  
+#   ifdef BIOFLUX
+!      real(r8), intent(in) :: bflx(LBi:,LBj:,:,:,:,:)
+
+      real(r8), intent(in) :: bflx(:,:)
+#   endif    
+# endif      
+      
 # ifdef BIO_GOANPZ
       real(r8), intent(in) :: st(LBi:,LBj:,:,:,:)
 # endif
@@ -620,6 +751,31 @@
       real(r8), intent(inout) :: avgw3d(LBi:,LBj:,0:)
       real(r8), intent(inout) :: avgwvel(LBi:,LBj:,0:)
       real(r8), intent(inout) :: avgt(LBi:,LBj:,:,:)
+
+# ifdef BEST_NPZ
+#   ifdef STATIONARY
+      real(r8), intent(inout) :: avgst(LBi:,LBj:,:,:)
+#   endif
+#   ifdef STATIONARY2
+      real(r8), intent(inout) :: avgst2(LBi:,LBj:,:)
+#   endif
+#   ifdef PROD3
+      real(r8), intent(inout) :: avgpt3(LBi:,LBj:,:,:)
+#   endif
+#   ifdef PROD2
+      real(r8), intent(inout) :: avgpt2(LBi:,LBj:,:)
+#   endif
+#   ifdef BENTHIC
+      real(r8), intent(inout) :: avgbt(LBi:,LBj:,:,:)
+#   endif
+#   ifdef ICE_BIO
+      real(r8), intent(inout) :: avgit(LBi:,LBj:,:)
+#   endif
+#   ifdef BIOFLUX
+       real(r8), intent(inout) :: avgbflx(:,:)
+#   endif
+# endif
+
 # ifdef BIO_GOANPZ
       real(r8), intent(inout) :: avgst(LBi:,LBj:,:,:)
 # endif
@@ -749,6 +905,32 @@
       real(r8), intent(in) :: W(LBi:UBi,LBj:UBj,0:N(ng))
       real(r8), intent(in) :: wvel(LBi:UBi,LBj:UBj,0:N(ng))
       real(r8), intent(in) :: t(LBi:UBi,LBj:UBj,N(ng),3,NT(ng))
+
+# ifdef BEST_NPZ
+#     ifdef STATIONARY
+       real(r8), intent(in) :: st(LBi:UBi,LBj:UBj,N(ng),3,NTS(ng))
+#     endif
+#     ifdef STATIONARY2
+       real(r8), intent(in) :: st2(LBi:UBi,LBj:UBj,3,NTS2(ng))
+#     endif
+#     ifdef PROD3
+       real(r8), intent(in) :: pt3(LBi:UBi,LBj:UBj,N(ng),3,NPT3(ng))
+#     endif
+#     ifdef PROD2
+       real(r8), intent(in) :: pt2(LBi:UBi,LBj:UBj,3,NPT2(ng))
+#     endif
+#     ifdef BENTHIC
+       real(r8), intent(in) :: bt(LBi:UBi,LBj:UBj,NBL(ng),3,NBeT(ng))
+#     endif
+#     ifdef ICE_BIO
+       real(r8), intent(in) :: it(LBi:UBi,LBj:UBj,3,NIceT(ng))
+#     endif
+#     ifdef BIOFLUX
+      real(r8), intent(in)::bflx(NT(ng),NT(ng))
+#     endif
+
+# endif
+
 #   ifdef BIO_GOANPZ
       real(r8), intent(in) :: st(LBi:UBi,LBj:UBj,N(ng),3,NTS(ng))
 #   endif
@@ -871,6 +1053,31 @@
       real(r8), intent(inout) :: avgw3d(LBi:UBi,LBj:UBj,0:N(ng))
       real(r8), intent(inout) :: avgwvel(LBi:UBi,LBj:UBj,0:N(ng))
       real(r8), intent(inout) :: avgt(LBi:UBi,LBj:UBj,N(ng),NT(ng))
+#  ifdef BEST_NPZ
+#   ifdef STATIONARY
+      real(r8), intent(inout) :: avgst(LBi:UBi,LBJ:UBj,N(ng),NTS(ng))
+#   endif
+#   ifdef STATIONARY2
+      real(r8), intent(inout) :: avgst2(LBi:UBi,LBJ:UBj,NTS2(ng))
+#   endif
+#   ifdef PROD3
+      real(r8), intent(inout) :: avgpt3(LBi:UBi,LBJ:UBj,N(ng),NPT3(ng))
+#   endif
+#   ifdef PROD2
+      real(r8), intent(inout) :: avgpt2(LBi:UBi,LBJ:UBj,NPT2(ng))
+#   endif
+#   ifdef BENTHIC
+      real(r8), intent(inout) :: avgbt(LBi:UBi,LBj:UBj,NBL(ng),NBeT(ng))
+#   endif
+#   ifdef ICE_BIO
+      real(r8), intent(inout) :: avgit(LBi:UBi,LBj:UBj,NIceT(ng))
+#   endif
+#   ifdef BIOFLUX
+      real(r8), intent(inout) :: avgbflx(NT(ng),NT(ng))
+#   endif
+#  endif
+
+
 #  ifdef BIO_GOANPZ
       real(r8), intent(inout) :: avgst(LBi:UBi,LBJ:UBj,N(ng),NTS(ng))
 #  endif
@@ -1238,6 +1445,85 @@
           END IF
 #  endif
         END DO
+#ifdef BEST_NPZ
+#  ifdef STATIONARY
+        DO itrc=1,NTS(ng)
+          DO k=1,N(ng)
+            DO j=JstrR,JendR
+              DO i=IstrR,IendR
+                avgst(i,j,k,itrc)=st(i,j,k,Nout,itrc)
+              END DO
+            END DO
+          END DO
+        END DO
+#  endif
+#  ifdef PROD3
+        DO itrc=1,NPT3(ng)
+          DO k=1,N(ng)
+            DO j=JstrR,JendR
+              DO i=IstrR,IendR
+                avgpt3(i,j,k,itrc)=pt3(i,j,k,Nout,itrc)
+              END DO
+            END DO
+          END DO
+        END DO
+#  endif
+#  ifdef PROD2
+        DO itrc=1,NPT2(ng)
+
+            DO j=JstrR,JendR
+              DO i=IstrR,IendR
+                avgpt2(i,j,itrc)=pt2(i,j,Nout,itrc)
+              END DO
+            END DO
+
+        END DO
+#  endif
+#  ifdef STATIONARY2
+        DO itrc=1,NTS2(ng)
+            DO j=JstrR,JendR
+              DO i=IstrR,IendR
+                avgst2(i,j,itrc)=st2(i,j,Nout,itrc)
+              END DO
+            END DO
+        END DO
+#  endif
+#  ifdef BENTHIC
+           DO itrc=1,NBeT(ng)
+             DO k=1,NBL(ng)
+               DO j=JstrR,JendR
+                 DO i=IstrR,IendR
+
+                   avgbt(i,j,k,itrc)=bt(i,j,k,Nout,itrc)
+
+                 END DO
+               END DO
+             END DO
+          END DO
+#  endif
+#  ifdef ICE_BIO
+           DO itrc=1,NIceT(ng)
+
+               DO j=JstrR,JendR
+                 DO i=IstrR,IendR
+
+                   avgit(i,j,itrc)=it(i,j,Nout,itrc)
+
+                 END DO
+
+             END DO
+          END DO
+#  endif
+#  ifdef BIOFLUX
+        DO itrc=1,NT(ng)
+        DO itrc2=1,NT(ng)
+                avgbflx(itrc,itrc2)=bflx(itrc,itrc2)
+          END DO
+        END DO
+#  endif
+#endif
+
+
 #  ifdef BIO_GOANPZ
         DO itrc=1,NTS(ng)
           DO k=1,N(ng)
@@ -1495,6 +1781,92 @@
           END IF
 #  endif
         END DO
+#  ifdef BEST_NPZ
+!--------------------------------------------
+! values are accumulated in the bestnpz.h file
+! so do not sum them here
+!--------------------------------------------
+#ifdef STATIONARY
+         DO itrc=1,NTS(ng)
+           DO k=1,N(ng)
+             DO j=JstrR,JendR
+               DO i=IstrR,IendR
+                 avgst(i,j,k,itrc)=st(i,j,k,Nout,itrc)
+               END DO
+             END DO
+           END DO
+         END DO
+#endif
+#ifdef PROD3
+         DO itrc=1,NPT3(ng)
+           DO k=1,N(ng)
+             DO j=JstrR,JendR
+               DO i=IstrR,IendR
+                 avgpt3(i,j,k,itrc)=pt3(i,j,k,Nout,itrc)
+               END DO
+             END DO
+           END DO
+         END DO
+#endif
+#ifdef PROD2
+         DO itrc=1,NPT2(ng)
+
+             DO j=JstrR,JendR
+               DO i=IstrR,IendR
+                 avgpt2(i,j,itrc)=pt2(i,j,Nout,itrc)
+               END DO
+             END DO
+
+         END DO
+#endif
+#ifdef STATIONARY2
+         DO itrc=1,NTS2(ng)
+!          DO k=1,N(ng)
+             DO j=JstrR,JendR
+               DO i=IstrR,IendR
+                 avgst2(i,j,itrc)=st2(i,j,Nout,itrc)
+               END DO
+             END DO
+!          END DO
+         END DO
+#endif
+#ifdef BENTHIC
+          DO itrc=1,NBeT(ng)
+            DO k=1,NBL(ng)
+              DO j=JstrR,JendR
+                DO i=IstrR,IendR
+                  avgbt(i,j,k,itrc)=avgbt(i,j,k,itrc)+bt(i,j,k,Nout,itrc)
+
+                END DO
+              END DO
+            END DO
+          END DO
+
+#endif
+#ifdef ICE_BIO
+          DO itrc=1,NIceT(ng)
+
+              DO j=JstrR,JendR
+                DO i=IstrR,IendR
+                  avgit(i,j,itrc)=avgit(i,j,itrc)+it(i,j,Nout,itrc)
+
+                END DO
+              END DO
+
+          END DO
+
+#endif
+#ifdef BIOFLUX
+         DO itrc=1,NT(ng)
+         DO itrc2=1,NT(ng)
+            avgbflx(itrc,itrc2)=bflx(itrc,itrc2)
+           END DO
+         END DO
+#endif
+#  endif
+
+
+
 #  ifdef BIO_GOANPZ
 !--------------------------------------------
 ! values are accumulated in the goanpz.h file
@@ -1850,6 +2222,73 @@
 !          END DO
 !        END DO
 !#  endif
+
+#  ifdef BEST_NPZ
+# ifdef BENTHIC
+         DO itrc=1,NBeT(ng)
+            DO k=1,NBL(ng)
+              DO j=JstrR,JendR
+                DO i=IstrR,IendR
+                  avgbt(i,j,k,itrc)=fac*avgbt(i,j,k,itrc)
+
+                END DO
+              END DO
+            END DO
+         END DO
+# endif
+# ifdef ICE_BIO
+         DO itrc=1,NIceT(ng)
+
+              DO j=JstrR,JendR
+                DO i=IstrR,IendR
+                  avgit(i,j,itrc)=fac*avgit(i,j,itrc)
+
+                END DO
+              END DO
+
+         END DO
+# endif
+
+# ifdef STATIONARY
+        DO itrc=1,NTS(ng)
+         DO k=1,N(ng)
+           DO j=JstrR,JendR
+             DO i=IstrR,IendR
+               avgst(i,j,k,itrc)=fac*avgst(i,j,k,itrc)
+             END DO
+           END DO
+         END DO
+       END DO
+#  endif
+
+# ifdef STATIONARY2
+        DO itrc=1,NTS2(ng)
+           DO j=JstrR,JendR
+             DO i=IstrR,IendR
+               avgst2(i,j,itrc)=fac*avgst2(i,j,itrc)
+             END DO
+           END DO
+       END DO
+#  endif
+
+#  endif
+
+
+!        DO itrc=1,NTS(ng)
+!          DO k=1,N(ng)
+!            DO j-JstrR,JendR
+!              DO i-IstrR,IendR
+!                anvst(i,j,k,itrc)=fac*avgt(i,j,k,itrc)
+!              END DO
+!            END DO
+!          END DO
+!        END DO
+!#  endif
+
+!#  endif
+
+
+
 !
 !  Process fields at W-points.
 !

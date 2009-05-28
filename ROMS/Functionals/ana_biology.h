@@ -15,7 +15,16 @@
       USE mod_param
       USE mod_ncparam
       USE mod_ocean
-#ifdef BIO_GOANPZ
+
+#ifdef BEST_NPZ
+      USE mod_grid
+# if defined SEBS1D
+      USE mod_clima
+# endif
+#endif
+
+
+#ifdef BIO_GOANPZ 
       USE mod_grid
 #endif
 !
@@ -25,11 +34,58 @@
 
 #include "tile.h"
 !
-      CALL ana_biology_tile (ng, tile, model,                           &
-     &                       LBi, UBi, LBj, UBj,                        &
-     &                       IminS, ImaxS, JminS, JmaxS,                &
+      CALL ana_biology_tile (ng, tile, model,                   &
+     &                       LBi, UBi, LBj, UBj,                &
+     &                       IminS, ImaxS, JminS, JmaxS,        &
+
+#ifdef BEST_NPZ
+     &                      GRID(ng) % z_r,                     &
+     &                      GRID(ng) % h,                       &
+     &                      OCEAN(ng) % st,                     &
+# ifdef BENTHIC
+     &                      OCEAN(ng) % bt,                     &
+# endif
+# ifdef ICE_BIO
+#  ifdef CLIM_ICE_1D
+     &                   OCEAN(ng)%it,                          &
+     &                   OCEAN(ng)%itL,                         &
+     &                   CLIMA(ng) % tclmG,                     &
+     &                   CLIMA(ng) % tclm,                      &
+#  else
+     &                   ICE(ng)%it,                            &
+     &                   ICE(ng)%itL,                           &
+     &                   ICE(ng) % ti,                          &
+     &                   ICE(ng) % hi,                          &
+     &                   ICE(ng) % ai,                          &
+     &                   ICE(ng) % ageice,                      &
+#  endif
+# endif
+# ifdef STATIONARYR
+     &                   OCEAN(ng) % st,                        &
+     &                   NTS(ng),                               &
+# endif
+# ifdef STATIONARY2R
+     &                   OCEAN(ng) % st2,                       &
+     &                   NTS2(ng),                              &
+# endif
+# ifdef PROD3R
+     &                   OCEAN(ng) % pt3,                       &
+     &                   NPT3(ng),                              &
+# endif
+# ifdef PROD2R
+     &                   OCEAN(ng) % pt2,                       &
+     &                   NPT2(ng),                              &
+# endif
+# ifdef BIOFLUX
+     &                   OCEAN(ng) % bflx,                      &
+# endif
+
+#endif
+
+
+
 # ifdef BIO_GOANPZ
-     &                       GRID(ng) % z_r,                            &
+     &                       GRID(ng) % z_r,                    &
 # endif
      &                       OCEAN(ng) % t)
 !
@@ -47,9 +103,53 @@
       END SUBROUTINE ana_biology
 !
 !***********************************************************************
-      SUBROUTINE ana_biology_tile (ng, tile, model,                     &
-     &                             LBi, UBi, LBj, UBj,                  &
-     &                             IminS, ImaxS, JminS, JmaxS,          &
+      SUBROUTINE ana_biology_tile (ng, tile, model,              &
+     &                             LBi, UBi, LBj, UBj,           &
+     &                             IminS, ImaxS, JminS, JmaxS,   &
+#ifdef BEST_NPZ
+     &                              z_r, h,  st,                 &
+
+# ifdef BENTHIC
+     &                             bt,                           &
+# endif
+# ifdef ICE_BIO
+#  ifdef CLIM_ICE_1D
+     &                          it,itL,                          &
+     &                          tclmG,                           &
+     &                          tclm,                            &
+#  else
+     &                          it ,                             &
+     &                          itL,                             &
+     &                          ti ,                             &
+     &                          hi ,                             &
+     &                          ai ,                             &
+     &                          ageice ,                         &
+#  endif
+# endif
+# ifdef STATIONARYR
+     &                          st,                              &
+     &                          UBst ,                           &
+# endif
+# ifdef STATIONARY2R
+     &                          st2,                             &
+     &                          UBst2 ,                          &
+# endif
+# ifdef PROD3R
+     &                          pt3,                             &
+     &                          UBpt3 ,                          &
+# endif
+# ifdef PROD2R
+     &                          pt2,                             &
+     &                          UBpt2,                           &
+# endif
+# ifdef BIOFLUX
+     &                             bflx,                         &
+# endif
+
+
+#endif
+
+
 # ifdef BIO_GOANPZ
      &                             z_r,                                 &
 # endif
@@ -59,7 +159,7 @@
       USE mod_param
       USE mod_biology
       USE mod_scalars
-# ifdef BIO_GOANPZ
+# ifdef BIO_GOANPZ ||BEST_NPZ
       USE mod_grid
 # endif
 !
@@ -71,10 +171,92 @@
 !
 #ifdef ASSUMED_SHAPE
 # if defined BIO_GOANPZ
+
+      real(r8), intent(in) :: z_r(LBi:,LBj:,:)
+      real(r8), intent(in) :: h(LBi:,LBj:)
+#  ifdef BENTHIC
+        real(r8), intent(inout) :: bt(LBi:,LBj:,:,:,:)
+#  endif
+
+
+#  ifdef STATIONARY
+      real(r8), intent(inout) :: st(LBi:,LBj:,:,:,:)
+#  endif
+#  ifdef STATIONARY2R
+      real(r8), intent(inout) :: st2(LBi:,LBj:,:,:)
+#  endif
+#  ifdef PROD3R
+      real(r8), intent(inout) :: pt3(LBi:,LBj:,:,:,:)
+#  endif
+#  ifdef PROD2R
+      real(r8), intent(inout) :: pt2(LBi:,LBj:,:,:)
+#  endif
+
+#  ifdef BIOFLUX
+      real(r8), intent(inout) :: bflx(:,:)
+#  endif
+#  ifdef ICE_BIO
+        real(r8), intent(inout) :: it(LBi:,LBj:,:,:)
+        real(r8), intent(inout) :: itL(LBi:,LBj:,:,:)
+#    ifdef CLIM_ICE_1D
+       real(r8), intent(inout) ::tclmG(LBi:,LBj:,:,:,:)
+      real(r8), intent(inout) ::tclm(LBi:,LBj:,:,:)
+#    else
+      real(r8), intent(in) :: ti(LBi:,LBj:,:)
+      real(r8), intent(in) :: hi(LBi:,LBj:,:)
+      real(r8), intent(in) :: ai(LBi:,LBj:,:)
+      real(r8), intent(in) :: ageice(LBi:,LBj:,:)
+#    endif
+#  endif
+# endif
+
+# if defined BIO_GOANPZ
       real(r8), intent(in) :: z_r(LBi:,LBj:,:)
 # endif
       real(r8), intent(inout) :: t(LBi:,LBj:,:,:,:)
 #else
+
+
+# if defined BEST_NPZ
+      real(r8), intent(in) :: z_r(LBi:UBi,LBj:UBj,N(ng))
+      real(r8), intent(in) :: h(LBi:UBi,LBj:UBj)
+
+#   ifdef BENTHIC
+      real(r8), intent(inout) :: bt(LBi:UBi,LBj:UBj,NBL(ng),3,NBeT(ng))
+#   endif
+#   ifdef STATIONARY
+      real(r8), intent(inout) :: st(LBi:UBi,LBj:UBj,UBk,3,UBst)
+#   endif
+#   ifdef STATIONARY2R
+      real(r8), intent(inout) :: st2(LBi:UBi,LBj:UBj,3,UBst2)
+#   endif
+#   ifdef PROD3R
+      real(r8), intent(inout) :: pt3(LBi:UBi,LBj:UBj,UBk,3,UBpt3)
+#   endif
+#   ifdef PROD2R
+      real(r8), intent(inout) :: pt2(LBi:UBi,LBj:UBj,3,UBpt2)
+#   endif
+
+#   ifdef BIOFLUX
+      real(r8), intent(inout) :: bflx(NT(ng),NT(ng))
+#   endif
+
+
+#  ifdef ICE_BIO
+      real(r8), intent(inout) :: it(LBi:UBi,LBj:UBj,3,NIceT(ng))
+       real(r8), intent(inout) :: itL(LBi:UBi,LBj:UBj,3,NIceLog(ng))
+#    ifdef CLIM_ICE_1D
+      real(r8), intent(inout) ::tclmG(LBi:UBi,LBj:UBj,UBk,3,UBt+1)
+      real(r8), intent(inout) ::tclm(LBi:UBi,LBj:UBj,UBk,UBt+1)
+#    else
+      real(r8), intent(in) :: ti(LBi:UBi,LBj:UBj,2)
+      real(r8), intent(in) :: hi(LBi:UBi,LBj:UBj,2)
+      real(r8), intent(in) :: ai(LBi:UBi,LBj:UBj,2)
+      real(r8), intent(in) :: ageice(LBi:UBi,LBj:UBj,2)
+#   endif
+#  endif
+# endif
+
 # if defined BIO_GOANPZ
       real(r8), intent(in) :: z_r(LBi:UBi,LBj:UBj,N(ng))
 # endif
@@ -85,13 +267,13 @@
 !
       integer :: i, is, itrc, j, k
 
-#if defined BIO_FENNEL || defined NEMURO || defined BIO_UMaine
+#if defined BIO_FENNEL || defined NEMURO || defined BIO_UMAINE
       real(r8) :: SiO4, cff1, cff2, temp
 #elif defined ECOSIM
       real(r8) :: cff1, cff2, cff3, cff4, cff5, cff6, cff7, cff8, cff9
       real(r8) :: cff10, cff11, cff12, cff13, cff14, cff15
       real(r8) :: salt, sftm, temp
-#elif defined BIO_GOANPZ
+#elif defined BIO_GOANPZ|BEST_NPZ
       real(r8) :: var1, var2, var3, var4, var5, var6, var7
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS,N(ng)) :: biod
       real(r8), dimension(NT(ng)) :: deepval
@@ -150,7 +332,7 @@
         END DO
       END DO
 
-#elif defined BIO_UMaine
+#elif defined BIO_UMAINE
 !
 !-----------------------------------------------------------------------
 !  UMaine Carbon, Silicate, Nitrogen Ecosystem (CoSiNE) Model
@@ -427,7 +609,11 @@
         END DO
       END DO
 #elif defined BIO_GOANPZ
+# include "ana_biology_BESTnpz.h"
+#elif defined BIO_GOANPZ
 # include "ana_biology_goanpz.h"
 #endif
+
+
       RETURN
       END SUBROUTINE ana_biology_tile

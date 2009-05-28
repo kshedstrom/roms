@@ -1007,6 +1007,132 @@
           IF (exit_flag.ne.NoError) RETURN
           END IF
         END DO
+
+# if defined BEST_NPZ
+#ifdef STATIONARY
+!------------------------------------------
+!  Define 3D stationary tracer type variables.
+!------------------------------------------
+        DO itrc=1,NTS(ng)
+          hisTsid(itrc,ng) = 0
+          IF (Hout(idTSvar(itrc),ng)) THEN
+            Vinfo( 1)=Vname(1,idTSvar(itrc))
+            Vinfo( 2)=Vname(2,idTSvar(itrc))
+            Vinfo( 3)=Vname(3,idTSvar(itrc))
+            Vinfo(14)=Vname(4,idTSvar(itrc))
+            Vinfo(16)=Vname(1,idtime)
+       status=def_var(ng,iNLM,ncHISid(ng),hisTSid(itrc,ng),NF_FOUT,&
+     &                     nvd4,t3dgrd,Aval,Vinfo,ncname)
+          END IF
+        END DO
+#endif
+#ifdef STATIONARY2
+!------------------------------------------
+!  Define 2D stationary tracer type variables.
+!------------------------------------------
+        DO itrc=1,NTS2(ng)
+	  hisTS2id(itrc,ng) = 0
+          IF (Hout(idTS2var(itrc),ng)) THEN
+            Vinfo( 1)=Vname(1,idTS2var(itrc))
+            Vinfo( 2)=Vname(2,idTS2var(itrc))
+            Vinfo( 3)=Vname(3,idTS2var(itrc))
+            Vinfo(14)=Vname(4,idTS2var(itrc))
+            Vinfo(16)=Vname(1,idtime)
+       status=def_var(ng,iNLM,ncHISid(ng),hisTS2id(itrc,ng),NF_FOUT,&
+     &                     nvd3,t2dgrd,Aval,Vinfo,ncname)
+          END IF
+        END DO
+#endif
+
+#ifdef PROD3
+!------------------------------------------
+!  Define 3D production variables.
+!------------------------------------------
+        DO itrc=1,NPT3(ng)
+	  hisPT3id(itrc,ng) = 0
+          IF (Hout(idPT3var(itrc),ng)) THEN
+            Vinfo( 1)=Vname(1,idPT3var(itrc))
+            Vinfo( 2)=Vname(2,idPT3var(itrc))
+            Vinfo( 3)=Vname(3,idPT3var(itrc))
+            Vinfo(14)=Vname(4,idPT3var(itrc))
+            Vinfo(16)=Vname(1,idtime)
+         status=def_var(ng,iNLM,ncHISid(ng),hisPT3id(itrc,ng),NF_FOUT,&
+     &                     nvd4,t3dgrd,Aval,Vinfo,ncname)
+          END IF
+        END DO
+#endif
+#ifdef PROD2
+!------------------------------------------
+!  Define 2D production  variables.
+!------------------------------------------
+        DO itrc=1,NPT2(ng)
+	  hisPT2id(itrc,ng) = 0
+          IF (Hout(idPT2var(itrc),ng)) THEN
+            Vinfo( 1)=Vname(1,idPT2var(itrc))
+            Vinfo( 2)=Vname(2,idPT2var(itrc))
+            Vinfo( 3)=Vname(3,idPT2var(itrc))
+            Vinfo(14)=Vname(4,idPT2var(itrc))
+            Vinfo(16)=Vname(1,idtime)
+         status=def_var(ng,iNLM,ncHISid(ng),hisPT2id(itrc,ng),NF_FOUT,&
+     &                     nvd3,t2dgrd,Aval,Vinfo,ncname)
+          END IF
+        END DO
+#endif
+#  if defined BENTHIC
+!------------------------------------------
+!  Define benthic tracer type variables.
+!------------------------------------------   
+         DO itrc=1,NBeT(ng)
+          hisBid(itrc,ng) = 0
+ 
+          IF (Hout(idBvar(itrc),ng)) THEN
+
+          Vinfo( 1)=Vname(1,idBvar(itrc))
+          Vinfo( 2)=Vname(2,idBvar(itrc))
+          Vinfo(3)=Vname(3,idBvar(itrc))
+          Vinfo(14)=Vname(4,idBvar(itrc))
+          Vinfo(16)=Vname(1,idtime)
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(r2dvar,r8)
+          status=def_var(ng,iNLM,ncHISid(ng),hisBid(itrc,ng),NF_FOUT,    &
+     &                     nvd3,t2dgrd,Aval,Vinfo,ncname)
+
+!Will need to switch this if have more than one depth level for benthos 
+!         status=def_var(ncHISid(ng),hisBid(itrc,ng),NF_FOUT,            &
+!    &                     nvd4,t3dgrd,Aval,Vinfo,ncname)
+               END IF
+            END DO
+#  endif
+!------------------------------------------
+!  Define ice bio tracer type variables.
+!------------------------------------------  
+#  if defined ICE_BIO
+
+         DO itrc=1,NIceT(ng)
+!         hisIceBid(itrc,ng) = 0
+
+          IF (Hout(idIceBvar(itrc),ng)) THEN
+
+          Vinfo( 1)=Vname(1,idIceBvar(itrc))
+          Vinfo( 2)=Vname(2,idIceBvar(itrc))
+          Vinfo(3)=Vname(3,idIceBvar(itrc))
+          Vinfo(14)=Vname(4,idIceBvar(itrc))
+          Vinfo(16)=Vname(1,idtime)
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(r2dvar,r8)  
+          status=def_var(ng,iNLM,ncHISid(ng),hisIceBid(itrc,ng),NF_FOUT,            &
+     &                     nvd3,t2dgrd,Aval,Vinfo,ncname)
+
+!Will need to switch this if have more than one depth level for benthos
+!         status=def_var(ncHISid(ng),hisBid(itrc,ng),NF_FOUT,            &
+!    &                     nvd4,t3dgrd,Aval,Vinfo,ncname)
+               END IF
+            END DO
+#  endif
+
+# endif
+
+
 # if defined BIO_GOANPZ
 !------------------------------------------
 !  Define stationary tracer type variables.

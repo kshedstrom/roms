@@ -71,6 +71,10 @@
 # ifdef ICE_MODEL
       USE mod_ice
 # endif
+# if defined BEST_NPZ && defined CLIM_ICE_1D
+      USE mod_clima
+# endif
+      
       USE mod_stepping
 !
 !  Imported variable declarations.
@@ -150,6 +154,12 @@
      &                     FORCES(ng) % tau_aix_n,                      &
      &                     FORCES(ng) % tau_aiy_n,                      &
 # endif
+# if defined BEST_NPZ && defined CLIM_ICE_1D
+     &                    OCEAN(ng) % it,                               &
+     &                    CLIMA(ng) % tclmG,                            &
+     &                    nstp(ng),                                    &
+# endif  
+       
 # ifdef EMINUSP
      &                     FORCES(ng) % evap,                           &
 # endif
@@ -205,6 +215,11 @@
      &                           sustr_aw, svstr_aw, qao_n, p_e_n,      &
      &                           tau_aix_n, tau_aiy_n,                  &
 # endif
+#  if defined BEST_NPZ && defined CLIM_ICE_1D
+     &                           it,                                    &
+     &                           tclmG,nstp,                            & 
+#  endif
+
 # ifdef EMINUSP
      &                           evap,                                  &
 # endif
@@ -213,6 +228,13 @@
 !
       USE mod_param
       USE mod_scalars
+# ifdef ICE_MODEL
+      USE mod_ice
+# endif
+
+# if defined BEST_NPZ && defined CLIM_ICE_1D
+      USE mod_clima
+# endif
 !
 # if defined EW_PERIODIC || defined NS_PERIODIC
       USE exchange_2d_mod
@@ -301,7 +323,16 @@
 #  endif
       real(r8), intent(out) :: sustr(LBi:,LBj:)
       real(r8), intent(out) :: svstr(LBi:,LBj:)
+
+#   if defined BEST_NPZ && defined CLIM_ICE_1D
+     
+       real(r8), intent(in) ::tclmG(LBi:,LBj:,:,:,:)
+       real(r8), intent(in) :: it(LBi:,LBj:,:,:)
+        integer, intent(in) :: nstp
+#   endif  
 # else
+
+ 
 #  ifdef MASKING
       real(r8), intent(in) :: rmask(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: umask(LBi:UBi,LBj:UBj)
@@ -368,6 +399,14 @@
 #  endif
       real(r8), intent(out) :: sustr(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: svstr(LBi:UBi,LBj:UBj)
+      
+#  if defined BEST_NPZ && defined CLIM_ICE_1D
+     
+      real(r8), intent(in) :: it(LBi:UBi,LBj:UBj,3,1)
+      real(r8), intent(in) ::tclmG(LBi:UBi,LBj:UBj,UBk,3,UBt+1)
+      integer, intent(in) :: nstp
+#  endif  
+
 # endif
 !
 !  Local variable declarations.
@@ -482,6 +521,11 @@
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: Taux_Ice
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: Tauy_Ice
 #endif
+# ifdef BEST_NPZ && defined ICE_BIO || defined CLIM_ICE_1D
+      real(r8), dimension(PRIVATE_2D_SCRATCH_ARRAY) :: ice_thick
+      real(r8), dimension(PRIVATE_2D_SCRATCH_ARRAY) :: snow_thick
+# endif 
+
 
 # include "set_bounds.h"
 !
@@ -1114,11 +1158,40 @@
           stflx(i,j,isalt)=stflx(i,j,isalt)*rmask(i,j)
 #  endif
 # endif
-# ifdef ICE_MODEL
+
+     
 ! Limit shortwave radiation to be used in computing penetrative 
-! radiation by presence of ice
-          srflx(i,j) = srflx(i,j)*(1.0_r8-ai(i,j,linew))
-          qao_n(i,j) = -stflx(i,j,itemp)*Hscale
+! radiation by presence of ice and biology
+
+# ifdef ICE_MODEL && defined BEST_NPZ
+
+        ice_thick(i,j) = hi(i,j,1)/ai(i,j,1)
+	snow_thick(i,j) = hsn(i,j,linew)/(ai(i,j,linew)+eps)
+	
+       IF (ice_thick(i,j).le.0.1_r8) THEN
+         cff1=ice_thick(i,j)*5._r8
+         ELSE
+         cff1=0.1_r8*5._r8+(ice_thick(i,j)-0.1_r8)*1._r8
+       ENDIF
+       
+         cff1= cff1+snow_thick(i,j)*20._r8
+	 
+#   ifdef ICE_BIO
+         cff2=0.5*0.02_r8*0.005*it(i,j,nstp,iIcePhL)
+#   endif
+
+     srflx(i,j)=(1-ai(i,j,linew))*srflx(i,j)                &
+     &            +ai(i,j,linew)*srflx(i,j)*exp(-cff1-cff2)
+     
+     
+! Limit shortwave radiation to be used in computing penetrative 
+! radiation by presence of ice alone
+     
+# elif defined ICE_MODEL && !defined BEST_NPZ    
+     
+     srflx(i,j) = srflx(i,j)*(1.0_r8-ai(i,j,linew))
+     
+      qao_n(i,j) = -stflx(i,j,itemp)*Hscale
 
 ! Net precipitation - evaporation in m/s
           IF (Tair(i,j).ge.0.0) THEN
@@ -1129,7 +1202,33 @@
           coef_ice_heat(i,j) = Coef_Ice(i,j)
           rhs_ice_heat(i,j) = RHS_Ice(i,j)
           qai_n(i,j) = Qai(i,j)
-# endif
+
+     
+! Limit shortwave radiation to be used in computing penetrative 
+! radiation by presence of climatology ice and biology
+
+# elif !defined ICE_MODEL && defined BEST_NPZ && defined CLIM_ICE_1D 
+        
+        ice_thick(i,j) = tclmG(i,j,42,1,15) 
+	snow_thick(i,j) = ice_thick(i,j)*0.1 !assume 10% of ice depth 
+	
+       
+       IF (ice_thick(i,j).le.0.1_r8) THEN
+         cff1=ice_thick(i,j)*5._r8
+         ELSE
+         cff1=0.1_r8*5._r8+(ice_thick(i,j)-0.1_r8)*1._r8
+       ENDIF
+       
+         cff1= cff1+snow_thick(i,j)*20._r8
+	 
+#   ifdef ICE_BIO
+         cff2=0.5*0.02_r8*0.005*it(i,j,nstp,iIcePhL)
+#   endif
+ 
+          srflx(i,j)=srflx(i,j)*exp(-cff1-cff2)
+	 
+# endif 
+
         END DO
       END DO
 !

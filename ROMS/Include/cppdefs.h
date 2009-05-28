@@ -562,7 +562,6 @@
 **                                                                           **
 ** BIO_FENNEL          use if Fennel et al. (2006) nitrogen-based model      **
 ** BIO_SEDIMENT        use to restore fallen material to the nutrient pool   **
-** BIO_UMaine          use if Chai et al. (2002) CoSINE model                **
 ** CARBON              use to add carbon constituents                        **
 ** DENITRIFICATION     use to add denitrification processes                  **
 ** OXYGEN              use to add oxygen dynamics                            **
@@ -570,8 +569,19 @@
 ** RIVER_BIOLOGY       use to process river biology point-sources            **
 ** TALK_NONCONSERV     use if nonconservative computation of alkalinity      **
 **                                                                           **
+** Bering Sea biology model OPTIONS:                                         **
+**                                                                           **
+** BEST_NPZ            use if Gibson et al. Bering Sea model                 **
+** STATIONARY          use if ??                                             **
+** BENTHIC             use if benthic components                             **
+** ICE_BIO             use if ice algae                                      **
+** JELLY               use if jellyfish                                      **
+** CLIM_ICE_1D         use if one-D with ice                                 **
+**                                                                           **
 ** NPZD biology model OPTIONS:                                               **
 **                                                                           **
+** BIO_UMAINE          use if Chai et al. (2002) CoSINE model                **
+** BIO_GOANPZ          use if Coyle et al. Gulf of Alaska model              **
 ** NPZD_FRANKS         use if NPZD Biology model, Franks et al. (1986)       **
 ** NPZD_POWELL         use if NPZD Biology model, Powell et al. (2006)       **
 **                                                                           **

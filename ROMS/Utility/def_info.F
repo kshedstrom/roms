@@ -2188,7 +2188,7 @@
      &               SetParAccess = .FALSE.)
       IF (exit_flag.ne.NoError) RETURN
 
-# elif defined BIO_UMaine
+# elif defined BIO_UMAINE
 !
 !  Define UMaine CoSiNE ecosystem parameters.
 !

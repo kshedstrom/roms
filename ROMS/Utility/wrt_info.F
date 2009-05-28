@@ -1040,7 +1040,7 @@
      &                      ncid = ncid)
       IF (exit_flag.ne.NoError) RETURN
 
-# elif defined BIO_UMaine
+# elif defined BIO_UMAINE
 !
 !  Write out UMaine CoSiNE ecosystem model parameters.
 !
