@@ -506,6 +506,54 @@
 !  Output NetCDF variables IDs.
 !
         integer, allocatable :: idTvar(:)     ! tracers variables
+	
+
+# ifdef BEST_NPZ
+
+#ifdef BIOFLUX
+        integer, allocatable :: idTBFvar(:)    ! 3D Stationary variables
+        integer, allocatable :: avgTBFid(:,:)  ! averages stationary tracer IDs
+#endif
+#ifdef STATIONARY
+        integer, allocatable :: idTSvar(:)    ! 3D Stationary variables
+        integer, allocatable :: hisTSid(:,:)  ! history St tracer IDs
+        integer, allocatable :: avgTSid(:,:)  ! averages stationary tracer IDs
+#endif
+
+#ifdef STATIONARY2
+        integer, allocatable :: idTS2var(:)    ! 2D Stationary variables
+        integer, allocatable :: hisTS2id(:,:)  ! history St tracer IDs
+        integer, allocatable :: avgTS2id(:,:)  ! averages stationary tracer IDs
+#endif
+
+
+#ifdef PROD3
+        integer, allocatable :: idPT3var(:)    ! 3D  production variables
+        integer, allocatable :: hisPT3id(:,:)  ! history St tracer IDs
+        integer, allocatable :: avgPT3id(:,:)  ! averages stationary tracer IDs
+#endif
+#ifdef PROD2  
+        integer, allocatable :: idPT2var(:)    ! 2D production variables
+        integer, allocatable :: hisPT2id(:,:)  ! history St tracer IDs
+        integer, allocatable :: avgPT2id(:,:)  ! averages stationary tracer IDs
+#endif
+
+#    if defined BENTHIC
+        integer, allocatable :: idBvar(:)
+        integer, allocatable :: hisBid(:,:)
+        integer, allocatable :: avgBid(:,:)
+#     endif
+#    if defined ICE_BIO
+        integer, allocatable :: idIceBvar(:)
+        integer, allocatable :: hisIceBid(:,:)
+        integer, allocatable :: avgIceBid(:,:)
+        integer, allocatable :: idIceLogvar(:)
+#     endif
+
+
+# endif
+	
+	
 # ifdef BIO_GOANPZ
         integer, allocatable :: idTSvar(:)    ! Stationary production variables
         integer, allocatable :: hisTSid(:,:)  ! history St tracer IDs
@@ -664,7 +712,13 @@
         allocate ( idTbot(MT) )
         allocate ( idTads(MT) )
         allocate ( idTbry(4,MT) )
-        allocate ( idTclm(MT) )
+	
+#ifdef ICE_BIO	
+	allocate ( idTclm(MT+1) )
+#else
+         allocate ( idTclm(MT) )
+#endif
+        
         allocate ( idTerr(MT) )
         allocate ( idTobs(MT) )
         allocate ( idTsur(MT) )
@@ -672,6 +726,53 @@
         allocate ( idTvar(MT) )
         allocate ( isTvar(MT) )
         allocate ( isTsur(MT) )
+
+# ifdef BEST_NPZ
+# ifdef STATIONARY
+        allocate ( idTSvar(NBTS) )
+        allocate ( hisTSid(NBTS,Ngrids) )
+        allocate ( avgTSid(NBTS,Ngrids) )
+# endif
+
+# ifdef STATIONARY2
+        allocate ( idTS2var(NBTS2) )
+        allocate ( hisTS2id(NBTS2,Ngrids) )
+        allocate ( avgTS2id(NBTS2,Ngrids) )
+# endif
+# ifdef PROD2
+        allocate ( idPT2var(NBPT2) )
+        allocate ( hisPT2id(NBPT2,Ngrids) )
+        allocate ( avgPT2id(NBPT2,Ngrids) )
+# endif
+# ifdef PROD3
+        allocate ( idPT3var(NBPT3) )
+        allocate ( hisPT3id(NBPT3,Ngrids) )
+        allocate ( avgPT3id(NBPT3,Ngrids) )
+# endif
+
+
+# if defined BENTHIC
+        allocate ( idBvar(NBEN) )
+        allocate ( hisBid(NBEN,Ngrids) )
+        allocate ( avgBid(NBEN,Ngrids) )
+# endif
+# if defined ICE_BIO
+        allocate ( idIceBvar(NIB) )
+          allocate ( idIceLogvar(1) )
+        allocate ( hisIceBid(NIB,Ngrids) )
+        allocate ( avgIceBid(NIB,Ngrids) )
+# endif
+#  if defined BIOFLUX
+       allocate ( idTBFvar(1) )
+
+        allocate ( avgTBFid(1,Ngrids) )
+
+#  endif
+
+#endif
+
+
+
 # ifdef BIO_GOANPZ
         allocate ( idTSvar(MST) )
         allocate ( hisTSid(MST,Ngrids) )
@@ -2738,6 +2839,312 @@
               CASE ('idTvar(iPigs)')
                 load=.TRUE.
 #endif
+!==================================================
+# ifdef BEST_NPZ
+!-------------------------------------------------
+
+              CASE ('idTvar(iNO3)')
+                idTvar(iNO3)=varid
+              CASE ('idTbry(iwest,iNO3)')
+                idTbry(iwest,iNO3)=varid
+              CASE ('idTbry(ieast,iNO3)')
+                idTbry(ieast,iNO3)=varid
+              CASE ('idTbry(isouth,iNO3)')
+                idTbry(isouth,iNO3)=varid
+              CASE ('idTbry(inorth,iNO3)')
+                idTbry(inorth,iNO3)=varid
+!----------------------------------------------------
+              CASE ('idTvar(iNH4)')
+                idTvar(iNH4)=varid
+              CASE ('idTbry(iwest,iNH4)')
+                idTbry(iwest,iNH4)=varid
+              CASE ('idTbry(ieast,iNH4)')
+                idTbry(ieast,iNH4)=varid
+              CASE ('idTbry(isouth,iNH4)')
+                idTbry(isouth,iNH4)=varid
+              CASE ('idTbry(inorth,iNH4)')
+                idTbry(inorth,iNH4)=varid
+!-------------------------------------------------------------
+              CASE ('idTvar(iPhS)')
+                idTvar(iPhS)=varid
+              CASE ('idTbry(iwest,iPhS)')
+                idTbry(iwest,iPhS)=varid
+              CASE ('idTbry(ieast,iPhS)')
+                idTbry(ieast,iPhS)=varid
+              CASE ('idTbry(isouth,iPhS)')
+                idTbry(isouth,iPhS)=varid
+              CASE ('idTbry(inorth,iPhS)')
+                idTbry(inorth,iPhS)=varid
+!--------------------------------------------------------
+              CASE ('idTvar(iPhL)')
+                idTvar(iPhL)=varid
+              CASE ('idTbry(iwest,iPhL)')
+                idTbry(iwest,iPhL)=varid
+              CASE ('idTbry(ieast,iPhL)')
+                idTbry(ieast,iPhL)=varid
+              CASE ('idTbry(isouth,iPhL)')
+                idTbry(isouth,iPhL)=varid
+              CASE ('idTbry(inorth,iPhL)')
+                idTbry(inorth,iPhL)=varid
+!---------------------------------------------------------
+              CASE ('idTvar(iMZS)')
+                idTvar(iMZS)=varid
+              CASE ('idTbry(iwest,iMZS)')
+                idTbry(iwest,iMZS)=varid
+              CASE ('idTbry(ieast,iMZS)')
+                idTbry(ieast,iMZS)=varid
+              CASE ('idTbry(isouth,iMZS)')
+                idTbry(isouth,iMZS)=varid
+              CASE ('idTbry(inorth,iMZS)')
+                idTbry(inorth,iMZS)=varid
+!---------------------------------------------------------
+              CASE ('idTvar(iMZL)')
+                idTvar(iMZL)=varid
+              CASE ('idTbry(iwest,iMZL)')
+                idTbry(iwest,iMZL)=varid
+              CASE ('idTbry(ieast,iMZL)')
+                idTbry(ieast,iMZL)=varid
+              CASE ('idTbry(isouth,iMZL)')
+                idTbry(isouth,iMZL)=varid
+              CASE ('idTbry(inorth,iMZL)')
+                idTbry(inorth,iMZL)=varid
+!--------------------------------------------------------
+              CASE ('idTvar(iCop)')
+                idTvar(iCop)=varid
+              CASE ('idTbry(iwest,iCop)')
+                idTbry(iwest,iCop)=varid
+              CASE ('idTbry(ieast,iCop)')
+                idTbry(ieast,iCop)=varid
+              CASE ('idTbry(isouth,iCop)')
+                idTbry(isouth,iCop)=varid
+              CASE ('idTbry(inorth,iCop)')
+                idTbry(inorth,iCop)=varid
+!--------------------------------------------------------
+              CASE ('idTvar(iNCaS)')
+                idTvar(iNCaS)=varid
+              CASE ('idTbry(iwest,iNCaS)')
+                idTbry(iwest,iNCaS)=varid
+              CASE ('idTbry(ieast,iNCaS)')
+                idTbry(ieast,iNCaS)=varid
+              CASE ('idTbry(isouth,iNCaS)')
+                idTbry(isouth,iNCaS)=varid
+              CASE ('idTbry(inorth,iNCaS)')
+                idTbry(inorth,iNCaS)=varid
+!--------------------------------------------------------------
+              CASE ('idTvar(iEupS)')
+                idTvar(iEupS)=varid
+              CASE ('idTbry(iwest,iEupS)')
+                idTbry(iwest,iEupS)=varid
+              CASE ('idTbry(ieast,iEupS)')
+                idTbry(ieast,iEupS)=varid
+              CASE ('idTbry(isouth,iEupS)')
+                idTbry(isouth,iEupS)=varid
+              CASE ('idTbry(inorth,iEupS)')
+                idTbry(inorth,iEupS)=varid
+!--------------------------------------------------------
+              CASE ('idTvar(iNCaO)')
+                idTvar(iNCaO)=varid
+              CASE ('idTbry(iwest,iNCaO)')
+                idTbry(iwest,iNCaO)=varid
+              CASE ('idTbry(ieast,iNCaO)')
+                idTbry(ieast,iNCaO)=varid
+              CASE ('idTbry(isouth,iNCaO)')
+                idTbry(isouth,iNCaO)=varid
+              CASE ('idTbry(inorth,iNCaO)')
+                idTbry(inorth,iNCaO)=varid
+!--------------------------------------------------------------
+              CASE ('idTvar(iEupO)')
+                idTvar(iEupO)=varid
+              CASE ('idTbry(iwest,iEupO)')
+                idTbry(iwest,iEupO)=varid
+              CASE ('idTbry(ieast,iEupO)')
+                idTbry(ieast,iEupO)=varid
+              CASE ('idTbry(isouth,iEupO)')
+                idTbry(isouth,iEupO)=varid
+              CASE ('idTbry(inorth,iEupO)')
+                idTbry(inorth,iEupO)=varid
+!--------------------------------------------------------------
+              CASE ('idTvar(iDet)')
+                idTvar(iDet)=varid
+              CASE ('idTbry(iwest,iDet)')
+                idTbry(iwest,iDet)=varid
+              CASE ('idTbry(ieast,iDet)')
+                idTbry(ieast,iDet)=varid
+              CASE ('idTbry(isouth,iDet)')
+                idTbry(isouth,iDet)=varid
+              CASE ('idTbry(inorth,iDet)')
+                idTbry(inorth,iDet)=varid
+!--------------------------------------------------------------
+              CASE ('idTvar(iDetF)')
+                idTvar(iDetF)=varid
+              CASE ('idTbry(iwest,iDetF)')
+                idTbry(iwest,iDetF)=varid
+              CASE ('idTbry(ieast,iDetF)')
+                idTbry(ieast,iDetF)=varid
+              CASE ('idTbry(isouth,iDetF)')
+                idTbry(isouth,iDetF)=varid
+              CASE ('idTbry(inorth,iDetF)')
+                idTbry(inorth,iDetF)=varid
+!----------------------------------------------------------------
+# ifdef JELLY
+              CASE ('idTvar(iJel)')
+                idTvar(iJel)=varid
+              CASE ('idTbry(iwest,iJel)')
+                idTbry(iwest,ijel)=varid
+              CASE ('idTbry(ieast,iJel)')
+                idTbry(ieast,iJel)=varid
+              CASE ('idTbry(isouth,iJel)')
+                idTbry(isouth,iJel)=varid
+              CASE ('idTbry(inorth,iJel)')
+                idTbry(inorth,iJel)=varid
+#endif
+!----------------------------------------------------------------
+#  ifdef IRON_LIMIT
+              CASE ('idTvar(iFe)')
+                idTvar(iFe)=varid
+              CASE ('idTbry(iwest,iFe)')
+                idTbry(iwest,iFe)=varid
+              CASE ('idTbry(ieast,iFe)')
+                idTbry(ieast,iFe)=varid
+              CASE ('idTbry(isouth,iFe)')
+                idTbry(isouth,iFe)=varid
+              CASE ('idTbry(inorth,iFe)')
+                idTbry(inorth,iFe)=varid
+              CASE ('idTclm(iFe)')
+                idTclm(iFe)=varid
+#  endif
+
+# ifdef BENTHIC
+              CASE ('idBvar(iBen)')
+               idBvar(iBen)=varid
+              CASE ('idBvar(iBenDet)')
+                idBvar(iBenDet)=varid
+# endif
+# ifdef ICE_BIO
+              CASE ('idIceBvar(iIcePhL)')
+               idIceBvar(iIcePhL)=varid
+              CASE ('idIceBvar(iIceNO3)')
+                idIceBvar(iIceNO3)=varid
+              CASE ('idIceBvar(iIceNH4)')
+                idIceBvar(iIceNH4)=varid
+              CASE ('idIceBvar(iIceZ)')
+                idIceBvar(iIceZ)=varid
+              CASE ('idIceBvar(iIceLog)')
+                idIceBvar(iIceLog)=varid
+                CASE ('idIceLogvar(iIceLog)')
+               idIceLogvar(iIceLog)=varid
+#ifdef CLIM_ICE_1D
+              CASE ('idTclm(iFe+1)')
+                idTclm(iFe+1)=varid
+#endif
+# endif
+#ifdef STATIONARY
+             !-----------------------------
+             !3D Stationary Array
+             !-----------------------------
+              CASE ('idTSvar(i3Stat1)')
+                idTSvar(i3Stat1) = varid
+              CASE ('idTSvar(i3Stat2)')
+                idTSvar(i3Stat2) = varid
+              CASE ('idTSvar(i3Stat3)')
+                idTSvar(i3Stat3) = varid
+              CASE ('idTSvar(i3Stat4)')
+                idTSvar(i3Stat4) = varid
+              CASE ('idTSvar(i3Stat5)')
+                idTSvar(i3Stat5) = varid
+              CASE ('idTSvar(i3Stat6)')
+                idTSvar(i3Stat6) = varid
+              CASE ('idTSvar(i3Stat7)')
+                idTSvar(i3Stat7) = varid
+
+              CASE ('idTSvar(i3Stat8)')
+                idTSvar(i3Stat8) = varid
+              CASE ('idTSvar(i3Stat9)')
+                idTSvar(i3Stat9) = varid
+              CASE ('idTSvar(i3Stat10)')
+                idTSvar(i3Stat10) = varid
+              CASE ('idTSvar(i3Stat11)')
+                idTSvar(i3Stat11) = varid
+              CASE ('idTSvar(i3Stat12)')
+                idTSvar(i3Stat12) = varid
+                CASE ('idTSvar(i3Stat13)')
+                idTSvar(i3Stat13) = varid
+                CASE ('idTSvar(i3Stat14)')
+                idTSvar(i3Stat14) = varid
+                CASE ('idTSvar(i3Stat15)')
+                idTSvar(i3Stat15) = varid
+                CASE ('idTSvar(i3Stat16)')
+                idTSvar(i3Stat16) = varid
+#endif
+#ifdef STATIONARY2
+             !-----------------------------
+             !2D Stationary Array
+             !-----------------------------
+              CASE ('idTS2var(i2Stat1)')
+                idTS2var(i2Stat1) = varid
+              CASE ('idTS2var(i2Stat2)')
+                idTS2var(i2Stat2) = varid
+              CASE ('idTS2var(i2Stat3)')
+                idTS2var(i2Stat3) = varid
+              CASE ('idTS2var(i2Stat4)')
+                idTS2var(i2Stat4) = varid
+              CASE ('idTS2var(i2Stat5)')
+                idTS2var(i2Stat5) = varid
+              CASE ('idTS2var(i2Stat6)')
+                idTS2var(i2Stat6) = varid
+              CASE ('idTS2var(i2Stat7)')
+                idTS2var(i2Stat7) = varid
+              CASE ('idTS2var(i2Stat8)')
+                idTS2var(i2Stat8) = varid
+
+
+#endif
+#ifdef PROD3
+             !-----------------------------
+             !3D Production Array
+             !-----------------------------
+              CASE ('idPT3var(iPhSprd)')
+                idPT3var(iPhSprd) = varid
+              CASE ('idPT3var(iPhLprd)')
+                idPT3var(iPhLprd) = varid
+              CASE ('idPT3var(iMZSprd)')
+                idPT3var(iMZSprd) = varid
+              CASE ('idPT3var(iMZLprd)')
+                idPT3var(iMZLprd) = varid
+              CASE ('idPT3var(iCopPrd)')
+                idPT3var(iCopPrd) = varid
+              CASE ('idPT3var(iNCaPrd)')
+                idPT3var(iNCaPrd) = varid
+              CASE ('idPT3var(iEupPrd)')
+                idPT3var(iEupPrd) = varid
+
+#ifdef JELLY
+              CASE ('idPT3var(iJelPrd)')
+                idPT3var(iJelPrd) = varid
+#endif
+# endif
+
+#ifdef PROD2
+             !-----------------------------
+             !2D Production Array
+             !-----------------------------
+              CASE ('idPT2var(iBenPrd)')
+                idPT2var(iBenPrd) = varid
+              CASE ('idPT2var(iIAPrd)')
+                idPT2var(iIAPrd) = varid
+
+#endif
+#ifdef BIOFLUX
+             !-----------------------------
+             !bio flux Array
+             !-----------------------------
+              CASE ('idTBFvar(iBF)')
+                idTBFvar(iBF) = varid
+
+#endif
+# endif
+
+
 !==================================================
 # ifdef BIO_GOANPZ
 !-------------------------------------------------

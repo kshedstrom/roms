@@ -246,6 +246,13 @@
 !                                                 |                |
 !                                                 ----W(i,j,k-1)----
         integer, dimension(Ngrids) :: N
+
+#ifdef BEST_NPZ
+# ifdef BENTHIC
+       integer, parameter, dimension(Ngrids) :: NBL  =  1
+# endif
+#endif
+
 !
 !-----------------------------------------------------------------------
 !  Tracers parameters.
@@ -257,7 +264,7 @@
 !
         integer, dimension(Ngrids) :: NT
         integer :: MT
-#ifdef BIO_GOANPZ
+#ifdef BIO_GOANPZ|| BEST_NPZ
         !------------------------------------
         !Maximum number of production tracers
         !------------------------------------
@@ -309,6 +316,83 @@
 !-----------------------------------------------------------------------
 !  Biological tracers parameters.
 !-----------------------------------------------------------------------
+
+# if defined BEST_NPZ
+#  if defined JELLY
+#    if defined IRON_LIMIT
+        integer, parameter :: NBT = 15
+#    else
+        integer, parameter :: NBT = 14
+#    endif
+#  else
+
+#    if defined IRON_LIMIT
+        integer, parameter :: NBT = 14
+#    else
+        integer, parameter :: NBT = 13
+#    endif
+
+#  endif
+# else
+       integer, parameter :: NBT = 0
+#endif       
+#if defined BEST_NPZ    
+# if defined BENTHIC
+        integer,parameter :: NBEN=2
+        integer :: MBT
+        integer, dimension(Ngrids) :: NBeT
+# endif
+# if defined ICE_BIO
+        integer,parameter :: NIB=4
+        integer, dimension(Ngrids) :: NIceT
+
+        integer, dimension(Ngrids) :: NIceLog
+# endif
+
+# ifdef STATIONARY
+      !------------------------------------
+      !3D stationary tracers
+      !------------------------------------
+
+        integer, dimension(Ngrids) :: NTS
+
+        integer, parameter :: NBTS = 16
+
+# endif
+
+# ifdef STATIONARY2
+      !------------------------------------
+      !2D stationary tracers
+      !------------------------------------
+
+        integer, dimension(Ngrids) :: NTS2
+        integer, parameter :: NBTS2 = 8
+# endif
+# ifdef PROD2
+      !------------------------------------
+      !2D producrion tracers (stationary)
+      !------------------------------------
+
+        integer, dimension(Ngrids) :: NPT2
+        integer, parameter :: NBPT2 = 2
+# endif
+# ifdef PROD3
+      !------------------------------------
+      !3D producrion tracers (stationary)
+      !------------------------------------
+
+        integer, dimension(Ngrids) :: NPT3
+#   if defined JELLY
+        integer, parameter :: NBPT3 = 8
+#   else
+        integer, parameter :: NBPT3 = 7
+#   endif
+
+# endif
+       
+#endif
+
+
 # if defined BIO_GOANPZ
     !-------------------------------------------
     !One production tracer for each organism box
@@ -719,6 +803,48 @@
 !  Set maximum number of tracer between all nested grids.
 !
         MT=MAX(2,MAXVAL(NT))
+#ifdef BEST_NPZ
+!---------------------------------------------
+!Adding stationary and production tracers to model
+!---------------------------------------------
+# ifdef STATIONARY
+
+        DO ng=1,Ngrids
+          NTS(ng) = NBTS
+        END DO
+# endif
+# ifdef STATIONARY2
+
+        DO ng=1,Ngrids
+          NTS2(ng) = NBTS2
+        END DO
+# endif
+# ifdef PROD2
+        DO ng=1,Ngrids
+          NPT2(ng) = NBPT2
+        END DO
+# endif
+# ifdef PROD3
+         DO ng=1,Ngrids
+          NPT3(ng) = NBPT3
+        END DO
+# endif
+
+# ifdef BENTHIC
+      DO ng=1,Ngrids
+           NBeT(ng) =NBEN
+      END DO
+# endif
+
+# ifdef ICE_BIO
+      DO ng=1,Ngrids
+           NIceT(ng) =NIB
+           NIceLog(ng) =1
+      END DO
+# endif
+#endif
+
+
 #ifdef BIO_GOANPZ
         !---------------------------------------------
         !Adding stationary production tracers to model
