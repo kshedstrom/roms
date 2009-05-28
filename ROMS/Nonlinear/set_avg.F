@@ -2,7 +2,7 @@
       MODULE set_avg_mod
 #if defined AVERAGES && (!defined ADJOINT && defined NONLINEAR)
 !
-!svn $Id: set_avg.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: set_avg.F 990 2009-05-28 00:54:01Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !

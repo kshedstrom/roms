@@ -2,7 +2,7 @@
       MODULE mod_biology
 #ifdef BIOLOGY
 !
-!svn $Id: mod_biology.F 987 2009-05-26 19:29:04Z kate $
+!svn $Id: mod_biology.F 990 2009-05-28 00:54:01Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
