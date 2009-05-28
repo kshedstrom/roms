@@ -255,28 +255,67 @@
 # define ANA_SMFLUX
 #endif
 
-/* adding biology */
-# undef NEMURO
-# undef BIO_GOANPZ        /* Sarah Hinckley's 11 box model */
-# if defined BIO_GOANPZ
-#   define ANA_BIOLOGY       /* analytical biology initial conditions */
-#   define ANA_BPFLUX        /* analytical bottom passive tracers fluxes */
-#   define ANA_SPFLUX        /* analytical surface passive tracers fluxes */
-#   define DIAPAUSE          /* Enable Neocalanus seasonal vertical migration */
-#   define IRON_LIMIT        /* Add iron as passive 11th tracer */
-#   undef TCLM_NUDGING      /* Nudging of tracer climatology for iron */
-# endif
-# if defined NEMURO
-#  undef ANA_BIOLOGY       /* analytical biology initial conditions */
-#  define ANA_BPFLUX        /* analytical bottom passive tracers fluxes */
-#  define ANA_SPFLUX        /* analytical surface passive tracers fluxes */
-#  define IRON_LIMIT        /* Add iron as passive 11th tracer */
-#  define IRON_RELAX
-#  undef  IRON_RSIN
-#  define BIO_SEDIMENT
-#  define HOLLING_GRAZING
-#  undef  IVLEV_EXPLICIT
-#  undef  ANA_BIOSWRAD
-#  undef  DIAGNOSTICS_BIO
-#  undef  BIO_SEDIMENT
-# endif
+/*
+**  Biological model options.
+*/
+#undef NEMURO
+#undef BIO_GOANPZ        /* Sarah Hinckley's 11 box model */
+#define BEST_NPZ         /* Georgina Gibsons BEST NPZ model  */
+
+#if defined BEST_NPZ || defined BIO_GOANPZ || defined PASSIVE_TRACERS
+# undef  BIOFLUX           /* sum Nitrogen fluxes between boxes */
+# define ANA_BIOLOGY       /* analytical biology initial conditions */
+# define ANA_BPFLUX        /* analytical bottom passive tracers fluxes */
+# define ANA_SPFLUX        /* analytical surface passive tracers fluxes */
+# define DIAPAUSE          /* Enable Neocalanus seasonal vertical migration */
+# define IRON_LIMIT        /* Add iron as passive 11th tracer */
+# undef TCLM_NUDGING      /* Nudging of tracer climatology for iron */
+#endif
+
+#if defined NEMURO
+# undef ANA_BIOLOGY       /* analytical biology initial conditions */
+# define ANA_BPFLUX        /* analytical bottom passive tracers fluxes */
+# define ANA_SPFLUX        /* analytical surface passive tracers fluxes */
+# define IRON_LIMIT        /* Add iron as passive 11th tracer */
+# define IRON_RELAX
+# undef  IRON_RSIN
+# define BIO_SEDIMENT
+# define HOLLING_GRAZING
+# undef  IVLEV_EXPLICIT
+# undef  ANA_BIOSWRAD
+# undef  DIAGNOSTICS_BIO
+# undef  BIO_SEDIMENT
+#endif
+
+#ifdef BEST_NPZ
+# define        NEWSHADE    /* Use Craig''s formulation for self shading in PAR calc+                       Else use Sarah''s self-shading from original NPZ code */
+# undef        KODIAK_IRAD /* Generate irradiance with curve matching Kodiak data
+                       Else use shortwave radiation (srflx) as irradiance   */
+# define JELLY
+# define STATIONARY
+# define STATIONARY2
+# define PROD3
+# define PROD2
+# define BENTHIC /*FENNEL or BENTHIC or TRAP*/
+# define ICE_BIO
+# define CLIM_ICE_1D
+
+# undef SINKVAR      /* for variable sinking rate*/
+# undef DENMAN
+
+# undef OFFLINE_BIOLOGY   /* define if offline simulation of bio tracers */
+#   if defined OFFLINE_BIOLOGY
+#    define AKSCLIMATOLOGY   /* Processing of AKS climatology */
+#    undef ANA_AKSCLIMA      /* Processing of AKS climatology */
+#   endif
+#  undef DIAPAUSE          /* Enable Neocalanus seasonal vertical migration */
+#  define  IRON_LIMIT        /* Add iron as passive 13th tracer */
+#    if defined IRON_LIMIT || define CLIM_ICE_1D
+#      if !defined OFFLINE_BIOLOGY
+#       define TCLM_NUDGING    /* Nudging of tracer climatology for iron */
+#       undef  ANA_TCLIMA     /* analytical tracers climatology for iron */
+#       define TCLIMATOLOGY   /* Processing of tracer climatology for iron */
+#      endif
+#    endif
+#endif
+

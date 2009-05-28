@@ -117,11 +117,11 @@
      &                    OCEAN(ng) % t                                 &
 #if defined BEST_NPZ
 # ifdef BENTHIC     
-     &                    ,OCEAN(ng) % bt                               & 
+     &                    ,OCEAN(ng) % bt                               &
 # endif
 # ifdef ICE_BIO
 #  ifdef CLIM_ICE_1D
-     &                    ,OCEAN(ng) % it                               &     
+     &                    ,OCEAN(ng) % it                               &
 #  endif 
 # endif    
 # ifdef STATIONARY
@@ -185,7 +185,7 @@
 #  endif     
 #  ifdef ICE_BIO
 #   ifdef CLIM_ICE_1D
-     &                          ,it                                     &     
+     &                          ,it                                     &
 #   endif     
 #  endif        
 #  ifdef STATIONARY
@@ -340,7 +340,7 @@
       real(r8), intent(in) :: Tnudgcof(LBi:UBi,LBj:UBj,NT(ng))
       
      
-# ifdef BEST_NPZ && defined ICE_BIO      
+# if defined BEST_NPZ && defined ICE_BIO      
       real(r8), intent(in) :: tclm(LBi:UBi,LBj:UBj,N(ng),15)
 # else      
       real(r8), intent(in) :: tclm(LBi:UBi,LBj:UBj,N(ng),NT(ng)
@@ -1294,24 +1294,24 @@
 !
           DO i=Istr,Iend
 #  ifdef DIAGNOSTICS_TS
-             cff1=t(i,j,N(ng),nnew,itrc)*oHz(i,j,N(ng))
+            cff1=t(i,j,N(ng),nnew,itrc)*oHz(i,j,N(ng))
 #  endif
-             DC(i,N(ng))=(DC(i,N(ng))-FC(i,N(ng)-1)*DC(i,N(ng)-1))/     &
+            DC(i,N(ng))=(DC(i,N(ng))-FC(i,N(ng)-1)*DC(i,N(ng)-1))/      &
      &                   (BC(i,N(ng))-FC(i,N(ng)-1)*CF(i,N(ng)-1))
 #  ifdef BEST_NPZ
-             IF (itrc.ne.iNCaS.or.itrc.ne.iNCaO.or.itrc.ne.iEupS.or. &
-     &        itrc.ne.iEupO) THEN
+            IF (itrc.ne.iNCaS.or.itrc.ne.iNCaO.or.itrc.ne.iEupS.or.     &
+     &          itrc.ne.iEupO) THEN
 #  endif
 
 #  ifdef BIO_GOANPZ
-             IF ( itrc.ne.iNCa .and. itrc.ne.iEup ) THEN
+            IF ( itrc.ne.iNCa .and. itrc.ne.iEup ) THEN
 #  endif
-             t(i,j,N(ng),nnew,itrc)=DC(i,N(ng))
-#  ifdef BIO_GOANPZ ||BEST_NPZ
-             END IF
+              t(i,j,N(ng),nnew,itrc)=DC(i,N(ng))
+#  if defined BIO_GOANPZ || defined BEST_NPZ
+            END IF
 #  endif
 #  ifdef DIAGNOSTICS_TS
-             DiaTwrk(i,j,N(ng),itrc,iTvdif)=                            &
+            DiaTwrk(i,j,N(ng),itrc,iTvdif)=                             &
      &                              DiaTwrk(i,j,N(ng),itrc,iTvdif)+     &
      &                              t(i,j,N(ng),nnew,itrc)-cff1
 #  endif
@@ -1323,17 +1323,13 @@
 #  endif
               DC(i,k)=DC(i,k)-CF(i,k)*DC(i,k+1)
 #  ifdef BEST_NPZ
-              IF (itrc.ne.iNCaS.or.itrc.ne.iNCaO.or.itrc.ne.iEupS.or. &
-     &        itrc.ne.iEupO) THEN
-
-#  endif
-
-
-#  ifdef BIO_GOANPZ||BEST_NPZ
+              IF (itrc.ne.iNCaS .and. itrc.ne.iNCaO .and. itrc.ne.iEupS &
+     &                 .and. itrc.ne.iEupO) THEN
+#  elif defined BIO_GOANPZ
               IF ( itrc.ne.iNCa .and. itrc.ne.iEup ) THEN
 #  endif
-              t(i,j,k,nnew,itrc)=DC(i,k)
-#  ifdef BIO_GOANPZ
+                t(i,j,k,nnew,itrc)=DC(i,k)
+#  if defined BIO_GOANPZ || defined BEST_NPZ
               END IF
 #  endif
 #  ifdef DIAGNOSTICS_TS
