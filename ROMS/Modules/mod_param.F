@@ -452,11 +452,10 @@
 #   else
        integer, parameter :: NBT = 10
 #   endif
-# endif
 # else
         integer, parameter :: NBT = 0
 # endif
-#endif       
+#endif
 
 #if defined BEST_NPZ    
 # if defined BENTHIC
