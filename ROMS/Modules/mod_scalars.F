@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       MODULE mod_scalars
 !
-!svn $Id: mod_scalars.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: mod_scalars.F 989 2009-05-26 22:46:51Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -104,7 +104,7 @@
         integer :: iOxyg              ! Dissolved oxygen concentration
 #  endif
 #endif
-#ifdef BIO_UMaine
+#ifdef BIO_UMAINE
         integer, pointer :: idbio(:)  ! Biological tracers
         integer :: iNO3_              ! Nitrate concentration
         integer :: iNH4_              ! Ammonium concentration
@@ -186,6 +186,102 @@
      &               'low urobilin phycoeurythin carotenoids ',         &
      &               'high urobilin phycoeurythin carotenoids' /)
 #endif
+#ifdef BEST_NPZ
+        integer, pointer :: idbio(:)  ! Biological tracers
+        integer :: iNO3               ! Nitrate
+        integer :: iNH4               ! Ammonium
+        integer :: iPhS               ! Small Phytoplankton
+        integer :: iPhL               ! Large Phytoplankton
+        integer :: iMZS               ! Small Microzooplankton
+        integer :: iMZL               ! Large Microzooplankton 
+        integer :: iCop               ! Small Coastal Copepods
+        integer :: iNCaS               ! Neocalanus
+        integer :: iEupS               ! Euphausiids
+        integer :: iNCaO               ! Neocalanus
+        integer :: iEupO               ! Euphausiids
+#  ifdef JELLY
+        integer :: iJel               ! Jellfish
+#  endif
+        integer :: iDet               ! Detritus
+        integer :: iDetF              ! Fast Sinking Detritus
+#  ifdef BIOFLUX
+        integer :: iBF
+#  endif
+
+# ifdef IRON_LIMIT
+        integer :: iFe                ! Iron
+# endif
+# ifdef BENTHIC
+         integer, pointer :: idben(:)  ! Benthic tracers
+         integer :: iBen
+         integer :: iBenDet
+# endif
+# ifdef ICE_BIO
+         integer, pointer :: idice(:)  ! Ice tracers
+         integer, pointer :: idiceLog(:)  ! Ice tracers
+         integer :: iIcePhL
+         integer :: iIceNO3
+         integer :: iIceNH4
+         integer :: iIceZ
+         integer :: iIceLog
+# endif
+
+
+# ifdef STATIONARY
+        integer, pointer :: idbio3(:)
+        integer :: i3Stat1
+        integer :: i3Stat2
+        integer :: i3Stat3
+        integer :: i3Stat4
+        integer :: i3Stat5
+        integer :: i3Stat6
+        integer :: i3Stat7
+        integer :: i3Stat8
+        integer :: i3Stat9
+        integer :: i3Stat10
+        integer :: i3Stat11
+        integer :: i3Stat12
+        integer :: i3Stat13
+        integer :: i3Stat14
+        integer :: i3Stat15
+        integer :: i3Stat16
+# endif
+
+# ifdef STATIONARY2
+        integer, pointer :: idbio2(:)
+        integer :: i2Stat1
+        integer :: i2Stat2
+        integer :: i2Stat3
+        integer :: i2Stat4
+        integer :: i2Stat5
+        integer :: i2Stat6
+        integer :: i2Stat7
+        integer :: i2Stat8
+
+
+# endif
+# ifdef PROD2
+        integer, pointer :: idbioP2(:)
+        integer :: iIAPrd
+        integer :: iBenPrd
+# endif
+# ifdef PROD3
+        integer, pointer :: idbioP3(:)
+
+        integer :: iPhSprd            ! Small Phytoplankton Production
+        integer :: iPhLprd            ! Large Phytoplankton Production
+        integer :: iMZSprd            ! Small Microzooplankton Production
+        integer :: iMZLprd            ! Large Microzooplankton Production
+        integer :: iCopPrd            ! Copepod production
+        integer :: iNCaPrd            ! Neocalanus production
+        integer :: iEupPrd            ! Euphausiid production
+#  ifdef JELLY
+        integer :: iJelPrd            ! Jellyfish  production
+#  endif
+# endif
+#endif
+
+
 #ifdef BIO_GOANPZ
         integer, pointer :: idbio(:)  ! Biological tracers
         integer :: iNO3               ! Nitrate
@@ -1844,9 +1940,34 @@
       allocate ( Tobc_out(MT,Ngrids,4) )
       Tobc_out = IniVal
 # ifdef BIOLOGY
-!# ifdef BIO_GOANPZ
       allocate ( idbio(NBT) )
+
+# ifdef BEST_NPZ
+#   ifdef STATIONARY
+      allocate ( idbio3(NBTS) )
+#   endif
+
+#   ifdef STATIONARY2
+      allocate ( idbio2(NBTS2) )
+#   endif
+#   ifdef PROD2
+      allocate ( idbioP2(NBPT2) )
+#   endif
+#   ifdef PROD3
+      allocate ( idbioP3(NBPT3) )
+#   endif
+
+#   ifdef BENTHIC
+       allocate ( idben(NBEN) )
+#   endif
+#   ifdef ICE_BIO
+       allocate ( idice(NIB) )
+        allocate ( idiceLog(1) )
+#   endif
 # endif
+
+#endif
+
 # ifdef T_PASSIVE
       allocate ( inert(NPT) )
 # endif
@@ -1942,7 +2063,7 @@
       iOxyg=ic+1
       ic=ic+1
 # endif 
-#elif defined BIO_UMaine
+#elif defined BIO_UMAINE
 !
 !  Set UMaine CoSiNE model biological tracer indices.
 !
@@ -2105,6 +2226,124 @@
       DO i=1,Nfec
         WRITE (FecName(i),'(a,1x,i1)') 'Fecal Group', i
       END DO
+
+
+#elif defined BEST_NPZ
+!
+!  Set biological tracer indices.
+!
+      DO i=1,NBT
+        idbio(i)=ic+i
+      END DO
+      iNO3=ic+1
+      iNH4=ic+2
+      iPhS=ic+3
+      iPhL=ic+4
+      iMZS=ic+5
+      iMZL=ic+6
+      iCop=ic+7
+      iNCaS=ic+8
+      iEupS=ic+9
+      iNCaO=ic+10
+      iEupO=ic+11
+      iDet=ic+12
+      iDetF=ic+13
+#ifdef JELLY
+      iJel=ic+14
+      ic=ic+14
+#else
+      ic=ic+13
+#endif
+
+# ifdef IRON_LIMIT
+      iFe=ic+1
+      ic=ic+1
+# endif
+
+#  ifdef BIOFLUX
+        iBF=1
+#  endif
+
+# ifdef STATIONARY
+      DO i=1,NBTS
+        idbio3(i)=i
+      END DO
+
+      i3Stat1 = 1
+      i3Stat2 = 2
+      i3Stat3 = 3
+      i3Stat4 = 4
+      i3Stat5 = 5
+      i3Stat6 = 6
+      i3Stat7 = 7
+      i3Stat8 = 8
+      i3Stat9 = 9
+      i3Stat10 = 10
+      i3Stat11 = 11
+      i3Stat12 = 12
+      i3Stat13 = 13
+      i3Stat14 = 14
+      i3Stat15 = 15
+      i3Stat16 = 16
+# endif
+# ifdef STATIONARY2
+      DO i=1,NBTS2
+        idbio2(i)=i
+      END DO
+      i2Stat1 = 1
+      i2Stat2 = 2
+      i2Stat3 = 3
+      i2Stat4 = 4
+      i2Stat5 = 5
+      i2Stat6 = 6
+      i2Stat7 = 7
+      i2Stat8 = 8
+# endif
+# ifdef PROD3
+
+      DO i=1,NBPT3
+        idbioP3(i)=ic+i
+      END DO
+
+      iPhSprd = 1
+      iPhLprd = 2
+      iMZSprd = 3
+      iMZLprd = 4
+      iCopPrd = 5
+      iNCaPrd = 6
+      iEupPrd = 7
+#  ifdef JELLY
+      iJelPrd = 8
+#  endif
+# endif
+# ifdef PROD2
+      DO i=1,NBPT2
+        idbioP2(i)=ic+i
+      END DO
+      iBenPrd = 1
+      iIAPrd = 2
+# endif
+
+# ifdef BENTHIC
+          DO i=1,NBEN
+            idben(i)=i
+          END DO
+       iBen=1
+       iBenDet=2
+# endif
+# ifdef ICE_BIO
+          DO i=1,NIB
+            idice(i)=i
+          END DO
+          idiceLog=1
+       iIcePhL=1
+       iIceNO3=2
+       iIceNH4=3
+       iIceZ=4
+       iIceLog=1
+# endif
+
+
 #elif defined BIO_GOANPZ
 !
 !  Set Gulf of Alaska biological tracer indices.

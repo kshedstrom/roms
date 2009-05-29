@@ -4,7 +4,7 @@
     defined OBS_SENSITIVITY   || defined OPT_OBSERVATIONS || \
     defined SENSITIVITY_4DVAR || defined SO_SEMI
 !
-!svn $Id: mod_clima.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: mod_clima.F 988 2009-05-26 19:40:39Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !

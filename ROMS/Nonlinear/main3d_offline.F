@@ -3,7 +3,7 @@
     (defined OFFLINE_BIOLOGY || defined OFFLINE_FLOATS)
       SUBROUTINE main3d_offline (ng)
 !
-!svn $Id: main3d_offline.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: main3d_offline.F 982 2009-05-22 20:04:01Z kate $
 !=======================================================================
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !

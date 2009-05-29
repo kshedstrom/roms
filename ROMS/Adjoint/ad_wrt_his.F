@@ -2,7 +2,7 @@
 #ifdef ADJOINT
       SUBROUTINE ad_wrt_his (ng)
 !
-!svn $Id: ad_wrt_his.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: ad_wrt_his.F 983 2009-05-23 01:07:05Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !

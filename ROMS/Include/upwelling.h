@@ -1,5 +1,5 @@
 /*
-** svn $Id: upwelling.h 975 2009-05-05 22:51:13Z kate $
+** svn $Id: upwelling.h 983 2009-05-23 01:07:05Z kate $
 *******************************************************************************
 ** Copyright (c) 2002-2009 The ROMS/TOMS Group                               **
 **   Licensed under a MIT/X style license                                    **
@@ -50,11 +50,10 @@
 # define ANA_VMIX
 #endif
 
-#define NEMURO
-#define NEMURO_SAN
+#define BIO_UMAINE
 #if defined BIO_FENNEL  || defined ECOSIM || \
     defined NPZD_POWELL || defined NEMURO || \
-    defined BIO_UMaine
+    defined BIO_UMAINE
 # define ANA_BIOLOGY
 # define ANA_SPFLUX
 # define ANA_BPFLUX
@@ -73,7 +72,7 @@
 # define DIAGNOSTICS_BIO
 #endif
 
-#ifdef BIO_UMaine
+#ifdef BIO_UMAINE
 # define OXYGEN
 # if defined OXYGEN
 #  define xygen_bottom_layer_treatment

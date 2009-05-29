@@ -114,7 +114,21 @@
 # ifdef DIAGNOSTICS_TS
      &                    DIAGS(ng) % DiaTwrk,                          &
 # endif
-     &                    OCEAN(ng) % t)
+     &                    OCEAN(ng) % t                                 &
+#if defined BEST_NPZ
+# ifdef BENTHIC     
+     &                    ,OCEAN(ng) % bt                               &
+# endif
+# ifdef ICE_BIO
+#  ifdef CLIM_ICE_1D
+     &                    ,OCEAN(ng) % it                               &
+#  endif 
+# endif    
+# ifdef STATIONARY
+      &                   ,OCEAN(ng) %st                                &
+# endif
+#endif     
+     &                               )
 # ifdef PROFILE
       CALL wclock_off (ng, iNLM, 35)
 # endif
@@ -164,7 +178,21 @@
 # ifdef DIAGNOSTICS_TS
      &                          DiaTwrk,                                &
 # endif
-     &                          t)
+     &                          t                                       &
+#if defined BEST_NPZ
+#  ifdef  BENTHIC     
+     &                          ,bt                                     &
+#  endif     
+#  ifdef ICE_BIO
+#   ifdef CLIM_ICE_1D
+     &                          ,it                                     &
+#   endif     
+#  endif        
+#  ifdef STATIONARY
+                                ,st                                     &
+#  endif  
+#endif   
+     &                           )
 !***********************************************************************
 !
       USE mod_param
@@ -259,6 +287,18 @@
       real(r8), intent(out) :: dAktdz(LBi:,LBj:,:)
 #  endif
 
+#if defined BEST_NPZ
+# ifdef ICE_BIO    
+       real(r8), intent(inout) :: it(LBi:UBi,LBj:UBj,3,NIceT(ng))
+# endif    
+# ifdef STATIONARY
+     real(r8), intent(inout) :: st(LBi:UBi,LBj:UBj,N(ng),3,NTS(ng))
+# endif
+# ifdef BENTHIC 
+     real(r8), intent(inout) :: bt(LBi:UBi,LBj:UBj,NBL(ng),3,NBeT(ng))
+# endif 
+#endif
+
 # else
 
 #  ifdef TS_PSOURCE
@@ -298,8 +338,16 @@
       real(r8), intent(in) :: pn(LBi:UBi,LBj:UBj)
 #  if defined TCLM_NUDGING && defined TCLIMATOLOGY
       real(r8), intent(in) :: Tnudgcof(LBi:UBi,LBj:UBj,NT(ng))
-      real(r8), intent(in) :: tclm(LBi:UBi,LBj:UBj,N(ng),NT(ng))
+      
+     
+# if defined BEST_NPZ && defined ICE_BIO      
+      real(r8), intent(in) :: tclm(LBi:UBi,LBj:UBj,N(ng),15)
+# else      
+      real(r8), intent(in) :: tclm(LBi:UBi,LBj:UBj,N(ng),NT(ng)
+# endif       
+      
 #  endif
+
 #  if defined NUDGING_SST || defined NUDGING_T
       real(r8), intent(in) :: EobsT(LBi:UBi,LBj:UBj,N(ng),NT(ng))
       real(r8), intent(in) :: Tobs(LBi:UBi,LBj:UBj,N(ng),NT(ng))
@@ -320,6 +368,19 @@
      &                                   NDT)
 #  endif
       real(r8), intent(inout) :: t(LBi:UBi,LBj:UBj,N(ng),3,NT(ng))
+#if defined BEST_NPZ
+#ifdef STATIONARY
+     real(r8), intent(inout) :: st(LBi:UBi,LBj:UBj,N(ng),3,NTS(ng))
+#endif
+
+#ifdef BENTHIC
+     real(r8), intent(inout) :: bt(LBi:UBi,LBj:UBj,NBL(ng),3,NBeT(ng))
+#endif
+# ifdef ICE_BIO    
+       real(r8), intent(inout) :: it(LBi:UBi,LBj:UBj,3,NIceT(ng))
+           
+# endif 
+#endif
 
 #  if defined FLOATS && defined FLOAT_VWALK
       real(r8), intent(out) :: dAktdz(LBi:UBi,LBj:UBj,N(ng))
@@ -1150,6 +1211,27 @@
             DO i=Istr,Iend
               DC(i,k)=DC(i,k)*Akt(i,j,k,ltrc)
               cff1=dt(ng)*oHz(i,j,k)*(DC(i,k)-DC(i,k-1))
+#  ifdef BEST_NPZ
+!   Neocalanus and Euphuasiids don't experience vertical advection because
+!   they are big enough to swim.
+
+#  ifdef JELLY
+              IF (itrc.eq.iNCaS.or.itrc.eq.iNCaO.or.itrc.eq.iEupS.or.   &
+     &      itrc.eq.iEupO.or.itrc.eq.iJel ) THEN
+#  else       
+              IF (itrc.eq.iNCaS.or.itrc.eq.iNCaO.or. itrc.eq.iEupS.or. &
+     &        itrc.eq.iEupO) THEN
+#  endif
+
+              cff1=0.0_r8
+               END IF
+! -Remove effects of mixing on biology - usefull for model testing
+!g             IF ( itrc.gt.2)    THEN
+!g               cff1=0.0_r8
+!g            END IF
+#  endif
+
+
 #  ifdef BIO_GOANPZ
 !   Neocalanus and Euphuasiids don't experience vertical advection because
 !   they are big enough to swim.
@@ -1212,19 +1294,24 @@
 !
           DO i=Istr,Iend
 #  ifdef DIAGNOSTICS_TS
-             cff1=t(i,j,N(ng),nnew,itrc)*oHz(i,j,N(ng))
+            cff1=t(i,j,N(ng),nnew,itrc)*oHz(i,j,N(ng))
 #  endif
-             DC(i,N(ng))=(DC(i,N(ng))-FC(i,N(ng)-1)*DC(i,N(ng)-1))/     &
+            DC(i,N(ng))=(DC(i,N(ng))-FC(i,N(ng)-1)*DC(i,N(ng)-1))/      &
      &                   (BC(i,N(ng))-FC(i,N(ng)-1)*CF(i,N(ng)-1))
-#  ifdef BIO_GOANPZ
-             IF ( itrc.ne.iNCa .and. itrc.ne.iEup ) THEN
+#  ifdef BEST_NPZ
+            IF (itrc.ne.iNCaS.or.itrc.ne.iNCaO.or.itrc.ne.iEupS.or.     &
+     &          itrc.ne.iEupO) THEN
 #  endif
-             t(i,j,N(ng),nnew,itrc)=DC(i,N(ng))
+
 #  ifdef BIO_GOANPZ
-             END IF
+            IF ( itrc.ne.iNCa .and. itrc.ne.iEup ) THEN
+#  endif
+              t(i,j,N(ng),nnew,itrc)=DC(i,N(ng))
+#  if defined BIO_GOANPZ || defined BEST_NPZ
+            END IF
 #  endif
 #  ifdef DIAGNOSTICS_TS
-             DiaTwrk(i,j,N(ng),itrc,iTvdif)=                            &
+            DiaTwrk(i,j,N(ng),itrc,iTvdif)=                             &
      &                              DiaTwrk(i,j,N(ng),itrc,iTvdif)+     &
      &                              t(i,j,N(ng),nnew,itrc)-cff1
 #  endif
@@ -1235,11 +1322,14 @@
               cff1=t(i,j,k,nnew,itrc)*oHz(i,j,k)
 #  endif
               DC(i,k)=DC(i,k)-CF(i,k)*DC(i,k+1)
-#  ifdef BIO_GOANPZ
+#  ifdef BEST_NPZ
+              IF (itrc.ne.iNCaS .and. itrc.ne.iNCaO .and. itrc.ne.iEupS &
+     &                 .and. itrc.ne.iEupO) THEN
+#  elif defined BIO_GOANPZ
               IF ( itrc.ne.iNCa .and. itrc.ne.iEup ) THEN
 #  endif
-              t(i,j,k,nnew,itrc)=DC(i,k)
-#  ifdef BIO_GOANPZ
+                t(i,j,k,nnew,itrc)=DC(i,k)
+#  if defined BIO_GOANPZ || defined BEST_NPZ
               END IF
 #  endif
 #  ifdef DIAGNOSTICS_TS
@@ -1402,6 +1492,57 @@
         END DO
       END DO
 # endif
+
+#ifdef BEST_NPZ
+
+# if !defined ANA_BIOLOGY
+#  ifdef BENTHIC
+        do i=IstrR,IendR
+         do j=JstrR,JendR
+            do k=1,NBL(ng)
+                  bt(i,j,k,nstp,1) = bt(i,j,k,nnew,1)
+                  bt(i,j,k,nstp,2) = bt(i,j,k,nnew,2)
+            enddo
+         enddo
+      enddo
+#    endif
+# endif
+# if defined ICE_BIO
+        DO j=Jstr,Jend
+          DO itrc=1,NIB
+             DO i=Istr,Iend
+              it(i,j,nstp,itrc)=it(i,j,nnew,itrc)
+             END DO
+          END DO
+        END DO
+# endif
+
+# if defined STATIONARY
+       DO j=LBj ,UBj
+           DO k=1,N(ng)
+             DO itrc=1,8
+              DO i=LBi ,UBi
+              st(i,j,k,nnew,itrc)= 0_r8
+                 END DO
+            END DO
+          END DO
+       END DO
+
+
+       DO j=Jstr,Jend
+           DO k=1,N(ng)
+             DO itrc=1,8
+              DO i=Istr,Iend
+              st(i,j,k,nnew,itrc)= st(i,j,k,nstp,itrc)
+                 END DO
+            END DO
+          END DO
+       END DO
+# endif
+#endif
+
+
+
       RETURN
       END SUBROUTINE step3d_t_tile
 #endif

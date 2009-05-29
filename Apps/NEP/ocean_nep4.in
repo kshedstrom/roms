@@ -975,7 +975,7 @@ Hout(idBott) == T T T T T T T T T F F F F F F F
 !                (1) Original function (Song and Haidvogel, 1994),
 !                    Vstretching=1
 !
-!                    C(s)=(1-theta_b)*[SINH(s*theta_s)/SINH(theta_s)]+
+!                      C(s)=(1-theta_b)*[SINH(s*theta_s)/SINH(theta_s)]+
 !                         theta_b*[-0.5+0.5*TANH(theta_s*(s+0.5))/
 !                                           TANH(0.5*theta_s)]
 !

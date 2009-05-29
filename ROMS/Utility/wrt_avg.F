@@ -2,7 +2,7 @@
 #ifdef AVERAGES
       SUBROUTINE wrt_avg (ng)
 !
-!svn $Id: wrt_avg.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: wrt_avg.F 985 2009-05-24 16:35:20Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -815,6 +815,262 @@
           END IF
         END IF
       END DO
+
+# ifdef BEST_NPZ
+#ifdef BIOFLUX
+!---------------------------------------------
+!  Write out bioflux arrays.
+!---------------------------------------------
+      DO itrc=1,NT(ng)
+        DO itrc2=1,NT(ng)
+!g        !print *, 'XXX',ncAVGid(ng),avgTSid(itrc,ng),tAVGindx(ng)
+!g       !print *, 'xxx',Hout(idTSvar(itrc),ng)
+        IF (Hout(idTBFvar(itrc),ng)) THEN
+          scale=1.0_r8
+          gtype=gfactor*r2dvar
+	  
+	  status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgTBFid(itrc,ng),  &
+     &                     tAVGindx(ng), gtype,                         &
+     &                     1,NT(ng),1, NT(ng), scale,                   &
+     
+#  ifdef MASKING
+     &                       GRID(ng) % rmask,                 &
+#  endif
+     &                       AVERAGE(ng) % avgbflx(:,:))
+          IF (status.ne.nf90_noerr) THEN
+            IF (Master) THEN
+              WRITE (stdout,10) TRIM(Vname(1,idTBFvar(itrc))),          &
+     &                        tAVGindx(ng)
+            END IF
+            exit_flag=3
+            ioerror=status
+	    
+
+            RETURN
+          END IF
+        END IF
+      END DO
+        END DO
+#endif
+
+
+#ifdef STATIONARY
+!---------------------------------------------
+!  Write out 3D stationary variable array.
+!---------------------------------------------
+      DO itrc=1,NTS(ng)
+	!print *, 'XXX',ncAVGid(ng),avgTSid(itrc,ng),tAVGindx(ng)
+	!print *, 'xxx',Hout(idTSvar(itrc),ng)
+        IF (Hout(idTSvar(itrc),ng)) THEN
+          scale=1.0_r8
+          gtype=gfactor*r3dvar
+          status=nf_fwrite3d(ng, iNLM, ncAVGid(ng), avgTSid(itrc,ng),   &
+     &                       tAVGindx(ng), gtype,                       &
+     &                       LBi, UBi, LBj, UBj, 1, N(ng), scale,       &
+#  ifdef MASKING
+     &                       GRID(ng) % rmask,                          &
+#  endif
+     &                       AVERAGE(ng) % avgst(:,:,:,itrc))
+          IF (status.ne.nf90_noerr) THEN
+            IF (Master) THEN
+              WRITE (stdout,10) TRIM(Vname(1,idTSvar(itrc))),            &
+     &                        tAVGindx(ng)
+            END IF
+            exit_flag=3
+            ioerror=status
+            RETURN
+          END IF
+        END IF
+      END DO
+#endif
+#ifdef STATIONARY2
+!---------------------------------------------
+!  Write out 2D stationary variable array.
+!---------------------------------------------
+      DO itrc=1,NTS2(ng)
+	
+        IF (Hout(idTS2var(itrc),ng)) THEN
+          scale=1.0_r8
+          gtype=gfactor*r2dvar
+	  
+	  status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgTS2id(itrc,ng),  &
+     &                     tAVGindx(ng), gtype,                         &
+     &                     LBi, UBi, LBj, UBj, scale,                   &
+     
+#  ifdef MASKING
+     &                       GRID(ng) % rmask,                 &
+#  endif
+     &                       AVERAGE(ng) % avgst2(:,:,itrc))
+          IF (status.ne.nf90_noerr) THEN
+            IF (Master) THEN
+              WRITE (stdout,10) TRIM(Vname(1,idTS2var(itrc))),          &
+     &                        tAVGindx(ng)
+            END IF
+            exit_flag=3
+            ioerror=status
+            RETURN
+          END IF
+        END IF
+      END DO
+#endif
+
+#ifdef PROD3
+!---------------------------------------------
+!  Write 3D production variables.
+!---------------------------------------------
+      DO itrc=1,NPT3(ng)
+	!print *, 'XXX',ncAVGid(ng),avgPT3id(itrc,ng),tAVGindx(ng)
+	!print *, 'xxx',Hout(idPT3var(itrc),ng)
+        IF (Hout(idPT3var(itrc),ng)) THEN
+          scale=1.0_r8
+          gtype=gfactor*r3dvar
+          status=nf_fwrite3d(ng, iNLM, ncAVGid(ng), avgPT3id(itrc,ng),  &
+     &                       tAVGindx(ng), gtype,                       &
+     &                       LBi, UBi, LBj, UBj, 1, N(ng), scale,       &
+#  ifdef MASKING
+     &                       GRID(ng) % rmask,                 &
+#  endif
+     &                       AVERAGE(ng) % avgpt3(:,:,:,itrc))
+     
+          IF (status.ne.nf90_noerr) THEN
+            IF (Master) THEN
+             WRITE (stdout,10) TRIM(Vname(1,idPT3var(itrc))),           &
+     &                        tAVGindx(ng)
+            END IF
+            exit_flag=3
+            ioerror=status
+            RETURN
+          END IF
+        END IF
+      END DO
+#endif
+
+#ifdef PROD2
+!---------------------------------------------
+!  Write 2D production variables.
+!---------------------------------------------
+      DO itrc=1,NPT2(ng)
+	
+        IF (Hout(idPT2var(itrc),ng)) THEN
+          scale=1.0_r8
+          gtype=gfactor*r2dvar
+	  
+	   status=nf_fwrite2d(ng, iNLM, ncAVGid(ng),avgPT2id(itrc,ng),  &
+     &                     tAVGindx(ng), gtype,                         &
+     &                     LBi, UBi, LBj, UBj, scale,                   &
+	  
+	 
+#  ifdef MASKING
+     &                       GRID(ng) % rmask,                 &
+#  endif
+     &                       AVERAGE(ng) % avgpt2(:,:,itrc))
+          IF (status.ne.nf90_noerr) THEN
+            IF (Master) THEN
+             WRITE (stdout,10) TRIM(Vname(1,idPT2var(itrc))),            &
+     &                        tAVGindx(ng)
+            END IF
+            exit_flag=3
+            ioerror=status
+            RETURN
+          END IF
+        END IF
+      END DO
+#endif
+!-----------------------------
+!  Write out benthic variables.
+!-----------------------------
+#ifdef BENTHIC    
+     
+      DO itrc=1,NBeT(ng)
+        IF (Hout(idBvar(itrc),ng)) THEN
+          scale=1.0_r8
+	  
+	    gtype=gfactor*r2dvar
+	    
+	    
+        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgBid(itrc,ng),      &
+     &                     tAVGindx(ng), gtype,                         &
+     &                     LBi, UBi, LBj, UBj, scale,                   &
+#   ifdef MASKING
+     &                     GRID(ng) % rmask,                   &
+#   endif
+     &                     AVERAGE(ng) % avgbt(:,:,1,itrc))
+! switch if have more than one benthic level	  
+	  
+!          gtype=gfactor*r3dvar
+!          status=nf_fwrite3d(ng, iNLM, ncAVGid(ng), avgBid(itrc,ng),    &
+!     &                       tAVGindx(ng), gtype,                       &
+!     &                       LBi, UBi, LBj, UBj, 1, N(ng), scale,       &
+!#  ifdef MASKING
+!     &                       GRID(ng) % rmask(LBi,LBj),                 &
+!#  endif 
+!     &                       AVERAGE(ng) % avgbt(LBi,LBj,1,itrc))
+
+        
+	 
+          IF (status.ne.nf90_noerr) THEN
+            IF (Master) THEN
+              WRITE (stdout,10) TRIM(Vname(1,idBvar(itrc))),            &
+     &                        tAVGindx(ng)
+            END IF
+            exit_flag=3
+            ioerror=status
+            RETURN
+          END IF
+        END IF
+      END DO
+# endif
+
+!-----------------------------
+!  Write out ice bio variables.
+!-----------------------------
+#ifdef ICE_BIO
+
+!  Write out ice variables.
+
+      DO itrc=1,NIceT(ng)
+        IF (Hout(idIceBvar(itrc),ng)) THEN
+          scale=1.0_r8
+
+            gtype=gfactor*r2dvar
+
+
+        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgIceBid(itrc,ng),   &
+     &                     tAVGindx(ng), gtype,                         &
+     &                     LBi, UBi, LBj, UBj, scale,                   &
+#   ifdef MASKING
+     &                     GRID(ng) % rmask,                   &
+#   endif
+     &                     AVERAGE(ng) % avgit(:,:,itrc))
+! switch if have more than one ice level
+
+!          gtype=gfactor*r3dvar
+!          status=nf_fwrite3d(ng, iNLM, ncAVGid(ng), avgIceBid(itrc,ng),    &
+!     &                       tAVGindx(ng), gtype,                       &
+!     &                       LBi, UBi, LBj, UBj, 1, NIL(ng), scale,       &
+!#  ifdef MASKING
+!     &                       GRID(ng) % rmask(LBi,LBj),                 &
+!#  endif
+!     &                       AVERAGE(ng) % avgit(LBi,LBj,itrc))
+
+
+
+          IF (status.ne.nf90_noerr) THEN
+            IF (Master) THEN
+              WRITE (stdout,10) TRIM(Vname(1,idIceBvar(itrc))),            &
+     &                        tAVGindx(ng)
+            END IF
+            exit_flag=3
+            ioerror=status
+            RETURN
+          END IF
+        END IF
+      END DO
+# endif
+
+   
+
+# endif
 # ifdef BIO_GOANPZ
 !---------------------------------------------
 !  Write out stationary tracer type variables.

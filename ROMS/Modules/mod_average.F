@@ -119,6 +119,33 @@
 # ifdef SOLVE3D
           real(r8), pointer :: avgrho(:,:,:)
           real(r8), pointer :: avgt(:,:,:,:)
+
+# ifdef BEST_NPZ
+#ifdef STATIONARY
+          real(r8), pointer :: avgst(:,:,:,:)
+#endif
+#ifdef STATIONARY2
+          real(r8), pointer :: avgst2(:,:,:)
+#endif
+#ifdef PROD3  
+          real(r8), pointer :: avgpt3(:,:,:,:)
+#endif
+#ifdef PROD2  
+          real(r8), pointer :: avgpt2(:,:,:)
+#endif
+#ifdef BENTHIC    
+          real(r8), pointer :: avgbt(:,:,:,:)
+#endif
+#ifdef ICE_BIO    
+          real(r8), pointer :: avgit(:,:,:)
+#endif
+#  if defined BIOFLUX
+        real(r8), pointer :: avgbflx(:,:) 
+#  endif      
+
+# endif
+
+
 # ifdef BIO_GOANPZ
 	  real(r8), pointer :: avgst(:,:,:,:)
 # endif
@@ -277,6 +304,33 @@
 # ifdef SOLVE3D
       allocate ( AVERAGE(ng) % avgrho(LBi:UBi,LBj:UBj,N(ng)) )
       allocate ( AVERAGE(ng) % avgt(LBi:UBi,LBj:UBj,N(ng),NT(ng)) )
+
+#ifdef BEST_NPZ
+# ifdef STATIONARY
+      allocate ( AVERAGE(ng) % avgst(LBi:UBi,LBj:UBj,N(ng),NTS(ng)) )
+# endif
+# ifdef STATIONARY2
+      allocate ( AVERAGE(ng) % avgst2(LBi:UBi,LBj:UBj,NTS2(ng)) )
+# endif
+# ifdef PROD3
+      allocate ( AVERAGE(ng) % avgpt3(LBi:UBi,LBj:UBj,N(ng),NPT3(ng)) )
+# endif
+# ifdef PROD2
+      allocate ( AVERAGE(ng) % avgpt2(LBi:UBi,LBj:UBj,NPT2(ng)) )
+# endif
+# ifdef BENTHIC
+       allocate ( AVERAGE(ng) % avgbt(LBi:UBi,LBj:UBj,NBL(ng),NBeT(ng)) )
+# endif
+# ifdef ICE_BIO
+       allocate ( AVERAGE(ng) % avgit(LBi:UBi,LBj:UBj,NIceT(ng)) )
+# endif
+
+# ifdef BIOFLUX
+        allocate ( AVERAGE(ng) % avgbflx(NAT+NBT,NAT+NBT) )
+# endif
+#endif
+
+
 # ifdef BIO_GOANPZ
       allocate ( AVERAGE(ng) % avgst(LBi:UBi,LBj:UBj,N(ng),NTS(ng)) )
 # endif
@@ -566,6 +620,69 @@
             END DO
           END DO
         END DO
+
+#ifdef BEST_NPZ
+# ifdef STATIONARY
+        DO itrc=1,NTS(ng)
+          DO k=1,N(ng)
+            DO i=Imin,Imax
+              AVERAGE(ng) % avgst(i,j,k,itrc) = IniVal
+            END DO
+          END DO
+        END DO
+# endif
+# ifdef STATIONARY2
+        DO itrc=1,NTS2(ng)
+            DO i=Imin,Imax
+              AVERAGE(ng) % avgst2(i,j,itrc) = IniVal
+            END DO
+        END DO
+# endif
+# ifdef PROD3
+        DO itrc=1,NPT3(ng)
+          DO k=1,N(ng)
+            DO i=Imin,Imax
+              AVERAGE(ng) % avgpt3(i,j,k,itrc) = IniVal
+            END DO
+          END DO
+        END DO
+# endif
+# ifdef PROD2
+        DO itrc=1,NPT2(ng)
+
+            DO i=Imin,Imax
+              AVERAGE(ng) % avgpt2(i,j,itrc) = IniVal
+            END DO
+
+        END DO
+# endif
+# ifdef BENTHIC
+       DO itrc=1,NBeT(ng)
+          DO k=1,NBL(ng)
+            DO i=Imin,Imax
+              AVERAGE(ng) % avgbt(i,j,k,itrc) = IniVal
+              END DO
+          END DO
+        END DO
+# endif
+# ifdef ICE_BIO
+       DO itrc=1,NIceT(ng)
+            DO i=Imin,Imax
+              AVERAGE(ng) % avgit(i,j,itrc) = IniVal
+            END DO
+        END DO
+# endif
+# ifdef BIOFLUX
+        DO itrc=1,NT(ng)
+         DO itrc2=1,NT(ng)
+            AVERAGE(ng) % avgbflx(itrc,itrc2) = IniVal
+          END DO
+        END DO
+# endif
+
+#endif
+
+
 # ifdef BIO_GOANPZ
 	DO itrc=1,NTS(ng)
 	  DO k=1,N(ng)

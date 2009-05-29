@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       MODULE mod_forces
 !
-!svn $Id: mod_forces.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: mod_forces.F 980 2009-05-20 16:57:22Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -230,13 +230,6 @@
           real(r8), pointer :: rdrg_grid(:,:)
 #endif
 
-#if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS
-          real(r8), pointer :: Pair(:,:)
-# ifndef ANA_PAIR
-          real(r8), pointer :: PairG(:,:,:)
-# endif
-#endif
-
 #ifdef WAVES_DIR
           real(r8), pointer :: Dwave(:,:)
 # ifndef ANA_WWAVE
@@ -343,6 +336,12 @@
 #  endif
 # endif
 
+# if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS
+          real(r8), pointer :: Pair(:,:)
+#  ifndef ANA_PAIR
+          real(r8), pointer :: PairG(:,:,:)
+#  endif
+# endif
 # if defined BULK_FLUXES || defined ECOSIM
           real(r8), pointer :: Uwind(:,:)
           real(r8), pointer :: Vwind(:,:)
@@ -606,13 +605,6 @@
       allocate ( FORCES(ng) % rdrg_grid(LBi:UBi,LBj:UBj) )
 #endif
 
-#if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS
-      allocate ( FORCES(ng) % Pair(LBi:UBi,LBj:UBj) )
-# ifndef ANA_PAIR
-      allocate ( FORCES(ng) % PairG(LBi:UBi,LBj:UBj,2) )
-# endif
-#endif
-
 #ifdef WAVES_DIR
       allocate ( FORCES(ng) % Dwave(LBi:UBi,LBj:UBj) )
 # ifndef ANA_WWAVE
@@ -724,6 +716,14 @@
 
 #  ifndef ANA_TAIR
       allocate ( FORCES(ng) % TairG(LBi:UBi,LBj:UBj,2) )
+#  endif
+# endif
+
+# if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS
+      allocate ( FORCES(ng) % Pair(LBi:UBi,LBj:UBj) )
+
+#  ifndef ANA_PAIR
+      allocate ( FORCES(ng) % PairG(LBi:UBi,LBj:UBj,2) )
 #  endif
 # endif
 
@@ -1069,14 +1069,7 @@
 #ifdef RDRG_GRID
             FORCES(ng) % rdrg_grid(i,j) = IniVal
 #endif
-#if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS
-            FORCES(ng) % Pair(i,j) = IniVal
-# ifndef ANA_PAIR
-            FORCES(ng) % PairG(i,j,1) = IniVal
-            FORCES(ng) % PairG(i,j,2) = IniVal
-# endif
-#endif
-#ifdef WAVES_DIR
+# ifdef WAVES_DIR
             FORCES(ng) % Dwave(i,j) = IniVal
 #  ifndef ANA_WWAVE
             FORCES(ng) % DwaveG(i,j,1) = IniVal
@@ -1172,6 +1165,9 @@
             FORCES(ng) % Hair(i,j) = IniVal
             FORCES(ng) % Tair(i,j) = IniVal
 # endif
+# if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS
+            FORCES(ng) % Pair(i,j) = IniVal
+# endif
 # if defined BULK_FLUXES || defined ECOSIM
             FORCES(ng) % Uwind(i,j) = IniVal
             FORCES(ng) % Vwind(i,j) = IniVal
@@ -1199,6 +1195,12 @@
 #  ifndef ANA_HUMIDITY
             FORCES(ng) % HairG(i,j,1) = IniVal
             FORCES(ng) % HairG(i,j,2) = IniVal
+#  endif
+# endif
+# if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS
+#  ifndef ANA_PAIR
+            FORCES(ng) % PairG(i,j,1) = IniVal
+            FORCES(ng) % PairG(i,j,2) = IniVal
 #  endif
 # endif
 # if defined BULK_FLUXES || defined ECOSIM

@@ -2,7 +2,7 @@
 #ifdef NONLINEAR
       SUBROUTINE set_data (ng, tile)
 !
-!svn $Id: set_data.F 976 2009-05-18 21:57:59Z kate $
+!svn $Id: set_data.F 984 2009-05-24 01:43:19Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -1521,6 +1521,9 @@
 #  ifdef ANA_TCLIMA
       CALL ana_tclima (ng, tile, iNLM)
 #  else
+! in 3D want nudge only Fe not T and S
+#   if !defined BERING10k
+
       DO itrc=1,NAT
         CALL set_3dfld_tile (ng, tile, iNLM, idTclm(itrc),              &
      &                       LBi, UBi, LBj, UBj, 1, N(ng),              &
@@ -1528,6 +1531,37 @@
      &                       CLIMA(ng)%tclm (:,:,:,itrc),               &
      &                       update)
       END DO
+#   endif
+
+#  if defined BEST_NPZ 
+#   ifdef ICE_BIO      
+           CALL set_3dfld_tile (ng, tile, iNLM, idTclm(iFe+1),             &
+     &                       LBi, UBi, LBj, UBj, 1, N(ng),              &
+     &                       CLIMA(ng)%tclmG(:,:,:,:,15),               &
+     &                       CLIMA(ng)%tclm(:,:,:,15),                 &
+     &                       update)
+
+ 
+#     if defined CLIM_ICE_1D
+          DO j=Jstr,Jend
+            DO i=Istr,Iend
+              OCEAN(ng)%it(i,j,nnew(ng),iIceZ) =                        &
+     &                  CLIMA(ng)%tclm(i,j,N(ng),15)
+            ENDDO
+          ENDDO
+#     endif          
+#   endif
+
+
+#   if defined IRON_LIMIT
+        CALL set_3dfld_tile (ng, tile, iNLM, idTclm(iFe),               &
+     &                       LBi, UBi, LBj, UBj, 1, N(ng),              &
+     &                       CLIMA(ng)%tclmG(:,:,:,:,iFe),              &
+     &                       CLIMA(ng)%tclm (:,:,:,iFe),                &
+     &                       update)
+#   endif
+#  endif
+ 
 #   if defined BIO_GOANPZ && defined IRON_LIMIT
         CALL set_3dfld_tile (ng, tile, iNLM, idTclm(iFe),               &
      &                       LBi, UBi, LBj, UBj, 1, N(ng),              &
@@ -1535,6 +1569,8 @@
      &                       CLIMA(ng)%tclm (:,:,:,iFe),                &
      &                       update)
 #   endif
+
+
 #  endif
 #  if defined OFFLINE_FLOATS || defined OFFLINE_BIOLOGY
       DO itrc=1,NAT

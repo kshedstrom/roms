@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       SUBROUTINE def_rst (ng)
 !
-!svn $Id: def_rst.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: def_rst.F 989 2009-05-26 22:46:51Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -691,7 +691,6 @@
      &                 SetFillVal = .FALSE.)
 # else
      &                 NF_FRST, nvd3, t2dgrd, Aval, Vinfo, ncname)
-
 # endif
 #endif
         IF (exit_flag.ne.NoError) RETURN

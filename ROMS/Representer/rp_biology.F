@@ -2,7 +2,7 @@
       MODULE rp_biology_mod
 #if defined TL_IOMS && defined BIOLOGY
 !
-!svn $Id: rp_biology.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: rp_biology.F 984 2009-05-24 01:43:19Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -25,7 +25,7 @@
 !!#  include <rp_fennel.h>
 # elif defined NEMURO
 !!#  include <rp_nemuro.h>
-# elif defined BIO_UMaine
+# elif defined BIO_UMAINE
 !!#  include <rp_UMAINE.h>
 # elif defined NPZD_FRANKS
 #  include <rp_npzd_Franks.h>

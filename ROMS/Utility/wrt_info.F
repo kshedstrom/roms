@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       SUBROUTINE wrt_info (ng, model, ncid, ncname)
 !
-!svn $Id: wrt_info.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: wrt_info.F 989 2009-05-26 22:46:51Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -1040,7 +1040,7 @@
      &                      ncid = ncid)
       IF (exit_flag.ne.NoError) RETURN
 
-# elif defined BIO_UMaine
+# elif defined BIO_UMAINE
 !
 !  Write out UMaine CoSiNE ecosystem model parameters.
 !

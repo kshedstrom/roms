@@ -1,7 +1,7 @@
 /*
 ** Include file "globaldef.h"
 **
-** svn $Id: globaldefs.h 975 2009-05-05 22:51:13Z kate $
+** svn $Id: globaldefs.h 987 2009-05-26 19:29:04Z kate $
 ********************************************************** Hernan G. Arango ***
 ** Copyright (c) 2002-2009 The ROMS/TOMS Group     Alexander F. Shchepetkin  **
 **   Licensed under a MIT/X style license                                    **
@@ -432,7 +432,7 @@
      defined W4DPSAS_SENSITIVITY || defined W4DVAR_SENSITIVITY)
 # define WEAK_CONSTRAINT
 #endif
-#if !(defined WEAK_CONSTRAINT    || defined IOM)               && \
+#if !(defined WEAK_CONSTRAINT    || defined IOM)      && \
       defined RPM_RELAXATION
 # undef RPM_RELAXATION
 #endif
@@ -963,7 +963,7 @@
 #if defined BIO_FENNEL  || defined ECOSIM      || \
     defined NEMURO      || defined NPZD_FRANKS || \
     defined NPZD_POWELL || defined BIO_GOANPZ  || \
-    defined BIO_UMaine
+    defined BIO_UMAINE  || defined BEST_NPZ
 # define BIOLOGY
 #endif
 

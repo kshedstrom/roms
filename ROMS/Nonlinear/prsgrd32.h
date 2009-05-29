@@ -1,6 +1,6 @@
       SUBROUTINE prsgrd (ng, tile)
 !
-!svn $Id: prsgrd32.h 975 2009-05-05 22:51:13Z kate $
+!svn $Id: prsgrd32.h 984 2009-05-24 01:43:19Z kate $
 !***********************************************************************
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -30,12 +30,6 @@
 !***********************************************************************
 !
       USE mod_param
-#ifdef POT_TIDES
-      USE mod_tides
-#endif
-#ifdef ATM_PRESS
-      USE mod_forces
-#endif
 #ifdef DIAGNOSTICS
       USE mod_diags
 #endif
@@ -45,6 +39,9 @@
       USE mod_grid
       USE mod_ocean
       USE mod_stepping
+#ifdef POT_TIDES
+      USE mod_tides
+#endif
 !
 !  Imported variable declarations.
 !
@@ -77,15 +74,12 @@
 #ifdef ATM_PRESS
      &                  FORCES(ng) % Pair,                              &
 #endif
-#ifdef DIAGNOSTICS_UV
-     &                  DIAGS(ng) % DiaRU,                              &
-     &                  DIAGS(ng) % DiaRV,                              &
-#endif
 #ifdef POT_TIDES
      &                  TIDES(ng) % Ptide,                              &
 #endif
-#ifdef ATM_PRESS
-     &                  FORCES(ng) % Pair,                              &
+#ifdef DIAGNOSTICS_UV
+     &                  DIAGS(ng) % DiaRU,                              &
+     &                  DIAGS(ng) % DiaRV,                              &
 #endif
      &                  OCEAN(ng) % ru,                                 &
      &                  OCEAN(ng) % rv)
@@ -112,14 +106,11 @@
 #ifdef ATM_PRESS
      &                        Pair,                                     &
 #endif
-#ifdef DIAGNOSTICS_UV
-     &                        DiaRU, DiaRV,                             &
-#endif
 #ifdef POT_TIDES
      &                        Ptide,                                    &
 #endif
-#ifdef ATM_PRESS
-     &                        Pair,                                     &
+#ifdef DIAGNOSTICS_UV
+     &                        DiaRU, DiaRV,                             &
 #endif
      &                        ru, rv)
 !***********************************************************************
@@ -147,19 +138,17 @@
 # ifdef ICESHELF
       real(r8), intent(in) :: zice(LBi:,LBj:)
 # endif
+
       real(r8), intent(in) :: rho(LBi:,LBj:,:)
 # ifdef ATM_PRESS
       real(r8), intent(in) :: Pair(LBi:,LBj:)
 # endif
-# ifdef DIAGNOSTICS_UV
-      real(r8), intent(inout) :: DiaRU(LBi:,LBj:,:,:,:)
-      real(r8), intent(inout) :: DiaRV(LBi:,LBj:,:,:,:)
-# endif
 # ifdef POT_TIDES
       real(r8), intent(in) :: Ptide(LBi:,LBj:)
 # endif
-# ifdef ATM_PRESS
-      real(r8), intent(in) :: Pair(LBi:,LBj:)
+# ifdef DIAGNOSTICS_UV
+      real(r8), intent(inout) :: DiaRU(LBi:,LBj:,:,:,:)
+      real(r8), intent(inout) :: DiaRV(LBi:,LBj:,:,:,:)
 # endif
       real(r8), intent(inout) :: ru(LBi:,LBj:,0:,:)
       real(r8), intent(inout) :: rv(LBi:,LBj:,0:,:)
@@ -180,15 +169,12 @@
 # ifdef ATM_PRESS
       real(r8), intent(in) :: Pair(LBi:UBi,LBj:UBj)
 # endif
-# ifdef DIAGNOSTICS_UV
-      real(r8), intent(inout) :: DiaRU(LBi:UBi,LBj:UBj,N(ng),2,NDrhs)
-      real(r8), intent(inout) :: DiaRV(LBi:UBi,LBj:UBj,N(ng),2,NDrhs)
-# endif
 # ifdef POT_TIDES
       real(r8), intent(in) :: Ptide(LBi:UBi,LBj:UBj)
 # endif
-# ifdef ATM_PRESS
-      real(r8), intent(in) :: Pair(LBi:UBi,LBj:UBj)
+# ifdef DIAGNOSTICS_UV
+      real(r8), intent(inout) :: DiaRU(LBi:UBi,LBj:UBj,N(ng),2,NDrhs)
+      real(r8), intent(inout) :: DiaRV(LBi:UBi,LBj:UBj,N(ng),2,NDrhs)
 # endif
       real(r8), intent(inout) :: ru(LBi:UBi,LBj:UBj,0:N(ng),2)
       real(r8), intent(inout) :: rv(LBi:UBi,LBj:UBj,0:N(ng),2)
@@ -270,17 +256,14 @@
      &                 (z_w(i,j,N(ng))-z_r(i,j,N(ng)))
 #else
           P(i,j,N(ng))=GRho0*z_w(i,j,N(ng))+                            &
-#ifdef ATM_PRESS
+# ifdef ATM_PRESS
      &                 fac*(Pair(i,j)-OneAtm)+                          &
-#endif
+# endif
      &                 GRho*(rho(i,j,N(ng))+cff2)*                      &
      &                 (z_w(i,j,N(ng))-z_r(i,j,N(ng)))
 #endif
 #ifdef POT_TIDES
           P(i,j,N(ng)) = P(i,j,N(ng)) - g*Ptide(i,j)
-#endif
-#ifdef ATM_PRESS
-          P(i,j,N(ng)) = P(i,j,N(ng)) + 100._r8*Pair(i,j)/rho0
 #endif
         END DO
         DO k=N(ng)-1,1,-1

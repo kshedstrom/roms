@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       SUBROUTINE get_data (ng)
 !
-!svn $Id: get_data.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: get_data.F 984 2009-05-24 01:43:19Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -1120,7 +1120,10 @@
      &                CLIMA(ng) % vbarclmG(LBi,LBj,1))
 # endif
 # ifdef SOLVE3D
+
 #  if !defined ANA_TCLIMA && defined TCLIMATOLOGY
+! Only nudge the active tracers if doing a 1D simulation
+#    if defined SEBS1D
       DO i=1,NAT
         CALL get_3dfld (ng, iNLM, idTclm(i), ncCLMid(ng), 1,            &
      &                  CLMname(ng), update(1),                         &
@@ -1130,7 +1133,9 @@
 #   endif
      &                  CLIMA(ng) % tclmG(LBi,LBj,1,1,i))
       END DO
-#   if defined BIO_GOANPZ && defined IRON_LIMIT
+#     endif      
+      
+#   if (defined BEST_NPZ || defined BIO_GOANPZ) && defined IRON_LIMIT
       CALL get_3dfld (ng, iNLM, idTclm(iFe), ncclmid(ng), 1,            &
      &                clmname(ng), update(1),                           &
      &                LBi, UBi, LBj, UBj, 1, N(ng), 2, 1,               &
@@ -1139,6 +1144,16 @@
 #    endif
      &                CLIMA(ng) % tclmG(LBi,LBj,1,1,iFe))
 #   endif
+#    if defined ICE_BIO 
+       CALL get_3dfld (ng, iNLM, idTclm(iFe+1), ncclmid(ng), 1,            &
+     &                clmname(ng), update(1),                           &
+     &                LBi, UBi, LBj, UBj, 1, N(ng), 2, 1,               &
+#    ifdef MASKING
+     &                GRID(ng) % rmask(LBi,LBj),                        &
+#    endif
+     &                CLIMA(ng) % tclmG(LBi,LBj,1,1,15))
+#   endif
+
 #  endif
 #  if !defined ANA_OCLIMA && defined OCLIMATOLOGY
       CALL get_3dfld (ng, iNLM, idOclm, ncCLMid(ng), 1,                 &

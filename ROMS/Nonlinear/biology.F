@@ -2,7 +2,7 @@
       MODULE biology_mod
 #if defined NONLINEAR && defined BIOLOGY
 !
-!svn $Id: biology.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: biology.F 989 2009-05-26 22:46:51Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -20,8 +20,9 @@
       PUBLIC  :: biology
 
       CONTAINS
-
-# if defined BIO_FENNEL
+# if defined BEST_NPZ
+#  include <bestnpz.h>
+# elif defined BIO_FENNEL
 #  include <fennel.h>
 # elif defined NEMURO
 #  include <nemuro.h>
@@ -31,7 +32,7 @@
 #  include <npzd_Powell.h>
 # elif defined ECOSIM
 #  include <ecosim.h>
-# elif defined BIO_UMaine
+# elif defined BIO_UMAINE
 #  include <bio_UMAINE.h>
 # elif defined BIO_GOANPZ
 #  include <goanpz.h>

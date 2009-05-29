@@ -2,7 +2,7 @@
       MODULE set_depth_mod
 #ifdef SOLVE3D
 !
-!svn $Id: set_depth.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: set_depth.F 989 2009-05-26 22:46:51Z kate $
 !=======================================================================
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -139,11 +139,10 @@
 
       real(r8) :: cff_r, cff1_r, cff2_r, cff_w, cff1_w, cff2_w
       real(r8) :: hinv, hwater, z_r0, z_w0
+      real(r8) :: C2_r, C2_w, hh2, vert_n1, vert_a, vert_h0, vert_s0
 # ifdef WET_DRY
       real(r8), parameter :: eps = 1.0E-14_r8
 # endif
-
-     real(r8) :: C2_r, C2_w, vert_s0, vert_a, vert_h0, vert_n1, hh2
 
 # include "set_bounds.h"
 !
@@ -160,7 +159,7 @@
 !
       IF (Vtransform(ng).eq.3) THEN
         vert_s0 = 90./120.
-        vert_n1 = 2./3. !3./5.	  
+        vert_n1 = 2./3. !3./5.
         vert_h0 = 60./(vert_s0)**(vert_n1)
         vert_a = 1./(vert_s0-1)
       END IF
@@ -189,6 +188,7 @@
               hwater=hwater-ABS(zice(i,j))
 # endif
               hinv=1.0_r8/hwater
+
               z_w0=cff_w+cff1_w*hwater
               z_w(i,j,k)=z_w0+Zt_avg1(i,j)*(1.0_r8+z_w0*hinv)
               z_r0=cff_r+cff1_r*hwater
@@ -294,7 +294,6 @@
           END DO
         END DO
       END IF
-
 # if defined EW_PERIODIC || defined NS_PERIODIC || defined DISTRIBUTE
 !
 !-----------------------------------------------------------------------

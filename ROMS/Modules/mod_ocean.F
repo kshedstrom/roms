@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       MODULE mod_ocean
 !
-!svn $Id: mod_ocean.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: mod_ocean.F 984 2009-05-24 01:43:19Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -115,6 +115,33 @@
           real(r8), pointer :: v(:,:,:,:)
           real(r8), pointer :: W(:,:,:)
           real(r8), pointer :: wvel(:,:,:)
+# ifdef BEST_NPZ
+#   ifdef STATIONARY
+          real(r8), pointer :: st(:,:,:,:,:)
+#   endif
+#   ifdef STATIONARY2
+          real(r8), pointer :: st2(:,:,:,:)
+#   endif
+#   ifdef PROD2
+          real(r8), pointer :: pt2(:,:,:,:)
+#   endif
+#   ifdef PROD3
+          real(r8), pointer :: pt3(:,:,:,:,:)
+#   endif
+
+#   ifdef BENTHIC
+         real(r8), pointer :: bt(:,:,:,:,:)
+#   endif
+#if defined ICE_BIO && defined CLIM_ICE_1D
+          real(r8), pointer :: it(:,:,:,:)
+          real(r8), pointer :: itL(:,:,:,:)
+#endif
+#   ifdef BIOFLUX
+          real(r8), pointer :: bflx(:,:)
+#   endif
+# endif
+
+
 # ifdef BIO_GOANPZ
           real(r8), pointer :: st(:,:,:,:,:)
 # endif
@@ -124,7 +151,7 @@
           real(r8), pointer :: u_stokes(:,:,:)
           real(r8), pointer :: v_stokes(:,:,:)
 # endif
-# if (defined BIO_FENNEL || defined BIO_UMaine) && defined CARBON
+# if (defined BIO_FENNEL || defined BIO_UMAINE) && defined CARBON
           real(r8), pointer :: pH(:,:)
 # endif
 # if defined SEDIMENT
@@ -366,6 +393,39 @@
       allocate ( OCEAN(ng) % v(LBi:UBi,LBj:UBj,N(ng),2) )
       allocate ( OCEAN(ng) % W(LBi:UBi,LBj:UBj,0:N(ng)) )
       allocate ( OCEAN(ng) % wvel(LBi:UBi,LBj:UBj,0:N(ng)) )
+#ifdef BEST_NPZ
+# ifdef STATIONARY
+      ! Add a 3D stationary array to the biology module
+         allocate ( OCEAN(ng) % st(LBi:UBi,LBj:UBj,N(ng),3,NTS(ng)) )
+# endif
+# ifdef STATIONARY2
+      ! Add a 2D stationary array to the biology module
+      allocate ( OCEAN(ng) % st2(LBi:UBi,LBj:UBj,3,NTS2(ng)) )
+# endif
+# ifdef PROD2
+      ! Add a 2D stationary production array to the biology module
+      allocate ( OCEAN(ng) % pt2(LBi:UBi,LBj:UBj,3,NPT2(ng)) )
+# endif
+# ifdef PROD3
+      ! Add a 3D stationary production array to the biology module
+      allocate ( OCEAN(ng) % pt3(LBi:UBi,LBj:UBj,N(ng),3,NPT3(ng)) )
+# endif
+
+# ifdef BENTHIC
+      allocate ( OCEAN(ng) % bt(LBi:UBi,LBj:UBj,NBL(ng),3,NBeT(ng)) )
+# endif
+# if defined ICE_BIO && defined CLIM_ICE_1D
+      allocate ( OCEAN(ng) % it(LBi:UBi,LBj:UBj,3,NIceT(ng)) )
+      allocate ( OCEAN(ng) % itL(LBi:UBi,LBj:UBj,3, NIceLog(ng)) )
+# endif
+# ifdef BIOFLUX
+      ! Add a 3D  biology flux array
+       allocate ( OCEAN(ng) % bflx(NT(ng),NT(ng)))
+#    endif
+# endif
+
+
+
 # ifdef BIO_GOANPZ
       !--------------------------------------------
       ! Add a stationary array to the biology module
@@ -380,7 +440,7 @@
       allocate ( OCEAN(ng) % v_stokes(LBi:UBi,LBj:UBj,N(ng)) )
 # endif
 
-# if (defined BIO_FENNEL || defined BIO_UMaine) && defined CARBON
+# if (defined BIO_FENNEL || defined BIO_UMAINE) && defined CARBON
       allocate ( OCEAN(ng) % pH(LBi:UBi,LBj:UBj) )
 # endif
 
@@ -685,8 +745,8 @@
             OCEAN(ng) % ubar_stokes(i,j) = IniVal
             OCEAN(ng) % vbar_stokes(i,j) = IniVal
 # endif
-# if (defined BIO_FENNEL || defined BIO_UMaine) && \
-     defined CARBON && defined SOLVE3D
+# if (defined BIO_FENNEL || defined BIO_UMAINE) && \
+      defined CARBON && defined SOLVED3D
             OCEAN(ng) % pH(i,j) = 8.0_r8
 # endif
           END DO
@@ -728,6 +788,79 @@
               END DO
             END DO
           END DO 
+# ifdef BEST_NPZ
+#    ifdef STATIONARY
+          DO itrc=1,NTS(ng)
+            DO k=1,N(ng)
+              DO i=Imin,Imax
+                OCEAN(ng) % st(i,j,k,1,itrc) = IniVal
+                OCEAN(ng) % st(i,j,k,2,itrc) = IniVal
+                OCEAN(ng) % st(i,j,k,3,itrc) = IniVal
+              END DO
+            END DO
+          END DO
+#    endif
+#    ifdef STATIONARY2
+          DO itrc=1,NTS2(ng)
+            DO i=Imin,Imax
+              OCEAN(ng) % st2(i,j,1,itrc) = IniVal
+              OCEAN(ng) % st2(i,j,2,itrc) = IniVal
+              OCEAN(ng) % st2(i,j,3,itrc) = IniVal
+            END DO
+          END DO
+#    endif
+#    ifdef PROD2
+          DO itrc=1,NPT2(ng)
+            DO i=Imin,Imax
+              OCEAN(ng) % pt2(i,j,1,itrc) = IniVal
+              OCEAN(ng) % pt2(i,j,2,itrc) = IniVal
+              OCEAN(ng) % pt2(i,j,3,itrc) = IniVal
+            END DO
+          END DO
+#    endif
+#    ifdef PROD3
+          DO itrc=1,NPT3(ng)
+            DO k=1,N(ng)
+              DO i=Imin,Imax
+                OCEAN(ng) % pt3(i,j,k,1,itrc) = IniVal
+                OCEAN(ng) % pt3(i,j,k,2,itrc) = IniVal
+                OCEAN(ng) % pt3(i,j,k,3,itrc) = IniVal
+              END DO
+            END DO
+          END DO
+#    endif
+#    ifdef BENTHIC
+          DO itrc=1,NBeT(ng)
+            DO k=1,NBL(ng)
+              DO i=Imin,Imax
+                OCEAN(ng) % bt(i,j,k,1,itrc) = IniVal
+                OCEAN(ng) % bt(i,j,k,2,itrc) = IniVal
+                OCEAN(ng) % bt(i,j,k,3,itrc) = IniVal
+              END DO
+            END DO
+          END DO
+#  endif
+
+#  if defined ICE_BIO && defined CLIM_ICE_1D
+
+          DO itrc=1,NIceT(ng)
+            OCEAN(ng) % it(i,j,1,itrc) = IniVal
+            OCEAN(ng) % it(i,j,2,itrc) = IniVal
+            OCEAN(ng) % it(i,j,3,itrc) = IniVal
+            OCEAN(ng) % it(i,j,4,itrc) = IniVal
+          END DO
+          DO itrc=1,NIceLog(ng)
+            OCEAN(ng) % itL(i,j,3,itrc) = IniVal
+          END DO
+#  endif
+#  ifdef BIOFLUX
+          DO itrc=1,NT(ng)
+            DO itrc2=1,NT(ng)
+              OCEAN(ng) % bflx(itrc,itrc2) = IniVal
+            END DO
+          END DO
+#  endif
+# endif
 # ifdef BIO_GOANPZ
           DO itrc=1,NTS(ng)
             DO k=1,N(ng)

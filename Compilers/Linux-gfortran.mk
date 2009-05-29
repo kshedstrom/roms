@@ -1,4 +1,4 @@
-# svn $Id: Linux-gfortran.mk 975 2009-05-05 22:51:13Z kate $
+# svn $Id: Linux-gfortran.mk 984 2009-05-24 01:43:19Z kate $
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 # Copyright (c) 2002-2009 The ROMS/TOMS Group                           :::
 #   Licensed under a MIT/X style license                                :::
@@ -49,8 +49,10 @@ ifdef USE_NETCDF4
     NETCDF_INCDIR := /archive/u1/uaf/kate/netcdf/include
     NETCDF_LIBDIR := /archive/u1/uaf/kate/netcdf/lib
 else
-     NETCDF_INCDIR ?= /usr/local/include
-     NETCDF_LIBDIR ?= /usr/local/lib
+    NETCDF_INCDIR ?= /usr/local/include
+    NETCDF_LIBDIR ?= /usr/local/lib
+#    NETCDF_INCDIR ?= /archive/u1/uaf/kate/include
+#    NETCDF_LIBDIR ?= /archive/u1/uaf/kate/lib
 endif
              LIBS := -L$(NETCDF_LIBDIR) -lnetcdf
 ifdef USE_NETCDF4
