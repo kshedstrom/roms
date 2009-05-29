@@ -264,7 +264,7 @@
 !
         integer, dimension(Ngrids) :: NT
         integer :: MT
-#ifdef BIO_GOANPZ|| BEST_NPZ
+#if defined BIO_GOANPZ || defined BEST_NPZ
         !------------------------------------
         !Maximum number of production tracers
         !------------------------------------

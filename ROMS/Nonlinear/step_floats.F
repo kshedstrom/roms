@@ -124,7 +124,6 @@
       real(r8) :: cff1, cff2, cff3, cff4, cff5, cff6, cff7, cff8, cff9
       real(r8) :: p1, p2, q1, q2, xrhs, yrhs, zrhs, zfloat
 
-
 # ifdef FLOAT_VWALK
       integer :: ierr
       integer :: iseed = 149876

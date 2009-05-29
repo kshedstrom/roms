@@ -1093,7 +1093,7 @@
             Npts=load_i(Nval, Rval, Ngrids, Mm)
             DO ng=1,Ngrids
               IF (Mm(ng).le.0) THEN
-                IF (MASTER) WRITE (out,300) 'Mm', ng,                   &
+                IF (Master) WRITE (out,300) 'Mm', ng,                   &
      &                                      'must be greater than zero.'
                 exit_flag=5
                 RETURN
@@ -1159,7 +1159,7 @@
             LreadNCS=.TRUE.
             IF (LreadNNS.and.((NCS+NNS).le.0)) THEN
               IF (Master) WRITE (out,290) 'NST = ', NCS+NNS,            &
-     &              'either NCS or NNS must be greater than zero.'
+     &                    'either NCS or NNS must be greater than zero.'
               exit_flag=5
               RETURN
             END IF
@@ -1168,14 +1168,14 @@
             Npts=load_i(Nval, Rval, 1, NNS)
             IF (NNS.lt.0) THEN
               IF (Master) WRITE (out,290) 'NNS = ',                     &
-     &                        'must be greater than zero.'
+     &                                    'must be greater than zero.'
               exit_flag=5
               RETURN
             END IF
             LreadNNS=.TRUE.
             IF (LreadNCS.and.((NCS+NNS).le.0)) THEN
               IF (Master) WRITE (out,290) 'NST = ', NCS+NNS,            &
-     &              'either NCS or NNS must be greater than zero.'
+     &                    'either NCS or NNS must be greater than zero.'
               exit_flag=5
               RETURN
             END IF
@@ -1259,7 +1259,7 @@
 # elif defined OPT_PERTURBATION
             IF (NCV.lt.(2*NEV)) THEN
               IF (Master) WRITE (out,260) 'NCV',                        &
-     &                        'Must be greater than or equal to 2*NEV'
+     &                       'Must be greater than or equal to 2*NEV'
               exit_flag=5
               RETURN
             END IF
@@ -2803,11 +2803,6 @@
           WRITE (out,130) nFLT(ng), 'nFLT',                             &
      &          'Number of timesteps between the writing of data',      &
      &          'into floats file.'
-#endif
-#ifdef NEMURO_SAN
-          WRITE (out,130) nFLT(ng), 'nFISHES',                          &
-     &          'Number of timesteps between the writing of data',      &
-     &          'into fish file.'
 #endif
           WRITE (out,170) ldefout(ng), 'ldefout',                       &
      &          'Switch to create a new output NetCDF file(s).'
@@ -10496,10 +10491,6 @@
             Npts=load_l(Nval, Cval, Ngrids, Lfloats)
           ELSE IF (TRIM(KeyWord).eq.'FRREC') THEN
             Npts=load_i(Nval, Rval, Ngrids, frrec)
-#ifdef NEMURO_SAN
-          ELSE IF (TRIM(KeyWord).eq.'FRREC') THEN
-            Npts=load_i(Nval, Rval, Ngrids, frrec)
-#endif
           ELSE IF (TRIM(KeyWord).eq.'NFLOATS') THEN
             Npts=load_i(Nval, Rval, Ngrids, Nfloats)
           ELSE IF (TRIM(KeyWord).eq.'POS') THEN

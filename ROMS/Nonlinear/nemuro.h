@@ -280,9 +280,9 @@
           DO i=Istr,Iend
 !  Set concentration for FeD shelf climatology
 !  Fe concentration in (micromol-Fe/m3, or nM-Fe)
-	    h_max = 500.0_r8
+	    h_max = 200.0_r8
             Fe_max = 2.0_r8
-!  Set nudging time scale to 5 days
+!  Set nudging time scales to 5 days (inshore) and 30 (offshore) days
             Fe_rel = 5.0_r8
             Fndgcf = 1.0_r8/(Fe_rel*86400.0_r8)
 !  Relaxation for depths < 250m to simulate Fe input at coast

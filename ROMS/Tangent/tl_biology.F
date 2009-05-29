@@ -25,6 +25,8 @@
 !!#  include <tl_fennel.h>
 # elif defined NEMURO
 !!#  include <tl_nemuro.h>
+# elif defined BIO_UMAINE
+!!#  include <tl_UMAINE.h>
 # elif defined NPZD_FRANKS
 #  include <tl_npzd_Franks.h>
 # elif defined NPZD_POWELL
