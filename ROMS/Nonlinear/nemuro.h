@@ -105,7 +105,7 @@
       USE mod_ncparam
       USE mod_scalars
 #ifdef NEMURO_SAN
-      USE mod_floats
+      USE mod_fish
       USE mod_grid
 #endif
 !
@@ -243,10 +243,10 @@
 # ifdef FISH_FEEDBACK
 !  Compute fish contributions to plankton components
 !  TO DO: SPREAD CONTRIBUTION TO ADJACENT CELLS!
-        DO lflt=1,Nfloats(ng)
-          Ir=INT(FLT(ng)%track(ixgrd,nnew,lflt)+0.5_r8)
-          Jr=INT(FLT(ng)%track(iygrd,nnew,lflt)+0.5_r8)
-          Kr=INT(FLT(ng)%track(izgrd,nnew,lflt)+0.5_r8)
+        DO lflt=1,Nfish(ng)
+          Ir=INT(FISHES(ng)%track(ixgrd,nnew,lflt)+0.5_r8)
+          Jr=INT(FISHES(ng)%track(iygrd,nnew,lflt)+0.5_r8)
+          Kr=INT(FISHES(ng)%track(izgrd,nnew,lflt)+0.5_r8)
           IF ((Ir.ge.Istr).and.(Ir.le.Iend).and.                        &
      &        (Jr.ge.Jstr).and.(Jr.le.Jend)) THEN
 ! Factor to convert from mmolN/day to mmolN/m3
@@ -254,13 +254,13 @@
      &                 Hz(Ir,Jr,Kr)
 ! Small zooplankton
             pfish(Ir,Jr,Kr,iSzoo)=pfish(Ir,Jr,Kr,iSzoo)+                &
-     &                            cff*FLT(ng)%feedback(iSzoo,lflt)
+     &                            cff*FISHES(ng)%feedback(iSzoo,lflt)
 ! Large zooplankton
             pfish(Ir,Jr,Kr,iLzoo)=pfish(Ir,Jr,Kr,iLzoo)+                &
-     &                            cff*FLT(ng)%feedback(iLzoo,lflt)
+     &                            cff*FISHES(ng)%feedback(iLzoo,lflt)
 ! Predatory zooplankton
             pfish(Ir,Jr,Kr,iPzoo)=pfish(Ir,Jr,Kr,iPzoo)+                &
-     &                            cff*FLT(ng)%feedback(iPzoo,lflt)
+     &                            cff*FISHES(ng)%feedback(iPzoo,lflt)
           END IF
         END DO
 # endif

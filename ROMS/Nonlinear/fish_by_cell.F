@@ -28,6 +28,9 @@
       USE mod_types
       USE mod_ocean
       USE mod_fish
+#ifdef MASKING
+      USE mod_grid
+#endif
 !
 !  Local variable declarations.
 !
@@ -72,7 +75,7 @@
       integer, intent(in) :: ng, tile
       integer, intent(in) :: LBi, UBi, LBj, UBj
       integer, intent(in) :: IminS, ImaxS, JminS, JmaxS
-      type(fishnode), pointer, intent(in) :: fish0
+      type(fishnode), target, intent(in) :: fish0
 !
 # ifdef ASSUMED_SHAPE
 #  ifdef MASKING

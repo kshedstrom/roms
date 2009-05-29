@@ -1,5 +1,5 @@
 #include "cppdefs.h"
-#if defined NONLINEAR && defined FLOATS && defined NEMURO_SAN
+#if defined NONLINEAR && defined NEMURO_SAN
       SUBROUTINE fish_growth (ng, lflt, itime, track, feedback,         &
      &           bioenergy)
 !
@@ -57,9 +57,9 @@
 !
       integer, intent(in) :: ng, lflt, itime
 
-      real(r8), intent(inout) :: track(NFV(ng),0:NFT,Nfloats(ng))
-      real(r8), intent(inout) :: feedback(NT(ng),Nfloats(ng))
-      real(r8), intent(inout) :: bioenergy(NFishV(ng),Nfloats(ng))
+      real(r8), intent(inout) :: track(NFV(ng),0:NFT,Nfish(ng))
+      real(r8), intent(inout) :: feedback(NBT,Nfish(ng))
+      real(r8), intent(inout) :: bioenergy(NFishV(ng),Nfish(ng))
 !
 !  Local variable declarations.
 !
@@ -72,16 +72,12 @@
       real(r8) :: mmol2g, g2mmol, CAL_ZF, C_max, Uswim, fac
       real(r8) :: K_ZS, K_ZL, K_ZP
       real(r8) :: a_C, b_C, a_F, a_E, a_R, b_R, d_R, a_A, b_A
-!      real(r8) :: Nfish
-!
 !
 !-----------------------------------------------------------------------
 !  Compute feeding terms on zooplankton to update growth
 !-----------------------------------------------------------------------
 !
       dtdays=dt(ng)*sec2day
-!
-!      Nfish=1.0_r8
 !
       mmol2g=1.0_r8
       g2mmol=1.0_r8/mmol2g
@@ -129,7 +125,7 @@
      &                        dtdays*(Csmp-Egst-Excr-Resp)*             &
      &                        bioenergy(ifwwt,lflt)
 !
-      feedback(NT(ng),lflt)=bioenergy(ifwwt,lflt)
+!     feedback(??,lflt)=bioenergy(ifwwt,lflt)
 !
 #else
       SUBROUTINE fish_growth

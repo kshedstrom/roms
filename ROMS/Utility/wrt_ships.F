@@ -55,7 +55,7 @@
       CALL netcdf_put_fvar (ng, iNLM, SHIPname(ng),                     &
      &                      TRIM(Vname(1,idtime)), time(ng:),           &
      &                      (/tSHIPSindx(ng)/), (/1/),                  &
-     &                      ncid = ncSHIPid(ng),                        &
+     &                      ncid = ncSHIPSid(ng),                       &
      &                      varid = shipsVid(idtime,ng))
       IF (exit_flag.ne.NoError) RETURN
 !
@@ -202,19 +202,19 @@
 #  ifdef NEMURO_SAN
 !  Write ships wet weight.
 !
-      DO l=1,Nfloats(ng)
-        IF (SHIPS(ng)%bounded(l)) THEN
-          Tout(l)=SHIPS(ng)%bioenergy(ifwwt,l)
-        ELSE
-          Tout(l)=spval
-        END IF
-      END DO
-      CALL netcdf_put_fvar (ng, iNLM, SHIPname(ng),                     &
-     &                      TRIM(Vname(1,ifwwt)), Tout,                 &
-     &                      (/1,tSHIPSindx(ng)/), (/Nfloats(ng),1/),    &
-     &                      ncid = ncSHIPSid(ng),                       &
-     &                      varid = shipsVid(ifwwt,ng))
-      IF (exit_flag.ne.NoError) RETURN
+!      DO l=1,Nfloats(ng)
+!        IF (SHIPS(ng)%bounded(l)) THEN
+!          Tout(l)=SHIPS(ng)%bioenergy(ifwwt,l)
+!        ELSE
+!          Tout(l)=spval
+!        END IF
+!      END DO
+!      CALL netcdf_put_fvar (ng, iNLM, SHIPname(ng),                     &
+!     &                      TRIM(Vname(1,ifwwt)), Tout,                 &
+!     &                      (/1,tSHIPSindx(ng)/), (/Nfloats(ng),1/),    &
+!     &                      ncid = ncSHIPSid(ng),                       &
+!     &                      varid = shipsVid(ifwwt,ng))
+!      IF (exit_flag.ne.NoError) RETURN
 #  endif
 # endif
 !

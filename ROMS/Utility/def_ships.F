@@ -443,7 +443,7 @@
         CALL wrt_info (ng, iNLM, ncSHIPSid(ng), ncname)
         IF (exit_flag.ne.NoError) RETURN
       END IF DEFINE
-      IF (LdefSHIPS(ng).and.OutThread) THEN
+      IF (LdefFISH(ng).and.OutThread) THEN
         status=nf90_inq_varid(ncSHIPSid(ng),'Ftype',varid)
         status=nf90_put_var(ncSHIPSid(ng), varid, SHIPS(ng)%Ftype)
         IF (status.ne.nf90_noerr) THEN
@@ -616,10 +616,10 @@
 !
 !  Set-up ship time record.
 !
-        IF (shipsrrec(ng).lt.0) THEN
+        IF (fishrrec(ng).lt.0) THEN
           tSHIPSindx(ng)=rec_size
         ELSE
-         tSHIPSindx(ng)=ABS(shipsrrec(ng))
+         tSHIPSindx(ng)=ABS(fishrrec(ng))
         END IF
         NrecSHIPS(ng)=tSHIPSindx(ng)
 !

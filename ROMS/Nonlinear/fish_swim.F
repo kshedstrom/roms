@@ -1,5 +1,5 @@
 #include "cppdefs.h"
-#if defined NONLINEAR && defined FLOATS && defined NEMURO_SAN
+#if defined NONLINEAR && defined NEMURO_SAN
       SUBROUTINE fish_swim (ng, LBi, UBi, LBj, UBj, LBk, UBk,           &
      &                          lflt, itime, nnew,                      &
      &                          diZ, djZ, kZmax,                        &
@@ -75,9 +75,9 @@
       real(r8), intent(in) :: Amask(LBi:UBi,LBj:UBj)
 # endif
       real(r8), intent(in) :: A(LBi:UBi,LBj:UBj,LBk:UBk,3,1:NT(ng))
-      real(r8), intent(in) :: bioenergy(NFishV(ng),Nfloats(ng))
+      real(r8), intent(in) :: bioenergy(NFishV(ng),Nfish(ng))
 
-      real(r8), intent(inout) :: track(NFV(ng),0:NFT,Nfloats(ng))
+      real(r8), intent(inout) :: track(NFV(ng),0:NFT,Nfish(ng))
 !
 !  Local variable declarations.
 !

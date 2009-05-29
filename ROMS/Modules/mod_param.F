@@ -259,7 +259,7 @@
 
 #ifdef BEST_NPZ
 # ifdef BENTHIC
-       integer, parameter, dimension(Ngrids) :: NBL  =  1
+        integer, parameter, dimension(Ngrids) :: NBL  =  1
 # endif
 #endif
 
@@ -327,91 +327,15 @@
 !  Biological tracers parameters.
 !-----------------------------------------------------------------------
 
-# if defined BEST_NPZ
-#  if defined JELLY
-#    if defined IRON_LIMIT
-        integer, parameter :: NBT = 15
-#    else
-        integer, parameter :: NBT = 14
-#    endif
-#  else
-
-#    if defined IRON_LIMIT
-        integer, parameter :: NBT = 14
-#    else
-        integer, parameter :: NBT = 13
-#    endif
-
-#  endif
-# else
-       integer, parameter :: NBT = 0
-#endif       
-#if defined BEST_NPZ    
-# if defined BENTHIC
-        integer,parameter :: NBEN=2
-        integer :: MBT
-        integer, dimension(Ngrids) :: NBeT
-# endif
-# if defined ICE_BIO
-        integer,parameter :: NIB=4
-        integer, dimension(Ngrids) :: NIceT
-
-        integer, dimension(Ngrids) :: NIceLog
-# endif
-
-# ifdef STATIONARY
-      !------------------------------------
-      !3D stationary tracers
-      !------------------------------------
-
-        integer, dimension(Ngrids) :: NTS
-
-        integer, parameter :: NBTS = 16
-
-# endif
-
-# ifdef STATIONARY2
-      !------------------------------------
-      !2D stationary tracers
-      !------------------------------------
-
-        integer, dimension(Ngrids) :: NTS2
-        integer, parameter :: NBTS2 = 8
-# endif
-# ifdef PROD2
-      !------------------------------------
-      !2D producrion tracers (stationary)
-      !------------------------------------
-
-        integer, dimension(Ngrids) :: NPT2
-        integer, parameter :: NBPT2 = 2
-# endif
-# ifdef PROD3
-      !------------------------------------
-      !3D producrion tracers (stationary)
-      !------------------------------------
-
-        integer, dimension(Ngrids) :: NPT3
-#   if defined JELLY
-        integer, parameter :: NBPT3 = 8
-#   else
-        integer, parameter :: NBPT3 = 7
-#   endif
-
-# endif
-       
-#endif
-
-
 # if defined BIO_GOANPZ
-    !-------------------------------------------
-    !One production tracer for each organism box
-    !-------------------------------------------
-    integer, parameter :: NBTS = 7
+!-------------------------------------------
+!One production tracer for each organism box
+!-------------------------------------------
+        integer, parameter :: NBTS = 7
 #   if defined IRON_LIMIT
-       integer, parameter :: NBT = 11
+        integer, parameter :: NBT = 11
 #   else
-       integer, parameter :: NBT = 10
+        integer, parameter :: NBT = 10
 #   endif
 # endif
 !------------------------------------------------------------------
@@ -521,10 +445,83 @@
 #  else
         integer, parameter :: NBT = 11
 #  endif
-# endif
+
+# elif defined BEST_NPZ
+
+#  if defined JELLY
+#   if defined IRON_LIMIT
+        integer, parameter :: NBT = 15
+#   else
+        integer, parameter :: NBT = 14
+#   endif
+#  else
+#   if defined IRON_LIMIT
+        integer, parameter :: NBT = 14
+#   else
+        integer, parameter :: NBT = 13
+#   endif
+#  endif
+# endif       
 #else
         integer, parameter :: NBT = 0
 #endif
+
+# if defined BEST_NPZ    
+#  if defined BENTHIC
+        integer,parameter :: NBEN=2
+        integer :: MBT
+        integer, dimension(Ngrids) :: NBeT
+#  endif
+#  if defined ICE_BIO
+        integer,parameter :: NIB=4
+        integer, dimension(Ngrids) :: NIceT
+
+        integer, dimension(Ngrids) :: NIceLog
+#  endif
+
+#  ifdef STATIONARY
+      !------------------------------------
+      !3D stationary tracers
+      !------------------------------------
+
+        integer, dimension(Ngrids) :: NTS
+
+        integer, parameter :: NBTS = 16
+
+#  endif
+
+#  ifdef STATIONARY2
+      !------------------------------------
+      !2D stationary tracers
+      !------------------------------------
+
+        integer, dimension(Ngrids) :: NTS2
+        integer, parameter :: NBTS2 = 8
+#  endif
+#  ifdef PROD2
+      !------------------------------------
+      !2D producrion tracers (stationary)
+      !------------------------------------
+
+        integer, dimension(Ngrids) :: NPT2
+        integer, parameter :: NBPT2 = 2
+#  endif
+#  ifdef PROD3
+      !------------------------------------
+      !3D producrion tracers (stationary)
+      !------------------------------------
+
+        integer, dimension(Ngrids) :: NPT3
+#   if defined JELLY
+        integer, parameter :: NBPT3 = 8
+#   else
+        integer, parameter :: NBPT3 = 7
+#   endif
+
+#  endif
+       
+# endif
+
 #ifdef NEMURO_SAN
         integer, dimension(Ngrids) :: Nbox
         integer, dimension(Ngrids), parameter :: Numfish=500

@@ -387,15 +387,15 @@
 # ifdef NEMURO_SAN
         integer, parameter :: ifwwt = 1          ! fish wet weight
         integer, parameter :: ifworth = 2        ! fish worth
-	integer, parameter :: ifage = 3          ! age as stage
-	integer, parameter :: ifbday = 4         ! birthday
+        integer, parameter :: ifage = 3          ! age as stage
+        integer, parameter :: ifbday = 4         ! birthday
 ! Species IDs
-	integer, parameter :: if_none = 0
-	integer, parameter :: if_anchovy = 1
-	integer, parameter :: if_sardine = 2
-	integer, parameter :: if_herring = 3
-	integer, parameter :: if_polluck = 4
-	integer, parameter :: if_pinksalmon = 5
+        integer, parameter :: if_none = 0
+        integer, parameter :: if_anchovy = 1
+        integer, parameter :: if_sardine = 2
+        integer, parameter :: if_herring = 3
+        integer, parameter :: if_polluck = 4
+        integer, parameter :: if_pinksalmon = 5
 # endif
 !
 !  Set float tracjectory types:
@@ -1019,6 +1019,7 @@
         integer, dimension(Ngrids) :: NrecITL    ! TLM Initial file
         integer, dimension(Ngrids) :: NrecLCZ    ! Lanczos file
         integer, dimension(Ngrids) :: NrecRST    ! Restart file
+        integer, dimension(Ngrids) :: NrecSHIPS  ! Ships file
         integer, dimension(Ngrids) :: NrecSTA    ! Station file
         integer, dimension(Ngrids) :: NrecTLM    ! Tangent linear file
 
@@ -2598,11 +2599,13 @@
         NrecAVG2(ng)=0
         NrecDIA(ng)=0
         NrecFIL(ng)=0
+        NrecFISH(ng)=0
         NrecFLT(ng)=0
         NrecINI(ng)=0
         NrecITL(ng)=0
         NrecHIS(ng)=0
         NrecRST(ng)=0
+        NrecSHIPS(ng)=0
         NrecSTA(ng)=0
         NrecTLM(ng)=0
 

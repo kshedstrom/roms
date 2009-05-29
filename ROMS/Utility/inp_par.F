@@ -10559,7 +10559,7 @@
      &                                   Fdy(nentry(igrid)+1,igrid),    &
      &                                   Fdz(nentry(igrid)+1,igrid)
               IF (igrid.gt.Ngrids) THEN
-                IF (Master) IF (Lwrite) WRITE (out,40) fposnam
+                IF (Lwrite) WRITE (out,40) fposnam
                 exit_flag=4
                 RETURN
               END IF

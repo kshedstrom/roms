@@ -172,10 +172,10 @@
 # endif
 
 # if defined NEMURO_SAN
-	  type(fishnode), pointer :: fish0
-	  type(fishnode), pointer :: fish_list(:,:)
+          type(fishnode), pointer :: fish0
+          type(fishnode), pointer :: fish_list(:,:)
           integer, pointer :: fish_count(:,:)
-	  type(fishnode), pointer :: ships_list(:,:)
+          type(fishnode), pointer :: ships_list(:,:)
           integer, pointer :: ships_count(:,:)
 
           real(r8), pointer :: spawn_loc(:,:,:)
