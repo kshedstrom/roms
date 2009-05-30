@@ -324,6 +324,11 @@
         integer :: iFeD_              ! Available disolved iron
 # endif
 #endif
+#ifdef NEMURO_SAN
+        integer :: iFloats            ! read_FloatsPar option for floats
+        integer :: iFishes            ! read_FloatsPar option for fish
+        integer :: iShips             ! read_FloatsPar option for ships
+#endif
 #ifdef DIAGNOSTICS
 !
 !-----------------------------------------------------------------------

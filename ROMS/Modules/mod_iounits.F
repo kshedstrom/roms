@@ -64,10 +64,12 @@
 !  aparnam     Input assimilation parameters file name.                !
 !  bparnam     Input biology parameters file name.                     !
 !  fposnam     Input initial floats positions file name.               !
+!  fishposnam  Input initial fish positions file name.                 !
 !  iparnam     Input ice parameters file name.                         !
 !  ioerror     IO error flag.                                          !
 !  ncfile      Current NetCDF file name being processed.               !
 !  nFfiles     Number of forcing files.                                !
+!  shipposnam  Input initial ship positions file name.                 !
 !  sparnam     Input sediment transport parameters file name.          !
 !  sposnam     Input station positions file name.                      !
 !  SourceFile  Current executed file name. It is used for IO error     !
@@ -166,8 +168,10 @@
         character (len=fname_len) :: aparnam
         character (len=fname_len) :: bparnam
         character (len=fname_len) :: fposnam
+        character (len=fname_len) :: fishposnam
         character (len=fname_len) :: iparnam
         character (len=fname_len) :: ncfile
+        character (len=fname_len) :: shipposnam
         character (len=fname_len) :: sparnam
         character (len=fname_len) :: sposnam
         character (len=fname_len) :: varname

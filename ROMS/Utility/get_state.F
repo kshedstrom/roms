@@ -1631,33 +1631,33 @@
 !
 !  Read in spawning locations.
 !
-        IF (get_var(idFspwn)) THEN
-          foundit=find_string(var_name, n_var, TRIM(Vname(1,idFspwn)),  &
-     &                        varid)
-          gtype=var_flag(varid)*r3dvar
-          status=nf_fread3d(ng, IDmod, ncname, ncINPid,                 &
-     &                        Vname(1,idFspwn), varid,                  &
-     &                        InpRec, gtype, Vsize,                     &
-     &                        LBi, UBi, LBj, UBj, 1, Nspecies(ng),      &
-     &                        Fscl, Fmin, Fmax,                         &
+!       IF (get_var(idFspwn)) THEN
+!         foundit=find_string(var_name, n_var, TRIM(Vname(1,idFspwn)),  &
+!    &                        varid)
+!         gtype=var_flag(varid)*r3dvar
+!         status=nf_fread3d(ng, IDmod, ncname, ncINPid,                 &
+!    &                        Vname(1,idFspwn), varid,                  &
+!    &                        InpRec, gtype, Vsize,                     &
+!    &                        LBi, UBi, LBj, UBj, 1, Nspecies(ng),      &
+!    &                        Fscl, Fmin, Fmax,                         &
 # ifdef MASKING
-     &                        GRID(ng) % rmask,                         &
+!    &                        GRID(ng) % rmask,                         &
 # endif
-     &                        OCEAN(ng) % spawn_loc)
-          IF (status.ne.nf90_noerr) THEN
-            IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idFspwn)), InpRec, &
-     &                          TRIM(ncname)
-            END IF
-            exit_flag=2
-            ioerror=status
-            RETURN
-          ELSE
-            IF (Master) THEN
-              WRITE (stdout,100) TRIM(Vname(2,idFspwn)), Fmin, Fmax
-            END IF
-          END IF
-        END IF
+!    &                        OCEAN(ng) % spawn_loc)
+!         IF (status.ne.nf90_noerr) THEN
+!           IF (Master) THEN
+!             WRITE (stdout,30) string, TRIM(Vname(1,idFspwn)), InpRec, &
+!    &                          TRIM(ncname)
+!           END IF
+!           exit_flag=2
+!           ioerror=status
+!           RETURN
+!         ELSE
+!           IF (Master) THEN
+!             WRITE (stdout,100) TRIM(Vname(2,idFspwn)), Fmin, Fmax
+!           END IF
+!         END IF
+!       END IF
 #  endif
 
 #  ifdef ICE_MODEL

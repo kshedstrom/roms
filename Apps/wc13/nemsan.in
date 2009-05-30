@@ -271,7 +271,7 @@
 
 ! NEMURO.SAN: Number of fishes per superindividual, {1.0d0}.
 
-         Nfish == 1.0d0                      ! Nfish
+         Nfishcount == 1.0d0                      ! Nfishcount
 
 ! Lateral, constant, harmonic/biharmonic horizontal diffusion of biological
 ! tracer: [1:NBT,Ngrids].

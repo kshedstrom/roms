@@ -600,6 +600,7 @@
         real(r8), dimension(Ngrids) :: ZSpref        ! nondimensional
         real(r8), dimension(Ngrids) :: ZLpref        ! nondimensional
         real(r8), dimension(Ngrids) :: ZPpref        ! nondimensional
+        real(r8), dimension(Ngrids) :: Nfishcount    ! nondimensional
 #  endif
 # endif
 
