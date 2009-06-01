@@ -3719,7 +3719,8 @@
 #ifdef NO_WRITE_GRID
       IF (ncid.eq.ncSTAid(ng)) THEN
 #else
-      IF (ncid.ne.ncFLTid(ng)) THEN
+      IF (ncid.ne.ncFLTid(ng) .and. ncid.ne.ncFISHid(ng) .and.          &
+     &    ncid.ne.ncSHIPSid(ng)) THEN
 #endif
 # if !(defined SED_MORPH && defined SEDIMENT)
 !

@@ -464,12 +464,16 @@ Hout(idBott) == T T T T T T T T T F F F F F F F
      DIANAME == /dev/null
      STANAME == /dev/null
      FLTNAME == flt.nc
+     FISHNAME == fish.nc
+     SHIPNAME == ships.nc
 
 ! Input ASCII parameter filenames.
 
      APARNAM =  ROMS/External/s4dvar.in
      SPOSNAM =  ROMS/External/stations.in
      FPOSNAM =  Apps/wc13/floats.in
+     FISHPOSNAM =  Apps/wc13/fish.in
+     SHIPPOSNAM =  Apps/wc13/ships.in
      BPARNAM =  Apps/wc13/nemsan.in
      SPARNAM =  ROMS/External/sediment.in
      USRNAME =  ROMS/External/MyFile.dat
