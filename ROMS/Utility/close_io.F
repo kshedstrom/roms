@@ -138,6 +138,16 @@
           CALL netcdf_close (ng, iNLM, ncFLTid(ng))
         END IF
 #endif
+#ifdef NEMURO_SAN
+        IF (ncFISHid(ng).ne.-1) THEN
+          CALL netcdf_close (ng, iNLM, ncFISHid(ng))
+        END IF
+# ifdef FLEET
+        IF (ncSHIPSid(ng).ne.-1) THEN
+          CALL netcdf_close (ng, iNLM, ncSHIPSid(ng))
+        END IF
+# endif
+#endif
 #ifdef STATIONS
         IF (ncSTAid(ng).ne.-1) THEN
           CALL netcdf_close (ng, iNLM, ncSTAid(ng))

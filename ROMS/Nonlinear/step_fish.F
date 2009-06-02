@@ -282,8 +282,8 @@
      &       time(ng)+dt(ng).gt.Tinfo(itstr,l))) THEN
             bioenergy(ifwwt,l)=Fwwt0(ng)
             bioenergy(ifage,l)=0.0_r8
-	    species(l)=if_herring
-	    alive(l)=.false.
+            species(l)=if_herring
+            alive(l)=.false.
         END IF
       END DO
 !
