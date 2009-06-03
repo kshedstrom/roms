@@ -1303,8 +1303,10 @@
             Npts=load_i(Nval, Rval, Ngrids, nSTA)
           ELSE IF (TRIM(KeyWord).eq.'NFLT') THEN
             Npts=load_i(Nval, Rval, Ngrids, nFLT)
-          ELSE IF (TRIM(KeyWord).eq.'NFISHES') THEN
-            Npts=load_i(Nval, Rval, Ngrids, nFISHES)
+          ELSE IF (TRIM(KeyWord).eq.'NFSH') THEN
+            Npts=load_i(Nval, Rval, Ngrids, nFSH)
+          ELSE IF (TRIM(KeyWord).eq.'NSHP') THEN
+            Npts=load_i(Nval, Rval, Ngrids, nSHP)
           ELSE IF (TRIM(KeyWord).eq.'NINFO') THEN
             Npts=load_i(Nval, Rval, Ngrids, ninfo)
           ELSE IF (TRIM(KeyWord).eq.'LDEFOUT') THEN
@@ -2700,9 +2702,13 @@
      &      (nFLT(ng).eq.0)) THEN
           LdefFLT(ng)=.FALSE.
         END IF
-        IF (((nrrec(ng).eq.0).and.(nFISHES(ng).gt.ntimes(ng))).or.         &
-     &      (nFISHES(ng).eq.0)) THEN
+        IF (((nrrec(ng).eq.0).and.(nFSH(ng).gt.ntimes(ng))).or.         &
+     &      (nFSH(ng).eq.0)) THEN
           LdefFISH(ng)=.FALSE.
+        END IF
+        IF (((nrrec(ng).eq.0).and.(nSHP(ng).gt.ntimes(ng))).or.         &
+     &      (nSHP(ng).eq.0)) THEN
+          LdefSHIP(ng)=.FALSE.
         END IF
         IF (((nrrec(ng).eq.0).and.(nHIS(ng).gt.ntimes(ng))).or.         &
      &      (nHIS(ng).eq.0)) THEN
@@ -2819,9 +2825,12 @@
      &          'into floats file.'
 #endif
 #ifdef NEMURO_SAN
-          WRITE (out,130) nFISHES(ng), 'nFISHES',                       &
+          WRITE (out,130) nFSH(ng), 'nFSH',                             &
      &          'Number of timesteps between the writing of data',      &
      &          'into fish file.'
+          WRITE (out,130) nSHP(ng), 'nSHP',                             &
+     &          'Number of timesteps between the writing of data',      &
+     &          'into ship file.'
 #endif
           WRITE (out,170) ldefout(ng), 'ldefout',                       &
      &          'Switch to create a new output NetCDF file(s).'

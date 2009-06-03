@@ -455,7 +455,7 @@
 !  If appropriate, process fish NetCDF file.
 !-----------------------------------------------------------------------
 !
-      IF (Nfish(ng).gt.0.and.(nFISHES(ng).gt.0)) THEN
+      IF (Nfish(ng).gt.0.and.(nFSH(ng).gt.0)) THEN
 !
 !  Create output fish NetCDF file or prepare existing file to
 !  append new data to it.
@@ -474,7 +474,7 @@
 !
 !  Write out data into fish NetCDF file.
 !
-        IF ((MOD(iic(ng)-1,nFISHES(ng)).eq.0).and.                      &
+        IF ((MOD(iic(ng)-1,nFSH(ng)).eq.0).and.                      &
      &      ((fishrrec(ng).eq.0).or.(iic(ng).ne.ntstart(ng)))) THEN
           CALL wrt_fish (ng)
           CALL wrt_ships (ng)

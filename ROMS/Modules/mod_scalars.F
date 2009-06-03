@@ -1003,7 +1003,8 @@
         integer, dimension(Ngrids) :: nAVG2      ! Average file
         integer, dimension(Ngrids) :: nDIA       ! Diagnostics file
         integer, dimension(Ngrids) :: nFLT       ! Floats file
-        integer, dimension(Ngrids) :: nFISHES    ! Fish file
+        integer, dimension(Ngrids) :: nFSH       ! Fish file
+        integer, dimension(Ngrids) :: nSHP       ! Ships file
         integer, dimension(Ngrids) :: nHIS       ! History file
         integer, dimension(Ngrids) :: nRST       ! Restart file
         integer, dimension(Ngrids) :: nSTA       ! Stations file
