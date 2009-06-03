@@ -44,7 +44,7 @@
 !
 !  Local variable declarations.
 !
-      integer, parameter :: Natt = 24
+      integer, parameter :: Natt = 25
 
       logical :: got_var(-6:NV)
 
