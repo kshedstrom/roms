@@ -129,7 +129,9 @@
 # ifdef NEMURO_SAN
       USE step_fish_mod, ONLY : step_fish
       USE fish_by_cell_mod, ONLY : fish_by_cell
+#  ifdef FLEET
       USE ships_by_cell_mod, ONLY : ships_by_cell
+#  endif
 # endif
       USE wvelocity_mod, ONLY : wvelocity
 !
@@ -707,7 +709,9 @@
           subs=NtileX(ng)*NtileE(ng)/numthreads
           DO tile=subs*thread,subs*(thread+1)-1,+1
             CALL fish_by_cell (ng, TILE)
+#  ifdef FLEET
             CALL ships_by_cell (ng, TILE)
+#  endif
           END DO
         END DO
 !$OMP END PARALLEL DO
