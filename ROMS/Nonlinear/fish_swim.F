@@ -167,18 +167,18 @@
       djZ=Uswim*REAL(JrMax-Jr)*pn(Ir,Jr)
 !
 ! If present cell is best location, swim against currents to stay
-      IF ((diZ.eq.0.0_r8).and.(djZ.eq.0.0_r8)) THEN
-        IF (track(ixrhs,itime,lflt).ge.0.0_r8) THEN
-          diZ=-MIN(Uswim*pm(Ir,Jr),track(ixrhs,itime,lflt))
-        ELSE
-          diZ=MIN(Uswim*pm(Ir,Jr),-track(ixrhs,itime,lflt))
-        END IF
-        IF (track(iyrhs,itime,lflt).ge.0.0_r8) THEN
-          djZ=-MIN(Uswim*pn(Ir,Jr),track(iyrhs,itime,lflt))
-        ELSE
-          djZ=MIN(Uswim*pn(Ir,Jr),-track(iyrhs,itime,lflt))
-        END IF
-      END IF
+!     IF ((diZ.eq.0.0_r8).and.(djZ.eq.0.0_r8)) THEN
+!       IF (track(ixrhs,itime,lflt).ge.0.0_r8) THEN
+!         diZ=-MIN(Uswim*pm(Ir,Jr),track(ixrhs,itime,lflt))
+!       ELSE
+!         diZ=MIN(Uswim*pm(Ir,Jr),-track(ixrhs,itime,lflt))
+!       END IF
+!       IF (track(iyrhs,itime,lflt).ge.0.0_r8) THEN
+!         djZ=-MIN(Uswim*pn(Ir,Jr),track(iyrhs,itime,lflt))
+!       ELSE
+!         djZ=MIN(Uswim*pn(Ir,Jr),-track(iyrhs,itime,lflt))
+!       END IF
+!     END IF
 !
 ! k index of cell with max food to move fish in step_float
       kZmax=KrMax
