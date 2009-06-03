@@ -22,10 +22,6 @@
       USE mod_netcdf
       USE mod_scalars
       USE mod_stepping
-
-# ifdef DISTRIBUTE
-      USE distribute_mod, ONLY : mp_bcasti
-# endif
 !
       implicit none
 !
@@ -38,6 +34,8 @@
       integer :: itrc, l, status
 
       real(r8), dimension(Nfish(ng)) :: Tout
+!
+      SourceFile='wrt_fish.F'
 !
 !-----------------------------------------------------------------------
 !  Write out station data at RHO-points.
@@ -202,18 +200,18 @@
 #  ifdef NEMURO_SAN
 !  Write fish wet weight.
 !
-      DO l=1,Nfloats(ng)
+      DO l=1,Nfish(ng)
         IF (FISHES(ng)%bounded(l)) THEN
           Tout(l)=FISHES(ng)%bioenergy(ifwwt,l)
         ELSE
           Tout(l)=spval
         END IF
       END DO
-      CALL netcdf_put_fvar (ng, iNLM, FISHname(ng),                      &
-     &                      TRIM(Vname(1,ifwwt)), Tout,                 &
-     &                      (/1,tFISHindx(ng)/), (/Nfloats(ng),1/),      &
-     &                      ncid = ncFISHid(ng),                         &
-     &                      varid = fishVid(ifwwt,ng))
+      CALL netcdf_put_fvar (ng, iNLM, FISHname(ng),                     &
+     &                      TRIM(Vname(1,idfwwt)), Tout,                &
+     &                      (/1,tFISHindx(ng)/), (/Nfish(ng),1/),       &
+     &                      ncid = ncFISHid(ng),                        &
+     &                      varid = fishVid(idfwwt,ng))
       IF (exit_flag.ne.NoError) RETURN
 #  endif
 # endif
@@ -223,7 +221,6 @@
 !-----------------------------------------------------------------------
 !
       CALL netcdf_sync (ng, iNLM, FISHname(ng), ncFISHid(ng))
-      IF (exit_flag.ne.NoError) RETURN
 !
 #else
       SUBROUTINE wrt_fish

@@ -1,5 +1,5 @@
 #include "cppdefs.h"
-#ifdef NEMURO_SAN
+#if defined NEMURO_SAN && defined FLEET
       SUBROUTINE wrt_ships (ng)
 !
 !svn $Id: wrt_ships.F 975 2009-05-05 22:51:13Z kate $
@@ -22,10 +22,6 @@
       USE mod_netcdf
       USE mod_scalars
       USE mod_stepping
-
-# ifdef DISTRIBUTE
-      USE distribute_mod, ONLY : mp_bcasti
-# endif
 !
       implicit none
 !
@@ -39,8 +35,10 @@
 
       real(r8), dimension(Nships(ng)) :: Tout
 !
+      SourceFile='wrt_ships.F'
+!
 !-----------------------------------------------------------------------
-!  Write out station data at RHO-points.
+!  Write out ship data at RHO-points.
 !-----------------------------------------------------------------------
 !
       IF (exit_flag.ne.NoError) RETURN
@@ -202,7 +200,7 @@
 #  ifdef NEMURO_SAN
 !  Write ships wet weight.
 !
-!      DO l=1,Nfloats(ng)
+!      DO l=1,Nships(ng)
 !        IF (SHIPS(ng)%bounded(l)) THEN
 !          Tout(l)=SHIPS(ng)%bioenergy(ifwwt,l)
 !        ELSE
@@ -210,10 +208,10 @@
 !        END IF
 !      END DO
 !      CALL netcdf_put_fvar (ng, iNLM, SHIPname(ng),                     &
-!     &                      TRIM(Vname(1,ifwwt)), Tout,                 &
-!     &                      (/1,tSHIPSindx(ng)/), (/Nfloats(ng),1/),    &
+!     &                      TRIM(Vname(1,idfwwt)), Tout,                &
+!     &                      (/1,tSHIPSindx(ng)/), (/Nships(ng),1/),     &
 !     &                      ncid = ncSHIPSid(ng),                       &
-!     &                      varid = shipsVid(ifwwt,ng))
+!     &                      varid = shipsVid(idfwwt,ng))
 !      IF (exit_flag.ne.NoError) RETURN
 #  endif
 # endif
@@ -223,7 +221,6 @@
 !-----------------------------------------------------------------------
 !
       CALL netcdf_sync (ng, iNLM, SHIPname(ng), ncSHIPSid(ng))
-      IF (exit_flag.ne.NoError) RETURN
 !
 #else
       SUBROUTINE wrt_ships
