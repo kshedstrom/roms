@@ -35,32 +35,32 @@
 !                                                                             !
 !==============================================================================
 !
-! Switch to control the computation of floats tracjectories within nested
+! Switch to control the computation of ship trajectories within nested
 ! and/or multiple connected grids, [1:Ngrids].
 !
-     Lfloats == T
+     Lships == T
 
-! Flag indicating re-start from previous solution. If FRREC = 0, a new
+! Flag indicating re-start from previous solution. If SHIPRREC = 0, a new
 ! NetCDF output file is created.
 
-       FRREC == 0
+       SHIPRREC == 0
 
 ! Number of stations to process in each nested grid.  These values are
-! essential because the FLOATS structure in "mod_floast" is dynamically
+! essential because the SHIPS structure in "mod_ships" is dynamically
 ! allocated using these values, [1:Ngrids].
 
-     NFLOATS == 36
+     NSHIPS == 36
 
-! Initial floats locations for all grids:
+! Initial ship locations for all grids:
 !
 !   G      Nested grid number
 !   C      Initial horizontal coordinate type (0: grid units, 1: spherical)
 !   T      Float trajectory type (1: neutral 3D Lagrangian, 2:isobaric)
-!   N      Number floats to be releazed at (Fx0,Fy0,Fz0)
+!   N      Number ships to be releazed at (Fx0,Fy0,Fz0)
 !   Ft0    Float release time (days) after model initialization
-!   Fx0    Initial float X-location (grid units or longitude)
-!   Fy0    Initial float Y-location (grid units or latitude)
-!   Fz0    Initial float Z-location (grid units or depth)
+!   Fx0    Initial ship X-location (grid units or longitude)
+!   Fy0    Initial ship Y-location (grid units or latitude)
+!   Fz0    Initial ship Z-location (grid units or depth)
 !   Fdt    Float cluster release time interval (days)
 !   Fdx    Float cluster X-distribution parameter
 !   Fdy    Float cluster Y-distribution parameter
@@ -72,8 +72,8 @@ POS = G, C, T, N,   Ft0,    Fx0,    Fy0,    Fz0,    Fdt,    Fdx,    Fdy,   Fdz
 1 0 2 1   0.0  41  11 30 0.0 0 0 0
 1 0 2 1   0.0  40  12 30 0.0 0 0 0
 1 0 2 1   0.0  39  13 30 0.0 0 0 0
-1 0 2 1   150.0  38  14 30 0.0 0 0 0
-1 0 2 1   150.0  37  15 30 0.0 0 0 0
+1 0 2 1   0.0  38  14 30 0.0 0 0 0
+1 0 2 1   0.0  37  15 30 0.0 0 0 0
 1 0 2 1   150.0  37  16 30 0.0 0 0 0
 1 0 2 1   150.0  36  17 30 0.0 0 0 0
 1 0 2 1   150.0  35  18 30 0.0 0 0 0
@@ -109,37 +109,37 @@ POS = G, C, T, N,   Ft0,    Fx0,    Fy0,    Fz0,    Fdt,    Fdx,    Fdy,   Fdz
 !  GLOSSARY:
 !  =========
 !
-!  This input file provides the initial locations of the float trajectories
+!  This input file provides the initial locations of the ship trajectories
 !  to compute.
 !
 !------------------------------------------------------------------------------
 ! Control Switches.
 !------------------------------------------------------------------------------
 !
-! Lfloats   Switch to control the computation of floats tracjectories within 
+! Lships    Switch to control the computation of ship tracjectories within 
 !             nested and/or multiple connected grids. Ngrids values are
 !             expected. By default this switch is set to TRUE in "mod_scalars"
-!             for all grids when the CPP option FLOATS is activacted. The
+!             for all grids when the CPP option FLEET is activacted. The
 !             USER can control which grid to process by turning on/off this
 !             switch.
 !
-! FRREC     Flag to indicate re-start from a previous solution.  Use
-!             FRREC=0 for new solutions. In a re-start solution, FRREC
-!             is the time index in the floats NetCDF file assigned for
-!             initialization.  If FRREC is negative (said NRREC=-1), the
-!             floats will re-start from the most recent time record.
+! SHIPRREC  Flag to indicate re-start from a previous solution.  Use
+!             SHIPRREC=0 for new solutions. In a re-start solution,
+!             SHIPRREC is the time index in the ships NetCDF file assigned
+!             for initialization.  If SHIPRREC is negative (said NRREC=-1),
+!             the ships will re-start from the most recent time record.
 !             That is, the initialization record is assigned internally.
 !
 !------------------------------------------------------------------------------
-! Number of floats.
+! Number of ships.
 !------------------------------------------------------------------------------
 !
-!  NFLOATS   Number of floats to release in each nested grid.  Provide
-!              the exact number of floats.  These values are used to
-!              dynamically allocate the arrays in FLOATS array structure.
+!  NSHIPS    Number of ships to release in each nested grid.  Provide
+!              the exact number of ships.  These values are used to
+!              dynamically allocate the arrays in SHIPS array structure.
 !
 !------------------------------------------------------------------------------
-! Initial float location KEYWORDS.  The model variable name is not used as
+! Initial ship location KEYWORDS.  The model variable name is not used as
 ! keyword in some parameters.  However, it namce is provided in brackets.
 !------------------------------------------------------------------------------
 !
@@ -156,25 +156,25 @@ POS = G, C, T, N,   Ft0,    Fx0,    Fy0,    Fz0,    Fdt,    Fdx,    Fdy,   Fdz
 !
 !  T         Float trajectory type [Ftype]:
 !
-!              Ftype = 1,  neutral density 3D Lagrangian particles.
+!              Ftype = 1,  one-day trippers.
 !
-!              Ftype = 2,  isobaric (constant depth) floats.
+!              Ftype = 2,  ten-day trippers.
 !
-!  N         Number of floats [Fcount] to be released at the (Fx0,Fy0,Fz0)
+!  N         Number of ships [Fcount] to be released at the (Fx0,Fy0,Fz0)
 !              location.  It must be equal or greater than one. If Fcount
-!              is greater than one, a cluster distribution of floats
+!              is greater than one, a cluster distribution of ships
 !              centered at (Fx0,Fy0,Fz0) is activated.
 !
-!              NOTE:  The total number of floats trajectories to compute
-!              ====   must add to NFLOATS. 
+!              NOTE:  The total number of ship trajectories to compute
+!              ====   must add to NSHIPS. 
 !
-!  Ft0       Time (days) of float release after model initialization .
+!  Ft0       Time (days) of ship release after model initialization .
 !
-!  Fx0       Initial float x-location (real; grid units or longitude).
+!  Fx0       Initial ship x-location (real; grid units or longitude).
 !
-!  Fy0       Initial float y-location (real; grid units or latitude).
+!  Fy0       Initial ship y-location (real; grid units or latitude).
 !
-!  Fz0       Initial float z-location (real; vertical level or depth).
+!  Fz0       Initial ship z-location (real; vertical level or depth).
 !              If Fz0 is less or equal than zero, Fz0 is the initial
 !              depth in meters.  Otherwise, if Fz0 is positive and
 !
@@ -184,19 +184,19 @@ POS = G, C, T, N,   Ft0,    Fx0,    Fy0,    Fz0,    Fdt,    Fdx,    Fdy,   Fdz
 !              (0 = bottom; N = surface).
 !
 !              WARNING: If the depth in meters at particular horizontal
-!                       is not bounded, the floats are released at the
+!                       is not bounded, the ships are released at the
 !                       surface.
 !
 !  Fdt       Float cluster release time interval (real; days), only used
 !              if Fcount > 1:
 !
-!              Fdt = 0,  Fcount floats will be deployed simulataneously
+!              Fdt = 0,  Fcount ships will be deployed simulataneously
 !                        with a distribution centered at (Fx0,Fy0,Fz0)
 !                        and defined by (Fdx,Fdy,Fdz).
 !
-!              Fdt > 0,  a cluster of floats will be deployed from
+!              Fdt > 0,  a cluster of ships will be deployed from
 !                        (Fx0,Fy0,Fz0) at Fdt intervals until Fcount
-!                        floats are released.
+!                        ships are released.
 !
 !  Fdx       Cluster x-distribution parameter (real), only used if
 !              Fcount > 1 and Fdt = 0.
@@ -210,11 +210,11 @@ POS = G, C, T, N,   Ft0,    Fx0,    Fy0,    Fz0,    Fdt,    Fdx,    Fdy,   Fdz
 !            NOTE:  the parameters (Fdx,Fdy,Fdz) can be used to specify
 !            ====   any type of cluster distribution, for instance:
 !
-!                   * Lines of floats:
+!                   * Lines of ships:
 !
 !                         Fdx > 0,  Fdy = 0,  Fdz = 0
 !                         Fdx = 0,  Fdy > 0,  Fdz = 0
 !                         Fdx = 0,  Fdy = 0,  Fdz > 0
 !
 !             The USER can use any of these parameters to design any
-!             cluster distribution in routine "init_floats.F".
+!             cluster distribution in routine "init_ships.F".

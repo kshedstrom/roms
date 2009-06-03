@@ -87,6 +87,7 @@
 #  undef  RAILSBACK
 #  define HUMSTON
 #  define FISH_FEEDBACK
+#  define FLEET
 # endif
 # define BIO_SEDIMENT
 # define HOLLING_GRAZING

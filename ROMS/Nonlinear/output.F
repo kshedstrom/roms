@@ -467,7 +467,9 @@
             NewFile=.FALSE.
           END IF
           CALL def_fish (ng, NewFile)
+# ifdef FLEET
           CALL def_ships (ng, NewFile)
+# endif
           IF (exit_flag.ne.NoError) RETURN
           LdefFISH(ng)=.FALSE.
         END IF

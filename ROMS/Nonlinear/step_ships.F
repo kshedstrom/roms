@@ -1,6 +1,6 @@
 #include "cppdefs.h"
       MODULE step_ships_mod
-#if defined NONLINEAR && defined NEMURO_SAN
+#if defined NONLINEAR && defined NEMURO_SAN && defined FLEET
 !
 !svn $Id: step_ships.F 975 2009-05-05 22:51:13Z kate $
 !================================================== Hernan G. Arango ===

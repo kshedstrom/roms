@@ -118,7 +118,7 @@
       real(r8), intent(inout) :: bioenergy(NFishV(ng),Nfish(ng))
       integer, intent(inout) :: species(Nfish(ng))
       logical, intent(inout) :: alive(Nfish(ng))
-      real(r8), intent(inout) :: track(NFishV(ng),0:NFT,Nfish(ng))
+      real(r8), intent(inout) :: track(NFV(ng),0:NFT,Nfish(ng))
 # endif
 !
 !  Local variable declarations.
@@ -274,19 +274,6 @@
         nudg(l)=0.0_r8
       END DO
 !
-!  If newly released floats, initialize fish weight
-!
-      DO l=Lstr,Lend
-        IF (MyThread(l).and.bounded(l).and.                             &
-     &      (time(ng)-dt(ng).le.Tinfo(itstr,l).and.                     &
-     &       time(ng)+dt(ng).gt.Tinfo(itstr,l))) THEN
-            bioenergy(ifwwt,l)=Fwwt0(ng)
-            bioenergy(ifage,l)=0.0_r8
-	    species(l)=if_herring
-	    alive(l)=.false.
-        END IF
-      END DO
-!
 !-----------------------------------------------------------------------
 !  Predictor step: compute first guess fish locations using a
 !                  4th-order Milne time-stepping scheme.
@@ -306,7 +293,8 @@
      &                        GRID(ng) % rmask(LBi,LBj),                &
 #  endif
      &                        OCEAN(ng) % t,                            &
-     &                        track(1,0,1))
+     &                        track(1,0,1),                             &
+     &                        bioenergy)
 
           track(ixgrd,nfp1,l)=track(ixgrd,nfm3,l)+                      &
      &                dt(ng)*(cff1*(track(ixrhs,nf  ,l)+diZoo)-         &
@@ -500,7 +488,8 @@
      &                        GRID(ng) % rmask(LBi,LBj),                &
 #  endif
      &                        OCEAN(ng) % t,                            &
-     &                        track(1,0,1))
+     &                        track(1,0,1),                             &
+     &                        bioenergy)
 !
           track(ixgrd,nfp1,l)=cff1*track(ixgrd,nf  ,l)-                 &
      &                        cff2*track(ixgrd,nfm2,l)+                 &
@@ -758,6 +747,13 @@
               track(izgrd,j,l)=Tinfo(izgrd,l)
 #  endif
             END DO
+!
+!  If newly released floats, initialize fish weight
+!
+            bioenergy(ifwwt,l)=Fwwt0(ng)
+            bioenergy(ifage,l)=0.0_r8
+            species(l)=if_herring
+            alive(l)=.false.
             MyThread(l)=.TRUE.
           ELSE
             MyThread(l)=.FALSE.
@@ -776,6 +772,13 @@
             track(izgrd,j,l)=Tinfo(izgrd,l)
 #  endif
           END DO
+!
+!  If newly released floats, initialize fish weight
+!
+          bioenergy(ifwwt,l)=Fwwt0(ng)
+          bioenergy(ifage,l)=0.0_r8
+          species(l)=if_herring
+          alive(l)=.false.
 # endif
         END IF
       END DO

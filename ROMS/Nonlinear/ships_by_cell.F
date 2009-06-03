@@ -1,6 +1,6 @@
 #include "cppdefs.h"
       MODULE ships_by_cell_mod
-#ifdef NEMURO_SAN
+#if defined NEMURO_SAN && defined FLEET
 !
 !svn $Id: wetdry.F 975 2009-05-05 22:51:13Z kate $
 !=======================================================================
