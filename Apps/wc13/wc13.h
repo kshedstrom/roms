@@ -84,8 +84,8 @@
 #ifdef NEMURO
 # define NEMURO_SAN
 # ifdef NEMURO_SAN
-#  undef  RAILSBACK
-#  define HUMSTON
+#  define RAILSBACK
+#  undef  HUMSTON
 #  define FISH_FEEDBACK
 #  define FLEET
 # endif

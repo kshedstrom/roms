@@ -133,14 +133,18 @@
 # endif
       logical, dimension(Lstr:Lend) :: MyThread
 
+      logical :: Fswim = .FALSE.
+
       integer :: LBi, UBi, LBj, UBj
       integer :: Ir, Jr, Npts, i, i1, i2, j, j1, j2, itrc, l, k
+      integer :: NptsF
 
       real(r8), parameter :: Fspv = 0.0_r8
 
       real(r8) :: cff1, cff2, cff3, cff4, cff5, cff6, cff7, cff8, cff9
       real(r8) :: p1, p2, q1, q2, xrhs, yrhs, zrhs, zfloat
-      real(r8) :: diZoo, djZoo
+      real(r8) :: diSwim, djSwim
+      real(r8) :: tspawn
       integer :: kZmax
 
 # ifdef FLOAT_VWALK
@@ -152,7 +156,9 @@
 
 # ifdef DISTRIBUTE
       real(r8) :: Xstr, Xend, Ystr, Yend
-      real(r8), dimension(Nfish(ng)*NFishV(ng)*(NFT+1)) :: Fwrk
+      real(r8), dimension(Nfish(ng)*NFV(ng)*(NFT+1)) :: Fwrk
+      real(r8), dimension(Nfish(ng)*NFishV(ng)) :: FwrkF
+
 # endif
 !
 ! Set tile array bounds.
@@ -177,7 +183,9 @@
 ! carried-out, setting Fspv to zero means the fish only contribute in
 ! their own tile.
 !
-      Npts=NFishV(ng)*(NFT+1)*Nfish(ng)
+      Npts=NFV(ng)*(NFT+1)*Nfish(ng)
+      NptsF=NFishV(ng)*Nfish(ng)
+
 
       Xstr=REAL(BOUNDS(ng)%Istr(MyRank),r8)-0.5_r8
       Xend=REAL(BOUNDS(ng)%Iend(MyRank),r8)+0.5_r8
@@ -194,9 +202,12 @@
           MyThread(l)=.TRUE.
         ELSE
           DO j=0,NFT
-            DO i=1,NFishV(ng)
+            DO i=1,NFV(ng)
               track(i,j,l)=Fspv
             END DO
+          END DO
+          DO i=1,NFishV(ng)
+            bioenergy(i,l)=Fspv
           END DO
         END IF
       END DO
@@ -285,28 +296,38 @@
       cff2=4.0_r8/3.0_r8
       DO l=Lstr,Lend
         IF (MyThread(l).and.bounded(l)) THEN
-          CALL fish_swim (ng, LBi, UBi, LBj, UBj, 1, N(ng),             &
-     &                        l, nf, nnew,                              &
-     &                        diZoo, djZoo, kZmax,                      &
-     &                        GRID(ng) % pm(LBi,LBj),                   &
-     &                        GRID(ng) % pn(LBi,LBj),                   &
-     &                        GRID(ng) % Hz(LBi,LBj,1),                 &
+          IF (alive(l)) THEN
+            Fswim=.FALSE.
+            CALL fish_swim (ng, LBi, UBi, LBj, UBj, 1, N(ng),           &
+     &                          l, nf, nnew,                            &
+     &                          diSwim, djSwim, kZmax, Fswim,           &
+     &                          GRID(ng) % pm(LBi,LBj),                 &
+     &                          GRID(ng) % pn(LBi,LBj),                 &
+     &                          GRID(ng) % Hz(LBi,LBj,1),               &
 #  ifdef MASKING
-     &                        GRID(ng) % rmask(LBi,LBj),                &
+     &                          GRID(ng) % rmask(LBi,LBj),              &
 #  endif
-     &                        OCEAN(ng) % t,                            &
-     &                        track(1,0,1),                             &
-     &                        bioenergy)
-
-          track(ixgrd,nfp1,l)=track(ixgrd,nfm3,l)+                      &
-     &                dt(ng)*(cff1*(track(ixrhs,nf  ,l)+diZoo)-         &
-     &                        cff2*(track(ixrhs,nfm1,l)+diZoo)+         &
-     &                        cff1*(track(ixrhs,nfm2,l)+diZoo))
-          track(iygrd,nfp1,l)=track(iygrd,nfm3,l)+                      &
-     &                dt(ng)*(cff1*(track(iyrhs,nf  ,l)+djZoo)-         &
-     &                        cff2*(track(iyrhs,nfm1,l)+djZoo)+         &
-     &                        cff1*(track(iyrhs,nfm2,l)+djZoo))
-
+     &                          OCEAN(ng) % t,                          &
+     &                          track(1,0,1),                           &
+     &                          bioenergy)
+!
+            IF (Fswim) THEN
+              track(ixgrd,nfp1,l)=track(ixgrd,nfm3,l)+                  &
+     &                    dt(ng)*(cff1*diSwim-cff2*diSwim+cff1*diSwim)
+              track(iygrd,nfp1,l)=track(iygrd,nfm3,l)+                  &
+     &                    dt(ng)*(cff1*diSwim-cff2*diSwim+cff1*diSwim)
+            ELSE
+              track(ixgrd,nfp1,l)=track(ixgrd,nfm3,l)+                  &
+     &                    dt(ng)*(cff1*track(ixrhs,nf  ,l)-             &
+     &                            cff2*track(ixrhs,nfm1,l)+             &
+     &                            cff1*track(ixrhs,nfm2,l))
+              track(iygrd,nfp1,l)=track(iygrd,nfm3,l)+                  &
+     &                    dt(ng)*(cff1*track(iyrhs,nf  ,l)-             &
+     &                            cff2*track(iyrhs,nfm1,l)+             &
+     &                            cff1*track(iyrhs,nfm2,l))
+            END IF
+          END IF
+!
 # if defined SOLVE3D && !defined FLOAT_VWALK
 !
 !  Compute vertical position (grid units) 3D Lagrangian fish.
@@ -398,7 +419,7 @@
      &                                  cff2*track(izrhs,nfm1,l)+       &
      &                                  cff1*track(izrhs,nfm2,l))
           END IF
-          track(izgrd,nfp1,l)=REAL(kZmax,r8)
+          IF (Fswim) track(izgrd,nfp1,l)=REAL(kZmax,r8)
 # endif
         END IF
       END DO
@@ -480,30 +501,41 @@
       cff4=6.0_r8/8.0_r8
       DO l=Lstr,Lend
         IF (MyThread(l).and.bounded(l)) THEN
-          CALL fish_swim (ng, LBi, UBi, LBj, UBj, 1, N(ng),             &
-     &                        l, nfp1, nnew,                            &
-     &                        diZoo, djZoo, kZmax,                      &
-     &                        GRID(ng) % pm(LBi,LBj),                   &
-     &                        GRID(ng) % pn(LBi,LBj),                   &
-     &                        GRID(ng) % Hz(LBi,LBj,1),                 &
+          IF (alive(l)) THEN
+            CALL fish_swim (ng, LBi, UBi, LBj, UBj, 1, N(ng),           &
+     &                          l, nfp1, nnew,                          &
+     &                          diSwim, djSwim, kZmax, Fswim,           &
+     &                          GRID(ng) % pm(LBi,LBj),                 &
+     &                          GRID(ng) % pn(LBi,LBj),                 &
+     &                          GRID(ng) % Hz(LBi,LBj,1),               &
 #  ifdef MASKING
-     &                        GRID(ng) % rmask(LBi,LBj),                &
+     &                          GRID(ng) % rmask(LBi,LBj),              &
 #  endif
-     &                        OCEAN(ng) % t,                            &
-     &                        track(1,0,1),                             &
-     &                        bioenergy)
+     &                          OCEAN(ng) % t,                          &
+     &                          track(1,0,1),                           &
+     &                          bioenergy)
 !
-          track(ixgrd,nfp1,l)=cff1*track(ixgrd,nf  ,l)-                 &
-     &                        cff2*track(ixgrd,nfm2,l)+                 &
-     &                dt(ng)*(cff3*(track(ixrhs,nfp1,l)+diZoo)+         &
-     &                        cff4*(track(ixrhs,nf  ,l)+diZoo)-         &
-     &                        cff3*(track(ixrhs,nfm1,l)+diZoo))
-          track(iygrd,nfp1,l)=cff1*track(iygrd,nf  ,l)-                 &
-     &                        cff2*track(iygrd,nfm2,l)+                 &
-     &                dt(ng)*(cff3*(track(iyrhs,nfp1,l)+djZoo)+         &
-     &                        cff4*(track(iyrhs,nf  ,l)+djZoo)-         &
-     &                        cff3*(track(iyrhs,nfm1,l)+djZoo))
-
+            IF (Fswim) THEN
+              track(ixgrd,nfp1,l)=cff1*track(ixgrd,nf  ,l)-             &
+     &                            cff2*track(ixgrd,nfm2,l)+             &
+     &                    dt(ng)*(cff3*diSwim+cff4*diSwim-cff3*diSwim)
+              track(iygrd,nfp1,l)=cff1*track(iygrd,nf  ,l)-             &
+     &                            cff2*track(iygrd,nfm2,l)+             &
+     &                    dt(ng)*(cff3*djSwim+cff4*djSwim-cff3*djSwim)
+            ELSE
+              track(ixgrd,nfp1,l)=cff1*track(ixgrd,nf  ,l)-             &
+     &                            cff2*track(ixgrd,nfm2,l)+             &
+     &                    dt(ng)*(cff3*track(ixrhs,nfp1,l)+             &
+     &                            cff4*track(ixrhs,nf  ,l)-             &
+     &                            cff3*track(ixrhs,nfm1,l))
+              track(iygrd,nfp1,l)=cff1*track(iygrd,nf  ,l)-             &
+     &                            cff2*track(iygrd,nfm2,l)+             &
+     &                    dt(ng)*(cff3*track(iyrhs,nfp1,l)+             &
+     &                            cff4*track(iyrhs,nf  ,l)-             &
+     &                            cff3*track(iyrhs,nfm1,l))
+            END IF
+          END IF
+!
 # if defined SOLVE3D && !defined FLOAT_VWALK
 !
 !  Compute vertical position (grid units) 3D Lagrangian fish.
@@ -597,7 +629,7 @@
      &                                  cff4*track(izrhs,nf  ,l)-       &
      &                                  cff3*track(izrhs,nfm1,l))
           END IF
-          track(izgrd,nfp1,l)=REAL(kZmax,r8)
+          IF (Fswim) track(izgrd,nfp1,l)=REAL(kZmax,r8)
 # endif
         END IF
       END DO
@@ -629,7 +661,7 @@
       IF (NtileI(ng).gt.1) THEN
         Fwrk=RESHAPE(track,(/Npts/))
         CALL mp_collect (ng, iNLM, Npts, Fspv, Fwrk)
-        track=RESHAPE(Fwrk,(/NFishV(ng),NFT+1,Nfish(ng)/))
+        track=RESHAPE(Fwrk,(/NFV(ng),NFT+1,Nfish(ng)/))
         DO l=Lstr,Lend
           IF ((Xstr.le.track(ixgrd,nfp1,l)).and.                        &
      &        (track(ixgrd,nfp1,l).lt.Xend).and.                        &
@@ -641,9 +673,12 @@
           ELSE
             MyThread(l)=.FALSE.
             DO j=0,NFT
-              DO i=1,NFishV(ng)
+              DO i=1,NFV(ng)
                 track(i,j,l)=Fspv
               END DO
+            END DO
+            DO i=1,NFishV(ng)
+              bioenergy(i,l)=Fspv
             END DO
           END IF
         END DO
@@ -682,7 +717,7 @@
       IF (NtileJ(ng).gt.1) THEN
         Fwrk=RESHAPE(track,(/Npts/))
         CALL mp_collect (ng, iNLM, Npts, Fspv, Fwrk)
-        track=RESHAPE(Fwrk,(/NFishV(ng),NFT+1,Nfish(ng)/))
+        track=RESHAPE(Fwrk,(/NFV(ng),NFT+1,Nfish(ng)/))
         DO l=Lstr,Lend
           IF ((Xstr.le.track(ixgrd,nfp1,l)).and.                        &
      &        (track(ixgrd,nfp1,l).lt.Xend).and.                        &
@@ -694,9 +729,12 @@
           ELSE
             MyThread(l)=.FALSE.
             DO j=0,NFT
-              DO i=1,NFishV(ng)
+              DO i=1,NFV(ng)
                 track(i,j,l)=Fspv
               END DO
+            END DO
+            DO i=1,NFishV(ng)
+                bioenergy(i,l)=Fspv
             END DO
           END IF
         END DO
@@ -755,14 +793,17 @@
             bioenergy(ifwwt,l)=Fwwt0(ng)
             bioenergy(ifage,l)=0.0_r8
             species(l)=if_herring
-            alive(l)=.false.
+            alive(l)=.TRUE.
             MyThread(l)=.TRUE.
           ELSE
             MyThread(l)=.FALSE.
             DO j=0,NFT
-              DO i=1,NFishV(ng)
+              DO i=1,NFV(ng)
                 track(i,j,l)=Fspv
               END DO
+            END DO
+            DO i=1,NFishV(ng)
+                bioenergy(i,l)=Fspv
             END DO
           END IF
 # else
@@ -780,7 +821,7 @@
           bioenergy(ifwwt,l)=Fwwt0(ng)
           bioenergy(ifage,l)=0.0_r8
           species(l)=if_herring
-          alive(l)=.false.
+          alive(l)=.TRUE.
 # endif
         END IF
       END DO
@@ -972,12 +1013,16 @@
      &                      OCEAN(ng) % t(LBi,LBj,1,nnew,itrc),         &
      &                      MyThread, bounded, track(1,0,1))
       END DO
+!
       DO l=Lstr,Lend
         IF (MyThread(l).and.bounded(l)) THEN
-          CALL fish_growth (ng, l, nfp1, track(1,0,1), feedback,        &
-     &                      bioenergy)
+          IF (alive(l)) THEN
+            CALL fish_growth (ng, l, nfp1, track(1,0,1), feedback, &
+     &                        bioenergy)
+          ENDIF
         ENDIF
       ENDDO
+!
 # endif
 # ifdef DISTRIBUTE
 !
@@ -987,7 +1032,10 @@
 !
       Fwrk=RESHAPE(track,(/Npts/))
       CALL mp_collect (ng, iNLM, Npts, Fspv, Fwrk)
-      track=RESHAPE(Fwrk,(/NFishV(ng),NFT+1,Nfish(ng)/))
+      track=RESHAPE(Fwrk,(/NFV(ng),NFT+1,Nfish(ng)/))
+      FwrkF=RESHAPE(bioenergy,(/NptsF/))
+      CALL mp_collect (ng, iNLM, NptsF, Fspv, FwrkF)
+      bioenergy=RESHAPE(FwrkF,(/NFishV(ng),Nfish(ng)/))
 !
 !  Collect the bounded status switch.
 !

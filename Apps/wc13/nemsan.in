@@ -253,17 +253,17 @@
 
          FeRR == 0.5d0                           ! FeRR 
 
-! NEMURO.SAN: Fish initial wet weight [g], {0.2d0}.
+! NEMURO.SAN: Fish initial wet weight [g], {2.0d0}.
 
-         Fwwt0 == 200.0d0                          ! Fwwt0
+         Fwwt0 == 2.0d0                          ! Fwwt0
 
 ! NEMURO.SAN: Fish preference for ZS, {0.5d0}.
 
-         ZSpref == 0.0d0                         ! ZSpref
+         ZSpref == 1.0d0                         ! ZSpref
 
 ! NEMURO.SAN: Fish preference for ZL, {1.0d0}.
 
-         ZLpref == 0.5d0                         ! ZLpref
+         ZLpref == 1.0d0                         ! ZLpref
 
 ! NEMURO.SAN: Fish preference for ZP, {0.5d0}.
 

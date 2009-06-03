@@ -105,7 +105,7 @@
       real(r8), intent(inout) :: Fz0(Nships(ng))
 
       logical, intent(inout) :: bounded(Nships(ng))
-      real(r8), intent(inout) :: track(NFishV(ng),0:NFT,Nships(ng))
+      real(r8), intent(inout) :: track(NFV(ng),0:NFT,Nships(ng))
 # endif
 !
 !  Local variable declarations.
@@ -137,7 +137,7 @@
 
 # ifdef DISTRIBUTE
       real(r8) :: Xstr, Xend, Ystr, Yend
-      real(r8), dimension(Nships(ng)*NFishV(ng)*(NFT+1)) :: Fwrk
+      real(r8), dimension(Nships(ng)*NFV(ng)*(NFT+1)) :: Fwrk
 # endif
 !
 ! Set tile array bounds.
@@ -155,15 +155,14 @@
 ! master node.
 !-----------------------------------------------------------------------
 !
-! The strategy here is to build a switch that processes only the
-ships
+! The strategy here is to build a switch that processes only the ships
 ! contained within the node bounds. The trajectory data for the new
 ! time-level (nfp1) is initialized to Fspv. These values are used during
 ! recombining step at the end of the routine.  Since a SUM reduction is
 ! carried-out, setting Fspv to zero means the ships only contribute in
 ! their own tile.
 !
-      Npts=NFishV(ng)*(NFT+1)*Nships(ng)
+      Npts=NFV(ng)*(NFT+1)*Nships(ng)
 
       Xstr=REAL(BOUNDS(ng)%Istr(MyRank),r8)-0.5_r8
       Xend=REAL(BOUNDS(ng)%Iend(MyRank),r8)+0.5_r8
@@ -180,7 +179,7 @@ ships
           MyThread(l)=.TRUE.
         ELSE
           DO j=0,NFT
-            DO i=1,NFishV(ng)
+            DO i=1,NFV(ng)
               track(i,j,l)=Fspv
             END DO
           END DO
@@ -624,7 +623,7 @@ ships
       IF (NtileI(ng).gt.1) THEN
         Fwrk=RESHAPE(track,(/Npts/))
         CALL mp_collect (ng, iNLM, Npts, Fspv, Fwrk)
-        track=RESHAPE(Fwrk,(/NFishV(ng),NFT+1,Nships(ng)/))
+        track=RESHAPE(Fwrk,(/NFV(ng),NFT+1,Nships(ng)/))
         DO l=Lstr,Lend
           IF ((Xstr.le.track(ixgrd,nfp1,l)).and.                        &
      &        (track(ixgrd,nfp1,l).lt.Xend).and.                        &
@@ -636,7 +635,7 @@ ships
           ELSE
             MyThread(l)=.FALSE.
             DO j=0,NFT
-              DO i=1,NFishV(ng)
+              DO i=1,NFV(ng)
                 track(i,j,l)=Fspv
               END DO
             END DO
@@ -677,7 +676,7 @@ ships
       IF (NtileJ(ng).gt.1) THEN
         Fwrk=RESHAPE(track,(/Npts/))
         CALL mp_collect (ng, iNLM, Npts, Fspv, Fwrk)
-        track=RESHAPE(Fwrk,(/NFishV(ng),NFT+1,Nships(ng)/))
+        track=RESHAPE(Fwrk,(/NFV(ng),NFT+1,Nships(ng)/))
         DO l=Lstr,Lend
           IF ((Xstr.le.track(ixgrd,nfp1,l)).and.                        &
      &        (track(ixgrd,nfp1,l).lt.Xend).and.                        &
@@ -689,7 +688,7 @@ ships
           ELSE
             MyThread(l)=.FALSE.
             DO j=0,NFT
-              DO i=1,NFishV(ng)
+              DO i=1,NFV(ng)
                 track(i,j,l)=Fspv
               END DO
             END DO
@@ -748,7 +747,7 @@ ships
           ELSE
             MyThread(l)=.FALSE.
             DO j=0,NFT
-              DO i=1,NFishV(ng)
+              DO i=1,NFV(ng)
                 track(i,j,l)=Fspv
               END DO
             END DO
@@ -962,7 +961,7 @@ ships
 !
       Fwrk=RESHAPE(track,(/Npts/))
       CALL mp_collect (ng, iNLM, Npts, Fspv, Fwrk)
-      track=RESHAPE(Fwrk,(/NFishV(ng),NFT+1,Nships(ng)/))
+      track=RESHAPE(Fwrk,(/NFV(ng),NFT+1,Nships(ng)/))
 !
 !  Collect the bounded status switch.
 !

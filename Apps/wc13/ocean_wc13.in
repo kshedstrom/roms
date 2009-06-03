@@ -42,12 +42,12 @@
 
 ! C-preprocessing Flag, default configuration.
 
-    MyAppCPP = WC13-NEMURO
+    MyAppCPP = WC13-NEMSAN
 
 ! Input variable information file name.  This file needs to be processed
 ! first so all information arrays can be initialized properly.
 
-     VARNAME = Apps/wc13/varinfo.dat
+     VARNAME = varinfo.dat
 
 ! Grid dimension parameters. See notes below in the Glossary for how to set
 ! these parameters correctly.
@@ -428,13 +428,13 @@ Hout(idBott) == T T T T T T T T T F F F F F F F
 
 ! Input NetCDF file names, [1:Ngrids].
 
-     GRDNAME == Apps/wc13/wc13_grd.nc
-     ININAME == Apps/wc13/wc13_rst_20000101.nc
+     GRDNAME == /home/fiechter/NemFish/WC13_Test/wc13_grd.nc
+     ININAME == /home/fiechter/NemFish/WC13_Test/wc13_rst_20000101.nc
      ITLNAME == /dev/null
      IRPNAME == /dev/null
      IADNAME == /dev/null
      CLMNAME == /dev/null
-     BRYNAME == Apps/wc13/wc13_bry_ecco.nc
+     BRYNAME == /home/fiechter/NemFish/WC13_Test/wc13_bry_ecco.nc
      FWDNAME == /dev/null
      ADSNAME == /dev/null
 
@@ -450,7 +450,7 @@ Hout(idBott) == T T T T T T T T T F F F F F F F
 
      NFFILES == 1                          ! number of forcing files
 
-     FRCNAME == Apps/wc13/wc13_frc_COADS.nc
+     FRCNAME == /home/fiechter/NemFish/WC13_Test/wc13_frc_COADS.nc
 
 ! Output NetCDF file names, [1:Ngrids].
 
@@ -471,10 +471,10 @@ Hout(idBott) == T T T T T T T T T F F F F F F F
 
      APARNAM =  ROMS/External/s4dvar.in
      SPOSNAM =  ROMS/External/stations.in
-     FPOSNAM =  Apps/wc13/floats.in
-     FISHPOSNAM =  Apps/wc13/fish.in
-     SHIPPOSNAM =  Apps/wc13/ships.in
-     BPARNAM =  Apps/wc13/nemsan.in
+     FPOSNAM =  floats.in
+     FISHPOSNAM =  fish.in
+     SHIPPOSNAM =  ships.in
+     BPARNAM =  nemsan.in
      SPARNAM =  ROMS/External/sediment.in
      USRNAME =  ROMS/External/MyFile.dat
 
