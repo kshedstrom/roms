@@ -39,8 +39,6 @@
 !
       USE mod_param
       USE mod_fish
-      USE fish_growth_mod
-      USE fish_swim_mod
       USE mod_stepping
 !
 !  Imported variable declarations.
@@ -88,6 +86,8 @@
       USE mod_ocean
       USE mod_scalars
       USE mod_biology
+      USE fish_growth_mod
+      USE fish_swim_mod
 !
 # ifdef DISTRIBUTE
       USE distribute_mod, ONLY : mp_collect

@@ -2730,10 +2730,10 @@
      &      (nFSH(ng).eq.0)) THEN
           LdefFISH(ng)=.FALSE.
         END IF
-        IF (((nrrec(ng).eq.0).and.(nSHP(ng).gt.ntimes(ng))).or.         &
-     &      (nSHP(ng).eq.0)) THEN
-          LdefSHIP(ng)=.FALSE.
-        END IF
+!       IF (((nrrec(ng).eq.0).and.(nSHP(ng).gt.ntimes(ng))).or.         &
+!    &      (nSHP(ng).eq.0)) THEN
+!         LdefSHIP(ng)=.FALSE.
+!       END IF
         IF (((nrrec(ng).eq.0).and.(nHIS(ng).gt.ntimes(ng))).or.         &
      &      (nHIS(ng).eq.0)) THEN
           LdefHIS(ng)=.FALSE.
