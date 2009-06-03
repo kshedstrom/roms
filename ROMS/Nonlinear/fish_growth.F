@@ -1,7 +1,6 @@
 #include "cppdefs.h"
+      MODULE fish_growth_mod
 #if defined NONLINEAR && defined NEMURO_SAN
-      SUBROUTINE fish_growth (ng, lflt, itime, track, feedback,         &
-     &           bioenergy)
 !
 !svn $Id: interp_floats.F 294 2009-01-09 21:37:26Z arango $
 !================================================== Hernan G. Arango ===
@@ -45,13 +44,23 @@
 !     bioenergy  Bioenergetic fish fields.                             !
 !                                                                      !
 !=======================================================================
+
+      implicit none
+
+      PRIVATE
+      PUBLIC  :: fish_growth
+
+      CONTAINS
+!
+!***********************************************************************
+      SUBROUTINE fish_growth (ng, lflt, itime, track, feedback,         &
+     &           bioenergy)
+!***********************************************************************
 !
       USE mod_param
       USE mod_ncparam
       USE mod_scalars
       USE mod_biology
-!
-      implicit none
 !
 !  Imported variable declarations.
 !
@@ -127,8 +136,7 @@
 !
 !     feedback(??,lflt)=bioenergy(ifwwt,lflt)
 !
-#else
-      SUBROUTINE fish_growth
-#endif
       RETURN
       END SUBROUTINE fish_growth
+#endif
+      END MODULE fish_growth_mod

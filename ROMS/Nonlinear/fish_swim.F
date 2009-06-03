@@ -1,16 +1,6 @@
 #include "cppdefs.h"
+      MODULE fish_swim_mod
 #if defined NONLINEAR && defined NEMURO_SAN
-      SUBROUTINE fish_swim (ng, LBi, UBi, LBj, UBj, LBk, UBk,           &
-     &                          lflt, itime, nnew,                      &
-     &                          diZ, djZ, kZmax,                        &
-     &                          pm, pn,                                 &
-# ifdef SOLVE3D
-     &                          Hz,                                     &
-# endif
-# ifdef MASKING
-     &                          Amask,                                  &
-# endif
-     &                          A, track, bioenergy)
 !
 !svn $Id: interp_floats.F 294 2009-01-09 21:37:26Z arango $
 !================================================== Hernan G. Arango ===
@@ -52,13 +42,32 @@
 !     track      Interpolated field: track(ifield,itime,:).            !
 !                                                                      !
 !=======================================================================
+
+      implicit none
+
+      PRIVATE
+      PUBLIC  :: fish_swim
+
+      CONTAINS
+!
+!***********************************************************************
+      SUBROUTINE fish_swim (ng, LBi, UBi, LBj, UBj, LBk, UBk,           &
+     &                          lflt, itime, nnew,                      &
+     &                          diZ, djZ, kZmax,                        &
+     &                          pm, pn,                                 &
+# ifdef SOLVE3D
+     &                          Hz,                                     &
+# endif
+# ifdef MASKING
+     &                          Amask,                                  &
+# endif
+     &                          A, track, bioenergy)
+!***********************************************************************
 !
       USE mod_param
       USE mod_ncparam
       USE mod_scalars
       USE mod_biology
-!
-      implicit none
 !
 !  Imported variable declarations.
 !
@@ -183,8 +192,7 @@
 ! k index of cell with max food to move fish in step_float
       kZmax=KrMax
 !
-#else
-      SUBROUTINE fish_swim
-#endif
       RETURN
       END SUBROUTINE fish_swim
+#endif
+      END MODULE fish_swim_mod

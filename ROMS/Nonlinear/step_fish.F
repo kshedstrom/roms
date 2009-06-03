@@ -39,6 +39,8 @@
 !
       USE mod_param
       USE mod_fish
+      USE fish_growth_mod
+      USE fish_swim_mod
       USE mod_stepping
 !
 !  Imported variable declarations.
@@ -972,7 +974,8 @@
       END DO
       DO l=Lstr,Lend
         IF (MyThread(l).and.bounded(l)) THEN
-          CALL fish_growth (ng, l, nfp1, track(1,0,1), feedback(1,1))
+          CALL fish_growth (ng, l, nfp1, track(1,0,1), feedback,        &
+     &                      bioenergy)
         ENDIF
       ENDDO
 # endif
