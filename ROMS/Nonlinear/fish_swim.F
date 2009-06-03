@@ -168,19 +168,17 @@
         CALL ran1_s (snudg)
         fac=2.0_r8*(snudg-0.5_r8)
 !
-        d_i=(REAL(IrMax)-track(ixgrd,itime,lflt))*pm(Ir,Jr)
-        d_j=(REAL(JrMax)-track(iygrd,itime,lflt))*pn(Ir,Jr)
+        d_i=REAL(IrMax,r8)-track(ixgrd,itime,lflt)
+        d_j=REAL(JrMax,r8)-track(iygrd,itime,lflt)
 ! Angle with +-0.5 radians randomness
         theta_ij=atan2(d_j,d_i)+0.5_r8*fac
-        theta_ij=theta_ij+0.5_r8*fac
 ! Distance with 30% randomness
-        d_ij=(d_i**2+d_j**2)**0.5_r8
-        d_ij=d_ij+0.3_r8*fac*d_ij
+        d_ij=1.0_r8+0.3_r8*fac
 !
 ! Swim towards best location
 ! Uswim is in cm/s, so multiply by 0.01 for m/s)
-        diS=0.01_r8*Uswim*d_ij*cos(theta_ij)
-        djS=0.01_r8*Uswim*d_ij*sin(theta_ij)
+        diS=0.01_r8*Uswim*d_ij*cos(theta_ij)*pm(Ir,Jr)
+        djS=0.01_r8*Uswim*d_ij*sin(theta_ij)*pn(Ir,Jr)
 ! k index of cell with max food to move fish in step_float
         kZmax=KrMax
 !
