@@ -138,9 +138,9 @@
 ! MISSING HERE: CELL SEARCH RANDOMIZATION
 !
         scoreMax=-99.0_r8
-        IrMax=0
-        JrMax=0
-        KrMax=0
+        IrMax=Ir
+        JrMax=Jr
+        KrMax=Kr
         DO j=Jr-1,Jr+1
           DO i=Ir-1,Ir+1
             DO k=1,N(ng)
