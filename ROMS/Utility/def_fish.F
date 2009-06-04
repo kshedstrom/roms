@@ -684,7 +684,7 @@
      &                        start = (/1,tFISHindx(ng)/),              &
      &                        total = (/Nfish(ng),1/))
         DO l=1,Nfish(ng)
-          FISHES(ng)%bioenergy(l)=Tinp(l)
+          FISHES(ng)%bioenergy(ifwwt,l)=Tinp(l)
         END DO
 
         IF (exit_flag.ne.NoError) RETURN

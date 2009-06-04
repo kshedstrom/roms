@@ -88,6 +88,7 @@
       USE mod_biology
       USE fish_growth_mod
       USE fish_swim_mod
+      USE interp_floats_mod
 !
 # ifdef DISTRIBUTE
       USE distribute_mod, ONLY : mp_collect
@@ -228,28 +229,28 @@
       END DO
 
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 0, N(ng),             &
-     &                    Lstr, Lend, nf, ifakt,                        &
+     &                    Lstr, Lend, nf, ifakt, Nfish(ng),             &
      &                    w3dvar, Lmask, nudg,                          &
-     &                    GRID(ng) % pm(LBi,LBj),                       &
-     &                    GRID(ng) % pn(LBi,LBj),                       &
-     &                    GRID(ng) % Hz(LBi,LBj,1),                     &
+     &                    GRID(ng) % pm,                                &
+     &                    GRID(ng) % pn,                                &
+     &                    GRID(ng) % Hz,                                &
 # ifdef MASKING
-     &                    GRID(ng) % rmask(LBi,LBj),                    &
+     &                    GRID(ng) % rmask,                             &
 # endif
-     &                    MIXING(ng) % Akt(LBi,LBj,0,1),                &
-     &                    MyThread, bounded, track(1,0,1))
+     &                    MIXING(ng) % Akt(:,:,:,itemp),                &
+     &                    MyThread, bounded, track)
 
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, N(ng),             &
-     &                    Lstr, Lend, nf, ifdak,                        &
+     &                    Lstr, Lend, nf, ifdak, Nfish(ng),             &
      &                    r3dvar, Lmask, nudg,                          &
-     &                    GRID(ng) % pm(LBi,LBj),                       &
-     &                    GRID(ng) % pn(LBi,LBj),                       &
-     &                    GRID(ng) % Hz(LBi,LBj,1),                     &
+     &                    GRID(ng) % pm,                                &
+     &                    GRID(ng) % pn,                                &
+     &                    GRID(ng) % Hz,                                &
 # ifdef MASKING
-     &                    GRID(ng) % rmask(LBi,LBj),                    &
+     &                    GRID(ng) % rmask,                             &
 # endif
-     &                    MIXING(ng) % dAktdz(LBi,LBj,1),               &
-     &                    MyThread, bounded, track(1,0,1))
+     &                    MIXING(ng) % dAktdz,                          &
+     &                    MyThread, bounded, track)
 
       CALL nrng (iseed, nudg(Lstr:Lend), Lend-Lstr+1, ierr)
       DO l=Lstr,Lend
@@ -262,16 +263,16 @@
       END DO
 
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 0, N(ng),             &
-     &                    Lstr, Lend, nf, izrhs,                        &
+     &                    Lstr, Lend, nf, izrhs, Nfish(ng),             &
      &                    -w3dvar, Lmask, nudg,                         &
-     &                    GRID(ng) % pm(LBi,LBj),                       &
-     &                    GRID(ng) % pn(LBi,LBj),                       &
-     &                    GRID(ng) % Hz(LBi,LBj,1),                     &
+     &                    GRID(ng) % pm,                                &
+     &                    GRID(ng) % pn,                                &
+     &                    GRID(ng) % Hz,                                &
 # ifdef MASKING
-     &                    GRID(ng) % rmask(LBi,LBj),                    &
+     &                    GRID(ng) % rmask,                             &
 # endif
-     &                    OCEAN(ng) % W(LBi,LBj,0),                     &
-     &                    MyThread, bounded, track(1,0,1))
+     &                    OCEAN(ng) % W,                                &
+     &                    MyThread, bounded, track)
 !
 !  For now, use a forward time step for vertical position.
 !
@@ -301,15 +302,14 @@
             CALL fish_swim (ng, LBi, UBi, LBj, UBj, 1, N(ng),           &
      &                          l, nf, nnew,                            &
      &                          diSwim, djSwim, kZmax, Fswim,           &
-     &                          GRID(ng) % pm(LBi,LBj),                 &
-     &                          GRID(ng) % pn(LBi,LBj),                 &
-     &                          GRID(ng) % Hz(LBi,LBj,1),               &
-#  ifdef MASKING
-     &                          GRID(ng) % rmask(LBi,LBj),              &
-#  endif
+     &                          GRID(ng) % pm,                          &
+     &                          GRID(ng) % pn,                          &
+     &                          GRID(ng) % Hz,                          &
+# ifdef MASKING
+     &                          GRID(ng) % rmask,                       &
+# endif
      &                          OCEAN(ng) % t(:,:,:,nnew,:),            &
-     &                          track(1,0,1),                           &
-     &                          bioenergy)
+     &                          track, bioenergy)
 !
             IF (Fswim) THEN
               track(ixgrd,nfp1,l)=track(ixgrd,nfm3,l)+                  &
@@ -430,64 +430,65 @@
 !
 # ifdef SOLVE3D
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, N(ng),             &
-     &                    Lstr, Lend, nfp1, ixrhs,                      &
+     &                    Lstr, Lend, nfp1, ixrhs, Nfish(ng),           &
      &                    -u3dvar, Lmask, nudg,                         &
-     &                    GRID(ng) % pm(LBi,LBj),                       &
-     &                    GRID(ng) % pn(LBi,LBj),                       &
-     &                    GRID(ng) % Hz(LBi,LBj,1),                     &
-#  ifdef MASKING
-     &                    GRID(ng) % rmask(LBi,LBj),                    &
-#  endif
-     &                    OCEAN(ng) % u(LBi,LBj,1,nnew),                &
-     &                    MyThread, bounded, track(1,0,1))
+     &                    GRID(ng) % pm,                                &
+     &                    GRID(ng) % pn,                                &
+     &                    GRID(ng) % Hz,                                &
+# ifdef MASKING
+     &                    GRID(ng) % rmask,                             &
+# endif
+     &                    OCEAN(ng) % u(:,:,:,nnew),                    &
+     &                    MyThread, bounded, track)
 
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, N(ng),             &
-     &                    Lstr, Lend, nfp1, iyrhs,                      &
+     &                    Lstr, Lend, nfp1, iyrhs, Nfish(ng),           &
      &                    -v3dvar, Lmask, nudg,                         &
-     &                    GRID(ng) % pm(LBi,LBj),                       &
-     &                    GRID(ng) % pn(LBi,LBj),                       &
-     &                    GRID(ng) % Hz(LBi,LBj,1),                     &
-#  ifdef MASKING
-     &                    GRID(ng) % rmask(LBi,LBj),                    &
-#  endif
-     &                    OCEAN(ng) % v(LBi,LBj,1,nnew),                &
-     &                    MyThread, bounded, track(1,0,1))
+     &                    GRID(ng) % pm,                                &
+     &                    GRID(ng) % pn,                                &
+     &                    GRID(ng) % Hz,                                &
+# ifdef MASKING
+     &                    GRID(ng) % rmask,                             &
+# endif
+     &                    OCEAN(ng) % v(:,:,:,nnew),                    &
+     &                    MyThread, bounded, track)
 
 #  if !defined FLOAT_VWALK
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 0, N(ng),             &
-     &                    Lstr, Lend, nfp1, izrhs,                      &
+     &                    Lstr, Lend, nfp1, izrhs, Nfish(ng),           &
      &                    -w3dvar, Lmask, nudg,                         &
-     &                    GRID(ng) % pm(LBi,LBj),                       &
-     &                    GRID(ng) % pn(LBi,LBj),                       &
-     &                    GRID(ng) % Hz(LBi,LBj,1),                     &
-#   ifdef MASKING
-     &                    GRID(ng) % rmask(LBi,LBj),                    &
-#   endif
-     &                    OCEAN(ng) % W(LBi,LBj,0),                     &
-     &                    MyThread, bounded, track(1,0,1))
+     &                    GRID(ng) % pm,                                &
+     &                    GRID(ng) % pn,                                &
+     &                    GRID(ng) % Hz,                                &
+# ifdef MASKING
+     &                    GRID(ng) % rmask,                             &
+# endif
+     &                    OCEAN(ng) % W,                                &
+     &                    MyThread, bounded, track)
 #  endif
 # else
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,                 &
-     &                    Lstr, Lend, nfp1, ixrhs,                      &
+     &                    Lstr, Lend, nfp1, ixrhs, Nfish(ng),           &
      &                    -u2dvar, Lmask, nudg,                         &
-     &                    GRID(ng) % pm(LBi,LBj),                       &
-     &                    GRID(ng) % pn(LBi,LBj),                       &
-#  ifdef MASKING
-     &                    GRID(ng) % rmask(LBi,LBj),                    &
-#  endif
-     &                    OCEAN(ng) % ubar(LBi,LBj,knew),               &
-     &                    MyThread, bounded, track(1,0,1))
+     &                    GRID(ng) % pm,                                &
+     &                    GRID(ng) % pn,                                &
+# ifdef MASKING
+     &                    GRID(ng) % rmask,                             &
+# endif
+     &                    OCEAN(ng) % ubar(:,:,knew),                   &
+     &                    MyThread, bounded, track)
 
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,                 &
-     &                    Lstr, Lend, nfp1, iyrhs,                      &
+     &                    Lstr, Lend, nfp1, iyrhs, Nfish(ng),           &
      &                    -v2dvar, Lmask, nudg,                         &
-     &                    GRID(ng) % pm(LBi,LBj),                       &
-     &                    GRID(ng) % pn(LBi,LBj),                       &
-#  ifdef MASKING
-     &                    GRID(ng) % rmask(LBi,LBj),                    &
-#  endif
-     &                    OCEAN(ng) % vbar(LBi,LBj,knew),               &
-     &                    MyThread, bounded, track(1,0,1))
+     &                    GRID(ng) % pm,                                &
+     &                    GRID(ng) % pn,                                &
+     &                    GRID(ng) % Hz,                                &
+# ifdef MASKING
+     &                    GRID(ng) % rmask,                             &
+# endif
+     &                    OCEAN(ng) % vbar(:,:,knew),                   &
+     &                    MyThread, bounded, track)
 # endif
 !
 !-----------------------------------------------------------------------
@@ -505,15 +506,14 @@
             CALL fish_swim (ng, LBi, UBi, LBj, UBj, 1, N(ng),           &
      &                          l, nfp1, nnew,                          &
      &                          diSwim, djSwim, kZmax, Fswim,           &
-     &                          GRID(ng) % pm(LBi,LBj),                 &
-     &                          GRID(ng) % pn(LBi,LBj),                 &
-     &                          GRID(ng) % Hz(LBi,LBj,1),               &
-#  ifdef MASKING
-     &                          GRID(ng) % rmask(LBi,LBj),              &
-#  endif
+     &                          GRID(ng) % pm,                          &
+     &                          GRID(ng) % pn,                          &
+     &                          GRID(ng) % Hz,                          &
+# ifdef MASKING
+     &                          GRID(ng) % rmask,                       &
+# endif
      &                          OCEAN(ng) % t(:,:,:,nnew,:),            &
-     &                          track(1,0,1),                           &
-     &                          bioenergy)
+     &                          track, bioenergy)
 !
             IF (Fswim) THEN
               track(ixgrd,nfp1,l)=cff1*track(ixgrd,nf  ,l)-             &
@@ -832,64 +832,64 @@
 !
 # ifdef SOLVE3D
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, N(ng),             &
-     &                    Lstr, Lend, nfp1, ixrhs,                      &
+     &                    Lstr, Lend, nfp1, ixrhs, Nfish(ng),           &
      &                    -u3dvar, Lmask, nudg,                         &
-     &                    GRID(ng) % pm(LBi,LBj),                       &
-     &                    GRID(ng) % pn(LBi,LBj),                       &
-     &                    GRID(ng) % Hz(LBi,LBj,1),                     &
-#  ifdef MASKING
-     &                    GRID(ng) % rmask(LBi,LBj),                    &
-#  endif
-     &                    OCEAN(ng) % u(LBi,LBj,1,nnew),                &
-     &                    MyThread, bounded, track(1,0,1))
+     &                    GRID(ng) % pm,                                &
+     &                    GRID(ng) % pn,                                &
+     &                    GRID(ng) % Hz,                                &
+# ifdef MASKING
+     &                    GRID(ng) % rmask,                             &
+# endif
+     &                    OCEAN(ng) % u(:,:,:,nnew),                    &
+     &                    MyThread, bounded, track)
 
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, N(ng),             &
-     &                    Lstr, Lend, nfp1, iyrhs,                      &
+     &                    Lstr, Lend, nfp1, iyrhs, Nfish(ng),           &
      &                    -v3dvar, Lmask, nudg,                         &
-     &                    GRID(ng) % pm(LBi,LBj),                       &
-     &                    GRID(ng) % pn(LBi,LBj),                       &
-     &                    GRID(ng) % Hz(LBi,LBj,1),                     &
-#  ifdef MASKING
-     &                    GRID(ng) % rmask(LBi,LBj),                    &
-#  endif
-     &                    OCEAN(ng) % v(LBi,LBj,1,nnew),                &
-     &                    MyThread, bounded, track(1,0,1))
+     &                    GRID(ng) % pm,                                &
+     &                    GRID(ng) % pn,                                &
+     &                    GRID(ng) % Hz,                                &
+# ifdef MASKING
+     &                    GRID(ng) % rmask,                             &
+# endif
+     &                    OCEAN(ng) % v(:,:,:,nnew),                    &
+     &                    MyThread, bounded, track)
 
 #  if !defined FLOAT_VWALK
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 0, N(ng),             &
-     &                    Lstr, Lend, nfp1, izrhs,                      &
+     &                    Lstr, Lend, nfp1, izrhs, Nfish(ng),           &
      &                    -w3dvar, Lmask, nudg,                         &
-     &                    GRID(ng) % pm(LBi,LBj),                       &
-     &                    GRID(ng) % pn(LBi,LBj),                       &
-     &                    GRID(ng) % Hz(LBi,LBj,1),                     &
-#   ifdef MASKING
-     &                    GRID(ng) % rmask(LBi,LBj),                    &
-#   endif
-     &                    OCEAN(ng) % W(LBi,LBj,0),                     &
-     &                    MyThread, bounded, track(1,0,1))
+     &                    GRID(ng) % pm,                                &
+     &                    GRID(ng) % pn,                                &
+     &                    GRID(ng) % Hz,                                &
+# ifdef MASKING
+     &                    GRID(ng) % rmask,                             &
+# endif
+     &                    OCEAN(ng) % W,                                &
+     &                    MyThread, bounded, track)
 #  endif
 # else
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,                 &
-     &                    Lstr, Lend, nfp1, ixrhs,                      &
+     &                    Lstr, Lend, nfp1, ixrhs, Nfish(ng),           &
      &                    -u2dvar, Lmask, nudg,                         &
-     &                    GRID(ng) % pm(LBi,LBj),                       &
-     &                    GRID(ng) % pn(LBi,LBj),                       &
-#  ifdef MASKING
-     &                    GRID(ng) % rmask(LBi,LBj),                    &
-#  endif
-     &                    OCEAN(ng) % ubar(LBi,LBj,knew),               &
-     &                    MyThread, bounded, track(1,0,1))
+     &                    GRID(ng) % pm,                                &
+     &                    GRID(ng) % pn,                                &
+# ifdef MASKING
+     &                    GRID(ng) % rmask,                             &
+# endif
+     &                    OCEAN(ng) % ubar(:,:,knew),                   &
+     &                    MyThread, bounded, track)
 
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,                 &
-     &                    Lstr, Lend, nfp1, iyrhs,                      &
+     &                    Lstr, Lend, nfp1, iyrhs, Nfish(ng),           &
      &                    -v2dvar, Lmask, nudg,                         &
-     &                    GRID(ng) % pm(LBi,LBj),                       &
-     &                    GRID(ng) % pn(LBi,LBj),                       &
-#  ifdef MASKING
-     &                    GRID(ng) % rmask(LBi,LBj),                    &
-#  endif
-     &                    OCEAN(ng) % vbar(LBi,LBj,knew),               &
-     &                    MyThread, bounded, track(1,0,1))
+     &                    GRID(ng) % pm,                                &
+     &                    GRID(ng) % pn,                                &
+# ifdef MASKING
+     &                    GRID(ng) % rmask,                             &
+# endif
+     &                    OCEAN(ng) % vbar(:,:,knew),                   &
+     &                    MyThread, bounded, track)
 # endif
 !
 !  If newly released fish, initialize slopes at all time levels.
@@ -919,105 +919,105 @@
 !
       IF (spherical) THEN
         CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,               &
-     &                      Lstr, Lend, nfp1, iflon,                    &
+     &                      Lstr, Lend, nfp1, iflon, Nfish(ng),         &
      &                      r2dvar, Gmask, nudg,                        &
-     &                      GRID(ng) % pm(LBi,LBj),                     &
-     &                      GRID(ng) % pn(LBi,LBj),                     &
+     &                      GRID(ng) % pm,                              &
+     &                      GRID(ng) % pn,                              &
 # ifdef SOLVE3D
-     &                      GRID(ng) % Hz(LBi,LBj,1),                   &
+     &                      GRID(ng) % Hz,                              &
 # endif
 # ifdef MASKING
-     &                      GRID(ng) % rmask(LBi,LBj),                  &
+     &                      GRID(ng) % rmask,                           &
 # endif
-     &                      GRID(ng) % lonr(LBi,LBj),                   &
-     &                      MyThread, bounded, track(1,0,1))
+     &                      GRID(ng) % lonr,                            &
+     &                      MyThread, bounded, track)
 
         CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,               &
-     &                      Lstr, Lend, nfp1, iflat,                    &
+     &                      Lstr, Lend, nfp1, iflat, Nfish(ng),         &
      &                      r2dvar, Gmask, nudg,                        &
-     &                      GRID(ng) % pm(LBi,LBj),                     &
-     &                      GRID(ng) % pn(LBi,LBj),                     &
+     &                      GRID(ng) % pm,                              &
+     &                      GRID(ng) % pn,                              &
 # ifdef SOLVE3D
-     &                      GRID(ng) % Hz(LBi,LBj,1),                   &
+     &                      GRID(ng) % Hz,                              &
 # endif
 # ifdef MASKING
-     &                      GRID(ng) % rmask(LBi,LBj),                  &
+     &                      GRID(ng) % rmask,                           &
 # endif
-     &                      GRID(ng) % latr(LBi,LBj),                   &
-     &                      MyThread, bounded, track(1,0,1))
+     &                      GRID(ng) % latr,                            &
+     &                      MyThread, bounded, track)
       ELSE
         CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,               &
-     &                      Lstr, Lend, nfp1, iflon,                    &
+     &                      Lstr, Lend, nfp1, iflon, Nfish(ng),         &
      &                      r2dvar, Gmask, nudg,                        &
-     &                      GRID(ng) % pm(LBi,LBj),                     &
-     &                      GRID(ng) % pn(LBi,LBj),                     &
+     &                      GRID(ng) % pm,                              &
+     &                      GRID(ng) % pn,                              &
 # ifdef SOLVE3D
-     &                      GRID(ng) % Hz(LBi,LBj,1),                   &
+     &                      GRID(ng) % Hz,                              &
 # endif
 # ifdef MASKING
-     &                      GRID(ng) % rmask(LBi,LBj),                  &
+     &                      GRID(ng) % rmask,                           &
 # endif
-     &                      GRID(ng) % xr(LBi,LBj),                     &
-     &                      MyThread, bounded, track(1,0,1))
+     &                      GRID(ng) % xr,                              &
+     &                      MyThread, bounded, track)
 
         CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,               &
-     &                      Lstr, Lend, nfp1, iflat,                    &
+     &                      Lstr, Lend, nfp1, iflat, Nfish(ng),         &
      &                      r2dvar, Gmask, nudg,                        &
-     &                      GRID(ng) % pm(LBi,LBj),                     &
-     &                      GRID(ng) % pn(LBi,LBj),                     &
+     &                      GRID(ng) % pm,                              &
+     &                      GRID(ng) % pn,                              &
 # ifdef SOLVE3D
-     &                      GRID(ng) % Hz(LBi,LBj,1),                   &
+     &                      GRID(ng) % Hz,                              &
 # endif
 # ifdef MASKING
-     &                      GRID(ng) % rmask(LBi,LBj),                  &
+     &                      GRID(ng) % rmask,                           &
 # endif
-     &                      GRID(ng) % yr(LBi,LBj),                     &
-     &                      MyThread, bounded, track(1,0,1))
+     &                      GRID(ng) % yr,                              &
+     &                      MyThread, bounded, track)
       END IF
 # ifdef SOLVE3D
 
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 0, N(ng),             &
-     &                    Lstr, Lend, nfp1, idpth,                      &
+     &                    Lstr, Lend, nfp1, idpth, Nfish(ng),           &
      &                    w3dvar, Lmask, nudg,                          &
-     &                    GRID(ng) % pm(LBi,LBj),                       &
-     &                    GRID(ng) % pn(LBi,LBj),                       &
-     &                    GRID(ng) % Hz(LBi,LBj,1),                     &
-#  ifdef MASKING
-     &                    GRID(ng) % rmask(LBi,LBj),                    &
-#  endif
-     &                    GRID(ng) % z_w(LBi,LBj,0),                    &
-     &                    MyThread, bounded, track(1,0,1))
+     &                    GRID(ng) % pm,                                &
+     &                    GRID(ng) % pn,                                &
+     &                    GRID(ng) % Hz,                                &
+# ifdef MASKING
+     &                    GRID(ng) % rmask,                             &
+# endif
+     &                    GRID(ng) % z_w,                               &
+     &                    MyThread, bounded, track)
 
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, N(ng),             &
-     &                    Lstr, Lend, nfp1, ifden,                      &
+     &                    Lstr, Lend, nfp1, ifden, Nfish(ng),           &
      &                    r3dvar, Lmask, nudg,                          &
-     &                    GRID(ng) % pm(LBi,LBj),                       &
-     &                    GRID(ng) % pn(LBi,LBj),                       &
-     &                    GRID(ng) % Hz(LBi,LBj,1),                     &
-#  ifdef MASKING
-     &                    GRID(ng) % rmask(LBi,LBj),                    &
-#  endif
-     &                    OCEAN(ng) % rho(LBi,LBj,1),                   &
-     &                    MyThread, bounded, track(1,0,1))
+     &                    GRID(ng) % pm,                                &
+     &                    GRID(ng) % pn,                                &
+     &                    GRID(ng) % Hz,                                &
+# ifdef MASKING
+     &                    GRID(ng) % rmask,                             &
+# endif
+     &                    OCEAN(ng) % rho,                              &
+     &                    MyThread, bounded, track)
 
       DO itrc=1,NT(ng)
         CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, N(ng),           &
-     &                      Lstr, Lend, nfp1, itrc+10,                  &
+     &                      Lstr, Lend, nfp1, itrc+10, Nfish(ng),       &
      &                      r3dvar, Lmask, nudg,                        &
-     &                      GRID(ng) % pm(LBi,LBj),                     &
-     &                      GRID(ng) % pn(LBi,LBj),                     &
-     &                      GRID(ng) % Hz(LBi,LBj,1),                   &
-#  ifdef MASKING
-     &                      GRID(ng) % rmask(LBi,LBj),                  &
-#  endif
-     &                      OCEAN(ng) % t(LBi,LBj,1,nnew,itrc),         &
-     &                      MyThread, bounded, track(1,0,1))
+     &                      GRID(ng) % pm,                              &
+     &                      GRID(ng) % pn,                              &
+     &                      GRID(ng) % Hz,                              &
+# ifdef MASKING
+     &                      GRID(ng) % rmask,                           &
+# endif
+     &                      OCEAN(ng) % t(:,:,:,nnew,itrc),             &
+     &                      MyThread, bounded, track)
       END DO
 !
       DO l=Lstr,Lend
         IF (MyThread(l).and.bounded(l)) THEN
           IF (alive(l)) THEN
-            CALL fish_growth (ng, l, nfp1, track(1,0,1), feedback, &
+            CALL fish_growth (ng, l, nfp1, track(:,:,:), feedback,      &
      &                        bioenergy)
           ENDIF
         ENDIF

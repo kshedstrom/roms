@@ -2,7 +2,7 @@
       MODULE step_floats_mod
 #if defined NONLINEAR && defined FLOATS
 !
-!svn $Id: step_floats.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: step_floats.F 997 2009-06-04 17:42:20Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group        John M. Klinck   !
 !    Licensed under a MIT/X style license                              !
@@ -79,6 +79,10 @@
       USE mod_ncparam
       USE mod_ocean
       USE mod_scalars
+      USE interp_floats_mod
+# ifdef DIAPAUSE
+      USE interp_floats_diapW_mod
+# endif
 !
 # ifdef DISTRIBUTE
       USE distribute_mod, ONLY : mp_collect
@@ -128,14 +132,14 @@
       integer :: ierr
       integer :: iseed = 149876
 # endif
-#ifdef FLOATS_DIAPAUSE
+# ifdef DIAPAUSE
 !      logical :: downward , upward 
       real(r8) :: RiseStart,RiseEnd,SinkStart,SinkEnd
       real(r8) :: wNCsink,wNCrise
       integer :: iday, month, year 
       real(r8) :: yday, hour, dtdays,cff,diapW
       integer :: FloatPhase
-#endif
+# endif
 
       real(r8), dimension(Lstr:Lend) :: nudg
 
@@ -143,9 +147,9 @@
       real(r8) :: Xstr, Xend, Ystr, Yend
       real(r8), dimension(Nfloats(ng)*NFV(ng)*(NFT+1)) :: Fwrk
 # endif
-#ifdef FLOATS_DIAPAUSE
+# ifdef DIAPAUSE
       CALL caldate (r_date, tdays(ng), year, yday, month, iday, hour)
-#endif
+# endif
 !
 ! Set tile array bounds.
 !
@@ -198,20 +202,19 @@
       END DO
 # endif
 
+# ifdef DIAPAUSE
 
-#ifdef FLOATS_DIAPAUSE
-         	 
-	   RiseStart=   1.0d0 ! Date NC begin to move upward (Day of Year)
-           RiseEnd  =  90.00d0	! 90 Date NC stop moving upward (Day of Year)
-           SinkStart= 166.0d0	!166 Date NC begin to move downward (Day of Year)
-           SinkEnd  = 365.0d0	! 365.Date NC stop moving downward (Day of Year)
-	   wNCrise  =  10.0d0
-	   wNCsink  =  -10.0d0
-	   
-	   diapW=0.0
+           RiseStart=   1.0d0  ! Date NC begin to move upward (Day of Year)
+           RiseEnd  =  90.00d0 ! 90 Date NC stop moving upward (Day of Year)
+           SinkStart= 166.0d0  !166 Date NC begin to move downward (Day of Year)
+           SinkEnd  = 365.0d0  ! 365.Date NC stop moving downward (Day of Year)
+           wNCrise  =  10.0d0
+           wNCsink  =  -10.0d0
+   
+           diapW=0.0
            dtdays = dt(ng)*sec2day
         
-#endif 
+# endif 
 !-----------------------------------------------------------------------
 ! Compute nudging velocities for vertical random walk.
 !-----------------------------------------------------------------------
@@ -223,28 +226,28 @@
       END DO
 
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 0, N(ng),             &
-     &                    Lstr, Lend, nf, ifakt,                        &
+     &                    Lstr, Lend, nf, ifakt, Nfloats(ng),           &
      &                    w3dvar, Lmask, nudg,                          &
-     &                    GRID(ng) % pm(LBi,LBj),                       &
-     &                    GRID(ng) % pn(LBi,LBj),                       &
-     &                    GRID(ng) % Hz(LBi,LBj,1),                     &
-#  ifdef MASKING
-     &                    GRID(ng) % rmask(LBi,LBj),                    &
-#  endif
-     &                    MIXING(ng) % Akt(LBi,LBj,0,1),                &
-     &                    MyThread, bounded, track(1,0,1))
+     &                    GRID(ng) % pm,                                &
+     &                    GRID(ng) % pn,                                &
+     &                    GRID(ng) % Hz,                                &
+# ifdef MASKING
+     &                    GRID(ng) % rmask,                             &
+# endif
+     &                    MIXING(ng) % Akt(:,:,:,itemp),                &
+     &                    MyThread, bounded, track)
 
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, N(ng),             &
-     &                    Lstr, Lend, nf, ifdak,                        &
+     &                    Lstr, Lend, nf, ifdak, Nfloats(ng),           &
      &                    r3dvar, Lmask, nudg,                          &
-     &                    GRID(ng) % pm(LBi,LBj),                       &
-     &                    GRID(ng) % pn(LBi,LBj),                       &
-     &                    GRID(ng) % Hz(LBi,LBj,1),                     &
-#  ifdef MASKING
-     &                    GRID(ng) % rmask(LBi,LBj),                    &
-#  endif
-     &                    MIXING(ng) % dAktdz(LBi,LBj,1),               &
-     &                    MyThread, bounded, track(1,0,1))
+     &                    GRID(ng) % pm,                                &
+     &                    GRID(ng) % pn,                                &
+     &                    GRID(ng) % Hz,                                &
+# ifdef MASKING
+     &                    GRID(ng) % rmask,                             &
+# endif
+     &                    MIXING(ng) % dAktdz,                          &
+     &                    MyThread, bounded, track)
 
       CALL nrng (iseed, nudg(Lstr:Lend), Lend-Lstr+1, ierr)
       DO l=Lstr,Lend
@@ -256,7 +259,7 @@
         END IF
       END DO
 
-#ifdef FLOATS_DIAPAUSE
+# ifdef DIAPAUSE
 
 !  Based on date, determine if NCa are going upwards or downwards
         
@@ -266,23 +269,22 @@
      &     ( RiseStart.gt.RiseEnd .and.                                 &
      &      ( yday.ge.RiseStart .or. yday.le.RiseEnd ) ) )  THEN
         FloatPhase=1
-	diapW=wNCrise*sec2day !Scale to m/sec
+        diapW=wNCrise*sec2day !Scale to m/sec
         
-	
       ELSE IF ( ( SinkStart.lt.SinkEnd .and.                            &
      &       yday.ge.SinkStart .and. yday.le.SinkEnd ) .or.             &
      &     ( SinkStart.gt.SinkEnd .and.                                 &
      &      ( yday.ge.SinkStart .or. yday.le.SinkEnd ) ) )  THEN
-       	FloatPhase=3
-	diapW=wNCsink*sec2day !Scale to m/sec
-	
+        FloatPhase=3
+        diapW=wNCsink*sec2day !Scale to m/sec
+        
        ELSE IF ( ( RiseEnd.lt.SinkStart .and.                          &
      &       yday.ge.RiseEnd .and. yday.le.SinkStart ) .or.            &
      &     (RiseEnd.gt.SinkStart .and.                                 &
      &      ( yday.ge.RiseEnd .or. yday.le.SinkStart ) ) )  THEN
        FloatPhase=2
        diapW=wNCrise*sec2day
-	ELSE IF ( (SinkEnd.gt.RiseStart .and.                         &
+        ELSE IF ( (SinkEnd.gt.RiseStart .and.                         &
      &       yday.ge.SinkEnd .or. yday.le.RiseStart ) .or.            &
      &     (RiseStart.gt.SinkEnd .and.                                &
      &      ( yday.ge.SinkEnd .and. yday.le.RiseStart ) ) )  THEN
@@ -295,40 +297,40 @@
 
 !      END DO
          
-	  IF ( diapW.ne.999)THEN
-	  
+          IF ( diapW.ne.999)THEN
+          
      CALL interp_floats_diapW(ng, LBi, UBi, LBj, UBj, 0, N(ng),         &
      &                    Lstr, Lend, nf, izrhs,                        &
      &                    -w3dvar, Lmask, nudg,                         &
-     &                    GRID(ng) % pm(LBi,LBj),                       &
-     &                    GRID(ng) % pn(LBi,LBj),                       &
-     &                    GRID(ng) % Hz(LBi,LBj,1),                     &
-# ifdef MASKING
-     &                    GRID(ng) % rmask(LBi,LBj),                    &
-# endif
+     &                    GRID(ng) % pm,                                &
+     &                    GRID(ng) % pn,                                &
+     &                    GRID(ng) % Hz,                                &
+#  ifdef MASKING
+     &                    GRID(ng) % rmask,                             &
+#  endif
      &                    diapW,                                        &
-     &                    OCEAN(ng) % W(LBi,LBj,0),                     &
-     &                    MyThread, bounded, track(1,0,1),              &
+     &                    OCEAN(ng) % W,                                &
+     &                    MyThread, bounded, track,                     &
      &                    FloatPhase      )
      
           ENDIF 
    
    
-#else   
+# else   
 
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 0, N(ng),             &
-     &                    Lstr, Lend, nf, izrhs,                        &
+     &                    Lstr, Lend, nf, izrhs, Nfloats(ng),           &
      &                    -w3dvar, Lmask, nudg,                         &
-     &                    GRID(ng) % pm(LBi,LBj),                       &
-     &                    GRID(ng) % pn(LBi,LBj),                       &
-     &                    GRID(ng) % Hz(LBi,LBj,1),                     &
-# ifdef MASKING
-     &                    GRID(ng) % rmask(LBi,LBj),                    &
-# endif
-     &                    OCEAN(ng) % W(LBi,LBj,0),                     &
-     &                    MyThread, bounded, track(1,0,1))
+     &                    GRID(ng) % pm,                                &
+     &                    GRID(ng) % pn,                                &
+     &                    GRID(ng) % Hz,                                &
+#  ifdef MASKING
+     &                    GRID(ng) % rmask,                             &
+#  endif
+     &                    OCEAN(ng) % W,                                &
+     &                    MyThread, bounded, track)
 
-#endif
+# endif
  
 !
 !  For now, use a forward time step for vertical position.
@@ -472,66 +474,57 @@
 !
 # ifdef SOLVE3D
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, N(ng),             &
-     &                    Lstr, Lend, nfp1, ixrhs,                      &
+     &                    Lstr, Lend, nfp1, ixrhs, Nfloats(ng),         &
      &                    -u3dvar, Lmask, nudg,                         &
-     &                    GRID(ng) % pm(LBi,LBj),                       &
-     &                    GRID(ng) % pn(LBi,LBj),                       &
-     &                    GRID(ng) % Hz(LBi,LBj,1),                     &
+     &                    GRID(ng) % pm,                                &
+     &                    GRID(ng) % pn,                                &
+     &                    GRID(ng) % Hz,                                &
 #  ifdef MASKING
-     &                    GRID(ng) % rmask(LBi,LBj),                    &
+     &                    GRID(ng) % rmask,                             &
 #  endif
-     &                    OCEAN(ng) % u(LBi,LBj,1,nnew),                &
-     &                    MyThread, bounded, track(1,0,1))
+     &                    OCEAN(ng) % u(:,:,:,nnew),                    &
+     &                    MyThread, bounded, track)
 
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, N(ng),             &
-     &                    Lstr, Lend, nfp1, iyrhs,                      &
+     &                    Lstr, Lend, nfp1, iyrhs, Nfloats(ng),         &
      &                    -v3dvar, Lmask, nudg,                         &
-     &                    GRID(ng) % pm(LBi,LBj),                       &
-     &                    GRID(ng) % pn(LBi,LBj),                       &
-     &                    GRID(ng) % Hz(LBi,LBj,1),                     &
+     &                    GRID(ng) % pm,                                &
+     &                    GRID(ng) % pn,                                &
+     &                    GRID(ng) % Hz,                                &
 #  ifdef MASKING
-     &                    GRID(ng) % rmask(LBi,LBj),                    &
+     &                    GRID(ng) % rmask,                             &
 #  endif
-     &                    OCEAN(ng) % v(LBi,LBj,1,nnew),                &
-     &                    MyThread, bounded, track(1,0,1))
-
-
-
-
-
+     &                    OCEAN(ng) % v(:,:,:,nnew),                    &
+     &                    MyThread, bounded, track)
 
 #  if !defined FLOAT_VWALK
-
-
-#ifdef FLOATS_DIAPAUSE
+#   ifdef DIAPAUSE
 !  Based on date, determine if NCa are going upwards or downwards
          
-!      DO l=Lstr,Lend	 
-!	  cff1=wNCrise *GRID(ng) % Hz(i,j,k)
-	  
-	  
+!      DO l=Lstr,Lend
+!        cff1=wNCrise *GRID(ng) % Hz(i,j,k)
+  
       IF ( ( RiseStart.lt.RiseEnd .and.                                 &
      &       yday.ge.RiseStart .and. yday.le.RiseEnd ) .or.             &
      &     ( RiseStart.gt.RiseEnd .and.                                 &
      &      ( yday.ge.RiseStart .or. yday.le.RiseEnd ) ) )  THEN
         FloatPhase=1
-	diapW=wNCrise*sec2day !Scale to m/sec
+        diapW=wNCrise*sec2day !Scale to m/sec
         
-	
       ELSE IF ( ( SinkStart.lt.SinkEnd .and.                            &
      &       yday.ge.SinkStart .and. yday.le.SinkEnd ) .or.             &
      &     ( SinkStart.gt.SinkEnd .and.                                 &
      &      ( yday.ge.SinkStart .or. yday.le.SinkEnd ) ) )  THEN
-       	FloatPhase=3
-	diapW=wNCsink*sec2day !Scale to m/sec
-	
+        FloatPhase=3
+        diapW=wNCsink*sec2day !Scale to m/sec
+
        ELSE IF ( ( RiseEnd.lt.SinkStart .and.                          &
      &       yday.ge.RiseEnd .and. yday.le.SinkStart ) .or.            &
      &     (RiseEnd.gt.SinkStart .and.                                 &
      &      ( yday.ge.RiseEnd .or. yday.le.SinkStart ) ) )  THEN
        FloatPhase=2
        diapW=wNCrise*sec2day
-	ELSE IF ( (SinkEnd.gt.RiseStart .and.                         &
+        ELSE IF ( (SinkEnd.gt.RiseStart .and.                         &
      &       yday.ge.SinkEnd .or. yday.le.RiseStart ) .or.            &
      &     (RiseStart.gt.SinkEnd .and.                                &
      &      ( yday.ge.SinkEnd .and. yday.le.RiseStart ) ) )  THEN
@@ -544,70 +537,65 @@
 !           print*,'upward=',upward,'downward=',downward
 !      END DO
          
-	  IF ( diapW.ne.999)THEN
-	  
+      IF ( diapW.ne.999)THEN
+  
      CALL interp_floats_diapW(ng, LBi, UBi, LBj, UBj, 0, N(ng),         &
      &                    Lstr, Lend, nf, izrhs,                        &
      &                    -w3dvar, Lmask, nudg,                         &
-     &                    GRID(ng) % pm(LBi,LBj),                       &
-     &                    GRID(ng) % pn(LBi,LBj),                       &
-     &                    GRID(ng) % Hz(LBi,LBj,1),                     &
+     &                    GRID(ng) % pm,                                &
+     &                    GRID(ng) % pn,                                &
+     &                    GRID(ng) % Hz,                                &
 # ifdef MASKING
-     &                    GRID(ng) % rmask(LBi,LBj),                    &
+     &                    GRID(ng) % rmask,                             &
 # endif
      &                    diapW,                                        &
-     &                    OCEAN(ng) % W(LBi,LBj,0),                     &
-     &                    MyThread, bounded, track(1,0,1),              &
+     &                    OCEAN(ng) % W,                                &
+     &                    MyThread, bounded, track,                     &
      &                    FloatPhase      )
      
           ENDIF 
   
-#else
-
-
+#   else
 
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 0, N(ng),             &
-     &                    Lstr, Lend, nfp1, izrhs,                      &
+     &                    Lstr, Lend, nfp1, izrhs, Nfloats(ng),         &
      &                    -w3dvar, Lmask, nudg,                         &
-     &                    GRID(ng) % pm(LBi,LBj),                       &
-     &                    GRID(ng) % pn(LBi,LBj),                       &
-     &                    GRID(ng) % Hz(LBi,LBj,1),                     &
-#   ifdef MASKING
-     &                    GRID(ng) % rmask(LBi,LBj),                    &
-#   endif
-     &                    OCEAN(ng) % W(LBi,LBj,0),                     &
-     &                    MyThread, bounded, track(1,0,1))
+     &                    GRID(ng) % pm,                                &
+     &                    GRID(ng) % pn,                                &
+     &                    GRID(ng) % Hz,                                &
+# ifdef MASKING
+     &                    GRID(ng) % rmask,                             &
+# endif
+     &                    OCEAN(ng) % W,                                &
+     &                    MyThread, bounded, track)
      
-#endif     
-     
+#   endif     
      
 #  endif
-
-
-
 
 # else
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,                 &
-     &                    Lstr, Lend, nfp1, ixrhs,                      &
+     &                    Lstr, Lend, nfp1, ixrhs, Nfloats(ng),         &
      &                    -u2dvar, Lmask, nudg,                         &
-     &                    GRID(ng) % pm(LBi,LBj),                       &
-     &                    GRID(ng) % pn(LBi,LBj),                       &
+     &                    GRID(ng) % pm,                                &
+     &                    GRID(ng) % pn,                                &
 #  ifdef MASKING
-     &                    GRID(ng) % rmask(LBi,LBj),                    &
+     &                    GRID(ng) % rmask,                             &
 #  endif
-     &                    OCEAN(ng) % ubar(LBi,LBj,knew),               &
-     &                    MyThread, bounded, track(1,0,1))
+     &                    OCEAN(ng) % ubar(:,:,knew),                   &
+     &                    MyThread, bounded, track)
 
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,                 &
-     &                    Lstr, Lend, nfp1, iyrhs,                      &
+     &                    Lstr, Lend, nfp1, iyrhs, Nfloats(ng),         &
      &                    -v2dvar, Lmask, nudg,                         &
-     &                    GRID(ng) % pm(LBi,LBj),                       &
-     &                    GRID(ng) % pn(LBi,LBj),                       &
+     &                    GRID(ng) % pm,                                &
+     &                    GRID(ng) % pn,                                &
+     &                    GRID(ng) % Hz,                                &
 #  ifdef MASKING
-     &                    GRID(ng) % rmask(LBi,LBj),                    &
+     &                    GRID(ng) % rmask,                             &
 #  endif
-     &                    OCEAN(ng) % vbar(LBi,LBj,knew),               &
-     &                    MyThread, bounded, track(1,0,1))
+     &                    OCEAN(ng) % vbar(:,:,knew),                   &
+     &                    MyThread, bounded, track)
 # endif
 !
 !-----------------------------------------------------------------------
@@ -616,7 +604,6 @@
 !-----------------------------------------------------------------------
 !
     
-	       
       cff1=9.0_r8/8.0_r8
       cff2=1.0_r8/8.0_r8
       cff3=3.0_r8/8.0_r8
@@ -715,11 +702,9 @@
      &             p2*q2*GRID(ng)%z_w(i2,j2,k)
 #  endif
               IF ((zfloat-cff5)*(cff6-zfloat).ge.0.0_r8) THEN
-	      
+      
                 track(izgrd,nfp1,l)=REAL(k,r8)+(zfloat-cff5)/(cff6-cff5)
-		
-	
-		
+
               END IF
               cff6=cff5
             END DO
@@ -887,7 +872,7 @@
 #  ifdef SOLVE3D
               track(izgrd,j,l)=Tinfo(izgrd,l)
 #  endif
-	
+
             END DO
             MyThread(l)=.TRUE.
           ELSE
@@ -917,64 +902,64 @@
 !
 # ifdef SOLVE3D
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, N(ng),             &
-     &                    Lstr, Lend, nfp1, ixrhs,                      &
+     &                    Lstr, Lend, nfp1, ixrhs, Nfloats(ng),         &
      &                    -u3dvar, Lmask, nudg,                         &
-     &                    GRID(ng) % pm(LBi,LBj),                       &
-     &                    GRID(ng) % pn(LBi,LBj),                       &
-     &                    GRID(ng) % Hz(LBi,LBj,1),                     &
-#  ifdef MASKING
-     &                    GRID(ng) % rmask(LBi,LBj),                    &
-#  endif
-     &                    OCEAN(ng) % u(LBi,LBj,1,nnew),                &
-     &                    MyThread, bounded, track(1,0,1))
+     &                    GRID(ng) % pm,                                &
+     &                    GRID(ng) % pn,                                &
+     &                    GRID(ng) % Hz,                                &
+# ifdef MASKING
+     &                    GRID(ng) % rmask,                             &
+# endif
+     &                    OCEAN(ng) % u(:,:,:,nnew),                    &
+     &                    MyThread, bounded, track)
 
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, N(ng),             &
-     &                    Lstr, Lend, nfp1, iyrhs,                      &
+     &                    Lstr, Lend, nfp1, iyrhs, Nfloats(ng),         &
      &                    -v3dvar, Lmask, nudg,                         &
-     &                    GRID(ng) % pm(LBi,LBj),                       &
-     &                    GRID(ng) % pn(LBi,LBj),                       &
-     &                    GRID(ng) % Hz(LBi,LBj,1),                     &
-#  ifdef MASKING
-     &                    GRID(ng) % rmask(LBi,LBj),                    &
-#  endif
-     &                    OCEAN(ng) % v(LBi,LBj,1,nnew),                &
-     &                    MyThread, bounded, track(1,0,1))
+     &                    GRID(ng) % pm,                                &
+     &                    GRID(ng) % pn,                                &
+     &                    GRID(ng) % Hz,                                &
+# ifdef MASKING
+     &                    GRID(ng) % rmask,                             &
+# endif
+     &                    OCEAN(ng) % v(:,:,:,nnew),                    &
+     &                    MyThread, bounded, track)
 
 #  if !defined FLOAT_VWALK
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 0, N(ng),             &
-     &                    Lstr, Lend, nfp1, izrhs,                      &
+     &                    Lstr, Lend, nfp1, izrhs, Nfloats(ng),         &
      &                    -w3dvar, Lmask, nudg,                         &
-     &                    GRID(ng) % pm(LBi,LBj),                       &
-     &                    GRID(ng) % pn(LBi,LBj),                       &
-     &                    GRID(ng) % Hz(LBi,LBj,1),                     &
-#   ifdef MASKING
-     &                    GRID(ng) % rmask(LBi,LBj),                    &
-#   endif
-     &                    OCEAN(ng) % W(LBi,LBj,0),                     &
-     &                    MyThread, bounded, track(1,0,1))
+     &                    GRID(ng) % pm,                                &
+     &                    GRID(ng) % pn,                                &
+     &                    GRID(ng) % Hz,                                &
+# ifdef MASKING
+     &                    GRID(ng) % rmask,                             &
+# endif
+     &                    OCEAN(ng) % W,                                &
+     &                    MyThread, bounded, track)
 #  endif
 # else
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,                 &
-     &                    Lstr, Lend, nfp1, ixrhs,                      &
+     &                    Lstr, Lend, nfp1, ixrhs, Nfloats(ng),         &
      &                    -u2dvar, Lmask, nudg,                         &
-     &                    GRID(ng) % pm(LBi,LBj),                       &
-     &                    GRID(ng) % pn(LBi,LBj),                       &
-#  ifdef MASKING
-     &                    GRID(ng) % rmask(LBi,LBj),                    &
-#  endif
-     &                    OCEAN(ng) % ubar(LBi,LBj,knew),               &
-     &                    MyThread, bounded, track(1,0,1))
+     &                    GRID(ng) % pm,                                &
+     &                    GRID(ng) % pn,                                &
+# ifdef MASKING
+     &                    GRID(ng) % rmask,                             &
+# endif
+     &                    OCEAN(ng) % ubar(:,:,knew),                   &
+     &                    MyThread, bounded, track)
 
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,                 &
-     &                    Lstr, Lend, nfp1, iyrhs,                      &
+     &                    Lstr, Lend, nfp1, iyrhs, Nfloats(ng),         &
      &                    -v2dvar, Lmask, nudg,                         &
-     &                    GRID(ng) % pm(LBi,LBj),                       &
-     &                    GRID(ng) % pn(LBi,LBj),                       &
-#  ifdef MASKING
-     &                    GRID(ng) % rmask(LBi,LBj),                    &
-#  endif
-     &                    OCEAN(ng) % vbar(LBi,LBj,knew),               &
-     &                    MyThread, bounded, track(1,0,1))
+     &                    GRID(ng) % pm,                                &
+     &                    GRID(ng) % pn,                                &
+# ifdef MASKING
+     &                    GRID(ng) % rmask,                             &
+# endif
+     &                    OCEAN(ng) % vbar(:,:,knew),                   &
+     &                    MyThread, bounded, track)
 # endif
 !
 !  If newly released floats, initialize slopes at all time levels.
@@ -1004,103 +989,103 @@
 !
       IF (spherical) THEN
         CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,               &
-     &                      Lstr, Lend, nfp1, iflon,                    &
+     &                      Lstr, Lend, nfp1, iflon, Nfloats(ng),       &
      &                      r2dvar, Gmask, nudg,                        &
-     &                      GRID(ng) % pm(LBi,LBj),                     &
-     &                      GRID(ng) % pn(LBi,LBj),                     &
+     &                      GRID(ng) % pm,                              &
+     &                      GRID(ng) % pn,                              &
 # ifdef SOLVE3D
-     &                      GRID(ng) % Hz(LBi,LBj,1),                   &
+     &                      GRID(ng) % Hz,                              &
 # endif
 # ifdef MASKING
-     &                      GRID(ng) % rmask(LBi,LBj),                  &
+     &                      GRID(ng) % rmask,                           &
 # endif
-     &                      GRID(ng) % lonr(LBi,LBj),                   &
-     &                      MyThread, bounded, track(1,0,1))
+     &                      GRID(ng) % lonr,                            &
+     &                      MyThread, bounded, track)
 
         CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,               &
-     &                      Lstr, Lend, nfp1, iflat,                    &
+     &                      Lstr, Lend, nfp1, iflat, Nfloats(ng),       &
      &                      r2dvar, Gmask, nudg,                        &
-     &                      GRID(ng) % pm(LBi,LBj),                     &
-     &                      GRID(ng) % pn(LBi,LBj),                     &
+     &                      GRID(ng) % pm,                              &
+     &                      GRID(ng) % pn,                              &
 # ifdef SOLVE3D
-     &                      GRID(ng) % Hz(LBi,LBj,1),                   &
+     &                      GRID(ng) % Hz,                              &
 # endif
 # ifdef MASKING
-     &                      GRID(ng) % rmask(LBi,LBj),                  &
+     &                      GRID(ng) % rmask,                           &
 # endif
-     &                      GRID(ng) % latr(LBi,LBj),                   &
-     &                      MyThread, bounded, track(1,0,1))
+     &                      GRID(ng) % latr,                            &
+     &                      MyThread, bounded, track)
       ELSE
         CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,               &
-     &                      Lstr, Lend, nfp1, iflon,                    &
+     &                      Lstr, Lend, nfp1, iflon, Nfloats(ng),       &
      &                      r2dvar, Gmask, nudg,                        &
-     &                      GRID(ng) % pm(LBi,LBj),                     &
-     &                      GRID(ng) % pn(LBi,LBj),                     &
+     &                      GRID(ng) % pm,                              &
+     &                      GRID(ng) % pn,                              &
 # ifdef SOLVE3D
-     &                      GRID(ng) % Hz(LBi,LBj,1),                   &
+     &                      GRID(ng) % Hz,                              &
 # endif
 # ifdef MASKING
-     &                      GRID(ng) % rmask(LBi,LBj),                  &
+     &                      GRID(ng) % rmask,                           &
 # endif
-     &                      GRID(ng) % xr(LBi,LBj),                     &
-     &                      MyThread, bounded, track(1,0,1))
+     &                      GRID(ng) % xr,                              &
+     &                      MyThread, bounded, track)
 
         CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,               &
-     &                      Lstr, Lend, nfp1, iflat,                    &
+     &                      Lstr, Lend, nfp1, iflat, Nfloats(ng),       &
      &                      r2dvar, Gmask, nudg,                        &
-     &                      GRID(ng) % pm(LBi,LBj),                     &
-     &                      GRID(ng) % pn(LBi,LBj),                     &
+     &                      GRID(ng) % pm,                              &
+     &                      GRID(ng) % pn,                              &
 # ifdef SOLVE3D
-     &                      GRID(ng) % Hz(LBi,LBj,1),                   &
+     &                      GRID(ng) % Hz,                              &
 # endif
 # ifdef MASKING
-     &                      GRID(ng) % rmask(LBi,LBj),                  &
+     &                      GRID(ng) % rmask,                           &
 # endif
-     &                      GRID(ng) % yr(LBi,LBj),                     &
-     &                      MyThread, bounded, track(1,0,1))
+     &                      GRID(ng) % yr,                              &
+     &                      MyThread, bounded, track)
       END IF
 # ifdef SOLVE3D
 
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 0, N(ng),             &
-     &                    Lstr, Lend, nfp1, idpth,                      &
+     &                    Lstr, Lend, nfp1, idpth, Nfloats(ng),         &
      &                    w3dvar, Lmask, nudg,                          &
-     &                    GRID(ng) % pm(LBi,LBj),                       &
-     &                    GRID(ng) % pn(LBi,LBj),                       &
-     &                    GRID(ng) % Hz(LBi,LBj,1),                     &
-#  ifdef MASKING
-     &                    GRID(ng) % rmask(LBi,LBj),                    &
-#  endif
-     &                    GRID(ng) % z_w(LBi,LBj,0),                    &
-     &                    MyThread, bounded, track(1,0,1))
+     &                    GRID(ng) % pm,                                &
+     &                    GRID(ng) % pn,                                &
+     &                    GRID(ng) % Hz,                                &
+# ifdef MASKING
+     &                    GRID(ng) % rmask,                             &
+# endif
+     &                    GRID(ng) % z_w,                               &
+     &                    MyThread, bounded, track)
 
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, N(ng),             &
-     &                    Lstr, Lend, nfp1, ifden,                      &
+     &                    Lstr, Lend, nfp1, ifden, Nfloats(ng),         &
      &                    r3dvar, Lmask, nudg,                          &
-     &                    GRID(ng) % pm(LBi,LBj),                       &
-     &                    GRID(ng) % pn(LBi,LBj),                       &
-     &                    GRID(ng) % Hz(LBi,LBj,1),                     &
-#  ifdef MASKING
-     &                    GRID(ng) % rmask(LBi,LBj),                    &
-#  endif
-     &                    OCEAN(ng) % rho(LBi,LBj,1),                   &
-     &                    MyThread, bounded, track(1,0,1))
+     &                    GRID(ng) % pm,                                &
+     &                    GRID(ng) % pn,                                &
+     &                    GRID(ng) % Hz,                                &
+# ifdef MASKING
+     &                    GRID(ng) % rmask,                             &
+# endif
+     &                    OCEAN(ng) % rho,                              &
+     &                    MyThread, bounded, track)
 
       DO itrc=1,NT(ng)
         CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, N(ng),           &
 #  ifdef FLOAT_VWALK
-     &                      Lstr, Lend, nfp1, itrc+12,                  &
+     &                      Lstr, Lend, nfp1, itrc+12, Nfloats(ng),     &
 #  else
-     &                      Lstr, Lend, nfp1, itrc+10,                  &
+     &                      Lstr, Lend, nfp1, itrc+10, Nfloats(ng),     &
 #  endif
      &                      r3dvar, Lmask, nudg,                        &
-     &                      GRID(ng) % pm(LBi,LBj),                     &
-     &                      GRID(ng) % pn(LBi,LBj),                     &
-     &                      GRID(ng) % Hz(LBi,LBj,1),                   &
-#  ifdef MASKING
-     &                      GRID(ng) % rmask(LBi,LBj),                  &
-#  endif
-     &                      OCEAN(ng) % t(LBi,LBj,1,nnew,itrc),         &
-     &                      MyThread, bounded, track(1,0,1))
+     &                      GRID(ng) % pm,                              &
+     &                      GRID(ng) % pn,                              &
+     &                      GRID(ng) % Hz,                              &
+# ifdef MASKING
+     &                      GRID(ng) % rmask,                           &
+# endif
+     &                      OCEAN(ng) % t(:,:,:,nnew,itrc),             &
+     &                      MyThread, bounded, track)
       END DO
 # endif
 # ifdef DISTRIBUTE
