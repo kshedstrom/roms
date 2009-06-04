@@ -1,16 +1,6 @@
 #include "cppdefs.h"
+      MODULE interp_floats_mod
 #if defined NONLINEAR && defined FLOATS
-      SUBROUTINE interp_floats (ng, LBi, UBi, LBj, UBj, LBk, UBk,       &
-     &                          Lstr, Lend, itime, ifield,              &
-     &                          gtype, maskit, nudg,                    &
-     &                          pm, pn,                                 &
-# ifdef SOLVE3D
-     &                          Hz,                                     &
-# endif
-# ifdef MASKING
-     &                          Amask,                                  &
-# endif
-     &                          A, MyThread, bounded, track)
 !
 !svn $Id: interp_floats.F 975 2009-05-05 22:51:13Z kate $
 !================================================== Hernan G. Arango ===
@@ -53,6 +43,26 @@
 !                                                                      !
 !=======================================================================
 !
+      implicit none
+
+      PRIVATE
+      PUBLIC  :: interp_floats
+
+      CONTAINS
+!
+!***********************************************************************
+      SUBROUTINE interp_floats (ng, LBi, UBi, LBj, UBj, LBk, UBk,       &
+     &                          Lstr, Lend, itime, ifield, numflt,      &
+     &                          gtype, maskit, nudg,                    &
+     &                          pm, pn,                                 &
+# ifdef SOLVE3D
+     &                          Hz,                                     &
+# endif
+# ifdef MASKING
+     &                          Amask,                                  &
+# endif
+     &                          A, MyThread, bounded, track)
+!***********************************************************************
       USE mod_param
       USE mod_ncparam
       USE mod_scalars
@@ -62,11 +72,11 @@
 !  Imported variable declarations.
 !
       integer, intent(in) :: ng, LBi, UBi, LBj, UBj, LBk, UBk
-      integer, intent(in) :: Lstr, Lend, itime, ifield, gtype
+      integer, intent(in) :: Lstr, Lend, itime, ifield, gtype, numflt
 
       logical, intent(in) :: maskit
       logical, intent(in) :: MyThread(Lstr:Lend)
-      logical, intent(in) :: bounded(Nfloats(ng))
+      logical, intent(in) :: bounded(numflt)
 
       real(r8), intent(in) :: nudg(Lstr:Lend)
 
@@ -80,7 +90,7 @@
 # endif
       real(r8), intent(in) :: A(LBi:UBi,LBj:UBj,LBk:UBk)
 
-      real(r8), intent(inout) :: track(NFV(ng),0:NFT,Nfloats(ng))
+      real(r8), intent(inout) :: track(NFV(ng),0:NFT,numflt)
 !
 !  Local variable declarations.
 !
@@ -488,8 +498,7 @@
           END IF
         END IF
       END DO
-#else
-      SUBROUTINE interp_floats
-#endif
       RETURN
       END SUBROUTINE interp_floats
+#endif
+      END MODULE interp_floats_mod

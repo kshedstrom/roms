@@ -47,7 +47,7 @@
           integer, pointer  :: species(:)
           integer, pointer  :: lifestage(:)
           logical, pointer  :: alive(:)
-	  type(fishnode), pointer :: fishnodes(:)
+          type(fishnode), pointer :: fishnodes(:)
 
         END TYPE T_FISHES
 
