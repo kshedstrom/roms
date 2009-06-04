@@ -67,8 +67,8 @@
 ! shared-memory configurations used to determine tile horizontal range
 ! indices (Istr,Iend) and (Jstr,Jend), [1:Ngrids].
 
-      NtileI == 4                               ! I-direction partition
-      NtileJ == 4                               ! J-direction partition
+      NtileI == 8                               ! I-direction partition
+      NtileJ == 8                               ! J-direction partition
 
 ! Time-Stepping parameters.
 

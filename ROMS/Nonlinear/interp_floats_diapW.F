@@ -46,7 +46,7 @@
       implicit none
 
       PRIVATE
-      PUBLIC  :: interp_floats
+      PUBLIC  :: interp_floats_diapW
 
       CONTAINS
 !***********************************************************************
