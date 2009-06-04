@@ -117,9 +117,9 @@
 !  Compute swimming velocity based on Railsback or Humston behavior
 !-----------------------------------------------------------------------
 !
-      Ir=INT(track(ixgrd,itime,lflt)+0.5_r8)
-      Jr=INT(track(iygrd,itime,lflt)+0.5_r8)
-      Kr=INT(track(izgrd,itime,lflt)+0.5_r8)
+      Ir=INT(track(ixgrd,itime,lflt)-0.5_r8)
+      Jr=INT(track(iygrd,itime,lflt)-0.5_r8)
+      Kr=INT(track(izgrd,itime,lflt)-0.5_r8)
 !
       Fweight=bioenergy(ifwwt,lflt)
 !
@@ -141,8 +141,6 @@
         IrMax=0
         JrMax=0
         KrMax=0
-!        DO j=Jr-1,Jr+1
-!          DO i=Ir-1,Ir+1
         DO j=Jr,Jr+1
           DO i=Ir,Ir+1
             DO k=1,N(ng)

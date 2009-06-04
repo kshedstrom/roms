@@ -9,7 +9,7 @@
 !    See License_ROMS.txt                                              !
 !=======================================================================
 !                                                                      !
-!  This routine time-steps  simulated  floats  trajectories using a    !
+!  This routine time-steps  simulated  fishes  trajectories using a    !
 !  fourth-order Milne predictor and fourth-order Hamming corrector.    !
 !                                                                      !
 !  Vertical diffusion is optionally represented by a random walk,      !
@@ -114,7 +114,7 @@
       integer, intent(in) :: Ftype(Nfish(ng))
       real(r8), intent(inout) :: Tinfo(0:izrhs,Nfish(ng))
       real(r8), intent(inout) :: Fz0(Nfish(ng))
-      real(r8), intent(inout) :: feedback(NT(ng),Nfloats(ng))
+      real(r8), intent(inout) :: feedback(NT(ng),Nfish(ng))
 
       logical, intent(inout) :: bounded(Nfish(ng))
       real(r8), intent(inout) :: bioenergy(NFishV(ng),Nfish(ng))
@@ -227,7 +227,7 @@
         nudg(l)=0.0_r8
       END DO
 
-      CALL interp_floats (ng, LBi, UBi, LBj, UBj, 0, N(ng),             &
+      CALL interp_fishes (ng, LBi, UBi, LBj, UBj, 0, N(ng),             &
      &                    Lstr, Lend, nf, ifakt,                        &
      &                    w3dvar, Lmask, nudg,                          &
      &                    GRID(ng) % pm(LBi,LBj),                       &
@@ -239,7 +239,7 @@
      &                    MIXING(ng) % Akt(LBi,LBj,0,1),                &
      &                    MyThread, bounded, track(1,0,1))
 
-      CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, N(ng),             &
+      CALL interp_fishes (ng, LBi, UBi, LBj, UBj, 1, N(ng),             &
      &                    Lstr, Lend, nf, ifdak,                        &
      &                    r3dvar, Lmask, nudg,                          &
      &                    GRID(ng) % pm(LBi,LBj),                       &
@@ -261,7 +261,7 @@
         END IF
       END DO
 
-      CALL interp_floats (ng, LBi, UBi, LBj, UBj, 0, N(ng),             &
+      CALL interp_fishes (ng, LBi, UBi, LBj, UBj, 0, N(ng),             &
      &                    Lstr, Lend, nf, izrhs,                        &
      &                    -w3dvar, Lmask, nudg,                         &
      &                    GRID(ng) % pm(LBi,LBj),                       &
@@ -315,7 +315,7 @@
               track(ixgrd,nfp1,l)=track(ixgrd,nfm3,l)+                  &
      &                    dt(ng)*(cff1*diSwim-cff2*diSwim+cff1*diSwim)
               track(iygrd,nfp1,l)=track(iygrd,nfm3,l)+                  &
-     &                    dt(ng)*(cff1*diSwim-cff2*diSwim+cff1*diSwim)
+     &                    dt(ng)*(cff1*djSwim-cff2*djSwim+cff1*djSwim)
             ELSE
               track(ixgrd,nfp1,l)=track(ixgrd,nfm3,l)+                  &
      &                    dt(ng)*(cff1*track(ixrhs,nf  ,l)-             &
@@ -429,7 +429,7 @@
 !-----------------------------------------------------------------------
 !
 # ifdef SOLVE3D
-      CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, N(ng),             &
+      CALL interp_fishes (ng, LBi, UBi, LBj, UBj, 1, N(ng),             &
      &                    Lstr, Lend, nfp1, ixrhs,                      &
      &                    -u3dvar, Lmask, nudg,                         &
      &                    GRID(ng) % pm(LBi,LBj),                       &
@@ -441,7 +441,7 @@
      &                    OCEAN(ng) % u(LBi,LBj,1,nnew),                &
      &                    MyThread, bounded, track(1,0,1))
 
-      CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, N(ng),             &
+      CALL interp_fishes (ng, LBi, UBi, LBj, UBj, 1, N(ng),             &
      &                    Lstr, Lend, nfp1, iyrhs,                      &
      &                    -v3dvar, Lmask, nudg,                         &
      &                    GRID(ng) % pm(LBi,LBj),                       &
@@ -454,7 +454,7 @@
      &                    MyThread, bounded, track(1,0,1))
 
 #  if !defined FLOAT_VWALK
-      CALL interp_floats (ng, LBi, UBi, LBj, UBj, 0, N(ng),             &
+      CALL interp_fishes (ng, LBi, UBi, LBj, UBj, 0, N(ng),             &
      &                    Lstr, Lend, nfp1, izrhs,                      &
      &                    -w3dvar, Lmask, nudg,                         &
      &                    GRID(ng) % pm(LBi,LBj),                       &
@@ -467,7 +467,7 @@
      &                    MyThread, bounded, track(1,0,1))
 #  endif
 # else
-      CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,                 &
+      CALL interp_fishes (ng, LBi, UBi, LBj, UBj, 1, 1,                 &
      &                    Lstr, Lend, nfp1, ixrhs,                      &
      &                    -u2dvar, Lmask, nudg,                         &
      &                    GRID(ng) % pm(LBi,LBj),                       &
@@ -478,7 +478,7 @@
      &                    OCEAN(ng) % ubar(LBi,LBj,knew),               &
      &                    MyThread, bounded, track(1,0,1))
 
-      CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,                 &
+      CALL interp_fishes (ng, LBi, UBi, LBj, UBj, 1, 1,                 &
      &                    Lstr, Lend, nfp1, iyrhs,                      &
      &                    -v2dvar, Lmask, nudg,                         &
      &                    GRID(ng) % pm(LBi,LBj),                       &
@@ -788,7 +788,7 @@
 #  endif
             END DO
 !
-!  If newly released floats, initialize fish weight
+!  If newly released fishes, initialize fish weight
 !
             bioenergy(ifwwt,l)=Fwwt0(ng)
             bioenergy(ifage,l)=0.0_r8
@@ -816,7 +816,7 @@
 #  endif
           END DO
 !
-!  If newly released floats, initialize fish weight
+!  If newly released fishes, initialize fish weight
 !
           bioenergy(ifwwt,l)=Fwwt0(ng)
           bioenergy(ifage,l)=0.0_r8
@@ -831,7 +831,7 @@
 !-----------------------------------------------------------------------
 !
 # ifdef SOLVE3D
-      CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, N(ng),             &
+      CALL interp_fishes (ng, LBi, UBi, LBj, UBj, 1, N(ng),             &
      &                    Lstr, Lend, nfp1, ixrhs,                      &
      &                    -u3dvar, Lmask, nudg,                         &
      &                    GRID(ng) % pm(LBi,LBj),                       &
@@ -843,7 +843,7 @@
      &                    OCEAN(ng) % u(LBi,LBj,1,nnew),                &
      &                    MyThread, bounded, track(1,0,1))
 
-      CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, N(ng),             &
+      CALL interp_fishes (ng, LBi, UBi, LBj, UBj, 1, N(ng),             &
      &                    Lstr, Lend, nfp1, iyrhs,                      &
      &                    -v3dvar, Lmask, nudg,                         &
      &                    GRID(ng) % pm(LBi,LBj),                       &
@@ -856,7 +856,7 @@
      &                    MyThread, bounded, track(1,0,1))
 
 #  if !defined FLOAT_VWALK
-      CALL interp_floats (ng, LBi, UBi, LBj, UBj, 0, N(ng),             &
+      CALL interp_fishes (ng, LBi, UBi, LBj, UBj, 0, N(ng),             &
      &                    Lstr, Lend, nfp1, izrhs,                      &
      &                    -w3dvar, Lmask, nudg,                         &
      &                    GRID(ng) % pm(LBi,LBj),                       &
@@ -869,7 +869,7 @@
      &                    MyThread, bounded, track(1,0,1))
 #  endif
 # else
-      CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,                 &
+      CALL interp_fishes (ng, LBi, UBi, LBj, UBj, 1, 1,                 &
      &                    Lstr, Lend, nfp1, ixrhs,                      &
      &                    -u2dvar, Lmask, nudg,                         &
      &                    GRID(ng) % pm(LBi,LBj),                       &
@@ -880,7 +880,7 @@
      &                    OCEAN(ng) % ubar(LBi,LBj,knew),               &
      &                    MyThread, bounded, track(1,0,1))
 
-      CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,                 &
+      CALL interp_fishes (ng, LBi, UBi, LBj, UBj, 1, 1,                 &
      &                    Lstr, Lend, nfp1, iyrhs,                      &
      &                    -v2dvar, Lmask, nudg,                         &
      &                    GRID(ng) % pm(LBi,LBj),                       &
@@ -918,7 +918,7 @@
 !-----------------------------------------------------------------------
 !
       IF (spherical) THEN
-        CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,               &
+        CALL interp_fishes (ng, LBi, UBi, LBj, UBj, 1, 1,               &
      &                      Lstr, Lend, nfp1, iflon,                    &
      &                      r2dvar, Gmask, nudg,                        &
      &                      GRID(ng) % pm(LBi,LBj),                     &
@@ -932,7 +932,7 @@
      &                      GRID(ng) % lonr(LBi,LBj),                   &
      &                      MyThread, bounded, track(1,0,1))
 
-        CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,               &
+        CALL interp_fishes (ng, LBi, UBi, LBj, UBj, 1, 1,               &
      &                      Lstr, Lend, nfp1, iflat,                    &
      &                      r2dvar, Gmask, nudg,                        &
      &                      GRID(ng) % pm(LBi,LBj),                     &
@@ -946,7 +946,7 @@
      &                      GRID(ng) % latr(LBi,LBj),                   &
      &                      MyThread, bounded, track(1,0,1))
       ELSE
-        CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,               &
+        CALL interp_fishes (ng, LBi, UBi, LBj, UBj, 1, 1,               &
      &                      Lstr, Lend, nfp1, iflon,                    &
      &                      r2dvar, Gmask, nudg,                        &
      &                      GRID(ng) % pm(LBi,LBj),                     &
@@ -960,7 +960,7 @@
      &                      GRID(ng) % xr(LBi,LBj),                     &
      &                      MyThread, bounded, track(1,0,1))
 
-        CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,               &
+        CALL interp_fishes (ng, LBi, UBi, LBj, UBj, 1, 1,               &
      &                      Lstr, Lend, nfp1, iflat,                    &
      &                      r2dvar, Gmask, nudg,                        &
      &                      GRID(ng) % pm(LBi,LBj),                     &
@@ -976,7 +976,7 @@
       END IF
 # ifdef SOLVE3D
 
-      CALL interp_floats (ng, LBi, UBi, LBj, UBj, 0, N(ng),             &
+      CALL interp_fishes (ng, LBi, UBi, LBj, UBj, 0, N(ng),             &
      &                    Lstr, Lend, nfp1, idpth,                      &
      &                    w3dvar, Lmask, nudg,                          &
      &                    GRID(ng) % pm(LBi,LBj),                       &
@@ -988,7 +988,7 @@
      &                    GRID(ng) % z_w(LBi,LBj,0),                    &
      &                    MyThread, bounded, track(1,0,1))
 
-      CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, N(ng),             &
+      CALL interp_fishes (ng, LBi, UBi, LBj, UBj, 1, N(ng),             &
      &                    Lstr, Lend, nfp1, ifden,                      &
      &                    r3dvar, Lmask, nudg,                          &
      &                    GRID(ng) % pm(LBi,LBj),                       &
@@ -1001,7 +1001,7 @@
      &                    MyThread, bounded, track(1,0,1))
 
       DO itrc=1,NT(ng)
-        CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, N(ng),           &
+        CALL interp_fishes (ng, LBi, UBi, LBj, UBj, 1, N(ng),           &
      &                      Lstr, Lend, nfp1, itrc+10,                  &
      &                      r3dvar, Lmask, nudg,                        &
      &                      GRID(ng) % pm(LBi,LBj),                     &
