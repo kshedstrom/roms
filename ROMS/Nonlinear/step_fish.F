@@ -307,7 +307,7 @@
 #  ifdef MASKING
      &                          GRID(ng) % rmask(LBi,LBj),              &
 #  endif
-     &                          OCEAN(ng) % t,                          &
+     &                          OCEAN(ng) % t(LBi,LBj,1,nnew,1),        &
      &                          track(1,0,1),                           &
      &                          bioenergy)
 !
@@ -511,7 +511,7 @@
 #  ifdef MASKING
      &                          GRID(ng) % rmask(LBi,LBj),              &
 #  endif
-     &                          OCEAN(ng) % t,                          &
+     &                          OCEAN(ng) % t(LBi,LBj,1,nnew,1),        &
      &                          track(1,0,1),                           &
      &                          bioenergy)
 !
