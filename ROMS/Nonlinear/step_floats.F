@@ -2,7 +2,7 @@
       MODULE step_floats_mod
 #if defined NONLINEAR && defined FLOATS
 !
-!svn $Id: step_floats.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: step_floats.F 997 2009-06-04 17:42:20Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group        John M. Klinck   !
 !    Licensed under a MIT/X style license                              !
@@ -80,6 +80,9 @@
       USE mod_ocean
       USE mod_scalars
       USE interp_floats_mod
+# ifdef DIAPAUSE
+      USE interp_floats_diapW_mod
+# endif
 !
 # ifdef DISTRIBUTE
       USE distribute_mod, ONLY : mp_collect
@@ -129,14 +132,14 @@
       integer :: ierr
       integer :: iseed = 149876
 # endif
-#ifdef FLOATS_DIAPAUSE
+# ifdef DIAPAUSE
 !      logical :: downward , upward 
       real(r8) :: RiseStart,RiseEnd,SinkStart,SinkEnd
       real(r8) :: wNCsink,wNCrise
       integer :: iday, month, year 
       real(r8) :: yday, hour, dtdays,cff,diapW
       integer :: FloatPhase
-#endif
+# endif
 
       real(r8), dimension(Lstr:Lend) :: nudg
 
@@ -144,9 +147,9 @@
       real(r8) :: Xstr, Xend, Ystr, Yend
       real(r8), dimension(Nfloats(ng)*NFV(ng)*(NFT+1)) :: Fwrk
 # endif
-#ifdef FLOATS_DIAPAUSE
+# ifdef DIAPAUSE
       CALL caldate (r_date, tdays(ng), year, yday, month, iday, hour)
-#endif
+# endif
 !
 ! Set tile array bounds.
 !
@@ -199,8 +202,7 @@
       END DO
 # endif
 
-
-#ifdef FLOATS_DIAPAUSE
+# ifdef DIAPAUSE
 
            RiseStart=   1.0d0  ! Date NC begin to move upward (Day of Year)
            RiseEnd  =  90.00d0 ! 90 Date NC stop moving upward (Day of Year)
@@ -212,7 +214,7 @@
            diapW=0.0
            dtdays = dt(ng)*sec2day
         
-#endif 
+# endif 
 !-----------------------------------------------------------------------
 ! Compute nudging velocities for vertical random walk.
 !-----------------------------------------------------------------------
@@ -257,7 +259,7 @@
         END IF
       END DO
 
-#ifdef FLOATS_DIAPAUSE
+# ifdef DIAPAUSE
 
 !  Based on date, determine if NCa are going upwards or downwards
         
@@ -303,9 +305,9 @@
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
      &                    GRID(ng) % Hz,                                &
-# ifdef MASKING
+#  ifdef MASKING
      &                    GRID(ng) % rmask,                             &
-# endif
+#  endif
      &                    diapW,                                        &
      &                    OCEAN(ng) % W,                                &
      &                    MyThread, bounded, track,                     &
@@ -314,7 +316,7 @@
           ENDIF 
    
    
-#else   
+# else   
 
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 0, N(ng),             &
      &                    Lstr, Lend, nf, izrhs, Nfloats(ng),           &
@@ -322,13 +324,13 @@
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
      &                    GRID(ng) % Hz,                                &
-# ifdef MASKING
+#  ifdef MASKING
      &                    GRID(ng) % rmask,                             &
-# endif
+#  endif
      &                    OCEAN(ng) % W,                                &
      &                    MyThread, bounded, track)
 
-#endif
+# endif
  
 !
 !  For now, use a forward time step for vertical position.
@@ -477,9 +479,9 @@
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
      &                    GRID(ng) % Hz,                                &
-# ifdef MASKING
+#  ifdef MASKING
      &                    GRID(ng) % rmask,                             &
-# endif
+#  endif
      &                    OCEAN(ng) % u(:,:,:,nnew),                    &
      &                    MyThread, bounded, track)
 
@@ -489,21 +491,14 @@
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
      &                    GRID(ng) % Hz,                                &
-# ifdef MASKING
+#  ifdef MASKING
      &                    GRID(ng) % rmask,                             &
-# endif
+#  endif
      &                    OCEAN(ng) % v(:,:,:,nnew),                    &
      &                    MyThread, bounded, track)
 
-
-
-
-
-
 #  if !defined FLOAT_VWALK
-
-
-#ifdef FLOATS_DIAPAUSE
+#   ifdef DIAPAUSE
 !  Based on date, determine if NCa are going upwards or downwards
          
 !      DO l=Lstr,Lend
@@ -560,7 +555,7 @@
      
           ENDIF 
   
-#else
+#   else
 
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 0, N(ng),             &
      &                    Lstr, Lend, nfp1, izrhs, Nfloats(ng),         &
@@ -574,7 +569,7 @@
      &                    OCEAN(ng) % W,                                &
      &                    MyThread, bounded, track)
      
-#endif     
+#   endif     
      
 #  endif
 
@@ -584,9 +579,9 @@
      &                    -u2dvar, Lmask, nudg,                         &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
-# ifdef MASKING
+#  ifdef MASKING
      &                    GRID(ng) % rmask,                             &
-# endif
+#  endif
      &                    OCEAN(ng) % ubar(:,:,knew),                   &
      &                    MyThread, bounded, track)
 
@@ -596,9 +591,9 @@
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
      &                    GRID(ng) % Hz,                                &
-# ifdef MASKING
+#  ifdef MASKING
      &                    GRID(ng) % rmask,                             &
-# endif
+#  endif
      &                    OCEAN(ng) % vbar(:,:,knew),                   &
      &                    MyThread, bounded, track)
 # endif
