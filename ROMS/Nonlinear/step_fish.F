@@ -1002,7 +1002,8 @@
 
       DO itrc=1,NT(ng)
         CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, N(ng),           &
-     &                      Lstr, Lend, nfp1, itrc+10, Nfish(ng),       &
+     &                      Lstr, Lend, nfp1, itrc+NFV(ng)-NT(ng),      &
+     &                      Nfish(ng),                                  &
      &                      r3dvar, Lmask, nudg,                        &
      &                      GRID(ng) % pm,                              &
      &                      GRID(ng) % pn,                              &

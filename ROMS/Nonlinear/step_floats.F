@@ -1072,11 +1072,8 @@
 
       DO itrc=1,NT(ng)
         CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, N(ng),           &
-#  ifdef FLOAT_VWALK
-     &                      Lstr, Lend, nfp1, itrc+12, Nfloats(ng),     &
-#  else
-     &                      Lstr, Lend, nfp1, itrc+10, Nfloats(ng),     &
-#  endif
+     &                      Lstr, Lend, nfp1, itrc+NFV(ng)-NT(ng),      &
+     &                      Nfloats(ng),                                &
      &                      r3dvar, Lmask, nudg,                        &
      &                      GRID(ng) % pm,                              &
      &                      GRID(ng) % pn,                              &
