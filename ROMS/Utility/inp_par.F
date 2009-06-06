@@ -5793,18 +5793,6 @@
           ELSE IF (TRIM(KeyWord).eq.'FeRR') THEN
             Npts=load_r(Nval, Rval, Ngrids, FeRR)
 # endif
-# ifdef NEMURO_SAN
-          ELSE IF (TRIM(KeyWord).eq.'Fwwt0') THEN
-            Npts=load_r(Nval, Rval, Ngrids, Fwwt0)
-          ELSE IF (TRIM(KeyWord).eq.'ZSpref') THEN
-            Npts=load_r(Nval, Rval, Ngrids, ZSpref)
-          ELSE IF (TRIM(KeyWord).eq.'ZLpref') THEN
-            Npts=load_r(Nval, Rval, Ngrids, ZLpref)
-          ELSE IF (TRIM(KeyWord).eq.'ZPpref') THEN
-            Npts=load_r(Nval, Rval, Ngrids, ZPpref)
-          ELSE IF (TRIM(KeyWord).eq.'Nfishcount') THEN
-            Npts=load_r(Nval, Rval, Ngrids, Nfishcount)
-# endif
           ELSE IF (TRIM(KeyWord).eq.'TNU2') THEN
             Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
             DO ng=1,Ngrids
@@ -6143,18 +6131,6 @@
      &            'Large P Fe:C at F=0.5 (muM-Fe/M-C).'
             WRITE (out,100) FeRR(ng), 'FeRR',                           &
      &            'Fe remineralization rate (day-1).'
-#  endif
-#  ifdef NEMURO_SAN
-            WRITE (out,100) Fwwt0(ng), 'Fwwt0',                         &
-     &            'Fish initial wet weight (g).'
-            WRITE (out,100) ZSpref(ng), 'ZSpref',                       &
-     &            'Fish preference for ZS (-).'
-            WRITE (out,100) ZLpref(ng), 'ZLpref',                       &
-     &            'Fish preference for ZL (-).'
-            WRITE (out,100) ZPpref(ng), 'ZPpref',                       &
-     &            'Fish preference for ZP (-).'
-            WRITE (out,100) Nfishcount(ng), 'Nfishcount',               &
-     &            'Number of fishes per superindividual.'
 #  endif
 #  ifdef TS_DIF2
             DO itrc=1,NBT
@@ -10786,6 +10762,7 @@
 !
       USE mod_param
       USE mod_parallel
+      USE mod_biology
       USE mod_fish
       USE mod_iounits
       USE mod_ncparam
@@ -10804,6 +10781,7 @@
       integer :: i, j, igrid, mc, nc, ng, status
 
       integer, dimension(Ngrids) :: ncount, nentry
+      integer, dimension(Ngrids) :: Npos
 
       integer, allocatable :: Fcoor(:,:), Fcount(:,:), Ftype(:,:)
 
@@ -10837,11 +10815,34 @@
             Npts=load_l(Nval, Cval, Ngrids, Lfish)
           ELSE IF (TRIM(KeyWord).eq.'FISHRREC') THEN
             Npts=load_i(Nval, Rval, Ngrids, fishrrec)
-          ELSE IF (TRIM(KeyWord).eq.'NFISH') THEN
-            Npts=load_i(Nval, Rval, Ngrids, Nfish)
+          ELSE IF (TRIM(KeyWord).eq.'Fwwt0') THEN
+            Npts=load_r(Nval, Rval, Ngrids, Fwwt0)
+          ELSE IF (TRIM(KeyWord).eq.'ZSpref') THEN
+            Npts=load_r(Nval, Rval, Ngrids, ZSpref)
+          ELSE IF (TRIM(KeyWord).eq.'ZLpref') THEN
+            Npts=load_r(Nval, Rval, Ngrids, ZLpref)
+          ELSE IF (TRIM(KeyWord).eq.'ZPpref') THEN
+            Npts=load_r(Nval, Rval, Ngrids, ZPpref)
+          ELSE IF (TRIM(KeyWord).eq.'Nfishcount') THEN
+            Npts=load_r(Nval, Rval, Ngrids, Nfishcount)
+          ELSE IF (TRIM(KeyWord).eq.'Nfishperyear') THEN
+            Npts=load_i(Nval, Rval, Ngrids, Nfishperyear)
+          ELSE IF (TRIM(KeyWord).eq.'Nspecies') THEN
+            Npts=load_i(Nval, Rval, Ngrids, Nspecies)
+          ELSE IF (TRIM(KeyWord).eq.'Nyearclass') THEN
+            Npts=load_i(Nval, Rval, Ngrids, Nyearclass)
+          ELSE IF (TRIM(KeyWord).eq.'Nbox') THEN
+            Npts=load_i(Nval, Rval, Ngrids, Nbox)
+          ELSE IF (TRIM(KeyWord).eq.'Nbatch') THEN
+            Npts=load_i(Nval, Rval, Ngrids, Nbatch)
+          ELSE IF (TRIM(KeyWord).eq.'Npos') THEN
+            Npts=load_i(Nval, Rval, Ngrids, Npos)
           ELSE IF (TRIM(KeyWord).eq.'POS') THEN
-            Npts=Nfish(1)+1
-            IF (Ngrids.gt.1) Npts=MAXVAL(Nfish)+1
+            DO ng=1,Ngrids
+              Nfish(ng) = Nfishperyear(ng)*Nspecies(ng)*Nyearclass(ng)
+            END DO
+            Npts=Npos(1)+1
+            IF (Ngrids.gt.1) Npts=MAXVAL(Npos)+1
             allocate ( Fcoor (Npts,Ngrids) )
             allocate ( Fcount(Npts,Ngrids) )
             allocate ( Ftype (Npts,Ngrids) )
@@ -10893,8 +10894,8 @@
 !
       IF (Lwrite) THEN
         DO ng=1,Ngrids
-          IF (ncount(ng).ne.Nfish(ng)) THEN
-            IF (Master) WRITE (stdout,60) ncount(ng), Nfish(ng)
+          IF (ncount(ng).ne.Npos(ng)) THEN
+            IF (Master) WRITE (stdout,60) ncount(ng), Npos(ng)
             exit_flag=4
             RETURN
           END IF
@@ -11021,6 +11022,19 @@
       deallocate ( Fdx )
       deallocate ( Fdy )
       deallocate ( Fdz )
+
+! was elsewhere
+!            WRITE (out,100) Fwwt0(ng), 'Fwwt0',                         &
+!     &            'Fish initial wet weight (g).'
+!            WRITE (out,100) ZSpref(ng), 'ZSpref',                       &
+!     &            'Fish preference for ZS (-).'
+!            WRITE (out,100) ZLpref(ng), 'ZLpref',                       &
+!     &            'Fish preference for ZL (-).'
+!            WRITE (out,100) ZPpref(ng), 'ZPpref',                       &
+!     &            'Fish preference for ZP (-).'
+!            WRITE (out,100) Nfishcount(ng), 'Nfishcount',               &
+!     &            'Number of fishes per superindividual.'
+
 !
   40  FORMAT (/,' READ_FishPar - Error while reading floats',           &
      &          ' locations in input script: ',a)

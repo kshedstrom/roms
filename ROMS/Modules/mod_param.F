@@ -76,13 +76,13 @@
 !
 #ifdef NEMURO_SAN
 ! parameters for the fish particle model
-!  Nbox       Number of spawning areas
-!  Numfish    Number of fish per year class per species
-!  Nspecies   Number of fish species
-!  Nyearclass Number of year classes
-!  Nfish      Total number of fish
-!  Nships     Total number of ships and/or predatory fish
-!  Nbatch     Number of days per year an individual will release eggs
+!  Nbox         Number of spawning areas
+!  Nfishperyear Number of fish per year class per species
+!  Nspecies     Number of fish species
+!  Nyearclass   Number of year classes
+!  Nfish        Total number of fish
+!  Nbatch       Number of days per year an individual will release eggs
+!  Nships       Total number of ships and/or predatory fish
 #endif
 !                                                                      !
 !=======================================================================
@@ -524,14 +524,14 @@
 
 #ifdef NEMURO_SAN
         integer, dimension(Ngrids) :: Nbox
-        integer, dimension(Ngrids), parameter :: Numfish=500
-        integer, dimension(Ngrids), parameter :: Nspecies=2
-        integer, dimension(Ngrids), parameter :: Nyearclass=10
-        integer, dimension(Ngrids), parameter :: Nfish=500*3*10
-!       integer, dimension(Ngrids), parameter :: Nfish=Numfish*Nspecies*Nyearclass
+        integer, dimension(Ngrids) :: Nfishperyear
+        integer, dimension(Ngrids) :: Nspecies
+        integer, dimension(Ngrids) :: Nyearclass
+!   Nfish=Nfishperyear*Nspecies*Nyearclass
+        integer, dimension(Ngrids) :: Nfish
         integer, dimension(Ngrids), parameter :: Nbatch=8
 
-        integer, dimension(Ngrids), parameter :: Nships=200
+        integer, dimension(Ngrids) :: Nships
 
 !  Total number of fish variables to process and output.
 !

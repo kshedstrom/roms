@@ -253,26 +253,6 @@
 
          FeRR == 0.5d0                           ! FeRR 
 
-! NEMURO.SAN: Fish initial wet weight [g], {2.0d0}.
-
-         Fwwt0 == 2.0d0                          ! Fwwt0
-
-! NEMURO.SAN: Fish preference for ZS, {0.5d0}.
-
-         ZSpref == 1.0d0                         ! ZSpref
-
-! NEMURO.SAN: Fish preference for ZL, {1.0d0}.
-
-         ZLpref == 1.0d0                         ! ZLpref
-
-! NEMURO.SAN: Fish preference for ZP, {0.5d0}.
-
-         ZPpref == 1.0d0                         ! ZPpref
-
-! NEMURO.SAN: Number of fishes per superindividual, {1.0d0}.
-
-         Nfishcount == 1.0d0                      ! Nfishcount
-
 ! Lateral, constant, harmonic/biharmonic horizontal diffusion of biological
 ! tracer: [1:NBT,Ngrids].
 
