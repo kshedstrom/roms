@@ -1,10 +1,7 @@
 #include "cppdefs.h"
 #if defined NONLINEAR && defined FLOATS && defined NEMURO_SAN
-      SUBROUTINE fish_growth_ijk (ng, Fweight, Uswim,                   &
-# ifdef MASKING
-     &                            Bmask,                                &
-# endif
-     &                            B, Fgrowth)
+      SUBROUTINE fish_growth_ijk (ng, Ir, Jr, Kr, nnew,                 &
+     &                                Fweight, Uswim, Fgrowth)
 !
 !svn $Id: interp_floats.F 294 2009-01-09 21:37:26Z arango $
 !================================================== Hernan G. Arango ===
@@ -51,18 +48,16 @@
       USE mod_ncparam
       USE mod_scalars
       USE mod_biology
+      USE mod_ocean
+      USE mod_grid
 !
       implicit none
 !
 !  Imported variable declarations.
 !
-      integer, intent(in) :: ng
-      real(r8), intent(inout) :: Fgrowth
+      integer, intent(in) :: ng, Ir, Jr, Kr, nnew
       real(r8), intent(in) :: Uswim, Fweight
-# ifdef MASKING
-      real(r8), intent(in) :: Bmask
-# endif
-      real(r8), intent(in) :: B(1:NT(ng))
+      real(r8), intent(inout) :: Fgrowth
 !
 !  Local variable declarations.
 !
@@ -97,13 +92,16 @@
 ! COMSUMPTION
       C_max=a_C*Fweight**(-b_C)
 # ifdef MASKING
-      SZooC=mmol2g*Bmask*B(iSzoo)
-      LZooC=mmol2g*Bmask*B(iLzoo)
-      PZooC=mmol2g*Bmask*B(iPzoo)
+      SZooC=mmol2g*GRID(ng)%rmask(Ir,Jr)*                               &
+     &             OCEAN(ng)%t(Ir,Jr,Kr,nnew,iSzoo)
+      LZooC=mmol2g*GRID(ng)%rmask(Ir,Jr)*                               &
+     &             OCEAN(ng)%t(Ir,Jr,Kr,nnew,iLzoo)
+      PZooC=mmol2g*GRID(ng)%rmask(Ir,Jr)*                               &
+     &             OCEAN(ng)%t(Ir,Jr,Kr,nnew,iPzoo)
 # else
-      SZooC=mmol2g*B(iSzoo)
-      LZooC=mmol2g*B(iLzoo)
-      PZooC=mmol2g*B(iPzoo)
+      SZooC=mmol2g*OCEAN(ng)%t(Ir,Jr,Kr,nnew,iSzoo)
+      LZooC=mmol2g*OCEAN(ng)%t(Ir,Jr,Kr,nnew,iLzoo)
+      PZooC=mmol2g*OCEAN(ng)%t(Ir,Jr,Kr,nnew,iPzoo)
 # endif
       FSZoo=SZooC*ZSpref(ng)/K_ZS
       FLZoo=LZooC*ZLpref(ng)/K_ZL

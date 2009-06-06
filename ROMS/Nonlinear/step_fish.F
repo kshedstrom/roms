@@ -134,8 +134,6 @@
 # endif
       logical, dimension(Lstr:Lend) :: MyThread
 
-      logical :: Fswim = .FALSE.
-
       integer :: LBi, UBi, LBj, UBj
       integer :: Ir, Jr, Npts, i, i1, i2, j, j1, j2, itrc, l, k
       integer :: NptsF
@@ -144,9 +142,7 @@
 
       real(r8) :: cff1, cff2, cff3, cff4, cff5, cff6, cff7, cff8, cff9
       real(r8) :: p1, p2, q1, q2, xrhs, yrhs, zrhs, zfloat
-      real(r8) :: diSwim, djSwim
       real(r8) :: tspawn
-      integer :: kZmax
 
 # ifdef FLOAT_VWALK
       integer :: ierr
@@ -298,35 +294,24 @@
       DO l=Lstr,Lend
         IF (MyThread(l).and.bounded(l)) THEN
           IF (alive(l)) THEN
-            Fswim=.FALSE.
             CALL fish_swim (ng, LBi, UBi, LBj, UBj, 1, N(ng),           &
      &                          l, nf, nnew,                            &
-     &                          diSwim, djSwim, kZmax, Fswim,           &
      &                          GRID(ng) % pm,                          &
      &                          GRID(ng) % pn,                          &
+# ifdef SOLVE3D
      &                          GRID(ng) % Hz,                          &
-# ifdef MASKING
-     &                          GRID(ng) % rmask,                       &
 # endif
-     &                          OCEAN(ng) % t(:,:,:,nnew,:),            &
      &                          track, bioenergy)
-!
-            IF (Fswim) THEN
-              track(ixgrd,nfp1,l)=track(ixgrd,nfm3,l)+                  &
-     &                    dt(ng)*(cff1*diSwim-cff2*diSwim+cff1*diSwim)
-              track(iygrd,nfp1,l)=track(iygrd,nfm3,l)+                  &
-     &                    dt(ng)*(cff1*djSwim-cff2*djSwim+cff1*djSwim)
-            ELSE
-              track(ixgrd,nfp1,l)=track(ixgrd,nfm3,l)+                  &
-     &                    dt(ng)*(cff1*track(ixrhs,nf  ,l)-             &
-     &                            cff2*track(ixrhs,nfm1,l)+             &
-     &                            cff1*track(ixrhs,nfm2,l))
-              track(iygrd,nfp1,l)=track(iygrd,nfm3,l)+                  &
-     &                    dt(ng)*(cff1*track(iyrhs,nf  ,l)-             &
-     &                            cff2*track(iyrhs,nfm1,l)+             &
-     &                            cff1*track(iyrhs,nfm2,l))
-            END IF
           END IF
+!
+          track(ixgrd,nfp1,l)=track(ixgrd,nfm3,l)+                      &
+     &                        dt(ng)*(cff1*track(ixrhs,nf  ,l)-         &
+     &                                cff2*track(ixrhs,nfm1,l)+         &
+     &                                cff1*track(ixrhs,nfm2,l))
+          track(iygrd,nfp1,l)=track(iygrd,nfm3,l)+                  &
+     &                        dt(ng)*(cff1*track(iyrhs,nf  ,l)-         &
+     &                                cff2*track(iyrhs,nfm1,l)+         &
+     &                                cff1*track(iyrhs,nfm2,l))
 !
 # if defined SOLVE3D && !defined FLOAT_VWALK
 !
@@ -419,7 +404,6 @@
      &                                  cff2*track(izrhs,nfm1,l)+       &
      &                                  cff1*track(izrhs,nfm2,l))
           END IF
-          IF (Fswim) track(izgrd,nfp1,l)=REAL(kZmax,r8)
 # endif
         END IF
       END DO
@@ -505,36 +489,24 @@
           IF (alive(l)) THEN
             CALL fish_swim (ng, LBi, UBi, LBj, UBj, 1, N(ng),           &
      &                          l, nfp1, nnew,                          &
-     &                          diSwim, djSwim, kZmax, Fswim,           &
      &                          GRID(ng) % pm,                          &
      &                          GRID(ng) % pn,                          &
+# ifdef SOLVE3D
      &                          GRID(ng) % Hz,                          &
-# ifdef MASKING
-     &                          GRID(ng) % rmask,                       &
 # endif
-     &                          OCEAN(ng) % t(:,:,:,nnew,:),            &
      &                          track, bioenergy)
-!
-            IF (Fswim) THEN
-              track(ixgrd,nfp1,l)=cff1*track(ixgrd,nf  ,l)-             &
-     &                            cff2*track(ixgrd,nfm2,l)+             &
-     &                    dt(ng)*(cff3*diSwim+cff4*diSwim-cff3*diSwim)
-              track(iygrd,nfp1,l)=cff1*track(iygrd,nf  ,l)-             &
-     &                            cff2*track(iygrd,nfm2,l)+             &
-     &                    dt(ng)*(cff3*djSwim+cff4*djSwim-cff3*djSwim)
-            ELSE
-              track(ixgrd,nfp1,l)=cff1*track(ixgrd,nf  ,l)-             &
-     &                            cff2*track(ixgrd,nfm2,l)+             &
-     &                    dt(ng)*(cff3*track(ixrhs,nfp1,l)+             &
-     &                            cff4*track(ixrhs,nf  ,l)-             &
-     &                            cff3*track(ixrhs,nfm1,l))
-              track(iygrd,nfp1,l)=cff1*track(iygrd,nf  ,l)-             &
-     &                            cff2*track(iygrd,nfm2,l)+             &
-     &                    dt(ng)*(cff3*track(iyrhs,nfp1,l)+             &
-     &                            cff4*track(iyrhs,nf  ,l)-             &
-     &                            cff3*track(iyrhs,nfm1,l))
-            END IF
           END IF
+!
+          track(ixgrd,nfp1,l)=cff1*track(ixgrd,nf  ,l)-                 &
+     &                        cff2*track(ixgrd,nfm2,l)+                 &
+     &                        dt(ng)*(cff3*track(ixrhs,nfp1,l)+         &
+     &                                cff4*track(ixrhs,nf  ,l)-         &
+     &                                cff3*track(ixrhs,nfm1,l))
+          track(iygrd,nfp1,l)=cff1*track(iygrd,nf  ,l)-                 &
+     &                        cff2*track(iygrd,nfm2,l)+                 &
+     &                        dt(ng)*(cff3*track(iyrhs,nfp1,l)+         &
+     &                                cff4*track(iyrhs,nf  ,l)-         &
+     &                                cff3*track(iyrhs,nfm1,l))
 !
 # if defined SOLVE3D && !defined FLOAT_VWALK
 !
@@ -629,7 +601,6 @@
      &                                  cff4*track(izrhs,nf  ,l)-       &
      &                                  cff3*track(izrhs,nfm1,l))
           END IF
-          IF (Fswim) track(izgrd,nfp1,l)=REAL(kZmax,r8)
 # endif
         END IF
       END DO

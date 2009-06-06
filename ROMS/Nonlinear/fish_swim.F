@@ -53,15 +53,11 @@
 !***********************************************************************
       SUBROUTINE fish_swim (ng, LBi, UBi, LBj, UBj, LBk, UBk,           &
      &                          lflt, itime, nnew,                      &
-     &                          diS, djS, kZmax, Fswim,                 &
      &                          pm, pn,                                 &
 # ifdef SOLVE3D
      &                          Hz,                                     &
 # endif
-# ifdef MASKING
-     &                          Amask,                                  &
-# endif
-     &                          A, track, bioenergy)
+     &                          track, bioenergy)
 !***********************************************************************
 !
       USE mod_param
@@ -73,23 +69,15 @@
 !
 !  Imported variable declarations.
 !
-      logical, intent(inout) :: Fswim
-
       integer, intent(in) :: ng, LBi, UBi, LBj, UBj, LBk, UBk
       integer, intent(in) :: lflt, itime, nnew
 
-      real(r8), intent(inout) :: diS, djS
       real(r8), intent(in) :: pm(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: pn(LBi:UBi,LBj:UBj)
 # ifdef SOLVE3D
       real(r8), intent(in) :: Hz(LBi:UBi,LBj:UBj,UBk)
 # endif
-# ifdef MASKING
-      real(r8), intent(in) :: Amask(LBi:UBi,LBj:UBj)
-# endif
-      real(r8), intent(in) :: A(LBi:UBi,LBj:UBj,LBk:UBk,NT(ng))
       real(r8), intent(in) :: bioenergy(NFishV(ng),Nfish(ng))
-
       real(r8), intent(inout) :: track(NFV(ng),0:NFT,Nfish(ng))
 !
 !  Local variable declarations.
@@ -105,7 +93,7 @@
       real(r8) :: SZooC, LZooC, PZooC, TZooC, ZooMax
       real(r8) :: Fweight, Fgrowth, Fmort, Ftemp, Fdens, Fpval
       real(r8) :: score, scoreMax, a_A, b_A, Uswim
-      real(r8) :: d_i, d_j, d_ij, theta_ij, fac, snudg
+      real(r8) :: d_i, d_j, d_ij, d_k, theta_ij, fac, snudg
       real(r8) :: vnudg(1)
       real(r8) :: Fvar, Fvar_opt, Fvar_sigma, var_f, var_g
       real(r8) :: dist, epsd, epsd_sigma, ee, epsx, epsy, h1, h2
@@ -123,9 +111,7 @@
 !
       Fweight=bioenergy(ifwwt,lflt)
 !
-      IF (Fweight.ge.0.0_r8) Fswim=.TRUE.
-!
-      IF (Fswim) THEN
+      IF (Fweight.ge.0.0_r8) THEN
 !
 ! Swimming velocity based on fish weight
 ! Uswim relationship is in cm/s
@@ -143,13 +129,9 @@
         KrMax=Kr
         DO j=Jr-1,Jr+1
           DO i=Ir-1,Ir+1
-            DO k=1,N(ng)
-              CALL fish_growth_ijk (ng, Fweight, Uswim,                 &
-#  ifdef MASKING
-     &                              Amask(i,j),                         &
-#  endif
-     &                              A(i,j,k,:), Fgrowth)
-!
+            DO k=MAX(Kr-1,1),MIN(Kr+1,N(ng))
+              CALL fish_growth_ijk (ng, i, j, k, nnew,                  &
+     &                                  Fweight, Uswim, Fgrowth)
 ! MISSING HERE: CALL FOR MORTALITY SUBROUTINE
               Fmort=0.0_r8
               score=exp(Fgrowth)*exp(Fmort)
@@ -162,30 +144,30 @@
             END DO
           END DO
         END DO
-!
         CALL ran1_s (snudg)
         fac=2.0_r8*(snudg-0.5_r8)
-!
         d_i=REAL(IrMax,r8)-track(ixgrd,itime,lflt)
         d_j=REAL(JrMax,r8)-track(iygrd,itime,lflt)
+        d_k=REAL(KrMax,r8)-track(izgrd,itime,lflt)
 ! Angle with +-0.5 radians randomness
         theta_ij=atan2(d_j,d_i)+0.5_r8*fac
 ! Distance with 30% randomness
-        d_ij=1.0_r8+0.3_r8*fac
-!
-! Swim towards best location
+        d_ij=((d_i/pm(Ir,Jr))**2+(d_j/pn(Ir,Jr))**2)**0.5_r8
 ! Uswim is in cm/s, so multiply by 0.01 for m/s)
-        diS=0.01_r8*Uswim*d_ij*cos(theta_ij)*pm(Ir,Jr)
-        djS=0.01_r8*Uswim*d_ij*sin(theta_ij)*pn(Ir,Jr)
-! k index of cell with max food to move fish in step_float
-        kZmax=KrMax
+        d_ij=MIN(0.01_r8*Uswim*dt(ng),d_ij)
+        d_ij=d_ij+0.3_r8*fac*d_ij
+! Swim towards best location
+        track(ixrhs,itime,lflt)=d_ij*cos(theta_ij)*pm(Ir,Jr)/dt(ng)
+        track(iyrhs,itime,lflt)=d_ij*sin(theta_ij)*pn(Ir,Jr)/dt(ng)
+        track(izrhs,itime,lflt)=d_k/dt(ng)
+!        track(izrhs,itime,lflt)=0.0_r8
 !
 # endif
 !
 # ifdef HUMSTON
 !
         Ftemp=track(itemp+NFV(ng)-NT(ng),itime,lflt)
-        Fpval=bioenergy(ifpvl,lflt)
+!        Fpval=bioenergy(ifpvl,lflt)
         Fdens=track(ifden,itime,lflt)
         tcheck=MOD(time(ng)/86400.0_r8,24.0_r8)
 !
@@ -204,8 +186,8 @@
 !
 ! Horizontal behavior (updated once daily or when hits land)
         IF ((tcheck.eq.REAL(INT(tcheck))).or.(Fdens.eq.0.0_r8)) THEN
-          xdis=bioenergy(ixgrd,lflt)
-          ydis=bioenergy(iygrd,lflt)
+          xdis=track(ixrhs,itime-1,lflt)*dt(ng)/pm(Ir,Jr)
+          ydis=track(iyrhs,itime-1,lflt)*dt(ng)/pn(Ir,Jr)
 ! Use velx, vely below for purely random motion
 !          xdis=0.0_r8
 !          ydis=0.0_r8
@@ -250,21 +232,19 @@
             ydis=-1.0_r8*ydis
           END IF
 ! Swim towards best location
-          diS=xdis*pm(Ir,Jr)/dt(ng)
-          djS=ydis*pn(Ir,Jr)/dt(ng)
-          bioenergy(ixgrd,lflt)=xdis
-          bioenergy(iygrd,lflt)=ydis
+          track(ixrhs,itime,lflt)=xdis*pm(Ir,Jr)/dt(ng)
+          track(iyrhs,itime,lflt)=ydis*pn(Ir,Jr)/dt(ng)
         ELSE
 ! Swim towards best location
-          xdis=bioenergy(ixgrd,lflt)
-          ydis=bioenergy(iygrd,lflt)
-          diS=xdis*pm(Ir,Jr)/dt(ng)
-          djS=ydis*pn(Ir,Jr)/dt(ng)
+          xdis=track(ixrhs,itime-1,lflt)*dt(ng)/pm(Ir,Jr)
+          ydis=track(iyrhs,itime-1,lflt)*dt(ng)/pn(Ir,Jr)
+          track(ixrhs,itime,lflt)=xdis*pm(Ir,Jr)/dt(ng)
+          track(iyrhs,itime,lflt)=ydis*pn(Ir,Jr)/dt(ng)
         END IF
 !
 ! Vertical behavior (update at every time step)
 ! DOES NOT WORK YET
-        zdis=bioenergy(izgrd,lflt)
+        zdis=track(izgrd,itime-1,lflt)*dt(ng)
 ! Uswim is in cm/s, so multiply by 0.01 for m/s)
 !        dist=0.01_r8*Uswim*dt(ng)
 ! Max distance is 100m, or total water depth (whichever is less)
@@ -292,20 +272,9 @@
         g_epsz=epsz*var_g
         zdis=f_zdis+g_epsz
 ! Swim towards best location
-        zpos=GRID(ng)%z_w(Ir,Jr,Kr)+zdis
-        cff1=GRID(ng)%z_w(Ir,Jr,N(ng))
-        kZmax=Kr
-        DO k=N(ng)-1,1,-1
-          cff2=GRID(ng)%z_w(Ir,Jr,k)
-          IF ((zpos-cff2)*(cff1-zpos).ge.0.0_r8) THEN
-            kZmax=k
-          END IF
-          cff1=cff2
-        END DO
-        bioenergy(izgrd,lflt)=zdis
-!        write(6,*) 'HUMSTON   ',zdis,zpos
+        track(izrhs,itime,lflt)=zdis/dt(ng)
 ! Temporary overwrite until vertical motion is working
-        kZmax=Kr
+        track(izrhs,itime,lflt)=0.0_r8
 !
 # endif
 !
