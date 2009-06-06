@@ -45,11 +45,45 @@
 
        FISHRREC == 0
 
-! Number of stations to process in each nested grid.  These values are
-! essential because the FLOATS structure in "mod_floast" is dynamically
-! allocated using these values, [1:Ngrids].
+! Fish initial wet weight [g], {2.0d0}.
 
-     NFISH == 36
+         Fwwt0 == 2.0d0                          ! Fwwt0
+
+! Fish preference for ZS, {0.5d0}.
+
+         ZSpref == 1.0d0                         ! ZSpref
+
+! Fish preference for ZL, {1.0d0}.
+
+         ZLpref == 1.0d0                         ! ZLpref
+
+! Fish preference for ZP, {0.5d0}.
+
+         ZPpref == 1.0d0                         ! ZPpref
+
+! Number of fishes per superindividual, {1.0d0}.
+
+         Nfishcount == 1.0d0                      ! Nfishcount
+
+! Number of fish per year per species.
+
+     Nfishperyear == 360
+
+! Number of fish species.
+
+     Nspecies == 1
+
+! Number of year classes.
+
+     Nyearclass == 10
+
+! Number of batches of eggs per female per year.
+
+     Nbatch == 8
+
+! Number of positions listed below
+
+     Npos == 36
 
 ! Initial floats locations for all grids:
 !

@@ -700,6 +700,26 @@
 !-----------------------------------------------------------------------
 !  Compute Lagrangian fish trajectories.
 !-----------------------------------------------------------------------
+!$OMP PARALLEL DO PRIVATE(thread,chunk_size,Lstr,Lend)                  &
+!$OMP&            SHARED(ng,numthreads,Nfish)
+      DO thread=0,numthreads-1
+        chunk_size=(Nfish(ng)+numthreads-1)/numthreads
+        Lstr=1+thread*chunk_size
+        Lend=MIN(Nfish(ng),Lstr+chunk_size-1)
+        CALL step_fish (ng, Lstr, Lend)
+      END DO
+!$OMP END PARALLEL DO
+#  ifdef FLEET
+!$OMP PARALLEL DO PRIVATE(thread,chunk_size,Lstr,Lend)                  &
+!$OMP&            SHARED(ng,numthreads,Nships)
+      DO thread=0,numthreads-1
+        chunk_size=(Nships(ng)+numthreads-1)/numthreads
+        Lstr=1+thread*chunk_size
+        Lend=MIN(Nships(ng),Lstr+chunk_size-1)
+        CALL step_ships (ng, Lstr, Lend)
+      END DO
+!$OMP END PARALLEL DO
+#  endif
 !
 !  Find out how many and which fish in each cell - is this daily?
 !
@@ -715,16 +735,8 @@
           END DO
         END DO
 !$OMP END PARALLEL DO
+        iyesterday(ng) = idays(ng)
       END IF
-!$OMP PARALLEL DO PRIVATE(thread,chunk_size,Lstr,Lend)                  &
-!$OMP&            SHARED(ng,numthreads,Nfish)
-      DO thread=0,numthreads-1
-        chunk_size=(Nfish(ng)+numthreads-1)/numthreads
-        Lstr=1+thread*chunk_size
-        Lend=MIN(Nfish(ng),Lstr+chunk_size-1)
-        CALL step_fish (ng, Lstr, Lend)
-      END DO
-!$OMP END PARALLEL DO
 # endif
 # if defined FLOATS || defined NEMURO_SAN
 !
