@@ -88,7 +88,7 @@
       integer :: iseed = 149876
 
       integer :: Ir, Jr, Kr, IrMax, JrMax, KrMax, kZmax
-      integer :: i1, i2, j1, j2, i, j, k
+      integer :: i1, i2, j1, j2, i, j, k, itimem1
 
       real(r8) :: SZooC, LZooC, PZooC, TZooC, ZooMax
       real(r8) :: Fweight, Fgrowth, Fmort, Ftemp, Fdens, Fpval
@@ -159,8 +159,8 @@
 ! Swim towards best location
         track(ixrhs,itime,lflt)=d_ij*cos(theta_ij)*pm(Ir,Jr)/dt(ng)
         track(iyrhs,itime,lflt)=d_ij*sin(theta_ij)*pn(Ir,Jr)/dt(ng)
-        track(izrhs,itime,lflt)=d_k/dt(ng)
-!        track(izrhs,itime,lflt)=0.0_r8
+!        track(izrhs,itime,lflt)=d_k/dt(ng)
+        track(izrhs,itime,lflt)=0.0_r8
 !
 # endif
 !
@@ -184,10 +184,12 @@
 !        Fvar_opt=15.0_r8
 !        Fvar_sigma=5.0_r8
 !
+          itimem1=MOD(itime-1+NFT+1,NFT+1)
+!
 ! Horizontal behavior (updated once daily or when hits land)
         IF ((tcheck.eq.REAL(INT(tcheck))).or.(Fdens.eq.0.0_r8)) THEN
-          xdis=track(ixrhs,itime-1,lflt)*dt(ng)/pm(Ir,Jr)
-          ydis=track(iyrhs,itime-1,lflt)*dt(ng)/pn(Ir,Jr)
+          xdis=track(ixrhs,itimem1,lflt)*dt(ng)/pm(Ir,Jr)
+          ydis=track(iyrhs,itimem1,lflt)*dt(ng)/pn(Ir,Jr)
 ! Use velx, vely below for purely random motion
 !          xdis=0.0_r8
 !          ydis=0.0_r8
@@ -236,8 +238,8 @@
           track(iyrhs,itime,lflt)=ydis*pn(Ir,Jr)/dt(ng)
         ELSE
 ! Swim towards best location
-          xdis=track(ixrhs,itime-1,lflt)*dt(ng)/pm(Ir,Jr)
-          ydis=track(iyrhs,itime-1,lflt)*dt(ng)/pn(Ir,Jr)
+          xdis=track(ixrhs,itimem1,lflt)*dt(ng)/pm(Ir,Jr)
+          ydis=track(iyrhs,itimem1,lflt)*dt(ng)/pn(Ir,Jr)
           track(ixrhs,itime,lflt)=xdis*pm(Ir,Jr)/dt(ng)
           track(iyrhs,itime,lflt)=ydis*pn(Ir,Jr)/dt(ng)
         END IF

@@ -84,9 +84,9 @@
 #ifdef NEMURO
 # define NEMURO_SAN
 # ifdef NEMURO_SAN
-#  undef  RAILSBACK
-#  define HUMSTON
-#  define FISH_FEEDBACK
+#  define RAILSBACK
+#  undef  HUMSTON
+#  undef  FISH_FEEDBACK
 #  undef FLEET
 # endif
 # define BIO_SEDIMENT

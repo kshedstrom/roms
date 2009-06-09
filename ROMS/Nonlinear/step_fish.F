@@ -308,7 +308,7 @@
      &                        dt(ng)*(cff1*track(ixrhs,nf  ,l)-         &
      &                                cff2*track(ixrhs,nfm1,l)+         &
      &                                cff1*track(ixrhs,nfm2,l))
-          track(iygrd,nfp1,l)=track(iygrd,nfm3,l)+                  &
+          track(iygrd,nfp1,l)=track(iygrd,nfm3,l)+                      &
      &                        dt(ng)*(cff1*track(iyrhs,nf  ,l)-         &
      &                                cff2*track(iyrhs,nfm1,l)+         &
      &                                cff1*track(iyrhs,nfm2,l))
