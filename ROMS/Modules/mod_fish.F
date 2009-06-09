@@ -46,8 +46,8 @@
           real(r8), pointer :: feedback(:,:)
           integer, pointer  :: species(:)
           integer, pointer  :: lifestage(:)
+          integer, pointer  :: num_eggs(:)
           logical, pointer  :: alive(:)
-          logical, pointer  :: spawn_now(:)
           type(fishnode), pointer :: fishnodes(:)
 
         END TYPE T_FISHES
@@ -109,7 +109,7 @@
 
       allocate ( FISHES(ng) % alive(Nfish(ng)) )
 
-      allocate ( FISHES(ng) % spawn_now(Nfish(ng)) )
+      allocate ( FISHES(ng) % num_eggs(Nfish(ng)) )
 
       allocate ( FISHES(ng) % fishnodes(Nfish(ng)) )
 !
@@ -144,7 +144,7 @@
         FISHES(ng) % species(iflt) = if_none
         FISHES(ng) % lifestage(iflt) = if_none
         FISHES(ng) % alive(iflt) = .FALSE.
-        FISHES(ng) % spawn_now(iflt) = .FALSE.
+        FISHES(ng) % num_eggs(iflt) = 0
         FISHES(ng) % fishnodes(iflt) % fish = iflt
       END DO
 

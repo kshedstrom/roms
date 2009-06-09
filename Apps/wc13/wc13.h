@@ -88,6 +88,7 @@
 #  define HUMSTON
 #  define FISH_FEEDBACK
 #  undef FLEET
+#  define ANA_SPAWN_DIST
 # endif
 # define BIO_SEDIMENT
 # define HOLLING_GRAZING

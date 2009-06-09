@@ -17,5 +17,10 @@
           type(fishnode), pointer :: next
           integer :: fish
         end type fishnode
+
+        type treenode
+          type(treenode), pointer :: left, right
+          integer :: eggs
+        end type treenode
 #endif
       END MODULE mod_types
