@@ -813,13 +813,17 @@
 #  if defined ICE_BIO && defined CLIM_ICE_1D
 
           DO itrc=1,NIceT(ng)
-            OCEAN(ng) % it(i,j,1,itrc) = IniVal
-            OCEAN(ng) % it(i,j,2,itrc) = IniVal
-            OCEAN(ng) % it(i,j,3,itrc) = IniVal
-            OCEAN(ng) % it(i,j,4,itrc) = IniVal
+            DO i=Imin,Imax
+              OCEAN(ng) % it(i,j,1,itrc) = IniVal
+              OCEAN(ng) % it(i,j,2,itrc) = IniVal
+              OCEAN(ng) % it(i,j,3,itrc) = IniVal
+              OCEAN(ng) % it(i,j,4,itrc) = IniVal
+            END DO
           END DO
           DO itrc=1,NIceLog(ng)
-            OCEAN(ng) % itL(i,j,3,itrc) = IniVal
+            DO i=Imin,Imax
+              OCEAN(ng) % itL(i,j,3,itrc) = IniVal
+            END DO
           END DO
 #  endif
 #  ifdef BIOFLUX

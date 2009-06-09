@@ -592,7 +592,7 @@
           END DO
         END DO
       END DO
-#elif defined BIO_GOANPZ
+#elif defined BEST_NPZ
 # include "ana_biology_BESTnpz.h"
 #elif defined BIO_GOANPZ
 # include "ana_biology_goanpz.h"
