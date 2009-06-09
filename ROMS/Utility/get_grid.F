@@ -1,0 +1,1357 @@
+#include "cppdefs.h"
+#ifndef ANA_GRID
+      SUBROUTINE get_grid (ng, model)
+!
+!svn $Id$
+!================================================== Hernan G. Arango ===
+!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!    Licensed under a MIT/X style license                              !
+!    See License_ROMS.txt                                              !
+!=======================================================================
+!                                                                      !
+!  This subroutine reads grid information from GRID NetCDF file.       !
+!                                                                      !
+!=======================================================================
+!
+      USE mod_param
+      USE mod_parallel
+      USE mod_grid
+      USE mod_iounits
+      USE mod_ncparam
+      USE mod_netcdf
+      USE mod_scalars
+#ifdef RDRG_GRID
+      USE mod_forces
+#endif
+!
+# if defined EW_PERIODIC || defined NS_PERIODIC
+      USE exchange_2d_mod
+# endif
+# ifdef DISTRIBUTE
+      USE mp_exchange_mod, ONLY : mp_exchange2d
+# endif
+      USE nf_fread2d_mod, ONLY : nf_fread2d
+      USE strings_mod, ONLY : find_string
+!
+      implicit none
+!
+!  Imported variable declarations.
+!
+      integer, intent(in) :: ng, model
+!
+!  Local variable declarations.
+!
+# ifdef DISTRIBUTE
+#  ifdef EW_PERIODIC
+      logical :: EWperiodic=.TRUE.
+#  else
+      logical :: EWperiodic=.FALSE.
+#  endif
+#  ifdef NS_PERIODIC
+      logical :: NSperiodic=.TRUE.
+#  else
+      logical :: NSperiodic=.FALSE.
+#  endif
+# endif
+# if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
+     defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR || \
+     defined SO_SEMI
+      logical :: GotScope(6)
+# endif
+      integer :: tile, LBi, UBi, LBj, UBj
+      integer :: gtype, i, j, it, status, vindex
+
+      integer :: Vsize(4)
+
+      real(r8), parameter :: Fscl = 1.0_r8
+
+      real(r8) :: Fmax, Fmin
+
+      character (len=1 ) :: char1
+      character (len=80) :: ncname
+!
+      SourceFile='get_grid.F'
+!
+!-----------------------------------------------------------------------
+!  Inquire about the contents of grid NetCDF file:  Inquire about
+!  the dimensions and variables.  Check for consistency.
+!-----------------------------------------------------------------------
+!
+      IF (exit_flag.ne.NoError) RETURN
+      ncname=GRDname(ng)
+!
+!  Check grid file dimensions for consitency
+!
+      CALL netcdf_check_dim (ng, model, ncname)
+      IF (exit_flag.ne.NoError) RETURN
+!
+!  Inquire about the variables.
+!
+      CALL netcdf_inq_var (ng, model, ncname)
+      IF (exit_flag.ne.NoError) RETURN
+!
+!-----------------------------------------------------------------------
+!  Check if required variables are available.
+!-----------------------------------------------------------------------
+!
+      IF (.not.find_string(var_name,n_var,'xl',vindex)) THEN
+        IF (Master) WRITE (stdout,10) 'xl', TRIM(ncname)
+        exit_flag=2
+        RETURN
+      END IF
+      IF (.not.find_string(var_name,n_var,'el',vindex)) THEN
+        IF (Master) WRITE (stdout,10) 'el', TRIM(ncname)
+        exit_flag=2
+        RETURN
+      END IF
+      IF (.not.find_string(var_name,n_var,'spherical',vindex)) THEN
+        IF (Master) WRITE (stdout,10) 'spherical', TRIM(ncname)
+        exit_flag=2
+        RETURN
+      END IF
+      IF (.not.find_string(var_name,n_var,'h',vindex)) THEN
+        IF (Master) WRITE (stdout,10) 'h', TRIM(ncname)
+        exit_flag=2
+        RETURN
+      END IF
+# ifdef ICESHELF
+      IF (.not.find_string(var_name,n_var,'zice',vindex)) THEN
+        IF (Master) WRITE (stdout,10) 'zice', TRIM(ncname)
+        exit_flag=2
+        RETURN
+      END IF
+# endif
+# ifdef RDRG_GRID
+      IF (.not.find_string(var_name,n_var,'rdrg_grid',vindex)) THEN
+        IF (Master) WRITE (stdout,10) 'rdrg_grid', TRIM(ncname)
+        exit_flag=2
+        RETURN
+      END IF
+# endif
+      IF (.not.find_string(var_name,n_var,'f',vindex)) THEN
+        IF (Master) WRITE (stdout,10) 'f', TRIM(ncname)
+        exit_flag=2
+        RETURN
+      END IF
+      IF (.not.find_string(var_name,n_var,'pm',vindex)) THEN
+        IF (Master) WRITE (stdout,10) 'pm', TRIM(ncname)
+        exit_flag=2
+        RETURN
+      END IF
+      IF (.not.find_string(var_name,n_var,'pn',vindex)) THEN
+        IF (Master) WRITE (stdout,10) 'pn', TRIM(ncname)
+        exit_flag=2
+        RETURN
+      END IF
+# if (defined CURVGRID && defined UV_ADV)
+      IF (.not.find_string(var_name,n_var,'dndx',vindex)) THEN
+        IF (Master) WRITE (stdout,10) 'dndx', TRIM(ncname)
+        exit_flag=2
+        RETURN
+      END IF
+      IF (.not.find_string(var_name,n_var,'dmde',vindex)) THEN
+        IF (Master) WRITE (stdout,10) 'dmde', TRIM(ncname)
+        exit_flag=2
+        RETURN
+      END IF
+# endif
+# ifdef CURVGRID
+      IF (.not.find_string(var_name,n_var,'angle',vindex)) THEN
+        IF (Master) WRITE (stdout,10) 'angle', TRIM(ncname)
+        exit_flag=2
+        RETURN
+      END IF
+# endif
+# ifdef MASKING
+      IF (.not.find_string(var_name,n_var,'mask_rho',vindex)) THEN
+        IF (Master) WRITE (stdout,10) 'mask_rho', TRIM(ncname)
+        exit_flag=2
+        RETURN
+      END IF
+      IF (.not.find_string(var_name,n_var,'mask_u',vindex)) THEN
+        IF (Master) WRITE (stdout,10) 'mask_u', TRIM(ncname)
+        exit_flag=2
+        RETURN
+      END IF
+      IF (.not.find_string(var_name,n_var,'mask_v',vindex)) THEN
+        IF (Master) WRITE (stdout,10) 'mask_v', TRIM(ncname)
+        exit_flag=2
+        RETURN
+      END IF
+      IF (.not.find_string(var_name,n_var,'mask_psi',vindex)) THEN
+        IF (Master) WRITE (stdout,10) 'mask_psi', TRIM(ncname)
+        exit_flag=2
+        RETURN
+      END IF
+# endif
+!
+!  Open grid NetCDF file for reading.
+!
+      IF (ncGRDid(ng).eq.-1) THEN
+        CALL netcdf_open (ng, model, ncname, 0, ncGRDid(ng))
+        IF (exit_flag.ne.NoError) THEN
+          WRITE (stdout,20) TRIM(ncname)
+          RETURN
+        END IF
+      END IF
+!
+!  Read in logical switch for spherical grid configuration.
+!
+      spherical=.FALSE.
+      IF (find_string(var_name,n_var,'spherical',vindex)) THEN
+        CALL netcdf_get_svar (ng, model, ncname, 'spherical',           &
+     &                        char1,                                    &
+     &                         ncid = ncGRDid(ng))
+        IF (exit_flag.eq.NoError) THEN 
+          IF ((char1.eq.'t').or.(char1.eq.'T')) THEN
+            spherical=.TRUE.
+          END IF
+        ELSE
+          WRITE (stdout,30) 'spherical', TRIM(ncname)
+        END IF
+      END IF
+!
+!-----------------------------------------------------------------------
+!  Read in grid variables.
+!-----------------------------------------------------------------------
+!
+!  Set 2D arrays bounds.
+!
+# ifdef DISTRIBUTE
+      tile=MyRank
+# else
+      tile=-1
+# endif
+      LBi=LBOUND(GRID(ng)%h,DIM=1)
+      UBi=UBOUND(GRID(ng)%h,DIM=1)
+      LBj=LBOUND(GRID(ng)%h,DIM=2)
+      UBj=UBOUND(GRID(ng)%h,DIM=2)
+!
+!  Set Vsize to zero to deativate interpolation of input data to model
+!  grid in "nf_fread2d".
+!
+      DO i=1,4
+        Vsize(i)=0
+      END DO
+!
+!  Scan the variable list and read in needed variables.
+!
+      DO it=1,n_var
+
+        SELECT CASE (TRIM(ADJUSTL(var_name(it))))
+!
+!  Read in basin X-length.
+!
+          CASE ('xl')
+            CALL netcdf_get_fvar (ng, model, ncname, 'xl',              &
+     &                            xl(ng),                               &
+     &                            ncid = ncGRDid(ng))
+            IF (exit_flag.ne.NoError) EXIT
+!
+!  Read in basin Y-length.
+!
+          CASE ('el')
+            CALL netcdf_get_fvar (ng, model, ncname, 'el',              &
+     &                            el(ng),                               &
+     &                            ncid = ncGRDid(ng))
+            IF (exit_flag.ne.NoError) EXIT
+!
+!  Read in bathymetry.
+!
+          CASE ('h')
+            gtype=r2dvar
+            status=nf_fread2d(ng, model, ncname, ncGRDid(ng),           &
+     &                        var_name(it), var_id(it),                 &
+     &                        0, gtype, Vsize,                          &
+     &                        LBi, UBi, LBj, UBj,                       &
+     &                        Fscl, hmin(ng), hmax(ng),                 &
+# ifdef MASKING
+     &                        GRID(ng) % rmask,                         &
+# endif
+     &                        GRID(ng) % h)
+            IF (status.eq.nf90_noerr) THEN
+              DO j=LBj,UBj
+                DO i=LBi,UBi
+                  IF (GRID(ng)%h(i,j) .eq. 0.0) GRID(ng) % h(i,j) = -1.
+                END DO
+              END DO
+            ELSE
+              IF (Master) THEN
+                WRITE (stdout,30) 'h', TRIM(ncname)
+              END IF
+              exit_flag=2
+              ioerror=status
+              RETURN
+            END IF
+# if defined EW_PERIODIC || defined NS_PERIODIC
+            CALL exchange_r2d_tile (ng, tile,                           &
+     &                              LBi, UBi, LBj, UBj,                 &
+     &                              GRID(ng) % h)
+# endif
+# ifdef DISTRIBUTE
+            CALL mp_exchange2d (ng, tile, model, 1,                     &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          NghostPoints, EWperiodic, NSperiodic,   &
+     &                          GRID(ng) % h)
+# endif
+# ifdef MASKING
+!
+!  Read in Land/Sea masking at RHO-points.
+!
+          CASE ('mask_rho')
+            gtype=r2dvar
+            status=nf_fread2d(ng, model, ncname, ncGRDid(ng),           &
+     &                        var_name(it), var_id(it),                 &
+     &                        0, gtype, Vsize,                          &
+     &                        LBi, UBi, LBj, UBj,                       &
+     &                        Fscl, Fmin, Fmax,                         &
+     &                        GRID(ng) % rmask,                         &
+     &                        GRID(ng) % rmask)
+            IF (status.ne.nf90_noerr) THEN
+              exit_flag=2
+              ioerror=status
+              EXIT
+            END IF
+#  if defined EW_PERIODIC || defined NS_PERIODIC
+            CALL exchange_r2d_tile (ng, tile,                           &
+     &                              LBi, UBi, LBj, UBj,                 &
+     &                              GRID(ng) % rmask)
+#  endif
+#  ifdef DISTRIBUTE
+            CALL mp_exchange2d (ng, tile, model, 1,                     &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          NghostPoints, EWperiodic, NSperiodic,   &
+     &                          GRID(ng) % rmask)
+#  endif
+!
+!  Read in Land/Sea masking at U-points.
+!
+          CASE ('mask_u')
+            gtype=u2dvar
+            status=nf_fread2d(ng, model, ncname, ncGRDid(ng),           &
+     &                        var_name(it), var_id(it),                 &
+     &                        0, gtype, Vsize,                          &
+     &                        LBi, UBi, LBj, UBj,                       &
+     &                        Fscl, Fmin, Fmax,                         &
+     &                        GRID(ng) % umask,                         &
+     &                        GRID(ng) % umask)
+            IF (status.ne.nf90_noerr) THEN
+              exit_flag=2
+              ioerror=status
+              EXIT
+            END IF
+#  if defined EW_PERIODIC || defined NS_PERIODIC
+            CALL exchange_r2d_tile (ng, tile,                           &
+     &                              LBi, UBi, LBj, UBj,                 &
+     &                              GRID(ng) % umask)
+#  endif
+#  ifdef DISTRIBUTE
+            CALL mp_exchange2d (ng, tile, model, 1,                     &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          NghostPoints, EWperiodic, NSperiodic,   &
+     &                          GRID(ng) % umask)
+#  endif
+!
+!  Read in Land/Sea masking at V-points.
+!
+          CASE ('mask_v')
+            gtype=v2dvar
+            status=nf_fread2d(ng, model, ncname, ncGRDid(ng),           &
+     &                        var_name(it), var_id(it),                 &
+     &                        0, gtype, Vsize,                          &
+     &                        LBi, UBi, LBj, UBj,                       &
+     &                        Fscl, Fmin, Fmax,                         &
+     &                        GRID(ng) % vmask,                         &
+     &                        GRID(ng) % vmask)
+            IF (status.ne.nf90_noerr) THEN
+              exit_flag=2
+              ioerror=status
+              EXIT
+            END IF
+#  if defined EW_PERIODIC || defined NS_PERIODIC
+            CALL exchange_v2d_tile (ng, tile,                           &
+     &                              LBi, UBi, LBj, UBj,                 &
+     &                              GRID(ng) % vmask)
+#  endif
+#  ifdef DISTRIBUTE
+            CALL mp_exchange2d (ng, tile, model, 1,                     &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          NghostPoints, EWperiodic, NSperiodic,   &
+     &                          GRID(ng) % vmask)
+#  endif
+!
+!  Read in Land/Sea masking at PSI-points.
+!
+          CASE ('mask_psi')
+            gtype=p2dvar
+            status=nf_fread2d(ng, model, ncname, ncGRDid(ng),           &
+     &                        var_name(it), var_id(it),                 &
+     &                        0, gtype, Vsize,                          &
+     &                        LBi, UBi, LBj, UBj,                       &
+     &                        Fscl, Fmin, Fmax,                         &
+     &                        GRID(ng) % pmask,                         &
+     &                        GRID(ng) % pmask)
+            IF (status.ne.nf90_noerr) THEN
+              exit_flag=2
+              ioerror=status
+              EXIT
+            END IF
+#  if defined EW_PERIODIC || defined NS_PERIODIC
+            CALL exchange_p2d_tile (ng, tile,                           &
+     &                              LBi, UBi, LBj, UBj,                 &
+     &                             GRID(ng) % pmask)
+#  endif
+#  ifdef DISTRIBUTE
+            CALL mp_exchange2d (ng, tile, model, 1,                     &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          NghostPoints, EWperiodic, NSperiodic,   &
+     &                          GRID(ng) % pmask)
+#  endif
+# endif
+# ifdef ICESHELF
+!
+!  Read in ice shelf thicknesses.
+!
+          CASE ('zice')
+            gtype=r2dvar
+            status=nf_fread2d(ng, model, ncname, ncGRDid(ng),           &
+     &                        var_name(it), var_id(it),                 &
+     &                        0, gtype, Vsize,                          &
+     &                        LBi, UBi, LBj, UBj,                       &
+     &                        Fscl, Fmin, Fmax,                         &
+#  ifdef MASKING
+     &                        GRID(ng) % rmask,                         &
+#  endif
+     &                        GRID(ng) % zice)
+            IF (status.ne.nf90_noerr) THEN
+              exit_flag=2
+              ioerror=status
+              EXIT
+            END IF
+#  if defined EW_PERIODIC || defined NS_PERIODIC
+            CALL exchange_r2d_tile (ng, tile,                           &
+     &                              LBi, UBi, LBj, UBj,                 &
+     &                              GRID(ng) % zice)
+#  endif
+#  ifdef DISTRIBUTE
+            CALL mp_exchange2d (ng, tile, model, 1,                     &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          NghostPoints, EWperiodic, NSperiodic,   &
+     &                          GRID(ng) % zice)
+#  endif
+# endif
+# if defined RDRG_GRID && ! defined ANA_RDRG
+!
+!  Read in bottom drag coefficient.
+!
+          CASE ('rdrg_grid')
+            gtype=r2dvar
+            status=nf_fread2d(ng, model, ncname, ncGRDid(ng),           &
+     &                        var_name(it), var_id(it), 0,              &
+     &                        gtype, Vsize, LBi, UBi, LBj, UBj,         &
+     &                        Fscl, Fmin, Fmax,                         &
+#  ifdef MASKING
+     &                        GRID(ng) % rmask,                         &
+#  endif
+     &                        FORCES(ng) % rdrg_grid)
+            IF (status.ne.nf90_noerr) THEN
+              exit_flag=2
+              ioerror=status
+              EXIT
+            END IF
+#  if defined EW_PERIODIC || defined NS_PERIODIC
+            CALL exchange_r2d_tile (ng, tile,                           &
+     &                              LBi, UBi, LBj, UBj,                 &
+     &                              FORCES(ng) % rdrg_grid)
+#  endif
+#  ifdef DISTRIBUTE
+            CALL mp_exchange2d (ng, tile, model, 1,                     &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          NghostPoints, EWperiodic, NSperiodic,   &
+     &                          FORCES(ng) % rdrg_grid)
+#  endif
+# endif
+!
+!  Read in Coriolis parameter.
+!
+          CASE ('f')
+            gtype=r2dvar
+            status=nf_fread2d(ng, model, ncname, ncGRDid(ng),           &
+     &                        var_name(it), var_id(it),                 &
+     &                        0, gtype, Vsize,                          &
+     &                        LBi, UBi, LBj, UBj,                       &
+     &                        Fscl, Fmin, Fmax,                         &
+# ifdef MASKING
+     &                        GRID(ng) % rmask,                         &
+# endif
+     &                        GRID(ng) % f)
+            IF (status.ne.nf90_noerr) THEN
+              exit_flag=2
+              ioerror=status
+              EXIT
+            END IF
+# if defined EW_PERIODIC || defined NS_PERIODIC
+            CALL exchange_r2d_tile (ng, tile,                           &
+     &                              LBi, UBi, LBj, UBj,                 &
+     &                              GRID(ng) % f)
+# endif
+# ifdef DISTRIBUTE
+            CALL mp_exchange2d (ng, tile, model, 1,                     &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          NghostPoints, EWperiodic, NSperiodic,   &
+     &                          GRID(ng) % f)
+# endif
+!
+!  Read in coordinate transfomation metrics (m) associated with the
+!  differential distances in XI.
+!
+          CASE ('pm')
+            gtype=r2dvar
+            status=nf_fread2d(ng, model, ncname, ncGRDid(ng),           &
+     &                        var_name(it), var_id(it),                 &
+     &                        0, gtype, Vsize,                          &
+     &                        LBi, UBi, LBj, UBj,                       &
+     &                        Fscl, Fmin, Fmax,                         &
+# ifdef MASKING
+     &                        GRID(ng) % rmask,                         &
+# endif
+     &                        GRID(ng) % pm)
+            IF (status.ne.nf90_noerr) THEN
+              exit_flag=2
+              ioerror=status
+              EXIT
+            END IF
+# if defined EW_PERIODIC || defined NS_PERIODIC
+            CALL exchange_r2d_tile (ng, tile,                           &
+     &                              LBi, UBi, LBj, UBj,                 &
+     &                              GRID(ng) % pm)
+# endif
+# ifdef DISTRIBUTE
+            CALL mp_exchange2d (ng, tile, model, 1,                     &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          NghostPoints, EWperiodic, NSperiodic,   &
+     &                          GRID(ng) % pm)
+# endif
+!
+!  Read in coordinate transfomation metrics (n) associated with the
+!  differential distances in ETA.
+!
+          CASE ('pn')
+            gtype=r2dvar
+            status=nf_fread2d(ng, model, ncname, ncGRDid(ng),           &
+     &                        var_name(it), var_id(it),                 &
+     &                        0, gtype, Vsize,                          &
+     &                        LBi, UBi, LBj, UBj,                       &
+     &                        Fscl, Fmin, Fmax,                         &
+# ifdef MASKING
+     &                        GRID(ng) % rmask,                         &
+# endif
+     &                        GRID(ng) % pn)
+            IF (status.ne.nf90_noerr) THEN
+              exit_flag=2
+              ioerror=status
+              EXIT
+            END IF
+# if defined EW_PERIODIC || defined NS_PERIODIC
+            CALL exchange_r2d_tile (ng, tile,                           &
+     &                              LBi, UBi, LBj, UBj,                 &
+     &                              GRID(ng) % pn)
+# endif
+# ifdef DISTRIBUTE
+            CALL mp_exchange2d (ng, tile, model, 1,                     &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          NghostPoints, EWperiodic, NSperiodic,   &
+     &                          GRID(ng) % pn)
+# endif
+# if (defined CURVGRID && defined UV_ADV)
+!
+!  Read in derivatives of inverse metrics factors: d(m)/d(eta).
+!
+          CASE ('dmde')
+            gtype=r2dvar
+            status=nf_fread2d(ng, model, ncname, ncGRDid(ng),           &
+     &                        var_name(it), var_id(it),                 &
+     &                        0, gtype, Vsize,                          &
+     &                        LBi, UBi, LBj, UBj,                       &
+     &                        Fscl, Fmin, Fmax,                         &
+# ifdef MASKING
+     &                        GRID(ng) % rmask,                         &
+# endif
+     &                        GRID(ng) % dmde)
+            IF (status.ne.nf90_noerr) THEN
+              exit_flag=2
+              ioerror=status
+              EXIT
+            END IF
+#  if defined EW_PERIODIC || defined NS_PERIODIC
+            CALL exchange_r2d_tile (ng, tile,                           &
+     &                              LBi, UBi, LBj, UBj,                 &
+     &                              GRID(ng) % dmde)
+#  endif
+#  ifdef DISTRIBUTE
+            CALL mp_exchange2d (ng, tile, model, 1,                     &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          NghostPoints, EWperiodic, NSperiodic,   &
+     &                          GRID(ng) % dmde)
+#  endif
+!
+!  Read in derivatives of inverse metrics factors: d(n)/d(xi).
+!
+          CASE ('dndx')
+            gtype=r2dvar
+            status=nf_fread2d(ng, model, ncname, ncGRDid(ng),           &
+     &                        var_name(it), var_id(it),                 &
+     &                        0, gtype, Vsize,                          &
+     &                        LBi, UBi, LBj, UBj,                       &
+     &                        Fscl, Fmin, Fmax,                         &
+# ifdef MASKING
+     &                        GRID(ng) % rmask,                         &
+# endif
+     &                        GRID(ng) % dndx)
+            IF (status.ne.nf90_noerr) THEN
+              exit_flag=2
+              ioerror=status
+              EXIT
+            END IF
+#  if defined EW_PERIODIC || defined NS_PERIODIC
+            CALL exchange_r2d_tile (ng, tile,                           &
+     &                              LBi, UBi, LBj, UBj,                 &
+     &                              GRID(ng) % dndx)
+#  endif
+#  ifdef DISTRIBUTE
+            CALL mp_exchange2d (ng, tile, model, 1,                     &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          NghostPoints, EWperiodic, NSperiodic,   &
+     &                          GRID(ng) % dndx)
+#  endif
+# endif
+!
+!  Read in X-coordinates at PSI-points.
+!
+          CASE ('x_psi')
+            gtype=p2dvar
+            status=nf_fread2d(ng, model, ncname, ncGRDid(ng),           &
+     &                        var_name(it), var_id(it),                 &
+     &                        0, gtype, Vsize,                          &
+     &                        LBi, UBi, LBj, UBj,                       &
+     &                        Fscl, Fmin, Fmax,                         &
+# ifdef MASKING
+     &                        GRID(ng) % pmask,                         &
+# endif
+     &                        GRID(ng) % xp)
+            IF (status.ne.nf90_noerr) THEN
+              exit_flag=2
+              ioerror=status
+              EXIT
+            END IF
+# ifdef DISTRIBUTE
+            CALL mp_exchange2d (ng, tile, model, 1,                     &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          NghostPoints, .FALSE., .FALSE.,         &
+     &                          GRID(ng) % xp)
+# endif
+!
+!  Read in Y-coordinates at PSI-points.
+!
+          CASE ('y_psi')
+            gtype=p2dvar
+            status=nf_fread2d(ng, model, ncname, ncGRDid(ng),           &
+     &                        var_name(it), var_id(it),                 &
+     &                        0, gtype, Vsize,                          &
+     &                        LBi, UBi, LBj, UBj,                       &
+     &                        Fscl, Fmin, Fmax,                         &
+# ifdef MASKING
+     &                        GRID(ng) % pmask,                         &
+# endif
+     &                        GRID(ng) % yp)
+            IF (status.ne.nf90_noerr) THEN
+              exit_flag=2
+              ioerror=status
+              EXIT
+            END IF
+# ifdef DISTRIBUTE
+            CALL mp_exchange2d (ng, tile, model, 1,                     &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          NghostPoints, .FALSE., .FALSE.,         &
+     &                          GRID(ng) % yp)
+# endif
+!
+!  Read in X-coordinates at RHO-points.
+!
+          CASE ('x_rho')
+            gtype=r2dvar
+            status=nf_fread2d(ng, model, ncname, ncGRDid(ng),           &
+     &                        var_name(it), var_id(it),                 &
+     &                        0, gtype, Vsize,                          &
+     &                        LBi, UBi, LBj, UBj,                       &
+     &                        Fscl, Fmin, Fmax,                         &
+# ifdef MASKING
+     &                        GRID(ng) % rmask,                         &
+# endif
+     &                        GRID(ng) % xr)
+            IF (status.ne.nf90_noerr) THEN
+              exit_flag=2
+              ioerror=status
+              EXIT
+            END IF
+# ifdef DISTRIBUTE
+            CALL mp_exchange2d (ng, tile, model, 1,                     &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          NghostPoints, .FALSE., .FALSE.,         &
+     &                          GRID(ng) % xr)
+# endif
+!
+!  Read in Y-coordinates at RHO-points.
+!
+          CASE ('y_rho')
+            gtype=r2dvar
+            status=nf_fread2d(ng, model, ncname, ncGRDid(ng),           &
+     &                        var_name(it), var_id(it),                 &
+     &                        0, gtype, Vsize,                          &
+     &                        LBi, UBi, LBj, UBj,                       &
+     &                        Fscl, Fmin, Fmax,                         &
+# ifdef MASKING
+     &                        GRID(ng) % rmask,                         &
+# endif
+     &                        GRID(ng) % yr)
+            IF (status.ne.nf90_noerr) THEN
+              exit_flag=2
+              ioerror=status
+              EXIT
+            END IF
+# ifdef DISTRIBUTE
+            CALL mp_exchange2d (ng, tile, model, 1,                     &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          NghostPoints, .FALSE., .FALSE.,         &
+     &                          GRID(ng) % yr)
+# endif
+!
+!  Read in X-coordinates at U-points.
+!
+          CASE ('x_u')
+            gtype=u2dvar
+            status=nf_fread2d(ng, model, ncname, ncGRDid(ng),           &
+     &                        var_name(it), var_id(it),                 &
+     &                        0, gtype, Vsize,                          &
+     &                        LBi, UBi, LBj, UBj,                       &
+     &                        Fscl, Fmin, Fmax,                         &
+# ifdef MASKING
+     &                        GRID(ng) % umask,                         &
+# endif
+     &                        GRID(ng) % xu)
+            IF (status.ne.nf90_noerr) THEN
+              exit_flag=2
+              ioerror=status
+              EXIT
+            END IF
+# ifdef DISTRIBUTE
+            CALL mp_exchange2d (ng, tile, model, 1,                     &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          NghostPoints, .FALSE., .FALSE.,         &
+     &                          GRID(ng) % xu)
+# endif
+!
+!  Read in Y-coordinates at U-points.
+!
+          CASE ('y_u')
+            gtype=u2dvar
+            status=nf_fread2d(ng, model, ncname, ncGRDid(ng),           &
+     &                        var_name(it), var_id(it),                 &
+     &                        0, gtype, Vsize,                          &
+     &                        LBi, UBi, LBj, UBj,                       &
+     &                        Fscl, Fmin, Fmax,                         &
+# ifdef MASKING
+     &                        GRID(ng) % umask,                         &
+# endif
+     &                        GRID(ng) % yu)
+            IF (status.ne.nf90_noerr) THEN
+              exit_flag=2
+              ioerror=status
+              EXIT
+            END IF
+# ifdef DISTRIBUTE
+            CALL mp_exchange2d (ng, tile, model, 1,                     &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          NghostPoints, .FALSE., .FALSE.,         &
+     &                          GRID(ng) % yu)
+# endif
+!
+!  Read in X-coordinates at V-points.
+!
+          CASE ('x_v')
+            gtype=v2dvar
+            status=nf_fread2d(ng, model, ncname, ncGRDid(ng),           &
+     &                        var_name(it), var_id(it),                 &
+     &                        0, gtype, Vsize,                          &
+     &                        LBi, UBi, LBj, UBj,                       &
+     &                        Fscl, Fmin, Fmax,                         &
+# ifdef MASKING
+     &                        GRID(ng) % vmask,                         &
+# endif
+     &                        GRID(ng) % xv)
+            IF (status.ne.nf90_noerr) THEN
+              exit_flag=2
+              ioerror=status
+              EXIT
+            END IF
+# ifdef DISTRIBUTE
+            CALL mp_exchange2d (ng, tile, model, 1,                     &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          NghostPoints, .FALSE., .FALSE.,         &
+     &                          GRID(ng) % xv)
+# endif
+!
+!  Read in Y-coordinates at V-points.
+!
+          CASE ('y_v')
+            gtype=v2dvar
+            status=nf_fread2d(ng, model, ncname, ncGRDid(ng),           &
+     &                        var_name(it), var_id(it),                 &
+     &                        0, gtype, Vsize,                          &
+     &                        LBi, UBi, LBj, UBj,                       &
+     &                        Fscl, Fmin, Fmax,                         &
+# ifdef MASKING
+     &                        GRID(ng) % vmask,                         &
+# endif
+     &                        GRID(ng) % yv)
+            IF (status.ne.nf90_noerr) THEN
+              exit_flag=2
+              ioerror=status
+              EXIT
+            END IF
+# ifdef DISTRIBUTE
+            CALL mp_exchange2d (ng, tile, model, 1,                     &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          NghostPoints, .FALSE., .FALSE.,         &
+     &                          GRID(ng) % yv)
+# endif
+!
+!  Read in longitude at PSI-points.
+!
+          CASE ('lon_psi')
+            IF (spherical) THEN
+              gtype=p2dvar
+              status=nf_fread2d(ng, model, ncname, ncGRDid(ng),         &
+     &                          var_name(it), var_id(it),               &
+     &                          0, gtype, Vsize,                        &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          Fscl, Fmin, Fmax,                       &
+# ifdef MASKING
+     &                          GRID(ng) % pmask,                       &
+# endif
+     &                          GRID(ng) % lonp)
+              IF (status.ne.nf90_noerr) THEN
+                exit_flag=2
+                ioerror=status
+                EXIT
+              END IF
+# ifdef DISTRIBUTE
+              CALL mp_exchange2d (ng, tile, model, 1,                   &
+     &                            LBi, UBi, LBj, UBj,                   &
+     &                            NghostPoints, .FALSE., .FALSE.,       &
+     &                            GRID(ng) % lonp)
+# endif
+            END IF
+!
+!  Read in latitude at PSI-points.
+!
+          CASE ('lat_psi')
+            IF (spherical) THEN
+              gtype=p2dvar
+              status=nf_fread2d(ng, model, ncname, ncGRDid(ng),         &
+     &                          var_name(it), var_id(it),               &
+     &                          0, gtype, Vsize,                        &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          Fscl, Fmin, Fmax,                       &
+# ifdef MASKING
+     &                          GRID(ng) % pmask,                       &
+# endif
+     &                          GRID(ng) % latp)
+              IF (status.ne.nf90_noerr) THEN
+                exit_flag=2
+                ioerror=status
+                EXIT
+              END IF
+# ifdef DISTRIBUTE
+              CALL mp_exchange2d (ng, tile, model, 1,                   &
+     &                            LBi, UBi, LBj, UBj,                   &
+     &                            NghostPoints, .FALSE., .FALSE.,       &
+     &                            GRID(ng) % latp)
+# endif
+            END IF
+!
+!  Read in longitude at RHO-points.
+!
+          CASE ('lon_rho')
+            IF (spherical) THEN
+              gtype=r2dvar
+              status=nf_fread2d(ng, model, ncname, ncGRDid(ng),         &
+     &                          var_name(it), var_id(it),               &
+     &                          0, gtype, Vsize,                        &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          Fscl, LonMin(ng), LonMax(ng),           &
+# ifdef MASKING
+     &                          GRID(ng) % rmask,                       &
+# endif
+     &                          GRID(ng) % lonr)
+              IF (status.ne.nf90_noerr) THEN
+                exit_flag=2
+                ioerror=status
+                EXIT
+              END IF
+# ifdef DISTRIBUTE
+              CALL mp_exchange2d (ng, tile, model, 1,                   &
+     &                            LBi, UBi, LBj, UBj,                   &
+     &                            NghostPoints, .FALSE., .FALSE.,       &
+     &                            GRID(ng) % lonr)
+# endif
+            END IF
+!
+!  Read in latitude at RHO-points.
+!
+          CASE ('lat_rho')
+            IF (spherical) THEN
+              gtype=r2dvar
+              status=nf_fread2d(ng, model, ncname, ncGRDid(ng),         &
+     &                          var_name(it), var_id(it),               &
+     &                          0, gtype, Vsize,                        &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          Fscl, LatMin(ng), LatMax(ng),           &
+# ifdef MASKING
+     &                          GRID(ng) % rmask,                       &
+# endif
+     &                          GRID(ng) % latr)
+              IF (status.ne.nf90_noerr) THEN
+                exit_flag=2
+                ioerror=status
+                EXIT
+              END IF
+# ifdef DISTRIBUTE
+              CALL mp_exchange2d (ng, tile, model, 1,                   &
+     &                            LBi, UBi, LBj, UBj,                   &
+     &                            NghostPoints, .FALSE., .FALSE.,       &
+     &                            GRID(ng) % latr)
+# endif
+            END IF
+!
+!  Read in longitude at U-points.
+!
+          CASE ('lon_u')
+            IF (spherical) THEN
+              gtype=u2dvar
+              status=nf_fread2d(ng, model, ncname, ncGRDid(ng),         &
+     &                          var_name(it), var_id(it),               &
+     &                          0, gtype, Vsize,                        &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          Fscl, Fmin, Fmax,                       &
+# ifdef MASKING
+     &                          GRID(ng) % umask,                       &
+# endif
+     &                          GRID(ng) % lonu)
+              IF (status.ne.nf90_noerr) THEN
+                exit_flag=2
+                ioerror=status
+                EXIT
+              END IF
+# ifdef DISTRIBUTE
+              CALL mp_exchange2d (ng, tile, model, 1,                   &
+     &                            LBi, UBi, LBj, UBj,                   &
+     &                            NghostPoints, .FALSE., .FALSE.,       &
+     &                            GRID(ng) % lonu)
+# endif
+            END IF
+!
+!  Read in latitude at U-points.
+!
+          CASE ('lat_u')
+            IF (spherical) THEN
+              gtype=u2dvar
+              status=nf_fread2d(ng, model, ncname, ncGRDid(ng),         &
+     &                          var_name(it), var_id(it),               &
+     &                          0, gtype, Vsize,                        &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          Fscl, Fmin, Fmax,                       &
+# ifdef MASKING
+     &                          GRID(ng) % umask,                       &
+# endif
+     &                          GRID(ng) % latu)
+              IF (status.ne.nf90_noerr) THEN
+                exit_flag=2
+                ioerror=status
+                EXIT
+              END IF
+# ifdef DISTRIBUTE
+              CALL mp_exchange2d (ng, tile, model, 1,                   &
+     &                            LBi, UBi, LBj, UBj,                   &
+     &                            NghostPoints, .FALSE., .FALSE.,       &
+     &                            GRID(ng) % latu)
+# endif
+            END IF
+!
+!  Read in longitude at V-points.
+!
+          CASE ('lon_v')
+            IF (spherical) THEN
+              gtype=v2dvar
+              status=nf_fread2d(ng, model, ncname, ncGRDid(ng),         &
+     &                          var_name(it), var_id(it),               &
+     &                          0, gtype, Vsize,                        &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          Fscl, Fmin, Fmax,                       &
+# ifdef MASKING
+     &                          GRID(ng) % vmask,                       &
+# endif
+     &                          GRID(ng) % lonv)
+              IF (status.ne.nf90_noerr) THEN
+                exit_flag=2
+                ioerror=status
+                EXIT
+              END IF
+# ifdef DISTRIBUTE
+              CALL mp_exchange2d (ng, tile, model, 1,                   &
+     &                            LBi, UBi, LBj, UBj,                   &
+     &                            NghostPoints, .FALSE., .FALSE.,       &
+     &                            GRID(ng) % lonv)
+# endif
+            END IF
+!
+!  Read in latitude at V-points.
+!
+          CASE ('lat_v')
+            IF (spherical) THEN
+              gtype=v2dvar
+              status=nf_fread2d(ng, model, ncname, ncGRDid(ng),         &
+     &                          var_name(it), var_id(it),               &
+     &                          0, gtype, Vsize,                        &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          Fscl, Fmin, Fmax,                       &
+# ifdef MASKING
+     &                          GRID(ng) % vmask,                       &
+# endif
+     &                          GRID(ng) % latv)
+              IF (status.ne.nf90_noerr) THEN
+                exit_flag=2
+                ioerror=status
+                EXIT
+              END IF
+# ifdef DISTRIBUTE
+              CALL mp_exchange2d (ng, tile, model, 1,                   &
+     &                            LBi, UBi, LBj, UBj,                   &
+     &                            NghostPoints, .FALSE., .FALSE.,       &
+     &                            GRID(ng) % latv)
+# endif
+            END IF
+!
+!  Read in angle (radians) between XI-axis and EAST at RHO-points.
+!
+          CASE ('angle')
+            gtype=r2dvar
+            status=nf_fread2d(ng, model, ncname, ncGRDid(ng),           &
+     &                        var_name(it), var_id(it),                 &
+     &                        0, gtype, Vsize,                          &
+     &                        LBi, UBi, LBj, UBj,                       &
+     &                        Fscl, Fmin, Fmax,                         &
+# ifdef MASKING
+     &                        GRID(ng) % rmask,                         &
+# endif
+     &                        GRID(ng) % angler)
+            IF (status.ne.nf90_noerr) THEN
+              exit_flag=2
+              ioerror=status
+              EXIT
+            END IF
+# if defined EW_PERIODIC || defined NS_PERIODIC
+            CALL exchange_r2d_tile (ng, tile,                           &
+     &                              LBi, UBi, LBj, UBj,                 &
+     &                              GRID(ng) % angler)
+# endif
+# ifdef DISTRIBUTE
+            CALL mp_exchange2d (ng, tile, model, 1,                     &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          NghostPoints, EWperiodic, NSperiodic,   &
+     &                          GRID(ng) % angler)
+# endif
+# if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
+     defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR || \
+     defined SO_SEMI
+!
+!  Read in adjoint sensitivity spatial scope masking at RHO-points.
+!
+          CASE ('scope_rho')
+            gtype=r2dvar
+            status=nf_fread2d(ng, model, ncname, ncGRDid(ng),           &
+     &                        var_name(it), var_id(it),                 &
+     &                        0, gtype, Vsize,                          &
+     &                        LBi, UBi, LBj, UBj,                       &
+     &                        Fscl, Fmin, Fmax,                         &
+#  ifdef MASKING
+     &                        GRID(ng) % rmask,                         &
+#  endif
+     &                        GRID(ng) % Rscope)
+            IF (status.ne.nf90_noerr) THEN
+              exit_flag=2
+              ioerror=status
+              EXIT
+            END IF
+            GotScope(1)=.TRUE.
+#  if defined EW_PERIODIC || defined NS_PERIODIC
+            CALL exchange_r2d_tile (ng, tile,                           &
+     &                              LBi, UBi, LBj, UBj,                 &
+     &                              GRID(ng) % Rscope)
+#  endif
+#  ifdef DISTRIBUTE
+            CALL mp_exchange2d (ng, tile, model, 1,                     &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          NghostPoints, EWperiodic, NSperiodic,   &
+     &                          GRID(ng) % Rscope)
+#  endif
+!
+!  Read in adjoint sensitivity spatial scope masking at U-points.
+!
+          CASE ('scope_u')
+            gtype=u2dvar
+            status=nf_fread2d(ng, model, ncname, ncGRDid(ng),           &
+     &                        var_name(it), var_id(it),                 &
+     &                        0, gtype, Vsize,                          &
+     &                        LBi, UBi, LBj, UBj,                       &
+     &                        Fscl, Fmin, Fmax,                         &
+#  ifdef MASKING
+     &                        GRID(ng) % umask,                         &
+#  endif
+     &                        GRID(ng) % Uscope)
+            IF (status.ne.nf90_noerr) THEN
+              exit_flag=2
+              ioerror=status
+              EXIT
+            END IF
+            GotScope(2)=.TRUE.
+#  if defined EW_PERIODIC || defined NS_PERIODIC
+            CALL exchange_r2d_tile (ng, tile,                           &
+     &                              LBi, UBi, LBj, UBj,                 &
+     &                              GRID(ng) % Uscope)
+#  endif
+#  ifdef DISTRIBUTE
+            CALL mp_exchange2d (ng, tile, model, 1,                     &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          NghostPoints, EWperiodic, NSperiodic,   &
+     &                          GRID(ng) % Uscope)
+#  endif
+!
+!  Read in adjoint sensitivity spatial scope masking at V-points.
+!
+          CASE ('scope_v')
+            gtype=v2dvar
+            status=nf_fread2d(ng, model, ncname, ncGRDid(ng),           &
+     &                        var_name(it), var_id(it),                 &
+     &                        0, gtype, Vsize,                          &
+     &                        LBi, UBi, LBj, UBj,                       &
+     &                        Fscl, Fmin, Fmax,                         &
+#  ifdef MASKING
+     &                        GRID(ng) % vmask,                         &
+#  endif
+     &                        GRID(ng) % Vscope)
+            IF (status.ne.nf90_noerr) THEN
+              exit_flag=2
+              ioerror=status
+              EXIT
+            END IF
+            GotScope(3)=.TRUE.
+#  if defined EW_PERIODIC || defined NS_PERIODIC
+            CALL exchange_v2d_tile (ng, tile,                           &
+     &                              LBi, UBi, LBj, UBj,                 &
+     &                              GRID(ng) % Vscope)
+#  endif
+#  ifdef DISTRIBUTE
+            CALL mp_exchange2d (ng, tile, model, 1,                     &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          NghostPoints, EWperiodic, NSperiodic,   &
+     &                          GRID(ng) % Vscope)
+#  endif
+# endif
+        END SELECT
+      END DO
+      IF (exit_flag.ne.NoError) THEN
+        IF (Master) WRITE (stdout,30) TRIM(var_name(it)), TRIM(ncname)
+        RETURN
+      END IF
+!
+! Close GRID NetCDF file.
+!
+      CALL netcdf_close (ng, model, ncGRDid(ng), ncname)
+      IF (exit_flag.ne.NoError) RETURN
+
+# if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
+     defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR || \
+     defined SO_SEMI
+!
+!-----------------------------------------------------------------------
+!  Inquire adjoint sensitivity forcing file. Read scope arrays again.
+!  These fields take precedence
+!-----------------------------------------------------------------------
+!
+      ncname=ADSname(ng)
+!
+!  Check grid file dimensions for consitency
+!
+      CALL netcdf_check_dim (ng, model, ncname)
+      IF (exit_flag.ne.NoError) RETURN
+!
+!  Inquire about the variables.
+!
+      CALL netcdf_inq_var (ng, model, ncname)
+      IF (exit_flag.ne.NoError) RETURN
+!
+!  Check if the adjoint sensitivity scope arrays are available.
+!
+      GotScope(4)=find_string(var_name,n_var,'scope_rho',vindex)
+      GotScope(5)=find_string(var_name,n_var,'scope_u',vindex)
+      GotScope(6)=find_string(var_name,n_var,'scope_v',vindex)
+!
+      IF ((.not.GotScope(1)).and.(.not.GotScope(4))) THEN
+        IF (Master) WRITE (stdout,10) 'scope_rho', TRIM(ncname)
+        exit_flag=2
+        RETURN
+      END IF
+      IF ((.not.GotScope(2)).and.(.not.GotScope(5))) THEN
+        IF (Master) WRITE (stdout,10) 'scope_u', TRIM(ncname)
+        exit_flag=2
+        RETURN
+      END IF
+      IF ((.not.GotScope(3)).and.(.not.GotScope(6))) THEN
+        IF (Master) WRITE (stdout,10) 'scope_v', TRIM(ncname)
+        exit_flag=2
+        RETURN
+      END IF
+      IF (Master) THEN
+        IF (GotScope(4)) THEN
+          WRITE (stdout,40) TRIM(ADSname(ng))
+        ELSE
+          WRITE (stdout,40) TRIM(GRDname(ng))
+        END IF
+      END IF
+!
+!  Open adjoint sensitivity NetCDF file for reading.
+!
+      IF (GotScope(4).and.(ncADSid(ng).eq.-1)) THEN
+        CALL netcdf_open (ng, model, ncname, 0, ncADSid(ng))
+        IF (exit_flag.ne.NoError) THEN
+          WRITE (stdout,20) TRIM(ncname)
+          RETURN
+        END IF
+      END IF
+!
+!  Scan adjoint sensitivity variables.
+!
+      DO i=1,n_var
+
+        SELECT CASE (TRIM(ADJUSTL(var_name(i))))
+!
+!  Read in adjoint sensitivity spatial scope masking at RHO-points.
+!
+          CASE ('scope_rho')
+            gtype=r2dvar
+            status=nf_fread2d(ng, model, ncname, ncADSid(ng),           &
+     &                        var_name(i), var_id(i),                   &
+     &                        0, gtype, Vsize,                          &
+     &                        LBi, UBi, LBj, UBj,                       &
+     &                        Fscl, Fmin, Fmax,                         &
+#  ifdef MASKING
+     &                        GRID(ng) % rmask,                         &
+#  endif
+     &                        GRID(ng) % Rscope)
+            IF (status.ne.nf90_noerr) THEN
+              exit_flag=2
+              ioerror=status
+              EXIT
+            END IF
+#  if defined EW_PERIODIC || defined NS_PERIODIC
+            CALL exchange_r2d_tile (ng, tile,                           &
+     &                              LBi, UBi, LBj, UBj,                 &
+     &                              GRID(ng) % Rscope)
+#  endif
+#  ifdef DISTRIBUTE
+            CALL mp_exchange2d (ng, tile, model, 1,                     &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          NghostPoints, EWperiodic, NSperiodic,   &
+     &                          GRID(ng) % Rscope)
+#  endif
+!
+!  Read in adjoint sensitivity spatial scope masking at U-points.
+!
+          CASE ('scope_u')
+            gtype=u2dvar
+            status=nf_fread2d(ng, model, ncname, ncADSid(ng),           &
+     &                        var_name(i), var_id(i),                   &
+     &                        0, gtype, Vsize,                          &
+     &                        LBi, UBi, LBj, UBj,                       &
+     &                        Fscl, Fmin, Fmax,                         &
+#  ifdef MASKING
+     &                        GRID(ng) % umask,                         &
+#  endif
+     &                        GRID(ng) % Uscope)
+            IF (status.ne.nf90_noerr) THEN
+              exit_flag=2
+              ioerror=status
+              EXIT
+            END IF
+#  if defined EW_PERIODIC || defined NS_PERIODIC
+            CALL exchange_r2d_tile (ng, tile,                           &
+     &                              LBi, UBi, LBj, UBj,                 &
+     &                              GRID(ng) % Uscope)
+#  endif
+#  ifdef DISTRIBUTE
+            CALL mp_exchange2d (ng, tile, model, 1,                     &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          NghostPoints, EWperiodic, NSperiodic,   &
+     &                          GRID(ng) % Uscope)
+#  endif
+!
+!  Read in adjoint sensitivity spatial scope masking at V-points.
+!
+          CASE ('scope_v')
+            gtype=v2dvar
+            status=nf_fread2d(ng, model, ncname, ncADSid(ng),           &
+     &                        var_name(i), var_id(i),                   &
+     &                        0, gtype, Vsize,                          &
+     &                        LBi, UBi, LBj, UBj,                       &
+     &                        Fscl, Fmin, Fmax,                         &
+#  ifdef MASKING
+     &                        GRID(ng) % vmask,                         &
+#  endif
+     &                        GRID(ng) % Vscope)
+            IF (status.ne.nf90_noerr) THEN
+              exit_flag=2
+              ioerror=status
+              EXIT
+            END IF
+#  if defined EW_PERIODIC || defined NS_PERIODIC
+            CALL exchange_v2d_tile (ng, tile,                           &
+     &                              LBi, UBi, LBj, UBj,                 &
+     &                              GRID(ng) % Vscope)
+#  endif
+#  ifdef DISTRIBUTE
+            CALL mp_exchange2d (ng, tile, model, 1,                     &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          NghostPoints, EWperiodic, NSperiodic,   &
+     &                          GRID(ng) % Vscope)
+#  endif
+        END SELECT
+      END DO
+      IF (exit_flag.ne.NoError) THEN
+        IF (Master) WRITE (stdout,30) TRIM(var_name(i)), TRIM(ncname)
+        RETURN
+      END IF
+# endif
+!
+  10  FORMAT (/,' GET_GRID - unable to find grid variable: ',a,         &
+     &        /,12x,'in grid NetCDF file: ',a)
+  20  FORMAT (/,' GET_GRID - unable to open grid NetCDF file: ',a)
+  30  FORMAT (/,' GET_GRID - error while reading variable: ',a,         &
+     &        /,12x,'in grid NetCDF file: ',a)
+  40  FORMAT (/,' GET_GRID - Reading adjoint sensitivity scope arrays', &
+     &        ' from file:',/12x,a)
+#else
+      SUBROUTINE get_grid
+#endif
+      RETURN
+      END SUBROUTINE get_grid
