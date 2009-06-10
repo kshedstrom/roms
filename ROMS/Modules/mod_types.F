@@ -20,6 +20,7 @@
 
         type treenode
           type(treenode), pointer :: left, right
+          logical :: red
           integer :: eggs
         end type treenode
 #endif

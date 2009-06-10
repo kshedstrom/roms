@@ -139,7 +139,7 @@
 
       integer :: LBi, UBi, LBj, UBj
       integer :: Ir, Jr, Npts, i, i1, i2, j, j1, j2, itrc, l, k
-      integer :: NptsF
+      integer :: NptsF, NptsL
 
       real(r8), parameter :: Fspv = 0.0_r8
 
@@ -158,7 +158,8 @@
       real(r8) :: Xstr, Xend, Ystr, Yend
       real(r8), dimension(Nfish(ng)*NFV(ng)*(NFT+1)) :: Fwrk
       real(r8), dimension(Nfish(ng)*NFishV(ng)) :: FwrkF
-
+      logical,  dimension(Nfish(ng)) :: FwrkL
+      integer,  dimension(Nfish(ng)) :: FwrkI
 # endif
 !
 ! Set tile array bounds.
@@ -185,7 +186,7 @@
 !
       Npts=NFV(ng)*(NFT+1)*Nfish(ng)
       NptsF=NFishV(ng)*Nfish(ng)
-
+      NptsL=Nfish(ng)
 
       Xstr=REAL(BOUNDS(ng)%Istr(MyRank),r8)-0.5_r8
       Xend=REAL(BOUNDS(ng)%Iend(MyRank),r8)+0.5_r8
@@ -1012,6 +1013,10 @@
       FwrkF=RESHAPE(bioenergy,(/NptsF/))
       CALL mp_collect (ng, iNLM, NptsF, Fspv, FwrkF)
       bioenergy=RESHAPE(FwrkF,(/NFishV(ng),Nfish(ng)/))
+      CALL mp_collecti (ng, iNLM, Nfish(ng), 0, lifestage)
+      CALL mp_collecti (ng, iNLM, Nfish(ng), 0, num_eggs)
+      CALL mp_collectl (ng, iNLM, fish(ng), alive)
+#  ifdef LONG
 !
 !  Collect the bounded status switch.
 !
@@ -1029,6 +1034,9 @@
           bounded(l)=.FALSE.
         END IF
       END DO
+#  else
+      CALL mp_collectl (ng, iNLM, Nfish(ng), bounded)
+#  endif
 # endif
       RETURN
       END SUBROUTINE step_fish_tile

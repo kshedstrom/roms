@@ -402,14 +402,10 @@
         integer, parameter :: if_polluck = 4
         integer, parameter :: if_pinksalmon = 5
 ! Lifestage and gender
-        integer, parameter :: if_f_egg = 1
-        integer, parameter :: if_f_yolksac = 2
-        integer, parameter :: if_f_juvenile = 3
-        integer, parameter :: if_f_adult = 4
-        integer, parameter :: if_m_egg = 11
-        integer, parameter :: if_m_yolksac = 12
-        integer, parameter :: if_m_juvenile = 13
-        integer, parameter :: if_m_adult = 14
+        integer, parameter :: if_egg = 1
+        integer, parameter :: if_yolksac = 2
+        integer, parameter :: if_larva = 3
+        integer, parameter :: if_adult = 4
 # endif
 !
 !  Set float tracjectory types:
