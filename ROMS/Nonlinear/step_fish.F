@@ -93,7 +93,7 @@
       USE interp_floats_mod
 !
 # ifdef DISTRIBUTE
-      USE distribute_mod, ONLY : mp_collect
+      USE distribute_mod
 # endif
       USE utility_mod, ONLY : nrng
 !
