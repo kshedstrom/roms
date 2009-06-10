@@ -59,6 +59,7 @@
      &                       FISHES(ng) % bioenergy,                    &
      &                       FISHES(ng) % species,                      &
      &                       FISHES(ng) % alive,                        &
+     &                       FISHES(ng) % lifestage,                    &
      &                       FISHES(ng) % track)
 # ifdef PROFILE
       CALL wclock_off (ng, iNLM, 10)
@@ -72,7 +73,7 @@
      &                             nfm3, nfm2, nfm1, nf, nfp1,          &
      &                             bounded, Ftype, Tinfo, Fz0,          &
      &                             feedback, bioenergy, species,        &
-     &                             alive, track)
+     &                             alive, lifestage, track)
 !***********************************************************************
 !
       USE mod_param
@@ -101,26 +102,28 @@
       integer, intent(in) :: knew, nnew, nfm3, nfm2, nfm1, nf, nfp1
 !
 # ifdef ASSUMED_SHAPE
-      integer, intent(in) :: Ftype(:)
+      integer, intent(in)     :: Ftype(:)
       real(r8), intent(inout) :: Tinfo(0:,:)
       real(r8), intent(inout) :: Fz0(:)
       real(r8), intent(inout) :: feedback(:,:)
 
-      logical, intent(inout) :: bounded(:)
+      logical, intent(inout)  :: bounded(:)
       real(r8), intent(inout) :: bioenergy(:,:)
-      integer, intent(inout) :: species(:)
-      logical, intent(inout) :: alive(:)
+      integer, intent(in)     :: species(:)
+      logical, intent(inout)  :: alive(:)
+      integer, intent(inout)  :: lifestage(:)
       real(r8), intent(inout) :: track(:,0:,:)
 # else
-      integer, intent(in) :: Ftype(Nfish(ng))
+      integer, intent(in)     :: Ftype(Nfish(ng))
       real(r8), intent(inout) :: Tinfo(0:izrhs,Nfish(ng))
       real(r8), intent(inout) :: Fz0(Nfish(ng))
       real(r8), intent(inout) :: feedback(NT(ng),Nfish(ng))
 
-      logical, intent(inout) :: bounded(Nfish(ng))
+      logical, intent(inout)  :: bounded(Nfish(ng))
       real(r8), intent(inout) :: bioenergy(NFishV(ng),Nfish(ng))
-      integer, intent(inout) :: species(Nfish(ng))
-      logical, intent(inout) :: alive(Nfish(ng))
+      integer, intent(in)     :: species(Nfish(ng))
+      logical, intent(inout)  :: alive(Nfish(ng))
+      integer, intent(inout)  :: lifestage(Nfish(ng))
       real(r8), intent(inout) :: track(NFV(ng),0:NFT,Nfish(ng))
 # endif
 !
@@ -762,9 +765,10 @@
 !  If newly released fishes, initialize fish weight
 !
             bioenergy(ifwwt,l)=Fwwt0(ng)
-            bioenergy(ifage,l)=0.0_r8
+            bioenergy(ifage,l)=Fage0(ng)
             species(l)=if_herring
             alive(l)=.TRUE.
+            lifestage(l)=if_adult
             MyThread(l)=.TRUE.
           ELSE
             MyThread(l)=.FALSE.
