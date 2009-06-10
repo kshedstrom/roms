@@ -49,6 +49,10 @@
 
          Fwwt0 == 2.0d0                          ! Fwwt0
 
+! Fish initial age [?], {}.
+
+         Fage0 == 2.0d0                          ! Fage0
+
 ! Fish preference for ZS, {0.5d0}.
 
          ZSpref == 1.0d0                         ! ZSpref

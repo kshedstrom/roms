@@ -58,7 +58,9 @@
      &                       FISHES(ng) % feedback,                     &
      &                       FISHES(ng) % bioenergy,                    &
      &                       FISHES(ng) % species,                      &
+     &                       FISHES(ng) % num_eggs,                     &
      &                       FISHES(ng) % alive,                        &
+     &                       FISHES(ng) % lifestage,                    &
      &                       FISHES(ng) % track)
 # ifdef PROFILE
       CALL wclock_off (ng, iNLM, 10)
@@ -72,7 +74,7 @@
      &                             nfm3, nfm2, nfm1, nf, nfp1,          &
      &                             bounded, Ftype, Tinfo, Fz0,          &
      &                             feedback, bioenergy, species,        &
-     &                             alive, track)
+     &                             num_eggs, alive, lifestage, track)
 !***********************************************************************
 !
       USE mod_param
@@ -91,7 +93,7 @@
       USE interp_floats_mod
 !
 # ifdef DISTRIBUTE
-      USE distribute_mod, ONLY : mp_collect
+      USE distribute_mod
 # endif
       USE utility_mod, ONLY : nrng
 !
@@ -101,26 +103,30 @@
       integer, intent(in) :: knew, nnew, nfm3, nfm2, nfm1, nf, nfp1
 !
 # ifdef ASSUMED_SHAPE
-      integer, intent(in) :: Ftype(:)
+      integer, intent(in)     :: Ftype(:)
       real(r8), intent(inout) :: Tinfo(0:,:)
       real(r8), intent(inout) :: Fz0(:)
       real(r8), intent(inout) :: feedback(:,:)
 
-      logical, intent(inout) :: bounded(:)
+      logical, intent(inout)  :: bounded(:)
       real(r8), intent(inout) :: bioenergy(:,:)
-      integer, intent(inout) :: species(:)
-      logical, intent(inout) :: alive(:)
+      integer, intent(inout)  :: species(:)
+      integer, intent(inout)  :: num_eggs(:)
+      logical, intent(inout)  :: alive(:)
+      integer, intent(inout)  :: lifestage(:)
       real(r8), intent(inout) :: track(:,0:,:)
 # else
-      integer, intent(in) :: Ftype(Nfish(ng))
+      integer, intent(in)     :: Ftype(Nfish(ng))
       real(r8), intent(inout) :: Tinfo(0:izrhs,Nfish(ng))
       real(r8), intent(inout) :: Fz0(Nfish(ng))
       real(r8), intent(inout) :: feedback(NT(ng),Nfish(ng))
 
-      logical, intent(inout) :: bounded(Nfish(ng))
+      logical, intent(inout)  :: bounded(Nfish(ng))
       real(r8), intent(inout) :: bioenergy(NFishV(ng),Nfish(ng))
-      integer, intent(inout) :: species(Nfish(ng))
-      logical, intent(inout) :: alive(Nfish(ng))
+      integer, intent(inout)  :: species(Nfish(ng))
+      integer, intent(inout)  :: num_eggs(Nfish(ng))
+      logical, intent(inout)  :: alive(Nfish(ng))
+      integer, intent(inout)  :: lifestage(Nfish(ng))
       real(r8), intent(inout) :: track(NFV(ng),0:NFT,Nfish(ng))
 # endif
 !
@@ -136,7 +142,7 @@
 
       integer :: LBi, UBi, LBj, UBj
       integer :: Ir, Jr, Npts, i, i1, i2, j, j1, j2, itrc, l, k
-      integer :: Npts1
+      integer :: NptsF, NptsL
 
       real(r8), parameter :: Fspv = 0.0_r8
 
@@ -154,8 +160,9 @@
 # ifdef DISTRIBUTE
       real(r8) :: Xstr, Xend, Ystr, Yend
       real(r8), dimension(Nfish(ng)*NFV(ng)*(NFT+1)) :: Fwrk
-      real(r8), dimension(Nfish(ng)*NFishV(ng)) :: Fwrk1
-
+      real(r8), dimension(Nfish(ng)*NFishV(ng)) :: FwrkF
+      logical,  dimension(Nfish(ng)) :: FwrkL
+      integer,  dimension(Nfish(ng)) :: FwrkI
 # endif
 !
 ! Set tile array bounds.
@@ -181,8 +188,8 @@
 ! their own tile.
 !
       Npts=NFV(ng)*(NFT+1)*Nfish(ng)
-      Npts1=NFishV(ng)*Nfish(ng)
-
+      NptsF=NFishV(ng)*Nfish(ng)
+      NptsL=Nfish(ng)
 
       Xstr=REAL(BOUNDS(ng)%Istr(MyRank),r8)-0.5_r8
       Xend=REAL(BOUNDS(ng)%Iend(MyRank),r8)+0.5_r8
@@ -764,9 +771,10 @@
 !  If newly released fishes, initialize fish weight
 !
             bioenergy(ifwwt,l)=Fwwt0(ng)
-            bioenergy(ifage,l)=0.0_r8
+            bioenergy(ifage,l)=Fage0(ng)
             species(l)=if_herring
             alive(l)=.TRUE.
+            lifestage(l)=if_adult
             MyThread(l)=.TRUE.
           ELSE
             MyThread(l)=.FALSE.
@@ -1002,12 +1010,15 @@
       Fwrk=RESHAPE(track,(/Npts/))
       CALL mp_collect (ng, iNLM, Npts, Fspv, Fwrk)
       track=RESHAPE(Fwrk,(/NFV(ng),NFT+1,Nfish(ng)/))
-      Fwrk1=RESHAPE(bioenergy,(/Npts1/))
-      CALL mp_collect (ng, iNLM, Npts1, Fspv, Fwrk1)
-      bioenergy=RESHAPE(Fwrk1,(/NFishV(ng),Nfish(ng)/))
+      FwrkF=RESHAPE(bioenergy,(/NptsF/))
+      CALL mp_collect (ng, iNLM, NptsF, Fspv, FwrkF)
+      bioenergy=RESHAPE(FwrkF,(/NFishV(ng),Nfish(ng)/))
+      CALL mp_collecti (ng, iNLM, Nfish(ng), 0, lifestage)
+      CALL mp_collecti (ng, iNLM, Nfish(ng), 0, num_eggs)
+      CALL mp_collectl (ng, iNLM, Nfish(ng), alive)
 !
+#  ifdef LONG
 !  Collect the bounded status switch.
-!
       Fwrk=Fspv
       DO l=1,Nfish(ng)
         IF (bounded(l)) THEN
@@ -1022,23 +1033,9 @@
           bounded(l)=.FALSE.
         END IF
       END DO
-!
-!  Collect the alive status switch.
-!
-      Fwrk=Fspv
-      DO l=1,Nfish(ng)
-        IF (alive(l)) THEN
-          Fwrk(l)=1.0_r8
-        END IF
-      END DO
-      CALL mp_collect (ng, iNLM, Nfish(ng), Fspv, Fwrk)
-      DO l=1,Nfish(ng)
-        IF (Fwrk(l).ne.Fspv) THEN
-          alive(l)=.TRUE.
-        ELSE
-          alive(l)=.FALSE.
-        END IF
-      END DO
+#  else
+      CALL mp_collectl (ng, iNLM, Nfish(ng), bounded)
+#  endif
 !
 # endif
       RETURN

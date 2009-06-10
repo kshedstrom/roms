@@ -10817,6 +10817,8 @@
             Npts=load_i(Nval, Rval, Ngrids, fishrrec)
           ELSE IF (TRIM(KeyWord).eq.'Fwwt0') THEN
             Npts=load_r(Nval, Rval, Ngrids, Fwwt0)
+          ELSE IF (TRIM(KeyWord).eq.'Fage0') THEN
+            Npts=load_r(Nval, Rval, Ngrids, Fage0)
           ELSE IF (TRIM(KeyWord).eq.'ZSpref') THEN
             Npts=load_r(Nval, Rval, Ngrids, ZSpref)
           ELSE IF (TRIM(KeyWord).eq.'ZLpref') THEN
