@@ -245,7 +245,6 @@
      &                    cawdir)
 #endif
 
-
       RETURN
       END SUBROUTINE cawdir_eval_tile
 #endif

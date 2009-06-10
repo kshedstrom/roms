@@ -47,7 +47,6 @@
      &                       OCEAN(ng) % ships_count,                   &
      &                       OCEAN(ng) % ships_list,                    &
      &                       SHIPS(ng) % shipnodes,                     &
-     &                       OCEAN(ng) % fish0,                         &
      &                       SHIPS(ng) % bounded,                       &
      &                       SHIPS(ng) % track)
 
@@ -61,7 +60,7 @@
      &                        rmask,                                    &
 # endif
      &                        ships_count, ships_list, shipnodes,         &
-     &                        fish0, bounded, track)
+     &                        bounded, track)
 !***********************************************************************
 !
       USE mod_param
@@ -74,7 +73,6 @@
       integer, intent(in) :: ng, tile
       integer, intent(in) :: LBi, UBi, LBj, UBj
       integer, intent(in) :: IminS, ImaxS, JminS, JmaxS
-      type(fishnode), target, intent(in) :: fish0
 !
 # ifdef ASSUMED_SHAPE
 #  ifdef MASKING
@@ -109,7 +107,7 @@
       DO j=Jstr-1,JendR
         DO i=Istr-1,IendR
           ships_count(i,j) = 0
-          ships_list(i,j) % next => fish0
+          ships_list(i,j) % next => null()
         END DO
       END DO
 !

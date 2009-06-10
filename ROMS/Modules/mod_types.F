@@ -14,14 +14,8 @@
 
 #if defined NEMURO_SAN
         type fishnode
-          type(fishnode), pointer :: next
+          type(fishnode), pointer :: next => null()
           integer :: fish
         end type fishnode
-
-        type treenode
-          type(treenode), pointer :: left, right
-          logical :: red
-          integer :: eggs
-        end type treenode
 #endif
       END MODULE mod_types
