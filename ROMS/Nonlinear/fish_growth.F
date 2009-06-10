@@ -67,7 +67,7 @@
       integer, intent(in) :: ng, lflt, itime
 
       real(r8), intent(inout) :: track(NFV(ng),0:NFT,Nfish(ng))
-      real(r8), intent(inout) :: feedback(NBT,Nfish(ng))
+      real(r8), intent(inout) :: feedback(NT(ng),Nfish(ng))
       real(r8), intent(inout) :: bioenergy(NFishV(ng),Nfish(ng))
 !
 !  Local variable declarations.

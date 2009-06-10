@@ -159,7 +159,8 @@
 ! Swim towards best location
         track(ixrhs,itime,lflt)=d_ij*cos(theta_ij)*pm(Ir,Jr)/dt(ng)
         track(iyrhs,itime,lflt)=d_ij*sin(theta_ij)*pn(Ir,Jr)/dt(ng)
-!        track(izrhs,itime,lflt)=d_k/dt(ng)
+        track(izrhs,itime,lflt)=d_k/dt(ng)
+! Temporary overwrite until vertical motion is working
         track(izrhs,itime,lflt)=0.0_r8
 !
 # endif

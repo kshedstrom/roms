@@ -86,9 +86,9 @@
 # ifdef NEMURO_SAN
 #  define RAILSBACK
 #  undef  HUMSTON
-#  undef  FISH_FEEDBACK
+#  define FISH_FEEDBACK
 #  undef FLEET
-#  define ANA_SPAWN_DIST
+#  undef  ANA_SPAWN_DIST
 # endif
 # define BIO_SEDIMENT
 # define HOLLING_GRAZING

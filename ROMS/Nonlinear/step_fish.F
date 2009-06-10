@@ -136,7 +136,7 @@
 
       integer :: LBi, UBi, LBj, UBj
       integer :: Ir, Jr, Npts, i, i1, i2, j, j1, j2, itrc, l, k
-      integer :: NptsF
+      integer :: Npts1
 
       real(r8), parameter :: Fspv = 0.0_r8
 
@@ -154,7 +154,7 @@
 # ifdef DISTRIBUTE
       real(r8) :: Xstr, Xend, Ystr, Yend
       real(r8), dimension(Nfish(ng)*NFV(ng)*(NFT+1)) :: Fwrk
-      real(r8), dimension(Nfish(ng)*NFishV(ng)) :: FwrkF
+      real(r8), dimension(Nfish(ng)*NFishV(ng)) :: Fwrk1
 
 # endif
 !
@@ -181,7 +181,7 @@
 ! their own tile.
 !
       Npts=NFV(ng)*(NFT+1)*Nfish(ng)
-      NptsF=NFishV(ng)*Nfish(ng)
+      Npts1=NFishV(ng)*Nfish(ng)
 
 
       Xstr=REAL(BOUNDS(ng)%Istr(MyRank),r8)-0.5_r8
@@ -1005,9 +1005,9 @@
       Fwrk=RESHAPE(track,(/Npts/))
       CALL mp_collect (ng, iNLM, Npts, Fspv, Fwrk)
       track=RESHAPE(Fwrk,(/NFV(ng),NFT+1,Nfish(ng)/))
-      FwrkF=RESHAPE(bioenergy,(/NptsF/))
-      CALL mp_collect (ng, iNLM, NptsF, Fspv, FwrkF)
-      bioenergy=RESHAPE(FwrkF,(/NFishV(ng),Nfish(ng)/))
+      Fwrk1=RESHAPE(bioenergy,(/Npts1/))
+      CALL mp_collect (ng, iNLM, Npts1, Fspv, Fwrk1)
+      bioenergy=RESHAPE(Fwrk1,(/NFishV(ng),Nfish(ng)/))
 !
 !  Collect the bounded status switch.
 !
@@ -1025,6 +1025,24 @@
           bounded(l)=.FALSE.
         END IF
       END DO
+!
+!  Collect the alive status switch.
+!
+      Fwrk=Fspv
+      DO l=1,Nfish(ng)
+        IF (alive(l)) THEN
+          Fwrk(l)=1.0_r8
+        END IF
+      END DO
+      CALL mp_collect (ng, iNLM, Nfish(ng), Fspv, Fwrk)
+      DO l=1,Nfish(ng)
+        IF (Fwrk(l).ne.Fspv) THEN
+          alive(l)=.TRUE.
+        ELSE
+          alive(l)=.FALSE.
+        END IF
+      END DO
+!
 # endif
       RETURN
       END SUBROUTINE step_fish_tile
