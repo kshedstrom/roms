@@ -99,7 +99,7 @@
 
       allocate ( FISHES(ng) % Fz0(Nfish(ng)) )
 
-      allocate ( FISHES(ng) % feedback(NBT,Nfish(ng)) )
+      allocate ( FISHES(ng) % feedback(NT(ng),Nfish(ng)) )
 
       allocate ( FISHES(ng) % bioenergy(NFishV(ng),Nfish(ng)) )
 
@@ -125,7 +125,7 @@
         FISHES(ng) % Flon(iflt) = IniVal
         FISHES(ng) % Flat(iflt) = IniVal
         FISHES(ng) % Fz0(iflt) = 0
-        DO i=1,NBT
+        DO i=1,NT(ng)
           FISHES(ng) % feedback(i,iflt) = IniVal
         END DO
         DO i=0,izrhs

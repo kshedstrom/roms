@@ -298,24 +298,25 @@
 !
       cff1=8.0_r8/3.0_r8
       cff2=4.0_r8/3.0_r8
+!
+      CALL fish_swim (ng, LBi, UBi, LBj, UBj, 1, N(ng),                 &
+     &                    Lstr, Lend, nf, nnew,                         &
+     &                    GRID(ng) % pm,                                &
+     &                    GRID(ng) % pn,                                &
+# ifdef SOLVE3D
+     &                    GRID(ng) % Hz,                                &
+# endif
+     &                    MyThread, bounded, track,                     &
+     &                    bioenergy, alive)
+!
       DO l=Lstr,Lend
         IF (MyThread(l).and.bounded(l)) THEN
-          IF (alive(l)) THEN
-            CALL fish_swim (ng, LBi, UBi, LBj, UBj, 1, N(ng),           &
-     &                          l, nf, nnew,                            &
-     &                          GRID(ng) % pm,                          &
-     &                          GRID(ng) % pn,                          &
-# ifdef SOLVE3D
-     &                          GRID(ng) % Hz,                          &
-# endif
-     &                          track, bioenergy)
-          END IF
 !
           track(ixgrd,nfp1,l)=track(ixgrd,nfm3,l)+                      &
      &                        dt(ng)*(cff1*track(ixrhs,nf  ,l)-         &
      &                                cff2*track(ixrhs,nfm1,l)+         &
      &                                cff1*track(ixrhs,nfm2,l))
-          track(iygrd,nfp1,l)=track(iygrd,nfm3,l)+                  &
+          track(iygrd,nfp1,l)=track(iygrd,nfm3,l)+                      &
      &                        dt(ng)*(cff1*track(iyrhs,nf  ,l)-         &
      &                                cff2*track(iyrhs,nfm1,l)+         &
      &                                cff1*track(iyrhs,nfm2,l))
@@ -491,18 +492,19 @@
       cff2=1.0_r8/8.0_r8
       cff3=3.0_r8/8.0_r8
       cff4=6.0_r8/8.0_r8
+!
+      CALL fish_swim (ng, LBi, UBi, LBj, UBj, 1, N(ng),                 &
+     &                    Lstr, Lend, nfp1, nnew,                       &
+     &                    GRID(ng) % pm,                                &
+     &                    GRID(ng) % pn,                                &
+# ifdef SOLVE3D
+     &                    GRID(ng) % Hz,                                &
+# endif
+     &                     MyThread, bounded, track,                    &
+     &                     bioenergy, alive)
+!
       DO l=Lstr,Lend
         IF (MyThread(l).and.bounded(l)) THEN
-          IF (alive(l)) THEN
-            CALL fish_swim (ng, LBi, UBi, LBj, UBj, 1, N(ng),           &
-     &                          l, nfp1, nnew,                          &
-     &                          GRID(ng) % pm,                          &
-     &                          GRID(ng) % pn,                          &
-# ifdef SOLVE3D
-     &                          GRID(ng) % Hz,                          &
-# endif
-     &                          track, bioenergy)
-          END IF
 !
           track(ixgrd,nfp1,l)=cff1*track(ixgrd,nf  ,l)-                 &
      &                        cff2*track(ixgrd,nfm2,l)+                 &
@@ -994,14 +996,9 @@
      &                      MyThread, bounded, track)
       END DO
 !
-      DO l=Lstr,Lend
-        IF (MyThread(l).and.bounded(l)) THEN
-          IF (alive(l)) THEN
-            CALL fish_growth (ng, l, nfp1, track(:,:,:), feedback,      &
-     &                        bioenergy)
-          ENDIF
-        ENDIF
-      ENDDO
+      CALL fish_growth (ng, Lstr, Lend, nfp1,                           &
+     &                      MyThread, bounded, track(:,:,:),            &
+     &                      feedback, bioenergy, alive)
 !
 # endif
 # ifdef DISTRIBUTE
@@ -1019,10 +1016,9 @@
       CALL mp_collecti (ng, iNLM, Nfish(ng), 0, lifestage)
       CALL mp_collecti (ng, iNLM, Nfish(ng), 0, num_eggs)
       CALL mp_collectl (ng, iNLM, Nfish(ng), alive)
+!
 #  ifdef LONG
-!
 !  Collect the bounded status switch.
-!
       Fwrk=Fspv
       DO l=1,Nfish(ng)
         IF (bounded(l)) THEN
@@ -1040,6 +1036,7 @@
 #  else
       CALL mp_collectl (ng, iNLM, Nfish(ng), bounded)
 #  endif
+!
 # endif
       RETURN
       END SUBROUTINE step_fish_tile

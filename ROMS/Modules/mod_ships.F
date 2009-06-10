@@ -95,7 +95,7 @@
 
       allocate ( SHIPS(ng) % Fz0(Nships(ng)) )
 
-!     allocate ( SHIPS(ng) % feedback(NBT,Nships(ng)) )
+!     allocate ( SHIPS(ng) % feedback(NT(ng),Nships(ng)) )
 
 !     allocate ( SHIPS(ng) % bioenergy(NFishV(ng),Nships(ng)) )
 
@@ -119,7 +119,7 @@
         SHIPS(ng) % Flon(iflt) = IniVal
         SHIPS(ng) % Flat(iflt) = IniVal
         SHIPS(ng) % Fz0(iflt) = 0
-!       DO i=1,NBT
+!       DO i=1,NT(ng)
 !         SHIPS(ng) % feedback(i,iflt) = IniVal
 !       END DO
         DO i=0,izrhs
