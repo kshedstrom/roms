@@ -58,6 +58,7 @@
      &                       FISHES(ng) % feedback,                     &
      &                       FISHES(ng) % bioenergy,                    &
      &                       FISHES(ng) % species,                      &
+     &                       FISHES(ng) % num_eggs,                     &
      &                       FISHES(ng) % alive,                        &
      &                       FISHES(ng) % lifestage,                    &
      &                       FISHES(ng) % track)
@@ -73,7 +74,7 @@
      &                             nfm3, nfm2, nfm1, nf, nfp1,          &
      &                             bounded, Ftype, Tinfo, Fz0,          &
      &                             feedback, bioenergy, species,        &
-     &                             alive, lifestage, track)
+     &                             num_eggs, alive, lifestage, track)
 !***********************************************************************
 !
       USE mod_param
@@ -109,7 +110,8 @@
 
       logical, intent(inout)  :: bounded(:)
       real(r8), intent(inout) :: bioenergy(:,:)
-      integer, intent(in)     :: species(:)
+      integer, intent(inout)  :: species(:)
+      integer, intent(inout)  :: num_eggs(:)
       logical, intent(inout)  :: alive(:)
       integer, intent(inout)  :: lifestage(:)
       real(r8), intent(inout) :: track(:,0:,:)
@@ -121,7 +123,8 @@
 
       logical, intent(inout)  :: bounded(Nfish(ng))
       real(r8), intent(inout) :: bioenergy(NFishV(ng),Nfish(ng))
-      integer, intent(in)     :: species(Nfish(ng))
+      integer, intent(inout)  :: species(Nfish(ng))
+      integer, intent(inout)  :: num_eggs(Nfish(ng))
       logical, intent(inout)  :: alive(Nfish(ng))
       integer, intent(inout)  :: lifestage(Nfish(ng))
       real(r8), intent(inout) :: track(NFV(ng),0:NFT,Nfish(ng))
@@ -1015,7 +1018,7 @@
       bioenergy=RESHAPE(FwrkF,(/NFishV(ng),Nfish(ng)/))
       CALL mp_collecti (ng, iNLM, Nfish(ng), 0, lifestage)
       CALL mp_collecti (ng, iNLM, Nfish(ng), 0, num_eggs)
-      CALL mp_collectl (ng, iNLM, fish(ng), alive)
+      CALL mp_collectl (ng, iNLM, Nfish(ng), alive)
 #  ifdef LONG
 !
 !  Collect the bounded status switch.
