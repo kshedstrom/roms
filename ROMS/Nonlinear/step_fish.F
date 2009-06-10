@@ -291,18 +291,19 @@
 !
       cff1=8.0_r8/3.0_r8
       cff2=4.0_r8/3.0_r8
+!
+      CALL fish_swim (ng, LBi, UBi, LBj, UBj, 1, N(ng),                 &
+     &                    Lstr, Lend, nf, nnew,                         &
+     &                    GRID(ng) % pm,                                &
+     &                    GRID(ng) % pn,                                &
+# ifdef SOLVE3D
+     &                    GRID(ng) % Hz,                                &
+# endif
+     &                    MyThread, bounded, track,                     &
+     &                    bioenergy, alive)
+!
       DO l=Lstr,Lend
         IF (MyThread(l).and.bounded(l)) THEN
-          IF (alive(l)) THEN
-            CALL fish_swim (ng, LBi, UBi, LBj, UBj, 1, N(ng),           &
-     &                          l, nf, nnew,                            &
-     &                          GRID(ng) % pm,                          &
-     &                          GRID(ng) % pn,                          &
-# ifdef SOLVE3D
-     &                          GRID(ng) % Hz,                          &
-# endif
-     &                          track, bioenergy)
-          END IF
 !
           track(ixgrd,nfp1,l)=track(ixgrd,nfm3,l)+                      &
      &                        dt(ng)*(cff1*track(ixrhs,nf  ,l)-         &
@@ -484,18 +485,19 @@
       cff2=1.0_r8/8.0_r8
       cff3=3.0_r8/8.0_r8
       cff4=6.0_r8/8.0_r8
+!
+      CALL fish_swim (ng, LBi, UBi, LBj, UBj, 1, N(ng),                 &
+     &                    Lstr, Lend, nfp1, nnew,                       &
+     &                    GRID(ng) % pm,                                &
+     &                    GRID(ng) % pn,                                &
+# ifdef SOLVE3D
+     &                    GRID(ng) % Hz,                                &
+# endif
+     &                     MyThread, bounded, track,                    &
+     &                     bioenergy, alive)
+!
       DO l=Lstr,Lend
         IF (MyThread(l).and.bounded(l)) THEN
-          IF (alive(l)) THEN
-            CALL fish_swim (ng, LBi, UBi, LBj, UBj, 1, N(ng),           &
-     &                          l, nfp1, nnew,                          &
-     &                          GRID(ng) % pm,                          &
-     &                          GRID(ng) % pn,                          &
-# ifdef SOLVE3D
-     &                          GRID(ng) % Hz,                          &
-# endif
-     &                          track, bioenergy)
-          END IF
 !
           track(ixgrd,nfp1,l)=cff1*track(ixgrd,nf  ,l)-                 &
      &                        cff2*track(ixgrd,nfm2,l)+                 &
@@ -986,14 +988,9 @@
      &                      MyThread, bounded, track)
       END DO
 !
-      DO l=Lstr,Lend
-        IF (MyThread(l).and.bounded(l)) THEN
-          IF (alive(l)) THEN
-            CALL fish_growth (ng, l, nfp1, track(:,:,:), feedback,      &
-     &                        bioenergy)
-          ENDIF
-        ENDIF
-      ENDDO
+      CALL fish_growth (ng, Lstr, Lend, nfp1,                           &
+     &                      MyThread, bounded, track(:,:,:),            &
+     &                      feedback, bioenergy, alive)
 !
 # endif
 # ifdef DISTRIBUTE
