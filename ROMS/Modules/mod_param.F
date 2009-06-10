@@ -806,7 +806,7 @@
           Im(ng)=Lm(ng)+I_padd
           Jm(ng)=Mm(ng)+J_padd
           NT(ng)=NAT+NBT+NST+NPT
-#ifdef FLOATS || NEMURO_SAN
+#if defined FLOATS || defined NEMURO_SAN
 # ifdef FLOAT_VWALK
           NFV(ng)=NT(ng)+12
 # else
