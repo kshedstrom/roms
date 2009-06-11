@@ -138,7 +138,7 @@
             DO j=Jr-1,Jr+1
               DO i=Ir-1,Ir+1
                 DO k=MAX(Kr-1,1),MIN(Kr+1,N(ng))
-                  CALL fish_growth_ijk (ng, i, j, k, nnew,                  &
+                  CALL fish_growth_ijk (ng, i, j, k, nnew,              &
      &                                      Fweight, Uswim, Fgrowth)
 ! MISSING HERE: CALL FOR MORTALITY SUBROUTINE
                   Fmort=0.0_r8
@@ -169,7 +169,7 @@
             track(iyrhs,itime,l)=d_ij*sin(theta_ij)*pn(Ir,Jr)/dt(ng)
             track(izrhs,itime,l)=d_k/dt(ng)
 ! Temporary overwrite until vertical motion is working
-            track(izrhs,itime,l)=0.0_r8
+!            track(izrhs,itime,l)=0.0_r8
 !
 # endif
 !
@@ -196,11 +196,11 @@
             itm1=MOD(itime-1+NFT+1,NFT+1)
             xdis=track(ixrhs,itm1,l)*dt(ng)/pm(Ir,Jr)
             ydis=track(iyrhs,itm1,l)*dt(ng)/pn(Ir,Jr)
-! Use velx, vely below for purely random motion
-!              xdis=0.0_r8
-!              ydis=0.0_r8
+! Use xdis, ydis below for purely random motion
+!            xdis=0.0_r8
+!            ydis=0.0_r8
 !
-! Horizontal behavior (updated once daily or when hits land)
+! Horizontal behavior (updated once daily)
             IF ((tcheck.eq.REAL(INT(tcheck)))) THEN
 ! Uswim is in cm/s, so multiply by 0.01 for m/s)
               dist=0.01_r8*Uswim*dt(ng)
@@ -249,12 +249,14 @@
 !
 ! Vertical behavior (update at every time step)
 ! DOES NOT WORK YET
-            zdis=track(izgrd,itm1,l)*dt(ng)
+            zdis=track(izrhs,itm1,l)*dt(ng)
+! Use zdis below for purely random motion
+!            zdis=0.0_r8
 ! Uswim is in cm/s, so multiply by 0.01 for m/s)
 !            dist=0.01_r8*Uswim*dt(ng)
 ! Max distance is 100m, or total water depth (whichever is less)
 !            dist=min(1.0_r8,-GRID(ng)%z_w(Ir,Jr,1))
-            dist=1.0_r8
+            dist=0.33_r8
 ! Compute random displacements
             epsd=(0.5_r8*dist**2)**0.5_r8
             epsd_sigma=0.5_r8*dist
@@ -277,9 +279,9 @@
             g_epsz=epsz*var_g
             zdis=f_zdis+g_epsz
 ! Swim towards best location
-!            track(izrhs,itime,l)=zdis/dt(ng)
+            track(izrhs,itime,l)=zdis/dt(ng)
 ! Temporary overwrite until vertical motion is working
-            track(izrhs,itime,l)=0.0_r8
+!            track(izrhs,itime,l)=0.0_r8
 !
 # endif
 !
