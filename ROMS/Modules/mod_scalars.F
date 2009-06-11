@@ -394,6 +394,7 @@
         integer, parameter :: ifworth = 2        ! fish worth
         integer, parameter :: ifage = 3          ! age as stage
         integer, parameter :: ifbday = 4         ! birthday
+        integer, parameter :: ifspwnloc = 5      ! spawn_dist of mother
 ! Species IDs
         integer, parameter :: if_none = 0
         integer, parameter :: if_anchovy = 1
