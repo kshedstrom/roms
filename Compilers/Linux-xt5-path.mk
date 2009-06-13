@@ -24,7 +24,7 @@
 # First the defaults
 #
                FC := ftn
-           FFLAGS := 
+           FFLAGS := -u
               CPP := /usr/bin/cpp
          CPPFLAGS := -P -traditional
           LDFLAGS :=
@@ -38,6 +38,13 @@
 
         MDEPFLAGS := --cpp --fext=f90 --file=- --objdir=$(SCRATCH_DIR)
 
+#
+# Names of module files for netCDF f90 interface: override the lower-case
+# file names specified in makefile
+#
+
+   NETCDF_MODFILE := NETCDF.mod
+TYPESIZES_MODFILE := TYPESIZES.mod
 #
 # Library locations, can be overridden by environment variables.
 #
@@ -80,7 +87,7 @@ ifdef USE_DEBUG
            FFLAGS += -g -C
 #          FFLAGS += -g
 else
-           FFLAGS += -fast
+           FFLAGS += -O2
 endif
 
 ifdef USE_MCT
@@ -108,9 +115,9 @@ endif
 # local directory and compilation flags inside the code.
 #
 
-$(SCRATCH_DIR)/analytical.o: FFLAGS += -Mfree
-$(SCRATCH_DIR)/mod_ncparam.o: FFLAGS += -Mfree
-$(SCRATCH_DIR)/mod_strings.o: FFLAGS := $(MY_FFLAGS) -Mfree
+$(SCRATCH_DIR)/analytical.o: FFLAGS += -freeform
+$(SCRATCH_DIR)/mod_ncparam.o: FFLAGS += -freeform
+$(SCRATCH_DIR)/mod_strings.o: FFLAGS := $(MY_FFLAGS) -freeform
 
 #
 # Supress free format in SWAN source files since there are comments
@@ -119,26 +126,26 @@ $(SCRATCH_DIR)/mod_strings.o: FFLAGS := $(MY_FFLAGS) -Mfree
 
 ifdef USE_SWAN
 
-$(SCRATCH_DIR)/ocpcre.o: FFLAGS += -Mnofree
-$(SCRATCH_DIR)/ocpids.o: FFLAGS += -Mnofree
-$(SCRATCH_DIR)/ocpmix.o: FFLAGS += -Mnofree
-$(SCRATCH_DIR)/swancom1.o: FFLAGS += -Mnofree
-$(SCRATCH_DIR)/swancom2.o: FFLAGS += -Mnofree
-$(SCRATCH_DIR)/swancom3.o: FFLAGS += -Mnofree
-$(SCRATCH_DIR)/swancom4.o: FFLAGS += -Mnofree
-$(SCRATCH_DIR)/swancom5.o: FFLAGS += -Mnofree
-$(SCRATCH_DIR)/swanmain.o: FFLAGS += -Mnofree
-$(SCRATCH_DIR)/swanout1.o: FFLAGS += -Mnofree
-$(SCRATCH_DIR)/swanout2.o: FFLAGS += -Mnofree
-$(SCRATCH_DIR)/swanparll.o: FFLAGS += -Mnofree
-$(SCRATCH_DIR)/swanpre1.o: FFLAGS += -Mnofree
-$(SCRATCH_DIR)/swanpre2.o: FFLAGS += -Mnofree
-$(SCRATCH_DIR)/swanser.o: FFLAGS += -Mnofree
-$(SCRATCH_DIR)/swmod1.o: FFLAGS += -Mnofree
-$(SCRATCH_DIR)/swmod2.o: FFLAGS += -Mnofree
-$(SCRATCH_DIR)/m_constants.o: FFLAGS += -Mfree
-$(SCRATCH_DIR)/m_fileio.o: FFLAGS += -Mfree
-$(SCRATCH_DIR)/mod_xnl4v5.o: FFLAGS += -Mfree
-$(SCRATCH_DIR)/serv_xnl4v5.o: FFLAGS += -Mfree
+$(SCRATCH_DIR)/ocpcre.o: FFLAGS += -fixedform
+$(SCRATCH_DIR)/ocpids.o: FFLAGS += -fixedform
+$(SCRATCH_DIR)/ocpmix.o: FFLAGS += -fixedform
+$(SCRATCH_DIR)/swancom1.o: FFLAGS += -fixedform
+$(SCRATCH_DIR)/swancom2.o: FFLAGS += -fixedform
+$(SCRATCH_DIR)/swancom3.o: FFLAGS += -fixedform
+$(SCRATCH_DIR)/swancom4.o: FFLAGS += -fixedform
+$(SCRATCH_DIR)/swancom5.o: FFLAGS += -fixedform
+$(SCRATCH_DIR)/swanmain.o: FFLAGS += -fixedform
+$(SCRATCH_DIR)/swanout1.o: FFLAGS += -fixedform
+$(SCRATCH_DIR)/swanout2.o: FFLAGS += -fixedform
+$(SCRATCH_DIR)/swanparll.o: FFLAGS += -fixedform
+$(SCRATCH_DIR)/swanpre1.o: FFLAGS += -fixedform
+$(SCRATCH_DIR)/swanpre2.o: FFLAGS += -fixedform
+$(SCRATCH_DIR)/swanser.o: FFLAGS += -fixedform
+$(SCRATCH_DIR)/swmod1.o: FFLAGS += -fixedform
+$(SCRATCH_DIR)/swmod2.o: FFLAGS += -fixedform
+$(SCRATCH_DIR)/m_constants.o: FFLAGS += -freeform
+$(SCRATCH_DIR)/m_fileio.o: FFLAGS += -freeform
+$(SCRATCH_DIR)/mod_xnl4v5.o: FFLAGS += -freeform
+$(SCRATCH_DIR)/serv_xnl4v5.o: FFLAGS += -freeform
 
 endif
