@@ -30,6 +30,7 @@
           type(treenode), pointer :: parent => null()
           logical :: red = .FALSE.
           integer :: eggs = 0
+          integer :: momfish = 0
           integer :: egg_sum
           real(r8) :: dist
         end type treenode
@@ -39,11 +40,19 @@
           type(treenode), pointer :: mytreenode => null()
         end type listnode
 
+        type egg_batch
+          type(egg_batch), pointer :: next => null()
+          type(treenode), pointer :: egg_tree => null()
+          type(treenode), pointer :: top => null()
+          integer :: egg_sum = 0
+        end type egg_batch
+
         type(treenode), pointer :: tree
         type(listnode), pointer :: gc_list, gc_next
+        integer :: Nspawners
 
         PRIVATE
-        PUBLIC :: init, insert, traverse, destroy
+        PUBLIC :: init, insert, collect, traverse, destroy
 
         CONTAINS
 
@@ -52,22 +61,15 @@
           ALLOCATE(gc_list)
           gc_list % mytreenode => tree
           gc_next => gc_list
+          Nspawners = 0
         END SUBROUTINE init
 
-        SUBROUTINE insert(eggs, dist)
+        SUBROUTINE insert(eggs, dist, ifish)
           integer, intent(in) :: eggs
+          integer, intent(in) :: ifish
           real(r8), intent(in) :: dist
-          type(treenode), pointer :: cur, p, new
+          type(treenode), pointer :: cur, p, x, y
 
-! Empty tree, deposit eggs here
-          IF (tree % eggs .eq. 0) THEN
-            tree % dist = dist
-            tree % eggs = eggs
-            tree % egg_sum = eggs
-            RETURN
-          END IF
-
-! New nodes end up at the bottom until a rebalance
           ALLOCATE(cur)
           ALLOCATE(gc_next % next)
           gc_next => gc_next % next
@@ -76,9 +78,18 @@
           cur % eggs = eggs
           cur % egg_sum = eggs
           cur % dist = dist
+          cur % momfish = ifish
+          Nspawners = Nspawners + 1
+
+! Empty tree, deposit eggs at the top
+          IF (.not. ASSOCIATED(tree % left)) THEN
+            tree % left => cur
+            RETURN
+          END IF
 
 ! Otherwise find somewhere to put these eggs
-          p => tree
+! New nodes end up at the bottom until a rebalance
+          p => tree % left
 
           DO
             IF (dist <= p % dist) THEN   
@@ -103,9 +114,47 @@
           END DO
 ! Fix the parent sums
           CALL sum_up(cur)
-! Balance the thing...          
-          IF (cur % egg_sum > p % egg_sum) THEN
-          END IF
+! Balance the thing... red-black for now, until I get smarter about
+! balancing eggs.
+          cur % red = .true.
+          x => cur
+          DO WHILE (x % parent % red)
+            IF (x % parent % momfish .eq.                               &
+     &           x % parent % parent % left % momfish) THEN
+              IF (ASSOCIATED(x % parent % parent % right)) THEN
+                y => x % parent % parent % right   ! uncle
+                IF (y % red) THEN
+                  x % parent % red = .false.
+                  y % red = .false.
+                  x % parent % parent % red = .true.
+                  x => x % parent % parent
+                END IF
+              ELSE
+                IF (x % momfish .eq. x % parent % right % momfish) THEN
+                  CALL rotate_left(x % parent)
+                END IF
+                x % parent % red = .false.
+                x % parent % parent % red = .true.
+                CALL rotate_right(x % parent % parent)
+              END IF
+            ELSE
+              y => x % parent % parent % left   ! aunt
+              IF (y % red) THEN
+                x % parent % red = .false.
+                y % red = .false.
+                x % parent % parent % red = .true.
+                x => x % parent % parent
+              ELSE
+                IF (x % momfish .eq. x % parent % left % momfish) THEN
+                  CALL rotate_right(x % parent)
+                END IF
+                x % parent % red = .false.
+                x % parent % parent % red = .true.
+                CALL rotate_left(x % parent % parent)
+              END IF
+            END IF
+          END DO
+          tree % left % red = .false.
         END SUBROUTINE insert
 
 ! Insertion messes up the sums in the ancestor nodes
@@ -131,19 +180,118 @@
           END DO
         RETURN
         END SUBROUTINE sum_up
+!
+! For the rotating, I'm using C code I found online for red-black trees,
+! with reference to Introduction to Algorithms by Cormen, Leiserson,
+! Rivest (Chapter 14). It makes right child of x into the parent of x.
+!
+        SUBROUTINE rotate_left(x)
+          type(treenode), pointer :: x
+          type(treenode), pointer :: y
+          integer :: mine, theirs
+
+          y => x % right
+
+          IF (ASSOCIATED(y % left)) THEN
+            x % right => y % left
+            x % right % parent => x
+          END IF
+
+          y % parent => x % parent
+
+!         IF ( x % momfish .eq. x % parent % left % momfish) THEN
+          mine = x % momfish
+          theirs = x % parent % left % momfish
+          IF ( mine .eq. theirs) THEN
+            x % parent % left => y
+          ELSE
+            x % parent % right => y
+          END IF
+          y % left => x
+          x % parent => y
+          CALL sum_up(x)
+        END SUBROUTINE rotate_left
+
+        SUBROUTINE rotate_right(x)
+          type(treenode), pointer :: x
+          type(treenode), pointer :: y
+
+          y => x % left
+
+          IF (ASSOCIATED(y % right)) THEN
+            x % left => y % right
+            x % left % parent => x
+          END IF
+
+          y % parent => x % parent
+
+          IF (ASSOCiATED(x % parent % left) .and.                       &
+     &           x % momfish .eq. x % parent % left % momfish) THEN
+            x % parent % left => y
+          ELSE
+            x % parent % right => y
+          END IF
+          y % right => x
+          x % parent => y
+          CALL sum_up(x)
+        END SUBROUTINE rotate_right
+
+        SUBROUTINE collect(Nsuper, Nfound, eggs, momfish)
+          integer, intent(in)  :: Nsuper
+          integer, intent(out) :: Nfound
+          integer, intent(out) :: eggs(Nsuper)
+          integer, intent(out) :: momfish(Nsuper)
+          type(egg_batch), pointer :: l, r, p
+          type(egg_batch), pointer :: egg_head
+!
+! I'm going to keep a sorted linked list of my partial batches,
+! splitting them until I have enough to fill my superindividuals or I
+! run out of mothers with eggs. Actually, I should count up the moms
+! and if there aren't too many, just use all the superindividuals.
+!
+          Nfound = 0
+          IF (Nspawners .eq. 0) THEN
+            RETURN
+          IF (Nsuper <= Nspawners) THEN
+            IF (ASSOCIATED(tree % left)) CALL                           &
+     &        copy_traverse(tree % left, Nsuper, Nfound, eggs, momfish)
+            IF (Nfound .ne. Nspawners) print *, "Oh, noes!", Nfound,    &
+     &            Nspawners
+          ELSE
+            ALLOCATE(p)
+            p => tree % left
+          END IF
+        END SUBROUTINE collect
 
         SUBROUTINE traverse
-          CALL traverse_priv(tree)
+          IF (ASSOCIATED(tree % left)) CALL traverse_print(tree % left)
         END SUBROUTINE traverse
 
-        RECURSIVE SUBROUTINE traverse_priv(p)
+        RECURSIVE SUBROUTINE copy_traverse(p, Nsuper, Nfound, eggs,
+        momfish)
+          type(treenode), pointer :: p
+          integer, intent(in)  :: Nsuper
+          integer, intent(inout) :: Nfound
+          integer, intent(inout) :: eggs(Nsuper)
+          integer, intent(inout) :: momfish(Nsuper)
+
+          IF (ASSOCIATED(p % left)) CALL copy_traverse(p % left,        &
+     &                Nsuper, Nfound, eggs, momfish)
+          Nfound = Nfound + 1
+          eggs(Nfound) = p % eggs
+          momfish(Nfound) = p % momfish
+          IF (ASSOCIATED(p % right)) CALL copy_traverse(p % right,      &
+     &                Nsuper, Nfound, eggs, momfish)
+        END SUBROUTINE copy_traverse
+
+        RECURSIVE SUBROUTINE traverse_print(p)
           type(treenode), pointer :: p
 
-          IF (ASSOCIATED(p % left)) CALL traverse_priv(p % left)
+          IF (ASSOCIATED(p % left)) CALL traverse_print(p % left)
           CALL print_node(p)
-          IF (ASSOCIATED(p % right)) CALL traverse_priv(p % right)
+          IF (ASSOCIATED(p % right)) CALL traverse_print(p % right)
 
-        END SUBROUTINE traverse_priv
+        END SUBROUTINE traverse_print
 
         SUBROUTINE print_node(cur)
           type(treenode), pointer :: cur
