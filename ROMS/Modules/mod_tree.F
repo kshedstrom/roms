@@ -69,6 +69,7 @@
           integer, intent(in) :: ifish
           real(r8), intent(in) :: dist
           type(treenode), pointer :: cur, p, x, y
+          logical :: choice
 
           ALLOCATE(cur)
           ALLOCATE(gc_next % next)
@@ -120,9 +121,11 @@
           cur % red = .true.
           x => cur
           DO WHILE (x % parent % red)
+            choice = .false.
             IF (ASSOCIATED(x % parent % parent % left)) THEN
               IF (x % parent % momfish .eq.                             &
      &            x % parent % parent % left % momfish) THEN
+                choice = .true.
                 IF (ASSOCIATED(x % parent % parent % right)) THEN
                   y => x % parent % parent % right   ! uncle
                   IF (y % red) THEN
@@ -145,7 +148,8 @@
                 END IF
               END IF
             END IF
-            IF (ASSOCIATED(x % parent % parent % right)) THEN
+            IF (ASSOCIATED(x % parent % parent % right) .and. .not.     &
+     &                     choice) THEN
               IF (x % parent % momfish .eq.                             &
      &           x % parent % parent % right % momfish) THEN
                 IF (ASSOCIATED(x % parent % parent % left)) THEN
@@ -226,8 +230,7 @@
 ! Rivest (Chapter 14). It makes right child of x into the parent of x.
 !
         SUBROUTINE rotate_left(x)
-          type(treenode), pointer :: x
-          type(treenode), pointer :: y
+          type(treenode), pointer :: x, y, z
           integer :: mine, theirs
 
           y => x % right
@@ -235,9 +238,12 @@
           IF (ASSOCIATED(y % left)) THEN
             x % right => y % left
             x % right % parent => x
+          ELSE
+            NULLIFY(x % right)
           END IF
 
-          y % parent => x % parent
+          z => x % parent
+          y % parent => z
 
           IF (ASSOCIATED(x % parent % left)) THEN
             IF (x % momfish .eq. x % parent % left % momfish) THEN
@@ -252,17 +258,19 @@
         END SUBROUTINE rotate_left
 
         SUBROUTINE rotate_right(x)
-          type(treenode), pointer :: x
-          type(treenode), pointer :: y
+          type(treenode), pointer :: x, y, z
 
           y => x % left
 
           IF (ASSOCIATED(y % right)) THEN
             x % left => y % right
             x % left % parent => x
+          ELSE
+            NULLIFY(x % left)
           END IF
 
-          y % parent => x % parent
+          z => x % parent
+          y % parent => z
 
           IF (ASSOCiATED(x % parent % left)) THEN
             IF (x % momfish .eq. x % parent % left % momfish) THEN

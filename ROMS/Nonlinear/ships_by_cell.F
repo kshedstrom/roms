@@ -95,17 +95,29 @@
 # endif
 !
       integer :: i, j, l
+      integer :: Imin, Imax, Jmin, Jmax
 
       real(r8) :: cff
 
 # include "set_bounds.h"
+# ifdef DISTRIBUTED
+      Imin = LBi
+      Imax = UBi
+      Jmin = LBj
+      Jmax = UBj
+# else
+      Imin = Istr
+      Imax = Iend
+      Jmin = Jstr
+      Jmax = Jend
+# endif
 !
 !-----------------------------------------------------------------------
 ! Clean out to start. 
 !-----------------------------------------------------------------------
 !
-      DO j=Jstr-1,JendR
-        DO i=Istr-1,IendR
+      DO j=Jmin,Jmax
+        DO i=Imin,Imax
           ships_count(i,j) = 0
           ships_list(i,j) % next => null()
         END DO
@@ -119,9 +131,14 @@
         IF (bounded(l)) THEN
           i = int(track(ixgrd,nf(ng),l)+0.5)
           j = int(track(iygrd,nf(ng),l)+0.5)
-          ships_count(i,j) = ships_count(i,j) + 1
-          shipnodes(l) % next => ships_list(i,j) % next
-          ships_list(i,j) % next => shipnodes(l)
+! bounded has been collected and no longer reflects whether the float is
+! on this tile
+          IF (i .ge. Imin .and. i .le. Imax .and.                       &
+     &        j .ge. Jmin .and. j .le. Jmax) THEN
+            ships_count(i,j) = ships_count(i,j) + 1
+            shipnodes(l) % next => ships_list(i,j) % next
+            ships_list(i,j) % next => shipnodes(l)
+          END IF
         END IF
       END DO
 !
