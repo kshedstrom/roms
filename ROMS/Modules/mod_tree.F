@@ -9,8 +9,8 @@
 !=======================================================================
 !
 ! What I'm trying here is to build a balanced binary tree of the eggs.
-! Each leaf node represents one spawning female. It needs to know how
-! many eggs, so as to group them into the resulting eggs objects allowed
+! Each node represents one spawning female. It needs to know how many
+! eggs, so as to group them into the resulting superindividuals allowed
 ! for that day. For the grouping, it needs some "distance", be it
 ! longshore distance or some other idealized metric.
 !
@@ -84,6 +84,7 @@
 ! Empty tree, deposit eggs at the top
           IF (.not. ASSOCIATED(tree % left)) THEN
             tree % left => cur
+            cur % parent => tree
             RETURN
           END IF
 
@@ -112,52 +113,67 @@
               END IF
             END IF
           END DO
-! Fix the parent sums
+! Fix the egg sums above us
           CALL sum_up(cur)
 ! Balance the thing... red-black for now, until I get smarter about
 ! balancing eggs.
           cur % red = .true.
           x => cur
           DO WHILE (x % parent % red)
-            IF (x % parent % momfish .eq.                               &
-     &           x % parent % parent % left % momfish) THEN
-              IF (ASSOCIATED(x % parent % parent % right)) THEN
-                y => x % parent % parent % right   ! uncle
-                IF (y % red) THEN
+            IF (ASSOCIATED(x % parent % parent % left)) THEN
+              IF (x % parent % momfish .eq.                             &
+     &            x % parent % parent % left % momfish) THEN
+                IF (ASSOCIATED(x % parent % parent % right)) THEN
+                  y => x % parent % parent % right   ! uncle
+                  IF (y % red) THEN
+                    x % parent % red = .false.
+                    y % red = .false.
+                    x % parent % parent % red = .true.
+                    x => x % parent % parent
+                  END IF
+                ELSE
+                  IF (ASSOCIATED(x % parent % right)) THEN
+                    IF (x % momfish .eq.                                &
+     &                     x % parent % right % momfish) THEN
+!                   IF (x .eq. x % parent % right ) THEN
+                      CALL rotate_left(x % parent)
+                    END IF
+                  END IF
                   x % parent % red = .false.
-                  y % red = .false.
                   x % parent % parent % red = .true.
-                  x => x % parent % parent
+                  CALL rotate_right(x % parent % parent)
                 END IF
-              ELSE
-                IF (x % momfish .eq. x % parent % right % momfish) THEN
-                  CALL rotate_left(x % parent)
-                END IF
-                x % parent % red = .false.
-                x % parent % parent % red = .true.
-                CALL rotate_right(x % parent % parent)
               END IF
-            ELSE
-              y => x % parent % parent % left   ! aunt
-              IF (y % red) THEN
-                x % parent % red = .false.
-                y % red = .false.
-                x % parent % parent % red = .true.
-                x => x % parent % parent
-              ELSE
-                IF (x % momfish .eq. x % parent % left % momfish) THEN
-                  CALL rotate_right(x % parent)
+            END IF
+            IF (ASSOCIATED(x % parent % parent % right)) THEN
+              IF (x % parent % momfish .eq.                             &
+     &           x % parent % parent % right % momfish) THEN
+                IF (ASSOCIATED(x % parent % parent % left)) THEN
+                  y => x % parent % parent % left    ! aunt
+                  IF (y % red) THEN
+                    x % parent % red = .false.
+                    y % red = .false.
+                    x % parent % parent % red = .true.
+                    x => x % parent % parent
+                  END IF
+                ELSE
+                  IF (ASSOCIATED(x % parent % left)) THEN
+                    IF (x % momfish .eq.                                &
+     &                  x % parent % left % momfish) THEN
+                      CALL rotate_right(x % parent)
+                    END IF
+                  END IF
+                  x % parent % red = .false.
+                  x % parent % parent % red = .true.
+                  CALL rotate_left(x % parent % parent)
                 END IF
-                x % parent % red = .false.
-                x % parent % parent % red = .true.
-                CALL rotate_left(x % parent % parent)
               END IF
             END IF
           END DO
           tree % left % red = .false.
         END SUBROUTINE insert
 
-! Insertion messes up the sums in the ancestor nodes
+! Fix the sums in the ancestor nodes
         SUBROUTINE sum_up(cur)
           type(treenode), pointer :: cur
           type(treenode), pointer :: p
@@ -180,6 +196,30 @@
           END DO
         RETURN
         END SUBROUTINE sum_up
+ 
+! Fix the sums in me and my parent after a rotation
+        SUBROUTINE sum_us(cur)
+          type(treenode), pointer :: cur
+          type(treenode), pointer :: p
+          integer  :: eleft, eright, i
+
+          p => cur
+          DO i=1,2
+            IF (ASSOCIATED(p % left)) THEN
+              eleft = p % left % egg_sum
+            ELSE
+              eleft = 0
+            END IF
+            IF (ASSOCIATED(p % right)) THEN
+              eright = p % right % egg_sum
+            ELSE
+              eright = 0
+            END IF
+            p % egg_sum = eleft + eright + p % eggs
+            p => p % parent
+          END DO
+        RETURN
+        END SUBROUTINE sum_us
 !
 ! For the rotating, I'm using C code I found online for red-black trees,
 ! with reference to Introduction to Algorithms by Cormen, Leiserson,
@@ -199,17 +239,16 @@
 
           y % parent => x % parent
 
-!         IF ( x % momfish .eq. x % parent % left % momfish) THEN
-          mine = x % momfish
-          theirs = x % parent % left % momfish
-          IF ( mine .eq. theirs) THEN
-            x % parent % left => y
+          IF (ASSOCIATED(x % parent % left)) THEN
+            IF (x % momfish .eq. x % parent % left % momfish) THEN
+              x % parent % left => y
+            END IF
           ELSE
             x % parent % right => y
           END IF
           y % left => x
           x % parent => y
-          CALL sum_up(x)
+          CALL sum_us(x)
         END SUBROUTINE rotate_left
 
         SUBROUTINE rotate_right(x)
@@ -225,15 +264,16 @@
 
           y % parent => x % parent
 
-          IF (ASSOCiATED(x % parent % left) .and.                       &
-     &           x % momfish .eq. x % parent % left % momfish) THEN
-            x % parent % left => y
+          IF (ASSOCiATED(x % parent % left)) THEN
+            IF (x % momfish .eq. x % parent % left % momfish) THEN
+              x % parent % left => y
+            END IF
           ELSE
             x % parent % right => y
           END IF
           y % right => x
           x % parent => y
-          CALL sum_up(x)
+          CALL sum_us(x)
         END SUBROUTINE rotate_right
 
         SUBROUTINE collect(Nsuper, Nfound, eggs, momfish)
@@ -252,14 +292,14 @@
           Nfound = 0
           IF (Nspawners .eq. 0) THEN
             RETURN
-          IF (Nsuper <= Nspawners) THEN
+          ELSE IF (Nsuper <= Nspawners) THEN
             IF (ASSOCIATED(tree % left)) CALL                           &
      &        copy_traverse(tree % left, Nsuper, Nfound, eggs, momfish)
             IF (Nfound .ne. Nspawners) print *, "Oh, noes!", Nfound,    &
      &            Nspawners
           ELSE
             ALLOCATE(p)
-            p => tree % left
+            p % egg_tree => tree % left
           END IF
         END SUBROUTINE collect
 
@@ -267,8 +307,8 @@
           IF (ASSOCIATED(tree % left)) CALL traverse_print(tree % left)
         END SUBROUTINE traverse
 
-        RECURSIVE SUBROUTINE copy_traverse(p, Nsuper, Nfound, eggs,
-        momfish)
+        RECURSIVE SUBROUTINE copy_traverse(p, Nsuper, Nfound, eggs,     &
+     &                   momfish)
           type(treenode), pointer :: p
           integer, intent(in)  :: Nsuper
           integer, intent(inout) :: Nfound
