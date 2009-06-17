@@ -2987,7 +2987,7 @@
               CASE ('idTvar(iJel)')
                 idTvar(iJel)=varid
               CASE ('idTbry(iwest,iJel)')
-                idTbry(iwest,ijel)=varid
+                idTbry(iwest,iJel)=varid
               CASE ('idTbry(ieast,iJel)')
                 idTbry(ieast,iJel)=varid
               CASE ('idTbry(isouth,iJel)')
