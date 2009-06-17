@@ -708,6 +708,14 @@
         DO l=1,Nfish(ng)
           FISHES(ng)%bioenergy(ifwwt,l)=Tinp(l)
         END DO
+        CALL netcdf_get_fvar (ng, iNLM, ncname, 'fbtch',                &
+     &                        Tinp,                                     &
+     &                        ncid = ncFISHid(ng),                      &
+     &                        start = (/1,tFISHindx(ng)/),              &
+     &                        total = (/Nfish(ng),1/))
+        DO l=1,Nfish(ng)
+          FISHES(ng)%bioenergy(ifbatch,l)=Tinp(l)
+        END DO
 
         IF (exit_flag.ne.NoError) RETURN
 
