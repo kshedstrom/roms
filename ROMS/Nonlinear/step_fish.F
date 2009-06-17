@@ -90,6 +90,7 @@
       USE mod_biology
       USE fish_growth_mod
       USE fish_swim_mod
+      USE fish_spawn_mod
       USE interp_floats_mod
 !
 # ifdef DISTRIBUTE
@@ -999,6 +1000,10 @@
       CALL fish_growth (ng, Lstr, Lend, nfp1,                           &
      &                      MyThread, bounded, track(:,:,:),            &
      &                      feedback, bioenergy, alive)
+!
+      CALL fish_spawn (ng, Lstr, Lend, nfp1,                            &
+     &                     MyThread, bounded, track(:,:,:),             &
+     &                     bioenergy, alive)
 !
 # endif
 # ifdef DISTRIBUTE

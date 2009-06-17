@@ -199,7 +199,6 @@
       END DO
 #  ifdef NEMURO_SAN
 !  Write fish wet weight.
-!
       DO l=1,Nfish(ng)
         IF (FISHES(ng)%bounded(l)) THEN
           Tout(l)=FISHES(ng)%bioenergy(ifwwt,l)
@@ -212,6 +211,20 @@
      &                      (/1,tFISHindx(ng)/), (/Nfish(ng),1/),       &
      &                      ncid = ncFISHid(ng),                        &
      &                      varid = fishVid(idfwwt,ng))
+      IF (exit_flag.ne.NoError) RETURN
+!  Write fish batch number.
+      DO l=1,Nfish(ng)
+        IF (FISHES(ng)%bounded(l)) THEN
+          Tout(l)=FISHES(ng)%bioenergy(ifbatch,l)
+        ELSE
+          Tout(l)=spval
+        END IF
+      END DO
+      CALL netcdf_put_fvar (ng, iNLM, FISHname(ng),                     &
+     &                      TRIM(Vname(1,idbatch)), Tout,               &
+     &                      (/1,tFISHindx(ng)/), (/Nfish(ng),1/),       &
+     &                      ncid = ncFISHid(ng),                        &
+     &                      varid = fishVid(idbatch,ng))
       IF (exit_flag.ne.NoError) RETURN
 #  endif
 # endif
