@@ -814,7 +814,7 @@
 # endif
 #endif
 #ifdef NEMURO_SAN
-          NFishV(ng)=4
+          NFishV(ng)=5
 #endif
           NSV(ng)=NT(ng)+5
 #ifdef ADJUST_WSTRESS
