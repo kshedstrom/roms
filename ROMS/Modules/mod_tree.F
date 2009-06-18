@@ -38,17 +38,18 @@
         type listnode
           type(listnode), pointer :: next => null()
           type(treenode), pointer :: mytreenode => null()
+          type(egg_batch), pointer :: myeggs => null()
         end type listnode
 
         type egg_batch
           type(egg_batch), pointer :: next => null()
           type(treenode), pointer :: egg_tree => null()
-          type(treenode), pointer :: top => null()
           integer :: egg_sum = 0
         end type egg_batch
 
-        type(treenode), pointer :: tree
+        type(treenode), pointer :: treetop
         type(listnode), pointer :: gc_list, gc_next
+        type(egg_batch), pointer :: roe_list
         integer :: Nspawners
 
         PRIVATE
@@ -57,19 +58,30 @@
         CONTAINS
 
         SUBROUTINE init
-          ALLOCATE(tree)
+          ALLOCATE(treetop)
           ALLOCATE(gc_list)
-          gc_list % mytreenode => tree
+          ALLOCATE(roe_list)
+          gc_list % mytreenode => treetop
+          gc_list % myeggs => roe_list
           gc_next => gc_list
           Nspawners = 0
         END SUBROUTINE init
 
+! This insert is visible from outside the module
         SUBROUTINE insert(eggs, dist, ifish)
           integer, intent(in) :: eggs
           integer, intent(in) :: ifish
           real(r8), intent(in) :: dist
+          CALL insert_priv(eggs, dist, ifish, treetop)
+        END SUBROUTINE insert
+
+! This insert is private, can be used on either the treetop or on subtrees
+        SUBROUTINE insert_priv(eggs, dist, ifish, tree)
+          integer, intent(in) :: eggs
+          integer, intent(in) :: ifish
+          real(r8), intent(in) :: dist
+          type(treenode), pointer :: tree
           type(treenode), pointer :: cur, p, x, y
-          logical :: choice
 
           ALLOCATE(cur)
           ALLOCATE(gc_next % next)
@@ -116,66 +128,50 @@
           END DO
 ! Fix the egg sums above us
           CALL sum_up(cur)
-! Balance the thing... red-black for now, until I get smarter about
-! balancing eggs.
+! The balancing isn't working, so let's just return here.
+          RETURN
+! Balance the thing... red-black for now.
           cur % red = .true.
           x => cur
           DO WHILE (x % parent % red)
-            choice = .false.
-            IF (ASSOCIATED(x % parent % parent % left)) THEN
-              IF (x % parent % momfish .eq.                             &
-     &            x % parent % parent % left % momfish) THEN
-                choice = .true.
-                IF (ASSOCIATED(x % parent % parent % right)) THEN
-                  y => x % parent % parent % right   ! uncle
-                  IF (y % red) THEN
-                    x % parent % red = .false.
-                    y % red = .false.
-                    x % parent % parent % red = .true.
-                    x => x % parent % parent
-                  END IF
-                ELSE
-                  IF (ASSOCIATED(x % parent % right)) THEN
-                    IF (x % momfish .eq.                                &
-     &                     x % parent % right % momfish) THEN
-!                   IF (x .eq. x % parent % right ) THEN
-                      CALL rotate_left(x % parent)
-                    END IF
-                  END IF
+            IF (ASSOCIATED(x % parent % parent % left, x % parent)) THEN
+              IF (ASSOCIATED(x % parent % parent % right)) THEN
+                y => x % parent % parent % right   ! uncle
+                IF (y % red) THEN
                   x % parent % red = .false.
+                  y % red = .false.
                   x % parent % parent % red = .true.
-                  CALL rotate_right(x % parent % parent)
+                  x => x % parent % parent
                 END IF
+              ELSE
+                IF (ASSOCIATED(x, x % parent % right)) THEN
+                  CALL rotate_left(x % parent)
+                END IF
+                x % parent % red = .false.
+                x % parent % parent % red = .true.
+                CALL rotate_right(x % parent % parent)
               END IF
-            END IF
-            IF (ASSOCIATED(x % parent % parent % right) .and. .not.     &
-     &                     choice) THEN
-              IF (x % parent % momfish .eq.                             &
-     &           x % parent % parent % right % momfish) THEN
-                IF (ASSOCIATED(x % parent % parent % left)) THEN
-                  y => x % parent % parent % left    ! aunt
-                  IF (y % red) THEN
-                    x % parent % red = .false.
-                    y % red = .false.
-                    x % parent % parent % red = .true.
-                    x => x % parent % parent
-                  END IF
-                ELSE
-                  IF (ASSOCIATED(x % parent % left)) THEN
-                    IF (x % momfish .eq.                                &
-     &                  x % parent % left % momfish) THEN
-                      CALL rotate_right(x % parent)
-                    END IF
-                  END IF
+            ELSE         ! parent is grandparent's right child
+              IF (ASSOCIATED(x % parent % parent % left)) THEN
+                y => x % parent % parent % left    ! aunt
+                IF (y % red) THEN
                   x % parent % red = .false.
+                  y % red = .false.
                   x % parent % parent % red = .true.
-                  CALL rotate_left(x % parent % parent)
+                  x => x % parent % parent
                 END IF
+              ELSE
+                IF (ASSOCIATED(x, x % parent % left)) THEN
+                  CALL rotate_right(x % parent)
+                END IF
+                x % parent % red = .false.
+                x % parent % parent % red = .true.
+                CALL rotate_left(x % parent % parent)
               END IF
             END IF
           END DO
           tree % left % red = .false.
-        END SUBROUTINE insert
+        END SUBROUTINE insert_priv
 
 ! Fix the sums in the ancestor nodes
         SUBROUTINE sum_up(cur)
@@ -230,7 +226,7 @@
 ! Rivest (Chapter 14). It makes right child of x into the parent of x.
 !
         SUBROUTINE rotate_left(x)
-          type(treenode), pointer :: x, y, z
+          type(treenode), pointer :: x, y
           integer :: mine, theirs
 
           y => x % right
@@ -242,13 +238,10 @@
             NULLIFY(x % right)
           END IF
 
-          z => x % parent
-          y % parent => z
+          y % parent => x % parent
 
-          IF (ASSOCIATED(x % parent % left)) THEN
-            IF (x % momfish .eq. x % parent % left % momfish) THEN
-              x % parent % left => y
-            END IF
+          IF (ASSOCIATED(x, x % parent % left)) THEN
+            x % parent % left => y
           ELSE
             x % parent % right => y
           END IF
@@ -258,7 +251,7 @@
         END SUBROUTINE rotate_left
 
         SUBROUTINE rotate_right(x)
-          type(treenode), pointer :: x, y, z
+          type(treenode), pointer :: x, y
 
           y => x % left
 
@@ -269,13 +262,10 @@
             NULLIFY(x % left)
           END IF
 
-          z => x % parent
-          y % parent => z
+          y % parent => x % parent
 
-          IF (ASSOCiATED(x % parent % left)) THEN
-            IF (x % momfish .eq. x % parent % left % momfish) THEN
-              x % parent % left => y
-            END IF
+          IF (ASSOCIATED(x, x % parent % left)) THEN
+            x % parent % left => y
           ELSE
             x % parent % right => y
           END IF
@@ -290,29 +280,36 @@
           integer, intent(out) :: eggs(Nsuper)
           integer, intent(out) :: momfish(Nsuper)
           type(egg_batch), pointer :: l, r, p
-          type(egg_batch), pointer :: egg_head
 !
-! I'm going to keep a sorted linked list of my partial batches,
-! splitting them until I have enough to fill my superindividuals or I
-! run out of mothers with eggs. Actually, I should count up the moms
-! and if there aren't too many, just use all the superindividuals.
+! First, count up the moms and if there aren't too many, just use all
+! the superindividuals.
 !
           Nfound = 0
           IF (Nspawners .eq. 0) THEN
             RETURN
-          ELSE IF (Nsuper <= Nspawners) THEN
-            IF (ASSOCIATED(tree % left)) CALL                           &
-     &        copy_traverse(tree % left, Nsuper, Nfound, eggs, momfish)
+          ELSE IF (Nsuper >= Nspawners) THEN
+            IF (ASSOCIATED(treetop % left)) CALL copy_traverse(         &
+     &               treetop % left, Nsuper, Nfound, eggs, momfish)
             IF (Nfound .ne. Nspawners) print *, "Oh, noes!", Nfound,    &
      &            Nspawners
           ELSE
-            ALLOCATE(p)
-            p % egg_tree => tree % left
+!
+! Now we have to group the eggs into the available superindividuals.
+! I'm going to keep a sorted linked list of my partial batches,
+! splitting them until I have enough to fill my superindividuals.
+!
+            ALLOCATE(roe_list % next)
+            ALLOCATE(gc_next % next)
+            gc_next => gc_next % next
+            gc_next % mytreenode => cur
+            p => roe_list % next
+            p % egg_tree => treetop % left
           END IF
         END SUBROUTINE collect
 
         SUBROUTINE traverse
-          IF (ASSOCIATED(tree % left)) CALL traverse_print(tree % left)
+          IF (ASSOCIATED(treetop % left)) CALL                          &
+     &              traverse_print(treetop % left)
         END SUBROUTINE traverse
 
         RECURSIVE SUBROUTINE copy_traverse(p, Nsuper, Nfound, eggs,     &
@@ -352,7 +349,10 @@
 
           cur => gc_list
           DO WHILE (ASSOCIATED(cur % next))
-            DEALLOCATE(cur % mytreenode)
+            IF (ASSOCIATED(cur % mytreenode))                           &
+     &          DEALLOCATE(cur % mytreenode)
+            IF (ASSOCIATED(cur % myeggs))                               &
+     &          DEALLOCATE(cur % myeggs)
             last => cur
             cur => cur % next
             DEALLOCATE(last)
