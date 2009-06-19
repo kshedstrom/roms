@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       MODULE mod_grid
 !
-!svn $Id: mod_grid.F 980 2009-05-20 16:57:22Z kate $
+!svn $Id: mod_grid.F 999 2009-06-09 23:48:31Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -12,6 +12,10 @@
 !  IJwaterU   Water points IJ couter for   U-points masked variables.  !
 !  IJwaterV   Water points IJ couter for   V-points masked variables.  !
 !  Hz         Thicknesses (m) of vertical RHO-points.                  !
+# ifdef ADJUST_BOUNDARY 
+!  Hz_bry     Thicknesses (m) at the open boundaries; used only for    !
+!               4DVAR adjustments.                                     !
+# endif
 !  Huon       Total U-momentum flux term, Hz*u/pn.                     !
 !  Hvom       Total V-momentum flux term, Hz*v/pm.                     !
 !  Rscope     Adjoint sensitivity spatial scope mask at RHO-points.    !
@@ -159,6 +163,9 @@
           real(r8), pointer :: bed_thick(:,:,:)
 # endif
           real(r8), pointer :: Hz(:,:,:)
+# ifdef ADJUST_BOUNDARY
+          real(r8), pointer :: Hz_bry(:,:,:)
+# endif
           real(r8), pointer :: Huon(:,:,:)
           real(r8), pointer :: Hvom(:,:,:)
           real(r8), pointer :: z_r(:,:,:)
@@ -204,6 +211,9 @@
           real(r8), pointer :: tl_bed_thick(:,:,:)
 #  endif
           real(r8), pointer :: tl_Hz(:,:,:)
+#  ifdef ADJUST_BOUNDARY
+          real(r8), pointer :: tl_Hz_bry(:,:,:)
+#  endif
           real(r8), pointer :: tl_Huon(:,:,:)
           real(r8), pointer :: tl_Hvom(:,:,:)
           real(r8), pointer :: tl_z_r(:,:,:)
@@ -222,6 +232,9 @@
           real(r8), pointer :: ad_bed_thick(:,:,:)
 #  endif
           real(r8), pointer :: ad_Hz(:,:,:)
+#  ifdef ADJUST_BOUNDARY
+          real(r8), pointer :: ad_Hz_bry(:,:,:)
+#  endif
           real(r8), pointer :: ad_Huon(:,:,:)
           real(r8), pointer :: ad_Hvom(:,:,:)
           real(r8), pointer :: ad_z_r(:,:,:)
@@ -234,7 +247,7 @@
 
       CONTAINS
 
-      SUBROUTINE allocate_grid (ng, LBi, UBi, LBj, UBj)
+      SUBROUTINE allocate_grid (ng, LBi, UBi, LBj, UBj, LBij, UBij)
 !
 !=======================================================================
 !                                                                      !
@@ -247,7 +260,7 @@
 !
 !  Local variable declarations.
 !
-      integer, intent(in) :: ng, LBi, UBi, LBj, UBj
+      integer, intent(in) :: ng, LBi, UBi, LBj, UBj, LBij, UBij
 !
 !-----------------------------------------------------------------------
 !  Allocate and initialize module variables.
@@ -320,6 +333,9 @@
       allocate ( GRID(ng) % bed_thick(LBi:UBi,LBj:UBj,1:2) )
 # endif
       allocate ( GRID(ng) % Hz(LBi:UBi,LBj:UBj,N(ng)) )
+# ifdef ADJUST_BOUNDARY
+      allocate ( GRID(ng) % Hz_bry(LBij:UBij,N(ng),4) )
+# endif
       allocate ( GRID(ng) % Huon(LBi:UBi,LBj:UBj,N(ng)) )
       allocate ( GRID(ng) % Hvom(LBi:UBi,LBj:UBj,N(ng)) )
       allocate ( GRID(ng) % z_r(LBi:UBi,LBj:UBj,N(ng)) )
@@ -371,6 +387,9 @@
       allocate ( GRID(ng) % tl_bed_thick(LBi:UBi,LBj:UBj,1:2) )
 #  endif
       allocate ( GRID(ng) % tl_Hz(LBi:UBi,LBj:UBj,N(ng)) )
+#  ifdef ADJUST_BOUNDARY
+      allocate ( GRID(ng) % tl_Hz_bry(LBij:UBij,N(ng),4) )
+#  endif
       allocate ( GRID(ng) % tl_Huon(LBi:UBi,LBj:UBj,N(ng)) )
       allocate ( GRID(ng) % tl_Hvom(LBi:UBi,LBj:UBj,N(ng)) )
       allocate ( GRID(ng) % tl_z_r(LBi:UBi,LBj:UBj,N(ng)) )
@@ -385,6 +404,9 @@
       allocate ( GRID(ng) % ad_h(LBi:UBi,LBj:UBj) )
 # ifdef SOLVE3D
       allocate ( GRID(ng) % ad_Hz(LBi:UBi,LBj:UBj,N(ng)) )
+#  ifdef ADJUST_BOUNDARY
+      allocate ( GRID(ng) % ad_Hz_bry(LBij:UBij,N(ng),4) )
+#  endif
       allocate ( GRID(ng) % ad_Huon(LBi:UBi,LBj:UBj,N(ng)) )
       allocate ( GRID(ng) % ad_Hvom(LBi:UBi,LBj:UBj,N(ng)) )
       allocate ( GRID(ng) % ad_z_r(LBi:UBi,LBj:UBj,N(ng)) )
@@ -581,6 +603,9 @@
           END DO
 #endif
         END DO
+#if defined ADJUST_BOUNDARY && defined SOLVE3D
+        GRID(ng) % Hz_bry = IniVal
+#endif
       END IF
 
 #if defined TANGENT || defined TL_IOMS
@@ -615,6 +640,9 @@
           END DO          
 # endif
         END DO
+# if defined ADJUST_BOUNDARY && defined SOLVE3D
+        GRID(ng) % tl_Hz_bry = IniVal
+# endif
       END IF
 #endif
 
@@ -650,6 +678,9 @@
           END DO
 # endif
         END DO
+# if defined ADJUST_BOUNDARY && defined SOLVE3D
+        GRID(ng) % ad_Hz_bry = IniVal
+# endif
       END IF
 #endif
 

@@ -2,7 +2,7 @@
       MODULE ad_t3dbc_mod
 #if defined ADJOINT && defined SOLVE3D
 !
-!svn $Id: ad_t3dbc_im.F 983 2009-05-23 01:07:05Z kate $
+!svn $Id: ad_t3dbc_im.F 999 2009-06-09 23:48:31Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
@@ -59,6 +59,7 @@
       USE mod_param
       USE mod_boundary
       USE mod_grid
+      USE mod_ncparam
       USE mod_scalars
 !
 !  Imported variable declarations.
@@ -238,12 +239,19 @@
      &                                 GRID(ng)%rmask(i,Jend+1)
 #   endif
 #   ifdef ADJUST_BOUNDARY
-!>          tl_t(i,Jend+1,k,nout,itrc)=BOUNDARY(ng)%tl_t_north(i,k,itrc)
+            IF (Lobc(inorth,isTvar(itrc),ng)) THEN
+!>            tl_t(i,Jend+1,k,nout,itrc)=                               &
+!>   &                             BOUNDARY(ng)%tl_t_north(i,k,itrc)
 !>
-            BOUNDARY(ng)%ad_t_north(i,k,itrc)=                          &
+              BOUNDARY(ng)%ad_t_north(i,k,itrc)=                        &
      &                             BOUNDARY(ng)%ad_t_north(i,k,itrc)+   &
      &                             ad_t(i,Jend+1,k,nout,itrc)
-            ad_t(i,Jend+1,k,nout,itrc)=0.0_r8
+              ad_t(i,Jend+1,k,nout,itrc)=0.0_r8
+            ELSE
+!>            tl_t(i,Jend+1,k,nout,itrc)=0.0_r8
+!>
+              ad_t(i,Jend+1,k,nout,itrc)=0.0_r8
+            END IF
 #   else
 !>          tl_t(i,Jend+1,k,nout,itrc)=0.0_r8
 !>
@@ -377,12 +385,19 @@
      &                                 GRID(ng)%rmask(i,Jstr-1)
 #   endif
 #   ifdef ADJUST_BOUNDARY
-!>          tl_t(i,Jstr-1,k,nout,itrc)=BOUNDARY(ng)%tl_t_south(i,k,itrc)
+            IF (Lobc(isouth,isTvar(itrc),ng)) THEN
+!>            tl_t(i,Jstr-1,k,nout,itrc)=                               &
+!>   &                             BOUNDARY(ng)%tl_t_south(i,k,itrc)
 !>
-            BOUNDARY(ng)%ad_t_south(i,k,itrc)=                          &
+              BOUNDARY(ng)%ad_t_south(i,k,itrc)=                        &
      &                             BOUNDARY(ng)%ad_t_south(i,k,itrc)+   &
      &                             ad_t(i,Jstr-1,k,nout,itrc)
-            ad_t(i,Jstr-1,k,nout,itrc)=0.0_r8
+              ad_t(i,Jstr-1,k,nout,itrc)=0.0_r8
+            ELSE
+!>            tl_t(i,Jstr-1,k,nout,itrc)=0.0_r8
+!>
+              ad_t(i,Jstr-1,k,nout,itrc)=0.0_r8
+            END IF
 #   else
 !>          tl_t(i,Jstr-1,k,nout,itrc)=0.0_r8
 !>
@@ -519,12 +534,19 @@
      &                                 GRID(ng)%rmask(Iend+1,j)
 #   endif
 #   ifdef ADJUST_BOUNDARY
-!>          tl_t(Iend+1,j,k,nout,itrc)=BOUNDARY(ng)%tl_t_east(j,k,itrc)
+            IF (Lobc(ieast,isTvar(itrc),ng)) THEN
+!>            tl_t(Iend+1,j,k,nout,itrc)=                               &
+!>   &                             BOUNDARY(ng)%tl_t_east(j,k,itrc)
 !>
-            BOUNDARY(ng)%ad_t_east(j,k,itrc)=                           &
-     &                            BOUNDARY(ng)%ad_t_east(j,k,itrc)+     &
-     &                            ad_t(Iend+1,j,k,nout,itrc)
-            ad_t(Iend+1,j,k,nout,itrc)=0.0_r8
+              BOUNDARY(ng)%ad_t_east(j,k,itrc)=                         &
+     &                             BOUNDARY(ng)%ad_t_east(j,k,itrc)+    &
+     &                             ad_t(Iend+1,j,k,nout,itrc)
+              ad_t(Iend+1,j,k,nout,itrc)=0.0_r8
+            ELSE
+!>            tl_t(Iend+1,j,k,nout,itrc)=0.0_r8
+!>
+              ad_t(Iend+1,j,k,nout,itrc)=0.0_r8
+            END IF
 #   else
 !>          tl_t(Iend+1,j,k,nout,itrc)=0.0_r8
 !>
@@ -658,12 +680,19 @@
      &                                 GRID(ng)%rmask(Istr-1,j)
 #   endif
 #   ifdef ADJUST_BOUNDARY
-!>          tl_t(Istr-1,j,k,nout,itrc)=BOUNDARY(ng)%tl_t_west(j,k,itrc)
+            IF (Lobc(iwest,isTvar(itrc),ng)) THEN
+!>            tl_t(Istr-1,j,k,nout,itrc)=                               &
+!>   &                             BOUNDARY(ng)%tl_t_west(j,k,itrc)
 !>
-            BOUNDARY(ng)%ad_t_west(j,k,itrc)=                           &
-     &                            BOUNDARY(ng)%ad_t_west(j,k,itrc)+     &
-     &                            ad_t(Istr-1,j,k,nout,itrc)
-            ad_t(Istr-1,j,k,nout,itrc)=0.0_r8
+              BOUNDARY(ng)%ad_t_west(j,k,itrc)=                         &
+     &                             BOUNDARY(ng)%ad_t_west(j,k,itrc)+    &
+     &                             ad_t(Istr-1,j,k,nout,itrc)
+              ad_t(Istr-1,j,k,nout,itrc)=0.0_r8
+            ELSE
+!>            tl_t(Istr-1,j,k,nout,itrc)=0.0_r8
+!>
+              ad_t(Istr-1,j,k,nout,itrc)=0.0_r8
+            END IF
 #   else
 !>          tl_t(Istr-1,j,k,nout,itrc)=0.0_r8
 !>

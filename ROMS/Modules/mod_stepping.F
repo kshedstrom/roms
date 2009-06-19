@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       MODULE mod_stepping
 !
-!svn $Id: mod_stepping.F 982 2009-05-22 20:04:01Z kate $
+!svn $Id: mod_stepping.F 999 2009-06-09 23:48:31Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -14,7 +14,8 @@
 !  Lbinp     Open boundary adjustment input  fields index.             !
 !  Lbout     Open boundary adjustment output fields index.             !
 #endif
-#if defined ADJUST_STFLUX || defined ADJUST_WSTRESS
+#if defined ADJUST_BOUNDARY || defined ADJUST_STFLUX || \
+    defined ADJUST_WSTRESS
 !  Lfinp     Surface forcing adjustment input  fields index.           !
 !  Lfout     Surface forcing adjustment output fields index.           !
 #endif
@@ -87,7 +88,8 @@
         integer, dimension(Ngrids) :: Lbinp = (/ (1, ig=1,Ngrids) /)
         integer, dimension(Ngrids) :: Lbout = (/ (1, ig=1,Ngrids) /)
 #endif
-#if defined ADJUST_STFLUX || defined ADJUST_WSTRESS
+#if defined ADJUST_BOUNDARY || defined ADJUST_STFLUX || \
+    defined ADJUST_WSTRESS
         integer, dimension(Ngrids) :: Lfinp = (/ (1, ig=1,Ngrids) /)
         integer, dimension(Ngrids) :: Lfout = (/ (1, ig=1,Ngrids) /)
 #endif

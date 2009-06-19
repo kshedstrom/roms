@@ -2,7 +2,7 @@
 #ifdef NONLINEAR
       SUBROUTINE set_data (ng, tile)
 !
-!svn $Id: set_data.F 990 2009-05-28 00:54:01Z kate $
+!svn $Id: set_data.F 999 2009-06-09 23:48:31Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -874,7 +874,7 @@
       IF (SOUTH_WEST_TEST) THEN
 #   ifdef WEST_FSOBC
         DO j=JLB,JUB
-          cff=Dcrit(ng)-GRID(ng)%h(0,j))
+          cff=Dcrit(ng)-GRID(ng)%h(0,j)
           IF (BOUNDARY(ng)%zeta_west(j).le.cff) THEN
             BOUNDARY(ng)%zeta_west(j)=cff
           END IF
@@ -1950,7 +1950,8 @@
 #  endif
 # endif
 
-# if defined W4DPSAS || defined NLM_OUTER
+# if defined W4DPSAS || defined NLM_OUTER || \
+     defined W4DPSAS_SENSITIVITY
 !
 !-----------------------------------------------------------------------
 !  Set weak contraint forcing.

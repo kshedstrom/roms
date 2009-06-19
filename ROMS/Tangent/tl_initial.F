@@ -2,7 +2,7 @@
 #ifdef TANGENT
       SUBROUTINE tl_initial (ng)
 !
-!svn $Id: tl_initial.F 984 2009-05-24 01:43:19Z kate $
+!svn $Id: tl_initial.F 999 2009-06-09 23:48:31Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -211,12 +211,12 @@
 !
       IniRec=tITLindx(ng)
 
-# ifdef ADJUST_BOUNDARY
+#   ifdef ADJUST_BOUNDARY
 !
 !  Initialize open boundary counter for storage arrays.
 !
       OBCcount(ng)=0
-# endif
+#   endif
 #   if defined ADJUST_STFLUX || defined ADJUST_WSTRESS
 !
 !  Initialize surface forcing counter for storage arrays.

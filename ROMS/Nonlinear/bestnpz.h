@@ -341,7 +341,7 @@
       real(r8), dimension(IminS:ImaxS,N(ng)) :: HzL
       real(r8), dimension(IminS:ImaxS,0:N(ng)) :: z_wL
 
-      real(r8), dimension(UBi,N(ng)) :: sinkIN,sinkOUT,riseIN,riseOUT
+      real(r8), dimension(IminS:ImaxS,N(ng)) :: sinkIN,sinkOUT,riseIN,riseOUT
 #ifdef ICE_BIO
       real(r8) :: aiceIfrac,aiceNfrac,dhicedt,trs,cwi,twi
       real(r8) ::grow1, GROWAice,reN,fNO3,RAi0,RgAi

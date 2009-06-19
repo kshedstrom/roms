@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       MODULE mod_param
 !
-!svn $Id: mod_param.F 990 2009-05-28 00:54:01Z kate $
+!svn $Id: mod_param.F 995 2009-05-29 21:54:22Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -264,7 +264,7 @@
 !
         integer, dimension(Ngrids) :: NT
         integer :: MT
-#ifdef BIO_GOANPZ|| BEST_NPZ
+#if defined BIO_GOANPZ || defined BEST_NPZ
         !------------------------------------
         !Maximum number of production tracers
         !------------------------------------
@@ -317,94 +317,6 @@
 !  Biological tracers parameters.
 !-----------------------------------------------------------------------
 
-# if defined BEST_NPZ
-#  if defined JELLY
-#    if defined IRON_LIMIT
-        integer, parameter :: NBT = 15
-#    else
-        integer, parameter :: NBT = 14
-#    endif
-#  else
-
-#    if defined IRON_LIMIT
-        integer, parameter :: NBT = 14
-#    else
-        integer, parameter :: NBT = 13
-#    endif
-
-#  endif
-# else
-       integer, parameter :: NBT = 0
-#endif       
-#if defined BEST_NPZ    
-# if defined BENTHIC
-        integer,parameter :: NBEN=2
-        integer :: MBT
-        integer, dimension(Ngrids) :: NBeT
-# endif
-# if defined ICE_BIO
-        integer,parameter :: NIB=4
-        integer, dimension(Ngrids) :: NIceT
-
-        integer, dimension(Ngrids) :: NIceLog
-# endif
-
-# ifdef STATIONARY
-      !------------------------------------
-      !3D stationary tracers
-      !------------------------------------
-
-        integer, dimension(Ngrids) :: NTS
-
-        integer, parameter :: NBTS = 16
-
-# endif
-
-# ifdef STATIONARY2
-      !------------------------------------
-      !2D stationary tracers
-      !------------------------------------
-
-        integer, dimension(Ngrids) :: NTS2
-        integer, parameter :: NBTS2 = 8
-# endif
-# ifdef PROD2
-      !------------------------------------
-      !2D producrion tracers (stationary)
-      !------------------------------------
-
-        integer, dimension(Ngrids) :: NPT2
-        integer, parameter :: NBPT2 = 2
-# endif
-# ifdef PROD3
-      !------------------------------------
-      !3D producrion tracers (stationary)
-      !------------------------------------
-
-        integer, dimension(Ngrids) :: NPT3
-#   if defined JELLY
-        integer, parameter :: NBPT3 = 8
-#   else
-        integer, parameter :: NBPT3 = 7
-#   endif
-
-# endif
-       
-#endif
-
-
-# if defined BIO_GOANPZ
-    !-------------------------------------------
-    !One production tracer for each organism box
-    !-------------------------------------------
-    integer, parameter :: NBTS = 7
-#   if defined IRON_LIMIT
-       integer, parameter :: NBT = 11
-#   else
-       integer, parameter :: NBT = 10
-#   endif
-# endif
-!------------------------------------------------------------------
 # if defined BIO_FENNEL
 !
 !  Number of tracers for Fennel et al. (2006), Nitrogen-based biological
@@ -511,10 +423,94 @@
 #  else
         integer, parameter :: NBT = 11
 #  endif
-# endif
-#else
+# elif defined BEST_NPZ
+!
+!  Number of tracers for the Bering Sea ecosystem model.
+!
+#  if defined JELLY
+#    if defined IRON_LIMIT
+        integer, parameter :: NBT = 15
+#    else
+        integer, parameter :: NBT = 14
+#    endif
+#  else
+
+#    if defined IRON_LIMIT
+        integer, parameter :: NBT = 14
+#    else
+        integer, parameter :: NBT = 13
+#    endif
+
+#  endif
+# elif defined BIO_GOANPZ
+!
+!  Number of tracers for the Gulf of Alaska ecosystem model.
+!
+     integer, parameter :: NBTS = 7
+#   if defined IRON_LIMIT
+       integer, parameter :: NBT = 11
+#   else
+       integer, parameter :: NBT = 10
+#   endif
+# else
         integer, parameter :: NBT = 0
+# endif
 #endif
+
+#if defined BEST_NPZ    
+# if defined BENTHIC
+        integer,parameter :: NBEN=2
+        integer :: MBT
+        integer, dimension(Ngrids) :: NBeT
+# endif
+# if defined ICE_BIO
+        integer,parameter :: NIB=4
+        integer, dimension(Ngrids) :: NIceT
+
+        integer, dimension(Ngrids) :: NIceLog
+# endif
+
+# ifdef STATIONARY
+      !------------------------------------
+      !3D stationary tracers
+      !------------------------------------
+
+        integer, dimension(Ngrids) :: NTS
+
+        integer, parameter :: NBTS = 16
+
+# endif
+
+# ifdef STATIONARY2
+      !------------------------------------
+      !2D stationary tracers
+      !------------------------------------
+
+        integer, dimension(Ngrids) :: NTS2
+        integer, parameter :: NBTS2 = 8
+# endif
+# ifdef PROD2
+      !------------------------------------
+      !2D producrion tracers (stationary)
+      !------------------------------------
+
+        integer, dimension(Ngrids) :: NPT2
+        integer, parameter :: NBPT2 = 2
+# endif
+# ifdef PROD3
+      !------------------------------------
+      !3D producrion tracers (stationary)
+      !------------------------------------
+
+        integer, dimension(Ngrids) :: NPT3
+#   if defined JELLY
+        integer, parameter :: NBPT3 = 8
+#   else
+        integer, parameter :: NBPT3 = 7
+#   endif
+# endif
+#endif
+
 #if defined FLOATS
 !
 !-----------------------------------------------------------------------

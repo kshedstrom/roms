@@ -2,7 +2,7 @@
 #ifdef ADJOINT
       SUBROUTINE ad_initial (ng)
 !
-!svn $Id: ad_initial.F 983 2009-05-23 01:07:05Z kate $
+!svn $Id: ad_initial.F 999 2009-06-09 23:48:31Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -17,6 +17,9 @@
       USE mod_parallel
 # ifdef BBL_MODEL_NOT_YET
       USE mod_bbl
+# endif
+# ifdef ADJUST_BOUNDARY
+      USE mod_boundary
 # endif
 # ifdef SOLVE3D
       USE mod_coupling
@@ -232,7 +235,8 @@
             CALL ana_mask (ng, TILE, iADM)
 #  endif
 #  if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY || \
-      defined OPT_OBSERVATIONS || defined SO_SEMI
+      defined OPT_OBSERVATIONS || defined SO_SEMI         || \
+      defined SENSITIVITY_4DVAR 
             CALL ana_scope (ng, TILE, iADM)
 #  endif
           END DO
@@ -339,6 +343,9 @@
 #  endif
           CALL initialize_forces (ng, TILE, iADM)
           CALL initialize_grid (ng, TILE, iADM)
+#  ifdef ADJUST_BOUNDARY
+          CALL initialize_boundary (ng, TILE, iADM)
+#  endif
         END DO
       END DO
 !$OMF END PARALLEL DO
@@ -363,6 +370,9 @@
 #  endif
           CALL initialize_forces (ng, TILE, iADM)
           CALL initialize_grid (ng, TILE, iADM)
+#  ifdef ADJUST_BOUNDARY
+          CALL initialize_boundary (ng, TILE, iADM)
+#  endif
         END DO
       END DO
 !$OMF END PARALLEL DO

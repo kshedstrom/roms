@@ -1,6 +1,6 @@
       MODULE ocean_control_mod
 !
-!svn $Id: obs_sen_w4dvar.h 975 2009-05-05 22:51:13Z kate $
+!svn $Id: obs_sen_w4dvar.h 999 2009-06-09 23:48:31Z kate $
 !=================================================== Andrew M. Moore ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group      Hernan G. Arango   !
 !    Licensed under a MIT/X style license                              !
@@ -217,14 +217,14 @@
 #endif
       USE ad_convolution_mod, ONLY : ad_convolution
       USE ad_variability_mod, ONLY : ad_variability
+#ifdef ADJUST_BOUNDARY
+      USE mod_boundary, ONLY : initialize_boundary
+#endif
       USE ini_adjust_mod, ONLY : rp_ini_adjust
       USE ini_adjust_mod, ONLY : load_ADtoTL
       USE ini_adjust_mod, ONLY : load_TLtoAD
 #if defined ADJUST_STFLUX || defined ADJUST_WSTRESS
       USE mod_forces, ONLY : initialize_forces
-#endif
-#ifdef ADJUST_BOUNDARY
-      USE mod_boundary, ONLY : initialize_boundary
 #endif
       USE mod_ocean, ONLY : initialize_ocean
       USE normalization_mod, ONLY : normalization
@@ -1479,6 +1479,7 @@
 # ifdef BALANCE_OPERATOR_NOT_YET
               CALL tl_balance (ng, TILE, Lini, Lold(ng))
 # endif
+              CALL load_TLtoAD (ng, TILE, Lold(ng), Lold(ng), add)
             END DO
           END DO
 !$OMP END PARALLEL DO
@@ -1619,6 +1620,9 @@
 #endif
             DO tile=subs*thread,subs*(thread+1)-1
               CALL initialize_forces (ng, TILE, iTLM)
+#ifdef ADJUST_BOUNDARY
+              CALL initialize_boundary (ng, TILE, iTLM)
+#endif
             END DO
           END DO
 !$OMP END PARALLEL DO
@@ -1690,6 +1694,9 @@
 #endif
             DO tile=subs*thread,subs*(thread+1)-1
               CALL initialize_forces (ng, TILE, iTLM)
+#ifdef ADJUST_BOUNDARY
+              CALL initialize_boundary (ng, TILE, iTLM)
+#endif
             END DO
           END DO
 !$OMP END PARALLEL DO

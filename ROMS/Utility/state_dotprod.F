@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       MODULE state_dotprod_mod
 !
-!svn $Id: state_dotprod.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: state_dotprod.F 999 2009-06-09 23:48:31Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -703,18 +703,20 @@
 !  Surface tracers flux.
 !
       DO it=1,NT(ng)
-        DO ir=1,Nfrec(ng)
-          DO j=JstrR,JendR
-            DO i=IstrR,IendR
-              cff=s1_tflux(i,j,ir,it)*s2_tflux(i,j,ir,it)
+        IF (Lstflux(it,ng)) THEN
+          DO ir=1,Nfrec(ng)
+            DO j=JstrR,JendR
+              DO i=IstrR,IendR
+                cff=s1_tflux(i,j,ir,it)*s2_tflux(i,j,ir,it)
 #  ifdef MASKING
-              cff=cff*rmask(i,j)
+                cff=cff*rmask(i,j)
 #  endif
-              my_DotProd(0)=my_DotProd(0)+cff
-              my_DotProd(isTsur(it))=my_DotProd(isTsur(it))+cff
+                my_DotProd(0)=my_DotProd(0)+cff
+                my_DotProd(isTsur(it))=my_DotProd(isTsur(it))+cff
+              END DO
             END DO
           END DO
-        END DO
+        END IF
       END DO
 # endif
 

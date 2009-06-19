@@ -1,6 +1,6 @@
       SUBROUTINE ana_biology (ng, tile, model)
 !
-!! svn $Id: ana_biology.h 991 2009-05-28 23:37:09Z kate $
+!! svn $Id: ana_biology.h 1000 2009-06-09 23:55:44Z kate $
 !!======================================================================
 !! Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !!   Licensed under a MIT/X style license                              !
@@ -592,7 +592,7 @@
           END DO
         END DO
       END DO
-#elif defined BIO_GOANPZ
+#elif defined BEST_NPZ
 # include "ana_biology_BESTnpz.h"
 #elif defined BIO_GOANPZ
 # include "ana_biology_goanpz.h"

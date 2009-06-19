@@ -2,7 +2,7 @@
 #ifdef NONLINEAR
       SUBROUTINE output (ng)
 !
-!svn $Id: output.F 982 2009-05-22 20:04:01Z kate $
+!svn $Id: output.F 1003 2009-06-19 23:52:29Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -396,7 +396,8 @@
 !  If appropriate, process stations NetCDF file.
 !-----------------------------------------------------------------------
 !
-      IF (Nstation(ng).gt.0.and.(nSTA(ng).gt.0)) THEN
+      IF (Lstations(ng).and.                                            &
+     &    (Nstation(ng).gt.0).and.(nSTA(ng).gt.0)) THEN
 !
 !  Create output station NetCDF file or prepare existing file to
 !  append new data to it.
@@ -421,7 +422,8 @@
 !  If appropriate, process floats NetCDF file.
 !-----------------------------------------------------------------------
 !
-      IF (Nfloats(ng).gt.0.and.(nFLT(ng).gt.0)) THEN
+      IF (Lfloats(ng).and.                                              &
+     &    (Nfloats(ng).gt.0).and.(nFLT(ng).gt.0)) THEN
 !
 !  Create output floats NetCDF file or prepare existing file to
 !  append new data to it.

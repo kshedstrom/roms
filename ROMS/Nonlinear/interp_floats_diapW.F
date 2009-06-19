@@ -1,10 +1,10 @@
 #include "cppdefs.h"
-      MODULE interp_floats_mod
+      MODULE interp_floats_diapW_mod
 #if defined NONLINEAR && defined FLOATS
 !
-!svn $Id: interp_floats.F 997 2009-06-04 17:42:20Z kate $
+!svn $Id: interp_floats_diapW.F 526 2008-01-29 01:06:18Z kate $
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group         Mark Hadfield   !
+!  Copyright (c) 2002-2008 The ROMS/TOMS Group         Mark Hadfield   !
 !    Licensed under a MIT/X style license             John M. Klinck   !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -46,12 +46,11 @@
       implicit none
 
       PRIVATE
-      PUBLIC  :: interp_floats
+      PUBLIC  :: interp_floats_diapW
 
       CONTAINS
-!
 !***********************************************************************
-      SUBROUTINE interp_floats (ng, LBi, UBi, LBj, UBj, LBk, UBk,       &
+      SUBROUTINE interp_floats_diapW (ng, LBi, UBi, LBj, UBj, LBk, UBk, &
      &                          Lstr, Lend, itime, ifield,              &
      &                          gtype, maskit, nudg,                    &
      &                          pm, pn,                                 &
@@ -61,7 +60,7 @@
 # ifdef MASKING
      &                          Amask,                                  &
 # endif
-     &                          A, MyThread, bounded, track)
+     &                          A2, A3,MyThread, bounded, track)
 !***********************************************************************
       USE mod_param
       USE mod_ncparam
@@ -88,8 +87,9 @@
 # ifdef MASKING
       real(r8), intent(in) :: Amask(LBi:UBi,LBj:UBj)
 # endif
-      real(r8), intent(in) :: A(LBi:UBi,LBj:UBj,LBk:UBk)
-
+      real(r8)  :: A(LBi:UBi,LBj:UBj,LBk:UBk)
+      real(r8), intent(in)  :: A3(LBi:UBi,LBj:UBj,LBk:UBk)
+      real(r8), intent(in) :: A2
       real(r8), intent(inout) :: track(NFV(ng),0:NFT,Nfloats(ng))
 !
 !  Local variable declarations.
@@ -97,7 +97,7 @@
       logical :: Irvar, Iuvar, Jrvar, Jvvar, Krvar, Kwvar, Lmask
       logical :: halo
 
-      integer :: Ir, Iu, Jr, Jv, Kr, Kw, l
+      integer :: Ir, Iu, Jr, Jv, Kr, Kw, l,i,j,k
       integer :: i1, i2, j1, j2, k1, k2, khm, khp, vtype
 
       real(r8) :: p1, p2, q1, q2, r1, r2
@@ -108,6 +108,7 @@
 
       real(r8) :: cff1, cff2
 # endif
+
 !
 !-----------------------------------------------------------------------
 !  Initialize various internal variables.
@@ -148,6 +149,16 @@
         s212=1.0_r8
         s222=1.0_r8
       END IF
+
+      DO i=LBi,UBi
+        DO j=LBj,UBj
+          DO k=1,UBk
+            A(i,j,k)= A2
+            A(i,j,k)=A(i,j,k)*Hz(i,j,k)/(pm(i,j)*pn(i,j))
+            A(i,j,k)=A(i,j,k)+A3(i,j,k)
+          END DO
+        END DO
+      END DO
 !
 !-----------------------------------------------------------------------
 !  Loop through floats.
@@ -499,6 +510,6 @@
         END IF
       END DO
       RETURN
-      END SUBROUTINE interp_floats
+      END SUBROUTINE interp_floats_diapW
 #endif
-      END MODULE interp_floats_mod
+      END MODULE interp_floats_diapW_mod
