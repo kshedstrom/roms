@@ -60,6 +60,7 @@
       USE mod_ncparam
       USE mod_scalars
       USE mod_biology
+      USE mod_grid
 !
 !  Imported variable declarations.
 !
@@ -74,7 +75,7 @@
 !
 !  Local variable declarations.
 !
-      integer :: l
+      integer :: l, Ir, Jr
 !
       real(r8) :: Ftemp, temp_opt, temp_sigma
       real(r8) :: sp_start, sp_end, sp_time, tcheck
@@ -86,9 +87,9 @@
 !
       temp_opt=15.0_r8
       temp_sigma=3.0_r8
-!
       sp_start=120.0_r8
       sp_end=210.0_r8
+!
 ! sp_time: time in days, modulo 360 days
       sp_time=REAL(INT(time(ng)/86400.0_r8/360.0_r8))
       sp_time=time(ng)/86400.0_r8-360.0_r8*sp_time
@@ -97,30 +98,38 @@
 !
       IF ((sp_time.ge.sp_start).and.(sp_time.le.sp_end).and.            &
      &    (tcheck.eq.REAL(INT(tcheck)))) THEN
-!
         DO l=Lstr,Lend
           IF (MyThread(l).and.bounded(l)) THEN
-!
-! Worth should be replaced by alive in check
-!
             Ftemp=track(itemp+NFV(ng)-NT(ng),itime,l)
-!
             IF ((alive(l)).and.                                         &
      &          (bioenergy(ifage,l).ge.Fage0(ng)).and.                  &
      &          (INT(bioenergy(ifbatch,l)).lt.Nbatch(ng)).and.          &
      &          (ABS(Ftemp-temp_opt).le.temp_sigma).and.                &
      &          ((sp_time-bioenergy(iftspwn,l)).ge.7.0_r8)) THEN
-!
+              Ir=INT(track(ixgrd,itime,l))
+              Jr=INT(track(iygrd,itime,l))
+! NUMBER OF EGGS MUST BE SCALED BY INDIVIDUAL WORTH !!!!!
+              bioenergy(ifeggs,l)=200000.0_r8
+              bioenergy(ifspwnloc,l)=GRID(ng)%spawn_dist(Ir,Jr)
               bioenergy(ifbatch,l)=bioenergy(ifbatch,l)+1.0_r8
               bioenergy(iftspwn,l)=sp_time
-!
+            ELSE
+              bioenergy(ifeggs,l)=0.0_r8
+              bioenergy(ifspwnloc,l)=0.0_r8
             END IF
-!
           END IF
         END DO
+      ENDIF
 !
+      IF (sp_time.gt.sp_end) THEN
+        DO l=Lstr,Lend
+          IF (MyThread(l).and.bounded(l)) THEN
+            bioenergy(ifeggs,l)=0.0_r8
+            bioenergy(ifspwnloc,l)=0.0_r8
+          END IF
+        END DO
       END IF
-
+!
       RETURN
       END SUBROUTINE fish_spawn
 #endif

@@ -397,6 +397,7 @@
         integer, parameter :: ifspwnloc = 5      ! spawn_dist of mother
         integer, parameter :: ifbatch = 6        ! number of batches spawned
         integer, parameter :: iftspwn = 7        ! time of last batch spawned
+        integer, parameter :: ifeggs = 8         ! number of eggs spawned
 ! Species IDs
         integer, parameter :: if_none = 0
         integer, parameter :: if_anchovy = 1
