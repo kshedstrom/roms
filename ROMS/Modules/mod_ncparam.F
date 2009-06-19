@@ -169,7 +169,7 @@
         integer  :: idFsuD        ! detided free-surface
         integer  :: idFsuH        ! free-surface tide harmonics
         integer  :: idfwwt        ! fish wet weight
-        integer  :: idbatch       ! fish batch number
+        integer  :: idspwnloc     ! fish batch number
         integer  :: idGhat(2)     ! KPP nonlocal transport
         integer  :: idHbbl        ! depth of bottom boundary layer
         integer  :: idHice        ! depth of ice cover
@@ -1382,8 +1382,8 @@
                 idDano=varid
               CASE ('idfwwt')
                 idfwwt=varid
-              CASE ('idbatch')
-                idbatch=varid
+              CASE ('idspwnloc')
+                idspwnloc=varid
               CASE ('idTvar(itemp)')
                 idTvar(itemp)=varid
               CASE ('idTvar(isalt)')

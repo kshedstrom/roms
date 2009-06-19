@@ -407,16 +407,16 @@
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 !  Define fish batch number
-        Vinfo( 1)='fbtch'
-        Vinfo( 2)='fish batch'
+        Vinfo( 1)='fspwnloc'
+        Vinfo( 2)='fish spawning location'
         Vinfo( 3)='-'
-        Vinfo(14)='fbtch, scalar, series'
+        Vinfo(14)='fspwnloc, scalar, series'
         Vinfo(16)=Vname(1,idtime)
 #  ifndef NO_4BYTE_REALS
         Vinfo(24)='_FillValue'
         Aval(6)=spval
 #  endif
-        status=def_var(ng, iNLM, ncFISHid(ng),fishVid(idbatch,ng),      &
+        status=def_var(ng, iNLM, ncFISHid(ng),fishVid(idspwnloc,ng),    &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 # endif
@@ -531,9 +531,9 @@
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idfwwt))) THEN
             got_var(idfwwt)=.TRUE.
             fishVid(idfwwt,ng)=var_id(i)
-          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idbatch))) THEN
-            got_var(idbatch)=.TRUE.
-            fishVid(idbatch,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idspwnloc))) THEN
+            got_var(idspwnloc)=.TRUE.
+            fishVid(idspwnloc,ng)=var_id(i)
           END IF
 # ifdef SOLVE3D
           DO itrc=1,NT(ng)
@@ -615,8 +615,8 @@
           exit_flag=3
           RETURN
         END IF
-        IF (.not.got_var(idbatch)) THEN
-          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idbatch)),         &
+        IF (.not.got_var(idspwnloc)) THEN
+          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idspwnloc)),       &
      &                                  TRIM(ncname)
           exit_flag=3
           RETURN
