@@ -17,8 +17,14 @@
 ! The distance is "spawn_dist" on the model grid. A spawning female can
 ! look this up based on its position in i,j space.
 !
+! Idea for the future - instead of one treetop, have one treetop per
+! species per region. Regions could be divided by domains in spawn_dist,
+! i.e., have the 1000's region, the 2000's region, and so on. If one
+! species had three regions, it would require at least three
+! superindividuals to fill per day: load the roe_list accordingly.
+!
 ! Because we create and destroy this thing each day, we need an
-! efficient way to deallocate everything, hence the need for the gc_list.
+! efficient way to deallocate everything; hence the need for the gc_list.
 !
         USE mod_kinds
 
@@ -29,9 +35,9 @@
           type(treenode), pointer :: right => null()
           type(treenode), pointer :: parent => null()
           logical :: red = .FALSE.
-          integer :: eggs = 0
+          real(r8) :: eggs = 0
           integer :: momfish = 0
-          integer :: egg_sum
+          real(r8) :: egg_sum
           real(r8) :: dist
         end type treenode
 
@@ -44,7 +50,7 @@
         type egg_batch
           type(egg_batch), pointer :: next => null()
           type(treenode), pointer :: egg_tree => null()
-          integer :: egg_sum = 0
+          real(r8) :: egg_sum = 0
         end type egg_batch
 
         type(treenode), pointer :: treetop
@@ -69,7 +75,7 @@
 
 ! This insert is visible from outside the module
         SUBROUTINE insert(eggs, dist, ifish)
-          integer, intent(in) :: eggs
+          real(r8), intent(in) :: eggs
           integer, intent(in) :: ifish
           real(r8), intent(in) :: dist
           CALL insert_priv(eggs, dist, ifish, treetop)
@@ -77,7 +83,7 @@
 
 ! This insert is private, can be used on either the treetop or on subtrees
         SUBROUTINE insert_priv(eggs, dist, ifish, tree)
-          integer, intent(in) :: eggs
+          real(r8), intent(in) :: eggs
           integer, intent(in) :: ifish
           real(r8), intent(in) :: dist
           type(treenode), pointer :: tree
@@ -177,7 +183,7 @@
         SUBROUTINE sum_up(cur)
           type(treenode), pointer :: cur
           type(treenode), pointer :: p
-          integer  :: eleft, eright
+          real(r8)  :: eleft, eright
 
           p => cur % parent
           DO WHILE (ASSOCIATED(p))
@@ -201,7 +207,8 @@
         SUBROUTINE sum_us(cur)
           type(treenode), pointer :: cur
           type(treenode), pointer :: p
-          integer  :: eleft, eright, i
+          real(r8)  :: eleft, eright
+          integer  :: i
 
           p => cur
           DO i=1,2
@@ -227,7 +234,6 @@
 !
         SUBROUTINE rotate_left(x)
           type(treenode), pointer :: x, y
-          integer :: mine, theirs
 
           y => x % right
 
@@ -277,9 +283,10 @@
         SUBROUTINE collect(Nsuper, Nfound, eggs, momfish)
           integer, intent(in)  :: Nsuper
           integer, intent(out) :: Nfound
-          integer, intent(out) :: eggs(Nsuper)
+          real(r8), intent(out) :: eggs(Nsuper)
           integer, intent(out) :: momfish(Nsuper)
-          type(egg_batch), pointer :: l, r, p
+          type(treenode), pointer :: l_tree, r_tree, t_tree
+          logical :: single
 !
 ! First, count up the moms and if there aren't too many, just use all
 ! the superindividuals.
@@ -301,11 +308,165 @@
             ALLOCATE(roe_list % next)
             ALLOCATE(gc_next % next)
             gc_next => gc_next % next
-            gc_next % mytreenode => cur
-            p => roe_list % next
-            p % egg_tree => treetop % left
+            gc_next % myeggs => roe_list % next
+            roe_list % next % egg_tree => treetop
+            roe_list % next % egg_sum = treetop % left % egg_sum
+            Nfound = 1
+
+            DO WHILE (Nfound .lt. Nsuper)
+! Pop the top tree from the stack and split it.
+              single = .false.
+              t_tree => pop_tree(.true.)
+              IF (.not. ASSOCIATED(t_tree)) THEN
+                print *, "I'm in trouble again..."
+              END IF
+
+! Need to make some new treenodes: these become the "treetop" parts of
+! the left and right subtrees, above the actual egg-carrying nodes.
+              ALLOCATE(l_tree)
+              ALLOCATE(r_tree)
+              ALLOCATE(gc_next % next)
+              gc_next => gc_next % next
+              gc_next % mytreenode => l_tree
+              ALLOCATE(gc_next % next)
+              gc_next => gc_next % next
+              gc_next % mytreenode => r_tree
+
+              IF (ASSOCIATED (t_tree % left)) THEN
+                l_tree % left => t_tree % left
+                nullify(t_tree % left)
+                l_tree % egg_sum = l_tree % left % egg_sum
+              ELSE
+                l_tree % left => t_tree
+                single = .true.
+                t_tree % egg_sum = t_tree % eggs
+                l_tree % egg_sum = t_tree % eggs
+              END IF
+              IF (ASSOCIATED (t_tree % right)) THEN
+                r_tree % left => t_tree % right
+                nullify(t_tree % right)
+                r_tree % egg_sum = r_tree % left % egg_sum
+              ELSE
+                r_tree % left => t_tree
+                single = .true.
+                t_tree % egg_sum = t_tree % eggs
+                r_tree % egg_sum = t_tree % eggs
+              END IF
+              l_tree % left % parent => l_tree
+              l_tree % left % red = .false.
+              r_tree % left % parent => r_tree
+              r_tree % left % red = .false.
+! If we've both subtrees, give the top's eggs to the smaller
+! (by egg count) tree, making a new treenode (because that's what
+! insert_priv does).
+              IF (.not. single) THEN
+                IF (l_tree % left % egg_sum <                           &
+     &                     r_tree % left % egg_sum) THEN
+                  CALL insert_priv(t_tree % eggs, t_tree % dist,        &
+     &                 t_tree % momfish, l_tree)
+                ELSE
+                  CALL insert_priv(t_tree % eggs, t_tree % dist,        &
+     &                 t_tree % momfish, r_tree)
+                END IF
+              END IF
+              CALL push_trees(l_tree, r_tree)
+              Nfound = Nfound + 1
+            END DO
+            Nfound = 0
+            DO WHILE (Nfound .lt. Nsuper)
+              t_tree => pop_tree(.false.)
+              IF (ASSOCIATED(t_tree)) THEN
+                Nfound = Nfound + 1
+                eggs(Nfound) = t_tree % egg_sum 
+                momfish(Nfound) = t_tree % momfish  ! one of the bunch
+              ELSE
+                RETURN
+              END IF
+            END DO
           END IF
         END SUBROUTINE collect
+
+!  Extract the tree with most eggs from the list.
+!  The splittable argument if true means that I want the first tree that
+!  can be split into sub-trees.
+!
+!  The objects in egg_batch are the tops of the trees; we are going to
+!  return the left child of the top, which is the top node containing
+!  actual eggs.
+        FUNCTION pop_tree(splittable)
+          logical :: splittable
+          type(treenode), pointer :: pop_tree
+          type(egg_batch), pointer :: cur, prev
+          
+          prev => roe_list
+          cur => roe_list % next
+          DO
+!  I'm either returning the first no matter what, or I'm returning the
+!  first with more than one node.
+            IF (.not. splittable .or. (cur % egg_sum .ne.               &
+     &               cur % egg_tree % left % eggs)) THEN
+              IF (ASSOCIATED(cur % next)) THEN
+                prev % next => cur % next
+              END IF
+              pop_tree => cur % egg_tree % left
+              prev % next => cur % next
+              RETURN
+            END IF
+            prev => cur
+            IF (ASSOCIATED(cur % next)) THEN
+              cur => cur % next
+            ELSE
+              pop_tree => null()
+            END IF
+          END DO
+        END FUNCTION pop_tree
+
+!  Have to keep this sorted by egg count
+!  This is going to be easier in C++ with STL.
+        SUBROUTINE push_trees(l_tree, r_tree)
+          type(treenode), pointer :: l_tree
+          type(treenode), pointer :: r_tree
+          type(egg_batch), pointer :: left, right
+          ALLOCATE(left)
+          left % egg_tree => l_tree
+          left % egg_sum = l_tree % egg_sum
+          CALL push_one_tree(left)
+          ALLOCATE(right)
+          right % egg_tree => r_tree
+          right % egg_sum = r_tree % egg_sum
+          CALL push_one_tree(right)
+        END SUBROUTINE push_trees
+
+        SUBROUTINE push_one_tree(t_tree)
+          type(egg_batch), pointer :: t_tree
+          type(egg_batch), pointer :: cur, next
+          real(r8) :: cur_eggs, next_eggs, my_eggs
+
+          cur => roe_list
+          next => cur % next
+          my_eggs = t_tree % egg_sum
+          cur_eggs = 1.e35
+          IF (ASSOCIATED(next)) THEN
+            next_eggs = next % egg_sum
+          ELSE
+            next_eggs = 0
+          END IF
+          DO
+            IF (my_eggs < cur_eggs .and. my_eggs >= next_eggs) THEN
+              t_tree % next => next
+              cur % next => t_tree
+              RETURN
+            END IF
+            cur => next
+            next => cur % next
+            cur_eggs = cur % egg_sum
+            IF (ASSOCIATED(next)) THEN
+              next_eggs = next % egg_sum
+            ELSE
+              next_eggs = 0
+            END IF
+          END DO
+        END SUBROUTINE push_one_tree
 
         SUBROUTINE traverse
           IF (ASSOCIATED(treetop % left)) CALL                          &
@@ -317,7 +478,7 @@
           type(treenode), pointer :: p
           integer, intent(in)  :: Nsuper
           integer, intent(inout) :: Nfound
-          integer, intent(inout) :: eggs(Nsuper)
+          real(r8), intent(inout) :: eggs(Nsuper)
           integer, intent(inout) :: momfish(Nsuper)
 
           IF (ASSOCIATED(p % left)) CALL copy_traverse(p % left,        &
