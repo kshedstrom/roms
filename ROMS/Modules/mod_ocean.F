@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       MODULE mod_ocean
 !
-!svn $Id: mod_ocean.F 984 2009-05-24 01:43:19Z kate $
+!svn $Id: mod_ocean.F 1000 2009-06-09 23:55:44Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -840,13 +840,17 @@
 #  if defined ICE_BIO && defined CLIM_ICE_1D
 
           DO itrc=1,NIceT(ng)
-            OCEAN(ng) % it(i,j,1,itrc) = IniVal
-            OCEAN(ng) % it(i,j,2,itrc) = IniVal
-            OCEAN(ng) % it(i,j,3,itrc) = IniVal
-            OCEAN(ng) % it(i,j,4,itrc) = IniVal
+            DO i=Imin,Imax
+              OCEAN(ng) % it(i,j,1,itrc) = IniVal
+              OCEAN(ng) % it(i,j,2,itrc) = IniVal
+              OCEAN(ng) % it(i,j,3,itrc) = IniVal
+              OCEAN(ng) % it(i,j,4,itrc) = IniVal
+            END DO
           END DO
           DO itrc=1,NIceLog(ng)
-            OCEAN(ng) % itL(i,j,3,itrc) = IniVal
+            DO i=Imin,Imax
+              OCEAN(ng) % itL(i,j,3,itrc) = IniVal
+            END DO
           END DO
 #  endif
 #  ifdef BIOFLUX

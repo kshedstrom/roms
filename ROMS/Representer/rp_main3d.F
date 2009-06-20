@@ -2,7 +2,7 @@
 #if defined TL_IOMS && defined SOLVE3D
       SUBROUTINE rp_main3d (ng)
 !
-!svn $Id: rp_main3d.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: rp_main3d.F 1003 2009-06-19 23:52:29Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
@@ -71,6 +71,8 @@
 # endif
 # ifdef ADJUST_BOUNDARY
       USE rp_obc_adjust_mod, ONLY : rp_obc_adjust
+      USE rp_obc_adjust_mod, ONLY : rp_obc2d_adjust
+      USE rp_set_depth_mod, ONLY : rp_set_depth_bry
 # endif
       USE rp_omega_mod, ONLY : rp_omega
 # ifdef NEARSHORE_MELLOR_NOT_YET
@@ -337,12 +339,14 @@
 !  Skip the last output timestep.
 !-----------------------------------------------------------------------
 !
-      IF (iic(ng).lt.(ntend(ng)+1)) THEN
+      IF ((Nrun.ne.1).and.(iic(ng).lt.(ntend(ng)+1))) THEN
 !$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(ng,numthreads)
         DO thread=0,numthreads-1
           subs=NtileX(ng)*NtileE(ng)/numthreads
           DO tile=subs*thread,subs*(thread+1)-1,+1
             CALL rp_obc_adjust (ng, TILE, Lbinp(ng))
+            CALL rp_set_depth_bry (ng, TILE)
+            CALL rp_obc2d_adjust (ng, TILE, Lbinp(ng))
           END DO
         END DO
 !$OMP END PARALLEL DO
@@ -624,23 +628,25 @@
 !  Compute Lagrangian drifters trajectories.
 !-----------------------------------------------------------------------
 !
+      IF (Lfloats(Ng)) THEN
 !$OMP PARALLEL DO PRIVATE(thread,chunk_size,Lstr,Lend)                  &
 !$OMP&            SHARED(ng,numthreads,Nfloats)
-      DO thread=0,numthreads-1
-        chunk_size=(Nfloats(ng)+numthreads-1)/numthreads
-        Lstr=1+thread*chunk_size
-        Lend=MIN(Nfloats(ng),Lstr+chunk_size-1)
-        CALL rp_step_floats (ng, Lstr, Lend)
-      END DO
+        DO thread=0,numthreads-1
+          chunk_size=(Nfloats(ng)+numthreads-1)/numthreads
+          Lstr=1+thread*chunk_size
+          Lend=MIN(Nfloats(ng),Lstr+chunk_size-1)
+          CALL rp_step_floats (ng, Lstr, Lend)
+        END DO
 !$OMP END PARALLEL DO
 !
 !  Shift floats time indices.
 !
-      nfp1(ng)=MOD(nfp1(ng)+1,NFT+1)
-      nf(ng)  =MOD(nf(ng)  +1,NFT+1)
-      nfm1(ng)=MOD(nfm1(ng)+1,NFT+1)
-      nfm2(ng)=MOD(nfm2(ng)+1,NFT+1)
-      nfm3(ng)=MOD(nfm3(ng)+1,NFT+1)
+        nfp1(ng)=MOD(nfp1(ng)+1,NFT+1)
+        nf(ng)  =MOD(nf(ng)  +1,NFT+1)
+        nfm1(ng)=MOD(nfm1(ng)+1,NFT+1)
+        nfm2(ng)=MOD(nfm2(ng)+1,NFT+1)
+        nfm3(ng)=MOD(nfm3(ng)+1,NFT+1)
+      END IF
 # endif
 
       RETURN

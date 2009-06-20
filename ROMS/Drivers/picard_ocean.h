@@ -1,6 +1,6 @@
       MODULE ocean_control_mod
 !
-!svn $Id: picard_ocean.h 975 2009-05-05 22:51:13Z kate $
+!svn $Id: picard_ocean.h 999 2009-06-09 23:48:31Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
@@ -153,6 +153,7 @@
       USE mod_param
       USE mod_parallel
       USE mod_iounits
+      USE mod_netcdf
       USE mod_scalars
 !
 !  Imported variable declarations
@@ -222,7 +223,17 @@
 !
 !  Close IO and re-initialize NetCDF switches.
 !
-          CALL close_io
+          SourceFile='picard_ocean.h, ROMS_run'
+
+          IF (ncTLMid(ng).ne.-1) THEN
+            CALL netcdf_close (ng, iRPM, ncTLMid(ng))
+            IF (exit_flag.ne.NoError) RETURN
+          END IF
+
+          IF (ncFWDid(ng).ne.-1) THEN
+            CALL netcdf_close (ng, iRPM, ncFWDid(ng))
+            IF (exit_flag.ne.NoError) RETURN
+          END IF
 
         END DO ITER_LOOP
 

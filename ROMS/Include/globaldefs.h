@@ -1,7 +1,7 @@
 /*
 ** Include file "globaldef.h"
 **
-** svn $Id: globaldefs.h 987 2009-05-26 19:29:04Z kate $
+** svn $Id: globaldefs.h 999 2009-06-09 23:48:31Z kate $
 ********************************************************** Hernan G. Arango ***
 ** Copyright (c) 2002-2009 The ROMS/TOMS Group     Alexander F. Shchepetkin  **
 **   Licensed under a MIT/X style license                                    **
@@ -303,11 +303,12 @@
     defined FORCING_SV         || defined INNER_PRODUCT      || \
     defined IS4DVAR            || defined OBS_SENSITIVITY    || \
     defined OPT_PERTURBATION   || defined OPT_OBSERVATIONS   || \
-    defined R_SYMMETRY         || defined RPM_DRIVER         || \
-    defined SANITY_CHECK       || defined SENSITIVITY_4DVAR  || \
-    defined TLM_CHECK          || defined TLM_DRIVER         || \
-    defined TL_W4DPSAS         || defined TL_W4DVAR          || \
-    defined W4DPSAS            || defined W4DVAR
+    defined PICARD_TEST        || defined R_SYMMETRY         || \
+    defined RPM_DRIVER         || defined SANITY_CHECK       || \
+    defined SENSITIVITY_4DVAR  || defined TLM_CHECK          || \
+    defined TLM_DRIVER         || defined TL_W4DPSAS         || \
+    defined TL_W4DVAR          || defined W4DPSAS            || \
+    defined W4DVAR
 # define TANGENT
 #endif
 #if defined AD_SENSITIVITY     || defined ADM_DRIVER         || \

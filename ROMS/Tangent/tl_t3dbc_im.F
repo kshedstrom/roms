@@ -2,7 +2,7 @@
       MODULE tl_t3dbc_mod
 #if defined TANGENT && defined SOLVE3D
 !
-!svn $Id: tl_t3dbc_im.F 984 2009-05-24 01:43:19Z kate $
+!svn $Id: tl_t3dbc_im.F 999 2009-06-09 23:48:31Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
@@ -59,6 +59,7 @@
       USE mod_param
       USE mod_boundary
       USE mod_grid
+      USE mod_ncparam
       USE mod_scalars
 !
 !  Imported variable declarations.
@@ -167,7 +168,12 @@
 !>          t(Istr-1,j,k,nout,itrc)=BOUNDARY(ng)%t_west(j,k,itrc)
 !>
 #   ifdef ADJUST_BOUNDARY
-            tl_t(Istr-1,j,k,nout,itrc)=BOUNDARY(ng)%tl_t_west(j,k,itrc)
+            IF (Lobc(iwest,isTvar(itrc),ng)) THEN
+              tl_t(Istr-1,j,k,nout,itrc)=                               &
+     &                             BOUNDARY(ng)%tl_t_west(j,k,itrc)
+            ELSE
+              tl_t(Istr-1,j,k,nout,itrc)=0.0_r8
+            END IF
 #   else
             tl_t(Istr-1,j,k,nout,itrc)=0.0_r8
 #   endif
@@ -303,7 +309,12 @@
 !>          t(Iend+1,j,k,nout,itrc)=BOUNDARY(ng)%t_east(j,k,itrc)
 !>
 #   ifdef ADJUST_BOUNDARY
-            tl_t(Iend+1,j,k,nout,itrc)=BOUNDARY(ng)%tl_t_east(j,k,itrc)
+            IF (Lobc(ieast,isTvar(itrc),ng)) THEN
+              tl_t(Iend+1,j,k,nout,itrc)=                               &
+     &                             BOUNDARY(ng)%tl_t_east(j,k,itrc)
+            ELSE
+              tl_t(Iend+1,j,k,nout,itrc)=0.0_r8
+            END IF
 #   else
             tl_t(Iend+1,j,k,nout,itrc)=0.0_r8
 #   endif
@@ -441,7 +452,12 @@
 !>          t(i,Jstr-1,k,nout,itrc)=BOUNDARY(ng)%t_south(i,k,itrc)
 !>
 #   ifdef ADJUST_BOUNDARY
-            tl_t(i,Jstr-1,k,nout,itrc)=BOUNDARY(ng)%tl_t_south(i,k,itrc)
+            IF (Lobc(isouth,isTvar(itrc),ng)) THEN
+              tl_t(i,Jstr-1,k,nout,itrc)=                               &
+     &                             BOUNDARY(ng)%tl_t_south(i,k,itrc)
+            ELSE
+              tl_t(i,Jstr-1,k,nout,itrc)=0.0_r8
+            END IF
 #   else
             tl_t(i,Jstr-1,k,nout,itrc)=0.0_r8
 #   endif
@@ -576,7 +592,12 @@
 !>          t(i,Jend+1,k,nout,itrc)=BOUNDARY(ng)%t_north(i,k,itrc)
 !>
 #   ifdef ADJUST_BOUNDARY
-            tl_t(i,Jend+1,k,nout,itrc)=BOUNDARY(ng)%tl_t_north(i,k,itrc)
+            IF (Lobc(inorth,isTvar(itrc),ng)) THEN
+              tl_t(i,Jend+1,k,nout,itrc)=                               &
+     &                             BOUNDARY(ng)%tl_t_north(i,k,itrc)
+            ELSE
+              tl_t(i,Jend+1,k,nout,itrc)=0.0_r8
+            END IF
 #   else
             tl_t(i,Jend+1,k,nout,itrc)=0.0_r8
 #   endif

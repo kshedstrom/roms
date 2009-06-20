@@ -4,7 +4,7 @@
 
 #if defined ADJOINT && defined FOUR_DVAR && defined SOLVE3D
 !
-!svn $Id: ad_conv_3d.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: ad_conv_3d.F 999 2009-06-09 23:48:31Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
@@ -754,7 +754,7 @@
 #  ifndef SPLINES_VCONV
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS,0:N(ng)) :: FC
 #  endif
-#  if !def IMPLICIT_VCONV || defined SPLINES_VCONV
+#  if !defined IMPLICIT_VCONV || defined SPLINES_VCONV
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS,N(ng)) :: oHz
 #  endif
 #  if defined IMPLICIT_VCONV || defined SPLINES_VCONV
@@ -1358,7 +1358,7 @@
 #  ifndef SPLINES_VCONV
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS,0:N(ng)) :: FC
 #  endif
-#  if !def IMPLICIT_VCONV || defined SPLINES_VCONV
+#  if !defined IMPLICIT_VCONV || defined SPLINES_VCONV
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS,N(ng)) :: oHz
 #  endif
 #  if defined IMPLICIT_VCONV || defined SPLINES_VCONV

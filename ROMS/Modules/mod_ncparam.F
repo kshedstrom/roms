@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       MODULE mod_ncparam
 !
-!svn $Id: mod_ncparam.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: mod_ncparam.F 1002 2009-06-17 18:50:47Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -759,7 +759,6 @@
         allocate ( avgPT3id(NBPT3,Ngrids) )
 # endif
 
-
 # if defined BENTHIC
         allocate ( idBvar(NBEN) )
         allocate ( hisBid(NBEN,Ngrids) )
@@ -779,8 +778,6 @@
 #  endif
 
 #endif
-
-
 
 # ifdef BIO_GOANPZ
         allocate ( idTSvar(MST) )
@@ -2237,9 +2234,9 @@
                 idTvar(iLDeC)=varid
               CASE ('idTvar(iSDeC)')
                 idTvar(iSDeC)=varid
-#  if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
-      defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR || \
-      defined SO_SEMI
+# if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
+     defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR || \
+     defined SO_SEMI
               CASE ('idTads(iTIC_)')
                 idTads(iTIC_)=varid
               CASE ('idTads(iTAlk)')
@@ -2253,9 +2250,9 @@
 # ifdef OXYGEN
               CASE ('idTvar(iOxyg)')
                 idTvar(iOxyg)=varid
-#  if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
-      defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR || \
-      defined SO_SEMI
+# if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
+     defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR || \
+     defined SO_SEMI
               CASE ('idTads(iOxyg)')
                 idTads(iOxyg)=varid
 #  endif
@@ -3010,7 +3007,7 @@
               CASE ('idTvar(iJel)')
                 idTvar(iJel)=varid
               CASE ('idTbry(iwest,iJel)')
-                idTbry(iwest,ijel)=varid
+                idTbry(iwest,iJel)=varid
               CASE ('idTbry(ieast,iJel)')
                 idTbry(ieast,iJel)=varid
               CASE ('idTbry(isouth,iJel)')
@@ -4446,75 +4443,6 @@
         DO i=1,MT
           idSvar(isTsur(i))=idTsur(i)
         END DO
-#endif
-#ifdef ADJUST_BOUNDARY
-!
-!  Set switches indicating which open boundary arrays to process in
-!  4DVar adjustments. 
-!
-# ifdef WEST_FSOBC
-        Lobc(iwest,isFsur,1:Ngrids)=.TRUE.
-# endif
-# ifdef EAST_FSOBC
-        Lobc(ieast,isFsur,1:Ngrids)=.TRUE.
-# endif
-# ifdef SOUTH_FSOBC
-        Lobc(isouth,isFsur,1:Ngrids)=.TRUE.
-# endif
-# ifdef NORTH_FSOBC
-        Lobc(inorth,isFsur,1:Ngrids)=.TRUE.
-# endif
-
-# ifdef WEST_M2OBC
-        Lobc(iwest,isUbar,1:Ngrids)=.TRUE.
-        Lobc(iwest,isVbar,1:Ngrids)=.TRUE.
-# endif
-# ifdef EAST_M2OBC
-        Lobc(ieast,isUbar,1:Ngrids)=.TRUE.
-        Lobc(ieast,isVbar,1:Ngrids)=.TRUE.
-# endif
-# ifdef SOUTH_M2OBC
-        Lobc(isouth,isUbar,1:Ngrids)=.TRUE.
-        Lobc(isouth,isVbar,1:Ngrids)=.TRUE.
-# endif
-# ifdef NORTH_M2OBC
-        Lobc(inorth,isUbar,1:Ngrids)=.TRUE.
-        Lobc(inorth,isVbar,1:Ngrids)=.TRUE.
-# endif
-
-# ifdef SOLVE3D
-#  ifdef WEST_M3OBC
-        Lobc(iwest,isUvel,1:Ngrids)=.TRUE.
-        Lobc(iwest,isVvel,1:Ngrids)=.TRUE.
-#  endif
-#  ifdef EAST_M3OBC
-        Lobc(ieast,isUvel,1:Ngrids)=.TRUE.
-        Lobc(ieast,isVvel,1:Ngrids)=.TRUE.
-#  endif
-#  ifdef SOUTH_M3OBC
-        Lobc(isouth,isUvel,1:Ngrids)=.TRUE.
-        Lobc(isouth,isVvel,1:Ngrids)=.TRUE.
-#  endif
-#  ifdef NORTH_M3OBC
-        Lobc(inorth,isUvel,1:Ngrids)=.TRUE.
-        Lobc(inorth,isVvel,1:Ngrids)=.TRUE.
-#  endif
-
-        DO i=1,MT
-#  ifdef WEST_TOBC
-          Lobc(iwest,isTvar(i),1:Ngrids)=.TRUE.
-#  endif
-#  ifdef EAST_TOBC
-          Lobc(ieast,isTvar(i),1:Ngrids)=.TRUE.
-#  endif
-#  ifdef SOUTH_TOBC
-          Lobc(isouth,isTvar(i),1:Ngrids)=.TRUE.
-#  endif
-#  ifdef NORTH_TOBC
-          Lobc(inorth,isTvar(i),1:Ngrids)=.TRUE.
-#  endif
-        END DO
-# endif
 #endif
 #ifdef ADJUST_BOUNDARY
 !

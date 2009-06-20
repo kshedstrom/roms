@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       MODULE state_initialize_mod
 !
-!svn $Id: state_initialize.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: state_initialize.F 999 2009-06-09 23:48:31Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -441,13 +441,15 @@
 !  Surface tracers flux.
 !
       DO it=1,NT(ng)
-        DO ir=1,Nfrec(ng)
-          DO j=JstrR,JendR
-            DO i=IstrR,IendR
-              s_tflux(i,j,ir,Lout,it)=fac
+        IF (Lstflux(it,ng)) THEN
+          DO ir=1,Nfrec(ng)
+            DO j=JstrR,JendR
+              DO i=IstrR,IendR
+                s_tflux(i,j,ir,Lout,it)=fac
+              END DO
             END DO
           END DO
-        END DO
+        END IF
       END DO
 # endif
 

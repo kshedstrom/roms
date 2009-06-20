@@ -1,6 +1,6 @@
       MODULE ocean_control_mod
 !
-!svn $Id: tl_w4dpsas_ocean.h 975 2009-05-05 22:51:13Z kate $
+!svn $Id: tl_w4dpsas_ocean.h 999 2009-06-09 23:48:31Z kate $
 !=================================================== Andrew M. Moore ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group      Hernan G. Arango   !
 !    Licensed under a MIT/X style license                              !
@@ -1019,7 +1019,8 @@
 !
           CALL wrt_ini (ng, Lnew(ng))
           IF (exit_flag.ne.NoError) RETURN
-# if defined ADJUST_STFLUX || defined ADJUST_WSTRESS
+# if defined ADJUST_STFLUX   || defined ADJUST_WSTRESS || \
+     defined ADJUST_BOUNDARY
           CALL wrt_frc_AD (ng, Lold(ng), tINIindx(ng))
           IF (exit_flag.ne.NoError) RETURN
 # endif
@@ -1793,7 +1794,8 @@
 !  
           CALL tl_wrt_ini (ng, Lold(ng), Rec1) 
           IF (exit_flag.ne.NoError) RETURN
-# if defined ADJUST_STFLUX || defined ADJUST_WSTRESS
+# if defined ADJUST_STFLUX   || defined ADJUST_WSTRESS || \
+     defined ADJUST_BOUNDARY
           CALL wrt_frc_AD (ng, Lold(ng), tINIindx(ng))
           IF (exit_flag.ne.NoError) RETURN
 # endif

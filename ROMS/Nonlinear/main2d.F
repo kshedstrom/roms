@@ -2,7 +2,7 @@
 #if defined NONLINEAR && !defined SOLVE3D
       SUBROUTINE main2d (ng)
 !
-!svn $Id: main2d.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: main2d.F 1003 2009-06-19 23:52:29Z kate $
 !=======================================================================
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -29,7 +29,8 @@
 # ifdef TLM_CHECK
       USE dotproduct_mod, ONLY : nl_dotproduct
 # endif
-# if defined W4DPSAS || defined NLM_OUTER
+# if defined W4DPSAS || defined NLM_OUTER || \
+     defined W4DPSAS_SENSITIVITY
       USE forcing_mod, ONLY : forcing
 # endif
 # ifdef ADJUST_WSTRESS
@@ -89,7 +90,8 @@
 !     tdays(ng)=time(ng)*sec2day
       CALL time_string (time(ng), time_code(ng))
 
-# if defined W4DPSAS || defined NLM_OUTER
+# if defined W4DPSAS || defined NLM_OUTER || \
+     defined W4DPSAS_SENSITIVITY
 !
 !-----------------------------------------------------------------------
 !  If appropriate, add convolved adjoint solution impulse forcing to
@@ -391,23 +393,25 @@
 !  Compute Lagrangian drifters trajectories.
 !-----------------------------------------------------------------------
 !
+      IF (Lfloats(Ng)) THEN
 !$OMP PARALLEL DO PRIVATE(thread,chunk_size,Lstr,Lend)                  &
 !$OMP&            SHARED(ng,numthreads,Nfloats)
-      DO thread=0,numthreads-1
-        chunk_size=(Nfloats(ng)+numthreads-1)/numthreads
-        Lstr=1+thread*chunk_size
-        Lend=MIN(Nfloats(ng),Lstr+chunk_size-1)
-        CALL step_floats (ng, Lstr, Lend)
-      END DO
+        DO thread=0,numthreads-1
+          chunk_size=(Nfloats(ng)+numthreads-1)/numthreads
+          Lstr=1+thread*chunk_size
+          Lend=MIN(Nfloats(ng),Lstr+chunk_size-1)
+          CALL step_floats (ng, Lstr, Lend)
+        END DO
 !$OMP END PARALLEL DO
 !
 !  Shift floats time indices.
 !
-      nfp1(ng)=MOD(nfp1(ng)+1,NFT+1)
-      nf(ng)  =MOD(nf(ng)  +1,NFT+1)
-      nfm1(ng)=MOD(nfm1(ng)+1,NFT+1)
-      nfm2(ng)=MOD(nfm2(ng)+1,NFT+1)
-      nfm3(ng)=MOD(nfm3(ng)+1,NFT+1)
+        nfp1(ng)=MOD(nfp1(ng)+1,NFT+1)
+        nf(ng)  =MOD(nf(ng)  +1,NFT+1)
+        nfm1(ng)=MOD(nfm1(ng)+1,NFT+1)
+        nfm2(ng)=MOD(nfm2(ng)+1,NFT+1)
+        nfm3(ng)=MOD(nfm3(ng)+1,NFT+1)
+      END IF
 # endif
 #else
       SUBROUTINE main2d
