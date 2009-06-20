@@ -3,7 +3,7 @@
 
 #if defined ADJUST_STFLUX || defined ADJUST_WSTRESS
 !
-!svn $Id: rp_frc_adjust.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: rp_frc_adjust.F 999 2009-06-09 23:48:31Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -182,13 +182,15 @@
 !  increments, if appropriate.
 !
       DO itrc=1,NT(ng)
-        DO j=JstrR,JendR
-          DO i=IstrR,IendR
-             tl_stflx(i,j,itrc)=tl_stflx(i,j,itrc)+                     &
-     &                          fac1*tl_tflux(i,j,it1,Linp,itrc)+       &
-     &                          fac2*tl_tflux(i,j,it2,Linp,itrc)
+        IF (Lstflux(itrc,ng)) THEN
+          DO j=JstrR,JendR
+            DO i=IstrR,IendR
+               tl_stflx(i,j,itrc)=tl_stflx(i,j,itrc)+                   &
+     &                            fac1*tl_tflux(i,j,it1,Linp,itrc)+     &
+     &                            fac2*tl_tflux(i,j,it2,Linp,itrc)
+            END DO
           END DO
-        END DO
+        END IF
       END DO
 # endif
 

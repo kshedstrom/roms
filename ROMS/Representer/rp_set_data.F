@@ -2,7 +2,7 @@
 #ifdef TL_IOMS
       SUBROUTINE rp_set_data (ng, tile)
 !
-!svn $Id: rp_set_data.F 984 2009-05-24 01:43:19Z kate $
+!svn $Id: rp_set_data.F 999 2009-06-09 23:48:31Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -822,7 +822,7 @@
       IF (SOUTH_WEST_TEST) THEN
 #   ifdef WEST_FSOBC
         DO j=JLB,JUB
-          cff=Dcrit(ng)-GRID(ng)%h(0,j))
+          cff=Dcrit(ng)-GRID(ng)%h(0,j)
           IF (BOUNDARY(ng)%zeta_west(j).le.cff) THEN
             BOUNDARY(ng)%zeta_west(j)=cff
             BOUNDARY(ng)%tl_zeta_west(j)=cff

@@ -2,7 +2,7 @@
       MODULE tl_v3dbc_mod
 #if defined TANGENT && defined SOLVE3D
 !
-!svn $Id: tl_v3dbc_im.F 984 2009-05-24 01:43:19Z kate $
+!svn $Id: tl_v3dbc_im.F 999 2009-06-09 23:48:31Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
@@ -59,6 +59,7 @@
       USE mod_param
       USE mod_boundary
       USE mod_grid
+      USE mod_ncparam
       USE mod_scalars
 !
 !  Imported variable declarations.
@@ -162,7 +163,11 @@
 !>          v(i,Jstr,k,nout)=BOUNDARY(ng)%v_south(i,k)
 !>
 #   ifdef ADJUST_BOUNDARY
-            tl_v(i,Jstr,k,nout)=BOUNDARY(ng)%tl_v_south(i,k)
+            IF (Lobc(isouth,isVvel,ng)) THEN
+              tl_v(i,Jstr,k,nout)=BOUNDARY(ng)%tl_v_south(i,k)
+            ELSE
+              tl_v(i,Jstr,k,nout)=0.0_r8
+            END IF
 #   else
             tl_v(i,Jstr,k,nout)=0.0_r8
 #   endif
@@ -285,7 +290,11 @@
 !>          v(i,Jend+1,k,nout)=BOUNDARY(ng)%v_north(i,k)
 !>
 #   ifdef ADJUST_BOUNDARY
-            tl_v(i,Jend+1,k,nout)=BOUNDARY(ng)%tl_v_north(i,k)
+            IF (Lobc(inorth,isVvel,ng)) THEN
+              tl_v(i,Jend+1,k,nout)=BOUNDARY(ng)%tl_v_north(i,k)
+            ELSE
+              tl_v(i,Jend+1,k,nout)=0.0_r8
+            END IF
 #   else
             tl_v(i,Jend+1,k,nout)=0.0_r8
 #   endif
@@ -410,7 +419,11 @@
 !>          v(Istr-1,j,k,nout)=BOUNDARY(ng)%v_west(j,k)
 !>
 #   ifdef ADJUST_BOUNDARY
-            tl_v(Istr-1,j,k,nout)=BOUNDARY(ng)%tl_v_west(j,k)
+            IF (Lobc(iwest,isVvel,ng)) THEN
+              tl_v(Istr-1,j,k,nout)=BOUNDARY(ng)%tl_v_west(j,k)
+            ELSE
+              tl_v(Istr-1,j,k,nout)=0.0_r8
+            END IF
 #   else
             tl_v(Istr-1,j,k,nout)=0.0_r8
 #   endif
@@ -547,7 +560,11 @@
 !>          v(Iend+1,j,k,nout)=BOUNDARY(ng)%v_east(j,k)
 !>
 #   ifdef ADJUST_BOUNDARY
-            tl_v(Iend+1,j,k,nout)=BOUNDARY(ng)%tl_v_east(j,k)
+            IF (Lobc(ieast,isVvel,ng)) THEN
+              tl_v(Iend+1,j,k,nout)=BOUNDARY(ng)%tl_v_east(j,k)
+            ELSE
+              tl_v(Iend+1,j,k,nout)=0.0_r8
+            END IF
 #   else
             tl_v(Iend+1,j,k,nout)=0.0_r8
 #   endif

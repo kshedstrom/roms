@@ -2,7 +2,7 @@
 #ifdef ADJOINT
       SUBROUTINE ad_def_his (ng, ldef)
 !
-!svn $Id: ad_def_his.F 983 2009-05-23 01:07:05Z kate $
+!svn $Id: ad_def_his.F 999 2009-06-09 23:48:31Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -550,27 +550,29 @@
 !  allow 4DVAR adjustments at other times in addition to initial time.
 !
         DO itrc=1,NT(ng)
-          Vinfo( 1)=Vname(1,idTsur(itrc))
-          WRITE (Vinfo( 2),40) TRIM(Vname(2,idTsur(itrc)))
-          IF (itrc.eq.itemp) THEN
-            Vinfo( 3)='Celsius meter second-1'
-            Vinfo(11)='upward flux, cooling'
-            Vinfo(12)='downward flux, heating'
-          ELSE IF (itrc.eq.isalt) THEN
-            Vinfo( 3)='meter second-1'
-            Vinfo(11)='upward flux, freshening (net precipitation)'
-            Vinfo(12)='downward flux, salting (net evaporation)'
-          END IF
-          Vinfo(16)=Vname(1,idtime)
+          IF (Lstflux(itrc,ng)) THEN
+            Vinfo( 1)=Vname(1,idTsur(itrc))
+            WRITE (Vinfo( 2),40) TRIM(Vname(2,idTsur(itrc)))
+            IF (itrc.eq.itemp) THEN
+              Vinfo( 3)='Celsius meter second-1'
+              Vinfo(11)='upward flux, cooling'
+              Vinfo(12)='downward flux, heating'
+            ELSE IF (itrc.eq.isalt) THEN
+              Vinfo( 3)='meter second-1'
+              Vinfo(11)='upward flux, freshening (net precipitation)'
+              Vinfo(12)='downward flux, salting (net evaporation)'
+            END IF
+            Vinfo(16)=Vname(1,idtime)
 #  if defined WRITE_WATER && defined MASKING
-          Vinfo(20)='mask_rho'
+            Vinfo(20)='mask_rho'
 #  endif
-          Vinfo(22)='coordinates'
-          Aval(5)=REAL(Iinfo(1,idTsur(itrc),ng),r8)
-          status=def_var(ng, iADM, ncADJid(ng),                         &
-     &                   adjVid(idTsur(itrc),ng), NF_FOUT,              &
-     &                   nvd4, t3dfrc, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+            Vinfo(22)='coordinates'
+            Aval(5)=REAL(Iinfo(1,idTsur(itrc),ng),r8)
+            status=def_var(ng, iADM, ncADJid(ng),                       &
+     &                     adjVid(idTsur(itrc),ng), NF_FOUT,            &
+     &                     nvd4, t3dfrc, Aval, Vinfo, ncname)
+            IF (exit_flag.ne.NoError) RETURN
+          END IF
         END DO
 # endif
 !

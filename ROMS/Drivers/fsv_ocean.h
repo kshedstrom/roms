@@ -1,6 +1,6 @@
       MODULE ocean_control_mod
 !
-!svn $Id: fsv_ocean.h 975 2009-05-05 22:51:13Z kate $
+!svn $Id: fsv_ocean.h 999 2009-06-09 23:48:31Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
@@ -32,7 +32,7 @@
 !                                                                      !
 !  Reference:                                                          !
 !                                                                      !
-!    Moore, A.M. et al., 2004: A comprehensice ocean prediction and    !
+!    Moore, A.M. et al., 2004: A comprehensive ocean prediction and    !
 !      analysis system based on the tangent linear and adjoint of a    !
 !      regional ocean model, Ocean Modelling, 7, 227-258.              !
 !                                                                      !

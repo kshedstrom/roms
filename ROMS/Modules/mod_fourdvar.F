@@ -3,7 +3,7 @@
 
 #if defined FOUR_DVAR || defined VERIFICATION
 !
-!svn $Id: mod_fourdvar.F 980 2009-05-20 16:57:22Z kate $
+!svn $Id: mod_fourdvar.F 999 2009-06-09 23:48:31Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -302,8 +302,8 @@
 !  Horizontal and vertical diffusion operator time-step size for
 !  spatial convolutions.
 !
-        real(r8), allocatable :: DTsizeH(:)
-        real(r8), allocatable :: DTsizeV(:)
+        real(r8), allocatable :: DTsizeH(:,:)
+        real(r8), allocatable :: DTsizeV(:,:)
 !
 !  Boundary conditions error covariance: Horizontal and vertical
 !  diffusion operator time-step size for spatial convolutions.
@@ -755,10 +755,10 @@
       allocate ( NVsteps(2,MstateVar) )
       NVsteps = 0
 
-      allocate ( DTsizeH(MstateVar) )
+      allocate ( DTsizeH(2,MstateVar) )
       DTsizeH = IniVal
 
-      allocate ( DTsizeV(MstateVar) )
+      allocate ( DTsizeV(2,MstateVar) )
       DTsizeV = IniVal
 
       allocate ( NVstepsB(4,MstateVar) )

@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       SUBROUTINE mod_arrays (allocate_vars)
 !
-!svn $Id: mod_arrays.F 983 2009-05-23 01:07:05Z kate $
+!svn $Id: mod_arrays.F 999 2009-06-09 23:48:31Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -68,7 +68,7 @@
 !  Local variable declarations.
 !
       integer :: ng
-      integer :: LBi, UBi, LBj, UBj
+      integer :: LBi, UBi, LBj, UBj, LBij, UBij
       integer :: tile, subs, thread
 
       integer, parameter :: model = 0
@@ -84,6 +84,8 @@
           UBi=BOUNDS(ng)%UBi(TILE)
           LBj=BOUNDS(ng)%LBj(TILE)
           UBj=BOUNDS(ng)%UBj(TILE)
+          LBij=BOUNDS(ng)%LBij
+          UBij=BOUNDS(ng)%UBij
 #ifdef AVERAGES
           CALL allocate_average (ng, LBi, UBi, LBj, UBj)
 #endif
@@ -114,7 +116,7 @@
           CALL allocate_diags (ng, LBi, UBi, LBj, UBj)
 #endif
           CALL allocate_forces (ng, LBi, UBi, LBj, UBj)
-          CALL allocate_grid (ng, LBi, UBi, LBj, UBj)
+          CALL allocate_grid (ng, LBi, UBi, LBj, UBj, LBij, UBij)
           CALL allocate_mixing (ng, LBi, UBi, LBj, UBj)
 #if defined ASSIMILATION || defined NUDGING
           CALL allocate_obs (ng, LBi, UBi, LBj, UBj)

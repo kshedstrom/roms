@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       MODULE mod_scalars
 !
-!svn $Id: mod_scalars.F 989 2009-05-26 22:46:51Z kate $
+!svn $Id: mod_scalars.F 999 2009-06-09 23:48:31Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -1068,7 +1068,7 @@
 
 #ifdef ADJUST_BOUNDARY
 !
-!  Logical switch to process open boundary arrays during 4DVar
+!  Logical switches to process open boundary arrays during 4DVar
 !  adjustments.
 !
         logical, allocatable :: Lobc(:,:,:)
@@ -1095,6 +1095,13 @@
         integer, dimension(Ngrids) :: Nfrec      ! number of records
         integer, dimension(Ngrids) :: SFcount    ! record counter
 
+#ifdef ADJUST_STFLUX
+!
+!  Logical switches to process surface tracer fluxes during 4DVar
+!  adjustments.
+!
+        logical, allocatable :: Lstflux(:,:)
+#endif
 #if defined ADJUST_STFLUX || defined ADJUST_WSTRESS
 !
 !  Time (s) of surface forcing adjustment.
@@ -1217,10 +1224,12 @@
 !
 !  Stability and accuracy factor used to scale the time-step of the
 !  horizontal and vertical convolution operator below its theoretical
-!  (CFL) limit.
+!  (CFL) limit. Notice that four values are needed for these factors to
+!  facilitate the error covariance modeling for initial conditions (1),
+!  model (2), boundary conditions (3), and surface forcing (4).
 !
-        real(r8) :: Hgamma = 0.5
-        real(r8) :: Vgamma = 0.1
+        real(r8), dimension(4) :: Hgamma
+        real(r8), dimension(4) :: Vgamma
 !
 !  Initial conditions, model and surface forcing error covariance
 !  horizontal decorrelation scales (m).
@@ -2024,6 +2033,9 @@
 #ifdef ADJUST_BOUNDARY
       allocate ( Lobc(4,MstateVar,Ngrids) )
 #endif
+#ifdef ADJUST_STFLUX
+      allocate ( Lstflux(MT,Ngrids) )
+#endif
 !
 !---------------------------------------------------------------------
 !  Set tracer identification indices.
@@ -2506,6 +2518,19 @@
           DO i=1,4
             Lobc(i,j,ng)=.FALSE.
           END DO
+        END DO
+      END DO
+#endif
+#ifdef ADJUST_STFLUX
+!
+!-----------------------------------------------------------------------
+!  Initilize switches to process surface tracer fluexes for 4DVar
+!  adjustments.
+!-----------------------------------------------------------------------
+!
+      DO ng=1,Ngrids
+        DO i=1,MT
+          Lstflux(i,ng)=.FALSE.
         END DO
       END DO
 #endif

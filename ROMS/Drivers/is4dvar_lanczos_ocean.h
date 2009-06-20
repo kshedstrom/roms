@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       MODULE ocean_control_mod
 !
-!svn $Id: is4dvar_lanczos_ocean.h 983 2009-05-23 01:07:05Z kate $
+!svn $Id: is4dvar_lanczos_ocean.h 999 2009-06-09 23:48:31Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
@@ -272,7 +272,8 @@
 !
 !  Initialize relevant parameters.
 !
-#if defined ADJUST_STFLUX || defined ADJUST_WSTRESS
+#if defined ADJUST_BOUNDARY || defined ADJUST_STFLUX || \
+    defined ADJUST_WSTRESS
         Lfinp(ng)=1         ! forcing index for input
         Lfout(ng)=1         ! forcing index for output history files
 #endif
@@ -398,7 +399,8 @@
           wrtNLmod(ng)=.FALSE.
           wrtTLmod(ng)=.TRUE.
 
-#if defined ADJUST_STFLUX || defined ADJUST_WSTRESS
+#if defined ADJUST_BOUNDARY || defined ADJUST_STFLUX || \
+    defined ADJUST_WSTRESS
 !
 !  Write out initial and background surface forcing into initial
 !  INIname NetCDF file for latter use.

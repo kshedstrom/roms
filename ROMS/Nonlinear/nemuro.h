@@ -1,6 +1,6 @@
       SUBROUTINE biology (ng,tile)
 !
-!svn $Id: nemuro.h 982 2009-05-22 20:04:01Z kate $
+!svn $Id: nemuro.h 992 2009-05-29 01:12:37Z kate $
 !************************************************** Hernan G. Arango ***
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -331,7 +331,7 @@
 !  Fe concentration in (micromol-Fe/m3, or nM-Fe)
 	    h_max = 200.0_r8
             Fe_max = 2.0_r8
-!  Set nudging time scales to 5 (inshore) and 30 (offshore) days
+!  Set nudging time scales to 5 days (inshore) and 30 (offshore) days
             Fe_rel = 5.0_r8
             Fndgcf = 1.0_r8/(Fe_rel*86400.0_r8)
 !  Relaxation for depths < 250m to simulate Fe input at coast

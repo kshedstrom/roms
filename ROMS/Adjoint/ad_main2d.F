@@ -2,7 +2,7 @@
 #if defined ADJOINT && !defined SOLVE3D
       SUBROUTINE ad_main2d (ng)
 !
-!svn $Id: ad_main2d.F 983 2009-05-23 01:07:05Z kate $
+!svn $Id: ad_main2d.F 1003 2009-06-19 23:52:29Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
@@ -215,21 +215,23 @@
 !
 !  Shift floats time indices.
 !
-        nfp1(ng)=MOD(nfp1(ng)+1,NFT+1)
-        nf(ng)  =MOD(nf(ng)  +1,NFT+1)
-        nfm1(ng)=MOD(nfm1(ng)+1,NFT+1)
-        nfm2(ng)=MOD(nfm2(ng)+1,NFT+1)
-        nfm3(ng)=MOD(nfm3(ng)+1,NFT+1)
+        IF (Lfloats(Ng)) THEN
+          nfp1(ng)=MOD(nfp1(ng)+1,NFT+1)
+          nf(ng)  =MOD(nf(ng)  +1,NFT+1)
+          nfm1(ng)=MOD(nfm1(ng)+1,NFT+1)
+          nfm2(ng)=MOD(nfm2(ng)+1,NFT+1)
+          nfm3(ng)=MOD(nfm3(ng)+1,NFT+1)
 !    
 !$OMP PARALLEL DO PRIVATE(thread,chunk_size,Lstr,Lend)                  &
 !$OMP&            SHARED(ng,numthreads,Nfloats)
-        DO thread=0,numthreads-1
-          chunk_size=(Nfloats(ng)+numthreads-1)/numthreads
-          Lstr=1+thread*chunk_size
-          Lend=MIN(Nfloats(ng),Lstr+chunk_size-1)
-          CALL ad_step_floats (ng, Lstr, Lend)
-        END DO
+          DO thread=0,numthreads-1
+            chunk_size=(Nfloats(ng)+numthreads-1)/numthreads
+            Lstr=1+thread*chunk_size
+            Lend=MIN(Nfloats(ng),Lstr+chunk_size-1)
+            CALL ad_step_floats (ng, Lstr, Lend)
+          END DO
 !$OMP END PARALLEL DO
+        END IF
 # endif
 !
 !-----------------------------------------------------------------------

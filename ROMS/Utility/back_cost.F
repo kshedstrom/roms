@@ -2,7 +2,7 @@
       MODULE back_cost_mod
 #ifdef BACKGROUND
 !
-!svn $Id: back_cost.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: back_cost.F 999 2009-06-09 23:48:31Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
@@ -798,20 +798,22 @@
 !  Surface tracers flux contribution.
 !
       DO itrc=1,NT(ng)
-        DO ir=1,Nfrec(ng)
-          DO j=JstrR,JendR
-            DO i=IstrR,IendR
-              cff1=tl_tflux(i,j,ir,Lbck,itrc)+                            &
-     &             tl_tflux(i,j,ir,Lsum,itrc)
+        IF (Lstflux(itrc,ng)) THEN
+          DO ir=1,Nfrec(ng)
+            DO j=JstrR,JendR
+              DO i=IstrR,IendR
+                cff1=tl_tflux(i,j,ir,Lbck,itrc)+                        &
+     &               tl_tflux(i,j,ir,Lsum,itrc)
 #   ifdef MASKING
-              cff1=cff1*rmask(i,j)
+                cff1=cff1*rmask(i,j)
 #   endif
-              cff2=0.5_r8*cff1*cff1
-              my_BackCost(0)=my_BackCost(0)+cff2
-              my_BackCost(isTsur(itrc))=my_BackCost(isTsur(itrc))+cff2
+                cff2=0.5_r8*cff1*cff1
+                my_BackCost(0)=my_BackCost(0)+cff2
+                my_BackCost(isTsur(itrc))=my_BackCost(isTsur(itrc))+cff2
+              END DO
             END DO
           END DO
-        END DO
+        END IF
       END DO
 #  endif
 # endif
