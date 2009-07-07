@@ -224,6 +224,7 @@
 **                                                                           **
 ** OPTIONS for horizontal mixing of tracers:                                 **
 **                                                                           **
+** CLIMA_TS_MIX        use if diffusion of tracer perturbation (t-tclm)      **
 ** DIFF_GRID           use to scale diffusion coefficients by grid size      **
 ** MIX_S_TS            use if mixing along constant S-surfaces               **
 ** MIX_GEO_TS          use if mixing on geopotential (constant Z) surfaces   **
@@ -546,6 +547,8 @@
 ** IOM                 use to activate IOM multiple executables              **
 ** MULTIPLE_TLM        use if multiple TLM history files in 4DVAR            **
 ** NLM_OUTER           use if nonlinear model as basic state in outer loop   **
+** OBS_IMPACT          use if observation impact to 4DVAR data assimilation  **
+** POSTERIOR_EOFS      Use if estimating posterior analysis error covariace  **
 ** RPM_RELAXATION      use if Picard iterations, Diffusive Relaxation of RPM **
 ** SO_SEMI_WHITE       use to activate white/red noise processes             **
 ** SPLINES_VCONV       use to activate implicit splines vertical convolution **
