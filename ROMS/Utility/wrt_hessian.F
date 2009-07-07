@@ -1,5 +1,6 @@
 #include "cppdefs.h"
-#if defined IS4DVAR
+#if defined IS4DVAR        || \
+   (defined POSTERIOR_EOFS && defined WEAK_CONSTRAINT )
       SUBROUTINE wrt_hessian (ng, kout, nout)
 !
 !svn $Id$
@@ -392,7 +393,7 @@
 #   ifdef MASKING
      &                       GRID(ng) % rmask,                          &
 #   endif
-     &                       FORCES(ng) % ad_tflux(:,:,:,nout,itrc))
+     &                       FORCES(ng) % ad_tflux(:,:,:,kout,itrc))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
               WRITE (stdout,10) TRIM(Vname(1,idTsur(itrc))),            &

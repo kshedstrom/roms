@@ -341,7 +341,7 @@
      &                          tHISindx(ng), r2dvar,                   &
      &                          LBij, UBij, Nbrec(ng), scale,           &
      &                          BOUNDARY(ng) % zeta_obc(LBij:,:,:,      &
-     &                                                  KOUT))
+     &                                                  Lbout(ng)))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
             WRITE (stdout,10) TRIM(Vname(1,idSbry(isFsur))),            &
@@ -459,7 +459,7 @@
      &                          tHISindx(ng), u2dvar,                   &
      &                          LBij, UBij, Nbrec(ng), scale,           &
      &                          BOUNDARY(ng) % ubar_obc(LBij:,:,:,      &
-     &                                                  KOUT))
+     &                                                  Lbout(ng)))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
             WRITE (stdout,10) TRIM(Vname(1,idSbry(isUbar))),            &
@@ -577,7 +577,7 @@
      &                          tHISindx(ng), v2dvar,                   &
      &                          LBij, UBij, Nbrec(ng), scale,           &
      &                          BOUNDARY(ng) % vbar_obc(LBij:,:,:,      &
-     &                                                  KOUT))
+     &                                                  Lbout(ng)))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
             WRITE (stdout,10) TRIM(Vname(1,idSbry(isVbar))),            &
@@ -645,7 +645,7 @@
      &                          tHISindx(ng), u3dvar,                   &
      &                          LBij, UBij, 1, N(ng), Nbrec(ng), scale, &
      &                          BOUNDARY(ng) % u_obc(LBij:,:,:,:,       &
-     &                                               NOUT))
+     &                                               Lbout(ng)))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
             WRITE (stdout,10) TRIM(Vname(1,idSbry(isUvel))),            &
@@ -712,7 +712,7 @@
      &                          tHISindx(ng), v3dvar,                   &
      &                          LBij, UBij, 1, N(ng), Nbrec(ng), scale, &
      &                          BOUNDARY(ng) % v_obc(LBij:,:,:,:,       &
-     &                                               NOUT))
+     &                                               Lbout(ng)))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
             WRITE (stdout,10) TRIM(Vname(1,idSbry(isVvel))),            &
@@ -1082,7 +1082,7 @@
      &                            LBij, UBij, 1, N(ng), Nbrec(ng),      &
      &                            scale,                                &
      &                            BOUNDARY(ng) % t_obc(LBij:,:,:,:,     &
-     &                                                 NOUT,itrc))
+     &                                                 Lbout(ng),itrc))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
               WRITE (stdout,10) TRIM(Vname(1,idSbry(isTvar(itrc)))),    &
