@@ -4,7 +4,7 @@
 #if defined TANGENT && defined FOUR_DVAR && defined SOLVE3D && \
     defined ADJUST_BOUNDARY
 !
-!svn $Id: tl_conv_bry3d.F 999 2009-06-09 23:48:31Z kate $
+!svn $Id: tl_conv_bry3d.F 1012 2009-07-07 20:52:45Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
@@ -424,7 +424,9 @@
      &                  DTsizeV*Kv(i,j,k+1)*oHz(j,k+1)
               END DO
               CF(j,0)=0.0_r8
-              DC(j,0)=0.0_r8
+!>            DC(j,0)=0.0_r8
+!>
+              tl_DC(j,0)=0.0_r8
             END DO
           ELSE IF ((boundary.eq.isouth).or.(boundary.eq.inorth)) THEN
             j=edge(boundary)

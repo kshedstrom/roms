@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       SUBROUTINE checkdefs
 !
-!svn $Id: checkdefs.F 990 2009-05-28 00:54:01Z kate $
+!svn $Id: checkdefs.F 1013 2009-07-07 21:21:23Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -91,24 +91,27 @@
       Coptions(is:is+9)=' ADJOINT,'
 #endif
 #if defined ADJUST_BOUNDARY && \
-   (defined IS4DVAR         || defined SENSITIVITY_4DVAR || \
-    defined W4DPSAS         || defined W4DVAR)
+   (defined IS4DVAR           || defined OBS_SENSITIVITY || \
+    defined SENSITIVITY_4DVAR || defined W4DPSAS         || \
+    defined W4DVAR)
       IF (Master) WRITE (stdout,20) 'ADJUST_BOUNDARY',                  &
      &   'Including boundary conditions in 4DVar state estimation.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+17)=' ADJUST_BOUNDARY,'
 #endif
 #if defined ADJUST_STFLUX && \
-   (defined IS4DVAR       || defined SENSITIVITY_4DVAR || \
-    defined W4DPSAS       || defined W4DVAR)
+   (defined IS4DVAR           || defined OBS_SENSITIVITY || \
+    defined SENSITIVITY_4DVAR || defined W4DPSAS         || \
+    defined W4DVAR)
       IF (Master) WRITE (stdout,20) 'ADJUST_STFLUX',                    &
      &   'Including surface tracer flux in 4DVar state estimation.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+15)=' ADJUST_STFLUX,'
 #endif
 #if defined ADJUST_WSTRESS && \
-   (defined IS4DVAR        || defined SENSITIVITY_4DVAR || \
-    defined W4DPSAS        || defined W4DVAR)
+   (defined IS4DVAR           || defined OBS_SENSITIVITY || \
+    defined SENSITIVITY_4DVAR || defined W4DPSAS         || \
+    defined W4DVAR)
       IF (Master) WRITE (stdout,20) 'ADJUST_WSTRESS',                   &
      &   'Including surface wind stress in 4DVar state estimation.'
       is=LEN_TRIM(Coptions)+1
@@ -306,6 +309,15 @@
      &   'Analytical bottom drag.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+10)=' ANA_RDRG,'
+#endif
+#if defined ANA_SCOPE && \
+   (defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
+    defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR || \
+    defined SO_SEMI)
+      IF (Master) WRITE (stdout,20) 'ANA_SCOPE',                        &
+     &   'Analytical spatial scope masking arrays.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+12)=' ANA_SCOPE,'
 #endif
 #if defined ANA_SEDIMENT && (defined SEDIMENT || defined BBL_MODEL)
       IF (Master) WRITE (stdout,20) 'ANA_SEDIMENT',                     &
@@ -608,6 +620,13 @@
      &   'Processing checkpointing NetCDF for GST analysis.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+15)=' CHECKPOINTING,'
+#endif
+#if defined CLIMA_TS_MIX && defined SOLVE3D && \
+   (defined TS_DIF2      || defined TS_DIF4)
+      IF (Master) WRITE (stdout,20) 'CLIMA_TS_MIX',                     &
+     &   'Horizontal diffusion of tracer perturbation (T-Tclm).'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+14)=' CLIMA_TS_MIX,'
 #endif
 #if defined GLS_MIXING && defined CRAIG_BANNER
       IF (Master) WRITE (stdout,20) 'CRAIG_BANNER',                     &
@@ -1110,6 +1129,18 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+16)=' IMPLICIT_VCONV,'
 #endif
+#if defined NPZD_IRON && defined IRON_LIMIT
+      IF (Master) WRITE (stdout,20) 'IRON_LIMIT',                       &
+     &   'Include dissolved iron limitation on phytoplankton growth.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+12)=' IRON_LIMIT,'
+#endif
+#if defined NPZD_IRON && defined IRON_LIMIT && defined IRON_RELAX
+      IF (Master) WRITE (stdout,20) 'IRON_RELAX',                       &
+     &   'Nudge dissolved iron over the shelf, h <= FeHmin.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+12)=' IRON_RELAX,'
+#endif
 #ifdef IOM
       IF (Master) WRITE (stdout,20) 'IOM',                              &
      &   'IOM Multiple Executable interface.'
@@ -1581,6 +1612,13 @@
       Coptions(is:is+13)=' NPZD_FRANKS,'
       ibiology=ibiology+1
 #endif
+#ifdef NPZD_IRON 
+      IF (Master) WRITE (stdout,20) 'NPZD_IRON',                        &
+     &   'NPZD Biological Model (Powell et al.) with iron limitation'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+11)=' NPZD_IRON,'
+      ibiology=ibiology+1
+#endif
 #ifdef NPZD_POWELL
       IF (Master) WRITE (stdout,20) 'NPZD_POWELL',                      &
      &   'NPZD Biological Model, Powell et al. fomulation.'
@@ -1645,6 +1683,12 @@
      &   'Processing 4DVar observations.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+13)=' OBSERVATIONS,'
+#endif
+#ifdef OBS_IMPACT
+      IF (Master) WRITE (stdout,20) 'OBS_IMPACT',                       &
+     &   'Compute observation impact to the 4DVAR system.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+12)=' OBS_IMPACT,'
 #endif
 #ifdef OBS_SENSITIVITY
       IF (Master) WRITE (stdout,20) 'OBS_SENSITIVITY',                  &
@@ -1756,6 +1800,12 @@
      &   'Add tidal potential terms to the forcing.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+11)=' POT_TIDES,'
+#endif
+#if defined POSTERIOR_EOFS && defined WEAK_CONSTRAINT
+      IF (Master) WRITE (stdout,20) 'POSTERIOR_EOFS',                   &
+     &   'Estimating posterior analysis error covariace matrix.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+16)=' POSTERIOR_EOFS,'
 #endif
 #if defined POWER_LAW && defined SOLVE3D
       IF (Master) WRITE (stdout,20) 'POWER_LAW',                        &

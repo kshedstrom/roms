@@ -1,6 +1,6 @@
       SUBROUTINE biology (ng,tile)
 !
-!svn $Id: npzd_Powell.h 975 2009-05-05 22:51:13Z kate $
+!svn $Id: npzd_Powell.h 1013 2009-07-07 21:21:23Z kate $
 !************************************************** Hernan G. Arango ***
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group        Craig V. Lewis   !
 !    Licensed under a MIT/X style license                              !
@@ -127,7 +127,7 @@
 
       real(r8), parameter :: MinVal = 1.0e-6_r8
 
-      real(r8) :: Att, PAR
+      real(r8) :: Att, ExpAtt, Itop, PAR
       real(r8) :: cff, cff1, cff2, cff3, cff4, dtdays
       real(r8) :: cffL, cffR, cu, dltL, dltR
 
@@ -320,18 +320,21 @@
             IF (PARsur(i).gt.0.0_r8) THEN              ! day time
               DO k=N(ng),1,-1
 !
-!  Attenuate the light to the center of the grid cell. Here, AttSW is
+!  Compute average light attenuation for each grid cell. Here, AttSW is
 !  the light attenuation due to seawater and AttPhy is the attenuation
 !  due to phytoplankton (self-shading coefficient).
 !
-                Att=EXP(-0.5_r8*(AttSW(ng)+AttPhy(ng)*Bio(i,k,iPhyt))*  &
-     &                  (z_w(i,j,k)-z_w(i,j,k-1)))
-                PAR=PAR*Att
+                Att=(AttSW(ng)+AttPhy(ng)*Bio(i,k,iPhyt))*              &
+     &              (z_w(i,j,k)-z_w(i,j,k-1))
+                ExpAtt=EXP(-Att)
+                Itop=PAR
+                PAR=Itop*(1.0_r8-ExpAtt)/Att    ! average at cell center
                 Light(i,k)=PAR
 !
-!  Attenuate the light to the bottom of the grid cell.
+!  Light attenuation at the bottom of the grid cell. It is the starting
+!  PAR value for the next (deeper) vertical grid cell.
 !
-                PAR=PAR*Att
+                PAR=Itop*ExpAtt
               END DO
             ELSE                                       ! night time
               DO k=1,N(ng)

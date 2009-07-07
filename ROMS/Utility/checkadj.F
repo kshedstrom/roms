@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       SUBROUTINE checkadj
 !
-!svn $Id: checkadj.F 989 2009-05-26 22:46:51Z kate $
+!svn $Id: checkadj.F 1012 2009-07-07 20:52:45Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -150,6 +150,13 @@
       END IF
 
       string=uppercase('bvf_mixing')
+      ifound=INDEX(TRIM(Coptions), TRIM(string))
+      IF (ifound.ne.0) THEN
+        ic=ic+1
+        IF (Master) WRITE(stdout,20) TRIM(string), 'not coded'
+      END IF
+
+      string=uppercase('clima_ts_mix')
       ifound=INDEX(TRIM(Coptions), TRIM(string))
       IF (ifound.ne.0) THEN
         ic=ic+1

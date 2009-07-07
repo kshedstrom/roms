@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       MODULE mod_scalars
 !
-!svn $Id: mod_scalars.F 999 2009-06-09 23:48:31Z kate $
+!svn $Id: mod_scalars.F 1013 2009-07-07 21:21:23Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -84,6 +84,17 @@
         integer :: iPhyt              ! Phytoplankton concentration
         integer :: iZoop              ! Zooplankton concentration
         integer :: iSDet              ! Small detritus concentration
+#endif
+#ifdef NPZD_IRON
+        integer, pointer :: idbio(:)  ! Biological tracers
+        integer :: iNO3_              ! Nitrate concentration
+        integer :: iPhyt              ! Phytoplankton concentration
+        integer :: iZoop              ! Zooplankton concentration
+        integer :: iSDet              ! Small detritus concentration
+# ifdef IRON_LIMIT
+        integer :: iFphy              ! Phytoplankton-associated iron
+        integer :: iFdis              ! Available disolved iron
+# endif
 #endif
 #ifdef BIO_FENNEL
         integer, pointer :: idbio(:)  ! Biological tracers
@@ -2145,6 +2156,24 @@
       iZoop=ic+3
       iSDet=ic+4
       ic=ic+4
+#elif defined NPZD_IRON
+!
+!  Set NPZD with iron limitation biological tracer indices.
+!
+      DO i=1,NBT
+        idbio(i)=ic+i
+      END DO
+      iNO3_=ic+1
+      iPhyt=ic+2
+      iZoop=ic+3
+      iSDet=ic+4
+# ifdef IRON_LIMIT
+      iFphy=ic+5
+      iFdis=ic+6
+      ic=ic+6
+# else
+      ic=ic+4
+# endif
 #elif defined ECOSIM
 !
 !  Set bio-optical tracer indices.

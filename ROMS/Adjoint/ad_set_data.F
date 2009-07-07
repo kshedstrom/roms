@@ -2,7 +2,7 @@
 #ifdef ADJOINT
       SUBROUTINE ad_set_data (ng, tile)
 !
-!svn $Id: ad_set_data.F 999 2009-06-09 23:48:31Z kate $
+!svn $Id: ad_set_data.F 1012 2009-07-07 20:52:45Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -1559,27 +1559,6 @@
 #  ifdef SENSITIVITY_4DVAR
       END IF
 #  endif
-# endif
-
-# ifdef ADJUST_BOUNDARY
-!
-!-----------------------------------------------------------------------
-!  Clear adjoint open boundary conditions arrays for IO purposes at
-!  every time-step. Otherwise, their cumulative values will be written
-!  instead of instantaneous values.
-!-----------------------------------------------------------------------
-!
-      IF (NORTH_EAST_TEST) THEN
-#  ifdef SOLVE3D
-        BOUNDARY(ng) % ad_t_obc = 0.0_r8
-        BOUNDARY(ng) % ad_u_obc = 0.0_r8
-        BOUNDARY(ng) % ad_v_obc = 0.0_r8
-#  else
-        BOUNDARY(ng) % ad_ubar_obc = 0.0_r8
-        BOUNDARY(ng) % ad_vbar_obc = 0.0_r8
-#  endif
-        BOUNDARY(ng) % ad_zeta_obc = 0.0_r8
-      END IF
 # endif
 
 # if defined ADJUST_STFLUX    || defined ADJUST_WSTRESS    || \

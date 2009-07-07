@@ -2,7 +2,7 @@
 #if defined FLOATS || defined STATIONS
        SUBROUTINE grid_coords (ng, model)
 !
-!svn $Id: grid_coords.F 1003 2009-06-19 23:52:29Z kate $
+!svn $Id: grid_coords.F 1012 2009-07-07 20:52:45Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -147,8 +147,8 @@
 !-----------------------------------------------------------------------
 !
       DO l=1,Nfloats(ng)
-#  ifdef SOLVE3D
         IF (Lfloats(ng)) THEN
+#  ifdef SOLVE3D
           FLT(ng)%Fz0(l)=spv
           IF (MyThread(l)) THEN
             zfloat=FLT(ng)%Tinfo(izgrd,l)

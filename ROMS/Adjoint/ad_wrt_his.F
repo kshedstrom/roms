@@ -2,7 +2,7 @@
 #ifdef ADJOINT
       SUBROUTINE ad_wrt_his (ng)
 !
-!svn $Id: ad_wrt_his.F 999 2009-06-09 23:48:31Z kate $
+!svn $Id: ad_wrt_his.F 1012 2009-07-07 20:52:45Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -318,7 +318,7 @@
      &                          tADJindx(ng), r2dvar,                   &
      &                          LBij, UBij, Nbrec(ng), scale,           &
      &                          BOUNDARY(ng) % ad_zeta_obc(LBij:,:,:,   &
-     &                                                     kout))
+     &                                                     Lbout(ng)))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
             WRITE (stdout,10) TRIM(Vname(1,idSbry(isFsur))),            &
@@ -403,7 +403,7 @@
      &                          tADJindx(ng), u2dvar,                   &
      &                          LBij, UBij, Nbrec(ng), scale,           &
      &                          BOUNDARY(ng) % ad_ubar_obc(LBij:,:,:,   &
-     &                                                     kout))
+     &                                                     Lbout(ng)))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
             WRITE (stdout,10) TRIM(Vname(1,idSbry(isUbar))),            &
@@ -488,7 +488,7 @@
      &                          tADJindx(ng), v2dvar,                   &
      &                          LBij, UBij, Nbrec(ng), scale,           &
      &                          BOUNDARY(ng) % ad_vbar_obc(LBij:,:,:,   &
-     &                                                     kout))
+     &                                                     Lbout(ng)))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
             WRITE (stdout,10) TRIM(Vname(1,idSbry(isVbar))),            &
@@ -561,7 +561,7 @@
      &                          tADJindx(ng), u3dvar,                   &
      &                          LBij, UBij, 1, N(ng), Nbrec(ng), scale, &
      &                          BOUNDARY(ng) % ad_u_obc(LBij:,:,:,:,    &
-     &                                                  nout))
+     &                                                  Lbout(ng)))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
             WRITE (stdout,10) TRIM(Vname(1,idSbry(isUvel))),            &
@@ -632,7 +632,7 @@
      &                          tADJindx(ng), v3dvar,                   &
      &                          LBij, UBij, 1, N(ng), Nbrec(ng), scale, &
      &                          BOUNDARY(ng) % ad_v_obc(LBij:,:,:,:,    &
-     &                                                  nout))
+     &                                                  Lbout(ng)))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
             WRITE (stdout,10) TRIM(Vname(1,idSbry(isVvel))),            &
@@ -709,7 +709,7 @@
      &                            LBij, UBij, 1, N(ng), Nbrec(ng),      &
      &                            scale,                                &
      &                            BOUNDARY(ng) % ad_t_obc(LBij:,:,:,:,  &
-     &                                                    nout,itrc))
+     &                                                 Lbout(ng),itrc))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
               WRITE (stdout,10) TRIM(Vname(1,idSbry(isTvar(itrc)))),    &

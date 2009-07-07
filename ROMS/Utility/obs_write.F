@@ -2,7 +2,7 @@
 #if (defined FOUR_DVAR || defined VERIFICATION) && defined OBSERVATIONS
       SUBROUTINE obs_write (ng, tile, model)
 !
-!svn $Id: obs_write.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: obs_write.F 1012 2009-07-07 20:52:45Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -352,7 +352,7 @@
      &                        ObsType, ObsScale,                        &
      &                        Tobs, Xobs, Yobs, Zobs,                   &
      &                        OCEAN(ng)%tl_v(:,:,:,NOUT),               &
-     &                        GRID(ng)%z_r,                             &
+     &                        GRID(ng)%z_v,                             &
 #   ifdef MASKING
      &                        GRID(ng)%vmask,                           &
 #   endif
@@ -414,7 +414,7 @@
 !-----------------------------------------------------------------------
 !
         DO iobs=Mstr,Mend
-          TLmodVal(iobs)=TLmodVal(iobs)*ObsErr(iobs)
+          TLmodVal(iobs)=ObsScale(iobs)*TLmodVal(iobs)*ObsErr(iobs)
         END DO
 # endif
 
