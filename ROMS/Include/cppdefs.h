@@ -586,7 +586,10 @@
 ** BIO_UMAINE          use if Chai et al. (2002) CoSINE model                **
 ** BIO_GOANPZ          use if Coyle et al. Gulf of Alaska model              **
 ** NPZD_FRANKS         use if NPZD Biology model, Franks et al. (1986)       **
+** NPZD_IRON           use if NPZD Biology model wiht iron limitation        **
 ** NPZD_POWELL         use if NPZD Biology model, Powell et al. (2006)       **
+** IRON_LIMIT          use if Fe limitation on phytoplankton growth          **
+** IRON_RELAX          use if nudging Fe over the shelf, h <= FeHmin         **
 **                                                                           **
 ** Bio-optical EcoSim model OPTIONS:                                         **
 **                                                                           **

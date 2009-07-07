@@ -29,6 +29,8 @@
 !!#  include <tl_UMAINE.h>
 # elif defined NPZD_FRANKS
 #  include <tl_npzd_Franks.h>
+# elif defined NPZD_IRON
+#  include <tl_npzd_iron.h>
 # elif defined NPZD_POWELL
 #  include <tl_npzd_Powell.h>
 # endif
