@@ -21,7 +21,7 @@
 #  define JV_RANGE Jstr,JendR
 # endif
 !
-!svn $Id: ad_convolution.F 999 2009-06-09 23:48:31Z kate $
+!svn $Id: ad_convolution.F 1012 2009-07-07 20:52:45Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
@@ -658,11 +658,11 @@
               END IF
             END IF
 #  ifdef DISTRIBUTE
-            CALL mp_exchange2d_bry (ng, tile, iADM, 1, ib,              &
-     &                              LBij, UBij,                         &
-     &                              NghostPoints,                       &
-     &                              EWperiodic, NSperiodic,             &
-     &                              ad_zeta_obc(:,ib,ir,Linp))
+            CALL ad_mp_exchange2d_bry (ng, tile, iADM, 1, ib,           &
+     &                                 LBij, UBij,                      &
+     &                                 NghostPoints,                    &
+     &                                 EWperiodic, NSperiodic,          &
+     &                                 ad_zeta_obc(:,ib,ir,Linp))
 #  endif
           END IF
         END DO

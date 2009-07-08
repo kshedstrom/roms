@@ -24,14 +24,16 @@
 #  include <bestnpz.h>
 # elif defined BIO_FENNEL
 #  include <fennel.h>
+# elif defined ECOSIM
+#  include <ecosim.h>
 # elif defined NEMURO
 #  include <nemuro.h>
 # elif defined NPZD_FRANKS
 #  include <npzd_Franks.h>
+# elif defined NPZD_IRON
+#  include <npzd_iron.h>
 # elif defined NPZD_POWELL
 #  include <npzd_Powell.h>
-# elif defined ECOSIM
-#  include <ecosim.h>
 # elif defined BIO_UMAINE
 #  include <bio_UMAINE.h>
 # elif defined BIO_GOANPZ

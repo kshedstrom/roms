@@ -1,6 +1,6 @@
       SUBROUTINE ad_biology (ng,tile)
 !
-!svn $Id: ad_npzd_Powell.h 975 2009-05-05 22:51:13Z kate $
+!svn $Id: ad_npzd_Powell.h 1013 2009-07-07 21:21:23Z kate $
 !************************************************** Hernan G. Arango ***
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
@@ -143,8 +143,8 @@
 
       real(r8), parameter :: MinVal = 1.0e-6_r8
 
-      real(r8) :: Att, PAR, PAR1, PAR2
-      real(r8) :: ad_Att, ad_PAR
+      real(r8) :: Att, ExpAtt, Itop, PAR
+      real(r8) :: ad_Att, ad_ExpAtt, ad_Itop, ad_PAR
       real(r8) :: cff, cff1, cff2, cff3, cff4, dtdays
       real(r8) :: ad_cff, ad_cff1, ad_cff4
       real(r8) :: cffL, cffR, cu, dltL, dltR
@@ -206,7 +206,7 @@
 !
 !  Set vertical sinking indentification vector.
 !
-      idsink(1)=iphyt                 ! Phytoplankton
+      idsink(1)=iPhyt                 ! Phytoplankton
       idsink(2)=iSdet                 ! Small detritus
 !
 !  Set vertical sinking velocity vector in the same order as the
@@ -224,8 +224,10 @@
 !  Initialize adjoint private variables.
 !-----------------------------------------------------------------------
 !
-        ad_PAR=0.0_r8
         ad_Att=0.0_r8
+        ad_ExpAtt=0.0_r8
+        ad_Itop=0.0_r8
+        ad_PAR=0.0_r8
         ad_dltL=0.0_r8
         ad_dltR=0.0_r8
         ad_cu=0.0_r8
@@ -436,18 +438,21 @@
             IF (PARsur(i).gt.0.0_r8) THEN              ! day time
               DO k=N(ng),1,-1
 !
-!  Attenuate the light to the center of the grid cell. Here, AttSW is
+!  Compute average light attenuation for each grid cell. Here, AttSW is
 !  the light attenuation due to seawater and AttPhy is the attenuation
 !  due to phytoplankton (self-shading coefficient).
 !
-                Att=EXP(-0.5_r8*(AttSW(ng)+AttPhy(ng)*Bio(i,k,iPhyt))*  &
-     &                  (z_w(i,j,k)-z_w(i,j,k-1)))
-                PAR=PAR*Att
+                Att=(AttSW(ng)+AttPhy(ng)*Bio(i,k,iPhyt))*              &
+     &              (z_w(i,j,k)-z_w(i,j,k-1))
+                ExpAtt=EXP(-Att)
+                Itop=PAR
+                PAR=Itop*(1.0_r8-ExpAtt)/Att    ! average at cell center
                 Light(i,k)=PAR
 !
-!  Attenuate the light to the bottom of the grid cell.
+!  Light attenuation at the bottom of the grid cell. It is the starting
+!  PAR value for the next (deeper) vertical grid cell.
 !
-                PAR=PAR*Att
+                PAR=Itop*ExpAtt
               END DO
             ELSE                                       ! night time
               DO k=1,N(ng)
@@ -879,19 +884,21 @@
               IF (PARsur(i).gt.0.0_r8) THEN            ! day time
                 DO k=N(ng),1,-1
 !
-!  Attenuate the light to the center of the grid cell. Here, AttSW is
+!  Compute average light attenuation for each grid cell. Here, AttSW is
 !  the light attenuation due to seawater and AttPhy is the attenuation
 !  due to phytoplankton (self-shading coefficient).
 !
-                  Att=EXP(-0.5_r8*(AttSW(ng)+                           &
-     &                             AttPhy(ng)*Bio(i,k,iPhyt))*          &
-     &                            (z_w(i,j,k)-z_w(i,j,k-1)))
-                  PAR=PAR*Att
+                  Att=(AttSW(ng)+AttPhy(ng)*Bio(i,k,iPhyt))*            &
+     &                (z_w(i,j,k)-z_w(i,j,k-1))
+                  ExpAtt=EXP(-Att)
+                  Itop=PAR
+                  PAR=Itop*(1.0_r8-ExpAtt)/Att  ! average at cell center
                   Light(i,k)=PAR
 !
-!  Attenuate the light to the bottom of the grid cell.
+!  Light attenuation at the bottom of the grid cell. It is the starting
+!  PAR value for the next (deeper) vertical grid cell.
 !
-                  PAR=PAR*Att
+                  PAR=Itop*ExpAtt
                 END DO
               ELSE                                     ! night time
                 DO k=1,N(ng)
@@ -2057,19 +2064,21 @@
               IF (PARsur(i).gt.0.0_r8) THEN            ! day time
                 DO k=N(ng),1,-1
 !
-!  Attenuate the light to the center of the grid cell. Here, AttSW is
+!  Compute average light attenuation for each grid cell. Here, AttSW is
 !  the light attenuation due to seawater and AttPhy is the attenuation
 !  due to phytoplankton (self-shading coefficient).
 !
-                  Att=EXP(-0.5_r8*(AttSW(ng)+                           &
-     &                             AttPhy(ng)*Bio(i,k,iPhyt))*          &
-     &                            (z_w(i,j,k)-z_w(i,j,k-1)))
-                  PAR=PAR*Att
+                  Att=(AttSW(ng)+AttPhy(ng)*Bio(i,k,iPhyt))*            &
+     &                (z_w(i,j,k)-z_w(i,j,k-1))
+                  ExpAtt=EXP(-Att)
+                  Itop=PAR
+                  PAR=Itop*(1.0_r8-ExpAtt)/Att  ! average at cell center
                   Light(i,k)=PAR
 !
-!  Attenuate the light to the bottom of the grid cell.
+!  Light attenuation at the bottom of the grid cell. It is the starting
+!  PAR value for the next (deeper) vertical grid cell.
 !
-                  PAR=PAR*Att
+                  PAR=Itop*ExpAtt
                 END DO
               ELSE                                     ! night time
                 DO k=1,N(ng)
@@ -2445,7 +2454,7 @@
 !>   &                          ZooEED(ng)*(tl_Bio(i,k,iPhyt)*cff+      &
 !>   &                                      Bio(i,k,iPhyt)*tl_cff)
 !>
-              ad_cff=ZooEED(ng)*Bio(i,k,iPhyt)*ad_Bio(i,k,iSDet)
+              ad_cff=ad_cff+ZooEED(ng)*Bio(i,k,iPhyt)*ad_Bio(i,k,iSDet)
               ad_Bio(i,k,iPhyt)=ad_Bio(i,k,iPhyt)+                      &
      &                          ZooEED(ng)*cff*ad_Bio(i,k,iSDet)
 !>            tl_Bio(i,k,iNO3_)=tl_Bio(i,k,iNO3_)+                      &
@@ -2574,19 +2583,21 @@
               IF (PARsur(i).gt.0.0_r8) THEN            ! day time
                 DO k=N(ng),1,-1
 !
-!  Attenuate the light to the center of the grid cell. Here, AttSW is
+!  Compute average light attenuation for each grid cell. Here, AttSW is
 !  the light attenuation due to seawater and AttPhy is the attenuation
 !  due to phytoplankton (self-shading coefficient).
 !
-                  Att=EXP(-0.5_r8*(AttSW(ng)+                           &
-     &                             AttPhy(ng)*Bio(i,k,iPhyt))*          &
-     &                            (z_w(i,j,k)-z_w(i,j,k-1)))
-                  PAR=PAR*Att
+                  Att=(AttSW(ng)+AttPhy(ng)*Bio(i,k,iPhyt))*            &
+     &                (z_w(i,j,k)-z_w(i,j,k-1))
+                  ExpAtt=EXP(-Att)
+                  Itop=PAR
+                  PAR=Itop*(1.0_r8-ExpAtt)/Att  ! average at cell center
                   Light(i,k)=PAR
 !
-!  Attenuate the light to the bottom of the grid cell.
+!  Light attenuation at the bottom of the grid cell. It is the starting
+!  PAR value for the next (deeper) vertical grid cell.
 !
-                  PAR=PAR*Att
+                  PAR=Itop*ExpAtt
                 END DO
               ELSE                                     ! night time
                 DO k=1,N(ng)
@@ -2909,7 +2920,7 @@
 !>   &                          tl_Bio(i,k,iNO3_)*cff+                  &
 !>   &                          Bio(i,k,iNO3_)*tl_cff
 !>
-              ad_cff=Bio(i,k,iNO3_)*ad_Bio(i,k,iPhyt)
+              ad_cff=ad_cff+Bio(i,k,iNO3_)*ad_Bio(i,k,iPhyt)
               ad_Bio(i,k,iNO3_)=ad_Bio(i,k,iNO3_)+                      &
      &                          cff*ad_Bio(i,k,iPhyt)
 !>            tl_Bio(i,k,iNO3_)=(tl_Bio(i,k,iNO3_)-                     &
@@ -2972,57 +2983,67 @@
                 PAR=PARsur(i)
                 DO kk=N(ng),k,-1
 !
-!  Attenuate the light to the center of the grid cell. Here, AttSW is
+!  Compute average light attenuation for each grid cell. Here, AttSW is
 !  the light attenuation due to seawater and AttPhy is the attenuation
 !  due to phytoplankton (self-shading coefficient).
 !
-                  Att=EXP(-0.5_r8*(AttSW(ng)+                           &
-     &                             AttPhy(ng)*Bio1(i,kk,iPhyt))*        &
-     &                            (z_w(i,j,kk)-z_w(i,j,kk-1)))
-                  PAR1=PAR
-                  PAR=PAR*Att
+                  Att=(AttSW(ng)+AttPhy(ng)*Bio1(i,kk,iPhyt))*          &
+     &                (z_w(i,j,kk)-z_w(i,j,kk-1))
+                  ExpAtt=EXP(-Att)
+                  Itop=PAR
+                  PAR=Itop*(1.0_r8-ExpAtt)/Att  ! average at cell center
 !
-!  Attenuate the light to the bottom of the grid cell.
+!  Light attenuation at the bottom of the grid cell. It is the starting
+!  PAR value for the next (deeper) vertical grid cell.
 !
-                  PAR2=PAR
-                  PAR=PAR*Att
+                  PAR=Itop*ExpAtt
                 END DO
-
 !
-! Adjoint attenuation of the light to the bottom of the grid cell.
+!  Adjoint of light attenuation at the bottom of the grid cell. It is
+!  the starting PAR value for the next (deeper) vertical grid cell.
 !
-!>              tl_PAR=tl_PAR*Att+PAR2*tl_Att
+!>              tl_PAR=tl_Itop*ExpAtt+Itop*tl_ExpAtt
 !>
-                ad_Att=ad_Att+PAR2*ad_PAR
-                ad_PAR=ad_PAR*Att
-
+                ad_ExpAtt=ad_ExpAtt+Itop*ad_PAR
+                ad_Itop=ad_Itop+ExpAtt*ad_PAR
 !
-!  Attenuate the light to the center of the grid cell. Here, AttSW is
-!  the light attenuation due to seawater and AttPhy is the attenuation
-!  due to phytoplankton (self-shading coefficient).
+!  Adjoint of compute average light attenuation for each grid cell.
+!  Here, AttSW is the light attenuation due to seawater and AttPhy is
+!  the attenuation due to phytoplankton (self-shading coefficient).
 !
 !>              tl_Light(i,k)=tl_PAR
 !>
                 ad_PAR=ad_PAR+ad_Light(i,k)
                 ad_Light(i,k)=0.0_r8
-
-!>              tl_PAR=tl_PAR*Att+PAR1*tl_Att
+!>              tl_PAR=(Itop*(1.0_r8-ExpAtt)*tl_Att-                    &
+!>   &                  Att*(tl_Itop*(1.0_r8-ExpAtt)-Itop*tl_ExpAtt))/  &
+!>   &                 (Att*Att)
 !>
-                ad_Att=ad_Att+PAR1*ad_PAR
-                ad_PAR=ad_PAR*Att
-!>              tl_Att=-Att*0.5_r8*                                     &
-!>   &                 (AttPhy(ng)*tl_Bio(i,k,iPhyt)*                   &
-!>   &                  (z_w(i,j,k)-z_w(i,j,k-1))+                      &
-!>   &                  (AttSW(ng)+AttPhy(ng)*Bio1(i,k,iPhyt))*         &
-!>   &                  (tl_z_w(i,j,k)-tl_z_w(i,j,k-1)))
+                adfac=ad_PAR/(Att*Att)
+                adfac1=adfac*Att
+                ad_Att=ad_Att+Itop*(1.0_r8-ExpAtt)*adfac
+                ad_ExpAtt=ad_ExpAtt+Itop*adfac1
+                ad_Itop=ad_Itop+(1.0_r8-ExpAtt)*adfac1
+                ad_PAR=0.0_r8
+!>              tl_Itop=tl_PAR
 !>
-                adfac=-Att*0.5_r8*                                      &
-     &                (AttSW(ng)+AttPhy(ng)*Bio1(i,k,iPhyt))*ad_Att
-                ad_Bio(i,k,iPhyt)=ad_Bio(i,k,iPhyt)-                    &
-     &                            Att*0.5_r8*AttPhy(ng)*                &
-     &                            ad_Att*(z_w(i,j,k)-z_w(i,j,k-1))
-                ad_z_w(i,j,k)=ad_z_w(i,j,k)+adfac
+                ad_PAR=ad_PAR+ad_Itop
+                ad_Itop=0.0_r8
+!>              tl_ExpAtt=-ExpAtt*tl_Att
+!>
+                ad_Att=ad_Att-ExpAtt*ad_ExpAtt
+                ad_ExpAtt=0.0_r8
+!>              tl_Att=AttPhy(ng)*tl_Bio(i,k,iPhyt)*                    &
+!>   &                 (z_w(i,j,k)-z_w(i,j,k-1))+                       &
+!>   &                 (AttSW(ng)+AttPhy(ng)*Bio1(i,k,iPhyt))*          &
+!>   &                 (tl_z_w(i,j,k)-tl_z_w(i,j,k-1))
+!>
+                adfac=(AttSW(ng)+AttPhy(ng)*Bio1(i,k,iPhyt))*ad_Att
+                ad_Bio(i,k,iPhyt)=ad_Bio(i,k,iPhyt)+                    &
+     &                            AttPhy(ng)*(z_w(i,j,k)-z_w(i,j,k-1))* &
+     &                            ad_Att
                 ad_z_w(i,j,k-1)=ad_z_w(i,j,k-1)-adfac
+                ad_z_w(i,j,k  )=ad_z_w(i,j,k  )+adfac
                 ad_Att=0.0_r8
               END DO
             ELSE                                       ! night time

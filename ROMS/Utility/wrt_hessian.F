@@ -1,8 +1,9 @@
 #include "cppdefs.h"
-#if defined IS4DVAR
+#if defined IS4DVAR        || \
+   (defined POSTERIOR_EOFS && defined WEAK_CONSTRAINT )
       SUBROUTINE wrt_hessian (ng, kout, nout)
 !
-!svn $Id: wrt_hessian.F 999 2009-06-09 23:48:31Z kate $
+!svn $Id: wrt_hessian.F 1012 2009-07-07 20:52:45Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -392,7 +393,7 @@
 #   ifdef MASKING
      &                       GRID(ng) % rmask,                          &
 #   endif
-     &                       FORCES(ng) % ad_tflux(:,:,:,nout,itrc))
+     &                       FORCES(ng) % ad_tflux(:,:,:,kout,itrc))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
               WRITE (stdout,10) TRIM(Vname(1,idTsur(itrc))),            &

@@ -12,7 +12,7 @@
 
       SUBROUTINE t3dmix4 (ng, tile)
 !
-!svn $Id: t3dmix4_s.h 975 2009-05-05 22:51:13Z kate $
+!svn $Id: t3dmix4_s.h 1012 2009-07-07 20:52:45Z kate $
 !***********************************************************************
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -25,6 +25,9 @@
 !***********************************************************************
 !
       USE mod_param
+#ifdef CLIMA_TS_MIX
+      USE mod_clima
+#endif
 #ifdef DIAGNOSTICS_TS
       USE mod_diags
 #endif
@@ -67,6 +70,9 @@
 #else
      &                   MIXING(ng) % diff4,                            &
 #endif
+#ifdef CLIMA_TS_MIX
+     &                   CLIMA(ng) % tclm,                              &
+#endif
 #ifdef DIAGNOSTICS_TS
      &                   DIAGS(ng) % DiaTwrk,                           &
 #endif
@@ -94,6 +100,9 @@
 # endif
 #else
      &                         diff4,                                   &
+#endif
+#ifdef CLIMA_TS_MIX
+     &                         tclm,                                    &
 #endif
 #ifdef DIAGNOSTICS_TS
      &                         DiaTwrk,                                 &
@@ -131,6 +140,9 @@
       real(r8), intent(in) :: pnom_v(LBi:,LBj:)
       real(r8), intent(in) :: pm(LBi:,LBj:)
       real(r8), intent(in) :: pn(LBi:,LBj:)
+# ifdef CLIMA_TS_MIX
+      real(r8), intent(in) :: tclm(LBi:,LBj:,:,:)
+# endif
 # ifdef DIAGNOSTICS_TS
       real(r8), intent(inout) :: DiaTwrk(LBi:,LBj:,:,:,:)
 # endif
@@ -155,6 +167,9 @@
       real(r8), intent(in) :: pnom_v(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: pm(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: pn(LBi:UBi,LBj:UBj)
+# ifdef CLIMA_TS_MIX
+      real(r8), intent(in) :: tclm(LBi:UBi,LBj:UBj,N(ng),NT(ng))
+# endif
 # ifdef DIAGNOSTICS_TS
       real(r8), intent(inout) :: DiaTwrk(LBi:UBi,LBj:UBj,N(ng),NT(ng),  &
      &                                   NDT)
@@ -216,6 +231,9 @@
      &                          t(i-1,j,k,nrhs,itrc))+                  &
      &                 0.25_r8*(t(i  ,j,k,nstp,itrc)-                   &
      &                          t(i-1,j,k,nstp,itrc)))
+#elif defined CLIMA_TS_MIX
+     &                ((t(i  ,j,k,nrhs,itrc)-tclm(i  ,j,k,itrc))-       &
+     &                 (t(i-1,j,k,nrhs,itrc)-tclm(i-1,j,k,itrc)))
 #else
      &                (t(i  ,j,k,nrhs,itrc)-                            &
      &                 t(i-1,j,k,nrhs,itrc))
@@ -244,6 +262,9 @@
      &                          t(i,j-1,k,nrhs,itrc))+                  &
      &                 0.25_r8*(t(i,j  ,k,nstp,itrc)-                   &
      &                          t(i,j-1,k,nstp,itrc)))
+#elif defined CLIMA_TS_MIX
+     &                ((t(i,j  ,k,nrhs,itrc)-tclm(i,j  ,k,itrc))-       &
+     &                 (t(i,j-1,k,nrhs,itrc)-tclm(i,j-1,k,itrc)))
 #else
      &                (t(i,j  ,k,nrhs,itrc)-                            &
      &                 t(i,j-1,k,nrhs,itrc))

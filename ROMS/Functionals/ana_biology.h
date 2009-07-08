@@ -1,6 +1,6 @@
       SUBROUTINE ana_biology (ng, tile, model)
 !
-!! svn $Id: ana_biology.h 1000 2009-06-09 23:55:44Z kate $
+!! svn $Id: ana_biology.h 1013 2009-07-07 21:21:23Z kate $
 !!======================================================================
 !! Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !!   Licensed under a MIT/X style license                              !
@@ -439,6 +439,28 @@
             t(i,j,k,1,iSDet)=BioIni(iSDet,ng)
           END DO
         END DO
+      END DO
+
+#elif defined NPZD_IRON
+!
+!-----------------------------------------------------------------------
+!  NPZD biology model with or without iron limitation on phytoplankton
+!  growth.
+!-----------------------------------------------------------------------
+!
+      DO k=1,N(ng)
+        DO j=JstrR,JendR
+          DO i=IstrR,IendR
+            t(i,j,k,1,iNO3_)=BioIni(iNO3_,ng)
+            t(i,j,k,1,iPhyt)=BioIni(iPhyt,ng)
+            t(i,j,k,1,iZoop)=BioIni(iZoop,ng)
+            t(i,j,k,1,iSDet)=BioIni(iSDet,ng)
+# ifdef IRON_LIMIT
+            t(i,j,k,1,iFphy)=BioIni(iFphy,ng) 
+            t(i,j,k,1,iFdis)=BioIni(iFdis,ng)
+# endif
+          END DO
+        END DO 
       END DO
 
 #elif defined ECOSIM
