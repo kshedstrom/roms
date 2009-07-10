@@ -280,6 +280,7 @@
       Fwrk=RESHAPE(track,(/Npts/))
       CALL mp_collect (ng, iNLM, Npts, Fspv, Fwrk)
       track=RESHAPE(Fwrk,(/NFV(ng),NFT+1,Nfloats(ng)/))
+# endif
 !
       RETURN
       END SUBROUTINE step_floats_tile
