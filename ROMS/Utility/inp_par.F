@@ -4075,7 +4075,9 @@
         END IF
       END IF
 
-#if defined POSTERIOR_EOFS && defined WEAK_CONSTRAINT
+#if defined WEAK_CONSTRAINT   && \
+   (defined POSTERIOR_EOFS    || defined POSTERIOR_ERROR_F || \
+    defined POSTERIOR_ERROR_I)  
 !
 !-----------------------------------------------------------------------
 !  If weak constraint and estimating posterior analysis error
@@ -10386,6 +10388,11 @@
               MODname(Nval)(i:i)=blank
             END DO
             MODname(Nval)=TRIM(ADJUSTL(Cval(Nval)))
+          ELSE IF (TRIM(KeyWord).eq.'ERRname') THEN
+            DO i=1,LEN(ERRname(Nval))
+              ERRname(Nval)(i:i)=blank
+            END DO
+            ERRname(Nval)=TRIM(ADJUSTL(Cval(Nval)))
           END IF
         END IF
       END DO
@@ -10876,6 +10883,11 @@
 #  else
           WRITE (out,160) '            Output 4DVAR File:  ',           &
      &                    TRIM(MODname(ng))
+#  endif
+#  if defined WEAK_CONSTRAINT   && \
+     (defined POSTERIOR_ERROR_F || defined POSTERIOR_ERROR_I)
+          WRITE (out,160) '  Output Posterior Error File:  ',           &
+     &                    TRIM(ERRname(ng))
 #  endif
           GO TO 40
   30      WRITE (out,200) TRIM(fname)

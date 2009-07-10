@@ -1,6 +1,8 @@
 #include "cppdefs.h"
-#if defined IS4DVAR        || \
-   (defined POSTERIOR_EOFS && defined WEAK_CONSTRAINT )
+#if defined IS4DVAR              || \
+    (defined WEAK_CONSTRAINT     && \
+     (defined POSTERIOR_EOFS     || defined POSTERIOR_ERROR_I ||\
+      defined POSTERIOR_ERROR_F))
       SUBROUTINE wrt_hessian (ng, kout, nout)
 !
 !svn $Id$
