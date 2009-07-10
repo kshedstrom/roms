@@ -920,6 +920,7 @@
         logical, dimension(Ngrids) :: LdefAVG    ! Average file
         logical, dimension(Ngrids) :: LdefAVG2   ! Average file
         logical, dimension(Ngrids) :: LdefDIA    ! Diagnostics file
+        logical, dimension(Ngrids) :: LdefERR    ! 4DVar error file
         logical, dimension(Ngrids) :: LdefFLT    ! Floats file
         logical, dimension(Ngrids) :: LdefFISH   ! Fish file
         logical, dimension(Ngrids) :: LdefHIS    ! History file
@@ -1004,6 +1005,7 @@
         integer, dimension(Ngrids) :: NrecAVG    ! Average file
         integer, dimension(Ngrids) :: NrecAVG2   ! Average file
         integer, dimension(Ngrids) :: NrecDIA    ! Diagnostics file
+        integer, dimension(Ngrids) :: NrecERR    ! 4DVar error file
         integer, dimension(Ngrids) :: NrecFIL    ! Filters file
         integer, dimension(Ngrids) :: NrecFLT    ! Floats file
         integer, dimension(Ngrids) :: NrecFISH   ! Fish file
@@ -2598,6 +2600,7 @@
         LdefAVG(ng)=.TRUE.
         LdefAVG2(ng)=.TRUE.
         LdefDIA(ng)=.TRUE.
+        LdefERR(ng)=.FALSE.
 #ifdef FLOATS
         LdefFLT(ng)=.TRUE.
 #endif
@@ -2634,11 +2637,13 @@
         NrecAVG(ng)=0
         NrecAVG2(ng)=0
         NrecDIA(ng)=0
+        NrecERR(ng)=0
         NrecFIL(ng)=0
         NrecFLT(ng)=0
         NrecINI(ng)=0
         NrecITL(ng)=0
         NrecHIS(ng)=0
+        NrecHSS(ng)=0
         NrecRST(ng)=0
         NrecSTA(ng)=0
         NrecTLM(ng)=0

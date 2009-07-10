@@ -19,6 +19,7 @@
 !  CLMname     Input climatology file name.                            !
 !  DIAbase     Output diagnostics base file name.                      !
 !  DIAname     Output diagnostics file name.                           !
+!  ERRname     Output 4DVar posterior error file name.                 !
 !  FILname     Output filter file name.                                !
 !  FLTname     Output floats file name.                                !
 !  FISHname    Output fish file name.                                  !
@@ -124,6 +125,7 @@
         character (len=fname_len), dimension(Ngrids) :: CLMname
         character (len=fname_len), dimension(Ngrids) :: DIAbase
         character (len=fname_len), dimension(Ngrids) :: DIAname
+        character (len=fname_len), dimension(Ngrids) :: ERRname
         character (len=fname_len), dimension(Ngrids) :: FLTname
         character (len=fname_len), dimension(Ngrids) :: FISHname
 #ifdef FILTERED_RST
@@ -157,6 +159,9 @@
         character (len=fname_len), dimension(Ngrids) :: RSTname
         character (len=fname_len), dimension(Ngrids) :: STAname
 
+        character (len=fname_len), dimension(4,Ngrids) :: NRMname
+        character (len=fname_len), dimension(4,Ngrids) :: STDname
+
         character (len=fname_len) :: Iname
         character (len=fname_len) :: Wname
         character (len=fname_len) :: MyAppCPP
@@ -169,7 +174,5 @@
         character (len=fname_len) :: sparnam
         character (len=fname_len) :: sposnam
         character (len=fname_len) :: varname
-        character (len=fname_len), dimension(4,Ngrids) :: NRMname
-        character (len=fname_len), dimension(4,Ngrids) :: STDname
 
       END MODULE mod_iounits
