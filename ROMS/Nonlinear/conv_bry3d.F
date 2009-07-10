@@ -5,7 +5,7 @@
 #if defined NONLINEAR && defined FOUR_DVAR && defined SOLVE3D && \
     defined ADJUST_BOUNDARY
 !
-!svn $Id: conv_bry3d.F 999 2009-06-09 23:48:31Z kate $
+!svn $Id: conv_bry3d.F 1012 2009-07-07 20:52:45Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
@@ -1392,8 +1392,8 @@
 # else
       real(r8), intent(in) :: pm(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: pn(LBi:UBi,LBj:UBj)
-      real(r8), intent(in) :: pmon_r(LBi:UBi,LBj:UBj)
-      real(r8), intent(in) :: pnom_p(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: pmon_p(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: pnom_r(LBi:UBi,LBj:UBj)
 #  ifdef MASKING
       real(r8), intent(in) :: vmask(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: pmask(LBi:UBi,LBj:UBj)

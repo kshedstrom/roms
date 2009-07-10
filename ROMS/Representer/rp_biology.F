@@ -2,7 +2,7 @@
       MODULE rp_biology_mod
 #if defined TL_IOMS && defined BIOLOGY
 !
-!svn $Id: rp_biology.F 992 2009-05-29 01:12:37Z kate $
+!svn $Id: rp_biology.F 1013 2009-07-07 21:21:23Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -29,6 +29,8 @@
 !!#  include <rp_UMAINE.h>
 # elif defined NPZD_FRANKS
 #  include <rp_npzd_Franks.h>
+# elif defined NPZD_IRON
+#  include <rp_npzd_iron.h>
 # elif defined NPZD_POWELL
 #  include <rp_npzd_Powell.h>
 # endif

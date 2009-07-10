@@ -1,6 +1,6 @@
 #!/bin/bash
 # 
-# svn $Id: build.bash 983 2009-05-23 01:07:05Z kate $
+# svn $Id: build.bash 1012 2009-07-07 20:52:45Z kate $
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 # Copyright (c) 2002-2009 The ROMS/TOMS Group                           :::
 #   Licensed under a MIT/X style license                                :::

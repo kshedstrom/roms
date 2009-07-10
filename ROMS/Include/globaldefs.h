@@ -1,7 +1,7 @@
 /*
 ** Include file "globaldef.h"
 **
-** svn $Id: globaldefs.h 999 2009-06-09 23:48:31Z kate $
+** svn $Id: globaldefs.h 1013 2009-07-07 21:21:23Z kate $
 ********************************************************** Hernan G. Arango ***
 ** Copyright (c) 2002-2009 The ROMS/TOMS Group     Alexander F. Shchepetkin  **
 **   Licensed under a MIT/X style license                                    **
@@ -450,6 +450,13 @@
 #if defined IS4DVAR
 # define BACKGROUND
 #endif
+#if !(defined W4DPSAS || defined W4DVAR) && defined POSTERIOR_EOFS
+# undef POSTERIOR_EOFS
+#endif
+#if !(defined WEAK_CONSTRAINT || defined OBS_SENSITIVITY) && \
+      defined OBS_IMPACT
+# undef OBS_IMPACT
+#endif
 
 /*
 ** Activate internal switch to process 4DVAR observations.
@@ -545,13 +552,17 @@
 #if (defined  ZCLIMATOLOGY && !defined ANA_SSH)     || \
     (defined M2CLIMATOLOGY && !defined ANA_M2CLIMA) || \
     (defined  TCLIMATOLOGY && !defined ANA_TCLIMA)  || \
-    (defined M3CLIMATOLOGY && !defined ANA_M3CLIMA)
+    (defined M3CLIMATOLOGY && !defined ANA_M3CLIMA) || \
+    (defined CLIMA_TS_MIX  && defined SOLVE3D       && \
+     (defined TS_DIF2      || defined TS_DIF4))
 # define CLM_FILE
 #endif
-#if defined ZCLIMATOLOGY || defined M2CLIMATOLOGY || \
-    defined TCLIMATOLOGY || defined M3CLIMATOLOGY || \
-    defined ZCLM_NUDGING || defined M2CLM_NUDGING || \
-    defined TCLM_NUDGING || defined M3CLM_NUDGING
+#if defined ZCLIMATOLOGY   || defined M2CLIMATOLOGY || \
+    defined TCLIMATOLOGY   || defined M3CLIMATOLOGY || \
+    defined ZCLM_NUDGING   || defined M2CLM_NUDGING || \
+    defined TCLM_NUDGING   || defined M3CLM_NUDGING || \
+    (defined CLIMA_TS_MIX  && defined SOLVE3D       && \
+     (defined TS_DIF2      || defined TS_DIF4))
 # define CLIMATOLOGY
 #endif
 
@@ -963,7 +974,8 @@
 
 #if defined BIO_FENNEL  || defined ECOSIM      || \
     defined NEMURO      || defined NPZD_FRANKS || \
-    defined NPZD_POWELL || defined BIO_GOANPZ  || \
+    defined NPZD_IRON   || defined NPZD_POWELL || \
+    defined BIO_GOANPZ  || \
     defined BIO_UMAINE  || defined BEST_NPZ
 # define BIOLOGY
 #endif

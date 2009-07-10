@@ -1,7 +1,7 @@
 /*
 ** Include file "cppdefs.h"
 **
-** svn $Id: cppdefs.h 989 2009-05-26 22:46:51Z kate $
+** svn $Id: cppdefs.h 1013 2009-07-07 21:21:23Z kate $
 ********************************************************** Hernan G. Arango ***
 ** Copyright (c) 2002-2009 The ROMS/TOMS Group                               **
 **   Licensed under a MIT/X style license                                    **
@@ -224,6 +224,7 @@
 **                                                                           **
 ** OPTIONS for horizontal mixing of tracers:                                 **
 **                                                                           **
+** CLIMA_TS_MIX        use if diffusion of tracer perturbation (t-tclm)      **
 ** DIFF_GRID           use to scale diffusion coefficients by grid size      **
 ** MIX_S_TS            use if mixing along constant S-surfaces               **
 ** MIX_GEO_TS          use if mixing on geopotential (constant Z) surfaces   **
@@ -546,6 +547,8 @@
 ** IOM                 use to activate IOM multiple executables              **
 ** MULTIPLE_TLM        use if multiple TLM history files in 4DVAR            **
 ** NLM_OUTER           use if nonlinear model as basic state in outer loop   **
+** OBS_IMPACT          use if observation impact to 4DVAR data assimilation  **
+** POSTERIOR_EOFS      Use if estimating posterior analysis error covariace  **
 ** RPM_RELAXATION      use if Picard iterations, Diffusive Relaxation of RPM **
 ** SO_SEMI_WHITE       use to activate white/red noise processes             **
 ** SPLINES_VCONV       use to activate implicit splines vertical convolution **
@@ -583,7 +586,10 @@
 ** BIO_UMAINE          use if Chai et al. (2002) CoSINE model                **
 ** BIO_GOANPZ          use if Coyle et al. Gulf of Alaska model              **
 ** NPZD_FRANKS         use if NPZD Biology model, Franks et al. (1986)       **
+** NPZD_IRON           use if NPZD Biology model wiht iron limitation        **
 ** NPZD_POWELL         use if NPZD Biology model, Powell et al. (2006)       **
+** IRON_LIMIT          use if Fe limitation on phytoplankton growth          **
+** IRON_RELAX          use if nudging Fe over the shelf, h <= FeHmin         **
 **                                                                           **
 ** Bio-optical EcoSim model OPTIONS:                                         **
 **                                                                           **

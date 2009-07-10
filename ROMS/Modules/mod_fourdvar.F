@@ -3,7 +3,7 @@
 
 #if defined FOUR_DVAR || defined VERIFICATION
 !
-!svn $Id: mod_fourdvar.F 999 2009-06-09 23:48:31Z kate $
+!svn $Id: mod_fourdvar.F 1012 2009-07-07 20:52:45Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -48,6 +48,8 @@
 !                 convolutions.                                        !
 !  NLobsCost    Current NLM observation cost function misfit (mean     !
 !                 squared difference) between NLM and observations.    !
+!  NpostI       Number of Lanczos iterations used for the posterior    !
+!                 analysis error covariance matrix estimation.         !
 !  NritzEV      If preconditioning, number of eigenpairs to use.       !
 !  NVsteps      Full number of vertical diffusion steps for spatial    !
 !                 convolutions.                                        !
@@ -239,6 +241,11 @@
 !
         integer :: Nrandom = 1000
 !
+!  Number of Lanczos iterations used in the posterior analysis
+!  error covariance matrix estimation.
+!
+        integer :: NpostI
+!
 !  Optimal, normalized cost funtion minimum.  If the statistical
 !  hypotheses between the background and observations errors
 !  is consistemt, the cost function value at the minimum, Jmin,
@@ -377,6 +384,35 @@
 !
         real(r8), allocatable :: cg_Ritz(:,:)
         real(r8), allocatable :: cg_RitzErr(:,:)
+# endif
+# ifdef POSTERIOR_EOFS
+!
+!-----------------------------------------------------------------------
+!  Posterior analysis error covariance matrix parameters.
+!-----------------------------------------------------------------------
+!
+!  Lanczos algorithm parameters.
+! 
+        real(r8), allocatable :: ae_delta(:,:)
+        real(r8), allocatable :: ae_beta(:,:)
+        real(r8), allocatable :: ae_zv(:,:)
+        real(r8), allocatable :: ae_trace(:)
+!
+!  Initial gradient vector normalization factor.
+!
+        real(r8), allocatable :: ae_Gnorm(:)
+!
+!  Lanczos recurrence symmetric, tridiagonal matrix, T(k).
+!
+        real(r8), allocatable :: ae_Tmatrix(:,:)
+        real(r8), allocatable :: ae_zu(:,:)
+!
+!  Eigenvalues of the Lanczos recurrence term Q(k)T(k)
+!  algorithm and their relative error (accuaracy).
+!
+        real(r8), allocatable :: ae_Ritz(:,:)
+        real(r8), allocatable :: ae_RitzErr(:,:)
+
 # endif
 # if defined OBS_SENSITIVITY
 !
@@ -789,6 +825,34 @@
 
       allocate ( Ritz(Ninner+1) )
       Ritz = IniVal
+
+# ifdef POSTERIOR_EOFS
+
+      allocate ( ae_beta(NpostI+1,Nouter) )
+      ae_beta = IniVal
+
+      allocate ( ae_zv(NpostI,NpostI) )
+      ae_zv = IniVal
+
+      allocate ( ae_delta(NpostI,Nouter) )
+      ae_delta = IniVal
+
+      allocate ( ae_trace(NpostI+1) )
+      ae_trace = IniVal
+
+      allocate ( ae_Gnorm(Nouter) )
+      ae_Gnorm = IniVal
+
+      allocate ( ae_Tmatrix(NpostI,3) )
+      ae_Tmatrix = IniVal
+
+      allocate ( ae_Ritz(NpostI,Nouter) )
+      ae_Ritz = IniVal
+
+      allocate ( ae_RitzErr(NpostI,Nouter) )
+      ae_RitzErr = IniVal
+
+# endif
 
 #  if defined WEAK_CONSTRAINT || defined IOM
       allocate ( cg_zv(Ninner,Ninner,Nouter) )

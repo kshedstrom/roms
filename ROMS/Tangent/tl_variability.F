@@ -21,7 +21,7 @@
 #  define JV_RANGE Jstr,JendR
 # endif
 !
-!svn $Id: tl_variability.F 999 2009-06-09 23:48:31Z kate $
+!svn $Id: tl_variability.F 1015 2009-07-07 21:49:20Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
@@ -296,7 +296,7 @@
       real(r8), intent(in) :: ubar_std(LBi:UBi,LBj:UBj,NSA)
       real(r8), intent(in) :: vbar_std(LBi:UBi,LBj:UBj,NSA)
 #  endif
-      real(r8), intent(in) :: zeta_std(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: zeta_std(LBi:UBi,LBj:UBj,NSA)
 #  ifdef ADJUST_BOUNDARY
 #   ifdef SOLVE3D
       real(r8), intent(inout) :: tl_t_obc(LBij:UBij,N(ng),4,            &
@@ -481,6 +481,17 @@
      &                                  zeta_obc_std(i,ib)
             END DO
           END IF
+#  ifdef DISTRIBUTE
+          DO ib=1,4
+            IF (Lobc(ib,isFsur,ng)) THEN
+              CALL mp_exchange2d_bry (ng, tile, iTLM, 1, ib,            &
+     &                                LBij, UBij,                       &
+     &                                NghostPoints,                     &
+     &                                EWperiodic, NSperiodic,           &
+     &                                tl_zeta_obc(:,ib,ir,Linp))
+            END IF
+          END DO
+#  endif
         END DO
       END IF
 !
@@ -516,6 +527,17 @@
      &                                  ubar_obc_std(i,ib)
             END DO
           END IF
+#  ifdef DISTRIBUTE
+          DO ib=1,4
+            IF (Lobc(ib,isUbar,ng)) THEN
+              CALL mp_exchange2d_bry (ng, tile, iTLM, 1, ib,            &
+     &                                LBij, UBij,                       &
+     &                                NghostPoints,                     &
+     &                                EWperiodic, NSperiodic,           &
+     &                                tl_ubar_obc(:,ib,ir,Linp))
+            END IF
+          END DO
+#  endif
         END DO
       END IF
 !
@@ -551,6 +573,17 @@
      &                                  vbar_obc_std(i,ib)
             END DO
           END IF
+#  ifdef DISTRIBUTE
+          DO ib=1,4
+            IF (Lobc(ib,isVbar,ng)) THEN
+              CALL mp_exchange2d_bry (ng, tile, iTLM, 1, ib,            &
+     &                                LBij, UBij,                       &
+     &                                NghostPoints,                     &
+     &                                EWperiodic, NSperiodic,           &
+     &                                tl_vbar_obc(:,ib,ir,Linp))
+            END IF
+          END DO
+#  endif
         END DO
       END IF
 
@@ -596,6 +629,17 @@
               END DO
             END DO
           END IF
+#   ifdef DISTRIBUTE
+          DO ib=1,4
+            IF (Lobc(ib,isUvel,ng)) THEN
+              CALL mp_exchange3d_bry (ng, tile, iTLM, 1, ib,            &
+     &                                LBij, UBij, 1, N(ng),             &
+     &                                NghostPoints,                     &
+     &                                EWperiodic, NSperiodic,           &
+     &                                tl_u_obc(:,:,ib,ir,Linp))
+            END IF
+          END DO
+#   endif
         END DO
       END IF
 !
@@ -604,6 +648,7 @@
       IF (.not.Lweak.and.(ANY(Lobc(:,isVvel,ng)))) THEN
         DO ir=1,Nbrec(ng)
           IF ((Lobc(iwest,isVvel,ng)).and.WESTERN_EDGE) THEN
+            ib=iwest
             DO k=1,N(ng)
               DO j=JstrV,Jend
                 tl_v_obc(j,k,ib,ir,Linp)=tl_v_obc(j,k,ib,ir,Linp)*      &
@@ -612,6 +657,7 @@
             END DO
           END IF
           IF ((Lobc(ieast,isVvel,ng)).and.EASTERN_EDGE) THEN
+            ib=ieast
             DO k=1,N(ng)
               DO j=JstrV,Jend
                 tl_v_obc(j,k,ib,ir,Linp)=tl_v_obc(j,k,ib,ir,Linp)*      &
@@ -620,6 +666,7 @@
             END DO
           END IF
           IF ((Lobc(isouth,isVvel,ng)).and.SOUTHERN_EDGE) THEN
+            ib=isouth
             DO k=1,N(ng)
               DO i=Istr,Iend
                 tl_v_obc(i,k,ib,ir,Linp)=tl_v_obc(i,k,ib,ir,Linp)*      &
@@ -628,6 +675,7 @@
             END DO
           END IF
           IF ((Lobc(inorth,isVvel,ng)).and.NORTHERN_EDGE) THEN
+            ib=inorth
             DO k=1,N(ng)
               DO i=Istr,Iend
                 tl_v_obc(i,k,ib,ir,Linp)=tl_v_obc(i,k,ib,ir,Linp)*      &
@@ -635,6 +683,17 @@
               END DO
             END DO
           END IF
+#   ifdef DISTRIBUTE
+          DO ib=1,4
+            IF (Lobc(ib,isVvel,ng)) THEN
+              CALL mp_exchange3d_bry (ng, tile, iADM, 1, ib,            &
+     &                                LBij, UBij, 1, N(ng),             &
+     &                                NghostPoints,                     &
+     &                                EWperiodic, NSperiodic,           &
+     &                                tl_v_obc(:,:,ib,ir,Linp))
+            END IF
+          END DO
+#   endif
         END DO
       END IF
 !
@@ -683,6 +742,17 @@
                 END DO
               END DO
             END IF
+#   ifdef DISTRIBUTE
+            DO ib=1,4
+              IF (Lobc(ib,isTvar(it),ng)) THEN
+                CALL mp_exchange3d_bry (ng, tile, iADM, 1, ib,          &
+     &                                  LBij, UBij, 1, N(ng),           &
+     &                                  NghostPoints,                   &
+     &                                  EWperiodic, NSperiodic,         &
+     &                                  tl_t_obc(:,:,ib,ir,Linp,it))
+              END IF
+            END DO
+#   endif
           END DO
         END IF
       END DO

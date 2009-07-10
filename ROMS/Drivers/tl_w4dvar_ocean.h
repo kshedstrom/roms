@@ -1,6 +1,6 @@
       MODULE ocean_control_mod
 !
-!svn $Id: tl_w4dvar_ocean.h 999 2009-06-09 23:48:31Z kate $
+!svn $Id: tl_w4dvar_ocean.h 1012 2009-07-07 20:52:45Z kate $
 !=================================================== Andrew M. Moore ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group      Hernan G. Arango   !
 !    Licensed under a MIT/X style license                              !
@@ -259,6 +259,10 @@
 #if defined ADJUST_STFLUX || defined ADJUST_WSTRESS
         Lfinp(ng)=1         ! forcing index for input
         Lfout(ng)=1         ! forcing index for output history files
+#endif
+#ifdef ADJUST_BOUNDARY
+        Lbinp(ng)=1         ! boundary index for input
+        Lbout(ng)=1         ! boundary index for output history files
 #endif
         Lold(ng)=1          ! old minimization time index
         Lnew(ng)=2          ! new minimization time index

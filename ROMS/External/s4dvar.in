@@ -1,6 +1,6 @@
 !  4DVar assimilation input parameters.
 !
-!svn $Id: s4dvar.in 999 2009-06-09 23:48:31Z kate $
+!svn $Id: s4dvar.in 1012 2009-07-07 20:52:45Z kate $
 !========================================================= Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                                !
 !    Licensed under a MIT/X style license                                     !
@@ -72,6 +72,12 @@
 ! use HevecErr parameter to determine the number of converged eigenpairs.
 
         NritzEV = 0
+
+! If weak constraint 4DVar, set number of iterations in the Lanczos
+! algorithm used to estimate the posterior analysis error covariance
+! matrix.
+
+         NpostI = 50
 
 ! If weak constraint 4DVar, set diffusive relaxation coefficients (m2/s)
 ! used to relax representer tangent linear solution to privious Picard
@@ -336,6 +342,10 @@ HdecayF(isTsur) == 100.0d+3  100.0d+3             ! 1:NT surface tracers flux
 !  NritzEV        If preconditioning, specify number of eigenpairs to use.
 !                   If zero, use HevecErr parameter to determine the number
 !                   of converged eigenpairs.
+!
+!  NpostI         If weak constraint 4DVar (W4DPSAS or W4DVAR), set number of
+!                 iterations in the Lanczos algorithm used to estimate the
+!                 posterior analysis error covariance matrix.
 !
 !------------------------------------------------------------------------------
 ! Diffusive relaxation coefficients.

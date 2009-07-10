@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       MODULE mod_param
 !
-!svn $Id: mod_param.F 995 2009-05-29 21:54:22Z kate $
+!svn $Id: mod_param.F 1013 2009-07-07 21:21:23Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -372,6 +372,16 @@
 !  Number of tracers for NPZD model.
 !
         integer, parameter :: NBT = 4
+# elif defined NPZD_IRON
+!
+!  Number of tracers for NPZD model with or without iron limitation
+!  on phytoplankton growth.
+!
+#  ifdef IRON_LIMIT
+        integer, parameter :: NBT = 6
+#  else
+        integer, parameter :: NBT = 4
+#  endif
 # elif defined ECOSIM
 !
 !  Bio-optical EcoSim parameters.
