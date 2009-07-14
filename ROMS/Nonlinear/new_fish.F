@@ -44,6 +44,7 @@
         DO i=1,Nfish(ng)
           IF (bioenergy(i, ifeggs) .ne. 0) THEN
             CALL tree_insert(caviar(i), dist(i), i)
+          END IF
         END DO
 
         call tree_traverse

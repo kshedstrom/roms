@@ -53,19 +53,25 @@
       CONTAINS
 !
 !***********************************************************************
-      SUBROUTINE fish_growth (ng, Lstr, Lend, itime,                    &
+      SUBROUTINE fish_growth (ng, LBi, UBi, LBj, UBj, itime,            &
      &                            MyThread, bounded, track,             &
-     &                            feedback, bioenergy, alive)
+     &                            feedback, bioenergy, alive,           &
+     &                            fish_count, fish_list, fishnodes)
 !***********************************************************************
 !
       USE mod_param
       USE mod_ncparam
       USE mod_scalars
       USE mod_biology
+      USE mod_types
 !
 !  Imported variable declarations.
 !
-      integer, intent(in) :: ng, Lstr, Lend, itime
+      integer, intent(in) :: ng, LBi, UBi, LBj, UBj, itime
+      integer, intent(in) :: fish_count(LBi:UBi,LBj:UBj)
+
+      type(fishnode), intent(in) :: fish_list(LBi:UBi,LBj:UBj)
+      type(fishnode), target, intent(in) :: fishnodes(Nfish(ng))
 
       logical, intent(in) :: MyThread(Nfish(ng))
       logical, intent(in) :: bounded(Nfish(ng))
@@ -78,7 +84,9 @@
 !  Local variable declarations.
 !
       integer :: Ir, Jr, Kr
-      integer :: i1, i2, j1, j2, i, j, l
+      integer :: i1, i2, j1, j2, i, j, ifish, fid, iFwt
+
+      type(fishnode), pointer :: thisfish
 
       real(r8) :: SZooC, LZooC, PZooC
       real(r8) :: FSZoo, FLZoo, FPZoo, FTZoo
@@ -111,72 +119,74 @@
       b_A=0.13_r8
       a_S=0.175_r8
 !
-      DO l=Lstr,Lend
-        IF (MyThread(l).and.bounded(l).and.alive(l)) THEN
-
-          Fweight=bioenergy(ifwwt,l)
+      DO i=LBi,UBi
+        DO j=LBj,UBj
+          IF (fish_count(i,j).gt.0) THEN
+            DO ifish=1,fish_count(i,j)
 !
-          IF (Fweight.ge.0.0_r8) THEN       ! Adult fish
+              thisfish => fish_list(i,j) % next
+              fid = thisfish % fish
 !
-! ZOO COMSUMPTION
-            C_max=a_C*Fweight**(-b_C)
-            SZooC=mmol2g*track(NFV(ng)-NT(ng)+iSzoo,itime,l)
-            LZooC=mmol2g*track(NFV(ng)-NT(ng)+iLzoo,itime,l)
-            PZooC=mmol2g*track(NFV(ng)-NT(ng)+iPzoo,itime,l)
-            FSZoo=SZooC*ZSpref(ng)/K_ZS
-            FLZoo=LZooC*ZLpref(ng)/K_ZL
-            FPZoo=PZooC*ZPpref(ng)/K_ZP
-            FTZoo=1.0_r8/(1.0_r8+FSZoo+FLZoo+FPZoo)
-            Csmp=C_max*(FSZoo+FLZoo+FPZoo)*FTZoo*CAL_ZF
+              IF (MyThread(fid).and.bounded(fid).and.alive(fid)) THEN
+                Fweight=bioenergy(ifwwt,fid)
+! OPTION 1: ADULT FISH
+                IF (Fweight.ge.0.0_r8) THEN       ! Adult fish
+! Zoo Consumption
+                  C_max=a_C*Fweight**(-b_C)
+                  SZooC=mmol2g*track(NFV(ng)-NT(ng)+iSzoo,itime,fid)
+                  LZooC=mmol2g*track(NFV(ng)-NT(ng)+iLzoo,itime,fid)
+                  PZooC=mmol2g*track(NFV(ng)-NT(ng)+iPzoo,itime,fid)
+                  FSZoo=SZooC*ZSpref(ng)/K_ZS
+                  FLZoo=LZooC*ZLpref(ng)/K_ZL
+                  FPZoo=PZooC*ZPpref(ng)/K_ZP
+                  FTZoo=1.0_r8/(1.0_r8+FSZoo+FLZoo+FPZoo)
+                  Csmp=C_max*(FSZoo+FLZoo+FPZoo)*FTZoo*CAL_ZF
 ! Fish p-value
 !            bioenergy(ifpvl,l)=(FSZoo+FLZoo+FPZoo)*FTZoo
 ! Fish predation sink terms for zooplankton in NEMURO
 ! (will need to be converted from mmolN/day to mmolN/m3 in NEMURO)
-            fac=Nfish(ng)*C_max*FTZoo*g2mmol
-            feedback(iSzoo,l)=fac*FSZoo*Fweight
-            feedback(iLzoo,l)=fac*FLZoo*Fweight
-            feedback(iPzoo,l)=fac*FPZoo*Fweight
-!
-! FISH COMSUMPTION
+                  fac=Nfish(ng)*C_max*FTZoo*g2mmol
+                  feedback(iSzoo,fid)=fac*FSZoo*Fweight
+                  feedback(iLzoo,fid)=fac*FLZoo*Fweight
+                  feedback(iPzoo,fid)=fac*FPZoo*Fweight
+! Fish Consumption
 ! fish-eat-fish routine from KR
-!
-! EGESTION AND EXCRETION
-            Egst=a_F*Csmp
-            Excr=a_E*(Csmp-Egst)
+! Egestion and Excretion
+                  Egst=a_F*Csmp
+                  Excr=a_E*(Csmp-Egst)
 ! Fish egestion and excretion source terms for PON in NEMURO
 ! (will need to be converted from mmolN/day to mmolN/m3 in NEMURO)
-            feedback(iPON_,l)=g2mmol*(Egst+Excr)*Fweight
+                  feedback(iPON_,fid)=g2mmol*(Egst+Excr)*Fweight
+! Respiration (Uswim in cm/s)
+                  Uswim=a_A*Fweight**b_A
+                  Actv=exp(d_R*Uswim)
+                  Resp=a_R*Fweight**(-b_R)*Actv*5.258
+! Specific Dynamic Action
+                  SDA=a_S*(Csmp-Egst)
+! Fish Growth (g wet wt)
+                  bioenergy(ifwwt,fid)=Fweight*(1.0_r8+dtdays*          &
+     &                                 (Csmp-Egst-Excr-Resp-SDA))
+! OPTION 2: EGG, YOLK SAC, AND FEEDING LARVA
+                ELSE
+                  iFwt=-INT(Fweight)
+                  IF ((iFwt.ge.1).AND.(iFwt.lt.2)) THEN
+                    Fweight=ABS(Fweight)+0.21_r8*dtdays          ! Egg
+                  ELSE IF ((iFwt.ge.2).AND.(iFwt.lt.3)) THEN
+                    Fweight=ABS(Fweight)+0.1_r8*dtdays           ! Yolk sac
+                  ELSE IF ((iFwt.ge.3).AND.(iFwt.lt.4)) THEN
+                    Fweight=ABS(Fweight)+0.11_r8*dtdays          ! Larva
+                  END IF
+                  IF (Fweight.ge.4.0_r8) THEN
+                    bioenergy(ifwwt,fid)=Fwwt0(ng)
+                  ELSE
+                    bioenergy(ifwwt,fid)=-Fweight
+                  END IF
+                END IF
+              END IF
 !
-! RESPIRATION (Uswim in cm/s)
-            Uswim=a_A*Fweight**b_A
-            Actv=exp(d_R*Uswim)
-            Resp=a_R*Fweight**(-b_R)*Actv*5.258
-!
-! SPECIFIC DYNAMIC ACTION
-            SDA=a_S*(Csmp-Egst)
-!
-! FISH GROWTH (g wet wt)
-            bioenergy(ifwwt,l)=Fweight+                                 &
-     &                         dtdays*(Csmp-Egst-Excr-Resp-SDA)*Fweight
-!
-          ELSE       ! Egg, yolk sac, and feeding larva
-!
-            IF ((-INT(Fweight).ge.1).AND.(-INT(Fweight).lt.2)) THEN
-              Fweight=ABS(Fweight)+0.21_r8*dtdays          ! Egg
-            ELSE IF ((-INT(Fweight).ge.2).AND.(-INT(Fweight).lt.3)) THEN
-              Fweight=ABS(Fweight)+0.1_r8*dtdays           ! Yolk sac
-            ELSE IF ((-INT(Fweight).ge.3).AND.(-INT(Fweight).lt.4)) THEN
-              Fweight=ABS(Fweight)+0.11_r8*dtdays          ! Larva
-            END IF
-            IF (Fweight.ge.4.0_r8) THEN
-              bioenergy(ifwwt,l)=Fwwt0(ng)
-            ELSE
-              bioenergy(ifwwt,l)=-Fweight
-            END IF
-!
+            END DO
           END IF
-!
-        END IF
+        END DO
       END DO
 !
       RETURN
