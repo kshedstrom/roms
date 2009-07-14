@@ -29,6 +29,10 @@
            FFLAGS := -frepack-arrays
               CPP := /usr/bin/cpp
          CPPFLAGS := -P -traditional
+               CC := gcc
+              CXX := g++
+           CFLAGS :=
+         CXXFLAGS :=
           LDFLAGS := 
                AR := ar
           ARFLAGS := -r
@@ -81,8 +85,12 @@ endif
 
 ifdef USE_DEBUG
            FFLAGS += -g -fbounds-check -fbacktrace
+           CFLAGS += -g
+         CXXFLAGS += -g
 else
            FFLAGS += -O3 -ffast-math
+           CFLAGS += -O3
+         CXXFLAGS += -O3
 endif
 
 ifdef USE_MCT

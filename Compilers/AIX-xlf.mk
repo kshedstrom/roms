@@ -13,6 +13,10 @@
 # FFLAGS         Flags to the fortran compiler
 # CPP            Name of the C-preprocessor
 # CPPFLAGS       Flags to the C-preprocessor
+# CC             Name of the C compiler
+# CFLAGS         Flags to the C compiler
+# CXX            Name of the C++ compiler
+# CXXFLAGS       Flags to the C++ compiler
 # CLEAN          Name of cleaning executable after C-preprocessing
 # NETCDF_INCDIR  NetCDF include directory
 # NETCDF_LIBDIR  NetCDF libary directory
@@ -27,6 +31,10 @@
            FFLAGS := -qsuffix=f=f90 -qmaxmem=-1 -qarch=auto -qtune=auto
               CPP := /usr/lib/cpp
          CPPFLAGS := -P
+               CC := xlc_r
+              CXX := xlC_r
+           CFLAGS :=
+         CXXFLAGS :=
           LDFLAGS :=
                AR := ar
           ARFLAGS := -r
@@ -44,6 +52,8 @@
 
 ifdef USE_LARGE
            FFLAGS += -q64 -I.
+           CFLAGS += -q64 -I.
+         CXXFLAGS += -q64 -I.
           ARFLAGS += -X 64
           LDFLAGS += -bmaxdata:0x200000000
 
@@ -98,8 +108,12 @@ endif
 
 ifdef USE_DEBUG
            FFLAGS += -g -qfullpath -qflttrap=enable:zerodivide:invalid
+           CFLAGS += -g -qfullpath
+         CXXFLAGS += -g -qfullpath
 else
            FFLAGS += -O2 -qstrict
+           CFLAGS += -O2
+         CXXFLAGS += -O2
 endif
 
 ifdef USE_MCT

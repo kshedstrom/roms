@@ -602,10 +602,22 @@
 **    work yet.                                                              **
 **                                                                           **
 ** NEMURO              use if Nemuro ecosystem model.                        **
-** NEMURO_SAN          use if Nemuro ecosystem model with fish.              **
 ** BIO_SEDIMENT        use to restore fallen material to the nutrient pool   **
 ** HOLLING_GRAZING     use Holling-type s-shaped curve grazing (implicit)    **
 ** IVLEV_EXPLICIT      use Ivlev explicit grazing algorithm                  **
+** NEMURO_SAN          use if Nemuro ecosystem model with fish               **
+**                                                                           **
+** NEMURO_SAN OPTIONS:                                                       **
+**                                                                           **
+** RAILSBACK           use if Railsback fish foraging behavior               **
+** HUMSTON             use if Humston fish foraging behavior                 **
+** FISH_FEEDBACK       use if the fish feeding gets back to the NPZ model    **
+** FLEET               use if fishing fleet enabled                          **
+** ANA_SPAWN_DIST      use if there's an analytic spawning "distance"        **
+** EGGS_BISECTION      use if bisecting the eggs_by_cell in spawning         **
+** EGGS_TREE_CXX       use if eggs are placed in a binary tree, C++ version  **
+** EGGS_VECTOR_CXX     use if eggs are placed in a vector, C++ version       **
+** EGGS_TREE_FORT      use if eggs are placed in a binary tree, Fortran      **
 **                                                                           **
 ** Sediment transport model OPTIONS:                                         **
 **                                                                           **

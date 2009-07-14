@@ -737,6 +737,9 @@
 !           CALL ships_by_cell (ng, TILE)
 #  endif
 ! Haven't finished this yet
+#  ifdef EGGS_BISECTION
+            CALL eggs_by_cell (ng, TILE)
+#  endif
 !           CALL new_fish
           END DO
         END DO

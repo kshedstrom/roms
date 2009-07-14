@@ -32,18 +32,20 @@
 !  Imported variable declarations.
 !
       integer, intent(in) :: ng, Lstr, Lend
-      integer :: i
+      integer :: isp, l
 !
 # ifdef PROFILE
       CALL wclock_on (ng, iNLM, 10)
 # endif
 
+# ifdef EGGS_TREE_FORT
       IF (Master) THEN
         call tree_init
 
-        DO i=1,Nfish(ng)
-          IF (bioenergy(i, ifeggs) .ne. 0) THEN
-            CALL tree_insert(caviar(i), dist(i), i)
+        DO l=1,Nfish(ng)
+          IF (FISHES % bioenergy(ifeggs, l) .ne. 0) THEN
+            CALL tree_insert(FISHES % bioenergy(ifspwnloc,l),           &
+     &                FISHES % bioenergy(ifeggs, l), l)
         END DO
 
         call tree_traverse
@@ -54,6 +56,31 @@
         end do
         CALL tree_destroy
       END IF
+# elif defined EGGS_TREE_CXX
+      IF (Master) THEN
+        DO isp=1,Nspecies
+          CALL tree_init(isp)
+        END DO
+
+        DO l=1,Nfish(ng)
+          IF (FISHES % bioenergy(ifeggs, l) .ne. 0) THEN
+            isp = FISHES % species(l)
+            CALL tree_insert(isp, FISHES % bioenergy(ifspwnloc,l),      &
+     &             FISHES % bioenergy(ifeggs,l), l)
+          END IF
+        END DO
+
+        DO isp=1,Nspecies
+          CALL tree_traverse(isp)
+          CALL tree_collect(isp, Nsuper(isp), Nfound, eggs, moms)
+        END DO
+        print *, 'after collect: ', Nfound
+        do i=1,Nfound
+          print *, i, eggs(i), moms(i)
+        end do
+        CALL tree_destroy
+      END IF
+# endif
 
       CALL new_fish_tile (ng, Lstr, Lend,                            &
      &                       knew(ng), nnew(ng), nfm3(ng), nfm2(ng),    &

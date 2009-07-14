@@ -80,7 +80,15 @@
 !                                                                      !
 #endif
 # if defined NEMURO_SAN
+!  fish_list    Linked list of fish in the box for each box.           !
+!  fish_count   Number of fish in each box.                            !
+!  ships_list   Linked list of ships in the box for each box.          !
+!  ships_count  Number of ships in each box.                           !
+!  egg_count    Number of eggs in each box for each species.
 !  spawn_loc    2D spawning locations for each fish species.           !
+#  if defined EGGS_BISECTION
+!  egg_count    2D array of eggs spawned in each grid box.             !
+#  endif
 # endif
 !=======================================================================
 !
@@ -176,6 +184,9 @@
           integer, pointer :: fish_count(:,:)
           type(fishnode), pointer :: ships_list(:,:)
           integer, pointer :: ships_count(:,:)
+#  ifdef EGGS_BISECTION
+          real(r8), pointer :: egg_count(:,:,:)
+#  endif
 
           real(r8), pointer :: spawn_loc(:,:,:)
 # endif
@@ -461,11 +472,14 @@
 # endif
 
 # if defined NEMURO_SAN
-      allocate ( OCEAN(ng) % spawn_loc(LBi:UBi,LBj:UBj,Nspecies(ng)) )
       allocate ( OCEAN(ng) % fish_count(LBi:UBi,LBj:UBj) )
       allocate ( OCEAN(ng) % fish_list(LBi:UBi,LBj:UBj) )
       allocate ( OCEAN(ng) % ships_count(LBi:UBi,LBj:UBj) )
       allocate ( OCEAN(ng) % ships_list(LBi:UBi,LBj:UBj) )
+#  ifdef EGGS_BISECTION
+      allocate ( OCEAN(ng) % egg_count(LBi:UBi,LBj:UBj,Nspecies(ng)) )
+#  endif
+      allocate ( OCEAN(ng) % spawn_loc(LBi:UBi,LBj:UBj,Nspecies(ng)) )
 # endif
 #endif
 
@@ -917,6 +931,9 @@
           DO itrc=1,NST
             DO i=Imin,Imax
               OCEAN(ng) % spawn_loc(i,j,itrc) = IniVal
+#  ifdef EGGS_BISECTION
+              OCEAN(ng) % egg_count(i,j,itrc) = IniVal
+#  endif
             END DO
           END DO
           DO i=Imin,Imax
