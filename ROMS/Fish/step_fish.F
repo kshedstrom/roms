@@ -61,6 +61,8 @@
      &                       FISHES(ng) % num_eggs,                     &
      &                       FISHES(ng) % alive,                        &
      &                       FISHES(ng) % lifestage,                    &
+     &                       FISHES(ng) % sp_start,                     &
+     &                       FISHES(ng) % sp_end,                       &
      &                       FISHES(ng) % track)
 # ifdef PROFILE
       CALL wclock_off (ng, iNLM, 10)
@@ -74,7 +76,8 @@
      &                             nfm3, nfm2, nfm1, nf, nfp1,          &
      &                             bounded, Ftype, Tinfo, Fz0,          &
      &                             feedback, bioenergy, species,        &
-     &                             num_eggs, alive, lifestage, track)
+     &                             num_eggs, alive, lifestage,          &
+     &                             sp_start, sp_end, track)
 !***********************************************************************
 !
       USE mod_param
@@ -116,6 +119,8 @@
       integer, intent(inout)  :: num_eggs(:)
       logical, intent(inout)  :: alive(:)
       integer, intent(inout)  :: lifestage(:)
+      real(r8), intent(in)    :: sp_start(:)
+      real(r8), intent(in)    :: sp_end(:)
       real(r8), intent(inout) :: track(:,0:,:)
 # else
       integer, intent(in)     :: Ftype(Nfish(ng))
@@ -129,6 +134,8 @@
       integer, intent(inout)  :: num_eggs(Nfish(ng))
       logical, intent(inout)  :: alive(Nfish(ng))
       integer, intent(inout)  :: lifestage(Nfish(ng))
+      real(r8), intent(in)    :: sp_start(Nspecies(ng))
+      real(r8), intent(in)    :: sp_end(Nspecies(ng))
       real(r8), intent(inout) :: track(NFV(ng),0:NFT,Nfish(ng))
 # endif
 !
@@ -1011,7 +1018,7 @@
 !
       CALL fish_spawn (ng, Lstr, Lend, nfp1,                            &
      &                     MyThread, bounded, track(:,:,:),             &
-     &                     bioenergy, alive)
+     &                     bioenergy, alive, species, sp_start, sp_end)
 !
 # endif
 # ifdef DISTRIBUTE

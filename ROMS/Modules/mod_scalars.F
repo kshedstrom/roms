@@ -336,6 +336,7 @@
 # endif
 #endif
 #ifdef NEMURO_SAN
+        integer, pointer :: idfish(:) ! Fish species
         integer :: iFloats            ! read_FloatsPar option for floats
         integer :: iFishes            ! read_FloatsPar option for fish
         integer :: iShips             ! read_FloatsPar option for ships
@@ -1982,6 +1983,9 @@
       Tobc_out = IniVal
 # ifdef BIOLOGY
       allocate ( idbio(NBT) )
+#  ifdef NEMURO_SAN
+      allocate ( idfish(Nspecies(ng)) )
+#  endif
 
 # ifdef BEST_NPZ
 #   ifdef STATIONARY

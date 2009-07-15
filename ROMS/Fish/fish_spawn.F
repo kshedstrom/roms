@@ -53,7 +53,8 @@
 !***********************************************************************
       SUBROUTINE fish_spawn (ng, Lstr, Lend, itime,                     &
      &                           MyThread, bounded, track,              &
-     &                           bioenergy, alive)
+     &                           bioenergy, alive, species,             &
+     &                           sp_start, sp_end)
 !***********************************************************************
 !
       USE mod_param
@@ -69,16 +70,19 @@
       logical, intent(in) :: MyThread(Nfish(ng))
       logical, intent(in) :: bounded(Nfish(ng))
       logical, intent(in) :: alive(Nfish(ng))
+      integer, intent(in) :: species(Nfish(ng))
+      real(r8), intent(in) :: sp_start(Nspecies(ng))
+      real(r8), intent(in) :: sp_end(Nspecies(ng))
 
       real(r8), intent(in) :: track(NFV(ng),0:NFT,Nfish(ng))
       real(r8), intent(inout) :: bioenergy(NFishV(ng),Nfish(ng))
 !
 !  Local variable declarations.
 !
-      integer :: l, Ir, Jr
+      integer :: l, Ir, Jr, isp
 !
       real(r8) :: Ftemp, temp_opt, temp_sigma
-      real(r8) :: sp_start, sp_end, sp_time, tcheck
+      real(r8) :: sp_time, tcheck
 !
 !
 !-----------------------------------------------------------------------
@@ -87,8 +91,6 @@
 !
       temp_opt=15.0_r8
       temp_sigma=3.0_r8
-      sp_start=120.0_r8
-      sp_end=210.0_r8
 !
 ! sp_time: time in days, modulo 360 days
       sp_time=REAL(INT(time(ng)/86400.0_r8/360.0_r8))
@@ -96,10 +98,11 @@
 ! tcheck: spawn at midnight
       tcheck=MOD(time(ng)/86400.0_r8,24.0_r8)
 !
-      IF ((sp_time.ge.sp_start).and.(sp_time.le.sp_end).and.            &
-     &    (tcheck.eq.REAL(INT(tcheck)))) THEN
-        DO l=Lstr,Lend
-          IF (MyThread(l).and.bounded(l)) THEN
+      DO l=Lstr,Lend
+        isp = species(l)
+        IF (MyThread(l).and.bounded(l)) THEN
+          IF ((sp_time.ge.sp_start(isp)).and.(sp_time.le.sp_end(isp))   &
+     &             .and.(tcheck.eq.REAL(INT(tcheck)))) THEN
             Ftemp=track(itemp+NFV(ng)-NT(ng),itime,l)
             IF ((alive(l)).and.                                         &
      &          (bioenergy(ifage,l).ge.Fage0(ng)).and.                  &
@@ -118,17 +121,15 @@
               bioenergy(ifspwnloc,l)=0.0_r8
             END IF
           END IF
-        END DO
-      ENDIF
+        END IF
 !
-      IF (sp_time.gt.sp_end) THEN
-        DO l=Lstr,Lend
+        IF (sp_time.gt.sp_end(isp)) THEN
           IF (MyThread(l).and.bounded(l)) THEN
             bioenergy(ifeggs,l)=0.0_r8
             bioenergy(ifspwnloc,l)=0.0_r8
           END IF
-        END DO
-      END IF
+        ENDIF
+      END DO
 !
       RETURN
       END SUBROUTINE fish_spawn

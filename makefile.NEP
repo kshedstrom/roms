@@ -394,11 +394,16 @@ ifdef USE_TANGENT
 endif
  modules  +=	ROMS/Nonlinear \
 		ROMS/Functionals \
-		ROMS/Utility \
 		ROMS/Modules
 ifdef USE_SEAICE
  modules  +=	ROMS/SeaIce
 endif
+ifdef USE_FISH
+ modules  +=	ROMS/Fish
+endif
+
+# Must be after fish
+ modules  +=	ROMS/Utility
 
  includes :=	ROMS/Include
 ifdef USE_ADJOINT

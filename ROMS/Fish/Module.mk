@@ -5,9 +5,9 @@
 #   See License_ROMS.txt                                                :::
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-local_sub  := ROMS/Nonlinear
+local_sub  := ROMS/Fish
 
-local_lib  := libNLM.a
+local_lib  := libFish.a
 local_src  := $(wildcard $(local_sub)/*.F)
 
 $(eval $(call make-library,$(local_lib),$(local_src)))

@@ -22,23 +22,41 @@
       CONTAINS
 !
 !***********************************************************************
-      SUBROUTINE new_fish
+      SUBROUTINE new_fish(ng, Lstr, Lend)
 !***********************************************************************
 !
       USE mod_param
       USE mod_fish
+      USE mod_scalars
       USE mod_stepping
+      USE mod_parallel
+# ifdef EGGS_TREE_FORT
+      USE mod_tree
+# endif
 !
 !  Imported variable declarations.
 !
       integer, intent(in) :: ng, Lstr, Lend
-      integer :: isp, l
+      integer :: i, isp, l, Nsuper(Nspecies(ng)), Nfound, Navail
+      integer, pointer :: moms(:)
+      real(r8), pointer :: eggs(:)
 !
 # ifdef PROFILE
       CALL wclock_on (ng, iNLM, 10)
 # endif
 
+!  We need to know how many new superindividuals are available for each
+!  species.
+      DO isp=1,Nspecies(ng)
+        Nsuper(isp) = 5
+      END DO
+      Navail = sum(Nsuper)
+      allocate(moms(Navail))
+      allocate(eggs(Navail))
+
 # ifdef EGGS_TREE_FORT
+!  This option is currently broken, at least in terms of balancing the
+!  superindividuals.
       IF (Master) THEN
         call tree_init
 
@@ -59,46 +77,46 @@
       END IF
 # elif defined EGGS_TREE_CXX
       IF (Master) THEN
-        DO isp=1,Nspecies
+        DO isp=1,Nspecies(ng)
           CALL tree_init(isp)
         END DO
 
         DO l=1,Nfish(ng)
-          IF (FISHES % bioenergy(ifeggs, l) .ne. 0) THEN
-            isp = FISHES % species(l)
-            CALL tree_insert(isp, FISHES % bioenergy(ifspwnloc,l),      &
-     &             FISHES % bioenergy(ifeggs,l), l)
+          IF (FISHES(ng) % bioenergy(ifeggs, l) .ne. 0) THEN
+            isp = FISHES(ng) % species(l)
+            CALL tree_insert(isp, FISHES(ng) % bioenergy(ifspwnloc,l),  &
+     &             FISHES(ng) % bioenergy(ifeggs,l), l)
           END IF
         END DO
 
-        DO isp=1,Nspecies
+        DO isp=1,Nspecies(ng)
           CALL tree_traverse(isp)
           CALL tree_collect(isp, Nsuper(isp), Nfound, eggs, moms)
+          print *, 'after collect: ', Nfound
+          DO i=1,Nfound
+            print *, i, eggs(i), moms(i)
+          END DO
         END DO
-        print *, 'after collect: ', Nfound
-        do i=1,Nfound
-          print *, i, eggs(i), moms(i)
-        end do
         CALL tree_destroy
       END IF
 # endif
 
-      CALL new_fish_tile (ng, Lstr, Lend,                            &
+      CALL new_fish_tile (ng, Lstr, Lend,                               &
      &                       knew(ng), nnew(ng), nfm3(ng), nfm2(ng),    &
      &                       nfm1(ng), nf(ng), nfp1(ng),                &
-     &                       FLT(ng) % bounded,                         &
-     &                       FLT(ng) % Ftype,                           &
-     &                       FLT(ng) % Tinfo,                           &
-     &                       FLT(ng) % Fz0,                             &
-     &                       FLT(ng) % track)
+     &                       FISHES(ng) % bounded,                      &
+     &                       FISHES(ng) % Ftype,                        &
+     &                       FISHES(ng) % Tinfo,                        &
+     &                       FISHES(ng) % Fz0,                          &
+     &                       FISHES(ng) % track)
 # ifdef PROFILE
       CALL wclock_off (ng, iNLM, 10)
 # endif
       RETURN
-      END SUBROUTINE step_floats
+      END SUBROUTINE new_fish
 !
 !***********************************************************************
-      SUBROUTINE step_floats_tile (ng, Lstr, Lend,                      &
+      SUBROUTINE new_fish_tile (ng, Lstr, Lend,                         &
      &                             knew, nnew,                          &
      &                             nfm3, nfm2, nfm1, nf, nfp1,          &
      &                             bounded, Ftype, Tinfo, Fz0, track)
@@ -311,6 +329,6 @@
 # endif
 !
       RETURN
-      END SUBROUTINE step_floats_tile
+      END SUBROUTINE new_fish_tile
 #endif
       END MODULE new_fish_mod
