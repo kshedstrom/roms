@@ -9,6 +9,7 @@ local_sub  := ROMS/Fish
 
 local_lib  := libFish.a
 local_src  := $(wildcard $(local_sub)/*.F)
+local_src  += $(wildcard $(local_sub)/*.cc)
 
 $(eval $(call make-library,$(local_lib),$(local_src)))
 

@@ -63,6 +63,8 @@
      &                       FISHES(ng) % lifestage,                    &
      &                       FISHES(ng) % sp_start,                     &
      &                       FISHES(ng) % sp_end,                       &
+     &                       FISHES(ng) % num_free,                     &
+     &                       FISHES(ng) % num_super,                    &
      &                       FISHES(ng) % track)
 # ifdef PROFILE
       CALL wclock_off (ng, iNLM, 10)
@@ -77,7 +79,8 @@
      &                             bounded, Ftype, Tinfo, Fz0,          &
      &                             feedback, bioenergy, species,        &
      &                             num_eggs, alive, lifestage,          &
-     &                             sp_start, sp_end, track)
+     &                             sp_start, sp_end, num_free,          &
+     &                             num_super, track)
 !***********************************************************************
 !
       USE mod_param
@@ -121,6 +124,8 @@
       integer, intent(inout)  :: lifestage(:)
       real(r8), intent(in)    :: sp_start(:)
       real(r8), intent(in)    :: sp_end(:)
+      integer, intent(in)     :: num_free(:)
+      integer, intent(out)    :: num_super(:)
       real(r8), intent(inout) :: track(:,0:,:)
 # else
       integer, intent(in)     :: Ftype(Nfish(ng))
@@ -1018,7 +1023,8 @@
 !
       CALL fish_spawn (ng, Lstr, Lend, nfp1,                            &
      &                     MyThread, bounded, track(:,:,:),             &
-     &                     bioenergy, alive, species, sp_start, sp_end)
+     &                     bioenergy, alive, species, sp_start,         &
+     &                     sp_end, num_free, num_super)
 !
 # endif
 # ifdef DISTRIBUTE

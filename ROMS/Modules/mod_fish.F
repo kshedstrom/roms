@@ -53,6 +53,7 @@
           real(r8), pointer :: sp_end(:)
           integer, pointer  :: num_free(:)
           integer, pointer  :: next_free(:)
+          integer, pointer  :: num_super(:)
 
         END TYPE T_FISHES
 
@@ -123,6 +124,8 @@
 
       allocate ( FISHES(ng) % num_free(Nspecies(ng)) )
 
+      allocate ( FISHES(ng) % num_super(Nspecies(ng)) )
+
       allocate ( FISHES(ng) % next_free(Nspecies(ng)) )
 !
 !-----------------------------------------------------------------------
@@ -165,10 +168,9 @@
         FISHES(ng) % sp_start(i) = 120._r8
         FISHES(ng) % sp_end(i) = 210._r8
         FISHES(ng) % num_free(i) = Nfishperyear(ng)
-! Stick the new fish at the end for now - not sure how many got read in
-! as initial conditions.
-        FISHES(ng) % next_free(i) = 1 + (i-1)*Nfishperyear(ng) +        &
-     &                 Nfishperyear(ng)*Nspecies(ng)*(Nyearclass(ng)-1)
+        FISHES(ng) % num_super(i) = 0
+! Stick the new fish at the beginning, grouped by species.
+        FISHES(ng) % next_free(i) = 1 + (i-1)*Nfishperyear(ng)
       END DO
 
       RETURN

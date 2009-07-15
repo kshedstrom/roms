@@ -52,9 +52,9 @@
 !
 !***********************************************************************
       SUBROUTINE fish_spawn (ng, Lstr, Lend, itime,                     &
-     &                           MyThread, bounded, track,              &
-     &                           bioenergy, alive, species,             &
-     &                           sp_start, sp_end)
+     &                       MyThread, bounded, track,                  &
+     &                       bioenergy, alive, species,                 &
+     &                       sp_start, sp_end, num_free, num_super)
 !***********************************************************************
 !
       USE mod_param
@@ -73,6 +73,8 @@
       integer, intent(in) :: species(Nfish(ng))
       real(r8), intent(in) :: sp_start(Nspecies(ng))
       real(r8), intent(in) :: sp_end(Nspecies(ng))
+      integer, intent(in) :: num_free(Nspecies(ng))
+      integer, intent(out) :: num_super(Nspecies(ng))
 
       real(r8), intent(in) :: track(NFV(ng),0:NFT,Nfish(ng))
       real(r8), intent(inout) :: bioenergy(NFishV(ng),Nfish(ng))
@@ -98,6 +100,11 @@
 ! tcheck: spawn at midnight
       tcheck=MOD(time(ng)/86400.0_r8,24.0_r8)
 !
+! find out how many free superindividuals per species for today
+      DO isp=1, Nspecies(ng)
+        num_super(isp) = num_free(isp) / (sp_end(isp) - sp_time + 1)
+      END DO
+
       DO l=Lstr,Lend
         isp = species(l)
         IF (MyThread(l).and.bounded(l)) THEN

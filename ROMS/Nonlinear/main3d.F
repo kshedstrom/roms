@@ -129,6 +129,7 @@
 # endif
 # ifdef NEMURO_SAN
       USE step_fish_mod, ONLY : step_fish
+      USE new_fish_mod, ONLY : new_fish
       USE fish_by_cell_mod, ONLY : fish_by_cell
 #  ifdef FLEET
       USE ships_by_cell_mod, ONLY : ships_by_cell
@@ -740,7 +741,7 @@
 #  ifdef EGGS_BISECTION
             CALL eggs_by_cell (ng, TILE)
 #  endif
-!           CALL new_fish
+            CALL new_fish(ng)
             iyesterday(ng) = idays(ng)
           END IF
         END DO

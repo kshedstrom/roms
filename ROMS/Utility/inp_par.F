@@ -11411,9 +11411,13 @@
 !  initial float horizontal positions (grid units).  Fill the initial
 !  vertical level or depth position.
 !
+!  For fish, we need to save some spaces at the beginning for spawned
+!  eggs. Put the fish from fish.in into the end of the array so they will
+!  be booted last when making new generations.
+!
       DO ng=1,Ngrids
-        mc=0
-        nc=0
+        mc=Nfish(ng)-nentry(ng)
+        nc=Nfish(ng)-nentry(ng)
         DO i=1,nentry(ng)
           IF (Fcount(i,ng).eq.1) THEN
             nc=nc+1

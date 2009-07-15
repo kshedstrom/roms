@@ -59,12 +59,12 @@ $(if $(filter $(MAKE_VERSION),$(NEED_VERSION)),,        \
 #  the .h extension. For example, the upwelling application includes the
 #  "upwelling.h" header file.  
 
-ROMS_APPLICATION := WC13
+ROMS_APPLICATION := UPWELLING
 
 #  If application header files is not located in "ROMS/Include",
 #  provide an alternate directory FULL PATH.
 
-MY_HEADER_DIR ?= Apps/wc13
+MY_HEADER_DIR ?=
 
 #  If your application requires analytical expressions and they are
 #  not located in "ROMS/Functionals", provide an alternate directory.
@@ -218,7 +218,9 @@ endif
 #  header file ROMS/Include/cppdefs.h to determine macro definitions.
 #--------------------------------------------------------------------------
 
-MAKE_MACROS := Compilers/make_macros.mk
+  COMPILERS ?= $(CURDIR)/Compilers
+
+MAKE_MACROS := $(COMPILERS)/make_macros.mk
 
 ifneq "$(MAKECMDGOALS)" "clean"
  MACROS := $(shell cpp -P $(ROMS_CPPFLAGS) Compilers/make_macros.h > \
@@ -241,15 +243,16 @@ clean_list += $(MAKE_MACROS)
 
 #--------------------------------------------------------------------------
 #  Make functions for putting the temporary files in $(SCRATCH_DIR)
-#  DO NOT modify this section; spaces and blank lineas are needed.
+#  DO NOT modify this section; spaces and blank lines are needed.
 #--------------------------------------------------------------------------
 
 # $(call source-dir-to-binary-dir, directory-list)
 source-dir-to-binary-dir = $(addprefix $(SCRATCH_DIR)/, $(notdir $1))
 
 # $(call source-to-object, source-file-list)
-source-to-object = $(call source-dir-to-bindary-dir,   \
-                   $(subst .F,.o,$1))
+source-to-object = $(call source-dir-to-bindary-dir,      \
+                   $(subst .F,.o,$(filter %.F,$1))        \
+                   $(subst .cc,.o,$(filter %.cc,$1)))
 
 # $(call make-library, library-name, source-file-list)
 define make-library
@@ -257,7 +260,8 @@ define make-library
    sources   += $2
 
    $(SCRATCH_DIR)/$1: $(call source-dir-to-binary-dir,    \
-                      $(subst .F,.o,$2))
+                      $(subst .F,.o,$(filter %.F,$2))     \
+                      $(subst .cc,.o,$(filter %.cc,$2)))
 	$(AR) $(ARFLAGS) $$@ $$^
 	$(RANLIB) $$@
 endef
@@ -326,8 +330,6 @@ SVNREV ?= $(shell svnversion -n .)
 
 ROOTDIR := $(shell pwd)
 
-COMPILERS := ./Compilers
-
 ifndef FORT
   $(error Variable FORT not set)
 endif
@@ -392,6 +394,9 @@ endif
 ifdef USE_REPRESENTER
  modules  +=	ROMS/Representer
 endif
+ifdef USE_SEAICE
+ modules  +=  ROMS/SeaIce
+endif
 ifdef USE_TANGENT
  modules  +=	ROMS/Tangent
 endif
@@ -399,15 +404,9 @@ endif
 		ROMS/Functionals \
 		ROMS/Modules
 ifdef USE_FISH
+ modules  +=	ROMS/Fish
+endif
  modules  +=	ROMS/Utility
-endif
-
-# Has to come after fish.
- modules  +=	ROMS/Nonlinear \
-
-ifdef USE_SEAICE
- modules  +=	ROMS/SeaIce
-endif
 
  includes :=	ROMS/Include
 ifdef MY_ANALYTICAL
@@ -429,6 +428,9 @@ endif
 		ROMS/Utility \
 		ROMS/Drivers \
                 ROMS/Functionals
+ifdef USE_FISH
+ includes +=	ROMS/Fish
+endif
 ifdef MY_HEADER_DIR
  includes +=	$(MY_HEADER_DIR)
 endif
@@ -442,6 +444,7 @@ endif
  includes +=	Master Compilers
 
 vpath %.F $(modules)
+vpath %.cc $(modules)
 vpath %.h $(includes)
 vpath %.f90 $(SCRATCH_DIR)
 vpath %.o $(SCRATCH_DIR)
@@ -488,6 +491,7 @@ $(SCRATCH_DIR)/mod_strings.f90: CPPFLAGS += -DMY_OS='"$(OS)"' \
 #--------------------------------------------------------------------------
 
 MYLIB := libocean.a
+TREE_FILE := c_tree.cc
 
 .PHONY: libraries
 
@@ -503,12 +507,16 @@ $(SCRATCH_DIR)/$(NETCDF_MODFILE): | $(SCRATCH_DIR)
 $(SCRATCH_DIR)/$(TYPESIZES_MODFILE): | $(SCRATCH_DIR)
 	cp -f $(NETCDF_INCDIR)/$(TYPESIZES_MODFILE) $(SCRATCH_DIR)
 
+$(SCRATCH_DIR)/$(TREE_FILE): | $(SCRATCH_DIR)
+	cp -f ROMS/Fish/$(TREE_FILE) $(SCRATCH_DIR)
+
 $(SCRATCH_DIR)/MakeDepend: makefile \
                            $(SCRATCH_DIR)/$(NETCDF_MODFILE) \
                            $(SCRATCH_DIR)/$(TYPESIZES_MODFILE) \
+                           $(SCRATCH_DIR)/$(TREE_FILE) \
                            | $(SCRATCH_DIR)
 	$(SFMAKEDEPEND) $(MDEPFLAGS) $(sources) > $(SCRATCH_DIR)/MakeDepend
-	cp -p $(CURDIR)/$(MAKE_MACROS) $(SCRATCH_DIR)
+	cp -p $(MAKE_MACROS) $(SCRATCH_DIR)
 
 .PHONY: depend
 
@@ -552,7 +560,7 @@ clean:
 .PHONY: rm_macros
 
 rm_macros:
-	$(RM) -r $(CURDIR)/$(MAKE_MACROS)
+	$(RM) -r $(MAKE_MACROS)
 
 #--------------------------------------------------------------------------
 #  A handy debugging target. This will allow to print the value of any
