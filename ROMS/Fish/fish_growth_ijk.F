@@ -89,7 +89,7 @@
       d_R=0.03_r8
       a_S=0.175_r8
 !
-! COMSUMPTION
+! Comsumption
       C_max=a_C*Fweight**(-b_C)
 # ifdef MASKING
       SZooC=mmol2g*GRID(ng)%rmask(Ir,Jr)*                               &
@@ -108,19 +108,15 @@
       FPZoo=PZooC*ZPpref(ng)/K_ZP
       FTZoo=1.0_r8/(1.0_r8+FSZoo+FLZoo+FPZoo)
       Csmp=C_max*(FSZoo+FLZoo+FPZoo)*FTZoo*CAL_ZF
-!
-! EGESTION AND EXCRETION
+! Egestion and Excretion
       Egst=a_F*Csmp
       Excr=a_E*(Csmp-Egst)
-!
-! RESPIRATION (Uswim in cm/s)
+! Respiration (Uswim in cm/s)
       Actv=exp(d_R*Uswim)
       Resp=a_R*Fweight**(-b_R)*Actv*5.258
-!
-! SPECIFIC DYNAMIC ACTION
+! Specific Dynamic Action
       SDA=a_S*(Csmp-Egst)
-!
-! GROWTH POTENTIAL at Ir,Jr,Kr
+! Growth Potential at Ir,Jr,Kr
       Fgrowth=Csmp-Egst-Excr-Resp-SDA
 !
 #else

@@ -46,6 +46,7 @@
           IF (FISHES % bioenergy(ifeggs, l) .ne. 0) THEN
             CALL tree_insert(FISHES % bioenergy(ifspwnloc,l),           &
      &                FISHES % bioenergy(ifeggs, l), l)
+          END IF
         END DO
 
         call tree_traverse

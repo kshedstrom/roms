@@ -726,26 +726,26 @@
 !
 !  Find out how many and which fish in each cell - is this daily?
 !
-      IF (iyesterday(ng) .ne. idays(ng)) THEN
 !$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(ng,numthreads)
-        DO thread=0,numthreads-1
-          subs=NtileX(ng)*NtileE(ng)/numthreads
-          DO tile=subs*thread,subs*(thread+1)-1,+1
+      DO thread=0,numthreads-1
+        subs=NtileX(ng)*NtileE(ng)/numthreads
+        DO tile=subs*thread,subs*(thread+1)-1,+1
+          CALL fish_by_cell (ng, TILE)
 ! Don't need these yet...
-!           CALL fish_by_cell (ng, TILE)
 #  ifdef FLEET
-!           CALL ships_by_cell (ng, TILE)
+!          CALL ships_by_cell (ng, TILE)
 #  endif
+          IF (iyesterday(ng) .ne. idays(ng)) THEN
 ! Haven't finished this yet
 #  ifdef EGGS_BISECTION
             CALL eggs_by_cell (ng, TILE)
 #  endif
 !           CALL new_fish
-          END DO
+            iyesterday(ng) = idays(ng)
+          END IF
         END DO
+      END DO
 !$OMP END PARALLEL DO
-        iyesterday(ng) = idays(ng)
-      END IF
 # endif
 # if defined FLOATS || defined NEMURO_SAN
 !

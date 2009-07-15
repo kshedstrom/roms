@@ -86,6 +86,7 @@
 # endif
       USE mod_ncparam
       USE mod_ocean
+      USE mod_fish
       USE mod_scalars
       USE mod_biology
       USE fish_growth_mod
@@ -300,15 +301,17 @@
       cff1=8.0_r8/3.0_r8
       cff2=4.0_r8/3.0_r8
 !
-      CALL fish_swim (ng, LBi, UBi, LBj, UBj, 1, N(ng),                 &
-     &                    Lstr, Lend, nf, nnew,                         &
+      CALL fish_swim (ng, LBi, UBi, LBj, UBj, 1, N(ng), nf, nnew,       &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
 # ifdef SOLVE3D
      &                    GRID(ng) % Hz,                                &
 # endif
      &                    MyThread, bounded, track,                     &
-     &                    bioenergy, alive)
+     &                    bioenergy, alive,                             &
+     &                    OCEAN(ng) % fish_count,                       &
+     &                    OCEAN(ng) % fish_list,                        &
+     &                    FISHES(ng) % fishnodes)
 !
       DO l=Lstr,Lend
         IF (MyThread(l).and.bounded(l)) THEN
@@ -494,15 +497,17 @@
       cff3=3.0_r8/8.0_r8
       cff4=6.0_r8/8.0_r8
 !
-      CALL fish_swim (ng, LBi, UBi, LBj, UBj, 1, N(ng),                 &
-     &                    Lstr, Lend, nfp1, nnew,                       &
+      CALL fish_swim (ng, LBi, UBi, LBj, UBj, 1, N(ng), nfp1, nnew,     &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
 # ifdef SOLVE3D
      &                    GRID(ng) % Hz,                                &
 # endif
-     &                     MyThread, bounded, track,                    &
-     &                     bioenergy, alive)
+     &                    MyThread, bounded, track,                     &
+     &                    bioenergy, alive,                             &
+     &                    OCEAN(ng) % fish_count,                       &
+     &                    OCEAN(ng) % fish_list,                        &
+     &                    FISHES(ng) % fishnodes)
 !
       DO l=Lstr,Lend
         IF (MyThread(l).and.bounded(l)) THEN
@@ -997,9 +1002,12 @@
      &                      MyThread, bounded, track)
       END DO
 !
-      CALL fish_growth (ng, Lstr, Lend, nfp1,                           &
+      CALL fish_growth (ng, LBi, UBi, LBj, UBj, nfp1,                   &
      &                      MyThread, bounded, track(:,:,:),            &
-     &                      feedback, bioenergy, alive)
+     &                      feedback, bioenergy, alive,                 &
+     &                      OCEAN(ng) % fish_count,                     &
+     &                      OCEAN(ng) % fish_list,                      &
+     &                      FISHES(ng) % fishnodes)
 !
       CALL fish_spawn (ng, Lstr, Lend, nfp1,                            &
      &                     MyThread, bounded, track(:,:,:),             &
