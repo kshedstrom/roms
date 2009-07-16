@@ -38,6 +38,7 @@ $(if $(filter $(MAKE_VERSION),$(NEED_VERSION)),,        \
 
   sources    := 
   libraries  :=
+  c_sources    := 
 
 #==========================================================================
 #  Start of user-defined options. In some macro definitions below: "on" or
@@ -251,8 +252,12 @@ source-dir-to-binary-dir = $(addprefix $(SCRATCH_DIR)/, $(notdir $1))
 
 # $(call source-to-object, source-file-list)
 source-to-object = $(call source-dir-to-bindary-dir,      \
-                   $(subst .F,.o,$(filter %.F,$1))        \
-                   $(subst .cc,.o,$(filter %.cc,$1)))
+                   $(subst .F,.o,$1))
+
+# $(call source-to-object, source-file-list)
+c-source-to-object = $(call source-dir-to-bindary-dir,      \
+                     $(subst .c,.o,$(filter %.c,$1))        \
+                     $(subst .cc,.o,$(filter %.cc,$1)))
 
 # $(call make-library, library-name, source-file-list)
 define make-library
@@ -260,7 +265,18 @@ define make-library
    sources   += $2
 
    $(SCRATCH_DIR)/$1: $(call source-dir-to-binary-dir,    \
-                      $(subst .F,.o,$(filter %.F,$2))     \
+                      $(subst .F,.o,$2))
+	$(AR) $(ARFLAGS) $$@ $$^
+	$(RANLIB) $$@
+endef
+
+# $(call make-c-library, library-name, source-file-list)
+define make-c-library
+   libraries += $(SCRATCH_DIR)/$1
+   c_sources += $2
+
+   $(SCRATCH_DIR)/$1: $(call source-dir-to-binary-dir,    \
+                      $(subst .c,.o,$(filter %.c,$2))     \
                       $(subst .cc,.o,$(filter %.cc,$2)))
 	$(AR) $(ARFLAGS) $$@ $$^
 	$(RANLIB) $$@
@@ -277,7 +293,13 @@ define compile-rules
     $(call f90-source,$f),$f))
 endef
 
-# $(call one-compile-rule, binary-file, f90-file, source-files)
+# $(c-compile-rules)
+define c-compile-rules
+  $(foreach f, $(local_c_src),       \
+    $(call one-c-compile-rule,$(call c-source-to-object,$f), $f))
+endef
+
+# $(call one-compile-rule, binary-file, f90-file, source-file)
 define one-compile-rule
   $1: $2 $3
 	cd $$(SCRATCH_DIR); $$(FC) -c $$(FFLAGS) $(notdir $2)
@@ -285,6 +307,14 @@ define one-compile-rule
   $2: $3
 	$$(CPP) $$(CPPFLAGS) $$(MY_CPP_FLAGS) $$< > $$@
 	$$(CLEAN) $$@
+
+endef
+
+#--------------------------------------------------------------------------
+# $(call one-c-compile-rule, binary-file, source-file)
+define one-c-compile-rule
+  $1: $2
+	cd $$(SCRATCH_DIR); $$(CXX) -c $$(CXXFLAGS) $$<
 
 endef
 
@@ -491,7 +521,6 @@ $(SCRATCH_DIR)/mod_strings.f90: CPPFLAGS += -DMY_OS='"$(OS)"' \
 #--------------------------------------------------------------------------
 
 MYLIB := libocean.a
-TREE_FILE := c_tree.cc
 
 .PHONY: libraries
 
@@ -507,13 +536,9 @@ $(SCRATCH_DIR)/$(NETCDF_MODFILE): | $(SCRATCH_DIR)
 $(SCRATCH_DIR)/$(TYPESIZES_MODFILE): | $(SCRATCH_DIR)
 	cp -f $(NETCDF_INCDIR)/$(TYPESIZES_MODFILE) $(SCRATCH_DIR)
 
-$(SCRATCH_DIR)/$(TREE_FILE): | $(SCRATCH_DIR)
-	cp -f ROMS/Fish/$(TREE_FILE) $(SCRATCH_DIR)
-
 $(SCRATCH_DIR)/MakeDepend: makefile \
                            $(SCRATCH_DIR)/$(NETCDF_MODFILE) \
                            $(SCRATCH_DIR)/$(TYPESIZES_MODFILE) \
-                           $(SCRATCH_DIR)/$(TREE_FILE) \
                            | $(SCRATCH_DIR)
 	$(SFMAKEDEPEND) $(MDEPFLAGS) $(sources) > $(SCRATCH_DIR)/MakeDepend
 	cp -p $(MAKE_MACROS) $(SCRATCH_DIR)

@@ -2190,6 +2190,10 @@
 # else
       ic=ic+11
 # endif
+# ifdef NEMURO_SAN
+!  KLUDGE WARNING!
+      idfish = if_herring
+# endif
 #elif defined NPZD_FRANKS || defined NPZD_POWELL
 !
 !  Set NPZD biological tracer indices.

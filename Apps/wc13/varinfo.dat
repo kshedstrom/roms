@@ -4844,3 +4844,21 @@
   'r3dvar'
   1.0d0
 
+ 'fworth'
+  'Number of fish in superindividual'
+  'nondimensional'
+  'fworth, scalar, series'
+  'bio_time'
+  'idfworth'
+  'r3dvar'
+  1.0d0
+
+ 'fpval'
+  'Wet weight of fish'
+  'unsure...'
+  'fpval, scalar, series'
+  'bio_time'
+  'idfpval'
+  'r3dvar'
+  1.0d0
+

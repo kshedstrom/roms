@@ -106,8 +106,8 @@
       END DO
 
       DO l=Lstr,Lend
-        isp = species(l)
         IF (MyThread(l).and.bounded(l)) THEN
+          isp = idfish(species(l))
           IF ((sp_time.ge.sp_start(isp)).and.(sp_time.le.sp_end(isp))   &
      &             .and.(tcheck.eq.REAL(INT(tcheck)))) THEN
             Ftemp=track(itemp+NFV(ng)-NT(ng),itime,l)
@@ -128,10 +128,8 @@
               bioenergy(ifspwnloc,l)=0.0_r8
             END IF
           END IF
-        END IF
 !
-        IF (sp_time.gt.sp_end(isp)) THEN
-          IF (MyThread(l).and.bounded(l)) THEN
+          IF (sp_time.gt.sp_end(isp)) THEN
             bioenergy(ifeggs,l)=0.0_r8
             bioenergy(ifspwnloc,l)=0.0_r8
           END IF
