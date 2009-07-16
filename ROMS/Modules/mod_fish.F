@@ -165,7 +165,7 @@
 
       DO i=1,Nspecies(ng)
 !  KLUDGE FOO WARNING! This will need to be updated.
-        FISHES(ng) % sp_start(i) = 120._r8
+        FISHES(ng) % sp_start(i) = 1._r8
         FISHES(ng) % sp_end(i) = 210._r8
         FISHES(ng) % num_free(i) = Nfishperyear(ng)
         FISHES(ng) % num_super(i) = 0

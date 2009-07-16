@@ -419,6 +419,7 @@
         integer, parameter :: if_herring = 3
         integer, parameter :: if_polluck = 4
         integer, parameter :: if_pinksalmon = 5
+        integer, parameter :: max_species = 5
 ! Lifestage and gender
         integer, parameter :: if_egg = 1
         integer, parameter :: if_yolksac = 2
@@ -1987,7 +1988,7 @@
       allocate ( idbio(NBT) )
 #  ifdef NEMURO_SAN
       DO ng=1,Ngrids
-        allocate ( idfish(Nspecies(ng)) )
+        allocate ( idfish(max_species) )
       END DO
 #  endif
 
@@ -2192,7 +2193,7 @@
 # endif
 # ifdef NEMURO_SAN
 !  KLUDGE WARNING!
-      idfish = if_herring
+      idfish(if_herring) = 1
 # endif
 #elif defined NPZD_FRANKS || defined NPZD_POWELL
 !
