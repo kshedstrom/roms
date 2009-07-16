@@ -1,4 +1,4 @@
-# svn $Id: Linux-ifort.mk 975 2009-05-05 22:51:13Z kate $
+# svn $Id: Linux-ifort.mk 1020 2009-07-10 23:10:30Z kate $
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 # Copyright (c) 2002-2009 The ROMS/TOMS Group                           :::
 #   Licensed under a MIT/X style license                                :::
@@ -28,7 +28,7 @@
 # First the defaults
 #
                FC := ifort
-           FFLAGS := -heap-arrays
+           FFLAGS := -heap-arrays -fp-model precise
               CPP := /usr/bin/cpp
          CPPFLAGS := -P -traditional
                CC := gcc

@@ -1,6 +1,6 @@
 !  Nutrient-Phytoplankton-Zooplankton-Detritus Biological Model Parameters.
 !
-!svn $Id: npzd_iron.in 1013 2009-07-07 21:21:23Z kate $
+!svn $Id: npzd_iron.in 1020 2009-07-10 23:10:30Z kate $
 !========================================================= Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                                !
 !    Licensed under a MIT/X style license                                     !
@@ -156,7 +156,7 @@ BioIni(iFphy) == 0.0d0                           ! iron in phytoplankton
 ! Fe source over the shelf (h <= FeHmin).
 
         FeHmin == 200.0d0                        ! minimum depth (m)
-    FeNugdTime == 5.0d0                          ! nudging time (days)
+    FeNudgTime == 5.0d0                          ! nudging time (days)
          FeMax == 2.0d0                          ! Fe value (mmole/m3) to nudge
 
 ! Lateral, constant, harmonic/biharmonic horizontal diffusion of biological

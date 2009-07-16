@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       MODULE mod_iounits
 !
-!svn $Id: mod_iounits.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: mod_iounits.F 1020 2009-07-10 23:10:30Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -19,6 +19,7 @@
 !  CLMname     Input climatology file name.                            !
 !  DIAbase     Output diagnostics base file name.                      !
 !  DIAname     Output diagnostics file name.                           !
+!  ERRname     Output 4DVar posterior error file name.                 !
 !  FILname     Output filter file name.                                !
 !  FLTname     Output floats file name.                                !
 !  FISHname    Output fish file name.                                  !
@@ -127,6 +128,7 @@
         character (len=fname_len), dimension(Ngrids) :: CLMname
         character (len=fname_len), dimension(Ngrids) :: DIAbase
         character (len=fname_len), dimension(Ngrids) :: DIAname
+        character (len=fname_len), dimension(Ngrids) :: ERRname
         character (len=fname_len), dimension(Ngrids) :: FLTname
         character (len=fname_len), dimension(Ngrids) :: FISHname
 #ifdef FILTERED_RST
@@ -161,6 +163,9 @@
         character (len=fname_len), dimension(Ngrids) :: RSTname
         character (len=fname_len), dimension(Ngrids) :: STAname
 
+        character (len=fname_len), dimension(4,Ngrids) :: NRMname
+        character (len=fname_len), dimension(4,Ngrids) :: STDname
+
         character (len=fname_len) :: Iname
         character (len=fname_len) :: Wname
         character (len=fname_len) :: MyAppCPP
@@ -175,7 +180,5 @@
         character (len=fname_len) :: sparnam
         character (len=fname_len) :: sposnam
         character (len=fname_len) :: varname
-        character (len=fname_len), dimension(4,Ngrids) :: NRMname
-        character (len=fname_len), dimension(4,Ngrids) :: STDname
 
       END MODULE mod_iounits

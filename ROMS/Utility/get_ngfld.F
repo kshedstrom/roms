@@ -4,7 +4,7 @@
      &                      Istr, Iend, Jrec,                           &
      &                      Fout)
 !
-!svn $Id: get_ngfld.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: get_ngfld.F 1022 2009-07-16 22:34:52Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -190,7 +190,7 @@
 !  to see if the dimension contains the "time" string.
 !
             IF (got_time.and.(Nrec.eq.0)) THEN
-              DO i=1,n_dim
+              DO i=1,n_vdim
                 IF (INDEX(TRIM(var_Dname(i)),'time').ne.0) THEN
                   Nrec=var_Dsize(i)
                 END IF

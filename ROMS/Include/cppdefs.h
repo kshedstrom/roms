@@ -1,7 +1,7 @@
 /*
 ** Include file "cppdefs.h"
 **
-** svn $Id: cppdefs.h 989 2009-05-26 22:46:51Z kate $
+** svn $Id: cppdefs.h 1020 2009-07-10 23:10:30Z kate $
 ********************************************************** Hernan G. Arango ***
 ** Copyright (c) 2002-2009 The ROMS/TOMS Group                               **
 **   Licensed under a MIT/X style license                                    **
@@ -548,7 +548,9 @@
 ** MULTIPLE_TLM        use if multiple TLM history files in 4DVAR            **
 ** NLM_OUTER           use if nonlinear model as basic state in outer loop   **
 ** OBS_IMPACT          use if observation impact to 4DVAR data assimilation  **
-** POSTERIOR_EOFS      Use if estimating posterior analysis error covariace  **
+** POSTERIOR_EOFS      Use if posterior analysis error covariace EOFS        **
+** POSTERIOR_ERROR_F   Use if final posterior analysis error covariace       **
+** POSTERIOR_ERROR_I   Use if initial posterior analysis error covariace     **
 ** RPM_RELAXATION      use if Picard iterations, Diffusive Relaxation of RPM **
 ** SO_SEMI_WHITE       use to activate white/red noise processes             **
 ** SPLINES_VCONV       use to activate implicit splines vertical convolution **

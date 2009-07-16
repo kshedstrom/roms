@@ -1,9 +1,11 @@
 #include "cppdefs.h"
-#if defined IS4DVAR        || \
-   (defined POSTERIOR_EOFS && defined WEAK_CONSTRAINT )
+#if defined IS4DVAR              || \
+    (defined WEAK_CONSTRAINT     && \
+     (defined POSTERIOR_EOFS     || defined POSTERIOR_ERROR_I ||\
+      defined POSTERIOR_ERROR_F))
       SUBROUTINE wrt_hessian (ng, kout, nout)
 !
-!svn $Id: wrt_hessian.F 1012 2009-07-07 20:52:45Z kate $
+!svn $Id: wrt_hessian.F 1020 2009-07-10 23:10:30Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
