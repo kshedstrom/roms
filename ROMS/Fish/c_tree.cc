@@ -32,7 +32,11 @@ void print_traverse(Node * n)
 
 vector<RBTree *> trees;
 
+#ifdef PATH
+extern "C" void c_tree_init__(int* species) {
+#else
 extern "C" void c_tree_init_(int* species) {
+#endif
     int sp = *species;
     while (sp >= trees.size()) {
        trees.push_back(new RBTree());
@@ -41,15 +45,27 @@ extern "C" void c_tree_init_(int* species) {
     printf("species %d\n", sp);
 }
 
+#ifdef PATH
+extern "C" void c_tree_insert__(int* species, double* dist, double* eggs, int* mom) {
+#else
 extern "C" void c_tree_insert_(int* species, double* dist, double* eggs, int* mom) {
+#endif
     trees[*species]->insert(*dist, *eggs, *mom);
 }
 
+#ifdef PATH
+extern "C" void c_tree_traverse__(int* species) {
+#else
 extern "C" void c_tree_traverse_(int* species) {
+#endif
     print_traverse(trees[*species]->root);
 }
 
+#ifdef PATH
+extern "C" void c_tree_collect__(int* species, int* nsuper, int* nfound, double* eggs, int* mom) {
+#else
 extern "C" void c_tree_collect_(int* species, int* nsuper, int* nfound, double* eggs, int* mom) {
+#endif
     vector<RBTree *> arr = trees[*species]->collect(*nsuper);
     *nfound = arr.size();
     int ii;
@@ -60,7 +76,11 @@ extern "C" void c_tree_collect_(int* species, int* nsuper, int* nfound, double* 
     }
 }
 
+#ifdef PATH
+extern "C" void c_tree_destroy__() {
+#else
 extern "C" void c_tree_destroy_() {
+#endif
     int ii;
     for (ii=0; ii<trees.size(); ii++) {
         delete trees[ii];

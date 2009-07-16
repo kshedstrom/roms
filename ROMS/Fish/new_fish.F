@@ -34,17 +34,21 @@
       USE mod_tree
 # endif
       USE nrutil
+# ifdef DISTRIBUTE
+      USE distribute_mod, ONLY : mp_collect
+# endif
 !
 !  Imported variable declarations.
 !
       integer, intent(in) :: ng
-      integer :: i, isp, j, l, Nfound, Navail, ifsh
+      integer :: i, isp, j, l, Nfound, Navail, Npts, ifsh
       integer, pointer :: moms(:)
       real(r8), pointer :: eggs(:)
       real(r8) :: wgt
 # ifdef DISTRIBUTE
       real(r8) :: Xstr, Xend, Ystr, Yend
       real(r8), dimension(Nfloats(ng)*NFV(ng)*(NFT+1)) :: Fwrk
+      real(r8), parameter :: Fspv = 0.0_r8
 # endif
 !
 # ifdef PROFILE

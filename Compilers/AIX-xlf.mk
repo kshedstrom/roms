@@ -35,7 +35,7 @@
               CXX := xlC_r
            CFLAGS :=
          CXXFLAGS :=
-          LDFLAGS :=
+          LDFLAGS := -lstdc++
                AR := ar
           ARFLAGS := -r
             MKDIR := mkdir -p

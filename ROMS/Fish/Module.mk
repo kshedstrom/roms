@@ -20,5 +20,5 @@ $(eval $(compile-rules))
 
 #$(eval $(c-compile-rules))
 Build/c_tree.o: $(local_sub)/c_tree.cc
-	cd $(SCRATCH_DIR); $(CXX) -c $(CXXFLAGS) -o $(notdir $@) ../$<
+	cd $(SCRATCH_DIR); $(CXX) -c $(CXXFLAGS) $(CPPFLAGS) -o $(notdir $@) ../$<
 

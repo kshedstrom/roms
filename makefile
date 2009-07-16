@@ -310,7 +310,6 @@ define one-compile-rule
 
 endef
 
-#--------------------------------------------------------------------------
 # $(call one-c-compile-rule, binary-file, source-file)
 define one-c-compile-rule
   $1: $2
@@ -425,7 +424,7 @@ ifdef USE_REPRESENTER
  modules  +=	ROMS/Representer
 endif
 ifdef USE_SEAICE
- modules  +=  ROMS/SeaIce
+ modules  +=	ROMS/SeaIce
 endif
 ifdef USE_TANGENT
  modules  +=	ROMS/Tangent
