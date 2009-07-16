@@ -1984,7 +1984,9 @@
 # ifdef BIOLOGY
       allocate ( idbio(NBT) )
 #  ifdef NEMURO_SAN
-      allocate ( idfish(Nspecies(ng)) )
+      DO ng=1,Ngrids
+        allocate ( idfish(Nspecies(ng)) )
+      END DO
 #  endif
 
 # ifdef BEST_NPZ
