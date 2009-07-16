@@ -456,15 +456,15 @@
 !
 !  Number of tracers for the Gulf of Alaska ecosystem model.
 !
-     integer, parameter :: NBTS = 7
+      integer, parameter :: NBTS = 7
 #   if defined IRON_LIMIT
        integer, parameter :: NBT = 11
 #   else
        integer, parameter :: NBT = 10
 #   endif
-# else
-        integer, parameter :: NBT = 0
 # endif
+#else
+        integer, parameter :: NBT = 0
 #endif
 
 #if defined BEST_NPZ    
