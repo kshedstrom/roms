@@ -212,20 +212,48 @@
      &                      ncid = ncFISHid(ng),                        &
      &                      varid = fishVid(idfwwt,ng))
       IF (exit_flag.ne.NoError) RETURN
-!  Write fish spawning location.
+!  Write fish worth.
       DO l=1,Nfish(ng)
         IF (FISHES(ng)%bounded(l)) THEN
-          Tout(l)=FISHES(ng)%bioenergy(ifspwnloc,l)
+          Tout(l)=FISHES(ng)%bioenergy(ifworth,l)
         ELSE
           Tout(l)=spval
         END IF
       END DO
       CALL netcdf_put_fvar (ng, iNLM, FISHname(ng),                     &
-     &                      TRIM(Vname(1,idspwnloc)), Tout,             &
+     &                      TRIM(Vname(1,idfworth)), Tout,              &
      &                      (/1,tFISHindx(ng)/), (/Nfish(ng),1/),       &
      &                      ncid = ncFISHid(ng),                        &
-     &                      varid = fishVid(idspwnloc,ng))
+     &                      varid = fishVid(idfworth,ng))
       IF (exit_flag.ne.NoError) RETURN
+!  Write fish P-value.
+      DO l=1,Nfish(ng)
+        IF (FISHES(ng)%bounded(l)) THEN
+          Tout(l)=FISHES(ng)%bioenergy(ifpval,l)
+        ELSE
+          Tout(l)=spval
+        END IF
+      END DO
+      CALL netcdf_put_fvar (ng, iNLM, FISHname(ng),                     &
+     &                      TRIM(Vname(1,idfpval)), Tout,               &
+     &                      (/1,tFISHindx(ng)/), (/Nfish(ng),1/),       &
+     &                      ncid = ncFISHid(ng),                        &
+     &                      varid = fishVid(idfpval,ng))
+      IF (exit_flag.ne.NoError) RETURN
+!  Write fish spawning location.
+!      DO l=1,Nfish(ng)
+!        IF (FISHES(ng)%bounded(l)) THEN
+!          Tout(l)=FISHES(ng)%bioenergy(ifspwnloc,l)
+!        ELSE
+!          Tout(l)=spval
+!        END IF
+!      END DO
+!      CALL netcdf_put_fvar (ng, iNLM, FISHname(ng),                     &
+!     &                      TRIM(Vname(1,idspwnloc)), Tout,             &
+!     &                      (/1,tFISHindx(ng)/), (/Nfish(ng),1/),       &
+!     &                      ncid = ncFISHid(ng),                        &
+!     &                      varid = fishVid(idspwnloc,ng))
+!      IF (exit_flag.ne.NoError) RETURN
 #  endif
 # endif
 !

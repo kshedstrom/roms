@@ -184,7 +184,7 @@
 # endif
 # ifdef HUMSTON
                   Ftemp=track(itemp+NFV(ng)-NT(ng),itime,fid)
-!                  Fpval=bioenergy(ifpvl,fid)
+!                  Fpval=bioenergy(ifpval,fid)
                   Fdens=track(ifden,itime,fid)
                   tcheck=MOD(time(ng)/86400.0_r8,24.0_r8)
 ! Behavior based on temperature
