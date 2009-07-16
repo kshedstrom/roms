@@ -162,7 +162,7 @@
 
       real(r8) :: cff1, cff2, cff3, cff4, cff5, cff6, cff7, cff8, cff9
       real(r8) :: p1, p2, q1, q2, xrhs, yrhs, zrhs, zfloat
-      real(r8) :: tspawn
+      real(r8) :: tspawn, Fworth0, Nymort
 
 # ifdef FLOAT_VWALK
       integer :: ierr
@@ -787,8 +787,13 @@
             END DO
 !
 !  If newly released fishes, initialize fish weight
-!
+! 
+! Nymort should be a species-dependent parameter
+            Nymort=0.3_r8
+            Fworth0=(0.5e5_r8*1.0e6_r8)*EXP(-Nymort)/                   &
+     &              REAL(Nfishperyear(ng),r8)
             bioenergy(ifwwt,l)=Fwwt0(ng)
+            bioenergy(ifworth,l)=Fworth0
             bioenergy(ifage,l)=Fage0(ng)
             species(l)=if_herring
             alive(l)=.TRUE.
@@ -817,7 +822,11 @@
 !
 !  If newly released fishes, initialize fish weight
 !
+          Nymort=0.3_r8
+          Fworth0=(0.5e5_r8*1.0e6_r8)*EXP(-Nymort)/                     &
+     &            REAL(Nfishperyear(ng),r8)
           bioenergy(ifwwt,l)=Fwwt0(ng)
+          bioenergy(ifworth,l)=Fworth0
           bioenergy(ifage,l)=0.0_r8
           species(l)=if_herring
           alive(l)=.TRUE.

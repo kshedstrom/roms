@@ -410,6 +410,8 @@
         integer, parameter :: ifbatch = 6        ! number of batches spawned
         integer, parameter :: iftspwn = 7        ! time of last batch spawned
         integer, parameter :: ifeggs = 8         ! number of eggs spawned
+        integer, parameter :: ifpval = 9         ! number of eggs spawned
+        integer, parameter :: ifeatme = 10       ! fish-eat-fish predation rate
 ! Species IDs
         integer, parameter :: if_none = 0
         integer, parameter :: if_anchovy = 1
