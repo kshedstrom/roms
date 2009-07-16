@@ -1,5 +1,5 @@
 !
-!svn $Id: cgradient_lanczos.h 1012 2009-07-07 20:52:45Z kate $
+!svn $Id: cgradient_lanczos.h 1020 2009-07-10 23:10:30Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
@@ -7274,6 +7274,12 @@
             ingood=ingood+1
           END IF
         END DO
+        IF (NritzEV.gt.0) THEN
+          nConvRitz=NritzEV
+          ingood=nConvRitz
+        ELSE
+          nConvRitz=ingood
+        END IF
         IF (Master) THEN
           WRITE (stdout,40) outLoop, innLoop, ingood
         END IF

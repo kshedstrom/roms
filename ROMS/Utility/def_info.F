@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       SUBROUTINE def_info (ng, model, ncid, ncname, DimIDs)
 !
-!svn $Id: def_info.F 1012 2009-07-07 20:52:45Z kate $
+!svn $Id: def_info.F 1020 2009-07-10 23:10:30Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -241,6 +241,10 @@
 #endif
         ELSE IF (ncid.eq.ncDIAid(ng)) THEN
           type='ROMS/TOMS diagnostics file'
+        ELSE IF (ncid.eq.ncFLTid(ng)) THEN
+          type='ROMS/TOMS floats file'
+        ELSE IF (ncid.eq.ncERRid(ng)) THEN
+          type='ROMS/TOMS posterior analysis error covariance matrix'
         ELSE IF (ncid.eq.ncGSTid(ng)) THEN
           type='ROMS/TOMS GST check pointing restart file'
         ELSE IF (ncid.eq.ncHSSid(ng)) THEN
@@ -267,8 +271,6 @@
           type='ROMS/TOMS tangent linear impulse forcing file'
         ELSE IF (ncid.eq.ncTLMid(ng)) THEN
           type='ROMS/TOMS tangent linear history file'
-        ELSE IF (ncid.eq.ncFLTid(ng)) THEN
-          type='ROMS/TOMS floats file'
         END IF
         IF (exit_flag.eq.NoError) THEN
           status=nf90_put_att(ncid, nf90_global, 'type',                &
@@ -389,6 +391,19 @@
           END IF
           IF (status.ne.nf90_noerr) THEN
             IF (Master) WRITE (stdout,20) 'dia_file', TRIM(ncname)
+            exit_flag=3
+            ioerror=status
+          END IF
+        END IF
+#endif
+
+#if defined WEAK_CONSTRAINT   && \
+   (defined POSTERIOR_ERROR_F || defined POSTERIOR_ERROR_I)
+        IF (exit_flag.eq.NoError) THEN
+          status=nf90_put_att(ncid, nf90_global, 'err_file',            &
+     &                        TRIM(ERRname(ng)))
+          IF (status.ne.nf90_noerr) THEN
+            IF (Master) WRITE (stdout,20) 'err_file', TRIM(ncname)
             exit_flag=3
             ioerror=status
           END IF

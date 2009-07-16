@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       SUBROUTINE close_io
 !
-!svn $Id: close_io.F 984 2009-05-24 01:43:19Z kate $
+!svn $Id: close_io.F 1020 2009-07-10 23:10:30Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -143,6 +143,12 @@
           CALL netcdf_close (ng, iNLM, ncSTAid(ng))
         END IF
 #endif
+#if defined WEAK_CONSTRAINT   && \
+   (defined POSTERIOR_ERROR_F || defined POSTERIOR_ERROR_I)
+        IF (ncERRid(ng).ne.-1) THEN
+          CALL netcdf_close (ng, iTLM, ncERRid(ng))
+        END IF
+#endif
 !
 !  Report number of time records written.
 !
@@ -189,6 +195,12 @@
 #ifdef STATIONS
           IF (NrecSTA(ng).gt.0) THEN
             WRITE (stdout,20) 'STATION', NrecSTA(ng)
+          END IF
+#endif
+#if defined WEAK_CONSTRAINT   && \
+   (defined POSTERIOR_ERROR_F || defined POSTERIOR_ERROR_I)
+          IF (NrecERR(ng).gt.0) THEN
+            WRITE (stdout,20) 'ERROR  ', NrecERR(ng)
           END IF
 #endif
         END IF

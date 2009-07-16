@@ -1,4 +1,4 @@
-# $Id: makefile 980 2009-05-20 16:57:22Z kate $
+# $Id: makefile 1020 2009-07-10 23:10:30Z kate $
 #::::::::::::::::::::::::::::::::::::::::::::::::::::: Hernan G. Arango :::
 # Copyright (c) 2002-2009 The ROMS/TOMS Group             Kate Hedstrom :::
 #   Licensed under a MIT/X style license                                :::
@@ -218,7 +218,9 @@ endif
 #  header file ROMS/Include/cppdefs.h to determine macro definitions.
 #--------------------------------------------------------------------------
 
-MAKE_MACROS := Compilers/make_macros.mk
+  COMPILERS ?= $(CURDIR)/Compilers
+
+MAKE_MACROS := $(COMPILERS)/make_macros.mk
 
 ifneq "$(MAKECMDGOALS)" "clean"
  MACROS := $(shell cpp -P $(ROMS_CPPFLAGS) Compilers/make_macros.h > \
@@ -325,8 +327,6 @@ CPU := $(shell uname -m | sed 's/[\/ ]/-/g')
 SVNREV ?= $(shell svnversion -n .)
 
 ROOTDIR := $(shell pwd)
-
-COMPILERS := ./Compilers
 
 ifndef FORT
   $(error Variable FORT not set)
@@ -502,7 +502,7 @@ $(SCRATCH_DIR)/MakeDepend: makefile \
                            $(SCRATCH_DIR)/$(TYPESIZES_MODFILE) \
                            | $(SCRATCH_DIR)
 	$(SFMAKEDEPEND) $(MDEPFLAGS) $(sources) > $(SCRATCH_DIR)/MakeDepend
-	cp -p $(CURDIR)/$(MAKE_MACROS) $(SCRATCH_DIR)
+	cp -p $(MAKE_MACROS) $(SCRATCH_DIR)
 
 .PHONY: depend
 
@@ -546,7 +546,7 @@ clean:
 .PHONY: rm_macros
 
 rm_macros:
-	$(RM) -r $(CURDIR)/$(MAKE_MACROS)
+	$(RM) -r $(MAKE_MACROS)
 
 #--------------------------------------------------------------------------
 #  A handy debugging target. This will allow to print the value of any
