@@ -2,7 +2,7 @@
 #ifdef TL_IOMS
       SUBROUTINE rp_step2d (ng, tile)
 !
-!svn $Id: rp_step2d_LF_AM3.h 984 2009-05-24 01:43:19Z kate $
+!svn $Id: rp_step2d_LF_AM3.h 1020 2009-07-10 23:10:30Z kate $
 !=======================================================================
 !                                                                      !
 !  Representer model shallow-water primitive equations predictor       !
@@ -1711,7 +1711,7 @@
 #   endif
      &                  vbar(i,j+1,krhs))+                              &
      &                 (DVom(i,j)+DVom(i,j+1))*                         &
-     &                 (tl_vbar(i,j  ,krhs)+ 
+     &                 (tl_vbar(i,j  ,krhs)+                            &
 #   ifdef NEARSHORE_MELLOR
      &                  tl_vbar_stokes(i,j  )+                          &
      &                  tl_vbar_stokes(i,j+1)+                          &

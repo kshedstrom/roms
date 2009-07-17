@@ -1,7 +1,9 @@
 #include "cppdefs.h"
       MODULE random_ic_mod
 
-#if defined WEAK_CONSTRAINT && defined POSTERIOR_EOFS
+#if defined WEAK_CONSTRAINT   && \
+   (defined POSTERIOR_EOFS    || defined POSTERIOR_ERROR_I || \
+    defined POSTERIOR_ERROR_F)
 
 # ifdef EW_PERIODIC
 #  define IR_RANGE Istr-1,Iend+1
@@ -716,7 +718,7 @@
      &                                JstrR, JendR,                     &
      &                                LBij, UBij, 1, N(ng),             &
      &                                Bmin, Bmax, B3d)
-            ELSE IF ((bry.eq.isouth).or.(ib.eq.inorth)) THEN
+            ELSE IF ((ib.eq.isouth).or.(ib.eq.inorth)) THEN
               CALL white_noise3d_bry (ng, tile, iTLM, ib,               &
      &                                Zscheme,                          &
      &                                Istr, IendR,                      &
@@ -794,7 +796,7 @@
      &                                Jstr, JendR,                      &
      &                                LBij, UBij, 1, N(ng),             &
      &                                Bmin, Bmax, B3d)
-            ELSE IF ((bry.eq.isouth).or.(ib.eq.inorth)) THEN
+            ELSE IF ((ib.eq.isouth).or.(ib.eq.inorth)) THEN
               CALL white_noise3d_bry (ng, tile, iTLM, ib,               &
      &                                Zscheme,                          &
      &                                IstrR, IendR,                     &

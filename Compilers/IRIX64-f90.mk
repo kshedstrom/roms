@@ -13,6 +13,10 @@
 # FFLAGS         Flags to the fortran compiler
 # CPP            Name of the C-preprocessor
 # CPPFLAGS       Flags to the C-preprocessor
+# CC             Name of the C compiler
+# CFLAGS         Flags to the C compiler
+# CXX            Name of the C++ compiler
+# CXXFLAGS       Flags to the C++ compiler
 # CLEAN          Name of cleaning executable after C-preprocessing
 # NETCDF_INCDIR  NetCDF include directory
 # NETCDF_LIBDIR  NetCDF libary directory
@@ -27,7 +31,11 @@
            FFLAGS := -mips4 -u -TENV:X=3
               CPP := /usr/lib32/cmplrs/cpp
          CPPFLAGS := -P
-          LDFLAGS :=
+               CC := gcc
+              CXX := g++
+           CFLAGS :=
+         CXXFLAGS :=
+          LDFLAGS := -lstdc++
                AR := ar
           ARFLAGS := -r
             MKDIR := mkdir -p
@@ -95,8 +103,12 @@ endif
 
 ifdef USE_DEBUG
            FFLAGS += -g -C
+           CFLAGS += -g
+         CXXFLAGS += -g
 else
            FFLAGS += -O3 -OPT:Olimit=4038
+           CFLAGS += -O3
+         CXXFLAGS += -O3
 endif
 
 ifdef USE_MCT

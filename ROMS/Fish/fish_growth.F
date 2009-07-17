@@ -55,7 +55,7 @@
 !***********************************************************************
       SUBROUTINE fish_growth (ng, LBi, UBi, LBj, UBj, itime,            &
      &                            MyThread, bounded, track,             &
-     &                            feedback, bioenergy, alive,           &
+     &                            feedback, bioenergy, alive, eatfish,  &
      &                            fish_count, fish_list, fishnodes)
 !***********************************************************************
 !
@@ -77,6 +77,7 @@
       logical, intent(in) :: MyThread(Nfish(ng))
       logical, intent(in) :: bounded(Nfish(ng))
       logical, intent(inout) :: alive(Nfish(ng))
+      logical, intent(in) :: eatfish(Nfish(ng))
 
       real(r8), intent(inout) :: track(NFV(ng),0:NFT,Nfish(ng))
       real(r8), intent(inout) :: feedback(NT(ng),Nfish(ng))
@@ -89,8 +90,6 @@
 
       type(fishnode), pointer :: thisfish
       type(fishnode), pointer :: otherfish
-
-      logical :: eatfish
 
       real(r8) :: Fweight, Fworth, CellVol
       real(r8) :: oFweight, oFworth, FishVul, PopVul, BioVul
@@ -134,8 +133,6 @@
       Fymort=0.0_r8               ! fishing mortality rate per year
       Ndmort=Nymort/365.0_r8       ! natural mortality rate per day
       Fdmort=Fymort/365.0_r8       ! fishing mortality rate per day
-! Temporary flag for fish-eat-fish
-      eatfish=.TRUE.
 !
       DO i=LBi,UBi
         DO j=LBj,UBj
@@ -163,8 +160,7 @@
 ! Fish Consumption
 ! PROBLEM WITH 3D: Should the fish be allowed to see entire water column
 ! For now, fish_by_cell has contribution of entire water column
-!                  IF (eatfish(ifid)) THEN
-                  IF (eatfish) THEN
+                  IF (eatfish(fid)) THEN
                     otherfish => fish_list(i,j) % next
 ! FishVul, PopVul, and BioVul should be by species (e.g., BioVul(ispecies))
                     FishVul=0.0_r8

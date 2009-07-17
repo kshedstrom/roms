@@ -1,4 +1,6 @@
+#include "cppdefs.h"
       MODULE mod_tree
+#if defined NEMURO_SAN && defined EGGS_TREE_FORT
 !
 !================================================== Kate Hedstrom ======
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
@@ -75,18 +77,18 @@
         END SUBROUTINE tree_init
 
 ! This insert is visible from outside the module
-        SUBROUTINE tree_insert(eggs, dist, ifish)
+        SUBROUTINE tree_insert(dist, eggs, ifish)
+          real(r8), intent(in) :: dist
           real(r8), intent(in) :: eggs
           integer, intent(in) :: ifish
-          real(r8), intent(in) :: dist
-          CALL insert_priv(eggs, dist, ifish, treetop)
+          CALL insert_priv(dist, eggs, ifish, treetop)
         END SUBROUTINE tree_insert
 
 ! This insert is private, can be used on either the treetop or on subtrees
-        SUBROUTINE insert_priv(eggs, dist, ifish, tree)
+        SUBROUTINE insert_priv(dist, eggs, ifish, tree)
+          real(r8), intent(in) :: dist
           real(r8), intent(in) :: eggs
           integer, intent(in) :: ifish
-          real(r8), intent(in) :: dist
           type(treenode), pointer :: tree
           type(treenode), pointer :: cur, p, x, y
 
@@ -523,4 +525,5 @@
           DEALLOCATE(cur)
         END SUBROUTINE tree_destroy
 
+#endif
       END MODULE mod_tree

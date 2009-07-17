@@ -1,7 +1,7 @@
 /*
 ** Include file "globaldef.h"
 **
-** svn $Id: globaldefs.h 1013 2009-07-07 21:21:23Z kate $
+** svn $Id: globaldefs.h 1020 2009-07-10 23:10:30Z kate $
 ********************************************************** Hernan G. Arango ***
 ** Copyright (c) 2002-2009 The ROMS/TOMS Group     Alexander F. Shchepetkin  **
 **   Licensed under a MIT/X style license                                    **
@@ -452,6 +452,12 @@
 #endif
 #if !(defined W4DPSAS || defined W4DVAR) && defined POSTERIOR_EOFS
 # undef POSTERIOR_EOFS
+#endif
+#if !(defined W4DPSAS || defined W4DVAR) && defined POSTERIOR_ERROR_F
+# undef POSTERIOR_ERROR_F
+#endif
+#if !(defined W4DPSAS || defined W4DVAR) && defined POSTERIOR_ERROR_I
+# undef POSTERIOR_ERROR_I
 #endif
 #if !(defined WEAK_CONSTRAINT || defined OBS_SENSITIVITY) && \
       defined OBS_IMPACT

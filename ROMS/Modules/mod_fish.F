@@ -48,7 +48,13 @@
           integer, pointer  :: lifestage(:)
           integer, pointer  :: num_eggs(:)
           logical, pointer  :: alive(:)
+          logical, pointer  :: eatfish(:)
           type(fishnode), pointer :: fishnodes(:)
+          real(r8), pointer :: sp_start(:)
+          real(r8), pointer :: sp_end(:)
+          integer, pointer  :: num_free(:)
+          integer, pointer  :: next_free(:)
+          integer, pointer  :: num_super(:)
 
         END TYPE T_FISHES
 
@@ -109,9 +115,21 @@
 
       allocate ( FISHES(ng) % alive(Nfish(ng)) )
 
+      allocate ( FISHES(ng) % eatfish(Nfish(ng)) )
+
       allocate ( FISHES(ng) % num_eggs(Nfish(ng)) )
 
       allocate ( FISHES(ng) % fishnodes(Nfish(ng)) )
+
+      allocate ( FISHES(ng) % sp_start(Nspecies(ng)) )
+
+      allocate ( FISHES(ng) % sp_end(Nspecies(ng)) )
+
+      allocate ( FISHES(ng) % num_free(Nspecies(ng)) )
+
+      allocate ( FISHES(ng) % num_super(Nspecies(ng)) )
+
+      allocate ( FISHES(ng) % next_free(Nspecies(ng)) )
 !
 !-----------------------------------------------------------------------
 !  Initialize module variables.
@@ -144,8 +162,19 @@
         FISHES(ng) % species(iflt) = if_none
         FISHES(ng) % lifestage(iflt) = if_none
         FISHES(ng) % alive(iflt) = .FALSE.
+        FISHES(ng) % eatfish(iflt) = .FALSE.
         FISHES(ng) % num_eggs(iflt) = 0
         FISHES(ng) % fishnodes(iflt) % fish = iflt
+      END DO
+
+      DO i=1,Nspecies(ng)
+!  KLUDGE FOO WARNING! This will need to be updated.
+        FISHES(ng) % sp_start(i) = 1._r8
+        FISHES(ng) % sp_end(i) = 210._r8
+        FISHES(ng) % num_free(i) = Nfishperyear(ng)
+        FISHES(ng) % num_super(i) = 0
+! Stick the new fish at the beginning, grouped by species.
+        FISHES(ng) % next_free(i) = 1 + (i-1)*Nfishperyear(ng)
       END DO
 
       RETURN

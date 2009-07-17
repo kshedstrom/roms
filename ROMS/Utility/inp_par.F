@@ -2,7 +2,7 @@
 #undef KATE_FOO
       SUBROUTINE inp_par (model)
 !
-!svn $Id: inp_par.F 1013 2009-07-07 21:21:23Z kate $
+!svn $Id: inp_par.F 1020 2009-07-10 23:10:30Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -4135,7 +4135,9 @@
         END IF
       END IF
 
-#if defined POSTERIOR_EOFS && defined WEAK_CONSTRAINT
+#if defined WEAK_CONSTRAINT   && \
+   (defined POSTERIOR_EOFS    || defined POSTERIOR_ERROR_F || \
+    defined POSTERIOR_ERROR_I)  
 !
 !-----------------------------------------------------------------------
 !  If weak constraint and estimating posterior analysis error
@@ -10446,6 +10448,11 @@
               MODname(Nval)(i:i)=blank
             END DO
             MODname(Nval)=TRIM(ADJUSTL(Cval(Nval)))
+          ELSE IF (TRIM(KeyWord).eq.'ERRname') THEN
+            DO i=1,LEN(ERRname(Nval))
+              ERRname(Nval)(i:i)=blank
+            END DO
+            ERRname(Nval)=TRIM(ADJUSTL(Cval(Nval)))
           END IF
         END IF
       END DO
@@ -10937,6 +10944,11 @@
           WRITE (out,160) '            Output 4DVAR File:  ',           &
      &                    TRIM(MODname(ng))
 #  endif
+#  if defined WEAK_CONSTRAINT   && \
+     (defined POSTERIOR_ERROR_F || defined POSTERIOR_ERROR_I)
+          WRITE (out,160) '  Output Posterior Error File:  ',           &
+     &                    TRIM(ERRname(ng))
+#  endif
           GO TO 40
   30      WRITE (out,200) TRIM(fname)
           exit_flag=4
@@ -11307,8 +11319,6 @@
             Npts=load_r(Nval, Rval, Ngrids, ZLpref)
           ELSE IF (TRIM(KeyWord).eq.'ZPpref') THEN
             Npts=load_r(Nval, Rval, Ngrids, ZPpref)
-          ELSE IF (TRIM(KeyWord).eq.'Nfishcount') THEN
-            Npts=load_r(Nval, Rval, Ngrids, Nfishcount)
           ELSE IF (TRIM(KeyWord).eq.'Nfishperyear') THEN
             Npts=load_i(Nval, Rval, Ngrids, Nfishperyear)
           ELSE IF (TRIM(KeyWord).eq.'Nspecies') THEN
@@ -11411,9 +11421,13 @@
 !  initial float horizontal positions (grid units).  Fill the initial
 !  vertical level or depth position.
 !
+!  For fish, we need to save some spaces at the beginning for spawned
+!  eggs. Put the fish from fish.in into the end of the array so they will
+!  be booted last when making new generations.
+!
       DO ng=1,Ngrids
-        mc=0
-        nc=0
+        mc=Nfish(ng)-nentry(ng)
+        nc=Nfish(ng)-nentry(ng)
         DO i=1,nentry(ng)
           IF (Fcount(i,ng).eq.1) THEN
             nc=nc+1
@@ -11516,9 +11530,6 @@
 !     &            'Fish preference for ZL (-).'
 !            WRITE (out,100) ZPpref(ng), 'ZPpref',                       &
 !     &            'Fish preference for ZP (-).'
-!            WRITE (out,100) Nfishcount(ng), 'Nfishcount',               &
-!     &            'Number of fishes per superindividual.'
-
 !
   40  FORMAT (/,' READ_FishPar - Error while reading floats',           &
      &          ' locations in input script: ',a)

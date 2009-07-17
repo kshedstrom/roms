@@ -60,7 +60,12 @@
      &                       FISHES(ng) % species,                      &
      &                       FISHES(ng) % num_eggs,                     &
      &                       FISHES(ng) % alive,                        &
+     &                       FISHES(ng) % eatfish,                      &
      &                       FISHES(ng) % lifestage,                    &
+     &                       FISHES(ng) % sp_start,                     &
+     &                       FISHES(ng) % sp_end,                       &
+     &                       FISHES(ng) % num_free,                     &
+     &                       FISHES(ng) % num_super,                    &
      &                       FISHES(ng) % track)
 # ifdef PROFILE
       CALL wclock_off (ng, iNLM, 10)
@@ -74,7 +79,9 @@
      &                             nfm3, nfm2, nfm1, nf, nfp1,          &
      &                             bounded, Ftype, Tinfo, Fz0,          &
      &                             feedback, bioenergy, species,        &
-     &                             num_eggs, alive, lifestage, track)
+     &                             num_eggs, alive, eatfish, lifestage, &
+     &                             sp_start, sp_end, num_free,          &
+     &                             num_super, track)
 !***********************************************************************
 !
       USE mod_param
@@ -91,7 +98,7 @@
       USE mod_biology
       USE fish_growth_mod
       USE fish_swim_mod
-      USE fish_spawn_mod
+!      USE fish_spawn_mod
       USE interp_floats_mod
 !
 # ifdef DISTRIBUTE
@@ -115,7 +122,12 @@
       integer, intent(inout)  :: species(:)
       integer, intent(inout)  :: num_eggs(:)
       logical, intent(inout)  :: alive(:)
+      logical, intent(inout)  :: eatfish(:)
       integer, intent(inout)  :: lifestage(:)
+      real(r8), intent(in)    :: sp_start(:)
+      real(r8), intent(in)    :: sp_end(:)
+      integer, intent(in)     :: num_free(:)
+      integer, intent(out)    :: num_super(:)
       real(r8), intent(inout) :: track(:,0:,:)
 # else
       integer, intent(in)     :: Ftype(Nfish(ng))
@@ -128,7 +140,10 @@
       integer, intent(inout)  :: species(Nfish(ng))
       integer, intent(inout)  :: num_eggs(Nfish(ng))
       logical, intent(inout)  :: alive(Nfish(ng))
+      logical, intent(inout)  :: eatfish(Nfish(ng))
       integer, intent(inout)  :: lifestage(Nfish(ng))
+      real(r8), intent(in)    :: sp_start(Nspecies(ng))
+      real(r8), intent(in)    :: sp_end(Nspecies(ng))
       real(r8), intent(inout) :: track(NFV(ng),0:NFT,Nfish(ng))
 # endif
 !
@@ -785,6 +800,7 @@
             bioenergy(ifage,l)=Fage0(ng)
             species(l)=if_herring
             alive(l)=.TRUE.
+            eatfish(l)=.FALSE.
             lifestage(l)=if_adult
             MyThread(l)=.TRUE.
           ELSE
@@ -818,6 +834,7 @@
           bioenergy(ifage,l)=0.0_r8
           species(l)=if_herring
           alive(l)=.TRUE.
+          eatfish(l)=.FALSE.
 # endif
         END IF
       END DO
@@ -1013,14 +1030,16 @@
 !
       CALL fish_growth (ng, LBi, UBi, LBj, UBj, nfp1,                   &
      &                      MyThread, bounded, track(:,:,:),            &
-     &                      feedback, bioenergy, alive,                 &
+     &                      feedback, bioenergy, alive, eatfish,        &
      &                      OCEAN(ng) % fish_count,                     &
      &                      OCEAN(ng) % fish_list,                      &
      &                      FISHES(ng) % fishnodes)
 !
-      CALL fish_spawn (ng, Lstr, Lend, nfp1,                            &
-     &                     MyThread, bounded, track(:,:,:),             &
-     &                     bioenergy, alive)
+! Now called once per day from main3d
+!      CALL fish_spawn (ng, Lstr, Lend, nfp1,                            &
+!     &                     MyThread, bounded, track(:,:,:),             &
+!     &                     bioenergy, alive, species,                   &
+!     &                     sp_start, sp_end, num_free, num_super)
 !
 # endif
 # ifdef DISTRIBUTE
@@ -1038,6 +1057,7 @@
       CALL mp_collecti (ng, iNLM, Nfish(ng), 0, lifestage)
       CALL mp_collecti (ng, iNLM, Nfish(ng), 0, num_eggs)
       CALL mp_collectl (ng, iNLM, Nfish(ng), alive)
+      CALL mp_collectl (ng, iNLM, Nfish(ng), eatfish)
 !
 #  ifdef LONG
 !  Collect the bounded status switch.

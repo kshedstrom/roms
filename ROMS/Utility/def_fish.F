@@ -409,7 +409,7 @@
 !  Define fish worth
         Vinfo( 1)='fworth'
         Vinfo( 2)='fish worth'
-        Vinfo( 3)='-'
+        Vinfo( 3)='nondimensional'
         Vinfo(14)='fworth, scalar, series'
         Vinfo(16)=Vname(1,idtime)
 #  ifndef NO_4BYTE_REALS
@@ -422,7 +422,7 @@
 !  Define fish P-value
         Vinfo( 1)='fpval'
         Vinfo( 2)='fish p-value'
-        Vinfo( 3)='-'
+        Vinfo( 3)='nondimensional'
         Vinfo(14)='fpval, scalar, series'
         Vinfo(16)=Vname(1,idtime)
 #  ifndef NO_4BYTE_REALS
@@ -433,18 +433,18 @@
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 !  Define fish spawning location
-!        Vinfo( 1)='fspwnloc'
-!        Vinfo( 2)='fish spawning location'
-!        Vinfo( 3)='-'
-!        Vinfo(14)='fspwnloc, scalar, series'
-!        Vinfo(16)=Vname(1,idtime)
-!#  ifndef NO_4BYTE_REALS
-!        Vinfo(24)='_FillValue'
-!        Aval(6)=spval
-!#  endif
-!        status=def_var(ng, iNLM, ncFISHid(ng),fishVid(idspwnloc,ng),    &
-!     &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-!        IF (exit_flag.ne.NoError) RETURN
+        Vinfo( 1)='fspwnloc'
+        Vinfo( 2)='fish spawning location'
+        Vinfo( 3)='nondimensional'
+        Vinfo(14)='fspwnloc, scalar, series'
+        Vinfo(16)=Vname(1,idtime)
+#  ifndef NO_4BYTE_REALS
+        Vinfo(24)='_FillValue'
+        Aval(6)=spval
+#  endif
+        status=def_var(ng, iNLM, ncFISHid(ng),fishVid(idspwnloc,ng),    &
+     &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
+        IF (exit_flag.ne.NoError) RETURN
 # endif
 !
 !  Initialize unlimited time record dimension.
@@ -563,9 +563,9 @@
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idfpval))) THEN
             got_var(idfpval)=.TRUE.
             fishVid(idfpval,ng)=var_id(i)
-!          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idspwnloc))) THEN
-!            got_var(idspwnloc)=.TRUE.
-!            fishVid(idspwnloc,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idspwnloc))) THEN
+            got_var(idspwnloc)=.TRUE.
+            fishVid(idspwnloc,ng)=var_id(i)
           END IF
 # ifdef SOLVE3D
           DO itrc=1,NT(ng)
@@ -655,13 +655,6 @@
           exit_flag=3
           RETURN
         END IF
-! Fish spawning location
-!        IF (.not.got_var(idspwnloc)) THEN
-!          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idspwnloc)),       &
-!     &                                  TRIM(ncname)
-!          exit_flag=3
-!          RETURN
-!        END IF
 !
 !-----------------------------------------------------------------------
 !  Initialize fish positions to the appropriate values.

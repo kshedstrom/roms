@@ -69,6 +69,7 @@
       USE mod_grid
       USE mod_types
       USE utility_mod, ONLY : nrng
+      USE nrutil
 !
 !  Imported variable declarations.
 !
@@ -161,7 +162,7 @@
                       END DO
                     END DO
                   END DO
-                  CALL ran1_s (snudg)
+                  CALL ran1 (snudg)
                   fac=2.0_r8*(snudg-0.5_r8)
                   d_i=REAL(IrMax,r8)-track(ixgrd,itime,fid)
                   d_j=REAL(JrMax,r8)-track(iygrd,itime,fid)
@@ -218,7 +219,7 @@
                       IF (ABS(vnudg(1)).le.3.0_r8) lflag=.FALSE.
                     END DO
                     ee=vnudg(1)*epsd_sigma+epsd
-                    CALL ran1_s (snudg)
+                    CALL ran1 (snudg)
                     IF (snudg.lt.0.5_r8) epsx=-ee
                     IF (snudg.ge.0.5_r8) epsx=ee
                     lflag=.TRUE.
@@ -227,7 +228,7 @@
                       IF (ABS(vnudg(1)).le.3.0_r8) lflag=.FALSE.
                     END DO
                     ee=vnudg(1)*epsd_sigma+epsd
-                    CALL ran1_s (snudg)
+                    CALL ran1 (snudg)
                     IF (snudg.lt.0.5_r8) epsy=-ee
                     IF (snudg.ge.0.5_r8) epsy=ee
 ! Compute happiness-based  displacements
@@ -269,7 +270,7 @@
                     IF (ABS(vnudg(1)).le.3.0_r8) lflag=.FALSE.
                   END DO
                   ee=vnudg(1)*epsd_sigma+epsd
-                  CALL ran1_s (snudg)
+                  CALL ran1 (snudg)
                   IF (snudg.lt.0.5_r8) epsz=-ee
                   IF (snudg.ge.0.5_r8) epsz=ee
 ! Compute happiness-based  displacements

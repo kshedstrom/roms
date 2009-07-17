@@ -61,10 +61,6 @@
 
          ZPpref == 1.0d0                         ! ZPpref
 
-! Number of fishes per superindividual, {1.0d0}.
-
-         Nfishcount == 1.0d0                      ! Nfishcount
-
 ! Number of fish per year per species.
 
      Nfishperyear == 36

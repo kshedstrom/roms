@@ -1,4 +1,4 @@
-# $Id: makefile 975 2009-05-05 22:51:13Z kate $
+# $Id: makefile 1020 2009-07-10 23:10:30Z kate $
 #::::::::::::::::::::::::::::::::::::::::::::::::::::: Hernan G. Arango :::
 # Copyright (c) 2002-2009 The ROMS/TOMS Group             Kate Hedstrom :::
 #   Licensed under a MIT/X style license                                :::
@@ -38,6 +38,7 @@ $(if $(filter $(MAKE_VERSION),$(NEED_VERSION)),,        \
 
   sources    := 
   libraries  :=
+  c_sources    := 
 
 #==========================================================================
 #  Start of user-defined options. In some macro definitions below: "on" or
@@ -59,12 +60,12 @@ $(if $(filter $(MAKE_VERSION),$(NEED_VERSION)),,        \
 #  the .h extension. For example, the upwelling application includes the
 #  "upwelling.h" header file.  
 
-ROMS_APPLICATION := WC13
+ROMS_APPLICATION := UPWELLING
 
 #  If application header files is not located in "ROMS/Include",
 #  provide an alternate directory FULL PATH.
 
-MY_HEADER_DIR ?= Apps/wc13
+MY_HEADER_DIR ?=
 
 #  If your application requires analytical expressions and they are
 #  not located in "ROMS/Functionals", provide an alternate directory.
@@ -218,7 +219,9 @@ endif
 #  header file ROMS/Include/cppdefs.h to determine macro definitions.
 #--------------------------------------------------------------------------
 
-MAKE_MACROS := Compilers/make_macros.mk
+  COMPILERS ?= $(CURDIR)/Compilers
+
+MAKE_MACROS := $(COMPILERS)/make_macros.mk
 
 ifneq "$(MAKECMDGOALS)" "clean"
  MACROS := $(shell cpp -P $(ROMS_CPPFLAGS) Compilers/make_macros.h > \
@@ -241,15 +244,20 @@ clean_list += $(MAKE_MACROS)
 
 #--------------------------------------------------------------------------
 #  Make functions for putting the temporary files in $(SCRATCH_DIR)
-#  DO NOT modify this section; spaces and blank lineas are needed.
+#  DO NOT modify this section; spaces and blank lines are needed.
 #--------------------------------------------------------------------------
 
 # $(call source-dir-to-binary-dir, directory-list)
 source-dir-to-binary-dir = $(addprefix $(SCRATCH_DIR)/, $(notdir $1))
 
 # $(call source-to-object, source-file-list)
-source-to-object = $(call source-dir-to-bindary-dir,   \
+source-to-object = $(call source-dir-to-bindary-dir,      \
                    $(subst .F,.o,$1))
+
+# $(call source-to-object, source-file-list)
+c-source-to-object = $(call source-dir-to-bindary-dir,      \
+                     $(subst .c,.o,$(filter %.c,$1))        \
+                     $(subst .cc,.o,$(filter %.cc,$1)))
 
 # $(call make-library, library-name, source-file-list)
 define make-library
@@ -258,6 +266,18 @@ define make-library
 
    $(SCRATCH_DIR)/$1: $(call source-dir-to-binary-dir,    \
                       $(subst .F,.o,$2))
+	$(AR) $(ARFLAGS) $$@ $$^
+	$(RANLIB) $$@
+endef
+
+# $(call make-c-library, library-name, source-file-list)
+define make-c-library
+   libraries += $(SCRATCH_DIR)/$1
+   c_sources += $2
+
+   $(SCRATCH_DIR)/$1: $(call source-dir-to-binary-dir,    \
+                      $(subst .c,.o,$(filter %.c,$2))     \
+                      $(subst .cc,.o,$(filter %.cc,$2)))
 	$(AR) $(ARFLAGS) $$@ $$^
 	$(RANLIB) $$@
 endef
@@ -273,7 +293,13 @@ define compile-rules
     $(call f90-source,$f),$f))
 endef
 
-# $(call one-compile-rule, binary-file, f90-file, source-files)
+# $(c-compile-rules)
+define c-compile-rules
+  $(foreach f, $(local_c_src),       \
+    $(call one-c-compile-rule,$(call c-source-to-object,$f), $f))
+endef
+
+# $(call one-compile-rule, binary-file, f90-file, source-file)
 define one-compile-rule
   $1: $2 $3
 	cd $$(SCRATCH_DIR); $$(FC) -c $$(FFLAGS) $(notdir $2)
@@ -281,6 +307,13 @@ define one-compile-rule
   $2: $3
 	$$(CPP) $$(CPPFLAGS) $$(MY_CPP_FLAGS) $$< > $$@
 	$$(CLEAN) $$@
+
+endef
+
+# $(call one-c-compile-rule, binary-file, source-file)
+define one-c-compile-rule
+  $1: $2
+	cd $$(SCRATCH_DIR); $$(CXX) -c $$(CXXFLAGS) $$<
 
 endef
 
@@ -325,8 +358,6 @@ CPU := $(shell uname -m | sed 's/[\/ ]/-/g')
 SVNREV ?= $(shell svnversion -n .)
 
 ROOTDIR := $(shell pwd)
-
-COMPILERS := ./Compilers
 
 ifndef FORT
   $(error Variable FORT not set)
@@ -392,16 +423,19 @@ endif
 ifdef USE_REPRESENTER
  modules  +=	ROMS/Representer
 endif
+ifdef USE_SEAICE
+ modules  +=	ROMS/SeaIce
+endif
 ifdef USE_TANGENT
  modules  +=	ROMS/Tangent
 endif
  modules  +=	ROMS/Nonlinear \
 		ROMS/Functionals \
-		ROMS/Utility \
 		ROMS/Modules
-ifdef USE_SEAICE
- modules  +=	ROMS/SeaIce
+ifdef USE_FISH
+ modules  +=	ROMS/Fish
 endif
+ modules  +=	ROMS/Utility
 
  includes :=	ROMS/Include
 ifdef MY_ANALYTICAL
@@ -423,6 +457,9 @@ endif
 		ROMS/Utility \
 		ROMS/Drivers \
                 ROMS/Functionals
+ifdef USE_FISH
+ includes +=	ROMS/Fish
+endif
 ifdef MY_HEADER_DIR
  includes +=	$(MY_HEADER_DIR)
 endif
@@ -436,6 +473,7 @@ endif
  includes +=	Master Compilers
 
 vpath %.F $(modules)
+vpath %.cc $(modules)
 vpath %.h $(includes)
 vpath %.f90 $(SCRATCH_DIR)
 vpath %.o $(SCRATCH_DIR)
@@ -502,7 +540,7 @@ $(SCRATCH_DIR)/MakeDepend: makefile \
                            $(SCRATCH_DIR)/$(TYPESIZES_MODFILE) \
                            | $(SCRATCH_DIR)
 	$(SFMAKEDEPEND) $(MDEPFLAGS) $(sources) > $(SCRATCH_DIR)/MakeDepend
-	cp -p $(CURDIR)/$(MAKE_MACROS) $(SCRATCH_DIR)
+	cp -p $(MAKE_MACROS) $(SCRATCH_DIR)
 
 .PHONY: depend
 
@@ -546,7 +584,7 @@ clean:
 .PHONY: rm_macros
 
 rm_macros:
-	$(RM) -r $(CURDIR)/$(MAKE_MACROS)
+	$(RM) -r $(MAKE_MACROS)
 
 #--------------------------------------------------------------------------
 #  A handy debugging target. This will allow to print the value of any

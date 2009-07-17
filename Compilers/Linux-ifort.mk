@@ -1,4 +1,4 @@
-# svn $Id: Linux-ifort.mk 975 2009-05-05 22:51:13Z kate $
+# svn $Id: Linux-ifort.mk 1020 2009-07-10 23:10:30Z kate $
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 # Copyright (c) 2002-2009 The ROMS/TOMS Group                           :::
 #   Licensed under a MIT/X style license                                :::
@@ -13,6 +13,10 @@
 # FFLAGS         Flags to the fortran compiler
 # CPP            Name of the C-preprocessor
 # CPPFLAGS       Flags to the C-preprocessor
+# CC             Name of the C compiler
+# CFLAGS         Flags to the C compiler
+# CXX            Name of the C++ compiler
+# CXXFLAGS       Flags to the C++ compiler
 # CLEAN          Name of cleaning executable after C-preprocessing
 # NETCDF_INCDIR  NetCDF include directory
 # NETCDF_LIBDIR  NetCDF libary directory
@@ -24,9 +28,13 @@
 # First the defaults
 #
                FC := ifort
-           FFLAGS := -heap-arrays
+           FFLAGS := -heap-arrays -fp-model precise
               CPP := /usr/bin/cpp
          CPPFLAGS := -P -traditional
+               CC := gcc
+              CXX := g++
+           CFLAGS :=
+         CXXFLAGS :=
           LDFLAGS := -Vaxlib
                AR := ar
           ARFLAGS := r
@@ -81,8 +89,12 @@ endif
 ifdef USE_DEBUG
 #          FFLAGS += -g -check bounds -traceback
            FFLAGS += -g -check uninit -ftrapuv -traceback
+           CFLAGS += -g
+         CXXFLAGS += -g
 else
            FFLAGS += -ip -O3
+           CFLAGS += -O3
+         CXXFLAGS += -O3
  ifeq ($(CPU),i686)
            FFLAGS += -pc80 -xW
  endif

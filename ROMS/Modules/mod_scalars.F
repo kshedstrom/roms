@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       MODULE mod_scalars
 !
-!svn $Id: mod_scalars.F 1013 2009-07-07 21:21:23Z kate $
+!svn $Id: mod_scalars.F 1020 2009-07-10 23:10:30Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -336,6 +336,7 @@
 # endif
 #endif
 #ifdef NEMURO_SAN
+        integer, pointer :: idfish(:) ! Fish species
         integer :: iFloats            ! read_FloatsPar option for floats
         integer :: iFishes            ! read_FloatsPar option for fish
         integer :: iShips             ! read_FloatsPar option for ships
@@ -418,6 +419,7 @@
         integer, parameter :: if_herring = 3
         integer, parameter :: if_polluck = 4
         integer, parameter :: if_pinksalmon = 5
+        integer, parameter :: max_species = 5
 ! Lifestage and gender
         integer, parameter :: if_egg = 1
         integer, parameter :: if_yolksac = 2
@@ -957,6 +959,7 @@
         logical, dimension(Ngrids) :: LdefAVG    ! Average file
         logical, dimension(Ngrids) :: LdefAVG2   ! Average file
         logical, dimension(Ngrids) :: LdefDIA    ! Diagnostics file
+        logical, dimension(Ngrids) :: LdefERR    ! 4DVar error file
         logical, dimension(Ngrids) :: LdefFLT    ! Floats file
         logical, dimension(Ngrids) :: LdefFISH   ! Fish file
         logical, dimension(Ngrids) :: LdefHIS    ! History file
@@ -1042,6 +1045,7 @@
         integer, dimension(Ngrids) :: NrecAVG    ! Average file
         integer, dimension(Ngrids) :: NrecAVG2   ! Average file
         integer, dimension(Ngrids) :: NrecDIA    ! Diagnostics file
+        integer, dimension(Ngrids) :: NrecERR    ! 4DVar error file
         integer, dimension(Ngrids) :: NrecFIL    ! Filters file
         integer, dimension(Ngrids) :: NrecFLT    ! Floats file
         integer, dimension(Ngrids) :: NrecFISH   ! Fish file
@@ -1984,6 +1988,11 @@
       Tobc_out = IniVal
 # ifdef BIOLOGY
       allocate ( idbio(NBT) )
+#  ifdef NEMURO_SAN
+      DO ng=1,Ngrids
+        allocate ( idfish(max_species) )
+      END DO
+#  endif
 
 # ifdef BEST_NPZ
 #   ifdef STATIONARY
@@ -2183,6 +2192,10 @@
       ic=ic+14
 # else
       ic=ic+11
+# endif
+# ifdef NEMURO_SAN
+!  KLUDGE WARNING!
+      idfish(if_herring) = 1
 # endif
 #elif defined NPZD_FRANKS || defined NPZD_POWELL
 !
@@ -2645,6 +2658,7 @@
         LdefAVG(ng)=.TRUE.
         LdefAVG2(ng)=.TRUE.
         LdefDIA(ng)=.TRUE.
+        LdefERR(ng)=.FALSE.
 #ifdef FLOATS
         LdefFLT(ng)=.TRUE.
 #endif
@@ -2681,12 +2695,14 @@
         NrecAVG(ng)=0
         NrecAVG2(ng)=0
         NrecDIA(ng)=0
+        NrecERR(ng)=0
         NrecFIL(ng)=0
         NrecFISH(ng)=0
         NrecFLT(ng)=0
+        NrecHIS(ng)=0
+        NrecHSS(ng)=0
         NrecINI(ng)=0
         NrecITL(ng)=0
-        NrecHIS(ng)=0
         NrecRST(ng)=0
         NrecSHIPS(ng)=0
         NrecSTA(ng)=0

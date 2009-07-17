@@ -13,6 +13,10 @@
 # FFLAGS         Flags to the fortran compiler
 # CPP            Name of the C-preprocessor
 # CPPFLAGS       Flags to the C-preprocessor
+# CC             Name of the C compiler
+# CFLAGS         Flags to the C compiler
+# CXX            Name of the C++ compiler
+# CXXFLAGS       Flags to the C++ compiler
 # CLEAN          Name of cleaning executable after C-preprocessing
 # NETCDF_INCDIR  NetCDF include directory
 # NETCDF_LIBDIR  NetCDF libary directory
@@ -30,7 +34,11 @@
            FFLAGS := -frepack-arrays
               CPP := cpp
          CPPFLAGS := -P -traditional
-          LDFLAGS := 
+               CC := gcc
+              CXX := g++
+           CFLAGS :=
+         CXXFLAGS :=
+          LDFLAGS := -lstdc++
                AR := ar
           ARFLAGS := -r
             MKDIR := mkdir -p
@@ -70,8 +78,12 @@ endif
 
 ifdef USE_DEBUG
            FFLAGS += -g -fbounds-check
+           CFLAGS += -g
+         CXXFLAGS += -g
 else
            FFLAGS += -O3 -ffast-math
+           CFLAGS += -O3
+         CXXFLAGS += -O3
 endif
 
 ifdef USE_MCT

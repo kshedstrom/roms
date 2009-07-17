@@ -17,5 +17,11 @@
           type(fishnode), pointer :: next => null()
           integer :: fish
         end type fishnode
+# if defined EGGS_BISECTION
+        type egg_box
+          integer :: i1, i2, j1, j2
+          integer :: egg_sum
+        end type egg_box
+# endif
 #endif
       END MODULE mod_types
