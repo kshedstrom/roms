@@ -222,6 +222,7 @@
                   CLZoo=Cmax*FLZoo*CAL_ZF/(1.0_r8+FTZoo+FFish)
                   CPZoo=Cmax*FPZoo*CAL_ZF/(1.0_r8+FTZoo+FFish)
                   Csmp=CSZoo+CLZoo+CPZoo+CFish
+                  write(6,*) 'FISH',CSZoo+CLZoo+CPZoo,CFish
 ! Fish P-value
                   bioenergy(ifpval,ifid)=Csmp/Cmax
 ! Egestion and Excretion
