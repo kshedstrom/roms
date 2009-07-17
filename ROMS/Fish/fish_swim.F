@@ -58,7 +58,7 @@
      &                          Hz,                                     &
 # endif
      &                          MyThread, bounded, track,               &
-     &                          bioenergy, alive,                       &
+     &                          bioenergy, alive, lifestage,            &
      &                          fish_count, fish_list, fishnodes)
 !***********************************************************************
 !
@@ -75,6 +75,7 @@
 !
       integer, intent(in) :: ng, LBi, UBi, LBj, UBj, LBk, UBk
       integer, intent(in) :: itime, nnew
+      integer, intent(in) :: lifestage(Nfish(ng))
       integer, intent(in) :: fish_count(LBi:UBi,LBj:UBj)
 
       type(fishnode), intent(in) :: fish_list(LBi:UBi,LBj:UBj)
@@ -131,7 +132,7 @@
                 Jr=INT(track(iygrd,itime,fid))
                 Kr=INT(track(izgrd,itime,fid))
                 Fweight=bioenergy(ifwwt,fid)
-                IF (Fweight.ge.0.0_r8) THEN
+                IF (lifestage(fid).eq.if_adult) THEN
 ! Swimming velocity based on fish weight
 ! Uswim relationship is in cm/s
                   a_A=15.0_r8

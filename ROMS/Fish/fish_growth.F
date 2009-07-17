@@ -54,8 +54,8 @@
 !
 !***********************************************************************
       SUBROUTINE fish_growth (ng, LBi, UBi, LBj, UBj, itime,            &
-     &                            MyThread, bounded, track,             &
-     &                            feedback, bioenergy, alive, eatfish,  &
+     &                            MyThread, bounded, track, feedback,   &
+     &                            bioenergy, alive, eatfish, lifestage, &
      &                            fish_count, fish_list, fishnodes)
 !***********************************************************************
 !
@@ -70,6 +70,7 @@
 !
       integer, intent(in) :: ng, LBi, UBi, LBj, UBj, itime
       integer, intent(in) :: fish_count(LBi:UBi,LBj:UBj)
+      integer, intent(inout) :: lifestage(Nfish(ng))
 
       type(fishnode), intent(in) :: fish_list(LBi:UBi,LBj:UBj)
       type(fishnode), target, intent(in) :: fishnodes(Nfish(ng))
@@ -145,7 +146,7 @@
                 Fworth=bioenergy(ifworth,ifid)
 !
 ! ADULT FISH
-                IF (Fweight.ge.0.0_r8) THEN
+                IF (lifestage(ifid).eq.if_adult) THEN
 ! Part 1. Fish growth
 ! Max. Consumption (NEEDS TEMPERATURE DEPENDENCE)
                   Cmax=a_C*Fweight**(-b_C)
@@ -266,23 +267,34 @@
 !
 ! EGG, YOLK SAC, AND FEEDING LARVA
                 ELSE
-                  iFwt=-INT(Fweight)
-                  IF ((iFwt.ge.1).AND.(iFwt.lt.2)) THEN         ! Egg
-                    Fweight=ABS(Fweight)+0.21_r8*dtdays
+! Larva
+                  IF (lifestage(ifid).eq.if_larva) THEN
+                    Fweight=Fweight+0.11_r8*dtdays
+                    Fworth=Fworth-0.05_r8*dtdays*Fworth
+                    IF (Fweight.ge.1.0_r8) THEN
+                      lifestage(ifid)=if_adult
+                      Fweight=Fwwt0(ng)
+                    ENDIF
+! Yolk Sac
+                  ELSE IF (lifestage(ifid).eq.if_yolksac) THEN
+                    Fweight=Fweight+0.1_r8*dtdays
+                    Fworth=Fworth-0.05_r8*dtdays*Fworth
+                    IF (Fweight.ge.1.0_r8) THEN
+                      lifestage(ifid)=if_larva
+                      Fweight=0.0_r8
+                    ENDIF
+! Egg
+                  ELSE IF (lifestage(ifid).eq.if_egg) THEN
+                    Fweight=Fweight+0.21_r8*dtdays
                     Fworth=Fworth-0.1_r8*dtdays*Fworth
-                  ELSE IF ((iFwt.ge.2).AND.(iFwt.lt.3)) THEN    ! Yolk sac
-                    Fweight=ABS(Fweight)+0.1_r8*dtdays
-                    Fworth=Fworth*0.05_r8*dtdays*Fworth
-                  ELSE IF ((iFwt.ge.3).AND.(iFwt.lt.4)) THEN    ! Larva
-                    Fweight=ABS(Fweight)+0.11_r8*dtdays
-                    Fworth=Fworth*0.05_r8*dtdays*Fworth
-                  END IF
-                  IF (Fweight.ge.4.0_r8) THEN
-                    bioenergy(ifwwt,ifid)=Fwwt0(ng)
-                  ELSE
-                    bioenergy(ifwwt,ifid)=-Fweight
-                  END IF
+                    IF (Fweight.ge.1.0_r8) THEN
+                      lifestage(ifid)=if_yolksac
+                      Fweight=0.0_r8
+                    ENDIF
+                  ENDIF
+                  bioenergy(ifwwt,ifid)=Fweight
                   bioenergy(ifworth,ifid)=Fworth
+!
                 END IF
 !
               END IF
