@@ -41,7 +41,7 @@
 !  Imported variable declarations.
 !
       integer, intent(in) :: ng
-      integer :: i, isp, j, l, Nfound, Navail, Npts, ifsh
+      integer :: i, isp, j, l, Nfound, Navail, Npts, ifsh, count
       integer, pointer :: moms(:)
       real(r8), pointer :: eggs(:)
       real(r8) :: wgt
@@ -57,14 +57,26 @@
 
 !  We need to know how many new superindividuals are available for each
 !  species.
+      count = 0
+      DO l=1,Nfish(ng)
+        IF (FISHES(ng) % bioenergy(ifeggs, l) .ne. 0) THEN
+          count = count + 1
+        END IF
+      END DO
+      IF (count .eq. 0) THEN
+        RETURN
+      END IF
+      print *, 'In New_fish - found some moms with eggs:', count
+
       Navail = sum(FISHES(ng) % num_super)
       IF (Navail > 0) THEN
-        allocate(moms(Navail))
-        allocate(eggs(Navail))
+        IF (Master) THEN
+	  print *, "In new_fish guts...", FISHES(ng) % num_super
+          allocate(moms(Navail))
+          allocate(eggs(Navail))
 
 # ifdef EGGS_TREE_FORT
 !  This option is currently broken...
-        IF (Master) THEN
           call tree_init
 
           DO l=1,Nfish(ng)
@@ -83,7 +95,6 @@
           CALL tree_destroy
         END IF
 # elif defined EGGS_TREE_CXX
-        IF (Master) THEN
           DO isp=1,Nspecies(ng)
             CALL c_tree_init(isp)
           END DO
@@ -130,10 +141,10 @@
             END DO
           END DO
           CALL c_tree_destroy
-        END IF
 # endif
-        deallocate(moms)
-        deallocate(eggs)
+          deallocate(moms)
+          deallocate(eggs)
+        END IF
 
 # ifdef DISTRIBUTE
 !
