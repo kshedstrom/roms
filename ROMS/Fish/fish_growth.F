@@ -171,7 +171,7 @@
                       oFweight=bioenergy(ifwwt,ofid)
                       oFworth=bioenergy(ifworth,ofid)
                       IF (ifid.ne.ofid) THEN              ! No canibalism
-                        IF (Fweight.gt.(0.5_r8*oFweight)) THEN
+                        IF (Fweight.gt.(2.0_r8*oFweight)) THEN
                           FishVul=FishVul+oFweight
                           PopVul=PopVul+oFworth
                           BioVul=BioVul+oFweight*oFworth
@@ -204,7 +204,7 @@
                       ofid = otherfish % fish
                       oFweight=bioenergy(ifwwt,ofid)
                       IF (ifid.ne.ofid) THEN              ! No canibalism
-                        IF (Fweight.gt.(0.5_r8*oFweight)) THEN
+                        IF (Fweight.gt.(2.0_r8*oFweight)) THEN
 ! bioenergy(ifeatme) needs to be reset to zero. In main3d or step_fish or here?
                           bioenergy(ifeatme,ofid)=                      &
      &                      bioenergy(ifeatme,ofid)+LOG(1.0_r8-fac)
