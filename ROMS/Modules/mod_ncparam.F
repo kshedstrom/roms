@@ -1390,7 +1390,7 @@
               CASE ('idfworth')
                 idfworth=varid
               CASE ('idfpval')
-                idfworth=varid
+                idfpval=varid
               CASE ('idspwnloc')
                 idspwnloc=varid
               CASE ('idTvar(itemp)')
