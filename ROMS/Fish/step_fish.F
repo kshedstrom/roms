@@ -162,6 +162,7 @@
       integer :: NptsF, NptsL
 
       real(r8), parameter :: Fspv = 0.0_r8
+      integer, parameter :: iFspv = 0
 
       real(r8) :: cff1, cff2, cff3, cff4, cff5, cff6, cff7, cff8, cff9
       real(r8) :: p1, p2, q1, q2, xrhs, yrhs, zrhs, zfloat
@@ -230,6 +231,7 @@
           DO i=1,NFishV(ng)
             bioenergy(i,l)=Fspv
           END DO
+          lifestage(l)=iFspv
         END IF
       END DO
 # else
@@ -323,7 +325,7 @@
      &                    GRID(ng) % Hz,                                &
 # endif
      &                    MyThread, bounded, track,                     &
-     &                    bioenergy, alive,                             &
+     &                    bioenergy, alive, lifestage,                  &
      &                    OCEAN(ng) % fish_count,                       &
      &                    OCEAN(ng) % fish_list,                        &
      &                    FISHES(ng) % fishnodes)
@@ -519,7 +521,7 @@
      &                    GRID(ng) % Hz,                                &
 # endif
      &                    MyThread, bounded, track,                     &
-     &                    bioenergy, alive,                             &
+     &                    bioenergy, alive, lifestage,                  &
      &                    OCEAN(ng) % fish_count,                       &
      &                    OCEAN(ng) % fish_list,                        &
      &                    FISHES(ng) % fishnodes)
@@ -681,6 +683,7 @@
             DO i=1,NFishV(ng)
               bioenergy(i,l)=Fspv
             END DO
+            lifestage(l)=iFspv
           END IF
         END DO
       END IF
@@ -737,6 +740,7 @@
             DO i=1,NFishV(ng)
                 bioenergy(i,l)=Fspv
             END DO
+            lifestage(l)=iFspv
           END IF
         END DO
       END IF
@@ -813,6 +817,7 @@
             DO i=1,NFishV(ng)
                 bioenergy(i,l)=Fspv
             END DO
+            lifestage(l)=iFspv
           END IF
 # else
           MyThread(l)=.TRUE.
@@ -835,6 +840,7 @@
           species(l)=if_herring
           alive(l)=.TRUE.
           eatfish(l)=.FALSE.
+          lifestage(l)=if_adult
 # endif
         END IF
       END DO
@@ -1029,8 +1035,8 @@
       END DO
 !
       CALL fish_growth (ng, LBi, UBi, LBj, UBj, nfp1,                   &
-     &                      MyThread, bounded, track(:,:,:),            &
-     &                      feedback, bioenergy, alive, eatfish,        &
+     &                      MyThread, bounded, track(:,:,:), feedback,  &
+     &                      bioenergy, alive, eatfish, lifestage,       &
      &                      OCEAN(ng) % fish_count,                     &
      &                      OCEAN(ng) % fish_list,                      &
      &                      FISHES(ng) % fishnodes)
@@ -1054,7 +1060,7 @@
       FwrkF=RESHAPE(bioenergy,(/NptsF/))
       CALL mp_collect (ng, iNLM, NptsF, Fspv, FwrkF)
       bioenergy=RESHAPE(FwrkF,(/NFishV(ng),Nfish(ng)/))
-      CALL mp_collecti (ng, iNLM, Nfish(ng), 0, lifestage)
+      CALL mp_collecti (ng, iNLM, Nfish(ng), iFspv, lifestage)
       CALL mp_collecti (ng, iNLM, Nfish(ng), 0, num_eggs)
       CALL mp_collectl (ng, iNLM, Nfish(ng), alive)
       CALL mp_collectl (ng, iNLM, Nfish(ng), eatfish)
