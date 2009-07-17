@@ -161,7 +161,7 @@
 ! Fish Consumption
 ! PROBLEM WITH 3D: Should the fish be allowed to see entire water column
 ! For now, fish_by_cell has contribution of entire water column
-                  IF (eatfish(fid)) THEN
+                  IF (eatfish(ifid)) THEN
                     otherfish => fish_list(i,j) % next
 ! FishVul, PopVul, and BioVul should be by species (e.g., BioVul(ispecies))
                     FishVul=0.0_r8
@@ -199,7 +199,7 @@
                     FFish=(1.0_r8+FTZoo)/(Cmax/CFish-1.0_r8)
                     fac=0.99_r8
                   END IF 
-                  IF (eatfish) THEN
+                  IF (eatfish(ifid)) THEN
                     otherfish => fish_list(i,j) % next
                     DO ofish=1,fish_count(i,j)
                       ofid = otherfish % fish
