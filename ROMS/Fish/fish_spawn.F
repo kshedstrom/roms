@@ -29,6 +29,7 @@
       USE mod_fish
       USE mod_ocean
       USE mod_grid
+      USE mod_stepping
 !
 !  Imported variable declarations.
 !
@@ -36,7 +37,7 @@
 !
 # include "tile.h"
 !
-      CALL fish_spawn_tile (ng, tile, LBi, UBi, LBj, UBj,               &
+      CALL fish_spawn_tile (ng, tile, nnew(ng), LBi, UBi, LBj, UBj,     &
      &                        IminS, ImaxS, JminS, JmaxS,               &
      &                        GRID(ng) % spawn_dist,                    &
      &                        OCEAN(ng) % fish_count,                   &
@@ -55,7 +56,7 @@
       END SUBROUTINE fish_spawn
 !
 !***********************************************************************
-      SUBROUTINE fish_spawn_tile (ng, tile, LBi, UBi, LBj, UBj,         &
+      SUBROUTINE fish_spawn_tile (ng, tile, nnew, LBi, UBi, LBj, UBj,   &
      &                              IminS, ImaxS, JminS, JmaxS,         &
      &                              spawn_dist,                         &
      &                              fish_count, fish_list, fishnodes,   &
@@ -67,11 +68,11 @@
       USE mod_param
       USE mod_scalars
       USE mod_types
-      USE mod_stepping
+      USE mod_biology
 !
 !  Imported variable declarations.
 !
-      integer, intent(in) :: ng, tile
+      integer, intent(in) :: ng, tile, nnew
       integer, intent(in) :: LBi, UBi, LBj, UBj
       integer, intent(in) :: IminS, ImaxS, JminS, JmaxS
 !
@@ -155,25 +156,27 @@
 ! If inside spawning window compute spawning attributes
                 IF ((sp_time.ge.sp_start(isp)).and.                     &
      &              (sp_time.le.sp_end(isp))) THEN
-                  Ftemp=track(itemp+NFV(ng)-NT(ng),nnew(ng),l)
-                  IF ((alive(l)).and.                                   &
-     &                (bioenergy(ifage,l).ge.Fage0(ng)).and.            &
-     &                (INT(bioenergy(ifbatch,l)).lt.Nbatch(ng)).and.    &
-     &                (ABS(Ftemp-temp_opt).le.temp_sigma).and.          &
-     &                ((sp_time-bioenergy(iftspwn,l)).ge.7.0_r8)) THEN
-                    bioenergy(ifeggs,l)=20000.0_r8*bioenergy(ifworth,l)
-                    bioenergy(ifspwnloc,l)=spawn_dist(i,j)
-                    bioenergy(ifbatch,l)=bioenergy(ifbatch,l)+1.0_r8
-                    bioenergy(iftspwn,l)=sp_time
+                  Ftemp=track(itemp+NFV(ng)-NT(ng),nnew,ifid)
+                  IF ((alive(ifid)).and.                                &
+     &              (bioenergy(ifage,ifid).ge.Fage0(ng)).and.           &
+     &              (INT(bioenergy(ifbatch,ifid)).lt.Nbatch(ng)).and.   &
+     &              (ABS(Ftemp-temp_opt).le.temp_sigma).and.            &
+     &              ((sp_time-bioenergy(iftspwn,ifid)).ge.7.0_r8)) THEN
+                    bioenergy(ifeggs,ifid)=20000.0_r8*                  &
+     &                                     bioenergy(ifworth,ifid)
+                    bioenergy(ifspwnloc,ifid)=spawn_dist(i,j)
+                    bioenergy(ifbatch,ifid)=bioenergy(ifbatch,ifid)+    &
+     &                                      1.0_r8
+                    bioenergy(iftspwn,ifid)=sp_time
                   ELSE
-                    bioenergy(ifeggs,l)=0.0_r8
-                    bioenergy(ifspwnloc,l)=0.0_r8
+                    bioenergy(ifeggs,ifid)=0.0_r8
+                    bioenergy(ifspwnloc,ifid)=0.0_r8
                   END IF
                 END IF
 ! If after end of spawning window, zero out spawning attributes
                 IF (sp_time.gt.sp_end(isp)) THEN
-                  bioenergy(ifeggs,l)=0.0_r8
-                  bioenergy(ifspwnloc,l)=0.0_r8
+                  bioenergy(ifeggs,ifid)=0.0_r8
+                  bioenergy(ifspwnloc,ifid)=0.0_r8
                 END IF
 !
               END IF
