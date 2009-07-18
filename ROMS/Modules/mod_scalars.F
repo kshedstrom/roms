@@ -337,6 +337,7 @@
 #endif
 #ifdef NEMURO_SAN
         integer, pointer :: idfish(:) ! Fish species
+        integer, pointer :: idfish_inv(:) ! Fish species
         integer :: iFloats            ! read_FloatsPar option for floats
         integer :: iFishes            ! read_FloatsPar option for fish
         integer :: iShips             ! read_FloatsPar option for ships
@@ -1991,6 +1992,7 @@
 #  ifdef NEMURO_SAN
       DO ng=1,Ngrids
         allocate ( idfish(max_species) )
+        allocate ( idfish_inv(max_species) )
       END DO
 #  endif
 
@@ -2196,6 +2198,7 @@
 # ifdef NEMURO_SAN
 !  KLUDGE WARNING!
       idfish(if_herring) = 1
+      idfish_inv(1) = if_herring
 # endif
 #elif defined NPZD_FRANKS || defined NPZD_POWELL
 !

@@ -41,7 +41,7 @@
 !  Imported variable declarations.
 !
       integer, intent(in) :: ng
-      integer :: i, isp, j, l, Nfound, Navail, Npts, ifsh
+      integer :: i, isp, j, l, Nfound, Navail, Npts, ifsh, count
       integer, pointer :: moms(:)
       real(r8), pointer :: eggs(:)
       real(r8) :: wgt
@@ -57,14 +57,31 @@
 
 !  We need to know how many new superindividuals are available for each
 !  species.
+      count = 0
+      DO l=1,Nfish(ng)
+        IF (FISHES(ng) % bioenergy(ifeggs, l) .ne. 0) THEN
+          count = count + 1
+	  IF (Master) THEN
+	    print *, "New_fish mom ", l,                                &
+     &              FISHES(ng) % bioenergy(ifspwnloc, l),               &
+     &              FISHES(ng) % bioenergy(ifeggs, l)
+	  END IF
+        END IF
+      END DO
+      IF (count .eq. 0) THEN
+        RETURN
+      END IF
+      print *, 'In New_fish - found some moms with eggs:', count
+
       Navail = sum(FISHES(ng) % num_super)
       IF (Navail > 0) THEN
-        allocate(moms(Navail))
-        allocate(eggs(Navail))
+        IF (Master) THEN
+	  print *, "In new_fish guts...", FISHES(ng) % num_super
+          allocate(moms(Navail))
+          allocate(eggs(Navail))
 
 # ifdef EGGS_TREE_FORT
 !  This option is currently broken...
-        IF (Master) THEN
           call tree_init
 
           DO l=1,Nfish(ng)
@@ -83,14 +100,14 @@
           CALL tree_destroy
         END IF
 # elif defined EGGS_TREE_CXX
-        IF (Master) THEN
           DO isp=1,Nspecies(ng)
             CALL c_tree_init(isp)
           END DO
 
           DO l=1,Nfish(ng)
             IF (FISHES(ng) % bioenergy(ifeggs, l) .ne. 0) THEN
-              isp = FISHES(ng) % species(l)
+              isp = idfish(FISHES(ng) % species(l))
+	      print *, 'Fish of species ', isp, FISHES(ng) % species(l)
               CALL c_tree_insert(isp,                                   &
      &             FISHES(ng) % bioenergy(ifspwnloc,l),                 &
      &             FISHES(ng) % bioenergy(ifeggs,l), l)
@@ -99,9 +116,10 @@
 
           DO isp=1,Nspecies(ng)
             CALL c_tree_traverse(isp)
+            print *, 'Making fish of species ', isp, idfish_inv(isp)
             CALL c_tree_collect(isp, FISHES(NG) % num_super(isp),       &
      &              Nfound, eggs, moms)
-            print *, 'Making ', Nfound, ' new fish of species ', isp
+            print *, 'Making ', Nfound, ' new fish'
             ifsh = FISHES(ng) % next_free(isp)
             DO i=1,Nfound
               FISHES(ng) % bounded(ifsh) = .TRUE.
@@ -121,7 +139,7 @@
               CALL ran1(wgt)
               FISHES(ng) % bioenergy(ifwwt,ifsh) = 2._r8*(wgt+0.5_r8)
               FISHES(ng) % bioenergy(ifage,ifsh) = 0._r8
-              FISHES(ng) % species(ifsh) = isp
+              FISHES(ng) % species(ifsh) = idfish_inv(isp)
               FISHES(ng) % alive(ifsh) = .TRUE.
               FISHES(ng) % lifestage(ifsh) = if_egg
               print *, i, eggs(i), moms(i)
@@ -130,10 +148,10 @@
             END DO
           END DO
           CALL c_tree_destroy
-        END IF
 # endif
-        deallocate(moms)
-        deallocate(eggs)
+          deallocate(moms)
+          deallocate(eggs)
+        END IF
 
 # ifdef DISTRIBUTE
 !
