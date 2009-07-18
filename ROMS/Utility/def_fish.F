@@ -406,17 +406,43 @@
         status=def_var(ng, iNLM, ncFISHid(ng),fishVid(idfwwt,ng),       &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
-!  Define fish batch number
-        Vinfo( 1)='fbtch'
-        Vinfo( 2)='fish batch'
-        Vinfo( 3)='-'
-        Vinfo(14)='fbtch, scalar, series'
+!  Define fish worth
+        Vinfo( 1)='fworth'
+        Vinfo( 2)='fish worth'
+        Vinfo( 3)='nondimensional'
+        Vinfo(14)='fworth, scalar, series'
         Vinfo(16)=Vname(1,idtime)
 #  ifndef NO_4BYTE_REALS
         Vinfo(24)='_FillValue'
         Aval(6)=spval
 #  endif
-        status=def_var(ng, iNLM, ncFISHid(ng),fishVid(idbatch,ng),      &
+        status=def_var(ng, iNLM, ncFISHid(ng),fishVid(idfworth,ng),     &
+     &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
+        IF (exit_flag.ne.NoError) RETURN
+!  Define fish P-value
+        Vinfo( 1)='fpval'
+        Vinfo( 2)='fish p-value'
+        Vinfo( 3)='nondimensional'
+        Vinfo(14)='fpval, scalar, series'
+        Vinfo(16)=Vname(1,idtime)
+#  ifndef NO_4BYTE_REALS
+        Vinfo(24)='_FillValue'
+        Aval(6)=spval
+#  endif
+        status=def_var(ng, iNLM, ncFISHid(ng),fishVid(idfpval,ng),      &
+     &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
+        IF (exit_flag.ne.NoError) RETURN
+!  Define fish spawning location
+        Vinfo( 1)='fspwnloc'
+        Vinfo( 2)='fish spawning location'
+        Vinfo( 3)='nondimensional'
+        Vinfo(14)='fspwnloc, scalar, series'
+        Vinfo(16)=Vname(1,idtime)
+#  ifndef NO_4BYTE_REALS
+        Vinfo(24)='_FillValue'
+        Aval(6)=spval
+#  endif
+        status=def_var(ng, iNLM, ncFISHid(ng),fishVid(idspwnloc,ng),    &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 # endif
@@ -531,9 +557,15 @@
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idfwwt))) THEN
             got_var(idfwwt)=.TRUE.
             fishVid(idfwwt,ng)=var_id(i)
-          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idbatch))) THEN
-            got_var(idbatch)=.TRUE.
-            fishVid(idbatch,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idfworth))) THEN
+            got_var(idfworth)=.TRUE.
+            fishVid(idfworth,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idfpval))) THEN
+            got_var(idfpval)=.TRUE.
+            fishVid(idfpval,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idspwnloc))) THEN
+            got_var(idspwnloc)=.TRUE.
+            fishVid(idspwnloc,ng)=var_id(i)
           END IF
 # ifdef SOLVE3D
           DO itrc=1,NT(ng)
@@ -609,14 +641,16 @@
           END IF
         END DO
 # endif
+! Fish wet weight
         IF (.not.got_var(idfwwt)) THEN
           IF (Master) WRITE (stdout,60) TRIM(Vname(1,idfwwt)),          &
      &                                  TRIM(ncname)
           exit_flag=3
           RETURN
         END IF
-        IF (.not.got_var(idbatch)) THEN
-          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idbatch)),         &
+! Fish worth
+        IF (.not.got_var(idfworth)) THEN
+          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idfworth)),        &
      &                                  TRIM(ncname)
           exit_flag=3
           RETURN
@@ -708,7 +742,15 @@
         DO l=1,Nfish(ng)
           FISHES(ng)%bioenergy(ifwwt,l)=Tinp(l)
         END DO
-        CALL netcdf_get_fvar (ng, iNLM, ncname, 'fbtch',                &
+        CALL netcdf_get_fvar (ng, iNLM, ncname, 'fworth',               &
+     &                        Tinp,                                     &
+     &                        ncid = ncFISHid(ng),                      &
+     &                        start = (/1,tFISHindx(ng)/),              &
+     &                        total = (/Nfish(ng),1/))
+        DO l=1,Nfish(ng)
+          FISHES(ng)%bioenergy(ifworth,l)=Tinp(l)
+        END DO
+        CALL netcdf_get_fvar (ng, iNLM, ncname, 'fbatch',               &
      &                        Tinp,                                     &
      &                        ncid = ncFISHid(ng),                      &
      &                        start = (/1,tFISHindx(ng)/),              &

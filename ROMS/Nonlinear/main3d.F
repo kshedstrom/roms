@@ -129,7 +129,9 @@
 # endif
 # ifdef NEMURO_SAN
       USE step_fish_mod, ONLY : step_fish
+      USE new_fish_mod, ONLY : new_fish
       USE fish_by_cell_mod, ONLY : fish_by_cell
+      USE fish_spawn_mod, ONLY : fish_spawn
 #  ifdef FLEET
       USE ships_by_cell_mod, ONLY : ships_by_cell
 #  endif
@@ -726,20 +728,27 @@
 !
 !  Find out how many and which fish in each cell - is this daily?
 !
-      IF (iyesterday(ng) .ne. idays(ng)) THEN
 !$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(ng,numthreads)
-        DO thread=0,numthreads-1
-          subs=NtileX(ng)*NtileE(ng)/numthreads
-          DO tile=subs*thread,subs*(thread+1)-1,+1
-!            CALL fish_by_cell (ng, TILE)
+      DO thread=0,numthreads-1
+        subs=NtileX(ng)*NtileE(ng)/numthreads
+        DO tile=subs*thread,subs*(thread+1)-1,+1
+          CALL fish_by_cell (ng, TILE)
+! Don't need these yet...
 #  ifdef FLEET
-            CALL ships_by_cell (ng, TILE)
+!          CALL ships_by_cell (ng, TILE)
 #  endif
-          END DO
+          IF (iyesterday(ng) .ne. idays(ng)) THEN
+            CALL fish_spawn (ng, TILE)
+! Haven't finished this yet
+#  ifdef EGGS_BISECTION
+            CALL eggs_by_cell (ng, TILE)
+#  endif
+            CALL new_fish(ng)
+            iyesterday(ng) = idays(ng)
+          END IF
         END DO
+      END DO
 !$OMP END PARALLEL DO
-        iyesterday(ng) = idays(ng)
-      END IF
 # endif
 # if defined FLOATS || defined NEMURO_SAN
 !

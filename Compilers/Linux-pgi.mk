@@ -13,6 +13,10 @@
 # FFLAGS         Flags to the fortran compiler
 # CPP            Name of the C-preprocessor
 # CPPFLAGS       Flags to the C-preprocessor
+# CC             Name of the C compiler
+# CFLAGS         Flags to the C compiler
+# CXX            Name of the C++ compiler
+# CXXFLAGS       Flags to the C++ compiler
 # CLEAN          Name of cleaning executable after C-preprocessing
 # NETCDF_INCDIR  NetCDF include directory
 # NETCDF_LIBDIR  NetCDF libary directory
@@ -27,7 +31,11 @@
            FFLAGS :=
               CPP := /usr/bin/cpp
          CPPFLAGS := -P -traditional
-          LDFLAGS := 
+               CC := gcc
+              CXX := g++
+           CFLAGS :=
+         CXXFLAGS :=
+          LDFLAGS := -lstdc++
                AR := ar
           ARFLAGS := r
             MKDIR := mkdir -p
@@ -56,8 +64,8 @@ ifdef USE_NETCDF4
     NETCDF_LIBDIR ?= /opt/pgisoft/netcdf4/lib
       HDF5_LIBDIR ?= /opt/pgisoft/hdf5/lib
 else
-    NETCDF_INCDIR ?= /opt/pgisoft/netcdf/include
-    NETCDF_LIBDIR ?= /opt/pgisoft/netcdf/lib
+    NETCDF_INCDIR ?= /usr/local/pkg/netcdf/netcdf-3.6.1.pgi/include
+    NETCDF_LIBDIR ?= /usr/local/pkg/netcdf/netcdf-3.6.1.pgi/lib
 endif
              LIBS := -L$(NETCDF_LIBDIR) -lnetcdf
 ifdef USE_NETCDF4
@@ -98,9 +106,13 @@ ifdef USE_DEBUG
            FFLAGS += -g -C
 #          FFLAGS += -gopt -C
 #          FFLAGS += -g
+           CFLAGS += -g
+         CXXFLAGS += -g
 else
 #          FFLAGS += -Bstatic -fastsse -Mipa=fast -tp k8-64
            FFLAGS += -O3 -tp k8-64
+           CFLAGS += -O3
+         CXXFLAGS += -O3
 endif
 
 # Save compiler flags without the MCT or ESMF libraries additions

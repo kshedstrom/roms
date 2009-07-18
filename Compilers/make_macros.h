@@ -117,3 +117,13 @@
 #else
   USE_ESMF :=
 #endif
+
+/*
+** Compile the Fish directory.
+*/
+
+#ifdef NEMURO_SAN
+  USE_FISH := on
+#else
+  USE_FISH :=
+#endif

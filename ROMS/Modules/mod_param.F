@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       MODULE mod_param
 !
-!svn $Id: mod_param.F 1013 2009-07-07 21:21:23Z kate $
+!svn $Id: mod_param.F 1022 2009-07-16 22:34:52Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -466,15 +466,15 @@
 !
 !  Number of tracers for the Gulf of Alaska ecosystem model.
 !
-     integer, parameter :: NBTS = 7
+      integer, parameter :: NBTS = 7
 #   if defined IRON_LIMIT
        integer, parameter :: NBT = 11
 #   else
        integer, parameter :: NBT = 10
 #   endif
-# else
-        integer, parameter :: NBT = 0
 # endif
+#else
+        integer, parameter :: NBT = 0
 #endif
 
 #if defined BEST_NPZ    
@@ -823,7 +823,7 @@
 # endif
 #endif
 #ifdef NEMURO_SAN
-          NFishV(ng)=7
+          NFishV(ng)=10
 #endif
           NSV(ng)=NT(ng)+5
 #ifdef ADJUST_WSTRESS

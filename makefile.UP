@@ -142,7 +142,7 @@ MY_CPP_FLAGS ?=
 #  NetCDF and so on.
 #--------------------------------------------------------------------------
 
-        FORT ?= gfortran
+        FORT ?= pgi
 
 #--------------------------------------------------------------------------
 #  Set directory for executable.
@@ -398,6 +398,9 @@ endif
 		ROMS/Modules
 ifdef USE_SEAICE
  modules  +=	ROMS/SeaIce
+endif
+ifdef USE_FISH
+ modules  +=	ROMS/Fish
 endif
 
  includes :=	ROMS/Include

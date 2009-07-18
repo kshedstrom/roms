@@ -60,7 +60,12 @@
      &                       FISHES(ng) % species,                      &
      &                       FISHES(ng) % num_eggs,                     &
      &                       FISHES(ng) % alive,                        &
+     &                       FISHES(ng) % eatfish,                      &
      &                       FISHES(ng) % lifestage,                    &
+     &                       FISHES(ng) % sp_start,                     &
+     &                       FISHES(ng) % sp_end,                       &
+     &                       FISHES(ng) % num_free,                     &
+     &                       FISHES(ng) % num_super,                    &
      &                       FISHES(ng) % track)
 # ifdef PROFILE
       CALL wclock_off (ng, iNLM, 10)
@@ -74,7 +79,9 @@
      &                             nfm3, nfm2, nfm1, nf, nfp1,          &
      &                             bounded, Ftype, Tinfo, Fz0,          &
      &                             feedback, bioenergy, species,        &
-     &                             num_eggs, alive, lifestage, track)
+     &                             num_eggs, alive, eatfish, lifestage, &
+     &                             sp_start, sp_end, num_free,          &
+     &                             num_super, track)
 !***********************************************************************
 !
       USE mod_param
@@ -86,11 +93,12 @@
 # endif
       USE mod_ncparam
       USE mod_ocean
+      USE mod_fish
       USE mod_scalars
       USE mod_biology
       USE fish_growth_mod
       USE fish_swim_mod
-      USE fish_spawn_mod
+!      USE fish_spawn_mod
       USE interp_floats_mod
 !
 # ifdef DISTRIBUTE
@@ -114,7 +122,12 @@
       integer, intent(inout)  :: species(:)
       integer, intent(inout)  :: num_eggs(:)
       logical, intent(inout)  :: alive(:)
+      logical, intent(inout)  :: eatfish(:)
       integer, intent(inout)  :: lifestage(:)
+      real(r8), intent(in)    :: sp_start(:)
+      real(r8), intent(in)    :: sp_end(:)
+      integer, intent(in)     :: num_free(:)
+      integer, intent(out)    :: num_super(:)
       real(r8), intent(inout) :: track(:,0:,:)
 # else
       integer, intent(in)     :: Ftype(Nfish(ng))
@@ -127,7 +140,10 @@
       integer, intent(inout)  :: species(Nfish(ng))
       integer, intent(inout)  :: num_eggs(Nfish(ng))
       logical, intent(inout)  :: alive(Nfish(ng))
+      logical, intent(inout)  :: eatfish(Nfish(ng))
       integer, intent(inout)  :: lifestage(Nfish(ng))
+      real(r8), intent(in)    :: sp_start(Nspecies(ng))
+      real(r8), intent(in)    :: sp_end(Nspecies(ng))
       real(r8), intent(inout) :: track(NFV(ng),0:NFT,Nfish(ng))
 # endif
 !
@@ -146,10 +162,11 @@
       integer :: NptsF, NptsL
 
       real(r8), parameter :: Fspv = 0.0_r8
+      integer, parameter :: iFspv = 0
 
       real(r8) :: cff1, cff2, cff3, cff4, cff5, cff6, cff7, cff8, cff9
       real(r8) :: p1, p2, q1, q2, xrhs, yrhs, zrhs, zfloat
-      real(r8) :: tspawn
+      real(r8) :: tspawn, Fworth0, Nymort
 
 # ifdef FLOAT_VWALK
       integer :: ierr
@@ -214,6 +231,7 @@
           DO i=1,NFishV(ng)
             bioenergy(i,l)=Fspv
           END DO
+          lifestage(l)=iFspv
         END IF
       END DO
 # else
@@ -300,15 +318,17 @@
       cff1=8.0_r8/3.0_r8
       cff2=4.0_r8/3.0_r8
 !
-      CALL fish_swim (ng, LBi, UBi, LBj, UBj, 1, N(ng),                 &
-     &                    Lstr, Lend, nf, nnew,                         &
+      CALL fish_swim (ng, LBi, UBi, LBj, UBj, 1, N(ng), nf, nnew,       &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
 # ifdef SOLVE3D
      &                    GRID(ng) % Hz,                                &
 # endif
      &                    MyThread, bounded, track,                     &
-     &                    bioenergy, alive)
+     &                    bioenergy, alive, lifestage,                  &
+     &                    OCEAN(ng) % fish_count,                       &
+     &                    OCEAN(ng) % fish_list,                        &
+     &                    FISHES(ng) % fishnodes)
 !
       DO l=Lstr,Lend
         IF (MyThread(l).and.bounded(l)) THEN
@@ -494,15 +514,17 @@
       cff3=3.0_r8/8.0_r8
       cff4=6.0_r8/8.0_r8
 !
-      CALL fish_swim (ng, LBi, UBi, LBj, UBj, 1, N(ng),                 &
-     &                    Lstr, Lend, nfp1, nnew,                       &
+      CALL fish_swim (ng, LBi, UBi, LBj, UBj, 1, N(ng), nfp1, nnew,     &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
 # ifdef SOLVE3D
      &                    GRID(ng) % Hz,                                &
 # endif
-     &                     MyThread, bounded, track,                    &
-     &                     bioenergy, alive)
+     &                    MyThread, bounded, track,                     &
+     &                    bioenergy, alive, lifestage,                  &
+     &                    OCEAN(ng) % fish_count,                       &
+     &                    OCEAN(ng) % fish_list,                        &
+     &                    FISHES(ng) % fishnodes)
 !
       DO l=Lstr,Lend
         IF (MyThread(l).and.bounded(l)) THEN
@@ -661,6 +683,7 @@
             DO i=1,NFishV(ng)
               bioenergy(i,l)=Fspv
             END DO
+            lifestage(l)=iFspv
           END IF
         END DO
       END IF
@@ -717,6 +740,7 @@
             DO i=1,NFishV(ng)
                 bioenergy(i,l)=Fspv
             END DO
+            lifestage(l)=iFspv
           END IF
         END DO
       END IF
@@ -770,11 +794,17 @@
             END DO
 !
 !  If newly released fishes, initialize fish weight
-!
+! 
+! Nymort should be a species-dependent parameter
+            Nymort=0.3_r8
+            Fworth0=(0.5e5_r8*1.0e6_r8)*EXP(-Nymort)/                   &
+     &              REAL(Nfishperyear(ng),r8)
             bioenergy(ifwwt,l)=Fwwt0(ng)
+            bioenergy(ifworth,l)=Fworth0
             bioenergy(ifage,l)=Fage0(ng)
             species(l)=if_herring
             alive(l)=.TRUE.
+            eatfish(l)=.FALSE.
             lifestage(l)=if_adult
             MyThread(l)=.TRUE.
           ELSE
@@ -787,6 +817,7 @@
             DO i=1,NFishV(ng)
                 bioenergy(i,l)=Fspv
             END DO
+            lifestage(l)=iFspv
           END IF
 # else
           MyThread(l)=.TRUE.
@@ -800,10 +831,16 @@
 !
 !  If newly released fishes, initialize fish weight
 !
+          Nymort=0.3_r8
+          Fworth0=(0.5e5_r8*1.0e6_r8)*EXP(-Nymort)/                     &
+     &            REAL(Nfishperyear(ng),r8)
           bioenergy(ifwwt,l)=Fwwt0(ng)
+          bioenergy(ifworth,l)=Fworth0
           bioenergy(ifage,l)=0.0_r8
           species(l)=if_herring
           alive(l)=.TRUE.
+          eatfish(l)=.FALSE.
+          lifestage(l)=if_adult
 # endif
         END IF
       END DO
@@ -997,13 +1034,18 @@
      &                      MyThread, bounded, track)
       END DO
 !
-      CALL fish_growth (ng, Lstr, Lend, nfp1,                           &
-     &                      MyThread, bounded, track(:,:,:),            &
-     &                      feedback, bioenergy, alive)
+      CALL fish_growth (ng, LBi, UBi, LBj, UBj, nfp1,                   &
+     &                      MyThread, bounded, track(:,:,:), feedback,  &
+     &                      bioenergy, alive, eatfish, lifestage,       &
+     &                      OCEAN(ng) % fish_count,                     &
+     &                      OCEAN(ng) % fish_list,                      &
+     &                      FISHES(ng) % fishnodes)
 !
-      CALL fish_spawn (ng, Lstr, Lend, nfp1,                            &
-     &                     MyThread, bounded, track(:,:,:),             &
-     &                     bioenergy, alive)
+! Now called once per day from main3d
+!      CALL fish_spawn (ng, Lstr, Lend, nfp1,                            &
+!     &                     MyThread, bounded, track(:,:,:),             &
+!     &                     bioenergy, alive, species,                   &
+!     &                     sp_start, sp_end, num_free, num_super)
 !
 # endif
 # ifdef DISTRIBUTE
@@ -1018,9 +1060,10 @@
       FwrkF=RESHAPE(bioenergy,(/NptsF/))
       CALL mp_collect (ng, iNLM, NptsF, Fspv, FwrkF)
       bioenergy=RESHAPE(FwrkF,(/NFishV(ng),Nfish(ng)/))
-      CALL mp_collecti (ng, iNLM, Nfish(ng), 0, lifestage)
+      CALL mp_collecti (ng, iNLM, Nfish(ng), iFspv, lifestage)
       CALL mp_collecti (ng, iNLM, Nfish(ng), 0, num_eggs)
       CALL mp_collectl (ng, iNLM, Nfish(ng), alive)
+      CALL mp_collectl (ng, iNLM, Nfish(ng), eatfish)
 !
 #  ifdef LONG
 !  Collect the bounded status switch.

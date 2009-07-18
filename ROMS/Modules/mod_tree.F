@@ -1,4 +1,6 @@
+#include "cppdefs.h"
       MODULE mod_tree
+#if defined NEMURO_SAN && defined EGGS_TREE_FORT
 !
 !================================================== Kate Hedstrom ======
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
@@ -59,11 +61,12 @@
         integer :: Nspawners
 
         PRIVATE
-        PUBLIC :: init, insert, collect, traverse, destroy
+        PUBLIC :: tree_init, tree_insert, tree_collect, tree_traverse,  &
+     &            tree_destroy
 
         CONTAINS
 
-        SUBROUTINE init
+        SUBROUTINE tree_init
           ALLOCATE(treetop)
           ALLOCATE(gc_list)
           ALLOCATE(roe_list)
@@ -71,21 +74,21 @@
           gc_list % myeggs => roe_list
           gc_next => gc_list
           Nspawners = 0
-        END SUBROUTINE init
+        END SUBROUTINE tree_init
 
 ! This insert is visible from outside the module
-        SUBROUTINE insert(eggs, dist, ifish)
+        SUBROUTINE tree_insert(dist, eggs, ifish)
+          real(r8), intent(in) :: dist
           real(r8), intent(in) :: eggs
           integer, intent(in) :: ifish
-          real(r8), intent(in) :: dist
-          CALL insert_priv(eggs, dist, ifish, treetop)
-        END SUBROUTINE insert
+          CALL insert_priv(dist, eggs, ifish, treetop)
+        END SUBROUTINE tree_insert
 
 ! This insert is private, can be used on either the treetop or on subtrees
-        SUBROUTINE insert_priv(eggs, dist, ifish, tree)
+        SUBROUTINE insert_priv(dist, eggs, ifish, tree)
+          real(r8), intent(in) :: dist
           real(r8), intent(in) :: eggs
           integer, intent(in) :: ifish
-          real(r8), intent(in) :: dist
           type(treenode), pointer :: tree
           type(treenode), pointer :: cur, p, x, y
 
@@ -280,7 +283,7 @@
           CALL sum_us(x)
         END SUBROUTINE rotate_right
 
-        SUBROUTINE collect(Nsuper, Nfound, eggs, momfish)
+        SUBROUTINE tree_collect(Nsuper, Nfound, eggs, momfish)
           integer, intent(in)  :: Nsuper
           integer, intent(out) :: Nfound
           real(r8), intent(out) :: eggs(Nsuper)
@@ -384,7 +387,7 @@
               END IF
             END DO
           END IF
-        END SUBROUTINE collect
+        END SUBROUTINE tree_collect
 
 !  Extract the tree with most eggs from the list.
 !  The splittable argument if true means that I want the first tree that
@@ -468,10 +471,10 @@
           END DO
         END SUBROUTINE push_one_tree
 
-        SUBROUTINE traverse
+        SUBROUTINE tree_traverse
           IF (ASSOCIATED(treetop % left)) CALL                          &
      &              traverse_print(treetop % left)
-        END SUBROUTINE traverse
+        END SUBROUTINE tree_traverse
 
         RECURSIVE SUBROUTINE copy_traverse(p, Nsuper, Nfound, eggs,     &
      &                   momfish)
@@ -504,7 +507,7 @@
           print *, "Node: ", cur % dist, cur % eggs, cur % egg_sum
         END SUBROUTINE print_node
 
-        SUBROUTINE destroy
+        SUBROUTINE tree_destroy
 ! Loop through, cleaning up both the treenodes and the listnodes.
           type(listnode), pointer :: cur, last
 
@@ -520,6 +523,7 @@
           END DO
           DEALLOCATE(cur % mytreenode)
           DEALLOCATE(cur)
-        END SUBROUTINE destroy
+        END SUBROUTINE tree_destroy
 
+#endif
       END MODULE mod_tree

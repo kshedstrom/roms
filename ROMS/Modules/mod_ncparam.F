@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       MODULE mod_ncparam
 !
-!svn $Id: mod_ncparam.F 1013 2009-07-07 21:21:23Z kate $
+!svn $Id: mod_ncparam.F 1020 2009-07-10 23:10:30Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -169,7 +169,9 @@
         integer  :: idFsuD        ! detided free-surface
         integer  :: idFsuH        ! free-surface tide harmonics
         integer  :: idfwwt        ! fish wet weight
-        integer  :: idbatch       ! fish batch number
+        integer  :: idfworth      ! fish worth
+        integer  :: idfpval       ! fish P-value
+        integer  :: idspwnloc     ! fish batch number
         integer  :: idGhat(2)     ! KPP nonlocal transport
         integer  :: idHbbl        ! depth of bottom boundary layer
         integer  :: idHice        ! depth of ice cover
@@ -472,6 +474,7 @@
         integer  :: ncBRYid(Ngrids)     ! input boundary conditions
         integer  :: ncCLMid(Ngrids)     ! input climatology
         integer  :: ncDIAid(Ngrids)     ! output diagnostics
+        integer  :: ncERRid(Ngrids)     ! output 4DVar posterior error
 #ifdef FILTERED_RST
         integer  :: ncFILid(nfile,Ngrids)     ! output filter
 #endif
@@ -570,14 +573,15 @@
         integer, allocatable :: avgTid(:,:)   ! averages tracers IDs
         integer, allocatable :: avg2Tid(:,:)  ! averages tracers IDs
         integer, allocatable :: filTid(:,:)   ! filter tracers IDs
+        integer, allocatable :: errTid(:,:)   ! error tracer IDs
         integer, allocatable :: fltTid(:,:)   ! floats tracers IDs
         integer, allocatable :: fishTid(:,:)  ! fish tracers IDs
         integer, allocatable :: hisTid(:,:)   ! history tracers IDs
-        integer, allocatable :: hssTid(:,:)   ! Hessian vectors IDs
+        integer, allocatable :: hssTid(:,:)   ! Hessian tracers IDs
         integer, allocatable :: iniTid(:,:)   ! initial NLM tracers IDs
         integer, allocatable :: irpTid(:,:)   ! initial RPM tracers IDs
         integer, allocatable :: itlTid(:,:)   ! initial TLM tracers IDs
-        integer, allocatable :: lczTid(:,:)   ! Lanczos vectors IDs
+        integer, allocatable :: lczTid(:,:)   ! Lanczos tracers IDs
         integer, allocatable :: obsTid(:,:)   ! observations tracers IDs
         integer, allocatable :: rstTid(:,:)   ! restart tracers IDs
         integer, allocatable :: shipsTid(:,:) ! ships tracers IDs
@@ -590,6 +594,7 @@
         integer  :: avg2Vid(NV,Ngrids)   ! secondary averages variables IDs
         integer  :: diaVid(NV,Ngrids)    ! diagnostics variables IDs
         integer  :: filVid(NV,Ngrids)    ! filter variables IDs
+        integer  :: errVid(NV,Ngrids)    ! error variables IDs
         integer  :: fltVid(-6:NV,Ngrids) ! floats variables IDs
         integer  :: fishVid(-6:NV,Ngrids)! fish variables IDs
         integer  :: hisVid(NV,Ngrids)    ! history variables IDs
@@ -612,6 +617,7 @@
         integer  :: tAVGindx(Ngrids)     ! averages time record index
         integer  :: tAVG2indx(Ngrids)    ! averages time record index
         integer  :: tDIAindx(Ngrids)     ! diagnostics time record index
+        integer  :: tERRindx(Ngrids)     ! error time record index
         integer  :: tFILindx(Ngrids)     ! filter time record index
         integer  :: tFLTindx(Ngrids)     ! floats time record index
         integer  :: tFISHindx(Ngrids)    ! fish time record index
@@ -789,6 +795,7 @@
         allocate ( adjTid(MT,Ngrids) )
         allocate ( avgTid(MT,Ngrids) )
         allocate ( avg2Tid(MT,Ngrids) )
+        allocate ( errTid(MT,Ngrids) )
         allocate ( filTid(MT,Ngrids) )
         allocate ( fltTid(MT,Ngrids) )
         allocate ( fishTid(MT,Ngrids) )
@@ -1101,6 +1108,7 @@
           ncBRYid(ng)=-1
           ncCLMid(ng)=-1
           ncDIAid(ng)=-1
+          ncERRid(ng)=-1
           ncFLTid(ng)=-1
           ncFISHid(ng)=-1
           ncGSTid(ng)=-1
@@ -1379,8 +1387,12 @@
                 idDano=varid
               CASE ('idfwwt')
                 idfwwt=varid
-              CASE ('idbatch')
-                idbatch=varid
+              CASE ('idfworth')
+                idfworth=varid
+              CASE ('idfpval')
+                idfpval=varid
+              CASE ('idspwnloc')
+                idspwnloc=varid
               CASE ('idTvar(itemp)')
                 idTvar(itemp)=varid
               CASE ('idTvar(isalt)')

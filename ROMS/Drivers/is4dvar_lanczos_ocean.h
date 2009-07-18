@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       MODULE ocean_control_mod
 !
-!svn $Id: is4dvar_lanczos_ocean.h 1012 2009-07-07 20:52:45Z kate $
+!svn $Id: is4dvar_lanczos_ocean.h 1020 2009-07-10 23:10:30Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
@@ -679,8 +679,6 @@
 !  as temporary storage. Also add background cost function to Cost0.
 !
             IF (inner.eq.0) THEN
-              CALL get_state (ng, iTLM, 2, ITLname(ng), Rec1, LTLM1)
-              IF (exit_flag.ne.NoError) RETURN
               CALL get_state (ng, iTLM, 2, ITLname(ng), Rec4, LTLM2)
               IF (exit_flag.ne.NoError) RETURN
 !
@@ -688,7 +686,7 @@
               DO thread=0,numthreads-1
                 subs=NtileX(ng)*NtileE(ng)/numthreads
                 DO tile=subs*thread,subs*(thread+1)-1
-                  CALL back_cost (ng, TILE, LTLM1, LTLM2)
+                  CALL back_cost (ng, TILE, LTLM2)
                 END DO
               END DO
 !$OMP END PARALLEL DO
@@ -817,15 +815,13 @@
 !  Convert increment vector, deltaV, from minimization space (v-space)
 !  to model space (x-space):
 !
-!     deltaX = B^(1/2) deltaV - (Xi(outer) - Xb)
+!     deltaX = B^(1/2) deltaV
 !  or
-!     deltaX = W^(1/2) L^(1/2) G S  - (Xi(outer) - Xb)
+!     deltaX = W^(1/2) L^(1/2) G S
 !
 !  First, convolve estimated increment vector (v-space) by with the
 !  tangent linear diffusion operator, W^(1/2) L^(1/2) G.  Second,
 !  multiply result by the background-error standard deviation, S.
-!  Then, substract current nonlinear initial conditions from the
-!  background state.
 ! 
             Lcon=LTLM2
 !
@@ -960,7 +956,8 @@
           CALL tl_wrt_ini (ng, LTLM2, Rec4)
           IF (exit_flag.ne.NoError) RETURN
 
-#if defined ADJUST_STFLUX || defined ADJUST_WSTRESS
+#if defined ADJUST_STFLUX   || defined ADJUST_WSTRESS || \
+    defined ADJUST_BOUNDARY
 !
 !  Set index containing the surface forcing increments used the run
 !  the nonlinear model in the outer loop and read the forcing
@@ -972,6 +969,8 @@
 !  sum of the increments from all previous outer-loops.
 !  If using Rec4 we need to convert from v-space to x-space
 !  by applying the convolution.
+!  Note that Lfinp=Lbinp so the the forcing and boundary
+!  adjustments are both processsed correctly.
 !
 !  AMM: CHECK WHAT HAPPENS WITH SECONDARY PRECONDITIONING.
 !

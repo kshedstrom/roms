@@ -4837,10 +4837,36 @@
 !------------------------------------------------------------
  'fwwt'
   'Wet weight of fish'
-  'kilogram'
+  'gram'
   'fwwt, scalar, series'
   'bio_time'
   'idfwwt'
   'r3dvar'
   1.0d0
 
+ 'fworth'
+  'Worth of fish'
+  'nondimensional'
+  'fworth, scalar, series'
+  'bio_time'
+  'idfworth'
+  'r3dvar'
+  1.0d0
+
+ 'fpval'
+  'P-value of fish'
+  'nondimensional'
+  'fpval, scalar, series'
+  'bio_time'
+  'idfpval'
+  'r3dvar'
+  1.0d0
+
+ 'fspwnloc'
+  'Spawning location of fish'
+  'nondimensional'
+  'fspwnloc, scalar, series'
+  'bio_time'
+  'idspwnloc'
+  'r3dvar'
+  1.0d0

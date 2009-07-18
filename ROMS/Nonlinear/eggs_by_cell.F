@@ -1,6 +1,6 @@
 #include "cppdefs.h"
-      MODULE fish_by_cell_mod
-#ifdef NEMURO_SAN
+      MODULE eggs_by_cell_mod
+#if defined NEMURO_SAN && defined EGGS_BISECTION
 !
 !svn $Id: wetdry.F 975 2009-05-05 22:51:13Z kate $
 !=======================================================================
@@ -17,12 +17,12 @@
       implicit none
 
       PRIVATE
-      PUBLIC :: fish_by_cell
+      PUBLIC :: eggs_by_cell
 
       CONTAINS
 !
 !***********************************************************************
-      SUBROUTINE fish_by_cell (ng, tile)
+      SUBROUTINE eggs_by_cell (ng, tile)
 
       USE mod_param
       USE mod_types
@@ -38,35 +38,33 @@
 
 # include "tile.h"
 
-      CALL fish_by_cell_tile (ng, tile,                                 &
+      CALL eggs_by_cell_tile (ng, tile,                                 &
      &                       LBi, UBi, LBj, UBj,                        &
      &                       IminS, ImaxS, JminS, JmaxS,                &
 # ifdef MASKING
      &                       GRID(ng) % rmask,                          &
 # endif
-     &                       OCEAN(ng) % fish_count,                    &
-     &                       OCEAN(ng) % fish_list,                     &
-     &                       FISHES(ng) % fishnodes,                    &
+     &                       OCEAN(ng) % egg_count,                     &
+     &                       FISHES(ng) % bioenergy,                    &
      &                       FISHES(ng) % bounded,                      &
      &                       FISHES(ng) % alive,                        &
      &                       FISHES(ng) % track)
 
-      END SUBROUTINE fish_by_cell
+      END SUBROUTINE eggs_by_cell
 
 !***********************************************************************
-      SUBROUTINE fish_by_cell_tile (ng, tile,                           &
+      SUBROUTINE eggs_by_cell_tile (ng, tile,                           &
      &                        LBi, UBi, LBj, UBj,                       &
      &                        IminS, ImaxS, JminS, JmaxS,               &
 # ifdef MASKING
      &                        rmask,                                    &
 # endif
-     &                        fish_count, fish_list, fishnodes,         &
+     &                        egg_count, bioenergy,                     &
      &                        bounded, alive, track)
 !***********************************************************************
 !
       USE mod_param
       USE mod_scalars
-      USE mod_types
       USE mod_stepping
 !
 !  Imported variable declarations.
@@ -79,9 +77,8 @@
 #  ifdef MASKING
       real(r8), intent(in) :: rmask(LBi:,LBj:)
 #  endif
-      integer, intent(out) :: fish_count(LBi:,LBj:)
-      type(fishnode), intent(out) :: fish_list(LBi:,LBj:)
-      type(fishnode), target, intent(inout) :: fishnodes(:)
+      integer, intent(out) :: egg_count(LBi:,LBj:)
+      real(r8), intent(inout) :: bioenergy(:,:)
       logical, intent(in) :: bounded(:)
       logical, intent(in) :: alive(:)
       real(r8), intent(in) :: track(:,0:,:)
@@ -89,9 +86,8 @@
 #  ifdef MASKING
       real(r8), intent(in) :: rmask(LBi:UBi,LBj:UBj)
 #  endif
-      integer, intent(out) :: fish_count(LBi:UBi,LBj:UBj)
-      type(fishnode), intent(out) :: fish_list(LBi:UBi,LBj:UBj)
-      type(fishnode), target, intent(inout) :: fishnodes(Nfloats(ng))
+      integer, intent(out) :: egg_count(LBi:UBi,LBj:UBj)
+      real(r8), intent(inout) :: bioenergy(NFishV(ng),Nfloats(ng))
       logical, intent(in) :: bounded(Nfloats(ng))
       logical, intent(in) :: alive(Nfloats(ng))
       real(r8), intent(in) :: track(NFV(ng),0:NFT,Nfloats(ng))
@@ -101,7 +97,6 @@
       integer :: Imin, Imax, Jmin, Jmax
 
       real(r8) :: cff
-      type(fishnode), pointer :: newfish
 
 # include "set_bounds.h"
 # ifdef DISTRIBUTED
@@ -122,8 +117,7 @@
 !
       DO j=Jmin,Jmax
         DO i=Imin,Imax
-          fish_count(i,j) = 0
-          fish_list(i,j) % next => null()
+          egg_count(i,j) = 0
         END DO
       END DO
 !
@@ -139,14 +133,12 @@
 ! on this tile
           IF (i .ge. Imin .and. i .le. Imax .and.                       &
      &        j .ge. Jmin .and. j .le. Jmax) THEN
-            fish_count(i,j) = fish_count(i,j) + 1
-            fishnodes(l) % next => fish_list(i,j) % next
-            fish_list(i,j) % next => fishnodes(l)
+            egg_count(i,j) = egg_count(i,j) + bioenergy(ifeggs,l)
           END IF
         END IF
       END DO
 !
       RETURN
-      END SUBROUTINE fish_by_cell_tile
+      END SUBROUTINE eggs_by_cell_tile
 #endif
-      END MODULE fish_by_cell_mod
+      END MODULE eggs_by_cell_mod

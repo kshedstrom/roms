@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       SUBROUTINE get_state (ng, model, msg, ncname, IniRec, Tindex)
 !
-!svn $Id: get_state.F 999 2009-06-09 23:48:31Z kate $
+!svn $Id: get_state.F 1020 2009-07-10 23:10:30Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -2376,18 +2376,11 @@
 
 # if defined ADJUST_BOUNDARY || \
     defined ADJUST_WSTRESS  || defined ADJUST_STFLUX
-!
-!  Set switch to process surface forcing and/or open boundaries during
-!  4DVar minimization.
-!
-       IF (inner.ne.0) THEN
-         get_adjust=.TRUE.
-       ELSE
-         get_adjust=.FALSE.
-       END IF
-#  ifdef SENSITIVITY_4DVAR
-       IF (LsenPSAS(ng)) get_adjust=.TRUE.
-#  endif
+        IF (inner.eq.0.and.model.eq.iRPM) THEN
+          get_adjust=.FALSE.
+        ELSE
+          get_adjust=.TRUE.
+        END IF
 # endif
 !
 !  Read in tangent linear free-surface (m).
@@ -4981,11 +4974,7 @@
 !  Set switch to process surface forcing and/or open boundaries during
 !  4DVar minimization.
 !
-        IF (inner.ne.0) THEN
-          get_adjust=.TRUE.
-        ELSE
-          get_adjust=.FALSE.
-        END IF
+        get_adjust=.TRUE.
 
 # ifdef ADJUST_BOUNDARY
 !

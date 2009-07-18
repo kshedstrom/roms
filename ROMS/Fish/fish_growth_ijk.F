@@ -1,6 +1,7 @@
 #include "cppdefs.h"
-      MODULE fish_spawn_mod
-#if defined NONLINEAR && defined NEMURO_SAN
+#if defined NONLINEAR && defined FLOATS && defined NEMURO_SAN
+      SUBROUTINE fish_growth_ijk (ng, Ir, Jr, Kr, nnew,                 &
+     &                                Fweight, Uswim, Fgrowth)
 !
 !svn $Id: interp_floats.F 294 2009-01-09 21:37:26Z arango $
 !================================================== Hernan G. Arango ===
@@ -42,86 +43,84 @@
 !     track      Interpolated field: track(ifield,itime,:).            !
 !                                                                      !
 !=======================================================================
-
-      implicit none
-
-      PRIVATE
-      PUBLIC  :: fish_spawn
-
-      CONTAINS
-!
-!***********************************************************************
-      SUBROUTINE fish_spawn (ng, Lstr, Lend, itime,                     &
-     &                           MyThread, bounded, track,              &
-     &                           bioenergy, alive)
-!***********************************************************************
 !
       USE mod_param
       USE mod_ncparam
       USE mod_scalars
       USE mod_biology
+      USE mod_ocean
+      USE mod_grid
+!
+      implicit none
 !
 !  Imported variable declarations.
 !
-      integer, intent(in) :: ng, Lstr, Lend, itime
-
-      logical, intent(in) :: MyThread(Nfish(ng))
-      logical, intent(in) :: bounded(Nfish(ng))
-      logical, intent(in) :: alive(Nfish(ng))
-
-      real(r8), intent(in) :: track(NFV(ng),0:NFT,Nfish(ng))
-      real(r8), intent(inout) :: bioenergy(NFishV(ng),Nfish(ng))
+      integer, intent(in) :: ng, Ir, Jr, Kr, nnew
+      real(r8), intent(in) :: Uswim, Fweight
+      real(r8), intent(inout) :: Fgrowth
 !
 !  Local variable declarations.
 !
-      integer :: l
-!
-      real(r8) :: Ftemp, temp_opt, temp_sigma
-      real(r8) :: sp_start, sp_end, sp_time, tcheck
+      real(r8) :: SZooC, LZooC, PZooC, TZooC
+      real(r8) :: FSZoo, FLZoo, FPZoo, FTZoo
+      real(r8) :: dtdays, Csmp, Egst, Excr, Resp, Actv, SDA
+      real(r8) :: mmol2g, g2mmol, CAL_ZF, C_max
+      real(r8) :: K_ZS, K_ZL, K_ZP
+      real(r8) :: a_C, b_C, a_F, a_E, a_R, b_R, d_R, a_S
 !
 !
 !-----------------------------------------------------------------------
-!  Compute feeding terms on zooplankton to update growth
+!  Compute swimming velocity based on food concentration
 !-----------------------------------------------------------------------
 !
-      temp_opt=15.0_r8
-      temp_sigma=3.0_r8
+      mmol2g=1.0_r8
+      g2mmol=1.0_r8/mmol2g
+!      CAL_ZF=2580.0_r8/4460.0_r8           ! age 0-1
+      CAL_ZF=2580.0_r8/7775.0_r8           ! age 2+ (averge)
+      K_ZS=1.15_r8
+      K_ZL=1.15_r8
+      K_ZP=1.15_r8
+      a_C=0.642_r8
+      b_C=0.256_r8
+      a_F=0.16_r8
+      a_E=0.10_r8
+      a_R=0.0033_r8
+      b_R=0.227_r8
+      d_R=0.03_r8
+      a_S=0.175_r8
 !
-      sp_start=120.0_r8
-      sp_end=210.0_r8
-! sp_time: time in days, modulo 360 days
-      sp_time=REAL(INT(time(ng)/86400.0_r8/360.0_r8))
-      sp_time=time(ng)/86400.0_r8-360.0_r8*sp_time
-! tcheck: spawn at midnight
-      tcheck=MOD(time(ng)/86400.0_r8,24.0_r8)
+! Comsumption
+      C_max=a_C*Fweight**(-b_C)
+# ifdef MASKING
+      SZooC=mmol2g*GRID(ng)%rmask(Ir,Jr)*                               &
+     &             OCEAN(ng)%t(Ir,Jr,Kr,nnew,iSzoo)
+      LZooC=mmol2g*GRID(ng)%rmask(Ir,Jr)*                               &
+     &             OCEAN(ng)%t(Ir,Jr,Kr,nnew,iLzoo)
+      PZooC=mmol2g*GRID(ng)%rmask(Ir,Jr)*                               &
+     &             OCEAN(ng)%t(Ir,Jr,Kr,nnew,iPzoo)
+# else
+      SZooC=mmol2g*OCEAN(ng)%t(Ir,Jr,Kr,nnew,iSzoo)
+      LZooC=mmol2g*OCEAN(ng)%t(Ir,Jr,Kr,nnew,iLzoo)
+      PZooC=mmol2g*OCEAN(ng)%t(Ir,Jr,Kr,nnew,iPzoo)
+# endif
+      FSZoo=SZooC*ZSpref(ng)/K_ZS
+      FLZoo=LZooC*ZLpref(ng)/K_ZL
+      FPZoo=PZooC*ZPpref(ng)/K_ZP
+      FTZoo=1.0_r8/(1.0_r8+FSZoo+FLZoo+FPZoo)
+      Csmp=C_max*(FSZoo+FLZoo+FPZoo)*FTZoo*CAL_ZF
+! Egestion and Excretion
+      Egst=a_F*Csmp
+      Excr=a_E*(Csmp-Egst)
+! Respiration (Uswim in cm/s)
+      Actv=exp(d_R*Uswim)
+      Resp=a_R*Fweight**(-b_R)*Actv*5.258
+! Specific Dynamic Action
+      SDA=a_S*(Csmp-Egst)
+! Growth Potential at Ir,Jr,Kr
+      Fgrowth=Csmp-Egst-Excr-Resp-SDA
 !
-      IF ((sp_time.ge.sp_start).and.(sp_time.le.sp_end).and.            &
-     &    (tcheck.eq.REAL(INT(tcheck)))) THEN
-!
-        DO l=Lstr,Lend
-          IF (MyThread(l).and.bounded(l)) THEN
-!
-! Worth should be replaced by alive in check
-!
-            Ftemp=track(itemp+NFV(ng)-NT(ng),itime,l)
-!
-            IF ((alive(l)).and.                                         &
-     &          (bioenergy(ifage,l).ge.Fage0(ng)).and.                  &
-     &          (INT(bioenergy(ifbatch,l)).lt.Nbatch(ng)).and.          &
-     &          (ABS(Ftemp-temp_opt).le.temp_sigma).and.                &
-     &          ((sp_time-bioenergy(iftspwn,l)).ge.7.0_r8)) THEN
-!
-              bioenergy(ifbatch,l)=bioenergy(ifbatch,l)+1.0_r8
-              bioenergy(iftspwn,l)=sp_time
-!
-            END IF
-!
-          END IF
-        END DO
-!
-      END IF
-
-      RETURN
-      END SUBROUTINE fish_spawn
+#else
+      SUBROUTINE fish_growth_ijk
 #endif
-      END MODULE fish_spawn_mod
+      RETURN
+      END SUBROUTINE fish_growth_ijk

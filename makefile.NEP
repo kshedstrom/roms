@@ -215,7 +215,9 @@ endif
 #  header file ROMS/Include/cppdefs.h to determine macro definitions.
 #--------------------------------------------------------------------------
 
-MAKE_MACROS := Compilers/make_macros.mk
+  COMPILERS ?= $(CURDIR)/Compilers
+
+MAKE_MACROS := $(COMPILERS)/make_macros.mk
 
 ifneq "$(MAKECMDGOALS)" "clean"
  MACROS := $(shell cpp -P $(ROMS_CPPFLAGS) Compilers/make_macros.h > \
@@ -323,8 +325,6 @@ SVNREV ?= $(shell svnversion -n .)
 
 ROOTDIR := $(shell pwd)
 
-COMPILERS := ./Compilers
-
 ifndef FORT
   $(error Variable FORT not set)
 endif
@@ -394,11 +394,16 @@ ifdef USE_TANGENT
 endif
  modules  +=	ROMS/Nonlinear \
 		ROMS/Functionals \
-		ROMS/Utility \
 		ROMS/Modules
 ifdef USE_SEAICE
  modules  +=	ROMS/SeaIce
 endif
+ifdef USE_FISH
+ modules  +=	ROMS/Fish
+endif
+
+# Must be after fish
+ modules  +=	ROMS/Utility
 
  includes :=	ROMS/Include
 ifdef USE_ADJOINT
@@ -501,7 +506,7 @@ $(SCRATCH_DIR)/MakeDepend: makefile \
                            $(SCRATCH_DIR)/$(TYPESIZES_MODFILE) \
                            | $(SCRATCH_DIR)
 	$(SFMAKEDEPEND) $(MDEPFLAGS) $(sources) > $(SCRATCH_DIR)/MakeDepend
-	cp -p $(CURDIR)/$(MAKE_MACROS) $(SCRATCH_DIR)
+	cp -p $(MAKE_MACROS) $(SCRATCH_DIR)
 
 .PHONY: depend
 
@@ -545,7 +550,7 @@ clean:
 .PHONY: rm_macros
 
 rm_macros:
-	$(RM) -r $(CURDIR)/$(MAKE_MACROS)
+	$(RM) -r $(MAKE_MACROS)
 
 #--------------------------------------------------------------------------
 #  A handy debugging target. This will allow to print the value of any
