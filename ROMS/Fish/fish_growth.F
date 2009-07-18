@@ -135,6 +135,24 @@
       Ndmort=Nymort/365.0_r8       ! natural mortality rate per day
       Fdmort=Fymort/365.0_r8       ! fishing mortality rate per day
 !
+! Zero out eatme contributions from previous time step
+      DO i=LBi,UBi
+        DO j=LBj,UBj
+          IF (fish_count(i,j).gt.0) THEN
+            thisfish => fish_list(i,j) % next
+            DO ifish=1,fish_count(i,j)
+              ifid = thisfish % fish
+              IF (MyThread(ifid).and.bounded(ifid).and.alive(ifid)) THEN
+                bioenergy(ifeatme,ifid)=0.0_r8
+              END IF
+              thisfish => thisfish % next
+            END DO
+          END IF
+        END DO
+      END DO
+!
+! COMPUTE GROWTH AND MORTALITY, INCLUDING FISH-EAT-FISH
+!
       DO i=LBi,UBi
         DO j=LBj,UBj
           IF (fish_count(i,j).gt.0) THEN
@@ -154,9 +172,10 @@
                   SZooC=mmol2g*track(NFV(ng)-NT(ng)+iSzoo,itime,ifid)
                   LZooC=mmol2g*track(NFV(ng)-NT(ng)+iLzoo,itime,ifid)
                   PZooC=mmol2g*track(NFV(ng)-NT(ng)+iPzoo,itime,ifid)
-                  FSZoo=SZooC*ZSpref(ng)/K_ZS
-                  FLZoo=LZooC*ZLpref(ng)/K_ZL
-                  FPZoo=PZooC*ZPpref(ng)/K_ZP
+! To catch small negative zooplankton concentrations
+                  FSZoo=MAX(0.0_r8,SZooC)*ZSpref(ng)/K_ZS
+                  FLZoo=MAX(0.0_r8,LZooC)*ZLpref(ng)/K_ZL
+                  FPZoo=MAX(0.0_r8,PZooC)*ZPpref(ng)/K_ZP
                   FTZoo=(FSZoo+FLZoo+FPZoo)*CAL_ZF
 ! Fish Consumption
 ! PROBLEM WITH 3D: Should the fish be allowed to see entire water column
@@ -186,33 +205,42 @@
                     PopVul=PopVul*CellVol
                     BioVul=BioVul*CellVol
                     FFish=BioVul*Fpref/K_Fish
-                  ELSE
-                    FFish=0.0_r8
-                  END IF
-                  CFish=Cmax*FFish/(1.0_r8+FTZoo+FFish)
+                    CFish=Cmax*FFish/(1.0_r8+FTZoo+FFish)
 ! Must kill individual fish eaten to get correct consumption rates
 ! Approach: Distribute mortality evenly over vulnerable individuals in cell
-                  fac=CFish*Fweight*Fworth*CellVol/BioVul
-                  IF (fac.ge.1.0_r8) THEN
-                    CFish=CFish*(1.0_r8-(fac-1.0_r8))
+! Kenny's Code. Not sure on the "(1-(fac-1)" reduction
+!                    fac=CFish*Fweight*Fworth*CellVol/BioVul
+!                    IF (fac.ge.1.0_r8) THEN
+!                      CFish=CFish*(1.0_r8-(fac-1.0_r8))
 ! Recompute FFish based on new CFish
-                    FFish=(1.0_r8+FTZoo)/(Cmax/CFish-1.0_r8)
-                    fac=0.99_r8
-                  END IF 
-                  IF (eatfish(ifid)) THEN
-                    otherfish => fish_list(i,j) % next
-                    DO ofish=1,fish_count(i,j)
-                      ofid = otherfish % fish
-                      oFweight=bioenergy(ifwwt,ofid)
-                      IF (ifid.ne.ofid) THEN              ! No canibalism
-                        IF (Fweight.gt.(2.0_r8*oFweight)) THEN
-! bioenergy(ifeatme) needs to be reset to zero. In main3d or step_fish or here?
-                          bioenergy(ifeatme,ofid)=                      &
-     &                      bioenergy(ifeatme,ofid)+LOG(1.0_r8-fac)
+!                      FFish=(1.0_r8+FTZoo)/(Cmax/CFish-1.0_r8)
+!                      fac=0.99_r8
+!                    END IF 
+! JF interpratation of Kenny's code. Could be totally wrong.
+                    IF ((CFish*Fweight*Fworth).ge.(BioVul/CellVol)) THEN
+                      CFish=CFish*(BioVul/CellVol)/(Fweight*Fworth)
+                      FFish=(1.0_r8+FTZoo)/(Cmax/CFish-1.0_r8)
+                      fac=0.99_r8
+                    ELSE
+                      fac=CFish*Fweight*Fworth*CellVol/BioVul
+                    END IF
+                    IF (eatfish(ifid)) THEN
+                      otherfish => fish_list(i,j) % next
+                      DO ofish=1,fish_count(i,j)
+                        ofid = otherfish % fish
+                        oFweight=bioenergy(ifwwt,ofid)
+                        IF (ifid.ne.ofid) THEN              ! No canibalism
+                          IF (Fweight.gt.(2.0_r8*oFweight)) THEN
+                            bioenergy(ifeatme,ofid)=                    &
+     &                        bioenergy(ifeatme,ofid)+LOG(1.0_r8-fac)
+                          END IF
                         END IF
-                      END IF
-                      otherfish => otherfish % next
-                    END DO
+                        otherfish => otherfish % next
+                      END DO
+                    END IF
+                  ELSE
+                    FFish=0.0_r8
+                    CFish=0.0_r8
                   END IF
 ! Total Consumption on Zooplankton and Fish
                   CSZoo=Cmax*FSZoo*CAL_ZF/(1.0_r8+FTZoo+FFish)
