@@ -151,7 +151,7 @@
         END DO
       END DO
 !
-! COMPUTE GROWTH AND MORTALITY, INCLUDING FISH-EAT-FISH
+! -----  PART 1: GROWTH, INCLUDING FISH-EAT-FISH   -----
 !
       DO i=LBi,UBi
         DO j=LBj,UBj
@@ -165,7 +165,6 @@
 !
 ! ADULT FISH
                 IF (lifestage(ifid).eq.if_adult) THEN
-! Part 1. Fish growth
 ! Max. Consumption (NEEDS TEMPERATURE DEPENDENCE)
                   Cmax=a_C*Fweight**(-b_C)
 ! Zoo Consumption
@@ -265,26 +264,11 @@
 ! From Kenny's code:
                   IF (bioenergy(ifwwt,ifid).lt.0.001_r8) THEN
                     bioenergy(ifwwt,ifid)=0.0_r8
-                    alive(ifid)=.FALSE.
-                  ENDIF
-!
-! Part 2. Fish Mortality
-                  Fpred=1.0_r8                       ! No predatory fish
-!                  Fpred=predbycell(i,j)/predavg     ! Compute from fish_by_cell
-                  fac=1.0_r8-EXP(-Ndmort*0.1_r8)
-                  fac=1.0_r8-fac*Fpred
-                  fac=MIN(1.0_r8,MAX(1.0e-6_r8,fac))
-                  Pdmort=-LOG(fac)
-! Update Fish Worth
-                  bioenergy(ifworth,ifid)=Fworth*(1.0_r8-dtdays*        &
-     &                                    (Pdmort+Ndmort*0.9_r8+Fdmort))
-! From Kenny's code:
-                  IF (bioenergy(ifworth,ifid).lt.0.0001_r8) THEN
                     bioenergy(ifworth,ifid)=0.0_r8
                     alive(ifid)=.FALSE.
                   ENDIF
 !
-! Part 3. NEMURO sink terms for ZOO consumption and for DON egestion/excretion
+! NEMURO sink terms for ZOO consumption and for DON egestion/excretion
 ! (will need to be converted from mmolN/day to mmolN/m3 in NEMURO)
 ! Recompute FFish
                   fac=Cmax*g2mmol/(FSZoo+FLZoo+FPZoo+FFish/CAL_ZF)
@@ -325,6 +309,43 @@
 !
                 END IF
 !
+              END IF
+              thisfish => thisfish % next
+            END DO
+          END IF
+        END DO
+      END DO
+!
+! -----   PART 2: MORTALITY, INCLUDING FISH-EAT-FISH   -----
+!
+      DO i=LBi,UBi
+        DO j=LBj,UBj
+          IF (fish_count(i,j).gt.0) THEN
+            thisfish => fish_list(i,j) % next
+            DO ifish=1,fish_count(i,j)
+              ifid = thisfish % fish
+              IF (MyThread(ifid).and.bounded(ifid).and.alive(ifid)) THEN
+                Fweight=bioenergy(ifwwt,ifid)
+                Fworth=bioenergy(ifworth,ifid)
+! Natural and Fishing Mortality
+                Fpred=1.0_r8                       ! No predatory fish
+!                Fpred=predbycell(i,j)/predavg     ! Compute from fish_by_cell
+                fac=1.0_r8-EXP(-Ndmort*0.1_r8)
+                fac=1.0_r8-fac*Fpred
+                fac=MIN(1.0_r8,MAX(1.0e-6_r8,fac))
+                Pdmort=-LOG(fac)
+! Update Fish Worth (Pdmort, Ndmort, Fdmort are > 0, so subtract)
+                bioenergy(ifworth,ifid)=Fworth*(1.0_r8-dtdays*          &
+     &                                  (Pdmort+Ndmort*0.9_r8+Fdmort))
+! Fish-Eat-Fish Mortality (eatme is < 0, so add)
+                bioenergy(ifworth,ifid)=Fworth*(1.0_r8+dtdays*          &
+     &                                  bioenergy(ifeatme,ifid))
+! From Kenny's code:
+                IF (bioenergy(ifworth,ifid).lt.0.0001_r8) THEN
+                  bioenergy(ifworth,ifid)=0.0_r8
+                  bioenergy(ifwwt,ifid)=0.0_r8
+                  alive(ifid)=.FALSE.
+                ENDIF
               END IF
               thisfish => thisfish % next
             END DO
