@@ -119,7 +119,7 @@
 #endif
 
 /*
-** Process Sea Ice model.
+** Compile the Fish directory.
 */
 
 #ifdef NEMURO_SAN
