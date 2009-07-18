@@ -101,7 +101,7 @@
       real(r8) :: mmol2g, g2mmol, CAL_ZF, Cmax, Uswim, fac
       real(r8) :: K_ZS, K_ZL, K_ZP, K_Fish, Fpref
       real(r8) :: a_C, b_C, a_F, a_E, a_R, b_R, d_R, a_A, b_A, a_S
-      real(r8) :: Fpred, Nymort, Ndmort, Fymort, Fdmort, Pdmort
+      real(r8) :: Fpred, Nymort, Ndmort, Fymort, Fdmort, Pdmort, Tdmort
 !
 !-----------------------------------------------------------------------
 !  Compute feeding terms on zooplankton to update growth
@@ -144,6 +144,14 @@
               ifid = thisfish % fish
               IF (MyThread(ifid).and.bounded(ifid).and.alive(ifid)) THEN
                 bioenergy(ifeatme,ifid)=0.0_r8
+! THIS CHECK SHOULD NOT BE NECESSARY. PROBLEM SOMEWHERE ELSE
+                Fweight=bioenergy(ifwwt,ifid)
+                IF ((Fweight.eq.0.0_r8).and.                            &
+     &              (lifestage(ifid).eq.if_adult)) THEN
+                  bioenergy(ifwwt,ifid)=0.0_r8
+                  bioenergy(ifworth,ifid)=0.0_r8
+                  alive(ifid)=.FALSE.
+                END IF
               END IF
               thisfish => thisfish % next
             END DO
@@ -187,14 +195,17 @@
                     BioVul=0.0_r8
                     DO ofish=1,fish_count(i,j)
                       ofid = otherfish % fish
-                      oFweight=bioenergy(ifwwt,ofid)
-                      oFworth=bioenergy(ifworth,ofid)
-                      IF (ifid.ne.ofid) THEN              ! No canibalism
-                        IF (Fweight.gt.(2.0_r8*oFweight)) THEN
-                          FishVul=FishVul+oFweight
-                          PopVul=PopVul+oFworth
-                          BioVul=BioVul+oFweight*oFworth
-                        END IF
+                      IF (MyThread(ofid).and.bounded(ofid).and.         &
+     &                                       alive(ofid)) THEN
+                        oFweight=bioenergy(ifwwt,ofid)
+                        oFworth=bioenergy(ifworth,ofid)
+                        IF (ifid.ne.ofid) THEN              ! No canibalism
+                          IF (Fweight.gt.(2.0_r8*oFweight)) THEN
+                            FishVul=FishVul+oFweight
+                            PopVul=PopVul+oFworth
+                            BioVul=BioVul+oFweight*oFworth
+                          END IF
+                        END IF 
                       END IF 
                       otherfish => otherfish % next
                     END DO
@@ -227,11 +238,14 @@
                       otherfish => fish_list(i,j) % next
                       DO ofish=1,fish_count(i,j)
                         ofid = otherfish % fish
-                        oFweight=bioenergy(ifwwt,ofid)
-                        IF (ifid.ne.ofid) THEN              ! No canibalism
-                          IF (Fweight.gt.(2.0_r8*oFweight)) THEN
-                            bioenergy(ifeatme,ofid)=                    &
-     &                        bioenergy(ifeatme,ofid)+LOG(1.0_r8-fac)
+                        IF (MyThread(ofid).and.bounded(ofid).and.       &
+     &                                         alive(ofid)) THEN
+                          oFweight=bioenergy(ifwwt,ofid)
+                          IF (ifid.ne.ofid) THEN              ! No canibalism
+                            IF (Fweight.gt.(2.0_r8*oFweight)) THEN
+                              bioenergy(ifeatme,ofid)=                  &
+     &                          bioenergy(ifeatme,ofid)+LOG(1.0_r8-fac)
+                            END IF
                           END IF
                         END IF
                         otherfish => otherfish % next
@@ -327,19 +341,19 @@
               IF (MyThread(ifid).and.bounded(ifid).and.alive(ifid)) THEN
                 Fweight=bioenergy(ifwwt,ifid)
                 Fworth=bioenergy(ifworth,ifid)
-! Natural and Fishing Mortality
+! Natural and Predation Mortality
                 Fpred=1.0_r8                       ! No predatory fish
 !                Fpred=predbycell(i,j)/predavg     ! Compute from fish_by_cell
                 fac=1.0_r8-EXP(-Ndmort*0.1_r8)
                 fac=1.0_r8-fac*Fpred
                 fac=MIN(1.0_r8,MAX(1.0e-6_r8,fac))
                 Pdmort=-LOG(fac)
-! Update Fish Worth (Pdmort, Ndmort, Fdmort are > 0, so subtract)
-                bioenergy(ifworth,ifid)=Fworth*(1.0_r8-dtdays*          &
-     &                                  (Pdmort+Ndmort*0.9_r8+Fdmort))
-! Fish-Eat-Fish Mortality (eatme is < 0, so add)
-                bioenergy(ifworth,ifid)=Fworth*(1.0_r8+dtdays*          &
-     &                                  bioenergy(ifeatme,ifid))
+! Total Mortality (Natural + Predation + Fishing + Fish-eat-Fish)
+! (Pdmort, Ndmort, Fdmort are > 0, and eatme is < 0)
+                Tdmort=Pdmort+Ndmort*0.9_r8+Fdmort-                     &
+     &                 bioenergy(ifeatme,ifid)
+! Update Fish Worth
+                bioenergy(ifworth,ifid)=Fworth*(1.0_r8-dtdays*Tdmort)
 ! From Kenny's code:
                 IF (bioenergy(ifworth,ifid).lt.0.0001_r8) THEN
                   bioenergy(ifworth,ifid)=0.0_r8
