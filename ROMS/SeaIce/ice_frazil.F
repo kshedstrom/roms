@@ -44,6 +44,9 @@
 # ifdef MASKING
      &                      GRID(ng) % rmask,                           &
 # endif
+# ifdef WET_DRY
+     &                      GRID(ng) % rmask_wet,                       &
+# endif
      &                      GRID(ng) % Hz,                              &
      &                      GRID(ng) % z_r,                             &
      &                      OCEAN(ng) % rho,                            &
@@ -62,6 +65,9 @@
      &                            nnew,                                 &
 # ifdef MASKING
      &                            rmask,                                &
+# endif
+# ifdef WET_DRY
+     &                            rmask_wet,                            &
 # endif
      &                            Hz, z_r, rho, t, wfr)
 !***********************************************************************
@@ -90,6 +96,9 @@
 #  ifdef MASKING
       real(r8), intent(in) :: rmask(LBi:,LBj:)
 #  endif
+#  ifdef WET_DRY
+      real(r8), intent(in) :: rmask_wet(LBi:,LBj:)
+#  endif
       real(r8), intent(in) :: Hz(LBi:,LBj:,:)
       real(r8), intent(in) :: z_r(LBi:,LBj:,:)
       real(r8), intent(in) :: rho(LBi:,LBj:,:)
@@ -98,6 +107,9 @@
 # else
 #  ifdef MASKING
       real(r8), intent(in) :: rmask(LBi:UBi,LBj:UBj)
+#  endif
+#  ifdef WET_DRY
+      real(r8), intent(in) :: rmask_wet(LBi:UBi,LBj:UBj)
 #  endif
       real(r8), intent(in) :: Hz(LBi:UBi,LBj:UBj,N(ng))
       real(r8), intent(in) :: z_r(LBi:UBi,LBj:UBj,N(ng))
@@ -151,6 +163,9 @@
 # ifdef MASKING
             IF (rmask(i,j) .ne. 0.0_r8) THEN
 # endif
+# ifdef WET_DRY
+            IF (rmask_wet(i,j) .ne. 0.0_r8) THEN
+# endif
               t_fr = t_freeze(t(i,j,k,nnew,isalt),z_r(i,j,k))
               IF (t(i,j,k,nnew,itemp) .lt. t_fr) THEN
                 gamma_k = (t_fr - t(i,j,k,nnew,itemp)) /                &
@@ -164,6 +179,9 @@
      &                                  (1.0_r8 + gamma_k)
               END IF
 # ifdef MASKING
+            END IF
+# endif
+# ifdef WET_DRY
             END IF
 # endif
           END DO

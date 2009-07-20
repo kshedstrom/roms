@@ -37,6 +37,9 @@
 # ifdef MASKING
      &                     GRID(ng) % rmask,                            &
 # endif
+# ifdef WET_DRY
+     &                     GRID(ng) % rmask_wet,                        &
+# endif
      &                     GRID(ng) % latr,                             &
 # ifdef CLOUDS
      &                     FORCES(ng) % cloud,                          &
@@ -54,6 +57,9 @@
      &                     IminS, ImaxS, JminS, JmaxS,                  &
 # ifdef MASKING
      &                     rmask,                                       &
+# endif
+# ifdef WET_DRY
+     &                     rmask_wet,                                   &
 # endif
      &                     latr,                                        &
 # ifdef CLOUDS
@@ -81,6 +87,9 @@
 #  ifdef MASKING
       real(r8), intent(in) :: rmask(LBi:,LBj:)
 #  endif
+#  ifdef WET_DRY
+      real(r8), intent(in) :: rmask_wet(LBi:,LBj:)
+#  endif
       real(r8), intent(in) :: latr(LBi:,LBj:)
 #  ifdef CLOUDS
       real(r8), intent(in) :: cloud(LBi:,LBj:)
@@ -89,6 +98,9 @@
 # else
 #  ifdef MASKING
       real(r8), intent(in) :: rmask(LBi:UBi,LBj:UBj)
+#  endif
+#  ifdef WET_DRY
+      real(r8), intent(in) :: rmask_wet(LBi:UBi,LBj:UBj)
 #  endif
       real(r8), intent(in) :: latr(LBi:UBi,LBj:UBj)
 #  ifdef CLOUDS
@@ -169,21 +181,21 @@
 ! --- scan through each of the grid cells
 !
       DO j=Jstr,Jend
-      DO i=Istr,Iend
+        DO i=Istr,Iend
 !
 ! --- compute cloudiness fraction
 !
 # ifdef CLOUDS
-      cc = cloud(i,j)
+          cc = cloud(i,j)
 # else
-      cc = 0.7_r8
+          cc = 0.7_r8
 # endif
 !
 ! --- compute astronomic quantities
 !
-      rlat = latr(i,j)*deg2rad
-      sin2=sin(rlat)*sin(decli)
-      cos2=cos(rlat)*cos(decli)
+          rlat = latr(i,j)*deg2rad
+          sin2=sin(rlat)*sin(decli)
+          cos2=cos(rlat)*cos(decli)
 !
 ! --- split each day into ifrac parts, and compute the solar radiance for
 ! --- each part. by assuming symmetry of the irradiance about noon, it
@@ -191,51 +203,54 @@
 ! --- the (24 hrs) day (mean for the first 12 hrs equals then the mean
 ! --- for the last 12 hrs)
 !
-      stot=0._r8
-      sads=0._r8
+          stot=0._r8
+          sads=0._r8
 !
-      DO npart=1,ifrac
+          DO npart=1,ifrac
 !
-      bioday=day+(npart-.5_r8)*fraci*.5_r8
+            bioday=day+(npart-.5_r8)*fraci*.5_r8
 !
-      biohr=bioday*86400._r8                  !hour of day in seconds
-      biohr=mod(biohr+43200._r8,86400._r8) !hour of day;  biohr=0  at noon
-      hangle=pi2*biohr/86400._r8              !hour angle, in radians
+            biohr=bioday*86400._r8                  !hour of day in seconds
+            biohr=mod(biohr+43200._r8,86400._r8) !hour of day;  biohr=0  at noon
+            hangle=pi2*biohr/86400._r8              !hour angle, in radians
 !
-      cosz=min(1._r8,max(0._r8,sin2+cos2*cos(hangle)))
+            cosz=min(1._r8,max(0._r8,sin2+cos2*cos(hangle)))
 !                                          !cosine of the zenith angle
 !
-      srad =s0caw*sundv*cosz               !extraterrestrial radiation
+            srad =s0caw*sundv*cosz               !extraterrestrial radiation
 !
                                           !direct radiation component
-      sdir=srad*0.7_r8**min(100._r8,1._r8/(cosz+eepsil))
+            sdir=srad*0.7_r8**min(100._r8,1._r8/(cosz+eepsil))
 !
-      sdif=((1._r8-absh2o)*srad-sdir)*.5_r8      !diffusive radiation component
+            sdif=((1._r8-absh2o)*srad-sdir)*.5_r8   !diffusive radiation component
 !
-      altdeg=max(0._r8,asin(sin2+cos2))*deg   !solar noon altitude in degrees
+            altdeg=max(0._r8,asin(sin2+cos2))*deg   !solar noon altitude in degrees
 !
-      cfac=(1._r8-0.62_r8*cc+0.0019_r8*altdeg)      !cloudiness correction
+            cfac=(1._r8-0.62_r8*cc+0.0019_r8*altdeg)      !cloudiness correction
 !
-      ssurf=(sdir+sdif)*cfac+eepsil
+            ssurf=(sdir+sdif)*cfac+eepsil
 !
-      stot=stot+ssurf
+            stot=stot+ssurf
 !
-      albdir=0.03_r8*exp(0.742_r8*acos(cosz)**2.866_r8)
+            albdir=0.03_r8*exp(0.742_r8*acos(cosz)**2.866_r8)
 !                                          ! albedo for direct light
 !
-      sads=sads+albdir*ssurf               ! radiation weighted sum of
+            sads=sads+albdir*ssurf         ! radiation weighted sum of
 !                                          ! direct albedo
-      ENDDO
+          ENDDO
 !
-      cawdir(i,j)=1._r8-sads/stot          ! daily mean co-albedo over
+          cawdir(i,j)=1._r8-sads/stot      ! daily mean co-albedo over
 !                                          ! water
 #ifdef MASKING
-      cawdir(i,j) = cawdir(i,j)*rmask(i,j)
+          cawdir(i,j) = cawdir(i,j)*rmask(i,j)
 #endif
-      ENDDO
+#ifdef WET_DRY
+          cawdir(i,j) = cawdir(i,j)*rmask_wet(i,j)
+#endif
+        ENDDO
       ENDDO
 !
-        CALL bc_r2d_tile (ng, tile,                                     &
+      CALL bc_r2d_tile (ng, tile,                                       &
      &                    LBi, UBi, LBj, UBj,                           &
      &                    cawdir)
 #ifdef DISTRIBUTE
@@ -244,7 +259,6 @@
      &                    NghostPoints, EWperiodic, NSperiodic,         &
      &                    cawdir)
 #endif
-
 
       RETURN
       END SUBROUTINE cawdir_eval_tile

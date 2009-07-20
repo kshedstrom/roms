@@ -298,7 +298,7 @@
 #  endif
 # endif
 
-# ifdef ICE_BULK_FLUXES
+# if defined ICE_BULK_FLUXES && !defined NCEP_FLUXES
           real(r8), pointer :: sustr_aw(:,:)
           real(r8), pointer :: svstr_aw(:,:)
           real(r8), pointer :: tau_aix_n(:,:)
@@ -558,10 +558,10 @@
       allocate ( FORCES(ng) % PairG(LBi:UBi,LBj:UBj,2) )
       allocate ( FORCES(ng) % rain(LBi:UBi,LBj:UBj) )
       allocate ( FORCES(ng) % rainG(LBi:UBi,LBj:UBj,2) )
-#ifdef RUNOFF
+# ifdef RUNOFF
       allocate ( FORCES(ng) % runoff(LBi:UBi,LBj:UBj) )
       allocate ( FORCES(ng) % runoffG(LBi:UBi,LBj:UBj,2) )
-#endif
+# endif
       allocate ( FORCES(ng) % skt(LBi:UBi,LBj:UBj) )
       allocate ( FORCES(ng) % sktG(LBi:UBi,LBj:UBj,2) )
       allocate ( FORCES(ng) % icec(LBi:UBi,LBj:UBj) )
@@ -590,14 +590,14 @@
       allocate ( FORCES(ng) % sustr(LBi:UBi,LBj:UBj) )
       allocate ( FORCES(ng) % svstr(LBi:UBi,LBj:UBj) )
 
-#if !defined ANA_SMFLUX && !defined BULK_FLUXES
+# if !defined ANA_SMFLUX && !defined BULK_FLUXES
       allocate ( FORCES(ng) % sustrG(LBi:UBi,LBj:UBj,2) )
       allocate ( FORCES(ng) % svstrG(LBi:UBi,LBj:UBj,2) )
 # endif
-#ifdef ADJUST_WSTRESS
+# ifdef ADJUST_WSTRESS
       allocate ( FORCES(ng) % ustr(LBi:UBi,LBj:UBj,Nfrec(ng),2) )
       allocate ( FORCES(ng) % vstr(LBi:UBi,LBj:UBj,Nfrec(ng),2) )
-#endif
+# endif
       allocate ( FORCES(ng) % bustr(LBi:UBi,LBj:UBj) )
       allocate ( FORCES(ng) % bvstr(LBi:UBi,LBj:UBj) )
 #endif
@@ -674,7 +674,7 @@
 #  endif
 # endif
 
-# ifdef ICE_BULK_FLUXES
+# if defined ICE_BULK_FLUXES && !defined NCEP_FLUXES
       allocate ( FORCES(ng) % sustr_aw(LBi:UBi,LBj:UBj) )
       allocate ( FORCES(ng) % svstr_aw(LBi:UBi,LBj:UBj) )
       allocate ( FORCES(ng) % tau_aix_n(LBi:UBi,LBj:UBj) )
@@ -1043,22 +1043,27 @@
           END DO
         END DO
       END IF
-#else
 
-      IF ((model.eq.0).or.(model.eq.iNLM)) THEN
+       IF ((model.eq.0).or.(model.eq.iNLM)) THEN
         DO j=Jmin,Jmax
           DO i=Imin,Imax
-#ifdef ADJUST_WSTRESS
+#else
+# ifndef NCEP
+       IF ((model.eq.0).or.(model.eq.iNLM)) THEN
+        DO j=Jmin,Jmax
+          DO i=Imin,Imax
+# endif
+# ifdef ADJUST_WSTRESS
             DO k=1,Nfrec(ng)
               FORCES(ng) % ustr(i,j,k,1) = IniVal
               FORCES(ng) % ustr(i,j,k,2) = IniVal
               FORCES(ng) % vstr(i,j,k,1) = IniVal
               FORCES(ng) % vstr(i,j,k,2) = IniVal
             END DO
-#endif
+# endif
             FORCES(ng) % sustr(i,j) = IniVal
             FORCES(ng) % svstr(i,j) = IniVal
-#if !defined ANA_SMFLUX && !defined BULK_FLUXES
+# if !defined ANA_SMFLUX && !defined BULK_FLUXES
             FORCES(ng) % sustrG(i,j,1) = IniVal
             FORCES(ng) % sustrG(i,j,2) = IniVal
             FORCES(ng) % svstrG(i,j,1) = IniVal
@@ -1066,9 +1071,9 @@
 # endif
             FORCES(ng) % bustr(i,j) = IniVal
             FORCES(ng) % bvstr(i,j) = IniVal
-#ifdef RDRG_GRID
+# ifdef RDRG_GRID
             FORCES(ng) % rdrg_grid(i,j) = IniVal
-#endif
+# endif
 # ifdef WAVES_DIR
             FORCES(ng) % Dwave(i,j) = IniVal
 #  ifndef ANA_WWAVE
@@ -1138,7 +1143,7 @@
             FORCES(ng) % cawdir(i,j) = IniVal
 #  endif
 # endif
-# ifdef ICE_BULK_FLUXES
+# if defined ICE_BULK_FLUXES && !defined NCEP_FLUXES
             FORCES(ng) % sustr_aw(i,j) = IniVal
             FORCES(ng) % svstr_aw(i,j) = IniVal
             FORCES(ng) % tau_aix_n(i,j) = IniVal

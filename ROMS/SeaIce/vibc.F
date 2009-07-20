@@ -87,6 +87,10 @@
           vi(0,j,liunw)=vi(0,j,liunw)*                                  &
      &                   GRID(ng)%vmask(0,j)
 #  endif
+#  ifdef WET_DRY
+          vi(0,j,liunw)=vi(0,j,liunw)*                                  &
+     &                   GRID(ng)%vmask_wet(0,j)
+#  endif
         END DO
 # elif defined WEST_MIGRADIENT
 !
@@ -97,6 +101,10 @@
 #  ifdef MASKING
           vi(0,j,liunw)=vi(0,j,liunw)*                                  &
      &                   GRID(ng)%vmask(0,j)
+#  endif
+#  ifdef WET_DRY
+          vi(0,j,liunw)=vi(0,j,liunw)*                                  &
+     &                   GRID(ng)%vmask_wet(0,j)
 #  endif
         END DO
 # else
@@ -114,6 +122,10 @@
 #  ifdef MASKING
           vi(0,j,liunw)=vi(0,j,liunw)*                                  &
      &                   GRID(ng)%vmask(0,j)
+#  endif
+#  ifdef WET_DRY
+          vi(0,j,liunw)=vi(0,j,liunw)*                                  &
+     &                   GRID(ng)%vmask_wet(0,j)
 #  endif
         END DO
 #  undef J_RANGE
@@ -136,6 +148,10 @@
           vi(Lm(ng)+1,j,liunw)=vi(Lm(ng)+1,j,liunw)*                    &
      &                          GRID(ng)%vmask(Lm(ng)+1,j)
 #  endif
+#  ifdef WET_DRY
+          vi(Lm(ng)+1,j,liunw)=vi(Lm(ng)+1,j,liunw)*                    &
+     &                          GRID(ng)%vmask_wet(Lm(ng)+1,j)
+#  endif
         END DO
 # elif defined EAST_MIGRADIENT
 !
@@ -146,6 +162,10 @@
 #  ifdef MASKING
           vi(Lm(ng)+1,j,liunw)=vi(Lm(ng)+1,j,liunw)*                    &
      &                       GRID(ng)%vmask(Lm(ng)+1,j)
+#  endif
+#  ifdef WET_DRY
+          vi(Lm(ng)+1,j,liunw)=vi(Lm(ng)+1,j,liunw)*                    &
+     &                       GRID(ng)%vmask_wet(Lm(ng)+1,j)
 #  endif
         END DO
 # else
@@ -163,6 +183,10 @@
 #  ifdef MASKING
           vi(Lm(ng)+1,j,liunw)=vi(Lm(ng)+1,j,liunw)*                    &
      &                          GRID(ng)%vmask(Lm(ng)+1,j)
+#  endif
+#  ifdef WET_DRY
+          vi(Lm(ng)+1,j,liunw)=vi(Lm(ng)+1,j,liunw)*                    &
+     &                          GRID(ng)%vmask_wet(Lm(ng)+1,j)
 #  endif
         END DO
 #  undef J_RANGE
@@ -187,6 +211,10 @@
           vi(i,1,liunw)=vi(i,1,liunw)*                                  &
      &                   GRID(ng)%vmask(i,1)
 #  endif
+#  ifdef WET_DRY
+          vi(i,1,liunw)=vi(i,1,liunw)*                                  &
+     &                   GRID(ng)%vmask_wet(i,1)
+#  endif
         END DO
 # elif defined SOUTH_MIGRADIENT
 !
@@ -197,6 +225,10 @@
 #  ifdef MASKING
           vi(i,1,liunw)=vi(i,1,liunw)*                                  &
      &                   GRID(ng)%vmask(i,1)
+#  endif
+#  ifdef WET_DRY
+          vi(i,1,liunw)=vi(i,1,liunw)*                                  &
+     &                   GRID(ng)%vmask_wet(i,1)
 #  endif
         END DO
 # else
@@ -225,6 +257,10 @@
           vi(i,Mm(ng)+1,liunw)=vi(i,Mm(ng)+1,liunw)*                    &
      &                          GRID(ng)%vmask(i,Mm(ng))
 #  endif
+#  ifdef WET_DRY
+          vi(i,Mm(ng)+1,liunw)=vi(i,Mm(ng)+1,liunw)*                    &
+     &                          GRID(ng)%vmask_wet(i,Mm(ng))
+#  endif
         END DO
 # elif defined NORTH_MIGRADIENT
 !
@@ -235,6 +271,10 @@
 #  ifdef MASKING
           vi(i,Mm(ng)+1,liunw)=vi(i,Mm(ng)+1,liunw)*                    &
      &                          GRID(ng)%vmask(i,Mm(ng))
+#  endif
+#  ifdef WET_DRY
+          vi(i,Mm(ng)+1,liunw)=vi(i,Mm(ng)+1,liunw)*                    &
+     &                          GRID(ng)%vmask_wet(i,Mm(ng))
 #  endif
         END DO
 # else

@@ -574,9 +574,9 @@
 !
 !  Use Berliand (1952) formula to calculate net longwave radiation.
 !
-#  ifdef ICE_MODEL
-! If ice model is used, forced to assume specific humidity g/km
-          vap_p=0.001_r8*PairM*RH/(1.0_r8+0.000378_r8*RH) !WPB
+#  ifdef SPECIFIC_HUMIDITY
+!  specific humidity in units of kg/kg
+          vap_p=PairM*RH/(1.0_r8+0.378_r8*RH)             !WPB
 #  else
       IF(RH.lt.2.0_r8) THEN                               !WPB
           cff=(0.7859_r8+0.03477_r8*TairC(i))/                          &
@@ -650,13 +650,9 @@
 !
 !  Compute specific humidity, Q (kg/kg).
 !
-#ifdef CORE_FORCING
+#if defined CORE_FORCING || defined SPECIFIC_HUMIDITY
 ! Incoming humidity is specific humidity in (kg/kg)
           Q(i)=RH
-!         Q(i)=RH/1000.0_r8                          !Spec Hum (kg/kg)
-#elif defined ICE_MODEL
-! If ice model used, forced to assume humidiy specification to g/kg
-          Q(i)=RH/1000.0_r8                          !Spec Hum (kg/kg)
 #else
           IF (RH.lt.2.0_r8) THEN                       !RH fraction
             cff=cff*RH                                 !Vapor pres (mb)
@@ -1305,7 +1301,7 @@
      &                    LBi, UBi, LBj, UBj,                           &
      &                    tau_aiy_n)
 #  endif
-#  ifdef EMINUSP
+#  if defined EMINUSP || (defined ICE_MODEL && defined ICE_THERMO)
       CALL exchange_r2d_tile (ng, tile,                                 &
      &                        LBi, UBi, LBj, UBj,                       &
      &                        evap)

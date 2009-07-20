@@ -70,6 +70,9 @@
      &                   FORCES(ng) % tau_aix_n,                        &
      &                   FORCES(ng) % tau_aiy_n,                        &
 # endif
+# ifdef ICE_SHOREFAST
+     &                   GRID(ng) % h,                                  &
+# endif
      &                   ICE(ng) % utau_iw,                             &
      &                   ICE(ng) % chu_iw,                              &
      &                   ICE(ng) % spd_iw                               &
@@ -95,6 +98,9 @@
 # ifdef ICE_BULK_FLUXES
      &                         sustr_aw, svstr_aw,                      &
      &                         tau_aix_n, tau_aiy_n,                    &
+# endif
+# ifdef ICE_SHOREFAST
+     &                         h,                                       &
 # endif
      &                         utau_iw, chu_iw, spd_iw)
 !***********************************************************************
@@ -137,6 +143,9 @@
       real(r8), intent(in) :: tau_aix_n(LBi:,LBj:)
       real(r8), intent(in) :: tau_aiy_n(LBi:,LBj:)
 # endif
+# ifdef ICE_SHOREFAST
+      real(r8), intent(in) :: h(LBi:,LBj:)
+# endif
       real(r8), intent(out) :: utau_iw(LBi:,LBj:)
       real(r8), intent(inout) :: chu_iw(LBi:,LBj:)
       real(r8), intent(in) :: spd_iw(LBi:,LBj:)
@@ -164,6 +173,9 @@
       real(r8), intent(in) :: tau_aix_n(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: tau_aiy_n(LBi:UBi,LBj:UBj)
 # endif
+# ifdef ICE_SHOREFAST
+      real(r8), intent(in) :: h(LBi:UBi,LBj:UBj)
+# endif
       real(r8), intent(out) :: utau_iw(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: chu_iw(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: spd_iw(LBi:UBi,LBj:UBj)
@@ -184,6 +196,13 @@
 #  else
       logical :: NSperiodic=.FALSE.
 #  endif
+# endif
+# ifdef ICE_SHOREFAST
+      real(r8) :: clear
+      real(r8) :: masu
+      real(r8) :: masv 
+      real(r8) :: hu
+      real(r8) :: hv
 # endif
       integer :: i, j
 
@@ -220,7 +239,7 @@
 
       real(r8), parameter :: kappa = 0.4_r8
       real(r8), parameter :: z0ii = 0.02_r8
-!     real(r8), parameter :: eps = 1.e-20
+      real(r8), parameter :: eps = 1.e-20
 
 # include "set_bounds.h"
 
@@ -230,7 +249,16 @@
         DO i=Istr-1,Iend
           rhoO = 1000._r8+rho(i,j,N(ng))
           spd = spd_iw(i,j)
+#  ifdef ICE_SHOREFAST
+          spd = max(spd,0.10_r8)
+          clear = h(i,j)+MIN(Zt_avg1(i,j),0.0_r8)-0.9*hi(i,j,liold)
+          clear = MAX(clear,0.001_r8)
+          IF(clear < 5.0_r8) THEN
+            spd = (clear/5.0_r8)*spd
+          ENDIF
+#  else
           spd = max(spd,0.15_r8)
+#  endif
 #  ifdef ICE_MOM_BULK
           utauiw(i,j) = spd
           chuiw(i,j) = cdiw(ng)*spd
@@ -257,6 +285,15 @@
           tauaiu(i,j) = 0.5_r8*aix*(tau_aix_n(i,j)+tau_aix_n(i-1,j))    &
      &                        /rhoice(ng)
 # ifdef ICE_BULK_FLUXES
+#  ifdef ICE_SHOREFAST
+          hu = 0.5_r8*(h(i-1,j)+MIN(Zt_avg1(i-1,j),0.0_r8) +            &
+     &         h(i,j)+MIN(Zt_avg1(i,j),0.0_r8))
+          masu = 0.5_r8*(hi(i,j,liold)+hi(i-1,j,liold))
+          clear = hu-0.9_r8*masu
+          clear = MAX(clear,0.0_r8)
+          IF(clear.lt.5.0_r8) chux =                                    &
+     &       MAX(clear-1.0_r8,0.0_r8)/4.0_r8*chux
+#  endif
           sustr(i,j) = aix*chux*(ui(i,j,liuol)-uwater(i,j))             &
      &                 + (1.0_r8-aix)*sustr_aw(i,j)
 # endif
@@ -272,6 +309,15 @@
           tauaiv(i,j) = 0.5_r8*aiy*(tau_aiy_n(i,j)+tau_aiy_n(i,j-1))    &
      &                        /rhoice(ng)
 # ifdef ICE_BULK_FLUXES
+#  ifdef ICE_SHOREFAST
+           hv = 0.5_r8*(h(i,j-1)+MIN(Zt_avg1(i,j-1),0.0_r8) +           &
+     &          h(i,j)+MIN(Zt_avg1(i,j),0.0_r8))
+           masv = 0.5_r8*(hi(i,j,liold)+hi(i,j-1,liold))
+           clear = hv-0.9_r8*masv
+           clear = MAX(clear,0.0_r8)
+           IF(clear.lt.5.0_r8) chuy =                                   &
+     &       MAX(clear-1.0_r8,0.0_r8)/4.0_r8*chuy
+#  endif
           svstr(i,j) = aiy*chuy*(vi(i,j,liuol)-vwater(i,j))             &
      &                 + (1.0_r8-aiy)*svstr_aw(i,j)
 # endif
@@ -300,6 +346,14 @@
      &                        /rhoice(ng))
            wind_speed(i,j) = 0.5*sqrt((windu(i,j) +  windu(i+1,j))**2   &
      &                        +(windv(i,j) +  windv(i,j+1))**2)
+# ifdef ICE_SHOREFAST
+          clear = h(i,j)+MIN(Zt_avg1(i,j),0.0_r8)-0.9*hi(i,j,liold)
+          clear = MAX(clear,0.001_r8)
+          IF(clear < 5.0_r8) THEN
+            spdiw(i,j) = (clear/5.0_r8)*spdiw(i,j)
+            wind(i,j) = (clear/5.0_r8)*wind(i,j)
+          ENDIF
+# endif
         END DO
       END DO
 
