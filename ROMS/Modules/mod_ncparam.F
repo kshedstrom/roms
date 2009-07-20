@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       MODULE mod_ncparam
 !
-!svn $Id: mod_ncparam.F 1020 2009-07-10 23:10:30Z kate $
+!svn $Id: mod_ncparam.F 1023 2009-07-20 21:45:24Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -1788,6 +1788,10 @@
                 idIcec=varid
               CASE ('idSkt')
                 idSkt=varid
+              CASE ('idUnms')
+                idUnms=varid
+              CASE ('idVnms')
+                idVnms=varid
 #endif
 #ifdef ICE_MODEL
               CASE ('idUice')

@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       SUBROUTINE def_his (ng, ldef)
 !
-!svn $Id: def_his.F 999 2009-06-09 23:48:31Z kate $
+!svn $Id: def_his.F 1023 2009-07-20 21:45:24Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -1265,6 +1265,7 @@
 !  Define sea surface salinity flux correction
 !
 # ifdef WRT_SSSFLX
+        IF (Hout(idSSSf,ng)) THEN
           Vinfo( 1)=Vname(1,idSSSf)
           Vinfo( 2)=Vname(2,idSSSf)
           Vinfo( 3)=Vname(3,idSSSf)
@@ -1278,6 +1279,7 @@
           status=def_var(ng, iNLM, ncHISid(ng), hisVid(idSSSf,ng),        &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
+        END IF
 # endif
 !
 !  Define vertical viscosity coefficient.
@@ -3377,7 +3379,7 @@
 # endif
 # ifdef WRT_SSSFLX
         IF (.not.got_var(idSSSf).and.Hout(idSSSf,ng)) THEN
-          IF (Master) WRITE (stdout,70) TRIM(Vname(1,idSSSf)),          &
+          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idSSSf)),          &
      &                                  TRIM(ncname)
           exit_flag=3
           RETURN

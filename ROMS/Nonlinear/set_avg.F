@@ -2,7 +2,7 @@
       MODULE set_avg_mod
 #if defined AVERAGES && (!defined ADJOINT && defined NONLINEAR)
 !
-!svn $Id: set_avg.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: set_avg.F 1023 2009-07-20 21:45:24Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -134,6 +134,9 @@
 #  ifdef LMD_BKPP
      &                   MIXING(ng) % hbbl,                             &
 #  endif
+#  ifdef WRT_SSSFLX
+     &                   FORCES(ng) % sssflx,                           &
+#  endif
 #  ifdef ICE_MODEL
      &                   ICE(ng)%ui, ICE(ng)%vi,                        &
      &                   ICE(ng)%ai, ICE(ng)%hi,                        &
@@ -264,6 +267,9 @@
 #  endif
 #  ifdef LMD_BKPP
      &                   AVERAGE(ng) % avghbbl,                         &
+#  endif
+#  ifdef WRT_SSSFLX
+     &                   AVERAGE(ng) % avgsssflx,                       &
 #  endif
 #  ifdef ICE_MODEL
      &                   AVERAGE(ng) % avguice,                         &
@@ -415,6 +421,9 @@
 #  ifdef LMD_BKPP
      &                         hbbl,                                    &
 #  endif
+#  ifdef WRT_SSSFLX
+     &                         sssflx,                                  &
+#  endif
 #  ifdef ICE_MODEL
      &                         ui, vi, ai, hi, hsn, tis, ti, sfwat,     &
      &                         ageice, io_mflux, sig11, sig12, sig22,   &
@@ -510,6 +519,9 @@
 #  endif
 #  ifdef LMD_BKPP
      &                         avghbbl,                                 &
+#  endif
+#  ifdef WRT_SSSFLX
+     &                         avgsssflx,                               &
 #  endif
 #  ifdef ICE_MODEL
      &                         avguice, avgvice, avgaice, avghice,      &
@@ -649,6 +661,9 @@
 #   endif
 #   ifdef LMD_BKPP
       real(r8), intent(in) :: hbbl(LBi:,LBj:)
+#   endif
+#   ifdef WRT_SSSFLX
+      real(r8), intent(in) :: sssflx(LBi:,LBj:)
 #   endif
 #   ifdef ICE_MODEL
       real(r8), intent(in) :: ui(LBi:,LBj:,:)
@@ -796,6 +811,9 @@
 #   endif
 #   ifdef LMD_BKPP
       real(r8), intent(inout) :: avghbbl(LBi:,LBj:)
+#   endif
+#   ifdef WRT_SSSFLX
+      real(r8), intent(inout) :: avgsssflx(LBi:,LBj:)
 #   endif
 #   ifdef ICE_MODEL
       real(r8), intent(inout) :: avguice(LBi:,LBj:)
@@ -952,6 +970,9 @@
 #   ifdef LMD_BKPP
       real(r8), intent(in) :: hbbl(LBi:UBi,LBj:UBj)
 #   endif
+#   ifdef WRT_SSSFLX
+      real(r8), intent(in) :: sssflx(LBi:UBi,LBj:UBj)
+#   endif
 #   ifdef ICE_MODEL
       real(r8), intent(in) :: ui(LBi:UBi,LBj:UBj,2)
       real(r8), intent(in) :: vi(LBi:UBi,LBj:UBj,2)
@@ -1098,6 +1119,9 @@
 #   endif
 #   ifdef LMD_BKPP
       real(r8), intent(inout) :: avghbbl(LBi:UBi,LBj:UBj)
+#   endif
+#   ifdef WRT_SSSFLX
+      real(r8), intent(inout) :: avgsssflx(LBi:UBi,LBj:UBj)
 #   endif
 #   ifdef ICE_MODEL
       real(r8), intent(inout) :: avguice(LBi:UBi,LBj:UBj)
@@ -1302,6 +1326,9 @@
 #  endif
 #  ifdef LMD_BKPP
             avghbbl(i,j)=hbbl(i,j)
+#  endif
+#  ifdef WRT_SSSFLX
+            avgsssflx(i,j)=sssflx(i,j)
 #  endif
 #  ifdef ICE_MODEL
             avguice(i,j)=ui(i,j,Iuout)
@@ -1632,6 +1659,9 @@
 #  endif
 #  ifdef LMD_BKPP
             avghbbl(i,j)=avghbbl(i,j)+hbbl(i,j)
+#  endif
+#  ifdef WRT_SSSFLX
+            avgsssflx(i,j)=avgsssflx(i,j)+sssflx(i,j)
 #  endif
 #  ifdef ICE_MODEL
             avguice(i,j)=avguice(i,j)+ui(i,j,Iuout)
@@ -2058,6 +2088,9 @@
 #  endif
 #  ifdef LMD_BKPP
             avghbbl(i,j)=fac*avghbbl(i,j)
+#  endif
+#  ifdef WRT_SSSFLX
+            avgsssflx(i,j)=fac*avgsssflx(i,j)
 #  endif
 #  ifdef ICE_MODEL
             avguice(i,j)=fac*avguice(i,j)

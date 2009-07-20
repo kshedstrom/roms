@@ -69,6 +69,9 @@
 # ifdef MASKING
      &                     GRID(ng) % rmask,                            &
 # endif
+# ifdef WET_DRY
+     &                     GRID(ng) % rmask_wet,                        &
+# endif
 # ifdef ICESHELF
      &                     GRID(ng) % zice,                             &
 # endif
@@ -131,6 +134,9 @@
 # ifdef MASKING
      &                           rmask,                                 &
 # endif
+# ifdef WET_DRY
+     &                           rmask_wet,                             &
+# endif
 # ifdef ICESHELF
      &                           zice,                                  &
 # endif
@@ -169,7 +175,12 @@
       USE mod_param
       USE mod_scalars
 !
-      USE bc_2d_mod
+# if defined EW_PERIODIC || defined NS_PERIODIC
+      USE exchange_2d_mod
+# endif
+# ifdef DISTRIBUTE
+      USE mp_exchange_mod, ONLY : mp_exchange2d
+# endif
 !
 !  Imported variable declarations.
 !
@@ -184,6 +195,9 @@
 # ifdef ASSUMED_SHAPE
 #  ifdef MASKING
       real(r8), intent(in) :: rmask(LBi:,LBj:)
+#  endif
+#  ifdef WET_DRY
+      real(r8), intent(in) :: rmask_wet(LBi:,LBj:)
 #  endif
 #  ifdef ICESHELF
       real(r8), intent(in) :: zice(LBi:,LBj:)
@@ -244,6 +258,9 @@
 #  ifdef MASKING
       real(r8), intent(in) :: rmask(LBi:UBi,LBj:UBj)
 #  endif
+#  ifdef WET_DRY
+      real(r8), intent(in) :: rmask_wet(LBi:UBi,LBj:UBj)
+#  endif
 #  ifdef ICESHELF
       real(r8), intent(in) :: zice(LBi:UBi,LBj:UBj)
 #  endif
@@ -303,6 +320,18 @@
 !
 !  Local variable declarations.
 !
+# ifdef DISTRIBUTE
+#  ifdef EW_PERIODIC
+      logical :: EWperiodic=.TRUE.
+#  else
+      logical :: EWperiodic=.FALSE.
+#  endif
+#  ifdef NS_PERIODIC
+      logical :: NSperiodic=.TRUE.
+#  else
+      logical :: NSperiodic=.FALSE.
+#  endif
+# endif
       integer :: i, j, k
 
       real(r8) :: rhoswi, zu, zt, zq, slp, TseaK, tsrf, sfc_temp
@@ -321,6 +350,7 @@
       real(r8) :: thki_n
       real(r8) :: thksn_n
       real(r8) :: sfwat_n
+      real(r8) :: rhoO
       real(r8), parameter :: alb_i_dry=0.65_r8
       real(r8), parameter :: alb_i_wet=0.60_r8
       real(r8), parameter :: alb_s_dry=0.85_r8
@@ -345,15 +375,8 @@
       zq=10._r8 ! measurement height of specific humidity [m]
       cpair=1004.7_r8 ! specific heat of dry air (J/K/kg)
 
-      DO j=Jstr,Jend
-        DO i=Istr,Iend
-# ifdef MASKING
-          IF(rmask(i,j).gt.0._r8                                        &
-#  ifdef ICESHELF
-             .and.zice(i,j).eq.0.0_r8                                   &
-#  endif
-     &      ) THEN
-# endif
+      DO j=Jstr-1,JendR
+        DO i=Istr-1,IendR
 # ifdef ICE_THERMO
              IF(ai(i,j,liold).gt.min_a(ng)) THEN
                 sfc_temp = ai(i,j,liold)*tis(i,j) +                     &
@@ -369,7 +392,7 @@
       endif
 #endif
 # else
-          sfc_temp = skt(i,j) + 273.16_r8
+          sfc_temp = skt(i,j) - 273.16_r8
 # endif
           TseaK=t(i,j,N(ng),nrhs,itemp)+273.16
           rhoSea = rho(i,j,N(ng))+1000.0_r8
@@ -475,8 +498,6 @@
       ustari=sqrt(cdai(ng)*sa*ua*rhoa_n(i,j)*rhoswi)
 # endif
       f1=fice*min(1._r8,hice_n)
-!      ustar_n(i,j)=ustara*(1.-f1)+ustari*f1
-
 
 ! Stresskorreksjonen benyttes senere slik at:
       taux_m=taufac*taux_d
@@ -485,19 +506,12 @@
       facw = fice*(cd_i/cd_w) + omice
       fac_thin = 0.5_r8*(1.0_r8-COS(2.0_r8*pi*MIN(                      &
      &  hi(i,j,liold)/(ai(i,j,liold)+0.02_r8),0.5_r8)))
-!      IF(hi(i,j,liold).lt.0.5_r8) fac_thin=0._r8
 #   ifdef ICE_MOM_BULK
       cd_i = cdai(ng)
       cd_i = 0.5_r8*(1.0_r8-COS(2.0_r8*pi*MIN(                          &
      &  hi(i,j,liold),0.5_r8)))*cdai(ng)
-#     ifdef LARGE_AREA
-        IF(i.ge.123.and.i.le.125.and.j.ge.52.and.j.le.57)               &
-     &   cd_i = 0._r8
-#     endif
 #   else
       cd_i = cd_w + fac_thin*(cd_i-cd_w)
-!      IF(hi(i,j,liold)/(ai(i,j,liold)+0.0001_r8).lt.0.5_r8)             &
-!     &  cd_i = 0._r8
 #   endif
       tau_awx_n(i,j) = taux_m/facw
       tau_awy_n(i,j) = tauy_m/facw
@@ -507,19 +521,11 @@
       tau_awx_n(i,j) = taux_m
       tau_awy_n(i,j) = tauy_m
 # endif
-! Endelige turbulente varmeflukser og fordampning for åpent hav:
 !
-! --- sensible heat for open water (W/m**2)
-!      IF ((rice-fice.gt.1.0_r8).or.
-!     &  (rice.gt.0.9_r8.and.hi(i,j,liold).lt.1.0_r8)) then
-!             taw_lim = min(ta,273.16_r8)
-!!             taw_lim = ta
-!      ELSE
-             taw_lim = ta
-!      ENDIF
-
+! -- sensible heat flux for open water (W/m**2)
+!
+      taw_lim = ta
       qsh =rhoa_n(i,j)*cpair*ch_m(i,j)*sa*(taw_lim+0.0098*zt-tml)
-
 !
 ! --- latent heat for open water (W/m**2)
       fqlat1=rhoa_n(i,j)*ce_m(i,j)*sa
@@ -528,29 +534,15 @@
       qlh =fqlat1*le*dq
 !
 ! --- evaporation (m/s)
-      evap=-fqlat1*dq*1.e-3
+      evap = -fqlat1*dq*1.e-3
 
 ! Short-wave radiation to ocean
       cc = cloud(i,j)
       cc = max(cc, 0.0_r8)
-!      IF(rice.gt.0.1_r8) then
-!         cc = min(cc+0.2_r8,1.0_r8)
-!      ENDIF
-
       dswrf = srflx(i,j)
-!      IF ((rice-fice.gt.1.0_r8).or.                                    &
-!     &  (rice.gt.0.9_r8.and.hi(i,j,liold).lt.1.0_r8)) THEN
-!         dswrf = 0.4_r8*srflx(i,j)
-!         dswrf = srflx(i,j)
-!      ENDIF
       albw_d=0.065_r8
       cawdif = 1._r8-albw_d
-! Limit incoming shortwave radiation to ocean if ice present
-!      IF(fice.gt.min_a(ng)) THEN
-!         qsww = dswrf*(1._r8-0.1_r8)*(1._r8-cc)
-!      ELSE
-         qsww =dswrf*(cawdir(i,j)*(1._r8-cc)+cawdif*cc)
-!      ENDIF
+      qsww =dswrf*(cawdir(i,j)*(1._r8-cc)+cawdif*cc)
 
 ! Net long-wave radiation to ocean
       nlwrs = lrflx(i,j)
@@ -568,16 +560,17 @@
          rain_n = omice*rain(i,j)/1000._r8
          snow_n(i,j) = rain(i,j)/rhosnow_dry(ng)
       ENDIF
-      p_e_n(i,j) =-(evap*omice-rain_n)
-! Negative of salt flux, sign switched back at end of ice_mk.h
+      p_e_n(i,j) = (evap*omice-rain_n)
       stflx(i,j,isalt) = p_e_n(i,j)
 #ifdef RUNOFF
       stflx(i,j,isalt) = stflx(i,j,isalt) - runoff(i,j)/1000._r8
 #endif
 #define DIAG_WPB
 #ifdef DIAG_WPB
-      IF(i.eq.4.and.j.eq.161) THEN
+      IF(i.eq.354.and.j.eq.101) THEN
         write(9,100) tdays,qao_n(i,j),-qsh,-qlh,-qsww,qlww
+        write(8,100) tdays,ta,skt(i,j),tsrf_d,tml
+        write(10,100) tdays,evap,rain_n,runoff(i,j)*0.001_r8,stflx(i,j,isalt)
  100    format(f16.5,5e16.4)
 !        write(*,*) '  From ncep_flux: '
 !        write(*,*) 'qao_n = ',qao_n(i,j)
@@ -613,27 +606,20 @@
       rhs_ice_heat(i,j) = 0._r8
 
 ! Sensible heat flux over ice
-
-!      IF ((rice-fice.gt.1.0_r8).or.                                     &
-!     &  (rice.gt.0.9_r8.and.hi(i,j,liold).lt.1.0_r8)) THEN
-!             tai_lim = min(ta,273.16_r8)
-!!             tai_lim = ta
-!      ELSE
-             tai_lim = ta
-!      ENDIF
+!
+      tai_lim = ta
       qsh_i = rhoa_n(i,j)*cpair*ch_m(i,j)*sa*(tai_lim+0.0098*zt-tsrf)
 
       coef_ice_heat(i,j) = coef_ice_heat(i,j) +                         &
      &      rhoa_n(i,j)*cpair*ch_m(i,j)*sa
       rhs_ice_heat(i,j) = rhs_ice_heat(i,j) +                           &
      &      rhoa_n(i,j)*cpair*ch_m(i,j)*sa*(tai_lim+0.0098*zt)
-
-
+!
 ! Latent heat flux over ice
       le_i=2.834E+6_r8
       dq_i=qa-qsati(tsrf,slp)
       qlh_i =fqlat1*le_i*dq_i
-
+!
 ! Correct NCEP latent heat flux over ice to Jordan et al (1999):
 !      qlh_i = 0.52_r8*qlh_i - 1.01_r8 ! Reduce cooling in summer
       rhs_ice_heat(i,j) = rhs_ice_heat(i,j) +                           &
@@ -662,7 +648,7 @@
 !     &         +0.518_r8*EXP(-8.1_r8 *sfwat_n-0.47_r8)                  &
 !     &         +0.341_r8*EXP(-31.8_r8*sfwat_n-0.94_r8)                  &
 !     &         +0.131_r8*EXP(-2.6_r8 *sfwat_n-3.82_r8)
-
+!
 # else
       cff1 = alb_s_wet - alb_s_dry
       cff2 = alb_i_wet - alb_i_dry
@@ -722,128 +708,171 @@
 #endif
 
 #endif
-# ifdef MASKING
-      else
-!         ustar_n(i,j) = 1.0E-4_r8
-         rhoa_n(i,j) = 1.225_r8
-      endif
-# endif
-
       ENDDO
       ENDDO
-
 
 # ifdef ICE_MODEL
-      DO j=Jstr,Jend
-         DO i=Istr,Iend
-            sustr_aw(i,j) = tau_awx_n(i,j)
+      DO j=JstrR,JendR
+         DO i=Istr,IendR
+            rhoO = 1000._r8 + 0.5_r8*(rho(i,j,N(ng))+rho(i-1,j,N(ng)))
+            sustr_aw(i,j) = 0.5_r8*(tau_awx_n(i-1,j)+tau_awx_n(i,j))/rhoO
          ENDDO
       ENDDO
 
-      DO j=Jstr,Jend
-         DO i=Istr,Iend
-            svstr_aw(i,j) = tau_awy_n(i,j)
+      DO j=Jstr,JendR
+         DO i=IstrR,IendR
+            rhoO = 1000._r8 + 0.5_r8*(rho(i,j,N(ng))+rho(i,j-1,N(ng)))
+            svstr_aw(i,j) = 0.5_r8*(tau_awy_n(i,j-1)+tau_awy_n(i,j))/rhoO
          ENDDO
       ENDDO
 # else
-      DO j=Jstr,Jend
-         DO i=IstrU,Iend
-            sustr(i,j) = 0.5_r8*(tau_awx_n(i-1,j)+tau_awx_n(i,j))/rho0
+      DO j=JstrR,JendR
+         DO i=Istr,IendR
+            rhoO = 1000._r8 + 0.5_r8*(rho(i,j,N(ng))+rho(i-1,j,N(ng)))
+            sustr(i,j) = 0.5_r8*(tau_awx_n(i-1,j)+tau_awx_n(i,j))/rhoO
          ENDDO
       ENDDO
 
-      DO j=JstrV,Jend
-         DO i=Istr,Iend
-            svstr(i,j) = 0.5_r8*(tau_awy_n(i,j-1)+tau_awy_n(i,j))/rho0
+      DO j=Jstr,JendR
+         DO i=IstrR,IendR
+            rhoO = 1000._r8 + 0.5_r8*(rho(i,j,N(ng))+rho(i,j-1,N(ng)))
+            svstr(i,j) = 0.5_r8*(tau_awy_n(i,j-1)+tau_awy_n(i,j))/rhoO
          ENDDO
       ENDDO
 # endif
+!
+!-----------------------------------------------------------------------
+!  Exchange boundary data.
+!-----------------------------------------------------------------------
+!
+# if defined EW_PERIODIC || defined NS_PERIODIC
 
-        CALL bc_r2d_tile (ng, tile,                                     &
-     &                    LBi, UBi, LBj, UBj,                           &
-     &                    rhoa_n)
-        CALL bc_r2d_tile (ng, tile,                                     &
-     &                    LBi, UBi, LBj, UBj,                           &
-     &                    wg2_d)
-        CALL bc_r2d_tile (ng, tile,                                     &
-     &                    LBi, UBi, LBj, UBj,                           &
-     &                    cd_d)
-        CALL bc_r2d_tile (ng, tile,                                     &
-     &                    LBi, UBi, LBj, UBj,                           &
-     &                    ch_d)
-        CALL bc_r2d_tile (ng, tile,                                     &
-     &                    LBi, UBi, LBj, UBj,                           &
-     &                    ce_d)
-        CALL bc_r2d_tile (ng, tile,                                     &
-     &                    LBi, UBi, LBj, UBj,                           &
-     &                    wg2_m)
-        CALL bc_r2d_tile (ng, tile,                                     &
-     &                    LBi, UBi, LBj, UBj,                           &
-     &                    cd_m)
-        CALL bc_r2d_tile (ng, tile,                                     &
-     &                    LBi, UBi, LBj, UBj,                           &
-     &                    ch_m)
-        CALL bc_r2d_tile (ng, tile,                                     &
-     &                    LBi, UBi, LBj, UBj,                           &
-     &                    ce_m)
-        CALL bc_r2d_tile (ng, tile,                                     &
-     &                    LBi, UBi, LBj, UBj,                           &
-     &                    srflx)
-        CALL bc_r2d_tile (ng, tile,                                     &
-     &                    LBi, UBi, LBj, UBj,                           &
-     &                    tau_awx_n)
-        CALL bc_r2d_tile (ng, tile,                                     &
-     &                    LBi, UBi, LBj, UBj,                           &
-     &                    tau_awy_n)
-#ifdef ICE_MODEL
-# ifdef ICE_THERMO
-        CALL bc_r2d_tile (ng, tile,                                     &
-     &                    LBi, UBi, LBj, UBj,                           &
-     &                    qao_n)
-        CALL bc_r2d_tile (ng, tile,                                     &
-     &                    LBi, UBi, LBj, UBj,                           &
-     &                    qai_n)
-        CALL bc_r2d_tile (ng, tile,                                     &
-     &                    LBi, UBi, LBj, UBj,                           &
-     &                    p_e_n)
-        CALL bc_r2d_tile (ng, tile,                                     &
-     &                    LBi, UBi, LBj, UBj,                           &
-     &                    coef_ice_heat)
-        CALL bc_r2d_tile (ng, tile,                                     &
-     &                    LBi, UBi, LBj, UBj,                           &
-     &                    rhs_ice_heat)
-        CALL bc_r2d_tile (ng, tile,                                     &
-     &                    LBi, UBi, LBj, UBj,                           &
-     &                    snow_n)
+        CALL exchange_r2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          rhoa_n)
+        CALL exchange_r2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          wg2_d)
+        CALL exchange_r2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          cd_d)
+        CALL exchange_r2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          ch_d)
+        CALL exchange_r2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          ce_d)
+        CALL exchange_r2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          wg2_m)
+        CALL exchange_r2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          cd_m)
+        CALL exchange_r2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          ch_m)
+        CALL exchange_r2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          ce_m)
+        CALL exchange_r2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          srflx)
+        CALL exchange_r2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          tau_awx_n)
+        CALL exchange_r2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          tau_awy_n)
+#  ifdef ICE_MODEL
+#   ifdef ICE_THERMO
+        CALL exchange_r2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          qao_n)
+        CALL exchange_r2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          qai_n)
+        CALL exchange_r2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          p_e_n)
+        CALL exchange_r2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          coef_ice_heat)
+        CALL exchange_r2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          rhs_ice_heat)
+        CALL exchange_r2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          snow_n)
+#   endif
+        CALL exchange_r2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          tau_aix_n)
+        CALL exchange_r2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          tau_aiy_n)
+        CALL exchange_u2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          sustr_aw)
+        CALL exchange_v2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          svstr_aw)
+#  endif
+        CALL exchange_r2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          stflx(:,:,isalt))
+        CALL exchange_r2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          stflx(:,:,itemp))
+#  ifndef ICE_MODEL
+        CALL exchange_u2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          sustr)
+        CALL exchange_v2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          svstr)
+#  endif
 # endif
-        CALL bc_r2d_tile (ng, tile,                                     &
+# ifdef DISTRIBUTE
+      CALL mp_exchange2d (ng, tile, iNLM, 4,                            &
      &                    LBi, UBi, LBj, UBj,                           &
-     &                    tau_aix_n)
-        CALL bc_r2d_tile (ng, tile,                                     &
+     &                    NghostPoints, EWperiodic, NSperiodic,         &
+     &                    rhoa_n, wg2_d, cd_d, ch_d)
+      CALL mp_exchange2d (ng, tile, iNLM, 4,                            &
      &                    LBi, UBi, LBj, UBj,                           &
-     &                    tau_aiy_n)
-        CALL bc_r2d_tile (ng, tile,                                     &
+     &                    NghostPoints, EWperiodic, NSperiodic,         &
+     &                    ce_d, wg2_m, cd_m, ch_m)
+      CALL mp_exchange2d (ng, tile, iNLM, 4,                            &
      &                    LBi, UBi, LBj, UBj,                           &
-     &                    sustr_aw)
-        CALL bc_r2d_tile (ng, tile,                                     &
+     &                    NghostPoints, EWperiodic, NSperiodic,         &
+     &                    ce_m, srflx, tau_awx_n, tau_awy_n)
+#  ifdef ICE_MODEL
+#   ifdef ICE_THERMO
+       CALL mp_exchange2d (ng, tile, iNLM, 4,                           &
      &                    LBi, UBi, LBj, UBj,                           &
-     &                    svstr_aw)
-#endif
-        CALL bc_r2d_tile (ng, tile,                                     &
+     &                    NghostPoints, EWperiodic, NSperiodic,         &
+     &                    qao_n, qai_n, p_e_n, coef_ice_heat)
+       CALL mp_exchange2d (ng, tile, iNLM, 2,                           &
      &                    LBi, UBi, LBj, UBj,                           &
+     &                    NghostPoints, EWperiodic, NSperiodic,         &
+     &                    rhs_ice_heat, snow_n)
+#   endif
+      CALL mp_exchange2d (ng, tile, iNLM, 4,                            &
+     &                    LBi, UBi, LBj, UBj,                           &
+     &                    NghostPoints, EWperiodic, NSperiodic,         &
+     &                    tau_aix_n, tau_aiy_n, sustr_aw, svstr_aw)
+#  endif
+      CALL mp_exchange2d (ng, tile, iNLM, 2,                            &
+     &                    LBi, UBi, LBj, UBj,                           &
+     &                    NghostPoints, EWperiodic, NSperiodic,         &
+     &                    stflx(:,:,itemp),                             &
      &                    stflx(:,:,isalt))
-        CALL bc_r2d_tile (ng, tile,                                     &
+#  ifndef ICE_MODEL
+      CALL mp_exchange2d (ng, tile, iNLM, 2,                            &
      &                    LBi, UBi, LBj, UBj,                           &
-     &                    stflx(:,:,itemp))
-#ifndef ICE_MODEL
-        CALL bc_u2d_tile (ng, tile,                                     &
-     &                    LBi, UBi, LBj, UBj,                           &
-     &                    sustr)
-        CALL bc_v2d_tile (ng, tile,                                     &
-     &                    LBi, UBi, LBj, UBj,                           &
-     &                    svstr)
-#endif
-
+     &                    NghostPoints, EWperiodic, NSperiodic,         &
+     &                    sustr, svstr)
+#  endif
+# endif
       RETURN
       END SUBROUTINE ncep_flux_tile
 #endif

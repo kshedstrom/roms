@@ -2,7 +2,7 @@
 #undef KATE_FOO
       SUBROUTINE inp_par (model)
 !
-!svn $Id: inp_par.F 1020 2009-07-10 23:10:30Z kate $
+!svn $Id: inp_par.F 1023 2009-07-20 21:45:24Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -2305,6 +2305,14 @@
           ELSE IF (TRIM(KeyWord).eq.'Hout2(idBath)') THEN
             Npts=load_l(Nval, Cval, Ngrids, Hout2(idBath,:))
 #endif
+#ifdef WRT_SSSFLX
+          ELSE IF (TRIM(KeyWord).eq.'Hout(idSSSf)') THEN
+            IF (idSSSf.eq.0) THEN
+              WRITE (out,280) 'idSSSf'
+              STOP
+            END IF
+            Npts=load_l(Nval, Cval, Ngrids, Hout(idSSSf,:))
+#endif
           ELSE IF (TRIM(KeyWord).eq.'Hout2(idFsur)') THEN
             Npts=load_l(Nval, Cval, Ngrids, Hout2(idFsur,:))
           ELSE IF (TRIM(KeyWord).eq.'Hout2(idUbar)') THEN
@@ -3542,6 +3550,11 @@
      &       'Hout(idSrad)',                                            &
      &       'Write out shortwave radiation flux.'
 # endif
+# ifdef WRT_SSSFLX
+          IF (Hout(idSSSf,ng)) WRITE (out,170) Hout(idSSSf,ng),         &
+     &       'Hout(idSSSf)',                                            &
+     &       'Write out sea surface salinity correction flux.'
+# endif
 # ifdef BULK_FLUXES
           IF (Hout(idLrad,ng)) WRITE (out,170) Hout(idLrad,ng),         &
      &       'Hout(idLrad)',                                            &
@@ -3828,6 +3841,11 @@
           IF (Hout2(idSrad,ng)) WRITE (out,170) Hout2(idSrad,ng),       &
      &       'Hout2(idSrad)',                                           &
      &       'Write out shortwave radiation flux.'
+# endif
+# ifdef WRT_SSSFLX
+          IF (Hout2(idSSSf,ng)) WRITE (out,170) Hout2(idSSSf,ng),       &
+     &       'Hout2(idSSSf)',                                           &
+     &       'Write out sea surface salinity correction flux.'
 # endif
 # ifdef BULK_FLUXES
           IF (Hout2(idLrad,ng)) WRITE (out,170) Hout2(idLrad,ng),       &
@@ -12260,6 +12278,11 @@
             IF (Sout(idSrad,ng)) WRITE (out,80) Sout(idSrad,ng),        &
      &          'Sout(idSrad)',                                         &
      &          'Write out shortwave radiation flux.'
+#  endif
+#  ifdef WRT_SSSFLX
+            IF (Sout(idSSSf,ng)) WRITE (out,80) Sout(idSSSf,ng),        &
+     &          'Sout(idSSSf)',                                         &
+     &          'Write out sea surface salinity correction flux.'
 #  endif
 #  ifdef BULK_FLUXES
             IF (Sout(idLrad,ng)) WRITE (out,80) Sout(idLrad,ng),        &

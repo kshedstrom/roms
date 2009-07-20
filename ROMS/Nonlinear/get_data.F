@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       SUBROUTINE get_data (ng)
 !
-!svn $Id: get_data.F 984 2009-05-24 01:43:19Z kate $
+!svn $Id: get_data.F 1023 2009-07-20 21:45:24Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -125,15 +125,15 @@
 !
 !  Surface wind stress components.
 !
-      CALL get_2dfld (ng, iNLM, idUsms, ncfrcid(idUsms,ng),             &
-     &                nFfiles(ng), frcname(1,ng),                       &
+      CALL get_2dfld (ng, iNLM, idUnms, ncFRCid(idUnms,ng),             &
+     &                nFfiles(ng), FRCname(1,ng),                       &
      &                update(1), LBi, UBi, LBj, UBj, 2, 1,              &
 # ifdef MASKING
      &                GRID(ng) % rmask(LBi,LBj),                        &
 # endif
      &                FORCES(ng) % nustrG(LBi,LBj,1))
-      CALL get_2dfld (ng, iNLM, idVsms, ncfrcid(idVsms,ng),             &
-     &                nFfiles(ng), frcname(1,ng),                       &
+      CALL get_2dfld (ng, iNLM, idVnms, ncFRCid(idVnms,ng),             &
+     &                nFfiles(ng), FRCname(1,ng),                       &
      &                update(1), LBi, UBi, LBj, UBj, 2, 1,              &
 # ifdef MASKING
      &                GRID(ng) % rmask(LBi,LBj),                        &
@@ -142,8 +142,8 @@
 !
 !  Cloud fraction.
 !
-      CALL get_2dfld (ng, iNLM, idCfra, ncfrcid(idCfra,ng),             &
-     &                nFfiles(ng), frcname(1,ng),                       &
+      CALL get_2dfld (ng, iNLM, idCfra, ncFRCid(idCfra,ng),             &
+     &                nFfiles(ng), FRCname(1,ng),                       &
      &                update(1), LBi, UBi, LBj, UBj, 2, 1,              &
 # ifdef MASKING
      &                GRID(ng) % rmask(LBi,LBj),                        &
@@ -152,8 +152,8 @@
 !
 !  Surface solar shortwave radiation.
 !
-      CALL get_2dfld (ng, iNLM, idSrad, ncfrcid(idSrad,ng),             &
-     &                nFfiles(ng), frcname(1,ng),                       &
+      CALL get_2dfld (ng, iNLM, idSrad, ncFRCid(idSrad,ng),             &
+     &                nFfiles(ng), FRCname(1,ng),                       &
      &                update(1), LBi, UBi, LBj, UBj, 2, 1,              &
 # ifdef MASKING
      &                GRID(ng) % rmask(LBi,LBj),                        &
@@ -162,8 +162,8 @@
 !
 !  Surface net longwave radiation.
 !
-      CALL get_2dfld (ng, iNLM, idLrad, ncfrcid(idLrad,ng),             &
-     &                nFfiles(ng), frcname(1,ng),                       &
+      CALL get_2dfld (ng, iNLM, idLrad, ncFRCid(idLrad,ng),             &
+     &                nFfiles(ng), FRCname(1,ng),                       &
      &                update(1), LBi, UBi, LBj, UBj, 2, 1,              &
 # ifdef MASKING
      &                GRID(ng) % rmask(LBi,LBj),                        &
@@ -172,8 +172,8 @@
 !
 !  Net sensible heat flux
 !
-      CALL get_2dfld (ng, iNLM, idShea, ncfrcid(idShea,ng),             &
-     &                nFfiles(ng), frcname(1,ng),                       &
+      CALL get_2dfld (ng, iNLM, idShea, ncFRCid(idShea,ng),             &
+     &                nFfiles(ng), FRCname(1,ng),                       &
      &                update(1), LBi, UBi, LBj, UBj, 2, 1,              &
 # ifdef MASKING
      &                GRID(ng) % rmask(LBi,LBj),                        &
@@ -182,8 +182,8 @@
 !
 !  Net latent heat flux
 !
-      CALL get_2dfld (ng, iNLM, idLhea, ncfrcid(idLhea,ng),             &
-     &                nFfiles(ng), frcname(1,ng),                       &
+      CALL get_2dfld (ng, iNLM, idLhea, ncFRCid(idLhea,ng),             &
+     &                nFfiles(ng), FRCname(1,ng),                       &
      &                update(1), LBi, UBi, LBj, UBj, 2, 1,              &
 # ifdef MASKING
      &                GRID(ng) % rmask(LBi,LBj),                        &
@@ -192,8 +192,8 @@
 !
 !  Surface air pressure.
 !
-      CALL get_2dfld (ng, iNLM, idPair, ncfrcid(idPair,ng),             &
-     &                nFfiles(ng), frcname(1,ng),                       &
+      CALL get_2dfld (ng, iNLM, idPair, ncFRCid(idPair,ng),             &
+     &                nFfiles(ng), FRCname(1,ng),                       &
      &                update(1), LBi, UBi, LBj, UBj, 2, 1,              &
 # ifdef MASKING
      &                GRID(ng) % rmask(LBi,LBj),                        &
@@ -202,8 +202,8 @@
 !
 !  Rainfall
 !
-      CALL get_2dfld (ng, iNLM, idrain, ncfrcid(idrain,ng),             &
-     &                nFfiles(ng), frcname(1,ng),                       &
+      CALL get_2dfld (ng, iNLM, idrain, ncFRCid(idrain,ng),             &
+     &                nFfiles(ng), FRCname(1,ng),                       &
      &                update(1), LBi, UBi, LBj, UBj, 2, 1,              &
 # ifdef MASKING
      &                GRID(ng) % rmask(LBi,LBj),                        &
@@ -212,8 +212,8 @@
 !
 !  Skin temperature
 !
-      CALL get_2dfld (ng, iNLM, idSkt, ncfrcid(idSkt,ng),               &
-     &                nFfiles(ng), frcname(1,ng),                       &
+      CALL get_2dfld (ng, iNLM, idSkt, ncFRCid(idSkt,ng),               &
+     &                nFfiles(ng), FRCname(1,ng),                       &
      &                update(1), LBi, UBi, LBj, UBj, 2, 1,              &
 # ifdef MASKING
      &                GRID(ng) % rmask(LBi,LBj),                        &
@@ -222,13 +222,28 @@
 !
 !  Observed (NCEP) ice concentration
 !
-      CALL get_2dfld (ng, iNLM, idIcec, ncfrcid(idIcec,ng),             &
-     &                nFfiles(ng), frcname(1,ng),                       &
+      CALL get_2dfld (ng, iNLM, idIcec, ncFRCid(idIcec,ng),             &
+     &                nFfiles(ng), FRCname(1,ng),                       &
      &                update(1), LBi, UBi, LBj, UBj, 2, 1,              &
 # ifdef MASKING
      &                GRID(ng) % rmask(LBi,LBj),                        &
 # endif
      &                FORCES(ng) % icecG(LBi,LBj,1))
+!
+# if !defined ANA_RUNOFF && defined RUNOFF
+!
+!-----------------------------------------------------------------------
+!  Surface runoff rate
+!-----------------------------------------------------------------------
+!
+      CALL get_2dfld (ng, iNLM, idRunoff, ncfrcid(idRunoff,ng),         &
+     &                nFfiles(ng), frcname(1,ng),                       &
+     &                update(1), LBi, UBi, LBj, UBj, 2, 1,              &
+#  ifdef MASKING
+     &                GRID(ng) % rmask(LBi,LBj),                        &
+#  endif
+     &                FORCES(ng) % runoffG(LBi,LBj,1))
+# endif
 
 #endif
 
@@ -1120,7 +1135,6 @@
      &                CLIMA(ng) % vbarclmG(LBi,LBj,1))
 # endif
 # ifdef SOLVE3D
-
 #  if !defined ANA_TCLIMA && defined TCLIMATOLOGY
 ! Only nudge the active tracers if doing a 1D simulation
 #    if defined SEBS1D
@@ -1133,8 +1147,8 @@
 #   endif
      &                  CLIMA(ng) % tclmG(LBi,LBj,1,1,i))
       END DO
-#     endif      
-      
+#     endif
+
 #   if (defined BEST_NPZ || defined BIO_GOANPZ) && defined IRON_LIMIT
       CALL get_3dfld (ng, iNLM, idTclm(iFe), ncclmid(ng), 1,            &
      &                clmname(ng), update(1),                           &
@@ -1145,7 +1159,7 @@
      &                CLIMA(ng) % tclmG(LBi,LBj,1,1,iFe))
 #   endif
 #    if defined ICE_BIO 
-       CALL get_3dfld (ng, iNLM, idTclm(iFe+1), ncclmid(ng), 1,            &
+       CALL get_3dfld (ng, iNLM, idTclm(iFe+1), ncclmid(ng), 1,         &
      &                clmname(ng), update(1),                           &
      &                LBi, UBi, LBj, UBj, 1, N(ng), 2, 1,               &
 #    ifdef MASKING
@@ -1153,7 +1167,6 @@
 #    endif
      &                CLIMA(ng) % tclmG(LBi,LBj,1,1,15))
 #   endif
-
 #  endif
 #  if !defined ANA_OCLIMA && defined OCLIMATOLOGY
       CALL get_3dfld (ng, iNLM, idOclm, ncCLMid(ng), 1,                 &

@@ -21,7 +21,7 @@
       SUBROUTINE ice_smoother (ng, tile)
 
       USE mod_param
-# ifdef MASKING
+# if defined MASKING || defined WET_DRY
       USE mod_grid
 # endif
       USE mod_ice
@@ -40,6 +40,9 @@
 # ifdef MASKING
      &                        GRID(ng) % rmask,                         &
 # endif
+# ifdef WET_DRY
+     &                        GRID(ng) % rmask_wet,                     &
+# endif
      &                        FORCES(ng) % stflx,                       &
      &                        ICE(ng) % stflx_wk)
 !
@@ -52,6 +55,9 @@
      &                        IminS, ImaxS, JminS, JmaxS,               &
 # ifdef MASKING
      &                        rmask,                                    &
+# endif
+# ifdef WET_DRY
+     &                        rmask_wet,                                &
 # endif
      &                        stflx, stflx_wk)
 !***********************************************************************
@@ -77,11 +83,17 @@
 #  ifdef MASKING
       real(r8), intent(in), dimension(LBi:,LBj:) :: rmask
 #  endif
+#  ifdef WET_DRY
+      real(r8), intent(in), dimension(LBi:,LBj:) :: rmask_wet
+#  endif
       real(r8), intent(in) :: stflx(LBi:,LBj:,:)
       real(r8), intent(out) :: stflx_wk(LBi:,LBj:,:)
 # else
 #  ifdef MASKING
       real(r8), intent(in), dimension(LBi:UBi,LBj:UBj) :: rmask
+#  endif
+#  ifdef WET_DRY
+      real(r8), intent(in), dimension(LBi:UBi,LBj:UBj) :: rmask_wet
 #  endif
       real(r8), intent(in) :: stflx(LBi:UBi,LBj:UBj,2)
       real(r8), intent(out) :: stflx_wk(LBi:UBi,LBj:UBj,2)

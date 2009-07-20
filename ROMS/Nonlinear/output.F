@@ -2,7 +2,7 @@
 #ifdef NONLINEAR
       SUBROUTINE output (ng)
 !
-!svn $Id: output.F 1003 2009-06-19 23:52:29Z kate $
+!svn $Id: output.F 1023 2009-07-20 21:45:24Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -80,6 +80,7 @@
 !  append new data to it.  Also,  notice that it is possible to
 !  create several files during a single model run.
 !
+#ifndef NO_HIS
       IF (LdefHIS(ng)) THEN
         IF (ndefHIS(ng).gt.0) THEN
           IF (iic(ng).eq.ntstart(ng)) THEN
@@ -158,6 +159,7 @@
           END IF
         END IF
       END IF
+#endif
 
 # if defined AVERAGES && !defined ADJOINT
 !
