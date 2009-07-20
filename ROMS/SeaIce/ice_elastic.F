@@ -23,6 +23,9 @@
       USE mod_grid
       USE mod_ice
       USE mod_stepping
+#ifdef ICE_SHOREFAST
+      USE mod_coupling
+#endif
 
       integer, intent(in) :: ng, tile
 !
@@ -42,6 +45,11 @@
      &                      GRID(ng) % umask,                           &
      &                      GRID(ng) % vmask,                           &
 # endif
+# ifdef WET_DRY
+     &                      GRID(ng) % rmask_wet,                       &
+     &                      GRID(ng) % umask_wet,                       &
+     &                      GRID(ng) % vmask_wet,                       &
+# endif
 # ifdef ICESHELF
      &                      GRID(ng) % zice,                            &
 # endif
@@ -54,6 +62,7 @@
      &                      GRID(ng) % f,                               &
 # ifdef ICE_SHOREFAST
      &                      GRID(ng) % h,                               &
+     &                      COUPLING(ng) % Zt_avg1,                     &
 # endif
      &                      ICE(ng) % ui,                               &
      &                      ICE(ng) % vi,                               &
@@ -88,6 +97,9 @@
 # ifdef MASKING
      &                        rmask, umask, vmask,                      &
 # endif
+# ifdef WET_DRY
+     &                        rmask_wet, umask_wet, vmask_wet,          &
+# endif
 # ifdef ICESHELF
      &                        zice,                                     &
 # endif
@@ -95,6 +107,7 @@
      &                        f,                                        &
 # ifdef ICE_SHOREFAST
      &                        h,                                        &
+     &                        Zt_avg1,                                  &
 # endif
      &                        ui, vi, uwater, vwater, sealev,           &
      &                        uie, vie,                                 &
@@ -132,6 +145,11 @@
       real(r8), intent(in) :: umask(LBi:,LBj:)
       real(r8), intent(in) :: vmask(LBi:,LBj:)
 #  endif
+#  ifdef WET_DRY
+      real(r8), intent(in) :: rmask_wet(LBi:,LBj:)
+      real(r8), intent(in) :: umask_wet(LBi:,LBj:)
+      real(r8), intent(in) :: vmask_wet(LBi:,LBj:)
+#  endif
 #  ifdef ICESHELF
       real(r8), intent(in) :: zice(LBi:,LBj:)
 #  endif
@@ -144,6 +162,7 @@
       real(r8), intent(in) :: f(LBi:,LBj:)
 # ifdef ICE_SHOREFAST
       real(r8), intent(in) :: h(LBi:,LBj:)
+      real(r8), intent(in) :: Zt_avg1(LBi:,LBj:)
 # endif
       real(r8), intent(out) :: ui(LBi:,LBj:,:)
       real(r8), intent(out) :: vi(LBi:,LBj:,:)
@@ -168,6 +187,11 @@
       real(r8), intent(in) :: rmask(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: umask(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: vmask(LBi:UBi,LBj:UBj)
+#  endif
+#  ifdef WET_DRY
+      real(r8), intent(in) :: rmask_wet(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: umask_wet(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: vmask_wet(LBi:UBi,LBj:UBj)
 #  endif
 #  ifdef ICESHELF
       real(r8), intent(in) :: zice(LBi:UBi,LBj:UBj)
@@ -212,6 +236,9 @@
 #  else
       logical :: NSperiodic=.FALSE.
 #  endif
+# endif
+# ifdef ICE_SHOREFAST
+      real(r8) :: clear
 # endif
       integer :: i, j
       integer :: i1, j1, iterin
@@ -286,7 +313,25 @@
 ! *** forces from ice rheology x-direction 
           s1 = (sig11(i,j,lienw)-sig11(i-1,j,lienw))*pmu 
 #ifdef MASKING
-          IF (umask(i,j).gt.0.0_r8.and.umask(i,j+1).lt.1.0_r8) THEN
+          IF (umask(i,j).gt.0.0_r8.and.umask(i,j+1).lt.1.0_r8) THEN 
+            f1 = 0.5_r8*(sig12(i,j,lienw)+sig12(i-1,j,lienw))
+# ifdef WET_DRY
+          ELSE IF (umask_wet(i,j).gt.0.0_r8.and.                        &
+     &            umask_wet(i,j+1).lt.1.0_r8) THEN
+            f1 = 0.5_r8*(sig12(i,j,lienw)+sig12(i-1,j,lienw))
+# endif
+# ifdef ICESHELF
+          ELSE IF (zice(i-1,j).eq.0.0_r8.and.zice(i,j).eq.0.0_r8.and.   &
+     &             zice(i-1,j+1)+zice(i,j+1).ne.0.0_r8) THEN
+            f1 = 0.5_r8*(sig12(i,j,lienw)+sig12(i-1,j,lienw))
+# endif
+          ELSE
+            f1 = 0.25_r8*(sig12(i,j,lienw)+sig12(i,j+1,lienw)           &
+     &           + sig12(i-1,j+1,lienw)+sig12(i-1,j,lienw))
+          END IF
+#elif defined WET_DRY
+          IF (umask_wet(i,j).gt.0.0_r8.and.umask_wet(i,j+1).lt.1.0_r8)  &
+     &    THEN
             f1 = 0.5_r8*(sig12(i,j,lienw)+sig12(i-1,j,lienw))
 # ifdef ICESHELF
           ELSE IF (zice(i-1,j).eq.0.0_r8.and.zice(i,j).eq.0.0_r8.and.   &
@@ -308,6 +353,24 @@
 #endif
 #ifdef MASKING
           IF (umask(i,j).gt.0.0_r8.and.umask(i,j-1).lt.1.0_r8) THEN
+             f2 = 0.5_r8*(sig12(i,j,lienw)+sig12(i-1,j,lienw))
+# ifdef WET_DRY
+          ELSE IF (umask_wet(i,j).gt.0.0_r8.and.                        &
+     &        umask_wet(i,j-1).lt.1.0_r8) THEN
+             f2 = 0.5_r8*(sig12(i,j,lienw)+sig12(i-1,j,lienw))
+# endif
+# ifdef ICESHELF
+          ELSE IF (zice(i-1,j).eq.0.0_r8.and.zice(i,j).eq.0.0_r8.and.   &
+     &             zice(i-1,j-1)+zice(i,j-1).ne.0.0_r8) then
+             f2 = 0.5_r8*(sig12(i,j,lienw)+sig12(i-1,j,lienw))
+# endif
+          ELSE
+             f2 = 0.25_r8*(sig12(i,j,lienw)+sig12(i-1,j,lienw)          &
+     &           + sig12(i-1,j-1,lienw)+sig12(i,j-1,lienw))
+          END IF
+#elif defined WET_DRY
+          IF (umask_wet(i,j).gt.0.0_r8.and.                             &
+     &        umask_wet(i,j-1).lt.1.0_r8) THEN
              f2 = 0.5_r8*(sig12(i,j,lienw)+sig12(i-1,j,lienw))
 # ifdef ICESHELF
           ELSE IF (zice(i-1,j).eq.0.0_r8.and.zice(i,j).eq.0.0_r8.and.   &
@@ -338,6 +401,25 @@
 
            fakt = 0.0_r8
 #ifdef MASKING
+# ifdef WET_DRY
+           dsum = vmask(i-1,j)*vmask_wet(i-1,j) +                       &
+     &            vmask(i,j)*vmask_wet(i,j) +                           &
+     &            vmask(i-1,j+1)*vmask_wet(i-1,j+1) +                   &
+     &            vmask(i,j+1)*vmask_wet(i,j+1)
+           if (dsum.gt.0.0_r8) fakt = 1.0_r8/dsum
+           mfv11 = 0.5_r8*(hi(i-1,j-1,liold)*f(i-1,j-1)+                &
+     &                     hi(i-1,j,liold)*f(i-1,j))*                   &
+     &                vie(i-1,j,lieol)*vmask(i-1,j)*vmask_wet(i-1,j)
+           mfv21 = 0.5_r8*(hi(i,j-1,liold)*f(i,j-1)+                    &
+     &                     hi(i,j,liold)*f(i,j))*                       &
+     &                vie(i,j,lieol)*vmask(i,j)*vmask_wet(i,j)
+           mfv12 = 0.5_r8*(hi(i-1,j,liold)*f(i-1,j)+                    &
+     &                     hi(i-1,j+1,liold)*f(i-1,j+1))*               &
+     &            vie(i-1,j+1,lieol)*vmask(i-1,j+1)*vmask_wet(i-1,j+1)
+           mfv22 = 0.5_r8*(hi(i,j,liold)*f(i,j)+                        &
+     &                     hi(i,j+1,liold)*f(i,j+1))*                   &
+     &                vie(i,j+1,lieol)*vmask(i,j+1)*vmask_wet(i,j+1)
+# else
            dsum = vmask(i-1,j)+vmask(i,j)+vmask(i-1,j+1)+vmask(i,j+1)
            if (dsum.gt.0.0_r8) fakt = 1.0_r8/dsum
            mfv11 = 0.5_r8*(hi(i-1,j-1,liold)*f(i-1,j-1)+                &
@@ -352,6 +434,23 @@
            mfv22 = 0.5_r8*(hi(i,j,liold)*f(i,j)+                        &
      &                     hi(i,j+1,liold)*f(i,j+1))*                   &
      &                      vie(i,j+1,lieol)*vmask(i,j+1)
+# endif
+#elif defined WET_DRY
+           dsum = vmask_wet(i-1,j)+vmask_wet(i,j)+                      &
+     &            vmask_wet(i-1,j+1)+vmask_wet(i,j+1)
+           if (dsum.gt.0.0_r8) fakt = 1.0_r8/dsum
+           mfv11 = 0.5_r8*(hi(i-1,j-1,liold)*f(i-1,j-1)+                &
+     &                     hi(i-1,j,liold)*f(i-1,j))*                   &
+     &                      vie(i-1,j,lieol)*vmask_wet(i-1,j)
+           mfv21 = 0.5_r8*(hi(i,j-1,liold)*f(i,j-1)+                    &
+     &                     hi(i,j,liold)*f(i,j))*                       &
+     &                      vie(i,j,lieol)*vmask_wet(i,j)
+           mfv12 = 0.5_r8*(hi(i-1,j,liold)*f(i-1,j)+                    &
+     &                     hi(i-1,j+1,liold)*f(i-1,j+1))*               &
+     &                      vie(i-1,j+1,lieol)*vmask_wet(i-1,j+1)
+           mfv22 = 0.5_r8*(hi(i,j,liold)*f(i,j)+                        &
+     &                     hi(i,j+1,liold)*f(i,j+1))*                   &
+     &                      vie(i,j+1,lieol)*vmask_wet(i,j+1)
 #else
            fakt = 0.25_r8
            mfv11 = 0.5_r8*(hi(i-1,j-1,liold)*f(i-1,j-1)+                &
@@ -382,11 +481,19 @@
      &                       dte(ng)*uforce)/alfa 
 !
 # ifdef ICE_SHOREFAST
-          hu = 0.5_r8*(h(i-1,j)+h(i,j))
-          IF (hu.le.15.0_r8) uie(i,j,lienw) = 0._r8
+          hu = 0.5_r8*(h(i-1,j)+MIN(Zt_avg1(i-1,j),0.0_r8) +            &
+     &         h(i,j)+MIN(Zt_avg1(i,j),0.0_r8))
+          masu = 0.5_r8*(hi(i,j,liold)+hi(i-1,j,liold))
+          clear = hu-0.9_r8*masu
+          clear = MAX(clear,0.0_r8)
+          IF(clear.lt.5.0_r8) uie(i,j,lienw) =                          &
+     &       MAX(clear-1.0_r8,0.0_r8)/4.0_r8*uie(i,j,lienw)
 # endif
 # ifdef MASKING
           uie(i,j,lienw) = umask(i,j)*uie(i,j,lienw)
+# endif
+# ifdef WET_DRY
+          uie(i,j,lienw) = umask_wet(i,j)*uie(i,j,lienw)
 # endif
 # ifdef ICESHELF
           IF(zice(i-1,j)+zice(i,j).ne.0.0_r8) THEN
@@ -415,6 +522,24 @@
 #ifdef MASKING
           IF (vmask(i,j).gt.0.0_r8.and.vmask(i+1,j).lt.1.0_r8) THEN
              f1 = 0.5_r8*(sig12(i,j,lienw)+sig12(i,j-1,lienw))
+# ifdef WET_DRY
+          ELSE IF (vmask_wet(i,j).gt.0.0_r8.and.                        &
+     &             vmask_wet(i+1,j).lt.1.0_r8) THEN
+             f1 = 0.5_r8*(sig12(i,j,lienw)+sig12(i,j-1,lienw))
+# endif
+# ifdef ICESHELF
+          ELSE IF (zice(i,j-1).eq.0.0_r8.and.zice(i,j).eq.0.0_r8.and.   &
+     &             zice(i+1,j-1)+zice(i+1,j).ne.0.0_r8) then
+             f1 = 0.5_r8*(sig12(i,j,lienw)+sig12(i,j-1,lienw))
+# endif
+          ELSE
+             f1 = 0.25_r8*(sig12(i,j,lienw)+sig12(i+1,j,lienw)          &
+     &           + sig12(i+1,j-1,lienw)+sig12(i,j-1,lienw))
+          END IF
+#elif defined WET_DRY
+          IF (vmask_wet(i,j).gt.0.0_r8.and.vmask_wet(i+1,j).lt.1.0_r8)  &
+     &      THEN
+             f1 = 0.5_r8*(sig12(i,j,lienw)+sig12(i,j-1,lienw))
 # ifdef ICESHELF
           ELSE IF (zice(i,j-1).eq.0.0_r8.and.zice(i,j).eq.0.0_r8.and.   &
      &             zice(i+1,j-1)+zice(i+1,j).ne.0.0_r8) then
@@ -430,6 +555,24 @@
 #endif
 #ifdef MASKING
           IF (vmask(i,j).gt.0.0_r8.and.vmask(i-1,j).lt.1.0_r8 ) THEN
+             f2 = 0.5_r8*(sig12(i,j,lienw)+sig12(i,j-1,lienw))
+# ifdef WET_DRY
+          ELSE IF (vmask_wet(i,j).gt.0.0_r8.and.                            &
+     &             vmask_wet(i-1,j).lt.1.0_r8 ) THEN
+             f2 = 0.5_r8*(sig12(i,j,lienw)+sig12(i,j-1,lienw))
+# endif
+# ifdef ICESHELF
+          ELSE IF (zice(i,j-1).eq.0.0_r8.and.zice(i,j).eq.0.0_r8.and.   &
+     &             zice(i-1,j-1)+zice(i-1,j).ne.0.0_r8) then
+             f2 = 0.5_r8*(sig12(i,j,lienw)+sig12(i,j-1,lienw))
+# endif
+          ELSE
+             f2 = 0.25_r8*(sig12(i,j,lienw)+sig12(i-1,j,lienw)          &
+     &           + sig12(i-1,j-1,lienw)+sig12(i,j-1,lienw))
+          END IF
+#elif defined WET_DRY
+          IF (vmask_wet(i,j).gt.0.0_r8.and.                             &
+     &        vmask_wet(i-1,j).lt.1.0_r8 ) THEN
              f2 = 0.5_r8*(sig12(i,j,lienw)+sig12(i,j-1,lienw))
 # ifdef ICESHELF
           ELSE IF (zice(i,j-1).eq.0.0_r8.and.zice(i,j).eq.0.0_r8.and.   &
@@ -459,6 +602,25 @@
 !
            fakt = 0.0_r8
 #ifdef MASKING
+# ifdef WET_DRY
+           dsum = umask(i,j-1)*umask_wet(i,j-1) +                       &
+     &            umask(i+1,j-1)*umask_wet(i+1,j-1) +                   &
+     &            umask(i,j)*umask_wet(i,j) +                           &
+     &            umask(i+1,j)*umask_wet(i,j)
+           IF (dsum.gt.0.0_r8) fakt = 1.0_r8/dsum
+           mfu11 = 0.5_r8*(hi(i-1,j-1,liold)*f(i-1,j-1)+                &
+     &                     hi(i,j-1,liold)*f(i,j-1))*                   &
+     &             uie(i,j-1,lieol)*umask(i,j-1)*umask_wet(i,j-1)
+           mfu21 = 0.5_r8*(hi(i,j-1,liold)*f(i,j-1)+                    &
+     &                     hi(i+1,j-1,liold)*f(i+1,j-1))*               &
+     &             uie(i+1,j-1,lieol)*umask(i+1,j-1)*umask_wet(i+1,j-1)
+           mfu12 = 0.5_r8*(hi(i-1,j,liold)*f(i-1,j)+                    &
+     &                     hi(i,j,liold)*f(i,j))*                       &
+     &             uie(i,j,lieol)*umask(i,j)*umask_wet(i,j)
+           mfu22 = 0.5_r8*(hi(i,j,liold)*f(i,j)+                        &
+     &                     hi(i+1,j,liold)*f(i+1,j))*                   &
+     &             uie(i+1,j,lieol)*umask(i+1,j)*umask_wet(i+1,j)
+# else
            dsum = umask(i,j-1)+umask(i+1,j-1)+umask(i,j)+umask(i+1,j)
            IF (dsum.gt.0.0_r8) fakt = 1.0_r8/dsum
            mfu11 = 0.5_r8*(hi(i-1,j-1,liold)*f(i-1,j-1)+                &
@@ -473,6 +635,23 @@
            mfu22 = 0.5_r8*(hi(i,j,liold)*f(i,j)+                        &
      &                     hi(i+1,j,liold)*f(i+1,j))*                   &
      &                      uie(i+1,j,lieol)*umask(i+1,j)
+# endif
+#elif defined WET_DRY
+           dsum = umask_wet(i,j-1)+umask_wet(i+1,j-1)+                  &
+     &            umask_wet(i,j)+umask_wet(i+1,j)
+           IF (dsum.gt.0.0_r8) fakt = 1.0_r8/dsum
+           mfu11 = 0.5_r8*(hi(i-1,j-1,liold)*f(i-1,j-1)+                &
+     &                     hi(i,j-1,liold)*f(i,j-1))*                   &
+     &                      uie(i,j-1,lieol)*umask_wet(i,j-1)
+           mfu21 = 0.5_r8*(hi(i,j-1,liold)*f(i,j-1)+                    &
+     &                     hi(i+1,j-1,liold)*f(i+1,j-1))*               &
+     &                      uie(i+1,j-1,lieol)*umask_wet(i+1,j-1)
+           mfu12 = 0.5_r8*(hi(i-1,j,liold)*f(i-1,j)+                    &
+     &                     hi(i,j,liold)*f(i,j))*                       &
+     &                      uie(i,j,lieol)*umask_wet(i,j)
+           mfu22 = 0.5_r8*(hi(i,j,liold)*f(i,j)+                        &
+     &                     hi(i+1,j,liold)*f(i+1,j))*                   &
+     &                      uie(i+1,j,lieol)*umask_wet(i+1,j)
 #else
            fakt = 0.25_r8
            mfu11 = 0.5_r8*(hi(i-1,j-1,liold)*f(i-1,j-1)+                &
@@ -504,11 +683,19 @@
      &                       dte(ng)*vforce)/alfa 
 !
 # ifdef ICE_SHOREFAST
-           hv = 0.5_r8*(h(i,j-1)+h(i,j))
-           IF (hv.le.15.0_r8) vie(i,j,lienw) = 0._r8
+           hv = 0.5_r8*(h(i,j-1)+MIN(Zt_avg1(i,j-1),0.0_r8) +           &
+     &          h(i,j)+MIN(Zt_avg1(i,j),0.0_r8))
+           masv = 0.5_r8*(hi(i,j,liold)+hi(i,j-1,liold))
+           clear = hv-0.9_r8*masv
+           clear = MAX(clear,0.0_r8)
+           IF(clear.lt.5.0_r8) vie(i,j,lienw) =                          &
+     &       MAX(clear-1.0_r8,0.0_r8)/4.0_r8*vie(i,j,lienw)
 # endif
 # ifdef MASKING
            vie(i,j,lienw) = vmask(i,j)*vie(i,j,lienw)
+# endif
+# ifdef WET_DRY
+           vie(i,j,lienw) = vmask_wet(i,j)*vie(i,j,lienw)
 # endif
 # ifdef ICESHELF
           IF (zice(i,j-1)+zice(i,j).ne.0.0_r8) THEN

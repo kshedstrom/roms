@@ -225,7 +225,7 @@
       real(r8), intent(in) :: sss(LBi:UBi,LBj:UBj)
 #   endif
 #   if defined SSSFLX || defined WRT_SSSFLX
-      real(r8), intent(in) :: sssflx(LBi:UBi,LBj:UBj)
+      real(r8), intent(inout) :: sssflx(LBi:UBi,LBj:UBj)
 #   endif
 #   if defined ICESHELF
 #    ifdef SHORTWAVE

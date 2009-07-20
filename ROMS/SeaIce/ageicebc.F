@@ -41,7 +41,8 @@
       SUBROUTINE ageicebc_tile (ng, tile,                               &
      &                           LBi, UBi, LBj, UBj,                    &
      &                           liold, linew, min_h,                   &
-     &                           ui, vi, hi, ageice, hage)
+     &                           ui, vi, hi,                            &
+     &                           ageice, hage)
 !***********************************************************************
 !
       USE mod_param
@@ -105,11 +106,19 @@
              hage(0,j,linew)=hage(0,j,linew)*                   &
      &                   GRID(ng)%rmask(0,j)
 #  endif
+#  ifdef WET_DRY
+             hage(0,j,linew)=hage(0,j,linew)*                   &
+     &                   GRID(ng)%rmask_wet(0,j)
+#  endif
           ELSE
              hage(0,j,linew)=hi(1,j,liold)*ageice(1,j,liold)
 #  ifdef MASKING
              hage(0,j,linew)=hage(0,j,linew)*                   &
      &                   GRID(ng)%rmask(0,j)
+#  endif
+#  ifdef WET_DRY
+             hage(0,j,linew)=hage(0,j,linew)*                   &
+     &                   GRID(ng)%rmask_wet(0,j)
 #  endif
           ENDIF
              ageice(0,j,linew) = hage(0,j,linew)/                       &
@@ -122,6 +131,10 @@
              ageice(0,j,linew)=ageice(0,j,linew)*                       &
      &                   GRID(ng)%rmask(0,j)
 #  endif
+#  ifdef WET_DRY
+             ageice(0,j,linew)=ageice(0,j,linew)*                       &
+     &                   GRID(ng)%rmask_wet(0,j)
+#  endif
         END DO
 # elif defined WEST_AGEICEGRADIENT
 !
@@ -133,6 +146,10 @@
           hage(0,j,linew)=hage(0,j,linew)*                      &
      &                   GRID(ng)%rmask(0,j)
 #  endif
+#  ifdef WET_DRY
+          hage(0,j,linew)=hage(0,j,linew)*                      &
+     &                   GRID(ng)%rmask_wet(0,j)
+#  endif
              ageice(0,j,linew) = hage(0,j,linew)/                       &
      &                       MAX(hi(0,j,linew),1.0E-6_r8)
              IF(hi(0,j,linew).LE.min_h) THEN
@@ -142,6 +159,10 @@
 #  ifdef MASKING
              ageice(0,j,linew)=ageice(0,j,linew)*                       &
      &                   GRID(ng)%rmask(0,j)
+#  endif
+#  ifdef WET_DRY
+             ageice(0,j,linew)=ageice(0,j,linew)*                       &
+     &                   GRID(ng)%rmask_wet(0,j)
 #  endif
         END DO
 # else
@@ -156,6 +177,10 @@
           hage(0,j,linew)=hage(0,j,linew)*                      &
      &                   GRID(ng)%rmask(0,j)
 #  endif
+#  ifdef WET_DRY
+          hage(0,j,linew)=hage(0,j,linew)*                      &
+     &                   GRID(ng)%rmask_wet(0,j)
+#  endif
              ageice(0,j,linew) = hage(0,j,linew)/                       &
      &                       MAX(hi(0,j,linew),1.0E-6_r8)
              IF(hi(0,j,linew).LE.min_h) THEN
@@ -165,6 +190,10 @@
 #  ifdef MASKING
              ageice(0,j,linew)=ageice(0,j,linew)*                       &
      &                   GRID(ng)%rmask(0,j)
+#  endif
+#  ifdef WET_DRY
+             ageice(0,j,linew)=ageice(0,j,linew)*                       &
+     &                   GRID(ng)%rmask_wet(0,j)
 #  endif
         END DO
 # endif
@@ -188,12 +217,20 @@
              hage(Lm(ng)+1,j,linew)=hage(Lm(ng)+1,j,linew)*     &
      &                          GRID(ng)%rmask(Lm(ng)+1,j)
 #  endif
+#  ifdef WET_DRY
+             hage(Lm(ng)+1,j,linew)=hage(Lm(ng)+1,j,linew)*     &
+     &                          GRID(ng)%rmask_wet(Lm(ng)+1,j)
+#  endif
           ELSE
              hage(Lm(ng)+1,j,linew)=hi(Lm(ng),j,liold)*             &
      &                                  ageice(Lm(ng),j,liold)
 #  ifdef MASKING
              hage(Lm(ng)+1,j,linew)=hage(Lm(ng)+1,j,linew)*     &
      &                          GRID(ng)%rmask(Lm(ng)+1,j)
+#  endif
+#  ifdef WET_DRY
+             hage(Lm(ng)+1,j,linew)=hage(Lm(ng)+1,j,linew)*     &
+     &                          GRID(ng)%rmask_wet(Lm(ng)+1,j)
 #  endif
           ENDIF
              ageice(Lm(ng)+1,j,linew) = hage(Lm(ng)+1,j,linew)/         &
@@ -205,6 +242,10 @@
 #  ifdef MASKING
              ageice(Lm(ng)+1,j,linew)=ageice(Lm(ng)+1,j,linew)*         &
      &                   GRID(ng)%rmask(Lm(ng)+1,j)
+#  endif
+#  ifdef WET_DRY
+             ageice(Lm(ng)+1,j,linew)=ageice(Lm(ng)+1,j,linew)*         &
+     &                   GRID(ng)%rmask_wet(Lm(ng)+1,j)
 #  endif
         END DO
 # elif defined EAST_AGEICEGRADIENT
@@ -218,6 +259,10 @@
           hage(Lm(ng)+1,j,linew)=hage(Lm(ng)+1,j,linew)*        &
      &                          GRID(ng)%rmask(Lm(ng)+1,j)
 #  endif
+#  ifdef WET_DRY
+          hage(Lm(ng)+1,j,linew)=hage(Lm(ng)+1,j,linew)*        &
+     &                          GRID(ng)%rmask_wet(Lm(ng)+1,j)
+#  endif
              ageice(Lm(ng)+1,j,linew) = hage(Lm(ng)+1,j,linew)/         &
      &                       MAX(hi(Lm(ng)+1,j,linew),1.0E-6_r8)
              IF(hi(Lm(ng)+1,j,linew).LE.min_h) THEN
@@ -227,6 +272,10 @@
 #  ifdef MASKING
              ageice(Lm(ng)+1,j,linew)=ageice(Lm(ng)+1,j,linew)*          &
      &                   GRID(ng)%rmask(Lm(ng)+1,j)
+#  endif
+#  ifdef WET_DRY
+             ageice(Lm(ng)+1,j,linew)=ageice(Lm(ng)+1,j,linew)*          &
+     &                   GRID(ng)%rmask_wet(Lm(ng)+1,j)
 #  endif
         END DO
 # else
@@ -240,6 +289,10 @@
           hage(Lm(ng)+1,j,linew)=hage(Lm(ng)+1,j,linew)*        &
      &                          GRID(ng)%rmask(Lm(ng)+1,j)
 #  endif
+#  ifdef WET_DRY
+          hage(Lm(ng)+1,j,linew)=hage(Lm(ng)+1,j,linew)*        &
+     &                          GRID(ng)%rmask_wet(Lm(ng)+1,j)
+#  endif
              ageice(Lm(ng)+1,j,linew) = hage(Lm(ng)+1,j,linew)/         &
      &                       MAX(hi(Lm(ng)+1,j,linew),1.0E-6_r8)
              IF(hi(Lm(ng)+1,j,linew).LE.min_h) THEN
@@ -249,6 +302,10 @@
 #  ifdef MASKING
              ageice(Lm(ng)+1,j,linew)=ageice(Lm(ng)+1,j,linew)*         &
      &                   GRID(ng)%rmask(Lm(ng)+1,j)
+#  endif
+#  ifdef WET_DRY
+             ageice(Lm(ng)+1,j,linew)=ageice(Lm(ng)+1,j,linew)*         &
+     &                   GRID(ng)%rmask_wet(Lm(ng)+1,j)
 #  endif
         END DO
 # endif
@@ -274,11 +331,19 @@
              hage(i,0,linew)=hage(i,0,linew)*                   &
      &                   GRID(ng)%rmask(i,0)
 #  endif
+#  ifdef WET_DRY
+             hage(i,0,linew)=hage(i,0,linew)*                   &
+     &                   GRID(ng)%rmask_wet(i,0)
+#  endif
           ELSE
              hage(i,0,linew)=hi(i,1,liold)*ageice(i,1,liold)
 #  ifdef MASKING
              hage(i,0,linew)=hage(i,0,linew)*                   &
      &                   GRID(ng)%rmask(i,0)
+#  endif
+#  ifdef WET_DRY
+             hage(i,0,linew)=hage(i,0,linew)*                   &
+     &                   GRID(ng)%rmask_wet(i,0)
 #  endif
           ENDIF
              ageice(i,0,linew) = hage(i,0,linew)/                       &
@@ -291,6 +356,10 @@
              ageice(i,0,linew)=ageice(i,0,linew)*                       &
      &                   GRID(ng)%rmask(i,0)
 #  endif
+#  ifdef WET_DRY
+             ageice(i,0,linew)=ageice(i,0,linew)*                       &
+     &                   GRID(ng)%rmask_wet(i,0)
+#  endif
         END DO
 # elif defined SOUTH_AGEICEGRADIENT
 !
@@ -302,6 +371,10 @@
           hage(i,0,linew)=hage(i,0,linew)*                      &
      &                   GRID(ng)%rmask(i,0)
 #  endif
+#  ifdef WET_DRY
+          hage(i,0,linew)=hage(i,0,linew)*                      &
+     &                   GRID(ng)%rmask_wet(i,0)
+#  endif
              ageice(i,0,linew) = hage(i,0,linew)/                       &
      &                       MAX(hi(i,0,linew),1.0E-6_r8)
              IF(hi(i,0,linew).LE.min_h) THEN
@@ -311,6 +384,10 @@
 #  ifdef MASKING
              ageice(i,0,linew)=ageice(i,0,linew)*                               &
      &                   GRID(ng)%rmask(i,0)
+#  endif
+#  ifdef WET_DRY
+             ageice(i,0,linew)=ageice(i,0,linew)*                               &
+     &                   GRID(ng)%rmask_wet(i,0)
 #  endif
         END DO
 # else
@@ -323,6 +400,10 @@
           hage(i,0,linew)=hage(i,0,linew)*                      &
      &                   GRID(ng)%rmask(i,0)
 #  endif
+#  ifdef WET_DRY
+          hage(i,0,linew)=hage(i,0,linew)*                      &
+     &                   GRID(ng)%rmask_wet(i,0)
+#  endif
              ageice(i,0,linew) = hage(i,0,linew)/                     &
      &                       MAX(hi(i,0,linew),1.0E-6_r8)
              IF(hi(i,0,linew).LE.min_h) THEN
@@ -332,6 +413,10 @@
 #  ifdef MASKING
              ageice(i,0,linew)=ageice(i,0,linew)*                     &
      &                   GRID(ng)%rmask(i,0)
+#  endif
+#  ifdef WET_DRY
+             ageice(i,0,linew)=ageice(i,0,linew)*                     &
+     &                   GRID(ng)%rmask_wet(i,0)
 #  endif
         END DO
 # endif
@@ -355,12 +440,20 @@
              hage(i,Mm(ng)+1,linew)=hage(i,Mm(ng)+1,linew)*     &
      &                          GRID(ng)%rmask(i,Mm(ng)+1)
 #  endif
+#  ifdef WET_DRY
+             hage(i,Mm(ng)+1,linew)=hage(i,Mm(ng)+1,linew)*     &
+     &                          GRID(ng)%rmask_wet(i,Mm(ng)+1)
+#  endif
           ELSE
              hage(i,Mm(ng)+1,linew)=hi(i,Mm(ng),liold)*             &
      &                                  ageice(i,Mm(ng),liold)
 #  ifdef MASKING
              hage(i,Mm(ng)+1,linew)=hage(i,Mm(ng)+1,linew)*     &
      &                          GRID(ng)%rmask(i,Mm(ng)+1)
+#  endif
+#  ifdef WET_DRY
+             hage(i,Mm(ng)+1,linew)=hage(i,Mm(ng)+1,linew)*     &
+     &                          GRID(ng)%rmask_wet(i,Mm(ng)+1)
 #  endif
           ENDIF
              ageice(i,Mm(ng)+1,linew) = hage(i,Mm(ng)+1,linew)/         &
@@ -372,6 +465,10 @@
 #  ifdef MASKING
              ageice(i,Mm(ng)+1,linew)=ageice(i,Mm(ng)+1,linew)*                 &
      &                   GRID(ng)%rmask(i,Mm(ng)+1)
+#  endif
+#  ifdef WET_DRY
+             ageice(i,Mm(ng)+1,linew)=ageice(i,Mm(ng)+1,linew)*                 &
+     &                   GRID(ng)%rmask_wet(i,Mm(ng)+1)
 #  endif
         END DO
 # elif defined NORTH_AGEICEGRADIENT
@@ -385,6 +482,10 @@
           hage(i,Mm(ng)+1,linew)=hage(i,Mm(ng)+1,linew)*        &
      &                          GRID(ng)%rmask(i,Mm(ng)+1)
 #  endif
+#  ifdef WET_DRY
+          hage(i,Mm(ng)+1,linew)=hage(i,Mm(ng)+1,linew)*        &
+     &                          GRID(ng)%rmask_wet(i,Mm(ng)+1)
+#  endif
              ageice(i,Mm(ng)+1,linew) = hage(i,Mm(ng)+1,linew)/         &
      &                       MAX(hi(i,Mm(ng)+1,linew),1.0E-6_r8)
              IF(hi(i,Mm(ng)+1,linew).LE.min_h) THEN
@@ -395,6 +496,11 @@
              ageice(i,Mm(ng)+1,linew)=ageice(i,Mm(ng)+1,linew)*         &
      &                   GRID(ng)%rmask(i,Mm(ng)+1)
 #  endif
+#  ifdef WET_DRY
+             ageice(i,Mm(ng)+1,linew)=ageice(i,Mm(ng)+1,linew)*         &
+     &                   GRID(ng)%rmask_wet(i,Mm(ng)+1)
+#  endif
+
         END DO
 # else
 !
@@ -407,6 +513,10 @@
           hage(i,Mm(ng)+1,linew)=hage(i,Mm(ng)+1,linew)*        &
      &                          GRID(ng)%rmask(i,Mm(ng)+1)
 #  endif
+#  ifdef WET_DRY
+          hage(i,Mm(ng)+1,linew)=hage(i,Mm(ng)+1,linew)*        &
+     &                          GRID(ng)%rmask_wet(i,Mm(ng)+1)
+#  endif
              ageice(i,Mm(ng)+1,linew) = hage(i,Mm(ng)+1,linew)/         &
      &                       MAX(hi(i,Mm(ng)+1,linew),1.0E-6_r8)
              IF(hi(i,Mm(ng)+1,linew).LE.min_h) THEN
@@ -417,6 +527,11 @@
              ageice(i,Mm(ng)+1,linew)=ageice(i,Mm(ng)+1,linew)*         &
      &                   GRID(ng)%rmask(i,Mm(ng)+1)
 #  endif
+#  ifdef WET_DRY
+             ageice(i,Mm(ng)+1,linew)=ageice(i,Mm(ng)+1,linew)*         &
+     &                   GRID(ng)%rmask_wet(i,Mm(ng)+1)
+#  endif
+
         END DO
 # endif
       END IF
@@ -442,6 +557,12 @@
              ageice(0,0,linew)=ageice(0,0,linew)*                               &
      &                   GRID(ng)%rmask(0,0)
 #  endif
+#  ifdef WET_DRY
+             hage(0,0,linew)=hage(0,0,linew)*                   &
+     &                   GRID(ng)%rmask_wet(0,0)
+             ageice(0,0,linew)=ageice(0,0,linew)*                               &
+     &                   GRID(ng)%rmask_wet(0,0)
+#  endif
       END IF
       IF (SOUTHERN_EDGE.and.EASTERN_EDGE) THEN
         hage(Lm(ng)+1,0,linew)=0.5_r8*(hage(Lm(ng)+1,1,linew)+  &
@@ -457,6 +578,12 @@
      &                   GRID(ng)%rmask(Lm(ng)+1,0)
              ageice(Lm(ng)+1,0,linew)=ageice(Lm(ng)+1,0,linew)*         &
      &                   GRID(ng)%rmask(Lm(ng)+1,0)
+#  endif
+#  ifdef WET_DRY
+             hage(Lm(ng)+1,0,linew)=hage(Lm(ng)+1,0,linew)*     &
+     &                   GRID(ng)%rmask_wet(Lm(ng)+1,0)
+             ageice(Lm(ng)+1,0,linew)=ageice(Lm(ng)+1,0,linew)*         &
+     &                   GRID(ng)%rmask_wet(Lm(ng)+1,0)
 #  endif
       END IF
       IF (NORTHERN_EDGE.and.WESTERN_EDGE) THEN
@@ -474,6 +601,12 @@
      &                   GRID(ng)%rmask(0,Mm(ng)+1)
              ageice(0,Mm(ng)+1,linew)=ageice(0,Mm(ng)+1,linew)* &
      &                   GRID(ng)%rmask(0,Mm(ng)+1)
+#  endif
+#  ifdef WET_DRY
+             hage(0,Mm(ng)+1,linew)=hage(0,Mm(ng)+1,linew)*     &
+     &                   GRID(ng)%rmask_wet(0,Mm(ng)+1)
+             ageice(0,Mm(ng)+1,linew)=ageice(0,Mm(ng)+1,linew)* &
+     &                   GRID(ng)%rmask_wet(0,Mm(ng)+1)
 #  endif
       END IF
       IF (NORTHERN_EDGE.and.EASTERN_EDGE) THEN
@@ -493,6 +626,13 @@
      &                   GRID(ng)%rmask(Lm(ng)+1,Mm(ng)+1)
       ageice(Lm(ng)+1,Mm(ng)+1,linew)=ageice(Lm(ng)+1,Mm(ng)+1,linew)*  &
      &                   GRID(ng)%rmask(Lm(ng)+1,Mm(ng)+1)
+#  endif
+#  ifdef WET_DRY
+             hage(Lm(ng)+1,Mm(ng)+1,linew)=                         &
+     &             hage(Lm(ng)+1,Mm(ng)+1,linew)*                   &
+     &                   GRID(ng)%rmask_wet(Lm(ng)+1,Mm(ng)+1)
+      ageice(Lm(ng)+1,Mm(ng)+1,linew)=ageice(Lm(ng)+1,Mm(ng)+1,linew)*  &
+     &                   GRID(ng)%rmask_wet(Lm(ng)+1,Mm(ng)+1)
 #  endif
       END IF
 #endif

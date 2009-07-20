@@ -319,12 +319,25 @@
 !  Smagorinsky viscosity.
 !
 #   if defined UV_VIS2
+# ifdef GLOBAL_20KM
+      IF(i.GE.400.AND.i.LE.500.AND.j.GE.150.AND.j.LE.250) THEN
+            visc3d_r(i,j,k)=Hviscosity(i,j)+                            &
+     &                      0.0_r8*omn(i,j)*DefRate
+      ELSEIF(j.LE.50) THEN
+            visc3d_r(i,j,k)=Hviscosity(i,j)+                            &
+     &                      0.0_r8*omn(i,j)*DefRate
+      ELSE
+            visc3d_r(i,j,k)=Hviscosity(i,j)+                            &
+     &                      0.0_r8*omn(i,j)*DefRate
+      ENDIF
+# else
             visc3d_r(i,j,k)=Hviscosity(i,j)+                            &
      &                      SmagorCoef*omn(i,j)*DefRate
+# endif
 #   elif defined UV_VIS4
             visc3d_r(i,j,k)=Hviscosity(i,j)+                            &
      &                      PecletCoef*(omn(i,j)**2)*DefRate
-#    ifdef MIX_GP_UV
+#    ifdef MIX_GEO_UV
             visc3d_r(i,j,k)=MIN(clip_scale, visc3d_r(i,j,k))
 #    endif
             visc3d_r(i,j,k)=SQRT(visc3d_r(i,j,k))
@@ -378,7 +391,7 @@
 #   elif defined TS_DIF4
             diff3d_r(i,j,k)=Hdiffusion(i,j)+                            &
      &                      PecletCoef*(omn(i,j)**2)*DefRate
-#    ifdef MIX_GP_TS
+#    ifdef MIX_GEO_TS
             diff3d_r(i,j,k)=MIN(clip_scale, diff3d_r(i,j,k))
 #    endif
             diff3d_r(i,j,k)=SQRT(diff3d_r(i,j,k))

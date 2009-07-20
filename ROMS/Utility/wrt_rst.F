@@ -1070,7 +1070,7 @@
 #  ifdef MASKING
      &                   GRID(ng) % rmask,                              &
 #  endif
-     &                   OCEAN(ng) % wg2_d)
+     &                   FORCES(ng) % wg2_d)
       IF (status.ne.nf90_noerr) THEN
         IF (Master) THEN
           WRITE (stdout,10) TRIM(Vname(1,idWg2d)), tRSTindx(ng)
@@ -1090,7 +1090,7 @@
 #  ifdef MASKING
      &                   GRID(ng) % rmask,                              &
 #  endif
-     &                   OCEAN(ng) % cd_d)
+     &                   FORCES(ng) % cd_d)
       IF (status.ne.nf90_noerr) THEN
         IF (Master) THEN
           WRITE (stdout,10) TRIM(Vname(1,idCdd)), tRSTindx(ng)
@@ -1110,7 +1110,7 @@
 #  ifdef MASKING
      &                   GRID(ng) % rmask,                              &
 #  endif
-     &                   OCEAN(ng) % ch_d)
+     &                   FORCES(ng) % ch_d)
       IF (status.ne.nf90_noerr) THEN
         IF (Master) THEN
           WRITE (stdout,10) TRIM(Vname(1,idChd)), tRSTindx(ng)
@@ -1130,7 +1130,7 @@
 #  ifdef MASKING
      &                   GRID(ng) % rmask,                              &
 #  endif
-     &                   OCEAN(ng) % ce_d)
+     &                   FORCES(ng) % ce_d)
       IF (status.ne.nf90_noerr) THEN
         IF (Master) THEN
           WRITE (stdout,10) TRIM(Vname(1,idCed)), tRSTindx(ng)
@@ -1150,7 +1150,7 @@
 #  ifdef MASKING
      &                   GRID(ng) % rmask,                              &
 #  endif
-     &                   OCEAN(ng) % wg2_m)
+     &                   FORCES(ng) % wg2_m)
       IF (status.ne.nf90_noerr) THEN
         IF (Master) THEN
           WRITE (stdout,10) TRIM(Vname(1,idWg2m)), tRSTindx(ng)
@@ -1170,7 +1170,7 @@
 #  ifdef MASKING
      &                   GRID(ng) % rmask,                              &
 #  endif
-     &                   OCEAN(ng) % cd_m)
+     &                   FORCES(ng) % cd_m)
       IF (status.ne.nf90_noerr) THEN
         IF (Master) THEN
           WRITE (stdout,10) TRIM(Vname(1,idCdm)), tRSTindx(ng)
@@ -1190,7 +1190,7 @@
 #  ifdef MASKING
      &                   GRID(ng) % rmask,                              &
 #  endif
-     &                   OCEAN(ng) % ch_m)
+     &                   FORCES(ng) % ch_m)
       IF (status.ne.nf90_noerr) THEN
         IF (Master) THEN
           WRITE (stdout,10) TRIM(Vname(1,idChm)), tRSTindx(ng)
@@ -1210,7 +1210,7 @@
 #  ifdef MASKING
      &                   GRID(ng) % rmask,                              &
 #  endif
-     &                   OCEAN(ng) % ce_m)
+     &                   FORCES(ng) % ce_m)
       IF (status.ne.nf90_noerr) THEN
         IF (Master) THEN
           WRITE (stdout,10) TRIM(Vname(1,idCem)), tRSTindx(ng)
@@ -1230,7 +1230,7 @@
 #  ifdef MASKING
      &                   GRID(ng) % rmask,                              &
 #  endif
-     &                   OCEAN(ng) % rhoa_n)
+     &                   FORCES(ng) % rhoa_n)
       IF (status.ne.nf90_noerr) THEN
         IF (Master) THEN
           WRITE (stdout,10) TRIM(Vname(1,idRhoa)), tRSTindx(ng)

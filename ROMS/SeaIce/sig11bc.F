@@ -89,6 +89,10 @@
           sig11(0,j,linew)=sig11(0,j,linew)*                            &
      &                   GRID(ng)%rmask(0,j)
 #  endif
+#  ifdef WET_DRY
+          sig11(0,j,linew)=sig11(0,j,linew)*                            &
+     &                   GRID(ng)%rmask_wet(0,j)
+#  endif
         END DO
 # elif defined WEST_SIG11GRADIENT
 !
@@ -100,6 +104,10 @@
           sig11(0,j,linew)=sig11(0,j,linew)*                            &
      &                   GRID(ng)%rmask(0,j)
 #  endif
+#  ifdef WET_DRY
+          sig11(0,j,linew)=sig11(0,j,linew)*                            &
+     &                   GRID(ng)%rmask_wet(0,j)
+#  endif
         END DO
 # else
 !
@@ -110,6 +118,10 @@
 #  ifdef MASKING
           sig11(0,j,linew)=sig11(0,j,linew)*                            &
      &                   GRID(ng)%rmask(0,j)
+#  endif
+#  ifdef WET_DRY
+          sig11(0,j,linew)=sig11(0,j,linew)*                            &
+     &                   GRID(ng)%rmask_wet(0,j)
 #  endif
         END DO
 # endif
@@ -131,6 +143,10 @@
           sig11(Lm(ng)+1,j,linew)=sig11(Lm(ng)+1,j,linew)*              &
      &                          GRID(ng)%rmask(Lm(ng)+1,j)
 #  endif
+#  ifdef WET_DRY
+          sig11(Lm(ng)+1,j,linew)=sig11(Lm(ng)+1,j,linew)*              &
+     &                          GRID(ng)%rmask_wet(Lm(ng)+1,j)
+#  endif
         END DO
 # elif defined EAST_SIG11GRADIENT
 !
@@ -142,6 +158,10 @@
           sig11(Lm(ng)+1,j,linew)=sig11(Lm(ng)+1,j,linew)*              &
      &                          GRID(ng)%rmask(Lm(ng)+1,j)
 #  endif
+#  ifdef WET_DRY
+          sig11(Lm(ng)+1,j,linew)=sig11(Lm(ng)+1,j,linew)*              &
+     &                          GRID(ng)%rmask_wet(Lm(ng)+1,j)
+#  endif
         END DO
 # else
 !
@@ -152,6 +172,10 @@
 #  ifdef MASKING
           sig11(Lm(ng)+1,j,linew)=sig11(Lm(ng)+1,j,linew)*              &
      &                          GRID(ng)%rmask(Lm(ng)+1,j)
+#  endif
+#  ifdef WET_DRY
+          sig11(Lm(ng)+1,j,linew)=sig11(Lm(ng)+1,j,linew)*              &
+     &                          GRID(ng)%rmask_wet(Lm(ng)+1,j)
 #  endif
         END DO
 # endif
@@ -175,6 +199,10 @@
           sig11(i,0,linew)=sig11(i,0,linew)*                            &
      &                   GRID(ng)%rmask(i,0)
 #  endif
+#  ifdef WET_DRY
+          sig11(i,0,linew)=sig11(i,0,linew)*                            &
+     &                   GRID(ng)%rmask_wet(i,0)
+#  endif
         END DO
 # elif defined SOUTH_SIG11GRADIENT
 !
@@ -186,6 +214,10 @@
           sig11(i,0,linew)=sig11(i,0,linew)*                            &
      &                   GRID(ng)%rmask(i,0)
 #  endif
+#  ifdef WET_DRY
+          sig11(i,0,linew)=sig11(i,0,linew)*                            &
+     &                   GRID(ng)%rmask_wet(i,0)
+#  endif
         END DO
 # else
 !
@@ -196,6 +228,10 @@
 #  ifdef MASKING
           sig11(i,0,linew)=sig11(i,0,linew)*                            &
      &                   GRID(ng)%rmask(i,0)
+#  endif
+#  ifdef WET_DRY
+          sig11(i,0,linew)=sig11(i,0,linew)*                            &
+     &                   GRID(ng)%rmask_wet(i,0)
 #  endif
         END DO
 # endif
@@ -217,6 +253,10 @@
           sig11(i,Mm(ng)+1,linew)=sig11(i,Mm(ng)+1,linew)*              &
      &                          GRID(ng)%rmask(i,Mm(ng)+1)
 #  endif
+#  ifdef WET_DRY
+          sig11(i,Mm(ng)+1,linew)=sig11(i,Mm(ng)+1,linew)*              &
+     &                          GRID(ng)%rmask_wet(i,Mm(ng)+1)
+#  endif
         END DO
 # elif defined NORTH_SIG11GRADIENT
 !
@@ -228,6 +268,10 @@
           sig11(i,Mm(ng)+1,linew)=sig11(i,Mm(ng)+1,linew)*              &
      &                          GRID(ng)%rmask(i,Mm(ng)+1)
 #  endif
+#  ifdef WET_DRY
+          sig11(i,Mm(ng)+1,linew)=sig11(i,Mm(ng)+1,linew)*              &
+     &                          GRID(ng)%rmask_wet(i,Mm(ng)+1)
+#  endif
         END DO
 # else
 !
@@ -238,6 +282,10 @@
 #  ifdef MASKING
           sig11(i,Mm(ng)+1,linew)=sig11(i,Mm(ng)+1,linew)*              &
      &                          GRID(ng)%rmask(i,Mm(ng)+1)
+#  endif
+#  ifdef WET_DRY
+          sig11(i,Mm(ng)+1,linew)=sig11(i,Mm(ng)+1,linew)*              &
+     &                          GRID(ng)%rmask_wet(i,Mm(ng)+1)
 #  endif
         END DO
 # endif

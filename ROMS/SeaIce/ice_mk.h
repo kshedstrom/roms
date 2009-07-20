@@ -35,6 +35,9 @@
 # ifdef MASKING
      &                      GRID(ng) % rmask,                           &
 # endif
+# ifdef WET_DRY
+     &                      GRID(ng) % rmask_wet,                       &
+# endif
 # ifdef ICESHELF
      &                      GRID(ng) % zice,                            &
 # endif
@@ -52,11 +55,11 @@
      &                      ICE(ng) % hi,                               &
      &                      ICE(ng) % hsn,                              &
      &                      ICE(ng) % sfwat,                            &
-     &                      ICE(ng) % ageice,                            &
+     &                      ICE(ng) % ageice,                           &
      &                      ICE(ng) % tis,                              &
      &                      ICE(ng) % ti,                               &
      &                      ICE(ng) % enthalpi,                         &
-     &                      ICE(ng) % hage,                         &
+     &                      ICE(ng) % hage,                             &
      &                      ICE(ng) % ui,                               &
      &                      ICE(ng) % vi,                               &
      &                      ICE(ng) % coef_ice_heat,                    &
@@ -85,6 +88,9 @@
      &                        nrhs, liold, linew,                       &
 # ifdef MASKING
      &                        rmask,                                    &
+# endif
+# ifdef WET_DRY
+     &                        rmask_wet,                                &
 # endif
 # ifdef ICESHELF
      &                        zice,                                     &
@@ -221,6 +227,9 @@
 #  ifdef MASKING
       real(r8), intent(in) :: rmask(LBi:,LBj:)
 #  endif
+#  ifdef WET_DRY
+      real(r8), intent(in) :: rmask_wet(LBi:,LBj:)
+#  endif
 #  ifdef ICESHELF
       real(r8), intent(in) :: zice(LBi:,LBj:)
 #  endif
@@ -261,6 +270,9 @@
 # else
 #  ifdef MASKING
       real(r8), intent(in) :: rmask(LBi:UBi,LBj:UBj)
+#  endif
+#  ifdef WET_DRY
+      real(r8), intent(in) :: rmask_wet(LBi:UBi,LBj:UBj)
 #  endif
 #  ifdef ICESHELF
       real(r8), intent(in) :: zice(LBi:UBi,LBj:UBj)
@@ -317,7 +329,6 @@
 # endif
 
       integer :: i, j, it
-      integer :: iday, month, year
 
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: b2d
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: c2d
@@ -350,14 +361,7 @@
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: chs
 
 
-      real(r8) :: tdewl
-
       real(r8) :: tfrz
-      real(r8) :: albs
-      real(r8) :: sum
-      real(r8) :: tisk
-      real(r8) :: del
-      real(r8) :: dc2
       real(r8) :: cot
       real(r8) :: xmelt
       real(r8) :: ai_tmp
@@ -369,27 +373,21 @@
       real(r8), parameter :: nu = 1.8E-6_r8
       real(r8), parameter :: z0ii = 0.02_r8
       real(r8), parameter :: kappa = 0.4_r8
-      real(r8), parameter :: densn = 0.33_r8
-!      real(r8), parameter :: albi = 0.65_r8
-!      real(r8), parameter :: albsn = 0.84_r8
-      real(r8), parameter :: qsi = 21.8746_r8
-      real(r8), parameter :: tqi = 265.5_r8
-      real(r8), parameter :: qsw = 17.2694_r8
-      real(r8), parameter :: tqw = 237.3_r8
-      real(r8), parameter :: rhosw = 1026._r8
-      real(r8), parameter :: frln = -0.054_r8
-      real(r8), parameter :: sice = 5.0_r8
-      real(r8), parameter :: alphic = 2.04_r8
-      real(r8), parameter :: alphsn = 0.31_r8
-      real(r8), parameter :: hfus = 3.347E+5_r8
-      real(r8), parameter :: cpi = 2093.0_r8
-      real(r8), parameter :: cpw = 3990.0_r8
-      real(r8), parameter :: sfwatmx = 0.1_r8
-      real(r8), parameter :: rhocpr = 0.2442754E-6_r8
+      real(r8), parameter :: rhosw = 1026._r8           ! [kg m-3]
+      real(r8), parameter :: frln = -0.0543_r8          ! [psu C-1]
+      real(r8), parameter :: sice_ref = 3.2_r8          ! [psu]
+      real(r8), parameter :: alphic = 2.034_r8          ! [W m-1 K-1]
+      real(r8), parameter :: alphsn = 0.31_r8           ! [W m-1 K-1]
+      real(r8), parameter :: hfus = 3.347E+5_r8         ! [J kg-1]
+      real(r8), parameter :: cpi = 2093.0_r8            ! [J kg-1 K-1]
+      real(r8), parameter :: cpw = 3990.0_r8            ! [J kg-1 K-1]
+      real(r8), parameter :: sfwatmx = 0.1_r8           ! [m]
+      real(r8), parameter :: rhocpr = 0.2442754E-6_r8   ! [m s2 K kg-1]
 
-      real(r8) :: albi
-      real(r8) :: albsn
+      real(r8) :: sice
       real(r8) :: thic
+      real(r8) :: corfac
+      real(r8) :: hicehinv  ! 1./(0.5*thic)
       real(r8) :: z0
       real(r8) :: zdz0
       real(r8) :: rno
@@ -400,27 +398,11 @@
       real(r8) :: xtot
       real(r8) :: phi
       real(r8) :: ykf
-      real(r8) :: chmax
       real(r8) :: d1
       real(r8) :: d2i
       real(r8) :: d3
 
-      real(r8) :: day
-      real(r8) :: yrdays
-      real(r8) :: a1
-      real(r8) :: b1
-      real(r8) :: c1
-      real(r8) :: den
-      real(r8) :: hour
-      real(r8) :: yday
-      real(r8) :: cosz
-      real(r8) :: vappres
-      real(r8) :: tak
-      real(r8) :: a
-      real(r8) :: b
-      real(r8) :: c
-
-      real(r8) :: tt0, tt1, tt2, tt4, tt5
+      real(r8) :: tt0
 
 # include "set_bounds.h"
 
@@ -428,25 +410,16 @@
         DO i=Istr,Iend
           temp_top(i,j)=t(i,j,N(ng),nrhs,itemp)
           salt_top(i,j)=t(i,j,N(ng),nrhs,isalt)
+          salt_top(i,j) = MIN(MAX(0.0_r8,salt_top(i,j)),40.0_r8)
           dztop(i,j)=z_w(i,j,N(ng))-z_r(i,j,N(ng))
-#if defined BULK_FLUXES
           stflx(i,j,isalt) = stflx(i,j,isalt)*t(i,j,N(ng),nrhs,isalt)
 ! Salt flux sign is reversed in ice-ocean calculations
 ! but is switched back to normal convention at end of routine
           stflx(i,j,isalt) = -stflx(i,j,isalt)
-#elif defined NCEP_FLUXES
-          stflx(i,j,isalt) = stflx(i,j,isalt)*t(i,j,N(ng),nrhs,isalt)
-#else
-          stflx(i,j,isalt) = 0.0_r8
-          write(*,*) 'A bulk flux routine must be selected'
-          STOP
-#endif
         END DO
       END DO
 
-!     ykf = 0.25
-      ykf = 3.0
-      dc2 = 2.0*dtice(ng)
+      ykf = 3.14_r8
       d1 = rho_air(ng) * spec_heat_air * trans_coeff
       d2i = rho_air(ng) * sublim_latent_heat * trans_coeff
       d3 = StefBo * ice_emiss
@@ -461,17 +434,9 @@
         END DO
       END DO
 
-!-----------------------------------------------------------------
-
-      call caldate (r_date,tdays(ng),year,yday,month,iday,hour)
-
-      day = MIN(yday,365.0_r8)
-      yrdays = 365.0_r8
-
 !------------------------------------------------------!
 !   Get incoming long and shortwave radiation
 !------------------------------------------------------!
-       hour=(day-aint(day))*24.0_r8
 !
 ! *** all rho's 0n 1026 kg m-3. cp's on 4.186e+6 j m-3 c-1.
 ! *** sigma=5.67e-8 w m-2 k-4 : sigma=sigma*epsilon. m&u used 5.78e-8
@@ -489,14 +454,17 @@
 !   (compute snow and ice thicknesses)
       DO j = Jstr,Jend
         DO i = Istr,Iend
+          sice = MIN(sice_ref,salt_top(i,j))
           ice_thick(i,j) = 0.05_r8+hi(i,j,linew)/                       &
      &                    (ai(i,j,linew)+eps)
           snow_thick(i,j) = hsn(i,j,linew)/(ai(i,j,linew)+eps)
           brnfr(i,j) = frln*sice/(ti(i,j,linew)-eps)
           brnfr(i,j) = min(brnfr(i,j),0.2_r8)
           brnfr(i,j) = max(brnfr(i,j),0.0_r8)
-!      alph - termal konduktivitet for is
-          alph(i,j) = alphic*(1._r8-1.2_r8*brnfr(i,j))
+!      alph - thermal conductivity of ice
+          alph(i,j) = alphic*MAX(1._r8-1.2_r8*brnfr(i,j),0.25_r8)
+          corfac = 1._r8/(0.5_r8*(1._r8+EXP(-(hi(i,j,linew)/1._r8)**2)))
+          alph(i,j) = alph(i,j)*corfac
           coa(i,j) = 2.0_r8*alph(i,j)*snow_thick(i,j)/                  &
      &                   (alphsn*ice_thick(i,j))
         END DO
@@ -507,7 +475,8 @@
 !*    compute net ice atmos. surface heat transfer
 !*    zero if temp. is below freezing.
 !     frysepunktspemp. (t=-0.27 c)
-      tfrz = frln*sice
+
+
 
 !-----------------------------------------------------------------------
 !     SOLVE FOR TEMPERATURE AT THE TOP OF THE ICE LAYER
@@ -534,32 +503,15 @@
 
       DO j = Jstr,Jend
         DO i = Istr,Iend
+          sice = MIN(sice_ref,salt_top(i,j))
 !**** calculate interior ice temp and heat fluxes
 !       new temperature in ice
           IF (ai(i,j,linew) .gt. min_a(ng)) THEN
             cot = -frln*sice*hfus/(ti(i,j,linew)-eps)**2 + cpi
-!            tif(i,j) = tib(i,j) + dc2*(                                 &
-!     &      2._r8*alph(i,j)/(rhoice(ng)*ice_thick(i,j)**2*cot)          &
-!     &         *(t0mk(i,j) + (tis(i,j) - (2+coa(i,j))*ti(i,j,linew))    &
-!     &                                        /(1+coa(i,j))))
-
-!           a1 = 2._r8*alph(i,j)/(rhoice(ng)*ice_thick(i,j)**2*cot)
-!           b1 = -(a1*t0mk(i,j) + a1*tis(i,j))
-!           c1 = 1.0_r8 + coa(i,j) + (1._r8+2._r8*dtice(ng)*a1)*coa(i,j)
-!!            den = ti(i,j,linew) + dtice(ng)*b1
-!!            ti(i,j,linew) = ti(i,j,linew)/den
-!            ti(i,j,linew) = (b1*(1._r8+coa(i,j)+2._r8*a1) /             &
-!     &                        (a1*coa(i,j))
-
             ti(i,j,linew) = ti(i,j,linew) + dtice(ng)*(                 &
      &      2._r8*alph(i,j)/(rhoice(ng)*ice_thick(i,j)**2*cot)          &
      &         *(t0mk(i,j) + (tis(i,j) - (2._r8+coa(i,j))*ti(i,j,linew))&
      &                                        /(1._r8+coa(i,j))))
-
-
-!          ti(i,j,linew) = (t0mk(i,j)*alph(i,j)+tis(i,j)*alph(i,j) /    &
-!   &              (1.0+coa(i,j))             ) /                       &
-!   &            (alph(i,j)*(2.0+coa(i,j))/(1.0+coa(i,j))    )
             ti(i,j,linew) = max(ti(i,j,linew),-35._r8)
             ti(i,j,linew) = min(ti(i,j,linew),-eps)
           ELSE
@@ -571,15 +523,13 @@
       DO j = Jstr,Jend
         DO i = Istr,Iend
           IF (ai(i,j,linew) .gt. min_a(ng)) THEN
-            t2(i,j) = (tis(i,j)+coa(i,j)*ti(i,j,linew))/(1.0+coa(i,j))
-            qi2(i,j) = alph(i,j)*(ti(i,j,linew)-t2(i,j))/               &
-     &                       (0.5*ice_thick(i,j))
-            qio(i,j) = alph(i,j)*(t0mk(i,j)-ti(i,j,linew))/             &
-     &                       (0.5*ice_thick(i,j))
+            t2(i,j) = (tis(i,j)+coa(i,j)*ti(i,j,linew))/(1._r8+coa(i,j))
+            hicehinv = 1._r8/(0.5_r8*ice_thick(i,j))
+            qi2(i,j) = alph(i,j)*(ti(i,j,linew)-t2(i,j))*hicehinv
+            qio(i,j) = alph(i,j)*(t0mk(i,j)-ti(i,j,linew))*hicehinv
           END IF
 
-!  beregner netto varme flux fra is til atmos - Mellor og Kantha (7)
-!  (compute net heat flux from ice to atmosphere)
+!  Compute net heat flux from ice to atmosphere - Mellor and Kantha (7)
           qai(i,j) = qai_n(i,j)
         END DO
       END DO
@@ -589,9 +539,19 @@
         DO i = Istr,Iend
           IF (ai(i,j,linew) .le. min_a(ng)) THEN
 # ifdef MASKING
+#  ifdef WET_DRY
+            tis(i,j) = t0mk(i,j)*rmask(i,j)*rmask_wet(i,j)
+            t2(i,j) = t0mk(i,j)*rmask(i,j)*rmask_wet(i,j)
+            ti(i,j,linew) = -2.0_r8*rmask(i,j)*rmask_wet(i,j)
+#  else
             tis(i,j) = t0mk(i,j)*rmask(i,j)
             t2(i,j) = t0mk(i,j)*rmask(i,j)
             ti(i,j,linew) = -2.0_r8*rmask(i,j)
+#  endif
+# elif defined WET_DRY
+            tis(i,j) = t0mk(i,j)*rmask_wet(i,j)
+            t2(i,j) = t0mk(i,j)*rmask_wet(i,j)
+            ti(i,j,linew) = -2.0_r8*rmask_wet(i,j)
 # else
             tis(i,j) = t0mk(i,j)
             t2(i,j) = t0mk(i,j)
@@ -609,7 +569,6 @@
             qio(i,j) = 0._r8
             hsn(i,j,linew) = 0._r8
             sfwat(i,j,linew) = 0._r8
-!     ice_thick(i,j)=0.
           END IF
         END DO
       END DO
@@ -625,49 +584,45 @@
 
       DO j = Jstr,Jend
         DO i = Istr,Iend
-          wsm(i,j) = 0.0
-          wai(i,j) = 0.0
+          sice = MIN(sice_ref,salt_top(i,j))
+          tfrz = frln*sice
+          wsm(i,j) = 0._r8
+          wai(i,j) = 0._r8
           wro(i,j) = 0._r8
           IF (ai(i,j,linew) .gt. min_a(ng)) THEN
-!***** to melt ice or
-!***********  freeze surface water in the fall
-! hvis ingen sno (if there's no snow)
-            IF (hsn(i,j,linew) .le. 0.0) THEN
-              IF (tis(i,j) .gt. tfrz .or. sfwat(i,j,linew) .gt. 0.)     &
+! Melt ice or freeze surface water in the fall if there is no snow
+            IF (hsn(i,j,linew) .le. 0.0_r8) THEN
+              IF (tis(i,j) .gt. tfrz .or. sfwat(i,j,linew) .gt. 0._r8)   &
      &                                                            THEN
-!   istemp varmere enn fryspunkt (ice warmer than freezing point)
+!   ice warmer than freezing point
                 tis(i,j) = tfrz
-                hfus1(i,j) = hfus*(1.0-brnfr(i,j))+tis(i,j)*cpw         &
-     &         -((1.0-brnfr(i,j))*cpi+brnfr(i,j)*cpw)*ti(i,j,linew)
-!                qai(i,j) = -(1.0-sfcalb(i,j))*sw_flux(i,j)              &
-!     &                           -emisi*lwrad(i,j)+                     &
-!     &               lathi(i,j) +c2d(i,j)*(tis(i,j)-Tair(i,j))          &
-!     &               +sigma*(273.+tis(i,j))**4
+                hfus1(i,j) = hfus*(1._r8-brnfr(i,j))+tis(i,j)*cpw        &
+     &         -((1._r8-brnfr(i,j))*cpi+brnfr(i,j)*cpw)*ti(i,j,linew)
                 qai(i,j) = qai_n(i,j)
                 qi2(i,j) = b2d(i,j)*(ti(i,j,linew)-tis(i,j))
-!            bergner produksjonsrate (negativ her) ved atmos/is
+!    compute ice production rate (negative here) from atmosphere-ice exchange
                 wai(i,j) = -(qai(i,j) -qi2(i,j)) /(hfus1(i,j)*rhosw)
-!            produksjonsrate for smeltevann (smelterate)
+!    compute production rate for melt water (melting rate)
                 wsm(i,j) = ws(i,j)
               END IF
             ELSE
 !      there is snow cover
 !***** to melt snow or
 !***********  freeze surface water under snow
-              IF (tis(i,j) .gt. 0.0) THEN
+              IF (tis(i,j) .gt. 0.0_r8) THEN
 !          ice temperature warmer than the freezing point
-                tis(i,j) = 0.
+                tis(i,j) = 0._r8
                 qai(i,j) = qai_n(i,j)
                 qi2(i,j) = b2d(i,j)*(ti(i,j,linew)-tis(i,j))
 !          snow melting
-                wsm(i,j) = max(0.0_r8,-(qai(i,j)-qi2(i,j))/(densn*hfus))&
-     &                        +ws(i,j)
+                wsm(i,j) = max(0.0_r8,-(qai(i,j)-qi2(i,j))/             &
+     &                    (rhosnow_wet(ng)*hfus)) + ws(i,j)
               END IF
 
-              IF (tis(i,j) .lt. 0.0 .and. sfwat(i,j,linew) .gt. 0.0)    &
-     &                                                             THEN
+              IF (tis(i,j) .lt. 0.0_r8 .and.                            &
+     &            sfwat(i,j,linew) .gt. 0.0_r8) THEN
 !          colder than the freezing point
-                tis(i,j) = 0.
+                tis(i,j) = 0._r8
                 qai(i,j) = qai_n(i,j)
                 qi2(i,j) = b2d(i,j)*(ti(i,j,linew)-tis(i,j))
                 wai(i,j) = -(qai(i,j)-qi2(i,j))/(hfus*rhosw)
@@ -679,13 +634,11 @@
 !       sfwat - surface meltwater
             hsn(i,j,linew) = hsn(i,j,linew)+(ai(i,j,linew)              &
      &                             *(-wsm(i,j)+ws(i,j)))*dtice(ng)
-            hsn(i,j,linew) = max(0.d0,hsn(i,j,linew))
+            hsn(i,j,linew) = max(0.0_r8,hsn(i,j,linew))
             sfwat(i,j,linew) = sfwat(i,j,linew)+                        &
-     &                             (wai(i,j)+densn*wsm(i,j))*dtice(ng)
-            sfwat(i,j,linew) = max(0._r8,sfwat(i,j,linew))
+     &                        (wai(i,j)+wsm(i,j))*dtice(ng)
+            sfwat(i,j,linew) = max(0.0_r8,sfwat(i,j,linew))
 !
-!     sfwatmx=0.03*hi(i,j,linew)
-!            sfwatmx = 0._r8
             IF (sfwat(i,j,linew) .gt. sfwatmx) THEN
               wro(i,j) = (sfwat(i,j,linew)-sfwatmx)/dtice(ng)
               sfwat(i,j,linew) = sfwatmx
@@ -694,7 +647,6 @@
         END DO
       END DO
 
-      chmax = 8.0E-4_r8
       DO j = Jstr,Jend
         DO i = Istr,Iend
           thic = ice_thick(i,j)
@@ -702,7 +654,7 @@
           z0 = max(z0ii*thic,0.01_r8)
           z0 = min(z0,0.1_r8)
 !
-!     *** YAGLOM AND KADER FORMULATION FOR Z0T AND Z0S
+!     *** Yaglom and Kader formulation for z0t and z0s
 !
           zdz0 = dztop(i,j)/z0   !WPB
           if (zdz0 .lt. 3._r8) zdz0 = 3._r8
@@ -711,14 +663,13 @@
           termt = ykf*sqrt(rno)*prt**0.666667_r8
           terms = ykf*sqrt(rno)*prs**0.666667_r8
           cht(i,j) = utau(i,j)/(tpr*(log(zdz0)/kappa+termt))
-!          cht(i,j) = min(cht(i,j),0.98_r8*dztop(i,j)/dt(ng))
           chs(i,j) = utau(i,j)/(tpr*(log(zdz0)/kappa+terms))
-!          chs(i,j) = min(chs(i,j),0.98_r8*dztop(i,j)/dt(ng))
         END DO
       END DO
 
       DO j = Jstr,Jend
         DO i = Istr,Iend
+          sice = MIN(sice_ref,salt_top(i,j))
           tfz = frln*salt_top(i,j)
           wao(i,j) = 0._r8
           wio(i,j) = 0._r8
@@ -755,13 +706,19 @@
           IF(ai(i,j,linew).LE.min_a(ng)) THEN
              stflx(i,j,itemp) = qao_n(i,j)
           ELSE
-             stflx(i,j,itemp) = (1.d0-ai(i,j,linew))*qao_n(i,j)         &
+             stflx(i,j,itemp) = (1.0_r8-ai(i,j,linew))*qao_n(i,j)         &
      &                   +ai(i,j,linew)*qio(i,j)                        &
      &                   -xtot*hfus1(i,j)
           END IF
+
+! Change stflx(i,j,itemp) back to ROMS convention
           stflx(i,j,itemp) = -stflx(i,j,itemp) * rhocpr
+
 # ifdef MASKING
           stflx(i,j,itemp) = stflx(i,j,itemp)*rmask(i,j)
+# endif
+# ifdef WET_DRY
+          stflx(i,j,itemp) = stflx(i,j,itemp)*rmask_wet(i,j)
 # endif
 # ifdef ICESHELF
           IF(zice(i,j).ne.0.0_r8) THEN
@@ -773,26 +730,26 @@
      &        - (xtot-ai(i,j,linew)*xwai)*(sice-s0mk(i,j))              &
      &        - ai(i,j,linew)*wro(i,j)*s0mk(i,j)
 
-!         stflx(i,j,isalt) = stflx(i,j,isalt) +                         &
-!    &                       (xtot-ai(i,j,linew)*xwai)                  &
-!    &        *(sice-s0mk(i,j))/MAX(salt_top(i,j),0.001_r8)           &
-#ifdef NCEP_FLUXES
-!    &        +(1.d0-ai(i,j,linew))*p_e_n(i,j)                          &
-#endif
-!    &        + ai(i,j,linew)*wro(i,j)*s0mk(i,j)/                       &
-!    &                        MAX(salt_top(i,j),0.001_r8)
 ! Test for case of rainfall on snow/ice and assume 100% drainage
+#ifndef NCEP_FLUXES
           IF (rain(i,j).gt.0._r8.AND.snow_n(i,j).EQ.0._r8) THEN
             stflx(i,j,isalt) = stflx(i,j,isalt) +                       &
      &                         ai(i,j,linew)*rain(i,j)*0.001_r8
           END IF
+#endif
+! Change sign of stflx(i,j,isalt) back to ROMS convention
           stflx(i,j,isalt) = -stflx(i,j,isalt)
+
           io_mflux(i,j) = xtot -ai(i,j,linew)*xwai -                    &
      &                          ai(i,j,linew)*wro(i,j) + wfr(i,j)
           io_mflux(i,j) = -io_mflux(i,j)
 # ifdef MASKING
           stflx(i,j,isalt) = stflx(i,j,isalt)*rmask(i,j)
           io_mflux(i,j) = io_mflux(i,j)*rmask(i,j)
+# endif
+# ifdef WET_DRY
+          stflx(i,j,isalt) = stflx(i,j,isalt)*rmask_wet(i,j)
+          io_mflux(i,j) = io_mflux(i,j)*rmask_wet(i,j)
 # endif
 # ifdef ICESHELF
          IF (zice(i,j).ne.0.0_r8) THEN
@@ -817,8 +774,7 @@
 
           ai_tmp = ai(i,j,linew)
           ai(i,j,linew) = ai(i,j,linew) +                               &
-!    &            0.1*dtice(ng)*ai(i,j,linew)*xmelt/ice_thick(i,j)      &
-     &             dtice(ng)*(1.0-ai(i,j,linew))                        &
+     &             dtice(ng)*(1.0_r8-ai(i,j,linew))                     &
      &                      *(phi*wao(i,j)+wfr(i,j))
           ai(i,j,linew) = min(ai(i,j,linew),max_a(ng))
 
@@ -842,6 +798,10 @@
 #ifdef MASKING
           ai(i,j,linew) = ai(i,j,linew)*rmask(i,j)
           hi(i,j,linew) = hi(i,j,linew)*rmask(i,j)
+#endif
+#ifdef WET_DRY
+          ai(i,j,linew) = ai(i,j,linew)*rmask_wet(i,j)
+          hi(i,j,linew) = hi(i,j,linew)*rmask_wet(i,j)
 #endif
 #ifdef ICESHELF
           IF (zice(i,j).ne.0.0_r8) THEN
