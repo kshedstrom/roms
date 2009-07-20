@@ -1165,6 +1165,31 @@
         END IF
       END IF
 # endif
+# ifdef WRT_SSSFLX
+!
+!  Write out sea surface salinity correction salt flux
+!
+      IF (Hout(idSSSf,ng)) THEN
+        scale=1.0_r8
+        gtype=gfactor*r2dvar
+        status=nf_fwrite2d(ng, iNLM, ncHISid(ng), hisVid(idSSSf,ng),    &
+     &                     tHISindx(ng), gtype,                         &
+     &                     LBi, UBi, LBj, UBj, scale,                   &
+#  ifdef MASKING
+     &                     GRID(ng) % rmask,                            &
+#  endif
+     &                     FORCES(ng) % sssflx)
+        IF (status.ne.nf90_noerr) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,idSSSf)), tHISindx(ng)
+          END IF
+          exit_flag=3
+          ioerror=status
+          RETURN
+        END IF
+      END IF
+# endif
+
 # if defined FORWARD_WRITE && defined LMD_NONLOCAL
 !
 !  Write out KPP nonlocal transport.

@@ -80,7 +80,7 @@ contains
      &                     FORCES(ng) % Tair,                           &
      &                     FORCES(ng) % Uwind,                          &
      &                     FORCES(ng) % Vwind,                          &
-# ifdef CLOUDS
+# if defined CLOUDS
      &                     FORCES(ng) % cloud,                          &
 # endif
 # ifdef COARE_TAYLOR_YELLAND
@@ -153,7 +153,7 @@ contains
 # endif
      &                           alpha, beta, rho, t, u, v,             &
      &                           Hair, Pair, Tair, Uwind, Vwind,        &
-# ifdef CLOUDS
+# if defined CLOUDS
      &                           cloud,                                 &
 # endif
 # ifdef COARE_TAYLOR_YELLAND
@@ -245,16 +245,16 @@ contains
 #  ifdef CLOUDS
       real(r8), intent(in) :: cloud(LBi:,LBj:)
 #  endif
-# ifdef COARE_TAYLOR_YELLAND
+#  ifdef COARE_TAYLOR_YELLAND
       real(r8), intent(in) :: Hwave(LBi:,LBj:)
-# endif
-# if defined COARE_TAYLOR_YELLAND || defined COARE_OOST
+#  endif
+#  if defined COARE_TAYLOR_YELLAND || defined COARE_OOST
       real(r8), intent(in) :: Pwave_top(LBi:,LBj:)
-# endif
-# if !defined DEEPWATER_WAVES      && \
+#  endif
+#  if !defined DEEPWATER_WAVES      && \
      (defined COARE_TAYLOR_YELLAND || defined COARE_OOST)
       real(r8), intent(in) :: Lwave(LBi:,LBj:)
-# endif
+#  endif
       real(r8), intent(in) :: rain(LBi:,LBj:)
 #  ifdef RUNOFF
       real(r8), intent(in) :: runoff(LBi:,LBj:)
@@ -265,7 +265,7 @@ contains
       real(r8), intent(inout) :: shflx(LBi:,LBj:)
       real(r8), intent(inout) :: srflx(LBi:,LBj:)
       real(r8), intent(inout) :: stflx(LBi:,LBj:,:)
-# if defined SHORTWAVE && defined ALBEDO
+#  if defined SHORTWAVE && defined ALBEDO
       real(r8), intent(inout) :: cawdir(LBi:,LBj:)
 #  endif
 
@@ -318,7 +318,7 @@ contains
       real(r8), intent(in) :: Tair(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: Uwind(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: Vwind(LBi:UBi,LBj:UBj)
-#  ifdef CLOUDS
+#  if defined CLOUDS
       real(r8), intent(in) :: cloud(LBi:UBi,LBj:UBj)
 #  endif
 # ifdef COARE_TAYLOR_YELLAND
@@ -411,6 +411,10 @@ contains
       real(r8) :: albs, qswi, qlwi, qlh_i, qsh_i
       real(r8) :: le_i, dq_i,fqlat1, sfc_temp, slp, Qsati
       real(r8) :: vap_p_i
+# endif
+# if defined SHORTWAVE && defined ALBEDO
+      real(r8) :: cawdif
+      real(r8), parameter :: albw_d=0.065_r8
 # endif
 # ifdef BEST_NPZ && defined ICE_BIO || defined CLIM_ICE_1D
       real(r8), dimension(PRIVATE_2D_SCRATCH_ARRAY) :: ice_thick

@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       SUBROUTINE def_rst (ng)
 !
-!svn $Id: def_rst.F 989 2009-05-26 22:46:51Z kate $
+!svn $Id: def_rst.F 984 2009-05-24 01:43:19Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -640,7 +640,7 @@
 #endif
 #if defined SEDIMENT && defined SED_MORPH
 !
-!  Define time-varying bathymetry.
+!  Define  time-varying bathymetry
 !
         Vinfo( 1)=Vname(1,idbath)
         Vinfo( 2)=Vname(2,idbath)
@@ -2135,10 +2135,10 @@
           END IF
 #endif
 #if defined WET_DRY
-          IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idWmsk))) THEN
-            got_var(idWmsk)=.TRUE.
-            rstVid(idWmsk,ng)=var_id(i)
-          END IF
+!          IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idWmsk))) THEN
+!            got_var(idWmsk)=.TRUE.
+!            rstVid(idWmsk,ng)=var_id(i)
+!          END IF
 #endif
         END DO
 !

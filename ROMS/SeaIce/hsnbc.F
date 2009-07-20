@@ -98,11 +98,19 @@
              hsn(0,j,linew)=hsn(0,j,linew)*                             &
      &                   GRID(ng)%rmask(0,j)
 #  endif
+#  ifdef WET_DRY
+             hsn(0,j,linew)=hsn(0,j,linew)*                             &
+     &                   GRID(ng)%rmask_wet(0,j)
+#  endif
           ELSE
              hsn(0,j,linew)=hsn(1,j,liold)
 #  ifdef MASKING
              hsn(0,j,linew)=hsn(0,j,linew)*                             &
      &                   GRID(ng)%rmask(0,j)
+#  endif
+#  ifdef WET_DRY
+             hsn(0,j,linew)=hsn(0,j,linew)*                             &
+     &                   GRID(ng)%rmask_wet(0,j)
 #  endif
           ENDIF
         END DO
@@ -116,6 +124,10 @@
           hsn(0,j,linew)=hsn(0,j,linew)*                                &
      &                   GRID(ng)%rmask(0,j)
 #  endif
+#  ifdef WET_DRY
+          hsn(0,j,linew)=hsn(0,j,linew)*                                &
+     &                   GRID(ng)%rmask_wet(0,j)
+#  endif
         END DO
 # else
 !
@@ -126,6 +138,10 @@
 #  ifdef MASKING
           hsn(0,j,linew)=hsn(0,j,linew)*                                &
      &                   GRID(ng)%rmask(0,j)
+#  endif
+#  ifdef WET_DRY
+          hsn(0,j,linew)=hsn(0,j,linew)*                                &
+     &                   GRID(ng)%rmask_wet(0,j)
 #  endif
         END DO
 # endif
@@ -148,11 +164,19 @@
              hsn(Lm(ng)+1,j,linew)=hsn(Lm(ng)+1,j,linew)*               &
      &                          GRID(ng)%rmask(Lm(ng)+1,j)
 #  endif
+#  ifdef WET_DRY
+             hsn(Lm(ng)+1,j,linew)=hsn(Lm(ng)+1,j,linew)*               &
+     &                          GRID(ng)%rmask_wet(Lm(ng)+1,j)
+#  endif
           ELSE
              hsn(Lm(ng)+1,j,linew)=hsn(Lm(ng),j,liold)
 #  ifdef MASKING
              hsn(Lm(ng)+1,j,linew)=hsn(Lm(ng)+1,j,linew)*               &
      &                          GRID(ng)%rmask(Lm(ng)+1,j)
+#  endif
+#  ifdef WET_DRY
+             hsn(Lm(ng)+1,j,linew)=hsn(Lm(ng)+1,j,linew)*               &
+     &                          GRID(ng)%rmask_wet(Lm(ng)+1,j)
 #  endif
           ENDIF
         END DO
@@ -166,6 +190,10 @@
           hsn(Lm(ng)+1,j,linew)=hsn(Lm(ng)+1,j,linew)*                  &
      &                          GRID(ng)%rmask(Lm(ng)+1,j)
 #  endif
+#  ifdef WET_DRY
+          hsn(Lm(ng)+1,j,linew)=hsn(Lm(ng)+1,j,linew)*                  &
+     &                          GRID(ng)%rmask_wet(Lm(ng)+1,j)
+#  endif
         END DO
 # else
 !
@@ -176,6 +204,10 @@
 #  ifdef MASKING
           hsn(Lm(ng)+1,j,linew)=hsn(Lm(ng)+1,j,linew)*                  &
      &                          GRID(ng)%rmask(Lm(ng)+1,j)
+#  endif
+#  ifdef WET_DRY
+          hsn(Lm(ng)+1,j,linew)=hsn(Lm(ng)+1,j,linew)*                  &
+     &                          GRID(ng)%rmask_wet(Lm(ng)+1,j)
 #  endif
         END DO
 # endif
@@ -200,11 +232,19 @@
              hsn(i,0,linew)=hsn(i,0,linew)*                             &
      &                   GRID(ng)%rmask(i,0)
 #  endif
+#  ifdef WET_DRY
+             hsn(i,0,linew)=hsn(i,0,linew)*                             &
+     &                   GRID(ng)%rmask_wet(i,0)
+#  endif
           ELSE
              hsn(i,0,linew)=hsn(i,1,liold)
 #  ifdef MASKING
-             hsn(i,0,linew)=hsn(i,0,linew)*                                &
+             hsn(i,0,linew)=hsn(i,0,linew)*                             &
      &                   GRID(ng)%rmask(i,0)
+#  endif
+#  ifdef WET_DRY
+             hsn(i,0,linew)=hsn(i,0,linew)*                             &
+     &                   GRID(ng)%rmask_wet(i,0)
 #  endif
           ENDIF
         END DO
@@ -218,6 +258,10 @@
           hsn(i,0,linew)=hsn(i,0,linew)*                                &
      &                   GRID(ng)%rmask(i,0)
 #  endif
+#  ifdef WET_DRY
+          hsn(i,0,linew)=hsn(i,0,linew)*                                &
+     &                   GRID(ng)%rmask_wet(i,0)
+#  endif
         END DO
 # else
 !
@@ -228,6 +272,10 @@
 #  ifdef MASKING
           hsn(i,0,linew)=hsn(i,0,linew)*                                &
      &                   GRID(ng)%rmask(i,0)
+#  endif
+#  ifdef WET_DRY
+          hsn(i,0,linew)=hsn(i,0,linew)*                                &
+     &                   GRID(ng)%rmask_wet(i,0)
 #  endif
         END DO
 # endif
@@ -250,11 +298,19 @@
              hsn(i,Mm(ng)+1,linew)=hsn(i,Mm(ng)+1,linew)*               &
      &                          GRID(ng)%rmask(i,Mm(ng)+1)
 #  endif
+#  ifdef WET_DRY
+             hsn(i,Mm(ng)+1,linew)=hsn(i,Mm(ng)+1,linew)*               &
+     &                          GRID(ng)%rmask_wet(i,Mm(ng)+1)
+#  endif
           ELSE
              hsn(i,Mm(ng)+1,linew)=hsn(i,Mm(ng),liold)
 #  ifdef MASKING
              hsn(i,Mm(ng)+1,linew)=hsn(i,Mm(ng)+1,linew)*               &
      &                          GRID(ng)%rmask(i,Mm(ng)+1)
+#  endif
+#  ifdef WET_DRY
+             hsn(i,Mm(ng)+1,linew)=hsn(i,Mm(ng)+1,linew)*               &
+     &                          GRID(ng)%rmask_wet(i,Mm(ng)+1)
 #  endif
           ENDIF
         END DO
@@ -268,6 +324,10 @@
           hsn(i,Mm(ng)+1,linew)=hsn(i,Mm(ng)+1,linew)*                  &
      &                          GRID(ng)%rmask(i,Mm(ng)+1)
 #  endif
+#  ifdef WET_DRY
+          hsn(i,Mm(ng)+1,linew)=hsn(i,Mm(ng)+1,linew)*                  &
+     &                          GRID(ng)%rmask_wet(i,Mm(ng)+1)
+#  endif
         END DO
 # else
 !
@@ -278,6 +338,10 @@
 #  ifdef MASKING
           hsn(i,Mm(ng)+1,linew)=hsn(i,Mm(ng)+1,linew)*                  &
      &                          GRID(ng)%rmask(i,Mm(ng)+1)
+#  endif
+#  ifdef WET_DRY
+          hsn(i,Mm(ng)+1,linew)=hsn(i,Mm(ng)+1,linew)*                  &
+     &                          GRID(ng)%rmask_wet(i,Mm(ng)+1)
 #  endif
         END DO
 # endif

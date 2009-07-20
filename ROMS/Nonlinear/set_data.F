@@ -200,16 +200,33 @@
      &                     FORCES(ng)%icecG,                            &
      &                     FORCES(ng)%icec,                             &
      &                     update)
-      CALL set_2dfld_tile (ng, tile, iNLM, idUsms,                      &
+      CALL set_2dfld_tile (ng, tile, iNLM, idUnms,                      &
      &                     LBi, UBi, LBj, UBj,                          &
      &                     FORCES(ng)%nustrG,                           &
      &                     FORCES(ng)%nustr,                            &
      &                     update)
-      CALL set_2dfld_tile (ng, tile, iNLM, idVsms,                      &
+      CALL set_2dfld_tile (ng, tile, iNLM, idVnms,                      &
      &                     LBi, UBi, LBj, UBj,                          &
      &                     FORCES(ng)%nvstrG,                           &
      &                     FORCES(ng)%nvstr,                            &
      &                     update)
+#   if defined SCORRECTION || defined SRELAXATION
+!
+!-----------------------------------------------------------------------
+!  Set surface salinity for freshwater flux correction.
+!-----------------------------------------------------------------------
+!
+#    ifdef ANA_SSS
+      CALL ana_sss (ng, tile, iNLM)
+#    else
+      CALL set_2dfld_tile (ng, tile, iNLM, idSSSc,                      &
+     &                     LBi, UBi, LBj, UBj,                          &
+     &                     FORCES(ng)%sssG,                             &
+     &                     FORCES(ng)%sss,                              &
+     &                     update)
+#    endif
+#   endif
+
 #    ifdef CURVGRID
 !
 !  If input point surface winds or interpolated from coarse data, rotate

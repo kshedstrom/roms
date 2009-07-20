@@ -1170,6 +1170,30 @@
         END IF
       END IF
 #  endif
+#  ifdef WRT_SSSFLX
+!
+!  Write out sea surface salinity correction flux
+!
+      IF (Hout(idSSSf,ng)) THEN
+        scale=1.0_r8
+        gtype=gfactor*r2dvar
+        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idSSSf,ng),    &
+     &                     tAVGindx(ng), gtype,                         &
+     &                     LBi, UBi, LBj, UBj, scale,                   &
+#   ifdef MASKING
+     &                     GRID(ng) % rmask,                            &
+#   endif
+     &                     AVERAGE(ng) % avgsssflx)
+        IF (status.ne.nf90_noerr) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,idSSSf)), tAVGindx(ng)
+          END IF
+          exit_flag=3
+          ioerror=status
+          RETURN
+        END IF
+      END IF
+#  endif
 #  ifdef ICE_MODEL
 !
 !  Write out ice 2D momentum component (m/s) in the XI-direction.

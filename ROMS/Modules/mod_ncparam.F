@@ -1766,6 +1766,10 @@
                 idIcec=varid
               CASE ('idSkt')
                 idSkt=varid
+              CASE ('idUnms')
+                idUnms=varid
+              CASE ('idVnms')
+                idVnms=varid
 #endif
 #ifdef ICE_MODEL
               CASE ('idUice')

@@ -92,6 +92,9 @@
 #ifdef MASKING
      &                      GRID(ng) % rmask,                           &
 #endif
+#ifdef WET_DRY
+     &                      GRID(ng) % rmask_wet,                       &
+#endif
 #ifdef ICESHELF
      &                      GRID(ng) % zice,                            &
 #endif
@@ -123,6 +126,9 @@
      &                      nrhs(ng), linew(ng), liold(ng), liunw(ng),  &
 #ifdef MASKING
      &                      GRID(ng) % rmask,                           &
+#endif
+#ifdef WET_DRY
+     &                      GRID(ng) % rmask_wet,                       &
 #endif
 #ifdef ICESHELF
      &                      GRID(ng) % zice,                            &
@@ -157,6 +163,9 @@
 # ifdef MASKING
      &                      GRID(ng) % rmask,                           &
 # endif
+# ifdef WET_DRY
+     &                      GRID(ng) % rmask_wet,                       &
+# endif
 # ifdef ICESHELF
      &                      GRID(ng) % zice,                            &
 # endif
@@ -188,6 +197,9 @@
      &                      nrhs(ng), linew(ng), liold(ng), liunw(ng),  &
 # ifdef MASKING
      &                      GRID(ng) % rmask,                           &
+# endif
+# ifdef WET_DRY
+     &                      GRID(ng) % rmask_wet,                       &
 # endif
 # ifdef ICESHELF
      &                      GRID(ng) % zice,                            &
@@ -221,6 +233,9 @@
      &                      nrhs(ng), linew(ng), liold(ng), liunw(ng),  &
 # ifdef MASKING
      &                      GRID(ng) % rmask,                           &
+# endif
+# ifdef WET_DRY
+     &                      GRID(ng) % rmask_wet,                       &
 # endif
 # ifdef ICESHELF
      &                      GRID(ng) % zice,                            &
@@ -279,6 +294,9 @@
      &                      nrhs(ng), linew(ng), liold(ng), liunw(ng),  &
 # ifdef MASKING
      &                      GRID(ng) % rmask,                           &
+# endif
+# ifdef WET_DRY
+     &                      GRID(ng) % rmask_wet,                       &
 # endif
 # ifdef ICESHELF
      &                      GRID(ng) % zice,                            &
@@ -369,6 +387,9 @@
 #ifdef MASKING
      &                        rmask,                                    &
 #endif
+#ifdef WET_DRY
+     &                        rmask_wet,                                &
+#endif
 #ifdef ICESHELF
      &                        zice,                                     &
 #endif
@@ -395,6 +416,9 @@
 # ifdef MASKING
       real(r8), intent(in) :: rmask(LBi:,LBj:)
 # endif
+# ifdef WET_DRY
+      real(r8), intent(in) :: rmask_wet(LBi:,LBj:)
+# endif
 # ifdef ICESHELF
       real(r8), intent(in) :: zice(LBi:,LBj:)
 # endif
@@ -411,6 +435,9 @@
 #else
 # ifdef MASKING
       real(r8), intent(in) :: rmask(LBi:UBi,LBj:UBj)
+# endif
+# ifdef WET_DRY
+      real(r8), intent(in) :: rmask_wet(LBi:UBi,LBj:UBj)
 # endif
 # ifdef ICESHELF
       real(r8), intent(in) :: zice(LBi:UBi,LBj:UBj)
@@ -538,6 +565,9 @@
 #ifdef MASKING
           aif(i,j) = aif(i,j)*rmask(i,j)
 #endif
+#ifdef WET_DRY
+          aif(i,j) = aif(i,j)*rmask_wet(i,j)
+#endif
 #ifdef ICESHELF
           IF (zice(i,j).ne.0.0_r8) aif(i,j) = 0.0_r8
 #endif
@@ -595,6 +625,13 @@
       enddo
       enddo
 #endif
+#ifdef WET_DRY
+      do j=J_RANGE
+      do i=I_RANGE
+        aif(i,j)=aif(i,j)*rmask_wet(i,j)
+      enddo
+      enddo
+#endif
 #ifdef ICESHELF
       do j=J_RANGE
       do i=I_RANGE
@@ -622,10 +659,16 @@
 #  ifdef MASKING
      &                          vmask(i,j)*                             &
 #  endif
+#  ifdef WET_DRY
+     &                          vmask_wet(i,j)*                         &
+#  endif
      &                    (aif(i,j)-aif(i,j-1))
           FX(i,j)=0.5*                                                  &
 #  ifdef MASKING
      &                          umask(i,j)*                             &
+#  endif
+#  ifdef WET_DRY
+     &                          umask_wet(i,j)*                         &
 #  endif
      &                    (aif(i,j)-aif(i-1,j))
         END DO
@@ -687,6 +730,9 @@
      &                                       +aflxv(i,j+1)-aflxv(i,j))
 #  ifdef MASKING
           aif(i,j)=aif(i,j)*rmask(i,j)
+#  endif
+#  ifdef WET_DRY
+          aif(i,j)=aif(i,j)*rmask_wet(i,j)
 #  endif
 #  ifdef ICESHELF
           IF (zice(i,j).ne.0.) aif(i,j)=0.
