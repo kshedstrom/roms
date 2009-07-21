@@ -28,7 +28,7 @@
 #endif
 #undef FLOATS
 #define STATIONS
-#undef WET_DRY
+#define WET_DRY
 
 #undef T_PASSIVE
 #ifdef T_PASSIVE
@@ -258,9 +258,9 @@
 /*
 **  Biological model options.
 */
-#undef NEMURO
+#define NEMURO
 #undef BIO_GOANPZ        /* Sarah Hinckley's 11 box model */
-#define BEST_NPZ         /* Georgina Gibsons BEST NPZ model  */
+#undef BEST_NPZ         /* Georgina Gibsons BEST NPZ model  */
 
 #if defined BEST_NPZ || defined BIO_GOANPZ || defined PASSIVE_TRACERS
 # undef  BIOFLUX           /* sum Nitrogen fluxes between boxes */

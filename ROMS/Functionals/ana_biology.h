@@ -58,11 +58,11 @@
      &                       ICE(ng) % ageice,                          &
 #  endif
 # endif
-# ifdef STATIONARYR
+# ifdef STATIONARY
      &                       OCEAN(ng) % st,                            &
      &                       NTS(ng),                                   &
 # endif
-# ifdef STATIONARY2R
+# ifdef STATIONARY2
      &                       OCEAN(ng) % st2,                           &
      &                       NTS2(ng),                                  &
 # endif
@@ -119,11 +119,11 @@
      &                             ageice ,                             &
 #  endif
 # endif
-# ifdef STATIONARYR
+# ifdef STATIONARY
      &                             st,                                  &
      &                             UBst ,                               &
 # endif
-# ifdef STATIONARY2R
+# ifdef STATIONARY2
      &                             st2,                                 &
      &                             UBst2 ,                              &
 # endif
@@ -162,11 +162,11 @@
 #  ifdef BENTHIC
       real(r8), intent(inout) :: bt(LBi:,LBj:,:,:,:)
 #  endif
-#  ifdef STATIONARYR
+#  ifdef STATIONARY
       real(r8), intent(inout) :: st(LBi:,LBj:,:,:,:)
       integer, intent(in) :: UBst
 #  endif
-#  ifdef STATIONARY2R
+#  ifdef STATIONARY2
       real(r8), intent(inout) :: st2(LBi:,LBj:,:,:)
       integer, intent(in) :: UBst2
 #  endif
@@ -205,11 +205,11 @@
 #   ifdef BENTHIC
       real(r8), intent(inout) :: bt(LBi:UBi,LBj:UBj,NBL(ng),3,NBeT(ng))
 #   endif
-#  ifdef STATIONARYR
+#  ifdef STATIONARY
       real(r8), intent(inout) :: st(LBi:UBi,LBj:UBj,UBk,3,UBst)
       integer, intent(in) :: UBst
 #  endif
-#   ifdef STATIONARY2R
+#   ifdef STATIONARY2
       real(r8), intent(inout) :: st2(LBi:UBi,LBj:UBj,3,UBst2)
       integer, intent(in) :: UBst2
 #   endif
