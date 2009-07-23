@@ -48,6 +48,7 @@
      &                       FISHES(ng) % bioenergy,                    &
      &                       FISHES(ng) % bounded,                      &
      &                       FISHES(ng) % alive,                        &
+     &                       FISHES(ng) % species,                      &
      &                       FISHES(ng) % track)
 
       END SUBROUTINE eggs_by_cell
@@ -60,7 +61,7 @@
      &                        rmask,                                    &
 # endif
      &                        egg_count, bioenergy,                     &
-     &                        bounded, alive, track)
+     &                        bounded, alive, species, track)
 !***********************************************************************
 !
       USE mod_param
@@ -77,23 +78,25 @@
 #  ifdef MASKING
       real(r8), intent(in) :: rmask(LBi:,LBj:)
 #  endif
-      integer, intent(out) :: egg_count(LBi:,LBj:)
+      integer, intent(out) :: egg_count(LBi:,LBj:,:)
       real(r8), intent(inout) :: bioenergy(:,:)
       logical, intent(in) :: bounded(:)
       logical, intent(in) :: alive(:)
+      integer, intent(in) :: species(:)
       real(r8), intent(in) :: track(:,0:,:)
 # else
 #  ifdef MASKING
       real(r8), intent(in) :: rmask(LBi:UBi,LBj:UBj)
 #  endif
-      integer, intent(out) :: egg_count(LBi:UBi,LBj:UBj)
+      integer, intent(out) :: egg_count(LBi:UBi,LBj:UBj,Nspecies(ng))
       real(r8), intent(inout) :: bioenergy(NFishV(ng),Nfloats(ng))
       logical, intent(in) :: bounded(Nfloats(ng))
       logical, intent(in) :: alive(Nfloats(ng))
+      integer, intent(in) :: species(Nfloats(ng))
       real(r8), intent(in) :: track(NFV(ng),0:NFT,Nfloats(ng))
 # endif
 !
-      integer :: i, j, l
+      integer :: i, j, l, isp
       integer :: Imin, Imax, Jmin, Jmax
 
       real(r8) :: cff
@@ -115,9 +118,11 @@
 ! Clean out to start. 
 !-----------------------------------------------------------------------
 !
-      DO j=Jmin,Jmax
-        DO i=Imin,Imax
-          egg_count(i,j) = 0
+      DO isp=1,Nspecies(ng)
+        DO j=Jmin,Jmax
+          DO i=Imin,Imax
+            egg_count(i,j,isp) = 0
+          END DO
         END DO
       END DO
 !
@@ -129,11 +134,12 @@
         IF (bounded(l) .and. alive(l)) THEN
           i = int(track(ixgrd,nf(ng),l)+0.5)
           j = int(track(iygrd,nf(ng),l)+0.5)
+	  isp = idfish(species(l))
 ! bounded has been collected and no longer reflects whether the float is
 ! on this tile
           IF (i .ge. Imin .and. i .le. Imax .and.                       &
      &        j .ge. Jmin .and. j .le. Jmax) THEN
-            egg_count(i,j) = egg_count(i,j) + bioenergy(ifeggs,l)
+            egg_count(i,j,isp) = egg_count(i,j,isp) + bioenergy(ifeggs,l)
           END IF
         END IF
       END DO

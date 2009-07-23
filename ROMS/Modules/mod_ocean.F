@@ -84,10 +84,11 @@
 !  fish_count   Number of fish in each box.                            !
 !  ships_list   Linked list of ships in the box for each box.          !
 !  ships_count  Number of ships in each box.                           !
-!  egg_count    Number of eggs in each box for each species.
+!  pred_list    Linked list of predators in the box for each box.      !
+!  pred_count   Number of predators in each box.                       !
 !  spawn_loc    2D spawning locations for each fish species.           !
 #  if defined EGGS_BISECTION
-!  egg_count    2D array of eggs spawned in each grid box.             !
+!  egg_count    Number of eggs in each box for each species.           !
 #  endif
 # endif
 !=======================================================================
@@ -928,7 +929,7 @@
 #  endif
 # endif
 # if defined NEMURO_SAN
-          DO itrc=1,NST
+          DO itrc=1,Nspecies(ng)
             DO i=Imin,Imax
               OCEAN(ng) % spawn_loc(i,j,itrc) = IniVal
 #  ifdef EGGS_BISECTION

@@ -1,3 +1,5 @@
+#include "cppdefs.h"
+
 #ifdef NEMURO_SAN
       SUBROUTINE read_FishPar (model, inp, out, Lwrite)
 !

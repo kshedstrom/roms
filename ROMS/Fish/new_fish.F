@@ -109,7 +109,7 @@
             do i=1,Nfound
               print *, i, eggs(i), moms(i)
             end do
-            CALL tree_destroy
+!           CALL tree_destroy
           END IF
         END DO
 # elif defined EGGS_TREE_CXX

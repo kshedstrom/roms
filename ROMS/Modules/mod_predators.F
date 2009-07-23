@@ -48,11 +48,6 @@
           logical, pointer  :: alive(:)
           logical, pointer  :: eatfish(:)
           type(fishnode), pointer :: fishnodes(:)
-          real(r8), pointer :: sp_start(:)
-          real(r8), pointer :: sp_end(:)
-          integer, pointer  :: num_free(:)
-          integer, pointer  :: next_free(:)
-          integer, pointer  :: num_super(:)
 
         END TYPE T_PREDATORS
 
@@ -109,8 +104,6 @@
 
       allocate ( PREDATORS(ng) % species(Npred(ng)) )
 
-      allocate ( PREDATORS(ng) % lifestage(Npred(ng)) )
-
       allocate ( PREDATORS(ng) % alive(Npred(ng)) )
 
       allocate ( PREDATORS(ng) % eatfish(Npred(ng)) )
@@ -146,7 +139,6 @@
           PREDATORS(ng) % bioenergy(i,iflt) = IniVal
         END DO
         PREDATORS(ng) % species(iflt) = if_none
-        PREDATORS(ng) % lifestage(iflt) = if_none
         PREDATORS(ng) % alive(iflt) = .FALSE.
         PREDATORS(ng) % eatfish(iflt) = .FALSE.
         PREDATORS(ng) % fishnodes(iflt) % fish = iflt
