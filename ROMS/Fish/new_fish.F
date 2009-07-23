@@ -74,9 +74,10 @@
       print *, 'In New_fish - found some moms with eggs:', count
 
       Navail = sum(FISHES(ng) % num_super)
+      Navail = max(Navail, count)
       IF (Navail > 0) THEN
         IF (Master) THEN
-	  print *, "In new_fish guts...", FISHES(ng) % num_super
+	  print *, "In New_fish guts...", FISHES(ng) % num_super
           allocate(moms(Navail))
           allocate(eggs(Navail))
 

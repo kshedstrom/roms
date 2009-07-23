@@ -13,6 +13,7 @@
 
 #include <iostream> //for std::cout
 #include <vector>    //for std::vertor
+#include <stdlib.h>
 
 class Node
 {
