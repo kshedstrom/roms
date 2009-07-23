@@ -446,7 +446,7 @@
      &                    v(i  ,j+1,N(ng),nrhs)+                        &
      &                    v(i-1,j  ,N(ng),nrhs)+                        &
      &                    v(i-1,j+1,N(ng),nrhs))
-            cff2=SQRT(u(i,j,N(ng),nrhs)*u(i,j,N(ng),nrhs)+cff2*cff2)
+            cff2=SQRT(u(i,j,N(ng),nrhs)*u(i,j,N(ng),nrhs)+cff1*cff1)
 #ifdef RDRG_GRID
             sustr(i,j)=-0.5_r8*(rdrg_grid(i,j)+rdrg_grid(i-1,j))*       &
      &                  u(i,j,N(ng),nrhs)*cff2
