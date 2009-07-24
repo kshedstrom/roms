@@ -1,4 +1,5 @@
 #include "cppdefs.h"
+#ifdef NEMURO_SAN
       SUBROUTINE ini_fish (model)
 !
 !================================================== Kate Hedstrom ======
@@ -17,13 +18,13 @@
       USE mod_ncparam
       USE mod_scalars
       USE mod_fish
-#ifdef DISTRIBUTE
+# ifdef DISTRIBUTE
       USE mod_strings
-#endif
+# endif
 !
-#ifdef DISTRIBUTE
+# ifdef DISTRIBUTE
       USE distribute_mod, ONLY : mp_bcasti, mp_bcasts
-#endif
+# endif
       USE ran_state, ONLY: ran_seed
 !
       implicit none
@@ -38,9 +39,9 @@
 
       integer :: Itile, Jtile, Nghost, Ntiles, tile
       integer :: Imin, Imax, Jmin, Jmax
-#ifdef DISTRIBUTE
+# ifdef DISTRIBUTE
       integer :: MaxHaloLenI, MaxHaloLenJ
-#endif
+# endif
       integer :: inp, out, itrc, ng, npts, sequence
 
       real(r8) :: cff
@@ -52,18 +53,17 @@
 !
 !  Set input units.
 !
-#if defined DISTRIBUTE || defined MODEL_COUPLING
+# if defined DISTRIBUTE || defined MODEL_COUPLING
       Lwrite=Master
       inp=1
       out=stdout
-#else
+# else
       Lwrite=Master
       inp=stdinp
       out=stdout
-#endif
+# endif
 !
 
-#ifdef NEMURO_SAN
 !
 !-----------------------------------------------------------------------
 !  Read in fish and ship input parameters.
@@ -78,12 +78,8 @@
 
       CALL read_ShipsPar (model, 47, out, Lwrite)
 # endif
-#endif
 
       END SUBROUTINE ini_fish
-
-#ifdef NEMURO_SAN
-      SUBROUTINE ini_fish
 
       SUBROUTINE read_FishPar (model, inp, out, Lwrite)
 !
