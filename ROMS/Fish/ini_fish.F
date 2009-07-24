@@ -1,6 +1,8 @@
 #include "cppdefs.h"
 
 #ifdef NEMURO_SAN
+      SUBROUTINE ini_fish
+
       SUBROUTINE read_FishPar (model, inp, out, Lwrite)
 !
 !=======================================================================
