@@ -178,10 +178,10 @@
                 t(i,j,k,nnew,isalt) = t(i,j,k,nnew,isalt) *             &
      &                                  (1.0_r8 + gamma_k)
               END IF
-# ifdef MASKING
+# ifdef WET_DRY
             END IF
 # endif
-# ifdef WET_DRY
+# ifdef MASKING
             END IF
 # endif
           END DO

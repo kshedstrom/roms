@@ -82,7 +82,8 @@
 !  Nyearclass   Number of year classes
 !  Nfish        Total number of fish
 !  Nbatch       Number of days per year an individual will release eggs
-!  Nships       Total number of ships and/or predatory fish
+!  Nships       Total number of ships
+!  Npred        Total number of predatory fish
 #endif
 !                                                                      !
 !=======================================================================
@@ -541,6 +542,7 @@
         integer, dimension(Ngrids), parameter :: Nbatch=8
 
         integer, dimension(Ngrids) :: Nships
+        integer, dimension(Ngrids) :: Npred
 
 !  Total number of fish variables to process and output.
 !

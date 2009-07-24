@@ -2483,7 +2483,7 @@
 !when gesi is defined I find that Ice Algae does not grow
 
               sb=-3.9921-22.7* Temp1-1.0015*Temp1**2-0.02* Temp1**3
-              gesi=max(0,1.1e-2+3.012e-2*sb+1.0342e-3*sb*sb)
+              gesi=max(0._r8,1.1e-2+3.012e-2*sb+1.0342e-3*sb*sb)
 
 ! growth of Ice Algae
 

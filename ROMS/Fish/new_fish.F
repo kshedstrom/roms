@@ -41,7 +41,8 @@
 !  Imported variable declarations.
 !
       integer, intent(in) :: ng
-      integer :: i, isp, j, l, Nfound, Navail, Npts, ifsh, count
+      integer :: i, isp, isp2, j, l, Nfound, Navail, Npts, ifsh
+      integer :: count(Nspecies(ng)), count_sum
       integer, pointer :: moms(:)
       real(r8), pointer :: eggs(:)
       real(r8) :: wgt
@@ -60,7 +61,8 @@
       count = 0
       DO l=1,Nfish(ng)
         IF (FISHES(ng) % bioenergy(ifeggs, l) .ne. 0) THEN
-          count = count + 1
+          isp = idfish(FISHES(ng) % species(l))
+          count(isp) = count(isp) + 1
 	  IF (Master) THEN
 	    print *, "New_fish mom ", l,                                &
      &              FISHES(ng) % bioenergy(ifspwnloc, l),               &
@@ -68,37 +70,48 @@
 	  END IF
         END IF
       END DO
-      IF (count .eq. 0) THEN
+      count_sum = sum(count)
+      IF (count_sum .eq. 0) THEN
         RETURN
       END IF
       print *, 'In New_fish - found some moms with eggs:', count
 
       Navail = sum(FISHES(ng) % num_super)
+      DO isp=1,Nspecies(ng)
+        FISHES(ng) % num_super(isp) = min(count(isp),                   &
+     &            FISHES(ng) % num_super(isp))
+      END DO
+      Navail = min(Navail, count_sum)
       IF (Navail > 0) THEN
         IF (Master) THEN
-	  print *, "In new_fish guts...", FISHES(ng) % num_super
+          print *, "In new_fish guts...", FISHES(ng) % num_super
           allocate(moms(Navail))
           allocate(eggs(Navail))
 
 # ifdef EGGS_TREE_FORT
 !  This option is currently broken...
-          call tree_init
+          DO isp2=1,Nspecies(ng)
+            call tree_init
 
-          DO l=1,Nfish(ng)
-            IF (FISHES(ng) % bioenergy(ifeggs, l) .ne. 0) THEN
-              CALL tree_insert(FISHES(ng) % bioenergy(ifspwnloc,l),     &
+            DO l=1,Nfish(ng)
+              isp = idfish(FISHES(ng) % species(l))
+              IF (isp2 .eq. isp .and.                                   &
+     &              FISHES(ng) % bioenergy(ifeggs, l) .ne. 0) THEN
+                CALL tree_insert(FISHES(ng) % bioenergy(ifspwnloc,l),   &
      &                FISHES(ng) % bioenergy(ifeggs, l), l)
-            END IF
-          END DO
+                FISHES(ng) % bioenergy(ifeggs, l) = 0.0_r8
+              END IF
+            END DO
 
-          call tree_traverse
-          CALL tree_collect(num_super, Nfound, eggs, moms)
-          print *, 'after collect: ', Nfound
-          do i=1,Nfound
-            print *, i, eggs(i), moms(i)
-          end do
-          CALL tree_destroy
-        END IF
+            call tree_traverse
+            CALL tree_collect(num_super, Nfound, eggs, moms)
+            print *, 'after collect: ', Nfound
+            do i=1,Nfound
+              print *, i, eggs(i), moms(i)
+            end do
+            CALL tree_destroy
+          END IF
+        END DO
 # elif defined EGGS_TREE_CXX
           DO isp=1,Nspecies(ng)
             CALL c_tree_init(isp)
@@ -147,7 +160,7 @@
               ifsh = ifsh + 1
             END DO
           END DO
-          CALL c_tree_destroy
+!         CALL c_tree_destroy
 # endif
           deallocate(moms)
           deallocate(eggs)

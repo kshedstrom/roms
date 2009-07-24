@@ -336,11 +336,8 @@
 # endif
 #endif
 #ifdef NEMURO_SAN
-        integer, pointer :: idfish(:) ! Fish species
-        integer, pointer :: idfish_inv(:) ! Fish species
-        integer :: iFloats            ! read_FloatsPar option for floats
-        integer :: iFishes            ! read_FloatsPar option for fish
-        integer :: iShips             ! read_FloatsPar option for ships
+        integer, pointer :: idfish(:) ! Fish species map
+        integer, pointer :: idfish_inv(:) ! Fish species inverse map
 #endif
 #ifdef DIAGNOSTICS
 !
@@ -413,6 +410,11 @@
         integer, parameter :: ifeggs = 8         ! number of eggs spawned
         integer, parameter :: ifpval = 9         ! number of eggs spawned
         integer, parameter :: ifeatme = 10       ! fish-eat-fish predation rate
+! Lifestage and gender
+        integer, parameter :: if_egg = 1
+        integer, parameter :: if_yolksac = 2
+        integer, parameter :: if_larva = 3
+        integer, parameter :: if_adult = 4
 ! Species IDs
         integer, parameter :: if_none = 0
         integer, parameter :: if_anchovy = 1
@@ -421,11 +423,10 @@
         integer, parameter :: if_polluck = 4
         integer, parameter :: if_pinksalmon = 5
         integer, parameter :: max_species = 5
-! Lifestage and gender
-        integer, parameter :: if_egg = 1
-        integer, parameter :: if_yolksac = 2
-        integer, parameter :: if_larva = 3
-        integer, parameter :: if_adult = 4
+        integer, parameter :: max_yearclass = 10
+! "Pointers" into big Nfish dimension:
+        integer, pointer :: if_age_base(:,:)
+        integer, pointer :: if_sp_base(:)
 # endif
 !
 !  Set float tracjectory types:
@@ -502,6 +503,8 @@
 #ifdef NEMURO_SAN
         integer, dimension(Ngrids) :: idays
         integer, dimension(Ngrids) :: iyesterday
+        integer, dimension(Ngrids) :: iyears
+        integer, dimension(Ngrids) :: iyesteryear
 #endif
 
         real(r8), dimension(8) :: r_date
@@ -599,6 +602,7 @@
 #ifdef NEMURO_SAN
         logical, dimension(Ngrids) :: Lfish
         logical, dimension(Ngrids) :: Lships
+        logical, dimension(Ngrids) :: Lpredators
 #endif
 #ifdef ICE_MODEL
         logical, dimension(Ngrids) :: Lice
@@ -1146,6 +1150,7 @@
 !
         integer, dimension(Ngrids) :: fishrrec
         integer, dimension(Ngrids) :: shiprrec
+        integer, dimension(Ngrids) :: predrrec
 #endif
 !
 !  Switch to activate processing of input data.  This switch becomes
@@ -1990,10 +1995,10 @@
 # ifdef BIOLOGY
       allocate ( idbio(NBT) )
 #  ifdef NEMURO_SAN
-      DO ng=1,Ngrids
-        allocate ( idfish(max_species) )
-        allocate ( idfish_inv(max_species) )
-      END DO
+      allocate ( idfish(max_species) )
+      allocate ( idfish_inv(max_species) )
+      allocate ( if_age_base(max_species, 0:max_yearclass-1) )
+      allocate ( if_sp_base(max_species) )
 #  endif
 
 # ifdef BEST_NPZ
@@ -2194,11 +2199,6 @@
       ic=ic+14
 # else
       ic=ic+11
-# endif
-# ifdef NEMURO_SAN
-!  KLUDGE WARNING!
-      idfish(if_herring) = 1
-      idfish_inv(1) = if_herring
 # endif
 #elif defined NPZD_FRANKS || defined NPZD_POWELL
 !
