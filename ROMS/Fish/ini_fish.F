@@ -1,4 +1,86 @@
 #include "cppdefs.h"
+      SUBROUTINE ini_fish (model)
+!
+!================================================== Kate Hedstrom ======
+!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!    Licensed under a MIT/X style license                              !
+!    See License_ROMS.txt                                              !
+!=======================================================================
+!                                                                      !
+!  This routine initializes the fish.                                  !
+!                                                                      !
+!=======================================================================
+!
+      USE mod_param
+      USE mod_parallel
+      USE mod_iounits
+      USE mod_ncparam
+      USE mod_scalars
+      USE mod_fish
+#ifdef DISTRIBUTE
+      USE mod_strings
+#endif
+!
+#ifdef DISTRIBUTE
+      USE distribute_mod, ONLY : mp_bcasti, mp_bcasts
+#endif
+      USE ran_state, ONLY: ran_seed
+!
+      implicit none
+!
+!  Imported variable declarations.
+!
+      integer, intent(in) :: model
+!
+!  Local variable declarations.
+!
+      logical :: Lwrite
+
+      integer :: Itile, Jtile, Nghost, Ntiles, tile
+      integer :: Imin, Imax, Jmin, Jmax
+#ifdef DISTRIBUTE
+      integer :: MaxHaloLenI, MaxHaloLenJ
+#endif
+      integer :: inp, out, itrc, ng, npts, sequence
+
+      real(r8) :: cff
+      real(r8), parameter :: spv = 0.0_r8
+!
+!-----------------------------------------------------------------------
+!  Read in and report input model parameters.
+!-----------------------------------------------------------------------
+!
+!  Set input units.
+!
+#if defined DISTRIBUTE || defined MODEL_COUPLING
+      Lwrite=Master
+      inp=1
+      out=stdout
+#else
+      Lwrite=Master
+      inp=stdinp
+      out=stdout
+#endif
+!
+
+#ifdef NEMURO_SAN
+!
+!-----------------------------------------------------------------------
+!  Read in fish and ship input parameters.
+!-----------------------------------------------------------------------
+!
+      OPEN (46, FILE=TRIM(fishposnam), FORM='formatted', STATUS='old')
+
+      CALL read_FishPar (model, 46, out, Lwrite)
+!
+# ifdef FLEET
+      OPEN (47, FILE=TRIM(shipposnam), FORM='formatted', STATUS='old')
+
+      CALL read_ShipsPar (model, 47, out, Lwrite)
+# endif
+#endif
+
+      END SUBROUTINE ini_fish
 
 #ifdef NEMURO_SAN
       SUBROUTINE read_FishPar (model, inp, out, Lwrite)

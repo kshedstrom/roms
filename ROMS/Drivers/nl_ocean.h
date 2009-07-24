@@ -114,6 +114,10 @@
 !
         CALL inp_par (iNLM)
         IF (exit_flag.ne.NoError) RETURN
+#ifdef NEMURO_SAN
+        CALL ini_fish (iNLM)
+        IF (exit_flag.ne.NoError) RETURN
+#endif
 !
 !  Allocate and initialize modules variables.
 !

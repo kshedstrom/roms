@@ -536,22 +536,6 @@
 
       CALL read_FloatsPar (model, 45, out, Lwrite)
 #endif
-#ifdef NEMURO_SAN
-!
-!-----------------------------------------------------------------------
-!  Read in fish and ship input parameters.
-!-----------------------------------------------------------------------
-!
-      OPEN (46, FILE=TRIM(fishposnam), FORM='formatted', STATUS='old')
-
-      CALL read_FishPar (model, 46, out, Lwrite)
-!
-# ifdef FLEET
-      OPEN (47, FILE=TRIM(shipposnam), FORM='formatted', STATUS='old')
-
-      CALL read_ShipsPar (model, 47, out, Lwrite)
-# endif
-#endif
 #ifdef STATIONS
 !
 !-----------------------------------------------------------------------
