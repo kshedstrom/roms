@@ -56,8 +56,8 @@
       DO isp=1,Nspecies(ng)
         DO i=1,Nfishperyear(ng)
           ifsh = i+if_age_base(isp,Nyearclass(ng)-1)
-          FISHES % alive(ifsh) = .FALSE.
-          FISHES % bounded(ifsh) = .FALSE.
+          FISHES(ng) % alive(ifsh) = .FALSE.
+          FISHES(ng) % bounded(ifsh) = .FALSE.
           DO j=0,NFT
             FISHES(ng) % track(ixgrd,j,ifsh) = -99.
             FISHES(ng) % track(iygrd,j,ifsh) = -99.
@@ -72,7 +72,7 @@
            if_age_base(isp,i) = if_age_base(isp,i) + Nfishperyear(ng)
            IF (if_age_base(isp,i) .ge. if_sp_base(isp) +                &
      &                  Nfishperyear(ng)*Nyearclass(ng) ) THEN
-             if_age_base(isp,i) = if(age_base(isp,i) -                  &
+             if_age_base(isp,i) = if_age_base(isp,i) -                  &
      &                     Nfishperyear(ng)*Nyearclass(ng)
            END IF
          END DO

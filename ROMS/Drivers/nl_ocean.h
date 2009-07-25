@@ -202,7 +202,7 @@
         idays(ng) = int(tdays(ng))
         iyears(ng) = int(tdays(ng)/days_year)
         iyesterday(ng) = idays(ng)
-        iyseteryear(ng) = iyears(ng)
+        iyesteryear(ng) = iyears(ng)
 #endif
       END DO
 
