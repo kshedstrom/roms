@@ -1497,6 +1497,7 @@
             Npts=load_r(Nval, Rval, 1, tide_start)
           ELSE IF (TRIM(KeyWord).eq.'TIME_REF') THEN
             Npts=load_r(Nval, Rval, 1, time_ref)
+	    IF (time_ref .eq. -1) days_year = 360.
             r_text=ref_att(time_ref,r_date)
           ELSE IF (TRIM(KeyWord).eq.'TNUDG') THEN
             Npts=load_r(Nval, Rval, (NAT+NPT)*Ngrids, Rtracer)

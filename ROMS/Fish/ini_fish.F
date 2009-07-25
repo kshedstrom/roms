@@ -86,9 +86,8 @@
         if_sp_base(isp) = (isp-1)*Nyearclass(ng)*Nfishperyear(ng)
       END DO
       DO isp=1,Nspecies(ng)
-        DO i=1,Nyearclass(ng)
-	  if_age_base(isp,i) = if_sp_base(isp) +        &
-     &               (i-1)*Nfishperyear(ng)
+        DO i=0,Nyearclass(ng)-1
+	  if_age_base(isp,i) = if_sp_base(isp) + i*Nfishperyear(ng)
 	END DO
       END DO
 
