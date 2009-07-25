@@ -9,8 +9,9 @@
 !    See License_ROMS.txt                                              !
 !=======================================================================
 !                                                                      !
-!  Do what needs to be done at the end of a year to set up for new     !
-!  spawning.                                                           !
+!  At the end of each year, we kill off any remaining fish of the
+!  the oldest age class to make room for the next age class. We also
+!  move the indices for creating new fish.
 !                                                                      !
 !=======================================================================
 !
@@ -49,6 +50,40 @@
       CALL wclock_on (ng, iNLM, 10)
 # endif
 
+!  Start by killing the old fish for each species.
+!  The max age is the same for all species (for now).
+
+      DO isp=1,Nspecies(ng)
+        DO i=1,Nfishperyear(ng)
+          ifsh = i+if_age_base(isp,Nyearclass(ng)-1)
+          FISHES(ng) % alive(ifsh) = .FALSE.
+          FISHES(ng) % bounded(ifsh) = .FALSE.
+          DO j=0,NFT
+            FISHES(ng) % track(ixgrd,j,ifsh) = -99.
+            FISHES(ng) % track(iygrd,j,ifsh) = -99.
+            FISHES(ng) % track(izgrd,j,ifsh) = -99.
+          END DO
+        END DO
+      END DO
+
+!  Now we update the indices
+      DO isp=1,Nspecies(ng)
+         DO i=0,Nyearclass(ng)-1
+           if_age_base(isp,i) = if_age_base(isp,i) + Nfishperyear(ng)
+           IF (if_age_base(isp,i) .ge. if_sp_base(isp) +                &
+     &                  Nfishperyear(ng)*Nyearclass(ng) ) THEN
+             if_age_base(isp,i) = if_age_base(isp,i) -                  &
+     &                     Nfishperyear(ng)*Nyearclass(ng)
+           END IF
+         END DO
+      END DO
+
+!  Finally, get ready for the new eggs
+      DO isp=1,Nspecies(ng)
+        FISHES(ng) % num_free(isp) = Nfishperyear(ng)
+        FISHES(ng) % num_super(isp) = 0
+        FISHES(ng) % next_free(isp) = 1 + if_age_base(isp,0)
+      END DO
 
 # ifdef PROFILE
       CALL wclock_off (ng, iNLM, 10)

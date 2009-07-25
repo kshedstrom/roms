@@ -511,6 +511,7 @@
         real(r8) :: dstart = 0.0_r8                      ! days
         real(r8) :: tide_start = 0.0_r8                  ! days
         real(r8) :: time_ref = 0.0_r8                    ! YYYYMMDD.dd
+        real(r8) :: days_year = 365.25_r8                 ! days per year
 
         character (len=14) :: time_code(Ngrids)          ! DD HH:MM:SS
         character (len=19) :: r_text
