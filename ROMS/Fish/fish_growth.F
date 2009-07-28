@@ -154,6 +154,32 @@
 !
 ! -----  PART 1: GROWTH, INCLUDING FISH-EAT-FISH   -----
 !
+! Zero out eatme contributions from previous time step
+      DO i=LBi,UBi
+        DO j=LBj,UBj
+          IF (fish_count(i,j).gt.0) THEN
+            thisfish => fish_list(i,j) % next
+            DO ifish=1,fish_count(i,j)
+              ifid = thisfish % fish
+              IF (MyThread(ifid).and.bounded(ifid).and.alive(ifid)) THEN
+                bioenergy(ifeatme,ifid)=0.0_r8
+! THIS CHECK SHOULD NOT BE NECESSARY. PROBLEM SOMEWHERE ELSE
+                Fweight=bioenergy(ifwwt,ifid)
+                IF ((Fweight.eq.0.0_r8).and.                            &
+     &              (lifestage(ifid).eq.if_adult)) THEN
+                  bioenergy(ifwwt,ifid)=0.0_r8
+                  bioenergy(ifworth,ifid)=0.0_r8
+                  alive(ifid)=.FALSE.
+                END IF
+              END IF
+              thisfish => thisfish % next
+            END DO
+          END IF
+        END DO
+      END DO
+!
+! -----  PART 1: GROWTH, INCLUDING FISH-EAT-FISH   -----
+!
       DO i=LBi,UBi
         DO j=LBj,UBj
           IF (fish_count(i,j).gt.0) THEN

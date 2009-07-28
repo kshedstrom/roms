@@ -83,6 +83,8 @@
       idfish(if_herring) = 1
       idfish_inv(1) = if_herring
 
+!  Don't have these things for each grid... yet.
+      ng = 1
       DO isp=1,Nspecies(ng)
         if_sp_base(isp) = (isp-1)*Nyearclass(ng)*Nfishperyear(ng)
       END DO
@@ -94,7 +96,7 @@
 
       DO isp=1,Nspecies(ng)
 !  KLUDGE FOO WARNING! This will need to be updated.
-        FISHES(ng) % sp_start(isp) = 1._r8
+        FISHES(ng) % sp_start(isp) = 0._r8
         FISHES(ng) % sp_end(isp) = 210._r8
         FISHES(ng) % num_free(isp) = Nfishperyear(ng)
         FISHES(ng) % num_super(isp) = 0

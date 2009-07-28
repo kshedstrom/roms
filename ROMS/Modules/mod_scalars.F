@@ -427,6 +427,9 @@
 ! "Pointers" into big Nfish dimension:
         integer, pointer :: if_age_base(:,:)
         integer, pointer :: if_sp_base(:)
+#  ifdef EGGS_BISECTION
+        logical :: lr_split = .true.
+#  endif
 # endif
 !
 !  Set float tracjectory types:
