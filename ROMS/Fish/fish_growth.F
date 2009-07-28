@@ -98,10 +98,11 @@
       real(r8) :: FSZoo, FLZoo, FPZoo, FTZoo, FFish
       real(r8) :: CSZoo, CLZoo, CPZoo, CTZoo, CFish
       real(r8) :: dtdays, Csmp, Egst, Excr, Resp, Actv, SDA
-      real(r8) :: mmol2g, g2mmol, CAL_ZF, Cmax, Uswim, fac
-      real(r8) :: K_ZS, K_ZL, K_ZP, K_Fish, Fpref
-      real(r8) :: a_C, b_C, a_F, a_E, a_R, b_R, d_R, a_A, b_A, a_S
-      real(r8) :: Fpred, Nymort, Ndmort, Fymort, Fdmort, Pdmort, Tdmort
+      real(r8) :: mmol2g, g2mmol, Cmax, Uswim, Fpred, fac
+      real(r8) :: Ndmort, Fdmort, Pdmort, Tdmort
+!      real(r8) :: K_ZS, K_ZL, K_ZP, K_Fish, Fpref, CAL_ZF
+!      real(r8) :: a_C, b_C, a_F, a_E, a_R, b_R, d_R, a_A, b_A, a_S
+!      real(r8) :: Nymort, Fymort
 !
 !-----------------------------------------------------------------------
 !  Compute feeding terms on zooplankton to update growth
@@ -113,27 +114,45 @@
       g2mmol=1.0_r8/mmol2g
 ! All parameters below should be species dependent
 !      CAL_ZF=2580.0_r8/4460.0_r8           ! age 0-1
-      CAL_ZF=2580.0_r8/7775.0_r8           ! age 2+ (averge)
-      K_ZS=1.15_r8
-      K_ZL=1.15_r8
-      K_ZP=1.15_r8
-      K_Fish=0.5_r8
-      Fpref=1.0_r8
-      a_C=0.642_r8
-      b_C=0.256_r8
-      a_F=0.16_r8
-      a_E=0.10_r8
-      a_R=0.0033_r8
-      b_R=0.227_r8
-      d_R=0.03_r8
-      a_A=15.0_r8                ! a_A=3.9_r8
-      b_A=0.13_r8
-      a_S=0.175_r8
+!      CAL_ZF=2580.0_r8/7775.0_r8           ! age 2+ (averge)
+!      K_ZS=1.15_r8
+!      K_ZL=1.15_r8
+!      K_ZP=1.15_r8
+!      K_Fish=0.5_r8
+!      Fpref=1.0_r8
+!      a_C=0.642_r8
+!      b_C=0.256_r8
+!      a_F=0.16_r8
+!      a_E=0.10_r8
+!      a_R=0.0033_r8
+!      b_R=0.227_r8
+!      d_R=0.03_r8
+!      a_A=15.0_r8                ! a_A=3.9_r8
+!      b_A=0.13_r8
+!      a_S=0.175_r8
 ! Natural mortality should be age-dependent
-      Nymort=0.3_r8               ! natural mortality rate per year
-      Fymort=0.0_r8               ! fishing mortality rate per year
-      Ndmort=Nymort/365.0_r8       ! natural mortality rate per day
-      Fdmort=Fymort/365.0_r8       ! fishing mortality rate per day
+!      Nymort=0.3_r8               ! natural mortality rate per year
+!      Fymort=0.0_r8               ! fishing mortality rate per year
+      Ndmort=Nymort(ng)/365.0_r8       ! natural mortality rate per day
+      Fdmort=Fymort(ng)/365.0_r8       ! fishing mortality rate per day
+!
+! Zero out eatme contributions from previous time step
+      DO i=LBi,UBi
+        DO j=LBj,UBj
+          IF (fish_count(i,j).gt.0) THEN
+            thisfish => fish_list(i,j) % next
+            DO ifish=1,fish_count(i,j)
+              ifid = thisfish % fish
+              IF (MyThread(ifid).and.bounded(ifid).and.alive(ifid)) THEN
+                bioenergy(ifeatme,ifid)=0.0_r8
+              END IF
+              thisfish => thisfish % next
+            END DO
+          END IF
+        END DO
+      END DO
+!
+! -----  PART 1: GROWTH, INCLUDING FISH-EAT-FISH   -----
 !
 ! Zero out eatme contributions from previous time step
       DO i=LBi,UBi
@@ -174,16 +193,16 @@
 ! ADULT FISH
                 IF (lifestage(ifid).eq.if_adult) THEN
 ! Max. Consumption (NEEDS TEMPERATURE DEPENDENCE)
-                  Cmax=a_C*Fweight**(-b_C)
+                  Cmax=a_C(ng)*Fweight**(-b_C(ng))
 ! Zoo Consumption
                   SZooC=mmol2g*track(NFV(ng)-NT(ng)+iSzoo,itime,ifid)
                   LZooC=mmol2g*track(NFV(ng)-NT(ng)+iLzoo,itime,ifid)
                   PZooC=mmol2g*track(NFV(ng)-NT(ng)+iPzoo,itime,ifid)
 ! To catch small negative zooplankton concentrations
-                  FSZoo=MAX(0.0_r8,SZooC)*ZSpref(ng)/K_ZS
-                  FLZoo=MAX(0.0_r8,LZooC)*ZLpref(ng)/K_ZL
-                  FPZoo=MAX(0.0_r8,PZooC)*ZPpref(ng)/K_ZP
-                  FTZoo=(FSZoo+FLZoo+FPZoo)*CAL_ZF
+                  FSZoo=MAX(0.0_r8,SZooC)*ZSpref(ng)/K_ZS(ng)
+                  FLZoo=MAX(0.0_r8,LZooC)*ZLpref(ng)/K_ZL(ng)
+                  FPZoo=MAX(0.0_r8,PZooC)*ZPpref(ng)/K_ZP(ng)
+                  FTZoo=(FSZoo+FLZoo+FPZoo)*CAL_ZF(ng)
 ! Fish Consumption
 ! PROBLEM WITH 3D: Should the fish be allowed to see entire water column
 ! For now, fish_by_cell has contribution of entire water column
@@ -214,7 +233,7 @@
                     FishVul=FishVul*CellVol
                     PopVul=PopVul*CellVol
                     BioVul=BioVul*CellVol
-                    FFish=BioVul*Fpref/K_Fish
+                    FFish=BioVul*Fpref(ng)/K_Fish(ng)
                     CFish=Cmax*FFish/(1.0_r8+FTZoo+FFish)
 ! Must kill individual fish eaten to get correct consumption rates
 ! Approach: Distribute mortality evenly over vulnerable individuals in cell
@@ -256,22 +275,22 @@
                     CFish=0.0_r8
                   END IF
 ! Total Consumption on Zooplankton and Fish
-                  CSZoo=Cmax*FSZoo*CAL_ZF/(1.0_r8+FTZoo+FFish)
-                  CLZoo=Cmax*FLZoo*CAL_ZF/(1.0_r8+FTZoo+FFish)
-                  CPZoo=Cmax*FPZoo*CAL_ZF/(1.0_r8+FTZoo+FFish)
+                  CSZoo=Cmax*FSZoo*CAL_ZF(ng)/(1.0_r8+FTZoo+FFish)
+                  CLZoo=Cmax*FLZoo*CAL_ZF(ng)/(1.0_r8+FTZoo+FFish)
+                  CPZoo=Cmax*FPZoo*CAL_ZF(ng)/(1.0_r8+FTZoo+FFish)
                   Csmp=CSZoo+CLZoo+CPZoo+CFish
 ! Fish P-value
                   bioenergy(ifpval,ifid)=Csmp/Cmax
 ! Egestion and Excretion
-                  Egst=a_F*Csmp
-                  Excr=a_E*(Csmp-Egst)
+                  Egst=a_F(ng)*Csmp
+                  Excr=a_E(ng)*(Csmp-Egst)
 ! (will need to be converted from mmolN/day to mmolN/m3 in NEMURO)
 ! Respiration (Uswim in cm/s)
-                  Uswim=a_A*Fweight**b_A
-                  Actv=exp(d_R*Uswim)
-                  Resp=a_R*Fweight**(-b_R)*Actv*5.258
+                  Uswim=a_A(ng)*Fweight**b_A(ng)
+                  Actv=exp(d_R(ng)*Uswim)
+                  Resp=a_R(ng)*Fweight**(-b_R(ng))*Actv*5.258
 ! Specific Dynamic Action
-                  SDA=a_S*(Csmp-Egst)
+                  SDA=a_S(ng)*(Csmp-Egst)
 ! Update Fish Weight (g wet wt)
                   bioenergy(ifwwt,ifid)=Fweight*(1.0_r8+dtdays*         &
      &                                  (Csmp-Egst-Excr-Resp-SDA))
@@ -285,7 +304,7 @@
 ! NEMURO sink terms for ZOO consumption and for DON egestion/excretion
 ! (will need to be converted from mmolN/day to mmolN/m3 in NEMURO)
 ! Recompute FFish
-                  fac=Cmax*g2mmol/(FSZoo+FLZoo+FPZoo+FFish/CAL_ZF)
+                  fac=Cmax*g2mmol/(FSZoo+FLZoo+FPZoo+FFish/CAL_ZF(ng))
                   feedback(iSzoo,ifid)=fac*FSZoo*Fweight*Fworth
                   feedback(iLzoo,ifid)=fac*FLZoo*Fweight*Fworth
                   feedback(iPzoo,ifid)=fac*FPZoo*Fweight*Fworth

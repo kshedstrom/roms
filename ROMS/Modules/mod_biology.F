@@ -601,6 +601,24 @@
         real(r8), dimension(Ngrids) :: ZSpref        ! nondimensional
         real(r8), dimension(Ngrids) :: ZLpref        ! nondimensional
         real(r8), dimension(Ngrids) :: ZPpref        ! nondimensional
+        real(r8), dimension(Ngrids) :: CAL_ZF        !
+        real(r8), dimension(Ngrids) :: K_ZS          !
+        real(r8), dimension(Ngrids) :: K_ZL          !
+        real(r8), dimension(Ngrids) :: K_ZP          !
+        real(r8), dimension(Ngrids) :: K_Fish        !
+        real(r8), dimension(Ngrids) :: Fpref         !
+        real(r8), dimension(Ngrids) :: a_C           !
+        real(r8), dimension(Ngrids) :: b_C           !
+        real(r8), dimension(Ngrids) :: a_F           !
+        real(r8), dimension(Ngrids) :: a_E           !
+        real(r8), dimension(Ngrids) :: a_R           !
+        real(r8), dimension(Ngrids) :: b_R           !
+        real(r8), dimension(Ngrids) :: d_R           !
+        real(r8), dimension(Ngrids) :: a_A           !
+        real(r8), dimension(Ngrids) :: b_A           !
+        real(r8), dimension(Ngrids) :: a_S           !
+        real(r8), dimension(Ngrids) :: Nymort        !
+        real(r8), dimension(Ngrids) :: Fymort        !
 #  endif
 # endif
 
