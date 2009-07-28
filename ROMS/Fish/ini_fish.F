@@ -79,6 +79,7 @@
 # endif
 
 !  KLUDGE WARNING!
+      ng = 1
       idfish(if_herring) = 1
       idfish_inv(1) = if_herring
 
@@ -219,8 +220,8 @@
             Npts=load_i(Nval, Rval, Ngrids, Nspecies)
           ELSE IF (TRIM(KeyWord).eq.'Nyearclass') THEN
             Npts=load_i(Nval, Rval, Ngrids, Nyearclass)
-          ELSE IF (TRIM(KeyWord).eq.'Nbox') THEN
-            Npts=load_i(Nval, Rval, Ngrids, Nbox)
+!          ELSE IF (TRIM(KeyWord).eq.'Nbox') THEN
+!            Npts=load_i(Nval, Rval, Ngrids, Nbox)
           ELSE IF (TRIM(KeyWord).eq.'Nbatch') THEN
             Npts=load_i(Nval, Rval, Ngrids, Nbatch)
           ELSE IF (TRIM(KeyWord).eq.'Npos') THEN
@@ -347,6 +348,21 @@
      &            'Yearly natural mortality.'
             WRITE (out,110) Fymort(ng), 'Fymort',                       &
      &            'Yearly fishing mortality.'
+            WRITE (out,80) Nfishperyear(ng),                            &
+     &            'Nfishperyear',                                       &
+     &            'Number of fish per year per species.'
+            WRITE (out,80) Nspecies(ng),                                &
+     &            'Nspecies',                                           &
+     &            'Number of fish species.'
+            WRITE (out,80) Nyearclass(ng),                              &
+     &            'Nyearclass',                                         &
+     &            'Number of year classes per species.'
+            WRITE (out,80) Nbatch(ng),                                  &
+     &            'Nbatch',                                             &
+     &            'Number of egg batches per fish per year.'
+            WRITE (out,80) Npos(ng),                                    &
+     &            'Npos',                                               &
+     &            'Number of fish initial positions.'
           END IF
         END DO
       END IF

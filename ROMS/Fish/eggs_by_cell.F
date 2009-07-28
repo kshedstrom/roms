@@ -102,7 +102,7 @@
       real(r8) :: cff
 
 # include "set_bounds.h"
-# ifdef DISTRIBUTED
+# ifdef DISTRIBUTE
       Imin = LBi
       Imax = UBi
       Jmin = LBj
