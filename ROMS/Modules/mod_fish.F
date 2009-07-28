@@ -46,6 +46,7 @@
           real(r8), pointer :: feedback(:,:)
           integer, pointer  :: species(:)
           integer, pointer  :: lifestage(:)
+          integer, pointer  :: swimtype(:)
           integer, pointer  :: num_eggs(:)
           logical, pointer  :: alive(:)
           logical, pointer  :: eatfish(:)
@@ -113,6 +114,8 @@
 
       allocate ( FISHES(ng) % lifestage(Nfish(ng)) )
 
+      allocate ( FISHES(ng) % swimtype(Nfish(ng)) )
+
       allocate ( FISHES(ng) % alive(Nfish(ng)) )
 
       allocate ( FISHES(ng) % eatfish(Nfish(ng)) )
@@ -161,6 +164,7 @@
         END DO
         FISHES(ng) % species(iflt) = if_none
         FISHES(ng) % lifestage(iflt) = if_none
+        FISHES(ng) % swimtype(iflt) = 0
         FISHES(ng) % alive(iflt) = .FALSE.
         FISHES(ng) % eatfish(iflt) = .FALSE.
         FISHES(ng) % num_eggs(iflt) = 0

@@ -129,10 +129,10 @@
 # endif
 # ifdef NEMURO_SAN
       USE step_fish_mod, ONLY : step_fish
-      USE new_fish_mod, ONLY : new_fish
+!      USE new_fish_mod, ONLY : new_fish
       USE fish_by_cell_mod, ONLY : fish_by_cell
       USE fish_spawn_mod, ONLY : fish_spawn
-      USE new_year_mod, ONLY : new_year
+!      USE new_year_mod, ONLY : new_year
 #  ifdef FLEET
       USE ships_by_cell_mod, ONLY : ships_by_cell
 #  endif
@@ -745,13 +745,13 @@
 #  ifdef EGGS_BISECTION
             CALL eggs_by_cell (ng, TILE)
 #  endif
-            CALL new_fish(ng)
+!            CALL new_fish(ng)
             iyesterday(ng) = idays(ng)
 !  Once a year, we clean out the oldest fish
             IF (iyesteryear(ng) .ne. iyears(ng)) THEN
 !  So, problem here if OpenMP
 !             CALL new_year (ng, TILE)
-              CALL new_year (ng)
+!              CALL new_year (ng)
               iyesteryear(ng) = iyears(ng)
             END IF
           END IF

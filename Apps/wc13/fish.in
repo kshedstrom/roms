@@ -47,19 +47,91 @@
 
 ! Fish initial wet weight [g], {2.0d0}.
 
-         Fwwt0 == 2.0d0                          ! Fwwt0
+       Fwwt0 == 2.0d0
 
 ! Fish preference for ZS, {0.5d0}.
 
-         ZSpref == 1.0d0                         ! ZSpref
+       ZSpref == 1.0d0
 
 ! Fish preference for ZL, {1.0d0}.
 
-         ZLpref == 1.0d0                         ! ZLpref
+       ZLpref == 1.0d0
 
 ! Fish preference for ZP, {0.5d0}.
 
-         ZPpref == 1.0d0                         ! ZPpref
+       ZPpref == 1.0d0
+
+! Energy conversion from Zooplankton to Fish
+
+       CAL_ZF == 0.3318d0                 ! 2580.0_r8/7775.0_r8 (age 2+)
+
+! Fish half saturation for ZS
+
+       K_ZS == 1.15d0
+
+! Fish half saturation for ZL
+
+       K_ZL == 1.15d0
+
+! Fish half saturation for ZP
+
+       K_ZP == 1.15d0
+
+! Fish half saturation for Fish
+
+       K_Fish == 0.5d0
+
+! Fish preference for Fish
+
+       Fpref == 1.0d0
+
+! Fish consumption coefficient
+
+       a_C == 0.642d0
+
+! Fish consumption exponent
+
+       b_C == 0.256d0
+
+! Fish egestion coefficient
+
+       a_F == 0.16d0
+
+! Fish excretion coefficient
+
+       a_E == 0.1d0
+
+! Fish respiration coefficient
+
+       a_R == 0.0033d0
+
+! Fish respiration exponent
+
+       b_R == 0.227d0
+
+! Fish swimming coefficient
+
+       d_R == 0.03d0
+
+! Fish activity coefficient
+
+       a_A == 15.0d0
+
+! Fish activity exponent
+
+       b_A == 0.13d0
+
+! Fish specific dynamic action coefficient
+
+       a_S == 0.175d0
+
+! Fish yearly natural mortality
+
+       Nymort == 0.3d0
+
+! Fish yearly fishing mortality
+
+       Fymort == 0.0d0
 
 ! Number of fish per year per species.
 
@@ -128,18 +200,18 @@ POS = G, C, T, N,   Ft0,    Fx0,    Fy0,    Fz0,    Fdt,    Fdx,    Fdy,   Fdz
 1 0 1 1   90.0  26  37 30 0.0 0 0 0
 1 0 1 1   90.0  25  38 30 0.0 0 0 0
 1 0 1 1   90.0  25  39 30 0.0 0 0 0
-1 0 1 1   0.0  25  40 30 0.0 0 0 0
-1 0 1 1   0.0  25  40 30 0.0 0 0 0
-1 0 1 1   0.0  25  40 30 0.0 0 0 0
-1 0 1 1   0.0  25  40 30 0.0 0 0 0
-1 0 1 1   0.0  25  40 30 0.0 0 0 0
-1 0 1 1   0.0  25  40 30 0.0 0 0 0
-!1 0 1 1   90.0  25  40 30 0.0 0 0 0
-!1 0 1 1   90.0  25  41 30 0.0 0 0 0
-!1 0 1 1   90.0  25  42 30 0.0 0 0 0
-!1 0 1 1   90.0  25  43 30 0.0 0 0 0
-!1 0 1 1   90.0  25  44 30 0.0 0 0 0
-!1 0 1 1   90.0  26  45 30 0.0 0 0 0
+1 0 1 1   90.0  25  40 30 0.0 0 0 0
+1 0 1 1   90.0  25  41 30 0.0 0 0 0
+1 0 1 1   90.0  25  42 30 0.0 0 0 0
+1 0 1 1   90.0  25  43 30 0.0 0 0 0
+1 0 1 1   90.0  25  44 30 0.0 0 0 0
+1 0 1 1   90.0  26  45 30 0.0 0 0 0
+!1 0 1 1   0.0  25  40 30 0.0 0 0 0
+!1 0 1 1   0.0  25  40 30 0.0 0 0 0
+!1 0 1 1   0.0  25  40 30 0.0 0 0 0
+!1 0 1 1   0.0  25  40 30 0.0 0 0 0
+!1 0 1 1   0.0  25  40 30 0.0 0 0 0
+!1 0 1 1   0.0  25  40 30 0.0 0 0 0
 
 !
 !  GLOSSARY:

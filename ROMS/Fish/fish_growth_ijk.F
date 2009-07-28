@@ -64,9 +64,9 @@
       real(r8) :: SZooC, LZooC, PZooC, TZooC
       real(r8) :: FSZoo, FLZoo, FPZoo, FTZoo
       real(r8) :: dtdays, Csmp, Egst, Excr, Resp, Actv, SDA
-      real(r8) :: mmol2g, g2mmol, CAL_ZF, C_max
-      real(r8) :: K_ZS, K_ZL, K_ZP
-      real(r8) :: a_C, b_C, a_F, a_E, a_R, b_R, d_R, a_S
+      real(r8) :: mmol2g, g2mmol, C_max
+!      real(r8) :: K_ZS, K_ZL, K_ZP, CAL_ZF
+!      real(r8) :: a_C, b_C, a_F, a_E, a_R, b_R, d_R, a_S
 !
 !
 !-----------------------------------------------------------------------
@@ -76,21 +76,21 @@
       mmol2g=1.0_r8
       g2mmol=1.0_r8/mmol2g
 !      CAL_ZF=2580.0_r8/4460.0_r8           ! age 0-1
-      CAL_ZF=2580.0_r8/7775.0_r8           ! age 2+ (averge)
-      K_ZS=1.15_r8
-      K_ZL=1.15_r8
-      K_ZP=1.15_r8
-      a_C=0.642_r8
-      b_C=0.256_r8
-      a_F=0.16_r8
-      a_E=0.10_r8
-      a_R=0.0033_r8
-      b_R=0.227_r8
-      d_R=0.03_r8
-      a_S=0.175_r8
+!      CAL_ZF=2580.0_r8/7775.0_r8           ! age 2+ (averge)
+!      K_ZS=1.15_r8
+!      K_ZL=1.15_r8
+!      K_ZP=1.15_r8
+!      a_C=0.642_r8
+!      b_C=0.256_r8
+!      a_F=0.16_r8
+!      a_E=0.10_r8
+!      a_R=0.0033_r8
+!      b_R=0.227_r8
+!      d_R=0.03_r8
+!      a_S=0.175_r8
 !
 ! Comsumption
-      C_max=a_C*Fweight**(-b_C)
+      C_max=a_C(ng)*Fweight**(-b_C(ng))
 # ifdef MASKING
       SZooC=mmol2g*GRID(ng)%rmask(Ir,Jr)*                               &
      &             OCEAN(ng)%t(Ir,Jr,Kr,nnew,iSzoo)
@@ -103,19 +103,19 @@
       LZooC=mmol2g*OCEAN(ng)%t(Ir,Jr,Kr,nnew,iLzoo)
       PZooC=mmol2g*OCEAN(ng)%t(Ir,Jr,Kr,nnew,iPzoo)
 # endif
-      FSZoo=SZooC*ZSpref(ng)/K_ZS
-      FLZoo=LZooC*ZLpref(ng)/K_ZL
-      FPZoo=PZooC*ZPpref(ng)/K_ZP
+      FSZoo=SZooC*ZSpref(ng)/K_ZS(ng)
+      FLZoo=LZooC*ZLpref(ng)/K_ZL(ng)
+      FPZoo=PZooC*ZPpref(ng)/K_ZP(ng)
       FTZoo=1.0_r8/(1.0_r8+FSZoo+FLZoo+FPZoo)
-      Csmp=C_max*(FSZoo+FLZoo+FPZoo)*FTZoo*CAL_ZF
+      Csmp=C_max*(FSZoo+FLZoo+FPZoo)*FTZoo*CAL_ZF(ng)
 ! Egestion and Excretion
-      Egst=a_F*Csmp
-      Excr=a_E*(Csmp-Egst)
+      Egst=a_F(ng)*Csmp
+      Excr=a_E(ng)*(Csmp-Egst)
 ! Respiration (Uswim in cm/s)
-      Actv=exp(d_R*Uswim)
-      Resp=a_R*Fweight**(-b_R)*Actv*5.258
+      Actv=exp(d_R(ng)*Uswim)
+      Resp=a_R(ng)*Fweight**(-b_R(ng))*Actv*5.258
 ! Specific Dynamic Action
-      SDA=a_S*(Csmp-Egst)
+      SDA=a_S(ng)*(Csmp-Egst)
 ! Growth Potential at Ir,Jr,Kr
       Fgrowth=Csmp-Egst-Excr-Resp-SDA
 !

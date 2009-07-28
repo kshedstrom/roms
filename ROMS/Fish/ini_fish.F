@@ -177,6 +177,42 @@
             Npts=load_r(Nval, Rval, Ngrids, ZLpref)
           ELSE IF (TRIM(KeyWord).eq.'ZPpref') THEN
             Npts=load_r(Nval, Rval, Ngrids, ZPpref)
+          ELSE IF (TRIM(KeyWord).eq.'CAL_ZF') THEN
+            Npts=load_r(Nval, Rval, Ngrids, CAL_ZF)
+          ELSE IF (TRIM(KeyWord).eq.'K_ZS') THEN
+            Npts=load_r(Nval, Rval, Ngrids, K_ZS)
+          ELSE IF (TRIM(KeyWord).eq.'K_ZL') THEN
+            Npts=load_r(Nval, Rval, Ngrids, K_ZL)
+          ELSE IF (TRIM(KeyWord).eq.'K_ZP') THEN
+            Npts=load_r(Nval, Rval, Ngrids, K_ZP)
+          ELSE IF (TRIM(KeyWord).eq.'K_Fish') THEN
+            Npts=load_r(Nval, Rval, Ngrids, K_Fish)
+          ELSE IF (TRIM(KeyWord).eq.'Fpref') THEN
+            Npts=load_r(Nval, Rval, Ngrids, Fpref)
+          ELSE IF (TRIM(KeyWord).eq.'a_C') THEN
+            Npts=load_r(Nval, Rval, Ngrids, a_C)
+          ELSE IF (TRIM(KeyWord).eq.'b_C') THEN
+            Npts=load_r(Nval, Rval, Ngrids, b_C)
+          ELSE IF (TRIM(KeyWord).eq.'a_F') THEN
+            Npts=load_r(Nval, Rval, Ngrids, a_F)
+          ELSE IF (TRIM(KeyWord).eq.'a_E') THEN
+            Npts=load_r(Nval, Rval, Ngrids, a_E)
+          ELSE IF (TRIM(KeyWord).eq.'a_R') THEN
+            Npts=load_r(Nval, Rval, Ngrids, a_R)
+          ELSE IF (TRIM(KeyWord).eq.'b_R') THEN
+            Npts=load_r(Nval, Rval, Ngrids, b_R)
+          ELSE IF (TRIM(KeyWord).eq.'d_R') THEN
+            Npts=load_r(Nval, Rval, Ngrids, d_R)
+          ELSE IF (TRIM(KeyWord).eq.'a_A') THEN
+            Npts=load_r(Nval, Rval, Ngrids, a_A)
+          ELSE IF (TRIM(KeyWord).eq.'b_A') THEN
+            Npts=load_r(Nval, Rval, Ngrids, b_A)
+          ELSE IF (TRIM(KeyWord).eq.'a_S') THEN
+            Npts=load_r(Nval, Rval, Ngrids, a_S)
+          ELSE IF (TRIM(KeyWord).eq.'Nymort') THEN
+            Npts=load_r(Nval, Rval, Ngrids, Nymort)
+          ELSE IF (TRIM(KeyWord).eq.'Fymort') THEN
+            Npts=load_r(Nval, Rval, Ngrids, Fymort)
           ELSE IF (TRIM(KeyWord).eq.'Nfishperyear') THEN
             Npts=load_i(Nval, Rval, Ngrids, Nfishperyear)
           ELSE IF (TRIM(KeyWord).eq.'Nspecies') THEN
@@ -267,6 +303,50 @@
             WRITE (out,80) Nfish(ng),                                   &
      &            'Nfish',                                              &
      &            'Number of fish trajectories to compute.'
+            WRITE (out,110) Fwwt0(ng), 'Fwwt0',                         &
+     &            'Fish initial wet weight (g).'
+            WRITE (out,110) ZSpref(ng), 'ZSpref',                       &
+     &            'Fish preference for ZS (-).'
+            WRITE (out,110) ZLpref(ng), 'ZLpref',                       &
+     &            'Fish preference for ZL (-).'
+            WRITE (out,110) ZPpref(ng), 'ZPpref',                       &
+     &            'Fish preference for ZP (-).'
+            WRITE (out,110) CAL_ZF(ng), 'CAL_ZF',                       &
+     &            'Energy conversion from Z to Fish.'
+            WRITE (out,110) K_ZS(ng), 'K_ZS',                           &
+     &            'Fish half-saturation constant for ZS.'
+            WRITE (out,110) K_ZL(ng), 'K_ZL',                           &
+     &            'Fish half-saturation constant for ZL.'
+            WRITE (out,110) K_ZP(ng), 'K_ZP',                           &
+     &            'Fish half-saturation constant for ZP.'
+            WRITE (out,110) K_Fish(ng), 'K_Fish',                       &
+     &            'Fish half-saturation constant for Fish.'
+            WRITE (out,110) Fpref(ng), 'Fpref',                         &
+     &            'Fish preference for Fish.'
+            WRITE (out,110) a_C(ng), 'a_C',                             &
+     &            'Fish comsumption coefficient.'
+            WRITE (out,110) b_C(ng), 'b_C',                             &
+     &            'Fish comsumption exponent.'
+            WRITE (out,110) a_F(ng), 'a_F',                             &
+     &            'Fish egestion coefficient.'
+            WRITE (out,110) a_E(ng), 'a_E',                             &
+     &            'Fish excretion coefficient.'
+            WRITE (out,110) a_R(ng), 'a_R',                             &
+     &            'Fish respiration coefficient.'
+            WRITE (out,110) b_R(ng), 'b_R',                             &
+     &            'Fish respiration exponent.'
+            WRITE (out,110) d_R(ng), 'd_R',                             &
+     &            'Fish swimming coefficient.'
+            WRITE (out,110) a_A(ng), 'a_A',                             &
+     &            'Fish activity coefficient.'
+            WRITE (out,110) b_A(ng), 'b_A',                             &
+     &            'Fish activity exponent.'
+            WRITE (out,110) a_S(ng), 'a_S',                             &
+     &            'Fish SDA coefficient.'
+            WRITE (out,110) Nymort(ng), 'Nymort',                       &
+     &            'Yearly natural mortality.'
+            WRITE (out,110) Fymort(ng), 'Fymort',                       &
+     &            'Yearly fishing mortality.'
           END IF
         END DO
       END IF
@@ -378,16 +458,6 @@
       deallocate ( Fdx )
       deallocate ( Fdy )
       deallocate ( Fdz )
-
-! was elsewhere
-!            WRITE (out,100) Fwwt0(ng), 'Fwwt0',                         &
-!     &            'Fish initial wet weight (g).'
-!            WRITE (out,100) ZSpref(ng), 'ZSpref',                       &
-!     &            'Fish preference for ZS (-).'
-!            WRITE (out,100) ZLpref(ng), 'ZLpref',                       &
-!     &            'Fish preference for ZL (-).'
-!            WRITE (out,100) ZPpref(ng), 'ZPpref',                       &
-!     &            'Fish preference for ZP (-).'
 !
   40  FORMAT (/,' READ_FishPar - Error while reading floats',           &
      &          ' locations in input script: ',a)
@@ -399,6 +469,7 @@
      &        15x,'Ft0',5x,'Fx0',5x,'Fy0',5x,'Fz0',                     &
      &        6x,'Fdt',6x,'Fdx',6x,'Fdy',6x,'Fdz',/)
  80   FORMAT (/,1x,i10,2x,a,t30,a)
+ 110  FORMAT (1p,e11.4,2x,a,t30,a,/,t32,a)
 
       RETURN
       END SUBROUTINE read_FishPar
