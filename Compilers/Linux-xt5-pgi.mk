@@ -51,13 +51,13 @@
 #
 
 ifdef USE_NETCDF4
-    NETCDF_INCDIR ?= /u2/wes/PET_HOME/pkgs/netcdf-4.0-parallel/include
-    NETCDF_LIBDIR ?= /u2/wes/PET_HOME/pkgs/netcdf-4.0-parallel/lib
-      HDF5_LIBDIR ?= /u2/wes/PET_HOME/pkgs/hdf5-1.8.1-parallel/lib
+#    NETCDF_INCDIR ?= /u2/wes/PET_HOME/pkgs/netcdf-4.0-parallel/include
+#    NETCDF_LIBDIR ?= /u2/wes/PET_HOME/pkgs/netcdf-4.0-parallel/lib
+#      HDF5_LIBDIR ?= /u2/wes/PET_HOME/pkgs/hdf5-1.8.1-parallel/lib
 
-#    NETCDF_INCDIR ?= /u2/wes/PET_HOME/include
-#    NETCDF_LIBDIR ?= /u2/wes/PET_HOME/lib
-#      HDF5_LIBDIR ?= /u2/wes/PET_HOME/lib
+    NETCDF_INCDIR ?= /u2/wes/PET_HOME/include
+    NETCDF_LIBDIR ?= /u2/wes/PET_HOME/lib
+      HDF5_LIBDIR ?= /u2/wes/PET_HOME/lib
 else
     NETCDF_INCDIR ?= /usr/local/pgi/include
     NETCDF_LIBDIR ?= /usr/local/pgi/lib
