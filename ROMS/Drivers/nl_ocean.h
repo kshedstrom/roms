@@ -200,7 +200,9 @@
 #ifdef NEMURO_SAN
         tdays(ng)=time(ng)*sec2day
         idays(ng) = int(tdays(ng))
+        iyears(ng) = int(tdays(ng)/days_year)
         iyesterday(ng) = idays(ng)
+        iyesteryear(ng) = iyears(ng)
 #endif
       END DO
 
@@ -250,6 +252,7 @@
           tdays(ng)=time(ng)*sec2day
 #ifdef NEMURO_SAN
           idays(ng) = int(tdays(ng))
+          iyears(ng) = int(tdays(ng)/days_year)
 #endif
 !
 !-----------------------------------------------------------------------

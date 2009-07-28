@@ -11,9 +11,9 @@
 #ifndef FILE_MOD_TREE_H_INCLUDED
 #define FILE_MOD_TREE_H_INCLUDED
 
-#include <iostream> //for std::cout
-#include <vector>    //for std::vertor
-#include <stdlib.h>
+#include <iostream>  // for std::cout
+#include <vector>    // for std::vertor
+#include <stdlib.h>  // for abort
 
 class Node
 {
@@ -43,6 +43,7 @@ class Node
     double egg_sum;  //Count of eggs to leaves from this node (found using sum_up func)
     bool red; //Bool for checking if this is a red node (red: T, black:F)
     int momfish;  //Integer for tracking number of breeding mothers?
+    bool init;  //Check if this is the initial value for a new tree
 
     Node * parent; //Pointer to parent of this child none, NULL if root
     Node * left; //Pointer to the left node, NULL if none
@@ -111,9 +112,10 @@ int NSpawners; //Number of spawning fish
 //Postconditions: Empty Red-Black Tree Created
 RBTree()
 {
-    root = new Node(-1, 0, NULL, NULL);
+    root = new Node(0, 0, NULL, NULL);
     root->parent = NULL;
     NSpawners = 0;
+    root->init = true;
 }
 
 //Destructor
@@ -135,54 +137,57 @@ RBTree()
 //      conditions used in the check# functions below
 void insert(double distance, double egg_data, int ifish)
 {
-    Node * step = root;
-    Node * curr = new Node(distance, egg_data, NULL, NULL);
-    curr->eggs = egg_data;
-    curr->egg_sum = egg_data;
-    curr->momfish = ifish;
-    curr->red = true;
-    NSpawners++;
-    
-    bool brlp = false; //break loop boolean value
-
-    while(brlp == false)
+    if (egg_data > 0)
     {
+      Node * step = root;
+      Node * curr = new Node(distance, egg_data, NULL, NULL);
+      curr->eggs = egg_data;
+      curr->egg_sum = egg_data;
+      curr->momfish = ifish;
+      curr->red = true;
+      curr->init = false;
+      NSpawners++;
+    
+      bool brlp = false; //break loop boolean value
 
-      //if step is place holder distance -1, replace root with new insert 
-      //(only happens once)
-      if (step->dist == -1)
+      while(brlp == false)
       {
-	root = curr;
-	//delete step;
-        return;
-      }
-      //if step->dist is greater than curr->dist, traverse left branch
-      else if (curr->dist < step->dist)
-      {
-        if (step->left == NULL)
-	{  
-	  step->left = curr;
-          curr->parent = step;
-	  brlp = true;
-	}    
-	step = step->left;
-      }
-      //if step->dist is less than curr->dist, traverse right branch
-      else
-      {
-	if (step->right == NULL)
-        {
-	  step->right = curr;
-	  curr->parent = step;
-          brlp = true;
+
+	//if step is place holder distance -1, replace root with new insert 
+	//(only happens once)
+	if (step->init == true)
+	{
+	  root = curr;
+	  return;
 	}
-        step = step->right;
+	//if step->dist is greater than curr->dist, traverse left branch
+	else if (curr->dist < step->dist)
+	{
+	   if (step->left == NULL)
+	   {  
+	     step->left = curr;
+	     curr->parent = step;
+	     brlp = true;
+	   }    
+	   step = step->left;
+	}
+	//if step->dist is less than curr->dist, traverse right branch
+	else
+	{
+	    if (step->right == NULL)
+	    {
+	      step->right = curr;
+	      curr->parent = step;
+	      brlp = true;
+	    }
+	    step = step->right;
+	}
       }
+
+      sum_up(curr);
+
+      check1(curr);
     }
-
-    sum_up(curr);
-
-    check1(curr);
 }
 
 //Search for Node
@@ -225,25 +230,32 @@ std::vector<RBTree *> collect(int NSuper)
      std::cout << "You have given a negative number of super individuals. <INVALID>" << std::endl;
      abort();
   } 
- else if (NSuper <= NSpawners)
+ else if (NSuper < NSpawners)
   {
      std::vector< RBTree *> individuals(NSuper);
       
+     if (NSuper != 0)
+     {
      RBTree * wurzul; //German for root (new root for split_up function)
 
      int NSplit = int(NSpawners / NSuper);  // NSplit is the number of nodes per superindividual 
      int NExtra = NSpawners % NSuper;  //This number will allow for all the nodes to fit into any number of super individuals given by the client
      
      split_up(root, individuals, wurzul, count, NSplit, NFound, NExtra);
-    
+     
      delete this->root;
+     }
      return individuals;
   }
   else
-  { 
-     std::cout << "There are " << NSpawners << " nodes available." << std::endl;
-     std::cout << "Having " << NSuper << " super individuals is not possible. <INVALID>" << std::endl;
-     abort();
+  {
+    std::vector< RBTree *> individuals;
+    
+    RBTree * wurzul;
+    
+    split_less(root, individuals, wurzul, this->NSpawners, count);
+    delete this->root;
+    return individuals;
   }
 }
 
@@ -346,6 +358,37 @@ void check5(Node * n)
       rotate_left(g);
       return;
    }
+  }
+}
+
+//Split Up Function for More Superindividuals than Spawners Available
+//Preconditions: None.
+//Postconditions: The original RB Tree will be cut into an asked for number of super
+//                individuals and returned in a std::vector of RB Trees. However, due
+//                to the fact that this is meant to be used when more SI are asked for than
+//                spawners, this will return the additional number of nodes with initial starting
+//                values of distance = -1. 
+//Note: This returns the individual vector with empty batches as asked for rather than a message stating that this
+//      individual has no eggs & an initial distance of -1.
+void split_less(Node * n, std::vector<RBTree *> & ind, RBTree * & wur, int spawn, int & i)
+{
+  if (spawn != 0)
+  {
+    if (n->left != NULL)
+       split_less(n->left, ind, wur, spawn, i);
+   
+    wur = new RBTree();
+    wur->insert(n->dist, n->eggs, n->momfish);
+    ind.push_back(wur);
+    i++;
+
+    if (n->right != NULL)
+       split_less(n->right, ind, wur, spawn, i);
+
+    if (i == spawn)
+    {
+      ind.resize(spawn);
+    }
   }
 }
 

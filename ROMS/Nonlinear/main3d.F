@@ -132,6 +132,7 @@
       USE new_fish_mod, ONLY : new_fish
       USE fish_by_cell_mod, ONLY : fish_by_cell
       USE fish_spawn_mod, ONLY : fish_spawn
+      USE new_year_mod, ONLY : new_year
 #  ifdef FLEET
       USE ships_by_cell_mod, ONLY : ships_by_cell
 #  endif
@@ -726,7 +727,7 @@
 !$OMP END PARALLEL DO
 #  endif
 !
-!  Find out how many and which fish in each cell - is this daily?
+!  Find out how many and which fish in each cell
 !
 !$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(ng,numthreads)
       DO thread=0,numthreads-1
@@ -737,6 +738,7 @@
 #  ifdef FLEET
 !          CALL ships_by_cell (ng, TILE)
 #  endif
+!  Make new fish once a day
           IF (iyesterday(ng) .ne. idays(ng)) THEN
             CALL fish_spawn (ng, TILE)
 ! Haven't finished this yet
@@ -745,6 +747,13 @@
 #  endif
             CALL new_fish(ng)
             iyesterday(ng) = idays(ng)
+!  Once a year, we clean out the oldest fish
+            IF (iyesteryear(ng) .ne. iyears(ng)) THEN
+!  So, problem here if OpenMP
+!             CALL new_year (ng, TILE)
+              CALL new_year (ng)
+              iyesteryear(ng) = iyears(ng)
+            END IF
           END IF
         END DO
       END DO

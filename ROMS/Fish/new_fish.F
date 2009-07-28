@@ -33,6 +33,9 @@
 # ifdef EGGS_TREE_FORT
       USE mod_tree
 # endif
+# ifdef EGGS_BISECTION
+      USE mod_egglist
+# endif
       USE nrutil
 # ifdef DISTRIBUTE
       USE distribute_mod, ONLY : mp_collect
@@ -63,11 +66,11 @@
         IF (FISHES(ng) % bioenergy(ifeggs, l) .ne. 0) THEN
           isp = idfish(FISHES(ng) % species(l))
           count(isp) = count(isp) + 1
-	  IF (Master) THEN
-	    print *, "New_fish mom ", l,                                &
+          IF (Master) THEN
+            print *, "New_fish mom ", l,                                &
      &              FISHES(ng) % bioenergy(ifspwnloc, l),               &
      &              FISHES(ng) % bioenergy(ifeggs, l)
-	  END IF
+          END IF
         END IF
       END DO
       count_sum = sum(count)
@@ -104,7 +107,8 @@
             END DO
 
             call tree_traverse
-            CALL tree_collect(num_super, Nfound, eggs, moms)
+            CALL tree_collect(FISHES % num_super(isp),                  &
+     &                   Nfound, eggs, moms)
             print *, 'after collect: ', Nfound
             do i=1,Nfound
               print *, i, eggs(i), moms(i)
@@ -120,7 +124,7 @@
           DO l=1,Nfish(ng)
             IF (FISHES(ng) % bioenergy(ifeggs, l) .ne. 0) THEN
               isp = idfish(FISHES(ng) % species(l))
-	      print *, 'Fish of species ', isp, FISHES(ng) % species(l)
+              print *, 'Fish of species ', isp, FISHES(ng) % species(l)
               CALL c_tree_insert(isp,                                   &
      &             FISHES(ng) % bioenergy(ifspwnloc,l),                 &
      &             FISHES(ng) % bioenergy(ifeggs,l), l)
@@ -161,6 +165,13 @@
             END DO
           END DO
 !         CALL c_tree_destroy
+# elif defined EGGS_BISECTION
+          DO isp=1,Nspecies(ng)
+            CALL egglist_init
+            CALL egglist_split(FISHES % num_super(isp),                 &
+     &                   Nfound, eggs, moms)
+            CALL egglist_destroy
+          END DO
 # endif
           deallocate(moms)
           deallocate(eggs)
