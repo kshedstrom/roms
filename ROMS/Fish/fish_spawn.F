@@ -117,7 +117,7 @@
       real(r8) :: sp_time
 
 # include "set_bounds.h"
-# ifdef DISTRIBUTED
+# ifdef DISTRIBUTE
       Imin = LBi
       Imax = UBi
       Jmin = LBj
