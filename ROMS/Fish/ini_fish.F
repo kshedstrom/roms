@@ -95,7 +95,7 @@
 
       DO isp=1,Nspecies(ng)
 !  KLUDGE FOO WARNING! This will need to be updated.
-        FISHES(ng) % sp_start(isp) = 1._r8
+        FISHES(ng) % sp_start(isp) = 0._r8
         FISHES(ng) % sp_end(isp) = 210._r8
         FISHES(ng) % num_free(isp) = Nfishperyear(ng)
         FISHES(ng) % num_super(isp) = 0
