@@ -117,7 +117,7 @@
 
 !  We need to know how many new superindividuals are available for each
 !  species. Only the Master gets to do any of this.
-!     count = 0
+      count = 0
       IF (Master) THEN
 !       DO l=1,Nfish(ng)
 !         IF (FISHES(ng) % bioenergy(ifeggs, l) .ne. 0) THEN
@@ -177,47 +177,54 @@
           DO l=1,Nfish(ng)
             IF (FISHES(ng) % bioenergy(ifeggs, l) .ne. 0) THEN
               isp = idfish(FISHES(ng) % species(l))
+              count(isp) = count(isp) + 1
               print *, 'Fish of species ', isp, FISHES(ng) % species(l)
               CALL c_tree_insert(isp,                                   &
      &             FISHES(ng) % bioenergy(ifspwnloc,l),                 &
      &             FISHES(ng) % bioenergy(ifeggs,l), l)
+              print *, "New_fish mom ", l,                              &
+     &              FISHES(ng) % bioenergy(ifspwnloc, l),               &
+     &              FISHES(ng) % bioenergy(ifeggs, l)
             END IF
           END DO
 
           DO isp=1,Nspecies(ng)
-            CALL c_tree_traverse(isp)
-            print *, 'Making fish of species ', isp, idfish_inv(isp)
-            CALL c_tree_collect(isp, FISHES(NG) % num_super(isp),       &
+!           CALL c_tree_traverse(isp)
+            IF (count(isp) > 0) THEN
+              print *, 'Making fish of species ', isp, idfish_inv(isp)
+              CALL c_tree_collect(isp, FISHES(NG) % num_super(isp),       &
      &              Nfound, eggs, moms)
-            print *, 'Making ', Nfound, ' new fish'
-            ifsh = FISHES(ng) % next_free(isp)
-            DO i=1,Nfound
-              FISHES(ng) % bounded(ifsh) = .TRUE.
+              print *, 'Making ', Nfound, ' new fish'
+              ifsh = FISHES(ng) % next_free(isp)
+              DO i=1,Nfound
+                FISHES(ng) % bounded(ifsh) = .TRUE.
 !  Place it at the mother's location
-              DO j=0,NFT
-                FISHES(ng) % track(ixgrd,j,ifsh) =                      &
+                DO j=0,NFT
+                  FISHES(ng) % track(ixgrd,j,ifsh) =                      &
      &                 FISHES(ng) % track(ixgrd,j,moms(i))
-                FISHES(ng) % track(iygrd,j,ifsh) =                      &
+                  FISHES(ng) % track(iygrd,j,ifsh) =                      &
      &                 FISHES(ng) % track(ixgrd,j,moms(i))
 #  ifdef SOLVE3D
-                FISHES(ng) % track(izgrd,j,ifsh) =                      &
+                  FISHES(ng) % track(izgrd,j,ifsh) =                      &
      &                 FISHES(ng) % track(ixgrd,j,moms(i))
 #  endif
-              END DO
+                END DO
 ! age zero eggs...
-              FISHES(ng) % bioenergy(ifworth,ifsh) = eggs(i)
-              CALL ran1(wgt)
-              FISHES(ng) % bioenergy(ifwwt,ifsh) = 2._r8*(wgt+0.5_r8)
-              FISHES(ng) % bioenergy(ifage,ifsh) = 0._r8
-              FISHES(ng) % species(ifsh) = idfish_inv(isp)
-              FISHES(ng) % alive(ifsh) = .TRUE.
-              FISHES(ng) % lifestage(ifsh) = if_egg
-              FISHES(ng) % eatfish(ifsh) = .FALSE.
-              FISHES(ng) % swimtype(ifsh) = 1    ! 1=Fitness, 2=Kinesis
-              print *, i, eggs(i), moms(i)
-              FISHES(ng) % num_free(isp)=FISHES(ng) % num_free(isp) - 1
-              ifsh = ifsh + 1
-            END DO
+                FISHES(ng) % bioenergy(ifworth,ifsh) = eggs(i)
+                CALL ran1(wgt)
+                FISHES(ng) % bioenergy(ifwwt,ifsh) = 2._r8*(wgt+0.5_r8)
+                FISHES(ng) % bioenergy(ifage,ifsh) = 0._r8
+                FISHES(ng) % species(ifsh) = idfish_inv(isp)
+                FISHES(ng) % alive(ifsh) = .TRUE.
+                FISHES(ng) % lifestage(ifsh) = if_egg
+                FISHES(ng) % eatfish(ifsh) = .FALSE.
+                FISHES(ng) % swimtype(ifsh) = 1   ! 1=Fitness, 2=Kinesis
+                print *, i, eggs(i), moms(i)
+                FISHES(ng) % num_free(isp) =                            &
+     &                        FISHES(ng) % num_free(isp) - 1
+                ifsh = ifsh + 1
+              END DO
+	    END IF
           END DO
 !         CALL c_tree_destroy
 # elif defined EGGS_BISECTION
@@ -231,6 +238,7 @@
           deallocate(moms)
           deallocate(eggs)
         END IF
+      END IF
 
 # ifdef DISTRIBUTE
 !
@@ -238,23 +246,22 @@
 !  Collect fish on all nodes.
 !-----------------------------------------------------------------------
 !
-        Fwrk=RESHAPE(FISHES(ng) % track,(/Npts/))
-        CALL mp_collect (ng, iNLM, Npts, Fspv, Fwrk)
-        FISHES(ng) % track=RESHAPE(Fwrk,(/NFV(ng),NFT+1,Nfish(ng)/))
+      Fwrk=RESHAPE(FISHES(ng) % track,(/Npts/))
+      CALL mp_collect (ng, iNLM, Npts, Fspv, Fwrk)
+      FISHES(ng) % track=RESHAPE(Fwrk,(/NFV(ng),NFT+1,Nfish(ng)/))
 
-        FwrkF=RESHAPE(FISHES(ng) % bioenergy,(/NptsF/))
-        CALL mp_collect (ng, iNLM, NptsF, Fspv, FwrkF)
-        FISHES(ng) % bioenergy=RESHAPE(FwrkF,(/NFishV(ng),Nfish(ng)/))
-        CALL mp_collecti (ng, iNLM, Nfish(ng), iFspv,                   &
+      FwrkF=RESHAPE(FISHES(ng) % bioenergy,(/NptsF/))
+      CALL mp_collect (ng, iNLM, NptsF, Fspv, FwrkF)
+      FISHES(ng) % bioenergy=RESHAPE(FwrkF,(/NFishV(ng),Nfish(ng)/))
+      CALL mp_collecti (ng, iNLM, Nfish(ng), iFspv,                     &
      &                                   FISHES(ng) % lifestage)
-        CALL mp_collecti (ng, iNLM, Nfish(ng), iFspv,                   &
+      CALL mp_collecti (ng, iNLM, Nfish(ng), iFspv,                     &
      &                                   FISHES(ng) % species)
-        CALL mp_collecti (ng, iNLM, Nfish(ng), iFspv,                   &
+      CALL mp_collecti (ng, iNLM, Nfish(ng), iFspv,                     &
      &                                   FISHES(ng) % swimtype)
-        CALL mp_collectl (ng, iNLM, Nfish(ng), FISHES(ng) % alive)
-        CALL mp_collectl (ng, iNLM, Nfish(ng), FISHES(ng) % eatfish)
+      CALL mp_collectl (ng, iNLM, Nfish(ng), FISHES(ng) % alive)
+      CALL mp_collectl (ng, iNLM, Nfish(ng), FISHES(ng) % eatfish)
 # endif
-      END IF
 
 # ifdef PROFILE
       CALL wclock_off (ng, iNLM, 10)
