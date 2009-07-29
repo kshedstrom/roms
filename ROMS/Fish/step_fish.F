@@ -239,6 +239,7 @@
           lifestage(l)=iFspv
           swimtype(l)=iFspv
           num_eggs(l)=iFspv
+          species(l)=iFspv
         END IF
       END DO
 # else
@@ -693,6 +694,7 @@
             lifestage(l)=iFspv
             swimtype(l)=iFspv
             num_eggs(l)=iFspv
+            species(l)=iFspv
           END IF
         END DO
       END IF
@@ -752,6 +754,7 @@
             lifestage(l)=iFspv
             swimtype(l)=iFspv
             num_eggs(l)=iFspv
+            species(l)=iFspv
           END IF
         END DO
       END IF
@@ -830,6 +833,7 @@
             lifestage(l)=iFspv
             swimtype(l)=iFspv
             num_eggs(l)=iFspv
+            species(l)=iFspv
           END IF
 # else
           MyThread(l)=.TRUE.
@@ -1075,6 +1079,7 @@
       CALL mp_collecti (ng, iNLM, Nfish(ng), iFspv, lifestage)
       CALL mp_collecti (ng, iNLM, Nfish(ng), iFspv, swimtype)
       CALL mp_collecti (ng, iNLM, Nfish(ng), iFspv, num_eggs)
+      CALL mp_collecti (ng, iNLM, Nfish(ng), iFspv, species)
 !      CALL mp_collectl (ng, iNLM, Nfish(ng), alive)
 !      CALL mp_collectl (ng, iNLM, Nfish(ng), eatfish)
 !  Collect the alive status.

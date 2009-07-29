@@ -79,7 +79,6 @@
 # endif
 
 !  KLUDGE WARNING!
-      ng = 1
       idfish(if_herring) = 1
       idfish_inv(1) = if_herring
 
