@@ -58,7 +58,6 @@
      &                       FISHES(ng) % feedback,                     &
      &                       FISHES(ng) % bioenergy,                    &
      &                       FISHES(ng) % species,                      &
-     &                       FISHES(ng) % num_eggs,                     &
      &                       FISHES(ng) % alive,                        &
      &                       FISHES(ng) % eatfish,                      &
      &                       FISHES(ng) % lifestage,                    &
@@ -80,7 +79,7 @@
      &                             nfm3, nfm2, nfm1, nf, nfp1,          &
      &                             bounded, Ftype, Tinfo, Fz0,          &
      &                             feedback, bioenergy, species,        &
-     &                             num_eggs, alive, eatfish,            &
+     &                             alive, eatfish,                      &
      &                             lifestage, swimtype,                 &
      &                             sp_start, sp_end, num_free,          &
      &                             num_super, track)
@@ -122,7 +121,6 @@
       logical, intent(inout)  :: bounded(:)
       real(r8), intent(inout) :: bioenergy(:,:)
       integer, intent(inout)  :: species(:)
-      integer, intent(inout)  :: num_eggs(:)
       logical, intent(inout)  :: alive(:)
       logical, intent(inout)  :: eatfish(:)
       integer, intent(inout)  :: lifestage(:)
@@ -141,7 +139,6 @@
       logical, intent(inout)  :: bounded(Nfish(ng))
       real(r8), intent(inout) :: bioenergy(NFishV(ng),Nfish(ng))
       integer, intent(inout)  :: species(Nfish(ng))
-      integer, intent(inout)  :: num_eggs(Nfish(ng))
       logical, intent(inout)  :: alive(Nfish(ng))
       logical, intent(inout)  :: eatfish(Nfish(ng))
       integer, intent(inout)  :: lifestage(Nfish(ng))
@@ -167,6 +164,7 @@
 
       real(r8), parameter :: Fspv = 0.0_r8
       integer, parameter :: iFspv = 0
+      logical, parameter :: lFspv = .false.
 
       real(r8) :: cff1, cff2, cff3, cff4, cff5, cff6, cff7, cff8, cff9
       real(r8) :: p1, p2, q1, q2, xrhs, yrhs, zrhs, zfloat
@@ -238,7 +236,7 @@
           END DO
           lifestage(l)=iFspv
           swimtype(l)=iFspv
-          num_eggs(l)=iFspv
+	  alive(l)=lFspv
         END IF
       END DO
 # else
@@ -692,7 +690,7 @@
             END DO
             lifestage(l)=iFspv
             swimtype(l)=iFspv
-            num_eggs(l)=iFspv
+	    alive(l)=lFspv
           END IF
         END DO
       END IF
@@ -751,7 +749,7 @@
             END DO
             lifestage(l)=iFspv
             swimtype(l)=iFspv
-            num_eggs(l)=iFspv
+	    alive(l)=lFspv
           END IF
         END DO
       END IF
@@ -829,7 +827,8 @@
             END DO
             lifestage(l)=iFspv
             swimtype(l)=iFspv
-            num_eggs(l)=iFspv
+	    alive(l)=lFspv
+	    eatfish(l)=lFspv
           END IF
 # else
           MyThread(l)=.TRUE.
@@ -1073,10 +1072,11 @@
       CALL mp_collect (ng, iNLM, NptsF, Fspv, FwrkF)
       bioenergy=RESHAPE(FwrkF,(/NFishV(ng),Nfish(ng)/))
       CALL mp_collecti (ng, iNLM, Nfish(ng), iFspv, lifestage)
+      CALL mp_collecti (ng, iNLM, Nfish(ng), iFspv, species)
       CALL mp_collecti (ng, iNLM, Nfish(ng), iFspv, swimtype)
-      CALL mp_collecti (ng, iNLM, Nfish(ng), iFspv, num_eggs)
-!      CALL mp_collectl (ng, iNLM, Nfish(ng), alive)
-!      CALL mp_collectl (ng, iNLM, Nfish(ng), eatfish)
+      CALL mp_collectl (ng, iNLM, Nfish(ng), alive)
+      CALL mp_collectl (ng, iNLM, Nfish(ng), eatfish)
+#ifdef FOO
 !  Collect the alive status.
       Fwrk=Fspv
       DO l=1,Nfish(ng)
@@ -1107,6 +1107,7 @@
           eatfish(l)=.FALSE.
         END IF
       END DO
+#endif
 !
 !  Collect the bounded status switch.
       Fwrk=Fspv

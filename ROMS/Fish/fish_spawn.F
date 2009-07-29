@@ -21,24 +21,21 @@
       CONTAINS
 !
 !***********************************************************************
-      SUBROUTINE fish_spawn (ng, tile)
+      SUBROUTINE fish_spawn (ng, Lstr, Lend)
 !***********************************************************************
 
       USE mod_param
       USE mod_types
       USE mod_fish
-      USE mod_ocean
       USE mod_grid
+      USE mod_ocean
       USE mod_stepping
 !
 !  Imported variable declarations.
 !
-      integer, intent(in) :: ng, tile
+      integer, intent(in) :: ng, Lstr, Lend
 !
-# include "tile.h"
-!
-      CALL fish_spawn_tile (ng, tile, nnew(ng), LBi, UBi, LBj, UBj,     &
-     &                        IminS, ImaxS, JminS, JmaxS,               &
+      CALL fish_spawn_tile (ng, Lstr, Lend, nnew(ng), nf(ng),           &
      &                        GRID(ng) % spawn_dist,                    &
      &                        OCEAN(ng) % fish_count,                   &
      &                        OCEAN(ng) % fish_list,                    &
@@ -56,8 +53,7 @@
       END SUBROUTINE fish_spawn
 !
 !***********************************************************************
-      SUBROUTINE fish_spawn_tile (ng, tile, nnew, LBi, UBi, LBj, UBj,   &
-     &                              IminS, ImaxS, JminS, JmaxS,         &
+      SUBROUTINE fish_spawn_tile (ng, Lstr, Lend, nnew, nf,             &
      &                              spawn_dist,                         &
      &                              fish_count, fish_list, fishnodes,   &
      &                              bounded, track, bioenergy, alive,   &
@@ -69,12 +65,15 @@
       USE mod_scalars
       USE mod_types
       USE mod_biology
+      USE mod_parallel
+      USE mod_grid
+# ifdef DISTRIBUTE
+      USE distribute_mod
+# endif
 !
 !  Imported variable declarations.
 !
-      integer, intent(in) :: ng, tile, nnew
-      integer, intent(in) :: LBi, UBi, LBj, UBj
-      integer, intent(in) :: IminS, ImaxS, JminS, JmaxS
+      integer, intent(in) :: ng, Lstr, Lend, nnew, nf
 !
 # ifdef ASSUMED_SHAPE
       real(r8), intent(in) :: spawn_dist(LBi:,LBj:)
@@ -108,28 +107,71 @@
 !
 !  Local variable declarations.
 !
-      integer :: i, j, isp, ifish, ifid
-      integer :: Imin, Imax, Jmin, Jmax
+      integer :: i, j, l, isp, ifish, ifid
+      integer :: LBi, UBi, LBj, UBj
+      logical, dimension(Lstr:Lend) :: MyThread
 
       type(fishnode), pointer :: thisfish
 
       real(r8) :: Ftemp, temp_opt, temp_sigma
       real(r8) :: sp_time
-
-# include "set_bounds.h"
 # ifdef DISTRIBUTE
-      Imin = LBi
-      Imax = UBi
-      Jmin = LBj
-      Jmax = UBj
-# else
-      Imin = Istr
-      Imax = Iend
-      Jmin = Jstr
-      Jmax = Jend
-# endif
+      real(r8) :: Xstr, Xend, Ystr, Yend
+      real(r8), parameter :: Fspv = 0.0_r8
+      real(r8), dimension(Nfish(ng)*NFishV(ng)) :: FwrkF
+      integer  :: NptsF
+#endif
+!
+! Set tile array bounds.
+!
+      LBi=LBOUND(GRID(ng)%h,DIM=1)
+      UBi=UBOUND(GRID(ng)%h,DIM=1)
+      LBj=LBOUND(GRID(ng)%h,DIM=2)
+      UBj=UBOUND(GRID(ng)%h,DIM=2)
+
+# ifdef DISTRIBUTE
 !
 !-----------------------------------------------------------------------
+! In distributed-memory configuration, determine which node bounds the
+! current location of the fish. Assign non-bounded fish to the
+! master node.
+!-----------------------------------------------------------------------
+!
+! The strategy here is to build a switch that processes only the fish
+! contained within the node bounds. The trajectory data for the new 
+! time-level (nfp1) is initialized to Fspv. These values are used during
+! recombining step at the end of the routine.  Since a SUM reduction is
+! carried-out, setting Fspv to zero means the fish only contribute in
+! their own tile.
+!
+            NptsF=NFishV(ng)*Nfish(ng)
+
+      Xstr=REAL(BOUNDS(ng)%Istr(MyRank),r8)-0.5_r8
+      Xend=REAL(BOUNDS(ng)%Iend(MyRank),r8)+0.5_r8
+      Ystr=REAL(BOUNDS(ng)%Jstr(MyRank),r8)-0.5_r8
+      Yend=REAL(BOUNDS(ng)%Jend(MyRank),r8)+0.5_r8
+      DO l=Lstr,Lend
+        MyThread(l)=.FALSE.
+        IF ((Xstr.le.track(ixgrd,nf,l)).and.                            &
+     &      (track(ixgrd,nf,l).lt.Xend).and.                            &
+     &      (Ystr.le.track(iygrd,nf,l)).and.                            &
+     &      (track(iygrd,nf,l).lt.Yend)) THEN
+          MyThread(l)=.TRUE.
+        ELSE IF (Master.and.(.not.bounded(l))) THEN
+          MyThread(l)=.TRUE.
+        ELSE
+          DO i=1,NFishV(ng)
+            bioenergy(i,l)=Fspv
+          END DO
+        END IF
+      END DO
+# else
+      DO l=Lstr,Lend
+        MyThread(l)=.TRUE.
+      END DO
+# endif
+!
+!----------------------------------------------------------------------
 !  Compute feeding terms on zooplankton to update growth
 !-----------------------------------------------------------------------
 !
@@ -186,6 +228,11 @@
           END IF
         END DO
       END DO
+#ifdef DISTRIBUTE
+      FwrkF=RESHAPE(bioenergy,(/NptsF/))
+      CALL mp_collect (ng, iNLM, NptsF, Fspv, FwrkF)
+      bioenergy=RESHAPE(FwrkF,(/NFishV(ng),Nfish(ng)/))
+#endif
 !
       RETURN
       END SUBROUTINE fish_spawn_tile

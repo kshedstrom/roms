@@ -47,7 +47,6 @@
           integer, pointer  :: species(:)
           integer, pointer  :: lifestage(:)
           integer, pointer  :: swimtype(:)
-          integer, pointer  :: num_eggs(:)
           logical, pointer  :: alive(:)
           logical, pointer  :: eatfish(:)
           type(fishnode), pointer :: fishnodes(:)
@@ -120,8 +119,6 @@
 
       allocate ( FISHES(ng) % eatfish(Nfish(ng)) )
 
-      allocate ( FISHES(ng) % num_eggs(Nfish(ng)) )
-
       allocate ( FISHES(ng) % fishnodes(Nfish(ng)) )
 
       allocate ( FISHES(ng) % sp_start(Nspecies(ng)) )
@@ -167,7 +164,6 @@
         FISHES(ng) % swimtype(iflt) = 0
         FISHES(ng) % alive(iflt) = .FALSE.
         FISHES(ng) % eatfish(iflt) = .FALSE.
-        FISHES(ng) % num_eggs(iflt) = 0
         FISHES(ng) % fishnodes(iflt) % fish = iflt
       END DO
 
