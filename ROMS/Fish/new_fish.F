@@ -93,12 +93,7 @@
       Yend=REAL(BOUNDS(ng)%Jend(MyRank),r8)+0.5_r8
       DO l=1,Nfish(ng)
         MyThread(l)=.FALSE.
-        IF ((Xstr.le.FISHES(ng) % track(ixgrd,nf(ng),l)).and.           &
-     &      (FISHES(ng) % track(ixgrd,nf(ng),l).lt.Xend).and.           &
-     &      (Ystr.le.FISHES(ng) % track(iygrd,nf(ng),l)).and.           &
-     &      (FISHES(ng) % track(iygrd,nf(ng),l).lt.Yend)) THEN
-          MyThread(l)=.TRUE.
-        ELSE IF (Master.and.(.not.FISHES(ng) % bounded(l))) THEN
+        IF (Master) THEN
           MyThread(l)=.TRUE.
         ELSE
           DO j=0,NFT
@@ -121,35 +116,31 @@
 # endif
 
 !  We need to know how many new superindividuals are available for each
-!  species.
-      count = 0
-      DO l=1,Nfish(ng)
-        IF (FISHES(ng) % bioenergy(ifeggs, l) .ne. 0) THEN
-          isp = idfish(FISHES(ng) % species(l))
-          count(isp) = count(isp) + 1
-          IF (Master) THEN
-            print *, "New_fish mom ", l,                                &
-     &              FISHES(ng) % bioenergy(ifspwnloc, l),               &
-     &              FISHES(ng) % bioenergy(ifeggs, l)
-          END IF
-        END IF
-      END DO
-      count_sum = sum(count)
-      IF (count_sum .eq. 0) THEN
-        RETURN
-      END IF
+!  species. Only the Master gets to do any of this.
+!     count = 0
       IF (Master) THEN
-        print *, 'In New_fish - found some moms with eggs:', count
-      END IF
+!       DO l=1,Nfish(ng)
+!         IF (FISHES(ng) % bioenergy(ifeggs, l) .ne. 0) THEN
+!           isp = idfish(FISHES(ng) % species(l))
+!           count(isp) = count(isp) + 1
+!           print *, "New_fish mom ", l,                                &
+!    &              FISHES(ng) % bioenergy(ifspwnloc, l),               &
+!    &              FISHES(ng) % bioenergy(ifeggs, l)
+!         END IF
+!       END DO
+!       count_sum = sum(count)
+!       IF (count_sum .eq. 0) THEN
+!         RETURN
+!       END IF
+!       print *, 'In New_fish - found some moms with eggs:', count
 
-      Navail = sum(FISHES(ng) % num_super)
-      DO isp=1,Nspecies(ng)
-        FISHES(ng) % num_super(isp) = min(count(isp),                   &
-     &            FISHES(ng) % num_super(isp))
-      END DO
-      Navail = min(Navail, count_sum)
-      IF (Navail > 0) THEN
-        IF (Master) THEN
+        Navail = sum(FISHES(ng) % num_super)
+!       DO isp=1,Nspecies(ng)
+!         FISHES(ng) % num_super(isp) = min(count(isp),                 &
+!    &            FISHES(ng) % num_super(isp))
+!       END DO
+!       Navail = min(Navail, count_sum)
+        IF (Navail > 0) THEN
           print *, "In new_fish guts...", FISHES(ng) % num_super
           allocate(moms(Navail))
           allocate(eggs(Navail))
@@ -169,7 +160,7 @@
               END IF
             END DO
 
-            call tree_traverse
+!           call tree_traverse
             CALL tree_collect(FISHES % num_super(isp),                  &
      &                   Nfound, eggs, moms)
             print *, 'after collect: ', Nfound
@@ -177,8 +168,7 @@
               print *, i, eggs(i), moms(i)
             end do
             CALL tree_destroy
-          END IF
-        END DO
+          END DO
 # elif defined EGGS_TREE_CXX
           DO isp=1,Nspecies(ng)
             CALL c_tree_init(isp)
