@@ -64,6 +64,9 @@
       USE mod_types
       USE mod_biology
       USE mod_parallel
+      USE interp_fish_mod
+      USE mod_ncparam
+      USE mod_grid
 # ifdef DISTRIBUTE
       USE distribute_mod
 # endif
@@ -111,6 +114,13 @@
       integer  :: NptsF
 #endif
       logical  :: MyThread(Nfish(ng))
+      logical, parameter :: Gmask = .FALSE.
+# ifdef MASKING
+      logical, parameter :: Lmask = .TRUE.
+# else
+      logical, parameter :: Lmask = .FALSE.
+# endif
+      real(r8), dimension(Nfish(ng)) :: nudg
 
 # include "set_bounds.h"
 # ifdef DISTRIBUTE
@@ -160,6 +170,9 @@
 !
       temp_opt=15.0_r8
       temp_sigma=3.0_r8
+      DO l=1,Nfish(ng)
+        nudg(l)=0.0_r8
+      END DO
 !
 ! sp_time: time in days, modulo 360 days
       sp_time=REAL(INT(time(ng)/86400.0_r8/360.0_r8))
@@ -185,7 +198,7 @@
 !    &              ((sp_time-bioenergy(iftspwn,ifid)).ge.7.0_r8)) THEN
               bioenergy(ifeggs,ifid)=20000.0_r8*                  &
      &                                     bioenergy(ifworth,ifid)
-              bioenergy(ifspwnloc,ifid)=spawn_dist(i,j)
+!             bioenergy(ifspwnloc,ifid)=spawn_dist(i,j)
               bioenergy(ifbatch,ifid)=bioenergy(ifbatch,ifid)+    &
      &                                      1.0_r8
               bioenergy(iftspwn,ifid)=sp_time
@@ -197,11 +210,23 @@
 ! If after end of spawning window, zero out spawning attributes
           IF (sp_time.gt.sp_end(isp)) THEN
             bioenergy(ifeggs,ifid)=0.0_r8
-            bioenergy(ifspwnloc,ifid)=0.0_r8
+!           bioenergy(ifspwnloc,ifid)=0.0_r8
           END IF
 !
         END IF
       END DO
+!
+      CALL interp_fish (ng, LBi, UBi, LBj, UBj, 1, 1,                   &
+     &                    1, Nfish(ng), nf, ifspwnloc, Nfish(ng),       &
+     &                    r2dvar, Gmask,                                &
+     &                    GRID(ng) % pm,                                &
+     &                    GRID(ng) % pn,                                &
+# ifdef MASKING
+     &                    GRID(ng) % rmask,                             &
+# endif
+     &                    spawn_dist(:,:),                              &
+     &                    MyThread, bounded, track, bioenergy)
+
 #ifdef DISTRIBUTE
       FwrkF=RESHAPE(bioenergy,(/NptsF/))
       CALL mp_collect (ng, iNLM, NptsF, Fspv, FwrkF)
