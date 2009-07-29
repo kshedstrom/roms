@@ -21,25 +21,24 @@
       CONTAINS
 !
 !***********************************************************************
-      SUBROUTINE fish_spawn (ng, Lstr, Lend)
+      SUBROUTINE fish_spawn (ng, tile)
 !***********************************************************************
 
       USE mod_param
       USE mod_types
       USE mod_fish
       USE mod_grid
-      USE mod_ocean
       USE mod_stepping
 !
 !  Imported variable declarations.
 !
-      integer, intent(in) :: ng, Lstr, Lend
+      integer, intent(in) :: ng, tile
 !
-      CALL fish_spawn_tile (ng, Lstr, Lend, nnew(ng), nf(ng),           &
+# include "tile.h"
+!
+      CALL fish_spawn_tile (ng, tile, nnew(ng), LBi, UBi, LBj, UBj,     &
+     &                        nf(ng),                                   &
      &                        GRID(ng) % spawn_dist,                    &
-     &                        OCEAN(ng) % fish_count,                   &
-     &                        OCEAN(ng) % fish_list,                    &
-     &                        FISHES(ng) % fishnodes,                   &
      &                        FISHES(ng) % bounded,                     &
      &                        FISHES(ng) % track,                       &
      &                        FISHES(ng) % bioenergy,                   &
@@ -53,9 +52,8 @@
       END SUBROUTINE fish_spawn
 !
 !***********************************************************************
-      SUBROUTINE fish_spawn_tile (ng, Lstr, Lend, nnew, nf,             &
-     &                              spawn_dist,                         &
-     &                              fish_count, fish_list, fishnodes,   &
+      SUBROUTINE fish_spawn_tile (ng, tile, nnew, LBi, UBi, LBj, UBj,   &
+     &                              nf, spawn_dist,                     &
      &                              bounded, track, bioenergy, alive,   &
      &                              species, sp_start, sp_end,          &
      &                              num_free, num_super)
@@ -66,20 +64,18 @@
       USE mod_types
       USE mod_biology
       USE mod_parallel
-      USE mod_grid
 # ifdef DISTRIBUTE
       USE distribute_mod
 # endif
 !
 !  Imported variable declarations.
 !
-      integer, intent(in) :: ng, Lstr, Lend, nnew, nf
+      integer, intent(in) :: ng, tile, nnew
+      integer, intent(in) :: LBi, UBi, LBj, UBj
+      integer, intent(in) :: nf
 !
 # ifdef ASSUMED_SHAPE
       real(r8), intent(in) :: spawn_dist(LBi:,LBj:)
-      integer, intent(in) :: fish_count(LBi:,LBj:)
-      type(fishnode), intent(in) :: fish_list(LBi:,LBj:)
-      type(fishnode), target, intent(in) :: fishnodes(:)
       logical, intent(in) :: bounded(:)
       real(r8), intent(in) :: track(:,0:,:)
       real(r8), intent(inout) :: bioenergy(:,:)
@@ -91,9 +87,6 @@
       integer, intent(out) :: num_super(:)
 # else
       real(r8), intent(in) :: spawn_dist(LBi:UBi,LBj:UBj)
-      integer, intent(in) :: fish_count(LBi:UBi,LBj:UBj)
-      type(fishnode), intent(in) :: fish_list(LBi:UBi,LBj:UBj)
-      type(fishnode), target, intent(in) :: fishnodes(Nfish(ng))
       logical, intent(in) :: bounded(Nfish(ng))
       real(r8), intent(in) :: track(NFV(ng),0:NFT,Nfish(ng))
       real(r8), intent(inout) :: bioenergy(NFishV(ng),Nfish(ng))
@@ -108,10 +101,6 @@
 !  Local variable declarations.
 !
       integer :: i, j, l, isp, ifish, ifid
-      integer :: LBi, UBi, LBj, UBj
-      logical, dimension(Lstr:Lend) :: MyThread
-
-      type(fishnode), pointer :: thisfish
 
       real(r8) :: Ftemp, temp_opt, temp_sigma
       real(r8) :: sp_time
@@ -121,16 +110,10 @@
       real(r8), dimension(Nfish(ng)*NFishV(ng)) :: FwrkF
       integer  :: NptsF
 #endif
-!
-! Set tile array bounds.
-!
-      LBi=LBOUND(GRID(ng)%h,DIM=1)
-      UBi=UBOUND(GRID(ng)%h,DIM=1)
-      LBj=LBOUND(GRID(ng)%h,DIM=2)
-      UBj=UBOUND(GRID(ng)%h,DIM=2)
+      logical  :: MyThread(Nfish(ng))
 
+# include "set_bounds.h"
 # ifdef DISTRIBUTE
-!
 !-----------------------------------------------------------------------
 ! In distributed-memory configuration, determine which node bounds the
 ! current location of the fish. Assign non-bounded fish to the
@@ -144,13 +127,13 @@
 ! carried-out, setting Fspv to zero means the fish only contribute in
 ! their own tile.
 !
-            NptsF=NFishV(ng)*Nfish(ng)
+      NptsF=NFishV(ng)*Nfish(ng)
 
       Xstr=REAL(BOUNDS(ng)%Istr(MyRank),r8)-0.5_r8
       Xend=REAL(BOUNDS(ng)%Iend(MyRank),r8)+0.5_r8
       Ystr=REAL(BOUNDS(ng)%Jstr(MyRank),r8)-0.5_r8
       Yend=REAL(BOUNDS(ng)%Jend(MyRank),r8)+0.5_r8
-      DO l=Lstr,Lend
+      DO l=1,Nfish(ng)
         MyThread(l)=.FALSE.
         IF ((Xstr.le.track(ixgrd,nf,l)).and.                            &
      &      (track(ixgrd,nf,l).lt.Xend).and.                            &
@@ -166,12 +149,12 @@
         END IF
       END DO
 # else
-      DO l=Lstr,Lend
+      DO l=1,Nfish(ng)
         MyThread(l)=.TRUE.
       END DO
 # endif
 !
-!----------------------------------------------------------------------
+!-----------------------------------------------------------------------
 !  Compute feeding terms on zooplankton to update growth
 !-----------------------------------------------------------------------
 !
@@ -187,46 +170,37 @@
         num_super(isp) = num_free(isp) / (sp_end(isp) - sp_time + 1)
       END DO
 !
-      DO i=LBi,UBi
-        DO j=LBj,UBj
-          IF (fish_count(i,j).gt.0) THEN
-            thisfish => fish_list(i,j) % next
-            DO ifish=1,fish_count(i,j)
-              ifid = thisfish % fish
-              IF (bounded(ifid).and.alive(ifid)) THEN
-                isp = idfish(species(ifid))
+      DO ifid=1,Nfish(ng)
+        IF (bounded(ifid).and.alive(ifid).and.MyThread(ifid)) THEN
+          isp = idfish(species(ifid))
 ! If inside spawning window compute spawning attributes
-                IF ((sp_time.ge.sp_start(isp)).and.                     &
+          IF ((sp_time.ge.sp_start(isp)).and.                           &
      &              (sp_time.le.sp_end(isp))) THEN
-                  Ftemp=track(itemp+NFV(ng)-NT(ng),nnew,ifid)
-                  IF (alive(ifid)) THEN
-!                 IF ((alive(ifid)).and.                                &
+            Ftemp=track(itemp+NFV(ng)-NT(ng),nnew,ifid)
+            IF (alive(ifid)) THEN
+!           IF ((alive(ifid)).and.                                      &
 !    &              (bioenergy(ifage,ifid).ge.Fage0(ng)).and.           &
 !    &              (INT(bioenergy(ifbatch,ifid)).lt.Nbatch(ng)).and.   &
 !    &              (ABS(Ftemp-temp_opt).le.temp_sigma).and.            &
 !    &              ((sp_time-bioenergy(iftspwn,ifid)).ge.7.0_r8)) THEN
-                    bioenergy(ifeggs,ifid)=20000.0_r8*                  &
+              bioenergy(ifeggs,ifid)=20000.0_r8*                  &
      &                                     bioenergy(ifworth,ifid)
-                    bioenergy(ifspwnloc,ifid)=spawn_dist(i,j)
-                    bioenergy(ifbatch,ifid)=bioenergy(ifbatch,ifid)+    &
+              bioenergy(ifspwnloc,ifid)=spawn_dist(i,j)
+              bioenergy(ifbatch,ifid)=bioenergy(ifbatch,ifid)+    &
      &                                      1.0_r8
-                    bioenergy(iftspwn,ifid)=sp_time
-                  ELSE
-                    bioenergy(ifeggs,ifid)=0.0_r8
-                    bioenergy(ifspwnloc,ifid)=0.0_r8
-                  END IF
-                END IF
-! If after end of spawning window, zero out spawning attributes
-                IF (sp_time.gt.sp_end(isp)) THEN
-                  bioenergy(ifeggs,ifid)=0.0_r8
-                  bioenergy(ifspwnloc,ifid)=0.0_r8
-                END IF
-!
-              END IF
-              thisfish => thisfish % next
-            END DO
+              bioenergy(iftspwn,ifid)=sp_time
+            ELSE
+              bioenergy(ifeggs,ifid)=0.0_r8
+              bioenergy(ifspwnloc,ifid)=0.0_r8
+            END IF
           END IF
-        END DO
+! If after end of spawning window, zero out spawning attributes
+          IF (sp_time.gt.sp_end(isp)) THEN
+            bioenergy(ifeggs,ifid)=0.0_r8
+            bioenergy(ifspwnloc,ifid)=0.0_r8
+          END IF
+!
+        END IF
       END DO
 #ifdef DISTRIBUTE
       FwrkF=RESHAPE(bioenergy,(/NptsF/))

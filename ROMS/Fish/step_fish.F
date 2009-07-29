@@ -99,7 +99,6 @@
       USE mod_biology
       USE fish_growth_mod
       USE fish_swim_mod
-!      USE fish_spawn_mod
       USE interp_floats_mod
 !
 # ifdef DISTRIBUTE
@@ -236,7 +235,7 @@
           END DO
           lifestage(l)=iFspv
           swimtype(l)=iFspv
-	  alive(l)=lFspv
+          alive(l)=lFspv
         END IF
       END DO
 # else
@@ -690,7 +689,7 @@
             END DO
             lifestage(l)=iFspv
             swimtype(l)=iFspv
-	    alive(l)=lFspv
+            alive(l)=lFspv
           END IF
         END DO
       END IF
@@ -749,7 +748,7 @@
             END DO
             lifestage(l)=iFspv
             swimtype(l)=iFspv
-	    alive(l)=lFspv
+            alive(l)=lFspv
           END IF
         END DO
       END IF
@@ -827,8 +826,8 @@
             END DO
             lifestage(l)=iFspv
             swimtype(l)=iFspv
-	    alive(l)=lFspv
-	    eatfish(l)=lFspv
+            alive(l)=lFspv
+            eatfish(l)=lFspv
           END IF
 # else
           MyThread(l)=.TRUE.

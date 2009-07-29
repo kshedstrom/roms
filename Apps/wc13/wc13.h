@@ -88,7 +88,7 @@
 #  undef FLEET
 #  define ANA_SPAWN_DIST
 #  undef EGGS_BISECTION
-#  undef  EGGS_TREE_CXX
+#  define EGGS_TREE_CXX
 #  undef EGGS_VECTOR_CXX
 #  undef EGGS_TREE_FORT
 # endif

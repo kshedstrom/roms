@@ -38,7 +38,7 @@
 # endif
       USE nrutil
 # ifdef DISTRIBUTE
-      USE distribute_mod, ONLY : mp_collect
+      USE distribute_mod
 # endif
 !
 !  Imported variable declarations.
@@ -49,14 +49,75 @@
       integer, pointer :: moms(:)
       real(r8), pointer :: eggs(:)
       real(r8) :: wgt
+
+      real(r8), parameter :: Fspv = 0.0_r8
+      integer, parameter :: iFspv = 0
+      logical, parameter :: lFspv = .false.
 # ifdef DISTRIBUTE
       real(r8) :: Xstr, Xend, Ystr, Yend
-      real(r8), dimension(Nfloats(ng)*NFV(ng)*(NFT+1)) :: Fwrk
-      real(r8), parameter :: Fspv = 0.0_r8
+      real(r8), dimension(Nfish(ng)*NFV(ng)*(NFT+1)) :: Fwrk
+      real(r8), dimension(Nfish(ng)*NFishV(ng)) :: FwrkF
+      logical,  dimension(Nfish(ng)) :: FwrkL
+      integer,  dimension(Nfish(ng)) :: FwrkI
 # endif
+# ifdef DISTRIBUTE
+      integer  :: NptsF, NptsL
+#endif
+      logical  :: MyThread(Nfish(ng))
 !
 # ifdef PROFILE
       CALL wclock_on (ng, iNLM, 10)
+# endif
+
+# ifdef DISTRIBUTE
+!-----------------------------------------------------------------------
+! In distributed-memory configuration, determine which node bounds the
+! current location of the fish. Assign non-bounded fish to the
+! master node.
+!-----------------------------------------------------------------------
+!
+! The strategy here is to build a switch that processes only the fish
+! contained within the node bounds. The trajectory data for the new 
+! time-level (nfp1) is initialized to Fspv. These values are used during
+! recombining step at the end of the routine.  Since a SUM reduction is
+! carried-out, setting Fspv to zero means the fish only contribute in
+! their own tile.
+!
+      Npts=NFV(ng)*(NFT+1)*Nfish(ng)
+      NptsF=NFishV(ng)*Nfish(ng)
+      NptsL=Nfish(ng)
+
+      Xstr=REAL(BOUNDS(ng)%Istr(MyRank),r8)-0.5_r8
+      Xend=REAL(BOUNDS(ng)%Iend(MyRank),r8)+0.5_r8
+      Ystr=REAL(BOUNDS(ng)%Jstr(MyRank),r8)-0.5_r8
+      Yend=REAL(BOUNDS(ng)%Jend(MyRank),r8)+0.5_r8
+      DO l=1,Nfish(ng)
+        MyThread(l)=.FALSE.
+        IF ((Xstr.le.FISHES(ng) % track(ixgrd,nf(ng),l)).and.           &
+     &      (FISHES(ng) % track(ixgrd,nf(ng),l).lt.Xend).and.           &
+     &      (Ystr.le.FISHES(ng) % track(iygrd,nf(ng),l)).and.           &
+     &      (FISHES(ng) % track(iygrd,nf(ng),l).lt.Yend)) THEN
+          MyThread(l)=.TRUE.
+        ELSE IF (Master.and.(.not.FISHES(ng) % bounded(l))) THEN
+          MyThread(l)=.TRUE.
+        ELSE
+          DO j=0,NFT
+            DO i=1,NFV(ng)
+              FISHES(ng) % track(i,j,l)=Fspv
+            END DO
+          END DO
+          DO i=1,NFishV(ng)
+            FISHES(ng) % bioenergy(i,l)=Fspv
+          END DO
+          FISHES(ng) % lifestage(l)=iFspv
+          FISHES(ng) % swimtype(l)=iFspv
+          FISHES(ng) % alive(l)=lFspv
+        END IF
+      END DO
+# else
+      DO l=1,Nfish(ng)
+        MyThread(l)=.TRUE.
+      END DO
 # endif
 
 !  We need to know how many new superindividuals are available for each
@@ -77,7 +138,9 @@
       IF (count_sum .eq. 0) THEN
         RETURN
       END IF
-      print *, 'In New_fish - found some moms with eggs:', count
+      IF (Master) THEN
+        print *, 'In New_fish - found some moms with eggs:', count
+      END IF
 
       Navail = sum(FISHES(ng) % num_super)
       DO isp=1,Nspecies(ng)
@@ -159,6 +222,8 @@
               FISHES(ng) % species(ifsh) = idfish_inv(isp)
               FISHES(ng) % alive(ifsh) = .TRUE.
               FISHES(ng) % lifestage(ifsh) = if_egg
+              FISHES(ng) % eatfish(ifsh) = .FALSE.
+              FISHES(ng) % swimtype(ifsh) = 1    ! 1=Fitness, 2=Kinesis
               print *, i, eggs(i), moms(i)
               FISHES(ng) % num_free(isp)=FISHES(ng) % num_free(isp) - 1
               ifsh = ifsh + 1
@@ -183,10 +248,21 @@
 !  Collect fish on all nodes.
 !-----------------------------------------------------------------------
 !
-        Npts=NFV(ng)*(NFT+1)*Nfloats(ng)
         Fwrk=RESHAPE(FISHES(ng) % track,(/Npts/))
         CALL mp_collect (ng, iNLM, Npts, Fspv, Fwrk)
-        FISHES(ng) % track=RESHAPE(Fwrk,(/NFV(ng),NFT+1,Nfloats(ng)/))
+        FISHES(ng) % track=RESHAPE(Fwrk,(/NFV(ng),NFT+1,Nfish(ng)/))
+
+        FwrkF=RESHAPE(FISHES(ng) % bioenergy,(/NptsF/))
+        CALL mp_collect (ng, iNLM, NptsF, Fspv, FwrkF)
+        FISHES(ng) % bioenergy=RESHAPE(FwrkF,(/NFishV(ng),Nfish(ng)/))
+        CALL mp_collecti (ng, iNLM, Nfish(ng), iFspv,                   &
+     &                                   FISHES(ng) % lifestage)
+        CALL mp_collecti (ng, iNLM, Nfish(ng), iFspv,                   &
+     &                                   FISHES(ng) % species)
+        CALL mp_collecti (ng, iNLM, Nfish(ng), iFspv,                   &
+     &                                   FISHES(ng) % swimtype)
+        CALL mp_collectl (ng, iNLM, Nfish(ng), FISHES(ng) % alive)
+        CALL mp_collectl (ng, iNLM, Nfish(ng), FISHES(ng) % eatfish)
 # endif
       END IF
 

@@ -738,26 +738,9 @@
 #  ifdef FLEET
 !          CALL ships_by_cell (ng, TILE)
 #  endif
-        END DO
-      END DO
-!$OMP END PARALLEL DO
-
 !  Make new fish once a day
-      IF (iyesterday(ng) .ne. idays(ng)) THEN
-!$OMP PARALLEL DO PRIVATE(thread,chunk_size,Lstr,Lend)                  &
-!$OMP&            SHARED(ng,numthreads,Nfish)
-        DO thread=0,numthreads-1
-          chunk_size=(Nfish(ng)+numthreads-1)/numthreads
-          Lstr=1+thread*chunk_size
-          Lend=MIN(Nfish(ng),Lstr+chunk_size-1)
-          CALL fish_spawn (ng, Lstr, Lend)
-        END DO
-!$OMP END PARALLEL DO
-
-!$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(ng,numthreads)
-        DO thread=0,numthreads-1
-          subs=NtileX(ng)*NtileE(ng)/numthreads
-          DO tile=subs*thread,subs*(thread+1)-1,+1
+          IF (iyesterday(ng) .ne. idays(ng)) THEN
+            CALL fish_spawn (ng, TILE)
 ! Haven't finished this yet
 #  ifdef EGGS_BISECTION
             CALL eggs_by_cell (ng, TILE)
@@ -771,10 +754,10 @@
               CALL new_year (ng)
               iyesteryear(ng) = iyears(ng)
             END IF
-          END DO
+          END IF
         END DO
+      END DO
 !$OMP END PARALLEL DO
-      END IF
 # endif
 # if defined FLOATS || defined NEMURO_SAN
 !
