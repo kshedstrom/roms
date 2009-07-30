@@ -740,18 +740,18 @@
 #  endif
 !  Make new fish once a day
           IF (iyesterday(ng) .ne. idays(ng)) THEN
-! JF            CALL fish_spawn (ng, TILE)
+            CALL fish_spawn (ng, TILE)
 ! Haven't finished this yet
 #  ifdef EGGS_BISECTION
             CALL eggs_by_cell (ng, TILE)
 #  endif
-! JF            CALL new_fish(ng)
+            CALL new_fish(ng)
             iyesterday(ng) = idays(ng)
 !  Once a year, we clean out the oldest fish
             IF (iyesteryear(ng) .ne. iyears(ng)) THEN
 !  So, problem here if OpenMP
 !             CALL new_year (ng, TILE)
-! JF              CALL new_year (ng)
+              CALL new_year (ng)
               iyesteryear(ng) = iyears(ng)
             END IF
           END IF

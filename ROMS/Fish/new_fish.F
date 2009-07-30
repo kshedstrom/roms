@@ -106,6 +106,7 @@
           END DO
           FISHES(ng) % lifestage(l)=iFspv
           FISHES(ng) % swimtype(l)=iFspv
+          FISHES(ng) % species(l)=iFspv
           FISHES(ng) % alive(l)=lFspv
         END IF
       END DO
@@ -173,8 +174,10 @@
               CALL c_tree_collect(isp, FISHES(NG) % num_super(isp),       &
      &              Nfound, eggs, moms)
               print *, 'New_fish count: ', Nfound
-              ifsh = FISHES(ng) % next_free(isp)
               DO i=1,Nfound
+                ifsh = FISHES(ng) % next_free(isp)
+		FISHES(ng) % next_free(isp) =                           &
+     &                  FISHES(ng) % next_free(isp) + 1
                 FISHES(ng) % bounded(ifsh) = .TRUE.
 !  Place it at the mother's location
                 DO j=0,NFT
@@ -193,7 +196,7 @@
                 FISHES(ng) % lifestage(ifsh) = if_egg
                 FISHES(ng) % eatfish(ifsh) = .FALSE.
                 FISHES(ng) % swimtype(ifsh) = 1   ! 1=Fitness, 2=Kinesis
-                print *, 'New_fish: ', i, eggs(i), moms(i)
+                print *, 'New_fish: ', ifsh, eggs(i), moms(i)
                 FISHES(ng) % num_free(isp) =                            &
      &                        FISHES(ng) % num_free(isp) - 1
                 ifsh = ifsh + 1
