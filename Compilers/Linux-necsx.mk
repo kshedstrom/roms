@@ -36,7 +36,12 @@
            CFLAGS :=
          CXXFLAGS :=
                LD := $(FC)
-          LDFLAGS := -lstdc++
+          LDFLAGS :=
+ifdef USE_CXX
+             LIBS := -lstdc++
+else
+             LIBS :=
+endif
                AR := sxar
           ARFLAGS := rv
             MKDIR := mkdir -p
@@ -59,7 +64,7 @@ else
     NETCDF_INCDIR ?= /usr/local/netcdf/include
     NETCDF_LIBDIR ?= /usr/local/netcdf/lib
 endif
-             LIBS := -L$(NETCDF_LIBDIR) -lnetcdf
+             LIBS += -L$(NETCDF_LIBDIR) -lnetcdf
 ifdef USE_NETCDF4
              LIBS += -L$(HDF5_LIBDIR) -lhdf5_hl -lhdf5 -lz
 endif

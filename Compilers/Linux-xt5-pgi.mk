@@ -36,7 +36,11 @@
            CFLAGS :=
          CXXFLAGS :=
           LDFLAGS := 
+ifdef USE_CXX
              LIBS := -lstdc++
+else
+             LIBS :=
+endif
                AR := ar
           ARFLAGS := -r
             MKDIR := mkdir -p
