@@ -222,7 +222,7 @@
      &      (Ystr.le.track(iygrd,nf,l)).and.                            &
      &      (track(iygrd,nf,l).lt.Yend)) THEN
           MyThread(l)=.TRUE.
-          write(6,*) 'FISH',l,MyThread(l)
+!         write(6,*) 'FISH',l,MyThread(l)
         ELSE IF (Master.and.(.not.bounded(l))) THEN
           MyThread(l)=.TRUE.
         ELSE
