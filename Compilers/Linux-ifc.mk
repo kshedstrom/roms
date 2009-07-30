@@ -36,6 +36,11 @@
            CFLAGS :=
          CXXFLAGS :=
           LDFLAGS := -Vaxlib
+ifdef USE_CXX
+             LIBS := -lstdc++
+else
+             LIBS :=
+endif
                AR := ar
           ARFLAGS := r
             MKDIR := mkdir -p
@@ -58,7 +63,7 @@ else
     NETCDF_INCDIR ?= /opt/intelsoft/netcdf/include
     NETCDF_LIBDIR ?= /opt/intelsoft/netcdf/lib
 endif
-             LIBS := -L$(NETCDF_LIBDIR) -lnetcdf
+             LIBS += -L$(NETCDF_LIBDIR) -lnetcdf
 ifdef USE_NETCDF4
              LIBS += -L$(HDF5_LIBDIR) -lhdf5_hl -lhdf5 -lz
 endif

@@ -35,7 +35,8 @@
               CXX := xlC_r
            CFLAGS :=
          CXXFLAGS :=
-          LDFLAGS := -lstdc++
+          LDFLAGS :=
+             LIBS := -lstdc++
                AR := ar
           ARFLAGS := -r
             MKDIR := mkdir -p
@@ -81,7 +82,7 @@ else
 
 endif
 
-             LIBS := -L$(NETCDF_LIBDIR) -lnetcdf
+             LIBS += -L$(NETCDF_LIBDIR) -lnetcdf
 ifdef USE_NETCDF4
              LIBS += -L$(HDF5_LIBDIR) -lhdf5_hl -lhdf5 -lz
 endif
