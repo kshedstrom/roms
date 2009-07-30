@@ -158,6 +158,7 @@ void insert(double distance, double egg_data, int ifish)
 	if (step->init == true)
 	{
 	  root = curr;
+	  root->parent = NULL;
 	  return;
 	}
 	//if step->dist is greater than curr->dist, traverse left branch

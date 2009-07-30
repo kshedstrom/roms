@@ -41,8 +41,8 @@ extern "C" void c_tree_init_(int* species) {
     while (sp >= trees.size()) {
        trees.push_back(new RBTree());
     }
-    printf("size of trees %d\n", trees.size());
-    printf("species %d\n", sp);
+//    printf("size of trees %d\n", trees.size());
+//    printf("species %d\n", sp);
 }
 
 #ifdef PATH
