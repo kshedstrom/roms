@@ -1,6 +1,6 @@
 #include "cppdefs.h"
       MODULE interp_fish_mod
-#if defined NONLINEAR && defined FLOATS
+#if defined NONLINEAR && defined NEMURO_SAN
 !
 !svn $Id: interp_fish.F 997 2009-06-04 17:42:20Z kate $
 !================================================== Hernan G. Arango ===
