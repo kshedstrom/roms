@@ -234,6 +234,7 @@
       CALL mp_collecti (ng, iNLM, Nfish(ng), iFspv,                     &
      &                                   FISHES(ng) % swimtype)
       CALL mp_collectl (ng, iNLM, Nfish(ng), FISHES(ng) % alive)
+      CALL mp_collectl (ng, iNLM, Nfish(ng), FISHES(ng) % bounded)
       CALL mp_collectl (ng, iNLM, Nfish(ng), FISHES(ng) % eatfish)
 # endif
 
