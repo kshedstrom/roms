@@ -123,7 +123,7 @@
             FISHES(ng)%bioenergy(ifwwt,fid)=Fwwt0(ng)
             FISHES(ng)%bioenergy(ifwwt,fid)=Fwwt0(ng)
             FISHES(ng)%bioenergy(ifworth,fid)=Fworth0
-            FISHES(ng)%bioenergy(ifage,fid)=real(i,r8)
+            FISHES(ng)%bioenergy(ifage,fid)=REAL(i,r8)
             FISHES(ng)%species(fid)=if_herring
             FISHES(ng)%alive(fid)=.TRUE.
             FISHES(ng)%eatfish(fid)=.FALSE.
@@ -251,55 +251,8 @@
             Npts=load_i(Nval, Rval, Ngrids, Nspecies)
           ELSE IF (TRIM(KeyWord).eq.'Nyearclass') THEN
             Npts=load_i(Nval, Rval, Ngrids, Nyearclass)
-!          ELSE IF (TRIM(KeyWord).eq.'Nbox') THEN
-!            Npts=load_i(Nval, Rval, Ngrids, Nbox)
           ELSE IF (TRIM(KeyWord).eq.'Nbatch') THEN
             Npts=load_i(Nval, Rval, Ngrids, Nbatch)
-          ELSE IF (TRIM(KeyWord).eq.'Npos') THEN
-            Npts=load_i(Nval, Rval, Ngrids, Npos)
-          ELSE IF (TRIM(KeyWord).eq.'POS') THEN
-            DO ng=1,Ngrids
-              Nfish(ng) = Nfishperyear(ng)*Nspecies(ng)*Nyearclass(ng)
-            END DO
-            Npts=Npos(1)+1
-            IF (Ngrids.gt.1) Npts=MAXVAL(Npos)+1
-            allocate ( Fcoor (Npts,Ngrids) )
-            allocate ( Fcount(Npts,Ngrids) )
-            allocate ( Ftype (Npts,Ngrids) )
-            allocate ( Ft0(Npts,Ngrids) )
-            allocate ( Fx0(Npts,Ngrids) )
-            allocate ( Fy0(Npts,Ngrids) )
-            allocate ( Fz0(Npts,Ngrids) )
-            allocate ( Fdt(Npts,Ngrids) )
-            allocate ( Fdx(Npts,Ngrids) )
-            allocate ( Fdy(Npts,Ngrids) )
-            allocate ( Fdz(Npts,Ngrids) )
-            DO ng=1,Ngrids
-              CALL allocate_fish (ng)
-            END DO
-            ncount(1:Ngrids)=0
-            nentry(1:Ngrids)=0
-            DO WHILE (.TRUE.)
-              READ (inp,*,ERR=30,END=30) igrid,                         &
-     &                                   Fcoor (nentry(igrid)+1,igrid), &
-     &                                   Ftype (nentry(igrid)+1,igrid), &
-     &                                   Fcount(nentry(igrid)+1,igrid), &
-     &                                   Ft0(nentry(igrid)+1,igrid),    &
-     &                                   Fx0(nentry(igrid)+1,igrid),    &
-     &                                   Fy0(nentry(igrid)+1,igrid),    &
-     &                                   Fz0(nentry(igrid)+1,igrid),    &
-     &                                   Fdt(nentry(igrid)+1,igrid),    &
-     &                                   Fdx(nentry(igrid)+1,igrid),    &
-     &                                   Fdy(nentry(igrid)+1,igrid),    &
-     &                                   Fdz(nentry(igrid)+1,igrid)
-              IF (igrid.gt.Ngrids) THEN
-                IF (Lwrite) WRITE (out,40) fposnam
-                exit_flag=4
-                RETURN
-              END IF
-              ncount(igrid)=ncount(igrid)+Fcount(nentry(igrid)+1,igrid)
-              nentry(igrid)=nentry(igrid)+1        
-            END DO
           END IF
         END IF
       END DO
@@ -307,6 +260,49 @@
       exit_flag=4
       RETURN
   30  CONTINUE
+!
+!-----------------------------------------------------------------------
+!  Set initial fish locations
+!-----------------------------------------------------------------------
+!
+      DO ng=1,Ngrids
+        Nfish(ng)=Nfishperyear(ng)*Nspecies(ng)*Nyearclass(ng)
+        Npos(ng)=Nfish(ng)
+      END DO
+      Npts=Nfish(1)
+      IF (Ngrids.gt.1) Npts=MAXVAL(Nfish)
+      allocate ( Fcoor (Npts,Ngrids) )
+      allocate ( Fcount(Npts,Ngrids) )
+      allocate ( Ftype (Npts,Ngrids) )
+      allocate ( Ft0(Npts,Ngrids) )
+      allocate ( Fx0(Npts,Ngrids) )
+      allocate ( Fy0(Npts,Ngrids) )
+      allocate ( Fz0(Npts,Ngrids) )
+      allocate ( Fdt(Npts,Ngrids) )
+      allocate ( Fdx(Npts,Ngrids) )
+      allocate ( Fdy(Npts,Ngrids) )
+      allocate ( Fdz(Npts,Ngrids) )
+      DO ng=1,Ngrids
+        CALL allocate_fish (ng)
+      END DO
+      ncount(1:Ngrids)=0
+      nentry(1:Ngrids)=0
+      DO i=1,Npts
+        igrid=1
+        Fcoor (nentry(igrid)+1,igrid)=0
+        Ftype (nentry(igrid)+1,igrid)=1
+        Fcount(nentry(igrid)+1,igrid)=1
+        Ft0(nentry(igrid)+1,igrid)=0.0_r8
+        Fx0(nentry(igrid)+1,igrid)=28.0_r8
+        Fy0(nentry(igrid)+1,igrid)=29.0_r8
+        Fz0(nentry(igrid)+1,igrid)=30.0_r8
+        Fdt(nentry(igrid)+1,igrid)=0.0_r8
+        Fdx(nentry(igrid)+1,igrid)=0.0_r8
+        Fdy(nentry(igrid)+1,igrid)=0.0_r8
+        Fdz(nentry(igrid)+1,igrid)=0.0_r8
+        ncount(igrid)=ncount(igrid)+Fcount(nentry(igrid)+1,igrid)
+        nentry(igrid)=nentry(igrid)+1        
+      END DO
 !
 !-----------------------------------------------------------------------
 !  Report input parameters.

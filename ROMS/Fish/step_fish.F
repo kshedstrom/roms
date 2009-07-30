@@ -222,7 +222,6 @@
      &      (Ystr.le.track(iygrd,nf,l)).and.                            &
      &      (track(iygrd,nf,l).lt.Yend)) THEN
           MyThread(l)=.TRUE.
-!         write(6,*) 'FISH',l,MyThread(l)
         ELSE IF (Master.and.(.not.bounded(l))) THEN
           MyThread(l)=.TRUE.
         ELSE
@@ -780,86 +779,6 @@
 # endif
 !
 !-----------------------------------------------------------------------
-!  If appropriate, activate the release of new fish and set initial
-!  positions for all time levels.
-!-----------------------------------------------------------------------
-!
-! JF: THIS SHOULD IS NOW DONE IN INI_FISH
-
-!      DO l=Lstr,Lend
-!        IF (.not.bounded(l).and.                                        &
-!     &      (time(ng)-dt(ng).le.Tinfo(itstr,l).and.                     &
-!     &       time(ng)+dt(ng).gt.Tinfo(itstr,l))) THEN
-!          bounded(l)=.TRUE.
-!# ifdef DISTRIBUTE
-!          IF ((Xstr.le.Tinfo(ixgrd,l)).and.                             &
-!     &        (Tinfo(ixgrd,l).lt.Xend).and.                             &
-!     &        (Ystr.le.Tinfo(iygrd,l)).and.                             &
-!     &        (Tinfo(iygrd,l).lt.Yend)) THEN
-!            DO j=0,NFT
-!              track(ixgrd,j,l)=Tinfo(ixgrd,l)
-!              track(iygrd,j,l)=Tinfo(iygrd,l)
-!#  ifdef SOLVE3D
-!              track(izgrd,j,l)=Tinfo(izgrd,l)
-!#  endif
-!            END DO
-!
-!  If newly released fishes, initialize fish weight
-! 
-!            Fworth0=(0.5e5_r8*1.0e6_r8)*EXP(-Nymort(ng))/               &
-!     &              REAL(Nfishperyear(ng),r8)
-!            bioenergy(ifwwt,l)=Fwwt0(ng)
-!            bioenergy(ifworth,l)=Fworth0
-!            bioenergy(ifage,l)=Fage0(ng)
-!            species(l)=if_herring
-!            alive(l)=.TRUE.
-!            eatfish(l)=.FALSE.
-!            lifestage(l)=if_adult
-!            swimtype(l)=1                  ! 1=Fitness, 2=Kinesis
-!            MyThread(l)=.TRUE.
-!          ELSE
-!            MyThread(l)=.FALSE.
-!            DO j=0,NFT
-!              DO i=1,NFV(ng)
-!                track(i,j,l)=Fspv
-!              END DO
-!            END DO
-!            DO i=1,NFishV(ng)
-!                bioenergy(i,l)=Fspv
-!            END DO
-!            lifestage(l)=iFspv
-!            swimtype(l)=iFspv
-!            species(l)=iFspv
-!            alive(l)=lFspv
-!            eatfish(l)=lFspv
-!          END IF
-!# else
-!          MyThread(l)=.TRUE.
-!          DO j=0,NFT
-!            track(ixgrd,j,l)=Tinfo(ixgrd,l)
-!            track(iygrd,j,l)=Tinfo(iygrd,l)
-!#  ifdef SOLVE3D
-!            track(izgrd,j,l)=Tinfo(izgrd,l)
-!#  endif
-!          END DO
-!
-!  If newly released fishes, initialize fish weight
-!
-!          Fworth0=(0.5e5_r8*1.0e6_r8)*EXP(-Nymort(ng))/                 &
-!     &            REAL(Nfishperyear(ng),r8)
-!          bioenergy(ifwwt,l)=Fwwt0(ng)
-!          bioenergy(ifworth,l)=Fworth0
-!          bioenergy(ifage,l)=0.0_r8
-!          species(l)=if_herring
-!          alive(l)=.TRUE.
-!          eatfish(l)=.FALSE.
-!          lifestage(l)=if_adult
-!          swimtype(l)=1                  ! 1=Fitness, 2=Kinesis
-!# endif
-!        END IF
-!      END DO
-!
-!-----------------------------------------------------------------------
 !  Calculate slopes with corrected locations.
 !-----------------------------------------------------------------------
 !
@@ -1054,12 +973,6 @@
      &                      OCEAN(ng) % fish_count,                     &
      &                      OCEAN(ng) % fish_list,                      &
      &                      FISHES(ng) % fishnodes)
-!
-! Now called once per day from main3d
-!      CALL fish_spawn (ng, Lstr, Lend, nfp1,                            &
-!     &                     MyThread, bounded, track(:,:,:),             &
-!     &                     bioenergy, alive, species,                   &
-!     &                     sp_start, sp_end, num_free, num_super)
 !
 # endif
 # ifdef DISTRIBUTE
