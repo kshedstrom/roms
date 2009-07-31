@@ -410,16 +410,16 @@
 !
         CALL wrt_info (ng, iNLM, ncFLTid(ng), ncname)
         IF (exit_flag.ne.NoError) RETURN
-      END IF DEFINE
-      IF (LdefFLT(ng).and.OutThread) THEN
-        status=nf90_inq_varid(ncFLTid(ng),'Ftype',varid)
-        status=nf90_put_var(ncFLTid(ng), varid, FLT(ng)%Ftype)
-        IF (status.ne.nf90_noerr) THEN
-          WRITE (stdout,10) 'Ftype', TRIM(ncname)
-          exit_flag=3
-          RETURN
+        IF (OutThread) THEN
+          status=nf90_inq_varid(ncFLTid(ng),'Ftype',varid)
+          status=nf90_put_var(ncFLTid(ng), varid, FLT(ng)%Ftype)
+          IF (status.ne.nf90_noerr) THEN
+            WRITE (stdout,10) 'Ftype', TRIM(ncname)
+            exit_flag=3
+            RETURN
+          END IF
         END IF
-      END IF
+      END IF DEFINE
 !
 !=======================================================================
 !  Open an existing floats file, check its contents, and prepare for
