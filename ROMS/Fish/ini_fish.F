@@ -46,7 +46,7 @@
       integer :: inp, out, itrc, ng, npts, sequence
       integer :: i, isp, l, fid, j
 
-      real(r8) :: cff, Fworth0
+      real(r8) :: cff, Fweight0, Fworth0
       real(r8), parameter :: spv = 0.0_r8
 !
 !-----------------------------------------------------------------------
@@ -107,29 +107,32 @@
       DO isp=1,Nspecies(ng)
 ! Use line below to test        DO i=1,Nyearclass(ng)-1
         DO i=0,Nyearclass(ng)-1
-          Fworth0=(0.5e5_r8*1.0e6_r8)*EXP(-Nymort(ng))/                 &
-     &            REAL(Nfishperyear(ng),r8)
-          DO l=0,Nfishperyear(ng)-1
+          IF (i.gt.0) THEN
+! NB: initialization for fish wet weight loosely adapted from KR anchovy
+            Fweight0=MIN(35.0_r8,10.0_r8+REAL(i-1,r8)*5.0_r8)
+            Fworth0=(0.5e5_r8*1.0e6_r8)*EXP(-Nymort(ng)*REAL(i,r8))/      &
+     &              REAL(Nfishperyear(ng),r8)
+            DO l=0,Nfishperyear(ng)-1
 ! Use line below to test            fid=if_age_base(isp,i)+l
-            fid=if_age_base(isp,i)+l+1
-            DO j=0,NFT
-              FISHES(ng)%track(ixgrd,j,fid)=FISHES(ng)%Tinfo(ixgrd,fid)
-              FISHES(ng)%track(iygrd,j,fid)=FISHES(ng)%Tinfo(iygrd,fid)
+              fid=if_age_base(isp,i)+l+1
+              DO j=0,NFT
+                FISHES(ng)%track(ixgrd,j,fid)=FISHES(ng)%Tinfo(ixgrd,fid)
+                FISHES(ng)%track(iygrd,j,fid)=FISHES(ng)%Tinfo(iygrd,fid)
 #  ifdef SOLVE3D
-              FISHES(ng)%track(izgrd,j,fid)=FISHES(ng)%Tinfo(izgrd,fid)
+                FISHES(ng)%track(izgrd,j,fid)=FISHES(ng)%Tinfo(izgrd,fid)
 #  endif
+              END DO
+              FISHES(ng)%bounded(fid)=.TRUE.
+              FISHES(ng)%bioenergy(ifwwt,fid)=Fweight0
+              FISHES(ng)%bioenergy(ifworth,fid)=Fworth0
+              FISHES(ng)%bioenergy(ifage,fid)=REAL(i,r8)
+              FISHES(ng)%species(fid)=if_herring
+              FISHES(ng)%alive(fid)=.TRUE.
+              FISHES(ng)%eatfish(fid)=.FALSE.
+              FISHES(ng)%lifestage(fid)=if_adult
+              FISHES(ng)%swimtype(fid)=1          ! 1=Fitness, 2=Kinesis
             END DO
-            FISHES(ng)%bounded(fid)=.TRUE.
-            FISHES(ng)%bioenergy(ifwwt,fid)=Fwwt0(ng)
-            FISHES(ng)%bioenergy(ifwwt,fid)=Fwwt0(ng)
-            FISHES(ng)%bioenergy(ifworth,fid)=Fworth0
-            FISHES(ng)%bioenergy(ifage,fid)=REAL(i,r8)
-            FISHES(ng)%species(fid)=if_herring
-            FISHES(ng)%alive(fid)=.TRUE.
-            FISHES(ng)%eatfish(fid)=.FALSE.
-            FISHES(ng)%lifestage(fid)=if_adult
-            FISHES(ng)%swimtype(fid)=1          ! 1=Fitness, 2=Kinesis
-          END DO
+          END IF
         END DO
       END DO
 
