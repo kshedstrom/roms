@@ -135,7 +135,7 @@
 
 ! Number of fish per year per species.
 
-     Nfishperyear == 10
+     Nfishperyear == 300
 
 ! Number of fish species.
 

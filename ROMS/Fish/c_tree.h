@@ -255,7 +255,7 @@ std::vector<RBTree *> collect(int NSuper)
     RBTree * wurzul;
     
     split_less(root, individuals, wurzul, this->NSpawners, count);
-    delete this->root;
+//    delete this->root;
     return individuals;
   }
 }

@@ -464,16 +464,16 @@
 !
         CALL wrt_info (ng, iNLM, ncFISHid(ng), ncname)
         IF (exit_flag.ne.NoError) RETURN
-      END IF DEFINE
-      IF (LdefFISH(ng).and.OutThread) THEN
-        status=nf90_inq_varid(ncFISHid(ng),'Ftype',varid)
-        status=nf90_put_var(ncFISHid(ng), varid, FISHES(ng)%Ftype)
-        IF (status.ne.nf90_noerr) THEN
-          WRITE (stdout,10) 'Ftype', TRIM(ncname)
-          exit_flag=3
-          RETURN
+        IF (OutThread) THEN
+          status=nf90_inq_varid(ncFISHid(ng),'Ftype',varid)
+          status=nf90_put_var(ncFISHid(ng), varid, FISHES(ng)%Ftype)
+          IF (status.ne.nf90_noerr) THEN
+            WRITE (stdout,70) 'Ftype', TRIM(ncname)
+            exit_flag=3
+            RETURN
+          END IF
         END IF
-      END IF
+      END IF DEFINE
 !
 !=======================================================================
 !  Open an existing fish file, check its contents, and prepare for
@@ -770,6 +770,8 @@
   40  FORMAT (1pe11.4,1x,'millimeter')
   50  FORMAT (/,' DEF_FISH - unable to open fish NetCDF file: ',a)
   60  FORMAT (/,' DEF_FISH - unable to find variable: ',a,2x,           &
+     &        ' in fish NetCDF file: ',a)
+  70  FORMAT (/,' DEF_FISH - unable to write variable: ',a,2x,          &
      &        ' in fish NetCDF file: ',a)
 
       RETURN

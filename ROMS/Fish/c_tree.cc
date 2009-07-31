@@ -77,6 +77,14 @@ extern "C" void c_tree_collect_(int* species, int* nsuper, int* nfound, double* 
 }
 
 #ifdef PATH
+extern "C" void c_tree_trim__() {
+#else
+extern "C" void c_tree_trim_() {
+#endif
+    trees.resize(1);
+}
+
+#ifdef PATH
 extern "C" void c_tree_destroy__() {
 #else
 extern "C" void c_tree_destroy_() {

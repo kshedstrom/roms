@@ -203,7 +203,7 @@
               END DO
 	    END IF
           END DO
-!         CALL c_tree_destroy
+          CALL c_tree_trim
 # elif defined EGGS_BISECTION
           DO isp=1,Nspecies(ng)
             CALL egglist_init
