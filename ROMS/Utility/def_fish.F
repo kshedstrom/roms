@@ -206,14 +206,59 @@
      &                 SetParAccess = .FALSE.)
         IF (exit_flag.ne.NoError) RETURN
 !
-!  Define fish types
+!  Define fish species
 !
-        Vinfo( 1)='Ftype'
-        Vinfo( 2)='Float type'
-        Vinfo( 9)='3-D Lagrangian'
-        Vinfo(10)='constant depth'
-        status=def_var(ng, iNLM, ncFISHid(ng), varid, nf90_int,         &
-     &                 1, (/fishdim/), Aval, Vinfo, ncname)
+        Vinfo( 1)='Species'
+        Vinfo( 2)='Fish species'
+        status=def_var(ng, iNLM, ncFISHid(ng), fishVid(idfspc,ng),      &
+     &                 nf90_int, 1, (/fishdim/), Aval, Vinfo, ncname)
+        IF (exit_flag.ne.NoError) RETURN
+!
+!  Define fish lifestage
+!
+        Vinfo( 1)='Lifestage'
+        Vinfo( 2)='Fish lifestage'
+        status=def_var(ng, iNLM, ncFISHid(ng), fishVid(idflfsg,ng),     &
+     &                 nf90_int, 1, (/fishdim/), Aval, Vinfo, ncname)
+        IF (exit_flag.ne.NoError) RETURN
+!
+!  Define fish alive
+!
+        Vinfo( 1)='Alive'
+        Vinfo( 2)='Fish alive'
+        Vinfo( 7)='Fish alive'
+        Vinfo( 8)='Fish dead'
+        status=def_var(ng, iNLM, ncFISHid(ng), fishVid(idfalv,ng),      &
+     &                 nf90_char, 1, (/fishdim/), Aval, Vinfo, ncname)
+        IF (exit_flag.ne.NoError) RETURN
+!
+!  Define fish eatfish
+!
+        Vinfo( 1)='Eatfish'
+        Vinfo( 2)='Fish eater'
+        Vinfo( 7)='Fish eat fish'
+        Vinfo( 8)='Fish don't eat fish'
+        status=def_var(ng, iNLM, ncFISHid(ng), fishVid(idfeatf,ng),     &
+     &                 nf90_char, 1, (/fishdim/), Aval, Vinfo, ncname)
+        IF (exit_flag.ne.NoError) RETURN
+!
+!  Define fish gender
+!
+        Vinfo( 1)='Fishgirl'
+        Vinfo( 2)='Fish gender'
+        Vinfo( 7)='Fish is female'
+        Vinfo( 8)='Fish is male'
+        status=def_var(ng, iNLM, ncFISHid(ng), fishVid(idfgrl,ng),      &
+     &                 nf90_char, 1, (/fishdim/), Aval, Vinfo, ncname)
+        IF (exit_flag.ne.NoError) RETURN
+!
+!  Define fish swimtype
+!
+        Vinfo( 1)='Swimtype'
+        Vinfo( 2)='Fish swimming type'
+        status=def_var(ng, iNLM, ncFISHid(ng), fishVid(idfswmt,ng),     &
+     &                 nf90_int, 1, (/fishdim/), Aval, Vinfo, ncname)
+        IF (exit_flag.ne.NoError) RETURN
 !
 !  Define fish X-grid locations.
 !
@@ -392,60 +437,66 @@
           IF (exit_flag.ne.NoError) RETURN
         END DO
 # endif
-# ifdef NEMURO_SAN
+!
 !  Define fish wet weight
+!
         Vinfo( 1)='fwwt'
         Vinfo( 2)='fish wet weight'
         Vinfo( 3)='g'
         Vinfo(14)='fwwt, scalar, series'
         Vinfo(16)=Vname(1,idtime)
-#  ifndef NO_4BYTE_REALS
+# ifndef NO_4BYTE_REALS
         Vinfo(24)='_FillValue'
         Aval(6)=spval
-#  endif
+# endif
         status=def_var(ng, iNLM, ncFISHid(ng),fishVid(idfwwt,ng),       &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
+!
 !  Define fish worth
+!
         Vinfo( 1)='fworth'
         Vinfo( 2)='fish worth'
         Vinfo( 3)='nondimensional'
         Vinfo(14)='fworth, scalar, series'
         Vinfo(16)=Vname(1,idtime)
-#  ifndef NO_4BYTE_REALS
+# ifndef NO_4BYTE_REALS
         Vinfo(24)='_FillValue'
         Aval(6)=spval
-#  endif
+# endif
         status=def_var(ng, iNLM, ncFISHid(ng),fishVid(idfworth,ng),     &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
+!
 !  Define fish P-value
+!
         Vinfo( 1)='fpval'
         Vinfo( 2)='fish p-value'
         Vinfo( 3)='nondimensional'
         Vinfo(14)='fpval, scalar, series'
         Vinfo(16)=Vname(1,idtime)
-#  ifndef NO_4BYTE_REALS
+# ifndef NO_4BYTE_REALS
         Vinfo(24)='_FillValue'
         Aval(6)=spval
-#  endif
+# endif
         status=def_var(ng, iNLM, ncFISHid(ng),fishVid(idfpval,ng),      &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
-!  Define fish spawning location
-        Vinfo( 1)='fspwnloc'
-        Vinfo( 2)='fish spawning location'
+!
+!  Define fish batch count
+!
+        Vinfo( 1)='fbatch'
+        Vinfo( 2)='fish batch count'
         Vinfo( 3)='nondimensional'
-        Vinfo(14)='fspwnloc, scalar, series'
+        Vinfo(14)='fbatch, scalar, series'
         Vinfo(16)=Vname(1,idtime)
-#  ifndef NO_4BYTE_REALS
+# ifndef NO_4BYTE_REALS
         Vinfo(24)='_FillValue'
         Aval(6)=spval
-#  endif
+# endif
         status=def_var(ng, iNLM, ncFISHid(ng),fishVid(idspwnloc,ng),    &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
-# endif
 !
 !  Initialize unlimited time record dimension.
 !
@@ -464,15 +515,6 @@
 !
         CALL wrt_info (ng, iNLM, ncFISHid(ng), ncname)
         IF (exit_flag.ne.NoError) RETURN
-        IF (OutThread) THEN
-          status=nf90_inq_varid(ncFISHid(ng),'Ftype',varid)
-          status=nf90_put_var(ncFISHid(ng), varid, FISHES(ng)%Ftype)
-          IF (status.ne.nf90_noerr) THEN
-            WRITE (stdout,70) 'Ftype', TRIM(ncname)
-            exit_flag=3
-            RETURN
-          END IF
-        END IF
       END IF DEFINE
 !
 !=======================================================================

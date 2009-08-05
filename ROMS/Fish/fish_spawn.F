@@ -190,15 +190,15 @@
           IF ((sp_time.ge.sp_start(isp)).and.                           &
      &              (sp_time.le.sp_end(isp))) THEN
             Ftemp=track(itemp+NFV(ng)-NT(ng),nnew,ifid)
-            IF (alive(ifid)) THEN
-!           IF ((alive(ifid)).and.                                      &
-!    &              (bioenergy(ifage,ifid).ge.Fage0(ng)).and.           &
-!    &              (INT(bioenergy(ifbatch,ifid)).lt.Nbatch(ng)).and.   &
-!    &              (ABS(Ftemp-temp_opt).le.temp_sigma).and.            &
-!    &              ((sp_time-bioenergy(iftspwn,ifid)).ge.7.0_r8)) THEN
+!           IF (alive(ifid)) THEN
+            IF ((alive(ifid)).and.                                      &
+     &              (bioenergy(ifage,ifid).ge.Fage0(ng)).and.           &
+     &              (lifestage(ifid).eq.if_adult).and.                  &
+     &              (INT(bioenergy(ifbatch,ifid)).lt.Nbatch(ng)).and.   &
+     &              (ABS(Ftemp-temp_opt).le.temp_sigma).and.            &
+     &              ((sp_time-bioenergy(iftspwn,ifid)).ge.7.0_r8)) THEN
               bioenergy(ifeggs,ifid)=20000.0_r8*                  &
      &                                     bioenergy(ifworth,ifid)
-!             bioenergy(ifspwnloc,ifid)=spawn_dist(i,j)
               bioenergy(ifbatch,ifid)=bioenergy(ifbatch,ifid)+    &
      &                                      1.0_r8
               bioenergy(iftspwn,ifid)=sp_time
@@ -210,7 +210,6 @@
 ! If after end of spawning window, zero out spawning attributes
           IF (sp_time.gt.sp_end(isp)) THEN
             bioenergy(ifeggs,ifid)=0.0_r8
-!           bioenergy(ifspwnloc,ifid)=0.0_r8
           END IF
 !
         END IF
