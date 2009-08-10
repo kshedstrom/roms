@@ -1,6 +1,6 @@
-# $Id: makefile 831 2008-11-13 13:33:46Z kate $
+# $Id: makefile 1020 2009-07-10 23:10:30Z kate $
 #::::::::::::::::::::::::::::::::::::::::::::::::::::: Hernan G. Arango :::
-# Copyright (c) 2002-2008 The ROMS/TOMS Group             Kate Hedstrom :::
+# Copyright (c) 2002-2009 The ROMS/TOMS Group             Kate Hedstrom :::
 #   Licensed under a MIT/X style license                                :::
 #   See License_ROMS.txt                                                :::
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -38,6 +38,7 @@ $(if $(filter $(MAKE_VERSION),$(NEED_VERSION)),,        \
 
   sources    := 
   libraries  :=
+  c_sources    := 
 
 #==========================================================================
 #  Start of user-defined options. In some macro definitions below: "on" or
@@ -66,12 +67,15 @@ ROMS_APPLICATION := NEP5
 
 MY_HEADER_DIR ?= Apps/NEP
 
-#  If your application requires analytical expressions and they are not
-#  located in "ROMS/Functionals", provide an alternate directory.
+#  If your application requires analytical expressions and they are
+#  not located in "ROMS/Functionals", provide an alternate directory.
 #  Notice that a set analytical expressions templates can be found in
 #  "User/Functionals".
+#
+#  If applicable, also used this directory to place your customized
+#  biology model header file (like fennel.h, nemuro.h, ecosim.h, etc).
 
-MY_ANALYTICAL_DIR ?= Apps/NEP
+MY_ANALYTICAL_DIR ?=
 
 #  Sometimes it is desirable to activate one or more CPP options to
 #  run different variants of the same application without modifying
@@ -92,7 +96,7 @@ MY_CPP_FLAGS ?=
 
 #  Activate debugging compiler options:
 
-   USE_DEBUG ?= 
+   USE_DEBUG ?=
 
 #  If parallel applications, use at most one of these definitions
 #  (leave both definitions blank in serial applications):
@@ -117,7 +121,7 @@ MY_CPP_FLAGS ?=
 #  If applicable, link with NetCDF-4 library. Notice that the NetCDF-4
 #  library needs both the HDF5 and MPI libraries.
 
- USE_NETCDF4 ?= 
+ USE_NETCDF4 ?= on
 
 #--------------------------------------------------------------------------
 #  We are going to include a file with all the settings that depend on
@@ -142,7 +146,7 @@ MY_CPP_FLAGS ?=
 #  NetCDF and so on.
 #--------------------------------------------------------------------------
 
-        FORT ?= gfortran
+        FORT ?= xt5-pgi
 
 #--------------------------------------------------------------------------
 #  Set directory for executable.
@@ -240,15 +244,20 @@ clean_list += $(MAKE_MACROS)
 
 #--------------------------------------------------------------------------
 #  Make functions for putting the temporary files in $(SCRATCH_DIR)
-#  DO NOT modify this section; spaces and blank lineas are needed.
+#  DO NOT modify this section; spaces and blank lines are needed.
 #--------------------------------------------------------------------------
 
 # $(call source-dir-to-binary-dir, directory-list)
 source-dir-to-binary-dir = $(addprefix $(SCRATCH_DIR)/, $(notdir $1))
 
 # $(call source-to-object, source-file-list)
-source-to-object = $(call source-dir-to-bindary-dir,   \
+source-to-object = $(call source-dir-to-bindary-dir,      \
                    $(subst .F,.o,$1))
+
+# $(call source-to-object, source-file-list)
+c-source-to-object = $(call source-dir-to-bindary-dir,      \
+                     $(subst .c,.o,$(filter %.c,$1))        \
+                     $(subst .cc,.o,$(filter %.cc,$1)))
 
 # $(call make-library, library-name, source-file-list)
 define make-library
@@ -257,6 +266,18 @@ define make-library
 
    $(SCRATCH_DIR)/$1: $(call source-dir-to-binary-dir,    \
                       $(subst .F,.o,$2))
+	$(AR) $(ARFLAGS) $$@ $$^
+	$(RANLIB) $$@
+endef
+
+# $(call make-c-library, library-name, source-file-list)
+define make-c-library
+   libraries += $(SCRATCH_DIR)/$1
+   c_sources += $2
+
+   $(SCRATCH_DIR)/$1: $(call source-dir-to-binary-dir,    \
+                      $(subst .c,.o,$(filter %.c,$2))     \
+                      $(subst .cc,.o,$(filter %.cc,$2)))
 	$(AR) $(ARFLAGS) $$@ $$^
 	$(RANLIB) $$@
 endef
@@ -272,7 +293,13 @@ define compile-rules
     $(call f90-source,$f),$f))
 endef
 
-# $(call one-compile-rule, binary-file, f90-file, source-files)
+# $(c-compile-rules)
+define c-compile-rules
+  $(foreach f, $(local_c_src),       \
+    $(call one-c-compile-rule,$(call c-source-to-object,$f), $f))
+endef
+
+# $(call one-compile-rule, binary-file, f90-file, source-file)
 define one-compile-rule
   $1: $2 $3
 	cd $$(SCRATCH_DIR); $$(FC) -c $$(FFLAGS) $(notdir $2)
@@ -280,6 +307,13 @@ define one-compile-rule
   $2: $3
 	$$(CPP) $$(CPPFLAGS) $$(MY_CPP_FLAGS) $$< > $$@
 	$$(CLEAN) $$@
+
+endef
+
+# $(call one-c-compile-rule, binary-file, source-file)
+define one-c-compile-rule
+  $1: $2
+	cd $$(SCRATCH_DIR); $$(CXX) -c $$(CXXFLAGS) $$<
 
 endef
 
@@ -401,11 +435,12 @@ endif
 ifdef USE_FISH
  modules  +=	ROMS/Fish
 endif
-
-# Must be after fish
  modules  +=	ROMS/Utility
 
  includes :=	ROMS/Include
+ifdef MY_ANALYTICAL
+ includes +=	$(MY_ANALYTICAL_DIR)
+endif
 ifdef USE_ADJOINT
  includes +=	ROMS/Adjoint
 endif
@@ -420,13 +455,11 @@ ifdef USE_TANGENT
 endif
  includes +=	ROMS/Nonlinear \
 		ROMS/Utility \
-		ROMS/Drivers
-
-ifdef MY_ANALYTICAL
- includes +=	$(MY_ANALYTICAL_DIR)
+		ROMS/Drivers \
+                ROMS/Functionals
+ifdef USE_FISH
+ includes +=	ROMS/Fish
 endif
- includes +=    ROMS/Functionals
-
 ifdef MY_HEADER_DIR
  includes +=	$(MY_HEADER_DIR)
 endif
@@ -440,6 +473,7 @@ endif
  includes +=	Master Compilers
 
 vpath %.F $(modules)
+vpath %.cc $(modules)
 vpath %.h $(includes)
 vpath %.f90 $(SCRATCH_DIR)
 vpath %.o $(SCRATCH_DIR)
@@ -448,12 +482,12 @@ include $(addsuffix /Module.mk,$(modules))
 
 MDEPFLAGS += $(patsubst %,-I %,$(includes)) --silent --moddir $(SCRATCH_DIR)
 
-CPPFLAGS += $(patsubst %,-I%,$(includes))
+CPPFLAGS  += $(patsubst %,-I%,$(includes))
 
 ifdef MY_HEADER_DIR
   CPPFLAGS += -D'HEADER_DIR="$(MY_HEADER_DIR)"'
 else
-  CPPFLAGS += -D'HEADER_DIR="./ROMS/Include"'
+  CPPFLAGS += -D'HEADER_DIR="$(ROOTDIR)/ROMS/Include"'
 endif
 
 $(SCRATCH_DIR):

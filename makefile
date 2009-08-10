@@ -423,15 +423,15 @@ endif
 ifdef USE_REPRESENTER
  modules  +=	ROMS/Representer
 endif
-ifdef USE_SEAICE
- modules  +=	ROMS/SeaIce
-endif
 ifdef USE_TANGENT
  modules  +=	ROMS/Tangent
 endif
  modules  +=	ROMS/Nonlinear \
 		ROMS/Functionals \
 		ROMS/Modules
+ifdef USE_SEAICE
+ modules  +=	ROMS/SeaIce
+endif
 ifdef USE_FISH
  modules  +=	ROMS/Fish
 endif

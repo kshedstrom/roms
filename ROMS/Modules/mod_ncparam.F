@@ -332,6 +332,7 @@
         integer  :: idWdis        ! wind-induced wave dissipation
         integer  :: idWdir        ! wind-induced wave direction
         integer  :: idWlen        ! wind-induced wave length
+        integer  :: idWmsk        ! wet-dry mask
         integer  :: idWptp        ! wind-induced surface wave period
         integer  :: idWpbt        ! wind-induced bottom wave period
         integer  :: idWorb        ! wind-induced wave orbital velocity
