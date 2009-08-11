@@ -223,10 +223,10 @@
 */
 
 #ifdef DISTRIBUTE
-# define SOUTH_WEST_TEST .true.
-# define NORTH_WEST_TEST .true.
-# define SOUTH_EAST_TEST .true.
-# define NORTH_EAST_TEST .true.
+# define SOUTH_WEST_TEST .TRUE.
+# define NORTH_WEST_TEST .TRUE.
+# define SOUTH_EAST_TEST .TRUE.
+# define NORTH_EAST_TEST .TRUE.
 #else
 # define SOUTH_WEST_TEST (Istr.eq.1).and.(Jstr.eq.1)
 # define NORTH_WEST_TEST (Istr.eq.1).and.(Jend.eq.Mm(ng))
@@ -333,6 +333,65 @@
     (defined CORRELATION     || defined SANITY_CHECK     || \
      defined R_SYMMETRY)
 # define ANA_PERTURB
+#endif
+
+/*
+** Since some of the tracer advection alogorithms are highly nonlinear,
+** it is possible to choose a simpler (less nonlinear) horizontal and
+** vertical tracer advection option for the tangent linear, representer
+** and adjoint routines. This is likely to improve the convergence of
+** the 4DVar algorithms. Notice that this strategy still allows us to
+** use highly nonlinear tracer advection schemes in the basic state
+** when running the nonlinear model.
+*/
+
+#if defined TANGENT || defined TL_IOMS || defined ADJOINT
+# if !defined TS_A4HADVECTION_TL       && \
+     !defined TS_C2HADVECTION_TL       && \
+     !defined TS_C4HADVECTION_TL       && \
+     !defined TS_U3HADVECTION_TL
+#  if defined TS_A4HADVECTION
+#   define TS_A4HADVECTION_TL
+#  elif defined TS_C2HADVECTION
+#   define TS_C2HADVECTION_TL
+#  elif defined TS_C4HADVECTION
+#   define TS_C4HADVECTION_TL
+#  elif defined TS_U3HADVECTION
+#   define TS_U3HADVECTION_TL
+#  endif
+# endif
+
+# if !defined TS_A4VADVECTION_TL       && \
+     !defined TS_C2VADVECTION_TL       && \
+     !defined TS_C4VADVECTION_TL       && \
+     !defined TS_SVADVECTION_TL
+#  if defined TS_A4VADVECTION
+#   define TS_A4VADVECTION_TL
+#  elif defined TS_C2VADVECTION
+#   define TS_C2VADVECTION_TL
+#  elif defined TS_C4VADVECTION
+#   define TS_C4VADVECTION_TL
+#  elif defined TS_SVADVECTION
+#   define TS_SVADVECTION_TL
+#  endif
+# endif
+#endif
+
+/*
+** Now, we need a switch the tracer advection schemes that
+** have not adjointed yet.
+*/
+
+#if defined TANGENT || defined TL_IOMS || defined ADJOINT
+# if defined TS_A4HADVECTION_TL || defined TS_C2HADVECTION_TL || \
+     defined TS_C4HADVECTION_TL || defined TS_U3HADVECTION_TL
+#  define TS_HADVECTION_TL
+# endif
+
+# if defined TS_A4VADVECTION_TL || defined TS_C2VADVECTION_TL || \
+     defined TS_C4VADVECTION_TL || defined TS_SVADVECTION_TL
+#  define TS_VADVECTION_TL
+# endif
 #endif
 
 /*
