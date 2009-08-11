@@ -416,7 +416,7 @@ contains
       real(r8) :: cawdif
       real(r8), parameter :: albw_d=0.065_r8
 # endif
-# ifdef BEST_NPZ && defined ICE_BIO || defined CLIM_ICE_1D
+# if defined BEST_NPZ && (defined ICE_BIO || defined CLIM_ICE_1D)
       real(r8), dimension(PRIVATE_2D_SCRATCH_ARRAY) :: ice_thick
       real(r8), dimension(PRIVATE_2D_SCRATCH_ARRAY) :: snow_thick
 # endif

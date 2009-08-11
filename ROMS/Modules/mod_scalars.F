@@ -395,6 +395,12 @@
         integer, parameter :: ifakt = 11         ! diffusivity, Akt
         integer, parameter :: ifdak = 12         ! d(Akt)/d(s)
 # endif
+# ifdef SOLVE3D
+!
+!  Tracer variables indices in the track array.
+!
+        integer, allocatable :: ifTvar(:)
+# endif
 !
 !  Set float tracjectory types:
 !
@@ -405,6 +411,13 @@
       integer, parameter :: flt_Lagran = 1
       integer, parameter :: flt_Isobar = 2
       integer, parameter :: flt_Geopot = 3
+
+# ifdef FLOAT_VWALK
+!
+!  Vertical random walk, initial seed state.
+!
+      integer :: flt_iseed
+# endif
 #endif
 !
 !-----------------------------------------------------------------------
@@ -1970,9 +1983,11 @@
         allocate ( idiceLog(1) )
 #   endif
 # endif
-
 #endif
 
+# if defined FLOATS && defined SOLVE3D
+        allocate ( ifTvar(MT) )
+# endif
 # ifdef T_PASSIVE
       allocate ( inert(NPT) )
 # endif
@@ -2400,6 +2415,22 @@
       ic=ic+1
 # endif
 #endif
+
+#if defined FLOATS && defined SOLVE3D
+!
+!  Indices for tracer variables in the floats array track.
+!
+# ifdef FLOAT_VWALK
+      ic=12
+# else
+      ic=10
+# endif
+      DO i=1,MT
+        ic=ic+1
+        ifTvar(i)=ic
+      END DO
+#endif
+
 #ifdef DIAGNOSTICS
 !
 !---------------------------------------------------------------------
@@ -2565,7 +2596,9 @@
 #endif
         END DO
       END DO
-      
+#if defined FLOATS && defined FLOAT_VWALK
+      flt_iseed=149876
+#endif
 #if defined LMD_SKPP || defined LMD_BKPP
 !
 !  Proportionality coefficient parameterizing boundary layer

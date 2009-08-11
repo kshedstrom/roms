@@ -88,6 +88,35 @@
 ** SRELAXATION         use if salinity relaxation as a freshwater flux       **
 ** TS_PSOURCE          use to turn ON or OFF point Sources/Sinks             **
 **                                                                           **
+** Tracer advection OPTIONS for adjoint-based algorithms:                    **
+**                                                                           **
+**   Some of the tracer advection alogorithms are highly nonlinear and       **
+**   may become unstable when running the tangent linear, representer,       **
+**   and adjoint models. This may affect the convergence of the 4DVar        **
+**   data assimilation algorithms. Therefore, it is possible to choose       **
+**   a simpler (less nonlinear) horizontal and vertical tracer advection     **
+**   scheme, if so desired, for the tangent linear, representer and          **
+**   adjoint models. Notice that this strategy still allows us to use        **
+**   highly nonlinear tracer advection schemes in the basic state upon       **
+**   which the tangent linear and adjoint models are linearized. Also,       **
+**   it allows us to use those schemes that have not been adjointed yet,     **
+**   for example, TS_MPDATA.  Recall that basic state trajectory is          **
+**   computed by running the nonlinear model.                                **
+**                                                                           **
+**   The flags below are optional. By default, the same options choosed      **
+**   for the nonlinear model are selected for the tangent linear,            **
+**   representer, and adjoint models.                                        **
+**                                                                           **
+** TS_A4HADVECTION_TL  use if 4th-order Akima horizontal advection           **
+** TS_C2HADVECTION_TL  use if 2nd-order centered horizontal advection        **
+** TS_C4HADVECTION_TL  use if 4th-order centered horizontal advection        **
+** TS_U3HADVECTION_TL  use if 3rd-order upstream horiz. advection            **
+**                                                                           **
+** TS_A4VADVECTION_TL  use if 4th-order Akima vertical advection             **
+** TS_C2VADVECTION_TL  use if 2nd-order centered vertical advection          **
+** TS_C4VADVECTION_TL  use if 4th-order centered vertical advection          **
+** TS_SVADVECTION_TL   use if splines vertical advection                     **
+**                                                                           **
 ** Pressure gradient algorithm OPTIONS:                                      **
 **                                                                           **
 **   If no option is selected, the pressure gradient term is computed using  **
@@ -167,6 +196,7 @@
 **                                                                           **
 ** FLOATS              use to activate simulated Lagrangian drifters         **
 ** FLOAT_VWALK         use if vertical random walk                           **
+** VWALK_FORWARD       use if foward time stepping vertical random walk      **
 **                                                                           **
 ** OPTION to activate conservative, parabolic spline reconstruction of       **
 ** vertical derivatives. Notice that there also options (see above) for      **
@@ -556,6 +586,7 @@
 ** SPLINES_VCONV       use to activate implicit splines vertical convolution **
 ** VCONVOLUTION        use to add vertical correlation to 3D convolution     **
 ** VERIFICATION        use if writing out solution at observation locations  **
+** ZETA_ELLIPTIC       use if SSH elliptic Equation in balance operator      **
 **                                                                           **
 ** OPTION for processing the full grid range (interior and boundary points)  **
 ** of the state vector in variational data assimilation and generalized      **

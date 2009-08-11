@@ -18,12 +18,6 @@
 !  Gaussian and includes a correction for the vertical gradient in     !
 !  diffusion coefficient                                               !
 !                                                                      !
-! Reference:                                                           !
-!                                                                      !
-!  Hunter, J.R, P.D. Craig, and H.E. Philips, 1993: On the use of      !
-!    random walk models with spatially variable diffusivity,           !
-!    Journal of Computational Physics, 106, 366-376.                   !
-!                                                                      !
 !=======================================================================
 !
       implicit none
@@ -73,9 +67,6 @@
       USE mod_parallel
       USE mod_grid
       USE mod_iounits
-# ifdef FLOAT_VWALK
-      USE mod_mixing
-# endif
       USE mod_ncparam
       USE mod_ocean
       USE mod_scalars
@@ -87,7 +78,10 @@
 # ifdef DISTRIBUTE
       USE distribute_mod, ONLY : mp_collect
 # endif
-      USE utility_mod, ONLY : nrng
+      USE interp_floats_mod
+# if defined SOLVE3D && defined FLOAT_VWALK
+      USE vwalk_floats_mod, ONLY : vwalk_floats
+# endif
 !
 !  Imported variable declarations.
 !
@@ -127,11 +121,8 @@
 
       real(r8) :: cff1, cff2, cff3, cff4, cff5, cff6, cff7, cff8, cff9
       real(r8) :: p1, p2, q1, q2, xrhs, yrhs, zrhs, zfloat
+      real(r8) :: HalfDT
 
-# ifdef FLOAT_VWALK
-      integer :: ierr
-      integer :: iseed = 149876
-# endif
 # ifdef DIAPAUSE
 !      logical :: downward , upward 
       real(r8) :: RiseStart,RiseEnd,SinkStart,SinkEnd
@@ -162,14 +153,14 @@
 !
 !-----------------------------------------------------------------------
 ! In distributed-memory configuration, determine which node bounds the
-! current location of the floats. Assign non-bounded floats to the
-! master node.
+! current location of the floats. Assign unbounded floats to the master
+! node.
 !-----------------------------------------------------------------------
 !
 ! The strategy here is to build a switch that processes only the floats
-! contained within the node bounds. The trajectory data for the new
-! time-level (nfp1) is initialized to Fspv. These values are used during
-! recombining step at the end of the routine.  Since a SUM reduction is
+! contained within the tile node. The trajectory data for unbounded
+! floats is initialized to Fspv. These values are used during the
+! collection step at the end of the routine.  Since a SUM reduction is
 ! carried-out, setting Fspv to zero means the floats only contribute in
 ! their own tile.
 !
@@ -215,142 +206,20 @@
            dtdays = dt(ng)*sec2day
         
 # endif 
-!-----------------------------------------------------------------------
-! Compute nudging velocities for vertical random walk.
-!-----------------------------------------------------------------------
-!
+# if !(defined SOLVE3D && defined FLOAT_VWALK)
+      DO l=Lstr,Lend
+        nudg(l)=0.0_r8
+      END DO
+# endif
 # if defined SOLVE3D && defined FLOAT_VWALK
-
-      DO l=Lstr,Lend
-        nudg(l)=0.0_r8
-      END DO
-
-      CALL interp_floats (ng, LBi, UBi, LBj, UBj, 0, N(ng),             &
-     &                    Lstr, Lend, nf, ifakt,                        &
-     &                    w3dvar, Lmask, nudg,                          &
-     &                    GRID(ng) % pm,                                &
-     &                    GRID(ng) % pn,                                &
-     &                    GRID(ng) % Hz,                                &
-# ifdef MASKING
-     &                    GRID(ng) % rmask,                             &
-# endif
-     &                    MIXING(ng) % Akt(:,:,:,itemp),                &
-     &                    MyThread, bounded, track)
-
-      CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, N(ng),             &
-     &                    Lstr, Lend, nf, ifdak,                        &
-     &                    r3dvar, Lmask, nudg,                          &
-     &                    GRID(ng) % pm,                                &
-     &                    GRID(ng) % pn,                                &
-     &                    GRID(ng) % Hz,                                &
-# ifdef MASKING
-     &                    GRID(ng) % rmask,                             &
-# endif
-     &                    MIXING(ng) % dAktdz,                          &
-     &                    MyThread, bounded, track)
-
-      CALL nrng (iseed, nudg(Lstr:Lend), Lend-Lstr+1, ierr)
-      DO l=Lstr,Lend
-        IF (MyThread(l).and.bounded(l)) THEN
-          nudg(l)=SQRT(2.0_r8*MAX(track(ifakt,nf,l),0.0_r8)/dt(ng))*    &
-     &            nudg(l)+track(ifdak,nf,l)
-        ELSE
-          nudg(l)=0.0_r8
-        END IF
-      END DO
-
-# ifdef DIAPAUSE
-
-!  Based on date, determine if NCa are going upwards or downwards
-        
-     
-      IF ( ( RiseStart.lt.RiseEnd .and.                                 &
-     &       yday.ge.RiseStart .and. yday.le.RiseEnd ) .or.             &
-     &     ( RiseStart.gt.RiseEnd .and.                                 &
-     &      ( yday.ge.RiseStart .or. yday.le.RiseEnd ) ) )  THEN
-        FloatPhase=1
-        diapW=wNCrise*sec2day !Scale to m/sec
-        
-      ELSE IF ( ( SinkStart.lt.SinkEnd .and.                            &
-     &       yday.ge.SinkStart .and. yday.le.SinkEnd ) .or.             &
-     &     ( SinkStart.gt.SinkEnd .and.                                 &
-     &      ( yday.ge.SinkStart .or. yday.le.SinkEnd ) ) )  THEN
-        FloatPhase=3
-        diapW=wNCsink*sec2day !Scale to m/sec
-        
-       ELSE IF ( ( RiseEnd.lt.SinkStart .and.                          &
-     &       yday.ge.RiseEnd .and. yday.le.SinkStart ) .or.            &
-     &     (RiseEnd.gt.SinkStart .and.                                 &
-     &      ( yday.ge.RiseEnd .or. yday.le.SinkStart ) ) )  THEN
-       FloatPhase=2
-       diapW=wNCrise*sec2day
-        ELSE IF ( (SinkEnd.gt.RiseStart .and.                         &
-     &       yday.ge.SinkEnd .or. yday.le.RiseStart ) .or.            &
-     &     (RiseStart.gt.SinkEnd .and.                                &
-     &      ( yday.ge.SinkEnd .and. yday.le.RiseStart ) ) )  THEN
-        FloatPhase=4
-          diapW=999 
-      END IF
-      
-!      print*,'track=',track(idpth,nfp1,l)
-      
-
-!      END DO
-         
-          IF ( diapW.ne.999)THEN
-          
-     CALL interp_floats_diapW(ng, LBi, UBi, LBj, UBj, 0, N(ng),         &
-     &                    Lstr, Lend, nf, izrhs,                        &
-     &                    -w3dvar, Lmask, nudg,                         &
-     &                    GRID(ng) % pm,                                &
-     &                    GRID(ng) % pn,                                &
-     &                    GRID(ng) % Hz,                                &
-#  ifdef MASKING
-     &                    GRID(ng) % rmask,                             &
-#  endif
-     &                    diapW,                                        &
-     &                    OCEAN(ng) % W,                                &
-     &                    MyThread, bounded, track,                     &
-     &                    FloatPhase      )
-     
-          ENDIF 
-   
-   
-# else   
-
-      CALL interp_floats (ng, LBi, UBi, LBj, UBj, 0, N(ng),             &
-     &                    Lstr, Lend, nf, izrhs,                        &
-     &                    -w3dvar, Lmask, nudg,                         &
-     &                    GRID(ng) % pm,                                &
-     &                    GRID(ng) % pn,                                &
-     &                    GRID(ng) % Hz,                                &
-#  ifdef MASKING
-     &                    GRID(ng) % rmask,                             &
-#  endif
-     &                    OCEAN(ng) % W,                                &
-     &                    MyThread, bounded, track)
-
-# endif
- 
 !
-!  For now, use a forward time step for vertical position.
+!-----------------------------------------------------------------------
+!  Compute vertical positions due to vertical random walk, predictor
+!  step.
+!-----------------------------------------------------------------------
 !
-      DO l=Lstr,Lend
-!      print*,'rhs=',track(izrhs,nf,l)
-        IF (MyThread(l).and.bounded(l)) THEN
-           track(izgrd,nfp1,l)=track(izgrd,nf,l)+                        &
-     &                        dt(ng)*track(izrhs,nf,l)                   
-     
-        END IF
-      END DO
+      CALL vwalk_floats (ng, Lstr, Lend, .TRUE., MyThread, nudg)
 # endif
-
-
-      DO l=Lstr,Lend
-        nudg(l)=0.0_r8
-      END DO
-
-
 !
 !-----------------------------------------------------------------------
 !  Predictor step: compute first guess floats locations using a
@@ -369,9 +238,6 @@
      &                        dt(ng)*(cff1*track(iyrhs,nf  ,l)-         &
      &                                cff2*track(iyrhs,nfm1,l)+         &
      &                                cff1*track(iyrhs,nfm2,l))
-
-
-
 
 # if defined SOLVE3D && !defined FLOAT_VWALK
 !
@@ -475,7 +341,7 @@
 # ifdef SOLVE3D
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, N(ng),             &
      &                    Lstr, Lend, nfp1, ixrhs,                      &
-     &                    -u3dvar, Lmask, nudg,                         &
+     &                    -u3dvar, Lmask, spval, nudg,                  &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
      &                    GRID(ng) % Hz,                                &
@@ -487,7 +353,7 @@
 
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, N(ng),             &
      &                    Lstr, Lend, nfp1, iyrhs,                      &
-     &                    -v3dvar, Lmask, nudg,                         &
+     &                    -v3dvar, Lmask, spval, nudg,                  &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
      &                    GRID(ng) % Hz,                                &
@@ -552,31 +418,28 @@
      &                    OCEAN(ng) % W,                                &
      &                    MyThread, bounded, track,                     &
      &                    FloatPhase      )
-     
           ENDIF 
   
 #   else
 
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 0, N(ng),             &
      &                    Lstr, Lend, nfp1, izrhs,                      &
-     &                    -w3dvar, Lmask, nudg,                         &
+     &                    -w3dvar, Lmask, spval, nudg,                  &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
      &                    GRID(ng) % Hz,                                &
-# ifdef MASKING
+#   ifdef MASKING
      &                    GRID(ng) % rmask,                             &
-# endif
+#   endif
      &                    OCEAN(ng) % W,                                &
      &                    MyThread, bounded, track)
-     
-#   endif     
-     
+#   endif
 #  endif
 
 # else
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,                 &
      &                    Lstr, Lend, nfp1, ixrhs,                      &
-     &                    -u2dvar, Lmask, nudg,                         &
+     &                    -u2dvar, Lmask, spval, nudg,                  &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
 #  ifdef MASKING
@@ -587,10 +450,9 @@
 
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,                 &
      &                    Lstr, Lend, nfp1, iyrhs,                      &
-     &                    -v2dvar, Lmask, nudg,                         &
+     &                    -v2dvar, Lmask, spval, nudg,                  &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
-     &                    GRID(ng) % Hz,                                &
 #  ifdef MASKING
      &                    GRID(ng) % rmask,                             &
 #  endif
@@ -855,11 +717,13 @@
 !  positions for all time levels.
 !-----------------------------------------------------------------------
 !
+      HalfDT=0.5_r8*dt(ng)
+
       DO l=Lstr,Lend
 !      print*,'time=',time(ng),'Tinfo=',Tinfo(itstr,l),'bounded=',bounded
         IF (.not.bounded(l).and.                                        &
-     &      (time(ng)-dt(ng).le.Tinfo(itstr,l).and.                     &
-     &       time(ng)+dt(ng).gt.Tinfo(itstr,l))) THEN
+     &      (time(ng)-HalfDT.le.Tinfo(itstr,l).and.                     &
+     &       time(ng)+HalfDT.gt.Tinfo(itstr,l))) THEN
           bounded(l)=.TRUE.
 # ifdef DISTRIBUTE
           IF ((Xstr.le.Tinfo(ixgrd,l)).and.                             &
@@ -903,61 +767,61 @@
 # ifdef SOLVE3D
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, N(ng),             &
      &                    Lstr, Lend, nfp1, ixrhs,                      &
-     &                    -u3dvar, Lmask, nudg,                         &
+     &                    -u3dvar, Lmask, spval, nudg,                  &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
      &                    GRID(ng) % Hz,                                &
-# ifdef MASKING
+#  ifdef MASKING
      &                    GRID(ng) % rmask,                             &
-# endif
+#  endif
      &                    OCEAN(ng) % u(:,:,:,nnew),                    &
      &                    MyThread, bounded, track)
 
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, N(ng),             &
      &                    Lstr, Lend, nfp1, iyrhs,                      &
-     &                    -v3dvar, Lmask, nudg,                         &
+     &                    -v3dvar, Lmask, spval, nudg,                  &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
      &                    GRID(ng) % Hz,                                &
-# ifdef MASKING
+#  ifdef MASKING
      &                    GRID(ng) % rmask,                             &
-# endif
+#  endif
      &                    OCEAN(ng) % v(:,:,:,nnew),                    &
      &                    MyThread, bounded, track)
 
 #  if !defined FLOAT_VWALK
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 0, N(ng),             &
      &                    Lstr, Lend, nfp1, izrhs,                      &
-     &                    -w3dvar, Lmask, nudg,                         &
+     &                    -w3dvar, Lmask, spval, nudg,                  &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
      &                    GRID(ng) % Hz,                                &
-# ifdef MASKING
+#   ifdef MASKING
      &                    GRID(ng) % rmask,                             &
-# endif
+#   endif
      &                    OCEAN(ng) % W,                                &
      &                    MyThread, bounded, track)
 #  endif
 # else
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,                 &
      &                    Lstr, Lend, nfp1, ixrhs,                      &
-     &                    -u2dvar, Lmask, nudg,                         &
+     &                    -u2dvar, Lmask, spval, nudg,                  &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
-# ifdef MASKING
+#  ifdef MASKING
      &                    GRID(ng) % rmask,                             &
-# endif
+#  endif
      &                    OCEAN(ng) % ubar(:,:,knew),                   &
      &                    MyThread, bounded, track)
 
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,                 &
      &                    Lstr, Lend, nfp1, iyrhs,                      &
-     &                    -v2dvar, Lmask, nudg,                         &
+     &                    -v2dvar, Lmask, spval, nudg,                  &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
-# ifdef MASKING
+#  ifdef MASKING
      &                    GRID(ng) % rmask,                             &
-# endif
+#  endif
      &                    OCEAN(ng) % vbar(:,:,knew),                   &
      &                    MyThread, bounded, track)
 # endif
@@ -966,8 +830,8 @@
 !
       DO l=Lstr,Lend
         IF (MyThread(l).and.bounded(l).and.                             &
-     &      (time(ng)-dt(ng).le.Tinfo(itstr,l).and.                     &
-     &       time(ng)+dt(ng).gt.Tinfo(itstr,l))) THEN
+     &      (time(ng)-HalfDT.le.Tinfo(itstr,l).and.                     &
+     &       time(ng)+HalfDT.gt.Tinfo(itstr,l))) THEN
           xrhs=track(ixrhs,nfp1,l)
           yrhs=track(iyrhs,nfp1,l)
 # ifdef SOLVE3D
@@ -990,7 +854,7 @@
       IF (spherical) THEN
         CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,               &
      &                      Lstr, Lend, nfp1, iflon,                    &
-     &                      r2dvar, Gmask, nudg,                        &
+     &                      r2dvar, Gmask, spval, nudg,                 &
      &                      GRID(ng) % pm,                              &
      &                      GRID(ng) % pn,                              &
 # ifdef SOLVE3D
@@ -1004,7 +868,7 @@
 
         CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,               &
      &                      Lstr, Lend, nfp1, iflat,                    &
-     &                      r2dvar, Gmask, nudg,                        &
+     &                      r2dvar, Gmask, spval, nudg,                 &
      &                      GRID(ng) % pm,                              &
      &                      GRID(ng) % pn,                              &
 # ifdef SOLVE3D
@@ -1018,7 +882,7 @@
       ELSE
         CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,               &
      &                      Lstr, Lend, nfp1, iflon,                    &
-     &                      r2dvar, Gmask, nudg,                        &
+     &                      r2dvar, Gmask, spval, nudg,                 &
      &                      GRID(ng) % pm,                              &
      &                      GRID(ng) % pn,                              &
 # ifdef SOLVE3D
@@ -1032,7 +896,7 @@
 
         CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,               &
      &                      Lstr, Lend, nfp1, iflat,                    &
-     &                      r2dvar, Gmask, nudg,                        &
+     &                      r2dvar, Gmask, spval, nudg,                 &
      &                      GRID(ng) % pm,                              &
      &                      GRID(ng) % pn,                              &
 # ifdef SOLVE3D
@@ -1045,48 +909,52 @@
      &                      MyThread, bounded, track)
       END IF
 # ifdef SOLVE3D
-
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 0, N(ng),             &
      &                    Lstr, Lend, nfp1, idpth,                      &
-     &                    w3dvar, Lmask, nudg,                          &
+     &                    w3dvar, Lmask, spval, nudg,                   &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
      &                    GRID(ng) % Hz,                                &
-# ifdef MASKING
+#  ifdef MASKING
      &                    GRID(ng) % rmask,                             &
-# endif
+#  endif
      &                    GRID(ng) % z_w,                               &
      &                    MyThread, bounded, track)
 
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, N(ng),             &
      &                    Lstr, Lend, nfp1, ifden,                      &
-     &                    r3dvar, Lmask, nudg,                          &
+     &                    r3dvar, Lmask, spval, nudg,                   &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
      &                    GRID(ng) % Hz,                                &
-# ifdef MASKING
+#  ifdef MASKING
      &                    GRID(ng) % rmask,                             &
-# endif
+#  endif
      &                    OCEAN(ng) % rho,                              &
      &                    MyThread, bounded, track)
 
       DO itrc=1,NT(ng)
         CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, N(ng),           &
-#  ifdef FLOAT_VWALK
-     &                      Lstr, Lend, nfp1, itrc+12,                  &
-#  else
-     &                      Lstr, Lend, nfp1, itrc+10,                  &
-#  endif
-     &                      r3dvar, Lmask, nudg,                        &
+     &                      Lstr, Lend, nfp1, ifTvar(itrc),             &
+     &                      r3dvar, Lmask, spval, nudg,                 &
      &                      GRID(ng) % pm,                              &
      &                      GRID(ng) % pn,                              &
      &                      GRID(ng) % Hz,                              &
-# ifdef MASKING
+#  ifdef MASKING
      &                      GRID(ng) % rmask,                           &
-# endif
+#  endif
      &                      OCEAN(ng) % t(:,:,:,nnew,itrc),             &
      &                      MyThread, bounded, track)
       END DO
+# endif
+# if defined SOLVE3D && defined FLOAT_VWALK && !defined VWALK_FORWARD
+!
+!-----------------------------------------------------------------------
+!  Compute vertical positions due to vertical random walk, corrector
+!  step.
+!-----------------------------------------------------------------------
+!
+      CALL vwalk_floats (ng, Lstr, Lend, .FALSE., MyThread, nudg)
 # endif
 # ifdef DISTRIBUTE
 !
