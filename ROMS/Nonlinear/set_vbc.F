@@ -2,7 +2,7 @@
       MODULE set_vbc_mod
 #ifdef NONLINEAR
 !
-!svn $Id: set_vbc.F 1023 2009-07-20 21:45:24Z kate $
+!svn $Id: set_vbc.F 1028 2009-07-23 21:04:07Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -446,7 +446,7 @@
      &                    v(i  ,j+1,N(ng),nrhs)+                        &
      &                    v(i-1,j  ,N(ng),nrhs)+                        &
      &                    v(i-1,j+1,N(ng),nrhs))
-            cff2=SQRT(u(i,j,N(ng),nrhs)*u(i,j,N(ng),nrhs)+cff2*cff2)
+            cff2=SQRT(u(i,j,N(ng),nrhs)*u(i,j,N(ng),nrhs)+cff1*cff1)
 #ifdef RDRG_GRID
             sustr(i,j)=-0.5_r8*(rdrg_grid(i,j)+rdrg_grid(i-1,j))*       &
      &                  u(i,j,N(ng),nrhs)*cff2

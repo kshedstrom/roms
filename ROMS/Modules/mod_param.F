@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       MODULE mod_param
 !
-!svn $Id: mod_param.F 1022 2009-07-16 22:34:52Z kate $
+!svn $Id: mod_param.F 1038 2009-08-11 22:29:40Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -600,6 +600,13 @@
 !
         integer :: NSA
 #endif
+
+#if defined BALANCE_OPERATOR || defined ZETA_ELLIPTIC
+!
+!  Number of biconjugate gradient algorithm iteractions.
+!
+        integer, dimension(Ngrids) :: Nbico 
+#endif
 !
 !-----------------------------------------------------------------------
 !  Model state parameters.
@@ -803,6 +810,9 @@
 #endif
 #ifdef ADJUST_STFLUX
           NSV(ng)=NSV(ng)+NT(ng)
+#endif
+#if defined BALANCE_OPERATOR || defined ZETA_ELLIPTIC
+          Nbico(ng)=200
 #endif
         END DO
 !

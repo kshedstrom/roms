@@ -3,7 +3,7 @@
 
 #ifdef SOLVE3D
 !
-!svn $Id: set_zeta.F 1023 2009-07-20 21:45:24Z kate $
+!svn $Id: set_zeta.F 1027 2009-07-23 15:50:57Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -88,17 +88,21 @@
       integer, intent(in) :: IminS, ImaxS, JminS, JmaxS
 !
 # ifdef ASSUMED_SHAPE
-      real(r8), intent(in) :: Zt_avg1(LBi:,LBj:)
 # if defined EMINUSP && defined EMINUSP_SSH
       real(r8), intent(out) :: rain(LBi:,LBj:)
       real(r8), intent(out) :: evap(LBi:,LBj:)
+      real(r8), intent(inout) :: Zt_avg1(LBi:,LBj:)
+# else
+      real(r8), intent(in) :: Zt_avg1(LBi:,LBj:)
 # endif
       real(r8), intent(out) :: zeta(LBi:,LBj:,:)
 # else
-      real(r8), intent(in) :: Zt_avg1(LBi:UBi,LBj:UBj)
 # if defined EMINUSP && defined EMINUSP_SSH
       real(r8), intent(out) :: rain(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: evap(LBi:UBi,LBj:UBj)
+      real(r8), intent(inout) :: Zt_avg1(LBi:UBi,LBj:UBj)
+# else
+      real(r8), intent(in) :: Zt_avg1(LBi:UBi,LBj:UBj)
 # endif
       real(r8), intent(out) :: zeta(LBi:UBi,LBj:UBj,3)
 # endif

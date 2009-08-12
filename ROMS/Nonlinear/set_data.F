@@ -2,7 +2,7 @@
 #ifdef NONLINEAR
       SUBROUTINE set_data (ng, tile)
 !
-!svn $Id: set_data.F 1023 2009-07-20 21:45:24Z kate $
+!svn $Id: set_data.F 1039 2009-08-11 22:52:28Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -796,10 +796,10 @@
 !  Set point Sources/Sinks (river runoff).
 !-----------------------------------------------------------------------
 !
-      IF (SOUTH_WEST_TEST) THEN
 #  ifdef ANA_PSOURCE
-        CALL ana_psource (ng, tile, iNLM)
+      CALL ana_psource (ng, tile, iNLM)
 #  else
+      IF (SOUTH_WEST_TEST) THEN
 #   if defined UV_PSOURCE || defined Q_PSOURCE
         CALL set_ngfld (ng, iNLM, idRtra, 1, Nsrc(ng), 1,               &
      &                  1, Nsrc(ng), 1,                                 &
@@ -832,8 +832,8 @@
           END IF
         END DO
 #   endif
-#  endif
       END IF
+#  endif
 # endif
 
 # ifdef OBC

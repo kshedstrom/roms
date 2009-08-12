@@ -2,7 +2,7 @@
 #ifdef FLOATS
       SUBROUTINE wrt_floats (ng)
 !
-!svn $Id: wrt_floats.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: wrt_floats.F 1038 2009-08-11 22:29:40Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -185,11 +185,7 @@
       DO itrc=1,NT(ng)
         DO l=1,Nfloats(ng)
           IF (FLT(ng)%bounded(l)) THEN
-# ifdef FLOAT_VWALK
-            Tout(l)=FLT(ng)%track(itrc+12,nf(ng),l)
-# else
-            Tout(l)=FLT(ng)%track(itrc+10,nf(ng),l)
-# endif
+            Tout(l)=FLT(ng)%track(ifTvar(itrc),nf(ng),l)
           ELSE
             Tout(l)=spval
           END IF

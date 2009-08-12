@@ -2,7 +2,7 @@
 #ifdef TL_IOMS
       SUBROUTINE rp_set_data (ng, tile)
 !
-!svn $Id: rp_set_data.F 999 2009-06-09 23:48:31Z kate $
+!svn $Id: rp_set_data.F 1039 2009-08-11 22:52:28Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -707,10 +707,10 @@
 !  Set point Sources/Sinks (river runoff).
 !-----------------------------------------------------------------------
 !
-      IF (SOUTH_WEST_TEST) THEN
 #  ifdef ANA_PSOURCE
         CALL ana_psource (ng, tile, iRPM)
 #  else
+      IF (SOUTH_WEST_TEST) THEN
 #   if defined UV_PSOURCE || defined Q_PSOURCE
         CALL set_ngfld (ng, iRPM, idRtra, 1, Nsrc(ng), 1,               &
      &                  1, Nsrc(ng), 1,                                 &
@@ -743,8 +743,8 @@
           END IF
         END DO
 #   endif
-#  endif
       END IF
+#  endif
 # endif
 
 # ifdef OBC

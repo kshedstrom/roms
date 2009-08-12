@@ -2,7 +2,7 @@
 #ifdef FLOATS
       SUBROUTINE def_floats (ng, ldef)
 !
-!svn $Id: def_floats.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: def_floats.F 1031 2009-07-31 19:54:01Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -410,16 +410,16 @@
 !
         CALL wrt_info (ng, iNLM, ncFLTid(ng), ncname)
         IF (exit_flag.ne.NoError) RETURN
-      END IF DEFINE
-      IF (LdefFLT(ng).and.OutThread) THEN
-        status=nf90_inq_varid(ncFLTid(ng),'Ftype',varid)
-        status=nf90_put_var(ncFLTid(ng), varid, FLT(ng)%Ftype)
-        IF (status.ne.nf90_noerr) THEN
-          WRITE (stdout,10) 'Ftype', TRIM(ncname)
-          exit_flag=3
-          RETURN
+        IF (OutThread) THEN
+          status=nf90_inq_varid(ncFLTid(ng),'Ftype',varid)
+          status=nf90_put_var(ncFLTid(ng), varid, FLT(ng)%Ftype)
+          IF (status.ne.nf90_noerr) THEN
+            WRITE (stdout,10) 'Ftype', TRIM(ncname)
+            exit_flag=3
+            RETURN
+          END IF
         END IF
-      END IF
+      END IF DEFINE
 !
 !=======================================================================
 !  Open an existing floats file, check its contents, and prepare for

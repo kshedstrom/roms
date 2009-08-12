@@ -2,7 +2,7 @@
       MODULE step3d_t_mod
 #if !defined TS_FIXED && (defined NONLINEAR && defined SOLVE3D)
 !
-!svn $Id: step3d_t.F 991 2009-05-28 23:37:09Z kate $
+!svn $Id: step3d_t.F 1039 2009-08-11 22:52:28Z kate $
 !=======================================================================
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -59,7 +59,7 @@
      &                    IminS, ImaxS, JminS, JmaxS,                   &
      &                    nrhs(ng), nstp(ng), nnew(ng),                 &
 # if defined TS_PSOURCE || defined Q_PSOURCE
-     &                    Nsrc(ng),                                     &
+     &                    Msrc(ng), Nsrc(ng),                           &
      &                    SOURCES(ng) % Isrc,                           &
      &                    SOURCES(ng) % Jsrc,                           &
      &                    SOURCES(ng) % Tsrc,                           &
@@ -141,7 +141,8 @@
      &                          IminS, ImaxS, JminS, JmaxS,             &
      &                          nrhs, nstp, nnew,                       &
 # if defined TS_PSOURCE || defined Q_PSOURCE
-     &                          Nsrc, Isrc, Jsrc, Tsrc,                 &
+     &                          Msrc, Nsrc,                             &
+     &                          Isrc, Jsrc, Tsrc,                       &
 # endif
 # ifdef TS_PSOURCE
      &                          Lsrc, Dsrc,                             &
@@ -203,6 +204,9 @@
       USE exchange_3d_mod, ONLY : exchange_r3d_tile
 # endif
 # ifdef DISTRIBUTE
+#  if defined FLOATS && defined FLOAT_VWALK
+      USE mp_exchange_mod, ONLY : mp_exchange3d
+#  endif
       USE mp_exchange_mod, ONLY : mp_exchange4d
 # endif
 # ifdef TS_MPDATA
@@ -216,13 +220,15 @@
       integer, intent(in) :: LBi, UBi, LBj, UBj
       integer, intent(in) :: IminS, ImaxS, JminS, JmaxS
       integer, intent(in) :: nrhs, nstp, nnew
+# if defined TS_PSOURCE || defined Q_PSOURCE
+      integer, intent(in) :: Msrc, Nsrc
+# endif
 !
 # ifdef ASSUMED_SHAPE
 #  ifdef TS_PSOURCE
       logical, intent(in) :: Lsrc(:,:)
 #  endif
 #  if defined TS_PSOURCE || defined Q_PSOURCE
-      integer, intent(in) :: Nsrc
       integer, intent(in) :: Isrc(:)
       integer, intent(in) :: Jsrc(:)
 
@@ -302,20 +308,19 @@
 # else
 
 #  ifdef TS_PSOURCE
-      logical, intent(in) :: Lsrc(Nsrc,NT(ng))
+      logical, intent(in) :: Lsrc(Msrc,NT(ng))
 #  endif
 #  if defined TS_PSOURCE || defined Q_PSOURCE
-      integer, intent(in) :: Nsrc
-      integer, intent(in) :: Isrc(Nsrc)
-      integer, intent(in) :: Jsrc(Nsrc)
+      integer, intent(in) :: Isrc(Msrc)
+      integer, intent(in) :: Jsrc(Msrc)
 
-      real(r8), intent(in) :: Tsrc(Nsrc,N(ng),NT(ng))
+      real(r8), intent(in) :: Tsrc(Msrc,N(ng),NT(ng))
 #  endif
 #  ifdef TS_PSOURCE
-      real(r8), intent(in) :: Dsrc(Nsrc)
+      real(r8), intent(in) :: Dsrc(Msrc)
 #  endif
 #  ifdef Q_PSOURCE
-      real(r8), intent(in) :: Qsrc(Nsrc,N(ng))
+      real(r8), intent(in) :: Qsrc(Msrc,N(ng))
 #  endif
 #  ifdef MASKING
       real(r8), intent(in) :: rmask(LBi:UBi,LBj:UBj)
@@ -1484,13 +1489,27 @@
 !  floats random walk.
 !-----------------------------------------------------------------------
 !
-      DO j=Jstr,Jend
-        DO i=Istr,Iend
+      DO j=JstrR,JendR
+        DO i=IstrR,IendR
           DO k=1,N(ng)
             dAktdz(i,j,k)=(Akt(i,j,k,1)-Akt(i,j,k-1,1))/Hz(i,j,k)
           END DO
         END DO
       END DO
+#  if defined EW_PERIODIC || defined NS_PERIODIC
+!
+!  Apply periodic boundary conditions.
+!
+      CALL exchange_r3d_tile (ng, tile,                                 &
+     &                        LBi, UBi, LBj, UBj, 1, N(ng),             &
+     &                        dAktdz)
+#  endif
+#  ifdef DISTRIBUTE
+      CALL mp_exchange3d (ng, tile, iNLM, 1,                            &
+     &                    LBi, UBi, LBj, UBj, 1, N(ng),                 &
+     &                    NghostPoints, EWperiodic, NSperiodic,         &
+     &                    dAktdz)
+#  endif
 # endif
 
 #ifdef BEST_NPZ

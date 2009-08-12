@@ -2,7 +2,7 @@
       MODULE tl_step3d_t_mod
 #if !defined TS_FIXED && (defined TANGENT && defined SOLVE3D)
 !
-!svn $Id: tl_step3d_t.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: tl_step3d_t.F 1039 2009-08-11 22:52:28Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
@@ -59,7 +59,7 @@
      &                       IminS, ImaxS, JminS, JmaxS,                &
      &                       nrhs(ng), nstp(ng), nnew(ng),              &
 # if defined TS_PSOURCE || defined Q_PSOURCE
-     &                       Nsrc(ng),                                  &
+     &                       Msrc(ng), Nsrc(ng),                        &
      &                       SOURCES(ng) % Isrc,                        &
      &                       SOURCES(ng) % Jsrc,                        &
      &                       SOURCES(ng) % Tsrc,                        &
@@ -136,7 +136,8 @@
      &                             IminS, ImaxS, JminS, JmaxS,          &
      &                             nrhs, nstp, nnew,                    &
 # if defined TS_PSOURCE || defined Q_PSOURCE
-     &                             Nsrc, Isrc, Jsrc, Tsrc,              &
+     &                             Msrc, Nsrc,                          &
+     &                             Isrc, Jsrc, Tsrc,                    &
 # endif
 # ifdef TS_PSOURCE
      &                             Lsrc, Dsrc,                          &
@@ -200,13 +201,15 @@
       integer, intent(in) :: LBi, UBi, LBj, UBj
       integer, intent(in) :: IminS, ImaxS, JminS, JmaxS
       integer, intent(in) :: nrhs, nstp, nnew
+# if defined TS_PSOURCE || defined Q_PSOURCE
+      integer, intent(in) :: Msrc, Nsrc
+# endif
 !
 # ifdef ASSUMED_SHAPE
 #  ifdef TS_PSOURCE
       logical, intent(in) :: Lsrc(:,:)
 #  endif
 #  if defined TS_PSOURCE || defined Q_PSOURCE
-      integer, intent(in) :: Nsrc
       integer, intent(in) :: Isrc(:)
       integer, intent(in) :: Jsrc(:)
 
@@ -291,20 +294,19 @@
 # else
 
 #  ifdef TS_PSOURCE
-      logical, intent(in) :: Lsrc(Nsrc,NT(ng))
+      logical, intent(in) :: Lsrc(Msrc,NT(ng))
 #  endif
 #  if defined TS_PSOURCE || defined Q_PSOURCE
-      integer, intent(in) :: Nsrc
-      integer, intent(in) :: Isrc(Nsrc)
-      integer, intent(in) :: Jsrc(Nsrc)
+      integer, intent(in) :: Isrc(Msrc)
+      integer, intent(in) :: Jsrc(Msrc)
 
-      real(r8), intent(in) :: Tsrc(Nsrc,N(ng),NT(ng))
+      real(r8), intent(in) :: Tsrc(Msrc,N(ng),NT(ng))
 #  endif
 #  ifdef TS_PSOURCE
-      real(r8), intent(in) :: Dsrc(Nsrc)
+      real(r8), intent(in) :: Dsrc(Msrc)
 #  endif
 #  ifdef Q_PSOURCE
-      real(r8), intent(in) :: Qsrc(Nsrc,N(ng))
+      real(r8), intent(in) :: Qsrc(Msrc,N(ng))
 #  endif
 #  ifdef MASKING
       real(r8), intent(in) :: rmask(LBi:UBi,LBj:UBj)
@@ -495,7 +497,7 @@
       T_LOOP : DO itrc=1,NT(ng)
         K_LOOP : DO k=1,N(ng)
 
-# if defined TS_C2HADVECTION
+# if defined TS_C2HADVECTION_TL
 !
 !  Second-order, centered differences horizontal advective fluxes.
 !
@@ -586,9 +588,9 @@
 
 # else
 !
-#  if defined TS_U3HADVECTION
+#  if defined TS_U3HADVECTION_TL
 !  Third-order, uptream-biased horizontal advective fluxes.
-#  elif defined TS_A4HADVECTION
+#  elif defined TS_A4HADVECTION_TL
 !  Fourth-order, Akima horizontal advective fluxes.
 #  else
 !  Fourth-order, centered differences horizontal advective fluxes.
@@ -629,10 +631,10 @@
 !
           DO j=Jstr,Jend
             DO i=Istr-1,Iend+1
-#  if defined TS_U3HADVECTION
+#  if defined TS_U3HADVECTION_TL
               curv(i,j)=FX(i+1,j)-FX(i,j)
               tl_curv(i,j)=tl_FX(i+1,j)-tl_FX(i,j)
-#  elif defined TS_A4HADVECTION
+#  elif defined TS_A4HADVECTION_TL
               cff=2.0_r8*FX(i+1,j)*FX(i,j)
               tl_cff=2.0_r8*(tl_FX(i+1,j)*FX(i,j)+                      &
                              FX(i+1,j)*tl_FX(i,j))
@@ -656,7 +658,7 @@
           cff2=1.0_r8/3.0_r8
           DO j=Jstr,Jend
             DO i=Istr,Iend+1
-#  ifdef TS_U3HADVECTION
+#  ifdef TS_U3HADVECTION_TL
 !>            FX(i,j)=Huon(i,j,k)*0.5_r8*                               &
 !>   &                (t(i-1,j,k,3,itrc)+                               &
 !>   &                 t(i  ,j,k,3,itrc))-                              &
@@ -736,10 +738,10 @@
 !
           DO j=Jstr-1,Jend+1
             DO i=Istr,Iend
-#  if defined TS_U3HADVECTION
+#  if defined TS_U3HADVECTION_TL
               curv(i,j)=FE(i,j+1)-FE(i,j)
               tl_curv(i,j)=tl_FE(i,j+1)-tl_FE(i,j)
-#  elif defined TS_A4HADVECTION
+#  elif defined TS_A4HADVECTION_TL
               cff=2.0_r8*FE(i,j+1)*FE(i,j)
               tl_cff=2.0_r8*(tl_FE(i,j+1)*FE(i,j)+                      &
      &                       FE(i,j+1)*tl_FE(i,j))
@@ -763,7 +765,7 @@
           cff2=1.0_r8/3.0_r8
           DO j=Jstr,Jend+1
             DO i=Istr,Iend
-#  ifdef TS_U3HADVECTION
+#  ifdef TS_U3HADVECTION_TL
 !>            FE(i,j)=Hvom(i,j,k)*0.5_r8*                               &
 !>   &                (t(i,j-1,k,3,itrc)+                               &
 !>   &                 t(i,j  ,k,3,itrc))-                              &
@@ -935,7 +937,7 @@
       DO j=J_RANGE
         DO itrc=1,NT(ng)
 
-# if defined TS_SVADVECTION
+# if defined TS_SVADVECTION_TL
 !
 !  Build conservative parabolic splines for the vertical derivatives
 !  "FC" of the tracer.  Then, the interfacial "FC" values are
@@ -1056,7 +1058,7 @@
             FC(i,0)=0.0_r8
           END DO
 
-# elif defined TS_A4VADVECTION
+# elif defined TS_A4VADVECTION_TL
 !
 !  Fourth-order, Akima vertical advective flux.
 !
@@ -1120,7 +1122,7 @@
             FC(i,N(ng))=0.0_r8
             tl_FC(i,N(ng))=0.0_r8
           END DO
-# elif defined TS_C2VADVECTION
+# elif defined TS_C2VADVECTION_TL
 !
 !  Second-order, central differences vertical advective flux.
 !

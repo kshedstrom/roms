@@ -2,16 +2,14 @@
       MODULE mod_sources
 #if defined UV_PSOURCE || defined TS_PSOURCE || defined Q_PSOURCE
 !
-!svn $Id: mod_sources.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: mod_sources.F 1039 2009-08-11 22:52:28Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
 !                                                                      !
-# ifdef ANA_PSOURCE
 !  Msrc       Maximum number of analytical point Sources/Sinks.        !
-# endif
 !  Nsrc       Number of point Sources/Sinks.                           !
 !  Dsrc       Direction of point Sources/Sinks:                        !
 !               Dsrc(:) = 0,  Along XI-direction.                      !
@@ -55,10 +53,8 @@
 
         implicit none
 
+        integer, dimension(Ngrids) :: Msrc
         integer, dimension(Ngrids) :: Nsrc
-# ifdef ANA_PSOURCE
-        integer, parameter :: Msrc = 200
-# endif
 
         TYPE T_SOURCES
 
@@ -148,6 +144,7 @@
 
             IF (foundit) THEN
               Nsrc(mg)=var_Dsize(1)         ! first dimension
+              Msrc(mg)=Nsrc(mg)
               EXIT QUERY
             END IF
           END DO QUERY
@@ -156,8 +153,10 @@
 # else
 !
 !  Set number of point sources to maximum number of analytical sources.
+!  Notice that a maximum of 200 analytical sources are set-up here. 
 !
-      Nsrc(ng)=Msrc
+      Msrc(ng)=200                          
+      Nsrc(ng)=Msrc(ng)
 # endif
 !
 !  Allocate structure.
