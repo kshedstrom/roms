@@ -2,7 +2,7 @@
 #undef KATE_FOO
       SUBROUTINE inp_par (model)
 !
-!svn $Id: inp_par.F 1023 2009-07-20 21:45:24Z kate $
+!svn $Id: inp_par.F 1038 2009-08-11 22:29:40Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -7981,13 +7981,15 @@
             Npts=load_r(Nval, Rval, Ngrids, K_FeC)
           ELSE IF (TRIM(KeyWord).eq.'FeRR') THEN
             Npts=load_r(Nval, Rval, Ngrids, FeRR)
-#   endif
+#     ifdef IRON_RELAX
           ELSE IF (TRIM(KeyWord).eq.'FeHmin') THEN
             Npts=load_r(Nval, Rval, Ngrids, FeHmin)
           ELSE IF (TRIM(KeyWord).eq.'FeNudgTime') THEN
             Npts=load_r(Nval, Rval, Ngrids, FeNudgTime)
           ELSE IF (TRIM(KeyWord).eq.'FeMax') THEN
             Npts=load_r(Nval, Rval, Ngrids, FeMax)
+#     endif
+#   endif
           ELSE IF (TRIM(KeyWord).eq.'TNU2') THEN
             Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
             DO ng=1,Ngrids
@@ -8133,14 +8135,14 @@
      &            'Fe:C at F=0.5 (muM-Fe/M-C).'
             WRITE (out,100) FeRR(ng), 'FeRR',                           &
      &            'Fe remineralization rate (day-1).'
-#  endif
-#  if defined IRON_LIMIT && defined IRON_RELAX
+#    ifdef IRON_RELAX
             WRITE (out,100) FeHmin(ng), 'FeHmin',                       &
      &            'Minimum coastal bathymetry (m) for Fe nudging.'
             WRITE (out,100) FeNudgTime(ng), 'FeNudgTime',               &
      &            'Fe nudging time scale (days) at h <= FeHmin.'
             WRITE (out,100) FeMax(ng), 'FeMax',                         &
      &            'Fe value (mmoles/m3) used in coastal nudging.'
+#    endif
 #  endif
 #  ifdef TS_DIF2
             DO itrc=1,NBT

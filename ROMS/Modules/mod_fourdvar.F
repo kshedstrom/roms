@@ -3,7 +3,7 @@
 
 #if defined FOUR_DVAR || defined VERIFICATION
 !
-!svn $Id: mod_fourdvar.F 1020 2009-07-10 23:10:30Z kate $
+!svn $Id: mod_fourdvar.F 1038 2009-08-11 22:29:40Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -115,7 +115,8 @@
           real(r8), pointer :: CostNorm(:)
           real(r8), pointer :: ObsCost(:)
           real(r8), pointer :: DataPenalty(:)
-#   if defined DATALESS_LOOPS || defined W4DPSAS
+#   if defined DATALESS_LOOPS || defined TL_W4DPSAS          || \
+       defined W4DPSAS        || defined W4DPSAS_SENSITIVITY
           real(r8), pointer :: NLPenalty(:)
 #   endif
           real(r8), pointer :: NLobsCost(:)
@@ -144,9 +145,16 @@
         real(r8), allocatable :: NLmodVal(:)
 #  ifdef TLM_OBS
         real(r8), allocatable :: TLmodVal(:)
-#   ifdef W4DPSAS
+#   if defined SENSITIVITY_4DVAR    || defined TL_W4DPSAS || \
+       defined TL_W4DVAR            || defined W4DPSAS    || \
+       defined W4DVAR
+        real(r8), allocatable :: TLmodVal_S(:,:,:)
+#   endif
+#   if defined TL_W4DPSAS           || defined W4DPSAS    || \
+       defined W4DPSAS_SENSITIVITY
+        
         real(r8), allocatable :: BCKmodVal(:)
-#   endif      
+#   endif
 #  endif
 #  if defined WEAK_CONSTRAINT || defined IOM
         real(r8), allocatable :: zcglwk(:,:,:)
@@ -157,6 +165,20 @@
         real(r8), allocatable :: cg_innov(:)
         real(r8), allocatable :: cg_pxsave(:)
         real(r8), allocatable :: cg_dla(:,:)
+#   if defined TL_W4DPSAS          || defined TL_W4DVAR          || \
+       defined W4DPSAS_SENSITIVITY || defined W4DVAR_SENSITIVITY
+        real(r8), allocatable :: ad_zcglwk(:,:)
+        real(r8), allocatable :: ad_zgrad0(:)
+        real(r8), allocatable :: ad_cg_innov(:)
+        real(r8), allocatable :: ad_cg_pxsave(:)
+        real(r8), allocatable :: ad_ObsVal(:)
+
+        real(r8), allocatable :: tl_zcglwk(:,:)
+        real(r8), allocatable :: tl_zgrad0(:)
+        real(r8), allocatable :: tl_cg_innov(:)
+        real(r8), allocatable :: tl_cg_pxsave(:)
+        real(r8), allocatable :: tl_ObsVal(:)
+#   endif
 #  endif
 # endif
 !
@@ -334,6 +356,12 @@
 !
 !  Conjugate gradient coefficients.
 !
+#  if defined SENSITIVITY_4DVAR || defined TL_W4DPSAS  || \
+      defined TL_W4DVAR
+        real(r8), allocatable :: ad_cg_beta(:)
+
+        real(r8), allocatable :: tl_cg_beta(:)
+#  endif
         real(r8), allocatable :: cg_alpha(:,:)
         real(r8), allocatable :: cg_beta(:,:)
         real(r8), allocatable :: cg_tau(:,:)
@@ -349,14 +377,24 @@
 !
 !  Orthogonal eigenvectors of Lanczos recurrence term Q(k)T(k).
 !
-#   if defined WEAK_CONSTRAINT || defined IOM
+#  if defined WEAK_CONSTRAINT || defined IOM
         real(r8), allocatable :: cg_zv(:,:,:)
-#   else
+#  else
         real(r8), allocatable :: cg_zv(:,:)
-#   endif
+#  endif
 !
 !  Lanczos algorithm coefficients.
 !
+#  if defined SENSITIVITY_4DVAR || defined TL_W4DPSAS  || \
+      defined TL_W4DVAR
+        real(r8), allocatable :: ad_cg_delta(:)
+        real(r8), allocatable :: ad_cg_QG(:)
+        real(r8), allocatable :: ad_cg_Gnorm(:)
+
+        real(r8), allocatable :: tl_cg_delta(:)
+        real(r8), allocatable :: tl_cg_QG(:)
+        real(r8), allocatable :: tl_cg_Gnorm(:)
+#  endif
         real(r8), allocatable :: cg_delta(:,:)
         real(r8), allocatable :: cg_gamma(:,:)
 !
@@ -384,6 +422,16 @@
 !
         real(r8), allocatable :: cg_Ritz(:,:)
         real(r8), allocatable :: cg_RitzErr(:,:)
+# endif
+# if defined BALANCE_OPERATOR
+!
+!-----------------------------------------------------------------------
+!  Balance operator variables.
+!-----------------------------------------------------------------------
+!
+!  Logical switch to write balance operator reference free-surface.
+!
+        logical, dimension(Ngrids) :: wrtZetaRef
 # endif
 # if defined POSTERIOR_EOFS    || defined POSTERIOR_ERROR_I || \
      defined POSTERIOR_ERROR_F
@@ -518,6 +566,13 @@
 #  ifdef RPM_RELAXATION
         logical, dimension(Ngrids) :: LweakRelax
 #  endif
+#  if defined W4DPSAS_SENSITIVITY  || defined W4DVAR_SENSITIVITY
+!  
+!  Switch to activate reading of adjoint sensitivity initial conditions
+!  for weak constraint 4DVAR observation sensitivity.
+!
+        logical, dimension(Ngrids) :: LsenPSAS
+#  endif
 !
 !  Weak-constraint forcing time.  A new variable is required since this
 !  forcing is delayed by nADJ time-steps.
@@ -546,9 +601,7 @@
 !
       integer :: my_NstateVar, i, ng
 
-# ifdef OBSERVATIONS
       real(r8), parameter :: IniVal = 0.0_r8
-# endif
 !
       SourceFile='mod_fourdvar.F, initialize_fourdvar'
 
@@ -641,7 +694,8 @@
         allocate ( FOURDVAR(ng) % DataPenalty(0:NstateVar(ng)) )
         FOURDVAR(ng) % DataPenalty = IniVal
 
-#   if defined DATALESS_LOOPS || defined W4DPSAS
+#   if defined DATALESS_LOOPS || defined TL_W4DPSAS          || \
+       defined W4DPSAS        || defined W4DPSAS_SENSITIVITY
         allocate ( FOURDVAR(ng) % NLPenalty(0:NstateVar(ng)) )
         FOURDVAR(ng) % NLPenalty = IniVal
 #   endif
@@ -735,7 +789,14 @@
 #  ifdef TLM_OBS
       allocate ( TLmodVal(Mobs) )
       TLmodVal = IniVal
-#   ifdef W4DPSAS
+#   if defined SENSITIVITY_4DVAR    || defined TL_W4DPSAS || \
+       defined TL_W4DVAR            || defined W4DPSAS    || \
+       defined W4DVAR
+      allocate ( TLmodVal_S(Mobs,Ninner,Nouter) )
+      TLmodVal_S = IniVal
+#   endif
+#   if defined TL_W4DPSAS           || defined W4DPSAS    || \
+       defined W4DPSAS_SENSITIVITY
       allocate ( BCKmodVal(Mobs) )
       BCKmodVal = IniVal
 #   endif
@@ -745,6 +806,38 @@
 !
 !  Allocate and initialize weak constraint conjugate gradient vectors.
 !
+#   if defined TL_W4DPSAS          || defined TL_W4DVAR          || \
+       defined W4DPSAS_SENSITIVITY || defined W4DVAR_SENSITIVITY
+      allocate ( ad_zcglwk(Mobs,Ninner+1) )
+      ad_zcglwk = IniVal
+
+      allocate ( ad_zgrad0(Mobs) )
+      ad_zgrad0 = IniVal
+
+      allocate ( ad_cg_innov(Mobs) )
+      ad_cg_innov = IniVal
+
+      allocate ( ad_cg_pxsave(Mobs) )
+      ad_cg_pxsave = IniVal
+
+      allocate ( tl_zcglwk(Mobs,Ninner+1) )
+      tl_zcglwk = IniVal
+
+      allocate ( tl_zgrad0(Mobs) )
+      tl_zgrad0 = IniVal
+
+      allocate ( tl_cg_innov(Mobs) )
+      tl_cg_innov = IniVal
+
+      allocate ( tl_cg_pxsave(Mobs) )
+      tl_cg_pxsave = IniVal
+
+      allocate ( tl_ObsVal(Mobs) )
+      tl_ObsVal = IniVal
+
+      allocate ( ad_ObsVal(Mobs) )
+      ad_ObsVal = IniVal
+#   endif
       allocate ( cg_dla(Ninner,Nouter) )
       cg_dla = IniVal
 
@@ -824,6 +917,33 @@
 !
 !  Allocate conjugate gradient variables.
 !
+#  if defined SENSITIVITY_4DVAR || defined TL_W4DPSAS  || \
+      defined TL_W4DVAR
+      allocate ( ad_cg_beta(Ninner+1) )
+      ad_cg_beta = IniVal
+
+      allocate ( ad_cg_delta(Ninner) )
+      ad_cg_delta = IniVal
+
+      allocate ( ad_cg_QG(Ninner+1) )
+      ad_cg_QG = IniVal
+
+      allocate ( ad_cg_Gnorm(Nouter) )
+      ad_cg_Gnorm = IniVal
+
+      allocate ( tl_cg_beta(Ninner+1) )
+      tl_cg_beta = IniVal
+
+      allocate ( tl_cg_delta(Ninner) )
+      tl_cg_delta = IniVal
+
+      allocate ( tl_cg_QG(Ninner+1) )
+      tl_cg_QG = IniVal
+
+      allocate ( tl_cg_Gnorm(Nouter) )
+      tl_cg_Gnorm = IniVal
+#  endif
+
       allocate ( cg_alpha(0:Ninner,Nouter) )
       cg_alpha = IniVal
 
@@ -942,6 +1062,9 @@
         wrtNLmod(ng)=.FALSE.
         wrtRPmod(ng)=.FALSE.
         wrtTLmod(ng)=.FALSE.
+# ifdef BALANCE_OPERATOR
+        wrtZetaRef(ng)=.FALSE.
+# endif
         KhMin(ng)=1.0_r8
         KhMax(ng)=1.0_r8
         KvMin(ng)=1.0_r8

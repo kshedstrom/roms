@@ -2,7 +2,7 @@
       MODULE mod_biology
 #ifdef BIOLOGY
 !
-!svn $Id: mod_biology.F 1013 2009-07-07 21:21:23Z kate $
+!svn $Id: mod_biology.F 1038 2009-08-11 22:29:40Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -793,17 +793,22 @@
         real(r8), allocatable :: BioIni(:,:)
         real(r8), dimension(Ngrids) :: AttPhy        ! m2/mmole
         real(r8), dimension(Ngrids) :: AttSW         ! 1/m
-        real(r8), dimension(Ngrids) :: A_Fe          ! nondimensional
-        real(r8), dimension(Ngrids) :: B_Fe          ! 1/M-C
         real(r8), dimension(Ngrids) :: DetRR         ! 1/day
-        real(r8), dimension(Ngrids) :: FeRR          ! 1/day
-        real(r8), dimension(Ngrids) :: FeHmin        ! m
-        real(r8), dimension(Ngrids) :: FeMax         ! mmole/m3
-        real(r8), dimension(Ngrids) :: FeNudgTime    ! day
-        real(r8), dimension(Ngrids) :: K_FeC         ! muM-Fe/M-C
         real(r8), dimension(Ngrids) :: K_NO3         ! 1/(mmol/m3)
         real(r8), dimension(Ngrids) :: Ivlev         ! nondimensional
         real(r8), dimension(Ngrids) :: PARfrac       ! nondimensional
+#  ifdef IRON_LIMIT
+        real(r8), dimension(Ngrids) :: A_Fe          ! nondimensional
+        real(r8), dimension(Ngrids) :: B_Fe          ! 1/M-C
+        real(r8), dimension(Ngrids) :: FeRR          ! 1/day
+#    ifdef IRON_RELAX
+        real(r8), dimension(Ngrids) :: FeHmin        ! m
+        real(r8), dimension(Ngrids) :: FeMax         ! mmole/m3
+        real(r8), dimension(Ngrids) :: FeNudgTime    ! day
+#    endif
+        real(r8), dimension(Ngrids) :: K_FeC         ! muM-Fe/M-C
+        real(r8), dimension(Ngrids) :: T_Fe          ! day
+#  endif
 #  ifdef TANGENT
         real(r8), dimension(Ngrids) :: tl_PARfrac    ! nondimensional
 #  endif
@@ -813,7 +818,6 @@
         real(r8), dimension(Ngrids) :: PhyIS         ! m2/W
         real(r8), dimension(Ngrids) :: PhyMRD        ! 1/day
         real(r8), dimension(Ngrids) :: PhyMRN        ! 1/day
-        real(r8), dimension(Ngrids) :: T_Fe          ! day
         real(r8), dimension(Ngrids) :: Vm_NO3        ! 1/day
         real(r8), dimension(Ngrids) :: wDet          ! m/day
 #  ifdef TANGENT

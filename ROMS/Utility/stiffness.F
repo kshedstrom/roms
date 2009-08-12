@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       MODULE stiffness_mod
 !
-!svn $Id: stiffness.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: stiffness.F 1038 2009-08-11 22:29:40Z kate $
 !=======================================================================
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -299,10 +299,10 @@
             ratio=0.0_r8
           END IF
           WRITE (stdout,20) TotVolume, MinVolume, MaxVolume, ratio
-  20      FORMAT (/,' Initial basin volumes: TotVolume = ',1p,e21.14,0p, &
-     &            ' m3',/,t25,'MinVolume = ',1p,e21.14,0p,' m3',         &
-     &            /,t25,'MaxVolume = ',1p,e21.14,0p,' m3',               &
-     &            /,t25,'  Max/Min = ',1p,e21.14,0p,/)
+  20      FORMAT (/,' Initial basin volumes: TotVolume = ',1p,e17.10,0p, &
+     &            ' m3',/,t25,'MinVolume = ',1p,e17.10,0p,' m3',         &
+     &            /,t25,'MaxVolume = ',1p,e17.10,0p,' m3',               &
+     &            /,t25,'  Max/Min = ',1p,e17.10,0p,/)
         END IF
       END IF
 !$OMP END CRITICAL (R_FACTOR)

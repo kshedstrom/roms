@@ -20,7 +20,7 @@
 #  define JV_RANGE Jstr,JendR
 # endif
 !
-!svn $Id: ini_adjust.F 984 2009-05-24 01:43:19Z kate $
+!svn $Id: ini_adjust.F 1038 2009-08-11 22:29:40Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
@@ -47,7 +47,7 @@
 # ifdef TLM_CHECK
       PUBLIC :: ini_perturb
 # endif
-# if defined IOM    || defined TL_W4DVAR          || \ 
+# if defined IOM    || defined TL_W4DVAR          || \
      defined W4DVAR || defined W4DVAR_SENSITIVITY
       PUBLIC :: rp_ini_adjust
 # endif

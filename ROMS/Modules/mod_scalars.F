@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       MODULE mod_scalars
 !
-!svn $Id: mod_scalars.F 1020 2009-07-10 23:10:30Z kate $
+!svn $Id: mod_scalars.F 1038 2009-08-11 22:29:40Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -428,6 +428,12 @@
         integer, pointer :: if_age_base(:,:)
         integer, pointer :: if_sp_base(:)
 # endif
+# ifdef SOLVE3D
+!
+!  Tracer variables indices in the track array.
+!
+        integer, allocatable :: ifTvar(:)
+# endif
 !
 !  Set float tracjectory types:
 !
@@ -438,6 +444,13 @@
       integer, parameter :: flt_Lagran = 1
       integer, parameter :: flt_Isobar = 2
       integer, parameter :: flt_Geopot = 3
+
+# ifdef FLOAT_VWALK
+!
+!  Vertical random walk, initial seed state.
+!
+      integer :: flt_iseed
+# endif
 #endif
 !
 !-----------------------------------------------------------------------
@@ -2025,9 +2038,11 @@
         allocate ( idiceLog(1) )
 #   endif
 # endif
-
 #endif
 
+# if defined FLOATS && defined SOLVE3D
+        allocate ( ifTvar(MT) )
+# endif
 # ifdef T_PASSIVE
       allocate ( inert(NPT) )
 # endif
@@ -2455,6 +2470,22 @@
       ic=ic+1
 # endif
 #endif
+
+#if defined FLOATS && defined SOLVE3D
+!
+!  Indices for tracer variables in the floats array track.
+!
+# ifdef FLOAT_VWALK
+      ic=12
+# else
+      ic=10
+# endif
+      DO i=1,MT
+        ic=ic+1
+        ifTvar(i)=ic
+      END DO
+#endif
+
 #ifdef DIAGNOSTICS
 !
 !---------------------------------------------------------------------
@@ -2627,7 +2658,9 @@
 #endif
         END DO
       END DO
-      
+#if defined FLOATS && defined FLOAT_VWALK
+      flt_iseed=149876
+#endif
 #if defined LMD_SKPP || defined LMD_BKPP
 !
 !  Proportionality coefficient parameterizing boundary layer

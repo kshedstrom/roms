@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       SUBROUTINE initial (ng)
 !
-!svn $Id: initial.F 984 2009-05-24 01:43:19Z kate $
+!svn $Id: initial.F 1038 2009-08-11 22:29:40Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -466,6 +466,25 @@
           END DO
         END DO
 !$OMP END PARALLEL DO
+#endif
+
+#if (defined W4DPSAS || defined TL_W4DPSAS || \
+     defined W4DPSAS_SENSITIVITY)          && \
+    (defined ADJUST_BOUNDARY || defined ADJUST_WSTRESS ||\
+     defined ADJUST_STFLUX)
+!
+!-----------------------------------------------------------------------
+!  Read in the surface forcing and/or obc increments for PSAS from
+!  record 1 of the TLM initial NetCDF file.
+!-----------------------------------------------------------------------
+!
+      IF (Nrun.gt.1) THEN
+        CALL get_state (ng, 12, 1, ITLname(ng), 1, Tindex)
+# ifdef DISTRIBUTE
+        CALL mp_bcasti (ng, iNLM, exit_flag)
+# endif
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
 #endif
 
 #ifdef TLM_CHECK

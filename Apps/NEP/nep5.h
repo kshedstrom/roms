@@ -26,7 +26,7 @@
 #ifdef SOLVE3D
 # undef SPLINES
 #endif
-#undef FLOATS
+#define FLOATS
 #define STATIONS
 #define WET_DRY
 
@@ -258,9 +258,9 @@
 /*
 **  Biological model options.
 */
-#define NEMURO
+#undef NEMURO
 #undef BIO_GOANPZ        /* Sarah Hinckley's 11 box model */
-#undef BEST_NPZ         /* Georgina Gibsons BEST NPZ model  */
+#define BEST_NPZ         /* Georgina Gibsons BEST NPZ model  */
 
 #if defined BEST_NPZ || defined BIO_GOANPZ || defined PASSIVE_TRACERS
 # undef  BIOFLUX           /* sum Nitrogen fluxes between boxes */
@@ -268,6 +268,7 @@
 # define ANA_BPFLUX        /* analytical bottom passive tracers fluxes */
 # define ANA_SPFLUX        /* analytical surface passive tracers fluxes */
 # define DIAPAUSE          /* Enable Neocalanus seasonal vertical migration */
+# undef FLOAT_VWALK
 # define IRON_LIMIT        /* Add iron as passive 11th tracer */
 # undef TCLM_NUDGING      /* Nudging of tracer climatology for iron */
 #endif

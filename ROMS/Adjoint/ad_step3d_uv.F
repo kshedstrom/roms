@@ -2,7 +2,7 @@
       MODULE ad_step3d_uv_mod
 #if defined ADJOINT && defined SOLVE3D
 !
-!svn $Id: ad_step3d_uv.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: ad_step3d_uv.F 1039 2009-08-11 22:52:28Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
@@ -61,7 +61,7 @@
      &                        IminS, ImaxS, JminS, JmaxS,               &
      &                        knew(ng), nrhs(ng), nstp(ng), nnew(ng),   &
 # ifdef UV_PSOURCE
-     &                        Nsrc(ng),                                 &
+     &                        Msrc(ng), Nsrc(ng),                       &
      &                        SOURCES(ng) % Isrc,                       &
      &                        SOURCES(ng) % Jsrc,                       &
      &                        SOURCES(ng) % Dsrc,                       &
@@ -137,7 +137,7 @@
      &                              IminS, ImaxS, JminS, JmaxS,         &
      &                              knew, nrhs, nstp, nnew,             &
 # ifdef UV_PSOURCE
-     &                              Nsrc,                               &
+     &                              Msrc, Nsrc,                         &
      &                              Isrc, Jsrc, Dsrc, Qsrc,             &
 # endif
 # ifdef MASKING
@@ -193,10 +193,12 @@
       integer, intent(in) :: LBi, UBi, LBj, UBj
       integer, intent(in) :: IminS, ImaxS, JminS, JmaxS
       integer, intent(in) :: knew, nrhs, nstp, nnew
+# ifdef UV_PSOURCE
+      integer, intent(in) :: Msrc, Nsrc
+# endif
 !
 # ifdef ASSUMED_SHAPE
 #  ifdef UV_PSOURCE
-      integer, intent(in) :: Nsrc
       integer, intent(in) :: Isrc(:)
       integer, intent(in) :: Jsrc(:)
       real(r8), intent(in) :: Dsrc(:)
@@ -263,13 +265,14 @@
 
       real(r8), intent(out) :: ad_ubar_sol(LBi:,LBj:)
       real(r8), intent(out) :: ad_vbar_sol(LBi:,LBj:)
+
 # else
+
 #  ifdef UV_PSOURCE
-      integer, intent(in) :: Nsrc
-      integer, intent(in) :: Isrc(Nsrc)
-      integer, intent(in) :: Jsrc(Nsrc)
-      real(r8), intent(in) :: Dsrc(Nsrc)
-      real(r8), intent(in) :: Qsrc(Nsrc,N(ng))
+      integer, intent(in) :: Isrc(Msrc)
+      integer, intent(in) :: Jsrc(Msrc)
+      real(r8), intent(in) :: Dsrc(Msrc)
+      real(r8), intent(in) :: Qsrc(Msrc,N(ng))
 #  endif
 #  ifdef MASKING
       real(r8), intent(in) :: umask(LBi:UBi,LBj:UBj)
