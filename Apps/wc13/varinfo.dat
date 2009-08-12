@@ -4862,11 +4862,56 @@
   'r3dvar'
   1.0d0
 
- 'fspwnloc'
-  'Spawning location of fish'
+ 'species'
+  'species of fish'
   'nondimensional'
-  'fspwnloc, scalar, series'
+  'species, scalar, series'
   'bio_time'
-  'idspwnloc'
+  'idFspc'
+  'r3dvar'
+  1
+
+ 'lifestage'
+  'Lifestage of fish'
+  'nondimensional'
+  'lifestage, scalar, series'
+  'bio_time'
+  'idFlfsg'
+  'r3dvar'
+  1.0d0
+
+ 'swimtype'
+  'swim type of fish'
+  'nondimensional'
+  'swimtype, scalar, series'
+  'bio_time'
+  'idFswmt'
+  'r3dvar'
+  1.0d0
+
+ 'alive'
+  'fish is alive'
+  'nondimensional'
+  'alive, scalar, series'
+  'bio_time'
+  'idFalv'
+  'r3dvar'
+  1.0d0
+
+ 'eatfish'
+  'fish eats other fish'
+  'nondimensional'
+  'eatfish, scalar, series'
+  'bio_time'
+  'idFeatf'
+  'r3dvar'
+  1.0d0
+
+ 'fishgirl'
+  'fish is female'
+  'nondimensional'
+  'fishgirl, scalar, series'
+  'bio_time'
+  'idFgrl'
   'r3dvar'
   1.0d0

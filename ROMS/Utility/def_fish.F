@@ -206,11 +206,17 @@
      &                 SetParAccess = .FALSE.)
         IF (exit_flag.ne.NoError) RETURN
 !
+!*********************************************************************
+! This next batch gets written out, but not as a timeseries, they get
+! overwritten with the current lifestage, etc., of the fish for restart
+! purposes.
+!*********************************************************************
+!
 !  Define fish species
 !
         Vinfo( 1)='Species'
         Vinfo( 2)='Fish species'
-        status=def_var(ng, iNLM, ncFISHid(ng), fishVid(idfspc,ng),      &
+        status=def_var(ng, iNLM, ncFISHid(ng), fishVid(idFspc,ng),      &
      &                 nf90_int, 1, (/fishdim/), Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 !
@@ -218,38 +224,8 @@
 !
         Vinfo( 1)='Lifestage'
         Vinfo( 2)='Fish lifestage'
-        status=def_var(ng, iNLM, ncFISHid(ng), fishVid(idflfsg,ng),     &
+        status=def_var(ng, iNLM, ncFISHid(ng), fishVid(idFlfsg,ng),     &
      &                 nf90_int, 1, (/fishdim/), Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
-!
-!  Define fish alive
-!
-        Vinfo( 1)='Alive'
-        Vinfo( 2)='Fish alive'
-        Vinfo( 7)='Fish alive'
-        Vinfo( 8)='Fish dead'
-        status=def_var(ng, iNLM, ncFISHid(ng), fishVid(idfalv,ng),      &
-     &                 nf90_char, 1, (/fishdim/), Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
-!
-!  Define fish eatfish
-!
-        Vinfo( 1)='Eatfish'
-        Vinfo( 2)='Fish eater'
-        Vinfo( 7)='Fish eat fish'
-        Vinfo( 8)='Fish don't eat fish'
-        status=def_var(ng, iNLM, ncFISHid(ng), fishVid(idfeatf,ng),     &
-     &                 nf90_char, 1, (/fishdim/), Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
-!
-!  Define fish gender
-!
-        Vinfo( 1)='Fishgirl'
-        Vinfo( 2)='Fish gender'
-        Vinfo( 7)='Fish is female'
-        Vinfo( 8)='Fish is male'
-        status=def_var(ng, iNLM, ncFISHid(ng), fishVid(idfgrl,ng),      &
-     &                 nf90_char, 1, (/fishdim/), Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 !
 !  Define fish swimtype
@@ -257,6 +233,36 @@
         Vinfo( 1)='Swimtype'
         Vinfo( 2)='Fish swimming type'
         status=def_var(ng, iNLM, ncFISHid(ng), fishVid(idfswmt,ng),     &
+     &                 nf90_int, 1, (/fishdim/), Aval, Vinfo, ncname)
+        IF (exit_flag.ne.NoError) RETURN
+!
+!  Define fish alive
+!
+        Vinfo( 1)='Alive'
+        Vinfo( 2)='Fish alive'
+        Vinfo( 9)='Fish alive'
+        Vinfo(10)='Fish dead'
+        status=def_var(ng, iNLM, ncFISHid(ng), fishVid(idFalv,ng),      &
+     &                 nf90_int, 1, (/fishdim/), Aval, Vinfo, ncname)
+        IF (exit_flag.ne.NoError) RETURN
+!
+!  Define fish eatfish
+!
+        Vinfo( 1)='Eatfish'
+        Vinfo( 2)='Fish eater'
+        Vinfo( 9)='Fish eat fish'
+        Vinfo(10)='Fish do not eat fish'
+        status=def_var(ng, iNLM, ncFISHid(ng), fishVid(idFeatf,ng),     &
+     &                 nf90_int, 1, (/fishdim/), Aval, Vinfo, ncname)
+        IF (exit_flag.ne.NoError) RETURN
+!
+!  Define fish gender
+!
+        Vinfo( 1)='Fishgirl'
+        Vinfo( 2)='Fish gender'
+        Vinfo( 9)='Fish is female'
+        Vinfo(10)='Fish is male'
+        status=def_var(ng, iNLM, ncFISHid(ng), fishVid(idFgrl,ng),      &
      &                 nf90_int, 1, (/fishdim/), Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 !
@@ -565,6 +571,24 @@
           IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idtime))) THEN
             got_var(idtime)=.TRUE.
             fishVid(idtime,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.'species') THEN
+            got_var(idFspc)=.TRUE.
+            fishVid(idFspc,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.'lifestage') THEN
+            got_var(idFlfsg)=.TRUE.
+            fishVid(idFlfsg,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.'swimtype') THEN
+            got_var(idFswmt)=.TRUE.
+            fishVid(idFswmt,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.'alive') THEN
+            got_var(idFalv)=.TRUE.
+            fishVid(idFalv,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.'eatfish') THEN
+            got_var(idFeatf)=.TRUE.
+            fishVid(idFeatf,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.'fishgirl') THEN
+            got_var(idFgrl)=.TRUE.
+            fishVid(idFgrl,ng)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.'Xgrid') THEN
             got_var(idXgrd)=.TRUE.
             fishVid(idXgrd,ng)=var_id(i)
@@ -624,6 +648,36 @@
         IF (.not.got_var(idtime)) THEN
           IF (Master) WRITE (stdout,60) TRIM(Vname(1,idtime)),          &
      &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idFspc)) THEN
+          IF (Master) WRITE (stdout,60) 'species', TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idFlfsg)) THEN
+          IF (Master) WRITE (stdout,60) 'lifestage', TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idFswmt)) THEN
+          IF (Master) WRITE (stdout,60) 'swimtype', TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idFalv)) THEN
+          IF (Master) WRITE (stdout,60) 'alive', TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idFeatf)) THEN
+          IF (Master) WRITE (stdout,60) 'eatfish', TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idFgrl)) THEN
+          IF (Master) WRITE (stdout,60) 'fishgirl', TRIM(ncname)
           exit_flag=3
           RETURN
         END IF

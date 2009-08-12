@@ -57,6 +57,66 @@
      &                      varid = fishVid(idtime,ng))
       IF (exit_flag.ne.NoError) RETURN
 !
+!  Write out fish species.
+!
+      CALL netcdf_put_ivar (ng, iNLM, FISHname(ng),                     &
+     &                      TRIM(Vname(1,idFspc)),                      &
+     &                      FISHES(ng) % species,                       &
+     &                      (/1/), (/Nfish(ng)/),                       &
+     &                      ncid = ncFISHid(ng),                        &
+     &                      varid = fishVid(idFspc,ng))
+      IF (exit_flag.ne.NoError) RETURN
+!
+!  Write out fish lifestage.
+!
+      CALL netcdf_put_ivar (ng, iNLM, FISHname(ng),                     &
+     &                      TRIM(Vname(1,idFlfsg)),                     &
+     &                      FISHES(ng) % lifestage,                     &
+     &                      (/1/), (/Nfish(ng)/),                       &
+     &                      ncid = ncFISHid(ng),                        &
+     &                      varid = fishVid(idFlfsg,ng))
+      IF (exit_flag.ne.NoError) RETURN
+!
+!  Write out fish swimtype.
+!
+      CALL netcdf_put_ivar (ng, iNLM, FISHname(ng),                     &
+     &                      TRIM(Vname(1,idFswmt)),                     &
+     &                      FISHES(ng) % swimtype,                      &
+     &                      (/1/), (/Nfish(ng)/),                       &
+     &                      ncid = ncFISHid(ng),                        &
+     &                      varid = fishVid(idFswmt,ng))
+      IF (exit_flag.ne.NoError) RETURN
+!
+!  Write out fish aliveness.
+!
+      CALL netcdf_put_lvar (ng, iNLM, FISHname(ng),                     &
+     &                      TRIM(Vname(1,idFalv)),                      &
+     &                      FISHES(ng) % alive,                         &
+     &                      (/1/), (/Nfish(ng)/),                       &
+     &                      ncid = ncFISHid(ng),                        &
+     &                      varid = fishVid(idFalv,ng))
+      IF (exit_flag.ne.NoError) RETURN
+!
+!  Write out fish eat fish logic.
+!
+      CALL netcdf_put_lvar (ng, iNLM, FISHname(ng),                     &
+     &                      TRIM(Vname(1,idFeatf)),                     &
+     &                      FISHES(ng) % eatfish,                       &
+     &                      (/1/), (/Nfish(ng)/),                       &
+     &                      ncid = ncFISHid(ng),                        &
+     &                      varid = fishVid(idFeatf,ng))
+      IF (exit_flag.ne.NoError) RETURN
+!
+!  Write out fish gender.
+!
+      CALL netcdf_put_lvar (ng, iNLM, FISHname(ng),                     &
+     &                      TRIM(Vname(1,idFgrl)),                      &
+     &                      FISHES(ng) % fishgirl,                      &
+     &                      (/1/), (/Nfish(ng)/),                       &
+     &                      ncid = ncFISHid(ng),                        &
+     &                      varid = fishVid(idFgrl,ng))
+      IF (exit_flag.ne.NoError) RETURN
+!
 !  Write out fish X-grid locations.
 !
       DO l=1,Nfish(ng)

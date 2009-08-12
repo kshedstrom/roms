@@ -374,6 +374,12 @@
 
 ! NEMURO_SAN variables
         integer  :: idFspwn        ! spawning distribution
+        integer  :: idFspc         ! fish species
+        integer  :: idFlfsg        ! fish lifestage
+        integer  :: idFswmt        ! fish swim type
+        integer  :: idFalv         ! fish is alive
+        integer  :: idFeatf        ! fish eats fish
+        integer  :: idFgrl         ! fish is female
 
         integer, allocatable :: idRtrc(:)    ! river runoff for tracers
         integer, allocatable :: idTads(:)    ! tracers adjoint sentivity
@@ -1885,6 +1891,18 @@
 #ifdef NEMURO_SAN
               CASE ('idFspwn')
                 idFspwn=varid
+              CASE ('idFspc')
+                idFspc=varid
+              CASE ('idFlfsg')
+                idFlfsg=varid
+              CASE ('idFswmt')
+                idFswmt=varid
+              CASE ('idFalv')
+                idFalv=varid
+              CASE ('idFeatf')
+                idFeatf=varid
+              CASE ('idFgrl')
+                idFgrl=varid
 #endif
 #ifdef SEDIMENT
               CASE ('idRtrc(idmud)')

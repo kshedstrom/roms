@@ -44,6 +44,7 @@
      &                        FISHES(ng) % bioenergy,                   &
      &                        FISHES(ng) % alive,                       &
      &                        FISHES(ng) % species,                     &
+     &                        FISHES(ng) % lifestage,                   &
      &                        FISHES(ng) % sp_start,                    &
      &                        FISHES(ng) % sp_end,                      &
      &                        FISHES(ng) % num_free,                    &
@@ -55,7 +56,8 @@
       SUBROUTINE fish_spawn_tile (ng, tile, nnew, LBi, UBi, LBj, UBj,   &
      &                              nf, spawn_dist,                     &
      &                              bounded, track, bioenergy, alive,   &
-     &                              species, sp_start, sp_end,          &
+     &                              species, lifestage,                 &
+     &                              sp_start, sp_end,                   &
      &                              num_free, num_super)
 !***********************************************************************
 !
@@ -84,6 +86,7 @@
       real(r8), intent(inout) :: bioenergy(:,:)
       logical, intent(in) :: alive(:)
       integer, intent(in) :: species(:)
+      integer, intent(in) :: lifestage(:)
       real(r8), intent(in) :: sp_start(:)
       real(r8), intent(in) :: sp_end(:)
       integer, intent(in) :: num_free(:)
@@ -95,6 +98,7 @@
       real(r8), intent(inout) :: bioenergy(NFishV(ng),Nfish(ng))
       logical, intent(in) :: alive(Nfish(ng))
       integer, intent(in) :: species(Nfish(ng))
+      integer, intent(in) :: lifestage(Nfish(ng))
       real(r8), intent(in) :: sp_start(Nspecies(ng))
       real(r8), intent(in) :: sp_end(Nspecies(ng))
       integer, intent(in) :: num_free(Nspecies(ng))
