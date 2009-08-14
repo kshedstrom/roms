@@ -571,22 +571,22 @@
           IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idtime))) THEN
             got_var(idtime)=.TRUE.
             fishVid(idtime,ng)=var_id(i)
-          ELSE IF (TRIM(var_name(i)).eq.'species') THEN
+          ELSE IF (TRIM(var_name(i)).eq.'Species') THEN
             got_var(idFspc)=.TRUE.
             fishVid(idFspc,ng)=var_id(i)
-          ELSE IF (TRIM(var_name(i)).eq.'lifestage') THEN
+          ELSE IF (TRIM(var_name(i)).eq.'Lifestage') THEN
             got_var(idFlfsg)=.TRUE.
             fishVid(idFlfsg,ng)=var_id(i)
-          ELSE IF (TRIM(var_name(i)).eq.'swimtype') THEN
+          ELSE IF (TRIM(var_name(i)).eq.'Swimtype') THEN
             got_var(idFswmt)=.TRUE.
             fishVid(idFswmt,ng)=var_id(i)
-          ELSE IF (TRIM(var_name(i)).eq.'alive') THEN
+          ELSE IF (TRIM(var_name(i)).eq.'Alive') THEN
             got_var(idFalv)=.TRUE.
             fishVid(idFalv,ng)=var_id(i)
-          ELSE IF (TRIM(var_name(i)).eq.'eatfish') THEN
+          ELSE IF (TRIM(var_name(i)).eq.'Eatfish') THEN
             got_var(idFeatf)=.TRUE.
             fishVid(idFeatf,ng)=var_id(i)
-          ELSE IF (TRIM(var_name(i)).eq.'fishgirl') THEN
+          ELSE IF (TRIM(var_name(i)).eq.'Fishgirl') THEN
             got_var(idFgrl)=.TRUE.
             fishVid(idFgrl,ng)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.'Xgrid') THEN
@@ -652,32 +652,32 @@
           RETURN
         END IF
         IF (.not.got_var(idFspc)) THEN
-          IF (Master) WRITE (stdout,60) 'species', TRIM(ncname)
+          IF (Master) WRITE (stdout,60) 'Species', TRIM(ncname)
           exit_flag=3
           RETURN
         END IF
         IF (.not.got_var(idFlfsg)) THEN
-          IF (Master) WRITE (stdout,60) 'lifestage', TRIM(ncname)
+          IF (Master) WRITE (stdout,60) 'Lifestage', TRIM(ncname)
           exit_flag=3
           RETURN
         END IF
         IF (.not.got_var(idFswmt)) THEN
-          IF (Master) WRITE (stdout,60) 'swimtype', TRIM(ncname)
+          IF (Master) WRITE (stdout,60) 'Swimtype', TRIM(ncname)
           exit_flag=3
           RETURN
         END IF
         IF (.not.got_var(idFalv)) THEN
-          IF (Master) WRITE (stdout,60) 'alive', TRIM(ncname)
+          IF (Master) WRITE (stdout,60) 'Alive', TRIM(ncname)
           exit_flag=3
           RETURN
         END IF
         IF (.not.got_var(idFeatf)) THEN
-          IF (Master) WRITE (stdout,60) 'eatfish', TRIM(ncname)
+          IF (Master) WRITE (stdout,60) 'Eatfish', TRIM(ncname)
           exit_flag=3
           RETURN
         END IF
         IF (.not.got_var(idFgrl)) THEN
-          IF (Master) WRITE (stdout,60) 'fishgirl', TRIM(ncname)
+          IF (Master) WRITE (stdout,60) 'Fishgirl', TRIM(ncname)
           exit_flag=3
           RETURN
         END IF
