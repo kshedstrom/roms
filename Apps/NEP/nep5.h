@@ -63,7 +63,7 @@
 #undef OUT_DOUBLE
 #define RST_SINGLE
 #define AVERAGES
-#define AVERAGES2
+#undef AVERAGES2
 #ifdef SOLVE3D
 # undef AVERAGES_DETIDE
 # define AVERAGES_AKT
