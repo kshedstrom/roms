@@ -232,7 +232,7 @@
 !
         Vinfo( 1)='Swimtype'
         Vinfo( 2)='Fish swimming type'
-        status=def_var(ng, iNLM, ncFISHid(ng), fishVid(idfswmt,ng),     &
+        status=def_var(ng, iNLM, ncFISHid(ng), fishVid(idFswmt,ng),     &
      &                 nf90_int, 1, (/fishdim/), Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 !
