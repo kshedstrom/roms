@@ -374,6 +374,7 @@
 
 ! NEMURO_SAN variables
         integer  :: idFspwn        ! spawning distribution
+        integer  :: idfbatch       ! fish batch
         integer  :: idFspc         ! fish species
         integer  :: idFlfsg        ! fish lifestage
         integer  :: idFswmt        ! fish swim type
@@ -1398,8 +1399,6 @@
                 idfworth=varid
               CASE ('idfpval')
                 idfpval=varid
-              CASE ('idspwnloc')
-                idspwnloc=varid
               CASE ('idTvar(itemp)')
                 idTvar(itemp)=varid
               CASE ('idTvar(isalt)')
@@ -1889,8 +1888,10 @@
                 idRtrc(iPON_)=varid
 #endif
 #ifdef NEMURO_SAN
-              CASE ('idFspwn')
-                idFspwn=varid
+              CASE ('idfbatch')
+                idfbatch=varid
+              CASE ('idspwnloc')
+                idspwnloc=varid
               CASE ('idFspc')
                 idFspc=varid
               CASE ('idFlfsg')

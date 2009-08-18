@@ -4863,11 +4863,11 @@
   1.0d0
 
  'fbatch'
-  'batch of fish'
+  'fbatch of fish'
   'nondimensional'
   'fbatch, scalar, series'
   'bio_time'
-  'idbatch'
+  'idfbatch'
   'r3dvar'
   1.0d0
 

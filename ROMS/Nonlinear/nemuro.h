@@ -246,7 +246,8 @@
           Jr=INT(FISHES(ng)%track(iygrd,nnew,lflt)+0.5_r8)
           Kr=INT(FISHES(ng)%track(izgrd,nnew,lflt)+0.5_r8)
           IF ((Ir.ge.Istr).and.(Ir.le.Iend).and.                        &
-     &        (Jr.ge.Jstr).and.(Jr.le.Jend)) THEN
+     &        (Jr.ge.Jstr).and.(Jr.le.Jend).and.                        &
+     &        FISHES(ng)%alive(lflt)) THEN
 ! Factor to convert from mmolN/day to mmolN/m3
             cff=dtdays*GRID(ng)%pm(Ir,Jr)*GRID(ng)%pn(Ir,Jr)/           &
      &                 Hz(Ir,Jr,Kr)

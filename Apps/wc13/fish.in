@@ -35,7 +35,7 @@
 !                                                                             !
 !==============================================================================
 !
-! Switch to control the computation of floats tracjectories within nested
+! Switch to control the computation of floats trajectories within nested
 ! and/or multiple connected grids, [1:Ngrids].
 !
      Lfish == T

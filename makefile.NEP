@@ -101,7 +101,7 @@ MY_CPP_FLAGS ?=
 #  If parallel applications, use at most one of these definitions
 #  (leave both definitions blank in serial applications):
 
-     USE_MPI ?= 
+     USE_MPI ?= on
   USE_OpenMP ?=
 
 #  If distributed-memory, turn on compilation via the script "mpif90".

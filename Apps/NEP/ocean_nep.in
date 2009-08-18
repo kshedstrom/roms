@@ -65,21 +65,21 @@
 ! shared-memory configurations used to determine tile horizontal range
 ! indices (Istr,Iend) and (Jstr,Jend), [1:Ngrids].
 
-!      NtileI == 1                               ! I-direction partition
-!      NtileJ == 16                              ! J-direction partition
+       NtileI == 1                               ! I-direction partition
+       NtileJ == 16                              ! J-direction partition
 !      NtileI == 6                               ! I-direction partition
 !      NtileJ == 8                              ! J-direction partition
-      NtileI == 6                               ! I-direction partition
-      NtileJ == 16                              ! J-direction partition
+!      NtileI == 6                               ! I-direction partition
+!      NtileJ == 16                              ! J-direction partition
 
 ! Time-Stepping parameters.
 
-!      NTIMES == 576
-       NTIMES == 51840
+       NTIMES == 4320
+!      NTIMES == 51840
 !      NTIMES == 3073152       ! to 1/Nov/2001
 !      NTIMES == 6872472       ! for 200 days
-          DT == 400.0d0
-     NDTFAST == 40
+          DT == 200.0d0
+     NDTFAST == 20
 
 ! Model iteration loops parameters.
 
@@ -98,21 +98,21 @@
 
 ! Input/Output parameters.
 
-       NRREC =  -1
+       NRREC =  1
    LcycleRST == T
-        NRST == 216
-        NSTA == 9
-        NFLT == 1
+        NRST == 432
+        NSTA == 18
+        NFLT == 18
        NINFO == 1
 
 ! Output history, average, diagnostic files parameters.
 
      LDEFOUT == T
-        NHIS == 2160
-     NDEFHIS == 21600
+        NHIS == 4320
+     NDEFHIS == 43200
       NTSAVG == 1
-        NAVG == 216
-     NDEFAVG == 2160
+        NAVG == 432
+     NDEFAVG == 4320
      NTSAVG2 == 1
        NAVG2 == 27
     NDEFAVG2 == 1920
@@ -494,13 +494,13 @@ Hout2(idT0mk) == F
 
 !     GRDNAME == /wrkdir/kate/BiomModel/NEP4/NEP4_grid.nc
      GRDNAME == /wrkdir/kate/NEP5/Files/NEP_grid_5a.nc
-!     ININAME == /wrkdir/kate/NEP5/Files/soda2.0.2_NEP5a_init_1985.nc
-     ININAME == nep5_rst.nc
+     ININAME == /wrkdir/kate/NEP5/Files/soda2.0.2_NEP5a_init_1958.nc
+!     ININAME == nep5_rst.nc
      ITLNAME == /ptmp/enrique/ROMS/NEP4/Inputs/ocean_itl.nc
      IRPNAME == ocean_irp.nc
      IADNAME == ocean_iad.nc
      CLMNAME == /ptmp/enrique/ROMS/NEP4/Inputs/ocean_clm.nc
-     BRYNAME == /wrkdir/kate/NEP5/Files/soda_1985.nc
+     BRYNAME == /wrkdir/kate/NEP5/Files/soda2.0.2_NEP5a_bry_58-05.nc
      FWDNAME == /ptmp/enrique/ROMS/NEP4/Inputs/ocean_fwd.nc
      ADSNAME == ocean_ads.nc
 
@@ -517,27 +517,16 @@ Hout2(idT0mk) == F
 
     NFFILES == 10                          ! number of forcing files
 
-    FRCNAME == /wrkdir/kate/NEP5/Files/pair_3.nc   \
-               /wrkdir/kate/NEP5/Files/CORE2_lwrad_down.nc  \
-               /wrkdir/kate/NEP5/Files/qair_3.nc   \
-               /wrkdir/kate/NEP5/Files/CORE2_swrad.nc  \
-               /wrkdir/kate/NEP5/Files/tair_3.nc   \
-               /wrkdir/kate/NEP5/Files/uwind_3.nc  \
-               /wrkdir/kate/NEP5/Files/vwind_3.nc  \
-               /wrkdir/kate/NEP5/Files/CCSM_Runoff.nc   \
-               /wrkdir/kate/NEP5/Files/CORE2_rain.nc  \
+    FRCNAME == /wrkdir/kate/NEP5/Files/Pair.1948-2006.nc   \
+               /wrkdir/kate/NEP5/Files/lwrad.1948-2006.nc  \
+               /wrkdir/kate/NEP5/Files/Qair.1948-2006.nc   \
+               /wrkdir/kate/NEP5/Files/swrad.1948-2006.nc  \
+               /wrkdir/kate/NEP5/Files/Tair.1948-2006.nc   \
+               /wrkdir/kate/NEP5/Files/Uwind.1948-2006.nc  \
+               /wrkdir/kate/NEP5/Files/Vwind.1948-2006.nc  \
+               /wrkdir/kate/NEP5/Files/runoff.nc   \
+               /wrkdir/kate/NEP5/Files/rain.1948-2006.nc  \
                /wrkdir/kate/NEP5/Files/NEP4_tides_otps.nc 
-
-!   FRCNAME == /wrkdir/kate/NEP5/Files/CCSM_1985_Pair.nc   \
-!              /wrkdir/kate/NEP5/Files/CCSM_1985_lwrad_down.nc  \
-!              /wrkdir/kate/NEP5/Files/CCSM_1985_Qair.nc   \
-!              /wrkdir/kate/NEP5/Files/CCSM_1985_swrad.nc  \
-!              /wrkdir/kate/NEP5/Files/CCSM_1985_Tair.nc   \
-!              /wrkdir/kate/NEP5/Files/CCSM_1985_Uwind.nc  \
-!              /wrkdir/kate/NEP5/Files/CCSM_1985_Vwind.nc  \
-!              /wrkdir/kate/NEP5/Files/CCSM_Runoff.nc   \
-!              /wrkdir/kate/NEP5/Files/CCSM_rain.nc  \
-!              /wrkdir/kate/NEP5/Files/NEP4_tides_otps.nc 
 
 ! Output NetCDF file names, [1:Ngrids].
 
@@ -559,7 +548,7 @@ Hout2(idT0mk) == F
      SPOSNAM =  /wrkdir/kate/NEP5/External/stations_NEP.in
      FPOSNAM =  /wrkdir/kate/NEP5/External/floats.in
      IPARNAM =  /wrkdir/kate/NEP5/External/ice.in
-     BPARNAM =  /wrkdir/kate/NEP5/External/nemuro.in
+     BPARNAM =  /wrkdir/kate/NEP5/External/nemuro_iron.in
      SPARNAM =  External/sediment.in
      USRNAME =  External/MyFile.dat
 
