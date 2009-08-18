@@ -86,12 +86,14 @@
 !  Don't have these things for each grid... yet.
       ng = 1
       DO isp=1,Nspecies(ng)
-        if_sp_base(isp) = (isp-1)*Nyearclass(ng)*Nfishperyear(ng)
+        FISHES(ng) % species_base(isp) =                                &
+     &             (isp-1)*Nyearclass(ng)*Nfishperyear(ng)
       END DO
       DO isp=1,Nspecies(ng)
         DO i=0,Nyearclass(ng)-1
-	  if_age_base(isp,i) = if_sp_base(isp) + i*Nfishperyear(ng)
-	END DO
+          FISHES(ng) % age_base(isp,i) =                                &
+     &             FISHES(ng) % species_base(isp) + i*Nfishperyear(ng)
+        END DO
       END DO
 
       DO isp=1,Nspecies(ng)
@@ -100,7 +102,8 @@
         FISHES(ng) % sp_end(isp) = 210._r8
         FISHES(ng) % num_free(isp) = Nfishperyear(ng)
         FISHES(ng) % num_super(isp) = 0
-        FISHES(ng) % next_free(isp) = 1 + if_age_base(isp,0)
+        FISHES(ng) % next_free(isp) = 1 +                               &
+     &                  FISHES(ng) % age_base(isp,0)
       END DO
 
 !  Put the new fish in here, all except age 0.
@@ -110,16 +113,19 @@
           IF (i.gt.0) THEN
 ! NB: initialization for fish wet weight loosely adapted from KR anchovy
             Fweight0=MIN(35.0_r8,10.0_r8+REAL(i-1,r8)*5.0_r8)
-            Fworth0=(0.5e5_r8*1.0e6_r8)*EXP(-Nymort(ng)*REAL(i,r8))/      &
+            Fworth0=(0.5e5_r8*1.0e6_r8)*EXP(-Nymort(ng)*REAL(i,r8))/    &
      &              REAL(Nfishperyear(ng),r8)
             DO l=0,Nfishperyear(ng)-1
-! Use line below to test            fid=if_age_base(isp,i)+l
-              fid=if_age_base(isp,i)+l+1
+! Use line below to test          fid=FISHES(ng) % age_base(isp,i)+l
+              fid=FISHES(ng) % age_base(isp,i)+l+1
               DO j=0,NFT
-                FISHES(ng)%track(ixgrd,j,fid)=FISHES(ng)%Tinfo(ixgrd,fid)
-                FISHES(ng)%track(iygrd,j,fid)=FISHES(ng)%Tinfo(iygrd,fid)
+                FISHES(ng)%track(ixgrd,j,fid) =                         &
+     &                    FISHES(ng)%Tinfo(ixgrd,fid)
+                FISHES(ng)%track(iygrd,j,fid) =                         &
+     &                    FISHES(ng)%Tinfo(iygrd,fid)
 #  ifdef SOLVE3D
-                FISHES(ng)%track(izgrd,j,fid)=FISHES(ng)%Tinfo(izgrd,fid)
+                FISHES(ng)%track(izgrd,j,fid) =                         &
+     &                    FISHES(ng)%Tinfo(izgrd,fid)
 #  endif
               END DO
               FISHES(ng)%bounded(fid)=.TRUE.
@@ -135,7 +141,6 @@
           END IF
         END DO
       END DO
-
 
       END SUBROUTINE ini_fish
 

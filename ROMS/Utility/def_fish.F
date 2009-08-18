@@ -46,9 +46,9 @@
       logical :: got_var(-6:NV)
 
       integer :: fishdim, i, itrc, j, l
-      integer :: recdim, status
+      integer :: recdim, status, specdim, ycdim
 
-      integer :: DimIDs(31), fgrd(2), start(2), total(2)
+      integer :: DimIDs(33), fgrd(2), start(2), total(2)
       integer :: Vsize(4)
 
       integer :: def_dim, varid
@@ -134,6 +134,14 @@
      &                 Nfish(ng), DimIDs(15))
         IF (exit_flag.ne.NoError) RETURN
 
+        status=def_dim(ng, iNLM, ncFISHid(ng), ncname, 'species' ,      &
+     &                 Nspecies(ng), DimIDs(32))
+        IF (exit_flag.ne.NoError) RETURN
+
+        status=def_dim(ng, iNLM, ncFISHid(ng), ncname, 'yearclass' ,    &
+     &                 Nyearclass(ng), DimIDs(33))
+        IF (exit_flag.ne.NoError) RETURN
+
         status=def_dim(ng, iNLM, ncFISHid(ng), ncname, 'boundary',      &
      &                 4, DimIDs(14))
         IF (exit_flag.ne.NoError) RETURN
@@ -151,6 +159,8 @@
 
         recdim=DimIDs(12)
         fishdim=DimIDs(15)
+        specdim=DimIDs(32)
+        ycdim=DimIDs(33)
 !
 !  Define dimension vectors for point variables.
 !
@@ -264,6 +274,38 @@
         Vinfo(10)='Fish is male'
         status=def_var(ng, iNLM, ncFISHid(ng), fishVid(idFgrl,ng),      &
      &                 nf90_int, 1, (/fishdim/), Aval, Vinfo, ncname)
+        IF (exit_flag.ne.NoError) RETURN
+!
+!  Define fish age base
+!
+        Vinfo( 1)='Fish_age_base'
+        Vinfo( 2)='Fish age base'
+        status=def_var(ng, iNLM, ncFISHid(ng), varid, nf90_int,         &
+     &           (/1, 1 /), (/ycdim, specdim/), Aval, Vinfo, ncname)
+        IF (exit_flag.ne.NoError) RETURN
+!
+!  Define fish species base
+!
+        Vinfo( 1)='Fish_spec_base'
+        Vinfo( 2)='Fish species base'
+        status=def_var(ng, iNLM, ncFISHid(ng), varid, nf90_int,         &
+     &           (/1/), (/specdim/), Aval, Vinfo, ncname)
+        IF (exit_flag.ne.NoError) RETURN
+!
+!  Define fish num free
+!
+        Vinfo( 1)='Fish_num_free'
+        Vinfo( 2)='Number of free superindividuals'
+        status=def_var(ng, iNLM, ncFISHid(ng), varid, nf90_int,         &
+     &           (/1/), (/specdim/), Aval, Vinfo, ncname)
+        IF (exit_flag.ne.NoError) RETURN
+!
+!  Define fish next free
+!
+        Vinfo( 1)='Fish_next_free'
+        Vinfo( 2)='Next free superindividual'
+        status=def_var(ng, iNLM, ncFISHid(ng), varid, nf90_int,         &
+     &           (/1/), (/specdim/), Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 !
 !  Define fish X-grid locations.
@@ -908,6 +950,34 @@
      &                        ncid = ncFISHid(ng),                      &
      &                        start = (/1,tFISHindx(ng)/),              &
      &                        total = (/Nfish(ng),1/))
+
+        CALL netcdf_get_ivar (ng, iNLM, ncname,                         &
+     &                        'Fish_age_base',                          &
+     &                        FISHES(ng)%age_base,                      &
+     &                        ncid = ncFISHid(ng),                      &
+     &                        start = (/0,1/),                          &
+     &                        total = (/Nyearclass(ng),Nspecies(ng)/))
+
+        CALL netcdf_get_ivar (ng, iNLM, ncname,                         &
+     &                        'Fish_spec_base',                         &
+     &                        FISHES(ng)%species_base,                  &
+     &                        ncid = ncFISHid(ng),                      &
+     &                        start = (/1/),                            &
+     &                        total = (/Nspecies(ng)/))
+
+        CALL netcdf_get_ivar (ng, iNLM, ncname,                         &
+     &                        'Fish_num_free',                          &
+     &                        FISHES(ng)%num_free,                      &
+     &                        ncid = ncFISHid(ng),                      &
+     &                        start = (/1/),                            &
+     &                        total = (/Nspecies(ng)/))
+
+        CALL netcdf_get_ivar (ng, iNLM, ncname,                         &
+     &                        'Fish_next_free',                         &
+     &                        FISHES(ng)%next_free,                     &
+     &                        ncid = ncFISHid(ng),                      &
+     &                        start = (/1/),                            &
+     &                        total = (/Nspecies(ng)/))
 
         IF (exit_flag.ne.NoError) RETURN
 

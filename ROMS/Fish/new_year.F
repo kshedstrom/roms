@@ -55,7 +55,7 @@
 
       DO isp=1,Nspecies(ng)
         DO i=1,Nfishperyear(ng)
-          ifsh = i+if_age_base(isp,Nyearclass(ng)-1)
+          ifsh = i+FISHES(ng) % age_base(isp,Nyearclass(ng)-1)
           FISHES(ng) % alive(ifsh) = .FALSE.
           FISHES(ng) % bounded(ifsh) = .FALSE.
           DO j=0,NFT
@@ -69,10 +69,13 @@
 !  Now we update the indices
       DO isp=1,Nspecies(ng)
          DO i=0,Nyearclass(ng)-1
-           if_age_base(isp,i) = if_age_base(isp,i) + Nfishperyear(ng)
-           IF (if_age_base(isp,i) .ge. if_sp_base(isp) +                &
+           FISHES(ng) % age_base(isp,i) =                               &
+     &            FISHES(ng) % age_base(isp,i) + Nfishperyear(ng)
+           IF (FISHES(ng) % age_base(isp,i) .ge.                        &
+     &            FISHES(ng) % species_base(isp) +                      &
      &                  Nfishperyear(ng)*Nyearclass(ng) ) THEN
-             if_age_base(isp,i) = if_age_base(isp,i) -                  &
+             FISHES(ng) % age_base(isp,i) =                             &
+     &            FISHES(ng) % age_base(isp,i) -                        &
      &                     Nfishperyear(ng)*Nyearclass(ng)
            END IF
          END DO
@@ -82,7 +85,8 @@
       DO isp=1,Nspecies(ng)
         FISHES(ng) % num_free(isp) = Nfishperyear(ng)
         FISHES(ng) % num_super(isp) = 0
-        FISHES(ng) % next_free(isp) = 1 + if_age_base(isp,0)
+        FISHES(ng) % next_free(isp) = 1 +                               &
+     &                FISHES(ng) % age_base(isp,0)
       END DO
 
 # ifdef PROFILE

@@ -57,6 +57,9 @@
           integer, pointer  :: next_free(:)
           integer, pointer  :: num_super(:)
 
+! "Pointers" into big Nfish dimension:
+          integer, pointer :: age_base(:,:)
+          integer, pointer :: species_base(:)
         END TYPE T_FISHES
 
         TYPE (T_FISHES), allocatable :: FISHES(:)
@@ -133,6 +136,11 @@
       allocate ( FISHES(ng) % num_super(Nspecies(ng)) )
 
       allocate ( FISHES(ng) % next_free(Nspecies(ng)) )
+
+      allocate ( FISHES(ng) %                                           &
+     &           age_base(Nspecies(ng), 0:Nyearclass(ng)-1) )
+
+      allocate ( FISHES(ng) % species_base(Nspecies(ng)) )
 !
 !-----------------------------------------------------------------------
 !  Initialize module variables.

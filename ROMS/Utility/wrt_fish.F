@@ -117,6 +117,42 @@
      &                      varid = fishVid(idFgrl,ng))
       IF (exit_flag.ne.NoError) RETURN
 !
+!  Write out fish age base.
+!
+      CALL netcdf_put_ivar (ng, iNLM, FISHname(ng),                     &
+     &                      'Fish_age_base',                            &
+     &                      FISHES(ng) % age_base,                      &
+     &                      (/1,1/), (/Nyearclass(ng),Nspecies(ng)/),   &
+     &                      ncid = ncFISHid(ng))
+      IF (exit_flag.ne.NoError) RETURN
+!
+!  Write out fish species base.
+!
+      CALL netcdf_put_ivar (ng, iNLM, FISHname(ng),                     &
+     &                      'Fish_spec_base',                           &
+     &                      FISHES(ng) % species_base,                  &
+     &                      (/1/), (/Nspecies(ng)/),                    &
+     &                      ncid = ncFISHid(ng))
+      IF (exit_flag.ne.NoError) RETURN
+!
+!  Write out fish num free.
+!
+      CALL netcdf_put_ivar (ng, iNLM, FISHname(ng),                     &
+     &                      'Fish_num_free',                            &
+     &                      FISHES(ng) % num_free,                      &
+     &                      (/1/), (/Nspecies(ng)/),                    &
+     &                      ncid = ncFISHid(ng))
+      IF (exit_flag.ne.NoError) RETURN
+!
+!  Write out fish next free.
+!
+      CALL netcdf_put_ivar (ng, iNLM, FISHname(ng),                     &
+     &                      'Fish_next_free',                           &
+     &                      FISHES(ng) % next_free,                     &
+     &                      (/1/), (/Nspecies(ng)/),                    &
+     &                      ncid = ncFISHid(ng))
+      IF (exit_flag.ne.NoError) RETURN
+!
 !  Write out fish X-grid locations.
 !
       DO l=1,Nfish(ng)
