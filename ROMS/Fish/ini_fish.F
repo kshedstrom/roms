@@ -105,6 +105,11 @@
         FISHES(ng) % next_free(isp) = 1 +                               &
      &                  FISHES(ng) % age_base(isp,0)
       END DO
+      IF (Master) THEN
+        print *, 'First Year for Fish'
+	print *, 'Free fish ', FISHES(ng) % num_free
+	print *, 'Fish ages ', FISHES(ng) % age_base
+      END IF
 
 !  Put the new fish in here, all except age 0.
       DO isp=1,Nspecies(ng)

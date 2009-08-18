@@ -281,7 +281,7 @@
         Vinfo( 1)='Fish_age_base'
         Vinfo( 2)='Fish age base'
         status=def_var(ng, iNLM, ncFISHid(ng), varid, nf90_int,         &
-     &           (/1, 1 /), (/ycdim, specdim/), Aval, Vinfo, ncname)
+     &           2, (/ycdim, specdim/), Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 !
 !  Define fish species base
@@ -289,7 +289,7 @@
         Vinfo( 1)='Fish_spec_base'
         Vinfo( 2)='Fish species base'
         status=def_var(ng, iNLM, ncFISHid(ng), varid, nf90_int,         &
-     &           (/1/), (/specdim/), Aval, Vinfo, ncname)
+     &           1, (/specdim/), Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 !
 !  Define fish num free
@@ -297,7 +297,7 @@
         Vinfo( 1)='Fish_num_free'
         Vinfo( 2)='Number of free superindividuals'
         status=def_var(ng, iNLM, ncFISHid(ng), varid, nf90_int,         &
-     &           (/1/), (/specdim/), Aval, Vinfo, ncname)
+     &           1, (/specdim/), Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 !
 !  Define fish next free
@@ -305,7 +305,7 @@
         Vinfo( 1)='Fish_next_free'
         Vinfo( 2)='Next free superindividual'
         status=def_var(ng, iNLM, ncFISHid(ng), varid, nf90_int,         &
-     &           (/1/), (/specdim/), Aval, Vinfo, ncname)
+     &           1, (/specdim/), Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 !
 !  Define fish X-grid locations.
@@ -955,7 +955,7 @@
      &                        'Fish_age_base',                          &
      &                        FISHES(ng)%age_base,                      &
      &                        ncid = ncFISHid(ng),                      &
-     &                        start = (/0,1/),                          &
+     &                        start = (/1,1/),                          &
      &                        total = (/Nyearclass(ng),Nspecies(ng)/))
 
         CALL netcdf_get_ivar (ng, iNLM, ncname,                         &
@@ -981,6 +981,11 @@
 
         IF (exit_flag.ne.NoError) RETURN
 
+        IF (Master) THEN
+          print *, 'First Year for Fish'
+	  print *, 'Free fish ', FISHES(ng) % num_free
+	  print *, 'Fish ages ', FISHES(ng) % age_base
+        END IF
       END IF QUERY
 !
   10  FORMAT (6x,'DEF_FISH  - creating fish file: ',a)

@@ -88,6 +88,11 @@
         FISHES(ng) % next_free(isp) = 1 +                               &
      &                FISHES(ng) % age_base(isp,0)
       END DO
+      IF (Master) THEN
+        print *, 'New Year for Fish'
+	print *, 'Free fish ', FISHES(ng) % num_free
+	print *, 'Fish ages ', FISHES(ng) % age_base
+      END IF
 
 # ifdef PROFILE
       CALL wclock_off (ng, iNLM, 10)
