@@ -2819,7 +2819,7 @@
 !                                                                      !
 !  On Ouput:                                                           !
 !                                                                      !
-!     A            Read scalar variable (integer)                      !
+!     A            Read scalar variable (logical)                      !
 !                                                                      !
 !  Examples:                                                           !
 !                                                                      !
@@ -2854,6 +2854,7 @@
 !  Local variable declarations.
 !
       integer :: my_ncid, status, varid
+      integer :: AI
 
       integer, dimension(1) :: my_A
 
@@ -2881,9 +2882,9 @@
         IF (status.eq.nf90_noerr) THEN
           IF (PRESENT(start).and.PRESENT(total)) THEN
             status=nf90_get_var(my_ncid, varid, my_A, start, total)
-            A=my_A(1)
+            AI=my_A(1)
           ELSE
-            status=nf90_get_var(my_ncid, varid, A)
+            status=nf90_get_var(my_ncid, varid, AI)
           END IF
           IF (status.ne.nf90_noerr) THEN
             WRITE (stdout,10) TRIM(myVarName), TRIM(ncname),            &
@@ -2909,9 +2910,18 @@
       exit_flag=ibuffer(1)
       ioerror=ibuffer(2)
       IF (exit_flag.eq.NoError) THEN
-        CALL mp_bcasti (ng, model, A)
+        CALL mp_bcasti (ng, model, AI)
       END IF
 #endif
+!
+!  Convert integer data to logical: .FALSE. is interpreted as zero, and
+!  .TRUE. is interpreted as one.
+!
+        IF (AI .eq. 1) THEN 
+          A=.TRUE.
+        ELSE
+          A=.FALSE.
+        END IF 
 !
 !  If NetCDF file ID is not provided, close input NetCDF file.
 !
@@ -2951,7 +2961,7 @@
 !                                                                      !
 !  On Ouput:                                                           !
 !                                                                      !
-!     A            Read 1D-array variable (integer)                    !
+!     A            Read 1D-array variable (logical)                    !
 !                                                                      !
 !  Examples:                                                           !
 !                                                                      !
@@ -2986,7 +2996,8 @@
 !
 !  Local variable declarations.
 !
-      integer :: my_ncid, status, varid
+      integer :: i, my_ncid, status, varid
+      integer, dimension(SIZE(A,1)) :: AI
 
       integer, dimension(1) :: Asize
 
@@ -3015,9 +3026,9 @@
         status=nf90_inq_varid(my_ncid, TRIM(myVarName), varid)
         IF (status.eq.nf90_noerr) THEN
           IF (PRESENT(start).and.PRESENT(total)) THEN
-            status=nf90_get_var(my_ncid, varid, A, start, total)
+            status=nf90_get_var(my_ncid, varid, AI, start, total)
           ELSE
-            status=nf90_get_var(my_ncid, varid, A)
+            status=nf90_get_var(my_ncid, varid, AI)
           END IF
           IF (status.ne.nf90_noerr) THEN
             WRITE (stdout,10) TRIM(myVarName), TRIM(ncname),            &
@@ -3043,9 +3054,20 @@
       exit_flag=ibuffer(1)
       ioerror=ibuffer(2)
       IF (exit_flag.eq.NoError) THEN
-        CALL mp_bcasti (ng, model, A)
+        CALL mp_bcasti (ng, model, AI)
       END IF
 #endif
+!
+!  Convert integer data to logical: .FALSE. is interpreted as zero, and
+!  .TRUE. is interpreted as one.
+!
+        DO i=1,SIZE(A,1)
+          IF (AI(i) .eq. 1) THEN
+            A(i)=.TRUE.
+          ELSE
+            A(i)=.FALSE.
+          END IF
+        END DO
 !
 !  If NetCDF file ID is not provided, close input NetCDF file.
 !
@@ -3121,7 +3143,8 @@
 !
 !  Local variable declarations.
 !
-      integer :: my_ncid, status, varid
+      integer :: i, j, my_ncid, status, varid
+      integer, dimension(SIZE(A,1),SIZE(A,2)) :: AI
 
       integer, dimension(2) :: Asize
 
@@ -3151,9 +3174,9 @@
         status=nf90_inq_varid(my_ncid, TRIM(myVarName), varid)
         IF (status.eq.nf90_noerr) THEN
           IF (PRESENT(start).and.PRESENT(total)) THEN
-            status=nf90_get_var(my_ncid, varid, A, start, total)
+            status=nf90_get_var(my_ncid, varid, AI, start, total)
           ELSE
-            status=nf90_get_var(my_ncid, varid, A)
+            status=nf90_get_var(my_ncid, varid, AI)
           END IF
           IF (status.ne.nf90_noerr) THEN
             WRITE (stdout,10) TRIM(myVarName), TRIM(ncname),            &
@@ -3179,9 +3202,22 @@
       exit_flag=ibuffer(1)
       ioerror=ibuffer(2)
       IF (exit_flag.eq.NoError) THEN
-        CALL mp_bcasti (ng, model, A)
+        CALL mp_bcasti (ng, model, AI)
       END IF
 #endif
+!
+!  Convert integer data to logical: .FALSE. is interpreted as zero, and
+!  .TRUE. is interpreted as one.
+!
+        DO j=1,SIZE(A,2)
+          DO i=1,SIZE(A,1)
+            IF (AI(i,j) .eq. 1) THEN
+              A(i,j)=.TRUE.
+            ELSE
+              A(i,j)=.FALSE.
+            END IF
+          END DO
+        END DO
 !
 !  If NetCDF file ID is not provided, close input NetCDF file.
 !

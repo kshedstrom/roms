@@ -4862,7 +4862,16 @@
   'r3dvar'
   1.0d0
 
- 'species'
+ 'fbatch'
+  'fbatch of fish'
+  'nondimensional'
+  'fbatch, scalar, series'
+  'bio_time'
+  'idfbatch'
+  'r3dvar'
+  1.0d0
+
+ 'Species'
   'species of fish'
   'nondimensional'
   'species, scalar, series'
@@ -4871,7 +4880,7 @@
   'r3dvar'
   1
 
- 'lifestage'
+ 'Lifestage'
   'Lifestage of fish'
   'nondimensional'
   'lifestage, scalar, series'
@@ -4880,7 +4889,7 @@
   'r3dvar'
   1.0d0
 
- 'swimtype'
+ 'Swimtype'
   'swim type of fish'
   'nondimensional'
   'swimtype, scalar, series'
@@ -4889,7 +4898,7 @@
   'r3dvar'
   1.0d0
 
- 'alive'
+ 'Alive'
   'fish is alive'
   'nondimensional'
   'alive, scalar, series'
@@ -4898,7 +4907,7 @@
   'r3dvar'
   1.0d0
 
- 'eatfish'
+ 'Eatfish'
   'fish eats other fish'
   'nondimensional'
   'eatfish, scalar, series'
@@ -4907,7 +4916,7 @@
   'r3dvar'
   1.0d0
 
- 'fishgirl'
+ 'Fishgirl'
   'fish is female'
   'nondimensional'
   'fishgirl, scalar, series'

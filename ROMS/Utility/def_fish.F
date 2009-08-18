@@ -500,7 +500,7 @@
         Vinfo(24)='_FillValue'
         Aval(6)=spval
 # endif
-        status=def_var(ng, iNLM, ncFISHid(ng),fishVid(idspwnloc,ng),    &
+        status=def_var(ng, iNLM, ncFISHid(ng),fishVid(idfbatch,ng),     &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 !
@@ -629,9 +629,9 @@
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idfpval))) THEN
             got_var(idfpval)=.TRUE.
             fishVid(idfpval,ng)=var_id(i)
-          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idspwnloc))) THEN
-            got_var(idspwnloc)=.TRUE.
-            fishVid(idspwnloc,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idfbatch))) THEN
+            got_var(idfbatch)=.TRUE.
+            fishVid(idfbatch,ng)=var_id(i)
           END IF
 # ifdef SOLVE3D
           DO itrc=1,NT(ng)
@@ -688,21 +688,18 @@
           RETURN
         END IF
         IF (.not.got_var(idXgrd)) THEN
-          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idXgrd)),          &
-     &                                  TRIM(ncname)
+          IF (Master) WRITE (stdout,60) 'Xgrid', TRIM(ncname)
           exit_flag=3
           RETURN
         END IF
         IF (.not.got_var(idYgrd)) THEN
-          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idYgrd)),          &
-     &                                  TRIM(ncname)
+          IF (Master) WRITE (stdout,60) 'Ygrid', TRIM(ncname)
           exit_flag=3
           RETURN
         END IF
 # ifdef SOLVE3D
         IF (.not.got_var(idZgrd)) THEN
-          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idZgrd)),          &
-     &                                  TRIM(ncname)
+          IF (Master) WRITE (stdout,60) 'Zgrid', TRIM(ncname)
           exit_flag=3
           RETURN
         END IF
@@ -777,8 +774,7 @@
 !
 !  Read in fish nondimentional horizontal positions.
 !
-        CALL netcdf_get_fvar (ng, iNLM, ncname,                         &
-     &                        TRIM(Vname(1,idXgrd)),                    &
+        CALL netcdf_get_fvar (ng, iNLM, ncname, 'Xgrid',                &
      &                        Tinp,                                     &
      &                        ncid = ncFISHid(ng),                      &
      &                        start = (/1,tFISHindx(ng)/),              &
@@ -798,8 +794,7 @@
           END IF
         END DO
 
-        CALL netcdf_get_fvar (ng, iNLM, ncname,                         &
-     &                        TRIM(Vname(1,idYgrd)),                    &
+        CALL netcdf_get_fvar (ng, iNLM, ncname, 'Ygrid',                &
      &                        Tinp,                                     &
      &                        ncid = ncFISHid(ng),                      &
      &                        start = (/1,tFISHindx(ng)/),              &
@@ -820,8 +815,7 @@
         END DO
 
 # ifdef SOLVE3D
-        CALL netcdf_get_fvar (ng, iNLM, ncname,                         &
-     &                        TRIM(Vname(1,idZgrd)),                    &
+        CALL netcdf_get_fvar (ng, iNLM, ncname, 'Zgrid',                &
      &                        Tinp,                                     &
      &                        ncid = ncFISHid(ng),                      &
      &                        start = (/1,tFISHindx(ng)/),              &
@@ -864,7 +858,7 @@
         END DO
 
         CALL netcdf_get_fvar (ng, iNLM, ncname,                         &
-     &                        TRIM(Vname(1,idspwnloc)),                 &
+     &                        TRIM(Vname(1,idfbatch)),                  &
      &                        Tinp,                                     &
      &                        ncid = ncFISHid(ng),                      &
      &                        start = (/1,tFISHindx(ng)/),              &
