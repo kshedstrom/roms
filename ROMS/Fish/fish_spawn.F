@@ -178,9 +178,10 @@
         nudg(l)=0.0_r8
       END DO
 !
-! sp_time: time in days, modulo 360 days
-      sp_time=REAL(INT(time(ng)/86400.0_r8/360.0_r8))
-      sp_time=time(ng)/86400.0_r8-360.0_r8*sp_time
+! sp_time: time in days, modulo days_year
+! KLUDGE: Depends on time origin being at the start of a year
+      sp_time=REAL(INT(time(ng)/86400.0_r8/days_year))
+      sp_time=time(ng)/86400.0_r8-days_year*sp_time
 !
 ! find out how many free superindividuals per species for today
       DO isp=1, Nspecies(ng)
