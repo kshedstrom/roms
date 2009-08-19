@@ -232,7 +232,7 @@
 !      DSTART =  11182.0d0                  ! days  -> 02-jan-1999
       DSTART =  11545.0d0                  ! days
   TIDE_START =  0.0d0                      ! days
-    TIME_REF =  -2.0d0                     ! yyyymmdd.dd
+    TIME_REF =  -1.0d0                     ! yyyymmdd.dd
 
 ! Nudging/relaxation time scales, inverse scales will be computed
 ! internally, [1:Ngrids].
