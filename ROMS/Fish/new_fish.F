@@ -171,7 +171,7 @@
           DO isp=1,Nspecies(ng)
 !           CALL c_tree_traverse(isp)
             IF (count(isp) > 0) THEN
-              CALL c_tree_collect(isp, FISHES(NG) % num_super(isp),       &
+              CALL c_tree_collect(isp, FISHES(NG) % num_super(isp),     &
      &              Nfound, eggs, moms)
               print *, 'New_fish count: ', Nfound
               DO i=1,Nfound
@@ -188,14 +188,13 @@
                 END DO
 ! age zero eggs...
                 FISHES(ng) % bioenergy(ifworth,ifsh) = eggs(i)
-                CALL ran1(wgt)
-                FISHES(ng) % bioenergy(ifwwt,ifsh) = 2._r8*(wgt+0.5_r8)
-                FISHES(ng) % bioenergy(ifage,ifsh) = 0._r8
+                FISHES(ng) % bioenergy(ifwwt,ifsh) = 0.0_r8
+                FISHES(ng) % bioenergy(ifage,ifsh) = 0.0_r8
                 FISHES(ng) % species(ifsh) = idfish_inv(isp)
                 FISHES(ng) % alive(ifsh) = .TRUE.
                 FISHES(ng) % lifestage(ifsh) = if_egg
                 FISHES(ng) % eatfish(ifsh) = .FALSE.
-                FISHES(ng) % swimtype(ifsh) = 1   ! 1=Fitness, 2=Kinesis
+                FISHES(ng) % swimtype(ifsh) = 2   ! 1=Fitness, 2=Kinesis
                 print *, 'New_fish: ', ifsh, eggs(i), moms(i)
                 FISHES(ng) % num_free(isp) =                            &
      &                        FISHES(ng) % num_free(isp) - 1

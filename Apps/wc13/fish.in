@@ -47,7 +47,7 @@
 
 ! Fish initial wet weight [g], {2.0d0}.
 
-       Fwwt0 == 2.0d0
+       Fwwt0 == 10.0d0
 
 ! Fish preference for ZS, {0.5d0}.
 
@@ -135,7 +135,7 @@
 
 ! Number of fish per year per species.
 
-     Nfishperyear == 300
+     Nfishperyear == 10
 
 ! Number of fish species.
 

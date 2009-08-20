@@ -73,8 +73,8 @@
 ! Time-Stepping parameters.
 
 !      NTIMES =  24  (1 day)
-!      NTIMES =  341280
-      NTIMES =  8784
+!      NTIMES =  8760 (1 year)
+      NTIMES =  17520
           DT == 3600.0d0
      NDTFAST == 60
 
@@ -97,20 +97,20 @@
 
        NRREC =  0
    LcycleRST == F
-        NRST == 8784
-        NSTA == 18
+        NRST == 8760
+        NSTA == 48
         NFLT == 48
-        NFSH == 24
+        NFSH == 48
         NSHP == 48
        NINFO == 1
 
 ! Output history, average, diagnostic files parameters.
 
      LDEFOUT == T
-        NHIS == 732
+        NHIS == 730
      NDEFHIS == 0
       NTSAVG == 1
-        NAVG == 732
+        NAVG == 730
      NDEFAVG == 0
       NTSDIA == 1
         NDIA == 10
@@ -229,10 +229,9 @@
 ! origin for tidal forcing, and model reference time for output
 ! NetCDF units attribute.
 
-!      DSTART =  11182.0d0                  ! days  -> 02-jan-1999
-      DSTART =  11545.0d0                  ! days
+      DSTART =  14235.0d0                  ! days
   TIDE_START =  0.0d0                      ! days
-    TIME_REF =  -1.0d0                     ! yyyymmdd.dd
+    TIME_REF =  19580101.0d0               ! yyyymmdd.dd
 
 ! Nudging/relaxation time scales, inverse scales will be computed
 ! internally, [1:Ngrids].
@@ -428,13 +427,13 @@ Hout(idBott) == T T T T T T T T T F F F F F F F
 
 ! Input NetCDF file names, [1:Ngrids].
 
-     GRDNAME == /home/fiechter/NemFish/WC13_Test/wc13_grd.nc
-     ININAME == /home/fiechter/NemFish/WC13_Test/wc13_rst_20000101.nc
+     GRDNAME == /home/fiechter/CCS/WC13/Grid/wc13_grd.nc.0
+     ININAME == /home/fiechter/CCS/WC13/Frc/JF/wc13_inibio_1997.nc
      ITLNAME == /dev/null
      IRPNAME == /dev/null
      IADNAME == /dev/null
      CLMNAME == /dev/null
-     BRYNAME == /home/fiechter/NemFish/WC13_Test/wc13_bry_ecco.nc
+     BRYNAME == /home/fiechter/CCS/WC13/Frc/JF/wc13_eccomo_brybio_core2.nc
      FWDNAME == /dev/null
      ADSNAME == /dev/null
 
@@ -448,9 +447,15 @@ Hout(idBott) == T T T T T T T T T F F F F F F F
 ! and so on.  Use a single line per entry with a continuation (\) symbol
 ! at the each entry, except the last one.
 
-     NFFILES == 1                          ! number of forcing files
+     NFFILES == 7                          ! number of forcing files
 
-     FRCNAME == /home/fiechter/NemFish/WC13_Test/wc13_frc_COADS.nc
+     FRCNAME == /home/fiechter/CORE2/CCS/ROMS_MSK/wind_msk.1995-2006.CCS.nc \
+                /home/fiechter/CORE2/CCS/ROMS_MSK/tair_msk.1995-2006.CCS.nc \
+                /home/fiechter/CORE2/CCS/ROMS_MSK/pair_msk.1995-2006.CCS.nc \
+                /home/fiechter/CORE2/CCS/ROMS_MSK/qair_msk.1995-2006.CCS.nc \
+                /home/fiechter/CORE2/CCS/ROMS_MSK/ncar_rain_msk.1995-2006.CCS.nc \
+                /home/fiechter/CORE2/CCS/ROMS_MSK/ncar_lwrad_down_msk.1995-2006.CCS.nc \
+                /home/fiechter/CORE2/CCS/ROMS_MSK/ncar_swrad_msk.1995-2006.CCS.nc
 
 ! Output NetCDF file names, [1:Ngrids].
 

@@ -32,8 +32,15 @@
 #define SPLINES
 
 #define UV_QDRAG
-#define QCORRECTION
-#undef SCORRECTION
+#define BULK_FLUXES
+#ifdef BULK_FLUXES
+# define LONGWAVE_OUT
+# define EMINUSP
+# define SPEC_HUM
+#else
+# define QCORRECTION
+# undef SCORRECTION
+#endif
 
 #undef  MY25_MIXING
 #define LMD_MIXING
