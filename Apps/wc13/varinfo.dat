@@ -4835,39 +4835,48 @@
   1.0d0
 
 !------------------------------------------------------------
- 'fwwt'
+ 'Fwwt'
   'Wet weight of fish'
   'gram'
   'fwwt, scalar, series'
   'bio_time'
-  'idfwwt'
+  'idFwwt'
   'r3dvar'
   1.0d0
 
- 'fworth'
+ 'Fworth'
   'Worth of fish'
   'nondimensional'
   'fworth, scalar, series'
   'bio_time'
-  'idfworth'
+  'idFworth'
   'r3dvar'
   1.0d0
 
- 'fpval'
+ 'Fpval'
   'P-value of fish'
   'nondimensional'
   'fpval, scalar, series'
   'bio_time'
-  'idfpval'
+  'idFpval'
   'r3dvar'
   1.0d0
 
- 'fbatch'
-  'fbatch of fish'
+ 'Fage'
+  'fish age'
+  'year'
+  'fage, scalar, series'
+  'bio_time'
+  'idFage'
+  'r3dvar'
+  1.0d0
+
+ 'Fbatch'
+  'fish batch count'
   'nondimensional'
   'fbatch, scalar, series'
   'bio_time'
-  'idfbatch'
+  'idFbatch'
   'r3dvar'
   1.0d0
 
@@ -4881,7 +4890,7 @@
   1
 
  'Lifestage'
-  'Lifestage of fish'
+  'fish lifestage'
   'nondimensional'
   'lifestage, scalar, series'
   'bio_time'

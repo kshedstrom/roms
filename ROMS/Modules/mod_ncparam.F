@@ -168,10 +168,6 @@
         integer  :: idFsur        ! free-surface
         integer  :: idFsuD        ! detided free-surface
         integer  :: idFsuH        ! free-surface tide harmonics
-        integer  :: idfwwt        ! fish wet weight
-        integer  :: idfworth      ! fish worth
-        integer  :: idfpval       ! fish P-value
-        integer  :: idspwnloc     ! fish batch number
         integer  :: idGhat(2)     ! KPP nonlocal transport
         integer  :: idHbbl        ! depth of bottom boundary layer
         integer  :: idHice        ! depth of ice cover
@@ -373,8 +369,13 @@
         integer  :: idSig12        ! internal ice stress component 12
 
 ! NEMURO_SAN variables
+        integer  :: idFwwt         ! fish wet weight
+        integer  :: idFworth       ! fish worth
+        integer  :: idFpval        ! fish P-value
+        integer  :: idFage         ! fish P-value
+        integer  :: idSpwnloc      ! fish batch number
         integer  :: idFspwn        ! spawning distribution
-        integer  :: idfbatch       ! fish batch
+        integer  :: idFbatch       ! fish batch
         integer  :: idFspc         ! fish species
         integer  :: idFlfsg        ! fish lifestage
         integer  :: idFswmt        ! fish swim type
@@ -1393,12 +1394,6 @@
                 idOvel=varid
               CASE ('idDano')
                 idDano=varid
-              CASE ('idfwwt')
-                idfwwt=varid
-              CASE ('idfworth')
-                idfworth=varid
-              CASE ('idfpval')
-                idfpval=varid
               CASE ('idTvar(itemp)')
                 idTvar(itemp)=varid
               CASE ('idTvar(isalt)')
@@ -1888,10 +1883,18 @@
                 idRtrc(iPON_)=varid
 #endif
 #ifdef NEMURO_SAN
-              CASE ('idfbatch')
-                idfbatch=varid
-              CASE ('idspwnloc')
-                idspwnloc=varid
+              CASE ('idFwwt')
+                idFwwt=varid
+              CASE ('idFworth')
+                idFworth=varid
+              CASE ('idFpval')
+                idFpval=varid
+              CASE ('idFage')
+                idFage=varid
+              CASE ('idFbatch')
+                idFbatch=varid
+              CASE ('idSpwnloc')
+                idSpwnloc=varid
               CASE ('idFspc')
                 idFspc=varid
               CASE ('idFlfsg')

@@ -69,13 +69,13 @@
 !
 !  Write out fish lifestage.
 !
-      CALL netcdf_put_ivar (ng, iNLM, FISHname(ng),                     &
-     &                      TRIM(Vname(1,idFlfsg)),                     &
-     &                      FISHES(ng) % lifestage,                     &
-     &                      (/1/), (/Nfish(ng)/),                       &
-     &                      ncid = ncFISHid(ng),                        &
-     &                      varid = fishVid(idFlfsg,ng))
-      IF (exit_flag.ne.NoError) RETURN
+!      CALL netcdf_put_ivar (ng, iNLM, FISHname(ng),                     &
+!     &                      TRIM(Vname(1,idFlfsg)),                     &
+!     &                      FISHES(ng) % lifestage,                     &
+!     &                      (/1/), (/Nfish(ng)/),                       &
+!     &                      ncid = ncFISHid(ng),                        &
+!     &                      varid = fishVid(idFlfsg,ng))
+!      IF (exit_flag.ne.NoError) RETURN
 !
 !  Write out fish swimtype.
 !
@@ -303,10 +303,10 @@
         END IF
       END DO
       CALL netcdf_put_fvar (ng, iNLM, FISHname(ng),                     &
-     &                      TRIM(Vname(1,idfwwt)), Tout,                &
+     &                      TRIM(Vname(1,idFwwt)), Tout,                &
      &                      (/1,tFISHindx(ng)/), (/Nfish(ng),1/),       &
      &                      ncid = ncFISHid(ng),                        &
-     &                      varid = fishVid(idfwwt,ng))
+     &                      varid = fishVid(idFwwt,ng))
       IF (exit_flag.ne.NoError) RETURN
 !  Write fish worth.
       DO l=1,Nfish(ng)
@@ -317,10 +317,10 @@
         END IF
       END DO
       CALL netcdf_put_fvar (ng, iNLM, FISHname(ng),                     &
-     &                      TRIM(Vname(1,idfworth)), Tout,              &
+     &                      TRIM(Vname(1,idFworth)), Tout,              &
      &                      (/1,tFISHindx(ng)/), (/Nfish(ng),1/),       &
      &                      ncid = ncFISHid(ng),                        &
-     &                      varid = fishVid(idfworth,ng))
+     &                      varid = fishVid(idFworth,ng))
       IF (exit_flag.ne.NoError) RETURN
 !  Write fish P-value.
       DO l=1,Nfish(ng)
@@ -331,10 +331,38 @@
         END IF
       END DO
       CALL netcdf_put_fvar (ng, iNLM, FISHname(ng),                     &
-     &                      TRIM(Vname(1,idfpval)), Tout,               &
+     &                      TRIM(Vname(1,idFpval)), Tout,               &
      &                      (/1,tFISHindx(ng)/), (/Nfish(ng),1/),       &
      &                      ncid = ncFISHid(ng),                        &
-     &                      varid = fishVid(idfpval,ng))
+     &                      varid = fishVid(idFpval,ng))
+      IF (exit_flag.ne.NoError) RETURN
+!  Write fish age
+      DO l=1,Nfish(ng)
+        IF (FISHES(ng)%bounded(l)) THEN
+          Tout(l)=FISHES(ng)%bioenergy(ifage,l)
+        ELSE
+          Tout(l)=spval
+        END IF
+      END DO
+      CALL netcdf_put_fvar (ng, iNLM, FISHname(ng),                     &
+     &                      TRIM(Vname(1,idFage)), Tout,                &
+     &                      (/1,tFISHindx(ng)/), (/Nfish(ng),1/),       &
+     &                      ncid = ncFISHid(ng),                        &
+     &                      varid = fishVid(idFage,ng))
+      IF (exit_flag.ne.NoError) RETURN
+!  Write fish lifestage
+      DO l=1,Nfish(ng)
+        IF (FISHES(ng)%bounded(l)) THEN
+          Tout(l)=FISHES(ng)%lifestage(l)
+        ELSE
+          Tout(l)=spval
+        END IF
+      END DO
+      CALL netcdf_put_fvar (ng, iNLM, FISHname(ng),                     &
+     &                      TRIM(Vname(1,idFlfsg)), Tout,               &
+     &                      (/1,tFISHindx(ng)/), (/Nfish(ng),1/),       &
+     &                      ncid = ncFISHid(ng),                        &
+     &                      varid = fishVid(idFlfsg,ng))
       IF (exit_flag.ne.NoError) RETURN
 !  Write fish batch.
       DO l=1,Nfish(ng)
@@ -345,10 +373,10 @@
         END IF
       END DO
       CALL netcdf_put_fvar (ng, iNLM, FISHname(ng),                     &
-     &                      TRIM(Vname(1,idfbatch)), Tout,              &
+     &                      TRIM(Vname(1,idFbatch)), Tout,              &
      &                      (/1,tFISHindx(ng)/), (/Nfish(ng),1/),       &
      &                      ncid = ncFISHid(ng),                        &
-     &                      varid = fishVid(idfbatch,ng))
+     &                      varid = fishVid(idFbatch,ng))
       IF (exit_flag.ne.NoError) RETURN
 #  endif
 # endif
