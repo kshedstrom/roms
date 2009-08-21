@@ -120,7 +120,7 @@
           Fworth0=(0.5e5_r8*1.0e6_r8)*EXP(-Nymort(ng)*REAL(i,r8))/      &
      &            REAL(Nfishperyear(ng),r8)
           DO l=1,Nfishperyear(ng)
-            fid=FISHES(ng) % age_base(isp,i)+l
+            fid=FISHES(ng) % age_base(isp,Nyearclass(ng)-i)+l
             CALL ran1 (snudg)
             DO j=0,NFT
               FISHES(ng)%track(ixgrd,j,fid) =                           &
@@ -346,6 +346,8 @@
      &            'Number of fish trajectories to compute.'
             WRITE (out,110) Fwwt0(ng), 'Fwwt0',                         &
      &            'Fish initial wet weight (g).'
+            WRITE (out,110) Fage0(ng), 'Fage0',                         &
+     &            'Fish spawning maturity (years).'
             WRITE (out,110) ZSpref(ng), 'ZSpref',                       &
      &            'Fish preference for ZS (-).'
             WRITE (out,110) ZLpref(ng), 'ZLpref',                       &
