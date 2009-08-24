@@ -132,7 +132,7 @@
 
 # ifdef NCEP_FLUXES
 #  ifdef ANA_NCEP
-      CALL ana_ncep_tile (ng, tile,                                     &
+      CALL ana_ncep_tile (ng, tile, model,                              &
      &                       LBi, UBi, LBj, UBj,                        &
      &                       FORCES(ng) % nustr,                        &
      &                       FORCES(ng) % nvstr,                        &

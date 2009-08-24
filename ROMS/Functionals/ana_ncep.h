@@ -1,4 +1,4 @@
-      SUBROUTINE ana_ncep (ng, tile)
+      SUBROUTINE ana_ncep (ng, tile, model)
 !
 !! svn $Id: ana_cloud.h 75 2007-03-13 13:10:14Z arango $
 !!======================================================================
@@ -19,11 +19,11 @@
 !
       implicit none
 
-      integer, intent(in) :: ng, tile
+      integer, intent(in) :: ng, tile, model
 
 #include "tile.h"
 
-      CALL ana_ncep_tile (ng, tile,                                     &
+      CALL ana_ncep_tile (ng, tile, model,                              &
      &                       LBi, UBi, LBj, UBj,                        &
      &                       FORCES(ng) % nustr,                        &
      &                       FORCES(ng) % nvstr,                        &
@@ -53,7 +53,7 @@
       END SUBROUTINE ana_ncep
 !
 !***********************************************************************
-       SUBROUTINE ana_ncep_tile (ng, tile, LBi, UBi, LBj, UBj,          &
+       SUBROUTINE ana_ncep_tile (ng, tile, model, LBi, UBi, LBj, UBj,   &
      &                             nustr, nvstr, cloud, srflx, lrflx,   &
      &                             shflx, lhflx, Pair, runoff, rain,    &
      &                             skt, icec                            &
@@ -108,7 +108,8 @@
 !  Local variable declarations.
 !
       integer :: i, j
-
+      logical :: EWperiodic=.FALSE.
+      logical :: NSperiodic=.FALSE. 
 
 #include "set_bounds.h"
 
@@ -160,12 +161,12 @@
      &                    LBi, UBi, LBj, UBj,                           &
      &                    NghostPoints, EWperiodic, NSperiodic,         &
      &                    nustr, nvstr, cloud, srflx)
-      CALL mp_exchange3d (ng, tile, model, 4,                           &
-     &                    LBi, UBi, LBj, UBj, 1, 2,                     &
+      CALL mp_exchange2d (ng, tile, model, 4,                           &
+     &                    LBi, UBi, LBj, UBj,                           &
      &                    NghostPoints, EWperiodic, NSperiodic,         &
      &                    lrflx, shflx, lhflx, Pair)
-      CALL mp_exchange3d (ng, tile, model, 4,                           &
-     &                    LBi, UBi, LBj, UBj, 1, 2,                     &
+      CALL mp_exchange2d (ng, tile, model, 4,                           &
+     &                    LBi, UBi, LBj, UBj,                           &
      &                    NghostPoints, EWperiodic, NSperiodic,         &
      &                    runoff, rain, skt, icec)
 #endif

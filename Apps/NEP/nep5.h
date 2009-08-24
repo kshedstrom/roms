@@ -26,7 +26,7 @@
 #ifdef SOLVE3D
 # undef SPLINES
 #endif
-#define FLOATS
+#undef FLOATS
 #define STATIONS
 #define WET_DRY
 

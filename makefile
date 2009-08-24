@@ -397,11 +397,11 @@ ifdef USE_TANGENT
 endif
  modules  +=	ROMS/Nonlinear \
 		ROMS/Functionals \
-		ROMS/Utility \
 		ROMS/Modules
 ifdef USE_SEAICE
  modules  +=	ROMS/SeaIce
 endif
+ modules  +=    ROMS/Utility
 
  includes :=	ROMS/Include
 ifdef MY_ANALYTICAL
