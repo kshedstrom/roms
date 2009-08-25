@@ -188,7 +188,8 @@
           wfr(i,j) = wfr(i,j)/dt(ng)
           IF (wfr(i,j) .lt. 0.0_r8) THEN
             print *, 'trouble in ice_frazil', i, j,                     &
-     &       t(i,j,N(ng),nnew,itemp), wfr(i,j), gamma_k, Hz(i,j,N(ng))
+     &         t(i,j,N(ng),nnew,itemp), t(i,j,N(ng),nnew,isalt),        &
+     &         wfr(i,j), gamma_k, Hz(i,j,N(ng))
           END IF
         END DO
       END DO

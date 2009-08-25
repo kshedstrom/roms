@@ -415,7 +415,7 @@
           stflx(i,j,isalt) = stflx(i,j,isalt)*t(i,j,N(ng),nrhs,isalt)
 ! Salt flux sign is reversed in ice-ocean calculations
 ! but is switched back to normal convention at end of routine
-          stflx(i,j,isalt) = -stflx(i,j,isalt)
+!         stflx(i,j,isalt) = -stflx(i,j,isalt)
         END DO
       END DO
 
@@ -712,7 +712,8 @@
           END IF
 
 ! Change stflx(i,j,itemp) back to ROMS convention
-          stflx(i,j,itemp) = -stflx(i,j,itemp) * rhocpr
+          stflx(i,j,itemp) = stflx(i,j,itemp) * rhocpr
+!         stflx(i,j,itemp) = -stflx(i,j,itemp) * rhocpr
 
 # ifdef MASKING
           stflx(i,j,itemp) = stflx(i,j,itemp)*rmask(i,j)
@@ -738,7 +739,7 @@
           END IF
 #endif
 ! Change sign of stflx(i,j,isalt) back to ROMS convention
-          stflx(i,j,isalt) = -stflx(i,j,isalt)
+!         stflx(i,j,isalt) = -stflx(i,j,isalt)
 
           io_mflux(i,j) = xtot -ai(i,j,linew)*xwai -                    &
      &                          ai(i,j,linew)*wro(i,j) + wfr(i,j)
@@ -810,14 +811,15 @@
           END IF
 #endif
 
-#undef DIAG_WPB
+#define DIAG_WPB
 #ifdef DIAG_WPB
-      IF (i.eq.168.and.j.eq.480) THEN
+      IF (i.eq.156.and.j.eq.481) THEN
          write(*,*) tdays,wio(i,j),wai(i,j),wao(i,j),wfr(i,j),          &
      &              xmelt,ai(i,j,linew),tis(i,j),                       &
      &                                     sfwat(i,j,linew),            &
      &              temp_top(i,j),t0mk(i,j),stflx(i,j,itemp),           &
-     &              salt_top(i,j),s0mk(i,j),stflx(i,j,isalt),qio(i,j)
+     &              salt_top(i,j),s0mk(i,j),stflx(i,j,isalt),           &
+     &              qio(i,j), ti(i,j,linew), brnfr(i,j)
       END IF
 #endif
 
