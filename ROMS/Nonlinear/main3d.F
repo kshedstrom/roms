@@ -740,6 +740,7 @@
 #  endif
 !  Make new fish once a day
           IF (iyesterday(ng) .ne. idays(ng)) THEN
+	    IF (Master) print *, 'MAIN3D idays ', idays(ng), iyears(ng)
             CALL fish_spawn (ng, TILE)
 ! Haven't finished this yet
 #  ifdef EGGS_BISECTION

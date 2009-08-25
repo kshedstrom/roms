@@ -32,8 +32,15 @@
 #define SPLINES
 
 #define UV_QDRAG
-#define QCORRECTION
-#undef SCORRECTION
+#define BULK_FLUXES
+#ifdef BULK_FLUXES
+# define LONGWAVE_OUT
+# define EMINUSP
+# define SPEC_HUM
+#else
+# define QCORRECTION
+# undef SCORRECTION
+#endif
 
 #undef  MY25_MIXING
 #define LMD_MIXING
@@ -84,8 +91,6 @@
 #ifdef NEMURO
 # define NEMURO_SAN
 # ifdef NEMURO_SAN
-#  undef  RAILSBACK
-#  define HUMSTON
 #  define FISH_FEEDBACK
 #  undef FLEET
 #  define ANA_SPAWN_DIST

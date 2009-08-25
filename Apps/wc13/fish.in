@@ -35,7 +35,7 @@
 !                                                                             !
 !==============================================================================
 !
-! Switch to control the computation of floats tracjectories within nested
+! Switch to control the computation of floats trajectories within nested
 ! and/or multiple connected grids, [1:Ngrids].
 !
      Lfish == T
@@ -47,23 +47,99 @@
 
 ! Fish initial wet weight [g], {2.0d0}.
 
-         Fwwt0 == 2.0d0                          ! Fwwt0
+       Fwwt0 == 10.0d0
+
+! Fish spawning maturity [years], {3.0d0}.
+
+       Fage0 == 3.0d0
 
 ! Fish preference for ZS, {0.5d0}.
 
-         ZSpref == 1.0d0                         ! ZSpref
+       ZSpref == 1.0d0
 
 ! Fish preference for ZL, {1.0d0}.
 
-         ZLpref == 1.0d0                         ! ZLpref
+       ZLpref == 1.0d0
 
 ! Fish preference for ZP, {0.5d0}.
 
-         ZPpref == 1.0d0                         ! ZPpref
+       ZPpref == 1.0d0
+
+! Energy conversion from Zooplankton to Fish
+
+       CAL_ZF == 0.3318d0                 ! 2580.0_r8/7775.0_r8 (age 2+)
+
+! Fish half saturation for ZS
+
+       K_ZS == 1.15d0
+
+! Fish half saturation for ZL
+
+       K_ZL == 1.15d0
+
+! Fish half saturation for ZP
+
+       K_ZP == 1.15d0
+
+! Fish half saturation for Fish
+
+       K_Fish == 0.5d0
+
+! Fish preference for Fish
+
+       Fpref == 1.0d0
+
+! Fish consumption coefficient
+
+       a_C == 0.642d0
+
+! Fish consumption exponent
+
+       b_C == 0.256d0
+
+! Fish egestion coefficient
+
+       a_F == 0.16d0
+
+! Fish excretion coefficient
+
+       a_E == 0.1d0
+
+! Fish respiration coefficient
+
+       a_R == 0.0033d0
+
+! Fish respiration exponent
+
+       b_R == 0.227d0
+
+! Fish swimming coefficient
+
+       d_R == 0.03d0
+
+! Fish activity coefficient
+
+       a_A == 15.0d0
+
+! Fish activity exponent
+
+       b_A == 0.13d0
+
+! Fish specific dynamic action coefficient
+
+       a_S == 0.175d0
+
+! Fish yearly natural mortality
+
+       Nymort == 0.3d0
+
+! Fish yearly fishing mortality
+
+       Fymort == 0.0d0
 
 ! Number of fish per year per species.
 
-     Nfishperyear == 36
+     Nfishperyear == 10
 
 ! Number of fish species.
 
@@ -71,15 +147,11 @@
 
 ! Number of year classes.
 
-     Nyearclass == 1
+     Nyearclass == 10
 
 ! Number of batches of eggs per female per year.
 
      Nbatch == 8
-
-! Number of positions listed below
-
-     Npos == 36
 
 ! Initial floats locations for all grids:
 !
@@ -95,51 +167,6 @@
 !   Fdx    Float cluster X-distribution parameter
 !   Fdy    Float cluster Y-distribution parameter
 !   Fdz    Float cluster Z-distribution parameter
-
-POS = G, C, T, N,   Ft0,    Fx0,    Fy0,    Fz0,    Fdt,    Fdx,    Fdy,   Fdz
-
-1 0 1 1   90.0  42  10 30 0.0 0 0 0
-1 0 1 1   90.0  41  11 30 0.0 0 0 0
-1 0 1 1   90.0  40  12 30 0.0 0 0 0
-1 0 1 1   90.0  39  13 30 0.0 0 0 0
-1 0 1 1   90.0  38  14 30 0.0 0 0 0
-1 0 1 1   90.0  37  15 30 0.0 0 0 0
-1 0 1 1   90.0  37  16 30 0.0 0 0 0
-1 0 1 1   90.0  36  17 30 0.0 0 0 0
-1 0 1 1   90.0  35  18 30 0.0 0 0 0
-1 0 1 1   90.0  34  19 30 0.0 0 0 0
-1 0 1 1   90.0  34  20 30 0.0 0 0 0
-1 0 1 1   90.0  33  21 30 0.0 0 0 0
-1 0 1 1   90.0  32  22 30 0.0 0 0 0
-1 0 1 1   90.0  32  23 30 0.0 0 0 0
-1 0 1 1   90.0  31  24 30 0.0 0 0 0
-1 0 1 1   90.0  30  25 30 0.0 0 0 0
-1 0 1 1   90.0  30  26 30 0.0 0 0 0
-1 0 1 1   90.0  29  27 30 0.0 0 0 0
-1 0 1 1   90.0  29  28 30 0.0 0 0 0
-1 0 1 1   90.0  28  29 30 0.0 0 0 0
-1 0 1 1   90.0  27  30 30 0.0 0 0 0
-1 0 1 1   90.0  27  31 30 0.0 0 0 0
-1 0 1 1   90.0  27  32 30 0.0 0 0 0
-1 0 1 1   90.0  26  33 30 0.0 0 0 0
-1 0 1 1   90.0  26  34 30 0.0 0 0 0
-1 0 1 1   90.0  26  35 30 0.0 0 0 0
-1 0 1 1   90.0  26  36 30 0.0 0 0 0
-1 0 1 1   90.0  26  37 30 0.0 0 0 0
-1 0 1 1   90.0  25  38 30 0.0 0 0 0
-1 0 1 1   90.0  25  39 30 0.0 0 0 0
-1 0 1 1   0.0  25  40 30 0.0 0 0 0
-1 0 1 1   0.0  25  40 30 0.0 0 0 0
-1 0 1 1   0.0  25  40 30 0.0 0 0 0
-1 0 1 1   0.0  25  40 30 0.0 0 0 0
-1 0 1 1   0.0  25  40 30 0.0 0 0 0
-1 0 1 1   0.0  25  40 30 0.0 0 0 0
-!1 0 1 1   90.0  25  40 30 0.0 0 0 0
-!1 0 1 1   90.0  25  41 30 0.0 0 0 0
-!1 0 1 1   90.0  25  42 30 0.0 0 0 0
-!1 0 1 1   90.0  25  43 30 0.0 0 0 0
-!1 0 1 1   90.0  25  44 30 0.0 0 0 0
-!1 0 1 1   90.0  26  45 30 0.0 0 0 0
 
 !
 !  GLOSSARY:

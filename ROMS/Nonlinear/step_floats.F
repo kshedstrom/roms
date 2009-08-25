@@ -545,7 +545,8 @@
               zfloat=Fz0(l)+cff9
             END IF
 !
-            DO k=N(ng)-1,0,-1
+!           DO k=N(ng)-1,0,-1
+            DO k=N(ng),0,-1
 #  ifdef MASKING
               cff7=p1*q1*GRID(ng)%z_w(i1,j1,k)*GRID(ng)%rmask(i1,j1)+   &
      &             p2*q1*GRID(ng)%z_w(i2,j1,k)*GRID(ng)%rmask(i2,j1)+   &

@@ -96,7 +96,7 @@ MY_CPP_FLAGS ?=
 
 #  Activate debugging compiler options:
 
-   USE_DEBUG ?= 
+   USE_DEBUG ?=
 
 #  If parallel applications, use at most one of these definitions
 #  (leave both definitions blank in serial applications):
@@ -423,15 +423,15 @@ endif
 ifdef USE_REPRESENTER
  modules  +=	ROMS/Representer
 endif
-ifdef USE_SEAICE
- modules  +=	ROMS/SeaIce
-endif
 ifdef USE_TANGENT
  modules  +=	ROMS/Tangent
 endif
  modules  +=	ROMS/Nonlinear \
 		ROMS/Functionals \
 		ROMS/Modules
+ifdef USE_SEAICE
+ modules  +=	ROMS/SeaIce
+endif
 ifdef USE_FISH
  modules  +=	ROMS/Fish
 endif

@@ -18,6 +18,8 @@
       USE mod_ncparam
       USE mod_scalars
       USE mod_fish
+      USE mod_biology
+      USE nrutil
 # ifdef DISTRIBUTE
       USE mod_strings
 # endif
@@ -43,9 +45,9 @@
       integer :: MaxHaloLenI, MaxHaloLenJ
 # endif
       integer :: inp, out, itrc, ng, npts, sequence
-      integer :: i, isp
+      integer :: i, isp, l, fid, j
 
-      real(r8) :: cff
+      real(r8) :: cff, Fwwght0, Fworth0, snudg
       real(r8), parameter :: spv = 0.0_r8
 !
 !-----------------------------------------------------------------------
@@ -82,25 +84,68 @@
       idfish(if_herring) = 1
       idfish_inv(1) = if_herring
 
+!  Don't have these things for each grid... yet.
+      ng = 1
       DO isp=1,Nspecies(ng)
-        if_sp_base(isp) = (isp-1)*Nyearclass(ng)*Nfishperyear(ng)
+        FISHES(ng) % species_base(isp) =                                &
+     &             (isp-1)*Nyearclass(ng)*Nfishperyear(ng)
       END DO
       DO isp=1,Nspecies(ng)
         DO i=0,Nyearclass(ng)-1
-	  if_age_base(isp,i) = if_sp_base(isp) + i*Nfishperyear(ng)
-	END DO
+          FISHES(ng) % age_base(isp,i) =                                &
+     &             FISHES(ng) % species_base(isp) + i*Nfishperyear(ng)
+        END DO
       END DO
 
       DO isp=1,Nspecies(ng)
 !  KLUDGE FOO WARNING! This will need to be updated.
-        FISHES(ng) % sp_start(isp) = 1._r8
+        FISHES(ng) % sp_start(isp) = 0._r8
         FISHES(ng) % sp_end(isp) = 210._r8
         FISHES(ng) % num_free(isp) = Nfishperyear(ng)
         FISHES(ng) % num_super(isp) = 0
-        FISHES(ng) % next_free(isp) = 1 + if_age_base(isp,0)
+        FISHES(ng) % next_free(isp) = 1 +                               &
+     &                  FISHES(ng) % age_base(isp,0)
       END DO
+      IF (Master) THEN
+        print *, 'First Year for Fish'
+	print *, 'Free fish ', FISHES(ng) % num_free
+	print *, 'Fish ages ', FISHES(ng) % age_base
+      END IF
 
 !  Put the new fish in here, all except age 0.
+      DO isp=1,Nspecies(ng)
+        DO i=1,Nyearclass(ng)-1
+! NB: initialization for fish wet weight loosely adapted from KR anchovy
+          Fwwght0=MIN(35.0_r8,Fwwt0(ng)+REAL(i-1,r8)*5.0_r8)
+          Fworth0=(0.5e5_r8*1.0e6_r8)*EXP(-Nymort(ng)*REAL(i,r8))/      &
+     &            REAL(Nfishperyear(ng),r8)
+          DO l=1,Nfishperyear(ng)
+            fid=FISHES(ng) % age_base(isp,Nyearclass(ng)-i)+l
+            CALL ran1 (snudg)
+            DO j=0,NFT
+              FISHES(ng)%track(ixgrd,j,fid) =                           &
+     &                  FISHES(ng)%Tinfo(ixgrd,fid) +                   &
+     &                  4.0_r8*(snudg-0.5_r8)
+              FISHES(ng)%track(iygrd,j,fid) =                           &
+     &                  FISHES(ng)%Tinfo(iygrd,fid) +                   &
+     &                  4.0_r8*(snudg-0.5_r8)
+#  ifdef SOLVE3D
+              FISHES(ng)%track(izgrd,j,fid) =                           &
+     &                  FISHES(ng)%Tinfo(izgrd,fid)
+#  endif
+            END DO
+            FISHES(ng)%bioenergy(ifwwt,fid)=Fwwght0*(snudg+0.5_r8)
+            FISHES(ng)%bioenergy(ifworth,fid)=Fworth0
+            FISHES(ng)%bioenergy(ifage,fid)=REAL(i,r8)
+            FISHES(ng)%species(fid)=if_herring
+            FISHES(ng)%alive(fid)=.TRUE.
+            FISHES(ng)%eatfish(fid)=.FALSE.
+            FISHES(ng)%lifestage(fid)=if_adult
+            FISHES(ng)%swimtype(fid)=2          ! 1=Fitness, 2=Kinesis
+            FISHES(ng)%bounded(fid)=.TRUE.
+          END DO
+        END DO
+      END DO
 
       END SUBROUTINE ini_fish
 
@@ -177,61 +222,50 @@
             Npts=load_r(Nval, Rval, Ngrids, ZLpref)
           ELSE IF (TRIM(KeyWord).eq.'ZPpref') THEN
             Npts=load_r(Nval, Rval, Ngrids, ZPpref)
+          ELSE IF (TRIM(KeyWord).eq.'CAL_ZF') THEN
+            Npts=load_r(Nval, Rval, Ngrids, CAL_ZF)
+          ELSE IF (TRIM(KeyWord).eq.'K_ZS') THEN
+            Npts=load_r(Nval, Rval, Ngrids, K_ZS)
+          ELSE IF (TRIM(KeyWord).eq.'K_ZL') THEN
+            Npts=load_r(Nval, Rval, Ngrids, K_ZL)
+          ELSE IF (TRIM(KeyWord).eq.'K_ZP') THEN
+            Npts=load_r(Nval, Rval, Ngrids, K_ZP)
+          ELSE IF (TRIM(KeyWord).eq.'K_Fish') THEN
+            Npts=load_r(Nval, Rval, Ngrids, K_Fish)
+          ELSE IF (TRIM(KeyWord).eq.'Fpref') THEN
+            Npts=load_r(Nval, Rval, Ngrids, Fpref)
+          ELSE IF (TRIM(KeyWord).eq.'a_C') THEN
+            Npts=load_r(Nval, Rval, Ngrids, a_C)
+          ELSE IF (TRIM(KeyWord).eq.'b_C') THEN
+            Npts=load_r(Nval, Rval, Ngrids, b_C)
+          ELSE IF (TRIM(KeyWord).eq.'a_F') THEN
+            Npts=load_r(Nval, Rval, Ngrids, a_F)
+          ELSE IF (TRIM(KeyWord).eq.'a_E') THEN
+            Npts=load_r(Nval, Rval, Ngrids, a_E)
+          ELSE IF (TRIM(KeyWord).eq.'a_R') THEN
+            Npts=load_r(Nval, Rval, Ngrids, a_R)
+          ELSE IF (TRIM(KeyWord).eq.'b_R') THEN
+            Npts=load_r(Nval, Rval, Ngrids, b_R)
+          ELSE IF (TRIM(KeyWord).eq.'d_R') THEN
+            Npts=load_r(Nval, Rval, Ngrids, d_R)
+          ELSE IF (TRIM(KeyWord).eq.'a_A') THEN
+            Npts=load_r(Nval, Rval, Ngrids, a_A)
+          ELSE IF (TRIM(KeyWord).eq.'b_A') THEN
+            Npts=load_r(Nval, Rval, Ngrids, b_A)
+          ELSE IF (TRIM(KeyWord).eq.'a_S') THEN
+            Npts=load_r(Nval, Rval, Ngrids, a_S)
+          ELSE IF (TRIM(KeyWord).eq.'Nymort') THEN
+            Npts=load_r(Nval, Rval, Ngrids, Nymort)
+          ELSE IF (TRIM(KeyWord).eq.'Fymort') THEN
+            Npts=load_r(Nval, Rval, Ngrids, Fymort)
           ELSE IF (TRIM(KeyWord).eq.'Nfishperyear') THEN
             Npts=load_i(Nval, Rval, Ngrids, Nfishperyear)
           ELSE IF (TRIM(KeyWord).eq.'Nspecies') THEN
             Npts=load_i(Nval, Rval, Ngrids, Nspecies)
           ELSE IF (TRIM(KeyWord).eq.'Nyearclass') THEN
             Npts=load_i(Nval, Rval, Ngrids, Nyearclass)
-          ELSE IF (TRIM(KeyWord).eq.'Nbox') THEN
-            Npts=load_i(Nval, Rval, Ngrids, Nbox)
           ELSE IF (TRIM(KeyWord).eq.'Nbatch') THEN
             Npts=load_i(Nval, Rval, Ngrids, Nbatch)
-          ELSE IF (TRIM(KeyWord).eq.'Npos') THEN
-            Npts=load_i(Nval, Rval, Ngrids, Npos)
-          ELSE IF (TRIM(KeyWord).eq.'POS') THEN
-            DO ng=1,Ngrids
-              Nfish(ng) = Nfishperyear(ng)*Nspecies(ng)*Nyearclass(ng)
-            END DO
-            Npts=Npos(1)+1
-            IF (Ngrids.gt.1) Npts=MAXVAL(Npos)+1
-            allocate ( Fcoor (Npts,Ngrids) )
-            allocate ( Fcount(Npts,Ngrids) )
-            allocate ( Ftype (Npts,Ngrids) )
-            allocate ( Ft0(Npts,Ngrids) )
-            allocate ( Fx0(Npts,Ngrids) )
-            allocate ( Fy0(Npts,Ngrids) )
-            allocate ( Fz0(Npts,Ngrids) )
-            allocate ( Fdt(Npts,Ngrids) )
-            allocate ( Fdx(Npts,Ngrids) )
-            allocate ( Fdy(Npts,Ngrids) )
-            allocate ( Fdz(Npts,Ngrids) )
-            DO ng=1,Ngrids
-              CALL allocate_fish (ng)
-            END DO
-            ncount(1:Ngrids)=0
-            nentry(1:Ngrids)=0
-            DO WHILE (.TRUE.)
-              READ (inp,*,ERR=30,END=30) igrid,                         &
-     &                                   Fcoor (nentry(igrid)+1,igrid), &
-     &                                   Ftype (nentry(igrid)+1,igrid), &
-     &                                   Fcount(nentry(igrid)+1,igrid), &
-     &                                   Ft0(nentry(igrid)+1,igrid),    &
-     &                                   Fx0(nentry(igrid)+1,igrid),    &
-     &                                   Fy0(nentry(igrid)+1,igrid),    &
-     &                                   Fz0(nentry(igrid)+1,igrid),    &
-     &                                   Fdt(nentry(igrid)+1,igrid),    &
-     &                                   Fdx(nentry(igrid)+1,igrid),    &
-     &                                   Fdy(nentry(igrid)+1,igrid),    &
-     &                                   Fdz(nentry(igrid)+1,igrid)
-              IF (igrid.gt.Ngrids) THEN
-                IF (Lwrite) WRITE (out,40) fposnam
-                exit_flag=4
-                RETURN
-              END IF
-              ncount(igrid)=ncount(igrid)+Fcount(nentry(igrid)+1,igrid)
-              nentry(igrid)=nentry(igrid)+1        
-            END DO
           END IF
         END IF
       END DO
@@ -239,6 +273,49 @@
       exit_flag=4
       RETURN
   30  CONTINUE
+!
+!-----------------------------------------------------------------------
+!  Set initial fish locations
+!-----------------------------------------------------------------------
+!
+      DO ng=1,Ngrids
+        Nfish(ng)=Nfishperyear(ng)*Nspecies(ng)*Nyearclass(ng)
+        Npos(ng)=Nfish(ng)
+      END DO
+      Npts=Nfish(1)
+      IF (Ngrids.gt.1) Npts=MAXVAL(Nfish)
+      allocate ( Fcoor (Npts,Ngrids) )
+      allocate ( Fcount(Npts,Ngrids) )
+      allocate ( Ftype (Npts,Ngrids) )
+      allocate ( Ft0(Npts,Ngrids) )
+      allocate ( Fx0(Npts,Ngrids) )
+      allocate ( Fy0(Npts,Ngrids) )
+      allocate ( Fz0(Npts,Ngrids) )
+      allocate ( Fdt(Npts,Ngrids) )
+      allocate ( Fdx(Npts,Ngrids) )
+      allocate ( Fdy(Npts,Ngrids) )
+      allocate ( Fdz(Npts,Ngrids) )
+      DO ng=1,Ngrids
+        CALL allocate_fish (ng)
+      END DO
+      ncount(1:Ngrids)=0
+      nentry(1:Ngrids)=0
+      DO i=1,Npts
+        igrid=1
+        Fcoor (nentry(igrid)+1,igrid)=0
+        Ftype (nentry(igrid)+1,igrid)=1
+        Fcount(nentry(igrid)+1,igrid)=1
+        Ft0(nentry(igrid)+1,igrid)=0.0_r8
+        Fx0(nentry(igrid)+1,igrid)=28.0_r8
+        Fy0(nentry(igrid)+1,igrid)=29.0_r8
+        Fz0(nentry(igrid)+1,igrid)=30.0_r8
+        Fdt(nentry(igrid)+1,igrid)=0.0_r8
+        Fdx(nentry(igrid)+1,igrid)=0.0_r8
+        Fdy(nentry(igrid)+1,igrid)=0.0_r8
+        Fdz(nentry(igrid)+1,igrid)=0.0_r8
+        ncount(igrid)=ncount(igrid)+Fcount(nentry(igrid)+1,igrid)
+        nentry(igrid)=nentry(igrid)+1        
+      END DO
 !
 !-----------------------------------------------------------------------
 !  Report input parameters.
@@ -267,6 +344,67 @@
             WRITE (out,80) Nfish(ng),                                   &
      &            'Nfish',                                              &
      &            'Number of fish trajectories to compute.'
+            WRITE (out,110) Fwwt0(ng), 'Fwwt0',                         &
+     &            'Fish initial wet weight (g).'
+            WRITE (out,110) Fage0(ng), 'Fage0',                         &
+     &            'Fish spawning maturity (years).'
+            WRITE (out,110) ZSpref(ng), 'ZSpref',                       &
+     &            'Fish preference for ZS (-).'
+            WRITE (out,110) ZLpref(ng), 'ZLpref',                       &
+     &            'Fish preference for ZL (-).'
+            WRITE (out,110) ZPpref(ng), 'ZPpref',                       &
+     &            'Fish preference for ZP (-).'
+            WRITE (out,110) CAL_ZF(ng), 'CAL_ZF',                       &
+     &            'Energy conversion from Z to Fish.'
+            WRITE (out,110) K_ZS(ng), 'K_ZS',                           &
+     &            'Fish half-saturation constant for ZS.'
+            WRITE (out,110) K_ZL(ng), 'K_ZL',                           &
+     &            'Fish half-saturation constant for ZL.'
+            WRITE (out,110) K_ZP(ng), 'K_ZP',                           &
+     &            'Fish half-saturation constant for ZP.'
+            WRITE (out,110) K_Fish(ng), 'K_Fish',                       &
+     &            'Fish half-saturation constant for Fish.'
+            WRITE (out,110) Fpref(ng), 'Fpref',                         &
+     &            'Fish preference for Fish.'
+            WRITE (out,110) a_C(ng), 'a_C',                             &
+     &            'Fish comsumption coefficient.'
+            WRITE (out,110) b_C(ng), 'b_C',                             &
+     &            'Fish comsumption exponent.'
+            WRITE (out,110) a_F(ng), 'a_F',                             &
+     &            'Fish egestion coefficient.'
+            WRITE (out,110) a_E(ng), 'a_E',                             &
+     &            'Fish excretion coefficient.'
+            WRITE (out,110) a_R(ng), 'a_R',                             &
+     &            'Fish respiration coefficient.'
+            WRITE (out,110) b_R(ng), 'b_R',                             &
+     &            'Fish respiration exponent.'
+            WRITE (out,110) d_R(ng), 'd_R',                             &
+     &            'Fish swimming coefficient.'
+            WRITE (out,110) a_A(ng), 'a_A',                             &
+     &            'Fish activity coefficient.'
+            WRITE (out,110) b_A(ng), 'b_A',                             &
+     &            'Fish activity exponent.'
+            WRITE (out,110) a_S(ng), 'a_S',                             &
+     &            'Fish SDA coefficient.'
+            WRITE (out,110) Nymort(ng), 'Nymort',                       &
+     &            'Yearly natural mortality.'
+            WRITE (out,110) Fymort(ng), 'Fymort',                       &
+     &            'Yearly fishing mortality.'
+            WRITE (out,80) Nfishperyear(ng),                            &
+     &            'Nfishperyear',                                       &
+     &            'Number of fish per year per species.'
+            WRITE (out,80) Nspecies(ng),                                &
+     &            'Nspecies',                                           &
+     &            'Number of fish species.'
+            WRITE (out,80) Nyearclass(ng),                              &
+     &            'Nyearclass',                                         &
+     &            'Number of year classes per species.'
+            WRITE (out,80) Nbatch(ng),                                  &
+     &            'Nbatch',                                             &
+     &            'Number of egg batches per fish per year.'
+            WRITE (out,80) Npos(ng),                                    &
+     &            'Npos',                                               &
+     &            'Number of fish initial positions.'
           END IF
         END DO
       END IF
@@ -378,16 +516,6 @@
       deallocate ( Fdx )
       deallocate ( Fdy )
       deallocate ( Fdz )
-
-! was elsewhere
-!            WRITE (out,100) Fwwt0(ng), 'Fwwt0',                         &
-!     &            'Fish initial wet weight (g).'
-!            WRITE (out,100) ZSpref(ng), 'ZSpref',                       &
-!     &            'Fish preference for ZS (-).'
-!            WRITE (out,100) ZLpref(ng), 'ZLpref',                       &
-!     &            'Fish preference for ZL (-).'
-!            WRITE (out,100) ZPpref(ng), 'ZPpref',                       &
-!     &            'Fish preference for ZP (-).'
 !
   40  FORMAT (/,' READ_FishPar - Error while reading floats',           &
      &          ' locations in input script: ',a)
@@ -399,6 +527,7 @@
      &        15x,'Ft0',5x,'Fx0',5x,'Fy0',5x,'Fz0',                     &
      &        6x,'Fdt',6x,'Fdx',6x,'Fdy',6x,'Fdz',/)
  80   FORMAT (/,1x,i10,2x,a,t30,a)
+ 110  FORMAT (1p,e11.4,2x,a,t30,a,/,t32,a)
 
       RETURN
       END SUBROUTINE read_FishPar

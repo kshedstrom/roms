@@ -424,9 +424,9 @@
         integer, parameter :: if_pinksalmon = 5
         integer, parameter :: max_species = 5
         integer, parameter :: max_yearclass = 10
-! "Pointers" into big Nfish dimension:
-        integer, pointer :: if_age_base(:,:)
-        integer, pointer :: if_sp_base(:)
+#  ifdef EGGS_BISECTION
+        logical :: lr_split = .true.
+#  endif
 # endif
 # ifdef SOLVE3D
 !
@@ -2011,8 +2011,6 @@
 #  ifdef NEMURO_SAN
       allocate ( idfish(max_species) )
       allocate ( idfish_inv(max_species) )
-      allocate ( if_age_base(max_species, 0:max_yearclass-1) )
-      allocate ( if_sp_base(max_species) )
 #  endif
 
 # ifdef BEST_NPZ

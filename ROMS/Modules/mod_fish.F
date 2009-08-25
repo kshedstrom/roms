@@ -46,9 +46,10 @@
           real(r8), pointer :: feedback(:,:)
           integer, pointer  :: species(:)
           integer, pointer  :: lifestage(:)
-          integer, pointer  :: num_eggs(:)
+          integer, pointer  :: swimtype(:)
           logical, pointer  :: alive(:)
           logical, pointer  :: eatfish(:)
+          logical, pointer  :: fishgirl(:)
           type(fishnode), pointer :: fishnodes(:)
           real(r8), pointer :: sp_start(:)
           real(r8), pointer :: sp_end(:)
@@ -56,6 +57,9 @@
           integer, pointer  :: next_free(:)
           integer, pointer  :: num_super(:)
 
+! "Pointers" into big Nfish dimension:
+          integer, pointer :: age_base(:,:)
+          integer, pointer :: species_base(:)
         END TYPE T_FISHES
 
         TYPE (T_FISHES), allocatable :: FISHES(:)
@@ -113,11 +117,13 @@
 
       allocate ( FISHES(ng) % lifestage(Nfish(ng)) )
 
+      allocate ( FISHES(ng) % swimtype(Nfish(ng)) )
+
       allocate ( FISHES(ng) % alive(Nfish(ng)) )
 
       allocate ( FISHES(ng) % eatfish(Nfish(ng)) )
 
-      allocate ( FISHES(ng) % num_eggs(Nfish(ng)) )
+      allocate ( FISHES(ng) % fishgirl(Nfish(ng)) )
 
       allocate ( FISHES(ng) % fishnodes(Nfish(ng)) )
 
@@ -130,6 +136,11 @@
       allocate ( FISHES(ng) % num_super(Nspecies(ng)) )
 
       allocate ( FISHES(ng) % next_free(Nspecies(ng)) )
+
+      allocate ( FISHES(ng) %                                           &
+     &           age_base(Nspecies(ng), 0:Nyearclass(ng)-1) )
+
+      allocate ( FISHES(ng) % species_base(Nspecies(ng)) )
 !
 !-----------------------------------------------------------------------
 !  Initialize module variables.
@@ -161,9 +172,10 @@
         END DO
         FISHES(ng) % species(iflt) = if_none
         FISHES(ng) % lifestage(iflt) = if_none
+        FISHES(ng) % swimtype(iflt) = 0
         FISHES(ng) % alive(iflt) = .FALSE.
         FISHES(ng) % eatfish(iflt) = .FALSE.
-        FISHES(ng) % num_eggs(iflt) = 0
+        FISHES(ng) % fishgirl(iflt) = .FALSE.
         FISHES(ng) % fishnodes(iflt) % fish = iflt
       END DO
 

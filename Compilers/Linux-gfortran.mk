@@ -35,7 +35,12 @@
               CXX := g++
            CFLAGS :=
          CXXFLAGS :=
-          LDFLAGS := -lstdc++
+          LDFLAGS :=
+ifdef USE_CXX
+             LIBS := -lstdc++
+else
+             LIBS :=
+endif
                AR := ar
           ARFLAGS := -r
             MKDIR := mkdir -p
@@ -62,7 +67,7 @@ else
 #    NETCDF_INCDIR ?= /archive/u1/uaf/kate/include
 #    NETCDF_LIBDIR ?= /archive/u1/uaf/kate/lib
 endif
-             LIBS := -L$(NETCDF_LIBDIR) -lnetcdf
+             LIBS += -L$(NETCDF_LIBDIR) -lnetcdf
 ifdef USE_NETCDF4
              LIBS += -L$(HDF5_LIBDIR) -lhdf5_hl -lhdf5 -lz
 endif

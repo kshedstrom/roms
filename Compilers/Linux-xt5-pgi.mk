@@ -35,7 +35,12 @@
               CXX := g++
            CFLAGS :=
          CXXFLAGS :=
-          LDFLAGS := -lstdc++
+          LDFLAGS := 
+ifdef USE_CXX
+             LIBS := -lstdc++
+else
+             LIBS :=
+endif
                AR := ar
           ARFLAGS := -r
             MKDIR := mkdir -p
@@ -51,21 +56,24 @@
 #
 
 ifdef USE_NETCDF4
-    NETCDF_INCDIR ?= /u2/wes/PET_HOME/pkgs/netcdf-4.0-parallel/include
-    NETCDF_LIBDIR ?= /u2/wes/PET_HOME/pkgs/netcdf-4.0-parallel/lib
-      HDF5_LIBDIR ?= /u2/wes/PET_HOME/pkgs/hdf5-1.8.1-parallel/lib
+#    NETCDF_INCDIR ?= /u2/wes/PET_HOME/pkgs/netcdf-4.0-parallel/include
+#    NETCDF_LIBDIR ?= /u2/wes/PET_HOME/pkgs/netcdf-4.0-parallel/lib
+#      HDF5_LIBDIR ?= /u2/wes/PET_HOME/pkgs/hdf5-1.8.1-parallel/lib
 
-#    NETCDF_INCDIR ?= /u2/wes/PET_HOME/include
-#    NETCDF_LIBDIR ?= /u2/wes/PET_HOME/lib
-#      HDF5_LIBDIR ?= /u2/wes/PET_HOME/lib
+    NETCDF_INCDIR ?= /opt/cray/netcdf/4.0.0.1/netcdf-pgi/include
+    NETCDF_LIBDIR ?= /opt/cray/netcdf/4.0.0.1/netcdf-pgi/lib
+#   NETCDF_INCDIR ?= /u2/wes/PET_HOME/include
+#   NETCDF_LIBDIR ?= /u2/wes/PET_HOME/lib
+      HDF5_LIBDIR ?= /u2/wes/PET_HOME/lib
 else
     NETCDF_INCDIR ?= /usr/local/pgi/include
     NETCDF_LIBDIR ?= /usr/local/pgi/lib
 endif
-             LIBS := -L$(NETCDF_LIBDIR) -lnetcdf
+             LIBS += -L$(NETCDF_LIBDIR) -lnetcdff -lnetcdf
 ifdef USE_NETCDF4
              LIBS += -L$(HDF5_LIBDIR) -lhdf5_hl -lhdf5 -lz
 endif
+
 
 ifdef USE_ARPACK
  ifdef USE_MPI

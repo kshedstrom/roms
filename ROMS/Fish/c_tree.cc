@@ -41,8 +41,8 @@ extern "C" void c_tree_init_(int* species) {
     while (sp >= trees.size()) {
        trees.push_back(new RBTree());
     }
-    printf("size of trees %d\n", trees.size());
-    printf("species %d\n", sp);
+//    printf("size of trees %d\n", trees.size());
+//    printf("species %d\n", sp);
 }
 
 #ifdef PATH
@@ -74,6 +74,14 @@ extern "C" void c_tree_collect_(int* species, int* nsuper, int* nfound, double* 
 	eggs[ii] = top->egg_sum;
 	mom[ii] = top->momfish;
     }
+}
+
+#ifdef PATH
+extern "C" void c_tree_trim__() {
+#else
+extern "C" void c_tree_trim_() {
+#endif
+    trees.resize(1);
 }
 
 #ifdef PATH

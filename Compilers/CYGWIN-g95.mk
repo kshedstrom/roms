@@ -38,7 +38,12 @@
               CXX := g++
            CFLAGS :=
          CXXFLAGS :=
-          LDFLAGS := -lstdc++
+          LDFLAGS :=
+ifdef USE_CXX
+             LIBS := -lstdc++
+else
+             LIBS :=
+endif
                AR := ar
           ARFLAGS := -r
             MKDIR := mkdir -p
@@ -61,7 +66,7 @@ else
     NETCDF_INCDIR ?= /usr/g95soft/netcdf/include
     NETCDF_LIBDIR ?= /usr/g95soft/netcdf/lib
 endif
-             LIBS := -L$(NETCDF_LIBDIR) -lnetcdf
+             LIBS += -L$(NETCDF_LIBDIR) -lnetcdf
 ifdef USE_NETCDF4
              LIBS += -L$(HDF5_LIBDIR) -lhdf5_hl -lhdf5 -lz
 endif
