@@ -3,7 +3,7 @@
 
 #if defined TANGENT && defined BALANCE_OPERATOR
 !
-!svn $Id: ad_balance.F 1038 2009-08-11 22:29:40Z kate $
+!svn $Id: ad_balance.F 1047 2009-08-24 23:55:11Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
@@ -958,11 +958,11 @@
       DO j=JstrR,JendR
         DO i=IstrR,IendR
           DO k=1,N(ng)
-            IF (ABS(dTdz(i,j,k)).lt.dTdz_min) THEN
+            cff=0.5_r8*(dTdz(i,j,k-1)+dTdz(i,j,k)) 
+            IF (ABS(cff).lt.dTdz_min) THEN
               dzdT=0.0_r8
             ELSE
-              dzdT=1.0_r8/(0.5_r8*(dTdz(i,j,k-1)+                       &
-     &                             dTdz(i,j,k  )))
+              dzdT=1.0_r8/cff
             END IF
             dSdT(k)=(0.5_r8*(dSdz(i,j,k-1)+                             &
      &                       dSdz(i,j,k  )))*dzdT
