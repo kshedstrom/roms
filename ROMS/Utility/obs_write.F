@@ -2,7 +2,7 @@
 #if (defined FOUR_DVAR || defined VERIFICATION) && defined OBSERVATIONS
       SUBROUTINE obs_write (ng, tile, model)
 !
-!svn $Id: obs_write.F 1012 2009-07-07 20:52:45Z kate $
+!svn $Id: obs_write.F 1038 2009-08-11 22:29:40Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -32,6 +32,9 @@
       USE extract_obs_mod, ONLY : extract_obs2d
 # ifdef SOLVE3D
       USE extract_obs_mod, ONLY : extract_obs3d
+# endif
+# if defined BALANCE_OPERATOR && defined ZETA_ELLIPTIC
+      USE nf_fwrite2d_mod, ONLY : nf_fwrite2d
 # endif
 !
 !  Imported variable declarations.
@@ -571,6 +574,19 @@
           haveTLmod(ng)=.TRUE.
         END IF
 # endif
+# if defined TL_W4DVAR          || defined W4DVAR             || \
+     defined W4DVAR_SENSITIVITY
+!
+!  Write initial representer model increments at observation locations.
+!
+        IF (Nrun.eq.1.and.wrtRPmod(ng)) THEN
+          CALL netcdf_put_fvar (ng, model, MODname(ng),                 &
+     &                          'RPmodel_initial', TLmodVal(Mstr:),     &
+     &                          (/NstrObs(ng)/), (/Nobs(ng)/) ,         &
+     &                          ncid = ncMODid(ng))
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+# endif
 # ifdef SOLVE3D
 !
 !  Write Z-location of observation in grid coordinates, if applicable.
@@ -600,6 +616,22 @@
             Lwrote=ObsSurvey(ng).eq.Nsurvey(ng)
           END IF
           IF (Lwrote) wrote_Zobs(ng)=.TRUE.
+        END IF
+# endif
+# if defined BALANCE_OPERATOR && defined ZETA_ELLIPTIC
+!
+!  Define reference free-surface used in the balance operator.
+!
+        IF (wrtZetaRef(ng)) THEN
+          status=nf_fwrite2d(ng, model, ncMODid(ng), modVid(idFsur,ng), &
+     &                       0, r2dvar,                                 &
+     &                       LBi, UBi, LBj, UBj, 1.0_r8,                &
+#  ifdef MASKING
+     &                       GRID(ng) % rmask,                          &
+#  endif
+     &                       OCEAN(ng) % zeta_ref)
+          IF (exit_flag.ne.NoError) RETURN
+          wrtZetaRef(ng)=.FALSE.
         END IF
 # endif
 !

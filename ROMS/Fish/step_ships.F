@@ -204,7 +204,7 @@
 
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 0, N(ng),             &
      &                    Lstr, Lend, nf, ifakt, Nships(ng),            &
-     &                    w3dvar, Lmask, nudg,                          &
+     &                    w3dvar, Lmask, spval, nudg,                   &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
      &                    GRID(ng) % Hz,                                &
@@ -216,7 +216,7 @@
 
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, N(ng),             &
      &                    Lstr, Lend, nf, ifdak, Nships(ng),            &
-     &                    r3dvar, Lmask, nudg,                          &
+     &                    r3dvar, Lmask, spval, nudg,                   &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
      &                    GRID(ng) % Hz,                                &
@@ -238,7 +238,7 @@
 
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 0, N(ng),             &
      &                    Lstr, Lend, nf, izrhs, Nships(ng),            &
-     &                    -w3dvar, Lmask, nudg,                         &
+     &                    -w3dvar, Lmask, spval, nudg,                  &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
      &                    GRID(ng) % Hz,                                &
@@ -406,7 +406,7 @@
 # ifdef SOLVE3D
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, N(ng),             &
      &                    Lstr, Lend, nfp1, ixrhs, Nships(ng),          &
-     &                    -u3dvar, Lmask, nudg,                         &
+     &                    -u3dvar, Lmask, spval, nudg,                  &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
      &                    GRID(ng) % Hz,                                &
@@ -418,7 +418,7 @@
 
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, N(ng),             &
      &                    Lstr, Lend, nfp1, iyrhs, Nships(ng),          &
-     &                    -v3dvar, Lmask, nudg,                         &
+     &                    -v3dvar, Lmask, spval, nudg,                  &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
      &                    GRID(ng) % Hz,                                &
@@ -431,7 +431,7 @@
 #  if !defined FLOAT_VWALK
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 0, N(ng),             &
      &                    Lstr, Lend, nfp1, izrhs, Nships(ng),          &
-     &                    -w3dvar, Lmask, nudg,                         &
+     &                    -w3dvar, Lmask, spval, nudg,                  &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
      &                    GRID(ng) % Hz,                                &
@@ -444,7 +444,7 @@
 # else
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,                 &
      &                    Lstr, Lend, nfp1, ixrhs, Nships(ng),          &
-     &                    -u2dvar, Lmask, nudg,                         &
+     &                    -u2dvar, Lmask, spval, nudg,                  &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
 # ifdef MASKING
@@ -455,7 +455,7 @@
 
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,                 &
      &                    Lstr, Lend, nfp1, iyrhs, Nships(ng),          &
-     &                    -v2dvar, Lmask, nudg,                         &
+     &                    -v2dvar, Lmask, spval, nudg,                  &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
 # ifdef MASKING
@@ -773,7 +773,7 @@
 # ifdef SOLVE3D
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, N(ng),             &
      &                    Lstr, Lend, nfp1, ixrhs, Nships(ng),          &
-     &                    -u3dvar, Lmask, nudg,                         &
+     &                    -u3dvar, Lmask, spval, nudg,                  &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
      &                    GRID(ng) % Hz,                                &
@@ -785,7 +785,7 @@
 
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, N(ng),             &
      &                    Lstr, Lend, nfp1, iyrhs, Nships(ng),          &
-     &                    -v3dvar, Lmask, nudg,                         &
+     &                    -v3dvar, Lmask, spval, nudg,                  &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
      &                    GRID(ng) % Hz,                                &
@@ -798,7 +798,7 @@
 #  if !defined FLOAT_VWALK
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 0, N(ng),             &
      &                    Lstr, Lend, nfp1, izrhs, Nships(ng),          &
-     &                    -w3dvar, Lmask, nudg,                         &
+     &                    -w3dvar, Lmask, spval, nudg,                  &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
      &                    GRID(ng) % Hz,                                &
@@ -811,7 +811,7 @@
 # else
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,                 &
      &                    Lstr, Lend, nfp1, ixrhs, Nships(ng),          &
-     &                    -u2dvar, Lmask, nudg,                         &
+     &                    -u2dvar, Lmask, spval, nudg,                  &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
 # ifdef MASKING
@@ -822,7 +822,7 @@
 
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,                 &
      &                    Lstr, Lend, nfp1, iyrhs, Nships(ng),          &
-     &                    -v2dvar, Lmask, nudg,                         &
+     &                    -v2dvar, Lmask, spval, nudg,                  &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
 # ifdef MASKING
@@ -860,7 +860,7 @@
       IF (spherical) THEN
         CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,               &
      &                      Lstr, Lend, nfp1, iflon, Nships(ng),        &
-     &                      r2dvar, Gmask, nudg,                        &
+     &                      r2dvar, Gmask, spval, nudg,                 &
      &                      GRID(ng) % pm,                              &
      &                      GRID(ng) % pn,                              &
 # ifdef SOLVE3D
@@ -874,7 +874,7 @@
 
         CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,               &
      &                      Lstr, Lend, nfp1, iflat, Nships(ng),        &
-     &                      r2dvar, Gmask, nudg,                        &
+     &                      r2dvar, Gmask, spval, nudg,                 &
      &                      GRID(ng) % pm,                              &
      &                      GRID(ng) % pn,                              &
 # ifdef SOLVE3D
@@ -888,7 +888,7 @@
       ELSE
         CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,               &
      &                      Lstr, Lend, nfp1, iflon, Nships(ng),        &
-     &                      r2dvar, Gmask, nudg,                        &
+     &                      r2dvar, Gmask, spval, nudg,                 &
      &                      GRID(ng) % pm,                              &
      &                      GRID(ng) % pn,                              &
 # ifdef SOLVE3D
@@ -902,7 +902,7 @@
 
         CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,               &
      &                      Lstr, Lend, nfp1, iflat, Nships(ng),        &
-     &                      r2dvar, Gmask, nudg,                        &
+     &                      r2dvar, Gmask, spval, nudg,                 &
      &                      GRID(ng) % pm,                              &
      &                      GRID(ng) % pn,                              &
 # ifdef SOLVE3D
@@ -918,7 +918,7 @@
 
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 0, N(ng),             &
      &                    Lstr, Lend, nfp1, idpth, Nships(ng),          &
-     &                    w3dvar, Lmask, nudg,                          &
+     &                    w3dvar, Lmask, spval, nudg,                   &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
      &                    GRID(ng) % Hz,                                &
@@ -930,7 +930,7 @@
 
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, N(ng),             &
      &                    Lstr, Lend, nfp1, ifden, Nships(ng),          &
-     &                    r3dvar, Lmask, nudg,                          &
+     &                    r3dvar, Lmask, spval, nudg,                   &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
      &                    GRID(ng) % Hz,                                &
@@ -944,7 +944,7 @@
         CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, N(ng),           &
      &                      Lstr, Lend, nfp1, itrc+NFV(ng)-NT(ng),      &
      &                      Nships(ng),                                 &
-     &                      r3dvar, Lmask, nudg,                        &
+     &                      r3dvar, Lmask, spval, nudg,                 &
      &                      GRID(ng) % pm,                              &
      &                      GRID(ng) % pn,                              &
      &                      GRID(ng) % Hz,                              &

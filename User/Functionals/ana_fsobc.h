@@ -1,6 +1,6 @@
       SUBROUTINE ana_fsobc (ng, tile, model)
 !
-!! svn $Id: ana_fsobc.h 975 2009-05-05 22:51:13Z kate $
+!! svn $Id: ana_fsobc.h 1028 2009-07-23 21:04:07Z kate $
 !!======================================================================
 !! Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !!   Licensed under a MIT/X style license                              !
@@ -66,14 +66,14 @@
 !-----------------------------------------------------------------------
 !
 #if defined MY_APPLICATION
-# ifdef WEST_FSOBC
+# ifdef EAST_FSOBC
       IF (EASTERN_EDGE) THEN
         DO j=JstrR,JendR
           BOUNDARY(ng)%zeta_east(j)=0.0_r8
         END DO
       END IF
 # endif
-# ifdef EAST_FSOBC
+# ifdef WEST_FSOBC
       IF (WESTERN_EDGE) THEN
         DO j=JstrR,JendR
           BOUNDARY(ng)%zeta_west(j)=0.0_r8

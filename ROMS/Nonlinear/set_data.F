@@ -2,7 +2,7 @@
 #ifdef NONLINEAR
       SUBROUTINE set_data (ng, tile)
 !
-!svn $Id: set_data.F 1023 2009-07-20 21:45:24Z kate $
+!svn $Id: set_data.F 1047 2009-08-24 23:55:11Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -78,6 +78,9 @@
       USE distribute_mod, ONLY : mp_boundary
 #  endif
 # ifdef DISTRIBUTE
+#  if defined WET_DRY
+      USE distribute_mod, ONLY : mp_boundary
+#  endif
       USE mp_exchange_mod, ONLY : mp_exchange2d
 #  ifdef SOLVE3D
       USE mp_exchange_mod, ONLY : mp_exchange3d
@@ -138,7 +141,7 @@
 
 # ifdef NCEP_FLUXES
 #  ifdef ANA_NCEP
-      CALL ana_ncep_tile (ng, tile,                                     &
+      CALL ana_ncep_tile (ng, tile, model,                              &
      &                       LBi, UBi, LBj, UBj,                        &
      &                       FORCES(ng) % nustr,                        &
      &                       FORCES(ng) % nvstr,                        &
@@ -903,7 +906,7 @@
             BOUNDARY(ng)%zeta_west(j)=cff
           END IF
         END DO
-	bry_update=.TRUE.
+        bry_update=.TRUE.
       END IF
 #    ifdef DISTRIBUTE
       CALL mp_boundary (ng, iNLM, JstrR, JendR, JLB, JUB, 1, 1,         &

@@ -2,7 +2,7 @@
 #ifdef SOLVE3D
       SUBROUTINE set_scoord (ng)
 !
-!svn $Id: set_scoord.F 992 2009-05-29 01:12:37Z kate $
+!svn $Id: set_scoord.F 1038 2009-08-11 22:29:40Z kate $
 !=======================================================================
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -393,12 +393,15 @@
         DO k=N(ng),0,-1
           IF (Vstretching(ng).eq.2) THEN
             cff=0.5_r8*(hmax(ng)+hmin(ng))
-            cff1=hc(ng)  *(SCALARS(ng)%sc_w(k)*hc(ng)+                  &
-     &                     SCALARS(ng)%Cs_w(k)*hc(ng))/(hc(ng)+hc(ng))
-            cff2=cff     *(SCALARS(ng)%sc_w(k)*cff+                     &
-     &                     SCALARS(ng)%Cs_w(k)*hc(ng))/(hc(ng)+cff)
-            cff3=hmax(ng)*(SCALARS(ng)%sc_w(k)*hmax(ng)+                &
-     &                     SCALARS(ng)%Cs_w(k)*hc(ng))/(hc(ng)+hmax(ng))
+            cff1=hmin(ng)*(SCALARS(ng)%sc_w(k)*hc(ng)+                  &
+     &                     SCALARS(ng)%Cs_w(k)*hmin(ng))/               &
+     &                    (hc(ng)+hmin(ng))
+            cff2=cff     *(SCALARS(ng)%sc_w(k)*hc(ng)+                  &
+     &                     SCALARS(ng)%Cs_w(k)*cff)/                    &
+     &                    (hc(ng)+cff)
+            cff3=hmax(ng)*(SCALARS(ng)%sc_w(k)*hc(ng)+                  &
+     &                     SCALARS(ng)%Cs_w(k)*hmax(ng))/               &
+     &                    (hc(ng)+hmax(ng))
           ELSE
             cff1=SCALARS(ng)%sc_w(k)*hc(ng)+                            &
      &           (hmin(ng)-hc(ng))*SCALARS(ng)%Cs_w(k)

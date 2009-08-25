@@ -387,8 +387,8 @@
 #undef DIAG_WPB
 #ifdef DIAG_WPB
       if (i.eq.155.and.j.eq.482) then
-	print *, 'ice4', sfc_temp, ai(i,j,liold), tis(i,j), &
-	      t(i,j,N(ng),nrhs,itemp)
+        print *, 'ice4', sfc_temp, ai(i,j,liold), tis(i,j), &
+              t(i,j,N(ng),nrhs,itemp)
       endif
 #endif
 # else
@@ -565,7 +565,7 @@
 #ifdef RUNOFF
       stflx(i,j,isalt) = stflx(i,j,isalt) - runoff(i,j)/1000._r8
 #endif
-#define DIAG_WPB
+#undef DIAG_WPB
 #ifdef DIAG_WPB
       IF(i.eq.354.and.j.eq.101) THEN
         write(9,100) tdays,qao_n(i,j),-qsh,-qlh,-qsww,qlww
@@ -668,8 +668,8 @@
 #undef DIAG_WPB
 #ifdef DIAG_WPB
       if(i.eq.155.and.j.eq.482) then
-	print *, 'ice3', albs, tsrf, fice, tsrf_d, tsrf_m, sfc_temp, &
-		  tis(i,j), skt(i,j)
+        print *, 'ice3', albs, tsrf, fice, tsrf_d, tsrf_m, sfc_temp, &
+                  tis(i,j), skt(i,j)
       endif
 #endif
 
@@ -703,7 +703,7 @@
       if(i.eq.155.and.j.eq.482) then
         write(*,*) 'ice',tdays,qai_n(i,j),-qsh_i,-qlh_i,-qswi,qlwi,     &
      &              tsrf,tsrf_d
-	print *, 'ice2', dswrf, albs, tsrf, alb_s_wet, alb_i_wet
+        print *, 'ice2', dswrf, albs, tsrf, alb_s_wet, alb_i_wet
       endif
 #endif
 

@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       MODULE mod_ncparam
 !
-!svn $Id: mod_ncparam.F 1023 2009-07-20 21:45:24Z kate $
+!svn $Id: mod_ncparam.F 1047 2009-08-24 23:55:11Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -136,10 +136,6 @@
         real(r8), dimension(Ngrids) :: vXmax
         real(r8), dimension(Ngrids) :: vYmin
         real(r8), dimension(Ngrids) :: vYmax
-!
-!  Lower and upper bound ranges
-
-
 !
 !  Switches indicating which variables are written to output files.
 !
@@ -663,7 +659,6 @@
         character (len=80 ) :: Cinfo(NV,Ngrids)
         character (len=100) :: Vname(5,0:NV)
         character (len=120) :: history
-
 !
 !  Source code root directory, cpp header file and directory, and
 !  analytical expression directory.
@@ -2110,7 +2105,23 @@
 #if defined SEDIMENT || defined BBL_MODEL
               CASE ('idTvar(idmud(i))')
                 load=.TRUE.
+              CASE ('idTbry(iwest,idmud(i))')
+                load=.TRUE.
+              CASE ('idTbry(ieast,idmud(i))')
+                load=.TRUE.
+              CASE ('idTbry(isouth,idmud(i))')
+                load=.TRUE.
+              CASE ('idTbry(inorth,idmud(i))')
+                load=.TRUE.
               CASE ('idTvar(isand(i))')
+                load=.TRUE.
+              CASE ('idTbry(iwest,isand(i))')
+                load=.TRUE.
+              CASE ('idTbry(ieast,isand(i))')
+                load=.TRUE.
+              CASE ('idTbry(isouth,isand(i))')
+                load=.TRUE.
+              CASE ('idTbry(inorth,isand(i))')
                 load=.TRUE.
               CASE ('idfrac')
                 load=.TRUE.
@@ -3766,12 +3777,188 @@
      &                      TRIM(ADJUSTL(Vinfo(5)))
                     END DO
                   END IF
+                CASE ('mud_west_')
+                  IF (NCS.gt.0) THEN
+                    varid=varid-1
+                    DO i=1,NCS
+                      varid=varid+1
+                      idTbry(iwest,idmud(i))=varid
+                      DO ng=1,Ngrids
+                        Fscale(varid,ng)=scale
+                        Iinfo(1,varid,ng)=gtype
+                      END DO
+                      WRITE (Vname(1,varid),'(a,i2.2)')                 &
+     &                      TRIM(ADJUSTL(Vinfo(1))), i
+                      WRITE (Vname(2,varid),'(a,a,i2.2)')               &
+     &                      TRIM(ADJUSTL(Vinfo(2))), ', size class ', i
+                      WRITE (Vname(3,varid),'(a)')                      &
+     &                      TRIM(ADJUSTL(Vinfo(3)))
+                      WRITE (Vname(4,varid),'(a,a)')                    &
+     &                      TRIM(Vname(1,varid)), ', scalar, series'
+                      WRITE (Vname(5,varid),'(a)')                      &
+     &                      TRIM(ADJUSTL(Vinfo(5)))
+                    END DO
+                  END IF
+                CASE ('mud_east_')
+                  IF (NCS.gt.0) THEN
+                    varid=varid-1
+                    DO i=1,NCS
+                      varid=varid+1
+                      idTbry(ieast,idmud(i))=varid
+                      DO ng=1,Ngrids
+                        Fscale(varid,ng)=scale
+                        Iinfo(1,varid,ng)=gtype
+                      END DO
+                      WRITE (Vname(1,varid),'(a,i2.2)')                 &
+     &                      TRIM(ADJUSTL(Vinfo(1))), i
+                      WRITE (Vname(2,varid),'(a,a,i2.2)')               &
+     &                      TRIM(ADJUSTL(Vinfo(2))), ', size class ', i
+                      WRITE (Vname(3,varid),'(a)')                      &
+     &                      TRIM(ADJUSTL(Vinfo(3)))
+                      WRITE (Vname(4,varid),'(a,a)')                    &
+     &                      TRIM(Vname(1,varid)), ', scalar, series'
+                      WRITE (Vname(5,varid),'(a)')                      &
+     &                      TRIM(ADJUSTL(Vinfo(5)))
+                    END DO
+                  END IF
+                CASE ('mud_south_')
+                  IF (NCS.gt.0) THEN
+                    varid=varid-1
+                    DO i=1,NCS
+                      varid=varid+1
+                      idTbry(isouth,idmud(i))=varid
+                      DO ng=1,Ngrids
+                        Fscale(varid,ng)=scale
+                        Iinfo(1,varid,ng)=gtype
+                      END DO
+                      WRITE (Vname(1,varid),'(a,i2.2)')                 &
+     &                      TRIM(ADJUSTL(Vinfo(1))), i
+                      WRITE (Vname(2,varid),'(a,a,i2.2)')               &
+     &                      TRIM(ADJUSTL(Vinfo(2))), ', size class ', i
+                      WRITE (Vname(3,varid),'(a)')                      &
+     &                      TRIM(ADJUSTL(Vinfo(3)))
+                      WRITE (Vname(4,varid),'(a,a)')                    &
+     &                      TRIM(Vname(1,varid)), ', scalar, series'
+                      WRITE (Vname(5,varid),'(a)')                      &
+     &                      TRIM(ADJUSTL(Vinfo(5)))
+                    END DO
+                  END IF
+                CASE ('mud_north_')
+                  IF (NCS.gt.0) THEN
+                    varid=varid-1
+                    DO i=1,NCS
+                      varid=varid+1
+                      idTbry(inorth,idmud(i))=varid
+                      DO ng=1,Ngrids
+                        Fscale(varid,ng)=scale
+                        Iinfo(1,varid,ng)=gtype
+                      END DO
+                      WRITE (Vname(1,varid),'(a,i2.2)')                 &
+     &                      TRIM(ADJUSTL(Vinfo(1))), i
+                      WRITE (Vname(2,varid),'(a,a,i2.2)')               &
+     &                      TRIM(ADJUSTL(Vinfo(2))), ', size class ', i
+                      WRITE (Vname(3,varid),'(a)')                      &
+     &                      TRIM(ADJUSTL(Vinfo(3)))
+                      WRITE (Vname(4,varid),'(a,a)')                    &
+     &                      TRIM(Vname(1,varid)), ', scalar, series'
+                      WRITE (Vname(5,varid),'(a)')                      &
+     &                      TRIM(ADJUSTL(Vinfo(5)))
+                    END DO
+                  END IF
                 CASE ('sand_')
                   IF (NNS.gt.0) THEN
                     varid=varid-1
                     DO i=1,NNS
                       varid=varid+1
                       idTvar(isand(i))=varid
+                      DO ng=1,Ngrids
+                        Fscale(varid,ng)=scale
+                        Iinfo(1,varid,ng)=gtype
+                      END DO
+                      WRITE (Vname(1,varid),'(a,i2.2)')                 &
+     &                      TRIM(ADJUSTL(Vinfo(1))), i
+                      WRITE (Vname(2,varid),'(a,a,i2.2)')               &
+     &                      TRIM(ADJUSTL(Vinfo(2))), ', size class ', i
+                      WRITE (Vname(3,varid),'(a)')                      &
+     &                      TRIM(ADJUSTL(Vinfo(3)))
+                      WRITE (Vname(4,varid),'(a,a)')                    &
+     &                      TRIM(Vname(1,varid)), ', scalar, series'
+                      WRITE (Vname(5,varid),'(a)')                      &
+     &                      TRIM(ADJUSTL(Vinfo(5)))
+                    END DO
+                  END IF
+                CASE ('sand_west_')
+                  IF (NNS.gt.0) THEN
+                    varid=varid-1
+                    DO i=1,NNS
+                      varid=varid+1
+                      idTbry(iwest,isand(i))=varid
+                      DO ng=1,Ngrids
+                        Fscale(varid,ng)=scale
+                        Iinfo(1,varid,ng)=gtype
+                      END DO
+                      WRITE (Vname(1,varid),'(a,i2.2)')                 &
+     &                      TRIM(ADJUSTL(Vinfo(1))), i
+                      WRITE (Vname(2,varid),'(a,a,i2.2)')               &
+     &                      TRIM(ADJUSTL(Vinfo(2))), ', size class ', i
+                      WRITE (Vname(3,varid),'(a)')                      &
+     &                      TRIM(ADJUSTL(Vinfo(3)))
+                      WRITE (Vname(4,varid),'(a,a)')                    &
+     &                      TRIM(Vname(1,varid)), ', scalar, series'
+                      WRITE (Vname(5,varid),'(a)')                      &
+     &                      TRIM(ADJUSTL(Vinfo(5)))
+                    END DO
+                  END IF
+                CASE ('sand_east_')
+                  IF (NNS.gt.0) THEN
+                    varid=varid-1
+                    DO i=1,NNS
+                      varid=varid+1
+                      idTbry(ieast,isand(i))=varid
+                      DO ng=1,Ngrids
+                        Fscale(varid,ng)=scale
+                        Iinfo(1,varid,ng)=gtype
+                      END DO
+                      WRITE (Vname(1,varid),'(a,i2.2)')                 &
+     &                      TRIM(ADJUSTL(Vinfo(1))), i
+                      WRITE (Vname(2,varid),'(a,a,i2.2)')               &
+     &                      TRIM(ADJUSTL(Vinfo(2))), ', size class ', i
+                      WRITE (Vname(3,varid),'(a)')                      &
+     &                      TRIM(ADJUSTL(Vinfo(3)))
+                      WRITE (Vname(4,varid),'(a,a)')                    &
+     &                      TRIM(Vname(1,varid)), ', scalar, series'
+                      WRITE (Vname(5,varid),'(a)')                      &
+     &                      TRIM(ADJUSTL(Vinfo(5)))
+                    END DO
+                  END IF
+                CASE ('sand_south_')
+                  IF (NNS.gt.0) THEN
+                    varid=varid-1
+                    DO i=1,NNS
+                      varid=varid+1
+                      idTbry(isouth,isand(i))=varid
+                      DO ng=1,Ngrids
+                        Fscale(varid,ng)=scale
+                        Iinfo(1,varid,ng)=gtype
+                      END DO
+                      WRITE (Vname(1,varid),'(a,i2.2)')                 &
+     &                      TRIM(ADJUSTL(Vinfo(1))), i
+                      WRITE (Vname(2,varid),'(a,a,i2.2)')               &
+     &                      TRIM(ADJUSTL(Vinfo(2))), ', size class ', i
+                      WRITE (Vname(3,varid),'(a)')                      &
+     &                      TRIM(ADJUSTL(Vinfo(3)))
+                      WRITE (Vname(4,varid),'(a,a)')                    &
+     &                      TRIM(Vname(1,varid)), ', scalar, series'
+                      WRITE (Vname(5,varid),'(a)')                      &
+     &                      TRIM(ADJUSTL(Vinfo(5)))
+                    END DO
+                  END IF
+                CASE ('sand_north_')
+                  IF (NNS.gt.0) THEN
+                    varid=varid-1
+                    DO i=1,NNS
+                      varid=varid+1
+                      idTbry(inorth,isand(i))=varid
                       DO ng=1,Ngrids
                         Fscale(varid,ng)=scale
                         Iinfo(1,varid,ng)=gtype
