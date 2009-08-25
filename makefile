@@ -1,4 +1,4 @@
-# $Id: makefile 1020 2009-07-10 23:10:30Z kate $
+# $Id: makefile 1046 2009-08-24 23:53:05Z kate $
 #::::::::::::::::::::::::::::::::::::::::::::::::::::: Hernan G. Arango :::
 # Copyright (c) 2002-2009 The ROMS/TOMS Group             Kate Hedstrom :::
 #   Licensed under a MIT/X style license                                :::
@@ -397,11 +397,11 @@ ifdef USE_TANGENT
 endif
  modules  +=	ROMS/Nonlinear \
 		ROMS/Functionals \
-		ROMS/Utility \
 		ROMS/Modules
 ifdef USE_SEAICE
  modules  +=	ROMS/SeaIce
 endif
+ modules  +=    ROMS/Utility
 
  includes :=	ROMS/Include
 ifdef MY_ANALYTICAL
