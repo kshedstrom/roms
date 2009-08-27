@@ -706,14 +706,13 @@
           IF(ai(i,j,linew).LE.min_a(ng)) THEN
              stflx(i,j,itemp) = qao_n(i,j)
           ELSE
-             stflx(i,j,itemp) = (1.0_r8-ai(i,j,linew))*qao_n(i,j)         &
+             stflx(i,j,itemp) = (1.0_r8-ai(i,j,linew))*qao_n(i,j)       &
      &                   +ai(i,j,linew)*qio(i,j)                        &
      &                   -xtot*hfus1(i,j)
           END IF
 
 ! Change stflx(i,j,itemp) back to ROMS convention
-          stflx(i,j,itemp) = stflx(i,j,itemp) * rhocpr
-!         stflx(i,j,itemp) = -stflx(i,j,itemp) * rhocpr
+          stflx(i,j,itemp) = -stflx(i,j,itemp) * rhocpr
 
 # ifdef MASKING
           stflx(i,j,itemp) = stflx(i,j,itemp)*rmask(i,j)
@@ -734,7 +733,7 @@
 ! Test for case of rainfall on snow/ice and assume 100% drainage
 #ifndef NCEP_FLUXES
           IF (rain(i,j).gt.0._r8.AND.snow_n(i,j).EQ.0._r8) THEN
-            stflx(i,j,isalt) = stflx(i,j,isalt) +                       &
+            stflx(i,j,isalt) = stflx(i,j,isalt) -                       &
      &                         ai(i,j,linew)*rain(i,j)*0.001_r8
           END IF
 #endif
@@ -811,7 +810,7 @@
           END IF
 #endif
 
-#define DIAG_WPB
+#undef DIAG_WPB
 #ifdef DIAG_WPB
       IF (i.eq.156.and.j.eq.481) THEN
          write(*,*) tdays,wio(i,j),wai(i,j),wao(i,j),wfr(i,j),          &
@@ -819,7 +818,8 @@
      &                                     sfwat(i,j,linew),            &
      &              temp_top(i,j),t0mk(i,j),stflx(i,j,itemp),           &
      &              salt_top(i,j),s0mk(i,j),stflx(i,j,isalt),           &
-     &              qio(i,j), ti(i,j,linew), brnfr(i,j)
+     &              qio(i,j), ti(i,j,linew), brnfr(i,j),                &
+     &              t2(i,j)
       END IF
 #endif
 
