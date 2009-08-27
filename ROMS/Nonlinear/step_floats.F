@@ -407,7 +407,7 @@
   
      CALL interp_floats_diapW(ng, LBi, UBi, LBj, UBj, 0, N(ng),         &
      &                    Lstr, Lend, nf, izrhs,                        &
-     &                    -w3dvar, Lmask, nudg,                         &
+     &                    -w3dvar, Lmask, spval, nudg,                  &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
      &                    GRID(ng) % Hz,                                &

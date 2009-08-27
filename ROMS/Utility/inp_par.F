@@ -11055,10 +11055,14 @@
 !  Report input parameters.
 !-----------------------------------------------------------------------
 !
+      DO ng=1,Ngrids
+        IF (.not. LdefFLT(ng) .and. Lfloats(ng))                        &
+     &                 Lfloats(ng) = .FALSE.
+      END DO
       IF (Lwrite) THEN
         DO ng=1,Ngrids
           IF (ncount(ng).ne.Nfloats(ng)) THEN
-            IF (Master) WRITE (stdout,60) ncount(ng), Nfloats(ng)
+            WRITE (stdout,60) ncount(ng), Nfloats(ng)
             exit_flag=4
             RETURN
           END IF
@@ -11489,6 +11493,10 @@
 !  Report input parameters.
 !-----------------------------------------------------------------------
 !
+      DO ng=1,Ngrids
+        IF (.not. LdefSTA(ng) .and. Lstations(ng))                      &
+     &                 Lstations(ng) = .FALSE.
+      END DO
       IF (Lwrite) THEN
         DO ng=1,Ngrids
           IF (Lstations(ng)) THEN
