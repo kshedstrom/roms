@@ -386,6 +386,28 @@
         END DO
       END DO
 !
+! -----   PART 3: UPDATE FISH AGE   -----
+!
+      DO i=LBi,UBi
+        DO j=LBj,UBj
+          IF (fish_count(i,j).gt.0) THEN
+            thisfish => fish_list(i,j) % next
+            DO ifish=1,fish_count(i,j)
+              ifid = thisfish % fish
+              IF (MyThread(ifid).and.bounded(ifid)) THEN
+                IF (alive(ifid)) THEN
+                  bioenergy(ifage,ifid)=bioenergy(ifage,ifid)+          &
+     &                                  dtdays/days_year
+                ELSE
+                  bioenergy(ifage,ifid)=-9999.0_r8
+                END IF
+              END IF
+              thisfish => thisfish % next
+            END DO
+          END IF
+        END DO
+      END DO
+!
       RETURN
       END SUBROUTINE fish_growth
 #endif

@@ -199,8 +199,8 @@
         time(ng)=time(ng)-dt(ng)
 #ifdef NEMURO_SAN
         tdays(ng)=time(ng)*sec2day
-        idays(ng) = int(tdays(ng))
-        iyears(ng) = int(tdays(ng)/days_year)
+        idays(ng) = int((time(ng)+dt(ng))*sec2day)
+        iyears(ng) = int(((time(ng)+dt(ng))*sec2day)/days_year)
         iyesterday(ng) = idays(ng)
         iyesteryear(ng) = iyears(ng)
 #endif

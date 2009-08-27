@@ -141,7 +141,7 @@
             FISHES(ng)%alive(fid)=.TRUE.
             FISHES(ng)%eatfish(fid)=.FALSE.
             FISHES(ng)%lifestage(fid)=if_adult
-            FISHES(ng)%swimtype(fid)=2          ! 1=Fitness, 2=Kinesis
+            FISHES(ng)%swimtype(fid)=1          ! 1=Fitness, 2=Kinesis
             FISHES(ng)%bounded(fid)=.TRUE.
           END DO
         END DO
