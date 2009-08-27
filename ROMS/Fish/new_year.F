@@ -55,7 +55,9 @@
 
       DO isp=1,Nspecies(ng)
         DO i=1,Nfishperyear(ng)
-          ifsh = i+FISHES(ng) % age_base(isp,Nyearclass(ng)-1)
+          ifsh = i+FISHES(ng) % age_base(isp,1)
+! KH original code
+!          ifsh = i+FISHES(ng) % age_base(isp,Nyearclass(ng)-1)
           FISHES(ng) % alive(ifsh) = .FALSE.
           FISHES(ng) % bounded(ifsh) = .FALSE.
           DO j=0,NFT
