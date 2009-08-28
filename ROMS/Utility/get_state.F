@@ -116,6 +116,7 @@
       integer :: Vsize(4), start(4), total(4)
 
       real(r8), parameter :: Fscl = 1.0_r8
+      real(r8), parameter :: Foff = 1.0_r8
 
       real(r8) :: Fmax, Fmin, INPtime, Tmax, scale, time_scale
 
@@ -427,7 +428,7 @@
      &                      Vname(1,idbath), varid,                     &
      &                      InpRec, gtype, Vsize,                       &
      &                      LBi, UBi, LBj, UBj,                         &
-     &                      Fscl, Fmin, Fmax,                           &
+     &                      Fscl, Foff, Fmin, Fmax,                     &
 #  ifdef MASKING
      &                      GRID(ng) % rmask,                           &
 #  endif
@@ -463,7 +464,7 @@
      &                        Vname(1,idFsur), varid,                   &
      &                        InpRec, gtype, Vsize,                     &
      &                        LBi, UBi, LBj, UBj, 1, 3,                 &
-     &                        Fscl, Fmin, Fmax,                         &
+     &                        Fscl, Foff, Fmin, Fmax,                   &
 # ifdef MASKING
      &                        GRID(ng) % rmask,                         &
 # endif
@@ -473,7 +474,7 @@
      &                        Vname(1,idFsur), varid,                   &
      &                        InpRec, gtype, Vsize,                     &
      &                        LBi, UBi, LBj, UBj,                       &
-     &                        Fscl, Fmin, Fmax,                         &
+     &                        Fscl, Foff, Fmin, Fmax,                   &
 # ifdef MASKING
      &                        GRID(ng) % rmask,                         &
 # endif
@@ -508,7 +509,7 @@
      &                           Vname(1,ifield), varid,                &
      &                           InpRec, r2dvar,                        &
      &                           LBij, UBij, Nbrec(ng),                 &
-     &                           Fscl, Fmin, Fmax,                      &
+     &                           Fscl, Foff, Fmin, Fmax,                &
      &                           BOUNDARY(ng) % zeta_obc(:,:,:,         &
      &                                                   Tindex))
           IF (status.ne.nf90_noerr) THEN
@@ -537,7 +538,7 @@
      &                      Vname(1,idRzet), varid,                     &
      &                      InpRec, gtype, Vsize,                       &
      &                      LBi, UBi, LBj, UBj, 1, 2,                   &
-     &                      Fscl, Fmin, Fmax,                           &
+     &                      Fscl, Foff, Fmin, Fmax,                     &
 # ifdef MASKING
      &                      GRID(ng) % rmask,                           &
 # endif
@@ -572,7 +573,7 @@
      &                        Vname(1,idUbar), varid,                   &
      &                        InpRec, gtype, Vsize,                     &
      &                        LBi, UBi, LBj, UBj, 1, 3,                 &
-     &                        Fscl, Fmin, Fmax,                         &
+     &                        Fscl, Foff, Fmin, Fmax,                   &
 # ifdef MASKING
      &                        GRID(ng) % umask,                         &
 # endif
@@ -582,7 +583,7 @@
      &                        Vname(1,idUbar), varid,                   &
      &                        InpRec, gtype, Vsize,                     &
      &                        LBi, UBi, LBj, UBj,                       &
-     &                        Fscl, Fmin, Fmax,                         &
+     &                        Fscl, Foff, Fmin, Fmax,                   &
 # ifdef MASKING
      &                        GRID(ng) % umask,                         &
 # endif
@@ -617,7 +618,7 @@
      &                           Vname(1,ifield), varid,                &
      &                           InpRec, u2dvar,                        &
      &                           LBij, UBij, Nbrec(ng),                 &
-     &                           Fscl, Fmin, Fmax,                      &
+     &                           Fscl, Foff, Fmin, Fmax,                &
      &                           BOUNDARY(ng) % ubar_obc(:,:,:,         &
      &                                                   Tindex))
           IF (status.ne.nf90_noerr) THEN
@@ -646,7 +647,7 @@
      &                      Vname(1,idRu2d), varid,                     &
      &                      InpRec, gtype, Vsize,                       &
      &                      LBi, UBi, LBj, UBj, 1, 2,                   &
-     &                      Fscl, Fmin, Fmax,                           &
+     &                      Fscl, Foff, Fmin, Fmax,                     &
 # ifdef MASKING
      &                      GRID(ng) % umask,                           &
 # endif
@@ -681,7 +682,7 @@
      &                        Vname(1,idVbar), varid,                   &
      &                        InpRec, gtype, Vsize,                     &
      &                        LBi, UBi, LBj, UBj, 1, 3,                 &
-     &                        Fscl, Fmin, Fmax,                         &
+     &                        Fscl, Foff, Fmin, Fmax,                   &
 # ifdef MASKING
      &                        GRID(ng) % vmask,                         &
 # endif
@@ -691,7 +692,7 @@
      &                        Vname(1,idVbar), varid,                   &
      &                        InpRec, gtype, Vsize,                     &
      &                        LBi, UBi, LBj, UBj,                       &
-     &                        Fscl, Fmin, Fmax,                         &
+     &                        Fscl, Foff, Fmin, Fmax,                   &
 # ifdef MASKING
      &                        GRID(ng) % vmask,                         &
 # endif
@@ -726,7 +727,7 @@
      &                           Vname(1,ifield), varid,                &
      &                           InpRec, v2dvar,                        &
      &                           LBij, UBij, Nbrec(ng),                 &
-     &                           Fscl, Fmin, Fmax,                      &
+     &                           Fscl, Foff, Fmin, Fmax,                &
      &                           BOUNDARY(ng) % vbar_obc(:,:,:,         &
      &                                                   Tindex))
           IF (status.ne.nf90_noerr) THEN
@@ -755,7 +756,7 @@
      &                      Vname(1,idRv2d), varid,                     &
      &                      InpRec, gtype, Vsize,                       &
      &                      LBi, UBi, LBj, UBj, 1, 2,                   &
-     &                      Fscl, Fmin, Fmax,                           &
+     &                      Fscl, Foff, Fmin, Fmax,                     &
 # ifdef MASKING
      &                      GRID(ng) % vmask,                           &
 # endif
@@ -789,7 +790,7 @@
      &                      Vname(1,idUsms), varid,                     &
      &                      InpRec, gtype, Vsize,                       &
      &                      LBi, UBi, LBj, UBj, 1, Nfrec(ng),           &
-     &                      scale, Fmin, Fmax,                          &
+     &                      scale, Foff, Fmin, Fmax,                    &
 #  ifdef MASKING
      &                      GRID(ng) % umask,                           &
 #  endif
@@ -820,7 +821,7 @@
      &                      Vname(1,idVsms), varid,                     &
      &                      InpRec, gtype, Vsize,                       &
      &                      LBi, UBi, LBj, UBj, 1, Nfrec(ng),           &
-     &                      scale, Fmin, Fmax,                          &
+     &                      scale, Foff, Fmin, Fmax,                    &
 #  ifdef MASKING
      &                      GRID(ng) % vmask,                           &
 #  endif
@@ -853,7 +854,7 @@
      &                        Vname(1,idUvel), varid,                   &
      &                        InpRec, gtype, Vsize,                     &
      &                        LBi, UBi, LBj, UBj, 1, N(ng), 1, 2,       &
-     &                        Fscl, Fmin, Fmax,                         &
+     &                        Fscl, Foff, Fmin, Fmax,                   &
 #  ifdef MASKING
      &                        GRID(ng) % umask,                         &
 #  endif
@@ -863,7 +864,7 @@
      &                        Vname(1,idUvel), varid,                   &
      &                        InpRec, gtype, Vsize,                     &
      &                        LBi, UBi, LBj, UBj, 1, N(ng),             &
-     &                        Fscl, Fmin, Fmax,                         &
+     &                        Fscl, Foff, Fmin, Fmax,                   &
 #  ifdef MASKING
      &                        GRID(ng) % umask,                         &
 #  endif
@@ -898,7 +899,7 @@
      &                           Vname(1,ifield), varid,                &
      &                           InpRec, u3dvar,                        &
      &                           LBij, UBij, 1, N(ng), Nbrec(ng),       &
-     &                           Fscl, Fmin, Fmax,                      &
+     &                           Fscl, Foff, Fmin, Fmax,                &
      &                           BOUNDARY(ng) % u_obc(:,:,:,:,          &
      &                                                Tindex))
           IF (status.ne.nf90_noerr) THEN
@@ -927,7 +928,7 @@
      &                      Vname(1,idRu3d), varid,                     &
      &                      InpRec, gtype, Vsize,                       &
      &                      LBi, UBi, LBj, UBj, 0, N(ng), 1, 2,         &
-     &                      Fscl, Fmin, Fmax,                           &
+     &                      Fscl, Foff, Fmin, Fmax,                     &
 #  ifdef MASKING
      &                      GRID(ng) % umask,                           &
 #  endif
@@ -958,7 +959,7 @@
      &                        Vname(1,idVvel), varid,                   &
      &                        InpRec, gtype, Vsize,                     &
      &                        LBi, UBi, LBj, UBj, 1, N(ng), 1, 2,       &
-     &                        Fscl, Fmin, Fmax,                         &
+     &                        Fscl, Foff, Fmin, Fmax,                   &
 #  ifdef MASKING
      &                        GRID(ng) % vmask,                         &
 #  endif
@@ -968,7 +969,7 @@
      &                        Vname(1,idVvel), varid,                   &
      &                        InpRec, gtype, Vsize,                     &
      &                        LBi, UBi, LBj, UBj, 1, N(ng),             &
-     &                        Fscl, Fmin, Fmax,                         &
+     &                        Fscl, Foff, Fmin, Fmax,                   &
 #  ifdef MASKING
      &                        GRID(ng) % vmask,                         &
 #  endif
@@ -1003,7 +1004,7 @@
      &                           Vname(1,ifield), varid,                &
      &                           InpRec, v3dvar,                        &
      &                           LBij, UBij, 1, N(ng), Nbrec(ng),       &
-     &                           Fscl, Fmin, Fmax,                      &
+     &                           Fscl, Foff, Fmin, Fmax,                &
      &                           BOUNDARY(ng) % v_obc(:,:,:,:,          &
      &                                                Tindex))
           IF (status.ne.nf90_noerr) THEN
@@ -1032,7 +1033,7 @@
      &                      Vname(1,idRv3d), varid,                     &
      &                      InpRec, gtype, Vsize,                       &
      &                      LBi, UBi, LBj, UBj, 0, N(ng), 1, 2,         &
-     &                      Fscl, Fmin, Fmax,                           &
+     &                      Fscl, Foff, Fmin, Fmax,                     &
 #  ifdef MASKING
      &                      GRID(ng) % vmask,                           &
 #  endif
@@ -1064,7 +1065,7 @@
      &                          Vname(1,idTvar(itrc)), varid,           &
      &                          InpRec, gtype, Vsize,                   &
      &                          LBi, UBi, LBj, UBj, 1, N(ng), 1, 2,     &
-     &                          Fscl, Fmin, Fmax,                       &
+     &                          Fscl, Foff, Fmin, Fmax,                 &
 #  ifdef MASKING
      &                          GRID(ng) % rmask,                       &
 #  endif
@@ -1074,7 +1075,7 @@
      &                          Vname(1,idTvar(itrc)), varid,           &
      &                          InpRec, gtype, Vsize,                   &
      &                          LBi, UBi, LBj, UBj, 1, N(ng),           &
-     &                          Fscl, Fmin, Fmax,                       &
+     &                          Fscl, Foff, Fmin, Fmax,                 &
 #  ifdef MASKING
      &                          GRID(ng) % rmask,                       &
 #  endif
@@ -1112,7 +1113,7 @@
      &                             Vname(1,ifield), varid,              &
      &                             InpRec, r3dvar,                      &
      &                             LBij, UBij, 1, N(ng), Nbrec(ng),     &
-     &                             Fscl, Fmin, Fmax,                    &
+     &                             Fscl, Foff, Fmin, Fmax,              &
      &                             BOUNDARY(ng) % t_obc(:,:,:,:,        &
      &                                                  Tindex,itrc))
             IF (status.ne.nf90_noerr) THEN
@@ -1151,7 +1152,7 @@
      &                        Vname(1,idTsur(itrc)), varid,             &
      &                        InpRec, gtype, Vsize,                     &
      &                        LBi, UBi, LBj, UBj, 1, Nfrec(ng),         &
-     &                        scale, Fmin, Fmax,                        &
+     &                        scale, Foff, Fmin, Fmax,                  &
 #    ifdef MASKING
      &                        GRID(ng) % rmask,                         &
 #    endif
@@ -1185,7 +1186,7 @@
      &                      Vname(1,idVvis), varid,                     &
      &                      InpRec, gtype, Vsize,                       &
      &                      LBi, UBi, LBj, UBj, 0, N(ng),               &
-     &                      Fscl, Fmin,Fmax,                            &
+     &                      Fscl, Foff, Fmin, Fmax,                     &
 #   ifdef MASKING
      &                      GRID(ng) % rmask,                           &
 #   endif
@@ -1221,7 +1222,7 @@
      &                      Vname(1,idTdif), varid,                     &
      &                      InpRec, gtype, Vsize,                       &
      &                      LBi, UBi, LBj, UBj, 0, N(ng),               &
-     &                      Fscl, Fmin,Fmax,                            &
+     &                      Fscl, Foff, Fmin, Fmax,                     &
 #   ifdef MASKING
      &                      GRID(ng) % rmask,                           &
 #   endif
@@ -1258,7 +1259,7 @@
      &                      Vname(1,idSdif), varid,                     &
      &                      InpRec, gtype, Vsize,                       &
      &                      LBi, UBi, LBj, UBj, 0, N(ng),               &
-     &                      Fscl, Fmin,Fmax,                            &
+     &                      Fscl, Foff, Fmin, Fmax,                     &
 #    ifdef MASKING
      &                      GRID(ng) % rmask,                           &
 #    endif
@@ -1297,7 +1298,7 @@
      &                      Vname(1,idMtke), varid,                     &
      &                      InpRec, gtype, Vsize,                       &
      &                      LBi, UBi, LBj, UBj, 0, N(ng), 1, 2,         &
-     &                      Fscl, Fmin, Fmax,                           &
+     &                      Fscl, Foff, Fmin, Fmax,                     &
 #   ifdef MASKING
      &                      GRID(ng) % rmask,                           &
 #   endif
@@ -1327,7 +1328,7 @@
      &                      Vname(1,idMtls), varid,                     &
      &                      InpRec, gtype, Vsize,                       &
      &                      LBi, UBi, LBj, UBj, 0, N(ng), 1, 2,         &
-     &                      Fscl, Fmin, Fmax,                           &
+     &                      Fscl, Foff, Fmin, Fmax,                     &
 #   ifdef MASKING
      &                      GRID(ng) % rmask,                           &
 #   endif
@@ -1357,7 +1358,7 @@
      &                      Vname(1,idVmLS), varid,                     &
      &                      InpRec, gtype, Vsize,                       &
      &                      LBi, UBi, LBj, UBj, 0, N(ng),               &
-     &                      Fscl, Fmin, Fmax,                           &
+     &                      Fscl, Foff, Fmin, Fmax,                     &
 #   ifdef MASKING
      &                      GRID(ng) % rmask,                           &
 #   endif
@@ -1387,7 +1388,7 @@
      &                      Vname(1,idVmKK), varid,                     &
      &                      InpRec, gtype, Vsize,                       &
      &                      LBi, UBi, LBj, UBj, 0, N(ng),               &
-     &                      Fscl, Fmin, Fmax,                           &
+     &                      Fscl, Foff, Fmin, Fmax,                     &
 #   ifdef MASKING
      &                      GRID(ng) % rmask,                           &
 #   endif
@@ -1418,7 +1419,7 @@
      &                      Vname(1,idVmKP), varid,                     &
      &                      InpRec, gtype, Vsize,                       &
      &                      LBi, UBi, LBj, UBj, 0, N(ng),               &
-     &                      Fscl, Fmin, Fmax,                           &
+     &                      Fscl, Foff, Fmin, Fmax,                     &
 #    ifdef MASKING
      &                      GRID(ng) % rmask,                           &
 #    endif
@@ -1453,7 +1454,7 @@
      &                        Vname(1,idfrac(i)), varid,                &
      &                        InpRec, gtype, Vsize,                     &
      &                        LBi, UBi, LBj, UBj, 1, Nbed,              &
-     &                        Fscl, Fmin, Fmax,                         &
+     &                        Fscl, Foff, Fmin, Fmax,                   &
 #   ifdef MASKING
      &                        GRID(ng) % rmask,                         &
 #   endif
@@ -1483,7 +1484,7 @@
      &                        Vname(1,idBmas(i)), varid,                &
      &                        InpRec, gtype, Vsize,                     &
      &                        LBi, UBi, LBj, UBj, 1, Nbed,              &
-     &                        Fscl, Fmin, Fmax,                         &
+     &                        Fscl, Foff, Fmin, Fmax,                   &
 #   ifdef MASKING
      &                        GRID(ng) % rmask,                         &
 #   endif
@@ -1515,7 +1516,7 @@
      &                        Vname(1,idSbed(i)), varid,                &
      &                        InpRec, gtype, Vsize,                     &
      &                        LBi, UBi, LBj, UBj, 1, Nbed,              &
-     &                        Fscl, Fmin, Fmax,                         &
+     &                        Fscl, Foff, Fmin, Fmax,                   &
 #   ifdef MASKING
      &                        GRID(ng) % rmask,                         &
 #   endif
@@ -1549,7 +1550,7 @@
      &                        Vname(1,idUbld(i)), varid,                &
      &                        InpRec, gtype, Vsize,                     &
      &                        LBi, UBi, LBj, UBj,                       &
-     &                        Fscl, Fmin, Fmax,                         &
+     &                        Fscl, Foff, Fmin, Fmax,                   &
 #    ifdef MASKING
      &                        GRID(ng) % umask,                         &
 #    endif
@@ -1577,7 +1578,7 @@
      &                        Vname(1,idVbld(i)), varid,                &
      &                        InpRec, gtype, Vsize,                     &
      &                        LBi, UBi, LBj, UBj,                       &
-     &                        Fscl, Fmin, Fmax,                         &
+     &                        Fscl, Foff, Fmin, Fmax,                   &
 #    ifdef MASKING
      &                        GRID(ng) % vmask,                         &
 #    endif
@@ -1613,7 +1614,7 @@
      &                        Vname(1,idBott(i)), varid,                &
      &                        InpRec, gtype, Vsize,                     &
      &                        LBi, UBi, LBj, UBj,                       &
-     &                        Fscl, Fmin, Fmax,                         &
+     &                        Fscl, Foff, Fmin, Fmax,                   &
 #   ifdef MASKING
      &                        GRID(ng) % rmask,                         &
 #   endif
@@ -1644,7 +1645,7 @@
         status=nf_fread2d(ng, IDmod, ncname, ncINPid,                   &
      &                Vname(1,idUice), varid, InpRec, gtype,            &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
-     &                Fscl, Fmin, Fmax,                                 &
+     &                Fscl, Foff, Fmin, Fmax,                           &
 #   ifdef MASKING
      &                GRID(ng) % umask,                                 &
 #   endif
@@ -1671,7 +1672,7 @@
         status=nf_fread2d(ng, IDmod, ncname, ncINPid,                   &
      &                Vname(1,idVice), varid, InpRec, gtype,            &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
-     &                Fscl, Fmin, Fmax,                                 &
+     &                Fscl, Foff, Fmin, Fmax,                           &
 #   ifdef MASKING
      &                GRID(ng) % vmask,                                 &
 #   endif
@@ -1698,7 +1699,7 @@
         status=nf_fread2d(ng, IDmod, ncname, ncINPid,                   &
      &                Vname(1,idAice), varid, InpRec, gtype,            &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
-     &                Fscl, Fmin, Fmax,                                 &
+     &                Fscl, Foff, Fmin, Fmax,                           &
 #   ifdef MASKING
      &                GRID(ng) % rmask,                                 &
 #   endif
@@ -1725,7 +1726,7 @@
         status=nf_fread2d(ng, IDmod, ncname, ncINPid,                   &
      &                Vname(1,idHice), varid, InpRec, gtype,            &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
-     &                Fscl, Fmin, Fmax,                                 &
+     &                Fscl, Foff, Fmin, Fmax,                           &
 #   ifdef MASKING
      &                GRID(ng) % rmask,                                 &
 #   endif
@@ -1752,7 +1753,7 @@
         status=nf_fread2d(ng, IDmod, ncname, ncINPid,                   &
      &                Vname(1,idHsno), varid, InpRec, gtype,            &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
-     &                Fscl, Fmin, Fmax,                                 &
+     &                Fscl, Foff, Fmin, Fmax,                           &
 #   ifdef MASKING
      &                GRID(ng) % rmask,                                 &
 #   endif
@@ -1779,7 +1780,7 @@
         status=nf_fread2d(ng, IDmod, ncname, ncINPid,                   &
      &                Vname(1,idTice), varid, InpRec, gtype,            &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
-     &                Fscl, Fmin, Fmax,                                 &
+     &                Fscl, Foff, Fmin, Fmax,                           &
 #   ifdef MASKING
      &                GRID(ng) % rmask,                                 &
 #   endif
@@ -1806,7 +1807,7 @@
         status=nf_fread2d(ng, IDmod, ncname, ncINPid,                   &
      &                Vname(1,idSfwat), varid, InpRec, gtype,           &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
-     &                Fscl, Fmin, Fmax,                                 &
+     &                Fscl, Foff, Fmin, Fmax,                           &
 #   ifdef MASKING
      &                GRID(ng) % rmask,                                 &
 #   endif
@@ -1833,7 +1834,7 @@
         status=nf_fread2d(ng, IDmod, ncname, ncINPid,                   &
      &                Vname(1,idAgeice), varid, InpRec, gtype,          &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
-     &                Fscl, Fmin, Fmax,                                 &
+     &                Fscl, Foff, Fmin, Fmax,                           &
 #   ifdef MASKING
      &                GRID(ng) % rmask,                                 &
 #   endif
@@ -1860,7 +1861,7 @@
         status=nf_fread2d(ng, IDmod, ncname, ncINPid,                   &
      &                Vname(1,idTimid), varid, InpRec, gtype,           &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
-     &                Fscl, Fmin, Fmax,                                 &
+     &                Fscl, Foff, Fmin, Fmax,                           &
 #   ifdef MASKING
      &                GRID(ng) % rmask,                                 &
 #   endif
@@ -1887,7 +1888,7 @@
         status=nf_fread2d(ng, IDmod, ncname, ncINPid,                   &
      &                Vname(1,idSig11), varid, InpRec, gtype,           &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
-     &                Fscl, Fmin, Fmax,                                 &
+     &                Fscl, Foff, Fmin, Fmax,                           &
 #   ifdef MASKING
      &                GRID(ng) % rmask,                                 &
 #   endif
@@ -1914,7 +1915,7 @@
         status=nf_fread2d(ng, IDmod, ncname, ncINPid,                   &
      &                Vname(1,idSig22), varid, InpRec, gtype,           &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
-     &                Fscl, Fmin, Fmax,                                 &
+     &                Fscl, Foff, Fmin, Fmax,                           &
 #   ifdef MASKING
      &                GRID(ng) % rmask,                                 &
 #   endif
@@ -1941,7 +1942,7 @@
         status=nf_fread2d(ng, IDmod, ncname, ncINPid,                   &
      &                Vname(1,idSig12), varid, InpRec, gtype,           &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
-     &                Fscl, Fmin, Fmax,                                 &
+     &                Fscl, Foff, Fmin, Fmax,                           &
 #   ifdef MASKING
      &                GRID(ng) % rmask,                                 &
 #   endif
@@ -1968,7 +1969,7 @@
         status=nf_fread2d(ng, IDmod, ncname, ncINPid,                   &
      &                Vname(1,idTauiw), varid, InpRec, gtype,           &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
-     &                Fscl, Fmin, Fmax,                                 &
+     &                Fscl, Foff, Fmin, Fmax,                           &
 #   ifdef MASKING
      &                GRID(ng) % rmask,                                 &
 #   endif
@@ -1995,7 +1996,7 @@
         status=nf_fread2d(ng, IDmod, ncname, ncINPid,                   &
      &                Vname(1,idChuiw), varid, InpRec, gtype,           &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
-     &                Fscl, Fmin, Fmax,                                 &
+     &                Fscl, Foff, Fmin, Fmax,                           &
 #   ifdef MASKING
      &                GRID(ng) % rmask,                                 &
 #   endif
@@ -2022,7 +2023,7 @@
         status=nf_fread2d(ng, IDmod, ncname, ncINPid,                   &
      &                Vname(1,idS0mk), varid, InpRec, gtype,            &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
-     &                Fscl, Fmin, Fmax,                                 &
+     &                Fscl, Foff, Fmin, Fmax,                           &
 #   ifdef MASKING
      &                GRID(ng) % rmask,                                 &
 #   endif
@@ -2049,7 +2050,7 @@
         status=nf_fread2d(ng, IDmod, ncname, ncINPid,                   &
      &                Vname(1,idT0mk), varid, InpRec, gtype,            &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
-     &                Fscl, Fmin, Fmax,                                 &
+     &                Fscl, Foff, Fmin, Fmax,                           &
 #   ifdef MASKING
      &                GRID(ng) % rmask,                                 &
 #   endif
@@ -2080,7 +2081,7 @@
           status=nf_fread2d(ng, IDmod, ncname, ncINPid,                 &
      &                Vname(1,idWg2d), varid, InpRec, gtype,            &
      &                      Vsize, LBi, UBi, LBj, UBj,                  &
-     &                      Fscl, Fmin, Fmax,                           &
+     &                      Fscl, Foff, Fmin, Fmax,                     &
 # ifdef MASKING
      &                      GRID(ng) % rmask,                           &
 # endif
@@ -2109,7 +2110,7 @@
           status=nf_fread2d(ng, IDmod, ncname, ncINPid,                 &
      &                Vname(1,idCdd), varid, InpRec, gtype,             &
      &                      Vsize, LBi, UBi, LBj, UBj,                  &
-     &                      Fscl, Fmin, Fmax,                           &
+     &                      Fscl, Foff, Fmin, Fmax,                     &
 # ifdef MASKING
      &                      GRID(ng) % rmask,                           &
 # endif
@@ -2138,7 +2139,7 @@
           status=nf_fread2d(ng, IDmod, ncname, ncINPid,                 &
      &                Vname(1,idChd), varid, InpRec, gtype,             &
      &                      Vsize, LBi, UBi, LBj, UBj,                  &
-     &                      Fscl, Fmin, Fmax,                           &
+     &                      Fscl, Foff, Fmin, Fmax,                     &
 # ifdef MASKING
      &                      GRID(ng) % rmask,                           &
 # endif
@@ -2167,7 +2168,7 @@
           status=nf_fread2d(ng, IDmod, ncname, ncINPid,                 &
      &                Vname(1,idCed), varid, InpRec, gtype,             &
      &                      Vsize, LBi, UBi, LBj, UBj,                  &
-     &                      Fscl, Fmin, Fmax,                           &
+     &                      Fscl, Foff, Fmin, Fmax,                     &
 # ifdef MASKING
      &                      GRID(ng) % rmask,                           &
 # endif
@@ -2196,7 +2197,7 @@
           status=nf_fread2d(ng, IDmod, ncname, ncINPid,                 &
      &                Vname(1,idWg2m), varid, InpRec, gtype,            &
      &                      Vsize, LBi, UBi, LBj, UBj,                  &
-     &                      Fscl, Fmin, Fmax,                           &
+     &                      Fscl, Foff, Fmin, Fmax,                     &
 # ifdef MASKING
      &                      GRID(ng) % rmask,                           &
 # endif
@@ -2225,7 +2226,7 @@
           status=nf_fread2d(ng, IDmod, ncname, ncINPid,                 &
      &                Vname(1,idCdm), varid, InpRec, gtype,             &
      &                      Vsize, LBi, UBi, LBj, UBj,                  &
-     &                      Fscl, Fmin, Fmax,                           &
+     &                      Fscl, Foff, Fmin, Fmax,                     &
 # ifdef MASKING
      &                      GRID(ng) % rmask,                           &
 # endif
@@ -2254,7 +2255,7 @@
           status=nf_fread2d(ng, IDmod, ncname, ncINPid,                 &
      &                Vname(1,idChm), varid, InpRec, gtype,             &
      &                      Vsize, LBi, UBi, LBj, UBj,                  &
-     &                      Fscl, Fmin, Fmax,                           &
+     &                      Fscl, Foff, Fmin, Fmax,                     &
 # ifdef MASKING
      &                      GRID(ng) % rmask,                           &
 # endif
@@ -2283,7 +2284,7 @@
           status=nf_fread2d(ng, IDmod, ncname, ncINPid,                 &
      &                Vname(1,idCem), varid, InpRec, gtype,             &
      &                      Vsize, LBi, UBi, LBj, UBj,                  &
-     &                      Fscl, Fmin, Fmax,                           &
+     &                      Fscl, Foff, Fmin, Fmax,                     &
 # ifdef MASKING
      &                      GRID(ng) % rmask,                           &
 # endif
@@ -2312,7 +2313,7 @@
           status=nf_fread2d(ng, IDmod, ncname, ncINPid,                 &
      &                Vname(1,idRhoa), varid, InpRec, gtype,            &
      &                      Vsize, LBi, UBi, LBj, UBj,                  &
-     &                      Fscl, Fmin, Fmax,                           &
+     &                      Fscl, Foff, Fmin, Fmax,                     &
 # ifdef MASKING
      &                      GRID(ng) % rmask,                           &
 # endif
@@ -2384,7 +2385,7 @@
      &                      Vname(1,idFsur), varid,                     &
      &                      InpRec, gtype, Vsize,                       &
      &                      LBi, UBi, LBj, UBj,                         &
-     &                      Fscl, Fmin, Fmax,                           &
+     &                      Fscl, Foff, Fmin, Fmax,                     &
 # ifdef MASKING
      &                      GRID(ng) % rmask,                           &
 # endif
@@ -2416,7 +2417,7 @@
      &                           Vname(1,ifield), varid,                &
      &                           InpRec, r2dvar,                        &
      &                           LBij, UBij, Nbrec(ng),                 &
-     &                           Fscl, Fmin, Fmax,                      &
+     &                           Fscl, Foff, Fmin, Fmax,                &
      &                           BOUNDARY(ng) % tl_zeta_obc(:,:,:,      &
      &                                                      Tindex))
           IF (status.ne.nf90_noerr) THEN
@@ -2445,7 +2446,7 @@
      &                      Vname(1,idUbar), varid,                     &
      &                      InpRec, gtype, Vsize,                       &
      &                      LBi, UBi, LBj, UBj,                         &
-     &                      Fscl, Fmin, Fmax,                           &
+     &                      Fscl, Foff, Fmin, Fmax,                     &
 # ifdef MASKING
      &                      GRID(ng) % umask,                           &
 # endif
@@ -2477,7 +2478,7 @@
      &                           Vname(1,ifield), varid,                &
      &                           InpRec, u2dvar,                        &
      &                           LBij, UBij, Nbrec(ng),                 &
-     &                           Fscl, Fmin, Fmax,                      &
+     &                           Fscl, Foff, Fmin, Fmax,                &
      &                           BOUNDARY(ng) % tl_ubar_obc(:,:,:,      &
      &                                                      Tindex))
           IF (status.ne.nf90_noerr) THEN
@@ -2506,7 +2507,7 @@
      &                      Vname(1,idVbar), varid,                     &
      &                      InpRec, gtype, Vsize,                       &
      &                      LBi, UBi, LBj, UBj,                         &
-     &                      Fscl, Fmin, Fmax,                           &
+     &                      Fscl, Foff, Fmin, Fmax,                     &
 # ifdef MASKING
      &                      GRID(ng) % vmask,                           &
 # endif
@@ -2538,7 +2539,7 @@
      &                           Vname(1,ifield), varid,                &
      &                           InpRec, v2dvar,                        &
      &                           LBij, UBij, Nbrec(ng),                 &
-     &                           Fscl, Fmin, Fmax,                      &
+     &                           Fscl, Foff, Fmin, Fmax,                &
      &                           BOUNDARY(ng) % tl_vbar_obc(:,:,:,      &
      &                                                      Tindex))
           IF (status.ne.nf90_noerr) THEN
@@ -2569,7 +2570,7 @@
      &                      Vname(1,idUsms), varid,                     &
      &                      InpRec, gtype, Vsize,                       &
      &                      LBi, UBi, LBj, UBj, 1, Nfrec(ng),           &
-     &                      scale, Fmin, Fmax,                          &
+     &                      scale, Foff, Fmin, Fmax,                    &
 #  ifdef MASKING
      &                      GRID(ng) % umask,                           &
 #  endif
@@ -2600,7 +2601,7 @@
      &                      Vname(1,idVsms), varid,                     &
      &                      InpRec, gtype, Vsize,                       &
      &                      LBi, UBi, LBj, UBj, 1, Nfrec(ng),           &
-     &                      scale, Fmin, Fmax,                          &
+     &                      scale, Foff, Fmin, Fmax,                    &
 #  ifdef MASKING
      &                      GRID(ng) % vmask,                           &
 #  endif
@@ -2632,7 +2633,7 @@
      &                      Vname(1,idUvel), varid,                     &
      &                      InpRec, gtype, Vsize,                       &
      &                      LBi, UBi, LBj, UBj, 1, N(ng),               &
-     &                      Fscl, Fmin, Fmax,                           &
+     &                      Fscl, Foff, Fmin, Fmax,                     &
 #  ifdef MASKING
      &                      GRID(ng) % umask,                           &
 #  endif
@@ -2664,7 +2665,7 @@
      &                           Vname(1,ifield), varid,                &
      &                           InpRec, u3dvar,                        &
      &                           LBij, UBij, 1, N(ng), Nbrec(ng),       &
-     &                           Fscl, Fmin, Fmax,                      &
+     &                           Fscl, Foff, Fmin, Fmax,                &
      &                           BOUNDARY(ng) % tl_u_obc(:,:,:,:,       &
      &                                                   Tindex))
           IF (status.ne.nf90_noerr) THEN
@@ -2693,7 +2694,7 @@
      &                      Vname(1,idVvel), varid,                     &
      &                      InpRec, gtype, Vsize,                       &
      &                      LBi, UBi, LBj, UBj, 1, N(ng),               &
-     &                      Fscl, Fmin, Fmax,                           &
+     &                      Fscl, Foff, Fmin, Fmax,                     &
 #  ifdef MASKING
      &                      GRID(ng) % vmask,                           &
 #  endif
@@ -2725,7 +2726,7 @@
      &                           Vname(1,ifield), varid,                &
      &                           InpRec, v3dvar,                        &
      &                           LBij, UBij, 1, N(ng), Nbrec(ng),       &
-     &                           Fscl, Fmin, Fmax,                      &
+     &                           Fscl, Foff, Fmin, Fmax,                &
      &                           BOUNDARY(ng) % tl_v_obc(:,:,:,:,       &
      &                                                   Tindex))
           IF (status.ne.nf90_noerr) THEN
@@ -2755,7 +2756,7 @@
      &                        Vname(1,idTvar(itrc)), varid,             &
      &                        InpRec, gtype, Vsize,                     &
      &                        LBi, UBi, LBj, UBj, 1, N(ng),             &
-     &                        Fscl, Fmin, Fmax,                         &
+     &                        Fscl, Foff, Fmin, Fmax,                   &
 #  ifdef MASKING
      &                        GRID(ng) % rmask,                         &
 #  endif
@@ -2790,7 +2791,7 @@
      &                             Vname(1,ifield), varid,              &
      &                             InpRec, r3dvar,                      &
      &                             LBij, UBij, 1, N(ng), Nbrec(ng),     &
-     &                             Fscl, Fmin, Fmax,                    &
+     &                             Fscl, Foff, Fmin, Fmax,              &
      &                             BOUNDARY(ng) % tl_t_obc(:,:,:,:,     &
      &                                                     Tindex,itrc))
             IF (status.ne.nf90_noerr) THEN
@@ -2824,7 +2825,7 @@
      &                        Vname(1,idTsur(itrc)), varid,             &
      &                        InpRec, gtype, Vsize,                     &
      &                        LBi, UBi, LBj, UBj, 1, Nfrec(ng),         &
-     &                        scale, Fmin, Fmax,                        &
+     &                        scale, Foff, Fmin, Fmax,                  &
 #   ifdef MASKING
      &                        GRID(ng) % rmask,                         &
 #   endif
@@ -2860,7 +2861,7 @@
      &                        Vname(1,idfrac(i)), varid,                &
      &                        InpRec, gtype, Vsize,                     &
      &                        LBi, UBi, LBj, UBj, 1, Nbed,              &
-     &                        Fscl, Fmin, Fmax,                         &
+     &                        Fscl, Foff, Fmin, Fmax,                   &
 #   ifdef MASKING
      &                        GRID(ng) % rmask,                         &
 #   endif
@@ -2891,7 +2892,7 @@
      &                        Vname(1,idBmas(i)), varid,                &
      &                        InpRec, gtype, Vsize,                     &
      &                        LBi, UBi, LBj, UBj, 1, Nbed,              &
-     &                        Fscl, Fmin, Fmax,                         &
+     &                        Fscl, Foff, Fmin, Fmax,                   &
 #   ifdef MASKING
      &                        GRID(ng) % rmask,                         &
 #   endif
@@ -2923,7 +2924,7 @@
      &                        Vname(1,idSbed(i)), varid,                &
      &                        InpRec, gtype, Vsize,                     &
      &                        LBi, UBi, LBj, UBj, 1, Nbed,              &
-     &                        Fscl, Fmin, Fmax,                         &
+     &                        Fscl, Foff, Fmin, Fmax,                   &
 #   ifdef MASKING
      &                        GRID(ng) % rmask,                         &
 #   endif
@@ -2957,7 +2958,7 @@
      &                        Vname(1,idUbld(i)), varid,                &
      &                        InpRec, gtype, Vsize,                     &
      &                        LBi, UBi, LBj, UBj,                       &
-     &                        Fscl, Fmin, Fmax,                         &
+     &                        Fscl, Foff, Fmin, Fmax,                   &
 #    ifdef MASKING
      &                        GRID(ng) % umask,                         &
 #    endif
@@ -2985,7 +2986,7 @@
      &                        Vname(1,idVbld(i)), varid,                &
      &                        InpRec, gtype, Vsize,                     &
      &                        LBi, UBi, LBj, UBj,                       &
-     &                        Fscl, Fmin, Fmax,                         &
+     &                        Fscl, Foff, Fmin, Fmax,                   &
 #    ifdef MASKING
      &                        GRID(ng) % vmask,                         &
 #    endif
@@ -3021,7 +3022,7 @@
      &                        Vname(1,idBott(i)), varid,                &
      &                        InpRec, gtype, Vsize,                     &
      &                        LBi, UBi, LBj, UBj,                       &
-     &                        Fscl, Fmin, Fmax,                         &
+     &                        Fscl, Foff, Fmin, Fmax,                   &
 #   ifdef MASKING
      &                        GRID(ng) % rmask,                         &
 #   endif
@@ -3064,7 +3065,7 @@
      &                      Vname(1,idFsur), varid,                     &
      &                      InpRec, gtype, Vsize,                       &
      &                      LBi, UBi, LBj, UBj,                         &
-     &                      Fscl, Fmin, Fmax,                           &
+     &                      Fscl, Foff, Fmin, Fmax,                     &
 # ifdef MASKING
      &                      GRID(ng) % rmask,                           &
 # endif
@@ -3096,7 +3097,7 @@
      &                           Vname(1,ifield), varid,                &
      &                           InpRec, r2dvar,                        &
      &                           LBij, UBij, Nbrec(ng),                 &
-     &                           Fscl, Fmin, Fmax,                      &
+     &                           Fscl, Foff, Fmin, Fmax,                &
      &                           BOUNDARY(ng) % ad_zeta_obc(:,:,:,      &
      &                                                      Tindex))
           IF (status.ne.nf90_noerr) THEN
@@ -3125,7 +3126,7 @@
      &                      Vname(1,idUbar), varid,                     &
      &                      InpRec, gtype, Vsize,                       &
      &                      LBi, UBi, LBj, UBj,                         &
-     &                      Fscl, Fmin, Fmax,                           &
+     &                      Fscl, Foff, Fmin, Fmax,                     &
 # ifdef MASKING
      &                      GRID(ng) % umask,                           &
 # endif
@@ -3157,7 +3158,7 @@
      &                           Vname(1,ifield), varid,                &
      &                           InpRec, u2dvar,                        &
      &                           LBij, UBij, Nbrec(ng),                 &
-     &                           Fscl, Fmin, Fmax,                      &
+     &                           Fscl, Foff, Fmin, Fmax,                &
      &                           BOUNDARY(ng) % ad_ubar_obc(:,:,:,      &
      &                                                      Tindex))
           IF (status.ne.nf90_noerr) THEN
@@ -3186,7 +3187,7 @@
      &                      Vname(1,idVbar), varid,                     &
      &                      InpRec, gtype, Vsize,                       &
      &                      LBi, UBi, LBj, UBj,                         &
-     &                      Fscl, Fmin, Fmax,                           &
+     &                      Fscl, Foff, Fmin, Fmax,                     &
 # ifdef MASKING
      &                      GRID(ng) % vmask,                           &
 # endif
@@ -3218,7 +3219,7 @@
      &                           Vname(1,ifield), varid,                &
      &                           InpRec, v2dvar,                        &
      &                           LBij, UBij, Nbrec(ng),                 &
-     &                           Fscl, Fmin, Fmax,                      &
+     &                           Fscl, Foff, Fmin, Fmax,                &
      &                           BOUNDARY(ng) % ad_vbar_obc(:,:,:,      &
      &                                                      Tindex))
           IF (status.ne.nf90_noerr) THEN
@@ -3249,7 +3250,7 @@
      &                      Vname(1,idUsms), varid,                     &
      &                      InpRec, gtype, Vsize,                       &
      &                      LBi, UBi, LBj, UBj, 1, Nfrec(ng),           &
-     &                      scale, Fmin, Fmax,                          &
+     &                      scale, Foff, Fmin, Fmax,                    &
 #  ifdef MASKING
      &                      GRID(ng) % umask,                           &
 #  endif
@@ -3280,7 +3281,7 @@
      &                      Vname(1,idVsms), varid,                     &
      &                      InpRec, gtype, Vsize,                       &
      &                      LBi, UBi, LBj, UBj, 1, Nfrec(ng),           &
-     &                      scale, Fmin, Fmax,                          &
+     &                      scale, Foff, Fmin, Fmax,                    &
 #  ifdef MASKING
      &                      GRID(ng) % vmask,                           &
 #  endif
@@ -3312,7 +3313,7 @@
      &                      Vname(1,idUvel), varid,                     &
      &                      InpRec, gtype, Vsize,                       &
      &                      LBi, UBi, LBj, UBj, 1, N(ng),               &
-     &                      Fscl, Fmin, Fmax,                           &
+     &                      Fscl, Foff, Fmin, Fmax,                     &
 #  ifdef MASKING
      &                      GRID(ng) % umask,                           &
 #  endif
@@ -3344,7 +3345,7 @@
      &                           Vname(1,ifield), varid,                &
      &                           InpRec, u3dvar,                        &
      &                           LBij, UBij, 1, N(ng), Nbrec(ng),       &
-     &                           Fscl, Fmin, Fmax,                      &
+     &                           Fscl, Foff, Fmin, Fmax,                &
      &                           BOUNDARY(ng) % ad_u_obc(:,:,:,:,       &
      &                                                   Tindex))
           IF (status.ne.nf90_noerr) THEN
@@ -3373,7 +3374,7 @@
      &                      Vname(1,idVvel), varid,                     &
      &                      InpRec, gtype, Vsize,                       &
      &                      LBi, UBi, LBj, UBj, 1, N(ng),               &
-     &                      Fscl, Fmin, Fmax,                           &
+     &                      Fscl, Foff, Fmin, Fmax,                     &
 #  ifdef MASKING
      &                      GRID(ng) % vmask,                           &
 #  endif
@@ -3405,7 +3406,7 @@
      &                           Vname(1,ifield), varid,                &
      &                           InpRec, v3dvar,                        &
      &                           LBij, UBij, 1, N(ng), Nbrec(ng),       &
-     &                           Fscl, Fmin, Fmax,                      &
+     &                           Fscl, Foff, Fmin, Fmax,                &
      &                           BOUNDARY(ng) % ad_v_obc(:,:,:,:,       &
      &                                                   Tindex))
           IF (status.ne.nf90_noerr) THEN
@@ -3435,7 +3436,7 @@
      &                        Vname(1,idTvar(itrc)), varid,             &
      &                        InpRec, gtype, Vsize,                     &
      &                        LBi, UBi, LBj, UBj, 1, N(ng),             &
-     &                        Fscl, Fmin, Fmax,                         &
+     &                        Fscl, Foff, Fmin, Fmax,                   &
 #  ifdef MASKING
      &                        GRID(ng) % rmask,                         &
 #  endif
@@ -3470,7 +3471,7 @@
      &                             Vname(1,ifield), varid,              &
      &                             InpRec, r3dvar,                      &
      &                             LBij, UBij, 1, N(ng), Nbrec(ng),     &
-     &                             Fscl, Fmin, Fmax,                    &
+     &                             Fscl, Foff, Fmin, Fmax,              &
      &                             BOUNDARY(ng) % ad_t_obc(:,:,:,:,     &
      &                                                     Tindex,itrc))
             IF (status.ne.nf90_noerr) THEN
@@ -3503,7 +3504,7 @@
      &                        Vname(1,idTsur(itrc)), varid,             &
      &                        InpRec, gtype, Vsize,                     &
      &                        LBi, UBi, LBj, UBj, 1, Nfrec(ng),         &
-     &                        scale, Fmin, Fmax,                        &
+     &                        scale, Foff, Fmin, Fmax,                  &
 #   ifdef MASKING
      &                        GRID(ng) % rmask,                         &
 #   endif
@@ -3539,7 +3540,7 @@
      &                        Vname(1,idfrac(i)), varid,                &
      &                        InpRec, gtype, Vsize,                     &
      &                        LBi, UBi, LBj, UBj, 1, Nbed,              &
-     &                        Fscl, Fmin, Fmax,                         &
+     &                        Fscl, Foff, Fmin, Fmax,                   &
 #   ifdef MASKING
      &                        GRID(ng) % rmask,                         &
 #   endif
@@ -3569,7 +3570,7 @@
      &                        Vname(1,idBmas(i)), varid,                &
      &                        InpRec, gtype, Vsize,                     &
      &                        LBi, UBi, LBj, UBj, 1, Nbed,              &
-     &                        Fscl, Fmin, Fmax,                         &
+     &                        Fscl, Foff, Fmin, Fmax,                   &
 #   ifdef MASKING
      &                        GRID(ng) % rmask,                         &
 #   endif
@@ -3601,7 +3602,7 @@
      &                        Vname(1,idSbed(i)), varid,                &
      &                        InpRec, gtype, Vsize,                     &
      &                        LBi, UBi, LBj, UBj, 1, Nbed,              &
-     &                        Fscl, Fmin, Fmax,                         &
+     &                        Fscl, Foff, Fmin, Fmax,                   &
 #   ifdef MASKING
      &                        GRID(ng) % rmask,                         &
 #   endif
@@ -3634,7 +3635,7 @@
      &                        Vname(1,idUbld(i)), varid,                &
      &                        InpRec, gtype, Vsize,                     &
      &                        LBi, UBi, LBj, UBj,                       &
-     &                        Fscl, Fmin, Fmax,                         &
+     &                        Fscl, Foff, Fmin, Fmax,                   &
 #    ifdef MASKING
      &                        GRID(ng) % umask,                         &
 #    endif
@@ -3662,7 +3663,7 @@
      &                        Vname(1,idVbld(i)), varid,                &
      &                        InpRec, gtype, Vsize,                     &
      &                        LBi, UBi, LBj, UBj,                       &
-     &                        Fscl, Fmin, Fmax,                         &
+     &                        Fscl, Foff, Fmin, Fmax,                   &
 #    ifdef MASKING
      &                        GRID(ng) % vmask,                         &
 #    endif
@@ -3697,7 +3698,7 @@
      &                        Vname(1,idBott(i)), varid,                &
      &                        InpRec, gtype, Vsize,                     &
      &                        LBi, UBi, LBj, UBj,                       &
-     &                        Fscl, Fmin, Fmax,                         &
+     &                        Fscl, Foff, Fmin, Fmax,                   &
 #   ifdef MASKING
      &                        GRID(ng) % rmask,                         &
 #   endif
@@ -3742,7 +3743,7 @@
      &                      Vname(1,idFsur), varid,                     &
      &                      InpRec, gtype, Vsize,                       &
      &                      LBi, UBi, LBj, UBj,                         &
-     &                      Fscl, Fmin, Fmax,                           &
+     &                      Fscl, Foff, Fmin, Fmax,                     &
 # ifdef MASKING
      &                      GRID(ng) % rmask,                           &
 # endif
@@ -3778,7 +3779,7 @@
      &                      Vname(1,idUbar), varid,                     &
      &                      InpRec, gtype, Vsize,                       &
      &                      LBi, UBi, LBj, UBj,                         &
-     &                      Fscl, Fmin, Fmax,                           &
+     &                      Fscl, Foff, Fmin, Fmax,                     &
 # ifdef MASKING
      &                      GRID(ng) % umask,                           &
 # endif
@@ -3813,8 +3814,8 @@
           status=nf_fread2d(ng, IDmod, ncname, ncINPid,                 &
      &                      Vname(1,idVbar), varid,                     &
      &                      InpRec, gtype, Vsize,                       &
-     &                       LBi, UBi, LBj, UBj,                        &
-     &                      Fscl, Fmin, Fmax,                           &
+     &                      LBi, UBi, LBj, UBj,                         &
+     &                      Fscl, Foff, Fmin, Fmax,                     &
 # ifdef MASKING
      &                      GRID(ng) % vmask,                           &
 # endif
@@ -3851,7 +3852,7 @@
      &                      Vname(1,idUvel), varid,                     &
      &                      InpRec, gtype, Vsize,                       &
      &                      LBi, UBi, LBj, UBj, 1, N(ng),               &
-     &                      Fscl, Fmin, Fmax,                           &
+     &                      Fscl, Foff, Fmin, Fmax,                     &
 #  ifdef MASKING
      &                      GRID(ng) % umask,                           &
 #  endif
@@ -3887,7 +3888,7 @@
      &                      Vname(1,idVvel), varid,                     &
      &                      InpRec, gtype, Vsize,                       &
      &                      LBi, UBi, LBj, UBj, 1, N(ng),               &
-     &                      Fscl, Fmin, Fmax,                           &
+     &                      Fscl, Foff, Fmin, Fmax,                     &
 #  ifdef MASKING
      &                      GRID(ng) % vmask,                           &
 #  endif
@@ -3924,7 +3925,7 @@
      &                        Vname(1,idTvar(itrc)), varid,             &
      &                        InpRec, gtype, Vsize,                     &
      &                        LBi, UBi, LBj, UBj, 1, N(ng),             &
-     &                        Fscl, Fmin, Fmax,                         &
+     &                        Fscl, Foff, Fmin, Fmax,                   &
 #  ifdef MASKING
      &                        GRID(ng) % rmask,                         &
 #  endif
@@ -4079,7 +4080,7 @@
      &                      Vname(1,idUsms), varid,                     &
      &                      InpRec, gtype, Vsize,                       &
      &                      LBi, UBi, LBj, UBj,                         &
-     &                      Fscl, Fmin, Fmax,                           &
+     &                      Fscl, Foff, Fmin, Fmax,                     &
 #  ifdef MASKING
      &                      GRID(ng) % umask,                           &
 #  endif
@@ -4115,7 +4116,7 @@
      &                      Vname(1,idVsms), varid,                     &
      &                      InpRec, gtype, Vsize,                       &
      &                      LBi, UBi, LBj, UBj,                         &
-     &                      Fscl, Fmin, Fmax,                           &
+     &                      Fscl, Foff, Fmin, Fmax,                     &
 #  ifdef MASKING
      &                      GRID(ng) % vmask,                           &
 #  endif
@@ -4155,7 +4156,7 @@
      &                        Vname(1,idTsur(itrc)), varid,             &
      &                        InpRec, gtype, Vsize,                     &
      &                        LBi, UBi, LBj, UBj,                       &
-     &                        Fscl, Fmin, Fmax,                         &
+     &                        Fscl, Foff, Fmin, Fmax,                   &
 #  ifdef MASKING
      &                        GRID(ng) % rmask,                         &
 #  endif
@@ -4213,7 +4214,7 @@
      &                      Vname(1,idFsur), varid,                     &
      &                      InpRec, gtype, Vsize,                       &
      &                      LBi, UBi, LBj, UBj,                         &
-     &                      Fscl, Fmin, Fmax,                           &
+     &                      Fscl, Foff, Fmin, Fmax,                     &
 # ifdef MASKING
      &                      GRID(ng) % rmask,                           &
 # endif
@@ -4249,7 +4250,7 @@
      &                      Vname(1,idUbar), varid,                     &
      &                      InpRec, gtype, Vsize,                       &
      &                      LBi, UBi, LBj, UBj,                         &
-     &                      Fscl, Fmin, Fmax,                           &
+     &                      Fscl, Foff, Fmin, Fmax,                     &
 # ifdef MASKING
      &                      GRID(ng) % umask,                           &
 # endif
@@ -4285,7 +4286,7 @@
      &                      Vname(1,idVbar), varid,                     &
      &                      InpRec, gtype, Vsize,                       &
      &                      LBi, UBi, LBj, UBj,                         &
-     &                      Fscl, Fmin, Fmax,                           &
+     &                      Fscl, Foff, Fmin, Fmax,                     &
 # ifdef MASKING
      &                      GRID(ng) % vmask,                           &
 # endif
@@ -4322,7 +4323,7 @@
      &                      Vname(1,idUvel), varid,                     &
      &                      InpRec, gtype, Vsize,                       &
      &                      LBi, UBi, LBj, UBj, 1, N(ng),               &
-     &                      Fscl, Fmin, Fmax,                           &
+     &                      Fscl, Foff, Fmin, Fmax,                     &
 #  ifdef MASKING
      &                      GRID(ng) % umask,                           &
 #  endif
@@ -4358,7 +4359,7 @@
      &                      Vname(1,idVvel), varid,                     &
      &                      InpRec, gtype, Vsize,                       &
      &                      LBi, UBi, LBj, UBj, 1, N(ng),               &
-     &                      Fscl, Fmin, Fmax,                           &
+     &                      Fscl, Foff, Fmin, Fmax,                     &
 #  ifdef MASKING
      &                      GRID(ng) % vmask,                           &
 #  endif
@@ -4395,7 +4396,7 @@
      &                        Vname(1,idTvar(itrc)), varid,             &
      &                        InpRec, gtype, Vsize,                     &
      &                        LBi, UBi, LBj, UBj, 1, N(ng),             &
-     &                        Fscl, Fmin, Fmax,                         &
+     &                        Fscl, Foff, Fmin, Fmax,                   &
 #  ifdef MASKING
      &                        GRID(ng) % rmask,                         &
 #  endif
@@ -4434,7 +4435,7 @@
      &                      Vname(1,idKhor), varid,                     &
      &                      InpRec, gtype, Vsize,                       &
      &                      LBi, UBi, LBj, UBj,                         &
-     &                      Fscl, KhMin(ng), KhMax(ng),                 &
+     &                      Fscl, Foff, KhMin(ng), KhMax(ng),           &
 # ifdef MASKING
      &                      GRID(ng) % rmask,                           &
 # endif
@@ -4472,7 +4473,7 @@
      &                      Vname(1,idKver), varid,                     &
      &                      InpRec, gtype, Vsize,                       &
      &                      LBi, UBi, LBj, UBj, 0, N(ng),               &
-     &                      Fscl, KvMin(ng), KvMax(ng),                 &
+     &                      Fscl, Foff, KvMin(ng), KvMax(ng),           &
 #  ifdef MASKING
      &                      GRID(ng) % rmask,                           &
 #  endif
@@ -4627,7 +4628,7 @@
      &                      Vname(1,idUsms), varid,                     &
      &                      InpRec, gtype, Vsize,                       &
      &                      LBi, UBi, LBj, UBj,                         &
-     &                      scale, Fmin, Fmax,                          &
+     &                      scale, Foff, Fmin, Fmax,                    &
 #  ifdef MASKING
      &                      GRID(ng) % umask,                           &
 #  endif
@@ -4664,7 +4665,7 @@
      &                      Vname(1,idVsms), varid,                     &
      &                      InpRec, gtype, Vsize,                       &
      &                      LBi, UBi, LBj, UBj,                         &
-     &                      scale, Fmin, Fmax,                          &
+     &                      scale, Foff, Fmin, Fmax,                    &
 #  ifdef MASKING
      &                      GRID(ng) % vmask,                           &
 #  endif
@@ -4709,7 +4710,7 @@
                               Vname(1,idTsur(itrc)), varid,             &
      &                        InpRec, gtype, Vsize,                     &
      &                        LBi, UBi, LBj, UBj,                       &
-     &                        scale, Fmin, Fmax,                        &
+     &                        scale, Foff, Fmin, Fmax,                  &
 #  ifdef MASKING
      &                        GRID(ng) % rmask,                         &
 #  endif
@@ -4771,7 +4772,7 @@
      &                      Vname(1,idFsur), varid,                     &
      &                      InpRec, gtype, Vsize,                       &
      &                      LBi, UBi, LBj, UBj,                         &
-     &                      Fscl, Fmin, Fmax,                           &
+     &                      Fscl, Foff, Fmin, Fmax,                     &
 # ifdef MASKING
      &                      GRID(ng) % rmask,                           &
 # endif
@@ -4803,7 +4804,7 @@
      &                      Vname(1,idUbar), varid,                     &
      &                      InpRec, gtype, Vsize,                       &
      &                      LBi, UBi, LBj, UBj,                         &
-     &                      Fscl, Fmin, Fmax,                           &
+     &                      Fscl, Foff, Fmin, Fmax,                     &
 #  ifdef MASKING
      &                      GRID(ng) % umask,                           &
 #  endif
@@ -4833,7 +4834,7 @@
      &                      Vname(1,idVbar), varid,                     &
      &                      InpRec, gtype, Vsize,                       &
      &                      LBi, UBi, LBj, UBj,                         &
-     &                      Fscl, Fmin, Fmax,                           &
+     &                      Fscl, Foff, Fmin, Fmax,                     &
 #  ifdef MASKING
      &                      GRID(ng) % vmask,                           &
 #  endif
@@ -4865,7 +4866,7 @@
      &                      Vname(1,idUvel), varid,                     &
      &                      InpRec, gtype, Vsize,                       &
      &                      LBi, UBi, LBj, UBj, 1, N(ng),               &
-     &                      Fscl, Fmin, Fmax,                           &
+     &                      Fscl, Foff, Fmin, Fmax,                     &
 #  ifdef MASKING
      &                      GRID(ng) % umask,                           &
 #  endif
@@ -4895,7 +4896,7 @@
      &                      Vname(1,idVvel), varid,                     &
      &                      InpRec, gtype, Vsize,                       &
      &                      LBi, UBi, LBj, UBj, 1, N(ng),               &
-     &                      Fscl, Fmin, Fmax,                           &
+     &                      Fscl, Foff, Fmin, Fmax,                     &
 #  ifdef MASKING
      &                      GRID(ng) % vmask,                           &
 #  endif
@@ -4926,7 +4927,7 @@
      &                        Vname(1,idTvar(itrc)), varid,             &
      &                        InpRec, gtype, Vsize,                     &
      &                        LBi, UBi, LBj, UBj, 1, N(ng),             &
-     &                        Fscl, Fmin, Fmax,                         &
+     &                        Fscl, Foff, Fmin, Fmax,                   &
 #  ifdef MASKING
      &                        GRID(ng) % rmask,                         &
 #  endif
@@ -4980,7 +4981,7 @@
      &                           Vname(1,ifield), varid,                &
      &                           InpRec, r2dvar,                        &
      &                           LBij, UBij, Nbrec(ng),                 &
-     &                           Fscl, Fmin, Fmax,                      &
+     &                           Fscl, Foff, Fmin, Fmax,                &
      &                           BOUNDARY(ng) % tl_zeta_obc(:,:,:,      &
      &                                                      Tindex))
           IF (status.ne.nf90_noerr) THEN
@@ -5009,7 +5010,7 @@
      &                           Vname(1,ifield), varid,                &
      &                           InpRec, u2dvar,                        &
      &                           LBij, UBij, Nbrec(ng),                 &
-     &                           Fscl, Fmin, Fmax,                      &
+     &                           Fscl, Foff, Fmin, Fmax,                &
      &                           BOUNDARY(ng) % tl_ubar_obc(:,:,:,      &
      &                                                      Tindex))
           IF (status.ne.nf90_noerr) THEN
@@ -5038,7 +5039,7 @@
      &                           Vname(1,ifield), varid,                &
      &                           InpRec, v2dvar,                        &
      &                           LBij, UBij, Nbrec(ng),                 &
-     &                           Fscl, Fmin, Fmax,                      &
+     &                           Fscl, Foff, Fmin, Fmax,                &
      &                           BOUNDARY(ng) % tl_vbar_obc(:,:,:,      &
      &                                                      Tindex))
           IF (status.ne.nf90_noerr) THEN
@@ -5069,7 +5070,7 @@
      &                           Vname(1,ifield), varid,                &
      &                           InpRec, u3dvar,                        &
      &                           LBij, UBij, 1, N(ng), Nbrec(ng),       &
-     &                           Fscl, Fmin, Fmax,                      &
+     &                           Fscl, Foff, Fmin, Fmax,                &
      &                           BOUNDARY(ng) % tl_u_obc(:,:,:,:,       &
      &                                                   Tindex))
           IF (status.ne.nf90_noerr) THEN
@@ -5098,7 +5099,7 @@
      &                           Vname(1,ifield), varid,                &
      &                           InpRec, v3dvar,                        &
      &                           LBij, UBij, 1, N(ng), Nbrec(ng),       &
-     &                           Fscl, Fmin, Fmax,                      &
+     &                           Fscl, Foff, Fmin, Fmax,                &
      &                           BOUNDARY(ng) % tl_v_obc(:,:,:,:,       &
      &                                                   Tindex))
           IF (status.ne.nf90_noerr) THEN
@@ -5128,7 +5129,7 @@
      &                             Vname(1,ifield), varid,              &
      &                             InpRec, r3dvar,                      &
      &                             LBij, UBij, 1, N(ng), Nbrec(ng),     &
-     &                             Fscl, Fmin, Fmax,                    &
+     &                             Fscl, Foff, Fmin, Fmax,              &
      &                             BOUNDARY(ng) % tl_t_obc(:,:,:,:,     &
      &                                                     Tindex,itrc))
             IF (status.ne.nf90_noerr) THEN
@@ -5161,7 +5162,7 @@
      &                      Vname(1,idUsms), varid,                     &
      &                      InpRec, gtype, Vsize,                       &
      &                      LBi, UBi, LBj, UBj, 1, Nfrec(ng),           &
-     &                      scale, Fmin, Fmax,                          &
+     &                      scale, Foff, Fmin, Fmax,                    &
 #  ifdef MASKING
      &                      GRID(ng) % umask,                           &
 #  endif
@@ -5192,7 +5193,7 @@
      &                      Vname(1,idVsms), varid,                     &
      &                      InpRec, gtype, Vsize,                       &
      &                      LBi, UBi, LBj, UBj, 1, Nfrec(ng),           &
-     &                      scale, Fmin, Fmax,                          &
+     &                      scale, Foff, Fmin, Fmax,                    &
 #  ifdef MASKING
      &                      GRID(ng) % vmask,                           &
 #  endif
@@ -5227,7 +5228,7 @@
      &                        Vname(1,idTsur(itrc)), varid,             &
      &                        InpRec, gtype, Vsize,                     &
      &                        LBi, UBi, LBj, UBj, 1, Nfrec(ng),         &
-     &                        scale, Fmin, Fmax,                        &
+     &                        scale, Foff, Fmin, Fmax,                  &
 #  ifdef MASKING
      &                        GRID(ng) % rmask,                         &
 #  endif
