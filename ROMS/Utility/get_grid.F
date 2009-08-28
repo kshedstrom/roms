@@ -64,6 +64,7 @@
       integer :: Vsize(4)
 
       real(r8), parameter :: Fscl = 1.0_r8
+      real(r8), parameter :: Foff = 0.0_r8
 
       real(r8) :: Fmax, Fmin
 
@@ -264,7 +265,7 @@
      &                        var_name(it), var_id(it),                 &
      &                        0, gtype, Vsize,                          &
      &                        LBi, UBi, LBj, UBj,                       &
-     &                        Fscl, hmin(ng), hmax(ng),                 &
+     &                        Fscl, Foff, hmin(ng), hmax(ng),           &
 # ifdef MASKING
      &                        GRID(ng) % rmask,                         &
 # endif
@@ -304,7 +305,7 @@
      &                        var_name(it), var_id(it),                 &
      &                        0, gtype, Vsize,                          &
      &                        LBi, UBi, LBj, UBj,                       &
-     &                        Fscl, Fmin, Fmax,                         &
+     &                        Fscl, Foff, Fmin, Fmax,                   &
      &                        GRID(ng) % rmask,                         &
      &                        GRID(ng) % rmask)
             IF (status.ne.nf90_noerr) THEN
@@ -332,7 +333,7 @@
      &                        var_name(it), var_id(it),                 &
      &                        0, gtype, Vsize,                          &
      &                        LBi, UBi, LBj, UBj,                       &
-     &                        Fscl, Fmin, Fmax,                         &
+     &                        Fscl, Foff, Fmin, Fmax,                   &
      &                        GRID(ng) % umask,                         &
      &                        GRID(ng) % umask)
             IF (status.ne.nf90_noerr) THEN
@@ -360,7 +361,7 @@
      &                        var_name(it), var_id(it),                 &
      &                        0, gtype, Vsize,                          &
      &                        LBi, UBi, LBj, UBj,                       &
-     &                        Fscl, Fmin, Fmax,                         &
+     &                        Fscl, Foff, Fmin, Fmax,                   &
      &                        GRID(ng) % vmask,                         &
      &                        GRID(ng) % vmask)
             IF (status.ne.nf90_noerr) THEN
@@ -388,7 +389,7 @@
      &                        var_name(it), var_id(it),                 &
      &                        0, gtype, Vsize,                          &
      &                        LBi, UBi, LBj, UBj,                       &
-     &                        Fscl, Fmin, Fmax,                         &
+     &                        Fscl, Foff, Fmin, Fmax,                   &
      &                        GRID(ng) % pmask,                         &
      &                        GRID(ng) % pmask)
             IF (status.ne.nf90_noerr) THEN
@@ -418,7 +419,7 @@
      &                        var_name(it), var_id(it),                 &
      &                        0, gtype, Vsize,                          &
      &                        LBi, UBi, LBj, UBj,                       &
-     &                        Fscl, Fmin, Fmax,                         &
+     &                        Fscl, Foff, Fmin, Fmax,                   &
 #  ifdef MASKING
      &                        GRID(ng) % rmask,                         &
 #  endif
@@ -449,7 +450,7 @@
             status=nf_fread2d(ng, model, ncname, ncGRDid(ng),           &
      &                        var_name(it), var_id(it), 0,              &
      &                        gtype, Vsize, LBi, UBi, LBj, UBj,         &
-     &                        Fscl, Fmin, Fmax,                         &
+     &                        Fscl, Foff, Fmin, Fmax,                   &
 #  ifdef MASKING
      &                        GRID(ng) % rmask,                         &
 #  endif
@@ -480,7 +481,7 @@
             status=nf_fread2d(ng, model, ncname, ncGRDid(ng),           &
      &                        var_name(it), var_id(it), 0,              &
      &                        gtype, Vsize, LBi, UBi, LBj, UBj,         &
-     &                        Fscl, Fmin, Fmax,                         &
+     &                        Fscl, Foff, Fmin, Fmax,                   &
 #  ifdef MASKING
      &                        GRID(ng) % rmask,                         &
 #  endif
@@ -507,7 +508,7 @@
      &                        var_name(it), var_id(it),                 &
      &                        0, gtype, Vsize,                          &
      &                        LBi, UBi, LBj, UBj,                       &
-     &                        Fscl, Fmin, Fmax,                         &
+     &                        Fscl, Foff, Fmin, Fmax,                   &
 # ifdef MASKING
      &                        GRID(ng) % rmask,                         &
 # endif
@@ -538,7 +539,7 @@
      &                        var_name(it), var_id(it),                 &
      &                        0, gtype, Vsize,                          &
      &                        LBi, UBi, LBj, UBj,                       &
-     &                        Fscl, Fmin, Fmax,                         &
+     &                        Fscl, Foff, Fmin, Fmax,                   &
 # ifdef MASKING
      &                        GRID(ng) % rmask,                         &
 # endif
@@ -569,7 +570,7 @@
      &                        var_name(it), var_id(it),                 &
      &                        0, gtype, Vsize,                          &
      &                        LBi, UBi, LBj, UBj,                       &
-     &                        Fscl, Fmin, Fmax,                         &
+     &                        Fscl, Foff, Fmin, Fmax,                   &
 # ifdef MASKING
      &                        GRID(ng) % rmask,                         &
 # endif
@@ -600,7 +601,7 @@
      &                        var_name(it), var_id(it),                 &
      &                        0, gtype, Vsize,                          &
      &                        LBi, UBi, LBj, UBj,                       &
-     &                        Fscl, Fmin, Fmax,                         &
+     &                        Fscl, Foff, Fmin, Fmax,                   &
 # ifdef MASKING
      &                        GRID(ng) % rmask,                         &
 # endif
@@ -630,7 +631,7 @@
      &                        var_name(it), var_id(it),                 &
      &                        0, gtype, Vsize,                          &
      &                        LBi, UBi, LBj, UBj,                       &
-     &                        Fscl, Fmin, Fmax,                         &
+     &                        Fscl, Foff, Fmin, Fmax,                   &
 # ifdef MASKING
      &                        GRID(ng) % rmask,                         &
 # endif
@@ -661,7 +662,7 @@
      &                        var_name(it), var_id(it),                 &
      &                        0, gtype, Vsize,                          &
      &                        LBi, UBi, LBj, UBj,                       &
-     &                        Fscl, Fmin, Fmax,                         &
+     &                        Fscl, Foff, Fmin, Fmax,                   &
 # ifdef MASKING
      &                        GRID(ng) % pmask,                         &
 # endif
@@ -686,7 +687,7 @@
      &                        var_name(it), var_id(it),                 &
      &                        0, gtype, Vsize,                          &
      &                        LBi, UBi, LBj, UBj,                       &
-     &                        Fscl, Fmin, Fmax,                         &
+     &                        Fscl, Foff, Fmin, Fmax,                   &
 # ifdef MASKING
      &                        GRID(ng) % pmask,                         &
 # endif
@@ -711,7 +712,7 @@
      &                        var_name(it), var_id(it),                 &
      &                        0, gtype, Vsize,                          &
      &                        LBi, UBi, LBj, UBj,                       &
-     &                        Fscl, Fmin, Fmax,                         &
+     &                        Fscl, Foff, Fmin, Fmax,                   &
 # ifdef MASKING
      &                        GRID(ng) % rmask,                         &
 # endif
@@ -736,7 +737,7 @@
      &                        var_name(it), var_id(it),                 &
      &                        0, gtype, Vsize,                          &
      &                        LBi, UBi, LBj, UBj,                       &
-     &                        Fscl, Fmin, Fmax,                         &
+     &                        Fscl, Foff, Fmin, Fmax,                   &
 # ifdef MASKING
      &                        GRID(ng) % rmask,                         &
 # endif
@@ -761,7 +762,7 @@
      &                        var_name(it), var_id(it),                 &
      &                        0, gtype, Vsize,                          &
      &                        LBi, UBi, LBj, UBj,                       &
-     &                        Fscl, Fmin, Fmax,                         &
+     &                        Fscl, Foff, Fmin, Fmax,                   &
 # ifdef MASKING
      &                        GRID(ng) % umask,                         &
 # endif
@@ -786,7 +787,7 @@
      &                        var_name(it), var_id(it),                 &
      &                        0, gtype, Vsize,                          &
      &                        LBi, UBi, LBj, UBj,                       &
-     &                        Fscl, Fmin, Fmax,                         &
+     &                        Fscl, Foff, Fmin, Fmax,                   &
 # ifdef MASKING
      &                        GRID(ng) % umask,                         &
 # endif
@@ -811,7 +812,7 @@
      &                        var_name(it), var_id(it),                 &
      &                        0, gtype, Vsize,                          &
      &                        LBi, UBi, LBj, UBj,                       &
-     &                        Fscl, Fmin, Fmax,                         &
+     &                        Fscl, Foff, Fmin, Fmax,                   &
 # ifdef MASKING
      &                        GRID(ng) % vmask,                         &
 # endif
@@ -836,7 +837,7 @@
      &                        var_name(it), var_id(it),                 &
      &                        0, gtype, Vsize,                          &
      &                        LBi, UBi, LBj, UBj,                       &
-     &                        Fscl, Fmin, Fmax,                         &
+     &                        Fscl, Foff, Fmin, Fmax,                   &
 # ifdef MASKING
      &                        GRID(ng) % vmask,                         &
 # endif
@@ -862,7 +863,7 @@
      &                          var_name(it), var_id(it),               &
      &                          0, gtype, Vsize,                        &
      &                          LBi, UBi, LBj, UBj,                     &
-     &                          Fscl, Fmin, Fmax,                       &
+     &                          Fscl, Foff, Fmin, Fmax,                 &
 # ifdef MASKING
      &                          GRID(ng) % pmask,                       &
 # endif
@@ -889,7 +890,7 @@
      &                          var_name(it), var_id(it),               &
      &                          0, gtype, Vsize,                        &
      &                          LBi, UBi, LBj, UBj,                     &
-     &                          Fscl, Fmin, Fmax,                       &
+     &                          Fscl, Foff, Fmin, Fmax,                 &
 # ifdef MASKING
      &                          GRID(ng) % pmask,                       &
 # endif
@@ -916,7 +917,7 @@
      &                          var_name(it), var_id(it),               &
      &                          0, gtype, Vsize,                        &
      &                          LBi, UBi, LBj, UBj,                     &
-     &                          Fscl, LonMin(ng), LonMax(ng),           &
+     &                          Fscl, Foff, LonMin(ng), LonMax(ng),     &
 # ifdef MASKING
      &                          GRID(ng) % rmask,                       &
 # endif
@@ -943,7 +944,7 @@
      &                          var_name(it), var_id(it),               &
      &                          0, gtype, Vsize,                        &
      &                          LBi, UBi, LBj, UBj,                     &
-     &                          Fscl, LatMin(ng), LatMax(ng),           &
+     &                          Fscl, Foff, LatMin(ng), LatMax(ng),     &
 # ifdef MASKING
      &                          GRID(ng) % rmask,                       &
 # endif
@@ -970,7 +971,7 @@
      &                          var_name(it), var_id(it),               &
      &                          0, gtype, Vsize,                        &
      &                          LBi, UBi, LBj, UBj,                     &
-     &                          Fscl, Fmin, Fmax,                       &
+     &                          Fscl, Foff, Fmin, Fmax,                 &
 # ifdef MASKING
      &                          GRID(ng) % umask,                       &
 # endif
@@ -997,7 +998,7 @@
      &                          var_name(it), var_id(it),               &
      &                          0, gtype, Vsize,                        &
      &                          LBi, UBi, LBj, UBj,                     &
-     &                          Fscl, Fmin, Fmax,                       &
+     &                          Fscl, Foff, Fmin, Fmax,                 &
 # ifdef MASKING
      &                          GRID(ng) % umask,                       &
 # endif
@@ -1024,7 +1025,7 @@
      &                          var_name(it), var_id(it),               &
      &                          0, gtype, Vsize,                        &
      &                          LBi, UBi, LBj, UBj,                     &
-     &                          Fscl, Fmin, Fmax,                       &
+     &                          Fscl, Foff, Fmin, Fmax,                 &
 # ifdef MASKING
      &                          GRID(ng) % vmask,                       &
 # endif
@@ -1051,7 +1052,7 @@
      &                          var_name(it), var_id(it),               &
      &                          0, gtype, Vsize,                        &
      &                          LBi, UBi, LBj, UBj,                     &
-     &                          Fscl, Fmin, Fmax,                       &
+     &                          Fscl, Foff, Fmin, Fmax,                 &
 # ifdef MASKING
      &                          GRID(ng) % vmask,                       &
 # endif
@@ -1077,7 +1078,7 @@
      &                        var_name(it), var_id(it),                 &
      &                        0, gtype, Vsize,                          &
      &                        LBi, UBi, LBj, UBj,                       &
-     &                        Fscl, Fmin, Fmax,                         &
+     &                        Fscl, Foff, Fmin, Fmax,                   &
 # ifdef MASKING
      &                        GRID(ng) % rmask,                         &
 # endif
@@ -1110,7 +1111,7 @@
      &                        var_name(it), var_id(it),                 &
      &                        0, gtype, Vsize,                          &
      &                        LBi, UBi, LBj, UBj,                       &
-     &                        Fscl, Fmin, Fmax,                         &
+     &                        Fscl, Foff, Fmin, Fmax,                   &
 #  ifdef MASKING
      &                        GRID(ng) % rmask,                         &
 #  endif
@@ -1141,7 +1142,7 @@
      &                        var_name(it), var_id(it),                 &
      &                        0, gtype, Vsize,                          &
      &                        LBi, UBi, LBj, UBj,                       &
-     &                        Fscl, Fmin, Fmax,                         &
+     &                        Fscl, Foff, Fmin, Fmax,                   &
 #  ifdef MASKING
      &                        GRID(ng) % umask,                         &
 #  endif
@@ -1172,7 +1173,7 @@
      &                        var_name(it), var_id(it),                 &
      &                        0, gtype, Vsize,                          &
      &                        LBi, UBi, LBj, UBj,                       &
-     &                        Fscl, Fmin, Fmax,                         &
+     &                        Fscl, Foff, Fmin, Fmax,                   &
 #  ifdef MASKING
      &                        GRID(ng) % vmask,                         &
 #  endif
@@ -1281,7 +1282,7 @@
      &                        var_name(i), var_id(i),                   &
      &                        0, gtype, Vsize,                          &
      &                        LBi, UBi, LBj, UBj,                       &
-     &                        Fscl, Fmin, Fmax,                         &
+     &                        Fscl, Foff, Fmin, Fmax,                   &
 #  ifdef MASKING
      &                        GRID(ng) % rmask,                         &
 #  endif
@@ -1311,7 +1312,7 @@
      &                        var_name(i), var_id(i),                   &
      &                        0, gtype, Vsize,                          &
      &                        LBi, UBi, LBj, UBj,                       &
-     &                        Fscl, Fmin, Fmax,                         &
+     &                        Fscl, Foff, Fmin, Fmax,                   &
 #  ifdef MASKING
      &                        GRID(ng) % umask,                         &
 #  endif
@@ -1341,7 +1342,7 @@
      &                        var_name(i), var_id(i),                   &
      &                        0, gtype, Vsize,                          &
      &                        LBi, UBi, LBj, UBj,                       &
-     &                        Fscl, Fmin, Fmax,                         &
+     &                        Fscl, Foff, Fmin, Fmax,                   &
 #  ifdef MASKING
      &                        GRID(ng) % vmask,                         &
 #  endif

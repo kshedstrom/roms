@@ -58,7 +58,7 @@
       integer :: i, gtype, status, varid
       integer :: ibuffer(2), Vsize(4)
 
-      real(r8) :: Fmin, Fmax, scale
+      real(r8) :: Fmin, Fmax, scale, offset
       real(r8) :: inp_time(1)
 
 # include "set_bounds.h"
@@ -114,6 +114,7 @@
       Iinp=1
       Iout=0
       scale=1.0_r8
+      offset=0.0_r8
    
       DO Irec=Nrec-1,1,-1
         Iout=Iout+1
@@ -147,7 +148,7 @@
      &                      Vname(1,idZtlf), INPvid,                    &
      &                      Irec, MyType, Vsize,                        &
      &                      LBi, UBi, LBj, UBj,                         &
-     &                      scale, Fmin, Fmax,                          &
+     &                      scale, offset, Fmin, Fmax,                  &
 # ifdef MASKING
      &                      GRID(ng) % rmask,                           &
 # endif
@@ -197,7 +198,7 @@
      &                      Vname(1,idUbtf), INPvid,                    &
      &                      Irec, MyType, Vsize,                        &
      &                      LBi, UBi, LBj, UBj,                         &
-     &                      scale, Fmin, Fmax,                          &
+     &                      scale, offset, Fmin, Fmax,                  &
 #  ifdef MASKING
      &                      GRID(ng) % umask,                           &
 #  endif
@@ -245,7 +246,7 @@
      &                      Vname(1,idVbtf), INPvid,                    &
      &                      Irec, MyType, Vsize,                        &
      &                      LBi, UBi, LBj, UBj,                         &
-     &                      scale, Fmin, Fmax,                          &
+     &                      scale, offset, Fmin, Fmax,                  &
 #  ifdef MASKING
      &                      GRID(ng) % vmask,                           &
 #  endif
@@ -295,7 +296,7 @@
      &                      Vname(1,idUtlf), INPvid,                    &
      &                      Irec, MyType, Vsize,                        &
      &                      LBi, UBi, LBj, UBj, 1, N(ng),               &
-     &                      scale, Fmin, Fmax,                          &
+     &                      scale, offset, Fmin, Fmax,                  &
 #  ifdef MASKING
      &                      GRID(ng) % umask,                           &
 #  endif
@@ -342,7 +343,7 @@
      &                      Vname(1,idVtlf), INPvid,                    &
      &                      Irec, MyType, Vsize,                        &
      &                      LBi, UBi, LBj, UBj, 1, N(ng),               &
-     &                      scale, Fmin, Fmax,                          &
+     &                      scale, offset, Fmin, Fmax,                  &
 #  ifdef MASKING
      &                      GRID(ng) % vmask,                           &
 #  endif
@@ -391,7 +392,7 @@
      &                        Vname(1,idTtlf(i)), INPvid,               &
      &                        Irec, MyType, Vsize,                      &
      &                        LBi, UBi, LBj, UBj, 1, N(ng),             &
-     &                        scale, Fmin, Fmax,                        &
+     &                        scale, offset, Fmin, Fmax,                &
 #  ifdef MASKING
      &                        GRID(ng) % rmask,                         &
 #  endif
