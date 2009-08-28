@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       SUBROUTINE get_state (ng, model, msg, ncname, IniRec, Tindex)
 !
-!svn $Id: get_state.F 1023 2009-07-20 21:45:24Z kate $
+!svn $Id: get_state.F 1038 2009-08-11 22:29:40Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -174,6 +174,9 @@
       ELSE IF (model.eq.11) THEN
         string=' NRM: '                    ! normalization factor
         IDmod=iNLM                         ! surface forcing
+      ELSE IF (model.eq.12) THEN
+        string=' NLM: '                    ! tangent linear forcing and
+        IDmod=iNLM                         ! obc increments
       END IF
 !
 !  Set switch to process variables for nonlinear model perfect restart.
@@ -4969,7 +4972,7 @@
 !  Read in tangent linear forcing corrections.
 !-----------------------------------------------------------------------
 !
-      TLM_FORCING: IF (model.eq.iNLM) THEN
+      TLM_FORCING: IF (model.eq.12) THEN
 !
 !  Set switch to process surface forcing and/or open boundaries during
 !  4DVar minimization.

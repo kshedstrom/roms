@@ -2,7 +2,7 @@
       MODULE bulk_flux_mod
 #if defined BULK_FLUXES && !defined CCSM_FLUXES
 !
-!svn $Id: bulk_flux.F 1023 2009-07-20 21:45:24Z kate $
+!svn $Id: bulk_flux.F 1046 2009-08-24 23:53:05Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -1159,11 +1159,11 @@
 ! Limit shortwave radiation to be used in computing penetrative 
 ! radiation by presence of ice and biology
 
-# ifdef ICE_MODEL && defined BEST_NPZ
+# if defined ICE_MODEL && defined BEST_NPZ
 
         ice_thick(i,j) = hi(i,j,1)/ai(i,j,1)
-	snow_thick(i,j) = hsn(i,j,linew)/(ai(i,j,linew)+eps)
-	
+        snow_thick(i,j) = hsn(i,j,linew)/(ai(i,j,linew)+eps)
+
        IF (ice_thick(i,j).le.0.1_r8) THEN
          cff1=ice_thick(i,j)*5._r8
          ELSE
@@ -1171,7 +1171,7 @@
        ENDIF
        
          cff1= cff1+snow_thick(i,j)*20._r8
-	 
+
 #   ifdef ICE_BIO
          cff2=0.5*0.02_r8*0.005*it(i,j,nstp,iIcePhL)
 #   endif
@@ -1206,8 +1206,7 @@
 # elif !defined ICE_MODEL && defined BEST_NPZ && defined CLIM_ICE_1D 
         
         ice_thick(i,j) = tclmG(i,j,42,1,15) 
-	snow_thick(i,j) = ice_thick(i,j)*0.1 !assume 10% of ice depth 
-	
+        snow_thick(i,j) = ice_thick(i,j)*0.1 !assume 10% of ice depth 
        
        IF (ice_thick(i,j).le.0.1_r8) THEN
          cff1=ice_thick(i,j)*5._r8
@@ -1216,13 +1215,13 @@
        ENDIF
        
          cff1= cff1+snow_thick(i,j)*20._r8
-	 
+
 #   ifdef ICE_BIO
          cff2=0.5*0.02_r8*0.005*it(i,j,nstp,iIcePhL)
 #   endif
  
           srflx(i,j)=srflx(i,j)*exp(-cff1-cff2)
-	 
+
 # endif 
 
         END DO

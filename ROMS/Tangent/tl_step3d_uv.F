@@ -2,7 +2,7 @@
       MODULE tl_step3d_uv_mod
 #if defined TANGENT && defined SOLVE3D
 !
-!svn $Id: tl_step3d_uv.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: tl_step3d_uv.F 1047 2009-08-24 23:55:11Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
@@ -61,7 +61,7 @@
      &                        IminS, ImaxS, JminS, JmaxS,               &
      &                        nrhs(ng), nstp(ng), nnew(ng),             &
 # ifdef UV_PSOURCE
-     &                        Nsrc(ng),                                 &
+     &                        Msrc(ng), Nsrc(ng),                       &
      &                        SOURCES(ng) % Isrc,                       &
      &                        SOURCES(ng) % Jsrc,                       &
      &                        SOURCES(ng) % Dsrc,                       &
@@ -135,7 +135,7 @@
      &                              IminS, ImaxS, JminS, JmaxS,         &
      &                              nrhs, nstp, nnew,                   &
 # ifdef UV_PSOURCE
-     &                              Nsrc,                               &
+     &                              Msrc, Nsrc,                         &
      &                              Isrc, Jsrc, Dsrc, Qsrc,             &
 # endif
 # ifdef MASKING
@@ -172,6 +172,9 @@
 !
       USE mod_param
       USE mod_scalars
+# ifdef UV_PSOURCE
+      USE mod_sources
+# endif
 !
 # if defined EW_PERIODIC || defined NS_PERIODIC
       USE exchange_2d_mod
@@ -189,12 +192,15 @@
       integer, intent(in) :: LBi, UBi, LBj, UBj
       integer, intent(in) :: IminS, ImaxS, JminS, JmaxS
       integer, intent(in) :: nrhs, nstp, nnew
+# ifdef UV_PSOURCE
+      integer, intent(in) :: Msrc, Nsrc
+# endif
 !
 # ifdef ASSUMED_SHAPE
 #  ifdef UV_PSOURCE
-      integer, intent(in) :: Nsrc
       integer, intent(in) :: Isrc(:)
       integer, intent(in) :: Jsrc(:)
+
       real(r8), intent(in) :: Dsrc(:)
       real(r8), intent(in) :: Qsrc(:,:)
 #  endif
@@ -257,13 +263,15 @@
       real(r8), intent(out) :: tl_vbar(LBi:,LBj:,:)
       real(r8), intent(out) :: tl_Huon(LBi:,LBj:,:)
       real(r8), intent(out) :: tl_Hvom(LBi:,LBj:,:)
+
 # else
+
 #  ifdef UV_PSOURCE
-      integer, intent(in) :: Nsrc
-      integer, intent(in) :: Isrc(Nsrc)
-      integer, intent(in) :: Jsrc(Nsrc)
-      real(r8), intent(in) :: Dsrc(Nsrc)
-      real(r8), intent(in) :: Qsrc(Nsrc,N(ng))
+      integer, intent(in) :: Isrc(Msrc)
+      integer, intent(in) :: Jsrc(Msrc)
+
+      real(r8), intent(in) :: Dsrc(Msrc)
+      real(r8), intent(in) :: Qsrc(Msrc,N(ng))
 #  endif
 #  ifdef MASKING
       real(r8), intent(in) :: umask(LBi:UBi,LBj:UBj)

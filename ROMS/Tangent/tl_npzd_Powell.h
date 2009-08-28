@@ -1,6 +1,6 @@
       SUBROUTINE tl_biology (ng,tile)
 !
-!svn $Id: tl_npzd_Powell.h 1013 2009-07-07 21:21:23Z kate $
+!svn $Id: tl_npzd_Powell.h 1038 2009-08-11 22:29:40Z kate $
 !************************************************** Hernan G. Arango ***
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
@@ -824,9 +824,8 @@
                 Itop=PAR
                 tl_Itop=tl_PAR
                 PAR=Itop*(1.0_r8-ExpAtt)/Att    ! average at cell center
-                tl_PAR=(Itop*(1.0_r8-ExpAtt)*tl_Att-                    &
-     &                  Att*(tl_Itop*(1.0_r8-ExpAtt)-Itop*tl_ExpAtt))/  &
-     &                 (Att*Att)
+                tl_PAR=(-tl_Att*PAR+tl_Itop*(1.0_r8-ExpAtt)-            &
+     &                  Itop*tl_ExpAtt)/Att
 !>              Light(i,k)=PAR
 !>
                 tl_Light(i,k)=tl_PAR

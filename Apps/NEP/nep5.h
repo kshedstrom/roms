@@ -28,7 +28,7 @@
 #endif
 #define FLOATS
 #define STATIONS
-#define WET_DRY
+#undef WET_DRY
 
 #undef T_PASSIVE
 #ifdef T_PASSIVE
@@ -268,6 +268,7 @@
 # define ANA_BPFLUX        /* analytical bottom passive tracers fluxes */
 # define ANA_SPFLUX        /* analytical surface passive tracers fluxes */
 # define DIAPAUSE          /* Enable Neocalanus seasonal vertical migration */
+# undef FLOAT_VWALK
 # define IRON_LIMIT        /* Add iron as passive 11th tracer */
 # undef TCLM_NUDGING      /* Nudging of tracer climatology for iron */
 #endif
