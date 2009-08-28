@@ -3,7 +3,7 @@
 !#if defined NONLINEAR && defined FLOATS
 #if defined NONLINEAR && defined NEMURO_SAN
 !
-!svn $Id: interp_floats.F 997 2009-06-04 17:42:20Z kate $
+!svn $Id: interp_floats.F 1038 2009-08-11 22:29:40Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group         Mark Hadfield   !
 !    Licensed under a MIT/X style license             John M. Klinck   !
@@ -29,6 +29,7 @@
 !     gtype      Grid type. If negative, interpolate floats slopes.    !
 !     maskit     Should the field be masked? Ignored if Land/Sea       !
 !                 masking is not active.                               !
+!     Fspval     Special values for unbounded float.                   !
 !     nudg       Vertical random walk term to be added to the field.   !
 !     pm         Inverse grid spacing (1/m) in the XI-direction.       !
 !     pn         Inverse grid spacing (1/m) in the ETA-direction.      !
@@ -54,7 +55,7 @@
 !***********************************************************************
       SUBROUTINE interp_floats (ng, LBi, UBi, LBj, UBj, LBk, UBk,       &
      &                          Lstr, Lend, itime, ifield, numflt,      &
-     &                          gtype, maskit, nudg,                    &
+     &                          gtype, maskit, Fspval, nudg,            &
      &                          pm, pn,                                 &
 # ifdef SOLVE3D
      &                          Hz,                                     &
@@ -64,6 +65,7 @@
 # endif
      &                          A, MyThread, bounded, track)
 !***********************************************************************
+!
       USE mod_param
       USE mod_ncparam
       USE mod_scalars
@@ -78,6 +80,8 @@
       logical, intent(in) :: maskit
       logical, intent(in) :: MyThread(Lstr:Lend)
       logical, intent(in) :: bounded(numflt)
+
+      real(r8), intent(in) :: Fspval
 
       real(r8), intent(in) :: nudg(Lstr:Lend)
 
@@ -157,7 +161,7 @@
       DO l=Lstr,Lend
         IF (MyThread(l)) THEN
           IF (.not.bounded(l)) THEN
-            track(ifield,itime,l)=spval
+            track(ifield,itime,l)=Fspval
           ELSE
 !
 !  Calculate indices and weights for vertical interpolation, if any.
@@ -499,6 +503,7 @@
           END IF
         END IF
       END DO
+
       RETURN
       END SUBROUTINE interp_floats
 #endif
