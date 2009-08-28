@@ -598,6 +598,7 @@
 #  ifdef NEMURO_SAN
         real(r8), dimension(Ngrids) :: Fwwt0         ! grams
         real(r8), dimension(Ngrids) :: Fage0         ! years
+        integer, dimension(Ngrids) :: Fbehave        ! 1=Fitness, 2=Kinesis
         real(r8), dimension(Ngrids) :: ZSpref        ! nondimensional
         real(r8), dimension(Ngrids) :: ZLpref        ! nondimensional
         real(r8), dimension(Ngrids) :: ZPpref        ! nondimensional

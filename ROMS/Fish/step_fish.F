@@ -697,10 +697,18 @@
 # else
       DO l=Lstr,Lend
         IF (MyThread(l).and.bounded(l)) THEN
-          IF ((track(ixgrd,nfp1,l).ge.REAL(Lm(ng)+1,r8)-0.5_r8).or.     &
-     &        (track(ixgrd,nfp1,l).lt.0.5_r8)) THEN
-            bounded(l)=.FALSE.
+! JF: Crude attempt at boundary condition for non-periodic case
+          IF (track(ixgrd,nfp1,l).ge.REAL(Lm(ng)+1,r8)-0.5_r8) THEN
+            track(ixgrd,nfp1,l)=REAL(Lm(ng)) 
           END IF
+          IF (track(ixgrd,nfp1,l).lt.0.5_r8) THEN
+            track(ixgrd,nfp1,l)=1.0_r8 
+          END IF
+! Original ROMS code
+!          IF ((track(ixgrd,nfp1,l).ge.REAL(Lm(ng)+1,r8)-0.5_r8).or.     &
+!     &        (track(ixgrd,nfp1,l).lt.0.5_r8)) THEN
+!            bounded(l)=.FALSE.
+!          END IF
         END IF
       END DO
 # endif
@@ -756,10 +764,18 @@
 # else
       DO l=Lstr,Lend
         IF (MyThread(l).and.bounded(l)) THEN
-          IF ((track(iygrd,nfp1,l).ge.REAL(Mm(ng)+1,r8)-0.5_r8).or.     &
-     &        (track(iygrd,nfp1,l).lt.0.5_r8)) THEN
-            bounded(l)=.FALSE.
+! JF: Crude attempt at boundary condition for non-periodic case
+          IF (track(iygrd,nfp1,l).ge.REAL(Mm(ng)+1,r8)-0.5_r8) THEN
+            track(iygrd,nfp1,l)=REAL(Mm(ng)) 
           END IF
+          IF (track(iygrd,nfp1,l).lt.0.5_r8) THEN
+            track(iygrd,nfp1,l)=1.0_r8 
+          END IF
+! Original ROMS code
+!          IF ((track(iygrd,nfp1,l).ge.REAL(Mm(ng)+1,r8)-0.5_r8).or.     &
+!     &        (track(iygrd,nfp1,l).lt.0.5_r8)) THEN
+!            bounded(l)=.FALSE.
+!          END IF
         END IF
       END DO
 # endif

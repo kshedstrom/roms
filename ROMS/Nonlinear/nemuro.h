@@ -242,9 +242,9 @@
 !  Compute fish contributions to plankton components
 !  TO DO: SPREAD CONTRIBUTION TO ADJACENT CELLS!
         DO lflt=1,Nfish(ng)
-          Ir=INT(FISHES(ng)%track(ixgrd,nnew,lflt)+0.5_r8)
-          Jr=INT(FISHES(ng)%track(iygrd,nnew,lflt)+0.5_r8)
-          Kr=INT(FISHES(ng)%track(izgrd,nnew,lflt)+0.5_r8)
+          Ir=INT(FISHES(ng)%track(ixgrd,nnew,lflt))
+          Jr=INT(FISHES(ng)%track(iygrd,nnew,lflt))
+          Kr=INT(FISHES(ng)%track(izgrd,nnew,lflt))
           IF ((Ir.ge.Istr).and.(Ir.le.Iend).and.                        &
      &        (Jr.ge.Jstr).and.(Jr.le.Jend).and.                        &
      &        FISHES(ng)%alive(lflt)) THEN

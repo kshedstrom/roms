@@ -60,6 +60,10 @@
 !          ifsh = i+FISHES(ng) % age_base(isp,Nyearclass(ng)-1)
           FISHES(ng) % alive(ifsh) = .FALSE.
           FISHES(ng) % bounded(ifsh) = .FALSE.
+          FISHES(ng) % bioenergy(ifwwt,ifsh) = -99.0_r8
+          FISHES(ng) % bioenergy(ifworth,ifsh) = -99.0_r8
+          FISHES(ng) % bioenergy(ifage,ifsh) = -99.0_r8
+          FISHES(ng) % lifestage(ifsh) = 0
           DO j=0,NFT
             FISHES(ng) % track(ixgrd,j,ifsh) = -99.
             FISHES(ng) % track(iygrd,j,ifsh) = -99.

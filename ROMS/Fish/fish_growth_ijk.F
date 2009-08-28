@@ -1,5 +1,5 @@
 #include "cppdefs.h"
-#if defined NONLINEAR && defined FLOATS && defined NEMURO_SAN
+#if defined NONLINEAR && defined NEMURO_SAN
       SUBROUTINE fish_growth_ijk (ng, Ir, Jr, Kr, nnew,                 &
      &                                Fweight, Uswim, Fgrowth)
 !
