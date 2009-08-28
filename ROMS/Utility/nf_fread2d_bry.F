@@ -25,6 +25,7 @@
 !     UBij         IJ-dimension Upper bound (integer)                  !
 !     Nrec         Number of boundary records (integer)                !
 !     Ascl         Factor to scale field before writing (real)         !
+!     Aoff         Offset to field before writing (real)               !
 !                                                                      !
 !  On Output:                                                          !
 !                                                                      !
@@ -45,7 +46,7 @@
      &                         ncvname, ncvarid,                        &
      &                         tindex, gtype,                           &
      &                         LBij, UBij, Nrec,                        &
-     &                         Ascl, Amin, Amax,                        &
+     &                         Ascl, Aoff, Amin, Amax,                  &
      &                         A)  RESULT(status)
 !***********************************************************************
 !
@@ -67,6 +68,7 @@
       integer, intent(in) :: LBij, UBij, Nrec
 
       real(r8), intent(in)  :: Ascl
+      real(r8), intent(in)  :: Aoff
       real(r8), intent(out) :: Amin
       real(r8), intent(out) :: Amax
 
@@ -182,7 +184,7 @@
             IF (wrk(i).ge.spval_check) THEN
               wrk(i)=0.0_r8
             ELSE
-              wrk(i)=Ascl*wrk(i)
+              wrk(i)=Ascl*wrk(i) + Aoff
               Amin=MIN(Amin,wrk(i))
               Amax=MAX(Amax,wrk(i))
             END IF

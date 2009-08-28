@@ -29,6 +29,7 @@
 !     LBk        K-dimension Lower bound (integer)                     !
 !     UBk        K-dimension Upper bound (integer)                     !
 !     Ascl       Factor to scale field after reading (real).           !
+!     Aoff       Offset to field after reading (real).           !
 !     Amask      Land/Sea mask, if any (real 3D array)                 !
 !                                                                      !
 !  On Output:                                                          !
@@ -51,7 +52,7 @@
      &                     ncvname, ncvarid,                            &
      &                     tindex, gtype, Vsize,                        &
      &                     LBi, UBi, LBj, UBj, LBk, UBk,                &
-     &                     Ascl, Amin, Amax,                            &
+     &                     Ascl, Aoff, Amin, Amax,                      &
 # ifdef MASKING
      &                     Amask,                                       &
 # endif
@@ -79,6 +80,7 @@
       integer, intent(in) :: Vsize(4)
 
       real(r8), intent(in)  :: Ascl
+      real(r8), intent(in)  :: Aoff
       real(r8), intent(out) :: Amin
       real(r8), intent(out) :: Amax
 
@@ -246,7 +248,7 @@
             IF (wrk(i).ge.spval_check) THEN
               wrk(i)=0.0_r8                      ! masked with _FillValue
             ELSE
-              wrk(i)=Ascl*wrk(i)
+              wrk(i)=Ascl*wrk(i) + Aoff
               Amin=MIN(Amin,wrk(i))
               Amax=MAX(Amax,wrk(i))
             END IF
@@ -367,7 +369,7 @@
             IF (wrk(i).ge.spval_check) THEN
               wrk(i)=0.0_r8             ! set _FillValue to zero
             ELSE
-              wrk(i)=Ascl*wrk(i)
+              wrk(i)=Ascl*wrk(i) + Aoff
               Amin=MIN(Amin,wrk(i))
               Amax=MAX(Amax,wrk(i))
             END IF
@@ -424,7 +426,7 @@
      &                     ncvname, ncvarid,                            &
      &                     tindex, gtype, Vsize,                        &
      &                     LBi, UBi, LBj, UBj, LBk, UBk,                &
-     &                     Ascl, Amin, Amax,                            &
+     &                     Ascl, Aoff, Amin, Amax,                      &
 # ifdef MASKING
      &                     Amask,                                       &
 # endif
@@ -457,6 +459,7 @@
       integer, intent(in) :: Vsize(4)
 
       real(r8), intent(in)  :: Ascl
+      real(r8), intent(in)  :: Aoff
       real(r8), intent(out) :: Amin
       real(r8), intent(out) :: Amax
 
@@ -639,7 +642,7 @@
               IF (wrk(i).ge.spval_check) THEN
                 wrk(i)=0.0_r8                    ! masked with _FillValue
               ELSE
-                wrk(i)=Ascl*wrk(i)
+                wrk(i)=Ascl*wrk(i) + Aoff
                 Amin=MIN(Amin,wrk(i))
                 Amax=MAX(Amax,wrk(i))
               END IF

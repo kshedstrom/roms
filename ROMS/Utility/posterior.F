@@ -1923,7 +1923,7 @@
 
       integer, dimension(4) :: Vsize
 
-      real(r8) :: Fmin, Fmax, scale
+      real(r8) :: Fmin, Fmax, scale, offset
 
 # include "set_bounds.h"
 !
@@ -1955,6 +1955,7 @@
 !
       gtype=r2dvar
       scale=1.0_r8
+      offset=0.0_r8
       CALL netcdf_inq_varid (ng, model, ncname, Vname(1,idFsur),        &
      &                       ncid, varid)
       IF (exit_flag.ne.NoError) RETURN
@@ -1963,7 +1964,7 @@
      &                  Vname(1,idFsur), varid,                         &
      &                  rec, gtype, Vsize,                              &
      &                  LBi, UBi, LBj, UBj,                             &
-     &                  scale, Fmin, Fmax,                              &
+     &                  scale, offset, Fmin, Fmax,                      &
 # ifdef MASKING
      &                  rmask,                                          &
 # endif
@@ -1985,6 +1986,7 @@
         ifield=idSbry(isFsur)
         gtype=r2dvar
         scale=1.0_r8
+        offset=0.0_r8
         CALL netcdf_inq_varid (ng, model, ncname, Vname(1,ifield),      &
      &                         ncid, varid)
         IF (exit_flag.ne.NoError) RETURN
@@ -1993,7 +1995,7 @@
      &                         Vname(1,ifield), varid,                  &
      &                         rec, gtype,                              &
      &                         LBij, UBij, Nbrec(ng),                   &
-     &                         scale, Fmin, Fmax,                       &
+     &                         scale, offset, Fmin, Fmax,               &
      &                         s_zeta_obc(:,:,:,Lwrk))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
@@ -2011,6 +2013,7 @@
 !
       gtype=u2dvar
       scale=1.0_r8
+      offset=0.0_r8
       CALL netcdf_inq_varid (ng, model, ncname, Vname(1,idUbar),        &
      &                       ncid, varid)
       IF (exit_flag.ne.NoError) RETURN
@@ -2019,7 +2022,7 @@
      &                  Vname(1,idUbar), varid,                         &
      &                  rec, gtype, Vsize,                              &
      &                  LBi, UBi, LBj, UBj,                             &
-     &                  scale, Fmin, Fmax,                              &
+     &                  scale, offset, Fmin, Fmax,                      &
 #  ifdef MASKING
      &                  umask,                                          &
 #  endif
@@ -2037,6 +2040,7 @@
 !
       gtype=v2dvar
       scale=1.0_r8
+      offset=0.0_r8
       CALL netcdf_inq_varid (ng, model, ncname, Vname(1,idVbar),        &
      &                       ncid, varid)
       IF (exit_flag.ne.NoError) RETURN
@@ -2045,7 +2049,7 @@
      &                  Vname(1,idVbar), varid,                         &
      &                  rec, gtype, Vsize,                              &
      &                  LBi, UBi, LBj, UBj,                             &
-     &                  scale, Fmin, Fmax,                              &
+     &                  scale, offset, Fmin, Fmax,                      &
 #  ifdef MASKING
      &                  vmask,                                          &
 #  endif
@@ -2067,6 +2071,7 @@
         ifield=idSbry(isUbar)
         gtype=u2dvar
         scale=1.0_r8
+        offset=0.0_r8
         CALL netcdf_inq_varid (ng, model, ncname, Vname(1,ifield),      &
      &                         ncid, varid)
         IF (exit_flag.ne.NoError) RETURN
@@ -2075,7 +2080,7 @@
      &                         Vname(1,ifield), varid,                  &
      &                         rec, gtype,                              &
      &                         LBij, UBij, Nbrec(ng),                   &
-     &                         scale, Fmin, Fmax,                       &
+     &                         scale, offset, Fmin, Fmax,               &
      &                         s_ubar_obc(:,:,:,Lwrk))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
@@ -2093,6 +2098,7 @@
         ifield=idSbry(isVbar)
         gtype=u2dvar
         scale=1.0_r8
+        offset=0.0_r8
         CALL netcdf_inq_varid (ng, model, ncname, Vname(1,ifield),      &
      &                         ncid, varid)
         IF (exit_flag.ne.NoError) RETURN
@@ -2101,7 +2107,7 @@
      &                         Vname(1,ifield), varid,                  &
      &                         rec, gtype,                              &
      &                         LBij, UBij, Nbrec(ng),                   &
-     &                         scale, Fmin, Fmax,                       &
+     &                         scale, offset, Fmin, Fmax,               &
      &                         s_vbar_obc(:,:,:,Lwrk))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
@@ -2119,6 +2125,7 @@
 !
       gtype=u3dvar
       scale=1.0_r8
+      offset=0.0_r8
       CALL netcdf_inq_varid (ng, model, ncname, Vname(1,idUsms),        &
      &                       ncid, varid)
       IF (exit_flag.ne.NoError) RETURN
@@ -2127,7 +2134,7 @@
      &                  Vname(1,idUsms), varid,                         &
      &                  rec, gtype, Vsize,                              &
      &                  LBi, UBi, LBj, UBj, 1, Nfrec(ng),               &
-     &                  scale, Fmin, Fmax,                              &
+     &                  scale, offset, Fmin, Fmax,                      &
 #  ifdef MASKING
      &                  umask,                                          &
 #  endif
@@ -2143,6 +2150,7 @@
 
       gtype=v3dvar
       scale=1.0_r8
+      offset=0.0_r8
       CALL netcdf_inq_varid (ng, model, ncname, Vname(1,idVsms),        &
      &                       ncid, varid)
       IF (exit_flag.ne.NoError) RETURN
@@ -2151,7 +2159,7 @@
      &                  Vname(1,idVsms), varid,                         &
      &                  rec, gtype, Vsize,                              &
      &                  LBi, UBi, LBj, UBj, 1, Nfrec(ng),               &
-     &                  scale, Fmin, Fmax,                              &
+     &                  scale, offset, Fmin, Fmax,                      &
 #  ifdef MASKING
      &                  vmask,                                          &
 #  endif
@@ -2172,6 +2180,7 @@
 !
       gtype=u3dvar
       scale=1.0_r8
+      offset=0.0_r8
       CALL netcdf_inq_varid (ng, model, ncname, Vname(1,idUvel),        &
      &                       ncid, varid)
       IF (exit_flag.ne.NoError) RETURN
@@ -2180,7 +2189,7 @@
      &                  Vname(1,idUvel), varid,                         &
      &                  rec, gtype, Vsize,                              &
      &                  LBi, UBi, LBj, UBj, 1, N(ng),                   &
-     &                  scale, Fmin, Fmax,                              &
+     &                  scale, offset, Fmin, Fmax,                      &
 #  ifdef MASKING
      &                  umask,                                          &
 #  endif
@@ -2202,6 +2211,7 @@
         ifield=idSbry(isUvel)
         gtype=u3dvar
         scale=1.0_r8
+        offset=0.0_r8
         CALL netcdf_inq_varid (ng, model, ncname, Vname(1,ifield),      &
      &                         ncid, varid)
         IF (exit_flag.ne.NoError) RETURN
@@ -2210,7 +2220,7 @@
      &                         Vname(1,ifield), varid,                  &
      &                         rec, gtype,                              &
      &                         LBij, UBij, 1, N(ng), Nbrec(ng),         &
-     &                         scale, Fmin, Fmax,                       &
+     &                         scale, offset, Fmin, Fmax,               &
      &                         s_u_obc(:,:,:,:,Lwrk))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
@@ -2227,6 +2237,7 @@
 !
       gtype=v3dvar
       scale=1.0_r8
+      offset=0.0_r8
       CALL netcdf_inq_varid (ng, model, ncname, Vname(1,idVvel),        &
      &                       ncid, varid)
       IF (exit_flag.ne.NoError) RETURN
@@ -2235,7 +2246,7 @@
      &                  Vname(1,idVvel), varid,                         &
      &                  rec, gtype, Vsize,                              &
      &                  LBi, UBi, LBj, UBj, 1, N(ng),                   &
-     &                  scale, Fmin, Fmax,                              &
+     &                  scale, offset, Fmin, Fmax,                      &
 #  ifdef MASKING
      &                  vmask,                                          &
 #  endif
@@ -2257,6 +2268,7 @@
         ifield=idSbry(isVvel)
         gtype=u3dvar
         scale=1.0_r8
+        offset=0.0_r8
         CALL netcdf_inq_varid (ng, model, ncname, Vname(1,ifield),      &
      &                         ncid, varid)
         IF (exit_flag.ne.NoError) RETURN
@@ -2265,7 +2277,7 @@
      &                         Vname(1,ifield), varid,                  &
      &                         rec, gtype,                              &
      &                         LBij, UBij, 1, N(ng), Nbrec(ng),         &
-     &                         scale, Fmin, Fmax,                       &
+     &                         scale, offset, Fmin, Fmax,               &
      &                         s_v_obc(:,:,:,:,Lwrk))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
@@ -2282,6 +2294,7 @@
 !
       gtype=r3dvar
       scale=1.0_r8
+      offset=0.0_r8
       DO it=1,NT(ng)
         CALL netcdf_inq_varid (ng, model, ncname, Vname(1,idTvar(it)),  &
      &                         ncid, varid)
@@ -2291,7 +2304,7 @@
      &                    Vname(1,idTvar(it)), varid,                   &
      &                    rec, gtype, Vsize,                            &
      &                    LBi, UBi, LBj, UBj, 1, N(ng),                 &
-     &                    scale, Fmin, Fmax,                            &
+     &                    scale, offset, Fmin, Fmax,                    &
 #  ifdef MASKING
      &                    rmask,                                        &
 #  endif
@@ -2316,6 +2329,7 @@
           ifield=idSbry(isTvar(it))
           gtype=r3dvar
           scale=1.0_r8
+          offset=0.0_r8
           CALL netcdf_inq_varid (ng, model, ncname, Vname(1,ifield),    &
      &                           ncid, varid)
           IF (exit_flag.ne.NoError) RETURN
@@ -2324,7 +2338,7 @@
      &                           Vname(1,ifield), varid,                &
      &                           rec, gtype,                            &
      &                           LBij, UBij, 1, N(ng), Nbrec(ng),       &
-     &                           scale, Fmin, Fmax,                     &
+     &                           scale, offset, Fmin, Fmax,             &
      &                           s_t_obc(:,:,:,:,Lwrk,it))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
@@ -2343,6 +2357,7 @@
 !
       gtype=r3dvar
       scale=1.0_r8
+      offset=0.0_r8
       DO it=1,NT(ng)
         IF (Lstflux(it,ng)) THEN
           CALL netcdf_inq_varid (ng, model, ncname,                     &
@@ -2353,7 +2368,7 @@
      &                      Vname(1,idTsur(it)), varid,                 &
      &                      rec, gtype, Vsize,                          &
      &                      LBi, UBi, LBj, UBj, 1, Nfrec(ng),           &
-     &                      scale, Fmin, Fmax,                          &
+     &                      scale, offset, Fmin, Fmax,                  &
 #   ifdef MASKING
      &                      rmask,                                      &
 #   endif

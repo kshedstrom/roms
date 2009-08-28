@@ -49,6 +49,7 @@
       integer :: start(4), total(4)
 
       real(r8), parameter :: Fscl = 1.0_r8
+      real(r8), parameter :: Foff = 0.0_r8
 
       real(r8) :: Fmax, Fmin, Tmax, time_scale, tmptime(Ngrids)
 
@@ -112,7 +113,7 @@
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(1,ng),                &
      &                Vname(1,idFsur), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
-     &                Fscl, Fmin, Fmax,                                 &
+     &                Fscl, Foff, Fmin, Fmax,                           &
 # ifdef MASKING
      &                GRID(ng) % rmask,                                 &
 # endif
@@ -134,7 +135,7 @@
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(1,ng),                &
      &                Vname(1,idUbar), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
-     &                Fscl, Fmin, Fmax,                                 &
+     &                Fscl, Foff, Fmin, Fmax,                           &
 # ifdef MASKING
      &                GRID(ng) % umask,                                 &
 # endif
@@ -156,7 +157,7 @@
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(1,ng),                &
      &                Vname(1,idVbar), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
-     &                Fscl, Fmin, Fmax,                                 &
+     &                Fscl, Foff, Fmin, Fmax,                           &
 # ifdef MASKING
      &                GRID(ng) % vmask,                                 &
 # endif
@@ -180,7 +181,7 @@
       status=nf_fread3d(ng, iNLM, ncname, ncFILid(2,ng),                &
      &                Vname(1,idUvel), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj, 1, N(ng),              &
-     &                Fscl, Fmin, Fmax,                                 &
+     &                Fscl, Foff, Fmin, Fmax,                           &
 #  ifdef MASKING
      &                GRID(ng) % umask,                                 &
 #  endif
@@ -203,7 +204,7 @@
       status=nf_fread3d(ng, iNLM, ncname, ncFILid(3,ng),                &
      &                Vname(1,idVvel), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj, 1, N(ng),              &
-     &                Fscl, Fmin, Fmax,                                 &
+     &                Fscl, Foff, Fmin, Fmax,                           &
 #  ifdef MASKING
      &                GRID(ng) % vmask,                                 &
 #  endif
@@ -227,7 +228,7 @@
       status=nf_fread3d(ng, iNLM, ncname, ncFILid(7,ng),                &
      &                Vname(1,idDano), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj, 1, N(ng),              &
-     &                Fscl, Fmin, Fmax,                                 &
+     &                Fscl, Foff, Fmin, Fmax,                           &
 #   ifdef MASKING
      &                GRID(ng) % rmask,                                 &
 #   endif
@@ -248,7 +249,7 @@
         status=nf_fread3d(ng, iNLM, ncname, ncFILid(8,ng),              &
      &                Vname(1,idTvar(itrc)), varid, tindx, gtype,       &
      &                  Vsize, LBi, UBi, LBj, UBj, 1, N(ng),            &
-     &                  Fscl, Fmin, Fmax,                               &
+     &                  Fscl, Foff, Fmin, Fmax,                         &
 #   ifdef MASKING
      &                  GRID(ng) % rmask,                               &
 #   endif
@@ -273,7 +274,7 @@
       status=nf_fread3d(ng, iNLM, ncname, ncFILid(9,ng),                &
      &                Vname(1,idOvel), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj, 0, N(ng),              &
-     &                Fscl, Fmin, Fmax,                                 &
+     &                Fscl, Foff, Fmin, Fmax,                           &
 #   ifdef MASKING
      &                GRID(ng) % rmask,                                 &
 #   endif
@@ -294,7 +295,7 @@
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(1,ng),                &
      &                Vname(1,idHsbl), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
-     &                Fscl, Fmin, Fmax,                                 &
+     &                Fscl, Foff, Fmin, Fmax,                           &
 #   ifdef MASKING
      &                GRID(ng) % rmask,                                 &
 #   endif
@@ -315,7 +316,7 @@
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(1,ng),                &
      &                Vname(1,idHbbl), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
-     &                Fscl, Fmin, Fmax,                                 &
+     &                Fscl, Foff, Fmin, Fmax,                           &
 #   ifdef MASKING
      &                GRID(ng) % rmask,                                 &
 #   endif
@@ -336,7 +337,7 @@
       status=nf_fread3d(ng, iNLM, ncname, ncFILid(6,ng),                &
      &                Vname(1,idVvis), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj, 0, N(ng),              &
-     &                Fscl, Fmin, Fmax,                                 &
+     &                Fscl, Foff, Fmin, Fmax,                           &
 #   ifdef MASKING
      &                GRID(ng) % rmask,                                 &
 #   endif
@@ -357,7 +358,7 @@
       status=nf_fread3d(ng, iNLM, ncname, ncFILid(4,ng),                &
      &                Vname(1,idTdif), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj, 0, N(ng),              &
-     &                Fscl, Fmin, Fmax,                                 &
+     &                Fscl, Foff, Fmin, Fmax,                           &
 #   ifdef MASKING
      &                GRID(ng) % rmask,                                 &
 #   endif
@@ -378,7 +379,7 @@
       status=nf_fread3d(ng, iNLM, ncname, ncFILid(5,ng),                &
      &                Vname(1,idSdif), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj, 0, N(ng),              &
-     &                Fscl, Fmin, Fmax,                                 &
+     &                Fscl, Foff, Fmin, Fmax,                           &
 #   ifdef MASKING
      &                GRID(ng) % rmask,                                 &
 #   endif
@@ -400,7 +401,7 @@
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(1,ng),                &
      &                Vname(1,idTsur(itemp)), varid, tindx, gtype,      &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
-     &                Fscl, Fmin, Fmax,                                 &
+     &                Fscl, Foff, Fmin, Fmax,                           &
 #   ifdef MASKING
      &                GRID(ng) % rmask,                                 &
 #   endif
@@ -421,7 +422,7 @@
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(1,ng),                &
      &                Vname(1,idTsur(isalt)), varid, tindx, gtype,      &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
-     &                Fscl, Fmin, Fmax,                                 &
+     &                Fscl, Foff, Fmin, Fmax,                           &
 #   ifdef MASKING
      &                GRID(ng) % rmask,                                 &
 #   endif
@@ -442,7 +443,7 @@
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(1,ng),                &
      &                Vname(1,idLhea), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
-     &                Fscl, Fmin, Fmax,                                 &
+     &                Fscl, Foff, Fmin, Fmax,                           &
 #   ifdef MASKING
      &                GRID(ng) % rmask,                                 &
 #   endif
@@ -461,7 +462,7 @@
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(1,ng),                &
      &                Vname(1,idShea), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
-     &                Fscl, Fmin, Fmax,                                 &
+     &                Fscl, Foff, Fmin, Fmax,                           &
 #   ifdef MASKING
      &                GRID(ng) % rmask,                                 &
 #   endif
@@ -480,7 +481,7 @@
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(1,ng),                &
      &                Vname(1,idLrad), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
-     &                Fscl, Fmin, Fmax,                                 &
+     &                Fscl, Foff, Fmin, Fmax,                           &
 #   ifdef MASKING
      &                GRID(ng) % rmask,                                 &
 #   endif
@@ -501,7 +502,7 @@
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(1,ng),                &
      &                Vname(1,idSrad), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
-     &                Fscl, Fmin, Fmax,                                 &
+     &                Fscl, Foff, Fmin, Fmax,                           &
 #   ifdef MASKING
      &                GRID(ng) % rmask,                                 &
 #   endif
@@ -524,7 +525,7 @@
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(1,ng),                &
      &                Vname(1,idUsms), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
-     &                Fscl, Fmin, Fmax,                                 &
+     &                Fscl, Foff, Fmin, Fmax,                           &
 #   ifdef MASKING
      &                GRID(ng) % umask,                                 &
 #   endif
@@ -543,7 +544,7 @@
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(1,ng),                &
      &                Vname(1,idVsms), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
-     &                Fscl, Fmin, Fmax,                                 &
+     &                Fscl, Foff, Fmin, Fmax,                           &
 #   ifdef MASKING
      &                GRID(ng) % vmask,                                 &
 #   endif
@@ -565,7 +566,7 @@
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),               &
      &                Vname(1,idUice), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
-     &                Fscl, Fmin, Fmax,                                 &
+     &                Fscl, Foff, Fmin, Fmax,                           &
 #   ifdef MASKING
      &                GRID(ng) % umask,                                 &
 #   endif
@@ -585,7 +586,7 @@
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),               &
      &                Vname(1,idVice), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
-     &                Fscl, Fmin, Fmax,                                 &
+     &                Fscl, Foff, Fmin, Fmax,                           &
 #   ifdef MASKING
      &                GRID(ng) % vmask,                                 &
 #   endif
@@ -605,7 +606,7 @@
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),               &
      &                Vname(1,idAice), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
-     &                Fscl, Fmin, Fmax,                                 &
+     &                Fscl, Foff, Fmin, Fmax,                           &
 #   ifdef MASKING
      &                GRID(ng) % rmask,                                 &
 #   endif
@@ -625,7 +626,7 @@
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),               &
      &                Vname(1,idHice), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
-     &                Fscl, Fmin, Fmax,                                 &
+     &                Fscl, Foff, Fmin, Fmax,                           &
 #   ifdef MASKING
      &                GRID(ng) % rmask,                                 &
 #   endif
@@ -645,7 +646,7 @@
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),               &
      &                Vname(1,idHsno), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
-     &                Fscl, Fmin, Fmax,                                 &
+     &                Fscl, Foff, Fmin, Fmax,                           &
 #   ifdef MASKING
      &                GRID(ng) % rmask,                                 &
 #   endif
@@ -665,7 +666,7 @@
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),               &
      &                Vname(1,idSfwat), varid, tindx, gtype,            &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
-     &                Fscl, Fmin, Fmax,                                 &
+     &                Fscl, Foff, Fmin, Fmax,                           &
 #   ifdef MASKING
      &                GRID(ng) % rmask,                                 &
 #   endif
@@ -685,7 +686,7 @@
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),               &
      &                Vname(1,idTice), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
-     &                Fscl, Fmin, Fmax,                                 &
+     &                Fscl, Foff, Fmin, Fmax,                           &
 #   ifdef MASKING
      &                GRID(ng) % rmask,                                 &
 #   endif
@@ -705,7 +706,7 @@
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),               &
      &                Vname(1,idTimid), varid, tindx, gtype,            &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
-     &                Fscl, Fmin, Fmax,                                 &
+     &                Fscl, Foff, Fmin, Fmax,                           &
 #   ifdef MASKING
      &                GRID(ng) % rmask,                                 &
 #   endif
@@ -725,7 +726,7 @@
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),               &
      &                Vname(1,idAgeice), varid, tindx, gtype,           &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
-     &                Fscl, Fmin, Fmax,                                 &
+     &                Fscl, Foff, Fmin, Fmax,                           &
 #   ifdef MASKING
      &                GRID(ng) % rmask,                                 &
 #   endif
@@ -745,7 +746,7 @@
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),               &
      &                Vname(1,idAgeice), varid, tindx, gtype,           &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
-     &                Fscl, Fmin, Fmax,                                 &
+     &                Fscl, Foff, Fmin, Fmax,                           &
 #   ifdef MASKING
      &                GRID(ng) % rmask,                                 &
 #   endif
@@ -765,7 +766,7 @@
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),               &
      &                Vname(1,idS0mk), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
-     &                Fscl, Fmin, Fmax,                                 &
+     &                Fscl, Foff, Fmin, Fmax,                           &
 #   ifdef MASKING
      &                GRID(ng) % rmask,                                 &
 #   endif
@@ -785,7 +786,7 @@
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),               &
      &                Vname(1,idT0mk), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
-     &                Fscl, Fmin, Fmax,                                 &
+     &                Fscl, Foff, Fmin, Fmax,                           &
 #   ifdef MASKING
      &                GRID(ng) % rmask,                                 &
 #   endif
@@ -805,7 +806,7 @@
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),               &
      &                Vname(1,idWfr), varid, tindx, gtype,              &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
-     &                Fscl, Fmin, Fmax,                                 &
+     &                Fscl, Foff, Fmin, Fmax,                           &
 #   ifdef MASKING
      &                GRID(ng) % rmask,                                 &
 #   endif
@@ -825,7 +826,7 @@
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),               &
      &                Vname(1,idWai), varid, tindx, gtype,              &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
-     &                Fscl, Fmin, Fmax,                                 &
+     &                Fscl, Foff, Fmin, Fmax,                           &
 #   ifdef MASKING
      &                GRID(ng) % rmask,                                 &
 #   endif
@@ -845,7 +846,7 @@
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),               &
      &                Vname(1,idWao), varid, tindx, gtype,              &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
-     &                Fscl, Fmin, Fmax,                                 &
+     &                Fscl, Foff, Fmin, Fmax,                           &
 #   ifdef MASKING
      &                GRID(ng) % rmask,                                 &
 #   endif
@@ -865,7 +866,7 @@
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),               &
      &                Vname(1,idWio), varid, tindx, gtype,              &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
-     &                Fscl, Fmin, Fmax,                                 &
+     &                Fscl, Foff, Fmin, Fmax,                           &
 #   ifdef MASKING
      &                GRID(ng) % rmask,                                 &
 #   endif
@@ -885,7 +886,7 @@
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),               &
      &                Vname(1,idWro), varid, tindx, gtype,              &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
-     &                Fscl, Fmin, Fmax,                                 &
+     &                Fscl, Foff, Fmin, Fmax,                           &
 #   ifdef MASKING
      &                GRID(ng) % rmask,                                 &
 #   endif
@@ -905,7 +906,7 @@
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),               &
      &                Vname(1,idSig11), varid, tindx, gtype,            &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
-     &                Fscl, Fmin, Fmax,                                 &
+     &                Fscl, Foff, Fmin, Fmax,                           &
 #   ifdef MASKING
      &                GRID(ng) % rmask,                                 &
 #   endif
@@ -925,7 +926,7 @@
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),               &
      &                Vname(1,idSig12), varid, tindx, gtype,            &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
-     &                Fscl, Fmin, Fmax,                                 &
+     &                Fscl, Foff, Fmin, Fmax,                           &
 #   ifdef MASKING
      &                GRID(ng) % rmask,                                 &
 #   endif
@@ -945,7 +946,7 @@
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),               &
      &                Vname(1,idSig22), varid, tindx, gtype,            &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
-     &                Fscl, Fmin, Fmax,                                 &
+     &                Fscl, Foff, Fmin, Fmax,                           &
 #   ifdef MASKING
      &                GRID(ng) % rmask,                                 &
 #   endif
@@ -965,7 +966,7 @@
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),               &
      &                Vname(1,idIomflx), varid, tindx, gtype,           &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
-     &                Fscl, Fmin, Fmax,                                 &
+     &                Fscl, Foff, Fmin, Fmax,                           &
 #   ifdef MASKING
      &                GRID(ng) % rmask,                                 &
 #   endif
@@ -985,7 +986,7 @@
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),               &
      &                Vname(1,idTauiw), varid, tindx, gtype,            &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
-     &                Fscl, Fmin, Fmax,                                 &
+     &                Fscl, Foff, Fmin, Fmax,                           &
 #   ifdef MASKING
      &                GRID(ng) % rmask,                                 &
 #   endif
@@ -1005,7 +1006,7 @@
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),               &
      &                Vname(1,idChuiw), varid, tindx, gtype,            &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
-     &                Fscl, Fmin, Fmax,                                 &
+     &                Fscl, Foff, Fmin, Fmax,                           &
 #   ifdef MASKING
      &                GRID(ng) % rmask,                                 &
 #   endif
