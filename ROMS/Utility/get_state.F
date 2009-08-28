@@ -1647,7 +1647,7 @@
 !    &                        Vname(1,idFspwn), varid,                  &
 !    &                        InpRec, gtype, Vsize,                     &
 !    &                        LBi, UBi, LBj, UBj, 1, Nspecies(ng),      &
-     &                        Fscl, Foff, Fmin, Fmax,                   &
+!    &                        Fscl, Foff, Fmin, Fmax,                   &
 # ifdef MASKING
 !    &                        GRID(ng) % rmask,                         &
 # endif
