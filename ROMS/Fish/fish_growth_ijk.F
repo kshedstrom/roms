@@ -70,24 +70,11 @@
 !
 !
 !-----------------------------------------------------------------------
-!  Compute swimming velocity based on food concentration
+!  Compute growth conditions based on food concentration
 !-----------------------------------------------------------------------
 !
       mmol2g=1.0_r8
       g2mmol=1.0_r8/mmol2g
-!      CAL_ZF=2580.0_r8/4460.0_r8           ! age 0-1
-!      CAL_ZF=2580.0_r8/7775.0_r8           ! age 2+ (averge)
-!      K_ZS=1.15_r8
-!      K_ZL=1.15_r8
-!      K_ZP=1.15_r8
-!      a_C=0.642_r8
-!      b_C=0.256_r8
-!      a_F=0.16_r8
-!      a_E=0.10_r8
-!      a_R=0.0033_r8
-!      b_R=0.227_r8
-!      d_R=0.03_r8
-!      a_S=0.175_r8
 !
 ! Comsumption
       C_max=a_C(ng)*Fweight**(-b_C(ng))

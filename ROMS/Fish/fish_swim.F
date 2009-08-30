@@ -108,7 +108,6 @@
       real(r8) :: SZooC, LZooC, PZooC, TZooC, ZooMax
       real(r8) :: Fweight, Fgrowth, Fmort, Ftemp, Fdens, Fpval
       real(r8) :: score, scoreMax, Uswim
-!      real(r8) :: a_A, b_A
       real(r8) :: d_i, d_j, d_ij, d_k, theta_ij, fac, snudg
       real(r8) :: vnudg(1)
       real(r8) :: Fvar, Fvar_opt, Fvar_sigma, var_f, var_g
@@ -124,150 +123,94 @@
       DO i=LBi,UBi
         DO j=LBj,UBj
           IF (fish_count(i,j).gt.0) THEN
+            thisfish => fish_list(i,j) % next
             DO ifish=1,fish_count(i,j)
-!
-              thisfish => fish_list(i,j) % next
               fid = thisfish % fish
+              IF (MyThread(fid).and.bounded(fid).and.                   &
+     &            alive(fid).and.(lifestage(fid).eq.if_adult)) THEN
 !
-              IF (MyThread(fid).and.bounded(fid).and.alive(fid)) THEN
                 Ir=INT(track(ixgrd,itime,fid))
                 Jr=INT(track(iygrd,itime,fid))
                 Kr=INT(track(izgrd,itime,fid))
                 Fweight=bioenergy(ifwwt,fid)
-                IF (lifestage(fid).eq.if_adult) THEN
-! Swimming velocity based on fish weight
-! Uswim relationship is in cm/s
-!                  a_A=15.0_r8
-!                  b_A=0.13_r8
-                  Uswim=a_A(ng)*Fweight**b_A(ng)
+! Swimming velocity based on fish weight (in cm/s)
+                Uswim=a_A(ng)*Fweight**b_A(ng)
 !
 ! -------- FITNESS-BASED SWIMMING BEHAVIOR (RAILSBACK) --------
-                  IF (swimtype(fid).eq.1) THEN
+                IF (swimtype(fid).eq.1) THEN
 !
 ! MISSING HERE: CELL SEARCH RANDOMIZATION
 !
-                    scoreMax=-99.0_r8
-                    IrMax=Ir
-                    JrMax=Jr
-                    KrMax=Kr
-                    DO jj=Jr-1,Jr+1
-                      DO ii=Ir-1,Ir+1
-                        DO kk=MAX(Kr-1,1),MIN(Kr+1,N(ng))
-                          CALL fish_growth_ijk (ng, ii, jj, kk, nnew,   &
-     &                                       Fweight, Uswim, Fgrowth)
+                  scoreMax=-99.0_r8
+                  IrMax=Ir
+                  JrMax=Jr
+                  KrMax=Kr
+                  DO jj=Jr-1,Jr+1
+                    DO ii=Ir-1,Ir+1
+                      DO kk=MAX(Kr-1,1),MIN(Kr+1,N(ng))
+                        CALL fish_growth_ijk (ng, ii, jj, kk, nnew,     &
+     &                                     Fweight, Uswim, Fgrowth)
 ! MISSING HERE: CALL FOR MORTALITY SUBROUTINE
-                          Fmort=0.0_r8
-                          score=exp(Fgrowth)*exp(Fmort)
-                          IF (score.gt.scoreMax) THEN
-                            scoreMax=score
-                            IrMax=ii
-                            JrMax=jj
-                            KrMax=kk
-                          END IF
-                        END DO
+                        Fmort=0.0_r8
+                        score=exp(Fgrowth)*exp(Fmort)
+                        IF (score.gt.scoreMax) THEN
+                          scoreMax=score
+                          IrMax=ii
+                          JrMax=jj
+                          KrMax=kk
+                        END IF
                       END DO
                     END DO
-                    CALL ran1 (snudg)
-                    fac=2.0_r8*(snudg-0.5_r8)
-                    d_i=REAL(IrMax,r8)-track(ixgrd,itime,fid)
-                    d_j=REAL(JrMax,r8)-track(iygrd,itime,fid)
-                    d_k=REAL(KrMax,r8)-track(izgrd,itime,fid)
+                  END DO
+                  CALL ran1 (snudg)
+                  fac=2.0_r8*(snudg-0.5_r8)
+                  d_i=REAL(IrMax,r8)-track(ixgrd,itime,fid)
+                  d_j=REAL(JrMax,r8)-track(iygrd,itime,fid)
+                  d_k=REAL(KrMax,r8)-track(izgrd,itime,fid)
 ! Angle with +-0.5 radians randomness
-                    theta_ij=atan2(d_j,d_i)+0.5_r8*fac
+                  theta_ij=atan2(d_j,d_i)+0.5_r8*fac
 ! Distance with 30% randomness
-                    d_ij=((d_i/pm(Ir,Jr))**2+(d_j/pn(Ir,Jr))**2)**0.5_r8
+                  d_ij=((d_i/pm(Ir,Jr))**2+(d_j/pn(Ir,Jr))**2)**0.5_r8
 ! Uswim is in cm/s, so multiply by 0.01 for m/s)
-                    d_ij=MIN(0.01_r8*Uswim*dt(ng),d_ij)
-                    d_ij=d_ij+0.3_r8*fac*d_ij
+                  d_ij=MIN(0.01_r8*Uswim*dt(ng),d_ij)
+                  d_ij=d_ij+0.3_r8*fac*d_ij
 ! Swim towards best location
-                    track(ixrhs,itime,fid)=d_ij*cos(theta_ij)*          &
-     &                                     pm(Ir,Jr)/dt(ng)
-                    track(iyrhs,itime,fid)=d_ij*sin(theta_ij)*          &
-     &                                     pn(Ir,Jr)/dt(ng)
-                    track(izrhs,itime,fid)=d_k/dt(ng)
+                  track(ixrhs,itime,fid)=d_ij*cos(theta_ij)*            &
+     &                                   pm(Ir,Jr)/dt(ng)
+                  track(iyrhs,itime,fid)=d_ij*sin(theta_ij)*            &
+     &                                   pn(Ir,Jr)/dt(ng)
+                  track(izrhs,itime,fid)=d_k/dt(ng)
 ! Temporary overwrite until vertical motion is working
-                    track(izrhs,itime,fid)=0.0_r8
+                  track(izrhs,itime,fid)=0.0_r8
 !
 ! -------- KINESIS-BASED SWIMMING BEHAVIOR (HUMSTON) --------
-                  ELSE IF (swimtype(fid).eq.2) THEN
+                ELSE IF (swimtype(fid).eq.2) THEN
 !
-                    Ftemp=track(itemp+NFV(ng)-NT(ng),itime,fid)
-!                    Fpval=bioenergy(ifpval,fid)
-                    Fdens=track(ifden,itime,fid)
-                    tcheck=MOD(time(ng)/86400.0_r8,24.0_r8)
+                  Ftemp=track(itemp+NFV(ng)-NT(ng),itime,fid)
+!                  Fpval=bioenergy(ifpval,fid)
+                  Fdens=track(ifden,itime,fid)
 ! Behavior based on temperature
-                    Fvar=Ftemp
-                    Fvar_opt=15.0_r8
-                    Fvar_sigma=3.0_r8
+                  Fvar=Ftemp
+                  Fvar_opt=15.0_r8
+                  Fvar_sigma=3.0_r8
 ! Behavior based on p-value
-!                    Fvar=Fpval
-!                    Fvar_opt=1.0_r8
-!                    Fvar_sigma=0.2_r8
+!                  Fvar=Fpval
+!                  Fvar_opt=1.0_r8
+!                  Fvar_sigma=0.2_r8
 ! Use commented lines below to check behavior based on longitude gradient
-!                    Fvar=track(ixgrd,itime,fid)
-!                    Fvar_opt=15.0_r8
-!                    Fvar_sigma=5.0_r8
-                    itm1=MOD(itime-1+NFT+1,NFT+1)
-                    xdis=track(ixrhs,itm1,fid)*dt(ng)/pm(Ir,Jr)
-                    ydis=track(iyrhs,itm1,fid)*dt(ng)/pn(Ir,Jr)
+!                  Fvar=track(ixgrd,itime,fid)
+!                  Fvar_opt=15.0_r8
+!                  Fvar_sigma=5.0_r8
+                  itm1=MOD(itime-1+NFT+1,NFT+1)
+                  xdis=track(ixrhs,itm1,fid)*dt(ng)/pm(Ir,Jr)
+                  ydis=track(iyrhs,itm1,fid)*dt(ng)/pn(Ir,Jr)
 ! Use xdis, ydis below for purely random motion
-!                    xdis=0.0_r8
-!                    ydis=0.0_r8
+!                  xdis=0.0_r8
+!                  ydis=0.0_r8
 ! Horizontal behavior (updated once daily)
-                    IF ((tcheck.eq.REAL(INT(tcheck)))) THEN
+                  IF (iyesterday(ng).ne.idays(ng)) THEN
 ! Uswim is in cm/s, so multiply by 0.01 for m/s)
-                      dist=0.01_r8*Uswim*dt(ng)
-! Compute random displacements
-                      epsd=(0.5_r8*dist**2)**0.5_r8
-                      epsd_sigma=0.5_r8*dist
-                      lflag=.TRUE.
-                      DO WHILE (lflag)
-                        CALL nrng (iseed, vnudg(:), 1, ierr)
-                        IF (ABS(vnudg(1)).le.3.0_r8) lflag=.FALSE.
-                      END DO
-                      ee=vnudg(1)*epsd_sigma+epsd
-                      CALL ran1 (snudg)
-                      IF (snudg.lt.0.5_r8) epsx=-ee
-                      IF (snudg.ge.0.5_r8) epsx=ee
-                      lflag=.TRUE.
-                      DO WHILE (lflag)
-                        CALL nrng (iseed, vnudg(:), 1, ierr)
-                        IF (ABS(vnudg(1)).le.3.0_r8) lflag=.FALSE.
-                      END DO
-                      ee=vnudg(1)*epsd_sigma+epsd
-                      CALL ran1 (snudg)
-                      IF (snudg.lt.0.5_r8) epsy=-ee
-                      IF (snudg.ge.0.5_r8) epsy=ee
-! Compute happiness-based  displacements
-                      fac=EXP(-0.5_r8*((Fvar-Fvar_opt)/Fvar_sigma)**2)
-                      h1=0.75_r8
-                      h2=0.9_r8
-                      var_f=h1*fac
-                      var_g=1.0_r8-h2*fac
-                      f_xdis=xdis*var_f
-                      g_epsx=epsx*var_g
-                      f_ydis=ydis*var_f
-                      g_epsy=epsy*var_g
-                      xdis=f_xdis+g_epsx
-                      ydis=f_ydis+g_epsy
-                    END IF
-! Reflect if hits land using density anomaly
-                    IF (Fdens.eq.0.0_r8) THEN
-                      xdis=-1.0_r8*xdis
-                      ydis=-1.0_r8*ydis
-                    END IF
-! Swim towards best location
-                    track(ixrhs,itime,fid)=xdis*pm(Ir,Jr)/dt(ng)
-                    track(iyrhs,itime,fid)=ydis*pn(Ir,Jr)/dt(ng)
-! Vertical behavior (update at every time step)
-                    zdis=track(izrhs,itm1,fid)*dt(ng)
-! Use zdis below for purely random motion
-!                    zdis=0.0_r8
-! Uswim is in cm/s, so multiply by 0.01 for m/s)
-!              dist=0.01_r8*Uswim*dt(ng)
-! Max distance is 100m, or total water depth (whichever is less)
-      !              dist=min(1.0_r8,-GRID(ng)%z_w(Ir,Jr,1))
-                    dist=0.33_r8
+                    dist=0.01_r8*Uswim*dt(ng)
 ! Compute random displacements
                     epsd=(0.5_r8*dist**2)**0.5_r8
                     epsd_sigma=0.5_r8*dist
@@ -278,27 +221,77 @@
                     END DO
                     ee=vnudg(1)*epsd_sigma+epsd
                     CALL ran1 (snudg)
-                    IF (snudg.lt.0.5_r8) epsz=-ee
-                    IF (snudg.ge.0.5_r8) epsz=ee
+                    IF (snudg.lt.0.5_r8) epsx=-ee
+                    IF (snudg.ge.0.5_r8) epsx=ee
+                    lflag=.TRUE.
+                    DO WHILE (lflag)
+                      CALL nrng (iseed, vnudg(:), 1, ierr)
+                      IF (ABS(vnudg(1)).le.3.0_r8) lflag=.FALSE.
+                    END DO
+                    ee=vnudg(1)*epsd_sigma+epsd
+                    CALL ran1 (snudg)
+                    IF (snudg.lt.0.5_r8) epsy=-ee
+                    IF (snudg.ge.0.5_r8) epsy=ee
 ! Compute happiness-based  displacements
                     fac=EXP(-0.5_r8*((Fvar-Fvar_opt)/Fvar_sigma)**2)
                     h1=0.75_r8
                     h2=0.9_r8
                     var_f=h1*fac
                     var_g=1.0_r8-h2*fac
-                    f_zdis=zdis*var_f
-                    g_epsz=epsz*var_g
-                    zdis=f_zdis+g_epsz
-! Swim towards best location
-                    track(izrhs,itime,fid)=zdis/dt(ng)
-! Temporary overwrite until vertical motion is working
-                    track(izrhs,itime,fid)=0.0_r8
-!
+                    f_xdis=xdis*var_f
+                    g_epsx=epsx*var_g
+                    f_ydis=ydis*var_f
+                    g_epsy=epsy*var_g
+                    xdis=f_xdis+g_epsx
+                    ydis=f_ydis+g_epsy
                   END IF
-!
+! Reflect if hits land using density anomaly
+                  IF (Fdens.eq.0.0_r8) THEN
+                    xdis=-1.0_r8*xdis
+                    ydis=-1.0_r8*ydis
+                  END IF
+! Swim towards best location
+                  track(ixrhs,itime,fid)=xdis*pm(Ir,Jr)/dt(ng)
+                  track(iyrhs,itime,fid)=ydis*pn(Ir,Jr)/dt(ng)
+! Vertical behavior (update at every time step)
+                  zdis=track(izrhs,itm1,fid)*dt(ng)
+! Use zdis below for purely random motion
+!                  zdis=0.0_r8
+! Uswim is in cm/s, so multiply by 0.01 for m/s)
+!            dist=0.01_r8*Uswim*dt(ng)
+! Max distance is 100m, or total water depth (whichever is less)
+      !            dist=min(1.0_r8,-GRID(ng)%z_w(Ir,Jr,1))
+                  dist=0.33_r8
+! Compute random displacements
+                  epsd=(0.5_r8*dist**2)**0.5_r8
+                  epsd_sigma=0.5_r8*dist
+                  lflag=.TRUE.
+                  DO WHILE (lflag)
+                    CALL nrng (iseed, vnudg(:), 1, ierr)
+                    IF (ABS(vnudg(1)).le.3.0_r8) lflag=.FALSE.
+                  END DO
+                  ee=vnudg(1)*epsd_sigma+epsd
+                  CALL ran1 (snudg)
+                  IF (snudg.lt.0.5_r8) epsz=-ee
+                  IF (snudg.ge.0.5_r8) epsz=ee
+! Compute happiness-based  displacements
+                  fac=EXP(-0.5_r8*((Fvar-Fvar_opt)/Fvar_sigma)**2)
+                  h1=0.75_r8
+                  h2=0.9_r8
+                  var_f=h1*fac
+                  var_g=1.0_r8-h2*fac
+                  f_zdis=zdis*var_f
+                  g_epsz=epsz*var_g
+                  zdis=f_zdis+g_epsz
+! Swim towards best location
+                  track(izrhs,itime,fid)=zdis/dt(ng)
+! Temporary overwrite until vertical motion is working
+                  track(izrhs,itime,fid)=0.0_r8
+
                 END IF
-              END IF
 !
+              END IF
+              thisfish => thisfish % next
             END DO
           END IF
         END DO

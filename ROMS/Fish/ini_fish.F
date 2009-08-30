@@ -134,6 +134,9 @@
 #  ifdef SOLVE3D
               FISHES(ng)%track(izgrd,j,fid) =                           &
      &                  FISHES(ng)%Tinfo(izgrd,fid)
+              FISHES(ng)%track(ixrhs,j,fid)=0.0_r8
+              FISHES(ng)%track(iyrhs,j,fid)=0.0_r8
+              FISHES(ng)%track(izrhs,j,fid)=0.0_r8
 #  endif
             END DO
             FISHES(ng)%bioenergy(ifwwt,fid)=Fwwght0*(snudg+0.5_r8)
