@@ -80,7 +80,7 @@
       integer :: Vsize(4)
 
       real(r8) :: Clength, Fmax, Fmin, Tdelta, Tend
-      real(r8) :: Tmax, Tmin, Tmono, Tscale, Tstr, scale, offset
+      real(r8) :: Tmax, Tmin, Tmono, Tscale, Tstr, scale
       real(r8) :: Fval, Tval
 
       character (len=14) :: t_code
@@ -149,9 +149,6 @@
               IF (TRIM(var_Aname(i)).eq.'scale_factor') THEN
                 scale=var_Afloat(i)
                 Fscale(ifield,ng)=Fscale(ifield,ng)*scale
-              ELSE IF (TRIM(var_Aname(i)).eq.'add_offset') THEN
-                offset=var_Afloat(i)
-                Foffset(ifield,ng)=Foffset(ifield,ng)+offset
               ELSE IF (TRIM(var_Aname(i)).eq.'water_points') THEN
                 Iinfo(1,ifield,ng)=-ABS(Iinfo(1,ifield,ng))
                 Vtype=Iinfo(1,ifield,ng)
@@ -441,8 +438,7 @@
      &                            Vname(1,ifield), Vid,                 &
      &                            0, gtype, Vsize,                      &
      &                            LBi, UBi, LBj, UBj, 1, Irec,          &
-     &                            Fscale(ifield,ng), Foffset(ifield,ng) &
-     &                            Fmin, Fmax,                           &
+     &                            Fscale(ifield,ng), Fmin, Fmax,        &
 # ifdef MASKING
      &                            Fmask,                                &
 # endif
@@ -452,8 +448,7 @@
      &                            Vname(1,ifield), Vid,                 &
      &                            Trec, Vtype, Vsize,                   &
      &                            LBi, UBi, LBj, UBj,                   &
-     &                            Fscale(ifield,ng), Foffset(ifield,ng) &
-     &                            Fmin, Fmax,                           &
+     &                            Fscale(ifield,ng), Fmin, Fmax,        &
 # ifdef MASKING
      &                            Fmask,                                &
 # endif
@@ -465,8 +460,7 @@
      &                              ncid = ncid,                        &
      &                              start = (/Trec/),                   &
      &                              total = (/1/))
-              Fpoint(Tindex,ifield,ng)=Fval*Fscale(ifield,ng) +         &
-     &                                 Foffset(ifield,ng)
+              Fpoint(Tindex,ifield,ng)=Fval*Fscale(ifield,ng)
             END IF
             IF (exit_flag.ne.NoError) THEN
               IF (Master) WRITE (stdout,40) TRIM(Vname(1,ifield)), Trec
