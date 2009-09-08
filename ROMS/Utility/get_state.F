@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       SUBROUTINE get_state (ng, model, msg, ncname, IniRec, Tindex)
 !
-!svn $Id: get_state.F 1038 2009-08-11 22:29:40Z kate $
+!svn $Id: get_state.F 1056 2009-09-08 18:51:43Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !

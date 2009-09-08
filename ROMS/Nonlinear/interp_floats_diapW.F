@@ -52,7 +52,7 @@
 !***********************************************************************
       SUBROUTINE interp_floats_diapW (ng, LBi, UBi, LBj, UBj, LBk, UBk, &
      &                          Lstr, Lend, itime, ifield,              &
-     &                          gtype, maskit, nudg,                    &
+     &                          gtype, maskit, Fspval, nudg,            &
      &                          pm, pn,                                 &
 # ifdef SOLVE3D
      &                          Hz,                                     &
@@ -73,6 +73,7 @@
       integer, intent(in) :: ng, LBi, UBi, LBj, UBj, LBk, UBk
       integer, intent(in) :: Lstr, Lend, itime, ifield, gtype
 
+      real(r8), intent(in) :: Fspval
       logical, intent(in) :: maskit
       logical, intent(in) :: MyThread(Lstr:Lend)
       logical, intent(in) :: bounded(Nfloats(ng))
@@ -167,7 +168,7 @@
       DO l=Lstr,Lend
         IF (MyThread(l)) THEN
           IF (.not.bounded(l)) THEN
-            track(ifield,itime,l)=spval
+            track(ifield,itime,l)=Fspval
           ELSE
 !
 !  Calculate indices and weights for vertical interpolation, if any.

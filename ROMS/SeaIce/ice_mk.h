@@ -415,7 +415,7 @@
           stflx(i,j,isalt) = stflx(i,j,isalt)*t(i,j,N(ng),nrhs,isalt)
 ! Salt flux sign is reversed in ice-ocean calculations
 ! but is switched back to normal convention at end of routine
-          stflx(i,j,isalt) = -stflx(i,j,isalt)
+!         stflx(i,j,isalt) = -stflx(i,j,isalt)
         END DO
       END DO
 
@@ -706,7 +706,7 @@
           IF(ai(i,j,linew).LE.min_a(ng)) THEN
              stflx(i,j,itemp) = qao_n(i,j)
           ELSE
-             stflx(i,j,itemp) = (1.0_r8-ai(i,j,linew))*qao_n(i,j)         &
+             stflx(i,j,itemp) = (1.0_r8-ai(i,j,linew))*qao_n(i,j)       &
      &                   +ai(i,j,linew)*qio(i,j)                        &
      &                   -xtot*hfus1(i,j)
           END IF
@@ -733,12 +733,12 @@
 ! Test for case of rainfall on snow/ice and assume 100% drainage
 #ifndef NCEP_FLUXES
           IF (rain(i,j).gt.0._r8.AND.snow_n(i,j).EQ.0._r8) THEN
-            stflx(i,j,isalt) = stflx(i,j,isalt) +                       &
+            stflx(i,j,isalt) = stflx(i,j,isalt) -                       &
      &                         ai(i,j,linew)*rain(i,j)*0.001_r8
           END IF
 #endif
 ! Change sign of stflx(i,j,isalt) back to ROMS convention
-          stflx(i,j,isalt) = -stflx(i,j,isalt)
+!         stflx(i,j,isalt) = -stflx(i,j,isalt)
 
           io_mflux(i,j) = xtot -ai(i,j,linew)*xwai -                    &
      &                          ai(i,j,linew)*wro(i,j) + wfr(i,j)

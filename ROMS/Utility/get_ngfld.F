@@ -4,7 +4,7 @@
      &                      Istr, Iend, Jrec,                           &
      &                      Fout)
 !
-!svn $Id: get_ngfld.F 1022 2009-07-16 22:34:52Z kate $
+!svn $Id: get_ngfld.F 1056 2009-09-08 18:51:43Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !

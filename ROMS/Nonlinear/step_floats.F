@@ -2,7 +2,7 @@
       MODULE step_floats_mod
 #if defined NONLINEAR && defined FLOATS
 !
-!svn $Id: step_floats.F 1039 2009-08-11 22:52:28Z kate $
+!svn $Id: step_floats.F 1048 2009-08-27 01:08:44Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group        John M. Klinck   !
 !    Licensed under a MIT/X style license                              !
@@ -407,7 +407,7 @@
   
      CALL interp_floats_diapW(ng, LBi, UBi, LBj, UBj, 0, N(ng),         &
      &                    Lstr, Lend, nf, izrhs,                        &
-     &                    -w3dvar, Lmask, nudg,                         &
+     &                    -w3dvar, Lmask, spval, nudg,                  &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
      &                    GRID(ng) % Hz,                                &

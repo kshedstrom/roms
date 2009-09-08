@@ -2,7 +2,7 @@
       MODULE rp_rhs3d_mod
 #if defined TL_IOMS && defined SOLVE3D
 !
-!svn $Id: rp_rhs3d.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: rp_rhs3d.F 1057 2009-09-08 19:01:19Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
@@ -944,7 +944,7 @@
      &                             (vclm(i,j,k)-v(i,j,k,nrhs)))+        &
 #  ifdef TL_IOMS
      &                        cff*(Hz(i,j-1,k)+Hz(i,j,k))*              &
-     &                            v(i,j,k,nrhs)*
+     &                            v(i,j,k,nrhs)
 #  endif
          END DO
        END DO

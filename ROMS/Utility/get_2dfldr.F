@@ -7,7 +7,7 @@
 # endif
      &                       Fout)
 !
-!svn $Id: get_2dfldr.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: get_2dfldr.F 1056 2009-09-08 18:51:43Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
