@@ -1,7 +1,7 @@
 !
 !  ROMS/TOMS IO NetCDF variables.
 !
-!svn $Id: varinfo.dat 1047 2009-08-24 23:55:11Z kate $
+!svn $Id: varinfo.dat 1057 2009-09-08 19:01:19Z kate $
 !========================================================= Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                                !
 !    Licensed under a MIT/X style license                                     !
@@ -3663,7 +3663,7 @@
 
 'pCO2'                                             ! Input/Output
   'partial pressure of CO2'
-  'atm'                                            ! [atm]
+  'microatmophere'                                 ! [microatmosphere]
   'pCO2, scalar, series'
   'ocean_time'
   'iDbio2(ipCO2)'

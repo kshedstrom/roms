@@ -2,7 +2,7 @@
 #undef KATE_FOO
       SUBROUTINE inp_par (model)
 !
-!svn $Id: inp_par.F 1038 2009-08-11 22:29:40Z kate $
+!svn $Id: inp_par.F 1057 2009-09-08 19:01:19Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -11097,6 +11097,16 @@
       RETURN
   30  CONTINUE
 !
+!  Turn off the processing of floats if not running long enough to
+!  create a floats file (LdefFLT=.FALSE. because nFLT < ntimes or
+!  nFLT = 0 when nrrec = 0).
+!
+      DO ng=1,Ngrids
+        IF (.not.LdefFLT(ng).and.Lfloats(ng)) THEN
+          Lfloats(ng)=.FALSE.
+        END IF
+      END DO
+!
 !-----------------------------------------------------------------------
 !  Report input parameters.
 !-----------------------------------------------------------------------
@@ -11534,6 +11544,16 @@
       exit_flag=4
       RETURN
  30   CONTINUE
+!
+!  Turn off the processing of stations if not running long enough to
+!  create a stations file (LdefSTA=.FALSE. because nSTA < ntimes or
+!  nSTA = 0 when nrrec = 0).
+!
+      DO ng=1,Ngrids
+        IF (.not.LdefSTA(ng).and.Lstations(ng)) THEN
+          Lstations(ng)=.FALSE.
+        END IF
+      END DO
 !
 !-----------------------------------------------------------------------
 !  Report input parameters.
