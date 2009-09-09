@@ -1,7 +1,7 @@
      SUBROUTINE ice_thermo (ng, tile)
 !
 !*************************************************** W. Paul Budgell ***
-!  Copyright (c) 2009 ROMS/TOMS Group                                  !
+!  Copyright (c) 2002 ROMS/TOMS Group                                  !
 !************************************************** Hernan G. Arango ***
 !                                                                      !
 !  This subroutine evaluates the ice thermodynamic growth and decay    !
@@ -402,6 +402,8 @@
       real(r8) :: d2i
       real(r8) :: d3
 
+      real(r8) :: tt0
+
 # include "set_bounds.h"
 
       DO j=Jstr,Jend
@@ -411,6 +413,9 @@
           salt_top(i,j) = MIN(MAX(0.0_r8,salt_top(i,j)),40.0_r8)
           dztop(i,j)=z_w(i,j,N(ng))-z_r(i,j,N(ng))
           stflx(i,j,isalt) = stflx(i,j,isalt)*t(i,j,N(ng),nrhs,isalt)
+! Salt flux sign is reversed in ice-ocean calculations
+! but is switched back to normal convention at end of routine
+!         stflx(i,j,isalt) = -stflx(i,j,isalt)
         END DO
       END DO
 
@@ -720,6 +725,7 @@
               stflx(i,j,itemp) = 0.0_r8
           END IF
 # endif
+          tt0 = stflx(i,j,isalt)
           stflx(i,j,isalt) = stflx(i,j,isalt)                           &
      &        - (xtot-ai(i,j,linew)*xwai)*(sice-s0mk(i,j))              &
      &        - ai(i,j,linew)*wro(i,j)*s0mk(i,j)
@@ -731,9 +737,12 @@
      &                         ai(i,j,linew)*rain(i,j)*0.001_r8
           END IF
 #endif
-!  io_mflux is ice production rate (+ve for growth)
+! Change sign of stflx(i,j,isalt) back to ROMS convention
+!         stflx(i,j,isalt) = -stflx(i,j,isalt)
+
           io_mflux(i,j) = xtot -ai(i,j,linew)*xwai -                    &
      &                          ai(i,j,linew)*wro(i,j) + wfr(i,j)
+          io_mflux(i,j) = -io_mflux(i,j)
 # ifdef MASKING
           stflx(i,j,isalt) = stflx(i,j,isalt)*rmask(i,j)
           io_mflux(i,j) = io_mflux(i,j)*rmask(i,j)

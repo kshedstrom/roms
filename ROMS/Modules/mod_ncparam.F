@@ -55,7 +55,6 @@
 !               Finfo(8,*)  => minimum value for current data.         !
 !               Finfo(9,*)  => maximum value for current data.         !
 !  Fscale     Scale to convert input data to model units.              !
-!  Foffset    Offset to convert input data to model units.             !
 !  Fpoint     Latest two-time records of input point data.             !
 !  Tintrp     Time (sec) of latest field snapshots used for            !
 !               interpolation.                                         !
@@ -649,7 +648,6 @@
         real(r8) :: Finfo(9,NV,Ngrids)
         real(r8) :: Fpoint(2,NV,Ngrids)
         real(r8) :: Fscale(NV,Ngrids)
-        real(r8) :: Foffset(NV,Ngrids)
         real(r8) :: Tintrp(2,NV,Ngrids)
 
         real(r8), allocatable :: Vtime(:,:,:)
@@ -1262,7 +1260,6 @@
             Finfo(6,i,ng)=0.0_r8
             Finfo(7,i,ng)=0.0_r8
             Fscale(i,ng)=1.0_r8
-            Foffset(i,ng)=0.0_r8
             Fpoint(1,i,ng)=0.0_r8
             Fpoint(2,i,ng)=0.0_r8
             Tintrp(1,i,ng)=0.0_r8
@@ -4732,7 +4729,6 @@
           idTsur(i)=varid
           DO ng=1,Ngrids
             Fscale(varid,ng)=1.0_r8
-            Foffset(varid,ng)=0.0_r8
             Iinfo(1,varid,ng)=r2dvar
           END DO
           WRITE (Vname(1,varid),'(a,a)')                                &
@@ -4790,7 +4786,6 @@
           idSbry(i)=varid
           DO ng=1,Ngrids
             Fscale(varid,ng)=1.0_r8
-            Foffset(varid,ng)=0.0_r8
             Iinfo(1,varid,ng)=0
           END DO
           WRITE (Vname(1,varid),'(a,a)')                                &

@@ -75,7 +75,7 @@
       integer :: Vsize(4)
 
       real(r8) :: Aval, Clength, Fmax, Fmin, Tdelta, Tend
-      real(r8) :: Tmax, Tmin, Tmono, Tscale, Tstr, scale, offset
+      real(r8) :: Tmax, Tmin, Tmono, Tscale, Tstr, scale
       real(r8) :: Tval
 
       real(r8), dimension((UBi-LBi+1)*UBj) :: A
@@ -146,9 +146,6 @@
               IF (TRIM(var_Aname(i)).eq.'scale_factor') THEN
                 scale=var_Afloat(i)
                 Fscale(ifield,ng)=Fscale(ifield,ng)*scale
-              ELSE IF (TRIM(var_Aname(i)).eq.'add_offset') THEN
-                offset=var_Afloat(i)
-                Foffset(ifield,ng)=Foffset(ifield,ng)+offset
               ELSE IF (TRIM(var_Aname(i)).eq.'water_points') THEN
                 Iinfo(1,ifield,ng)=-ABS(Iinfo(1,ifield,ng))
                 Vtype=Iinfo(1,ifield,ng)
@@ -420,13 +417,13 @@
               IF (Master) WRITE (stdout,50) TRIM(Vname(1,ifield)), Trec
               RETURN
             END IF
-            Fmin=A(1)*Fscale(ifield,ng) + Foffset(ifield,ng)
-            Fmax=A(1)*Fscale(ifield,ng) + Foffset(ifield,ng)
+            Fmin=A(1)*Fscale(ifield,ng)
+            Fmax=A(1)*Fscale(ifield,ng)
             ic=0
             DO j=1,Jrec
               DO i=Istr,Iend
                 ic=ic+1
-                Aval=A(ic)*Fscale(ifield,ng) + Foffset(ifield,ng)
+                Aval=A(ic)*Fscale(ifield,ng)
                 Fmin=MIN(Fmin,Aval)
                 Fmax=MAX(Fmax,Aval)
                 Fout(i,j,Tindex)=Aval

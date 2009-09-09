@@ -1493,11 +1493,11 @@
       END SUBROUTINE netcdf_inq_varid
 
       SUBROUTINE netcdf_get_fatt (ng, model, ncname, varid, AttName,    &
-     &                            AttValue, foundit, ncid)
+     &                            AttVal, foundit, ncid)
 !
 !=======================================================================
 !                                                                      !
-!  This routine gets requested floating-point variable attribute(s).   !
+!  This routine gets requested floating-point variable attribute.      !
 !                                                                      !
 !  On Input:                                                           !
 !                                                                      !
@@ -1506,14 +1506,14 @@
 !     ncname       NetCDF file name (string)                           !
 !     varid        Variabke ID of the attribute's variable, or         !
 !                    NF90_GLOBAL for a global attribute (integer)      !
-!     AttName      Attribute name to read (string array)               !
+!     AttName      Attribute name to read (string)                     !
 !     ncid         NetCDF file ID (integer, OPTIONAL)                  !
 !                                                                      !
 !  On Ouput:                                                           !
 !                                                                      !
-!     AttValue     Attribute value (real array)                        !
+!     AttVal       Attribute value (real)                              !
 !     foundit      Switch (T/F) activated when the requested           !
-!                    attribute is found (logical array)                !
+!                    attribute is found (logical)                      !
 !                                                                      !
 !=======================================================================
 !
@@ -1534,18 +1534,18 @@
       integer, intent(in), optional :: ncid
 
       character (len=*), intent(in) :: ncname
-      character (len=*), intent(in) :: AttName(:)
+      character (len=*), intent(in) :: AttName
 
-      logical, intent(out) :: foundit(:)
+      logical, intent(out) :: foundit
 
-      real(r8), intent(out) :: AttValue(:)
+      real(r8), intent(out) :: AttVal
 !
 !  Local variable declarations.
 !
-      integer :: i, j, my_natts, my_ncid, nvatts, status
+      integer :: i, my_natts, my_ncid, status
 
 #if !defined PARALLEL_IO  && defined DISTRIBUTE
-      real(r8), dimension(20) :: buffer
+      real(r8), dimension(4) :: buffer
 #endif
 
       character (len=40) :: my_Aname
@@ -1564,43 +1564,34 @@
         my_ncid=ncid
       END IF
 !
-!  Get number of variable attributes to process.
-!
-      nvatts=UBOUND(AttValue, DIM=1)
-!
 !  Inquire about requested attribute value.
 !
-      DO i=1,nvatts
-        foundit(i)=.FALSE.
-        AttValue(i)=0.0_r8
-      END DO
+      foundit=.FALSE.
 
       IF (InpThread) THEN
         status=nf90_inquire_variable(my_ncid, varid,                    &
      &                               name = my_Vname,                   &
      &                               nAtts = my_natts)
         IF (status.eq.nf90_noerr) THEN
-          DO j=1,my_natts
-            status=nf90_inq_attname(my_ncid, varid, j, my_Aname)
+          DO i=1,my_natts
+            status=nf90_inq_attname(my_ncid, varid, i, my_Aname)
             IF (status.eq.nf90_noerr) THEN
-              DO i=1,nvatts
-                IF (TRIM(my_Aname).eq.TRIM(AttName(i))) THEN
-                  status=nf90_get_att(my_ncid, varid, TRIM(AttName(i)), &
-     &                                AttValue(i))
-                  IF (status.ne.nf90_noerr) THEN
-                    IF (Master) WRITE (stdout,10) TRIM(AttName(i)),     &
-     &                                            TRIM(my_Vname),       &
-     &                                            TRIM(ncname),         &
-     &                                            TRIM(SourceFile)
-                    exit_flag=2
-                    ioerror=status
-                  END IF
-                  foundit(i)=.TRUE.
-                  EXIT
+              IF (TRIM(my_Aname).eq.TRIM(AttName)) THEN
+                status=nf90_get_att(my_ncid, varid, TRIM(AttName),      &
+     &                              AttVal)
+                IF (status.ne.nf90_noerr) THEN
+                  IF (Master) WRITE (stdout,10) TRIM(AttName),          &
+     &                                          TRIM(my_Vname),         &
+     &                                          TRIM(ncname),           &
+     &                                          TRIM(SourceFile)
+                  exit_flag=2
+                  ioerror=status
                 END IF
-              END DO
+                foundit=.TRUE.
+                EXIT
+              END IF
             ELSE
-              IF (Master) WRITE (stdout,20) j,                          &
+              IF (Master) WRITE (stdout,20) TRIM(AttName),              &
      &                                      TRIM(my_Vname),             &
      &                                      TRIM(ncname),               &
      &                                      TRIM(SourceFile)
@@ -1609,6 +1600,13 @@
               EXIT
             END IF
           END DO
+#if !defined PARALLEL_IO  && defined DISTRIBUTE
+          IF (foundit) THEN
+            buffer(1)=1.0_r8
+          ELSE
+            buffer(1)=0.0_r8
+          END IF
+#endif
         ELSE
           IF (Master) WRITE (stdout,30) TRIM(my_Vname),                 &
      &                                  TRIM(ncname),                   &
@@ -1620,31 +1618,16 @@
 
 #if !defined PARALLEL_IO  && defined DISTRIBUTE
 !
-!  Broadcast information to all processors in the group. Pack all
-!  data into a real array for efficient communications.
-!
-      buffer=0.0_r8
-      j=0
-      DO i=1,nvatts
-        buffer(i)=AttValue(i)
-        IF (foundit(i)) THEN
-          buffer(i+nvatts)=1.0_r8
-        END IF
-        j=j+2
-      END DO
-      buffer(j+1)=REAL(exit_flag, r8)
-      buffer(j+2)=REAL(ioerror, r8)
+!  Broadcast information to all processors in the group.
+
+      buffer(2)=REAL(exit_flag, r8)
+      buffer(3)=REAL(ioerror, r8)
+      buffer(4)=AttVal
       CALL mp_bcastf (ng, model, buffer)
-      j=0
-      DO i=1,nvatts
-        AttValue(i)=buffer(i)
-        IF (buffer(i+nvatts).gt.0.0_r8) THEN
-          foundit(i)=.TRUE.
-        END IF
-        j=j+2
-      END DO
-      exit_flag=INT(buffer(j+1))
-      ioerror=INT(buffer(j+2))
+      IF (buffer(1).gt.0.0_r8) foundit=.TRUE.
+      exit_flag=INT(buffer(2))
+      ioerror=INT(buffer(3))
+      AttVal=buffer(4)
 #endif
 !
 !  If applicable, close input NetCDF file.
@@ -1657,8 +1640,8 @@
      &        1x,a,'for variable',1x,a,/,19x,'in input file:',2x,a,/,   &
      &        19x,'call from:',2x,a)
   20  FORMAT (/,' NETCDF_GET_FATT - error while inquiring attribute:',  &
-     &        1x,i2.2,'for variable',1x,a,/,19x,'in input file:',2x,a,  &
-     &        /,19x,'call from:',2x,a)
+     &        1x,a,'for variable',1x,a,/,19x,'in input file:',2x,a,/,   &
+     &        19x,'call from:',2x,a)
   30  FORMAT (/,' NETCDF_GET_FATT - error while inquiring number of ',  &
      &        'attributes for variable:',1x,a,/,19x,'in input file:',   &
      &        2x,a,/,19x,'call from:',2x,a)
@@ -1878,19 +1861,12 @@
 !
 !  Local variable declarations.
 !
-      logical, dimension(3) :: foundit
-
-      integer :: i, my_ncid, status, varid
+      integer :: my_ncid, status, varid
 
       integer, dimension(1) :: Asize
 #if !defined PARALLEL_IO  && defined DISTRIBUTE
       integer, dimension(2) :: ibuffer
 #endif
-      real(r8) :: Afactor, Aoffset, Aspval
-
-      real(r8), dimension(3) :: AttValue
-
-      character (len=12), dimension(3) :: AttName
 !
 !-----------------------------------------------------------------------
 !  Read in a floating-point 1D-array variable.
@@ -1944,55 +1920,6 @@
         CALL mp_bcastf (ng, model, A)
       END IF
 #endif
-!
-!  Check if the following attributes: "scale_factor", "add_offset", and
-!  "_FillValue" are present in the input NetCDF variable:
-!
-!  If the "scale_value" attribute is present, the data is multiplied by
-!  this factor after reading.
-!  If the "add_offset" attribute is present, this value is added to the
-!  data after reading.
-!  If both "scale_factor" and "add_offset" attributes are present, the
-!  data are first scaled before the offset is added.
-!  If the "_FillValue" attribute is present, the data having this value
-!  is treated as missing and it is replaced with zero. This feature it
-!  is usually related with the land/sea masking.
-!
-      AttName(1)='scale_factor'
-      AttName(2)='add_offset  '
-      AttName(3)='_FillValue  '
-
-      CALL netcdf_get_fatt (ng, model, ncname, varid, AttName,          &
-     &                      AttValue, foundit,                          &
-     &                      ncid = ncid)
-
-      IF (exit_flag.eq.NoError) THEN
-        IF (.not.foundit(1)) THEN
-          Afactor=1.0_r8
-        ELSE
-          Afactor=AttValue(1)
-        END IF
-
-        IF (.not.foundit(2)) THEN
-          Aoffset=0.0_r8
-        ELSE
-          Aoffset=AttValue(2)
-        END IF
-
-        IF (.not.foundit(3)) THEN
-          Aspval=spval_check
-        ELSE
-          Aspval=AttValue(3)
-        END IF
-
-        DO i=1,Asize(1)
-          IF (ABS(A(i)).ge.ABS(Aspval)) THEN
-            A(i)=0.0_r8
-          ELSE
-            A(i)=Afactor*A(i)+Aoffset
-          END IF
-        END DO
-      END IF
 !
 !  Compute minimum and maximun values of read variable.
 !
@@ -2083,20 +2010,13 @@
 !
 !  Local variable declarations.
 !
-      logical, dimension(3) :: foundit
-
-      integer :: i, j, my_ncid, status, varid
+      integer :: my_ncid, status, varid
 
       integer, dimension(2) :: Asize
 
 #if !defined PARALLEL_IO  && defined DISTRIBUTE
       integer, dimension(2) :: ibuffer
 #endif
-      real(r8) :: Afactor, Aoffset, Aspval
-
-      real(r8), dimension(3) :: AttValue
-
-      character (len=12), dimension(3) :: AttName
 !
 !-----------------------------------------------------------------------
 !  Read in a floating-point 2D-array variable.
@@ -2150,57 +2070,6 @@
         CALL mp_bcastf (ng, model, A)
       END IF
 #endif
-!
-!  Check if the following attributes: "scale_factor", "add_offset", and
-!  "_FillValue" are present in the input NetCDF variable:
-!
-!  If the "scale_value" attribute is present, the data is multiplied by
-!  this factor after reading.
-!  If the "add_offset" attribute is present, this value is added to the
-!  data after reading.
-!  If both "scale_factor" and "add_offset" attributes are present, the
-!  data are first scaled before the offset is added.
-!  If the "_FillValue" attribute is present, the data having this value
-!  is treated as missing and it is replaced with zero. This feature it
-!  is usually related with the land/sea masking.
-!
-      AttName(1)='scale_factor'
-      AttName(2)='add_offset  '
-      AttName(3)='_FillValue  '
-
-      CALL netcdf_get_fatt (ng, model, ncname, varid, AttName,          &
-     &                      AttValue, foundit,                          &
-     &                      ncid = ncid)
-
-      IF (exit_flag.eq.NoError) THEN
-        IF (.not.foundit(1)) THEN
-          Afactor=1.0_r8
-        ELSE
-          Afactor=AttValue(1)
-        END IF
-
-        IF (.not.foundit(2)) THEN
-          Aoffset=0.0_r8
-        ELSE
-          Aoffset=AttValue(2)
-        END IF
-
-        IF (.not.foundit(3)) THEN
-          Aspval=spval_check
-        ELSE
-          Aspval=AttValue(3)
-        END IF
-
-        DO j=1,Asize(2)
-          DO i=1,Asize(1)
-            IF (ABS(A(i,j)).ge.ABS(Aspval)) THEN
-              A(i,j)=0.0_r8
-            ELSE
-              A(i,j)=Afactor*A(i,j)+Aoffset
-            END IF
-          END DO
-        END DO
-      END IF
 !
 !  Compute minimum and maximun values of read variable.
 !
@@ -2288,20 +2157,13 @@
 !
 !  Local variable declarations.
 !
-      logical, dimension(3) :: foundit
-
-      integer :: i, j, k, my_ncid, status, varid
+      integer :: my_ncid, status, varid
 
       integer, dimension(3) :: Asize
 
 #if !defined PARALLEL_IO  && defined DISTRIBUTE
       integer, dimension(2) :: ibuffer
 #endif
-      real(r8) :: Afactor, Aoffset, Aspval
-
-      real(r8), dimension(3) :: AttValue
-
-      character (len=12), dimension(3) :: AttName
 !
 !-----------------------------------------------------------------------
 !  Read in a floating-point 2D-array variable.
@@ -2357,59 +2219,6 @@
         CALL mp_bcastf (ng, model, A)
       END IF
 #endif
-!
-!  Check if the following attributes: "scale_factor", "add_offset", and
-!  "_FillValue" are present in the input NetCDF variable:
-!
-!  If the "scale_value" attribute is present, the data is multiplied by
-!  this factor after reading.
-!  If the "add_offset" attribute is present, this value is added to the
-!  data after reading.
-!  If both "scale_factor" and "add_offset" attributes are present, the
-!  data are first scaled before the offset is added.
-!  If the "_FillValue" attribute is present, the data having this value
-!  is treated as missing and it is replaced with zero. This feature it
-!  is usually related with the land/sea masking.
-!
-      AttName(1)='scale_factor'
-      AttName(2)='add_offset  '
-      AttName(3)='_FillValue  '
-
-      CALL netcdf_get_fatt (ng, model, ncname, varid, AttName,          &
-     &                      AttValue, foundit,                          &
-     &                      ncid = ncid)
-
-      IF (exit_flag.eq.NoError) THEN
-        IF (.not.foundit(1)) THEN
-          Afactor=1.0_r8
-        ELSE
-          Afactor=AttValue(1)
-        END IF
-
-        IF (.not.foundit(2)) THEN
-          Aoffset=0.0_r8
-        ELSE
-          Aoffset=AttValue(2)
-        END IF
-
-        IF (.not.foundit(3)) THEN
-          Aspval=spval_check
-        ELSE
-          Aspval=AttValue(3)
-        END IF
-
-        DO k=1,Asize(3)
-          DO j=1,Asize(2)
-            DO i=1,Asize(1)
-              IF (ABS(A(i,j,k)).ge.ABS(Aspval)) THEN
-                A(i,j,k)=0.0_r8
-              ELSE
-                A(i,j,k)=Afactor*A(i,j,k)+Aoffset
-              END IF
-            END DO
-          END DO
-        END DO
-      END IF
 !
 !  Compute minimum and maximun values of read variable.
 !
@@ -2497,20 +2306,13 @@
 !
 !  Local variable declarations.
 !
-      logical, dimension(3) :: foundit
-
-      integer :: i, j, k, l, my_ncid, status, varid
+      integer :: my_ncid, status, varid
 
       integer, dimension(4) :: Asize
 
 #if !defined PARALLEL_IO  && defined DISTRIBUTE
       integer, dimension(2) :: ibuffer
 #endif
-      real(r8) :: Afactor, Aoffset, Aspval
-
-      real(r8), dimension(3) :: AttValue
-
-      character (len=12), dimension(3) :: AttName
 !
 !-----------------------------------------------------------------------
 !  Read in a floating-point 2D-array variable.
@@ -2567,61 +2369,6 @@
         CALL mp_bcastf (ng, model, A)
       END IF
 #endif
-!
-!  Check if the following attributes: "scale_factor", "add_offset", and
-!  "_FillValue" are present in the input NetCDF variable:
-!
-!  If the "scale_value" attribute is present, the data is multiplied by
-!  this factor after reading.
-!  If the "add_offset" attribute is present, this value is added to the
-!  data after reading.
-!  If both "scale_factor" and "add_offset" attributes are present, the
-!  data are first scaled before the offset is added.
-!  If the "_FillValue" attribute is present, the data having this value
-!  is treated as missing and it is replaced with zero. This feature it
-!  is usually related with the land/sea masking.
-!
-      AttName(1)='scale_factor'
-      AttName(2)='add_offset  '
-      AttName(3)='_FillValue  '
-
-      CALL netcdf_get_fatt (ng, model, ncname, varid, AttName,          &
-     &                      AttValue, foundit,                          &
-     &                      ncid = ncid)
-
-      IF (exit_flag.eq.NoError) THEN
-        IF (.not.foundit(1)) THEN
-          Afactor=1.0_r8
-        ELSE
-          Afactor=AttValue(1)
-        END IF
-
-        IF (.not.foundit(2)) THEN
-          Aoffset=0.0_r8
-        ELSE
-          Aoffset=AttValue(2)
-        END IF
-
-        IF (.not.foundit(3)) THEN
-          Aspval=spval_check
-        ELSE
-          Aspval=AttValue(3)
-        END IF
-
-        DO l=1,Asize(4)
-          DO k=1,Asize(3)
-            DO j=1,Asize(2)
-              DO i=1,Asize(1)
-                IF (ABS(A(i,j,k,l)).ge.ABS(Aspval)) THEN
-                  A(i,j,k,l)=0.0_r8
-                ELSE
-                  A(i,j,k,l)=Afactor*A(i,j,k,l)+Aoffset
-                END IF
-              END DO
-            END DO
-          END DO
-        END DO
-      END IF
 !
 !  Compute minimum and maximun values of read variable.
 !

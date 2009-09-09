@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       MODULE nf_fread4d_mod
 !
-!svn $Id: nf_fread4d.F 1057 2009-09-08 19:01:19Z kate $
+!svn $Id: nf_fread4d.F 1054 2009-09-04 20:25:40Z arango $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -31,7 +31,6 @@
 !     LBt        Time-dimension Lower bound (integer)                  !
 !     UBt        Time-dimension Upper bound (integer)                  !
 !     Ascl       Factor to scale field after reading (real).           !
-!     Aoff       Offset to field after reading (real).                 !
 !     Amask      Land/Sea mask, if any (real 4D array)                 !
 !                                                                      !
 !  On Output:                                                          !
@@ -54,7 +53,7 @@
      &                     ncvname, ncvarid,                            &
      &                     tindex, gtype, Vsize,                        &
      &                     LBi, UBi, LBj, UBj, LBk, UBk, LBt, UBt,      &
-     &                     Ascl, Aoff, Amin, Amax,                      &
+     &                     Ascl, Amin, Amax,                            &
 # ifdef MASKING
      &                     Amask,                                       &
 # endif
@@ -82,7 +81,6 @@
       integer, intent(in) :: Vsize(4)
 
       real(r8), intent(in)  :: Ascl
-      real(r8), intent(in)  :: Aoff
       real(r8), intent(out) :: Amin
       real(r8), intent(out) :: Amax
 
@@ -497,7 +495,7 @@
      &                     ncvname, ncvarid,                            &
      &                     tindex, gtype, Vsize,                        &
      &                     LBi, UBi, LBj, UBj, LBk, UBk, LBt, UBt,      &
-     &                     Ascl, Aoff, Amin, Amax,                      &
+     &                     Ascl, Amin, Amax,                            &
 # ifdef MASKING
      &                     Amask,                                       &
 # endif
@@ -525,7 +523,6 @@
       integer, intent(in) :: Vsize(4)
 
       real(r8), intent(in)  :: Ascl
-      real(r8), intent(in)  :: Aoff
       real(r8), intent(out) :: Amin
       real(r8), intent(out) :: Amax
 

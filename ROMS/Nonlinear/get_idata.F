@@ -55,7 +55,6 @@
       integer :: gtype, status, varid, Vsize(4)
 
       real(r8), parameter :: Fscl = 1.0_r8
-      real(r8), parameter :: Foff = 0.0_r8
 
       real(r8) :: Fmin, Fmax, Htime
 # endif
@@ -271,7 +270,7 @@
      &                    Vname(1,idFsuH), tideVid(idFsuH,ng),          &
      &                    0, gtype, Vsize,                              &
      &                    LBi, UBi, LBj, UBj, 0, 2*NTC(ng),             &
-     &                    Fscl, Foff, Fmin, Fmax,                       &
+     &                    Fscl, Fmin, Fmax,                             &
 #  ifdef MASKING
      &                    GRID(ng) % rmask,                             &
 #  endif
@@ -296,7 +295,7 @@
      &                    Vname(1,idu2dH), tideVid(idu2dH,ng),          &
      &                    0, gtype, Vsize,                              &
      &                    LBi, UBi, LBj, UBj, 0, 2*NTC(ng),             &
-     &                    Fscl, Foff, Fmin, Fmax,                       &
+     &                    Fscl, Fmin, Fmax,                             &
 #  ifdef MASKING
      &                    GRID(ng) % umask,                             &
 #  endif
@@ -321,7 +320,7 @@
      &                    Vname(1,idv2dH), tideVid(idv2dH,ng),          &
      &                    0, gtype, Vsize,                              &
      &                    LBi, UBi, LBj, UBj, 0, 2*NTC(ng),             &
-     &                    Fscl, Foff, Fmin, Fmax,                       &
+     &                    Fscl, Fmin, Fmax,                             &
 #  ifdef MASKING
      &                    GRID(ng) % vmask,                             &
 #  endif
@@ -348,7 +347,7 @@
      &                    Vname(1,idu3dH), tideVid(idu3dH,ng),          &
      &                    0, gtype, Vsize,                              &
      &                    LBi, UBi, LBj, UBj, 1, N(ng), 0, 2*NTC(ng),   &
-     &                    Fscl, Foff, Fmin, Fmax,                       &
+     &                    Fscl, Fmin, Fmax,                             &
 #   ifdef MASKING
      &                    GRID(ng) % umask,                             &
 #   endif
@@ -373,7 +372,7 @@
      &                    Vname(1,idv3dH), tideVid(idv3dH,ng),          &
      &                    0, gtype, Vsize,                              &
      &                    LBi, UBi, LBj, UBj, 1, N(ng), 0, 2*NTC(ng),   &
-     &                    Fscl, Foff, Fmin, Fmax,                       &
+     &                    Fscl, Fmin, Fmax,                             &
 #   ifdef MASKING
      &                    GRID(ng) % vmask,                             &
 #   endif

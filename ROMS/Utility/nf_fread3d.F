@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       MODULE nf_fread3d_mod
 !
-!svn $Id: nf_fread3d.F 1057 2009-09-08 19:01:19Z kate $
+!svn $Id: nf_fread3d.F 1054 2009-09-04 20:25:40Z arango $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -29,7 +29,6 @@
 !     LBk        K-dimension Lower bound (integer)                     !
 !     UBk        K-dimension Upper bound (integer)                     !
 !     Ascl       Factor to scale field after reading (real).           !
-!     Aoff       Offset to field after reading (real).           !
 !     Amask      Land/Sea mask, if any (real 3D array)                 !
 !                                                                      !
 !  On Output:                                                          !
@@ -52,7 +51,7 @@
      &                     ncvname, ncvarid,                            &
      &                     tindex, gtype, Vsize,                        &
      &                     LBi, UBi, LBj, UBj, LBk, UBk,                &
-     &                     Ascl, Aoff, Amin, Amax,                      &
+     &                     Ascl, Amin, Amax,                            &
 # ifdef MASKING
      &                     Amask,                                       &
 # endif
@@ -80,7 +79,6 @@
       integer, intent(in) :: Vsize(4)
 
       real(r8), intent(in)  :: Ascl
-      real(r8), intent(in)  :: Aoff
       real(r8), intent(out) :: Amin
       real(r8), intent(out) :: Amax
 
@@ -295,7 +293,7 @@
           Amax=-spval
           DO i=1,Npts
             IF (ABS(wrk(i)).ge.ABS(Aspval)) THEN
-              wrk(i)=0.0_r8                      ! masked with _FillValue
+              wrk(i)=0.0_r8                   ! masked with _FillValue
             ELSE
               wrk(i)=Ascl*(Afactor*wrk(i)+Aoffset)
               Amin=MIN(Amin,wrk(i))
@@ -475,7 +473,7 @@
      &                     ncvname, ncvarid,                            &
      &                     tindex, gtype, Vsize,                        &
      &                     LBi, UBi, LBj, UBj, LBk, UBk,                &
-     &                     Ascl, Aoff, Amin, Amax,                      &
+     &                     Ascl, Amin, Amax,                            &
 # ifdef MASKING
      &                     Amask,                                       &
 # endif
@@ -508,7 +506,6 @@
       integer, intent(in) :: Vsize(4)
 
       real(r8), intent(in)  :: Ascl
-      real(r8), intent(in)  :: Aoff
       real(r8), intent(out) :: Amin
       real(r8), intent(out) :: Amax
 
@@ -739,7 +736,7 @@
           IF (status.eq.nf90_noerr) THEN
             DO i=1,Npts
               IF (ABS(wrk(i)).ge.ABS(Aspval)) THEN
-                wrk(i)=0.0_r8                    ! masked with _FillValue
+                wrk(i)=0.0_r8                 ! masked with _FillValue
               ELSE
                 wrk(i)=Ascl*(Afactor*wrk(i)+Aoffset)
                 Amin=MIN(Amin,wrk(i))

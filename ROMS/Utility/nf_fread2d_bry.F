@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       MODULE nf_fread2d_bry_mod
 !
-!svn $Id: nf_fread2d_bry.F 1057 2009-09-08 19:01:19Z kate $
+!svn $Id: nf_fread2d_bry.F 1055 2009-09-07 19:57:50Z arango $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -25,7 +25,6 @@
 !     UBij         IJ-dimension Upper bound (integer)                  !
 !     Nrec         Number of boundary records (integer)                !
 !     Ascl         Factor to scale field before writing (real)         !
-!     Aoff         Offset to field before writing (real)               !
 !                                                                      !
 !  On Output:                                                          !
 !                                                                      !
@@ -46,7 +45,7 @@
      &                         ncvname, ncvarid,                        &
      &                         tindex, gtype,                           &
      &                         LBij, UBij, Nrec,                        &
-     &                         Ascl, Aoff, Amin, Amax,                  &
+     &                         Ascl, Amin, Amax,                        &
      &                         A)  RESULT(status)
 !***********************************************************************
 !
@@ -68,7 +67,6 @@
       integer, intent(in) :: LBij, UBij, Nrec
 
       real(r8), intent(in)  :: Ascl
-      real(r8), intent(in)  :: Aoff
       real(r8), intent(out) :: Amin
       real(r8), intent(out) :: Amax
 

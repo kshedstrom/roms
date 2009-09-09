@@ -199,7 +199,10 @@
 # endif
 # ifdef ICE_SHOREFAST
       real(r8) :: clear
-      real(r8) :: hh
+      real(r8) :: masu
+      real(r8) :: masv 
+      real(r8) :: hu
+      real(r8) :: hv
 # endif
       integer :: i, j
 
@@ -269,13 +272,6 @@
           utauiw(i,j) = sqrt(chu_iw(i,j)*spd)
           utauiw(i,j) = max(utauiw(i,j),1.E-04_r8)
           chuiw(i,j) = kappa*utauiw(i,j)/log(zdz0)
-#   ifdef ICE_SHOREFAST
-          hh = h(i,j)+MIN(Zt_avg1(i,j),0.0_r8)
-          clear = hh-0.9_r8*hi(i,j,liold)
-          clear = MAX(clear,0.0_r8)
-          IF(clear.lt.5.0_r8) chuiw(i,j) =                              &
-     &       (MAX(clear-1.0_r8,0.0_r8)/4.0_r8)*chuiw(i,j)
-#   endif
 #  endif
         END DO
       END DO
@@ -289,6 +285,15 @@
           tauaiu(i,j) = 0.5_r8*aix*(tau_aix_n(i,j)+tau_aix_n(i-1,j))    &
      &                        /rhoice(ng)
 # ifdef ICE_BULK_FLUXES
+#  ifdef ICE_SHOREFAST
+          hu = 0.5_r8*(h(i-1,j)+MIN(Zt_avg1(i-1,j),0.0_r8) +            &
+     &         h(i,j)+MIN(Zt_avg1(i,j),0.0_r8))
+          masu = 0.5_r8*(hi(i,j,liold)+hi(i-1,j,liold))
+          clear = hu-0.9_r8*masu
+          clear = MAX(clear,0.0_r8)
+          IF(clear.lt.5.0_r8) chux =                                    &
+     &       MAX(clear-1.0_r8,0.0_r8)/4.0_r8*chux
+#  endif
           sustr(i,j) = aix*chux*(ui(i,j,liuol)-uwater(i,j))             &
      &                 + (1.0_r8-aix)*sustr_aw(i,j)
 # endif
@@ -304,6 +309,15 @@
           tauaiv(i,j) = 0.5_r8*aiy*(tau_aiy_n(i,j)+tau_aiy_n(i,j-1))    &
      &                        /rhoice(ng)
 # ifdef ICE_BULK_FLUXES
+#  ifdef ICE_SHOREFAST
+           hv = 0.5_r8*(h(i,j-1)+MIN(Zt_avg1(i,j-1),0.0_r8) +           &
+     &          h(i,j)+MIN(Zt_avg1(i,j),0.0_r8))
+           masv = 0.5_r8*(hi(i,j,liold)+hi(i,j-1,liold))
+           clear = hv-0.9_r8*masv
+           clear = MAX(clear,0.0_r8)
+           IF(clear.lt.5.0_r8) chuy =                                   &
+     &       MAX(clear-1.0_r8,0.0_r8)/4.0_r8*chuy
+#  endif
           svstr(i,j) = aiy*chuy*(vi(i,j,liuol)-vwater(i,j))             &
      &                 + (1.0_r8-aiy)*svstr_aw(i,j)
 # endif
