@@ -2294,8 +2294,9 @@
 #ifdef WRT_SSSFLX
           ELSE IF (TRIM(KeyWord).eq.'Hout(idSSSf)') THEN
             IF (idSSSf.eq.0) THEN
-              WRITE (out,280) 'idSSSf'
-              STOP
+              IF (Master) WRITE (out,280) 'idSSSf'
+              exit_flag=5
+              RETURN
             END IF
             Npts=load_l(Nval, Cval, Ngrids, Hout(idSSSf,:))
 #endif
@@ -4369,7 +4370,7 @@
         END IF
       END DO
   10  IF (Master) WRITE (out,30) line
-      exit_flag=5
+      exit_flag=4
       RETURN
   20  CLOSE (inp)
 
@@ -7386,8 +7387,9 @@
           END IF
         END IF
       END DO
-  10  WRITE (out,30) line
-      STOP
+  10  IF (Master) WRITE (out,30) line
+      exit_flag=4
+      RETURN
   20  CLOSE (inp)
 !
 

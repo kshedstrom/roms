@@ -4,7 +4,7 @@
 #if defined TANGENT && defined FOUR_DVAR && defined SOLVE3D && \
     defined ADJUST_BOUNDARY
 !
-!svn $Id: tl_conv_bry3d.F 1012 2009-07-07 20:52:45Z kate $
+!svn $Id: tl_conv_bry3d.F 1009 2009-07-01 23:26:40Z arango $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
