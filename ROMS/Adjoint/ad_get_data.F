@@ -2,7 +2,7 @@
 #ifdef ADJOINT
       SUBROUTINE ad_get_data (ng)
 !
-!svn $Id: ad_get_data.F 983 2009-05-23 01:07:05Z kate $
+!svn $Id: ad_get_data.F 960 2009-03-25 20:08:44Z arango $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !

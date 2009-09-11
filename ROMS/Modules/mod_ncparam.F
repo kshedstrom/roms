@@ -1168,7 +1168,7 @@
 !  Analytical files switch and names.
 !
         Lanafile=.TRUE.
-        DO i=1,47
+        DO i=1,48
           DO j=1,200
             ANANAME(i)(j:j)=' '
           END DO
@@ -2384,9 +2384,9 @@
                 idTvar(iLDeC)=varid
               CASE ('idTvar(iSDeC)')
                 idTvar(iSDeC)=varid
-# if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
-     defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR || \
-     defined SO_SEMI
+#  if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
+      defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR || \
+      defined SO_SEMI
               CASE ('idTads(iTIC_)')
                 idTads(iTIC_)=varid
               CASE ('idTads(iTAlk)')
@@ -2400,9 +2400,9 @@
 # ifdef OXYGEN
               CASE ('idTvar(iOxyg)')
                 idTvar(iOxyg)=varid
-# if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
-     defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR || \
-     defined SO_SEMI
+#  if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
+      defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR || \
+      defined SO_SEMI
               CASE ('idTads(iOxyg)')
                 idTads(iOxyg)=varid
 #  endif
