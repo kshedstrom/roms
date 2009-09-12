@@ -76,7 +76,7 @@
       type(fishnode), target, intent(in) :: fishnodes(Nfish(ng))
 
       logical, intent(in) :: MyThread(Nfish(ng))
-      logical, intent(in) :: bounded(Nfish(ng))
+      logical, intent(inout) :: bounded(Nfish(ng))
       logical, intent(inout) :: alive(Nfish(ng))
       logical, intent(in) :: eatfish(Nfish(ng))
 
@@ -100,9 +100,6 @@
       real(r8) :: dtdays, Csmp, Egst, Excr, Resp, Actv, SDA
       real(r8) :: mmol2g, g2mmol, Cmax, Uswim, Fpred, fac
       real(r8) :: Ndmort, Fdmort, Pdmort, Tdmort
-!      real(r8) :: K_ZS, K_ZL, K_ZP, K_Fish, Fpref, CAL_ZF
-!      real(r8) :: a_C, b_C, a_F, a_E, a_R, b_R, d_R, a_A, b_A, a_S
-!      real(r8) :: Nymort, Fymort
 !
 !-----------------------------------------------------------------------
 !  Compute feeding terms on zooplankton to update growth
@@ -112,29 +109,8 @@
 !
       mmol2g=1.0_r8
       g2mmol=1.0_r8/mmol2g
-! All parameters below should be species dependent
-!      CAL_ZF=2580.0_r8/4460.0_r8           ! age 0-1
-!      CAL_ZF=2580.0_r8/7775.0_r8           ! age 2+ (averge)
-!      K_ZS=1.15_r8
-!      K_ZL=1.15_r8
-!      K_ZP=1.15_r8
-!      K_Fish=0.5_r8
-!      Fpref=1.0_r8
-!      a_C=0.642_r8
-!      b_C=0.256_r8
-!      a_F=0.16_r8
-!      a_E=0.10_r8
-!      a_R=0.0033_r8
-!      b_R=0.227_r8
-!      d_R=0.03_r8
-!      a_A=15.0_r8                ! a_A=3.9_r8
-!      b_A=0.13_r8
-!      a_S=0.175_r8
-! Natural mortality should be age-dependent
-!      Nymort=0.3_r8               ! natural mortality rate per year
-!      Fymort=0.0_r8               ! fishing mortality rate per year
-      Ndmort=Nymort(ng)/365.0_r8       ! natural mortality rate per day
-      Fdmort=Fymort(ng)/365.0_r8       ! fishing mortality rate per day
+      Ndmort=Nymort(ng)/days_year      ! natural mortality rate per day
+      Fdmort=Fymort(ng)/days_year      ! fishing mortality rate per day
 !
 ! Zero out eatme contributions from previous time step
       DO i=LBi,UBi
@@ -145,32 +121,6 @@
               ifid = thisfish % fish
               IF (MyThread(ifid).and.bounded(ifid).and.alive(ifid)) THEN
                 bioenergy(ifeatme,ifid)=0.0_r8
-              END IF
-              thisfish => thisfish % next
-            END DO
-          END IF
-        END DO
-      END DO
-!
-! -----  PART 1: GROWTH, INCLUDING FISH-EAT-FISH   -----
-!
-! Zero out eatme contributions from previous time step
-      DO i=LBi,UBi
-        DO j=LBj,UBj
-          IF (fish_count(i,j).gt.0) THEN
-            thisfish => fish_list(i,j) % next
-            DO ifish=1,fish_count(i,j)
-              ifid = thisfish % fish
-              IF (MyThread(ifid).and.bounded(ifid).and.alive(ifid)) THEN
-                bioenergy(ifeatme,ifid)=0.0_r8
-! THIS CHECK SHOULD NOT BE NECESSARY. PROBLEM SOMEWHERE ELSE
-                Fweight=bioenergy(ifwwt,ifid)
-                IF ((Fweight.eq.0.0_r8).and.                            &
-     &              (lifestage(ifid).eq.if_adult)) THEN
-                  bioenergy(ifwwt,ifid)=0.0_r8
-                  bioenergy(ifworth,ifid)=0.0_r8
-                  alive(ifid)=.FALSE.
-                END IF
               END IF
               thisfish => thisfish % next
             END DO
@@ -296,8 +246,6 @@
      &                                  (Csmp-Egst-Excr-Resp-SDA))
 ! From Kenny's code:
                   IF (bioenergy(ifwwt,ifid).lt.0.001_r8) THEN
-                    bioenergy(ifwwt,ifid)=0.0_r8
-                    bioenergy(ifworth,ifid)=0.0_r8
                     alive(ifid)=.FALSE.
                   ENDIF
 !
@@ -339,6 +287,7 @@
                   ENDIF
                   bioenergy(ifwwt,ifid)=Fweight
                   bioenergy(ifworth,ifid)=Fworth
+                  bioenergy(ifpval,ifid)=0.0_r8
 !
                 END IF
 !
@@ -375,8 +324,6 @@
                 bioenergy(ifworth,ifid)=Fworth*(1.0_r8-dtdays*Tdmort)
 ! From Kenny's code:
                 IF (bioenergy(ifworth,ifid).lt.0.0001_r8) THEN
-                  bioenergy(ifworth,ifid)=0.0_r8
-                  bioenergy(ifwwt,ifid)=0.0_r8
                   alive(ifid)=.FALSE.
                 ENDIF
               END IF
@@ -399,7 +346,11 @@
                   bioenergy(ifage,ifid)=bioenergy(ifage,ifid)+          &
      &                                  dtdays/days_year
                 ELSE
-                  bioenergy(ifage,ifid)=-9999.0_r8
+                  bounded(ifid) = .FALSE.
+                  bioenergy(ifwwt,ifid)=-99.0_r8
+                  bioenergy(ifworth,ifid)=-99.0_r8
+                  bioenergy(ifage,ifid)=-99.0_r8
+                  lifestage(ifid)=0
                 END IF
               END IF
               thisfish => thisfish % next

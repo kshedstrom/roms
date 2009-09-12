@@ -27,6 +27,7 @@
 !
       USE mod_param
       USE mod_fish
+      USE mod_biology
       USE mod_scalars
       USE mod_stepping
       USE mod_parallel
@@ -194,7 +195,7 @@
                 FISHES(ng) % alive(ifsh) = .TRUE.
                 FISHES(ng) % lifestage(ifsh) = if_egg
                 FISHES(ng) % eatfish(ifsh) = .FALSE.
-                FISHES(ng) % swimtype(ifsh) = 1   ! 1=Fitness, 2=Kinesis
+                FISHES(ng) % swimtype(ifsh) = Fbehave(ng)
                 print *, 'New_fish: ', ifsh, eggs(i), moms(i)
                 FISHES(ng) % num_free(isp) =                            &
      &                        FISHES(ng) % num_free(isp) - 1

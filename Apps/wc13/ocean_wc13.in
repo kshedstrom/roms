@@ -100,7 +100,7 @@
         NRST == 8760
         NSTA == 48
         NFLT == 48
-        NFSH == 48
+        NFSH == 120
         NSHP == 48
        NINFO == 1
 
