@@ -53,6 +53,10 @@
 
        Fage0 == 3.0d0
 
+! Fish behavior [1=Fitness, 2=Kinesis]
+
+       Fbehave == 2
+
 ! Fish preference for ZS, {0.5d0}.
 
        ZSpref == 1.0d0
@@ -139,7 +143,7 @@
 
 ! Number of fish per year per species.
 
-     Nfishperyear == 10
+     Nfishperyear == 1
 
 ! Number of fish species.
 

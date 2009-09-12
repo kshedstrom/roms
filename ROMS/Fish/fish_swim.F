@@ -186,7 +186,7 @@
      &                                     pn(Ir,Jr)/dt(ng)
                     track(izrhs,itime,fid)=d_k/dt(ng)
 ! Temporary overwrite until vertical motion is working
-!                  track(izrhs,itime,fid)=0.0_r8
+                    track(izrhs,itime,fid)=0.0_r8
 !
 ! -------- KINESIS-BASED SWIMMING BEHAVIOR (HUMSTON) --------
                   ELSE IF (swimtype(fid).eq.2) THEN
@@ -292,7 +292,7 @@
 ! Swim towards best location
                     track(izrhs,itime,fid)=zdis/dt(ng)
 ! Temporary overwrite until vertical motion is working
-!              track(izrhs,itime,fid)=0.0_r8
+                    track(izrhs,itime,fid)=0.0_r8
 !
                   END IF
 !

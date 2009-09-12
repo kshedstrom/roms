@@ -19,6 +19,7 @@
       USE mod_scalars
       USE mod_fish
       USE mod_biology
+      USE mod_grid
       USE nrutil
 # ifdef DISTRIBUTE
       USE mod_strings
@@ -38,6 +39,7 @@
 !  Local variable declarations.
 !
       logical :: Lwrite
+      logical :: lflag
 
       integer :: Itile, Jtile, Nghost, Ntiles, tile
       integer :: Imin, Imax, Jmin, Jmax
@@ -47,7 +49,7 @@
       integer :: inp, out, itrc, ng, npts, sequence
       integer :: i, isp, l, fid, j
 
-      real(r8) :: cff, Fwwght0, Fworth0, snudg
+      real(r8) :: cff, Fwwght0, Fworth0, snudg, xini, yini, xymsk
       real(r8), parameter :: spv = 0.0_r8
 !
 !-----------------------------------------------------------------------
@@ -125,10 +127,10 @@
             DO j=0,NFT
               FISHES(ng)%track(ixgrd,j,fid) =                           &
      &                  FISHES(ng)%Tinfo(ixgrd,fid) +                   &
-     &                  4.0_r8*(snudg-0.5_r8)
+     &                  8.0_r8*(snudg-0.5_r8)
               FISHES(ng)%track(iygrd,j,fid) =                           &
      &                  FISHES(ng)%Tinfo(iygrd,fid) +                   &
-     &                  4.0_r8*(snudg-0.5_r8)
+     &                  8.0_r8*(snudg-0.5_r8)
 #  ifdef SOLVE3D
               FISHES(ng)%track(izgrd,j,fid) =                           &
      &                  FISHES(ng)%Tinfo(izgrd,fid)
@@ -141,7 +143,7 @@
             FISHES(ng)%alive(fid)=.TRUE.
             FISHES(ng)%eatfish(fid)=.FALSE.
             FISHES(ng)%lifestage(fid)=if_adult
-            FISHES(ng)%swimtype(fid)=1          ! 1=Fitness, 2=Kinesis
+            FISHES(ng)%swimtype(fid)=Fbehave(ng)
             FISHES(ng)%bounded(fid)=.TRUE.
           END DO
         END DO
@@ -216,6 +218,8 @@
             Npts=load_r(Nval, Rval, Ngrids, Fwwt0)
           ELSE IF (TRIM(KeyWord).eq.'Fage0') THEN
             Npts=load_r(Nval, Rval, Ngrids, Fage0)
+          ELSE IF (TRIM(KeyWord).eq.'Fbehave') THEN
+            Npts=load_i(Nval, Rval, Ngrids, Fbehave)
           ELSE IF (TRIM(KeyWord).eq.'ZSpref') THEN
             Npts=load_r(Nval, Rval, Ngrids, ZSpref)
           ELSE IF (TRIM(KeyWord).eq.'ZLpref') THEN
@@ -306,8 +310,8 @@
         Ftype (nentry(igrid)+1,igrid)=1
         Fcount(nentry(igrid)+1,igrid)=1
         Ft0(nentry(igrid)+1,igrid)=0.0_r8
-        Fx0(nentry(igrid)+1,igrid)=28.0_r8
-        Fy0(nentry(igrid)+1,igrid)=29.0_r8
+        Fx0(nentry(igrid)+1,igrid)=25.0_r8
+        Fy0(nentry(igrid)+1,igrid)=25.0_r8
         Fz0(nentry(igrid)+1,igrid)=30.0_r8
         Fdt(nentry(igrid)+1,igrid)=0.0_r8
         Fdx(nentry(igrid)+1,igrid)=0.0_r8
@@ -348,6 +352,9 @@
      &            'Fish initial wet weight (g).'
             WRITE (out,110) Fage0(ng), 'Fage0',                         &
      &            'Fish spawning maturity (years).'
+            WRITE (out,80) Fbehave(ng),                                 &
+     &            'Fbehave',                                            &
+     &            'Fish behavior (1=Fitness, 2=Kinesis)'
             WRITE (out,110) ZSpref(ng), 'ZSpref',                       &
      &            'Fish preference for ZS (-).'
             WRITE (out,110) ZLpref(ng), 'ZLpref',                       &

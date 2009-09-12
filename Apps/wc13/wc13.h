@@ -85,13 +85,13 @@
 # define WEST_TCLAMPED
 #endif
 
-#define FLOATS
+#undef  FLOATS
 
 #define NEMURO
 #ifdef NEMURO
 # define NEMURO_SAN
 # ifdef NEMURO_SAN
-#  define FISH_FEEDBACK
+#  undef  FISH_FEEDBACK
 #  undef FLEET
 #  define ANA_SPAWN_DIST
 #  undef EGGS_BISECTION
