@@ -26,9 +26,9 @@
 #ifdef SOLVE3D
 # undef SPLINES
 #endif
-#undef FLOATS
+#define FLOATS
 #define STATIONS
-#define WET_DRY
+#undef WET_DRY
 
 #undef T_PASSIVE
 #ifdef T_PASSIVE
@@ -63,7 +63,7 @@
 #undef OUT_DOUBLE
 #define RST_SINGLE
 #define AVERAGES
-#define AVERAGES2
+#undef AVERAGES2
 #ifdef SOLVE3D
 # undef AVERAGES_DETIDE
 # define AVERAGES_AKT
@@ -258,9 +258,9 @@
 /*
 **  Biological model options.
 */
-#undef NEMURO
+#define NEMURO
 #undef BIO_GOANPZ        /* Sarah Hinckley's 11 box model */
-#define BEST_NPZ         /* Georgina Gibsons BEST NPZ model  */
+#undef BEST_NPZ         /* Georgina Gibsons BEST NPZ model  */
 
 #if defined BEST_NPZ || defined BIO_GOANPZ || defined PASSIVE_TRACERS
 # undef  BIOFLUX           /* sum Nitrogen fluxes between boxes */

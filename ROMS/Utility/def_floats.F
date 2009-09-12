@@ -414,7 +414,7 @@
           status=nf90_inq_varid(ncFLTid(ng),'Ftype',varid)
           status=nf90_put_var(ncFLTid(ng), varid, FLT(ng)%Ftype)
           IF (status.ne.nf90_noerr) THEN
-            WRITE (stdout,10) 'Ftype', TRIM(ncname)
+            WRITE (stdout,70) 'Ftype', TRIM(ncname)
             exit_flag=3
             RETURN
           END IF
@@ -664,6 +664,8 @@
   40  FORMAT (1pe11.4,1x,'millimeter')
   50  FORMAT (/,' DEF_FLOATS - unable to open floats NetCDF file: ',a)
   60  FORMAT (/,' DEF_FLOATS - unable to find variable: ',a,2x,         &
+     &        ' in floats NetCDF file: ',a)
+  70  FORMAT (/,' DEF_FLOATS - unable to write variable: ',a,2x,        &
      &        ' in floats NetCDF file: ',a)
 
       RETURN

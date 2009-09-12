@@ -146,13 +146,9 @@
 !
       DO ng=1,Ngrids
         CALL initial (ng)
+	IF (exit_flag.ne.NoError) RETURN
         CALL get_data (ng)
-        IF (exit_flag.ne.NoError) THEN
-          IF (Master) THEN
-            WRITE (stdout,'(/,a,i3,/)') Rerror(exit_flag), exit_flag
-          END IF
-          RETURN
-        END IF
+        IF (exit_flag.ne.NoError) RETURN
       END DO
 !
 !  Initialize run or ensemble counter.

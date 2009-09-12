@@ -72,7 +72,7 @@ MY_HEADER_DIR ?= Apps/NEP
 #  "User/Functionals".
 #
 #  If applicable, also used this directory to place your customized
-#  biology model header file (like fasham.h, nemuro.h, ecosim.h, etc).
+#  biology model header file (like fennel.h, nemuro.h, ecosim.h, etc).
 
 MY_ANALYTICAL_DIR ?= Apps/NEP
 
@@ -243,14 +243,14 @@ clean_list += $(MAKE_MACROS)
 
 #--------------------------------------------------------------------------
 #  Make functions for putting the temporary files in $(SCRATCH_DIR)
-#  DO NOT modify this section; spaces and blank lineas are needed.
+#  DO NOT modify this section; spaces and blank lines are needed.
 #--------------------------------------------------------------------------
 
 # $(call source-dir-to-binary-dir, directory-list)
 source-dir-to-binary-dir = $(addprefix $(SCRATCH_DIR)/, $(notdir $1))
 
 # $(call source-to-object, source-file-list)
-source-to-object = $(call source-dir-to-bindary-dir,   \
+source-to-object = $(call source-dir-to-binary-dir,   \
                    $(subst .F,.o,$1))
 
 # $(call make-library, library-name, source-file-list)
@@ -401,7 +401,7 @@ endif
 ifdef USE_SEAICE
  modules  +=	ROMS/SeaIce
 endif
- modules  +=    ROMS/Utility
+ modules  +=	ROMS/Utility
 
  includes :=	ROMS/Include
 ifdef MY_ANALYTICAL
