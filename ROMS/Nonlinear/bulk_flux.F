@@ -781,11 +781,11 @@
         DO Iter=1,IterMax
           DO i=Istr-1,IendR
 # ifdef COARE_OOST
-            ZoW(i)=(25.0_r8/pi)*WaveLength(i)*                           &
+            ZoW(i)=(25.0_r8/pi)*WaveLength(i)*                          &
      &             (Wstar(i)/Cwave(i))**4.5_r8+                         &
      &             0.11_r8*VisAir(i)/(Wstar(i)+eps)
 # elif defined COARE_TAYLOR_YELLAND
-            ZoW(i)=1200.0_r8*Hwave(i,j)*                                 &
+            ZoW(i)=1200.0_r8*Hwave(i,j)*                                &
      &             (Hwave(i,j)/WaveLength(i))**4.5_r8+                  &
      &             0.11_r8*VisAir(i)/(Wstar(i)+eps)
 # else
