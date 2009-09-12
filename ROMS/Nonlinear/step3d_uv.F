@@ -790,7 +790,7 @@
           cff=-lambda*dt(ng)/0.5_r8
           DO k=1,N(ng)-1
             DO i=Istr,Iend
-	      cff1=1.0_r8/(z_r(i,j,k+1)+z_r(i,j-1,k+1)-                 &
+              cff1=1.0_r8/(z_r(i,j,k+1)+z_r(i,j-1,k+1)-                 &
      &                     z_r(i,j,k  )-z_r(i,j-1,k  ))
               FC(i,k)=cff*cff1*AK(i,k)
             END DO
