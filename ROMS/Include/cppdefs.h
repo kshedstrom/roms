@@ -1,7 +1,7 @@
 /*
 ** Include file "cppdefs.h"
 **
-** svn $Id: cppdefs.h 1038 2009-08-11 22:29:40Z kate $
+** svn $Id: cppdefs.h 1060 2009-09-12 00:25:38Z kate $
 ********************************************************** Hernan G. Arango ***
 ** Copyright (c) 2002-2009 The ROMS/TOMS Group                               **
 **   Licensed under a MIT/X style license                                    **
@@ -698,7 +698,7 @@
 ** ICE_ADVECT          use for advection of ice tracers
 ** ICE_SMOLAR          use for MPDATA advection scheme
 ** ICE_UPWIND          use for upwind advection scheme
-** ICE_BULK_FLUX       use for ice part of bulk flux computation
+** ICE_BULK_FLUXES     use for ice part of bulk flux computation
 **
 ** OPTION to avoid writing current date and CPP options to NetCDF file       **
 ** headers. This is used to compare serial and parallel solutions where      **
@@ -816,6 +816,8 @@
 
 #if defined ROMS_HEADER
 # include ROMS_HEADER
+#else
+   CPPDEFS - Choose an appropriate ROMS application.
 #endif
 
 /*

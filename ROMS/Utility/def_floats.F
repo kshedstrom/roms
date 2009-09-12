@@ -2,7 +2,7 @@
 #ifdef FLOATS
       SUBROUTINE def_floats (ng, ldef)
 !
-!svn $Id: def_floats.F 1057 2009-09-08 19:01:19Z kate $
+!svn $Id: def_floats.F 1060 2009-09-12 00:25:38Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -414,7 +414,7 @@
           status=nf90_inq_varid(ncFLTid(ng),'Ftype',varid)
           status=nf90_put_var(ncFLTid(ng), varid, FLT(ng)%Ftype)
           IF (status.ne.nf90_noerr) THEN
-            WRITE (stdout,10) 'Ftype', TRIM(ncname)
+            WRITE (stdout,70) 'Ftype', TRIM(ncname)
             exit_flag=3
             RETURN
           END IF
@@ -664,6 +664,8 @@
   40  FORMAT (1pe11.4,1x,'millimeter')
   50  FORMAT (/,' DEF_FLOATS - unable to open floats NetCDF file: ',a)
   60  FORMAT (/,' DEF_FLOATS - unable to find variable: ',a,2x,         &
+     &        ' in floats NetCDF file: ',a)
+  70  FORMAT (/,' DEF_FLOATS - unable to write variable: ',a,2x,        &
      &        ' in floats NetCDF file: ',a)
 
       RETURN

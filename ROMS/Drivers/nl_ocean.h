@@ -1,6 +1,6 @@
       MODULE ocean_control_mod
 !
-!svn $Id: nl_ocean.h 975 2009-05-05 22:51:13Z kate $
+!svn $Id: nl_ocean.h 1060 2009-09-12 00:25:38Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -146,13 +146,9 @@
 !
       DO ng=1,Ngrids
         CALL initial (ng)
+	IF (exit_flag.ne.NoError) RETURN
         CALL get_data (ng)
-        IF (exit_flag.ne.NoError) THEN
-          IF (Master) THEN
-            WRITE (stdout,'(/,a,i3,/)') Rerror(exit_flag), exit_flag
-          END IF
-          RETURN
-        END IF
+        IF (exit_flag.ne.NoError) RETURN
       END DO
 !
 !  Initialize run or ensemble counter.

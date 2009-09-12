@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       MODULE mod_grid
 !
-!svn $Id: mod_grid.F 999 2009-06-09 23:48:31Z kate $
+!svn $Id: mod_grid.F 1060 2009-09-12 00:25:38Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -18,6 +18,7 @@
 # endif
 !  Huon       Total U-momentum flux term, Hz*u/pn.                     !
 !  Hvom       Total V-momentum flux term, Hz*v/pm.                     !
+!  IcePress   Pressure under the ice shelf at RHO-points.              !
 !  Rscope     Adjoint sensitivity spatial scope mask at RHO-points.    !
 !  Tcline     Width (m) of surface or bottom boundary layer where      !
 !               higher vertical resolution is required during          !
@@ -174,6 +175,7 @@
 # endif
           real(r8), pointer :: z_w(:,:,:)
 # ifdef ICESHELF
+          real(r8), pointer :: IcePress(:,:)
           real(r8), pointer :: zice(:,:)
 # endif
 #endif
@@ -194,8 +196,9 @@
           real(r8), pointer :: vmask_full(:,:)
           real(r8), pointer :: vmask_wet(:,:)
 #endif
-#if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY || \
-    defined OPT_OBSERVATIONS || defined SO_SEMI
+#if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
+    defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR || \
+    defined SO_SEMI
           real(r8), pointer :: Rscope(:,:)
           real(r8), pointer :: Uscope(:,:)
           real(r8), pointer :: Vscope(:,:)
@@ -345,6 +348,7 @@
       allocate ( GRID(ng) % z_w(LBi:UBi,LBj:UBj,0:N(ng)) )
 
 # ifdef ICESHELF
+      allocate ( GRID(ng) % IcePress(LBi:UBi,LBj:UBj) )
       allocate ( GRID(ng) % zice(LBi:UBi,LBj:UBj) )
 # endif
 
@@ -369,8 +373,9 @@
       allocate ( GRID(ng) % vmask_wet(LBi:UBi,LBj:UBj) )
 #endif
 
-#if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY || \
-    defined OPT_OBSERVATIONS || defined SO_SEMI
+#if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
+    defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR || \
+    defined SO_SEMI
       allocate ( GRID(ng) % Rscope(LBi:UBi,LBj:UBj) )
       allocate ( GRID(ng) % Uscope(LBi:UBi,LBj:UBj) )
       allocate ( GRID(ng) % Vscope(LBi:UBi,LBj:UBj) )
@@ -547,6 +552,7 @@
             GRID(ng) % yv(i,j) = IniVal
 
 #if defined ICESHELF && defined SOLVE3D
+            GRID(ng) % IcePress(i,j) = IniVal
             GRID(ng) % zice(i,j) = IniVal
 #endif
 
@@ -569,8 +575,9 @@
             GRID(ng) % vmask_wet(i,j) = IniVal
 #endif
 
-#if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY || \
-    defined OPT_OBSERVATIONS || defined SO_SEMI
+#if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
+    defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR || \
+    defined SO_SEMI
             GRID(ng) % Rscope(i,j) = IniVal
             GRID(ng) % Uscope(i,j) = IniVal
             GRID(ng) % Vscope(i,j) = IniVal

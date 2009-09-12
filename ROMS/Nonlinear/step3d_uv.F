@@ -2,7 +2,7 @@
       MODULE step3d_uv_mod
 #if defined NONLINEAR && defined SOLVE3D
 !
-!svn $Id: step3d_uv.F 1039 2009-08-11 22:52:28Z kate $
+!svn $Id: step3d_uv.F 1060 2009-09-12 00:25:38Z kate $
 !=======================================================================
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license           Hernan G. Arango   !
@@ -790,7 +790,7 @@
           cff=-lambda*dt(ng)/0.5_r8
           DO k=1,N(ng)-1
             DO i=Istr,Iend
-	      cff1=1.0_r8/(z_r(i,j,k+1)+z_r(i,j-1,k+1)-                 &
+              cff1=1.0_r8/(z_r(i,j,k+1)+z_r(i,j-1,k+1)-                 &
      &                     z_r(i,j,k  )-z_r(i,j-1,k  ))
               FC(i,k)=cff*cff1*AK(i,k)
             END DO

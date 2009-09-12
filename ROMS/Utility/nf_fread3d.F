@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       MODULE nf_fread3d_mod
 !
-!svn $Id: nf_fread3d.F 1057 2009-09-08 19:01:19Z kate $
+!svn $Id: nf_fread3d.F 1060 2009-09-12 00:25:38Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -293,7 +293,7 @@
           Amax=-spval
           DO i=1,Npts
             IF (ABS(wrk(i)).ge.ABS(Aspval)) THEN
-              wrk(i)=0.0_r8                      ! masked with _FillValue
+              wrk(i)=0.0_r8                   ! masked with _FillValue
             ELSE
               wrk(i)=Ascl*(Afactor*wrk(i)+Aoffset)
               Amin=MIN(Amin,wrk(i))
@@ -736,7 +736,7 @@
           IF (status.eq.nf90_noerr) THEN
             DO i=1,Npts
               IF (ABS(wrk(i)).ge.ABS(Aspval)) THEN
-                wrk(i)=0.0_r8                    ! masked with _FillValue
+                wrk(i)=0.0_r8                 ! masked with _FillValue
               ELSE
                 wrk(i)=Ascl*(Afactor*wrk(i)+Aoffset)
                 Amin=MIN(Amin,wrk(i))

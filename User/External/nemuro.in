@@ -1,6 +1,6 @@
 !  NEMURO Ecosystem Model Parameters.
 !
-!svn $Id: nemuro.in 975 2009-05-05 22:51:13Z kate $
+!svn $Id: nemuro.in 1060 2009-09-12 00:25:38Z kate $
 !========================================================= Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                                !
 !    Licensed under a MIT/X style license                                     !
@@ -544,11 +544,11 @@ Hout(idTsur) == 11*F                       ! surface tracer flux
 !                Hout(idTvar)           biological tracers
 !                Hout(idTsur)           biological tracers surface flux
 !
-!                  idTvar( 1)=iPhyL     Large Phytoplankton biomass
-!                  idTvar( 2)=iPhyS     Small Phytoplankton biomass
-!                  idTvar( 3)=iZooL     Large Zooplankton biomass
-!                  idTvar( 4)=iZooS     Small Zooplankton biomass
-!                  idTvar( 5)=iZooP     Predator Zooplankton biomass
+!                  idTvar( 1)=iLphy     Large Phytoplankton biomass
+!                  idTvar( 2)=iSphy     Small Phytoplankton biomass
+!                  idTvar( 3)=iLzoo     Large Zooplankton biomass
+!                  idTvar( 4)=iSzoo     Small Zooplankton biomass
+!                  idTvar( 5)=iPzoo     Predator Zooplankton biomass
 !                  idTvar( 6)=iNO3_     Nitrate concentration
 !                  idTvar( 7)=iNH4_     Ammonium concentration
 !                  idTvar( 8)=iPON_     Particulate Organic Nitrogen

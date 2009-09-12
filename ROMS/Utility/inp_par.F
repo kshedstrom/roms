@@ -2,7 +2,7 @@
 #undef KATE_FOO
       SUBROUTINE inp_par (model)
 !
-!svn $Id: inp_par.F 1057 2009-09-08 19:01:19Z kate $
+!svn $Id: inp_par.F 1060 2009-09-12 00:25:38Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -1289,8 +1289,6 @@
             Npts=load_i(Nval, Rval, Ngrids, nSTA)
           ELSE IF (TRIM(KeyWord).eq.'NFLT') THEN
             Npts=load_i(Nval, Rval, Ngrids, nFLT)
-          ELSE IF (TRIM(KeyWord).eq.'NFISHES') THEN
-            Npts=load_i(Nval, Rval, Ngrids, nFISHES)
           ELSE IF (TRIM(KeyWord).eq.'NINFO') THEN
             Npts=load_i(Nval, Rval, Ngrids, ninfo)
           ELSE IF (TRIM(KeyWord).eq.'LDEFOUT') THEN
@@ -2290,8 +2288,9 @@
 #ifdef WRT_SSSFLX
           ELSE IF (TRIM(KeyWord).eq.'Hout(idSSSf)') THEN
             IF (idSSSf.eq.0) THEN
-              WRITE (out,280) 'idSSSf'
-              STOP
+              IF (Master) WRITE (out,280) 'idSSSf'
+              exit_flag=5
+              RETURN
             END IF
             Npts=load_l(Nval, Cval, Ngrids, Hout(idSSSf,:))
 #endif
@@ -2693,10 +2692,6 @@
         IF (((nrrec(ng).eq.0).and.(nFLT(ng).gt.ntimes(ng))).or.         &
      &      (nFLT(ng).eq.0)) THEN
           LdefFLT(ng)=.FALSE.
-        END IF
-        IF (((nrrec(ng).eq.0).and.(nFISHES(ng).gt.ntimes(ng))).or.         &
-     &      (nFISHES(ng).eq.0)) THEN
-          LdefFISH(ng)=.FALSE.
         END IF
         IF (((nrrec(ng).eq.0).and.(nHIS(ng).gt.ntimes(ng))).or.         &
      &      (nHIS(ng).eq.0)) THEN
@@ -4323,7 +4318,7 @@
         END IF
       END DO
   10  IF (Master) WRITE (out,30) line
-      exit_flag=5
+      exit_flag=4
       RETURN
   20  CLOSE (inp)
 
@@ -7340,8 +7335,9 @@
           END IF
         END IF
       END DO
-  10  WRITE (out,30) line
-      STOP
+  10  IF (Master) WRITE (out,30) line
+      exit_flag=4
+      RETURN
   20  CLOSE (inp)
 !
 
@@ -10944,7 +10940,7 @@
 !
 !=======================================================================
 !                                                                      !
-!  This routine reads in input station parameters.                     !
+!  This routine reads in input float parameters.                     !
 !                                                                      !
 !=======================================================================
 !
