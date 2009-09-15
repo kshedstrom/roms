@@ -2843,14 +2843,6 @@
      &          'Number of timesteps between the writing of data',      &
      &          'into floats file.'
 #endif
-#ifdef NEMURO_SAN
-          WRITE (out,130) nFSH(ng), 'nFSH',                             &
-     &          'Number of timesteps between the writing of data',      &
-     &          'into fish file.'
-          WRITE (out,130) nSHP(ng), 'nSHP',                             &
-     &          'Number of timesteps between the writing of data',      &
-     &          'into ship file.'
-#endif
           WRITE (out,170) ldefout(ng), 'ldefout',                       &
      &          'Switch to create a new output NetCDF file(s).'
           WRITE (out,130) nHIS(ng), 'nHIS',                             &
@@ -10846,6 +10838,25 @@
           END DO
 #     endif
 #    endif
+#    ifdef ADJUST_BOUNDARY
+          WRITE (out,170) Lobc(1:4,isFsur,ng), 'Lobc(isFsur)',          &
+     &            'Adjusting free-surface boundaries.'
+          WRITE (out,170) Lobc(1:4,isUbar,ng), 'Lobc(isUbar)',          &
+     &            'Adjusting 2D U-momentum boundaries.'
+          WRITE (out,170) Lobc(1:4,isVbar,ng), 'Lobc(isVbar)',          &
+     &            'Adjusting 2D V-momentum boundaries.'
+#     ifdef SOLVE3D
+          WRITE (out,170) Lobc(1:4,isUvel,ng), 'Lobc(isUvel)',          &
+     &            'Adjusting 3D U-momentum boundaries.'
+          WRITE (out,170) Lobc(1:4,isVvel,ng), 'Lobc(isVvel)',          &
+     &            'Adjusting 3D V-momentum boundaries.'
+          DO itrc=1,NT(ng)
+            WRITE (out,180) Lobc(1:4,isTvar(itrc),ng),'Lobc(isTvar)',   &
+     &            'Adjusting boundaries for tracer ', itrc,             &
+     &            TRIM(Vname(1,idTvar(itrc)))
+          END DO
+#     endif
+#    endif
 #   endif
 #  endif
 !
@@ -11108,6 +11119,16 @@
         END IF
       END DO
 !
+!
+!  Turn off the processing of floats if not running long enough to
+!  create a floats file (LdefFLT=.FALSE. because nFLT < ntimes or
+!  nFLT = 0 when nrrec = 0).
+!
+      DO ng=1,Ngrids
+        IF (.not.LdefFLT(ng).and.Lfloats(ng)) THEN
+          Lfloats(ng)=.FALSE.
+        END IF
+      END DO
 !
 !-----------------------------------------------------------------------
 !  Report input parameters.

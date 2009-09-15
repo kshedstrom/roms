@@ -3,7 +3,7 @@
 
 #if defined MODEL_COUPLING && defined MCT_LIB
 !
-!svn $Id: atm_coupler.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: atm_coupler.F 613 2008-05-02 23:51:10Z kate $
 !==================================================== John C. Warner ===
 !  Copyright (c) 2002-2008 The ROMS/TOMS Group      Hernan G. Arango   !
 !   Licensed under a MIT/X style license                               !

@@ -364,21 +364,6 @@
         integer  :: idSig22        ! internal ice stress component 22
         integer  :: idSig12        ! internal ice stress component 12
 
-! NEMURO_SAN variables
-        integer  :: idFwwt         ! fish wet weight
-        integer  :: idFworth       ! fish worth
-        integer  :: idFpval        ! fish P-value
-        integer  :: idFage         ! fish P-value
-        integer  :: idSpwnloc      ! fish batch number
-        integer  :: idFspwn        ! spawning distribution
-        integer  :: idFbatch       ! fish batch
-        integer  :: idFspc         ! fish species
-        integer  :: idFlfsg        ! fish lifestage
-        integer  :: idFswmt        ! fish swim type
-        integer  :: idFalv         ! fish is alive
-        integer  :: idFeatf        ! fish eats fish
-        integer  :: idFgrl         ! fish is female
-
         integer, allocatable :: idRtrc(:)    ! river runoff for tracers
         integer, allocatable :: idTads(:)    ! tracers adjoint sentivity
         integer, allocatable :: idTbot(:)    ! bottom flux for tracers
@@ -499,7 +484,6 @@
         integer  :: ncNRMid(4,Ngrids)   ! input/output covariance norm
         integer  :: ncOBSid(Ngrids)     ! input/output observations
         integer  :: ncRSTid(Ngrids)     ! input/output restart
-        integer  :: ncSHIPSid(Ngrids)   ! output ships
         integer  :: ncSSHid(Ngrids)     ! SSH observations
         integer  :: ncSSTid(Ngrids)     ! SST observations
         integer  :: ncSTAid(Ngrids)     ! output stations
@@ -589,7 +573,6 @@
         integer, allocatable :: lczTid(:,:)   ! Lanczos tracers IDs
         integer, allocatable :: obsTid(:,:)   ! observations tracers IDs
         integer, allocatable :: rstTid(:,:)   ! restart tracers IDs
-        integer, allocatable :: shipsTid(:,:) ! ships tracers IDs
         integer, allocatable :: staTid(:,:)   ! stations tracers IDs
         integer, allocatable :: tlfTid(:,:)   ! TLM impulse tracers IDs
         integer, allocatable :: tlmTid(:,:)   ! tangent tracers IDs
@@ -612,7 +595,6 @@
         integer  :: nrmVid(4,NV,Ngrids)  ! norm variables IDs
         integer  :: obsVid(NV,Ngrids)    ! observations variables IDs
         integer  :: rstVid(NV,Ngrids)    ! restart variables IDs
-        integer  :: shipsVid(-6:NV,Ngrids)! ships variables IDs
         integer  :: staVid(NV,Ngrids)    ! stations variables IDs
         integer  :: tideVid(NV,Ngrids)   ! tide variables IDs
         integer  :: tlfVid(NV,Ngrids)    ! TLM impulse variables IDs
@@ -634,7 +616,6 @@
         integer  :: tLCZindx(Ngrids)     ! Lanczos time record index
         integer  :: tNRMindx(4,Ngrids)   ! norm time record index
         integer  :: tRSTindx(Ngrids)     ! restart time record index
-        integer  :: tSHIPSindx(Ngrids)   ! ships time record index
         integer  :: tSTAindx(Ngrids)     ! stations time record index
         integer  :: tTLFindx(Ngrids)     ! TLM impulse time record index
         integer  :: tTLMindx(Ngrids)     ! tangent time record index
@@ -811,7 +792,6 @@
         allocate ( lczTid(MT,Ngrids) )
         allocate ( obsTid(MT,Ngrids) )
         allocate ( rstTid(MT,Ngrids) )
-        allocate ( shipsTid(MT,Ngrids) )
         allocate ( staTid(MT,Ngrids) )
         allocate ( tlfTid(MT,Ngrids) )
         allocate ( tlmTid(MT,Ngrids) )
@@ -1128,7 +1108,6 @@
           ncNRMid(1:4,ng)=-1
           ncOBSid(ng)=-1
           ncRSTid(ng)=-1
-          ncSHIPSid(ng)=-1
           ncSSHid(ng)=-1
           ncSSTid(ng)=-1
           ncSTAid(ng)=-1
@@ -1152,7 +1131,6 @@
           tITLindx(ng)=1
           tNRMindx(1:4,ng)=0
           tRSTindx(ng)=0
-          tSHIPSindx(ng)=0
           tSTAindx(ng)=0
           tTLFindx(ng)=0
           tTLMindx(ng)=0
@@ -1877,32 +1855,6 @@
               CASE ('idRtrc(iPON_)')
                 idRtrc(iPON_)=varid
 #endif
-#ifdef NEMURO_SAN
-              CASE ('idFwwt')
-                idFwwt=varid
-              CASE ('idFworth')
-                idFworth=varid
-              CASE ('idFpval')
-                idFpval=varid
-              CASE ('idFage')
-                idFage=varid
-              CASE ('idFbatch')
-                idFbatch=varid
-              CASE ('idSpwnloc')
-                idSpwnloc=varid
-              CASE ('idFspc')
-                idFspc=varid
-              CASE ('idFlfsg')
-                idFlfsg=varid
-              CASE ('idFswmt')
-                idFswmt=varid
-              CASE ('idFalv')
-                idFalv=varid
-              CASE ('idFeatf')
-                idFeatf=varid
-              CASE ('idFgrl')
-                idFgrl=varid
-#endif
 #ifdef SEDIMENT
               CASE ('idRtrc(idmud)')
                 load=.TRUE.
@@ -2384,9 +2336,9 @@
                 idTvar(iLDeC)=varid
               CASE ('idTvar(iSDeC)')
                 idTvar(iSDeC)=varid
-#  if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
-      defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR || \
-      defined SO_SEMI
+# if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
+     defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR || \
+     defined SO_SEMI
               CASE ('idTads(iTIC_)')
                 idTads(iTIC_)=varid
               CASE ('idTads(iTAlk)')
@@ -2400,9 +2352,9 @@
 # ifdef OXYGEN
               CASE ('idTvar(iOxyg)')
                 idTvar(iOxyg)=varid
-#  if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
-      defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR || \
-      defined SO_SEMI
+# if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
+     defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR || \
+     defined SO_SEMI
               CASE ('idTads(iOxyg)')
                 idTads(iOxyg)=varid
 #  endif

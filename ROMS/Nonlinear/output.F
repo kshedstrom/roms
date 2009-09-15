@@ -24,9 +24,6 @@
 # ifdef FLOATS
       USE mod_floats
 # endif
-# ifdef NEMURO_SAN
-      USE mod_fish
-# endif
 # if defined FOUR_DVAR || defined VERIFICATION
       USE mod_fourdvar
 # endif
@@ -449,41 +446,6 @@
         IF ((MOD(iic(ng)-1,nFLT(ng)).eq.0).and.                         &
      &      ((frrec(ng).eq.0).or.(iic(ng).ne.ntstart(ng)))) THEN
           CALL wrt_floats (ng)
-          IF (exit_flag.ne.NoError) RETURN
-        END IF
-      END IF
-# endif
-# ifdef NEMURO_SAN
-!
-!-----------------------------------------------------------------------
-!  If appropriate, process fish NetCDF file.
-!-----------------------------------------------------------------------
-!
-      IF (Nfish(ng).gt.0.and.(nFSH(ng).gt.0)) THEN
-!
-!  Create output fish NetCDF file or prepare existing file to
-!  append new data to it.
-!
-        IF (LdefFISH(ng)) THEN
-          IF (fishrrec(ng).eq.0) THEN
-            NewFile=.TRUE.
-          ELSE
-            NewFile=.FALSE.
-          END IF
-          CALL def_fish (ng, NewFile)
-# ifdef FLEET
-          CALL def_ships (ng, NewFile)
-# endif
-          IF (exit_flag.ne.NoError) RETURN
-          LdefFISH(ng)=.FALSE.
-        END IF
-!
-!  Write out data into fish NetCDF file.
-!
-        IF ((MOD(iic(ng)-1,nFSH(ng)).eq.0).and.                      &
-     &      ((fishrrec(ng).eq.0).or.(iic(ng).ne.ntstart(ng)))) THEN
-          CALL wrt_fish (ng)
-          CALL wrt_ships (ng)
           IF (exit_flag.ne.NoError) RETURN
         END IF
       END IF

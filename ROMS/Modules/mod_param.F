@@ -74,17 +74,6 @@
 !  NDM3d      Number of diagnostic 3D momentum fields.                 !
 !  NDrhs      Number of diagnostic 3D right-hand-side fields.          !
 !
-#ifdef NEMURO_SAN
-! parameters for the fish particle model
-!  Nbox         Number of spawning areas
-!  Nfishperyear Number of fish per year class per species
-!  Nspecies     Number of fish species
-!  Nyearclass   Number of year classes
-!  Nfish        Total number of fish
-!  Nbatch       Number of days per year an individual will release eggs
-!  Nships       Total number of ships
-!  Npred        Total number of predatory fish
-#endif
 !                                                                      !
 !=======================================================================
 !
@@ -477,6 +466,7 @@
 #else
         integer, parameter :: NBT = 0
 #endif
+<<<<<<< HEAD:ROMS/Modules/mod_param.F
 
 #if defined BEST_NPZ    
 # if defined BENTHIC
@@ -543,12 +533,64 @@
 
         integer, dimension(Ngrids) :: Nships
         integer, dimension(Ngrids) :: Npred
+=======
 
-!  Total number of fish variables to process and output.
-!
-        integer, dimension(Ngrids) :: NFishV
+#if defined BEST_NPZ    
+# if defined BENTHIC
+        integer,parameter :: NBEN=2
+        integer :: MBT
+        integer, dimension(Ngrids) :: NBeT
+# endif
+# if defined ICE_BIO
+        integer,parameter :: NIB=4
+        integer, dimension(Ngrids) :: NIceT
+>>>>>>> aaefe47a02b6b982331f77df5d55478ffa4c810d:ROMS/Modules/mod_param.F
+
+        integer, dimension(Ngrids) :: NIceLog
+# endif
+
+# ifdef STATIONARY
+      !------------------------------------
+      !3D stationary tracers
+      !------------------------------------
+
+        integer, dimension(Ngrids) :: NTS
+
+        integer, parameter :: NBTS = 16
+
+# endif
+
+# ifdef STATIONARY2
+      !------------------------------------
+      !2D stationary tracers
+      !------------------------------------
+
+        integer, dimension(Ngrids) :: NTS2
+        integer, parameter :: NBTS2 = 8
+# endif
+# ifdef PROD2
+      !------------------------------------
+      !2D producrion tracers (stationary)
+      !------------------------------------
+
+        integer, dimension(Ngrids) :: NPT2
+        integer, parameter :: NBPT2 = 2
+# endif
+# ifdef PROD3
+      !------------------------------------
+      !3D producrion tracers (stationary)
+      !------------------------------------
+
+        integer, dimension(Ngrids) :: NPT3
+#   if defined JELLY
+        integer, parameter :: NBPT3 = 8
+#   else
+        integer, parameter :: NBPT3 = 7
+#   endif
+# endif
 #endif
-#if defined FLOATS || defined NEMURO_SAN
+
+#if defined FLOATS
 !
 !-----------------------------------------------------------------------
 !  Floats trajectories parameters.
@@ -559,7 +601,7 @@
         integer, parameter :: NFT = 4
 !
 #endif
-#if defined FLOATS || defined NEMURO_SAN
+#if defined FLOATS
 !  Total number of floats to track.
 !
         integer, dimension(Ngrids) :: Nfloats
@@ -831,9 +873,12 @@
           NFV(ng)=NT(ng)+10
 # endif
 #endif
+<<<<<<< HEAD:ROMS/Modules/mod_param.F
 #ifdef NEMURO_SAN
           NFishV(ng)=10
 #endif
+=======
+>>>>>>> aaefe47a02b6b982331f77df5d55478ffa4c810d:ROMS/Modules/mod_param.F
           NSV(ng)=NT(ng)+5
 #ifdef ADJUST_WSTRESS
           NSV(ng)=NSV(ng)+2

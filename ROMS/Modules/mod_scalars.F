@@ -399,35 +399,6 @@
         integer, parameter :: ifakt = 11         ! diffusivity, Akt
         integer, parameter :: ifdak = 12         ! d(Akt)/d(s)
 # endif
-# ifdef NEMURO_SAN
-        integer, parameter :: ifwwt = 1          ! fish wet weight
-        integer, parameter :: ifworth = 2        ! fish worth
-        integer, parameter :: ifage = 3          ! age as stage
-        integer, parameter :: ifbday = 4         ! birthday
-        integer, parameter :: ifspwnloc = 5      ! spawn_dist of mother
-        integer, parameter :: ifbatch = 6        ! number of batches spawned
-        integer, parameter :: iftspwn = 7        ! time of last batch spawned
-        integer, parameter :: ifeggs = 8         ! number of eggs spawned
-        integer, parameter :: ifpval = 9         ! number of eggs spawned
-        integer, parameter :: ifeatme = 10       ! fish-eat-fish predation rate
-! Lifestage and gender
-        integer, parameter :: if_egg = 1
-        integer, parameter :: if_yolksac = 2
-        integer, parameter :: if_larva = 3
-        integer, parameter :: if_adult = 4
-! Species IDs
-        integer, parameter :: if_none = 0
-        integer, parameter :: if_anchovy = 1
-        integer, parameter :: if_sardine = 2
-        integer, parameter :: if_herring = 3
-        integer, parameter :: if_polluck = 4
-        integer, parameter :: if_pinksalmon = 5
-        integer, parameter :: max_species = 5
-        integer, parameter :: max_yearclass = 10
-#  ifdef EGGS_BISECTION
-        logical :: lr_split = .true.
-#  endif
-# endif
 # ifdef SOLVE3D
 !
 !  Tracer variables indices in the track array.
@@ -513,12 +484,6 @@
         real(r8), dimension(Ngrids) :: IMPtime           ! seconds
         real(r8), dimension(Ngrids) :: ObsTime           ! seconds
         real(r8), dimension(Ngrids) :: FrcTime           ! seconds
-#ifdef NEMURO_SAN
-        integer, dimension(Ngrids) :: idays
-        integer, dimension(Ngrids) :: iyesterday
-        integer, dimension(Ngrids) :: iyears
-        integer, dimension(Ngrids) :: iyesteryear
-#endif
 
         real(r8), dimension(8) :: r_date
         real(r8) :: dstart = 0.0_r8                      ! days
@@ -2008,10 +1973,6 @@
       Tobc_out = IniVal
 # ifdef BIOLOGY
       allocate ( idbio(NBT) )
-#  ifdef NEMURO_SAN
-      allocate ( idfish(max_species) )
-      allocate ( idfish_inv(max_species) )
-#  endif
 
 # ifdef BEST_NPZ
 #   ifdef STATIONARY

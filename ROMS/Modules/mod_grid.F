@@ -196,9 +196,6 @@
           real(r8), pointer :: vmask_full(:,:)
           real(r8), pointer :: vmask_wet(:,:)
 #endif
-#ifdef NEMURO_SAN
-          real(r8), pointer :: spawn_dist(:,:)
-#endif
 #if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
     defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR || \
     defined SO_SEMI
@@ -374,10 +371,6 @@
       allocate ( GRID(ng) % umask_wet(LBi:UBi,LBj:UBj) )
       allocate ( GRID(ng) % vmask_full(LBi:UBi,LBj:UBj) )
       allocate ( GRID(ng) % vmask_wet(LBi:UBi,LBj:UBj) )
-#endif
-
-#ifdef NEMURO_SAN
-      allocate ( GRID(ng) % spawn_dist(LBi:UBi,LBj:UBj) )
 #endif
 
 #if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \

@@ -1844,6 +1844,36 @@
       IF (exit_flag.ne.NoError) RETURN
 # endif
 
+# ifdef WEAK_CONSTRAINT
+      Vinfo( 1)='HgammaM'
+      Vinfo( 2)='model error covariance '//                             &
+     &          'horizontal convolution time-step stability factor '
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+# endif
+
+# ifdef ADJUST_BOUNDARY
+      Vinfo( 1)='HgammaB'
+      Vinfo( 2)='open boundary conditions error covariance '//          &
+     &          'horizontal convolution time-step stability factor '
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+# endif
+
+# ifdef ADJUST_STFLUX
+      Vinfo( 1)='HgammaF'
+      Vinfo( 2)='surface forcing error covariance '//                   &
+     &          'horizontal convolution time-step stability factor '
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+# endif
+
 # ifdef SOLVE3D
       Vinfo( 1)='Vgamma'
       Vinfo( 2)='initial conditions error covariance '//                &

@@ -53,7 +53,7 @@
 !
 !***********************************************************************
       SUBROUTINE interp_floats (ng, LBi, UBi, LBj, UBj, LBk, UBk,       &
-     &                          Lstr, Lend, itime, ifield, numflt,      &
+     &                          Lstr, Lend, itime, ifield,              &
      &                          gtype, maskit, Fspval, nudg,            &
      &                          pm, pn,                                 &
 # ifdef SOLVE3D
@@ -79,6 +79,8 @@
       logical, intent(in) :: maskit
       logical, intent(in) :: MyThread(Lstr:Lend)
       logical, intent(in) :: bounded(numflt)
+
+      real(r8), intent(in) :: Fspval
 
       real(r8), intent(in) :: Fspval
 

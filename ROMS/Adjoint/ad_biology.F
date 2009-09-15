@@ -2,7 +2,7 @@
       MODULE ad_biology_mod
 #if defined ADJOINT && defined BIOLOGY
 !
-!svn $Id: ad_biology.F 1011 2009-07-07 20:47:05Z arango $
+!svn $Id: ad_biology.F 1013 2009-07-07 21:21:23Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -25,6 +25,8 @@
 !!#  include <ad_fennel.h>
 # elif defined NEMURO
 !!#  include <ad_nemuro.h>
+# elif defined BIO_UMAINE
+!!#  include <ad_bio_umaine.h>
 # elif defined NPZD_FRANKS
 #  include <ad_npzd_Franks.h>
 # elif defined NPZD_IRON

@@ -73,7 +73,7 @@ MY_HEADER_DIR ?= Apps/wc13
 #  "User/Functionals".
 #
 #  If applicable, also used this directory to place your customized
-#  biology model header file (like fennel.h, nemuro.h, ecosim.h, etc).
+#  biology model header file (like fasham.h, nemuro.h, ecosim.h, etc).
 
 MY_ANALYTICAL_DIR ?=
 
@@ -101,7 +101,7 @@ MY_CPP_FLAGS ?=
 #  If parallel applications, use at most one of these definitions
 #  (leave both definitions blank in serial applications):
 
-     USE_MPI ?= 
+     USE_MPI ?= on
   USE_OpenMP ?=
 
 #  If distributed-memory, turn on compilation via the script "mpif90".
@@ -121,7 +121,7 @@ MY_CPP_FLAGS ?=
 #  If applicable, link with NetCDF-4 library. Notice that the NetCDF-4
 #  library needs both the HDF5 and MPI libraries.
 
- USE_NETCDF4 ?=
+ USE_NETCDF4 ?= on
 
 #--------------------------------------------------------------------------
 #  We are going to include a file with all the settings that depend on
@@ -146,7 +146,7 @@ MY_CPP_FLAGS ?=
 #  NetCDF and so on.
 #--------------------------------------------------------------------------
 
-        FORT ?= pgi
+        FORT ?= xt5-pgi
 
 #--------------------------------------------------------------------------
 #  Set directory for executable.
@@ -432,10 +432,7 @@ endif
 ifdef USE_SEAICE
  modules  +=	ROMS/SeaIce
 endif
-ifdef USE_FISH
- modules  +=	ROMS/Fish
-endif
- modules  +=	ROMS/Utility
+ modules  +=    ROMS/Utility
 
  includes :=	ROMS/Include
 ifdef MY_ANALYTICAL

@@ -2,7 +2,7 @@
       MODULE zeta_balance_mod
 
 #if defined BALANCE_OPERATOR  && defined ZETA_ELLIPTIC
-!svn $Id: zeta_balance.F 1050 2009-08-31 22:53:05Z arango $
+!svn $Id: zeta_balance.F 1057 2009-09-08 19:01:19Z kate $
 !=================================================== Andrew M. Moore ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group      Hernan G. Arango   !
 !    Licensed under a MIT/X style license                              !

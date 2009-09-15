@@ -2,7 +2,7 @@
 #if (defined TANGENT || defined TL_IOMS) && defined FOUR_DVAR
       SUBROUTINE tl_wrt_ini (ng, Tindex, OutRec)
 !
-!svn $Id: tl_wrt_ini.F 993 2009-05-29 20:56:30Z arango $
+!svn $Id: tl_wrt_ini.F 999 2009-06-09 23:48:31Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
