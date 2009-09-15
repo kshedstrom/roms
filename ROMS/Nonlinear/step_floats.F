@@ -721,10 +721,10 @@
       HalfDT=0.5_r8*dt(ng)
 
       DO l=Lstr,Lend
-!      print*,'time=',time(ng),'Tinfo=',Tinfo(itstr,l),'bounded=',bounded
         IF (.not.bounded(l).and.                                        &
      &      (time(ng)-HalfDT.le.Tinfo(itstr,l).and.                     &
      &       time(ng)+HalfDT.gt.Tinfo(itstr,l))) THEN
+          print*,'Starting float ', l
           bounded(l)=.TRUE.
 # ifdef DISTRIBUTE
           IF ((Xstr.le.Tinfo(ixgrd,l)).and.                             &
