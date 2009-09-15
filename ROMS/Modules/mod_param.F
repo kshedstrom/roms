@@ -466,7 +466,6 @@
 #else
         integer, parameter :: NBT = 0
 #endif
-<<<<<<< HEAD:ROMS/Modules/mod_param.F
 
 #if defined BEST_NPZ    
 # if defined BENTHIC
@@ -522,18 +521,6 @@
 # endif
 #endif
 
-#ifdef NEMURO_SAN
-        integer, dimension(Ngrids) :: Nbox
-        integer, dimension(Ngrids) :: Nfishperyear
-        integer, dimension(Ngrids) :: Nspecies
-        integer, dimension(Ngrids) :: Nyearclass
-!   Nfish=Nfishperyear*Nspecies*Nyearclass
-        integer, dimension(Ngrids) :: Nfish
-        integer, dimension(Ngrids), parameter :: Nbatch=8
-
-        integer, dimension(Ngrids) :: Nships
-        integer, dimension(Ngrids) :: Npred
-=======
 
 #if defined BEST_NPZ    
 # if defined BENTHIC
@@ -544,8 +531,6 @@
 # if defined ICE_BIO
         integer,parameter :: NIB=4
         integer, dimension(Ngrids) :: NIceT
->>>>>>> aaefe47a02b6b982331f77df5d55478ffa4c810d:ROMS/Modules/mod_param.F
-
         integer, dimension(Ngrids) :: NIceLog
 # endif
 
@@ -866,19 +851,6 @@
           Im(ng)=Lm(ng)+I_padd
           Jm(ng)=Mm(ng)+J_padd
           NT(ng)=NAT+NBT+NST+NPT
-#if defined FLOATS || defined NEMURO_SAN
-# ifdef FLOAT_VWALK
-          NFV(ng)=NT(ng)+12
-# else
-          NFV(ng)=NT(ng)+10
-# endif
-#endif
-<<<<<<< HEAD:ROMS/Modules/mod_param.F
-#ifdef NEMURO_SAN
-          NFishV(ng)=10
-#endif
-=======
->>>>>>> aaefe47a02b6b982331f77df5d55478ffa4c810d:ROMS/Modules/mod_param.F
           NSV(ng)=NT(ng)+5
 #ifdef ADJUST_WSTRESS
           NSV(ng)=NSV(ng)+2

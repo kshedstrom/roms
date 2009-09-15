@@ -994,20 +994,6 @@
             END DO
           END DO
 !
-#if defined NEMURO_SAN && defined FISH_FEEDBACK
-!-----------------------------------------------------------------------
-! PON contribution from fish egestion and excretion
-! NON-CONSERVATIVE TERM, VIOLATES NITROGEN CONSEFVATION IN NEMURO !
-!-----------------------------------------------------------------------
-!
-          DO k=1,N(ng)
-            DO i=Istr,Iend
-              cff1=pfish(i,j,k,iPON_)/MAX(MinVal,Bio(i,k,iPON_))
-              Bio(i,k,iPON_)=Bio(i,k,iPON_)/(1.0_r8+cff1)
-            END DO
-          END DO
-#endif
-!
 !-----------------------------------------------------------------------
 !  Nutrient decomposition.
 !-----------------------------------------------------------------------

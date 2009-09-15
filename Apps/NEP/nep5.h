@@ -149,7 +149,7 @@
 /* surface and side corrections */
  
 #ifdef SOLVE3D
-# undef SRELAXATION
+# define SRELAXATION
 # undef QCORRECTION
 #endif
  

@@ -2487,16 +2487,6 @@
               FLTname(Nval)(i:i)=blank
             END DO
             FLTname(Nval)=TRIM(ADJUSTL(Cval(Nval)))
-          ELSE IF (TRIM(KeyWord).eq.'FISHNAME') THEN
-            DO i=1,LEN(FISHname(Nval))
-              FISHname(Nval)(i:i)=blank
-            END DO
-            FISHname(Nval)=TRIM(ADJUSTL(Cval(Nval)))
-          ELSE IF (TRIM(KeyWord).eq.'SHIPNAME') THEN
-            DO i=1,LEN(SHIPname(Nval))
-              SHIPname(Nval)(i:i)=blank
-            END DO
-            SHIPname(Nval)=TRIM(ADJUSTL(Cval(Nval)))
           ELSE IF (TRIM(KeyWord).eq.'GRDNAME') THEN
             DO i=1,LEN(GRDname(Nval))
               GRDname(Nval)(i:i)=blank
@@ -2588,18 +2578,6 @@
               fposnam(i:i)=blank
             END DO
             fposnam=TRIM(ADJUSTL(Cval(Nval)))
-#ifdef NEMURO_SAN
-          ELSE IF (TRIM(KeyWord).eq.'FISHPOSNAM') THEN
-            DO i=1,LEN(fishposnam)
-              fishposnam(i:i)=blank
-            END DO
-            fishposnam=TRIM(ADJUSTL(Cval(Nval)))
-          ELSE IF (TRIM(KeyWord).eq.'SHIPPOSNAM') THEN
-            DO i=1,LEN(shipposnam)
-              shipposnam(i:i)=blank
-            END DO
-            shipposnam=TRIM(ADJUSTL(Cval(Nval)))
-#endif
           ELSE IF (TRIM(KeyWord).eq.'BPARNAM') THEN
             DO i=1,LEN(bparnam)
               bparnam(i:i)=blank
@@ -3959,14 +3937,6 @@
 #ifdef FLOATS
           WRITE (out,230) '            Output Floats File:  ',          &
      &                    TRIM(FLTname(ng))
-#endif
-#ifdef NEMURO_SAN
-          WRITE (out,230) '            Output Fish File:  ',          &
-     &                    TRIM(FISHname(ng))
-# ifdef FLEET
-          WRITE (out,230) '            Output Ships File:  ',          &
-     &                    TRIM(SHIPname(ng))
-# endif
 #endif
 #ifdef MODEL_COUPLING
           WRITE (out,230) '      Physical parameters File:  ',          &

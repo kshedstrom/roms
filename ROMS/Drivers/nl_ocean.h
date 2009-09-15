@@ -114,10 +114,6 @@
 !
         CALL inp_par (iNLM)
         IF (exit_flag.ne.NoError) RETURN
-#ifdef NEMURO_SAN
-        CALL ini_fish (iNLM)
-        IF (exit_flag.ne.NoError) RETURN
-#endif
 !
 !  Allocate and initialize modules variables.
 !
@@ -239,13 +235,6 @@
           iic(ng)=my_iic
           time(ng)=time(ng)+dt(ng)
           tdays(ng)=time(ng)*sec2day
-<<<<<<< HEAD:ROMS/Drivers/nl_ocean.h
-#ifdef NEMURO_SAN
-          idays(ng) = int(tdays(ng))
-          iyears(ng) = int(tdays(ng)/days_year)
-#endif
-=======
->>>>>>> aaefe47a02b6b982331f77df5d55478ffa4c810d:ROMS/Drivers/nl_ocean.h
 !
 !-----------------------------------------------------------------------
 !  Read in required data, if any, from input NetCDF files.
