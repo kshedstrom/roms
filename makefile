@@ -1,4 +1,4 @@
-# $Id: makefile 1046 2009-08-24 23:53:05Z kate $
+# $Id: makefile 1060 2009-09-12 00:25:38Z kate $
 #::::::::::::::::::::::::::::::::::::::::::::::::::::: Hernan G. Arango :::
 # Copyright (c) 2002-2009 The ROMS/TOMS Group             Kate Hedstrom :::
 #   Licensed under a MIT/X style license                                :::
@@ -73,7 +73,7 @@ MY_HEADER_DIR ?= Apps/wc13
 #  "User/Functionals".
 #
 #  If applicable, also used this directory to place your customized
-#  biology model header file (like fasham.h, nemuro.h, ecosim.h, etc).
+#  biology model header file (like fennel.h, nemuro.h, ecosim.h, etc).
 
 MY_ANALYTICAL_DIR ?=
 
@@ -432,7 +432,7 @@ endif
 ifdef USE_SEAICE
  modules  +=	ROMS/SeaIce
 endif
- modules  +=    ROMS/Utility
+ modules  +=	ROMS/Utility
 
  includes :=	ROMS/Include
 ifdef MY_ANALYTICAL

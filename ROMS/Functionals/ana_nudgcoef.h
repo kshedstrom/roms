@@ -1,6 +1,6 @@
       SUBROUTINE ana_nudgcoef (ng, tile, model)
 !
-!! svn $Id: ana_nudgcoef.h 1023 2009-07-20 21:45:24Z kate $
+!! svn $Id: ana_nudgcoef.h 1060 2009-09-12 00:25:38Z kate $
 !!================================================= Hernan G. Arango ===
 !! Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !!   Licensed under a MIT/X style license                              !
@@ -159,60 +159,6 @@
         END DO
       END DO
 # endif
-#elif defined GISS_AOM || defined AA_10KM
-      cff1=1.0_r8/(5.0_r8*86400.0_r8)
-      cff2=0.0_r8
-      Iwrk=10
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
-         wrk(i,j) = cff2
-        END DO
-      END DO
-
-      DO j=JstrR,JendR
-! East
-        IF(j.GT.250.AND.j.LT.450) THEN
-          DO i=MAX(IstrR,Lm(ng)+1-Iwrk),MIN(Lm(ng)+1,IendR)
-            wrk(i,j)=cff1*(1.0_r8+COS(pi*REAL(i,r8)/REAL(Iwrk,r8)))
-          END DO
-        ENDIF
-! West
-!        DO i=MAX(IstrR,Lm(ng)+1-Iwrk),IendR
-!          wrk(i,j)=cff1*(1.0_r8+COS(pi*REAL(Lm(ng)+1-i,r8)/            &
-!     &                                 REAL(Iwrk,r8)))
-!        END DO
-      END DO
-! North
-      DO j=MAX(JstrR,Mm(ng)+1-Iwrk),MIN(Mm(ng)+1,JendR)
-        DO i=MAX(IstrR,Mm(ng)+1-j),MIN(Lm(ng)+1-Mm(ng)+1+j,IendR)
-          wrk(i,j)=MAX(wrk(i,j),                                        &
-     &             cff1*(1.0_r8+COS(pi*REAL(Mm(ng)+1-j,r8)/             &
-     &                                 REAL(Iwrk,r8))))
-        END DO
-      END DO
-! South
-      DO j=JstrR,MIN(Iwrk,JendR)
-        DO i=IstR,IendR
-          wrk(i,j)=MAX(wrk(i,j),                                        &
-     &           cff1*(1.0_r8+COS(pi*REAL(j,r8)/REAL(Iwrk,r8))))
-        END DO
-      END DO
-
-#  ifdef TCLM_NUDGING
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
-          CLIMA(ng)%Tnudgcof(i,j,itemp)=wrk(i,j)
-          CLIMA(ng)%Tnudgcof(i,j,isalt)=wrk(i,j)
-        END DO
-      END DO
-#  endif
-#  ifdef M3CLM_NUDGING
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
-          CLIMA(ng)%M3nudgcof(i,j)=wrk(i,j)
-        END DO
-      END DO
-#  endif
 #else
 !
 !  Default nudging coefficients.  Set nudging coefficients uniformly to

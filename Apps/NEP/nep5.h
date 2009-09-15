@@ -28,7 +28,7 @@
 #endif
 #define FLOATS
 #define STATIONS
-#define WET_DRY
+#undef WET_DRY
 
 #undef T_PASSIVE
 #ifdef T_PASSIVE

@@ -2,7 +2,7 @@
       MODULE bulk_flux_mod
 #if defined BULK_FLUXES && !defined CCSM_FLUXES
 !
-!svn $Id: bulk_flux.F 1046 2009-08-24 23:53:05Z kate $
+!svn $Id: bulk_flux.F 1060 2009-09-12 00:25:38Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -594,8 +594,8 @@
           cff2=TairK(i)*TairK(i)*TairK(i)
           cff1=cff2*TairK(i)
           LRad(i,j)=-emmiss*StefBo*                                     &
-!    &              (cff1*(0.39_r8-0.05_r8*SQRT(0.01_r8*vap_p))*        &
      &              (cff1*(0.39_r8-0.05_r8*SQRT(vap_p))*                &
+!    &              (cff1*(0.39_r8-0.05_r8*SQRT(0.01_r8*vap_p))*        &
      &                    (1.0_r8-0.6823_r8*cloud(i,j)*cloud(i,j))+     &
      &               cff2*4.0_r8*(TseaK(i)-TairK(i)))
 

@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       MODULE mod_ncparam
 !
-!svn $Id: mod_ncparam.F 1056 2009-09-08 18:51:43Z kate $
+!svn $Id: mod_ncparam.F 1060 2009-09-12 00:25:38Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -2336,9 +2336,9 @@
                 idTvar(iLDeC)=varid
               CASE ('idTvar(iSDeC)')
                 idTvar(iSDeC)=varid
-# if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
-     defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR || \
-     defined SO_SEMI
+#  if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
+      defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR || \
+      defined SO_SEMI
               CASE ('idTads(iTIC_)')
                 idTads(iTIC_)=varid
               CASE ('idTads(iTAlk)')
@@ -2352,9 +2352,9 @@
 # ifdef OXYGEN
               CASE ('idTvar(iOxyg)')
                 idTvar(iOxyg)=varid
-# if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
-     defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR || \
-     defined SO_SEMI
+#  if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
+      defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR || \
+      defined SO_SEMI
               CASE ('idTads(iOxyg)')
                 idTads(iOxyg)=varid
 #  endif

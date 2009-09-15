@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       MODULE mod_grid
 !
-!svn $Id: mod_grid.F 999 2009-06-09 23:48:31Z kate $
+!svn $Id: mod_grid.F 1060 2009-09-12 00:25:38Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -573,10 +573,6 @@
             GRID(ng) % umask_wet(i,j) = IniVal
             GRID(ng) % vmask_full(i,j) = 1.0_r8
             GRID(ng) % vmask_wet(i,j) = IniVal
-#endif
-
-#ifdef NEMURO_SAN
-            GRID(ng) % spawn_dist(i,j) = IniVal
 #endif
 
 #if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \

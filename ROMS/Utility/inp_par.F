@@ -2,7 +2,7 @@
 #undef KATE_FOO
       SUBROUTINE inp_par (model)
 !
-!svn $Id: inp_par.F 1057 2009-09-08 19:01:19Z kate $
+!svn $Id: inp_par.F 1060 2009-09-12 00:25:38Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -1289,10 +1289,6 @@
             Npts=load_i(Nval, Rval, Ngrids, nSTA)
           ELSE IF (TRIM(KeyWord).eq.'NFLT') THEN
             Npts=load_i(Nval, Rval, Ngrids, nFLT)
-          ELSE IF (TRIM(KeyWord).eq.'NFSH') THEN
-            Npts=load_i(Nval, Rval, Ngrids, nFSH)
-          ELSE IF (TRIM(KeyWord).eq.'NSHP') THEN
-            Npts=load_i(Nval, Rval, Ngrids, nSHP)
           ELSE IF (TRIM(KeyWord).eq.'NINFO') THEN
             Npts=load_i(Nval, Rval, Ngrids, ninfo)
           ELSE IF (TRIM(KeyWord).eq.'LDEFOUT') THEN
@@ -2721,14 +2717,6 @@
      &      (nFLT(ng).eq.0)) THEN
           LdefFLT(ng)=.FALSE.
         END IF
-        IF (((nrrec(ng).eq.0).and.(nFSH(ng).gt.ntimes(ng))).or.         &
-     &      (nFSH(ng).eq.0)) THEN
-          LdefFISH(ng)=.FALSE.
-        END IF
-!       IF (((nrrec(ng).eq.0).and.(nSHP(ng).gt.ntimes(ng))).or.         &
-!    &      (nSHP(ng).eq.0)) THEN
-!         LdefSHIP(ng)=.FALSE.
-!       END IF
         IF (((nrrec(ng).eq.0).and.(nHIS(ng).gt.ntimes(ng))).or.         &
      &      (nHIS(ng).eq.0)) THEN
           LdefHIS(ng)=.FALSE.
