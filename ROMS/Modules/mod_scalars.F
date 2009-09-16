@@ -936,7 +936,6 @@
         logical, dimension(Ngrids) :: LdefDIA    ! Diagnostics file
         logical, dimension(Ngrids) :: LdefERR    ! 4DVar error file
         logical, dimension(Ngrids) :: LdefFLT    ! Floats file
-        logical, dimension(Ngrids) :: LdefFISH   ! Fish file
         logical, dimension(Ngrids) :: LdefHIS    ! History file
         logical, dimension(Ngrids) :: LdefHSS    ! Hessian file
         logical, dimension(Ngrids) :: LdefINI    ! Initial file
@@ -1021,14 +1020,12 @@
         integer, dimension(Ngrids) :: NrecERR    ! 4DVar error file
         integer, dimension(Ngrids) :: NrecFIL    ! Filters file
         integer, dimension(Ngrids) :: NrecFLT    ! Floats file
-        integer, dimension(Ngrids) :: NrecFISH   ! Fish file
         integer, dimension(Ngrids) :: NrecHIS    ! History file
         integer, dimension(Ngrids) :: NrecHSS    ! Hessian file
         integer, dimension(Ngrids) :: NrecINI    ! NLM Initial file
         integer, dimension(Ngrids) :: NrecITL    ! TLM Initial file
         integer, dimension(Ngrids) :: NrecLCZ    ! Lanczos file
         integer, dimension(Ngrids) :: NrecRST    ! Restart file
-        integer, dimension(Ngrids) :: NrecSHIPS  ! Ships file
         integer, dimension(Ngrids) :: NrecSTA    ! Station file
         integer, dimension(Ngrids) :: NrecTLM    ! Tangent linear file
 
@@ -2667,14 +2664,12 @@
         NrecDIA(ng)=0
         NrecERR(ng)=0
         NrecFIL(ng)=0
-        NrecFISH(ng)=0
         NrecFLT(ng)=0
         NrecHIS(ng)=0
         NrecHSS(ng)=0
         NrecINI(ng)=0
         NrecITL(ng)=0
         NrecRST(ng)=0
-        NrecSHIPS(ng)=0
         NrecSTA(ng)=0
         NrecTLM(ng)=0
 

@@ -10796,25 +10796,6 @@
           END DO
 #     endif
 #    endif
-#    ifdef ADJUST_BOUNDARY
-          WRITE (out,170) Lobc(1:4,isFsur,ng), 'Lobc(isFsur)',          &
-     &            'Adjusting free-surface boundaries.'
-          WRITE (out,170) Lobc(1:4,isUbar,ng), 'Lobc(isUbar)',          &
-     &            'Adjusting 2D U-momentum boundaries.'
-          WRITE (out,170) Lobc(1:4,isVbar,ng), 'Lobc(isVbar)',          &
-     &            'Adjusting 2D V-momentum boundaries.'
-#     ifdef SOLVE3D
-          WRITE (out,170) Lobc(1:4,isUvel,ng), 'Lobc(isUvel)',          &
-     &            'Adjusting 3D U-momentum boundaries.'
-          WRITE (out,170) Lobc(1:4,isVvel,ng), 'Lobc(isVvel)',          &
-     &            'Adjusting 3D V-momentum boundaries.'
-          DO itrc=1,NT(ng)
-            WRITE (out,180) Lobc(1:4,isTvar(itrc),ng),'Lobc(isTvar)',   &
-     &            'Adjusting boundaries for tracer ', itrc,             &
-     &            TRIM(Vname(1,idTvar(itrc)))
-          END DO
-#     endif
-#    endif
 #   endif
 #  endif
 !

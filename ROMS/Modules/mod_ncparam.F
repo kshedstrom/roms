@@ -469,7 +469,6 @@
         integer  :: ncFILid(nfile,Ngrids)     ! output filter
 #endif
         integer  :: ncFLTid(Ngrids)     ! output floats
-        integer  :: ncFISHid(Ngrids)    ! output fish
         integer  :: ncFRCid(NV,Ngrids)  ! input forcing
         integer  :: ncFWDid(Ngrids)     ! forward solution
         integer  :: ncGRDid(Ngrids)     ! input grid
@@ -607,7 +606,6 @@
         integer  :: tERRindx(Ngrids)     ! error time record index
         integer  :: tFILindx(Ngrids)     ! filter time record index
         integer  :: tFLTindx(Ngrids)     ! floats time record index
-        integer  :: tFISHindx(Ngrids)    ! fish time record index
         integer  :: tHISindx(Ngrids)     ! history time record index
         integer  :: tHSSindx(Ngrids)     ! Hessian time record index
         integer  :: tINIindx(Ngrids)     ! initial NLM time record index
@@ -1094,7 +1092,6 @@
           ncDIAid(ng)=-1
           ncERRid(ng)=-1
           ncFLTid(ng)=-1
-          ncFISHid(ng)=-1
           ncGSTid(ng)=-1
           ncFWDid(ng)=-1
           ncGRDid(ng)=-1
@@ -1124,7 +1121,6 @@
           tDIAindx(ng)=0
           tFILindx(ng)=0
           tFLTindx(ng)=0
-          tFISHindx(ng)=0
           tHISindx(ng)=0
           tINIindx(ng)=0
           tIRPindx(ng)=1

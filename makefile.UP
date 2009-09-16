@@ -399,9 +399,6 @@ endif
 ifdef USE_SEAICE
  modules  +=	ROMS/SeaIce
 endif
-ifdef USE_FISH
- modules  +=	ROMS/Fish
-endif
 
  includes :=	ROMS/Include
 ifdef USE_ADJOINT

@@ -476,61 +476,6 @@
 # if defined ICE_BIO
         integer,parameter :: NIB=4
         integer, dimension(Ngrids) :: NIceT
-
-        integer, dimension(Ngrids) :: NIceLog
-# endif
-
-# ifdef STATIONARY
-      !------------------------------------
-      !3D stationary tracers
-      !------------------------------------
-
-        integer, dimension(Ngrids) :: NTS
-
-        integer, parameter :: NBTS = 16
-
-# endif
-
-# ifdef STATIONARY2
-      !------------------------------------
-      !2D stationary tracers
-      !------------------------------------
-
-        integer, dimension(Ngrids) :: NTS2
-        integer, parameter :: NBTS2 = 8
-# endif
-# ifdef PROD2
-      !------------------------------------
-      !2D producrion tracers (stationary)
-      !------------------------------------
-
-        integer, dimension(Ngrids) :: NPT2
-        integer, parameter :: NBPT2 = 2
-# endif
-# ifdef PROD3
-      !------------------------------------
-      !3D producrion tracers (stationary)
-      !------------------------------------
-
-        integer, dimension(Ngrids) :: NPT3
-#   if defined JELLY
-        integer, parameter :: NBPT3 = 8
-#   else
-        integer, parameter :: NBPT3 = 7
-#   endif
-# endif
-#endif
-
-
-#if defined BEST_NPZ    
-# if defined BENTHIC
-        integer,parameter :: NBEN=2
-        integer :: MBT
-        integer, dimension(Ngrids) :: NBeT
-# endif
-# if defined ICE_BIO
-        integer,parameter :: NIB=4
-        integer, dimension(Ngrids) :: NIceT
         integer, dimension(Ngrids) :: NIceLog
 # endif
 
@@ -851,6 +796,13 @@
           Im(ng)=Lm(ng)+I_padd
           Jm(ng)=Mm(ng)+J_padd
           NT(ng)=NAT+NBT+NST+NPT
+#ifdef FLOATS
+# ifdef FLOAT_VWALK
+          NFV(ng)=NT(ng)+12
+# else
+          NFV(ng)=NT(ng)+10
+# endif
+#endif
           NSV(ng)=NT(ng)+5
 #ifdef ADJUST_WSTRESS
           NSV(ng)=NSV(ng)+2

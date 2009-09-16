@@ -454,9 +454,6 @@ endif
 		ROMS/Utility \
 		ROMS/Drivers \
                 ROMS/Functionals
-ifdef USE_FISH
- includes +=	ROMS/Fish
-endif
 ifdef MY_HEADER_DIR
  includes +=	$(MY_HEADER_DIR)
 endif

@@ -341,12 +341,6 @@
       Coptions(is:is+12)=' ANA_SPFLUX,'
 # endif
 #endif
-#ifdef ANA_SPAWN_DIST
-      IF (Master) WRITE (stdout,20) 'ANA_SPAWN_DIST',                   &
-     &   'Analytical spawning "distance".'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+16)=' ANA_SPAWN_DIST,'
-#endif
 #ifdef ANA_SPINNING
       IF (Master) WRITE (stdout,20) 'ANA_SPINNING',                     &
      &   'Analytical time-varying rotation force.'
@@ -922,30 +916,6 @@
       Coptions(is:is+8)=' ECOSIM,'
       ibiology=ibiology+1
 #endif
-#ifdef EGGS_BISECTION
-      IF (Master) WRITE (stdout,20) 'EGGS_BISECTION',                   &
-     &   'Bisection of gridded spawners to make eggs.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+16)=' EGGS_BISECTION,'
-#endif
-#ifdef EGGS_TREE_CXX
-      IF (Master) WRITE (stdout,20) 'EGGS_TREE_CXX',                    &
-     &   'Binary tree of spawners to make eggs (C++ version).'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+15)=' EGGS_TREE_CXX,'
-#endif
-#ifdef EGGS_TREE_FORT
-      IF (Master) WRITE (stdout,20) 'EGGS_TREE_FORT',                   &
-     &   'Binary tree of spawners to make eggs (Fortran version).'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+16)=' TREE_FORT,'
-#endif
-#ifdef EGGS_VECTOR_CXX
-      IF (Master) WRITE (stdout,20) 'EGGS_VECTOR_CXX',                   &
-     &   'Vector of spawners to make eggs (C++ version).'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+16)=' EGGS_VECTOR_CXX,'
-#endif
 #if defined EMINUSP && defined BULK_FLUXES
       IF (Master) WRITE (stdout,20) 'EMINUSP',                          &
      &   'Compute Salt Flux using E-P.'
@@ -985,18 +955,6 @@
      &   'Writing out time-filtered output.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+10)=' FILTERED,'
-#endif
-#ifdef FISH_FEEDBACK
-      IF (Master) WRITE (stdout,20) 'FISH_FEEDBACK',                    &
-     &   'Feedback from fish onto NPZD (NEMURO for now).'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+15)=' FISH_FEEDBACK,'
-#endif
-#ifdef FLEET
-      IF (Master) WRITE (stdout,20) 'FLEET',                            &
-     &   'Fishing fleet.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+7)=' FLEET,'
 #endif
 #ifdef FLOATS
       IF (Master) WRITE (stdout,20) 'FLOATS',                           &

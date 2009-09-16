@@ -779,22 +779,6 @@
               END IF
             END IF
 # endif
-# if defined ADJUST_WSTRESS || defined ADJUST_STFLUX
-          CASE ('HgammaF')
-            IF (model.eq.11) THEN
-              CALL netcdf_get_fvar (ng, IDmod, ncname, var_name(i),     &
-     &                              FvarS)
-              IF (exit_flag.ne.NoError) RETURN
-
-              IF (ABS(Hgamma(4)-FvarS).gt.RoundOff) THEN
-                IF (Master) WRITE (stdout,20) TRIM(var_name(i)),        &
-     &                                        FvarS, Hgamma(4),         &
-     &                                        TRIM(ncname)
-                exit_flag=5
-                EXIT
-              END IF
-            END IF
-# endif
 # ifdef SOLVE3D
           CASE ('Vgamma')
             IF ((model.eq.5).or.(model.eq.10)) THEN

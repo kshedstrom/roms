@@ -3979,9 +3979,6 @@
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'microzoo_south, scalar, series'
   'bio_time'
-=======
-  'microzoo_time'
->>>>>>> aaefe47a02b6b982331f77df5d55478ffa4c810d:ROMS/External/varinfo_NCEP.dat
   'idTbry(isouth,iSzoo)'
   'nulvar'
   1.0d0

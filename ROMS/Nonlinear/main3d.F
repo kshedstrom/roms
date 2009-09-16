@@ -693,7 +693,7 @@
 # endif
 # if defined FLOATS
 !
-!  Shift floats/fish time indices.
+!  Shift floats time indices.
 !
         nfp1(ng)=MOD(nfp1(ng)+1,NFT+1)
         nf(ng)  =MOD(nf(ng)  +1,NFT+1)
