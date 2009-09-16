@@ -82,8 +82,6 @@
 
       real(r8), intent(in) :: Fspval
 
-      real(r8), intent(in) :: Fspval
-
       real(r8), intent(in) :: nudg(Lstr:Lend)
 
       real(r8), intent(in) :: pm(LBi:UBi,LBj:UBj)
