@@ -544,10 +544,10 @@ Hout(idTsur) == 11*F                       ! surface tracer flux
 !                Hout(idTvar)           biological tracers
 !                Hout(idTsur)           biological tracers surface flux
 !
-!                  idTvar( 1)=iLphy     Large Phytoplankton biomass
-!                  idTvar( 2)=iSphy     Small Phytoplankton biomass
-!                  idTvar( 3)=iLzoo     Large Zooplankton biomass
-!                  idTvar( 4)=iSzoo     Small Zooplankton biomass
+!                  idTvar( 1)=iSphy     Small Phytoplankton biomass
+!                  idTvar( 2)=iLphy     Large Phytoplankton biomass
+!                  idTvar( 3)=iSzoo     Small Zooplankton biomass
+!                  idTvar( 4)=iLzoo     Large Zooplankton biomass
 !                  idTvar( 5)=iPzoo     Predator Zooplankton biomass
 !                  idTvar( 6)=iNO3_     Nitrate concentration
 !                  idTvar( 7)=iNH4_     Ammonium concentration
