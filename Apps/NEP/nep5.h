@@ -258,9 +258,9 @@
 /*
 **  Biological model options.
 */
-#define NEMURO
+#undef NEMURO
 #undef BIO_GOANPZ        /* Sarah Hinckley's 11 box model */
-#undef BEST_NPZ         /* Georgina Gibsons BEST NPZ model  */
+#define BEST_NPZ         /* Georgina Gibsons BEST NPZ model  */
 
 #if defined BEST_NPZ || defined BIO_GOANPZ || defined PASSIVE_TRACERS
 # undef  BIOFLUX           /* sum Nitrogen fluxes between boxes */
@@ -299,7 +299,7 @@
 # define PROD2
 # define BENTHIC /*FENNEL or BENTHIC or TRAP*/
 # define ICE_BIO
-# define CLIM_ICE_1D
+# undef CLIM_ICE_1D
 
 # undef SINKVAR      /* for variable sinking rate*/
 # undef DENMAN
@@ -311,7 +311,7 @@
 #   endif
 #  undef DIAPAUSE          /* Enable Neocalanus seasonal vertical migration */
 #  define  IRON_LIMIT        /* Add iron as passive 13th tracer */
-#    if defined IRON_LIMIT || define CLIM_ICE_1D
+#    if defined IRON_LIMIT || defined CLIM_ICE_1D
 #      if !defined OFFLINE_BIOLOGY
 #       define TCLM_NUDGING    /* Nudging of tracer climatology for iron */
 #       undef  ANA_TCLIMA     /* analytical tracers climatology for iron */
