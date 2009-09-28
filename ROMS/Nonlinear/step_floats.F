@@ -719,12 +719,21 @@
 !-----------------------------------------------------------------------
 !
       HalfDT=0.5_r8*dt(ng)
+#ifdef NEP5
+! Check for year-old floats.
+      DO l=Lstr,Lend
+        IF (time(ng) .gt. Tinfo(itstr,l)+day2sec*360_r8) THEN
+	  Tinfo(itstr,l) = Tinfo(itstr,l)+day2sec*365.25_r8
+	  bounded(l) = .FALSE.
+        END IF
+      END DO
+#endif
 
       DO l=Lstr,Lend
         IF (.not.bounded(l).and.                                        &
      &      (time(ng)-HalfDT.le.Tinfo(itstr,l).and.                     &
      &       time(ng)+HalfDT.gt.Tinfo(itstr,l))) THEN
-          print*,'Starting float ', l
+          IF (Master) print *,'Starting float ', l
           bounded(l)=.TRUE.
 # ifdef DISTRIBUTE
           IF ((Xstr.le.Tinfo(ixgrd,l)).and.                             &
