@@ -2,7 +2,7 @@
       MODULE zeta_balance_mod
 
 #if defined BALANCE_OPERATOR  && defined ZETA_ELLIPTIC
-!svn $Id: zeta_balance.F 1057 2009-09-08 19:01:19Z kate $
+!svn $Id: zeta_balance.F 1076 2009-09-25 23:18:43Z kate $
 !=================================================== Andrew M. Moore ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group      Hernan G. Arango   !
 !    Licensed under a MIT/X style license                              !
@@ -57,6 +57,7 @@
       USE mod_coupling
       USE mod_mixing
 # endif
+      USE mod_fourdvar
       USE mod_ocean
       USE mod_stepping
 # ifdef SOLVE3D
@@ -112,7 +113,7 @@
      &                       OCEAN(ng) % rho,                           &
 # endif
      &                       OCEAN(ng) %  zeta,                         &
-     &                       OCEAN(ng) % rhs_r2d)
+     &                       FOURDVAR(ng) % rhs_r2d)
 
       RETURN
       END SUBROUTINE balance_ref
@@ -401,6 +402,7 @@
       USE mod_coupling
       USE mod_mixing
 # endif
+      USE mod_fourdvar
       USE mod_ocean
       USE mod_stepping
 # ifdef SOLVE3D
@@ -433,19 +435,19 @@
      &                  GRID(ng) % vmask,                               &
      &                  GRID(ng) % rmask,                               &
 # endif
-     &                  OCEAN(ng) % bc_ak,                              &
-     &                  OCEAN(ng) % bc_bk,                              &
-     &                  OCEAN(ng) % zdf1,                               &
-     &                  OCEAN(ng) % zdf2,                               &
-     &                  OCEAN(ng) % zdf3,                               &
-     &                  OCEAN(ng) % pc_r2d,                             &
-     &                  OCEAN(ng) % r_r2d,                              &
-     &                  OCEAN(ng) % br_r2d,                             &
-     &                  OCEAN(ng) % p_r2d,                              &
-     &                  OCEAN(ng) % bp_r2d,                             &
+     &                  FOURDVAR(ng) % bc_ak,                           &
+     &                  FOURDVAR(ng) % bc_bk,                           &
+     &                  FOURDVAR(ng) % zdf1,                            &
+     &                  FOURDVAR(ng) % zdf2,                            &
+     &                  FOURDVAR(ng) % zdf3,                            &
+     &                  FOURDVAR(ng) % pc_r2d,                          &
+     &                  FOURDVAR(ng) % r_r2d,                           &
+     &                  FOURDVAR(ng) % br_r2d,                          &
+     &                  FOURDVAR(ng) % p_r2d,                           &
+     &                  FOURDVAR(ng) % bp_r2d,                          &
      &                  OCEAN(ng) % zeta,                               &
-     &                  OCEAN(ng) % zeta_ref,                           &
-     &                  OCEAN(ng) % rhs_r2d)
+     &                  FOURDVAR(ng) % zeta_ref,                        &
+     &                  FOURDVAR(ng) % rhs_r2d)
 
       RETURN
       END SUBROUTINE biconj

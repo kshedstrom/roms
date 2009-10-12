@@ -2563,7 +2563,7 @@
               dhicedt=it(i,j,nnew,iIceZ)-it(i,j,nstp,iIceZ)
 # else
 
-              dhicedt=it(i,j,nnew(ng),iIceZ)-it(i,j,nstp(ng),iIceZ)
+              dhicedt=it(i,j,nnew,iIceZ)-it(i,j,nstp,iIceZ)
 !              dhicedt=(hi(i,j,nstp)-hi(i,j,nnew))
 # endif
               dhicedt=dhicedt*sec2day/dtdays !convert to m/s

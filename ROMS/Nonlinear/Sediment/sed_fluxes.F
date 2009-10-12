@@ -4,7 +4,7 @@
 
 #if defined NONLINEAR && defined SEDIMENT && defined SUSPLOAD
 !
-!svn $Id: sed_fluxes.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: sed_fluxes.F 1076 2009-09-25 23:18:43Z kate $
 !==================================================== John C. Warner ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group      Hernan G. Arango   !
 !    Licensed under a MIT/X style license                              !

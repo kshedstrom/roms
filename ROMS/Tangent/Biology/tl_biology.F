@@ -1,37 +1,39 @@
 #include "cppdefs.h"
-      MODULE ad_biology_mod
-#if defined ADJOINT && defined BIOLOGY
+      MODULE tl_biology_mod
+#if defined TANGENT && defined BIOLOGY
 !
-!svn $Id: ad_biology.F 1013 2009-07-07 21:21:23Z kate $
+!svn $Id: tl_biology.F 1076 2009-09-25 23:18:43Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
-!=======================================================================
+!======================================================================= 
 !                                                                      !
-!  This routine computes the adjoint source and sink terms for the     !
-!  selected biology model.                                             !
+!  This routine computes the tangent linear source and sink terms for  !
+!  the selected biology model.                                         !
 !                                                                      !
 !=======================================================================
 !
       implicit none
 
       PRIVATE
-      PUBLIC  :: ad_biology
+      PUBLIC  :: tl_biology
 
       CONTAINS
 
 # if defined BIO_FENNEL
-!!#  include <ad_fennel.h>
+!!#  include <tl_fennel.h>
 # elif defined NEMURO
-!!#  include <ad_nemuro.h>
+!!#  include <tl_nemuro.h>
+# elif defined BIO_UMAINE
+!!#  include <tl_UMAINE.h>
 # elif defined NPZD_FRANKS
-#  include <ad_npzd_Franks.h>
+#  include <tl_npzd_Franks.h>
 # elif defined NPZD_IRON
-#  include <ad_npzd_iron.h>
+#  include <tl_npzd_iron.h>
 # elif defined NPZD_POWELL
-#  include <ad_npzd_Powell.h>
+#  include <tl_npzd_Powell.h>
 # endif
 
 #endif
-      END MODULE ad_biology_mod
+      END MODULE tl_biology_mod
