@@ -720,11 +720,19 @@
 !
       HalfDT=0.5_r8*dt(ng)
 #ifdef NEP5
-! Check for year-old floats.
+! Check for start of run. Make sure the start time for all floats is
+! in the future.
+      IF (iic(ng).eq.ntstart(ng)) THEN
+        DO l=Lstr,Lend
+          DO WHILE (time(ng) .gt. Tinfo(itstr,l))
+            Tinfo(itstr,l) = Tinfo(itstr,l)+day2sec*365.25_r8
+          END DO
+        END DO
+      END IF
+! Check for old floats about to be restarted.
       DO l=Lstr,Lend
-        IF (time(ng) .gt. Tinfo(itstr,l)+day2sec*360_r8) THEN
-	  Tinfo(itstr,l) = Tinfo(itstr,l)+day2sec*365.25_r8
-	  bounded(l) = .FALSE.
+        IF (time(ng) .gt. Tinfo(itstr,l)-day2sec) THEN
+          bounded(l) = .FALSE.
         END IF
       END DO
 #endif
@@ -733,7 +741,10 @@
         IF (.not.bounded(l).and.                                        &
      &      (time(ng)-HalfDT.le.Tinfo(itstr,l).and.                     &
      &       time(ng)+HalfDT.gt.Tinfo(itstr,l))) THEN
+#ifdef NEP5
           IF (Master) print *,'Starting float ', l
+	  Tinfo(itstr,l) = Tinfo(itstr,l) + day2sec*365.25_r8
+#endif
           bounded(l)=.TRUE.
 # ifdef DISTRIBUTE
           IF ((Xstr.le.Tinfo(ixgrd,l)).and.                             &
