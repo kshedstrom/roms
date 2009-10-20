@@ -124,7 +124,6 @@
 # else
       logical, parameter :: Lmask = .FALSE.
 # endif
-      real(r8), dimension(Nfish(ng)) :: nudg
 
 # include "set_bounds.h"
 # ifdef DISTRIBUTE
@@ -174,9 +173,6 @@
 !
       temp_opt=15.0_r8
       temp_sigma=3.0_r8
-      DO l=1,Nfish(ng)
-        nudg(l)=0.0_r8
-      END DO
 !
 ! sp_time: time in days, modulo days_year
 ! KLUDGE: Depends on time origin being at the start of a year
@@ -195,17 +191,13 @@
           IF ((sp_time.ge.sp_start(isp)).and.                           &
      &              (sp_time.le.sp_end(isp))) THEN
             Ftemp=track(itemp+NFV(ng)-NT(ng),nnew,ifid)
-!           IF (alive(ifid)) THEN
-            IF ((alive(ifid)).and.                                      &
-     &              (bioenergy(ifage,ifid).ge.Fage0(ng)).and.           &
-     &              (lifestage(ifid).eq.if_adult).and.                  &
-     &              (INT(bioenergy(ifbatch,ifid)).lt.Nbatch(ng)).and.   &
-     &              (ABS(Ftemp-temp_opt).le.temp_sigma).and.            &
-     &              ((sp_time-bioenergy(iftspwn,ifid)).ge.7.0_r8)) THEN
-              bioenergy(ifeggs,ifid)=20000.0_r8*                  &
-     &                                     bioenergy(ifworth,ifid)
-              bioenergy(ifbatch,ifid)=bioenergy(ifbatch,ifid)+    &
-     &                                      1.0_r8
+            IF ((bioenergy(ifage,ifid).ge.Fage0(ng)).and.               &
+     &          (INT(bioenergy(ifbatch,ifid)).lt.Nbatch(ng)).and.       &
+     &          (ABS(Ftemp-temp_opt).le.temp_sigma).and.                &
+     &          ((sp_time-bioenergy(iftspwn,ifid)).ge.7.0_r8)) THEN
+              bioenergy(ifeggs,ifid)=20000.0_r8*                        &
+     &                               bioenergy(ifworth,ifid)
+              bioenergy(ifbatch,ifid)=bioenergy(ifbatch,ifid)+1.0_r8
               bioenergy(iftspwn,ifid)=sp_time
             ELSE
               bioenergy(ifeggs,ifid)=0.0_r8
@@ -215,6 +207,7 @@
 ! If after end of spawning window, zero out spawning attributes
           IF (sp_time.gt.sp_end(isp)) THEN
             bioenergy(ifeggs,ifid)=0.0_r8
+            bioenergy(ifbatch,ifid)=0.0_r8
           END IF
 !
         END IF

@@ -55,7 +55,7 @@
 
 ! Fish behavior [1=Fitness, 2=Kinesis]
 
-       Fbehave == 2
+       Fbehave == 1
 
 ! Fish preference for ZS, {0.5d0}.
 
@@ -143,7 +143,7 @@
 
 ! Number of fish per year per species.
 
-     Nfishperyear == 100
+     Nfishperyear == 10
 
 ! Number of fish species.
 

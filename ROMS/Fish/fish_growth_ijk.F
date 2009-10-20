@@ -1,6 +1,6 @@
 #include "cppdefs.h"
 #if defined NONLINEAR && defined NEMURO_SAN
-      SUBROUTINE fish_growth_ijk (ng, Ir, Jr, Kr, nnew,                 &
+      SUBROUTINE fish_growth_ijk (ng, Ipos, Jpos, Kpos, nnew,           &
      &                                Fweight, Uswim, Fgrowth)
 !
 !svn $Id: interp_floats.F 294 2009-01-09 21:37:26Z arango $
@@ -55,7 +55,7 @@
 !
 !  Imported variable declarations.
 !
-      integer, intent(in) :: ng, Ir, Jr, Kr, nnew
+      integer, intent(in) :: ng, Ipos, Jpos, Kpos, nnew
       real(r8), intent(in) :: Uswim, Fweight
       real(r8), intent(inout) :: Fgrowth
 !
@@ -79,16 +79,16 @@
 ! Comsumption
       C_max=a_C(ng)*Fweight**(-b_C(ng))
 # ifdef MASKING
-      SZooC=mmol2g*GRID(ng)%rmask(Ir,Jr)*                               &
-     &             OCEAN(ng)%t(Ir,Jr,Kr,nnew,iSzoo)
-      LZooC=mmol2g*GRID(ng)%rmask(Ir,Jr)*                               &
-     &             OCEAN(ng)%t(Ir,Jr,Kr,nnew,iLzoo)
-      PZooC=mmol2g*GRID(ng)%rmask(Ir,Jr)*                               &
-     &             OCEAN(ng)%t(Ir,Jr,Kr,nnew,iPzoo)
+      SZooC=mmol2g*GRID(ng)%rmask(Ipos,Jpos)*                           &
+     &             OCEAN(ng)%t(Ipos,Jpos,Kpos,nnew,iSzoo)
+      LZooC=mmol2g*GRID(ng)%rmask(Ipos,Jpos)*                           &
+     &             OCEAN(ng)%t(Ipos,Jpos,Kpos,nnew,iLzoo)
+      PZooC=mmol2g*GRID(ng)%rmask(Ipos,Jpos)*                           &
+     &             OCEAN(ng)%t(Ipos,Jpos,Kpos,nnew,iPzoo)
 # else
-      SZooC=mmol2g*OCEAN(ng)%t(Ir,Jr,Kr,nnew,iSzoo)
-      LZooC=mmol2g*OCEAN(ng)%t(Ir,Jr,Kr,nnew,iLzoo)
-      PZooC=mmol2g*OCEAN(ng)%t(Ir,Jr,Kr,nnew,iPzoo)
+      SZooC=mmol2g*OCEAN(ng)%t(Ipos,Jpos,Kpos,nnew,iSzoo)
+      LZooC=mmol2g*OCEAN(ng)%t(Ipos,Jpos,Kpos,nnew,iLzoo)
+      PZooC=mmol2g*OCEAN(ng)%t(Ipos,Jpos,Kpos,nnew,iPzoo)
 # endif
       FSZoo=SZooC*ZSpref(ng)/K_ZS(ng)
       FLZoo=LZooC*ZLpref(ng)/K_ZL(ng)
@@ -103,7 +103,7 @@
       Resp=a_R(ng)*Fweight**(-b_R(ng))*Actv*5.258
 ! Specific Dynamic Action
       SDA=a_S(ng)*(Csmp-Egst)
-! Growth Potential at Ir,Jr,Kr
+! Growth Potential at Ipos,Jpos,Kpos
       Fgrowth=Csmp-Egst-Excr-Resp-SDA
 !
 #else
