@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       MODULE nf_fread2d_mod
 !
-!svn $Id: nf_fread2d.F 984 2009-05-24 01:43:19Z kate $
+!svn $Id: nf_fread2d.F 1054 2009-09-04 20:25:40Z arango $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -95,7 +95,9 @@
 !
 !  Local variable declarations.
 !
-      logical :: foundit, interpolate
+      logical :: interpolate
+
+      logical, dimension(3) :: foundit
 
       integer :: i, ic, ij, j, jc, np, MyNpts, Npts
       integer :: Imin, Imax, Isize, Jmin, Jmax, Jsize, IJsize
@@ -107,12 +109,13 @@
       integer, dimension(3) :: start, total
 
       integer :: nf_fread2d
-       
-      real(r8) :: Aspval
+
+      real(r8) :: Afactor, Aoffset, Aspval
 
       real(r8), parameter :: IniVal = 0.0_r8
 
       real(r8), dimension(2) :: buffer
+      real(r8), dimension(3) :: AttValue
 
       real(r8), allocatable :: Awrk(:,:)
 # if defined MASKING && defined READ_WATER
@@ -120,7 +123,8 @@
 # endif
       real(r8), allocatable :: wrk(:)
 
-      character (len=3), dimension(2) :: op_handle
+      character (len= 3), dimension(2) :: op_handle
+      character (len=12), dimension(3) :: AttName
 !
 !-----------------------------------------------------------------------
 !  Set starting and ending indices to process.
@@ -181,7 +185,7 @@
 !
 !  Determine if interpolating from coarse gridded data to model grid
 !  is required.  This is only allowed for gridded 2D fields.  This is
-!  convinient for atmospheric forcing datasets that are usually on
+!  convenient for atmospheric forcing datasets that are usually on
 !  coarser grids. The user can provide coarser gridded data to avoid
 !  very large input files.
 !
@@ -193,17 +197,47 @@
         Jlen=Vsize(2)
       END IF
 !
-!  If interpolating, check if the variable has a _FillValue attribute.
+!  Check if the following attributes: "scale_factor", "add_offset", and
+!  "_FillValue" are present in the input NetCDF variable:
 !
-      IF (interpolate) THEN
-        CALL netcdf_get_fatt (ng, model, ncname, ncvarid, '_FillValue', &
-     &                        Aspval, foundit,                          &
-     &                        ncid = ncid)
-        IF (.not.foundit) THEN
-          Aspval=spval_check
-        END IF
+!  If the "scale_value" attribute is present, the data is multiplied by
+!  this factor after reading.
+!  If the "add_offset" attribute is present, this value is added to the
+!  data after reading.
+!  If both "scale_factor" and "add_offset" attributes are present, the
+!  data are first scaled before the offset is added.
+!  If the "_FillValue" attribute is present, the data having this value
+!  is treated as missing and it is replaced with zero. This feature it
+!  is usually related with the land/sea masking.
+!
+      AttName(1)='scale_factor'
+      AttName(2)='add_offset  '
+      AttName(3)='_FillValue  ' 
+
+      CALL netcdf_get_fatt (ng, model, ncname, ncvarid, AttName,        &
+     &                      AttValue, foundit,                          &
+     &                      ncid = ncid)
+      IF (exit_flag.ne.NoError) THEN
+        nf_fread2d=ioerror
+        RETURN
+      END IF
+
+      IF (.not.foundit(1)) THEN
+        Afactor=1.0_r8
       ELSE
+        Afactor=AttValue(1)
+      END IF
+
+      IF (.not.foundit(2)) THEN
+        Aoffset=0.0_r8
+      ELSE
+        Aoffset=AttValue(2)
+      END IF
+
+      IF (.not.foundit(3)) THEN
         Aspval=spval_check
+      ELSE
+        Aspval=AttValue(3)
       END IF
 !
 !-----------------------------------------------------------------------
@@ -286,7 +320,7 @@
             IF (ABS(wrk(i)).ge.ABS(Aspval)) THEN
               wrk(i)=0.0_r8                     ! masked with _FillValue
             ELSE
-              wrk(i)=Ascl*wrk(i)
+              wrk(i)=Ascl*(Afactor*wrk(i)+Aoffset)
               Amin=MIN(Amin,wrk(i))
               Amax=MAX(Amax,wrk(i))
             END IF
@@ -411,7 +445,7 @@
             IF (ABS(wrk(i)).ge.ABS(Aspval)) THEN
               wrk(i)=0.0_r8                     ! masked with _FillValue
             ELSE
-              wrk(i)=Ascl*wrk(i)
+              wrk(i)=Ascl*(Afactor*wrk(i)+Aoffset)
               Amin=MIN(Amin,wrk(i))
               Amax=MAX(Amax,wrk(i))
             END IF
@@ -576,7 +610,10 @@
 !
 !  Local variable declarations.
 !
-      logical :: foundit, interpolate
+      logical :: interpolate
+
+      logical, dimension(3) :: foundit
+
       integer :: i, j, ic, Npts, NWpts, status, wtype
       integer :: Imin, Imax, Jmin, Jmax
       integer :: Ilen, Jlen, IJlen, MyType
@@ -587,11 +624,13 @@
 
       integer :: nf_fread2d
 
-      real(r8), parameter :: Aspv = 0.0_r8
+      real(r8) :: Afactor, Aoffset, Aspval
 
-      real(r8) :: Aspval
+      real(r8), dimension(3) :: AttValue
 
       real(r8), allocatable :: wrk(:)
+
+      character (len=12), dimension(3) :: AttName
 !
 !-----------------------------------------------------------------------
 !  Set starting and ending indices to process.
@@ -666,17 +705,47 @@
       END IF
       IJlen=Ilen*Jlen
 !
-!  If interpolating, check if the variable has a _FillValue attribute.
+!  Check if the following attributes: "scale_factor", "add_offset", and
+!  "_FillValue" are present in the input NetCDF variable:
 !
-      IF (interpolate) THEN
-        CALL netcdf_get_fatt (ng, model, ncname, ncvarid, '_FillValue', &
-     &                        Aspval, foundit,                          &
-     &                        ncid = ncid)
-        IF (.not.foundit) THEN
-          Aspval=spval_check
-        END IF
+!  If the "scale_value" attribute is present, the data is multiplied by
+!  this factor after reading.
+!  If the "add_offset" attribute is present, this value is added to the
+!  data after reading.
+!  If both "scale_factor" and "add_offset" attributes are present, the
+!  data are first scaled before the offset is added.
+!  If the "_FillValue" attribute is present, the data having this value
+!  is treated as missing and it is replaced with zero. This feature it
+!  is usually related with the land/sea masking.
+!
+      AttName(1)='scale_factor'
+      AttName(2)='add_offset  '
+      AttName(3)='_FillValue  ' 
+
+      CALL netcdf_get_fatt (ng, model, ncname, ncvarid, AttName,        &
+     &                      AttValue, foundit,                          &
+     &                      ncid = ncid)
+      IF (exit_flag.ne.NoError) THEN
+        nf_fread2d=ioerror
+        RETURN
+      END IF
+
+      IF (.not.foundit(1)) THEN
+        Afactor=1.0_r8
       ELSE
+        Afactor=AttValue(1)
+      END IF
+
+      IF (.not.foundit(2)) THEN
+        Aoffset=0.0_r8
+      ELSE
+        Aoffset=AttValue(2)
+      END IF
+
+      IF (.not.foundit(3)) THEN
         Aspval=spval_check
+      ELSE
+        Aspval=AttValue(3)
       END IF
 
 # if defined READ_WATER && defined MASKING
@@ -752,7 +821,7 @@
             IF (ABS(wrk(i)).ge.ABS(Aspval)) THEN
               wrk(i)=0.0_r8                     ! masked with _FillValue
             ELSE
-              wrk(i)=Ascl*wrk(i)
+              wrk(i)=Ascl*(Afactor*wrk(i)+Aoffset)
               Amin=MIN(Amin,wrk(i))
               Amax=MAX(Amax,wrk(i))
             END IF

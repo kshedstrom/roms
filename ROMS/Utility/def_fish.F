@@ -1030,13 +1030,13 @@
 
         IF (Master) THEN
           print *, 'First Year for Fish'
-	  print *, 'Free fish ', FISHES(ng) % num_free
-	  print *, 'Fish ages ', FISHES(ng) % age_base
+          print *, 'Free fish ', FISHES(ng) % num_free
+          print *, 'Fish ages ', FISHES(ng) % age_base
         END IF
       END IF QUERY
 !
   10  FORMAT (6x,'DEF_FISH  - creating fish file: ',a)
-  20  FORMAT (6x,'DEF_FISH  - inquiring history file: ',a)
+  20  FORMAT (6x,'DEF_FISH  - inquiring fish file: ',a)
   30  FORMAT (/,' DEF_FISH - unable to create fish NetCDF',             &
      &        ' file: ',a)
   40  FORMAT (1pe11.4,1x,'millimeter')

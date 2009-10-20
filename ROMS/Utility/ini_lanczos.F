@@ -3,7 +3,7 @@
 
 #ifdef OBS_SENSITIVITY
 !
-!svn $Id: ini_lanczos.F 1012 2009-07-07 20:52:45Z kate $
+!svn $Id: ini_lanczos.F 1009 2009-07-01 23:26:40Z arango $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !

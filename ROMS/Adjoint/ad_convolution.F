@@ -21,7 +21,7 @@
 #  define JV_RANGE Jstr,JendR
 # endif
 !
-!svn $Id: ad_convolution.F 1012 2009-07-07 20:52:45Z kate $
+!svn $Id: ad_convolution.F 1006 2009-06-26 15:56:33Z arango $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !

@@ -2,7 +2,7 @@
 #ifdef FLOATS
       SUBROUTINE def_floats (ng, ldef)
 !
-!svn $Id: def_floats.F 1031 2009-07-31 19:54:01Z kate $
+!svn $Id: def_floats.F 1057 2009-09-08 19:01:19Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -658,7 +658,7 @@
       END IF QUERY
 !
   10  FORMAT (6x,'DEF_FLOATS  - creating floats file: ',a)
-  20  FORMAT (6x,'DEF_FLOATS  - inquiring history file: ',a)
+  20  FORMAT (6x,'DEF_FLOATS  - inquiring floats file: ',a)
   30  FORMAT (/,' DEF_FLOATS - unable to create floats NetCDF',         &
      &        ' file: ',a)
   40  FORMAT (1pe11.4,1x,'millimeter')

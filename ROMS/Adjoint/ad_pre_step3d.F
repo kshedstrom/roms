@@ -4,7 +4,7 @@
 #if defined ADJOINT && defined SOLVE3D
 # define NEUMANN
 !
-!svn $Id: ad_pre_step3d.F 1039 2009-08-11 22:52:28Z kate $
+!svn $Id: ad_pre_step3d.F 1036 2009-08-11 19:49:12Z arango $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !

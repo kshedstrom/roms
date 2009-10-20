@@ -2,7 +2,7 @@
 #if defined ADJOINT && defined IMPULSE
       SUBROUTINE wrt_impulse (ng, tile, model, INPncname)
 !
-!svn $Id: wrt_impulse.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: wrt_impulse.F 907 2009-01-22 22:56:26Z arango $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !

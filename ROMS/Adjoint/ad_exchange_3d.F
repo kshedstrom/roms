@@ -3,7 +3,7 @@
 #if defined ADJOINT && defined SOLVE3D && \
     (defined EW_PERIODIC || defined NS_PERIODIC)
 !
-!svn $Id: ad_exchange_3d.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: ad_exchange_3d.F 889 2009-01-09 21:27:08Z arango $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !

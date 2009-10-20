@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       SUBROUTINE get_state (ng, model, msg, ncname, IniRec, Tindex)
 !
-!svn $Id: get_state.F 1038 2009-08-11 22:29:40Z kate $
+!svn $Id: get_state.F 1056 2009-09-08 18:51:43Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -1646,7 +1646,7 @@
 !    &                        Vname(1,idFspwn), varid,                  &
 !    &                        InpRec, gtype, Vsize,                     &
 !    &                        LBi, UBi, LBj, UBj, 1, Nspecies(ng),      &
-!    &                        Fscl, Fmin, Fmax,                         &
+!    &                        Fscl, Foff, Fmin, Fmax,                   &
 # ifdef MASKING
 !    &                        GRID(ng) % rmask,                         &
 # endif
@@ -2364,6 +2364,27 @@
             END IF
           END IF
         END IF
+# ifdef DISTRIBUTE
+          CALL mp_exchange2d (ng, MyRank, IDmod, 4,                     &
+     &                        LBi, UBi, LBj, UBj,                       &
+     &                        NghostPoints, EWperiodic, NSperiodic,     &
+     &                        FORCES(ng) % rhoa_n,                      &
+     &                        FORCES(ng) % cd_d,                        &
+     &                        FORCES(ng) % ch_d,                        &
+     &                        FORCES(ng) % ce_d)
+          CALL mp_exchange2d (ng, MyRank, IDmod, 3,                     &
+     &                        LBi, UBi, LBj, UBj,                       &
+     &                        NghostPoints, EWperiodic, NSperiodic,         &
+     &                        FORCES(ng) % cd_m,                        &
+     &                        FORCES(ng) % ch_m,                        &
+     &                        FORCES(ng) % ce_m)
+          CALL mp_exchange2d (ng, MyRank, IDmod, 2,                     &
+     &                        LBi, UBi, LBj, UBj,                       &
+     &                        NghostPoints, EWperiodic, NSperiodic,     &
+     &                        FORCES(ng) % wg2_d,                       &
+     &                        FORCES(ng) % wg2_m)
+# endif
+
 #  endif
 # endif
       END IF NLM_STATE

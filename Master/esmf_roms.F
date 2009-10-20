@@ -6,7 +6,7 @@
 
 #if defined ESMF_COUPLING || defined ESMF_LIB
 !
-!svn $Id: esmf_roms.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: esmf_roms.F 1057 2009-09-08 19:01:19Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -1114,8 +1114,8 @@
         JstrV=BOUNDS(ng)%JstrV(MyRank)
         LBi=BOUNDS(ng)%LBi(MyRank)
         UBi=BOUNDS(ng)%UBi(MyRank)
-        LBj=BOUNDS(ng)%LBi(MyRank)
-        UBj=BOUNDS(ng)%UBi(MyRank)
+        LBj=BOUNDS(ng)%LBj(MyRank)
+        UBj=BOUNDS(ng)%UBj(MyRank)
 
         DO ifield=1,Nimport(Iocean)
           id=ImportID(Iocean)%val(ifield)

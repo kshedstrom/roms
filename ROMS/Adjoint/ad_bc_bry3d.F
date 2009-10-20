@@ -2,7 +2,7 @@
       MODULE ad_bc_bry3d_mod
 #ifdef ADJOINT
 !
-!svn $Id: ad_bc_bry3d.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: ad_bc_bry3d.F 931 2009-02-20 22:03:57Z arango $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !

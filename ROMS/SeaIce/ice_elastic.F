@@ -295,6 +295,98 @@
 ! 
 ! Initialize fast-step velocities if beginning of cycle
 !
+! Update ice velocity
+!
+      IF(ievp(ng).eq.1) THEN
+        DO j=Jstr,Jend
+          DO i=IstrU,Iend
+            uie(i,j,1) = ui(i,j,liuol)
+            uie(i,j,2) = ui(i,j,liuol)
+          END DO
+        END DO
+        DO j=JstrV,Jend
+          DO i=Istr,Iend
+             vie(i,j,1) = vi(i,j,liuol)
+             vie(i,j,2) = vi(i,j,liuol)
+          END DO
+        END DO
+        IF (WESTERN_EDGE) THEN
+          DO j=Jstr,Jend
+             uie(1,j,1) = ui(1,j,liuol)
+             uie(1,j,2) = ui(1,j,liuol)
+          END DO
+          DO j=JstrV,Jend
+             vie(0,j,1) = vi(0,j,liuol)
+             vie(0,j,2) = vi(0,j,liuol)
+          END DO
+        ENDIF
+        IF (EASTERN_EDGE) THEN
+          DO j=Jstr,Jend
+             uie(Lm(ng)+1,j,1) = ui(Lm(ng)+1,j,liuol)
+             uie(Lm(ng)+1,j,2) = ui(Lm(ng)+1,j,liuol)
+          END DO
+          DO j=JstrV,Jend
+             vie(Lm(ng)+1,j,1) = vi(Lm(ng)+1,j,liuol)
+             vie(Lm(ng)+1,j,2) = vi(Lm(ng)+1,j,liuol)
+          END DO
+        ENDIF
+        IF (SOUTHERN_EDGE) THEN
+          DO i=IstrU,Iend
+             uie(i,0,1) = ui(i,0,liuol)
+             uie(i,0,2) = ui(i,0,liuol)
+          END DO
+          DO i=Istr,Iend
+             vie(i,1,1) = vi(i,1,liuol)
+             vie(i,1,2) = vi(i,1,liuol)
+          END DO
+        ENDIF
+        IF (NORTHERN_EDGE) THEN
+          DO i=IstrU,Iend
+             uie(i,Mm(ng)+1,1) = ui(i,Mm(ng)+1,liuol)
+             uie(i,Mm(ng)+1,2) = ui(i,Mm(ng)+1,liuol)
+          END DO
+          DO i=Istr,Iend
+             vie(i,Mm(ng)+1,1) = vi(i,Mm(ng)+1,liuol)
+             vie(i,Mm(ng)+1,2) = vi(i,Mm(ng)+1,liuol)
+          END DO
+        END IF
+        IF (SOUTHERN_EDGE.and.WESTERN_EDGE) THEN
+          uie(1,0,1) = ui(1,0,liuol)
+          uie(1,0,2) = ui(1,0,liuol)
+          vie(0,1,1) = vi(0,1,liuol)
+          vie(0,1,2) = vi(0,1,liuol)
+        END IF
+        IF (SOUTHERN_EDGE.and.EASTERN_EDGE) THEN
+          uie(Lm(ng)+1,0,1) = ui(Lm(ng)+1,0,liuol)
+          uie(Lm(ng)+1,0,2) = ui(Lm(ng)+1,0,liuol)
+          vi(Lm(ng)+1,1,1) = vie(Lm(ng)+1,1,lienw)
+          vi(Lm(ng)+1,1,2) = vie(Lm(ng)+1,1,lienw)
+        END IF
+        IF (NORTHERN_EDGE.and.WESTERN_EDGE) THEN
+          uie(1,Mm(ng)+1,1) = ui(1,Mm(ng)+1,liuol)
+          uie(1,Mm(ng)+1,2) = ui(1,Mm(ng)+1,liuol)
+          vie(0,Mm(ng)+1,1) = vi(0,Mm(ng)+1,liuol)
+          vie(0,Mm(ng)+1,2) = vi(0,Mm(ng)+1,liuol)
+        END IF
+        IF (NORTHERN_EDGE.and.EASTERN_EDGE) THEN
+          uie(Lm(ng)+1,Mm(ng)+1,1) = ui(Lm(ng)+1,Mm(ng)+1,liuol)
+          uie(Lm(ng)+1,Mm(ng)+1,2) = ui(Lm(ng)+1,Mm(ng)+1,liuol)
+          vie(Lm(ng)+1,Mm(ng)+1,1) = vi(Lm(ng)+1,Mm(ng)+1,liuol)
+          vie(Lm(ng)+1,Mm(ng)+1,2) = vi(Lm(ng)+1,Mm(ng)+1,liuol)
+        END IF
+# ifdef DISTRIBUTE
+      CALL mp_exchange2d (ng, tile, iNLM, 2,                            &
+     &                    LBi, UBi, LBj, UBj,                           &
+     &                    NghostPoints, EWperiodic, NSperiodic,         &
+     &                    uie(:,:,1), vie(:,:,1))
+      CALL mp_exchange2d (ng, tile, iNLM, 2,                            &
+     &                    LBi, UBi, LBj, UBj,                           &
+     &                    NghostPoints, EWperiodic, NSperiodic,         &
+     &                    uie(:,:,2), vie(:,:,2))
+# endif
+      ENDIF
+! ...................................
+!
 ! *** momentum equation 
 !
 ! u-eqn
@@ -304,9 +396,9 @@
           uforce = 0._r8
           chux = 0.5_r8*(chu_iw(i-1,j)+chu_iw(i,j))
           masu = 0.5_r8*(hi(i,j,liold)+hi(i-1,j,liold))
-          masu = max(masu,0.01_r8)
+          masu = max(masu,0.1_r8)
           masu = masu*rhoice(ng)
-          auf = max(0.5_r8*(ai(i-1,j,liold)+ai(i,j,liold)),0.1_r8)
+          auf = max(0.5_r8*(ai(i-1,j,liold)+ai(i,j,liold)),0.01_r8)
           pmu = 0.5_r8*(pm(i,j) + pm(i-1,j)) 
           pnu = 0.5_r8*(pn(i,j) + pn(i-1,j)) 
 !
@@ -492,9 +584,6 @@
 # ifdef MASKING
           uie(i,j,lienw) = umask(i,j)*uie(i,j,lienw)
 # endif
-# ifdef WET_DRY
-          uie(i,j,lienw) = umask_wet(i,j)*uie(i,j,lienw)
-# endif
 # ifdef ICESHELF
           IF(zice(i-1,j)+zice(i,j).ne.0.0_r8) THEN
               uie(i,j,lienw) = 0.0_r8
@@ -510,9 +599,9 @@
         DO i=Istr,Iend
           vforce = 0._r8
           masv = 0.5_r8*(hi(i,j,liold)+hi(i,j-1,liold))
-          masv = max(masv,0.01_r8)
+          masv = max(masv,0.1_r8)
           masv = masv*rhoice(ng) 
-          avf = max(0.5_r8*(ai(i,j-1,liold)+ai(i,j,liold)),0.1_r8)
+          avf = max(0.5_r8*(ai(i,j-1,liold)+ai(i,j,liold)),0.01_r8)
           chuy = 0.5_r8*(chu_iw(i,j-1)+chu_iw(i,j))
           pmv = 0.5_r8*(pm(i,j) + pm(i,j-1)) 
           pnv = 0.5_r8*(pn(i,j) + pn(i,j-1)) 
@@ -694,9 +783,6 @@
 # ifdef MASKING
            vie(i,j,lienw) = vmask(i,j)*vie(i,j,lienw)
 # endif
-# ifdef WET_DRY
-           vie(i,j,lienw) = vmask_wet(i,j)*vie(i,j,lienw)
-# endif
 # ifdef ICESHELF
           IF (zice(i,j-1)+zice(i,j).ne.0.0_r8) THEN
             vie(i,j,lienw) = 0.0_r8
@@ -738,8 +824,6 @@
             vi(i,j,liunw) = vie(i,j,lienw)
           END DO
         END DO
-#define ACTIVE
-#ifdef ACTIVE
         IF (WESTERN_EDGE) THEN
           DO j=Jstr,Jend
             ui(1,j,liunw) = uie(1,j,lienw)
@@ -788,9 +872,6 @@
           ui(Lm(ng)+1,Mm(ng)+1,liunw) = uie(Lm(ng)+1,Mm(ng)+1,lienw)
           vi(Lm(ng)+1,Mm(ng)+1,liunw) = vie(Lm(ng)+1,Mm(ng)+1,lienw)
         END IF
-
-!ACTIVE
-#endif
 
 !      CALL uibc_tile (ng, tile,                                        &
 !     &                LBi, UBi, LBj, UBj,                              &

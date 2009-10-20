@@ -573,6 +573,10 @@
 # if defined LONGWAVE
 !
 !  Use Berliand (1952) formula to calculate net longwave radiation.
+!  The equation for saturation vapor pressure is from Gill (Atmosphere-
+!  Ocean Dynamics, pp 606). Here the coefficient in the cloud term
+!  is assumed constant, but it is a function of latitude varying from
+!  1.0 at poles to 0.5 at the equator).
 !
 #  ifdef SPECIFIC_HUMIDITY
 !  specific humidity in units of kg/kg
@@ -581,8 +585,8 @@
       IF(RH.lt.2.0_r8) THEN                               !WPB
           cff=(0.7859_r8+0.03477_r8*TairC(i))/                          &
      &        (1.0_r8+0.00412_r8*TairC(i))
-          e_sat=10.0_r8**cff
-          vap_p=e_sat*RH
+          e_sat=10.0_r8**cff   ! saturation vapor pressure (hPa or mbar)
+          vap_p=e_sat*RH       ! water vapor pressure (hPa or mbar)
       ELSE                                                !WPB
           vap_p=0.001_r8*PairM*RH/(1.0_r8+0.000378_r8*RH) !WPB
       ENDIF                                               !WPB
@@ -590,7 +594,8 @@
           cff2=TairK(i)*TairK(i)*TairK(i)
           cff1=cff2*TairK(i)
           LRad(i,j)=-emmiss*StefBo*                                     &
-     &              (cff1*(0.39_r8-0.05_r8*SQRT(0.01_r8*vap_p))*        &
+!    &              (cff1*(0.39_r8-0.05_r8*SQRT(0.01_r8*vap_p))*        &
+     &              (cff1*(0.39_r8-0.05_r8*SQRT(vap_p))*                &
      &                    (1.0_r8-0.6823_r8*cloud(i,j)*cloud(i,j))+     &
      &               cff2*4.0_r8*(TseaK(i)-TairK(i)))
 
@@ -665,7 +670,7 @@
 !  Compute water saturation vapor pressure (mb), using Teten formula.
 !
           cff=(1.0007_r8+3.46E-6_r8*PairM)*6.1121_r8*                   &
-     &            EXP(17.502_r8*TseaC(i)/(240.97_r8+TseaC(i)))
+     &        EXP(17.502_r8*TseaC(i)/(240.97_r8+TseaC(i)))
 !
 !  Vapor Pressure reduced for salinity (Kraus & Businger, 1994, pp 42).
 !
@@ -775,15 +780,12 @@
 !
         DO Iter=1,IterMax
           DO i=Istr-1,IendR
-!
-!  Use wave info if we have it, two different options.
-!
 # ifdef COARE_OOST
-            ZoW(i)=(25._r8/pi)*WaveLength(i)*                           &
+            ZoW(i)=(25.0_r8/pi)*WaveLength(i)*                          &
      &             (Wstar(i)/Cwave(i))**4.5_r8+                         &
      &             0.11_r8*VisAir(i)/(Wstar(i)+eps)
 # elif defined COARE_TAYLOR_YELLAND
-            ZoW(i)=1200._r8*Hwave(i,j)*                                 &
+            ZoW(i)=1200.0_r8*Hwave(i,j)*                                &
      &             (Hwave(i,j)/WaveLength(i))**4.5_r8+                  &
      &             0.11_r8*VisAir(i)/(Wstar(i)+eps)
 # else
@@ -1254,12 +1256,13 @@
 # endif
         END DO
       END DO
+# if defined EW_PERIODIC || defined NS_PERIODIC || defined DISTRIBUTE
 !
 !-----------------------------------------------------------------------
 !  Exchange boundary data.
 !-----------------------------------------------------------------------
 !
-# if defined EW_PERIODIC || defined NS_PERIODIC
+#  if defined EW_PERIODIC || defined NS_PERIODIC
       CALL exchange_r2d_tile (ng, tile,                                 &
      &                        LBi, UBi, LBj, UBj,                       &
      &                        lrflx)
@@ -1272,14 +1275,14 @@
       CALL exchange_r2d_tile (ng, tile,                                 &
      &                        LBi, UBi, LBj, UBj,                       &
      &                        stflx(:,:,itemp))
-#  ifdef ICE_MODEL
+#   ifdef ICE_MODEL
       CALL exchange_r2d_tile (ng, tile,                                 &
      &                        LBi, UBi, LBj, UBj,                       &
      &                        srflx)
       CALL exchange_r2d_tile (ng, tile,                                 &
      &                        LBi, UBi, LBj, UBj,                       &
      &                        qao_n)
-#   ifdef ICE_THERMO
+#    ifdef ICE_THERMO
         CALL exchange_r2d_tile (ng, tile,                               &
      &                    LBi, UBi, LBj, UBj,                           &
      &                    qai_n)
@@ -1292,71 +1295,72 @@
         CALL exchange_r2d_tile (ng, tile,                               &
      &                    LBi, UBi, LBj, UBj,                           &
      &                    snow_n)
-#   endif
+#    endif
         CALL exchange_r2d_tile (ng, tile,                               &
      &                    LBi, UBi, LBj, UBj,                           &
      &                    tau_aix_n)
         CALL exchange_r2d_tile (ng, tile,                               &
      &                    LBi, UBi, LBj, UBj,                           &
      &                    tau_aiy_n)
-#  endif
-#  if defined EMINUSP || (defined ICE_MODEL && defined ICE_THERMO)
+#   endif
+#   if defined EMINUSP || (defined ICE_MODEL && defined ICE_THERMO)
       CALL exchange_r2d_tile (ng, tile,                                 &
      &                        LBi, UBi, LBj, UBj,                       &
      &                        evap)
       CALL exchange_r2d_tile (ng, tile,                                 &
      &                        LBi, UBi, LBj, UBj,                       &
      &                        stflx(:,:,isalt))
-#  endif
+#   endif
       CALL exchange_u2d_tile (ng, tile,                                 &
      &                        LBi, UBi, LBj, UBj,                       &
      &                        sustr)
       CALL exchange_v2d_tile (ng, tile,                                 &
      &                        LBi, UBi, LBj, UBj,                       &
      &                        svstr)
-#  ifdef ICE_MODEL
+#   ifdef ICE_MODEL
       CALL exchange_u2d_tile (ng, tile,                                 &
      &                        LBi, UBi, LBj, UBj,                       &
      &                        sustr_aw)
       CALL exchange_v2d_tile (ng, tile,                                 &
      &                        LBi, UBi, LBj, UBj,                       &
      &                        svstr_aw)
+#   endif
 #  endif
-# endif
-# ifdef DISTRIBUTE
+#  ifdef DISTRIBUTE
       CALL mp_exchange2d (ng, tile, iNLM, 4,                            &
      &                    LBi, UBi, LBj, UBj,                           &
      &                    NghostPoints, EWperiodic, NSperiodic,         &
      &                    lrflx, lhflx, shflx,                          &
      &                    stflx(:,:,itemp))
-#  ifdef ICE_MODEL
+#   ifdef ICE_MODEL
       CALL mp_exchange2d (ng, tile, iNLM, 4,                            &
      &                    LBi, UBi, LBj, UBj,                           &
      &                    NghostPoints, EWperiodic, NSperiodic,         &
      &                    srflx, qao_n, tau_aix_n, tau_aiy_n )
-#   ifdef ICE_THERMO
+#    ifdef ICE_THERMO
       CALL mp_exchange2d (ng, tile, iNLM, 4,                            &
      &                    LBi, UBi, LBj, UBj,                           &
      &                    NghostPoints, EWperiodic, NSperiodic,         &
      &                    qai_n, coef_ice_heat, rhs_ice_heat, snow_n )
+#    endif
 #   endif
-#  endif
-#  ifdef EMINUSP
+#   ifdef EMINUSP
       CALL mp_exchange2d (ng, tile, iNLM, 2,                            &
      &                    LBi, UBi, LBj, UBj,                           &
      &                    NghostPoints, EWperiodic, NSperiodic,         &
      &                    evap,                                         &
      &                    stflx(:,:,isalt))
-#  endif
+#   endif
       CALL mp_exchange2d (ng, tile, iNLM, 2,                            &
      &                    LBi, UBi, LBj, UBj,                           &
      &                    NghostPoints, EWperiodic, NSperiodic,         &
      &                    sustr, svstr)
-#  ifdef ICE_MODEL
+#   ifdef ICE_MODEL
       CALL mp_exchange2d (ng, tile, iNLM, 2,                            &
      &                    LBi, UBi, LBj, UBj,                           &
      &                    NghostPoints, EWperiodic, NSperiodic,         &
      &                    sustr_aw, svstr_aw)
+#   endif
 #  endif
 # endif
 # ifdef KATE_FOO

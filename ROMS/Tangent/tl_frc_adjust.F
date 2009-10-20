@@ -3,7 +3,7 @@
 
 #if defined ADJUST_STFLUX || defined ADJUST_WSTRESS
 !
-!svn $Id: tl_frc_adjust.F 999 2009-06-09 23:48:31Z kate $
+!svn $Id: tl_frc_adjust.F 993 2009-05-29 20:56:30Z arango $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
