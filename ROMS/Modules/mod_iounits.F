@@ -15,6 +15,7 @@
 !  AVGname     Output averages file name.                              !
 !  AVG2base    Output secondary base file name.                        !
 !  AVG2name    Output secondary file name.                             !
+!  BLKname     Input bulk fluxes file name.                            !
 !  BRYname     Input boundary data file name.                          !
 !  CLMname     Input climatology file name.                            !
 !  DIAbase     Output diagnostics base file name.                      !
@@ -23,7 +24,7 @@
 !  FILname     Output filter file name.                                !
 !  FLTname     Output floats file name.                                !
 !  FISHname    Output fish file name.                                  !
-!  FRCids      NetCDF ID descriptors associated with FRCname.          ! 
+!  FRCids      NetCDF ID descriptors associated with FRCname.          !
 !  FRCname     Input forcing fields file name(s).                      !
 !  FWDbase     Input forward solution base file name.                  !
 !  FWDname     Input forward solution file name.                       !
@@ -121,6 +122,7 @@
         character (len=fname_len), dimension(Ngrids) :: AVGname
         character (len=fname_len), dimension(Ngrids) :: AVG2base
         character (len=fname_len), dimension(Ngrids) :: AVG2name
+        character (len=fname_len), dimension(Ngrids) :: BLKname
         character (len=fname_len), dimension(Ngrids) :: BRYname
         character (len=fname_len), dimension(Ngrids) :: CLMname
         character (len=fname_len), dimension(Ngrids) :: DIAbase

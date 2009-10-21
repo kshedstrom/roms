@@ -146,6 +146,7 @@
 ** BULK_FLUXES         use if bulk fluxes computation                        **
 ** CCSM_FLUXES         use if CCSM version of bulk fluxes computation        **
 ** NCEP_FLUXES         use if NCEP forcing files are used                    **
+** NL_BULK_FLUXES      use bulk fluxes computed by nonlinear model           **
 ** COOL_SKIN           use if cool skin correction                           **
 ** LONGWAVE            use if computing net longwave radiation               **
 ** LONGWAVE_OUT        use if computing ougoing longwave radiation           **
@@ -562,6 +563,7 @@
 **                                                                           **
 ** OPTIONS associated with tangent linear, representer and adjoint models:   **
 **                                                                           **
+** AD_IMPULSE          use to force adjoint model with intermittent impulses **
 ** ADJUST_STFLUX       use if including surface tracer flux in 4DVar state   **
 ** ADJUST_WSTRESS      use if including wind-stress in 4DVar state           **
 ** BALANCE_OPERATOR    use if error covariance multivariate balance term     **
