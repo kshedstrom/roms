@@ -119,6 +119,12 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+16)=' ADJUST_WSTRESS,'
 #endif
+#if defined AD_IMPULSE
+      IF (Master) WRITE (stdout,20) 'AD_IMPULSE',                       &
+     &   'Force adjoint model with intermittent impulses.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+12)=' AD_IMPULSE,'
+#endif
 #ifdef ADM_DRIVER
       IF (Master) WRITE (stdout,20) 'ADM_DRIVER',                       &
      &   'Generic adjoint model driver.'
@@ -1400,11 +1406,24 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+18)=' NEARSHORE_MELLOR,'
 #endif
+#ifdef NEMURO
+      IF (Master) WRITE (stdout,20) 'NEMURO',                           &
+     &   'Nemuro Lower Trophic Level Ecosystem Model.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+8)=' NEMURO,'
+      ibiology=ibiology+1
+#endif
 #ifdef NETCDF4
       IF (Master) WRITE (stdout,20) 'NETCDF4',                          &
      &   'Creating NetCDF-4/HDF5 format files.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+9)=' NETCDF4,'
+#endif
+#if defined NL_BULK_FLUXES
+      IF (Master) WRITE (stdout,20) 'NL_BULK_FLUXES',                   &
+     &   'Using bulk fluxes computed by nonlinear model.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+16)=' NL_BULK_FLUXES,'
 #endif
 #if defined NLM_OUTER && (defined WEAK_CONSTRAINT || defined IOM)
       IF (Master) WRITE (stdout,20) 'NLM_OUTER',                        &
@@ -1417,13 +1436,6 @@
      &   'Nonlinear Model.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+10)=' NONLINEAR,'
-#endif
-#ifdef NEMURO
-      IF (Master) WRITE (stdout,20) 'NEMURO',                           &
-     &   'Nemuro Lower Trophic Level Ecosystem Model.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+8)=' NEMURO,'
-      ibiology=ibiology+1
 #endif
 #ifdef SOLVE3D
 # if defined NONLIN_EOS
@@ -1614,7 +1626,7 @@
       Coptions(is:is+13)=' NPZD_FRANKS,'
       ibiology=ibiology+1
 #endif
-#ifdef NPZD_IRON 
+#ifdef NPZD_IRON
       IF (Master) WRITE (stdout,20) 'NPZD_IRON',                        &
      &   'NPZD Biological Model (Powell et al.) with iron limitation'
       is=LEN_TRIM(Coptions)+1
@@ -2656,7 +2668,7 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+17)=' UV_U3HADVECTION,'
       ivelHadv=ivelHadv+1
-#  endif 
+#  endif
 #  if !(defined UV_C2ADVECTION  || defined UV_C4ADVECTION || \
         defined UV_SADVECTION)
       IF (Master) WRITE (stdout,20) 'UV_C4VADVECTION',                  &
@@ -3251,7 +3263,7 @@
      &            ' error covariance analysis selected, choose one.')
         exit_flag=5
       END IF
-#endif    
+#endif
 #ifdef UV_ADV
 !
 !  Stop if more than one advection scheme has been activated.
