@@ -29,7 +29,16 @@
            FFLAGS := -frepack-arrays
               CPP := /usr/bin/cpp
          CPPFLAGS := -P -traditional
-          LDFLAGS := 
+               CC := gcc
+              CXX := g++
+           CFLAGS :=
+         CXXFLAGS :=
+          LDFLAGS :=
+ifdef USE_CXX
+             LIBS := -lstdc++
+else
+             LIBS :=
+endif
                AR := ar
           ARFLAGS := -r
             MKDIR := mkdir -p
@@ -52,7 +61,7 @@ else
     NETCDF_INCDIR ?= /usr/local/include
     NETCDF_LIBDIR ?= /usr/local/lib
 endif
-             LIBS := -L$(NETCDF_LIBDIR) -lnetcdf
+             LIBS += -L$(NETCDF_LIBDIR) -lnetcdf
 ifdef USE_NETCDF4
              LIBS += -L$(HDF5_LIBDIR) -lhdf5_hl -lhdf5 -lz
 endif
@@ -81,8 +90,12 @@ endif
 
 ifdef USE_DEBUG
            FFLAGS += -g -fbounds-check -fbacktrace
+           CFLAGS += -g
+         CXXFLAGS += -g
 else
            FFLAGS += -O3 -ffast-math
+           CFLAGS += -O3
+         CXXFLAGS += -O3
 endif
 
 ifdef USE_MCT

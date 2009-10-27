@@ -251,7 +251,7 @@
 
 #ifdef BEST_NPZ
 # ifdef BENTHIC
-       integer, parameter, dimension(Ngrids) :: NBL  =  1
+        integer, parameter, dimension(Ngrids) :: NBL  =  1
 # endif
 #endif
 
@@ -478,7 +478,6 @@
 # if defined ICE_BIO
         integer,parameter :: NIB=4
         integer, dimension(Ngrids) :: NIceT
-
         integer, dimension(Ngrids) :: NIceLog
 # endif
 
