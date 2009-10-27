@@ -13,6 +13,10 @@
 # FFLAGS         Flags to the fortran compiler
 # CPP            Name of the C-preprocessor
 # CPPFLAGS       Flags to the C-preprocessor
+# CC             Name of the C compiler
+# CFLAGS         Flags to the C compiler
+# CXX            Name of the C++ compiler
+# CXXFLAGS       Flags to the C++ compiler
 # CLEAN          Name of cleaning executable after C-preprocessing
 # NETCDF_INCDIR  NetCDF include directory
 # NETCDF_LIBDIR  NetCDF libary directory
@@ -27,7 +31,16 @@
            FFLAGS :=
               CPP := /usr/bin/cpp
          CPPFLAGS := -P -traditional
-          LDFLAGS := 
+               CC := gcc
+              CXX := g++
+           CFLAGS :=
+         CXXFLAGS :=
+          LDFLAGS :=
+ifdef USE_CXX
+             LIBS := -lstdc++
+else
+             LIBS :=
+endif
                AR := ar
           ARFLAGS := r
             MKDIR := mkdir -p
@@ -54,14 +67,12 @@
 ifdef USE_NETCDF4
     NETCDF_INCDIR ?= /opt/pgisoft/netcdf4/include
     NETCDF_LIBDIR ?= /opt/pgisoft/netcdf4/lib
-      HDF5_LIBDIR ?= /u1/uaf/kate/lib
+      HDF5_LIBDIR ?= /opt/pgisoft/hdf5/lib
 else
     NETCDF_INCDIR ?= /usr/local/pkg/netcdf/netcdf-3.6.1.pgi/include
     NETCDF_LIBDIR ?= /usr/local/pkg/netcdf/netcdf-3.6.1.pgi/lib
-#    NETCDF_INCDIR ?= /opt/pgisoft/netcdf/include
-#    NETCDF_LIBDIR ?= /opt/pgisoft/netcdf/lib
 endif
-             LIBS := -L$(NETCDF_LIBDIR) -lnetcdf
+             LIBS += -L$(NETCDF_LIBDIR) -lnetcdf
 ifdef USE_NETCDF4
              LIBS += -L$(HDF5_LIBDIR) -lhdf5_hl -lhdf5 -lz
 endif
@@ -100,10 +111,13 @@ ifdef USE_DEBUG
            FFLAGS += -g -C
 #          FFLAGS += -gopt -C
 #          FFLAGS += -g
+           CFLAGS += -g
+         CXXFLAGS += -g
 else
 #          FFLAGS += -Bstatic -fastsse -Mipa=fast -tp k8-64
-#          FFLAGS += -O3 -tp k8-64
-           FFLAGS += -O2
+           FFLAGS += -O3 -tp k8-64
+           CFLAGS += -O3
+         CXXFLAGS += -O3
 endif
 
 # Save compiler flags without the MCT or ESMF libraries additions
@@ -121,14 +135,8 @@ ifdef USE_MCT
 endif
 
 ifdef USE_ESMF
-#     ESMF_SUBDIR := $(ESMF_OS).$(ESMF_COMPILER).$(ESMF_ABI).$(ESMF_COMM).$(ESMF_SITE)
-#     ESMF_MK_DIR ?= $(ESMF_DIR)/lib/lib$(ESMF_BOPT)/$(ESMF_SUBDIR)
-#     ESMF_MK_DIR ?= /opt/pgisoft/esmf-2.2.2rp1/lib/libO/Linux.pgi.64.mpich.default
-#     ESMF_MK_DIR ?= /opt/pgisoft/esmf-3.0.2/lib/libO/Linux.pgi.64.mpich.default
-#     ESMF_MK_DIR ?= /opt/pgisoft/esmf-3.0.3/lib/libO/Linux.pgi.64.mpich.default
-      ESMF_MK_DIR ?= /opt/pgisoft/esmf-3.1.0/lib/libO/Linux.pgi.64.mpich.default
-#     ESMF_MK_DIR ?= /opt/pgisoft/esmfbeta/lib/libO/Linux.pgi.64.mpich.default
-#     ESMF_MK_DIR ?= /opt/pgisoft/esmf/lib/libO/Linux.pgi.64.mpich.default
+      ESMF_SUBDIR := $(ESMF_OS).$(ESMF_COMPILER).$(ESMF_ABI).$(ESMF_COMM).$(ESMF_SITE)
+      ESMF_MK_DIR ?= $(ESMF_DIR)/lib/lib$(ESMF_BOPT)/$(ESMF_SUBDIR)
                      include $(ESMF_MK_DIR)/esmf.mk
            FFLAGS += $(ESMF_F90COMPILEPATHS)
              LIBS += $(ESMF_F90LINKPATHS) -lesmf -lC

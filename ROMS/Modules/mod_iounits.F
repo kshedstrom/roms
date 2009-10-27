@@ -23,7 +23,6 @@
 !  ERRname     Output 4DVar posterior error file name.                 !
 !  FILname     Output filter file name.                                !
 !  FLTname     Output floats file name.                                !
-!  FISHname    Output fish file name.                                  !
 !  FRCids      NetCDF ID descriptors associated with FRCname.          !
 !  FRCname     Input forcing fields file name(s).                      !
 !  FWDbase     Input forward solution base file name.                  !
@@ -129,7 +128,6 @@
         character (len=fname_len), dimension(Ngrids) :: DIAname
         character (len=fname_len), dimension(Ngrids) :: ERRname
         character (len=fname_len), dimension(Ngrids) :: FLTname
-        character (len=fname_len), dimension(Ngrids) :: FISHname
 #ifdef FILTERED_RST
         character (len=fname_len), dimension(nfile,Ngrids) :: FILname
 #endif

@@ -803,12 +803,14 @@
 
 #undef DIAG_WPB
 #ifdef DIAG_WPB
-      IF (i.eq.168.and.j.eq.480) THEN
+      IF (i.eq.156.and.j.eq.481) THEN
          write(*,*) tdays,wio(i,j),wai(i,j),wao(i,j),wfr(i,j),          &
      &              xmelt,ai(i,j,linew),tis(i,j),                       &
      &                                     sfwat(i,j,linew),            &
      &              temp_top(i,j),t0mk(i,j),stflx(i,j,itemp),           &
-     &              salt_top(i,j),s0mk(i,j),stflx(i,j,isalt),qio(i,j)
+     &              salt_top(i,j),s0mk(i,j),stflx(i,j,isalt),           &
+     &              qio(i,j), ti(i,j,linew), brnfr(i,j),                &
+     &              t2(i,j)
       END IF
 #endif
 

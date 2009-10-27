@@ -13,6 +13,10 @@
 # FFLAGS         Flags to the fortran compiler
 # CPP            Name of the C-preprocessor
 # CPPFLAGS       Flags to the C-preprocessor
+# CC             Name of the C compiler
+# CFLAGS         Flags to the C compiler
+# CXX            Name of the C++ compiler
+# CXXFLAGS       Flags to the C++ compiler
 # CLEAN          Name of cleaning executable after C-preprocessing
 # NETCDF_INCDIR  NetCDF include directory
 # NETCDF_LIBDIR  NetCDF libary directory
@@ -27,7 +31,16 @@
            FFLAGS :=
               CPP := /usr/bin/cpp-4.0
          CPPFLAGS := -P -traditional-cpp
-          LDFLAGS := 
+               CC := gcc
+              CXX := g++
+           CFLAGS :=
+         CXXFLAGS :=
+          LDFLAGS :=
+ifdef USE_CXX
+             LIBS := -lstdc++
+else
+             LIBS :=
+endif
                AR := ar
           ARFLAGS := r
             MKDIR := mkdir -p
@@ -50,7 +63,7 @@ else
     NETCDF_INCDIR ?= /usr/local/netcdf-3.6.2-pgi/include
     NETCDF_LIBDIR ?= /usr/local/netcdf-3.6.2-pgi/lib
 endif
-             LIBS := -L$(NETCDF_LIBDIR) -lnetcdf
+             LIBS += -L$(NETCDF_LIBDIR) -lnetcdf
 ifdef USE_NETCDF4
              LIBS += -L$(HDF5_LIBDIR) -lhdf5_hl -lhdf5 -lz
 endif
@@ -88,8 +101,12 @@ ifdef USE_DEBUG
 #          FFLAGS += -g -C -Mchkstk -Mchkfpstk
            FFLAGS += -g -C
 #          FFLAGS += -g
+           CFLAGS += -g
+         CXXFLAGS += -g
 else
            FFLAGS += -fastsse -Mipa=fast
+           CFLAGS += -O3
+         CXXFLAGS += -O3
 endif
 
 ifdef USE_MCT

@@ -325,6 +325,7 @@
         integer  :: idWdis        ! wind-induced wave dissipation
         integer  :: idWdir        ! wind-induced wave direction
         integer  :: idWlen        ! wind-induced wave length
+        integer  :: idWmsk        ! wet-dry mask
         integer  :: idWptp        ! wind-induced surface wave period
         integer  :: idWpbt        ! wind-induced bottom wave period
         integer  :: idWorb        ! wind-induced wave orbital velocity
@@ -469,7 +470,6 @@
         integer  :: ncFILid(nfile,Ngrids)     ! output filter
 #endif
         integer  :: ncFLTid(Ngrids)     ! output floats
-        integer  :: ncFISHid(Ngrids)    ! output fish
         integer  :: ncFRCid(NV,Ngrids)  ! input forcing
         integer  :: ncFWDid(Ngrids)     ! forward solution
         integer  :: ncGRDid(Ngrids)     ! input grid
@@ -607,7 +607,6 @@
         integer  :: tERRindx(Ngrids)     ! error time record index
         integer  :: tFILindx(Ngrids)     ! filter time record index
         integer  :: tFLTindx(Ngrids)     ! floats time record index
-        integer  :: tFISHindx(Ngrids)    ! fish time record index
         integer  :: tHISindx(Ngrids)     ! history time record index
         integer  :: tHSSindx(Ngrids)     ! Hessian time record index
         integer  :: tINIindx(Ngrids)     ! initial NLM time record index
@@ -653,7 +652,7 @@
 !
         logical :: Lanafile
 
-        character (len=200), dimension(47) :: ANANAME
+        character (len=200), dimension(48) :: ANANAME
 
 #ifdef BIOLOGY
 !
@@ -1094,7 +1093,6 @@
           ncDIAid(ng)=-1
           ncERRid(ng)=-1
           ncFLTid(ng)=-1
-          ncFISHid(ng)=-1
           ncGSTid(ng)=-1
           ncFWDid(ng)=-1
           ncGRDid(ng)=-1
@@ -1124,7 +1122,6 @@
           tDIAindx(ng)=0
           tFILindx(ng)=0
           tFLTindx(ng)=0
-          tFISHindx(ng)=0
           tHISindx(ng)=0
           tINIindx(ng)=0
           tIRPindx(ng)=1
@@ -1146,7 +1143,7 @@
 !  Analytical files switch and names.
 !
         Lanafile=.TRUE.
-        DO i=1,47
+        DO i=1,48
           DO j=1,200
             ANANAME(i)(j:j)=' '
           END DO

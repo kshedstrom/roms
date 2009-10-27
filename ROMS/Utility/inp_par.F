@@ -1493,6 +1493,8 @@
             Npts=load_r(Nval, Rval, 1, tide_start)
           ELSE IF (TRIM(KeyWord).eq.'TIME_REF') THEN
             Npts=load_r(Nval, Rval, 1, time_ref)
+            IF (time_ref .eq. -1) days_year = 360.
+            IF (time_ref .gt. 0) days_year = 365.
             r_text=ref_att(time_ref,r_date)
           ELSE IF (TRIM(KeyWord).eq.'TNUDG') THEN
             Npts=load_r(Nval, Rval, (NAT+NPT)*Ngrids, Rtracer)
@@ -10972,7 +10974,7 @@
 !
 !=======================================================================
 !                                                                      !
-!  This routine reads in input float parameters.                     !
+!  This routine reads in input float parameters.                       !
 !                                                                      !
 !=======================================================================
 !
@@ -11078,6 +11080,16 @@
       exit_flag=4
       RETURN
   30  CONTINUE
+!  Turn off the processing of floats if not running long enough to
+!  create a floats file (LdefFLT=.FALSE. because nFLT < ntimes or
+!  nFLT = 0 when nrrec = 0).
+!
+      DO ng=1,Ngrids
+        IF (.not.LdefFLT(ng).and.Lfloats(ng)) THEN
+          Lfloats(ng)=.FALSE.
+        END IF
+      END DO
+!
 !
 !  Turn off the processing of floats if not running long enough to
 !  create a floats file (LdefFLT=.FALSE. because nFLT < ntimes or
