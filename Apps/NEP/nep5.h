@@ -86,7 +86,7 @@
 #define UV_SADVECTION
  
 #ifdef SOLVE3D
-# define TS_C4HADVECTION
+# define TS_U3HADVECTION
 # define TS_C4VADVECTION
 # undef TS_MPDATA
 #endif
