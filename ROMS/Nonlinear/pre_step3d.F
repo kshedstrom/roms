@@ -783,6 +783,9 @@
         DO itrc=1,NT(ng)
 #endif
           ltrc=MIN(NAT,itrc)
+#ifdef LIMIT_BIO_AKT
+          IF (itrc == 2) ltrc = 1
+#endif
           DO k=1,N(ng)-1
             DO i=Istr,Iend
               cff=1.0_r8/(z_r(i,j,k+1)-z_r(i,j,k))

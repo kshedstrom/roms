@@ -65,17 +65,17 @@
 ! shared-memory configurations used to determine tile horizontal range
 ! indices (Istr,Iend) and (Jstr,Jend), [1:Ngrids].
 
-!      NtileI == 1                               ! I-direction partition
-!      NtileJ == 16                              ! J-direction partition
+       NtileI == 1                               ! I-direction partition
+       NtileJ == 16                              ! J-direction partition
 !      NtileI == 6                               ! I-direction partition
 !      NtileJ == 8                              ! J-direction partition
-      NtileI == 6                               ! I-direction partition
-      NtileJ == 16                              ! J-direction partition
+!      NtileI == 6                               ! I-direction partition
+!      NtileJ == 16                              ! J-direction partition
 
 ! Time-Stepping parameters.
 
-!      NTIMES == 576
-       NTIMES == 51840
+       NTIMES == 4320
+!      NTIMES == 51840
 !      NTIMES == 3073152       ! to 1/Nov/2001
 !      NTIMES == 6872472       ! for 200 days
           DT == 200.0d0
@@ -98,7 +98,7 @@
 
 ! Input/Output parameters.
 
-       NRREC =  -1
+       NRREC =  1
    LcycleRST == T
         NRST == 432
         NSTA == 18
@@ -494,8 +494,8 @@ Hout2(idT0mk) == F
 
 !     GRDNAME == /wrkdir/kate/BiomModel/NEP4/NEP4_grid.nc
      GRDNAME == /wrkdir/kate/NEP5/Files/NEP_grid_5a.nc
-!     ININAME == /wrkdir/kate/NEP5/Files/soda2.0.2_NEP5a_init_1958.nc
-     ININAME == nep5_rst.nc
+     ININAME == /wrkdir/kate/NEP5/Files/soda2.0.2_NEP5a_init_1958.nc
+!     ININAME == nep5_rst.nc
      ITLNAME == /ptmp/enrique/ROMS/NEP4/Inputs/ocean_itl.nc
      IRPNAME == ocean_irp.nc
      IADNAME == ocean_iad.nc

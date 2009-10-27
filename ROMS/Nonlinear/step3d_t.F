@@ -1166,6 +1166,9 @@
         DO itrc=1,NT(ng)
 #endif
           ltrc=MIN(NAT,itrc)
+#ifdef LIMIT_BIO_AKT
+          IF (itrc == 2) ltrc = 1
+#endif
 
 # if defined SPLINES && !defined TS_MPDATA
 !
@@ -1559,8 +1562,6 @@
        END DO
 # endif
 #endif
-
-
 
       RETURN
       END SUBROUTINE step3d_t_tile

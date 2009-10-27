@@ -374,7 +374,7 @@
 #  endif
 # endif
 #endif
-#if defined FLOATS || defined NEMURO_SAN
+#if defined FLOATS
 !
 !-----------------------------------------------------------------------
 !  Floats fields identification indices.
@@ -485,6 +485,7 @@
         real(r8) :: dstart = 0.0_r8                      ! days
         real(r8) :: tide_start = 0.0_r8                  ! days
         real(r8) :: time_ref = 0.0_r8                    ! YYYYMMDD.dd
+        real(r8) :: days_year = 365.25_r8                 ! days per year
 
         character (len=14) :: time_code(Ngrids)          ! DD HH:MM:SS
         character (len=19) :: r_text
@@ -935,7 +936,6 @@
         logical, dimension(Ngrids) :: LdefDIA    ! Diagnostics file
         logical, dimension(Ngrids) :: LdefERR    ! 4DVar error file
         logical, dimension(Ngrids) :: LdefFLT    ! Floats file
-        logical, dimension(Ngrids) :: LdefFISH   ! Fish file
         logical, dimension(Ngrids) :: LdefHIS    ! History file
         logical, dimension(Ngrids) :: LdefHSS    ! Hessian file
         logical, dimension(Ngrids) :: LdefINI    ! Initial file
@@ -1020,7 +1020,6 @@
         integer, dimension(Ngrids) :: NrecERR    ! 4DVar error file
         integer, dimension(Ngrids) :: NrecFIL    ! Filters file
         integer, dimension(Ngrids) :: NrecFLT    ! Floats file
-        integer, dimension(Ngrids) :: NrecFISH   ! Fish file
         integer, dimension(Ngrids) :: NrecHIS    ! History file
         integer, dimension(Ngrids) :: NrecHSS    ! Hessian file
         integer, dimension(Ngrids) :: NrecINI    ! NLM Initial file
@@ -1109,12 +1108,6 @@
 !  Floats restart switch.
 !
         integer, dimension(Ngrids) :: frrec
-#endif
-#ifdef NEMURO_SAN
-!
-!  Fish restart switch.
-!
-        integer, dimension(Ngrids) :: fishrrec
 #endif
 !
 !  Switch to activate processing of input data.  This switch becomes
@@ -2522,6 +2515,9 @@
         LcycleRST(ng)=.FALSE.
         LcycleTLM(ng)=.FALSE.
         Lfloats(ng)=.TRUE.
+#ifdef ICE_MODEL
+        Lice(ng)=.TRUE.
+#endif
         Lsediment(ng)=.TRUE.
         Lstations(ng)=.TRUE.
 #ifdef TIDES_ASTRO
@@ -2643,9 +2639,6 @@
 #ifdef FLOATS
         LdefFLT(ng)=.TRUE.
 #endif
-#ifdef NEMURO_SAN
-        LdefFISH(ng)=.TRUE.
-#endif
         LdefHIS(ng)=.TRUE.
         LdefINI(ng)=.FALSE.
         LdefIRP(ng)=.FALSE.
@@ -2679,10 +2672,10 @@
         NrecERR(ng)=0
         NrecFIL(ng)=0
         NrecFLT(ng)=0
-        NrecINI(ng)=0
-        NrecITL(ng)=0
         NrecHIS(ng)=0
         NrecHSS(ng)=0
+        NrecINI(ng)=0
+        NrecITL(ng)=0
         NrecRST(ng)=0
         NrecSTA(ng)=0
         NrecTLM(ng)=0

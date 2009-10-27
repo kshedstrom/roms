@@ -635,7 +635,6 @@
 **    work yet.                                                              **
 **                                                                           **
 ** NEMURO              use if Nemuro ecosystem model.                        **
-** NEMURO_SAN          use if Nemuro ecosystem model with fish.              **
 ** BIO_SEDIMENT        use to restore fallen material to the nutrient pool   **
 ** HOLLING_GRAZING     use Holling-type s-shaped curve grazing (implicit)    **
 ** IVLEV_EXPLICIT      use Ivlev explicit grazing algorithm                  **

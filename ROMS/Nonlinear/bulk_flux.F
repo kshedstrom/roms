@@ -573,6 +573,10 @@
 # if defined LONGWAVE
 !
 !  Use Berliand (1952) formula to calculate net longwave radiation.
+!  The equation for saturation vapor pressure is from Gill (Atmosphere-
+!  Ocean Dynamics, pp 606). Here the coefficient in the cloud term
+!  is assumed constant, but it is a function of latitude varying from
+!  1.0 at poles to 0.5 at the equator).
 !
 #  ifdef SPECIFIC_HUMIDITY
 !  specific humidity in units of kg/kg

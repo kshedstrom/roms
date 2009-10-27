@@ -86,7 +86,7 @@
 #define UV_SADVECTION
  
 #ifdef SOLVE3D
-# define TS_C4HADVECTION
+# define TS_U3HADVECTION
 # define TS_C4VADVECTION
 # undef TS_MPDATA
 #endif
@@ -149,7 +149,7 @@
 /* surface and side corrections */
  
 #ifdef SOLVE3D
-# undef SRELAXATION
+# define SRELAXATION
 # undef QCORRECTION
 #endif
  
@@ -259,6 +259,7 @@
 **  Biological model options.
 */
 #define NEMURO
+#define LIMIT_BIO_AKT
 #undef BIO_GOANPZ        /* Sarah Hinckley's 11 box model */
 #undef BEST_NPZ         /* Georgina Gibsons BEST NPZ model  */
 
