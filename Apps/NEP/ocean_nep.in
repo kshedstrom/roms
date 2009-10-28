@@ -546,7 +546,7 @@ Hout2(idT0mk) == F
 
      APARNAM =  External/assimilation.in
      SPOSNAM =  /wrkdir/kate/NEP5/External/stations_NEP.in
-     FPOSNAM =  /wrkdir/kate/NEP5/External/floats.in
+     FPOSNAM =  /wrkdir/kate/NEP5/External/floats_NEP.in
      IPARNAM =  /wrkdir/kate/NEP5/External/ice.in
      BPARNAM =  /wrkdir/kate/NEP5/External/nemuro_iron.in
      SPARNAM =  External/sediment.in

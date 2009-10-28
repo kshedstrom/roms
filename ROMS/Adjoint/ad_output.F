@@ -2,7 +2,7 @@
 #ifdef ADJOINT
       SUBROUTINE ad_output (ng)
 !
-!svn $Id: ad_output.F 924 2009-02-09 21:17:23Z arango $
+!svn $Id: ad_output.F 975 2009-05-05 22:51:13Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !

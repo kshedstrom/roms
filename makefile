@@ -1,4 +1,4 @@
-# $Id: makefile 1046 2009-08-24 23:53:05Z kate $
+# $Id: makefile 1060 2009-09-12 00:25:38Z kate $
 #::::::::::::::::::::::::::::::::::::::::::::::::::::: Hernan G. Arango :::
 # Copyright (c) 2002-2009 The ROMS/TOMS Group             Kate Hedstrom :::
 #   Licensed under a MIT/X style license                                :::
@@ -101,7 +101,7 @@ MY_CPP_FLAGS ?=
 #  If parallel applications, use at most one of these definitions
 #  (leave both definitions blank in serial applications):
 
-     USE_MPI ?= 
+     USE_MPI ?= on
   USE_OpenMP ?=
 
 #  If distributed-memory, turn on compilation via the script "mpif90".
@@ -121,7 +121,7 @@ MY_CPP_FLAGS ?=
 #  If applicable, link with NetCDF-4 library. Notice that the NetCDF-4
 #  library needs both the HDF5 and MPI libraries.
 
- USE_NETCDF4 ?=
+ USE_NETCDF4 ?= on
 
 #--------------------------------------------------------------------------
 #  We are going to include a file with all the settings that depend on
@@ -146,7 +146,7 @@ MY_CPP_FLAGS ?=
 #  NetCDF and so on.
 #--------------------------------------------------------------------------
 
-        FORT ?= pgi
+        FORT ?= xt5-pgi
 
 #--------------------------------------------------------------------------
 #  Set directory for executable.
@@ -432,9 +432,6 @@ endif
 ifdef USE_SEAICE
  modules  +=	ROMS/SeaIce
 endif
-ifdef USE_FISH
- modules  +=	ROMS/Fish
-endif
  modules  +=	ROMS/Utility
 
  includes :=	ROMS/Include
@@ -457,9 +454,6 @@ endif
 		ROMS/Utility \
 		ROMS/Drivers \
                 ROMS/Functionals
-ifdef USE_FISH
- includes +=	ROMS/Fish
-endif
 ifdef MY_HEADER_DIR
  includes +=	$(MY_HEADER_DIR)
 endif

@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       MODULE mod_ncparam
 !
-!svn $Id: mod_ncparam.F 1056 2009-09-08 18:51:43Z kate $
+!svn $Id: mod_ncparam.F 1060 2009-09-12 00:25:38Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -364,21 +364,6 @@
         integer  :: idSig22        ! internal ice stress component 22
         integer  :: idSig12        ! internal ice stress component 12
 
-! NEMURO_SAN variables
-        integer  :: idFwwt         ! fish wet weight
-        integer  :: idFworth       ! fish worth
-        integer  :: idFpval        ! fish P-value
-        integer  :: idFage         ! fish P-value
-        integer  :: idSpwnloc      ! fish batch number
-        integer  :: idFspwn        ! spawning distribution
-        integer  :: idFbatch       ! fish batch
-        integer  :: idFspc         ! fish species
-        integer  :: idFlfsg        ! fish lifestage
-        integer  :: idFswmt        ! fish swim type
-        integer  :: idFalv         ! fish is alive
-        integer  :: idFeatf        ! fish eats fish
-        integer  :: idFgrl         ! fish is female
-
         integer, allocatable :: idRtrc(:)    ! river runoff for tracers
         integer, allocatable :: idTads(:)    ! tracers adjoint sentivity
         integer, allocatable :: idTbot(:)    ! bottom flux for tracers
@@ -484,7 +469,6 @@
         integer  :: ncFILid(nfile,Ngrids)     ! output filter
 #endif
         integer  :: ncFLTid(Ngrids)     ! output floats
-        integer  :: ncFISHid(Ngrids)    ! output fish
         integer  :: ncFRCid(NV,Ngrids)  ! input forcing
         integer  :: ncFWDid(Ngrids)     ! forward solution
         integer  :: ncGRDid(Ngrids)     ! input grid
@@ -499,7 +483,6 @@
         integer  :: ncNRMid(4,Ngrids)   ! input/output covariance norm
         integer  :: ncOBSid(Ngrids)     ! input/output observations
         integer  :: ncRSTid(Ngrids)     ! input/output restart
-        integer  :: ncSHIPSid(Ngrids)   ! output ships
         integer  :: ncSSHid(Ngrids)     ! SSH observations
         integer  :: ncSSTid(Ngrids)     ! SST observations
         integer  :: ncSTAid(Ngrids)     ! output stations
@@ -589,7 +572,6 @@
         integer, allocatable :: lczTid(:,:)   ! Lanczos tracers IDs
         integer, allocatable :: obsTid(:,:)   ! observations tracers IDs
         integer, allocatable :: rstTid(:,:)   ! restart tracers IDs
-        integer, allocatable :: shipsTid(:,:) ! ships tracers IDs
         integer, allocatable :: staTid(:,:)   ! stations tracers IDs
         integer, allocatable :: tlfTid(:,:)   ! TLM impulse tracers IDs
         integer, allocatable :: tlmTid(:,:)   ! tangent tracers IDs
@@ -612,7 +594,6 @@
         integer  :: nrmVid(4,NV,Ngrids)  ! norm variables IDs
         integer  :: obsVid(NV,Ngrids)    ! observations variables IDs
         integer  :: rstVid(NV,Ngrids)    ! restart variables IDs
-        integer  :: shipsVid(-6:NV,Ngrids)! ships variables IDs
         integer  :: staVid(NV,Ngrids)    ! stations variables IDs
         integer  :: tideVid(NV,Ngrids)   ! tide variables IDs
         integer  :: tlfVid(NV,Ngrids)    ! TLM impulse variables IDs
@@ -625,7 +606,6 @@
         integer  :: tERRindx(Ngrids)     ! error time record index
         integer  :: tFILindx(Ngrids)     ! filter time record index
         integer  :: tFLTindx(Ngrids)     ! floats time record index
-        integer  :: tFISHindx(Ngrids)    ! fish time record index
         integer  :: tHISindx(Ngrids)     ! history time record index
         integer  :: tHSSindx(Ngrids)     ! Hessian time record index
         integer  :: tINIindx(Ngrids)     ! initial NLM time record index
@@ -634,7 +614,6 @@
         integer  :: tLCZindx(Ngrids)     ! Lanczos time record index
         integer  :: tNRMindx(4,Ngrids)   ! norm time record index
         integer  :: tRSTindx(Ngrids)     ! restart time record index
-        integer  :: tSHIPSindx(Ngrids)   ! ships time record index
         integer  :: tSTAindx(Ngrids)     ! stations time record index
         integer  :: tTLFindx(Ngrids)     ! TLM impulse time record index
         integer  :: tTLMindx(Ngrids)     ! tangent time record index
@@ -811,7 +790,6 @@
         allocate ( lczTid(MT,Ngrids) )
         allocate ( obsTid(MT,Ngrids) )
         allocate ( rstTid(MT,Ngrids) )
-        allocate ( shipsTid(MT,Ngrids) )
         allocate ( staTid(MT,Ngrids) )
         allocate ( tlfTid(MT,Ngrids) )
         allocate ( tlmTid(MT,Ngrids) )
@@ -1114,7 +1092,6 @@
           ncDIAid(ng)=-1
           ncERRid(ng)=-1
           ncFLTid(ng)=-1
-          ncFISHid(ng)=-1
           ncGSTid(ng)=-1
           ncFWDid(ng)=-1
           ncGRDid(ng)=-1
@@ -1128,7 +1105,6 @@
           ncNRMid(1:4,ng)=-1
           ncOBSid(ng)=-1
           ncRSTid(ng)=-1
-          ncSHIPSid(ng)=-1
           ncSSHid(ng)=-1
           ncSSTid(ng)=-1
           ncSTAid(ng)=-1
@@ -1145,14 +1121,12 @@
           tDIAindx(ng)=0
           tFILindx(ng)=0
           tFLTindx(ng)=0
-          tFISHindx(ng)=0
           tHISindx(ng)=0
           tINIindx(ng)=0
           tIRPindx(ng)=1
           tITLindx(ng)=1
           tNRMindx(1:4,ng)=0
           tRSTindx(ng)=0
-          tSHIPSindx(ng)=0
           tSTAindx(ng)=0
           tTLFindx(ng)=0
           tTLMindx(ng)=0
@@ -1876,32 +1850,6 @@
                 idRtrc(iDON_)=varid
               CASE ('idRtrc(iPON_)')
                 idRtrc(iPON_)=varid
-#endif
-#ifdef NEMURO_SAN
-              CASE ('idFwwt')
-                idFwwt=varid
-              CASE ('idFworth')
-                idFworth=varid
-              CASE ('idFpval')
-                idFpval=varid
-              CASE ('idFage')
-                idFage=varid
-              CASE ('idFbatch')
-                idFbatch=varid
-              CASE ('idSpwnloc')
-                idSpwnloc=varid
-              CASE ('idFspc')
-                idFspc=varid
-              CASE ('idFlfsg')
-                idFlfsg=varid
-              CASE ('idFswmt')
-                idFswmt=varid
-              CASE ('idFalv')
-                idFalv=varid
-              CASE ('idFeatf')
-                idFeatf=varid
-              CASE ('idFgrl')
-                idFgrl=varid
 #endif
 #ifdef SEDIMENT
               CASE ('idRtrc(idmud)')

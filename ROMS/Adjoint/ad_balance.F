@@ -3,7 +3,7 @@
 
 #if defined TANGENT && defined BALANCE_OPERATOR
 !
-!svn $Id: ad_balance.F 1050 2009-08-31 22:53:05Z arango $
+!svn $Id: ad_balance.F 1057 2009-09-08 19:01:19Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !

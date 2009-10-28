@@ -2,7 +2,7 @@
 #if defined ADJOINT && !defined SOLVE3D
       SUBROUTINE ad_main2d (ng)
 !
-!svn $Id: ad_main2d.F 1001 2009-06-17 16:21:45Z arango $
+!svn $Id: ad_main2d.F 1003 2009-06-19 23:52:29Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !

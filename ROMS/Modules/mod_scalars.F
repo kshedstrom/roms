@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       MODULE mod_scalars
 !
-!svn $Id: mod_scalars.F 1038 2009-08-11 22:29:40Z kate $
+!svn $Id: mod_scalars.F 1060 2009-09-12 00:25:38Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -335,10 +335,6 @@
         integer :: iFeD_              ! Available disolved iron
 # endif
 #endif
-#ifdef NEMURO_SAN
-        integer, pointer :: idfish(:) ! Fish species map
-        integer, pointer :: idfish_inv(:) ! Fish species inverse map
-#endif
 #ifdef DIAGNOSTICS
 !
 !-----------------------------------------------------------------------
@@ -378,7 +374,7 @@
 #  endif
 # endif
 #endif
-#if defined FLOATS || defined NEMURO_SAN
+#if defined FLOATS
 !
 !-----------------------------------------------------------------------
 !  Floats fields identification indices.
@@ -398,35 +394,6 @@
 # ifdef FLOAT_VWALK
         integer, parameter :: ifakt = 11         ! diffusivity, Akt
         integer, parameter :: ifdak = 12         ! d(Akt)/d(s)
-# endif
-# ifdef NEMURO_SAN
-        integer, parameter :: ifwwt = 1          ! fish wet weight
-        integer, parameter :: ifworth = 2        ! fish worth
-        integer, parameter :: ifage = 3          ! age as stage
-        integer, parameter :: ifbday = 4         ! birthday
-        integer, parameter :: ifspwnloc = 5      ! spawn_dist of mother
-        integer, parameter :: ifbatch = 6        ! number of batches spawned
-        integer, parameter :: iftspwn = 7        ! time of last batch spawned
-        integer, parameter :: ifeggs = 8         ! number of eggs spawned
-        integer, parameter :: ifpval = 9         ! number of eggs spawned
-        integer, parameter :: ifeatme = 10       ! fish-eat-fish predation rate
-! Lifestage and gender
-        integer, parameter :: if_egg = 1
-        integer, parameter :: if_yolksac = 2
-        integer, parameter :: if_larva = 3
-        integer, parameter :: if_adult = 4
-! Species IDs
-        integer, parameter :: if_none = 0
-        integer, parameter :: if_anchovy = 1
-        integer, parameter :: if_sardine = 2
-        integer, parameter :: if_herring = 3
-        integer, parameter :: if_polluck = 4
-        integer, parameter :: if_pinksalmon = 5
-        integer, parameter :: max_species = 5
-        integer, parameter :: max_yearclass = 10
-#  ifdef EGGS_BISECTION
-        logical :: lr_split = .true.
-#  endif
 # endif
 # ifdef SOLVE3D
 !
@@ -513,12 +480,6 @@
         real(r8), dimension(Ngrids) :: IMPtime           ! seconds
         real(r8), dimension(Ngrids) :: ObsTime           ! seconds
         real(r8), dimension(Ngrids) :: FrcTime           ! seconds
-#ifdef NEMURO_SAN
-        integer, dimension(Ngrids) :: idays
-        integer, dimension(Ngrids) :: iyesterday
-        integer, dimension(Ngrids) :: iyears
-        integer, dimension(Ngrids) :: iyesteryear
-#endif
 
         real(r8), dimension(8) :: r_date
         real(r8) :: dstart = 0.0_r8                      ! days
@@ -613,11 +574,6 @@
         logical, dimension(Ngrids) :: Lassimilate
         logical, dimension(Ngrids) :: Lbiology
         logical, dimension(Ngrids) :: Lfloats
-#ifdef NEMURO_SAN
-        logical, dimension(Ngrids) :: Lfish
-        logical, dimension(Ngrids) :: Lships
-        logical, dimension(Ngrids) :: Lpredators
-#endif
 #ifdef ICE_MODEL
         logical, dimension(Ngrids) :: Lice
 #endif
@@ -980,7 +936,6 @@
         logical, dimension(Ngrids) :: LdefDIA    ! Diagnostics file
         logical, dimension(Ngrids) :: LdefERR    ! 4DVar error file
         logical, dimension(Ngrids) :: LdefFLT    ! Floats file
-        logical, dimension(Ngrids) :: LdefFISH   ! Fish file
         logical, dimension(Ngrids) :: LdefHIS    ! History file
         logical, dimension(Ngrids) :: LdefHSS    ! Hessian file
         logical, dimension(Ngrids) :: LdefINI    ! Initial file
@@ -1051,8 +1006,6 @@
         integer, dimension(Ngrids) :: nAVG2      ! Average file
         integer, dimension(Ngrids) :: nDIA       ! Diagnostics file
         integer, dimension(Ngrids) :: nFLT       ! Floats file
-        integer, dimension(Ngrids) :: nFSH       ! Fish file
-        integer, dimension(Ngrids) :: nSHP       ! Ships file
         integer, dimension(Ngrids) :: nHIS       ! History file
         integer, dimension(Ngrids) :: nRST       ! Restart file
         integer, dimension(Ngrids) :: nSTA       ! Stations file
@@ -1067,14 +1020,12 @@
         integer, dimension(Ngrids) :: NrecERR    ! 4DVar error file
         integer, dimension(Ngrids) :: NrecFIL    ! Filters file
         integer, dimension(Ngrids) :: NrecFLT    ! Floats file
-        integer, dimension(Ngrids) :: NrecFISH   ! Fish file
         integer, dimension(Ngrids) :: NrecHIS    ! History file
         integer, dimension(Ngrids) :: NrecHSS    ! Hessian file
         integer, dimension(Ngrids) :: NrecINI    ! NLM Initial file
         integer, dimension(Ngrids) :: NrecITL    ! TLM Initial file
         integer, dimension(Ngrids) :: NrecLCZ    ! Lanczos file
         integer, dimension(Ngrids) :: NrecRST    ! Restart file
-        integer, dimension(Ngrids) :: NrecSHIPS  ! Ships file
         integer, dimension(Ngrids) :: NrecSTA    ! Station file
         integer, dimension(Ngrids) :: NrecTLM    ! Tangent linear file
 
@@ -1157,14 +1108,6 @@
 !  Floats restart switch.
 !
         integer, dimension(Ngrids) :: frrec
-#endif
-#ifdef NEMURO_SAN
-!
-!  Fish restart switch.
-!
-        integer, dimension(Ngrids) :: fishrrec
-        integer, dimension(Ngrids) :: shiprrec
-        integer, dimension(Ngrids) :: predrrec
 #endif
 !
 !  Switch to activate processing of input data.  This switch becomes
@@ -2008,10 +1951,6 @@
       Tobc_out = IniVal
 # ifdef BIOLOGY
       allocate ( idbio(NBT) )
-#  ifdef NEMURO_SAN
-      allocate ( idfish(max_species) )
-      allocate ( idfish_inv(max_species) )
-#  endif
 
 # ifdef BEST_NPZ
 #   ifdef STATIONARY
@@ -2569,10 +2508,6 @@
         LcycleRST(ng)=.FALSE.
         LcycleTLM(ng)=.FALSE.
         Lfloats(ng)=.TRUE.
-#ifdef NEMURO_SAN
-        Lfish(ng)=.TRUE.
-        Lships(ng)=.TRUE.
-#endif
 #ifdef ICE_MODEL
         Lice(ng)=.TRUE.
 #endif
@@ -2697,9 +2632,6 @@
 #ifdef FLOATS
         LdefFLT(ng)=.TRUE.
 #endif
-#ifdef NEMURO_SAN
-        LdefFISH(ng)=.TRUE.
-#endif
         LdefHIS(ng)=.TRUE.
         LdefINI(ng)=.FALSE.
         LdefIRP(ng)=.FALSE.
@@ -2732,14 +2664,12 @@
         NrecDIA(ng)=0
         NrecERR(ng)=0
         NrecFIL(ng)=0
-        NrecFISH(ng)=0
         NrecFLT(ng)=0
         NrecHIS(ng)=0
         NrecHSS(ng)=0
         NrecINI(ng)=0
         NrecITL(ng)=0
         NrecRST(ng)=0
-        NrecSHIPS(ng)=0
         NrecSTA(ng)=0
         NrecTLM(ng)=0
 

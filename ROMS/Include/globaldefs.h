@@ -492,7 +492,7 @@
      defined W4DPSAS_SENSITIVITY || defined W4DVAR_SENSITIVITY)
 # define WEAK_CONSTRAINT
 #endif
-#if !(defined WEAK_CONSTRAINT    || defined IOM)               && \
+#if !(defined WEAK_CONSTRAINT    || defined IOM)      && \
       defined RPM_RELAXATION
 # undef RPM_RELAXATION
 #endif

@@ -127,16 +127,6 @@
 # ifdef FLOATS
       USE step_floats_mod, ONLY : step_floats
 # endif
-# ifdef NEMURO_SAN
-      USE step_fish_mod, ONLY : step_fish
-      USE new_fish_mod, ONLY : new_fish
-      USE fish_by_cell_mod, ONLY : fish_by_cell
-      USE fish_spawn_mod, ONLY : fish_spawn
-      USE new_year_mod, ONLY : new_year
-#  ifdef FLEET
-      USE ships_by_cell_mod, ONLY : ships_by_cell
-#  endif
-# endif
       USE wvelocity_mod, ONLY : wvelocity
 !
       implicit none
@@ -148,7 +138,7 @@
 !  Local variable declarations.
 !
       integer :: my_iif, next_indx1, subs, tile, thread
-# if defined FLOATS || defined NEMURO_SAN
+# if defined FLOATS
       integer :: Lend, Lstr, chunk_size
 # endif
 !
@@ -700,81 +690,17 @@
           CALL step_floats (ng, Lstr, Lend)
         END DO
 !$OMP END PARALLEL DO
-      END IF
 # endif
+# if defined FLOATS
 !
-# ifdef NEMURO_SAN
+!  Shift floats time indices.
 !
-!-----------------------------------------------------------------------
-!  Compute Lagrangian fish trajectories.
-!-----------------------------------------------------------------------
-!
-      IF (Lfish(Ng)) THEN
-!$OMP PARALLEL DO PRIVATE(thread,chunk_size,Lstr,Lend)                  &
-!$OMP&            SHARED(ng,numthreads,Nfish)
-        DO thread=0,numthreads-1
-          chunk_size=(Nfish(ng)+numthreads-1)/numthreads
-          Lstr=1+thread*chunk_size
-          Lend=MIN(Nfish(ng),Lstr+chunk_size-1)
-          CALL step_fish (ng, Lstr, Lend)
-        END DO
-!$OMP END PARALLEL DO
-#  ifdef FLEET
-!$OMP PARALLEL DO PRIVATE(thread,chunk_size,Lstr,Lend)                  &
-!$OMP&            SHARED(ng,numthreads,Nships)
-        DO thread=0,numthreads-1
-          chunk_size=(Nships(ng)+numthreads-1)/numthreads
-          Lstr=1+thread*chunk_size
-          Lend=MIN(Nships(ng),Lstr+chunk_size-1)
-          CALL step_ships (ng, Lstr, Lend)
-        END DO
-!$OMP END PARALLEL DO
-#  endif
-!
-!  Find out how many and which fish in each cell
-!
-!$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(ng,numthreads)
-        DO thread=0,numthreads-1
-          subs=NtileX(ng)*NtileE(ng)/numthreads
-          DO tile=subs*thread,subs*(thread+1)-1,+1
-            CALL fish_by_cell (ng, TILE)
-! Don't need these yet...
-#  ifdef FLEET
-!            CALL ships_by_cell (ng, TILE)
-#  endif
-!  Make new fish once a day
-            IF (iyesterday(ng) .ne. idays(ng)) THEN
-          IF (Master) print *, 'MAIN3D idays ', idays(ng), iyears(ng)
-              CALL fish_spawn (ng, TILE)
-! Haven't finished this yet
-#  ifdef EGGS_BISECTION
-              CALL eggs_by_cell (ng, TILE)
-#  endif
-              CALL new_fish(ng)
-              iyesterday(ng) = idays(ng)
-!  Once a year, we clean out the oldest fish
-              IF (iyesteryear(ng) .ne. iyears(ng)) THEN
-!  So, problem here if OpenMP
-!               CALL new_year (ng, TILE)
-                CALL new_year (ng)
-                iyesteryear(ng) = iyears(ng)
-              END IF
-            END IF
-          END DO
-        END DO
-!$OMP END PARALLEL DO
+        nfp1(ng)=MOD(nfp1(ng)+1,NFT+1)
+        nf(ng)  =MOD(nf(ng)  +1,NFT+1)
+        nfm1(ng)=MOD(nfm1(ng)+1,NFT+1)
+        nfm2(ng)=MOD(nfm2(ng)+1,NFT+1)
+        nfm3(ng)=MOD(nfm3(ng)+1,NFT+1)
       END IF
-# endif
-!
-# if defined FLOATS || defined NEMURO_SAN
-!
-!  Shift floats/fish time indices.
-!
-      nfp1(ng)=MOD(nfp1(ng)+1,NFT+1)
-      nf(ng)  =MOD(nf(ng)  +1,NFT+1)
-      nfm1(ng)=MOD(nfm1(ng)+1,NFT+1)
-      nfm2(ng)=MOD(nfm2(ng)+1,NFT+1)
-      nfm3(ng)=MOD(nfm3(ng)+1,NFT+1)
 # endif
       RETURN
       END SUBROUTINE main3d

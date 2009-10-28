@@ -74,9 +74,6 @@
 #   endif
 #  endif
 # endif
-#  if defined WET_DRY
-      USE distribute_mod, ONLY : mp_boundary
-#  endif
 # ifdef DISTRIBUTE
 #  if defined WET_DRY
       USE distribute_mod, ONLY : mp_boundary

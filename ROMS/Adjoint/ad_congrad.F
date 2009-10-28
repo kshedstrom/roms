@@ -4,7 +4,7 @@
       SUBROUTINE ad_congrad (ng, model, outLoop, innLoop, NinnLoop,     &
      &                       Lcgini)
 !
-!svn $Id: ad_congrad.F 958 2009-03-24 22:37:34Z arango $
+!svn $Id: ad_congrad.F 975 2009-05-05 22:51:13Z kate $
 !=================================================== Andrew M. Moore ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group      Hernan G. Arango   !
 !    Licensed under a MIT/X style license                              !

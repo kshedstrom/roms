@@ -6,7 +6,7 @@
 # if !defined TS_FIXED && defined SOLVE3D &&  \
      (defined TS_DIF2  || defined TS_DIF4)
 !
-!svn $Id: tl_t3dmix.F 889 2009-01-09 21:27:08Z arango $
+!svn $Id: tl_t3dmix.F 975 2009-05-05 22:51:13Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
