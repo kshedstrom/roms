@@ -127,9 +127,10 @@ contains
 # if defined BEST_NPZ && defined CLIM_ICE_1D
      &                    OCEAN(ng) % it,                               &
      &                    CLIMA(ng) % tclmG,                            &
-     &                    nstp(ng),                                    &
-# endif  
+     &                    nstp(ng),                                     &
+# endif
 # ifdef EMINUSP
+     &                     FORCES(ng) % EminusP,                        &
      &                     FORCES(ng) % evap,                           &
 # endif
      &                     FORCES(ng) % sustr,                          &
@@ -186,10 +187,10 @@ contains
 # endif
 #  if defined BEST_NPZ && defined CLIM_ICE_1D
      &                           it,                                    &
-     &                           tclmG,nstp,                            & 
+     &                           tclmG,nstp,                            &
 #  endif
 # ifdef EMINUSP
-     &                           evap,                                  &
+     &                           EminusP, evap,                         &
 # endif
      &                           sustr, svstr)
 !***********************************************************************
@@ -290,17 +291,18 @@ contains
 #  endif
 
 #  ifdef EMINUSP
+      real(r8), intent(out) :: EminusP(LBi:,LBj:)
       real(r8), intent(out) :: evap(LBi:,LBj:)
 #  endif
       real(r8), intent(out) :: sustr(LBi:,LBj:)
       real(r8), intent(out) :: svstr(LBi:,LBj:)
-      
+
 #   if defined BEST_NPZ && defined CLIM_ICE_1D
-     
+
        real(r8), intent(in) ::tclmG(LBi:,LBj:,:,:,:)
        real(r8), intent(in) :: it(LBi:,LBj:,:,:)
         integer, intent(in) :: nstp
-#   endif  
+#   endif
 # else
 #  ifdef MASKING
       real(r8), intent(in) :: rmask(LBi:UBi,LBj:UBj)
@@ -366,17 +368,18 @@ contains
 #  endif
 
 #  ifdef EMINUSP
+      real(r8), intent(out) :: EminusP(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: evap(LBi:UBi,LBj:UBj)
 #  endif
       real(r8), intent(out) :: sustr(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: svstr(LBi:UBi,LBj:UBj)
-      
+
 #  if defined BEST_NPZ && defined CLIM_ICE_1D
-     
+
       real(r8), intent(in) :: it(LBi:UBi,LBj:UBj,3,1)
       real(r8), intent(in) ::tclmG(LBi:UBi,LBj:UBj,UBk,3,UBt+1)
       integer, intent(in) :: nstp
-#  endif        
+#  endif
 # endif
 !
 !  Local variable declarations.
@@ -707,7 +710,7 @@ contains
           !------------------------------------------------------------
 
           tau = rhoAir(i) * ustar * ustar
-	  SRad(i,j) = srflx(i,j) * Hscale
+          SRad(i,j) = srflx(i,j) * Hscale
 
           !--- momentum flux ---
           Taux(i,j) = tau * (Uwind(i,j)-u(i,j,N(ng),nrhs)) / vmag
@@ -717,7 +720,7 @@ contains
           Tauy_Ice(i,j) = rhoAir(i)*cdai(ng)*Vwind(i,j)*vmag
 
 #  ifdef ICE_THERMO
-!  Correct ocean net short-wave radiation for ice cover and convert to 
+!  Correct ocean net short-wave radiation for ice cover and convert to
 !  kinematic units
 
           Ch=ustar*tstar/(vmag*delt+0.0098_r8*blk_ZT(ng))
@@ -771,7 +774,7 @@ contains
                 albsn=0.701009_r8
               ELSE
                 albsn=albi+(0.701009_r8-albi)*thksn_n/0.1
-              ENDIF 
+              ENDIF
             ENDIF
             albs=albi
             IF (hsn_n.GT.0._r8) albs=albsn
@@ -837,7 +840,7 @@ contains
 # endif
 ! Correct for Kelvin to Celsius in RHS
            RHS_Ice(i,j) = RHS_Ice(i,j) -                                &
-     &            Coef_Ice(i,j)*273.16_r8      
+     &            Coef_Ice(i,j)*273.16_r8
 
 ! Net heat flux from ice to atmosphere
            Qai(i,j) =-qsh_i - qlh_i - qswi + qlwi
@@ -895,30 +898,30 @@ contains
 
 # if defined ICE_MODEL && defined BEST_NPZ
 
-        ice_thick(i,j) = hi(i,j,1)/ai(i,j,1)
-	snow_thick(i,j) = hsn(i,j,linew)/(ai(i,j,linew)+eps)
-	
-       IF (ice_thick(i,j).le.0.1_r8) THEN
-         cff1=ice_thick(i,j)*5._r8
-         ELSE
-         cff1=0.1_r8*5._r8+(ice_thick(i,j)-0.1_r8)*1._r8
-       ENDIF
-       
-         cff1= cff1+snow_thick(i,j)*20._r8
-	 
+          ice_thick(i,j) = hi(i,j,1)/ai(i,j,1)
+          snow_thick(i,j) = hsn(i,j,linew)/(ai(i,j,linew)+eps)
+
+          IF (ice_thick(i,j).le.0.1_r8) THEN
+            cff1=ice_thick(i,j)*5._r8
+          ELSE
+            cff1=0.1_r8*5._r8+(ice_thick(i,j)-0.1_r8)*1._r8
+          ENDIF
+
+          cff1= cff1+snow_thick(i,j)*20._r8
+
 #   ifdef ICE_BIO
-         cff2=0.5*0.02_r8*0.005*it(i,j,nstp,iIcePhL)
+          cff2=0.5*0.02_r8*0.005*it(i,j,nstp,iIcePhL)
 #   endif
 
-     srflx(i,j)=(1-ai(i,j,linew))*srflx(i,j)                &
+          srflx(i,j)=(1-ai(i,j,linew))*srflx(i,j)                       &
      &            +ai(i,j,linew)*srflx(i,j)*exp(-cff1-cff2)
-     
-     
-# elif defined ICE_MODEL && !defined BEST_NPZ    
-     
-     srflx(i,j) = srflx(i,j)*(1.0_r8-ai(i,j,linew))
-     
-      qao_n(i,j) = -stflx(i,j,itemp)*Hscale
+
+
+# elif defined ICE_MODEL && !defined BEST_NPZ
+
+          srflx(i,j) = srflx(i,j)*(1.0_r8-ai(i,j,linew))
+
+          qao_n(i,j) = -stflx(i,j,itemp)*Hscale
 
 ! Net precipitation - evaporation in m/s
           IF (Tair(i,j).ge.0.0) THEN
@@ -930,32 +933,30 @@ contains
           rhs_ice_heat(i,j) = RHS_Ice(i,j)
           qai_n(i,j) = Qai(i,j)
 
-     
-! Limit shortwave radiation to be used in computing penetrative 
+! Limit shortwave radiation to be used in computing penetrative
 ! radiation by presence of ice and biology
 
-# elif !defined ICE_MODEL && defined BEST_NPZ && defined CLIM_ICE_1D 
+# elif !defined ICE_MODEL && defined BEST_NPZ && defined CLIM_ICE_1D
 
-        ice_thick(i,j) = tclmG(i,j,42,1,15) 
-	snow_thick(i,j) = ice_thick(i,j)*0.1 !assume 10% of ice depth 
+          ice_thick(i,j) = tclmG(i,j,42,1,15)
+          snow_thick(i,j) = ice_thick(i,j)*0.1 !assume 10% of ice depth
 
-       
-       IF (ice_thick(i,j).le.0.1_r8) THEN
-         cff1=ice_thick(i,j)*5._r8
+         IF (ice_thick(i,j).le.0.1_r8) THEN
+           cff1=ice_thick(i,j)*5._r8
          ELSE
-         cff1=0.1_r8*5._r8+(ice_thick(i,j)-0.1_r8)*1._r8
-       ENDIF
-       
+           cff1=0.1_r8*5._r8+(ice_thick(i,j)-0.1_r8)*1._r8
+         ENDIF
+
          cff1= cff1+snow_thick(i,j)*20._r8
-	 
+
 #   ifdef ICE_BIO
          cff2=0.5*0.02_r8*0.005*it(i,j,nstp,iIcePhL)
 #   endif
 
           srflx(i,j)=srflx(i,j)*exp(-cff1-cff2)
-# endif 
+# endif
 
-       
+
 !--- water flux ---
 !         evap(i,j) = lhflx(i,j)/shr_const_latvap
 
@@ -974,6 +975,9 @@ contains
 
 !         duu10n(i,j) = u10n*u10n ! 10m wind speed squared
 
+# ifdef EMINUSP
+          EminusP(i,j)=stflx(i,j,isalt)
+# endif
         END DO
       END DO
 !
@@ -1030,23 +1034,23 @@ contains
      &                        LBi, UBi, LBj, UBj,                       &
      &                        qao_n)
 #   ifdef ICE_THERMO
-      CALL exchange_r2d_tile (ng, tile,                               &
+      CALL exchange_r2d_tile (ng, tile,                                 &
      &                    LBi, UBi, LBj, UBj,                           &
      &                    qai_n)
-      CALL exchange_r2d_tile (ng, tile,                               &
+      CALL exchange_r2d_tile (ng, tile,                                 &
      &                    LBi, UBi, LBj, UBj,                           &
      &                    coef_ice_heat)
-      CALL exchange_r2d_tile (ng, tile,                               &
+      CALL exchange_r2d_tile (ng, tile,                                 &
      &                    LBi, UBi, LBj, UBj,                           &
      &                    rhs_ice_heat)
-      CALL exchange_r2d_tile (ng, tile,                               &
+      CALL exchange_r2d_tile (ng, tile,                                 &
      &                    LBi, UBi, LBj, UBj,                           &
      &                    snow_n)
 #   endif
-      CALL exchange_r2d_tile (ng, tile,                               &
+      CALL exchange_r2d_tile (ng, tile,                                 &
      &                    LBi, UBi, LBj, UBj,                           &
      &                    tau_aix_n)
-      CALL exchange_r2d_tile (ng, tile,                               &
+      CALL exchange_r2d_tile (ng, tile,                                 &
      &                    LBi, UBi, LBj, UBj,                           &
      &                    tau_aiy_n)
 #  endif
@@ -1054,6 +1058,9 @@ contains
       CALL exchange_r2d_tile (ng, tile,                                 &
      &                        LBi, UBi, LBj, UBj,                       &
      &                        evap)
+       CALL exchange_r2d_tile (ng, tile,                                &
+     &                        LBi, UBi, LBj, UBj,                       &
+     &                        EminusP)
       CALL exchange_r2d_tile (ng, tile,                                 &
      &                        LBi, UBi, LBj, UBj,                       &
      &                        stflx(:,:,isalt))
@@ -1092,10 +1099,10 @@ contains
 #   endif
 #  endif
 #  ifdef EMINUSP
-      CALL mp_exchange2d (ng, tile, iNLM, 2,                            &
+      CALL mp_exchange2d (ng, tile, iNLM, 3,                            &
      &                    LBi, UBi, LBj, UBj,                           &
      &                    NghostPoints, EWperiodic, NSperiodic,         &
-     &                    evap,                                         &
+     &                    evap, EminusP,                                &
      &                    stflx(:,:,isalt))
 #  endif
       CALL mp_exchange2d (ng, tile, iNLM, 2,                            &

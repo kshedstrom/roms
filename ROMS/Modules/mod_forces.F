@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       MODULE mod_forces
 !
-!svn $Id: mod_forces.F 1023 2009-07-20 21:45:24Z kate $
+!svn $Id: mod_forces.F 1087 2009-10-21 00:21:28Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -215,7 +215,8 @@
 
           real(r8), pointer :: sustr(:,:)
           real(r8), pointer :: svstr(:,:)
-#if !defined ANA_SMFLUX && !defined BULK_FLUXES
+#if !defined ANA_SMFLUX     && !defined BULK_FLUXES || \
+     defined NL_BULK_FLUXES
           real(r8), pointer :: sustrG(:,:,:)
           real(r8), pointer :: svstrG(:,:,:)
 # endif
@@ -357,6 +358,7 @@
           real(r8), pointer :: rainG(:,:,:)
 #  endif
 #  ifdef EMINUSP
+          real(r8), pointer :: EminusP(:,:)
           real(r8), pointer :: evap(:,:)
 #  endif
 #  ifdef RUNOFF
@@ -590,7 +592,8 @@
       allocate ( FORCES(ng) % sustr(LBi:UBi,LBj:UBj) )
       allocate ( FORCES(ng) % svstr(LBi:UBi,LBj:UBj) )
 
-# if !defined ANA_SMFLUX && !defined BULK_FLUXES
+#if !defined ANA_SMFLUX     && !defined BULK_FLUXES || \
+     defined NL_BULK_FLUXES
       allocate ( FORCES(ng) % sustrG(LBi:UBi,LBj:UBj,2) )
       allocate ( FORCES(ng) % svstrG(LBi:UBi,LBj:UBj,2) )
 # endif
@@ -744,6 +747,7 @@
       allocate ( FORCES(ng) % rainG(LBi:UBi,LBj:UBj,2) )
 #  endif
 #  ifdef EMINUSP
+      allocate ( FORCES(ng) % EminusP(LBi:UBi,LBj:UBj) )
       allocate ( FORCES(ng) % evap(LBi:UBi,LBj:UBj) )
 #  endif
 #  ifdef RUNOFF
@@ -1063,7 +1067,8 @@
 # endif
             FORCES(ng) % sustr(i,j) = IniVal
             FORCES(ng) % svstr(i,j) = IniVal
-# if !defined ANA_SMFLUX && !defined BULK_FLUXES
+#if !defined ANA_SMFLUX     && !defined BULK_FLUXES || \
+     defined NL_BULK_FLUXES
             FORCES(ng) % sustrG(i,j,1) = IniVal
             FORCES(ng) % sustrG(i,j,2) = IniVal
             FORCES(ng) % svstrG(i,j,1) = IniVal
@@ -1184,6 +1189,7 @@
             FORCES(ng) % rainG(i,j,2) = IniVal
 #  endif
 #  ifdef EMINUSP
+            FORCES(ng) % EminusP(i,j) = IniVal
             FORCES(ng) % evap(i,j) = IniVal
 #  endif
 #  ifdef RUNOFF

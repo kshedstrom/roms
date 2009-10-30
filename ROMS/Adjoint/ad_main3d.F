@@ -2,7 +2,7 @@
 #if defined ADJOINT && defined SOLVE3D
       SUBROUTINE ad_main3d (ng)
 !
-!svn $Id: ad_main3d.F 1001 2009-06-17 16:21:45Z arango $
+!svn $Id: ad_main3d.F 1087 2009-10-21 00:21:28Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
@@ -819,7 +819,9 @@
 #  ifdef SENSITIVITY_4DVAR
       IF (LsenPSAS(ng)) THEN
 #  endif
+#  if !defined AD_IMPULSE
         IF ((DendS(ng).ge.tdays(ng)).and.(tdays(ng).ge.DstrS(ng))) THEN
+#  endif
 !$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(ng,numthreads)
           DO thread=0,numthreads-1
             subs=NtileX(ng)*NtileE(ng)/numthreads
@@ -828,7 +830,9 @@
             END DO
           END DO
 !$OMP END PARALLEL DO
+#  if !defined AD_IMPULSE
         END IF
+#  endif
 #  ifdef SENSITIVITY_4DVAR
       END IF
 #  endif

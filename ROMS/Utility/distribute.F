@@ -8,7 +8,7 @@
 # define REDUCE_ALLGATHER   /* use mpi_allgather in mp_reduce   */
 # undef  REDUCE_ALLREDUCE   /* use mpi_allreduce in mp_reduce   */
 !
-!svn $Id: distribute.F 1038 2009-08-11 22:29:40Z kate $
+!svn $Id: distribute.F 1090 2009-10-27 23:59:27Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !

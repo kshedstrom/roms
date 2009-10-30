@@ -2,7 +2,7 @@
       MODULE set_vbc_mod
 #ifdef NONLINEAR
 !
-!svn $Id: set_vbc.F 1028 2009-07-23 21:04:07Z kate $
+!svn $Id: set_vbc.F 1090 2009-10-27 23:59:27Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !

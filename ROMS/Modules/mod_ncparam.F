@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       MODULE mod_ncparam
 !
-!svn $Id: mod_ncparam.F 1056 2009-09-08 18:51:43Z kate $
+!svn $Id: mod_ncparam.F 1090 2009-10-27 23:59:27Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -160,6 +160,7 @@
         integer  :: idDano        ! density anomaly
         integer  :: idDiff(2)     ! temperature and salinity diffusion
         integer  :: iddQdT        ! heat flux sensitivity to SST
+        integer  :: idEmPf        ! E-P from bulk_flux.F
         integer  :: idevap        ! evaporation rate
         integer  :: idFsur        ! free-surface
         integer  :: idFsuD        ! detided free-surface
@@ -717,8 +718,8 @@
         integer :: Lvar, Ntiles, i, ic, ie, is, j, ng
         integer :: gtype, tile, varid
 
-        real(r8), parameter :: epsilon = 1.0E-8_r8 
-        real(r8), parameter :: spv = 0.0_r8 
+        real(r8), parameter :: epsilon = 1.0E-8_r8
+        real(r8), parameter :: spv = 0.0_r8
         real(r8) :: offset, scale
 
         character (len=80), dimension(7) :: Vinfo
@@ -1186,7 +1187,7 @@
         END DO
 #endif
 !
-!  Set IDs for state some state variables. 
+!  Set IDs for state some state variables.
 !
 #if defined FORCING_SV || defined SO_SEMI
         isUstr=1
@@ -1615,6 +1616,8 @@
                 idShea=varid
               CASE ('idrain')
                 idrain=varid
+              CASE ('idEmPf')
+                idEmPf=varid
               CASE ('idevap')
                 idevap=varid
               CASE ('idRunoff')
