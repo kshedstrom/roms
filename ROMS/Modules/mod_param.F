@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       MODULE mod_param
 !
-!svn $Id: mod_param.F 1038 2009-08-11 22:29:40Z kate $
+!svn $Id: mod_param.F 1092 2009-10-30 21:12:08Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -35,10 +35,12 @@
 !                                                                      !
 !  Configuration parameters:                                           !
 !                                                                      !
-!  Nfloats    Number of floats tracjectories.                          !
+!  Nbico      Number of balanced SSH elliptic equation iterations.     !
+!  Nfloats    Number of floats trajectories.                           !
 !  Nstation   Number of output stations.                               !
 !  MTC        Maximum number of tidal components.                      !
 !  MTY        Maximum number of tidal nodal correction years           !
+!  NSA        Number of state array for error covariance.              !
 !  NSV        Number of model state variables.                         !
 !                                                                      !
 !  Tracer parameters:                                                  !
@@ -600,7 +602,7 @@
         integer :: NSA
 #endif
 
-#if defined BALANCE_OPERATOR || defined ZETA_ELLIPTIC
+#if defined BALANCE_OPERATOR && defined ZETA_ELLIPTIC
 !
 !  Number of biconjugate gradient algorithm iteractions.
 !
@@ -809,9 +811,6 @@
 #endif
 #ifdef ADJUST_STFLUX
           NSV(ng)=NSV(ng)+NT(ng)
-#endif
-#if defined BALANCE_OPERATOR || defined ZETA_ELLIPTIC
-          Nbico(ng)=200
 #endif
         END DO
 !

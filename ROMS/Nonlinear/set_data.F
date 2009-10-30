@@ -2,7 +2,7 @@
 #ifdef NONLINEAR
       SUBROUTINE set_data (ng, tile)
 !
-!svn $Id: set_data.F 1047 2009-08-24 23:55:11Z kate $
+!svn $Id: set_data.F 1087 2009-10-21 00:21:28Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -527,7 +527,13 @@
 #   ifdef ANA_SSFLUX
       CALL ana_stflux (ng, tile, iNLM, isalt)
 #   else
-#   if !(defined EMINUSP || defined SRELAXATION)
+#    if defined NL_BULK_FLUXES && !defined BULK_FLUXES
+      CALL set_2dfld_tile (ng, tile, iNLM, idEmPf,                      &
+     &                     LBi, UBi, LBj, UBj,                          &
+     &                     FORCES(ng)%stflxG(:,:,:,isalt),              &
+     &                     FORCES(ng)%stflx (:,:,isalt),                &
+     &                     update)
+#    elif !(defined EMINUSP || defined SRELAXATION)
       CALL set_2dfld_tile (ng, tile, iNLM, idsfwf,                      &
      &                     LBi, UBi, LBj, UBj,                          &
      &                     FORCES(ng)%stflxG(:,:,:,isalt),              &
@@ -784,7 +790,7 @@
 !-----------------------------------------------------------------------
 !
       CALL ana_specir (ng, tile, iNLM)
-# endif     
+# endif
 
 # ifdef ANA_SPINNING
 !
@@ -2026,6 +2032,8 @@
      &                       OCEAN(ng)%zetaG,                           &
      &                       OCEAN(ng)%f_zeta,                          &
      &                       update)
+
+#  ifndef SOLVE3D
 !
 !  Set 2D momentum forcing.
 !
@@ -2039,7 +2047,7 @@
      &                       OCEAN(ng)%vbarG,                           &
      &                       OCEAN(ng)%f_vbar,                          &
      &                       update)
-
+#  endif
 #  ifdef SOLVE3D
 !
 !  Set 3D momentum.

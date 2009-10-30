@@ -2,7 +2,7 @@
 #if (defined FOUR_DVAR || defined VERIFICATION) && defined OBSERVATIONS
       SUBROUTINE obs_write (ng, tile, model)
 !
-!svn $Id: obs_write.F 1038 2009-08-11 22:29:40Z kate $
+!svn $Id: obs_write.F 1076 2009-09-25 23:18:43Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -629,7 +629,7 @@
 #  ifdef MASKING
      &                       GRID(ng) % rmask,                          &
 #  endif
-     &                       OCEAN(ng) % zeta_ref)
+     &                       FOURDVAR(ng) % zeta_ref)
           IF (exit_flag.ne.NoError) RETURN
           wrtZetaRef(ng)=.FALSE.
         END IF

@@ -205,7 +205,7 @@
         DO is=1,Nsrc
           Dsrc(is)=0.0_r8
           Isrc(is)=180
-          Jsrc(is)=159+is
+          Jsrc(is)=109+is
           Lsrc(is,itemp)=.FALSE.
           Lsrc(is,isalt)=.FALSE.
         END DO

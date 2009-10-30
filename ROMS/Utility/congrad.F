@@ -4,7 +4,7 @@
       SUBROUTINE congrad (ng, model, outLoop, innLoop, NinnLoop,        &
      &                    Lcgini)
 !
-!svn $Id: congrad.F 1038 2009-08-11 22:29:40Z kate $
+!svn $Id: congrad.F 1087 2009-10-21 00:21:28Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
@@ -137,7 +137,7 @@
       integer :: i, ic, j, iobs, ivec, Lscale, info
 
       real(r8) :: zbet, eps, preducv, preducy
-      real(r8) :: Jopt, Jf, Jmod, Jdata, Jb, Jobs, Jact
+      real(r8) :: Jopt, Jf, Jmod, Jdata, Jb, Jobs, Jact, cff
 
       real(r8), dimension(NinnLoop) :: zu, zgam
       real(r8), dimension(NinnLoop) :: ztemp1, ztemp2, zu1, zu2
@@ -188,6 +188,16 @@
 !-----------------------------------------------------------------------
 !
         MINIMIZE : IF (innLoop.eq.0) THEN
+
+# if defined W4DPSAS             || defined TL_W4DPSAS || \
+     defined W4DPSAS_SENSITIVITY
+!  
+!  If this is the first inner-loop, save NLmodVal in BCKmodVal.
+!
+          DO iobs=1,Ndatum(ng)
+            BCKmodVal(iobs)=NLmodVal(iobs)
+          END DO
+# endif
 !
 !  If this is the first outer-loop, clear the solution vector px.
 !
@@ -199,18 +209,6 @@
               px(iobs)=0.0_r8
               cg_pxsave(iobs)=0.0_r8
             END DO
-
-# if defined W4DPSAS             || defined TL_W4DPSAS || \
-     defined W4DPSAS_SENSITIVITY
-!
-!  If this is the first outer-loop, save NLmodVal in BCKmodVal.
-!
-            IF (outLoop.eq.1) THEN
-              DO iobs=1,Ndatum(ng)
-                BCKmodVal(iobs)=NLmodVal(iobs)
-              END DO
-            END IF
-# endif
 !
 !  If this is the first pass of the inner loop, set up the vectors and
 !  store the first guess. The initial starting guess is assumed to be
@@ -234,6 +232,7 @@
                 pgrad(iobs)=pgrad(iobs)/SQRT(ObsErr(iobs))
               END IF
               vgrad0(iobs)=pgrad(iobs)
+              vgrad0s(iobs)=-vgrad0(iobs)
             END DO
 !
 !  If preconditioning, convert pgrad from v-space to y-space.
@@ -294,7 +293,7 @@
             Jb=0.0_r8
             Jobs=0.0_r8
             DO iobs=1,Ndatum(ng)
-              Jobs=Jobs+vgrad0(iobs)*vgrad0(iobs)
+              Jobs=Jobs+vgrad0s(iobs)*vgrad0s(iobs)
             END DO
             Jact=Jb+Jobs
 
@@ -334,8 +333,11 @@
 !  Convert gradient contribution from x-space to v-space.
 !
                 pgrad(iobs)=ObsScale(iobs)*TLmodVal(iobs)
+                gdgw(iobs)=pgrad(iobs)
                 IF (ObsErr(iobs).NE.0.0_r8) THEN
                   pgrad(iobs)=pgrad(iobs)/SQRT(ObsErr(iobs))
+                  vgrad0s(iobs)=pgrad(iobs)+cg_innov(iobs)+             &
+     &                                      cg_pxsave(iobs)
                 END IF
 !
 !  Add I*x0=cg_pxsave contribution to the gradient and the term
@@ -633,7 +635,7 @@
 !  Compute the actual penalty function terms.
 !
           DO iobs=1,Ndatum(ng)
-            zd(iobs)=-vgrad0(iobs)*SQRT(ObsErr(iobs))
+            zd(iobs)=vgrad0s(iobs)*SQRT(ObsErr(iobs))
           END DO
           DO iobs=1,Ndatum(ng)
             IF (ObsErr(iobs).ne.0.0_r8) THEN
@@ -712,18 +714,31 @@
           END DO
           Jb=0.0_r8
           DO iobs=1,Ndatum(ng)
-            Jb=Jb+zd(iobs)*zht(iobs)
+            IF (ObsErr(iobs).ne.0.0_r8) THEN
+              cff=cg_pxsave(iobs)/SQRT(ObsErr(iobs))
+              Jb=Jb+zd(iobs)*zht(iobs)-2.0_r8*cff*zhv(iobs)+  &
+     &            cff*gdgw(iobs)
+            END IF
           END DO
 ! 
 !  Compute Jobs.
 !
           Jobs=0.0_r8
-          DO iobs=1,Ndatum(ng)
-            IF (ObsErr(iobs).NE.0.0_r8) THEN
-              Jobs=Jobs+(zhv(iobs)-zd(iobs))*(zhv(iobs)-zd(iobs))/      &
-     &             ObsErr(iobs)
-            END IF
-          END DO
+          IF (outLoop.eq.1.or.(.not.LhotStart)) THEN
+            DO iobs=1,Ndatum(ng)
+              IF (ObsErr(iobs).NE.0.0_r8) THEN
+                cff=zhv(iobs)-zd(iobs)
+                Jobs=Jobs+cff*cff/ObsErr(iobs)
+              END IF
+            END DO
+          ELSE
+            DO iobs=1,Ndatum(ng)
+              IF (ObsErr(iobs).NE.0.0_r8) THEN
+                cff=gdgw(iobs)-zhv(iobs)+cg_innov(iobs)*SQRT(ObsErr(iobs))
+                Jobs=Jobs+cff*cff/ObsErr(iobs)
+              END IF
+            END DO
+          END IF
           Jact=Jb+Jobs
 !
 !  Put the new trial solution into the adjoint vector for the next

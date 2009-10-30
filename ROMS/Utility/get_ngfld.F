@@ -4,7 +4,7 @@
      &                      Istr, Iend, Jrec,                           &
      &                      Fout)
 !
-!svn $Id: get_ngfld.F 1056 2009-09-08 18:51:43Z kate $
+!svn $Id: get_ngfld.F 1087 2009-10-21 00:21:28Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -383,12 +383,14 @@
             Vtime(Tindex,ifield,ng)=Tval
           END IF
 !
-!  Read in non-grided data.
+!  Read in non-grided data. The conditional statement on Jrec is to 
+!  differentiate between reading a 3D and 2D array.
 !
           IF (Vid.ge.0) THEN
             Fmin=0.0_r8
             Fmax=0.0_r8
-            IF (Jrec.gt.1) THEN
+            IF ((Jrec.gt.1).or.                                         &
+     &          ((Jrec.eq.1).and.(Iinfo(7,ifield,ng).gt.0))) THEN
               npts=(Iend-Istr+1)*Jrec
               CALL netcdf_get_fvar (ng, model, ncfile, Vname(1,ifield), &
      &                              A,                                  &

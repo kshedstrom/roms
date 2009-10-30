@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       SUBROUTINE checkadj
 !
-!svn $Id: checkadj.F 1038 2009-08-11 22:29:40Z kate $
+!svn $Id: checkadj.F 1087 2009-10-21 00:21:28Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -174,9 +174,8 @@
       string=uppercase('clima_ts_mix')
       ifound=INDEX(TRIM(Coptions), TRIM(string))
       IF (ifound.ne.0) THEN
-        ic=ic+1
         IF (Master) WRITE(stdout,20) TRIM(string),                      &
-     &                               'not coded, FATAL ERROR'
+     &                               'not tested, WARNING'
       END IF
 
       string=uppercase('east_fsradiation')

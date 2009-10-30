@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       MODULE mod_scalars
 !
-!svn $Id: mod_scalars.F 1060 2009-09-12 00:25:38Z kate $
+!svn $Id: mod_scalars.F 1090 2009-10-27 23:59:27Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -1210,6 +1210,13 @@
 !
         real(r8), dimension(4) :: Hgamma
         real(r8), dimension(4) :: Vgamma
+!
+!  Parameters used to compute balanced salinity in terms of temperature
+!  using empirical T-S relationships in error covariance balance
+!  operator.
+!
+        real(r8), dimension(Ngrids) :: dTdz_min  ! minimum dT/ds (C/m)
+        real(r8), dimension(Ngrids) :: ml_depth  ! mixed-layer depth (m)
 !
 !  Initial conditions, model and surface forcing error covariance
 !  horizontal decorrelation scales (m).

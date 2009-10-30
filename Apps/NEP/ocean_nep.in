@@ -195,7 +195,7 @@
     GLS_SIGP == 2.0d0
 
 ! Constants used in momentum stress computation.
-                                     
+
         RDRG == 3.0d-04                    ! m/s
        RDRG2 == 3.0d-03                    ! nondimensional
          Zob == 0.02d0                     ! m
@@ -356,6 +356,7 @@ Hout(idLhea) == T                          ! latent heat flux
 Hout(idShea) == T                          ! sensible heat flux
 Hout(idLrad) == T                          ! longwave radiation flux
 Hout(idSrad) == T                          ! shortwave radiation flux
+Hout(idEmPf) == F                          ! E-P flux
 Hout(idevap) == F                          ! evaporation rate
 Hout(idrain) == F                          ! precipitation rate
 
@@ -448,6 +449,7 @@ Hout2(idLhea) == T                          ! latent heat flux
 Hout2(idShea) == T                          ! sensible heat flux
 Hout2(idLrad) == T                          ! longwave radiation flux
 Hout2(idSrad) == T                          ! shortwave radiation flux
+Hout2(idEmPf) == F                          ! E-P flux
 Hout2(idevap) == T                          ! evaporation rate
 Hout2(idrain) == T                          ! precipitation rate
 
@@ -526,7 +528,7 @@ Hout2(idT0mk) == F
                /wrkdir/kate/NEP5/Files/Vwind.1948-2006.nc  \
                /wrkdir/kate/NEP5/Files/runoff.nc   \
                /wrkdir/kate/NEP5/Files/rain.1948-2006.nc  \
-               /wrkdir/kate/NEP5/Files/NEP4_tides_otps.nc 
+               /wrkdir/kate/NEP5/Files/NEP4_tides_otps.nc
 
 ! Output NetCDF file names, [1:Ngrids].
 
@@ -1105,7 +1107,7 @@ Hout2(idT0mk) == F
 !                  free-surface and C(-1)=-1 corresponding to the bathymetry.
 !
 !              These functions are coded in routine "Utility/set_scoord.F".
-!               
+!
 !  THETA_S     S-coordinate surface control parameter. The range of optimal
 !              values depends on the vertical stretching function, C(s).
 !
@@ -1206,7 +1208,7 @@ Hout2(idT0mk) == F
 !              rho(:,:,:) = R0 - R0 * TCOEF * (t(:,:,:,:,itemp) - T0)
 !                              + R0 * SCOEF * (t(:,:,:,:,isalt) - S0)
 !
-!              Typical values:     R0 = 1027.0  kg/m3               
+!              Typical values:     R0 = 1027.0  kg/m3
 !                                  T0 = 10.0    Celsius
 !                                  S0 = 35.0    PSU
 !                               TCOEF = 1.7d-4  1/Celsius
@@ -1315,6 +1317,7 @@ Hout2(idT0mk) == F
 !  Hout(idShea)  Write out sensible heat flux.
 !  Hout(idLrad)  Write out long-wave radiation flux.
 !  Hout(idSrad)  Write out short-wave radiation flux.
+!  Hout(idEmPf)  Write out E-P flux.
 !  Hout(idevap)  Write out evaporation rate.
 !  Hout(idrain)  Write out precipitation rate.
 !
@@ -1343,7 +1346,7 @@ Hout2(idT0mk) == F
 !
 !                INT(user(1)):  tangent state variable to perturb
 !                INT(user(2)):  adjoint state variable to perturb
-!                               [isFsur=1] free-surface 
+!                               [isFsur=1] free-surface
 !                               [isUbar=2] 2D U-momentum
 !                               [isVbar=3] 2D V-momentum
 !                               [isUvel=4] 3D U-momentum

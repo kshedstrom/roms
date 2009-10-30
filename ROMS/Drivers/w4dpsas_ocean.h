@@ -1,6 +1,6 @@
       MODULE ocean_control_mod
 !
-!svn $Id: w4dpsas_ocean.h 1038 2009-08-11 22:29:40Z kate $
+!svn $Id: w4dpsas_ocean.h 1087 2009-10-21 00:21:28Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
@@ -718,6 +718,7 @@
 !  into ADM so that it can be written to Hessian NetCDF file.
 # endif
 !
+              Lweak=.FALSE.
               add=.FALSE.
 !$OMP PARALLEL DO PRIVATE(ng,thread,subs,tile)                          &
 !$OMP&            SHARED(inner,add,numthreads)
@@ -1446,6 +1447,7 @@
             IF (exit_flag.ne.NoError) RETURN
             nrhs(ng)=Lini
 #  endif
+            Lweak=.FALSE.
             add=.FALSE.
 !$OMP PARALLEL DO PRIVATE(ng,thread,subs,tile)                          &
 !$OMP&            SHARED(inner,add,numthreads)

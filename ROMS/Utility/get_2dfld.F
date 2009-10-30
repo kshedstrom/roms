@@ -6,7 +6,7 @@
 #endif
      &                      Fout)
 !
-!svn $Id: get_2dfld.F 1056 2009-09-08 18:51:43Z kate $
+!svn $Id: get_2dfld.F 1076 2009-09-25 23:18:43Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -451,6 +451,8 @@
      &                              start = (/Trec/),                   &
      &                              total = (/1/))
               Fpoint(Tindex,ifield,ng)=Fval*Fscale(ifield,ng)
+              Fmin=Fval
+              Fmax=Fval
             END IF
             IF (exit_flag.ne.NoError) THEN
               IF (Master) WRITE (stdout,40) TRIM(Vname(1,ifield)), Trec
