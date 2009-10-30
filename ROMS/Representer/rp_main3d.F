@@ -2,7 +2,7 @@
 #if defined TL_IOMS && defined SOLVE3D
       SUBROUTINE rp_main3d (ng)
 !
-!svn $Id: rp_main3d.F 1003 2009-06-19 23:52:29Z kate $
+!svn $Id: rp_main3d.F 1087 2009-10-21 00:21:28Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
@@ -47,7 +47,7 @@
 # ifdef BBL_MODEL_NOT_YET
 !!    USE rp_bbl_mod, ONLY : rp_bblm
 # endif
-# ifdef BULK_FLUXES
+# if defined BULK_FLUXES && !defined NL_BULK_FLUXES
       USE rp_bulk_flux_mod, ONLY : rp_bulk_flux
 # endif
 # ifdef BVF_MIXING_NOT_YET
@@ -318,7 +318,7 @@
       DO thread=0,numthreads-1
         subs=NtileX(ng)*NtileE(ng)/numthreads
         DO tile=subs*thread,subs*(thread+1)-1,+1
-# ifdef BULK_FLUXES
+# if defined BULK_FLUXES && !defined NL_BULK_FLUXES
           CALL rp_bulk_flux (ng, TILE)
 # endif
 # ifdef BBL_MODEL_NOT_YET

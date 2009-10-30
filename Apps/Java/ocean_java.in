@@ -171,7 +171,7 @@
     GLS_SIGP == 1.30d0
 
 ! Constants used in momentum stress computation.
-                                     
+
         RDRG == 3.0d-04                    ! m/s
        RDRG2 == 3.0d-03                    ! nondimensional
          Zob == 0.02d0                     ! m
@@ -215,7 +215,7 @@ parameterization.
 ! origin for tidal forcing, and model reference time for output
 ! NetCDF units attribute.
 
-      DSTART =  28031.0d0                  ! days                 
+      DSTART =  28031.0d0                  ! days
   TIDE_START =  0.0d0                      ! days
     TIME_REF =  19000101.0d0               ! yyyymmdd.dd
 
@@ -332,6 +332,7 @@ Hout(idLhea) == T                          ! latent heat flux
 Hout(idShea) == T                          ! sensible heat flux
 Hout(idLrad) == T                          ! longwave radiation flux
 Hout(idSrad) == T                          ! shortwave radiation flux
+Hout(idEmPf) == F                          ! E-P flux
 Hout(idevap) == F                          ! evaporation rate
 Hout(idrain) == F                          ! precipitation rate
 
@@ -1013,7 +1014,7 @@ Hout(idBott) == T T T T T T T T T F F F F F F F
 !                  free-surface and C(-1)=-1 corresponding to the bathymetry.
 !
 !              These functions are coded in routine "Utility/set_scoord.F".
-!               
+!
 !  THETA_S     S-coordinate surface control parameter. The range of optimal
 !              values depends on the vertical stretching function, C(s).
 !
@@ -1114,7 +1115,7 @@ Hout(idBott) == T T T T T T T T T F F F F F F F
 !              rho(:,:,:) = R0 - R0 * TCOEF * (t(:,:,:,:,itemp) - T0)
 !                              + R0 * SCOEF * (t(:,:,:,:,isalt) - S0)
 !
-!              Typical values:     R0 = 1027.0  kg/m3               
+!              Typical values:     R0 = 1027.0  kg/m3
 !                                  T0 = 10.0    Celsius
 !                                  S0 = 35.0    PSU
 !                               TCOEF = 1.7d-4  1/Celsius
@@ -1223,6 +1224,7 @@ Hout(idBott) == T T T T T T T T T F F F F F F F
 !  Hout(idShea)  Write out sensible heat flux.
 !  Hout(idLrad)  Write out long-wave radiation flux.
 !  Hout(idSrad)  Write out short-wave radiation flux.
+!  Hout(idEmPf)  Write out E-P flux.
 !  Hout(idevap)  Write out evaporation rate.
 !  Hout(idrain)  Write out precipitation rate.
 !
@@ -1251,7 +1253,7 @@ Hout(idBott) == T T T T T T T T T F F F F F F F
 !
 !                INT(user(1)):  tangent state variable to perturb
 !                INT(user(2)):  adjoint state variable to perturb
-!                               [isFsur=1] free-surface 
+!                               [isFsur=1] free-surface
 !                               [isUbar=2] 2D U-momentum
 !                               [isVbar=3] 2D V-momentum
 !                               [isUvel=4] 3D U-momentum

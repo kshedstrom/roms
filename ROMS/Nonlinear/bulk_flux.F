@@ -2,7 +2,7 @@
       MODULE bulk_flux_mod
 #if defined BULK_FLUXES && !defined CCSM_FLUXES
 !
-!svn $Id: bulk_flux.F 1060 2009-09-12 00:25:38Z kate $
+!svn $Id: bulk_flux.F 1090 2009-10-27 23:59:27Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -74,7 +74,7 @@
 # if defined BEST_NPZ && defined CLIM_ICE_1D
       USE mod_clima
 # endif
-      
+
       USE mod_stepping
 !
 !  Imported variable declarations.
@@ -158,9 +158,10 @@
      &                    OCEAN(ng) % it,                               &
      &                    CLIMA(ng) % tclmG,                            &
      &                    nstp(ng),                                    &
-# endif  
-       
+# endif
+
 # ifdef EMINUSP
+     &                     FORCES(ng) % EminusP,                        &
      &                     FORCES(ng) % evap,                           &
 # endif
      &                     FORCES(ng) % sustr,                          &
@@ -217,11 +218,11 @@
 # endif
 #  if defined BEST_NPZ && defined CLIM_ICE_1D
      &                           it,                                    &
-     &                           tclmG,nstp,                            & 
+     &                           tclmG,nstp,                            &
 #  endif
 
 # ifdef EMINUSP
-     &                           evap,                                  &
+     &                           EminusP, evap,                         &
 # endif
      &                           sustr, svstr)
 !***********************************************************************
@@ -317,22 +318,21 @@
       real(r8), intent(out) :: tau_aiy_n(LBi:,LBj:)
 #  endif
 
-
 #  ifdef EMINUSP
+      real(r8), intent(out) :: EminusP(LBi:,LBj:)
       real(r8), intent(out) :: evap(LBi:,LBj:)
 #  endif
       real(r8), intent(out) :: sustr(LBi:,LBj:)
       real(r8), intent(out) :: svstr(LBi:,LBj:)
 
 #   if defined BEST_NPZ && defined CLIM_ICE_1D
-     
+
        real(r8), intent(in) ::tclmG(LBi:,LBj:,:,:,:)
        real(r8), intent(in) :: it(LBi:,LBj:,:,:)
         integer, intent(in) :: nstp
-#   endif  
+#   endif
 # else
 
- 
 #  ifdef MASKING
       real(r8), intent(in) :: rmask(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: umask(LBi:UBi,LBj:UBj)
@@ -395,17 +395,18 @@
 #  endif
 
 #  ifdef EMINUSP
+      real(r8), intent(out) :: EminusP(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: evap(LBi:UBi,LBj:UBj)
 #  endif
       real(r8), intent(out) :: sustr(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: svstr(LBi:UBi,LBj:UBj)
-      
+
 #  if defined BEST_NPZ && defined CLIM_ICE_1D
-     
+
       real(r8), intent(in) :: it(LBi:UBi,LBj:UBj,3,1)
       real(r8), intent(in) ::tclmG(LBi:UBi,LBj:UBj,UBk,3,UBt+1)
       integer, intent(in) :: nstp
-#  endif  
+#  endif
 
 # endif
 !
@@ -524,7 +525,7 @@
 # ifdef BEST_NPZ && defined ICE_BIO || defined CLIM_ICE_1D
       real(r8), dimension(PRIVATE_2D_SCRATCH_ARRAY) :: ice_thick
       real(r8), dimension(PRIVATE_2D_SCRATCH_ARRAY) :: snow_thick
-# endif 
+# endif
 
 
 # include "set_bounds.h"
@@ -606,7 +607,7 @@
 !
           LRad(i,j)=lrflx(i,j)*Hscale-                                  &
      &              emmiss*StefBo*TseaK(i)*TseaK(i)*TseaK(i)*TseaK(i)
- 
+
 # else
           LRad(i,j)=lrflx(i,j)*Hscale
 # endif
@@ -621,7 +622,7 @@
 !                 Q(i) is the actual specific humidity
 !              Qsea(i) is the saturation specific humidity at Tsea
 !
-!          Saturation vapor pressure in mb is first computed and then 
+!          Saturation vapor pressure in mb is first computed and then
 !          converted to specific humidity in kg/kg
 !
 !          The saturation vapor pressure is computed from Teten formula
@@ -641,7 +642,7 @@
 !          Q = 0.622 E/(P + (0.622-1)e)
 !
 !          Q(kg/kg) = 0.62197_r8*(E(mb)/(PairM(mb)-0.378_r8*E(mb)))
-!          
+!
 !-----------------------------------------------------------------------
 !
 !  Compute air saturation vapor pressure (mb), using Teten formula.
@@ -746,7 +747,7 @@
      &                             bulk_psiu(blk_ZW(ng)/L10(i),pi))
           Tstar(i)=-(delT(i)-delTc(i))*vonKar/                          &
      &             (LOG(blk_ZT(ng)/ZoT10(i))-                           &
-     &              bulk_psit(blk_ZT(ng)/L10(i),pi)) 
+     &              bulk_psit(blk_ZT(ng)/L10(i),pi))
           Qstar(i)=-(delQ(i)-delQc(i))*vonKar/                          &
      &             (LOG(blk_ZQ(ng)/ZoT10(i))-                           &
      &              bulk_psit(blk_ZQ(ng)/L10(i),pi))
@@ -950,7 +951,7 @@
           Tauy_Ice(i,j) = rhoAir(i)*cdai(ng)*Vwind(i,j)*Wspeed
 
 #  ifdef ICE_THERMO
-!  Correct ocean net short-wave radiation for ice cover and convert to 
+!  Correct ocean net short-wave radiation for ice cover and convert to
 !  kinematic units
 
           Coef_Ice(i,j) = 0._r8
@@ -1001,7 +1002,7 @@
                 albsn=0.701009_r8
               ELSE
                 albsn=albi+(0.701009_r8-albi)*thksn_n/0.1
-              ENDIF 
+              ENDIF
             ENDIF
             albs=albi
             IF (hsn_n.GT.0._r8) albs=albsn
@@ -1073,7 +1074,7 @@
 !      endif
 ! Correct for Kelvin to Celsius in RHS
            RHS_Ice(i,j) = RHS_Ice(i,j) -                                &
-     &            Coef_Ice(i,j)*273.16_r8      
+     &            Coef_Ice(i,j)*273.16_r8
 
 ! Net heat flux from ice to atmosphere
            Qai(i,j) =-qsh_i - qlh_i - qswi + qlwi
@@ -1104,8 +1105,8 @@
 !  ocean.
 !
 !  For EMINUSP option,  EVAP = LHeat (W/m2) / Hlv (J/kg) = kg/m2/s
-!                       PREC = rain = kg/m2/s            
-!       
+!                       PREC = rain = kg/m2/s
+!
 !  To convert these rates to m/s divide by freshwater density, rhow.
 !
 !  Note that when the air is undersaturated in water vapor (Q < Qsea)
@@ -1119,7 +1120,8 @@
 !
 !  Note that fresh water flux is positive out of the ocean and the
 !  salt flux (stflx(isalt)) is positive into the ocean. It is converted
-!  to (psu m/s) for stflx(isalt) in "set_vbc.F".
+!  to (psu m/s) for stflx(isalt) in "set_vbc.F". The E-P value is
+!  saved in variable EminusP for I/O purposes.
 !
       cff=1.0_r8/rhow
       DO j=JstrR,JendR
@@ -1157,8 +1159,7 @@
 #  endif
 # endif
 
-     
-! Limit shortwave radiation to be used in computing penetrative 
+! Limit shortwave radiation to be used in computing penetrative
 ! radiation by presence of ice and biology
 
 # if defined ICE_MODEL && defined BEST_NPZ
@@ -1171,7 +1172,7 @@
          ELSE
          cff1=0.1_r8*5._r8+(ice_thick(i,j)-0.1_r8)*1._r8
        ENDIF
-       
+
          cff1= cff1+snow_thick(i,j)*20._r8
 
 #   ifdef ICE_BIO
@@ -1180,15 +1181,15 @@
 
      srflx(i,j)=(1-ai(i,j,linew))*srflx(i,j)                &
      &            +ai(i,j,linew)*srflx(i,j)*exp(-cff1-cff2)
-     
-     
-! Limit shortwave radiation to be used in computing penetrative 
+
+
+! Limit shortwave radiation to be used in computing penetrative
 ! radiation by presence of ice alone
-     
-# elif defined ICE_MODEL && !defined BEST_NPZ    
-     
+
+# elif defined ICE_MODEL && !defined BEST_NPZ
+
      srflx(i,j) = srflx(i,j)*(1.0_r8-ai(i,j,linew))
-     
+
       qao_n(i,j) = -stflx(i,j,itemp)*Hscale
 
 ! Net precipitation - evaporation in m/s
@@ -1201,31 +1202,33 @@
           rhs_ice_heat(i,j) = RHS_Ice(i,j)
           qai_n(i,j) = Qai(i,j)
 
-     
-! Limit shortwave radiation to be used in computing penetrative 
+! Limit shortwave radiation to be used in computing penetrative
 ! radiation by presence of climatology ice and biology
 
-# elif !defined ICE_MODEL && defined BEST_NPZ && defined CLIM_ICE_1D 
-        
-        ice_thick(i,j) = tclmG(i,j,42,1,15) 
-        snow_thick(i,j) = ice_thick(i,j)*0.1 !assume 10% of ice depth 
-       
+# elif !defined ICE_MODEL && defined BEST_NPZ && defined CLIM_ICE_1D
+
+        ice_thick(i,j) = tclmG(i,j,42,1,15)
+        snow_thick(i,j) = ice_thick(i,j)*0.1 !assume 10% of ice depth
+
        IF (ice_thick(i,j).le.0.1_r8) THEN
          cff1=ice_thick(i,j)*5._r8
          ELSE
          cff1=0.1_r8*5._r8+(ice_thick(i,j)-0.1_r8)*1._r8
        ENDIF
-       
+
          cff1= cff1+snow_thick(i,j)*20._r8
 
 #   ifdef ICE_BIO
          cff2=0.5*0.02_r8*0.005*it(i,j,nstp,iIcePhL)
 #   endif
- 
+
           srflx(i,j)=srflx(i,j)*exp(-cff1-cff2)
 
-# endif 
+# endif
 
+# ifdef EMINUSP
+          EminusP(i,j)=stflx(i,j,isalt)
+# endif
         END DO
       END DO
 !
@@ -1309,6 +1312,9 @@
      &                        evap)
       CALL exchange_r2d_tile (ng, tile,                                 &
      &                        LBi, UBi, LBj, UBj,                       &
+     &                        EminusP)
+      CALL exchange_r2d_tile (ng, tile,                                 &
+     &                        LBi, UBi, LBj, UBj,                       &
      &                        stflx(:,:,isalt))
 #   endif
       CALL exchange_u2d_tile (ng, tile,                                 &
@@ -1345,10 +1351,10 @@
 #    endif
 #   endif
 #   ifdef EMINUSP
-      CALL mp_exchange2d (ng, tile, iNLM, 2,                            &
+      CALL mp_exchange2d (ng, tile, iNLM, 3,                            &
      &                    LBi, UBi, LBj, UBj,                           &
      &                    NghostPoints, EWperiodic, NSperiodic,         &
-     &                    evap,                                         &
+     &                    evap, EminusP,                                &
      &                    stflx(:,:,isalt))
 #   endif
       CALL mp_exchange2d (ng, tile, iNLM, 2,                            &

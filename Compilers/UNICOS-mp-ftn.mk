@@ -1,4 +1,4 @@
-# svn $Id: UNICOS-mp-ftn.mk 975 2009-05-05 22:51:13Z kate $
+# svn $Id: UNICOS-mp-ftn.mk 1090 2009-10-27 23:59:27Z kate $
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 # Copyright (c) 2002-2009 The ROMS/TOMS Group                           :::
 #   Licensed under a MIT/X style license                                :::

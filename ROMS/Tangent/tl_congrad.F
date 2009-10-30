@@ -4,7 +4,7 @@
       SUBROUTINE tl_congrad (ng, model, outLoop, innLoop, NinnLoop,     &
      &                       Lcgini)
 !
-!svn $Id: tl_congrad.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: tl_congrad.F 1087 2009-10-21 00:21:28Z kate $
 !=================================================== Andrew M. Moore ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group      Hernan G. Arango   !
 !    Licensed under a MIT/X style license                              !
@@ -173,6 +173,15 @@
 !  reasons.
 !
         IF (innLoop.eq.0) THEN
+
+# if defined W4DPSAS || defined TL_W4DPSAS
+!  
+!  If this is the first inner-loop, save NLmodVal in BCKmodVal.
+!
+          DO iobs=1,Ndatum(ng)
+            BCKmodVal(iobs)=NLmodVal(iobs)
+          END DO
+# endif
 !
 !  If this is the first outer-loop, clear the solution vector px.
 !
@@ -184,17 +193,6 @@
               tl_px(iobs)=0.0_r8
               tl_cg_pxsave(iobs)=0.0_r8
             END DO
-
-# if defined W4DPSAS || defined TL_W4DPSAS
-!
-!  If this is the first outer-loop, save NLmodVal in BCKmodVal.
-!
-            IF (outLoop.eq.1) THEN
-              DO iobs=1,Ndatum(ng)
-                BCKmodVal(iobs)=NLmodVal(iobs)
-              END DO
-            END IF
-# endif
 !
 !  If this is the first pass of the inner loop, set up the vectors and
 !  store the first guess. The initial starting guess is assumed to be

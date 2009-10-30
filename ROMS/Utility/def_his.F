@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       SUBROUTINE def_his (ng, ldef)
 !
-!svn $Id: def_his.F 1023 2009-07-20 21:45:24Z kate $
+!svn $Id: def_his.F 1087 2009-10-21 00:21:28Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -1564,6 +1564,26 @@
         END IF
 #  ifdef EMINUSP
 !
+!  Define E-P flux (as computed by bulk_flux.F).
+!
+        IF (Hout(idEmPf,ng)) THEN
+          Vinfo( 1)=Vname(1,idEmPf)
+          Vinfo( 2)=Vname(2,idEmPf)
+          Vinfo( 3)=Vname(3,idEmPf)
+          Vinfo(11)='upward flux, freshening (net precipitation)'
+          Vinfo(12)='downward flux, salting (net evaporation)'
+          Vinfo(14)=Vname(4,idEmPf)
+          Vinfo(16)=Vname(1,idtime)
+#     if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_rho'
+#     endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idEmPf,ng),r8)
+          status=def_var(ng, iNLM, ncHISid(ng), hisVid(idEmPf,ng),      &
+     &                   NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+!
 !  Define evaporation rate.
 !
         IF (Hout(idevap,ng)) THEN
@@ -2981,6 +3001,9 @@
             got_var(idVair)=.TRUE.
             hisVid(idVair,ng)=var_id(i)
 #  ifdef EMINUSP
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idEmPf))) THEN
+            got_var(idEmPf)=.TRUE.
+            hisVid(idEmPf,ng)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idevap))) THEN
             got_var(idevap)=.TRUE.
             hisVid(idevap,ng)=var_id(i)
@@ -3457,6 +3480,12 @@
           RETURN
         END IF
 #    ifdef EMINUSP
+        IF (.not.got_var(idEmPf).and.Hout(idEmPf,ng)) THEN
+          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idEmPf)),          &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
         IF (.not.got_var(idevap).and.Hout(idevap,ng)) THEN
           IF (Master) WRITE (stdout,60) TRIM(Vname(1,idevap)),          &
      &                                  TRIM(ncname)

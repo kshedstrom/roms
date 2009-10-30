@@ -2,7 +2,7 @@
 #ifdef STATIONS
       SUBROUTINE def_station (ng, ldef)
 !
-!svn $Id: def_station.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: def_station.F 1087 2009-10-21 00:21:28Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -598,6 +598,53 @@
           status=def_var(ng, iNLM, ncSTAid(ng), staVid(idSrad,ng),      &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetParAccess = .FALSE.)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+#  endif
+#  if defined EMINUSP && (defined BULK_FLUXES || defined CCSM_FLUX)
+!
+!  Define E-P flux (as computed by bulk_flux.F).
+!
+        IF (Sout(idEmPf,ng)) THEN
+          Vinfo( 1)=Vname(1,idEmPf)
+          Vinfo( 2)=Vname(2,idEmPf)
+          Vinfo( 3)=Vname(3,idEmPf)
+          Vinfo(11)='upward flux, freshening (net precipitation)'
+          Vinfo(12)='downward flux, salting (net evaporation)'
+          Vinfo(14)=Vname(4,idEmPf)
+          Vinfo(16)=Vname(1,idtime)
+          status=def_var(ng, iNLM, ncSTAid(ng), staVid(idEmPf,ng),      &
+     &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+!
+!  Define evaporation rate.
+!
+        IF (Sout(idevap,ng)) THEN
+          Vinfo( 1)=Vname(1,idevap)
+          Vinfo( 2)=Vname(2,idevap)
+          Vinfo( 3)=Vname(3,idevap)
+          Vinfo(11)='downward flux, freshening (condensation)'
+          Vinfo(12)='upward flux, salting (evaporation)'
+          Vinfo(14)=Vname(4,idevap)
+          Vinfo(16)=Vname(1,idtime)
+          status=def_var(ng, iNLM, ncSTAid(ng), staVid(idevap,ng),      &
+     &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+!
+!  Define precipitation rate.
+!
+        IF (Sout(idrain,ng)) THEN
+          Vinfo( 1)=Vname(1,idrain)
+          Vinfo( 2)=Vname(2,idrain)
+          Vinfo( 3)=Vname(3,idrain)
+          Vinfo(11)='upward flux, salting (NOT POSSIBLE)'
+          Vinfo(12)='downward flux, freshening (precipitation)'
+          Vinfo(14)=Vname(4,idrain)
+          Vinfo(16)=Vname(1,idtime)
+          status=def_var(ng, iNLM, ncSTAid(ng), staVid(idrain,ng),      &
+     &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
 #  endif
@@ -1324,6 +1371,17 @@
             got_var(idSrad)=.TRUE.
             staVid(idSrad,ng)=var_id(i)
 #  endif
+#  if defined EMINUSP && defined BULK_FLUXES
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idEmPf))) THEN
+            got_var(idEmPf)=.TRUE.
+            staVid(idEmPf,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idevap))) THEN
+            got_var(idevap)=.TRUE.
+            staVid(idevap,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idrain))) THEN
+            got_var(idrain)=.TRUE.
+            staVid(idrain,ng)=var_id(i)
+#  endif
 # endif
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idUsms))) THEN
             got_var(idUsms)=.TRUE.
@@ -1628,6 +1686,26 @@
 #  ifdef SHORTWAVE
         IF (.not.got_var(idSrad).and.Sout(idSrad,ng)) THEN
           IF (Master) WRITE (stdout,60) TRIM(Vname(1,idSrad)),          &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+#  endif
+#  if defined EMINUSP && defined BULK_FLUXES
+        IF (.not.got_var(idEmPf).and.Sout(idEmPf,ng)) THEN
+          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idEmPf)),          &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idevap).and.Sout(idevap,ng)) THEN
+          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idevap)),          &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idrain).and.Sout(idrain,ng)) THEN
+          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idrain)),          &
      &                                  TRIM(ncname)
           exit_flag=3
           RETURN

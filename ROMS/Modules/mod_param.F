@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       MODULE mod_param
 !
-!svn $Id: mod_param.F 1076 2009-09-25 23:18:43Z kate $
+!svn $Id: mod_param.F 1092 2009-10-30 21:12:08Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -36,7 +36,7 @@
 !  Configuration parameters:                                           !
 !                                                                      !
 !  Nbico      Number of balanced SSH elliptic equation iterations.     !
-!  Nfloats    Number of floats tracjectories.                          !
+!  Nfloats    Number of floats trajectories.                           !
 !  Nstation   Number of output stations.                               !
 !  MTC        Maximum number of tidal components.                      !
 !  MTY        Maximum number of tidal nodal correction years           !
