@@ -66,27 +66,27 @@
 ! Phytoplankton photochemical reaction coefficient, initial slope of
 ! the P-I curve [1/(W/m2) 1/day].
 
-     AlphaPS == 0.04d0                     ! small biomass
+     AlphaPS == 0.01d0                     ! small biomass
      AlphaPL == 0.02d0                    ! large biomass
 
 ! Phytoplankton photoinhibition coefficient, [1/(W/m2) 1/day].
 
-      BetaPS == 4.5d-4                     ! small biomass
-      BetaPL == 4.5d-4                     ! large biomass
+       BetaPS == 2.25d-4                     ! small biomass
+       BetaPL == 4.5d-4                     ! large biomass
 
 ! Phytoplankton maximum photosynthetic rate at 0 Celsius [1/day].
 
-       VmaxS == 0.8d0                      ! small biomass
-       VmaxL == 0.0d0                      ! large biomass
+       VmaxS == 0.4d0                      ! small biomass
+       VmaxL == 0.8d0                      ! large biomass
 
 ! Phytoplankton half saturation constant for Nitrate [millimole_N/m3].
   
-       KNO3S == 1.0d0                      ! small biomass
+       KNO3S == 0.3d0                      ! small biomass
        KNO3L == 1.0d0                      ! large biomass
 
 ! Phytoplankton half saturation constant for Ammonium [millimole_N/m3].
 
-       KNH4S == 0.3d0                      ! small biomass
+       KNH4S == 0.1d0                      ! small biomass
        KNH4L == 0.3d0                      ! large biomass
 
 ! Phytoplankton half saturation constant for Silicate [millimole_Si/m3].
@@ -122,7 +122,7 @@
 ! Phytoplankton mortality rate at 0 Celsius [m3/millimole_N 1/day].
 
       MorPS0 == 1.0d-2                     ! small biomass
-      MorPL0 == 1.0d-2                     ! large biomass
+      MorPL0 == 0.5d-2                     ! large biomass
 
 ! Phytoplankton temperature coefficient for mortality [1/Celsius].
 
@@ -131,14 +131,14 @@
 
 ! Zooplankton maximum grazing rate at 0 Celsius [1/day].
 
-    GRmaxSps == 0.2d0                      ! small Zoo on small phy
-    GRmaxSpl == 0.0d0                      ! small Zoo on small phy
+    GRmaxSps == 0.3d0                      ! small Zoo on small phy
+    GRmaxSpl == 0.1d0                      ! small Zoo on large phy
     GRmaxLps == 0.0d0                      ! large Zoo on small Phy
-    GRmaxLpl == 0.0d0                      ! large Zoo on large Phy
-    GRmaxLzs == 0.0d0                      ! large Zoo on small Zoo 
+    GRmaxLpl == 0.1d0                      ! large Zoo on large Phy
+    GRmaxLzs == 0.2d0                      ! large Zoo on small Zoo 
     GRmaxPpl == 0.0d0                      ! predator Zoo on large Phy
-    GRmaxPzs == 0.0d0                      ! predator Zoo on small Zoo 
-    GRmaxPzl == 0.0d0                      ! predator Zoo on large Zoo
+    GRmaxPzs == 0.1d0                      ! predator Zoo on small Zoo 
+    GRmaxPzl == 0.2d0                      ! predator Zoo on large Zoo
 
 ! Zooplankton temperature coefficient for grazing [1/Celsius].
 
@@ -156,14 +156,14 @@
 ! only when the Holling-type grazing formulation is activated
 ! [millimole_N/m3]^2.
 
-      KPS2ZS == 0.5d0                      ! small Zoo on small Phy
-      KPL2ZS == 1.0d0                      ! small Zoo on large Phy
-      KPS2ZL == 1.0d0                     ! large Zoo on small Phy
-      KPL2ZL == 1.0d0                     ! large Zoo on large Phy
-      KZS2ZL == 1.0d0                      ! large Zoo on small Zoo
-      KPL2ZP == 1.0d0                      ! predator Zoo on large Phy
-      KZS2ZP == 1.0d0                      ! predator Zoo on small Zoo
-      KZL2ZP == 1.0d0                      ! predator Zoo on large Zoo
+      KPS2ZS == 0.25d0                      ! small Zoo on small Phy
+      KPL2ZS == 0.25d0                      ! small Zoo on large Phy
+      KPS2ZL == 0.5d0                     ! large Zoo on small Phy
+      KPL2ZL == 0.5d0                     ! large Zoo on large Phy
+      KZS2ZL == 0.5d0                      ! large Zoo on small Zoo
+      KPL2ZP == 0.5d0                      ! predator Zoo on large Phy
+      KZS2ZP == 0.5d0                      ! predator Zoo on small Zoo
+      KZL2ZP == 0.5d0                      ! predator Zoo on large Zoo
 
 ! Zooplankton threshold value for grazing [millimole_N/m3].
 
@@ -242,9 +242,9 @@
 
          B_Fe == 64.0d0                          ! B_Fe
 
-! Small phytoplankton Fe:C at F=0.5, [muM-Fe/M-C], {16.9d0}.
+! Small phytoplankton Fe:C at F=0.5, [muM-Fe/M-C], {1.69d0}.
 
-         SK_FeC == 16.9d0                        ! SK_FeC
+         SK_FeC == 1.69d0                        ! SK_FeC
 
 ! Large phytoplankton Fe:C at F=0.5, [muM-Fe/M-C], {16.9d0}.
 
@@ -580,11 +580,11 @@ Hout(idTsur) == 14*F                       ! surface tracer flux
 !                Hout(idTvar)           biological tracers
 !                Hout(idTsur)           biological tracers surface flux
 !
-!                  idTvar( 1)=iLphy     Large Phytoplankton biomass
-!                  idTvar( 2)=iSphy     Small Phytoplankton biomass
-!                  idTvar( 3)=iLzoo     Large Zooplankton biomass
-!                  idTvar( 4)=iSzoo     Small Zooplankton biomass
-!                  idTvar( 5)=iPzoo     Predator Zooplankton biomass
+!                  idTvar( 1)=iSphy     Small Phytoplankton biomass
+!                  idTvar( 2)=iLphy     Large Phytoplankton biomass
+!                  idTvar( 3)=iSzoo     Small Zooplankton biomass
+!                  idTvar( 4)=iLzoo     Large Zooplankton biomass
+!                  idTvar( 5)=iPZoo     Predator Zooplankton biomass
 !                  idTvar( 6)=iNO3_     Nitrate concentration
 !                  idTvar( 7)=iNH4_     Ammonium concentration
 !                  idTvar( 8)=iPON_     Particulate Organic Nitrogen

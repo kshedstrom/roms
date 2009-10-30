@@ -121,7 +121,7 @@
 **                                                                           **
 **   If no option is selected, the pressure gradient term is computed using  **
 **   standard density Jacobian algorithm. Notice that there are two quartic  **
-**   pressure Jacobian options. They differ on how the WENO reconsicliation  **
+**   pressure Jacobian options. They differ on how the WENO reconciliation   **
 **   step is done and in the monotonicity constraining algorithms.           **
 **                                                                           **
 ** DJ_GRADPS           use if splines density Jacobian (Shchepetkin, 2000)   **
@@ -132,7 +132,7 @@
 **                                                                           **
 ** ATM_PRESS           use to impose atmospheric pressure onto sea surface   **
 **                                                                           **
-** OPTIONS for surface fluxes formutalion using atmospheric boundary layer   **
+** OPTIONS for surface fluxes formulation using atmospheric boundary layer   **
 ** (Fairall et al, 1996):                                                    **
 **                                                                           **
 **   There are three ways to provide longwave radiation in the atmospheric   **
@@ -149,7 +149,7 @@
 ** NL_BULK_FLUXES      use bulk fluxes computed by nonlinear model           **
 ** COOL_SKIN           use if cool skin correction                           **
 ** LONGWAVE            use if computing net longwave radiation               **
-** LONGWAVE_OUT        use if computing ougoing longwave radiation           **
+** LONGWAVE_OUT        use if computing outgoing longwave radiation           **
 ** EMINUSP             use if computing E-P                                  **
 **                                                                           **
 ** OPTIONS for wave roughness formulation in bulk fluxes:                    **
@@ -197,7 +197,7 @@
 **                                                                           **
 ** FLOATS              use to activate simulated Lagrangian drifters         **
 ** FLOAT_VWALK         use if vertical random walk                           **
-** VWALK_FORWARD       use if foward time stepping vertical random walk      **
+** VWALK_FORWARD       use if forward time stepping vertical random walk     **
 **                                                                           **
 ** OPTION to activate conservative, parabolic spline reconstruction of       **
 ** vertical derivatives. Notice that there also options (see above) for      **
@@ -621,7 +621,7 @@
 ** BIO_UMAINE          use if Chai et al. (2002) CoSINE model                **
 ** BIO_GOANPZ          use if Coyle et al. Gulf of Alaska model              **
 ** NPZD_FRANKS         use if NPZD Biology model, Franks et al. (1986)       **
-** NPZD_IRON           use if NPZD Biology model wiht iron limitation        **
+** NPZD_IRON           use if NPZD Biology model with iron limitation        **
 ** NPZD_POWELL         use if NPZD Biology model, Powell et al. (2006)       **
 ** IRON_LIMIT          use if Fe limitation on phytoplankton growth          **
 ** IRON_RELAX          use if nudging Fe over the shelf, h <= FeHmin         **
@@ -681,7 +681,7 @@
 ** MCT_LIB             use Model Coupling Toolkit Library                    **
 **                                                                           **
 ** OPTION to process 3D data by levels (2D slabs) to reduce memory needs in  **
-** distributed-memory configurations. This option is convinient for large    **
+** distributed-memory configurations. This option is convenient for large    **
 ** problems on nodes with limited memory.                                    **
 **                                                                           **
 ** INLINE_2DIO         use if processing 3D IO level by level                **
