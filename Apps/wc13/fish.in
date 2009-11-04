@@ -45,6 +45,18 @@
 
        FISHRREC == 0
 
+! Number of fish species.
+
+       Nspecies == 1
+
+! Number of year classes.
+
+       Nyearclass == 10
+
+! Number of fish per year per species.
+
+       Nfishperyear == 100
+
 ! Fish initial wet weight [g], {2.0d0}.
 
        Fwwt0 == 10.0d0
@@ -55,7 +67,11 @@
 
 ! Fish behavior [1=Fitness, 2=Kinesis]
 
-       Fbehave == 1
+       Fbehave == 2
+
+! Number of batches of eggs per female per year.
+
+       Nbatch == 8
 
 ! Fish preference for ZS, {0.5d0}.
 
@@ -140,22 +156,6 @@
 ! Fish yearly fishing mortality
 
        Fymort == 0.0d0
-
-! Number of fish per year per species.
-
-     Nfishperyear == 10
-
-! Number of fish species.
-
-     Nspecies == 1
-
-! Number of year classes.
-
-     Nyearclass == 10
-
-! Number of batches of eggs per female per year.
-
-     Nbatch == 8
 
 ! Initial floats locations for all grids:
 !
