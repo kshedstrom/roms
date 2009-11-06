@@ -55,7 +55,8 @@
 !***********************************************************************
       SUBROUTINE fish_growth (ng, LBi, UBi, LBj, UBj, itime,            &
      &                            MyThread, bounded, track, feedback,   &
-     &                            bioenergy, alive, eatfish, lifestage, &
+     &                            bioenergy, alive, eatfish,            &
+     &                            species, lifestage,                   &
      &                            fish_count, fish_list, fishnodes)
 !***********************************************************************
 !
@@ -70,6 +71,7 @@
 !
       integer, intent(in) :: ng, LBi, UBi, LBj, UBj, itime
       integer, intent(in) :: fish_count(LBi:UBi,LBj:UBj)
+      integer, intent(inout) :: species(Nfish(ng))
       integer, intent(inout) :: lifestage(Nfish(ng))
 
       type(fishnode), intent(in) :: fish_list(LBi:UBi,LBj:UBj)
@@ -266,7 +268,7 @@
                     Fworth=Fworth-0.05_r8*dtdays*Fworth
                     IF (Fweight.ge.1.0_r8) THEN
                       lifestage(ifid)=if_adult
-                      Fweight=Fwwt0(ng)
+                      Fweight=Fwwt0(species(ifid),ng)
                     ENDIF
 ! Yolk Sac
                   ELSE IF (lifestage(ifid).eq.if_yolksac) THEN

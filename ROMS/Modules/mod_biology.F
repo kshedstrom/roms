@@ -496,6 +496,9 @@
 !=======================================================================
 !
         USE mod_param
+#  ifdef NEMURO_SAN
+        USE mod_scalars
+#  endif
 
         implicit none
         
@@ -596,7 +599,7 @@
         real(r8), dimension(Ngrids) :: FeRR          ! 1/day
 #  endif
 #  ifdef NEMURO_SAN
-        real(r8), dimension(Ngrids) :: Fwwt0         ! grams
+        real(r8), dimension(max_species, Ngrids) :: Fwwt0         ! grams
         real(r8), dimension(Ngrids) :: Fage0         ! years
         integer, dimension(Ngrids) :: Fbehave        ! 1=Fitness, 2=Kinesis
         real(r8), dimension(Ngrids) :: ZSpref        ! nondimensional

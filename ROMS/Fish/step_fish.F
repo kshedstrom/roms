@@ -985,7 +985,8 @@
 !
       CALL fish_growth (ng, LBi, UBi, LBj, UBj, nfp1,                   &
      &                      MyThread, bounded, track(:,:,:), feedback,  &
-     &                      bioenergy, alive, eatfish, lifestage,       &
+     &                      bioenergy, alive, eatfish,                  &
+     &                      species, lifestage,                         &
      &                      OCEAN(ng) % fish_count,                     &
      &                      OCEAN(ng) % fish_list,                      &
      &                      FISHES(ng) % fishnodes)

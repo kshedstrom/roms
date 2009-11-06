@@ -47,7 +47,7 @@
 
 ! Number of fish species.
 
-       Nspecies == 1
+       Nspecies == 2
 
 ! Number of year classes.
 
@@ -55,11 +55,15 @@
 
 ! Number of fish per year per species.
 
-       Nfishperyear == 100
+       Nfishperyear == 10
+
+! Number of batches of eggs per female per year.
+
+       Nbatch == 8
 
 ! Fish initial wet weight [g], {2.0d0}.
 
-       Fwwt0 == 10.0d0
+       Fwwt0 == 10.0d0 20.0d0 0.0d0 0.0d0 0.0d0
 
 ! Fish spawning maturity [years], {3.0d0}.
 
@@ -68,10 +72,6 @@
 ! Fish behavior [1=Fitness, 2=Kinesis]
 
        Fbehave == 2
-
-! Number of batches of eggs per female per year.
-
-       Nbatch == 8
 
 ! Fish preference for ZS, {0.5d0}.
 

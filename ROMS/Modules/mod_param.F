@@ -76,6 +76,7 @@
 !
 #ifdef NEMURO_SAN
 ! parameters for the fish particle model
+!  max_species  Maximum number of species
 !  Nbox         Number of spawning areas
 !  Nfishperyear Number of fish per year class per species
 !  Nspecies     Number of fish species
@@ -537,9 +538,9 @@
         integer, dimension(Ngrids) :: Nfishperyear
         integer, dimension(Ngrids) :: Nspecies
         integer, dimension(Ngrids) :: Nyearclass
+        integer, dimension(Ngrids) :: Nbatch
 !   Nfish=Nfishperyear*Nspecies*Nyearclass
         integer, dimension(Ngrids) :: Nfish
-        integer, dimension(Ngrids), parameter :: Nbatch=8
 
         integer, dimension(Ngrids) :: Nships
         integer, dimension(Ngrids) :: Npred

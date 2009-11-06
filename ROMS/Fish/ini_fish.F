@@ -40,6 +40,7 @@
 !
       logical :: Lwrite
       logical :: lflag
+      logical :: landcell
 
       integer :: Itile, Jtile, Nghost, Ntiles, tile
       integer :: Imin, Imax, Jmin, Jmax
@@ -49,7 +50,8 @@
       integer :: inp, out, itrc, ng, npts, sequence
       integer :: i, isp, l, fid, j
 
-      real(r8) :: cff, Fwwght0, Fworth0, snudg, xini, yini, xymsk
+      real(r8) :: cff, Fwwght0, Fworth0, snudg
+      real(r8) :: xini, yini, xyh, xymsk
       real(r8), parameter :: spv = 0.0_r8
 !
 !-----------------------------------------------------------------------
@@ -83,8 +85,10 @@
 # endif
 
 !  KLUDGE WARNING!
-      idfish(if_herring) = 1
-      idfish_inv(1) = if_herring
+!      idfish(if_herring) = 1
+!      idfish_inv(1) = if_herring
+      idfish(if_anchovy) = 1
+      idfish_inv(1) = if_anchovy
 
 !  Don't have these things for each grid... yet.
       ng = 1
@@ -118,19 +122,35 @@
       DO isp=1,Nspecies(ng)
         DO i=1,Nyearclass(ng)-1
 ! NB: initialization for fish wet weight loosely adapted from KR anchovy
-          Fwwght0=MIN(35.0_r8,Fwwt0(ng)+REAL(i-1,r8)*5.0_r8)
+!          Fwwght0=MIN(35.0_r8,Fwwt0(isp,ng)+REAL(i-1,r8)*5.0_r8)
+          Fwwght0=MIN(3.5_r8*Fwwt0(isp,ng),                            &
+     &                Fwwt0(isp,ng)*(1.0_r8+0.5_r8*REAL(i-1,r8)))
           Fworth0=(0.5e5_r8*1.0e6_r8)*EXP(-Nymort(ng)*REAL(i,r8))/      &
      &            REAL(Nfishperyear(ng),r8)
           DO l=1,Nfishperyear(ng)
             fid=FISHES(ng) % age_base(isp,Nyearclass(ng)-i)+l
             CALL ran1 (snudg)
+            yini=MAX(2.0_r8,snudg*REAL(Mm(ng)-1,r8))
+            IF (yini.lt.33.0_r8) THEN
+! for anchovy (inshore)
+              xini=47.0_r8-(yini-3.0_r8)*25.0_r8/30.0_r8
+! for sardine (offshore)
+!              xini=44.0_r8-(yini-3.0_r8)*25.0_r8/30.0_r8
+            ELSE
+! for anchovy (inshore)
+              xini=22.0_r8
+! for sardine (offshore)
+!              xini=19.0_r8
+            END IF
             DO j=0,NFT
-              FISHES(ng)%track(ixgrd,j,fid) =                           &
-     &                  FISHES(ng)%Tinfo(ixgrd,fid) +                   &
-     &                  8.0_r8*(snudg-0.5_r8)
-              FISHES(ng)%track(iygrd,j,fid) =                           &
-     &                  FISHES(ng)%Tinfo(iygrd,fid) +                   &
-     &                  8.0_r8*(snudg-0.5_r8)
+              FISHES(ng)%track(ixgrd,j,fid)=xini
+              FISHES(ng)%track(iygrd,j,fid)=yini
+!              FISHES(ng)%track(ixgrd,j,fid) =                           &
+!     &                  FISHES(ng)%Tinfo(ixgrd,fid) +                   &
+!     &                  8.0_r8*(snudg-0.5_r8)
+!              FISHES(ng)%track(iygrd,j,fid) =                           &
+!     &                  FISHES(ng)%Tinfo(iygrd,fid) +                   &
+!     &                  8.0_r8*(snudg-0.5_r8)
 #  ifdef SOLVE3D
               FISHES(ng)%track(izgrd,j,fid) =                           &
      &                  FISHES(ng)%Tinfo(izgrd,fid)
@@ -139,10 +159,11 @@
               FISHES(ng)%track(izrhs,j,fid)=0.0_r8
 #  endif
             END DO
+            CALL ran1 (snudg)
             FISHES(ng)%bioenergy(ifwwt,fid)=Fwwght0*(snudg+0.5_r8)
             FISHES(ng)%bioenergy(ifworth,fid)=Fworth0
             FISHES(ng)%bioenergy(ifage,fid)=REAL(i,r8)
-            FISHES(ng)%species(fid)=if_herring
+            FISHES(ng)%species(fid)=isp
             FISHES(ng)%alive(fid)=.TRUE.
             FISHES(ng)%eatfish(fid)=.FALSE.
             FISHES(ng)%lifestage(fid)=if_adult
@@ -180,7 +201,7 @@
 !  Local variable declarations.
 !
       integer :: Npts, Nval
-      integer :: i, j, igrid, mc, nc, ng, status
+      integer :: i, j, igrid, mc, nc, ng, status, isp
 
       integer, dimension(Ngrids) :: ncount, nentry
       integer, dimension(Ngrids) :: Npos
@@ -217,8 +238,16 @@
             Npts=load_l(Nval, Cval, Ngrids, Lfish)
           ELSE IF (TRIM(KeyWord).eq.'FISHRREC') THEN
             Npts=load_i(Nval, Rval, Ngrids, fishrrec)
+          ELSE IF (TRIM(KeyWord).eq.'Nspecies') THEN
+            Npts=load_i(Nval, Rval, Ngrids, Nspecies)
+          ELSE IF (TRIM(KeyWord).eq.'Nyearclass') THEN
+            Npts=load_i(Nval, Rval, Ngrids, Nyearclass)
+          ELSE IF (TRIM(KeyWord).eq.'Nfishperyear') THEN
+            Npts=load_i(Nval, Rval, Ngrids, Nfishperyear)
+          ELSE IF (TRIM(KeyWord).eq.'Nbatch') THEN
+            Npts=load_i(Nval, Rval, Ngrids, Nbatch)
           ELSE IF (TRIM(KeyWord).eq.'Fwwt0') THEN
-            Npts=load_r(Nval, Rval, Ngrids, Fwwt0)
+            Npts=load_r(Nval, Rval, max_species*Ngrids, Fwwt0)
           ELSE IF (TRIM(KeyWord).eq.'Fage0') THEN
             Npts=load_r(Nval, Rval, Ngrids, Fage0)
           ELSE IF (TRIM(KeyWord).eq.'Fbehave') THEN
@@ -265,14 +294,6 @@
             Npts=load_r(Nval, Rval, Ngrids, Nymort)
           ELSE IF (TRIM(KeyWord).eq.'Fymort') THEN
             Npts=load_r(Nval, Rval, Ngrids, Fymort)
-          ELSE IF (TRIM(KeyWord).eq.'Nfishperyear') THEN
-            Npts=load_i(Nval, Rval, Ngrids, Nfishperyear)
-          ELSE IF (TRIM(KeyWord).eq.'Nspecies') THEN
-            Npts=load_i(Nval, Rval, Ngrids, Nspecies)
-          ELSE IF (TRIM(KeyWord).eq.'Nyearclass') THEN
-            Npts=load_i(Nval, Rval, Ngrids, Nyearclass)
-          ELSE IF (TRIM(KeyWord).eq.'Nbatch') THEN
-            Npts=load_i(Nval, Rval, Ngrids, Nbatch)
           END IF
         END IF
       END DO
@@ -313,8 +334,8 @@
         Ftype (nentry(igrid)+1,igrid)=1
         Fcount(nentry(igrid)+1,igrid)=1
         Ft0(nentry(igrid)+1,igrid)=0.0_r8
-        Fx0(nentry(igrid)+1,igrid)=25.0_r8
-        Fy0(nentry(igrid)+1,igrid)=25.0_r8
+        Fx0(nentry(igrid)+1,igrid)=0.0_r8
+        Fy0(nentry(igrid)+1,igrid)=0.0_r8
         Fz0(nentry(igrid)+1,igrid)=30.0_r8
         Fdt(nentry(igrid)+1,igrid)=0.0_r8
         Fdx(nentry(igrid)+1,igrid)=0.0_r8
@@ -351,8 +372,10 @@
             WRITE (out,80) Nfish(ng),                                   &
      &            'Nfish',                                              &
      &            'Number of fish trajectories to compute.'
-            WRITE (out,110) Fwwt0(ng), 'Fwwt0',                         &
-     &            'Fish initial wet weight (g).'
+            DO isp=1,Nspecies(ng)
+              WRITE (out,110) Fwwt0(isp,ng), 'Fwwt0',                   &
+     &              'Fish initial wet weight (g).'
+            END DO
             WRITE (out,110) Fage0(ng), 'Fage0',                         &
      &            'Fish spawning maturity (years).'
             WRITE (out,80) Fbehave(ng),                                 &
