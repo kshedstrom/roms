@@ -538,7 +538,7 @@
         integer, dimension(Ngrids) :: Nfishperyear
         integer, dimension(Ngrids) :: Nspecies
         integer, dimension(Ngrids) :: Nyearclass
-        integer, dimension(Ngrids) :: Nbatch
+!        integer, dimension(max_species,Ngrids) :: Nbatch
 !   Nfish=Nfishperyear*Nspecies*Nyearclass
         integer, dimension(Ngrids) :: Nfish
 

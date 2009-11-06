@@ -89,11 +89,11 @@
       real(r8), intent(in) :: rmask(LBi:UBi,LBj:UBj)
 #  endif
       integer, intent(out) :: egg_count(LBi:UBi,LBj:UBj,Nspecies(ng))
-      real(r8), intent(inout) :: bioenergy(NFishV(ng),Nfloats(ng))
-      logical, intent(in) :: bounded(Nfloats(ng))
-      logical, intent(in) :: alive(Nfloats(ng))
-      integer, intent(in) :: species(Nfloats(ng))
-      real(r8), intent(in) :: track(NFV(ng),0:NFT,Nfloats(ng))
+      real(r8), intent(inout) :: bioenergy(NFishV(ng),Nfish(ng))
+      logical, intent(in) :: bounded(Nfish(ng))
+      logical, intent(in) :: alive(Nfish(ng))
+      integer, intent(in) :: species(Nfish(ng))
+      real(r8), intent(in) :: track(NFV(ng),0:NFT,Nfish(ng))
 # endif
 !
       integer :: i, j, l, isp
@@ -134,7 +134,7 @@
         IF (bounded(l) .and. alive(l)) THEN
           i = int(track(ixgrd,nf(ng),l)+0.5)
           j = int(track(iygrd,nf(ng),l)+0.5)
-	  isp = idfish(species(l))
+          isp = idfish(species(l))
 ! bounded has been collected and no longer reflects whether the float is
 ! on this tile
           IF (i .ge. Imin .and. i .le. Imax .and.                       &

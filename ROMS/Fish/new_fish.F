@@ -195,7 +195,7 @@
                 FISHES(ng) % alive(ifsh) = .TRUE.
                 FISHES(ng) % lifestage(ifsh) = if_egg
                 FISHES(ng) % eatfish(ifsh) = .FALSE.
-                FISHES(ng) % swimtype(ifsh) = Fbehave(ng)
+                FISHES(ng) % swimtype(ifsh) = Fbehave(isp,ng)
                 print *, 'New_fish: ', ifsh, eggs(i), moms(i)
                 FISHES(ng) % num_free(isp) =                            &
      &                        FISHES(ng) % num_free(isp) - 1

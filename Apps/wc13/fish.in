@@ -59,103 +59,104 @@
 
 ! Number of batches of eggs per female per year.
 
-       Nbatch == 8
+       Nbatch == 8 8 0 0 0
 
 ! Fish initial wet weight [g], {2.0d0}.
 
-       Fwwt0 == 10.0d0 20.0d0 0.0d0 0.0d0 0.0d0
+       Fwwt0 == 10.0d0 10.0d0 0.0d0 0.0d0 0.0d0
 
 ! Fish spawning maturity [years], {3.0d0}.
 
-       Fage0 == 3.0d0
+       Fage0 == 3.0d0 3.0d0 0.0d0 0.0d0 0.0d0
 
 ! Fish behavior [1=Fitness, 2=Kinesis]
 
-       Fbehave == 2
+       Fbehave == 1 2 0 0 0
 
 ! Fish preference for ZS, {0.5d0}.
 
-       ZSpref == 1.0d0
+       ZSpref == 1.0d0 1.0d0 0.0d0 0.0d0 0.0d0
 
 ! Fish preference for ZL, {1.0d0}.
 
-       ZLpref == 1.0d0
+       ZLpref == 1.0d0 1.0d0 0.0d0 0.0d0 0.0d0
 
 ! Fish preference for ZP, {0.5d0}.
 
-       ZPpref == 1.0d0
+       ZPpref == 1.0d0 1.0d0 0.0d0 0.0d0 0.0d0
 
 ! Energy conversion from Zooplankton to Fish
+! (CAL_ZF for age 2+ is computed from 2580/7775)
 
-       CAL_ZF == 0.3318d0                 ! 2580.0_r8/7775.0_r8 (age 2+)
+       CAL_ZF == 0.3318d0 0.3318d0 0.0d0 0.0d0 0.0d0
 
 ! Fish half saturation for ZS
 
-       K_ZS == 1.15d0
+       K_ZS == 1.15d0 1.15d0 0.0d0 0.0d0 0.0d0
 
 ! Fish half saturation for ZL
 
-       K_ZL == 1.15d0
+       K_ZL == 1.15d0 1.15d0 0.0d0 0.0d0 0.0d0
 
 ! Fish half saturation for ZP
 
-       K_ZP == 1.15d0
+       K_ZP == 1.15d0 1.15d0 0.0d0 0.0d0 0.0d0
 
 ! Fish half saturation for Fish
 
-       K_Fish == 0.5d0
+       K_Fish == 0.5d0 0.5d0 0.0d0 0.0d0 0.0d0
 
 ! Fish preference for Fish
 
-       Fpref == 1.0d0
+       Fpref == 1.0d0 1.0d0 0.0d0 0.0d0 0.0d0
 
 ! Fish consumption coefficient
 
-       a_C == 0.642d0
+       a_C == 0.642d0 0.642d0 0.0d0 0.0d0 0.0d0
 
 ! Fish consumption exponent
 
-       b_C == 0.256d0
+       b_C == 0.256d0 0.256d0 0.0d0 0.0d0 0.0d0
 
 ! Fish egestion coefficient
 
-       a_F == 0.16d0
+       a_F == 0.16d0 0.16d0 0.0d0 0.0d0 0.0d0
 
 ! Fish excretion coefficient
 
-       a_E == 0.1d0
+       a_E == 0.1d0 0.1d0 0.0d0 0.0d0 0.0d0
 
 ! Fish respiration coefficient
 
-       a_R == 0.0033d0
+       a_R == 0.0033d0 0.0033d0 0.0d0 0.0d0 0.0d0
 
 ! Fish respiration exponent
 
-       b_R == 0.227d0
+       b_R == 0.227d0 0.227d0 0.0d0 0.0d0 0.0d0
 
 ! Fish swimming coefficient
 
-       d_R == 0.03d0
+       d_R == 0.03d0 0.03d0 0.0d0 0.0d0 0.0d0
 
 ! Fish activity coefficient
 
-       a_A == 15.0d0
+       a_A == 15.0d0 15.0d0 0.0d0 0.0d0 0.0d0
 
 ! Fish activity exponent
 
-       b_A == 0.13d0
+       b_A == 0.13d0 0.13d0 0.0d0 0.0d0 0.0d0
 
 ! Fish specific dynamic action coefficient
 
-       a_S == 0.175d0
+       a_S == 0.175d0 0.175d0 0.0d0 0.0d0 0.0d0
 
 ! Fish yearly natural mortality
 
-       Nymort == 0.3d0
+       Nymort == 0.3d0 0.3d0 0.0d0 0.0d0 0.0d0
 
 ! Fish yearly fishing mortality
 
-       Fymort == 0.0d0
+       Fymort == 0.0d0 0.0d0 0.0d0 0.0d0 0.0d0
 
 ! Initial floats locations for all grids:
 !

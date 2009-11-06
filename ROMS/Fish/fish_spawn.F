@@ -29,6 +29,7 @@
       USE mod_fish
       USE mod_grid
       USE mod_stepping
+      USE mod_biology
 !
 !  Imported variable declarations.
 !
@@ -191,8 +192,8 @@
           IF ((sp_time.ge.sp_start(isp)).and.                           &
      &              (sp_time.le.sp_end(isp))) THEN
             Ftemp=track(itemp+NFV(ng)-NT(ng),nnew,ifid)
-            IF ((bioenergy(ifage,ifid).ge.Fage0(ng)).and.               &
-     &          (INT(bioenergy(ifbatch,ifid)).lt.Nbatch(ng)).and.       &
+            IF ((bioenergy(ifage,ifid).ge.Fage0(isp,ng)).and.           &
+     &          (INT(bioenergy(ifbatch,ifid)).lt.Nbatch(isp,ng)).and.   &
      &          (ABS(Ftemp-temp_opt).le.temp_sigma).and.                &
      &          ((sp_time-bioenergy(iftspwn,ifid)).ge.7.0_r8)) THEN
               bioenergy(ifeggs,ifid)=20000.0_r8*                        &

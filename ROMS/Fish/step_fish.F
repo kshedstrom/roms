@@ -329,7 +329,8 @@
      &                    GRID(ng) % Hz,                                &
 # endif
      &                    MyThread, bounded, track,                     &
-     &                    bioenergy, alive, lifestage, swimtype,        &
+     &                    bioenergy, alive,                             &
+     &                    species, lifestage, swimtype,                 &
      &                    OCEAN(ng) % fish_count,                       &
      &                    OCEAN(ng) % fish_list,                        &
      &                    FISHES(ng) % fishnodes)
@@ -525,7 +526,8 @@
      &                    GRID(ng) % Hz,                                &
 # endif
      &                    MyThread, bounded, track,                     &
-     &                    bioenergy, alive, lifestage, swimtype,        &
+     &                    bioenergy, alive,                             &
+     &                    species, lifestage, swimtype,                 &
      &                    OCEAN(ng) % fish_count,                       &
      &                    OCEAN(ng) % fish_list,                        &
      &                    FISHES(ng) % fishnodes)

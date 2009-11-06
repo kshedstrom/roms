@@ -58,7 +58,8 @@
      &                          Hz,                                     &
 # endif
      &                          MyThread, bounded, track,               &
-     &                          bioenergy, alive, lifestage, swimtype,  &
+     &                          bioenergy, alive,                       &
+     &                          species, lifestage, swimtype,           &
      &                          fish_count, fish_list, fishnodes)
 !***********************************************************************
 !
@@ -75,6 +76,7 @@
 !
       integer, intent(in) :: ng, LBi, UBi, LBj, UBj, LBk, UBk
       integer, intent(in) :: itime, nnew
+      integer, intent(in) :: species(Nfish(ng))
       integer, intent(in) :: lifestage(Nfish(ng))
       integer, intent(in) :: swimtype(Nfish(ng))
       integer, intent(in) :: fish_count(LBi:UBi,LBj:UBj)
@@ -101,7 +103,8 @@
       integer :: ierr
       integer :: iseed = 149876
       integer :: Ir, Jr, Kr, IrMax, JrMax, KrMax, kZmax
-      integer :: i1, i2, j1, j2, i, j, ii, jj, kk, itm1, ifish, fid
+      integer :: i1, i2, j1, j2, i, j, ii, jj, kk, itm1
+      integer :: ifish, fid, isp
 
       type(fishnode), pointer :: thisfish
 
@@ -126,6 +129,7 @@
             thisfish => fish_list(i,j) % next
             DO ifish=1,fish_count(i,j)
               fid = thisfish % fish
+              isp = idfish(species(fid))
               IF (MyThread(fid).and.bounded(fid).and.                   &
      &            alive(fid).and.(lifestage(fid).eq.if_adult)) THEN
 !
@@ -134,7 +138,7 @@
                 Kr=INT(track(izgrd,itime,fid))
                 Fweight=bioenergy(ifwwt,fid)
 ! Swimming velocity based on fish weight (in cm/s)
-                Uswim=a_A(ng)*Fweight**b_A(ng)
+                Uswim=a_A(isp,ng)*Fweight**b_A(isp,ng)
 !
 ! -------- FITNESS-BASED SWIMMING BEHAVIOR (RAILSBACK) --------
                 IF (swimtype(fid).eq.1) THEN
@@ -149,7 +153,7 @@
                     DO ii=Ir-1,Ir+1
                       DO kk=MAX(Kr-1,1),MIN(Kr+1,N(ng))
                         CALL fish_growth_ijk (ng, ii, jj, kk, nnew,     &
-     &                                     Fweight, Uswim, Fgrowth)
+     &                                isp, Fweight, Uswim, Fgrowth)
 ! MISSING HERE: CALL FOR MORTALITY SUBROUTINE
                         Fmort=0.0_r8
                         score=exp(Fgrowth)*exp(Fmort)

@@ -73,8 +73,8 @@
 ! Time-Stepping parameters.
 
 !      NTIMES =  24  (1 day)
-      NTIMES =  8760 (1 year)
-!      NTIMES =  35040
+!      NTIMES =  8760 (1 year)
+      NTIMES =  35040
           DT == 3600.0d0
      NDTFAST == 60
 
