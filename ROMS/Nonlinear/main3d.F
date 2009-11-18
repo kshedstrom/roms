@@ -314,7 +314,11 @@
 #  ifdef CCSM_FLUXES
           CALL ccsm_flux (ng, TILE)
 #  else
+#   if defined FOUR_DVAR && defined NL_BULK_FLUXES
+          IF (Nrun.eq.1) CALL bulk_flux (ng, TILE)
+#   else
           CALL bulk_flux (ng, TILE)
+#   endif
 #  endif
 # endif
 # ifdef NCEP_FLUXES

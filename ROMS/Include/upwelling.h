@@ -74,9 +74,6 @@
 
 #ifdef BIO_UMAINE
 # define OXYGEN
-# if defined OXYGEN
-#  define xygen_bottom_layer_treatment
-# endif
 # undef CARBON
 #endif
 
