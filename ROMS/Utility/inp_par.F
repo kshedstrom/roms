@@ -2612,6 +2612,24 @@
       exit_flag=4
       RETURN
   20  CLOSE (inp)
+
+#if defined BULK_FLUXES && defined NL_BULK_FLUXES
+!
+!  Make sure that logical output switches are activated for wind
+!  stress and surface active tracers fluxes when using fluxes from
+!  the nonlinear model via (bulk_flux).
+!
+      DO ng=1,Ngrids
+        Hout(idUsms,ng)=.TRUE.
+        Hout(idVsms,ng)=.TRUE.
+# ifdef SOLVE3D
+        Hout(idTsur(itemp),ng)=.TRUE.
+#  ifdef EMINUSP
+        Hout(idEmPf,ng)=.TRUE.
+#  endif
+# endif
+      END DO
+#endif
 !
 !  Set switch to create NetCDF file.
 !
@@ -2625,7 +2643,7 @@
           LdefHIS(ng)=.TRUE.
         END IF
 #endif
-#if defined IS4DVAR || defined IOM || defined WEAK_CONSTRAINT
+#if defined IS4DVAR || defined WEAK_CONSTRAINT
 !
 !  If weak constraint, disallow recycling of the adjoint model.
 !
@@ -2649,7 +2667,7 @@
 !  Set size of additonal dimension for error covariance normalization
 !  and standard deviation factors.
 !
-# if defined IOM || defined WEAK_CONSTRAINT
+# ifdef WEAK_CONSTRAINT
         IF (nADJ(ng).lt.ntimes(ng)) THEN
           NSA=2
         ELSE
@@ -2659,7 +2677,7 @@
         NSA=1
 # endif
 #endif
-#if defined IOM || defined WEAK_CONSTRAINT
+#ifdef WEAK_CONSTRAINT
 !
 !  If weak constraint assimilation, ensure that nADJ=nHIS.
 !
@@ -2667,7 +2685,7 @@
           nADJ(ng)=nHIS(ng)
         END IF
 #endif
-#if defined WEAK_CONSTRAINT || defined IOM
+#ifdef WEAK_CONSTRAINT
 !
 !  If weak constraint assimilation, set tangent linear number of
 !  time-steps between writing of fields the same as the basic
@@ -3892,7 +3910,7 @@
      &                      TLMname(ng)(1:Lstr-3)
           END IF
 #endif
-#if defined WEAK_CONSTRAINT || defined IOM
+#ifdef WEAK_CONSTRAINT
           WRITE (out,230) '   Output Impulse Forcing File:  ',          &
      &                    TRIM(TLFname(ng))
 #endif
@@ -3968,18 +3986,17 @@
      &                    TRIM(fname)
 # endif
 # if defined TANGENT && \
-    !(defined FOUR_DVAR       || defined GRADIENT_CHECK    || \
-      defined OBS_SENSITIVITY || defined OPT_OBSERVATIONS  || \
-      defined SANITY_CHECK    || defined SENSITIVITY_4DVAR || \
-      defined TLM_CHECK)
+    !(defined FOUR_DVAR         || defined OBS_SENSITIVITY || \
+      defined OPT_OBSERVATIONS  || defined SANITY_CHECK    || \
+      defined SENSITIVITY_4DVAR || defined TLM_CHECK)
           fname=ITLname(ng)
           INQUIRE (FILE=TRIM(fname), EXIST=inhere)
           IF (.not.inhere) GO TO 30
           WRITE (out,230) '    Input Tangent Initial File:  ',          &
      &                    TRIM(fname)
 # endif
-# if (defined WEAK_CONSTRAINT || defined IOM) && \
-    !(defined W4DPSAS || defined W4DPSAS_SENSITIVITY)
+# if defined WEAK_CONSTRAINT && \
+    !(defined W4DPSAS        || defined W4DPSAS_SENSITIVITY)
           fname=IRPname(ng)
           INQUIRE (FILE=TRIM(fname), EXIST=inhere)
           IF (.not.inhere) GO TO 30
@@ -10488,7 +10505,7 @@
         DO ng=1,Ngrids
 #  if defined FOUR_DVAR
           WRITE (out,60) ng
-#   if defined WEAK_CONSTRAINT || defined IOM
+#   ifdef WEAK_CONSTRAINT
 #    ifdef RPM_RELAXATION
           WRITE (out,120) tl_M2diff, 'tl_M2diff',                       &
      &            'RPM 2D momentum diffusive relaxation coefficient.'
@@ -10512,7 +10529,7 @@
           WRITE (out,70) LhessianEV, 'LhessianEV',                      &
      &            'Switch to compute Hessian eigenvectors.'
 #    endif
-#    if defined WEAK_CONSTRAINT || defined IOM
+#    ifdef WEAK_CONSTRAINT
           WRITE (out,70) LhotStart, 'LhotStart',                        &
      &            'Switch for hot start of subsequent outer loops.'
 #    endif
@@ -10520,7 +10537,7 @@
      &            'Switch for conjugate gradient preconditioning.'
           WRITE (out,70) Lritz, 'Lritz',                                &
      &            'Switch for Ritz limited-memory preconditioning.'
-#    if defined WEAK_CONSTRAINT || defined IOM
+#    ifdef WEAK_CONSTRAINT
           IF (Lprecond.and.(NritzEV.gt.0)) THEN
             WRITE (out,80) NritzEV, 'NritzEV',                          &
      &            'Number of preconditioning eigenpairs to use.'
@@ -10541,7 +10558,7 @@
           WRITE (out,80) NpostI, 'NpostI',                              &
      &            'Number of Lanczos iterations in posterior analysis.'
 #   endif
-#   if !(defined GRADIENT_CHECK || defined TLM_CHECK)
+#   ifndef TLM_CHECK
 #    ifndef OBS_SENSITIVITY
           WRITE (out,170) LdefNRM(1:4,ng), 'LdefNRM',                   &
      &            'Switch to create a normalization NetCDF file.'
@@ -10844,9 +10861,8 @@
      &                    TRIM(aparnam)
 #  endif
 #  ifdef FOUR_DVAR
-#   if defined IS4DVAR         || defined IOM              || \
-       defined OBS_SENSITIBITY || defined OPT_OBSERVATIONS || \
-       defined WEAK_CONSTRAINT
+#   if defined IS4DVAR          || defined OBS_SENSITIBITY || \
+       defined OPT_OBSERVATIONS || defined WEAK_CONSTRAINT
 #    if defined SENSITIVITY_4DVAR || \
         defined TL_W4DPSAS        || defined TL_W4DVAR || \
         defined W4DPSAS           || defined W4DVAR

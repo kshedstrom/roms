@@ -686,7 +686,7 @@
      &                      ncid = ncid)
       IF (exit_flag.ne.NoError) RETURN
 
-#  if defined WEAK_CONSTRAINT || defined IOM
+#  ifdef WEAK_CONSTRAINT
       CALL netcdf_put_lvar (ng, model, ncname, 'LhotStart',             &
      &                      LhotStart, (/0/), (/0/),                    &
      &                      ncid = ncid)
@@ -703,7 +703,7 @@
      &                      ncid = ncid)
       IF (exit_flag.ne.NoError) RETURN
 
-#  if defined WEAK_CONSTRAINT || defined IOM
+#  ifdef WEAK_CONSTRAINT
       IF (Lprecond.and.(NritzEV.gt.0)) THEN
         CALL netcdf_put_ivar (ng, model, ncname, 'NritzEV',             &
      &                        NritzEV, (/0/), (/0/),                    &

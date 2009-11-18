@@ -1046,13 +1046,6 @@
       Coptions(is:is+12)=' GLS_MIXING,'
       ivmix=ivmix+1
 #endif
-#ifdef GRADIENT_CHECK
-      IF (Master) WRITE (stdout,20) 'GRADIENT_CHECK',                   &
-     &   'Tangent Linear and Adjoint Models Gradient Check.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+16)=' GRADIENT_CHECK,'
-      idriver=idriver+1
-#endif
 #if defined HOLLING_GRAZING && defined NEMURO
       IF (Master) WRITE (stdout,20) 'HOLLING_GRAZING',                  &
      &   'Holling-type s-shaped grazing algorithm, Implicit.'
@@ -1148,12 +1141,6 @@
      &   'Nudge dissolved iron over the shelf, h <= FeHmin.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+12)=' IRON_RELAX,'
-#endif
-#ifdef IOM
-      IF (Master) WRITE (stdout,20) 'IOM',                              &
-     &   'IOM Multiple Executable interface.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+5)=' IOM,'
 #endif
 #ifdef IMPULSE
       IF (Master) WRITE (stdout,20) 'IMPULSE',                          &
@@ -1431,7 +1418,7 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+16)=' NL_BULK_FLUXES,'
 #endif
-#if defined NLM_OUTER && (defined WEAK_CONSTRAINT || defined IOM)
+#if defined NLM_OUTER && defined WEAK_CONSTRAINT
       IF (Master) WRITE (stdout,20) 'NLM_OUTER',                        &
      &   'Using the Nonlinear model as Basic State in Outer Loop.'
       is=LEN_TRIM(Coptions)+1
