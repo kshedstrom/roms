@@ -2,7 +2,7 @@
 #ifdef TL_IOMS
       SUBROUTINE rp_get_data (ng)
 !
-!svn $Id: rp_get_data.F 1087 2009-10-21 00:21:28Z kate $
+!svn $Id: rp_get_data.F 1098 2009-11-18 17:54:22Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -180,15 +180,15 @@
 !  Surface wind stress components from NLM bulk flux computation.
 !-----------------------------------------------------------------------
 !
-      CALL get_2dfld (ng, iRPM, idUsms, ncFWDid(ng), 1,                 &
-     &                FWDname(ng), update(1),                           &
+      CALL get_2dfld (ng, iRPM, idUsms, ncBLKid(ng), 1,                 &
+     &                BLKname(ng), update(1),                           &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &
 #   ifdef MASKING
      &                GRID(ng) % umask(LBi,LBj),                        &
 #   endif
      &                FORCES(ng) % sustrG(LBi,LBj,1))
-      CALL get_2dfld (ng, iRPM, idVsms, ncFWDid(ng), 1,                 &
-     &                FWDname(ng), update(1),                           &
+      CALL get_2dfld (ng, iRPM, idVsms, ncBLKid(ng), 1,                 &
+     &                BLKname(ng), update(1),                           &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &
 #   ifdef MASKING
      &                GRID(ng) % vmask(LBi,LBj),                        &
@@ -432,8 +432,8 @@
 !  Surface net heat flux from NLM bulk flux computation.
 !-----------------------------------------------------------------------
 !
-      CALL get_2dfld (ng, iRPM, idTsur(itemp), ncFWDid(ng), 1,          &
-     &                FWDname(ng), update(1),                           &
+      CALL get_2dfld (ng, iRPM, idTsur(itemp), ncBLKid(ng), 1,          &
+     &                BLKname(ng), update(1),                           &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &
 #   ifdef MASKING
      &                GRID(ng) % rmask(LBi,LBj),                        &
@@ -502,7 +502,7 @@
 !  Surface net freshwater flux (E-P) from NLM bulk flux computation.
 !-----------------------------------------------------------------------
 !
-      CALL get_2dfld (ng, iRPM, idEmPf, ncFWDid(ng), 1,                 &
+      CALL get_2dfld (ng, iRPM, idEmPf, ncBLKid(ng), 1,                 &
      &                BLKname(ng), update(1),                           &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &
 #    ifdef MASKING

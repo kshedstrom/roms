@@ -2,7 +2,7 @@
 #if (defined FOUR_DVAR || defined VERIFICATION) && defined OBSERVATIONS
       SUBROUTINE obs_read (ng, model, backward)
 !
-!svn $Id: obs_read.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: obs_read.F 1098 2009-11-18 17:54:22Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -10,8 +10,8 @@
 !=======================================================================
 !                                                                      !
 !  This subroutine reads in observations data when appropriate from    !
-!  observations input NetCDF file.  The observations data is stored    !     
-!  for use elsewhere.                                                  ! 
+!  observations input NetCDF file.  The observations data is stored    !
+!  for use elsewhere.                                                  !
 !                                                                      !
 !=======================================================================
 !
@@ -85,7 +85,7 @@
 !  only the observartion for the current time window are loaded
 !  and started from vector index one.
 !
-# if defined WEAK_CONSTRAINT || defined IOM
+# ifdef WEAK_CONSTRAINT
         Mstr=NstrObs(ng)
         Mend=NendObs(ng)
 # else
@@ -179,7 +179,7 @@
      &                        total = (/Nobs(ng)/))
         IF (exit_flag.ne.NoError) RETURN
 !
-# if defined WEAK_CONSTRAINT || defined IOM
+# ifdef WEAK_CONSTRAINT
 !  Read in observation error covariance.
 # else
 !  Read in observation error covariance. To avoid successive divisions,
@@ -193,7 +193,7 @@
      &                        total = (/Nobs(ng)/))
         IF (exit_flag.ne.NoError) RETURN
 
-# if !(defined WEAK_CONSTRAINT || defined IOM)
+# ifndef WEAK_CONSTRAINT
         DO iobs=1,Nobs(ng)
           ObsErr(iobs)=1.0_r8/ObsErr(iobs)
         END DO
@@ -210,7 +210,7 @@
           IF (exit_flag.ne.NoError) RETURN
         END IF
 
-# if defined TLM_OBS && !(defined WEAK_CONSTRAINT || defined IOM)
+# if defined TLM_OBS && !defined WEAK_CONSTRAINT
 !
 !  If adjoint pass and incremental 4DVar, read in tangent linear model
 !  values at observation locations.
@@ -234,20 +234,6 @@
           END IF
 #  endif
         END IF
-# endif
-# if defined IOM && defined ADJOINT
-!
-!  If multiple executables, read in representer coefficients (or
-!  its approximation) and load it in ADmodVal.
-!
-        IF (backward) THEN
-          CALL netcdf_get_fvar (ng, model, MODname(ng), Vname(1,idRepC),&
-     &                          ADmodVal,                               &
-     &                          ncid = ncMODid(ng),                     &
-     &                          start = (/1/),                          &
-     &                          total = (/Ndatum(ng)/))
-          IF (exit_flag.ne.NoError) RETURN
-        END IF            
 # endif
 !
 !-----------------------------------------------------------------------

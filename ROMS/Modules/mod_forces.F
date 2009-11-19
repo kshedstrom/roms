@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       MODULE mod_forces
 !
-!svn $Id: mod_forces.F 1087 2009-10-21 00:21:28Z kate $
+!svn $Id: mod_forces.F 1098 2009-11-18 17:54:22Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -368,14 +368,16 @@
 # endif
 
           real(r8), pointer :: stflx(:,:,:)
-# if !defined ANA_STFLUX || !defined ANA_SSFLUX
+# if !defined ANA_STFLUX || !defined ANA_SSFLUX || \
+     !defined ANA_SPFLUX
           real(r8), pointer :: stflxG(:,:,:,:)
 # endif
 # ifdef ADJUST_STFLUX
           real(r8), pointer :: tflux(:,:,:,:,:)
 # endif
           real(r8), pointer :: btflx(:,:,:)
-# if !defined ANA_BTFLUX || !defined ANA_BSFLUX
+# if !defined ANA_BTFLUX || !defined ANA_BSFLUX || \
+     !defined ANA_BPFLUX
           real(r8), pointer :: btflxG(:,:,:,:)
 # endif
 
@@ -758,7 +760,8 @@
 
       allocate ( FORCES(ng) % stflx(LBi:UBi,LBj:UBj,NT(ng)) )
 
-# if !defined ANA_STFLUX || !defined ANA_SSFLUX
+# if !defined ANA_STFLUX || !defined ANA_SSFLUX || \
+     !defined ANA_SPFLUX
       allocate ( FORCES(ng) % stflxG(LBi:UBi,LBj:UBj,2,NT(ng)) )
 # endif
 # ifdef ADJUST_STFLUX
@@ -767,7 +770,8 @@
 # endif
       allocate ( FORCES(ng) % btflx(LBi:UBi,LBj:UBj,NT(ng)) )
 
-# if !defined ANA_BTFLUX || !defined ANA_BSFLUX
+# if !defined ANA_BTFLUX || !defined ANA_BSFLUX || \
+     !defined ANA_BPFLUX
       allocate ( FORCES(ng) % btflxG(LBi:UBi,LBj:UBj,2,NT(ng)) )
 # endif
 
@@ -1263,11 +1267,13 @@
 # endif
               FORCES(ng) % stflx(i,j,itrc) = IniVal
               FORCES(ng) % btflx(i,j,itrc) = IniVal
-# if !defined ANA_STFLUX || !defined ANA_SSFLUX
+# if !defined ANA_STFLUX || !defined ANA_SSFLUX || \
+     !defined ANA_SPFLUX
               FORCES(ng) % stflxG(i,j,1,itrc) = IniVal
               FORCES(ng) % stflxG(i,j,2,itrc) = IniVal
 # endif
-# if !defined ANA_BTFLUX || !defined ANA_BSFLUX
+# if !defined ANA_BTFLUX || !defined ANA_BSFLUX || \
+     !defined ANA_BPFLUX
               FORCES(ng) % btflxG(i,j,1,itrc) = IniVal
               FORCES(ng) % btflxG(i,j,2,itrc) = IniVal
 # endif

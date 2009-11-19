@@ -2,7 +2,7 @@
 #ifdef NONLINEAR
       SUBROUTINE set_data (ng, tile)
 !
-!svn $Id: set_data.F 1087 2009-10-21 00:21:28Z kate $
+!svn $Id: set_data.F 1098 2009-11-18 17:54:22Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -481,6 +481,22 @@
 #   endif
 #  endif
 
+#  if !defined ANA_STFLUX  && defined FOUR_DVAR      && \
+       defined BULK_FLUXES && defined NL_BULK_FLUXES
+!
+!-----------------------------------------------------------------------
+!  If not first NLM run, set surface net heat flux from first NLM run.
+!-----------------------------------------------------------------------
+!
+      IF (Nrun.gt.1) THEN
+        CALL set_2dfld_tile (ng, tile, iNLM, idTsur(itemp),             &
+     &                       LBi, UBi, LBj, UBj,                        &
+     &                       FORCES(ng)%stflxG(:,:,:,itemp),            &
+     &                       FORCES(ng)%stflx (:,:,itemp),              &
+     &                       update)
+      END IF
+#  endif
+
 #  ifdef QCORRECTION
 !
 !-----------------------------------------------------------------------
@@ -519,11 +535,21 @@
 #  endif
 
 #  ifdef SALINITY
+#   if !defined ANA_STFLUX  && defined FOUR_DVAR      && \
+        defined BULK_FLUXES && defined NL_BULK_FLUXES
+!
+!-----------------------------------------------------------------------
+!  If not first NLM run, set kinematic surface freshwater (E-P) flux
+!  (m/s) from first NLM run.
+!-----------------------------------------------------------------------
+!
+#   else
 !
 !-----------------------------------------------------------------------
 !  Set kinematic surface freshwater (E-P) flux (m/s).
 !-----------------------------------------------------------------------
 !
+#   endif
 #   ifdef ANA_SSFLUX
       CALL ana_stflux (ng, tile, iNLM, isalt)
 #   else
@@ -540,6 +566,17 @@
      &                     FORCES(ng)%stflx (:,:,isalt),                &
      &                     update)
 #    endif
+#   endif
+
+#   if !defined ANA_STFLUX  && defined FOUR_DVAR      && \
+        defined BULK_FLUXES && defined NL_BULK_FLUXES
+      IF (Nrun.gt.1) THEN
+        CALL set_2dfld_tile (ng, tile, iNLM, idEmPf,                    &
+     &                       LBi, UBi, LBj, UBj,                        &
+     &                       FORCES(ng)%stflxG(:,:,:,isalt),            &
+     &                       FORCES(ng)%stflx (:,:,isalt),              &
+     &                       update)
+      END IF
 #   endif
 
 #   if defined SCORRECTION || defined SRELAXATION
@@ -661,6 +698,28 @@
 #   endif
 #  endif
 # endif
+# endif
+
+# if !defined AIR_OCEAN   && defined FOUR_DVAR      && \
+      defined BULK_FLUXES && defined NL_BULK_FLUXES
+!
+!-----------------------------------------------------------------------
+!  If not first NLM run, set surface wind stress components from first
+!  NLM run.
+!-----------------------------------------------------------------------
+!
+      IF (Nrun.gt.1) THEN
+        CALL set_2dfld_tile (ng, tile, iNLM, idUsms,                    &
+     &                       LBi, UBi, LBj, UBj,                        &
+     &                       FORCES(ng)%sustrG,                         &
+     &                       FORCES(ng)%sustr,                          &
+     &                       update)
+        CALL set_2dfld_tile (ng, tile, iNLM, idVsms,                    &
+     &                       LBi, UBi, LBj, UBj,                        &
+     &                       FORCES(ng)%svstrG,                         &
+     &                       FORCES(ng)%svstr,                          &
+     &                       update)
+      END IF
 # endif
 
 # if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS

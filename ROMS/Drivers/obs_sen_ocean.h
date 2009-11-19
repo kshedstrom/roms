@@ -1,6 +1,6 @@
       MODULE ocean_control_mod
 !
-!svn $Id: obs_sen_ocean.h 1012 2009-07-07 20:52:45Z kate $
+!svn $Id: obs_sen_ocean.h 1098 2009-11-18 17:54:22Z kate $
 !=================================================== Andrew M. Moore ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group      Hernan G. Arango   !
 !    Licensed under a MIT/X style license                              !
@@ -128,7 +128,7 @@
       USE mod_netcdf
       USE mod_scalars
 !
-#ifdef AIR_OCEAN 
+#ifdef AIR_OCEAN
       USE ocean_coupler_mod, ONLY : initialize_atmos_coupling
 #endif
 #ifdef WAVES_OCEAN
@@ -242,7 +242,7 @@
 !  Read in error covariance standard deviation factors used in the
 !  spatial convolutions.
 !-----------------------------------------------------------------------
-!  
+!
 !  Standard deviation factors for initial conditions error covariance.
 !  They are loaded in Tindex=1 of the e_var(...,Tindex) state variables.
 !
@@ -342,7 +342,7 @@
 #ifdef BALANCE_OPERATOR
       USE tl_balance_mod, ONLY: tl_balance
 #endif
-      USE tl_convolution_mod, ONLY : tl_convolution 
+      USE tl_convolution_mod, ONLY : tl_convolution
       USE tl_variability_mod, ONLY : tl_variability
 !
 !  Imported variable declarations
@@ -352,7 +352,7 @@
 !
 !  Local variable declarations.
 !
-      logical :: Lweak = .FALSE. 
+      logical :: Lweak = .FALSE.
 
       integer :: i, my_iic, ng,  subs, tile, thread
       integer :: Lbck, Lini, Litl
@@ -384,7 +384,7 @@
 !
 !  Run nonlinear model for the combined assimilation plus forecast
 !  period, t=t0 to t2. Save nonlinear (basic state) tracjectory, xb(t),
-!  needed by the adjoint model. 
+!  needed by the adjoint model.
 !
         IF (Master) THEN
           WRITE (stdout,10) 'NL', ntstart(ng), ntend(ng)
@@ -409,6 +409,14 @@
         Lstiffness=.FALSE.
         CALL ad_initial (ng)
         IF (exit_flag.ne.NoError) RETURN
+
+#if defined BULK_FLUXES && defined NL_BULK_FLUXES
+!
+!  Set file name containing the nonlinear model bulk fluxes to be read
+!  and processed by other algorithms.
+!
+        BLKname(ng)=HISname(ng)
+#endif
 !
 !  Activate adjoint output.
 !
@@ -519,7 +527,7 @@
 !
 !  Run nonlinear model for the combined assimilation plus forecast
 !  period, t=t0 to t2. Save nonlinear (basic state) tracjectory, xb(t),
-!  needed by the tangent linear model. 
+!  needed by the tangent linear model.
 !
         IF (Master) THEN
           WRITE (stdout,10) 'NL', ntstart(ng), ntend(ng)

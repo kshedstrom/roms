@@ -1,9 +1,9 @@
 #include "cppdefs.h"
       MODULE ad_forcing_mod
 
-#if defined ADJOINT && (defined WEAK_CONSTRAINT || defined IOM)
+#if defined ADJOINT && defined WEAK_CONSTRAINT
 !
-!svn $Id: ad_forcing.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: ad_forcing.F 1098 2009-11-18 17:54:22Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group   Emanuele Di Lorenzo   !
 !    Licensed under a MIT/X style license            Andrew M. Moore   !

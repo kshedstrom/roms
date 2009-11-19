@@ -7,7 +7,7 @@
 # endif
      &                       Fout)
 !
-!svn $Id: get_2dfldr.F 1076 2009-09-25 23:18:43Z kate $
+!svn $Id: get_2dfldr.F 1101 2009-11-19 00:56:17Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -98,7 +98,7 @@
 !  Intialize local variables.
 !
         Vid=-1
-        Tid=-1        
+        Tid=-1
         nrec=0
         Liocycle=.FALSE.
         Lgridded=.FALSE.
@@ -148,7 +148,7 @@
             DO i=1,nvatt
               IF (TRIM(var_Aname(i)).eq.'scale_factor') THEN
                 scale=var_Afloat(i)
-                Fscale(ifield,ng)=Fscale(ifield,ng)*scale
+                Finfo(10,ifield,ng)=scale
               ELSE IF (TRIM(var_Aname(i)).eq.'water_points') THEN
                 Iinfo(1,ifield,ng)=-ABS(Iinfo(1,ifield,ng))
                 Vtype=Iinfo(1,ifield,ng)
@@ -171,13 +171,13 @@
 !
 !  Inquire about associated time dimension, if any, and get number of
 !  available time records.
-! 
+!
           IF (foundit) THEN
             IF (LEN_TRIM(Vname(5,ifield)).gt.0) THEN
               Tname(ifield)=TRIM(Vname(5,ifield))
               DO i=1,nvdim
                 IF (var_Dname(i).eq.TRIM(Tname(ifield))) THEN
-                  nrec=var_Dsize(i) 
+                  nrec=var_Dsize(i)
                   got_time=.TRUE.
                 END IF
               END DO
@@ -283,7 +283,7 @@
 !  If appropriate, open input NetCDF file for reading.  If processing
 !  model forcing (multiple files allowed), check if file for requested
 !  field has been already opened and get/save its ID from/to the
-!  association table. 
+!  association table.
 !
         CALL netcdf_openid (nFfiles(ng), FRCname(1,ng), FRCids(1,ng),   &
      &                      ncfile, ncid)
@@ -351,7 +351,7 @@
         Linfo(3,ifield,ng)=Lonerec
         Tindex=Iinfo(8,ifield,ng)
         Vtime(Tindex,ifield,ng)=Finfo(4,ifield,ng)
-      END IF         
+      END IF
 !
 !-----------------------------------------------------------------------
 !  Get requested field information from global storage.
@@ -460,7 +460,8 @@
      &                              ncid = ncid,                        &
      &                              start = (/Trec/),                   &
      &                              total = (/1/))
-              Fpoint(Tindex,ifield,ng)=Fval*Fscale(ifield,ng)
+              Fval=Fval*Finfo(10,ifield,ng)*Fscale(ifield,ng)
+              Fpoint(Tindex,ifield,ng)=Fval
               Fmin=Fval
               Fmax=Fval
             END IF
@@ -508,7 +509,7 @@
      &        /,15x,'for variable: ',a,/,15x,'in file: ',a,             &
      &        /,15x,'file is not CF compliant...')
   20  FORMAT (/,' GET_2DFLDR  - unable to find requested variable: ',a, &
-     &        /,15x,'in input NetCDF ',a)
+     &        /,15x,'in ',a)
   30  FORMAT (/,' GET_2DFLDR  - unable to open input NetCDF file: ',a)
   40  FORMAT (/,' GET_2DFLDR  - error while reading variable: ',a,2x,   &
      &        ' at TIME index = ',i4)

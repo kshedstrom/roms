@@ -2,7 +2,7 @@
 #if defined TL_IOMS && defined SOLVE3D
       SUBROUTINE rp_main3d (ng)
 !
-!svn $Id: rp_main3d.F 1087 2009-10-21 00:21:28Z kate $
+!svn $Id: rp_main3d.F 1101 2009-11-19 00:56:17Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
@@ -96,9 +96,7 @@
 !!    USE rp_set_tides_mod, ONLY : rp_set_tides
 # endif
       USE rp_set_vbc_mod, ONLY : rp_set_vbc
-# ifdef SET_ZETA
       USE rp_set_zeta_mod, ONLY : rp_set_zeta
-# endif
       USE rp_step2d_mod, ONLY : rp_step2d
 # ifndef TS_FIXED
       USE rp_step3d_t_mod, ONLY : rp_step3d_t
@@ -107,7 +105,7 @@
 # ifdef FLOATS_NOT_YET
 !!    USE rp_step_floats_mod, ONLY : rp_step_floats
 # endif
-# if defined WEAK_CONSTRAINT || defined IOM
+# ifdef WEAK_CONSTRAINT
       USE tl_forcing_mod, ONLY : tl_forcing
 # endif
 !!    USE wvelocity_mod, ONLY : wvelocity
@@ -178,7 +176,7 @@
       END DO
 !$OMP END PARALLEL DO
 # endif
-# if defined WEAK_CONSTRAINT || defined IOM
+# ifdef WEAK_CONSTRAINT
 !
 !-----------------------------------------------------------------------
 !  If appropriate, add convolved adjoint solution impulse forcing to
@@ -394,8 +392,6 @@
         END DO
       END DO
 !$OMP END PARALLEL DO
-
-# ifdef SET_ZETA
 !
 !-----------------------------------------------------------------------
 !  Set free-surface to it time-averaged value.  If applicable,
@@ -446,44 +442,6 @@
         END DO
       END DO
 !$OMP END PARALLEL DO
-
-# else
-!
-!-----------------------------------------------------------------------
-!  Compute right-hand-side terms for 3D equations.  If applicable,
-!  accumulate time-averaged output data.
-!-----------------------------------------------------------------------
-!
-!$OMP PARALLEL DO PRIVATE(thread,subs,tile)                             &
-!$OMP&         SHARED(ng,Lnew,numthreads)
-      DO thread=0,numthreads-1
-        subs=NtileX(ng)*NtileE(ng)/numthreads
-        DO tile=subs*thread,subs*(thread+1)-1,+1
-#  ifdef DIAGNOSTICS
-!!        CALL rp_set_diags (ng, TILE)
-#  endif
-          CALL rp_rhs3d (ng, TILE)
-#  ifdef MY25_MIXING_NOT_YET
-          CALL rp_my25_prestep (ng, TILE)
-#  elif defined GLS_MIXING_NOT_YET
-          CALL rp_gls_prestep (ng, TILE)
-#  endif
-#  ifdef AVERAGES
-!!        CALL rp_set_avg (ng, TILE)
-#  endif
-        END DO
-      END DO
-!$OMP END PARALLEL DO
-!
-!-----------------------------------------------------------------------
-!  If appropriate, write out fields into output NetCDF files.  Notice
-!  that IO data is written in delayed and serial mode.  Exit if last
-!  time step.
-!-----------------------------------------------------------------------
-!
-      CALL rp_output (ng)
-      IF ((exit_flag.ne.NoError).or.(iic(ng).eq.(ntend(ng)+1))) RETURN
-# endif
 !
 !-----------------------------------------------------------------------
 !  Solve the vertically integrated primitive equations for the

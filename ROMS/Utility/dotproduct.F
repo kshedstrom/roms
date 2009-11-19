@@ -1,9 +1,9 @@
 #include "cppdefs.h"
       MODULE dotproduct_mod
 
-#if defined GRADIENT_CHECK || defined TLM_CHECK || defined PROPAGATOR
+#if defined TLM_CHECK || defined PROPAGATOR
 !
-!svn $Id: dotproduct.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: dotproduct.F 1098 2009-11-18 17:54:22Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
@@ -18,7 +18,7 @@
       implicit none
 
       PRIVATE
-# if defined GRADIENT_CHECK || defined TLM_CHECK
+# ifdef TLM_CHECK
       PUBLIC :: ad_dotproduct
 # endif
 # ifdef TLM_CHECK
@@ -357,7 +357,7 @@
  10         FORMAT (5x,'(Outer,Inner) = ','(',i4.4,',',i4.4,')',3x,     &
      &              'TLM Check, p  = ',1p,e21.14,0p,/,5x,a,4x,          &
      &              '(Index=',i1,')',5x,'TLM Check, g1 = ',1p,e21.14,0p)
-          END IF        
+          END IF
         END IF
 !$OMP END CRITICAL (NL_DOT)
       END IF
@@ -407,7 +407,7 @@
      &                        GRID(ng) % Hz,                            &
 #  else
      &                        GRID(ng) % h,                             &
-#  endif      
+#  endif
 #  ifdef SOLVE3D
      &                        OCEAN(ng) % ad_t,                         &
      &                        OCEAN(ng) % ad_u,                         &
@@ -714,7 +714,7 @@
      &                        GRID(ng) % Hz,                            &
 #  else
      &                        GRID(ng) % h,                             &
-#  endif      
+#  endif
 #  ifdef SOLVE3D
      &                        OCEAN(ng) % tl_t,                         &
      &                        OCEAN(ng) % tl_u,                         &
@@ -1276,7 +1276,7 @@
  10         FORMAT (5x,'(Outer,Inner) = ','(',i4.4,',',i4.4,')',3x,     &
      &              'TLM Check, p  = ',1p,e21.14,0p,/,5x,a,18x,         &
      &              'TLM Check, g2 = ',1p,e21.14,0p)
-          END IF        
+          END IF
         END IF
 !$OMP END CRITICAL (TL_DOT)
       END IF
@@ -1285,7 +1285,7 @@
       END SUBROUTINE tl_dotproduct_tile
 # endif
 
-# if defined GRADIENT_CHECK || defined TLM_CHECK
+# ifdef TLM_CHECK
       SUBROUTINE ad_dotproduct (ng, tile, Linp)
 !
 !=======================================================================
@@ -1522,7 +1522,7 @@
         IF (Master) THEN
           WRITE (stdout,10) adDotProduct
  10       FORMAT (/,' Adjoint Solution Dot Product: ',1p,e21.14)
-        END IF        
+        END IF
       END IF
 !$OMP END CRITICAL (AD_DOT)
 

@@ -1,6 +1,6 @@
       MODULE ocean_control_mod
 !
-!svn $Id: nl_ocean.h 1060 2009-09-12 00:25:38Z kate $
+!svn $Id: nl_ocean.h 1098 2009-11-18 17:54:22Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -45,7 +45,7 @@
       USE mod_iounits
       USE mod_scalars
 !
-#ifdef AIR_OCEAN 
+#ifdef AIR_OCEAN
       USE ocean_coupler_mod, ONLY : initialize_ocn2atm_coupling
 #endif
 #ifdef WAVES_OCEAN
@@ -169,17 +169,6 @@
         END DO
       END IF
 #endif
-
-#ifdef IOM
-!
-!  Set the current outer loop iteration.
-!
-      outer=Nouter
-      IF (Master) THEN
-        WRITE (stdout,'(/,a,i3,/)')                                     &
-     &        'NL ROMS/TOMS: Outer Loop Iteration = ', outer
-      END IF
-#endif
 !
 !  Substract a time-step to model time after initialization because the
 !  main time-stepping driver always add a single time-step.
@@ -298,7 +287,7 @@
       DO ng=1,Ngrids
         IF (LwrtRST(ng).and.(exit_flag.eq.1)) THEN
           IF (Master) WRITE (stdout,10)
- 10       FORMAT (/,' Blowing-up: Saving latest model state into ',     & 
+ 10       FORMAT (/,' Blowing-up: Saving latest model state into ',     &
      &              ' RESTART file',/)
           IF (LcycleRST(ng).and.(NrecRST(ng).ge.2)) THEN
             tRSTindx(ng)=2

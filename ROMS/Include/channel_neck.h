@@ -1,5 +1,5 @@
 /*
-** svn $Id: channel_neck.h 975 2009-05-05 22:51:13Z kate $
+** svn $Id: channel_neck.h 1098 2009-11-18 17:54:22Z kate $
 *******************************************************************************
 ** Copyright (c) 2002-2009 The ROMS/TOMS Group                               **
 **   Licensed under a MIT/X style license                                    **
@@ -73,7 +73,6 @@
 # define IMPLICIT_VCONV
 # define FORWARD_READ
 # undef  FORWARD_MIXING
-# undef  IOM_REPRESENTER
 #endif
 
 #ifdef MULTI_DOMAIN

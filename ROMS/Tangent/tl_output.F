@@ -2,7 +2,7 @@
 #ifdef TANGENT
       SUBROUTINE tl_output (ng)
 !
-!svn $Id: tl_output.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: tl_output.F 1098 2009-11-18 17:54:22Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -160,7 +160,7 @@
 #   endif
         CALL obs_read (ng, iTLM, .FALSE.)
         CALL obs_write (ng, tile, iTLM)
-#   if !(defined WEAK_CONSTRAINT || defined IOM)
+#   ifndef WEAK_CONSTRAINT
         CALL obs_cost (ng, iTLM)
 #   endif
       ELSE
