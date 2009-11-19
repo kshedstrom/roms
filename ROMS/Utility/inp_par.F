@@ -10049,6 +10049,13 @@
           ELSE IF (TRIM(KeyWord).eq.'Nbico') THEN
             Npts=load_i(Nval, Rval, Ngrids, Nbico)
 #  endif
+          ELSE IF (TRIM(KeyWord).eq.'LNM_depth') THEN
+            Npts=load_r(Nval, Rval, Ngrids, LNM_depth)
+            DO ng=1,Ngrids
+              LNM_depth(ng)=ABS(LNM_depth(ng))
+            END DO
+          ELSE IF (TRIM(KeyWord).eq.'LNM_flag') THEN
+            Npts=load_i(Nval, Rval, 1, LNM_flag)
           ELSE IF (TRIM(KeyWord).eq.'GradErr') THEN
             Npts=load_r(Nval, Rval, 1, GradErr)
           ELSE IF (TRIM(KeyWord).eq.'HevecErr') THEN
@@ -10202,6 +10209,14 @@
               Cnorm(1,i)=Ltracer(itrc)
             END DO
 #  endif
+          ELSE IF (TRIM(KeyWord).eq.'balance(isSalt)') THEN
+            Npts=load_l(Nval, Cval, 1, balance(isTvar(isalt)))
+          ELSE IF (TRIM(KeyWord).eq.'balance(isFsur)') THEN
+            Npts=load_l(Nval, Cval, 1, balance(isFsur))
+          ELSE IF (TRIM(KeyWord).eq.'balance(isVbar)') THEN
+            Npts=load_l(Nval, Cval, 1, balance(isVbar))
+          ELSE IF (TRIM(KeyWord).eq.'balance(isVvel)') THEN
+            Npts=load_l(Nval, Cval, 1, balance(isVvel))
           ELSE IF (TRIM(KeyWord).eq.'Nmethod') THEN
             Npts=load_i(Nval, Rval, Ngrids, Nmethod)
           ELSE IF (TRIM(KeyWord).eq.'Rscheme') THEN
@@ -10496,6 +10511,35 @@
         END DO
       END DO
 #  endif
+
+#  ifdef BALANCE_OPERATOR
+!
+!-----------------------------------------------------------------------
+!  Check balance operator switches for consitency.
+!-----------------------------------------------------------------------
+!
+#   ifdef SOLVE3D
+      IF (.not.balance(isTvar(isalt)).and.balance(isFsur)) THEN
+        balance(isTvar(isalt))=.TRUE.
+      END IF
+      IF (.not.balance(isTvar(isalt)).and.balance(isVvel)) THEN
+        balance(isTvar(isalt))=.TRUE.
+      END IF
+      IF (balance(isTvar(isalt))) THEN
+        balance(isTvar(itemp))=.TRUE.
+      END IF
+      IF (balance(isVvel)) THEN
+        balance(isUvel)=.TRUE.
+      END IF
+      IF (balance(isVbar)) THEN
+        balance(isVbar)=.FALSE.
+      END IF
+#   else
+      IF (balance(isVbar)) THEN
+        balance(isUbar)=.TRUE.
+      END IF
+#   endif
+#  endif
 !
 !-----------------------------------------------------------------------
 !  Report input parameters.
@@ -10514,7 +10558,7 @@
      &            'RPM 3D momentum diffusive relaxation coefficient.'
           DO itrc=1,NT(ng)
             WRITE (out,130) tl_Tdiff(itrc,ng), 'tl_Tdiff',              &
-     &            'RPM tracers diffusive relaxation coefficient, ',     &
+     &            'RPM tracer diffusive relaxation coefficient, ',      &
      &            TRIM(Vname(1,idTvar(itrc)))
           END DO
 #     endif
@@ -10545,14 +10589,31 @@
 #    endif
 #   endif
 #   ifdef BALANCE_OPERATOR
-#     ifdef ZETA_ELLIPTIC
+#    ifdef ZETA_ELLIPTIC
           WRITE (out,80) Nbico(ng), 'Nbico',                            &
      &            'Number of iterations in SSH elliptic equation.'
-#     endif
+#    endif
           WRITE (out,100) dTdz_min(ng), 'dTdz_min',                     &
      &            'Minimum dTdz (C/m) used in balanced salinity.'
           WRITE (out,100) ml_depth(ng), 'ml_depth',                     &
      &            'Mixed-layer depth (m) used in balanced salinity.'
+          IF (balance(isFsur)) THEN
+            WRITE (out,100) LNM_depth(ng), 'LNM_depth',                 &
+     &            'Level of no motion (m) in balanced free-sruface.'
+            WRITE (out,80) LNM_flag, 'LNM_flag',                        &
+     &            'Level of no motion integration flag.'
+          END IF
+          WRITE (out,70) balance(isFsur), 'balance(isFsur)',            &
+                  'Switch to include free-surface in balance operator.'
+#    ifdef SOLVE3D
+          WRITE (out,70) balance(isTvar(isalt)), 'balance(isSalt)',     &
+                  'Switch to include salinity in balance operator.'
+          WRITE (out,70) balance(isVvel), 'balance(isVvel)',            &
+                  'Switch to include 3D momentum in balance operator.'
+#    else
+          WRITE (out,70) balance(isVbar), 'balance(isVbar)',            &
+                  'Switch to include 2D momentum in balance operator.'
+#    endif
 #   endif
 #   if defined POSTERIOR_EOFS && defined WEAK_CONSTRAINT
           WRITE (out,80) NpostI, 'NpostI',                              &
