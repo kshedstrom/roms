@@ -2,12 +2,12 @@
 #if defined TANGENT && defined SOLVE3D
       SUBROUTINE tl_main3d (ng)
 !
-!svn $Id: tl_main3d.F 1001 2009-06-17 16:21:45Z arango $
+!svn $Id: tl_main3d.F 1101 2009-11-19 00:56:17Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
-!======================================================================= 
+!=======================================================================
 !                                                                      !
 !  This routine is the main driver for tangent linear ROMS/TOMS when   !
 !  configurated as a full  3D baroclinic  ocean model.  It  advances   !
@@ -50,14 +50,14 @@
 # ifdef BBL_MODEL_NOT_YET
 !!    USE tl_bbl_mod, ONLY : tl_bblm
 # endif
-# ifdef BULK_FLUXES_NOT_YET
+# ifdef BULK_FLUXES_NOT_YET && !defined NL_BULK_FLUXES
 !!    USE tl_bulk_flux_mod, ONLY : tl_bulk_flux
 # endif
 # ifdef BVF_MIXING_NOT_YET
 !!    USE tl_bvf_mix_mod, ONLY : tl_bvf_mix
 # endif
       USE tl_diag_mod, ONLY : tl_diag
-# if defined WEAK_CONSTRAINT || defined IOM
+# ifdef WEAK_CONSTRAINT
       USE tl_forcing_mod, ONLY : tl_forcing
 # endif
 # if defined ADJUST_STFLUX || defined ADJUST_WSTRESS
@@ -102,9 +102,7 @@
 !!    USE tl_set_tides_mod, ONLY : tl_set_tides
 # endif
       USE tl_set_vbc_mod, ONLY : tl_set_vbc
-# ifdef SET_ZETA
       USE tl_set_zeta_mod, ONLY : tl_set_zeta
-# endif
       USE tl_step2d_mod, ONLY : tl_step2d
 # ifndef TS_FIXED
       USE tl_step3d_t_mod, ONLY : tl_step3d_t
@@ -127,7 +125,7 @@
 # ifdef FLOATS_NOT_YET
       integer :: Lend, Lstr, chunk_size
 # endif
-# if defined WEAK_CONSTRAINT || defined IOM
+# ifdef WEAK_CONSTRAINT
       real(r8) :: HalfDT
 # endif
 !
@@ -184,7 +182,7 @@
       END DO
 !$OMP END PARALLEL DO
 # endif
-# if defined WEAK_CONSTRAINT || defined IOM
+# ifdef WEAK_CONSTRAINT
 !
 !-----------------------------------------------------------------------
 !  If appropriate, add convolved adjoint solution impulse forcing to
@@ -324,7 +322,7 @@
       DO thread=0,numthreads-1
         subs=NtileX(ng)*NtileE(ng)/numthreads
         DO tile=subs*thread,subs*(thread+1)-1,+1
-# ifdef BULK_FLUXES_NOT_YET
+# ifdef BULK_FLUXES_NOT_YET && !defined NL_BULK_FLUXES
           CALL tl_bulk_flux (ng, TILE)
 # endif
 # ifdef BBL_MODEL_NOT_YET
@@ -400,8 +398,6 @@
         END DO
       END DO
 !$OMP END PARALLEL DO
-
-# ifdef SET_ZETA
 !
 !-----------------------------------------------------------------------
 !  Set free-surface to it time-averaged value.  If applicable,
@@ -450,47 +446,6 @@
         END DO
       END DO
 !$OMP END PARALLEL DO
-
-# else
-!
-!-----------------------------------------------------------------------
-!  Compute right-hand-side terms for 3D equations.  If applicable,
-!  accumulate time-averaged output data.
-!-----------------------------------------------------------------------
-!
-!$OMP PARALLEL DO PRIVATE(thread,subs,tile)                             &
-!$OMP&         SHARED(ng,Lnew,numthreads)
-      DO thread=0,numthreads-1
-        subs=NtileX(ng)*NtileE(ng)/numthreads
-        DO tile=subs*thread,subs*(thread+1)-1,+1
-#  ifdef DIAGNOSTICS
-!!        CALL set_diags (ng, TILE)
-#  endif
-          CALL tl_rhs3d (ng, TILE)
-#  ifdef MY25_MIXING_NOT_YET
-          CALL tl_my25_prestep (ng, TILE)
-#  elif defined GLS_MIXING_NOT_YET
-          CALL tl_gls_prestep (ng, TILE)
-#  endif
-#  ifdef AVERAGES
-!!        CALL tl_set_avg (ng, TILE)
-#  endif
-#  ifdef TLM_CHECK
-          CALL tl_dotproduct (ng, TILE, Lnew(ng))
-#  endif
-        END DO
-      END DO
-!$OMP END PARALLEL DO
-!
-!-----------------------------------------------------------------------
-!  If appropriate, write out fields into output NetCDF files.  Notice
-!  that IO data is written in delayed and serial mode.  Exit if last
-!  time step.
-!-----------------------------------------------------------------------
-!
-      CALL tl_output (ng)
-      IF ((exit_flag.ne.NoError).or.(iic(ng).eq.(ntend(ng)+1))) RETURN
-# endif
 !
 !-----------------------------------------------------------------------
 !  Solve the vertically integrated primitive equations for the

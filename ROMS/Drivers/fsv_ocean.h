@@ -1,6 +1,6 @@
       MODULE ocean_control_mod
 !
-!svn $Id: fsv_ocean.h 999 2009-06-09 23:48:31Z kate $
+!svn $Id: fsv_ocean.h 1098 2009-11-18 17:54:22Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
@@ -61,7 +61,7 @@
       USE mod_iounits
       USE mod_scalars
 !
-#ifdef AIR_OCEAN 
+#ifdef AIR_OCEAN
       USE ocean_coupler_mod, ONLY : initialize_atmos_coupling
 #endif
 #ifdef WAVES_OCEAN
@@ -205,6 +205,16 @@
 !=======================================================================
 !  Run model for all nested grids, if any.
 !=======================================================================
+
+#if defined BULK_FLUXES && defined NL_BULK_FLUXES
+!
+!  Set file name containing the nonlinear model bulk fluxes to be read
+!  and processed by other algorithms.
+!
+      DO ng=1,Ngrids
+        BLKname(ng)=FWDname(ng)
+      END DO
+#endif
 !
 !  Initialize tangent linear for all grids first in order to compute
 !  the size of the state vector, Nstate.  This size is computed in
@@ -216,7 +226,7 @@
       END DO
 !
 !  Currently, only non-nested applications are considered.  Otherwise,
-!  a different structure for mod_storage is needed. 
+!  a different structure for mod_storage is needed.
 !
       NEST_LOOP : DO ng=1,Ngrids
 

@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       SUBROUTINE wrt_his (ng)
 !
-!svn $Id: wrt_his.F 1087 2009-10-21 00:21:28Z kate $
+!svn $Id: wrt_his.F 1098 2009-11-18 17:54:22Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -114,83 +114,6 @@
      &                      varid = hisVid(idtime,ng))
       IF (exit_flag.ne.NoError) RETURN
 
-#ifdef ADJUST_WSTRESS
-!
-!  Write out surface U-momentum stress.  Notice that the stress has its
-!  own fixed time-dimension (of size Nfrec) to allow 4DVAR adjustments
-!  at other times in addition to initialization time.
-!
-      scale=rho0                            ! m2/s2 to N/m2 (Pa)
-      gtype=gfactor*u3dvar
-      status=nf_fwrite3d(ng, iNLM, ncHISid(ng), hisVid(idUsms,ng),      &
-     &                   tHISindx(ng), gtype,                           &
-     &                   LBi, UBi, LBj, UBj, 1, Nfrec(ng), scale,       &
-# ifdef MASKING
-     &                   GRID(ng) % umask,                              &
-# endif
-     &                   FORCES(ng) % ustr(:,:,:,Lfout(ng)))
-      IF (status.ne.nf90_noerr) THEN
-        IF (Master) THEN
-          WRITE (stdout,10) TRIM(Vname(1,idUsms)), Lfout(ng)
-        END IF
-        exit_flag=3
-        ioerror=status
-        RETURN
-      END IF
-!
-!  Write out surface V-momentum stress.
-!
-      scale=rho0                            ! m2/s2 to N/m2 (Pa)
-      gtype=gfactor*v3dvar
-      status=nf_fwrite3d(ng, iNLM, ncHISid(ng), hisVid(idVsms,ng),      &
-     &                   tHISindx(ng), gtype,                           &
-     &                   LBi, UBi, LBj, UBj, 1, Nfrec(ng), scale,       &
-# ifdef MASKING
-     &                   GRID(ng) % vmask,                              &
-# endif
-     &                   FORCES(ng) % vstr(:,:,:,Lfout(ng)))
-      IF (status.ne.nf90_noerr) THEN
-        IF (Master) THEN
-          WRITE (stdout,10) TRIM(Vname(1,idVsms)), Lfout(ng)
-        END IF
-        exit_flag=3
-        ioerror=status
-        RETURN
-      END IF
-#endif
-#if defined ADJUST_STFLUX && defined SOLVE3D
-!
-!  Write out surface net tracers fluxes. Notice that fluxes have their
-!  own fixed time-dimension (of size Nfrec) to allow 4DVAR adjustments
-!  at other times in addition to initialization time.
-!
-      DO itrc=1,NT(ng)
-        IF (Lstflux(itrc,ng)) THEN
-          IF (itrc.eq.itemp) THEN
-            scale=rho0*Cp                   ! Celsius m/s to W/m2
-          ELSE
-            scale=1.0_r8
-          END IF
-          gtype=gfactor*r3dvar
-          status=nf_fwrite3d(ng, iNLM, ncHISid(ng),                     &
-     &                       hisVid(idTsur(itrc),ng),                   &
-     &                       tHISindx(ng), gtype,                       &
-     &                       LBi, UBi, LBj, UBj, 1, Nfrec(ng), scale,   &
-# ifdef MASKING
-     &                       GRID(ng) % rmask,                          &
-# endif
-     &                       FORCES(ng) % tflux(:,:,:,Lfout(ng),itrc))
-          IF (status.ne.nf90_noerr) THEN
-            IF (Master) THEN
-              WRITE (stdout,10) TRIM(Vname(1,idTsur(itrc))), Lfout(ng)
-            END IF
-            exit_flag=3
-            ioerror=status
-            RETURN
-          END IF
-        END IF
-      END DO
-#endif
 #if defined SEDIMENT && defined SED_MORPH
 !
 !  Write out time-dependent bathymetry (m)
@@ -1929,11 +1852,11 @@
       DO itrc=1,NAT
         IF (Hout(idTsur(itrc),ng)) THEN
           IF (itrc.eq.itemp) THEN
-#  ifdef SO_SEMI
+# ifdef SO_SEMI
             scale=1.0_r8
-#  else
+# else
             scale=rho0*Cp                   ! Celsius m/s to W/m2
-#  endif
+# endif
           ELSE IF (itrc.eq.isalt) THEN
             scale=1.0_r8
           END IF
@@ -1942,9 +1865,9 @@
      &                       hisVid(idTsur(itrc),ng),                   &
      &                       tHISindx(ng), gtype,                       &
      &                       LBi, UBi, LBj, UBj, scale,                 &
-#  ifdef MASKING
+# ifdef MASKING
      &                       GRID(ng) % rmask,                          &
-#  endif
+# endif
      &                       FORCES(ng) % stflx(:,:,itrc))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
@@ -1957,7 +1880,7 @@
           END IF
         END IF
       END DO
-# endif
+
 # ifdef BULK_FLUXES
 !
 !  Write out latent heat flux.
@@ -2163,23 +2086,22 @@
       END IF
 # endif
 #endif
-#ifndef ADJUST_WSTRESS
 !
 !  Write out surface U-momentum stress.
 !
       IF (Hout(idUsms,ng)) THEN
-# ifdef SO_SEMI
+#ifdef SO_SEMI
         scale=1.0_r8
-# else
+#else
         scale=rho0                          ! m2/s2 to Pa
-# endif
+#endif
         gtype=gfactor*u2dvar
         status=nf_fwrite2d(ng, iNLM, ncHISid(ng), hisVid(idUsms,ng),    &
      &                     tHISindx(ng), gtype,                         &
      &                     LBi, UBi, LBj, UBj, scale,                   &
-# ifdef MASKING
+#ifdef MASKING
      &                     GRID(ng) % umask,                            &
-# endif
+#endif
      &                     FORCES(ng) % sustr)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
@@ -2194,18 +2116,18 @@
 !  Write out surface V-momentum stress.
 !
       IF (Hout(idVsms,ng)) THEN
-# ifdef SO_SEMI
+#ifdef SO_SEMI
         scale=1.0_r8
-# else
+#else
         scale=rho0
-# endif
+#endif
         gtype=gfactor*v2dvar
         status=nf_fwrite2d(ng, iNLM, ncHISid(ng), hisVid(idVsms,ng),    &
      &                     tHISindx(ng), gtype,                         &
      &                     LBi, UBi, LBj, UBj, scale,                   &
-# ifdef MASKING
+#ifdef MASKING
      &                     GRID(ng) % vmask,                            &
-# endif
+#endif
      &                     FORCES(ng) % svstr)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
@@ -2216,7 +2138,6 @@
           RETURN
         END IF
       END IF
-#endif
 !
 !  Write out bottom U-momentum stress.
 !

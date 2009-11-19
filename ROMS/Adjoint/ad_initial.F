@@ -2,7 +2,7 @@
 #ifdef ADJOINT
       SUBROUTINE ad_initial (ng)
 !
-!svn $Id: ad_initial.F 1087 2009-10-21 00:21:28Z kate $
+!svn $Id: ad_initial.F 1098 2009-11-18 17:54:22Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -177,7 +177,7 @@
 !
       LwrtADJ(ng)=.TRUE.
 
-#  if !(defined WEAK_CONSTRAINT || defined IOM)
+#  ifndef WEAK_CONSTRAINT
 !
 !  Insure that forward and history file names are the same. In 4DVar,
 !  the forward solution is computed by the nonlinear model and stored

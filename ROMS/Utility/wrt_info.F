@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       SUBROUTINE wrt_info (ng, model, ncid, ncname)
 !
-!svn $Id: wrt_info.F 1012 2009-07-07 20:52:45Z kate $
+!svn $Id: wrt_info.F 1101 2009-11-19 00:56:17Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -686,7 +686,7 @@
      &                      ncid = ncid)
       IF (exit_flag.ne.NoError) RETURN
 
-#  if defined WEAK_CONSTRAINT || defined IOM
+#  ifdef WEAK_CONSTRAINT
       CALL netcdf_put_lvar (ng, model, ncname, 'LhotStart',             &
      &                      LhotStart, (/0/), (/0/),                    &
      &                      ncid = ncid)
@@ -703,7 +703,7 @@
      &                      ncid = ncid)
       IF (exit_flag.ne.NoError) RETURN
 
-#  if defined WEAK_CONSTRAINT || defined IOM
+#  ifdef WEAK_CONSTRAINT
       IF (Lprecond.and.(NritzEV.gt.0)) THEN
         CALL netcdf_put_ivar (ng, model, ncname, 'NritzEV',             &
      &                        NritzEV, (/0/), (/0/),                    &
@@ -850,6 +850,39 @@
      &                      ncid = ncid)
       IF (exit_flag.ne.NoError) RETURN
 #  endif
+# endif
+
+# ifdef BALANCE_OPERATOR
+#  ifdef ZETA_ELLIPTIC
+      CALL netcdf_put_ivar (ng, model, ncname, 'Nbico',                 &
+     &                      Nbico(ng), (/0/), (/0/),                    &
+     &                      ncid = ncid)
+#  endif
+
+      CALL netcdf_put_lvar (ng, model, ncname, 'Lbalance',              &
+     &                      balance, (/1/), (/NstateVar(ng)/),          &
+     &                      ncid = ncid)
+      IF (exit_flag.ne.NoError) RETURN
+
+      CALL netcdf_put_ivar (ng, model, ncname, 'LNM_flag',              &
+     &                      LNM_flag, (/0/), (/0/),                     &
+     &                      ncid = ncid)
+      IF (exit_flag.ne.NoError) RETURN
+
+      CALL netcdf_put_fvar (ng, model, ncname, 'LNM_depth',             &
+     &                      LNM_depth(ng), (/0/), (/0/),                &
+     &                      ncid = ncid)
+      IF (exit_flag.ne.NoError) RETURN
+
+      CALL netcdf_put_fvar (ng, model, ncname, 'dTdz_min',              &
+     &                      dTdz_min(ng), (/0/), (/0/),                 &
+     &                      ncid = ncid)
+      IF (exit_flag.ne.NoError) RETURN
+
+      CALL netcdf_put_fvar (ng, model, ncname, 'ml_depth',              &
+     &                      ml_depth(ng), (/0/), (/0/),                 &
+     &                      ncid = ncid)
+      IF (exit_flag.ne.NoError) RETURN
 # endif
 #endif
 

@@ -2,7 +2,7 @@
 #if defined FOUR_DVAR || defined VERIFICATION
       SUBROUTINE def_mod (ng)
 !
-!svn $Id: def_mod.F 1038 2009-08-11 22:29:40Z kate $
+!svn $Id: def_mod.F 1101 2009-11-19 00:56:17Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -335,8 +335,7 @@
 !  Define variables and their attributes.
 !-----------------------------------------------------------------------
 
-# if defined IS4DVAR         || defined IOM || \
-     defined WEAK_CONSTRAINT
+# if defined IS4DVAR || defined WEAK_CONSTRAINT
 !
 !  Outer and inner loop contours.
 !
@@ -661,8 +660,7 @@
      &                 SetParAccess = .FALSE.)
         IF (exit_flag.ne.NoError) RETURN
 # endif
-# if defined IOM    || defined TL_W4DVAR          || \
-     defined W4DVAR || defined W4DVAR_SENSITIVITY
+# if defined TL_W4DVAR || defined W4DVAR || defined W4DVAR_SENSITIVITY
 !
 !  Define RPM data penalty function.
 !
@@ -722,7 +720,7 @@
 !  Define actual model penalty function.
 !
         Vinfo( 1)='Jb'
-        Vinfo( 2)='actual model penalty function' 
+        Vinfo( 2)='actual model penalty function'
         vardim(1)=MinnerDim
         vardim(2)=NouterDim
         status=def_var(ng, iNLM, ncMODid(ng), varid, nf90_double,       &
@@ -733,7 +731,7 @@
 !  Define actual data penalty function.
 !
         Vinfo( 1)='Jobs'
-        Vinfo( 2)='actual data penalty function'   
+        Vinfo( 2)='actual data penalty function'
         vardim(1)=MinnerDim
         vardim(2)=NouterDim
         status=def_var(ng, iNLM, ncMODid(ng), varid, nf90_double,       &
@@ -742,7 +740,7 @@
         IF (exit_flag.ne.NoError) RETURN
 !
 !  Define actual data penalty function.
-!  
+!
         Vinfo( 1)='Jact'
         Vinfo( 2)='actual total penalty function'
         vardim(1)=MinnerDim
@@ -782,8 +780,8 @@
      &                 NF_FRST, 1, (/datumDim/), Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 # endif
-# if defined IS4DVAR         || defined IOM             || \
-     defined OBS_SENSITIVITY || defined WEAK_CONSTRAINT 
+# if defined IS4DVAR         || defined OBS_SENSITIVITY || \
+     defined WEAK_CONSTRAINT
 !
 !  Tangent linear or representer model at observation points.
 !
@@ -798,8 +796,7 @@
      &                 NF_FRST, 1, (/datumDim/), Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 # endif
-# if defined IS4DVAR         || defined IOM || \
-     defined WEAK_CONSTRAINT
+# if defined IS4DVAR || defined WEAK_CONSTRAINT
 !
 !  Initial model-observation misfit (innovation) vector.
 !
@@ -850,7 +847,7 @@
 # if defined IS4DVAR
 !
 !  Define optimality property that measures the consistency between
-!  background and observation errors hypotheses (Chi-square). 
+!  background and observation errors hypotheses (Chi-square).
 !
         Vinfo( 1)='Jmin'
         Vinfo( 2)='normalized, optimal cost function minimum'
@@ -859,7 +856,7 @@
      &                 SetParAccess = .FALSE.)
         IF (exit_flag.ne.NoError) RETURN
 # endif
-# if defined WEAK_CONSTRAINT || defined IOM
+# ifdef WEAK_CONSTRAINT
 !
 !  Define initial gradient for minimization.
 !
@@ -895,9 +892,9 @@
 # endif
 # if defined TL_W4DVAR          || defined W4DVAR             || \
      defined W4DVAR_SENSITIVITY
-!  
+!
 !  Define initial values of RPmodVal.
-!       
+!
         Vinfo( 1)='RPmodel_initial'
         Vinfo( 2)='initial representer model at observation locations'
         vardim(1)=datumDim
@@ -909,12 +906,14 @@
 !
 !  Define reference free-surface used in the balance operator.
 !
-        Vinfo( 1)='zeta_ref'
-        Vinfo( 2)='reference free-surface, balance operator'
-        Vinfo( 3)=Vname(3,idFsur)
-        status=def_var(ng, iNLM, ncMODid(ng), modVid(idFsur,ng),        &
-     &                 NF_FOUT, 2, (/RxiDim, RetaDim/), Aval, Vinfo,    &
-     &                 ncname)
+        IF (balance(isFsur)) THEN
+          Vinfo( 1)='zeta_ref'
+          Vinfo( 2)='reference free-surface, balance operator'
+          Vinfo( 3)=Vname(3,idFsur)
+          status=def_var(ng, iNLM, ncMODid(ng), modVid(idFsur,ng),      &
+     &                   NF_FOUT, 2, (/RxiDim, RetaDim/), Aval, Vinfo,  &
+     &                   ncname)
+        END IF
 # endif
 !
 !-----------------------------------------------------------------------
@@ -973,15 +972,13 @@
             got_var(idNLmo)=.TRUE.
             haveNLmod(ng)=.TRUE.
             modVid(idNLmo,ng)=var_id(i)
-# if defined IS4DVAR         || defined IOM || \
-     defined WEAK_CONSTRAINT
+# if defined IS4DVAR || defined WEAK_CONSTRAINT
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idTLmo))) THEN
             got_var(idTLmo)=.TRUE.
             haveTLmod(ng)=.TRUE.
             modVid(idTLmo,ng)=var_id(i)
 # endif
-# if defined IS4DVAR         || defined IOM || \
-     defined WEAK_CONSTRAINT
+# if defined IS4DVAR || defined WEAK_CONSTRAINT
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idMOMi))) THEN
             got_var(idMOMi)=.TRUE.
             modVid(idMOMi,ng)=var_id(i)
@@ -1014,8 +1011,7 @@
           exit_flag=2
           RETURN
         END IF
-# if defined IS4DVAR         || defined IOM || \
-     defined WEAK_CONSTRAINT
+# if defined IS4DVAR || defined WEAK_CONSTRAINT
         IF (.not.got_var(idTLmo)) THEN
           IF (Master) WRITE (stdout,60) TRIM(Vname(1,idTLmo)),          &
      &                                  TRIM(MODname(ng))
@@ -1023,8 +1019,7 @@
           RETURN
         END IF
 # endif
-# if defined IS4DVAR         || defined IOM || \
-     defined WEAK_CONSTRAINT
+# if defined IS4DVAR || defined WEAK_CONSTRAINT
         IF (.not.got_var(idMOMi)) THEN
           IF (Master) WRITE (stdout,60) TRIM(Vname(1,idMOMi)),          &
      &                                  TRIM(MODname(ng))

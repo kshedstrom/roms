@@ -1,6 +1,6 @@
       MODULE ocean_control_mod
 !
-!svn $Id: symmetry.h 975 2009-05-05 22:51:13Z kate $
+!svn $Id: symmetry.h 1098 2009-11-18 17:54:22Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -114,10 +114,6 @@
 !  Allocate and initialize observation arrays.
 !
         CALL initialize_fourdvar
-!
-!  Read in background/model error standard deviation factors and
-!  spatial convolution diffusion coefficients.
-!  
 !
 !  Read in standard deviation factors for initial conditions
 !  error covariance.  They are loaded in Tindex=1 of the
@@ -274,6 +270,14 @@
 !
         FWDname(ng)=HISname(ng)
         ncFWDid(ng)=ncHISid(ng)
+
+#if defined BULK_FLUXES && defined NL_BULK_FLUXES
+!
+!  Set file name containing the nonlinear model bulk fluxes to be read
+!  and processed by other algorithms.
+!
+        BLKname(ng)=HISname(ng)
+#endif
 !
 !-----------------------------------------------------------------------
 !  Compute or read in background-error correlations normalization
@@ -342,7 +346,7 @@
 !  result. Then, store tangent linear solution at the requested point
 !  for each state variable.
 !=======================================================================
-!  
+!
 !  Determine variables to perturb.
 !
         Lold(ng)=1
@@ -384,7 +388,7 @@
         KperAD=INT(user(8))
 !
         PERT_LOOP : DO Nrun=ERstr,ERend
-          user(2)=StateVar(Nrun)          
+          user(2)=StateVar(Nrun)
 !
 !-----------------------------------------------------------------------
 !  Time-step the adjoint model.
@@ -469,9 +473,9 @@
             CALL get_state (ng, iTLM, 4, ADJname(ng), ADrec, Lold(ng))
             IF (exit_flag.ne.NoError) RETURN
 !
-!  Load interior solution, read above, into adjoint state arrays. 
+!  Load interior solution, read above, into adjoint state arrays.
 !  Then, multiply adjoint solution by the background-error standard
-!  deviations. Next, convolve resulting adjoint solution with the 
+!  deviations. Next, convolve resulting adjoint solution with the
 !  squared-root adjoint diffusion operator which impose the model-error
 !  spatial correlations. Notice that the spatial convolution is only
 !  done for half of the diffusion steps (squared-root filter). Clear
@@ -604,7 +608,7 @@
           R(3,Nrun)=OCEAN(ng)%tl_v(IoutTL,JoutTL,KoutTL,nstp(ng))
           DO i=1,NT(ng)
             R(i+3,Nrun)=OCEAN(ng)%tl_t(IoutTL,JoutTL,KoutTL,nstp(ng),i)
-          END DO           
+          END DO
 #endif
 
         END DO PERT_LOOP
@@ -638,7 +642,7 @@
           DO i=1,Lstate
             WRITE (stdout,frmt) (Rerr(i,j),j=1,Lstate)
           END DO
-        END IF        
+        END IF
 
       END DO NEST_LOOP
 
@@ -678,7 +682,7 @@
       DO ng=1,Ngrids
         IF (LwrtRST(ng).and.(exit_flag.eq.1)) THEN
           IF (Master) WRITE (stdout,10)
- 10       FORMAT (/,' Blowing-up: Saving latest model state into ',     & 
+ 10       FORMAT (/,' Blowing-up: Saving latest model state into ',     &
      &              ' RESTART file',/)
           IF (LcycleRST(ng).and.(NrecRST(ng).ge.2)) THEN
             tRSTindx(ng)=2
