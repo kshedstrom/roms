@@ -152,6 +152,12 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+8)=' ALBEDO,'
 #endif
+#if defined ALBEDO_CURVE && defined ANA_SRFLUX
+      IF (Master) WRITE (stdout,20) 'ALBEDO_CURVE',                           &
+     &   'Shortwave radiation adjusted by albedo curve.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+14)=' ALBEDO_CURVE,'
+#endif
 #ifdef ATM_PRESS
       IF (Master) WRITE (stdout,20) 'ATM_PRESS',                        &
      &   'Impose atmospheric pressure onto sea surface.'

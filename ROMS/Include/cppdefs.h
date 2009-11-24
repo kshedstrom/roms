@@ -149,7 +149,7 @@
 ** NL_BULK_FLUXES      use bulk fluxes computed by nonlinear model           **
 ** COOL_SKIN           use if cool skin correction                           **
 ** LONGWAVE            use if computing net longwave radiation               **
-** LONGWAVE_OUT        use if computing outgoing longwave radiation           **
+** LONGWAVE_OUT        use if computing outgoing longwave radiation          **
 ** EMINUSP             use if computing E-P                                  **
 **                                                                           **
 ** OPTIONS for wave roughness formulation in bulk fluxes:                    **
@@ -167,6 +167,7 @@
 **   which is a function longitude, latitude and day-of-year.                **
 **                                                                           **
 ** ALBEDO              use if albedo equation for shortwave radiation        **
+** ALBEDO_CURVE        use if albedo function of lat from Large and Yeager   **
 ** DIURNAL_SRFLUX      use to impose shortwave radiation local diurnal cycle **
 **                                                                           **
 ** Model configuration OPTIONS:                                              **
