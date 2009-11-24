@@ -2,12 +2,12 @@
 #ifdef TANGENT
       SUBROUTINE tl_initial (ng)
 !
-!svn $Id: tl_initial.F 999 2009-06-09 23:48:31Z kate $
+!svn $Id: tl_initial.F 1098 2009-11-18 17:54:22Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
-!======================================================================= 
+!=======================================================================
 !                                                                      !
 !  This routine initializes all tangent linear model variables.        !
 !                                                                      !
@@ -37,7 +37,7 @@
 # ifdef DISTRIBUTE
       USE distribute_mod, ONLY : mp_bcasti
 # endif
-# if defined GRADIENT_CHECK || defined TLM_CHECK
+# ifdef TLM_CHECK
       USE ini_adjust_mod, ONLY : tl_ini_perturb
 # endif
 # ifdef OBS_SENSITIVITY
@@ -173,7 +173,7 @@
 !
        IniRec=1
 
-# elif defined FOUR_DVAR || defined GRADIENT_CHECK || defined TLM_CHECK
+# elif defined FOUR_DVAR || defined TLM_CHECK
 !
 !-----------------------------------------------------------------------
 !  If variational data assimilation, reset several IO switches and
@@ -198,7 +198,7 @@
         IF (exit_flag.ne.NoError) RETURN
       END IF
 #   endif
-#   if !(defined WEAK_CONSTRAINT || defined IOM)
+#   ifndef WEAK_CONSTRAINT
 !
 !  Set switch to create tangent linear history file.
 !
@@ -223,7 +223,7 @@
 !
       SFcount(ng)=0
 #   endif
-#   ifndef WEAK_CONSTRAINT
+#   if !defined WEAK_CONSTRAINT
 !
 !  Reset tangent linear model history time record counters. These
 !  counters are reset in every iteration pass. This file is created
@@ -364,8 +364,8 @@
 !=======================================================================
 
 # if defined FOUR_DVAR && !defined OBS_SENSITIVITY
-#  if defined GRADIENT_CHECK || defined OPT_OBSERVATIONS || \
-      defined TLM_CHECK      || defined WEAK_CONSTRAINT
+#  if defined OPT_OBSERVATIONS || defined TLM_CHECK || \
+      defined WEAK_CONSTRAINT
 !
 !  Clear tangent linear state variables.
 !
@@ -573,7 +573,7 @@
 !$OMP END PARALLEL DO
 # endif
 
-# if defined GRADIENT_CHECK || defined TLM_CHECK
+# ifdef TLM_CHECK
 !
 !-----------------------------------------------------------------------
 !  Perturb tangent linear state variable according to the outer loop
@@ -654,7 +654,7 @@
 # endif
       IF (exit_flag.ne.NoError) RETURN
 
-# if defined WEAK_CONSTRAINT || defined IOM
+# ifdef WEAK_CONSTRAINT
 !
 !-----------------------------------------------------------------------
 !  If available, read in first TLM impulse forcing and its application

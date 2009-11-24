@@ -2,7 +2,7 @@
 #undef KATE_FOO
       SUBROUTINE inp_par (model)
 !
-!svn $Id: inp_par.F 1090 2009-10-27 23:59:27Z kate $
+!svn $Id: inp_par.F 1101 2009-11-19 00:56:17Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -2612,6 +2612,24 @@
       exit_flag=4
       RETURN
   20  CLOSE (inp)
+
+#if defined BULK_FLUXES && defined NL_BULK_FLUXES
+!
+!  Make sure that logical output switches are activated for wind
+!  stress and surface active tracers fluxes when using fluxes from
+!  the nonlinear model via (bulk_flux).
+!
+      DO ng=1,Ngrids
+        Hout(idUsms,ng)=.TRUE.
+        Hout(idVsms,ng)=.TRUE.
+# ifdef SOLVE3D
+        Hout(idTsur(itemp),ng)=.TRUE.
+#  ifdef EMINUSP
+        Hout(idEmPf,ng)=.TRUE.
+#  endif
+# endif
+      END DO
+#endif
 !
 !  Set switch to create NetCDF file.
 !
@@ -2625,7 +2643,7 @@
           LdefHIS(ng)=.TRUE.
         END IF
 #endif
-#if defined IS4DVAR || defined IOM || defined WEAK_CONSTRAINT
+#if defined IS4DVAR || defined WEAK_CONSTRAINT
 !
 !  If weak constraint, disallow recycling of the adjoint model.
 !
@@ -2649,7 +2667,7 @@
 !  Set size of additonal dimension for error covariance normalization
 !  and standard deviation factors.
 !
-# if defined IOM || defined WEAK_CONSTRAINT
+# ifdef WEAK_CONSTRAINT
         IF (nADJ(ng).lt.ntimes(ng)) THEN
           NSA=2
         ELSE
@@ -2659,7 +2677,7 @@
         NSA=1
 # endif
 #endif
-#if defined IOM || defined WEAK_CONSTRAINT
+#ifdef WEAK_CONSTRAINT
 !
 !  If weak constraint assimilation, ensure that nADJ=nHIS.
 !
@@ -2667,7 +2685,7 @@
           nADJ(ng)=nHIS(ng)
         END IF
 #endif
-#if defined WEAK_CONSTRAINT || defined IOM
+#ifdef WEAK_CONSTRAINT
 !
 !  If weak constraint assimilation, set tangent linear number of
 !  time-steps between writing of fields the same as the basic
@@ -3892,7 +3910,7 @@
      &                      TLMname(ng)(1:Lstr-3)
           END IF
 #endif
-#if defined WEAK_CONSTRAINT || defined IOM
+#ifdef WEAK_CONSTRAINT
           WRITE (out,230) '   Output Impulse Forcing File:  ',          &
      &                    TRIM(TLFname(ng))
 #endif
@@ -3968,18 +3986,17 @@
      &                    TRIM(fname)
 # endif
 # if defined TANGENT && \
-    !(defined FOUR_DVAR       || defined GRADIENT_CHECK    || \
-      defined OBS_SENSITIVITY || defined OPT_OBSERVATIONS  || \
-      defined SANITY_CHECK    || defined SENSITIVITY_4DVAR || \
-      defined TLM_CHECK)
+    !(defined FOUR_DVAR         || defined OBS_SENSITIVITY || \
+      defined OPT_OBSERVATIONS  || defined SANITY_CHECK    || \
+      defined SENSITIVITY_4DVAR || defined TLM_CHECK)
           fname=ITLname(ng)
           INQUIRE (FILE=TRIM(fname), EXIST=inhere)
           IF (.not.inhere) GO TO 30
           WRITE (out,230) '    Input Tangent Initial File:  ',          &
      &                    TRIM(fname)
 # endif
-# if (defined WEAK_CONSTRAINT || defined IOM) && \
-    !(defined W4DPSAS || defined W4DPSAS_SENSITIVITY)
+# if defined WEAK_CONSTRAINT && \
+    !(defined W4DPSAS        || defined W4DPSAS_SENSITIVITY)
           fname=IRPname(ng)
           INQUIRE (FILE=TRIM(fname), EXIST=inhere)
           IF (.not.inhere) GO TO 30
@@ -10032,6 +10049,13 @@
           ELSE IF (TRIM(KeyWord).eq.'Nbico') THEN
             Npts=load_i(Nval, Rval, Ngrids, Nbico)
 #  endif
+          ELSE IF (TRIM(KeyWord).eq.'LNM_depth') THEN
+            Npts=load_r(Nval, Rval, Ngrids, LNM_depth)
+            DO ng=1,Ngrids
+              LNM_depth(ng)=ABS(LNM_depth(ng))
+            END DO
+          ELSE IF (TRIM(KeyWord).eq.'LNM_flag') THEN
+            Npts=load_i(Nval, Rval, 1, LNM_flag)
           ELSE IF (TRIM(KeyWord).eq.'GradErr') THEN
             Npts=load_r(Nval, Rval, 1, GradErr)
           ELSE IF (TRIM(KeyWord).eq.'HevecErr') THEN
@@ -10185,6 +10209,14 @@
               Cnorm(1,i)=Ltracer(itrc)
             END DO
 #  endif
+          ELSE IF (TRIM(KeyWord).eq.'balance(isSalt)') THEN
+            Npts=load_l(Nval, Cval, 1, balance(isTvar(isalt)))
+          ELSE IF (TRIM(KeyWord).eq.'balance(isFsur)') THEN
+            Npts=load_l(Nval, Cval, 1, balance(isFsur))
+          ELSE IF (TRIM(KeyWord).eq.'balance(isVbar)') THEN
+            Npts=load_l(Nval, Cval, 1, balance(isVbar))
+          ELSE IF (TRIM(KeyWord).eq.'balance(isVvel)') THEN
+            Npts=load_l(Nval, Cval, 1, balance(isVvel))
           ELSE IF (TRIM(KeyWord).eq.'Nmethod') THEN
             Npts=load_i(Nval, Rval, Ngrids, Nmethod)
           ELSE IF (TRIM(KeyWord).eq.'Rscheme') THEN
@@ -10479,6 +10511,35 @@
         END DO
       END DO
 #  endif
+
+#  ifdef BALANCE_OPERATOR
+!
+!-----------------------------------------------------------------------
+!  Check balance operator switches for consitency.
+!-----------------------------------------------------------------------
+!
+#   ifdef SOLVE3D
+      IF (.not.balance(isTvar(isalt)).and.balance(isFsur)) THEN
+        balance(isTvar(isalt))=.TRUE.
+      END IF
+      IF (.not.balance(isTvar(isalt)).and.balance(isVvel)) THEN
+        balance(isTvar(isalt))=.TRUE.
+      END IF
+      IF (balance(isTvar(isalt))) THEN
+        balance(isTvar(itemp))=.TRUE.
+      END IF
+      IF (balance(isVvel)) THEN
+        balance(isUvel)=.TRUE.
+      END IF
+      IF (balance(isVbar)) THEN
+        balance(isVbar)=.FALSE.
+      END IF
+#   else
+      IF (balance(isVbar)) THEN
+        balance(isUbar)=.TRUE.
+      END IF
+#   endif
+#  endif
 !
 !-----------------------------------------------------------------------
 !  Report input parameters.
@@ -10488,7 +10549,7 @@
         DO ng=1,Ngrids
 #  if defined FOUR_DVAR
           WRITE (out,60) ng
-#   if defined WEAK_CONSTRAINT || defined IOM
+#   ifdef WEAK_CONSTRAINT
 #    ifdef RPM_RELAXATION
           WRITE (out,120) tl_M2diff, 'tl_M2diff',                       &
      &            'RPM 2D momentum diffusive relaxation coefficient.'
@@ -10497,7 +10558,7 @@
      &            'RPM 3D momentum diffusive relaxation coefficient.'
           DO itrc=1,NT(ng)
             WRITE (out,130) tl_Tdiff(itrc,ng), 'tl_Tdiff',              &
-     &            'RPM tracers diffusive relaxation coefficient, ',     &
+     &            'RPM tracer diffusive relaxation coefficient, ',      &
      &            TRIM(Vname(1,idTvar(itrc)))
           END DO
 #     endif
@@ -10512,7 +10573,7 @@
           WRITE (out,70) LhessianEV, 'LhessianEV',                      &
      &            'Switch to compute Hessian eigenvectors.'
 #    endif
-#    if defined WEAK_CONSTRAINT || defined IOM
+#    ifdef WEAK_CONSTRAINT
           WRITE (out,70) LhotStart, 'LhotStart',                        &
      &            'Switch for hot start of subsequent outer loops.'
 #    endif
@@ -10520,7 +10581,7 @@
      &            'Switch for conjugate gradient preconditioning.'
           WRITE (out,70) Lritz, 'Lritz',                                &
      &            'Switch for Ritz limited-memory preconditioning.'
-#    if defined WEAK_CONSTRAINT || defined IOM
+#    ifdef WEAK_CONSTRAINT
           IF (Lprecond.and.(NritzEV.gt.0)) THEN
             WRITE (out,80) NritzEV, 'NritzEV',                          &
      &            'Number of preconditioning eigenpairs to use.'
@@ -10528,20 +10589,37 @@
 #    endif
 #   endif
 #   ifdef BALANCE_OPERATOR
-#     ifdef ZETA_ELLIPTIC
+#    ifdef ZETA_ELLIPTIC
           WRITE (out,80) Nbico(ng), 'Nbico',                            &
      &            'Number of iterations in SSH elliptic equation.'
-#     endif
+#    endif
           WRITE (out,100) dTdz_min(ng), 'dTdz_min',                     &
      &            'Minimum dTdz (C/m) used in balanced salinity.'
           WRITE (out,100) ml_depth(ng), 'ml_depth',                     &
      &            'Mixed-layer depth (m) used in balanced salinity.'
+          IF (balance(isFsur)) THEN
+            WRITE (out,100) LNM_depth(ng), 'LNM_depth',                 &
+     &            'Level of no motion (m) in balanced free-sruface.'
+            WRITE (out,80) LNM_flag, 'LNM_flag',                        &
+     &            'Level of no motion integration flag.'
+          END IF
+          WRITE (out,70) balance(isFsur), 'balance(isFsur)',            &
+                  'Switch to include free-surface in balance operator.'
+#    ifdef SOLVE3D
+          WRITE (out,70) balance(isTvar(isalt)), 'balance(isSalt)',     &
+                  'Switch to include salinity in balance operator.'
+          WRITE (out,70) balance(isVvel), 'balance(isVvel)',            &
+                  'Switch to include 3D momentum in balance operator.'
+#    else
+          WRITE (out,70) balance(isVbar), 'balance(isVbar)',            &
+                  'Switch to include 2D momentum in balance operator.'
+#    endif
 #   endif
 #   if defined POSTERIOR_EOFS && defined WEAK_CONSTRAINT
           WRITE (out,80) NpostI, 'NpostI',                              &
      &            'Number of Lanczos iterations in posterior analysis.'
 #   endif
-#   if !(defined GRADIENT_CHECK || defined TLM_CHECK)
+#   ifndef TLM_CHECK
 #    ifndef OBS_SENSITIVITY
           WRITE (out,170) LdefNRM(1:4,ng), 'LdefNRM',                   &
      &            'Switch to create a normalization NetCDF file.'
@@ -10844,9 +10922,8 @@
      &                    TRIM(aparnam)
 #  endif
 #  ifdef FOUR_DVAR
-#   if defined IS4DVAR         || defined IOM              || \
-       defined OBS_SENSITIBITY || defined OPT_OBSERVATIONS || \
-       defined WEAK_CONSTRAINT
+#   if defined IS4DVAR          || defined OBS_SENSITIBITY || \
+       defined OPT_OBSERVATIONS || defined WEAK_CONSTRAINT
 #    if defined SENSITIVITY_4DVAR || \
         defined TL_W4DPSAS        || defined TL_W4DVAR || \
         defined W4DPSAS           || defined W4DVAR

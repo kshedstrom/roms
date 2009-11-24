@@ -2,7 +2,7 @@
 #if defined ADJOINT && defined SOLVE3D
       SUBROUTINE ad_main3d (ng)
 !
-!svn $Id: ad_main3d.F 1087 2009-10-21 00:21:28Z kate $
+!svn $Id: ad_main3d.F 1101 2009-11-19 00:56:17Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
@@ -43,7 +43,7 @@
 # ifdef BBL_MODEL_NOT_YET
 !!    USE ad_bbl_mod, ONLY : ad_bblm
 # endif
-# ifdef BULK_FLUXES_NOT_YET
+# if defined BULK_FLUXES_NOT_YET && !defined NL_BULK_FLUXES
 !!    USE ad_bulk_flux_mod, ONLY : ad_bulk_flux
 # endif
 # ifdef BVF_MIXING_NOT_YET
@@ -54,7 +54,7 @@
       USE ad_frc_adjust_mod, ONLY : ad_frc_adjust
 # endif
       USE ad_ini_fields_mod, ONLY : ad_ini_fields, ad_ini_zeta
-# if defined WEAK_CONSTRAINT || defined IOM
+# ifdef WEAK_CONSTRAINT
       USE ad_forcing_mod, ONLY : ad_forcing
 # endif
 # ifdef GLS_MIXING_NOT_YET
@@ -65,7 +65,7 @@
 !!    USE ad_lmd_vmix_mod, ONLY : ad_lmd_vmix
 # endif
 # if defined FOUR_DVAR && defined OBSERVATIONS
-#  if defined WEAK_CONSTRAINT || defined IOM
+#  ifdef WEAK_CONSTRAINT
       USE ad_htobs_mod, ONLY : ad_htobs
 #  else
       USE ad_misfit_mod, ONLY : ad_misfit
@@ -102,9 +102,7 @@
 !!    USE ad_set_tides_mod, ONLY : ad_set_tides
 # endif
       USE ad_set_vbc_mod, ONLY : ad_set_vbc
-# ifdef SET_ZETA
       USE ad_set_zeta_mod, ONLY : ad_set_zeta
-# endif
       USE ad_step2d_mod, ONLY : ad_step2d
 # ifndef TS_FIXED
       USE ad_step3d_t_mod, ONLY : ad_step3d_t
@@ -113,13 +111,13 @@
 # ifdef FLOATS_NOT_YET
 !!    USE ad_step_floats_mod, ONLY : ad_step_floats
 # endif
-# ifdef BULK_FLUXES
+# if defined BULK_FLUXES && !defined NL_BULK_FLUXES
       USE bulk_flux_mod, ONLY : bulk_flux
 # endif
 # ifdef AIR_OCEAN_NOT_YET
       USE ocean_coupler_mod, ONLY : atmos_coupling
 # endif
-# if defined WEAK_CONSTRAINT || defined IOM
+# ifdef WEAK_CONSTRAINT
       USE frc_weak_mod, ONLY : frc_ADgather, frc_clear
 # endif
 # ifdef WAVES_OCEAN_NOT_YET
@@ -206,7 +204,7 @@
         DO tile=subs*(thread+1)-1,subs*thread,-1
           CALL set_massflux (ng, TILE)
           CALL rho_eos (ng, TILE)
-#  ifdef BULK_FLUXES
+#  if defined BULK_FLUXES && !defined NL_BULK_FLUXES
           CALL bulk_flux (ng, TILE)
 #  endif
         END DO
@@ -439,7 +437,7 @@
         DO thread=0,numthreads-1
           subs=NtileX(ng)*NtileE(ng)/numthreads
           DO tile=subs*thread,subs*(thread+1)-1,+1
-#  if defined WEAK_CONSTRAINT || defined IOM
+#  ifdef WEAK_CONSTRAINT
             CALL ad_htobs (ng, TILE, iADM)
 #  else
             CALL ad_misfit (ng, TILE, iADM)
@@ -453,7 +451,7 @@
 #  endif
 # endif
 
-# if defined WEAK_CONSTRAINT || defined IOM
+# ifdef WEAK_CONSTRAINT
 !
 !-----------------------------------------------------------------------
 !  If appropriate, add representer coefficients (Beta hat) impulse
@@ -490,8 +488,6 @@
         END DO
       END DO
 !$OMP END PARALLEL DO
-
-# ifdef SET_ZETA
 !
 !-----------------------------------------------------------------------
 !  Set adjoint free-surface to it time-averaged value.
@@ -508,7 +504,6 @@
         END DO
       END DO
 !$OMP END PARALLEL DO
-# endif
 !
 !-----------------------------------------------------------------------
 !  Compute adjoint vertical mixing coefficients for momentum and
@@ -572,7 +567,7 @@
 # ifdef BBL_MODEL_NOT_YET
           CALL ad_bblm (ng, TILE)
 # endif
-# ifdef BULK_FLUXES_NOT_YET
+# ifdef BULK_FLUXES_NOT_YET && !defined NL_BULK_FLUXES
           CALL ad_bulk_flux (ng, TILE)
 # endif
         END DO
@@ -764,7 +759,7 @@
       END IF
 # endif
 
-# if defined WEAK_CONSTRAINT || defined IOM
+# ifdef WEAK_CONSTRAINT
 !
 !-----------------------------------------------------------------------
 !  Gather weak constraint forcing to storage arrays.
@@ -790,7 +785,7 @@
       CALL ad_output (ng)
       IF (exit_flag.ne.NoError) RETURN
 
-# if defined WEAK_CONSTRAINT || defined IOM
+# ifdef WEAK_CONSTRAINT
 !
 !-----------------------------------------------------------------------
 !  Copy storage arrays index 1 into index 2, and clear index 1.

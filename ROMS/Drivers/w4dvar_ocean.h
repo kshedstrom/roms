@@ -1,6 +1,6 @@
       MODULE ocean_control_mod
 !
-!svn $Id: w4dvar_ocean.h 1087 2009-10-21 00:21:28Z kate $
+!svn $Id: w4dvar_ocean.h 1101 2009-11-19 00:56:17Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group   Emanuele Di Lorenzo   !
 !    Licensed under a MIT/X style license            Andrew M. Moore   !
@@ -325,7 +325,7 @@
 #if defined BULK_FLUXES && defined NL_BULK_FLUXES
 !
 !  Set file name containing the nonlinear model bulk fluxes to be read
-!  and processed by the representer model.
+!  and processed by other algorithms.
 !
         BLKname(ng)=HISname(ng)
 #endif
@@ -450,6 +450,7 @@
 !  avoid the inquiring stage.
 !
         ncFWDid(ng)=ncHISid(ng)
+
 !
 !-----------------------------------------------------------------------
 !  Solve the system:
@@ -598,16 +599,18 @@
           CALL get_state (ng, iNLM, 2, INIname(ng), Lini, Lini)
           IF (exit_flag.ne.NoError) RETURN
 
+          IF (balance(isFsur)) THEN
 !$OMP PARALLEL DO PRIVATE(ng,thread,subs,tile,Lini) SHARED(numthreads)
-          DO thread=0,numthreads-1
-            subs=NtileX(ng)*NtileE(ng)/numthreads
-            DO tile=subs*thread,subs*(thread+1)-1
-              CALL balance_ref (ng, TILE, Lini)
-              CALL biconj (ng, TILE, iNLM, Lini)
+            DO thread=0,numthreads-1
+              subs=NtileX(ng)*NtileE(ng)/numthreads
+              DO tile=subs*thread,subs*(thread+1)-1
+                CALL balance_ref (ng, TILE, Lini)
+                CALL biconj (ng, TILE, iNLM, Lini)
+              END DO
             END DO
-          END DO
 !$OMP END PARALLEL DO
-          wrtZetaRef(ng)=.TRUE.
+            wrtZetaRef(ng)=.TRUE.
+          END IF
 # endif
 !
           INNER_LOOP : DO my_inner=0,Ninner
@@ -1096,15 +1099,15 @@
 !  record into the adjoint history file.  Note that the weak-constraint
 !  forcing is delayed by nADJ time-steps.
 !
-            CALL ad_wrt_his (ng)
-            IF (exit_flag.ne.NoError) RETURN
+          CALL ad_wrt_his (ng)
+          IF (exit_flag.ne.NoError) RETURN
 !
 !  Write out adjoint initial condition record into the adjoint
 !  history file.
 !
-            WRTforce(ng)=.FALSE.
-            CALL ad_wrt_his (ng)
-            IF (exit_flag.ne.NoError) RETURN
+          WRTforce(ng)=.FALSE.
+          CALL ad_wrt_his (ng)
+          IF (exit_flag.ne.NoError) RETURN
 
 # ifdef CONVOLVE
 !
@@ -1471,7 +1474,7 @@
             END DO
           END DO
 !$OMP END PARALLEL DO
-            IF (exit_flag.ne.NoError) RETURN
+          IF (exit_flag.ne.NoError) RETURN
         END DO VAR_OLOOP
 !
 !  Write out the diagonal of the posterior/analysis covariance matrix

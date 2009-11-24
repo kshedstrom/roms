@@ -1,5 +1,5 @@
 /*
-** svn $Id: upwelling.h 1022 2009-07-16 22:34:52Z kate $
+** svn $Id: upwelling.h 1098 2009-11-18 17:54:22Z kate $
 *******************************************************************************
 ** Copyright (c) 2002-2009 The ROMS/TOMS Group                               **
 **   Licensed under a MIT/X style license                                    **
@@ -74,9 +74,6 @@
 
 #ifdef BIO_UMAINE
 # define OXYGEN
-# if defined OXYGEN
-#  define xygen_bottom_layer_treatment
-# endif
 # undef CARBON
 #endif
 

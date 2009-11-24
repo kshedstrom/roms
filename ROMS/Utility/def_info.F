@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       SUBROUTINE def_info (ng, model, ncid, ncname, DimIDs)
 !
-!svn $Id: def_info.F 1090 2009-10-27 23:59:27Z kate $
+!svn $Id: def_info.F 1101 2009-11-19 00:56:17Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -107,6 +107,9 @@
       character (len=50) :: tiling
       character (len=80) :: type
       character (len=100) :: Vinfo(Natt)
+#ifdef FOUR_DVAR
+      character (len=512) :: state_vector
+#endif
 #ifdef BIOLOGY
       character (len=512) :: bio_file
 #endif
@@ -281,6 +284,20 @@
             ioerror=status
           END IF
         END IF
+
+#ifdef FOUR_DVAR
+!
+!  Set state vector variables.
+!
+        is=1
+        state_vector=' '
+        DO i=1,NstateVar(ng)
+          lstr=LEN_TRIM(Vname(1,idSvar(i)))
+          ie=is+lstr
+          state_vector(is:ie)=TRIM(Vname(1,idSvar(i)))//', '
+          is=ie+2
+        END DO
+#endif
 !
 !  Define other global attributes to NetCDF file.
 !
@@ -294,15 +311,18 @@
           END IF
         END IF
 
+#ifdef FOUR_DVAR
         IF (exit_flag.eq.NoError) THEN
-          status=nf90_put_att(ncid, nf90_global, 'var_info',            &
-     &                        TRIM(varname))
+          lstr=LEN_TRIM(state_vector)-1
+          status=nf90_put_att(ncid, nf90_global, 'state_vector',        &
+     &                        state_vector(1:lstr))
           IF (status.ne.nf90_noerr) THEN
-            IF (Master) WRITE (stdout,20) 'var_info', TRIM(ncname)
+            IF (Master) WRITE (stdout,20) 'state_vector', TRIM(ncname)
             exit_flag=3
             ioerror=status
           END IF
         END IF
+#endif
 
 #ifdef PROPAGATOR
         IF (exit_flag.eq.NoError) THEN
@@ -341,7 +361,7 @@
               exit_flag=3
               ioerror=status
             END IF
-          END IF 
+          END IF
         END IF
 
 #ifdef AVERAGES
@@ -487,8 +507,8 @@
 # endif
 #endif
 
-#if defined IS4DVAR          || defined IOM             || \
-    defined OPT_OBSERVATIONS || defined WEAK_CONSTRAINT
+#if defined IS4DVAR         || defined OPT_OBSERVATIONS || \
+    defined WEAK_CONSTRAINT
         IF (exit_flag.eq.NoError) THEN
           status=nf90_put_att(ncid, nf90_global, 'nrm_file',            &
      &                        TRIM(NRMname(1,ng)))
@@ -500,7 +520,7 @@
         END IF
 #endif
 
-#if defined WEAK_CONSTRAINT || defined IOM
+#ifdef WEAK_CONSTRAINT
         IF (exit_flag.eq.NoError) THEN
           status=nf90_put_att(ncid, nf90_global, 'tlf_file',            &
      &                        TRIM(TLFname(ng)))
@@ -1696,7 +1716,7 @@
      &               SetParAccess = .FALSE.)
       IF (exit_flag.ne.NoError) RETURN
 
-#  if defined WEAK_CONSTRAINT || defined IOM
+#  ifdef WEAK_CONSTRAINT
       Vinfo( 1)='LhotStart'
       Vinfo( 2)='switch for hot start of subsequent outer loops'
       Vinfo( 9)='.FALSE.'
@@ -1725,7 +1745,7 @@
      &               SetParAccess = .FALSE.)
       IF (exit_flag.ne.NoError) RETURN
 
-#  if defined WEAK_CONSTRAINT || defined IOM
+#  ifdef WEAK_CONSTRAINT
       IF (Lprecond.and.(NritzEV.gt.0)) THEN
         Vinfo( 1)='NritzEV'
         Vinfo( 2)='number of preconditioning eigenpairs to use'
@@ -1941,6 +1961,60 @@
      &               SetParAccess = .FALSE.)
       IF (exit_flag.ne.NoError) RETURN
 #  endif
+# endif
+
+# ifdef BALANCE_OPERATOR
+#  ifdef ZETA_ELLIPTIC
+      Vinfo( 1)='Nbico'
+      Vinfo( 2)='number of iterations in SSH elliptic equation'
+      status=def_var(ng, model, ncid, varid, nf90_int,                  &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+#  endif
+
+      Vinfo( 1)='Lbalance'
+      Vinfo( 2)='switches for state variables included as '//           &
+                'constraint in the error covariance balance operator'
+      Vinfo( 9)='.FALSE.'
+      Vinfo(10)='.TRUE.'
+      status=def_var(ng, model, ncid, varid, nf90_int,                  &
+     &               1, (/statedim/), Aval, Vinfo, ncname,              &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='LNM_flag'
+      Vinfo( 2)='balance operator level of no motion flag'
+      Vinfo( 9)='integrate from bottom to surface,'
+      Vinfo(10)='integrate from LNM_depth to surface'
+      status=def_var(ng, model, ncid, varid, nf90_int,                  &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='LNM_depth'
+      Vinfo( 2)='balance operator level of no motion depth'
+      Vinfo( 3)='meter'
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='dTdz_min'
+      Vinfo( 2)='minimum dT/dz value used in balaced salinity'
+      Vinfo( 3)='Celsius meter-1'
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='ml_depth'
+      Vinfo( 2)='mixed layer depth used in balanced salinity'
+      Vinfo( 3)='meter'
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
 # endif
 #endif
 
@@ -3252,7 +3326,7 @@
 
       Vinfo( 1)='mxPacEff'
       Vinfo( 2)='rate of change in package effect'
-      Vinfo( 3)='microgram_Chl microgram_C-1' 
+      Vinfo( 3)='microgram_Chl microgram_C-1'
       status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
      &               1, (/phydim/), Aval, Vinfo, ncname,                &
      &               SetParAccess = .FALSE.)
@@ -3260,7 +3334,7 @@
 
       Vinfo( 1)='b_PacEff'
       Vinfo( 2)='maximum package effect'
-      Vinfo( 3)='microgram_Chl microgram_C-1' 
+      Vinfo( 3)='microgram_Chl microgram_C-1'
       status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
      &               1, (/phydim/), Aval, Vinfo, ncname,                &
      &               SetParAccess = .FALSE.)
