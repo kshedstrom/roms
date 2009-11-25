@@ -105,6 +105,9 @@ contains
 # if defined SHORTWAVE && defined ALBEDO
      &                     FORCES(ng) % cawdir,                         &
 # endif
+# if defined SHORTWAVE && defined ALBEDO_CURVE
+     &                     GRID(ng) % latr,                             &
+# endif
 # ifdef ICE_MODEL
      &                     ICE(ng) % ai,                                &
      &                     ICE(ng) % hi,                                &
@@ -174,6 +177,9 @@ contains
      &                           srflx, stflx,                          &
 # if defined SHORTWAVE && defined ALBEDO
      &                           cawdir,                                &
+# endif
+# if defined SHORTWAVE && defined ALBEDO_CURVE
+     &                           latr,                                  &
 # endif
 # ifdef ICE_MODEL
      &                           ai, hi,                                &
@@ -269,6 +275,9 @@ contains
 #  if defined SHORTWAVE && defined ALBEDO
       real(r8), intent(inout) :: cawdir(LBi:,LBj:)
 #  endif
+#  if defined SHORTWAVE && defined ALBEDO_CURVE
+      real(r8), intent(inout) :: latr(LBi:,LBj:)
+#  endif
 
 #  ifdef ICE_MODEL
       real(r8), intent(out) :: sustr_aw(LBi:,LBj:)
@@ -346,6 +355,9 @@ contains
 # if defined SHORTWAVE && defined ALBEDO
       real(r8), intent(inout) :: cawdir(LBi:UBi,LBj:UBj)
 #  endif
+# if defined SHORTWAVE && defined ALBEDO_CURVE
+      real(r8), intent(inout) :: latr(LBi:UBi,LBj:UBj)
+#  endif
 
 #  ifdef ICE_MODEL
       real(r8), intent(out) :: sustr_aw(LBi:UBi,LBj:UBj)
@@ -418,6 +430,9 @@ contains
 # if defined SHORTWAVE && defined ALBEDO
       real(r8) :: cawdif
       real(r8), parameter :: albw_d=0.065_r8
+# endif
+# if defined SHORTWAVE && defined ALBEDO_CURVE
+      real(r8) :: caw_curve
 # endif
 # if defined BEST_NPZ && (defined ICE_BIO || defined CLIM_ICE_1D)
       real(r8), dimension(PRIVATE_2D_SCRATCH_ARRAY) :: ice_thick
@@ -864,6 +879,10 @@ contains
           cawdif = 1._r8-albw_d
           srflx(i,j) = srflx(i,j)*(cawdir(i,j)*                         &
      &                 (1._r8-cloud(i,j))+cawdif*cloud(i,j))
+# endif
+# if defined SHORTWAVE && defined ALBEDO_CURVE
+          caw_curve = 1._r8-(0.069_r8 - 0.011_r8*cos(2*latr(i,j)))
+          srflx(i,j) = srflx(i,j)*caw_curve
 # endif
           lrflx(i,j) = lwup*Hscale2 + lrflx(i,j)
           lhflx(i,j) = lhflx(i,j)*Hscale2

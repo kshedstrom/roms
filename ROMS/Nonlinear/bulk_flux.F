@@ -135,6 +135,9 @@
 # if defined ALBEDO && defined SHORTWAVE && !defined BENCHMARK
      &                     FORCES(ng) % cawdir,                         &
 # endif
+# if defined SHORTWAVE && defined ALBEDO_CURVE
+     &                     GRID(ng) % latr,                             &
+# endif
 # ifdef ICE_MODEL
      &                     ICE(ng) % ai,                                &
      &                     ICE(ng) % hi,                                &
@@ -205,6 +208,9 @@
      &                           srflx, stflx,                          &
 # if defined ALBEDO && defined SHORTWAVE && !defined BENCHMARK
      &                           cawdir,                                &
+# endif
+# if defined SHORTWAVE && defined ALBEDO_CURVE
+     &                           latr,                                  &
 # endif
 # ifdef ICE_MODEL
      &                           ai, hi,                                &
@@ -296,6 +302,9 @@
 # if defined ALBEDO && defined SHORTWAVE && !defined BENCHMARK
       real(r8), intent(inout) :: cawdir(LBi:,LBj:)
 #  endif
+#  if defined SHORTWAVE && defined ALBEDO_CURVE
+      real(r8), intent(inout) :: latr(LBi:,LBj:)
+#  endif
 
 
 #  ifdef ICE_MODEL
@@ -373,6 +382,9 @@
 # if defined ALBEDO && defined SHORTWAVE && !defined BENCHMARK
       real(r8), intent(inout) :: cawdir(LBi:UBi,LBj:UBj)
 #  endif
+# if defined SHORTWAVE && defined ALBEDO_CURVE
+      real(r8), intent(inout) :: latr(LBi:UBi,LBj:UBj)
+#  endif
 
 #  ifdef ICE_MODEL
       real(r8), intent(out) :: sustr_aw(LBi:UBi,LBj:UBj)
@@ -449,6 +461,9 @@
 # if defined SHORTWAVE && defined ALBEDO
       real(r8), parameter :: albw_d=0.065_r8
       real(r8) :: cawdif
+# endif
+# if defined SHORTWAVE && defined ALBEDO_CURVE
+      real(r8) :: caw_curve
 # endif
 # ifdef LONGWAVE
       real(r8) :: e_sat, vap_p
@@ -553,6 +568,10 @@
           SRad(i,j)=srflx(i,j)*Hscale
 # if defined ALBEDO && defined SHORTWAVE && !defined BENCHMARK
           SRad(i,j) = SRad(i,j)*cawdir(i,j)
+# endif
+# if defined SHORTWAVE && defined ALBEDO_CURVE
+          caw_curve = 1._r8-(0.069_r8 - 0.011_r8*cos(2*latr(i,j)))
+          SRad(i,j) = SRad(i,j)*caw_curve
 # endif
           Tcff(i)=alpha(i,j)
           Scff(i)=beta(i,j)
@@ -1130,6 +1149,10 @@
           cawdif = 1._r8-albw_d
           srflx(i,j) = srflx(i,j)*(cawdir(i,j)*                         &
      &                 (1._r8-cloud(i,j))+cawdif*cloud(i,j))
+# endif
+# if defined SHORTWAVE && defined ALBEDO_CURVE
+          caw_curve = 1._r8-(0.069_r8 - 0.011_r8*cos(2*latr(i,j)))
+          srflx(i,j) = srflx(i,j)*caw_curve
 # endif
           lrflx(i,j)=LRad(i,j)*Hscale2
           lhflx(i,j)=-LHeat(i,j)*Hscale2
