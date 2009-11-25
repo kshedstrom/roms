@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       SUBROUTINE wrt_his (ng)
 !
-!svn $Id: wrt_his.F 1098 2009-11-18 17:54:22Z kate $
+!svn $Id: wrt_his.F 1103 2009-11-20 23:14:44Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -2086,6 +2086,7 @@
       END IF
 # endif
 #endif
+# endif
 !
 !  Write out surface U-momentum stress.
 !
