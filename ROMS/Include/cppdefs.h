@@ -167,6 +167,7 @@
 **   which is a function longitude, latitude and day-of-year.                **
 **                                                                           **
 ** ALBEDO              use if albedo equation for shortwave radiation        **
+** ALBEDO_CURVE        use if albedo function of lat from Large and Yeager   **
 ** DIURNAL_SRFLUX      use to impose shortwave radiation local diurnal cycle **
 **                                                                           **
 ** Model configuration OPTIONS:                                              **
