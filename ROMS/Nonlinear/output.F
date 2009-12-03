@@ -2,7 +2,7 @@
 #ifdef NONLINEAR
       SUBROUTINE output (ng)
 !
-!svn $Id: output.F 1023 2009-07-20 21:45:24Z kate $
+!svn $Id: output.F 1098 2009-11-18 17:54:22Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -540,7 +540,7 @@
         ProcessObs=.TRUE.
         CALL obs_read (ng, iNLM, .FALSE.)
         CALL obs_write (ng, tile, iNLM)
-#   if !(defined W4DVAR || defined IOM)
+#   ifndef W4DVAR
         CALL obs_cost (ng, iNLM)
 #   endif
       ELSE

@@ -2,7 +2,7 @@
 #if defined ADJOINT && !defined SOLVE3D
       SUBROUTINE ad_main2d (ng)
 !
-!svn $Id: ad_main2d.F 1001 2009-06-17 16:21:45Z arango $
+!svn $Id: ad_main2d.F 1098 2009-11-18 17:54:22Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
@@ -12,7 +12,7 @@
 !  This subroutine is the main driver for adjoint  ROMS/TOMS  when     !
 !  configurated as shallow water (barotropic) ocean model only. It     !
 !  advances backward the vertically integrated primitive equations     !
-!  for a single time step.                                             !               
+!  for a single time step.                                             !
 !                                                                      !
 !=======================================================================
 !
@@ -36,7 +36,7 @@
       USE adsen_force_mod, ONLY : adsen_force
 # endif
       USE ad_diag_mod, ONLY : ad_diag
-# if defined WEAK_CONSTRAINT || defined IOM
+# ifdef WEAK_CONSTRAINT
       USE ad_forcing_mod, ONLY : ad_forcing
 # endif
 # ifdef ADJUST_WSTRESS
@@ -44,7 +44,7 @@
 # endif
       USE ad_ini_fields_mod, ONLY : ad_ini_fields, ad_ini_zeta
 # if defined FOUR_DVAR && defined OBSERVATIONS
-#  if defined WEAK_CONSTRAINT || defined IOM
+#  ifdef WEAK_CONSTRAINT
       USE ad_htobs_mod, ONLY : ad_htobs
 #  else
       USE ad_misfit_mod, ONLY : ad_misfit
@@ -67,7 +67,7 @@
 # ifdef FLOATS_NOT_YET
 !!    USE ad_step_floats_mod, ONLY : tl_step_floats
 # endif
-# if defined WEAK_CONSTRAINT || defined IOM
+# ifdef WEAK_CONSTRAINT
       USE frc_weak_mod, ONLY : frc_ADgather, frc_clear
 # endif
 # ifdef AIR_OCEAN_NOT_YET
@@ -170,7 +170,7 @@
         DO thread=0,numthreads-1
           subs=NtileX(ng)*NtileE(ng)/numthreads
           DO tile=subs*thread,subs*(thread+1)-1,+1
-#  if defined WEAK_CONSTRAINT || defined IOM
+#  ifdef WEAK_CONSTRAINT
             CALL ad_htobs (ng, TILE, iADM)
 #  else
             CALL ad_misfit (ng, TILE, iADM)
@@ -184,7 +184,7 @@
 #  endif
 # endif
 
-# if defined WEAK_CONSTRAINT || defined IOM
+# ifdef WEAK_CONSTRAINT
 !
 !-----------------------------------------------------------------------
 !  If appropriate, add representer coefficients (Beta hat) impulse
@@ -221,7 +221,7 @@
           nfm1(ng)=MOD(nfm1(ng)+1,NFT+1)
           nfm2(ng)=MOD(nfm2(ng)+1,NFT+1)
           nfm3(ng)=MOD(nfm3(ng)+1,NFT+1)
-!    
+!
 !$OMP PARALLEL DO PRIVATE(thread,chunk_size,Lstr,Lend)                  &
 !$OMP&            SHARED(ng,numthreads,Nfloats)
           DO thread=0,numthreads-1
@@ -455,7 +455,7 @@
       END IF
 # endif
 
-# if defined WEAK_CONSTRAINT || defined IOM
+# ifdef WEAK_CONSTRAINT
 !
 !-----------------------------------------------------------------------
 !  Gather weak constraint forcing to storage arrays.
@@ -480,7 +480,7 @@
       CALL ad_output (ng)
       IF (exit_flag.ne.NoError) RETURN
 
-# if defined WEAK_CONSTRAINT || defined IOM
+# ifdef WEAK_CONSTRAINT
 !
 !-----------------------------------------------------------------------
 !  Copy storage arrays index 1 into index 2, and clear index 1.
@@ -506,10 +506,12 @@
 !  forcing depends on the functional whose sensitivity is required.
 !-----------------------------------------------------------------------
 !
-#  ifdef SENS4DVAR
+#  ifdef SENSITIVITY_4DVAR
       IF (LsenPSAS(ng)) THEN
 #  endif
+#  if !defined AD_IMPULSE
         IF ((DendS(ng).ge.tdays(ng)).and.(tdays(ng).ge.DstrS(ng))) THEN
+#  endif
 !$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(ng,numthreads)
           DO thread=0,numthreads-1
             subs=NtileX(ng)*NtileE(ng)/numthreads
@@ -518,7 +520,9 @@
             END DO
           END DO
 !$OMP END PARALLEL DO
+#  if !defined AD_IMPULSE
         END IF
+#  endif
 #  ifdef SENSITIVITY_4DVAR
       END IF
 #  endif

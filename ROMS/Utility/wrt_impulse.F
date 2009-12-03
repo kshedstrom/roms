@@ -2,7 +2,7 @@
 #if defined ADJOINT && defined IMPULSE
       SUBROUTINE wrt_impulse (ng, tile, model, INPncname)
 !
-!svn $Id: wrt_impulse.F 907 2009-01-22 22:56:26Z arango $
+!svn $Id: wrt_impulse.F 1098 2009-11-18 17:54:22Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -114,7 +114,7 @@
       Iinp=1
       Iout=0
       scale=1.0_r8
-   
+
       DO Irec=Nrec-1,1,-1
         Iout=Iout+1
 !
@@ -415,7 +415,7 @@
      &                         OCEAN(ng) % ad_t(:,:,:,Iinp,i))
             IF (status.ne.nf90_noerr) THEN
               IF (Master) THEN
-                WRITE (stdout,30) TRIM(Vname(1,idVtlf)), Irec,          &
+                WRITE (stdout,30) TRIM(Vname(1,idTtlf(i))), Irec,       &
      &                            TRIM(TLFname(ng))
               END IF
               exit_flag=3
@@ -451,7 +451,7 @@
      &        /,12x,'in input NetCDF file: ',a)
   50  FORMAT (4x,'WRT_IMPULSE - wrote convolved adjoint impulses, ',    &
      &           'records: 001 to ',i3.3,/,18x,'file: ',a)
-      
+
       RETURN
       END SUBROUTINE wrt_impulse
 #else

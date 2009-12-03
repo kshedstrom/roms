@@ -3,7 +3,7 @@
 
 #if defined FOUR_DVAR || defined VERIFICATION
 !
-!svn $Id: mod_fourdvar.F 1038 2009-08-11 22:29:40Z kate $
+!svn $Id: mod_fourdvar.F 1098 2009-11-18 17:54:22Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -16,9 +16,9 @@
 !  BackCost     Current background cost function misfit (mean squared  !
 !                 difference) between model and background state, Jb.  !
 !  CostFun      Current iteration total cost function (background      !
-!                 plus observations), J.                               !    
+!                 plus observations), J.                               !
 !  CostFunOld   Previous iteration total cost function (background     !
-!                 plus observations), J.                               !    
+!                 plus observations), J.                               !
 !  CostNorm     Total cost function normalization scales (minimization !
 !                 starting value, Jb+Jo).                              !
 !  Cost0        The total cost function at the beggining of the inner  !
@@ -123,7 +123,7 @@
 #  endif
           real(r8), pointer :: ObsVar(:)
           real(r8), pointer :: SurveyTime(:)
-  
+
         END TYPE T_FOURDVAR
 
         TYPE (T_FOURDVAR), allocatable :: FOURDVAR(:)
@@ -140,7 +140,7 @@
         real(r8), allocatable :: Yobs(:)
 #  ifdef SOLVE3D
         real(r8), allocatable :: Zobs(:)
-#  endif          
+#  endif
         real(r8), allocatable :: ADmodVal(:)
         real(r8), allocatable :: NLmodVal(:)
 #  ifdef TLM_OBS
@@ -152,15 +152,17 @@
 #   endif
 #   if defined TL_W4DPSAS           || defined W4DPSAS    || \
        defined W4DPSAS_SENSITIVITY
-        
+
         real(r8), allocatable :: BCKmodVal(:)
 #   endif
 #  endif
-#  if defined WEAK_CONSTRAINT || defined IOM
+#  ifdef WEAK_CONSTRAINT
         real(r8), allocatable :: zcglwk(:,:,:)
         real(r8), allocatable :: vcglev(:,:,:)
         real(r8), allocatable :: zgrad0(:,:)
         real(r8), allocatable :: vgrad0(:)
+        real(r8), allocatable :: vgrad0s(:)
+        real(r8), allocatable :: gdgw(:)
         real(r8), allocatable :: vgnorm(:)
         real(r8), allocatable :: cg_innov(:)
         real(r8), allocatable :: cg_pxsave(:)
@@ -223,7 +225,7 @@
 !
 !  Size of observation NetCDF file unlimited dimension.
 !
-        integer, dimension(Ngrids) :: Ndatum         
+        integer, dimension(Ngrids) :: Ndatum
 !
 !  Number of observations surveys available.
 !
@@ -348,7 +350,7 @@
         real(r8), dimension(Ngrids) :: KvMin
         real(r8), dimension(Ngrids) :: KvMax
 
-# if defined IS4DVAR || defined WEAK_CONSTRAINT || defined IOM
+# if defined IS4DVAR || defined WEAK_CONSTRAINT
 !
 !-----------------------------------------------------------------------
 !  Conjugate gradient parameters.
@@ -377,7 +379,7 @@
 !
 !  Orthogonal eigenvectors of Lanczos recurrence term Q(k)T(k).
 !
-#  if defined WEAK_CONSTRAINT || defined IOM
+#  ifdef WEAK_CONSTRAINT
         real(r8), allocatable :: cg_zv(:,:,:)
 #  else
         real(r8), allocatable :: cg_zv(:,:)
@@ -399,7 +401,7 @@
         real(r8), allocatable :: cg_gamma(:,:)
 !
 !  Initial gradient vector normalization factor.
-!  
+!
         real(r8), allocatable :: cg_Gnorm(:)
         real(r8), allocatable :: cg_Gnorm_v(:)
         real(r8), allocatable :: cg_Gnorm_y(:)
@@ -409,11 +411,11 @@
         real(r8), allocatable :: cg_Greduc(:,:)
 !
 !  Lanczos vector normalization factor.
-!  
+!
         real(r8), allocatable :: cg_QG(:,:)
 !
 !  Lanczos recurrence symmetric, tridiagonal matrix, T(k).
-! 
+!
         real(r8), allocatable :: cg_Tmatrix(:,:)
         real(r8), allocatable :: cg_zu(:,:)
 !
@@ -441,7 +443,7 @@
 !-----------------------------------------------------------------------
 !
 !  Lanczos algorithm parameters.
-! 
+!
         real(r8), allocatable :: ae_delta(:,:)
         real(r8), allocatable :: ae_beta(:,:)
         real(r8), allocatable :: ae_zv(:,:)
@@ -553,7 +555,7 @@
         real(r8), dimension(1000) :: g1
         real(r8), dimension(1000) :: g2
 # endif
-# if defined WEAK_CONSTRAINT || defined IOM
+# ifdef WEAK_CONSTRAINT
 !
 !------------------------------------------------------------------------
 !  Weak constraint parameters.
@@ -567,7 +569,7 @@
         logical, dimension(Ngrids) :: LweakRelax
 #  endif
 #  if defined W4DPSAS_SENSITIVITY  || defined W4DVAR_SENSITIVITY
-!  
+!
 !  Switch to activate reading of adjoint sensitivity initial conditions
 !  for weak constraint 4DVAR observation sensitivity.
 !
@@ -740,7 +742,7 @@
 !
 !  Determine maximum size of observation arrays.
 !
-#  if defined WEAK_CONSTRAINT || defined IOM
+#  ifdef WEAK_CONSTRAINT
         Mobs=MAXVAL(Ndatum)
 #  else
         Mobs=0
@@ -751,7 +753,7 @@
       END DO
 !
 !-----------------------------------------------------------------------
-!  Allocate and initialize model and observation variables. 
+!  Allocate and initialize model and observation variables.
 !-----------------------------------------------------------------------
 !
       allocate ( ObsType(Mobs) )
@@ -771,7 +773,7 @@
 
       allocate ( Xobs(Mobs) )
       Xobs = IniVal
- 
+
       allocate ( Yobs(Mobs) )
       Yobs = IniVal
 
@@ -779,7 +781,7 @@
       allocate ( Zobs(Mobs) )
       Zobs = IniVal
 #  endif
- 
+
       allocate ( ADmodVal(Mobs) )
       ADmodVal = IniVal
 
@@ -802,7 +804,7 @@
 #   endif
 #  endif
 
-#  if defined WEAK_CONSTRAINT || defined IOM
+#  ifdef WEAK_CONSTRAINT
 !
 !  Allocate and initialize weak constraint conjugate gradient vectors.
 !
@@ -852,6 +854,12 @@
 
       allocate ( vgrad0(Mobs) )
       vgrad0 = IniVal
+
+      allocate ( vgrad0s(Mobs) )
+      vgrad0s = IniVal
+
+      allocate ( gdgw(Mobs) )
+      gdgw = IniVal
 
       allocate ( vgnorm(Nouter) )
       vgnorm = IniVal
@@ -913,7 +921,7 @@
       DTsizeVB = IniVal
 
 
-# if defined IS4DVAR || defined WEAK_CONSTRAINT || defined IOM
+# if defined IS4DVAR || defined WEAK_CONSTRAINT
 !
 !  Allocate conjugate gradient variables.
 !
@@ -995,7 +1003,7 @@
 #  endif
 # endif
 
-#  if defined WEAK_CONSTRAINT || defined IOM
+#  ifdef WEAK_CONSTRAINT
       allocate ( cg_zv(Ninner,Ninner,Nouter) )
 #  else
       allocate ( cg_zv(Ninner,Ninner) )
@@ -1070,7 +1078,7 @@
         KvMin(ng)=1.0_r8
         KvMax(ng)=1.0_r8
         Optimality(ng)=0.0_r8
-# if defined WEAK_CONSTRAINT || defined IOM
+# ifdef WEAK_CONSTRAINT
         ForceTime(ng)=0.0_r8
 # endif
 

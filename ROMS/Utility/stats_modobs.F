@@ -2,7 +2,7 @@
 #if (defined FOUR_DVAR || defined VERIFICATION) && defined OBSERVATIONS
       SUBROUTINE stats_modobs (ng)
 !
-!svn $Id: stats_modobs.F 985 2009-05-24 16:35:20Z kate $
+!svn $Id: stats_modobs.F 1098 2009-11-18 17:54:22Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -106,8 +106,8 @@
 !
 !  Read in model values at observation locations.
 !
-# if defined IOMS   || defined TL_W4DVAR          || \
-     defined W4DVAR || defined W4DVAR_SENSITIVITY
+# if defined TL_W4DVAR          || defined W4DVAR || \
+     defined W4DVAR_SENSITIVITY
       CALL netcdf_get_fvar (ng, iNLM, MODname(ng), Vname(1,idTLmo),     &
      &                      mod_value,                                  &
      &                      ncid = ncMODid(ng),                         &
@@ -193,7 +193,7 @@
           SDE(i)=mod_std(i)-obs_std(i)
           MSE(i)=MB(i)*MB(i)+                                           &
      &           SDE(i)*SDE(i)+                                         &
-     &           2.0_r8*mod_std(i)*obs_std(i)*(1.0_r8-CC(i))            
+     &           2.0_r8*mod_std(i)*obs_std(i)*(1.0_r8-CC(i))
         END IF
       END DO
 !

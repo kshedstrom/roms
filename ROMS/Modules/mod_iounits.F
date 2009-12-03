@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       MODULE mod_iounits
 !
-!svn $Id: mod_iounits.F 1020 2009-07-10 23:10:30Z kate $
+!svn $Id: mod_iounits.F 1090 2009-10-27 23:59:27Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -15,6 +15,7 @@
 !  AVGname     Output averages file name.                              !
 !  AVG2base    Output secondary base file name.                        !
 !  AVG2name    Output secondary file name.                             !
+!  BLKname     Input bulk fluxes file name.                            !
 !  BRYname     Input boundary data file name.                          !
 !  CLMname     Input climatology file name.                            !
 !  DIAbase     Output diagnostics base file name.                      !
@@ -124,6 +125,7 @@
         character (len=fname_len), dimension(Ngrids) :: AVGname
         character (len=fname_len), dimension(Ngrids) :: AVG2base
         character (len=fname_len), dimension(Ngrids) :: AVG2name
+        character (len=fname_len), dimension(Ngrids) :: BLKname
         character (len=fname_len), dimension(Ngrids) :: BRYname
         character (len=fname_len), dimension(Ngrids) :: CLMname
         character (len=fname_len), dimension(Ngrids) :: DIAbase

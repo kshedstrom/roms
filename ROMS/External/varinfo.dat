@@ -1,7 +1,7 @@
 !
 !  ROMS/TOMS IO NetCDF variables.
 !
-!svn $Id: varinfo.dat 1057 2009-09-08 19:01:19Z kate $
+!svn $Id: varinfo.dat 1098 2009-11-18 17:54:22Z kate $
 !========================================================= Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                                !
 !    Licensed under a MIT/X style license                                     !
@@ -524,6 +524,15 @@
   'idsfwf'
   'r2dvar'
   1.157407d-7                                      ! 0.01/86400
+
+'EminusP'                                          ! Input/Output
+  'bulk_flux surface net freswater flux, (E-P)'
+  'meter second-1'                                 ! computed by NLM ROMS
+  'EminusP, scalar, series'                        ! bulk_flux.F and
+  'ocean_time'                                     ! needed in adjoint-based
+  'idEmPf'                                         ! applications
+  'r2dvar'
+  1.0d0
 
 'bhflux'                                           ! Input
   'bottom net heat flux'
@@ -2456,6 +2465,11 @@
 !
 !------------------------------------------------------------------------------
 !  Tangent linear model impulse forcing variables.
+!
+!  Notice that additional metadata is need here because with need different
+!  indices to avoid conflict with the forward basic state variables. They
+!  are used at the same time. The passive tracers (NAT+1:NT) are assigned
+!  internally to the same values as the basic state.
 !------------------------------------------------------------------------------
 !
 
@@ -2514,7 +2528,7 @@
   1.0d0
 
 'salt'                                             ! Input
-  'salinity functional'
+  'salinity impulse forcing'
   'nondimensional'                                 ! [PSU]
   'salt_time, scalar, series'
   'salt_time'
@@ -3641,7 +3655,7 @@
 
 !
 !  Diagnostic variables.
-! 
+!
 
 'CO2_airsea'                                       ! Input/Output
   'CO2 air-sea flux'
@@ -3699,7 +3713,7 @@
 
 !
 !  Boundary variables.
-! 
+!
 
 'NO3_east'                                         ! Input
   'nitrate eastern boundary condition'
@@ -5263,7 +5277,7 @@
 !
 !  3D momentum diagnostic terms.
 !
- 
+
 'u_accel'                                          ! Input/Output
   '3D u-momentum, acceleration term'
   'meter second-2'                                 ! [m/s2]

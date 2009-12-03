@@ -1,6 +1,6 @@
       MODULE ocean_control_mod
 !
-!svn $Id: ad_ocean.h 975 2009-05-05 22:51:13Z kate $
+!svn $Id: ad_ocean.h 1098 2009-11-18 17:54:22Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -39,13 +39,10 @@
 !
       USE mod_param
       USE mod_parallel
-#ifdef IOM
-      USE mod_fourdvar
-#endif
       USE mod_iounits
       USE mod_scalars
 !
-#ifdef AIR_OCEAN 
+#ifdef AIR_OCEAN
       USE ocean_coupler_mod, ONLY : initialize_atmos_coupling
 #endif
 #ifdef WAVES_OCEAN
@@ -128,12 +125,6 @@
 !  Allocate and initialize modules variables.
 !
         CALL mod_arrays (allocate_vars)
-#ifdef IOM
-!
-!  Allocate and initialize observation arrays.
-!
-        CALL initialize_fourdvar
-#endif
       END IF
 !
 !-----------------------------------------------------------------------

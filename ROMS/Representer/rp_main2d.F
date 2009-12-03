@@ -2,7 +2,7 @@
 #if defined TL_IOMS && !defined SOLVE3D
       SUBROUTINE rp_main2d (ng)
 !
-!svn $Id: rp_main2d.F 1003 2009-06-19 23:52:29Z kate $
+!svn $Id: rp_main2d.F 1098 2009-11-18 17:54:22Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
@@ -56,7 +56,7 @@
 # ifdef FLOATS_NOT_YET
 !!    USE rp_step_floats_mod, ONLY : rp_step_floats
 # endif
-# if defined WEAK_CONSTRAINT || defined IOM
+# ifdef WEAK_CONSTRAINT
       USE tl_forcing_mod, ONLY : tl_forcing
 # endif
 !
@@ -83,11 +83,11 @@
       tdays(ng)=time(ng)*sec2day
       CALL time_string (time(ng), time_code(ng))
 
-# if defined WEAK_CONSTRAINT || defined IOM
+# ifdef WEAK_CONSTRAINT
 !
 !-----------------------------------------------------------------------
 !  If appropriate, add convolved adjoint solution impulse forcing to
-!  the representer model solution. Notice that the forcing is only 
+!  the representer model solution. Notice that the forcing is only
 !  needed after finishing all inner loops. The forcing is continuous.
 !  That is, it is time interpolated at every time-step from available
 !  snapshots (FrequentImpulse=TRUE).

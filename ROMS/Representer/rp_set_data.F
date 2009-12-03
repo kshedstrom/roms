@@ -2,7 +2,7 @@
 #ifdef TL_IOMS
       SUBROUTINE rp_set_data (ng, tile)
 !
-!svn $Id: rp_set_data.F 1047 2009-08-24 23:55:11Z kate $
+!svn $Id: rp_set_data.F 1098 2009-11-18 17:54:22Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -125,8 +125,8 @@
 
       real(r8) :: Zr, cff, cff1, cff2
 
-      real(r8), dimension(PRIVATE_2D_SCRATCH_ARRAY) ::  work1
-      real(r8), dimension(PRIVATE_2D_SCRATCH_ARRAY) ::  work2
+      real(r8), dimension(IminS:ImaxS,JminS:JmaxS) ::  work1
+      real(r8), dimension(IminS:ImaxS,JminS:JmaxS) ::  work2
 
 # include "set_bounds.h"
 
@@ -151,8 +151,9 @@
 #   endif
 #  endif
 
-#  if defined BULK_FLUXES || defined ECOSIM || \
-    (defined SHORTWAVE && defined ANA_SRFLUX && defined ALBEDO)
+#  if (defined BULK_FLUXES && !defined NL_BULK_FLUXES) || \
+      defined ECOSIM || \
+      (defined SHORTWAVE && defined ANA_SRFLUX && defined ALBEDO)
 !
 !-----------------------------------------------------------------------
 !  Set surface air temperature (degC).
@@ -169,8 +170,9 @@
 #   endif
 #  endif
 
-#  if defined BULK_FLUXES || defined ECOSIM || \
-     (defined SHORTWAVE && defined ANA_SRFLUX && defined ALBEDO)
+#  if (defined BULK_FLUXES && !defined NL_BULK_FLUXES) || \
+      defined ECOSIM || \
+      (defined SHORTWAVE && defined ANA_SRFLUX && defined ALBEDO)
 !
 !-----------------------------------------------------------------------
 !  Set surface air relative or specific humidity.
@@ -211,7 +213,8 @@
 #   endif
 #  endif
 
-#  if defined BULK_FLUXES && !defined LONGWAVE && !defined LONGWAVE_OUT
+#  if (defined BULK_FLUXES && !defined NL_BULK_FLUXES) && \
+      !defined LONGWAVE    && !defined LONGWAVE_OUT
 !
 !-----------------------------------------------------------------------
 !  Surface net longwave radiation (degC m/s).
@@ -224,7 +227,8 @@
      &                     update)
 #  endif
 
-#  if defined LONGWAVE_OUT && defined BULK_FLUXES
+#  if defined LONGWAVE_OUT && \
+      (defined BULK_FLUXES && !defined NL_BULK_FLUXES)
 !
 !-----------------------------------------------------------------------
 !  Surface downwelling longwave radiation (degC m/s).
@@ -237,7 +241,8 @@
      &                     update)
 #  endif
 
-#  if defined BULK_FLUXES || defined ECOSIM
+#  if (defined BULK_FLUXES && !defined NL_BULK_FLUXES) || \
+      defined ECOSIM
 !
 !-----------------------------------------------------------------------
 !  Set surface winds (m/s).
@@ -294,7 +299,7 @@
 #   endif
 #  endif
 
-#  ifdef BULK_FLUXES
+#  if defined BULK_FLUXES && !defined NL_BULK_FLUXES
 !
 !-----------------------------------------------------------------------
 !  Set rain fall rate (kg/m2/s).
@@ -311,7 +316,7 @@
 #   endif
 #  endif
 
-#  ifndef BULK_FLUXES
+#  if !defined BULK_FLUXES || defined NL_BULK_FLUXES
 !
 !-----------------------------------------------------------------------
 !  Set kinematic surface net heat flux (degC m/s).
@@ -396,6 +401,20 @@
      &                     update)
 #     ifdef TL_IOMS
       CALL set_2dfld_tile (ng, tile, iRPM, idsfwf,                      &
+     &                     LBi, UBi, LBj, UBj,                          &
+     &                     FORCES(ng)%stflxG(:,:,:,isalt),              &
+     &                     FORCES(ng)%tl_stflx (:,:,isalt),             &
+     &                     update)
+#     endif
+#    endif
+#    if defined EMINUSP && defined NL_BULK_FLUXES
+      CALL set_2dfld_tile (ng, tile, iRPM, idEmPf,                      &
+     &                     LBi, UBi, LBj, UBj,                          &
+     &                     FORCES(ng)%stflxG(:,:,:,isalt),              &
+     &                     FORCES(ng)%stflx (:,:,isalt),                &
+     &                     update)
+#     ifdef TL_IOMS
+      CALL set_2dfld_tile (ng, tile, iRPM, idEmPf,                      &
      &                     LBi, UBi, LBj, UBj,                          &
      &                     FORCES(ng)%stflxG(:,:,:,isalt),              &
      &                     FORCES(ng)%tl_stflx (:,:,isalt),             &
@@ -487,7 +506,7 @@
 # endif
 
 # ifndef AIR_OCEAN
-#  ifndef BULK_FLUXES
+#  if !defined BULK_FLUXES || defined NL_BULK_FLUXES
 !
 !-----------------------------------------------------------------------
 !  Set kinematic surface momentum flux (m2/s2).
@@ -576,7 +595,8 @@
 #  endif
 # endif
 
-# if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS
+# if (defined BULK_FLUXES && !defined NL_BULK_FLUXES) || \
+     defined ECOSIM       || defined ATM_PRESS
 !
 !-----------------------------------------------------------------------
 !  Set surface air pressure (mb).
@@ -695,7 +715,7 @@
 !-----------------------------------------------------------------------
 !
       CALL ana_specir (ng, tile, iRPM)
-# endif     
+# endif
 
 # ifdef ANA_SPINNING
 !
@@ -838,7 +858,7 @@
         bry_update=.TRUE.
       END IF
 #    ifdef DISTRIBUTE
-      CALL mp_boundary (ng, iNLM, JstrR, JendR, JLB, JUB, 1, 1,         &
+      CALL mp_boundary (ng, iRPM, JstrR, JendR, JLB, JUB, 1, 1,         &
      &                  bry_update,                                     &
      &                  BOUNDARY(ng)%zeta_west)
       CALL mp_boundary (ng, iRPM, JstrR, JendR, JLB, JUB, 1, 1,         &
@@ -860,7 +880,7 @@
         bry_update=.TRUE.
       END IF
 #    ifdef DISTRIBUTE
-      CALL mp_boundary (ng, iNLM, JstrR, JendR, JLB, JUB, 1, 1,         &
+      CALL mp_boundary (ng, iRPM, JstrR, JendR, JLB, JUB, 1, 1,         &
      &                  bry_update,                                     &
      &                  BOUNDARY(ng)%zeta_east)
       CALL mp_boundary (ng, iRPM, JstrR, JendR, JLB, JUB, 1, 1,         &
@@ -1738,15 +1758,15 @@
 #   endif
 #  endif
 #  if defined TL_W4DVAR || defined W4DVAR || defined W4DVAR_SENSITIVITY
-!  
+!
 !-----------------------------------------------------------------------
 !  Set weak contraint frequent impulse forcing.
 !-----------------------------------------------------------------------
-!    
+!
       IF (FrequentImpulse) THEN
 !
 !  Set free-surface forcing.
-!  
+!
         CALL set_2dfld_tile (ng, tile, iRPM, idZtlf,                    &
      &                       LBi, UBi, LBj, UBj,                        &
      &                       OCEAN(ng)%f_zetaG,                         &
@@ -1778,7 +1798,7 @@
      &                       OCEAN(ng)%f_uG,                            &
      &                       OCEAN(ng)%f_u,                             &
      &                       update)
-        CALL set_3dfld_tile (ng, tile, iRPM, idVvel,                    &
+        CALL set_3dfld_tile (ng, tile, iRPM, idVtlf,                    &
      &                       LBi, UBi, LBj, UBj, 1, N(ng),              &
      &                       OCEAN(ng)%f_vG,                            &
      &                       OCEAN(ng)%f_v,                             &

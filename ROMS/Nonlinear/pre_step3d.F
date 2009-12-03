@@ -3,7 +3,7 @@
 #if defined NONLINEAR && defined SOLVE3D
 # define NEUMANN
 !
-!svn $Id: pre_step3d.F 1039 2009-08-11 22:52:28Z kate $
+!svn $Id: pre_step3d.F 1090 2009-10-27 23:59:27Z kate $
 !=======================================================================
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -783,6 +783,9 @@
         DO itrc=1,NT(ng)
 #endif
           ltrc=MIN(NAT,itrc)
+#ifdef LIMIT_BIO_AKT
+          IF (itrc == 2) ltrc = 1
+#endif
           DO k=1,N(ng)-1
             DO i=Istr,Iend
               cff=1.0_r8/(z_r(i,j,k+1)-z_r(i,j,k))

@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       SUBROUTINE def_his (ng, ldef)
 !
-!svn $Id: def_his.F 1023 2009-07-20 21:45:24Z kate $
+!svn $Id: def_his.F 1098 2009-11-18 17:54:22Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -47,9 +47,6 @@
 #ifdef ADJUST_BOUNDARY
       integer :: IorJdim, brecdim
 #endif
-#if defined ADJUST_STFLUX || defined ADJUST_WSTRESS
-      integer :: frecdim
-#endif
       integer :: DimIDs(31), t2dgrd(3), u2dgrd(3), v2dgrd(3)
 #ifdef ADJUST_BOUNDARY
       integer :: t2dobc(4)
@@ -66,12 +63,6 @@
 # ifdef ADJUST_BOUNDARY
       integer :: t3dobc(5)
 # endif
-# ifdef ADJUST_STFLUX
-      integer :: t3dfrc(3)
-# endif
-#endif
-#ifdef ADJUST_WSTRESS
-      integer :: u3dfrc(3), v3dfrc(3)
 #endif
 
       real(r8) :: Aval(6)
@@ -241,12 +232,6 @@
         IF (exit_flag.ne.NoError) RETURN
 #endif
 
-#if defined ADJUST_STFLUX || defined ADJUST_WSTRESS
-        status=def_dim(ng, iNLM, ncHISid(ng), ncname, 'frc_adjust',     &
-     &                 Nfrec(ng), DimIDs(30))
-        IF (exit_flag.ne.NoError) RETURN
-#endif
-
 #ifdef ADJUST_BOUNDARY
         status=def_dim(ng, iNLM, ncHISid(ng), ncname, 'obc_adjust',     &
      &                 Nbrec(ng), DimIDs(31))
@@ -259,12 +244,9 @@
         IF (exit_flag.ne.NoError) RETURN
 
         recdim=DimIDs(12)
-#if defined ADJUST_STFLUX || defined ADJUST_WSTRESS
-        frecdim=DimIDs(30)
-#endif
-# ifdef ADJUST_BOUNDARY
+#ifdef ADJUST_BOUNDARY
         brecdim=DimIDs(31)
-# endif
+#endif
 !
 !  Set number of dimensions for output variables.
 !
@@ -294,11 +276,6 @@
         t3dgrd(2)=DimIDs( 5)
         t3dgrd(3)=DimIDs( 9)
         t3dgrd(4)=DimIDs(12)
-# endif
-# ifdef ADJUST_STFLUX
-        t3dfrc(1)=DimIDs( 1)
-        t3dfrc(2)=DimIDs( 5)
-        t3dfrc(3)=frecdim
 # endif
 #endif
 #ifdef ADJUST_BOUNDARY
@@ -334,11 +311,6 @@
         u3dgrd(3)=DimIDs( 9)
         u3dgrd(4)=DimIDs(12)
 # endif
-# ifdef ADJUST_WSTRESS
-        u3dfrc(1)=DimIDs( 2)
-        u3dfrc(2)=DimIDs( 6)
-        u3dfrc(3)=frecdim
-# endif
 #endif
 !
 !  Define dimension vectors for staggered v-momemtum type variables.
@@ -359,11 +331,6 @@
         v3dgrd(2)=DimIDs( 7)
         v3dgrd(3)=DimIDs( 9)
         v3dgrd(4)=DimIDs(12)
-# endif
-# ifdef ADJUST_WSTRESS
-        v3dfrc(1)=DimIDs( 3)
-        v3dfrc(2)=DimIDs( 7)
-        v3dfrc(3)=frecdim
 # endif
 #endif
 #ifdef SOLVE3D
@@ -461,68 +428,6 @@
      &                 1, (/recdim/), Aval, Vinfo, ncname,              &
      &                 SetParAccess = .FALSE.)
         IF (exit_flag.ne.NoError) RETURN
-#endif
-#ifdef ADJUST_WSTRESS
-!
-!  Define surface U-momentum stress.  Notice that the stress has its
-!  own fixed time-dimension (of size Nfrec) to allow 4DVAR adjustments
-!  at other times in addition to initialization time.
-!
-        Vinfo( 1)=Vname(1,idUsms)
-        Vinfo( 2)=Vname(2,idUsms)
-        Vinfo( 3)=Vname(3,idUsms)
-# if defined WRITE_WATER && defined MASKING
-        Vinfo(20)='mask_u'
-# endif
-        Vinfo(22)='coordinates'
-        Aval(5)=REAL(Iinfo(1,idUsms,ng),r8)
-        status=def_var(ng, iNLM, ncHISid(ng), hisVid(idUsms,ng),        &
-     &                 NF_FOUT, nvd3, u3dfrc, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
-!
-!  Define surface V-momentum stress.
-!
-        Vinfo( 1)=Vname(1,idVsms)
-        Vinfo( 2)=Vname(2,idVsms)
-        Vinfo( 3)=Vname(3,idVsms)
-# if defined WRITE_WATER && defined MASKING
-        Vinfo(20)='mask_v'
-# endif
-        Vinfo(22)='coordinates'
-        Aval(5)=REAL(Iinfo(1,idVsms,ng),r8)
-        status=def_var(ng, iNLM, ncHISid(ng), hisVid(idVsms,ng),        &
-     &                 NF_FOUT, nvd3, v3dfrc, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
-#endif
-#if defined ADJUST_STFLUX && defined SOLVE3D
-!
-!  Define surface net heat flux. Notice that different tracer fluxes
-!  are written at their own fixed time-dimension (of size Nfrec) to
-!  allow 4DVAR adjustments at other times in addition to initial time.
-!
-        DO itrc=1,NT(ng)
-          IF (Lstflux(itrc,ng)) THEN
-            Vinfo( 1)=Vname(1,idTsur(itrc))
-            Vinfo( 2)=Vname(2,idTsur(itrc))
-            Vinfo( 3)=Vname(3,idTsur(itrc))
-            IF (itrc.eq.itemp) THEN
-              Vinfo(11)='upward flux, cooling'
-              Vinfo(12)='downward flux, heating'
-            ELSE IF (itrc.eq.isalt) THEN
-              Vinfo(11)='upward flux, freshening (net precipitation)'
-              Vinfo(12)='downward flux, salting (net evaporation)'
-            END IF
-# if defined WRITE_WATER && defined MASKING
-            Vinfo(20)='mask_rho'
-# endif
-            Vinfo(22)='coordinates'
-            Aval(5)=REAL(Iinfo(1,idTsur(itrc),ng),r8)
-            status=def_var(ng, iNLM, ncHISid(ng),                       &
-     &                     hisVid(idTsur(itrc),ng), NF_FOUT,            &
-     &                     nvd3, t3dfrc, Aval, Vinfo, ncname)
-            IF (exit_flag.ne.NoError) RETURN
-          END IF
-        END DO
 #endif
 #if defined SEDIMENT && defined SED_MORPH
 !
@@ -1420,7 +1325,6 @@
 #  endif
         END IF
 # endif
-# ifndef ADJUST_STFLUX
 !
 !  Define surface active tracer fluxes.
 !
@@ -1446,7 +1350,7 @@
             IF (exit_flag.ne.NoError) RETURN
           END IF
         END DO
-# endif
+
 # ifdef BULK_FLUXES
 !
 !  Define latent heat flux.
@@ -1564,6 +1468,26 @@
         END IF
 #  ifdef EMINUSP
 !
+!  Define E-P flux (as computed by bulk_flux.F).
+!
+        IF (Hout(idEmPf,ng)) THEN
+          Vinfo( 1)=Vname(1,idEmPf)
+          Vinfo( 2)=Vname(2,idEmPf)
+          Vinfo( 3)=Vname(3,idEmPf)
+          Vinfo(11)='upward flux, freshening (net precipitation)'
+          Vinfo(12)='downward flux, salting (net evaporation)'
+          Vinfo(14)=Vname(4,idEmPf)
+          Vinfo(16)=Vname(1,idtime)
+#     if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_rho'
+#     endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idEmPf,ng),r8)
+          status=def_var(ng, iNLM, ncHISid(ng), hisVid(idEmPf,ng),      &
+     &                   NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+!
 !  Define evaporation rate.
 !
         IF (Hout(idevap,ng)) THEN
@@ -1628,7 +1552,6 @@
         END IF
 # endif
 #endif
-#ifndef ADJUST_WSTRESS
 !
 !  Define surface U-momentum stress.
 !
@@ -1665,7 +1588,6 @@
      &                   NF_FOUT, nvd3, v2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
-#endif
 !
 !  Define bottom U-momentum stress.
 !
@@ -2981,6 +2903,9 @@
             got_var(idVair)=.TRUE.
             hisVid(idVair,ng)=var_id(i)
 #  ifdef EMINUSP
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idEmPf))) THEN
+            got_var(idEmPf)=.TRUE.
+            hisVid(idEmPf,ng)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idevap))) THEN
             got_var(idevap)=.TRUE.
             hisVid(idevap,ng)=var_id(i)
@@ -3457,6 +3382,12 @@
           RETURN
         END IF
 #    ifdef EMINUSP
+        IF (.not.got_var(idEmPf).and.Hout(idEmPf,ng)) THEN
+          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idEmPf)),          &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
         IF (.not.got_var(idevap).and.Hout(idevap,ng)) THEN
           IF (Master) WRITE (stdout,60) TRIM(Vname(1,idevap)),          &
      &                                  TRIM(ncname)

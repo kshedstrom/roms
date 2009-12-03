@@ -1,9 +1,9 @@
 #include "cppdefs.h"
       MODULE frc_weak_mod
 
-#if defined WEAK_CONSTRAINT || defined IOM
+#ifdef WEAK_CONSTRAINT
 !
-!svn $Id: frc_weak.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: frc_weak.F 1098 2009-11-18 17:54:22Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !

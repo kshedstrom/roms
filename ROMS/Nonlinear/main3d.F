@@ -3,7 +3,7 @@
     (!defined OFFLINE_BIOLOGY && ! defined OFFLINE_FLOATS)
       SUBROUTINE main3d (ng)
 !
-!svn $Id: main3d.F 1003 2009-06-19 23:52:29Z kate $
+!svn $Id: main3d.F 1101 2009-11-19 00:56:17Z kate $
 !=======================================================================
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -59,7 +59,7 @@
       USE forcing_mod, ONLY : forcing
 # endif
 # if defined ADJUST_STFLUX || defined ADJUST_WSTRESS
-      USE frc_adjust_mod, ONLY : frc_adjust, load_forcing
+      USE frc_adjust_mod, ONLY : frc_adjust
 # endif
 # ifdef GLS_MIXING
       USE gls_corstep_mod, ONLY : gls_corstep
@@ -116,9 +116,7 @@
       USE set_tides_mod, ONLY : set_tides
 # endif
       USE set_vbc_mod, ONLY : set_vbc
-# ifdef SET_ZETA
       USE set_zeta_mod, ONLY : set_zeta
-# endif
       USE step2d_mod, ONLY : step2d
 # ifndef TS_FIXED
       USE step3d_t_mod, ONLY : step3d_t
@@ -324,7 +322,11 @@
 #  ifdef CCSM_FLUXES
           CALL ccsm_flux (ng, TILE)
 #  else
+#   if defined FOUR_DVAR && defined NL_BULK_FLUXES
+          IF (Nrun.eq.1) CALL bulk_flux (ng, TILE)
+#   else
           CALL bulk_flux (ng, TILE)
+#   endif
 #  endif
 # endif
 # ifdef NCEP_FLUXES
@@ -384,7 +386,6 @@
           subs=NtileX(ng)*NtileE(ng)/numthreads
           DO tile=subs*thread,subs*(thread+1)-1,+1
             CALL frc_adjust (ng, TILE, Lfinp(ng))
-            CALL load_forcing (ng, TILE, Lfout(ng))
           END DO
         END DO
 !$OMP END PARALLEL DO
@@ -425,8 +426,6 @@
         END DO
       END DO
 !$OMP END PARALLEL DO
-
-# ifdef SET_ZETA
 !
 !-----------------------------------------------------------------------
 !  Set free-surface to it time-averaged value.  If applicable,
@@ -482,50 +481,6 @@
         END DO
       END DO
 !$OMP END PARALLEL DO
-
-# else
-!
-!-----------------------------------------------------------------------
-!  Compute right-hand-side terms for 3D equations.  If applicable,
-!  accumulate time-averaged output data.
-!-----------------------------------------------------------------------
-!
-!$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(ng,numthreads)
-      DO thread=0,numthreads-1
-        subs=NtileX(ng)*NtileE(ng)/numthreads
-        DO tile=subs*thread,subs*(thread+1)-1,+1
-#  ifdef DIAGNOSTICS
-          CALL set_diags (ng, TILE)
-#  endif
-          CALL rhs3d (ng, TILE)
-#  ifdef MY25_MIXING
-          CALL my25_prestep (ng, TILE)
-#  elif defined GLS_MIXING
-          CALL gls_prestep (ng, TILE)
-#  endif
-#  if defined AVERAGES && !defined ADJOINT
-#   if defined FILTERED
-          CALL set_filter (ng, TILE)
-#   else
-          CALL set_avg (ng, TILE)
-#   endif
-#  endif
-#  if defined AVERAGES2
-          CALL set_avg2 (ng, TILE)
-#  endif
-        END DO
-      END DO
-!$OMP END PARALLEL DO
-!
-!-----------------------------------------------------------------------
-!  If appropriate, write out fields into output NetCDF files.  Notice
-!  that IO data is written in delayed and serial mode.  Exit if last
-!  time step.
-!-----------------------------------------------------------------------
-!
-      CALL output (ng)
-      IF ((exit_flag.ne.NoError).or.(iic(ng).eq.(ntend(ng)+1))) RETURN
-# endif
 !
 !-----------------------------------------------------------------------
 !  Solve the vertically integrated primitive equations for the
