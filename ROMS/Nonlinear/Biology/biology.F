@@ -35,7 +35,7 @@
 # elif defined NPZD_POWELL
 #  include <npzd_Powell.h>
 # elif defined BIO_UMAINE
-#  include <bio_UMAINE.h>
+#  include <umaine.h>
 # elif defined BIO_GOANPZ
 #  include <goanpz.h>
 # else
