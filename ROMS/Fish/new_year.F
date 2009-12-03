@@ -42,7 +42,6 @@
       integer :: count(Nspecies(ng)), count_sum
 # ifdef DISTRIBUTE
       real(r8) :: Xstr, Xend, Ystr, Yend
-      real(r8), dimension(Nfloats(ng)*NFV(ng)*(NFT+1)) :: Fwrk
       real(r8), parameter :: Fspv = 0.0_r8
 # endif
 !

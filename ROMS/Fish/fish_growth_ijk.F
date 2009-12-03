@@ -1,7 +1,7 @@
 #include "cppdefs.h"
 #if defined NONLINEAR && defined NEMURO_SAN
-      SUBROUTINE fish_growth_ijk (ng, Ir, Jr, Kr, nnew,                 &
-     &                                Fweight, Uswim, Fgrowth)
+      SUBROUTINE fish_growth_ijk (ng, Ipos, Jpos, Kpos, nnew,           &
+     &                                isp, Fweight, Uswim, Fgrowth)
 !
 !svn $Id: interp_floats.F 294 2009-01-09 21:37:26Z arango $
 !================================================== Hernan G. Arango ===
@@ -55,7 +55,7 @@
 !
 !  Imported variable declarations.
 !
-      integer, intent(in) :: ng, Ir, Jr, Kr, nnew
+      integer, intent(in) :: ng, Ipos, Jpos, Kpos, nnew, isp
       real(r8), intent(in) :: Uswim, Fweight
       real(r8), intent(inout) :: Fgrowth
 !
@@ -70,53 +70,40 @@
 !
 !
 !-----------------------------------------------------------------------
-!  Compute swimming velocity based on food concentration
+!  Compute growth conditions based on food concentration
 !-----------------------------------------------------------------------
 !
       mmol2g=1.0_r8
       g2mmol=1.0_r8/mmol2g
-!      CAL_ZF=2580.0_r8/4460.0_r8           ! age 0-1
-!      CAL_ZF=2580.0_r8/7775.0_r8           ! age 2+ (averge)
-!      K_ZS=1.15_r8
-!      K_ZL=1.15_r8
-!      K_ZP=1.15_r8
-!      a_C=0.642_r8
-!      b_C=0.256_r8
-!      a_F=0.16_r8
-!      a_E=0.10_r8
-!      a_R=0.0033_r8
-!      b_R=0.227_r8
-!      d_R=0.03_r8
-!      a_S=0.175_r8
 !
 ! Comsumption
-      C_max=a_C(ng)*Fweight**(-b_C(ng))
+      C_max=a_C(isp,ng)*Fweight**(-b_C(isp,ng))
 # ifdef MASKING
-      SZooC=mmol2g*GRID(ng)%rmask(Ir,Jr)*                               &
-     &             OCEAN(ng)%t(Ir,Jr,Kr,nnew,iSzoo)
-      LZooC=mmol2g*GRID(ng)%rmask(Ir,Jr)*                               &
-     &             OCEAN(ng)%t(Ir,Jr,Kr,nnew,iLzoo)
-      PZooC=mmol2g*GRID(ng)%rmask(Ir,Jr)*                               &
-     &             OCEAN(ng)%t(Ir,Jr,Kr,nnew,iPzoo)
+      SZooC=mmol2g*GRID(ng)%rmask(Ipos,Jpos)*                           &
+     &             OCEAN(ng)%t(Ipos,Jpos,Kpos,nnew,iSzoo)
+      LZooC=mmol2g*GRID(ng)%rmask(Ipos,Jpos)*                           &
+     &             OCEAN(ng)%t(Ipos,Jpos,Kpos,nnew,iLzoo)
+      PZooC=mmol2g*GRID(ng)%rmask(Ipos,Jpos)*                           &
+     &             OCEAN(ng)%t(Ipos,Jpos,Kpos,nnew,iPzoo)
 # else
-      SZooC=mmol2g*OCEAN(ng)%t(Ir,Jr,Kr,nnew,iSzoo)
-      LZooC=mmol2g*OCEAN(ng)%t(Ir,Jr,Kr,nnew,iLzoo)
-      PZooC=mmol2g*OCEAN(ng)%t(Ir,Jr,Kr,nnew,iPzoo)
+      SZooC=mmol2g*OCEAN(ng)%t(Ipos,Jpos,Kpos,nnew,iSzoo)
+      LZooC=mmol2g*OCEAN(ng)%t(Ipos,Jpos,Kpos,nnew,iLzoo)
+      PZooC=mmol2g*OCEAN(ng)%t(Ipos,Jpos,Kpos,nnew,iPzoo)
 # endif
-      FSZoo=SZooC*ZSpref(ng)/K_ZS(ng)
-      FLZoo=LZooC*ZLpref(ng)/K_ZL(ng)
-      FPZoo=PZooC*ZPpref(ng)/K_ZP(ng)
+      FSZoo=SZooC*ZSpref(isp,ng)/K_ZS(isp,ng)
+      FLZoo=LZooC*ZLpref(isp,ng)/K_ZL(isp,ng)
+      FPZoo=PZooC*ZPpref(isp,ng)/K_ZP(isp,ng)
       FTZoo=1.0_r8/(1.0_r8+FSZoo+FLZoo+FPZoo)
-      Csmp=C_max*(FSZoo+FLZoo+FPZoo)*FTZoo*CAL_ZF(ng)
+      Csmp=C_max*(FSZoo+FLZoo+FPZoo)*FTZoo*CAL_ZF(isp,ng)
 ! Egestion and Excretion
-      Egst=a_F(ng)*Csmp
-      Excr=a_E(ng)*(Csmp-Egst)
+      Egst=a_F(isp,ng)*Csmp
+      Excr=a_E(isp,ng)*(Csmp-Egst)
 ! Respiration (Uswim in cm/s)
-      Actv=exp(d_R(ng)*Uswim)
-      Resp=a_R(ng)*Fweight**(-b_R(ng))*Actv*5.258
+      Actv=exp(d_R(isp,ng)*Uswim)
+      Resp=a_R(isp,ng)*Fweight**(-b_R(isp,ng))*Actv*5.258
 ! Specific Dynamic Action
-      SDA=a_S(ng)*(Csmp-Egst)
-! Growth Potential at Ir,Jr,Kr
+      SDA=a_S(isp,ng)*(Csmp-Egst)
+! Growth Potential at Ipos,Jpos,Kpos
       Fgrowth=Csmp-Egst-Excr-Resp-SDA
 !
 #else

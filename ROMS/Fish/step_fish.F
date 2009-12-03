@@ -329,13 +329,14 @@
      &                    GRID(ng) % Hz,                                &
 # endif
      &                    MyThread, bounded, track,                     &
-     &                    bioenergy, alive, lifestage, swimtype,        &
+     &                    bioenergy, alive,                             &
+     &                    species, lifestage, swimtype,                 &
      &                    OCEAN(ng) % fish_count,                       &
      &                    OCEAN(ng) % fish_list,                        &
      &                    FISHES(ng) % fishnodes)
 !
       DO l=Lstr,Lend
-        IF (MyThread(l).and.bounded(l)) THEN
+        IF (MyThread(l).and.bounded(l).and.alive(l)) THEN
 !
           track(ixgrd,nfp1,l)=track(ixgrd,nfm3,l)+                      &
      &                        dt(ng)*(cff1*track(ixrhs,nf  ,l)-         &
@@ -525,13 +526,14 @@
      &                    GRID(ng) % Hz,                                &
 # endif
      &                    MyThread, bounded, track,                     &
-     &                    bioenergy, alive, lifestage, swimtype,        &
+     &                    bioenergy, alive,                             &
+     &                    species, lifestage, swimtype,                 &
      &                    OCEAN(ng) % fish_count,                       &
      &                    OCEAN(ng) % fish_list,                        &
      &                    FISHES(ng) % fishnodes)
 !
       DO l=Lstr,Lend
-        IF (MyThread(l).and.bounded(l)) THEN
+        IF (MyThread(l).and.bounded(l).and.alive(l)) THEN
 !
           track(ixgrd,nfp1,l)=cff1*track(ixgrd,nf  ,l)-                 &
      &                        cff2*track(ixgrd,nfm2,l)+                 &
@@ -862,24 +864,24 @@
 !
 !  If newly released fish, initialize slopes at all time levels.
 !
-      DO l=Lstr,Lend
-        IF (MyThread(l).and.bounded(l).and.                             &
-     &      (time(ng)-dt(ng).le.Tinfo(itstr,l).and.                     &
-     &       time(ng)+dt(ng).gt.Tinfo(itstr,l))) THEN
-          xrhs=track(ixrhs,nfp1,l)
-          yrhs=track(iyrhs,nfp1,l)
-# ifdef SOLVE3D
-          zrhs=track(izrhs,nfp1,l)
-# endif
-          DO i=0,NFT
-            track(ixrhs,i,l)=xrhs
-            track(iyrhs,i,l)=yrhs
-# ifdef SOLVE3D
-            track(izrhs,i,l)=zrhs
-# endif
-          END DO
-        END IF
-      END DO
+!      DO l=Lstr,Lend
+!        IF (MyThread(l).and.bounded(l).and.                             &
+!     &      (time(ng)-dt(ng).le.Tinfo(itstr,l).and.                     &
+!     &       time(ng)+dt(ng).gt.Tinfo(itstr,l))) THEN
+!          xrhs=track(ixrhs,nfp1,l)
+!          yrhs=track(iyrhs,nfp1,l)
+!# ifdef SOLVE3D
+!          zrhs=track(izrhs,nfp1,l)
+!# endif
+!          DO i=0,NFT
+!            track(ixrhs,i,l)=xrhs
+!            track(iyrhs,i,l)=yrhs
+!# ifdef SOLVE3D
+!            track(izrhs,i,l)=zrhs
+!# endif
+!          END DO
+!        END IF
+!      END DO
 !
 !-----------------------------------------------------------------------
 !  Interpolate various output variables at the corrected locations.
@@ -985,7 +987,8 @@
 !
       CALL fish_growth (ng, LBi, UBi, LBj, UBj, nfp1,                   &
      &                      MyThread, bounded, track(:,:,:), feedback,  &
-     &                      bioenergy, alive, eatfish, lifestage,       &
+     &                      bioenergy, alive, eatfish,                  &
+     &                      species, lifestage,                         &
      &                      OCEAN(ng) % fish_count,                     &
      &                      OCEAN(ng) % fish_list,                      &
      &                      FISHES(ng) % fishnodes)
