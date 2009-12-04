@@ -322,21 +322,22 @@
       cff1=8.0_r8/3.0_r8
       cff2=4.0_r8/3.0_r8
 !
-      CALL fish_swim (ng, LBi, UBi, LBj, UBj, 1, N(ng), nf, nnew,       &
-     &                    GRID(ng) % pm,                                &
-     &                    GRID(ng) % pn,                                &
-# ifdef SOLVE3D
-     &                    GRID(ng) % Hz,                                &
-# endif
-     &                    MyThread, bounded, track,                     &
-     &                    bioenergy, alive,                             &
-     &                    species, lifestage, swimtype,                 &
-     &                    OCEAN(ng) % fish_count,                       &
-     &                    OCEAN(ng) % fish_list,                        &
-     &                    FISHES(ng) % fishnodes)
+!      CALL fish_swim (ng, LBi, UBi, LBj, UBj, 1, N(ng), nf, nnew,       &
+!     &                    GRID(ng) % pm,                                &
+!     &                    GRID(ng) % pn,                                &
+!# ifdef SOLVE3D
+!     &                    GRID(ng) % Hz,                                &
+!# endif
+!     &                    MyThread, bounded, track,                     &
+!     &                    bioenergy, alive,                             &
+!     &                    species, lifestage, swimtype,                 &
+!     &                    OCEAN(ng) % fish_count,                       &
+!     &                    OCEAN(ng) % fish_list,                        &
+!     &                    FISHES(ng) % fishnodes)
 !
       DO l=Lstr,Lend
-        IF (MyThread(l).and.bounded(l).and.alive(l)) THEN
+        IF (MyThread(l).and.bounded(l).and.                             &
+     &      alive(l).and.(lifestage(l).ne.if_adult)) THEN
 !
           track(ixgrd,nfp1,l)=track(ixgrd,nfm3,l)+                      &
      &                        dt(ng)*(cff1*track(ixrhs,nf  ,l)-         &
@@ -519,21 +520,22 @@
       cff3=3.0_r8/8.0_r8
       cff4=6.0_r8/8.0_r8
 !
-      CALL fish_swim (ng, LBi, UBi, LBj, UBj, 1, N(ng), nfp1, nnew,     &
-     &                    GRID(ng) % pm,                                &
-     &                    GRID(ng) % pn,                                &
-# ifdef SOLVE3D
-     &                    GRID(ng) % Hz,                                &
-# endif
-     &                    MyThread, bounded, track,                     &
-     &                    bioenergy, alive,                             &
-     &                    species, lifestage, swimtype,                 &
-     &                    OCEAN(ng) % fish_count,                       &
-     &                    OCEAN(ng) % fish_list,                        &
-     &                    FISHES(ng) % fishnodes)
+!      CALL fish_swim (ng, LBi, UBi, LBj, UBj, 1, N(ng), nfp1, nnew,     &
+!     &                    GRID(ng) % pm,                                &
+!     &                    GRID(ng) % pn,                                &
+!# ifdef SOLVE3D
+!     &                    GRID(ng) % Hz,                                &
+!# endif
+!     &                    MyThread, bounded, track,                     &
+!     &                    bioenergy, alive,                             &
+!     &                    species, lifestage, swimtype,                 &
+!     &                    OCEAN(ng) % fish_count,                       &
+!     &                    OCEAN(ng) % fish_list,                        &
+!     &                    FISHES(ng) % fishnodes)
 !
       DO l=Lstr,Lend
-        IF (MyThread(l).and.bounded(l).and.alive(l)) THEN
+        IF (MyThread(l).and.bounded(l).and.                             &
+     &      alive(l).and.(lifestage(l).ne.if_adult)) THEN
 !
           track(ixgrd,nfp1,l)=cff1*track(ixgrd,nf  ,l)-                 &
      &                        cff2*track(ixgrd,nfm2,l)+                 &
@@ -551,11 +553,13 @@
 !  Compute vertical position (grid units) 3D Lagrangian fish.
 !
           IF (Ftype(l).eq.flt_Lagran) THEN
-            track(izgrd,nfp1,l)=cff1*track(izgrd,nf  ,l)-               &
-     &                          cff2*track(izgrd,nfm2,l)+               &
-     &                          dt(ng)*(cff3*track(izrhs,nfp1,l)+       &
-     &                                  cff4*track(izrhs,nf  ,l)-       &
-     &                                  cff3*track(izrhs,nfm1,l))
+!            track(izgrd,nfp1,l)=cff1*track(izgrd,nf  ,l)-               &
+!     &                          cff2*track(izgrd,nfm2,l)+               &
+!     &                          dt(ng)*(cff3*track(izrhs,nfp1,l)+       &
+!     &                                  cff4*track(izrhs,nf  ,l)-       &
+!     &                                  cff3*track(izrhs,nfm1,l))
+            track(izgrd,nfp1,l)=track(izgrd,nf,l)+                      &
+     &                          dt(ng)*track(izrhs,nf,l)
 !
 !  Compute vertical position (grid units) for isobaric fish
 !  (p=g*(z+zeta)=constant) or geopotential fish (constant depth).
@@ -644,6 +648,24 @@
       END DO
 !
 !-----------------------------------------------------------------------
+!  Fish swimming behavior for adults
+!-----------------------------------------------------------------------
+!
+      CALL fish_swim (ng, LBi, UBi, LBj, UBj, 1, N(ng),                 &
+     &                    nfm1, nf, nfp1, nnew,                         &
+     &                    GRID(ng) % pm,                                &
+     &                    GRID(ng) % pn,                                &
+# ifdef SOLVE3D
+     &                    GRID(ng) % Hz,                                &
+# endif
+     &                    MyThread, bounded, track,                     &
+     &                    bioenergy, alive,                             &
+     &                    species, lifestage, swimtype,                 &
+     &                    OCEAN(ng) % fish_count,                       &
+     &                    OCEAN(ng) % fish_list,                        &
+     &                    FISHES(ng) % fishnodes)
+!
+!-----------------------------------------------------------------------
 !  Determine fish status.
 !-----------------------------------------------------------------------
 !
@@ -699,12 +721,30 @@
 # else
       DO l=Lstr,Lend
         IF (MyThread(l).and.bounded(l)) THEN
-! JF: Crude attempt at boundary condition for non-periodic case
-          IF (track(ixgrd,nfp1,l).ge.REAL(Lm(ng)+1,r8)-0.5_r8) THEN
-            track(ixgrd,nfp1,l)=REAL(Lm(ng)) 
+! JF: Relocation at starting position for non-periodic case
+!          IF ((track(ixgrd,nfp1,l).ge.REAL(Lm(ng)+1,r8)-1.5_r8).or.     &
+!     &        (track(ixgrd,nfp1,l).lt.1.5_r8)) THEN
+!            DO j=0,NFT
+!              track(ixgrd,j,l)=Tinfo(ixgrd,l) 
+!              track(iygrd,j,l)=Tinfo(iygrd,l) 
+!              track(izgrd,j,l)=Tinfo(izgrd,l) 
+!              track(ixrhs,j,l)=0.0_r8
+!              track(iyrhs,j,l)=0.0_r8
+!              track(izrhs,j,l)=0.0_r8
+!            END DO
+!          END IF
+! JF: Crude reflective boundary condition for non-periodic case
+          IF (track(ixgrd,nfp1,l).ge.REAL(Lm(ng)+1,r8)-2.5_r8) THEN
+            DO j=0,NFT
+              track(ixgrd,j,l)=REAL(Lm(ng)-2) 
+              track(ixrhs,j,l)=-track(ixrhs,nfp1,l)
+            END DO
           END IF
-          IF (track(ixgrd,nfp1,l).lt.0.5_r8) THEN
-            track(ixgrd,nfp1,l)=1.0_r8 
+          IF (track(ixgrd,nfp1,l).lt.2.5_r8) THEN
+            DO j=0,NFT
+              track(ixgrd,j,l)=3.0_r8 
+              track(ixrhs,j,l)=-track(ixrhs,nfp1,l)
+            END DO
           END IF
 ! Original ROMS code
 !          IF ((track(ixgrd,nfp1,l).ge.REAL(Lm(ng)+1,r8)-0.5_r8).or.     &
@@ -766,12 +806,30 @@
 # else
       DO l=Lstr,Lend
         IF (MyThread(l).and.bounded(l)) THEN
-! JF: Crude attempt at boundary condition for non-periodic case
-          IF (track(iygrd,nfp1,l).ge.REAL(Mm(ng)+1,r8)-0.5_r8) THEN
-            track(iygrd,nfp1,l)=REAL(Mm(ng)) 
+! JF: Relocation at starting position for non-periodic case
+!          IF ((track(iygrd,nfp1,l).ge.REAL(Mm(ng)+1,r8)-1.5_r8).or.     &
+!     &        (track(iygrd,nfp1,l).lt.1.5_r8)) THEN
+!            DO j=0,NFT
+!              track(ixgrd,j,l)=Tinfo(ixgrd,l) 
+!              track(iygrd,j,l)=Tinfo(iygrd,l) 
+!              track(izgrd,j,l)=Tinfo(izgrd,l) 
+!              track(ixrhs,j,l)=0.0_r8
+!              track(iyrhs,j,l)=0.0_r8
+!              track(izrhs,j,l)=0.0_r8
+!            END DO
+!          END IF
+! JF: Crude reflective boundary condition for non-periodic case
+          IF (track(iygrd,nfp1,l).ge.REAL(Mm(ng)+1,r8)-2.5_r8) THEN
+            DO j=0,NFT
+              track(iygrd,j,l)=REAL(Mm(ng)-2) 
+              track(iyrhs,j,l)=-track(iyrhs,nfp1,l)
+            END DO
           END IF
-          IF (track(iygrd,nfp1,l).lt.0.5_r8) THEN
-            track(iygrd,nfp1,l)=1.0_r8 
+          IF (track(iygrd,nfp1,l).lt.2.5_r8) THEN
+            DO j=0,NFT
+              track(iygrd,j,l)=3.0_r8 
+              track(iyrhs,j,l)=-track(iyrhs,nfp1,l)
+            END DO
           END IF
 ! Original ROMS code
 !          IF ((track(iygrd,nfp1,l).ge.REAL(Mm(ng)+1,r8)-0.5_r8).or.     &
@@ -985,7 +1043,12 @@
      &                      MyThread, bounded, track)
       END DO
 !
-      CALL fish_growth (ng, LBi, UBi, LBj, UBj, nfp1,                   &
+      CALL fish_growth (ng, LBi, UBi, LBj, UBj, 1, N(ng), nfp1,         &
+     &                      GRID(ng) % pm,                              &
+     &                      GRID(ng) % pn,                              &
+# ifdef SOLVE3D
+     &                      GRID(ng) % Hz,                              &
+# endif
      &                      MyThread, bounded, track(:,:,:), feedback,  &
      &                      bioenergy, alive, eatfish,                  &
      &                      species, lifestage,                         &

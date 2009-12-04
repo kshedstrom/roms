@@ -3286,7 +3286,7 @@
   'bio_time'
   'idTbry(ieast,iSzoo)'
   'nulvar'
-  1.0d0
+  0.0d0
 
 'microzoo_west'                                    ! Input
   'microzooplankton western boundary condition'
@@ -3295,7 +3295,7 @@
   'bio_time'
   'idTbry(iwest,iSzoo)'
   'nulvar'
-  1.0d0
+  0.0d0
 
 'microzoo_south'                                   ! Input
   'microzooplankton southern boundary condition'
@@ -3304,7 +3304,7 @@
   'bio_time'
   'idTbry(isouth,iSzoo)'
   'nulvar'
-  1.0d0
+  0.0d0
 
 'microzoo_north'                                   ! Input
   'microzooplankton northern boundary condition'
@@ -3313,7 +3313,7 @@
   'bio_time'
   'idTbry(inorth,iSzoo)'
   'nulvar'
-  1.0d0
+  0.0d0
 
 'mesozoo_east'                                     ! Input
   'mesozooplankton eastern boundary condition'
@@ -3322,7 +3322,7 @@
   'bio_time'
   'idTbry(ieast,iLzoo)'
   'nulvar'
-  1.0d0
+  0.0d0
 
 'mesozoo_west'                                     ! Input
   'mesozooplankton western boundary condition'
@@ -3331,7 +3331,7 @@
   'bio_time'
   'idTbry(iwest,iLzoo)'
   'nulvar'
-  1.0d0
+  0.0d0
 
 'mesozoo_south'                                    ! Input
   'mesozooplankton southern boundary condition'
@@ -3340,7 +3340,7 @@
   'bio_time'
   'idTbry(isouth,iLzoo)'
   'nulvar'
-  1.0d0
+  0.0d0
 
 'mesozoo_north'                                    ! Input
   'mesozooplankton northern boundary condition'
@@ -3349,7 +3349,7 @@
   'bio_time'
   'idTbry(inorth,iLzoo)'
   'nulvar'
-  1.0d0
+  0.0d0
 
 'Pzoo_east'                                        ! Input
   'predator-zooplankton eastern boundary condition'
@@ -3358,7 +3358,7 @@
   'bio_time'
   'idTbry(ieast,iPzoo)'
   'nulvar'
-  1.0d0
+  0.0d0
 
 'Pzoo_west'                                        ! Input
   'predator-zooplankton western boundary condition'
@@ -3367,7 +3367,7 @@
   'bio_time'
   'idTbry(iwest,iPzoo)'
   'nulvar'
-  1.0d0
+  0.0d0
 
 'Pzoo_south'                                       ! Input
   'predator-zooplankton southern boundary condition'
@@ -3376,7 +3376,7 @@
   'bio_time'
   'idTbry(isouth,iPzoo)'
   'nulvar'
-  1.0d0
+  0.0d0
 
 'Pzoo_north'                                       ! Input
   'predator-zooplankton northern boundary condition'
@@ -3385,7 +3385,7 @@
   'bio_time'
   'idTbry(inorth,iPzoo)'
   'nulvar'
-  1.0d0
+  0.0d0
 
 'chlo_east'                                        ! Input
   'chlorophyll eastern boundary condition'
