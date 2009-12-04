@@ -601,8 +601,12 @@
 #  ifdef NEMURO_SAN
         integer, dimension(max_species, Ngrids)  :: Nbatch        ! nondimensional
         real(r8), dimension(max_species, Ngrids) :: Fwwt0         ! grams
+        real(r8), dimension(max_species, Ngrids) :: Fwth0         ! millions of fish
         real(r8), dimension(max_species, Ngrids) :: Fage0         ! years
+        real(r8), dimension(max_species, Ngrids) :: Fspstr        ! yearday
+        real(r8), dimension(max_species, Ngrids) :: Fspend        ! yearday
         integer, dimension(max_species, Ngrids)  :: Fbehave       ! 1=Fitness, 2=Kinesis
+        integer, dimension(max_species, Ngrids)  :: Featfish      ! 1=True, 0=False
         real(r8), dimension(max_species, Ngrids) :: ZSpref        ! nondimensional
         real(r8), dimension(max_species, Ngrids) :: ZLpref        ! nondimensional
         real(r8), dimension(max_species, Ngrids) :: ZPpref        ! nondimensional

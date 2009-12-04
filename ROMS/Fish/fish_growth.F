@@ -53,7 +53,11 @@
       CONTAINS
 !
 !***********************************************************************
-      SUBROUTINE fish_growth (ng, LBi, UBi, LBj, UBj, itime,            &
+      SUBROUTINE fish_growth (ng, LBi, UBi, LBj, UBj, LBk, UBk, itime,  &
+     &                            pm, pn,                               &
+# ifdef SOLVE3D
+     &                            Hz,                                   &
+# endif
      &                            MyThread, bounded, track, feedback,   &
      &                            bioenergy, alive, eatfish,            &
      &                            species, lifestage,                   &
@@ -69,7 +73,7 @@
 !
 !  Imported variable declarations.
 !
-      integer, intent(in) :: ng, LBi, UBi, LBj, UBj, itime
+      integer, intent(in) :: ng, LBi, UBi, LBj, UBj, LBk, UBk, itime
       integer, intent(in) :: fish_count(LBi:UBi,LBj:UBj)
       integer, intent(inout) :: species(Nfish(ng))
       integer, intent(inout) :: lifestage(Nfish(ng))
@@ -82,6 +86,11 @@
       logical, intent(inout) :: alive(Nfish(ng))
       logical, intent(in) :: eatfish(Nfish(ng))
 
+      real(r8), intent(in) :: pm(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: pn(LBi:UBi,LBj:UBj)
+# ifdef SOLVE3D
+      real(r8), intent(in) :: Hz(LBi:UBi,LBj:UBj,UBk)
+# endif
       real(r8), intent(inout) :: track(NFV(ng),0:NFT,Nfish(ng))
       real(r8), intent(inout) :: feedback(NT(ng),Nfish(ng))
       real(r8), intent(inout) :: bioenergy(NFishV(ng),Nfish(ng))
@@ -94,13 +103,14 @@
       type(fishnode), pointer :: thisfish
       type(fishnode), pointer :: otherfish
 
-      real(r8) :: Fweight, Fworth, CellVol
-      real(r8) :: oFweight, oFworth, FishVul, PopVul, BioVul
+      real(r8) :: Fweight, Fworth, Fx, Fy, Fz
+      real(r8) :: oFweight, oFworth, oFx, oFy, oFz
+      real(r8) :: FishVul, PopVul, BioVul, CellVol
       real(r8) :: SZooC, LZooC, PZooC
       real(r8) :: FSZoo, FLZoo, FPZoo, FTZoo, FFish
       real(r8) :: CSZoo, CLZoo, CPZoo, CTZoo, CFish
       real(r8) :: dtdays, Csmp, Egst, Excr, Resp, Actv, SDA
-      real(r8) :: mmol2g, g2mmol, Cmax, Uswim, Fpred, fac
+      real(r8) :: mmol2g, g2mmol, Cmax, Uswim, Fpred, fac, dist
       real(r8) :: Ndmort, Fdmort, Pdmort, Tdmort
 !
 !-----------------------------------------------------------------------
@@ -140,7 +150,11 @@
               IF (MyThread(ifid).and.bounded(ifid).and.alive(ifid)) THEN
                 Fweight=bioenergy(ifwwt,ifid)
                 Fworth=bioenergy(ifworth,ifid)
-!
+                Fx=track(ixgrd,itime,ifid)
+                Fy=track(iygrd,itime,ifid)
+! Swimming velocity based on fish weight (in cm/s)
+                Uswim=a_A(isp,ng)*Fweight**b_A(isp,ng)
+
 ! ADULT FISH
                 IF (lifestage(ifid).eq.if_adult) THEN
 ! Max. Consumption (NEEDS TEMPERATURE DEPENDENCE)
@@ -169,18 +183,22 @@
      &                                       alive(ofid)) THEN
                         oFweight=bioenergy(ifwwt,ofid)
                         oFworth=bioenergy(ifworth,ofid)
-                        IF (ifid.ne.ofid) THEN              ! No canibalism
-                          IF (Fweight.gt.(2.0_r8*oFweight)) THEN
-                            FishVul=FishVul+oFweight
-                            PopVul=PopVul+oFworth
-                            BioVul=BioVul+oFweight*oFworth
-                          END IF
+                        oFx=track(ixgrd,itime,ofid)
+                        oFy=track(iygrd,itime,ofid)
+                        dist=(((Fx-oFx)/pm(i,j))**2+                    &
+     &                        ((Fy-oFy)/pn(i,j))**2)**0.5_r8
+                        IF ((ifid.ne.ofid).and.                         &
+                            (Fweight.gt.(2.0_r8*oFweight)).and.         &
+     &                      (dist.lt.0.01_r8*Uswim*dt(ng))) THEN
+                          FishVul=FishVul+oFweight
+                          PopVul=PopVul+oFworth
+                          BioVul=BioVul+oFweight*oFworth
                         END IF 
                       END IF 
                       otherfish => otherfish % next
                     END DO
 ! Should really divide by volume, but which Hz given that fish_by_cell is 2D?
-                    CellVol=GRID(ng)%pm(i,j)*GRID(ng)%pn(i,j)
+                    CellVol=pm(i,j)*pn(i,j)
                     FishVul=FishVul*CellVol
                     PopVul=PopVul*CellVol
                     BioVul=BioVul*CellVol
@@ -211,11 +229,15 @@
                         IF (MyThread(ofid).and.bounded(ofid).and.       &
      &                                         alive(ofid)) THEN
                           oFweight=bioenergy(ifwwt,ofid)
-                          IF (ifid.ne.ofid) THEN              ! No canibalism
-                            IF (Fweight.gt.(2.0_r8*oFweight)) THEN
-                              bioenergy(ifeatme,ofid)=                  &
-     &                          bioenergy(ifeatme,ofid)+LOG(1.0_r8-fac)
-                            END IF
+                          oFx=track(ixgrd,itime,ofid)
+                          oFy=track(iygrd,itime,ofid)
+                          dist=(((Fx-oFx)/pm(i,j))**2+                  &
+     &                          ((Fy-oFy)/pn(i,j))**2)**0.5_r8
+                          IF ((ifid.ne.ofid).and.                       &
+                              (Fweight.gt.(2.0_r8*oFweight)).and.       &
+     &                        (dist.lt.0.01_r8*Uswim*dt(ng))) THEN
+                            bioenergy(ifeatme,ofid)=                    &
+     &                        bioenergy(ifeatme,ofid)+LOG(1.0_r8-fac)
                           END IF
                         END IF
                         otherfish => otherfish % next
@@ -236,8 +258,7 @@
                   Egst=a_F(isp,ng)*Csmp
                   Excr=a_E(isp,ng)*(Csmp-Egst)
 ! (will need to be converted from mmolN/day to mmolN/m3 in NEMURO)
-! Respiration (Uswim in cm/s)
-                  Uswim=a_A(isp,ng)*Fweight**b_A(isp,ng)
+! Respiration
                   Actv=exp(d_R(isp,ng)*Uswim)
                   Resp=a_R(isp,ng)*Fweight**(-b_R(isp,ng))*Actv*5.258
 ! Specific Dynamic Action

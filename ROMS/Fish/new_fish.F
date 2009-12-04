@@ -186,7 +186,16 @@
                     FISHES(ng) % track(k,j,ifsh) =                      &
      &                 FISHES(ng) % track(k,j,moms(i))
                   END DO
+                  FISHES(ng)%track(ixrhs,j,ifsh)=0.0_r8
+                  FISHES(ng)%track(iyrhs,j,ifsh)=0.0_r8
+                  FISHES(ng)%track(izrhs,j,ifsh)=0.0_r8
                 END DO
+                FISHES(ng)%Tinfo(ixgrd,ifsh) =                          &
+     &                     FISHES(ng)%Tinfo(ixgrd,moms(i))
+                FISHES(ng)%Tinfo(iygrd,ifsh) =                          & 
+     &                     FISHES(ng)%Tinfo(iygrd,moms(i))
+                FISHES(ng)%Tinfo(izgrd,ifsh) =                          &
+     &                     FISHES(ng)%Tinfo(izgrd,moms(i))
 ! age zero eggs...
                 FISHES(ng) % bioenergy(ifworth,ifsh) = eggs(i)
                 FISHES(ng) % bioenergy(ifwwt,ifsh) = 0.0_r8

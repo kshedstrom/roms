@@ -52,7 +52,7 @@
 !
 !***********************************************************************
       SUBROUTINE fish_swim (ng, LBi, UBi, LBj, UBj, LBk, UBk,           &
-     &                          itime, nnew,                            &
+     &                          itimem1, itime, itimep1, nnew,          &
      &                          pm, pn,                                 &
 # ifdef SOLVE3D
      &                          Hz,                                     &
@@ -75,7 +75,7 @@
 !  Imported variable declarations.
 !
       integer, intent(in) :: ng, LBi, UBi, LBj, UBj, LBk, UBk
-      integer, intent(in) :: itime, nnew
+      integer, intent(in) :: itimem1, itime, itimep1, nnew
       integer, intent(in) :: species(Nfish(ng))
       integer, intent(in) :: lifestage(Nfish(ng))
       integer, intent(in) :: swimtype(Nfish(ng))
@@ -116,7 +116,7 @@
       real(r8) :: Fvar, Fvar_opt, Fvar_sigma, var_f, var_g
       real(r8) :: dist, epsd, epsd_sigma, ee, epsx, epsy, h1, h2
       real(r8) :: f_xdis, g_epsx, f_ydis, g_epsy, xdis, ydis
-      real(r8) :: f_zdis, g_epsz, epsz, zdis, zpos, cff1, cff2
+      real(r8) :: f_zdis, g_epsz, epsz, zdis, zpos, cff1, cff2, zkdis
       real(r8) :: tcheck
 !
 !-----------------------------------------------------------------------
@@ -134,9 +134,13 @@
      &            alive(fid).and.(lifestage(fid).eq.if_adult)) THEN
 !
                 Ir=INT(track(ixgrd,itime,fid))
+                Ir=MIN(MAX(Ir,1),Lm(ng))
                 Jr=INT(track(iygrd,itime,fid))
+                Jr=MIN(MAX(Jr,1),Mm(ng))
                 Kr=INT(track(izgrd,itime,fid))
+                Kr=MIN(MAX(Kr,2),N(ng))
                 Fweight=bioenergy(ifwwt,fid)
+
 ! Swimming velocity based on fish weight (in cm/s)
                 Uswim=a_A(isp,ng)*Fweight**b_A(isp,ng)
 !
@@ -149,9 +153,10 @@
                   IrMax=Ir
                   JrMax=Jr
                   KrMax=Kr
-                  DO jj=Jr-1,Jr+1
-                    DO ii=Ir-1,Ir+1
-                      DO kk=MAX(Kr-1,1),MIN(Kr+1,N(ng))
+                  DO jj=MAX(Jr-1,1),MIN(Jr+1,Mm(ng))
+                    DO ii=MAX(Ir-1,1),MIN(Ir+1,Lm(ng))
+                      DO kk=2,N(ng)
+!                      DO kk=MAX(Kr-1,1),MIN(Kr+1,N(ng))
                         CALL fish_growth_ijk (ng, ii, jj, kk, nnew,     &
      &                                isp, Fweight, Uswim, Fgrowth)
 ! MISSING HERE: CALL FOR MORTALITY SUBROUTINE
@@ -170,7 +175,6 @@
                   fac=2.0_r8*(snudg-0.5_r8)
                   d_i=REAL(IrMax,r8)-track(ixgrd,itime,fid)
                   d_j=REAL(JrMax,r8)-track(iygrd,itime,fid)
-                  d_k=REAL(KrMax,r8)-track(izgrd,itime,fid)
 ! Angle with +-0.5 radians randomness
                   theta_ij=atan2(d_j,d_i)+0.5_r8*fac
 ! Distance with 30% randomness
@@ -179,39 +183,39 @@
                   d_ij=MIN(0.01_r8*Uswim*dt(ng),d_ij)
                   d_ij=d_ij+0.3_r8*fac*d_ij
 ! Swim towards best location
-                  track(ixrhs,itime,fid)=d_ij*cos(theta_ij)*            &
-     &                                   pm(Ir,Jr)/dt(ng)
-                  track(iyrhs,itime,fid)=d_ij*sin(theta_ij)*            &
-     &                                   pn(Ir,Jr)/dt(ng)
-                  track(izrhs,itime,fid)=d_k/dt(ng)
-! Temporary overwrite until vertical motion is working
-                  track(izrhs,itime,fid)=0.0_r8
+                  track(ixgrd,itimep1,fid)=track(ixgrd,itime,fid)+      &
+     &                                     d_ij*cos(theta_ij)*pm(Ir,Jr)
+                  track(iygrd,itimep1,fid)=track(iygrd,itime,fid)+      &
+     &                                     d_ij*sin(theta_ij)*pn(Ir,Jr)
+                  track(izgrd,itimep1,fid)=REAL(KrMax,r8)
 !
 ! -------- KINESIS-BASED SWIMMING BEHAVIOR (HUMSTON) --------
                 ELSE IF (swimtype(fid).eq.2) THEN
 !
                   Ftemp=track(itemp+NFV(ng)-NT(ng),itime,fid)
-!                  Fpval=bioenergy(ifpval,fid)
+                  Fpval=bioenergy(ifpval,fid)
                   Fdens=track(ifden,itime,fid)
+!
+! ----- Horizontal behavior (updated once daily) -----
 ! Behavior based on temperature
                   Fvar=Ftemp
-                  Fvar_opt=15.0_r8
+                  Fvar_opt=10.0_r8
                   Fvar_sigma=3.0_r8
 ! Behavior based on p-value
 !                  Fvar=Fpval
-!                  Fvar_opt=1.0_r8
+!                  Fvar_opt=0.2_r8
 !                  Fvar_sigma=0.2_r8
 ! Use commented lines below to check behavior based on longitude gradient
 !                  Fvar=track(ixgrd,itime,fid)
 !                  Fvar_opt=15.0_r8
 !                  Fvar_sigma=5.0_r8
-                  itm1=MOD(itime-1+NFT+1,NFT+1)
-                  xdis=track(ixrhs,itm1,fid)*dt(ng)/pm(Ir,Jr)
-                  ydis=track(iyrhs,itm1,fid)*dt(ng)/pn(Ir,Jr)
+                  xdis=(track(ixgrd,itime,fid)-                         &
+     &                  track(ixgrd,itimem1,fid))/pm(Ir,Jr)
+                  ydis=(track(iygrd,itime,fid)-                         &
+     &                  track(iygrd,itimem1,fid))/pn(Ir,Jr)
 ! Use xdis, ydis below for purely random motion
 !                  xdis=0.0_r8
 !                  ydis=0.0_r8
-! Horizontal behavior (updated once daily)
                   IF (iyesterday(ng).ne.idays(ng)) THEN
 ! Uswim is in cm/s, so multiply by 0.01 for m/s)
                     dist=0.01_r8*Uswim*dt(ng)
@@ -255,17 +259,29 @@
                     ydis=-1.0_r8*ydis
                   END IF
 ! Swim towards best location
-                  track(ixrhs,itime,fid)=xdis*pm(Ir,Jr)/dt(ng)
-                  track(iyrhs,itime,fid)=ydis*pn(Ir,Jr)/dt(ng)
-! Vertical behavior (update at every time step)
-                  zdis=track(izrhs,itm1,fid)*dt(ng)
+                  track(ixgrd,itimep1,fid)=track(ixgrd,itime,fid)+      &
+     &                                     xdis*pm(Ir,Jr)
+                  track(iygrd,itimep1,fid)=track(iygrd,itime,fid)+      &
+     &                                     ydis*pn(Ir,Jr)
+!
+! ----- Vertical behavior (update at every time step) -----
+!
+! Behavior based on p-value
+                  Fvar=Fpval
+                  Fvar_opt=0.2_r8
+                  Fvar_sigma=0.2_r8
+! Use commented lines below to check behavior based on depth
+!                  Fvar=track(idpth,itime,fid)
+!                  Fvar_opt=300.0_r8
+!                  Fvar_sigma=100.0_r8
+                  zdis=(track(idpth,itime,fid)-                         &
+     &                  track(idpth,itimem1,fid))
 ! Use zdis below for purely random motion
 !                  zdis=0.0_r8
 ! Uswim is in cm/s, so multiply by 0.01 for m/s)
-!            dist=0.01_r8*Uswim*dt(ng)
-! Max distance is 100m, or total water depth (whichever is less)
-      !            dist=min(1.0_r8,-GRID(ng)%z_w(Ir,Jr,1))
-                  dist=0.33_r8
+!                  dist=0.01_r8*Uswim*dt(ng)
+! Use 10x cell thickness for random displacement
+                  dist=10.0_r8*Hz(Ir,Jr,Kr)
 ! Compute random displacements
                   epsd=(0.5_r8*dist**2)**0.5_r8
                   epsd_sigma=0.5_r8*dist
@@ -288,10 +304,22 @@
                   g_epsz=epsz*var_g
                   zdis=f_zdis+g_epsz
 ! Swim towards best location
-                  track(izrhs,itime,fid)=zdis/dt(ng)
-! Temporary overwrite until vertical motion is working
-                  track(izrhs,itime,fid)=0.0_r8
-
+                  zkdis=0.0_r8
+                  KrMax=Kr
+                  IF (zdis.gt.0.0_r8) THEN
+                    DO kk=MIN(Kr,N(ng)),N(ng)
+                      zkdis=zkdis+Hz(Ir,Jr,kk)
+                      IF (zkdis.lt.zdis) KrMax=kk
+                    END DO
+                  END IF
+                  IF (zdis.lt.0.0_r8) THEN
+                    DO kk=MAX(Kr,2),2,-1
+                      zkdis=zkdis+Hz(Ir,Jr,kk)
+                      IF (zkdis.lt.ABS(zdis)) KrMax=kk
+                    END DO
+                  END IF
+                  track(izgrd,itimep1,fid)=REAL(KrMax,r8)
+!
                 END IF
 !
               END IF

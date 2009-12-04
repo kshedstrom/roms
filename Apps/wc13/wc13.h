@@ -91,7 +91,7 @@
 #ifdef NEMURO
 # define NEMURO_SAN
 # ifdef NEMURO_SAN
-#  undef  FISH_FEEDBACK
+#  define FISH_FEEDBACK
 #  undef FLEET
 #  define ANA_SPAWN_DIST
 #  undef EGGS_BISECTION
