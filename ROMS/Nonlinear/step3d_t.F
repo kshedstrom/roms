@@ -1452,6 +1452,21 @@
           END DO
         END DO
 # endif
+# define SALT_CLAMP
+# ifdef SALT_CLAMP
+!
+!  Apply clamp to salt
+!
+      IF (itrc == isalt) THEN
+        DO k=1,N(ng)
+          DO j=JstrR,JendR
+            DO i=IstrR,IendR
+              t(i,j,k,nnew,itrc) = max(t(i,j,k,nnew,itrc),0.0_r8)
+            END DO
+          END DO
+        END DO
+      END IF
+# endif
 # ifdef DIAGNOSTICS_TS
 !
 !  Compute time-rate-of-change diagnostic term.
