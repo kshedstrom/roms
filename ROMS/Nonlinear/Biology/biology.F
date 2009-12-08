@@ -2,7 +2,7 @@
       MODULE biology_mod
 #if defined NONLINEAR && defined BIOLOGY
 !
-!svn $Id: biology.F 1076 2009-09-25 23:18:43Z kate $
+!svn $Id: biology.F 1109 2009-12-03 01:03:25Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -35,7 +35,7 @@
 # elif defined NPZD_POWELL
 #  include <npzd_Powell.h>
 # elif defined BIO_UMAINE
-#  include <bio_UMAINE.h>
+#  include <umaine.h>
 # elif defined BIO_GOANPZ
 #  include <goanpz.h>
 # else
