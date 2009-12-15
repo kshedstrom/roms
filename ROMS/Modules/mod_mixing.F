@@ -368,7 +368,7 @@
         TYPE (T_MIXING), allocatable :: MIXING(:)
 
       CONTAINS
-        
+
       SUBROUTINE allocate_mixing (ng, LBi, UBi, LBj, UBj)
 !
 !=======================================================================
@@ -389,7 +389,7 @@
 !-----------------------------------------------------------------------
 !
       IF (ng.eq.1) allocate ( MIXING(Ngrids) )
-! 
+!
 !  Nonlinear model state.
 !
 #if defined UV_VIS2 || !defined SOLVE3D
@@ -718,14 +718,14 @@
         DO j=Jmin,Jmax
 #if defined UV_VIS2 || !defined SOLVE3D
           DO i=Imin,Imax
-            MIXING(ng) % visc2_p(i,j) = visc2(ng)
-            MIXING(ng) % visc2_r(i,j) = visc2(ng)
+            MIXING(ng) % visc2_p(i,j) = IniVal
+            MIXING(ng) % visc2_r(i,j) = IniVal
           END DO
 #endif
 #ifdef UV_VIS4
           DO i=Imin,Imax
-            MIXING(ng) % visc4_p(i,j) = visc4(ng)
-            MIXING(ng) % visc4_r(i,j) = visc4(ng)
+            MIXING(ng) % visc4_p(i,j) = IniVal
+            MIXING(ng) % visc4_r(i,j) = IniVal
           END DO
 #endif
 #ifdef SOLVE3D
@@ -775,14 +775,14 @@
 # ifdef TS_DIF2
           DO itrc=1,NT(ng)
             DO i=Imin,Imax
-              MIXING(ng) % diff2(i,j,itrc) = tnu2(itrc,ng)
+              MIXING(ng) % diff2(i,j,itrc) = IniVal
             END DO
           END DO
 # endif
 # ifdef TS_DIF4
           DO itrc=1,NT(ng)
             DO i=Imin,Imax
-              MIXING(ng) % diff4(i,j,itrc) = tnu4(itrc,ng)
+              MIXING(ng) % diff4(i,j,itrc) = IniVal
             END DO
           END DO
 # endif
@@ -921,7 +921,7 @@
              MIXING(ng) % Kh(i,j) = 1.0_r8
           END DO
 # ifdef SOLVE3D
-          DO k=0,N(ng)           
+          DO k=0,N(ng)
             DO i=Imin,Imax
               MIXING(ng) % Kv(i,j,k) = 1.0_r8
             END DO
@@ -975,7 +975,7 @@
             END DO
           END DO
 #  endif
-          DO k=0,N(ng)           
+          DO k=0,N(ng)
             DO i=Imin,Imax
               MIXING(ng) % tl_Akv(i,j,k) = IniVal
             END DO
@@ -1065,7 +1065,7 @@
             END DO
           END DO
 #  endif
-          DO k=0,N(ng)           
+          DO k=0,N(ng)
             DO i=Imin,Imax
               MIXING(ng) % ad_Akv(i,j,k) = IniVal
             END DO
