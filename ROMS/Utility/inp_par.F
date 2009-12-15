@@ -618,7 +618,13 @@
 !  Take the square root of the biharmonic coefficients so it can
 !  be applied to each harmonic operator.
 !
-        visc4(ng)=SQRT(ABS(visc4(ng)))
+        nl_visc4(ng)=SQRT(ABS(nl_visc4(ng)))
+#ifdef ADJOINT
+        ad_visc4(ng)=SQRT(ABS(ad_visc4(ng)))
+#endif
+#if defined TANGENT || defined TL_IOMS
+        tl_visc4(ng)=SQRT(ABS(tl_visc4(ng)))
+#endif
         tkenu4(ng)=SQRT(ABS(tkenu4(ng)))
 !
 !  Compute inverse nudging coefficients (1/s) used in various tasks.
@@ -1388,20 +1394,46 @@
             Npts=load_r(Nval, Rval, (NAT+NPT)*Ngrids, Rtracer)
             DO ng=1,Ngrids
               DO itrc=1,NAT+NPT
-                tnu2(itrc,ng)=Rtracer(itrc,ng)
+                nl_tnu2(itrc,ng)=Rtracer(itrc,ng)
               END DO
             END DO
           ELSE IF (TRIM(KeyWord).eq.'TNU4') THEN
             Npts=load_r(Nval, Rval, (NAT+NPT)*Ngrids, Rtracer)
             DO ng=1,Ngrids
               DO itrc=1,NAT+NPT
-                tnu4(itrc,ng)=Rtracer(itrc,ng)
+                nl_tnu4(itrc,ng)=Rtracer(itrc,ng)
+              END DO
+            END DO
+          ELSE IF (TRIM(KeyWord).eq.'ad_TNU2') THEN
+            Npts=load_r(Nval, Rval, (NAT+NPT)*Ngrids, Rtracer)
+            DO ng=1,Ngrids
+              DO itrc=1,NAT+NPT
+                ad_tnu2(itrc,ng)=Rtracer(itrc,ng)
+                tl_tnu2(itrc,ng)=Rtracer(itrc,ng)
+              END DO
+            END DO
+          ELSE IF (TRIM(KeyWord).eq.'ad_TNU4') THEN
+            Npts=load_r(Nval, Rval, (NAT+NPT)*Ngrids, Rtracer)
+            DO ng=1,Ngrids
+              DO itrc=1,NAT+NPT
+                ad_tnu4(itrc,ng)=Rtracer(itrc,ng)
+                tl_tnu4(itrc,ng)=Rtracer(itrc,ng)
               END DO
             END DO
           ELSE IF (TRIM(KeyWord).eq.'VISC2') THEN
-            Npts=load_r(Nval, Rval, Ngrids, visc2)
+            Npts=load_r(Nval, Rval, Ngrids, nl_visc2)
           ELSE IF (TRIM(KeyWord).eq.'VISC4') THEN
-            Npts=load_r(Nval, Rval, Ngrids, visc4)
+            Npts=load_r(Nval, Rval, Ngrids, nl_visc4)
+          ELSE IF (TRIM(KeyWord).eq.'ad_VISC2') THEN
+            Npts=load_r(Nval, Rval, Ngrids, ad_visc2)
+            DO ng=1,Ngrids
+              tl_visc2(ng)=ad_visc2(ng)
+            END DO
+          ELSE IF (TRIM(KeyWord).eq.'VISC4') THEN
+            Npts=load_r(Nval, Rval, Ngrids, ad_visc4)
+            DO ng=1,Ngrids
+              tl_visc4(ng)=ad_visc4(ng)
+            END DO
           ELSE IF (TRIM(KeyWord).eq.'AKT_BAK') THEN
             Npts=load_r(Nval, Rval, (NAT+NPT)*Ngrids, Rtracer)
             DO ng=1,Ngrids
@@ -1409,8 +1441,21 @@
                 Akt_bak(itrc,ng)=Rtracer(itrc,ng)
               END DO
             END DO
+          ELSE IF (TRIM(KeyWord).eq.'ad_AKT_fac') THEN
+            Npts=load_r(Nval, Rval, (NAT+NPT)*Ngrids, Rtracer)
+            DO ng=1,Ngrids
+              DO itrc=1,NAT+NPT
+                ad_Akt_fac(itrc,ng)=Rtracer(itrc,ng)
+                tl_Akt_fac(itrc,ng)=Rtracer(itrc,ng)
+              END DO
+            END DO
           ELSE IF (TRIM(KeyWord).eq.'AKV_BAK') THEN
             Npts=load_r(Nval, Rval, Ngrids, Akv_bak)
+          ELSE IF (TRIM(KeyWord).eq.'ad_AKV_fac') THEN
+            Npts=load_r(Nval, Rval, Ngrids, ad_Akv_fac)
+            DO ng=1,Ngrids
+              tl_Akv_fac(ng)=ad_AKv_fac(ng)
+            END DO
           ELSE IF (TRIM(KeyWord).eq.'AKK_BAK') THEN
             Npts=load_r(Nval, Rval, Ngrids, Akk_bak)
           ELSE IF (TRIM(KeyWord).eq.'AKP_BAK') THEN
@@ -1691,6 +1736,28 @@
               END DO
             END DO
 #  endif
+# endif
+#endif
+#if defined SOLVE3D && defined TS_PSOURCE
+          ELSE IF (TRIM(KeyWord).eq.'LtracerSrc') THEN
+            Npts=load_l(Nval, Cval, (NAT+NPT)*Ngrids, Ltracer)
+            DO ng=1,Ngrids
+              DO itrc=1,NAT
+                LtracerSrc(itrc,ng)=Ltracer(itrc,ng)
+              END DO
+            END DO
+# ifdef T_PASSIVE
+            IF (MAXVAL(inert).eq.0) THEN
+              IF (Master) WRITE (out,280) 'inert'
+              exit_flag=5
+              RETURN
+            END IF
+            DO ng=1,Ngrids
+              DO itrc=1,NPT
+                i=inert(itrc)
+                LtracerSrc(i,ng)=Ltracer(itrc,ng)
+              END DO
+            END DO
 # endif
 #endif
 #if defined SEDIMENT && defined SED_MORPH
@@ -2129,11 +2196,6 @@
             Npts=load_l(Nval, Cval, Ngrids, Hout(idMtls,:))
 #if defined SOLVE3D && defined T_PASSIVE
           ELSE IF (TRIM(KeyWord).eq.'Hout(inert)') THEN
-            IF (MAXVAL(inert).eq.0) THEN
-              IF (Master) WRITE (out,280) 'inert'
-              exit_flag=5
-              RETURN
-            END IF
             Npts=load_l(Nval, Cval, NPT*Ngrids, Linert)
             DO ng=1,Ngrids
               DO itrc=1,NPT
@@ -2957,28 +3019,74 @@
 #ifdef SOLVE3D
 # ifdef TS_DIF2
           DO itrc=1,NAT+NPT
-            WRITE (out,190) tnu2(itrc,ng), 'tnu2', itrc,                &
-     &            'Horizontal, harmonic mixing coefficient (m2/s)',     &
-     &            'for tracer ', itrc, TRIM(Vname(1,idTvar(itrc)))
+            WRITE (out,190) nl_tnu2(itrc,ng), 'nl_tnu2', itrc,          &
+     &            'NLM Horizontal, harmonic mixing coefficient',        &
+     &            '(m2/s) for tracer ', itrc,                           &
+     &            TRIM(Vname(1,idTvar(itrc)))
+#  ifdef ADJOINT
+            WRITE (out,190) ad_tnu2(itrc,ng), 'ad_tnu2', itrc,          &
+     &            'ADM Horizontal, harmonic mixing coefficient',        &
+     &            '(m2/s) for tracer ', itrc,                           &
+     &            TRIM(Vname(1,idTvar(itrc)))
+#  endif
+#  if defined TANGENT || defined TL_IOMS
+            WRITE (out,190) tl_tnu2(itrc,ng), 'tl_tnu2', itrc,          &
+     &            'TLM Horizontal, harmonic mixing coefficient',        &
+     &            '(m2/s) for tracer ', itrc,                           &
+     &            TRIM(Vname(1,idTvar(itrc)))
+#  endif
           END DO
 # endif
 # ifdef TS_DIF4
           DO itrc=1,NAT+NPT
-            WRITE (out,190) tnu4(itrc,ng), 'tnu4', itrc,                &
-     &            'Horizontal, biharmonic mixing coefficient (m4/s)',   &
-     &            'for tracer ', itrc, TRIM(Vname(1,idTvar(itrc)))
+            WRITE (out,190) nl_tnu4(itrc,ng), 'nl_tnu4', itrc,          &
+     &            'NLM Horizontal, biharmonic mixing coefficient',      &
+     &            '(m4/s) for tracer ', itrc,                           &
+     &            TRIM(Vname(1,idTvar(itrc)))
+#  ifdef ADJOINT
+            WRITE (out,190) ad_tnu4(itrc,ng), 'ad_tnu4', itrc,          &
+     &            'ADM Horizontal, biharmonic mixing coefficient',      &
+     &            '(m4/s) for tracer ', itrc,                           &
+     &            TRIM(Vname(1,idTvar(itrc)))
+#  endif
+#  if defined TANGENT || defined TL_IOMS
+            WRITE (out,190) tl_tnu4(itrc,ng), 'tl_tnu4', itrc,          &
+     &            'TLM Horizontal, biharmonic mixing coefficient',      &
+     &            '(m4/s) for tracer ', itrc,                           &
+     &            TRIM(Vname(1,idTvar(itrc)))
+#  endif
           END DO
 # endif
 #endif
 #ifdef UV_VIS2
-          WRITE (out,210) visc2(ng), 'visc2',                           &
-     &          'Horizontal, harmonic mixing coefficient (m2/s)',       &
-     &          'for momentum.'
+          WRITE (out,210) nl_visc2(ng), 'nl_visc2',                     &
+     &          'NLM Horizontal, harmonic mixing coefficient',          &
+     &          '(m2/s) for momentum.'
+# ifdef ADJOINT
+          WRITE (out,210) ad_visc2(ng), 'ad_visc2',                     &
+     &          'ADM Horizontal, harmonic mixing coefficient',          &
+     &          '(m2/s) for momentum.'
+# endif
+# if defined TANGENT || defined TL_IOMS
+          WRITE (out,210) tl_visc2(ng), 'tl_visc2',                     &
+     &          'TLM Horizontal, harmonic mixing coefficient',          &
+     &          '(m2/s) for momentum.'
+# endif
 #endif
 #ifdef UV_VIS4
-          WRITE (out,210) visc4(ng), 'visc4',                           &
-     &          'Horizontal, biharmonic mixing coefficient (m4/s)',     &
-     &          'for momentum.'
+          WRITE (out,210) nl_visc4(ng), 'nl_visc4',                     &
+     &          'NLM Horizontal, biharmonic mixing coefficient',        &
+     &          '(m4/s) for momentum.'
+# ifdef ADJOINT
+          WRITE (out,210) ad_visc4(ng), 'ad_visc4',                     &
+     &          'ADM Horizontal, biharmonic mixing coefficient',        &
+     &          '(m4/s) for momentum.'
+# endif
+# if defined TANGENT || defined TL_IOMS
+          WRITE (out,210) tl_visc4(ng), 'tl_visc4',                     &
+     &          'TLM Horizontal, biharmonic mixing coefficient',        &
+     &          '(m4/s) for momentum.'
+# endif
 #endif
 #ifdef SOLVE3D
           DO itrc=1,NAT+NPT
@@ -3040,6 +3148,30 @@
      &          'Factor for Wave dissipation surface tke flux .'
           WRITE (out,140) crgban_cw(ng), 'crgban_cw',                   &
      &          'Factor for Craig/Banner surface tke flux.'
+# endif
+# ifdef FORWARD_MIXING
+          DO itrc=1,NAT+NPT
+#  ifdef ADJOINT
+            WRITE (out,190) ad_Akt_fac(itrc,ng), 'ad_Akt_fac', itrc,    &
+     &            'ADM basic state vertical mixing scale factor',       &
+     &            'for tracer ', itrc, TRIM(Vname(1,idTvar(itrc)))
+#  endif
+#  if defined TANGENT || defined TL_IOMS
+            WRITE (out,190) tl_Akt_fac(itrc,ng), 'tl_Akt_fac', itrc,    &
+     &            'TLM basic state vertical mixing scale factor',       &
+     &            'for tracer ', itrc, TRIM(Vname(1,idTvar(itrc)))
+#  endif
+          END DO
+#  ifdef ADJOINT
+          WRITE (out,210) ad_Akv_fac(ng), 'ad_Akv_fac',                 &
+     &          'ADM basic state vertical mixing scale factor',         &
+     &          'for momentum.'
+#  endif
+#  if defined TANGENT || defined TL_IOMS
+          WRITE (out,210) tl_Akv_fac(ng), 'tl_Akv_fac',                 &
+     &          'TLM basic state vertical mixing scale factor',         &
+     &          'for momentum.'
+#  endif
 # endif
 #endif
           WRITE (out,200) rdrg(ng), 'rdrg',                             &
@@ -3291,6 +3423,21 @@
      &         itrc, TRIM(Vname(1,idTvar(itrc)))
           END DO
 #  endif
+# endif
+#endif
+#if defined SOLVE3D && defined TS_PSOURCE
+          DO itrc=1,NAT
+            WRITE (out,185) LtracerSrc(itrc,ng), 'LtracerSrc', itrc,    &
+     &            'Processing point sources/Sink on tracer ', itrc,     &
+     &            TRIM(Vname(1,idTvar(itrc)))
+          END DO
+# ifdef T_PASSIVE
+          DO itrc=1,NPT
+            i=inert(itrc)
+            WRITE (out,185) LtracerSrc(i,ng), 'LtracerSrc', i,          &
+     &            'Processing point sources/Sink on tracer ', i,        &
+     &            TRIM(Vname(1,idTvar(i)))
+          END DO
 # endif
 #endif
 #if defined SEDIMENT && defined SED_MORPH
@@ -4173,7 +4320,13 @@
 !  Take the square root of the biharmonic coefficients so it can
 !  be applied to each harmonic operator.
 !
-          tnu4(itrc,ng)=SQRT(ABS(tnu4(itrc,ng)))
+          nl_tnu4(itrc,ng)=SQRT(ABS(nl_tnu4(itrc,ng)))
+#ifdef ADJOINT
+          ad_tnu4(itrc,ng)=SQRT(ABS(ad_tnu4(itrc,ng)))
+#endif
+#if defined TANGENT || defined TL_IOMS
+          tl_tnu4(itrc,ng)=SQRT(ABS(tl_tnu4(itrc,ng)))
+#endif
 !
 !  Compute inverse nudging coefficients (1/s) used in various tasks.
 !
@@ -4242,6 +4395,7 @@
  160  FORMAT (f11.3,2x,a,t30,a,/,t32,a)
  170  FORMAT (10x,l1,2x,a,t30,a)
  180  FORMAT (10x,l1,2x,a,t30,a,i2.2,':',1x,a)
+ 185  FORMAT (10x,l1,2x,a,'(',i2.2,')',t30,a,i2.2,':',1x,a)
  190  FORMAT (1p,e11.4,2x,a,'(',i2.2,')',t30,a,/,t32,a,i2.2,':',1x,a)
  195  FORMAT (1p,e11.4,2x,a,t30,a,i2.2,':',1x,a)
  200  FORMAT (1p,e11.4,2x,a,t30,a)
@@ -6835,10 +6989,19 @@
         string(i:i)=blank
       END DO
 !
-!  Get length of "line", remove leading and trailing blanks.
+!  Get length of "line". Remove comment after the KEYWORD, if any.
+!  Then, remove leading and trailing blanks.
 !
-      line=TRIM(ADJUSTL(line_text))
-      Linp=LEN_TRIM(line)
+      Linp=LEN(line_text)
+      IF ((Linp.gt.0).and.(line_text(1:1).ne.CHAR(33))) THEN
+        Icmm=INDEX(line_text,CHAR(33),BACK=.FALSE.)
+        IF (Icmm.gt.0) Linp=Icmm-1
+        line=TRIM(ADJUSTL(line_text(1:Linp)))
+        Linp=LEN_TRIM(line)
+      ELSE
+        line=TRIM(ADJUSTL(line_text))
+        Linp=LEN_TRIM(line)
+      END IF
 !
 !  If not a blank or comment line [char(33)=!], decode and extract input
 !  values.  Find equal sign [char(61)].
@@ -6870,13 +7033,10 @@
           Kextract=.TRUE.
         END IF
 !
-! Extract parameter values string.  Remove comments [char(33)=!] or
-! continuation symbol [char(92)=\], if any.  Trim leading trailing
-! blanks.
+! Extract parameter values string.  Remove continuation symbol
+! [char(92)=\], if any.  Trim leading trailing blanks.
 !
         IF (Kextract) THEN
-          Icmm=INDEX(line,CHAR(33),BACK=.FALSE.)
-          IF (Icmm.gt.0) Lend=Icmm-1
           Icmm=INDEX(line,CHAR(92),BACK=.FALSE.)
           IF (Icmm.gt.0) Lend=Icmm-1
           Vstring=ADJUSTL(line(Lstr:Lend))
