@@ -172,7 +172,8 @@
 !  Compute feeding terms on zooplankton to update growth
 !-----------------------------------------------------------------------
 !
-      temp_opt=15.0_r8
+!      temp_opt=15.0_r8
+      temp_opt=12.0_r8
       temp_sigma=3.0_r8
 !
 ! sp_time: time in days, modulo days_year
@@ -182,7 +183,10 @@
 !
 ! find out how many free superindividuals per species for today
       DO isp=1, Nspecies(ng)
-        num_super(isp) = num_free(isp) / (sp_end(isp) - sp_time + 1)
+        IF ((sp_time.ge.sp_start(isp)).and.                             &
+     &              (sp_time.le.sp_end(isp))) THEN
+          num_super(isp) = num_free(isp) / (sp_end(isp) - sp_time + 1)
+        END IF
       END DO
 !
       DO ifid=1,Nfish(ng)
@@ -192,12 +196,12 @@
           IF ((sp_time.ge.sp_start(isp)).and.                           &
      &              (sp_time.le.sp_end(isp))) THEN
             Ftemp=track(itemp+NFV(ng)-NT(ng),nnew,ifid)
-            IF ((bioenergy(ifage,ifid).ge.Fage0(isp,ng)).and.           &
+            IF ((bioenergy(ifbday,ifid).ge.Fage0(isp,ng)).and.          &
      &          (INT(bioenergy(ifbatch,ifid)).lt.Nbatch(isp,ng)).and.   &
      &          (ABS(Ftemp-temp_opt).le.temp_sigma).and.                &
      &          ((sp_time-bioenergy(iftspwn,ifid)).ge.7.0_r8)) THEN
-              bioenergy(ifeggs,ifid)=20000.0_r8*                        &
-     &                               bioenergy(ifworth,ifid)
+              bioenergy(ifeggs,ifid)=10000.0_r8*                        &
+     &                     MAX(bioenergy(ifworth,ifid),0.0_r8)
               bioenergy(ifbatch,ifid)=bioenergy(ifbatch,ifid)+1.0_r8
               bioenergy(iftspwn,ifid)=sp_time
             ELSE
@@ -209,6 +213,7 @@
           IF (sp_time.gt.sp_end(isp)) THEN
             bioenergy(ifeggs,ifid)=0.0_r8
             bioenergy(ifbatch,ifid)=0.0_r8
+            bioenergy(iftspwn,ifid)=0.0_r8
           END IF
 !
         END IF

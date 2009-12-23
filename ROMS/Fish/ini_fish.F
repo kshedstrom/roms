@@ -95,26 +95,20 @@
 !  Don't have these things for each grid... yet.
       ng = 1
       DO isp=1,Nspecies(ng)
-        FISHES(ng) % species_base(isp) =                                &
-     &             (isp-1)*Nyearclass(ng)*Nfishperyear(ng)
-      END DO
-      DO isp=1,Nspecies(ng)
-        DO i=0,Nyearclass(ng)-1
-          FISHES(ng) % age_base(isp,i) =                                &
-     &             FISHES(ng) % species_base(isp) + i*Nfishperyear(ng)
-        END DO
+        FISHES(ng)%species_base(isp)=(isp-1)*Nyearclass(ng)*            &
+     &                                       Nfishperyear(ng)
+        FISHES(ng)%age_base(isp)=FISHES(ng)%species_base(isp)
       END DO
 
       DO isp=1,Nspecies(ng)
 !  KLUDGE FOO WARNING! This will need to be updated.
 !        FISHES(ng) % sp_start(isp) = 1.0_r8
 !        FISHES(ng) % sp_end(isp) = 210.0_r8
-        FISHES(ng) % sp_start(isp) = Fspstr(isp,ng)
-        FISHES(ng) % sp_end(isp) = Fspend(isp,ng)
-        FISHES(ng) % num_free(isp) = Nfishperyear(ng)
-        FISHES(ng) % num_super(isp) = 0
-        FISHES(ng) % next_free(isp) = 1 +                               &
-     &                  FISHES(ng) % age_base(isp,0)
+        FISHES(ng)%sp_start(isp)=Fspstr(isp,ng)
+        FISHES(ng)%sp_end(isp)=Fspend(isp,ng)
+        FISHES(ng)%num_free(isp)=Nfishperyear(ng)
+        FISHES(ng)%num_super(isp)=0
+        FISHES(ng)%next_free(isp)=1+FISHES(ng)%age_base(isp)
       END DO
       IF (Master) THEN
         print *, 'First Year for Fish'
@@ -127,12 +121,19 @@
         DO i=1,Nyearclass(ng)-1
 ! NB: initialization for fish wet weight loosely adapted from KR anchovy
 !          Fwwght0=MIN(35.0_r8,Fwwt0(isp,ng)+REAL(i-1,r8)*5.0_r8)
-          Fwwght0=MIN(3.5_r8*Fwwt0(isp,ng),                            &
-     &                Fwwt0(isp,ng)*(1.0_r8+0.5_r8*REAL(i-1,r8)))
+!          Fwwght0=MIN(3.5_r8*Fwwt0(isp,ng),                            &
+!     &                Fwwt0(isp,ng)*(1.0_r8+0.5_r8*REAL(i-1,r8)))
+          IF (isp.eq.if_anchovy) THEN
+            Fwwght0=MIN(2.5_r8*Fwwt0(isp,ng),Fwwt0(isp,ng)*            &
+     &                  (1.0_r8+0.4_r8*REAL(Nyearclass(ng)-i-1,r8)))
+          ELSE IF (isp.eq.if_sardine) THEN
+            Fwwght0=MIN(4.0_r8*Fwwt0(isp,ng),Fwwt0(isp,ng)*            &
+     &                  (1.0_r8+0.6_r8*REAL(Nyearclass(ng)-i-1,r8)))
+          END IF
           Fworth0=Fwth0(isp,ng)*1.0e6_r8/REAL(Nfishperyear(ng),r8)*    &
-     &              EXP(-Nymort(isp,ng)*REAL(i,r8))
+     &              EXP(-Nymort(isp,ng)*REAL(Nyearclass(ng)-i-1,r8))
           DO l=1,Nfishperyear(ng)
-            fid=FISHES(ng) % age_base(isp,Nyearclass(ng)-i)+l
+            fid=FISHES(ng)%species_base(isp)+i*Nfishperyear(ng)+l
             CALL ran1 (snudg)
             yini=MAX(2.0_r8,snudg*REAL(Mm(ng)-1,r8))
             IF (yini.lt.33.0_r8) THEN
@@ -152,6 +153,8 @@
                 xini=19.0_r8
               END IF
             END IF
+            CALL ran1 (snudg)
+            xini=xini+2.0_r8*(snudg-0.5_r8)
             zini=REAL(N(ng),r8)
             FISHES(ng)%Tinfo(ixgrd,fid)=xini
             FISHES(ng)%Tinfo(iygrd,fid)=yini
@@ -169,7 +172,9 @@
             CALL ran1 (snudg)
             FISHES(ng)%bioenergy(ifwwt,fid)=Fwwght0*(snudg+0.5_r8)
             FISHES(ng)%bioenergy(ifworth,fid)=Fworth0
-            FISHES(ng)%bioenergy(ifage,fid)=REAL(i,r8)
+            FISHES(ng)%bioenergy(ifage,fid)=REAL(Nyearclass(ng)-i,r8)
+            FISHES(ng)%bioenergy(ifbday,fid)=REAL(Nyearclass(ng)-i,r8)
+            FISHES(ng)%bioenergy(ifyield,fid)=0.0_r8
             FISHES(ng)%species(fid)=idfish_inv(isp)
             FISHES(ng)%alive(fid)=.TRUE.
             IF (Featfish(isp,ng).eq.1) THEN
@@ -177,7 +182,11 @@
             ELSE
               FISHES(ng)%eatfish(fid)=.FALSE.
             END IF
-            FISHES(ng)%lifestage(fid)=if_adult
+            IF (REAL(Nyearclass(ng)-i,r8).ge.Fage0(isp,ng)) THEN
+              FISHES(ng)%lifestage(fid)=if_adult
+            ELSE
+              FISHES(ng)%lifestage(fid)=if_subadult
+            ENDIF 
             FISHES(ng)%swimtype(fid)=Fbehave(isp,ng)
             FISHES(ng)%bounded(fid)=.TRUE.
           END DO

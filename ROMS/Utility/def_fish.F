@@ -281,7 +281,7 @@
         Vinfo( 1)='Fish_age_base'
         Vinfo( 2)='Fish age base'
         status=def_var(ng, iNLM, ncFISHid(ng), varid, nf90_int,         &
-     &           2, (/ycdim, specdim/), Aval, Vinfo, ncname)
+     &           1, (/specdim/), Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 !
 !  Define fish species base
@@ -546,6 +546,36 @@
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 !
+!  Define fish birthday
+!
+        Vinfo( 1)='Fbday'
+        Vinfo( 2)='fish birthday'
+        Vinfo( 3)='year'
+        Vinfo(14)='fbday, scalar, series'
+        Vinfo(16)=Vname(1,idtime)
+# ifndef NO_4BYTE_REALS
+        Vinfo(24)='_FillValue'
+        Aval(6)=spval
+# endif
+        status=def_var(ng, iNLM, ncFISHid(ng),fishVid(idFbday,ng),      &
+     &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
+        IF (exit_flag.ne.NoError) RETURN
+!
+!  Define fish yield
+!
+        Vinfo( 1)='Fyield'
+        Vinfo( 2)='fish yield'
+        Vinfo( 3)='individuals'
+        Vinfo(14)='fyield, scalar, series'
+        Vinfo(16)=Vname(1,idtime)
+# ifndef NO_4BYTE_REALS
+        Vinfo(24)='_FillValue'
+        Aval(6)=spval
+# endif
+        status=def_var(ng, iNLM, ncFISHid(ng),fishVid(idFyield,ng),     &
+     &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
+        IF (exit_flag.ne.NoError) RETURN
+!
 !  Define fish lifestage
 !
         Vinfo( 1)='Lifestage'
@@ -655,6 +685,12 @@
           ELSE IF (TRIM(var_name(i)).eq.'Fage') THEN
             got_var(idFage)=.TRUE.
             fishVid(idFage,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.'Fbday') THEN
+            got_var(idFbday)=.TRUE.
+            fishVid(idFbday,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.'Fyield') THEN
+            got_var(idFyield)=.TRUE.
+            fishVid(idFyield,ng)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.'Fbatch') THEN
             got_var(idFbatch)=.TRUE.
             fishVid(idFbatch,ng)=var_id(i)
@@ -740,6 +776,18 @@
         END IF
         IF (.not.got_var(idFage)) THEN
           IF (Master) WRITE (stdout,60) TRIM(Vname(1,idFage)),          &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idFbday)) THEN
+          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idFbday)),         &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idFyield)) THEN
+          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idFyield)),        &
      &                                  TRIM(ncname)
           exit_flag=3
           RETURN
@@ -947,6 +995,26 @@
         END DO
 
         CALL netcdf_get_fvar (ng, iNLM, ncname,                         &
+     &                        TRIM(Vname(1,idFbday)),                   &
+     &                        Tinp,                                     &
+     &                        ncid = ncFISHid(ng),                      &
+     &                        start = (/1,tFISHindx(ng)/),              &
+     &                        total = (/Nfish(ng),1/))
+        DO l=1,Nfish(ng)
+          FISHES(ng)%bioenergy(ifbday,l)=Tinp(l)
+        END DO
+
+        CALL netcdf_get_fvar (ng, iNLM, ncname,                         &
+     &                        TRIM(Vname(1,idFyield)),                  &
+     &                        Tinp,                                     &
+     &                        ncid = ncFISHid(ng),                      &
+     &                        start = (/1,tFISHindx(ng)/),              &
+     &                        total = (/Nfish(ng),1/))
+        DO l=1,Nfish(ng)
+          FISHES(ng)%bioenergy(ifyield,l)=Tinp(l)
+        END DO
+
+        CALL netcdf_get_fvar (ng, iNLM, ncname,                         &
      &                        TRIM(Vname(1,idFbatch)),                  &
      &                        Tinp,                                     &
      &                        ncid = ncFISHid(ng),                      &
@@ -1002,8 +1070,8 @@
      &                        'Fish_age_base',                          &
      &                        FISHES(ng)%age_base,                      &
      &                        ncid = ncFISHid(ng),                      &
-     &                        start = (/1,1/),                          &
-     &                        total = (/Nyearclass(ng),Nspecies(ng)/))
+     &                        start = (/1/),                            &
+     &                        total = (/Nspecies(ng)/))
 
         CALL netcdf_get_ivar (ng, iNLM, ncname,                         &
      &                        'Fish_spec_base',                         &

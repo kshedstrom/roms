@@ -337,7 +337,7 @@
 !
       DO l=Lstr,Lend
         IF (MyThread(l).and.bounded(l).and.                             &
-     &      alive(l).and.(lifestage(l).ne.if_adult)) THEN
+     &      alive(l).and.(lifestage(l).le.if_larva)) THEN
 !
           track(ixgrd,nfp1,l)=track(ixgrd,nfm3,l)+                      &
      &                        dt(ng)*(cff1*track(ixrhs,nf  ,l)-         &
@@ -535,7 +535,7 @@
 !
       DO l=Lstr,Lend
         IF (MyThread(l).and.bounded(l).and.                             &
-     &      alive(l).and.(lifestage(l).ne.if_adult)) THEN
+     &      alive(l).and.(lifestage(l).le.if_larva)) THEN
 !
           track(ixgrd,nfp1,l)=cff1*track(ixgrd,nf  ,l)-                 &
      &                        cff2*track(ixgrd,nfm2,l)+                 &
@@ -722,8 +722,8 @@
       DO l=Lstr,Lend
         IF (MyThread(l).and.bounded(l)) THEN
 ! JF: Relocation at starting position for non-periodic case
-!          IF ((track(ixgrd,nfp1,l).ge.REAL(Lm(ng)+1,r8)-1.5_r8).or.     &
-!     &        (track(ixgrd,nfp1,l).lt.1.5_r8)) THEN
+!          IF ((track(ixgrd,nfp1,l).ge.REAL(Lm(ng)+1,r8)-0.5_r8).or.     &
+!     &        (track(ixgrd,nfp1,l).lt.0.5_r8)) THEN
 !            DO j=0,NFT
 !              track(ixgrd,j,l)=Tinfo(ixgrd,l) 
 !              track(iygrd,j,l)=Tinfo(iygrd,l) 
@@ -736,7 +736,7 @@
 ! JF: Crude reflective boundary condition for non-periodic case
           IF (track(ixgrd,nfp1,l).ge.REAL(Lm(ng)+1,r8)-2.5_r8) THEN
             DO j=0,NFT
-              track(ixgrd,j,l)=REAL(Lm(ng)-2) 
+              track(ixgrd,j,l)=REAL(Lm(ng)+1-3) 
               track(ixrhs,j,l)=-track(ixrhs,nfp1,l)
             END DO
           END IF
@@ -807,8 +807,8 @@
       DO l=Lstr,Lend
         IF (MyThread(l).and.bounded(l)) THEN
 ! JF: Relocation at starting position for non-periodic case
-!          IF ((track(iygrd,nfp1,l).ge.REAL(Mm(ng)+1,r8)-1.5_r8).or.     &
-!     &        (track(iygrd,nfp1,l).lt.1.5_r8)) THEN
+!          IF ((track(iygrd,nfp1,l).ge.REAL(Mm(ng)+1,r8)-0.5_r8).or.     &
+!     &        (track(iygrd,nfp1,l).lt.0.5_r8)) THEN
 !            DO j=0,NFT
 !              track(ixgrd,j,l)=Tinfo(ixgrd,l) 
 !              track(iygrd,j,l)=Tinfo(iygrd,l) 
@@ -821,7 +821,7 @@
 ! JF: Crude reflective boundary condition for non-periodic case
           IF (track(iygrd,nfp1,l).ge.REAL(Mm(ng)+1,r8)-2.5_r8) THEN
             DO j=0,NFT
-              track(iygrd,j,l)=REAL(Mm(ng)-2) 
+              track(iygrd,j,l)=REAL(Mm(ng)+1-3) 
               track(iyrhs,j,l)=-track(iyrhs,nfp1,l)
             END DO
           END IF

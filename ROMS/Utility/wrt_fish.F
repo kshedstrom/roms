@@ -122,7 +122,7 @@
       CALL netcdf_put_ivar (ng, iNLM, FISHname(ng),                     &
      &                      'Fish_age_base',                            &
      &                      FISHES(ng) % age_base,                      &
-     &                      (/1,1/), (/Nyearclass(ng),Nspecies(ng)/),   &
+     &                      (/1/), (/Nspecies(ng)/),                    &
      &                      ncid = ncFISHid(ng))
       IF (exit_flag.ne.NoError) RETURN
 !
@@ -349,6 +349,34 @@
      &                      (/1,tFISHindx(ng)/), (/Nfish(ng),1/),       &
      &                      ncid = ncFISHid(ng),                        &
      &                      varid = fishVid(idFage,ng))
+      IF (exit_flag.ne.NoError) RETURN
+!  Write fish birthday
+      DO l=1,Nfish(ng)
+        IF (FISHES(ng)%bounded(l)) THEN
+          Tout(l)=FISHES(ng)%bioenergy(ifbday,l)
+        ELSE
+          Tout(l)=spval
+        END IF
+      END DO
+      CALL netcdf_put_fvar (ng, iNLM, FISHname(ng),                     &
+     &                      TRIM(Vname(1,idFbday)), Tout,               &
+     &                      (/1,tFISHindx(ng)/), (/Nfish(ng),1/),       &
+     &                      ncid = ncFISHid(ng),                        &
+     &                      varid = fishVid(idFbday,ng))
+      IF (exit_flag.ne.NoError) RETURN
+!  Write fish yield
+      DO l=1,Nfish(ng)
+        IF (FISHES(ng)%bounded(l)) THEN
+          Tout(l)=FISHES(ng)%bioenergy(ifyield,l)
+        ELSE
+          Tout(l)=spval
+        END IF
+      END DO
+      CALL netcdf_put_fvar (ng, iNLM, FISHname(ng),                     &
+     &                      TRIM(Vname(1,idFyield)), Tout,              &
+     &                      (/1,tFISHindx(ng)/), (/Nfish(ng),1/),       &
+     &                      ncid = ncFISHid(ng),                        &
+     &                      varid = fishVid(idFyield,ng))
       IF (exit_flag.ne.NoError) RETURN
 !  Write fish lifestage
       DO l=1,Nfish(ng)

@@ -368,7 +368,9 @@
         integer  :: idFwwt         ! fish wet weight
         integer  :: idFworth       ! fish worth
         integer  :: idFpval        ! fish P-value
-        integer  :: idFage         ! fish P-value
+        integer  :: idFage         ! fish age
+        integer  :: idFbday        ! fish birthday
+        integer  :: idFyield       ! fish yield
         integer  :: idSpwnloc      ! fish batch number
         integer  :: idFspwn        ! spawning distribution
         integer  :: idFbatch       ! fish batch
@@ -1886,6 +1888,10 @@
                 idFpval=varid
               CASE ('idFage')
                 idFage=varid
+              CASE ('idFbday')
+                idFbday=varid
+              CASE ('idFyield')
+                idFyield=varid
               CASE ('idFbatch')
                 idFbatch=varid
               CASE ('idSpwnloc')

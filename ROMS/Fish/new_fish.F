@@ -145,7 +145,6 @@
 !           call tree_traverse
             CALL tree_collect(FISHES % num_super(isp),                  &
      &                   Nfound, eggs, moms)
-            print *, 'after collect: ', Nfound
             do i=1,Nfound
               print *, i, eggs(i), moms(i)
             end do
@@ -157,7 +156,7 @@
           END DO
 
           DO l=1,Nfish(ng)
-            IF (FISHES(ng) % bioenergy(ifeggs, l) .ne. 0) THEN
+            IF (FISHES(ng) % bioenergy(ifeggs, l) .gt. 0.0_r8) THEN
               isp = idfish(FISHES(ng) % species(l))
               count(isp) = count(isp) + 1
               CALL c_tree_insert(isp,                                   &
@@ -200,6 +199,8 @@
                 FISHES(ng) % bioenergy(ifworth,ifsh) = eggs(i)
                 FISHES(ng) % bioenergy(ifwwt,ifsh) = 0.0_r8
                 FISHES(ng) % bioenergy(ifage,ifsh) = 0.0_r8
+                FISHES(ng) % bioenergy(ifbday,ifsh) = 0.0_r8
+                FISHES(ng) % bioenergy(ifyield,ifsh) = 0.0_r8
                 FISHES(ng) % species(ifsh) = idfish_inv(isp)
                 FISHES(ng) % alive(ifsh) = .TRUE.
                 FISHES(ng) % lifestage(ifsh) = if_egg
@@ -208,11 +209,13 @@
                 print *, 'New_fish: ', ifsh, eggs(i), moms(i)
                 FISHES(ng) % num_free(isp) =                            &
      &                        FISHES(ng) % num_free(isp) - 1
-                ifsh = ifsh + 1
+! NOT NEEDED?
+!                ifsh = ifsh + 1
               END DO
 	    END IF
           END DO
           CALL c_tree_trim
+!
 # elif defined EGGS_BISECTION
           DO isp=1,Nspecies(ng)
             CALL egglist_init

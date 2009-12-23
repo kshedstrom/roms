@@ -131,7 +131,7 @@
               fid = thisfish % fish
               isp = idfish(species(fid))
               IF (MyThread(fid).and.bounded(fid).and.                   &
-     &            alive(fid).and.(lifestage(fid).eq.if_adult)) THEN
+     &            alive(fid).and.(lifestage(fid).ge.if_juvenile)) THEN
 !
                 Ir=INT(track(ixgrd,itime,fid))
                 Ir=MIN(MAX(Ir,1),Lm(ng))
@@ -195,16 +195,18 @@
                   Ftemp=track(itemp+NFV(ng)-NT(ng),itime,fid)
                   Fpval=bioenergy(ifpval,fid)
                   Fdens=track(ifden,itime,fid)
-!
-! ----- Horizontal behavior (updated once daily) -----
 ! Behavior based on temperature
                   Fvar=Ftemp
-                  Fvar_opt=10.0_r8
+                  Fvar_opt=12.0_r8
+!                  Fvar_opt=15.0_r8
                   Fvar_sigma=3.0_r8
 ! Behavior based on p-value
 !                  Fvar=Fpval
 !                  Fvar_opt=0.2_r8
 !                  Fvar_sigma=0.2_r8
+!
+! ----- Horizontal behavior (updated once daily) -----
+!
 ! Use commented lines below to check behavior based on longitude gradient
 !                  Fvar=track(ixgrd,itime,fid)
 !                  Fvar_opt=15.0_r8
@@ -263,13 +265,13 @@
      &                                     xdis*pm(Ir,Jr)
                   track(iygrd,itimep1,fid)=track(iygrd,itime,fid)+      &
      &                                     ydis*pn(Ir,Jr)
+                  track(ixgrd,itimep1,fid)=MIN(REAL(Lm(ng),r8),         &
+     &                    MAX(1.0_r8,track(ixgrd,itimep1,fid)))
+                  track(iygrd,itimep1,fid)=MIN(REAL(Mm(ng),r8),         &
+     &                    MAX(1.0_r8,track(iygrd,itimep1,fid)))
 !
 ! ----- Vertical behavior (update at every time step) -----
 !
-! Behavior based on p-value
-                  Fvar=Fpval
-                  Fvar_opt=0.2_r8
-                  Fvar_sigma=0.2_r8
 ! Use commented lines below to check behavior based on depth
 !                  Fvar=track(idpth,itime,fid)
 !                  Fvar_opt=300.0_r8
@@ -318,6 +320,7 @@
                       IF (zkdis.lt.ABS(zdis)) KrMax=kk
                     END DO
                   END IF
+                  KrMax=MIN(N(ng),MAX(2,KrMax))
                   track(izgrd,itimep1,fid)=REAL(KrMax,r8)
 !
                 END IF

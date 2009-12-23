@@ -4871,6 +4871,24 @@
   'r3dvar'
   1.0d0
 
+ 'Fbday'
+  'fish birthday'
+  'year'
+  'fbday, scalar, series'
+  'bio_time'
+  'idFbday'
+  'r3dvar'
+  1.0d0
+
+ 'Fyield'
+  'fish yield'
+  'year'
+  'fyield, scalar, series'
+  'bio_time'
+  'idFyield'
+  'r3dvar'
+  1.0d0
+
  'Fbatch'
   'fish batch count'
   'nondimensional'

@@ -58,7 +58,7 @@
           integer, pointer  :: num_super(:)
 
 ! "Pointers" into big Nfish dimension:
-          integer, pointer :: age_base(:,:)
+          integer, pointer :: age_base(:)
           integer, pointer :: species_base(:)
         END TYPE T_FISHES
 
@@ -137,8 +137,7 @@
 
       allocate ( FISHES(ng) % next_free(Nspecies(ng)) )
 
-      allocate ( FISHES(ng) %                                           &
-     &           age_base(Nspecies(ng), 0:Nyearclass(ng)-1) )
+      allocate ( FISHES(ng) % age_base(Nspecies(ng)) ) 
 
       allocate ( FISHES(ng) % species_base(Nspecies(ng)) )
 !

@@ -410,11 +410,14 @@
         integer, parameter :: ifeggs = 8         ! number of eggs spawned
         integer, parameter :: ifpval = 9         ! number of eggs spawned
         integer, parameter :: ifeatme = 10       ! fish-eat-fish predation rate
+        integer, parameter :: ifyield = 11       ! yield to fisheries
 ! Lifestage and gender
         integer, parameter :: if_egg = 1
         integer, parameter :: if_yolksac = 2
         integer, parameter :: if_larva = 3
-        integer, parameter :: if_adult = 4
+        integer, parameter :: if_juvenile = 4
+        integer, parameter :: if_subadult = 5
+        integer, parameter :: if_adult = 6
 ! Species IDs
         integer, parameter :: if_none = 0
         integer, parameter :: if_anchovy = 1

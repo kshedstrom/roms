@@ -49,14 +49,22 @@
       CALL wclock_on (ng, iNLM, 10)
 # endif
 
-!  Start by killing the old fish for each species.
+!  Update the indices
+      DO isp=1,Nspecies(ng)
+        FISHES(ng)%age_base(isp)=FISHES(ng)%age_base(isp)+              &
+     &                                        Nfishperyear(ng)
+        IF (FISHES(ng)%age_base(isp).ge.FISHES(ng)%species_base(isp)+   &
+     &                            Nfishperyear(ng)*Nyearclass(ng)) THEN
+          FISHES(ng)%age_base(isp)=FISHES(ng)%species_base(isp)
+        END IF
+      END DO
+
+!  Killing the old fish for each species.
 !  The max age is the same for all species (for now).
 
       DO isp=1,Nspecies(ng)
         DO i=1,Nfishperyear(ng)
-          ifsh = i+FISHES(ng) % age_base(isp,1)
-! KH original code
-!          ifsh = i+FISHES(ng) % age_base(isp,Nyearclass(ng)-1)
+          ifsh = i+FISHES(ng) % age_base(isp)
           FISHES(ng) % alive(ifsh) = .FALSE.
           FISHES(ng) % bounded(ifsh) = .FALSE.
           FISHES(ng) % bioenergy(ifwwt,ifsh) = -99.0_r8
@@ -71,27 +79,11 @@
         END DO
       END DO
 
-!  Now we update the indices
+!  Get ready for the new eggs
       DO isp=1,Nspecies(ng)
-         DO i=0,Nyearclass(ng)-1
-           FISHES(ng) % age_base(isp,i) =                               &
-     &            FISHES(ng) % age_base(isp,i) + Nfishperyear(ng)
-           IF (FISHES(ng) % age_base(isp,i) .ge.                        &
-     &            FISHES(ng) % species_base(isp) +                      &
-     &                  Nfishperyear(ng)*Nyearclass(ng) ) THEN
-             FISHES(ng) % age_base(isp,i) =                             &
-     &            FISHES(ng) % age_base(isp,i) -                        &
-     &                     Nfishperyear(ng)*Nyearclass(ng)
-           END IF
-         END DO
-      END DO
-
-!  Finally, get ready for the new eggs
-      DO isp=1,Nspecies(ng)
-        FISHES(ng) % num_free(isp) = Nfishperyear(ng)
-        FISHES(ng) % num_super(isp) = 0
-        FISHES(ng) % next_free(isp) = 1 +                               &
-     &                FISHES(ng) % age_base(isp,0)
+        FISHES(ng)%num_free(isp)=Nfishperyear(ng)
+        FISHES(ng)%num_super(isp)=0
+        FISHES(ng)%next_free(isp)=1+FISHES(ng)%age_base(isp)
       END DO
       IF (Master) THEN
         print *, 'New Year for Fish'

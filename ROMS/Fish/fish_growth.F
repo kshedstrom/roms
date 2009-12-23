@@ -129,7 +129,8 @@
             thisfish => fish_list(i,j) % next
             DO ifish=1,fish_count(i,j)
               ifid = thisfish % fish
-              IF (MyThread(ifid).and.bounded(ifid).and.alive(ifid)) THEN
+              IF (MyThread(ifid).and.bounded(ifid).and.                 &
+     &                                 alive(ifid)) THEN
                 bioenergy(ifeatme,ifid)=0.0_r8
               END IF
               thisfish => thisfish % next
@@ -147,7 +148,8 @@
             DO ifish=1,fish_count(i,j)
               ifid = thisfish % fish
               isp = idfish(species(ifid))
-              IF (MyThread(ifid).and.bounded(ifid).and.alive(ifid)) THEN
+              IF (MyThread(ifid).and.bounded(ifid).and.alive(ifid).and. &
+     &            (lifestage(ifid).ge.if_juvenile)) THEN
                 Fweight=bioenergy(ifwwt,ifid)
                 Fworth=bioenergy(ifworth,ifid)
                 Fx=track(ixgrd,itime,ifid)
@@ -155,55 +157,50 @@
 ! Swimming velocity based on fish weight (in cm/s)
                 Uswim=a_A(isp,ng)*Fweight**b_A(isp,ng)
 
-! ADULT FISH
-                IF (lifestage(ifid).eq.if_adult) THEN
+! JUVENILE, SUBADULT, OR ADULT FISH
 ! Max. Consumption (NEEDS TEMPERATURE DEPENDENCE)
-                  Cmax=a_C(isp,ng)*Fweight**(-b_C(isp,ng))
+                Cmax=a_C(isp,ng)*Fweight**(-b_C(isp,ng))
 ! Zoo Consumption
-                  SZooC=mmol2g*track(NFV(ng)-NT(ng)+iSzoo,itime,ifid)
-                  LZooC=mmol2g*track(NFV(ng)-NT(ng)+iLzoo,itime,ifid)
-                  PZooC=mmol2g*track(NFV(ng)-NT(ng)+iPzoo,itime,ifid)
+                SZooC=mmol2g*track(NFV(ng)-NT(ng)+iSzoo,itime,ifid)
+                LZooC=mmol2g*track(NFV(ng)-NT(ng)+iLzoo,itime,ifid)
+                PZooC=mmol2g*track(NFV(ng)-NT(ng)+iPzoo,itime,ifid)
 ! To catch small negative zooplankton concentrations
-                  FSZoo=MAX(0.0_r8,SZooC)*ZSpref(isp,ng)/K_ZS(isp,ng)
-                  FLZoo=MAX(0.0_r8,LZooC)*ZLpref(isp,ng)/K_ZL(isp,ng)
-                  FPZoo=MAX(0.0_r8,PZooC)*ZPpref(isp,ng)/K_ZP(isp,ng)
-                  FTZoo=(FSZoo+FLZoo+FPZoo)*CAL_ZF(isp,ng)
+                FSZoo=MAX(0.0_r8,SZooC)*ZSpref(isp,ng)/K_ZS(isp,ng)
+                FLZoo=MAX(0.0_r8,LZooC)*ZLpref(isp,ng)/K_ZL(isp,ng)
+                FPZoo=MAX(0.0_r8,PZooC)*ZPpref(isp,ng)/K_ZP(isp,ng)
+                FTZoo=(FSZoo+FLZoo+FPZoo)*CAL_ZF(isp,ng)
 ! Fish Consumption
 ! PROBLEM WITH 3D: Should the fish be allowed to see entire water column
 ! For now, fish_by_cell has contribution of entire water column
-                  IF (eatfish(ifid)) THEN
-                    otherfish => fish_list(i,j) % next
+                IF (eatfish(ifid)) THEN
 ! FishVul, PopVul, and BioVul should be by species (e.g., BioVul(ispecies))
-                    FishVul=0.0_r8
-                    PopVul=0.0_r8
-                    BioVul=0.0_r8
-                    DO ofish=1,fish_count(i,j)
-                      ofid = otherfish % fish
-                      IF (MyThread(ofid).and.bounded(ofid).and.         &
+                  FishVul=0.0_r8
+                  PopVul=0.0_r8
+                  BioVul=0.0_r8
+                  otherfish => fish_list(i,j) % next
+                  DO ofish=1,fish_count(i,j)
+                    ofid = otherfish % fish
+                    IF (MyThread(ofid).and.bounded(ofid).and.           &
      &                                       alive(ofid)) THEN
-                        oFweight=bioenergy(ifwwt,ofid)
-                        oFworth=bioenergy(ifworth,ofid)
-                        oFx=track(ixgrd,itime,ofid)
-                        oFy=track(iygrd,itime,ofid)
-                        dist=(((Fx-oFx)/pm(i,j))**2+                    &
-     &                        ((Fy-oFy)/pn(i,j))**2)**0.5_r8
-                        IF ((ifid.ne.ofid).and.                         &
-                            (Fweight.gt.(2.0_r8*oFweight)).and.         &
-     &                      (dist.lt.0.01_r8*Uswim*dt(ng))) THEN
-                          FishVul=FishVul+oFweight
-                          PopVul=PopVul+oFworth
-                          BioVul=BioVul+oFweight*oFworth
-                        END IF 
+                      oFweight=bioenergy(ifwwt,ofid)
+                      oFworth=bioenergy(ifworth,ofid)
+                      oFx=track(ixgrd,itime,ofid)
+                      oFy=track(iygrd,itime,ofid)
+                      dist=(((Fx-oFx)/pm(i,j))**2+                      &
+     &                      ((Fy-oFy)/pn(i,j))**2)**0.5_r8
+                      IF ((ifid.ne.ofid).and.                           &
+                          (Fweight.gt.(2.0_r8*oFweight)).and.           &
+     &                    (dist.lt.0.01_r8*Uswim*dt(ng))) THEN
+                        FishVul=FishVul+oFweight
+                        PopVul=PopVul+oFworth
+                        BioVul=BioVul+oFweight*oFworth
                       END IF 
-                      otherfish => otherfish % next
-                    END DO
-! Should really divide by volume, but which Hz given that fish_by_cell is 2D?
-                    CellVol=pm(i,j)*pn(i,j)
-                    FishVul=FishVul*CellVol
-                    PopVul=PopVul*CellVol
-                    BioVul=BioVul*CellVol
-                    FFish=BioVul*Fpref(isp,ng)/K_Fish(isp,ng)
-                    CFish=Cmax*FFish/(1.0_r8+FTZoo+FFish)
+                    END IF 
+                    otherfish => otherfish % next
+                  END DO
+! K_fish in units of biomass (g fish) instead of concentration (g fish/m3)
+                  FFish=BioVul*Fpref(isp,ng)/K_Fish(isp,ng)
+                  CFish=Cmax*FFish/(1.0_r8+FTZoo+FFish)
 ! Must kill individual fish eaten to get correct consumption rates
 ! Approach: Distribute mortality evenly over vulnerable individuals in cell
 ! Kenny's Code. Not sure on the "(1-(fac-1)" reduction
@@ -215,104 +212,67 @@
 !                      fac=0.99_r8
 !                    END IF 
 ! JF interpratation of Kenny's code. Could be totally wrong.
-                    IF ((CFish*Fweight*Fworth).ge.(BioVul/CellVol)) THEN
-                      CFish=CFish*(BioVul/CellVol)/(Fweight*Fworth)
-                      FFish=(1.0_r8+FTZoo)/(Cmax/CFish-1.0_r8)
-                      fac=0.99_r8
-                    ELSE
-                      fac=CFish*Fweight*Fworth*CellVol/BioVul
-                    END IF
-                    IF (eatfish(ifid)) THEN
-                      otherfish => fish_list(i,j) % next
-                      DO ofish=1,fish_count(i,j)
-                        ofid = otherfish % fish
-                        IF (MyThread(ofid).and.bounded(ofid).and.       &
-     &                                         alive(ofid)) THEN
-                          oFweight=bioenergy(ifwwt,ofid)
-                          oFx=track(ixgrd,itime,ofid)
-                          oFy=track(iygrd,itime,ofid)
-                          dist=(((Fx-oFx)/pm(i,j))**2+                  &
-     &                          ((Fy-oFy)/pn(i,j))**2)**0.5_r8
-                          IF ((ifid.ne.ofid).and.                       &
-                              (Fweight.gt.(2.0_r8*oFweight)).and.       &
-     &                        (dist.lt.0.01_r8*Uswim*dt(ng))) THEN
-                            bioenergy(ifeatme,ofid)=                    &
-     &                        bioenergy(ifeatme,ofid)+LOG(1.0_r8-fac)
-                          END IF
-                        END IF
-                        otherfish => otherfish % next
-                      END DO
-                    END IF
+                  IF ((CFish*Fweight*Fworth).ge.BioVul) THEN
+                    CFish=CFish*BioVul/(Fweight*Fworth)
+                    FFish=(1.0_r8+FTZoo)/(Cmax/CFish-1.0_r8)
+                    fac=0.99_r8
                   ELSE
-                    FFish=0.0_r8
-                    CFish=0.0_r8
+                    fac=CFish*Fweight*Fworth/BioVul
                   END IF
+                  IF (eatfish(ifid)) THEN
+                    otherfish => fish_list(i,j) % next
+                    DO ofish=1,fish_count(i,j)
+                      ofid = otherfish % fish
+                      IF (MyThread(ofid).and.bounded(ofid).and.         &
+     &                                         alive(ofid)) THEN
+                        oFweight=bioenergy(ifwwt,ofid)
+                        oFx=track(ixgrd,itime,ofid)
+                        oFy=track(iygrd,itime,ofid)
+                        dist=(((Fx-oFx)/pm(i,j))**2+                    &
+     &                        ((Fy-oFy)/pn(i,j))**2)**0.5_r8
+                        IF ((ifid.ne.ofid).and.                         &
+                            (Fweight.gt.(2.0_r8*oFweight)).and.         &
+     &                      (dist.lt.0.01_r8*Uswim*dt(ng))) THEN
+                          bioenergy(ifeatme,ofid)=                      &
+     &                      bioenergy(ifeatme,ofid)+LOG(1.0_r8-fac)
+                        END IF
+                      END IF
+                      otherfish => otherfish % next
+                    END DO
+                  END IF
+                ELSE
+                  FFish=0.0_r8
+                  CFish=0.0_r8
+                END IF
 ! Total Consumption on Zooplankton and Fish
-                  CSZoo=Cmax*FSZoo*CAL_ZF(isp,ng)/(1.0_r8+FTZoo+FFish)
-                  CLZoo=Cmax*FLZoo*CAL_ZF(isp,ng)/(1.0_r8+FTZoo+FFish)
-                  CPZoo=Cmax*FPZoo*CAL_ZF(isp,ng)/(1.0_r8+FTZoo+FFish)
-                  Csmp=CSZoo+CLZoo+CPZoo+CFish
+                CSZoo=Cmax*FSZoo*CAL_ZF(isp,ng)/(1.0_r8+FTZoo+FFish)
+                CLZoo=Cmax*FLZoo*CAL_ZF(isp,ng)/(1.0_r8+FTZoo+FFish)
+                CPZoo=Cmax*FPZoo*CAL_ZF(isp,ng)/(1.0_r8+FTZoo+FFish)
+                Csmp=CSZoo+CLZoo+CPZoo+CFish
 ! Fish P-value
-                  bioenergy(ifpval,ifid)=Csmp/Cmax
+                bioenergy(ifpval,ifid)=Csmp/Cmax
 ! Egestion and Excretion
-                  Egst=a_F(isp,ng)*Csmp
-                  Excr=a_E(isp,ng)*(Csmp-Egst)
+                Egst=a_F(isp,ng)*Csmp
+                Excr=a_E(isp,ng)*(Csmp-Egst)
 ! (will need to be converted from mmolN/day to mmolN/m3 in NEMURO)
 ! Respiration
-                  Actv=exp(d_R(isp,ng)*Uswim)
-                  Resp=a_R(isp,ng)*Fweight**(-b_R(isp,ng))*Actv*5.258
+                Actv=exp(d_R(isp,ng)*Uswim)
+                Resp=a_R(isp,ng)*Fweight**(-b_R(isp,ng))*Actv*5.258
 ! Specific Dynamic Action
-                  SDA=a_S(isp,ng)*(Csmp-Egst)
+                SDA=a_S(isp,ng)*(Csmp-Egst)
 ! Update Fish Weight (g wet wt)
-                  bioenergy(ifwwt,ifid)=Fweight*(1.0_r8+dtdays*         &
-     &                                  (Csmp-Egst-Excr-Resp-SDA))
-! From Kenny's code:
-                  IF (bioenergy(ifwwt,ifid).lt.0.001_r8) THEN
-                    alive(ifid)=.FALSE.
-                  ENDIF
+                bioenergy(ifwwt,ifid)=Fweight*(1.0_r8+dtdays*           &
+     &                                (Csmp-Egst-Excr-Resp-SDA))
 !
 ! NEMURO sink terms for ZOO consumption and for DON egestion/excretion
 ! (will need to be converted from mmolN/day to mmolN/m3 in NEMURO)
 ! Recompute FFish
-                  fac=Cmax*g2mmol/                                      &
-     &                (FSZoo+FLZoo+FPZoo+FFish/CAL_ZF(isp,ng))
-                  feedback(iSzoo,ifid)=fac*FSZoo*Fweight*Fworth
-                  feedback(iLzoo,ifid)=fac*FLZoo*Fweight*Fworth
-                  feedback(iPzoo,ifid)=fac*FPZoo*Fweight*Fworth
-                  feedback(iPON_,ifid)=g2mmol*(Egst+Excr)*Fweight*Fworth
-!
-! EGG, YOLK SAC, AND FEEDING LARVA
-                ELSE
-! Larva
-                  IF (lifestage(ifid).eq.if_larva) THEN
-                    Fweight=Fweight+0.11_r8*dtdays
-                    Fworth=Fworth-0.05_r8*dtdays*Fworth
-                    IF (Fweight.ge.1.0_r8) THEN
-                      lifestage(ifid)=if_adult
-                      Fweight=Fwwt0(isp,ng)
-                    ENDIF
-! Yolk Sac
-                  ELSE IF (lifestage(ifid).eq.if_yolksac) THEN
-                    Fweight=Fweight+0.1_r8*dtdays
-                    Fworth=Fworth-0.05_r8*dtdays*Fworth
-                    IF (Fweight.ge.1.0_r8) THEN
-                      lifestage(ifid)=if_larva
-                      Fweight=0.0_r8
-                    ENDIF
-! Egg
-                  ELSE IF (lifestage(ifid).eq.if_egg) THEN
-                    Fweight=Fweight+0.21_r8*dtdays
-                    Fworth=Fworth-0.1_r8*dtdays*Fworth
-                    IF (Fweight.ge.1.0_r8) THEN
-                      lifestage(ifid)=if_yolksac
-                      Fweight=0.0_r8
-                    ENDIF
-                  ENDIF
-                  bioenergy(ifwwt,ifid)=Fweight
-                  bioenergy(ifworth,ifid)=Fworth
-                  bioenergy(ifpval,ifid)=0.0_r8
-!
-                END IF
+                fac=Cmax*g2mmol/                                        &
+     &              (FSZoo+FLZoo+FPZoo+FFish/CAL_ZF(isp,ng))
+                feedback(iSzoo,ifid)=fac*FSZoo*Fweight*Fworth
+                feedback(iLzoo,ifid)=fac*FLZoo*Fweight*Fworth
+                feedback(iPzoo,ifid)=fac*FPZoo*Fweight*Fworth
+                feedback(iPON_,ifid)=g2mmol*(Egst+Excr)*Fweight*Fworth
 !
               END IF
               thisfish => thisfish % next
@@ -329,28 +289,29 @@
             thisfish => fish_list(i,j) % next
             DO ifish=1,fish_count(i,j)
               ifid = thisfish % fish
-              IF (MyThread(ifid).and.bounded(ifid).and.alive(ifid)) THEN
-                Fweight=bioenergy(ifwwt,ifid)
+              IF (MyThread(ifid).and.bounded(ifid).and.alive(ifid).and. &
+     &            (lifestage(ifid).ge.if_subadult)) THEN
                 Fworth=bioenergy(ifworth,ifid)
                 Ndmort=Nymort(isp,ng)/days_year      ! natural mortality rate per day
                 Fdmort=Fymort(isp,ng)/days_year      ! fishing mortality rate per day
+! Subadult and Adult
 ! Natural and Predation Mortality
-                Fpred=1.0_r8                       ! No predatory fish
+! To be done later when predator psecies exists
+!                Fpred=1.0_r8                       ! No predatory fish
 !                Fpred=predbycell(i,j)/predavg     ! Compute from fish_by_cell
-                fac=1.0_r8-EXP(-Ndmort*0.1_r8)
-                fac=1.0_r8-fac*Fpred
-                fac=MIN(1.0_r8,MAX(1.0e-6_r8,fac))
-                Pdmort=-LOG(fac)
+!                fac=1.0_r8-EXP(-Ndmort)
+!                fac=1.0_r8-fac*Fpred
+!                fac=MIN(1.0_r8,MAX(1.0e-6_r8,fac))
+!                Pdmort=-LOG(fac)
 ! Total Mortality (Natural + Predation + Fishing + Fish-eat-Fish)
 ! (Pdmort, Ndmort, Fdmort are > 0, and eatme is < 0)
-                Tdmort=Pdmort+Ndmort*0.9_r8+Fdmort-                     &
-     &                 bioenergy(ifeatme,ifid)
+                Tdmort=Ndmort+Fdmort-bioenergy(ifeatme,ifid)
 ! Update Fish Worth
-                bioenergy(ifworth,ifid)=Fworth*(1.0_r8-dtdays*Tdmort)
-! From Kenny's code:
-                IF (bioenergy(ifworth,ifid).lt.0.0001_r8) THEN
-                  alive(ifid)=.FALSE.
-                ENDIF
+                bioenergy(ifworth,ifid)=Fworth-                         &
+     &                        (1.0_r8-exp(-Tdmort))*dtdays*Fworth
+! Compute yield: yield=(Fm/(Fm+Nm))*(1-exp(-(Fm+Nm)))*Worth
+                bioenergy(ifyield,ifid)=bioenergy(ifyield,ifid)+        &
+     &            (Fdmort/Tdmort)*(1.0_r8-exp(-Tdmort))*dtdays*Fworth
               END IF
               thisfish => thisfish % next
             END DO
@@ -358,7 +319,56 @@
         END DO
       END DO
 !
-! -----   PART 3: UPDATE FISH AGE   -----
+! -----   PART 3: EARLY LIFE HISTORY (EGG, YSAC, LARVA, JUV)  -----
+!
+      DO i=LBi,UBi
+        DO j=LBj,UBj
+          IF (fish_count(i,j).gt.0) THEN
+            thisfish => fish_list(i,j) % next
+            DO ifish=1,fish_count(i,j)
+              ifid = thisfish % fish
+              IF (lifestage(ifid).le.if_juvenile) THEN
+                Fweight=bioenergy(ifwwt,ifid)
+                Fworth=bioenergy(ifworth,ifid)
+! Juvenile (note: growth is done in PART 1 with subadult and adult) 
+                IF (lifestage(ifid).eq.if_juvenile) THEN
+                  Tdmort=0.03_r8
+! Larva
+                ELSE IF (lifestage(ifid).eq.if_larva) THEN
+                  Fweight=Fweight+0.05_r8*dtdays
+                  Tdmort=0.2_r8
+                  IF (Fweight.ge.1.0_r8) THEN
+                    lifestage(ifid)=if_juvenile
+                    Fweight=0.5_r8*Fwwt0(isp,ng)
+                  ENDIF
+! Yolk Sac
+                ELSE IF (lifestage(ifid).eq.if_yolksac) THEN
+                  Fweight=Fweight+0.25_r8*dtdays
+                  Tdmort=0.35_r8
+                  IF (Fweight.ge.1.0_r8) THEN
+                    lifestage(ifid)=if_larva
+                    Fweight=0.0_r8
+                  ENDIF
+! Egg
+                ELSE IF (lifestage(ifid).eq.if_egg) THEN
+                  Fweight=Fweight+0.33_r8*dtdays
+                  Tdmort=0.25_r8
+                  IF (Fweight.ge.1.0_r8) THEN
+                    lifestage(ifid)=if_yolksac
+                    Fweight=0.0_r8
+                  ENDIF
+                ENDIF
+                bioenergy(ifwwt,ifid)=Fweight
+                bioenergy(ifworth,ifid)=Fworth-                         &
+     &                        (1.0_r8-exp(-Tdmort))*dtdays*Fworth
+              ENDIF
+              thisfish => thisfish % next
+            END DO
+          END IF
+        END DO
+      END DO
+!
+! -----   PART 4: UPDATE FISH AGE   -----
 !
       DO i=LBi,UBi
         DO j=LBj,UBj
@@ -367,14 +377,29 @@
             DO ifish=1,fish_count(i,j)
               ifid = thisfish % fish
               IF (MyThread(ifid).and.bounded(ifid)) THEN
+! From Kenny's code:
+                IF (bioenergy(ifworth,ifid).lt.0.001_r8) THEN
+                  alive(ifid)=.FALSE.
+                END IF
+                IF ((bioenergy(ifwwt,ifid).lt.0.001_r8).and.            &
+     &              (lifestage(ifid).ge.if_juvenile)) THEN
+                  alive(ifid)=.FALSE.
+                END IF
                 IF (alive(ifid)) THEN
                   bioenergy(ifage,ifid)=bioenergy(ifage,ifid)+          &
      &                                  dtdays/days_year
+                  IF (iyesteryear(ng).ne.iyears(ng)) THEN
+                    bioenergy(ifbday,ifid)=bioenergy(ifbday,ifid)+1.0_r8
+                    IF (lifestage(ifid).eq.if_juvenile) THEN
+                      lifestage(ifid)=if_subadult
+                    END IF
+                  END IF
                 ELSE
                   bounded(ifid) = .FALSE.
                   bioenergy(ifwwt,ifid)=-99.0_r8
                   bioenergy(ifworth,ifid)=-99.0_r8
                   bioenergy(ifage,ifid)=-99.0_r8
+                  bioenergy(ifbday,ifid)=-99.0_r8
                   lifestage(ifid)=0
                 END IF
               END IF
