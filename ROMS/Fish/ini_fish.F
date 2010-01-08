@@ -135,7 +135,7 @@
           DO l=1,Nfishperyear(ng)
             fid=FISHES(ng)%species_base(isp)+i*Nfishperyear(ng)+l
             CALL ran1 (snudg)
-            yini=MAX(2.0_r8,snudg*REAL(Mm(ng)-1,r8))
+            yini=MAX(5.0_r8,snudg*REAL(Mm(ng)-4,r8))
             IF (yini.lt.33.0_r8) THEN
               IF (isp.eq.if_anchovy) THEN
 ! for anchovy (inshore)
