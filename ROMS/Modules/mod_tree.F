@@ -1,9 +1,9 @@
-#include "cppdefs.h"
       MODULE mod_tree
-#if defined NEMURO_SAN && defined EGGS_TREE_FORT
 !
 !================================================== Kate Hedstrom ======
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!    Fixes and improvements by David Car (david.car7@gmail.com)        !
+!=======================================================================
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -43,6 +43,16 @@
           real(r8) :: dist
         end type treenode
 
+        type RedBlackTree 
+           type(treenode), pointer :: root => null()
+           integer :: nitems = 0
+        end type RedBlackTree
+
+!...........................................................................
+! Global nil node for leaves and parent of root.
+!...........................................................................
+        type(treenode), target, save :: nil
+
         type listnode
           type(listnode), pointer :: next => null()
           type(treenode), pointer :: mytreenode => null()
@@ -55,42 +65,53 @@
           real(r8) :: egg_sum = 0
         end type egg_batch
 
-        type(treenode), pointer :: treetop
         type(listnode), pointer :: gc_list, gc_next
         type(egg_batch), pointer :: roe_list
-        integer :: Nspawners
 
-        PRIVATE
+        PRIVATE :: insert_priv, sum_up, sum_us, rotate_left,            &
+     &            rotate_right, isLeaf, isLeft, isRight, pop_tree,      &
+     &            push_trees, push_one_tree, copy_traverse,             &
+     &            traverse_print, print_node
         PUBLIC :: tree_init, tree_insert, tree_collect, tree_traverse,  &
      &            tree_destroy
 
         CONTAINS
 
-        SUBROUTINE tree_init
-          ALLOCATE(treetop)
+        SUBROUTINE tree_init(this)
+          type (RedBlackTree) :: this
+          ALLOCATE(this % root)
           ALLOCATE(gc_list)
           ALLOCATE(roe_list)
-          gc_list % mytreenode => treetop
+          this % root % left => nil
+          this % root % right => nil
+          this % root % parent => nil
+          gc_list % mytreenode => this % root
           gc_list % myeggs => roe_list
           gc_next => gc_list
-          Nspawners = 0
         END SUBROUTINE tree_init
 
 ! This insert is visible from outside the module
-        SUBROUTINE tree_insert(dist, eggs, ifish)
-          real(r8), intent(in) :: dist
+        SUBROUTINE tree_insert(this, eggs, dist, ifish)
+          type (RedBlackTree) :: this
           real(r8), intent(in) :: eggs
           integer, intent(in) :: ifish
-          CALL insert_priv(dist, eggs, ifish, treetop)
+          real(r8), intent(in) :: dist
+
+          IF (.not. ASSOCIATED(this % root)) RETURN
+          this % nitems = this % nitems + 1
+          CALL insert_priv(this % root, eggs, dist, ifish)
+
         END SUBROUTINE tree_insert
 
-! This insert is private, can be used on either the treetop or on subtrees
-        SUBROUTINE insert_priv(dist, eggs, ifish, tree)
-          real(r8), intent(in) :: dist
+        SUBROUTINE insert_priv(top, eggs, dist, ifish)
+          type (treenode), target :: top
+          type (treenode), pointer :: treetop
           real(r8), intent(in) :: eggs
           integer, intent(in) :: ifish
-          type(treenode), pointer :: tree
-          type(treenode), pointer :: cur, p, x, y
+          real(r8), intent(in) :: dist
+          type(treenode), pointer :: cur, p, x, y, z
+
+          treetop => top
 
           ALLOCATE(cur)
           ALLOCATE(gc_next % next)
@@ -101,22 +122,23 @@
           cur % egg_sum = eggs
           cur % dist = dist
           cur % momfish = ifish
-          Nspawners = Nspawners + 1
+          cur % left => nil
+          cur % right => nil
+          cur % parent => nil
 
 ! Empty tree, deposit eggs at the top
-          IF (.not. ASSOCIATED(tree % left)) THEN
-            tree % left => cur
-            cur % parent => tree
-            RETURN
-          END IF
+         IF (isLeaf(treetop % left)) THEN
+           treetop % left => cur
+           RETURN
+         ENDIF
 
 ! Otherwise find somewhere to put these eggs
 ! New nodes end up at the bottom until a rebalance
-          p => tree % left
+          p => treetop % left
 
           DO
             IF (dist <= p % dist) THEN   
-              IF (ASSOCIATED(p % left)) THEN
+              IF (.not. isLeaf(p % left)) THEN
                 p => p % left
                 CYCLE
               ELSE
@@ -125,7 +147,7 @@
                 EXIT
               END IF
             ELSE
-              IF (ASSOCIATED(p % right)) THEN
+              IF (.not. isLeaf(p % right)) THEN
                 p => p % right
                 CYCLE
               ELSE
@@ -138,48 +160,47 @@
 ! Fix the egg sums above us
           CALL sum_up(cur)
 ! The balancing isn't working, so let's just return here.
-          RETURN
+!         RETURN
 ! Balance the thing... red-black for now.
           cur % red = .true.
           x => cur
+          p => null()
           DO WHILE (x % parent % red)
             IF (ASSOCIATED(x % parent % parent % left, x % parent)) THEN
-              IF (ASSOCIATED(x % parent % parent % right)) THEN
-                y => x % parent % parent % right   ! uncle
-                IF (y % red) THEN
-                  x % parent % red = .false.
-                  y % red = .false.
-                  x % parent % parent % red = .true.
-                  x => x % parent % parent
-                END IF
+              y => x % parent % parent % right   ! uncle
+              IF (y % red) THEN
+                x % parent % red = .false.
+                y % red = .false.
+                x % parent % parent % red = .true.
+                x => x % parent % parent
               ELSE
                 IF (ASSOCIATED(x, x % parent % right)) THEN
-                  CALL rotate_left(x % parent)
+                  x => x % parent
+                  CALL rotate_left(treetop, x)
                 END IF
                 x % parent % red = .false.
                 x % parent % parent % red = .true.
-                CALL rotate_right(x % parent % parent)
+                CALL rotate_right(treetop, x % parent % parent)
               END IF
             ELSE         ! parent is grandparent's right child
-              IF (ASSOCIATED(x % parent % parent % left)) THEN
-                y => x % parent % parent % left    ! aunt
-                IF (y % red) THEN
-                  x % parent % red = .false.
-                  y % red = .false.
-                  x % parent % parent % red = .true.
-                  x => x % parent % parent
-                END IF
+              y => x % parent % parent % left    ! aunt
+              IF (y % red) THEN
+                x % parent % red = .false.
+                y % red = .false.
+                x % parent % parent % red = .true.
+                x => x % parent % parent
               ELSE
                 IF (ASSOCIATED(x, x % parent % left)) THEN
-                  CALL rotate_right(x % parent)
+                  x => x % parent
+                  CALL rotate_right(treetop, x)
                 END IF
                 x % parent % red = .false.
                 x % parent % parent % red = .true.
-                CALL rotate_left(x % parent % parent)
+                CALL rotate_left(treetop, x % parent % parent)
               END IF
             END IF
           END DO
-          tree % left % red = .false.
+          treetop % left % red = .false.
         END SUBROUTINE insert_priv
 
 ! Fix the sums in the ancestor nodes
@@ -189,13 +210,13 @@
           real(r8)  :: eleft, eright
 
           p => cur % parent
-          DO WHILE (ASSOCIATED(p))
-            IF (ASSOCIATED(p % left)) THEN
+          DO WHILE (.not. ASSOCIATED(p, nil))
+            IF (.not. isLeaf(p % left)) THEN
               eleft = p % left % egg_sum
             ELSE
               eleft = 0
             END IF
-            IF (ASSOCIATED(p % right)) THEN
+            IF (.not. isLeaf(p % right)) THEN
               eright = p % right % egg_sum
             ELSE
               eright = 0
@@ -215,12 +236,12 @@
 
           p => cur
           DO i=1,2
-            IF (ASSOCIATED(p % left)) THEN
+            IF (.not. isLeaf(p % left)) THEN
               eleft = p % left % egg_sum
             ELSE
               eleft = 0
             END IF
-            IF (ASSOCIATED(p % right)) THEN
+            IF (.not. isLeaf(p % right)) THEN
               eright = p % right % egg_sum
             ELSE
               eright = 0
@@ -233,57 +254,114 @@
 !
 ! For the rotating, I'm using C code I found online for red-black trees,
 ! with reference to Introduction to Algorithms by Cormen, Leiserson,
-! Rivest (Chapter 14). It makes right child of x into the parent of x.
+! Rivest (Chapter 14). It makes right child of x_ into the parent of x_.
 !
-        SUBROUTINE rotate_left(x)
-          type(treenode), pointer :: x, y
+        SUBROUTINE rotate_left(top, x_)
+          type(treenode), target, intent(inout) :: top
+          type(treenode), target, intent(inout) :: x_
+          type(treenode), pointer :: treetop
+          type(treenode), pointer :: x => null()
+          type(treenode), pointer :: y => null()
 
+          treetop => top
+          x => x_
           y => x % right
 
-          IF (ASSOCIATED(y % left)) THEN
-            x % right => y % left
-            x % right % parent => x
-          ELSE
-            NULLIFY(x % right)
+          x % right => y % left
+
+          IF (.not. isLeaf(y % left)) THEN
+             y % left % parent => x
           END IF
 
           y % parent => x % parent
 
-          IF (ASSOCIATED(x, x % parent % left)) THEN
-            x % parent % left => y
+          IF (ASSOCIATED(x % parent, nil)) THEN
+             treetop % left => y
           ELSE
-            x % parent % right => y
+            IF (ASSOCIATED(x, x % parent % left)) THEN
+              x % parent % left => y
+            ELSE
+              x % parent % right => y
+            END IF
           END IF
           y % left => x
           x % parent => y
           CALL sum_us(x)
         END SUBROUTINE rotate_left
 
-        SUBROUTINE rotate_right(x)
-          type(treenode), pointer :: x, y
+        SUBROUTINE rotate_right(top, x_)
+          type(treenode), target, intent(inout) :: top
+          type(treenode), target, intent(inout) :: x_
+          type(treenode), pointer :: treetop
+          type(treenode), pointer :: x => null()
+          type(treenode), pointer :: y => null()
 
+          treetop => top
+          x => x_
           y => x % left
 
-          IF (ASSOCIATED(y % right)) THEN
-            x % left => y % right
-            x % left % parent => x
-          ELSE
-            NULLIFY(x % left)
+          x % left => y % right
+
+          IF (.not. isLeaf(y % right)) THEN
+            y % right % parent => x
           END IF
 
           y % parent => x % parent
 
-          IF (ASSOCIATED(x, x % parent % left)) THEN
-            x % parent % left => y
+          IF (ASSOCIATED(x % parent, nil)) THEN
+            treetop % left => y
           ELSE
-            x % parent % right => y
+            IF (ASSOCIATED(x, x % parent % right)) THEN
+              x % parent % right => y
+            ELSE
+              x % parent % left => y
+            END IF
           END IF
           y % right => x
           x % parent => y
           CALL sum_us(x)
         END SUBROUTINE rotate_right
 
-        SUBROUTINE tree_collect(Nsuper, Nfound, eggs, momfish)
+!...........................................................................
+! None of these are used at the moment
+!...........................................................................
+
+!...........................................................................
+        FUNCTION isLeft(x, y) result(b)
+!..........................................................................
+! Check if node y is left child of x
+!..........................................................................
+          type (treenode), pointer :: x, y
+          logical :: b
+
+          b = ASSOCIATED(x % left, y)
+        END FUNCTION isLeft
+
+!...........................................................................
+        FUNCTION isRight(x, y) result(b)
+!..........................................................................
+! Check if node y is right child of x
+!..........................................................................
+          type (treenode), pointer :: x, y
+          logical :: b
+
+          b = ASSOCIATED(x % right, y)
+        END FUNCTION isRight
+
+!...........................................................................
+        FUNCTION isLeaf(x) result(b)
+!..........................................................................
+! Check if node x is a leaf
+!..........................................................................
+          type (treenode), pointer :: x
+          logical :: b
+
+          b = ASSOCIATED(x, nil)
+        END FUNCTION isLeaf
+!..........................................................................
+
+        SUBROUTINE tree_collect(this, Nsuper, Nfound, eggs, momfish)
+          type (RedBlackTree) :: this
           integer, intent(in)  :: Nsuper
           integer, intent(out) :: Nfound
           real(r8), intent(out) :: eggs(Nsuper)
@@ -295,13 +373,13 @@
 ! the superindividuals.
 !
           Nfound = 0
-          IF (Nspawners .eq. 0) THEN
+          IF (this % nitems .eq. 0) THEN
             RETURN
-          ELSE IF (Nsuper >= Nspawners) THEN
-            IF (ASSOCIATED(treetop % left)) CALL copy_traverse(         &
-     &               treetop % left, Nsuper, Nfound, eggs, momfish)
-            IF (Nfound .ne. Nspawners) print *, "Oh, noes!", Nfound,    &
-     &            Nspawners
+          ELSE IF (Nsuper >= this % nitems) THEN
+            IF (ASSOCIATED(this % root)) CALL copy_traverse(            &
+     &               this % root, Nsuper, Nfound, eggs, momfish)
+            IF (Nfound .ne. this % nitems) print *, "Oh, noes!",        &
+     &               Nfound, this % nitems
           ELSE
 !
 ! Now we have to group the eggs into the available superindividuals.
@@ -312,8 +390,8 @@
             ALLOCATE(gc_next % next)
             gc_next => gc_next % next
             gc_next % myeggs => roe_list % next
-            roe_list % next % egg_tree => treetop
-            roe_list % next % egg_sum = treetop % left % egg_sum
+            roe_list % next % egg_tree => this % root
+            roe_list % next % egg_sum = this % root % egg_sum
             Nfound = 1
 
             DO WHILE (Nfound .lt. Nsuper)
@@ -334,10 +412,14 @@
               ALLOCATE(gc_next % next)
               gc_next => gc_next % next
               gc_next % mytreenode => r_tree
+              l_tree % right => nil
+              l_tree % parent => nil
+              r_tree % right => nil
+              r_tree % parent => nil
 
-              IF (ASSOCIATED (t_tree % left)) THEN
+              IF (.not. isLeaf(t_tree % left)) THEN
                 l_tree % left => t_tree % left
-                nullify(t_tree % left)
+                t_tree % left => nil
                 l_tree % egg_sum = l_tree % left % egg_sum
               ELSE
                 l_tree % left => t_tree
@@ -345,9 +427,9 @@
                 t_tree % egg_sum = t_tree % eggs
                 l_tree % egg_sum = t_tree % eggs
               END IF
-              IF (ASSOCIATED (t_tree % right)) THEN
+              IF (.not. isLeaf(t_tree % right)) THEN
                 r_tree % left => t_tree % right
-                nullify(t_tree % right)
+                t_tree % right => nil
                 r_tree % egg_sum = r_tree % left % egg_sum
               ELSE
                 r_tree % left => t_tree
@@ -355,9 +437,9 @@
                 t_tree % egg_sum = t_tree % eggs
                 r_tree % egg_sum = t_tree % eggs
               END IF
-              l_tree % left % parent => l_tree
+              l_tree % left % parent => nil
               l_tree % left % red = .false.
-              r_tree % left % parent => r_tree
+              r_tree % left % parent => nil
               r_tree % left % red = .false.
 ! If we've both subtrees, give the top's eggs to the smaller
 ! (by egg count) tree, making a new treenode (because that's what
@@ -365,11 +447,11 @@
               IF (.not. single) THEN
                 IF (l_tree % left % egg_sum <                           &
      &                     r_tree % left % egg_sum) THEN
-                  CALL insert_priv(t_tree % eggs, t_tree % dist,        &
-     &                 t_tree % momfish, l_tree)
+                  CALL insert_priv(l_tree, t_tree % eggs,               &
+     &                 t_tree % dist, t_tree % momfish)
                 ELSE
-                  CALL insert_priv(t_tree % eggs, t_tree % dist,        &
-     &                 t_tree % momfish, r_tree)
+                  CALL insert_priv(r_tree, t_tree % eggs,               &
+     &                 t_tree % dist,  t_tree % momfish)
                 END IF
               END IF
               CALL push_trees(l_tree, r_tree)
@@ -471,9 +553,10 @@
           END DO
         END SUBROUTINE push_one_tree
 
-        SUBROUTINE tree_traverse
-          IF (ASSOCIATED(treetop % left)) CALL                          &
-     &              traverse_print(treetop % left)
+        SUBROUTINE tree_traverse(this)
+          type (RedBlackTree) :: this
+          IF (.not. isleaf(this % root)) CALL                           &
+     &              traverse_print(this % root % left)
         END SUBROUTINE tree_traverse
 
         RECURSIVE SUBROUTINE copy_traverse(p, Nsuper, Nfound, eggs,     &
@@ -484,21 +567,21 @@
           real(r8), intent(inout) :: eggs(Nsuper)
           integer, intent(inout) :: momfish(Nsuper)
 
-          IF (ASSOCIATED(p % left)) CALL copy_traverse(p % left,        &
+          IF (.not. isLeaf(p % left)) CALL copy_traverse(p % left,        &
      &                Nsuper, Nfound, eggs, momfish)
           Nfound = Nfound + 1
           eggs(Nfound) = p % eggs
           momfish(Nfound) = p % momfish
-          IF (ASSOCIATED(p % right)) CALL copy_traverse(p % right,      &
+          IF (.not. isLeaf(p % right)) CALL copy_traverse(p % right,      &
      &                Nsuper, Nfound, eggs, momfish)
         END SUBROUTINE copy_traverse
 
         RECURSIVE SUBROUTINE traverse_print(p)
           type(treenode), pointer :: p
 
-          IF (ASSOCIATED(p % left)) CALL traverse_print(p % left)
+          IF (.not. isLeaf(p % left)) CALL traverse_print(p % left)
           CALL print_node(p)
-          IF (ASSOCIATED(p % right)) CALL traverse_print(p % right)
+          IF (.not. isLeaf(p % right)) CALL traverse_print(p % right)
 
         END SUBROUTINE traverse_print
 
@@ -507,8 +590,9 @@
           print *, "Node: ", cur % dist, cur % eggs, cur % egg_sum
         END SUBROUTINE print_node
 
-        SUBROUTINE tree_destroy
+        SUBROUTINE tree_destroy(this)
 ! Loop through, cleaning up both the treenodes and the listnodes.
+          type (RedBlackTree) :: this
           type(listnode), pointer :: cur, last
 
           cur => gc_list
@@ -525,5 +609,4 @@
           DEALLOCATE(cur)
         END SUBROUTINE tree_destroy
 
-#endif
       END MODULE mod_tree
