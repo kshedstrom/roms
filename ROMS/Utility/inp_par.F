@@ -2,7 +2,7 @@
 #undef KATE_FOO
       SUBROUTINE inp_par (model)
 !
-!svn $Id: inp_par.F 1057 2009-09-08 19:01:19Z kate $
+!svn $Id: inp_par.F 1101 2009-11-19 00:56:17Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -829,7 +829,7 @@
                 ELSE IF (INDEX(TRIM(OrderLabel(i)),'atmos').ne.0) THEN
                   Iatmos=i
                 END IF
-              END IF  
+              END IF
             END DO
           ELSE IF (TRIM(KeyWord).eq.'Nthreads(ocean)') THEN
             IF ((0.lt.Iocean).and.(Iocean.le.Nmodels)) THEN
@@ -1068,7 +1068,7 @@
             ELSE
               WRITE(title,'(a,1x,a)') TRIM(ADJUSTL(title)),             &
      &                                TRIM(ADJUSTL(Cval(Nval)))
-            END IF           
+            END IF
           ELSE IF (TRIM(KeyWord).eq.'MyAppCPP') THEN
             DO i=1,LEN(MyAppCPP)
               MyAppCPP(i:i)=blank
@@ -1304,7 +1304,7 @@
           ELSE IF (TRIM(KeyWord).eq.'NTSAVG') THEN
             Npts=load_i(Nval, Rval, Ngrids, ntsAVG)
 #ifdef ADJOINT
-            DO ng=1,Ngrids           
+            DO ng=1,Ngrids
               IF (ntsAVG(ng).eq.1) ntsAVG(ng)=ntimes(ng)
             END DO
 #endif
@@ -1577,7 +1577,7 @@
             DO ng=1,Ngrids
               SCALARS(ng)%Lstate(isVbar)=Ladsen(ng)
             END DO
-# ifdef SOLVE3D  
+# ifdef SOLVE3D
           ELSE IF (TRIM(KeyWord).eq.'Lstate(isUvel)') THEN
             IF (isUvel.eq.0) THEN
               IF (Master) WRITE (out,280) 'isUvel'
@@ -2029,6 +2029,13 @@
               RETURN
             END IF
             Npts=load_l(Nval, Cval, Ngrids, Hout(idSrad,:))
+          ELSE IF (TRIM(KeyWord).eq.'Hout(idEmPf)') THEN
+            IF (idEmPf.eq.0) THEN
+              IF (Master) WRITE (out,280) 'idEmPf'
+              exit_flag=5
+              RETURN
+            END IF
+            Npts=load_l(Nval, Cval, Ngrids, Hout(idEmPf,:))
           ELSE IF (TRIM(KeyWord).eq.'Hout(idevap)') THEN
             IF (idevap.eq.0) THEN
               IF (Master) WRITE (out,280) 'idevap'
@@ -2535,8 +2542,8 @@
                 exit_flag=4
                 RETURN
               END IF
-            END DO                
-            Npts=MAXVAL(nFfiles)           
+            END DO
+            Npts=MAXVAL(nFfiles)
             allocate ( FRCids (Npts,Ngrids) )
             allocate ( FRCname(Npts,Ngrids) )
             FRCids(1:Npts,1:Ngrids)=-1
@@ -2631,6 +2638,24 @@
       exit_flag=4
       RETURN
   20  CLOSE (inp)
+
+#if defined BULK_FLUXES && defined NL_BULK_FLUXES
+!
+!  Make sure that logical output switches are activated for wind
+!  stress and surface active tracers fluxes when using fluxes from
+!  the nonlinear model via (bulk_flux).
+!
+      DO ng=1,Ngrids
+        Hout(idUsms,ng)=.TRUE.
+        Hout(idVsms,ng)=.TRUE.
+# ifdef SOLVE3D
+        Hout(idTsur(itemp),ng)=.TRUE.
+#  ifdef EMINUSP
+        Hout(idEmPf,ng)=.TRUE.
+#  endif
+# endif
+      END DO
+#endif
 !
 !  Set switch to create NetCDF file.
 !
@@ -2644,7 +2669,7 @@
           LdefHIS(ng)=.TRUE.
         END IF
 #endif
-#if defined IS4DVAR || defined IOM || defined WEAK_CONSTRAINT
+#if defined IS4DVAR || defined WEAK_CONSTRAINT
 !
 !  If weak constraint, disallow recycling of the adjoint model.
 !
@@ -2668,25 +2693,25 @@
 !  Set size of additonal dimension for error covariance normalization
 !  and standard deviation factors.
 !
-# if defined IOM || defined WEAK_CONSTRAINT
+# ifdef WEAK_CONSTRAINT
         IF (nADJ(ng).lt.ntimes(ng)) THEN
           NSA=2
         ELSE
           NSA=1
-        END IF 
+        END IF
 # else
         NSA=1
 # endif
 #endif
-#if defined IOM || defined WEAK_CONSTRAINT
+#ifdef WEAK_CONSTRAINT
 !
-!  If weak constraint assimilation, ensure that nADJ=nHIS. 
+!  If weak constraint assimilation, ensure that nADJ=nHIS.
 !
         IF (nADJ(ng).lt.ntimes(ng)) THEN
           nADJ(ng)=nHIS(ng)
         END IF
 #endif
-#if defined WEAK_CONSTRAINT || defined IOM
+#ifdef WEAK_CONSTRAINT
 !
 !  If weak constraint assimilation, set tangent linear number of
 !  time-steps between writing of fields the same as the basic
@@ -3553,6 +3578,9 @@
      &       'Hout(idShea)',                                            &
      &       'Write out sensible heat flux.'
 #  ifdef EMINUSP
+          IF (Hout(idEmPf,ng)) WRITE (out,170) Hout(idEmPf,ng),         &
+     &       'Hout(idEmPf)',                                            &
+     &       'Write out E-P flux.'
           IF (Hout(idevap,ng)) WRITE (out,170) Hout(idevap,ng),         &
      &       'Hout(idevap)',                                            &
      &       'Write out evaporation rate.'
@@ -3924,7 +3952,7 @@
      &                      TLMname(ng)(1:Lstr-3)
           END IF
 #endif
-#if defined WEAK_CONSTRAINT || defined IOM
+#ifdef WEAK_CONSTRAINT
           WRITE (out,230) '   Output Impulse Forcing File:  ',          &
      &                    TRIM(TLFname(ng))
 #endif
@@ -4008,18 +4036,17 @@
      &                    TRIM(fname)
 # endif
 # if defined TANGENT && \
-    !(defined FOUR_DVAR       || defined GRADIENT_CHECK    || \
-      defined OBS_SENSITIVITY || defined OPT_OBSERVATIONS  || \
-      defined SANITY_CHECK    || defined SENSITIVITY_4DVAR || \
-      defined TLM_CHECK)
+    !(defined FOUR_DVAR         || defined OBS_SENSITIVITY || \
+      defined OPT_OBSERVATIONS  || defined SANITY_CHECK    || \
+      defined SENSITIVITY_4DVAR || defined TLM_CHECK)
           fname=ITLname(ng)
           INQUIRE (FILE=TRIM(fname), EXIST=inhere)
           IF (.not.inhere) GO TO 30
           WRITE (out,230) '    Input Tangent Initial File:  ',          &
      &                    TRIM(fname)
 # endif
-# if (defined WEAK_CONSTRAINT || defined IOM) && \
-    !(defined W4DPSAS || defined W4DPSAS_SENSITIVITY)
+# if defined WEAK_CONSTRAINT && \
+    !(defined W4DPSAS        || defined W4DPSAS_SENSITIVITY)
           fname=IRPname(ng)
           INQUIRE (FILE=TRIM(fname), EXIST=inhere)
           IF (.not.inhere) GO TO 30
@@ -4142,7 +4169,7 @@
 
 #if defined WEAK_CONSTRAINT   && \
    (defined POSTERIOR_EOFS    || defined POSTERIOR_ERROR_F || \
-    defined POSTERIOR_ERROR_I)  
+    defined POSTERIOR_ERROR_I)
 !
 !-----------------------------------------------------------------------
 !  If weak constraint and estimating posterior analysis error
@@ -4232,7 +4259,7 @@
      &        /,12x,'Change number of threads (environment variable) ', &
      &        'or',/,12x,'change domain partition in input script.')
  110  FORMAT (/,/,' Physical Parameters, Grid: ',i2.2,                  &
-     &        /,  ' =============================',/)  
+     &        /,  ' =============================',/)
  120  FORMAT (1x,i10,2x,a,t30,a)
  130  FORMAT (1x,i10,2x,a,t30,a,/,t32,a)
  140  FORMAT (f11.3,2x,a,t30,a)
@@ -4483,6 +4510,7 @@
       logical, dimension(NBT,Ngrids) :: Ltrc
 
       real(r8), dimension(NBT,Ngrids) :: Rbio
+
       real(r8), dimension(100) :: Rval
 
       character (len=40) :: KeyWord
@@ -4499,9 +4527,9 @@
         READ (inp,'(a)',ERR=10,END=20) line
         status=decode_line(line, KeyWord, Nval, Cval, Rval)
         IF (status.gt.0) THEN
-          IF (TRIM(KeyWord).eq.'Lbiology') THEN 
+          IF (TRIM(KeyWord).eq.'Lbiology') THEN
             Npts=load_l(Nval, Cval, Ngrids, Lbiology)
-          ELSE IF (TRIM(KeyWord).eq.'BioIter') THEN 
+          ELSE IF (TRIM(KeyWord).eq.'BioIter') THEN
             Npts=load_i(Nval, Rval, Ngrids, BioIter)
           ELSE IF (TRIM(KeyWord).eq.'AttSW') THEN
             Npts=load_r(Nval, Rval, Ngrids, AttSW)
@@ -4611,7 +4639,7 @@
      &                              'idTvar(idbio(', itrc, '))'
                   exit_flag=5
                   RETURN
-                END IF                  
+                END IF
                 Hout(i,ng)=Ltrc(itrc,ng)
               END DO
             END DO
@@ -4625,7 +4653,7 @@
      &                              'idTsur(idbio(', itrc, '))'
                   exit_flag=5
                   RETURN
-                END IF                  
+                END IF
                 Hout(i,ng)=Ltrc(itrc,ng)
               END DO
             END DO
@@ -4835,7 +4863,7 @@
      &            'Write out tracer flux ', i, TRIM(Vname(1,idTvar(i)))
             END DO
 #  ifdef DIAGNOSTICS_BIO
-#   if !(defined CARBON || defined OXYGEN || defined DENITRIFICATION) 
+#   if !(defined CARBON || defined OXYGEN || defined DENITRIFICATION)
             DO itrc=1,NDbio2d
               i=iDbio2(itrc)
               IF (Hout(i,ng)) WRITE (out,140)                           &
@@ -4878,7 +4906,7 @@
 
   30  FORMAT (/,' read_BioPar - Error while processing line: ',/,a)
   40  FORMAT (/,/,' Fennel Model Parameters, Grid: ',i2.2,              &
-     &        /,  ' =================================',/)  
+     &        /,  ' =================================',/)
   50  FORMAT (1x,i10,2x,a,t30,a)
   60  FORMAT (10x,l1,2x,a,t30,a,i2.2,':',1x,a)
   70  FORMAT (f11.3,2x,a,t30,a)
@@ -5277,7 +5305,7 @@
         READ (inp,'(a)',ERR=10,END=20) line
         status=decode_line(line, KeyWord, Nval, Cval, Rval)
         IF (status.gt.0) THEN
-          IF (TRIM(KeyWord).eq.'Lbiology') THEN 
+          IF (TRIM(KeyWord).eq.'Lbiology') THEN
             Npts=load_l(Nval, Cval, Ngrids, Lbiology)
           ELSE IF (TRIM(KeyWord).eq.'BioIter') THEN
             Npts=load_i(Nval, Rval, Ngrids, BioIter)
@@ -5352,7 +5380,7 @@
           ELSE IF (TRIM(KeyWord).eq.'vncref') THEN
             Npts=load_r(Nval, Rval, Ngrids, vncref)
           ELSE IF (TRIM(KeyWord).eq.'biolambda') THEN
-            Npts=load_r(Nval, Rval, Ngrids, biolambda)          
+            Npts=load_r(Nval, Rval, Ngrids, biolambda)
           ELSE IF (TRIM(KeyWord).eq.'TNU2') THEN
             Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
             DO ng=1,Ngrids
@@ -5395,7 +5423,7 @@
      &                              'idTvar(idbio(', itrc, '))'
                   exit_flag=5
                   RETURN
-                END IF                  
+                END IF
                 Hout(i,ng)=Ltrc(itrc,ng)
               END DO
             END DO
@@ -5409,7 +5437,7 @@
      &                              'idTsur(idbio(', itrc, '))'
                   exit_flag=5
                   RETURN
-                END IF                  
+                END IF
                 Hout(i,ng)=Ltrc(itrc,ng)
               END DO
             END DO
@@ -5605,7 +5633,7 @@
 
   30  FORMAT (/,' read_BioPar - Error while processing line: ',/,a)
   40  FORMAT (/,/,' LimaDoney Model Parameters, Grid: ',i2.2,           &
-     &        /,  ' =================================',/)  
+     &        /,  ' =================================',/)
   50  FORMAT (1x,i10,2x,a,t28,a)
   60  FORMAT (10x,l1,2x,a,t28,a,i2.2,':',1x,a)
   70  FORMAT (f11.3,2x,a,t28,a)
@@ -5628,9 +5656,9 @@
         READ (inp,'(a)',ERR=10,END=20) line
         status=decode_line(line, KeyWord, Nval, Cval, Rval)
         IF (status.gt.0) THEN
-          IF (TRIM(KeyWord).eq.'Lbiology') THEN 
+          IF (TRIM(KeyWord).eq.'Lbiology') THEN
             Npts=load_l(Nval, Cval, Ngrids, Lbiology)
-          ELSE IF (TRIM(KeyWord).eq.'BioIter') THEN 
+          ELSE IF (TRIM(KeyWord).eq.'BioIter') THEN
             Npts=load_i(Nval, Rval, Ngrids, BioIter)
           ELSE IF (TRIM(KeyWord).eq.'AttSW') THEN
             Npts=load_r(Nval, Rval, Ngrids, AttSW)
@@ -5860,7 +5888,7 @@
      &                              'idTvar(idbio(', itrc, '))'
                   exit_flag=5
                   RETURN
-                END IF                  
+                END IF
                 Hout(i,ng)=Ltrc(itrc,ng)
               END DO
             END DO
@@ -5874,7 +5902,7 @@
      &                              'idTsur(idbio(', itrc, '))'
                   exit_flag=5
                   RETURN
-                END IF                  
+                END IF
                 Hout(i,ng)=Ltrc(itrc,ng)
               END DO
             END DO
@@ -6247,9 +6275,9 @@
         READ (inp,'(a)',ERR=10,END=20) line
         status=decode_line(line, KeyWord, Nval, Cval, Rval)
         IF (status.gt.0) THEN
-          IF (TRIM(KeyWord).eq.'Lbiology') THEN 
+          IF (TRIM(KeyWord).eq.'Lbiology') THEN
             Npts=load_l(Nval, Cval, Ngrids, Lbiology)
-          ELSE IF (TRIM(KeyWord).eq.'BioIter') THEN 
+          ELSE IF (TRIM(KeyWord).eq.'BioIter') THEN
             Npts=load_i(Nval, Rval, Ngrids, BioIter)
 #  ifdef ANA_BIOLOGY
           ELSE IF (TRIM(KeyWord).eq.'BioIni(iNO3_)') THEN
@@ -6327,7 +6355,7 @@
      &                              'idTvar(idbio(', itrc, '))'
                   exit_flag=5
                   RETURN
-                END IF                  
+                END IF
                 Hout(i,ng)=Ltrc(itrc,ng)
               END DO
             END DO
@@ -6341,7 +6369,7 @@
      &                              'idTsur(idbio(', itrc, '))'
                   exit_flag=5
                   RETURN
-                END IF                  
+                END IF
                 Hout(i,ng)=Ltrc(itrc,ng)
               END DO
             END DO
@@ -6467,7 +6495,7 @@
 
   30  FORMAT (/,' read_BioPar - Error while processing line: ',/,a)
   40  FORMAT (/,/,' NPZD Model Parameters, Grid: ',i2.2,                &
-     &        /,  ' ===============================',/)  
+     &        /,  ' ===============================',/)
   50  FORMAT (1x,i10,2x,a,t30,a)
   60  FORMAT (10x,l1,2x,a,t30,a,i2.2,':',1x,a)
   90  FORMAT (1p,e11.4,2x,a,'(',i2.2,')',t30,a,/,t32,a,i2.2,':',1x,a)
@@ -6579,7 +6607,7 @@
      &                              'idTvar(idbio(', itrc, '))'
                   exit_flag=5
                   RETURN
-                END IF                  
+                END IF
                 Hout(i,ng)=Ltrc(itrc,ng)
               END DO
             END DO
@@ -6593,7 +6621,7 @@
      &                              'idTsur(idbio(', itrc, '))'
                   exit_flag=5
                   RETURN
-                END IF                  
+                END IF
                 Hout(i,ng)=Ltrc(itrc,ng)
               END DO
             END DO
@@ -8234,7 +8262,7 @@
         READ (inp,'(a)',ERR=10,END=20) line
         status=decode_line(line, KeyWord, Nval, Cval, Rval)
         IF (status.gt.0) THEN
-          IF (TRIM(KeyWord).eq.'Lbiology') THEN 
+          IF (TRIM(KeyWord).eq.'Lbiology') THEN
             Npts=load_l(Nval, Cval, Ngrids, Lbiology)
           ELSE IF (TRIM(KeyWord).eq.'BioIter') THEN
             Npts=load_i(Nval, Rval, Ngrids, BioIter)
@@ -8468,7 +8496,7 @@
      &                              'idTsur(idbio(', itrc, '))'
                   exit_flag=5
                   RETURN
-                END IF                  
+                END IF
                 Hout(i,ng)=Ltrc(itrc,ng)
               END DO
             END DO
@@ -8556,7 +8584,7 @@
               END DO
             WRITE (out,70) 'maxC2nALG',                                 &
      &            'Maximum phytoplankton C:N ratio',                    &
-     &            '(micromole_C/micromole_N):'   
+     &            '(micromole_C/micromole_N):'
               DO is=1,Nphy
                 WRITE (out,90) maxC2nALG(is,ng), TRIM(PhyName(is))
               END DO
@@ -9020,14 +9048,14 @@
 
   30  FORMAT (/,' read_BioPar - Error while processing line: ',/,a)
   40  FORMAT (/,/,' EcoSim Parameters, Grid: ',i2.2,                    &
-     &        /,  ' ===========================',/)  
+     &        /,  ' ===========================',/)
   50  FORMAT (1x,i10,2x,a,t30,a)
   60  FORMAT (10x,l1,2x,a,t30,a)
   70  FORMAT ('...........',2x,a,t30,a,/,t32,a)
   80  FORMAT ('...........',2x,a,t30,a)
-  90  FORMAT (1p,e11.4,t33,a) 
- 100  FORMAT (1p,e11.4,t33,'Fecal Group ',i1,', ',a) 
- 110  FORMAT (1p,e11.4,2x,a,t30,a,/,t32,a) 
+  90  FORMAT (1p,e11.4,t33,a)
+ 100  FORMAT (1p,e11.4,t33,'Fecal Group ',i1,', ',a)
+ 110  FORMAT (1p,e11.4,2x,a,t30,a,/,t32,a)
  120  FORMAT (1p,e11.4,2x,a,t30,a)
  130  FORMAT (1p,e11.4,2x,a,'(',i2.2,')',t30,a,/,t32,a,i2.2,':',1x,a)
  140  FORMAT (10x,l1,2x,a,t30,a,i2.2,':',1x,a)
@@ -9077,7 +9105,7 @@
       real(r8), dimension(Ngrids) :: Rbed
       real(r8), dimension(NCS,Ngrids) :: Rmud
       real(r8), dimension(NNS,Ngrids) :: Rsand
- 
+
       real(r8), dimension(100) :: Rval
 
       character (len=40) :: KeyWord
@@ -9092,36 +9120,36 @@
         READ (inp,'(a)',ERR=10,END=20) line
         status=decode_line(line, KeyWord, Nval, Cval, Rval)
         IF (status.gt.0) THEN
-          IF (TRIM(KeyWord).eq.'Lsediment') THEN 
+          IF (TRIM(KeyWord).eq.'Lsediment') THEN
             Npts=load_l(Nval, Cval, Ngrids, Lsediment)
-          ELSE IF (TRIM(KeyWord).eq.'NEWLAYER_THICK') THEN 
+          ELSE IF (TRIM(KeyWord).eq.'NEWLAYER_THICK') THEN
             Npts=load_r(Nval, Rval, Ngrids, Rbed)
             DO ng=1,Ngrids
               newlayer_thick(ng)=Rbed(ng)
             END DO
-          ELSE IF (TRIM(KeyWord).eq.'MINLAYER_THICK') THEN 
+          ELSE IF (TRIM(KeyWord).eq.'MINLAYER_THICK') THEN
             Npts=load_r(Nval, Rval, Ngrids, Rbed)
             DO ng=1,Ngrids
               minlayer_thick(ng)=Rbed(ng)
             END DO
 # ifdef MIXED_BED
-          ELSE IF (TRIM(KeyWord).eq.'TRANSC') THEN 
+          ELSE IF (TRIM(KeyWord).eq.'TRANSC') THEN
             Npts=load_r(Nval, Rval, Ngrids, Rbed)
             DO ng=1,Ngrids
               transC(ng)=Rbed(ng)
           END DO
-          ELSE IF (TRIM(KeyWord).eq.'TRANSN') THEN 
+          ELSE IF (TRIM(KeyWord).eq.'TRANSN') THEN
             Npts=load_r(Nval, Rval, Ngrids, Rbed)
             DO ng=1,Ngrids
               transN(ng)=Rbed(ng)
           END DO
 # endif
-          ELSE IF (TRIM(KeyWord).eq.'BEDLOAD_COEFF') THEN 
+          ELSE IF (TRIM(KeyWord).eq.'BEDLOAD_COEFF') THEN
             Npts=load_r(Nval, Rval, Ngrids, Rbed)
             DO ng=1,Ngrids
               bedload_coeff(ng)=Rbed(ng)
             END DO
-          ELSE IF (TRIM(KeyWord).eq.'MUD_SD50') THEN 
+          ELSE IF (TRIM(KeyWord).eq.'MUD_SD50') THEN
             IF (.not.allocated(Sd50)) allocate (Sd50(NST,Ngrids))
             Npts=load_r(Nval, Rval, NCS*Ngrids, Rmud)
             DO ng=1,Ngrids
@@ -9228,31 +9256,31 @@
               END DO
             END DO
 #if defined COHESIVE_BED || defined MIXED_BED
-          ELSE IF (TRIM(KeyWord).eq.'MUD_TAUCR_MIN') THEN 
+          ELSE IF (TRIM(KeyWord).eq.'MUD_TAUCR_MIN') THEN
             Npts=load_r(Nval, Rval, Ngrids, Rbed)
             DO ng=1,Ngrids
               tcr_min(ng)=Rbed(ng)
           END DO
-          ELSE IF (TRIM(KeyWord).eq.'MUD_TAUCR_MAX') THEN 
+          ELSE IF (TRIM(KeyWord).eq.'MUD_TAUCR_MAX') THEN
             Npts=load_r(Nval, Rval, Ngrids, Rbed)
             DO ng=1,Ngrids
               tcr_max(ng)=Rbed(ng)
             END DO
-          ELSE IF (TRIM(KeyWord).eq.'MUD_TAUCR_SLOPE') THEN 
+          ELSE IF (TRIM(KeyWord).eq.'MUD_TAUCR_SLOPE') THEN
             Npts=load_r(Nval, Rval, Ngrids, Rbed)
             DO ng=1,Ngrids
               tcr_slp(ng)=Rbed(ng)
             END DO
-          ELSE IF (TRIM(KeyWord).eq.'MUD_TAUCR_OFF') THEN 
+          ELSE IF (TRIM(KeyWord).eq.'MUD_TAUCR_OFF') THEN
             Npts=load_r(Nval, Rval, Ngrids, Rbed)
             DO ng=1,Ngrids
               tcr_off(ng)=Rbed(ng)
             END DO
-          ELSE IF (TRIM(KeyWord).eq.'MUD_TAUCR_TIME') THEN 
+          ELSE IF (TRIM(KeyWord).eq.'MUD_TAUCR_TIME') THEN
             Npts=load_r(Nval, Rval, Ngrids, Rbed)
             DO ng=1,Ngrids
               tcr_tim(ng)=Rbed(ng)
-          END DO 
+          END DO
 # endif
           ELSE IF (TRIM(KeyWord).eq.'Hout(idmud)') THEN
             Npts=load_l(Nval, Cval, NCS*Ngrids, Lmud)
@@ -9314,7 +9342,7 @@
               END DO
             END DO
 # endif
-          ELSE IF (TRIM(KeyWord).eq.'SAND_SD50') THEN 
+          ELSE IF (TRIM(KeyWord).eq.'SAND_SD50') THEN
             IF (.not.allocated(Sd50)) allocate (Sd50(NST,Ngrids))
             Npts=load_r(Nval, Rval, NNS*Ngrids, Rsand)
             DO ng=1,Ngrids
@@ -9508,11 +9536,11 @@
               Hout(i,ng)=Lbed(ng)
             END DO
 # if defined COHESIVE_BED || defined SED_BIODIFF || defined MIXED_BED
-          ELSE IF (TRIM(KeyWord).eq.'Hout(ibtcr)') THEN 
-            Npts=load_l(Nval, Cval, Ngrids, Lbed) 
-            i=idSbed(ibtcr) 
-            DO ng=1,Ngrids 
-              Hout(i,ng)=Lbed(ng) 
+          ELSE IF (TRIM(KeyWord).eq.'Hout(ibtcr)') THEN
+            Npts=load_l(Nval, Cval, Ngrids, Lbed)
+            i=idSbed(ibtcr)
+            DO ng=1,Ngrids
+              Hout(i,ng)=Lbed(ng)
             END DO
 # endif
           ELSE IF (TRIM(KeyWord).eq.'Hout(idiff)') THEN
@@ -9726,7 +9754,7 @@
         READ (inp,'(a)',ERR=10,END=20) line
         status=decode_line(line, KeyWord, Nval, Cval, Rval)
         IF (status.gt.0) THEN
-          IF (TRIM(KeyWord).eq.'Lassimilate') THEN 
+          IF (TRIM(KeyWord).eq.'Lassimilate') THEN
             Npts=load_l(Nval, Cval, Ngrids, Lassimilate)
           ELSE IF (TRIM(KeyWord).eq.'Emod0') THEN
             Npts=load_r(Nval, Rval, 1, Emod0)
@@ -9944,7 +9972,7 @@
 !-----------------------------------------------------------------------
 !  Report input files and check availability of input files.
 !-----------------------------------------------------------------------
-!  
+!
             WRITE (out,170)
             WRITE (out,180) ' Assimilation parameters File:  ',         &
      &                      TRIM(aparnam)
@@ -10060,7 +10088,25 @@
         READ (inp,'(a)',ERR=10,END=20) line
         status=decode_line(line, KeyWord, Nval, Cval, Rval)
         IF (status.gt.0) THEN
-          IF (TRIM(KeyWord).eq.'GradErr') THEN
+          IF (TRIM(KeyWord).eq.'dTdz_min') THEN
+            Npts=load_r(Nval, Rval, Ngrids, dTdz_min)
+          ELSE IF (TRIM(KeyWord).eq.'ml_depth') THEN
+            Npts=load_r(Nval, Rval, Ngrids, ml_depth)
+            DO ng=1,Ngrids
+              ml_depth(ng)=ABS(ml_depth(ng))
+            END DO
+#  if defined BALANCE_OPERATOR && defined ZETA_ELLIPTIC
+          ELSE IF (TRIM(KeyWord).eq.'Nbico') THEN
+            Npts=load_i(Nval, Rval, Ngrids, Nbico)
+#  endif
+          ELSE IF (TRIM(KeyWord).eq.'LNM_depth') THEN
+            Npts=load_r(Nval, Rval, Ngrids, LNM_depth)
+            DO ng=1,Ngrids
+              LNM_depth(ng)=ABS(LNM_depth(ng))
+            END DO
+          ELSE IF (TRIM(KeyWord).eq.'LNM_flag') THEN
+            Npts=load_i(Nval, Rval, 1, LNM_flag)
+          ELSE IF (TRIM(KeyWord).eq.'GradErr') THEN
             Npts=load_r(Nval, Rval, 1, GradErr)
           ELSE IF (TRIM(KeyWord).eq.'HevecErr') THEN
             Npts=load_r(Nval, Rval, 1, HevecErr)
@@ -10092,9 +10138,9 @@
                 tl_Tdiff(itrc,ng)=Rtracer(itrc,ng)
               END DO
             END DO
-          ELSE IF (TRIM(KeyWord).eq.'LdefNRM') THEN 
+          ELSE IF (TRIM(KeyWord).eq.'LdefNRM') THEN
             Npts=load_l(Nval, Cval, 4*Ngrids, LdefNRM)
-          ELSE IF (TRIM(KeyWord).eq.'LwrtNRM') THEN 
+          ELSE IF (TRIM(KeyWord).eq.'LwrtNRM') THEN
             Npts=load_l(Nval, Cval, 4*Ngrids, LwrtNRM)
           ELSE IF (TRIM(KeyWord).eq.'CnormM(isFsur)') THEN
             IF (isFsur.eq.0) THEN
@@ -10213,6 +10259,14 @@
               Cnorm(1,i)=Ltracer(itrc)
             END DO
 #  endif
+          ELSE IF (TRIM(KeyWord).eq.'balance(isSalt)') THEN
+            Npts=load_l(Nval, Cval, 1, balance(isTvar(isalt)))
+          ELSE IF (TRIM(KeyWord).eq.'balance(isFsur)') THEN
+            Npts=load_l(Nval, Cval, 1, balance(isFsur))
+          ELSE IF (TRIM(KeyWord).eq.'balance(isVbar)') THEN
+            Npts=load_l(Nval, Cval, 1, balance(isVbar))
+          ELSE IF (TRIM(KeyWord).eq.'balance(isVvel)') THEN
+            Npts=load_l(Nval, Cval, 1, balance(isVvel))
           ELSE IF (TRIM(KeyWord).eq.'Nmethod') THEN
             Npts=load_i(Nval, Rval, Ngrids, Nmethod)
           ELSE IF (TRIM(KeyWord).eq.'Rscheme') THEN
@@ -10300,7 +10354,7 @@
           ELSE IF (TRIM(KeyWord).eq.'HdecayB(isTvar)') THEN
             Npts=load_r(Nval, Rval, 4*MT*Ngrids, Rboundary)
             DO ng=1,Ngrids
-              DO ib=1,4 
+              DO ib=1,4
                 DO itrc=1,NT(ng)
                   HdecayB(isTvar(itrc),ib,ng)=Rboundary(itrc,ib,ng)
                 END DO
@@ -10493,7 +10547,7 @@
           IF (.not.Lobc(ib,isUvel,ng).and.Lobc(ib,isVvel,ng)) THEN
             Lobc(ib,isUvel,ng)=.TRUE.
           END IF
-          IF (.not.Lobc(ib,isVbar,ng).and.Lobc(ib,isUbar,ng)) THEN
+          IF (.not.Lobc(ib,isVvel,ng).and.Lobc(ib,isUvel,ng)) THEN
             Lobc(ib,isVvel,ng)=.TRUE.
           END IF
           IF (.not.Lobc(ib,isFsur,ng).and.Lobc(ib,isUbar,ng)) THEN
@@ -10507,6 +10561,35 @@
         END DO
       END DO
 #  endif
+
+#  ifdef BALANCE_OPERATOR
+!
+!-----------------------------------------------------------------------
+!  Check balance operator switches for consitency.
+!-----------------------------------------------------------------------
+!
+#   ifdef SOLVE3D
+      IF (.not.balance(isTvar(isalt)).and.balance(isFsur)) THEN
+        balance(isTvar(isalt))=.TRUE.
+      END IF
+      IF (.not.balance(isTvar(isalt)).and.balance(isVvel)) THEN
+        balance(isTvar(isalt))=.TRUE.
+      END IF
+      IF (balance(isTvar(isalt))) THEN
+        balance(isTvar(itemp))=.TRUE.
+      END IF
+      IF (balance(isVvel)) THEN
+        balance(isUvel)=.TRUE.
+      END IF
+      IF (balance(isVbar)) THEN
+        balance(isVbar)=.FALSE.
+      END IF
+#   else
+      IF (balance(isVbar)) THEN
+        balance(isUbar)=.TRUE.
+      END IF
+#   endif
+#  endif
 !
 !-----------------------------------------------------------------------
 !  Report input parameters.
@@ -10516,7 +10599,7 @@
         DO ng=1,Ngrids
 #  if defined FOUR_DVAR
           WRITE (out,60) ng
-#   if defined WEAK_CONSTRAINT || defined IOM
+#   ifdef WEAK_CONSTRAINT
 #    ifdef RPM_RELAXATION
           WRITE (out,120) tl_M2diff, 'tl_M2diff',                       &
      &            'RPM 2D momentum diffusive relaxation coefficient.'
@@ -10525,7 +10608,7 @@
      &            'RPM 3D momentum diffusive relaxation coefficient.'
           DO itrc=1,NT(ng)
             WRITE (out,130) tl_Tdiff(itrc,ng), 'tl_Tdiff',              &
-     &            'RPM tracers diffusive relaxation coefficient, ',     &
+     &            'RPM tracer diffusive relaxation coefficient, ',      &
      &            TRIM(Vname(1,idTvar(itrc)))
           END DO
 #     endif
@@ -10540,26 +10623,53 @@
           WRITE (out,70) LhessianEV, 'LhessianEV',                      &
      &            'Switch to compute Hessian eigenvectors.'
 #    endif
-#    if defined WEAK_CONSTRAINT || defined IOM
+#    ifdef WEAK_CONSTRAINT
           WRITE (out,70) LhotStart, 'LhotStart',                        &
      &           'Switch for hot start of subsequent outer loops.'
 #    endif
           WRITE (out,70) Lprecond, 'Lprecond',                          &
      &           'Switch for conjugate gradient preconditioning.'
           WRITE (out,70) Lritz, 'Lritz',                                &
-     &           'Switch for Ritz limited-memory preconditioning.'
-#    if defined WEAK_CONSTRAINT || defined IOM
+     &            'Switch for Ritz limited-memory preconditioning.'
+#    ifdef WEAK_CONSTRAINT
           IF (Lprecond.and.(NritzEV.gt.0)) THEN
             WRITE (out,80) NritzEV, 'NritzEV',                          &
      &           'Number of preconditioning eigenpairs to use.'
           END IF
 #    endif
 #   endif
+#   ifdef BALANCE_OPERATOR
+#    ifdef ZETA_ELLIPTIC
+          WRITE (out,80) Nbico(ng), 'Nbico',                            &
+     &            'Number of iterations in SSH elliptic equation.'
+#    endif
+          WRITE (out,100) dTdz_min(ng), 'dTdz_min',                     &
+     &            'Minimum dTdz (C/m) used in balanced salinity.'
+          WRITE (out,100) ml_depth(ng), 'ml_depth',                     &
+     &            'Mixed-layer depth (m) used in balanced salinity.'
+          IF (balance(isFsur)) THEN
+            WRITE (out,100) LNM_depth(ng), 'LNM_depth',                 &
+     &            'Level of no motion (m) in balanced free-sruface.'
+            WRITE (out,80) LNM_flag, 'LNM_flag',                        &
+     &            'Level of no motion integration flag.'
+          END IF
+          WRITE (out,70) balance(isFsur), 'balance(isFsur)',            &
+                  'Switch to include free-surface in balance operator.'
+#    ifdef SOLVE3D
+          WRITE (out,70) balance(isTvar(isalt)), 'balance(isSalt)',     &
+                  'Switch to include salinity in balance operator.'
+          WRITE (out,70) balance(isVvel), 'balance(isVvel)',            &
+                  'Switch to include 3D momentum in balance operator.'
+#    else
+          WRITE (out,70) balance(isVbar), 'balance(isVbar)',            &
+                  'Switch to include 2D momentum in balance operator.'
+#    endif
+#   endif
 #   if defined POSTERIOR_EOFS && defined WEAK_CONSTRAINT
           WRITE (out,80) NpostI, 'NpostI',                              &
      &           'Number of Lanczos iterations in posterior analysis.'
 #   endif
-#   if !(defined GRADIENT_CHECK || defined TLM_CHECK)
+#   ifndef TLM_CHECK
 #    ifndef OBS_SENSITIVITY
           WRITE (out,170) LdefNRM(1:4,ng), 'LdefNRM',                   &
      &            'Switch to create a normalization NetCDF file.'
@@ -10852,7 +10962,7 @@
 !-----------------------------------------------------------------------
 !  Report input files and check availability of input files.
 !-----------------------------------------------------------------------
-!  
+!
           WRITE (out,150)
 #  ifdef VERIFICATION
           WRITE (out,160) ' Verification Parameters File:  ',           &
@@ -10862,9 +10972,8 @@
      &                    TRIM(aparnam)
 #  endif
 #  ifdef FOUR_DVAR
-#   if defined IS4DVAR         || defined IOM              || \
-       defined OBS_SENSITIBITY || defined OPT_OBSERVATIONS || \
-       defined WEAK_CONSTRAINT
+#   if defined IS4DVAR          || defined OBS_SENSITIBITY || \
+       defined OPT_OBSERVATIONS || defined WEAK_CONSTRAINT
 #    if defined SENSITIVITY_4DVAR || \
         defined TL_W4DPSAS        || defined TL_W4DVAR || \
         defined W4DPSAS           || defined W4DVAR
@@ -11045,7 +11154,7 @@
         READ (inp,'(a)',ERR=20,END=30) line
         status=decode_line(line, KeyWord, Nval, Cval, Rval)
         IF (status.gt.0) THEN
-          IF (TRIM(KeyWord).eq.'Lfloats') THEN 
+          IF (TRIM(KeyWord).eq.'Lfloats') THEN
             Npts=load_l(Nval, Cval, Ngrids, Lfloats)
           ELSE IF (TRIM(KeyWord).eq.'FRREC') THEN
             Npts=load_i(Nval, Rval, Ngrids, frrec)
@@ -11089,7 +11198,7 @@
                 RETURN
               END IF
               ncount(igrid)=ncount(igrid)+Fcount(nentry(igrid)+1,igrid)
-              nentry(igrid)=nentry(igrid)+1        
+              nentry(igrid)=nentry(igrid)+1
             END DO
           END IF
         END IF
@@ -11322,7 +11431,7 @@
         READ (inp,'(a)',ERR=20,END=30) line
         status=decode_line(line, KeyWord, Nval, Cval, Rval)
         IF (status.gt.0) THEN
-          IF (TRIM(KeyWord).eq.'Lstations') THEN 
+          IF (TRIM(KeyWord).eq.'Lstations') THEN
             Npts=load_l(Nval, Cval, Ngrids, Lstations)
 #if defined SEDIMENT && defined SED_MORPH
           ELSE IF (TRIM(KeyWord).eq.'Sout(idbath)') THEN
@@ -11434,6 +11543,8 @@
             Npts=load_l(Nval, Cval, Ngrids, Sout(idLrad,1))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idSrad)') THEN
             Npts=load_l(Nval, Cval, Ngrids, Sout(idSrad,1))
+          ELSE IF (TRIM(KeyWord).eq.'Sout(idEmPf)') THEN
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idEmPf,1))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idevap)') THEN
             Npts=load_l(Nval, Cval, Ngrids, Sout(idevap,1))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idrain)') THEN
@@ -11519,9 +11630,9 @@
             Npts=load_i(Nval, Rval, Ngrids, Nstation)
           ELSE IF (TRIM(KeyWord).eq.'POS') THEN
             DO ng=1,Ngrids
-              allocate ( SCALARS(ng) % Sflag(Nstation(ng)) )            
-              allocate ( SCALARS(ng) % SposX(Nstation(ng)) )            
-              allocate ( SCALARS(ng) % SposY(Nstation(ng)) )            
+              allocate ( SCALARS(ng) % Sflag(Nstation(ng)) )
+              allocate ( SCALARS(ng) % SposX(Nstation(ng)) )
+              allocate ( SCALARS(ng) % SposY(Nstation(ng)) )
             END DO
             is(1:Ngrids)=0
             DO WHILE (.TRUE.)
@@ -11751,6 +11862,9 @@
      &          'Sout(idShea)',                                         &
      &          'Write out sensible heat flux.'
 #   ifdef EMINUSP
+            IF (Sout(idEmPf,ng)) WRITE (out,80) Sout(idEmPf,ng),        &
+     &         'Sout(idEmPf)',                                          &
+     &         'Write out E-P flux.'
             IF (Sout(idevap,ng)) WRITE (out,80) Sout(idevap,ng),        &
      &         'Sout(idevap)',                                          &
      &         'Write out evaporation rate.'
@@ -11870,11 +11984,11 @@
       END IF
 
   40  FORMAT (/,' READ_StaPar - Inconsistent number of stations, ',     &
-     &        'Nstation = ',2i8,/,15x,'change input script values.')  
+     &        'Nstation = ',2i8,/,15x,'change input script values.')
   50  FORMAT (/,' READ_StaPar - Error while processing line: ',/,a)
 
   60  FORMAT (/,/,' Stations Parameters, Grid: ',i2.2,                  &
-     &        /,  ' =============================',/)  
+     &        /,  ' =============================',/)
   70  FORMAT (1x,i10,2x,a,t30,a)
   80  FORMAT (10x,l1,2x,a,t30,a)
   90  FORMAT (10x,l1,2x,a,t30,a,i2.2,':',1x,a)
@@ -11999,7 +12113,7 @@
             Nmul=0
             DO i=1,Lval
               IF (Vstring(i:i).eq.CHAR(42)) THEN
-                Nmul=Nmul+1           
+                Nmul=Nmul+1
                 Imul(Nmul)=i
               END IF
             END DO
@@ -12017,13 +12131,13 @@
                 Iblank=i
               ELSE
                 ie=i
-              ENDIF                                    
+              ENDIF
               IF (decode.or.(i.eq.Lval)) THEN
                 Nval=Nval+1
 !
 ! Processing numeric values.  Check starting character to determine
 ! if numeric or character values. It is possible to have both when
-! processing repetitions via the multiplication symbol.              
+! processing repetitions via the multiplication symbol.
 !
                 Schar=ICHAR(Vstring(is:is))
                 IF (((48.le.Schar).and.(Schar.le.57)).or.               &
@@ -12077,10 +12191,10 @@
               END IF
             END DO
           END IF
-        END IF             
+        END IF
         status=Nval
       END IF
-      decode_line=status       
+      decode_line=status
       RETURN
       END FUNCTION decode_line
 

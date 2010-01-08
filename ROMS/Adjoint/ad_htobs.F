@@ -1,9 +1,8 @@
 #include "cppdefs.h"
       MODULE ad_htobs_mod
-#if defined ADJOINT && defined OBSERVATIONS && \
-    (defined WEAK_CONSTRAINT || defined IOM)
+#if defined ADJOINT && defined OBSERVATIONS && defined WEAK_CONSTRAINT
 !
-!svn $Id: ad_htobs.F 889 2009-01-09 21:27:08Z arango $
+!svn $Id: ad_htobs.F 1098 2009-11-18 17:54:22Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
@@ -480,7 +479,7 @@
      &              'records = ',i7.7,' - ',i7.7,', iic = ',i7.7,')')
           END IF
         END IF
-      END IF        
+      END IF
       RETURN
       END SUBROUTINE ad_htobs_tile
 #endif

@@ -6,12 +6,12 @@
 # if !defined TS_FIXED && defined SOLVE3D &&  \
      (defined TS_DIF2  || defined TS_DIF4)
 !
-!svn $Id: tl_t3dmix.F 889 2009-01-09 21:27:08Z arango $
+!svn $Id: tl_t3dmix.F 1087 2009-10-21 00:21:28Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
-!======================================================================= 
+!=======================================================================
 !                                                                      !
 !  This routine computes tangent linear horizontal mixing of tracers.  !
 !                                                                      !

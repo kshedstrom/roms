@@ -525,6 +525,15 @@
   'r2dvar'
   1.157407d-7                                      ! 0.01/86400
 
+'EminusP'                                          ! Input/Output
+  'bulk_flux surface net freswater flux, (E-P)'
+  'meter second-1'                                 ! computed by NLM ROMS
+  'EminusP, scalar, series'                        ! bulk_flux.F and
+  'ocean_time'                                     ! needed in adjoint-based
+  'idEmPf'                                         ! applications
+  'r2dvar'
+  1.0d0
+
 'bhflux'                                           ! Input
   'bottom net heat flux'
   'watt meter-2'                                   ! Input:  [Watt/m2]
@@ -3517,7 +3526,7 @@
 
 !
 !  Diagnostic variables.
-! 
+!
 
 'CO2_airsea'                                       ! Input/Output
   'CO2 air-sea flux'
@@ -3575,7 +3584,7 @@
 
 !
 !  Boundary variables.
-! 
+!
 
 'NO3_east'                                         ! Input
   'nitrate eastern boundary condition'
@@ -5067,7 +5076,7 @@
 !
 !  3D momentum diagnostic terms.
 !
- 
+
 'u_accel'                                          ! Input/Output
   '3D u-momentum, acceleration term'
   'meter second-2'                                 ! [m/s2]
@@ -6309,8 +6318,8 @@
   'idTclm(iFe)'
   'r3dvar'
   1.0d0
-  
-!ICE_BIO 
+
+!ICE_BIO
 'ice_thick'
   'ice thickness climatology'
   'metesrs'
@@ -6318,7 +6327,7 @@
   'ocean_time'
   'idTclm(iFe+1)'
   'r2dvar'
-  1.0d0 
+  1.0d0
 
 
 
@@ -6369,38 +6378,38 @@
   'idTbry(inorth,iJel)'
   'nulvar'
   1.0d0
-  
+
 !------------------------------------------------------------
-!BENTHIC                
+!BENTHIC
 !--------------------
-'Ben'                   
+'Ben'
   'benthos concentration'
   'milligram carbon meter-2'
   'benthos, scalar, series'
-  'bio_time'            
-  'idBvar(iBen)'        
+  'bio_time'
+  'idBvar(iBen)'
   'r3dvar'
-  1.0d0                                                                       
+  1.0d0
 
 'DetBen'
   'benthic detritus concentration'
   'milligram carbon meter-2'
-  'benthic detritus, scalar, series'                                          
+  'benthic detritus, scalar, series'
   'bio_time'
   'idBvar(iBenDet)'
   'r3dvar'
   1.0d0
-  
-!-------  
+
+!-------
 !ICE_BIO
-!-------  
+!-------
 'IcePhL'
   'Ice algae concentration'
   'milligram carbon meter-3'
   'Ice algae, scalar, series'
   'bio_time'
   'idIceBvar(iIcePhL)'
-  'r2dvar'                               
+  'r2dvar'
   1.0d0
 
 'IceNO3'
@@ -6409,7 +6418,7 @@
   'Ice nitrate, scalar, series'
   'bio_time'
   'idIceBvar(iIceNO3)'
-  'r2dvar'                              
+  'r2dvar'
   1.0d0
 
 'IceNH4'
@@ -6418,27 +6427,27 @@
   'Ice ammonium, scalar, series'
   'bio_time'
   'idIceBvar(iIceNH4)'
-  'r2dvar'                              
+  'r2dvar'
   1.0d0
-  
+
 'IceZ'
   'Ice Thickness'
   'meters'
   'Ice thickness, series'
   'bio_time'
   'idIceBvar(iIceZ)'
-  'r2dvar'                              
+  'r2dvar'
   1.0d0
-  
+
 'IceLog'
   'Logical Ice Counter'
   'unitless'
   'Logical Ice Counter, scalar, series'
   'bio_time'
   'idIceLogvar(iIceLog)'
-  'r2dvar'                              
+  'r2dvar'
   1.0d0
-    
+
 !------------------------------------------------------------
 !STATIONARY
 !-----------------------
@@ -6504,7 +6513,7 @@
   'idTSvar(i3Stat7)'
   'r3dvar'
   1.0d0
-  
+
 'Stat8_3d'
   '8th 3D stationary variable'
   'milligram carbon meter-3 d-1'
@@ -6513,8 +6522,8 @@
   'idTSvar(i3Stat8)'
   'r3dvar'
   1.0d0
-  
-  
+
+
 'Stat9_3d'
   '9th 3D stationary variable'
   'milligram carbon meter-3 d-1'
@@ -6523,8 +6532,8 @@
   'idTSvar(i3Stat9)'
   'r3dvar'
   1.0d0
-  
-  
+
+
 'Stat10_3d'
   '10th 3D stationary variable'
   'milligram carbon meter-3 d-1'
@@ -6532,9 +6541,9 @@
   'bio_time'
   'idTSvar(i3Stat10)'
   'r3dvar'
-  1.0d0    
-  
-   
+  1.0d0
+
+
 'Stat11_3d'
   '11th 3D stationary variable'
   'milligram carbon meter-3 d-1'
@@ -6542,8 +6551,8 @@
   'bio_time'
   'idTSvar(i3Stat11)'
   'r3dvar'
-  1.0d0    
-    
+  1.0d0
+
 'Stat12_3d'
   '12th 3D stationary variable'
   'milligram carbon meter-3 d-1'
@@ -6551,9 +6560,8 @@
   'bio_time'
   'idTSvar(i3Stat12)'
   'r3dvar'
-  1.0d0    
-  
-   
+  1.0d0
+
 'Stat13_3d'
   '13th 3D stationary variable'
   'milligram carbon meter-3 d-1'
@@ -6561,10 +6569,8 @@
   'bio_time'
   'idTSvar(i3Stat13)'
   'r3dvar'
-  1.0d0    
-  
-   
-   
+  1.0d0
+
 'Stat14_3d'
   '14th 3D stationary variable'
   'milligram carbon meter-3 d-1'
@@ -6572,9 +6578,8 @@
   'bio_time'
   'idTSvar(i3Stat14)'
   'r3dvar'
-  1.0d0    
-  
-  
+  1.0d0
+
 'Stat15_3d'
   '15th 3D stationary variable'
   'milligram carbon meter-3 d-1'
@@ -6582,9 +6587,8 @@
   'bio_time'
   'idTSvar(i3Stat15)'
   'r3dvar'
-  1.0d0    
-  
-   
+  1.0d0
+
 'Stat16_3d'
   '16th 3D stationary variable'
   'milligram carbon meter-3 d-1'
@@ -6592,9 +6596,9 @@
   'bio_time'
   'idTSvar(i3Stat16)'
   'r3dvar'
-  1.0d0         
+  1.0d0
 !-----------------------------
-!PROD3 
+!PROD3
 !---------------------------
 'prod_PhS'
   'primary production small phytoplankton'
@@ -6658,7 +6662,7 @@
   'idPT3var(iEupPrd)'
   'r3dvar'
   1.0d0
-  
+
 'prod_Jel'
   'secondary production Jellyfish'
   'milligram carbon meter-3 d-1'
@@ -6679,7 +6683,7 @@
   'idPT2var(iBenPrd)'
   'r2dvar'
   1.0d0
-  
+
   'prod_IcePhL'
   'primary production ice algae'
   'milligram carbon meter-3 d-1'
@@ -6700,7 +6704,7 @@
   'idTBFvar(iBF)'
   'r2dvar'
   1.0d0
-    
+
 !------------------------------------------------------------
 !STATIONARY2
 !-----------------------
@@ -6730,7 +6734,7 @@
   'idTS2var(i2Stat3)'
   'r2dvar'
   1.0d0
-  
+
   'Stat4_2d'
   '4th 2D stationary variable'
   'milligram carbon meter-3 d-1'
@@ -6739,7 +6743,7 @@
   'idTS2var(i2Stat4)'
   'r2dvar'
   1.0d0
-  
+
   'Stat5_2d'
   '5th 2D stationary variable'
   'milligram carbon meter-3 d-1'
@@ -6748,7 +6752,7 @@
   'idTS2var(i2Stat5)'
   'r2dvar'
   1.0d0
-  
+
   'Stat6_2d'
   '6th 2D stationary variable'
   'milligram carbon meter-3 d-1'
@@ -6766,7 +6770,7 @@
   'idTS2var(i2Stat7)'
   'r2dvar'
   1.0d0
-  
+
   'Stat8_2d'
   '8th 2D stationary variable'
   'milligram carbon meter-3 d-1'
@@ -6775,4 +6779,4 @@
   'idTS2var(i2Stat8)'
   'r2dvar'
   1.0d0
-  
+

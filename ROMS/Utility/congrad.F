@@ -1,10 +1,10 @@
 #include "cppdefs.h"
 
-#if defined WEAK_CONSTRAINT || defined IOM
+#ifdef WEAK_CONSTRAINT
       SUBROUTINE congrad (ng, model, outLoop, innLoop, NinnLoop,        &
      &                    Lcgini)
 !
-!svn $Id: congrad.F 1038 2009-08-11 22:29:40Z kate $
+!svn $Id: congrad.F 1098 2009-11-18 17:54:22Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
@@ -14,8 +14,7 @@
 !  Weak Constraint 4-Dimensional Variational (4DVar) Pre-conditioned   !
 !                     Conjugate Gradient Algorithm                     !
 
-# if defined IOM    || defined TL_W4DVAR          || \
-     defined W4DVAR || defined W4DVAR_SENSITIVITY
+# if defined TL_W4DVAR || defined W4DVAR || defined W4DVAR_SENSITIVITY
 !                                                                      !
 !  The indirect representer method solves the system:                  !
 !                                                                      !
@@ -61,7 +60,7 @@
 !                                                                      !
 !  Solve the system (following Courtier, 1997):                        !
 !                                                                      !
-!              (H M_n B (M_n)' H' + Cobs) * w_n = d_n                  !   
+!              (H M_n B (M_n)' H' + Cobs) * w_n = d_n                  !
 !                                                                      !
 !              d_n = yo - H * Xb_n                                     !
 !                                                                      !
@@ -137,7 +136,7 @@
       integer :: i, ic, j, iobs, ivec, Lscale, info
 
       real(r8) :: zbet, eps, preducv, preducy
-      real(r8) :: Jopt, Jf, Jmod, Jdata, Jb, Jobs, Jact
+      real(r8) :: Jopt, Jf, Jmod, Jdata, Jb, Jobs, Jact, cff
 
       real(r8), dimension(NinnLoop) :: zu, zgam
       real(r8), dimension(NinnLoop) :: ztemp1, ztemp2, zu1, zu2
@@ -188,6 +187,16 @@
 !-----------------------------------------------------------------------
 !
         MINIMIZE : IF (innLoop.eq.0) THEN
+
+# if defined W4DPSAS             || defined TL_W4DPSAS || \
+     defined W4DPSAS_SENSITIVITY
+!
+!  If this is the first inner-loop, save NLmodVal in BCKmodVal.
+!
+          DO iobs=1,Ndatum(ng)
+            BCKmodVal(iobs)=NLmodVal(iobs)
+          END DO
+# endif
 !
 !  If this is the first outer-loop, clear the solution vector px.
 !
@@ -234,6 +243,7 @@
                 pgrad(iobs)=pgrad(iobs)/SQRT(ObsErr(iobs))
               END IF
               vgrad0(iobs)=pgrad(iobs)
+              vgrad0s(iobs)=-vgrad0(iobs)
             END DO
 !
 !  If preconditioning, convert pgrad from v-space to y-space.
@@ -294,7 +304,7 @@
             Jb=0.0_r8
             Jobs=0.0_r8
             DO iobs=1,Ndatum(ng)
-              Jobs=Jobs+vgrad0(iobs)*vgrad0(iobs)
+              Jobs=Jobs+vgrad0s(iobs)*vgrad0s(iobs)
             END DO
             Jact=Jb+Jobs
 
@@ -317,7 +327,7 @@
 # endif
               END DO
 !
-!  Convert ADmodVal from v-space to x-space and cg_innov (the 
+!  Convert ADmodVal from v-space to x-space and cg_innov (the
 !  contribution to the starting gradient) from x-space to v-space.
 !
               DO iobs=1,Ndatum(ng)
@@ -334,8 +344,11 @@
 !  Convert gradient contribution from x-space to v-space.
 !
                 pgrad(iobs)=ObsScale(iobs)*TLmodVal(iobs)
+                gdgw(iobs)=pgrad(iobs)
                 IF (ObsErr(iobs).NE.0.0_r8) THEN
                   pgrad(iobs)=pgrad(iobs)/SQRT(ObsErr(iobs))
+                  vgrad0s(iobs)=pgrad(iobs)+cg_innov(iobs)+             &
+     &                                      cg_pxsave(iobs)
                 END IF
 !
 !  Add I*x0=cg_pxsave contribution to the gradient and the term
@@ -578,7 +591,7 @@
           END DO
           preducv=SQRT(preducv)/cg_Gnorm_v(outLoop)
 !
-!  Estimate the residual (in y-space) by: 
+!  Estimate the residual (in y-space) by:
 !
 !    ||Ax-b|| = cg_beta(k+1,outLoop)*zwork(innLoop,3)
 !
@@ -588,18 +601,18 @@
 !  Bennett (2002), page 22 and pages 42-44:
 !
 !     Jopt  = value of the penalty function when true px
-!             has been identified. 
+!             has been identified.
 !     Jf    = initial data misfit for the first-guess
 !     Jdata = data misfit for the state estimate
 !     Jmod  = the model penalty function (the sum of the
-!             dynamical, initial and boundary penalties)     
+!             dynamical, initial and boundary penalties)
 !     Jb    = the ACTUAL model penalty function.
 !     Jobs  = the ACTUAL data penalty function.
 !     Jact  = the ACTUAL total penalty function.
 !
 !  NOTE:  Unlike IS4DVAR where we compute the actual cost function
-!         for each iteration that decreases with increasing 
-!         number of iterations, the various penalty terms 
+!         for each iteration that decreases with increasing
+!         number of iterations, the various penalty terms
 !         represent the optimal values (i.e. the values when
 !         optimal state estimate has been identified). Therefore
 !         the various penalty terms will only be correct when the
@@ -633,7 +646,7 @@
 !  Compute the actual penalty function terms.
 !
           DO iobs=1,Ndatum(ng)
-            zd(iobs)=-vgrad0(iobs)*SQRT(ObsErr(iobs))
+            zd(iobs)=vgrad0s(iobs)*SQRT(ObsErr(iobs))
           END DO
           DO iobs=1,Ndatum(ng)
             IF (ObsErr(iobs).ne.0.0_r8) THEN
@@ -671,7 +684,7 @@
      &                  ztemp2(ivec)*TLmodVal_S(iobs,ivec,outLoop)
             END DO
           END DO
-! 
+!
 !  Compute Jb.
 !
           DO ivec=1,innLoop
@@ -712,18 +725,31 @@
           END DO
           Jb=0.0_r8
           DO iobs=1,Ndatum(ng)
-            Jb=Jb+zd(iobs)*zht(iobs)
+            IF (ObsErr(iobs).ne.0.0_r8) THEN
+              cff=cg_pxsave(iobs)/SQRT(ObsErr(iobs))
+              Jb=Jb+zd(iobs)*zht(iobs)-2.0_r8*cff*zhv(iobs)+  &
+     &            cff*gdgw(iobs)
+            END IF
           END DO
-! 
+!
 !  Compute Jobs.
 !
           Jobs=0.0_r8
-          DO iobs=1,Ndatum(ng)
-            IF (ObsErr(iobs).NE.0.0_r8) THEN
-              Jobs=Jobs+(zhv(iobs)-zd(iobs))*(zhv(iobs)-zd(iobs))/      &
-     &             ObsErr(iobs)
-            END IF
-          END DO
+          IF (outLoop.eq.1.or.(.not.LhotStart)) THEN
+            DO iobs=1,Ndatum(ng)
+              IF (ObsErr(iobs).NE.0.0_r8) THEN
+                cff=zhv(iobs)-zd(iobs)
+                Jobs=Jobs+cff*cff/ObsErr(iobs)
+              END IF
+            END DO
+          ELSE
+            DO iobs=1,Ndatum(ng)
+              IF (ObsErr(iobs).NE.0.0_r8) THEN
+                cff=gdgw(iobs)-zhv(iobs)+cg_innov(iobs)*SQRT(ObsErr(iobs))
+                Jobs=Jobs+cff*cff/ObsErr(iobs)
+              END IF
+            END DO
+          END IF
           Jact=Jb+Jobs
 !
 !  Put the new trial solution into the adjoint vector for the next
@@ -794,7 +820,7 @@
         WRITE (stdout,50) innLoop+1, cg_beta(innLoop+1,outLoop)
 !
 !  If preconditioning, report the Ritz eigenvalues used.
-!  
+!
         IF ((LhessianEV.or.Lprecond).and.(outLoop.gt.1)) THEN
           IF (NritzEV.gt.0) THEN
             WRITE (stdout,60) outLoop, innLoop, nConvRitz
@@ -913,7 +939,7 @@
               END IF
             END DO
 !
-!  Calculate the converged eigenvectors (vcglev) of the [R_n + Cobs]. 
+!  Calculate the converged eigenvectors (vcglev) of the [R_n + Cobs].
 !
             CALL RPevecs (ng, outLoop, NinnLoop)
           END IF
@@ -930,7 +956,7 @@
       CALL mp_bcasti (ng, model, exit_flag)
 # endif
       IF (exit_flag.ne.NoError) RETURN
-   
+
 # ifdef DISTRIBUTE
 !
 !-----------------------------------------------------------------------
@@ -1199,7 +1225,7 @@
 
           END IF
 !
-!  Compute the dot-product of py with the Ritz vectors from previous 
+!  Compute the dot-product of py with the Ritz vectors from previous
 !  outer-loop.
 !
 !  Note that vcglev are arranged in order of descending Ritz values,

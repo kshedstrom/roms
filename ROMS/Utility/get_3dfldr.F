@@ -8,7 +8,7 @@
 # endif
      &                       Fout)
 !
-!svn $Id: get_3dfldr.F 1056 2009-09-08 18:51:43Z kate $
+!svn $Id: get_3dfldr.F 1101 2009-11-19 00:56:17Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -102,7 +102,7 @@
 !  Intialize local variables.
 !
         Vid=-1
-        Tid=-1        
+        Tid=-1
         nrec=0
         Liocycle=.FALSE.
         Lgridded=.FALSE.
@@ -152,7 +152,7 @@
             DO i=1,nvatt
               IF (TRIM(var_Aname(i)).eq.'scale_factor') THEN
                 scale=var_Afloat(i)
-                Fscale(ifield,ng)=Fscale(ifield,ng)*scale
+                Finfo(10,ifield,ng)=scale
               ELSE IF (TRIM(var_Aname(i)).eq.'water_points') THEN
                 Iinfo(1,ifield,ng)=-ABS(Iinfo(1,ifield,ng))
                 Vtype=Iinfo(1,ifield,ng)
@@ -327,7 +327,7 @@
         Linfo(3,ifield,ng)=Lonerec
         Tindex=Iinfo(8,ifield,ng)
         Vtime(Tindex,ifield,ng)=Finfo(4,ifield,ng)
-      END IF         
+      END IF
 !
 !-----------------------------------------------------------------------
 !  Get requested field information from global storage.
@@ -440,7 +440,8 @@
      &                              ncid = ncid,                        &
      &                              start = (/Trec/),                   &
      &                              total = (/1/))
-              Fpoint(Tindex,ifield,ng)=Fval*Fscale(ifield,ng)
+              Fval=Fval*Finfo(10,ifield,ng)*Fscale(ifield,ng)
+              Fpoint(Tindex,ifield,ng)=Fval
               Fmin=Fval
               Fmax=Fval
             END IF

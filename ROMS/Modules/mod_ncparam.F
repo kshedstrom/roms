@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       MODULE mod_ncparam
 !
-!svn $Id: mod_ncparam.F 1056 2009-09-08 18:51:43Z kate $
+!svn $Id: mod_ncparam.F 1101 2009-11-19 00:56:17Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -43,17 +43,18 @@
 !               Iinfo(9,*)  => latest processed time record .          !
 !                                                                      !
 !  Finfo      Input/output field floating-point information:           !
-!               Finfo(1,*)  => Starting time (days) of data.           !
-!               Finfo(2,*)  => Ending time (days) of data.             !
-!               Finfo(3,*)  => Data time lower bound (days) enclosing  !
+!               Finfo( 1,*) => Starting time (days) of data.           !
+!               Finfo( 2,*) => Ending time (days) of data.             !
+!               Finfo( 3,*) => Data time lower bound (days) enclosing  !
 !                                model starting time.                  !
-!               Finfo(4,*)  => Data time upper bound (days) enclosing  !
+!               Finfo( 4,*) => Data time upper bound (days) enclosing  !
 !                                model starting time.                  !
-!               Finfo(5,*)  => length (days) of time cycling.          !
-!               Finfo(6,*)  => Scale to convert time to day units.     !
-!               Finfo(7,*)  => latest monotonic time (sec).            !
-!               Finfo(8,*)  => minimum value for current data.         !
-!               Finfo(9,*)  => maximum value for current data.         !
+!               Finfo( 5,*) => length (days) of time cycling.          !
+!               Finfo( 6,*) => Scale to convert time to day units.     !
+!               Finfo( 7,*) => latest monotonic time (sec).            !
+!               Finfo( 8,*) => minimum value for current data.         !
+!               Finfo( 9,*) => maximum value for current data.         !
+!               Finfo(10,*) => value of scale_factor attribute if any. !
 !  Fscale     Scale to convert input data to model units.              !
 !  Fpoint     Latest two-time records of input point data.             !
 !  Tintrp     Time (sec) of latest field snapshots used for            !
@@ -160,6 +161,7 @@
         integer  :: idDano        ! density anomaly
         integer  :: idDiff(2)     ! temperature and salinity diffusion
         integer  :: iddQdT        ! heat flux sensitivity to SST
+        integer  :: idEmPf        ! E-P from bulk_flux.F
         integer  :: idevap        ! evaporation rate
         integer  :: idFsur        ! free-surface
         integer  :: idFsuD        ! detided free-surface
@@ -478,6 +480,7 @@
         integer  :: ncADSid(Ngrids)     ! input adjoint sensitivity
         integer  :: ncAVGid(Ngrids)     ! output averages
         integer  :: ncAVG2id(Ngrids)    ! output secondary averages
+        integer  :: ncBLKid(Ngrids)     ! Basic state surface fluxes
         integer  :: ncBRYid(Ngrids)     ! input boundary conditions
         integer  :: ncCLMid(Ngrids)     ! input climatology
         integer  :: ncDIAid(Ngrids)     ! output diagnostics
@@ -647,7 +650,7 @@
 
         integer  :: Iinfo(9,NV,Ngrids)
 
-        real(r8) :: Finfo(9,NV,Ngrids)
+        real(r8) :: Finfo(10,NV,Ngrids)
         real(r8) :: Fpoint(2,NV,Ngrids)
         real(r8) :: Fscale(NV,Ngrids)
         real(r8) :: Tintrp(2,NV,Ngrids)
@@ -719,8 +722,8 @@
         integer :: Lvar, Ntiles, i, ic, ie, is, j, ng
         integer :: gtype, tile, varid
 
-        real(r8), parameter :: epsilon = 1.0E-8_r8 
-        real(r8), parameter :: spv = 0.0_r8 
+        real(r8), parameter :: epsilon = 1.0E-8_r8
+        real(r8), parameter :: spv = 0.0_r8
         real(r8) :: offset, scale
 
         character (len=80), dimension(7) :: Vinfo
@@ -1111,6 +1114,7 @@
           ncADSid(ng)=-1
           ncAVGid(ng)=-1
           ncAVG2id(ng)=-1
+          ncBLKid(ng)=-1
           ncBRYid(ng)=-1
           ncCLMid(ng)=-1
           ncDIAid(ng)=-1
@@ -1188,7 +1192,7 @@
         END DO
 #endif
 !
-!  Set IDs for state some state variables. 
+!  Set IDs for state some state variables.
 !
 #if defined FORCING_SV || defined SO_SEMI
         isUstr=1
@@ -1261,6 +1265,7 @@
             Finfo(5,i,ng)=0.0_r8
             Finfo(6,i,ng)=0.0_r8
             Finfo(7,i,ng)=0.0_r8
+            Finfo(10,i,ng)=1.0_r8
             Fscale(i,ng)=1.0_r8
             Fpoint(1,i,ng)=0.0_r8
             Fpoint(2,i,ng)=0.0_r8
@@ -1617,6 +1622,8 @@
                 idShea=varid
               CASE ('idrain')
                 idrain=varid
+              CASE ('idEmPf')
+                idEmPf=varid
               CASE ('idevap')
                 idevap=varid
               CASE ('idRunoff')
@@ -1971,7 +1978,7 @@
               CASE ('idTads(isalt)')
                 idTads(isalt)=varid
 #endif
-#if defined WEAK_CONSTRAINT || defined IOM
+#ifdef WEAK_CONSTRAINT
               CASE ('idZtlf')
                 idZtlf=varid
               CASE ('idUbtf')
@@ -4743,6 +4750,38 @@
      &          TRIM(ADJUSTL(Vname(2,idTvar(i)))), ', surface flux'
           WRITE (Vname(3,varid),'(a,1x,a)')                             &
      &          TRIM(ADJUSTL(Vname(3,idTvar(i)))), 'meter second-1'
+          WRITE (Vname(4,varid),'(a,a)')                                &
+     &          TRIM(Vname(1,varid)), ', scalar, series'
+          WRITE (Vname(5,varid),'(a)')                                  &
+     &          TRIM(ADJUSTL(Vname(5,idTvar(i))))
+        END DO
+#endif
+#ifdef WEAK_CONSTRAINT
+!
+!-----------------------------------------------------------------------
+!  Set passive tracers impulse forcing. The metadata values are the
+!  same as the basic tracer but with different indices sinc they are
+!  used at the same time. This allows flexibility in the time
+!  interpolation.
+!-----------------------------------------------------------------------
+!
+        DO i=NAT+1,MT
+          varid=varid+1
+          IF (varid.gt.MV) THEN
+            WRITE (stdout,60) MV, varid
+            STOP
+          END IF
+          idTtlf(i)=varid
+          DO ng=1,Ngrids
+            Fscale(varid,ng)=1.0_r8
+            Iinfo(1,varid,ng)=r3dvar
+          END DO
+          WRITE (Vname(1,varid),'(a)')                                  &
+     &          TRIM(ADJUSTL(Vname(1,idTvar(i))))
+          WRITE (Vname(2,varid),'(a,a)')                                &
+     &          TRIM(ADJUSTL(Vname(2,idTvar(i)))), ' impulse forcing'
+          WRITE (Vname(3,varid),'(a)')                                  &
+     &          TRIM(ADJUSTL(Vname(3,idTvar(i))))
           WRITE (Vname(4,varid),'(a,a)')                                &
      &          TRIM(Vname(1,varid)), ', scalar, series'
           WRITE (Vname(5,varid),'(a)')                                  &

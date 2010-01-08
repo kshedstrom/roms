@@ -3,7 +3,7 @@
     defined DISTRIBUTE && defined SOLVE3D
       SUBROUTINE obs_depth (ng, tile, model)
 !
-!svn $Id: obs_depth.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: obs_depth.F 1098 2009-11-18 17:54:22Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -49,7 +49,7 @@
 !  only the observation for the current time window are loaded
 !  and started from vector index one.
 !
-# if defined WEAK_CONSTRAINT || defined IOM
+# ifdef WEAK_CONSTRAINT
       Mstr=NstrObs(ng)
       Mend=NendObs(ng)
 # else

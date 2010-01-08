@@ -5,7 +5,7 @@
      &                       Istr, Iend, Jrec,                          &
      &                       Fout)
 !
-!svn $Id: get_ngfldr.F 1056 2009-09-08 18:51:43Z kate $
+!svn $Id: get_ngfldr.F 1101 2009-11-19 00:56:17Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -96,7 +96,7 @@
 !  Intialize local variables.
 !
         Vid=-1
-        Tid=-1        
+        Tid=-1
         Nrec=0
         Liocycle=.FALSE.
         Lgridded=.FALSE.
@@ -145,7 +145,7 @@
             DO i=1,nvatt
               IF (TRIM(var_Aname(i)).eq.'scale_factor') THEN
                 scale=var_Afloat(i)
-                Fscale(ifield,ng)=Fscale(ifield,ng)*scale
+                Finfo(10,ifield,ng)=scale
               ELSE IF (TRIM(var_Aname(i)).eq.'water_points') THEN
                 Iinfo(1,ifield,ng)=-ABS(Iinfo(1,ifield,ng))
                 Vtype=Iinfo(1,ifield,ng)
@@ -326,7 +326,7 @@
         Linfo(3,ifield,ng)=Lonerec
         Tindex=Iinfo(8,ifield,ng)
         Vtime(Tindex,ifield,ng)=Finfo(4,ifield,ng)
-      END IF         
+      END IF
 !
 !-----------------------------------------------------------------------
 !  Get requested field information from global storage.
@@ -393,12 +393,14 @@
             Vtime(Tindex,ifield,ng)=Tval
           END IF
 !
-!  Read in non-grided data.
+!  Read in non-grided data. The conditional statement on Jrec is to
+!  differentiate between reading a 3D and 2D array.
 !
           IF (Vid.ge.0) THEN
             Fmin=0.0_r8
             Fmax=0.0_r8
-            IF (Jrec.gt.1) THEN
+            IF ((Jrec.gt.1).or.                                         &
+     &          ((Jrec.eq.1).and.(Iinfo(7,ifield,ng).gt.0))) THEN
               npts=(Iend-Istr+1)*Jrec
               CALL netcdf_get_fvar (ng, model, ncfile, Vname(1,ifield), &
      &                              A,                                  &
@@ -417,13 +419,13 @@
               IF (Master) WRITE (stdout,50) TRIM(Vname(1,ifield)), Trec
               RETURN
             END IF
-            Fmin=A(1)*Fscale(ifield,ng)
-            Fmax=A(1)*Fscale(ifield,ng)
+            Fmin=A(1)*Finfo(10,ifield,ng)*Fscale(ifield,ng)
+            Fmax=A(1)*Finfo(10,ifield,ng)*Fscale(ifield,ng)
             ic=0
             DO j=1,Jrec
               DO i=Istr,Iend
                 ic=ic+1
-                Aval=A(ic)*Fscale(ifield,ng)
+                Aval=A(ic)*Finfo(10,ifield,ng)*Fscale(ifield,ng)
                 Fmin=MIN(Fmin,Aval)
                 Fmax=MAX(Fmax,Aval)
                 Fout(i,j,Tindex)=Aval

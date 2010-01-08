@@ -2,7 +2,7 @@
 #if defined NONLINEAR && !defined SOLVE3D
       SUBROUTINE main2d (ng)
 !
-!svn $Id: main2d.F 1003 2009-06-19 23:52:29Z kate $
+!svn $Id: main2d.F 1101 2009-11-19 00:56:17Z kate $
 !=======================================================================
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -34,7 +34,7 @@
       USE forcing_mod, ONLY : forcing
 # endif
 # ifdef ADJUST_WSTRESS
-      USE frc_adjust_mod, ONLY : frc_adjust, load_forcing
+      USE frc_adjust_mod, ONLY : frc_adjust
 # endif
       USE ini_fields_mod, ONLY : ini_fields, ini_zeta
 # if defined ADJUST_BOUNDARY
@@ -242,7 +242,6 @@
           subs=NtileX(ng)*NtileE(ng)/numthreads
           DO tile=subs*thread,subs*(thread+1)-1,+1
             CALL frc_adjust (ng, TILE, Lfinp(ng), Lfout(ng))
-            CALL load_forcing (ng, TILE, Lfout(ng))
           END DO
         END DO
 !$OMP END PARALLEL DO

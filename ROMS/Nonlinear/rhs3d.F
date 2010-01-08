@@ -2,7 +2,7 @@
       MODULE rhs3d_mod
 #if defined NONLINEAR && defined SOLVE3D
 !
-!svn $Id: rhs3d.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id: rhs3d.F 1101 2009-11-19 00:56:17Z kate $
 !=======================================================================
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -144,9 +144,6 @@
      &                 OCEAN(ng) % u,                                   &
      &                 OCEAN(ng) % v,                                   &
      &                 OCEAN(ng) % W,                                   &
-# ifndef SET_ZETA
-     &                 COUPLING(ng) % Zt_avg1,                          &
-# endif
 # ifdef NEARSHORE_MELLOR
      &                 OCEAN(ng) % u_stokes,                            &
      &                 OCEAN(ng) % v_stokes,                            &
@@ -164,12 +161,7 @@
      &                 DIAGS(ng) % DiaRV,                               &
 # endif
      &                 OCEAN(ng) % ru,                                  &
-# ifdef SET_ZETA
      &                 OCEAN(ng) % rv)
-# else
-     &                 OCEAN(ng) % rv,                                  &
-     &                 OCEAN(ng) % zeta)
-# endif
 # ifdef PROFILE
       CALL wclock_off (ng, iNLM, 21)
 # endif
@@ -213,9 +205,6 @@
      &                       EobsUV, Uobs, Vobs,                        &
 # endif
      &                       u, v, W,                                   &
-# ifndef SET_ZETA
-     &                       Zt_avg1,                                   &
-# endif
 # ifdef NEARSHORE_MELLOR
      &                       u_stokes, v_stokes,                        &
      &                       rulag3d, rvlag3d,                          &
@@ -226,26 +215,11 @@
      &                       DiaRUfrc, DiaRVfrc,                        &
      &                       DiaRU, DiaRV,                              &
 # endif
-# ifdef SET_ZETA
      &                       ru, rv)
-# else
-     &                       ru, rv,                                    &
-     &                       zeta)
-# endif
 !***********************************************************************
 !
       USE mod_param
       USE mod_scalars
-
-# ifndef SET_ZETA
-#  if defined EW_PERIODIC || defined NS_PERIODIC
-!
-      USE exchange_2d_mod, ONLY : exchange_r2d_tile
-#  endif
-#  ifdef DISTRIBUTE
-      USE mp_exchange_mod, ONLY : mp_exchange2d
-#  endif
-# endif
 !
 !  Imported variable declarations.
 !
@@ -286,9 +260,6 @@
       real(r8), intent(in) :: u(LBi:,LBj:,:,:)
       real(r8), intent(in) :: v(LBi:,LBj:,:,:)
       real(r8), intent(in) :: W(LBi:,LBj:,0:)
-#  ifndef SET_ZETA
-      real(r8), intent(in) :: Zt_avg1(LBi:,LBj:)
-#  endif
 #  ifdef NEARSHORE_MELLOR
       real(r8), intent(in) :: u_stokes(LBi:,LBj:,:)
       real(r8), intent(in) :: v_stokes(LBi:,LBj:,:)
@@ -308,9 +279,6 @@
 
       real(r8), intent(out) :: rufrc(LBi:,LBj:)
       real(r8), intent(out) :: rvfrc(LBi:,LBj:)
-#  ifndef SET_ZETA
-      real(r8), intent(out) :: zeta(LBi:,LBj:,:)
-#  endif
 # else
       real(r8), intent(in) :: Hz(LBi:UBi,LBj:UBj,N(ng))
       real(r8), intent(in) :: Huon(LBi:UBi,LBj:UBj,N(ng))
@@ -343,9 +311,6 @@
       real(r8), intent(in) :: u(LBi:UBi,LBj:UBj,N(ng),2)
       real(r8), intent(in) :: v(LBi:UBi,LBj:UBj,N(ng),2)
       real(r8), intent(in) :: W(LBi:UBi,LBj:UBj,0:N(ng))
-#  ifndef SET_ZETA
-      real(r8), intent(in) :: Zt_avg1(LBi:UBi,LBj:UBj)
-#  endif
 #  ifdef NEARSHORE_MELLOR
       real(r8), intent(in) :: u_stokes(LBi:UBi,LBj:UBj,N(ng))
       real(r8), intent(in) :: v_stokes(LBi:UBi,LBj:UBj,N(ng))
@@ -365,9 +330,6 @@
 
       real(r8), intent(out) :: rufrc(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: rvfrc(LBi:UBi,LBj:UBj)
-#  ifndef SET_ZETA
-      real(r8), intent(out) :: zeta(LBi:UBi,LBj:UBj,3)
-#  endif
 # endif
 !
 !  Local variable declarations.
@@ -1769,34 +1731,7 @@
 # endif
         END IF
       END DO J_LOOP
-# ifndef SET_ZETA
-!
-!  Prepare to time-step 2D equations:  set initial free-surface
-!  to its fast-time averaged values (which corresponds to the time
-!  step "n").
-!
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
-          zeta(i,j,1)=Zt_avg1(i,j)
-          zeta(i,j,2)=Zt_avg1(i,j)
-        END DO
-      END DO
-#  if defined EW_PERIODIC || defined NS_PERIODIC
-      CALL exchange_r2d_tile (ng, tile,                                 &
-     &                        LBi, UBi, LBj, UBj,                       &
-     &                        zeta(:,:,1))
-      CALL exchange_r2d_tile (ng, tile,                                 &
-     &                        LBi, UBi, LBj, UBj,                       &
-     &                        zeta(:,:,2))
-#  endif
-#  ifdef DISTRIBUTE
-      CALL mp_exchange2d (ng, tile, iNLM, 2,                            &
-     &                    LBi, UBi, LBj, UBj,                           &
-     &                    NghostPoints, EWperiodic, NSperiodic,         &
-     &                    zeta(:,:,1),                                  &
-     &                    zeta(:,:,2))
-#  endif
-# endif
+
       RETURN
       END SUBROUTINE rhs3d_tile
 #endif

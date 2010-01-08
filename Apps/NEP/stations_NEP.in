@@ -67,6 +67,7 @@ Sout(idLhea) == T                          ! latent heat flux
 Sout(idShea) == T                          ! sensible heat flux
 Sout(idLrad) == T                          ! longwave radiation flux
 Sout(idSrad) == T                          ! shortwave radiation flux
+Sout(idEmPf) == F                          ! E-P flux
 Sout(idevap) == F                          ! evaporation rate
 Sout(idrain) == F                          ! precipitation rate
 
@@ -130,7 +131,7 @@ Sout(idBott) == F F F F F F F F F F F F F F F F
 ! essential because the station arrays are dynamically allocated using
 ! these values, [1:Ngrids].
 
-    NSTATION ==  194
+    NSTATION ==  199
 
 ! Station locations for all grids in any desired order.  The horizontal
 ! location for a particular station may be specified in terms of fractional
@@ -142,7 +143,6 @@ Sout(idBott) == F F F F F F F F F F F F F F F F
 
 POS =  GRID  FLAG      X-POS       Y-POS     COMMENT
 
-        1    1  183.3666667     51.83333333     ! Adak
         1    1  183.3683333     51.86333333     ! Adak Island 9461380
         1    1  174.0666667     52.73333333     ! Alcan H. Shemya
         1    1  205.7533333     56.89833333     ! Alitak 9457804
@@ -163,14 +163,11 @@ POS =  GRID  FLAG      X-POS       Y-POS     COMMENT
         1    1  196.6333333     57.06666667     ! BC2
         1    1  188.9166667     60.43333333     ! BC20
         1    1  190.8166667     60.38333333     ! BC21
-        1    1  190.8333333     60.4            ! BC21
         1    1  183.9666667     60.56666667     ! BC26
         1    1  194.8333333     55.01666667     ! BC3
-        1    1  194.8333333     55.03333333     ! BC3
         1    1  191.7666667     58.61666667     ! BC4
         1    1  196.9833333     55.7            ! BC7
         1    1  192.3           59.21666667     ! BC9
-        1    1  192.2833333     59.2            ! BC9
         1    1  165.9333333     55.2            ! Bering Isl.
         1    1  190.2           56.26666667     ! BP1
         1    1  190.3           56.23333333     ! BP2
@@ -194,10 +191,26 @@ POS =  GRID  FLAG      X-POS       Y-POS     COMMENT
         1    1  207.8333333     59.3            ! C7B
         1    1  207.95          59.03333333     ! C8B
         1    1  207.7333333     58.78333333     ! C9B
+        1    1   187           61               ! CBS1
+        1    1   187           60               ! CBS2
+        1    1   187           59               ! CBS3
+        1    1   187           58               ! CBS4
+        1    1   189           58               ! CBS5
+        1    1   189           59               ! CBS6
+        1    1   191           59               ! CBS7
+        1    1   193           57               ! CBS8
+        1    1   193           58               ! CBS9
+        1    1   193           59               ! CBS10
+        1    1   195           57               ! CBS11
+        1    1   197         58.5               ! CBS12
+        1    1   199           58               ! CBS13
+        1    1   199           57               ! CBS14
+        1    1   201         57.5               ! CBS15
+        1    1   195           59               ! CBS16
+        1    1   195           60               ! CBS17 
         1    1  201.4483333     58.84833333     ! Clarks Point 9465261
         1    1  179.2833333     51.41666667     ! Constantine H. Amchitka
         1    1  214.2466667     60.55833333     ! Cordova 9454050
-        1    1  212.05          70.49166667     ! Cross Island 9497778
         1    1  203.06          52.65           ! DART-II 230 NM Southeast of Shumagin Island 46403
         1    1  195.99          51.06833333     ! DART-II 240 NM South of Dutch Harbor 46402
         1    1  211.5           55.3            ! DART-II 240 NM Southeast of Kodiak 46409
@@ -216,7 +229,6 @@ POS =  GRID  FLAG      X-POS       Y-POS     COMMENT
         1    1  189.6166667     62.86666667     ! F5
         1    1  188.9333333     63.15           ! F6
         1    1  188.7333333     63.01666667     ! F8
-        1    1  188.7333333     63.01666667     ! FTS8
         1    1  192.0666667     58.53333333     ! FX2
         1    1  187.8333333     63.16666667     ! H1
         1    1  188.4166667     62.58333333     ! H3
@@ -232,8 +244,8 @@ POS =  GRID  FLAG      X-POS       Y-POS     COMMENT
         1    1  207.7833333     57.1            ! K7B
         1    1  207.2833333     57.11666667     ! K88
         1    1  207.3833333     57.01666667     ! K9A
-        1    0  228.375         55.33333333     ! Ketchikan 9450460
-        1    1  223.           266.             ! King Cove 9459881
+        1    0  223.           266.             ! Ketchikan 9450460
+        1    1  197.6733333     55.06166667     ! King Cove 9459881
         1    1  178.55          51.98333333     ! Kiska H.
         1    1  195.4083333     67.72666667     ! Kivalina 9491253
         1    1  204.9           56.03333333     ! KllB
@@ -275,13 +287,11 @@ POS =  GRID  FLAG      X-POS       Y-POS     COMMENT
         1    1  191.55          65.75           ! NC10
         1    1  194.6333333     64.36666667     ! NC14
         1    1  192.9166667     62.88333333     ! NC17
-        1    1  192.9166667     62.88333333     ! NC17
         1    1  192.9333333     62.88333333     ! NC17C
         1    1  191.6166667     63.15           ! NC18
         1    1  187.9833333     63.96666667     ! NC19B
         1    1  187.6666667     64              ! NC19C
         1    1  194.5166667     64              ! NC20
-        1    1  194.5           64              ! NC20 GEOPROBE
         1    1  189.5666667     61.8            ! NC24
         1    1  189.0333333     63              ! NC25A
         1    1  186.8666667     63.18333333     ! NC26A
@@ -297,13 +307,10 @@ POS =  GRID  FLAG      X-POS       Y-POS     COMMENT
         1    1  199.4166667     55.98333333     ! Port Moller
         1    1  166.2333333     60.45           ! Port Siber.
         1    1  186.5           64.33333333     ! Providenie
-        1    1  211.49          70.38833333     ! Prudhoe Bay 2 9497649
-        1    1  211.4733333     70.4            ! Prudhoe Bay 9497645
         1    1  195.935         67.57666667     ! Red Dog Dock 9491094
         1    1  192.2186        59.85146667     ! S25
         1    1  192.017667      59.13625        ! S40
         1    1  191.6059        58.58963333     ! S55
-        1    1  199.5           55.35           ! Sand Point
         1    1  199.4983333     55.33666667     ! Sand Point 9459450
         1    1  194.3           54.8            ! SB1
         1    1  191.8           56.2            ! SB2
@@ -317,7 +324,6 @@ POS =  GRID  FLAG      X-POS       Y-POS     COMMENT
         1    1  224.6733333     59.45           ! Skagway 9452400
         1    1  197.9733333     63.475          ! St. Michael 9468132
         1    1  189.7           57.13333333     ! St. Paul Island
-        1    1  198             63.5            ! St.Michael (Defant)
         1    1  197.6666667     63.5            ! Stebbins (Summer)
         1    1  191.8           67              ! SU8
         1    1  182             51.71666667     ! Tanaga B.
@@ -398,6 +404,7 @@ POS =  GRID  FLAG      X-POS       Y-POS     COMMENT
 !  Sout(idShea)  Write out sensible heat flux.
 !  Sout(idLrad)  Write out long-wave radiation flux.
 !  Sout(idSrad)  Write out short-wave radiation flux.
+!  Sout(idEmPf)  Write out E-P flux.
 !  Sout(idevap)  Write out evaporation rate.
 !  Sout(idrain)  Write out precipitation rate.
 !
@@ -413,14 +420,14 @@ POS =  GRID  FLAG      X-POS       Y-POS     COMMENT
 !  Sout(idBott)  Write out exposed sediment layer properties, 1:MBOTP.
 !
 !------------------------------------------------------------------------------
-! Station positions KEYWORDS. 
+! Station positions KEYWORDS.
 !------------------------------------------------------------------------------
 !
 !  NSTATION      Number of stations to process in each nested grid. Ngrids
 !                  values are expected.  These values are essential because
 !                  the station arrays are dynamically allocated using these
 !                  values.
-!                
+!
 !  POS           Station locations for all grids in any desired order.  The
 !                  horizontal location for a particular station can be
 !                  specified in terms of fractional (I,J) grid pairs (FLAG=0)
@@ -447,5 +454,5 @@ POS =  GRID  FLAG      X-POS       Y-POS     COMMENT
 !                Since there is no decoding during the reading the stations
 !                locations, the POS keyword must be the last one to process.
 !                That is, it should be at the end of the input specification.
-!                
+!
 !

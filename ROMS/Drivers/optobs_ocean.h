@@ -1,6 +1,6 @@
       MODULE ocean_control_mod
 !
-!svn $Id: optobs_ocean.h 975 2009-05-05 22:51:13Z kate $
+!svn $Id: optobs_ocean.h 1098 2009-11-18 17:54:22Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group           W. G. Zhang   !
 !    Licensed under a MIT/X style license                              !
@@ -61,7 +61,7 @@
       USE mod_iounits
       USE mod_scalars
 !
-#ifdef AIR_OCEAN 
+#ifdef AIR_OCEAN
       USE ocean_coupler_mod, ONLY : initialize_atmos_coupling
 #endif
 #ifdef WAVES_OCEAN
@@ -246,7 +246,7 @@
 !
       logical :: add
       logical :: Lweak = .FALSE.
-      
+
       integer :: Nrec, i, my_iic, ng, thread, subs, tile
 #ifdef BALANCE_OPERATOR
       integer :: Lbck = 1
@@ -263,6 +263,14 @@
 !  Initialize adjoint model and define sensitivity functional.
 !-----------------------------------------------------------------------
 !
+#if defined BULK_FLUXES && defined NL_BULK_FLUXES
+
+!  Set file name containing the nonlinear model bulk fluxes to be read
+!  and processed by other algorithms.
+!
+        BLKname(ng)=FWDname(ng)
+#endif
+
         Lstiffness=.FALSE.
         CALL ad_initial (ng)
         IF (exit_flag.ne.NoError) RETURN
@@ -369,7 +377,7 @@
         END DO AD_LOOP
 !
 !-----------------------------------------------------------------------
-!  Read in adjoint solution from adjoint history file (ADJname), apply 
+!  Read in adjoint solution from adjoint history file (ADJname), apply
 !  spatial convolution, and then write output NetCDF file (ADJname).
 !-----------------------------------------------------------------------
 !
