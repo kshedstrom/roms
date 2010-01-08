@@ -1880,7 +1880,7 @@
           END IF
         END IF
       END DO
-
+# endif
 # ifdef BULK_FLUXES
 !
 !  Write out latent heat flux.
