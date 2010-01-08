@@ -737,9 +737,8 @@
         END IF
       END DO
 
-
 # ifdef BEST_NPZ
-# ifdef STATIONARY
+#  ifdef STATIONARY
 !--------------------------------------
 !  Write out 3D stationary variable array
 !--------------------------------------
@@ -759,16 +758,16 @@
           !---------------------
           !Zero the output array
           !---------------------
-	 
+
 !	  print*,'st=',OCEAN(ng) % st(:,:,:,1,1)
 !	    print*,'NOUT=',NOUT
 !	    print*,'itrc=',itrc
-	
+
           OCEAN(ng) % st(:,:,:,NOUT,itrc) = 0.0_r8
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-	    
-	      WRITE (stdout,10) TRIM(Vname(1,idTSvar(itrc))),            &
+
+              WRITE (stdout,10) TRIM(Vname(1,idTSvar(itrc))),           &
      &                          tHISindx(ng)
             END IF
             exit_flag=3
@@ -788,7 +787,7 @@
           scale=1.0_r8
           gtype=gfactor*r2dvar
           if (hisTS2id(itrc,ng) .lt. 0) hisTS2id(itrc,ng) = 0
-          status=nf_fwrite2d(ng, iNLM, ncHISid(ng), hisTS2id(itrc,ng),   &
+          status=nf_fwrite2d(ng, iNLM, ncHISid(ng), hisTS2id(itrc,ng),  &
      &                       tHISindx(ng), gtype,                       &
      &                       LBi, UBi, LBj, UBj,  scale,                &
 # ifdef MASKING
@@ -797,11 +796,11 @@
      &                       OCEAN(ng) % st2(:,:,NOUT,itrc))
           !---------------------
           !Zero the output array
-	  !---------------------
+          !---------------------
           OCEAN(ng) % st2(:,:,NOUT,itrc) = 0.0_r8
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,10) TRIM(Vname(1,idTS2var(itrc))),            &
+              WRITE (stdout,10) TRIM(Vname(1,idTS2var(itrc))),          &
      &                          tHISindx(ng)
             END IF
             exit_flag=3
@@ -831,7 +830,7 @@
      &                       OCEAN(ng) % pt2(:,:,NOUT,itrc))
           !---------------------
           !Zero the output array
-	  !---------------------
+          !---------------------
           OCEAN(ng) % pt2(:,:,NOUT,itrc) = 0.0_r8
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
@@ -855,7 +854,7 @@
           scale=1.0_r8
           gtype=gfactor*r3dvar
           if (hisPT3id(itrc,ng) .lt. 0) hisPT3id(itrc,ng) = 0
-          status=nf_fwrite3d(ng, iNLM, ncHISid(ng), hisPT3id(itrc,ng),   &
+          status=nf_fwrite3d(ng, iNLM, ncHISid(ng), hisPT3id(itrc,ng),  &
      &                       tHISindx(ng), gtype,                       &
      &                       LBi, UBi, LBj, UBj, 1, N(ng), scale,       &
 # ifdef MASKING
@@ -864,11 +863,11 @@
      &                       OCEAN(ng) % pt3(:,:,:,NOUT,itrc))
           !---------------------
           !Zero the output array
-	  !---------------------
+          !---------------------
           OCEAN(ng) % pt3(:,:,:,NOUT,itrc) = 0.0_r8
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,10) TRIM(Vname(1,idPT3var(itrc))),           &
+              WRITE (stdout,10) TRIM(Vname(1,idPT3var(itrc))),          &
      &                          tHISindx(ng)
             END IF
             exit_flag=3
@@ -934,14 +933,14 @@
 !     &                          tHISindx(ng), gtype,                    &
 !     &                          LBi, UBi, LBj, UBj, 1, NBL(ng), scale,  &
 
-# ifdef MASKING
+#  ifdef MASKING
      &                     GRID(ng) % rmask,                   &
-# endif
-#     ifdef CLIM_ICE_1D
+#  endif
+#  ifdef CLIM_ICE_1D
      &                       OCEAN(ng) % it(:,:,NOUT,itrc))
-#else     
+#  else     
      &                       ICE(ng) % it(:,:,NOUT,itrc))
-#endif     
+# endif     
 
            IF (status.ne.nf90_noerr) THEN
            IF (Master) THEN
@@ -954,8 +953,7 @@
           END IF
         END IF
       END DO
-#endif
-
+# endif
    
 # endif
 !--------------------------------------
@@ -1852,11 +1850,11 @@
       DO itrc=1,NAT
         IF (Hout(idTsur(itrc),ng)) THEN
           IF (itrc.eq.itemp) THEN
-# ifdef SO_SEMI
+#  ifdef SO_SEMI
             scale=1.0_r8
-# else
+#  else
             scale=rho0*Cp                   ! Celsius m/s to W/m2
-# endif
+#  endif
           ELSE IF (itrc.eq.isalt) THEN
             scale=1.0_r8
           END IF
@@ -1865,9 +1863,9 @@
      &                       hisVid(idTsur(itrc),ng),                   &
      &                       tHISindx(ng), gtype,                       &
      &                       LBi, UBi, LBj, UBj, scale,                 &
-# ifdef MASKING
+#  ifdef MASKING
      &                       GRID(ng) % rmask,                          &
-# endif
+#  endif
      &                       FORCES(ng) % stflx(:,:,itrc))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
@@ -1880,6 +1878,7 @@
           END IF
         END IF
       END DO
+# endif
 
 # ifdef BULK_FLUXES
 !

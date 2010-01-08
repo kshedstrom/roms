@@ -95,9 +95,9 @@
 #  undef FLEET
 #  define ANA_SPAWN_DIST
 #  undef EGGS_BISECTION
-#  define EGGS_TREE_CXX
+#  undef EGGS_TREE_CXX
 #  undef EGGS_VECTOR_CXX
-#  undef EGGS_TREE_FORT
+#  define EGGS_TREE_FORT
 # endif
 # define BIO_SEDIMENT
 # define HOLLING_GRAZING
