@@ -39,7 +39,7 @@
         real(r8), allocatable :: eggs_all(:,:,:)
         type(egg_box), pointer :: roe_list(:)
 
-        PRIVATE :: eggs_all, push_box, pop_box, isLast
+        PRIVATE :: eggs_all, push_box, pop_box, isLast, find_fish, nil
         PUBLIC  :: eggs_share, egglist_init, egglist_collect,           &
      &             egglist_destroy, egglist_split
 
@@ -197,12 +197,14 @@
           END IF
         END SUBROUTINE egglist_split
 
-        SUBROUTINE egglist_collect(isp, Nsuper, Nfound, eggs, moms)
+        SUBROUTINE egglist_collect(isp, Nsuper, Nfound, eggs,           &
+     &             ifish, jfish)
           integer, intent(in)  :: isp
           integer, intent(in)  :: Nsuper
           integer, intent(out) :: Nfound
           real(r8), intent(out) :: eggs(Nsuper)
-          integer, intent(out) :: moms(Nsuper)
+          integer, intent(out) :: ifish(Nsuper)
+          integer, intent(out) :: jfish(Nsuper)
           type(egg_box), pointer :: box
           logical :: single
 !
@@ -212,7 +214,7 @@
             IF (.not. isLast(box)) THEN
               Nfound = Nfound + 1
               eggs(Nfound) = box % egg_sum 
-              CALL find_fish(box, moms(Nfound))
+              CALL find_fish(isp, box, ifish(Nfound), jfish(Nfound))
             ELSE
               RETURN
             END IF
@@ -280,6 +282,27 @@
 
           DEALLOCATE(roe_list)
         END SUBROUTINE egglist_destroy
+
+        SUBROUTINE find_fish(isp, box, ifish, jfish)
+          type(egg_box), pointer :: box
+          integer, intent(in)  :: isp
+          integer, intent(out) :: ifish, jfish
+          real(r8) :: egg_max
+          integer :: i, j
+
+          ifish = box%i1
+          jfish = box%j1
+          egg_max = eggs_all(box%i1, box%j1, isp)
+          DO j=box%j1, box%j2
+            DO i=box%i1, box%i2
+              IF (eggs_all(i,j,isp) > egg_max) THEN
+                ifish = i
+                jfish = j
+                egg_max = eggs_all(i,j,isp)
+              END IF
+            END DO
+          END DO
+        END SUBROUTINE find_fish
 
 #endif
       END MODULE mod_egglist
