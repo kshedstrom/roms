@@ -2,9 +2,9 @@
       MODULE step_ships_mod
 #if defined NONLINEAR && defined NEMURO_SAN && defined FLEET
 !
-!svn $Id: step_ships.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group        John M. Klinck   !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group        John M. Klinck   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================

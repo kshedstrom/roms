@@ -2,9 +2,9 @@
       MODULE new_year_mod
 #if defined NEMURO_SAN
 !
-!svn $Id: step_floats.F 997 2009-06-04 17:42:20Z kate $
+!svn $Id$
 !================================================== Kate Hedstrom ======
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================

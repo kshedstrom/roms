@@ -2,9 +2,9 @@
       MODULE fish_growth_mod
 #if defined NONLINEAR && defined NEMURO_SAN
 !
-!svn $Id: interp_floats.F 294 2009-01-09 21:37:26Z arango $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group         Mark Hadfield   !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group         Mark Hadfield   !
 !    Licensed under a MIT/X style license             John M. Klinck   !
 !    See License_ROMS.txt                                              !
 !=======================================================================

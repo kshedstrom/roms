@@ -759,9 +759,9 @@
           !Zero the output array
           !---------------------
 
-!	  print*,'st=',OCEAN(ng) % st(:,:,:,1,1)
-!	    print*,'NOUT=',NOUT
-!	    print*,'itrc=',itrc
+!           print*,'st=',OCEAN(ng) % st(:,:,:,1,1)
+!           print*,'NOUT=',NOUT
+!           print*,'itrc=',itrc
 
           OCEAN(ng) % st(:,:,:,NOUT,itrc) = 0.0_r8
           IF (status.ne.nf90_noerr) THEN
@@ -889,8 +889,8 @@
              status=nf_fwrite2d(ng, iNLM, ncHISid(ng), hisBid(itrc,ng), &
      &                          tHISindx(ng), gtype,                    &
      &                          LBi, UBi, LBj, UBj, scale,              &
-     
-!Will need to switch this if have more than one depth level for benthos 
+
+!Will need to switch this if have more than one depth level for benthos
 !      status=nf_fwrite3d(ng, iNLM, ncHISid(ng), hisBid(itrc,ng), &
 !     &                          tHISindx(ng), gtype,                    &
 !     &                          LBi, UBi, LBj, UBj, 1, NBL(ng), scale,  &
@@ -901,7 +901,7 @@
      &                       OCEAN(ng) % bt(:,:,1,NOUT,itrc))
 !             print*,OCEAN(ng) % bt(LBi,LBj,1,NOUT,itrc)
 !             print *, 'LBi=',LBi,'LBj=',LBj,'NOUT=',NOUT,'itrc=',itrc
-         
+
            IF (status.ne.nf90_noerr) THEN
            IF (Master) THEN
             WRITE (stdout,10)TRIM(Vname(1,idBvar(itrc))),               &
@@ -938,9 +938,9 @@
 #  endif
 #  ifdef CLIM_ICE_1D
      &                       OCEAN(ng) % it(:,:,NOUT,itrc))
-#  else     
+#  else
      &                       ICE(ng) % it(:,:,NOUT,itrc))
-# endif     
+# endif
 
            IF (status.ne.nf90_noerr) THEN
            IF (Master) THEN
@@ -954,7 +954,7 @@
         END IF
       END DO
 # endif
-   
+
 # endif
 !--------------------------------------
 !  Write out stationary tracer variable
@@ -1984,7 +1984,7 @@
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
             WRITE (stdout,10) TRIM(Vname(1,idVair)), tHISindx(ng)
-          END IF 
+          END IF
           exit_flag=3
           ioerror=status
           RETURN

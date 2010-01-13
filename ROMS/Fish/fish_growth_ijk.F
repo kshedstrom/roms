@@ -3,10 +3,10 @@
       SUBROUTINE fish_growth_ijk (ng, Ipos, Jpos, Kpos, nnew,           &
      &                                isp, Fweight, Uswim, Fgrowth)
 !
-!svn $Id: interp_floats.F 294 2009-01-09 21:37:26Z arango $
-!================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group         Mark Hadfield   !
-!    Licensed under a MIT/X style license             John M. Klinck   !
+!svn $Id$
+!=================================================== Jerome Fiechter ===
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
+!    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
 !                                                                      !

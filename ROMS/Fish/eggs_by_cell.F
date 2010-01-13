@@ -2,15 +2,15 @@
       MODULE eggs_by_cell_mod
 #if defined NEMURO_SAN && defined EGGS_BISECTION
 !
-!svn $Id: wetdry.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id$
 !=======================================================================
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                           Hernan G. Arango   !
 !===================================================== Kate Hedstrom ===
 !                                                                      !
-!  This routine counts the number of fish per cell and builds a        !
-!  linked list of them.                                                !
+!  This routine goes through the fish in each cell and counts their    !
+!  eggs. It works on the local tile only.                              !
 !                                                                      !
 !=======================================================================
 !
@@ -67,6 +67,7 @@
       USE mod_param
       USE mod_scalars
       USE mod_stepping
+      USE mod_egglist
 !
 !  Imported variable declarations.
 !
@@ -78,7 +79,7 @@
 #  ifdef MASKING
       real(r8), intent(in) :: rmask(LBi:,LBj:)
 #  endif
-      integer, intent(out) :: egg_count(LBi:,LBj:,:)
+      real(r8), intent(out) :: egg_count(LBi:,LBj:,:)
       real(r8), intent(inout) :: bioenergy(:,:)
       logical, intent(in) :: bounded(:)
       logical, intent(in) :: alive(:)
@@ -88,7 +89,7 @@
 #  ifdef MASKING
       real(r8), intent(in) :: rmask(LBi:UBi,LBj:UBj)
 #  endif
-      integer, intent(out) :: egg_count(LBi:UBi,LBj:UBj,Nspecies(ng))
+      real(r8), intent(out) :: egg_count(LBi:UBi,LBj:UBj,Nspecies(ng))
       real(r8), intent(inout) :: bioenergy(NFishV(ng),Nfish(ng))
       logical, intent(in) :: bounded(Nfish(ng))
       logical, intent(in) :: alive(Nfish(ng))
@@ -121,7 +122,7 @@
       DO isp=1,Nspecies(ng)
         DO j=Jmin,Jmax
           DO i=Imin,Imax
-            egg_count(i,j,isp) = 0
+            egg_count(i,j,isp) = 0._r8
           END DO
         END DO
       END DO
@@ -139,10 +140,14 @@
 ! on this tile
           IF (i .ge. Imin .and. i .le. Imax .and.                       &
      &        j .ge. Jmin .and. j .le. Jmax) THEN
-            egg_count(i,j,isp) = egg_count(i,j,isp) + bioenergy(ifeggs,l)
+            egg_count(i,j,isp) = egg_count(i,j,isp) +                   &
+     &                bioenergy(ifeggs,l)
           END IF
         END IF
       END DO
+
+! Let the Master know about all the tiles
+      CALL eggs_share(ng, iNLM, LBi, UBi, LBj, UBj, egg_count)
 !
       RETURN
       END SUBROUTINE eggs_by_cell_tile

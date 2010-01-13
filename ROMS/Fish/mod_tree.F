@@ -43,7 +43,7 @@
           real(r8) :: dist
         end type treenode
 
-        type RedBlackTree 
+        type RedBlackTree
            type(treenode), pointer :: root => null()
            integer :: nitems = 0
         end type RedBlackTree
@@ -137,7 +137,7 @@
           p => treetop % left
 
           DO
-            IF (dist <= p % dist) THEN   
+            IF (dist <= p % dist) THEN
               IF (.not. isLeaf(p % left)) THEN
                 p => p % left
                 CYCLE
@@ -226,7 +226,7 @@
           END DO
         RETURN
         END SUBROUTINE sum_up
- 
+
 ! Fix the sums in me and my parent after a rotation
         SUBROUTINE sum_us(cur)
           type(treenode), pointer :: cur
@@ -462,7 +462,7 @@
               t_tree => pop_tree(.false.)
               IF (ASSOCIATED(t_tree)) THEN
                 Nfound = Nfound + 1
-                eggs(Nfound) = t_tree % egg_sum 
+                eggs(Nfound) = t_tree % egg_sum
                 momfish(Nfound) = t_tree % momfish  ! one of the bunch
               ELSE
                 RETURN
@@ -482,7 +482,7 @@
           logical :: splittable
           type(treenode), pointer :: pop_tree
           type(egg_batch), pointer :: cur, prev
-          
+
           prev => roe_list
           cur => roe_list % next
           DO

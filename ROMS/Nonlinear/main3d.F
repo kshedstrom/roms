@@ -3,9 +3,9 @@
     (!defined OFFLINE_BIOLOGY && ! defined OFFLINE_FLOATS)
       SUBROUTINE main3d (ng)
 !
-!svn $Id: main3d.F 1101 2009-11-19 00:56:17Z kate $
+!svn $Id$
 !=======================================================================
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                           Hernan G. Arango   !
 !========================================== Alexander F. Shchepetkin ===
@@ -131,6 +131,9 @@
       USE fish_by_cell_mod, ONLY : fish_by_cell
       USE fish_spawn_mod, ONLY : fish_spawn
       USE new_year_mod, ONLY : new_year
+#  ifdef EGGS_BISECTION
+      USE eggs_by_cell_mod, ONLY : eggs_by_cell
+#  endif
 #  ifdef FLEET
       USE ships_by_cell_mod, ONLY : ships_by_cell
 #  endif
