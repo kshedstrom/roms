@@ -48,7 +48,7 @@
         SUBROUTINE eggs_share(ng, model, LBi, UBi, LBj, UBj, egg_count)
           USE mod_parallel
 # ifdef DISTRIBUTE
-          USE distribute_mod, ONLY : mp_bcasti, mp_gather2d
+          USE distribute_mod, ONLY : mp_bcasti, mp_gather3d
           USE mod_grid
           USE mod_param
           USE mod_ncparam, ONLY : r3dvar
