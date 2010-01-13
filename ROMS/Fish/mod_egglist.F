@@ -49,6 +49,9 @@
           USE mod_parallel
 # ifdef DISTRIBUTE
           USE distribute_mod, ONLY : mp_bcasti, mp_gather2d
+          USE mod_grid
+          USE mod_param
+          USE mod_ncparam, ONLY : r3dvar
 # endif
           integer, intent(in) :: ng, model
           integer, intent(in) :: LBi, UBi, LBj, UBj 
@@ -58,7 +61,7 @@
           real(r8), intent(in) ::                                       &
      &              egg_count(LBi:UBi,LBj:UBj,Nspecies(ng))
 # endif
-          integer :: isp, i, j
+          integer :: isp, i, j, Isize, Jsize, Npts
 # ifdef DISTRIBUTE
           real(r8), dimension((Lm(ng)+2)*(Mm(ng)+2)*isp) :: eggs_line
 # endif
@@ -71,12 +74,15 @@
             allocate(eggs_all(0:(Lm(ng)+1),0:(Mm(ng)+1),isp))
           END IF
 # ifdef DISTRIBUTE
+          Isize=IOBOUNDS(ng)%xi_rho
+          Jsize=IOBOUNDS(ng)%eta_rho
+          Npts=Isize*Jsize*Nspecies(ng)
           CALL mp_gather3d (ng, model, LBi, UBi, LBj, UBj,              &
      &                  1, Nspecies(ng), 1, r3dvar, 1.0_r8,             &
 #  ifdef MASKING
-     &                  Amask,                                          &
+     &                  GRID(ng) % rmask,                               &
 #  endif
-     &                  egg_count, Npts, eggs_line, SetFillVal)
+     &                  egg_count, Npts, eggs_line, .false.)
         eggs_all = reshape(eggs_line,(/ Lm(ng)+2, Mm(ng)+2, Nspecies /))
 # else
         DO isp=1,Nspecies(ng)
