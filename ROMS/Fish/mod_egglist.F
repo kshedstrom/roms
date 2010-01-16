@@ -27,7 +27,7 @@
         type egg_box
           type(egg_box), pointer :: next => null()
           integer :: i1, i2, j1, j2
-          integer :: egg_sum
+          real(r8) :: egg_sum
           logical :: last_lr_split
         end type egg_box
 
@@ -63,7 +63,8 @@
 # endif
           integer :: isp, i, j, Isize, Jsize, Npts
 # ifdef DISTRIBUTE
-          real(r8), dimension((Lm(ng)+2)*(Mm(ng)+2)*isp) :: eggs_line
+          real(r8), dimension((Lm(ng)+2)*(Mm(ng)+2)*Nspecies(ng))       &
+     &                  :: eggs_line
 # endif
           
 ! First, collect every tile's eggs into global array
@@ -71,7 +72,7 @@
           eggs_line = 0.0_r8
 # endif
           IF (.not. ALLOCATED(eggs_all)) THEN
-            allocate(eggs_all(0:(Lm(ng)+1),0:(Mm(ng)+1),isp))
+            allocate(eggs_all(0:(Lm(ng)+1),0:(Mm(ng)+1),Nspecies(ng)))
           END IF
 # ifdef DISTRIBUTE
           Isize=IOBOUNDS(ng)%xi_rho
@@ -132,12 +133,14 @@
           Nboxes = 1
           bigbox => roe_list(isp) % next
           IF (Nsuper .eq. 0) THEN
-            IF (bigbox % egg_sum .ne. 0) THEN
+            IF (bigbox % egg_sum .gt. 0.01_r8) THEN
               print *, 'TROUBLE: eggs without a home ', isp,            &
      &                bigbox % egg_sum
             END IF
             RETURN
           ELSE IF (Nsuper .eq. 1) THEN
+            RETURN
+          ELSE IF (bigbox % egg_sum .lt. 0.01_r8) THEN
             RETURN
           ELSE
 !
