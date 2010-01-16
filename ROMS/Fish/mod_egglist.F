@@ -37,18 +37,19 @@
         type(egg_box), target, save :: nil
 
         real(r8), allocatable :: eggs_all(:,:,:)
-	integer, pointer :: egg_cells(:)
+	integer, allocatable :: eggs_in(:,:,:)
+	integer, allocatable :: egg_cells(:)
         type(egg_box), pointer :: roe_list(:)
 
         PRIVATE :: eggs_all, push_box, pop_box, isLast, find_fish, nil, &
-     &             egg_cells
+     &             eggs_in, egg_cells
         PUBLIC  :: eggs_share, egglist_init, egglist_collect,           &
      &             egglist_destroy, egglist_split
 
         CONTAINS
 
         SUBROUTINE eggs_share(ng, model, LBi, UBi, LBj, UBj,            &
-     &             egg_count, eggs_in)
+     &             egg_count)
           USE mod_parallel
 # ifdef DISTRIBUTE
           USE distribute_mod, ONLY : mp_bcasti, mp_gather3d
@@ -60,7 +61,6 @@
           integer, intent(in) :: LBi, UBi, LBj, UBj 
 # ifdef ASSUMED_SHAPE
           real(r8), intent(out) :: egg_count(LBi:,LBj:,:)
-          integer, intent(out) :: eggs_in(LBi:,LBj:,:)
 # else
           real(r8), intent(out) ::                                       &
      &              egg_count(LBi:UBi,LBj:UBj,Nspecies(ng))
@@ -79,6 +79,9 @@
 # endif
           IF (.not. ALLOCATED(eggs_all)) THEN
             allocate(eggs_all(0:(Lm(ng)+1),0:(Mm(ng)+1),Nspecies(ng)))
+          END IF
+          IF (.not. ALLOCATED(eggs_in)) THEN
+            allocate(eggs_in(0:(Lm(ng)+1),0:(Mm(ng)+1),Nspecies(ng)))
           END IF
 # ifdef DISTRIBUTE
           Isize=IOBOUNDS(ng)%xi_rho
@@ -104,11 +107,14 @@
         DO isp=1,Nspecies(ng)
           DO j=0,Mm(ng)+1
             DO i=0,Mm(ng)+1
-	      IF (egg_count(i,j,isp) .gt. 0.01_r8) eggs_in(i,j,isp) = 1
+	      IF (eggs_all(i,j,isp) .gt. 0.01_r8) eggs_in(i,j,isp) = 1
             END DO
           END DO
         END DO
 	
+        IF (.not. ALLOCATED(egg_cells)) THEN
+          ALLOCATE(egg_cells(Nspecies(ng)))
+        END IF
         DO isp=1,Nspecies(ng)
 	  egg_cells(isp) = sum(eggs_in(:,:,isp))
         END DO
@@ -122,7 +128,6 @@
           type(egg_box), pointer :: box
 
           ALLOCATE(roe_list(Nspecies(ng)))
-          ALLOCATE(egg_cells(Nspecies(ng)))
 
           DO isp=1,Nspecies(ng)
             ALLOCATE(box)
