@@ -167,6 +167,7 @@
           ELSE IF (Nsuper .eq. 1) THEN
             RETURN
           ELSE IF (bigbox % egg_sum .lt. 0.01_r8) THEN
+	    Nboxes = 0
             RETURN
           ELSE
 !
