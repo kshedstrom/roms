@@ -89,6 +89,7 @@
 !  spawn_loc    2D spawning locations for each fish species.           !
 #  if defined EGGS_BISECTION
 !  egg_count    Number of eggs in each box for each species.           !
+!  eggs_in      If box has eggs or not                                 !
 #  endif
 # endif
 !=======================================================================
@@ -187,6 +188,7 @@
           integer, pointer :: ships_count(:,:)
 #  ifdef EGGS_BISECTION
           real(r8), pointer :: egg_count(:,:,:)
+          integer, pointer :: eggs_in(:,:,:)
 #  endif
 
           real(r8), pointer :: spawn_loc(:,:,:)
@@ -506,6 +508,7 @@
       allocate ( OCEAN(ng) % ships_list(LBi:UBi,LBj:UBj) )
 #  ifdef EGGS_BISECTION
       allocate ( OCEAN(ng) % egg_count(LBi:UBi,LBj:UBj,Nspecies(ng)) )
+      allocate ( OCEAN(ng) % eggs_in(LBi:UBi,LBj:UBj,Nspecies(ng)) )
 #  endif
       allocate ( OCEAN(ng) % spawn_loc(LBi:UBi,LBj:UBj,Nspecies(ng)) )
 # endif
@@ -988,6 +991,7 @@
               OCEAN(ng) % spawn_loc(i,j,itrc) = IniVal
 #  ifdef EGGS_BISECTION
               OCEAN(ng) % egg_count(i,j,itrc) = IniVal
+              OCEAN(ng) % eggs_in(i,j,itrc) = 0
 #  endif
             END DO
           END DO

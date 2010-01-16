@@ -37,15 +37,18 @@
         type(egg_box), target, save :: nil
 
         real(r8), allocatable :: eggs_all(:,:,:)
+	integer, pointer :: egg_cells(:)
         type(egg_box), pointer :: roe_list(:)
 
-        PRIVATE :: eggs_all, push_box, pop_box, isLast, find_fish, nil
+        PRIVATE :: eggs_all, push_box, pop_box, isLast, find_fish, nil, &
+     &             egg_cells
         PUBLIC  :: eggs_share, egglist_init, egglist_collect,           &
      &             egglist_destroy, egglist_split
 
         CONTAINS
 
-        SUBROUTINE eggs_share(ng, model, LBi, UBi, LBj, UBj, egg_count)
+        SUBROUTINE eggs_share(ng, model, LBi, UBi, LBj, UBj,            &
+     &             egg_count, eggs_in)
           USE mod_parallel
 # ifdef DISTRIBUTE
           USE distribute_mod, ONLY : mp_bcasti, mp_gather3d
@@ -56,10 +59,13 @@
           integer, intent(in) :: ng, model
           integer, intent(in) :: LBi, UBi, LBj, UBj 
 # ifdef ASSUMED_SHAPE
-          real(r8), intent(in) :: egg_count(LBi:,LBj:,:)
+          real(r8), intent(out) :: egg_count(LBi:,LBj:,:)
+          integer, intent(out) :: eggs_in(LBi:,LBj:,:)
 # else
-          real(r8), intent(in) ::                                       &
+          real(r8), intent(out) ::                                       &
      &              egg_count(LBi:UBi,LBj:UBj,Nspecies(ng))
+          integer, intent(out) ::                                        &
+     &              eggs_in(LBi:UBi,LBj:UBj,Nspecies(ng))
 # endif
           integer :: isp, i, j, Isize, Jsize, Npts
 # ifdef DISTRIBUTE
@@ -94,6 +100,19 @@
           END DO
         END DO
 # endif
+	eggs_in = 0
+        DO isp=1,Nspecies(ng)
+          DO j=0,Mm(ng)+1
+            DO i=0,Mm(ng)+1
+	      IF (egg_count(i,j,isp) .gt. 0.01_r8) eggs_in(i,j,isp) = 1
+            END DO
+          END DO
+        END DO
+	
+        DO isp=1,Nspecies(ng)
+	  egg_cells(isp) = sum(eggs_in(:,:,isp))
+        END DO
+
         END SUBROUTINE eggs_share
 
         SUBROUTINE egglist_init(ng)
@@ -103,6 +122,7 @@
           type(egg_box), pointer :: box
 
           ALLOCATE(roe_list(Nspecies(ng)))
+          ALLOCATE(egg_cells(Nspecies(ng)))
 
           DO isp=1,Nspecies(ng)
             ALLOCATE(box)
@@ -137,6 +157,7 @@
               print *, 'TROUBLE: eggs without a home ', isp,            &
      &                bigbox % egg_sum
             END IF
+	    Nboxes = 0
             RETURN
           ELSE IF (Nsuper .eq. 1) THEN
             RETURN
@@ -148,7 +169,8 @@
 ! I'm going to keep a sorted linked list of my boxes, splitting
 ! them until I have enough to fill my superindividuals.
 !
-            DO WHILE (Nboxes .lt. Nsuper)
+            DO WHILE (Nboxes .lt. Nsuper .and.                          &
+     &             Nboxes .lt.  egg_cells(isp))
 ! Pop the top box from the stack and split it.
               bigbox => pop_box(isp)
               IF (.not. ASSOCIATED(bigbox)) THEN
