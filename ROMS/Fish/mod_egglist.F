@@ -121,11 +121,11 @@
           END DO
         END SUBROUTINE egglist_init
 
-        SUBROUTINE egglist_split(isp, Nsuper)
+        SUBROUTINE egglist_split(isp, Nsuper, Nboxes)
           integer, intent(in)  :: isp
           integer, intent(in)  :: Nsuper
+	  integer, intent(out) :: Nboxes
           type(egg_box), pointer :: bigbox, ur_box, ll_box
-          integer :: Nboxes
 !
 ! First, if there's only one superindividual, put all the eggs in one
 ! basket.

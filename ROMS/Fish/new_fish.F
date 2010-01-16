@@ -175,7 +175,8 @@
 # elif defined EGGS_BISECTION
           CALL egglist_init(ng)
           DO isp=1,Nspecies(ng)
-            CALL egglist_split(isp, FISHES(ng) % num_super(isp))
+            CALL egglist_split(isp, FISHES(ng) % num_super(isp), &
+     &                 count(isp))
           END DO
 # endif
 
@@ -250,9 +251,7 @@
 # elif defined EGGS_TREE_CXX
           CALL c_tree_trim
 # elif defined EGGS_BISECTION
-          DO isp=1,Nspecies(ng)
-            CALL egglist_destroy(isp)
-          END DO
+          CALL egglist_destroy(1)
 # endif
 # ifdef EGGS_BISECTION
           deallocate(ifish)
