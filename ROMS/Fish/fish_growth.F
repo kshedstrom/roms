@@ -385,11 +385,19 @@
      &              (lifestage(ifid).ge.if_juvenile)) THEN
                   alive(ifid)=.FALSE.
                 END IF
+! If fish alive, then update his true age, birthday, and lifestage
                 IF (alive(ifid)) THEN
                   bioenergy(ifage,ifid)=bioenergy(ifage,ifid)+          &
      &                                  dtdays/days_year
                   IF (iyesteryear(ng).ne.iyears(ng)) THEN
                     bioenergy(ifbday,ifid)=bioenergy(ifbday,ifid)+1.0_r8
+! Upgrade subadults to adult upon reaching maturity (Fage0)
+                    isp = idfish(species(ifid))
+                    IF ((lifestage(ifid).eq.if_subadult).and.            &
+     &                  (bioenergy(ifbday,ifid).ge.Fage0(isp,ng))) THEN
+                      lifestage(ifid)=if_adult
+                    END IF
+! Upgrade juveniles to subadults upon reaching first birthday
                     IF (lifestage(ifid).eq.if_juvenile) THEN
                       lifestage(ifid)=if_subadult
                     END IF

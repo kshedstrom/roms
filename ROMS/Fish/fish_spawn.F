@@ -190,14 +190,14 @@
       END DO
 !
       DO ifid=1,Nfish(ng)
-        IF (bounded(ifid).and.alive(ifid).and.MyThread(ifid)) THEN
+        IF (bounded(ifid).and.MyThread(ifid).and.                       &
+     &      alive(ifid).and.(lifestage(ifid).eq.if_adult)) THEN
           isp = idfish(species(ifid))
 ! If inside spawning window compute spawning attributes
           IF ((sp_time.ge.sp_start(isp)).and.                           &
      &              (sp_time.le.sp_end(isp))) THEN
             Ftemp=track(itemp+NFV(ng)-NT(ng),nnew,ifid)
-            IF ((bioenergy(ifbday,ifid).ge.Fage0(isp,ng)).and.          &
-     &          (INT(bioenergy(ifbatch,ifid)).lt.Nbatch(isp,ng)).and.   &
+            IF ((INT(bioenergy(ifbatch,ifid)).lt.Nbatch(isp,ng)).and.   &
      &          (ABS(Ftemp-temp_opt).le.temp_sigma).and.                &
      &          ((sp_time-bioenergy(iftspwn,ifid)).ge.7.0_r8)) THEN
               bioenergy(ifeggs,ifid)=10000.0_r8*                        &
@@ -218,17 +218,19 @@
 !
         END IF
       END DO
-!
+
+# ifndef EGGS_BISECTION
       CALL interp_fish (ng, LBi, UBi, LBj, UBj, 1, 1,                   &
      &                    1, Nfish(ng), nf, ifspwnloc, Nfish(ng),       &
      &                    r2dvar, Gmask,                                &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
-# ifdef MASKING
+#  ifdef MASKING
      &                    GRID(ng) % rmask,                             &
-# endif
+#  endif
      &                    spawn_dist(:,:),                              &
      &                    MyThread, bounded, track, bioenergy)
+# endif
 
 #ifdef DISTRIBUTE
       FwrkF=RESHAPE(bioenergy,(/NptsF/))

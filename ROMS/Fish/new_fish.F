@@ -41,12 +41,14 @@
 # ifdef DISTRIBUTE
       USE distribute_mod
 # endif
+      USE ran_state, ONLY: ran_seed
 !
 !  Imported variable declarations.
 !
       integer, intent(in) :: ng
       integer :: i, isp, isp2, j, k, l, Nfound, Navail, Npts, ifsh
       integer :: count(Nspecies(ng)), count_sum
+      integer :: idmaxw
 # ifdef EGGS_BISECTION
       integer, pointer :: ifish(:)
       integer, pointer :: jfish(:)
@@ -55,6 +57,8 @@
 # endif
       real(r8), pointer :: eggs(:)
       real(r8) :: wgt
+      real(r8) :: xnudg, ynudg
+      real(r8) :: maxwth, sumwth
 
       real(r8), parameter :: Fspv = 0.0_r8
       integer, parameter :: iFspv = 0
@@ -131,6 +135,7 @@
       IF (Master) THEN
 
         Navail = sum(FISHES(ng) % num_super)
+        print *, "New_fish avail:", Navail
         IF (Navail > 0) THEN
 # ifdef EGGS_BISECTION
           allocate(ifish(Navail))
@@ -148,7 +153,7 @@
 
           DO l=1,Nfish(ng)
             isp = idfish(FISHES(ng) % species(l))
-            IF (FISHES(ng) % bioenergy(ifeggs, l) .ne. 0) THEN
+            IF (FISHES(ng) % bioenergy(ifeggs, l) .gt. 0.0_r8) THEN
               CALL tree_insert(tree(isp),                               &
      &              FISHES(ng) % bioenergy(ifspwnloc,l),                &
      &              FISHES(ng) % bioenergy(ifeggs, l), l)
@@ -175,7 +180,7 @@
 # elif defined EGGS_BISECTION
           CALL egglist_init(ng)
           DO isp=1,Nspecies(ng)
-            CALL egglist_split(isp, FISHES(ng) % num_super(isp), &
+            CALL egglist_split(isp, FISHES(ng) % num_super(isp),        &
      &                 count(isp))
           END DO
 # endif
@@ -196,28 +201,42 @@
 !             do i=1,Nfound
 !               print *, i, eggs(i), moms(i)
 !             end do
-!             print *, 'New_fish count: ', Nfound
+              print *, 'New_fish count: ', isp, Nfound, count(isp)
               DO i=1,Nfound
                 ifsh = FISHES(ng) % next_free(isp)
                 FISHES(ng) % next_free(isp) =                           &
      &                  FISHES(ng) % next_free(isp) + 1
+                FISHES(ng) % num_free(isp) =                            &
+     &                  FISHES(ng) % num_free(isp) - 1
                 FISHES(ng) % bounded(ifsh) = .TRUE.
 !  Place it at the mother's location
+                CALL ran1 (xnudg)
+                CALL ran1 (ynudg)
                 DO j=0,NFT
-# ifndef EGGS_BISECTION
-                  DO k=1,NFV(ng)
-                    FISHES(ng) % track(k,j,ifsh) =                      &
-     &                 FISHES(ng) % track(k,j,moms(i))
-                  END DO
+# ifdef EGGS_BISECTION
+                  FISHES(ng)%track(ixgrd,j,ifsh) = ifish(i)+xnudg
+                  FISHES(ng)%track(iygrd,j,ifsh) = jfish(i)+ynudg
+                  FISHES(ng)%track(izgrd,j,ifsh) = N(ng)   !!!! KLUDGE
+# else
+!                  DO k=1,NFV(ng)
+!                    FISHES(ng) % track(k,j,ifsh) =                      &
+!     &                 FISHES(ng) % track(k,j,moms(i))
+!                  END DO
+                  FISHES(ng)%track(ixgrd,j,ifsh) =                      &
+     &                       FISHES(ng)%track(ixgrd,j,moms(i))
+                  FISHES(ng)%track(iygrd,j,ifsh) =                      &
+     &                       FISHES(ng)%track(iygrd,j,moms(i))
+                  FISHES(ng)%track(izgrd,j,ifsh) =                      &
+     &                       FISHES(ng)%track(izgrd,j,moms(i))
 # endif
                   FISHES(ng)%track(ixrhs,j,ifsh)=0.0_r8
                   FISHES(ng)%track(iyrhs,j,ifsh)=0.0_r8
                   FISHES(ng)%track(izrhs,j,ifsh)=0.0_r8
                 END DO
 # ifdef EGGS_BISECTION
-                FISHES(ng)%Tinfo(ixgrd,ifsh) = ifish(i)
-                FISHES(ng)%Tinfo(iygrd,ifsh) = jfish(i)
-                FISHES(ng)%Tinfo(izgrd,ifsh) = 0.9  !! KLUDGE !!
+                FISHES(ng)%Tinfo(ixgrd,ifsh) = ifish(i)+xnudg
+                FISHES(ng)%Tinfo(iygrd,ifsh) = jfish(i)+ynudg
+                FISHES(ng)%Tinfo(izgrd,ifsh) = N(ng)  !!!! KLUDGE
 # else
                 FISHES(ng)%Tinfo(ixgrd,ifsh) =                          &
      &                     FISHES(ng)%Tinfo(ixgrd,moms(i))
@@ -236,12 +255,11 @@
                 FISHES(ng) % eatfish(ifsh) = .FALSE.
                 FISHES(ng) % swimtype(ifsh) = Fbehave(isp,ng)
 # ifdef EGGS_BISECTION
-                print *, 'New_fish: ', ifsh, eggs(i), ifish(i), jfish(i)
+                print *, 'New_fish: ', ifsh, eggs(i),                   &
+     &                                 ifish(i)+xnudg, jfish(i)+ynudg
 # else
                 print *, 'New_fish: ', ifsh, eggs(i), moms(i)
 # endif
-                FISHES(ng) % num_free(isp) =                            &
-     &                        FISHES(ng) % num_free(isp) - 1
                 ifsh = ifsh + 1
               END DO
             END IF
