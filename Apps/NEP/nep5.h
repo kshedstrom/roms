@@ -11,7 +11,8 @@
 **
 **  Options for Northeast Pacific (NEP5) simulation
 */
- 
+
+#define NO_HIS
 #undef NETCDF4
 #undef PARALLEL_IO
 #undef OFFLINE_FLOATS
@@ -259,8 +260,8 @@
 /*
 **  Biological model options.
 */
-#define NEMURO
-#define LIMIT_BIO_AKT
+#undef NEMURO
+#undef LIMIT_BIO_AKT
 #undef BIO_GOANPZ        /* Sarah Hinckley's 11 box model */
 #undef BEST_NPZ         /* Georgina Gibsons BEST NPZ model  */
 
@@ -276,18 +277,17 @@
 #endif
 
 #if defined NEMURO
+# define BIO_SEDIMENT
 # undef ANA_BIOLOGY       /* analytical biology initial conditions */
 # define ANA_BPFLUX        /* analytical bottom passive tracers fluxes */
 # define ANA_SPFLUX        /* analytical surface passive tracers fluxes */
 # define IRON_LIMIT        /* Add iron as passive 11th tracer */
 # define IRON_RELAX
 # undef  IRON_RSIN
-# define BIO_SEDIMENT
 # define HOLLING_GRAZING
 # undef  IVLEV_EXPLICIT
 # undef  ANA_BIOSWRAD
 # undef  DIAGNOSTICS_BIO
-# undef  BIO_SEDIMENT
 #endif
 
 #ifdef BEST_NPZ
