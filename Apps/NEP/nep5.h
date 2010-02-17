@@ -12,6 +12,7 @@
 **  Options for Northeast Pacific (NEP5) simulation
 */
  
+#define NO_HIS
 #undef NETCDF4
 #undef PARALLEL_IO
 #undef OFFLINE_FLOATS
@@ -86,7 +87,7 @@
 #define UV_SADVECTION
  
 #ifdef SOLVE3D
-# define TS_C4HADVECTION
+# define TS_U3HADVECTION
 # define TS_C4VADVECTION
 # undef TS_MPDATA
 #endif
@@ -142,6 +143,7 @@
 #  define EMINUSP
 #  undef ANA_SRFLUX
 #  undef ALBEDO
+#  define ALBEDO_CURVE
 #  undef LONGWAVE
 # endif
 #endif
@@ -149,7 +151,7 @@
 /* surface and side corrections */
  
 #ifdef SOLVE3D
-# undef SRELAXATION
+# define SRELAXATION
 # undef QCORRECTION
 #endif
  
@@ -258,8 +260,8 @@
 /*
 **  Biological model options.
 */
-#define NEMURO
-#define LIMIT_BIO_AKT
+#undef NEMURO
+#undef LIMIT_BIO_AKT
 #undef BIO_GOANPZ        /* Sarah Hinckley's 11 box model */
 #undef BEST_NPZ         /* Georgina Gibsons BEST NPZ model  */
 
@@ -275,18 +277,17 @@
 #endif
 
 #if defined NEMURO
+# define BIO_SEDIMENT
 # undef ANA_BIOLOGY       /* analytical biology initial conditions */
 # define ANA_BPFLUX        /* analytical bottom passive tracers fluxes */
 # define ANA_SPFLUX        /* analytical surface passive tracers fluxes */
 # define IRON_LIMIT        /* Add iron as passive 11th tracer */
 # define IRON_RELAX
 # undef  IRON_RSIN
-# define BIO_SEDIMENT
 # define HOLLING_GRAZING
 # undef  IVLEV_EXPLICIT
 # undef  ANA_BIOSWRAD
 # undef  DIAGNOSTICS_BIO
-# undef  BIO_SEDIMENT
 #endif
 
 #ifdef BEST_NPZ
@@ -300,7 +301,7 @@
 # define PROD2
 # define BENTHIC /*FENNEL or BENTHIC or TRAP*/
 # define ICE_BIO
-# define CLIM_ICE_1D
+# undef CLIM_ICE_1D
 
 # undef SINKVAR      /* for variable sinking rate*/
 # undef DENMAN
@@ -312,7 +313,7 @@
 #   endif
 #  undef DIAPAUSE          /* Enable Neocalanus seasonal vertical migration */
 #  define  IRON_LIMIT        /* Add iron as passive 13th tracer */
-#    if defined IRON_LIMIT || define CLIM_ICE_1D
+#    if defined IRON_LIMIT || defined CLIM_ICE_1D
 #      if !defined OFFLINE_BIOLOGY
 #       define TCLM_NUDGING    /* Nudging of tracer climatology for iron */
 #       undef  ANA_TCLIMA     /* analytical tracers climatology for iron */
