@@ -40,6 +40,7 @@
 !  Nstation   Number of output stations.                               !
 !  MTC        Maximum number of tidal components.                      !
 !  MTY        Maximum number of tidal nodal correction years           !
+!  NSA        Number of state array for error covariance.              !
 !  NSV        Number of model state variables.                         !
 !                                                                      !
 !  Tracer parameters:                                                  !
@@ -489,7 +490,6 @@
 # if defined ICE_BIO
         integer,parameter :: NIB=4
         integer, dimension(Ngrids) :: NIceT
-
         integer, dimension(Ngrids) :: NIceLog
 # endif
 
@@ -630,7 +630,7 @@
         integer :: NSA
 #endif
 
-#if defined BALANCE_OPERATOR || defined ZETA_ELLIPTIC
+#if defined BALANCE_OPERATOR && defined ZETA_ELLIPTIC
 !
 !  Number of biconjugate gradient algorithm iteractions.
 !
@@ -842,9 +842,6 @@
 #endif
 #ifdef ADJUST_STFLUX
           NSV(ng)=NSV(ng)+NT(ng)
-#endif
-#if defined BALANCE_OPERATOR || defined ZETA_ELLIPTIC
-          Nbico(ng)=200
 #endif
         END DO
 !

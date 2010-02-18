@@ -308,6 +308,10 @@
 #     ifdef ICE_THERMO
           stflx(i,j,isalt)=stflx(i,j,isalt) -                           &
      &                     Tnudg(isalt,ng)*Hz(i,j,N(ng))*               &
+#ifdef NEP5
+!  60 days from Tnudg of 360 days
+     &                     6.0_r8*                                      &
+#endif
      &                     (t(i,j,N(ng),nrhs,isalt)-sss(i,j))
 #     ifdef MASKING
           stflx(i,j,isalt) = rmask(i,j)*stflx(i,j,isalt)
@@ -315,10 +319,18 @@
 #    else
           stflx(i,j,isalt)=stflx(i,j,isalt)*t(i,j,N(ng),nrhs,isalt)-    &
      &                     Tnudg(isalt,ng)*Hz(i,j,N(ng))*               &
+#ifdef NEP5
+!  60 days from Tnudg of 360 days
+     &                     6.0_r8*                                      &
+#endif
      &                     (t(i,j,N(ng),nrhs,isalt)-sss(i,j))
 #     endif
 #   elif defined SRELAXATION
           stflx(i,j,isalt)=-Tnudg(isalt,ng)*Hz(i,j,N(ng))*              &
+#ifdef NEP5
+!  60 days from Tnudg of 360 days
+     &                     6.0_r8*                                      &
+#endif
      &                     (t(i,j,N(ng),nrhs,isalt)-sss(i,j))
 #     ifdef MASKING
           stflx(i,j,isalt) = rmask(i,j)*stflx(i,j,isalt)

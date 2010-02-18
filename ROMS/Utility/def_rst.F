@@ -2135,10 +2135,10 @@
           END IF
 #endif
 #if defined WET_DRY
-          IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idWmsk))) THEN
-            got_var(idWmsk)=.TRUE.
-            rstVid(idWmsk,ng)=var_id(i)
-          END IF
+!          IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idWmsk))) THEN
+!            got_var(idWmsk)=.TRUE.
+!            rstVid(idWmsk,ng)=var_id(i)
+!          END IF
 #endif
         END DO
 !

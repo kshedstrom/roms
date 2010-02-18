@@ -10625,16 +10625,16 @@
 #    endif
 #    ifdef WEAK_CONSTRAINT
           WRITE (out,70) LhotStart, 'LhotStart',                        &
-     &           'Switch for hot start of subsequent outer loops.'
+     &            'Switch for hot start of subsequent outer loops.'
 #    endif
           WRITE (out,70) Lprecond, 'Lprecond',                          &
-     &           'Switch for conjugate gradient preconditioning.'
+     &            'Switch for conjugate gradient preconditioning.'
           WRITE (out,70) Lritz, 'Lritz',                                &
      &            'Switch for Ritz limited-memory preconditioning.'
 #    ifdef WEAK_CONSTRAINT
           IF (Lprecond.and.(NritzEV.gt.0)) THEN
             WRITE (out,80) NritzEV, 'NritzEV',                          &
-     &           'Number of preconditioning eigenpairs to use.'
+     &            'Number of preconditioning eigenpairs to use.'
           END IF
 #    endif
 #   endif
@@ -10667,7 +10667,7 @@
 #   endif
 #   if defined POSTERIOR_EOFS && defined WEAK_CONSTRAINT
           WRITE (out,80) NpostI, 'NpostI',                              &
-     &           'Number of Lanczos iterations in posterior analysis.'
+     &            'Number of Lanczos iterations in posterior analysis.'
 #   endif
 #   ifndef TLM_CHECK
 #    ifndef OBS_SENSITIVITY
@@ -11217,6 +11217,16 @@
         END IF
       END DO
 !
+!
+!  Turn off the processing of floats if not running long enough to
+!  create a floats file (LdefFLT=.FALSE. because nFLT < ntimes or
+!  nFLT = 0 when nrrec = 0).
+!
+      DO ng=1,Ngrids
+        IF (.not.LdefFLT(ng).and.Lfloats(ng)) THEN
+          Lfloats(ng)=.FALSE.
+        END IF
+      END DO
 !
 !-----------------------------------------------------------------------
 !  Report input parameters.

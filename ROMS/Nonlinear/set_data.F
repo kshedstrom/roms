@@ -74,9 +74,6 @@
 #   endif
 #  endif
 # endif
-#  if defined WET_DRY
-      USE distribute_mod, ONLY : mp_boundary
-#  endif
 # ifdef DISTRIBUTE
 #  if defined WET_DRY
       USE distribute_mod, ONLY : mp_boundary
@@ -2094,6 +2091,8 @@
      &                       OCEAN(ng)%zetaG,                           &
      &                       OCEAN(ng)%f_zeta,                          &
      &                       update)
+
+#  ifndef SOLVE3D
 !
 !  Set 2D momentum forcing.
 !
@@ -2107,7 +2106,7 @@
      &                       OCEAN(ng)%vbarG,                           &
      &                       OCEAN(ng)%f_vbar,                          &
      &                       update)
-
+#  endif
 #  ifdef SOLVE3D
 !
 !  Set 3D momentum.

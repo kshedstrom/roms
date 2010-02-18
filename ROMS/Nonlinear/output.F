@@ -408,7 +408,11 @@
 !  append new data to it.
 !
         IF (LdefSTA(ng).and.(iic(ng).eq.ntstart(ng))) THEN
+#ifdef NEP5
+          CALL def_station (ng, .true.)
+#else
           CALL def_station (ng, ldefout(ng))
+#endif
           IF (exit_flag.ne.NoError) RETURN
           LdefSTA(ng)=.FALSE.
         END IF

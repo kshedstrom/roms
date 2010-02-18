@@ -294,6 +294,7 @@
       sinstang = SIN(deg2rad*stressang(ng))
 ! 
 ! Initialize fast-step velocities if beginning of cycle
+
 !
 ! Update ice velocity
 !

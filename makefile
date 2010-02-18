@@ -175,19 +175,6 @@ ifeq "$(strip $(SCRATCH_DIR))" "./"
   clean_list += $(CURDIR)/*.ipo
 endif
 
-#--------------------------------------------------------------------------
-#  Set Pattern rules.
-#--------------------------------------------------------------------------
-
-%.o: %.F
-
-%.o: %.f90
-	cd $(SCRATCH_DIR); $(FC) -c $(FFLAGS) $(notdir $<)
-
-%.f90: %.F
-	$(CPP) $(CPPFLAGS) $(MY_CPP_FLAGS) $< > $*.f90
-	$(CLEAN) $*.f90
-
 CLEAN := ROMS/Bin/cpp_clean
 
 #--------------------------------------------------------------------------
@@ -418,15 +405,20 @@ all: $(SCRATCH_DIR) $(SCRATCH_DIR)/MakeDepend $(BIN) rm_macros
 
  modules  :=
 ifdef USE_ADJOINT
- modules  +=	ROMS/Adjoint
+ modules  +=	ROMS/Adjoint \
+		ROMS/Adjoint/Biology
 endif
 ifdef USE_REPRESENTER
- modules  +=	ROMS/Representer
+ modules  +=	ROMS/Representer \
+		ROMS/Representer/Biology
 endif
 ifdef USE_TANGENT
- modules  +=	ROMS/Tangent
+ modules  +=	ROMS/Tangent \
+		ROMS/Tangent/Biology
 endif
  modules  +=	ROMS/Nonlinear \
+		ROMS/Nonlinear/Biology \
+		ROMS/Nonlinear/Sediment \
 		ROMS/Functionals \
 		ROMS/Modules
 ifdef USE_SEAICE
@@ -442,18 +434,23 @@ ifdef MY_ANALYTICAL
  includes +=	$(MY_ANALYTICAL_DIR)
 endif
 ifdef USE_ADJOINT
- includes +=	ROMS/Adjoint
+ includes +=	ROMS/Adjoint \
+		ROMS/Adjoint/Biology
 endif
 ifdef USE_REPRESENTER
- includes +=	ROMS/Representer
+ includes +=	ROMS/Representer \
+		ROMS/Representer/Biology
 endif
 ifdef USE_SEAICE
  includes +=	ROMS/SeaIce
 endif
 ifdef USE_TANGENT
- includes +=	ROMS/Tangent
+ includes +=	ROMS/Tangent \
+		ROMS/Tangent/Biology
 endif
  includes +=	ROMS/Nonlinear \
+		ROMS/Nonlinear/Biology \
+		ROMS/Nonlinear/Sediment \
 		ROMS/Utility \
 		ROMS/Drivers \
                 ROMS/Functionals

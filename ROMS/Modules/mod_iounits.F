@@ -24,7 +24,7 @@
 !  FILname     Output filter file name.                                !
 !  FLTname     Output floats file name.                                !
 !  FISHname    Output fish file name.                                  !
-!  FRCids      NetCDF ID descriptors associated with FRCname.          ! 
+!  FRCids      NetCDF ID descriptors associated with FRCname.          !
 !  FRCname     Input forcing fields file name(s).                      !
 !  FWDbase     Input forward solution base file name.                  !
 !  FWDname     Input forward solution file name.                       !
