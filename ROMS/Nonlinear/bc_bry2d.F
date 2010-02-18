@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       MODULE bc_bry2d_mod
 !
-!svn $Id: bc_bry2d.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !

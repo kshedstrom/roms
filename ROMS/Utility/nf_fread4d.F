@@ -1,7 +1,7 @@
 #include "cppdefs.h"
       MODULE nf_fread4d_mod
 !
-!svn $Id: nf_fread4d.F 1057 2009-09-08 19:01:19Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !

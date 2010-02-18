@@ -2,7 +2,7 @@
       MODULE omega_mod
 #ifdef SOLVE3D
 !
-!svn $Id: omega.F 1039 2009-08-11 22:52:28Z kate $
+!svn $Id$
 !=======================================================================
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !

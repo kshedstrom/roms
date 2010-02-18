@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# svn $Id: ws_remove.bash 1087 2009-10-21 00:21:28Z kate $
+# svn $Id$
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 # Copyright (c) 2002-2008 The ROMS/TOMS Group                           :::
 #   Licensed under a MIT/X style license                                :::

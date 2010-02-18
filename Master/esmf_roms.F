@@ -6,7 +6,7 @@
 
 #if defined ESMF_COUPLING || defined ESMF_LIB
 !
-!svn $Id: esmf_roms.F 1057 2009-09-08 19:01:19Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !

@@ -2,7 +2,7 @@
       MODULE obc_volcons_mod
 #if defined OBC_VOLCONS
 !
-!svn $Id: obc_volcons.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id$
 !=======================================================================
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !

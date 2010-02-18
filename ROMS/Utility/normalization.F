@@ -21,7 +21,7 @@
 #  define JV_RANGE Jstr,JendR
 # endif
 !
-!svn $Id: normalization.F 999 2009-06-09 23:48:31Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !

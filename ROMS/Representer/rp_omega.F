@@ -2,7 +2,7 @@
       MODULE rp_omega_mod
 #if defined TL_IOMS && defined SOLVE3D
 !
-!svn $Id: rp_omega.F 1039 2009-08-11 22:52:28Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !

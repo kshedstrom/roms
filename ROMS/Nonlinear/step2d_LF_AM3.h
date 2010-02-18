@@ -1,7 +1,7 @@
 #ifdef NONLINEAR
       SUBROUTINE step2d (ng, tile)
 !
-!svn $Id: step2d_LF_AM3.h 1039 2009-08-11 22:52:28Z kate $
+!svn $Id$
 !=======================================================================
 !                                                                      !
 !  Nonlinear shallow-water primitive equations predictor (Leap-frog)   !
@@ -768,6 +768,21 @@
 !  conditions to time averaged fields.
 !
       IF ((iif(ng).eq.(nfast(ng)+1)).and.PREDICTOR_2D_STEP(ng)) THEN
+
+#  ifdef UV_PSOURCE
+        DO is=1,Nsrc
+          i=Isrc(is)
+          j=Jsrc(is)
+          IF (((IstrR.le.i).and.(i.le.IendR)).and.                      &
+     &        ((JstrR.le.j).and.(j.le.JendR))) THEN
+            IF (INT(Dsrc(is)).eq.0) THEN
+              DU_avg1(i,j)=Qbar(is)
+            ELSE
+              DV_avg1(i,j)=Qbar(is)
+            END IF
+          END IF
+        END DO
+#  endif
 #  if defined EW_PERIODIC || defined NS_PERIODIC
         CALL exchange_r2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
@@ -849,12 +864,6 @@
 # ifdef MASKING
             zeta_new(i,j)=zeta_new(i,j)*rmask(i,j)
 # endif
-# ifdef ICESHELF
-            Dnew(i,j)=zeta_new(i,j)+hw(i,j)
-# else
-            Dnew(i,j)=zeta_new(i,j)+h(i,j)
-# endif
-!
             zwrk(i,j)=0.5_r8*(zeta(i,j,kstp)+zeta_new(i,j))
 # if defined VAR_RHO_2D && defined SOLVE3D
             gzeta(i,j)=(fac+rhoS(i,j))*zwrk(i,j)
@@ -879,12 +888,6 @@
 # ifdef MASKING
             zeta_new(i,j)=zeta_new(i,j)*rmask(i,j)
 # endif
-# ifdef ICESHELF
-            Dnew(i,j)=zeta_new(i,j)+hw(i,j)
-# else
-            Dnew(i,j)=zeta_new(i,j)+h(i,j)
-# endif
-!
             zwrk(i,j)=cff5*zeta(i,j,krhs)+                              &
      &                cff4*(zeta(i,j,kstp)+zeta_new(i,j))
 # if defined VAR_RHO_2D && defined SOLVE3D
@@ -914,12 +917,6 @@
 # ifdef MASKING
             zeta_new(i,j)=zeta_new(i,j)*rmask(i,j)
 # endif
-# ifdef ICESHELF
-            Dnew(i,j)=zeta_new(i,j)+hw(i,j)
-# else
-            Dnew(i,j)=zeta_new(i,j)+h(i,j)
-# endif
-!
             zwrk(i,j)=cff5*zeta_new(i,j)+cff4*zeta(i,j,krhs)
 # if defined VAR_RHO_2D && defined SOLVE3D
             gzeta(i,j)=(fac+rhoS(i,j))*zwrk(i,j)
@@ -2728,15 +2725,9 @@
           IF (INT(Dsrc(is)).eq.0) THEN
             cff=1.0_r8/(on_u(i,j)*0.5_r8*(Dnew(i-1,j)+Dnew(i,j)))
             ubar(i,j,knew)=Qbar(is)*cff
-#  ifdef SOLVE3D
-            DU_avg1(i,j)=Qbar(is)
-#  endif
           ELSE
             cff=1.0_r8/(om_v(i,j)*0.5_r8*(Dnew(i,j-1)+Dnew(i,j)))
             vbar(i,j,knew)=Qbar(is)*cff
-#  ifdef SOLVE3D
-            DV_avg1(i,j)=Qbar(is)
-#  endif
           END IF
         END IF
       END DO

@@ -1,6 +1,6 @@
       MODULE ocean_control_mod
 !
-!svn $Id: picard_ocean.h 1020 2009-07-10 23:10:30Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !

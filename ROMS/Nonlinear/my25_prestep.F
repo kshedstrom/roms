@@ -2,7 +2,7 @@
       MODULE my25_prestep_mod
 #if defined NONLINEAR && defined MY25_MIXING && defined SOLVE3D
 !
-!svn $Id: my25_prestep.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id$
 !=======================================================================
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !

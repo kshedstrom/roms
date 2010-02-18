@@ -2,7 +2,7 @@
 #ifdef NONLINEAR
       SUBROUTINE set_data (ng, tile)
 !
-!svn $Id: set_data.F 1098 2009-11-18 17:54:22Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -888,18 +888,12 @@
 #   endif
 #   if defined TS_PSOURCE && defined SOLVE3D
         DO itrc=1,NT(ng)
-          IF (SOURCES(ng)%Ltracer(itrc)) THEN
+          IF (LtracerSrc(itrc,ng)) THEN
             CALL set_ngfld (ng, iNLM, idRtrc(itrc), 1, Nsrc(ng), N(ng), &
      &                      1, Nsrc(ng), N(ng),                         &
      &                      SOURCES(ng) % TsrcG(1,1,1,itrc),            &
      &                      SOURCES(ng) % Tsrc(1,1,itrc),               &
      &                      update)
-            IF (.not.update) THEN
-              DO i=1,Nsrc(ng)
-                SOURCES(ng) % Lsrc(i,itrc)=.FALSE.
-              END DO
-              exit_flag=0
-            END IF
           END IF
         END DO
 #   endif
