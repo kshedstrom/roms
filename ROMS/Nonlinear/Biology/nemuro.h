@@ -1,6 +1,6 @@
       SUBROUTINE biology (ng,tile)
 !
-!svn $Id: nemuro.h 1075 2009-09-25 22:41:13Z kate $
+!svn $Id: nemuro.h 992 2009-05-29 01:12:37Z kate $
 !************************************************** Hernan G. Arango ***
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -104,6 +104,10 @@
       USE mod_biology
       USE mod_ncparam
       USE mod_scalars
+#if defined NEMURO_SAN && defined FISH_FEEDBACK
+      USE mod_fish
+      USE mod_grid
+#endif
 !
 !  Imported variable declarations.
 !
@@ -144,6 +148,9 @@
 
       integer :: Iter, ibio, indx, isink, itime, itrc, iTrcMax
       integer :: i, j, k, ks
+#if defined NEMURO_SAN && defined FISH_FEEDBACK
+      integer :: Ir, Jr, Kr, lflt, dxyG
+#endif
 
       integer, dimension(Nsink) :: idsink
 
@@ -180,6 +187,9 @@
       real(r8), dimension(NT(ng),2) :: BioTrc
       real(r8), dimension(IminS:ImaxS,N(ng),NT(ng)) :: Bio
       real(r8), dimension(IminS:ImaxS,N(ng),NT(ng)) :: Bio_bak
+#if defined NEMURO_SAN && defined FISH_FEEDBACK
+      real(r8), dimension(IminS:ImaxS,JminS:JmaxS,N(ng),NT(ng)) :: pfish
+#endif
 
       real(r8), dimension(IminS:ImaxS,0:N(ng)) :: FC
 
@@ -216,6 +226,46 @@
 !
       Wbio(1)=setVPON(ng)             ! particulate organic nitrogen
       Wbio(2)=setVOpal(ng)            ! particulate organic silica
+
+#if defined NEMURO_SAN && defined FISH_FEEDBACK
+! Zero out fish contributions from previous time step
+        DO itrc=1,NT(ng)
+          DO k=1,N(ng)
+            DO j=Jstr,Jend
+              DO i=Istr,Iend
+                pfish(i,j,k,itrc)=0.0_r8
+              END DO
+            END DO
+          END DO
+        END DO
+!
+!  Compute fish contributions to plankton components
+!  TO DO: SPREAD CONTRIBUTION TO ADJACENT CELLS!
+        DO lflt=1,Nfish(ng)
+          Ir=INT(FISHES(ng)%track(ixgrd,nnew,lflt))
+          Jr=INT(FISHES(ng)%track(iygrd,nnew,lflt))
+          Kr=INT(FISHES(ng)%track(izgrd,nnew,lflt))
+          IF ((Ir.ge.Istr).and.(Ir.le.Iend).and.                        &
+     &        (Jr.ge.Jstr).and.(Jr.le.Jend).and.                        &
+     &        FISHES(ng)%alive(lflt)) THEN
+! Factor to convert from mmolN/day to mmolN/m3
+            cff=dtdays*GRID(ng)%pm(Ir,Jr)*GRID(ng)%pn(Ir,Jr)/           &
+     &                 Hz(Ir,Jr,Kr)
+! Small zooplankton
+            pfish(Ir,Jr,Kr,iSzoo)=pfish(Ir,Jr,Kr,iSzoo)+                &
+     &                            cff*FISHES(ng)%feedback(iSzoo,lflt)
+! Large zooplankton
+            pfish(Ir,Jr,Kr,iLzoo)=pfish(Ir,Jr,Kr,iLzoo)+                &
+     &                            cff*FISHES(ng)%feedback(iLzoo,lflt)
+! Predatory zooplankton
+            pfish(Ir,Jr,Kr,iPzoo)=pfish(Ir,Jr,Kr,iPzoo)+                &
+     &                            cff*FISHES(ng)%feedback(iPzoo,lflt)
+! Particulate organic nitrogen (PON)
+            pfish(Ir,Jr,Kr,iPON_)=pfish(Ir,Jr,Kr,iPON_)+                &
+     &                            cff*FISHES(ng)%feedback(iPON_,lflt)
+          END IF
+        END DO
+#endif
 !
 !  Compute inverse thickness to avoid repeated divisions.
 !
@@ -667,6 +717,22 @@
             END DO
           END DO
 !
+#if defined NEMURO_SAN && defined FISH_FEEDBACK
+!-----------------------------------------------------------------------
+! Phytoplankton Mortality from Fish Predation
+! NON-CONSERVATIVE TERM, VIOLATES NITROGEN CONSEFVATION IN NEMURO !
+!-----------------------------------------------------------------------
+!
+          DO k=1,N(ng)
+            DO i=Istr,Iend
+              cff1=pfish(i,j,k,iSphy)/MAX(MinVal,Bio(i,k,iSphy))
+              cff2=pfish(i,j,k,iLphy)/MAX(MinVal,Bio(i,k,iLphy))
+              Bio(i,k,iSphy)=Bio(i,k,iSphy)/(1.0_r8+cff1)
+              Bio(i,k,iLphy)=Bio(i,k,iLphy)/(1.0_r8+cff2)
+            END DO
+          END DO
+#endif
+!
 !-----------------------------------------------------------------------
 !  Zooplankton grazing, egestion and excretion.
 !-----------------------------------------------------------------------
@@ -993,6 +1059,38 @@
      &                       Bio(i,k,iPzoo)*cff3
             END DO
           END DO
+!
+#if defined NEMURO_SAN && defined FISH_FEEDBACK
+!-----------------------------------------------------------------------
+! Zooplankton Mortality from Fish Predation
+! NON-CONSERVATIVE TERM, VIOLATES NITROGEN CONSEFVATION IN NEMURO !
+!-----------------------------------------------------------------------
+!
+          DO k=1,N(ng)
+            DO i=Istr,Iend
+              cff1=pfish(i,j,k,iSzoo)/MAX(MinVal,Bio(i,k,iSzoo))
+              cff2=pfish(i,j,k,iLzoo)/MAX(MinVal,Bio(i,k,iLzoo))
+              cff3=pfish(i,j,k,iPzoo)/MAX(MinVal,Bio(i,k,iPzoo))
+              Bio(i,k,iSzoo)=Bio(i,k,iSzoo)/(1.0_r8+cff1)
+              Bio(i,k,iLzoo)=Bio(i,k,iLzoo)/(1.0_r8+cff2)
+              Bio(i,k,iPzoo)=Bio(i,k,iPzoo)/(1.0_r8+cff3)
+            END DO
+          END DO
+#endif
+!
+#if defined NEMURO_SAN && defined FISH_FEEDBACK
+!-----------------------------------------------------------------------
+! PON contribution from fish egestion and excretion
+! NON-CONSERVATIVE TERM, VIOLATES NITROGEN CONSEFVATION IN NEMURO !
+!-----------------------------------------------------------------------
+!
+          DO k=1,N(ng)
+            DO i=Istr,Iend
+              cff1=pfish(i,j,k,iPON_)/MAX(MinVal,Bio(i,k,iPON_))
+              Bio(i,k,iPON_)=Bio(i,k,iPON_)/(1.0_r8+cff1)
+            END DO
+          END DO
+#endif
 !
 !-----------------------------------------------------------------------
 !  Nutrient decomposition.
