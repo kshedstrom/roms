@@ -1,4 +1,4 @@
-# svn $Id: Linux-ftn.mk 675 2008-08-05 19:01:25Z kate $
+# svn $Id$
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 # Copyright (c) 2002-2008 The ROMS/TOMS Group                           :::
 #   Licensed under a MIT/X style license                                :::
@@ -60,8 +60,8 @@ ifdef USE_NETCDF4
 #    NETCDF_LIBDIR ?= /u2/wes/PET_HOME/pkgs/netcdf-4.0-parallel/lib
 #      HDF5_LIBDIR ?= /u2/wes/PET_HOME/pkgs/hdf5-1.8.1-parallel/lib
 
-    NETCDF_INCDIR ?= /opt/cray/netcdf/4.0.0.1/netcdf-pgi/include
-    NETCDF_LIBDIR ?= /opt/cray/netcdf/4.0.0.1/netcdf-pgi/lib
+    NETCDF_INCDIR ?= /opt/cray/netcdf/4.0.1.0/netcdf-pgi/include
+    NETCDF_LIBDIR ?= /opt/cray/netcdf/4.0.1.0/netcdf-pgi/lib
 #   NETCDF_INCDIR ?= /u2/wes/PET_HOME/include
 #   NETCDF_LIBDIR ?= /u2/wes/PET_HOME/lib
       HDF5_LIBDIR ?= /u2/wes/PET_HOME/lib
