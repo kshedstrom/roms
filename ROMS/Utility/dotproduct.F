@@ -3,7 +3,7 @@
 
 #if defined TLM_CHECK || defined PROPAGATOR
 !
-!svn $Id: dotproduct.F 1098 2009-11-18 17:54:22Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !

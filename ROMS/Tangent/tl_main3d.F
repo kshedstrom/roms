@@ -2,7 +2,7 @@
 #if defined TANGENT && defined SOLVE3D
       SUBROUTINE tl_main3d (ng)
 !
-!svn $Id: tl_main3d.F 1101 2009-11-19 00:56:17Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !

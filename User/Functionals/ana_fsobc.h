@@ -1,6 +1,6 @@
       SUBROUTINE ana_fsobc (ng, tile, model)
 !
-!! svn $Id: ana_fsobc.h 1028 2009-07-23 21:04:07Z kate $
+!! svn $Id$
 !!======================================================================
 !! Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !!   Licensed under a MIT/X style license                              !

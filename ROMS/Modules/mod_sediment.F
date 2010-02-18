@@ -2,7 +2,7 @@
       MODULE mod_sediment
 #if defined SEDIMENT || defined BBL_MODEL
 !
-!svn $Id: mod_sediment.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group        John C. Warner   !
 !    Licensed under a MIT/X style license                              !

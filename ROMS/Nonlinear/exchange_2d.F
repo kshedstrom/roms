@@ -2,7 +2,7 @@
       MODULE exchange_2d_mod
 #if defined EW_PERIODIC || defined NS_PERIODIC
 !
-!svn $Id: exchange_2d.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id$
 !=======================================================================
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !

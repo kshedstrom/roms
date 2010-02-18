@@ -35,7 +35,7 @@
 !                                                                             !
 !==============================================================================
 !
-! NOTICE: Input parameter units are specified within brackets and default 
+! NOTICE: Input parameter units are specified within brackets and default
 ! ******  values are specified within braces.
 !
 ! Switch to control the computation of biology within nested and/or multiple
@@ -80,7 +80,7 @@
        VmaxL == 0.8d0                      ! large biomass
 
 ! Phytoplankton half saturation constant for Nitrate [millimole_N/m3].
-  
+
        KNO3S == 0.3d0                      ! small biomass
        KNO3L == 1.0d0                      ! large biomass
 
@@ -121,8 +121,8 @@
 
 ! Phytoplankton mortality rate at 0 Celsius [m3/millimole_N 1/day].
 
-      MorPS0 == 1.0d-2                    ! small biomass
-      MorPL0 == 0.5d-2                    ! large biomass
+      MorPS0 == 1.0d-2                     ! small biomass
+      MorPL0 == 0.5d-2                     ! large biomass
 
 ! Phytoplankton temperature coefficient for mortality [1/Celsius].
 
@@ -135,9 +135,9 @@
     GRmaxSpl == 0.1d0                      ! small Zoo on large phy
     GRmaxLps == 0.0d0                      ! large Zoo on small Phy
     GRmaxLpl == 0.1d0                      ! large Zoo on large Phy
-    GRmaxLzs == 0.2d0                      ! large Zoo on small Zoo 
+    GRmaxLzs == 0.2d0                      ! large Zoo on small Zoo
     GRmaxPpl == 0.0d0                      ! predator Zoo on large Phy
-    GRmaxPzs == 0.1d0                      ! predator Zoo on small Zoo 
+    GRmaxPzs == 0.1d0                      ! predator Zoo on small Zoo
     GRmaxPzl == 0.2d0                      ! predator Zoo on large Zoo
 
 ! Zooplankton temperature coefficient for grazing [1/Celsius].
@@ -152,8 +152,9 @@
         LamL == 1.4d0                      ! large biomass
         LamP == 1.0d0                      ! predator biomass
 
-! Zooplankton squared half-saturation coefficient for ingestion used only
-! when the Holling-type grazing formulation is activated [(millimole_N/m3)2].
+! Zooplankton half-saturation coefficient (squared) for ingestion used
+! only when the Holling-type grazing formulation is activated
+! [millimole_N/m3]^2.
 
       KPS2ZS == 0.25d0                     ! small Zoo on small Phy
       KPL2ZS == 0.25d0                     ! small Zoo on large Phy
@@ -177,8 +178,8 @@
 
 ! Zooplankton grazing inhibition coefficient [m3/millimole_N].
 
-     PusaiPL == 4.605d0                    ! predator Zoo on large Phy    
-     PusaiZS == 3.01d0                     ! predator Zoo on small Zoo    
+     PusaiPL == 4.605d0                    ! predator Zoo on large Phy
+     PusaiZS == 3.01d0                     ! predator Zoo on small Zoo
 
 ! Zooplankton mortality rate at 0 Celsius [m3/millimole_N 1/day].
 
@@ -214,7 +215,7 @@
 
 ! Temperature coefficients for decomposition [1/Celsius]
 
-        KNit == 6.93d-2                    ! NH4 nitrification   
+        KNit == 6.93d-2                    ! NH4 nitrification
         KP2D == 6.93d-2                    ! PON to DON
         KP2N == 6.93d-2                    ! PON to NH4
         KD2N == 6.93d-2                    ! DON to NH4
@@ -222,7 +223,7 @@
 
 ! Si:N ratio [millimole_Si/millimole_N].
 
-        RSiN == 2.0d0          
+        RSiN == 2.0d0
 
 ! Settling (sinking) velocities [m/day].
 
@@ -253,20 +254,33 @@
 
          FeRR == 0.5d0                           ! FeRR
 
-! Lateral, constant, harmonic/biharmonic horizontal diffusion of biological
-! tracer: [1:NBT,Ngrids].
+! Harmonic/biharmonic horizontal diffusion of biological tracer for
+! nonlinear model and adjoint-based algorithms: [1:NBT,Ngrids].
 
         TNU2 == 14*5.0d0                   ! m2/s
         TNU4 == 14*0.0d0                   ! m4/s
 
-! Vertical mixing coefficients for biological tracers: [1:NBT,Ngrids].
+     ad_TNU2 == 11*0.0d0                   ! m2/s
+     ad_TNU4 == 11*0.0d0                   ! m4/s
+
+! Vertical mixing coefficients for biological tracers for nonlinear
+! model and basic state scale factor in adjoint-based algorithms:
+! [1:NBT,Ngrids].
 
      AKT_BAK == 14*1.0d-6                  ! m2/s
 
+  ad_AKT_fac == 11*1.0d0                   ! nondimensional
+ 
 ! Nudging/relaxation time scales, inverse scales will be computed
 ! internally: [1:NBT,Ngrids].
 
        TNUDG == 14*0.0d0                   ! days
+
+! Logical switches (TRUE/FALSE) to specify which variables to consider on
+! tracers point Sources/Sinks (like river runoff): [NBT,Ngrids] values are
+! expected. See glossary below for details.
+
+  LtracerSrc == 14*F
 
 ! Logical switches (TRUE/FALSE) to activate writing of biological tracers
 ! into HISTORY output file: [1:NBT,Ngrids].

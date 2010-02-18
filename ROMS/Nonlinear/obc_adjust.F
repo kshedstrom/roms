@@ -3,7 +3,7 @@
 
 #ifdef ADJUST_BOUNDARY
 !
-!svn $Id: obc_adjust.F 1012 2009-07-07 20:52:45Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !

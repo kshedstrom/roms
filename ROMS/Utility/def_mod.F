@@ -2,7 +2,7 @@
 #if defined FOUR_DVAR || defined VERIFICATION
       SUBROUTINE def_mod (ng)
 !
-!svn $Id: def_mod.F 1101 2009-11-19 00:56:17Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -901,6 +901,53 @@
         status=def_var(ng, iNLM, ncMODid(ng), varid, nf90_double,       &
      &                 1, vardim, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
+# endif
+# if defined OBS_IMPACT         && \
+     defined W4DVAR_SENSITIVITY || defined W4DPSAS_SENSITIVITY
+!
+!  Define total obs impact.
+!
+        Vinfo( 1)='ObsImpact_total'
+        Vinfo( 2)='total observation impact'
+        vardim(1)=datumDim
+        status=def_var(ng, iNLM, ncMODid(ng), varid, nf90_double,       &
+     &                 1, vardim, Aval, Vinfo, ncname)
+        IF (exit_flag.ne.NoError) RETURN
+
+#  ifdef OBS_IMPACT_SPLIT
+!
+!  Define observation impact due to initial condition increments.
+!
+        Vinfo( 1)='ObsImpact_IC'
+        Vinfo( 2)='observation impact due to initial conditions'
+        vardim(1)=datumDim
+        status=def_var(ng, iNLM, ncMODid(ng), varid, nf90_double,       &
+     &                 1, vardim, Aval, Vinfo, ncname)
+        IF (exit_flag.ne.NoError) RETURN
+
+#   if defined ADJUST_WSTRESS || defined ADJUST_STFLUX
+!
+!  Define observation impact due to surface forcing increments.
+!
+        Vinfo( 1)='ObsImpact_FC'
+        Vinfo( 2)='observation impact due to surface forcing'
+        vardim(1)=datumDim
+        status=def_var(ng, iNLM, ncMODid(ng), varid, nf90_double,       &
+     &                 1, vardim, Aval, Vinfo, ncname)
+        IF (exit_flag.ne.NoError) RETURN
+#   endif
+#   if defined ADJUST_BOUNDARY
+!
+!  Define observation impact due to boundary condition increments.
+!
+        Vinfo( 1)='ObsImpact_BC'
+        Vinfo( 2)='observation impact due to open boundary conditions'
+        vardim(1)=datumDim
+        status=def_var(ng, iNLM, ncMODid(ng), varid, nf90_double,       &
+     &                 1, vardim, Aval, Vinfo, ncname)
+        IF (exit_flag.ne.NoError) RETURN
+#   endif
+#  endif
 # endif
 # if defined BALANCE_OPERATOR && defined ZETA_ELLIPTIC
 !

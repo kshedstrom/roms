@@ -1,6 +1,6 @@
 #!/bin/csh -f
 # 
-# svn $Id: build.sh 1020 2009-07-10 23:10:30Z kate $
+# svn $Id$
 #:::::::::::::::::::::::::::::::::::::::::::::::::::::::::: John Wilkin :::
 # Copyright (c) 2002-2009 The ROMS/TOMS Group                           :::
 #   Licensed under a MIT/X style license                                :::

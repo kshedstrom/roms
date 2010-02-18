@@ -1,6 +1,6 @@
       SUBROUTINE ana_nudgcoef (ng, tile, model)
 !
-!! svn $Id: ana_nudgcoef.h 1060 2009-09-12 00:25:38Z kate $
+!! svn $Id$
 !!================================================= Hernan G. Arango ===
 !! Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !!   Licensed under a MIT/X style license                              !

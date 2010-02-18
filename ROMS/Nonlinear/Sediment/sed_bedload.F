@@ -7,7 +7,7 @@
 
 #if defined NONLINEAR && defined SEDIMENT && defined BEDLOAD
 !
-!svn $Id: sed_bedload.F 1076 2009-09-25 23:18:43Z kate $
+!svn $Id$
 !==================================================== John C. Warner ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group      Hernan G. Arango   !
 !    Licensed under a MIT/X style license                              !

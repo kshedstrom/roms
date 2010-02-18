@@ -2,7 +2,7 @@
       MODULE tl_biology_mod
 #if defined TANGENT && defined BIOLOGY
 !
-!svn $Id: tl_biology.F 1013 2009-07-07 21:21:23Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !

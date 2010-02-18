@@ -2,7 +2,7 @@
 #ifdef AVERAGES
       SUBROUTINE def_avg (ng, ldef)
 !
-!svn $Id: def_avg.F 990 2009-05-28 00:54:01Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -1239,7 +1239,7 @@
           Vinfo(20)='mask_rho'
 #   endif
           Vinfo(22)='coordinates'
-          Aval(5)=REAL(Iinfo(1,idTsur(isalt),ng),r8)
+          Aval(5)=REAL(Iinfo(1,idTsur(itemp),ng),r8)
           status=def_var(ng, model, ncAVGid(ng),                        &
      &                   avgVid(idTsur(isalt),ng), NF_FOUT,             &
      &                   nvd3, t2dgrd, Aval, Vinfo, ncname)

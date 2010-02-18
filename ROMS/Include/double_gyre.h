@@ -1,5 +1,5 @@
 /*
-** svn $Id: double_gyre.h 1098 2009-11-18 17:54:22Z kate $
+** svn $Id$
 *******************************************************************************
 ** Copyright (c) 2002-2009 The ROMS/TOMS Group                               **
 **   Licensed under a MIT/X style license                                    **

@@ -2,7 +2,7 @@
       MODULE tl_ini_fields_mod
 #ifdef TANGENT
 !
-!svn $Id: tl_ini_fields.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !

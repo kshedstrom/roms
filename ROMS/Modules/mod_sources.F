@@ -2,7 +2,7 @@
       MODULE mod_sources
 #if defined UV_PSOURCE || defined TS_PSOURCE || defined Q_PSOURCE
 !
-!svn $Id: mod_sources.F 1039 2009-08-11 22:52:28Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -26,11 +26,6 @@
 !               1 =< Isrc =< Lm(ng).                                   !
 !  Jsrc       J-grid location of point Sources/Sinks,                  !
 !               1 =< Jsrc =< Mm(ng).                                   !
-!  Lsrc       Logical switch for each source point source/sink datum   !
-!               indicating which tracer(s) is (are) activated          !
-!               according to the "Fsrc" indentification flag.          !
-!  Ltracer    Logical switch indicating which tracer field need to be  !
-!               processed for Sources/Sinks terms.                     !
 !  Qbar       Vertically integrated mass transport (m3/s) of point     !
 !               Sources/Sinks at U- or V-points:                       !
 !               Qbar -> positive, if the mass transport is in the      !
@@ -57,9 +52,6 @@
         integer, dimension(Ngrids) :: Nsrc
 
         TYPE T_SOURCES
-
-          logical, pointer :: Lsrc(:,:)
-          logical, pointer :: Ltracer(:)
 
           integer, pointer :: Isrc(:)
           integer, pointer :: Jsrc(:)
@@ -110,7 +102,7 @@
       integer :: ng
 !
 !  Local variable declarations.
-! 
+!
 # ifndef ANA_PSOURCE
       logical :: foundit
 
@@ -153,9 +145,9 @@
 # else
 !
 !  Set number of point sources to maximum number of analytical sources.
-!  Notice that a maximum of 200 analytical sources are set-up here. 
+!  Notice that a maximum of 200 analytical sources are set-up here.
 !
-      Msrc(ng)=200                          
+      Msrc(ng)=200
       Nsrc(ng)=Msrc(ng)
 # endif
 !
@@ -168,10 +160,6 @@
       allocate ( SOURCES(ng) % Isrc(Nsrc(ng)) )
 
       allocate ( SOURCES(ng) % Jsrc(Nsrc(ng)) )
-
-      allocate ( SOURCES(ng) % Lsrc(Nsrc(ng),NT(ng)) )
-
-      allocate ( SOURCES(ng) % Ltracer(NT(ng)) )
 
       allocate ( SOURCES(ng) % Dsrc(Nsrc(ng)) )
 
@@ -217,12 +205,8 @@
           SOURCES(ng) % Qshape(is,k) = IniVal
           SOURCES(ng) % Qsrc(is,k) = IniVal
         END DO
-      END DO 
+      END DO
       DO itrc=1,NT(ng)
-        SOURCES(ng) % Ltracer(itrc) = .FALSE.
-        DO is=1,Nsrc(ng)
-          SOURCES(ng) % Lsrc(is,itrc) = .FALSE.
-        END DO
         DO k=1,N(ng)
           DO is=1,Nsrc(ng)
             SOURCES(ng) % Tsrc(is,k,itrc) = IniVal

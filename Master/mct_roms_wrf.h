@@ -1,5 +1,5 @@
 /*
-** svn $Id: mct_roms_wrf.h 975 2009-05-05 22:51:13Z kate $
+** svn $Id$
 ***************************************************** John C. Warner ***
 ** Copyright (c) 2002-2009 The ROMS/TOMS Group      Hernan G. Arango  **
 **   Licensed under a MIT/X style license                             **

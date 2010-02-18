@@ -2,7 +2,7 @@
       MODULE mod_floats
 #ifdef FLOATS
 !
-!svn $Id: mod_floats.F 982 2009-05-22 20:04:01Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
