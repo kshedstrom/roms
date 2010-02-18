@@ -864,12 +864,6 @@
 # ifdef MASKING
             zeta_new(i,j)=zeta_new(i,j)*rmask(i,j)
 # endif
-# ifdef ICESHELF
-            Dnew(i,j)=zeta_new(i,j)+hw(i,j)
-# else
-            Dnew(i,j)=zeta_new(i,j)+h(i,j)
-# endif
-!
             zwrk(i,j)=0.5_r8*(zeta(i,j,kstp)+zeta_new(i,j))
 # if defined VAR_RHO_2D && defined SOLVE3D
             gzeta(i,j)=(fac+rhoS(i,j))*zwrk(i,j)
@@ -894,12 +888,6 @@
 # ifdef MASKING
             zeta_new(i,j)=zeta_new(i,j)*rmask(i,j)
 # endif
-# ifdef ICESHELF
-            Dnew(i,j)=zeta_new(i,j)+hw(i,j)
-# else
-            Dnew(i,j)=zeta_new(i,j)+h(i,j)
-# endif
-!
             zwrk(i,j)=cff5*zeta(i,j,krhs)+                              &
      &                cff4*(zeta(i,j,kstp)+zeta_new(i,j))
 # if defined VAR_RHO_2D && defined SOLVE3D
@@ -929,12 +917,6 @@
 # ifdef MASKING
             zeta_new(i,j)=zeta_new(i,j)*rmask(i,j)
 # endif
-# ifdef ICESHELF
-            Dnew(i,j)=zeta_new(i,j)+hw(i,j)
-# else
-            Dnew(i,j)=zeta_new(i,j)+h(i,j)
-# endif
-!
             zwrk(i,j)=cff5*zeta_new(i,j)+cff4*zeta(i,j,krhs)
 # if defined VAR_RHO_2D && defined SOLVE3D
             gzeta(i,j)=(fac+rhoS(i,j))*zwrk(i,j)
@@ -2741,14 +2723,10 @@
         IF (((IstrR.le.i).and.(i.le.IendR)).and.                        &
      &      ((JstrR.le.j).and.(j.le.JendR))) THEN
           IF (INT(Dsrc(is)).eq.0) THEN
-            cff=1.0_r8/(on_u(i,j)*                                      &
-     &                  0.5_r8*(zeta(i-1,j,knew)+h(i-1,j)+              &
-     &                          zeta(i  ,j,knew)+h(i  ,j)))
+            cff=1.0_r8/(on_u(i,j)*0.5_r8*(Dnew(i-1,j)+Dnew(i,j)))
             ubar(i,j,knew)=Qbar(is)*cff
           ELSE
-            cff=1.0_r8/(om_v(i,j)*                                      &
-     &                  0.5_r8*(zeta(i,j-1,knew)+h(i,j-1)+              &
-     &                          zeta(i,j  ,knew)+h(i,j  )))
+            cff=1.0_r8/(om_v(i,j)*0.5_r8*(Dnew(i,j-1)+Dnew(i,j)))
             vbar(i,j,knew)=Qbar(is)*cff
           END IF
         END IF
