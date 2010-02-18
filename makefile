@@ -238,11 +238,11 @@ clean_list += $(MAKE_MACROS)
 source-dir-to-binary-dir = $(addprefix $(SCRATCH_DIR)/, $(notdir $1))
 
 # $(call source-to-object, source-file-list)
-source-to-object = $(call source-dir-to-binary-dir,      \
+source-to-object = $(call source-dir-to-binary-dir,       \
                    $(subst .F,.o,$1))
 
 # $(call source-to-object, source-file-list)
-c-source-to-object = $(call source-dir-to-binary-dir,      \
+c-source-to-object = $(call source-dir-to-binary-dir,       \
                      $(subst .c,.o,$(filter %.c,$1))        \
                      $(subst .cc,.o,$(filter %.cc,$1)))
 
