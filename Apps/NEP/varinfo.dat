@@ -1,7 +1,6 @@
 !
 !  ROMS/TOMS IO NetCDF variables.
 !
-!svn $Id: varinfo.dat 213 2007-04-23 23:56:25Z kate $
 !========================================================= Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                                !
 !    Licensed under a MIT/X style license                                     !
