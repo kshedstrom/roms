@@ -1,4 +1,5 @@
 !
+! svn $Id$
 !=======================================================================
 !                                                                      !
 !  This routine sets initial conditions for biological tracer fields   !
