@@ -270,7 +270,7 @@
      AKT_BAK == 14*1.0d-6                  ! m2/s
 
   ad_AKT_fac == 11*1.0d0                   ! nondimensional
- 
+
 ! Nudging/relaxation time scales, inverse scales will be computed
 ! internally: [1:NBT,Ngrids].
 
@@ -322,6 +322,7 @@ Hout(idTsur) == 14*F                       ! surface tracer flux
 !
 !  BioIter        Maximum number of iterations to achieve convergence of
 !                   the nonlinear solution.
+!
 !------------------------------------------------------------------------------
 ! Light Parameters, [1:Ngrids] values are expected.
 !------------------------------------------------------------------------------
