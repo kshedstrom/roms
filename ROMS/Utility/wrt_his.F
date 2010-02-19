@@ -36,6 +36,7 @@
       USE mod_ocean
       USE mod_scalars
 #if defined SEDIMENT || defined BBL_MODEL
+      USE mod_sedbed
       USE mod_sediment
 #endif
       USE mod_stepping
@@ -2421,7 +2422,7 @@
 #   ifdef MASKING
      &                       GRID(ng) % umask,                          &
 #   endif
-     &                       OCEAN(ng) % bedldu(:,:,i))
+     &                       SEDBED(ng) % bedldu(:,:,i))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
               WRITE (stdout,10) TRIM(Vname(1,idUbld(i))), tHISindx(ng)
@@ -2444,7 +2445,7 @@
 #   ifdef MASKING
      &                       GRID(ng) % vmask,                          &
 #   endif
-     &                       OCEAN(ng) % bedldv(:,:,i))
+     &                       SEDBED(ng) % bedldv(:,:,i))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
               WRITE (stdout,10) TRIM(Vname(1,idVbld(i))), tHISindx(ng)
@@ -2470,7 +2471,7 @@
 #  ifdef MASKING
      &                       GRID(ng) % rmask,                          &
 #  endif
-     &                       OCEAN(ng) % bed_frac(:,:,:,i))
+     &                       SEDBED(ng) % bed_frac(:,:,:,i))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
               WRITE (stdout,10) TRIM(Vname(1,idfrac(i))), tHISindx(ng)
@@ -2495,7 +2496,7 @@
 #  ifdef MASKING
      &                       GRID(ng) % rmask,                          &
 #  endif
-     &                       OCEAN(ng) % bed_mass(:,:,:,NOUT,i))
+     &                       SEDBED(ng) % bed_mass(:,:,:,NOUT,i))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
               WRITE (stdout,10) TRIM(Vname(1,idBmas(i))), tHISindx(ng)
@@ -2520,7 +2521,7 @@
 #  ifdef MASKING
      &                       GRID(ng) % rmask,                          &
 #  endif
-     &                       OCEAN(ng) % bed(:,:,:,i))
+     &                       SEDBED(ng) % bed(:,:,:,i))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
               WRITE (stdout,10) TRIM(Vname(1,idSbed(i))), tHISindx(ng)
@@ -2551,7 +2552,7 @@
 #  ifdef MASKING
      &                       GRID(ng) % rmask,                          &
 #  endif
-     &                       OCEAN(ng) % bottom(:,:,i))
+     &                       SEDBED(ng) % bottom(:,:,i))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
               WRITE (stdout,10) TRIM(Vname(1,idBott(i))), tHISindx(ng)

@@ -25,6 +25,7 @@
       USE mod_ocean
       USE mod_scalars
 #if defined SEDIMENT || defined BBL_MODEL
+      USE mod_sedbed
       USE mod_sediment
 #endif
 #ifdef NCEP_FLUXES
@@ -1254,7 +1255,7 @@
 #   ifdef MASKING
      &                     GRID(ng) % umask,                            &
 #   endif
-     &                     OCEAN(ng) % bedldu(:,:,i))
+     &                     SEDBED(ng) % bedldu(:,:,i))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
             WRITE (stdout,10) TRIM(Vname(1,idUbld(i))), tRSTindx(ng)
@@ -1276,7 +1277,7 @@
 #   ifdef MASKING
      &                     GRID(ng) % vmask,                            &
 #   endif
-     &                     OCEAN(ng) % bedldv(:,:,i))
+     &                     SEDBED(ng) % bedldv(:,:,i))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
             WRITE (stdout,10) TRIM(Vname(1,idVbld(i))), tRSTindx(ng)
@@ -1299,7 +1300,7 @@
 #  ifdef MASKING
      &                     GRID(ng) % rmask,                            &
 #  endif
-     &                     OCEAN(ng) % bed_frac(:,:,:,i))
+     &                     SEDBED(ng) % bed_frac(:,:,:,i))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
             WRITE (stdout,10) TRIM(Vname(1,idfrac(i))), tRSTindx(ng)
@@ -1321,7 +1322,7 @@
 #  ifdef MASKING
      &                     GRID(ng) % rmask,                            &
 #  endif
-     &                     OCEAN(ng) % bed_mass(:,:,:,NOUT,i))
+     &                     SEDBED(ng) % bed_mass(:,:,:,NOUT,i))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
             WRITE (stdout,10) TRIM(Vname(1,idBmas(i))), tRSTindx(ng)
@@ -1347,7 +1348,7 @@
 #  ifdef MASKING
      &                     GRID(ng) % rmask,                            &
 #  endif
-     &                     OCEAN(ng) % bed(:,:,:,i))
+     &                     SEDBED(ng) % bed(:,:,:,i))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
             WRITE (stdout,10) TRIM(Vname(1,idSbed(i))), tRSTindx(ng)
@@ -1362,7 +1363,7 @@
 !
 !  Write out exposed sediment layer properties. Notice that only the
 !  first four properties (mean grain diameter, mean grain density,
-!  mean settling velocity, mean critical erosion stress, 
+!  mean settling velocity, mean critical erosion stress,
 !  ripple length and ripple height) are written.
 !
       DO i=1,6
@@ -1374,7 +1375,7 @@
 #  ifdef MASKING
      &                     GRID(ng) % rmask,                            &
 #  endif
-     &                     OCEAN(ng) % bottom(:,:,i))
+     &                     SEDBED(ng) % bottom(:,:,i))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
             WRITE (stdout,10) TRIM(Vname(1,idBott(i))), tRSTindx(ng)

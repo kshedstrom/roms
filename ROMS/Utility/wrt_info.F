@@ -38,6 +38,9 @@
       USE mod_ncparam
       USE mod_netcdf
       USE mod_scalars
+#ifdef SEDIMENT
+      USE mod_sediment
+#endif
 #if defined SOLVE3D && defined TS_PSOURCE
       USE mod_sources
 #endif
@@ -1126,6 +1129,10 @@
 # elif defined NPZD_POWELL
 #  include <npzd_Powell_wrt.h>
 # endif
+#endif
+
+#ifdef SEDIMENT
+# include <sediment_wrt.h>
 #endif
 !
 !-----------------------------------------------------------------------

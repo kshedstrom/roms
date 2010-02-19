@@ -20,8 +20,6 @@
 !  avgAKs     Vertical diffusion of Salinity (m2/s).                   !
 !  avgAKt     Vertical diffusion of temperature (m2/s).                !
 !  avgAKv     Vertical viscosity (m2/s).                               !
-!  avgbedldu  Bed load flux u-direction (kg/m2/s).                     !
-!  avgbedldv  Bed load flux v-direction (kg/m2/s).                     !
 !  avglhf     Latent heat flux (W/m2).                                 !
 !  avglrf     Longwave radiation flux (W/m2).                          !
 !  avgHuon    U-momentum flux, Hz*u/pn (m3/s).                         !
@@ -252,11 +250,6 @@
           real(r8), pointer :: avgbus(:,:)
           real(r8), pointer :: avgbvs(:,:)
 # endif
-# if defined SEDIMENT && defined BEDLOAD
-          real(r8), pointer :: avgbedldu(:,:,:)
-          real(r8), pointer :: avgbedldv(:,:,:)
-# endif
-
         END TYPE T_AVERAGE
 
         TYPE (T_AVERAGE), allocatable :: AVERAGE(:)
@@ -436,11 +429,6 @@
       allocate ( AVERAGE(ng) % avgbvs(LBi:UBi,LBj:UBj) )
 # endif
 
-# if defined SEDIMENT && defined BEDLOAD
-      allocate ( AVERAGE(ng) % avgbedldu(LBi:UBi,LBj:UBj,NST) )
-      allocate ( AVERAGE(ng) % avgbedldv(LBi:UBi,LBj:UBj,NST) )
-# endif
-
       RETURN
       END SUBROUTINE allocate_average
 
@@ -457,9 +445,6 @@
 !=======================================================================
 !
       USE mod_param
-# if defined SEDIMENT || defined BBL_MODEL
-      USE mod_sediment
-# endif
 !
 !  Imported variable declarations.
 !
@@ -702,14 +687,6 @@
               AVERAGE(ng) % avgUT(i,j,k,itrc) = IniVal
               AVERAGE(ng) % avgVT(i,j,k,itrc) = IniVal
             END DO
-          END DO
-        END DO
-#  endif
-#  if defined SEDIMENT && defined BEDLOAD
-        DO itrc=1,NST
-          DO i=Imin,Imax
-            AVERAGE(ng) % avgbedldu(i,j,itrc) = IniVal
-            AVERAGE(ng) % avgbedldv(i,j,itrc) = IniVal
           END DO
         END DO
 #  endif
