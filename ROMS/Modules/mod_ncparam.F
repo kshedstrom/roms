@@ -1576,79 +1576,198 @@
                 idRtrc(itemp)=varid
               CASE ('idRtrc(isalt)')
                 idRtrc(isalt)=varid
-#ifdef NCEP_FLUXES
-              CASE ('idWg2d')
-                idWg2d=varid
-              CASE ('idCdd')
-                idCdd=varid
-              CASE ('idChd')
-                idChd=varid
-              CASE ('idCed')
-                idCed=varid
-              CASE ('idWg2m')
-                idWg2m=varid
-              CASE ('idCdm')
-                idCdm=varid
-              CASE ('idChm')
-                idChm=varid
-              CASE ('idCem')
-                idCem=varid
-              CASE ('idRhoa')
-                idRhoa=varid
-              CASE ('idIcec')
-                idIcec=varid
-              CASE ('idSkt')
-                idSkt=varid
-              CASE ('idUnms')
-                idUnms=varid
-              CASE ('idVnms')
-                idVnms=varid
+              CASE ('idHsbl')
+                idHsbl=varid
+              CASE ('idHbbl')
+                idHbbl=varid
+              CASE ('idUbot')
+                idUbot=varid
+              CASE ('idVbot')
+                idVbot=varid
+              CASE ('idUbur')
+                idUbur=varid
+              CASE ('idVbvr')
+                idVbvr=varid
+              CASE ('idUbrs')
+                idUbrs=varid
+              CASE ('idVbrs')
+                idVbrs=varid
+              CASE ('idSSHc')
+                idSSHc=varid
+              CASE ('idUbcl')
+                idUbcl=varid
+              CASE ('idVbcl')
+                idVbcl=varid
+              CASE ('idUclm')
+                idUclm=varid
+              CASE ('idVclm')
+                idVclm=varid
+              CASE ('idOclm')
+                idOclm=varid
+              CASE ('idSSSc')
+                idSSSc=varid
+              CASE ('idSSSf')
+                idSSSf=varid
+              CASE ('idSSTc')
+                idSSTc=varid
+              CASE ('idTclm(itemp)')
+                idTclm(itemp)=varid
+              CASE ('idTclm(isalt)')
+                idTclm(isalt)=varid
+#if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
+    defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR || \
+    defined SO_SEMI
+              CASE ('idZads')
+                idZads=varid
+              CASE ('idUbas')
+                idUbas=varid
+              CASE ('idVbas')
+                idVbas=varid
+              CASE ('idUads')
+                idUads=varid
+              CASE ('idVads')
+                idVads=varid
+              CASE ('idTads(itemp)')
+                idTads(itemp)=varid
+              CASE ('idTads(isalt)')
+                idTads(isalt)=varid
 #endif
-#ifdef ICE_MODEL
-              CASE ('idUice')
-                idUice=varid
-              CASE ('idVice')
-                idVice=varid
-              CASE ('idAice')
-                idAice=varid
-              CASE ('idHice')
-                idHice=varid
-              CASE ('idHsno')
-                idHsno=varid
-              CASE ('idTice')
-                idTice=varid
-              CASE ('idTimid')
-                idTimid=varid
-              CASE ('idTauiw')
-                idTauiw=varid
-              CASE ('idChuiw')
-                idChuiw=varid
-              CASE ('idS0mk')
-                idS0mk=varid
-              CASE ('idT0mk')
-                idT0mk=varid
-              CASE ('idWfr')
-                idWfr=varid
-              CASE ('idWai')
-                idWai=varid
-              CASE ('idWao')
-                idWao=varid
-              CASE ('idWio')
-                idWio=varid
-              CASE ('idWro')
-                idWro=varid
-              CASE ('idSfwat')
-                idSfwat=varid
-              CASE ('idAgeice')
-                idAgeice=varid
-              CASE ('idIomflx')
-                idIomflx=varid
-              CASE ('idSig11')
-                idSig11=varid
-              CASE ('idSig22')
-                idSig22=varid
-              CASE ('idSig12')
-                idSig12=varid
+#ifdef WEAK_CONSTRAINT
+              CASE ('idZtlf')
+                idZtlf=varid
+              CASE ('idUbtf')
+                idUbtf=varid
+              CASE ('idVbtf')
+                idVbtf=varid
+              CASE ('idUtlf')
+                idUtlf=varid
+              CASE ('idVtlf')
+                idVtlf=varid
+              CASE ('idTtlf(itemp)')
+                idTtlf(itemp)=varid
+              CASE ('idTtlf(isalt)')
+                idTtlf(isalt)=varid
+#endif
+              CASE ('idSSHo')
+                idSSHo=varid
+              CASE ('idSSHe')
+                idSSHe=varid
+              CASE ('idUobs')
+                idUobs=varid
+              CASE ('idVobs')
+                idVobs=varid
+              CASE ('idUVer')
+                idUVer=varid
+              CASE ('idUsur')
+                idUsur=varid
+              CASE ('idVsur')
+                idVsur=varid
+              CASE ('idUVse')
+                idUVse=varid
+              CASE ('idSSTo')
+                idSSTo=varid
+              CASE ('idSSTe')
+                idSSTe=varid
+              CASE ('idTobs(itemp)')
+                idTobs(itemp)=varid
+              CASE ('idTerr(itemp)')
+                idTerr(itemp)=varid
+              CASE ('idTobs(isalt)')
+                idTobs(isalt)=varid
+              CASE ('idTerr(isalt)')
+                idTerr(isalt)=varid
+#ifdef AVERAGES_DETIDE
+              CASE ('idCosW')
+                idCosW=varid
+              CASE ('idCos2')
+                idCos2=varid
+              CASE ('idSinW')
+                idSinW=varid
+              CASE ('idSin2')
+                idSin2=varid
+              CASE ('idSWCW')
+                idSWCW=varid
+              CASE ('idFsuD')
+                idFsuD=varid
+              CASE ('idFsuH')
+                idFsuH=varid
+              CASE ('idu2dD')
+                idu2dD=varid
+              CASE ('idu2dH')
+                idu2dH=varid
+              CASE ('idv2dD')
+                idv2dD=varid
+              CASE ('idv2dH')
+                idv2dH=varid
+# ifdef SOLVE3D
+              CASE ('idu3dD')
+                idu3dD=varid
+              CASE ('idu3dH')
+                idu3dH=varid
+              CASE ('idv3dD')
+                idv3dD=varid
+              CASE ('idv3dH')
+                idv3dH=varid
+# endif
+#endif
+#ifdef AVERAGES_QUADRATIC
+              CASE ('idU2av')
+                idU2av=varid
+              CASE ('idV2av')
+                idV2av=varid
+              CASE ('idZZav')
+                idZZav=varid
+#endif
+#ifdef SOLVE3D
+# ifdef AVERAGES_QUADRATIC
+
+              CASE ('idTTav(itemp)')
+                idTTav(itemp)=varid
+              CASE ('iHUTav(itemp)')
+                iHUTav(itemp)=varid
+              CASE ('iHVTav(itemp)')
+                iHVTav(itemp)=varid
+              CASE ('idUTav(itemp)')
+                idUTav(itemp)=varid
+              CASE ('idVTav(itemp)')
+                idVTav(itemp)=varid
+              CASE ('idHUav')
+                idHUav=varid
+              CASE ('idHVav')
+                idHVav=varid
+              CASE ('idUUav')
+                idUUav=varid
+              CASE ('idUVav')
+                idUVav=varid
+              CASE ('idVVav')
+                idVVav=varid
+# endif
+# ifdef SALINITY
+#  ifdef AVERAGES_QUADRATIC
+              CASE ('idTTav(isalt)')
+                idTTav(isalt)=varid
+              CASE ('iHUTav(isalt)')
+                iHUTav(isalt)=varid
+              CASE ('iHVTav(isalt)')
+                iHVTav(isalt)=varid
+              CASE ('idUTav(isalt)')
+                idUTav(isalt)=varid
+              CASE ('idVTav(isalt)')
+                idVTav(isalt)=varid
+#  endif
+# endif
+#endif
+#ifdef T_PASSIVE
+              CASE ('idTvar(inert(i))')
+                load=.TRUE.
+              CASE ('idTbry(iwest,inert(i))')
+                load=.TRUE.
+              CASE ('idTbry(ieast,inert(i))')
+                load=.TRUE.
+              CASE ('idTbry(isouth,inert(i))')
+                load=.TRUE.
+              CASE ('idTbry(inorth,inert(i))')
+                load=.TRUE.
 #endif
               CASE ('idHsbl')
                 idHsbl=varid
@@ -1998,6 +2117,80 @@
                 idMOMi=varid
               CASE ('idMOMf')
                 idMOMf=varid
+#endif
+#ifdef NCEP_FLUXES
+              CASE ('idWg2d')
+                idWg2d=varid
+              CASE ('idCdd')
+                idCdd=varid
+              CASE ('idChd')
+                idChd=varid
+              CASE ('idCed')
+                idCed=varid
+              CASE ('idWg2m')
+                idWg2m=varid
+              CASE ('idCdm')
+                idCdm=varid
+              CASE ('idChm')
+                idChm=varid
+              CASE ('idCem')
+                idCem=varid
+              CASE ('idRhoa')
+                idRhoa=varid
+              CASE ('idIcec')
+                idIcec=varid
+              CASE ('idSkt')
+                idSkt=varid
+              CASE ('idUnms')
+                idUnms=varid
+              CASE ('idVnms')
+                idVnms=varid
+#endif
+#ifdef ICE_MODEL
+              CASE ('idUice')
+                idUice=varid
+              CASE ('idVice')
+                idVice=varid
+              CASE ('idAice')
+                idAice=varid
+              CASE ('idHice')
+                idHice=varid
+              CASE ('idHsno')
+                idHsno=varid
+              CASE ('idTice')
+                idTice=varid
+              CASE ('idTimid')
+                idTimid=varid
+              CASE ('idTauiw')
+                idTauiw=varid
+              CASE ('idChuiw')
+                idChuiw=varid
+              CASE ('idS0mk')
+                idS0mk=varid
+              CASE ('idT0mk')
+                idT0mk=varid
+              CASE ('idWfr')
+                idWfr=varid
+              CASE ('idWai')
+                idWai=varid
+              CASE ('idWao')
+                idWao=varid
+              CASE ('idWio')
+                idWio=varid
+              CASE ('idWro')
+                idWro=varid
+              CASE ('idSfwat')
+                idSfwat=varid
+              CASE ('idAgeice')
+                idAgeice=varid
+              CASE ('idIomflx')
+                idIomflx=varid
+              CASE ('idSig11')
+                idSig11=varid
+              CASE ('idSig22')
+                idSig22=varid
+              CASE ('idSig12')
+                idSig12=varid
 #endif
 
 #ifdef BIOLOGY
