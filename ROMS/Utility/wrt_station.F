@@ -30,6 +30,7 @@
       USE mod_ocean
       USE mod_scalars
 # if defined SEDIMENT || defined BBL_MODEL
+      USE mod_sedbed
       USE mod_sediment
 # endif
       USE mod_stepping
@@ -841,7 +842,7 @@
           scale=1.0_r8
           CALL extract_sta3d (ng, iNLM, Cgrid, idfrac(i), b3dvar,       &
      &                        LBi, UBi, LBj, UBj, 1, Nbed,              &
-     &                        scale, OCEAN(ng)%bed_frac(:,:,:,i),       &
+     &                        scale, SEDBED(ng)%bed_frac(:,:,:,i),      &
      &                        NposB, XposB, YposB, ZposB, bsta)
           CALL netcdf_put_fvar (ng, iNLM, STAname(ng),                  &
      &                          TRIM(Vname(1,idfrac(i))), rsta,         &
@@ -858,8 +859,7 @@
           scale=1.0_r8
           CALL extract_sta3d (ng, iNLM, Cgrid, idBmas(i), b3dvar,       &
      &                        LBi, UBi, LBj, UBj, 1, Nbed,              &
-     &                        scale,                                    &
-     &                        OCEAN(ng)%bed_mass(:,:,:,NOUT,i),         &
+     &                        scale, SEDBED(ng)%bed_mass(:,:,:,NOUT,i), &
      &                        NposB, XposB, YposB, ZposB, bsta)
           CALL netcdf_put_fvar (ng, iNLM, STAname(ng),                  &
      &                          TRIM(Vname(1,idBmas(i))), rsta,         &
@@ -878,7 +878,7 @@
           scale=1.0_r8
           CALL extract_sta3d (ng, iNLM, Cgrid, idSbed(i), b3dvar,       &
      &                        LBi, UBi, LBj, UBj, 1, Nbed,              &
-     &                        scale, OCEAN(ng)%bed(:,:,:,i),            &
+     &                        scale, SEDBED(ng)%bed(:,:,:,i),           &
      &                        NposB, XposB, YposB, ZposB, bsta)
           CALL netcdf_put_fvar (ng, iNLM, STAname(ng),                  &
      &                          TRIM(Vname(1,idSbed(i))), rsta,         &
@@ -900,7 +900,7 @@
           scale=1.0_r8
           CALL extract_sta2d (ng, iNLM, Cgrid, idBott(i), r2dvar,       &
      &                        LBi, UBi, LBj, UBj,                       &
-     &                        scale, OCEAN(ng)%bottom(:,:,i),           &
+     &                        scale, SEDBED(ng)%bottom(:,:,i),          &
      &                        Nstation(ng), Xpos, Ypos, psta)
           CALL netcdf_put_fvar (ng, iNLM, STAname(ng),                  &
      &                          TRIM(Vname(1,idBott(i))), rsta,         &

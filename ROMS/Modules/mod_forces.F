@@ -521,6 +521,9 @@
 !=======================================================================
 !
       USE mod_param
+#ifdef BIOLOGY
+      USE mod_biology
+#endif
 #if defined ADJUST_STFLUX || defined ADJUST_WSTRESS
       USE mod_scalars
 #endif
@@ -922,6 +925,9 @@
 !=======================================================================
 !
       USE mod_param
+#ifdef BIOLOGY
+      USE mod_biology
+#endif
 #if defined ADJUST_STFLUX || defined ADJUST_WSTRESS
       USE mod_scalars
 #endif
