@@ -93,13 +93,9 @@ endif
 
 ifdef USE_DEBUG
 #           FFLAGS += -g -check bounds
-<<<<<<< HEAD:Compilers/Darwin-ifort.mk
-           FFLAGS += -g 
+           FFLAGS += -g
            CFLAGS += -g
          CXXFLAGS += -g
-=======
-           FFLAGS += -g
->>>>>>> 4c717d1... src:ticket:392:Compilers/Darwin-ifort.mk
 else
            FFLAGS += -ip -O3 -axP
            CFLAGS += -O3
