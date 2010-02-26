@@ -1042,7 +1042,7 @@
      &                   SetParAccess = .FALSE.)
           IF (exit_flag.ne.NoError) RETURN
         END IF
-!
+
 #  ifdef SOLVE3D
 !
 !  Define 3D radiation stress, Sxx-component.
@@ -1597,7 +1597,6 @@
           IF (exit_flag.ne.NoError) RETURN
         END IF
 #endif
-
 !
 !-----------------------------------------------------------------------
 !  Leave definition mode.
@@ -1865,6 +1864,93 @@
             got_var(idSig22)=.TRUE.
             staVid(idSig22,ng)=var_id(i)
 # endif
+# endif
+# ifdef NEARSHORE_MELLOR
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idW2xx))) THEN
+            got_var(idW2xx)=.TRUE.
+            staVid(idW2xx,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idW2xy))) THEN
+            got_var(idW2xy)=.TRUE.
+            staVid(idW2xy,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idW2yy))) THEN
+            got_var(idW2yy)=.TRUE.
+            staVid(idW2yy,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idU2rs))) THEN
+            got_var(idU2rs)=.TRUE.
+            staVid(idU2rs,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idV2rs))) THEN
+            got_var(idV2rs)=.TRUE.
+            staVid(idV2rs,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idU2Sd))) THEN
+            got_var(idU2Sd)=.TRUE.
+            staVid(idU2Sd,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idV2Sd))) THEN
+            got_var(idV2Sd)=.TRUE.
+            staVid(idV2Sd,ng)=var_id(i)
+#  ifdef SOLVE3D
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idW3xx))) THEN
+            got_var(idW3xx)=.TRUE.
+            staVid(idW3xx,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idW3xy))) THEN
+            got_var(idW3xy)=.TRUE.
+            staVid(idW3xy,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idW3yy))) THEN
+            got_var(idW3yy)=.TRUE.
+            staVid(idW3yy,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idW3zx))) THEN
+            got_var(idW3zx)=.TRUE.
+            staVid(idW3zx,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idW3zy))) THEN
+            got_var(idW3zy)=.TRUE.
+            staVid(idW3zy,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idU3rs))) THEN
+            got_var(idU3rs)=.TRUE.
+            staVid(idU3rs,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idV3rs))) THEN
+            got_var(idV3rs)=.TRUE.
+            staVid(idV3rs,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idU3Sd))) THEN
+            got_var(idU3Sd)=.TRUE.
+            staVid(idU3Sd,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idV3Sd))) THEN
+            got_var(idV3Sd)=.TRUE.
+            staVid(idV3Sd,ng)=var_id(i)
+#  endif
+# endif
+# ifdef WAVES_HEIGHT
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idWamp))) THEN
+            got_var(idWamp)=.TRUE.
+            staVid(idWamp,ng)=var_id(i)
+# endif
+# ifdef WAVES_LENGTH
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idWlen))) THEN
+            got_var(idWlen)=.TRUE.
+            staVid(idWlen,ng)=var_id(i)
+# endif
+# ifdef WAVES_DIR
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idWdir))) THEN
+            got_var(idWdir)=.TRUE.
+            staVid(idWdir,ng)=var_id(i)
+# endif
+# ifdef WAVES_TOP_PERIOD
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idWptp))) THEN
+            got_var(idWptp)=.TRUE.
+            staVid(idWptp,ng)=var_id(i)
+# endif
+# ifdef WAVES_BOT_PERIOD
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idWpbt))) THEN
+            got_var(idWpbt)=.TRUE.
+            staVid(idWpbt,ng)=var_id(i)
+# endif
+# ifdef WAVES_UB
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idWorb))) THEN
+            got_var(idWorb)=.TRUE.
+            staVid(idWorb,ng)=var_id(i)
+# endif
+# if defined TKE_WAVEDISS || defined WAVES_OCEAN
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idWdis))) THEN
+            got_var(idWdis)=.TRUE.
+            staVid(idWdis,ng)=var_id(i)
 # endif
 # ifdef NEARSHORE_MELLOR
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idW2xx))) THEN
