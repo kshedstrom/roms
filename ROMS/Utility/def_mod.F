@@ -906,7 +906,7 @@
      defined IS4DVAR_SENSITIVITY
 #  ifdef OBS_IMPACT
 !
-!  Define total obs impact.
+!  Define total observations impact.
 !
         Vinfo( 1)='ObsImpact_total'
         Vinfo( 2)='total observation impact'
