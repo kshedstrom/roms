@@ -1,6 +1,6 @@
       SUBROUTINE ana_psource (ng, tile, model)
 !
-!! svn $Id: ana_psource.h 895 2009-01-12 21:06:20Z kate $
+!! svn $Id$
 !!======================================================================
 !! Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
 !!   Licensed under a MIT/X style license                              !
