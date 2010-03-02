@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !=======================================================================
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license           Hernan G. Arango   !
 !    See License_ROMS.txt                   Alexander F. Shchepetkin   !
 !==================================================== John C. Warner ===
@@ -428,7 +428,7 @@
           END DO
         END DO
 !
-!  Backward substitution.  
+!  Backward substitution.
 !
         DO i=IstrU,Iend
           DC(i,N(ng))=0.0_r8
@@ -1303,7 +1303,7 @@
 !         will not affect the nonlinear code.  However, the adjoint
 !         code is wrong because the interior solution is corrected
 !         twice.
-!  
+!
 # ifndef EW_PERIODIC
           IF (Istr.eq.1) THEN
             DO k=1,N(ng)
@@ -1345,7 +1345,7 @@
 #  endif
             END DO
           END IF
-# endif 
+# endif
 # ifndef NS_PERIODIC
           IF (j.eq.1) THEN
             DO k=1,N(ng)
