@@ -18,21 +18,27 @@
 **                                                                    **
 **   (1) Model source and sink discretized equations:                 **
 **                                                                    **
+**         bestnpz.h          BEST_NPZ                                **
 **         ecosim.h           ECOSIM                                  **
 **         fennel.h           BIO_FENNEL                              **
+**         goanpz.h           BIO_GOANPZ                              **
 **         nemuro.h           NEMURO                                  **
 **         npzd_Franks.h      NPZD_FRANKS                             **
 **         npzd_iron.h        NPZD_IRON                               **
 **         npzd_Powell.h      NPZD_POWELL                             **
+**         umaine.h           BIO_UMAINE                              **
 **                                                                    **
 **   (2) Internal model parameters declaration:                       **
 **                                                                    **
+**         bestnpz_mod.h                                              **
 **         ecosim_mod.h                                               **
 **         fennel_mod.h                                               **
+**         goanpz_mod.h                                               **
 **         nemuro_mod.h                                               **
 **         npzd_Franks_mod.h                                          **
 **         npzd_iron_mod.h                                            **
 **         npzd_Powell_mod.h                                          **
+**         umaine_mod.h                                               **
 **                                                                    **
 **   (3) Model parameters standard input script:                      **
 **                                                                    **
@@ -45,22 +51,28 @@
 **                                                                    **
 **   (4) Code to read input model parameters:                         **
 **                                                                    **
+**         bestnpz_inp.h                                              **
 **         ecosim_inp.h                                               **
 **         fennel_inp.h                                               **
+**         goanpz_inp.h                                               **
 **         nemuro_inp.h                                               **
 **         npzd_Franks_inp.h                                          **
 **         npzd_iron_inp.h                                            **
 **         npzd_Powell_inp.h                                          **
+**         umaine_inp.h                                               **
 **                                                                    **
 **   (5) Code to assign indices to model variables during the         **
 **       reading of metadata information from "varinfo.dat":          **
 **                                                                    **
+**         bestnpz_var.h                                              **
 **         ecosim_var.h                                               **
 **         fennel_var.h                                               **
+**         goanpz_var.h                                               **
 **         nemuro_var.h                                               **
 **         npzd_Franks_var.h                                          **
 **         npzd_iron_var.h                                            **
 **         npzd_Powell_var.h                                          **
+**         umaine_var.h                                               **
 **                                                                    **
 **   (6) Code to define input model parameters in all output          **
 **       NetCDF files:                                                **
@@ -71,6 +83,7 @@
 **         npzd_Franks_def.h                                          **
 **         npzd_iron_def.h                                            **
 **         npzd_Powell_def.h                                          **
+**         umaine_def.h                                               **
 **                                                                    **
 **   (7) Code to write out input model parameters in all output       **
 **       NetCDF files:                                                **
@@ -81,6 +94,7 @@
 **         npzd_Franks_wrt.h                                          **
 **         npzd_iron_wrt.h                                            **
 **         npzd_Powell_wrt.h                                          **
+**         umaine_wrt.h                                               **
 **                                                                    **
 **                                                                    **
 ** Note that all the *.h files are located in ROMS/Nonlinear/Biology  **

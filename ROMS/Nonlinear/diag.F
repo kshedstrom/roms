@@ -95,9 +95,11 @@
       USE mod_parallel
       USE mod_iounits
       USE mod_scalars
+#ifdef BIOLOGY
+      USE mod_biology, ONLY : idbio
+#endif
 
 #ifdef DISTRIBUTE
-!
       USE distribute_mod, ONLY : mp_reduce
 #endif
 !
