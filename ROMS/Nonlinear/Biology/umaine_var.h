@@ -40,16 +40,16 @@
                 idTvar(iopal)=varid
               CASE ('idTvar(iPO4_)')
                 idTvar(iPO4_)=varid
-# ifdef OXYGEN
+#ifdef OXYGEN
               CASE ('idTvar(iOxyg)')
                 idTvar(iOxyg)=varid
-# endif
-# ifdef CARBON
+#endif
+#ifdef CARBON
               CASE ('idTvar(iTIC_)')
                 idTvar(iTIC_)=varid
               CASE ('idTvar(iTAlk)')
                 idTvar(iTAlk)=varid
-# endif
+#endif
 
 /*
 **  Biological tracers open boundary conditions.
@@ -135,7 +135,7 @@
                 idTbry(isouth,iPO4_)=varid
               CASE ('idTbry(inorth,iPO4_)')
                 idTbry(inorth,iPO4_)=varid
-# ifdef OXYGEN
+#ifdef OXYGEN
               CASE ('idTbry(iwest,iOxyg)')
                 idTbry(iwest,iOxyg)=varid
               CASE ('idTbry(ieast,iOxyg)')
@@ -144,8 +144,8 @@
                 idTbry(isouth,iOxyg)=varid
               CASE ('idTbry(inorth,iOxyg)')
                 idTbry(inorth,iOxyg)=varid
-# endif
-# ifdef CARBON
+#endif
+#ifdef CARBON
               CASE ('idTbry(iwest,iTIC_)')
                 idTbry(iwest,iTIC_)=varid
               CASE ('idTbry(ieast,iTIC_)')
@@ -162,6 +162,7 @@
                 idTbry(isouth,iTAlk)=varid
               CASE ('idTbry(inorth,iTAlk)')
                 idTbry(inorth,iTAlk)=varid
+#endif
 
 #ifdef TS_PSOURCE
 
