@@ -187,7 +187,7 @@
 !
 !  Set biological tracer identification indices.
 !
-      integer, pointer :: idbio(:)      ! Biological tracers
+      integer, allocatable :: idbio(:)  ! Biological tracers
       integer :: iLphy                  ! Large Phytoplankton biomass
       integer :: iSphy                  ! Small Phytoplankton biomass
       integer :: iLzoo                  ! Large Zooplankton biomass

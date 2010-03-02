@@ -1699,7 +1699,6 @@
         IF (exit_flag.ne.NoError) RETURN
       END IF
 # endif
-#endif
 !
 !-----------------------------------------------------------------------
 !  Synchronize stations NetCDF file to disk.
