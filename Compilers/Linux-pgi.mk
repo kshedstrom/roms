@@ -114,8 +114,8 @@ ifdef USE_DEBUG
            CFLAGS += -g
          CXXFLAGS += -g
 else
-#          FFLAGS += -Bstatic -fastsse -Mipa=fast -tp k8-64
-           FFLAGS += -O3 -tp k8-64
+#          FFLAGS += -Bstatic -fastsse -Mipa=fast
+           FFLAGS += -O3
            CFLAGS += -O3
          CXXFLAGS += -O3
 endif

@@ -1126,7 +1126,7 @@
 #  ifdef DIAGNOSTICS_TS
               DiaTwrk(i,j,k,itrc,iTvadv)=DiaTwrk(i,j,k,itrc,iTvadv)-    &
      &                                   cff1
-              DO idiaf=1,NDT
+              DO idiag=1,NDT
                 DiaTwrk(i,j,k,itrc,idiag)=DiaTwrk(i,j,k,itrc,idiag)*    &
      &                                    oHz(i,j,k)
               END DO
