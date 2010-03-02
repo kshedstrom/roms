@@ -457,8 +457,8 @@
         real(r8) :: max_speed = 20.0_r8         ! m/s
         real(r8) :: max_rho = 200.0_r8          ! kg/m3
 #ifdef BIOLOGY
-        real(r8), dimension(NBT, Ngrids) :: maxbio
-        real(r8), dimension(NBT) :: max_bio = 10000.0_r8   ! bio units
+        real(r8), allocatable :: maxbio(:,:)
+        real(r8), allocatable :: max_bio(:)
 #endif
 !
 !  Interpolation scheme.
@@ -1885,6 +1885,10 @@
 #ifdef ADJUST_STFLUX
       allocate ( Lstflux(MT,Ngrids) )
 #endif
+#ifdef BIOLOGY
+      allocate ( maxbio(NBT, Ngrids) )
+      allocate ( max_bio(NBT) )
+#endif
 !
 !---------------------------------------------------------------------
 !  Set tracer identification indices.
@@ -2225,6 +2229,16 @@
         NrecNRM(1:4,ng)=0
 
       END DO
+#ifdef BIOLOGY
+      DO ng=1,Ngrids
+        DO itrc=1,NBT
+          maxbio(itrc, ng) = IniVal
+        END DO
+      END DO
+      DO itrc=1,NBT
+        max_bio(itrc) = 10000.0_r8   ! bio units
+      END DO
+#endif
 
 # if defined SG_BBL || defined SSW_BBL
 !
