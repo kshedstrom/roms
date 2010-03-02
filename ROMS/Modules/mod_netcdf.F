@@ -600,7 +600,7 @@
 !
 !  Local variable declarations.
 !
-      integer :: IDmod, Npts, i, ib, ic, j, ncid, status
+      integer :: IDmod, Npts, i, ib, ic, j, j1, j2, ncid, status
       integer :: IvarS
 
       real(r8), parameter :: RoundOff = 1.0e-7_r8
@@ -852,7 +852,23 @@
      &                              start = (/1/), total = (/Npts/))
               IF (exit_flag.ne.NoError) RETURN
 
-              DO j=1,Npts
+              IF (model.eq.5) THEN
+                j1=1                   ! first state variable to check
+# ifdef SOLVE3D
+                j2=isTvar(NT(ng))      ! last  state variable to check
+# else
+                j2=3                   ! last  state variable to check
+# endif
+              ELSE IF (model.eq.11) THEN
+# ifdef SOLVE3D
+                j1=isTvar(NT(ng))+1    ! first state variable to check
+# else
+                j1=4                   ! first state variable to check
+# endif
+                j2=Npts                ! last  state variable to check
+              END IF
+
+              DO j=j1,j2
                 IF (ABS(Hdecay(1,j,ng)-FvarV(j)).gt.RoundOff) THEN
                   text=TRIM(var_name(i))//                              &
      &                 '(1,'//TRIM(Vname(1,idSvar(j)))//')'
@@ -874,7 +890,15 @@
      &                              start = (/1/), total = (/Npts/))
               IF (exit_flag.ne.NoError) RETURN
 
-              DO j=1,Npts
+              IF (model.eq.5) THEN
+                j1=1                   ! first state variable to check
+                j2=isTvar(NT(ng))      ! last  state variable to check
+              ELSE IF (model.eq.11) THEN
+                j1=isTvar(NT(ng))+1    ! first state variable to check
+                j2=Npts                ! last  state variable to check
+              END IF
+
+              DO j=j1,j2
                 IF (ABS(Vdecay(1,j,ng)-FvarV(j)).gt.RoundOff) THEN
                   text=TRIM(var_name(i))//                              &
      &                 '(1,'//TRIM(Vname(1,idSvar(j)))//')'
@@ -897,7 +921,13 @@
      &                              start = (/1/), total = (/Npts/))
               IF (exit_flag.ne.NoError) RETURN
 
-              DO j=1,Npts
+              j1=1                     ! first state variable to check
+#  ifdef SOLVE3D
+              j2=isTvar(NT(ng))        ! last  state variable to check
+#  else
+              j2=3                     ! last  state variable to check
+#  endif
+              DO j=j1,j2
                 IF (ABS(Hdecay(NSA,j,ng)-FvarV(j)).gt.RoundOff) THEN
                   text=TRIM(var_name(i))//                              &
      &                 '(2,'//TRIM(Vname(1,idSvar(j)))//')'
@@ -919,7 +949,10 @@
      &                              start = (/1/), total = (/Npts/))
               IF (exit_flag.ne.NoError) RETURN
 
-              DO j=1,Npts
+              j1=1                     ! first state variable to check
+              j2=isTvar(NT(ng))        ! last  state variable to check
+
+              DO j=j1,j2
                 IF (ABS(Vdecay(NSA,j,ng)-FvarV(j)).gt.RoundOff) THEN
                   text=TRIM(var_name(i))//                              &
      &                 '(2,'//TRIM(Vname(1,idSvar(j)))//')'
@@ -937,25 +970,36 @@
 # ifdef ADJUST_BOUNDARY
           CASE ('HdecayB')
             IF (model.eq.10) THEN
-              Npts=UBOUND(HdecayB,DIM=1)
+#  ifdef SOLVE3D
+              Npts=isTvar(NT(ng))
+#  else
+              Npts=3
+#  endif
               CALL netcdf_get_fvar (ng, IDmod, ncname, var_name(i),     &
      &                              FvarV,                              &
      &                              start = (/1,1/), total = (/Npts,4/))
               IF (exit_flag.ne.NoError) RETURN
 
               ic=0
+              j1=1                     ! first state variable to check
+              j2=Npts                  ! last  state variable to check
+
               DO ib=1,4
-                DO j=1,Npts
+                DO j=j1,j2
                   ic=ic+1
-                  WRITE (text,"(a,'(',i1,',',a,')')")                   &
-     &                  TRIM(var_name(i)), ib, TRIM(Vname(1,idSvar(j)))
-                  IF (ABS(HdecayB(j,ib,ng)-FvarV(ic)).gt.RoundOff) THEN
-                    IF (Master) WRITE (stdout,20) TRIM(text),           &
-     &                                            FvarV(ic),            &
-     &                                            HdecayB(j,ib,ng),     &
-     &                                            TRIM(ncname)
-                    exit_flag=5
-                    EXIT
+                  IF (Lobc(ib,j,ng)) THEN
+                    WRITE (text,"(a,'(',i1,',',a,')')")                 &
+     &                          TRIM(var_name(i)), ib,                  &
+     &                          TRIM(Vname(1,idSvar(j)))
+                    IF (ABS(HdecayB(j,ib,ng)-FvarV(ic)).gt.             &
+     &                  RoundOff) THEN
+                      IF (Master) WRITE (stdout,20) TRIM(text),         &
+     &                                              FvarV(ic),          &
+     &                                              HdecayB(j,ib,ng),   &
+     &                                              TRIM(ncname)
+                      exit_flag=5
+                      EXIT
+                    END IF
                   END IF
                 END DO
               END DO
@@ -963,25 +1007,32 @@
 #  ifdef SOLVE3D
           CASE ('VdecayB')
             IF (model.eq.10) THEN
-              Npts=UBOUND(VdecayB,DIM=1)
+              Npts=isTvar(NT(ng))
               CALL netcdf_get_fvar (ng, IDmod, ncname, var_name(i),     &
      &                              FvarV,                              &
      &                              start = (/1,1/), total = (/Npts,4/))
               IF (exit_flag.ne.NoError) RETURN
 
               ic=0
+              j1=1                     ! first state variable to check
+              j2=Npts                  ! last  state variable to check
+
               DO ib=1,4
-                DO j=1,Npts
+                DO j=j1,j2
                   ic=ic+1
-                  WRITE (text,"(a,'(',i1,',',a,')')")                   &
-     &                  TRIM(var_name(i)), ib, TRIM(Vname(1,idSvar(j)))
-                  IF (ABS(VdecayB(j,ib,ng)-FvarV(ic)).gt.RoundOff) THEN
-                    IF (Master) WRITE (stdout,20) TRIM(text),           &
-     &                                            FvarV(ic),            &
-     &                                            VdecayB(j,ib,ng),     &
-     &                                            TRIM(ncname)
-                    exit_flag=5
-                    EXIT
+                  IF (Lobc(ib,j,ng)) THEN
+                    WRITE (text,"(a,'(',i1,',',a,')')")                 &
+     &                          TRIM(var_name(i)), ib,                  &
+     &                          TRIM(Vname(1,idSvar(j)))
+                    IF (ABS(VdecayB(j,ib,ng)-FvarV(ic)).gt.             &
+     &                  RoundOff) THEN
+                      IF (Master) WRITE (stdout,20) TRIM(text),         &
+     &                                              FvarV(ic),          &
+     &                                              VdecayB(j,ib,ng),   &
+     &                                              TRIM(ncname)
+                      exit_flag=5
+                      EXIT
+                    END IF
                   END IF
                 END DO
               END DO

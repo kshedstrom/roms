@@ -526,7 +526,7 @@
         END IF
       END IF
 # if (defined FOUR_DVAR || defined VERIFICATION) && \
-     !defined OBS_SENSITIVITY
+     !defined IS4DVAR_SENSITIVITY
 #  ifdef OBSERVATIONS
 !
 !-----------------------------------------------------------------------
