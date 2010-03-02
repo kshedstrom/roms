@@ -5,7 +5,7 @@
 #   See License_ROMS.txt                                                :::
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 #
-# Include file for GNU g95 on MSYS/MinGW
+# Include file for GNU on MSYS/MinGW
 # -------------------------------------------------------------------------
 #
 # ARPACK_LIBDIR  ARPACK libary directory
@@ -121,10 +121,16 @@ $(SCRATCH_DIR)/def_var.o: FFLAGS += -fno-bounds-check
 
 #
 # Allow integer overflow in ran_state.F.  This is not allowed
-# during -O3 optimization.
+# during -O3 optimization. This option should be applied only for
+# Gfortran versions >= 4.2.
 #
 
+FC_TEST := $(findstring $(shell ${FC} --version | head -1 | cut -d " " -f 5 | \
+                              cut -d "." -f 1-2),4.0 4.1)
+
+ifeq "${FC_TEST}" ""
 $(SCRATCH_DIR)/ran_state.o: FFLAGS += -fno-strict-overflow
+endif
 
 #
 # Set free form format in source files to allow long string for
