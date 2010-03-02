@@ -472,7 +472,7 @@ Hout(idBott) == T T T T T T T T T F F F F F F F
 
      NFFILES == 1                          ! number of forcing files
 
-     FRCNAME == Data/ROMS/Initial/biotoy_frc.nc   ! forcing file 1, grid 1
+     FRCNAME == Data/ROMS/Forcing/bio_toy_frc.nc
 
 ! Output NetCDF file names, [1:Ngrids].
 
@@ -494,6 +494,7 @@ Hout(idBott) == T T T T T T T T T F F F F F F F
      FPOSNAM =  ROMS/External/floats.in
      BPARNAM =  ROMS/External/bio_Fennel.in
 !    BPARNAM =  ROMS/External/ecosim.in
+!    BPARNAM =  ROMS/External/nemuro.in
 !    BPARNAM =  ROMS/External/npzd_Franks.in
 !    BPARNAM =  ROMS/External/npzd_Powell.in
      SPARNAM =  ROMS/External/sediment.in
