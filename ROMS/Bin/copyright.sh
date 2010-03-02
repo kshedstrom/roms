@@ -38,7 +38,7 @@ set c_dirs = "Compilers Master ROMS User"
 
 set special_files = "makefile Waves/SWAN/Src/Module.mk Waves/SWAN/Src/waves_coupler.F"
 
-set setsvn = 1
+set setsvn = 0
 
 # verbose is a csh command to print all lines of the script so I changed
 # this variable to "verb".
@@ -89,9 +89,11 @@ foreach FILE ( `find ${c_dirs} ! -path '*/.svn/*' ! -name 'copyright.*' -type f 
 
   if ( `echo $FILE | grep -vc '.svn/'` ) then
     if ( $verb == 1 ) then
-      grep -l "${search}" $FILE && sed -i "s|${search}|${replace}|g" $FILE
+      grep -l "${search}" $FILE && perl -i -pe "s|${search}|${replace}|g" $FILE
+#      grep -l "${search}" $FILE && sed -i "s|${search}|${replace}|g" $FILE
     else
-      grep -l "${search}" $FILE > /dev/null && sed -i "s|${search}|${replace}|g" $FILE
+      grep -l "${search}" $FILE > /dev/null && perl -i -pe "s|${search}|${replace}|g" $FILE
+#      grep -l "${search}" $FILE > /dev/null && sed -i "s|${search}|${replace}|g" $FILE
     endif
   else
     echo "There is a .svn in the path: $FILE skipped"
@@ -103,9 +105,11 @@ end
 
 foreach FILE ( $special_files )
   if ( $verb == 1 ) then
-    grep -l "${search}" $FILE && sed -i "s|${search}|${replace}|g" $FILE
+    grep -l "${search}" $FILE && perl -i -pe "s|${search}|${replace}|g" $FILE
+#    grep -l "${search}" $FILE && sed -i "s|${search}|${replace}|g" $FILE
   else
-    grep -l "${search}" $FILE > /dev/null && sed -i "s|${search}|${replace}|g" $FILE
+    grep -l "${search}" $FILE > /dev/null && perl -i -pe "s|${search}|${replace}|g" $FILE
+#    grep -l "${search}" $FILE > /dev/null && sed -i "s|${search}|${replace}|g" $FILE
   endif
 end
 
