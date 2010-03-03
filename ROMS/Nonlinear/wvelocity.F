@@ -2,9 +2,9 @@
       MODULE wvelocity_mod
 #ifdef SOLVE3D
 !
-!svn $Id: wvelocity.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id$
 !=======================================================================
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                           Hernan G. Arango   !
 !========================================== Alexander F. Shchepetkin ===
@@ -150,7 +150,7 @@
 !  The vertical coordinate is a function of several parameter but only
 !  the free-surface is time dependent. However, in sediment applications
 !  with stratigraphy, the bathymetry (h) also evolves in time.
-    
+
 # if defined EW_PERIODIC || defined NS_PERIODIC || defined DISTRIBUTE
 !
 !  Exchange time-averaged fields.

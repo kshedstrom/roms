@@ -1,8 +1,8 @@
       SUBROUTINE ana_bmflux (ng, tile, model)
 !
-!! svn $Id: ana_bmflux.h 975 2009-05-05 22:51:13Z kate $
+!! svn $Id$
 !!======================================================================
-!! Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!! Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !!   Licensed under a MIT/X style license                              !
 !!   See License_ROMS.txt                                              !
 !=======================================================================
@@ -14,8 +14,9 @@
 !
       USE mod_param
       USE mod_ncparam
-      USE mod_ocean
       USE mod_grid
+      USE mod_ocean
+      USE mod_sedbed
 !
       integer, intent(in) :: ng, tile, model
 
@@ -26,7 +27,7 @@
      &                      IminS, ImaxS, JminS, JmaxS,                 &
      &                      GRID(ng) % xr,                              &
      &                      GRID(ng) % yr,                              &
-     &                      OCEAN(ng) % bottom)
+     &                      SEDBED(ng) % bottom)
 !
 ! Set analytical header file name used.
 !

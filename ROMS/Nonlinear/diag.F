@@ -1,9 +1,9 @@
 #include "cppdefs.h"
       MODULE diag_mod
 !
-!svn $Id: diag.F 1102 2009-11-19 01:03:09Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -95,9 +95,11 @@
       USE mod_parallel
       USE mod_iounits
       USE mod_scalars
+#ifdef BIOLOGY
+      USE mod_biology, ONLY : idbio
+#endif
 
 #ifdef DISTRIBUTE
-!
       USE distribute_mod, ONLY : mp_reduce
 #endif
 !
@@ -166,7 +168,7 @@
       real(r8), dimension(Nreduce) :: buffer
       character (len=3), dimension(Nreduce) :: op_handle
 #else
-      integer :: my_threadnum      
+      integer :: my_threadnum
 #endif
 
       real(r8) :: cff, my_avgke, my_avgpe, my_volume

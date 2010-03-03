@@ -1,9 +1,9 @@
 #undef NEUMANN
       SUBROUTINE prsgrd (ng, tile)
 !
-!svn $Id: prsgrd42.h 984 2009-05-24 01:43:19Z kate $
+!svn $Id$
 !***********************************************************************
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                           Hernan G. Arango   !
 !****************************************** Alexander F. Shchepetkin ***

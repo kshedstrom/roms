@@ -1,6 +1,6 @@
-# svn $Id: Linux-g95.mk 1090 2009-10-27 23:59:27Z kate $
+# svn $Id$
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-# Copyright (c) 2002-2009 The ROMS/TOMS Group                           :::
+# Copyright (c) 2002-2010 The ROMS/TOMS Group                           :::
 #   Licensed under a MIT/X style license                                :::
 #   See License_ROMS.txt                                                :::
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -82,7 +82,7 @@ ifdef USE_MPI
  ifdef USE_MPIF90
                FC := mpif90
  else
-             LIBS += -lfmpi-pgi -lmpi-pgi 
+             LIBS += -lfmpi-pgi -lmpi-pgi
  endif
 endif
 

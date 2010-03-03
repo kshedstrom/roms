@@ -2,9 +2,9 @@
       MODULE step_floats_mod
 #if defined NONLINEAR && defined FLOATS
 !
-!svn $Id: step_floats.F 1090 2009-10-27 23:59:27Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group        John M. Klinck   !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group        John M. Klinck   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================

@@ -118,12 +118,12 @@
 
 ! Minimum average ice thickness [m]
 
-     min_h == 0.0d0
+     min_h == 0.00d0
 
 ! Minimum ice concentration
 ! (nondimensional)
 
-     min_a = 1.d-7
+     min_a = 0.00d0
 
 ! Maximum ice concentration
 ! (nondimensional)

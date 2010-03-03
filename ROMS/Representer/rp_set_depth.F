@@ -2,9 +2,9 @@
       MODULE rp_set_depth_mod
 #ifdef TL_IOMS
 !
-!svn $Id: rp_set_depth.F 1012 2009-07-07 20:52:45Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -44,6 +44,9 @@
       USE mod_coupling
       USE mod_grid
       USE mod_ocean
+# if defined SEDIMENT && defined SED_MORPH
+      USE mod_sedbed
+# endif
       USE mod_stepping
 !
 !  Imported variable declarations.
@@ -64,7 +67,7 @@
      &                        GRID(ng) % zice,                          &
 #  endif
 #  if defined SEDIMENT_NOT_YET && defined SED_MORPH_NOT_YET
-     &                        GRID(ng) % tl_bed_thick,                  &
+     &                        SEDBED(ng) % tl_bed_thick,                &
 #  endif
      &                        COUPLING(ng) % Zt_avg1,                   &
      &                        COUPLING(ng) % tl_Zt_avg1,                &

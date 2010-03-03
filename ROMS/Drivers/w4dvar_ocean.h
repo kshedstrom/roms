@@ -1,8 +1,8 @@
       MODULE ocean_control_mod
 !
-!svn $Id: w4dvar_ocean.h 1101 2009-11-19 00:56:17Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group   Emanuele Di Lorenzo   !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group   Emanuele Di Lorenzo   !
 !    Licensed under a MIT/X style license            Andrew M. Moore   !
 !    See License_ROMS.txt                                              !
 !=======================================================================

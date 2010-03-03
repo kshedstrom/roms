@@ -2,9 +2,9 @@
       MODULE mod_diags
 #ifdef DIAGNOSTICS
 !
-!svn $Id: mod_diags.F 983 2009-05-23 01:07:05Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -18,6 +18,11 @@
 !  DiaV2d    Diagnostics for 2D V-momentum terms.                      !
 !  DiaU3d    Diagnostics for 3D U-momentum terms.                      !
 !  DiaV3d    Diagnostics for 3D V-momentum terms.                      !
+!                                                                      !
+!  pvor_bar  2D, vertically integrated, potential vorticity.           !
+!  rvor_bar  2D, vertically integrated, relative vorticity.            !
+!  pvor      3D potential vorticity.                                   !
+!  rvor      3D relative vorticity.                                    !
 !                                                                      !
 !  Diagnostics fields work arrays.                                     !
 !                                                                      !
@@ -76,6 +81,12 @@
           real(r8), pointer :: DiaRV(:,:,:,:,:)
 #  endif
 
+# endif
+          real(r8), pointer :: pvor_bar(:,:)
+          real(r8), pointer :: rvor_bar(:,:)
+# ifdef SOLVE3D
+          real(r8), pointer :: pvor(:,:,:)
+          real(r8), pointer :: rvor(:,:,:)
 # endif
 
         END TYPE T_DIAGS
@@ -136,6 +147,13 @@
       allocate ( DIAGS(ng) % DiaRV(LBi:UBi,LBj:UBj,N(ng),2,NDrhs) )
 #  endif
 
+# endif
+
+      allocate ( DIAGS(ng) % pvor_bar(LBi:UBi,LBj:UBj) )
+      allocate ( DIAGS(ng) % rvor_bar(LBi:UBi,LBj:UBj) )
+# ifdef SOLVE3D
+      allocate ( DIAGS(ng) % pvor(LBi:UBi,LBj:UBj,N(ng)) )
+      allocate ( DIAGS(ng) % rvor(LBi:UBi,LBj:UBj,N(ng)) )
 # endif
 
       RETURN
@@ -283,6 +301,18 @@
           END DO
         END DO
 #  endif
+# endif
+        DO i=Imin,Imax
+          DIAGS(ng) % pvor_bar(i,j) = IniVal
+          DIAGS(ng) % rvor_bar(i,j) = IniVal
+        END DO
+# ifdef SOLVE3D
+        DO k=1,N(ng)
+          DO i=Imin,Imax
+            DIAGS(ng) % pvor(i,j,k) = IniVal
+            DIAGS(ng) % rvor(i,j,k) = IniVal
+          END DO
+        END DO
 # endif
       END DO
 

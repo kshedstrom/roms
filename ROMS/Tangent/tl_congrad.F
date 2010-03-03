@@ -4,9 +4,9 @@
       SUBROUTINE tl_congrad (ng, model, outLoop, innLoop, NinnLoop,     &
      &                       Lcgini)
 !
-!svn $Id: tl_congrad.F 1087 2009-10-21 00:21:28Z kate $
+!svn $Id$
 !=================================================== Andrew M. Moore ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group      Hernan G. Arango   !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group      Hernan G. Arango   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -175,7 +175,7 @@
         IF (innLoop.eq.0) THEN
 
 # if defined W4DPSAS || defined TL_W4DPSAS
-!  
+!
 !  If this is the first inner-loop, save NLmodVal in BCKmodVal.
 !
           DO iobs=1,Ndatum(ng)
@@ -333,7 +333,7 @@
 # endif
               END DO
 !
-!  Convert ADmodVal from v-space to x-space and cg_innov (the 
+!  Convert ADmodVal from v-space to x-space and cg_innov (the
 !  contribution to the starting gradient) from x-space to v-space.
 !
               DO iobs=1,Ndatum(ng)

@@ -2,12 +2,12 @@
       MODULE tl_zetabc_mod
 #ifdef TANGENT
 !
-!svn $Id: tl_zetabc.F 999 2009-06-09 23:48:31Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
-!======================================================================= 
+!=======================================================================
 !                                                                      !
 !  This subroutine sets tangent linear lateral boundary conditions for !
 !  free-surface. It updates the specified "kout" time index.           !

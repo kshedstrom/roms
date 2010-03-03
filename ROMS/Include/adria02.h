@@ -1,7 +1,7 @@
 /*
-** svn $Id: adria02.h 975 2009-05-05 22:51:13Z kate $
+** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2009 The ROMS/TOMS Group                               **
+** Copyright (c) 2002-2010 The ROMS/TOMS Group                               **
 **   Licensed under a MIT/X style license                                    **
 **   See License_ROMS.txt                                                    **
 *******************************************************************************
@@ -44,13 +44,11 @@
 # undef SUSPLOAD
 # define ANA_SEDIMENT
 # undef  ANA_WWAVE
-# undef RIVER_SEDIMENT
 #else
 # define SEDIMENT
 # define SUSPLOAD
 # undef  ANA_SEDIMENT
 # undef  ANA_WWAVE
-# define RIVER_SEDIMENT
 #endif
 
 #undef  UV_LOGDRAG

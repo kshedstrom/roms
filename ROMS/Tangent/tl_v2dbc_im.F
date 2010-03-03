@@ -2,12 +2,12 @@
       MODULE tl_v2dbc_mod
 #ifdef TANGENT
 !
-!svn $Id: tl_v2dbc_im.F 999 2009-06-09 23:48:31Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
-!======================================================================= 
+!=======================================================================
 !                                                                      !
 !  This subroutine sets tangent linear lateral boundary conditions for !
 !  vertically integrated  V-velocity.  It updates the specified "kout" !

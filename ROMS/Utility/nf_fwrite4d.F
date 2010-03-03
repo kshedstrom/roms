@@ -1,9 +1,9 @@
 #include "cppdefs.h"
       MODULE nf_fwrite4d_mod
 !
-!svn $Id: nf_fwrite4d.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -509,7 +509,7 @@
 !  nodes and store it into a global scratch 1D array, packed in column-
 !  major order.
 #  ifdef MASKING
-#   ifdef WRiTE_WATER 
+#   ifdef WRITE_WATER
 !  Remove land points and pack water points into 1D-array.
 #   else
 !  Overwrite masked points with special value.
@@ -562,7 +562,7 @@
 !  If serial or shared-memory applications and serial output, pack data
 !  into a global 1D array in column-major order.
 #  ifdef MASKING
-#   ifdef WRiTE_WATER 
+#   ifdef WRITE_WATER
 !  Remove land points and pack water points into 1D-array.
 #   else
 !  Overwrite masked points with special value.

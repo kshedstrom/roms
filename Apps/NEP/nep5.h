@@ -1,5 +1,5 @@
 /*
-** svn $Id: basin.h 8 2007-02-06 19:00:29Z arango $
+** svn $Id$
 *******************************************************************************
 ** Copyright (c) 2002-2009 The ROMS/TOMS Group
 **
@@ -35,7 +35,7 @@
 #ifdef T_PASSIVE
 # define ANA_PASSIVE
 #endif
- 
+
 /* ice */
 
 #ifdef SOLVE3D
@@ -59,7 +59,7 @@
 #endif
 
 /* output stuff */
- 
+
 #define NO_WRITE_GRID
 #undef OUT_DOUBLE
 #define RST_SINGLE
@@ -75,23 +75,23 @@
 # undef DIAGNOSTICS_TS
 #endif
 #undef DIAGNOSTICS_UV
- 
+
 /* advection, dissipation, pressure grad, etc. */
- 
+
 #ifdef SOLVE3D
 # define DJ_GRADPS
 #endif
- 
+
 #define UV_ADV
 #define UV_COR
 #define UV_SADVECTION
- 
+
 #ifdef SOLVE3D
 # define TS_U3HADVECTION
 # define TS_C4VADVECTION
 # undef TS_MPDATA
 #endif
- 
+
 #define UV_VIS2
 #define UV_SMAGORINSKY
 #define VISC_3DCOEF
@@ -104,13 +104,13 @@
 # define MIX_GEO_TS
 # define DIFF_GRID
 #endif
- 
- 
+
+
 /* vertical mixing */
- 
+
 #ifdef SOLVE3D
 # define SOLAR_SOURCE
- 
+
 # define LMD_MIXING
 # ifdef LMD_MIXING
 #  define LMD_RIMIX
@@ -121,7 +121,7 @@
 #  define LMD_SHAPIRO
 #  undef LMD_DDMIX
 # endif
- 
+
 # undef GLS_MIXING
 # undef MY25_MIXING
 
@@ -130,9 +130,9 @@
 #  define N2S2_HORAVG
 # endif
 #endif
- 
+
 /* surface forcing */
- 
+
 #ifdef SOLVE3D
 # define CORE_FORCING
 # define BULK_FLUXES
@@ -147,21 +147,21 @@
 #  undef LONGWAVE
 # endif
 #endif
- 
+
 /* surface and side corrections */
- 
+
 #ifdef SOLVE3D
 # define SRELAXATION
 # undef QCORRECTION
 #endif
- 
+
 #ifdef SOLVE3D
 # undef TCLIMATOLOGY
 # undef TCLM_NUDGING
 #endif
- 
+
 /* point sources (rivers, line sources) */
- 
+
 /* Using Runoff instead now */
 #ifdef SOLVE3D
 #define RUNOFF
@@ -169,9 +169,9 @@
 # define ANA_PSOURCE
 # undef TS_PSOURCE
 #endif
- 
+
 /* tides */
- 
+
 #define LTIDES
 #ifdef LTIDES
 # define FILTERED
@@ -190,16 +190,16 @@
 #else
 # define UV_QDRAG
 #endif
- 
+
 /* Boundary conditions...careful with grid orientation */
- 
+
 #define EASTERN_WALL
 #define NORTHERN_WALL
 #undef WESTERN_WALL
 #undef SOUTHERN_WALL
- 
+
 #define RADIATION_2D
- 
+
 #ifndef NORTHERN_WALL
 # define NORTH_FSCHAPMAN
 # define NORTH_M2FLATHER
@@ -211,7 +211,7 @@
 #  define NORTH_MIGRADIENT
 # endif
 #endif
- 
+
 #ifndef WESTERN_WALL
 # define WEST_FSCHAPMAN
 # define WEST_M2FLATHER
@@ -223,7 +223,7 @@
 #  define WEST_MIGRADIENT
 # endif
 #endif
- 
+
 #ifndef SOUTHERN_WALL
 # define SOUTH_FSCHAPMAN
 # define SOUTH_M2FLATHER
@@ -235,7 +235,7 @@
 #  define SOUTH_MIGRADIENT
 # endif
 #endif
- 
+
 #ifndef EASTERN_WALL
 # define EAST_FSCHAPMAN
 # define EAST_M2FLATHER
@@ -247,9 +247,9 @@
 #  define EAST_MIGRADIENT
 # endif
 #endif
- 
+
 /* roms quirks */
- 
+
 #ifdef SOLVE3D
 # define ANA_BSFLUX
 # define ANA_BTFLUX

@@ -4,9 +4,9 @@
 
 #if defined NONLINEAR && defined SEDIMENT && !defined COHESIVE_BED
 !
-!svn $Id: sed_bed.F 1076 2009-09-25 23:18:43Z kate $
+!svn $Id$
 !==================================================== John C. Warner ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group      Hernan G. Arango   !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group      Hernan G. Arango   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -35,6 +35,7 @@
       USE mod_forces
       USE mod_grid
       USE mod_ocean
+      USE mod_sedbed
       USE mod_stepping
 # ifdef BBL_MODEL
       USE mod_bbl
@@ -71,16 +72,16 @@
 # endif
      &                   OCEAN(ng) % t,                                 &
 # ifdef SUSPLOAD
-     &                   OCEAN(ng) % ero_flux,                          &
-     &                   OCEAN(ng) % settling_flux,                     &
+     &                   SEDBED(ng) % ero_flux,                         &
+     &                   SEDBED(ng) % settling_flux,                    &
 # endif
 # if defined SED_MORPH
-     &                   GRID(ng) % bed_thick,                          &
+     &                   SEDBED(ng) % bed_thick,                        &
 # endif
-     &                   OCEAN(ng) % bed,                               &
-     &                   OCEAN(ng) % bed_frac,                          &
-     &                   OCEAN(ng) % bed_mass,                          &
-     &                   OCEAN(ng) % bottom)
+     &                   SEDBED(ng) % bed,                              &
+     &                   SEDBED(ng) % bed_frac,                         &
+     &                   SEDBED(ng) % bed_mass,                         &
+     &                   SEDBED(ng) % bottom)
 # ifdef PROFILE
       CALL wclock_off (ng, iNLM, 16)
 # endif
@@ -150,10 +151,10 @@
 #  if defined SED_MORPH
       real(r8), intent(inout):: bed_thick(LBi:,LBj:,:)
 #  endif
-      real(r8), intent(inout) :: t(LBi:,LBj:,:,:,:) 
+      real(r8), intent(inout) :: t(LBi:,LBj:,:,:,:)
 #  ifdef SUSPLOAD
-      real(r8), intent(inout) :: ero_flux(LBi:,LBj:,:) 
-      real(r8), intent(inout) :: settling_flux(LBi:,LBj:,:) 
+      real(r8), intent(inout) :: ero_flux(LBi:,LBj:,:)
+      real(r8), intent(inout) :: settling_flux(LBi:,LBj:,:)
 #  endif
       real(r8), intent(inout) :: bed(LBi:,LBj:,:,:)
       real(r8), intent(inout) :: bed_frac(LBi:,LBj:,:,:)
@@ -179,8 +180,8 @@
 #  endif
       real(r8), intent(inout) :: t(LBi:UBi,LBj:UBj,N(ng),3,NT(ng))
 #  ifdef SUSPLOAD
-      real(r8), intent(inout) :: ero_flux(LBi:UBi,LBj:UBj,NST) 
-      real(r8), intent(inout) :: settling_flux(LBi:UBi,LBj:UBj,NST) 
+      real(r8), intent(inout) :: ero_flux(LBi:UBi,LBj:UBj,NST)
+      real(r8), intent(inout) :: settling_flux(LBi:UBi,LBj:UBj,NST)
 #  endif
       real(r8), intent(inout) :: bed(LBi:UBi,LBj:UBj,Nbed,MBEDP)
       real(r8), intent(inout) :: bed_frac(LBi:UBi,LBj:UBj,Nbed,NST)

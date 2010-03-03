@@ -21,9 +21,9 @@
 #  define JV_RANGE Jstr,JendR
 # endif
 !
-!svn $Id: ad_convolution.F 1087 2009-10-21 00:21:28Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -112,6 +112,9 @@
       USE mod_grid
       USE mod_mixing
       USE mod_ocean
+# if defined SEDIMENT && defined SED_MORPH && defined SOLVE3D
+      USE mod_sedbed
+# endif
       USE mod_stepping
 !
 !  Imported variable declarations.
@@ -154,7 +157,7 @@
      &                          GRID(ng) % zice,                        &
 #  endif
 #  if defined SEDIMENT && defined SED_MORPH
-     &                          GRID(ng) % bed_thick,                   &
+     &                          SEDBED(ng) % bed_thick,                 &
 #  endif
      &                          GRID(ng) % Hz,                          &
      &                          GRID(ng) % z_r,                         &

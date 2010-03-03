@@ -1,9 +1,9 @@
 #include "cppdefs.h"
       MODULE nf_fwrite2d_bry_mod
 !
-!svn $Id: nf_fwrite2d_bry.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -182,7 +182,7 @@
           END IF
         END DO
       END DO
-  
+
 #ifdef DISTRIBUTE
 !
 !  If distributed-memory set-up, collect data from all spawned

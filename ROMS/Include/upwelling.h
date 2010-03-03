@@ -1,7 +1,7 @@
 /*
-** svn $Id: upwelling.h 1098 2009-11-18 17:54:22Z kate $
+** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2009 The ROMS/TOMS Group                               **
+** Copyright (c) 2002-2010 The ROMS/TOMS Group                               **
 **   Licensed under a MIT/X style license                                    **
 **   See License_ROMS.txt                                                    **
 *******************************************************************************
@@ -50,7 +50,7 @@
 # define ANA_VMIX
 #endif
 
-#undef BIO_UMAINE
+#define BIO_UMAINE
 #if defined BIO_FENNEL  || defined ECOSIM || \
     defined NPZD_POWELL || defined NEMURO || \
     defined BIO_UMAINE

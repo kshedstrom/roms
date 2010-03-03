@@ -1,9 +1,9 @@
 #include "cppdefs.h"
       MODULE state_product_mod
 !
-!svn $Id: state_product.F 1020 2009-07-10 23:10:30Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -229,7 +229,7 @@
 #include "set_bounds.h"
 !
 !-----------------------------------------------------------------------
-!  Compute product between S1 and S2 model state trajectories and save 
+!  Compute product between S1 and S2 model state trajectories and save
 !  in S3.
 !-----------------------------------------------------------------------
 !

@@ -1,9 +1,9 @@
 #include "cppdefs.h"
       SUBROUTINE def_rst (ng)
 !
-!svn $Id: def_rst.F 1023 2009-07-20 21:45:24Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -20,6 +20,9 @@
 !
       USE mod_param
       USE mod_parallel
+#ifdef BIOLOGY
+      USE mod_biology
+#endif
 #ifdef FOUR_DVAR
       USE mod_fourdvar
 #endif
@@ -48,7 +51,7 @@
       integer :: i, j, nvd3, nvd4, nvd5
       integer :: recdim, status, varid
 
-      integer :: DimIDs(31)
+      integer :: DimIDs(32)
       integer :: r2dgrd(4), ru2dgrd(4), rv2dgrd(4)
       integer :: sr2dgrd(3), su2dgrd(3), sv2dgrd(3)
       integer :: sr3dgrd(4), su3dgrd(4), sv3dgrd(4)
@@ -61,7 +64,7 @@
       integer :: itrc
 
       integer :: k3dgrd(5), t3dgrd(5)
-      integer :: r3dgrd(4), ru3dgrd(5), rv3dgrd(5) 
+      integer :: r3dgrd(4), ru3dgrd(5), rv3dgrd(5)
       integer :: u3dgrd(5), v3dgrd(5), w3dgrd(4)
 #endif
 
@@ -186,6 +189,10 @@
         IF (exit_flag.ne.NoError) RETURN
 
 # ifdef SEDIMENT
+        status=def_dim(ng, iNLM, ncRSTid(ng), ncname, 'NST',            &
+     &                 NST, DimIDs(32))
+        IF (exit_flag.ne.NoError) RETURN
+
         status=def_dim(ng, iNLM, ncRSTid(ng), ncname, 'Nbed',           &
      &                 Nbed, DimIDs(16))
         IF (exit_flag.ne.NoError) RETURN
@@ -452,16 +459,27 @@
         k3dgrd(5)=DimIDs(12)
 #  endif
 # endif
+#endif
 !
 !  Define dimension vector for sediment, radiation stress variables.
 !
-# if !defined PERFECT_RESTART && \
-     (defined WRITE_WATER && defined MASKING)
+#if !defined PERFECT_RESTART && \
+    (defined WRITE_WATER && defined MASKING)
         su2dgrd(1)=DimIDs(18)
         su2dgrd(2)=DimIDs(12)
         sv2dgrd(1)=DimIDs(19)
         sv2dgrd(2)=DimIDs(12)
-
+#else
+        su2dgrd(1)=DimIDs( 2)
+        su2dgrd(2)=DimIDs( 6)
+        su2dgrd(3)=DimIDs(12)
+        sv2dgrd(1)=DimIDs( 3)
+        sv2dgrd(2)=DimIDs( 7)
+        sv2dgrd(3)=DimIDs(12)
+#endif
+#ifdef SOLVE3D
+# if !defined PERFECT_RESTART && \
+     (defined WRITE_WATER && defined MASKING)
         sr3dgrd(1)=DimIDs(24)
         sr3dgrd(2)=DimIDs(12)
         su3dgrd(1)=DimIDs(21)
@@ -469,13 +487,6 @@
         sv3dgrd(1)=DimIDs(22)
         sv3dgrd(2)=DimIDs(12)
 # else
-        su2dgrd(1)=DimIDs( 2)
-        su2dgrd(2)=DimIDs( 6)
-        su2dgrd(3)=DimIDs(12)
-        sv2dgrd(1)=DimIDs( 3)
-        sv2dgrd(2)=DimIDs( 7)
-        sv2dgrd(3)=DimIDs(12)
-
         sr3dgrd(1)=DimIDs( 1)
         sr3dgrd(2)=DimIDs( 5)
         sr3dgrd(3)=DimIDs(16)
@@ -1326,7 +1337,7 @@
 !
 !  define exposed sediment layer properties. Notice that only the
 !  first four properties (mean grain diameter, mean grain density,
-!  mean settling velocity, mean critical erosion stress, 
+!  mean settling velocity, mean critical erosion stress,
 !  ripple length and ripple height) are written.
 !
         DO i=1,6

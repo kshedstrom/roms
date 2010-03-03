@@ -3,9 +3,9 @@
 
 #if defined TANGENT && defined BALANCE_OPERATOR
 !
-!svn $Id: tl_balance.F 1101 2009-11-19 00:56:17Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -576,76 +576,18 @@
 # ifdef ZETA_ELLIPTIC
 !
 !  Compute right-hand-side term used in the elliptic equation for
-!  unbalanced free-surface.  Integrate according to the level of
-!  no motion flag.
+!  unbalanced free-surface.  Integrate from bottom to surface.
 !
           IF (balance(isFsur)) THEN
-!
-!  Integrate from bottom to surface.
-!
-            IF (LNM_flag.eq.0) THEN
-              DO k=1,N(ng)
-                DO i=Istr-1,Iend
-                  tl_cff=0.5_r8*(Hz(i,j-1,k)+Hz(i,j,k))*tl_phi(i,k)
-#  ifdef MASKING
-                  tl_cff=tl_cff*vmask(i,j)
-#  endif
-                  tl_gradPy(i,j)=tl_gradPy(i,j)+tl_cff
-                END DO
-              END DO
-!
-!  Integrate from level of no motion (LNM_depth) to surface or
-!  integrate from local bottom if shallower than LNM_depth.
-!  Notice that the level of motion depth is tested against the
-!  bottom of the grid cell (at W-points) and bracketed between
-!  W-points during the interpolation. Also positive depths are
-!  used for clarity.
-!
-            ELSE IF (LNM_flag.eq.1) THEN
+            DO k=1,N(ng)
               DO i=Istr-1,Iend
-                DO k=1,N(ng)
-                  zwtop=ABS(0.5_r8*(z_w(i,j-1,k  )+z_w(i,j,k  )))
-                  zwbot=ABS(0.5_r8*(z_w(i,j-1,k-1)+z_w(i,j,k-1)))
-                  IF (zwbot.lt.LNM_depth(ng)) THEN
-                    tl_cff=0.5_r8*(Hz(i,j-1,k)+Hz(i,j,k))*tl_phi(i,k)
+                tl_cff=0.5_r8*(Hz(i,j-1,k)+Hz(i,j,k))*tl_phi(i,k)
 #  ifdef MASKING
-                    tl_cff=tl_cff*vmask(i,j)
+                tl_cff=tl_cff*vmask(i,j)
 #  endif
-                    tl_gradPy(i,j)=tl_gradPy(i,j)+tl_cff
-                  ELSE IF ((Zwbot.gt.LNM_depth(ng)).and.                &
-     &                     (LNM_depth(ng).ge.Zwtop)) THEN  ! interpolate
-                    zphi=ABS(0.5_r8*(z_r(i,j-1,k)+z_r(i,j,k)))
-                    IF (zphi.ge.LNM_depth(ng)) THEN  ! above cell center
-                      IF (k.eq.N(ng)) THEN
-                        tl_cff=0.5_r8*(Hz(i,j-1,k)+Hz(i,j,k))*          &
-     &                         tl_phi(i,k)
-                      ELSE
-                        zphi1=ABS(0.5_r8*(z_r(i,j-1,k+1)+z_r(i,j,k+1)))
-                        fac=(LNM_depth(ng)-zphi1)/(zphi-zphi1)
-                        tl_cff=(tl_phi(i,k+1)+                          &
-     &                          fac*(tl_phi(i,k)-tl_phi(i,k+1)))*       &
-     &                         (LNM_depth(ng)-zwtop)
-                      END IF
-                    ELSE                             ! below cell center
-                      IF (k.eq.1) THEN
-                        tl_cff=0.5_r8*(Hz(i,j-1,k)+Hz(i,j,k))*          &
-     &                         tl_phi(i,k)
-                      ELSE
-                        zphi1=ABS(0.5_r8*(z_r(i,j-1,k-1)+z_r(i,j,k-1)))
-                        fac=(LNM_depth(ng)-zphi)/(zphi1-zphi)
-                        tl_cff=(tl_phi(i,k)+                            &
-     &                          fac*(tl_phi(i,k-1)-tl_phi(i,k)))*       &
-     &                         (zwbot-LNM_depth(ng))
-                      END IF
-                    END IF
-#  ifdef MASKING
-                    tl_cff=tl_cff*vmask(i,j)
-#  endif
-                    tl_gradPy(i,j)=tl_gradPy(i,j)+tl_cff
-                  END IF
-                END DO
+                tl_gradPy(i,j)=tl_gradPy(i,j)+tl_cff
               END DO
-            END IF
+            END DO
           END IF
 # endif
         END DO
@@ -725,76 +667,18 @@
 # ifdef ZETA_ELLIPTIC
 !
 !  Compute right-hand-side term used in the elliptic equation for
-!  unbalanced free-surface.  Integrate according to the level of
-!  no motion flag.
+!  unbalanced free-surface.  Integrate from bottom to surface.
 !
           IF (balance(isFsur)) THEN
-!
-!  Integrate from bottom to surface.
-!
-            IF (LNM_flag.eq.0) THEN
-              DO k=1,N(ng)
-                DO i=Istr,Iend+1
-                  tl_cff=0.5_r8*(Hz(i-1,j,k)+Hz(i,j,k))*tl_phi(i,k)
-#  ifdef MASKING
-                  tl_cff=tl_cff*umask(i,j)
-#  endif
-                  tl_gradPx(i,j)=tl_gradPx(i,j)+tl_cff
-                END DO
-              END DO
-!
-!  Integrate from level of no motion (LNM_depth) to surface or
-!  integrate from local bottom if shallower than LNM_depth.
-!  Notice that the level of motion depth is tested against the
-!  bottom of the grid cell (at W-points) and bracketed between
-!  W-points during the interpolation. Also positive depths are
-!  used for clarity.
-!
-            ELSE IF (LNM_flag.eq.1) THEN
+            DO k=1,N(ng)
               DO i=Istr,Iend+1
-                DO k=1,N(ng)
-                  zwtop=ABS(0.5_r8*(z_w(i-1,j,k  )+z_w(i,j,k  )))
-                  zwbot=ABS(0.5_r8*(z_w(i-1,j,k-1)+z_w(i,j,k-1)))
-                  IF (zwbot.lt.LNM_depth(ng)) THEN
-                    tl_cff=0.5_r8*(Hz(i-1,j,k)+Hz(i,j,k))*tl_phi(i,k)
+                tl_cff=0.5_r8*(Hz(i-1,j,k)+Hz(i,j,k))*tl_phi(i,k)
 #  ifdef MASKING
-                    tl_cff=tl_cff*umask(i,j)
+                tl_cff=tl_cff*umask(i,j)
 #  endif
-                    tl_gradPx(i,j)=tl_gradPx(i,j)+tl_cff
-                  ELSE IF ((Zwbot.gt.LNM_depth(ng)).and.                &
-     &                     (LNM_depth(ng).ge.Zwtop)) THEN  ! interpolate
-                    zphi=ABS(0.5_r8*(z_r(i-1,j,k)+z_r(i,j,k)))
-                    IF (zphi.ge.LNM_depth(ng)) THEN  ! above cell center
-                      IF (k.eq.N(ng)) THEN
-                        tl_cff=0.5_r8*(Hz(i-1,j,k)+Hz(i,j,k))*          &
-     &                         tl_phi(i,k)
-                      ELSE
-                        zphi1=ABS(0.5_r8*(z_r(i-1,j,k+1)+z_r(i,j,k+1)))
-                        fac=(LNM_depth(ng)-zphi1)/(zphi-zphi1)
-                        tl_cff=(tl_phi(i,k+1)+                          &
-     &                          fac*(tl_phi(i,k)-tl_phi(i,k+1)))*       &
-     &                          (LNM_depth(ng)-zwtop)
-                      END IF
-                    ELSE                             ! below cell center
-                      IF (k.eq.1) THEN
-                        tl_cff=0.5_r8*(Hz(i-1,j,k)+Hz(i,j,k))*          &
-     &                         tl_phi(i,k)
-                      ELSE
-                        zphi1=ABS(0.5_r8*(z_r(i-1,j,k-1)+z_r(i,j,k-1)))
-                        fac=(LNM_depth(ng)-zphi)/(zphi1-zphi)
-                        tl_cff=(tl_phi(i,k)+                            &
-     &                          fac*(tl_phi(i,k-1)-tl_phi(i,k)))*       &
-     &                         (zwbot-LNM_depth(ng))
-                      END IF
-                    END IF
-#  ifdef MASKING
-                    tl_cff=tl_cff*umask(i,j)
-#  endif
-                    tl_gradPx(i,j)=tl_gradPx(i,j)+tl_cff
-                  END IF
-                END DO
+                tl_gradPx(i,j)=tl_gradPx(i,j)+tl_cff
               END DO
-            END IF
+            END DO
           END IF
 # endif
         END DO
@@ -913,10 +797,11 @@
 !  Integrate hydrostatic equation from bottom to surface.
 !
         IF (LNM_flag.eq.0) THEN
+          cff1=1.0_r8/rho0
           DO k=1,N(ng)
             DO j=Jstr,Jend
               DO i=Istr,Iend
-                tl_cff=-gorho0*tl_rho(i,j,k)*Hz(i,j,k)
+                tl_cff=-cff1*tl_rho(i,j,k)*Hz(i,j,k)
 #  ifdef MASKING
                 tl_cff=tl_cff*rmask(i,j)
 #  endif
@@ -933,13 +818,14 @@
 !  used for clarity.
 !
         ELSE IF (LNM_flag.eq.1) THEN
+          cff1=1.0_r8/rho0
           DO j=Jstr,Jend
             DO i=Istr,Iend
               DO k=1,N(ng)
                 zwtop=ABS(z_w(i,j,k  ))
                 zwbot=ABS(z_w(i,j,k-1))
                 IF (zwbot.lt.LNM_depth(ng)) THEN
-                  tl_cff=-gorho0*tl_rho(i,j,k)*Hz(i,j,k)
+                  tl_cff=-cff1*tl_rho(i,j,k)*Hz(i,j,k)
 #  ifdef MASKING
                   tl_cff=tl_cff*rmask(i,j)
 #  endif
@@ -949,22 +835,22 @@
                   zphi=ABS(z_r(i,j,k))
                   IF (zphi.ge.LNM_depth(ng)) THEN    ! above cell center
                     IF (k.eq.N(ng)) THEN
-                      tl_cff=-gorho0*tl_rho(i,j,k)*Hz(i,j,k)
+                      tl_cff=-cff1*tl_rho(i,j,k)*Hz(i,j,k)
                     ELSE
                       zphi1=ABS(z_r(i,j,k+1))
                       fac=(LNM_depth(ng)-zphi1)/(zphi-zphi1)
-                      tl_cff=-gorho0*                                   &
+                      tl_cff=-cff1*                                     &
      &                       (tl_rho(i,j,k+1)+                          &
      &                        fac*(tl_rho(i,j,k)-tl_rho(i,j,k+1)))*     &
      &                       (LNM_depth(ng)-zwtop)
                     END IF
                   ELSE                               ! below cell center
                     IF (k.eq.1) THEN
-                      tl_cff=-gorho0*tl_rho(i,j,k)*Hz(i,j,k)
+                      tl_cff=-cff1*tl_rho(i,j,k)*Hz(i,j,k)
                     ELSE
                       zphi1=ABS(z_r(i,j,k-1))
                       fac=(LNM_depth(ng)-zphi)/(zphi1-zphi)
-                      tl_cff=-gorho0*                                   &
+                      tl_cff=-cff1*                                     &
      &                       (tl_rho(i,j,k)+                            &
      &                        fac*(tl_rho(i,j,k-1)-tl_rho(i,j,k)))*     &
      &                       (zwbot-LNM_depth(ng))

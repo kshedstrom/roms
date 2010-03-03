@@ -1,9 +1,9 @@
 #include "cppdefs.h"
       MODULE bc_bry2d_mod
 !
-!svn $Id: bc_bry2d.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -22,7 +22,7 @@
       implicit none
 
       CONTAINS
-! 
+!
 !***********************************************************************
       SUBROUTINE bc_r2d_bry_tile (ng, tile, boundary,                   &
      &                            LBij, UBij,                           &
@@ -92,7 +92,7 @@
       RETURN
       END SUBROUTINE bc_r2d_bry_tile
 
-! 
+!
 !***********************************************************************
       SUBROUTINE bc_u2d_bry_tile (ng, tile, boundary,                   &
      &                            LBij, UBij,                           &
@@ -158,11 +158,11 @@
           A(Iend+1)=A(Iend)
         END IF
       END IF
- 
+
       RETURN
       END SUBROUTINE bc_u2d_bry_tile
 
-! 
+!
 !***********************************************************************
       SUBROUTINE bc_v2d_bry_tile (ng, tile, boundary,                   &
      &                            LBij, UBij,                           &

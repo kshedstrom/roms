@@ -15,9 +15,9 @@
 
       SUBROUTINE rp_uv3dmix2 (ng, tile)
 !
-!svn $Id: rp_uv3dmix2_geo.h 975 2009-05-05 22:51:13Z kate $
+!svn $Id$
 !************************************************** Hernan G. Arango ***
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !***********************************************************************
@@ -434,7 +434,7 @@
      &                                  tl_z_r(i  ,j,k+1)-              &
      &                                  tl_z_r(i  ,j,k))))+             &
 #ifdef TL_IOMS
-     &               2.0_r8*cff 
+     &               2.0_r8*cff
 #endif
               dUdz(i,j,k2)=cff*(u(i,j,k+1,nrhs)-                        &
      &                          u(i,j,k  ,nrhs))
@@ -482,7 +482,7 @@
               cff3=MIN(dZde_r(i,j,k1),0.0_r8)
               cff4=MAX(dZde_r(i,j,k1),0.0_r8)
               tl_cff1=(0.5_r8+SIGN(0.5_r8,-dZdx_r(i,j,k1)))*            &
-     &                tl_dZdx_r(i,j,k1) 
+     &                tl_dZdx_r(i,j,k1)
               tl_cff2=(0.5_r8+SIGN(0.5_r8, dZdx_r(i,j,k1)))*            &
      &                tl_dZdx_r(i,j,k1)
               tl_cff3=(0.5_r8+SIGN(0.5_r8,-dZde_r(i,j,k1)))*            &

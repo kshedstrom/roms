@@ -5,9 +5,9 @@
       MODULE lmd_skpp_mod
 #if defined NONLINEAR && defined LMD_SKPP && defined SOLVE3D
 !
-!svn $Id: lmd_skpp.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id$
 !=======================================================================
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                           Hernan G. Arango   !
 !========================================== Alexander F. Shchepetkin ===

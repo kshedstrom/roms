@@ -1,8 +1,8 @@
       SUBROUTINE t3dmix2 (ng, tile)
 !
-!svn $Id: t3dmix2_iso.h 1012 2009-07-07 20:52:45Z kate $
+!svn $Id$
 !***********************************************************************
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                           Hernan G. Arango   !
 !****************************************** Alexander F. Shchepetkin ***
@@ -163,7 +163,7 @@
       real(r8), parameter :: slope_max = 0.0001_r8
       real(r8), parameter :: strat_min = 0.1_r8
 
-      real(r8) :: cff, cff1, cff2, cff3, cff4
+      real(r8) :: cff, cff1, cff2, cff3, cff4, cff5
 
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: FE
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: FX
@@ -358,17 +358,21 @@
 !
             DO j=Jstr,Jend
               DO i=Istr,Iend
-                cff=dt(ng)*pm(i,j)*pn(i,j)*                             &
-     &                     (FX(i+1,j)-FX(i,j)+                          &
-     &                      FE(i,j+1)-FE(i,j))+                         &
-     &              dt(ng)*(FS(i,j,k2)-FS(i,j,k1))
-                t(i,j,k,nnew,itrc)=t(i,j,k,nnew,itrc)+cff
+                cff=dt(ng)*pm(i,j)*pn(i,j)
+                cff1=cff*(FX(i+1,j  )-FX(i,j))
+                cff2=cff*(FE(i  ,j+1)-FE(i,j))
+                cff3=dt(ng)*(FS(i,j,k2)-FS(i,j,k1))
+                cff4=cff1+cff2+cff3
+                t(i,j,k,nnew,itrc)=t(i,j,k,nnew,itrc)+cff4
 #ifdef TS_MPDATA
-                cff1=1.0_r8/Hz(i,j,k)
-                t(i,j,k,3,itrc)=cff1*t(i,j,k,nnew,itrc)
+                cff5=1.0_r8/Hz(i,j,k)
+                t(i,j,k,3,itrc)=cff5*t(i,j,k,nnew,itrc)
 #endif
 #ifdef DIAGNOSTICS_TS
-                DiaTwrk(i,j,k,itrc,iThdif)=cff
+                DiaTwrk(i,j,k,itrc,iTxdif)=cff1
+                DiaTwrk(i,j,k,itrc,iTydif)=cff2
+                DiaTwrk(i,j,k,itrc,iTsdif)=cff3
+                DiaTwrk(i,j,k,itrc,iThdif)=cff4
 #endif
               END DO
             END DO

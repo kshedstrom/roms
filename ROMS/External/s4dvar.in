@@ -1,8 +1,8 @@
 !  4DVar assimilation input parameters.
 !
-!svn $Id: s4dvar.in 1101 2009-11-19 00:56:17Z kate $
+!svn $Id$
 !========================================================= Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                                !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                                !
 !    Licensed under a MIT/X style license                                     !
 !    See License_ROMS.txt                                                     !
 !==============================================================================
@@ -385,8 +385,9 @@ HdecayF(isTsur) == 100.0d+3  100.0d+3             ! 1:NT surface tracers flux
 !
 !  LNM_depth      Level of no motion depth (m; positive) used to compute the
 !                 balanced free-surface contribution in the error covariance
-!                 balance operator. It is only relevant when LNM_flag=1 and
-!                 balance(isFsur)=T.
+!                 balance operator. It is only relevant when LNM_flag=1,
+!                 balance(isFsur)=T, and ZETA_ELLIPTIC is NOT activated. It
+!                 is used to integrate the non-hydrostatic equation.
 !
 !  LNM_flag       Level of no motion integration flag used to used to compute
 !                 the balanced free-surface contribution:

@@ -1,6 +1,6 @@
-# svn $Id: Linux-ftn.mk 675 2008-08-05 19:01:25Z kate $
+# svn $Id$
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-# Copyright (c) 2002-2008 The ROMS/TOMS Group                           :::
+# Copyright (c) 2002-2010 The ROMS/TOMS Group                           :::
 #   Licensed under a MIT/X style license                                :::
 #   See License_ROMS.txt                                                :::
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::

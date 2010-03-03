@@ -2,9 +2,9 @@
       MODULE cost_grad_mod
 #if defined IS4DVAR
 !
-!svn $Id: cost_grad.F 999 2009-06-09 23:48:31Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -246,7 +246,7 @@
       real(r8), intent(in) :: tl_vbar_obc(LBij:UBij,4,Nbrec(ng),2)
       real(r8), intent(in) :: tl_zeta_obc(LBij:UBij,4,Nbrec(ng),2)
 #  endif
-#  ifdef SOLVE3D 
+#  ifdef SOLVE3D
 #   ifdef ADJUST_STFLUX
       real(r8), intent(in) :: tl_tflux(LBi:UBi,LBj:UBj,                 &
      &                                 Nfrec(ng),2,NT(ng))

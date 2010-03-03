@@ -1,6 +1,6 @@
-# svn $Id: Linux-ifc.mk 1090 2009-10-27 23:59:27Z kate $
+# svn $Id$
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-# Copyright (c) 2002-2009 The ROMS/TOMS Group                           :::
+# Copyright (c) 2002-2010 The ROMS/TOMS Group                           :::
 #   Licensed under a MIT/X style license                                :::
 #   See License_ROMS.txt                                                :::
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -28,7 +28,7 @@
 # First the defaults
 #
                FC := ifc
-           FFLAGS := 
+           FFLAGS :=
               CPP := /usr/bin/cpp
          CPPFLAGS := -P -traditional
                CC := gcc
@@ -82,7 +82,7 @@ ifdef USE_MPI
  ifdef USE_MPIF90
                FC := /opt/intelsoft/mpich2/bin/mpif90
  else
-             LIBS += -lfmpi-pgi -lmpi-pgi 
+             LIBS += -lfmpi-pgi -lmpi-pgi
  endif
 endif
 

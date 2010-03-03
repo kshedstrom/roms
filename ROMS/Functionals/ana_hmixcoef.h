@@ -1,11 +1,11 @@
       SUBROUTINE ana_hmixcoef (ng, tile, model)
 !
-!! svn $Id: ana_hmixcoef.h 975 2009-05-05 22:51:13Z kate $
+!! svn $Id$
 !!================================================= Hernan G. Arango ===
-!! Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!! Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !!   Licensed under a MIT/X style license                              !
 !!   See License_ROMS.txt                                              !
-!!======================================================================
+!=======================================================================
 !                                                                      !
 !  This routine rescales horizontal mixing coefficients according      !
 !  to the grid size.  Also,  if applicable,  increases horizontal      !
@@ -179,7 +179,7 @@
 !
 !! WARNING:  This section is generic for all applications. Please do not
 !!           change the code below.
-!!            
+!!
 # ifdef UV_VIS2
       cff=visc2(ng)/grdmax(ng)
       DO j=JstrR,JendR
@@ -219,7 +219,7 @@
 !
 !! WARNING:  This section is generic for all applications. Please do not
 !!           change the code below.
-!!            
+!!
 # ifdef TS_DIF2
       DO itrc=1,NT(ng)
         cff=tnu2(itrc,ng)/grdmax(ng)
@@ -249,7 +249,7 @@
 !
 !! User modifiable section.  Please specify the appropiate sponge area
 !! by increasing its horizontal mixing coefficients.
-!!            
+!!
 
 # if defined ADRIA02
 !
@@ -295,7 +295,7 @@
 !
 !! WARNING:  This section is generic for all applications. Please do not
 !!           change the code below.
-!!            
+!!
 # if defined EW_PERIODIC || defined NS_PERIODIC
 #  ifdef UV_VIS2
       CALL exchange_r2d_tile (ng, tile,                                 &

@@ -1,7 +1,6 @@
 !
 !  ROMS/TOMS IO NetCDF variables.
 !
-!svn $Id: varinfo.dat 213 2007-04-23 23:56:25Z kate $
 !========================================================= Hernan G. Arango ===
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                                !
 !    Licensed under a MIT/X style license                                     !
@@ -4929,6 +4928,24 @@
 !  2D momentum diagnostic terms.
 !
 
+'pvorticity_bar'                                   ! Input/Output
+  '2D potential vorticity'
+  'meter-1 second-1'                               ! [1/m/s]
+  'pvorticity_bar, scalar, series'
+  'ocean_time'
+  'id2dPV'
+  'p2dvar'
+  1.0d0
+
+'rvorticity_bar'                                   ! Input/Output
+  '2D relative vorticity'
+  'second-1'                                       ! [1/s]
+  'rvorticity_bar, scalar, series'
+  'ocean_time'
+  'id2dRV'
+  'p2dvar'
+  1.0d0
+
 'ubar_accel'                                       ! Input/Output
   '2D u-momentum, acceleration term'
   'meter second-2'                                 ! [m/s2]
@@ -4992,12 +5009,48 @@
   'u2dvar'
   1.0d0
 
+'ubar_xadv'                                        ! Input/Output
+  '2D u-momentum, horizontal XI-advection term'
+  'meter second-2'                                 ! [m/s2]
+  'ubar_xadv, scalar, series'
+  'ocean_time'
+  'idDu2d(M2xadv)'
+  'u2dvar'
+  1.0d0
+
+'ubar_yadv'                                        ! Input/Output
+  '2D u-momentum, horizontal ETA-advection term'
+  'meter second-2'                                 ! [m/s2]
+  'ubar_yadv, scalar, series'
+  'ocean_time'
+  'idDu2d(M2yadv)'
+  'u2dvar'
+  1.0d0
+
 'vbar_hadv'                                        ! Input/Output
   '2D v-momentum, horizontal advection term'
   'meter second-2'                                 ! [m/s2]
   'vbar_hadv, scalar, series'
   'ocean_time'
   'idDv2d(M2hadv)'
+  'v2dvar'
+  1.0d0
+
+'vbar_xadv'                                        ! Input/Output
+  '2D v-momentum, horizontal XI-advection term'
+  'meter second-2'                                 ! [m/s2]
+  'vbar_xadv, scalar, series'
+  'ocean_time'
+  'idDv2d(M2xadv)'
+  'v2dvar'
+  1.0d0
+
+'vbar_yadv'                                        ! Input/Output
+  '2D v-momentum, horizontal ETA-advection term'
+  'meter second-2'                                 ! [m/s2]
+  'vbar_yadv, scalar, series'
+  'ocean_time'
+  'idDv2d(M2yadv)'
   'v2dvar'
   1.0d0
 
@@ -5028,12 +5081,48 @@
   'u2dvar'
   1.0d0
 
+'ubar_xvisc'                                       ! Input/Output
+  '2D u-momentum, horizontal XI-viscosity term'
+  'meter second-2'                                 ! [m/s2]
+  'ubar_xvisc, scalar, series'
+  'ocean_time'
+  'idDu2d(M2xvis)'
+  'u2dvar'
+  1.0d0
+
+'ubar_yvisc'                                       ! Input/Output
+  '2D u-momentum, horizontal ETA-viscosity term'
+  'meter second-2'                                 ! [m/s2]
+  'ubar_yvisc, scalar, series'
+  'ocean_time'
+  'idDu2d(M2yvis)'
+  'u2dvar'
+  1.0d0
+
 'vbar_hvisc'                                       ! Input/Output
   '2D v-momentum, horizontal viscosity term'
   'meter second-2'                                 ! [m/s2]
   'vbar_hvisc, scalar, series'
   'ocean_time'
   'idDv2d(M2hvis)'
+  'v2dvar'
+  1.0d0
+
+'vbar_xvisc'                                       ! Input/Output
+  '2D v-momentum, horizontal XI-viscosity term'
+  'meter second-2'                                 ! [m/s2]
+  'vbar_xvisc, scalar, series'
+  'ocean_time'
+  'idDv2d(M2xvis)'
+  'v2dvar'
+  1.0d0
+
+'vbar_yvisc'                                       ! Input/Output
+  '2D v-momentum, horizontal ETA-viscosity term'
+  'meter second-2'                                 ! [m/s2]
+  'vbar_yvisc, scalar, series'
+  'ocean_time'
+  'idDv2d(M2yvis)'
   'v2dvar'
   1.0d0
 
@@ -5076,6 +5165,24 @@
 !
 !  3D momentum diagnostic terms.
 !
+
+'pvorticity'                                       ! Input/Output
+  'potential vorticity'
+  'meter-1 second-1'                               ! [1/m/s]
+  'pvorticity, scalar, series'
+  'ocean_time'
+  'id3dPV'
+  'p3dvar'
+  1.0d0
+
+'rvorticity'                                       ! Input/Output
+  'relative vorticity'
+  'second-1'                                       ! [1/s]
+  'rvorticity, scalar, series'
+  'ocean_time'
+  'id3dRV'
+  'p3dvar'
+  1.0d0
 
 'u_accel'                                          ! Input/Output
   '3D u-momentum, acceleration term'
@@ -5140,12 +5247,48 @@
   'u3dvar'
   1.0d0
 
+'u_xadv'                                           ! Input/Output
+  '3D u-momentum, horizontal XI-advection term'
+  'meter second-2'                                 ! [m/s2]
+  'u_xadv, scalar, series'
+  'ocean_time'
+  'idDu3d(M3xadv)'
+  'u3dvar'
+  1.0d0
+
+'u_yadv'                                           ! Input/Output
+  '3D u-momentum, horizontal ETA-advection term'
+  'meter second-2'                                 ! [m/s2]
+  'u_yadv, scalar, series'
+  'ocean_time'
+  'idDu3d(M3yadv)'
+  'u3dvar'
+  1.0d0
+
 'v_hadv'                                           ! Input/Output
   '3D v-momentum, horizontal advection term'
   'meter second-2'                                 ! [m/s2]
   'v_hadv, scalar, series'
   'ocean_time'
   'idDv3d(M3hadv)'
+  'v3dvar'
+  1.0d0
+
+'v_xadv'                                           ! Input/Output
+  '3D v-momentum, horizontal XI-advection term'
+  'meter second-2'                                 ! [m/s2]
+  'v_xadv, scalar, series'
+  'ocean_time'
+  'idDv3d(M3xadv)'
+  'v3dvar'
+  1.0d0
+
+'v_yadv'                                           ! Input/Output
+  '3D v-momentum, horizontal ETA-advection term'
+  'meter second-2'                                 ! [m/s2]
+  'v_yadv, scalar, series'
+  'ocean_time'
+  'idDv3d(M3yadv)'
   'v3dvar'
   1.0d0
 
@@ -5212,12 +5355,48 @@
   'u3dvar'
   1.0d0
 
+'u_xvisc'                                          ! Input/Output
+  '3D u-momentum, horizontal XI-viscosity term'
+  'meter second-2'                                 ! [m/s2]
+  'u_xvisc, scalar, series'
+  'ocean_time'
+  'idDu3d(M3xvis)'
+  'u3dvar'
+  1.0d0
+
+'u_yvisc'                                          ! Input/Output
+  '3D u-momentum, horizontal ETA-viscosity term'
+  'meter second-2'                                 ! [m/s2]
+  'u_yvisc, scalar, series'
+  'ocean_time'
+  'idDu3d(M3yvis)'
+  'u3dvar'
+  1.0d0
+
 'v_hvisc'                                          ! Input/Output
   '3D v-momentum, horizontal viscosity term'
   'meter second-2'                                 ! [m/s2]
   'v_hvisc, scalar, series'
   'ocean_time'
   'idDv3d(M3hvis)'
+  'v3dvar'
+  1.0d0
+
+'v_xvisc'                                          ! Input/Output
+  '3D v-momentum, horizontal XI-viscosity term'
+  'meter second-2'                                 ! [m/s2]
+  'v_xvisc, scalar, series'
+  'ocean_time'
+  'idDv3d(M3xvis)'
+  'v3dvar'
+  1.0d0
+
+'v_yvisc'                                          ! Input/Output
+  '3D v-momentum, horizontal ETA-viscosity term'
+  'meter second-2'                                 ! [m/s2]
+  'v_yvisc, scalar, series'
+  'ocean_time'
+  'idDv3d(M3yvis)'
   'v3dvar'
   1.0d0
 
@@ -5264,6 +5443,24 @@
   'r3dvar'
   1.0d0
 
+'_xadv'                                            ! Input/Output
+  'horizontal XI-advection term'
+  'second-1'                                       ! [1/s T]
+  '_xadv, scalar, series'
+  'ocean_time'
+  'idDtrc(iTxadv)'
+  'r3dvar'
+  1.0d0
+
+'_yadv'                                            ! Input/Output
+  'horizontal ETA-advection term'
+  'second-1'                                       ! [1/s T]
+  '_yadv, scalar, series'
+  'ocean_time'
+  'idDtrc(iTyadv)'
+  'r3dvar'
+  1.0d0
+
 '_vadv'                                            ! Input/Output
   'vertical advection term'
   'second-1'                                       ! [1/s T]
@@ -5279,6 +5476,33 @@
   '_hdiff, scalar, series'
   'ocean_time'
   'idDtrc(iThdif)'
+  'r3dvar'
+  1.0d0
+
+'_xdiff'                                           ! Input/Output
+  'horizontal XI-diffusion term'
+  'second-1'                                       ! [1/s T]
+  '_xdiff, scalar, series'
+  'ocean_time'
+  'idDtrc(iTxdif)'
+  'r3dvar'
+  1.0d0
+
+'_ydiff'                                           ! Input/Output
+  'horizontal ETA-diffusion term'
+  'second-1'                                       ! [1/s T]
+  '_ydiff, scalar, series'
+  'ocean_time'
+  'idDtrc(iTydif)'
+  'r3dvar'
+  1.0d0
+
+'_sdiff'                                           ! Input/Output
+  'horizontal S-diffusion rotated tensor term'
+  'second-1'                                       ! [1/s T]
+  '_sdiff, scalar, series'
+  'ocean_time'
+  'idDtrc(iTsdif)'
   'r3dvar'
   1.0d0
 
