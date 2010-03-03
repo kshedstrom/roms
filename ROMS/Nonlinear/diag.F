@@ -157,16 +157,12 @@
       integer :: NSUB, i, j, k, trd, ibt, itrc
 #ifdef DISTRIBUTE
 # ifdef SOLVE3D
-#  ifdef BIOLOGY
-      integer, parameter :: Nreduce = 5 + NBT
-#  else
-      integer, parameter :: Nreduce = 5
-#  endif
+      integer :: Nreduce = 5
 # else
-      integer, parameter :: Nreduce = 4
+      integer :: Nreduce = 4
 # endif
-      real(r8), dimension(Nreduce) :: buffer
-      character (len=3), dimension(Nreduce) :: op_handle
+      real(r8), allocatable          :: buffer(:)
+      character (len=3), allocatable :: op_handle(:)
 #else
       integer :: my_threadnum
 #endif
@@ -199,6 +195,9 @@
 #ifdef SOLVE3D
         my_maxrho=-1.0E+20_r8
 # ifdef BIOLOGY
+#  ifdef DISTRIBUTE
+        Nreduce = 5 + NBT
+#  endif
         DO ibt=1,NBT
           my_maxbio(ibt)=-1.0E+20_r8
         END DO
@@ -340,6 +339,12 @@
         IF (tile_count.eq.NSUB) THEN
           tile_count=0
 #ifdef DISTRIBUTE
+	  IF (.not. allocated(buffer)) THEN
+	    allocate ( buffer(Nreduce) )
+	  END IF
+	  IF (.not. allocated(op_handle)) THEN
+	    allocate ( op_handle(Nreduce) )
+	  END IF
           buffer(1)=volume
           buffer(2)=avgke
           buffer(3)=avgpe
