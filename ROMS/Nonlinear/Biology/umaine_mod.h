@@ -191,22 +191,23 @@
       END DO
       iNO3_=ic+1
       iNH4_=ic+2
-      iChlo=ic+3
-      iPhyt=ic+4
-      iZoop=ic+5
-      iLDeN=ic+6
-      iSDeN=ic+7
-      ic=ic+7
-# ifdef CARBON
-      iLDeC=ic+1
-      iSDeC=ic+2
-      iTIC_=ic+3
-      iTAlk=ic+4
-      ic=ic+4
-# endif
+      iSiOH=ic+3
+      iSphy=ic+4
+      iLphy=ic+5
+      iSzoo=ic+6
+      iLzoo=ic+7
+      iSDet=ic+8
+      iopal=ic+9
+      iPO4_=ic+10
+      ic=ic+10
 # ifdef OXYGEN
       iOxyg=ic+1
       ic=ic+1
+# endif
+# ifdef CARBON
+      iTIC_=ic+1
+      iTAlk=ic+2
+      ic=ic+2
 # endif
 
       RETURN

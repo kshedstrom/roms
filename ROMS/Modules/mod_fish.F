@@ -2,7 +2,7 @@
       MODULE mod_fish
 #ifdef NEMURO_SAN
 !
-!svn $Id: mod_fish.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -63,6 +63,60 @@
         END TYPE T_FISHES
 
         TYPE (T_FISHES), allocatable :: FISHES(:)
+!
+!  Set biological tracer identification indices.
+!
+      integer, allocatable :: idfish(:)     ! Fish species map
+      integer, allocatable :: idfish_inv(:) ! Fish species inverse map
+
+      integer, parameter :: ifwwt = 1       ! fish wet weight
+      integer, parameter :: ifworth = 2     ! fish worth
+      integer, parameter :: ifage = 3       ! age as stage
+      integer, parameter :: ifbday = 4      ! birthday
+      integer, parameter :: ifspwnloc = 5   ! spawn_dist of mother
+      integer, parameter :: ifbatch = 6     ! number of batches spawned
+      integer, parameter :: iftspwn = 7     ! time of last batch spawned
+      integer, parameter :: ifeggs = 8      ! number of eggs spawned
+      integer, parameter :: ifpval = 9      ! number of eggs spawned
+      integer, parameter :: ifeatme = 10    ! fish-eat-fish predation rate
+      integer, parameter :: ifyield = 11    ! yield to fisheries
+! Lifestage and gender
+      integer, parameter :: if_egg = 1
+      integer, parameter :: if_yolksac = 2
+      integer, parameter :: if_larva = 3
+      integer, parameter :: if_juvenile = 4
+      integer, parameter :: if_subadult = 5
+      integer, parameter :: if_adult = 6
+! Species IDs
+      integer, parameter :: if_none = 0
+      integer, parameter :: if_anchovy = 1
+      integer, parameter :: if_sardine = 2
+      integer, parameter :: if_herring = 3
+      integer, parameter :: if_polluck = 4
+      integer, parameter :: if_pinksalmon = 5
+      integer, parameter :: max_yearclass = 10
+#ifdef EGGS_BISECTION
+      logical :: lr_split = .true.
+#endif
+!
+!  Other parameters.
+!
+      integer, dimension(Ngrids) :: idays
+      integer, dimension(Ngrids) :: iyesterday
+      integer, dimension(Ngrids) :: iyears
+      integer, dimension(Ngrids) :: iyesteryear
+!
+!  Logical switches.
+!
+      logical, dimension(Ngrids) :: Lfish
+      logical, dimension(Ngrids) :: Lships
+      logical, dimension(Ngrids) :: Lpredators
+!
+!  Fish restart switch.
+!
+      integer, dimension(Ngrids) :: fishrrec
+      integer, dimension(Ngrids) :: shiprrec
+      integer, dimension(Ngrids) :: predrrec
 
       CONTAINS
 
@@ -140,6 +194,13 @@
       allocate ( FISHES(ng) % age_base(Nspecies(ng)) ) 
 
       allocate ( FISHES(ng) % species_base(Nspecies(ng)) )
+
+      IF (.not.allocated(idfish)) THEN
+        allocate ( idfish(max_species) )
+      END IF
+      IF (.not.allocated(idfish_inv)) THEN
+        allocate ( idfish_inv(max_species) )
+      END IF
 !
 !-----------------------------------------------------------------------
 !  Initialize module variables.
@@ -176,6 +237,12 @@
         FISHES(ng) % eatfish(iflt) = .FALSE.
         FISHES(ng) % fishgirl(iflt) = .FALSE.
         FISHES(ng) % fishnodes(iflt) % fish = iflt
+      END DO
+
+      DO ng=1,Ngrids
+        Lfish(ng)=.TRUE.
+        Lships(ng)=.TRUE.
+        LdefFISH(ng)=.TRUE.
       END DO
 
       RETURN

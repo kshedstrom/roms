@@ -1233,6 +1233,9 @@
 #ifdef BIOLOGY
             CALL initialize_biology
 #endif
+#ifdef NEMURO_SAN
+            CALL initialize_fish
+#endif
 #if defined SEDIMENT || defined BBL_MODEL
             CALL initialize_sediment
 #endif

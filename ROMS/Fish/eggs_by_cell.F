@@ -68,6 +68,7 @@
       USE mod_scalars
       USE mod_stepping
       USE mod_egglist
+      USE mod_fish
 !
 !  Imported variable declarations.
 !
