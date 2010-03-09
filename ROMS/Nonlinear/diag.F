@@ -1,9 +1,9 @@
 #include "cppdefs.h"
       MODULE diag_mod
 !
-!svn $Id: diag.F 1102 2009-11-19 01:03:09Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -95,9 +95,11 @@
       USE mod_parallel
       USE mod_iounits
       USE mod_scalars
+#ifdef BIOLOGY
+      USE mod_biology, ONLY : idbio
+#endif
 
 #ifdef DISTRIBUTE
-!
       USE distribute_mod, ONLY : mp_reduce
 #endif
 !
@@ -155,18 +157,14 @@
       integer :: NSUB, i, j, k, trd, ibt, itrc
 #ifdef DISTRIBUTE
 # ifdef SOLVE3D
-#  ifdef BIOLOGY
-      integer, parameter :: Nreduce = 5 + NBT
-#  else
-      integer, parameter :: Nreduce = 5
-#  endif
+      integer :: Nreduce = 5
 # else
-      integer, parameter :: Nreduce = 4
+      integer :: Nreduce = 4
 # endif
-      real(r8), dimension(Nreduce) :: buffer
-      character (len=3), dimension(Nreduce) :: op_handle
+      real(r8), allocatable          :: buffer(:)
+      character (len=3), allocatable :: op_handle(:)
 #else
-      integer :: my_threadnum      
+      integer :: my_threadnum
 #endif
 
       real(r8) :: cff, my_avgke, my_avgpe, my_volume
@@ -197,6 +195,9 @@
 #ifdef SOLVE3D
         my_maxrho=-1.0E+20_r8
 # ifdef BIOLOGY
+#  ifdef DISTRIBUTE
+        Nreduce = 5 + NBT
+#  endif
         DO ibt=1,NBT
           my_maxbio(ibt)=-1.0E+20_r8
         END DO
@@ -338,6 +339,12 @@
         IF (tile_count.eq.NSUB) THEN
           tile_count=0
 #ifdef DISTRIBUTE
+	  IF (.not. allocated(buffer)) THEN
+	    allocate ( buffer(Nreduce) )
+	  END IF
+	  IF (.not. allocated(op_handle)) THEN
+	    allocate ( op_handle(Nreduce) )
+	  END IF
           buffer(1)=volume
           buffer(2)=avgke
           buffer(3)=avgpe

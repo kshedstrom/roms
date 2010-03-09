@@ -3,9 +3,9 @@
 
 #if defined MODEL_COUPLING && defined MCT_LIB
 !
-!svn $Id: waves_coupler.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id$
 !==================================================== John C. Warner ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group      Hernan G. Arango   !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group      Hernan G. Arango   !
 !   Licensed under a MIT/X style license                               !
 !   See License_ROMS.txt                                               !
 !=======================================================================
@@ -569,7 +569,7 @@
         IF (MyRank.eq.0) THEN
           IF ((Iimport.gt.0).or.(Iexport.gt.0)) THEN
             WRITE (6,30) Iimport, Iexport, TRIM(CHTIME),                &
-     &                   RecvTime, SendTime 
+     &                   RecvTime, SendTime
            CALL my_flush (6)
           END IF
         END IF

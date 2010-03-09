@@ -2,9 +2,9 @@
       MODULE bc_3d_mod
 #ifdef SOLVE3D
 !
-!svn $Id: bc_3d.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -448,7 +448,7 @@
       IF ((SOUTHERN_EDGE).and.(EASTERN_EDGE)) THEN
         DO k=LBk,UBk
           A(Iend+1,Jstr  ,k)=0.5_r8*(A(Iend  ,Jstr  ,k)+                &
-     &                               A(Iend+1,Jstr+1,k))  
+     &                               A(Iend+1,Jstr+1,k))
         END DO
       END IF
       IF ((NORTHERN_EDGE).and.(WESTERN_EDGE)) THEN

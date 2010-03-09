@@ -2,9 +2,9 @@
 #ifdef AVERAGES
       SUBROUTINE def_avg (ng, ldef)
 !
-!svn $Id: def_avg.F 990 2009-05-28 00:54:01Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -16,6 +16,9 @@
 !
       USE mod_param
       USE mod_parallel
+# ifdef BIOLOGY
+      USE mod_biology
+# endif
 # ifdef FOUR_DVAR
       USE mod_fourdvar
 # endif
@@ -49,7 +52,7 @@
       integer :: i, itrc, j, model, nvd3, nvd4
       integer :: recdim, status
 
-      integer :: DimIDs(31), t2dgrd(3), u2dgrd(3), v2dgrd(3)
+      integer :: DimIDs(32), t2dgrd(3), u2dgrd(3), v2dgrd(3)
       integer :: Vsize(4)
 
       integer :: def_dim
@@ -189,6 +192,10 @@
         IF (exit_flag.ne.NoError) RETURN
 
 #  ifdef SEDIMENT
+        status=def_dim(ng, iNLM, ncAVGid(ng), ncname, 'NST',            &
+     &                 NST, DimIDs(32))
+        IF (exit_flag.ne.NoError) RETURN
+
         status=def_dim(ng, model, ncAVGid(ng), ncname, 'Nbed',          &
      &                 Nbed, DimIDs(16))
         IF (exit_flag.ne.NoError) RETURN
@@ -1239,7 +1246,7 @@
           Vinfo(20)='mask_rho'
 #   endif
           Vinfo(22)='coordinates'
-          Aval(5)=REAL(Iinfo(1,idTsur(itemp),ng),r8)
+          Aval(5)=REAL(Iinfo(1,idTsur(isalt),ng),r8)
           status=def_var(ng, model, ncAVGid(ng),                        &
      &                   avgVid(idTsur(isalt),ng), NF_FOUT,             &
      &                   nvd3, t2dgrd, Aval, Vinfo, ncname)
@@ -2634,7 +2641,7 @@
              got_var(idTvar(itrc))=.TRUE.
              avgTid(itrc,ng)=var_id(i)
             END IF
-          END DO 
+          END DO
 #  ifdef AVERAGES_QUADRATIC
           DO itrc=1,NAT
             IF (TRIM(var_name(i)).eq.TRIM(Vname(1,iHUTav(itrc)))) THEN

@@ -2,9 +2,9 @@
       MODULE omega_mod
 #ifdef SOLVE3D
 !
-!svn $Id: omega.F 1039 2009-08-11 22:52:28Z kate $
+!svn $Id$
 !=======================================================================
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                           Hernan G. Arango   !
 !========================================== Alexander F. Shchepetkin ===
@@ -33,6 +33,9 @@
       USE mod_ocean
 # ifdef Q_PSOURCE
       USE mod_sources
+# endif
+# if defined SEDIMENT && defined SED_MORPH
+      USE mod_sedbed
 # endif
 # if defined Q_PSOURCE || (defined SEDIMENT && defined SED_MORPH)
       USE mod_stepping
@@ -64,7 +67,7 @@
 # endif
 # if defined SEDIMENT && defined SED_MORPH
      &                 GRID(ng) % omn,                                  &
-     &                 GRID(ng) % bed_thick,                            &
+     &                 SEDBED(ng) % bed_thick,                          &
 # endif
      &                 GRID(ng) % Huon,                                 &
      &                 GRID(ng) % Hvom,                                 &

@@ -2,9 +2,9 @@
       MODULE mod_obs
 #if defined ASSIMILATION || defined NUDGING
 !
-!svn $Id: mod_obs.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -71,7 +71,7 @@
         implicit none
 
         TYPE T_OBS
-      
+
 # if defined ASSIMILATION_SSH || defined NUDGING_SSH
           real(r8), pointer :: EobsSSH(:,:)
           real(r8), pointer :: SSHobs (:,:)
@@ -309,7 +309,7 @@
           OBS(ng) % EdatSSH(i,j,2) = IniVal
           OBS(ng) % SSHdat(i,j,1) = IniVal
           OBS(ng) % SSHdat(i,j,2) = IniVal
-        END DO        
+        END DO
 #  endif
 # endif
 # if defined ASSIMILATION_SST || defined NUDGING_SST

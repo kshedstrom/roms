@@ -1,8 +1,8 @@
       SUBROUTINE ana_sediment (ng, tile, model)
 !
-!! svn $Id: ana_sediment.h 975 2009-05-05 22:51:13Z kate $
+!! svn $Id$
 !!======================================================================
-!! Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!! Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !!   Licensed under a MIT/X style license                              !
 !!   See License_ROMS.txt                                              !
 !=======================================================================
@@ -18,6 +18,7 @@
       USE mod_grid
       USE mod_ncparam
       USE mod_ocean
+      USE mod_sedbed
 !
 ! Imported variable declarations.
 !
@@ -37,11 +38,11 @@
 #endif
 #ifdef SEDIMENT
      &                        OCEAN(ng) % t,                            &
-     &                        OCEAN(ng) % bed,                          &
-     &                        OCEAN(ng) % bed_frac,                     &
-     &                        OCEAN(ng) % bed_mass,                     &
+     &                        SEDBED(ng) % bed,                         &
+     &                        SEDBED(ng) % bed_frac,                    &
+     &                        SEDBED(ng) % bed_mass,                    &
 #endif
-     &                        OCEAN(ng) % bottom)
+     &                        SEDBED(ng) % bottom)
 !
 ! Set analytical header file name used.
 !
@@ -216,8 +217,8 @@
       END DO
 !
 !-----------------------------------------------------------------------
-!  Initial sediment bed layer properties of 
-!  age, thickness, porosity, and initialize sediment bottom 
+!  Initial sediment bed layer properties of
+!  age, thickness, porosity, and initialize sediment bottom
 !  properites of ripple length, ripple height, and default Zob.
 !-----------------------------------------------------------------------
 !

@@ -2,9 +2,9 @@
 #ifndef ANA_GRID
       SUBROUTINE get_grid (ng, model)
 !
-!svn $Id: get_grid.F 1056 2009-09-08 18:51:43Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -53,8 +53,8 @@
       logical :: NSperiodic=.FALSE.
 #  endif
 # endif
-# if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
-     defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR || \
+# if defined AD_SENSITIVITY   || defined IS4DVAR_SENSITIVITY || \
+     defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR   || \
      defined SO_SEMI
       logical :: GotScope(6)
 # endif
@@ -202,7 +202,7 @@
         CALL netcdf_get_svar (ng, model, ncname, 'spherical',           &
      &                        char1,                                    &
      &                         ncid = ncGRDid(ng))
-        IF (exit_flag.eq.NoError) THEN 
+        IF (exit_flag.eq.NoError) THEN
           IF ((char1.eq.'t').or.(char1.eq.'T')) THEN
             spherical=.TRUE.
           END IF
@@ -1071,8 +1071,8 @@
      &                          NghostPoints, EWperiodic, NSperiodic,   &
      &                          GRID(ng) % angler)
 # endif
-# if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
-     defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR || \
+# if defined AD_SENSITIVITY   || defined IS4DVAR_SENSITIVITY || \
+     defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR   || \
      defined SO_SEMI
 !
 !  Read in adjoint sensitivity spatial scope masking at RHO-points.
@@ -1180,8 +1180,8 @@
       CALL netcdf_close (ng, model, ncGRDid(ng), ncname)
       IF (exit_flag.ne.NoError) RETURN
 
-# if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
-     defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR || \
+# if defined AD_SENSITIVITY   || defined IS4DVAR_SENSITIVITY || \
+     defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR   || \
      defined SO_SEMI
 !
 !-----------------------------------------------------------------------

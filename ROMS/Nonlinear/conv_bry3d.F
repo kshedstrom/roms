@@ -5,9 +5,9 @@
 #if defined NONLINEAR && defined FOUR_DVAR && defined SOLVE3D && \
     defined ADJUST_BOUNDARY
 !
-!svn $Id: conv_bry3d.F 1012 2009-07-07 20:52:45Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -60,7 +60,7 @@
       implicit none
 
       PUBLIC
- 
+
       CONTAINS
 !
 !***********************************************************************

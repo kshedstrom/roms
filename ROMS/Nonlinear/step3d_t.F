@@ -2,9 +2,9 @@
       MODULE step3d_t_mod
 #if !defined TS_FIXED && (defined NONLINEAR && defined SOLVE3D)
 !
-!svn $Id: step3d_t.F 1090 2009-10-27 23:59:27Z kate $
+!svn $Id$
 !=======================================================================
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                           Hernan G. Arango   !
 !========================================== Alexander F. Shchepetkin ===
@@ -29,7 +29,7 @@
 # ifdef CLIMATOLOGY
       USE mod_clima
 # endif
-# ifdef DIAGNOSTICS
+# ifdef DIAGNOSTICS_TS
       USE mod_diags
 # endif
       USE mod_grid
@@ -65,7 +65,6 @@
      &                    SOURCES(ng) % Tsrc,                           &
 # endif
 # ifdef TS_PSOURCE
-     &                    SOURCES(ng) % Lsrc,                           &
      &                    SOURCES(ng) % Dsrc,                           &
 # endif
 # ifdef Q_PSOURCE
@@ -145,7 +144,7 @@
      &                          Isrc, Jsrc, Tsrc,                       &
 # endif
 # ifdef TS_PSOURCE
-     &                          Lsrc, Dsrc,                             &
+     &                          Dsrc,                                   &
 # endif
 # ifdef Q_PSOURCE
      &                          Qsrc,                                   &
@@ -225,9 +224,6 @@
 # endif
 !
 # ifdef ASSUMED_SHAPE
-#  ifdef TS_PSOURCE
-      logical, intent(in) :: Lsrc(:,:)
-#  endif
 #  if defined TS_PSOURCE || defined Q_PSOURCE
       integer, intent(in) :: Isrc(:)
       integer, intent(in) :: Jsrc(:)
@@ -307,9 +303,6 @@
 
 # else
 
-#  ifdef TS_PSOURCE
-      logical, intent(in) :: Lsrc(Msrc,NT(ng))
-#  endif
 #  if defined TS_PSOURCE || defined Q_PSOURCE
       integer, intent(in) :: Isrc(Msrc)
       integer, intent(in) :: Jsrc(Msrc)
@@ -407,11 +400,12 @@
 #  endif
 # endif
       integer :: i, ibt, is, itrc, j, k, ltrc
+# ifdef DIAGNOSTICS_TS
       integer :: idiag
-
+# endif
       real(r8), parameter :: eps = 1.0E-16_r8
 
-      real(r8) :: cff, cff1, cff2, cff3
+      real(r8) :: cff, cff1, cff2, cff3, cff4
 
       real(r8), dimension(IminS:ImaxS,0:N(ng)) :: CF
       real(r8), dimension(IminS:ImaxS,0:N(ng)) :: BC
@@ -574,7 +568,7 @@
 #  else
 !  Fourth-order, centered differences horizontal advective fluxes.
 #  endif
-!  
+!
 #  ifdef EW_PERIODIC
 #   define I_RANGE Istr-1,Iend+2
 #  else
@@ -720,7 +714,7 @@
               IF (((Istr.le.i).and.(i.le.Iend+1)).and.                  &
      &            ((Jstr.le.j).and.(j.le.Jend))) THEN
 #  endif
-                IF (Lsrc(is,itrc)) THEN
+                IF (LtracerSrc(itrc,ng)) THEN
                   FX(i,j)=Huon(i,j,k)*Tsrc(is,k,itrc)
 #  ifdef MASKING
                 ELSE
@@ -742,7 +736,7 @@
               IF (((Istr.le.i).and.(i.le.Iend)).and.                    &
      &            ((Jstr.le.j).and.(j.le.Jend+1))) THEN
 #  endif
-                IF (Lsrc(is,itrc)) THEN
+                IF (LtracerSrc(itrc,ng)) THEN
                   FE(i,j)=Hvom(i,j,k)*Tsrc(is,k,itrc)
 #  ifdef MASKING
                 ELSE
@@ -780,19 +774,22 @@
           DO j=J_RANGE
             DO i=I_RANGE
               cff=dt(ng)*pm(i,j)*pn(i,j)
-              cff1=cff*(FX(i+1,j)-FX(i,j)+                              &
-     &                  FE(i,j+1)-FE(i,j))
+              cff1=cff*(FX(i+1,j)-FX(i,j))
+              cff2=cff*(FE(i,j+1)-FE(i,j))
+              cff3=cff1+cff2
 #  ifdef TS_MPDATA
-              cff2=Hz(i,j,k)+                                           &
+              cff4=Hz(i,j,k)+                                           &
      &             cff*(Huon(i+1,j,k)-Huon(i,j,k)+                      &
      &                  Hvom(i,j+1,k)-Hvom(i,j,k)+                      &
      &                  (W(i,j,k)-W(i,j,k-1)))                 ! Hz_old
-              Ta(i,j,k,itrc)=t(i,j,k,3,itrc)*cff2-cff1
+              Ta(i,j,k,itrc)=t(i,j,k,3,itrc)*cff4-cff3
 #  else
-              t(i,j,k,nnew,itrc)=t(i,j,k,nnew,itrc)-cff1
+              t(i,j,k,nnew,itrc)=t(i,j,k,nnew,itrc)-cff3
 #  endif
 #  ifdef DIAGNOSTICS_TS
-              DiaTwrk(i,j,k,itrc,iThadv)=-cff1
+              DiaTwrk(i,j,k,itrc,iTxadv)=-cff1
+              DiaTwrk(i,j,k,itrc,iTyadv)=-cff2
+              DiaTwrk(i,j,k,itrc,iThadv)=-cff3
 #  endif
 #   if defined RUNOFF && defined BARENTS_0_2
               IF(itrc.eq.isalt) THEN
@@ -1016,18 +1013,10 @@
 #  endif
 #  ifdef DIAGNOSTICS_TS
               DiaTwrk(i,j,k,itrc,iTvadv)=-cff1
-              DiaTwrk(i,j,k,itrc,iThadv)=DiaTwrk(i,j,k,itrc,iThadv)*    &
-     &                                   oHz(i,j,k)
-              DiaTwrk(i,j,k,itrc,iTvadv)=DiaTwrk(i,j,k,itrc,iTvadv)*    &
-     &                                   oHz(i,j,k)
-#   if defined TS_DIF2 || defined TS_DIF4
-              DiaTwrk(i,j,k,itrc,iThdif)=DiaTwrk(i,j,k,itrc,iThdif)*    &
-     &                                   oHz(i,j,k)
-#   endif
-              DiaTwrk(i,j,k,itrc,iTvdif)=DiaTwrk(i,j,k,itrc,iTvdif)*    &
-     &                                   oHz(i,j,k)
-              DiaTwrk(i,j,k,itrc,iTrate)=DiaTwrk(i,j,k,itrc,iTrate)*    &
-     &                                   oHz(i,j,k)
+              DO idiag=1,NDT
+                DiaTwrk(i,j,k,itrc,idiag)=DiaTwrk(i,j,k,itrc,idiag)*    &
+     &                                    oHz(i,j,k)
+              END DO
 #  endif
 # endif
             END DO
@@ -1089,13 +1078,18 @@
 !
           DO j=Jstr,Jend
             DO i=Istr,Iend
-              cff1=dt(ng)*pm(i,j)*pn(i,j)*                              &
-     &             (FX(i+1,j)-FX(i,j)+                                  &
-     &              FE(i,j+1)-FE(i,j))
-              t(i,j,k,nnew,itrc)=Ta(i,j,k,itrc)*Hz(i,j,k)-cff1
+              cff=dt(ng)*pm(i,j)*pn(i,j)
+              cff1=cff*(FX(i+1,j)-FX(i,j))
+              cff2=cff*(FE(i,j+1)-FE(i,j))
+              cff3=cff1+cff2
+              t(i,j,k,nnew,itrc)=Ta(i,j,k,itrc)*Hz(i,j,k)-cff3
 #  ifdef DIAGNOSTICS_TS
-              DiaTwrk(i,j,k,itrc,iThadv)=DiaTwrk(i,j,k,itrc,iThadv)-    &
+              DiaTwrk(i,j,k,itrc,iTxadv)=DiaTwrk(i,j,k,itrc,iTxadv)-    &
      &                                   cff1
+              DiaTwrk(i,j,k,itrc,iTyadv)=DiaTwrk(i,j,k,itrc,iTyadv)-    &
+     &                                   cff2
+              DiaTwrk(i,j,k,itrc,iThadv)=DiaTwrk(i,j,k,itrc,iThadv)-    &
+     &                                   cff3
 #  endif
             END DO
           END DO
@@ -1132,18 +1126,10 @@
 #  ifdef DIAGNOSTICS_TS
               DiaTwrk(i,j,k,itrc,iTvadv)=DiaTwrk(i,j,k,itrc,iTvadv)-    &
      &                                   cff1
-              DiaTwrk(i,j,k,itrc,iThadv)=DiaTwrk(i,j,k,itrc,iThadv)*    &
-     &                                   oHz(i,j,k)
-              DiaTwrk(i,j,k,itrc,iTvadv)=DiaTwrk(i,j,k,itrc,iTvadv)*    &
-     &                                   oHz(i,j,k)
-#   if defined TS_DIF2 || defined TS_DIF4
-              DiaTwrk(i,j,k,itrc,iThdif)=DiaTwrk(i,j,k,itrc,iThdif)*    &
-     &                                   oHz(i,j,k)
-#   endif
-              DiaTwrk(i,j,k,itrc,iTvdif)=DiaTwrk(i,j,k,itrc,iTvdif)*    &
-     &                                   oHz(i,j,k)
-              DiaTwrk(i,j,k,itrc,iTrate)=DiaTwrk(i,j,k,itrc,iTrate)*    &
-     &                                   oHz(i,j,k)
+              DO idiag=1,NDT
+                DiaTwrk(i,j,k,itrc,idiag)=DiaTwrk(i,j,k,itrc,idiag)*    &
+     &                                    oHz(i,j,k)
+              END DO
 #  endif
             END DO
           END DO

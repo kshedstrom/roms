@@ -2,7 +2,7 @@
 #ifdef TANGENT
       SUBROUTINE tl_step2d (ng, tile)
 !
-!svn $Id: tl_step2d_LF_AM3.h 1039 2009-08-11 22:52:28Z kate $
+!svn $Id$
 !=======================================================================
 !                                                                      !
 !  Tangent linear model shallow-water primitive equations predictor    !
@@ -26,6 +26,9 @@
       USE mod_mixing
 # endif
       USE mod_ocean
+# if defined SEDIMENT && defined SED_MORPH && defined SOLVE3D
+      USE mod_sedbed
+# endif
 # if defined UV_PSOURCE || defined Q_PSOURCE
       USE mod_sources
 # endif
@@ -71,7 +74,7 @@
      &                     GRID(ng) % zice,                             &
 #  endif
 #  if defined SEDIMENT_NOT_YET && defined SED_MORPH_NOT_YET
-     &                     GRID(ng) % tl_bed_thick,                     &
+     &                     SEDBED(ng) % tl_bed_thick,                   &
 #  endif
      &                     GRID(ng) % tl_Hz,                            &
      &                     GRID(ng) % tl_z_r,      GRID(ng) % tl_z_w,   &
@@ -937,6 +940,7 @@
 !  conditions to time averaged fields.
 !
       IF ((iif(ng).eq.(nfast(ng)+1)).and.PREDICTOR_2D_STEP(ng)) THEN
+
 #  if defined EW_PERIODIC || defined NS_PERIODIC
 !>      CALL exchange_r2d_tile (ng, tile,                               &
 !>   &                          LBi, UBi, LBj, UBj,                     &
@@ -3744,41 +3748,31 @@
 !  Apply mass point sources.
 !-----------------------------------------------------------------------
 !
-      DO j=Jstr-1,Jend+1
-        DO i=Istr-1,Iend+1
-          Dnew(i,j)=zeta(i,j,knew)+h(i,j)
-          tl_Dnew(i,j)=tl_zeta(i,j,knew)+tl_h(i,j)
-        END DO
-      END DO
       DO is=1,Nsrc
         i=Isrc(is)
         j=Jsrc(is)
         IF (((IstrR.le.i).and.(i.le.IendR)).and.                        &
      &      ((JstrR.le.j).and.(j.le.JendR))) THEN
           IF (INT(Dsrc(is)).eq.0) THEN
-            cff=1.0_r8/(on_u(i,j)*0.5_r8*(Dnew(i-1,j)+Dnew(i,j)))
-            tl_cff=-cff*cff*on_u(i,j)*                                  &
-     &             0.5_r8*(tl_Dnew(i-1,j)+tl_Dnew(i,j))
+            cff=1.0_r8/(on_u(i,j)*                                      &
+     &                  0.5_r8*(zeta(i-1,j,knew)+h(i-1,j)+              &
+     &                          zeta(i  ,j,knew)+h(i  ,j)))
+            tl_cff=-cff*cff*                                            &
+     &             on_u(i,j)*0.5_r8*(tl_zeta(i-1,j,knew)+tl_h(i-1,j)+   &
+     &                               tl_zeta(i  ,j,knew)+tl_h(i  ,j))
 !>          ubar(i,j,knew)=Qbar(is)*cff
 !>
             tl_ubar(i,j,knew)=Qbar(is)*tl_cff
-#  ifdef SOLVE3D
-!>          DU_avg1(i,j)=Qbar(is)
-!>
-            tl_DU_avg1(i,j)=0.0_r8
-#  endif
           ELSE
-            cff=1.0_r8/(om_v(i,j)*0.5_r8*(Dnew(i,j-1)+Dnew(i,j)))
-            tl_cff=-cff*cff*om_v(i,j)*                                  &
-     &             0.5_r8*(tl_Dnew(i,j-1)+tl_Dnew(i,j))
+            cff=1.0_r8/(om_v(i,j)*                                      &
+     &                  0.5_r8*(zeta(i,j-1,knew)+h(i,j-1)+              &
+     &                          zeta(i,j  ,knew)+h(i,j  )))
+            tl_cff=-cff*cff*                                            &
+     &             om_v(i,j)*0.5_r8*(tl_zeta(i,j-1,knew)+tl_h(i,j-1)+   &
+     &                               tl_zeta(i,j  ,knew)+tl_h(i,j  ))
 !>          vbar(i,j,knew)=Qbar(is)*cff
 !>
             tl_vbar(i,j,knew)=Qbar(is)*tl_cff
-#  ifdef SOLVE3D
-!>          DV_avg1(i,j)=Qbar(is)
-!>
-            tl_DV_avg1(i,j)=0.0_r8
-#  endif
           END IF
         END IF
       END DO

@@ -2,9 +2,9 @@
       MODULE exchange_3d_mod
 #if defined SOLVE3D && (defined EW_PERIODIC || defined NS_PERIODIC)
 !
-!svn $Id: exchange_3d.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id$
 !=======================================================================
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                           Hernan G. Arango   !
 !========================================== Alexander F. Shchepetkin ===
@@ -382,7 +382,7 @@
           END DO
         END IF
 #  ifdef DISTRIBUTE
-      END IF      
+      END IF
 #  endif
 # endif
       RETURN

@@ -2,9 +2,9 @@
 #ifdef ADJOINT
       SUBROUTINE ad_wrt_his (ng)
 !
-!svn $Id: ad_wrt_his.F 1098 2009-11-18 17:54:22Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -818,7 +818,7 @@
 !
       DO itrc=1,NT(ng)
         IF (Hout(idTsur(itrc),ng)) THEN
-#   if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY || \
+#   if defined AD_SENSITIVITY   || defined IS4DVAR_SENSITIVITY || \
        defined OPT_OBSERVATIONS
           IF (itrc.eq.itemp) THEN
 !!          scale=rho0*Cp
@@ -856,7 +856,7 @@
 !  Write out surface U-momentum stress.
 !
       IF (Hout(idUsms,ng)) THEN
-#  if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY || \
+#  if defined AD_SENSITIVITY   || defined IS4DVAR_SENSITIVITY || \
       defined OPT_OBSERVATIONS
 !!      scale=rho0
         scale=1.0_r8/rho0
@@ -885,7 +885,7 @@
 !
       IF (Hout(idVsms,ng)) THEN
 !!      scale=rho0
-#  if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY || \
+#  if defined AD_SENSITIVITY   || defined IS4DVAR_SENSITIVITY || \
       defined OPT_OBSERVATIONS
         scale=1.0_r8/rho0
 #  else

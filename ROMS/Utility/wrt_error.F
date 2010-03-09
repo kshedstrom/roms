@@ -3,9 +3,9 @@
    (defined POSTERIOR_ERROR_F || defined POSTERIOR_ERROR_I)
       SUBROUTINE wrt_error (ng, kout, nout)
 !
-!svn $Id: wrt_error.F 1020 2009-07-10 23:10:30Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================

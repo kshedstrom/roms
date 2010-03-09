@@ -1,8 +1,8 @@
       SUBROUTINE ana_m2obc (ng, tile, model)
 !
-!! svn $Id: ana_m2obc.h 975 2009-05-05 22:51:13Z kate $
+!! svn $Id$
 !!======================================================================
-!! Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!! Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !!   Licensed under a MIT/X style license                              !
 !!   See License_ROMS.txt                                              !
 !=======================================================================
@@ -23,7 +23,7 @@
       integer, intent(in) :: ng, tile, model
 
 #include "tile.h"
-!    
+!
       CALL ana_m2obc_tile (ng, tile, model,                             &
      &                     LBi, UBi, LBj, UBj,                          &
      &                     IminS, ImaxS, JminS, JmaxS,                  &
@@ -76,8 +76,8 @@
       integer, intent(in) :: knew
 !
 #ifdef ASSUMED_SHAPE
-      real(r8), intent(in) :: angler(LBi:,LBj:)   
-      real(r8), intent(in) :: h(LBi:,LBj:)   
+      real(r8), intent(in) :: angler(LBi:,LBj:)
+      real(r8), intent(in) :: h(LBi:,LBj:)
       real(r8), intent(in) :: pm(LBi:,LBj:)
       real(r8), intent(in) :: pn(LBi:,LBj:)
       real(r8), intent(in) :: on_u(LBi:,LBj:)
@@ -86,8 +86,8 @@
 # endif
       real(r8), intent(in) :: zeta(LBi:,LBj:,:)
 #else
-      real(r8), intent(in) :: angler(LBi:UBi,LBj:UBj)   
-      real(r8), intent(in) :: h(LBi:UBi,LBj:UBj)   
+      real(r8), intent(in) :: angler(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: h(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: pm(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: pn(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: on_u(LBi:UBi,LBj:UBj)

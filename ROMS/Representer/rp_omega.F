@@ -2,9 +2,9 @@
       MODULE rp_omega_mod
 #if defined TL_IOMS && defined SOLVE3D
 !
-!svn $Id: rp_omega.F 1039 2009-08-11 22:52:28Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -37,6 +37,9 @@
       USE mod_param
       USE mod_grid
       USE mod_ocean
+# if defined SEDIMENT && defined SED_MORPH
+      USE mod_sedbed
+# endif
 # ifdef Q_PSOURCE
       USE mod_sources
 # endif
@@ -70,8 +73,8 @@
 # endif
 # if defined SEDIMENT_NOT_YET && defined SED_MORPH_NOT_YET
      &                    GRID(ng) % omn,                               &
-     &                    GRID(ng) % bed_thick,                         &
-     &                    GRID(ng) % tl_bed_thick,                      &
+     &                    SEDBED(ng) % bed_thick,                       &
+     &                    SEDBED(ng) % tl_bed_thick,                    &
 # endif
      &                    GRID(ng) % Huon,                              &
      &                    GRID(ng) % Hvom,                              &

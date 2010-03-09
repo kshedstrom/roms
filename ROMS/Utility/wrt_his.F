@@ -1,9 +1,9 @@
 #include "cppdefs.h"
       SUBROUTINE wrt_his (ng)
 !
-!svn $Id: wrt_his.F 1098 2009-11-18 17:54:22Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -36,6 +36,7 @@
       USE mod_ocean
       USE mod_scalars
 #if defined SEDIMENT || defined BBL_MODEL
+      USE mod_sedbed
       USE mod_sediment
 #endif
       USE mod_stepping
@@ -759,16 +760,16 @@
           !---------------------
           !Zero the output array
           !---------------------
-	 
-!	  print*,'st=',OCEAN(ng) % st(:,:,:,1,1)
-!	    print*,'NOUT=',NOUT
-!	    print*,'itrc=',itrc
-	
+
+!          print*,'st=',OCEAN(ng) % st(:,:,:,1,1)
+!            print*,'NOUT=',NOUT
+!            print*,'itrc=',itrc
+
           OCEAN(ng) % st(:,:,:,NOUT,itrc) = 0.0_r8
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-	    
-	      WRITE (stdout,10) TRIM(Vname(1,idTSvar(itrc))),            &
+
+              WRITE (stdout,10) TRIM(Vname(1,idTSvar(itrc))),           &
      &                          tHISindx(ng)
             END IF
             exit_flag=3
@@ -788,7 +789,7 @@
           scale=1.0_r8
           gtype=gfactor*r2dvar
           if (hisTS2id(itrc,ng) .lt. 0) hisTS2id(itrc,ng) = 0
-          status=nf_fwrite2d(ng, iNLM, ncHISid(ng), hisTS2id(itrc,ng),   &
+          status=nf_fwrite2d(ng, iNLM, ncHISid(ng), hisTS2id(itrc,ng),  &
      &                       tHISindx(ng), gtype,                       &
      &                       LBi, UBi, LBj, UBj,  scale,                &
 # ifdef MASKING
@@ -797,11 +798,11 @@
      &                       OCEAN(ng) % st2(:,:,NOUT,itrc))
           !---------------------
           !Zero the output array
-	  !---------------------
+          !---------------------
           OCEAN(ng) % st2(:,:,NOUT,itrc) = 0.0_r8
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,10) TRIM(Vname(1,idTS2var(itrc))),            &
+              WRITE (stdout,10) TRIM(Vname(1,idTS2var(itrc))),          &
      &                          tHISindx(ng)
             END IF
             exit_flag=3
@@ -831,7 +832,7 @@
      &                       OCEAN(ng) % pt2(:,:,NOUT,itrc))
           !---------------------
           !Zero the output array
-	  !---------------------
+          !---------------------
           OCEAN(ng) % pt2(:,:,NOUT,itrc) = 0.0_r8
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
@@ -855,20 +856,20 @@
           scale=1.0_r8
           gtype=gfactor*r3dvar
           if (hisPT3id(itrc,ng) .lt. 0) hisPT3id(itrc,ng) = 0
-          status=nf_fwrite3d(ng, iNLM, ncHISid(ng), hisPT3id(itrc,ng),   &
+          status=nf_fwrite3d(ng, iNLM, ncHISid(ng), hisPT3id(itrc,ng),  &
      &                       tHISindx(ng), gtype,                       &
      &                       LBi, UBi, LBj, UBj, 1, N(ng), scale,       &
 # ifdef MASKING
-     &                       GRID(ng) % rmask,                 &
+     &                       GRID(ng) % rmask,                          &
 # endif
      &                       OCEAN(ng) % pt3(:,:,:,NOUT,itrc))
           !---------------------
           !Zero the output array
-	  !---------------------
+          !---------------------
           OCEAN(ng) % pt3(:,:,:,NOUT,itrc) = 0.0_r8
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,10) TRIM(Vname(1,idPT3var(itrc))),           &
+              WRITE (stdout,10) TRIM(Vname(1,idPT3var(itrc))),          &
      &                          tHISindx(ng)
             END IF
             exit_flag=3
@@ -890,19 +891,19 @@
              status=nf_fwrite2d(ng, iNLM, ncHISid(ng), hisBid(itrc,ng), &
      &                          tHISindx(ng), gtype,                    &
      &                          LBi, UBi, LBj, UBj, scale,              &
-     
-!Will need to switch this if have more than one depth level for benthos 
-!      status=nf_fwrite3d(ng, iNLM, ncHISid(ng), hisBid(itrc,ng), &
-!     &                          tHISindx(ng), gtype,                    &
-!     &                          LBi, UBi, LBj, UBj, 1, NBL(ng), scale,  &
+
+!Will need to switch this if have more than one depth level for benthos
+!      status=nf_fwrite3d(ng, iNLM, ncHISid(ng), hisBid(itrc,ng),       &
+!     &                          tHISindx(ng), gtype,                   &
+!     &                          LBi, UBi, LBj, UBj, 1, NBL(ng), scale, &
 
 #ifdef MASKING
-     &                     GRID(ng) % rmask,                   &
+     &                     GRID(ng) % rmask,                            &
 # endif
      &                       OCEAN(ng) % bt(:,:,1,NOUT,itrc))
 !             print*,OCEAN(ng) % bt(LBi,LBj,1,NOUT,itrc)
 !             print *, 'LBi=',LBi,'LBj=',LBj,'NOUT=',NOUT,'itrc=',itrc
-         
+
            IF (status.ne.nf90_noerr) THEN
            IF (Master) THEN
             WRITE (stdout,10)TRIM(Vname(1,idBvar(itrc))),               &
@@ -935,13 +936,13 @@
 !     &                          LBi, UBi, LBj, UBj, 1, NBL(ng), scale,  &
 
 # ifdef MASKING
-     &                     GRID(ng) % rmask,                   &
+     &                     GRID(ng) % rmask,                            &
 # endif
 #     ifdef CLIM_ICE_1D
      &                       OCEAN(ng) % it(:,:,NOUT,itrc))
-#else     
+#else
      &                       ICE(ng) % it(:,:,NOUT,itrc))
-#endif     
+#endif
 
            IF (status.ne.nf90_noerr) THEN
            IF (Master) THEN
@@ -956,7 +957,6 @@
       END DO
 #endif
 
-   
 # endif
 !--------------------------------------
 !  Write out stationary tracer variable
@@ -980,7 +980,7 @@
           OCEAN(ng) % st(:,:,:,NOUT,itrc) = 0.0_r8
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,10) TRIM(Vname(1,idTSvar(itrc))),            &
+              WRITE (stdout,10) TRIM(Vname(1,idTSvar(itrc))),           &
      &                          tHISindx(ng)
             END IF
             exit_flag=3
@@ -1500,7 +1500,7 @@
      &                     ICE(ng) % io_mflux)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idIomflx)),                    &
+            WRITE (stdout,10) TRIM(Vname(1,idIomflx)),                  &
      &                        tHISindx(ng)
           END IF
           exit_flag=3
@@ -1986,7 +1986,7 @@
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
             WRITE (stdout,10) TRIM(Vname(1,idVair)), tHISindx(ng)
-          END IF 
+          END IF
           exit_flag=3
           ioerror=status
           RETURN
@@ -2422,7 +2422,7 @@
 #   ifdef MASKING
      &                       GRID(ng) % umask,                          &
 #   endif
-     &                       OCEAN(ng) % bedldu(:,:,i))
+     &                       SEDBED(ng) % bedldu(:,:,i))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
               WRITE (stdout,10) TRIM(Vname(1,idUbld(i))), tHISindx(ng)
@@ -2445,7 +2445,7 @@
 #   ifdef MASKING
      &                       GRID(ng) % vmask,                          &
 #   endif
-     &                       OCEAN(ng) % bedldv(:,:,i))
+     &                       SEDBED(ng) % bedldv(:,:,i))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
               WRITE (stdout,10) TRIM(Vname(1,idVbld(i))), tHISindx(ng)
@@ -2471,7 +2471,7 @@
 #  ifdef MASKING
      &                       GRID(ng) % rmask,                          &
 #  endif
-     &                       OCEAN(ng) % bed_frac(:,:,:,i))
+     &                       SEDBED(ng) % bed_frac(:,:,:,i))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
               WRITE (stdout,10) TRIM(Vname(1,idfrac(i))), tHISindx(ng)
@@ -2496,7 +2496,7 @@
 #  ifdef MASKING
      &                       GRID(ng) % rmask,                          &
 #  endif
-     &                       OCEAN(ng) % bed_mass(:,:,:,NOUT,i))
+     &                       SEDBED(ng) % bed_mass(:,:,:,NOUT,i))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
               WRITE (stdout,10) TRIM(Vname(1,idBmas(i))), tHISindx(ng)
@@ -2521,7 +2521,7 @@
 #  ifdef MASKING
      &                       GRID(ng) % rmask,                          &
 #  endif
-     &                       OCEAN(ng) % bed(:,:,:,i))
+     &                       SEDBED(ng) % bed(:,:,:,i))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
               WRITE (stdout,10) TRIM(Vname(1,idSbed(i))), tHISindx(ng)
@@ -2552,7 +2552,7 @@
 #  ifdef MASKING
      &                       GRID(ng) % rmask,                          &
 #  endif
-     &                       OCEAN(ng) % bottom(:,:,i))
+     &                       SEDBED(ng) % bottom(:,:,i))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
               WRITE (stdout,10) TRIM(Vname(1,idBott(i))), tHISindx(ng)
@@ -3050,6 +3050,102 @@
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
             WRITE (stdout,10) TRIM(Vname(1,idWdir)), tHISindx(ng)
+          END IF
+          exit_flag=3
+          ioerror=status
+          RETURN
+        END IF
+      END IF
+#endif
+#ifdef WAVES_TOP_PERIOD
+!
+!  Write out wind-induced surface wave period.
+!
+      IF (Hout(idWptp,ng)) THEN
+        scale=rad2deg
+        gtype=gfactor*r2dvar
+        status=nf_fwrite2d(ng, iNLM, ncHISid(ng), hisVid(idWptp,ng),    &
+     &                     tHISindx(ng), gtype,                         &
+     &                     LBi, UBi, LBj, UBj, scale,                   &
+# ifdef MASKING
+     &                     GRID(ng) % rmask,                            &
+# endif
+     &                     FORCES(ng) % Pwave_top)
+        IF (status.ne.nf90_noerr) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,idWptp)), tHISindx(ng)
+          END IF
+          exit_flag=3
+          ioerror=status
+          RETURN
+        END IF
+      END IF
+#endif
+#ifdef WAVES_BOT_PERIOD
+!
+!  Write out wind-induced bottom wave period.
+!
+      IF (Hout(idWpbt,ng)) THEN
+        scale=1.0_r8
+        gtype=gfactor*r2dvar
+        status=nf_fwrite2d(ng, iNLM, ncHISid(ng), hisVid(idWpbt,ng),    &
+     &                     tHISindx(ng), gtype,                         &
+     &                     LBi, UBi, LBj, UBj, scale,                   &
+# ifdef MASKING
+     &                     GRID(ng) % rmask,                            &
+# endif
+     &                     FORCES(ng) % Pwave_bot)
+        IF (status.ne.nf90_noerr) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,idWpbt)), tHISindx(ng)
+          END IF
+          exit_flag=3
+          ioerror=status
+          RETURN
+        END IF
+      END IF
+#endif
+#ifdef WAVES_UB
+!
+!  Write out wind-induced wave bottom orbital velocity.
+!
+      IF (Hout(idWorb,ng)) THEN
+        scale=1.0_r8
+        gtype=gfactor*r2dvar
+        status=nf_fwrite2d(ng, iNLM, ncHISid(ng), hisVid(idWorb,ng),    &
+     &                     tHISindx(ng), gtype,                         &
+     &                     LBi, UBi, LBj, UBj, scale,                   &
+# ifdef MASKING
+     &                     GRID(ng) % rmask,                            &
+# endif
+     &                     FORCES(ng) % Ub_swan)
+        IF (status.ne.nf90_noerr) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,idWorb)), tHISindx(ng)
+          END IF
+          exit_flag=3
+          ioerror=status
+          RETURN
+        END IF
+      END IF
+#endif
+#if defined TKE_WAVEDISS || defined WAVES_OCEAN
+!
+!  Write out wave dissipation.
+!
+      IF (Hout(idWdis,ng)) THEN
+        scale=1.0_r8
+        gtype=gfactor*r2dvar
+        status=nf_fwrite2d(ng, iNLM, ncHISid(ng), hisVid(idWdis,ng),    &
+     &                     tHISindx(ng), gtype,                         &
+     &                     LBi, UBi, LBj, UBj, scale,                   &
+# ifdef MASKING
+     &                     GRID(ng) % rmask,                            &
+# endif
+     &                     FORCES(ng) % wave_dissip)
+        IF (status.ne.nf90_noerr) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,idWdis)), tHISindx(ng)
           END IF
           exit_flag=3
           ioerror=status

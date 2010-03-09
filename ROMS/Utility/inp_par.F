@@ -2,9 +2,9 @@
 #undef KATE_FOO
       SUBROUTINE inp_par (model)
 !
-!svn $Id: inp_par.F 1101 2009-11-19 00:56:17Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -618,7 +618,13 @@
 !  Take the square root of the biharmonic coefficients so it can
 !  be applied to each harmonic operator.
 !
-        visc4(ng)=SQRT(ABS(visc4(ng)))
+        nl_visc4(ng)=SQRT(ABS(nl_visc4(ng)))
+#ifdef ADJOINT
+        ad_visc4(ng)=SQRT(ABS(ad_visc4(ng)))
+#endif
+#if defined TANGENT || defined TL_IOMS
+        tl_visc4(ng)=SQRT(ABS(tl_visc4(ng)))
+#endif
         tkenu4(ng)=SQRT(ABS(tkenu4(ng)))
 !
 !  Compute inverse nudging coefficients (1/s) used in various tasks.
@@ -687,6 +693,32 @@
 
       RETURN
       END SUBROUTINE inp_par
+
+#ifdef BIOLOGY
+# if defined BIO_FENNEL
+#  include <fennel_inp.h>
+# elif defined BEST_NPZ
+#  include <bestnpz_inp.h>
+# elif defined BIO_GOANPZ
+#  include <goanpz_inp.h>
+# elif defined BIO_UMAINE
+#  include <umaine_inp.h>
+# elif defined ECOSIM
+#  include <ecosim_inp.h>
+# elif defined NEMURO
+#  include <nemuro_inp.h>
+# elif defined NPZD_FRANKS
+#  include <npzd_Franks_inp.h>
+# elif defined NPZD_IRON
+#  include <npzd_iron_inp.h>
+# elif defined NPZD_POWELL
+#  include <npzd_Powell_inp.h>
+# endif
+#endif
+
+#ifdef SEDIMENT
+# include <sediment_inp.h>
+#endif
 
 #ifdef MODEL_COUPLING
       SUBROUTINE read_CouplePar (model)
@@ -839,7 +871,7 @@
             IF ((0.lt.Iwaves).and.(Iwaves.le.Nmodels)) THEN
               Npts=load_i(Nval, Rval, 1, Nthreads(Iwaves))
             END IF
-          ELSE IF (TRIM(KeyWord).eq.'Nthreads(waves)') THEN
+          ELSE IF (TRIM(KeyWord).eq.'Nthreads(atmos)') THEN
             IF ((0.lt.Iatmos).and.(Iatmos.le.Nmodels)) THEN
               Npts=load_i(Nval, Rval, 1, Nthreads(Iatmos))
             END IF
@@ -996,6 +1028,9 @@
 !
       USE mod_param
       USE mod_parallel
+#ifdef BIOLOGY
+      USE mod_biology
+#endif
 #ifdef MODEL_COUPLING
       USE mod_coupler
 #endif
@@ -1036,8 +1071,8 @@
       logical, dimension(MBOTP,Ngrids) :: Lbottom
 #endif
       logical, allocatable :: Ltracer(:,:)
-#if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
-    defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR || \
+#if defined AD_SENSITIVITY   || defined IS4DVAR_SENSITIVITY || \
+    defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR   || \
     defined SO_SEMI
       logical, allocatable :: Ladsen(:)
 #endif
@@ -1195,11 +1230,17 @@
 #else
             NtileE(1:Ngrids)=NtileJ(1:Ngrids)
 #endif
+#ifdef BIOLOGY
+            CALL initialize_biology
+#endif
+#if defined SEDIMENT || defined BBL_MODEL
+            CALL initialize_sediment
+#endif
             CALL initialize_param
             CALL initialize_scalars
             CALL initialize_ncparam
-#if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
-    defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR || \
+#if defined AD_SENSITIVITY   || defined IS4DVAR_SENSITIVITY || \
+    defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR   || \
     defined SO_SEMI
             IF (.not.allocated(Ladsen)) THEN
               allocate (Ladsen(MT*Ngrids))
@@ -1348,7 +1389,6 @@
             END DO
             allocate ( SF_time(MAXVAL(Nfrec),Ngrids) )
 #endif
-
           ELSE IF (TRIM(KeyWord).eq.'LrstGST') THEN
             Npts=load_l(Nval, Cval, 1, LrstGST)
           ELSE IF (TRIM(KeyWord).eq.'MaxIterGST') THEN
@@ -1363,20 +1403,46 @@
             Npts=load_r(Nval, Rval, (NAT+NPT)*Ngrids, Rtracer)
             DO ng=1,Ngrids
               DO itrc=1,NAT+NPT
-                tnu2(itrc,ng)=Rtracer(itrc,ng)
+                nl_tnu2(itrc,ng)=Rtracer(itrc,ng)
               END DO
             END DO
           ELSE IF (TRIM(KeyWord).eq.'TNU4') THEN
             Npts=load_r(Nval, Rval, (NAT+NPT)*Ngrids, Rtracer)
             DO ng=1,Ngrids
               DO itrc=1,NAT+NPT
-                tnu4(itrc,ng)=Rtracer(itrc,ng)
+                nl_tnu4(itrc,ng)=Rtracer(itrc,ng)
+              END DO
+            END DO
+          ELSE IF (TRIM(KeyWord).eq.'ad_TNU2') THEN
+            Npts=load_r(Nval, Rval, (NAT+NPT)*Ngrids, Rtracer)
+            DO ng=1,Ngrids
+              DO itrc=1,NAT+NPT
+                ad_tnu2(itrc,ng)=Rtracer(itrc,ng)
+                tl_tnu2(itrc,ng)=Rtracer(itrc,ng)
+              END DO
+            END DO
+          ELSE IF (TRIM(KeyWord).eq.'ad_TNU4') THEN
+            Npts=load_r(Nval, Rval, (NAT+NPT)*Ngrids, Rtracer)
+            DO ng=1,Ngrids
+              DO itrc=1,NAT+NPT
+                ad_tnu4(itrc,ng)=Rtracer(itrc,ng)
+                tl_tnu4(itrc,ng)=Rtracer(itrc,ng)
               END DO
             END DO
           ELSE IF (TRIM(KeyWord).eq.'VISC2') THEN
-            Npts=load_r(Nval, Rval, Ngrids, visc2)
+            Npts=load_r(Nval, Rval, Ngrids, nl_visc2)
           ELSE IF (TRIM(KeyWord).eq.'VISC4') THEN
-            Npts=load_r(Nval, Rval, Ngrids, visc4)
+            Npts=load_r(Nval, Rval, Ngrids, nl_visc4)
+          ELSE IF (TRIM(KeyWord).eq.'ad_VISC2') THEN
+            Npts=load_r(Nval, Rval, Ngrids, ad_visc2)
+            DO ng=1,Ngrids
+              tl_visc2(ng)=ad_visc2(ng)
+            END DO
+          ELSE IF (TRIM(KeyWord).eq.'VISC4') THEN
+            Npts=load_r(Nval, Rval, Ngrids, ad_visc4)
+            DO ng=1,Ngrids
+              tl_visc4(ng)=ad_visc4(ng)
+            END DO
           ELSE IF (TRIM(KeyWord).eq.'AKT_BAK') THEN
             Npts=load_r(Nval, Rval, (NAT+NPT)*Ngrids, Rtracer)
             DO ng=1,Ngrids
@@ -1384,8 +1450,21 @@
                 Akt_bak(itrc,ng)=Rtracer(itrc,ng)
               END DO
             END DO
+          ELSE IF (TRIM(KeyWord).eq.'ad_AKT_fac') THEN
+            Npts=load_r(Nval, Rval, (NAT+NPT)*Ngrids, Rtracer)
+            DO ng=1,Ngrids
+              DO itrc=1,NAT+NPT
+                ad_Akt_fac(itrc,ng)=Rtracer(itrc,ng)
+                tl_Akt_fac(itrc,ng)=Rtracer(itrc,ng)
+              END DO
+            END DO
           ELSE IF (TRIM(KeyWord).eq.'AKV_BAK') THEN
             Npts=load_r(Nval, Rval, Ngrids, Akv_bak)
+          ELSE IF (TRIM(KeyWord).eq.'ad_AKV_fac') THEN
+            Npts=load_r(Nval, Rval, Ngrids, ad_Akv_fac)
+            DO ng=1,Ngrids
+              tl_Akv_fac(ng)=ad_AKv_fac(ng)
+            END DO
           ELSE IF (TRIM(KeyWord).eq.'AKK_BAK') THEN
             Npts=load_r(Nval, Rval, Ngrids, Akk_bak)
           ELSE IF (TRIM(KeyWord).eq.'AKP_BAK') THEN
@@ -1532,8 +1611,8 @@
             END DO
           ELSE IF (TRIM(KeyWord).eq.'GAMMA2') THEN
             Npts=load_r(Nval, Rval, Ngrids, gamma2)
-#if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
-    defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR || \
+#if defined AD_SENSITIVITY   || defined IS4DVAR_SENSITIVITY || \
+    defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR   || \
     defined SO_SEMI
           ELSE IF (TRIM(KeyWord).eq.'DstrS') THEN
             Npts=load_r(Nval, Rval, Ngrids, DstrS)
@@ -1668,36 +1747,28 @@
 #  endif
 # endif
 #endif
-#if defined SEDIMENT && defined SED_MORPH
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idBath)') THEN
-            IF (idbath.eq.0) THEN
-              IF (Master) WRITE (out,280) 'idbath'
+#if defined SOLVE3D && defined TS_PSOURCE
+          ELSE IF (TRIM(KeyWord).eq.'LtracerSrc') THEN
+            Npts=load_l(Nval, Cval, (NAT+NPT)*Ngrids, Ltracer)
+            DO ng=1,Ngrids
+              DO itrc=1,NAT
+                LtracerSrc(itrc,ng)=Ltracer(itrc,ng)
+              END DO
+            END DO
+# ifdef T_PASSIVE
+            IF (MAXVAL(inert).eq.0) THEN
+              IF (Master) WRITE (out,280) 'inert'
               exit_flag=5
               RETURN
             END IF
-            Npts=load_l(Nval, Cval, Ngrids, Hout(idBath,:))
+            DO ng=1,Ngrids
+              DO itrc=1,NPT
+                i=inert(itrc)
+                LtracerSrc(i,ng)=Ltracer(itrc,ng)
+              END DO
+            END DO
+# endif
 #endif
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idFsur)') THEN
-            IF (idFsur.eq.0) THEN
-              IF (Master) WRITE (out,280) 'idFsur'
-              exit_flag=5
-              RETURN
-            END IF
-            Npts=load_l(Nval, Cval, Ngrids, Hout(idFsur,:))
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idUbar)') THEN
-            IF (idUbar.eq.0) THEN
-              IF (Master) WRITE (out,280) 'idUbar'
-              exit_flag=5
-              RETURN
-            END IF
-            Npts=load_l(Nval, Cval, Ngrids, Hout(idUbar,:))
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idVbar)') THEN
-            IF (idVbar.eq.0) THEN
-              IF (Master) WRITE (out,280) 'idVbar'
-              exit_flag=5
-              RETURN
-            END IF
-            Npts=load_l(Nval, Cval, Ngrids, Hout(idVbar,:))
           ELSE IF (TRIM(KeyWord).eq.'Hout(idUvel)') THEN
             IF (idUvel.eq.0) THEN
               IF (Master) WRITE (out,280) 'idUvel'
@@ -1726,6 +1797,36 @@
               RETURN
             END IF
             Npts=load_l(Nval, Cval, Ngrids, Hout(idOvel,:))
+          ELSE IF (TRIM(KeyWord).eq.'Hout(idUbar)') THEN
+            IF (idUbar.eq.0) THEN
+              IF (Master) WRITE (out,280) 'idUbar'
+              exit_flag=5
+              RETURN
+            END IF
+            Npts=load_l(Nval, Cval, Ngrids, Hout(idUbar,:))
+          ELSE IF (TRIM(KeyWord).eq.'Hout(idVbar)') THEN
+            IF (idVbar.eq.0) THEN
+              IF (Master) WRITE (out,280) 'idVbar'
+              exit_flag=5
+              RETURN
+            END IF
+            Npts=load_l(Nval, Cval, Ngrids, Hout(idVbar,:))
+          ELSE IF (TRIM(KeyWord).eq.'Hout(idFsur)') THEN
+            IF (idFsur.eq.0) THEN
+              IF (Master) WRITE (out,280) 'idFsur'
+              exit_flag=5
+              RETURN
+            END IF
+            Npts=load_l(Nval, Cval, Ngrids, Hout(idFsur,:))
+#if defined SEDIMENT && defined SED_MORPH
+          ELSE IF (TRIM(KeyWord).eq.'Hout(idBath)') THEN
+            IF (idbath.eq.0) THEN
+              IF (Master) WRITE (out,280) 'idbath'
+              exit_flag=5
+              RETURN
+            END IF
+            Npts=load_l(Nval, Cval, Ngrids, Hout(idBath,:))
+#endif
           ELSE IF (TRIM(KeyWord).eq.'Hout(idTvar)') THEN
             IF (MAXVAL(idTvar).eq.0) THEN
               IF (Master) WRITE (out,280) 'idTvar'
@@ -1872,6 +1973,34 @@
               RETURN
             END IF
             Npts=load_l(Nval, Cval, Ngrids, Hout(idW2yy,:))
+          ELSE IF (TRIM(KeyWord).eq.'Hout(idU2rs)') THEN
+            IF (idU2rs.eq.0) THEN
+              IF (Master) WRITE (out,280) 'idU2rs'
+              exit_flag=5
+              RETURN
+            END IF
+            Npts=load_l(Nval, Cval, Ngrids, Hout(idU2rs,:))
+          ELSE IF (TRIM(KeyWord).eq.'Hout(idV2rs)') THEN
+            IF (idV2rs.eq.0) THEN
+              IF (Master) WRITE (out,280) 'idV2rs'
+              exit_flag=5
+              RETURN
+            END IF
+            Npts=load_l(Nval, Cval, Ngrids, Hout(idV2rs,:))
+          ELSE IF (TRIM(KeyWord).eq.'Hout(idU2Sd)') THEN
+            IF (idU2Sd.eq.0) THEN
+              IF (Master) WRITE (out,280) 'idU2Sd'
+              exit_flag=5
+              RETURN
+            END IF
+            Npts=load_l(Nval, Cval, Ngrids, Hout(idU2Sd,:))
+          ELSE IF (TRIM(KeyWord).eq.'Hout(idV2Sd)') THEN
+            IF (idV2Sd.eq.0) THEN
+              IF (Master) WRITE (out,280) 'idV2Sd'
+              exit_flag=5
+              RETURN
+            END IF
+            Npts=load_l(Nval, Cval, Ngrids, Hout(idV2Sd,:))
           ELSE IF (TRIM(KeyWord).eq.'Hout(idW3xx)') THEN
             IF (idW3xx.eq.0) THEN
               IF (Master) WRITE (out,280) 'idW3xx'
@@ -1907,34 +2036,6 @@
               RETURN
             END IF
             Npts=load_l(Nval, Cval, Ngrids, Hout(idW3zy,:))
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idU2rs)') THEN
-            IF (idU2rs.eq.0) THEN
-              IF (Master) WRITE (out,280) 'idU2rs'
-              exit_flag=5
-              RETURN
-            END IF
-            Npts=load_l(Nval, Cval, Ngrids, Hout(idU2rs,:))
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idV2rs)') THEN
-            IF (idV2rs.eq.0) THEN
-              IF (Master) WRITE (out,280) 'idV2rs'
-              exit_flag=5
-              RETURN
-            END IF
-            Npts=load_l(Nval, Cval, Ngrids, Hout(idV2rs,:))
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idU2Sd)') THEN
-            IF (idU2Sd.eq.0) THEN
-              IF (Master) WRITE (out,280) 'idU2Sd'
-              exit_flag=5
-              RETURN
-            END IF
-            Npts=load_l(Nval, Cval, Ngrids, Hout(idU2Sd,:))
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idV2Sd)') THEN
-            IF (idV2Sd.eq.0) THEN
-              IF (Master) WRITE (out,280) 'idV2Sd'
-              exit_flag=5
-              RETURN
-            END IF
-            Npts=load_l(Nval, Cval, Ngrids, Hout(idV2Sd,:))
           ELSE IF (TRIM(KeyWord).eq.'Hout(idU3rs)') THEN
             IF (idU3rs.eq.0) THEN
               IF (Master) WRITE (out,280) 'idU3rs'
@@ -1984,6 +2085,42 @@
               RETURN
             END IF
             Npts=load_l(Nval, Cval, Ngrids, Hout(idWdir,:))
+#ifdef WAVES_TOP_PERIOD
+          ELSE IF (TRIM(KeyWord).eq.'Hout(idWptp)') THEN
+            IF (idWptp.eq.0) THEN
+              IF (Master) WRITE (out,280) 'idWptp'
+              exit_flag=5
+              RETURN
+            END IF
+            Npts=load_l(Nval, Cval, Ngrids, Hout(idWptp,:))
+#endif
+#ifdef WAVES_BOT_PERIOD
+          ELSE IF (TRIM(KeyWord).eq.'Hout(idWpbt)') THEN
+            IF (idWpbt.eq.0) THEN
+              IF (Master) WRITE (out,280) 'idWpbt'
+              exit_flag=5
+              RETURN
+            END IF
+            Npts=load_l(Nval, Cval, Ngrids, Hout(idWpbt,:))
+#endif
+#ifdef WAVES_UB
+          ELSE IF (TRIM(KeyWord).eq.'Hout(idWorb)') THEN
+            IF (idWorb.eq.0) THEN
+              IF (Master) WRITE (out,280) 'idWorb'
+              exit_flag=5
+              RETURN
+            END IF
+            Npts=load_l(Nval, Cval, Ngrids, Hout(idWorb,:))
+#endif
+#if defined TKE_WAVEDISS || defined WAVES_OCEAN
+          ELSE IF (TRIM(KeyWord).eq.'Hout(idWdis)') THEN
+            IF (idWdis.eq.0) THEN
+              IF (Master) WRITE (out,280) 'idWdis'
+              exit_flag=5
+              RETURN
+            END IF
+            Npts=load_l(Nval, Cval, Ngrids, Hout(idWdis,:))
+#endif
           ELSE IF (TRIM(KeyWord).eq.'Hout(idTsur)') THEN
             IF (idTsur(itemp).eq.0) THEN
               IF (Master) WRITE (out,280) 'idTsur'
@@ -2104,11 +2241,6 @@
             Npts=load_l(Nval, Cval, Ngrids, Hout(idMtls,:))
 #if defined SOLVE3D && defined T_PASSIVE
           ELSE IF (TRIM(KeyWord).eq.'Hout(inert)') THEN
-            IF (MAXVAL(inert).eq.0) THEN
-              IF (Master) WRITE (out,280) 'inert'
-              exit_flag=5
-              RETURN
-            END IF
             Npts=load_l(Nval, Cval, NPT*Ngrids, Linert)
             DO ng=1,Ngrids
               DO itrc=1,NPT
@@ -2797,9 +2929,9 @@
           WRITE (out,120) Nouter, 'Nouter',                             &
      &          'Maximun number of 4DVAR outer loop iterations.'
 #endif
-#if defined IS4DVAR           || defined OBS_SENSITIVITY || \
+#if defined IS4DVAR           || defined IS4DVAR_SENSITIVITY || \
     defined SENSITIVITY_4DVAR || \
-    defined TL_W4DPSAS        || defined TL_W4DVAR       || \
+    defined TL_W4DPSAS        || defined TL_W4DVAR           || \
     defined W4DPSAS           || defined W4DVAR
           WRITE (out,120) Ninner, 'Ninner',                             &
      &          'Maximun number of 4DVAR inner loop iterations.'
@@ -2932,28 +3064,74 @@
 #ifdef SOLVE3D
 # ifdef TS_DIF2
           DO itrc=1,NAT+NPT
-            WRITE (out,190) tnu2(itrc,ng), 'tnu2', itrc,                &
-     &            'Horizontal, harmonic mixing coefficient (m2/s)',     &
-     &            'for tracer ', itrc, TRIM(Vname(1,idTvar(itrc)))
+            WRITE (out,190) nl_tnu2(itrc,ng), 'nl_tnu2', itrc,          &
+     &            'NLM Horizontal, harmonic mixing coefficient',        &
+     &            '(m2/s) for tracer ', itrc,                           &
+     &            TRIM(Vname(1,idTvar(itrc)))
+#  ifdef ADJOINT
+            WRITE (out,190) ad_tnu2(itrc,ng), 'ad_tnu2', itrc,          &
+     &            'ADM Horizontal, harmonic mixing coefficient',        &
+     &            '(m2/s) for tracer ', itrc,                           &
+     &            TRIM(Vname(1,idTvar(itrc)))
+#  endif
+#  if defined TANGENT || defined TL_IOMS
+            WRITE (out,190) tl_tnu2(itrc,ng), 'tl_tnu2', itrc,          &
+     &            'TLM Horizontal, harmonic mixing coefficient',        &
+     &            '(m2/s) for tracer ', itrc,                           &
+     &            TRIM(Vname(1,idTvar(itrc)))
+#  endif
           END DO
 # endif
 # ifdef TS_DIF4
           DO itrc=1,NAT+NPT
-            WRITE (out,190) tnu4(itrc,ng), 'tnu4', itrc,                &
-     &            'Horizontal, biharmonic mixing coefficient (m4/s)',   &
-     &            'for tracer ', itrc, TRIM(Vname(1,idTvar(itrc)))
+            WRITE (out,190) nl_tnu4(itrc,ng), 'nl_tnu4', itrc,          &
+     &            'NLM Horizontal, biharmonic mixing coefficient',      &
+     &            '(m4/s) for tracer ', itrc,                           &
+     &            TRIM(Vname(1,idTvar(itrc)))
+#  ifdef ADJOINT
+            WRITE (out,190) ad_tnu4(itrc,ng), 'ad_tnu4', itrc,          &
+     &            'ADM Horizontal, biharmonic mixing coefficient',      &
+     &            '(m4/s) for tracer ', itrc,                           &
+     &            TRIM(Vname(1,idTvar(itrc)))
+#  endif
+#  if defined TANGENT || defined TL_IOMS
+            WRITE (out,190) tl_tnu4(itrc,ng), 'tl_tnu4', itrc,          &
+     &            'TLM Horizontal, biharmonic mixing coefficient',      &
+     &            '(m4/s) for tracer ', itrc,                           &
+     &            TRIM(Vname(1,idTvar(itrc)))
+#  endif
           END DO
 # endif
 #endif
 #ifdef UV_VIS2
-          WRITE (out,210) visc2(ng), 'visc2',                           &
-     &          'Horizontal, harmonic mixing coefficient (m2/s)',       &
-     &          'for momentum.'
+          WRITE (out,210) nl_visc2(ng), 'nl_visc2',                     &
+     &          'NLM Horizontal, harmonic mixing coefficient',          &
+     &          '(m2/s) for momentum.'
+# ifdef ADJOINT
+          WRITE (out,210) ad_visc2(ng), 'ad_visc2',                     &
+     &          'ADM Horizontal, harmonic mixing coefficient',          &
+     &          '(m2/s) for momentum.'
+# endif
+# if defined TANGENT || defined TL_IOMS
+          WRITE (out,210) tl_visc2(ng), 'tl_visc2',                     &
+     &          'TLM Horizontal, harmonic mixing coefficient',          &
+     &          '(m2/s) for momentum.'
+# endif
 #endif
 #ifdef UV_VIS4
-          WRITE (out,210) visc4(ng), 'visc4',                           &
-     &          'Horizontal, biharmonic mixing coefficient (m4/s)',     &
-     &          'for momentum.'
+          WRITE (out,210) nl_visc4(ng), 'nl_visc4',                     &
+     &          'NLM Horizontal, biharmonic mixing coefficient',        &
+     &          '(m4/s) for momentum.'
+# ifdef ADJOINT
+          WRITE (out,210) ad_visc4(ng), 'ad_visc4',                     &
+     &          'ADM Horizontal, biharmonic mixing coefficient',        &
+     &          '(m4/s) for momentum.'
+# endif
+# if defined TANGENT || defined TL_IOMS
+          WRITE (out,210) tl_visc4(ng), 'tl_visc4',                     &
+     &          'TLM Horizontal, biharmonic mixing coefficient',        &
+     &          '(m4/s) for momentum.'
+# endif
 #endif
 #ifdef SOLVE3D
           DO itrc=1,NAT+NPT
@@ -3015,6 +3193,30 @@
      &          'Factor for Wave dissipation surface tke flux .'
           WRITE (out,140) crgban_cw(ng), 'crgban_cw',                   &
      &          'Factor for Craig/Banner surface tke flux.'
+# endif
+# ifdef FORWARD_MIXING
+          DO itrc=1,NAT+NPT
+#  ifdef ADJOINT
+            WRITE (out,190) ad_Akt_fac(itrc,ng), 'ad_Akt_fac', itrc,    &
+     &            'ADM basic state vertical mixing scale factor',       &
+     &            'for tracer ', itrc, TRIM(Vname(1,idTvar(itrc)))
+#  endif
+#  if defined TANGENT || defined TL_IOMS
+            WRITE (out,190) tl_Akt_fac(itrc,ng), 'tl_Akt_fac', itrc,    &
+     &            'TLM basic state vertical mixing scale factor',       &
+     &            'for tracer ', itrc, TRIM(Vname(1,idTvar(itrc)))
+#  endif
+          END DO
+#  ifdef ADJOINT
+          WRITE (out,210) ad_Akv_fac(ng), 'ad_Akv_fac',                 &
+     &          'ADM basic state vertical mixing scale factor',         &
+     &          'for momentum.'
+#  endif
+#  if defined TANGENT || defined TL_IOMS
+          WRITE (out,210) tl_Akv_fac(ng), 'tl_Akv_fac',                 &
+     &          'TLM basic state vertical mixing scale factor',         &
+     &          'for momentum.'
+#  endif
 # endif
 #endif
           WRITE (out,200) rdrg(ng), 'rdrg',                             &
@@ -3175,8 +3377,8 @@
           WRITE (out,160) gamma2(ng), 'gamma2',                         &
      &          'Slipperiness variable: free-slip (1.0) or ',           &
      &          '                     no-slip (-1.0).'
-#if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
-    defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR || \
+#if defined AD_SENSITIVITY   || defined IS4DVAR_SENSITIVITY || \
+    defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR   || \
     defined SO_SEMI
           WRITE (out,140) DstrS(ng), 'DstrS',                           &
      &          'Starting day for ADM sensitivity forcing.'
@@ -3266,6 +3468,21 @@
      &         itrc, TRIM(Vname(1,idTvar(itrc)))
           END DO
 #  endif
+# endif
+#endif
+#if defined SOLVE3D && defined TS_PSOURCE
+          DO itrc=1,NAT
+            WRITE (out,185) LtracerSrc(itrc,ng), 'LtracerSrc', itrc,    &
+     &            'Processing point sources/Sink on tracer ', itrc,     &
+     &            TRIM(Vname(1,idTvar(itrc)))
+          END DO
+# ifdef T_PASSIVE
+          DO itrc=1,NPT
+            i=inert(itrc)
+            WRITE (out,185) LtracerSrc(i,ng), 'LtracerSrc', i,          &
+     &            'Processing point sources/Sink on tracer ', i,        &
+     &            TRIM(Vname(1,idTvar(i)))
+          END DO
 # endif
 #endif
 #if defined SEDIMENT && defined SED_MORPH
@@ -3471,33 +3688,47 @@
      &       'Write out 3D v-momentum stokes velocity.'
 # endif
 #endif
+#ifdef WAVES_HEIGHT
           IF (Hout(idWamp,ng)) WRITE (out,170) Hout(idWamp,ng),         &
      &       'Hout(idWamp)',                                            &
      &       'Write out wave height.'
+#endif
+#ifdef WAVES_LENGTH
           IF (Hout(idWlen,ng)) WRITE (out,170) Hout(idWlen,ng),         &
      &       'Hout(idWlen)',                                            &
-     &       'Write out wave length.'
+     &       'Write out wavelength.'
+#endif
+#ifdef WAVES_DIR
           IF (Hout(idWdir,ng)) WRITE (out,170) Hout(idWdir,ng),         &
      &       'Hout(idWdir)',                                            &
      &       'Write out wave direction.'
+#endif
+#ifdef WAVES_TOP_PERIOD
+          IF (Hout(idWptp,ng)) WRITE (out,170) Hout(idWptp,ng),         &
+     &       'Hout(idWptp)',                                            &
+     &       'Write out wave surface period.'
+#endif
+#ifdef WAVES_BOT_PERIOD
+          IF (Hout(idWpbt,ng)) WRITE (out,170) Hout(idWpbt,ng),         &
+     &       'Hout(idWpbt)',                                            &
+     &       'Write out wave bottom period.'
+#endif
+#ifdef WAVES_UB
+          IF (Hout(idWorb,ng)) WRITE (out,170) Hout(idWorb,ng),         &
+     &       'Hout(idWorb)',                                            &
+     &       'Write out wave bottom orbital velocity.'
+#endif
+#if defined TKE_WAVEDISS || defined WAVES_OCEAN
+          IF (Hout(idWdis,ng)) WRITE (out,170) Hout(idWdis,ng),         &
+     &       'Hout(idWdis)',                                            &
+     &       'Write out wave dissipation.'
+#endif
 #if defined SOLVE3D && defined T_PASSIVE
           DO itrc=1,NPT
             IF (Hout(idTvar(inert(itrc)),ng)) WRITE (out,180)           &
      &          Hout(idTvar(inert(itrc)),ng), 'Hout(inert)',            &
      &          'Write out inert passive tracer ', itrc,                &
      &          TRIM(Vname(1,idTvar(inert(itrc))))
-          END DO
-#endif
-#if defined SEDIMENT && defined BEDLOAD
-          DO itrc=1,NST
-            IF (Hout(idUbld(itrc),ng)) WRITE (out,180)                  &
-     &          Hout(idUbld(itrc),ng), 'Hout(idUbld)',                  &
-     &          'Write out bed load u-direction ', itrc,                &
-     &          TRIM(Vname(1,idUbld(itrc)))
-            IF (Hout(idVbld(itrc),ng)) WRITE (out,180)                  &
-     &          Hout(idVbld(itrc),ng), 'Hout(idVbld)',                  &
-     &          'Write out bed load v-direction ', itrc,                &
-     &          TRIM(Vname(1,idVbld(itrc)))
           END DO
 #endif
 #if defined SOLVE3D && (defined BBL_MODEL || defined SEDIMENT)
@@ -3986,8 +4217,8 @@
      &                    TRIM(fname)
 # endif
 # if defined TANGENT && \
-    !(defined FOUR_DVAR         || defined OBS_SENSITIVITY || \
-      defined OPT_OBSERVATIONS  || defined SANITY_CHECK    || \
+    !(defined FOUR_DVAR         || defined IS4DVAR_SENSITIVITY || \
+      defined OPT_OBSERVATIONS  || defined SANITY_CHECK        || \
       defined SENSITIVITY_4DVAR || defined TLM_CHECK)
           fname=ITLname(ng)
           INQUIRE (FILE=TRIM(fname), EXIST=inhere)
@@ -4004,9 +4235,9 @@
      &                    TRIM(fname)
 # endif
 # if defined ADJOINT && \
-    !(defined AD_SENSITIVITY  || defined FOUR_DVAR         || \
-      defined OBS_SENSITIVITY || defined OPT_OBSERVATIONS  || \
-      defined SANITY_CHECK    || defined SENSITIVITY_4DVAR || \
+    !(defined AD_SENSITIVITY      || defined FOUR_DVAR         || \
+      defined IS4DVAR_SENSITIVITY || defined OPT_OBSERVATIONS  || \
+      defined SANITY_CHECK        || defined SENSITIVITY_4DVAR || \
       defined SO_SEMI)
           fname=IADname(ng)
           INQUIRE (FILE=TRIM(fname), EXIST=inhere)
@@ -4038,8 +4269,8 @@
           WRITE (out,230) '      Input Forward State File:  ',          &
      &                    TRIM(fname)
 #endif
-#if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
-    defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR || \
+#if defined AD_SENSITIVITY   || defined IS4DVAR_SENSITIVITY || \
+    defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR   || \
     defined SO_SEMI
           fname=ADSname(ng)
           INQUIRE (FILE=TRIM(fname), EXIST=inhere)
@@ -4148,7 +4379,13 @@
 !  Take the square root of the biharmonic coefficients so it can
 !  be applied to each harmonic operator.
 !
-          tnu4(itrc,ng)=SQRT(ABS(tnu4(itrc,ng)))
+          nl_tnu4(itrc,ng)=SQRT(ABS(nl_tnu4(itrc,ng)))
+#ifdef ADJOINT
+          ad_tnu4(itrc,ng)=SQRT(ABS(ad_tnu4(itrc,ng)))
+#endif
+#if defined TANGENT || defined TL_IOMS
+          tl_tnu4(itrc,ng)=SQRT(ABS(tl_tnu4(itrc,ng)))
+#endif
 !
 !  Compute inverse nudging coefficients (1/s) used in various tasks.
 !
@@ -4217,6 +4454,7 @@
  160  FORMAT (f11.3,2x,a,t30,a,/,t32,a)
  170  FORMAT (10x,l1,2x,a,t30,a)
  180  FORMAT (10x,l1,2x,a,t30,a,i2.2,':',1x,a)
+ 185  FORMAT (10x,l1,2x,a,'(',i2.2,')',t30,a,i2.2,':',1x,a)
  190  FORMAT (1p,e11.4,2x,a,'(',i2.2,')',t30,a,/,t32,a,i2.2,':',1x,a)
  195  FORMAT (1p,e11.4,2x,a,t30,a,i2.2,':',1x,a)
  200  FORMAT (1p,e11.4,2x,a,t30,a)
@@ -4426,5206 +4664,6 @@
  280  FORMAT (/,' READ_IcePar - variable info not yet loaded, ', a)
       RETURN
       END SUBROUTINE read_IcePar
-#endif
-
-#ifdef BIOLOGY
-      SUBROUTINE read_BioPar (model, inp, out, Lwrite)
-!
-!=======================================================================
-!                                                                      !
-!  This routine reads in biological model input parameters.            !
-!                                                                      !
-!=======================================================================
-!
-      USE mod_param
-      USE mod_parallel
-      USE mod_biology
-      USE mod_ncparam
-      USE mod_scalars
-!
-      implicit none
-!
-!  Imported variable declarations
-!
-      logical, intent(in) :: Lwrite
-      integer, intent(in) :: model, inp, out
-!
-!  Local variable declarations.
-!
-      integer :: Npts, Nval, i, is, itrc, ng, status
-
-      integer :: decode_line, load_i, load_l, load_r
-
-      logical, dimension(Ngrids) :: Lbio
-      logical, dimension(NBT,Ngrids) :: Ltrc
-
-      real(r8), dimension(NBT,Ngrids) :: Rbio
-
-      real(r8), dimension(100) :: Rval
-
-      character (len=40) :: KeyWord
-      character (len=160) :: line
-      character (len=160), dimension(100) :: Cval
-
-# if defined BIO_FENNEL
-!
-!-----------------------------------------------------------------------
-!  Read in Fennel et al. (2006) biological model parameters.
-!-----------------------------------------------------------------------
-!
-      DO WHILE (.TRUE.)
-        READ (inp,'(a)',ERR=10,END=20) line
-        status=decode_line(line, KeyWord, Nval, Cval, Rval)
-        IF (status.gt.0) THEN
-          IF (TRIM(KeyWord).eq.'Lbiology') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Lbiology)
-          ELSE IF (TRIM(KeyWord).eq.'BioIter') THEN
-            Npts=load_i(Nval, Rval, Ngrids, BioIter)
-          ELSE IF (TRIM(KeyWord).eq.'AttSW') THEN
-            Npts=load_r(Nval, Rval, Ngrids, AttSW)
-          ELSE IF (TRIM(KeyWord).eq.'AttChl') THEN
-            Npts=load_r(Nval, Rval, Ngrids, AttChl)
-          ELSE IF (TRIM(KeyWord).eq.'PARfrac') THEN
-            Npts=load_r(Nval, Rval, Ngrids, PARfrac)
-          ELSE IF (TRIM(KeyWord).eq.'Vp0') THEN
-            Npts=load_r(Nval, Rval, Ngrids, Vp0)
-          ELSE IF (TRIM(KeyWord).eq.'I_thNH4') THEN
-            Npts=load_r(Nval, Rval, Ngrids, I_thNH4)
-          ELSE IF (TRIM(KeyWord).eq.'D_p5NH4') THEN
-            Npts=load_r(Nval, Rval, Ngrids, D_p5NH4)
-          ELSE IF (TRIM(KeyWord).eq.'NitriR') THEN
-            Npts=load_r(Nval, Rval, Ngrids, NitriR)
-          ELSE IF (TRIM(KeyWord).eq.'K_NO3') THEN
-            Npts=load_r(Nval, Rval, Ngrids, K_NO3)
-          ELSE IF (TRIM(KeyWord).eq.'K_NH4') THEN
-            Npts=load_r(Nval, Rval, Ngrids, K_NH4)
-          ELSE IF (TRIM(KeyWord).eq.'K_Phy') THEN
-            Npts=load_r(Nval, Rval, Ngrids, K_Phy)
-          ELSE IF (TRIM(KeyWord).eq.'Chl2C_m') THEN
-            Npts=load_r(Nval, Rval, Ngrids, Chl2C_m)
-          ELSE IF (TRIM(KeyWord).eq.'ChlMin') THEN
-            Npts=load_r(Nval, Rval, Ngrids, ChlMin)
-          ELSE IF (TRIM(KeyWord).eq.'PhyCN') THEN
-            Npts=load_r(Nval, Rval, Ngrids, PhyCN)
-          ELSE IF (TRIM(KeyWord).eq.'PhyIP') THEN
-            Npts=load_r(Nval, Rval, Ngrids, PhyIP)
-          ELSE IF (TRIM(KeyWord).eq.'PhyIS') THEN
-            Npts=load_r(Nval, Rval, Ngrids, PhyIS)
-          ELSE IF (TRIM(KeyWord).eq.'PhyMin') THEN
-            Npts=load_r(Nval, Rval, Ngrids, PhyMin)
-          ELSE IF (TRIM(KeyWord).eq.'PhyMR') THEN
-            Npts=load_r(Nval, Rval, Ngrids, PhyMR)
-          ELSE IF (TRIM(KeyWord).eq.'ZooAE_N') THEN
-            Npts=load_r(Nval, Rval, Ngrids, ZooAE_N)
-          ELSE IF (TRIM(KeyWord).eq.'ZooBM') THEN
-            Npts=load_r(Nval, Rval, Ngrids, ZooBM)
-          ELSE IF (TRIM(KeyWord).eq.'ZooCN') THEN
-            Npts=load_r(Nval, Rval, Ngrids, ZooCN)
-          ELSE IF (TRIM(KeyWord).eq.'ZooER') THEN
-            Npts=load_r(Nval, Rval, Ngrids, ZooER)
-          ELSE IF (TRIM(KeyWord).eq.'ZooGR') THEN
-            Npts=load_r(Nval, Rval, Ngrids, ZooGR)
-          ELSE IF (TRIM(KeyWord).eq.'ZooMin') THEN
-            Npts=load_r(Nval, Rval, Ngrids, ZooMin)
-          ELSE IF (TRIM(KeyWord).eq.'ZooMR') THEN
-            Npts=load_r(Nval, Rval, Ngrids, ZooMR)
-          ELSE IF (TRIM(KeyWord).eq.'LDeRRN') THEN
-            Npts=load_r(Nval, Rval, Ngrids, LDeRRN)
-          ELSE IF (TRIM(KeyWord).eq.'LDeRRC') THEN
-            Npts=load_r(Nval, Rval, Ngrids, LDeRRC)
-          ELSE IF (TRIM(KeyWord).eq.'CoagR') THEN
-            Npts=load_r(Nval, Rval, Ngrids, CoagR)
-          ELSE IF (TRIM(KeyWord).eq.'SDeRRN') THEN
-            Npts=load_r(Nval, Rval, Ngrids, SDeRRN)
-          ELSE IF (TRIM(KeyWord).eq.'SDeRRC') THEN
-            Npts=load_r(Nval, Rval, Ngrids, SDeRRC)
-          ELSE IF (TRIM(KeyWord).eq.'wPhy') THEN
-            Npts=load_r(Nval, Rval, Ngrids, wPhy)
-          ELSE IF (TRIM(KeyWord).eq.'wLDet') THEN
-            Npts=load_r(Nval, Rval, Ngrids, wLDet)
-          ELSE IF (TRIM(KeyWord).eq.'wSDet') THEN
-            Npts=load_r(Nval, Rval, Ngrids, wSDet)
-          ELSE IF (TRIM(KeyWord).eq.'pCO2air') THEN
-            Npts=load_r(Nval, Rval, Ngrids, pCO2air)
-          ELSE IF (TRIM(KeyWord).eq.'TNU2') THEN
-            Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idbio(itrc)
-                tnu2(i,ng)=Rbio(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'TNU4') THEN
-            Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idbio(itrc)
-                tnu4(i,ng)=Rbio(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'AKT_BAK') THEN
-            Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idbio(itrc)
-                Akt_bak(i,ng)=Rbio(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'TNUDG') THEN
-            Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idbio(itrc)
-                Tnudg(i,ng)=Rbio(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idTvar)') THEN
-            Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idTvar(idbio(itrc))
-                IF (i.eq.0) THEN
-                  IF (Master) WRITE (out,120)                           &
-     &                              'idTvar(idbio(', itrc, '))'
-                  exit_flag=5
-                  RETURN
-                END IF
-                Hout(i,ng)=Ltrc(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idTsur)') THEN
-            Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idTsur(idbio(itrc))
-                IF (i.eq.0) THEN
-                  IF (Master) WRITE (out,120)                           &
-     &                              'idTsur(idbio(', itrc, '))'
-                  exit_flag=5
-                  RETURN
-                END IF
-                Hout(i,ng)=Ltrc(itrc,ng)
-              END DO
-            END DO
-#  ifdef DIAGNOSTICS_BIO
-#   ifdef CARBON
-          ELSE IF (TRIM(KeyWord).eq.'Hout(iCOfx)') THEN
-            IF (iDbio2(iCOfx).eq.0) THEN
-              IF (Master) WRITE (out,130) 'iDbio2(iCOfx)'
-              exit_flag=5
-              RETURN
-            END IF
-            Npts=load_l(Nval, Cval, Ngrids, Lbio)
-            i=iDbio2(iCOfx)
-            DO ng=1,Ngrids
-              Hout(i,ng)=Lbio(ng)
-            END DO
-#   endif
-#   ifdef DENITRIFICATION
-          ELSE IF (TRIM(KeyWord).eq.'Hout(iDNIT)') THEN
-            IF (iDbio2(iDNIT).eq.0) THEN
-              IF (Master) WRITE (out,130) 'iDbio2(iDNIT)'
-              exit_flag=5
-              RETURN
-            END IF
-            Npts=load_l(Nval, Cval, Ngrids, Lbio)
-            i=iDbio2(iDNIT)
-            DO ng=1,Ngrids
-              Hout(i,ng)=Lbio(ng)
-            END DO
-#   endif
-#   ifdef CARBON
-          ELSE IF (TRIM(KeyWord).eq.'Hout(ipCO2)') THEN
-            IF (iDbio2(ipCO2).eq.0) THEN
-              IF (Master) WRITE (out,130) 'iDbio2(ipCO2)'
-              exit_flag=5
-              RETURN
-            END IF
-            Npts=load_l(Nval, Cval, Ngrids, Lbio)
-            i=iDbio2(ipCO2)
-            DO ng=1,Ngrids
-              Hout(i,ng)=Lbio(ng)
-            END DO
-#   endif
-#   ifdef OXYGEN
-          ELSE IF (TRIM(KeyWord).eq.'Hout(iO2fx)') THEN
-            IF (iDbio2(iO2fx).eq.0) THEN
-              IF (Master) WRITE (out,130) 'iDbio2(iO2fx)'
-              exit_flag=5
-              RETURN
-            END IF
-            Npts=load_l(Nval, Cval, Ngrids, Lbio)
-            i=iDbio2(iO2fx)
-            DO ng=1,Ngrids
-              Hout(i,ng)=Lbio(ng)
-            END DO
-#   endif
-          ELSE IF (TRIM(KeyWord).eq.'Hout(iPPro)') THEN
-            IF (iDbio3(iPPro).eq.0) THEN
-              IF (Master) WRITE (out,130) 'iDbio3(iPPro)'
-              exit_flag=5
-              RETURN
-            END IF
-            Npts=load_l(Nval, Cval, Ngrids, Lbio)
-            i=iDbio3(iPPro)
-            DO ng=1,Ngrids
-              Hout(i,ng)=Lbio(ng)
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'Hout(iNO3u)') THEN
-            IF (iDbio3(iNO3u).eq.0) THEN
-              IF (Master) WRITE (out,130) 'iDbio3(iNO3u)'
-              exit_flag=5
-              RETURN
-            END IF
-            Npts=load_l(Nval, Cval, Ngrids, Lbio)
-            i=iDbio3(iNO3u)
-            DO ng=1,Ngrids
-              Hout(i,ng)=Lbio(ng)
-            END DO
-#  endif
-          END IF
-        END IF
-      END DO
-  10  IF (Master) WRITE (out,30) line
-      exit_flag=4
-      RETURN
-  20  CONTINUE
-!
-!-----------------------------------------------------------------------
-!  Report input parameters.
-!-----------------------------------------------------------------------
-!
-      IF (Lwrite) THEN
-        DO ng=1,Ngrids
-          IF (Lbiology(ng)) THEN
-            WRITE (out,40) ng
-            WRITE (out,50) BioIter(ng), 'BioIter',                      &
-     &            'Number of iterations for nonlinear convergence.'
-            WRITE (out,100) AttSW(ng), 'AttSW',                         &
-     &            'Light attenuation of seawater (m-1).'
-            WRITE (out,100) AttChl(ng), 'AttChl',                       &
-     &            'Light attenuation by chlorophyll (1/(mg_Chl m-2)).'
-            WRITE (out,110) PARfrac(ng), 'PARfrac',                     &
-     &            'Fraction of shortwave radiation that is',            &
-     &            'photosynthetically active (nondimensional).'
-            WRITE (out,110) Vp0(ng), 'Vp0',                             &
-     &            'Eppley temperature-limited growth parameter',        &
-     &            '(nondimensional).'
-            WRITE (out,100) I_thNH4(ng), 'I_thNH4',                     &
-     &            'Radiation threshold for nitrification (W/m2).'
-            WRITE (out,100) D_p5NH4(ng), 'D_p5NH4',                     &
-     &            'Half-saturation radiation for nitrification (W/m2).'
-            WRITE (out,100) NitriR(ng), 'NitriR',                       &
-     &            'Nitrification rate (day-1).'
-            WRITE (out,110) K_NO3(ng), 'K_NO3',                         &
-     &            'Inverse half-saturation for phytoplankton NO3',      &
-     &            'uptake (1/(mmol_N m-3)).'
-            WRITE (out,110) K_NH4(ng), 'K_NH4',                         &
-     &            'Inverse half-saturation for phytoplankton NH4',      &
-     &            'uptake (1/(mmol_N m-3)).'
-            WRITE (out,110) K_Phy(ng), 'K_Phy',                         &
-     &            'Zooplankton half-saturation constant for ingestion', &
-     &            '(mmol_N m-3)^2.'
-            WRITE (out,100) Chl2C_m(ng), 'Chl2C_m',                     &
-     &            'Maximum chlorophyll to carbon ratio (mg_Chl/mg_C).'
-            WRITE (out,100) ChlMin(ng), 'ChlMin',                       &
-     &            'Chlorophyll minimum threshold (mg_Chl/m3).'
-            WRITE (out,100) PhyCN(ng), 'PhyCN',                         &
-     &            'Phytoplankton Carbon:Nitrogen ratio (mol_C/mol_N).'
-            WRITE (out,100) PhyIP(ng), 'PhyIP',                         &
-     &            'Phytoplankton NH4 inhibition parameter (1/mmol_N).'
-            WRITE (out,110) PhyIS(ng), 'PhyIS',                         &
-     &            'Phytoplankton growth, initial slope of P-I curve',   &
-     &            '(mg_C/(mg_Chl Watts m-2 day)).'
-            WRITE (out,100) PhyMin(ng), 'PhyMin',                       &
-     &            'Phytoplankton minimum threshold (mmol_N/m3).'
-            WRITE (out,100) PhyMR(ng), 'PhyMR',                         &
-     &            'Phytoplankton mortality rate (day-1).'
-            WRITE (out,110) ZooAE_N(ng), 'ZooAE_N',                     &
-     &            'Zooplankton nitrogen assimilation efficiency',       &
-     &            '(nondimensional).'
-            WRITE (out,100) ZooBM(ng), 'ZooBM',                         &
-     &            'Rate for zooplankton basal metabolism (1/day).'
-            WRITE (out,100) ZooCN(ng), 'ZooCN',                         &
-     &            'Zooplankton Carbon:Nitrogen ratio (mol_C/mol_N).'
-            WRITE (out,100) ZooER(ng), 'ZooER',                         &
-     &            'Zooplankton specific excretion rate (day-1).'
-            WRITE (out,100) ZooGR(ng), 'ZooGR',                         &
-     &            'Zooplankton maximum growth rate (day-1).'
-            WRITE (out,100) ZooMin(ng), 'ZooMin',                       &
-     &            'Zooplankton minimum threshold (mmol_N/m3).'
-            WRITE (out,100) ZooMR(ng), 'ZooMR',                         &
-     &            'Zooplankton mortality rate (day-1).'
-            WRITE (out,100) LDeRRN(ng), 'LDeRRN',                       &
-     &            'Large detritus N re-mineralization rate (day-1).'
-            WRITE (out,100) LDeRRC(ng), 'LDeRRC',                       &
-     &            'Large detritus C re-mineralization rate (day-1).'
-            WRITE (out,100) CoagR(ng), 'CoagR',                         &
-     &            'Coagulation rate (day-1).'
-            WRITE (out,100) SDeRRN(ng), 'SDeRRN',                       &
-     &            'Remineralization rate for small detritus N (day-1).'
-            WRITE (out,100) SDeRRC(ng), 'SDeRRC',                       &
-     &            'Remineralization rate for small detritus C (day-1).'
-            WRITE (out,100) wPhy(ng), 'wPhy',                           &
-     &            'Phytoplankton sinking velocity (m/day).'
-            WRITE (out,100) wLDet(ng), 'wLDet',                         &
-     &            'Large detritus sinking velocity (m/day).'
-            WRITE (out,100) wSDet(ng), 'wSDet',                         &
-     &            'Small detritus sinking velocity (m/day).'
-#  ifdef TS_DIF2
-            DO itrc=1,NBT
-              i=idbio(itrc)
-              WRITE (out,90) tnu2(i,ng), 'tnu2', i,                     &
-     &              'Horizontal, harmonic mixing coefficient (m2/s)',   &
-     &              'for tracer ', i, TRIM(Vname(1,idTvar(i)))
-            END DO
-#  endif
-#  ifdef TS_DIF4
-            DO itrc=1,NBT
-              i=idbio(itrc)
-              WRITE (out,90) tnu4(i,ng), 'tnu4', i,                     &
-     &              'Horizontal, biharmonic mixing coefficient (m4/s)', &
-     &              'for tracer ', i, TRIM(Vname(1,idTvar(i)))
-            END DO
-#  endif
-            DO itrc=1,NBT
-              i=idbio(itrc)
-              WRITE(out,90) Akt_bak(i,ng), 'Akt_bak', i,                &
-     &             'Background vertical mixing coefficient (m2/s)',     &
-     &             'for tracer ', i, TRIM(Vname(1,idTvar(i)))
-            END DO
-            DO itrc=1,NBT
-              i=idbio(itrc)
-              WRITE (out,90) Tnudg(i,ng), 'Tnudg', i,                   &
-     &              'Nudging/relaxation time scale (days)',             &
-     &              'for tracer ', i, TRIM(Vname(1,idTvar(i)))
-            END DO
-            DO itrc=1,NBT
-              i=idbio(itrc)
-              IF (Hout(idTvar(i),ng)) WRITE (out,60)                    &
-     &            Hout(idTvar(i),ng), 'Hout(idTvar)',                   &
-     &            'Write out tracer ', i, TRIM(Vname(1,idTvar(i)))
-            END DO
-            DO itrc=1,NBT
-              i=idbio(itrc)
-              IF (Hout(idTsur(i),ng)) WRITE (out,60)                    &
-     &            Hout(idTsur(i),ng), 'Hout(idTsur)',                   &
-     &            'Write out tracer flux ', i, TRIM(Vname(1,idTvar(i)))
-            END DO
-#  ifdef DIAGNOSTICS_BIO
-#   if !(defined CARBON || defined OXYGEN || defined DENITRIFICATION)
-            DO itrc=1,NDbio2d
-              i=iDbio2(itrc)
-              IF (Hout(i,ng)) WRITE (out,140)                           &
-     &            Hout(i,ng), 'Hout(iDbio2)', 'Diagnostics for',        &
-     &            TRIM(Vname(1,i))
-            END DO
-#   endif
-            DO itrc=1,NDbio3d
-              i=iDbio3(itrc)
-              IF (Hout(i,ng)) WRITE (out,140)                           &
-     &            Hout(i,ng), 'Hout(iDbio3)', 'Diagnostics for',        &
-     &            TRIM(Vname(1,i))
-            END DO
-#  endif
-          END IF
-        END DO
-      END IF
-!
-!-----------------------------------------------------------------------
-!  Rescale biological tracer parameters
-!-----------------------------------------------------------------------
-!
-!  Take the square root of the biharmonic coefficients so it can
-!  be applied to each harmonic operator.
-!
-      DO ng=1,Ngrids
-        DO itrc=1,NBT
-          i=idbio(itrc)
-          tnu4(i,ng)=SQRT(ABS(tnu4(i,ng)))
-!
-!  Compute inverse nudging coefficients (1/s) used in various tasks.
-!
-          IF (Tnudg(i,ng).gt.0.0_r8) THEN
-            Tnudg(i,ng)=1.0_r8/(Tnudg(i,ng)*86400.0_r8)
-          ELSE
-            Tnudg(i,ng)=0.0_r8
-          END IF
-        END DO
-      END DO
-
-  30  FORMAT (/,' read_BioPar - Error while processing line: ',/,a)
-  40  FORMAT (/,/,' Fennel Model Parameters, Grid: ',i2.2,              &
-     &        /,  ' =================================',/)
-  50  FORMAT (1x,i10,2x,a,t30,a)
-  60  FORMAT (10x,l1,2x,a,t30,a,i2.2,':',1x,a)
-  70  FORMAT (f11.3,2x,a,t30,a)
-  80  FORMAT (f11.3,2x,a,t30,a,/,t32,a)
-  90  FORMAT (1p,e11.4,2x,a,'(',i2.2,')',t30,a,/,t32,a,i2.2,':',1x,a)
- 100  FORMAT (1p,e11.4,2x,a,t30,a)
- 110  FORMAT (1p,e11.4,2x,a,t30,a,/,t32,a)
- 120  FORMAT (/,' read_BioPar - variable info not yet loaded, ',        &
-     &        a,i2.2,a)
- 130  FORMAT (/,' read_BioPar - variable info not yet loaded, ',a)
- 140  FORMAT (10x,l1,2x,a,t30,a,1x,a)
-
-# elif defined BIO_UMAINE
-!
-!-----------------------------------------------------------------------
-!  Read in UMaine CoSiNE biological model parameters.
-!-----------------------------------------------------------------------
-!
-      DO WHILE (.TRUE.)
-        READ (inp,'(a)',ERR=10,END=20) line
-        status=decode_line(line, KeyWord, Nval, Cval, Rval)
-        IF (status.gt.0) THEN
-          IF (TRIM(KeyWord).eq.'Lbiology') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Lbiology)
-          ELSE IF (TRIM(KeyWord).eq.'BioIter') THEN
-            Npts=load_i(Nval, Rval, Ngrids, BioIter)
-          ELSE IF (TRIM(KeyWord).eq.'reg1') THEN
-            Npts=load_r(Nval, Rval, Ngrids, reg1)
-          ELSE IF (TRIM(KeyWord).eq.'reg2') THEN
-            Npts=load_r(Nval, Rval, Ngrids, reg2)
-          ELSE IF (TRIM(KeyWord).eq.'gmaxs1') THEN
-            Npts=load_r(Nval, Rval, Ngrids, gmaxs1)
-          ELSE IF (TRIM(KeyWord).eq.'gmaxs2') THEN
-            Npts=load_r(Nval, Rval, Ngrids, gmaxs2)
-          ELSE IF (TRIM(KeyWord).eq.'beta1') THEN
-            Npts=load_r(Nval, Rval, Ngrids, beta1)
-          ELSE IF (TRIM(KeyWord).eq.'beta2') THEN
-            Npts=load_r(Nval, Rval, Ngrids, beta2)
-          ELSE IF (TRIM(KeyWord).eq.'akz1') THEN
-            Npts=load_r(Nval, Rval, Ngrids, akz1)
-          ELSE IF (TRIM(KeyWord).eq.'akz2') THEN
-            Npts=load_r(Nval, Rval, Ngrids, akz2)
-          ELSE IF (TRIM(KeyWord).eq.'PARfrac') THEN
-            Npts=load_r(Nval, Rval, Ngrids, PARfrac)
-          ELSE IF (TRIM(KeyWord).eq.'amaxs2') THEN
-            Npts=load_r(Nval, Rval, Ngrids, amaxs2)
-          ELSE IF (TRIM(KeyWord).eq.'parsats1') THEN
-            Npts=load_r(Nval, Rval, Ngrids, parsats1)
-          ELSE IF (TRIM(KeyWord).eq.'parsats2') THEN
-            Npts=load_r(Nval, Rval, Ngrids, parsats2)
-          ELSE IF (TRIM(KeyWord).eq.'pis1') THEN
-            Npts=load_r(Nval, Rval, Ngrids, pis1)
-          ELSE IF (TRIM(KeyWord).eq.'pis2') THEN
-            Npts=load_r(Nval, Rval, Ngrids, pis2)
-          ELSE IF (TRIM(KeyWord).eq.'akno3s1') THEN
-            Npts=load_r(Nval, Rval, Ngrids, akno3s1)
-          ELSE IF (TRIM(KeyWord).eq.'akno3s2') THEN
-            Npts=load_r(Nval, Rval, Ngrids, akno3s2)
-          ELSE IF (TRIM(KeyWord).eq.'aknh4s1') THEN
-            Npts=load_r(Nval, Rval, Ngrids, aknh4s1)
-          ELSE IF (TRIM(KeyWord).eq.'aknh4s2') THEN
-            Npts=load_r(Nval, Rval, Ngrids, aknh4s2)
-          ELSE IF (TRIM(KeyWord).eq.'akpo4s1') THEN
-            Npts=load_r(Nval, Rval, Ngrids, akpo4s1)
-          ELSE IF (TRIM(KeyWord).eq.'akpo4s2') THEN
-            Npts=load_r(Nval, Rval, Ngrids, akpo4s2)
-          ELSE IF (TRIM(KeyWord).eq.'akco2s1') THEN
-            Npts=load_r(Nval, Rval, Ngrids, akco2s1)
-          ELSE IF (TRIM(KeyWord).eq.'akco2s2') THEN
-            Npts=load_r(Nval, Rval, Ngrids, akco2s2)
-          ELSE IF (TRIM(KeyWord).eq.'aksio4s2') THEN
-            Npts=load_r(Nval, Rval, Ngrids, aksio4s2)
-          ELSE IF (TRIM(KeyWord).eq.'ak1') THEN
-            Npts=load_r(Nval, Rval, Ngrids, ak1)
-          ELSE IF (TRIM(KeyWord).eq.'ak2') THEN
-            Npts=load_r(Nval, Rval, Ngrids, ak2)
-          ELSE IF (TRIM(KeyWord).eq.'bgamma0') THEN
-            Npts=load_r(Nval, Rval, Ngrids, bgamma0)
-          ELSE IF (TRIM(KeyWord).eq.'bgamma1') THEN
-            Npts=load_r(Nval, Rval, Ngrids, bgamma1)
-          ELSE IF (TRIM(KeyWord).eq.'bgamma2') THEN
-            Npts=load_r(Nval, Rval, Ngrids, bgamma2)
-          ELSE IF (TRIM(KeyWord).eq.'bgamma3') THEN
-            Npts=load_r(Nval, Rval, Ngrids, bgamma3)
-          ELSE IF (TRIM(KeyWord).eq.'bgamma4') THEN
-            Npts=load_r(Nval, Rval, Ngrids, bgamma4)
-          ELSE IF (TRIM(KeyWord).eq.'bgamma5') THEN
-            Npts=load_r(Nval, Rval, Ngrids, bgamma5)
-          ELSE IF (TRIM(KeyWord).eq.'bgamma6') THEN
-            Npts=load_r(Nval, Rval, Ngrids, bgamma6)
-          ELSE IF (TRIM(KeyWord).eq.'bgamma7') THEN
-            Npts=load_r(Nval, Rval, Ngrids, bgamma7)
-          ELSE IF (TRIM(KeyWord).eq.'wsd') THEN
-            Npts=load_r(Nval, Rval, Ngrids, wsd)
-          ELSE IF (TRIM(KeyWord).eq.'wsdsi') THEN
-            Npts=load_r(Nval, Rval, Ngrids, wsdsi)
-          ELSE IF (TRIM(KeyWord).eq.'wsp') THEN
-            Npts=load_r(Nval, Rval, Ngrids, wsp)
-          ELSE IF (TRIM(KeyWord).eq.'pco2a') THEN
-            Npts=load_r(Nval, Rval, Ngrids, pco2a)
-          ELSE IF (TRIM(KeyWord).eq.'si2n') THEN
-            Npts=load_r(Nval, Rval, Ngrids, si2n)
-          ELSE IF (TRIM(KeyWord).eq.'p2n') THEN
-            Npts=load_r(Nval, Rval, Ngrids, p2n)
-          ELSE IF (TRIM(KeyWord).eq.'o2no') THEN
-            Npts=load_r(Nval, Rval, Ngrids, o2no)
-          ELSE IF (TRIM(KeyWord).eq.'o2nh') THEN
-            Npts=load_r(Nval, Rval, Ngrids, o2nh)
-          ELSE IF (TRIM(KeyWord).eq.'c2n') THEN
-            Npts=load_r(Nval, Rval, Ngrids, c2n)
-          ELSE IF (TRIM(KeyWord).eq.'ro5') THEN
-            Npts=load_r(Nval, Rval, Ngrids, ro5)
-          ELSE IF (TRIM(KeyWord).eq.'ro6') THEN
-            Npts=load_r(Nval, Rval, Ngrids, ro6)
-          ELSE IF (TRIM(KeyWord).eq.'ro7') THEN
-            Npts=load_r(Nval, Rval, Ngrids, ro7)
-          ELSE IF (TRIM(KeyWord).eq.'TNU2') THEN
-            Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idbio(itrc)
-                tnu2(i,ng)=Rbio(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'TNU4') THEN
-            Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idbio(itrc)
-                tnu4(i,ng)=Rbio(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'AKT_BAK') THEN
-            Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idbio(itrc)
-                Akt_bak(i,ng)=Rbio(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'TNUDG') THEN
-            Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idbio(itrc)
-                Tnudg(i,ng)=Rbio(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idTvar)') THEN
-            Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idTvar(idbio(itrc))
-                IF (i.eq.0) THEN
-                  IF (Master) WRITE (out,120)                           &
-     &                      'idTvar(idbio(', itrc, '))'
-                  exit_flag=5
-                  RETURN
-                END IF                  
-                Hout(i,ng)=Ltrc(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idTsur)') THEN
-            Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idTsur(idbio(itrc))
-                IF (i.eq.0) THEN
-                  IF (Master) WRITE (out,120)                           &
-     &                      'idTsur(idbio(', itrc, '))'
-                  exit_flag=5
-                  RETURN
-                END IF                  
-                Hout(i,ng)=Ltrc(itrc,ng)
-              END DO
-            END DO
-          END IF
-        END IF
-      END DO
-  10  IF (Master) WRITE (out,30) line
-      exit_flag=4
-      RETURN
-  20  CONTINUE
-!
-!-----------------------------------------------------------------------
-!  Report input parameters.
-!-----------------------------------------------------------------------
-!
-      IF (Lwrite) THEN
-        DO ng=1,Ngrids
-          IF (Lbiology(ng)) THEN
-            WRITE (out,40) ng
-            WRITE (out,50) BioIter(ng), 'BioIter',                      &
-     &            'Number of iterations for nonlinear convergence.'
-            WRITE (out,110) reg1(ng), 'reg1',                           &
-     &            'Microzooplankton excretion rate to ammonium',        &
-     &            '[1/day].'
-            WRITE (out,100) reg2(ng), 'reg2',                           &
-     &            'Mesozooplankton excretion rate to ammonium [1/day].'
-            WRITE (out,110) gmaxs1(ng), 'gmaxs1',                       &
-     &            'Maximum specific growth rate of small phytoplankton',&
-     &            '[1/day].'
-            WRITE (out,100) gmaxs2(ng), 'gmaxs2',                       &
-     &            'Maximum specific growth rate of diatom [1/day].'
-            WRITE (out,100) beta1(ng), 'beta1',                         &
-     &            'Microzooplankton maximum grazing rate [1/day].'
-            WRITE (out,100) beta2(ng), 'beta2',                         &
-     &            'Mesozooplankton maximum grazing rate [1/day].'
-            WRITE (out,110) akz1(ng), 'akz1',                           &
-     &            'Half saturation constant for microzooplankton',      &
-     &            'grazing [mmol_N/m3].'
-            WRITE (out,110) akz2(ng), 'akz2',                           &
-     &            'Half saturation constant for mesozooplankton',       &
-     &            'grazing [mmol_N/m3].'
-            WRITE (out,110) PARfrac(ng), 'PARfrac',                     &
-     &            'Fraction of shortwave radiation that is',            &
-     &            'photosynthetically active (nondimensional).'
-            WRITE (out,110) amaxs2(ng), 'amaxs2',                       &
-     &            'Initial slope of P-I curve of small',                &
-     &            'phytoplankton [1/(Watts/m2)/day].'
-            WRITE (out,110) parsats1(ng), 'parsats1',                   &
-     &            'PAR saturation onset parameter of',                  &
-     &            'small phytoplankton [Watts/m2].'
-            WRITE (out,110) parsats2(ng), 'parsats2',                   &
-     &            'PAR saturation onset parameter of diatom',           &
-     &            '[Watts/m2].'
-            WRITE (out,110) pis1(ng), 'pis1',                           &
-     &            'Ammonium inhibition parameter for small',            &
-     &            'phytoplankton [mmol_N/m3].'
-            WRITE (out,110) pis2(ng), 'pis2',                           &
-     &            'Ammonium inhibition parameter for diatom',           &
-     &            '[mmol_N/m3].'
-            WRITE (out,110) akno3s1(ng), 'akno3s1',                     &
-     &            'Half saturation concentration for nitrate',          &
-     &            'uptake by small phytoplankton [mmol_N/m3].'
-            WRITE (out,110) akno3s2(ng), 'akno3s2',                     &
-     &            'Half saturation concentration for nitrate',          &
-     &            'uptake by diatom [mmol_N/m3].'
-            WRITE (out,110) aknh4s1(ng), 'aknh4s1',                     &
-     &            'Half saturation concentration for ammonium',         &
-     &            'uptake by small phytoplankton [mmol_N/m3].'
-            WRITE (out,110) aknh4s2(ng), 'aknh4s2',                     &
-     &            'Half saturation concentration for ammonium',         &
-     &            'uptake by diatom [mmol_N/m3].'
-            WRITE (out,110) akpo4s1(ng), 'akpo4s1',                     &
-     &            'Half saturation concentration for phosphate',        &
-     &            'uptake by small phytoplankton [mmol_P/m3].'
-            WRITE (out,110) akpo4s2(ng), 'akpo4s2',                     &
-     &            'Half saturation concentration for phosphate',        &
-     &            'uptake by diatom [mmol_P/m3].'
-            WRITE (out,110) akco2s1(ng), 'akco2s1',                     &
-     &            'Half saturation concentration for co2',              &
-     &            'uptake by small phytoplankton [mmol_C/m3].'
-            WRITE (out,110) akco2s2(ng), 'akco2s2',                     &
-     &            'Half saturation concentration for co2',              &
-     &            'uptake by diatom [mmol_C/m3].'
-            WRITE (out,110) aksio4s2(ng), 'aksio4s2',                   &
-     &            'Half saturation constant for silicate',              &
-     &            'uptake by diatom [mmol_N/m3].'
-            WRITE (out,100) ak1(ng), 'ak1',                             &
-     &            'Light attenuation coefficient of water [1/m].'
-            WRITE (out,110) ak2(ng), 'ak2',                             &
-     &            'Specific light attenuation coefficient for',         &
-     &            'phytoplankton [1/m/(mmol_N/m3)].'
-            WRITE (out,100) bgamma0(ng), 'bgamma0',                     &
-     &            'Mesozooplankton specific mortality rate [1/day].'
-            WRITE (out,110) bgamma1(ng), 'bgamma1',                     &
-     &            'Grazing efficiency of microzooplankton',             &
-     &            '[nondimensional].'
-            WRITE (out,110) bgamma2(ng), 'bgamma2',                     &
-     &            ' Grazing efficiency of mesozooplankton',             &
-     &            '[nondimensional].'
-            WRITE (out,100) bgamma3(ng), 'bgamma3',                     &
-     &            'Death rate of small phytoplankton [1/day].'
-            WRITE (out,100) bgamma4(ng), 'bgamma4',                     &
-     &            'Death rate of large phytoplankton [1/day].'
-            WRITE (out,100) bgamma5(ng), 'bgamma5',                     &
-     &            'Decay rate of detritus [1/day].'
-            WRITE (out,100) bgamma6(ng), 'bgamma6',                     &
-     &            ' '
-            WRITE (out,100) bgamma7(ng), 'bgamma7',                     &
-     &            'Nitrafication rate [1/day].'
-            WRITE (out,100) wsd(ng), 'wsd',                             &
-     &            'Sinking velocity of detritus [m/day].'
-            WRITE (out,100) wsdsi(ng), 'wsdsi',                         &
-     &            'Sinking velocity of detritus silicate [m/day].'
-            WRITE (out,100) wsp(ng), 'wsp',                             &
-     &            'Sinking velocity of large phytoplankton [m/day].'
-            WRITE (out,100) pco2a(ng), 'pco2a',                         &
-     &            'Air pCO2 [ppmv].'
-            WRITE (out,100) si2n(ng), 'si2n',                           &
-     &            'Silicate to nitrogen ratio [mol_Si/mol_N].'
-            WRITE (out,100) p2n(ng), 'p2n',                             &
-     &            'Phosphorus to nitrogen ratio [mol_P/mol_N].'
-            WRITE (out,100) o2no(ng), 'o2no',                           &
-     &            'Oxygen to nitrate ratio [mol_O2/mol_NO3].'
-            WRITE (out,100) o2nh(ng), 'o2nh',                           &
-     &            'Oxygen to ammonium ratio [mol_O2/mol_NH4].'
-            WRITE (out,100) c2n(ng), 'c2n',                             &
-     &            'Carbon to nitrogen ratio [mol_C/mol_N].'
-            WRITE (out,100) ro5(ng), 'ro5',                             &
-     &            'Grazing preference for diatom [nondimensional].'
-            WRITE (out,110) ro6(ng), 'ro6',                             &
-     &            'Grazing preference for mesozooplankton',             &
-     &            '[nondimensional].'
-            WRITE (out,100) ro7(ng), 'ro7',                             &
-     &            'Grazing preference for detritus [nondimensional].'
-#  ifdef TS_DIF2
-            DO itrc=1,NBT
-              i=idbio(itrc)
-              WRITE (out,90) tnu2(i,ng), 'tnu2', i,                     &
-     &              'Horizontal, harmonic mixing coefficient (m2/s)',   &
-     &              'for tracer ', i, TRIM(Vname(1,idTvar(i)))
-            END DO
-#  endif
-#  ifdef TS_DIF4
-            DO itrc=1,NBT
-              i=idbio(itrc)
-              WRITE (out,90) tnu4(i,ng), 'tnu4', i,                     &
-     &              'Horizontal, biharmonic mixing coefficient (m4/s)', &
-     &              'for tracer ', i, TRIM(Vname(1,idTvar(i)))
-            END DO
-#  endif
-            DO itrc=1,NBT
-              i=idbio(itrc)
-              WRITE(out,90) Akt_bak(i,ng), 'Akt_bak', i,                &
-     &             'Background vertical mixing coefficient (m2/s)',     &
-     &             'for tracer ', i, TRIM(Vname(1,idTvar(i)))
-            END DO
-            DO itrc=1,NBT
-              i=idbio(itrc)
-              WRITE (out,90) Tnudg(i,ng), 'Tnudg', i,                   &
-     &              'Nudging/relaxation time scale (days)',             &
-     &              'for tracer ', i, TRIM(Vname(1,idTvar(i)))
-            END DO
-            DO itrc=1,NBT
-              i=idbio(itrc)
-              IF (Hout(idTvar(i),ng)) WRITE (out,60)                    &
-     &            Hout(idTvar(i),ng), 'Hout(idTvar)',                   &
-     &            'Write out tracer ', i, TRIM(Vname(1,idTvar(i)))
-            END DO
-            DO itrc=1,NBT
-              i=idbio(itrc)
-              IF (Hout(idTsur(i),ng)) WRITE (out,60)                    &
-     &            Hout(idTsur(i),ng), 'Hout(idTsur)',                   &
-     &            'Write out tracer flux ', i, TRIM(Vname(1,idTvar(i)))
-            END DO
-          END IF
-        END DO
-      END IF
-!
-!-----------------------------------------------------------------------
-!  Rescale biological tracer parameters
-!-----------------------------------------------------------------------
-!
-!  Take the square root of the biharmonic coefficients so it can
-!  be applied to each harmonic operator.
-!
-      DO ng=1,Ngrids
-        DO itrc=1,NBT
-          i=idbio(itrc)
-          tnu4(i,ng)=SQRT(ABS(tnu4(i,ng)))
-!
-!  Compute inverse nudging coefficients (1/s) used in various tasks.
-!
-          IF (Tnudg(i,ng).gt.0.0_r8) THEN
-            Tnudg(i,ng)=1.0_r8/(Tnudg(i,ng)*86400.0_r8)
-          ELSE
-            Tnudg(i,ng)=0.0_r8
-          END IF
-        END DO
-      END DO
-
-  30  FORMAT (/,' read_BioPar - Error while processing line: ',/,a)
-  40  FORMAT (/,/,' UMaine CoSiNE Model Parameters, Grid: ',i2.2,       &
-     &        /,  ' =================================',/)  
-  50  FORMAT (1x,i10,2x,a,t30,a)
-  60  FORMAT (10x,l1,2x,a,t30,a,i2.2,':',1x,a)
-  70  FORMAT (f11.3,2x,a,t30,a)
-  80  FORMAT (f11.3,2x,a,t30,a,/,t32,a)
-  90  FORMAT (1p,e11.4,2x,a,'(',i2.2,')',t30,a,/,t32,a,i2.2,':',1x,a)
- 100  FORMAT (1p,e11.4,2x,a,t30,a)
- 110  FORMAT (1p,e11.4,2x,a,t30,a,/,t32,a)
- 120  FORMAT (/,' read_BioPar - variable info not yet loaded, ',        &
-     &        a,i2.2,a)
- 130  FORMAT (/,' read_BioPar - variable info not yet loaded, ',a)
- 140  FORMAT (10x,l1,2x,a,t30,a,1x,a)
-
-# elif defined BIO_LIMADONEY
-!
-!-----------------------------------------------------------------------
-!  Read in biological model parameters.
-!-----------------------------------------------------------------------
-!
-      DO WHILE (.TRUE.)
-        READ (inp,'(a)',ERR=10,END=20) line
-        status=decode_line(line, KeyWord, Nval, Cval, Rval)
-        IF (status.gt.0) THEN
-          IF (TRIM(KeyWord).eq.'Lbiology') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Lbiology)
-          ELSE IF (TRIM(KeyWord).eq.'BioIter') THEN
-            Npts=load_i(Nval, Rval, Ngrids, BioIter)
-          ELSE IF (TRIM(KeyWord).eq.'AttSW') THEN
-            Npts=load_r(Nval, Rval, Ngrids, AttSW)
-          ELSE IF (TRIM(KeyWord).eq.'AttChl') THEN
-            Npts=load_r(Nval, Rval, Ngrids, AttChl)
-          ELSE IF (TRIM(KeyWord).eq.'PARfrac') THEN
-            Npts=load_r(Nval, Rval, Ngrids, PARfrac)
-          ELSE IF (TRIM(KeyWord).eq.'alphaPI') THEN
-            Npts=load_r(Nval, Rval, Ngrids, alphaPI)
-          ELSE IF (TRIM(KeyWord).eq.'thetaN0') THEN
-            Npts=load_r(Nval, Rval, Ngrids, thetaN0)
-          ELSE IF (TRIM(KeyWord).eq.'tref') THEN
-            Npts=load_r(Nval, Rval, Ngrids, tref)
-          ELSE IF (TRIM(KeyWord).eq.'e_a') THEN
-            Npts=load_r(Nval, Rval, Ngrids, e_a)
-          ELSE IF (TRIM(KeyWord).eq.'p_cref') THEN
-            Npts=load_r(Nval, Rval, Ngrids, p_cref)
-          ELSE IF (TRIM(KeyWord).eq.'z_umax1') THEN
-            Npts=load_r(Nval, Rval, Ngrids, z_umax1)
-          ELSE IF (TRIM(KeyWord).eq.'z_umax2') THEN
-            Npts=load_r(Nval, Rval, Ngrids, z_umax2)
-          ELSE IF (TRIM(KeyWord).eq.'p1_excr') THEN
-            Npts=load_r(Nval, Rval, Ngrids, p1_excr)
-          ELSE IF (TRIM(KeyWord).eq.'p2_excr') THEN
-            Npts=load_r(Nval, Rval, Ngrids, p2_excr)
-          ELSE IF (TRIM(KeyWord).eq.'p1_mort2') THEN
-            Npts=load_r(Nval, Rval, Ngrids, p1_mort2)
-          ELSE IF (TRIM(KeyWord).eq.'p2_mort2') THEN
-            Npts=load_r(Nval, Rval, Ngrids, p2_mort2)
-          ELSE IF (TRIM(KeyWord).eq.'z_mort') THEN
-            Npts=load_r(Nval, Rval, Ngrids, z_mort)
-          ELSE IF (TRIM(KeyWord).eq.'z_mort2') THEN
-            Npts=load_r(Nval, Rval, Ngrids, z_mort2)
-          ELSE IF (TRIM(KeyWord).eq.'d1_rem') THEN
-            Npts=load_r(Nval, Rval, Ngrids, d1_rem)
-          ELSE IF (TRIM(KeyWord).eq.'d2_rem') THEN
-            Npts=load_r(Nval, Rval, Ngrids, d2_rem)
-          ELSE IF (TRIM(KeyWord).eq.'wDet2') THEN
-            Npts=load_r(Nval, Rval, Ngrids, wDet2)
-          ELSE IF (TRIM(KeyWord).eq.'p1_kno3') THEN
-            Npts=load_r(Nval, Rval, Ngrids, p1_kno3)
-          ELSE IF (TRIM(KeyWord).eq.'p2_kno3') THEN
-            Npts=load_r(Nval, Rval, Ngrids, p2_kno3)
-          ELSE IF (TRIM(KeyWord).eq.'p1_knh4') THEN
-            Npts=load_r(Nval, Rval, Ngrids, p1_knh4)
-          ELSE IF (TRIM(KeyWord).eq.'p2_knh4') THEN
-            Npts=load_r(Nval, Rval, Ngrids, p2_knh4)
-          ELSE IF (TRIM(KeyWord).eq.'p2_si') THEN
-            Npts=load_r(Nval, Rval, Ngrids, p2_si)
-          ELSE IF (TRIM(KeyWord).eq.'p_nitr') THEN
-            Npts=load_r(Nval, Rval, Ngrids, p_nitr)
-          ELSE IF (TRIM(KeyWord).eq.'falloc0') THEN
-            Npts=load_r(Nval, Rval, Ngrids, falloc0)
-          ELSE IF (TRIM(KeyWord).eq.'si_alloc') THEN
-            Npts=load_r(Nval, Rval, Ngrids, si_alloc)
-          ELSE IF (TRIM(KeyWord).eq.'z_grz') THEN
-            Npts=load_r(Nval, Rval, Ngrids,  z_grz)
-          ELSE IF (TRIM(KeyWord).eq.'zegest0') THEN
-            Npts=load_r(Nval, Rval, Ngrids, zegest0)
-          ELSE IF (TRIM(KeyWord).eq.'r_ref') THEN
-            Npts=load_r(Nval, Rval, Ngrids, r_ref)
-          ELSE IF (TRIM(KeyWord).eq.'q_min') THEN
-            Npts=load_r(Nval, Rval, Ngrids, q_min)
-          ELSE IF (TRIM(KeyWord).eq.'q_max') THEN
-            Npts=load_r(Nval, Rval, Ngrids, q_max)
-          ELSE IF (TRIM(KeyWord).eq.'q_simin') THEN
-            Npts=load_r(Nval, Rval, Ngrids, q_simin)
-          ELSE IF (TRIM(KeyWord).eq.'q_simax') THEN
-            Npts=load_r(Nval, Rval, Ngrids, q_simax)
-          ELSE IF (TRIM(KeyWord).eq.'vncref') THEN
-            Npts=load_r(Nval, Rval, Ngrids, vncref)
-          ELSE IF (TRIM(KeyWord).eq.'biolambda') THEN
-            Npts=load_r(Nval, Rval, Ngrids, biolambda)
-          ELSE IF (TRIM(KeyWord).eq.'TNU2') THEN
-            Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idbio(itrc)
-                tnu2(i,ng)=Rbio(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'TNU4') THEN
-            Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idbio(itrc)
-                tnu4(i,ng)=Rbio(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'AKT_BAK') THEN
-            Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idbio(itrc)
-                Akt_bak(i,ng)=Rbio(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'TNUDG') THEN
-            Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idbio(itrc)
-                Tnudg(i,ng)=Rbio(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idTvar)') THEN
-            Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idTvar(idbio(itrc))
-                IF (i.eq.0) THEN
-                  IF (Master) WRITE (out,120)                           &
-     &                              'idTvar(idbio(', itrc, '))'
-                  exit_flag=5
-                  RETURN
-                END IF
-                Hout(i,ng)=Ltrc(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idTsur)') THEN
-            Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idTsur(idbio(itrc))
-                IF (i.eq.0) THEN
-                  IF (Master) WRITE (out,120)                           &
-     &                              'idTsur(idbio(', itrc, '))'
-                  exit_flag=5
-                  RETURN
-                END IF
-                Hout(i,ng)=Ltrc(itrc,ng)
-              END DO
-            END DO
-          END IF
-        END IF
-      END DO
-  10  IF (Master) WRITE (out,30) line
-      exit_flag=4
-      RETURN
-  20  CLOSE (inp)
-!
-!-----------------------------------------------------------------------
-!  Report input parameters.
-!-----------------------------------------------------------------------
-!
-      IF (Lwrite) THEN
-        DO ng=1,Ngrids
-          IF (Lbiology(ng)) THEN
-            WRITE (out,40) ng
-            WRITE (out,50) BioIter(ng), 'BioIter',                      &
-     &            'Number of iterations for nonlinear convergence.'
-            WRITE (out,100) AttSW(ng), 'AttSW',                         &
-     &            'Light attenuation of seawater (m-1).'
-            WRITE (out,100) AttChl(ng), 'AttChl',                       &
-     &            'Light attenuation by chlorophyll (1/(mg_Chl m-2)).'
-            WRITE (out,110) PARfrac(ng), 'PARfrac',                     &
-     &            'Fraction of shortwave radiation that is',            &
-     &            'photosynthetically active (nondimensional).'
-            WRITE (out,110) alphaPI(ng), 'alphaPI',                     &
-     &            '',                                                   &
-     &            ''
-            WRITE (out,110) thetaN0(ng), 'thetaN0',                     &
-     &            '',                                                   &
-     &            ''
-            WRITE (out,110) tref(ng), 'tref',                           &
-     &            '',                                                   &
-     &            ''
-            WRITE (out,110) e_a(ng), 'e_a',                             &
-     &            '',                                                   &
-     &            ''
-            WRITE (out,110) p_cref(ng), 'p_cref',                       &
-     &            '',                                                   &
-     &            ''
-            WRITE (out,110) z_umax1(ng), 'z_umax1',                     &
-     &            '',                                                   &
-     &            ''
-            WRITE (out,110) z_umax2(ng), 'z_umax2',                     &
-     &            '',                                                   &
-     &            ''
-            WRITE (out,110) p1_excr(ng), 'p1_excr',                     &
-     &            '',                                                   &
-     &            ''
-            WRITE (out,110) p2_excr(ng), 'p2_excr',                     &
-     &            '',                                                   &
-     &            ''
-            WRITE (out,110) p1_mort2(ng), 'p1_mort2',                   &
-     &            '',                                                   &
-     &            ''
-            WRITE (out,110) p2_mort2(ng), 'p2_mort2',                   &
-     &            '',                                                   &
-     &            ''
-            WRITE (out,110) z_mort(ng), 'z_mort',                       &
-     &            '',                                                   &
-     &            ''
-            WRITE (out,110) z_mort2(ng), 'z_mort2',                     &
-     &            '',                                                   &
-     &            ''
-            WRITE (out,110) d1_rem(ng), 'd1_rem',                       &
-     &            '',                                                   &
-     &            ''
-            WRITE (out,110) d2_rem(ng), 'd2_rem',                       &
-     &            '',                                                   &
-     &            ''
-            WRITE (out,110) wDet2(ng), 'wDet2',                         &
-     &            '',                                                   &
-     &            ''
-            WRITE (out,110) p1_kno3(ng), 'p1_kno3',                     &
-     &            '',                                                   &
-     &            ''
-            WRITE (out,110) p2_kno3(ng), 'p2_kno3',                     &
-     &            '',                                                   &
-     &            ''
-            WRITE (out,110) p1_knh4(ng), 'p1_knh4',                     &
-     &            '',                                                   &
-     &            ''
-            WRITE (out,110) p2_knh4(ng), 'p2_knh4',                     &
-     &            '',                                                   &
-     &            ''
-            WRITE (out,110) p2_si(ng), 'p2_si',                         &
-     &            '',                                                   &
-     &            ''
-            WRITE (out,110) p_nitr(ng), 'p_nitr',                       &
-     &            '',                                                   &
-     &            ''
-            WRITE (out,110) falloc0(ng), 'falloc0',                     &
-     &            '',                                                   &
-     &            ''
-            WRITE (out,110) si_alloc(ng), 'si_alloc',                   &
-     &            '',                                                   &
-     &            ''
-            WRITE (out,110) z_grz(ng), 'z_grz',                         &
-     &            '',                                                   &
-     &            ''
-            WRITE (out,110) zegest0(ng), 'zegest0',                     &
-     &            '',                                                   &
-     &            ''
-            WRITE (out,110) r_ref(ng), 'r_ref',                         &
-     &            '',                                                   &
-     &            ''
-            WRITE (out,110) q_min(ng), 'q_min',                         &
-     &            '',                                                   &
-     &            ''
-            WRITE (out,110) q_max(ng), 'q_max',                         &
-     &            '',                                                   &
-     &            ''
-            WRITE (out,110) q_simin(ng), 'q_simin',                     &
-     &            '',                                                   &
-     &            ''
-            WRITE (out,110) q_simax(ng), 'q_simax',                     &
-     &            '',                                                   &
-     &            ''
-            WRITE (out,110) vncref(ng), 'vncref',                       &
-     &            '',                                                   &
-     &            ''
-            WRITE (out,110) biolambda(ng), 'biolambda',                 &
-     &            '',                                                   &
-     &            ''
-#  ifdef TS_DIF2
-            DO itrc=1,NBT
-              i=idbio(itrc)
-              WRITE (out,90) tnu2(i,ng), 'tnu2', i,                     &
-     &              'Horizontal, harmonic mixing coefficient (m2/s)',   &
-     &              'for tracer ', i, TRIM(Vname(1,idTvar(i)))
-            END DO
-#  endif
-#  ifdef TS_DIF4
-            DO itrc=1,NBT
-              i=idbio(itrc)
-              WRITE (out,90) tnu4(i,ng), 'tnu4', i,                     &
-     &              'Horizontal, biharmonic mixing coefficient (m4/s)', &
-     &              'for tracer ', i, TRIM(Vname(1,idTvar(i)))
-            END DO
-#  endif
-            DO itrc=1,NBT
-              i=idbio(itrc)
-              WRITE(out,90) Akt_bak(i,ng), 'Akt_bak', i,                &
-     &             'Background vertical mixing coefficient (m2/s)',     &
-     &             'for tracer ', i, TRIM(Vname(1,idTvar(i)))
-            END DO
-            DO itrc=1,NBT
-              i=idbio(itrc)
-              WRITE (out,90) Tnudg(i,ng), 'Tnudg', i,                   &
-     &              'Nudging/relaxation time scale (days)',             &
-     &              'for tracer ', i, TRIM(Vname(1,idTvar(i)))
-            END DO
-            DO itrc=1,NBT
-              i=idbio(itrc)
-              IF (Hout(idTvar(i),ng)) WRITE (out,60)                    &
-     &            Hout(idTvar(i),ng), 'Hout(idTvar)',                   &
-     &            'Write out tracer ', i, TRIM(Vname(1,idTvar(i)))
-            END DO
-            DO itrc=1,NBT
-              i=idbio(itrc)
-              IF (Hout(idTsur(i),ng)) WRITE (out,60)                    &
-     &            Hout(idTsur(i),ng), 'Hout(idTsur)',                   &
-     &            'Write out tracer flux ', i, TRIM(Vname(1,idTvar(i)))
-            END DO
-          END IF
-        END DO
-      END IF
-!
-!-----------------------------------------------------------------------
-!  Rescale biological tracer parameters
-!-----------------------------------------------------------------------
-!
-!  Take the square root of the biharmonic coefficients so it can
-!  be applied to each harmonic operator.
-!
-      DO ng=1,Ngrids
-        DO itrc=1,NBT
-          i=idbio(itrc)
-          tnu4(i,ng)=SQRT(ABS(tnu4(i,ng)))
-!
-!  Compute inverse nudging coefficients (1/s) used in various tasks.
-!
-          IF (Tnudg(i,ng).gt.0.0_r8) THEN
-            Tnudg(i,ng)=1.0_r8/(Tnudg(i,ng)*86400.0_r8)
-          ELSE
-            Tnudg(i,ng)=0.0_r8
-          END IF
-        END DO
-      END DO
-
-  30  FORMAT (/,' read_BioPar - Error while processing line: ',/,a)
-  40  FORMAT (/,/,' LimaDoney Model Parameters, Grid: ',i2.2,           &
-     &        /,  ' =================================',/)
-  50  FORMAT (1x,i10,2x,a,t28,a)
-  60  FORMAT (10x,l1,2x,a,t28,a,i2.2,':',1x,a)
-  70  FORMAT (f11.3,2x,a,t28,a)
-  80  FORMAT (f11.3,2x,a,t28,a,/,t30,a)
-  90  FORMAT (1p,e11.4,2x,a,'(',i2.2,')',t28,a,/,t30,a,i2.2,':',1x,a)
- 100  FORMAT (1p,e11.4,2x,a,t28,a)
- 110  FORMAT (1p,e11.4,2x,a,t28,a,/,t30,a)
- 120  FORMAT (/,' read_BioPar - variable info not yet loaded, ',        &
-     &        a,i2.2,a)
- 130  FORMAT (/,' read_BioPar - variable info not yet loaded, ',a)
- 140  FORMAT (10x,l1,2x,a,t28,a,1x,a)
-
-# elif defined NEMURO
-!
-!-----------------------------------------------------------------------
-!  Read in Nemuro biological model parameters.
-!-----------------------------------------------------------------------
-!
-      DO WHILE (.TRUE.)
-        READ (inp,'(a)',ERR=10,END=20) line
-        status=decode_line(line, KeyWord, Nval, Cval, Rval)
-        IF (status.gt.0) THEN
-          IF (TRIM(KeyWord).eq.'Lbiology') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Lbiology)
-          ELSE IF (TRIM(KeyWord).eq.'BioIter') THEN
-            Npts=load_i(Nval, Rval, Ngrids, BioIter)
-          ELSE IF (TRIM(KeyWord).eq.'AttSW') THEN
-            Npts=load_r(Nval, Rval, Ngrids, AttSW)
-          ELSE IF (TRIM(KeyWord).eq.'AttPS') THEN
-            Npts=load_r(Nval, Rval, Ngrids, AttPS)
-          ELSE IF (TRIM(KeyWord).eq.'AttPL') THEN
-            Npts=load_r(Nval, Rval, Ngrids, AttPL)
-          ELSE IF (TRIM(KeyWord).eq.'PARfrac') THEN
-            Npts=load_r(Nval, Rval, Ngrids, PARfrac)
-          ELSE IF (TRIM(KeyWord).eq.'AlphaPS') THEN
-            Npts=load_r(Nval, Rval, Ngrids, AlphaPS)
-          ELSE IF (TRIM(KeyWord).eq.'AlphaPL') THEN
-            Npts=load_r(Nval, Rval, Ngrids, AlphaPL)
-          ELSE IF (TRIM(KeyWord).eq.'BetaPS') THEN
-            Npts=load_r(Nval, Rval, Ngrids, BetaPS)
-          ELSE IF (TRIM(KeyWord).eq.'BetaPL') THEN
-            Npts=load_r(Nval, Rval, Ngrids, BetaPL)
-          ELSE IF (TRIM(KeyWord).eq.'VmaxS') THEN
-            Npts=load_r(Nval, Rval, Ngrids, VmaxS)
-          ELSE IF (TRIM(KeyWord).eq.'VmaxL') THEN
-            Npts=load_r(Nval, Rval, Ngrids, VmaxL)
-          ELSE IF (TRIM(KeyWord).eq.'KNO3S') THEN
-            Npts=load_r(Nval, Rval, Ngrids, KNO3S)
-          ELSE IF (TRIM(KeyWord).eq.'KNO3L') THEN
-            Npts=load_r(Nval, Rval, Ngrids, KNO3L)
-          ELSE IF (TRIM(KeyWord).eq.'KNH4S') THEN
-            Npts=load_r(Nval, Rval, Ngrids, KNH4S)
-          ELSE IF (TRIM(KeyWord).eq.'KNH4L') THEN
-            Npts=load_r(Nval, Rval, Ngrids, KNH4L)
-          ELSE IF (TRIM(KeyWord).eq.'KSiL') THEN
-            Npts=load_r(Nval, Rval, Ngrids, KSiL)
-          ELSE IF (TRIM(KeyWord).eq.'PusaiS') THEN
-            Npts=load_r(Nval, Rval, Ngrids, PusaiS)
-          ELSE IF (TRIM(KeyWord).eq.'PusaiL') THEN
-            Npts=load_r(Nval, Rval, Ngrids, PusaiL)
-          ELSE IF (TRIM(KeyWord).eq.'KGppS') THEN
-            Npts=load_r(Nval, Rval, Ngrids, KGppS)
-          ELSE IF (TRIM(KeyWord).eq.'KGppL') THEN
-            Npts=load_r(Nval, Rval, Ngrids, KGppL)
-          ELSE IF (TRIM(KeyWord).eq.'ResPS0') THEN
-            Npts=load_r(Nval, Rval, Ngrids, ResPS0)
-          ELSE IF (TRIM(KeyWord).eq.'ResPL0') THEN
-            Npts=load_r(Nval, Rval, Ngrids, ResPL0)
-          ELSE IF (TRIM(KeyWord).eq.'KResPS') THEN
-            Npts=load_r(Nval, Rval, Ngrids, KResPS)
-          ELSE IF (TRIM(KeyWord).eq.'KResPL') THEN
-            Npts=load_r(Nval, Rval, Ngrids, KResPL)
-          ELSE IF (TRIM(KeyWord).eq.'GammaS') THEN
-            Npts=load_r(Nval, Rval, Ngrids, GammaS)
-          ELSE IF (TRIM(KeyWord).eq.'GammaL') THEN
-            Npts=load_r(Nval, Rval, Ngrids, GammaL)
-          ELSE IF (TRIM(KeyWord).eq.'MorPS0') THEN
-            Npts=load_r(Nval, Rval, Ngrids, MorPS0)
-          ELSE IF (TRIM(KeyWord).eq.'MorPL0') THEN
-            Npts=load_r(Nval, Rval, Ngrids, MorPL0)
-          ELSE IF (TRIM(KeyWord).eq.'KMorPS') THEN
-            Npts=load_r(Nval, Rval, Ngrids, KMorPS)
-          ELSE IF (TRIM(KeyWord).eq.'KMorPL') THEN
-            Npts=load_r(Nval, Rval, Ngrids, KMorPL)
-          ELSE IF (TRIM(KeyWord).eq.'GRmaxSps') THEN
-            Npts=load_r(Nval, Rval, Ngrids, GRmaxSps)
-          ELSE IF (TRIM(KeyWord).eq.'GRmaxSpl') THEN
-            Npts=load_r(Nval, Rval, Ngrids, GRmaxSpl)
-          ELSE IF (TRIM(KeyWord).eq.'GRmaxLps') THEN
-            Npts=load_r(Nval, Rval, Ngrids, GRmaxLps)
-          ELSE IF (TRIM(KeyWord).eq.'GRmaxLpl') THEN
-            Npts=load_r(Nval, Rval, Ngrids, GRmaxLpl)
-          ELSE IF (TRIM(KeyWord).eq.'GRmaxLzs') THEN
-            Npts=load_r(Nval, Rval, Ngrids, GRmaxLzs)
-          ELSE IF (TRIM(KeyWord).eq.'GRmaxPpl') THEN
-            Npts=load_r(Nval, Rval, Ngrids, GRmaxPpl)
-          ELSE IF (TRIM(KeyWord).eq.'GRmaxPzs') THEN
-            Npts=load_r(Nval, Rval, Ngrids, GRmaxPzs)
-          ELSE IF (TRIM(KeyWord).eq.'GRmaxPzl') THEN
-            Npts=load_r(Nval, Rval, Ngrids, GRmaxPzl)
-          ELSE IF (TRIM(KeyWord).eq.'KGraS') THEN
-            Npts=load_r(Nval, Rval, Ngrids, KGraS)
-          ELSE IF (TRIM(KeyWord).eq.'KGraL') THEN
-            Npts=load_r(Nval, Rval, Ngrids, KGraL)
-          ELSE IF (TRIM(KeyWord).eq.'KGraP') THEN
-            Npts=load_r(Nval, Rval, Ngrids, KGraP)
-          ELSE IF (TRIM(KeyWord).eq.'LamS') THEN
-            Npts=load_r(Nval, Rval, Ngrids, LamS)
-          ELSE IF (TRIM(KeyWord).eq.'LamL') THEN
-            Npts=load_r(Nval, Rval, Ngrids, LamL)
-          ELSE IF (TRIM(KeyWord).eq.'LamP') THEN
-            Npts=load_r(Nval, Rval, Ngrids, LamP)
-          ELSE IF (TRIM(KeyWord).eq.'KPS2ZS') THEN
-            Npts=load_r(Nval, Rval, Ngrids, KPS2ZS)
-          ELSE IF (TRIM(KeyWord).eq.'KPL2ZS') THEN
-            Npts=load_r(Nval, Rval, Ngrids, KPL2ZS)
-          ELSE IF (TRIM(KeyWord).eq.'KPS2ZL') THEN
-            Npts=load_r(Nval, Rval, Ngrids, KPS2ZL)
-          ELSE IF (TRIM(KeyWord).eq.'KPL2ZL') THEN
-            Npts=load_r(Nval, Rval, Ngrids, KPL2ZL)
-          ELSE IF (TRIM(KeyWord).eq.'KZS2ZL') THEN
-            Npts=load_r(Nval, Rval, Ngrids, KZS2ZL)
-          ELSE IF (TRIM(KeyWord).eq.'KPL2ZP') THEN
-            Npts=load_r(Nval, Rval, Ngrids, KPL2ZP)
-          ELSE IF (TRIM(KeyWord).eq.'KZS2ZP') THEN
-            Npts=load_r(Nval, Rval, Ngrids, KZS2ZP)
-          ELSE IF (TRIM(KeyWord).eq.'KZL2ZP') THEN
-            Npts=load_r(Nval, Rval, Ngrids, KZL2ZP)
-          ELSE IF (TRIM(KeyWord).eq.'PS2ZSstar') THEN
-            Npts=load_r(Nval, Rval, Ngrids, PS2ZSstar)
-          ELSE IF (TRIM(KeyWord).eq.'PL2ZSstar') THEN
-            Npts=load_r(Nval, Rval, Ngrids, PL2ZSstar)
-          ELSE IF (TRIM(KeyWord).eq.'PS2ZLstar') THEN
-            Npts=load_r(Nval, Rval, Ngrids, PS2ZLstar)
-          ELSE IF (TRIM(KeyWord).eq.'PL2ZLstar') THEN
-            Npts=load_r(Nval, Rval, Ngrids, PL2ZLstar)
-          ELSE IF (TRIM(KeyWord).eq.'ZS2ZLstar') THEN
-            Npts=load_r(Nval, Rval, Ngrids, ZS2ZLstar)
-          ELSE IF (TRIM(KeyWord).eq.'PL2ZPstar') THEN
-            Npts=load_r(Nval, Rval, Ngrids, PL2ZPstar)
-          ELSE IF (TRIM(KeyWord).eq.'ZS2ZPstar') THEN
-            Npts=load_r(Nval, Rval, Ngrids, ZS2ZPstar)
-          ELSE IF (TRIM(KeyWord).eq.'ZL2ZPstar') THEN
-            Npts=load_r(Nval, Rval, Ngrids, ZL2ZPstar)
-          ELSE IF (TRIM(KeyWord).eq.'PusaiPL') THEN
-            Npts=load_r(Nval, Rval, Ngrids, PusaiPL)
-          ELSE IF (TRIM(KeyWord).eq.'PusaiZS') THEN
-            Npts=load_r(Nval, Rval, Ngrids, PusaiZS)
-          ELSE IF (TRIM(KeyWord).eq.'MorZS0') THEN
-            Npts=load_r(Nval, Rval, Ngrids, MorZS0)
-          ELSE IF (TRIM(KeyWord).eq.'MorZL0') THEN
-            Npts=load_r(Nval, Rval, Ngrids, MorZL0)
-          ELSE IF (TRIM(KeyWord).eq.'MorZP0') THEN
-            Npts=load_r(Nval, Rval, Ngrids, MorZP0)
-          ELSE IF (TRIM(KeyWord).eq.'KMorZS') THEN
-            Npts=load_r(Nval, Rval, Ngrids, KMorZS)
-          ELSE IF (TRIM(KeyWord).eq.'KMorZL') THEN
-            Npts=load_r(Nval, Rval, Ngrids, KMorZL)
-          ELSE IF (TRIM(KeyWord).eq.'KMorZP') THEN
-            Npts=load_r(Nval, Rval, Ngrids, KMorZP)
-          ELSE IF (TRIM(KeyWord).eq.'AlphaZS') THEN
-            Npts=load_r(Nval, Rval, Ngrids, AlphaZS)
-          ELSE IF (TRIM(KeyWord).eq.'AlphaZL') THEN
-            Npts=load_r(Nval, Rval, Ngrids, AlphaZL)
-          ELSE IF (TRIM(KeyWord).eq.'AlphaZP') THEN
-            Npts=load_r(Nval, Rval, Ngrids, AlphaZP)
-          ELSE IF (TRIM(KeyWord).eq.'BetaZS') THEN
-            Npts=load_r(Nval, Rval, Ngrids, BetaZS)
-          ELSE IF (TRIM(KeyWord).eq.'BetaZL') THEN
-            Npts=load_r(Nval, Rval, Ngrids, BetaZL)
-          ELSE IF (TRIM(KeyWord).eq.'BetaZP') THEN
-            Npts=load_r(Nval, Rval, Ngrids, BetaZP)
-          ELSE IF (TRIM(KeyWord).eq.'Nit0') THEN
-            Npts=load_r(Nval, Rval, Ngrids, Nit0)
-          ELSE IF (TRIM(KeyWord).eq.'VP2N0') THEN
-            Npts=load_r(Nval, Rval, Ngrids, VP2N0)
-          ELSE IF (TRIM(KeyWord).eq.'VP2D0') THEN
-            Npts=load_r(Nval, Rval, Ngrids, VP2D0)
-          ELSE IF (TRIM(KeyWord).eq.'VD2N0') THEN
-            Npts=load_r(Nval, Rval, Ngrids, VD2N0)
-          ELSE IF (TRIM(KeyWord).eq.'VO2S0') THEN
-            Npts=load_r(Nval, Rval, Ngrids, VO2S0)
-          ELSE IF (TRIM(KeyWord).eq.'KNit') THEN
-            Npts=load_r(Nval, Rval, Ngrids, KNit)
-          ELSE IF (TRIM(KeyWord).eq.'KP2D') THEN
-            Npts=load_r(Nval, Rval, Ngrids, KP2D)
-          ELSE IF (TRIM(KeyWord).eq.'KP2N') THEN
-            Npts=load_r(Nval, Rval, Ngrids, KP2N)
-          ELSE IF (TRIM(KeyWord).eq.'KD2N') THEN
-            Npts=load_r(Nval, Rval, Ngrids, KD2N)
-          ELSE IF (TRIM(KeyWord).eq.'KO2S') THEN
-            Npts=load_r(Nval, Rval, Ngrids, KO2S)
-          ELSE IF (TRIM(KeyWord).eq.'RSiN') THEN
-            Npts=load_r(Nval, Rval, Ngrids, RSiN)
-          ELSE IF (TRIM(KeyWord).eq.'setVPON') THEN
-            Npts=load_r(Nval, Rval, Ngrids, setVPON)
-          ELSE IF (TRIM(KeyWord).eq.'setVOpal') THEN
-            Npts=load_r(Nval, Rval, Ngrids, setVOpal)
-# ifdef IRON_LIMIT
-          ELSE IF (TRIM(KeyWord).eq.'T_Fe') THEN
-            Npts=load_r(Nval, Rval, Ngrids, T_Fe)
-          ELSE IF (TRIM(KeyWord).eq.'A_Fe') THEN
-            Npts=load_r(Nval, Rval, Ngrids, A_Fe)
-          ELSE IF (TRIM(KeyWord).eq.'B_Fe') THEN
-            Npts=load_r(Nval, Rval, Ngrids, B_Fe)
-          ELSE IF (TRIM(KeyWord).eq.'SK_FeC') THEN
-            Npts=load_r(Nval, Rval, Ngrids, SK_FeC)
-          ELSE IF (TRIM(KeyWord).eq.'LK_FeC') THEN
-            Npts=load_r(Nval, Rval, Ngrids, LK_FeC)
-          ELSE IF (TRIM(KeyWord).eq.'FeRR') THEN
-            Npts=load_r(Nval, Rval, Ngrids, FeRR)
-# endif
-          ELSE IF (TRIM(KeyWord).eq.'TNU2') THEN
-            Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idbio(itrc)
-                tnu2(i,ng)=Rbio(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'TNU4') THEN
-            Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idbio(itrc)
-                tnu4(i,ng)=Rbio(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'AKT_BAK') THEN
-            Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idbio(itrc)
-                Akt_bak(i,ng)=Rbio(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'TNUDG') THEN
-            Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idbio(itrc)
-                Tnudg(i,ng)=Rbio(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idTvar)') THEN
-            Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idTvar(idbio(itrc))
-                IF (i.eq.0) THEN
-                  IF (Master) WRITE (out,120)                           &
-     &                              'idTvar(idbio(', itrc, '))'
-                  exit_flag=5
-                  RETURN
-                END IF
-                Hout(i,ng)=Ltrc(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idTsur)') THEN
-            Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idTsur(idbio(itrc))
-                IF (i.eq.0) THEN
-                  IF (Master) WRITE (out,120)                           &
-     &                              'idTsur(idbio(', itrc, '))'
-                  exit_flag=5
-                  RETURN
-                END IF
-                Hout(i,ng)=Ltrc(itrc,ng)
-              END DO
-            END DO
-          END IF
-        END IF
-      END DO
-  10  IF (Master) WRITE (out,30) line
-      exit_flag=4
-      RETURN
-  20  CONTINUE
-!
-!-----------------------------------------------------------------------
-!  Report input parameters.
-!-----------------------------------------------------------------------
-!
-      IF (Lwrite) THEN
-        DO ng=1,Ngrids
-          IF (Lbiology(ng)) THEN
-            WRITE (out,40) ng
-            WRITE (out,50) BioIter(ng), 'BioIter',                      &
-     &            'Number of iterations for nonlinear convergence.'
-            WRITE (out,100) AttSW(ng), 'AttSW',                         &
-     &            'Light attenuation due to seawater (m-1)'
-            WRITE (out,110) AttPS(ng), 'AttPS',                         &
-     &            'Light attenuation due to small phytoplankton',       &
-     &            '(m2/millimole_N).'
-            WRITE (out,110) AttPL(ng), 'AttPL',                         &
-     &            'Light attenuation due to large phytoplankton',       &
-     &            '(m2/millimole_N).'
-            WRITE (out,110) PARfrac(ng), 'PARfrac',                     &
-     &            'Fraction of shortwave radiation that is',            &
-     &            'photosynthetically active (nondimensional).'
-            WRITE (out,110) AlphaPS(ng), 'AlphaPS',                     &
-     &            'Small phytoplankton initial slope of the P-I curve', &
-     &            '(1/(W/m2) 1/day).'
-            WRITE (out,110) AlphaPL(ng), 'AlphaPL',                     &
-     &            'Small phytoplankton initial slope of the P-I curve', &
-     &            '(1/(W/m2) 1/day).'
-            WRITE (out,110) BetaPS(ng), 'BetaPS',                       &
-     &            'Small phytoplankton photoinhibition coefficient',    &
-     &            '(1/(W/m2) 1/day).'
-            WRITE (out,110) BetaPL(ng), 'BetaPL',                       &
-     &            'Large phytoplankton photoinhibition coefficient',    &
-     &            '(1/(W/m2) 1/day).'
-            WRITE (out,110) VmaxS(ng), 'VmaxS',                         &
-     &            'Small phytoplankton maximum photosynthetic rate',    &
-     &            '(1/day).'
-            WRITE (out,110) VmaxL(ng), 'VmaxL',                         &
-     &            'Large phytoplankton maximum photosynthetic rate',    &
-     &            '(1/day).'
-            WRITE (out,110) KNO3S(ng), 'KNO3S',                         &
-     &            'Small phytoplankton NO3 half saturation constant',   &
-     &            '(millimole_N/m3).'
-            WRITE (out,110) KNO3L(ng), 'KNO3L',                         &
-     &            'Large phytoplankton NO3 half saturation constant',   &
-     &            '(millimole_N/m3).'
-            WRITE (out,110) KNH4S(ng), 'KNH4S',                         &
-     &            'Small phytoplankton NH4 half saturation constant',   &
-     &            '(millimole_N/m3).'
-            WRITE (out,110) KNH4L(ng), 'KNH4L',                         &
-     &            'Large phytoplankton NH4 half saturation constant',   &
-     &            '(millimole_N/m3).'
-            WRITE (out,110) KSiL(ng), 'KSiL',                           &
-     &            'Small phytoplankton SiOH4 half saturation constant', &
-     &            '(millimole_Si/m3).'
-            WRITE (out,110) PusaiS(ng), 'PusaiS',                       &
-     &            'Small phytoplankton NH4 inhibition coefficient',     &
-     &            '(m3/millimole_N).'
-            WRITE (out,110) PusaiL(ng), 'PusaiL',                       &
-     &            'Large phytoplankton NH4 inhibition coefficient',     &
-     &            '(m3/millimole_N).'
-            WRITE (out,110) KGppS(ng), 'KGppS',                         &
-     &            'Small phytoplankton temperature coefficient for',    &
-     &            'photosynthetic rate (1/Celsius).'
-            WRITE (out,110) KGppL(ng), 'KGppL',                         &
-     &            'Large phytoplankton temperature coefficient for',    &
-     &            'photosynthetic rate (1/Celsius).'
-            WRITE (out,100) ResPS0(ng), 'ResPS0',                       &
-     &            'Small phytoplankton respiration rate (1/day).'
-            WRITE (out,100) ResPL0(ng), 'ResPL0',                       &
-     &            'Large phytoplankton respiration rate (1/day).'
-            WRITE (out,110) KResPS(ng), 'KResPS',                       &
-     &            'Small phytoplankton temperature coefficient for',    &
-     &            'respiration (1/Celsius).'
-            WRITE (out,110) KResPL(ng), 'KResPL',                       &
-     &            'Large phytoplankton temperature coefficient for',    &
-     &            'respiration (1/Celsius).'
-            WRITE (out,110) GammaS(ng), 'GammaS',                       &
-     &            'Small phytoplankton ratio of extracellular',         &
-     &            'excretion to photosynthesis (nondimensional).'
-            WRITE (out,110) GammaL(ng), 'GammaL',                       &
-     &            'Large phytoplankton ratio of extracellular',         &
-     &            'excretion to photosynthesis (nondimensional).'
-            WRITE (out,110) MorPS0(ng), 'MorPS0',                       &
-     &            'Small phytoplankton mortality rate',                 &
-     &            '(m3/millimole_N/day).'
-            WRITE (out,110) MorPS0(ng), 'MorPL0',                       &
-     &            'Large phytoplankton mortality rate',                 &
-     &            '(m3/millimole_N/day).'
-            WRITE (out,110) KMorPS(ng), 'KMorPS',                       &
-     &            'Small phytoplankton temperature coefficient for',    &
-     &            'mortality (1/Celsius).'
-            WRITE (out,110) KMorPL(ng), 'KMorPL',                       &
-     &            'Large phytoplankton temperature coefficient for',    &
-     &            'mortality (1/Celsius).'
-            WRITE (out,110) GRmaxSps(ng), 'GRmaxSps',                   &
-     &            'Small zooplankton grazing rate on small',            &
-     &            'phytoplankton (1/day).'
-            WRITE (out,110) GRmaxSpl(ng), 'GRmaxSpl',                   &
-     &            'Small zooplankton grazing rate on large',            &
-     &            'phytoplankton (1/day).'
-            WRITE (out,110) GRmaxLps(ng), 'GRmaxLps',                   &
-     &            'Large zooplankton grazing rate on small',            &
-     &            'phytoplankton (1/day).'
-            WRITE (out,110) GRmaxLpl(ng), 'GRmaxLpl',                   &
-     &            'Large zooplankton grazing rate on large',            &
-     &            'phytoplankton (1/day).'
-            WRITE (out,110) GRmaxLzs(ng), 'GRmaxLzs',                   &
-     &            'Large zooplankton grazing rate on small',            &
-     &            'zooplankton (1/day).'
-            WRITE (out,110) GRmaxPpl(ng), 'GRmaxPpl',                   &
-     &            'Predator zooplankton grazing rate on large',         &
-     &            'phytoplankton (1/day).'
-            WRITE (out,110) GRmaxPzs(ng), 'GRmaxPzs',                   &
-     &            'Predator zooplankton grazing rate on small',         &
-     &            'zooplankton (1/day).'
-            WRITE (out,110) GRmaxPzl(ng), 'GRmaxPzl',                   &
-     &            'Predator zooplankton grazing rate on large',         &
-     &            'zooplankton (1/day).'
-            WRITE (out,110) KGraS(ng), 'KGraS',                         &
-     &            'Small zooplankton temperature coefficient for',      &
-     &            'grazing (1/Celsius).'
-            WRITE (out,110) KGraL(ng), 'KGraL',                         &
-     &            'Large zooplankton temperature coefficient for',      &
-     &            'grazing (1/Celsius).'
-            WRITE (out,110) KGraP(ng), 'KGraP',                         &
-     &            'Predator zooplankton temperature coefficient for',   &
-     &            'grazing (1/Celsius).'
-            WRITE (out,110) LamS(ng), 'LamS',                           &
-     &            'Small zooplankton grazing Ivlev constant',           &
-     &            '(m3/millimole_N).'
-            WRITE (out,110) LamL(ng), 'LamL',                           &
-     &            'Large zooplankton grazing Ivlev constant',           &
-     &            '(m3/millimole_N).'
-            WRITE (out,110) LamP(ng), 'LamP',                           &
-     &            'Preditor zooplankton grazing Ivlev constant',        &
-     &            '(m3/millimole_N).'
-#  ifdef HOLLING_GRAZING
-            WRITE (out,110) KPS2ZS(ng), 'KPS2ZS',                       &
-     &            'Half-saturation constant for small zooplankton',     &
-     &            'grazing on small phytoplankton (millimole_N/m3)^2.'
-            WRITE (out,110) KPL2ZS(ng), 'KPL2ZS',                       &
-     &            'Half-saturation constant for small zooplankton',     &
-     &            'grazing on large phytoplankton (millimole_N/m3)^2.'
-            WRITE (out,110) KPS2ZL(ng), 'KPS2ZL',                       &
-     &            'Half-saturation constant for large zooplankton',     &
-     &            'grazing on small phytoplankton (millimole_N/m3)^2.'
-            WRITE (out,110) KPL2ZL(ng), 'KPL2ZL',                       &
-     &            'Half-saturation constant for large zooplankton',     &
-     &            'grazing on large phytoplankton (millimole_N/m3)^2.'
-            WRITE (out,110) KPL2ZP(ng), 'KPL2ZP',                       &
-     &            'Half-saturation constant for predator zooplankton',  &
-     &            'grazing on large phytoplankton (millimole_N/m3)^2.'
-            WRITE (out,110) KZS2ZP(ng), 'KZS2ZP',                       &
-     &            'Half-saturation constant for predator zooplankton',  &
-     &            'grazing on small zooplankton (millimole_N/m3)^2.'
-            WRITE (out,110) KZL2ZP(ng), 'KZL2ZP',                       &
-     &            'Half-saturation constant for predator zooplankton',  &
-     &            'grazing on large zooplankton (millimole_N/m3)^2.'
-#  else
-            WRITE (out,110) PS2ZSstar(ng), 'PS2ZSstar',                 &
-     &            'Small zooplankton threshold for grazing on small',   &
-     &            'phytoplankton (millimole_N/m3).'
-            WRITE (out,110) PL2ZSstar(ng), 'PL2ZSstar',                 &
-     &            'Small zooplankton threshold for grazing on large',   &
-     &            'phytoplankton (millimole_N/m3).'
-            WRITE (out,110) PS2ZLstar(ng), 'PS2ZLstar',                 &
-     &            'Large zooplankton threshold for grazing on small',   &
-     &            'phytoplankton (millimole_N/m3).'
-            WRITE (out,110) PL2ZLstar(ng), 'PL2ZLstar',                 &
-     &            'Large zooplankton threshold for grazing on large',   &
-     &            'phytoplankton (millimole_N/m3).'
-            WRITE (out,110) PL2ZLstar(ng), 'PL2ZLstar',                 &
-     &            'Large zooplankton threshold for grazing on small',   &
-     &            'zooplankton (millimole_N/m3).'
-            WRITE (out,110) PL2ZPstar(ng), 'PL2ZPstar',                 &
-     &            'Predator zooplankton threshold for grazing on large',&
-     &            'phytoplankton (millimole_N/m3).'
-            WRITE (out,110) ZS2ZPstar(ng), 'ZS2ZPstar',                 &
-     &            'Predator zooplankton threshold for grazing on small',&
-     &            'zooplankton (millimole_N/m3).'
-            WRITE (out,110) ZL2ZPstar(ng), 'ZL2ZPstar',                 &
-     &            'Predator zooplankton threshold for grazing on large',&
-     &            'zooplankton (millimole_N/m3).'
-#  endif
-            WRITE (out,110) PusaiPL(ng), 'PusauPL',                     &
-     &            'Predator zooplankton grazing inhibition on large',   &
-     &            'phytoplankton (millimole_N/m3).'
-            WRITE (out,110) PusaiZS(ng), 'PusauZS',                     &
-     &            'Predator zooplankton grazing inhibition on small',   &
-     &            'zootoplankton (millimole_N/m3).'
-            WRITE (out,110) MorZS0(ng), 'MorZS0',                       &
-     &            'Small zooplankton mortality rate at 0 Celsius',      &
-     &            '(m3/millimole_N/day).'
-            WRITE (out,110) MorZL0(ng), 'MorZL0',                       &
-     &            'Large zooplankton mortality rate at 0 Celsius',      &
-     &            '(m3/millimole_N/day).'
-            WRITE (out,110) MorZP0(ng), 'MorZP0',                       &
-     &            'Predator zooplankton mortality rate at 0 Celsius',   &
-     &            '(m3/millimole_N/day).'
-            WRITE (out,110) KMorZS(ng), 'KMorZS',                       &
-     &            'Small zooplankton temperature coefficient for',      &
-     &            'mortality (1/Celsius).'
-            WRITE (out,110) KMorZL(ng), 'KMorZL',                       &
-     &            'Large zooplankton temperature coefficient for',      &
-     &            'mortality (1/Celsius).'
-            WRITE (out,110) KMorZP(ng), 'KMorZP',                       &
-     &            'Predator zooplankton temperature coefficient for',   &
-     &            'mortality (1/Celsius).'
-            WRITE (out,110) AlphaZS(ng), 'AlphaZS',                     &
-     &            'Small zooplankton assimilation efficiency',          &
-     &            '(nondimensional).'
-            WRITE (out,110) AlphaZS(ng), 'AlphaZL',                     &
-     &            'Large zooplankton assimilation efficiency',          &
-     &            '(nondimensional).'
-            WRITE (out,110) AlphaZP(ng), 'AlphaZP',                     &
-     &            'Predator zooplankton assimilation efficiency',       &
-     &            '(nondimensional).'
-            WRITE (out,110) BetaZS(ng), 'BetaZS',                       &
-     &            'Small zooplankton growth efficiency',                &
-     &            '(nondimensional).'
-            WRITE (out,110) BetaZL(ng), 'BetaZL',                       &
-     &            'Large zooplankton growth efficiency',                &
-     &            '(nondimensional).'
-            WRITE (out,110) BetaZP(ng), 'BetaZP',                       &
-     &            'Predator zooplankton growth efficiency',             &
-     &            '(nondimensional).'
-            WRITE (out,100) Nit0(ng), 'Nit0',                           &
-     &            'NH4 to NO3 decomposition rate (1/day).'
-            WRITE (out,100) VP2N0(ng), 'VP2N0',                         &
-     &            'PON to NH4 decomposition rate (1/day).'
-            WRITE (out,100) VP2D0(ng), 'VP2D0',                         &
-     &            'PON to DON decomposition rate (1/day).'
-            WRITE (out,100) VD2N0(ng), 'VD2N0',                         &
-     &            'DON to NH4 decomposition rate (1/day).'
-            WRITE (out,100) VP2N0(ng), 'VO2S0',                         &
-     &            'Opal to SiOH4 decomposition rate (1/day).'
-            WRITE (out,110) KNit(ng), 'KNit',                           &
-     &            'Temperature coefficient for NH4 to NO3',             &
-     &            'decomposition (1/Celsius).'
-            WRITE (out,110) KP2D(ng), 'KP2D',                           &
-     &            'Temperature coefficient for PON to DON',             &
-     &            'decomposition (1/Celsius).'
-            WRITE (out,110) KP2N(ng), 'KP2N',                           &
-     &            'Temperature coefficient for PON to NH4',             &
-     &            'decomposition (1/Celsius).'
-            WRITE (out,110) KP2N(ng), 'KD2N',                           &
-     &            'Temperature coefficient for DON to NH4',             &
-     &            'decomposition (1/Celsius).'
-            WRITE (out,110) KO2S(ng), 'KO2S',                           &
-     &            'Temperature coefficient for Opal to SiOH4',          &
-     &            'decomposition (1/Celsius).'
-            WRITE (out,100) RSiN(ng), 'RSiN',                           &
-     &            'Si:N ratio (millimole_Si/millimole_N)'
-            WRITE (out,100) setVPON(ng), 'setVPON',                     &
-     &            'PON sinking velocity (m/day).'
-            WRITE (out,100) setVOpal(ng), 'setVOpal',                   &
-     &            'Opal sinking velocity (m/day).'
-#  ifdef IRON_LIMIT
-            WRITE (out,100) T_Fe(ng), 'T_Fe',                           &
-     &            'Iron uptake time scale (day-1).'
-            WRITE (out,100) A_Fe(ng), 'A_Fe',                           &
-     &            'Empirical Fe:C power (-).'
-            WRITE (out,100) B_Fe(ng), 'B_Fe',                           &
-     &            'Empirical Fe:C coefficient (1/M-C).'
-            WRITE (out,100) SK_FeC(ng), 'SK_FeC',                       &
-     &            'Small P Fe:C at F=0.5 (muM-Fe/M-C).'
-            WRITE (out,100) LK_FeC(ng), 'LK_FeC',                       &
-     &            'Large P Fe:C at F=0.5 (muM-Fe/M-C).'
-            WRITE (out,100) FeRR(ng), 'FeRR',                           &
-     &            'Fe remineralization rate (day-1).'
-#  endif
-#  ifdef TS_DIF2
-            DO itrc=1,NBT
-              i=idbio(itrc)
-              WRITE (out,90) tnu2(i,ng), 'tnu2', i,                     &
-     &              'Horizontal, harmonic mixing coefficient (m2/s)',   &
-     &              'for tracer ', i, TRIM(Vname(1,idTvar(i)))
-            END DO
-#  endif
-#  ifdef TS_DIF4
-            DO itrc=1,NBT
-              i=idbio(itrc)
-              WRITE (out,90) tnu4(i,ng), 'tnu4', i,                     &
-     &              'Horizontal, biharmonic mixing coefficient (m4/s)', &
-     &              'for tracer ', i, TRIM(Vname(1,idTvar(i)))
-            END DO
-#  endif
-            DO itrc=1,NBT
-              i=idbio(itrc)
-              WRITE(out,90) Akt_bak(i,ng), 'Akt_bak', i,                &
-     &             'Background vertical mixing coefficient (m2/s)',     &
-     &             'for tracer ', i, TRIM(Vname(1,idTvar(i)))
-            END DO
-            DO itrc=1,NBT
-              i=idbio(itrc)
-              WRITE (out,90) Tnudg(i,ng), 'Tnudg', i,                   &
-     &              'Nudging/relaxation time scale (days)',             &
-     &              'for tracer ', i, TRIM(Vname(1,idTvar(i)))
-            END DO
-            DO itrc=1,NBT
-              i=idbio(itrc)
-              IF (Hout(idTvar(i),ng)) WRITE (out,60)                    &
-     &            Hout(idTvar(i),ng), 'Hout(idTvar)',                   &
-     &            'Write out tracer ', i, TRIM(Vname(1,idTvar(i)))
-            END DO
-            DO itrc=1,NBT
-              i=idbio(itrc)
-              IF (Hout(idTsur(i),ng)) WRITE (out,60)                    &
-     &            Hout(idTsur(i),ng), 'Hout(idTsur)',                   &
-     &            'Write out tracer flux ', i, TRIM(Vname(1,idTvar(i)))
-            END DO
-          END IF
-        END DO
-      END IF
-!
-!-----------------------------------------------------------------------
-!  Rescale biological tracer parameters
-!-----------------------------------------------------------------------
-!
-!  Take the square root of the biharmonic coefficients so it can
-!  be applied to each harmonic operator.
-!
-      DO ng=1,Ngrids
-        DO itrc=1,NBT
-          i=idbio(itrc)
-          tnu4(i,ng)=SQRT(ABS(tnu4(i,ng)))
-!
-!  Compute inverse nudging coefficients (1/s) used in various tasks.
-!
-          IF (Tnudg(i,ng).gt.0.0_r8) THEN
-            Tnudg(i,ng)=1.0_r8/(Tnudg(i,ng)*86400.0_r8)
-          ELSE
-            Tnudg(i,ng)=0.0_r8
-          END IF
-        END DO
-      END DO
-
-  30  FORMAT (/,' read_BioPar - Error while processing line: ',/,a)
-  40  FORMAT (/,/,' Nemuro Model Parameters, Grid: ',i2.2,              &
-     &        /,  ' =============================',/)
-  50  FORMAT (1x,i10,2x,a,t30,a)
-  60  FORMAT (10x,l1,2x,a,t30,a,i2.2,':',1x,a)
-  90  FORMAT (1p,e11.4,2x,a,'(',i2.2,')',t30,a,/,t32,a,i2.2,':',1x,a)
- 100  FORMAT (1p,e11.4,2x,a,t30,a)
- 110  FORMAT (1p,e11.4,2x,a,t30,a,/,t32,a)
- 120  FORMAT (/,' read_BioPar - variable info not yet loaded, ',        &
-     &        a,i2.2,a)
-
-# elif defined NPZD_FRANKS
-!
-!-----------------------------------------------------------------------
-!  Read in NPZD biological model (Franks et al., 1986) parameters.
-!-----------------------------------------------------------------------
-!
-#  ifdef ANA_BIOLOGY
-      IF (.not.allocated(BioIni)) allocate ( BioIni(MT,Ngrids) )
-#  endif
-      DO WHILE (.TRUE.)
-        READ (inp,'(a)',ERR=10,END=20) line
-        status=decode_line(line, KeyWord, Nval, Cval, Rval)
-        IF (status.gt.0) THEN
-          IF (TRIM(KeyWord).eq.'Lbiology') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Lbiology)
-          ELSE IF (TRIM(KeyWord).eq.'BioIter') THEN
-            Npts=load_i(Nval, Rval, Ngrids, BioIter)
-#  ifdef ANA_BIOLOGY
-          ELSE IF (TRIM(KeyWord).eq.'BioIni(iNO3_)') THEN
-            Npts=load_r(Nval, Rval, Ngrids, BioIni(iNO3_,1))
-          ELSE IF (TRIM(KeyWord).eq.'BioIni(iPhyt)') THEN
-            Npts=load_r(Nval, Rval, Ngrids, BioIni(iPhyt,1))
-          ELSE IF (TRIM(KeyWord).eq.'BioIni(iZoop)') THEN
-            Npts=load_r(Nval, Rval, Ngrids, BioIni(iZoop,1))
-          ELSE IF (TRIM(KeyWord).eq.'BioIni(iSDet)') THEN
-            Npts=load_r(Nval, Rval, Ngrids, BioIni(iSDet,1))
-#  endif
-          ELSE IF (TRIM(KeyWord).eq.'K_ext') THEN
-            Npts=load_r(Nval, Rval, Ngrids, K_ext)
-          ELSE IF (TRIM(KeyWord).eq.'K_NO3') THEN
-            Npts=load_r(Nval, Rval, Ngrids, K_NO3)
-          ELSE IF (TRIM(KeyWord).eq.'K_Phy') THEN
-            Npts=load_r(Nval, Rval, Ngrids, K_Phy)
-          ELSE IF (TRIM(KeyWord).eq.'Vm_NO3') THEN
-            Npts=load_r(Nval, Rval, Ngrids, Vm_NO3)
-          ELSE IF (TRIM(KeyWord).eq.'PhyMR') THEN
-            Npts=load_r(Nval, Rval, Ngrids, PhyMR)
-          ELSE IF (TRIM(KeyWord).eq.'ZooGR') THEN
-            Npts=load_r(Nval, Rval, Ngrids, ZooGR)
-          ELSE IF (TRIM(KeyWord).eq.'ZooMR') THEN
-            Npts=load_r(Nval, Rval, Ngrids, ZooMR)
-          ELSE IF (TRIM(KeyWord).eq.'ZooMD') THEN
-            Npts=load_r(Nval, Rval, Ngrids, ZooMD)
-          ELSE IF (TRIM(KeyWord).eq.'ZooGA') THEN
-            Npts=load_r(Nval, Rval, Ngrids, ZooGA)
-          ELSE IF (TRIM(KeyWord).eq.'ZooEC') THEN
-            Npts=load_r(Nval, Rval, Ngrids, ZooEC)
-          ELSE IF (TRIM(KeyWord).eq.'DetRR') THEN
-            Npts=load_r(Nval, Rval, Ngrids, DetRR)
-          ELSE IF (TRIM(KeyWord).eq.'wDet') THEN
-            Npts=load_r(Nval, Rval, Ngrids, wDet)
-          ELSE IF (TRIM(KeyWord).eq.'TNU2') THEN
-            Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idbio(itrc)
-                tnu2(i,ng)=Rbio(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'TNU4') THEN
-            Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idbio(itrc)
-                tnu4(i,ng)=Rbio(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'AKT_BAK') THEN
-            Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idbio(itrc)
-                Akt_bak(i,ng)=Rbio(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'TNUDG') THEN
-            Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idbio(itrc)
-                Tnudg(i,ng)=Rbio(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idTvar)') THEN
-            Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idTvar(idbio(itrc))
-                IF (i.eq.0) THEN
-                  IF (Master) WRITE (out,120)                           &
-     &                              'idTvar(idbio(', itrc, '))'
-                  exit_flag=5
-                  RETURN
-                END IF
-                Hout(i,ng)=Ltrc(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idTsur)') THEN
-            Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idTsur(idbio(itrc))
-                IF (i.eq.0) THEN
-                  IF (Master) WRITE (out,120)                           &
-     &                              'idTsur(idbio(', itrc, '))'
-                  exit_flag=5
-                  RETURN
-                END IF
-                Hout(i,ng)=Ltrc(itrc,ng)
-              END DO
-            END DO
-          END IF
-        END IF
-      END DO
-  10  IF (Master) WRITE (out,30) line
-      exit_flag=4
-      RETURN
-  20  CONTINUE
-!
-!-----------------------------------------------------------------------
-!  Report input parameters.
-!-----------------------------------------------------------------------
-!
-      IF (Lwrite) THEN
-        DO ng=1,Ngrids
-          IF (Lbiology(ng)) THEN
-            WRITE (out,40) ng
-            WRITE (out,50) BioIter(ng), 'BioIter',                      &
-     &            'Number of iterations for nonlinear convergence.'
-#  ifdef ANA_BIOLOGY
-            WRITE (out,100) BioIni(iNO3_,ng), 'BioIni(iNO3_)',          &
-     &            'Nitrate initial concentration (mmol/m3).'
-            WRITE (out,100) BioIni(iPhyt,ng), 'BioIni(iPhyt)',          &
-     &            'Phytoplankton initial concentration (mmol/m3).'
-            WRITE (out,100) BioIni(iZoop,ng), 'BioIni(iZoop)',          &
-     &            'Zooplankton initial concentration (mmol/m3).'
-            WRITE (out,100) BioIni(iSDet,ng), 'BioIni(iSDet)',          &
-     &            'Small detritus initial concentration (mmol/m3).'
-#  endif
-            WRITE (out,100) K_ext(ng), 'K_ext',                         &
-     &            'Light extinction coefficient (m-1).'
-            WRITE (out,110) K_NO3(ng), 'K_NO3',                         &
-     &            'Inverse half-saturation for phytoplankton NO3',      &
-     &            'uptake (1/(mmol m-3)).'
-            WRITE (out,110) K_Phy(ng), 'K_Phy',                         &
-     &            'Phytoplankton saturation coefficient',               &
-     &            '(mmol/m3)^2.'
-            WRITE (out,100) Vm_NO3(ng), 'Vm_NO3',                       &
-     &            'Nitrate upatake rate (day-1).'
-            WRITE (out,100) PhyMR(ng), 'PhyMR',                         &
-     &            'Phytoplankton senescence/mortality rate (day-1)'
-            WRITE (out,100) ZooGR(ng), 'ZooGR',                         &
-     &            'Zooplankton maximum growth rate (day-1).'
-            WRITE (out,100) ZooMR(ng), 'ZooMR',                         &
-     &            'Zooplankton mortality rate (day-1).'
-            WRITE (out,100) ZooMD(ng), 'ZooMD',                         &
-     &            'Zooplankton death bits rate (day-1).'
-            WRITE (out,100) ZooGA(ng), 'ZooGA',                         &
-     &            'Zooplankton grazing inefficiency (nondimensional).'
-            WRITE (out,100) ZooEC(ng), 'ZooEC',                         &
-     &            'Zooplankton excreted fraction (nondimensional).'
-            WRITE (out,100) DetRR(ng), 'DetRR',                         &
-     &            'Detritus remineralization rate (day-1).'
-            WRITE (out,100) wDet(ng), 'wDet',                           &
-     &            'Detrital sinking rate (m/day).'
-#  ifdef TS_DIF2
-            DO itrc=1,NBT
-              i=idbio(itrc)
-              WRITE (out,90) tnu2(i,ng), 'tnu2', i,                     &
-     &              'Horizontal, harmonic mixing coefficient (m2/s)',   &
-     &              'for tracer ', i, TRIM(Vname(1,idTvar(i)))
-            END DO
-#  endif
-#  ifdef TS_DIF4
-            DO itrc=1,NBT
-              i=idbio(itrc)
-              WRITE (out,90) tnu4(i,ng), 'tnu4', i,                     &
-     &              'Horizontal, biharmonic mixing coefficient (m4/s)', &
-     &              'for tracer ', i, TRIM(Vname(1,idTvar(i)))
-            END DO
-#  endif
-            DO itrc=1,NBT
-              i=idbio(itrc)
-              WRITE(out,90) Akt_bak(i,ng), 'Akt_bak', i,                &
-     &             'Background vertical mixing coefficient (m2/s)',     &
-     &             'for tracer ', i, TRIM(Vname(1,idTvar(i)))
-            END DO
-            DO itrc=1,NBT
-              i=idbio(itrc)
-              WRITE (out,90) Tnudg(i,ng), 'Tnudg', i,                   &
-     &              'Nudging/relaxation time scale (days)',             &
-     &              'for tracer ', i, TRIM(Vname(1,idTvar(i)))
-            END DO
-            DO itrc=1,NBT
-              i=idbio(itrc)
-              IF (Hout(idTvar(i),ng)) WRITE (out,60)                    &
-     &            Hout(idTvar(i),ng), 'Hout(idTvar)',                   &
-     &            'Write out tracer ', i, TRIM(Vname(1,idTvar(i)))
-            END DO
-            DO itrc=1,NBT
-              i=idbio(itrc)
-              IF (Hout(idTsur(i),ng)) WRITE (out,60)                    &
-     &            Hout(idTsur(i),ng), 'Hout(idTsur)',                   &
-     &            'Write out tracer flux ', i, TRIM(Vname(1,idTvar(i)))
-            END DO
-          END IF
-        END DO
-      END IF
-!
-!-----------------------------------------------------------------------
-!  Rescale biological tracer parameters
-!-----------------------------------------------------------------------
-!
-!  Take the square root of the biharmonic coefficients so it can
-!  be applied to each harmonic operator.
-!
-      DO ng=1,Ngrids
-        DO itrc=1,NBT
-          i=idbio(itrc)
-          tnu4(i,ng)=SQRT(ABS(tnu4(i,ng)))
-!
-!  Compute inverse nudging coefficients (1/s) used in various tasks.
-!
-          IF (Tnudg(i,ng).gt.0.0_r8) THEN
-            Tnudg(i,ng)=1.0_r8/(Tnudg(i,ng)*86400.0_r8)
-          ELSE
-            Tnudg(i,ng)=0.0_r8
-          END IF
-        END DO
-      END DO
-
-  30  FORMAT (/,' read_BioPar - Error while processing line: ',/,a)
-  40  FORMAT (/,/,' NPZD Model Parameters, Grid: ',i2.2,                &
-     &        /,  ' ===============================',/)
-  50  FORMAT (1x,i10,2x,a,t30,a)
-  60  FORMAT (10x,l1,2x,a,t30,a,i2.2,':',1x,a)
-  90  FORMAT (1p,e11.4,2x,a,'(',i2.2,')',t30,a,/,t32,a,i2.2,':',1x,a)
- 100  FORMAT (1p,e11.4,2x,a,t30,a)
- 110  FORMAT (1p,e11.4,2x,a,t30,a,/,t32,a)
- 120  FORMAT (/,' read_BioPar - variable info not yet loaded, ',        &
-     &        a,i2.2,a)
-
-# elif defined NPZD_POWELL
-!
-!-----------------------------------------------------------------------
-!  Read in NPZD biological model (Powell et al., 2006) parameters.
-!-----------------------------------------------------------------------
-!
-#  ifdef ANA_BIOLOGY
-      IF (.not.allocated(BioIni)) allocate ( BioIni(MT,Ngrids) )
-#  endif
-      DO WHILE (.TRUE.)
-        READ (inp,'(a)',ERR=10,END=20) line
-        status=decode_line(line, KeyWord, Nval, Cval, Rval)
-        IF (status.gt.0) THEN
-          IF (TRIM(KeyWord).eq.'Lbiology') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Lbiology)
-          ELSE IF (TRIM(KeyWord).eq.'BioIter') THEN
-            Npts=load_i(Nval, Rval, Ngrids, BioIter)
-#  ifdef ANA_BIOLOGY
-          ELSE IF (TRIM(KeyWord).eq.'BioIni(iNO3_)') THEN
-            Npts=load_r(Nval, Rval, Ngrids, BioIni(iNO3_,1))
-          ELSE IF (TRIM(KeyWord).eq.'BioIni(iPhyt)') THEN
-            Npts=load_r(Nval, Rval, Ngrids, BioIni(iPhyt,1))
-          ELSE IF (TRIM(KeyWord).eq.'BioIni(iZoop)') THEN
-            Npts=load_r(Nval, Rval, Ngrids, BioIni(iZoop,1))
-          ELSE IF (TRIM(KeyWord).eq.'BioIni(iSDet)') THEN
-            Npts=load_r(Nval, Rval, Ngrids, BioIni(iSDet,1))
-#  endif
-          ELSE IF (TRIM(KeyWord).eq.'PARfrac') THEN
-            Npts=load_r(Nval, Rval, Ngrids, PARfrac)
-          ELSE IF (TRIM(KeyWord).eq.'AttSW') THEN
-            Npts=load_r(Nval, Rval, Ngrids, AttSW)
-          ELSE IF (TRIM(KeyWord).eq.'AttPhy') THEN
-            Npts=load_r(Nval, Rval, Ngrids, AttPhy)
-          ELSE IF (TRIM(KeyWord).eq.'PhyIS') THEN
-            Npts=load_r(Nval, Rval, Ngrids, PhyIS)
-          ELSE IF (TRIM(KeyWord).eq.'Vm_NO3') THEN
-            Npts=load_r(Nval, Rval, Ngrids, Vm_NO3)
-          ELSE IF (TRIM(KeyWord).eq.'PhyMRD') THEN
-            Npts=load_r(Nval, Rval, Ngrids, PhyMRD)
-          ELSE IF (TRIM(KeyWord).eq.'PhyMRN') THEN
-            Npts=load_r(Nval, Rval, Ngrids, PhyMRN)
-          ELSE IF (TRIM(KeyWord).eq.'K_NO3') THEN
-            Npts=load_r(Nval, Rval, Ngrids, K_NO3)
-          ELSE IF (TRIM(KeyWord).eq.'Ivlev') THEN
-            Npts=load_r(Nval, Rval, Ngrids, Ivlev)
-          ELSE IF (TRIM(KeyWord).eq.'ZooGR') THEN
-            Npts=load_r(Nval, Rval, Ngrids, ZooGR)
-          ELSE IF (TRIM(KeyWord).eq.'ZooEED') THEN
-            Npts=load_r(Nval, Rval, Ngrids, ZooEED)
-          ELSE IF (TRIM(KeyWord).eq.'ZooEEN') THEN
-            Npts=load_r(Nval, Rval, Ngrids, ZooEEN)
-          ELSE IF (TRIM(KeyWord).eq.'ZooMRD') THEN
-            Npts=load_r(Nval, Rval, Ngrids, ZooMRD)
-          ELSE IF (TRIM(KeyWord).eq.'ZooMRN') THEN
-            Npts=load_r(Nval, Rval, Ngrids, ZooMRN)
-          ELSE IF (TRIM(KeyWord).eq.'DetRR') THEN
-            Npts=load_r(Nval, Rval, Ngrids, DetRR)
-          ELSE IF (TRIM(KeyWord).eq.'wPhy') THEN
-            Npts=load_r(Nval, Rval, Ngrids, wPhy)
-          ELSE IF (TRIM(KeyWord).eq.'wDet') THEN
-            Npts=load_r(Nval, Rval, Ngrids, wDet)
-          ELSE IF (TRIM(KeyWord).eq.'TNU2') THEN
-            Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idbio(itrc)
-                tnu2(i,ng)=Rbio(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'TNU4') THEN
-            Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idbio(itrc)
-                tnu4(i,ng)=Rbio(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'AKT_BAK') THEN
-            Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idbio(itrc)
-                Akt_bak(i,ng)=Rbio(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'TNUDG') THEN
-            Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idbio(itrc)
-                Tnudg(i,ng)=Rbio(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idTvar)') THEN
-            Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idTvar(idbio(itrc))
-                IF (i.eq.0) THEN
-                  IF (Master) WRITE (out,120)                           &
-     &                              'idTvar(idbio(', itrc, '))'
-                  exit_flag=5
-                  RETURN
-                END IF
-                Hout(i,ng)=Ltrc(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idTsur)') THEN
-            Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idTsur(idbio(itrc))
-                IF (i.eq.0) THEN
-                  IF (Master) WRITE (out,120)                           &
-     &                              'idTsur(idbio(', itrc, '))'
-                  exit_flag=5
-                  RETURN
-                END IF
-                Hout(i,ng)=Ltrc(itrc,ng)
-              END DO
-            END DO
-          END IF
-        END IF
-      END DO
-  10  IF (Master) WRITE (out,30) line
-      exit_flag=4
-      RETURN
-  20  CONTINUE
-!
-!-----------------------------------------------------------------------
-!  Report input parameters.
-!-----------------------------------------------------------------------
-!
-      IF (Lwrite) THEN
-        DO ng=1,Ngrids
-          IF (Lbiology(ng)) THEN
-            WRITE (out,40) ng
-            WRITE (out,50) BioIter(ng), 'BioIter',                      &
-     &            'Number of iterations for nonlinear convergence.'
-#  ifdef ANA_BIOLOGY
-            WRITE (out,100) BioIni(iNO3_,ng), 'BioIni(iNO3_)',          &
-     &            'Nitrate initial concentration (mmol/m3).'
-            WRITE (out,100) BioIni(iPhyt,ng), 'BioIni(iPhyt)',          &
-     &            'Phytoplankton initial concentration (mmol/m3).'
-            WRITE (out,100) BioIni(iZoop,ng), 'BioIni(iZoop)',          &
-     &            'Zooplankton initial concentration (mmol/m3).'
-            WRITE (out,100) BioIni(iSDet,ng), 'BioIni(iSDet)',          &
-     &            'Small detritus initial concentration (mmol/m3).'
-#  endif
-            WRITE (out,110) PARfrac(ng), 'PARfrac',                     &
-     &            'Fraction of shortwave radiation that is',            &
-     &            'photosynthetically active (nondimensional).'
-            WRITE (out,100) AttSW(ng), 'AttSW',                         &
-     &            'Light attenuation of seawater (m-1).'
-            WRITE (out,100) AttPhy(ng), 'AttPhy',                       &
-     &            'Light attenuation by phytoplankton (m2/mmole_N).'
-            WRITE (out,110) PhyIS(ng), 'PhyIS',                         &
-     &            'Phytoplankton growth, initial slope of P-I curve',   &
-     &            '(m2/W).'
-            WRITE (out,100) Vm_NO3(ng), 'Vm_NO3',                       &
-     &            'Nitrate upatake rate (day-1).'
-            WRITE (out,100) PhyMRD(ng), 'PhyMRD',                       &
-     &            'Phytoplankton mortality rate to Detritus (day-1)'
-            WRITE (out,100) PhyMRN(ng), 'PhyMRN',                       &
-     &            'Phytoplankton mortality rate to Nitrogen (day-1)'
-            WRITE (out,110) K_NO3(ng), 'K_NO3',                         &
-     &            'Inverse half-saturation for phytoplankton NO3',      &
-     &            'uptake (1/(mmol m-3)).'
-            WRITE (out,110) Ivlev(ng), 'Ivlev',                         &
-     &            'Ivlev constant for zooplankton grazing',             &
-     &            '(nondimensional).'
-            WRITE (out,100) ZooGR(ng), 'ZooGR',                         &
-     &            'Zooplankton maximum growth rate (day-1).'
-            WRITE (out,110) ZooEED(ng), 'ZooEED',                       &
-     &            'Zooplankton excretion efficiency to Detritus',       &
-     &            'pool (nondimensional).'
-            WRITE (out,110) ZooEEN(ng), 'ZooEEN',                       &
-     &            'Zooplankton excretion efficiency to Nitrogen',       &
-     &            'pool (nondimensional).'
-            WRITE (out,100) ZooMRD(ng), 'ZooMRD',                       &
-     &            'Zooplankton mortality rate to Detritus (day-1).'
-            WRITE (out,100) ZooMRN(ng), 'ZooMRN',                       &
-     &            'Zooplankton mortality rate to Nitrogen (day-1).'
-            WRITE (out,100) DetRR(ng), 'DetRR',                         &
-     &            'Detritus remineralization rate (day-1).'
-            WRITE (out,100) wPhy(ng), 'wPhy',                           &
-     &            'Phytoplankton sinking rate (m/day).'
-            WRITE (out,100) wDet(ng), 'wDet',                           &
-     &            'Detrital sinking rate (m/day).'
-#  ifdef TS_DIF2
-            DO itrc=1,NBT
-              i=idbio(itrc)
-              WRITE (out,90) tnu2(i,ng), 'tnu2', i,                     &
-     &              'Horizontal, harmonic mixing coefficient (m2/s)',   &
-     &              'for tracer ', i, TRIM(Vname(1,idTvar(i)))
-            END DO
-#  endif
-#  ifdef TS_DIF4
-            DO itrc=1,NBT
-              i=idbio(itrc)
-              WRITE (out,90) tnu4(i,ng), 'tnu4', i,                     &
-     &              'Horizontal, biharmonic mixing coefficient (m4/s)', &
-     &              'for tracer ', i, TRIM(Vname(1,idTvar(i)))
-            END DO
-#  endif
-            DO itrc=1,NBT
-              i=idbio(itrc)
-              WRITE(out,90) Akt_bak(i,ng), 'Akt_bak', i,                &
-     &             'Background vertical mixing coefficient (m2/s)',     &
-     &             'for tracer ', i, TRIM(Vname(1,idTvar(i)))
-            END DO
-            DO itrc=1,NBT
-              i=idbio(itrc)
-              WRITE (out,90) Tnudg(i,ng), 'Tnudg', i,                   &
-     &              'Nudging/relaxation time scale (days)',             &
-     &              'for tracer ', i, TRIM(Vname(1,idTvar(i)))
-            END DO
-            DO itrc=1,NBT
-              i=idbio(itrc)
-              IF (Hout(idTvar(i),ng)) WRITE (out,60)                    &
-     &            Hout(idTvar(i),ng), 'Hout(idTvar)',                   &
-     &            'Write out tracer ', i, TRIM(Vname(1,idTvar(i)))
-            END DO
-            DO itrc=1,NBT
-              i=idbio(itrc)
-              IF (Hout(idTsur(i),ng)) WRITE (out,60)                    &
-     &            Hout(idTsur(i),ng), 'Hout(idTsur)',                   &
-     &            'Write out tracer flux ', i, TRIM(Vname(1,idTvar(i)))
-            END DO
-          END IF
-        END DO
-      END IF
-!
-!-----------------------------------------------------------------------
-!  Rescale biological tracer parameters
-!-----------------------------------------------------------------------
-!
-!  Take the square root of the biharmonic coefficients so it can
-!  be applied to each harmonic operator.
-!
-      DO ng=1,Ngrids
-        DO itrc=1,NBT
-          i=idbio(itrc)
-          tnu4(i,ng)=SQRT(ABS(tnu4(i,ng)))
-!
-!  Compute inverse nudging coefficients (1/s) used in various tasks.
-!
-          IF (Tnudg(i,ng).gt.0.0_r8) THEN
-            Tnudg(i,ng)=1.0_r8/(Tnudg(i,ng)*86400.0_r8)
-          ELSE
-            Tnudg(i,ng)=0.0_r8
-          END IF
-        END DO
-      END DO
-
-  30  FORMAT (/,' read_BioPar - Error while processing line: ',/,a)
-  40  FORMAT (/,/,' NPZD Model Parameters, Grid: ',i2.2,                &
-     &        /,  ' ===============================',/)
-  50  FORMAT (1x,i10,2x,a,t30,a)
-  60  FORMAT (10x,l1,2x,a,t30,a,i2.2,':',1x,a)
-  90  FORMAT (1p,e11.4,2x,a,'(',i2.2,')',t30,a,/,t32,a,i2.2,':',1x,a)
- 100  FORMAT (1p,e11.4,2x,a,t30,a)
- 110  FORMAT (1p,e11.4,2x,a,t30,a,/,t32,a)
- 120  FORMAT (/,' read_BioPar - variable info not yet loaded, ',        &
-     &        a,i2.2,a)
-
-# elif defined BEST_NPZ
-! ==================================================================== !
-! READ Bering Sea BEST_NPZ PARAMS
-! ==================================================================== !
-
-      DO WHILE (.TRUE.)
-        READ (inp,'(a)',ERR=10,END=20) line
-        status=decode_line(line, KeyWord, Nval, Cval, Rval)
-        IF (status.gt.0) THEN
-          IF (TRIM(KeyWord).eq.'Lbiology') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Lbiology)
-          ELSE IF (TRIM(KeyWord).eq.'BioIter') THEN
-            Npts=load_i(Nval, Rval, Ngrids, BioIter)
-          ELSE IF (TRIM(KeyWord).eq.'PARfrac') THEN
-            Npts=load_r(Nval, Rval, Ngrids, Parfrac)
-!----------------------------------
-!  Vertical mixing tuning parameter
-!----------------------------------
-          ELSE IF (TRIM(KeyWord).eq.'VertMixIncr') THEN 
-            Npts=load_r(Nval, Rval, 1, VertMixIncr)         
-!------------------
-!  Bio- conversions
-!------------------
-          ELSE IF (TRIM(KeyWord).eq.'xi') THEN
-            Npts=load_r(Nval, Rval, 1, xi)
-          ELSE IF (TRIM(KeyWord).eq.'ccr') THEN
-            Npts=load_r(Nval, Rval, 1, ccr)
-          ELSE IF (TRIM(KeyWord).eq.'ccrPhL') THEN 
-            Npts=load_r(Nval, Rval, 1, ccrPhL)
-!-------------------------
-!  extinction coefficients
-!-------------------------
-          ELSE IF (TRIM(KeyWord).eq.'k_ext') THEN
-            Npts=load_r(Nval, Rval, 1, k_ext)
-          ELSE IF (TRIM(KeyWord).eq.'k_chl') THEN
-            Npts=load_r(Nval, Rval, 1, k_chl)
-!-------------------
-!  PhS growth params
-!-------------------
-          ELSE IF (TRIM(KeyWord).eq.'DiS') THEN
-            Npts=load_r(Nval, Rval, 1, DiS)
-          ELSE IF (TRIM(KeyWord).eq.'DpS') THEN
-            Npts=load_r(Nval, Rval, 1, DpS)
-          ELSE IF (TRIM(KeyWord).eq.'alphaPhS') THEN
-            Npts=load_r(Nval, Rval, 1, alphaPhS)
-          ELSE IF (TRIM(KeyWord).eq.'psiPhS') THEN
-            Npts=load_r(Nval, Rval, 1, psiPhS)
-          ELSE IF (TRIM(KeyWord).eq.'k1PhS') THEN
-            Npts=load_r(Nval, Rval, 1, k1PhS)
-          ELSE IF (TRIM(KeyWord).eq.'k2PhS') THEN
-            Npts=load_r(Nval, Rval, 1, k2PhS)
-!-------------------
-!  PhL growth params
-!-------------------
-          ELSE IF (TRIM(KeyWord).eq.'DiL') THEN
-            Npts=load_r(Nval, Rval, 1, DiL)
-          ELSE IF (TRIM(KeyWord).eq.'DpL') THEN
-            Npts=load_r(Nval, Rval, 1, DpL)
-          ELSE IF (TRIM(KeyWord).eq.'alphaPhL') THEN
-            Npts=load_r(Nval, Rval, 1, alphaPhL)
-          ELSE IF (TRIM(KeyWord).eq.'psiPhL') THEN
-            Npts=load_r(Nval, Rval, 1, psiPhL)
-          ELSE IF (TRIM(KeyWord).eq.'k1PhL') THEN
-            Npts=load_r(Nval, Rval, 1, k1PhL)
-          ELSE IF (TRIM(KeyWord).eq.'k2PhL') THEN
-            Npts=load_r(Nval, Rval, 1, k2PhL)
-!-----------------------
-!  MZS preference params
-!-----------------------
-          ELSE IF (TRIM(KeyWord).eq.'fpPhSMZS') THEN
-            Npts=load_r(Nval, Rval, 1, fpPhSMZS)
-          ELSE IF (TRIM(KeyWord).eq.'fpPhLMZS') THEN
-            Npts=load_r(Nval, Rval, 1, fpPhLMZS)
-!-------------------------------
-!  MZS growth and feeding params
-!-------------------------------
-          ELSE IF (TRIM(KeyWord).eq.'eMZS') THEN
-            Npts=load_r(Nval, Rval, 1, eMZS)
-          ELSE IF (TRIM(KeyWord).eq.'Q10MZS') THEN
-            Npts=load_r(Nval, Rval, 1, Q10MZS)
-          ELSE IF (TRIM(KeyWord).eq.'Q10MZST') THEN
-            Npts=load_r(Nval, Rval, 1, Q10MZST)
-          ELSE IF (TRIM(KeyWord).eq.'fMZS') THEN
-            Npts=load_r(Nval, Rval, 1, fMZS)
-          ELSE IF (TRIM(KeyWord).eq.'kMZS') THEN
-            Npts=load_r(Nval, Rval, 1, kMZS)
-          ELSE IF (TRIM(KeyWord).eq.'gammaMZS') THEN
-            Npts=load_r(Nval, Rval, 1, gammaMZS)
-!-----------------------
-!  MZL preference params
-!-----------------------
-          ELSE IF (TRIM(KeyWord).eq.'fpPhSMZL') THEN
-            Npts=load_r(Nval, Rval, 1, fpPhSMZL)
-          ELSE IF (TRIM(KeyWord).eq.'fpPhLMZL') THEN
-            Npts=load_r(Nval, Rval, 1, fpPhLMZL)
-!-------------------------------
-!  MZL growth and feeding params
-!-------------------------------
-          ELSE IF (TRIM(KeyWord).eq.'eMZL') THEN
-            Npts=load_r(Nval, Rval, 1, eMZL)
-          ELSE IF (TRIM(KeyWord).eq.'Q10MZL') THEN
-            Npts=load_r(Nval, Rval, 1, Q10MZL)
-          ELSE IF (TRIM(KeyWord).eq.'Q10MZLT') THEN
-            Npts=load_r(Nval, Rval, 1, Q10MZLT)
-          ELSE IF (TRIM(KeyWord).eq.'fMZL') THEN
-            Npts=load_r(Nval, Rval, 1, fMZL)
-          ELSE IF (TRIM(KeyWord).eq.'kMZL') THEN
-            Npts=load_r(Nval, Rval, 1, kMZL)
-          ELSE IF (TRIM(KeyWord).eq.'gammaMZL') THEN
-            Npts=load_r(Nval, Rval, 1, gammaMZL)
-!-----------------------
-!  Cop preference params
-!-----------------------
-          ELSE IF (TRIM(KeyWord).eq.'fpPhSCop') THEN
-            Npts=load_r(Nval, Rval, 1, fpPhSCop)
-          ELSE IF (TRIM(KeyWord).eq.'fpPhLCop') THEN
-            Npts=load_r(Nval, Rval, 1, fpPhLCop)
-          ELSE IF (TRIM(KeyWord).eq.'fpMZSCop') THEN
-            Npts=load_r(Nval, Rval, 1, fpMZSCop)
-          ELSE IF (TRIM(KeyWord).eq.'fpMZLCop') THEN
-            Npts=load_r(Nval, Rval, 1, fpMZLCop)
-!-------------------------------
-!  Cop growth and feeding params
-!-------------------------------
-          ELSE IF (TRIM(KeyWord).eq.'eCop') THEN
-            Npts=load_r(Nval, Rval, 1, eCop)
-          ELSE IF (TRIM(KeyWord).eq.'Q10Cop') THEN
-            Npts=load_r(Nval, Rval, 1, Q10Cop)
-          ELSE IF (TRIM(KeyWord).eq.'Q10CopT') THEN
-            Npts=load_r(Nval, Rval, 1, Q10CopT)
-          ELSE IF (TRIM(KeyWord).eq.'fCop') THEN
-            Npts=load_r(Nval, Rval, 1, fCop)
-          ELSE IF (TRIM(KeyWord).eq.'gammaCop') THEN
-            Npts=load_r(Nval, Rval, 1, gammaCop)
-          ELSE IF (TRIM(KeyWord).eq.'kCop') THEN
-            Npts=load_r(Nval, Rval, 1, kCop)
-!-----------------------
-!  NCa preference params
-!-----------------------
-          ELSE IF (TRIM(KeyWord).eq.'fpPhSNCa') THEN
-            Npts=load_r(Nval, Rval, 1, fpPhSNCa)
-          ELSE IF (TRIM(KeyWord).eq.'fpPhLNCa') THEN
-            Npts=load_r(Nval, Rval, 1, fpPhLNCa)
-          ELSE IF (TRIM(KeyWord).eq.'fpMZSNCa') THEN
-            Npts=load_r(Nval, Rval, 1, fpMZSNCa)
-          ELSE IF (TRIM(KeyWord).eq.'fpMZLNCa') THEN
-            Npts=load_r(Nval, Rval, 1, fpMZLNCa)
-!-------------------------------
-!  NCa growth and feeding params
-!-------------------------------
-          ELSE IF (TRIM(KeyWord).eq.'eNCa') THEN
-            Npts=load_r(Nval, Rval, 1, eNCa)
-          ELSE IF (TRIM(KeyWord).eq.'Q10NCa') THEN
-            Npts=load_r(Nval, Rval, 1, Q10NCa)
-          ELSE IF (TRIM(KeyWord).eq.'Q10NCaT') THEN
-            Npts=load_r(Nval, Rval, 1, Q10NCaT)
-          ELSE IF (TRIM(KeyWord).eq.'fNCa') THEN
-            Npts=load_r(Nval, Rval, 1, fNCa)
-          ELSE IF (TRIM(KeyWord).eq.'gammaNCa') THEN
-            Npts=load_r(Nval, Rval, 1, gammaNCa)
-          ELSE IF (TRIM(KeyWord).eq.'kNCa') THEN
-            Npts=load_r(Nval, Rval, 1, kNCa)
-!-----------------------
-!  Eup preference params
-!-----------------------
-          ELSE IF (TRIM(KeyWord).eq.'fpPhSEup') THEN
-            Npts=load_r(Nval, Rval, 1, fpPhSEup)
-          ELSE IF (TRIM(KeyWord).eq.'fpPhLEup') THEN
-            Npts=load_r(Nval, Rval, 1, fpPhLEup)
-          ELSE IF (TRIM(KeyWord).eq.'fpMZSEup') THEN
-            Npts=load_r(Nval, Rval, 1, fpMZSEup)
-          ELSE IF (TRIM(KeyWord).eq.'fpMZLEup') THEN
-            Npts=load_r(Nval, Rval, 1, fpMZLEup)
-          ELSE IF (TRIM(KeyWord).eq.'fpCopEup') THEN
-            Npts=load_r(Nval, Rval, 1, fpCopEup)
-!-------------------------------
-!  Eup growth and feeding params
-!-------------------------------
-          ELSE IF (TRIM(KeyWord).eq.'eEup') THEN
-            Npts=load_r(Nval, Rval, 1, eEup)
-          ELSE IF (TRIM(KeyWord).eq.'Q10Eup') THEN
-            Npts=load_r(Nval, Rval, 1, Q10Eup)
-          ELSE IF (TRIM(KeyWord).eq.'Q10EupT') THEN
-            Npts=load_r(Nval, Rval, 1, Q10EupT)
-          ELSE IF (TRIM(KeyWord).eq.'fEup') THEN
-            Npts=load_r(Nval, Rval, 1, fEup)
-          ELSE IF (TRIM(KeyWord).eq.'gammaEup') THEN
-            Npts=load_r(Nval, Rval, 1, gammaEup)
-          ELSE IF (TRIM(KeyWord).eq.'kEup') THEN
-            Npts=load_r(Nval, Rval, 1, kEup)
-#if defined JELLY
-!--------------------------
-!  Jellyfish  param
-!--------------------------
-          ELSE IF (TRIM(KeyWord).eq.'fpCopJel') THEN
-            Npts=load_r(Nval, Rval, 1, fpCopJel)
-          ELSE IF (TRIM(KeyWord).eq.'fpEupJel') THEN
-            Npts=load_r(Nval, Rval, 1, fpEupJel)
-          ELSE IF (TRIM(KeyWord).eq.'fpNCaJel') THEN
-            Npts=load_r(Nval, Rval, 1, fpNCaJel)
-          ELSE IF (TRIM(KeyWord).eq.'eJel') THEN
-            Npts=load_r(Nval, Rval, 1, eJel)
-          ELSE IF (TRIM(KeyWord).eq.'Q10Jelr') THEN
-            Npts=load_r(Nval, Rval, 1, Q10Jelr) 
-          ELSE IF (TRIM(KeyWord).eq.'Q10JelTr') THEN
-            Npts=load_r(Nval, Rval, 1, Q10JelTr)
-          ELSE IF (TRIM(KeyWord).eq.'Q10Jele') THEN
-            Npts=load_r(Nval, Rval, 1, Q10Jele) 
-          ELSE IF (TRIM(KeyWord).eq.'Q10JelTe') THEN
-            Npts=load_r(Nval, Rval, 1, Q10JelTe)
-          ELSE IF (TRIM(KeyWord).eq.'gammaJel') THEN
-            Npts=load_r(Nval, Rval, 1, gammaJel) 
-          ELSE IF (TRIM(KeyWord).eq.'mpredJel') THEN
-            Npts=load_r(Nval, Rval, 1, mpredJel) 
-          ELSE IF (TRIM(KeyWord).eq.'respJel') THEN
-            Npts=load_r(Nval, Rval, 1,respJel)
-          ELSE IF (TRIM(KeyWord).eq.'bmJ') THEN
-            Npts=load_r(Nval, Rval, 1,bmJ)
-          ELSE IF (TRIM(KeyWord).eq.'ktbmJ') THEN
-            Npts=load_r(Nval, Rval, 1,ktbmJ)
-          ELSE IF (TRIM(KeyWord).eq.'TrefJ') THEN
-            Npts=load_r(Nval, Rval, 1,TrefJ)
-# endif
-
-!--------------------------
-!  Phytoplankton senescence
-!--------------------------
-          ELSE IF (TRIM(KeyWord).eq.'minmPhS') THEN
-            Npts=load_r(Nval, Rval, 1, minmPhS)
-          ELSE IF (TRIM(KeyWord).eq.'maxmPhS') THEN
-            Npts=load_r(Nval, Rval, 1, maxmPhS)
-          ELSE IF (TRIM(KeyWord).eq.'NcritPhS') THEN
-            Npts=load_r(Nval, Rval, 1, NcritPhS)
-          ELSE IF (TRIM(KeyWord).eq.'minmPhL') THEN
-            Npts=load_r(Nval, Rval, 1, minmPhL)
-          ELSE IF (TRIM(KeyWord).eq.'maxmPhL') THEN
-            Npts=load_r(Nval, Rval, 1, maxmPhL)
-          ELSE IF (TRIM(KeyWord).eq.'NcritPhL') THEN
-            Npts=load_r(Nval, Rval, 1, NcritPhL)
-!-----------------------
-!  Zoopkankton mortality
-!-----------------------
-          ELSE IF (TRIM(KeyWord).eq.'mMZS') THEN
-            Npts=load_r(Nval, Rval, 1, mMZS)
-          ELSE IF (TRIM(KeyWord).eq.'mMZL') THEN
-            Npts=load_r(Nval, Rval, 1, mMZL)
-          ELSE IF (TRIM(KeyWord).eq.'mCop') THEN
-            Npts=load_r(Nval, Rval, 1, mCop)
-          ELSE IF (TRIM(KeyWord).eq.'mNCa') THEN
-            Npts=load_r(Nval, Rval, 1, mNCa)
-          ELSE IF (TRIM(KeyWord).eq.'mEup') THEN
-            Npts=load_r(Nval, Rval, 1, mEup)
-!-------------------
-!  predation closure
-!-------------------
-          ELSE IF (TRIM(KeyWord).eq.'mpredCop') THEN
-            Npts=load_r(Nval, Rval, 1, mpredCop)
-          ELSE IF (TRIM(KeyWord).eq.'mpredNCa') THEN
-            Npts=load_r(Nval, Rval, 1, mpredNCa)
-          ELSE IF (TRIM(KeyWord).eq.'mpredEup') THEN
-            Npts=load_r(Nval, Rval, 1, mpredEup)
-!--------------------------------
-!  sinking 
-!--------------------------------
-        
-          ELSE IF (TRIM(KeyWord).eq.'wPhS') THEN
-            Npts=load_r(Nval, Rval, 1, wPhS)
-          ELSE IF (TRIM(KeyWord).eq.'wPhL') THEN
-            Npts=load_r(Nval, Rval, 1, wPhL)
-          ELSE IF (TRIM(KeyWord).eq.'wDet') THEN
-            Npts=load_r(Nval, Rval, 1, wDet)
-          ELSE IF (TRIM(KeyWord).eq.'wDetF') THEN
-            Npts=load_r(Nval, Rval, 1, wDetF)
-!------------------------
-!  Respiration parameters
-!------------------------
-          ELSE IF (TRIM(KeyWord).eq.'respMZS') THEN
-            Npts=load_r(Nval, Rval, 1, respMZS)
-          ELSE IF (TRIM(KeyWord).eq.'respMZL') THEN
-            Npts=load_r(Nval, Rval, 1, respMZL)
-          ELSE IF (TRIM(KeyWord).eq.'respPhS') THEN
-            Npts=load_r(Nval, Rval, 1, respPhS)
-          ELSE IF (TRIM(KeyWord).eq.'respPhL') THEN
-            Npts=load_r(Nval, Rval, 1, respPhL)
-          ELSE IF (TRIM(KeyWord).eq.'respCop') THEN
-            Npts=load_r(Nval, Rval, 1, respCop)
-          ELSE IF (TRIM(KeyWord).eq.'respNCa') THEN
-            Npts=load_r(Nval, Rval, 1, respNCa)
-          ELSE IF (TRIM(KeyWord).eq.'respEup') THEN
-            Npts=load_r(Nval, Rval, 1, respEup)
-
-          ELSE IF (TRIM(KeyWord).eq.'ktbmC') THEN
-            Npts=load_r(Nval, Rval, 1,ktbmC)
-          ELSE IF (TRIM(KeyWord).eq.'TrefC') THEN
-            Npts=load_r(Nval, Rval, 1,TrefC)
-          ELSE IF (TRIM(KeyWord).eq.'ktbmN') THEN
-            Npts=load_r(Nval, Rval, 1,ktbmN)
-          ELSE IF (TRIM(KeyWord).eq.'TrefN') THEN
-            Npts=load_r(Nval, Rval, 1,TrefN)
-
-          ELSE IF (TRIM(KeyWord).eq.'ktbmE') THEN
-            Npts=load_r(Nval, Rval, 1,ktbmE)
-          ELSE IF (TRIM(KeyWord).eq.'TrefE') THEN
-            Npts=load_r(Nval, Rval, 1,TrefE)
-
-          ELSE IF (TRIM(KeyWord).eq.'TmaxPhS') THEN
-            Npts=load_r(Nval, Rval, 1, TmaxPhS)
-          ELSE IF (TRIM(KeyWord).eq.'TminPhS') THEN
-            Npts=load_r(Nval, Rval, 1,TminPhS)
-          ELSE IF (TRIM(KeyWord).eq.'Topt_PhS') THEN
-            Npts=load_r(Nval, Rval, 1, Topt_PhS)
-          ELSE IF (TRIM(KeyWord).eq.'KtBm_PhS') THEN
-            Npts=load_r(Nval, Rval, 1,KtBm_PhS)
-          ELSE IF (TRIM(KeyWord).eq.'TmaxPhL') THEN
-            Npts=load_r(Nval, Rval, 1, TmaxPhL)
-          ELSE IF (TRIM(KeyWord).eq.'TminPhL') THEN
-            Npts=load_r(Nval, Rval, 1,TminPhL)
-          ELSE IF (TRIM(KeyWord).eq.'Topt_PhL') THEN
-            Npts=load_r(Nval, Rval, 1, Topt_PhL)
-          ELSE IF (TRIM(KeyWord).eq.'KtBm_PhL') THEN
-            Npts=load_r(Nval, Rval, 1,KtBm_PhL)
-
-          ELSE IF (TRIM(KeyWord).eq.'TmaxMZS') THEN
-            Npts=load_r(Nval, Rval, 1, TmaxMZS)
-          ELSE IF (TRIM(KeyWord).eq.'KtBm_MZS') THEN
-            Npts=load_r(Nval, Rval, 1,KtBm_MZS)
-          ELSE IF (TRIM(KeyWord).eq.'TmaxMZL') THEN
-            Npts=load_r(Nval, Rval, 1, TmaxMZL)
-          ELSE IF (TRIM(KeyWord).eq.'KtBm_MZL') THEN
-            Npts=load_r(Nval, Rval, 1,KtBm_MZL)
-!------------------------
-!  Iron climatology terms
-!------------------------
-          ELSE IF (TRIM(KeyWord).eq.'Feinlo') THEN
-            Npts=load_r(Nval, Rval, 1, Feinlo)
-          ELSE IF (TRIM(KeyWord).eq.'Feinhi') THEN
-            Npts=load_r(Nval, Rval, 1, Feinhi)
-          ELSE IF (TRIM(KeyWord).eq.'Feinh') THEN
-            Npts=load_r(Nval, Rval, 1, Feinh)
-          ELSE IF (TRIM(KeyWord).eq.'Feofflo') THEN
-            Npts=load_r(Nval, Rval, 1, Feofflo)
-          ELSE IF (TRIM(KeyWord).eq.'Feoffhi') THEN
-            Npts=load_r(Nval, Rval, 1, Feoffhi)
-          ELSE IF (TRIM(KeyWord).eq.'Feoffh') THEN
-            Npts=load_r(Nval, Rval, 1, Feoffh)
-!-----------------------
-!  Iron limitation terms
-!-----------------------
-          ELSE IF (TRIM(KeyWord).eq.'kfePhS') THEN
-            Npts=load_r(Nval, Rval, 1, kfePhS)
-          ELSE IF (TRIM(KeyWord).eq.'kfePhL') THEN
-            Npts=load_r(Nval, Rval, 1, kfePhL)
-          ELSE IF (TRIM(KeyWord).eq.'FeC') THEN
-            Npts=load_r(Nval, Rval, 1, FeC)
-!----------
-!  Diapause
-!----------
-          ELSE IF (TRIM(KeyWord).eq.'NCmaxz') THEN
-            Npts=load_r(Nval, Rval, 1, NCmaxz)
-          ELSE IF (TRIM(KeyWord).eq.'wNCrise') THEN
-            Npts=load_r(Nval, Rval, 1, wNCrise)
-          ELSE IF (TRIM(KeyWord).eq.'wNCsink') THEN
-            Npts=load_r(Nval, Rval, 1, wNCsink)
-          ELSE IF (TRIM(KeyWord).eq.'RiseStart') THEN
-            Npts=load_r(Nval, Rval, 1, RiseStart)
-          ELSE IF (TRIM(KeyWord).eq.'RiseEnd') THEN
-            Npts=load_r(Nval, Rval, 1, RiseEnd)
-          ELSE IF (TRIM(KeyWord).eq.'SinkStart') THEN
-            Npts=load_r(Nval, Rval, 1, SinkStart)
-          ELSE IF (TRIM(KeyWord).eq.'SinkEnd') THEN
-            Npts=load_r(Nval, Rval, 1, SinkEnd)
-
-
-!-----------------------------------
-!Remineralization and Nitrification
-!----------------------------------
-
-          ELSE IF (TRIM(KeyWord).eq.'regen') THEN
-            Npts=load_r(Nval, Rval, 1, regen)
-          ELSE IF (TRIM(KeyWord).eq.'dgrad') THEN
-            Npts=load_r(Nval, Rval, 1, dgrad)
-          ELSE IF (TRIM(KeyWord).eq.'Pv0') THEN
-            Npts=load_r(Nval, Rval, 1, Pv0)
-          ELSE IF (TRIM(KeyWord).eq.'PvT') THEN
-            Npts=load_r(Nval, Rval, 1, PvT)
-          ELSE IF (TRIM(KeyWord).eq.'Nitr0') THEN
-            Npts=load_r(Nval, Rval, 1,Nitr0)
-          ELSE IF (TRIM(KeyWord).eq.'KnT') THEN
-            Npts=load_r(Nval, Rval, 1,KnT)
-          ELSE IF (TRIM(KeyWord).eq.'ToptNtr') THEN
-            Npts=load_r(Nval, Rval, 1,ToptNtr)
-          ELSE IF (TRIM(KeyWord).eq.'ktntr') THEN
-            Npts=load_r(Nval, Rval, 1,ktntr)
-          ELSE IF (TRIM(KeyWord).eq.'KNH4Nit') THEN
-            Npts=load_r(Nval, Rval, 1,KNH4Nit)
-          ELSE IF (TRIM(KeyWord).eq.'tI0') THEN
-            Npts=load_r(Nval, Rval, 1,tI0)
-          ELSE IF (TRIM(KeyWord).eq.'KI') THEN
-            Npts=load_r(Nval, Rval, 1,KI)  
-
-!-------------------
-!Benthic Parameters
-!-------------------
-#ifdef BENTHIC
-           ELSE IF (TRIM(KeyWord).eq.'Hout(idBvar)') THEN
-             Npts=load_l(Nval, Cval,NBEN*Ngrids, Ltrc)
-            DO ng=1,Ngrids
-               DO itrc=1,NBEN
-                 i=idBvar(idben(itrc))
-                  Hout(i,ng)=Ltrc(itrc,ng)
-               END DO
-              END DO
-           ELSE IF (TRIM(KeyWord).eq.'iremin') THEN
-            Npts=load_r(Nval, Rval, 1, iremin)
-             ELSE IF (TRIM(KeyWord).eq.'q10') THEN
-            Npts=load_r(Nval, Rval, 1, q10)
-            ELSE IF (TRIM(KeyWord).eq.'q10r') THEN
-            Npts=load_r(Nval, Rval, 1, q10r)
-             ELSE IF (TRIM(KeyWord).eq.'Rup') THEN
-            Npts=load_r(Nval, Rval, 1, Rup)
-             ELSE IF (TRIM(KeyWord).eq.'KupD') THEN
-            Npts=load_r(Nval, Rval, 1, KupD)
-             ELSE IF (TRIM(KeyWord).eq.'KupP') THEN
-            Npts=load_r(Nval, Rval, 1, KupP)
-             ELSE IF (TRIM(KeyWord).eq.'LupD') THEN
-            Npts=load_r(Nval, Rval, 1, LupD)
-             ELSE IF (TRIM(KeyWord).eq.'LupP') THEN
-            Npts=load_r(Nval, Rval, 1, LupP)
-             ELSE IF (TRIM(KeyWord).eq.'Qres') THEN
-            Npts=load_r(Nval, Rval, 1, Qres)
-             ELSE IF (TRIM(KeyWord).eq.'Rres') THEN
-            Npts=load_r(Nval, Rval, 1, Rres)
-             ELSE IF (TRIM(KeyWord).eq.'rmort') THEN
-            Npts=load_r(Nval, Rval, 1, rmort)
-             ELSE IF (TRIM(KeyWord).eq.'eex') THEN
-            Npts=load_r(Nval, Rval, 1, eex)
-             ELSE IF (TRIM(KeyWord).eq.'eexD') THEN
-            Npts=load_r(Nval, Rval, 1, eexD)
-             ELSE IF (TRIM(KeyWord).eq.'prefD') THEN
-            Npts=load_r(Nval, Rval, 1, prefD)
-             ELSE IF (TRIM(KeyWord).eq.'prefPL') THEN
-            Npts=load_r(Nval, Rval, 1, prefPL)
-            ELSE IF (TRIM(KeyWord).eq.'prefPS') THEN
-            Npts=load_r(Nval, Rval, 1, prefPS)
-             ELSE IF (TRIM(KeyWord).eq.'T0ben') THEN
-            Npts=load_r(Nval, Rval, 1, T0ben)
-            ELSE IF (TRIM(KeyWord).eq.'T0benr') THEN
-            Npts=load_r(Nval, Rval, 1, T0benr)
-            ELSE IF (TRIM(KeyWord).eq.'BenPred') THEN
-            Npts=load_r(Nval, Rval, 1, BenPred)
-            ELSE IF (TRIM(KeyWord).eq.'bmB') THEN
-            Npts=load_r(Nval, Rval, 1,bmB)
-             ELSE IF (TRIM(KeyWord).eq.'ktbmB') THEN
-            Npts=load_r(Nval, Rval, 1,ktbmB)
-             ELSE IF (TRIM(KeyWord).eq.'TrefB') THEN
-            Npts=load_r(Nval, Rval, 1,TrefB)
-   
-#endif
-
-!--------------
-!ice bio params
-!--------------
-#ifdef ICE_BIO
-           ELSE IF (TRIM(KeyWord).eq.'Hout(idIceBvar)') THEN
-             Npts=load_l(Nval, Cval,NIB*Ngrids, Ltrc)
-             DO ng=1,Ngrids
-               DO itrc=1,NIB
-                 i=idIceBvar(idice(itrc))
-                 Hout(i,ng)=Ltrc(itrc,ng)
-               END DO
-             END DO
-           ELSE IF (TRIM(KeyWord).eq.'alphaIb') THEN
-             Npts=load_r(Nval, Rval, 1,alphaIb)
-           ELSE IF (TRIM(KeyWord).eq.'betaI') THEN
-             Npts=load_r(Nval, Rval, 1,betaI)
-           ELSE IF (TRIM(KeyWord).eq.'inhib') THEN
-             Npts=load_r(Nval, Rval, 1,inhib)
-           ELSE IF (TRIM(KeyWord).eq.'ksnut1') THEN
-             Npts=load_r(Nval, Rval, 1,ksnut1)
-           ELSE IF (TRIM(KeyWord).eq.'ksnut2') THEN
-             Npts=load_r(Nval, Rval, 1,ksnut2)
-           ELSE IF (TRIM(KeyWord).eq.'mu0') THEN
-             Npts=load_r(Nval, Rval, 1,mu0)
-           ELSE IF (TRIM(KeyWord).eq.'R0i') THEN
-             Npts=load_r(Nval, Rval, 1,R0i)
-           ELSE IF (TRIM(KeyWord).eq.'rg0') THEN
-             Npts=load_r(Nval, Rval, 1,rg0)
-           ELSE IF (TRIM(KeyWord).eq.'rg') THEN
-             Npts=load_r(Nval, Rval, 1,rg)
-           ELSE IF (TRIM(KeyWord).eq.'annit') THEN
-             Npts=load_r(Nval, Rval, 1,annit)
-           ELSE IF (TRIM(KeyWord).eq.'aidz') THEN
-             Npts=load_r(Nval, Rval, 1,aidz)
-#endif
-
-          ELSE IF (TRIM(KeyWord).eq.'TNU2') THEN
-            Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idbio(itrc)
-                tnu2(i,ng)=Rbio(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'TNU4') THEN
-            Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idbio(itrc)
-                tnu4(i,ng)=Rbio(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'AKT_BAK') THEN
-            Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idbio(itrc)
-                Akt_bak(i,ng)=Rbio(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'TNUDG') THEN
-            Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idbio(itrc)
-                Tnudg(i,ng)=Rbio(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idTvar)') THEN
-            Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idTvar(idbio(itrc))
-                Hout(i,ng)=Ltrc(itrc,ng)
-              END DO
-            END DO
-#ifdef STATIONARY
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idTSvar)') THEN
-            Npts=load_l(Nval, Cval, NTS*Ngrids, Ltrc)
-            DO ng=1,Ngrids
-              DO itrc=1, NBTS   
-                i=idTSvar(itrc)
-                Hout(i,ng)=Ltrc(itrc,ng)
-              END DO
-            END DO
-         
-#endif
-#ifdef BIOFLUX
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idTBFvar)') THEN
-            Npts=load_l(Nval, Cval, NT*Ngrids, Ltrc)
-            DO ng=1,Ngrids
-!              DO itrc=1, NT(ng)   
-                i=idTBFvar(iBF)
-                Hout(i,ng)=Ltrc(iBF,ng)
-!              END DO
-            END DO
-         
-#endif
-#ifdef STATIONARY2
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idTS2var)') THEN
-            Npts=load_l(Nval, Cval, NTS2*Ngrids, Ltrc)
-            DO ng=1,Ngrids
-              DO itrc=1, NBTS2   
-                i=idTS2var(itrc)
-                Hout(i,ng)=Ltrc(itrc,ng)
-              END DO
-            END DO
-         
-#endif
-
-#ifdef PROD3
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idPT3var)') THEN
-            Npts=load_l(Nval, Cval, NPT3*Ngrids, Ltrc)
-            DO ng=1,Ngrids
-              DO itrc=1, NBPT3   
-                i=idPT3var(itrc)
-                Hout(i,ng)=Ltrc(itrc,ng)
-              END DO
-            END DO
-          
-#endif
-#ifdef PROD2
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idPT2var)') THEN
-            Npts=load_l(Nval, Cval, NPT2*Ngrids, Ltrc)
-            DO ng=1,Ngrids
-              DO itrc=1, NBPT2   
-                i=idPT2var(itrc)
-                Hout(i,ng)=Ltrc(itrc,ng)
-              END DO
-            END DO
-          
-#endif
-
-          ELSE IF (TRIM(KeyWord).eq.'TNU2') THEN
-            Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idbio(itrc)
-                tnu2(i,ng)=Rbio(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'TNU4') THEN
-            Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idbio(itrc)
-                tnu4(i,ng)=Rbio(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'AKT_BAK') THEN
-            Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idbio(itrc)
-                Akt_bak(i,ng)=Rbio(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'TNUDG') THEN
-            Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idbio(itrc)
-                Tnudg(i,ng)=Rbio(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idTvar)') THEN
-            Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idTvar(idbio(itrc))
-                Hout(i,ng)=Ltrc(itrc,ng)
-              END DO
-            END DO
-
-          END IF 
-
-          IF ( Lwrite .and.                                             &
-     &         TRIM(KeyWord).ne.'TNU2' .and.                            &
-     &         TRIM(KeyWord).ne.'TNU4' .and.                            &
-     &         TRIM(KeyWord).ne.'AKT_BAK' .and.                         &
-     &         TRIM(KeyWord).ne.'TNUDG' .and.                           &
-     &         TRIM(KeyWord).ne.'Hout(idTvar)' ) THEN
-            write(6,'(a15,i3,20e12.5)') TRIM(KeyWord),Nval,Rval(1:Nval)
-          END IF
-        END IF
-      END DO
-  10  IF (Master) WRITE (out,30) line
-      exit_flag=4
-      RETURN
-  20  CLOSE (inp)
-!
-
-!-----------------------------------------------------------------------
-!  Report input parameters.
-!-----------------------------------------------------------------------
-!
-      IF (Lwrite) THEN
-        DO ng=1,Ngrids
-          IF (Lbiology(ng)) THEN
-            WRITE (out,40) ng
-            WRITE (out,50) BioIter(ng), 'BioIter',                      &
-     &            'Number of iterations for nonlinear convergence.'
-#  ifdef TS_DIF2
-            DO itrc=1,NBT
-              i=idbio(itrc)
-              WRITE (out,90) tnu2(i,ng), 'tnu2', i,                     &
-     &              'Horizontal, harmonic mixing coefficient (m2/s)',   &
-     &              'for tracer ', i, TRIM(Vname(1,idTvar(i)))
-            END DO
-#  endif
-#  ifdef TS_DIF4
-            DO itrc=1,NBT
-              i=idbio(itrc)
-              WRITE (out,90) tnu4(i,ng), 'tnu4', i,                     &
-     &              'Horizontal, biharmonic mixing coefficient (m4/s)', &
-     &              'for tracer ', i, TRIM(Vname(1,idTvar(i)))
-            END DO
-#  endif
-            DO itrc=1,NBT
-              i=idbio(itrc)
-              WRITE(out,90) Akt_bak(i,ng), 'Akt_bak', i,                &
-     &             'Background vertical mixing coefficient (m2/s)',     &
-     &             'for tracer ', i, TRIM(Vname(1,idTvar(i)))
-            END DO
-            DO itrc=1,NBT
-              i=idbio(itrc)
-              WRITE (out,90) Tnudg(i,ng), 'Tnudg', i,                   &
-     &              'Nudging/relaxation time scale (days)',             &
-     &              'for tracer ', i, TRIM(Vname(1,idTvar(i)))
-            END DO
-            DO itrc=1,NBT
-              i=idbio(itrc)
-              IF (Hout(idTvar(i),ng)) WRITE (out,60)                    &
-     &            Hout(idTvar(i),ng), 'Hout(idTvar)',                   &
-     &            'Write out tracer ', i, TRIM(Vname(1,idTvar(i)))
-            END DO
-          END IF
-        END DO
-      END IF
-      DO ng=1,Ngrids
-        DO itrc=1,NBT
-          i=idbio(itrc)
-          tnu4(i,ng)=SQRT(ABS(tnu4(i,ng)))
-!
-!  Compute inverse nudging coefficients (1/s) used in various tasks.
-!
-          IF (Tnudg(i,ng).gt.0.0_r8) THEN
-            Tnudg(i,ng)=1.0_r8/(Tnudg(i,ng)*86400.0_r8)
-          ELSE
-            Tnudg(i,ng)=0.0_r8
-          END IF
-        END DO
-      END DO
-
-  30  FORMAT (/,' READ_BioPar - Error while processing line: ',/,a)
-  40  FORMAT (/,/,' Biology Parameters, Grid: ',i2.2,                   &
-     &        /,  ' ============================',/)
-  50  FORMAT (1x,i10,2x,a,t28,a)
-  60  FORMAT (10x,l1,2x,a,t28,a,i2.2,':',1x,a)
-!  70  FORMAT (f11.3,2x,a,t28,a)
-!  80  FORMAT (f11.3,2x,a,t28,a,/,t30,a)
-  90  FORMAT (1p,e11.4,2x,a,'(',i2.2,')',t28,a,/,t30,a,i2.2,':',1x,a)
-! 100  FORMAT (1p,e11.4,2x,a,t28,a)
-! 110  FORMAT (1p,e11.4,2x,a,t28,a,/,t30,a)
-
-
-# elif defined BIO_GOANPZ
-!
-! ==================================================================== !
-! ==================================================================== !
-! READ Gulf of Alaska GOANPZ PARAMS
-! ==================================================================== !
-! ==================================================================== !
-!
-      DO WHILE (.TRUE.)
-        READ (inp,'(a)',ERR=10,END=20) line
-        status=decode_line(line, KeyWord, Nval, Cval, Rval)
-        IF (status.gt.0) THEN
-          IF (TRIM(KeyWord).eq.'Lbiology') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Lbiology)
-          ELSE IF (TRIM(KeyWord).eq.'BioIter') THEN
-            Npts=load_i(Nval, Rval, Ngrids, BioIter)
-          ELSE IF (TRIM(KeyWord).eq.'PARfrac') THEN
-            Npts=load_r(Nval, Rval, Ngrids, Parfrac)
-!----------------------------------
-!  Vertical mixing tuning parameter
-!----------------------------------
-          ELSE IF (TRIM(KeyWord).eq.'VertMixIncr') THEN 
-            Npts=load_r(Nval, Rval, 1, VertMixIncr)         
-!------------------
-!  Bio- conversions
-!------------------
-          ELSE IF (TRIM(KeyWord).eq.'xi') THEN
-            Npts=load_r(Nval, Rval, 1, xi)
-          ELSE IF (TRIM(KeyWord).eq.'ccr') THEN
-            Npts=load_r(Nval, Rval, 1, ccr)
-          ELSE IF (TRIM(KeyWord).eq.'ccrPhL') THEN 
-            Npts=load_r(Nval, Rval, 1, ccrPhL)
-!-------------------------
-!  extinction coefficients
-!-------------------------
-          ELSE IF (TRIM(KeyWord).eq.'k_ext') THEN
-            Npts=load_r(Nval, Rval, 1, k_ext)
-          ELSE IF (TRIM(KeyWord).eq.'k_chl') THEN
-            Npts=load_r(Nval, Rval, 1, k_chl)
-!-------------------
-!  PhS growth params
-!-------------------
-          ELSE IF (TRIM(KeyWord).eq.'DiS') THEN
-            Npts=load_r(Nval, Rval, 1, DiS)
-          ELSE IF (TRIM(KeyWord).eq.'DpS') THEN
-            Npts=load_r(Nval, Rval, 1, DpS)
-          ELSE IF (TRIM(KeyWord).eq.'alphaPhS') THEN
-            Npts=load_r(Nval, Rval, 1, alphaPhS)
-          ELSE IF (TRIM(KeyWord).eq.'psiPhS') THEN
-            Npts=load_r(Nval, Rval, 1, psiPhS)
-          ELSE IF (TRIM(KeyWord).eq.'k1PhS') THEN
-            Npts=load_r(Nval, Rval, 1, k1PhS)
-          ELSE IF (TRIM(KeyWord).eq.'k2PhS') THEN
-            Npts=load_r(Nval, Rval, 1, k2PhS)
-!-------------------
-!  PhL growth params
-!-------------------
-          ELSE IF (TRIM(KeyWord).eq.'DiL') THEN
-            Npts=load_r(Nval, Rval, 1, DiL)
-          ELSE IF (TRIM(KeyWord).eq.'DpL') THEN
-            Npts=load_r(Nval, Rval, 1, DpL)
-          ELSE IF (TRIM(KeyWord).eq.'alphaPhL') THEN
-            Npts=load_r(Nval, Rval, 1, alphaPhL)
-          ELSE IF (TRIM(KeyWord).eq.'psiPhL') THEN
-            Npts=load_r(Nval, Rval, 1, psiPhL)
-          ELSE IF (TRIM(KeyWord).eq.'k1PhL') THEN
-            Npts=load_r(Nval, Rval, 1, k1PhL)
-          ELSE IF (TRIM(KeyWord).eq.'k2PhL') THEN
-            Npts=load_r(Nval, Rval, 1, k2PhL)
-!-----------------------
-!  MZS preference params
-!-----------------------
-          ELSE IF (TRIM(KeyWord).eq.'fpPhSMZS') THEN
-            Npts=load_r(Nval, Rval, 1, fpPhSMZS)
-          ELSE IF (TRIM(KeyWord).eq.'fpPhLMZS') THEN
-            Npts=load_r(Nval, Rval, 1, fpPhLMZS)
-!-------------------------------
-!  MZS growth and feeding params
-!-------------------------------
-          ELSE IF (TRIM(KeyWord).eq.'eMZS') THEN
-            Npts=load_r(Nval, Rval, 1, eMZS)
-          ELSE IF (TRIM(KeyWord).eq.'Q10MZS') THEN
-            Npts=load_r(Nval, Rval, 1, Q10MZS)
-          ELSE IF (TRIM(KeyWord).eq.'Q10MZST') THEN
-            Npts=load_r(Nval, Rval, 1, Q10MZST)
-          ELSE IF (TRIM(KeyWord).eq.'fMZS') THEN
-            Npts=load_r(Nval, Rval, 1, fMZS)
-          ELSE IF (TRIM(KeyWord).eq.'kMZS') THEN
-            Npts=load_r(Nval, Rval, 1, kMZS)
-          ELSE IF (TRIM(KeyWord).eq.'gammaMZS') THEN
-            Npts=load_r(Nval, Rval, 1, gammaMZS)
-!-----------------------
-!  MZL preference params
-!-----------------------
-          ELSE IF (TRIM(KeyWord).eq.'fpPhSMZL') THEN
-            Npts=load_r(Nval, Rval, 1, fpPhSMZL)
-          ELSE IF (TRIM(KeyWord).eq.'fpPhLMZL') THEN
-            Npts=load_r(Nval, Rval, 1, fpPhLMZL)
-!-------------------------------
-!  MZL growth and feeding params
-!-------------------------------
-          ELSE IF (TRIM(KeyWord).eq.'eMZL') THEN
-            Npts=load_r(Nval, Rval, 1, eMZL)
-          ELSE IF (TRIM(KeyWord).eq.'Q10MZL') THEN
-            Npts=load_r(Nval, Rval, 1, Q10MZL)
-          ELSE IF (TRIM(KeyWord).eq.'Q10MZLT') THEN
-            Npts=load_r(Nval, Rval, 1, Q10MZLT)
-          ELSE IF (TRIM(KeyWord).eq.'fMZL') THEN
-            Npts=load_r(Nval, Rval, 1, fMZL)
-          ELSE IF (TRIM(KeyWord).eq.'kMZL') THEN
-            Npts=load_r(Nval, Rval, 1, kMZL)
-          ELSE IF (TRIM(KeyWord).eq.'gammaMZL') THEN
-            Npts=load_r(Nval, Rval, 1, gammaMZL)
-!-----------------------
-!  Cop preference params
-!-----------------------
-          ELSE IF (TRIM(KeyWord).eq.'fpPhSCop') THEN
-            Npts=load_r(Nval, Rval, 1, fpPhSCop)
-          ELSE IF (TRIM(KeyWord).eq.'fpPhLCop') THEN
-            Npts=load_r(Nval, Rval, 1, fpPhLCop)
-          ELSE IF (TRIM(KeyWord).eq.'fpMZSCop') THEN
-            Npts=load_r(Nval, Rval, 1, fpMZSCop)
-          ELSE IF (TRIM(KeyWord).eq.'fpMZLCop') THEN
-            Npts=load_r(Nval, Rval, 1, fpMZLCop)
-!-------------------------------
-!  Cop growth and feeding params
-!-------------------------------
-          ELSE IF (TRIM(KeyWord).eq.'eCop') THEN
-            Npts=load_r(Nval, Rval, 1, eCop)
-          ELSE IF (TRIM(KeyWord).eq.'Q10Cop') THEN
-            Npts=load_r(Nval, Rval, 1, Q10Cop)
-          ELSE IF (TRIM(KeyWord).eq.'Q10CopT') THEN
-            Npts=load_r(Nval, Rval, 1, Q10CopT)
-          ELSE IF (TRIM(KeyWord).eq.'fCop') THEN
-            Npts=load_r(Nval, Rval, 1, fCop)
-          ELSE IF (TRIM(KeyWord).eq.'gammaCop') THEN
-            Npts=load_r(Nval, Rval, 1, gammaCop)
-          ELSE IF (TRIM(KeyWord).eq.'kCop') THEN
-            Npts=load_r(Nval, Rval, 1, kCop)
-!-----------------------
-!  NCa preference params
-!-----------------------
-          ELSE IF (TRIM(KeyWord).eq.'fpPhSNCa') THEN
-            Npts=load_r(Nval, Rval, 1, fpPhSNCa)
-          ELSE IF (TRIM(KeyWord).eq.'fpPhLNCa') THEN
-            Npts=load_r(Nval, Rval, 1, fpPhLNCa)
-          ELSE IF (TRIM(KeyWord).eq.'fpMZSNCa') THEN
-            Npts=load_r(Nval, Rval, 1, fpMZSNCa)
-          ELSE IF (TRIM(KeyWord).eq.'fpMZLNCa') THEN
-            Npts=load_r(Nval, Rval, 1, fpMZLNCa)
-!-------------------------------
-!  NCa growth and feeding params
-!-------------------------------
-          ELSE IF (TRIM(KeyWord).eq.'eNCa') THEN
-            Npts=load_r(Nval, Rval, 1, eNCa)
-          ELSE IF (TRIM(KeyWord).eq.'Q10NCa') THEN
-            Npts=load_r(Nval, Rval, 1, Q10NCa)
-          ELSE IF (TRIM(KeyWord).eq.'Q10NCaT') THEN
-            Npts=load_r(Nval, Rval, 1, Q10NCaT)
-          ELSE IF (TRIM(KeyWord).eq.'fNCa') THEN
-            Npts=load_r(Nval, Rval, 1, fNCa)
-          ELSE IF (TRIM(KeyWord).eq.'gammaNCa') THEN
-            Npts=load_r(Nval, Rval, 1, gammaNCa)
-          ELSE IF (TRIM(KeyWord).eq.'kNCa') THEN
-            Npts=load_r(Nval, Rval, 1, kNCa)
-!-----------------------
-!  Eup preference params
-!-----------------------
-          ELSE IF (TRIM(KeyWord).eq.'fpPhSEup') THEN
-            Npts=load_r(Nval, Rval, 1, fpPhSEup)
-          ELSE IF (TRIM(KeyWord).eq.'fpPhLEup') THEN
-            Npts=load_r(Nval, Rval, 1, fpPhLEup)
-          ELSE IF (TRIM(KeyWord).eq.'fpMZSEup') THEN
-            Npts=load_r(Nval, Rval, 1, fpMZSEup)
-          ELSE IF (TRIM(KeyWord).eq.'fpMZLEup') THEN
-            Npts=load_r(Nval, Rval, 1, fpMZLEup)
-          ELSE IF (TRIM(KeyWord).eq.'fpCopEup') THEN
-            Npts=load_r(Nval, Rval, 1, fpCopEup)
-!-------------------------------
-!  Eup growth and feeding params
-!-------------------------------
-          ELSE IF (TRIM(KeyWord).eq.'eEup') THEN
-            Npts=load_r(Nval, Rval, 1, eEup)
-          ELSE IF (TRIM(KeyWord).eq.'Q10Eup') THEN
-            Npts=load_r(Nval, Rval, 1, Q10Eup)
-          ELSE IF (TRIM(KeyWord).eq.'Q10EupT') THEN
-            Npts=load_r(Nval, Rval, 1, Q10EupT)
-          ELSE IF (TRIM(KeyWord).eq.'fEup') THEN
-            Npts=load_r(Nval, Rval, 1, fEup)
-          ELSE IF (TRIM(KeyWord).eq.'gammaEup') THEN
-            Npts=load_r(Nval, Rval, 1, gammaEup)
-          ELSE IF (TRIM(KeyWord).eq.'kEup') THEN
-            Npts=load_r(Nval, Rval, 1, kEup)
-!--------------------------
-!  Phytoplankton senescence
-!--------------------------
-          ELSE IF (TRIM(KeyWord).eq.'minmPhS') THEN
-            Npts=load_r(Nval, Rval, 1, minmPhS)
-          ELSE IF (TRIM(KeyWord).eq.'maxmPhS') THEN
-            Npts=load_r(Nval, Rval, 1, maxmPhS)
-          ELSE IF (TRIM(KeyWord).eq.'NcritPhS') THEN
-            Npts=load_r(Nval, Rval, 1, NcritPhS)
-          ELSE IF (TRIM(KeyWord).eq.'minmPhL') THEN
-            Npts=load_r(Nval, Rval, 1, minmPhL)
-          ELSE IF (TRIM(KeyWord).eq.'maxmPhL') THEN
-            Npts=load_r(Nval, Rval, 1, maxmPhL)
-          ELSE IF (TRIM(KeyWord).eq.'NcritPhL') THEN
-            Npts=load_r(Nval, Rval, 1, NcritPhL)
-!-----------------------
-!  Zoopkankton mortality
-!-----------------------
-          ELSE IF (TRIM(KeyWord).eq.'mMZS') THEN
-            Npts=load_r(Nval, Rval, 1, mMZS)
-          ELSE IF (TRIM(KeyWord).eq.'mMZL') THEN
-            Npts=load_r(Nval, Rval, 1, mMZL)
-          ELSE IF (TRIM(KeyWord).eq.'mCop') THEN
-            Npts=load_r(Nval, Rval, 1, mCop)
-          ELSE IF (TRIM(KeyWord).eq.'mNCa') THEN
-            Npts=load_r(Nval, Rval, 1, mNCa)
-          ELSE IF (TRIM(KeyWord).eq.'mEup') THEN
-            Npts=load_r(Nval, Rval, 1, mEup)
-!-------------------
-!  predation closure
-!-------------------
-          ELSE IF (TRIM(KeyWord).eq.'mpredCop') THEN
-            Npts=load_r(Nval, Rval, 1, mpredCop)
-          ELSE IF (TRIM(KeyWord).eq.'mpredNCa') THEN
-            Npts=load_r(Nval, Rval, 1, mpredNCa)
-          ELSE IF (TRIM(KeyWord).eq.'mpredEup') THEN
-            Npts=load_r(Nval, Rval, 1, mpredEup)
-!--------------------------------
-!  sinking and regeneration terms
-!--------------------------------
-          ELSE IF (TRIM(KeyWord).eq.'regen') THEN
-            Npts=load_r(Nval, Rval, 1, regen)
-          ELSE IF (TRIM(KeyWord).eq.'dgrad') THEN
-            Npts=load_r(Nval, Rval, 1, dgrad)
-          ELSE IF (TRIM(KeyWord).eq.'wPhS') THEN
-            Npts=load_r(Nval, Rval, 1, wPhS)
-          ELSE IF (TRIM(KeyWord).eq.'wPhL') THEN
-            Npts=load_r(Nval, Rval, 1, wPhL)
-          ELSE IF (TRIM(KeyWord).eq.'wDet') THEN
-            Npts=load_r(Nval, Rval, 1, wDet)
-!------------------------
-!  Respiration parameters
-!------------------------
-          ELSE IF (TRIM(KeyWord).eq.'respMZS') THEN
-            Npts=load_r(Nval, Rval, 1, respMZS)
-          ELSE IF (TRIM(KeyWord).eq.'respMZL') THEN
-            Npts=load_r(Nval, Rval, 1, respMZL)
-          ELSE IF (TRIM(KeyWord).eq.'respPHS') THEN
-            Npts=load_r(Nval, Rval, 1, respPhS)
-          ELSE IF (TRIM(KeyWord).eq.'respPhL') THEN
-            Npts=load_r(Nval, Rval, 1, respPhL)
-          ELSE IF (TRIM(KeyWord).eq.'respCop') THEN
-            Npts=load_r(Nval, Rval, 1, respCop)
-          ELSE IF (TRIM(KeyWord).eq.'respNCa') THEN
-            Npts=load_r(Nval, Rval, 1, respNCa)
-          ELSE IF (TRIM(KeyWord).eq.'respEup') THEN
-            Npts=load_r(Nval, Rval, 1, respEup)
-!------------------------
-!  Iron climatology terms
-!------------------------
-          ELSE IF (TRIM(KeyWord).eq.'Feinlo') THEN
-            Npts=load_r(Nval, Rval, 1, Feinlo)
-          ELSE IF (TRIM(KeyWord).eq.'Feinhi') THEN
-            Npts=load_r(Nval, Rval, 1, Feinhi)
-          ELSE IF (TRIM(KeyWord).eq.'Feinh') THEN
-            Npts=load_r(Nval, Rval, 1, Feinh)
-          ELSE IF (TRIM(KeyWord).eq.'Feofflo') THEN
-            Npts=load_r(Nval, Rval, 1, Feofflo)
-          ELSE IF (TRIM(KeyWord).eq.'Feoffhi') THEN
-            Npts=load_r(Nval, Rval, 1, Feoffhi)
-          ELSE IF (TRIM(KeyWord).eq.'Feoffh') THEN
-            Npts=load_r(Nval, Rval, 1, Feoffh)
-!-----------------------
-!  Iron limitation terms
-!-----------------------
-          ELSE IF (TRIM(KeyWord).eq.'kfePhS') THEN
-            Npts=load_r(Nval, Rval, 1, kfePhS)
-          ELSE IF (TRIM(KeyWord).eq.'kfePhL') THEN
-            Npts=load_r(Nval, Rval, 1, kfePhL)
-          ELSE IF (TRIM(KeyWord).eq.'FeC') THEN
-            Npts=load_r(Nval, Rval, 1, FeC)
-!----------
-!  Diapause
-!----------
-          ELSE IF (TRIM(KeyWord).eq.'NCmaxz') THEN
-            Npts=load_r(Nval, Rval, 1, NCmaxz)
-          ELSE IF (TRIM(KeyWord).eq.'wNCrise') THEN
-            Npts=load_r(Nval, Rval, 1, wNCrise)
-          ELSE IF (TRIM(KeyWord).eq.'wNCsink') THEN
-            Npts=load_r(Nval, Rval, 1, wNCsink)
-          ELSE IF (TRIM(KeyWord).eq.'RiseStart') THEN
-            Npts=load_r(Nval, Rval, 1, RiseStart)
-          ELSE IF (TRIM(KeyWord).eq.'RiseEnd') THEN
-            Npts=load_r(Nval, Rval, 1, RiseEnd)
-          ELSE IF (TRIM(KeyWord).eq.'SinkStart') THEN
-            Npts=load_r(Nval, Rval, 1, SinkStart)
-          ELSE IF (TRIM(KeyWord).eq.'SinkEnd') THEN
-            Npts=load_r(Nval, Rval, 1, SinkEnd)
-!
-          ELSE IF (TRIM(KeyWord).eq.'TNU2') THEN
-            Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idbio(itrc)
-                tnu2(i,ng)=Rbio(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'TNU4') THEN
-            Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idbio(itrc)
-                tnu4(i,ng)=Rbio(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'AKT_BAK') THEN
-            Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idbio(itrc)
-                Akt_bak(i,ng)=Rbio(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'TNUDG') THEN
-            Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idbio(itrc)
-                Tnudg(i,ng)=Rbio(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idTvar)') THEN
-            Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idTvar(idbio(itrc))
-                Hout(i,ng)=Ltrc(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idTSvar)') THEN
-            Npts=load_l(Nval, Cval, NTS*Ngrids, Ltrc)
-            DO ng=1,Ngrids
-              DO itrc=1, NBTS   !all stationary tracer variable
-                i=idTSvar(itrc)
-                Hout(i,ng)=Ltrc(itrc,ng)
-              END DO
-            END DO
-          END IF
-          IF ( Lwrite .and.                                             &
-     &         TRIM(KeyWord).ne.'TNU2' .and.                            &
-     &         TRIM(KeyWord).ne.'TNU4' .and.                            &
-     &         TRIM(KeyWord).ne.'AKT_BAK' .and.                         &
-     &         TRIM(KeyWord).ne.'TNUDG' .and.                           &
-     &         TRIM(KeyWord).ne.'Hout(idTvar)' ) THEN
-            write(6,'(a15,i3,20e12.5)') TRIM(KeyWord),Nval,Rval(1:Nval)
-          END IF
-        END IF
-      END DO
-  10  IF (Master) WRITE (out,30) line
-      exit_flag=5
-      RETURN
-  20  CLOSE (inp)
-!
-!-----------------------------------------------------------------------
-!  Report input parameters.
-!-----------------------------------------------------------------------
-!
-      IF (Lwrite) THEN
-        DO ng=1,Ngrids
-          IF (Lbiology(ng)) THEN
-            WRITE (out,40) ng
-            WRITE (out,50) BioIter(ng), 'BioIter',                      &
-     &            'Number of iterations for nonlinear convergence.'
-#  ifdef TS_DIF2
-            DO itrc=1,NBT
-              i=idbio(itrc)
-              WRITE (out,90) tnu2(i,ng), 'tnu2', i,                     &
-     &              'Horizontal, harmonic mixing coefficient (m2/s)',   &
-     &              'for tracer ', i, TRIM(Vname(1,idTvar(i)))
-            END DO
-#  endif
-#  ifdef TS_DIF4
-            DO itrc=1,NBT
-              i=idbio(itrc)
-              WRITE (out,90) tnu4(i,ng), 'tnu4', i,                     &
-     &              'Horizontal, biharmonic mixing coefficient (m4/s)', &
-     &              'for tracer ', i, TRIM(Vname(1,idTvar(i)))
-            END DO
-#  endif
-            DO itrc=1,NBT
-              i=idbio(itrc)
-              WRITE(out,90) Akt_bak(i,ng), 'Akt_bak', i,                &
-     &             'Background vertical mixing coefficient (m2/s)',     &
-     &             'for tracer ', i, TRIM(Vname(1,idTvar(i)))
-            END DO
-            DO itrc=1,NBT
-              i=idbio(itrc)
-              WRITE (out,90) Tnudg(i,ng), 'Tnudg', i,                   &
-     &              'Nudging/relaxation time scale (days)',             &
-     &              'for tracer ', i, TRIM(Vname(1,idTvar(i)))
-            END DO
-            DO itrc=1,NBT
-              i=idbio(itrc)
-              IF (Hout(idTvar(i),ng)) WRITE (out,60)                    &
-     &            Hout(idTvar(i),ng), 'Hout(idTvar)',                   &
-     &            'Write out tracer ', i, TRIM(Vname(1,idTvar(i)))
-            END DO
-          END IF
-        END DO
-      END IF
-      DO ng=1,Ngrids
-        DO itrc=1,NBT
-          i=idbio(itrc)
-          tnu4(i,ng)=SQRT(ABS(tnu4(i,ng)))
-!
-!  Compute inverse nudging coefficients (1/s) used in various tasks.
-!
-          IF (Tnudg(i,ng).gt.0.0_r8) THEN
-            Tnudg(i,ng)=1.0_r8/(Tnudg(i,ng)*86400.0_r8)
-          ELSE
-            Tnudg(i,ng)=0.0_r8
-          END IF
-        END DO
-      END DO
-
-  30  FORMAT (/,' READ_BioPar - Error while processing line: ',/,a)
-  40  FORMAT (/,/,' Biology Parameters, Grid: ',i2.2,                   &
-     &        /,  ' ============================',/)
-  50  FORMAT (1x,i10,2x,a,t28,a)
-  60  FORMAT (10x,l1,2x,a,t28,a,i2.2,':',1x,a)
-!  70  FORMAT (f11.3,2x,a,t28,a)
-!  80  FORMAT (f11.3,2x,a,t28,a,/,t30,a)
-  90  FORMAT (1p,e11.4,2x,a,'(',i2.2,')',t28,a,/,t30,a,i2.2,':',1x,a)
-! 100  FORMAT (1p,e11.4,2x,a,t28,a)
-! 110  FORMAT (1p,e11.4,2x,a,t28,a,/,t30,a)
-
-# elif defined NPZD_IRON
-!
-!-----------------------------------------------------------------------
-!  Read in Fasham biological model parameters.
-!-----------------------------------------------------------------------
-!
-#  ifdef ANA_BIOLOGY
-      IF (.not.allocated(BioIni)) allocate ( BioIni(MT,Ngrids) )
-#  endif
-      DO WHILE (.TRUE.)
-        READ (inp,'(a)',ERR=10,END=20) line
-        status=decode_line(line, KeyWord, Nval, Cval, Rval)
-        IF (status.gt.0) THEN
-          IF (TRIM(KeyWord).eq.'Lbiology') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Lbiology)
-          ELSE IF (TRIM(KeyWord).eq.'BioIter') THEN
-            Npts=load_i(Nval, Rval, Ngrids, BioIter)
-#  ifdef ANA_BIOLOGY
-          ELSE IF (TRIM(KeyWord).eq.'BioIni(iNO3_)') THEN
-            Npts=load_r(Nval, Rval, Ngrids, BioIni(iNO3_,1))
-          ELSE IF (TRIM(KeyWord).eq.'BioIni(iPhyt)') THEN
-            Npts=load_r(Nval, Rval, Ngrids, BioIni(iPhyt,1))
-          ELSE IF (TRIM(KeyWord).eq.'BioIni(iZoop)') THEN
-            Npts=load_r(Nval, Rval, Ngrids, BioIni(iZoop,1))
-          ELSE IF (TRIM(KeyWord).eq.'BioIni(iSDet)') THEN
-            Npts=load_r(Nval, Rval, Ngrids, BioIni(iSDet,1))
-#   ifdef IRON_LIMIT
-          ELSE IF (TRIM(KeyWord).eq.'BioIni(iFphy)') THEN
-            Npts=load_r(Nval, Rval, Ngrids, BioIni(iFphy,1))
-          ELSE IF (TRIM(KeyWord).eq.'BioIni(iFdis)') THEN
-            Npts=load_r(Nval, Rval, Ngrids, BioIni(iFdis,1))
-#   endif
-#  endif
-          ELSE IF (TRIM(KeyWord).eq.'PARfrac') THEN
-            Npts=load_r(Nval, Rval, Ngrids, PARfrac)
-          ELSE IF (TRIM(KeyWord).eq.'AttSW') THEN
-            Npts=load_r(Nval, Rval, Ngrids, AttSW)
-          ELSE IF (TRIM(KeyWord).eq.'AttPhy') THEN
-            Npts=load_r(Nval, Rval, Ngrids, AttPhy)
-          ELSE IF (TRIM(KeyWord).eq.'PhyIS') THEN
-            Npts=load_r(Nval, Rval, Ngrids, PhyIS)
-          ELSE IF (TRIM(KeyWord).eq.'Vm_NO3') THEN
-            Npts=load_r(Nval, Rval, Ngrids, Vm_NO3)
-          ELSE IF (TRIM(KeyWord).eq.'PhyMRD') THEN
-            Npts=load_r(Nval, Rval, Ngrids, PhyMRD)
-          ELSE IF (TRIM(KeyWord).eq.'PhyMRN') THEN
-            Npts=load_r(Nval, Rval, Ngrids, PhyMRN)
-          ELSE IF (TRIM(KeyWord).eq.'K_NO3') THEN
-            Npts=load_r(Nval, Rval, Ngrids, K_NO3)
-          ELSE IF (TRIM(KeyWord).eq.'Ivlev') THEN
-            Npts=load_r(Nval, Rval, Ngrids, Ivlev)
-          ELSE IF (TRIM(KeyWord).eq.'ZooGR') THEN
-            Npts=load_r(Nval, Rval, Ngrids, ZooGR)
-          ELSE IF (TRIM(KeyWord).eq.'ZooEED') THEN
-            Npts=load_r(Nval, Rval, Ngrids, ZooEED)
-          ELSE IF (TRIM(KeyWord).eq.'ZooEEN') THEN
-            Npts=load_r(Nval, Rval, Ngrids, ZooEEN)
-          ELSE IF (TRIM(KeyWord).eq.'ZooMRD') THEN
-            Npts=load_r(Nval, Rval, Ngrids, ZooMRD)
-          ELSE IF (TRIM(KeyWord).eq.'ZooMRN') THEN
-            Npts=load_r(Nval, Rval, Ngrids, ZooMRN)
-          ELSE IF (TRIM(KeyWord).eq.'DetRR') THEN
-            Npts=load_r(Nval, Rval, Ngrids, DetRR)
-          ELSE IF (TRIM(KeyWord).eq.'wPhy') THEN
-            Npts=load_r(Nval, Rval, Ngrids, wPhy)
-          ELSE IF (TRIM(KeyWord).eq.'wDet') THEN
-            Npts=load_r(Nval, Rval, Ngrids, wDet)
-#   ifdef IRON_LIMIT
-          ELSE IF (TRIM(KeyWord).eq.'T_Fe') THEN
-            Npts=load_r(Nval, Rval, Ngrids, T_Fe)
-          ELSE IF (TRIM(KeyWord).eq.'A_Fe') THEN
-            Npts=load_r(Nval, Rval, Ngrids, A_Fe)
-          ELSE IF (TRIM(KeyWord).eq.'B_Fe') THEN
-            Npts=load_r(Nval, Rval, Ngrids, B_Fe)
-          ELSE IF (TRIM(KeyWord).eq.'K_FeC') THEN
-            Npts=load_r(Nval, Rval, Ngrids, K_FeC)
-          ELSE IF (TRIM(KeyWord).eq.'FeRR') THEN
-            Npts=load_r(Nval, Rval, Ngrids, FeRR)
-#     ifdef IRON_RELAX
-          ELSE IF (TRIM(KeyWord).eq.'FeHmin') THEN
-            Npts=load_r(Nval, Rval, Ngrids, FeHmin)
-          ELSE IF (TRIM(KeyWord).eq.'FeNudgTime') THEN
-            Npts=load_r(Nval, Rval, Ngrids, FeNudgTime)
-          ELSE IF (TRIM(KeyWord).eq.'FeMax') THEN
-            Npts=load_r(Nval, Rval, Ngrids, FeMax)
-#     endif
-#   endif
-          ELSE IF (TRIM(KeyWord).eq.'TNU2') THEN
-            Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idbio(itrc)
-                tnu2(i,ng)=Rbio(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'TNU4') THEN
-            Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idbio(itrc)
-                tnu4(i,ng)=Rbio(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'AKT_BAK') THEN
-            Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idbio(itrc)
-                Akt_bak(i,ng)=Rbio(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'TNUDG') THEN
-            Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idbio(itrc)
-                Tnudg(i,ng)=Rbio(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idTvar)') THEN
-            Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idTvar(idbio(itrc))
-                IF (i.eq.0) THEN
-                  IF (Master) WRITE (out,120)                           &
-     &                        'idTvar(idbio(', itrc, '))'
-                  exit_flag=5
-                  RETURN
-                END IF
-                Hout(i,ng)=Ltrc(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idTsur)') THEN
-            Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idTsur(idbio(itrc))
-                IF (i.eq.0) THEN
-                  IF (Master) WRITE (out,120)                           &
-     &                              'idTsur(idbio(', itrc, '))'
-                  exit_flag=5
-                  RETURN
-                END IF
-                Hout(i,ng)=Ltrc(itrc,ng)
-              END DO
-            END DO
-          END IF
-        END IF
-      END DO
-  10  IF (Master) WRITE (out,30) line
-      exit_flag=4
-      RETURN
-  20  CONTINUE
-!
-!-----------------------------------------------------------------------
-!  Report input parameters.
-!-----------------------------------------------------------------------
-!
-      IF (Lwrite) THEN
-        DO ng=1,Ngrids
-          IF (Lbiology(ng)) THEN
-            WRITE (out,40) ng
-            WRITE (out,50) BioIter(ng), 'BioIter',                      &
-     &            'Number of iterations for nonlinear convergence.'
-#  ifdef ANA_BIOLOGY
-            WRITE (out,100) BioIni(iNO3_,ng), 'BioIni(iNO3_)',          &
-     &            'Nitrate initial concentration (mmol/m3).'
-            WRITE (out,100) BioIni(iPhyt,ng), 'BioIni(iPhyt)',          &
-     &            'Phytoplankton initial concentration (mmol/m3).'
-            WRITE (out,100) BioIni(iZoop,ng), 'BioIni(iZoop)',          &
-     &            'Zooplankton initial concentration (mmol/m3).'
-            WRITE (out,100) BioIni(iSDet,ng), 'BioIni(iSDet)',          &
-     &            'Small detritus initial concentration (mmol/m3).'
-#   ifdef IRON_LIMIT
-            WRITE (out,100) BioIni(iFphy,ng), 'BioIni(iFphy)',          &
-     &            'Phyto-assoc. Fe initial concentration (mumol/m3).'
-            WRITE (out,100) BioIni(iFdis,ng), 'BioIni(iFdis)',          &
-     &            'DIssolved Fe initial concentration (mumol/m3).'
-#   endif
-#  endif
-            WRITE (out,110) PARfrac(ng), 'PARfrac',                     &
-     &            'Fraction of shortwave radiation that is',            &
-     &            'photosynthetically active (nondimensional).'
-            WRITE (out,100) AttSW(ng), 'AttSW',                         &
-     &            'Light attenuation of seawater (m-1).'
-            WRITE (out,100) AttPhy(ng), 'AttPhy',                       &
-     &            'Light attenuation by phytoplankton (m2/mmole_N).'
-            WRITE (out,110) PhyIS(ng), 'PhyIS',                         &
-     &            'Phytoplankton growth, initial slope of P-I curve',   &
-     &            '(m2/W).'
-            WRITE (out,100) Vm_NO3(ng), 'Vm_NO3',                       &
-     &            'Nitrate upatake rate (day-1).'
-            WRITE (out,100) PhyMRD(ng), 'PhyMRD',                       &
-     &            'Phytoplankton mortality rate to Detritus (day-1)'
-            WRITE (out,100) PhyMRN(ng), 'PhyMRN',                       &
-     &            'Phytoplankton mortality rate to Nitrogen (day-1)'
-            WRITE (out,110) K_NO3(ng), 'K_NO3',                         &
-     &            'Inverse half-saturation for phytoplankton NO3',      &
-     &            'uptake (1/(mmol m-3)).'
-            WRITE (out,110) Ivlev(ng), 'Ivlev',                         &
-     &            'Ivlev constant for zooplankton grazing',             &
-     &            '(nondimensional).'
-            WRITE (out,100) ZooGR(ng), 'ZooGR',                         &
-     &            'Zooplankton maximum growth rate (day-1).'
-            WRITE (out,110) ZooEED(ng), 'ZooEED',                       &
-     &            'Zooplankton excretion efficiency to Detritus',       &
-     &            'pool (nondimensional).'
-            WRITE (out,110) ZooEEN(ng), 'ZooEEN',                       &
-     &            'Zooplankton excretion efficiency to Nitrogen',       &
-     &            'pool (nondimensional).'
-            WRITE (out,100) ZooMRD(ng), 'ZooMRD',                       &
-     &            'Zooplankton mortality rate to Detritus (day-1).'
-            WRITE (out,100) ZooMRN(ng), 'ZooMRN',                       &
-     &            'Zooplankton mortality rate to Nitrogen (day-1).'
-            WRITE (out,100) DetRR(ng), 'DetRR',                         &
-     &            'Detritus remineralization rate (day-1).'
-            WRITE (out,100) wPhy(ng), 'wPhy',                           &
-     &            'Phytoplankton sinking rate (m/day).'
-            WRITE (out,100) wDet(ng), 'wDet',                           &
-     &            'Detrital sinking rate (m/day).'
-#  ifdef IRON_LIMIT
-            WRITE (out,100) T_Fe(ng), 'T_Fe',                           &
-     &            'Iron uptake time scale (day-1).'
-            WRITE (out,100) A_Fe(ng), 'A_Fe',                           &
-     &            'Empirical Fe:C power (-).'
-            WRITE (out,100) B_Fe(ng), 'B_Fe',                           &
-     &            'Empirical Fe:C coefficient (1/M-C).'
-            WRITE (out,100) K_FeC(ng), 'K_FeC',                         &
-     &            'Fe:C at F=0.5 (muM-Fe/M-C).'
-            WRITE (out,100) FeRR(ng), 'FeRR',                           &
-     &            'Fe remineralization rate (day-1).'
-#    ifdef IRON_RELAX
-            WRITE (out,100) FeHmin(ng), 'FeHmin',                       &
-     &            'Minimum coastal bathymetry (m) for Fe nudging.'
-            WRITE (out,100) FeNudgTime(ng), 'FeNudgTime',               &
-     &            'Fe nudging time scale (days) at h <= FeHmin.'
-            WRITE (out,100) FeMax(ng), 'FeMax',                         &
-     &            'Fe value (mmoles/m3) used in coastal nudging.'
-#    endif
-#  endif
-#  ifdef TS_DIF2
-            DO itrc=1,NBT
-              i=idbio(itrc)
-              WRITE (out,90) tnu2(i,ng), 'tnu2', i,                     &
-     &              'Horizontal, harmonic mixing coefficient (m2/s)',   &
-     &              'for tracer ', i, TRIM(Vname(1,idTvar(i)))
-            END DO
-#  endif
-#  ifdef TS_DIF4
-            DO itrc=1,NBT
-              i=idbio(itrc)
-              WRITE (out,90) tnu4(i,ng), 'tnu4', i,                     &
-     &              'Horizontal, biharmonic mixing coefficient (m4/s)', &
-     &              'for tracer ', i, TRIM(Vname(1,idTvar(i)))
-            END DO
-#  endif
-            DO itrc=1,NBT
-              i=idbio(itrc)
-              WRITE(out,90) Akt_bak(i,ng), 'Akt_bak', i,                &
-     &             'Background vertical mixing coefficient (m2/s)',     &
-     &             'for tracer ', i, TRIM(Vname(1,idTvar(i)))
-            END DO
-            DO itrc=1,NBT
-              i=idbio(itrc)
-              WRITE (out,90) Tnudg(i,ng), 'Tnudg', i,                   &
-     &              'Nudging/relaxation time scale (days)',             &
-     &              'for tracer ', i, TRIM(Vname(1,idTvar(i)))
-            END DO
-            DO itrc=1,NBT
-              i=idbio(itrc)
-              IF (Hout(idTvar(i),ng)) WRITE (out,60)                    &
-     &            Hout(idTvar(i),ng), 'Hout(idTvar)',                   &
-     &            'Write out tracer ', i, TRIM(Vname(1,idTvar(i)))
-            END DO
-            DO itrc=1,NBT
-              i=idbio(itrc)
-              IF (Hout(idTsur(i),ng)) WRITE (out,60)                    &
-     &            Hout(idTsur(i),ng), 'Hout(idTsur)',                   &
-     &            'Write out tracer flux ', i, TRIM(Vname(1,idTvar(i)))
-            END DO
-          END IF
-        END DO
-      END IF
-!
-!-----------------------------------------------------------------------
-!  Rescale biological tracer parameters
-!-----------------------------------------------------------------------
-!
-!  Take the square root of the biharmonic coefficients so it can
-!  be applied to each harmonic operator.
-!
-      DO ng=1,Ngrids
-        DO itrc=1,NBT
-          i=idbio(itrc)
-          tnu4(i,ng)=SQRT(ABS(tnu4(i,ng)))
-!
-!  Compute inverse nudging coefficients (1/s) used in various tasks.
-!
-          IF (Tnudg(i,ng).gt.0.0_r8) THEN
-            Tnudg(i,ng)=1.0_r8/(Tnudg(i,ng)*86400.0_r8)
-          ELSE
-            Tnudg(i,ng)=0.0_r8
-          END IF
-        END DO
-      END DO
-
-  30  FORMAT (/,' read_BioPar - Error while processing line: ',/,a)
-  40  FORMAT (/,/,' NPZD-IRON Model Parameters, Grid: ',i2.2,           &
-     &        /,  ' ====================================',/)
-  50  FORMAT (1x,i10,2x,a,t30,a)
-  60  FORMAT (10x,l1,2x,a,t30,a,i2.2,':',1x,a)
-  90  FORMAT (1p,e11.4,2x,a,'(',i2.2,')',t30,a,/,t32,a,i2.2,':',1x,a)
- 100  FORMAT (1p,e11.4,2x,a,t30,a)
- 110  FORMAT (1p,e11.4,2x,a,t30,a,/,t32,a)
- 120  FORMAT (/,' read_BioPar - variable info not yet loaded, ',        &
-     &        a,i2.2,a)
-
-# elif defined ECOSIM
-!
-!-----------------------------------------------------------------------
-!  Read in EcoSim bio-optical model parameters.
-!-----------------------------------------------------------------------
-!
-      DO WHILE (.TRUE.)
-        READ (inp,'(a)',ERR=10,END=20) line
-        status=decode_line(line, KeyWord, Nval, Cval, Rval)
-        IF (status.gt.0) THEN
-          IF (TRIM(KeyWord).eq.'Lbiology') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Lbiology)
-          ELSE IF (TRIM(KeyWord).eq.'BioIter') THEN
-            Npts=load_i(Nval, Rval, Ngrids, BioIter)
-          ELSE IF (TRIM(KeyWord).eq.'RtUVR_flag') THEN
-            Npts=load_l(Nval, Cval, Ngrids, RtUVR_flag)
-          ELSE IF (TRIM(KeyWord).eq.'NFIX_flag') THEN
-            Npts=load_l(Nval, Cval, Ngrids, NFIX_flag)
-          ELSE IF (TRIM(KeyWord).eq.'Regen_flag') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Regen_flag)
-          ELSE IF (TRIM(KeyWord).eq.'HsNO3') THEN
-            Npts=load_r(Nval, Rval, Nphy*Ngrids, HsNO3)
-          ELSE IF (TRIM(KeyWord).eq.'HsNH4') THEN
-            Npts=load_r(Nval, Rval, Nphy*Ngrids, HsNH4)
-          ELSE IF (TRIM(KeyWord).eq.'HsSiO') THEN
-            Npts=load_r(Nval, Rval, Nphy*Ngrids, HsSiO)
-          ELSE IF (TRIM(KeyWord).eq.'HsPO4') THEN
-            Npts=load_r(Nval, Rval, Nphy*Ngrids, HsPO4)
-          ELSE IF (TRIM(KeyWord).eq.'HsFe') THEN
-            Npts=load_r(Nval, Rval, Nphy*Ngrids, HsFe)
-          ELSE IF (TRIM(KeyWord).eq.'GtALG_max') THEN
-            Npts=load_r(Nval, Rval, Nphy*Ngrids, GtALG_max)
-          ELSE IF (TRIM(KeyWord).eq.'PhyTbase') THEN
-            Npts=load_r(Nval, Rval, Nphy*Ngrids, PhyTbase)
-          ELSE IF (TRIM(KeyWord).eq.'PhyTfac') THEN
-            Npts=load_r(Nval, Rval, Nphy*Ngrids, PhyTfac)
-          ELSE IF (TRIM(KeyWord).eq.'BET_') THEN
-            Npts=load_r(Nval, Rval, Nphy*Ngrids, BET_)
-          ELSE IF (TRIM(KeyWord).eq.'maxC2nALG') THEN
-            Npts=load_r(Nval, Rval, Nphy*Ngrids, maxC2nALG)
-          ELSE IF (TRIM(KeyWord).eq.'minC2nALG') THEN
-            Npts=load_r(Nval, Rval, Nphy*Ngrids, minC2nALG)
-          ELSE IF (TRIM(KeyWord).eq.'C2nALGminABS') THEN
-            Npts=load_r(Nval, Rval, Nphy*Ngrids, C2nALGminABS)
-          ELSE IF (TRIM(KeyWord).eq.'maxC2SiALG') THEN
-            Npts=load_r(Nval, Rval, Nphy*Ngrids, maxC2SiALG)
-          ELSE IF (TRIM(KeyWord).eq.'minC2SiALG') THEN
-            Npts=load_r(Nval, Rval, Nphy*Ngrids, minC2SiALG)
-          ELSE IF (TRIM(KeyWord).eq.'C2SiALGminABS') THEN
-            Npts=load_r(Nval, Rval, Nphy*Ngrids, C2SiALGminABS)
-          ELSE IF (TRIM(KeyWord).eq.'maxC2pALG') THEN
-            Npts=load_r(Nval, Rval, Nphy*Ngrids, maxC2pALG)
-          ELSE IF (TRIM(KeyWord).eq.'minC2pALG') THEN
-            Npts=load_r(Nval, Rval, Nphy*Ngrids, minC2pALG)
-          ELSE IF (TRIM(KeyWord).eq.'C2pALGminABS') THEN
-            Npts=load_r(Nval, Rval, Nphy*Ngrids, C2pALGminABS)
-          ELSE IF (TRIM(KeyWord).eq.'maxC2FeALG') THEN
-            Npts=load_r(Nval, Rval, Nphy*Ngrids, maxC2FeALG)
-          ELSE IF (TRIM(KeyWord).eq.'minC2FeALG') THEN
-            Npts=load_r(Nval, Rval, Nphy*Ngrids, minC2FeALG)
-          ELSE IF (TRIM(KeyWord).eq.'C2FeALGminABS') THEN
-            Npts=load_r(Nval, Rval, Nphy*Ngrids, C2FeALGminABS)
-          ELSE IF (TRIM(KeyWord).eq.'qu_yld') THEN
-            Npts=load_r(Nval, Rval, Nphy*Ngrids, qu_yld)
-          ELSE IF (TRIM(KeyWord).eq.'E0_comp') THEN
-            Npts=load_r(Nval, Rval, Nphy*Ngrids, E0_comp)
-          ELSE IF (TRIM(KeyWord).eq.'E0_inhib') THEN
-            Npts=load_r(Nval, Rval, Nphy*Ngrids, E0_inhib)
-          ELSE IF (TRIM(KeyWord).eq.'inhib_fac') THEN
-            Npts=load_r(Nval, Rval, Nphy*Ngrids, inhib_fac)
-          ELSE IF (TRIM(KeyWord).eq.'C2CHL_max') THEN
-            Npts=load_r(Nval, Rval, Nphy*Ngrids, C2CHL_max)
-          ELSE IF (TRIM(KeyWord).eq.'mxC2Cl') THEN
-            Npts=load_r(Nval, Rval, Nphy*Ngrids, mxC2Cl)
-          ELSE IF (TRIM(KeyWord).eq.'b_C2Cl') THEN
-            Npts=load_r(Nval, Rval, Nphy*Ngrids, b_C2Cl)
-          ELSE IF (TRIM(KeyWord).eq.'mxC2Cn') THEN
-            Npts=load_r(Nval, Rval, Nphy*Ngrids, mxC2Cn)
-          ELSE IF (TRIM(KeyWord).eq.'b_C2Cn') THEN
-            Npts=load_r(Nval, Rval, Nphy*Ngrids, b_C2Cn)
-          ELSE IF (TRIM(KeyWord).eq.'mxPacEff') THEN
-            Npts=load_r(Nval, Rval, Nphy*Ngrids, mxPacEff)
-          ELSE IF (TRIM(KeyWord).eq.'b_PacEff') THEN
-            Npts=load_r(Nval, Rval, Nphy*Ngrids, b_PacEff)
-          ELSE IF (TRIM(KeyWord).eq.'mxChlB') THEN
-            Npts=load_r(Nval, Rval, Nphy*Ngrids, mxChlB)
-          ELSE IF (TRIM(KeyWord).eq.'b_ChlB') THEN
-            Npts=load_r(Nval, Rval, Nphy*Ngrids, b_ChlB)
-          ELSE IF (TRIM(KeyWord).eq.'mxChlC') THEN
-            Npts=load_r(Nval, Rval, Nphy*Ngrids, mxChlC)
-          ELSE IF (TRIM(KeyWord).eq.'b_ChlC') THEN
-            Npts=load_r(Nval, Rval, Nphy*Ngrids, b_ChlC)
-          ELSE IF (TRIM(KeyWord).eq.'mxPSC') THEN
-            Npts=load_r(Nval, Rval, Nphy*Ngrids, mxPSC)
-          ELSE IF (TRIM(KeyWord).eq.'b_PSC') THEN
-            Npts=load_r(Nval, Rval, Nphy*Ngrids, b_PSC)
-          ELSE IF (TRIM(KeyWord).eq.'mxPPC') THEN
-            Npts=load_r(Nval, Rval, Nphy*Ngrids, mxPPC)
-          ELSE IF (TRIM(KeyWord).eq.'b_PPC') THEN
-            Npts=load_r(Nval, Rval, Nphy*Ngrids, b_PPC)
-          ELSE IF (TRIM(KeyWord).eq.'mxLPUb') THEN
-            Npts=load_r(Nval, Rval, Nphy*Ngrids, mxLPUb)
-          ELSE IF (TRIM(KeyWord).eq.'b_LPUb') THEN
-            Npts=load_r(Nval, Rval, Nphy*Ngrids, b_LPUb)
-          ELSE IF (TRIM(KeyWord).eq.'mxHPUb') THEN
-            Npts=load_r(Nval, Rval, Nphy*Ngrids, mxHPUb)
-          ELSE IF (TRIM(KeyWord).eq.'b_HPUb') THEN
-            Npts=load_r(Nval, Rval, Nphy*Ngrids, b_HPUb)
-          ELSE IF (TRIM(KeyWord).eq.'FecDOC') THEN
-            Npts=load_r(Nval, Rval, Nphy*Ngrids, FecDOC)
-          ELSE IF (TRIM(KeyWord).eq.'FecPEL') THEN
-            Npts=load_r(Nval, Rval, Nphy*Nfec*Ngrids, FecPEL)
-          ELSE IF (TRIM(KeyWord).eq.'FecCYC') THEN
-            Npts=load_r(Nval, Rval, Nphy*Ngrids, FecCYC)
-          ELSE IF (TRIM(KeyWord).eq.'ExALG') THEN
-            Npts=load_r(Nval, Rval, Nphy*Ngrids, ExALG)
-          ELSE IF (TRIM(KeyWord).eq.'WS') THEN
-            Npts=load_r(Nval, Rval, Nphy*Ngrids, WS)
-          ELSE IF (TRIM(KeyWord).eq.'HsGRZ') THEN
-            Npts=load_r(Nval, Rval, Nphy*Ngrids, HsGRZ)
-          ELSE IF (TRIM(KeyWord).eq.'MinRefuge') THEN
-            Npts=load_r(Nval, Rval, Nphy*Ngrids, MinRefuge)
-          ELSE IF (TRIM(KeyWord).eq.'RefugeDep') THEN
-            Npts=load_r(Nval, Rval, Nphy*Ngrids, RefugeDep)
-          ELSE IF (TRIM(KeyWord).eq.'Norm_Vol') THEN
-            Npts=load_r(Nval, Rval, Nphy*Ngrids, Norm_Vol)
-          ELSE IF (TRIM(KeyWord).eq.'Norm_Surf') THEN
-            Npts=load_r(Nval, Rval, Nphy*Ngrids, Norm_Surf)
-          ELSE IF (TRIM(KeyWord).eq.'HsDOP') THEN
-            Npts=load_r(Nval, Rval, Nphy*Ngrids, HsDOP)
-          ELSE IF (TRIM(KeyWord).eq.'C2pALKPHOS') THEN
-            Npts=load_r(Nval, Rval, Nphy*Ngrids, C2pALKPHOS)
-          ELSE IF (TRIM(KeyWord).eq.'HsDON') THEN
-            Npts=load_r(Nval, Rval, Nphy*Ngrids, HsDON)
-          ELSE IF (TRIM(KeyWord).eq.'C2nNupDON') THEN
-            Npts=load_r(Nval, Rval, Ngrids, C2nNupDON)
-          ELSE IF (TRIM(KeyWord).eq.'C2nBAC') THEN
-            Npts=load_r(Nval, Rval, Ngrids, C2nBAC)
-          ELSE IF (TRIM(KeyWord).eq.'C2pBAC') THEN
-            Npts=load_r(Nval, Rval, Ngrids, C2pBAC)
-          ELSE IF (TRIM(KeyWord).eq.'C2FeBAC') THEN
-            Npts=load_r(Nval, Rval, Ngrids, C2FeBAC)
-          ELSE IF (TRIM(KeyWord).eq.'HsDOC_ba') THEN
-            Npts=load_r(Nval, Rval, Nbac*Ngrids, HsDOC_ba)
-          ELSE IF (TRIM(KeyWord).eq.'GtBAC_max') THEN
-            Npts=load_r(Nval, Rval, Nbac*Ngrids, GtBAC_max)
-          ELSE IF (TRIM(KeyWord).eq.'BacTbase') THEN
-            Npts=load_r(Nval, Rval, Nbac*Ngrids, BacTbase)
-          ELSE IF (TRIM(KeyWord).eq.'BacTfac') THEN
-            Npts=load_r(Nval, Rval, Nbac*Ngrids, BacTfac)
-          ELSE IF (TRIM(KeyWord).eq.'BacDOC') THEN
-            Npts=load_r(Nval, Rval, Ngrids, BacDOC)
-          ELSE IF (TRIM(KeyWord).eq.'BacPEL') THEN
-            Npts=load_r(Nval, Rval, Ngrids, BacPEL)
-          ELSE IF (TRIM(KeyWord).eq.'BacCYC') THEN
-            Npts=load_r(Nval, Rval, Ngrids, BacCYC)
-          ELSE IF (TRIM(KeyWord).eq.'ExBAC_c') THEN
-            Npts=load_r(Nval, Rval, Ngrids, ExBAC_c)
-          ELSE IF (TRIM(KeyWord).eq.'ExBacC2N') THEN
-            Npts=load_r(Nval, Rval, Ngrids, ExBacC2N)
-          ELSE IF (TRIM(KeyWord).eq.'Bac_Ceff') THEN
-            Npts=load_r(Nval, Rval, Ngrids, Bac_Ceff)
-          ELSE IF (TRIM(KeyWord).eq.'RtNIT') THEN
-            Npts=load_r(Nval, Rval, Ngrids, RtNIT)
-          ELSE IF (TRIM(KeyWord).eq.'HsNIT') THEN
-            Npts=load_r(Nval, Rval, Ngrids, HsNIT)
-          ELSE IF (TRIM(KeyWord).eq.'cDOCfrac_c') THEN
-            Npts=load_r(Nval, Rval, Ndom*Ngrids, cDOCfrac_c)
-          ELSE IF (TRIM(KeyWord).eq.'RtUVR_DIC') THEN
-            Npts=load_r(Nval, Rval, Ngrids, RtUVR_DIC)
-          ELSE IF (TRIM(KeyWord).eq.'RtUVR_DOC') THEN
-            Npts=load_r(Nval, Rval, Ngrids, RtUVR_DOC)
-          ELSE IF (TRIM(KeyWord).eq.'WF') THEN
-            Npts=load_r(Nval, Rval, Nfec*Ngrids, WF)
-          ELSE IF (TRIM(KeyWord).eq.'RegTbase') THEN
-            Npts=load_r(Nval, Rval, Nfec*Ngrids, RegTbase)
-          ELSE IF (TRIM(KeyWord).eq.'RegTfac') THEN
-            Npts=load_r(Nval, Rval, Nfec*Ngrids, RegTfac)
-          ELSE IF (TRIM(KeyWord).eq.'RegCR') THEN
-            Npts=load_r(Nval, Rval, Nfec*Ngrids, RegCR)
-          ELSE IF (TRIM(KeyWord).eq.'RegNR') THEN
-            Npts=load_r(Nval, Rval, Nfec*Ngrids, RegNR)
-          ELSE IF (TRIM(KeyWord).eq.'RegSR') THEN
-            Npts=load_r(Nval, Rval, Nfec*Ngrids, RegSR)
-          ELSE IF (TRIM(KeyWord).eq.'RegPR') THEN
-            Npts=load_r(Nval, Rval, Nfec*Ngrids, RegPR)
-          ELSE IF (TRIM(KeyWord).eq.'RegFR') THEN
-            Npts=load_r(Nval, Rval, Nfec*Ngrids, RegFR)
-          ELSE IF (TRIM(KeyWord).eq.'TNU2') THEN
-            Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idbio(itrc)
-                tnu2(i,ng)=Rbio(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'TNU4') THEN
-            Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idbio(itrc)
-                tnu4(i,ng)=Rbio(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'AKT_BAK') THEN
-            Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idbio(itrc)
-                Akt_bak(i,ng)=Rbio(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'TNUDG') THEN
-            Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idbio(itrc)
-                Tnudg(i,ng)=Rbio(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idTvar)') THEN
-            Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idTvar(idbio(itrc))
-                IF (i.eq.0) THEN
-                  IF (Master) WRITE (out,150)                           &
-     &                              'idTvar(idbio(', itrc, '))'
-                  exit_flag=5
-                  RETURN
-                END IF
-                Hout(i,ng)=Ltrc(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idTsur)') THEN
-            Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idTsur(idbio(itrc))
-                IF (i.eq.0) THEN
-                  IF (Master) WRITE (out,120)                           &
-     &                              'idTsur(idbio(', itrc, '))'
-                  exit_flag=5
-                  RETURN
-                END IF
-                Hout(i,ng)=Ltrc(itrc,ng)
-              END DO
-            END DO
-          END IF
-        END IF
-      END DO
-  10  IF (Master) WRITE (out,30) line
-      exit_flag=4
-      RETURN
-  20  CONTINUE
-!
-!-----------------------------------------------------------------------
-!  Initialize secondary EcoSim parameters.
-!-----------------------------------------------------------------------
-!
-      CALL initialize_biology
-!
-!-----------------------------------------------------------------------
-!  Report input parameters.
-!-----------------------------------------------------------------------
-!
-      IF (Lwrite) THEN
-        DO ng=1,Ngrids
-          IF (Lbiology(ng)) THEN
-            WRITE (out,40) ng
-            WRITE (out,50) BioIter(ng), 'BioIter',                      &
-     &            'Number of iterations for nonlinear convergence.'
-            WRITE (out,60) RtUVR_flag(ng), 'RtUVR_flag',                &
-     &            'Switch to calculate CDOC UV photolysis.'
-            WRITE (out,60) NFIX_flag(ng), 'NFIX_flag',                  &
-     &            'Switch to calculate temperature based N fixation.'
-            WRITE (out,60) Regen_flag(ng), 'Regen_flag',                &
-     &            'Switch to calculate fecal matter regeneration.'
-            WRITE (out,70) 'HsNO3',                                     &
-     &            'Half-saturation for phytoplankton NO3 uptake',       &
-     &            '(micromole_NO3/liter):'
-              DO is=1,Nphy
-                WRITE (out,90) HsNO3(is,ng), TRIM(PhyName(is))
-              END DO
-            WRITE (out,70) 'HsNH4',                                     &
-     &            'Half-saturation for phytoplankton NH4 uptake',       &
-     &            '(micromole_NH4/liter):'
-              DO is=1,Nphy
-                WRITE (out,90) HsNH4(is,ng), TRIM(PhyName(is))
-              END DO
-            WRITE (out,70) 'HsSiO',                                     &
-     &            'Half-saturation for phytoplankton SiO uptake',       &
-     &            '(micromole_SiO/liter):'
-              DO is=1,Nphy
-                WRITE (out,90) HsSiO(is,ng), TRIM(PhyName(is))
-              END DO
-            WRITE (out,70) 'HsPO4',                                     &
-     &            'Half-saturation for phytoplankton PO4 uptake',       &
-     &            '(micromole_PO4/liter):'
-              DO is=1,Nphy
-                WRITE (out,90) HsPO4(is,ng), TRIM(PhyName(is))
-              END DO
-            WRITE (out,70) 'HsFe',                                      &
-     &            'Half-saturation for phytoplankton Fe uptake',        &
-     &            '(micromole_Fe/liter):'
-              DO is=1,Nphy
-                WRITE (out,90) HsFe(is,ng), TRIM(PhyName(is))
-              END DO
-            WRITE (out,80) 'GtALG_max',                                 &
-     &            'Maximum 24 hour growth rate (1/day):'
-              DO is=1,Nphy
-                WRITE (out,90) GtALG_max(is,ng), TRIM(PhyName(is))
-              END DO
-            WRITE (out,70) 'PhyTbase',                                  &
-     &            'Temperature base for exponential response to',       &
-     &            'temperature (Celsius):'
-              DO is=1,Nphy
-                WRITE (out,90) PhyTbase(is,ng), TRIM(PhyName(is))
-              END DO
-            WRITE (out,70) 'PhyTfac',                                   &
-     &            'Phytoplankton exponential temperature factor',       &
-     &            '(1/Celsius):'
-              DO is=1,Nphy
-                WRITE (out,90) PhyTfac(is,ng), TRIM(PhyName(is))
-              END DO
-            WRITE (out,80) 'BET_',                                      &
-     &            'Nitrate uptake inhibition for NH4 (l/micromole):'
-              DO is=1,Nphy
-                WRITE (out,90) BET_(is,ng), TRIM(PhyName(is))
-              END DO
-            WRITE (out,70) 'maxC2nALG',                                 &
-     &            'Maximum phytoplankton C:N ratio',                    &
-     &            '(micromole_C/micromole_N):'
-              DO is=1,Nphy
-                WRITE (out,90) maxC2nALG(is,ng), TRIM(PhyName(is))
-              END DO
-            WRITE (out,70) 'minC2nALG',                                 &
-     &            'Balanced phytoplankton C:N ratio',                   &
-     &            '(micromole_C/micromole_N):'
-              DO is=1,Nphy
-                WRITE (out,90) minC2nALG(is,ng), TRIM(PhyName(is))
-              END DO
-            WRITE (out,70) 'C2nALGminABS',                              &
-     &            'Absolute minimum phytoplankton C:N ratio',           &
-     &            '(micromole_C/micromole_N):'
-              DO is=1,Nphy
-                WRITE (out,90) C2nALGminABS(is,ng), TRIM(PhyName(is))
-              END DO
-            WRITE (out,70) 'maxC2SiALG',                                &
-     &            'Maximum phytoplankton C:Si ratio',                   &
-     &            '(micromole_C/micromole_Si)'
-              DO is=1,Nphy
-                WRITE (out,90) maxC2SiALG(is,ng), TRIM(PhyName(is))
-              END DO
-            WRITE (out,70) 'minC2SiALG',                                &
-     &            'Balanced phytoplankton C:Si ratio',                  &
-     &            '(micromole_C/micromole_Si):'
-              DO is=1,Nphy
-                WRITE (out,90) minC2SiALG(is,ng), TRIM(PhyName(is))
-              END DO
-            WRITE (out,70) 'C2SiALGminABS',                             &
-     &            'Absolute minimum phytoplankton C:Si ratio',          &
-     &            '(micromole_C/micromole_Si):'
-              DO is=1,Nphy
-                WRITE (out,90) C2SiALGminABS(is,ng), TRIM(PhyName(is))
-              END DO
-            WRITE (out,70) 'maxC2pALG',                                 &
-     &            'Maximum phytoplankton C:P ratio',                    &
-     &            '(micromole_C/micromole_P):'
-              DO is=1,Nphy
-                WRITE (out,90) maxC2pALG(is,ng), TRIM(PhyName(is))
-              END DO
-            WRITE (out,70) 'minC2pALG',                                 &
-     &            'Balanced phytoplankton C:P ratio',                   &
-     &            '(micromole_C/micromole_P):'
-              DO is=1,Nphy
-                WRITE (out,90) minC2pALG(is,ng), TRIM(PhyName(is))
-              END DO
-            WRITE (out,70) 'C2pALGminABS',                              &
-     &            'Absolute minimum phytoplankton C:P ratio',           &
-     &            '(micromole_C/micromole_P)'
-              DO is=1,Nphy
-                WRITE (out,90) C2pALGminABS(is,ng), TRIM(PhyName(is))
-              END DO
-            WRITE (out,70) 'maxC2FeALG',                                &
-     &            'Maximum phytoplankton C:Fe ratio',                   &
-     &            '(micromole_C/micromole_Fe):'
-              DO is=1,Nphy
-                WRITE (out,90) maxC2FeALG(is,ng), TRIM(PhyName(is))
-              END DO
-            WRITE (out,70) 'minC2FeALG',                                &
-     &            'Balanced phytoplankton C:Fe ratio',                  &
-     &            '(micromole_C/micromole_Fe):'
-              DO is=1,Nphy
-                WRITE (out,90) minC2FeALG(is,ng), TRIM(PhyName(is))
-              END DO
-            WRITE (out,70) 'C2FeALGminABS',                             &
-     &            'Absolute minimum phytoplankton C:Fe ratio',          &
-     &            '(micromole_C/micromole_Fe):'
-              DO is=1,Nphy
-                WRITE (out,90) C2FeALGminABS(is,ng), TRIM(PhyName(is))
-              END DO
-            WRITE (out,70) 'qu_yld',                                    &
-     &            'Maximum quantum yield',                              &
-     &            '(micromole_C/micromole_quanta):'
-              DO is=1,Nphy
-                WRITE (out,90) qu_yld(is,ng), TRIM(PhyName(is))
-              END DO
-            WRITE (out,80) 'E0_comp',                                   &
-     &            'Compensation light level (micromole_quanta):'
-              DO is=1,Nphy
-                WRITE (out,90) E0_comp(is,ng), TRIM(PhyName(is))
-              END DO
-            WRITE (out,70) 'E0_inhib',                                  &
-     &            'Light level for onset of photoinhibition',           &
-     &            '(micromole_quanta):'
-              DO is=1,Nphy
-                WRITE (out,90) E0_inhib(is,ng), TRIM(PhyName(is))
-              END DO
-            WRITE (out,70) 'inhib_fac',                                 &
-     &            'Exponential decay factor for light limited growth',  &
-     &            '(1/micromole_quanta):'
-              DO is=1,Nphy
-                WRITE (out,90) inhib_fac(is,ng), TRIM(PhyName(is))
-              END DO
-            WRITE (out,70) 'C2CHL_max',                                 &
-     &            'Maximum lighted limited C:Chl ratio',                &
-     &            '(microgram_C/microgram_Chl):'
-              DO is=1,Nphy
-                WRITE (out,90) C2CHL_max(is,ng), TRIM(PhyName(is))
-              END DO
-            WRITE (out,70) 'mxC2Cl',                                    &
-     &            'Rate of change in light limited C:Chl ratio',        &
-     &            '(microgram_C/microgram_Chl/micromole_quanta):'
-              DO is=1,Nphy
-                WRITE (out,90) mxC2Cl(is,ng), TRIM(PhyName(is))
-              END DO
-            WRITE (out,70) 'b_C2Cl',                                    &
-     &            'Minimum lighted limited C:Chl ratio',                &
-     &            '(microgram_C/microgram_Chl):'
-              DO is=1,Nphy
-                WRITE (out,90) b_C2Cl(is,ng), TRIM(PhyName(is))
-              END DO
-            WRITE (out,70) 'mxC2Cn',                                    &
-     &            'Rate of change in nutient limited C:Chl ratio',      &
-     &            '[(ug_C/ug_Chl)/(umole_C/umole_N)]:'
-              DO is=1,Nphy
-                WRITE (out,90) mxC2Cn(is,ng), TRIM(PhyName(is))
-              END DO
-            WRITE (out,70) 'b_C2Cn',                                    &
-     &            'Minimum nutrient limited C:Chl ratio',               &
-     &            '(microgram_C/microgram_Chl):'
-              DO is=1,Nphy
-                WRITE (out,90) b_C2Cn(is,ng), TRIM(PhyName(is))
-              END DO
-            WRITE (out,70) 'mxPacEff',                                  &
-     &            'Rate of change in package effect',                   &
-     &            '[1/(microgram_C/microgram_Chl)]:'
-              DO is=1,Nphy
-                WRITE (out,90) mxPacEff(is,ng), TRIM(PhyName(is))
-              END DO
-            WRITE (out,70) 'b_PacEff',                                  &
-     &            'Maximum package effect',                             &
-     &            '[1/(microgram_C/microgram_Chl)]:'
-              DO is=1,Nphy
-                WRITE (out,90) b_PacEff(is,ng), TRIM(PhyName(is))
-              END DO
-            WRITE (out,70) 'mxChlB',                                    &
-     &            'Rate of change in the Chl_b:Chl_a ratio',            &
-     &            '[(ug_Chl_b/ug_Chl_a)/(ug_C/ug_Chl_a)]:'
-              DO is=1,Nphy
-                WRITE (out,90) mxChlB(is,ng), TRIM(PhyName(is))
-              END DO
-            WRITE (out,70) 'b_ChlB',                                    &
-     &            'Maximum Chl_b:Chl_a ratio',                          &
-     &            '(microgram_Chl_b/microgram_Chl_a):'
-              DO is=1,Nphy
-                WRITE (out,90) b_ChlB(is,ng), TRIM(PhyName(is))
-              END DO
-            WRITE (out,70) 'mxChlC',                                    &
-     &            'Rate of change in the Chl_c:Chl_a ratio',            &
-     &            '[(ug_Chl_c/ug_Chl_a)/(ug_C/ug_Chl_a)]:'
-              DO is=1,Nphy
-                WRITE (out,90) mxChlC(is,ng), TRIM(PhyName(is))
-              END DO
-            WRITE (out,70) 'b_ChlC',                                    &
-     &            'Maximum Chl_c:Chl_a ratio',                          &
-     &            '(microgram_Chl_c/microgram_Chl_a):'
-              DO is=1,Nphy
-                WRITE (out,90) b_ChlC(is,ng), TRIM(PhyName(is))
-              END DO
-            WRITE (out,70) 'mxPSC',                                     &
-     &            'Rate of change in the PSC:Chl_a ratio',              &
-     &            '[(ug_PSC/ug_Chl_a)/ug_C/ug_Chl_a)]:'
-              DO is=1,Nphy
-                WRITE (out,90) mxPSC(is,ng), TRIM(PhyName(is))
-              END DO
-            WRITE (out,70) 'b_PSC',                                     &
-     &            'Maximum PSC:Chl_a ratio',                            &
-     &            '(microgram_PSC/microgram_Chl_a):'
-              DO is=1,Nphy
-                WRITE (out,90) b_PSC(is,ng), TRIM(PhyName(is))
-              END DO
-            WRITE (out,70) 'mxPPC',                                     &
-     &            'Rate of change in the PPC:Chl_a ratio',              &
-     &            '[(ug_PPC/ug_Chl_a)/(ug_C/ug_Chl_ a)]:'
-              DO is=1,Nphy
-                WRITE (out,90) mxPPC(is,ng), TRIM(PhyName(is))
-              END DO
-            WRITE (out,70) 'b_PPC',                                     &
-     &            'Maximum PPC:Chl_a ratio',                            &
-     &            '(microgram_Chl_c/microgram_Chl_a):'
-              DO is=1,Nphy
-                WRITE (out,90) b_PPC(is,ng), TRIM(PhyName(is))
-              END DO
-            WRITE (out,70) 'mxLPUb',                                    &
-     &            'Rate of change in the LPUb:Chl_a ratio',             &
-     &            '[(ug_LPUb/ug_Chl_a)/(ug_C/ug_Chl_a)]:'
-              DO is=1,Nphy
-                WRITE (out,90) mxLPUb(is,ng), TRIM(PhyName(is))
-              END DO
-            WRITE (out,70) 'b_LPUb',                                    &
-     &            'Maximum LPUb:Chl_a ratio',                           &
-     &            '(migrogram_HPUb/microgram_Chl_a):'
-              DO is=1,Nphy
-                WRITE (out,90) b_LPUb(is,ng), TRIM(PhyName(is))
-              END DO
-            WRITE (out,70) 'mxHPUb',                                    &
-     &            'Rate of change in the HPUb:Chl_a ratio',             &
-     &            '[(ug_HPUb/ug_Chl_a)/(ug_C/ug_Chl_a)]:'
-              DO is=1,Nphy
-                WRITE (out,90) mxHPUb(is,ng), TRIM(PhyName(is))
-              END DO
-            WRITE (out,70)'b_HPUb',                                     &
-     &            'Maximum HPUb:Chl_a ratio',                           &
-     &            '(microgram_HPUb/microgram_Chl_a):'
-              DO is=1,Nphy
-                WRITE (out,90) b_HPUb(is,ng), TRIM(PhyName(is))
-              END DO
-            WRITE (out,70) 'FecDOC',                                    &
-     &            'Proportion of grazing stress apportioned to DOM',    &
-     &            '(nondimensional):'
-              DO is=1,Nphy
-                WRITE (out,90) FecDOC(is,ng), TRIM(PhyName(is))
-              END DO
-            WRITE (out,70) 'FecPEL',                                    &
-     &            'Proportion of grazing stress apportioned to fecal',  &
-     &            '(nondimensional):'
-              DO i=1,Nfec
-                DO is=1,Nphy
-                  WRITE (out,100) FecPEL(is,i,ng), i, TRIM(PhyName(is))
-                END DO
-              END DO
-            WRITE (out,70) 'FecCYC',                                    &
-     &            'Proportion of grazing stress that is recycled',      &
-     &            '(nondimensional):'
-              DO is=1,Nphy
-                WRITE (out,90) FecCYC(is,ng), TRIM(PhyName(is))
-              END DO
-            WRITE (out,70) 'ExALG',                                     &
-     &            'Proportion of daily production lost to excretion',   &
-     &            '(nondimensional):'
-              DO is=1,Nphy
-                WRITE (out,90) ExALG(is,ng), TRIM(PhyName(is))
-              END DO
-            WRITE (out,80) 'WS',                                        &
-     &            'Phytoplankton sinking speed (meters/day):'
-              DO is=1,Nphy
-                WRITE (out,90) WS(is,ng), TRIM(PhyName(is))
-              END DO
-            WRITE (out,80) 'HsGRZ',                                     &
-     &            'Phytoplankton grazing parameter (nondimensional):'
-              DO is=1,Nphy
-                WRITE (out,90) HsGRZ(is,ng), TRIM(PhyName(is))
-              END DO
-            WRITE (out,80) 'MinRefuge',                                 &
-     &            'Refuge Phytoplankton population (micromole_C/liter):'
-              DO is=1,Nphy
-                WRITE (out,90) MinRefuge(is,ng), TRIM(PhyName(is))
-              END DO
-            WRITE (out,80) 'RefugeDep',                                 &
-     &            'Maximum Refuge Phytoplankton depth (meters):'
-              DO is=1,Nphy
-                WRITE (out,90) RefugeDep(is,ng), TRIM(PhyName(is))
-              END DO
-            WRITE (out,80) 'Norm_Vol',                                  &
-     &            'Normalized Volume factor (nondimensional):'
-              DO is=1,Nphy
-                WRITE (out,90) Norm_Vol(is,ng), TRIM(PhyName(is))
-              END DO
-            WRITE (out,80) 'Norm_Surf',                                 &
-     &            'Normalized Surface Area factor (nondimensional):'
-              DO is=1,Nphy
-                WRITE (out,90) Norm_Surf(is,ng), TRIM(PhyName(is))
-              END DO
-            WRITE (out,70) 'HsDOP',                                     &
-     &            'Half Saturation Constant for DOP uptake',            &
-     &            '(micromole_DOP/liter):'
-              DO is=1,Nphy
-                WRITE (out,90) HsDOP(is,ng), TRIM(PhyName(is))
-              END DO
-            WRITE (out,70) 'C2pALKPHOS',                                &
-     &            'C:P ratio where DOP uptake begins',                  &
-     &            '(micromole_C/micromole_P):'
-              DO is=1,Nphy
-                WRITE (out,90) C2pALKPHOS(is,ng), TRIM(PhyName(is))
-              END DO
-            WRITE (out,70) 'HsDON',                                     &
-     &            'Half Saturation Constant for DON uptake',            &
-     &            '(micromole_DON/liter):'
-              DO is=1,Nphy
-                WRITE (out,90) HsDON(is,ng), TRIM(PhyName(is))
-              END DO
-            WRITE (out,70) 'C2nNupDON',                                 &
-     &            'C:N ratio where DON uptake begins',                  &
-     &            '(micromole_C/micromole_N):'
-              DO is=1,Nphy
-                WRITE (out,90) C2nNupDON(is,ng), TRIM(PhyName(is))
-              END DO
-            WRITE (out,70) 'HsDOC_ba',                                  &
-     &            'Half saturation constant for bacteria DOC uptake',   &
-     &            '(micromole_DOC/liter):'
-              DO is=1,Nbac
-                WRITE (out,90) HsDOC_ba(is,ng), TRIM(BacName(is))
-              END DO
-            WRITE (out,80) 'GtBAC_max',                                 &
-     &            'Maximum 24 hour bacterial growth rate (1/day):'
-              DO is=1,Nbac
-                WRITE (out,90) GtBAC_max(is,ng), TRIM(BacName(is))
-              END DO
-            WRITE (out,70) 'BacTbase',                                  &
-     &            'Temperature base for exponetial response to',        &
-     &            'temperature (Celsius):'
-              DO is=1,Nbac
-                WRITE (out,90) BacTbase(is,ng), TRIM(BacName(is))
-              END DO
-            WRITE (out,70) 'BacTfac',                                   &
-     &            'Bacteria exponential temperature factor',            &
-     &            '(1/Celsius):'
-              DO is=1,Nbac
-                WRITE (out,90) BacTfac(is,ng), TRIM(BacName(is))
-              END DO
-            WRITE (out,110) C2nBAC(ng), 'C2nBAC',                       &
-     &            'Carbon to Nitrogen ratio of Bacteria',               &
-     &            '(micromole_C/micromole_N).'
-            WRITE (out,110) C2pBAC(ng), 'C2pBAC',                       &
-     &            'Carbon to Phosphorus ratio of Bacteria',             &
-     &            '(micromole_C/micromole_P).'
-            WRITE (out,110) C2FeBAC(ng), 'C2FeBAC',                     &
-     &            'Carbon to Iron ratio of Bacteria',                   &
-     &            '(micromole_C/micromole_Fe).'
-            WRITE (out,110) BacDOC(ng), 'BacDOC',                       &
-     &            'Proportion of bacteria grazing stress apportioned',  &
-     &            'to DOM (nondimensional).'
-            WRITE (out,110) BacPEL(ng), 'BacPEL',                       &
-     &            'Proportion of bacteria grazing stress apportioned',  &
-     &            'to fecal (nondimensional).'
-            WRITE (out,110) BacCYC(ng), 'BacCYC',                       &
-     &            'Proportion of bacteria grazing stress recycled',     &
-     &            '(nondimensional).'
-            WRITE (out,110) ExBAC_c(ng), 'ExBAC_c',                     &
-     &            'Bacterial recalcitrant C excretion as proportion',   &
-     &            'of uptake (nondimensional).'
-            WRITE (out,110) ExBacC2N(ng), 'ExBacC2N',                   &
-     &            'Bacterial recalcitrant excretion carbon:nitrogen',   &
-     &            'ratio (micromole_C/micromole_N).'
-            WRITE (out,110) Bac_Ceff(ng), 'Bac_Ceff',                   &
-     &            'Bacterial gross growth carbon efficiency',           &
-     &            '(nondimensional).'
-            WRITE (out,120) RtNIT(ng), 'RtNIT',                         &
-     &            'Maximum nitrification rate (1/day).'
-            WRITE (out,110) HsNIT(ng), 'HsNIT',                         &
-     &            'Half saturation constant for bacteria nitrification',&
-     &            '(micromole_NH4/liter).'
-            WRITE (out,70) 'cDOCfrac_c',                                &
-     &            'Colored fraction of DOC from phytoplakton and',      &
-     &            'bacterial losses (nondimensional):'
-              DO is=1,Ndom
-                WRITE (out,90) cDOCfrac_c(is,ng), TRIM(DomName(is))
-              END DO
-            WRITE (out,110) RtUVR_DIC(ng), 'RtUVR_DIC',                 &
-     &            'UV degradation of DOC into DIC at 410 nm',           &
-     &            '(micromole/meter/liter/hour).'
-            WRITE (out,110) RtUVR_DOC(ng), 'RtUVR_DOC',                 &
-     &            'UV degradation of DOC to colorless labile DOC',      &
-     &            'at 410 nm (micromole/meter/liter/hour).'
-            WRITE (out,80) 'WF',                                        &
-     &            'Fecal sinking flux (meters/day):'
-              DO is=1,Nfec
-                WRITE (out,90) WF(is,ng), TRIM(FecName(is))
-              END DO
-            WRITE (out,70) 'RegTbase',                                  &
-     &            'Fecal regeneration temperature base for exponential',&
-     &            'response to temperature (Celsius):'
-              DO is=1,Nfec
-                WRITE (out,90) RegTbase(is,ng), TRIM(FecName(is))
-              END DO
-            WRITE (out,70) 'RegTfac',                                   &
-     &            'Fecal regeneration exponential temperature factor',  &
-     &            '(1/Celsius):'
-              DO is=1,Nfec
-                WRITE (out,90) RegTfac(is,ng), TRIM(FecName(is))
-              END DO
-            WRITE (out,80) 'RegCR',                                     &
-     &            'Fecal carbon regeneration rate (1/day):'
-              DO is=1,Nfec
-                WRITE (out,90) RegCR(is,ng), TRIM(FecName(is))
-              END DO
-            WRITE (out,80) 'RegNR',                                     &
-     &            'Fecal nitrogen regeneration rate (1/day)'
-              DO is=1,Nfec
-                WRITE (out,90) RegNR(is,ng), TRIM(FecName(is))
-              END DO
-            WRITE (out,80) 'RegSR',                                     &
-     &            'Fecal silica regeneration rate (1/day):'
-              DO is=1,Nfec
-                WRITE (out,90) RegSR(is,ng), TRIM(FecName(is))
-              END DO
-            WRITE (out,80) 'RegPR',                                     &
-     &            'Fecal phosphorus regeneration rate (1/day):'
-              DO is=1,Nfec
-                WRITE (out,90) RegPR(is,ng), TRIM(FecName(is))
-              END DO
-            WRITE (out,80) 'RegFR',                                     &
-     &            'Fecal iron regeneration rate (1/day)'
-              DO is=1,Nfec
-                WRITE (out,90) RegFR(is,ng), TRIM(FecName(is))
-              END DO
-#  ifdef TS_DIF2
-            DO itrc=1,NBT
-              i=idbio(itrc)
-              WRITE (out,130) tnu2(i,ng), 'tnu2', i,                    &
-     &              'Horizontal, harmonic mixing coefficient (m2/s)',   &
-     &              'for tracer ', i, TRIM(Vname(1,idTvar(i)))
-            END DO
-#  endif
-#  ifdef TS_DIF4
-            DO itrc=1,NBT
-              i=idbio(itrc)
-              WRITE (out,130) tnu4(i,ng), 'tnu4', i,                    &
-     &              'Horizontal, biharmonic mixing coefficient (m4/s)', &
-     &              'for tracer ', i, TRIM(Vname(1,idTvar(i)))
-            END DO
-#  endif
-            DO itrc=1,NBT
-              i=idbio(itrc)
-              WRITE(out,130) Akt_bak(i,ng), 'Akt_bak', i,               &
-     &             'Background vertical mixing coefficient (m2/s)',     &
-     &             'for tracer ', i, TRIM(Vname(1,idTvar(i)))
-            END DO
-            DO itrc=1,NBT
-              i=idbio(itrc)
-              WRITE (out,130) Tnudg(i,ng), 'Tnudg', i,                  &
-     &              'Nudging/relaxation time scale (days)',             &
-     &              'for tracer ', i, TRIM(Vname(1,idTvar(i)))
-            END DO
-            DO itrc=1,NBT
-              i=idbio(itrc)
-              IF (Hout(idTvar(i),ng)) WRITE (out,140)                   &
-     &            Hout(idTvar(i),ng), 'Hout(idTvar)',                   &
-     &            'Write out tracer ', i, TRIM(Vname(1,idTvar(i)))
-            END DO
-            DO itrc=1,NBT
-              i=idbio(itrc)
-              IF (Hout(idTsur(i),ng)) WRITE (out,60)                    &
-     &            Hout(idTsur(i),ng), 'Hout(idTsur)',                   &
-     &            'Write out tracer flux ', i, TRIM(Vname(1,idTvar(i)))
-            END DO
-          END IF
-        END DO
-      END IF
-!
-!-----------------------------------------------------------------------
-!  Rescale biological tracer parameters
-!-----------------------------------------------------------------------
-!
-!  Take the square root of the biharmonic coefficients so it can
-!  be applied to each harmonic operator.
-!
-      DO ng=1,Ngrids
-        DO itrc=1,NBT
-          i=idbio(itrc)
-          tnu4(i,ng)=SQRT(ABS(tnu4(i,ng)))
-!
-!  Compute inverse nudging coefficients (1/s) used in various tasks.
-!
-          IF (Tnudg(i,ng).gt.0.0_r8) THEN
-            Tnudg(i,ng)=1.0_r8/(Tnudg(i,ng)*86400.0_r8)
-          ELSE
-            Tnudg(i,ng)=0.0_r8
-          END IF
-        END DO
-      END DO
-
-  30  FORMAT (/,' read_BioPar - Error while processing line: ',/,a)
-  40  FORMAT (/,/,' EcoSim Parameters, Grid: ',i2.2,                    &
-     &        /,  ' ===========================',/)
-  50  FORMAT (1x,i10,2x,a,t30,a)
-  60  FORMAT (10x,l1,2x,a,t30,a)
-  70  FORMAT ('...........',2x,a,t30,a,/,t32,a)
-  80  FORMAT ('...........',2x,a,t30,a)
-  90  FORMAT (1p,e11.4,t33,a)
- 100  FORMAT (1p,e11.4,t33,'Fecal Group ',i1,', ',a)
- 110  FORMAT (1p,e11.4,2x,a,t30,a,/,t32,a)
- 120  FORMAT (1p,e11.4,2x,a,t30,a)
- 130  FORMAT (1p,e11.4,2x,a,'(',i2.2,')',t30,a,/,t32,a,i2.2,':',1x,a)
- 140  FORMAT (10x,l1,2x,a,t30,a,i2.2,':',1x,a)
- 150  FORMAT (/,' read_BioPar - variable info not yet loaded, ',        &
-     &        a,i2.2,a)
-
-# endif
-
-      RETURN
-      END SUBROUTINE read_BioPar
-#endif
-
-#ifdef SEDIMENT
-      SUBROUTINE read_SedPar (model, inp, out, Lwrite)
-!
-!=======================================================================
-!                                                                      !
-!  This routine reads in cohesive and non-cohesive sediment model      !
-!  parameters.                                                         !
-!                                                                      !
-!=======================================================================
-!
-      USE mod_param
-      USE mod_parallel
-      USE mod_ncparam
-      USE mod_scalars
-      USE mod_sediment
-!
-      implicit none
-!
-!  Imported variable declarations
-!
-      logical, intent(in) :: Lwrite
-      integer, intent(in) :: model, inp, out
-!
-!  Local variable declarations.
-!
-      integer :: Npts, Nval, i, ng, itrc, status
-
-      integer :: decode_line, load_i, load_l, load_r
-
-      logical, dimension(Ngrids) :: Lbed
-      logical, dimension(MBOTP,Ngrids) :: Lbottom
-      logical, dimension(NCS,Ngrids) :: Lmud
-      logical, dimension(NNS,Ngrids) :: Lsand
-
-      real(r8), dimension(Ngrids) :: Rbed
-      real(r8), dimension(NCS,Ngrids) :: Rmud
-      real(r8), dimension(NNS,Ngrids) :: Rsand
-
-      real(r8), dimension(100) :: Rval
-
-      character (len=40) :: KeyWord
-      character (len=160) :: line
-      character (len=160), dimension(100) :: Cval
-!
-!-----------------------------------------------------------------------
-!  Read in cohesive and non-cohesive model parameters.
-!-----------------------------------------------------------------------
-!
-      DO WHILE (.TRUE.)
-        READ (inp,'(a)',ERR=10,END=20) line
-        status=decode_line(line, KeyWord, Nval, Cval, Rval)
-        IF (status.gt.0) THEN
-          IF (TRIM(KeyWord).eq.'Lsediment') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Lsediment)
-          ELSE IF (TRIM(KeyWord).eq.'NEWLAYER_THICK') THEN
-            Npts=load_r(Nval, Rval, Ngrids, Rbed)
-            DO ng=1,Ngrids
-              newlayer_thick(ng)=Rbed(ng)
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'MINLAYER_THICK') THEN
-            Npts=load_r(Nval, Rval, Ngrids, Rbed)
-            DO ng=1,Ngrids
-              minlayer_thick(ng)=Rbed(ng)
-            END DO
-# ifdef MIXED_BED
-          ELSE IF (TRIM(KeyWord).eq.'TRANSC') THEN
-            Npts=load_r(Nval, Rval, Ngrids, Rbed)
-            DO ng=1,Ngrids
-              transC(ng)=Rbed(ng)
-          END DO
-          ELSE IF (TRIM(KeyWord).eq.'TRANSN') THEN
-            Npts=load_r(Nval, Rval, Ngrids, Rbed)
-            DO ng=1,Ngrids
-              transN(ng)=Rbed(ng)
-          END DO
-# endif
-          ELSE IF (TRIM(KeyWord).eq.'BEDLOAD_COEFF') THEN
-            Npts=load_r(Nval, Rval, Ngrids, Rbed)
-            DO ng=1,Ngrids
-              bedload_coeff(ng)=Rbed(ng)
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'MUD_SD50') THEN
-            IF (.not.allocated(Sd50)) allocate (Sd50(NST,Ngrids))
-            Npts=load_r(Nval, Rval, NCS*Ngrids, Rmud)
-            DO ng=1,Ngrids
-              DO itrc=1,NCS
-                Sd50(itrc,ng)=Rmud(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'MUD_CSED') THEN
-            IF (.not.allocated(Csed)) allocate (Csed(NST,Ngrids))
-            Npts=load_r(Nval, Rval, NCS*Ngrids, Rmud )
-            DO ng=1,Ngrids
-              DO itrc=1,NCS
-                Csed(itrc,ng)=Rmud(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'MUD_SRHO') THEN
-            IF (.not.allocated(Srho)) allocate (Srho(NST,Ngrids))
-            Npts=load_r(Nval, Rval, NCS*Ngrids, Rmud)
-            DO ng=1,Ngrids
-              DO itrc=1,NCS
-                Srho(itrc,ng)=Rmud(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'MUD_WSED') THEN
-            IF (.not.allocated(Wsed)) allocate (Wsed(NST,Ngrids))
-            Npts=load_r(Nval, Rval, NCS*Ngrids, Rmud)
-            DO ng=1,Ngrids
-              DO itrc=1,NCS
-                Wsed(itrc,ng)=Rmud(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'MUD_ERATE') THEN
-            IF (.not.allocated(Erate)) allocate (Erate(NST,Ngrids))
-            Npts=load_r(Nval, Rval, NCS*Ngrids, Rmud)
-            DO ng=1,Ngrids
-              DO itrc=1,NCS
-                Erate(itrc,ng)=Rmud(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'MUD_TAU_CE') THEN
-            IF (.not.allocated(tau_ce)) allocate (tau_ce(NST,Ngrids))
-            Npts=load_r(Nval, Rval, NCS*Ngrids, Rmud)
-            DO ng=1,Ngrids
-              DO itrc=1,NCS
-                tau_ce(itrc,ng)=Rmud(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'MUD_TAU_CD') THEN
-            IF (.not.allocated(tau_cd)) allocate (tau_cd(NST,Ngrids))
-            Npts=load_r(Nval, Rval, NCS*Ngrids, Rmud)
-            DO ng=1,Ngrids
-              DO itrc=1,NCS
-                tau_cd(itrc,ng)=Rmud(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'MUD_POROS') THEN
-            IF (.not.allocated(poros)) allocate (poros(NST,Ngrids))
-            Npts=load_r(Nval, Rval, NCS*Ngrids, Rmud)
-            DO ng=1,Ngrids
-              DO itrc=1,NCS
-                poros(itrc,ng)=Rmud(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'MUD_TNU2') THEN
-            Npts=load_r(Nval, Rval, NCS*Ngrids, Rmud)
-            DO ng=1,Ngrids
-              DO itrc=1,NCS
-                i=idsed(itrc)
-                tnu2(i,ng)=Rmud(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'MUD_TNU4') THEN
-            Npts=load_r(Nval, Rval, NCS*Ngrids, Rmud)
-            DO ng=1,Ngrids
-              DO itrc=1,NCS
-                i=idsed(itrc)
-                tnu4(i,ng)=Rmud(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'MUD_AKT_BAK') THEN
-            Npts=load_r(Nval, Rval, NCS*Ngrids, Rmud)
-            DO ng=1,Ngrids
-              DO itrc=1,NCS
-                i=idsed(itrc)
-                Akt_bak(i,ng)=Rmud(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'MUD_TNUDG') THEN
-            Npts=load_r(Nval, Rval, NCS*Ngrids, Rmud)
-            DO ng=1,Ngrids
-              DO itrc=1,NCS
-                i=idsed(itrc)
-                Tnudg(i,ng)=Rmud(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'MUD_MORPH_FAC') THEN
-            IF (.not.allocated(morph_fac)) THEN
-              allocate (morph_fac(NST,Ngrids))
-            END IF
-            Npts=load_r(Nval, Rval, NCS*Ngrids, Rmud)
-            DO ng=1,Ngrids
-              DO itrc=1,NCS
-                morph_fac(itrc,ng)=Rmud(itrc,ng)
-              END DO
-            END DO
-#if defined COHESIVE_BED || defined MIXED_BED
-          ELSE IF (TRIM(KeyWord).eq.'MUD_TAUCR_MIN') THEN
-            Npts=load_r(Nval, Rval, Ngrids, Rbed)
-            DO ng=1,Ngrids
-              tcr_min(ng)=Rbed(ng)
-          END DO
-          ELSE IF (TRIM(KeyWord).eq.'MUD_TAUCR_MAX') THEN
-            Npts=load_r(Nval, Rval, Ngrids, Rbed)
-            DO ng=1,Ngrids
-              tcr_max(ng)=Rbed(ng)
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'MUD_TAUCR_SLOPE') THEN
-            Npts=load_r(Nval, Rval, Ngrids, Rbed)
-            DO ng=1,Ngrids
-              tcr_slp(ng)=Rbed(ng)
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'MUD_TAUCR_OFF') THEN
-            Npts=load_r(Nval, Rval, Ngrids, Rbed)
-            DO ng=1,Ngrids
-              tcr_off(ng)=Rbed(ng)
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'MUD_TAUCR_TIME') THEN
-            Npts=load_r(Nval, Rval, Ngrids, Rbed)
-            DO ng=1,Ngrids
-              tcr_tim(ng)=Rbed(ng)
-          END DO
-# endif
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idmud)') THEN
-            Npts=load_l(Nval, Cval, NCS*Ngrids, Lmud)
-            DO ng=1,Ngrids
-              DO itrc=1,NCS
-                i=idTvar(idsed(itrc))
-                Hout(i,ng)=Lmud(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'Hout(iMfrac)') THEN
-            Npts=load_l(Nval, Cval, NCS*Ngrids, Lmud)
-            DO ng=1,Ngrids
-              DO itrc=1,NCS
-                i=idfrac(itrc)
-                Hout(i,ng)=Lmud(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'Hout(iMmass)') THEN
-            Npts=load_l(Nval, Cval, NCS*Ngrids, Lmud)
-            DO ng=1,Ngrids
-              DO itrc=1,NCS
-                i=idBmas(itrc)
-                Hout(i,ng)=Lmud(itrc,ng)
-              END DO
-            END DO
-# ifdef BEDLOAD
-          ELSE IF (TRIM(KeyWord).eq.'Hout(iMUbld)') THEN
-            DO ng=1,Ngrids
-              DO itrc=1,NCS
-                IF (idUbld(itrc).eq.0) THEN
-                  IF (Master) WRITE (out,100) 'idUbld'
-                  exit_flag=5
-                  RETURN
-                END IF
-              END DO
-            END DO
-            Npts=load_l(Nval, Cval, NCS*Ngrids, Lmud)
-            DO ng=1,Ngrids
-              DO itrc=1,NCS
-                i=idUbld(itrc)
-                Hout(i,ng)=Lmud(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'Hout(iMVbld)') THEN
-            DO ng=1,Ngrids
-              DO itrc=1,NCS
-                IF (idVbld(itrc).eq.0) THEN
-                  IF (Master) WRITE (out,100) 'idVbld'
-                  exit_flag=5
-                  RETURN
-                END IF
-              END DO
-            END DO
-            Npts=load_l(Nval, Cval, NCS*Ngrids, Lmud)
-            DO ng=1,Ngrids
-              DO itrc=1,NCS
-                i=idVbld(itrc)
-                Hout(i,ng)=Lmud(itrc,ng)
-              END DO
-            END DO
-# endif
-          ELSE IF (TRIM(KeyWord).eq.'SAND_SD50') THEN
-            IF (.not.allocated(Sd50)) allocate (Sd50(NST,Ngrids))
-            Npts=load_r(Nval, Rval, NNS*Ngrids, Rsand)
-            DO ng=1,Ngrids
-              DO itrc=1,NNS
-                i=NCS+itrc
-                Sd50(i,ng)=Rsand(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'SAND_CSED') THEN
-            IF (.not.allocated(Csed)) allocate (Csed(NST,Ngrids))
-            Npts=load_r(Nval, Rval, NNS*Ngrids, Rsand )
-            DO ng=1,Ngrids
-              DO itrc=1,NNS
-                i=NCS+itrc
-                Csed(i,ng)=Rsand(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'SAND_SRHO') THEN
-            IF (.not.allocated(Srho)) allocate (Srho(NST,Ngrids))
-            Npts=load_r(Nval, Rval, NNS*Ngrids, Rsand)
-            DO ng=1,Ngrids
-              DO itrc=1,NNS
-                i=NCS+itrc
-                Srho(i,ng)=Rsand(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'SAND_WSED') THEN
-            IF (.not.allocated(Wsed)) allocate (Wsed(NST,Ngrids))
-            Npts=load_r(Nval, Rval, NNS*Ngrids, Rsand)
-            DO ng=1,Ngrids
-              DO itrc=1,NNS
-                i=NCS+itrc
-                Wsed(i,ng)=Rsand(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'SAND_ERATE') THEN
-            IF (.not.allocated(Erate)) allocate (Erate(NST,Ngrids))
-            Npts=load_r(Nval, Rval, NNS*Ngrids, Rsand)
-            DO ng=1,Ngrids
-              DO itrc=1,NNS
-                i=NCS+itrc
-                Erate(i,ng)=Rsand(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'SAND_TAU_CE') THEN
-            IF (.not.allocated(tau_ce)) allocate (tau_ce(NST,Ngrids))
-            Npts=load_r(Nval, Rval, NNS*Ngrids, Rsand)
-            DO ng=1,Ngrids
-              DO itrc=1,NNS
-                i=NCS+itrc
-                tau_ce(i,ng)=Rsand(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'SAND_TAU_CD') THEN
-            IF (.not.allocated(tau_cd)) allocate (tau_cd(NST,Ngrids))
-            Npts=load_r(Nval, Rval, NNS*Ngrids, Rsand)
-            DO ng=1,Ngrids
-              DO itrc=1,NNS
-                i=NCS+itrc
-                tau_cd(i,ng)=Rsand(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'SAND_POROS') THEN
-            IF (.not.allocated(poros)) allocate (poros(NST,Ngrids))
-            Npts=load_r(Nval, Rval, NNS*Ngrids, Rsand)
-            DO ng=1,Ngrids
-              DO itrc=1,NNS
-                i=NCS+itrc
-                poros(i,ng)=Rsand(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'SAND_TNU2') THEN
-            Npts=load_r(Nval, Rval, NNS*Ngrids, Rsand)
-            DO ng=1,Ngrids
-              DO itrc=1,NNS
-                i=idsed(NCS+itrc)
-                tnu2(i,ng)=Rsand(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'SAND_TNU4') THEN
-            Npts=load_r(Nval, Rval, NNS*Ngrids, Rsand)
-            DO ng=1,Ngrids
-              DO itrc=1,NNS
-                i=idsed(NCS+itrc)
-                tnu4(i,ng)=Rsand(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'SAND_AKT_BAK') THEN
-            Npts=load_r(Nval, Rval, NNS*Ngrids, Rsand)
-            DO ng=1,Ngrids
-              DO itrc=1,NNS
-                i=idsed(NCS+itrc)
-                Akt_bak(i,ng)=Rsand(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'SAND_TNUDG') THEN
-            Npts=load_r(Nval, Rval, NNS*Ngrids, Rsand)
-            DO ng=1,Ngrids
-              DO itrc=1,NNS
-                i=idsed(NCS+itrc)
-                Tnudg(i,ng)=Rsand(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'SAND_MORPH_FAC') THEN
-            IF (.not.allocated(morph_fac)) THEN
-              allocate (morph_fac(NST,Ngrids))
-            END IF
-            Npts=load_r(Nval, Rval, NNS*Ngrids, Rsand)
-            DO ng=1,Ngrids
-              DO itrc=1,NNS
-                i=NCS+itrc
-                morph_fac(i,ng)=Rsand(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idsand)') THEN
-            Npts=load_l(Nval, Cval, NNS*Ngrids, Lsand)
-            DO ng=1,Ngrids
-              DO itrc=1,NNS
-                i=idTvar(idsed(NCS+itrc))
-                Hout(i,ng)=Lsand(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'Hout(iSfrac)') THEN
-            Npts=load_l(Nval, Cval, NNS*Ngrids, Lsand)
-            DO ng=1,Ngrids
-              DO itrc=1,NNS
-                i=idfrac(NCS+itrc)
-                Hout(i,ng)=Lsand(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'Hout(iSmass)') THEN
-            Npts=load_l(Nval, Cval, NNS*Ngrids, Lsand)
-            DO ng=1,Ngrids
-              DO itrc=1,NNS
-                i=idBmas(NCS+itrc)
-                Hout(i,ng)=Lsand(itrc,ng)
-              END DO
-            END DO
-# ifdef BEDLOAD
-          ELSE IF (TRIM(KeyWord).eq.'Hout(iSUbld)') THEN
-            DO ng=1,Ngrids
-              DO itrc=NCS+1,NST
-                IF (idUbld(itrc).eq.0) THEN
-                  IF (Master) WRITE (out,100) 'idUbld'
-                  exit_flag=5
-                  RETURN
-                END IF
-              END DO
-            END DO
-            Npts=load_l(Nval, Cval, NNS*Ngrids, Lsand)
-            DO ng=1,Ngrids
-              DO itrc=1,NNS
-                i=idUbld(NCS+itrc)
-                Hout(i,ng)=Lsand(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'Hout(iSVbld)') THEN
-            DO ng=1,Ngrids
-              DO itrc=NCS+1,NST
-                IF (idVbld(itrc).eq.0) THEN
-                  IF (Master) WRITE (out,100) 'idVbld'
-                  exit_flag=5
-                  RETURN
-                END IF
-              END DO
-            END DO
-            Npts=load_l(Nval, Cval, NNS*Ngrids, Lsand)
-            DO ng=1,Ngrids
-              DO itrc=1,NNS
-                i=idVbld(NCS+itrc)
-                Hout(i,ng)=Lsand(itrc,ng)
-              END DO
-            END DO
-# endif
-          ELSE IF (TRIM(KeyWord).eq.'Hout(ithck)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Lbed)
-            i=idSbed(ithck)
-            DO ng=1,Ngrids
-              Hout(i,ng)=Lbed(ng)
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'Hout(iaged)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Lbed)
-            i=idSbed(iaged)
-            DO ng=1,Ngrids
-              Hout(i,ng)=Lbed(ng)
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'Hout(iporo)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Lbed)
-            i=idSbed(iporo)
-            DO ng=1,Ngrids
-              Hout(i,ng)=Lbed(ng)
-            END DO
-# if defined COHESIVE_BED || defined SED_BIODIFF || defined MIXED_BED
-          ELSE IF (TRIM(KeyWord).eq.'Hout(ibtcr)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Lbed)
-            i=idSbed(ibtcr)
-            DO ng=1,Ngrids
-              Hout(i,ng)=Lbed(ng)
-            END DO
-# endif
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idiff)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Lbed)
-            i=idSbed(idiff)
-            DO ng=1,Ngrids
-              Hout(i,ng)=Lbed(ng)
-            END DO
-          END IF
-        END IF
-      END DO
-  10  IF (Master) WRITE (out,40) line
-      exit_flag=4
-      RETURN
-  20  CONTINUE
-!
-!-----------------------------------------------------------------------
-!  Report input parameters.
-!-----------------------------------------------------------------------
-!
-      IF (Lwrite) THEN
-        DO ng=1,Ngrids
-          IF (Lsediment(ng)) THEN
-            WRITE (out,50) ng
-            WRITE (out,60)
-            DO itrc=1,NST
-              WRITE (out,70) itrc, Sd50(itrc,ng), Csed(itrc,ng),        &
-     &                       Srho(itrc,ng), Wsed(itrc,ng),              &
-     &                       Erate(itrc,ng), poros(itrc,ng)
-            END DO
-            WRITE (out,80)
-            DO itrc=1,NST
-              i=idsed(itrc)
-              WRITE (out,70) itrc, tau_ce(itrc,ng), tau_cd(itrc,ng),    &
-     &                       tnu2(i,ng), tnu4(i,ng), Akt_bak(i,ng),     &
-     &                       Tnudg(i,ng)
-            END DO
-            WRITE (out,85)
-            DO itrc=1,NST
-              WRITE (out,70) itrc,  morph_fac(itrc,ng)
-            END DO
-            WRITE (out,110) newlayer_thick(ng)
-            WRITE (out,115) minlayer_thick(ng)
-            WRITE (out,120) bedload_coeff(ng)
-# ifdef MIXED_BED
-            WRITE (out,130) transC(ng)
-            WRITE (out,140) transN(ng)
-# endif
-            DO itrc=1,NST
-              i=idTvar(idsed(itrc))
-              IF (Hout(i,ng)) WRITE (out,90) Hout(i,ng),                &
-     &            'Hout(idTvar)',                                       &
-     &            'Write out sediment', itrc, TRIM(Vname(1,i))
-            END DO
-            DO itrc=1,NST
-              i=idfrac(itrc)
-              IF (Hout(i,ng)) WRITE (out,90) Hout(i,ng),                &
-     &            'Hout(idfrac)',                                       &
-     &            'Write out bed fraction, sediment ', itrc,            &
-     &            TRIM(Vname(1,i))
-            END DO
-            DO itrc=1,NST
-              i=idBmas(itrc)
-              IF (Hout(i,ng)) WRITE (out,90) Hout(i,ng),                &
-     &            'Hout(idfrac)',                                       &
-     &            'Write out mass, sediment ', itrc,                    &
-     &            TRIM(Vname(1,i))
-            END DO
-# ifdef BEDLOAD
-            DO itrc=1,NST
-              i=idUbld(itrc)
-              IF (Hout(i,ng)) WRITE (out,90) Hout(i,ng),                &
-     &            'Hout(idUbld)',                                       &
-     &            'Write out bed load at U-points, sediment ', itrc,    &
-     &            TRIM(Vname(1,i))
-              i=idVbld(itrc)
-              IF (Hout(i,ng)) WRITE (out,90) Hout(i,ng),                &
-     &            'Hout(idVbld)',                                       &
-     &            'Write out bed load at V-points, sediment ', itrc,    &
-     &            TRIM(Vname(1,i))
-            END DO
-# endif
-            DO itrc=1,MBEDP
-              i=idSbed(itrc)
-              IF (Hout(i,ng)) WRITE (out,90) Hout(i,ng),                &
-     &            'Hout(idSbed)',                                       &
-     &            'Write out BED property ', itrc, TRIM(Vname(1,i))
-            END DO
-          END IF
-        END DO
-      END IF
-!
-!-----------------------------------------------------------------------
-!  Scale relevant input parameters
-!-----------------------------------------------------------------------
-!
-      DO ng=1,Ngrids
-        DO i=1,NST
-          Sd50(i,ng)=Sd50(i,ng)*0.001_r8
-          Wsed(i,ng)=Wsed(i,ng)*0.001_r8
-          tau_ce(i,ng)=tau_ce(i,ng)/rho0
-          tau_cd(i,ng)=tau_cd(i,ng)/rho0
-          tnu4(idsed(i),ng)=SQRT(ABS(tnu4(idsed(i),ng)))
-          IF (Tnudg(idsed(i),ng).gt.0.0_r8) THEN
-            Tnudg(idsed(i),ng)=1.0_r8/(Tnudg(idsed(i),ng)*86400.0_r8)
-          ELSE
-            Tnudg(idsed(i),ng)=0.0_r8
-          END IF
-        END DO
-      END DO
-
-  30  FORMAT (/,' READ_SedPar - variable info not yet loaded, ', a)
-  40  FORMAT (/,' READ_SedPar - Error while processing line: ',/,a)
-  50  FORMAT (/,/,' Sediment Parameters, Grid: ',i2.2,                  &
-     &        /,  ' =============================',/)
-  60  FORMAT (/,1x,'Size',5x,'Sd50',8x,'Csed',8x,'Srho',8x,'Wsed',      &
-     &        8x,'Erate',7x,'poros',/,1x,'Class',4x,'(mm)',7x,          &
-     &        '(kg/m3)',5x,'(kg/m3)',5x,'(mm/s)',5x,'(kg/m2/s)',4x,     &
-     &        '(nondim)',/)
-  70  FORMAT (2x,i2,2x,6(1x,1p,e11.4))
-  80  FORMAT (/,9x,'tau_ce',6x,'tau_cd',7x,'tnu2',8x,'tnu4',7x,         &
-     &        'Akt_bak',6x,'Tnudg',/,9x,'(N/m2)',6x,'(N/m2)',6x,        &
-     &        '(m2/s)',6x,'(m4/s)',7x,'(m2/s)',6x,'(day)',/)
-  85  FORMAT (/,9x,'morph_fac',/,9x,'(nondim)',/)
-  90  FORMAT (10x,l1,2x,a,t29,a,i2.2,':',1x,a)
- 100  FORMAT (/,' READ_SEDPAR - variable info not yet loaded, ', a)
- 110  FORMAT (/,' New bed layer formed when deposition exceeds ',e11.5, &
-     &        ' (m).')
- 115  FORMAT (' Two first layers are combined when 2nd layer smaller ', &
-     &         'than ',e11.5,' (m).')
- 120  FORMAT (' Rate coefficient for bed load transport = ',e11.5,/)
- 130  FORMAT (' Transition for mixed sediment =',e11.5,/)
- 140  FORMAT (' Transition for cohesive sediment =',e11.5,/)
-      RETURN
-      END SUBROUTINE read_SedPar
 #endif
 
 #if defined ASSIMILATION || defined FOUR_DVAR || defined NUDGING || \
@@ -10564,7 +5602,7 @@
 #     endif
 #    endif
 #   endif
-#   ifndef OBS_SENSITIVITY
+#   ifndef IS4DVAR_SENSITIVITY
 #    ifdef IS4DVAR
           WRITE (out,100) GradErr, 'GradErr',                           &
      &            'Upper bound on relative error of the gradient.'
@@ -10620,7 +5658,7 @@
      &            'Number of Lanczos iterations in posterior analysis.'
 #   endif
 #   ifndef TLM_CHECK
-#    ifndef OBS_SENSITIVITY
+#    ifndef IS4DVAR_SENSITIVITY
           WRITE (out,170) LdefNRM(1:4,ng), 'LdefNRM',                   &
      &            'Switch to create a normalization NetCDF file.'
           WRITE (out,170) LwrtNRM(1:4,ng), 'LwrtNRM',                   &
@@ -11000,7 +6038,7 @@
 #  endif
           WRITE (out,160) '    Input/Output Lanczos File:  ',           &
      &                    TRIM(LCZname(ng))
-#  ifndef OBS_SENSITIVITY
+#  ifndef IS4DVAR_SENSITIVITY
           WRITE (out,160) '    Input/Output Hessian File:  ',           &
      &                    TRIM(HSSname(ng))
 #  endif
@@ -11393,24 +6431,24 @@
         IF (status.gt.0) THEN
           IF (TRIM(KeyWord).eq.'Lstations') THEN
             Npts=load_l(Nval, Cval, Ngrids, Lstations)
-#if defined SEDIMENT && defined SED_MORPH
-          ELSE IF (TRIM(KeyWord).eq.'Sout(idbath)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idbath,1))
-#endif
-          ELSE IF (TRIM(KeyWord).eq.'Sout(idFsur)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idFsur,1))
-          ELSE IF (TRIM(KeyWord).eq.'Sout(idUbar)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idUbar,1))
-          ELSE IF (TRIM(KeyWord).eq.'Sout(idVbar)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idVbar,1))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idUvel)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idUvel,1))
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idUvel,:))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idVvel)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idVvel,1))
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idVvel,:))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idWvel)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idWvel,1))
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idWvel,:))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idOvel)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idOvel,1))
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idOvel,:))
+          ELSE IF (TRIM(KeyWord).eq.'Sout(idUbar)') THEN
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idUbar,:))
+          ELSE IF (TRIM(KeyWord).eq.'Sout(idVbar)') THEN
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idVbar,:))
+          ELSE IF (TRIM(KeyWord).eq.'Sout(idFsur)') THEN
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idFsur,:))
+# if defined SEDIMENT && defined SED_MORPH
+          ELSE IF (TRIM(KeyWord).eq.'Sout(idBath)') THEN
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idBath,:))
+# endif
           ELSE IF (TRIM(KeyWord).eq.'Sout(idTvar)') THEN
             Npts=load_l(Nval, Cval, MT*Ngrids, Lsta)
             DO ng=1,Ngrids
@@ -11423,71 +6461,87 @@
           ELSE IF (TRIM(KeyWord).eq.'Sout(idVair)') THEN
             Npts=load_l(Nval, Cval, Ngrids, Sout(idVair,1))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idUsms)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idUsms,1))
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idUsms,:))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idVsms)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idVsms,1))
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idVsms,:))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idUbms)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idUbms,1))
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idUbms,:))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idVbms)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idVbms,1))
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idVbms,:))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idUbrs)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idUbrs,1))
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idUbrs,:))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idVbrs)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idVbrs,1))
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idVbrs,:))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idUbws)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idUbws,1))
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idUbws,:))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idVbws)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idVbws,1))
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idVbws,:))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idUbcs)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idUbcs,1))
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idUbcs,:))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idVbcs)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idVbcs,1))
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idVbcs,:))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idUbot)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idUbot,1))
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idUbot,:))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idVbot)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idVbot,1))
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idVbot,:))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idUbur)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idUbur,1))
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idUbur,:))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idVbvr)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idVbvr,1))
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idVbvr,:))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idW2xx)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idW2xx,1))
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idW2xx,:))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idW2xy)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idW2xy,1))
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idW2xy,:))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idW2yy)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idW2yy,1))
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idW2yy,:))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idU2rs)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idU2rs,1))
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idU2rs,:))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idV2rs)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idV2rs,1))
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idV2rs,:))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idU2Sd)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idU2Sd,1))
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idU2Sd,:))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idV2Sd)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idV2Sd,1))
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idV2Sd,:))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idW3xx)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idW3xx,1))
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idW3xx,:))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idW3xy)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idW3xy,1))
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idW3xy,:))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idW3yy)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idW3yy,1))
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idW3yy,:))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idW3zx)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idW3zx,1))
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idW3zx,:))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idW3zy)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idW3zy,1))
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idW3zy,:))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idU3rs)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idU3rs,1))
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idU3rs,:))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idV3rs)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idV3rs,1))
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idV3rs,:))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idU3Sd)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idU3Sd,1))
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idU3Sd,:))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idV3Sd)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idV3Sd,1))
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idV3Sd,:))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idWamp)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idWamp,1))
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idWamp,:))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idWlen)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idWlen,1))
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idWlen,:))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idWdir)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idWdir,1))
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idWdir,:))
+# ifdef WAVES_TOP_PERIOD
+          ELSE IF (TRIM(KeyWord).eq.'Sout(idWptp)') THEN
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idWptp,:))
+# endif
+# ifdef WAVES_BOT_PERIOD
+          ELSE IF (TRIM(KeyWord).eq.'Sout(idWpbt)') THEN
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idWpbt,:))
+# endif
+# ifdef WAVES_UB
+          ELSE IF (TRIM(KeyWord).eq.'Sout(idWorb)') THEN
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idWorb,:))
+# endif
+# if defined TKE_WAVEDISS || defined WAVES_OCEAN
+          ELSE IF (TRIM(KeyWord).eq.'Sout(idWdis)') THEN
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idWdis,:))
+# endif
           ELSE IF (TRIM(KeyWord).eq.'Sout(idTsur)') THEN
             Npts=load_l(Nval, Cval, NAT*Ngrids, Lsta)
             DO ng=1,Ngrids
@@ -11496,42 +6550,37 @@
               END DO
             END DO
           ELSE IF (TRIM(KeyWord).eq.'Sout(idLhea)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idLhea,1))
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idLhea,:))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idShea)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idShea,1))
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idShea,:))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idLrad)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idLrad,1))
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idLrad,:))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idSrad)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idSrad,1))
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idSrad,:))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idEmPf)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idEmPf,1))
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idEmPf,:))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idevap)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idevap,1))
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idevap,:))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idrain)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idrain,1))
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idrain,:))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idDano)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idDano,1))
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idDano,:))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idVvis)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idVvis,1))
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idVvis,:))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idTdif)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idTdif,1))
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idTdif,:))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idSdif)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idSdif,1))
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idSdif,:))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idHsbl)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idHsbl,1))
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idHsbl,:))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idHbbl)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idHbbl,1))
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idHbbl,:))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idMtke)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idMtke,1))
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idMtke,:))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idMtls)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idMtls,1))
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idMtls,:))
 # if defined SOLVE3D && (defined BBL_MODEL || defined SEDIMENT)
           ELSE IF (TRIM(KeyWord).eq.'Sout(idBott)') THEN
-            IF (MAXVAL(idBott).eq.0) THEN
-              IF (Master) WRITE (out,110) 'idBott'
-              exit_flag=5
-              RETURN
-            END IF
             Npts=load_l(Nval, Cval, MBOTP*Ngrids, Lbottom)
             DO ng=1,Ngrids
               DO itrc=1,MBOTP
@@ -11777,15 +6826,41 @@
      &         'Write out 3D v-momentum stokes velocity.'
 #  endif
 # endif
+# ifdef WAVES_HEIGHT
             IF (Sout(idWamp,ng)) WRITE (out,80) Sout(idWamp,ng),        &
      &         'Sout(idWamp)',                                          &
      &         'Write out wave height.'
+# endif
+# ifdef WAVES_LENGTH
             IF (Sout(idWlen,ng)) WRITE (out,80) Sout(idWlen,ng),        &
      &         'Sout(idWlen)',                                          &
      &         'Write out wave length.'
+# endif
+# ifdef WAVES_DIR
             IF (Sout(idWdir,ng)) WRITE (out,80) Sout(idWdir,ng),        &
      &         'Sout(idWdir)',                                          &
      &         'Write out wave direction.'
+# endif
+# ifdef WAVES_TOP_PERIOD
+            IF (Sout(idWptp,ng)) WRITE (out,80) Sout(idWptp,ng),        &
+     &         'Sout(idWptp)',                                          &
+     &         'Write out wave surface period.'
+# endif
+# ifdef WAVES_BOT_PERIOD
+            IF (Sout(idWpbt,ng)) WRITE (out,80) Sout(idWpbt,ng),        &
+     &         'Sout(idWpbt)',                                          &
+     &         'Write out wave bottom period.'
+# endif
+# ifdef WAVES_UB
+            IF (Sout(idWorb,ng)) WRITE (out,80) Sout(idWorb,ng),        &
+     &         'Sout(idWorb)',                                          &
+     &         'Write out wave bottom orbital velocity.'
+# endif
+# if defined TKE_WAVEDISS || defined WAVES_OCEAN
+            IF (Sout(idWdis,ng)) WRITE (out,80) Sout(idWdis,ng),        &
+     &         'Sout(idWdis)',                                          &
+     &         'Write out wave dissipation.'
+# endif
 # if defined SOLVE3D && (defined BBL_MODEL || defined SEDIMENT)
             DO itrc=1,MBOTP
               IF (Sout(idBott(itrc),ng)) WRITE (out,80)                 &
@@ -12010,10 +7085,19 @@
         string(i:i)=blank
       END DO
 !
-!  Get length of "line", remove leading and trailing blanks.
+!  Get length of "line". Remove comment after the KEYWORD, if any.
+!  Then, remove leading and trailing blanks.
 !
-      line=TRIM(ADJUSTL(line_text))
-      Linp=LEN_TRIM(line)
+      Linp=LEN(line_text)
+      IF ((Linp.gt.0).and.(line_text(1:1).ne.CHAR(33))) THEN
+        Icmm=INDEX(line_text,CHAR(33),BACK=.FALSE.)
+        IF (Icmm.gt.0) Linp=Icmm-1
+        line=TRIM(ADJUSTL(line_text(1:Linp)))
+        Linp=LEN_TRIM(line)
+      ELSE
+        line=TRIM(ADJUSTL(line_text))
+        Linp=LEN_TRIM(line)
+      END IF
 !
 !  If not a blank or comment line [char(33)=!], decode and extract input
 !  values.  Find equal sign [char(61)].
@@ -12045,13 +7129,10 @@
           Kextract=.TRUE.
         END IF
 !
-! Extract parameter values string.  Remove comments [char(33)=!] or
-! continuation symbol [char(92)=\], if any.  Trim leading trailing
-! blanks.
+! Extract parameter values string.  Remove continuation symbol
+! [char(92)=\], if any.  Trim leading trailing blanks.
 !
         IF (Kextract) THEN
-          Icmm=INDEX(line,CHAR(33),BACK=.FALSE.)
-          IF (Icmm.gt.0) Lend=Icmm-1
           Icmm=INDEX(line,CHAR(92),BACK=.FALSE.)
           IF (Icmm.gt.0) Lend=Icmm-1
           Vstring=ADJUSTL(line(Lstr:Lend))

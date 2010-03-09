@@ -2,9 +2,9 @@
 #if defined ADJOINT && !defined SOLVE3D
       SUBROUTINE ad_main2d (ng)
 !
-!svn $Id: ad_main2d.F 1098 2009-11-18 17:54:22Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -31,7 +31,7 @@
       USE mod_storage
 # endif
 !
-# if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
+# if defined AD_SENSITIVITY   || defined IS4DVAR_SENSITIVITY || \
      defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR
       USE adsen_force_mod, ONLY : adsen_force
 # endif
@@ -145,7 +145,7 @@
 !$OMP END PARALLEL DO
       IF (exit_flag.ne.NoError) RETURN
 
-# if (defined FOUR_DVAR && !defined OBS_SENSITIVITY) && \
+# if (defined FOUR_DVAR    && !defined IS4DVAR_SENSITIVITY) && \
       defined OBSERVATIONS
 !
 !-----------------------------------------------------------------------
@@ -498,7 +498,7 @@
       END IF
 # endif
 
-# if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
+# if defined AD_SENSITIVITY   || defined IS4DVAR_SENSITIVITY || \
      defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR
 !
 !-----------------------------------------------------------------------

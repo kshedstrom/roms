@@ -2,7 +2,7 @@
 #ifdef ADJOINT
       SUBROUTINE ad_step2d (ng, tile)
 !
-!svn $Id: ad_step2d_LF_AM3.h 1039 2009-08-11 22:52:28Z kate $
+!svn $Id$
 !=======================================================================
 !                                                                      !
 !  Adjoint shallow-water primitive equations predictor (Leap-frog)     !
@@ -26,6 +26,9 @@
       USE mod_mixing
 # endif
       USE mod_ocean
+# if defined SEDIMENT && defined SED_MORPH && defined SOLVE3D
+      USE mod_sedbed
+# endif
 # if defined UV_PSOURCE || defined Q_PSOURCE
       USE mod_sources
 # endif
@@ -71,7 +74,7 @@
      &                     GRID(ng) % zice,                             &
 #  endif
 #  if defined SEDIMENT_NOT_YET && defined SED_MORPH_NOT_YET
-     &                     GRID(ng) % ad_bed_thick,                     &
+     &                     SEDBED(ng) % ad_bed_thick,                   &
 #  endif
      &                     GRID(ng) % ad_Hz,                            &
      &                     GRID(ng) % ad_z_r,      GRID(ng) % ad_z_w,   &
@@ -247,7 +250,7 @@
 !!   &                           DiaRUfrc, DiaRVfrc,                    &
 #  endif
 # endif
-# ifndef SOLVE3D 
+# ifndef SOLVE3D
      &                           ad_ubar_sol, ad_vbar_sol,              &
      &                           ad_zeta_sol,                           &
 # endif
@@ -396,7 +399,7 @@
       real(r8), intent(inout) :: ad_rvfrc(LBi:,LBj:)
       real(r8), intent(inout) :: ad_ru(LBi:,LBj:,0:,:)
       real(r8), intent(inout) :: ad_rv(LBi:,LBj:,0:,:)
-#  else 
+#  else
       real(r8), intent(inout) :: ad_sustr(LBi:,LBj:)
       real(r8), intent(inout) :: ad_svstr(LBi:,LBj:)
       real(r8), intent(inout) :: ad_bustr(LBi:,LBj:)
@@ -739,7 +742,7 @@
           ad_VFe(i,j)=0.0_r8
           ad_VFx(i,j)=0.0_r8
           ad_grad(i,j)=0.0_r8
-          ad_gzeta(i,j)=0.0_r8 
+          ad_gzeta(i,j)=0.0_r8
           ad_gzeta2(i,j)=0.0_r8
 # if defined VAR_RHO_2D && defined SOLVE3D
           ad_gzetaSA(i,j)=0.0_r8
@@ -973,52 +976,43 @@
           IF (((IstrR.le.i).and.(i.le.IendR)).and.                      &
      &        ((JstrR.le.j).and.(j.le.JendR))) THEN
             IF (INT(Dsrc(is)).eq.0) THEN
-              cff=1.0_r8/(on_u(i,j)*0.5_r8*(Dnew(i-1,j)+Dnew(i,j)))
-#  ifdef SOLVE3D
-!>            tl_DU_avg1(i,j)=0.0_r8
-!>
-              ad_DU_avg1(i,j)=0.0_r8
-#  endif
+              cff=1.0_r8/(on_u(i,j)*                                    &
+     &                    0.5_r8*(zeta(i-1,j,knew)+h(i-1,j)+            &
+     &                            zeta(i  ,j,knew)+h(i  ,j)))
 !>            tl_ubar(i,j,knew)=Qbar(is)*tl_cff
 !>
               ad_cff=ad_cff+Qbar(is)*ad_ubar(i,j,knew)
               ad_ubar(i,j,knew)=0.0_r8
-!>            tl_cff=-cff*cff*on_u(i,j)*                                &
-!>   &               0.5_r8*(tl_Dnew(i-1,j)+tl_Dnew(i,)
+!>            tl_cff=-cff*cff*                                          &
+!>   &               on_u(i,j)*0.5_r8*(tl_zeta(i-1,j,knew)+tl_h(i-1,j)+ &
+!>   &                                 tl_zeta(i  ,j,knew)+tl_h(i  ,j))
 !>
               adfac=-cff*cff*on_u(i,j)*0.5_r8*ad_cff
-              ad_Dnew(i-1,j)=ad_Dnew(i-1,j)+adfac
-              ad_Dnew(i  ,j)=ad_Dnew(i  ,j)+adfac
+              ad_h(i-1,j)=ad_h(i-1,j)+adfac
+              ad_h(i  ,j)=ad_h(i  ,j)+adfac
+              ad_zeta(i-1,j,knew)=ad_zeta(i-1,j,knew)+adfac
+              ad_zeta(i  ,j,knew)=ad_zeta(i  ,j,knew)+adfac
               ad_cff=0.0_r8
             ELSE
-              cff=1.0_r8/(om_v(i,j)*0.5_r8*(Dnew(i,j-1)+Dnew(i,j)))
-#  ifdef SOLVE3D
-!>            tl_DV_avg1(i,j)=0.08
-!>
-              ad_DV_avg1(i,j)=0.08
-#  endif
+              cff=1.0_r8/(om_v(i,j)*                                    &
+     &                    0.5_r8*(zeta(i,j-1,knew)+h(i,j-1)+            &
+     &                            zeta(i,j  ,knew)+h(i,j  )))
 !>            tl_vbar(i,j,knew)=Qbar(is)*tl_cff
 !>
               ad_cff=ad_cff+Qbar(is)*ad_vbar(i,j,knew)
               ad_vbar(i,j,knew)=0.0_r8
-!>            tl_cff=-cff*cff*om_v(i,j)*                                &
-!>   &               0.5_r8*(tl_Dnew(i,j-1)+tl_Dnew(i,j))
+!>            tl_cff=-cff*cff*                                          &
+!>   &               om_v(i,j)*0.5_r8*(tl_zeta(i,j-1,knew)+tl_h(i,j-1)+ &
+!>   &                                 tl_zeta(i,j  ,knew)+tl_h(i,j  ))
 !>
               adfac=-cff*cff*om_v(i,j)*0.5_r8*ad_cff
-              ad_Dnew(i,j-1)=ad_Dnew(i,j-1)+adfac
-              ad_Dnew(i,j  )=ad_Dnew(i,j  )+adfac
+              ad_h(i,j-1)=ad_h(i,j-1)+adfac
+              ad_h(i,j  )=ad_h(i,j  )+adfac
+              ad_zeta(i,j-1,knew)=ad_zeta(i,j-1,knew)+adfac
+              ad_zeta(i,j  ,knew)=ad_zeta(i,j  ,knew)+adfac
               ad_cff=0.0_r8
             END IF
           END IF
-        END DO
-        DO j=Jstr-1,Jend+1
-          DO i=Istr-1,Iend+1
-!>          tl_Dnew(i,j)=tl_zeta(i,j,knew)+tl_h(i,j)
-!>
-            ad_zeta(i,j,knew)=ad_zeta(i,j,knew)+ad_Dnew(i,j)
-            ad_h(i,j)=ad_h(i,j)+ad_Dnew(i,j)
-            ad_Dnew(i,j)=0.0_r8
-          END DO
         END DO
 # endif
 # ifdef OBC_VOLCONS
@@ -1497,7 +1491,7 @@
               ad_vbar(i,j,knew)=0.0_r8
 !>            tl_fac=-fac*fac*(tl_Dnew(i,j)+tl_Dnew(i,j-1))
 !>
-              adfac=-fac*fac*ad_fac              
+              adfac=-fac*fac*ad_fac
               ad_Dnew(i,j-1)=ad_Dnew(i,j-1)+adfac
               ad_Dnew(i,j  )=ad_Dnew(i,j  )+adfac
               ad_fac=0.0_r8
@@ -1610,7 +1604,7 @@
               ad_Dnew(i,j  )=ad_Dnew(i,j  )+adfac1
               ad_Dstp(i,j-1)=ad_Dstp(i,j-1)-adfac2
               ad_Dstp(i,j  )=ad_Dstp(i,j  )-adfac2
-              ad_rhs_vbar(i,j)=0.0_r8              
+              ad_rhs_vbar(i,j)=0.0_r8
 !>
 !>            cff5=ABS(ABS(vmask_wet(i,j))-1.0_r8)
 !>            cff6=0.5_r8+DSIGN(0.5_r8,vbar(i,j,knew))*vmask_wet(i,j)
@@ -2443,7 +2437,7 @@
             Drhs_p(i,j)=0.25_r8*(Drhs(i,j  )+Drhs(i-1,j  )+             &
      &                           Drhs(i,j-1)+Drhs(i-1,j-1))
           END DO
-        END DO 
+        END DO
 # endif
 # ifdef UV_VIS4
 !
@@ -4243,7 +4237,7 @@
 !-----------------------------------------------------------------------
 !  Compute adjoint pressure gradient terms.
 !-----------------------------------------------------------------------
-!      
+!
 !  Compute BASIC STATE fields associated with pressure gradient and
 !  time-stepping of adjoint free-surface.
 !

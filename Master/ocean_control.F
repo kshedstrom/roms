@@ -1,8 +1,8 @@
 #include "cppdefs.h"
 !!
-!!svn $Id: ocean_control.F 1098 2009-11-18 17:54:22Z kate $
+!!svn $Id$
 !!================================================= Hernan G. Arango ===
-!! Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
+!! Copyright (c) 2002-2010 The ROMS/TOMS Group       Andrew M. Moore   !
 !!   Licensed under a MIT/X style license                              !
 !!   See License_ROMS.txt                                              !
 !!======================================================================
@@ -21,7 +21,7 @@
 !!  nl_ocean.h             Nonlinear model driver (default)            !
 !!  op_ocean.h             Optimal perturbations driver                !
 !!  optobs_ocean.h         Optimal observations driver                 !
-!!  obs_sen_ocean.h        Observations sensitivity driver to the      !
+!!  obs_sen_is4dvar.h      Observations sensitivity driver to the      !
 !!                           IS4DVAR data assimilation system          !
 !!  obs_sen_w4dpsas.h      Observations sensitivity driver to the      !
 !!                           W4DPSAS data assimilation system          !
@@ -59,8 +59,8 @@
 # include "fte_ocean.h"
 #elif defined FORCING_SV
 # include "fsv_ocean.h"
-#elif defined OBS_SENSITIVITY
-# include "obs_sen_ocean.h"
+#elif defined IS4DVAR_SENSITIVITY
+# include "obs_sen_is4dvar.h"
 #elif defined OPT_PERTURBATION
 # include "op_ocean.h"
 #elif defined OPT_OBSERVATIONS

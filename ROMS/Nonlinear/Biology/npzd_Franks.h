@@ -1,8 +1,8 @@
       SUBROUTINE biology (ng,tile)
 !
-!svn $Id: npzd_Franks.h 1075 2009-09-25 22:41:13Z kate $
+!svn $Id$
 !************************************************** Hernan G. Arango ***
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group        Craig V. Lewis   !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group        Craig V. Lewis   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !***********************************************************************

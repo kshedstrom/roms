@@ -2,9 +2,9 @@
 #ifdef FLOATS
       SUBROUTINE def_floats (ng, ldef)
 !
-!svn $Id: def_floats.F 1060 2009-09-12 00:25:38Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -16,6 +16,9 @@
 !
       USE mod_param
       USE mod_parallel
+# ifdef BIOLOGY
+      USE mod_biology
+# endif
       USE mod_floats
 # ifdef FOUR_DVAR
       USE mod_fourdvar
@@ -48,7 +51,7 @@
       integer :: fltdim, i, itrc, j, l
       integer :: recdim, status
 
-      integer :: DimIDs(31), fgrd(2), start(2), total(2)
+      integer :: DimIDs(32), fgrd(2), start(2), total(2)
       integer :: Vsize(4)
 
       integer :: def_dim, varid
@@ -106,6 +109,10 @@
         IF (exit_flag.ne.NoError) RETURN
 
 #  ifdef SEDIMENT
+        status=def_dim(ng, iNLM, ncFLTid(ng), ncname, 'NST',            &
+     &                 NST, DimIDs(32))
+        IF (exit_flag.ne.NoError) RETURN
+
         status=def_dim(ng, iNLM, ncFLTid(ng), ncname, 'Nbed',           &
      &                 Nbed, DimIDs(16))
         IF (exit_flag.ne.NoError) RETURN

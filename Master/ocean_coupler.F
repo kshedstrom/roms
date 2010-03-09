@@ -3,9 +3,9 @@
 
 #if defined MODEL_COUPLING && defined MCT_LIB
 !
-!svn $Id: ocean_coupler.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id$
 !==================================================== John C. Warner ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group      Hernan G. Arango   !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group      Hernan G. Arango   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -91,12 +91,12 @@
 !
 # ifdef SWAN_COUPLING
       TYPE(AttrVect) :: wav2ocn_AV            ! AttrVect variables
-      TYPE(AttrVect) :: ocn2wav_AV 
+      TYPE(AttrVect) :: ocn2wav_AV
       TYPE(Router)   :: ROMStoSWAN            ! Router variables
 # endif
 # ifdef WRF_COUPLING
       TYPE(AttrVect) :: atm2ocn_AV            ! AttrVect variables
-      TYPE(AttrVect) :: ocn2atm_AV 
+      TYPE(AttrVect) :: ocn2atm_AV
       TYPE(Router)   :: ROMStoWRF             ! Router variables
 # endif
       TYPE(GlobalSegMap) :: GSMapROMS         ! GloabalSegMap variables
