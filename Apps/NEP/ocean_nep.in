@@ -65,20 +65,21 @@
 ! shared-memory configurations used to determine tile horizontal range
 ! indices (Istr,Iend) and (Jstr,Jend), [1:Ngrids].
 
-       NtileI == 1                               ! I-direction partition
-       NtileJ == 16                              ! J-direction partition
-!      NtileI == 6                               ! I-direction partition
+!      NtileI == 2                               ! I-direction partition
 !      NtileJ == 8                              ! J-direction partition
 !      NtileI == 6                               ! I-direction partition
-!      NtileJ == 16                              ! J-direction partition
+!      NtileJ == 8                              ! J-direction partition
+       NtileI == 4                               ! I-direction partition
+       NtileJ == 20                              ! J-direction partition
 
 ! Time-Stepping parameters.
 
-       NTIMES == 4320
-!      NTIMES == 51840
-!      NTIMES == 3073152       ! to 1/Nov/2001
-!      NTIMES == 6872472       ! for 200 days
-          DT == 200.0d0
+!      NTIMES == 4320
+       NTIMES == 11784096
+!      NTIMES == 3600288
+!!          DT == 50.0d0
+!         DT == 100.0d0
+         DT == 200.0d0
      NDTFAST == 20
 
 ! Model iteration loops parameters.
@@ -98,8 +99,14 @@
 
 ! Input/Output parameters.
 
-       NRREC =  1
+       NRREC = -1
    LcycleRST == T
+!!       NRST == 1728
+!!       NSTA == 72
+!!       NFLT == 72
+!       NRST == 864
+!       NSTA == 36
+!       NFLT == 36
         NRST == 432
         NSTA == 18
         NFLT == 18
@@ -107,12 +114,20 @@
 
 ! Output history, average, diagnostic files parameters.
 
-     LDEFOUT == T
-        NHIS == 4320
-     NDEFHIS == 43200
+     LDEFOUT == F
+!!       NHIS == 17280
+!!    NDEFHIS == 172800
+!       NHIS == 8640
+!    NDEFHIS == 86400
+!       NHIS == 4320
+!    NDEFHIS == 43200
       NTSAVG == 1
+!!       NAVG == 1728
+!!    NDEFAVG == 1728
+!       NAVG == 864
+!    NDEFAVG == 864
         NAVG == 432
-     NDEFAVG == 4320
+     NDEFAVG == 432
      NTSAVG2 == 1
        NAVG2 == 27
     NDEFAVG2 == 1920
@@ -238,8 +253,9 @@
 ! origin for tidal forcing, and model reference time for output
 ! NetCDF units attribute.
 
-!     DSTART =  21185.0d0                  ! days
-      DSTART =  31049.0d0                  ! days
+!     DSTART =  21187.0d0                  ! days
+      DSTART =  25202.0d0                  ! days
+!     DSTART =  31049.0d0                  ! days
   TIDE_START =  -693962.0d0                ! days
     TIME_REF =  19000101.0d0               ! yyyymmdd.dd
 
@@ -496,8 +512,8 @@ Hout2(idT0mk) == F
 
 !     GRDNAME == /wrkdir/kate/BiomModel/NEP4/NEP4_grid.nc
      GRDNAME == /wrkdir/kate/NEP5/Files/NEP_grid_5a.nc
-     ININAME == /wrkdir/kate/NEP5/Files/soda2.0.2_NEP5a_init_1958.nc
-!     ININAME == nep5_rst.nc
+!     ININAME == /wrkdir/kate/NEP5/Files/soda2.0.2_NEP5a_init_1958.nc
+     ININAME == nep5_rst.nc
      ITLNAME == /ptmp/enrique/ROMS/NEP4/Inputs/ocean_itl.nc
      IRPNAME == ocean_irp.nc
      IADNAME == ocean_iad.nc
@@ -517,7 +533,7 @@ Hout2(idT0mk) == F
 ! at the each entry, except the last one.
 
 
-    NFFILES == 10                          ! number of forcing files
+    NFFILES == 11                          ! number of forcing files
 
     FRCNAME == /wrkdir/kate/NEP5/Files/Pair.1948-2006.nc   \
                /wrkdir/kate/NEP5/Files/lwrad.1948-2006.nc  \
@@ -526,8 +542,9 @@ Hout2(idT0mk) == F
                /wrkdir/kate/NEP5/Files/Tair.1948-2006.nc   \
                /wrkdir/kate/NEP5/Files/Uwind.1948-2006.nc  \
                /wrkdir/kate/NEP5/Files/Vwind.1948-2006.nc  \
-               /wrkdir/kate/NEP5/Files/runoff.nc   \
+               /wrkdir/kate/NEP5/Files/CCSM_Runoff.nc   \
                /wrkdir/kate/NEP5/Files/rain.1948-2006.nc  \
+               /wrkdir/kate/NEP5/Files/sss_fill_2004.nc  \
                /wrkdir/kate/NEP5/Files/NEP4_tides_otps.nc
 
 ! Output NetCDF file names, [1:Ngrids].
