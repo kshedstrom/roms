@@ -853,6 +853,7 @@
 # ifdef MASKING
             zeta_new(i,j)=zeta_new(i,j)*rmask(i,j)
 # endif
+            Dnew(i,j)=zeta_new(i,j)+h(i,j)
             zwrk(i,j)=0.5_r8*(zeta(i,j,kstp)+zeta_new(i,j))
 # if defined VAR_RHO_2D && defined SOLVE3D
             gzeta(i,j)=(fac+rhoS(i,j))*zwrk(i,j)
@@ -877,6 +878,7 @@
 # ifdef MASKING
             zeta_new(i,j)=zeta_new(i,j)*rmask(i,j)
 # endif
+            Dnew(i,j)=zeta_new(i,j)+h(i,j)
             zwrk(i,j)=cff5*zeta(i,j,krhs)+                              &
      &                cff4*(zeta(i,j,kstp)+zeta_new(i,j))
 # if defined VAR_RHO_2D && defined SOLVE3D
@@ -906,6 +908,7 @@
 # ifdef MASKING
             zeta_new(i,j)=zeta_new(i,j)*rmask(i,j)
 # endif
+            Dnew(i,j)=zeta_new(i,j)+h(i,j)
             zwrk(i,j)=cff5*zeta_new(i,j)+cff4*zeta(i,j,krhs)
 # if defined VAR_RHO_2D && defined SOLVE3D
             gzeta(i,j)=(fac+rhoS(i,j))*zwrk(i,j)
