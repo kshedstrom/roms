@@ -294,7 +294,7 @@
 #  ifndef ANA_SRFLUX
           real(r8), pointer :: srflxG(:,:,:)
 #  endif
-#  if defined ALBEDO && !defined BENCHMARK
+#  if defined ALBEDO
           real(r8), pointer :: cawdir(:,:)
 #  endif
 # endif
@@ -677,7 +677,7 @@
 #  ifndef ANA_SRFLUX
       allocate ( FORCES(ng) % srflxG(LBi:UBi,LBj:UBj,2) )
 #  endif
-#  if defined ALBEDO && !defined BENCHMARK
+#  if defined ALBEDO
       allocate ( FORCES(ng) % cawdir(LBi:UBi,LBj:UBj) )
 #  endif
 # endif
@@ -1154,7 +1154,7 @@
             FORCES(ng) % srflxG(i,j,1) = IniVal
             FORCES(ng) % srflxG(i,j,2) = IniVal
 #  endif
-#  if defined ALBEDO && !defined BENCHMARK
+#  if defined ALBEDO
             FORCES(ng) % cawdir(i,j) = IniVal
 #  endif
 # endif
