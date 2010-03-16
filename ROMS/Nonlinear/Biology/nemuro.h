@@ -720,7 +720,7 @@
 #if defined NEMURO_SAN && defined FISH_FEEDBACK
 !-----------------------------------------------------------------------
 ! Phytoplankton Mortality from Fish Predation
-! NON-CONSERVATIVE TERM, VIOLATES NITROGEN CONSEFVATION IN NEMURO !
+! NON-CONSERVATIVE TERM, VIOLATES NITROGEN CONSERVATION IN NEMURO !
 !-----------------------------------------------------------------------
 !
           DO k=1,N(ng)
@@ -1063,7 +1063,7 @@
 #if defined NEMURO_SAN && defined FISH_FEEDBACK
 !-----------------------------------------------------------------------
 ! Zooplankton Mortality from Fish Predation
-! NON-CONSERVATIVE TERM, VIOLATES NITROGEN CONSEFVATION IN NEMURO !
+! NON-CONSERVATIVE TERM, VIOLATES NITROGEN CONSERVATION IN NEMURO !
 !-----------------------------------------------------------------------
 !
           DO k=1,N(ng)

@@ -1059,13 +1059,6 @@
      &                        start = (/1,tFISHindx(ng)/),              &
      &                        total = (/Nfish(ng),1/))
 
-        CALL netcdf_get_lvar (ng, iNLM, ncname,                         &
-     &                        TRIM(Vname(1,idFgrl)),                    &
-     &                        FISHES(ng)%fishgirl,                      &
-     &                        ncid = ncFISHid(ng),                      &
-     &                        start = (/1,tFISHindx(ng)/),              &
-     &                        total = (/Nfish(ng),1/))
-
         CALL netcdf_get_ivar (ng, iNLM, ncname,                         &
      &                        'Fish_age_base',                          &
      &                        FISHES(ng)%age_base,                      &
