@@ -53,7 +53,6 @@
 !  ships_count  Number of ships in each box.                           !
 !  pred_list    Linked list of predators in the box for each box.      !
 !  pred_count   Number of predators in each box.                       !
-!  spawn_loc    2D spawning locations for each fish species.           !
 #  if defined EGGS_BISECTION
 !  egg_count    Number of eggs in each box for each species.           !
 #  endif
@@ -138,8 +137,6 @@
 #  ifdef EGGS_BISECTION
           real(r8), pointer :: egg_count(:,:,:)
 #  endif
-
-          real(r8), pointer :: spawn_loc(:,:,:)
 # endif
 #endif
 
@@ -410,7 +407,6 @@
 #  ifdef EGGS_BISECTION
       allocate ( OCEAN(ng) % egg_count(LBi:UBi,LBj:UBj,Nspecies(ng)) )
 #  endif
-      allocate ( OCEAN(ng) % spawn_loc(LBi:UBi,LBj:UBj,Nspecies(ng)) )
 # endif
 #endif
 
@@ -817,7 +813,6 @@
 # if defined NEMURO_SAN
           DO itrc=1,Nspecies(ng)
             DO i=Imin,Imax
-              OCEAN(ng) % spawn_loc(i,j,itrc) = IniVal
 #  ifdef EGGS_BISECTION
               OCEAN(ng) % egg_count(i,j,itrc) = IniVal
 #  endif
