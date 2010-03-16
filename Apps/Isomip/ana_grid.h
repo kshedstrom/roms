@@ -216,8 +216,8 @@
       integer :: Imin, Imax, Jmin, Jmax
       integer :: NSUB, i, j, k
 
-      real(r8) :: Esize, Xsize, beta, depth
-      real(r8) :: dx, dy, f0, my_min, my_max, val1
+      real(r8) :: Esize, Xsize, beta, cff, depth
+      real(r8) :: dx, dy, f0, my_min, my_max, val1, val2
 
 #ifdef DISTRIBUTE
       real(r8), dimension(2) :: buffer

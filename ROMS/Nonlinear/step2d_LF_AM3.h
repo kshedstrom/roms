@@ -68,10 +68,10 @@
      &                  GRID(ng) % rmask_wet_avg,                       &
 #  endif
 # endif
-# if !defined MOVE_SET_DEPTH && defined SOLVE3D
-#  ifdef ICESHELF
+# if defined SOLVE3D && defined ICESHELF
      &                  GRID(ng) % zice,                                &
-#  endif
+# endif
+# if !defined MOVE_SET_DEPTH && defined SOLVE3D
 #  if defined SEDIMENT && defined SED_MORPH
      &                  SEDBED(ng) % bed_thick,                         &
 #  endif
@@ -166,10 +166,10 @@
      &                        rmask_wet_avg,                            &
 #  endif
 # endif
-# if !defined MOVE_SET_DEPTH && defined SOLVE3D
-#  ifdef ICESHELF
+# if defined SOLVE3D && defined ICESHELF
      &                        zice,                                     &
-#  endif
+# endif
+# if !defined MOVE_SET_DEPTH && defined SOLVE3D
 #  if defined SEDIMENT && defined SED_MORPH
      &                        bed_thick,                                &
 #  endif
@@ -279,10 +279,10 @@
       real(r8), intent(in) :: umask(LBi:,LBj:)
       real(r8), intent(in) :: vmask(LBi:,LBj:)
 #  endif
-#  if !defined MOVE_SET_DEPTH && defined SOLVE3D
-#   ifdef ICESHELF
+#  if defined SOLVE3D && defined ICESHELF
       real(r8), intent(in) :: zice(LBi:,LBj:)
-#   endif
+#  endif
+#  if !defined MOVE_SET_DEPTH && defined SOLVE3D
 #   if defined SEDIMENT && defined SED_MORPH
       real(r8), intent(in) :: bed_thick(LBi:,LBj:,:)
 #   endif
@@ -406,10 +406,10 @@
       real(r8), intent(in) :: umask(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: vmask(LBi:UBi,LBj:UBj)
 #  endif
-#  if !defined MOVE_SET_DEPTH && defined SOLVE3D
-#   ifdef ICESHELF
+#  if defined SOLVE3D && defined ICESHELF
       real(r8), intent(in) :: zice(LBi:UBi,LBj:UBj)
-#   endif
+#  endif
+#  if !defined MOVE_SET_DEPTH && defined SOLVE3D
 #   if defined SEDIMENT && defined SED_MORPH
       real(r8), intent(inout):: bed_thick(LBi:UBi,LBj:UBi,2)
 #   endif
