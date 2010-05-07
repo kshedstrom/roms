@@ -1768,7 +1768,7 @@
             DO ng=1,Ngrids
               DO itrc=1,NPT
                 i=inert(itrc)
-                LtracerSrc(i,ng)=Ltracer(itrc,ng)
+                LtracerSrc(i,ng)=Ltracer(i,ng)
               END DO
             END DO
 # endif
@@ -4815,8 +4815,6 @@
                 assi_T(itrc,ng)=Lassi(itrc,ng)
               END DO
             END DO
-          ELSE IF (TRIM(KeyWord).eq.'Znudass') THEN
-            Npts=load_r(Nval, Rval, Ngrids, Znudass)
           ELSE IF (TRIM(KeyWord).eq.'M2nudass') THEN
             Npts=load_r(Nval, Rval, Ngrids, M2nudass)
           ELSE IF (TRIM(KeyWord).eq.'M3nudass') THEN
@@ -4946,11 +4944,6 @@
             END DO
 #   endif
 #  endif
-#  ifdef NUDGING_SSH
-            WRITE (out,135) Znudass(ng), 'Znudass',                     &
-     &            'Nudging assimilation time scale (days)',             &
-     &            'for free-surface.'
-#  endif
 #  ifdef SOLVE3D
 #   if defined NUDGING_UV || defined NUDGING_UVsur
             WRITE (out,135) M3nudass(ng), 'M3nudass',                   &
@@ -5014,7 +5007,7 @@
             WRITE (out,170)
             WRITE (out,180) ' Assimilation parameters File:  ',         &
      &                      TRIM(aparnam)
-#  if defined ASSIMILATION_SSH || defined NUDGING_SSH
+#  ifdef ASSIMILATION_SSH
             fname=SSHname(ng)
             INQUIRE (FILE=TRIM(fname), EXIST=inhere)
             IF (.not.inhere) GO TO 30
@@ -5067,11 +5060,6 @@
       DO ng=1,Ngrids
         Emod0(ng)=1.0_r8-0.01_r8*Emod0(ng)
 # ifdef NUDGING
-        IF (Znudass(ng).gt.0.0_r8) THEN
-          Znudass(ng)=1.0_r8/(Znudass(ng)*86400.0_r8)
-        ELSE
-          Znudass(ng)=0.0_r8
-        END IF
         IF (M2nudass(ng).gt.0.0_r8) THEN
           M2nudass(ng)=1.0_r8/(M2nudass(ng)*86400.0_r8)
         ELSE
