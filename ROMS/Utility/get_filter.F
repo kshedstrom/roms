@@ -22,14 +22,6 @@
       USE mod_scalars
       USE nf_fread2d_mod, ONLY : nf_fread2d
       USE nf_fread3d_mod, ONLY : nf_fread3d
-
-# if (defined EW_PERIODIC || defined NS_PERIODIC) && !defined DISTRIBUTE
-!
-      USE exchange_2d_mod
-#  ifdef SOLVE3D
-      USE exchange_3d_mod
-#  endif
-# endif
 !
       implicit none
 !
@@ -91,7 +83,7 @@
           RETURN
         END IF
       END DO
-      IF (InpThread) THEN
+      IF (Master) THEN
         WRITE (stdout,90) 'Read filter restart values,', tindx
       END IF
 !
@@ -117,13 +109,16 @@
      &                GRID(ng) % rmask,                                 &
 # endif
      &                FILTER(ng) % filzeta(:,:,tindx))
-      IF (InpThread) THEN
-        IF (status.ne.nf90_noerr) THEN
+      IF (status.ne.nf90_noerr) THEN 
+        IF (Master) THEN 
           WRITE (stdout,30) TRIM(Vname(1,idFsur)), tindx, TRIM(ncname)
-          exit_flag=2
-          RETURN
-        ELSE
-          WRITE (stdout,100) TRIM(Vname(2,idFsur)), Fmin, Fmax
+        END IF
+        exit_flag=2
+        ioerror=status
+        RETURN
+      ELSE
+        IF (Master) THEN 
+          WRITE (stdout,100) TRIM(Vname(2,idFsur)), Fmin, Fmax 
         END IF
       END IF
 !
@@ -139,12 +134,15 @@
      &                GRID(ng) % umask,                                 &
 # endif
      &                FILTER(ng) % filu2d(:,:,tindx))
-      IF (InpThread) THEN
-        IF (status.ne.nf90_noerr) THEN
+      IF (status.ne.nf90_noerr) THEN 
+        IF (Master) THEN 
           WRITE (stdout,30) TRIM(Vname(1,idUbar)), tindx, TRIM(ncname)
-          exit_flag=2
-          RETURN
-        ELSE
+        END IF
+        exit_flag=2
+        ioerror=status
+        RETURN
+      ELSE
+        IF (Master) THEN 
           WRITE (stdout,100) TRIM(Vname(2,idUbar)), Fmin, Fmax
         END IF
       END IF
@@ -161,12 +159,15 @@
      &                GRID(ng) % vmask,                                 &
 # endif
      &                FILTER(ng) % filv2d(:,:,tindx))
-      IF (InpThread) THEN
-        IF (status.ne.nf90_noerr) THEN
+      IF (status.ne.nf90_noerr) THEN 
+        IF (Master) THEN 
           WRITE (stdout,30) TRIM(Vname(1,idVbar)), tindx, TRIM(ncname)
-          exit_flag=2
-          RETURN
-        ELSE
+        END IF
+        exit_flag=2
+        ioerror=status
+        RETURN
+      ELSE
+        IF (Master) THEN 
           WRITE (stdout,100) TRIM(Vname(2,idVbar)), Fmin, Fmax
         END IF
       END IF
@@ -185,12 +186,15 @@
      &                GRID(ng) % umask,                                 &
 #  endif
      &                FILTER(ng) % filu3d(:,:,:,tindx))
-      IF (InpThread) THEN
-        IF (status.ne.nf90_noerr) THEN
+      IF (status.ne.nf90_noerr) THEN 
+        IF (Master) THEN 
           WRITE (stdout,30) TRIM(Vname(1,idUvel)), tindx, TRIM(ncname)
-          exit_flag=2
-          RETURN
-        ELSE
+        END IF
+        exit_flag=2
+        ioerror=status
+        RETURN
+      ELSE
+        IF (Master) THEN 
           WRITE (stdout,100) TRIM(Vname(2,idUvel)), Fmin, Fmax
         END IF
       END IF
@@ -208,12 +212,15 @@
      &                GRID(ng) % vmask,                                 &
 #  endif
      &                FILTER(ng) % filv3d(:,:,:,tindx))
-      IF (InpThread) THEN
-        IF (status.ne.nf90_noerr) THEN
+      IF (status.ne.nf90_noerr) THEN 
+        IF (Master) THEN 
           WRITE (stdout,30) TRIM(Vname(1,idVvel)), tindx, TRIM(ncname)
-          exit_flag=2
-          RETURN
-        ELSE
+        END IF
+        exit_flag=2
+        ioerror=status
+        RETURN
+      ELSE
+        IF (Master) THEN 
           WRITE (stdout,100) TRIM(Vname(2,idVvel)), Fmin, Fmax
         END IF
       END IF
@@ -232,10 +239,17 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filrho(:,:,:,tindx))
-      IF (InpThread.and.(status.ne.nf90_noerr)) THEN
-        WRITE (stdout,30) TRIM(Vname(1,idDano)), tindx, TRIM(ncname)
+      IF (status.ne.nf90_noerr) THEN 
+        IF (Master) THEN 
+          WRITE (stdout,30) TRIM(Vname(1,idDano)), tindx, TRIM(ncname)
+        END IF
         exit_flag=2
+        ioerror=status
         RETURN
+      ELSE
+        IF (Master) THEN 
+          WRITE (stdout,100) TRIM(Vname(2,idDano)), Fmin, Fmax 
+        END IF
       END IF
 !
 !  Read in tracer type variables.
@@ -253,13 +267,16 @@
      &                  GRID(ng) % rmask,                               &
 #   endif
      &                  FILTER(ng) % filt(:,:,:,itrc,tindx))
-        IF (InpThread) THEN
-          IF (status.ne.nf90_noerr) THEN
+        IF (status.ne.nf90_noerr) THEN 
+          IF (Master) THEN 
             WRITE (stdout,30) TRIM(Vname(1,idTvar(itrc))), tindx,       &
      &                        TRIM(ncname)
-            exit_flag=2
-            RETURN
-          ELSE
+          END IF
+          exit_flag=2
+          ioerror=status
+          RETURN
+        ELSE
+          IF (Master) THEN 
             WRITE (stdout,100) TRIM(Vname(2,idTvar(itrc))), Fmin, Fmax
           END IF
         END IF
@@ -278,10 +295,17 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filw3d(:,:,:,tindx))
-      IF (InpThread.and.(status.ne.nf90_noerr)) THEN
-        WRITE (stdout,30) TRIM(Vname(1,idOvel)), tindx, TRIM(ncname)
+      IF (status.ne.nf90_noerr) THEN 
+        IF (Master) THEN 
+          WRITE (stdout,30) TRIM(Vname(1,idOvel)), tindx, TRIM(ncname)
+        END IF
         exit_flag=2
+        ioerror=status
         RETURN
+      ELSE
+        IF (Master) THEN 
+          WRITE (stdout,100) TRIM(Vname(2,idOvel)), Fmin, Fmax 
+        END IF
       END IF
 #  endif
 #  ifdef LMD_SKPP
@@ -299,10 +323,17 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filhsbl(:,:,tindx))
-      IF (InpThread.and.(status.ne.nf90_noerr)) THEN
-        WRITE (stdout,30) TRIM(Vname(1,idHsbl)), tindx, TRIM(ncname)
+      IF (status.ne.nf90_noerr) THEN 
+        IF (Master) THEN 
+          WRITE (stdout,30) TRIM(Vname(1,idHsbl)), tindx, TRIM(ncname)
+        END IF
         exit_flag=2
+        ioerror=status
         RETURN
+      ELSE
+        IF (Master) THEN 
+          WRITE (stdout,100) TRIM(Vname(2,idHsbl)), Fmin, Fmax 
+        END IF
       END IF
 #  endif
 #  ifdef LMD_BKPP
@@ -320,10 +351,17 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filhbbl(:,:,tindx))
-      IF (InpThread.and.(status.ne.nf90_noerr)) THEN
-        WRITE (stdout,30) TRIM(Vname(1,idHbbl)), tindx, TRIM(ncname)
+      IF (status.ne.nf90_noerr) THEN 
+        IF (Master) THEN 
+          WRITE (stdout,30) TRIM(Vname(1,idHbbl)), tindx, TRIM(ncname)
+        END IF
         exit_flag=2
+        ioerror=status
         RETURN
+      ELSE
+        IF (Master) THEN 
+          WRITE (stdout,100) TRIM(Vname(2,idHbbl)), Fmin, Fmax 
+        END IF
       END IF
 #  endif
 #  ifdef AVERAGES_AKV
@@ -341,10 +379,17 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filAKv(:,:,:,tindx))
-      IF (InpThread.and.(status.ne.nf90_noerr)) THEN
-        WRITE (stdout,30) TRIM(Vname(1,idVvis)), tindx, TRIM(ncname)
+      IF (status.ne.nf90_noerr) THEN 
+        IF (Master) THEN 
+          WRITE (stdout,30) TRIM(Vname(1,idVvis)), tindx, TRIM(ncname)
+        END IF
         exit_flag=2
+        ioerror=status
         RETURN
+      ELSE
+        IF (Master) THEN 
+          WRITE (stdout,100) TRIM(Vname(2,idVvis)), Fmin, Fmax 
+        END IF
       END IF
 #  endif
 #  ifdef AVERAGES_AKT
@@ -362,10 +407,17 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filAKt(:,:,:,tindx))
-      IF (InpThread.and.(status.ne.nf90_noerr)) THEN
-        WRITE (stdout,30) TRIM(Vname(1,idTdif)), tindx, TRIM(ncname)
+      IF (status.ne.nf90_noerr) THEN 
+        IF (Master) THEN 
+          WRITE (stdout,30) TRIM(Vname(1,idTdif)), tindx, TRIM(ncname)
+        END IF
         exit_flag=2
+        ioerror=status
         RETURN
+      ELSE
+        IF (Master) THEN 
+          WRITE (stdout,100) TRIM(Vname(2,idTdif)), Fmin, Fmax 
+        END IF
       END IF
 #  endif
 #  ifdef AVERAGES_AKS
@@ -383,10 +435,17 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filAKs(:,:,:,tindx))
-      IF (InpThread.and.(status.ne.nf90_noerr)) THEN
-        WRITE (stdout,30) TRIM(Vname(1,idSdif)), tindx, TRIM(ncname)
+      IF (status.ne.nf90_noerr) THEN 
+        IF (Master) THEN 
+          WRITE (stdout,30) TRIM(Vname(1,idSdif)), tindx, TRIM(ncname)
+        END IF
         exit_flag=2
+        ioerror=status
         RETURN
+      ELSE
+        IF (Master) THEN 
+          WRITE (stdout,100) TRIM(Vname(2,idSdif)), Fmin, Fmax 
+        END IF
       END IF
 #  endif
 #  ifdef AVERAGES_FLUXES
@@ -405,11 +464,18 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filstf(:,:,tindx))
-      IF (InpThread.and.(status.ne.nf90_noerr)) THEN
-        WRITE (stdout,30) TRIM(Vname(1,idTsur(itemp))), tindx,          &
-     &                         TRIM(ncname)
+      IF (status.ne.nf90_noerr) THEN 
+        IF (Master) THEN 
+          WRITE (stdout,30) TRIM(Vname(1,idTsur(itemp))), tindx,        &
+     &                      TRIM(ncname)
+        END IF
         exit_flag=2
+        ioerror=status
         RETURN
+      ELSE
+        IF (Master) THEN 
+          WRITE (stdout,100) TRIM(Vname(2,idTsur(itemp))), Fmin, Fmax 
+        END IF
       END IF
 !
 !  Read in surface net salt flux.
@@ -426,11 +492,18 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filswf(:,:,tindx))
-      IF (InpThread.and.(status.ne.nf90_noerr)) THEN
-        WRITE (stdout,30) TRIM(Vname(1,idTsur(isalt))), tindx,          &
-     &                         TRIM(ncname)
+      IF (status.ne.nf90_noerr) THEN 
+        IF (Master) THEN 
+          WRITE (stdout,30) TRIM(Vname(1,idTsur(isalt))), tindx,        &
+     &                      TRIM(ncname)
+        END IF
         exit_flag=2
+        ioerror=status
         RETURN
+      ELSE
+        IF (Master) THEN 
+          WRITE (stdout,100) TRIM(Vname(2,idTsur(isalt))), Fmin, Fmax 
+        END IF
       END IF
 #   ifdef BULK_FLUXES
 !
@@ -447,10 +520,17 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % fillhf(:,:,tindx))
-      IF (InpThread.and.(status.ne.nf90_noerr)) THEN
-        WRITE (stdout,30) TRIM(Vname(1,idLhea)), tindx, TRIM(ncname)
+      IF (status.ne.nf90_noerr) THEN 
+        IF (Master) THEN 
+          WRITE (stdout,30) TRIM(Vname(1,idLhea)), tindx, TRIM(ncname)
+        END IF
         exit_flag=2
+        ioerror=status
         RETURN
+      ELSE
+        IF (Master) THEN 
+          WRITE (stdout,100) TRIM(Vname(2,idLhea)), Fmin, Fmax 
+        END IF
       END IF
 !
 !  Read in sensible heat flux.
@@ -466,10 +546,17 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filshf(:,:,tindx))
-      IF (InpThread.and.(status.ne.nf90_noerr)) THEN
-        WRITE (stdout,30) TRIM(Vname(1,idShea)), tindx, TRIM(ncname)
+      IF (status.ne.nf90_noerr) THEN 
+        IF (Master) THEN 
+          WRITE (stdout,30) TRIM(Vname(1,idShea)), tindx, TRIM(ncname)
+        END IF
         exit_flag=2
+        ioerror=status
         RETURN
+      ELSE
+        IF (Master) THEN 
+          WRITE (stdout,100) TRIM(Vname(2,idShea)), Fmin, Fmax 
+        END IF
       END IF
 !
 !  Read in longwave radiation flux.
@@ -485,10 +572,17 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % fillrf(:,:,tindx))
-      IF (InpThread.and.(status.ne.nf90_noerr)) THEN
-        WRITE (stdout,30) TRIM(Vname(1,idLrad)), tindx, TRIM(ncname)
+      IF (status.ne.nf90_noerr) THEN 
+        IF (Master) THEN 
+          WRITE (stdout,30) TRIM(Vname(1,idLrad)), tindx, TRIM(ncname)
+        END IF
         exit_flag=2
+        ioerror=status
         RETURN
+      ELSE
+        IF (Master) THEN 
+          WRITE (stdout,100) TRIM(Vname(2,idLrad)), Fmin, Fmax 
+        END IF
       END IF
 #   endif
 #   ifdef SHORTWAVE
@@ -506,10 +600,17 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filsrf(:,:,tindx))
-      IF (InpThread.and.(status.ne.nf90_noerr)) THEN
-        WRITE (stdout,30) TRIM(Vname(1,idSrad)), tindx, TRIM(ncname)
+      IF (status.ne.nf90_noerr) THEN 
+        IF (Master) THEN 
+          WRITE (stdout,30) TRIM(Vname(1,idSrad)), tindx, TRIM(ncname)
+        END IF
         exit_flag=2
+        ioerror=status
         RETURN
+      ELSE
+        IF (Master) THEN 
+          WRITE (stdout,100) TRIM(Vname(2,idSrad)), Fmin, Fmax 
+        END IF
       END IF
 #   endif
 #  endif
@@ -529,10 +630,17 @@
      &                GRID(ng) % umask,                                 &
 #   endif
      &                FILTER(ng) % filsus(:,:,tindx))
-      IF (InpThread.and.(status.ne.nf90_noerr)) THEN
-        WRITE (stdout,30) TRIM(Vname(1,idUsms)), tindx, TRIM(ncname)
+      IF (status.ne.nf90_noerr) THEN 
+        IF (Master) THEN 
+          WRITE (stdout,30) TRIM(Vname(1,idUsms)), tindx, TRIM(ncname)
+        END IF
         exit_flag=2
+        ioerror=status
         RETURN
+      ELSE
+        IF (Master) THEN 
+          WRITE (stdout,100) TRIM(Vname(2,idUsms)), Fmin, Fmax 
+        END IF
       END IF
 !
 !  Read in surface v-momentum stress.
@@ -548,10 +656,17 @@
      &                GRID(ng) % vmask,                                 &
 #   endif
      &                FILTER(ng) % filsvs(:,:,tindx))
-      IF (InpThread.and.(status.ne.nf90_noerr)) THEN
-        WRITE (stdout,30) TRIM(Vname(1,idVsms)), tindx, TRIM(ncname)
+      IF (status.ne.nf90_noerr) THEN 
+        IF (Master) THEN 
+          WRITE (stdout,30) TRIM(Vname(1,idVsms)), tindx, TRIM(ncname)
+        END IF
         exit_flag=2
+        ioerror=status
         RETURN
+      ELSE
+        IF (Master) THEN 
+          WRITE (stdout,100) TRIM(Vname(2,idVsms)), Fmin, Fmax 
+        END IF
       END IF
 # endif
 # ifdef ICE_MODEL
@@ -570,10 +685,17 @@
      &                GRID(ng) % umask,                                 &
 #   endif
      &                FILTER(ng) % filui(:,:,tindx))
-      IF (InpThread.and.(status.ne.nf90_noerr)) THEN
-        WRITE (stdout,30) TRIM(Vname(1,idUice)), tindx, TRIM(ncname)
+      IF (status.ne.nf90_noerr) THEN 
+        IF (Master) THEN 
+          WRITE (stdout,30) TRIM(Vname(1,idUice)), tindx, TRIM(ncname)
+        END IF
         exit_flag=2
+        ioerror=status
         RETURN
+      ELSE
+        IF (Master) THEN 
+          WRITE (stdout,100) TRIM(Vname(2,idUice)), Fmin, Fmax 
+        END IF
       END IF
 !
 !  Read in ice v-velocity
@@ -590,10 +712,17 @@
      &                GRID(ng) % vmask,                                 &
 #   endif
      &                FILTER(ng) % filvi(:,:,tindx))
-      IF (InpThread.and.(status.ne.nf90_noerr)) THEN
-        WRITE (stdout,30) TRIM(Vname(1,idVice)), tindx, TRIM(ncname)
+      IF (status.ne.nf90_noerr) THEN 
+        IF (Master) THEN 
+          WRITE (stdout,30) TRIM(Vname(1,idVice)), tindx, TRIM(ncname)
+        END IF
         exit_flag=2
+        ioerror=status
         RETURN
+      ELSE
+        IF (Master) THEN 
+          WRITE (stdout,100) TRIM(Vname(2,idVice)), Fmin, Fmax 
+        END IF
       END IF
 !
 !  Read in ice concentration
@@ -610,10 +739,17 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filai(:,:,tindx))
-      IF (InpThread.and.(status.ne.nf90_noerr)) THEN
-        WRITE (stdout,30) TRIM(Vname(1,idAice)), tindx, TRIM(ncname)
+      IF (status.ne.nf90_noerr) THEN 
+        IF (Master) THEN 
+          WRITE (stdout,30) TRIM(Vname(1,idAice)), tindx, TRIM(ncname)
+        END IF
         exit_flag=2
+        ioerror=status
         RETURN
+      ELSE
+        IF (Master) THEN 
+          WRITE (stdout,100) TRIM(Vname(2,idAice)), Fmin, Fmax 
+        END IF
       END IF
 !
 !  Read in ice thickness
@@ -630,10 +766,17 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filhi(:,:,tindx))
-      IF (InpThread.and.(status.ne.nf90_noerr)) THEN
-        WRITE (stdout,30) TRIM(Vname(1,idHice)), tindx, TRIM(ncname)
+      IF (status.ne.nf90_noerr) THEN 
+        IF (Master) THEN 
+          WRITE (stdout,30) TRIM(Vname(1,idHice)), tindx, TRIM(ncname)
+        END IF
         exit_flag=2
+        ioerror=status
         RETURN
+      ELSE
+        IF (Master) THEN 
+          WRITE (stdout,100) TRIM(Vname(2,idHice)), Fmin, Fmax 
+        END IF
       END IF
 !
 !  Read in snow thickness
@@ -650,10 +793,17 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filhsn(:,:,tindx))
-      IF (InpThread.and.(status.ne.nf90_noerr)) THEN
-        WRITE (stdout,30) TRIM(Vname(1,idHsno)), tindx, TRIM(ncname)
+      IF (status.ne.nf90_noerr) THEN 
+        IF (Master) THEN 
+          WRITE (stdout,30) TRIM(Vname(1,idHsno)), tindx, TRIM(ncname)
+        END IF
         exit_flag=2
+        ioerror=status
         RETURN
+      ELSE
+        IF (Master) THEN 
+          WRITE (stdout,100) TRIM(Vname(2,idHsno)), Fmin, Fmax 
+        END IF
       END IF
 !
 !  Read in surface water
@@ -670,10 +820,17 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filsfwat(:,:,tindx))
-      IF (InpThread.and.(status.ne.nf90_noerr)) THEN
-        WRITE (stdout,30) TRIM(Vname(1,idSfwat)), tindx, TRIM(ncname)
+      IF (status.ne.nf90_noerr) THEN 
+        IF (Master) THEN 
+          WRITE (stdout,30) TRIM(Vname(1,idSfwat)), tindx, TRIM(ncname)
+        END IF
         exit_flag=2
+        ioerror=status
         RETURN
+      ELSE
+        IF (Master) THEN 
+          WRITE (stdout,100) TRIM(Vname(2,idSfwat)), Fmin, Fmax 
+        END IF
       END IF
 !
 !  Read in surface ice temperature
@@ -690,10 +847,17 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filtis(:,:,tindx))
-      IF (InpThread.and.(status.ne.nf90_noerr)) THEN
-        WRITE (stdout,30) TRIM(Vname(1,idTice)), tindx, TRIM(ncname)
+      IF (status.ne.nf90_noerr) THEN 
+        IF (Master) THEN 
+          WRITE (stdout,30) TRIM(Vname(1,idTice)), tindx, TRIM(ncname)
+        END IF
         exit_flag=2
+        ioerror=status
         RETURN
+      ELSE
+        IF (Master) THEN 
+          WRITE (stdout,100) TRIM(Vname(2,idTice)), Fmin, Fmax 
+        END IF
       END IF
 !
 !  Read in interior ice temperature
@@ -710,10 +874,17 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filti(:,:,tindx))
-      IF (InpThread.and.(status.ne.nf90_noerr)) THEN
-        WRITE (stdout,30) TRIM(Vname(1,idTimid)), tindx, TRIM(ncname)
+      IF (status.ne.nf90_noerr) THEN 
+        IF (Master) THEN 
+          WRITE (stdout,30) TRIM(Vname(1,idTimid)), tindx, TRIM(ncname)
+        END IF
         exit_flag=2
+        ioerror=status
         RETURN
+      ELSE
+        IF (Master) THEN 
+          WRITE (stdout,100) TRIM(Vname(2,idTimid)), Fmin, Fmax 
+        END IF
       END IF
 !
 !  Read in ice age
@@ -730,30 +901,17 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filAgeice(:,:,tindx))
-      IF (InpThread.and.(status.ne.nf90_noerr)) THEN
-        WRITE (stdout,30) TRIM(Vname(1,idAgeice)), tindx, TRIM(ncname)
+      IF (status.ne.nf90_noerr) THEN 
+        IF (Master) THEN 
+          WRITE (stdout,30) TRIM(Vname(1,idAgeice)), tindx, TRIM(ncname)
+        END IF
         exit_flag=2
+        ioerror=status
         RETURN
-      END IF
-!
-!  Read in ice age
-!
-      ncname=FILname(10,ng)
-      status=nf90_inq_varid(ncFILid(10,ng), TRIM(Vname(1,idAgeice)),    &
-     &                    varid)
-      gtype=var_flag(varid)*r2dvar
-      status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),               &
-     &                Vname(1,idAgeice), varid, tindx, gtype,           &
-     &                Vsize, LBi, UBi, LBj, UBj,                        &
-     &                Fscl, Fmin, Fmax,                                 &
-#   ifdef MASKING
-     &                GRID(ng) % rmask,                                 &
-#   endif
-     &                FILTER(ng) % filAgeice(:,:,tindx))
-      IF (InpThread.and.(status.ne.nf90_noerr)) THEN
-        WRITE (stdout,30) TRIM(Vname(1,idAgeice)), tindx, TRIM(ncname)
-        exit_flag=2
-        RETURN
+      ELSE
+        IF (Master) THEN 
+          WRITE (stdout,100) TRIM(Vname(2,idAgeice)), Fmin, Fmax 
+        END IF
       END IF
 !
 !  Read in under-ice salinity
@@ -770,10 +928,17 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % fils0mk(:,:,tindx))
-      IF (InpThread.and.(status.ne.nf90_noerr)) THEN
-        WRITE (stdout,30) TRIM(Vname(1,idS0mk)), tindx, TRIM(ncname)
+      IF (status.ne.nf90_noerr) THEN 
+        IF (Master) THEN 
+          WRITE (stdout,30) TRIM(Vname(1,idS0mk)), tindx, TRIM(ncname)
+        END IF
         exit_flag=2
+        ioerror=status
         RETURN
+      ELSE
+        IF (Master) THEN 
+          WRITE (stdout,100) TRIM(Vname(2,idS0mk)), Fmin, Fmax 
+        END IF
       END IF
 !
 !  Read in under-ice temperature
@@ -790,10 +955,17 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filt0mk(:,:,tindx))
-      IF (InpThread.and.(status.ne.nf90_noerr)) THEN
-        WRITE (stdout,30) TRIM(Vname(1,idT0mk)), tindx, TRIM(ncname)
+      IF (status.ne.nf90_noerr) THEN 
+        IF (Master) THEN 
+          WRITE (stdout,30) TRIM(Vname(1,idT0mk)), tindx, TRIM(ncname)
+        END IF
         exit_flag=2
+        ioerror=status
         RETURN
+      ELSE
+        IF (Master) THEN 
+          WRITE (stdout,100) TRIM(Vname(2,idT0mk)), Fmin, Fmax 
+        END IF
       END IF
 !
 !  Read in frazil ice growth rate
@@ -810,10 +982,17 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filWfr(:,:,tindx))
-      IF (InpThread.and.(status.ne.nf90_noerr)) THEN
-        WRITE (stdout,30) TRIM(Vname(1,idWfr)), tindx, TRIM(ncname)
+      IF (status.ne.nf90_noerr) THEN 
+        IF (Master) THEN 
+          WRITE (stdout,30) TRIM(Vname(1,idWfr)), tindx, TRIM(ncname)
+        END IF
         exit_flag=2
+        ioerror=status
         RETURN
+      ELSE
+        IF (Master) THEN 
+          WRITE (stdout,100) TRIM(Vname(2,idWfr)), Fmin, Fmax 
+        END IF
       END IF
 !
 !  Read in ice growth/melt rate
@@ -830,10 +1009,17 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filWai(:,:,tindx))
-      IF (InpThread.and.(status.ne.nf90_noerr)) THEN
-        WRITE (stdout,30) TRIM(Vname(1,idWai)), tindx, TRIM(ncname)
+      IF (status.ne.nf90_noerr) THEN 
+        IF (Master) THEN 
+          WRITE (stdout,30) TRIM(Vname(1,idWai)), tindx, TRIM(ncname)
+        END IF
         exit_flag=2
+        ioerror=status
         RETURN
+      ELSE
+        IF (Master) THEN 
+          WRITE (stdout,100) TRIM(Vname(2,idWai)), Fmin, Fmax 
+        END IF
       END IF
 !
 !  Read in ice growth/melt rate
@@ -850,10 +1036,17 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filWao(:,:,tindx))
-      IF (InpThread.and.(status.ne.nf90_noerr)) THEN
-        WRITE (stdout,30) TRIM(Vname(1,idWao)), tindx, TRIM(ncname)
+      IF (status.ne.nf90_noerr) THEN 
+        IF (Master) THEN 
+          WRITE (stdout,30) TRIM(Vname(1,idWao)), tindx, TRIM(ncname)
+        END IF
         exit_flag=2
+        ioerror=status
         RETURN
+      ELSE
+        IF (Master) THEN 
+          WRITE (stdout,100) TRIM(Vname(2,idWao)), Fmin, Fmax 
+        END IF
       END IF
 !
 !  Read in ice growth/melt rate
@@ -870,10 +1063,17 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filWio(:,:,tindx))
-      IF (InpThread.and.(status.ne.nf90_noerr)) THEN
-        WRITE (stdout,30) TRIM(Vname(1,idWio)), tindx, TRIM(ncname)
+      IF (status.ne.nf90_noerr) THEN 
+        IF (Master) THEN 
+          WRITE (stdout,30) TRIM(Vname(1,idWio)), tindx, TRIM(ncname)
+        END IF
         exit_flag=2
+        ioerror=status
         RETURN
+      ELSE
+        IF (Master) THEN 
+          WRITE (stdout,100) TRIM(Vname(2,idWio)), Fmin, Fmax 
+        END IF
       END IF
 !
 !  Read in ice melt runoff rate
@@ -890,10 +1090,17 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filWro(:,:,tindx))
-      IF (InpThread.and.(status.ne.nf90_noerr)) THEN
-        WRITE (stdout,30) TRIM(Vname(1,idWro)), tindx, TRIM(ncname)
+      IF (status.ne.nf90_noerr) THEN 
+        IF (Master) THEN 
+          WRITE (stdout,30) TRIM(Vname(1,idWro)), tindx, TRIM(ncname)
+        END IF
         exit_flag=2
+        ioerror=status
         RETURN
+      ELSE
+        IF (Master) THEN 
+          WRITE (stdout,100) TRIM(Vname(2,idWro)), Fmin, Fmax 
+        END IF
       END IF
 !
 !  Read in sig11 of ice stress tensor
@@ -910,10 +1117,17 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filsig11(:,:,tindx))
-      IF (InpThread.and.(status.ne.nf90_noerr)) THEN
-        WRITE (stdout,30) TRIM(Vname(1,idSig11)), tindx, TRIM(ncname)
+      IF (status.ne.nf90_noerr) THEN 
+        IF (Master) THEN 
+          WRITE (stdout,30) TRIM(Vname(1,idSig11)), tindx, TRIM(ncname)
+        END IF
         exit_flag=2
+        ioerror=status
         RETURN
+      ELSE
+        IF (Master) THEN 
+          WRITE (stdout,100) TRIM(Vname(2,idSig11)), Fmin, Fmax 
+        END IF
       END IF
 !
 !  Read in sig12 of ice stress tensor
@@ -930,10 +1144,17 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filsig12(:,:,tindx))
-      IF (InpThread.and.(status.ne.nf90_noerr)) THEN
-        WRITE (stdout,30) TRIM(Vname(1,idSig12)), tindx, TRIM(ncname)
+      IF (status.ne.nf90_noerr) THEN 
+        IF (Master) THEN 
+          WRITE (stdout,30) TRIM(Vname(1,idSig12)), tindx, TRIM(ncname)
+        END IF
         exit_flag=2
+        ioerror=status
         RETURN
+      ELSE
+        IF (Master) THEN 
+          WRITE (stdout,100) TRIM(Vname(2,idSig12)), Fmin, Fmax 
+        END IF
       END IF
 !
 !  Read in sig22 of ice stress tensor
@@ -950,10 +1171,17 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filsig22(:,:,tindx))
-      IF (InpThread.and.(status.ne.nf90_noerr)) THEN
-        WRITE (stdout,30) TRIM(Vname(1,idSig22)), tindx, TRIM(ncname)
+      IF (status.ne.nf90_noerr) THEN 
+        IF (Master) THEN 
+          WRITE (stdout,30) TRIM(Vname(1,idSig22)), tindx, TRIM(ncname)
+        END IF
         exit_flag=2
+        ioerror=status
         RETURN
+      ELSE
+        IF (Master) THEN 
+          WRITE (stdout,100) TRIM(Vname(2,idSig22)), Fmin, Fmax 
+        END IF
       END IF
 !
 !  Read in ice-ocean mass flux
@@ -970,10 +1198,17 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filio_mflux(:,:,tindx))
-      IF (InpThread.and.(status.ne.nf90_noerr)) THEN
-        WRITE (stdout,30) TRIM(Vname(1,idIomflx)), tindx, TRIM(ncname)
+      IF (status.ne.nf90_noerr) THEN 
+        IF (Master) THEN 
+          WRITE (stdout,30) TRIM(Vname(1,idIomflx)), tindx, TRIM(ncname)
+        END IF
         exit_flag=2
+        ioerror=status
         RETURN
+      ELSE
+        IF (Master) THEN 
+          WRITE (stdout,100) TRIM(Vname(2,idIomflx)), Fmin, Fmax 
+        END IF
       END IF
 !
 !  Read in ice-water tau
@@ -990,10 +1225,17 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filutau_iw(:,:,tindx))
-      IF (InpThread.and.(status.ne.nf90_noerr)) THEN
-        WRITE (stdout,30) TRIM(Vname(1,idTauiw)), tindx, TRIM(ncname)
+      IF (status.ne.nf90_noerr) THEN 
+        IF (Master) THEN 
+          WRITE (stdout,30) TRIM(Vname(1,idTauiw)), tindx, TRIM(ncname)
+        END IF
         exit_flag=2
+        ioerror=status
         RETURN
+      ELSE
+        IF (Master) THEN 
+          WRITE (stdout,100) TRIM(Vname(2,idTauiw)), Fmin, Fmax 
+        END IF
       END IF
 !
 !  Read in ice-water chu
@@ -1010,97 +1252,18 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filchu_iw(:,:,tindx))
-      IF (InpThread.and.(status.ne.nf90_noerr)) THEN
-        WRITE (stdout,30) TRIM(Vname(1,idChuiw)), tindx, TRIM(ncname)
+      IF (status.ne.nf90_noerr) THEN 
+        IF (Master) THEN 
+          WRITE (stdout,30) TRIM(Vname(1,idChuiw)), tindx, TRIM(ncname)
+        END IF
         exit_flag=2
+        ioerror=status
         RETURN
+      ELSE
+        IF (Master) THEN 
+          WRITE (stdout,100) TRIM(Vname(2,idChuiw)), Fmin, Fmax 
+        END IF
       END IF
-# endif
-
-# ifdef FOO
-! Don't think I need this because these are just running sums, and aren't
-! used dynamically
-# if (defined EW_PERIODIC || defined NS_PERIODIC) && !defined DISTRIBUTE
-!
-!-----------------------------------------------------------------------
-!  Set periodic boundary conditions.
-!-----------------------------------------------------------------------
-!
-      CALL exchange_r2d_tile (ng, iNLM, 1, Lm(ng), 1, Mm(ng),           &
-     &                        LBi, UBi, LBj, UBj,                       &
-     &                        NghostPoints,                             &
-     &                        FILTER(ng) % filzeta(:,:,tindx))
-      CALL exchange_u2d_tile (ng, iNLM, 1, Lm(ng), 1, Mm(ng),           &
-     &                        LBi, UBi, LBj, UBj,                       &
-     &                        NghostPoints,                             &
-     &                        FILTER(ng) % filu2d(:,:,tindx))
-      CALL exchange_v2d_tile (ng, iNLM, 1, Lm(ng), 1, Mm(ng),           &
-     &                        LBi, UBi, LBj, UBj,                       &
-     &                        NghostPoints,                             &
-     &                        FILTER(ng) % filv2d(:,:,tindx))
-#  ifdef SOLVE3D
-      CALL exchange_u3d_tile (ng, iNLM, 1, Lm(ng), 1, Mm(ng),           &
-     &                        LBi, UBi, LBj, UBj, 1, N(ng),             &
-     &                        NghostPoints,                             &
-     &                        FILTER(ng) % filu3d(:,:,:,tindx))
-      CALL exchange_v3d_tile (ng, iNLM, 1, Lm(ng), 1, Mm(ng),           &
-     &                        LBi, UBi, LBj, UBj, 1, N(ng),             &
-     &                        NghostPoints,                             &
-     &                        FILTER(ng) % filv3d(:,:,:,tindx))
-
-#   ifndef FILTRIM
-      DO itrc=1,NAT
-        CALL exchange_r3d_tile (ng, iNLM, 1, Lm(ng), 1, Mm(ng),         &
-     &                          LBi, UBi, LBj, UBj, 1, N(ng),           &
-     &                          NghostPoints,                           &
-     &                          FILTER(ng) % filt(:,:,:,itrc,tindx))
-      END DO
-
-      CALL exchange_w3d_tile (ng, iNLM, 1, Lm(ng), 1, Mm(ng),           &
-     &                        LBi, UBi, LBj, UBj, 0, N(ng),             &
-     &                        NghostPoints,                             &
-     &                        FILTER(ng) % filw3d(:,:,:,tindx))
-#   endif
-#   ifdef LMD_SKPP
-      CALL exchange_r2d_tile (ng, iNLM, 1, Lm(ng), 1, Mm(ng),           &
-     &                        LBi, UBi, LBj, UBj,                       &
-     &                        NghostPoints,                             &
-     &                        FILTER(ng) % filhsbl(:,:,tindx))
-#   endif
-#   ifdef LMD_BKPP
-      CALL exchange_r2d_tile (ng, iNLM, 1, Lm(ng), 1, Mm(ng),           &
-     &                        LBi, UBi, LBj, UBj,                       &
-     &                        NghostPoints,                             &
-     &                        FILTER(ng) % filhbbl(:,:,tindx))
-#   endif
-#   ifdef AVERAGES_AKV
-      CALL exchange_w3d_tile (ng, iNLM, 1, Lm(ng), 1, Mm(ng),           &
-     &                        LBi, UBi, LBj, UBj, 0, N(ng),             &
-     &                        NghostPoints,                             &
-     &                        FILTER(ng) % filAKv(:,:,:,tindx))
-#   endif
-#   ifdef AVERAGES_AKT
-      CALL exchange_w3d_tile (ng, iNLM, 1, Lm(ng), 1, Mm(ng),           &
-     &                        LBi, UBi, LBj, UBj, 0, N(ng),             &
-     &                        NghostPoints,                             &
-     &                        FILTER(ng) % filAKt(:,:,:,tindx))
-#   endif
-#   ifdef AVERAGES_AKS
-      CALL exchange_w3d_tile (ng, iNLM, 1, Lm(ng), 1, Mm(ng),           &
-     &                        LBi, UBi, LBj, UBj, 0, N(ng),             &
-     &                        NghostPoints,                             &
-     &                        FILTER(ng) % filAKs(:,:,:,tindx))
-#   endif
-#   ifdef AVERAGES_FLUXES
-#    ifdef BULK_FLUXES
-#    endif
-#    ifdef SHORTWAVE
-#    endif
-#   endif
-#  endif
-#  ifdef AVERAGES_FLUXES
-#  endif
-# endif
 # endif
 
 !
