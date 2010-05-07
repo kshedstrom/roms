@@ -170,7 +170,7 @@ if ( !( $cray || $parasoft) ) {
             $modfile = $mod_dir . '/' . $modfile if $mod_dir;
             $objfile = $obj_dir . '/' . $objfile if $obj_dir;
             print "$modfile: $objfile\n";
-        } 
+        }
     }
 }
 
