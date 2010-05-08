@@ -109,16 +109,16 @@
      &                GRID(ng) % rmask,                                 &
 # endif
      &                FILTER(ng) % filzeta(:,:,tindx))
-      IF (status.ne.nf90_noerr) THEN 
-        IF (Master) THEN 
+      IF (status.ne.nf90_noerr) THEN
+        IF (Master) THEN
           WRITE (stdout,30) TRIM(Vname(1,idFsur)), tindx, TRIM(ncname)
         END IF
         exit_flag=2
         ioerror=status
         RETURN
       ELSE
-        IF (Master) THEN 
-          WRITE (stdout,100) TRIM(Vname(2,idFsur)), Fmin, Fmax 
+        IF (Master) THEN
+          WRITE (stdout,100) TRIM(Vname(2,idFsur)), Fmin, Fmax
         END IF
       END IF
 !
@@ -134,15 +134,15 @@
      &                GRID(ng) % umask,                                 &
 # endif
      &                FILTER(ng) % filu2d(:,:,tindx))
-      IF (status.ne.nf90_noerr) THEN 
-        IF (Master) THEN 
+      IF (status.ne.nf90_noerr) THEN
+        IF (Master) THEN
           WRITE (stdout,30) TRIM(Vname(1,idUbar)), tindx, TRIM(ncname)
         END IF
         exit_flag=2
         ioerror=status
         RETURN
       ELSE
-        IF (Master) THEN 
+        IF (Master) THEN
           WRITE (stdout,100) TRIM(Vname(2,idUbar)), Fmin, Fmax
         END IF
       END IF
@@ -159,15 +159,15 @@
      &                GRID(ng) % vmask,                                 &
 # endif
      &                FILTER(ng) % filv2d(:,:,tindx))
-      IF (status.ne.nf90_noerr) THEN 
-        IF (Master) THEN 
+      IF (status.ne.nf90_noerr) THEN
+        IF (Master) THEN
           WRITE (stdout,30) TRIM(Vname(1,idVbar)), tindx, TRIM(ncname)
         END IF
         exit_flag=2
         ioerror=status
         RETURN
       ELSE
-        IF (Master) THEN 
+        IF (Master) THEN
           WRITE (stdout,100) TRIM(Vname(2,idVbar)), Fmin, Fmax
         END IF
       END IF
@@ -186,15 +186,15 @@
      &                GRID(ng) % umask,                                 &
 #  endif
      &                FILTER(ng) % filu3d(:,:,:,tindx))
-      IF (status.ne.nf90_noerr) THEN 
-        IF (Master) THEN 
+      IF (status.ne.nf90_noerr) THEN
+        IF (Master) THEN
           WRITE (stdout,30) TRIM(Vname(1,idUvel)), tindx, TRIM(ncname)
         END IF
         exit_flag=2
         ioerror=status
         RETURN
       ELSE
-        IF (Master) THEN 
+        IF (Master) THEN
           WRITE (stdout,100) TRIM(Vname(2,idUvel)), Fmin, Fmax
         END IF
       END IF
@@ -212,15 +212,15 @@
      &                GRID(ng) % vmask,                                 &
 #  endif
      &                FILTER(ng) % filv3d(:,:,:,tindx))
-      IF (status.ne.nf90_noerr) THEN 
-        IF (Master) THEN 
+      IF (status.ne.nf90_noerr) THEN
+        IF (Master) THEN
           WRITE (stdout,30) TRIM(Vname(1,idVvel)), tindx, TRIM(ncname)
         END IF
         exit_flag=2
         ioerror=status
         RETURN
       ELSE
-        IF (Master) THEN 
+        IF (Master) THEN
           WRITE (stdout,100) TRIM(Vname(2,idVvel)), Fmin, Fmax
         END IF
       END IF
@@ -239,16 +239,16 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filrho(:,:,:,tindx))
-      IF (status.ne.nf90_noerr) THEN 
-        IF (Master) THEN 
+      IF (status.ne.nf90_noerr) THEN
+        IF (Master) THEN
           WRITE (stdout,30) TRIM(Vname(1,idDano)), tindx, TRIM(ncname)
         END IF
         exit_flag=2
         ioerror=status
         RETURN
       ELSE
-        IF (Master) THEN 
-          WRITE (stdout,100) TRIM(Vname(2,idDano)), Fmin, Fmax 
+        IF (Master) THEN
+          WRITE (stdout,100) TRIM(Vname(2,idDano)), Fmin, Fmax
         END IF
       END IF
 !
@@ -267,8 +267,8 @@
      &                  GRID(ng) % rmask,                               &
 #   endif
      &                  FILTER(ng) % filt(:,:,:,itrc,tindx))
-        IF (status.ne.nf90_noerr) THEN 
-          IF (Master) THEN 
+        IF (status.ne.nf90_noerr) THEN
+          IF (Master) THEN
             WRITE (stdout,30) TRIM(Vname(1,idTvar(itrc))), tindx,       &
      &                        TRIM(ncname)
           END IF
@@ -276,7 +276,7 @@
           ioerror=status
           RETURN
         ELSE
-          IF (Master) THEN 
+          IF (Master) THEN
             WRITE (stdout,100) TRIM(Vname(2,idTvar(itrc))), Fmin, Fmax
           END IF
         END IF
@@ -295,16 +295,16 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filw3d(:,:,:,tindx))
-      IF (status.ne.nf90_noerr) THEN 
-        IF (Master) THEN 
+      IF (status.ne.nf90_noerr) THEN
+        IF (Master) THEN
           WRITE (stdout,30) TRIM(Vname(1,idOvel)), tindx, TRIM(ncname)
         END IF
         exit_flag=2
         ioerror=status
         RETURN
       ELSE
-        IF (Master) THEN 
-          WRITE (stdout,100) TRIM(Vname(2,idOvel)), Fmin, Fmax 
+        IF (Master) THEN
+          WRITE (stdout,100) TRIM(Vname(2,idOvel)), Fmin, Fmax
         END IF
       END IF
 #  endif
@@ -323,16 +323,16 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filhsbl(:,:,tindx))
-      IF (status.ne.nf90_noerr) THEN 
-        IF (Master) THEN 
+      IF (status.ne.nf90_noerr) THEN
+        IF (Master) THEN
           WRITE (stdout,30) TRIM(Vname(1,idHsbl)), tindx, TRIM(ncname)
         END IF
         exit_flag=2
         ioerror=status
         RETURN
       ELSE
-        IF (Master) THEN 
-          WRITE (stdout,100) TRIM(Vname(2,idHsbl)), Fmin, Fmax 
+        IF (Master) THEN
+          WRITE (stdout,100) TRIM(Vname(2,idHsbl)), Fmin, Fmax
         END IF
       END IF
 #  endif
@@ -351,16 +351,16 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filhbbl(:,:,tindx))
-      IF (status.ne.nf90_noerr) THEN 
-        IF (Master) THEN 
+      IF (status.ne.nf90_noerr) THEN
+        IF (Master) THEN
           WRITE (stdout,30) TRIM(Vname(1,idHbbl)), tindx, TRIM(ncname)
         END IF
         exit_flag=2
         ioerror=status
         RETURN
       ELSE
-        IF (Master) THEN 
-          WRITE (stdout,100) TRIM(Vname(2,idHbbl)), Fmin, Fmax 
+        IF (Master) THEN
+          WRITE (stdout,100) TRIM(Vname(2,idHbbl)), Fmin, Fmax
         END IF
       END IF
 #  endif
@@ -379,16 +379,16 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filAKv(:,:,:,tindx))
-      IF (status.ne.nf90_noerr) THEN 
-        IF (Master) THEN 
+      IF (status.ne.nf90_noerr) THEN
+        IF (Master) THEN
           WRITE (stdout,30) TRIM(Vname(1,idVvis)), tindx, TRIM(ncname)
         END IF
         exit_flag=2
         ioerror=status
         RETURN
       ELSE
-        IF (Master) THEN 
-          WRITE (stdout,100) TRIM(Vname(2,idVvis)), Fmin, Fmax 
+        IF (Master) THEN
+          WRITE (stdout,100) TRIM(Vname(2,idVvis)), Fmin, Fmax
         END IF
       END IF
 #  endif
@@ -407,16 +407,16 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filAKt(:,:,:,tindx))
-      IF (status.ne.nf90_noerr) THEN 
-        IF (Master) THEN 
+      IF (status.ne.nf90_noerr) THEN
+        IF (Master) THEN
           WRITE (stdout,30) TRIM(Vname(1,idTdif)), tindx, TRIM(ncname)
         END IF
         exit_flag=2
         ioerror=status
         RETURN
       ELSE
-        IF (Master) THEN 
-          WRITE (stdout,100) TRIM(Vname(2,idTdif)), Fmin, Fmax 
+        IF (Master) THEN
+          WRITE (stdout,100) TRIM(Vname(2,idTdif)), Fmin, Fmax
         END IF
       END IF
 #  endif
@@ -435,16 +435,16 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filAKs(:,:,:,tindx))
-      IF (status.ne.nf90_noerr) THEN 
-        IF (Master) THEN 
+      IF (status.ne.nf90_noerr) THEN
+        IF (Master) THEN
           WRITE (stdout,30) TRIM(Vname(1,idSdif)), tindx, TRIM(ncname)
         END IF
         exit_flag=2
         ioerror=status
         RETURN
       ELSE
-        IF (Master) THEN 
-          WRITE (stdout,100) TRIM(Vname(2,idSdif)), Fmin, Fmax 
+        IF (Master) THEN
+          WRITE (stdout,100) TRIM(Vname(2,idSdif)), Fmin, Fmax
         END IF
       END IF
 #  endif
@@ -464,8 +464,8 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filstf(:,:,tindx))
-      IF (status.ne.nf90_noerr) THEN 
-        IF (Master) THEN 
+      IF (status.ne.nf90_noerr) THEN
+        IF (Master) THEN
           WRITE (stdout,30) TRIM(Vname(1,idTsur(itemp))), tindx,        &
      &                      TRIM(ncname)
         END IF
@@ -473,8 +473,8 @@
         ioerror=status
         RETURN
       ELSE
-        IF (Master) THEN 
-          WRITE (stdout,100) TRIM(Vname(2,idTsur(itemp))), Fmin, Fmax 
+        IF (Master) THEN
+          WRITE (stdout,100) TRIM(Vname(2,idTsur(itemp))), Fmin, Fmax
         END IF
       END IF
 !
@@ -492,8 +492,8 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filswf(:,:,tindx))
-      IF (status.ne.nf90_noerr) THEN 
-        IF (Master) THEN 
+      IF (status.ne.nf90_noerr) THEN
+        IF (Master) THEN
           WRITE (stdout,30) TRIM(Vname(1,idTsur(isalt))), tindx,        &
      &                      TRIM(ncname)
         END IF
@@ -501,8 +501,8 @@
         ioerror=status
         RETURN
       ELSE
-        IF (Master) THEN 
-          WRITE (stdout,100) TRIM(Vname(2,idTsur(isalt))), Fmin, Fmax 
+        IF (Master) THEN
+          WRITE (stdout,100) TRIM(Vname(2,idTsur(isalt))), Fmin, Fmax
         END IF
       END IF
 #   ifdef BULK_FLUXES
@@ -520,16 +520,16 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % fillhf(:,:,tindx))
-      IF (status.ne.nf90_noerr) THEN 
-        IF (Master) THEN 
+      IF (status.ne.nf90_noerr) THEN
+        IF (Master) THEN
           WRITE (stdout,30) TRIM(Vname(1,idLhea)), tindx, TRIM(ncname)
         END IF
         exit_flag=2
         ioerror=status
         RETURN
       ELSE
-        IF (Master) THEN 
-          WRITE (stdout,100) TRIM(Vname(2,idLhea)), Fmin, Fmax 
+        IF (Master) THEN
+          WRITE (stdout,100) TRIM(Vname(2,idLhea)), Fmin, Fmax
         END IF
       END IF
 !
@@ -546,16 +546,16 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filshf(:,:,tindx))
-      IF (status.ne.nf90_noerr) THEN 
-        IF (Master) THEN 
+      IF (status.ne.nf90_noerr) THEN
+        IF (Master) THEN
           WRITE (stdout,30) TRIM(Vname(1,idShea)), tindx, TRIM(ncname)
         END IF
         exit_flag=2
         ioerror=status
         RETURN
       ELSE
-        IF (Master) THEN 
-          WRITE (stdout,100) TRIM(Vname(2,idShea)), Fmin, Fmax 
+        IF (Master) THEN
+          WRITE (stdout,100) TRIM(Vname(2,idShea)), Fmin, Fmax
         END IF
       END IF
 !
@@ -572,16 +572,16 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % fillrf(:,:,tindx))
-      IF (status.ne.nf90_noerr) THEN 
-        IF (Master) THEN 
+      IF (status.ne.nf90_noerr) THEN
+        IF (Master) THEN
           WRITE (stdout,30) TRIM(Vname(1,idLrad)), tindx, TRIM(ncname)
         END IF
         exit_flag=2
         ioerror=status
         RETURN
       ELSE
-        IF (Master) THEN 
-          WRITE (stdout,100) TRIM(Vname(2,idLrad)), Fmin, Fmax 
+        IF (Master) THEN
+          WRITE (stdout,100) TRIM(Vname(2,idLrad)), Fmin, Fmax
         END IF
       END IF
 #   endif
@@ -600,16 +600,16 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filsrf(:,:,tindx))
-      IF (status.ne.nf90_noerr) THEN 
-        IF (Master) THEN 
+      IF (status.ne.nf90_noerr) THEN
+        IF (Master) THEN
           WRITE (stdout,30) TRIM(Vname(1,idSrad)), tindx, TRIM(ncname)
         END IF
         exit_flag=2
         ioerror=status
         RETURN
       ELSE
-        IF (Master) THEN 
-          WRITE (stdout,100) TRIM(Vname(2,idSrad)), Fmin, Fmax 
+        IF (Master) THEN
+          WRITE (stdout,100) TRIM(Vname(2,idSrad)), Fmin, Fmax
         END IF
       END IF
 #   endif
@@ -630,16 +630,16 @@
      &                GRID(ng) % umask,                                 &
 #   endif
      &                FILTER(ng) % filsus(:,:,tindx))
-      IF (status.ne.nf90_noerr) THEN 
-        IF (Master) THEN 
+      IF (status.ne.nf90_noerr) THEN
+        IF (Master) THEN
           WRITE (stdout,30) TRIM(Vname(1,idUsms)), tindx, TRIM(ncname)
         END IF
         exit_flag=2
         ioerror=status
         RETURN
       ELSE
-        IF (Master) THEN 
-          WRITE (stdout,100) TRIM(Vname(2,idUsms)), Fmin, Fmax 
+        IF (Master) THEN
+          WRITE (stdout,100) TRIM(Vname(2,idUsms)), Fmin, Fmax
         END IF
       END IF
 !
@@ -656,16 +656,16 @@
      &                GRID(ng) % vmask,                                 &
 #   endif
      &                FILTER(ng) % filsvs(:,:,tindx))
-      IF (status.ne.nf90_noerr) THEN 
-        IF (Master) THEN 
+      IF (status.ne.nf90_noerr) THEN
+        IF (Master) THEN
           WRITE (stdout,30) TRIM(Vname(1,idVsms)), tindx, TRIM(ncname)
         END IF
         exit_flag=2
         ioerror=status
         RETURN
       ELSE
-        IF (Master) THEN 
-          WRITE (stdout,100) TRIM(Vname(2,idVsms)), Fmin, Fmax 
+        IF (Master) THEN
+          WRITE (stdout,100) TRIM(Vname(2,idVsms)), Fmin, Fmax
         END IF
       END IF
 # endif
@@ -685,16 +685,16 @@
      &                GRID(ng) % umask,                                 &
 #   endif
      &                FILTER(ng) % filui(:,:,tindx))
-      IF (status.ne.nf90_noerr) THEN 
-        IF (Master) THEN 
+      IF (status.ne.nf90_noerr) THEN
+        IF (Master) THEN
           WRITE (stdout,30) TRIM(Vname(1,idUice)), tindx, TRIM(ncname)
         END IF
         exit_flag=2
         ioerror=status
         RETURN
       ELSE
-        IF (Master) THEN 
-          WRITE (stdout,100) TRIM(Vname(2,idUice)), Fmin, Fmax 
+        IF (Master) THEN
+          WRITE (stdout,100) TRIM(Vname(2,idUice)), Fmin, Fmax
         END IF
       END IF
 !
@@ -712,16 +712,16 @@
      &                GRID(ng) % vmask,                                 &
 #   endif
      &                FILTER(ng) % filvi(:,:,tindx))
-      IF (status.ne.nf90_noerr) THEN 
-        IF (Master) THEN 
+      IF (status.ne.nf90_noerr) THEN
+        IF (Master) THEN
           WRITE (stdout,30) TRIM(Vname(1,idVice)), tindx, TRIM(ncname)
         END IF
         exit_flag=2
         ioerror=status
         RETURN
       ELSE
-        IF (Master) THEN 
-          WRITE (stdout,100) TRIM(Vname(2,idVice)), Fmin, Fmax 
+        IF (Master) THEN
+          WRITE (stdout,100) TRIM(Vname(2,idVice)), Fmin, Fmax
         END IF
       END IF
 !
@@ -739,16 +739,16 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filai(:,:,tindx))
-      IF (status.ne.nf90_noerr) THEN 
-        IF (Master) THEN 
+      IF (status.ne.nf90_noerr) THEN
+        IF (Master) THEN
           WRITE (stdout,30) TRIM(Vname(1,idAice)), tindx, TRIM(ncname)
         END IF
         exit_flag=2
         ioerror=status
         RETURN
       ELSE
-        IF (Master) THEN 
-          WRITE (stdout,100) TRIM(Vname(2,idAice)), Fmin, Fmax 
+        IF (Master) THEN
+          WRITE (stdout,100) TRIM(Vname(2,idAice)), Fmin, Fmax
         END IF
       END IF
 !
@@ -766,16 +766,16 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filhi(:,:,tindx))
-      IF (status.ne.nf90_noerr) THEN 
-        IF (Master) THEN 
+      IF (status.ne.nf90_noerr) THEN
+        IF (Master) THEN
           WRITE (stdout,30) TRIM(Vname(1,idHice)), tindx, TRIM(ncname)
         END IF
         exit_flag=2
         ioerror=status
         RETURN
       ELSE
-        IF (Master) THEN 
-          WRITE (stdout,100) TRIM(Vname(2,idHice)), Fmin, Fmax 
+        IF (Master) THEN
+          WRITE (stdout,100) TRIM(Vname(2,idHice)), Fmin, Fmax
         END IF
       END IF
 !
@@ -793,16 +793,16 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filhsn(:,:,tindx))
-      IF (status.ne.nf90_noerr) THEN 
-        IF (Master) THEN 
+      IF (status.ne.nf90_noerr) THEN
+        IF (Master) THEN
           WRITE (stdout,30) TRIM(Vname(1,idHsno)), tindx, TRIM(ncname)
         END IF
         exit_flag=2
         ioerror=status
         RETURN
       ELSE
-        IF (Master) THEN 
-          WRITE (stdout,100) TRIM(Vname(2,idHsno)), Fmin, Fmax 
+        IF (Master) THEN
+          WRITE (stdout,100) TRIM(Vname(2,idHsno)), Fmin, Fmax
         END IF
       END IF
 !
@@ -820,16 +820,16 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filsfwat(:,:,tindx))
-      IF (status.ne.nf90_noerr) THEN 
-        IF (Master) THEN 
+      IF (status.ne.nf90_noerr) THEN
+        IF (Master) THEN
           WRITE (stdout,30) TRIM(Vname(1,idSfwat)), tindx, TRIM(ncname)
         END IF
         exit_flag=2
         ioerror=status
         RETURN
       ELSE
-        IF (Master) THEN 
-          WRITE (stdout,100) TRIM(Vname(2,idSfwat)), Fmin, Fmax 
+        IF (Master) THEN
+          WRITE (stdout,100) TRIM(Vname(2,idSfwat)), Fmin, Fmax
         END IF
       END IF
 !
@@ -847,16 +847,16 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filtis(:,:,tindx))
-      IF (status.ne.nf90_noerr) THEN 
-        IF (Master) THEN 
+      IF (status.ne.nf90_noerr) THEN
+        IF (Master) THEN
           WRITE (stdout,30) TRIM(Vname(1,idTice)), tindx, TRIM(ncname)
         END IF
         exit_flag=2
         ioerror=status
         RETURN
       ELSE
-        IF (Master) THEN 
-          WRITE (stdout,100) TRIM(Vname(2,idTice)), Fmin, Fmax 
+        IF (Master) THEN
+          WRITE (stdout,100) TRIM(Vname(2,idTice)), Fmin, Fmax
         END IF
       END IF
 !
@@ -874,16 +874,16 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filti(:,:,tindx))
-      IF (status.ne.nf90_noerr) THEN 
-        IF (Master) THEN 
+      IF (status.ne.nf90_noerr) THEN
+        IF (Master) THEN
           WRITE (stdout,30) TRIM(Vname(1,idTimid)), tindx, TRIM(ncname)
         END IF
         exit_flag=2
         ioerror=status
         RETURN
       ELSE
-        IF (Master) THEN 
-          WRITE (stdout,100) TRIM(Vname(2,idTimid)), Fmin, Fmax 
+        IF (Master) THEN
+          WRITE (stdout,100) TRIM(Vname(2,idTimid)), Fmin, Fmax
         END IF
       END IF
 !
@@ -901,16 +901,16 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filAgeice(:,:,tindx))
-      IF (status.ne.nf90_noerr) THEN 
-        IF (Master) THEN 
+      IF (status.ne.nf90_noerr) THEN
+        IF (Master) THEN
           WRITE (stdout,30) TRIM(Vname(1,idAgeice)), tindx, TRIM(ncname)
         END IF
         exit_flag=2
         ioerror=status
         RETURN
       ELSE
-        IF (Master) THEN 
-          WRITE (stdout,100) TRIM(Vname(2,idAgeice)), Fmin, Fmax 
+        IF (Master) THEN
+          WRITE (stdout,100) TRIM(Vname(2,idAgeice)), Fmin, Fmax
         END IF
       END IF
 !
@@ -928,16 +928,16 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % fils0mk(:,:,tindx))
-      IF (status.ne.nf90_noerr) THEN 
-        IF (Master) THEN 
+      IF (status.ne.nf90_noerr) THEN
+        IF (Master) THEN
           WRITE (stdout,30) TRIM(Vname(1,idS0mk)), tindx, TRIM(ncname)
         END IF
         exit_flag=2
         ioerror=status
         RETURN
       ELSE
-        IF (Master) THEN 
-          WRITE (stdout,100) TRIM(Vname(2,idS0mk)), Fmin, Fmax 
+        IF (Master) THEN
+          WRITE (stdout,100) TRIM(Vname(2,idS0mk)), Fmin, Fmax
         END IF
       END IF
 !
@@ -955,16 +955,16 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filt0mk(:,:,tindx))
-      IF (status.ne.nf90_noerr) THEN 
-        IF (Master) THEN 
+      IF (status.ne.nf90_noerr) THEN
+        IF (Master) THEN
           WRITE (stdout,30) TRIM(Vname(1,idT0mk)), tindx, TRIM(ncname)
         END IF
         exit_flag=2
         ioerror=status
         RETURN
       ELSE
-        IF (Master) THEN 
-          WRITE (stdout,100) TRIM(Vname(2,idT0mk)), Fmin, Fmax 
+        IF (Master) THEN
+          WRITE (stdout,100) TRIM(Vname(2,idT0mk)), Fmin, Fmax
         END IF
       END IF
 !
@@ -982,16 +982,16 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filWfr(:,:,tindx))
-      IF (status.ne.nf90_noerr) THEN 
-        IF (Master) THEN 
+      IF (status.ne.nf90_noerr) THEN
+        IF (Master) THEN
           WRITE (stdout,30) TRIM(Vname(1,idWfr)), tindx, TRIM(ncname)
         END IF
         exit_flag=2
         ioerror=status
         RETURN
       ELSE
-        IF (Master) THEN 
-          WRITE (stdout,100) TRIM(Vname(2,idWfr)), Fmin, Fmax 
+        IF (Master) THEN
+          WRITE (stdout,100) TRIM(Vname(2,idWfr)), Fmin, Fmax
         END IF
       END IF
 !
@@ -1009,16 +1009,16 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filWai(:,:,tindx))
-      IF (status.ne.nf90_noerr) THEN 
-        IF (Master) THEN 
+      IF (status.ne.nf90_noerr) THEN
+        IF (Master) THEN
           WRITE (stdout,30) TRIM(Vname(1,idWai)), tindx, TRIM(ncname)
         END IF
         exit_flag=2
         ioerror=status
         RETURN
       ELSE
-        IF (Master) THEN 
-          WRITE (stdout,100) TRIM(Vname(2,idWai)), Fmin, Fmax 
+        IF (Master) THEN
+          WRITE (stdout,100) TRIM(Vname(2,idWai)), Fmin, Fmax
         END IF
       END IF
 !
@@ -1036,16 +1036,16 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filWao(:,:,tindx))
-      IF (status.ne.nf90_noerr) THEN 
-        IF (Master) THEN 
+      IF (status.ne.nf90_noerr) THEN
+        IF (Master) THEN
           WRITE (stdout,30) TRIM(Vname(1,idWao)), tindx, TRIM(ncname)
         END IF
         exit_flag=2
         ioerror=status
         RETURN
       ELSE
-        IF (Master) THEN 
-          WRITE (stdout,100) TRIM(Vname(2,idWao)), Fmin, Fmax 
+        IF (Master) THEN
+          WRITE (stdout,100) TRIM(Vname(2,idWao)), Fmin, Fmax
         END IF
       END IF
 !
@@ -1063,16 +1063,16 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filWio(:,:,tindx))
-      IF (status.ne.nf90_noerr) THEN 
-        IF (Master) THEN 
+      IF (status.ne.nf90_noerr) THEN
+        IF (Master) THEN
           WRITE (stdout,30) TRIM(Vname(1,idWio)), tindx, TRIM(ncname)
         END IF
         exit_flag=2
         ioerror=status
         RETURN
       ELSE
-        IF (Master) THEN 
-          WRITE (stdout,100) TRIM(Vname(2,idWio)), Fmin, Fmax 
+        IF (Master) THEN
+          WRITE (stdout,100) TRIM(Vname(2,idWio)), Fmin, Fmax
         END IF
       END IF
 !
@@ -1090,16 +1090,16 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filWro(:,:,tindx))
-      IF (status.ne.nf90_noerr) THEN 
-        IF (Master) THEN 
+      IF (status.ne.nf90_noerr) THEN
+        IF (Master) THEN
           WRITE (stdout,30) TRIM(Vname(1,idWro)), tindx, TRIM(ncname)
         END IF
         exit_flag=2
         ioerror=status
         RETURN
       ELSE
-        IF (Master) THEN 
-          WRITE (stdout,100) TRIM(Vname(2,idWro)), Fmin, Fmax 
+        IF (Master) THEN
+          WRITE (stdout,100) TRIM(Vname(2,idWro)), Fmin, Fmax
         END IF
       END IF
 !
@@ -1117,16 +1117,16 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filsig11(:,:,tindx))
-      IF (status.ne.nf90_noerr) THEN 
-        IF (Master) THEN 
+      IF (status.ne.nf90_noerr) THEN
+        IF (Master) THEN
           WRITE (stdout,30) TRIM(Vname(1,idSig11)), tindx, TRIM(ncname)
         END IF
         exit_flag=2
         ioerror=status
         RETURN
       ELSE
-        IF (Master) THEN 
-          WRITE (stdout,100) TRIM(Vname(2,idSig11)), Fmin, Fmax 
+        IF (Master) THEN
+          WRITE (stdout,100) TRIM(Vname(2,idSig11)), Fmin, Fmax
         END IF
       END IF
 !
@@ -1144,16 +1144,16 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filsig12(:,:,tindx))
-      IF (status.ne.nf90_noerr) THEN 
-        IF (Master) THEN 
+      IF (status.ne.nf90_noerr) THEN
+        IF (Master) THEN
           WRITE (stdout,30) TRIM(Vname(1,idSig12)), tindx, TRIM(ncname)
         END IF
         exit_flag=2
         ioerror=status
         RETURN
       ELSE
-        IF (Master) THEN 
-          WRITE (stdout,100) TRIM(Vname(2,idSig12)), Fmin, Fmax 
+        IF (Master) THEN
+          WRITE (stdout,100) TRIM(Vname(2,idSig12)), Fmin, Fmax
         END IF
       END IF
 !
@@ -1171,16 +1171,16 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filsig22(:,:,tindx))
-      IF (status.ne.nf90_noerr) THEN 
-        IF (Master) THEN 
+      IF (status.ne.nf90_noerr) THEN
+        IF (Master) THEN
           WRITE (stdout,30) TRIM(Vname(1,idSig22)), tindx, TRIM(ncname)
         END IF
         exit_flag=2
         ioerror=status
         RETURN
       ELSE
-        IF (Master) THEN 
-          WRITE (stdout,100) TRIM(Vname(2,idSig22)), Fmin, Fmax 
+        IF (Master) THEN
+          WRITE (stdout,100) TRIM(Vname(2,idSig22)), Fmin, Fmax
         END IF
       END IF
 !
@@ -1198,16 +1198,16 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filio_mflux(:,:,tindx))
-      IF (status.ne.nf90_noerr) THEN 
-        IF (Master) THEN 
+      IF (status.ne.nf90_noerr) THEN
+        IF (Master) THEN
           WRITE (stdout,30) TRIM(Vname(1,idIomflx)), tindx, TRIM(ncname)
         END IF
         exit_flag=2
         ioerror=status
         RETURN
       ELSE
-        IF (Master) THEN 
-          WRITE (stdout,100) TRIM(Vname(2,idIomflx)), Fmin, Fmax 
+        IF (Master) THEN
+          WRITE (stdout,100) TRIM(Vname(2,idIomflx)), Fmin, Fmax
         END IF
       END IF
 !
@@ -1225,16 +1225,16 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filutau_iw(:,:,tindx))
-      IF (status.ne.nf90_noerr) THEN 
-        IF (Master) THEN 
+      IF (status.ne.nf90_noerr) THEN
+        IF (Master) THEN
           WRITE (stdout,30) TRIM(Vname(1,idTauiw)), tindx, TRIM(ncname)
         END IF
         exit_flag=2
         ioerror=status
         RETURN
       ELSE
-        IF (Master) THEN 
-          WRITE (stdout,100) TRIM(Vname(2,idTauiw)), Fmin, Fmax 
+        IF (Master) THEN
+          WRITE (stdout,100) TRIM(Vname(2,idTauiw)), Fmin, Fmax
         END IF
       END IF
 !
@@ -1252,16 +1252,16 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filchu_iw(:,:,tindx))
-      IF (status.ne.nf90_noerr) THEN 
-        IF (Master) THEN 
+      IF (status.ne.nf90_noerr) THEN
+        IF (Master) THEN
           WRITE (stdout,30) TRIM(Vname(1,idChuiw)), tindx, TRIM(ncname)
         END IF
         exit_flag=2
         ioerror=status
         RETURN
       ELSE
-        IF (Master) THEN 
-          WRITE (stdout,100) TRIM(Vname(2,idChuiw)), Fmin, Fmax 
+        IF (Master) THEN
+          WRITE (stdout,100) TRIM(Vname(2,idChuiw)), Fmin, Fmax
         END IF
       END IF
 # endif
