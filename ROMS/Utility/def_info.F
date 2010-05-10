@@ -670,27 +670,6 @@
         END IF
 #endif
 
-#ifdef NEMURO_SAN
-        IF (exit_flag.eq.NoError) THEN
-          status=nf90_put_att(ncid, nf90_global, 'fishpos_file',        &
-     &                        TRIM(fishposnam))
-          IF (status.ne.nf90_noerr) THEN
-            IF (Master) WRITE (stdout,20) 'fishpos_file', TRIM(ncname)
-            exit_flag=3
-            ioerror=status
-          END IF
-        END IF
-        IF (exit_flag.eq.NoError) THEN
-          status=nf90_put_att(ncid, nf90_global, 'shippos_file',        &
-     &                        TRIM(shipposnam))
-          IF (status.ne.nf90_noerr) THEN
-            IF (Master) WRITE (stdout,20) 'shippos_file', TRIM(ncname)
-            exit_flag=3
-            ioerror=status
-          END IF
-        END IF
-#endif
-
 #ifdef STATIONS
         IF (exit_flag.eq.NoError) THEN
           status=nf90_put_att(ncid, nf90_global, 'spos_file',           &
@@ -2566,8 +2545,7 @@
 #ifdef NO_WRITE_GRID
       IF (ncid.eq.ncSTAid(ng)) THEN
 #else
-      IF (ncid.ne.ncFLTid(ng) .and. ncid.ne.ncFISHid(ng) .and.          &
-     &    ncid.ne.ncSHIPSid(ng)) THEN
+      IF (ncid.ne.ncFLTid(ng)) THEN
 #endif
 # if !(defined SED_MORPH && defined SEDIMENT)
 !

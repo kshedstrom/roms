@@ -46,22 +46,9 @@
 !  v_stokes     3D V-Stokes drift velocity (m/s).                      !
 !                                                                      !
 #endif
-# if defined NEMURO_SAN
-!  fish_list    Linked list of fish in the box for each box.           !
-!  fish_count   Number of fish in each box.                            !
-!  ships_list   Linked list of ships in the box for each box.          !
-!  ships_count  Number of ships in each box.                           !
-!  pred_list    Linked list of predators in the box for each box.      !
-!  pred_count   Number of predators in each box.                       !
-!  spawn_loc    2D spawning locations for each fish species.           !
-#  if defined EGGS_BISECTION
-!  egg_count    Number of eggs in each box for each species.           !
-#  endif
-# endif
 !=======================================================================
 !
         USE mod_kinds
-        USE mod_types
 
         implicit none
 
@@ -128,18 +115,6 @@
 # endif
 # if (defined BIO_FENNEL || defined BIO_UMAINE) && defined CARBON
           real(r8), pointer :: pH(:,:)
-# endif
-
-# if defined NEMURO_SAN
-          type(fishnode), pointer :: fish_list(:,:)
-          integer, pointer :: fish_count(:,:)
-          type(fishnode), pointer :: ships_list(:,:)
-          integer, pointer :: ships_count(:,:)
-#  ifdef EGGS_BISECTION
-          real(r8), pointer :: egg_count(:,:,:)
-#  endif
-
-          real(r8), pointer :: spawn_loc(:,:,:)
 # endif
 #endif
 
@@ -309,9 +284,6 @@
 !=======================================================================
 !
       USE mod_param
-#ifdef NEMURO_SAN
-      USE mod_types
-#endif
 !
 !  Imported variable declarations.
 !
@@ -402,16 +374,6 @@
       allocate ( OCEAN(ng) % pH(LBi:UBi,LBj:UBj) )
 # endif
 
-# if defined NEMURO_SAN
-      allocate ( OCEAN(ng) % fish_count(LBi:UBi,LBj:UBj) )
-      allocate ( OCEAN(ng) % fish_list(LBi:UBi,LBj:UBj) )
-      allocate ( OCEAN(ng) % ships_count(LBi:UBi,LBj:UBj) )
-      allocate ( OCEAN(ng) % ships_list(LBi:UBi,LBj:UBj) )
-#  ifdef EGGS_BISECTION
-      allocate ( OCEAN(ng) % egg_count(LBi:UBi,LBj:UBj,Nspecies(ng)) )
-#  endif
-      allocate ( OCEAN(ng) % spawn_loc(LBi:UBi,LBj:UBj,Nspecies(ng)) )
-# endif
 #endif
 
 #if defined TANGENT || defined TL_IOMS
@@ -602,9 +564,6 @@
 !=======================================================================
 !
       USE mod_param
-#ifdef NEMURO_SAN
-      USE mod_types
-#endif
 !
 !  Imported variable declarations.
 !
@@ -812,22 +771,6 @@
                 OCEAN(ng) % st(i,j,k,3,itrc) = IniVal
               END DO
             END DO
-          END DO
-# endif
-# if defined NEMURO_SAN
-          DO itrc=1,Nspecies(ng)
-            DO i=Imin,Imax
-              OCEAN(ng) % spawn_loc(i,j,itrc) = IniVal
-#  ifdef EGGS_BISECTION
-              OCEAN(ng) % egg_count(i,j,itrc) = IniVal
-#  endif
-            END DO
-          END DO
-          DO i=Imin,Imax
-            OCEAN(ng) % fish_count(i,j) = 0
-            OCEAN(ng) % fish_list(i,j) % next => null()
-            OCEAN(ng) % ships_count(i,j) = 0
-            OCEAN(ng) % ships_list(i,j) % next => null()
           END DO
 # endif
 #endif

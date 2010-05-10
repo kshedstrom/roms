@@ -374,23 +374,6 @@
         integer  :: idSig22        ! internal ice stress component 22
         integer  :: idSig12        ! internal ice stress component 12
 
-! NEMURO_SAN variables
-        integer  :: idFwwt         ! fish wet weight
-        integer  :: idFworth       ! fish worth
-        integer  :: idFpval        ! fish P-value
-        integer  :: idFage         ! fish age
-        integer  :: idFbday        ! fish birthday
-        integer  :: idFyield       ! fish yield
-        integer  :: idSpwnloc      ! fish batch number
-        integer  :: idFspwn        ! spawning distribution
-        integer  :: idFbatch       ! fish batch
-        integer  :: idFspc         ! fish species
-        integer  :: idFlfsg        ! fish lifestage
-        integer  :: idFswmt        ! fish swim type
-        integer  :: idFalv         ! fish is alive
-        integer  :: idFeatf        ! fish eats fish
-        integer  :: idFgrl         ! fish is female
-
         integer, allocatable :: idRtrc(:)    ! river runoff for tracers
         integer, allocatable :: idTads(:)    ! tracers adjoint sentivity
         integer, allocatable :: idTbot(:)    ! bottom flux for tracers
@@ -483,7 +466,6 @@
         integer  :: ncFILid(nfile,Ngrids)     ! output filter
 #endif
         integer  :: ncFLTid(Ngrids)     ! output floats
-        integer  :: ncFISHid(Ngrids)    ! output fish
         integer  :: ncFRCid(NV,Ngrids)  ! input forcing
         integer  :: ncFWDid(Ngrids)     ! forward solution
         integer  :: ncGRDid(Ngrids)     ! input grid
@@ -498,7 +480,6 @@
         integer  :: ncNRMid(4,Ngrids)   ! input/output covariance norm
         integer  :: ncOBSid(Ngrids)     ! input/output observations
         integer  :: ncRSTid(Ngrids)     ! input/output restart
-        integer  :: ncSHIPSid(Ngrids)   ! output ships
         integer  :: ncSSHid(Ngrids)     ! SSH observations
         integer  :: ncSSTid(Ngrids)     ! SST observations
         integer  :: ncSTAid(Ngrids)     ! output stations
@@ -535,7 +516,6 @@
         integer, allocatable :: lczTid(:,:)   ! Lanczos tracers IDs
         integer, allocatable :: obsTid(:,:)   ! observations tracers IDs
         integer, allocatable :: rstTid(:,:)   ! restart tracers IDs
-        integer, allocatable :: shipsTid(:,:) ! ships tracers IDs
         integer, allocatable :: staTid(:,:)   ! stations tracers IDs
         integer, allocatable :: tlfTid(:,:)   ! TLM impulse tracers IDs
         integer, allocatable :: tlmTid(:,:)   ! tangent tracers IDs
@@ -558,7 +538,6 @@
         integer  :: nrmVid(4,NV,Ngrids)  ! norm variables IDs
         integer  :: obsVid(NV,Ngrids)    ! observations variables IDs
         integer  :: rstVid(NV,Ngrids)    ! restart variables IDs
-        integer  :: shipsVid(-6:NV,Ngrids)! ships variables IDs
         integer  :: staVid(NV,Ngrids)    ! stations variables IDs
         integer  :: tideVid(NV,Ngrids)   ! tide variables IDs
         integer  :: tlfVid(NV,Ngrids)    ! TLM impulse variables IDs
@@ -571,7 +550,6 @@
         integer  :: tERRindx(Ngrids)     ! error time record index
         integer  :: tFILindx(Ngrids)     ! filter time record index
         integer  :: tFLTindx(Ngrids)     ! floats time record index
-        integer  :: tFISHindx(Ngrids)    ! fish time record index
         integer  :: tHISindx(Ngrids)     ! history time record index
         integer  :: tHSSindx(Ngrids)     ! Hessian time record index
         integer  :: tINIindx(Ngrids)     ! initial NLM time record index
@@ -580,7 +558,6 @@
         integer  :: tLCZindx(Ngrids)     ! Lanczos time record index
         integer  :: tNRMindx(4,Ngrids)   ! norm time record index
         integer  :: tRSTindx(Ngrids)     ! restart time record index
-        integer  :: tSHIPSindx(Ngrids)   ! ships time record index
         integer  :: tSTAindx(Ngrids)     ! stations time record index
         integer  :: tTLFindx(Ngrids)     ! TLM impulse time record index
         integer  :: tTLMindx(Ngrids)     ! tangent time record index
@@ -710,7 +687,6 @@
         allocate ( lczTid(MT,Ngrids) )
         allocate ( obsTid(MT,Ngrids) )
         allocate ( rstTid(MT,Ngrids) )
-        allocate ( shipsTid(MT,Ngrids) )
         allocate ( staTid(MT,Ngrids) )
         allocate ( tlfTid(MT,Ngrids) )
         allocate ( tlmTid(MT,Ngrids) )
@@ -1004,7 +980,6 @@
           ncDIAid(ng)=-1
           ncERRid(ng)=-1
           ncFLTid(ng)=-1
-          ncFISHid(ng)=-1
           ncGSTid(ng)=-1
           ncFWDid(ng)=-1
           ncGRDid(ng)=-1
@@ -1018,7 +993,6 @@
           ncNRMid(1:4,ng)=-1
           ncOBSid(ng)=-1
           ncRSTid(ng)=-1
-          ncSHIPSid(ng)=-1
           ncSSHid(ng)=-1
           ncSSTid(ng)=-1
           ncSTAid(ng)=-1
@@ -1035,14 +1009,12 @@
           tDIAindx(ng)=0
           tFILindx(ng)=0
           tFLTindx(ng)=0
-          tFISHindx(ng)=0
           tHISindx(ng)=0
           tINIindx(ng)=0
           tIRPindx(ng)=1
           tITLindx(ng)=1
           tNRMindx(1:4,ng)=0
           tRSTindx(ng)=0
-          tSHIPSindx(ng)=0
           tSTAindx(ng)=0
           tTLFindx(ng)=0
           tTLMindx(ng)=0
@@ -1773,203 +1745,6 @@
               CASE ('idTbry(inorth,inert(i))')
                 load=.TRUE.
 #endif
-              CASE ('idHsbl')
-                idHsbl=varid
-              CASE ('idHbbl')
-                idHbbl=varid
-              CASE ('idUbot')
-                idUbot=varid
-              CASE ('idVbot')
-                idVbot=varid
-              CASE ('idUbur')
-                idUbur=varid
-              CASE ('idVbvr')
-                idVbvr=varid
-              CASE ('idUbrs')
-                idUbrs=varid
-              CASE ('idVbrs')
-                idVbrs=varid
-              CASE ('idSSHc')
-                idSSHc=varid
-              CASE ('idUbcl')
-                idUbcl=varid
-              CASE ('idVbcl')
-                idVbcl=varid
-              CASE ('idUclm')
-                idUclm=varid
-              CASE ('idVclm')
-                idVclm=varid
-              CASE ('idOclm')
-                idOclm=varid
-              CASE ('idSSSc')
-                idSSSc=varid
-              CASE ('idSSSf')
-                idSSSf=varid
-              CASE ('idSSTc')
-                idSSTc=varid
-              CASE ('idTclm(itemp)')
-                idTclm(itemp)=varid
-              CASE ('idTclm(isalt)')
-                idTclm(isalt)=varid
-#if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
-    defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR || \
-    defined SO_SEMI
-              CASE ('idZads')
-                idZads=varid
-              CASE ('idUbas')
-                idUbas=varid
-              CASE ('idVbas')
-                idVbas=varid
-              CASE ('idUads')
-                idUads=varid
-              CASE ('idVads')
-                idVads=varid
-              CASE ('idTads(itemp)')
-                idTads(itemp)=varid
-              CASE ('idTads(isalt)')
-                idTads(isalt)=varid
-#endif
-#ifdef WEAK_CONSTRAINT
-              CASE ('idZtlf')
-                idZtlf=varid
-              CASE ('idUbtf')
-                idUbtf=varid
-              CASE ('idVbtf')
-                idVbtf=varid
-              CASE ('idUtlf')
-                idUtlf=varid
-              CASE ('idVtlf')
-                idVtlf=varid
-              CASE ('idTtlf(itemp)')
-                idTtlf(itemp)=varid
-              CASE ('idTtlf(isalt)')
-                idTtlf(isalt)=varid
-#endif
-              CASE ('idSSHo')
-                idSSHo=varid
-              CASE ('idSSHe')
-                idSSHe=varid
-              CASE ('idUobs')
-                idUobs=varid
-              CASE ('idVobs')
-                idVobs=varid
-              CASE ('idUVer')
-                idUVer=varid
-              CASE ('idUsur')
-                idUsur=varid
-              CASE ('idVsur')
-                idVsur=varid
-              CASE ('idUVse')
-                idUVse=varid
-              CASE ('idSSTo')
-                idSSTo=varid
-              CASE ('idSSTe')
-                idSSTe=varid
-              CASE ('idTobs(itemp)')
-                idTobs(itemp)=varid
-              CASE ('idTerr(itemp)')
-                idTerr(itemp)=varid
-              CASE ('idTobs(isalt)')
-                idTobs(isalt)=varid
-              CASE ('idTerr(isalt)')
-                idTerr(isalt)=varid
-#ifdef AVERAGES_DETIDE
-              CASE ('idCosW')
-                idCosW=varid
-              CASE ('idCos2')
-                idCos2=varid
-              CASE ('idSinW')
-                idSinW=varid
-              CASE ('idSin2')
-                idSin2=varid
-              CASE ('idSWCW')
-                idSWCW=varid
-              CASE ('idFsuD')
-                idFsuD=varid
-              CASE ('idFsuH')
-                idFsuH=varid
-              CASE ('idu2dD')
-                idu2dD=varid
-              CASE ('idu2dH')
-                idu2dH=varid
-              CASE ('idv2dD')
-                idv2dD=varid
-              CASE ('idv2dH')
-                idv2dH=varid
-# ifdef SOLVE3D
-              CASE ('idu3dD')
-                idu3dD=varid
-              CASE ('idu3dH')
-                idu3dH=varid
-              CASE ('idv3dD')
-                idv3dD=varid
-              CASE ('idv3dH')
-                idv3dH=varid
-# endif
-#endif
-#ifdef AVERAGES_QUADRATIC
-              CASE ('idU2av')
-                idU2av=varid
-              CASE ('idV2av')
-                idV2av=varid
-              CASE ('idZZav')
-                idZZav=varid
-#endif
-#ifdef SOLVE3D
-# ifdef AVERAGES_QUADRATIC
-
-              CASE ('idTTav(itemp)')
-                idTTav(itemp)=varid
-              CASE ('iHUTav(itemp)')
-                iHUTav(itemp)=varid
-              CASE ('iHVTav(itemp)')
-                iHVTav(itemp)=varid
-              CASE ('idUTav(itemp)')
-                idUTav(itemp)=varid
-              CASE ('idVTav(itemp)')
-                idVTav(itemp)=varid
-              CASE ('idHUav')
-                idHUav=varid
-              CASE ('idHVav')
-                idHVav=varid
-              CASE ('idUUav')
-                idUUav=varid
-              CASE ('idUVav')
-                idUVav=varid
-              CASE ('idVVav')
-                idVVav=varid
-# endif
-# ifdef SALINITY
-#  ifdef AVERAGES_QUADRATIC
-              CASE ('idTTav(isalt)')
-                idTTav(isalt)=varid
-              CASE ('iHUTav(isalt)')
-                iHUTav(isalt)=varid
-              CASE ('iHVTav(isalt)')
-                iHVTav(isalt)=varid
-              CASE ('idUTav(isalt)')
-                idUTav(isalt)=varid
-              CASE ('idVTav(isalt)')
-                idVTav(isalt)=varid
-#  endif
-# endif
-#endif
-#ifdef T_PASSIVE
-              CASE ('idTvar(inert(i))')
-                load=.TRUE.
-              CASE ('idTbry(iwest,inert(i))')
-                load=.TRUE.
-              CASE ('idTbry(ieast,inert(i))')
-                load=.TRUE.
-              CASE ('idTbry(isouth,inert(i))')
-                load=.TRUE.
-              CASE ('idTbry(inorth,inert(i))')
-                load=.TRUE.
-# ifdef TS_PSOURCE
-              CASE ('idRtrc(inert(i))')
-                load=.TRUE.
-# endif
-#endif
 #ifdef DIAGNOSTICS
               CASE ('id2dPV')
                 id2dPV=varid
@@ -2270,8 +2045,6 @@
 #  include <ecosim_var.h>
 # elif defined NEMURO
 #  include <nemuro_var.h>
-# elif defined NEMURO_SAN
-#  include <fish_var.h>
 # elif defined NPZD_FRANKS
 #  include <npzd_Franks_var.h>
 # elif defined NPZD_POWELL
@@ -2420,30 +2193,6 @@
      &                      TRIM(ADJUSTL(Vinfo(5)))
                     END DO
                   END IF
-# ifdef TS_PSOURCE
-                CASE ('idRtrc(inert(i))')
-                  IF (NPT.gt.0) THEN
-                    varid=varid-1
-                    DO i=1,NPT
-                      varid=varid+1
-                      idRtrc(inert(i))=varid
-                      DO ng=1,Ngrids
-                        Fscale(varid,ng)=scale
-                        Iinfo(1,varid,ng)=gtype
-                      END DO
-                      WRITE (Vname(1,varid),'(a,i2.2)')                 &
-     &                      TRIM(ADJUSTL(Vinfo(1))), i
-                      WRITE (Vname(2,varid),'(a,a,i2.2)')               &
-     &                      TRIM(ADJUSTL(Vinfo(2))), ', type ', i
-                      WRITE (Vname(3,varid),'(a)')                      &
-     &                      TRIM(ADJUSTL(Vinfo(3)))
-                      WRITE (Vname(4,varid),'(a,a)')                    &
-     &                      TRIM(Vname(1,varid)), ', scalar, series'
-                      WRITE (Vname(5,varid),'(a)')                      &
-     &                      TRIM(ADJUSTL(Vinfo(5)))
-                    END DO
-                  END IF
-# endif
               END SELECT
 #endif
 #ifdef DIAGNOSTICS_TS

@@ -114,10 +114,6 @@
 !
         CALL inp_par (iNLM)
         IF (exit_flag.ne.NoError) RETURN
-#ifdef NEMURO_SAN
-        CALL ini_fish (iNLM)
-        IF (exit_flag.ne.NoError) RETURN
-#endif
 !
 !  Allocate and initialize modules variables.
 !
@@ -182,13 +178,6 @@
           WRITE (stdout,20) ng, ntstart(ng), ntend(ng)
         END IF
         time(ng)=time(ng)-dt(ng)
-#ifdef NEMURO_SAN
-        tdays(ng)=time(ng)*sec2day
-        idays(ng) = int((time(ng)+dt(ng))*sec2day)
-        iyears(ng) = int(((time(ng)+dt(ng))*sec2day)/days_year)
-        iyesterday(ng) = idays(ng)
-        iyesteryear(ng) = iyears(ng)
-#endif
       END DO
 
  10   FORMAT (' Process Information:',/)
@@ -235,10 +224,6 @@
           iic(ng)=my_iic
           time(ng)=time(ng)+dt(ng)
           tdays(ng)=time(ng)*sec2day
-#ifdef NEMURO_SAN
-          idays(ng) = int(tdays(ng))
-          iyears(ng) = int(tdays(ng)/days_year)
-#endif
 !
 !-----------------------------------------------------------------------
 !  Read in required data, if any, from input NetCDF files.

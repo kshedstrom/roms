@@ -859,7 +859,7 @@
      &                       tHISindx(ng), gtype,                       &
      &                       LBi, UBi, LBj, UBj, 1, N(ng), scale,       &
 # ifdef MASKING
-     &                       GRID(ng) % rmask,                 &
+     &                       GRID(ng) % rmask,                          &
 # endif
      &                       OCEAN(ng) % pt3(:,:,:,NOUT,itrc))
           !---------------------
@@ -892,12 +892,12 @@
      &                          LBi, UBi, LBj, UBj, scale,              &
 
 !Will need to switch this if have more than one depth level for benthos
-!      status=nf_fwrite3d(ng, iNLM, ncHISid(ng), hisBid(itrc,ng), &
-!     &                          tHISindx(ng), gtype,                    &
-!     &                          LBi, UBi, LBj, UBj, 1, NBL(ng), scale,  &
+!      status=nf_fwrite3d(ng, iNLM, ncHISid(ng), hisBid(itrc,ng),       &
+!     &                          tHISindx(ng), gtype,                   &
+!     &                          LBi, UBi, LBj, UBj, 1, NBL(ng), scale, &
 
 #ifdef MASKING
-     &                     GRID(ng) % rmask,                   &
+     &                     GRID(ng) % rmask,                            &
 # endif
      &                       OCEAN(ng) % bt(:,:,1,NOUT,itrc))
 !             print*,OCEAN(ng) % bt(LBi,LBj,1,NOUT,itrc)
@@ -935,7 +935,7 @@
 !     &                          LBi, UBi, LBj, UBj, 1, NBL(ng), scale,  &
 
 #  ifdef MASKING
-     &                     GRID(ng) % rmask,                   &
+     &                     GRID(ng) % rmask,                            &
 #  endif
 #  ifdef CLIM_ICE_1D
      &                       OCEAN(ng) % it(:,:,NOUT,itrc))
@@ -979,7 +979,7 @@
           OCEAN(ng) % st(:,:,:,NOUT,itrc) = 0.0_r8
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,10) TRIM(Vname(1,idTSvar(itrc))),            &
+              WRITE (stdout,10) TRIM(Vname(1,idTSvar(itrc))),           &
      &                          tHISindx(ng)
             END IF
             exit_flag=3
@@ -1499,7 +1499,7 @@
      &                     ICE(ng) % io_mflux)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idIomflx)),                    &
+            WRITE (stdout,10) TRIM(Vname(1,idIomflx)),                  &
      &                        tHISindx(ng)
           END IF
           exit_flag=3
@@ -1851,11 +1851,11 @@
       DO itrc=1,NAT
         IF (Hout(idTsur(itrc),ng)) THEN
           IF (itrc.eq.itemp) THEN
-#  ifdef SO_SEMI
+# ifdef SO_SEMI
             scale=1.0_r8
-#  else
+# else
             scale=rho0*Cp                   ! Celsius m/s to W/m2
-#  endif
+# endif
           ELSE IF (itrc.eq.isalt) THEN
             scale=1.0_r8
           END IF
@@ -1864,9 +1864,9 @@
      &                       hisVid(idTsur(itrc),ng),                   &
      &                       tHISindx(ng), gtype,                       &
      &                       LBi, UBi, LBj, UBj, scale,                 &
-#  ifdef MASKING
+# ifdef MASKING
      &                       GRID(ng) % rmask,                          &
-#  endif
+# endif
      &                       FORCES(ng) % stflx(:,:,itrc))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
@@ -1879,7 +1879,7 @@
           END IF
         END IF
       END DO
-# endif
+
 # ifdef BULK_FLUXES
 !
 !  Write out latent heat flux.
@@ -2084,6 +2084,7 @@
         END IF
       END IF
 # endif
+#endif
 #endif
 !
 !  Write out surface U-momentum stress.

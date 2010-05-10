@@ -53,7 +53,7 @@
 !
 !***********************************************************************
       SUBROUTINE interp_floats (ng, LBi, UBi, LBj, UBj, LBk, UBk,       &
-     &                          Lstr, Lend, itime, ifield, numflt,      &
+     &                          Lstr, Lend, itime, ifield,              &
      &                          gtype, maskit, Fspval, nudg,            &
      &                          pm, pn,                                 &
 # ifdef SOLVE3D
@@ -74,11 +74,11 @@
 !  Imported variable declarations.
 !
       integer, intent(in) :: ng, LBi, UBi, LBj, UBj, LBk, UBk
-      integer, intent(in) :: Lstr, Lend, itime, ifield, gtype, numflt
+      integer, intent(in) :: Lstr, Lend, itime, ifield, gtype
 
       logical, intent(in) :: maskit
       logical, intent(in) :: MyThread(Lstr:Lend)
-      logical, intent(in) :: bounded(numflt)
+      logical, intent(in) :: bounded(Nfloats(ng))
 
       real(r8), intent(in) :: Fspval
 
@@ -94,7 +94,7 @@
 # endif
       real(r8), intent(in) :: A(LBi:UBi,LBj:UBj,LBk:UBk)
 
-      real(r8), intent(inout) :: track(NFV(ng),0:NFT,numflt)
+      real(r8), intent(inout) :: track(NFV(ng),0:NFT,Nfloats(ng))
 !
 !  Local variable declarations.
 !

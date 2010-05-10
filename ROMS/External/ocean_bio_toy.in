@@ -448,10 +448,11 @@ Hout(idBott) == T T T T T T T T T F F F F F F F
 
 ! Input NetCDF file names, [1:Ngrids].
 
-     GRDNAME == Data/ROMS/Grid/biotoy_grd.nc
-     ININAME == Data/ROMS/Initial/biotoy_ini_fasham.nc
-!    GRDNAME == biotoy_grd.nc
-!    ININAME == biotoy_ini_ecosim.nc
+     GRDNAME == Data/ROMS/Grid/bio_toy_grd.nc
+     ININAME == Data/ROMS/Initial/bio_toy_ini_fennel.nc
+!    ININAME == Data/ROMS/Initial/bio_toy_ini_ecosim.nc
+!    ININAME == Data/ROMS/Initial/bio_toy_ini_nemuro.nc
+!    ININAME == Data/ROMS/Initial/bio_toy_ini_npzd.nc
      ITLNAME == /dev/null
      IRPNAME == /dev/null
      IADNAME == /dev/null

@@ -66,19 +66,6 @@
 !  NDM2d      Number of diagnostic 2D momentum fields.                 !
 !  NDM3d      Number of diagnostic 3D momentum fields.                 !
 !  NDrhs      Number of diagnostic 3D right-hand-side fields.          !
-!
-#ifdef NEMURO_SAN
-! parameters for the fish particle model
-!  max_species  Maximum number of species
-!  Nbox         Number of spawning areas
-!  Nfishperyear Number of fish per year class per species
-!  Nspecies     Number of fish species
-!  Nyearclass   Number of year classes
-!  Nfish        Total number of fish
-!  Nbatch       Number of days per year an individual will release eggs
-!  Nships       Total number of ships
-!  Npred        Total number of predatory fish
-#endif
 !                                                                      !
 !=======================================================================
 !
@@ -320,23 +307,7 @@
 !
         integer :: NNS = 0
 
-#ifdef NEMURO_SAN
-        integer, dimension(Ngrids) :: Nbox
-        integer, dimension(Ngrids) :: Nfishperyear
-        integer, dimension(Ngrids) :: Nspecies
-        integer, dimension(Ngrids) :: Nyearclass
-!        integer, dimension(max_species,Ngrids) :: Nbatch
-!   Nfish=Nfishperyear*Nspecies*Nyearclass
-        integer, dimension(Ngrids) :: Nfish
-
-        integer, dimension(Ngrids) :: Nships
-        integer, dimension(Ngrids) :: Npred
-
-!  Total number of fish variables to process and output.
-!
-        integer, dimension(Ngrids) :: NFishV
-#endif
-#if defined FLOATS || defined NEMURO_SAN
+#if defined FLOATS
 !
 !-----------------------------------------------------------------------
 !  Floats trajectories parameters.
@@ -347,7 +318,7 @@
         integer, parameter :: NFT = 4
 !
 #endif
-#if defined FLOATS || defined NEMURO_SAN
+#if defined FLOATS
 !  Total number of floats to track.
 !
         integer, dimension(Ngrids) :: Nfloats
@@ -568,15 +539,12 @@
           Im(ng)=Lm(ng)+I_padd
           Jm(ng)=Mm(ng)+J_padd
           NT(ng)=NAT+NBT+NST+NPT
-#if defined FLOATS || defined NEMURO_SAN
+#ifdef FLOATS
 # ifdef FLOAT_VWALK
           NFV(ng)=NT(ng)+12
 # else
           NFV(ng)=NT(ng)+10
 # endif
-#endif
-#ifdef NEMURO_SAN
-          NFishV(ng)=11
 #endif
           NSV(ng)=NT(ng)+5
 #ifdef ADJUST_WSTRESS

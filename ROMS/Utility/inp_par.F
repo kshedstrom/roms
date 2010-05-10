@@ -1330,10 +1330,6 @@
             Npts=load_i(Nval, Rval, Ngrids, nSTA)
           ELSE IF (TRIM(KeyWord).eq.'NFLT') THEN
             Npts=load_i(Nval, Rval, Ngrids, nFLT)
-          ELSE IF (TRIM(KeyWord).eq.'NFSH') THEN
-            Npts=load_i(Nval, Rval, Ngrids, nFSH)
-          ELSE IF (TRIM(KeyWord).eq.'NSHP') THEN
-            Npts=load_i(Nval, Rval, Ngrids, nSHP)
           ELSE IF (TRIM(KeyWord).eq.'NINFO') THEN
             Npts=load_i(Nval, Rval, Ngrids, ninfo)
           ELSE IF (TRIM(KeyWord).eq.'LDEFOUT') THEN
@@ -2630,16 +2626,6 @@
               FLTname(Nval)(i:i)=blank
             END DO
             FLTname(Nval)=TRIM(ADJUSTL(Cval(Nval)))
-          ELSE IF (TRIM(KeyWord).eq.'FISHNAME') THEN
-            DO i=1,LEN(FISHname(Nval))
-              FISHname(Nval)(i:i)=blank
-            END DO
-            FISHname(Nval)=TRIM(ADJUSTL(Cval(Nval)))
-          ELSE IF (TRIM(KeyWord).eq.'SHIPNAME') THEN
-            DO i=1,LEN(SHIPname(Nval))
-              SHIPname(Nval)(i:i)=blank
-            END DO
-            SHIPname(Nval)=TRIM(ADJUSTL(Cval(Nval)))
           ELSE IF (TRIM(KeyWord).eq.'GRDNAME') THEN
             DO i=1,LEN(GRDname(Nval))
               GRDname(Nval)(i:i)=blank
@@ -2731,18 +2717,6 @@
               fposnam(i:i)=blank
             END DO
             fposnam=TRIM(ADJUSTL(Cval(Nval)))
-#ifdef NEMURO_SAN
-          ELSE IF (TRIM(KeyWord).eq.'FISHPOSNAM') THEN
-            DO i=1,LEN(fishposnam)
-              fishposnam(i:i)=blank
-            END DO
-            fishposnam=TRIM(ADJUSTL(Cval(Nval)))
-          ELSE IF (TRIM(KeyWord).eq.'SHIPPOSNAM') THEN
-            DO i=1,LEN(shipposnam)
-              shipposnam(i:i)=blank
-            END DO
-            shipposnam=TRIM(ADJUSTL(Cval(Nval)))
-#endif
           ELSE IF (TRIM(KeyWord).eq.'BPARNAM') THEN
             DO i=1,LEN(bparnam)
               bparnam(i:i)=blank
@@ -2878,14 +2852,6 @@
      &      (nFLT(ng).eq.0)) THEN
           LdefFLT(ng)=.FALSE.
         END IF
-        IF (((nrrec(ng).eq.0).and.(nFSH(ng).gt.ntimes(ng))).or.         &
-     &      (nFSH(ng).eq.0)) THEN
-          LdefFISH(ng)=.FALSE.
-        END IF
-!       IF (((nrrec(ng).eq.0).and.(nSHP(ng).gt.ntimes(ng))).or.         &
-!    &      (nSHP(ng).eq.0)) THEN
-!         LdefSHIP(ng)=.FALSE.
-!       END IF
         IF (((nrrec(ng).eq.0).and.(nHIS(ng).gt.ntimes(ng))).or.         &
      &      (nHIS(ng).eq.0)) THEN
           LdefHIS(ng)=.FALSE.
@@ -2999,14 +2965,6 @@
           WRITE (out,130) nFLT(ng), 'nFLT',                             &
      &          'Number of timesteps between the writing of data',      &
      &          'into floats file.'
-#endif
-#ifdef NEMURO_SAN
-          WRITE (out,130) nFSH(ng), 'nFSH',                             &
-     &          'Number of timesteps between the writing of data',      &
-     &          'into fish file.'
-          WRITE (out,130) nSHP(ng), 'nSHP',                             &
-     &          'Number of timesteps between the writing of data',      &
-     &          'into ship file.'
 #endif
           WRITE (out,170) ldefout(ng), 'ldefout',                       &
      &          'Switch to create a new output NetCDF file(s).'
@@ -4238,14 +4196,6 @@
 #ifdef FLOATS
           WRITE (out,230) '            Output Floats File:  ',          &
      &                    TRIM(FLTname(ng))
-#endif
-#ifdef NEMURO_SAN
-          WRITE (out,230) '            Output Fish File:  ',          &
-     &                    TRIM(FISHname(ng))
-# ifdef FLEET
-          WRITE (out,230) '            Output Ships File:  ',          &
-     &                    TRIM(SHIPname(ng))
-# endif
 #endif
 #ifdef MODEL_COUPLING
           WRITE (out,230) '      Physical parameters File:  ',          &

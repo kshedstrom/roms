@@ -246,17 +246,6 @@
         if (exit_flag.ne.NoError) RETURN
 #endif
 
-#if defined NEMURO_SAN && defined ANA_SPAWN_DIST
-!$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(ng,numthreads)
-        DO thread=0,numthreads-1
-          subs=NtileX(ng)*NtileE(ng)/numthreads
-          DO tile=subs*thread,subs*(thread+1)-1
-            CALL ana_spawn_dist (ng, TILE, iNLM)
-          END DO
-        END DO
-!$OMP END PARALLEL DO
-#endif
-
 #ifdef SOLVE3D
 !
 !-----------------------------------------------------------------------

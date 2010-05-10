@@ -424,9 +424,6 @@ endif
 ifdef USE_SEAICE
  modules  +=	ROMS/SeaIce
 endif
-ifdef USE_FISH
- modules  +=	ROMS/Fish
-endif
  modules  +=	ROMS/Utility
 
  includes :=	ROMS/Include

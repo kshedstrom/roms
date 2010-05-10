@@ -471,33 +471,6 @@
      &                          FORCES(ng) % rdrg_grid)
 #  endif
 # endif
-# if defined NEMURO_SAN && ! defined ANA_SPAWN_DIST
-!
-!  Read in spawning distance parameter.
-!
-          CASE ('spawn_dist')
-            gtype=r2dvar
-            status=nf_fread2d(ng, model, ncname, ncGRDid(ng),           &
-     &                        var_name(it), var_id(it), 0,              &
-     &                        gtype, Vsize, LBi, UBi, LBj, UBj,         &
-     &                        Fscl, Fmin, Fmax,                         &
-#  ifdef MASKING
-     &                        GRID(ng) % rmask,                         &
-#  endif
-     &                        GRID(ng) % spawn_dist)
-            IF (status.ne.nf90_noerr) THEN
-              exit_flag=2
-              ioerror=status
-              EXIT
-            END IF
-#  ifdef DISTRIBUTE
-! Like lat, lon, could be that it doesn't wrap nicely.
-            CALL mp_exchange2d (ng, tile, model, 1,                     &
-     &                          LBi, UBi, LBj, UBj,                     &
-     &                          NghostPoints, .FALSE., .FALSE.,         &
-     &                          GRID(ng) % spawn_dist)
-#  endif
-# endif
 !
 !  Read in Coriolis parameter.
 !
