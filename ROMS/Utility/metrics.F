@@ -790,8 +790,14 @@
 #ifdef MASKING
           IF (rmask(i,j).gt.0.0_r8) THEN
 #endif
+#ifdef ICESHELF
+            cff=dtfast(ng)*                                             &
+     &          SQRT(g*ABS(h(i,j)-ABS(zice(i,j)))*                      &
+     &              (pm(i,j)*pm(i,j)+pn(i,j)*pn(i,j)))
+#else
             cff=dtfast(ng)*                                             &
      &          SQRT(g*ABS(h(i,j))*(pm(i,j)*pm(i,j)+pn(i,j)*pn(i,j)))
+#endif
             my_Cu_min=MIN(my_Cu_min,cff)
             my_Cu_max=MAX(my_Cu_max,cff)
 

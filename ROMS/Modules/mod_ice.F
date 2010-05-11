@@ -194,8 +194,13 @@
           ICE(ng) % vie(i,j,2) = IniVal
           ICE(ng) % ai(i,j,1) = IniVal
           ICE(ng) % ai(i,j,2) = IniVal
+# ifdef SOGLOBEC
+          ICE(ng) % hi(i,j,1) = 0.5_r8
+          ICE(ng) % hi(i,j,2) = 0.5_r8
+# else
           ICE(ng) % hi(i,j,1) = IniVal
           ICE(ng) % hi(i,j,2) = IniVal
+# endif
           ICE(ng) % hsn(i,j,1) = IniVal
           ICE(ng) % hsn(i,j,2) = IniVal
           ICE(ng) % sfwat(i,j,1) = IniVal

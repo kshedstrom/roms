@@ -255,7 +255,11 @@
 !
 !  Write out tracer diagnostic fields.
 !
+#  ifdef SOGLOBEC
+      DO itrc=1,3,2                   ! Temperature and CDW
+#  else
       DO itrc=1,NT(ng)
+#  endif
         DO ivar=1,NDT
           ifield=idDtrc(itrc,ivar)
           scale=1.0_r8/(REAL(nDIA(ng),r8)*dt(ng))

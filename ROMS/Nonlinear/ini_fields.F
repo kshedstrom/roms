@@ -150,6 +150,9 @@
 !
       USE mod_param
       USE mod_scalars
+# ifdef SOGLOBEC
+      USE mod_clima
+# endif
 # if defined SEDIMENT || defined BBL_MODEL
       USE mod_sediment
 # endif
@@ -635,11 +638,17 @@
      &                     LBi, UBi, LBj, UBj, N(ng), NT(ng),           &
      &                     IminS, ImaxS, JminS, JmaxS,                  &
      &                     nstp, nstp,                                  &
+#  ifdef SOGLOBEC
+                           CLIMA(ng) % tclm,                            &
+#  endif
      &                     t)
           CALL t3dbc_tile (ng, tile, itrc,                              &
      &                     LBi, UBi, LBj, UBj, N(ng), NT(ng),           &
      &                     IminS, ImaxS, JminS, JmaxS,                  &
      &                     nstp, nnew,                                  &
+#  ifdef SOGLOBEC
+     &                     CLIMA(ng) % tclm,                            &
+#  endif
      &                     t)
         END DO
       END IF

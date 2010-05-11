@@ -198,6 +198,9 @@
       USE mod_param
       USE mod_ncparam
       USE mod_scalars
+# ifdef SOGLOBEC
+      USE mod_clima
+# endif
 !
 # if defined EW_PERIODIC || defined NS_PERIODIC
       USE exchange_3d_mod, ONLY : exchange_r3d_tile
@@ -1354,6 +1357,9 @@
      &                   LBi, UBi, LBj, UBj, N(ng), NT(ng),             &
      &                   IminS, ImaxS, JminS, JmaxS,                    &
      &                   nstp, nnew,                                    &
+# ifdef SOGLOBEC
+     &                   tclm,                                          &
+# endif
      &                   t)
 
 # if defined TCLM_NUDGING && defined TCLIMATOLOGY
@@ -1400,6 +1406,16 @@
      &                           dt(ng)*cff*                            &
      & (tclm(i,j,k,itrc)-t(i,j,k,nnew,itrc))
 #  else
+#   ifdef SOGLOBEC2
+              IF (i.eq.401 .and. j.eq.9 .and. k.eq.14) THEN
+                print*,'New T: ',t(i,j,k,nnew,itrc),Tnudgcof(i,j,itrc), &
+     &                           tclm(i,j,k,itrc),tdays(ng),j
+              END IF
+              IF (i.eq.401 .and. j.eq.3 .and. k.eq.14) THEN
+                print*,'New T: ',t(i,j,k,nnew,itrc),Tnudgcof(i,j,itrc), &
+     &                           tclm(i,j,k,itrc),tdays(ng),j
+              END IF
+#   endif
               t(i,j,k,nnew,itrc)=t(i,j,k,nnew,itrc)+                    &
      &                           dt(ng)*Tnudgcof(i,j,itrc)*             &
      &                           (tclm(i,j,k,itrc)-t(i,j,k,nnew,itrc))
@@ -1443,7 +1459,11 @@
 !
 !  Apply clamp to salt
 !
+#  ifdef SOGLOBEC
+      IF (itrc .ge. isalt) THEN
+#  else
       IF (itrc == isalt) THEN
+#  endif
         DO k=1,N(ng)
           DO j=JstrR,JendR
             DO i=IstrR,IendR

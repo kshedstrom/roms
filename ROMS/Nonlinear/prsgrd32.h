@@ -256,11 +256,11 @@
      &                 (z_w(i,j,N(ng))-z_r(i,j,N(ng)))
 #else
           P(i,j,N(ng))=GRho0*z_w(i,j,N(ng))+                            &
-# ifdef ATM_PRESS
-     &                 fac*(Pair(i,j)-OneAtm)+                          &
-# endif
      &                 GRho*(rho(i,j,N(ng))+cff2)*                      &
      &                 (z_w(i,j,N(ng))-z_r(i,j,N(ng)))
+#endif
+#ifdef ATM_PRESS
+	  P(i,j,N(ng)) = P(i,j,N(ng) + fac*(Pair(i,j)-OneAtm)
 #endif
 #ifdef POT_TIDES
           P(i,j,N(ng)) = P(i,j,N(ng)) - g*Ptide(i,j)

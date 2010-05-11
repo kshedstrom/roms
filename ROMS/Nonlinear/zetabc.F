@@ -173,7 +173,8 @@
         DO j=Jstr,Jend
           cff=dt2d*GRID(ng)%pm(Istr,j)
 #  ifdef ICESHELF
-          cff1=SQRT(g*(GRID(ng)%h(Istr,j)-ABS(GRID(ng)%zice(Istr,j))))
+          cff1=SQRT(g*(GRID(ng)%h(Istr,j)-ABS(GRID(ng)%zice(Istr,j))+   &
+     &                 zeta(Istr,j,know)))
 #  else
           cff1=SQRT(g*(GRID(ng)%h(Istr,j)+                              &
      &                 zeta(Istr,j,know)))
@@ -300,7 +301,8 @@
         DO j=Jstr,Jend
           cff=dt2d*GRID(ng)%pm(Iend,j)
 #  ifdef ICESHELF
-          cff1=SQRT(g*(GRID(ng)%h(Iend,j)-ABS(GRID(ng)%zice(Iend,j))))
+          cff1=SQRT(g*(GRID(ng)%h(Iend,j)-ABS(GRID(ng)%zice(Iend,j))+   &
+     &                 zeta(Iend,j,know)))
 #  else
           cff1=SQRT(g*(GRID(ng)%h(Iend,j)+                              &
      &                 zeta(Iend,j,know)))
@@ -430,7 +432,8 @@
         DO i=Istr,Iend
           cff=dt2d*GRID(ng)%pn(i,Jstr)
 #  ifdef ICESHELF
-          cff1=SQRT(g*(GRID(ng)%h(i,Jstr)-ABS(GRID(ng)%zice(i,Jstr))))
+          cff1=SQRT(g*(GRID(ng)%h(i,Jstr)-ABS(GRID(ng)%zice(i,Jstr))+   &
+     &                 zeta(i,Jstr,know)))
 #  else
           cff1=SQRT(g*(GRID(ng)%h(i,Jstr)+                              &
      &                 zeta(i,Jstr,know)))
@@ -557,7 +560,8 @@
         DO i=Istr,Iend
           cff=dt2d*GRID(ng)%pn(i,Jend)
 #  ifdef ICESHELF
-          cff1=SQRT(g*(GRID(ng)%h(i,Jend)-ABS(GRID(ng)%zice(i,Jend))))
+          cff1=SQRT(g*(GRID(ng)%h(i,Jend)-ABS(GRID(ng)%zice(i,Jend))+   &
+     &                 zeta(i,Jend,know)))
 #  else
           cff1=SQRT(g*(GRID(ng)%h(i,Jend)+                              &
      &                 zeta(i,Jend,know)))

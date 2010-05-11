@@ -2520,9 +2520,6 @@
 !
       CALL obc_flux_tile (ng, tile,                                     &
      &                    LBi, UBi, LBj, UBj,                           &
-#  ifdef ICESHELF
-     &                    ILB, IUB, JLB, JUB,                           &
-#  endif
      &                    IminS, ImaxS, JminS, JmaxS,                   &
      &                    knew,                                         &
 #  ifdef MASKING
@@ -2532,7 +2529,7 @@
      &                    hw, om_v, on_u,                               &
 #  else
      &                    h, om_v, on_u,                                &
-# endif
+#  endif
      &                    ubar, vbar, zeta)
 # endif
 # ifdef UV_PSOURCE
