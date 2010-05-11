@@ -194,6 +194,10 @@
 ** STATIONS            use if writing out station data                       **
 ** STATIONS_CGRID      use if extracting data at native C-grid               **
 **                                                                           **
+** OPTIONS for floating iceshelves:                                          **
+**                                                                           **
+** ICESHELF_3EQ        use if using 3 eqn. thermodynamic formulation         **
+**                                                                           **
 ** OPTIONS for Lagrangian drifters:                                          **
 **                                                                           **
 ** FLOATS              use to activate simulated Lagrangian drifters         **
@@ -711,6 +715,7 @@
 ** ICE_SMOLAR          use for MPDATA advection scheme
 ** ICE_UPWIND          use for upwind advection scheme
 ** ICE_BULK_FLUXES     use for ice part of bulk flux computation
+** ICE_CONVSNOW        use for conversion of flooded snow to ice
 **
 ** OPTION to avoid writing current date and CPP options to NetCDF file       **
 ** headers. This is used to compare serial and parallel solutions where      **
@@ -739,6 +744,7 @@
 ** FLT_TEST            Float Tracking Example                                **
 ** GRAV_ADJ            Gravitational Adjustment Example                      **
 ** INLET_TEST          Test Inlet Application                                **
+** ISOMIP              ISOMIP 2.01 Ice Shelf test case                       **
 ** KELVIN              Kelvin wave test                                      **
 ** LAB_CANYON          Lab Canyon, Polar Coordinates Example                 **
 ** LAKE_SIGNELL        Lake Signell Sediment Test Case                       **

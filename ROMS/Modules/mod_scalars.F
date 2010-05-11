@@ -1182,6 +1182,31 @@
         real(r8), dimension(Ngrids) :: blk_ZT     ! (m)
         real(r8), dimension(Ngrids) :: blk_ZW     ! (m)
 #endif
+
+#ifdef ICESHELF
+!
+!---------------------------------------------------------------------
+!  Define parameters associated with the transfer of heat and salt
+!  beneath the ice shelf (values from Beckmann, et al. (1999) and
+!  Hellmer and Olbers (1989)).  Note that gamma_s and gamma_t
+!  can be changed if ICESHELF_3EQ defined.
+!---------------------------------------------------------------------
+!
+!    gamma_s       Turbulent salt exchange coefficient underneath 
+!                    the ice (m/s)
+!    gamma_t       Turbulent heat exchange coefficient underneath 
+!                    the ice (m/s)
+!    Hlfreeze      Latent heat for freezing salt water (J/kg)           
+!    rho_ice       Density of sea-ice (kg/m^3)                          
+!    blk_Cpi       Specific heat capicity of ice (J/kg/deg C)           
+!
+        real(r8) :: gamma_s = 5.05E-7_r8       ! (m/s)
+        real(r8) :: gamma_t = 1.00E-4_r8       ! (m/s)
+        real(r8) :: Hlfreeze = 334000.0_r8     ! (J/kg)
+        real(r8) :: rho_ice = 930.0_r8         ! (kg/m^3)
+        real(r8) :: blk_Cpi = 2000.0_r8        ! (J/kg/C)
+#endif
+
 # if defined SG_BBL || defined SSW_BBL
 !
 !-----------------------------------------------------------------------
@@ -1348,7 +1373,11 @@
 !
         real(r8) :: lmd_Cg
         real(r8) :: lmd_Cstar = 10.0_r8
+#  ifdef SOGLOBEC
+        real(r8) :: lmd_Cv = 1.8_r8
+#  else
         real(r8) :: lmd_Cv = 1.25_r8
+#  endif
 !!      real(r8) :: lmd_Cv = 1.4_r8
 !!      real(r8) :: lmd_Cv = 1.6_r8
 !!      real(r8) :: lmd_Cv = 1.8_r8
