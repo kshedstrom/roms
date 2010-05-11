@@ -557,7 +557,11 @@
 !
 !  Define tracer diagnostic fields.
 !
+#  ifdef SOGLOBEC
+        DO itrc=1,3,2                    ! Temperature and CDW
+#  else
         DO itrc=1,NT(ng)
+#  endif
           DO ivar=1,NDT
             ifield=idDtrc(itrc,ivar)
             Vinfo( 1)=Vname(1,ifield)
@@ -720,7 +724,11 @@
 #  endif
 # endif
 # ifdef DIAGNOSTICS_TS
+#  ifdef SOGLOBEC
+          DO itrc=1,3,2                     ! Temperature and CDW
+#  else
           DO itrc=1,NT(ng)
+#  endif
             DO ivar=1,NDT
               ifield=idDtrc(itrc,ivar)
               IF (TRIM(var_name(i)).eq.TRIM(Vname(1,ifield))) THEN
@@ -811,7 +819,11 @@
 #  endif
 # endif
 # ifdef DIAGNOSTICS_TS
+#  ifdef SOGLOBEC
+        DO itrc=1,3,2                     ! Temperature and CDW
+#  else
         DO itrc=1,NT(ng)
+#  endif
           DO ivar=1,NDT
             ifield=idDtrc(itrc,ivar)
             IF (.not.got_var(ifield)) THEN

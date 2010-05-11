@@ -1224,6 +1224,19 @@
       END DO
 #     endif
 
+#   if defined SOGLOBEC
+      DO i=1,NT(ng)
+        CALL get_3dfld (ng, iNLM, idTclm(i), ncCLMid(ng), 1,            &
+     &                  CLMname(ng), update(1),                         &
+     &                  LBi, UBi, LBj, UBj, 1, N(ng), 2, 1,             &
+#    ifdef MASKING
+     &                  GRID(ng) % rmask(LBi,LBj),                      &
+#    endif
+     &                  CLIMA(ng) % tclmG(LBi,LBj,1,1,i))
+      END DO
+#   endif
+
+
 #   if (defined BEST_NPZ || defined BIO_GOANPZ) && defined IRON_LIMIT
       CALL get_3dfld (ng, iNLM, idTclm(iFe), ncclmid(ng), 1,            &
      &                clmname(ng), update(1),                           &

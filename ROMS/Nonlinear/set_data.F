@@ -1643,7 +1643,11 @@
 ! in 3D want nudge only Fe not T and S
 #   if !defined BERING10k
 
+#    if defined SOGLOBEC
+      DO itrc=1,NT(ng)
+#    else
       DO itrc=1,NAT
+#    endif
         CALL set_3dfld_tile (ng, tile, iNLM, idTclm(itrc),              &
      &                       LBi, UBi, LBj, UBj, 1, N(ng),              &
      &                       CLIMA(ng)%tclmG(:,:,:,:,itrc),             &

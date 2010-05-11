@@ -1906,6 +1906,10 @@
 # endif
               CASE ('idDtrc(iTvdif)')
                 load=.TRUE.
+# ifdef SOGLOBEC
+              CASE ('idTclm(inert(i))')
+                load=.TRUE.
+# endif
 #endif
 #if defined FORWARD_READ || defined FORWARD_WRITE
               CASE ('idRuct')
@@ -2204,6 +2208,30 @@
                     DO i=1,NPT
                       varid=varid+1
                       idRtrc(inert(i))=varid
+                      DO ng=1,Ngrids
+                        Fscale(varid,ng)=scale
+                        Iinfo(1,varid,ng)=gtype
+                      END DO
+                      WRITE (Vname(1,varid),'(a,i2.2)')                 &
+     &                      TRIM(ADJUSTL(Vinfo(1))), i
+                      WRITE (Vname(2,varid),'(a,a,i2.2)')               &
+     &                      TRIM(ADJUSTL(Vinfo(2))), ', type ', i
+                      WRITE (Vname(3,varid),'(a)')                      &
+     &                      TRIM(ADJUSTL(Vinfo(3)))
+                      WRITE (Vname(4,varid),'(a,a)')                    &
+     &                      TRIM(Vname(1,varid)), ', scalar, series'
+                      WRITE (Vname(5,varid),'(a)')                      &
+     &                      TRIM(ADJUSTL(Vinfo(5)))
+                    END DO
+                  END IF
+# endif
+# ifdef SOGLOBEC
+                CASE ('idTclm(inert(i))')
+                  IF (NPT.gt.0) THEN
+                    varid=varid-1
+                    DO i=1,NPT
+                      varid=varid+1
+                      idTclm(inert(i))=varid
                       DO ng=1,Ngrids
                         Fscale(varid,ng)=scale
                         Iinfo(1,varid,ng)=gtype
