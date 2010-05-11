@@ -999,7 +999,8 @@
           slp = Pair(i,j)*100._r8 !Convert back to Pascal from millibars
           cff = 611._r8*                                                &
      &      10._r8**(9.5_r8*(sfc_temp-273.16_r8)/(sfc_temp-7.66_r8))
-          Qsati=eps*cff/(slp-(1._r8-.62197_r8)*cff)
+!         Qsati=eps*cff/(slp-(1._r8-.62197_r8)*cff)
+          Qsati=0.62197_r8*cff/(slp-(1._r8-.62197_r8)*cff)
           dq_i=Q(i)-Qsati
           fqlat1=rhoAir(i)*Ce*delW(i)
           qlh_i = fqlat1*le_i*dq_i
@@ -1057,9 +1058,17 @@
 #   endif
 !
 ! Short-wave radiation to ice
+#   ifdef SOGLOBEC
+          SRad(i,j) = SRad(i,j) * 1.075269_r8
+! This is to take out the ocean albedo out of the shortwave radiation
+!  (1.075 = 1/(1-0.07)) before the ice albedo is applied to it.  I've
+!  just done this for SOGLOBEC, but I think this may be a real bug for 
+!  everything.
+#   endif
           qswi = (1._r8-albs)*SRad(i,j)
 ! Already in W/m**2
           RHS_Ice(i,j) = RHS_Ice(i,j) + qswi
+
 
 ! Net long-wave radiation from ice
           cff = Q(i)/(1.0_r8+Q(i))
@@ -1094,6 +1103,7 @@
 ! Correct for Kelvin to Celsius in RHS
            RHS_Ice(i,j) = RHS_Ice(i,j) -                                &
      &            Coef_Ice(i,j)*273.16_r8
+
 
 ! Net heat flux from ice to atmosphere
            Qai(i,j) =-qsh_i - qlh_i - qswi + qlwi
@@ -1139,8 +1149,8 @@
 !
 !  Note that fresh water flux is positive out of the ocean and the
 !  salt flux (stflx(isalt)) is positive into the ocean. It is converted
-!  to (psu m/s) for stflx(isalt) in "set_vbc.F". The E-P value is
-!  saved in variable EminusP for I/O purposes.
+!  to (psu m/s) for stflx(isalt) in "set_vbc.F" or "ice_mk.h". The E-P 
+!  value is saved in variable EminusP for I/O purposes.
 !
       cff=1.0_r8/rhow
       DO j=JstrR,JendR

@@ -150,8 +150,13 @@
           hage(0,j,linew)=hage(0,j,linew)*                      &
      &                   GRID(ng)%rmask_wet(0,j)
 #  endif
+#  ifdef SOGLOBEC
+             ageice(0,j,linew) = hage(0,j,linew)/                       &
+     &                       MAX(hi(1,j,linew),1.0E-6_r8)
+#  else
              ageice(0,j,linew) = hage(0,j,linew)/                       &
      &                       MAX(hi(0,j,linew),1.0E-6_r8)
+#  endif
              IF(hi(0,j,linew).LE.min_h) THEN
                 hage(0,j,linew) = 0.0_r8
                 ageice(0,j,linew) = 0.0_r8
@@ -263,8 +268,13 @@
           hage(Lm(ng)+1,j,linew)=hage(Lm(ng)+1,j,linew)*        &
      &                          GRID(ng)%rmask_wet(Lm(ng)+1,j)
 #  endif
+#  ifdef SOGLOBEC
+             ageice(Lm(ng)+1,j,linew) = hage(Lm(ng)+1,j,linew)/         &
+     &                       MAX(hi(Lm(ng),j,linew),1.0E-6_r8)
+#  else
              ageice(Lm(ng)+1,j,linew) = hage(Lm(ng)+1,j,linew)/         &
      &                       MAX(hi(Lm(ng)+1,j,linew),1.0E-6_r8)
+#  endif
              IF(hi(Lm(ng)+1,j,linew).LE.min_h) THEN
                 hage(Lm(ng)+1,j,linew) = 0.0_r8
                 ageice(Lm(ng)+1,j,linew) = 0.0_r8
@@ -375,8 +385,13 @@
           hage(i,0,linew)=hage(i,0,linew)*                      &
      &                   GRID(ng)%rmask_wet(i,0)
 #  endif
+#  ifdef SOGLOBEC
+             ageice(i,0,linew) = hage(i,0,linew)/                       &
+     &                       MAX(hi(i,1,linew),1.0E-6_r8)
+#  else
              ageice(i,0,linew) = hage(i,0,linew)/                       &
      &                       MAX(hi(i,0,linew),1.0E-6_r8)
+#  endif
              IF(hi(i,0,linew).LE.min_h) THEN
                 hage(i,0,linew) = 0.0_r8
                 ageice(i,0,linew) = 0.0_r8
@@ -486,8 +501,13 @@
           hage(i,Mm(ng)+1,linew)=hage(i,Mm(ng)+1,linew)*        &
      &                          GRID(ng)%rmask_wet(i,Mm(ng)+1)
 #  endif
+#  ifdef SOGLOBEC
+             ageice(i,Mm(ng)+1,linew) = hage(i,Mm(ng)+1,linew)/         &
+     &                       MAX(hi(i,Mm(ng),linew),1.0E-6_r8)
+#  else
              ageice(i,Mm(ng)+1,linew) = hage(i,Mm(ng)+1,linew)/         &
      &                       MAX(hi(i,Mm(ng)+1,linew),1.0E-6_r8)
+#  endif
              IF(hi(i,Mm(ng)+1,linew).LE.min_h) THEN
                 hage(i,Mm(ng)+1,linew) = 0.0_r8
                 ageice(i,Mm(ng)+1,linew) = 0.0_r8

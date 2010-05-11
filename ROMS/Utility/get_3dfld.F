@@ -298,6 +298,11 @@
               ELSE
                 Tmono=Tmono+(Tstr-MOD(tdays(ng)+Tstr,Clength))
               END IF
+#ifdef SOGLOBEC
+              IF ((tdays(ng)-Tmono).gt.Clength) THEN
+                Tmono=Tmono+Clength
+              END IF
+#endif
             END IF
           ELSE
             IF (tdays(ng).gt.Clength) THEN

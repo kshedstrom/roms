@@ -2007,7 +2007,11 @@
         scale=1.0_r8
 #    endif
 #   else
+#    ifdef SOGLOBEC
+        scale=1.0_r8
+#    else
         scale=rho0*Cp
+#    endif
 #   endif
         gtype=gfactor*r2dvar
         status=nf_fwrite2d(ng, iNLM, ncAVGid(ng),                       &
@@ -2225,7 +2229,7 @@
 !  Write out shortwave radiation flux.
 !
       IF (Hout(idSrad,ng)) THEN
-#    ifdef ADJOINT
+#    if defined ADJOINT || defined SOGLOBEC
         scale=1.0_r8
 #    else
         scale=rho0*Cp
