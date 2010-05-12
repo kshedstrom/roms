@@ -32,7 +32,7 @@ set replace = "2002-2010 The ROMS/TOMS"
 
 # Directories to search for replacements.
 
-set c_dirs = "Compilers Master ROMS User"
+set c_dirs = "Apps Compilers Master ROMS User"
 
 # Specific files not in the "c_dirs".
 
