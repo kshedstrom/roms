@@ -2,7 +2,7 @@
 !
 !! svn $Id$
 !==============================================================================
-!  Copyright (c) 2002-2009 ROMS/TOMS Group
+!  Copyright (c) 2002-2010 ROMS/TOMS Group
 !========================================================= Hernan G. Arango ===
 !                                                                             !
 ! Input parameters can be entered in ANY order, provided that the parameter   !
@@ -119,12 +119,12 @@
 
 ! Minimum average ice thickness [m]
 
-     min_h == 0.002d0
+     min_h == 0.00d0
 
 ! Minimum ice concentration
 ! (nondimensional)
 
-     min_a = 0.002d0
+     min_a = 0.00d0
 
 ! Maximum ice concentration
 ! (nondimensional)

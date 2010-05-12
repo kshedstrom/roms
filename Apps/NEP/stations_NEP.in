@@ -1,7 +1,7 @@
 !  Station Extraction Parameters.
 !
 !==============================================================================
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                              ===
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                              ===
 !========================================================= Hernan G. Arango ===
 !                                                                             !
 ! Input parameters can be entered in ANY order, provided that the parameter   !
@@ -67,7 +67,6 @@ Sout(idLhea) == T                          ! latent heat flux
 Sout(idShea) == T                          ! sensible heat flux
 Sout(idLrad) == T                          ! longwave radiation flux
 Sout(idSrad) == T                          ! shortwave radiation flux
-Sout(idEmPf) == F                          ! E-P flux
 Sout(idevap) == F                          ! evaporation rate
 Sout(idrain) == F                          ! precipitation rate
 
@@ -207,7 +206,7 @@ POS =  GRID  FLAG      X-POS       Y-POS     COMMENT
         1    1   199           57               ! CBS14
         1    1   201         57.5               ! CBS15
         1    1   195           59               ! CBS16
-        1    1   195           60               ! CBS17 
+        1    1   195           60               ! CBS17
         1    1  201.4483333     58.84833333     ! Clarks Point 9465261
         1    1  179.2833333     51.41666667     ! Constantine H. Amchitka
         1    1  214.2466667     60.55833333     ! Cordova 9454050
@@ -404,7 +403,6 @@ POS =  GRID  FLAG      X-POS       Y-POS     COMMENT
 !  Sout(idShea)  Write out sensible heat flux.
 !  Sout(idLrad)  Write out long-wave radiation flux.
 !  Sout(idSrad)  Write out short-wave radiation flux.
-!  Sout(idEmPf)  Write out E-P flux.
 !  Sout(idevap)  Write out evaporation rate.
 !  Sout(idrain)  Write out precipitation rate.
 !
