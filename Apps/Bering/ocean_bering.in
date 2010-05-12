@@ -3,7 +3,7 @@
 !
 ! svn $Id$
 !========================================================= Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                                !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                                !
 !    Licensed under a MIT/X style license                                     !
 !    See License_ROMS.txt                                                     !
 !==============================================================================
@@ -55,7 +55,7 @@
 
           Lm == 540           ! Number of I-direction INTERIOR RHO-points
           Mm == 768           ! Number of J-direction INTERIOR RHO-points
-           N == 42            ! Number of vertical levels
+           N == 60            ! Number of vertical levels
 
         Nbed =  0             ! Number of sediment bed layers
 
@@ -73,9 +73,9 @@
 
 ! Time-Stepping parameters.
 
-      NTIMES == 2880
-          DT == 300.0d0
-     NDTFAST == 30
+      NTIMES == 4320
+          DT == 200.0d0
+     NDTFAST == 20
 
 ! Model iteration loops parameters.
 
@@ -96,7 +96,7 @@
 
        NRREC =  0
    LcycleRST == T
-        NRST == 288
+        NRST == 432
         NSTA == 1
         NFLT == 1
        NINFO == 1
@@ -104,13 +104,13 @@
 ! Output history, average, diagnostic files parameters.
 
      LDEFOUT == T
-        NHIS == 288
-     NDEFHIS == 2880
+        NHIS == 432
+     NDEFHIS == 4320
       NTSAVG == 1
-        NAVG == 288
-     NDEFAVG == 2880
+        NAVG == 432
+     NDEFAVG == 432
       NTSDIA == 1
-        NDIA == 10
+        NDIA == 432
      NDEFDIA == 0
 
 ! Output tangent linear and adjoint models parameters.
@@ -180,8 +180,7 @@
          Zob == 0.02d0                     ! m
          Zos == 0.02d0                     ! m
 
-! Height (m) of atmospheric measurements for Bulk fluxes
-parameterization.
+! Height (m) of atmospheric measurements for Bulk fluxes parameterization.
 
       BLK_ZQ == 10.0d0                     ! air humidity
       BLK_ZT == 10.0d0                     ! air temperature
@@ -218,16 +217,16 @@ parameterization.
 ! origin for tidal forcing, and model reference time for output
 ! NetCDF units attribute.
 
-      DSTART =  0.0d0                      ! days
-  TIDE_START =  0.0d0                      ! days
+      DSTART =  36892.0d0                  ! days
+  TIDE_START =  -693962.0d0                ! days
     TIME_REF =  19000101.0d0               ! yyyymmdd.dd
 
 ! Nudging/relaxation time scales, inverse scales will be computed
 ! internally, [1:Ngrids].
 
        TNUDG == 2*360.0d0                    ! days
-       ZNUDG == 0.0d0                      ! days
-      M2NUDG == 0.0d0                      ! days
+       ZNUDG == 360.0d0                      ! days
+      M2NUDG == 360.0d0                      ! days
       M3NUDG == 360.0d0                      ! days
 
 ! Factor between passive (outflow) and active (inflow) open boundary
@@ -366,6 +365,11 @@ Hout(idSig12) == T
 Hout(idSig22) == T
 Hout(idS0mk) == T
 Hout(idT0mk) == T
+Hout(idWfr) == T
+Hout(idWai) == T
+Hout(idWao) == T
+Hout(idWio) == T
+Hout(idWro) == T
 
 ! Logical switches (TRUE/FALSE) to activate writing of extra inert passive
 ! tracers other than biological and sediment tracers. An inert passive tracer
@@ -415,15 +419,15 @@ Hout(idBott) == T T T T T T T T T F F F F F F F
 
 ! Input NetCDF file names, [1:Ngrids].
 
-     GRDNAME == /wrkdir/kate/Bering/Files/Bering_grid_1.nc
+     GRDNAME == /workdir/users/kate/Bering/Files/Bering_grid_4.nc
 !    ININAME == bering_rst.nc
-     ININAME == /wrkdir/kate/Bering/Files/BERING_august.nc
-     ITLNAME == /ptmp/enrique/ROMS/NEP4/Inputs/ocean_itl.nc
+     ININAME == /workdir/users/kate/Bering/Files/soda2.0.2_Bering_init_2001.nc
+     ITLNAME == ocean_itl.nc
      IRPNAME == ocean_irp.nc
      IADNAME == ocean_iad.nc
-     CLMNAME == /ptmp/enrique/ROMS/NEP4/Inputs/ocean_clm.nc
-     BRYNAME == /wrkdir/kate/Bering/Files/Bering_bry.nc
-     FWDNAME == /ptmp/enrique/ROMS/NEP4/Inputs/ocean_fwd.nc
+     CLMNAME == ocean_clm.nc
+     BRYNAME == /workdir/users/kate/Bering/Files/soda2.0.2_NEP5a_bry_58-05.nc
+     FWDNAME == ocean_fwd.nc
      ADSNAME == ocean_ads.nc
 
 ! Input forcing NetCDF file name(s).  The USER has the option to enter
@@ -436,18 +440,19 @@ Hout(idBott) == T T T T T T T T T F F F F F F F
 ! and so on.  Use a single line per entry with a continuation (\) symbol
 ! at the each entry, except the last one.
 
-     NFFILES == 1                          ! number of forcing files
+     NFFILES == 11                         ! number of forcing files
 
-    FRCNAME == /wrkdir/kate/Bering/Files/Bering_tides.nc
-!   FRCNAME == /wrkdir/kate/Bering/Files/Pair_44.nc   \
-!             /wrkdir/kate/Bering/Files/LWrad_44.nc  \
-!              /wrkdir/kate/Bering/Files/Qair_44.nc   \
-!             /wrkdir/kate/Bering/Files/SWrad_44.nc  \
-!              /wrkdir/kate/Bering/Files/Tair_44.nc   \
-!             /wrkdir/kate/Bering/Files/Uwind_44.nc  \
-!             /wrkdir/kate/Bering/Files/Vwind_44.nc  \
-!              /wrkdir/kate/Bering/Files/rain_01.nc  \
-!              /wrkdir/kate/Bering/Files/NEP4_rivers_57-04_djd.nc
+    FRCNAME == /workdir/users/kate/Bering/Files/Pair.1948-2006.nc   \
+               /workdir/users/kate/Bering/Files/lwrad.1948-2006.nc  \
+               /workdir/users/kate/Bering/Files/Qair.1948-2006.nc   \
+               /workdir/users/kate/Bering/Files/swrad.1948-2006.nc  \
+               /workdir/users/kate/Bering/Files/Tair.1948-2006.nc   \
+               /workdir/users/kate/Bering/Files/Uwind.1948-2006.nc  \
+               /workdir/users/kate/Bering/Files/Vwind.1948-2006.nc  \
+               /workdir/users/kate/Bering/Files/CCSM_Runoff.nc   \
+               /workdir/users/kate/Bering/Files/sss_file_2004.nc   \
+               /workdir/users/kate/Bering/Files/rain.1948-2006.nc  \
+               /workdir/users/kate/Bering/Files/Bering_tides_otps.nc
 
 ! Output NetCDF file names, [1:Ngrids].
 
