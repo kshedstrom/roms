@@ -1192,13 +1192,13 @@
 !  can be changed if ICESHELF_3EQ defined.
 !---------------------------------------------------------------------
 !
-!    gamma_s       Turbulent salt exchange coefficient underneath 
+!    gamma_s       Turbulent salt exchange coefficient underneath
 !                    the ice (m/s)
-!    gamma_t       Turbulent heat exchange coefficient underneath 
+!    gamma_t       Turbulent heat exchange coefficient underneath
 !                    the ice (m/s)
-!    Hlfreeze      Latent heat for freezing salt water (J/kg)           
-!    rho_ice       Density of sea-ice (kg/m^3)                          
-!    blk_Cpi       Specific heat capicity of ice (J/kg/deg C)           
+!    Hlfreeze      Latent heat for freezing salt water (J/kg)
+!    rho_ice       Density of sea-ice (kg/m^3)
+!    blk_Cpi       Specific heat capicity of ice (J/kg/deg C)
 !
         real(r8) :: gamma_s = 5.05E-7_r8       ! (m/s)
         real(r8) :: gamma_t = 1.00E-4_r8       ! (m/s)
