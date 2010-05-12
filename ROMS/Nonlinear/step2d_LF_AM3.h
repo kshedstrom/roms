@@ -1453,7 +1453,7 @@
           fac2=0.5_r8*(Uwrk(i,j)+Uwrk(i-1,j))
           DiaU2rhs(i,j,M2xadv)=DiaU2rhs(i,j,M2xadv)+fac1-fac2
           DiaU2rhs(i,j,M2yadv)=DiaU2rhs(i,j,M2yadv)+fac2
-          DiaU2rhs(i,j,M2hadv)=DiaU2rhs(i,j,M2yadv)+fac1
+          DiaU2rhs(i,j,M2hadv)=DiaU2rhs(i,j,M2hadv)+fac1
 #  endif
         END DO
       END DO
@@ -2520,9 +2520,6 @@
 !
       CALL obc_flux_tile (ng, tile,                                     &
      &                    LBi, UBi, LBj, UBj,                           &
-#  ifdef ICESHELF
-     &                    ILB, IUB, JLB, JUB,                           &
-#  endif
      &                    IminS, ImaxS, JminS, JmaxS,                   &
      &                    knew,                                         &
 #  ifdef MASKING
@@ -2532,7 +2529,7 @@
      &                    hw, om_v, on_u,                               &
 #  else
      &                    h, om_v, on_u,                                &
-# endif
+#  endif
      &                    ubar, vbar, zeta)
 # endif
 # ifdef UV_PSOURCE

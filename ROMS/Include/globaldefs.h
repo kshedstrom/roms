@@ -999,9 +999,8 @@
     defined ASSIMILATION_UV
 # define ASSIMILATION
 #endif
-#if defined NUDGING_SSH || defined NUDGING_SST   || \
-    defined NUDGING_T   || defined NUDGING_UVsur || \
-    defined NUDGING_UV
+#if defined NUDGING_SST   || defined NUDGING_T   || \
+    defined NUDGING_UVsur || defined NUDGING_UV
 # define NUDGING
 #endif
 

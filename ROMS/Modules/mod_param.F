@@ -66,7 +66,6 @@
 !  NDM2d      Number of diagnostic 2D momentum fields.                 !
 !  NDM3d      Number of diagnostic 3D momentum fields.                 !
 !  NDrhs      Number of diagnostic 3D right-hand-side fields.          !
-!
 !                                                                      !
 !=======================================================================
 !

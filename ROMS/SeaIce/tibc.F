@@ -147,8 +147,13 @@
           enthalpi(0,j,linew)=enthalpi(0,j,linew)*                      &
      &                   GRID(ng)%rmask_wet(0,j)
 #  endif
+#  ifdef SOGLOBEC
+          ti(0,j,linew) = enthalpi(0,j,linew)/                          &
+     &                       MAX(hi(1,j,linew),1.0E-6_r8)
+#  else
           ti(0,j,linew) = enthalpi(0,j,linew)/                          &
      &                       MAX(hi(0,j,linew),1.0E-6_r8)
+#  endif
           IF (hi(0,j,linew).LE.min_h) THEN
             enthalpi(0,j,linew) = 0.0_r8
             ti(0,j,linew) = 0.0_r8
@@ -236,8 +241,13 @@
           enthalpi(Lm(ng)+1,j,linew)=enthalpi(Lm(ng)+1,j,linew)*        &
      &                          GRID(ng)%rmask_wet(Lm(ng)+1,j)
 #  endif
+#  ifdef SOGLOBEC
+          ti(Lm(ng)+1,j,linew) = enthalpi(Lm(ng)+1,j,linew)/            &
+     &                       MAX(hi(Lm(ng),j,linew),1.0E-6_r8)
+#  else
           ti(Lm(ng)+1,j,linew) = enthalpi(Lm(ng)+1,j,linew)/            &
      &                       MAX(hi(Lm(ng)+1,j,linew),1.0E-6_r8)
+#  endif
           IF (hi(Lm(ng)+1,j,linew).LE.min_h) THEN
             enthalpi(Lm(ng)+1,j,linew) = 0.0_r8
             ti(Lm(ng)+1,j,linew) = 0.0_r8
@@ -324,8 +334,13 @@
           enthalpi(i,0,linew)=enthalpi(i,0,linew)*                      &
      &                   GRID(ng)%rmask_wet(i,0)
 #  endif
+#  ifdef SOGLOBEC
+          ti(i,0,linew) = enthalpi(i,0,linew)/                          &
+     &                       MAX(hi(i,1,linew),1.0E-6_r8)
+#  else
           ti(i,0,linew) = enthalpi(i,0,linew)/                          &
      &                       MAX(hi(i,0,linew),1.0E-6_r8)
+#  endif
           IF (hi(i,0,linew).LE.min_h) THEN
             enthalpi(i,0,linew) = 0.0_r8
             ti(i,0,linew) = 0.0_r8
@@ -410,8 +425,13 @@
           enthalpi(i,Mm(ng)+1,linew)=enthalpi(i,Mm(ng)+1,linew)*        &
      &                          GRID(ng)%rmask_wet(i,Mm(ng)+1)
 #  endif
+#  ifdef SOGLOBEC
+          ti(i,Mm(ng)+1,linew) = enthalpi(i,Mm(ng)+1,linew)/            &
+     &                       MAX(hi(i,Mm(ng),linew),1.0E-6_r8)
+#  else
           ti(i,Mm(ng)+1,linew) = enthalpi(i,Mm(ng)+1,linew)/            &
      &                       MAX(hi(i,Mm(ng)+1,linew),1.0E-6_r8)
+#  endif
           IF (hi(i,Mm(ng)+1,linew).LE.min_h) THEN
             enthalpi(i,Mm(ng)+1,linew) = 0.0_r8
             ti(i,Mm(ng)+1,linew) = 0.0_r8

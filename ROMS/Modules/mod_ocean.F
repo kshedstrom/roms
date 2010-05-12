@@ -104,7 +104,6 @@
 #   endif
 # endif
 
-
 # ifdef BIO_GOANPZ
           real(r8), pointer :: st(:,:,:,:,:)
 # endif

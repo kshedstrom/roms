@@ -160,6 +160,9 @@
 !
       USE mod_param
       USE mod_scalars
+# ifdef SOGLOBEC
+      USE mod_clima
+# endif
 !
 # if defined EW_PERIODIC || defined NS_PERIODIC
       USE exchange_3d_mod, ONLY : exchange_r3d_tile
@@ -1097,6 +1100,9 @@
      &                   LBi, UBi, LBj, UBj, N(ng), NT(ng),             &
      &                   IminS, ImaxS, JminS, JmaxS,                    &
      &                   nstp, 3,                                       &
+#  ifdef SOGLOBEC
+     &                   CLIMA(ng) % tclm,                              &
+#  endif
      &                   t)
 #  if defined EW_PERIODIC || defined NS_PERIODIC
         CALL exchange_r3d_tile (ng, tile,                               &

@@ -2567,6 +2567,22 @@
           IF (exit_flag.ne.NoError) RETURN
         END IF
 # endif
+#ifdef ICESHELF
+!
+!  Ice shelf thickness.
+!
+        IF (ncid.ne.ncSTAid(ng)) THEN
+          Vinfo( 1)='zice'
+          Vinfo( 2)='Ice shelf thickness at RHO-points'
+          Vinfo( 3)='meter'
+          Vinfo(14)='zice, scalar'
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(r2dvar,r8)
+          status=def_var(ng, model, ncid, varid, NF_TYPE,               &
+     &                   2, t2dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+#endif
 !
 !  Coriolis Parameter.
 !

@@ -738,9 +738,8 @@
         END IF
       END DO
 
-
 # ifdef BEST_NPZ
-# ifdef STATIONARY
+#  ifdef STATIONARY
 !--------------------------------------
 !  Write out 3D stationary variable array
 !--------------------------------------
@@ -761,9 +760,9 @@
           !Zero the output array
           !---------------------
 
-!          print*,'st=',OCEAN(ng) % st(:,:,:,1,1)
-!            print*,'NOUT=',NOUT
-!            print*,'itrc=',itrc
+!           print*,'st=',OCEAN(ng) % st(:,:,:,1,1)
+!           print*,'NOUT=',NOUT
+!           print*,'itrc=',itrc
 
           OCEAN(ng) % st(:,:,:,NOUT,itrc) = 0.0_r8
           IF (status.ne.nf90_noerr) THEN
@@ -935,14 +934,14 @@
 !     &                          tHISindx(ng), gtype,                    &
 !     &                          LBi, UBi, LBj, UBj, 1, NBL(ng), scale,  &
 
-# ifdef MASKING
+#  ifdef MASKING
      &                     GRID(ng) % rmask,                            &
-# endif
-#     ifdef CLIM_ICE_1D
+#  endif
+#  ifdef CLIM_ICE_1D
      &                       OCEAN(ng) % it(:,:,NOUT,itrc))
-#else
+#  else
      &                       ICE(ng) % it(:,:,NOUT,itrc))
-#endif
+# endif
 
            IF (status.ne.nf90_noerr) THEN
            IF (Master) THEN
@@ -955,7 +954,7 @@
           END IF
         END IF
       END DO
-#endif
+# endif
 
 # endif
 !--------------------------------------
@@ -3062,7 +3061,7 @@
 !  Write out wind-induced surface wave period.
 !
       IF (Hout(idWptp,ng)) THEN
-        scale=rad2deg
+        scale=1.0_r8
         gtype=gfactor*r2dvar
         status=nf_fwrite2d(ng, iNLM, ncHISid(ng), hisVid(idWptp,ng),    &
      &                     tHISindx(ng), gtype,                         &

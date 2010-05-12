@@ -49,6 +49,9 @@
      &                   liold(ng), liuol(ng),                          &
      &                   GRID(ng) % z_r,                                &
      &                   GRID(ng) % z_w,                                &
+# ifdef ICESHELF
+     &                   GRID(ng) % zice,                               &
+# endif
      &                   OCEAN(ng) % u,                                 &
      &                   OCEAN(ng) % v,                                 &
      &                   FORCES(ng) % sustr,                            &
@@ -90,6 +93,9 @@
      &                         nrhs,                                    &
      &                         liold, liuol,                            &
      &                         z_r, z_w,                                &
+# ifdef ICESHELF
+     &                         zice,                                    &
+# endif
      &                         u, v,                                    &
      &                         sustr, svstr, rho,                       &
      &                         Zt_avg1,                                 &
@@ -151,6 +157,9 @@
       real(r8), intent(in) :: spd_iw(LBi:,LBj:)
       real(r8), intent(in) :: z_r(LBi:,LBj:,:)
       real(r8), intent(in) :: z_w(LBi:,LBj:,0:)
+#  ifdef ICESHELF
+      real(r8), intent(in) :: zice(LBi:,LBj:)
+#  endif
 # else
       real(r8), intent(in) :: u(LBi:UBi,LBj:UBj,N(ng),2)
       real(r8), intent(in) :: v(LBi:UBi,LBj:UBj,N(ng),2)
@@ -181,6 +190,9 @@
       real(r8), intent(in) :: spd_iw(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: z_r(LBi:UBi,LBj:UBj,N(ng))
       real(r8), intent(in) :: z_w(LBi:UBi,LBj:UBj,0:N(ng))
+#  ifdef ICESHELF
+      real(r8), intent(in) :: zice(LBi:UBi,LBj:UBj)
+#  endif
 # endif
 !
 !  Local variable declarations.
@@ -289,8 +301,14 @@
           tauaiu(i,j) = 0.5_r8*aix*(tau_aix_n(i,j)+tau_aix_n(i-1,j))    &
      &                        /rhoice(ng)
 # ifdef ICE_BULK_FLUXES
+#  ifdef ICESHELF
+          IF (zice(i,j).eq.0.0_r8) THEN
+#  endif
           sustr(i,j) = aix*chux*(ui(i,j,liuol)-uwater(i,j))             &
      &                 + (1.0_r8-aix)*sustr_aw(i,j)
+#  ifdef ICESHELF
+          ENDIF
+#  endif
 # endif
         END DO
       END DO
@@ -304,8 +322,14 @@
           tauaiv(i,j) = 0.5_r8*aiy*(tau_aiy_n(i,j)+tau_aiy_n(i,j-1))    &
      &                        /rhoice(ng)
 # ifdef ICE_BULK_FLUXES
+#  ifdef ICESHELF
+          IF (zice(i,j).eq.0.0_r8) THEN
+#  endif
           svstr(i,j) = aiy*chuy*(vi(i,j,liuol)-vwater(i,j))             &
      &                 + (1.0_r8-aiy)*svstr_aw(i,j)
+#  ifdef ICESHELF
+          ENDIF
+#  endif
 # endif
         END DO
       END DO
@@ -356,8 +380,14 @@
           tauiwu = 0.5_r8*(spdiw(i,j)+spdiw(i-1,j))                     &
      &               *(ui(i,j,liuol)-uwater(i,j))*rhoice(ng)/rhoO
 # ifdef ICE_BULK_FLUXES
+#  ifdef ICESHELF
+          IF (zice(i,j).eq.0.0_r8) THEN
+#  endif
           sustr(i,j) = tauiwu + (1.0_r8-aix)*0.5_r8*                    &
-     &                 (sustr_aw(i,j)+sustr_aw(i-1,j))/rhoO
+     &                 (sustr_aw(i,j)+sustr_aw(i-1,j))
+#  ifdef ICESHELF
+          ENDIF
+#  endif
 # endif
         END DO
       END DO
@@ -375,8 +405,14 @@
           tauiwv = 0.5_r8*(spdiw(i,j)+spdiw(i,j-1))                     &
      &               *(vi(i,j,liuol)-vwater(i,j))*rhoice(ng)/rho0
 # ifdef ICE_BULK_FLUXES
+#  ifdef ICESHELF
+          IF (zice(i,j).eq.0.0_r8) THEN
+#  endif
           svstr(i,j) = tauiwv + (1.0_r8-aiy)*0.5_r8*                    &
-     &                 (svstr_aw(i,j)+svstr_aw(i,j-1))/rhoO
+     &                 (svstr_aw(i,j)+svstr_aw(i,j-1))
+#  ifdef ICESHELF
+          ENDIF
+#  endif
 # endif
         END DO
       END DO

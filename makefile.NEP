@@ -405,7 +405,6 @@ all: $(SCRATCH_DIR) $(SCRATCH_DIR)/MakeDepend $(BIN) rm_macros
 
  modules  :=
 ifdef USE_ADJOINT
- modules  +=	ROMS/Adjoint
  modules  +=	ROMS/Adjoint \
 		ROMS/Adjoint/Biology
 endif
@@ -418,8 +417,8 @@ ifdef USE_TANGENT
 		ROMS/Tangent/Biology
 endif
  modules  +=	ROMS/Nonlinear \
- 		ROMS/Nonlinear/Biology \
- 		ROMS/Nonlinear/Sediment \
+		ROMS/Nonlinear/Biology \
+		ROMS/Nonlinear/Sediment \
 		ROMS/Functionals \
 		ROMS/Modules
 ifdef USE_SEAICE
