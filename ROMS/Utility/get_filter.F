@@ -3,7 +3,7 @@
       SUBROUTINE get_filter (ng, filterLevel)
 !
 !=======================================================================
-!  Copyright (c) 2002-2009 ROMS/TOMS Group                             !
+!  Copyright (c) 2002-2010 ROMS/TOMS Group                             !
 !================================================== Hernan G. Arango ===
 !                                                                      !
 !  This subroutine reads in primitive variables initial conditions     !
