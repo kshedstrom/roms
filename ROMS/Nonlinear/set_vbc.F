@@ -60,7 +60,7 @@
      &                   GRID(ng) % zice,                               &
 #   ifdef ICESHELF_3EQ
      &                   GRID(ng) % f,                                  &
-#   endif 
+#   endif
 #  endif
      &                   OCEAN(ng) % t,                                 &
 #  if !defined BBL_MODEL || defined ICESHELF
@@ -551,16 +551,16 @@
 #   endif
 !
 !-----------------------------------------------------------------------
-!  
+!
 !  Two sets of thermodynamics are currently available for the ice shelf
 !   cavities now:
 !
 !  1) ISOMIP: surface tracer fluxes underneath ice are computed in the
 !  manner defined by the ISOMIP test specification.  Note that the units
-!  for stflx for heat are degC m/s (which means the rho*C_p part is 
-!  removed here) and for salt are psu m/s (unless sea ice is defined).  
-!  This version is setup for the ISOMIP 2.01 case where the heat and salt 
-!  fluxes for the open water/atmosphere interface match the relaxation 
+!  for stflx for heat are degC m/s (which means the rho*C_p part is
+!  removed here) and for salt are psu m/s (unless sea ice is defined).
+!  This version is setup for the ISOMIP 2.01 case where the heat and salt
+!  fluxes for the open water/atmosphere interface match the relaxation
 !  calculation in sections 3.2.6 and 3.2.7 of John Hunter's document.
 !
 !  2) ICESHELF_3EQ: 3 equation formulation as per Holland and
@@ -581,13 +581,13 @@
 !
 !  First, calculate the salinity in the boundary layer from solving the
 !   3 equations simultaneously
-! 
+!
             IF (Tair(i,j) .lt. -1.95_r8) THEN
               Hlice = Hlfreeze - blk_Cpi*(Tair(i,j)+1.95_r8)
             ELSE
               Hlice = Hlfreeze
             END IF
- 
+
 !  Compute friction velocity from surface stresses
 
             uStar = SQRT(SQRT((0.5_r8*(sustr(i,j)+sustr(i+1,j)))**2+    &
@@ -685,7 +685,7 @@
 
           END IF
         END DO
-      END DO 
+      END DO
 !
 !  Apply gradient or periodic boundary conditions for the two fluxes
 !
