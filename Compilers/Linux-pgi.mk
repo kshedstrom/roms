@@ -68,11 +68,12 @@ ifdef USE_NETCDF4
     NETCDF_INCDIR ?= /opt/pgisoft/netcdf4/include
     NETCDF_LIBDIR ?= /opt/pgisoft/netcdf4/lib
       HDF5_LIBDIR ?= /opt/pgisoft/hdf5/lib
+             LIBS += -L$(NETCDF_LIBDIR) -lnetcdf -lnetcdff
 else
     NETCDF_INCDIR ?= /usr/local/pkg/netcdf/netcdf-3.6.1.pgi/include
     NETCDF_LIBDIR ?= /usr/local/pkg/netcdf/netcdf-3.6.1.pgi/lib
+             LIBS += -L$(NETCDF_LIBDIR) -lnetcdf
 endif
-             LIBS += -L$(NETCDF_LIBDIR) -lnetcdf -lnetcdff
 ifdef USE_NETCDF4
              LIBS += -L$(HDF5_LIBDIR) -lhdf5_hl -lhdf5 -lz
 endif
