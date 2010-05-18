@@ -24,7 +24,7 @@
 
 #include "tile.h"
 !
-      CALL ana_smflux_tile (ng, model, tile,                            &
+      CALL ana_smflux_tile (ng, tile, model,                            &
      &                      LBi, UBi, LBj, UBj,                         &
      &                      IminS, ImaxS, JminS, JmaxS,                 &
      &                      GRID(ng) % angler,                          &
@@ -56,7 +56,7 @@
       END SUBROUTINE ana_smflux
 !
 !***********************************************************************
-      SUBROUTINE ana_smflux_tile (ng, model, tile,                      &
+      SUBROUTINE ana_smflux_tile (ng, tile, model,                      &
      &                            LBi, UBi, LBj, UBj,                   &
      &                            IminS, ImaxS, JminS, JmaxS,           &
      &                            angler,                               &
@@ -83,7 +83,7 @@
 !
 !  Imported variable declarations.
 !
-      integer, intent(in) :: ng, model, tile,                  
+      integer, intent(in) :: ng, tile, model,                  
       integer, intent(in) :: LBi, UBi, LBj, UBj
       integer, intent(in) :: IminS, ImaxS, JminS, JmaxS
 !

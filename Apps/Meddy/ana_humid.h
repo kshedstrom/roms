@@ -30,7 +30,7 @@
 
 #include "tile.h"
 !
-      CALL ana_humid_tile (ng, model, tile,                             &
+      CALL ana_humid_tile (ng, tile, model,                             &
      &                     LBi, UBi, LBj, UBj,                          &
      &                     IminS, ImaxS, JminS, JmaxS,                  &
      &                     FORCES(ng) % Hair)
@@ -49,7 +49,7 @@
       END SUBROUTINE ana_humid
 !
 !***********************************************************************
-      SUBROUTINE ana_humid_tile (ng, model, tile,                       &
+      SUBROUTINE ana_humid_tile (ng, tile, model,                       &
      &                           LBi, UBi, LBj, UBj,                    &
      &                           IminS, ImaxS, JminS, JmaxS,            &
      &                           Hair)
@@ -66,7 +66,7 @@
 !
 !  Imported variable declarations.
 !
-      integer, intent(in) :: ng, model, tile
+      integer, intent(in) :: ng, tile, model
       integer, intent(in) :: LBi, UBi, LBj, UBj
       integer, intent(in) :: IminS, ImaxS, JminS, JmaxS
 !
