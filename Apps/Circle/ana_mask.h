@@ -22,7 +22,7 @@
 
 #include "tile.h"
 !
-      CALL ana_mask_tile (ng, model, tile,                              &
+      CALL ana_mask_tile (ng, tile, model,                              &
      &                    LBi, UBi, LBj, UBj,                           &
      &                    IminS, ImaxS, JminS, JmaxS,                   &
      &                    GRID(ng) % xr,                                &
@@ -46,7 +46,7 @@
       END SUBROUTINE ana_mask
 !
 !***********************************************************************
-      SUBROUTINE ana_mask_tile (ng, model, tile,                        &
+      SUBROUTINE ana_mask_tile (ng, tile, model,                        &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          IminS, ImaxS, JminS, JmaxS,             &
      &                          xr, yr,                                 &
@@ -65,7 +65,7 @@
 !
 !  Imported variable declarations.
 !
-      integer, intent(in) :: ng, model, tile
+      integer, intent(in) :: ng, tile, model
       integer, intent(in) :: LBi, UBi, LBj, UBj
       integer, intent(in) :: IminS, ImaxS, JminS, JmaxS
 !
