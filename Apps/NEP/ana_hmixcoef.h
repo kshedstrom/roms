@@ -32,7 +32,7 @@
 !
 #include "tile.h"
 
-      CALL ana_hmixcoef_tile (ng, model, tile,                          &
+      CALL ana_hmixcoef_tile (ng, tile, model,                          &
      &                        LBi, UBi, LBj, UBj,                       &
      &                        IminS, ImaxS, JminS, JmaxS,               &
 #ifdef SOLVE3D
@@ -69,7 +69,7 @@
       END SUBROUTINE ana_hmixcoef
 !
 !***********************************************************************
-      SUBROUTINE ana_hmixcoef_tile (ng, model, tile,                    &
+      SUBROUTINE ana_hmixcoef_tile (ng, tile, model,                    &
      &                              LBi, UBi, LBj, UBj,                 &
      &                              IminS, ImaxS, JminS, JmaxS,         &
 #ifdef SOLVE3D
@@ -106,7 +106,7 @@
 !
 !  Imported variable declarations.
 !
-      integer, intent(in) :: ng, model, tile
+      integer, intent(in) :: ng, tile, model
       integer, intent(in) :: LBi, UBi, LBj, UBj
       integer, intent(in) :: IminS, ImaxS, JminS, JmaxS
 

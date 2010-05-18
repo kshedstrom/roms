@@ -23,10 +23,10 @@
 
 #include "tile.h"
 !
-      CALL ana_psource_grid (ng, tile, model,                           &
+      CALL ana_psource_tile (ng, tile, model,                           &
      &                       LBi, UBi, LBj, UBj,                        &
      &                       IminS, ImaxS, JminS, JmaxS,                &
-     &                       nnew(ng), knew(ng), Nsrc(ng),              &
+     &                       nnew(ng), knew(ng), Msrc(ng), Nsrc(ng),    &
      &                       OCEAN(ng) % zeta,                          &
      &                       OCEAN(ng) % ubar,                          &
      &                       OCEAN(ng) % vbar,                          &
@@ -66,10 +66,10 @@
       END SUBROUTINE ana_psource
 !
 !***********************************************************************
-      SUBROUTINE ana_psource_grid (ng, tile, model,                     &
+      SUBROUTINE ana_psource_tile (ng, tile, model,                     &
      &                             LBi, UBi, LBj, UBj,                  &
      &                             IminS, ImaxS, JminS, JmaxS,          &
-     &                             nnew, knew, Nsrc,                    &
+     &                             nnew, knew, Msrc, Nsrc,              &
      &                             zeta, ubar, vbar,                    &
 #ifdef SOLVE3D
      &                             u, v, z_w,                           &
@@ -88,12 +88,14 @@
 !***********************************************************************
 !
       USE mod_param
+      USE mod_parallel
       USE mod_scalars
 #ifdef SEDIMENT
       USE mod_sediment
 #endif
-#ifndef ASSUMED_SHAPE
-      USE mod_sources, ONLY : Msrc
+#ifdef DISTRIBUTE
+      USE distribute_mod, ONLY : mp_bcastf, mp_bcasti
+      USE distribute_mod, ONLY : mp_collect, mp_reduce
 #endif
 !
 !  Imported variable declarations.
@@ -102,12 +104,13 @@
       integer, intent(in) :: LBi, UBi, LBj, UBj
       integer, intent(in) :: IminS, ImaxS, JminS, JmaxS
       integer, intent(in) :: nnew, knew
+      integer, intent(in) :: Msrc
 
       integer, intent(out) :: Nsrc
 !
 #ifdef ASSUMED_SHAPE
-      integer, intent(out) :: Isrc(:)
-      integer, intent(out) :: Jsrc(:)
+      integer, intent(inout) :: Isrc(:)
+      integer, intent(inout) :: Jsrc(:)
 
       real(r8), intent(in) :: zeta(LBi:,LBj:,:)
       real(r8), intent(in) :: ubar(LBi:,LBj:,:)
@@ -121,20 +124,20 @@
       real(r8), intent(in) :: on_u(LBi:,LBj:)
       real(r8), intent(in) :: om_v(LBi:,LBj:)
 
-      real(r8), intent(out) :: Dsrc(:)
-      real(r8), intent(out) :: Qbar(:)
+      real(r8), intent(inout) :: Dsrc(:)
+      real(r8), intent(inout) :: Qbar(:)
 # ifdef SOLVE3D
 #  if defined UV_PSOURCE || defined Q_PSOURCE
-      real(r8), intent(out) :: Qshape(:,:)
-      real(r8), intent(out) :: Qsrc(:,:)
+      real(r8), intent(inout) :: Qshape(:,:)
+      real(r8), intent(inout) :: Qsrc(:,:)
 #  endif
 #  ifdef TS_PSOURCE
-      real(r8), intent(out) :: Tsrc(:,:,:)
+      real(r8), intent(inout) :: Tsrc(:,:,:)
 #  endif
 # endif
 #else
-      integer, intent(out) :: Isrc(Msrc)
-      integer, intent(out) :: Jsrc(Msrc)
+      integer, intent(inout) :: Isrc(Msrc)
+      integer, intent(inout) :: Jsrc(Msrc)
 
       real(r8), intent(in) :: zeta(LBi:UBi,LBj:UBj,3)
       real(r8), intent(in) :: ubar(LBi:UBi,LBj:UBj,3)
@@ -148,23 +151,35 @@
       real(r8), intent(in) :: on_u(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: om_v(LBi:UBi,LBj:UBj)
 
-      real(r8), intent(out) :: Dsrc(Msrc)
-      real(r8), intent(out) :: Qbar(Msrc)
+      real(r8), intent(inout) :: Dsrc(Msrc)
+      real(r8), intent(inout) :: Qbar(Msrc)
 # ifdef SOLVE3D
 #  if defined UV_PSOURCE || defined Q_PSOURCE
-      real(r8), intent(out) :: Qshape(Msrc,N(ng))
-      real(r8), intent(out) :: Qsrc(Msrc,N(ng))
+      real(r8), intent(inout) :: Qshape(Msrc,N(ng))
+      real(r8), intent(inout) :: Qsrc(Msrc,N(ng))
 #  endif
 #  ifdef TS_PSOURCE
-      real(r8), intent(out) :: Tsrc(Msrc,N(ng),NT(ng))
+      real(r8), intent(inout) :: Tsrc(Msrc,N(ng),NT(ng))
 #  endif
 # endif
 #endif
 !
 !  Local variable declarations.
 !
-      integer :: is, i, j, k, ised
-      real(r8) :: cff, fac, my_area, ramp
+      integer :: Npts, NSUB, is, i, j, k, ised
+
+      real(r8) :: Pspv = 0.0_r8
+      real(r8), save :: area_east, area_west
+      real(r8) :: cff, fac, my_area_east, my_area_west
+
+#if defined DISTRIBUTE && defined SOLVE3D
+      real(r8), dimension(Msrc*N(ng)) :: Pwrk
+#endif
+#if defined DISTRIBUTE
+      real(r8), dimension(2) :: buffer
+
+      character (len=3), dimension(2) :: io_handle
+#endif
 
 #include "set_bounds.h"
 !
@@ -172,49 +187,67 @@
 !  Set tracer and/or mass point sources and/or sink.
 !-----------------------------------------------------------------------
 !
-!  HGA:  This routine has several parallel bugs.  There is also
-!        reductions.  This applications can only be run serially
-!        and with not domain partions for now, 09/09/07.
-!
       IF (iic(ng).eq.ntstart(ng)) THEN
 !
 !  Set-up point Sources/Sink number (Nsrc), direction (Dsrc), I- and
 !  J-grid locations (Isrc,Jsrc), and logical switch for type of tracer
-!  to apply (LtracerSrc). Currently, the direction can be along XI-direction
-!  (Dsrc = 0) or along ETA-direction (Dsrc > 0).  The mass sources are
-!  located at U- or V-points so the grid locations should range from
-!  1 =< Isrc =< L  and  1 =< Jsrc =< M.
+!  to apply (LtracerSrc). Currently, the direction can be along
+!  XI-direction (Dsrc = 0) or along ETA-direction (Dsrc > 0).  The
+!  mass sources are located at U- or V-points so the grid locations
+!  should range from 1 =< Isrc =< L  and  1 =< Jsrc =< M.
 !
         LtracerSrc(itemp,ng)=.TRUE.
         LtracerSrc(isalt,ng)=.TRUE.
 #if defined NEP5
-        Nsrc=149
-        DO is=1,Nsrc
-          Dsrc(is)=0.0_r8
-          Isrc(is)=225
-          Jsrc(is)=472+is
-          LtracerSrc(itemp,ng)=.FALSE.
-          LtracerSrc(isalt,ng)=.FALSE.
-        END DO
+!       IF (Master.and.SOUTH_WEST_TEST) THEN
+          Nsrc=149
+          DO is=1,Nsrc
+            Dsrc(is)=0.0_r8
+            Isrc(is)=225
+            Jsrc(is)=472+is
+            LtracerSrc(itemp,ng)=.FALSE.
+            LtracerSrc(isalt,ng)=.FALSE.
+          END DO
+!       END IF
 #elif defined BERING_10K
-        Nsrc=51
-        DO is=1,Nsrc
-          Dsrc(is)=0.0_r8
-          Isrc(is)=180
-          Jsrc(is)=109+is
-          LtracerSrc(itemp,ng)=.FALSE.
-          LtracerSrc(isalt,ng)=.FALSE.
-        END DO
+!       IF (Master.and.SOUTH_WEST_TEST) THEN
+          Nsrc=51
+          DO is=1,Nsrc
+            Dsrc(is)=0.0_r8
+            Isrc(is)=180
+            Jsrc(is)=109+is
+            LtracerSrc(itemp,ng)=.FALSE.
+            LtracerSrc(isalt,ng)=.FALSE.
+          END DO
+!       END IF
 #else
-        ana_psource.h: No values provided for Dsrc, Isrc, Jsrc, LtracerSrc.
+        ana_psource.h: No values provided for LtracerSrc, Nsrc, Dsrc,
+                                              Isrc, Jsrc.
+#endif
+#ifdef DISTRIBUTE
+!
+!  Broadcast point sources/sinks information to all nodes.
+!
+!       CALL mp_bcasti (ng, iNLM, Nsrc)
+!       CALL mp_bcasti (ng, iNLM, Isrc)
+!       CALL mp_bcasti (ng, iNLM, Jsrc)
+!       CALL mp_bcastf (ng, iNLM, Dsrc)
 #endif
       END IF
+
 #if defined UV_PSOURCE || defined Q_PSOURCE
 # ifdef SOLVE3D
 !
 !  If appropriate, set-up nondimensional shape function to distribute
 !  mass point sources/sinks vertically.  It must add to unity!!.
 !
+!#  ifdef DISTRIBUTE
+!      Qshape=Pspv
+!#  endif
+!      Npts=Msrc*N(ng)
+
+!$OMP BARRIER
+
 #  if defined NEP5
         DO k=1,N(ng)
           DO is=1,Nsrc
@@ -228,6 +261,12 @@
 !  Sources/Sinks (positive in the positive U- or V-direction and
 !  viceversa).
 !
+!# ifdef DISTRIBUTE
+!      Qbar=Pspv
+!# endif
+
+!$OMP BARRIER
+
 # if defined NEP5
       cff = 800000._r8/Nsrc
       DO is=1,Nsrc
@@ -236,40 +275,56 @@
 # else
       ana_psource.h: No values provided for Qbar.
 # endif
+
 # ifdef SOLVE3D
 !
 !  Set-up mass transport profile (m3/s) of point Sources/Sinks.
 !
-      DO k=1,N(ng)
-        DO is=1,Nsrc
-          Qsrc(is,k)=Qbar(is)*Qshape(is,k)
+!$OMP BARRIER
+
+      IF (NORTH_EAST_TEST) THEN
+        DO k=1,N(ng)
+          DO is=1,Nsrc
+            Qsrc(is,k)=Qbar(is)*Qshape(is,k)
+          END DO
         END DO
-      END DO
+      END IF
 # endif
 #endif
+
 #if defined TS_PSOURCE && defined SOLVE3D
 !
 !  Set-up tracer (tracer units) point Sources/Sinks.
 !
 # if defined RIVERPLUME1
-      DO k=1,N(ng)
-        DO is=1,Nsrc
-          Tsrc(is,k,itemp)=T0(ng)
-          Tsrc(is,k,isalt)=0.0_r8
+      IF (NORTH_EAST_TEST) THEN
+        DO k=1,N(ng)
+          DO is=1,Nsrc
+            Tsrc(is,k,itemp)=T0(ng)
+            Tsrc(is,k,isalt)=0.0_r8
+#  ifdef SEDIMENT
+            DO ised=1,NST
+              Tsrc(is,k,ised+2)=0.0_r8
+            END DO
+#  endif
+          END DO
         END DO
-      END DO
+      END IF
 # elif defined RIVERPLUME2
-      DO k=1,N(ng)
-        DO is=1,Nsrc-1
-          Tsrc(is,k,itemp)=T0(ng)
-          Tsrc(is,k,isalt)=S0(ng)
+      IF (NORTH_EAST_TEST) THEN
+        DO k=1,N(ng)
+          DO is=1,Nsrc-1
+            Tsrc(is,k,itemp)=T0(ng)
+            Tsrc(is,k,isalt)=S0(ng)
+          END DO
+          Tsrc(Nsrc,k,itemp)=T0(ng)
+          Tsrc(Nsrc,k,isalt)=0.0_r8
         END DO
-        Tsrc(Nsrc,k,itemp)=T0(ng)
-        Tsrc(Nsrc,k,isalt)=0.0_r8
-      END DO
+      END IF
 # else
       ana_psource.h: No values provided for Tsrc.
 # endif
 #endif
+
       RETURN
-      END SUBROUTINE ana_psource_grid
+      END SUBROUTINE ana_psource_tile
