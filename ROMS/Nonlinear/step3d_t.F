@@ -38,8 +38,11 @@
       USE mod_obs
 # endif
       USE mod_ocean
-# ifdef TS_PSOURCE
+# if defined TS_PSOURCE
       USE mod_sources
+# endif
+# if defined TRC_PSOURCE
+      USE mod_trc_sources
 # endif
       USE mod_stepping
 !
@@ -64,11 +67,18 @@
      &                    SOURCES(ng) % Jsrc,                           &
      &                    SOURCES(ng) % Tsrc,                           &
 # endif
-# ifdef TS_PSOURCE
+# if defined TS_PSOURCE
      &                    SOURCES(ng) % Dsrc,                           &
 # endif
 # ifdef Q_PSOURCE
      &                    SOURCES(ng) % Qsrc,                           &
+# endif
+# if defined TRC_PSOURCE
+     &                    Msrcpt(ng), Nsrcpt(ng),                       &
+     &                    TRC_SOURCES(ng) % Isrcpt,                     &
+     &                    TRC_SOURCES(ng) % Jsrcpt,                     &
+     &                    TRC_SOURCES(ng) % Tsrcpt,                     &
+     &                    TRC_SOURCES(ng) % Lsrcpt,                     &
 # endif
 # ifdef MASKING
      &                    GRID(ng) % rmask,                             &
@@ -115,18 +125,18 @@
 # endif
      &                    OCEAN(ng) % t                                 &
 #if defined BEST_NPZ
-# ifdef BENTHIC     
+# ifdef BENTHIC
      &                    ,OCEAN(ng) % bt                               &
 # endif
 # ifdef ICE_BIO
 #  ifdef CLIM_ICE_1D
      &                    ,OCEAN(ng) % it                               &
-#  endif 
-# endif    
+#  endif
+# endif
 # ifdef STATIONARY
       &                   ,OCEAN(ng) %st                                &
 # endif
-#endif     
+#endif
      &                               )
 # ifdef PROFILE
       CALL wclock_off (ng, iNLM, 35)
@@ -143,11 +153,15 @@
      &                          Msrc, Nsrc,                             &
      &                          Isrc, Jsrc, Tsrc,                       &
 # endif
-# ifdef TS_PSOURCE
+# if defined TS_PSOURCE
      &                          Dsrc,                                   &
 # endif
 # ifdef Q_PSOURCE
      &                          Qsrc,                                   &
+# endif
+# if defined TRC_PSOURCE
+     &                          Msrcpt, Nsrcpt,                         &
+     &                          Isrcpt, Jsrcpt, Tsrcpt, Lsrcpt,         &
 # endif
 # ifdef MASKING
      &                          rmask, umask, vmask,                    &
@@ -180,18 +194,18 @@
 # endif
      &                          t                                       &
 #if defined BEST_NPZ
-#  ifdef  BENTHIC     
+#  ifdef  BENTHIC
      &                          ,bt                                     &
-#  endif     
+#  endif
 #  ifdef ICE_BIO
 #   ifdef CLIM_ICE_1D
      &                          ,it                                     &
-#   endif     
-#  endif        
+#   endif
+#  endif
 #  ifdef STATIONARY
                                 ,st                                     &
-#  endif  
-#endif   
+#  endif
+#endif
      &                           )
 !***********************************************************************
 !
@@ -215,6 +229,9 @@
       USE mpdata_adiff_mod
 # endif
       USE t3dbc_mod, ONLY : t3dbc_tile
+# ifdef T_PASSIVE
+      USE pt3dbc_mod, ONLY : pt3dbc_tile
+# endif
 !
 !  Imported variable declarations.
 !
@@ -225,6 +242,9 @@
 # if defined TS_PSOURCE || defined Q_PSOURCE
       integer, intent(in) :: Msrc, Nsrc
 # endif
+# if defined TRC_PSOURCE
+      integer, intent(in) :: Msrcpt, Nsrcpt
+# endif
 !
 # ifdef ASSUMED_SHAPE
 #  if defined TS_PSOURCE || defined Q_PSOURCE
@@ -233,11 +253,17 @@
 
       real(r8), intent(in) :: Tsrc(:,:,:)
 #  endif
-#  ifdef TS_PSOURCE
+#  if defined TS_PSOURCE
       real(r8), intent(in) :: Dsrc(:)
 #  endif
 #  ifdef Q_PSOURCE
       real(r8), intent(in) :: Qsrc(:,:)
+#  endif
+#  if defined TRC_PSOURCE
+      logical, intent(in) :: Lsrcpt(:,:)
+      integer, intent(in) :: Isrcpt(:)
+      integer, intent(in) :: Jsrcpt(:)
+      real(r8), intent(in) :: Tsrcpt(:,:,:)
 #  endif
 #  ifdef MASKING
       real(r8), intent(in) :: rmask(LBi:,LBj:)
@@ -293,15 +319,15 @@
 #  endif
 
 #if defined BEST_NPZ
-# ifdef ICE_BIO    
+# ifdef ICE_BIO
        real(r8), intent(inout) :: it(LBi:UBi,LBj:UBj,3,NIceT(ng))
-# endif    
+# endif
 # ifdef STATIONARY
      real(r8), intent(inout) :: st(LBi:UBi,LBj:UBj,N(ng),3,NTS(ng))
 # endif
-# ifdef BENTHIC 
+# ifdef BENTHIC
      real(r8), intent(inout) :: bt(LBi:UBi,LBj:UBj,NBL(ng),3,NBeT(ng))
-# endif 
+# endif
 #endif
 
 # else
@@ -317,6 +343,12 @@
 #  endif
 #  ifdef Q_PSOURCE
       real(r8), intent(in) :: Qsrc(Msrc,N(ng))
+#  endif
+#  if defined TRC_PSOURCE
+      logical, intent(in) :: Lsrcpt(Msrcpt,NT(ng))
+      integer, intent(in) :: Isrcpt(Msrcpt)
+      integer, intent(in) :: Jsrcpt(Msrcpt)
+      real(r8), intent(in) :: Tsrcpt(Msrcpt,N(ng),NT(ng))
 #  endif
 #  ifdef MASKING
       real(r8), intent(in) :: rmask(LBi:UBi,LBj:UBj)
@@ -339,14 +371,13 @@
       real(r8), intent(in) :: pn(LBi:UBi,LBj:UBj)
 #  if defined TCLM_NUDGING && defined TCLIMATOLOGY
       real(r8), intent(in) :: Tnudgcof(LBi:UBi,LBj:UBj,NT(ng))
-      
-     
-# if defined BEST_NPZ && defined ICE_BIO      
+
+# if defined BEST_NPZ && defined ICE_BIO
       real(r8), intent(in) :: tclm(LBi:UBi,LBj:UBj,N(ng),15)
-# else      
+# else
       real(r8), intent(in) :: tclm(LBi:UBi,LBj:UBj,N(ng),NT(ng)
-# endif       
-      
+# endif
+
 #  endif
 
 #  if defined NUDGING_SST || defined NUDGING_T
@@ -377,10 +408,9 @@
 #ifdef BENTHIC
      real(r8), intent(inout) :: bt(LBi:UBi,LBj:UBj,NBL(ng),3,NBeT(ng))
 #endif
-# ifdef ICE_BIO    
+# ifdef ICE_BIO
        real(r8), intent(inout) :: it(LBi:UBi,LBj:UBj,3,NIceT(ng))
-           
-# endif 
+# endif
 #endif
 
 #  if defined FLOATS && defined FLOAT_VWALK
@@ -427,7 +457,13 @@
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS,N(ng)) :: Va
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS,0:N(ng)) :: Wa
 # endif
-
+# if defined AGE_PASSIVE  || defined AGE_DISTRIBUTION
+      integer :: iactrc, iwctrc
+# endif
+# ifdef AGE_DISTRIBUTION
+      real(r8) :: fac
+# endif
+!
 # include "set_bounds.h"
 !
 !-----------------------------------------------------------------------
@@ -1214,12 +1250,11 @@
 
 #  ifdef JELLY
               IF (itrc.eq.iNCaS.or.itrc.eq.iNCaO.or.itrc.eq.iEupS.or.   &
-     &      itrc.eq.iEupO.or.itrc.eq.iJel ) THEN
-#  else       
+     &            itrc.eq.iEupO.or.itrc.eq.iJel ) THEN
+#  else
               IF (itrc.eq.iNCaS.or.itrc.eq.iNCaO.or. itrc.eq.iEupS.or. &
      &        itrc.eq.iEupO) THEN
 #  endif
-
               cff1=0.0_r8
                END IF
 ! -Remove effects of mixing on biology - usefull for model testing
@@ -1338,7 +1373,89 @@
 # endif
         END DO
       END DO
+# if defined TRC_PSOURCE
 !
+!  Apply tracers point sources to the horizontal advection terms.
+!
+        DO itrc=1,NT(ng)
+          DO is=1,Nsrcpt
+            i=Isrcpt(is)
+            j=Jsrcpt(is)
+            DO k=1,N(ng)
+#  ifdef TS_MPDATA
+              IF (((Istr-2.le.i).and.(i.le.Iend+2)).and.                &
+     &            ((Jstr-2.le.j).and.(j.le.Jend+2))) THEN
+#  else
+              IF (((Istr.le.i).and.(i.le.Iend+1)).and.                  &
+     &            ((Jstr.le.j).and.(j.le.Jend))) THEN
+#  endif
+!
+                IF (Lsrcpt(is,itrc)) THEN
+                  t(i,j,k,3,itrc)=0.
+                  t(i,j,k,nstp,itrc)=Tsrcpt(is,k,itrc)
+                  t(i,j,k,nnew,itrc)=Tsrcpt(is,k,itrc)
+                END IF
+              END IF
+            END DO
+          END DO
+        END DO
+# endif
+# if defined AGE_PASSIVE || defined AGE_DISTRIBUTION
+!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+!  Add water concentration to the right-hand-side of age concentration
+!  equation.
+!------Added by W.G.Zhang
+!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+      iactrc=inert(3)
+      iwctrc=inert(1)
+      DO k=1,N(ng)
+        DO j=Jstr,Jend
+          DO i=Istr,Iend
+            t(i,j,k,nnew,iactrc)=t(i,j,k,nnew,iactrc)+                  &
+     &                           dt(ng)*t(i,j,k,nnew,iwctrc)
+          END DO
+        END DO
+      END DO
+      iactrc=inert(4)
+      iwctrc=inert(2)
+      DO k=1,N(ng)
+        DO j=Jstr,Jend
+          DO i=Istr,Iend
+            t(i,j,k,nnew,iactrc)=t(i,j,k,nnew,iactrc)+                  &
+     &                           dt(ng)*t(i,j,k,nnew,iwctrc)
+          END DO
+        END DO
+      END DO
+# endif
+# ifdef AGE_DISTRIBUTION
+!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+! The aging term (dc/dtau) in the equation of age concentration
+! distribution function.
+! ------Added by W.G.Zhang to compute the age concentration distribution
+!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+!
+      fac=dt(ng)/dtau(ng)
+      itrc=NAT+3
+      DO k=1,N(ng)
+        DO j=Jstr,Jend
+          DO i=Istr,Iend
+              t(i,j,k,nnew,itrc)=t(i,j,k,nnew,itrc)-fac*                &
+     &                           t(i,j,k,nnew,itrc)
+          END DO
+        END DO
+      END DO
+!
+      DO itrc=NAT+4,NT(ng)
+        DO k=1,N(ng)
+          DO j=Jstr,Jend
+            DO i=Istr,Iend
+              t(i,j,k,nnew,itrc)=t(i,j,k,nnew,itrc)-fac*                &
+     &                         (t(i,j,k,nnew,itrc)-t(i,j,k,nnew,itrc-1))
+            END DO
+          END DO
+        END DO
+      END DO
+# endif
 !-----------------------------------------------------------------------
 !  Apply lateral boundary conditions and, if appropriate, nudge
 !  to tracer data and apply Land/Sea mask.
@@ -1353,6 +1470,10 @@
 !
 !  Set lateral boundary conditions.
 !
+!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+       IF (itrc.le.NAT) THEN
+!    added by Weifeng Zhang for passive tracer boundary condition
+!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         CALL t3dbc_tile (ng, tile, itrc,                                &
      &                   LBi, UBi, LBj, UBj, N(ng), NT(ng),             &
      &                   IminS, ImaxS, JminS, JmaxS,                    &
@@ -1442,6 +1563,19 @@
           END DO
         END IF
 # endif
+!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# ifdef T_PASSIVE
+       ELSE
+!       else condition added by Weifeng Zhang for passive tracer
+!       boundary condition
+        CALL pt3dbc_tile (ng, tile, itrc,                               &
+     &                    LBi, UBi, LBj, UBj, N(ng), NT(ng),            &
+     &                    IminS, ImaxS, JminS, JmaxS,                   &
+     &                    nstp, nnew,                                   &
+     &                    t)
+# endif
+       END IF
+!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # ifdef MASKING
 !
 !  Apply Land/Sea mask.

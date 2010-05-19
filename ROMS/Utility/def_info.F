@@ -832,7 +832,7 @@
             ana_file(i:i)=' '
           END DO
           is=1
-          DO i=1,48
+          DO i=1,49
             lstr=LEN_TRIM(ANANAME(i))
             IF (lstr.gt.0) THEN
               ie=is+lstr-1

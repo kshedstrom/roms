@@ -180,6 +180,9 @@
 # ifdef SOLVE3D
       USE set_depth_mod, ONLY : set_depth_tile
       USE t3dbc_mod, ONLY : t3dbc_tile
+# ifdef T_PASSIVE
+      USE pt3dbc_mod, ONLY : pt3dbc_tile
+# endif
       USE u3dbc_mod, ONLY : u3dbc_tile
       USE v3dbc_mod, ONLY : v3dbc_tile
 # endif
@@ -634,6 +637,7 @@
 !
 !  Apply boundary conditions.
 !
+        IF (itrc.le.NAT) THEN
           CALL t3dbc_tile (ng, tile, itrc,                              &
      &                     LBi, UBi, LBj, UBj, N(ng), NT(ng),           &
      &                     IminS, ImaxS, JminS, JmaxS,                  &
@@ -650,7 +654,25 @@
      &                     CLIMA(ng) % tclm,                            &
 #  endif
      &                     t)
-        END DO
+!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#  ifdef T_PASSIVE
+         ELSE
+!         else condition added by Weifeng Zhang for passive tracer
+!         boundary condition
+          CALL pt3dbc_tile (ng, tile, itrc,                             &
+     &                      LBi, UBi, LBj, UBj, N(ng), NT(ng),          &
+     &                      IminS, ImaxS, JminS, JmaxS,                 &
+     &                      nstp, nstp,                                 &
+     &                      t)
+          CALL pt3dbc_tile (ng, tile, itrc,                             &
+     &                      LBi, UBi, LBj, UBj, N(ng), NT(ng),          &
+     &                      IminS, ImaxS, JminS, JmaxS,                 &
+     &                      nstp, nnew,                                 &
+     &                      t)
+#  endif
+!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+         END IF
+       END DO
       END IF
 
 #  if defined EW_PERIODIC || defined NS_PERIODIC

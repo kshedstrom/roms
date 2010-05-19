@@ -1264,6 +1264,10 @@
             Npts=load_i(Nval, Rval, Ngrids, ntimes)
           ELSE IF (TRIM(KeyWord).eq.'DT') THEN
             Npts=load_r(Nval, Rval, Ngrids, dt)
+#ifdef AGE_DISTRIBUTION
+          ELSE IF (TRIM(KeyWord).eq.'DTAU') THEN
+            Npts=load_r(Nval, Rval, Ngrids, dtau)
+#endif
 #ifdef MODEL_COUPLING
             DO ng=1,Ngrids
               DO i=1,Nmodels
@@ -2245,7 +2249,11 @@
             DO ng=1,Ngrids
               DO itrc=1,NPT
                 i=idTvar(inert(itrc))
+# ifdef AGE_DISTRIBUTION
+                Hout(i,ng)=Linert(1,ng)
+# else
                 Hout(i,ng)=Linert(itrc,ng)
+# endif
               END DO
             END DO
 #endif
@@ -2921,6 +2929,10 @@
           WRITE (out,130) ndtfast(ng), 'ndtfast',                       &
      &          'Number of timesteps for 2-D equations between',        &
      &          'each 3D timestep.'
+#ifdef AGE_DISTRIBUTION
+          WRITE (out,140) dtau(ng), 'dtau',                             &
+     &          'Age increment for age distribution function.'
+#endif
           WRITE (out,120) ERstr, 'ERstr',                               &
      &          'Starting ensemble/perturbation run number.'
           WRITE (out,120) ERend, 'ERend',                               &
