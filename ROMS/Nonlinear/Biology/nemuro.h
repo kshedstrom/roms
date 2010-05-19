@@ -76,6 +76,10 @@
      &                   GRID(ng) % z_r,                                &
      &                   GRID(ng) % z_w,                                &
      &                   FORCES(ng) % srflx,                            &
+#ifdef NEMURO_SED1
+     &                   OCEAN(ng) % PONsed,                            &
+     &                   OCEAN(ng) % OPALsed,                           &
+#endif
      &                   OCEAN(ng) % t)
 
 #ifdef PROFILE
@@ -97,6 +101,9 @@
 #endif
      &                         Hz, z_r, z_w,                            &
      &                         srflx,                                   &
+#ifdef NEMURO_SED1
+     &                         PONsed, OPALsed,                         &
+#endif
      &                         t)
 !-----------------------------------------------------------------------
 !
@@ -123,18 +130,26 @@
       real(r8), intent(in) :: z_r(LBi:,LBj:,:)
       real(r8), intent(in) :: z_w(LBi:,LBj:,0:)
       real(r8), intent(in) :: srflx(LBi:,LBj:)
+# ifdef NEMURO_SED1
+      real(r8), intent(inout) :: PONsed(LBi:,LBj:)
+      real(r8), intent(inout) :: OPALsed(LBi:,LBj:)
+# endif
       real(r8), intent(inout) :: t(LBi:,LBj:,:,:,:)
 #else
 # ifdef MASKING
       real(r8), intent(in) :: rmask(LBi:UBi,LBj:UBj)
 # endif
-#ifdef IRON_LIMIT
+# ifdef IRON_LIMIT
       real(r8), intent(in) :: h(LBi:UBi,LBj:UBj)
 # endif
       real(r8), intent(in) :: Hz(LBi:UBi,LBj:UBj,UBk)
       real(r8), intent(in) :: z_r(LBi:UBi,LBj:UBj,UBk)
       real(r8), intent(in) :: z_w(LBi:UBi,LBj:UBj,0:UBk)
       real(r8), intent(in) :: srflx(LBi:UBi,LBj:UBj)
+# ifdef NEMURO_SED1
+      real(r8), intent(inout) :: PONsed(LBi:UBi,LBj:UBj)
+      real(r8), intent(inout) :: OPALsed(LBi:UBi,LBj:UBj)
+# endif
       real(r8), intent(inout) :: t(LBi:UBi,LBj:UBj,UBk,3,UBt)
 #endif
 !
@@ -266,26 +281,28 @@
 !  the fraction that is photosynthetically available, PARfrac.
 !
         DO i=Istr,Iend
-#ifdef ANA_BIOSWRAD
-          cff=2.0_r8*3.14159_r8*time(ng)/86400.0_r8/360.0_r8
-          PARsur(i)=PARfrac(ng)*200.0_r8*0.5_r8*(1.0_r8-cos(cff))
+!#ifdef ANA_BIOSWRAD
+!          cff=2.0_r8*3.14159_r8*time(ng)/86400.0_r8/360.0_r8
+!          PARsur(i)=PARfrac(ng)*200.0_r8*0.5_r8*(1.0_r8-cos(cff))
+#ifdef CONST_PAR
+          PARsur(i)=PARfrac(ng)*200.0_r8
 #else
           PARsur(i)=PARfrac(ng)*srflx(i,j)*rho0*Cp
 #endif
         END DO
 !
 #if defined IRON_LIMIT && defined IRON_RELAX
-!  Relaxation of dissolved iron to climatology on shelf
+!  Relaxation of dissolved iron to climatology
         DO k=1,N(ng)
           DO i=Istr,Iend
-!  Set concentration for FeD shelf climatology
+!  Set concentration and depth parameters for FeD climatology
 !  Fe concentration in (micromol-Fe/m3, or nM-Fe)
 	    h_max = 200.0_r8
             Fe_max = 2.0_r8
-!  Set nudging time scales to 5 days (inshore) and 30 (offshore) days
+!  Set nudging time scales to 5 days
             Fe_rel = 5.0_r8
             Fndgcf = 1.0_r8/(Fe_rel*86400.0_r8)
-!  Relaxation for depths < 250m to simulate Fe input at coast
+!  Relaxation for depths < h_max to simulate Fe input at coast
             IF (h(i,j).le.h_max) THEN
               Bio(i,k,iFeD_)=Bio(i,k,iFeD_)+                            &
      &                       dt(ng)*Fndgcf*(Fe_max-Bio(i,k,iFeD_))
@@ -973,7 +990,7 @@
           END DO
 !
 !-----------------------------------------------------------------------
-!  Zooplankton motality to particulate organic nitrogen.
+!  Zooplankton mortality to particulate organic nitrogen.
 !-----------------------------------------------------------------------
 !
           fac1=dtdays*MorZS0(ng)
@@ -1042,6 +1059,26 @@
      &                       Bio(i,k,iopal)*cff5
             END DO
           END DO
+#ifdef NEMURO_SED1
+!ENC:  using sediment pools
+
+          DO i=Istr,Iend
+!
+!  Decomposition: Sediment Opal to SiOH4.
+!
+            cff6=fac5*EXP(KO2S(ng)*Bio(i,1,itemp))
+            OPALsed(i,j)=OPALsed(i,j)/(1.0_r8+cff6)
+            Bio(i,1,iSiOH)=Bio(i,1,iSiOH)+                              &
+      &                       OPALsed(i,j)*cff6*Hz_inv(i,1)
+!
+!  Decomposition: Sediment PON to NH4.
+!
+            cff7=fac2*EXP(KP2N(ng)*Bio(i,1,itemp))
+            PONsed(i,j)=PONsed(i,j)/(1.0_r8+cff7)
+            Bio(i,1,iNH4_)=Bio(i,1,iNH4_)+                              &
+      &                       PONsed(i,j)*cff7*Hz_inv(i,1)
+          END DO
+#endif
 !
 !-----------------------------------------------------------------------
 !  Vertical sinking terms: PON and Opal.
@@ -1220,6 +1257,11 @@
                 Bio(i,k,ibio)=qc(i,k)+(FC(i,k)-FC(i,k-1))*Hz_inv(i,k)
               END DO
             END DO
+#ifdef NEMURO_SED2
+            DO i=Istr,Iend
+              Bio(i,1,ibio)=Bio(i,1,ibio)+FC(i,0)*Hz_inv(i,1)
+            END DO
+#endif
 
 #ifdef BIO_SEDIMENT
 !
@@ -1234,15 +1276,47 @@
 !       Lagrangian algorithm. What is the correct nutrient path from
 !       the benthos to the water column?  NH4 to NO3?
 !
+#ifdef NEMURO_SED2
+            fac2=dtdays*VP2N0(ng)
+            fac3=dtdays*VP2D0(ng)
+            fac5=dtdays*VO2S0(ng)
+#endif
+!
             IF (ibio.eq.iPON_) THEN
               DO i=Istr,Iend
+# ifdef NEMURO_SED1
+                cff1=FC(i,0)
+                PONsed(i,j) = PONsed(i,j)+cff1
+# elif defined NEMURO_SED2
+                cff1=FC(i,0)*Hz_inv(i,1)
+                cff2=fac2*EXP(KP2N(ng)*Bio(i,1,itemp))
+                cff3=fac3*EXP(KP2D(ng)*Bio(i,1,itemp))
+                Bio(i,1,iNH4_)=Bio(i,1,iNH4_)+cff1*cff2
+                Bio(i,1,iDON_)=Bio(i,1,iDON_)+cff1*cff3
+                Bio(i,1,iPON_)=Bio(i,1,iPON_)+cff1*(1.0_r8-cff2-cff3)
+# else
                 cff1=FC(i,0)*Hz_inv(i,1)
                 Bio(i,1,iNO3_)=Bio(i,1,iNO3_)+cff1
+!ENC: put the sinking PON into the ammonia pool. Do not need this if using
+!     the sediment pools
+!               Bio(i,1,iNH4_)=Bio(i,1,iNH4_)+cff1
+!
+# endif
               END DO
             ELSE IF (ibio.eq.iopal) THEN
               DO i=Istr,Iend
+# ifdef NEMURO_SED1
+                cff1=FC(i,0)
+                OPALsed(i,j) = OPALsed(i,j)+cff1
+# elif defined NEMURO_SED2
+                cff1=FC(i,0)*Hz_inv(i,1)
+                cff5=fac5*EXP(KO2S(ng)*Bio(i,1,itemp))
+                Bio(i,1,iSiOH)=Bio(i,1,iSiOH)+cff1*cff5
+                Bio(i,1,iopal)=Bio(i,1,iopal)+cff1*(1.0_r8-cff5)
+# else
                 cff1=FC(i,0)*Hz_inv(i,1)
                 Bio(i,1,iSiOH)=Bio(i,1,iSiOH)+cff1
+# endif
               END DO
             END IF
 #endif
