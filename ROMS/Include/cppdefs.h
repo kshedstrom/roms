@@ -235,6 +235,7 @@
 ** ANA_PASSIVE         use if analytical inert tracers initial conditions    **
 ** ANA_PERTURB         use if analytical perturbation of initial conditions  **
 ** ANA_PSOURCE         use if analytical point Sources/Sinks                 **
+** ANA_PTOBC           use if analytical passive tracers boundary conditions **
 ** ANA_RAIN            use if analytical rain fall rate                      **
 ** ANA_SEDIMENT        use if analytical sediment initial fields             **
 ** ANA_SMFLUX          use if analytical surface momentum stress             **

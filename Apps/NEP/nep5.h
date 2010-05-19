@@ -31,9 +31,11 @@
 #define STATIONS
 #undef WET_DRY
 
-#undef T_PASSIVE
+#define T_PASSIVE
 #ifdef T_PASSIVE
 # define ANA_PASSIVE
+# define TRC_PSOURCE
+# define ANA_TRC_PSOURCE
 #endif
 
 /* ice */
