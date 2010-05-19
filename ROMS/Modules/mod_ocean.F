@@ -117,6 +117,11 @@
 #   endif
 # endif
 
+#   ifdef NEMURO_SED1
+          real(r8), pointer :: PONsed(:,:)
+          real(r8), pointer :: OPALsed(:,:)
+#   endif
+
 # ifdef BIO_GOANPZ
           real(r8), pointer :: st(:,:,:,:,:)
 # endif
@@ -382,6 +387,11 @@
 #    endif
 # endif
 
+# ifdef NEMURO_SED1
+      ! Add a 2D array for sediment pools
+      allocate ( OCEAN(ng) % PONsed(LBi:UBi,LBj:UBj) )
+      allocate ( OCEAN(ng) % OPALsed(LBi:UBi,LBj:UBj) )
+#    endif
 
 
 # ifdef BIO_GOANPZ
@@ -687,6 +697,11 @@
       defined CARBON && defined SOLVED3D
             OCEAN(ng) % pH(i,j) = 8.0_r8
 # endif
+
+# if defined NEMURO_SED1
+            OCEAN(ng) % PONsed(i,j) = IniVal
+            OCEAN(ng) % OPALsed(i,j) = IniVal
+#endif
           END DO
 #ifdef SOLVE3D
           DO k=1,N(ng)
