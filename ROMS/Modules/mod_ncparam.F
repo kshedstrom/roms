@@ -586,16 +586,16 @@
 !  Source code root directory, cpp header file and directory, and
 !  analytical expression directory.
 !
-        character (len=80 ) :: Rdir
-        character (len=80 ) :: Hdir
-        character (len=80 ) :: Hfile
-        character (len=80)  :: Adir
+        character (len=256) :: Rdir
+        character (len=256) :: Hdir
+        character (len=256) :: Hfile
+        character (len=256) :: Adir
 !
 !  Analyical header file logical and names.
 !
         logical :: Lanafile
 
-        character (len=200), dimension(49) :: ANANAME
+        character (len=256), dimension(49) :: ANANAME
 
 #ifdef BIOLOGY
 !
@@ -603,13 +603,13 @@
 !
         logical, dimension(4) :: Lbiofile
 
-        character (len=200), dimension(4) :: BIONAME
+        character (len=256), dimension(4) :: BIONAME
 #endif
 !
 !  SVN revision and repository root URL.
 !
         character (len=40 ) :: svn_rev
-        character (len=120) :: svn_url
+        character (len=256) :: svn_url
 
       CONTAINS
 
@@ -647,7 +647,7 @@
         real(r8), parameter :: spv = 0.0_r8
         real(r8) :: offset, scale
 
-        character (len=80), dimension(7) :: Vinfo
+        character (len=120), dimension(7) :: Vinfo
 !
 !-----------------------------------------------------------------------
 !  Allocate several indices variables.
@@ -1030,8 +1030,8 @@
 !  Analytical files switch and names.
 !
         Lanafile=.TRUE.
-        DO i=1,48
-          DO j=1,200
+        DO i=1,49
+          DO j=1,LEN(ANANAME(1))
             ANANAME(i)(j:j)=' '
           END DO
         END DO
@@ -1042,7 +1042,7 @@
 !
         DO i=1,4
           Lbiofile(i)=.TRUE.
-          DO j=1,200
+          DO j=1,LEN(BIONAME(1))
             BIONAME(i)(j:j)=' '
           END DO
         END DO
