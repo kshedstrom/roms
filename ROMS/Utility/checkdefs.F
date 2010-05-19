@@ -43,6 +43,10 @@
       integer :: T_west = 0
       integer :: T_north = 0
       integer :: T_south = 0
+      integer :: PT_east = 0
+      integer :: PT_west = 0
+      integer :: PT_north = 0
+      integer :: PT_south = 0
       integer :: ibbl = 0
       integer :: ibiology = 0
       integer :: idriver = 0
@@ -145,6 +149,18 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+16)=' AFT_EIGENMODES,'
       idriver=idriver+1
+#endif
+#ifdef AGE_DISTRIBUTION
+      IF (Master) WRITE (stdout,20) 'AGE_DISTRIBUTION',                 &
+     &   'Water/tracer age passive tracers distribution simulation.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+18)=' AGE_DISTRIBUTION,'
+#endif
+#ifdef AGE_PASSIVE
+      IF (Master) WRITE (stdout,20) 'AGE_PASSIVE',                      &
+     &   'Mean water/tracer age passive tracers simulation.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+13)=' AGE_PASSIVE,'
 #endif
 #if defined ALBEDO && defined ANA_SRFLUX
       IF (Master) WRITE (stdout,20) 'ALBEDO',                           &
@@ -414,6 +430,12 @@
      &   'Analytical tracers boundary conditions.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+10)=' ANA_TOBC,'
+#endif
+#if defined ANA_PTOBC && defined SOLVE3D
+      IF (Master) WRITE (stdout,20) 'ANA_PTOBC',                        &
+     &   'Analytical passive tracers boundary conditions.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+11)=' ANA_PTOBC,'
 #endif
 #if defined ANA_VMIX && defined SOLVE3D
       IF (Master) WRITE (stdout,20) 'ANA_VMIX',                         &
@@ -916,6 +938,33 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+17)=' EAST_TRADIATION,'
       T_east=T_east+1
+#endif
+#ifdef EAST_PTCLAMPED
+      IF (Master) WRITE (stdout,20) 'EAST_PTCLAMPED',                   &
+     &   'Eastern edge, passive tracers, Clamped condition.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+16)=' EAST_PTCLAMPED,'
+      PT_east=PT_east+1
+#endif
+#ifdef EAST_PTGRADIENT
+      IF (Master) WRITE (stdout,20) 'EAST_PTGRADIENT',                  &
+     &   'Eastern edge, passive tracers, gradient condition.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+17)=' EAST_PTGRADIENT,'
+      PT_east=PT_east+1
+#endif
+#ifdef EAST_PTRADIATION
+# ifdef EAST_PTNUDGING
+      IF (Master) WRITE (stdout,20) 'EAST_PTNUDGING',                   &
+     &  'Eastern edge, passive tracers, passive/active outflow/inflow.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+16)=' EAST_PTNUDGING,'
+# endif
+      IF (Master) WRITE (stdout,20) 'EAST_PTRADIATION',                 &
+     &   'Eastern edge, passive tracers, radiation condition.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+18)=' EAST_PTRADIATION,'
+      PT_east=PT_east+1
 #endif
 #ifdef EAST_VOLCONS
       IF (Master) WRITE (stdout,20) 'EAST_VOLCONS',                     &
@@ -1633,6 +1682,34 @@
       Coptions(is:is+18)=' NORTH_TRADIATION,'
       T_north=T_north+1
 #endif
+#ifdef NORTH_PTCLAMPED
+      IF (Master) WRITE (stdout,20) 'NORTH_PTCLAMPED',                  &
+     &   'Northern edge, passive tracers, Clamped condition.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+17)=' NORTH_PTCLAMPED,'
+      PT_north=PT_north+1
+#endif
+#ifdef NORTH_PTGRADIENT
+      IF (Master) WRITE (stdout,20) 'NORTH_PTGRADIENT',                 &
+     &   'Northern edge, passive tracers, gradient condition.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+18)=' NORTH_PTGRADIENT,'
+      PT_north=PT_north+1
+#endif
+#ifdef NORTH_PTRADIATION
+# ifdef NORTH_PTNUDGING
+      IF (Master) WRITE (stdout,20) 'NORTH_PTNUDGING',                  &
+     &  'Northern edge, passive tracers, passive/active outflow/inflow.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+17)=' NORTH_PTNUDGING,'
+# endif
+      IF (Master) WRITE (stdout,20) 'NORTH_PTRADIATION',                &
+     &   'Northern edge, passive tracers, radiation condition.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+19)=' NORTH_PTRADIATION,'
+      PT_north=PT_north+1
+#endif
+
 #if defined NO_READ_GHOST && defined DISTRIBUTE
       IF (Master) WRITE (stdout,20) 'NO_READ_GRID',                     &
      &   'Not including ghost points during scattering read data.'
@@ -1759,6 +1836,12 @@
      &   'OpenMP parallel shared-memory directives.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+9)=' _OPENMP,'
+#endif
+#ifdef OPP_SUBDOMAIN
+      IF (Master) WRITE (stdout,20) 'OPP_SUBDOMAIN',                    &
+     &   'subdomain optimal observation.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+15)=' OPP_SUBDOMAIN,'
 #endif
 #ifdef OPT_OBSERVATIONS
       IF (Master) WRITE (stdout,20) 'OPT_OBSERVATIONS',                 &
@@ -1955,6 +2038,12 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+12)=' REP_MATRIX,'
       idriver=idriver+1
+#endif
+#ifdef RESIDENCE_TIME
+      IF (Master) WRITE (stdout,20) 'RESIDENCE_TIME',                   &
+     &   'Water/tracer residence time passive tracers simulation.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+16)=' RESIDENCE_TIME,'
 #endif
 #if defined LMD_MIXING
 # ifdef RI_HORAVG
@@ -2231,6 +2320,33 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+18)=' SOUTH_TRADIATION,'
       T_south=T_south+1
+#endif
+#ifdef SOUTH_PTCLAMPED
+      IF (Master) WRITE (stdout,20) 'SOUTH_PTCLAMPED',                  &
+     &   'Southern edge, passive tracers, Clamped condition.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+17)=' SOUTH_PTCLAMPED,'
+      PT_south=PT_south+1
+#endif
+#ifdef SOUTH_PTGRADIENT
+      IF (Master) WRITE (stdout,20) 'SOUTH_PTGRADIENT',                 &
+     &   'Southern edge, passive tracers, gradient condition.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+18)=' SOUTH_PTGRADIENT,'
+      PT_south=PT_south+1
+#endif
+#ifdef SOUTH_PTRADIATION
+# ifdef SOUTH_PTNUDGING
+      IF (Master) WRITE (stdout,20) 'SOUTH_PTNUDGING',                  &
+     &  'Southern edge, passive tracers, passive/active outflow/inflow.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+17)=' SOUTH_PTNUDGING,'
+# endif
+      IF (Master) WRITE (stdout,20) 'SOUTH_PTRADIATION',                &
+     &   'Southern edge, passive tracers, radiation condition.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+19)=' SOUTH_PTRADIATION,'
+      PT_south=PT_south+1
 #endif
 #ifdef SOUTH_VOLCONS
       IF (Master) WRITE (stdout,20) 'SOUTH_VOLCONS',                    &
@@ -2986,6 +3102,33 @@
       Coptions(is:is+17)=' WEST_TRADIATION,'
       T_west=T_west+1
 #endif
+#ifdef WEST_PTCLAMPED
+      IF (Master) WRITE (stdout,20) 'WEST_PTCLAMPED',                   &
+     &   'Western edge, passive tracers, Clamped condition.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+16)=' WEST_PTCLAMPED,'
+      PT_west=PT_west+1
+#endif
+#ifdef WEST_PTGRADIENT
+      IF (Master) WRITE (stdout,20) 'WEST_PTGRADIENT',                  &
+     &   'Western edge, passive tracers, gradient condition.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+17)=' WEST_PTGRADIENT,'
+      PT_west=PT_west+1
+#endif
+#ifdef WEST_PTRADIATION
+# ifdef WEST_PTNUDGING
+      IF (Master) WRITE (stdout,20) 'WEST_PTNUDGING',                   &
+     &  'Western edge, passive tracers, passive/active outflow/inflow.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+16)=' WEST_PTNUDGING,'
+# endif
+      IF (Master) WRITE (stdout,20) 'WEST_PTRADIATION',                 &
+     &   'Western edge, passive tracers, radiation condition.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+18)=' WEST_PTRADIATION,'
+      PT_west=PT_west+1
+#endif
 #ifdef WEST_VOLCONS
       IF (Master) WRITE (stdout,20) 'WEST_VOLCONS',                     &
      &   'Western edge, enforce mass conservation.'
@@ -3183,6 +3326,22 @@
       END IF
       IF (Master.and.(T_south.gt.1)) THEN
         WRITE (stdout,80) 'tracers','southern edge'
+        exit_flag=5
+      END IF
+      IF (Master.and.(PT_east.gt.1)) THEN
+        WRITE (stdout,80) 'passive tracers','eastern edge'
+        exit_flag=5
+      END IF
+      IF (Master.and.(PT_west.gt.1)) THEN
+        WRITE (stdout,80) 'passive tracers','western edge'
+        exit_flag=5
+      END IF
+      IF (Master.and.(PT_north.gt.1)) THEN
+        WRITE (stdout,80) 'passive tracers','northern edge'
+        exit_flag=5
+      END IF
+      IF (Master.and.(PT_south.gt.1)) THEN
+        WRITE (stdout,80) 'passive tracers','southern edge'
         exit_flag=5
       END IF
 # if defined GLS_MIXING || defined MY25_MIXING

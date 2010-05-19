@@ -222,7 +222,7 @@
 !
       IF (Master) THEN
         First=.TRUE.
-        DO i=1,48
+        DO i=1,49
           IF (LEN_TRIM(ANANAME(i)).gt.0) THEN
             IF (First) THEN
               First=.FALSE.

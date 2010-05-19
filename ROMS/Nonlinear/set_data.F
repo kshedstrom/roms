@@ -60,7 +60,9 @@
 # if defined TS_PSOURCE || defined UV_PSOURCE || defined Q_PSOURCE
       USE mod_sources
 # endif
-!
+# if defined TRC_PSOURCE
+      USE mod_trc_sources
+# endif
 # ifdef ANALYTICAL
       USE analytical_mod
 # endif
@@ -860,6 +862,13 @@
 !
       CALL ana_spinning (ng, tile, iNLM)
 # endif
+
+# if defined TRC_PSOURCE
+#  ifdef ANA_TRC_PSOURCE
+      CALL ana_trc_psource (ng, tile, iNLM)
+#  endif
+# endif
+
 
 # if defined UV_PSOURCE || defined TS_PSOURCE || defined Q_PSOURCE
 !

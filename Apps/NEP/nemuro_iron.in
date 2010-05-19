@@ -227,8 +227,8 @@
 
 ! Settling (sinking) velocities [m/day].
 
-      setVPON == 40.0d0                    ! PON
-     setVOpal == 40.0d0                    ! Opal
+      setVPON == 10.0d0                    ! PON
+     setVOpal == 10.0d0                    ! Opal
 
 ! Iron uptake timescale, [day], {1.0d0}.
 

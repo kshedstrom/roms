@@ -42,6 +42,7 @@
 !! ana_perturb.h       Peturb analytical initial conditions with       !
 !!                       analytical expressions.                       !
 !! ana_psource.h       Analytical mass/tracer point sources/sinks.     !
+!! ana_trc_psource.h   Analytical mass/tracer point sources/sinks.     !
 !! ana_rain.h          Analytical rain fall rate.                      !
 !! ana_scope.h         Analytical adjoint sensitivity spatial scope    !
 !!                       mask.                                         !
@@ -184,6 +185,10 @@
 # if (defined TS_PSOURCE || defined UV_PSOURCE || defined Q_PSOURCE) && \
      defined ANA_PSOURCE
 #  include <ana_psource.h>
+# endif
+
+# if defined TRC_PSOURCE  && defined ANA_TRC_PSOURCE
+#  include <ana_trc_psource.h>
 # endif
 
 # if defined ANA_RAIN && defined BULK_FLUXES
