@@ -185,6 +185,7 @@
 !                    time level n+1.
 !    dt            Size baroclinic timestep (s).
 !    dtfast        Size barotropic timestep (s).
+!    dtau          Size of age increment
 !    tdays         Model time clock (days).
 !    time          Model time clock (s).
 !    time_code     Model time clock (string, Day HH:MM:SS)
@@ -222,6 +223,9 @@
         integer, dimension(Ngrids) :: nfast
 
         real(r8), dimension(Ngrids) :: dt                ! seconds
+#ifdef AGE_DISTRIBUTION
+        real(r8), dimension(Ngrids) :: dtau              ! seconds
+#endif
         real(r8), dimension(Ngrids) :: dtfast            ! seconds
         real(r8), dimension(Ngrids) :: tdays             ! days
         real(r8), dimension(Ngrids) :: time              ! seconds

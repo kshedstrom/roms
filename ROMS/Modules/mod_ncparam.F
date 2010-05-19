@@ -595,7 +595,7 @@
 !
         logical :: Lanafile
 
-        character (len=200), dimension(48) :: ANANAME
+        character (len=200), dimension(49) :: ANANAME
 
 #ifdef BIOLOGY
 !
@@ -663,7 +663,7 @@
 #else
         allocate ( idTclm(MT) )
 #endif
-        
+
         allocate ( idTerr(MT) )
         allocate ( idTobs(MT) )
         allocate ( idTsur(MT) )
@@ -1344,6 +1344,21 @@
                 idTbry(isouth,isalt)=varid
               CASE ('idTbry(inorth,isalt)')
                 idTbry(inorth,isalt)=varid
+#if defined RESIDENCE_TIME ||   defined AGE_DISTRIBUTION
+              CASE ('idTbry(iwest,inert(i))')
+                load=.TRUE.
+!                idTbry(iwest,inert(i))=varid
+              CASE ('idTbry(ieast,inert(i))')
+                load=.TRUE.
+!                idTbry(ieast,inert(i))=varid
+              CASE ('idTbry(isouth,inert(i))')
+                load=.TRUE.
+!                idTbry(isouth,inert(i))=varid
+              CASE ('idTbry(inorth,inert(i))')
+                load=.TRUE.
+!                idTbry(inorth,inert(i))=varid
+!------Added by W.G.Zhang
+#endif
 #ifdef ICE_MODEL
               CASE ('idAibc(iwest)')
                 idAibc(iwest)=varid
@@ -1607,6 +1622,12 @@
                 idTads(itemp)=varid
               CASE ('idTads(isalt)')
                 idTads(isalt)=varid
+# if defined RESIDENCE_TIME
+              CASE ('idTads(inert(1))')
+                idTads(inert(1))=varid
+              CASE ('idTads(inert(2))')
+                idTads(inert(2))=varid
+# endif
 #endif
 #ifdef WEAK_CONSTRAINT
               CASE ('idZtlf')
@@ -2236,10 +2257,18 @@
                         Fscale(varid,ng)=scale
                         Iinfo(1,varid,ng)=gtype
                       END DO
-                      WRITE (Vname(1,varid),'(a,i2.2)')                 &
-     &                      TRIM(ADJUSTL(Vinfo(1))), i
-                      WRITE (Vname(2,varid),'(a,a,i2.2)')               &
-     &                      TRIM(ADJUSTL(Vinfo(2))), ', type ', i
+!  IF condition added by Weifeng Zhang for more than 100 passive tracers
+                      IF (i.lt.100) THEN
+                       WRITE (Vname(1,varid),'(a,i2.2)')                &
+     &                       TRIM(ADJUSTL(Vinfo(1))), i
+                       WRITE (Vname(2,varid),'(a,a,i2.2)')              &
+     &                       TRIM(ADJUSTL(Vinfo(2))), ', type ', i
+                      ELSE
+                       WRITE (Vname(1,varid),'(a,i3.3)')                &
+     &                       TRIM(ADJUSTL(Vinfo(1))), i
+                       WRITE (Vname(2,varid),'(a,a,i3.3)')              &
+     &                       TRIM(ADJUSTL(Vinfo(2))), ', type ', i
+                      END IF
                       WRITE (Vname(3,varid),'(a)')                      &
      &                      TRIM(ADJUSTL(Vinfo(3)))
                       WRITE (Vname(4,varid),'(a,a)')                    &
@@ -2250,6 +2279,158 @@
                   END IF
 # endif
               END SELECT
+# if defined RESIDENCE_TIME
+              SELECT CASE (Vinfo(1))
+                CASE ('river_age_')
+                  IF (NPT.gt.0) THEN
+                    varid=varid-1
+                    DO i=1,NPT
+                      varid=varid+1
+                      idRtrc(inert(i))=varid
+                      DO ng=1,Ngrids
+                        Fscale(varid,ng)=scale
+                        Iinfo(1,varid,ng)=gtype
+                      END DO
+                      IF (i.lt.100) THEN
+                       WRITE (Vname(1,varid),'(a,i2.2)')                &
+     &                       TRIM(ADJUSTL(Vinfo(1))), i
+                       WRITE (Vname(2,varid),'(a,a,i2.2)')              &
+     &                       TRIM(ADJUSTL(Vinfo(2))), ', type ', i
+                      ELSE
+                       WRITE (Vname(1,varid),'(a,i3.3)')                &
+     &                       TRIM(ADJUSTL(Vinfo(1))), i
+                       WRITE (Vname(2,varid),'(a,a,i3.3)')              &
+     &                       TRIM(ADJUSTL(Vinfo(2))), ', type ', i
+                      END IF
+                      WRITE (Vname(3,varid),'(a)')                      &
+     &                      TRIM(ADJUSTL(Vinfo(3)))
+                      WRITE (Vname(4,varid),'(a,a)')                    &
+     &                      TRIM(Vname(1,varid)), ', scalar, series'
+                      WRITE (Vname(5,varid),'(a)')                      &
+     &                      TRIM(ADJUSTL(Vinfo(5)))
+                    END DO
+                  END IF
+# endif
+# if defined AGE_DISTRIBUTION || \
+    defined RESIDENCE_TIME
+                CASE ('age_west_')
+                  IF (NPT.gt.0) THEN
+                    varid=varid-1
+                    DO i=1,NPT
+                      varid=varid+1
+                      idTbry(iwest,inert(i))=varid
+                      DO ng=1,Ngrids
+                        Fscale(varid,ng)=scale
+                        Iinfo(1,varid,ng)=gtype
+                      END DO
+                      IF (i.lt.100) THEN
+                       WRITE (Vname(1,varid),'(a,i2.2)')                &
+     &                       TRIM(ADJUSTL(Vinfo(1))), i
+                       WRITE (Vname(2,varid),'(a,a,i2.2)')              &
+     &                       TRIM(ADJUSTL(Vinfo(2))), ', type ', i
+                      ELSE
+                       WRITE (Vname(1,varid),'(a,i3.3)')                &
+     &                       TRIM(ADJUSTL(Vinfo(1))), i
+                       WRITE (Vname(2,varid),'(a,a,i3.3)')              &
+     &                       TRIM(ADJUSTL(Vinfo(2))), ', type ', i
+                      END IF
+                      WRITE (Vname(3,varid),'(a)')                      &
+     &                      TRIM(ADJUSTL(Vinfo(3)))
+                      WRITE (Vname(4,varid),'(a,a)')                    &
+     &                      TRIM(Vname(1,varid)), ', scalar, series'
+                      WRITE (Vname(5,varid),'(a)')                      &
+     &                      TRIM(ADJUSTL(Vinfo(5)))
+                    END DO
+                  END IF
+                CASE ('age_east_')
+                  IF (NPT.gt.0) THEN
+                    varid=varid-1
+                    DO i=1,NPT
+                      varid=varid+1
+                      idTbry(ieast,inert(i))=varid
+                      DO ng=1,Ngrids
+                        Fscale(varid,ng)=scale
+                        Iinfo(1,varid,ng)=gtype
+                      END DO
+                      IF (i.lt.100) THEN
+                       WRITE (Vname(1,varid),'(a,i2.2)')                &
+     &                       TRIM(ADJUSTL(Vinfo(1))), i
+                       WRITE (Vname(2,varid),'(a,a,i2.2)')              &
+     &                       TRIM(ADJUSTL(Vinfo(2))), ', type ', i
+                      ELSE
+                       WRITE (Vname(1,varid),'(a,i3.3)')                &
+     &                       TRIM(ADJUSTL(Vinfo(1))), i
+                       WRITE (Vname(2,varid),'(a,a,i3.3)')              &
+     &                       TRIM(ADJUSTL(Vinfo(2))), ', type ', i
+                      END IF
+                      WRITE (Vname(3,varid),'(a)')                      &
+     &                      TRIM(ADJUSTL(Vinfo(3)))
+                      WRITE (Vname(4,varid),'(a,a)')                    &
+     &                      TRIM(Vname(1,varid)), ', scalar, series'
+                      WRITE (Vname(5,varid),'(a)')                      &
+     &                      TRIM(ADJUSTL(Vinfo(5)))
+                    END DO
+                  END IF
+                CASE ('age_south_')
+                  IF (NPT.gt.0) THEN
+                    varid=varid-1
+                    DO i=1,NPT
+                      varid=varid+1
+                      idTbry(isouth,inert(i))=varid
+                      DO ng=1,Ngrids
+                        Fscale(varid,ng)=scale
+                        Iinfo(1,varid,ng)=gtype
+                      END DO
+                      IF (i.lt.100) THEN
+                       WRITE (Vname(1,varid),'(a,i2.2)')                &
+     &                       TRIM(ADJUSTL(Vinfo(1))), i
+                       WRITE (Vname(2,varid),'(a,a,i2.2)')              &
+     &                       TRIM(ADJUSTL(Vinfo(2))), ', type ', i
+                      ELSE
+                       WRITE (Vname(1,varid),'(a,i3.3)')                &
+     &                       TRIM(ADJUSTL(Vinfo(1))), i
+                       WRITE (Vname(2,varid),'(a,a,i3.3)')              &
+     &                       TRIM(ADJUSTL(Vinfo(2))), ', type ', i
+                      END IF
+                      WRITE (Vname(3,varid),'(a)')                      &
+     &                      TRIM(ADJUSTL(Vinfo(3)))
+                      WRITE (Vname(4,varid),'(a,a)')                    &
+     &                      TRIM(Vname(1,varid)), ', scalar, series'
+                      WRITE (Vname(5,varid),'(a)')                      &
+     &                      TRIM(ADJUSTL(Vinfo(5)))
+                    END DO
+                  END IF
+                CASE ('age_north_')
+                  IF (NPT.gt.0) THEN
+                    varid=varid-1
+                    DO i=1,NPT
+                      varid=varid+1
+                      idTbry(iwest,inert(i))=varid
+                      DO ng=1,Ngrids
+                        Fscale(varid,ng)=scale
+                        Iinfo(1,varid,ng)=gtype
+                      END DO
+                      IF (i.lt.100) THEN
+                       WRITE (Vname(1,varid),'(a,i2.2)')                &
+     &                       TRIM(ADJUSTL(Vinfo(1))), i
+                       WRITE (Vname(2,varid),'(a,a,i2.2)')              &
+     &                       TRIM(ADJUSTL(Vinfo(2))), ', type ', i
+                      ELSE
+                       WRITE (Vname(1,varid),'(a,i3.3)')                &
+     &                       TRIM(ADJUSTL(Vinfo(1))), i
+                       WRITE (Vname(2,varid),'(a,a,i3.3)')              &
+     &                       TRIM(ADJUSTL(Vinfo(2))), ', type ', i
+                      END IF
+                      WRITE (Vname(3,varid),'(a)')                      &
+     &                      TRIM(ADJUSTL(Vinfo(3)))
+                      WRITE (Vname(4,varid),'(a,a)')                    &
+     &                      TRIM(Vname(1,varid)), ', scalar, series'
+                      WRITE (Vname(5,varid),'(a)')                      &
+     &                      TRIM(ADJUSTL(Vinfo(5)))
+                    END DO
+                  END IF
+              END SELECT
+# endif
 #endif
 #ifdef DIAGNOSTICS_TS
 !

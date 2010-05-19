@@ -52,6 +52,9 @@
 #if defined UV_PSOURCE || defined TS_PSOURCE || defined Q_PSOURCE
       USE mod_sources, ONLY : allocate_sources
 #endif
+#if defined TRC_PSOURCE
+      USE mod_trc_sources, ONLY : allocate_trc_sources
+#endif
 #if defined SSH_TIDES || defined UV_TIDES || defined POT_TIDES
       USE mod_tides, ONLY : allocate_tides, initialize_tides
 #endif
@@ -133,6 +136,9 @@
 #endif
 #if defined UV_PSOURCE || defined TS_PSOURCE || defined Q_PSOURCE
           CALL allocate_sources (ng)
+#endif
+#if defined TRC_PSOURCE
+          CALL allocate_trc_sources (ng)
 #endif
         END DO
       END IF
