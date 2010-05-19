@@ -262,8 +262,7 @@
 /*
 **  Biological model options.
 */
-#undef NEMURO
-#undef LIMIT_BIO_AKT
+#define NEMURO
 #undef BIO_GOANPZ        /* Sarah Hinckley's 11 box model */
 #undef BEST_NPZ         /* Georgina Gibsons BEST NPZ model  */
 
@@ -279,7 +278,10 @@
 #endif
 
 #if defined NEMURO
+# define LIMIT_BIO_AKT
 # define BIO_SEDIMENT
+# undef NEMURO_SED1
+# define NEMURO_SED2
 # undef ANA_BIOLOGY       /* analytical biology initial conditions */
 # define ANA_BPFLUX        /* analytical bottom passive tracers fluxes */
 # define ANA_SPFLUX        /* analytical surface passive tracers fluxes */
