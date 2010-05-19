@@ -4366,8 +4366,7 @@
 #endif
 #ifdef ICE_MODEL
           fname=iparnam
-          INQUIRE (FILE=TRIM(fname), EXIST=inhere)
-          IF (.not.inhere) GO TO 30
+          IF (.not.find_file(ng, fname)) GO TO 30
           WRITE (out,230) '       Ice Model Parameters File:  ',        &
      &                    TRIM(fname)
 #endif
