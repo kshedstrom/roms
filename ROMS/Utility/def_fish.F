@@ -2,7 +2,7 @@
 #ifdef NEMURO_SAN
       SUBROUTINE def_fish (ng, ldef)
 !
-!svn $Id: def_fish.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -1055,13 +1055,6 @@
         CALL netcdf_get_lvar (ng, iNLM, ncname,                         &
      &                        TRIM(Vname(1,idFeatf)),                   &
      &                        FISHES(ng)%eatfish,                       &
-     &                        ncid = ncFISHid(ng),                      &
-     &                        start = (/1,tFISHindx(ng)/),              &
-     &                        total = (/Nfish(ng),1/))
-
-        CALL netcdf_get_lvar (ng, iNLM, ncname,                         &
-     &                        TRIM(Vname(1,idFgrl)),                    &
-     &                        FISHES(ng)%fishgirl,                      &
      &                        ncid = ncFISHid(ng),                      &
      &                        start = (/1,tFISHindx(ng)/),              &
      &                        total = (/Nfish(ng),1/))

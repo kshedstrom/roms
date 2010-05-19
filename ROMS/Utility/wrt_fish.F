@@ -2,7 +2,7 @@
 #ifdef NEMURO_SAN
       SUBROUTINE wrt_fish (ng)
 !
-!svn $Id: wrt_fish.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -105,16 +105,6 @@
      &                      (/1/), (/Nfish(ng)/),                       &
      &                      ncid = ncFISHid(ng),                        &
      &                      varid = fishVid(idFeatf,ng))
-      IF (exit_flag.ne.NoError) RETURN
-!
-!  Write out fish gender.
-!
-      CALL netcdf_put_lvar (ng, iNLM, FISHname(ng),                     &
-     &                      TRIM(Vname(1,idFgrl)),                      &
-     &                      FISHES(ng) % fishgirl,                      &
-     &                      (/1/), (/Nfish(ng)/),                       &
-     &                      ncid = ncFISHid(ng),                        &
-     &                      varid = fishVid(idFgrl,ng))
       IF (exit_flag.ne.NoError) RETURN
 !
 !  Write out fish age base.
