@@ -71,8 +71,8 @@
 # else
       character (len=13) :: Prefix
 # endif
-      character (len=80) :: Vinfo(Natt)
-      character (len=80) :: fname, ncname
+      character (len=120) :: Vinfo(Natt)
+      character (len=256) :: ncname
 !
       SourceFile='def_avg.F'
 !

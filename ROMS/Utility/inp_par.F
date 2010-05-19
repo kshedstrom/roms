@@ -762,9 +762,9 @@
       real(r8), allocatable :: MyRval(:)
 
       character (len=40) :: KeyWord
-      character (len=80) :: Cname
-      character (len=160) :: line
-      character (len=160), dimension(100) :: Cval
+      character (len=256) :: line
+      character (len=256) :: Cname
+      character (len=256), dimension(100) :: Cval
 !
 !-----------------------------------------------------------------------
 !  Determine coupling standard input file name.  In distributed-memory,
@@ -1055,7 +1055,7 @@
 !
 !  Local variable declarations.
 !
-      logical :: inhere
+      logical :: find_file
 #if defined SOLVE3D && defined SEDIMENT
       logical :: LreadNCS = .FALSE.
       logical :: LreadNNS = .FALSE.
@@ -1085,8 +1085,8 @@
       character (len=1 ), parameter :: blank = ' '
       character (len=19) :: ref_att
       character (len=40) :: KeyWord
-      character (len=160) :: fname, line
-      character (len=160), dimension(100) :: Cval
+      character (len=256) :: fname, line
+      character (len=256), dimension(100) :: Cval
 !
 !-----------------------------------------------------------------------
 !  Read in physical model parameters. Then, load input data into module.
@@ -3097,7 +3097,7 @@
           END IF
 #endif
 #ifdef ADJUST_BOUNDARY
-          WRITE (out,130) nSFF(ng), 'nOBC',                             &
+          WRITE (out,130) nOBC(ng), 'nOBC',                             &
      &          'Number of timesteps between 4DVAR adjustment of',      &
      &          'open boundaries.'
 #endif
@@ -4158,7 +4158,7 @@
      &       'Write out turbulent generic length-scale.'
 # endif
 #endif
-#if defined NETCDF4 && defined DEFLATE
+#if defined HDF5 && defined DEFLATE
           WRITE (out,120) shuffle, 'shuffle',                           &
      &          'NetCDF-4/HDF5 file format shuffle filer flag.'
           WRITE (out,120) deflate, 'deflate',                           &
@@ -4268,16 +4268,14 @@
 #endif
 #ifndef ANA_GRID
           fname=GRDname(ng)
-          INQUIRE (FILE=TRIM(fname), EXIST=inhere)
-          IF (.not.inhere) GO TO 30
+          IF (.not.find_file(ng, fname)) GO TO 30
           WRITE (out,230) '               Input Grid File:  ',          &
      &                    TRIM(fname)
 #endif
 #ifdef INI_FILE
 # ifdef NONLINEAR
           fname=INIname(ng)
-          INQUIRE (FILE=TRIM(fname), EXIST=inhere)
-          IF (.not.inhere) GO TO 30
+          IF (.not.find_file(ng, fname)) GO TO 30
           WRITE (out,230) '  Input Nonlinear Initial File:  ',          &
      &                    TRIM(fname)
 # endif
@@ -4286,16 +4284,14 @@
       defined OPT_OBSERVATIONS  || defined SANITY_CHECK        || \
       defined SENSITIVITY_4DVAR || defined TLM_CHECK)
           fname=ITLname(ng)
-          INQUIRE (FILE=TRIM(fname), EXIST=inhere)
-          IF (.not.inhere) GO TO 30
+          IF (.not.find_file(ng, fname)) GO TO 30
           WRITE (out,230) '    Input Tangent Initial File:  ',          &
      &                    TRIM(fname)
 # endif
 # if defined WEAK_CONSTRAINT && \
     !(defined W4DPSAS        || defined W4DPSAS_SENSITIVITY)
           fname=IRPname(ng)
-          INQUIRE (FILE=TRIM(fname), EXIST=inhere)
-          IF (.not.inhere) GO TO 30
+          IF (.not.find_file(ng, fname)) GO TO 30
           WRITE (out,230) 'Input Representer Initial File:  ',          &
      &                    TRIM(fname)
 # endif
@@ -4305,8 +4301,7 @@
       defined SANITY_CHECK        || defined SENSITIVITY_4DVAR || \
       defined SO_SEMI)
           fname=IADname(ng)
-          INQUIRE (FILE=TRIM(fname), EXIST=inhere)
-          IF (.not.inhere) GO TO 30
+          IF (.not.find_file(ng, fname)) GO TO 30
           WRITE (out,230) '    Input Adjoint Initial File:  ',          &
      &                    TRIM(fname)
 # endif
@@ -4314,23 +4309,20 @@
 #ifdef FRC_FILE
           DO i=1,nFfiles(ng)
             fname=FRCname(i,ng)
-            INQUIRE (FILE=TRIM(fname), EXIST=inhere)
-            IF (.not.inhere) GO TO 30
+            IF (.not.find_file(ng, fname)) GO TO 30
             WRITE (out,310) '         Input Forcing File ', i, ':  ',   &
      &                      TRIM(fname)
           END DO
 #endif
 #ifdef CLM_FILE
           fname=CLMname(ng)
-          INQUIRE (FILE=TRIM(fname), EXIST=inhere)
-          IF (.not.inhere) GO TO 30
+          IF (.not.find_file(ng, fname)) GO TO 30
           WRITE (out,230) '        Input Climatology File:  ',          &
      &                    TRIM(fname)
 #endif
 #if defined FORWARD_READ && !(defined FOUR_DVAR || defined PICARD_TEST)
           fname=FWDname(ng)
-          INQUIRE (FILE=TRIM(fname), EXIST=inhere)
-          IF (.not.inhere) GO TO 30
+          IF (.not.find_file(ng, fname)) GO TO 30
           WRITE (out,230) '      Input Forward State File:  ',          &
      &                    TRIM(fname)
 #endif
@@ -4338,43 +4330,37 @@
     defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR   || \
     defined SO_SEMI
           fname=ADSname(ng)
-          INQUIRE (FILE=TRIM(fname), EXIST=inhere)
-          IF (.not.inhere) GO TO 30
+          IF (.not.find_file(ng, fname)) GO TO 30
           WRITE (out,230) 'Input Adjoint Sensitivity File:  ',          &
      &                    TRIM(fname)
 #endif
 #ifdef OBC_DATA
           fname=BRYname(ng)
-          INQUIRE (FILE=TRIM(fname), EXIST=inhere)
-          IF (.not.inhere) GO TO 30
+          IF (.not.find_file(ng, fname)) GO TO 30
           WRITE (out,230) '           Input Boundary File:  ',          &
      &                    TRIM(fname)
 #endif
 #ifdef STATIONS
           fname=sposnam
-          INQUIRE (FILE=TRIM(fname), EXIST=inhere)
-          IF (.not.inhere) GO TO 30
+          IF (.not.find_file(ng, fname)) GO TO 30
           WRITE (out,230) '        Station positions File:  ',          &
      &                    TRIM(fname)
 #endif
 #if defined ASSIMILATION || defined NUDGING || defined FOUR_DVAR
           fname=aparnam
-          INQUIRE (FILE=TRIM(fname), EXIST=inhere)
-          IF (.not.inhere) GO TO 30
+          IF (.not.find_file(ng, fname)) GO TO 30
           WRITE (out,230) '  Assimilation Parameters File:  ',          &
      &                    TRIM(fname)
 #endif
 #ifdef FLOATS
           fname=fposnam
-          INQUIRE (FILE=TRIM(fname), EXIST=inhere)
-          IF (.not.inhere) GO TO 30
+          IF (.not.find_file(ng, fname)) GO TO 30
           WRITE (out,230) ' Initial Floats Positions File:  ',          &
      &                    TRIM(fname)
 #endif
 #ifdef BIOLOGY
           fname=bparnam
-          INQUIRE (FILE=TRIM(fname), EXIST=inhere)
-          IF (.not.inhere) GO TO 30
+          IF (.not.find_file(ng, fname)) GO TO 30
           WRITE (out,230) '       Biology Parameters File:  ',          &
      &                    TRIM(fname)
 #endif
@@ -4386,8 +4372,7 @@
      &                    TRIM(fname)
 #endif
           fname=varname
-          INQUIRE (FILE=TRIM(fname), EXIST=inhere)
-          IF (.not.inhere) GO TO 30
+          IF (.not.find_file(ng, fname)) GO TO 30
           WRITE (out,230) '  IO Variable Information File:  ',          &
      &                    TRIM(fname)
           GO TO 40
@@ -4759,13 +4744,12 @@
 !
 !  Local variable declarations.
 !
-      logical :: inhere
-
       integer :: Npts, Nval
       integer :: i, ib, igrid, itrc, k, ng, status
 
       integer :: decode_line, load_i, load_l, load_r
 
+      logical :: find_file
 # if defined ASSIMILATION || defined NUDGING
       logical, dimension(MT,Ngrids) :: Lassi
 
@@ -4792,9 +4776,9 @@
 # ifdef ADJUST_BOUNDARY
       character (len=7) :: Text
 # endif
-      character (len=40) :: KeyWord
-      character (len=160) :: fname, line
-      character (len=160), dimension(100) :: Cval
+      character (len=40 ) :: KeyWord
+      character (len=256) :: fname, line
+      character (len=256), dimension(100) :: Cval
 
 # if defined ASSIMILATION || defined NUDGING
 !
@@ -5024,37 +5008,32 @@
      &                      TRIM(aparnam)
 #  ifdef ASSIMILATION_SSH
             fname=SSHname(ng)
-            INQUIRE (FILE=TRIM(fname), EXIST=inhere)
-            IF (.not.inhere) GO TO 30
+            IF (.not.find_file(ng, fname)) GO TO 30
             WRITE (out,180) '      Sea Surface Height File:  ',         &
      &                      TRIM(fname)
 #  endif
 #  ifdef SOLVE3D
 #   if defined ASSIMILATION_SST || defined NUDGING_SST
             fname=SSTname(ng)
-            INQUIRE (FILE=TRIM(fname), EXIST=inhere)
-            IF (.not.inhere) GO TO 30
+            IF (.not.find_file(ng, fname)) GO TO 30
             WRITE (out,180) ' Sea Surface Temperature File:  ',         &
      &                      TRIM(fname)
 #   endif
 #   if defined ASSIMILATION_T || defined NUDGING_T
             fname=TOBSname(ng)
-            INQUIRE (FILE=TRIM(fname), EXIST=inhere)
-            IF (.not.inhere) GO TO 30
+            IF (.not.find_file(ng, fname)) GO TO 30
             WRITE (out,180) '                 Tracers File:  ',         &
      &                      TRIM(fname)
 #   endif
 #   if defined ASSIMILATION_UVsur || defined NUDGING_UVsur
             fname=VSURname(ng)
-            INQUIRE (FILE=TRIM(fname), EXIST=inhere)
-            IF (.not.inhere) GO TO 30
+            IF (.not.find_file(ng, fname)) GO TO 30
             WRITE (out,180) '        Surface Currents File:  ',         &
      &                      TRIM(fname)
 #   endif
 #   if defined ASSIMILATION_UV || defined NUDGING_UV
             fname=VOBSname(ng)
-            INQUIRE (FILE=TRIM(fname), EXIST=inhere)
-            IF (.not.inhere) GO TO 30
+            IF (.not.find_file(ng, fname)) GO TO 30
             WRITE (out,180) '     Horizontal Currents File:  ',         &
      &                      TRIM(fname)
 #   endif
@@ -6019,27 +5998,23 @@
         defined TL_W4DPSAS        || defined TL_W4DVAR || \
         defined W4DPSAS           || defined W4DVAR
           fname=STDname(2,ng)
-          INQUIRE (FILE=TRIM(fname), EXIST=inhere)
-          IF (.not.inhere) GO TO 30
+          IF (.not.find_file(ng, fname)) GO TO 30
           WRITE (out,160) '               Model STD File:  ',           &
      &                    TRIM(fname)
 #    endif
           fname=STDname(1,ng)
-          INQUIRE (FILE=TRIM(fname), EXIST=inhere)
-          IF (.not.inhere) GO TO 30
+          IF (.not.find_file(ng, fname)) GO TO 30
           WRITE (out,160) '  Initial Conditions STD File:  ',           &
      &                    TRIM(fname)
 #    ifdef ADJUST_BOUNDARY
           fname=STDname(3,ng)
-          INQUIRE (FILE=TRIM(fname), EXIST=inhere)
-          IF (.not.inhere) GO TO 30
+          IF (.not.find_file(ng, fname)) GO TO 30
           WRITE (out,160) ' Boundary Conditions STD File:  ',           &
      &                    TRIM(fname)
 #    endif
 #    if defined ADJUST_WSTRESS || defined ADJUST_STFLUX
           fname=STDname(4,ng)
-          INQUIRE (FILE=TRIM(fname), EXIST=inhere)
-          IF (.not.inhere) GO TO 30
+          IF (.not.find_file(ng, fname)) GO TO 30
           WRITE (out,160) '     Surface Forcing STD File:  ',           &
      &                    TRIM(fname)
 #    endif
@@ -6051,24 +6026,21 @@
           WRITE (out,160) '              Model Norm File:  ',           &
      &                    TRIM(fname)
           IF (.not.LdefNRM(2,ng)) THEN
-            INQUIRE (FILE=TRIM(fname), EXIST=inhere)
-            IF (.not.inhere) GO TO 30
+            IF (.not.find_file(ng, fname)) GO TO 30
           END IF
 #   endif
           fname=NRMname(1,ng)
           WRITE (out,160) ' Initial Conditions Norm File:  ',           &
      &                    TRIM(fname)
           IF (.not.LdefNRM(1,ng)) THEN
-            INQUIRE (FILE=TRIM(fname), EXIST=inhere)
-            IF (.not.inhere) GO TO 30
+            IF (.not.find_file(ng, fname)) GO TO 30
           END IF
 #   ifdef ADJUST_BOUNDARY
           fname=NRMname(3,ng)
           WRITE (out,160) 'Boundary Conditions Norm File:  ',           &
      &                    TRIM(fname)
           IF (.not.LdefNRM(3,ng)) THEN
-            INQUIRE (FILE=TRIM(fname), EXIST=inhere)
-            IF (.not.inhere) GO TO 30
+            IF (.not.find_file(ng, fname)) GO TO 30
           END IF
 #   endif
 #   if defined ADJUST_WSTRESS || defined ADJUST_STFLUX
@@ -6076,15 +6048,13 @@
           WRITE (out,160) '    Surface Forcing Norm File:  ',           &
      &                    TRIM(fname)
           IF (.not.LdefNRM(4,ng)) THEN
-            INQUIRE (FILE=TRIM(fname), EXIST=inhere)
-            IF (.not.inhere) GO TO 30
+            IF (.not.find_file(ng, fname)) GO TO 30
           END IF
 #   endif
 #   if !(defined CORRELATION || defined CONVOLUTION || \
          defined OPT_OBSERVATIONS)
           fname=OBSname(ng)
-          INQUIRE (FILE=TRIM(fname), EXIST=inhere)
-          IF (.not.inhere) GO TO 30
+          IF (.not.find_file(ng, fname)) GO TO 30
           WRITE (out,160) '            Observations File:  ',           &
      &                    TRIM(fname)
 #   endif
@@ -6178,10 +6148,10 @@
       real(r8), allocatable :: Ft0(:,:), Fx0(:,:), Fy0(:,:), Fz0(:,:)
       real(r8), allocatable :: Fdt(:,:), Fdx(:,:), Fdy(:,:), Fdz(:,:)
 
-      character (len=35) :: frmt
-      character (len=40) :: KeyWord
-      character (len=160) :: line
-      character (len=160), dimension(100) :: Cval
+      character (len=35 ) :: frmt
+      character (len=40 ) :: KeyWord
+      character (len=256) :: line
+      character (len=256), dimension(100) :: Cval
 !
 !-----------------------------------------------------------------------
 !  Read in initial float locations.
@@ -6470,9 +6440,9 @@
 
       real(r8), dimension(100) :: Rval
 
-      character (len=40) :: KeyWord
-      character (len=160) :: line
-      character (len=160), dimension(100) :: Cval
+      character (len=40 ) :: KeyWord
+      character (len=256) :: line
+      character (len=256), dimension(100) :: Cval
 !
 !-----------------------------------------------------------------------
 !  Read in stations parameters.
@@ -7108,7 +7078,7 @@
 
       integer, intent(inout) :: Nval
 
-      character (len=160), dimension(100), intent(inout) :: Cval
+      character (len=256), dimension(100), intent(inout) :: Cval
 
       real(r8), dimension(100), intent(inout) :: Rval
 !
@@ -7124,7 +7094,7 @@
       integer :: decode_line
 
       character (len=1 ), parameter :: blank = ' '
-      character (len=160) :: Vstring, line, string
+      character (len=256) :: Vstring, line, string
 !
 !------------------------------------------------------------------------
 !  Decode input line.
@@ -7291,6 +7261,78 @@
       decode_line=status
       RETURN
       END FUNCTION decode_line
+
+      FUNCTION find_file (ng, fname) RESULT (foundit)
+!
+!=======================================================================
+!                                                                      !
+!  This function checks if provided input file exits.                  !
+!                                                                      !
+!  On Input:                                                           !
+!                                                                      !
+!     ng         Nested grid number.                                   !
+!     fname      File name (path and name).                            !
+!                                                                      !
+!  On Output:                                                          !
+!                                                                      !
+!     foundit    The value of the result is TRUE/FALSE if the file     !
+!                  was found or not.                                   !
+!                                                                      !
+!=======================================================================
+!
+      USE mod_kinds
+      USE mod_param
+      USE mod_iounits
+      USE mod_netcdf
+      USE mod_scalars
+!
+      implicit none
+!
+!  Imported variable declarations.
+!
+      integer, intent(in) :: ng
+
+      character (len=*), intent(in) :: fname
+!
+!  Local variable declarations.
+!
+      logical :: foundit, isURL
+
+      integer :: ncid
+!
+      SourceFile='inp_par.F, find_file'
+!
+!-----------------------------------------------------------------------
+!  Check if the file exit.
+!-----------------------------------------------------------------------
+!
+      foundit=.FALSE.
+!
+!  Check if provided file is a URL.  This implies the file is a NetCDF
+!  file on Data Access Protocol (DAP) server (like OPeNDAP).
+!
+      isURL=.FALSE.
+      IF (INDEX(TRIM(fname),'http:').ne.0) THEN
+        isURL=.TRUE.
+      END IF
+!
+!  Use F90 intrinsic function for non URL files.
+!
+      IF (.not.isURL) THEN
+        INQUIRE (FILE=TRIM(fname), EXIST=foundit)
+!
+!  Use NetCDF library (version 4.1.1 or higher) to check URL NetCDF
+!  files.
+!
+      ELSE
+        CALL netcdf_open (ng, iNLM, fname, 0, ncid)
+        IF (exit_flag.eq.NoError) THEN
+          foundit=.TRUE.
+        END IF
+      END IF
+
+      RETURN
+      END FUNCTION find_file
 
       FUNCTION load_i (Ninp, Vinp, Nout, Vout)
 !
