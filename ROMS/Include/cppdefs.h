@@ -87,6 +87,9 @@
 ** SOLAR_SOURCE        use if solar radiation source term                    **
 ** SRELAXATION         use if salinity relaxation as a freshwater flux       **
 ** TS_PSOURCE          use to turn ON or OFF point Sources/Sinks             **
+** TRC_PSOURCE         use if source of inert passive tracers (dyes, etc)    **
+** AGE_PASSIVE         use if aging of inert passive tracers                 **
+** AGE_DISTRIBUTION    use if aging of inert passive tracers                 **
 **                                                                           **
 ** Tracer advection OPTIONS for adjoint-based algorithms:                    **
 **                                                                           **
@@ -250,6 +253,7 @@
 ** ANA_TAIR            use if analytical surface air temperature             **
 ** ANA_TCLIMA          use if analytical tracers climatology                 **
 ** ANA_TOBC            use if analytical tracers boundary conditions         **
+** ANA_TRC_PSOURCE     use if analytical point sources of inert tracers      **
 ** ANA_VMIX            use if analytical vertical mixing coefficients        **
 ** ANA_WINDS           use if analytical surface winds                       **
 ** ANA_WWAVE           use if analytical wind induced waves                  **
@@ -408,6 +412,12 @@
 ** EAST_TRADIATION     use if tracers radiation condition                    **
 ** EAST_TNUDGING       use if tracers passive/active nudging term            **
 ** EAST_TCLAMPED       use if tracers clamped condition                      **
+**---------------------------------------------------------------------------**
+** EAST_PTGRADIENT    use if passive tracers gradient condition              **
+** EAST_PTRADIATION   use if passive tracers radiation condition             **
+** EAST_PTNUDGING     use if passive tracers passive/active nudging term     **
+** EAST_PTCLAMPED     use if passive tracers clamped condition               **
+**---------------------------------------------------------------------------**
 **                                                                           **
 ** Western edge open boundary conditions OPTIONS:                            **
 **                                                                           **
@@ -432,6 +442,13 @@
 ** WEST_TRADIATION     use if tracers radiation condition                    **
 ** WEST_TNUDGING       use if tracers passive/active nudging term            **
 ** WEST_TCLAMPED       use if tracers clamped condition                      **
+**---------------------------------------------------------------------------**
+** WEST_PTGRADIENT    use if passive tracers gradient condition              **
+** WEST_PTRADIATION   use if passive tracers radiation condition             **
+** WEST_PTNUDGING     use if passive tracers passive/active nudging term     **
+** WEST_PTCLAMPED     use if passive tracers clamped condition               **
+**---------------------------------------------------------------------------**
+
 **                                                                           **
 ** Northern edge open boundary conditions OPTIONS:                           **
 **                                                                           **
@@ -456,6 +473,12 @@
 ** NORTH_TRADIATION    use if tracers radiation condition                    **
 ** NORTH_TNUDGING      use if tracers passive/active nudging term            **
 ** NORTH_TCLAMPED      use if tracers clamped condition                      **
+**---------------------------------------------------------------------------**
+** NORTH_PTGRADIENT    use if passive tracers gradient condition             **
+** NORTH_PTRADIATION   use if passive tracers radiation condition            **
+** NORTH_PTNUDGING     use if passive tracers passive/active nudging term    **
+** NORTH_PTCLAMPED     use if passive tracers clamped condition              **
+**---------------------------------------------------------------------------**
 **                                                                           **
 ** Southern edge open boundary conditions OPTIONS:                           **
 **                                                                           **
@@ -480,6 +503,12 @@
 ** SOUTH_TRADIATION    use if tracers radiation condition                    **
 ** SOUTH_TNUDGING      use if tracers passive/active nudging term            **
 ** SOUTH_TCLAMPED      use if tracers clamped condition                      **
+**---------------------------------------------------------------------------**
+** SOUTH_PTGRADIENT    use if passive tracers gradient condition             **
+** SOUTH_PTRADIATION   use if passive tracers radiation condition            **
+** SOUTH_PTNUDGING     use if passive tracers passive/active nudging term    **
+** SOUTH_PTCLAMPED     use if passive tracers clamped condition              **
+**---------------------------------------------------------------------------**
 **                                                                           **
 ** OPTIONS for tidal forcing at open boundaries:                             **
 **                                                                           **
