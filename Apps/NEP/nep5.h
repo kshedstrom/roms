@@ -1,7 +1,7 @@
 /*
 ** svn $Id: basin.h 8 2007-02-06 19:00:29Z arango $
 *******************************************************************************
-** Copyright (c) 2002-2009 The ROMS/TOMS Group
+** Copyright (c) 2002-2010 The ROMS/TOMS Group
 **
 **   Licensed under a MIT/X style license
 **

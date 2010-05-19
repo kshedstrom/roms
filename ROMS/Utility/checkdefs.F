@@ -1084,6 +1084,12 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+17)=' ICE_BULK_FLUXES,'
 #endif
+#ifdef ICE_CONVSNOW
+      IF (Master) WRITE (stdout,20) 'ICE_CONVSNOW',                     &
+     &   'Conversion of flooded snow to ice.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+14)=' ICE_CONVSNOW,'
+#endif
 #ifdef ICE_EVP
       IF (Master) WRITE (stdout,20) 'ICE_EVP',                          &
      &   'Elastic-viscous-plastic ice rheology.'
@@ -1137,6 +1143,12 @@
      &   'Include Ice Shelf Cavities.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+10)=' ICESHELF,'
+#endif
+#ifdef ICESHELF_3EQ
+      IF (Master) WRITE (stdout,20) 'ICESHELF_3EQ',                     &
+     &   'Include 3eq Ice Shelf Thermodynamics.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+14)=' ICESHELF_3EQ,'
 #endif
 #if defined IMPLICIT_VCONV && defined FOUR_DVAR && defined VCONVOLUTION
       IF (Master) WRITE (stdout,20) 'IMPLICIT_VCONV',                   &
@@ -1653,12 +1665,6 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+13)=' NPZD_POWELL,'
       ibiology=ibiology+1
-#endif
-#ifdef NUDGING_SSH
-      IF (Master) WRITE (stdout,20) 'NUDGING_SSH',                      &
-     &   'Nudging SSH observations.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+13)=' NUDGING_SSH,'
 #endif
 #ifdef NUDGING_SST
       IF (Master) WRITE (stdout,20) 'NUDGING_SST',                      &
@@ -3315,6 +3321,28 @@
         exit_flag=5
       END IF
 # endif
+#endif
+#if defined ICESHELF && !defined SOLVE3D
+!
+!  Stop if ICESHELF defined in shallow water setup
+!
+      IF (Master) THEN
+        WRITE (stdout,170)
+ 170    FORMAT (/,' CHECKDEFS - ICESHELF does not currently work',      &
+     &            ' in shallow water mode.')
+        exit_flag=5
+      END IF
+#endif
+#if defined ICESHELF && !defined DJ_GRADPS
+!
+!  PGF for ICESHELF only works for DJ_GRADPS
+!
+      IF (Master) THEN
+        WRITE (stdout,180)
+ 180    FORMAT (/,' CHECKDEFS - ICESHELF does not currently work',      &
+     &            ' for any PGF scheme other than DJ_GRADPS')
+        exit_flag=5
+      END IF
 #endif
 
       RETURN

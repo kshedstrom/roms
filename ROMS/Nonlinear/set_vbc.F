@@ -56,13 +56,19 @@
 #  ifdef MASKING
      &                   GRID(ng) % rmask,                              &
 #  endif
-#  if defined ICESHELF
+#  ifdef ICESHELF
      &                   GRID(ng) % zice,                               &
+#   ifdef ICESHELF_3EQ
+     &                   GRID(ng) % f,                                  &
+#   endif
 #  endif
      &                   OCEAN(ng) % t,                                 &
 #  if !defined BBL_MODEL || defined ICESHELF
      &                   OCEAN(ng) % u,                                 &
      &                   OCEAN(ng) % v,                                 &
+#  endif
+#  ifdef ICESHELF_3EQ
+     &                   OCEAN(ng) % rho,                               &
 #  endif
 #  ifdef QCORRECTION
      &                   FORCES(ng) % dqdt,                             &
@@ -80,6 +86,9 @@
 #  if defined ICESHELF
 #   ifdef SHORTWAVE
      &                   FORCES(ng) % srflx,                            &
+#   endif
+#   ifdef ICESHELF_3EQ
+     &                   FORCES(ng) % Tair,                             &
 #   endif
      &                   FORCES(ng) % sustr,                            &
      &                   FORCES(ng) % svstr,                            &
@@ -108,12 +117,18 @@
 #  if defined MASKING
      &                         rmask,                                   &
 #  endif
-#  if defined ICESHELF
+#  ifdef ICESHELF
      &                         zice,                                    &
+#   ifdef ICESHELF_3EQ
+     &                         f,                                       &
+#   endif
 #  endif
      &                         t,                                       &
 #  if !defined BBL_MODEL || defined ICESHELF
      &                         u, v,                                    &
+#  endif
+#  ifdef ICESHELF_3EQ
+     &                         rho,                                     &
 #  endif
 #  ifdef QCORRECTION
      &                         dqdt, sst,                               &
@@ -130,6 +145,9 @@
 #  if defined ICESHELF
 #   ifdef SHORTWAVE
      &                         srflx,                                   &
+#   endif
+#   ifdef ICESHELF_3EQ
+     &                         Tair,                                    &
 #   endif
      &                         sustr, svstr,                            &
 #  endif
@@ -163,13 +181,19 @@
 #   if defined MASKING
       real(r8), intent(in) :: rmask(LBi:,LBj:)
 #   endif
-#   if defined ICESHELF
+#   ifdef ICESHELF
       real(r8), intent(in) :: zice(LBi:,LBj:)
+#    ifdef ICESHELF_3EQ
+      real(r8), intent(in) :: f(LBi:,LBj:)
+#    endif
 #   endif
       real(r8), intent(in) :: t(LBi:,LBj:,:,:,:)
 #   if !defined BBL_MODEL || defined ICESHELF
       real(r8), intent(in) :: u(LBi:,LBj:,:,:)
       real(r8), intent(in) :: v(LBi:,LBj:,:,:)
+#   endif
+#   ifdef ICESHELF_3EQ
+      real(r8), intent(in) :: rho(LBi:,LBj:,:)
 #   endif
 #   ifdef QCORRECTION
       real(r8), intent(in) :: dqdt(LBi:,LBj:)
@@ -187,6 +211,9 @@
 #   if defined ICESHELF
 #    ifdef SHORTWAVE
       real(r8), intent(inout) :: srflx(LBi:,LBj:)
+#    endif
+#    ifdef ICESHELF_3EQ
+      real(r8), intent(in)    :: Tair(LBi:,LBj:)
 #    endif
       real(r8), intent(inout) :: sustr(LBi:,LBj:)
       real(r8), intent(inout) :: svstr(LBi:,LBj:)
@@ -206,13 +233,19 @@
 #   if defined MASKING
       real(r8), intent(in) :: rmask(LBi:UBi,LBj:UBj)
 #   endif
-#   if defined ICESHELF
+#   ifdef ICESHELF
       real(r8), intent(in) :: zice(LBi:UBi,LBj:UBj)
+#    ifdef ICESHELF_3EQ
+      real(r8), intent(in) :: f(LBi:UBi,LBj:UBj)
+#    endif
 #   endif
       real(r8), intent(in) :: t(LBi:UBi,LBj:UBj,N(ng),3,NT(ng))
 #   if !defined BBL_MODEL || defined ICESHELF
       real(r8), intent(in) :: u(LBi:UBi,LBj:UBj,N(ng),2)
       real(r8), intent(in) :: v(LBi:UBi,LBj:UBj,N(ng),2)
+#   endif
+#   ifdef ICESHELF_3EQ
+      real(r8), intent(in) :: rho(LBi:UBi,LBj:UBj,N(ng))
 #   endif
 #   ifdef QCORRECTION
       real(r8), intent(in) :: dqdt(LBi:UBi,LBj:UBj)
@@ -230,6 +263,9 @@
 #   if defined ICESHELF
 #    ifdef SHORTWAVE
       real(r8), intent(inout) :: srflx(LBi:UBi,LBj:UBj)
+#    endif
+#    ifdef ICESHELF_3EQ
+      real(r8), intent(in)    :: Tair(LBi:UBi,LBj:UBj)
 #    endif
       real(r8), intent(inout) :: sustr(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: svstr(LBi:UBi,LBj:UBj)
@@ -260,14 +296,21 @@
       integer :: i, j, itrc
 
 # ifdef ICESHELF
+
+#  ifdef ICESHELF_3EQ
+      real(r8) :: Hscale, Hlice, uStar, gturb, cff
+      real(r8) :: salt_b, temp_b, melt_rate
+#  endif
+
+#  ifdef ISOMIP
       real(r8), parameter :: gamma = 0.0001_r8
-      real(r8), parameter :: hlfreeze = 334000.0_r8
       real(r8), parameter :: refSalt = 34.4_r8
       real(r8), parameter :: trelax = 30.0_r8 * 86400.0_r8
       real(r8), parameter :: sfcTemp = -1.9_r8
       real(r8), parameter :: sfcSalt = 34.4_r8
 
       real(r8) :: temp_f
+#  endif
 # endif
 
 #  if !defined BBL_MODEL || defined ICESHELF
@@ -365,45 +408,6 @@
       END DO
 #  endif
 #  ifdef ICESHELF
-!
-!-----------------------------------------------------------------------
-!  If ice shelf cavities, zero out for now the surface tracer flux
-!  over the ice.
-!  Modification for the ICETEST (4/24/06):  Now compute the surface
-!  tracer fluxes underneath ice in the manner defined by the test
-!  specification.  Note that the units for stflx for heat are degC m/s 
-!  (which means the rho*C_p part is removed here) and for salt are 
-!  psu m/s.
-!  Further modification for the ICETEST 2.01 case (4/24/06):  Compute
-!  heat and salt fluxes for the open water/atmosphere interface to match
-!  the relaxation calculation in sections 3.2.6 and 3.2.7 of John 
-!  Hunter's document.
-!-----------------------------------------------------------------------
-!
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
-          IF (zice(i,j).ne.0.0_r8) THEN
-            temp_f=0.0939_r8-0.057_r8*t(i,j,N(ng),nrhs,isalt)+          &
-     &             7.6410E-4_r8*zice(i,j)
-            stflx(i,j,itemp)=gamma*(temp_f-t(i,j,N(ng),nrhs,itemp))
-            stflx(i,j,isalt)=Cp*stflx(i,j,itemp)*refSalt/hlfreeze
-          ELSE
-            stflx(i,j,itemp)=Hz(i,j,N(ng))*                             &
-     &                       (sfcTemp-t(i,j,N(ng),nrhs,itemp))/trelax
-            stflx(i,j,isalt)=Hz(i,j,N(ng))*                             &
-     &                       (sfcSalt-t(i,j,N(ng),nrhs,isalt))/trelax
-          END IF
-        END DO
-      END DO
-#   ifdef SHORTWAVE
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
-          IF (zice(i,j).ne.0.0_r8) THEN
-            srflx(i,j)=0.0_r8
-          END IF
-        END DO
-      END DO
-#   endif
 !
 !-----------------------------------------------------------------------
 !  If ice shelf cavities, replace surface wind stress with ice shelf
@@ -544,6 +548,202 @@
      &                    LBi, UBi, LBj, UBj,                           &
      &                    NghostPoints, EWperiodic, NSperiodic,         &
      &                    sustr, svstr)
+#   endif
+!
+!-----------------------------------------------------------------------
+!
+!  Two sets of thermodynamics are currently available for the ice shelf
+!   cavities now:
+!
+!  1) ISOMIP: surface tracer fluxes underneath ice are computed in the
+!  manner defined by the ISOMIP test specification.  Note that the units
+!  for stflx for heat are degC m/s (which means the rho*C_p part is
+!  removed here) and for salt are psu m/s (unless sea ice is defined).
+!  This version is setup for the ISOMIP 2.01 case where the heat and salt
+!  fluxes for the open water/atmosphere interface match the relaxation
+!  calculation in sections 3.2.6 and 3.2.7 of John Hunter's document.
+!
+!  2) ICESHELF_3EQ: 3 equation formulation as per Holland and
+!  Jenkins (JPO, 1999) with the transfer coefficients computed from the
+!  friction velocity as in Schmidt et al. (OM, 2004).
+!
+!-----------------------------------------------------------------------
+!
+#   ifdef ICESHELF_3EQ
+!
+!  If there is an iceshelf, recalculate the total heat and salt flux
+!   at any point below the iceshelf.
+!
+      Hscale = 1.0_r8/(rho0*Cp)
+      DO j=Jstr,Jend      ! Have to index this way because of need
+        DO i=Istr,Iend    !  for surface stresses below
+          IF (zice(i,j) .ne. 0.0_r8) THEN
+!
+!  First, calculate the salinity in the boundary layer from solving the
+!   3 equations simultaneously
+!
+            IF (Tair(i,j) .lt. -1.95_r8) THEN
+              Hlice = Hlfreeze - blk_Cpi*(Tair(i,j)+1.95_r8)
+            ELSE
+              Hlice = Hlfreeze
+            END IF
+
+!  Compute friction velocity from surface stresses
+
+            uStar = SQRT(SQRT((0.5_r8*(sustr(i,j)+sustr(i+1,j)))**2+    &
+     &                        (0.5_r8*(svstr(i,j)+svstr(i,j+1)))**2))
+#    ifdef MASKING
+            uStar = uStar*rmask(i,j)
+#    endif
+
+
+!  Compute transfer coefficients
+
+            IF (uStar .gt. 1.0E-4_r8 .and. ABS(f(i,j)) .gt. 1.0E-8) THEN
+              gturb = 2.5*LOG10(5300.0_r8*uStar*uStar/ABS(f(i,j))) +    &
+     &                7.12
+            ELSE
+              gturb = 0.0_r8
+            ENDIF
+
+            gamma_t = uStar/(gturb+65.9_r8)
+            gamma_s = uStar/(gturb+2255.0_r8)
+
+!           gamma_t = 9.00E-3_r8*uStar
+!           gamma_s = 0.025_r8*gamma_t
+
+
+!  Solve for the boundary layer salinity
+
+            cff=blk_Cpw*gamma_t/Hlice
+            cff1=cff*((0.0939_r8-t(i,j,N(ng),nrhs,itemp))+              &
+     &                 7.6410E-4_r8*zice(i,j))-gamma_s
+            cff2=cff1*cff1+4.0_r8*                                      &
+     &           cff*0.057_r8*gamma_s*t(i,j,N(ng),nrhs,isalt)
+            IF (cff2 .gt. 0.0_r8 .and. cff .ne. 0.0_r8) THEN
+              cff3=-cff1+sqrt(cff2)
+              IF (cff3 .lt. 0.0_r8) THEN
+                salt_b=cff3/(-2.0_r8*0.057_r8*cff)
+              ELSE
+                salt_b=(-cff1-sqrt(cff2))/(-2.0_r8*0.057_r8*cff)
+              END IF
+            ELSE
+              salt_b=5.0_r8
+            END IF
+!
+!  Then, calculate the actual heat (degC m/s) and salt (psu m/s) fluxes
+!   into the top model layer.  Note that this formulation includes the
+!   calculation and addition of the melt rate term for the proper flux
+!   condition through a material surface (see Jenkins et al. 2001 JPO).
+!
+!  Note: The salt flux has to be m/s if the SEA ICE model is being used.
+!
+            temp_b=0.0939_r8-0.057_r8*salt_b+7.6410E-4_r8*zice(i,j)
+            IF (salt_b .gt. 5.0_r8) THEN
+              melt_rate=-((rho(i,j,N(ng))+1000.0_r8)/rho_ice)*gamma_s*  &
+     &                   (1.0_r8-(t(i,j,N(ng),nrhs,isalt)/salt_b))
+            ELSE
+              melt_rate=0.0_r8
+            END IF
+
+            stflx(i,j,itemp)=(rho(i,j,N(ng))+1000.0_r8)*blk_Cpw*        &
+     &                       (gamma_t+melt_rate)*                       &
+     &                       (temp_b-t(i,j,N(ng),nrhs,itemp))*Hscale
+            IF (t(i,j,N(ng),nrhs,isalt) .gt. 0.001_r8) THEN
+#    ifdef ICE_THERMO
+              stflx(i,j,isalt)=(gamma_s+melt_rate)*                     &
+     &                         (salt_b-t(i,j,N(ng),nrhs,isalt))/        &
+     &                         t(i,j,N(ng),nrhs,isalt)
+#    else
+              stflx(i,j,isalt)=(gamma_s+melt_rate)*                     &
+     &                         (salt_b-t(i,j,N(ng),nrhs,isalt))
+#    endif
+            ELSE
+              stflx(i,j,isalt)=0.0_r8
+            END IF
+!
+!   Diagnostic print checks
+!
+!            IF (i.eq.180 .and. (j.eq.6 .or. j.eq.15)) THEN
+!              print*,'Ice-shelf checks: '
+!              print*,sustr(i,j),sustr(i+1,j),svstr(i,j),svstr(i,j+1)
+!              print*,uStar,f(i,j),gturb,gamma_t,gamma_s
+!              print*,' '
+!              print*,Hlice,Hlfreeze,blk_Cpi,Tair(i,j)
+!              print*,rho(i,j,N(ng)),blk_Cpw,gamma_t,cff
+!              print*,t(i,j,N(ng),nrhs,itemp),zice(i,j),gamma_s,cff1
+!              print*,t(i,j,N(ng),nrhs,isalt),cff2,cff3
+!              print*,salt_b
+!              print*,' '
+!              print*,rho_ice,(rho(i,j,N(ng))+1000.0_r8),melt_rate
+!              print*,zice(i,j),salt_b,temp_b
+!              print*,Hscale,gamma_t,blk_Cpw,stflx(i,j,itemp)
+!              print*,stflx(i,j,isalt)
+!              print*,j,rmask(i,j)
+!              print*,' '
+!            END IF
+
+          END IF
+        END DO
+      END DO
+!
+!  Apply gradient or periodic boundary conditions for the two fluxes
+!
+      CALL bc_r2d_tile (ng, tile,                                       &
+     &                  LBi, UBi, LBj, UBj,                             &
+     &                  stflx(:,:,itemp))
+      CALL bc_r2d_tile (ng, tile,                                       &
+     &                  LBi, UBi, LBj, UBj,                             &
+     &                  stflx(:,:,isalt))
+#    ifdef DISTRIBUTE
+      CALL mp_exchange2d (ng, tile, iNLM, 1,                            &
+     &                    LBi, UBi, LBj, UBj,                           &
+     &                    NghostPoints, EWperiodic, NSperiodic,         &
+     &                    stflx(:,:,itemp))
+      CALL mp_exchange2d (ng, tile, iNLM, 1,                            &
+     &                    LBi, UBi, LBj, UBj,                           &
+     &                    NghostPoints, EWperiodic, NSperiodic,         &
+     &                    stflx(:,:,isalt))
+#    endif
+#   elif defined ISOMIP
+      DO j=JstrR,JendR
+        DO i=IstrR,IendR
+          IF (zice(i,j).ne.0.0_r8) THEN
+            temp_f=0.0939_r8-0.057_r8*t(i,j,N(ng),nrhs,isalt)+          &
+     &             7.6410E-4_r8*zice(i,j)
+            stflx(i,j,itemp)=gamma*(temp_f-t(i,j,N(ng),nrhs,itemp))
+#    ifdef ICE_THERMO
+            stflx(i,j,isalt)=Cp*stflx(i,j,itemp)/Hlfreeze
+#    else
+            stflx(i,j,isalt)=Cp*stflx(i,j,itemp)*refSalt/Hlfreeze
+#    endif
+          ELSE
+            stflx(i,j,itemp)=Hz(i,j,N(ng))*                             &
+     &                       (sfcTemp-t(i,j,N(ng),nrhs,itemp))/trelax
+#    ifdef ICE_THERMO
+            IF (t(i,j,N(ng),nrhs,isalt) .gt. 0.001_r8) THEN
+              stflx(i,j,isalt)=Hz(i,j,N(ng))*                           &
+     &                         (sfcTemp-t(i,j,N(ng),nrhs,itemp))/       &
+     &                         (trelax*t(i,j,N(ng),nrhs,isalt))
+            ELSE
+              stflx(i,j,isalt)=0.0_r8
+            END IF
+#    else
+            stflx(i,j,isalt)=Hz(i,j,N(ng))*                             &
+     &                       (sfcSalt-t(i,j,N(ng),nrhs,isalt))/trelax
+#    endif
+          END IF
+        END DO
+      END DO
+#   endif
+#   ifdef SHORTWAVE
+      DO j=JstrR,JendR
+        DO i=IstrR,IendR
+          IF (zice(i,j).ne.0.0_r8) THEN
+            srflx(i,j)=0.0_r8
+          END IF
+        END DO
+      END DO
 #   endif
 #  endif
 #  ifndef BBL_MODEL

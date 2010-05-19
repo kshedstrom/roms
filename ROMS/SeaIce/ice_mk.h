@@ -1,7 +1,7 @@
      SUBROUTINE ice_thermo (ng, tile)
 !
 !*************************************************** W. Paul Budgell ***
-!  Copyright (c) 2009 ROMS/TOMS Group                                  !
+!  Copyright (c) 2002-2010 ROMS/TOMS Group                             !
 !************************************************** Hernan G. Arango ***
 !                                                                      !
 !  This subroutine evaluates the ice thermodynamic growth and decay    !
@@ -402,6 +402,10 @@
       real(r8) :: d2i
       real(r8) :: d3
 
+# ifdef ICE_CONVSNOW
+      real(r8) :: hstar
+# endif
+
 # include "set_bounds.h"
 
       DO j=Jstr,Jend
@@ -459,7 +463,9 @@
 !      alph - thermal conductivity of ice
           alph(i,j) = alphic*MAX(1._r8-1.2_r8*brnfr(i,j),0.25_r8)
           corfac = 1._r8/(0.5_r8*(1._r8+EXP(-(hi(i,j,linew)/1._r8)**2)))
+# ifndef SOGLOBEC
           alph(i,j) = alph(i,j)*corfac
+# endif
           coa(i,j) = 2.0_r8*alph(i,j)*snow_thick(i,j)/                  &
      &                   (alphsn*ice_thick(i,j))
         END DO
@@ -698,55 +704,52 @@
           END IF
 
           w0(i,j) = xtot-ai(i,j,linew)*wai(i,j)
-          IF(ai(i,j,linew).LE.min_a(ng)) THEN
-             stflx(i,j,itemp) = qao_n(i,j)
-          ELSE
-             stflx(i,j,itemp) = (1.0_r8-ai(i,j,linew))*qao_n(i,j)       &
-     &                   +ai(i,j,linew)*qio(i,j)                        &
-     &                   -xtot*hfus1(i,j)
-          END IF
+# ifdef ICESHELF
+	  IF (zice(i,j).eq.0.0_r8) THEN
+# endif
+            IF(ai(i,j,linew).LE.min_a(ng)) THEN
+               stflx(i,j,itemp) = qao_n(i,j)
+            ELSE
+               stflx(i,j,itemp) = (1.0_r8-ai(i,j,linew))*qao_n(i,j)     &
+     &                     +ai(i,j,linew)*qio(i,j)                      &
+     &                     -xtot*hfus1(i,j)
+            END IF
 
 ! Change stflx(i,j,itemp) back to ROMS convention
-          stflx(i,j,itemp) = -stflx(i,j,itemp) * rhocpr
+            stflx(i,j,itemp) = -stflx(i,j,itemp) * rhocpr
 
 # ifdef MASKING
-          stflx(i,j,itemp) = stflx(i,j,itemp)*rmask(i,j)
+            stflx(i,j,itemp) = stflx(i,j,itemp)*rmask(i,j)
 # endif
 # ifdef WET_DRY
-          stflx(i,j,itemp) = stflx(i,j,itemp)*rmask_wet(i,j)
+            stflx(i,j,itemp) = stflx(i,j,itemp)*rmask_wet(i,j)
 # endif
-# ifdef ICESHELF
-          IF(zice(i,j).ne.0.0_r8) THEN
-              stflx(i,j,itemp) = 0.0_r8
-          END IF
-# endif
-          stflx(i,j,isalt) = stflx(i,j,isalt)                           &
-     &        - (xtot-ai(i,j,linew)*xwai)*(sice-s0mk(i,j))              &
-     &        - ai(i,j,linew)*wro(i,j)*s0mk(i,j)
+            stflx(i,j,isalt) = stflx(i,j,isalt)                         &
+     &          - (xtot-ai(i,j,linew)*xwai)*(sice-s0mk(i,j))            &
+     &          - ai(i,j,linew)*wro(i,j)*s0mk(i,j)
 
 ! Test for case of rainfall on snow/ice and assume 100% drainage
 #ifndef NCEP_FLUXES
-          IF (rain(i,j).gt.0._r8.AND.snow_n(i,j).EQ.0._r8) THEN
-            stflx(i,j,isalt) = stflx(i,j,isalt) -                       &
-     &                         ai(i,j,linew)*rain(i,j)*0.001_r8
-          END IF
+            IF (rain(i,j).gt.0._r8.AND.snow_n(i,j).EQ.0._r8) THEN
+              stflx(i,j,isalt) = stflx(i,j,isalt) -                       &
+     &                           ai(i,j,linew)*rain(i,j)*0.001_r8
+            END IF
 #endif
 !  io_mflux is ice production rate (+ve for growth)
-          io_mflux(i,j) = xtot -ai(i,j,linew)*xwai -                    &
-     &                          ai(i,j,linew)*wro(i,j) + wfr(i,j)
+            io_mflux(i,j) = xtot -ai(i,j,linew)*xwai -                    &
+     &                            ai(i,j,linew)*wro(i,j) + wfr(i,j)
 # ifdef MASKING
-          stflx(i,j,isalt) = stflx(i,j,isalt)*rmask(i,j)
-          io_mflux(i,j) = io_mflux(i,j)*rmask(i,j)
+            stflx(i,j,isalt) = stflx(i,j,isalt)*rmask(i,j)
+            io_mflux(i,j) = io_mflux(i,j)*rmask(i,j)
 # endif
 # ifdef WET_DRY
-          stflx(i,j,isalt) = stflx(i,j,isalt)*rmask_wet(i,j)
-          io_mflux(i,j) = io_mflux(i,j)*rmask_wet(i,j)
+            stflx(i,j,isalt) = stflx(i,j,isalt)*rmask_wet(i,j)
+            io_mflux(i,j) = io_mflux(i,j)*rmask_wet(i,j)
 # endif
 # ifdef ICESHELF
-         IF (zice(i,j).ne.0.0_r8) THEN
-           stflx(i,j,isalt) = 0.0_r8
-           io_mflux(i,j) = 0.0_r8
-         END IF
+          ELSE
+            io_mflux(i,j) = 0.0_r8
+          END IF
 # endif
         END DO
       END DO
@@ -773,6 +776,21 @@
           IF (ai(i,j,linew) .lt. ai_tmp)                                &
      &        hsn(i,j,linew) =                                          &
      &           hsn(i,j,linew)*ai(i,j,linew)/max(ai_tmp,eps)
+
+#ifdef ICE_CONVSNOW
+! 
+! If snow base is below sea level, then raise the snow base to sea level
+!  by converting some snow to ice (N.B. hstar is also weighted by ai
+!  like hsn and hi)
+!
+	  hstar = hsn(i,j,linew) - (rhosw - rhoice(ng)) *              &
+     &             hi(i,j,linew) / rhosnow_dry(ng)
+	  IF (hstar .gt. 0.0_r8) THEN
+	    hsn(i,j,linew) = hsn(i,j,linew) - rhoice(ng)*hstar/rhosw
+	    hi(i,j,linew) = hi(i,j,linew) + rhosnow_dry(ng)*hstar/rhosw
+          ENDIF
+#endif
+
 ! determine age of the sea ice
 ! Case 1 - new ice
           IF (ageice(i,j,linew).le.0.0_r8                               &
@@ -786,6 +804,7 @@
           ELSE
             ageice(i,j,linew) = 0.0_r8
           ENDIF
+
 #ifdef MASKING
           ai(i,j,linew) = ai(i,j,linew)*rmask(i,j)
           hi(i,j,linew) = hi(i,j,linew)*rmask(i,j)
@@ -865,6 +884,7 @@
         CALL ageicebc_tile (ng, tile,                                   &
      &                          LBi, UBi, LBj, UBj, liold, linew,       &
      &                          min_h(ng), ui, vi, hi, ageice, hage)
+
 #if defined EW_PERIODIC || defined NS_PERIODIC
         CALL exchange_r2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &

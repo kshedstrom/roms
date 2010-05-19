@@ -634,26 +634,17 @@
 !
 !
 !***********************************************************************
-!*  THE ASTRONOMICAL ARGUMENTS ARE CALCULATED BY LINEAR APPROXIMATION
-!*  AT THE MID POINT OF THE ANALYSIS PERIOD.
+!  The astromical arguments are computed at ttime
 !
-!      S=S0+YEARS*DS
-!      H=H0+YEARS*DH
-!      P=P0+YEARS*DP
-!      ENP=ENP0+YEARS*DNP
-!      PP=PP0+YEARS*DPP
-!        day number measured from January 0.5 1900 (i.e.,
-!        1200 UT December 31, 1899
-        d1=ttime*sec2day
+!     d1 is days measured from 1200 UT December 31, 1899
+!
+      d1=ttime*sec2day
       twopi = 2.0_r8*pi
-!       call gday(31,12,99,18,kd0)
-!       d1=d1-dfloat(kd0)-0.5d0
-        d1=d1-693961.5
-        call astr(d1,h,pp,s,p,enp,dh,dpp,ds,dp,dnp)
+      call astr(d1,h,pp,s,p,enp,dh,dpp,ds,dp,dnp)
       intdays=int(ttime*sec2day)
       hh=real(ttime-intdays*day2sec,r8)/3600._r8
       tau = hh/24._r8 + h - s
-      dtau = 365.d0 + dh - ds
+      dtau = 365.0_r8 + dh - ds
 !
 !***********************************************************************
 !*  ONLY THE FRACTIONAL PART OF A SOLAR DAY NEED BE RETAINED FOR COMPU-

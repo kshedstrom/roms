@@ -28,6 +28,9 @@
       USE mod_param
       USE mod_ocean
       USE mod_stepping
+#ifdef SOGLOBEC
+      USE mod_clima
+#endif
 !
 !  Imported variable declarations.
 !
@@ -41,6 +44,9 @@
      &                 LBi, UBi, LBj, UBj, N(ng), NT(ng),               &
      &                 IminS, ImaxS, JminS, JmaxS,                      &
      &                 nstp(ng), nout,                                  &
+#ifdef SOGLOBEC
+     &                 CLIMA(ng)% tclm,                                 &
+#endif
      &                 OCEAN(ng)% t)
       RETURN
       END SUBROUTINE t3dbc
@@ -51,6 +57,9 @@
      &                       LBi, UBi, LBj, UBj, UBk, UBt,              &
      &                       IminS, ImaxS, JminS, JmaxS,                &
      &                       nstp, nout,                                &
+#ifdef SOGLOBEC
+     &                       tclm,                                      &
+#endif
      &                       t)
 !***********************************************************************
 !
@@ -68,8 +77,14 @@
 !
 # ifdef ASSUMED_SHAPE
       real(r8), intent(inout) :: t(LBi:,LBj:,:,:,:)
+#  ifdef SOGLOBEC
+      real(r8), intent(in) :: tclm(LBi:,LBj:,:,:)
+#  endif
 # else
       real(r8), intent(inout) :: t(LBi:UBi,LBj:UBj,UBk,3,UBt)
+#  ifdef SOGLOBEC
+      real(r8), intent(in) :: tclm(LBi:UBi,LBj:UBj,UBk,UBt)
+#  endif
 # endif
 !
 !  Local variable declarations.
@@ -137,6 +152,19 @@
             BOUNDARY(ng)%t_west_Ce(j,k,itrc)=Ce
             BOUNDARY(ng)%t_west_C2(j,k,itrc)=cff
 #   endif
+#   ifdef SOGLOBEC
+            t(Istr-1,j,k,nout,itrc)=tclm(Istr-1,j,k,itrc)
+            DO i=1,10
+              Cx=1.0_r8-TANH(0.5_r8*i)
+              t(i,j,k,nout,itrc)=Cx*tclm(i,j,k,itrc) + (1.0_r8-Cx)*     &
+     &                       t(i,j,k,nout,itrc)
+            END DO
+#    ifdef MASKING
+            DO i=0,10
+              t(i,j,k,nout,itrc)=t(i,j,k,nout,itrc)*GRID(ng)%rmask(i,j)
+            END DO
+#    endif
+#   else
             t(Istr-1,j,k,nout,itrc)=(cff*t(Istr-1,j,k,nstp,itrc)+       &
      &                               Cx *t(Istr  ,j,k,nout,itrc)-       &
      &                               MAX(Ce,0.0_r8)*                    &
@@ -144,14 +172,15 @@
      &                               MIN(Ce,0.0_r8)*                    &
      &                                  grad(Istr-1,j+1))/              &
      &                              (cff+Cx)
-#   ifdef WEST_TNUDGING
+#    ifdef WEST_TNUDGING
             t(Istr-1,j,k,nout,itrc)=t(Istr-1,j,k,nout,itrc)+            &
      &                              tau*(BOUNDARY(ng)%t_west(j,k,itrc)- &
      &                                   t(Istr-1,j,k,nstp,itrc))
-#   endif
-#   ifdef MASKING
+#    endif
+#    ifdef MASKING
             t(Istr-1,j,k,nout,itrc)=t(Istr-1,j,k,nout,itrc)*            &
      &                              GRID(ng)%rmask(Istr-1,j)
+#    endif
 #   endif
           END DO
         END DO
@@ -251,6 +280,19 @@
             BOUNDARY(ng)%t_east_Ce(j,k,itrc)=Ce
             BOUNDARY(ng)%t_east_C2(j,k,itrc)=cff
 #   endif
+#   ifdef SOGLOBEC
+            t(Iend+1,j,k,nout,itrc)=tclm(Iend+1,j,k,itrc)
+            DO i=Iend-9,Iend
+              Cx=1.0_r8-TANH(0.5_r8*(Iend+1-i))
+              t(i,j,k,nout,itrc)=Cx*tclm(i,j,k,itrc) + (1.0_r8-Cx)*     &
+     &                       t(i,j,k,nout,itrc)
+            END DO
+#    ifdef MASKING
+            DO i=Iend-9,Iend+1
+              t(i,j,k,nout,itrc)=t(i,j,k,nout,itrc)*GRID(ng)%rmask(i,j)
+            END DO
+#    endif
+#   else
             t(Iend+1,j,k,nout,itrc)=(cff*t(Iend+1,j,k,nstp,itrc)+       &
      &                               Cx *t(Iend  ,j,k,nout,itrc)-       &
      &                               MAX(Ce,0.0_r8)*                    &
@@ -258,14 +300,15 @@
      &                               MIN(Ce,0.0_r8)*                    &
      &                                  grad(Iend+1,j+1))/              &
      &                              (cff+Cx)
-#   ifdef EAST_TNUDGING
+#    ifdef EAST_TNUDGING
             t(Iend+1,j,k,nout,itrc)=t(Iend+1,j,k,nout,itrc)+            &
      &                              tau*(BOUNDARY(ng)%t_east(j,k,itrc)- &
      &                                   t(Iend+1,j,k,nstp,itrc))
-#   endif
-#   ifdef MASKING
+#    endif
+#    ifdef MASKING
             t(Iend+1,j,k,nout,itrc)=t(Iend+1,j,k,nout,itrc)*            &
      &                              GRID(ng)%rmask(Iend+1,j)
+#    endif
 #   endif
           END DO
         END DO
@@ -368,6 +411,21 @@
             BOUNDARY(ng)%t_south_Ce(i,k,itrc)=Ce
             BOUNDARY(ng)%t_south_C2(i,k,itrc)=cff
 #   endif
+#   ifdef SOGLOBEC
+            t(i,Jstr-1,k,nout,itrc)=tclm(i,Jstr-1,k,itrc)
+            IF (i.gt.220) THEN   ! Avoid G-VI
+              DO j=1,10
+                Ce=1.0_r8-TANH(0.5_r8*j)
+                t(i,j,k,nout,itrc)=Ce*tclm(i,j,k,itrc) + (1.0_r8-Ce)*   &
+     &                         t(i,j,k,nout,itrc)
+              END DO
+            END IF
+#    ifdef MASKING
+            DO j=0,10
+              t(i,j,k,nout,itrc)=t(i,j,k,nout,itrc)*GRID(ng)%rmask(i,j)
+            END DO
+#    endif
+#   else
             t(i,Jstr-1,k,nout,itrc)=(cff*t(i,Jstr-1,k,nstp,itrc)+       &
      &                               Ce *t(i,Jstr  ,k,nout,itrc )-      &
      &                               MAX(Cx,0.0_r8)*                    &
@@ -375,14 +433,15 @@
      &                               MIN(Cx,0.0_r8)*                    &
      &                                  grad(i+1,Jstr-1))/              &
      &                              (cff+Ce)
-#   ifdef SOUTH_TNUDGING
+#    ifdef SOUTH_TNUDGING
             t(i,Jstr-1,k,nout,itrc)=t(i,Jstr-1,k,nout,itrc)+            &
      &                              tau*(BOUNDARY(ng)%t_south(i,k,itrc)-&
      &                                   t(i,Jstr-1,k,nstp,itrc))
-#   endif
-#   ifdef MASKING
+#    endif
+#    ifdef MASKING
             t(i,Jstr-1,k,nout,itrc)=t(i,Jstr-1,k,nout,itrc)*            &
      &                              GRID(ng)%rmask(i,Jstr-1)
+#    endif
 #   endif
           END DO
         END DO
@@ -482,6 +541,19 @@
             BOUNDARY(ng)%t_north_Ce(i,k,itrc)=Ce
             BOUNDARY(ng)%t_north_C2(i,k,itrc)=cff
 #   endif
+#   ifdef SOGLOBEC
+            t(i,Jend+1,k,nout,itrc)=tclm(i,Jend+1,k,itrc)
+            DO j=Jend-9,Jend
+              Ce=1.0_r8-TANH(0.5_r8*(Jend+1-j))
+              t(i,j,k,nout,itrc)=Ce*tclm(i,j,k,itrc) + (1.0_r8-Ce)*     &
+     &                       t(i,j,k,nout,itrc)
+            END DO
+#    ifdef MASKING
+            DO j=Jend-9,Jend+1
+              t(i,j,k,nout,itrc)=t(i,j,k,nout,itrc)*GRID(ng)%rmask(i,j)
+            END DO
+#    endif
+#   else
             t(i,Jend+1,k,nout,itrc)=(cff*t(i,Jend+1,k,nstp,itrc)+       &
      &                               Ce *t(i,Jend  ,k,nout,itrc)-       &
      &                               MAX(Cx,0.0_r8)*                    &
@@ -489,14 +561,15 @@
      &                               MIN(Cx,0.0_r8)*                    &
      &                                  grad(i+1,Jend+1))/              &
      &                              (cff+Ce)
-#   ifdef NORTH_TNUDGING
+#    ifdef NORTH_TNUDGING
             t(i,Jend+1,k,nout,itrc)=t(i,Jend+1,k,nout,itrc)+            &
      &                              tau*(BOUNDARY(ng)%t_north(i,k,itrc)-&
      &                                   t(i,Jend+1,k,nstp,itrc))
-#   endif
-#   ifdef MASKING
+#    endif
+#    ifdef MASKING
             t(i,Jend+1,k,nout,itrc)=t(i,Jend+1,k,nout,itrc)*            &
      &                              GRID(ng)%rmask(i,Jend+1)
+#    endif
 #   endif
           END DO
         END DO

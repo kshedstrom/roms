@@ -1,7 +1,6 @@
 !
 !  ROMS/TOMS Standard Input parameters.
 !
-!svn $Id: ocean.in 22 2007-03-23 00:54:05Z arango $
 !========================================================= Hernan G. Arango ===
 !  Copyright (c) 2002-2010 The ROMS/TOMS Group                                !
 !    Licensed under a MIT/X style license                                     !
@@ -12,7 +11,7 @@
 ! KEYWORD (usually, upper case) is typed correctly followed by "="  or "=="   !
 ! symbols. Any comment lines are allowed and must begin with an exclamation   !
 ! mark (!) in column one.  Comments may  appear to the right of a parameter   !
-! specification to improve documentation.  All comments will ignored during   !
+! specification to improve documentation.  Comments will be ignored  during   !
 ! reading.  Blank lines are also allowed and ignored. Continuation lines in   !
 ! a parameter specification are allowed and must be preceded by a backslash   !
 ! (\).  In some instances, more than one value is required for a parameter.   !
@@ -38,11 +37,11 @@
 !
 ! Application title.
 
-       TITLE = California Current
+       TITLE = ROMS/TOMS 3.1 - Ice Shelf Test 2.01
 
-! C-preprocessing Flag, default configuration.
+! C-preprocessing Flag.
 
-    MyAppCPP = WC13-NEMURO
+    MyAppCPP = ISOMIP
 
 ! Input variable information file name.  This file needs to be processed
 ! first so all information arrays can be initialized properly.
@@ -52,9 +51,9 @@
 ! Grid dimension parameters. See notes below in the Glossary for how to set
 ! these parameters correctly.
 
-          Lm == 54           ! Number of I-direction INTERIOR RHO-points
-          Mm == 53            ! Number of J-direction INTERIOR RHO-points
-           N == 30            ! Number of vertical levels
+          Lm == 51            ! Number of I-direction INTERIOR RHO-points
+          Mm == 101           ! Number of J-direction INTERIOR RHO-points
+           N == 24            ! Number of vertical levels
 
         Nbed =  0             ! Number of sediment bed layers
 
@@ -67,16 +66,14 @@
 ! shared-memory configurations used to determine tile horizontal range
 ! indices (Istr,Iend) and (Jstr,Jend), [1:Ngrids].
 
-      NtileI == 8                               ! I-direction partition
-      NtileJ == 8                               ! J-direction partition
+      NtileI == 2                               ! I-direction partition
+      NtileJ == 4                               ! J-direction partition
 
 ! Time-Stepping parameters.
 
-!      NTIMES =  24  (1 day)
-!      NTIMES =  341280
-      NTIMES =  8784
-          DT == 3600.0d0
-     NDTFAST == 60
+      NTIMES =  1440000
+          DT == 600.0d0
+     NDTFAST == 30
 
 ! Model iteration loops parameters.
 
@@ -95,23 +92,23 @@
 
 ! Input/Output parameters.
 
-       NRREC =  0
-   LcycleRST == F
-        NRST == 8784
-        NSTA == 18
-        NFLT == 48
+       NRREC == 0
+   LcycleRST == T
+        NRST == 2880
+        NSTA == 1
+        NFLT == 1
        NINFO == 1
 
-! Output history, average, diagnostic files parameters.
+! Output history and average files parameters.
 
      LDEFOUT == T
-        NHIS == 732
+        NHIS == 7200
      NDEFHIS == 0
       NTSAVG == 1
-        NAVG == 732
+        NAVG == 7200
      NDEFAVG == 0
       NTSDIA == 1
-        NDIA == 10
+        NDIA == 7200
      NDEFDIA == 0
 
 ! Output tangent linear and adjoint models parameters.
@@ -122,6 +119,7 @@
    LcycleADJ == F
         NADJ == 72
      NDEFADJ == 0
+        NSFF == 72
 
 ! Output check pointing GST restart parameters.
 
@@ -135,21 +133,21 @@
 
 ! Harmonic/biharmonic horizontal diffusion of tracer: [1:NAT+NPT,Ngrids].
 
-        TNU2 == 3*5.0d0                         ! m2/s
+        TNU2 == 100.0d0  100.0d0                    ! m2/s
         TNU4 == 2*0.0d0                         ! m4/s
 
 ! Harmononic/biharmonic, horizontal viscosity coefficient: [Ngrids].
 
-       VISC2 == 25.0d0                          ! m2/s
+       VISC2 == 600.0d0                           ! m2/s
        VISC4 == 0.0d0                           ! m4/s
 
 ! Vertical mixing coefficients for active tracers: [1:NAT+NPT,Ngrids]
 
-     AKT_BAK == 3*1.0d-6                        ! m2/s
+     AKT_BAK == 5.0d-5 5.0d-5                   ! m2/s
 
 ! Vertical mixing coefficient for momentum: [Ngrids].
 
-     AKV_BAK == 1.0d-5                          ! m2/s
+     AKV_BAK == 1.0d-3                          ! m2/s
 
 ! Turbulent closure parameters.
 
@@ -183,10 +181,16 @@
 
 ! Constants used in momentum stress computation.
 
-        RDRG == 3.0d-04                    ! m/s
-       RDRG2 == 3.0d-03                    ! nondimensional
+        RDRG == 0.0d0                      ! m/s
+       RDRG2 == 0.0025                     ! nondimensional
          Zob == 0.02d0                     ! m
          Zos == 0.02d0                     ! m
+
+! Height (m) of atmospheric measurements for Bulk fluxes parameterization.
+
+      BLK_ZQ == 10.0d0                     ! air humidity
+      BLK_ZT == 10.0d0                     ! air temperature
+      BLK_ZW == 10.0d0                     ! winds
 
 ! Minimum depth for wetting and drying.
 
@@ -195,50 +199,49 @@
 ! Various parameters.
 
        WTYPE == 1
-     LEVSFRC == 30
+     LEVSFRC == 15
      LEVBFRC == 1
 
 ! Vertical S-coordinates parameters, [1:Ngrids].
 
-     THETA_S == 5.0d0                      ! 0 < THETA_S < 20
-     THETA_B == 0.4d0                      ! 0 < THETA_B < 1
-      TCLINE == 50.0d0                     ! m
+     THETA_S == 4.0d0                      ! 0 < THETA_S < 20
+     THETA_B == 0.9d0                      ! 0 < THETA_B < 1
+      TCLINE == 20.0d0                     ! m
 
 ! Mean Density and Brunt-Vaisala frequency.
 
-        RHO0 =  1025.0d0                   ! kg/m3
-     BVF_BAK =  1.0d-4                     ! 1/s2
+        RHO0 =  1030.0d0                   ! kg/m3
+     BVF_BAK =  1.0d-5                     ! 1/s2
 
 ! Time-stamp assigned for model initialization, reference time
 ! origin for tidal forcing, and model reference time for output
 ! NetCDF units attribute.
 
-!      DSTART =  11182.0d0                  ! days  -> 02-jan-1999
-      DSTART =  11545.0d0                  ! days
+      DSTART =  0.0d0                      ! days
   TIDE_START =  0.0d0                      ! days
-    TIME_REF =  -2.0d0                     ! yyyymmdd.dd
+    TIME_REF =  0.0d0                      ! yyyymmdd.dd
 
 ! Nudging/relaxation time scales, inverse scales will be computed
 ! internally, [1:Ngrids].
 
-       TNUDG == 3*30.0d0                   ! days
-       ZNUDG == 30.0d0                     ! days
-      M2NUDG == 30.0d0                     ! days
-      M3NUDG == 30.0d0                     ! days
+       TNUDG == 2*0.0d0                    ! days
+       ZNUDG == 0.0d0                      ! days
+      M2NUDG == 0.0d0                      ! days
+      M3NUDG == 0.0d0                      ! days
 
 ! Factor between passive (outflow) and active (inflow) open boundary
 ! conditions, [1:Ngrids]. If OBCFAC > 1, nudging on inflow is stronger
 ! than on outflow (recommended).
 
-      OBCFAC == 10.0d0                     ! nondimensional
+      OBCFAC == 0.0d0                      ! nondimensional
 
 ! Linear equation of State parameters:
 
           R0 == 1027.0d0                   ! kg/m3
-          T0 == 10.0d0                     ! Celsius
+          T0 == 14.0d0                     ! Celsius
           S0 == 35.0d0                     ! PSU
        TCOEF == 1.7d-4                     ! 1/Celsius
-       SCOEF == 7.6d-4                     ! 1/PSU
+       SCOEF == 0.0d0                      ! 1/PSU
 
 ! Slipperiness parameter: 1.0 (free slip) or -1.0 (no slip)
 
@@ -304,12 +307,12 @@ Hout(idOvel) == T                          ! omega vertical velocity
 Hout(idUbar) == T                          ! 2D U-velocity
 Hout(idVbar) == T                          ! 2D V-velocity
 Hout(idFsur) == T                          ! free-surface
-Hout(idBath) == T                          ! time-dependent bathymetry
+Hout(idBath) == F                          ! time-dependent bathymetry
 
 Hout(idTvar) == T T                        ! temperature and salinity
 
-Hout(idUsms) == T                          ! surface U-stress
-Hout(idVsms) == T                          ! surface V-stress
+Hout(idUsms) == F                          ! surface U-stress
+Hout(idVsms) == F                          ! surface V-stress
 Hout(idUbms) == F                          ! bottom U-stress
 Hout(idVbms) == F                          ! bottom V-stress
 
@@ -347,19 +350,20 @@ Hout(idWamp) == F                          ! wave height
 Hout(idWlen) == F                          ! wave length
 Hout(idWdir) == F                          ! wave direction
 
-Hout(idTsur) == F F                        ! surface net heat and salt flux
+Hout(idTsur) == T T                        ! surface net heat and salt flux
 Hout(idLhea) == F                          ! latent heat flux
 Hout(idShea) == F                          ! sensible heat flux
 Hout(idLrad) == F                          ! longwave radiation flux
-Hout(idSrad) == T                          ! shortwave radiation flux
+Hout(idSrad) == F                          ! shortwave radiation flux
+Hout(idEmPf) == F                          ! E-P flux
 Hout(idevap) == F                          ! evaporation rate
 Hout(idrain) == F                          ! precipitation rate
 
-Hout(idDano) == F                          ! density anomaly
+Hout(idDano) == T                          ! density anomaly
 Hout(idVvis) == F                          ! vertical viscosity
 Hout(idTdif) == F                          ! vertical T-diffusion
 Hout(idSdif) == F                          ! vertical Salinity diffusion
-Hout(idHsbl) == T                          ! depth of surface boundary layer
+Hout(idHsbl) == F                          ! depth of surface boundary layer
 Hout(idHbbl) == F                          ! depth of bottom boundary layer
 Hout(idMtke) == F                          ! turbulent kinetic energy
 Hout(idMtls) == F                          ! turbulent length scale
@@ -404,51 +408,57 @@ Hout(idBott) == T T T T T T T T T F F F F F F F
        NUSER =  0
         USER =  0.d0
 
+! NetCDF-4/HDF5 compression parameters for output files.
+
+ NC_SHUFFLE =  1                 ! if non-zero, turn on shuffle filter
+ NC_DEFLATE =  1                 ! if non-zero, turn on deflate filter
+  NC_DLEVEL =  1                 ! deflate level [0-9]
+
 ! Input NetCDF file names, [1:Ngrids].
 
-     GRDNAME == wc13_grd.nc
-     ININAME == wc13_rst_20000101.nc
-     ITLNAME == /dev/null
-     IRPNAME == /dev/null
-     IADNAME == /dev/null
-     CLMNAME == /dev/null
-     BRYNAME == wc13_bry_ecco.nc
-     FWDNAME == /dev/null
-     ADSNAME == /dev/null
+     GRDNAME == ocean_grd.nc
+     ININAME == ocean_ini.nc
+     ITLNAME == ocean_itl.nc
+     IRPNAME == ocean_irp.nc
+     IADNAME == ocean_iad.nc
+     CLMNAME == ocean_clm.nc
+     BRYNAME == ocean_bry.nc
+     FWDNAME == ocean_fwd.nc
+     ADSNAME == ocean_ads.nc
 
 ! Input forcing NetCDF file name(s).  The USER has the option to enter
-! several files names per each nested grid.  For example, the USER may
-! have a different files for wind products, heat fluxes, rivers, tides,
+! several file names for each nested grid.  For example, the USER may
+! have different files for wind products, heat fluxes, rivers, tides,
 ! etc.  The model will scan the file list and will read the needed data
 ! from the first file in the list containing the forcing field. Therefore,
-! the order of the file names is very important.  If multiple forcing
-! files per grid, enter first all the file names for grid 1, then grid 2,
+! the order of the file names is very important. If using multiple forcing
+! files per grid, first enter all the file names for grid 1, then grid 2,
 ! and so on.  Use a single line per entry with a continuation (\) symbol
 ! at the each entry, except the last one.
 
      NFFILES == 1                          ! number of forcing files
 
-     FRCNAME == wc13_frc_COADS.nc
+     FRCNAME == ocean_frc.nc               ! forcing file 1, grid 1
 
 ! Output NetCDF file names, [1:Ngrids].
 
-     GSTNAME == /dev/null
-     RSTNAME == rst.nc
-     HISNAME == his.nc
-     TLMNAME == /dev/null
-     TLFNAME == /dev/null
-     ADJNAME == /dev/null
-     AVGNAME == avg.nc
-     DIANAME == /dev/null
-     STANAME == /dev/null
-     FLTNAME == flt.nc
+     GSTNAME == ocean_gst.nc
+     RSTNAME == ocean_rst.nc
+     HISNAME == ocean_his.nc
+     TLMNAME == ocean_tlm.nc
+     TLFNAME == ocean_tlf.nc
+     ADJNAME == ocean_adj.nc
+     AVGNAME == ocean_avg.nc
+     DIANAME == ocean_dia.nc
+     STANAME == ocean_sta.nc
+     FLTNAME == ocean_flt.nc
 
 ! Input ASCII parameter filenames.
 
      APARNAM =  ROMS/External/s4dvar.in
      SPOSNAM =  ROMS/External/stations.in
-     FPOSNAM =  floats.in
-     BPARNAM =  nemsan.in
+     FPOSNAM =  ROMS/External/floats.in
+     BPARNAM =  ROMS/External/bioFasham.in
      SPARNAM =  ROMS/External/sediment.in
      USRNAME =  ROMS/External/MyFile.dat
 
@@ -457,19 +467,19 @@ Hout(idBott) == T T T T T T T T T F F F F F F F
 !  =========
 !
 !------------------------------------------------------------------------------
-! Application tile (string with a maximum of eighty characters) and 
+! Application tile (string with a maximum of eighty characters) and
 ! C-preprocessing flag.
 !------------------------------------------------------------------------------
 !
 !  TITLE       Application title.
 !
-!  MyAppCPP    Application C-preprocession option.
+!  MyAppCPP    Application C-preprocessing option.
 !
 !------------------------------------------------------------------------------
 ! Variable information file name (string with a maximum of eighty characters).
 !------------------------------------------------------------------------------
 !
-!  VARNAME     Input/Output variable information file name.  This file need to
+!  VARNAME     Input/Output variable information file name.  This file needs to
 !              be processed first so all information arrays and indices can be
 !              initialized properly in "mod_ncparam.F".
 !
@@ -477,24 +487,24 @@ Hout(idBott) == T T T T T T T T T F F F F F F F
 ! Grid dimension parameters.
 !------------------------------------------------------------------------------
 !
-! These parameters are very important since it determine the grid of the
+! These parameters are very important since they determine the grid of the
 ! application to solve. They need to be read first in order to dynamically
 ! allocate all model variables.
 !
-! WARNING: It is trivial and posible to change these dimension parameters in
+! WARNING: It is trivial and possible to change these dimension parameters in
 ! -------  idealized applications via analytical expressions.  However, in
 ! realistic applications any change to these parameters requires redoing all
-! input NetCDF files. 
+! input NetCDF files.
 !
 !  Lm          Number of INTERIOR grid RHO-points in the XI-direction for
 !                each nested grid, [1:Ngrids]. If using NetCDF files as
-!                input, Lm=xi_rho-2 where "xi_rho" is the NetCDF file 
+!                input, Lm=xi_rho-2 where "xi_rho" is the NetCDF file
 !                dimension of RHO-points. Recall that all RHO-point
 !                variables have a computational I-range of [0:Lm+1].
 !
 !  Mm          Number of INTERIOR grid RHO-points in the ETA-direction for
 !                each nested grid, [1:Ngrids]. If using NetCDF files as
-!                input, Mm=eta_rho-2 where "eta_rho" is the NetCDF file 
+!                input, Mm=eta_rho-2 where "eta_rho" is the NetCDF file
 !                dimension of RHO-points. Recall that all RHO-point
 !                variables have a computational J-range of [0:Mm+1].
 !
@@ -516,7 +526,7 @@ Hout(idBott) == T T T T T T T T T F F F F F F F
 !                     |                   |              |_______|
 !                   0 |___________________|              |       |
 !                              Ir                        |       | 1
-!                     0  1            Lm  Lm+1    h(i,j) |_______| 
+!                     0  1            Lm  Lm+1    h(i,j) |_______|
 !                                                        ::::::::: 0
 !                                                        :::::::::
 !                                                        ::::::::: Nbed-1
@@ -537,8 +547,8 @@ Hout(idBott) == T T T T T T T T T F F F F F F F
 !                This parameter is only relevant if CPP option SEDIMENT is
 !                activated.
 !
-!              The total of sediment tracers is NST=NCS+NNS.  Notice that
-!              NST must be greater than zero (NST>0).
+!              The total number of sediment tracers is NST=NCS+NNS.  Notice
+!              that NST must be greater than zero (NST>0).
 !
 !------------------------------------------------------------------------------
 ! Domain tile partition parameters.
@@ -550,10 +560,10 @@ Hout(idBott) == T T T T T T T T T F F F F F F F
 ! in serial applications.
 !
 !  NtileI      Number of domain partitions in the I-direction (XI-coordinate).
-!              It must be equal or greater than one.
+!              It must be equal to or greater than one.
 !
 !  NtileJ      Number of domain partitions in the J-direction (ETA-coordinate).
-!              It must be equal or greater than one.
+!              It must be equal to or greater than one.
 !
 !  WARNING:    In shared-memory (OpenMP), the product of NtileI and NtileJ must
 !              be a MULTIPLE of the number of parallel threads specified with
@@ -572,12 +582,12 @@ Hout(idBott) == T T T T T T T T T F F F F F F F
 !              configuration, NTIMES is the total of barotropic time-steps.
 !
 !  DT          Time-Step size in seconds.  If 3D configuration, DT is the
-!              size of baroclinic time-step.  If only 2D configuration, DT
-!              is the size of the barotropic time-step.
+!              size of the baroclinic time-step.  If only 2D configuration,
+!              DT is the size of the barotropic time-step.
 !
 !  NDTFAST     Number of barotropic time-steps between each baroclinic time
 !              step. If only 2D configuration, NDTFAST should be unity since
-!              there is not need to splitting time-stepping.
+!              there is no need to split time-stepping.
 !
 !------------------------------------------------------------------------------
 ! Model iteration loops parameters.
@@ -594,7 +604,7 @@ Hout(idBott) == T T T T T T T T T F F F F F F F
 !  Nintervals  Number of time interval divisions for stochastic optimals
 !              computations. It must be a multiple of NTIMES. The tangent
 !              linear model (TLM) and the adjoint model (ADM) are integrated
-!              forward and backward in different intervals.  For example,
+!              forward and backward at different intervals.  For example,
 !              if Nintervals=3,
 !
 !              1               NTIMES/3         2*NTIMES/3           NTIMES
@@ -633,7 +643,7 @@ Hout(idBott) == T T T T T T T T T F F F F F F F
 !  NEV and NCV.  If NEV is large (greater than 10 say), you can use NCV=2*NEV+1
 !  but for NEV small (less than 6) it will be inefficient to use NCV=2*NEV+1.
 !  In complicated applications, you can start with NEV=2 and NCV=10. Otherwise,
-!  it will iterate for very long time.
+!  it will iterate for a very long time.
 !
 !------------------------------------------------------------------------------
 ! Input/Output parameters.
@@ -642,11 +652,11 @@ Hout(idBott) == T T T T T T T T T F F F F F F F
 !  NRREC       Switch to indicate re-start from a previous solution.  Use
 !              NRREC=0 for new solutions. In a re-start solution, NRREC
 !              is the time index of the re-start NetCDF file assigned for
-!              initialization.  If NRREC is negative (said NRREC=-1), the
+!              initialization.  If NRREC is negative (say NRREC=-1), the
 !              model will re-start from the most recent time record. That
 !              is, the initialization record is assigned internally.
 !              Notice that it is also possible to re-start from a history
-!              or time-averaged NetCDF files.  If a history file is used
+!              or time-averaged NetCDF file.  If a history file is used
 !              for re-start, it must contains all the necessary primitive
 !              variables at all levels.
 !
@@ -664,7 +674,7 @@ Hout(idBott) == T T T T T T T T T F F F F F F F
 !  NFLT        Number of time-steps between writing data into floats file.
 !
 !  NINFO       Number of time-steps between print of single line information
-!              to standard output.  If also determines the interval between
+!              to standard output.  It also determines the interval between
 !              computation of global energy diagnostics.
 !
 !------------------------------------------------------------------------------
@@ -675,7 +685,7 @@ Hout(idBott) == T T T T T T T T T F F F F F F F
 !              initializing from a re-start file, abs(NRREC) > 0.  If TRUE
 !              and applicable, a new history, average, diagnostic and
 !              station files are created during the initialization stage.
-!              If FALSE and applicable, data is appended to an existing
+!              If FALSE and applicable, data is appended to existing
 !              history, average, diagnostic and station files.  See also
 !              parameters NDEFHIS, NDEFAVG and NDEFDIA below.
 !
@@ -702,7 +712,7 @@ Hout(idBott) == T T T T T T T T T F F F F F F F
 !              diagnostics data.
 !
 !  NDIA        Number of time-steps between writing time-averaged diagnostics
-!              data into diagnostics file.  Averaged date is written for all
+!              data into diagnostics file.  Averaged data is written for all
 !              fields.
 !
 !  NDEFDIA     Number of time-steps between the creation of new time-averaged
@@ -742,6 +752,18 @@ Hout(idBott) == T T T T T T T T T F F F F F F F
 !              This feature is useful for long simulations when output NetCDF
 !              files get too large; it creates a new file every NDEFADJ
 !              time-steps.
+!
+!  NSFF        Number of time-steps between 4DVAR adjustment of surface forcing
+!              fluxes. In strong constraint 4DVAR, it is possible to adjust
+!              surface forcing at other time intervals in addition to initial
+!              time.  This parameter is used to store the appropriate number
+!              of surface forcing records in the output history NetCDF files:
+!              1+NTIMES/NSFF records. NSFF must be a factor of NTIMES or
+!              greater than NTIMES. If NSFF > NTIMES, only one record is
+!              stored in the NetCDF files and the adjustment is for constant
+!              forcing with constant correction. This parameter is only
+!              relevant in 4DVAR when activating either ADJUST_STFLUX or
+!              ADJUST_WSTRESS.
 !
 !------------------------------------------------------------------------------
 !  Generalized Stability Theory (GST) analysis parameters.
@@ -876,13 +898,13 @@ Hout(idBott) == T T T T T T T T T F F F F F F F
 !   GLS_SIGP = 1.96d0        1.30d0       2.0d0        1.07d0
 !
 !------------------------------------------------------------------------------
-! Constants used in the various formulation of surface turbulent kinetic
+! Constants used in the various formulations of surface turbulent kinetic
 ! energy flux in the GLS.
 !------------------------------------------------------------------------------
 !
 !  CHARNOK_ALPHA   Charnok surface roughness,
 !                    Zos:   (charnok_alpha * u_star**2) / g
-!   
+!
 !  ZOS_HSIG_ALPHA  Roughness from wave amplitude,
 !                    Zos:   zos_hsig_alpha * Hsig
 !
@@ -903,6 +925,19 @@ Hout(idBott) == T T T T T T T T T F F F F F F F
 !  Zob         Bottom roughness (m).
 !
 !  Zos         Surface roughness (m).
+!
+!------------------------------------------------------------------------------
+! Height of atmospheric measurements for bulk fluxes parameterization.
+!------------------------------------------------------------------------------
+!
+!  BLK_ZQ      Height (m) of surface air humidity measurement. Usually,
+!                recorded at 10 m.
+!
+!  BLK_ZT      Height (m) of surface air temperature measurement. Usually,
+!                recorded at 2 or 10 m.
+!
+!  BLK_ZW      Height (m) of surface winds measurement. Usually, recorded
+!                at 10 m.
 !
 !------------------------------------------------------------------------------
 ! Wetting and drying parameters.
@@ -985,12 +1020,12 @@ Hout(idBott) == T T T T T T T T T F F F F F F F
 !              with 360 days in every year (30 days each month).  The "units"
 !              attribute is:
 !
-!                      'time-units since 0000-01-01 00:00:00'
+!                      'time-units since 0001-01-01 00:00:00'
 !
 !              If TIME_REF = 0, model time and DSTART are in a common year
 !              calendar with 365.25 days.  The "units" attribute is:
 !
-!                      'time-units since 0000-01-01 00:00:00'
+!                      'time-units since 0001-01-01 00:00:00'
 !
 !              If TIME_REF > 0, model time and DSTART are the elapsed time
 !              units since specified reference time.  For example,
@@ -1029,7 +1064,7 @@ Hout(idBott) == T T T T T T T T T F F F F F F F
 !              rho(:,:,:) = R0 - R0 * TCOEF * (t(:,:,:,:,itemp) - T0)
 !                              + R0 * SCOEF * (t(:,:,:,:,isalt) - S0)
 !
-!              Typical values:     R0 = 1027.0  kg/m3               
+!              Typical values:     R0 = 1027.0  kg/m3
 !                                  T0 = 10.0    Celsius
 !                                  S0 = 35.0    PSU
 !                               TCOEF = 1.7d-4  1/Celsius
@@ -1062,7 +1097,7 @@ Hout(idBott) == T T T T T T T T T F F F F F F F
 !
 !              The adjoint forcing is applied at every time step according to
 !              desired state functional stored in the adjoint sensitivity
-!              NetCDF file. DstrS must be less or equal to DendS. If both
+!              NetCDF file. DstrS must be less than or equal to DendS. If both
 !              values are zero, their values are reset internally to the full
 !              range of the adjoint integration.
 !
@@ -1161,6 +1196,7 @@ Hout(idBott) == T T T T T T T T T F F F F F F F
 !  Hout(idShea)  Write out sensible heat flux.
 !  Hout(idLrad)  Write out long-wave radiation flux.
 !  Hout(idSrad)  Write out short-wave radiation flux.
+!  Hout(idEmPf)  Write out E-P flux.
 !  Hout(idevap)  Write out evaporation rate.
 !  Hout(idrain)  Write out precipitation rate.
 !
@@ -1189,12 +1225,12 @@ Hout(idBott) == T T T T T T T T T F F F F F F F
 !
 !                INT(user(1)):  tangent state variable to perturb
 !                INT(user(2)):  adjoint state variable to perturb
-!                               [isFsur=1] free-surface 
+!                               [isFsur=1] free-surface
 !                               [isUbar=2] 2D U-momentum
 !                               [isVbar=3] 2D V-momentum
 !                               [isUvel=4] 3D U-momentum
 !                               [isVvel=5] 3D V-momentum
-!                               [isTvar=6] Firt tracer (temperature)
+!                               [isTvar=6] First tracer (temperature)
 !                               [   ...  ]
 !                               [isTvar=?] Last tracer
 !
@@ -1207,6 +1243,28 @@ Hout(idBott) == T T T T T T T T T F F F F F F F
 !
 !                Set tangent and adjoint parameters to the same values
 !                if perturbing and reporting the same variable.
+!
+!------------------------------------------------------------------------------
+! I/O NetCDF files parameters.
+!------------------------------------------------------------------------------
+!
+! NetCDF-4/HDF5 compression parameters for output files. This capability
+! is used when both NETCDF4 and DEFLATE C-preprocessing options are
+! activated. The user needs to compile with the NetCDF-4/HDF5 and MPI
+! libraries. File deflation cannot be used in parallel I/O for writing
+! because the compression makes it imposible for the HDF5 library
+! to exactly map the data to the disk location.  For more information,
+! check NetCDF official website: www.unidata.ucar.edu/software/netcdf.
+!
+! NC_SHUFFLE    Shuffle filter integer flag. If non-zero, turn on shuffle
+!                 filter.
+!
+! NC_DEFLATE    Deflate filter integer flag, If non-zero, turn on deflate
+!                 filter at the level specified by the NC_DLEVEL parameter.
+!
+! NC_DLEVEL     Deflate filter level parameter (integer). If NC_DEFLATE is
+!                 non-zero, set the deflate level to this value.  Must be
+!                 between 0 and 9.
 !
 !------------------------------------------------------------------------------
 ! Input/output NetCDF file names (string with a maximum of eighty characters).

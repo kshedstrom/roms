@@ -1,8 +1,13 @@
 !
-!=======================================================================
+! svn $Id$
+!!================================================== Georgina Gibson ===
+!! Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
+!!   Licensed under a MIT/X style license                              !
+!!   See License_ROMS.txt                                              !
+!!======================================================================
 !                                                                      !
 !  This routine sets initial conditions for biological tracer fields   !
-!  using analytical expressions for line 8 in GOA for GOANPZ.                                       !
+!  using analytical expressions for line 8 in GOA for GOANPZ.          !
 !                                                                      !
 !=======================================================================
 !

@@ -62,7 +62,7 @@
 !------------------------------------------------------------------------------
 !
 
-'$URL: https://www.myroms.org/svn/omlab/branches/kate/trunk/ROMS/External/varinfo.dat $'
+'$URL$'
 
 !
 !------------------------------------------------------------------------------
@@ -2088,6 +2088,15 @@
   'river_salt, scalar, series'
   'river_time'
   'idRtrc(isalt)'
+  'nulvar'
+  1.0d0
+
+'river_dye_'                                       ! Input
+  'river runoff dye concentration'
+  'kilogram meter-3'                               ! [kg/m3]
+  'river_dye, scalar, series'
+  'ocean_time'
+  'idRtrc(inert(i))'
   'nulvar'
   1.0d0
 

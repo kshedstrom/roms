@@ -684,6 +684,19 @@
             hekman=lmd_cekman*Ustar(i,j)/MAX(ABS(f(i,j)),eps)
             hmonob=lmd_cmonob*Ustar(i,j)*Ustar(i,j)*Ustar(i,j)/         &
      &             MAX(vonKar*Bfsfc(i,j),eps)
+# ifdef SOGLOBEC
+!
+!  SOGLOBEC mod: If neutral and stable, let depth of surface boundary
+!   layer be set to Niiler-Krauss wind mixing min depth (and then
+!   limited to Ekman depth or Monin-Obukov if that turns out to be 
+!   shallower), but only if solar forcing is really weak (1 W/m^2
+!   ~ 1.43e-10).
+!
+            IF (Bosol(i,j).lt.1.43E-10_r8) THEN
+              hsbl(i,j)=z_w(i,j,N(ng))-hmonob*vonKar*2.5_r8*            &
+     &                  EXP(-10.0_r8*sl_dpth(i,j)/20.0_r8)
+            ENDIF
+# endif
             hsbl(i,j)=(z_w(i,j,N(ng))-                                  &
      &                 MIN(hekman,hmonob,z_w(i,j,N(ng))-hsbl(i,j)))
           END IF
