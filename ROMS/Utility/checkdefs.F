@@ -1488,6 +1488,18 @@
       Coptions(is:is+8)=' NEMURO,'
       ibiology=ibiology+1
 #endif
+#ifdef NEMURO_SED1
+      IF (Master) WRITE (stdout,20) 'NEMURO_SED1',                      &
+     &   'Nemuro with sediment remineralization type 1.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+13)=' NEMURO_SED1,'
+#endif
+#ifdef NEMURO_SED2
+      IF (Master) WRITE (stdout,20) 'NEMURO_SED2',                      &
+     &   'Nemuro with sediment remineralization type 2.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+13)=' NEMURO_SED2,'
+#endif
 #ifdef NETCDF4
       IF (Master) WRITE (stdout,20) 'NETCDF4',                          &
      &   'Creating NetCDF-4/HDF5 format files.'
