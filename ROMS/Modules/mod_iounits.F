@@ -98,10 +98,6 @@
 
         integer, allocatable :: FRCids(:,:)
 
-        integer, parameter :: fname_len=128
-
-        character (len=80) :: SourceFile
-
         character (len=50), dimension(8) :: Rerror =                    &
      &       (/ ' ROMS/TOMS - Blows up ................ exit_flag: ',   &
      &          ' ROMS/TOMS - Input error ............. exit_flag: ',   &
@@ -112,67 +108,68 @@
      &          ' ROMS/TOMS - Illegal input parameter . exit_flag: ',   &
      &          ' ROMS/TOMS - Fatal algorithm result .. exit_flag: ' /)
 
-        character (len=fname_len), allocatable :: FRCname(:,:)
+        character (len=256), allocatable :: FRCname(:,:)
 
-        character (len=fname_len), dimension(Ngrids) :: ADJbase
-        character (len=fname_len), dimension(Ngrids) :: ADJname
-        character (len=fname_len), dimension(Ngrids) :: ADSname
-        character (len=fname_len), dimension(Ngrids) :: AVGbase
-        character (len=fname_len), dimension(Ngrids) :: AVGname
-        character (len=fname_len), dimension(Ngrids) :: AVG2base
-        character (len=fname_len), dimension(Ngrids) :: AVG2name
-        character (len=fname_len), dimension(Ngrids) :: BLKname
-        character (len=fname_len), dimension(Ngrids) :: BRYname
-        character (len=fname_len), dimension(Ngrids) :: CLMname
-        character (len=fname_len), dimension(Ngrids) :: DIAbase
-        character (len=fname_len), dimension(Ngrids) :: DIAname
-        character (len=fname_len), dimension(Ngrids) :: ERRname
-        character (len=fname_len), dimension(Ngrids) :: FLTname
+        character (len=256), dimension(Ngrids) :: ADJbase
+        character (len=256), dimension(Ngrids) :: ADJname
+        character (len=256), dimension(Ngrids) :: ADSname
+        character (len=256), dimension(Ngrids) :: AVGbase
+        character (len=256), dimension(Ngrids) :: AVGname
+        character (len=256), dimension(Ngrids) :: AVG2base
+        character (len=256), dimension(Ngrids) :: AVG2name
+        character (len=256), dimension(Ngrids) :: BLKname
+        character (len=256), dimension(Ngrids) :: BRYname
+        character (len=256), dimension(Ngrids) :: CLMname
+        character (len=256), dimension(Ngrids) :: DIAbase
+        character (len=256), dimension(Ngrids) :: DIAname
+        character (len=256), dimension(Ngrids) :: ERRname
+        character (len=256), dimension(Ngrids) :: FLTname
 #ifdef FILTERED_RST
-        character (len=fname_len), dimension(nfile,Ngrids) :: FILname
+        character (len=256), dimension(nfile,Ngrids) :: FILname
 #endif
-        character (len=fname_len), dimension(Ngrids) :: FWDbase
-        character (len=fname_len), dimension(Ngrids) :: FWDname
-        character (len=fname_len), dimension(Ngrids) :: GRDname
-        character (len=fname_len), dimension(Ngrids) :: GSTname
-        character (len=fname_len), dimension(Ngrids) :: HISbase
-        character (len=fname_len), dimension(Ngrids) :: HISname
-        character (len=fname_len), dimension(Ngrids) :: HSSbase
-        character (len=fname_len), dimension(Ngrids) :: HSSname
-        character (len=fname_len), dimension(Ngrids) :: IADname
-        character (len=fname_len), dimension(Ngrids) :: INIname
-        character (len=fname_len), dimension(Ngrids) :: IRPname
-        character (len=fname_len), dimension(Ngrids) :: ITLname
-        character (len=fname_len), dimension(Ngrids) :: LCZname
-        character (len=fname_len), dimension(Ngrids) :: MODname
-        character (len=fname_len), dimension(Ngrids) :: OBSname
-        character (len=fname_len), dimension(Ngrids) :: REPname
-        character (len=fname_len), dimension(Ngrids) :: SSHname
-        character (len=fname_len), dimension(Ngrids) :: SSTname
-        character (len=fname_len), dimension(Ngrids) :: TIDEname
-        character (len=fname_len), dimension(Ngrids) :: TLFname
-        character (len=fname_len), dimension(Ngrids) :: TLMbase
-        character (len=fname_len), dimension(Ngrids) :: TLMname
-        character (len=fname_len), dimension(Ngrids) :: TOBSname
-        character (len=fname_len), dimension(Ngrids) :: VSURname
-        character (len=fname_len), dimension(Ngrids) :: VOBSname
-        character (len=fname_len), dimension(Ngrids) :: RSTname
-        character (len=fname_len), dimension(Ngrids) :: STAname
+        character (len=256), dimension(Ngrids) :: FWDbase
+        character (len=256), dimension(Ngrids) :: FWDname
+        character (len=256), dimension(Ngrids) :: GRDname
+        character (len=256), dimension(Ngrids) :: GSTname
+        character (len=256), dimension(Ngrids) :: HISbase
+        character (len=256), dimension(Ngrids) :: HISname
+        character (len=256), dimension(Ngrids) :: HSSbase
+        character (len=256), dimension(Ngrids) :: HSSname
+        character (len=256), dimension(Ngrids) :: IADname
+        character (len=256), dimension(Ngrids) :: INIname
+        character (len=256), dimension(Ngrids) :: IRPname
+        character (len=256), dimension(Ngrids) :: ITLname
+        character (len=256), dimension(Ngrids) :: LCZname
+        character (len=256), dimension(Ngrids) :: MODname
+        character (len=256), dimension(Ngrids) :: OBSname
+        character (len=256), dimension(Ngrids) :: REPname
+        character (len=256), dimension(Ngrids) :: SSHname
+        character (len=256), dimension(Ngrids) :: SSTname
+        character (len=256), dimension(Ngrids) :: TIDEname
+        character (len=256), dimension(Ngrids) :: TLFname
+        character (len=256), dimension(Ngrids) :: TLMbase
+        character (len=256), dimension(Ngrids) :: TLMname
+        character (len=256), dimension(Ngrids) :: TOBSname
+        character (len=256), dimension(Ngrids) :: VSURname
+        character (len=256), dimension(Ngrids) :: VOBSname
+        character (len=256), dimension(Ngrids) :: RSTname
+        character (len=256), dimension(Ngrids) :: STAname
 
-        character (len=fname_len), dimension(4,Ngrids) :: NRMname
-        character (len=fname_len), dimension(4,Ngrids) :: STDname
+        character (len=256), dimension(4,Ngrids) :: NRMname
+        character (len=256), dimension(4,Ngrids) :: STDname
 
-        character (len=fname_len) :: Iname
-        character (len=fname_len) :: Wname
-        character (len=fname_len) :: MyAppCPP
-        character (len=fname_len) :: USRname
-        character (len=fname_len) :: aparnam
-        character (len=fname_len) :: bparnam
-        character (len=fname_len) :: fposnam
-        character (len=fname_len) :: iparnam
-        character (len=fname_len) :: ncfile
-        character (len=fname_len) :: sparnam
-        character (len=fname_len) :: sposnam
-        character (len=fname_len) :: varname
+        character (len=256) :: Iname
+        character (len=256) :: Wname
+        character (len=256) :: MyAppCPP
+        character (len=256) :: SourceFile
+        character (len=256) :: USRname
+        character (len=256) :: aparnam
+        character (len=256) :: bparnam
+        character (len=256) :: fposnam
+        character (len=256) :: iparnam
+        character (len=256) :: ncfile
+        character (len=256) :: sparnam
+        character (len=256) :: sposnam
+        character (len=256) :: varname
 
       END MODULE mod_iounits

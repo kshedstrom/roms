@@ -44,9 +44,9 @@
 
       real(r8) :: Fmax, Fmin, Tmax, time_scale, tmptime(Ngrids)
 
-      character (len=15) attnam, tvarnam
-      character (len=40) tunits
-      character (len=80) fname, ncname
+      character (len=15 ) attnam, tvarnam
+      character (len=40 ) tunits
+      character (len=256) ncname
 !
 !-----------------------------------------------------------------------
 !  Don't inquire about the contents of input NetCDF file,

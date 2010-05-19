@@ -52,8 +52,9 @@
 
       real(r8) :: Aval(6)
 
-      character (len=80) :: Vinfo(Natt)
-      character (len=80) :: fname, ncname, type
+      character (len=80 ) :: type
+      character (len=120) :: Vinfo(Natt)
+      character (len=256) :: ncname
 !
 !=======================================================================
 !  Create a new filter NetCDF file.

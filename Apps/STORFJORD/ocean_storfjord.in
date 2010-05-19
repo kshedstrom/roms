@@ -533,7 +533,7 @@ Hout2(idIomflx) == T
 !  MyAppCPP    Application C-preprocession option.
 !
 !------------------------------------------------------------------------------
-! Variable information file name (string with a maximum of eighty characters).
+! Variable information file name (string with a maximum of 256 characters).
 !------------------------------------------------------------------------------
 !
 !  VARNAME     Input/Output variable information file name.  This file need to
@@ -1230,7 +1230,7 @@ Hout2(idIomflx) == T
 !                if perturbing and reporting the same variable.
 !
 !------------------------------------------------------------------------------
-! Input/output NetCDF file names (string with a maximum of eighty characters).
+! Input/output NetCDF file names (string with a maximum of 256 characters).
 !------------------------------------------------------------------------------
 !
 !  GRDNAME     Input grid file name.
