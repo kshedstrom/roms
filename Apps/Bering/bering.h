@@ -12,7 +12,7 @@
 **  Options for Northeast Pacific (NEP5) simulation
 */
 
-#undef NO_HIS
+#define NO_HIS
 #undef NETCDF4
 #undef PARALLEL_IO
 #undef OFFLINE_FLOATS

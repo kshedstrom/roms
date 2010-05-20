@@ -157,12 +157,16 @@
       integer :: NSUB, i, j, k, trd, ibt, itrc
 #ifdef DISTRIBUTE
 # ifdef SOLVE3D
-      integer :: Nreduce = 5
+#  ifdef BIOLOGY
+      integer :: Nreduce
+#  else
+      integer, parameter :: Nreduce = 5
+#  endif
 # else
       integer :: Nreduce = 4
 # endif
-      real(r8), allocatable          :: buffer(:)
-      character (len=3), allocatable :: op_handle(:)
+      real(r8), allocatable           :: buffer(:)
+      character (len=3), allocatable  :: op_handle(:)
 #else
       integer :: my_threadnum
 #endif
@@ -190,6 +194,14 @@
 !  total energy, and volume.
 !-----------------------------------------------------------------------
 !
+#ifdef DISTRIBUTE
+# ifdef BIOLOGY
+      Nreduce = 5 + NBT
+# endif
+      allocate (buffer(Nreduce))
+      allocate (op_handle(Nreduce))
+#endif
+
       IF (MOD(iic(ng)-1,ninfo(ng)).eq.0) THEN
         my_maxspeed=0.0_r8
 #ifdef SOLVE3D
