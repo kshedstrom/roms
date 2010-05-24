@@ -101,7 +101,8 @@ ifdef USE_DEBUG
            CFLAGS += -g
          CXXFLAGS += -g
 else
-           FFLAGS += -fast
+           FFLAGS += -O2
+#           FFLAGS += -fast
            CFLAGS += -O3
          CXXFLAGS += -O3
 endif
