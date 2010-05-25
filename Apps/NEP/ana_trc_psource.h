@@ -119,13 +119,13 @@
           DO is=1,Nsrcpt
             Isrcpt(is)=73+is
             Jsrcpt(is)=INT(-0.7*Isrcpt(is)+473)
-            Lsrcpt(is,NAT+1)=.TRUE.
+            Lsrcpt(is,inert(1))=.TRUE.
           END DO
           Nsrcpt=33+136
           DO is=34,Nsrcpt
             Jsrcpt(is)=408+is-34
             Isrcpt(is)=INT((Jsrcpt(is)-124)/3.2)
-            Lsrcpt(is,NAT+2)=.TRUE.
+            Lsrcpt(is,inert(2))=.TRUE.
           END DO
 #ifdef DISTRIBUTE
 !
@@ -145,12 +145,12 @@
 !
         DO k=1,N(ng)
           DO is=1,33
-            Tsrcpt(is,k,NAT+1)=1.
+            Tsrcpt(is,k,inert(1))=1.
           END DO
         END DO
         DO k=1,N(ng)
           DO is=34,Nsrcpt
-            Tsrcpt(is,k,NAT+2)=1.
+            Tsrcpt(is,k,inert(2))=1.
           END DO
         END DO
       END IF
