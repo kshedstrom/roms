@@ -159,78 +159,78 @@
 !     &            TRIM(ADJUSTL(Vname(5,idtime))),                      &
 !     &            nf90_unlimited, DimIDs(12))
 !         IF (exit_flag.ne.NoError) RETURN
-        recdim=DimIDs(32)
+          recdim=DimIDs(32)
 !
 !  Set number of dimensions for output variables.
 !
 # if defined WRITE_WATER && defined MASKING
-        nvd3=2
-        nvd4=2
+          nvd3=2
+          nvd4=2
 # else
-        nvd3=3
-        nvd4=4
+          nvd3=3
+          nvd4=4
 # endif
 !
 !  Define dimension vectors for staggered tracer type variables.
 !
 # if defined WRITE_WATER && defined MASKING
-        t2dgrd(1)=DimIDs(17)
-        t2dgrd(2)=DimIDs(32)
+          t2dgrd(1)=DimIDs(17)
+          t2dgrd(2)=DimIDs(32)
 #  ifdef SOLVE3D
-        t3dgrd(1)=DimIDs(20)
-        t3dgrd(2)=DimIDs(32)
+          t3dgrd(1)=DimIDs(20)
+          t3dgrd(2)=DimIDs(32)
 #  endif
 # else
-        t2dgrd(1)=DimIDs( 1)
-        t2dgrd(2)=DimIDs( 5)
-        t2dgrd(3)=DimIDs(32)
+          t2dgrd(1)=DimIDs( 1)
+          t2dgrd(2)=DimIDs( 5)
+          t2dgrd(3)=DimIDs(32)
 #  ifdef SOLVE3D
-        t3dgrd(1)=DimIDs( 1)
-        t3dgrd(2)=DimIDs( 5)
-        t3dgrd(3)=DimIDs( 9)
-        t3dgrd(4)=DimIDs(32)
+          t3dgrd(1)=DimIDs( 1)
+          t3dgrd(2)=DimIDs( 5)
+          t3dgrd(3)=DimIDs( 9)
+          t3dgrd(4)=DimIDs(32)
 #  endif
 # endif
 !
 !  Define dimension vectors for staggered u-momemtum type variables.
 !
 # if defined WRITE_WATER && defined MASKING
-        u2dgrd(1)=DimIDs(18)
-        u2dgrd(2)=DimIDs(32)
+          u2dgrd(1)=DimIDs(18)
+          u2dgrd(2)=DimIDs(32)
 #  ifdef SOLVE3D
-        u3dgrd(1)=DimIDs(21)
-        u3dgrd(2)=DimIDs(32)
+          u3dgrd(1)=DimIDs(21)
+          u3dgrd(2)=DimIDs(32)
 #  endif
 # else
-        u2dgrd(1)=DimIDs( 2)
-        u2dgrd(2)=DimIDs( 6)
-        u2dgrd(3)=DimIDs(32)
+          u2dgrd(1)=DimIDs( 2)
+          u2dgrd(2)=DimIDs( 6)
+          u2dgrd(3)=DimIDs(32)
 #  ifdef SOLVE3D
-        u3dgrd(1)=DimIDs( 2)
-        u3dgrd(2)=DimIDs( 6)
-        u3dgrd(3)=DimIDs( 9)
-        u3dgrd(4)=DimIDs(32)
+          u3dgrd(1)=DimIDs( 2)
+          u3dgrd(2)=DimIDs( 6)
+          u3dgrd(3)=DimIDs( 9)
+          u3dgrd(4)=DimIDs(32)
 #  endif
 # endif
 !
 !  Define dimension vectors for staggered v-momemtum type variables.
 !
 # if defined WRITE_WATER && defined MASKING
-        v2dgrd(1)=DimIDs(19)
-        v2dgrd(2)=DimIDs(32)
+          v2dgrd(1)=DimIDs(19)
+          v2dgrd(2)=DimIDs(32)
 #  ifdef SOLVE3D
-        v3dgrd(1)=DimIDs(22)
-        v3dgrd(2)=DimIDs(32)
+          v3dgrd(1)=DimIDs(22)
+          v3dgrd(2)=DimIDs(32)
 #  endif
 # else
-        v2dgrd(1)=DimIDs( 3)
-        v2dgrd(2)=DimIDs( 7)
-        v2dgrd(3)=DimIDs(32)
+          v2dgrd(1)=DimIDs( 3)
+          v2dgrd(2)=DimIDs( 7)
+          v2dgrd(3)=DimIDs(32)
 #  ifdef SOLVE3D
-        v3dgrd(1)=DimIDs( 3)
-        v3dgrd(2)=DimIDs( 7)
-        v3dgrd(3)=DimIDs( 9)
-        v3dgrd(4)=DimIDs(32)
+          v3dgrd(1)=DimIDs( 3)
+          v3dgrd(2)=DimIDs( 7)
+          v3dgrd(3)=DimIDs( 9)
+          v3dgrd(4)=DimIDs(32)
 #  endif
 # endif
 # ifdef SOLVE3D
@@ -238,36 +238,48 @@
 !  Define dimension vector for staggered w-momemtum type variables.
 !
 #  if defined WRITE_WATER && defined MASKING
-        w3dgrd(1)=DimIDs(23)
-        w3dgrd(2)=DimIDs(32)
+          w3dgrd(1)=DimIDs(23)
+          w3dgrd(2)=DimIDs(32)
 #  else
-        w3dgrd(1)=DimIDs( 1)
-        w3dgrd(2)=DimIDs( 5)
-        w3dgrd(3)=DimIDs(10)
-        w3dgrd(4)=DimIDs(32)
+          w3dgrd(1)=DimIDs( 1)
+          w3dgrd(2)=DimIDs( 5)
+          w3dgrd(3)=DimIDs(10)
+          w3dgrd(4)=DimIDs(32)
 #  endif
-!
 # endif
 !
 !  Initialize unlimited time record dimension.
 !
-        tFILindx(ng)=0
+          tFILindx(ng)=0
 !
 !  Initialize local information variable arrays.
 !
-        DO i=1,Natt
-          DO j=1,LEN(Vinfo(1))
-            Vinfo(i)=' '
+          DO i=1,Natt
+            DO j=1,LEN(Vinfo(1))
+              Vinfo(i)=' '
+            END DO
           END DO
-        END DO
-        DO i=1,6
-          Aval(i)=0.0_r8
-        END DO
+          DO i=1,6
+            Aval(i)=0.0_r8
+          END DO
 !
 !-----------------------------------------------------------------------
 !  Define common variables and their attributes.
 !-----------------------------------------------------------------------
           IF (Master) WRITE (stdout,10) TRIM(ncname)
+!
+!  Define file type, in lieu of whole def_info.
+!
+          type='ROMS/TOMS filter status file for restarts'
+          IF (exit_flag.eq.NoError) THEN
+            status = nf90_put_att(ncFILid(ifile,ng), nf90_global,       &
+     &               'type', TRIM(type))
+            IF (status.ne.nf90_noerr) THEN 
+              IF (Master) WRITE (stdout,20) 'type', TRIM(ncname)
+              exit_flag=3
+              ioerror=status
+            END IF
+          END IF
 !
 !  Define model time as filter levels.
 !
@@ -278,45 +290,37 @@
      &           Vinfo, ncname, SetParAccess = .FALSE.)
           IF (exit_flag.ne.NoError) RETURN
 !
-!  Define file type, in lieu of whole def_info.
-!
-          type='ROMS/TOMS filter status file for restarts'
-          IF (Master) THEN
-            status = nf90_put_att(ncFILid(ifile,ng), nf90_global,       &
-     &               'type', LEN_TRIM(type))
-          END IF
-!
 !  Define ocean_time as scalar.
 !
-        Vinfo( 1)=Vname(1,idtime)
-        Vinfo( 2)=Vname(2,idtime)
-        IF (INT(time_ref).eq.-2) THEN
-          Vinfo( 3)='seconds since 1968-05-23 00:00:00 GMT'
-          Vinfo( 4)='gregorian'
-        ELSE IF (INT(time_ref).eq.-1) THEN
-          Vinfo( 3)='seconds since 0001-01-01 00:00:00'
-          Vinfo( 4)='360_day'
-        ELSE IF (INT(time_ref).eq.0) THEN
-          Vinfo( 3)='seconds since 0001-01-01 00:00:00'
-          Vinfo( 4)='365.25_day'
-        ELSE IF (time_ref.gt.0.0_r8) THEN
-          WRITE (Vinfo( 3),'(a,1x,a)') 'seconds since', TRIM(r_text)
-          Vinfo( 4)='standard'
-        END IF
-        Vinfo(14)=Vname(4,idtime)
-        status = def_var(ng, iNLM, ncFILid(ifile,ng),                   &
-     &           filVid(idtime,ng), NF_TYPE, 0, (/ recdim /),           &
-     &           Aval, Vinfo, ncname, SetParAccess = .FALSE.)
-        IF (exit_flag.ne.NoError) RETURN
+          Vinfo( 1)=Vname(1,idtime)
+          Vinfo( 2)=Vname(2,idtime)
+          IF (INT(time_ref).eq.-2) THEN
+            Vinfo( 3)='seconds since 1968-05-23 00:00:00 GMT'
+            Vinfo( 4)='gregorian'
+          ELSE IF (INT(time_ref).eq.-1) THEN
+            Vinfo( 3)='seconds since 0001-01-01 00:00:00'
+            Vinfo( 4)='360_day'
+          ELSE IF (INT(time_ref).eq.0) THEN
+            Vinfo( 3)='seconds since 0001-01-01 00:00:00'
+            Vinfo( 4)='365.25_day'
+          ELSE IF (time_ref.gt.0.0_r8) THEN
+            WRITE (Vinfo( 3),'(a,1x,a)') 'seconds since', TRIM(r_text)
+            Vinfo( 4)='standard'
+          END IF
+          Vinfo(14)=Vname(4,idtime)
+          status = def_var(ng, iNLM, ncFILid(ifile,ng),                 &
+     &             filVid(idtime,ng), NF_TYPE, 1, (/ recdim /),         &
+     &             Aval, Vinfo, ncname, SetParAccess = .FALSE.)
+          IF (exit_flag.ne.NoError) RETURN
 !
 !  Define filter counts.
 !
-        Vinfo( 1)='fcount'
-        Vinfo( 2)=Vname(2,idtime)
-        status = def_var(ng, iNLM, ncFILid(ifile,ng),                   &
-     &           varid, NF90_INT,                                       &
-     &                 1, (/recdim/), Aval, Vinfo, ncname,              &
-     &                 SetParAccess = .FALSE.)
+          Vinfo( 1)='fcount'
+          Vinfo( 2)=Vname(2,idtime)
+          status = def_var(ng, iNLM, ncFILid(ifile,ng),                 &
+     &             varid, NF90_INT, 1, (/recdim/),                      &
+     &             Aval, Vinfo, ncname, SetParAccess = .FALSE.)
+          IF (exit_flag.ne.NoError) RETURN
         END IF
       END DO
 !
@@ -1078,7 +1082,7 @@
       END IF
 !
 !=======================================================================
-!  Open an existing filter files, and prepare for appending data.
+!  Open existing filter files, and prepare for appending data.
 !=======================================================================
 !
       IF (.not.Ldefine) THEN
@@ -1113,63 +1117,178 @@
             IF (Master) WRITE (stdout,50) TRIM(ncname)
             RETURN
           END IF
-#ifdef FOOO
           DO i=1,n_var
-            IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idFltLvl))) THEN
-              got_var(idFltLvl)=.TRUE.
-              filVid(idFltLvl,ng) = var_id(i)
-            END IF
-            IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idFltLvl))) THEN
-              got_var(idUvel)=.TRUE.
-              filVid(idUvel,ng) = var_id(i)
-            END IF
-            IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idUvel))) THEN
-              got_var(idUvel)=.TRUE.
-              filVid(idUvel,ng) = var_id(i)
-            END IF
+            IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idtime))) THEN
+              got_var(idtime)=.TRUE.
+              filVid(idtime,ng) = var_id(i)
+            ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idFsur))) THEN
+              got_var(idFsur)=.TRUE.
+              filVid(idFsur,ng) = var_id(i)
+            ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idUbar))) THEN
+              got_var(idUbar)=.TRUE.
+              filVid(idUbar,ng) = var_id(i)
+            ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idVbar))) THEN
+              got_var(idVbar)=.TRUE.
+              filVid(idVbar,ng) = var_id(i)
 #ifdef SOLVE3D
-            IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idUvel))) THEN
+            ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idUvel))) THEN
               got_var(idUvel)=.TRUE.
               filVid(idUvel,ng) = var_id(i)
-            END IF
-            IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idVvel))) THEN
+            ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idVvel))) THEN
               got_var(idVvel)=.TRUE.
               filVid(idVvel,ng) = var_id(i)
+            ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idOvel))) THEN
+              got_var(idOvel)=.TRUE.
+              filVid(idOvel,ng) = var_id(i)
+            ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idDano))) THEN
+              got_var(idDano)=.TRUE.
+              filVid(idDano,ng) = var_id(i)
+# ifdef LMD_SKPP
+            ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idHsbl))) THEN
+              got_var(idHsbl)=.TRUE.
+              filVid(idHsbl,ng) = var_id(i)
+# endif
+# ifdef LMD_BKPP
+            ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idHbbl))) THEN
+              got_var(idHbbl)=.TRUE.
+              filVid(idHbbl,ng) = var_id(i)
+# endif
+            ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idVvis))) THEN
+              got_var(idVvis)=.TRUE.
+              filVid(idVvis,ng) = var_id(i)
+            ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idTdif))) THEN
+              got_var(idTdif)=.TRUE.
+              filVid(idTdif,ng) = var_id(i)
+            ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idSdif))) THEN
+              got_var(idSdif)=.TRUE.
+              filVid(idSdif,ng) = var_id(i)
+# ifdef ICE_MODEL
+            ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idUice))) THEN
+              got_var(idUice)=.true.
+              filVid(idUice,ng)=var_id(i)
+            ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idVice))) THEN
+              got_var(idVice)=.true.
+              filVid(idVice,ng)=var_id(i)
+            ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idAice))) THEN
+              got_var(idAice)=.true.
+              filVid(idAice,ng)=var_id(i)
+            ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idHice))) THEN
+              got_var(idHice)=.true.
+              filVid(idHice,ng)=var_id(i)
+            ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idTice))) THEN
+              got_var(idTice)=.true.
+              filVid(idTice,ng)=var_id(i)
+            ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idHsno))) THEN
+              got_var(idHsno)=.true.
+              filVid(idHsno,ng)=var_id(i)
+            ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idSfwat))) THEN
+              got_var(idSfwat)=.true.
+              filVid(idSfwat,ng)=var_id(i)
+            ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idAgeice))) THEN
+              got_var(idAgeice)=.true.
+              filVid(idAgeice,ng)=var_id(i)
+            ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idIomflx))) THEN
+              got_var(idIomflx)=.true.
+              filVid(idIomflx,ng)=var_id(i)
+            ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idTimid))) THEN
+              got_var(idTimid)=.true.
+              filVid(idTimid,ng)=var_id(i)
+            ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idSig11))) THEN
+              got_var(idSig11)=.true.
+              filVid(idSig11,ng)=var_id(i)
+            ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idSig12))) THEN
+              got_var(idSig12)=.true.
+              filVid(idSig12,ng)=var_id(i)
+            ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idSig22))) THEN
+              got_var(idSig22)=.true.
+              filVid(idSig22,ng)=var_id(i)
+            ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idTauiw))) THEN
+              got_var(idTauiw)=.true.
+              filVid(idTauiw,ng)=var_id(i)
+            ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idChuiw))) THEN
+              got_var(idChuiw)=.true.
+              filVid(idChuiw,ng)=var_id(i)
+            ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idT0mk))) THEN
+              got_var(idT0mk)=.true.
+              filVid(idT0mk,ng)=var_id(i)
+            ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idS0mk))) THEN
+              got_var(idS0mk)=.true.
+              filVid(idS0mk,ng)=var_id(i)
+            ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idWfr))) THEN
+              got_var(idWfr)=.true.
+              filVid(idWfr,ng)=var_id(i)
+            ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idWai))) THEN
+              got_var(idWai)=.true.
+              filVid(idWai,ng)=var_id(i)
+            ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idWao))) THEN
+              got_var(idWao)=.true.
+              filVid(idWao,ng)=var_id(i)
+            ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idWio))) THEN
+              got_var(idWio)=.true.
+              filVid(idWio,ng)=var_id(i)
+            ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idWro))) THEN
+              got_var(idWro)=.true.
+              filVid(idWro,ng)=var_id(i)
+# endif
+# ifdef AVERAGES_FLUXES
+            ELSE IF (TRIM(var_name(i)).eq.                              &
+     &               TRIM(Vname(1,idTsur(itemp)))) THEN
+              got_var(idTsur(itemp))=.TRUE.
+              filVid(idTsur(itemp),ng)=var_id(i)
+            ELSE IF (TRIM(var_name(i)).eq.                              &
+     &               TRIM(Vname(1,idTsur(isalt)))) THEN
+              got_var(idTsur(isalt))=.TRUE.
+              filVid(idTsur(isalt),ng)=var_id(i)
+#  ifdef BULK_FLUXES
+            ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idLhea))) THEN
+              got_var(idLhea)=.TRUE.
+              filVid(idLhea,ng)=var_id(i)
+            ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idShea))) THEN
+              got_var(idShea)=.TRUE.
+              filVid(idShea,ng)=var_id(i)
+            ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idLrad))) THEN
+              got_var(idLrad)=.TRUE.
+              filVid(idLrad,ng)=var_id(i)
+!           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idTair))) THEN
+!             got_var(idTair)=.TRUE.
+!             filVid(idTair,ng)=var_id(i)
+!           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idUair))) THEN
+!             got_var(idUair)=.TRUE.
+!             filVid(idUair,ng)=var_id(i)
+!           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idVair))) THEN
+!             got_var(idVair)=.TRUE.
+!             filVid(idVair,ng)=var_id(i)
+#  ifdef EMINUSP
+!           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idevap))) THEN
+!             got_var(idevap)=.TRUE.
+!             filVid(idevap,ng)=var_id(i)
+!           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idrain))) THEN
+!             got_var(idrain)=.TRUE.
+!             filVid(idrain,ng)=var_id(i)
+#  endif
+# endif
+# ifdef SHORTWAVE
+            ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idSrad))) THEN
+              got_var(idSrad)=.TRUE.
+              filVid(idSrad,ng)=var_id(i)
+# endif
+# ifdef AVERAGES_FLUXES
+            ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idUsms))) THEN
+              got_var(idUsms)=.TRUE.
+              filVid(idUsms,ng)=var_id(i)
+            ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idVsms))) THEN
+              got_var(idVsms)=.TRUE.
+              filVid(idVsms,ng)=var_id(i)
+# endif
+#endif
             END IF
+#ifdef SOLVE3D
             DO itrc=1,NAT
               IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idTvar(itrc)))) THEN
                 got_var(idTvar(itrc))=.TRUE.
                 filTid(itrc,ng) = var_id(i)
               END IF
             END DO
-            IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idDano))) THEN
-              got_var(idDano)=.TRUE.
-              filVid(idDano,ng) = var_id(i)
-            END IF
-# ifdef LMD_SKPP
-            IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idHsbl))) THEN
-              got_var(idHsbl)=.TRUE.
-              filVid(idHsbl,ng) = var_id(i)
-            END IF
-# endif
-# ifdef LMD_BKPP
-            IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idHbbl))) THEN
-              got_var(idHbbl)=.TRUE.
-              filVid(idHbbl,ng) = var_id(i)
-            END IF
-# endif
-            IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idVvis))) THEN
-              got_var(idVvis)=.TRUE.
-              filVid(idVvis,ng) = var_id(i)
-            END IF
-            IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idTdif))) THEN
-              got_var(idTdif)=.TRUE.
-              filVid(idTdif,ng) = var_id(i)
-            END IF
-            IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idSdif))) THEN
-              got_var(idSdif)=.TRUE.
-              filVid(idSdif,ng) = var_id(i)
-            END IF
 #endif
           END DO
         END DO
@@ -1230,18 +1349,251 @@
           RETURN
         END IF
 # endif
+# ifdef ICE_MODEL
+        IF (.not.got_var(idUice).and.Hout(idUice,ng)) THEN
+          IF (Master) WRITE (stdout,40) TRIM(Vname(1,idUice)),          &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idVice).and.Hout(idVice,ng)) THEN
+          IF (Master) WRITE (stdout,40) TRIM(Vname(1,idVice)),          &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idAice).and.Hout(idAice,ng)) THEN
+          IF (Master) WRITE (stdout,40) TRIM(Vname(1,idAice)),          &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idHice).and.Hout(idHice,ng)) THEN
+          IF (Master) WRITE (stdout,40) TRIM(Vname(1,idHice)),          &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idTice).and.Hout(idTice,ng)) THEN
+          IF (Master) WRITE (stdout,40) TRIM(Vname(1,idTice)),          &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idHsno).and.Hout(idHsno,ng)) THEN
+          IF (Master) WRITE (stdout,40) TRIM(Vname(1,idHsno)),          &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idSfwat).and.Hout(idSfwat,ng)) THEN
+          IF (Master) WRITE (stdout,40) TRIM(Vname(1,idSfwat)),         &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idAgeice).and.Hout(idAgeice,ng)) THEN
+          IF (Master) WRITE (stdout,40) TRIM(Vname(1,idAgeice)),        &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idIomflx).and.Hout(idIomflx,ng)) THEN
+          IF (Master) WRITE (stdout,40) TRIM(Vname(1,idIomflx)),        &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idTimid).and.Hout(idTimid,ng)) THEN
+          IF (Master) WRITE (stdout,40) TRIM(Vname(1,idTimid)),         &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idSig11).and.Hout(idSig11,ng)) THEN
+          IF (Master) WRITE (stdout,40) TRIM(Vname(1,idSig11)),         &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idSig12).and.Hout(idSig12,ng)) THEN
+          IF (Master) WRITE (stdout,40) TRIM(Vname(1,idSig12)),         &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idSig22).and.Hout(idSig22,ng)) THEN
+          IF (Master) WRITE (stdout,40) TRIM(Vname(1,idSig22)),         &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idTauiw).and.Hout(idTauiw,ng)) THEN
+          IF (Master) WRITE (stdout,40) TRIM(Vname(1,idTauiw)),         &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idChuiw).and.Hout(idChuiw,ng)) THEN
+          IF (Master) WRITE (stdout,40) TRIM(Vname(1,idChuiw)),         &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idT0mk).and.Hout(idT0mk,ng)) THEN
+          IF (Master) WRITE (stdout,40) TRIM(Vname(1,idT0mk)),          &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idS0mk).and.Hout(idS0mk,ng)) THEN
+          IF (Master) WRITE (stdout,40) TRIM(Vname(1,idS0mk)),          &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idWfr).and.Hout(idWfr,ng)) THEN
+          IF (Master) WRITE (stdout,40) TRIM(Vname(1,idWfr)),           &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idWai).and.Hout(idWai,ng)) THEN
+          IF (Master) WRITE (stdout,40) TRIM(Vname(1,idWai)),           &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idWao).and.Hout(idWao,ng)) THEN
+          IF (Master) WRITE (stdout,40) TRIM(Vname(1,idWao)),           &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idWio).and.Hout(idWio,ng)) THEN
+          IF (Master) WRITE (stdout,40) TRIM(Vname(1,idWio)),           &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idWro).and.Hout(idWro,ng)) THEN
+          IF (Master) WRITE (stdout,40) TRIM(Vname(1,idWro)),           &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+# endif
+#  ifdef AVERAGES_FLUXES
+        IF (.not.got_var(idTsur(itemp)).and.Hout(idTsur(itemp),ng)) THEN
+          IF (Master) WRITE (stdout,40) TRIM(Vname(1,idTsur(itemp))),   &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idTsur(isalt)).and.Hout(idTsur(isalt),ng)) THEN
+          IF (Master) WRITE (stdout,40) TRIM(Vname(1,idTsur(isalt))),   &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+#   ifdef BULK_FLUXES
+        IF (.not.got_var(idLhea).and.Hout(idLhea,ng)) THEN
+          IF (Master) WRITE (stdout,40) TRIM(Vname(1,idLhea)), &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idShea).and.Hout(idShea,ng)) THEN
+          IF (Master) WRITE (stdout,40) TRIM(Vname(1,idShea)), &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idLrad).and.Hout(idLrad,ng)) THEN
+          IF (Master) WRITE (stdout,40) TRIM(Vname(1,idLrad)), &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+!       IF (.not.got_var(idTair).and.Hout(idTair,ng)) THEN
+!         IF (Master) WRITE (stdout,40) TRIM(Vname(1,idTair)),          &
+!    &                                  TRIM(ncname)
+!         exit_flag=3
+!         RETURN
+!       END IF
+!       IF (.not.got_var(idUair).and.Hout(idUair,ng)) THEN
+!         IF (Master) WRITE (stdout,40) TRIM(Vname(1,idUair)),          &
+!     &                                 TRIM(ncname)
+!         exit_flag=3
+!         RETURN
+!       END IF
+!       IF (.not.got_var(idVair).and.Hout(idVair,ng)) THEN
+!         IF (Master) WRITE (stdout,40) TRIM(Vname(1,idVair)),          &
+!     &                                 TRIM(ncname)
+!         exit_flag=3
+!         RETURN
+!       END IF
+#    ifdef EMINUSP
+!       IF (.not.got_var(idevap).and.Hout(idevap,ng)) THEN
+!         IF (Master) WRITE (stdout,40) TRIM(Vname(1,idevap)),          &
+!    &                                  TRIM(ncname)
+!         exit_flag=3
+!         RETURN
+!       END IF
+!       IF (.not.got_var(idrain).and.Hout(idrain,ng)) THEN
+!         IF (Master) WRITE (stdout,40) TRIM(Vname(1,idrain)),          &
+!    &                                  TRIM(ncname)
+!         exit_flag=3
+!         RETURN
+!       END IF
+#    endif
+#   endif
+#   ifdef SHORTWAVE
+        IF (.not.got_var(idSrad).and.Hout(idSrad,ng)) THEN
+          IF (Master) WRITE (stdout,40) TRIM(Vname(1,idSrad)),          &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+#   endif
+#  endif
+# endif
+# ifdef AVERAGES_FLUXES
+        IF (.not.got_var(idUsms).and.Hout(idUsms,ng)) THEN
+          IF (Master) WRITE (stdout,40) TRIM(Vname(1,idUsms)),          &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idVsms).and.Hout(idVsms,ng)) THEN
+          IF (Master) WRITE (stdout,40) TRIM(Vname(1,idVsms)),          &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+!       IF (.not.got_var(idUbms).and.Hout(idUbms,ng)) THEN
+!         IF (Master) WRITE (stdout,40) TRIM(Vname(1,idUbms)),          &
+!    &                                  TRIM(ncname)
+!         exit_flag=3
+!         RETURN
+!       END IF
+!       IF (.not.got_var(idVbms).and.Hout(idVbms,ng)) THEN
+!         IF (Master) WRITE (stdout,40) TRIM(Vname(1,idVbms)),          &
+!    &                                  TRIM(ncname)
+!         exit_flag=3
+!         RETURN
+!       END IF
+# endif
 #endif
 !
 !  Set unlimited time record dimension to current value.
 !
 !     tFILindx(ng)=tRSTindx(ng)
 !
-#endif /* FOO */
-        END DO
       END IF
 
-  10  FORMAT (6x,'DEF_FILT  - creating filter file:   ',a)
-  20  FORMAT (6x,'DEF_FILT  - inquiring filter file: ',a)
+  10  FORMAT (6x,'DEF_FILT - creating filter file:  ',a)
+  20  FORMAT (6x,'DEF_FILT - inquiring filter file: ',a)
   30  FORMAT (/,' DEF_FILT - unable to create filter NetCDF file: ',a)
   40  FORMAT (/,' DEF_FILT - unable to find variable: ',a,2x,           &
      &          ' in filter NetCDF file: ',a)
