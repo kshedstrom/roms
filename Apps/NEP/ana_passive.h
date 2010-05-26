@@ -98,7 +98,7 @@
           DO i=IstrR,IendR
             DO ip=1,NPT
               itrc=inert(ip)
-              t(i,j,k,1,itrc) = 20.
+              t(i,j,k,1,itrc) = 0.
               t(i,j,k,2,itrc)=t(i,j,k,1,itrc)
             END DO
           END DO
