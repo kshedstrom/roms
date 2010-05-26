@@ -76,10 +76,9 @@
 !
       DO ifile = 1,nfile
         ncname=FILname(ifile,ng)
-        status=nf90_open(TRIM(ncname), nf90_nowrite, ncFILid(ifile,ng))
-        IF (status.ne.nf90_noerr) THEN
-          WRITE (stdout,20) TRIM(ncname)
-          exit_flag=2
+        CALL netcdf_open(ng, iNLM, ncname, 0, ncFILid(ifile,ng))
+        IF (exit_flag.ne.nf90_noerr) THEN
+          IF (Master) WRITE (stdout,20) TRIM(ncname)
           RETURN
         END IF
       END DO
@@ -89,18 +88,21 @@
 !
 !  Get the status of filter sums.
 !
-      status=nf90_inq_varid(ncFILid(1,ng), 'fcount', varid)
-      start(1) = tindx
-      total(1) = 1
-      status=nf90_get_var(ncFILid(1,ng), varid, fcount(tindx),          &
-     &              start)
-!      print *, 'GET_FILTER fcount = ', fcount
+      ncname=FILname(1,ng)
+      CALL netcdf_get_ivar (ng, iNLM, ncname, 'fcount',                 &
+     &                      fcount(tindx),                              &
+     &                      ncid = ncFILid(1,ng),                       &
+     &                      start = (/tindx/),                          &
+     &                      total = (/1/))
+      IF (exit_flag.ne.NoError) RETURN 
 !
 !  Read in free-surface (m).
 !
       ncname=FILname(1,ng)
-      status=nf90_inq_varid(ncFILid(1,ng), TRIM(Vname(1,idFsur)), varid)
-      gtype=var_flag(varid)*r2dvar
+      CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idFsur),         &
+     &                       ncFILid(1,ng), varid)
+      IF (exit_flag.ne.NoError) RETURN
+      gtype=r2dvar
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(1,ng),                &
      &                Vname(1,idFsur), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
@@ -124,8 +126,10 @@
 !
 !  Read in 2D momentum component (m/s) in the XI-direction.
 !
-      status=nf90_inq_varid(ncFILid(1,ng), TRIM(Vname(1,idUbar)), varid)
-      gtype=var_flag(varid)*u2dvar
+      CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idUbar),         &
+     &                       ncFILid(1,ng), varid)
+      IF (exit_flag.ne.NoError) RETURN
+      gtype=u2dvar
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(1,ng),                &
      &                Vname(1,idUbar), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
@@ -149,8 +153,10 @@
 !
 !  Read in 2D momentum component (m/s) in the ETA-direction.
 !
-      status=nf90_inq_varid(ncFILid(1,ng), TRIM(Vname(1,idVbar)), varid)
-      gtype=var_flag(varid)*v2dvar
+      CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idVbar),         &
+     &                       ncFILid(1,ng), varid)
+      IF (exit_flag.ne.NoError) RETURN
+      gtype=v2dvar
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(1,ng),                &
      &                Vname(1,idVbar), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
@@ -176,8 +182,10 @@
 !  Read in 3D momentum component (m/s) in the XI-direction.
 !
       ncname=FILname(2,ng)
-      status=nf90_inq_varid(ncFILid(2,ng), TRIM(Vname(1,idUvel)), varid)
-      gtype=var_flag(varid)*u3dvar
+      CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idUvel),         &
+     &                       ncFILid(2,ng), varid)
+      IF (exit_flag.ne.NoError) RETURN
+      gtype=u3dvar
       status=nf_fread3d(ng, iNLM, ncname, ncFILid(2,ng),                &
      &                Vname(1,idUvel), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj, 1, N(ng),              &
@@ -202,8 +210,10 @@
 !  Read in 3D momentum component (m/s) in the ETA-direction.
 !
       ncname=FILname(3,ng)
-      status=nf90_inq_varid(ncFILid(3,ng), TRIM(Vname(1,idVvel)), varid)
-      gtype=var_flag(varid)*v3dvar
+      CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idVvel),         &
+     &                       ncFILid(3,ng), varid)
+      IF (exit_flag.ne.NoError) RETURN
+      gtype=v3dvar
       status=nf_fread3d(ng, iNLM, ncname, ncFILid(3,ng),                &
      &                Vname(1,idVvel), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj, 1, N(ng),              &
@@ -229,8 +239,10 @@
 !  Read in density anomaly.
 !
       ncname=FILname(7,ng)
-      status=nf90_inq_varid(ncFILid(7,ng), TRIM(Vname(1,idDano)), varid)
-      gtype=var_flag(varid)*r3dvar
+      CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idDano),         &
+     &                       ncFILid(7,ng), varid)
+      IF (exit_flag.ne.NoError) RETURN
+      gtype=r3dvar
       status=nf_fread3d(ng, iNLM, ncname, ncFILid(7,ng),                &
      &                Vname(1,idDano), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj, 1, N(ng),              &
@@ -256,9 +268,10 @@
 !
       ncname=FILname(8,ng)
       DO itrc=1,NAT
-        status=nf90_inq_varid(ncFILid(8,ng),                            &
-     &                  TRIM(Vname(1,idTvar(itrc))), varid)
-        gtype=var_flag(varid)*r3dvar
+        CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idTvar(itrc)), &
+     &                       ncFILid(8,ng), varid)
+        IF (exit_flag.ne.NoError) RETURN
+        gtype=r3dvar
         status=nf_fread3d(ng, iNLM, ncname, ncFILid(8,ng),              &
      &                Vname(1,idTvar(itrc)), varid, tindx, gtype,       &
      &                  Vsize, LBi, UBi, LBj, UBj, 1, N(ng),            &
@@ -285,8 +298,10 @@
 !  Read in vertical (omega) velocity.
 !
       ncname=FILname(9,ng)
-      status=nf90_inq_varid(ncFILid(9,ng), TRIM(Vname(1,idOvel)), varid)
-      gtype=var_flag(varid)*w3dvar
+      CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idOvel),         &
+     &                       ncFILid(9,ng), varid)
+      IF (exit_flag.ne.NoError) RETURN
+      gtype=w3dvar
       status=nf_fread3d(ng, iNLM, ncname, ncFILid(9,ng),                &
      &                Vname(1,idOvel), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj, 0, N(ng),              &
@@ -313,8 +328,10 @@
 !  Read in depth of surface boundary layer.
 !
       ncname=FILname(1,ng)
-      status=nf90_inq_varid(ncFILid(1,ng), TRIM(Vname(1,idHsbl)), varid)
-      gtype=var_flag(varid)*r2dvar
+      CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idHsbl),         &
+     &                       ncFILid(1,ng), varid)
+      IF (exit_flag.ne.NoError) RETURN
+      gtype=r2dvar
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(1,ng),                &
      &                Vname(1,idHsbl), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
@@ -341,8 +358,10 @@
 !  Read in depth of bottom boundary layer.
 !
       ncname=FILname(1,ng)
-      status=nf90_inq_varid(ncFILid(1,ng), TRIM(Vname(1,idHbbl)), varid)
-      gtype=var_flag(varid)*r2dvar
+      CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idHbbl),         &
+     &                       ncFILid(1,ng), varid)
+      IF (exit_flag.ne.NoError) RETURN
+      gtype=r2dvar
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(1,ng),                &
      &                Vname(1,idHbbl), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
@@ -369,8 +388,10 @@
 !  Read in vertical viscosity coefficient.
 !
       ncname=FILname(6,ng)
-      status=nf90_inq_varid(ncFILid(6,ng), TRIM(Vname(1,idVvis)), varid)
-      gtype=var_flag(varid)*w3dvar
+      CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idVvis),         &
+     &                       ncFILid(6,ng), varid)
+      IF (exit_flag.ne.NoError) RETURN
+      gtype=w3dvar
       status=nf_fread3d(ng, iNLM, ncname, ncFILid(6,ng),                &
      &                Vname(1,idVvis), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj, 0, N(ng),              &
@@ -397,8 +418,10 @@
 !  Read in vertical diffusion coefficient for potential temperature.
 !
       ncname=FILname(4,ng)
-      status=nf90_inq_varid(ncFILid(4,ng), TRIM(Vname(1,idTdif)), varid)
-      gtype=var_flag(varid)*w3dvar
+      CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idTdif),         &
+     &                       ncFILid(4,ng), varid)
+      IF (exit_flag.ne.NoError) RETURN
+      gtype=w3dvar
       status=nf_fread3d(ng, iNLM, ncname, ncFILid(4,ng),                &
      &                Vname(1,idTdif), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj, 0, N(ng),              &
@@ -425,8 +448,10 @@
 !  Read in vertical diffusion coefficient for salinity.
 !
       ncname=FILname(5,ng)
-      status=nf90_inq_varid(ncFILid(5,ng), TRIM(Vname(1,idSdif)), varid)
-      gtype=var_flag(varid)*w3dvar
+      CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idSdif),         &
+     &                       ncFILid(5,ng), varid)
+      IF (exit_flag.ne.NoError) RETURN
+      gtype=w3dvar
       status=nf_fread3d(ng, iNLM, ncname, ncFILid(5,ng),                &
      &                Vname(1,idSdif), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj, 0, N(ng),              &
@@ -453,9 +478,10 @@
 !  Read in surface net heat flux.
 !
       ncname=FILname(1,ng)
-      status=nf90_inq_varid(ncFILid(1,ng), TRIM(Vname(1,idTsur(itemp))),&
-     &                    varid)
-      gtype=var_flag(varid)*r2dvar
+      CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idTsur(itemp)),  &
+     &                       ncFILid(1,ng), varid)
+      IF (exit_flag.ne.NoError) RETURN
+      gtype=r2dvar
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(1,ng),                &
      &                Vname(1,idTsur(itemp)), varid, tindx, gtype,      &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
@@ -481,9 +507,10 @@
 !  Read in surface net salt flux.
 !
       ncname=FILname(1,ng)
-      status=nf90_inq_varid(ncFILid(1,ng), TRIM(Vname(1,idTsur(isalt))),&
-     &                    varid)
-      gtype=var_flag(varid)*r2dvar
+      CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idTsur(isalt)),  &
+     &                       ncFILid(1,ng), varid)
+      IF (exit_flag.ne.NoError) RETURN
+      gtype=r2dvar
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(1,ng),                &
      &                Vname(1,idTsur(isalt)), varid, tindx, gtype,      &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
@@ -510,8 +537,10 @@
 !  Read in latent heat flux.
 !
       ncname=FILname(1,ng)
-      status=nf90_inq_varid(ncFILid(1,ng), TRIM(Vname(1,idLhea)), varid)
-      gtype=var_flag(varid)*r2dvar
+      CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idLhea),         &
+     &                       ncFILid(1,ng), varid)
+      IF (exit_flag.ne.NoError) RETURN
+      gtype=r2dvar
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(1,ng),                &
      &                Vname(1,idLhea), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
@@ -536,8 +565,10 @@
 !  Read in sensible heat flux.
 !
       ncname=FILname(1,ng)
-      status=nf90_inq_varid(ncFILid(1,ng), TRIM(Vname(1,idShea)), varid)
-      gtype=var_flag(varid)*r2dvar
+      CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idShea),         &
+     &                       ncFILid(1,ng), varid)
+      IF (exit_flag.ne.NoError) RETURN
+      gtype=r2dvar
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(1,ng),                &
      &                Vname(1,idShea), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
@@ -562,8 +593,10 @@
 !  Read in longwave radiation flux.
 !
       ncname=FILname(1,ng)
-      status=nf90_inq_varid(ncFILid(1,ng), TRIM(Vname(1,idLrad)), varid)
-      gtype=var_flag(varid)*r2dvar
+      CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idLrad),         &
+     &                       ncFILid(1,ng), varid)
+      IF (exit_flag.ne.NoError) RETURN
+      gtype=r2dvar
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(1,ng),                &
      &                Vname(1,idLrad), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
@@ -590,8 +623,10 @@
 !  Read in shortwave radiation flux.
 !
       ncname=FILname(1,ng)
-      status=nf90_inq_varid(ncFILid(1,ng), TRIM(Vname(1,idSrad)), varid)
-      gtype=var_flag(varid)*r2dvar
+      CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idSrad),         &
+     &                       ncFILid(1,ng), varid)
+      IF (exit_flag.ne.NoError) RETURN
+      gtype=r2dvar
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(1,ng),                &
      &                Vname(1,idSrad), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
@@ -620,8 +655,10 @@
 !  Read in surface u-momentum stress.
 !
       ncname=FILname(1,ng)
-      status=nf90_inq_varid(ncFILid(1,ng), TRIM(Vname(1,idUsms)), varid)
-      gtype=var_flag(varid)*u2dvar
+      CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idUsms),         &
+     &                       ncFILid(1,ng), varid)
+      IF (exit_flag.ne.NoError) RETURN
+      gtype=u2dvar
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(1,ng),                &
      &                Vname(1,idUsms), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
@@ -646,8 +683,10 @@
 !  Read in surface v-momentum stress.
 !
       ncname=FILname(1,ng)
-      status=nf90_inq_varid(ncFILid(1,ng), TRIM(Vname(1,idVsms)), varid)
-      gtype=var_flag(varid)*v2dvar
+      CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idVsms),         &
+     &                       ncFILid(1,ng), varid)
+      IF (exit_flag.ne.NoError) RETURN
+      gtype=v2dvar
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(1,ng),                &
      &                Vname(1,idVsms), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
@@ -674,9 +713,10 @@
 !  Read in ice u-velocity
 !
       ncname=FILname(10,ng)
-      status=nf90_inq_varid(ncFILid(10,ng), TRIM(Vname(1,idUice)),      &
-     &                varid)
-      gtype=var_flag(varid)*u2dvar
+      CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idUice),         &
+     &                       ncFILid(10,ng), varid)
+      IF (exit_flag.ne.NoError) RETURN
+      gtype=u2dvar
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),               &
      &                Vname(1,idUice), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
@@ -701,9 +741,9 @@
 !  Read in ice v-velocity
 !
       ncname=FILname(10,ng)
-      status=nf90_inq_varid(ncFILid(10,ng), TRIM(Vname(1,idVice)),      &
-     &                varid)
-      gtype=var_flag(varid)*v2dvar
+      CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idVice),         &
+     &                       ncFILid(10,ng), varid)
+      gtype=v2dvar
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),               &
      &                Vname(1,idVice), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
@@ -728,9 +768,9 @@
 !  Read in ice concentration
 !
       ncname=FILname(10,ng)
-      status=nf90_inq_varid(ncFILid(10,ng), TRIM(Vname(1,idAice)),      &
-     &                    varid)
-      gtype=var_flag(varid)*r2dvar
+      CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idAice),         &
+     &                       ncFILid(10,ng), varid)
+      gtype=r2dvar
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),               &
      &                Vname(1,idAice), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
@@ -755,9 +795,9 @@
 !  Read in ice thickness
 !
       ncname=FILname(10,ng)
-      status=nf90_inq_varid(ncFILid(10,ng), TRIM(Vname(1,idHice)),      &
-     &                    varid)
-      gtype=var_flag(varid)*r2dvar
+      CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idHice),         &
+     &                       ncFILid(10,ng), varid)
+      gtype=r2dvar
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),               &
      &                Vname(1,idHice), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
@@ -782,9 +822,9 @@
 !  Read in snow thickness
 !
       ncname=FILname(10,ng)
-      status=nf90_inq_varid(ncFILid(10,ng), TRIM(Vname(1,idHsno)),      &
-     &                    varid)
-      gtype=var_flag(varid)*r2dvar
+      CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idHsno),         &
+     &                       ncFILid(10,ng), varid)
+      gtype=r2dvar
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),               &
      &                Vname(1,idHsno), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
@@ -809,9 +849,9 @@
 !  Read in surface water
 !
       ncname=FILname(10,ng)
-      status=nf90_inq_varid(ncFILid(10,ng), TRIM(Vname(1,idSfwat)),     &
-     &                    varid)
-      gtype=var_flag(varid)*r2dvar
+      CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idSfwat),        &
+     &                       ncFILid(10,ng), varid)
+      gtype=r2dvar
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),               &
      &                Vname(1,idSfwat), varid, tindx, gtype,            &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
@@ -836,9 +876,9 @@
 !  Read in surface ice temperature
 !
       ncname=FILname(10,ng)
-      status=nf90_inq_varid(ncFILid(10,ng), TRIM(Vname(1,idTice)),      &
-     &                    varid)
-      gtype=var_flag(varid)*r2dvar
+      CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idTice),         &
+     &                       ncFILid(10,ng), varid)
+      gtype=r2dvar
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),               &
      &                Vname(1,idTice), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
@@ -863,9 +903,9 @@
 !  Read in interior ice temperature
 !
       ncname=FILname(10,ng)
-      status=nf90_inq_varid(ncFILid(10,ng), TRIM(Vname(1,idTimid)),     &
-     &                    varid)
-      gtype=var_flag(varid)*r2dvar
+      CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idTimid),        &
+     &                       ncFILid(10,ng), varid)
+      gtype=r2dvar
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),               &
      &                Vname(1,idTimid), varid, tindx, gtype,            &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
@@ -890,9 +930,9 @@
 !  Read in ice age
 !
       ncname=FILname(10,ng)
-      status=nf90_inq_varid(ncFILid(10,ng), TRIM(Vname(1,idAgeice)),    &
-     &                    varid)
-      gtype=var_flag(varid)*r2dvar
+      CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idAgeice),       &
+     &                       ncFILid(10,ng), varid)
+      gtype=r2dvar
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),               &
      &                Vname(1,idAgeice), varid, tindx, gtype,           &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
@@ -917,9 +957,7 @@
 !  Read in under-ice salinity
 !
       ncname=FILname(10,ng)
-      status=nf90_inq_varid(ncFILid(10,ng), TRIM(Vname(1,idS0mk)),      &
-     &                    varid)
-      gtype=var_flag(varid)*r2dvar
+      gtype=r2dvar
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),               &
      &                Vname(1,idS0mk), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
@@ -944,9 +982,9 @@
 !  Read in under-ice temperature
 !
       ncname=FILname(10,ng)
-      status=nf90_inq_varid(ncFILid(10,ng), TRIM(Vname(1,idT0mk)),      &
-     &                    varid)
-      gtype=var_flag(varid)*r2dvar
+      CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idT0mk),         &
+     &                       ncFILid(10,ng), varid)
+      gtype=r2dvar
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),               &
      &                Vname(1,idT0mk), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
@@ -971,9 +1009,9 @@
 !  Read in frazil ice growth rate
 !
       ncname=FILname(10,ng)
-      status=nf90_inq_varid(ncFILid(10,ng), TRIM(Vname(1,idWfr)),       &
-     &                    varid)
-      gtype=var_flag(varid)*r2dvar
+      CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idWfr),          &
+     &                       ncFILid(10,ng), varid)
+      gtype=r2dvar
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),               &
      &                Vname(1,idWfr), varid, tindx, gtype,              &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
@@ -998,9 +1036,9 @@
 !  Read in ice growth/melt rate
 !
       ncname=FILname(10,ng)
-      status=nf90_inq_varid(ncFILid(10,ng), TRIM(Vname(1,idWai)),       &
-     &                    varid)
-      gtype=var_flag(varid)*r2dvar
+      CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idWai),          &
+     &                       ncFILid(10,ng), varid)
+      gtype=r2dvar
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),               &
      &                Vname(1,idWai), varid, tindx, gtype,              &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
@@ -1025,9 +1063,9 @@
 !  Read in ice growth/melt rate
 !
       ncname=FILname(10,ng)
-      status=nf90_inq_varid(ncFILid(10,ng), TRIM(Vname(1,idWao)),       &
-     &                    varid)
-      gtype=var_flag(varid)*r2dvar
+      CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idWao),          &
+     &                       ncFILid(10,ng), varid)
+      gtype=r2dvar
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),               &
      &                Vname(1,idWao), varid, tindx, gtype,              &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
@@ -1052,9 +1090,9 @@
 !  Read in ice growth/melt rate
 !
       ncname=FILname(10,ng)
-      status=nf90_inq_varid(ncFILid(10,ng), TRIM(Vname(1,idWio)),       &
-     &                    varid)
-      gtype=var_flag(varid)*r2dvar
+      CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idWio),          &
+     &                       ncFILid(10,ng), varid)
+      gtype=r2dvar
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),               &
      &                Vname(1,idWio), varid, tindx, gtype,              &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
@@ -1079,9 +1117,9 @@
 !  Read in ice melt runoff rate
 !
       ncname=FILname(10,ng)
-      status=nf90_inq_varid(ncFILid(10,ng), TRIM(Vname(1,idWro)),       &
-     &                    varid)
-      gtype=var_flag(varid)*r2dvar
+      CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idWro),          &
+     &                       ncFILid(10,ng), varid)
+      gtype=r2dvar
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),               &
      &                Vname(1,idWro), varid, tindx, gtype,              &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
@@ -1106,9 +1144,9 @@
 !  Read in sig11 of ice stress tensor
 !
       ncname=FILname(10,ng)
-      status=nf90_inq_varid(ncFILid(10,ng), TRIM(Vname(1,idSig11)),     &
-     &                    varid)
-      gtype=var_flag(varid)*r2dvar
+      CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idSig11),        &
+     &                       ncFILid(10,ng), varid)
+      gtype=r2dvar
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),               &
      &                Vname(1,idSig11), varid, tindx, gtype,            &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
@@ -1133,9 +1171,9 @@
 !  Read in sig12 of ice stress tensor
 !
       ncname=FILname(10,ng)
-      status=nf90_inq_varid(ncFILid(10,ng), TRIM(Vname(1,idSig12)),     &
-     &                    varid)
-      gtype=var_flag(varid)*r2dvar
+      CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idSig12),        &
+     &                       ncFILid(10,ng), varid)
+      gtype=r2dvar
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),               &
      &                Vname(1,idSig12), varid, tindx, gtype,            &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
@@ -1160,9 +1198,9 @@
 !  Read in sig22 of ice stress tensor
 !
       ncname=FILname(10,ng)
-      status=nf90_inq_varid(ncFILid(10,ng), TRIM(Vname(1,idSig22)),     &
-     &                    varid)
-      gtype=var_flag(varid)*r2dvar
+      CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idSig22),        &
+     &                       ncFILid(10,ng), varid)
+      gtype=r2dvar
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),               &
      &                Vname(1,idSig22), varid, tindx, gtype,            &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
@@ -1187,9 +1225,9 @@
 !  Read in ice-ocean mass flux
 !
       ncname=FILname(10,ng)
-      status=nf90_inq_varid(ncFILid(10,ng), TRIM(Vname(1,idIomflx)),    &
-     &                    varid)
-      gtype=var_flag(varid)*r2dvar
+      CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idIomflx),       &
+     &                       ncFILid(10,ng), varid)
+      gtype=r2dvar
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),               &
      &                Vname(1,idIomflx), varid, tindx, gtype,           &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
@@ -1214,9 +1252,9 @@
 !  Read in ice-water tau
 !
       ncname=FILname(10,ng)
-      status=nf90_inq_varid(ncFILid(10,ng), TRIM(Vname(1,idTauiw)),     &
-     &                    varid)
-      gtype=var_flag(varid)*r2dvar
+      CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idTauiw),        &
+     &                       ncFILid(10,ng), varid)
+      gtype=r2dvar
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),               &
      &                Vname(1,idTauiw), varid, tindx, gtype,            &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
@@ -1241,9 +1279,9 @@
 !  Read in ice-water chu
 !
       ncname=FILname(10,ng)
-      status=nf90_inq_varid(ncFILid(10,ng), TRIM(Vname(1,idChuiw)),     &
-     &                    varid)
-      gtype=var_flag(varid)*r2dvar
+      CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idChuiw),        &
+     &                       ncFILid(10,ng), varid)
+      gtype=r2dvar
       status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),               &
      &                Vname(1,idChuiw), varid, tindx, gtype,            &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
