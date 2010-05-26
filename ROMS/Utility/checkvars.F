@@ -776,118 +776,118 @@
       END DO
 # endif
 # ifdef ICE_MODEL
-        IF (.not.have_var(idUice)) THEN
-          IF (Master) WRITE (stdout,10) string,                         &
-     &                                  TRIM(Vname(1,idUice)),          &
-     &                                  TRIM(ncname)
-          exit_flag=2
-          RETURN
-        END IF
-        IF (.not.have_var(idVice)) THEN
-          IF (Master) WRITE (stdout,10) string,                         &
-     &                                  TRIM(Vname(1,idVice)),          &
-     &                                  TRIM(ncname)
-          exit_flag=2
-          RETURN
-        END IF
-        IF (.not.have_var(idAice)) THEN
-          IF (Master) WRITE (stdout,10) string,                         &
-     &                                  TRIM(Vname(1,idAice)),          &
-     &                                  TRIM(ncname)
-          exit_flag=2
-          RETURN
-        END IF
-        IF (.not.have_var(idHice)) THEN
-          IF (Master) WRITE (stdout,10) string,                         &
-     &                                  TRIM(Vname(1,idHice)),          &
-     &                                  TRIM(ncname)
-          exit_flag=2
-          RETURN
-        END IF
-        IF (.not.have_var(idTice)) THEN
-          IF (Master) WRITE (stdout,10) string,                         &
-     &                                  TRIM(Vname(1,idTice)),          &
-     &                                  TRIM(ncname)
-          exit_flag=2
-          RETURN
-        END IF
-        IF (.not.have_var(idHsno)) THEN
-          IF (Master) WRITE (stdout,10) string,                         &
-     &                                  TRIM(Vname(1,idHsno)),          &
-     &                                  TRIM(ncname)
-          exit_flag=2
-          RETURN
-        END IF
-        IF (.not.have_var(idSfwat)) THEN
-          IF (Master) WRITE (stdout,10) string,                         &
-     &                                  TRIM(Vname(1,idSfwat)),         &
-     &                                  TRIM(ncname)
-          exit_flag=2
-          RETURN
-        END IF
-        IF (.not.have_var(idAgeice)) THEN
-          IF (Master) WRITE (stdout,10) string,                         &
-     &                                  TRIM(Vname(1,idAgeice)),        &
-     &                                  TRIM(ncname)
-          exit_flag=2
-          RETURN
-        END IF
-        IF (.not.have_var(idTimid)) THEN
-          IF (Master) WRITE (stdout,10) string,                         &
-     &                                  TRIM(Vname(1,idTimid)),         &
-     &                                  TRIM(ncname)
-          exit_flag=2
-          RETURN
-        END IF
-        IF (.not.have_var(idSig11)) THEN
-          IF (Master) WRITE (stdout,10) string,                         &
-     &                                  TRIM(Vname(1,idSig11)),         &
-     &                                  TRIM(ncname)
-          exit_flag=2
-          RETURN
-        END IF
-        IF (.not.have_var(idSig22)) THEN
-          IF (Master) WRITE (stdout,10) string,                         &
-     &                                  TRIM(Vname(1,idSig22)),         &
-     &                                  TRIM(ncname)
-          exit_flag=2
-          RETURN
-        END IF
-        IF (.not.have_var(idSig12)) THEN
-          IF (Master) WRITE (stdout,10) string,                         &
-     &                                  TRIM(Vname(1,idSig12)),         &
-     &                                  TRIM(ncname)
-          exit_flag=2
-          RETURN
-        END IF
-        IF (.not.have_var(idTauiw)) THEN
-          IF (Master) WRITE (stdout,10) string,                         &
-     &                                  TRIM(Vname(1,idTauiw)),         &
-     &                                  TRIM(ncname)
-          exit_flag=2
-          RETURN
-        END IF
-        IF (.not.have_var(idChuiw)) THEN
-          IF (Master) WRITE (stdout,10) string,                         &
-     &                                  TRIM(Vname(1,idChuiw)),         &
-     &                                  TRIM(ncname)
-          exit_flag=2
-          RETURN
-        END IF
-        IF (.not.have_var(idS0mk)) THEN
-          IF (Master) WRITE (stdout,10) string,                         &
-     &                                  TRIM(Vname(1,idS0mk)),          &
-     &                                  TRIM(ncname)
-          exit_flag=2
-          RETURN
-        END IF
-        IF (.not.have_var(idT0mk)) THEN
-          IF (Master) WRITE (stdout,10) string,                         &
-     &                                  TRIM(Vname(1,idT0mk)),          &
-     &                                  TRIM(ncname)
-          exit_flag=2
-          RETURN
-        END IF
+      IF (.not.have_var(idUice)) THEN
+        IF (Master) WRITE (stdout,10) string,                           &
+     &                                TRIM(Vname(1,idUice)),            &
+     &                                TRIM(ncname)
+        exit_flag=2
+        RETURN
+      END IF
+      IF (.not.have_var(idVice)) THEN
+        IF (Master) WRITE (stdout,10) string,                           &
+     &                                TRIM(Vname(1,idVice)),            &
+     &                                TRIM(ncname)
+        exit_flag=2
+        RETURN
+      END IF
+      IF (.not.have_var(idAice)) THEN
+        IF (Master) WRITE (stdout,10) string,                           &
+     &                                TRIM(Vname(1,idAice)),            &
+     &                                TRIM(ncname)
+        exit_flag=2
+        RETURN
+      END IF
+      IF (.not.have_var(idHice)) THEN
+        IF (Master) WRITE (stdout,10) string,                           &
+     &                                TRIM(Vname(1,idHice)),            &
+     &                                TRIM(ncname)
+        exit_flag=2
+        RETURN
+      END IF
+      IF (.not.have_var(idTice)) THEN
+        IF (Master) WRITE (stdout,10) string,                           &
+     &                                TRIM(Vname(1,idTice)),            &
+     &                                TRIM(ncname)
+        exit_flag=2
+        RETURN
+      END IF
+      IF (.not.have_var(idHsno)) THEN
+        IF (Master) WRITE (stdout,10) string,                           &
+     &                                TRIM(Vname(1,idHsno)),            &
+     &                                TRIM(ncname)
+        exit_flag=2
+        RETURN
+      END IF
+      IF (.not.have_var(idSfwat)) THEN
+        IF (Master) WRITE (stdout,10) string,                           &
+     &                                TRIM(Vname(1,idSfwat)),           &
+     &                                TRIM(ncname)
+        exit_flag=2
+        RETURN
+      END IF
+      IF (.not.have_var(idAgeice)) THEN
+        IF (Master) WRITE (stdout,10) string,                           &
+     &                                TRIM(Vname(1,idAgeice)),          &
+     &                                TRIM(ncname)
+        exit_flag=2
+        RETURN
+      END IF
+      IF (.not.have_var(idTimid)) THEN
+        IF (Master) WRITE (stdout,10) string,                           &
+     &                                TRIM(Vname(1,idTimid)),           &
+     &                                TRIM(ncname)
+        exit_flag=2
+        RETURN
+      END IF
+      IF (.not.have_var(idSig11)) THEN
+        IF (Master) WRITE (stdout,10) string,                           &
+     &                                TRIM(Vname(1,idSig11)),           &
+     &                                TRIM(ncname)
+        exit_flag=2
+        RETURN
+      END IF
+      IF (.not.have_var(idSig22)) THEN
+        IF (Master) WRITE (stdout,10) string,                           &
+     &                                TRIM(Vname(1,idSig22)),           &
+     &                                TRIM(ncname)
+        exit_flag=2
+        RETURN
+      END IF
+      IF (.not.have_var(idSig12)) THEN
+        IF (Master) WRITE (stdout,10) string,                           &
+     &                                TRIM(Vname(1,idSig12)),           &
+     &                                TRIM(ncname)
+        exit_flag=2
+        RETURN
+      END IF
+      IF (.not.have_var(idTauiw)) THEN
+        IF (Master) WRITE (stdout,10) string,                           &
+     &                                TRIM(Vname(1,idTauiw)),           &
+     &                                TRIM(ncname)
+        exit_flag=2
+        RETURN
+      END IF
+      IF (.not.have_var(idChuiw)) THEN
+        IF (Master) WRITE (stdout,10) string,                           &
+     &                                TRIM(Vname(1,idChuiw)),           &
+     &                                TRIM(ncname)
+        exit_flag=2
+        RETURN
+      END IF
+      IF (.not.have_var(idS0mk)) THEN
+        IF (Master) WRITE (stdout,10) string,                           &
+     &                                TRIM(Vname(1,idS0mk)),            &
+     &                                TRIM(ncname)
+        exit_flag=2
+        RETURN
+      END IF
+      IF (.not.have_var(idT0mk)) THEN
+        IF (Master) WRITE (stdout,10) string,                           &
+     &                                TRIM(Vname(1,idT0mk)),            &
+     &                                TRIM(ncname)
+        exit_flag=2
+        RETURN
+      END IF
 # endif
 #endif
 !
