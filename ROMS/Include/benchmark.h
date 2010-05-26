@@ -14,7 +14,7 @@
 ** Input script:       benchmark1.in, benchmark2.in, benchmark3.in
 */
 
-#define PARALLEL_IO
+#undef PARALLEL_IO
 #define NETCDF4
 #define AVERAGES
 
