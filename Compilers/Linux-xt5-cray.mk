@@ -28,7 +28,7 @@
 # First the defaults
 #
                FC := ftn
-           FFLAGS := -u
+           FFLAGS := 
               CPP := /usr/bin/cpp
          CPPFLAGS := -P -traditional
                CC := gcc
@@ -63,9 +63,12 @@ TYPESIZES_MODFILE := TYPESIZES.mod
 #
 
 ifdef USE_NETCDF4
-    NETCDF_INCDIR ?= /opt/cray/netcdf/4.0.1.3/netcdf-pathscale/include
-    NETCDF_LIBDIR ?= /opt/cray/netcdf/4.0.1.3/netcdf-pathscale/lib
+    NETCDF_INCDIR ?= /opt/cray/netcdf/4.0.1.3/netcdf-cce/include
+    NETCDF_LIBDIR ?= /opt/cray/netcdf/4.0.1.3/netcdf-cce/lib
       HDF5_LIBDIR ?= /u2/wes/PET_HOME/pkgs/hdf5-1.8.1-parallel/lib
+#    NETCDF_INCDIR ?= /u2/wes/PET_HOME/pkgs/netcdf-4.0-parallel/include
+#    NETCDF_LIBDIR ?= /u2/wes/PET_HOME/pkgs/netcdf-4.0-parallel/lib
+#      HDF5_LIBDIR ?= /u2/wes/PET_HOME/pkgs/hdf5-1.8.1-parallel/lib
 
 #    NETCDF_INCDIR ?= /u2/wes/PET_HOME/include
 #    NETCDF_LIBDIR ?= /u2/wes/PET_HOME/lib
@@ -135,9 +138,9 @@ endif
 # local directory and compilation flags inside the code.
 #
 
-$(SCRATCH_DIR)/analytical.o: FFLAGS += -freeform
-$(SCRATCH_DIR)/mod_ncparam.o: FFLAGS += -freeform
-$(SCRATCH_DIR)/mod_strings.o: FFLAGS := $(MY_FFLAGS) -freeform
+$(SCRATCH_DIR)/analytical.o: FFLAGS += -f free
+$(SCRATCH_DIR)/mod_ncparam.o: FFLAGS += -f free
+$(SCRATCH_DIR)/mod_strings.o: FFLAGS := $(MY_FFLAGS) -f free
 
 #
 # Supress free format in SWAN source files since there are comments
@@ -163,9 +166,9 @@ $(SCRATCH_DIR)/swanpre2.o: FFLAGS += -fixedform
 $(SCRATCH_DIR)/swanser.o: FFLAGS += -fixedform
 $(SCRATCH_DIR)/swmod1.o: FFLAGS += -fixedform
 $(SCRATCH_DIR)/swmod2.o: FFLAGS += -fixedform
-$(SCRATCH_DIR)/m_constants.o: FFLAGS += -freeform
-$(SCRATCH_DIR)/m_fileio.o: FFLAGS += -freeform
-$(SCRATCH_DIR)/mod_xnl4v5.o: FFLAGS += -freeform
-$(SCRATCH_DIR)/serv_xnl4v5.o: FFLAGS += -freeform
+$(SCRATCH_DIR)/m_constants.o: FFLAGS += -f free
+$(SCRATCH_DIR)/m_fileio.o: FFLAGS += -f free
+$(SCRATCH_DIR)/mod_xnl4v5.o: FFLAGS += -f free
+$(SCRATCH_DIR)/serv_xnl4v5.o: FFLAGS += -f free
 
 endif
