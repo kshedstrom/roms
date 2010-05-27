@@ -72,7 +72,7 @@
 !
 !  Set biological tracer identification indices.
 !
-      integer, pointer :: idbio(:)    ! Biological tracers
+      integer, allocatable :: idbio(:)! Biological tracers
       integer :: iNO3_                ! Nitrate concentration
       integer :: iNH4_                ! Ammonium concentration
       integer :: iSiOH                ! Silicate concentration

@@ -1765,6 +1765,10 @@
                 load=.TRUE.
               CASE ('idTbry(inorth,inert(i))')
                 load=.TRUE.
+# ifdef TS_PSOURCE
+              CASE ('idRtrc(inert(i))')
+                load=.TRUE.
+# endif
 #endif
 #ifdef DIAGNOSTICS
               CASE ('id2dPV')

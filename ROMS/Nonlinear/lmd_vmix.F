@@ -354,7 +354,7 @@
 !
 # ifdef ISOMIP
             Akv(i,j,k)=lmd_iwm
-            Akt(i,j,k)=lmd_iws
+            Akt(i,j,k,itemp)=lmd_iws
 # else
             Akv(i,j,k)=lmd_iwm+lmd_nu0m*nu_sx
             Akt(i,j,k,itemp)=lmd_iws+lmd_nu0s*nu_sx
