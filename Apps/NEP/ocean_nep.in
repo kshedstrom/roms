@@ -239,7 +239,8 @@
 ! NetCDF units attribute.
 
 !     DSTART =  21185.0d0                  ! days
-      DSTART =  31049.0d0                  ! days
+      DSTART =  25202.0d0                  ! days
+!     DSTART =  31049.0d0                  ! days
   TIDE_START =  -693962.0d0                ! days
     TIME_REF =  19000101.0d0               ! yyyymmdd.dd
 
@@ -496,7 +497,7 @@ Hout2(idT0mk) == F
 
 !     GRDNAME == /wrkdir/kate/BiomModel/NEP4/NEP4_grid.nc
      GRDNAME == /wrkdir/kate/NEP5/Files/NEP_grid_5a.nc
-     ININAME == /wrkdir/kate/NEP5/Files/soda2.0.2_NEP5a_init_1958.nc
+     ININAME == /wrkdir/kate/NEP5/Files/soda2.0.2_NEP5a_init_1969.nc
 !     ININAME == nep5_rst.nc
      ITLNAME == /ptmp/enrique/ROMS/NEP4/Inputs/ocean_itl.nc
      IRPNAME == ocean_irp.nc
@@ -517,7 +518,7 @@ Hout2(idT0mk) == F
 ! at the each entry, except the last one.
 
 
-    NFFILES == 10                          ! number of forcing files
+    NFFILES == 11                          ! number of forcing files
 
     FRCNAME == /wrkdir/kate/NEP5/Files/Pair.1948-2006.nc   \
                /wrkdir/kate/NEP5/Files/lwrad.1948-2006.nc  \
@@ -526,7 +527,8 @@ Hout2(idT0mk) == F
                /wrkdir/kate/NEP5/Files/Tair.1948-2006.nc   \
                /wrkdir/kate/NEP5/Files/Uwind.1948-2006.nc  \
                /wrkdir/kate/NEP5/Files/Vwind.1948-2006.nc  \
-               /wrkdir/kate/NEP5/Files/runoff.nc   \
+	       /wrkdir/kate/NEP5/Files/CCSM_Runoff.nc   \
+	       /wrkdir/kate/NEP5/Files/sss_fill_2004.nc  \
                /wrkdir/kate/NEP5/Files/rain.1948-2006.nc  \
                /wrkdir/kate/NEP5/Files/NEP4_tides_otps.nc
 
