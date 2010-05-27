@@ -163,7 +163,7 @@
       integer, parameter :: Nreduce = 5
 #  endif
 # else
-      integer :: Nreduce = 4
+      integer, parameter :: Nreduce = 4
 # endif
       real(r8), allocatable           :: buffer(:)
       character (len=3), allocatable  :: op_handle(:)
@@ -207,9 +207,6 @@
 #ifdef SOLVE3D
         my_maxrho=-1.0E+20_r8
 # ifdef BIOLOGY
-#  ifdef DISTRIBUTE
-        Nreduce = 5 + NBT
-#  endif
         DO ibt=1,NBT
           my_maxbio(ibt)=-1.0E+20_r8
         END DO
@@ -351,12 +348,6 @@
         IF (tile_count.eq.NSUB) THEN
           tile_count=0
 #ifdef DISTRIBUTE
-	  IF (.not. allocated(buffer)) THEN
-	    allocate ( buffer(Nreduce) )
-	  END IF
-	  IF (.not. allocated(op_handle)) THEN
-	    allocate ( op_handle(Nreduce) )
-	  END IF
           buffer(1)=volume
           buffer(2)=avgke
           buffer(3)=avgpe
