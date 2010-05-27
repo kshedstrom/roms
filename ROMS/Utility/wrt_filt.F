@@ -103,6 +103,7 @@
       IF (status.ne.nf90_noerr) THEN
         IF (Master) THEN
           WRITE (stdout,10) TRIM(Vname(1,idFsur)), tFILindx(ng)
+          PRINT *, trim(nf90_strerror(status))
         END IF
         exit_flag=3
         ioerror=status
@@ -123,6 +124,7 @@
       IF (status.ne.nf90_noerr) THEN
         IF (Master) THEN
           WRITE (stdout,10) TRIM(Vname(1,idUbar)), tFILindx(ng)
+          PRINT *, trim(nf90_strerror(status))
         END IF
         exit_flag=3
         ioerror=status
@@ -143,6 +145,7 @@
       IF (status.ne.nf90_noerr) THEN
         IF (Master) THEN
           WRITE (stdout,10) TRIM(Vname(1,idVbar)), tFILindx(ng)
+          PRINT *, trim(nf90_strerror(status))
         END IF
         exit_flag=3
         ioerror=status
@@ -164,6 +167,7 @@
       IF (status.ne.nf90_noerr) THEN
         IF (Master) THEN
           WRITE (stdout,10) TRIM(Vname(1,idUvel)), tFILindx(ng)
+          PRINT *, trim(nf90_strerror(status))
         END IF
         exit_flag=3
         ioerror=status
@@ -184,6 +188,7 @@
       IF (status.ne.nf90_noerr) THEN
         IF (Master) THEN
           WRITE (stdout,10) TRIM(Vname(1,idVvel)), tFILindx(ng)
+          PRINT *, trim(nf90_strerror(status))
         END IF
         exit_flag=3
         ioerror=status
@@ -205,6 +210,7 @@
       IF (status.ne.nf90_noerr) THEN
         IF (Master) THEN
           WRITE (stdout,10) TRIM(Vname(1,idDano)), tFILindx(ng)
+          PRINT *, trim(nf90_strerror(status))
         END IF
         exit_flag=3
         ioerror=status
@@ -226,6 +232,7 @@
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
             WRITE (stdout,10) TRIM(Vname(1,idTvar(itrc))), tFILindx(ng)
+            PRINT *, trim(nf90_strerror(status))
           END IF
           exit_flag=3
           ioerror=status
@@ -247,6 +254,7 @@
       IF (status.ne.nf90_noerr) THEN
         IF (Master) THEN
           WRITE (stdout,10) TRIM(Vname(1,idOvel)), tFILindx(ng)
+          PRINT *, trim(nf90_strerror(status))
         END IF
         exit_flag=3
         ioerror=status
@@ -269,6 +277,7 @@
       IF (status.ne.nf90_noerr) THEN
         IF (Master) THEN
           WRITE (stdout,10) TRIM(Vname(1,idHsbl)), tFILindx(ng)
+          PRINT *, trim(nf90_strerror(status))
         END IF
         exit_flag=3
         ioerror=status
@@ -291,6 +300,7 @@
       IF (status.ne.nf90_noerr) THEN
         IF (Master) THEN
           WRITE (stdout,10) TRIM(Vname(1,idHbbl)), tFILindx(ng)
+          PRINT *, trim(nf90_strerror(status))
         END IF
         exit_flag=3
         ioerror=status
@@ -313,6 +323,7 @@
       IF (status.ne.nf90_noerr) THEN
         IF (Master) THEN
           WRITE (stdout,10) TRIM(Vname(1,idVvis)), tFILindx(ng)
+          PRINT *, trim(nf90_strerror(status))
         END IF
         exit_flag=3
         ioerror=status
@@ -335,6 +346,7 @@
       IF (status.ne.nf90_noerr) THEN
         IF (Master) THEN
           WRITE (stdout,10) TRIM(Vname(1,idTdif)), tFILindx(ng)
+          PRINT *, trim(nf90_strerror(status))
         END IF
         exit_flag=3
         ioerror=status
@@ -357,6 +369,7 @@
       IF (status.ne.nf90_noerr) THEN
         IF (Master) THEN
           WRITE (stdout,10) TRIM(Vname(1,idSdif)), tFILindx(ng)
+          PRINT *, trim(nf90_strerror(status))
         END IF
         exit_flag=3
         ioerror=status
@@ -380,6 +393,7 @@
       IF (status.ne.nf90_noerr) THEN
         IF (Master) THEN
           WRITE (stdout,10) TRIM(Vname(1,idTsur(itemp))), tFILindx(ng)
+          PRINT *, trim(nf90_strerror(status))
         END IF
         exit_flag=3
         ioerror=status
@@ -401,6 +415,7 @@
       IF (status.ne.nf90_noerr) THEN
         IF (Master) THEN
           WRITE (stdout,10) TRIM(Vname(1,idTsur(isalt))), tFILindx(ng)
+          PRINT *, trim(nf90_strerror(status))
         END IF
         exit_flag=3
         ioerror=status
@@ -422,6 +437,7 @@
       IF (status.ne.nf90_noerr) THEN
         IF (Master) THEN
           WRITE (stdout,10) TRIM(Vname(1,idLhea)), tFILindx(ng)
+          PRINT *, trim(nf90_strerror(status))
         END IF
         exit_flag=3
         ioerror=status
@@ -442,6 +458,7 @@
       IF (status.ne.nf90_noerr) THEN
         IF (Master) THEN
           WRITE (stdout,10) TRIM(Vname(1,idShea)), tFILindx(ng)
+          PRINT *, trim(nf90_strerror(status))
         END IF
         exit_flag=3
         ioerror=status
@@ -462,6 +479,7 @@
       IF (status.ne.nf90_noerr) THEN
         IF (Master) THEN
           WRITE (stdout,10) TRIM(Vname(1,idLrad)), tFILindx(ng)
+          PRINT *, trim(nf90_strerror(status))
         END IF
         exit_flag=3
         ioerror=status
@@ -484,6 +502,7 @@
       IF (status.ne.nf90_noerr) THEN
         IF (Master) THEN
           WRITE (stdout,10) TRIM(Vname(1,idSrad)), tFILindx(ng)
+          PRINT *, trim(nf90_strerror(status))
         END IF
         exit_flag=3
         ioerror=status
@@ -508,6 +527,7 @@
       IF (status.ne.nf90_noerr) THEN
         IF (Master) THEN
           WRITE (stdout,10) TRIM(Vname(1,idUsms)), tFILindx(ng)
+          PRINT *, trim(nf90_strerror(status))
         END IF
         exit_flag=3
         ioerror=status
@@ -528,6 +548,7 @@
       IF (status.ne.nf90_noerr) THEN
         IF (Master) THEN
           WRITE (stdout,10) TRIM(Vname(1,idVsms)), tFILindx(ng)
+          PRINT *, trim(nf90_strerror(status))
         END IF
         exit_flag=3
         ioerror=status
@@ -550,6 +571,7 @@
       IF (status.ne.nf90_noerr) THEN
         IF (Master) THEN
           WRITE (stdout,10) TRIM(Vname(1,idUice)), tFILindx(ng)
+          PRINT *, trim(nf90_strerror(status))
         END IF
         exit_flag=3
         ioerror=status
@@ -570,6 +592,7 @@
       IF (status.ne.nf90_noerr) THEN
         IF (Master) THEN
           WRITE (stdout,10) TRIM(Vname(1,idVice)), tFILindx(ng)
+          PRINT *, trim(nf90_strerror(status))
         END IF
         exit_flag=3
         ioerror=status
@@ -590,6 +613,7 @@
       IF (status.ne.nf90_noerr) THEN
         IF (Master) THEN
           WRITE (stdout,10) TRIM(Vname(1,idAice)), tFILindx(ng)
+          PRINT *, trim(nf90_strerror(status))
         END IF
         exit_flag=3
         ioerror=status
@@ -610,6 +634,7 @@
       IF (status.ne.nf90_noerr) THEN
         IF (Master) THEN
           WRITE (stdout,10) TRIM(Vname(1,idHice)), tFILindx(ng)
+          PRINT *, trim(nf90_strerror(status))
         END IF
         exit_flag=3
         ioerror=status
@@ -630,6 +655,7 @@
       IF (status.ne.nf90_noerr) THEN
         IF (Master) THEN
           WRITE (stdout,10) TRIM(Vname(1,idHsno)), tFILindx(ng)
+          PRINT *, trim(nf90_strerror(status))
         END IF
         exit_flag=3
         ioerror=status
@@ -650,6 +676,7 @@
       IF (status.ne.nf90_noerr) THEN
         IF (Master) THEN
           WRITE (stdout,10) TRIM(Vname(1,idSfwat)), tFILindx(ng)
+          PRINT *, trim(nf90_strerror(status))
         END IF
         exit_flag=3
         ioerror=status
@@ -670,6 +697,7 @@
       IF (status.ne.nf90_noerr) THEN
         IF (Master) THEN
           WRITE (stdout,10) TRIM(Vname(1,idTice)), tFILindx(ng)
+          PRINT *, trim(nf90_strerror(status))
         END IF
         exit_flag=3
         ioerror=status
@@ -690,6 +718,7 @@
       IF (status.ne.nf90_noerr) THEN
         IF (Master) THEN
           WRITE (stdout,10) TRIM(Vname(1,idTimid)), tFILindx(ng)
+          PRINT *, trim(nf90_strerror(status))
         END IF
         exit_flag=3
         ioerror=status
@@ -710,6 +739,7 @@
       IF (status.ne.nf90_noerr) THEN
         IF (Master) THEN
           WRITE (stdout,10) TRIM(Vname(1,idAgeice)), tFILindx(ng)
+          PRINT *, trim(nf90_strerror(status))
         END IF
         exit_flag=3
         ioerror=status
@@ -730,6 +760,7 @@
       IF (status.ne.nf90_noerr) THEN
         IF (Master) THEN
           WRITE (stdout,10) TRIM(Vname(1,idS0mk)), tFILindx(ng)
+          PRINT *, trim(nf90_strerror(status))
         END IF
         exit_flag=3
         ioerror=status
@@ -750,6 +781,7 @@
       IF (status.ne.nf90_noerr) THEN
         IF (Master) THEN
           WRITE (stdout,10) TRIM(Vname(1,idT0mk)), tFILindx(ng)
+          PRINT *, trim(nf90_strerror(status))
         END IF
         exit_flag=3
         ioerror=status
@@ -770,6 +802,7 @@
       IF (status.ne.nf90_noerr) THEN
         IF (Master) THEN
           WRITE (stdout,10) TRIM(Vname(1,idWfr)), tFILindx(ng)
+          PRINT *, trim(nf90_strerror(status))
         END IF
         exit_flag=3
         ioerror=status
@@ -790,6 +823,7 @@
       IF (status.ne.nf90_noerr) THEN
         IF (Master) THEN
           WRITE (stdout,10) TRIM(Vname(1,idWai)), tFILindx(ng)
+          PRINT *, trim(nf90_strerror(status))
         END IF
         exit_flag=3
         ioerror=status
@@ -810,6 +844,7 @@
       IF (status.ne.nf90_noerr) THEN
         IF (Master) THEN
           WRITE (stdout,10) TRIM(Vname(1,idWao)), tFILindx(ng)
+          PRINT *, trim(nf90_strerror(status))
         END IF
         exit_flag=3
         ioerror=status
@@ -830,6 +865,7 @@
       IF (status.ne.nf90_noerr) THEN
         IF (Master) THEN
           WRITE (stdout,10) TRIM(Vname(1,idWio)), tFILindx(ng)
+          PRINT *, trim(nf90_strerror(status))
         END IF
         exit_flag=3
         ioerror=status
@@ -850,6 +886,7 @@
       IF (status.ne.nf90_noerr) THEN
         IF (Master) THEN
           WRITE (stdout,10) TRIM(Vname(1,idWro)), tFILindx(ng)
+          PRINT *, trim(nf90_strerror(status))
         END IF
         exit_flag=3
         ioerror=status
@@ -870,6 +907,7 @@
       IF (status.ne.nf90_noerr) THEN
         IF (Master) THEN
           WRITE (stdout,10) TRIM(Vname(1,idSig11)), tFILindx(ng)
+          PRINT *, trim(nf90_strerror(status))
         END IF
         exit_flag=3
         ioerror=status
@@ -890,6 +928,7 @@
       IF (status.ne.nf90_noerr) THEN
         IF (Master) THEN
           WRITE (stdout,10) TRIM(Vname(1,idSig12)), tFILindx(ng)
+          PRINT *, trim(nf90_strerror(status))
         END IF
         exit_flag=3
         ioerror=status
@@ -910,6 +949,7 @@
       IF (status.ne.nf90_noerr) THEN
         IF (Master) THEN
           WRITE (stdout,10) TRIM(Vname(1,idSig22)), tFILindx(ng)
+          PRINT *, trim(nf90_strerror(status))
         END IF
         exit_flag=3
         ioerror=status
@@ -930,6 +970,7 @@
       IF (status.ne.nf90_noerr) THEN
         IF (Master) THEN
           WRITE (stdout,10) TRIM(Vname(1,idIomflx)), tFILindx(ng)
+          PRINT *, trim(nf90_strerror(status))
         END IF
         exit_flag=3
         ioerror=status
@@ -950,6 +991,7 @@
       IF (status.ne.nf90_noerr) THEN
         IF (Master) THEN
           WRITE (stdout,10) TRIM(Vname(1,idTauiw)), tFILindx(ng)
+          PRINT *, trim(nf90_strerror(status))
         END IF
         exit_flag=3
         ioerror=status
@@ -970,6 +1012,7 @@
       IF (status.ne.nf90_noerr) THEN
         IF (Master) THEN
           WRITE (stdout,10) TRIM(Vname(1,idChuiw)), tFILindx(ng)
+          PRINT *, trim(nf90_strerror(status))
         END IF
         exit_flag=3
         ioerror=status
