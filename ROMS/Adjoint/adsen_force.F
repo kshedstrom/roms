@@ -198,7 +198,7 @@
 #  else
       IF ((mod(iic(ng)-1,nTLM(ng)).eq.0).and.                           &
      &    (DendS(ng).ge.tdays(ng)).and.(tdays(ng).ge.DstrS(ng))) THEN
-# endif
+#  endif
           adFac=1.0_r8
           IF (Master) THEN
             WRITE (stdout,10) iic(ng)-1
