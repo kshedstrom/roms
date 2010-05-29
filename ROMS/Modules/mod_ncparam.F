@@ -140,9 +140,11 @@
 !
 !  Switches indicating which variables are written to output files.
 !
-        logical  :: Hout(NV,Ngrids)  ! history file switches
-        logical  :: Hout2(NV,Ngrids) ! secondary averages file switches
-        logical  :: Sout(NV,Ngrids)  ! station file switches
+        logical  :: Aout(NV,Ngrids) ! average file switches
+        logical  :: Dout(NV,Ngrids) ! diagnostic file switches
+        logical  :: Hout(NV,Ngrids) ! history file switches
+        logical  :: Aout2(NV,Ngrids) ! secondary averages file switches
+        logical  :: Sout(NV,Ngrids) ! station file switches
 !
 !  Grid identification indices.
 !
@@ -500,7 +502,9 @@
 !  Output NetCDF variables IDs.
 !
         integer, allocatable :: idTvar(:)     ! tracers variables
-	
+        integer, allocatable :: idTrcD(:)     ! detided tracer variables
+        integer, allocatable :: idTrcH(:)     ! tracer variables hamonics
+
         integer, allocatable :: adjTid(:,:)   ! adjoint tracers IDs
         integer, allocatable :: avgTid(:,:)   ! averages tracers IDs
         integer, allocatable :: avg2Tid(:,:)  ! averages tracers IDs
@@ -666,6 +670,8 @@
 
         allocate ( idTerr(MT) )
         allocate ( idTobs(MT) )
+        allocate ( idTrcD(NAT) )
+        allocate ( idTrcH(NAT) )
         allocate ( idTsur(MT) )
         allocate ( idTtlf(MT) )
         allocate ( idTvar(MT) )
@@ -1085,8 +1091,10 @@
             Linfo(2,i,ng)=.FALSE.
             Linfo(3,i,ng)=.FALSE.
             Linfo(4,i,ng)=.FALSE.
+            Aout(i,ng)=.FALSE.
+            Dout(i,ng)=.FALSE.
             Hout(i,ng)=.FALSE.
-            Hout2(i,ng)=.FALSE.
+            Aout2(i,ng)=.FALSE.
             Sout(i,ng)=.FALSE.
             Iinfo(1,i,ng)=0
             Iinfo(2,i,ng)=-1
@@ -1705,19 +1713,23 @@
                 idv3dD=varid
               CASE ('idv3dH')
                 idv3dH=varid
+              CASE ('idTrcD(itemp)')
+                idTrcD(itemp)=varid
+              CASE ('idTrcH(itemp)')
+                idTrcH(itemp)=varid
+              CASE ('idTrcD(isalt)')
+                idTrcD(isalt)=varid
+              CASE ('idTrcH(isalt)')
+                idTrcH(isalt)=varid
 # endif
 #endif
-#ifdef AVERAGES_QUADRATIC
               CASE ('idU2av')
                 idU2av=varid
               CASE ('idV2av')
                 idV2av=varid
               CASE ('idZZav')
                 idZZav=varid
-#endif
 #ifdef SOLVE3D
-# ifdef AVERAGES_QUADRATIC
-
               CASE ('idTTav(itemp)')
                 idTTav(itemp)=varid
               CASE ('iHUTav(itemp)')
@@ -1738,9 +1750,6 @@
                 idUVav=varid
               CASE ('idVVav')
                 idVVav=varid
-# endif
-# ifdef SALINITY
-#  ifdef AVERAGES_QUADRATIC
               CASE ('idTTav(isalt)')
                 idTTav(isalt)=varid
               CASE ('iHUTav(isalt)')
@@ -1751,8 +1760,6 @@
                 idUTav(isalt)=varid
               CASE ('idVTav(isalt)')
                 idVTav(isalt)=varid
-#  endif
-# endif
 #endif
 #ifdef T_PASSIVE
               CASE ('idTvar(inert(i))')
@@ -1770,18 +1777,14 @@
                 load=.TRUE.
 # endif
 #endif
-#ifdef DIAGNOSTICS
               CASE ('id2dPV')
                 id2dPV=varid
               CASE ('id2dRV')
                 id2dRV=varid
-# ifdef SOLVE3D
               CASE ('id3dPV')
                 id3dPV=varid
               CASE ('id3dRV')
                 id3dRV=varid
-# endif
-#endif
 #ifdef DIAGNOSTICS_UV
               CASE ('idDu2d(M2pgrd)')
                 idDu2d(M2pgrd)=varid
