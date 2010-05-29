@@ -60,12 +60,14 @@
 !  zeta_detided Time-averaged and detided free-surface.                !
 !  zeta_tide    Time-accumulated free-surface tide harmonics.          !
 #  ifdef SOLVE3D
+!  t_detided    Time-averaged and detided tracers (T,S).               !
+!  t_tide       Time-accumulated 3D tracers (T,S) tide harmonics.      !
 !  u_detided    Time-averaged and detided 3D u-momentum.               !
 !  u_tide       Time-accumulated 3D u-momentum tide harmonics.         !
 !  v_detided    Time-averaged and detided 3D v-momentum.               !
 !  v_tide       Time-accumulated 3D v-momentum tide harmonics.         !
 #  endif
-!
+!                                                                      !
 # endif
 !=======================================================================
 !
@@ -117,6 +119,9 @@
           real(r8), pointer :: zeta_detided(:,:)
           real(r8), pointer :: zeta_tide(:,:,:)
 #  ifdef SOLVE3D
+          real(r8), pointer :: t_detided(:,:,:,:)
+          real(r8), pointer :: t_tide(:,:,:,:,:)
+
           real(r8), pointer :: u_detided(:,:,:)
           real(r8), pointer :: u_tide(:,:,:,:)
 
@@ -224,18 +229,6 @@
 !
       allocate ( TIDES(ng) % Tperiod(MTC)  )
 
-# if defined AVERAGES_DETIDE && defined AVERAGES
-      allocate ( TIDES(ng) % CosOmega(MTC) )
-      allocate ( TIDES(ng) % SinOmega(MTC) )
-      allocate ( TIDES(ng) % CosW_avg(MTC) )
-      allocate ( TIDES(ng) % CosW_sum(MTC) )
-      allocate ( TIDES(ng) % SinW_avg(MTC) )
-      allocate ( TIDES(ng) % SinW_sum(MTC) )
-      allocate ( TIDES(ng) % CosWCosW(MTC,MTC) )
-      allocate ( TIDES(ng) % SinWSinW(MTC,MTC) )
-      allocate ( TIDES(ng) % SinWCosW(MTC,MTC) )
-# endif
-
 # if defined SSH_TIDES
       allocate ( TIDES(ng) % SSH_Tamp(LBi:UBi,LBj:UBj,MTC) )
       allocate ( TIDES(ng) % SSH_Tphase(LBi:UBi,LBj:UBj,MTC) )
@@ -270,20 +263,51 @@
 # endif
 
 # if defined AVERAGES_DETIDE && defined AVERAGES
-      allocate ( TIDES(ng) % ubar_detided(LBi:UBi,LBj:UBj) )
-      allocate ( TIDES(ng) % ubar_tide(LBi:UBi,LBj:UBj,0:2*MTC) )
+!
+!  Allocate variables used for the least-squares detiding of
+!  time-averaged fields.
+!
+      allocate ( TIDES(ng) % CosOmega(MTC) )
+      allocate ( TIDES(ng) % SinOmega(MTC) )
+      allocate ( TIDES(ng) % CosW_avg(MTC) )
+      allocate ( TIDES(ng) % CosW_sum(MTC) )
+      allocate ( TIDES(ng) % SinW_avg(MTC) )
+      allocate ( TIDES(ng) % SinW_sum(MTC) )
+      allocate ( TIDES(ng) % CosWCosW(MTC,MTC) )
+      allocate ( TIDES(ng) % SinWSinW(MTC,MTC) )
+      allocate ( TIDES(ng) % SinWCosW(MTC,MTC) )
 
-      allocate ( TIDES(ng) % vbar_detided(LBi:UBi,LBj:UBj) )
-      allocate ( TIDES(ng) % vbar_tide(LBi:UBi,LBj:UBj,0:2*MTC) )
+      IF (Aout(idFsuD,ng)) THEN
+        allocate ( TIDES(ng) % zeta_detided(LBi:UBi,LBj:UBj) )
+        allocate ( TIDES(ng) % zeta_tide(LBi:UBi,LBj:UBj,0:2*MTC) )
+      END IF
 
-      allocate ( TIDES(ng) % zeta_detided(LBi:UBi,LBj:UBj) )
-      allocate ( TIDES(ng) % zeta_tide(LBi:UBi,LBj:UBj,0:2*MTC) )
+      IF (Aout(idu2dD,ng)) THEN
+        allocate ( TIDES(ng) % ubar_detided(LBi:UBi,LBj:UBj) )
+        allocate ( TIDES(ng) % ubar_tide(LBi:UBi,LBj:UBj,0:2*MTC) )
+      END IF
+
+      IF (Aout(idv2dD,ng)) THEN
+        allocate ( TIDES(ng) % vbar_detided(LBi:UBi,LBj:UBj) )
+        allocate ( TIDES(ng) % vbar_tide(LBi:UBi,LBj:UBj,0:2*MTC) )
+      END IF
+
 #  ifdef SOLVE3D
-      allocate ( TIDES(ng) % u_detided(LBi:UBi,LBj:UBj,N(ng)) )
-      allocate ( TIDES(ng) % u_tide(LBi:UBi,LBj:UBj,N(ng),0:2*MTC) )
+      IF (Aout(idu3dD,ng)) THEN
+        allocate ( TIDES(ng) % u_detided(LBi:UBi,LBj:UBj,N(ng)) )
+        allocate ( TIDES(ng) % u_tide(LBi:UBi,LBj:UBj,N(ng),0:2*MTC) )
+      END IF
 
-      allocate ( TIDES(ng) % v_detided(LBi:UBi,LBj:UBj,N(ng)) )
-      allocate ( TIDES(ng) % v_tide(LBi:UBi,LBj:UBj,N(ng),0:2*MTC) )
+      IF (Aout(idv3dD,ng)) THEN
+        allocate ( TIDES(ng) % v_detided(LBi:UBi,LBj:UBj,N(ng)) )
+        allocate ( TIDES(ng) % v_tide(LBi:UBi,LBj:UBj,N(ng),0:2*MTC) )
+      END IF
+
+      IF (ANY(Aout(idTrcD(:),ng))) THEN
+        allocate ( TIDES(ng) % t_detided(LBi:UBi,LBj:UBj,N(ng),NAT) )
+        allocate ( TIDES(ng) % t_tide(LBi:UBi,LBj:UBj,N(ng),            &
+     &                                0:2*MTC,NAT) )
+      END IF
 #  endif
 # endif
 
@@ -303,6 +327,7 @@
 !=======================================================================
 !
       USE mod_param
+      USE mod_ncparam
 !
 !  Imported variable declarations.
 !
@@ -311,7 +336,7 @@
 !  Local variable declarations.
 !
       integer :: Imin, Imax, Jmin, Jmax
-      integer :: i, itide, j, jtide, k
+      integer :: i, itide, itrc, j, jtide, k
 
       real(r8), parameter :: IniVal = 0.0_r8
 
@@ -351,11 +376,41 @@
 !  Initialize module variables.
 !-----------------------------------------------------------------------
 !
+!  Initialize tidal forcing variables.
+!
       IF (SOUTH_WEST_TEST) THEN
         DO itide=1,MTC
           TIDES(ng) % Tperiod(itide) = IniVal
         END DO
+      END IF
+
+      DO itide=1,MTC
+# if defined SSH_TIDES
+        DO j=Jmin,Jmax
+          DO i=Imin,Imax
+            TIDES(ng) % SSH_Tamp(i,j,itide) = IniVal
+            TIDES(ng) % SSH_Tphase(i,j,itide) = IniVal
+          END DO
+        END DO
+# endif
+# if defined UV_TIDES
+        DO j=Jmin,Jmax
+          DO i=Imin,Imax
+            TIDES(ng) % UV_Tangle(i,j,itide) = IniVal
+            TIDES(ng) % UV_Tmajor(i,j,itide) = IniVal
+            TIDES(ng) % UV_Tminor(i,j,itide) = IniVal
+            TIDES(ng) % UV_Tphase(i,j,itide) = IniVal
+          END DO
+        END DO
+# endif
+      END DO
+
 # if defined AVERAGES_DETIDE && defined AVERAGES
+!
+!  Initialize cariables used for the least-squares detiding of
+!  time-averaged fields.
+!
+      IF (SOUTH_WEST_TEST) THEN
         DO jtide=1,MTC
           TIDES(ng) % CosOmega(jtide) = IniVal
           TIDES(ng) % SinOmega(jtide) = IniVal
@@ -369,30 +424,38 @@
             TIDES(ng) % SinWCosW(itide,jtide) = IniVal
           END DO
         END DO
-# endif
       END IF
 
-      DO itide=1,MTC
-# if defined SSH_TIDES
+      IF (Aout(idFsuD,ng)) THEN
         DO j=Jmin,Jmax
           DO i=Imin,Imax
-            TIDES(ng) % SSH_Tamp(i,j,itide) = IniVal
-            TIDES(ng) % SSH_Tphase(i,j,itide) = IniVal
+            TIDES(ng) % zeta_detided(i,j) = IniVal
           END DO
         END DO
-# endif
+        DO itide=0,2*MTC
+          DO j=Jmin,Jmax
+            DO i=Imin,Imax
+              TIDES(ng) % zeta_tide(i,j,itide) = IniVal
+            END DO
+          END DO
+        END DO
+      END IF
 
-# if defined UV_TIDES
+      IF (Aout(idu2dD,ng)) THEN
         DO j=Jmin,Jmax
           DO i=Imin,Imax
-            TIDES(ng) % UV_Tangle(i,j,itide) = IniVal
-            TIDES(ng) % UV_Tmajor(i,j,itide) = IniVal
-            TIDES(ng) % UV_Tminor(i,j,itide) = IniVal
-            TIDES(ng) % UV_Tphase(i,j,itide) = IniVal
+            TIDES(ng) % ubar_detided(i,j) = IniVal
           END DO
         END DO
+        DO itide=0,2*MTC
+          DO j=Jmin,Jmax
+            DO i=Imin,Imax
+              TIDES(ng) % ubar_tide(i,j,itide) = IniVal
+            END DO
+          END DO
+        END DO
+      END IF
 # endif
-      END DO
 
 # if defined POT_TIDES
       DO itide=1,MTC
@@ -530,30 +593,83 @@
 
 # endif
 # if defined AVERAGES_DETIDE && defined AVERAGES
-      DO j=Jmin,Jmax
-        DO i=Imin,Imax
-          TIDES(ng) % ubar_detided(i,j) = IniVal
-          TIDES(ng) % vbar_detided(i,j) = IniVal
-          TIDES(ng) % zeta_detided(i,j) = IniVal
-          DO itide=0,2*MTC
-            TIDES(ng) % ubar_tide(i,j,itide) = IniVal
-            TIDES(ng) % vbar_tide(i,j,itide) = IniVal
-            TIDES(ng) % zeta_tide(i,j,itide) = IniVal
+      IF (Aout(idv2dD,ng)) THEN
+        DO j=Jmin,Jmax
+          DO i=Imin,Imax
+            TIDES(ng) % vbar_detided(i,j) = IniVal
           END DO
         END DO
-#  ifdef SOLVE3D
-        DO k=1,N(ng)
-          DO i=Imin,Imax
-            TIDES(ng) % u_detided(i,j,k) = IniVal
-            TIDES(ng) % v_detided(i,j,k) = IniVal
-            DO itide=0,2*MTC
-              TIDES(ng) % u_tide(i,j,k,itide) = IniVal
-              TIDES(ng) % v_tide(i,j,k,itide) = IniVal
+        DO itide=0,2*MTC
+          DO j=Jmin,Jmax
+            DO i=Imin,Imax
+              TIDES(ng) % vbar_tide(i,j,itide) = IniVal
             END DO
           END DO
         END DO
+      END IF
+
+#  ifdef SOLVE3D
+      IF (Aout(idu3dD,ng)) THEN
+        DO k=1,N(ng)
+          DO j=Jmin,Jmax
+            DO i=Imin,Imax
+              TIDES(ng) % u_detided(i,j,k) = IniVal
+            END DO
+          END DO
+        END DO
+        DO itide=0,2*MTC
+          DO k=1,N(ng)
+            DO j=Jmin,Jmax
+              DO i=Imin,Imax
+                TIDES(ng) % u_tide(i,j,k,itide) = IniVal
+              END DO
+            END DO
+          END DO
+        END DO
+      END IF
+
+      IF (Aout(idv3dD,ng)) THEN
+        DO k=1,N(ng)
+          DO j=Jmin,Jmax
+            DO i=Imin,Imax
+              TIDES(ng) % v_detided(i,j,k) = IniVal
+            END DO
+          END DO
+        END DO
+        DO itide=0,2*MTC
+          DO k=1,N(ng)
+            DO j=Jmin,Jmax
+              DO i=Imin,Imax
+                TIDES(ng) % v_tide(i,j,k,itide) = IniVal
+              END DO
+            END DO
+          END DO
+        END DO
+      END IF
+
+      IF (ANY(Aout(idTrcD(:),ng))) THEN
+        DO itrc=1,NAT
+          DO k=1,N(ng)
+            DO j=Jmin,Jmax
+              DO i=Imin,Imax
+                TIDES(ng) % t_detided(i,j,k,itrc) = IniVal
+              END DO
+            END DO
+          END DO
+        END DO
+        DO itrc=1,NAT
+          DO itide=0,2*MTC
+            DO k=1,N(ng)
+              DO j=Jmin,Jmax
+                DO i=Imin,Imax
+                  TIDES(ng) % t_tide(i,j,k,itide,itrc) = IniVal
+                END DO
+              END DO
+            END DO
+          END DO
+        END DO
+      END IF
 #  endif
-      END DO
 # endif
 
       RETURN
