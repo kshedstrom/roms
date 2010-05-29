@@ -397,7 +397,7 @@
 #  endif
 # endif
 
-# if defined SSSFLX || defined WRT_SSSFLX
+# if defined SSSFLX
           real(r8), pointer :: sssflx(:,:)
 #  ifndef ANA_SSSFLX
           real(r8), pointer :: sssflxG(:,:,:)
@@ -796,7 +796,7 @@
 #  endif
 # endif
 
-# if defined SSSFLX || defined WRT_SSSFLX
+# if defined SSSFLX
       allocate ( FORCES(ng) % sssflx(LBi:UBi,LBj:UBj) )
 
 #  ifndef ANA_SSSFLX
@@ -1257,7 +1257,7 @@
             FORCES(ng) % sssG(i,j,2) = IniVal
 #  endif
 # endif
-# if defined SSSFLX || defined WRT_SSSFLX
+# if defined SSSFLX
             FORCES(ng) % sssflx(i,j) = IniVal
 #  ifndef ANA_SSSFLX
             FORCES(ng) % sssflxG(i,j,1) = IniVal

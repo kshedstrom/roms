@@ -383,6 +383,24 @@
                 Hout(i,ng)=Ltrc(itrc,ng)
               END DO
             END DO
+#ifdef AVERAGES
+          ELSE IF (TRIM(KeyWord).eq.'Aout(idTvar)') THEN
+            Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
+            DO ng=1,Ngrids
+              DO itrc=1,NBT
+                i=idTvar(idbio(itrc))
+                Aout(i,ng)=Ltrc(itrc,ng)
+              END DO
+            END DO
+          ELSE IF (TRIM(KeyWord).eq.'Aout(idTSvar)') THEN
+            Npts=load_l(Nval, Cval, NTS*Ngrids, Ltrc)
+            DO ng=1,Ngrids
+              DO itrc=1, NBTS   !all stationary tracer variable
+                i=idTSvar(itrc)
+                Aout(i,ng)=Ltrc(itrc,ng)
+              END DO
+            END DO
+#endif
           END IF
           IF ( Lwrite .and.                                             &
      &         TRIM(KeyWord).ne.'TNU2' .and.                            &
@@ -443,6 +461,16 @@
      &            Hout(idTvar(i),ng), 'Hout(idTvar)',                   &
      &            'Write out tracer ', i, TRIM(Vname(1,idTvar(i)))
             END DO
+#ifdef AVERAGES
+            WRITE (out,'(1x)')
+            DO itrc=1,NBT
+              i=idbio(itrc)
+              IF (Aout(idTvar(i),ng)) WRITE (out,60)                   &
+     &            Aout(idTvar(i),ng), 'Aout(idTvar)',                   &
+     &            'Write out averaged tracer ', i,                      &
+     &            TRIM(Vname(1,idTvar(i)))
+            END DO
+#endif
           END IF
         END DO
       END IF

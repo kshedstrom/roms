@@ -58,10 +58,6 @@
 #define SPLINES
 #define MASKING
 #define AVERAGES
-#define AVERAGES_FLUXES
-#define AVERAGES_AKV
-#define AVERAGES_AKT
-#define AVERAGES_AKS
 !#define AVERAGES_DETIDE
 #undef  UV_QDRAG        /* turn ON or OFF quadratic bottom friction */
 #define UV_LDRAG        /* turn ON or OFF lineat bottom friction */
@@ -231,7 +227,6 @@
 #define SOLAR_SOURCE
 #undef  SLP_GRAD
 
-#undef   WRT_SSSFLX
 #undef   SSSFLX
 
 #endif

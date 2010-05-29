@@ -1176,7 +1176,6 @@
 !
 !  Define sea surface salinity flux correction
 !
-# ifdef WRT_SSSFLX
         IF (Hout(idSSSf,ng)) THEN
           Vinfo( 1)=Vname(1,idSSSf)
           Vinfo( 2)=Vname(2,idSSSf)
@@ -1188,11 +1187,10 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idSSSf,ng),r8)
-          status=def_var(ng, iNLM, ncHISid(ng), hisVid(idSSSf,ng),        &
+          status=def_var(ng, iNLM, ncHISid(ng), hisVid(idSSSf,ng),      &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
-# endif
 !
 !  Define vertical viscosity coefficient.
 !
@@ -2950,11 +2948,9 @@
             got_var(idHbbl)=.TRUE.
             hisVid(idHbbl,ng)=var_id(i)
 # endif
-# ifdef WRT_SSSFLX
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idSSSf))) THEN
             got_var(idSSSf)=.TRUE.
             hisVid(idSSSf,ng)=var_id(i)
-# endif
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idVvis))) THEN
             got_var(idVvis)=.TRUE.
             hisVid(idVvis,ng)=var_id(i)
@@ -3411,14 +3407,12 @@
           RETURN
         END IF
 # endif
-# ifdef WRT_SSSFLX
         IF (.not.got_var(idSSSf).and.Hout(idSSSf,ng)) THEN
           IF (Master) WRITE (stdout,60) TRIM(Vname(1,idSSSf)),          &
      &                                  TRIM(ncname)
           exit_flag=3
           RETURN
         END IF
-# endif
         IF (.not.got_var(idVvis).and.Hout(idVvis,ng)) THEN
           IF (Master) WRITE (stdout,60) TRIM(Vname(1,idVvis)),          &
      &                                  TRIM(ncname)
