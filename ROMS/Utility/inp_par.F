@@ -2901,6 +2901,42 @@
                 Aout(i,ng)=Ltracer(itrc,ng)
               END DO
             END DO
+#ifdef ICE_MODEL
+          ELSE IF (TRIM(KeyWord).eq.'Aout(idUice)') THEN
+            Npts=load_l(Nval, Cval, Ngrids, Aout(idUice,:))
+          ELSE IF (TRIM(KeyWord).eq.'Aout(idVice)') THEN
+            Npts=load_l(Nval, Cval, Ngrids, Aout(idVice,:))
+          ELSE IF (TRIM(KeyWord).eq.'Aout(idAice)') THEN
+            Npts=load_l(Nval, Cval, Ngrids, Aout(idAice,:))
+          ELSE IF (TRIM(KeyWord).eq.'Aout(idHice)') THEN
+            Npts=load_l(Nval, Cval, Ngrids, Aout(idHice,:))
+          ELSE IF (TRIM(KeyWord).eq.'Aout(idHsno)') THEN
+            Npts=load_l(Nval, Cval, Ngrids, Aout(idHsno,:))
+          ELSE IF (TRIM(KeyWord).eq.'Aout(idTice)') THEN
+            Npts=load_l(Nval, Cval, Ngrids, Aout(idTice,:))
+          ELSE IF (TRIM(KeyWord).eq.'Aout(idTimid)') THEN
+            Npts=load_l(Nval, Cval, Ngrids, Aout(idTimid,:))
+          ELSE IF (TRIM(KeyWord).eq.'Aout(idTauiw)') THEN
+            Npts=load_l(Nval, Cval, Ngrids, Aout(idTauiw,:))
+          ELSE IF (TRIM(KeyWord).eq.'Aout(idChuiw)') THEN
+            Npts=load_l(Nval, Cval, Ngrids, Aout(idChuiw,:))
+          ELSE IF (TRIM(KeyWord).eq.'Aout(idSfwat)') THEN
+            Npts=load_l(Nval, Cval, Ngrids, Aout(idSfwat,:))
+          ELSE IF (TRIM(KeyWord).eq.'Aout(idAgeice)') THEN
+            Npts=load_l(Nval, Cval, Ngrids, Aout(idAgeice,:))
+          ELSE IF (TRIM(KeyWord).eq.'Aout(idIomflx)') THEN
+            Npts=load_l(Nval, Cval, Ngrids, Aout(idIomflx,:))
+          ELSE IF (TRIM(KeyWord).eq.'Aout(idSig11)') THEN
+            Npts=load_l(Nval, Cval, Ngrids, Aout(idSig11,:))
+          ELSE IF (TRIM(KeyWord).eq.'Aout(idSig12)') THEN
+            Npts=load_l(Nval, Cval, Ngrids, Aout(idSig12,:))
+          ELSE IF (TRIM(KeyWord).eq.'Aout(idSig22)') THEN
+            Npts=load_l(Nval, Cval, Ngrids, Aout(idSig22,:))
+          ELSE IF (TRIM(KeyWord).eq.'Aout(idT0mk)') THEN
+            Npts=load_l(Nval, Cval, Ngrids, Aout(idT0mk,:))
+          ELSE IF (TRIM(KeyWord).eq.'Aout(idS0mk)') THEN
+            Npts=load_l(Nval, Cval, Ngrids, Aout(idS0mk,:))
+#endif
 # if defined SOLVE3D && defined T_PASSIVE
           ELSE IF (TRIM(KeyWord).eq.'Aout(inert)') THEN
             Npts=load_l(Nval, Cval, NPT*Ngrids, Linert)

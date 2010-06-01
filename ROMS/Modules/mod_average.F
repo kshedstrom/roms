@@ -568,7 +568,8 @@
         allocate ( AVERAGE(ng) % avgSzy3d(LBi:UBi,LBj:UBj,N(ng)) )
       END IF
 #  endif
-#  ifdef ICE_MODEL
+# endif
+# ifdef ICE_MODEL
       IF (Aout(idUice,ng)) THEN
         allocate ( AVERAGE(ng) % avguice(LBi:UBi,LBj:UBj) )
       END IF
@@ -635,7 +636,6 @@
       IF (Aout(idChuiw,ng)) THEN
         allocate ( AVERAGE(ng) % avgchu_iw(LBi:UBi,LBj:UBj) )
       END IF
-#  endif
 # endif
 !
 !  Time-averaged quadratic fields.
