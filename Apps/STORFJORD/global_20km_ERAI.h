@@ -137,7 +137,6 @@
 #define SOLAR_SOURCE
 #undef  SLP_GRAD
 
-#undef  WRT_SSSFLX
 #define SSSFLX
 
 #endif

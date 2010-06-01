@@ -80,7 +80,7 @@
 #  if defined SCORRECTION || defined SRELAXATION
      &                   FORCES(ng) % sss,                              &
 #  endif
-#  if defined SSSFLX || defined WRT_SSSFLX
+#  if defined SSSFLX
      &                   FORCES(ng) % sssflx,                           &
 #  endif
 #  if defined ICESHELF
@@ -139,7 +139,7 @@
 #  if defined SCORRECTION || defined SRELAXATION
      &                         sss,                                     &
 #  endif
-#  if defined SSSFLX || defined WRT_SSSFLX
+#  if defined SSSFLX
      &                         sssflx,                                  &
 #  endif
 #  if defined ICESHELF
@@ -205,7 +205,7 @@
 #   if defined SCORRECTION || defined SRELAXATION
       real(r8), intent(in) :: sss(LBi:,LBj:)
 #   endif
-#   if defined SSSFLX || defined WRT_SSSFLX
+#   if defined SSSFLX
       real(r8), intent(inout) :: sssflx(LBi:,LBj:)
 #   endif
 #   if defined ICESHELF
@@ -257,7 +257,7 @@
 #   if defined SCORRECTION || defined SRELAXATION
       real(r8), intent(in) :: sss(LBi:UBi,LBj:UBj)
 #   endif
-#   if defined SSSFLX || defined WRT_SSSFLX
+#   if defined SSSFLX
       real(r8), intent(inout) :: sssflx(LBi:UBi,LBj:UBj)
 #   endif
 #   if defined ICESHELF
@@ -351,7 +351,7 @@
 #     ifdef ICE_THERMO
           stflx(i,j,isalt)=stflx(i,j,isalt) -                           &
      &                     Tnudg(isalt,ng)*Hz(i,j,N(ng))*               &
-#ifdef NEP5
+#if defined NEP5 || defined BERING
 !  60 days from Tnudg of 360 days
      &                     6.0_r8*                                      &
 #endif
@@ -362,7 +362,7 @@
 #    else
           stflx(i,j,isalt)=stflx(i,j,isalt)*t(i,j,N(ng),nrhs,isalt)-    &
      &                     Tnudg(isalt,ng)*Hz(i,j,N(ng))*               &
-#ifdef NEP5
+#if defined NEP5 || defined BERING
 !  60 days from Tnudg of 360 days
      &                     6.0_r8*                                      &
 #endif
@@ -370,7 +370,7 @@
 #     endif
 #   elif defined SRELAXATION
           stflx(i,j,isalt)=-Tnudg(isalt,ng)*Hz(i,j,N(ng))*              &
-#ifdef NEP5
+#if defined NEP5 || defined BERING
 !  60 days from Tnudg of 360 days
      &                     6.0_r8*                                      &
 #endif
@@ -396,7 +396,7 @@
 
 #   endif
 #   if (defined SCORRECTION || defined SRELAXATION) && \
-        defined WRT_SSSFLX
+        defined SSSFLX
           sssflx(i,j) = -Tnudg(isalt,ng)*Hz(i,j,N(ng))*                 &
      &                     (t(i,j,N(ng),nrhs,isalt)-sss(i,j))
 #     ifdef MASKING

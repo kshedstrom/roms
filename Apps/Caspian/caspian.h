@@ -59,7 +59,6 @@
 #define SPLINES
 #define MASKING
 #define AVERAGES
-#define AVERAGES_FLUXES
 !#define AVERAGES_DETIDE
 #define UV_QDRAG        /* turn ON or OFF quadratic bottom friction */
 #define DRAG_LIMITER
@@ -162,7 +161,6 @@
 #define SOLAR_SOURCE
 #undef  SLP_GRAD
 
-#undef   WRT_SSSFLX
 #undef   SSSFLX
 
 #endif

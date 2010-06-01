@@ -69,11 +69,6 @@
 #undef AVERAGES2
 #ifdef SOLVE3D
 # undef AVERAGES_DETIDE
-# define AVERAGES_AKT
-# define AVERAGES_AKS
-# define AVERAGES_AKV
-# define AVERAGES_FLUXES
-# undef AVERAGES_QUADRATIC
 # undef DIAGNOSTICS_TS
 #endif
 #undef DIAGNOSTICS_UV
