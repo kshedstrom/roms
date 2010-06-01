@@ -57,7 +57,7 @@
         Nbed =  0             ! Number of sediment bed layers
 
          NAT =  2             ! Number of active tracers (usually, 2)
-         NPT =  1             ! Number of inactive passive tracers
+         NPT =  4             ! Number of inactive passive tracers
          NCS =  0             ! Number of cohesive (mud) sediment tracers
          NNS =  0             ! Number of non-cohesive (sand) sediment tracers
 
@@ -69,16 +69,17 @@
        NtileJ == 16                              ! J-direction partition
 !      NtileI == 6                               ! I-direction partition
 !      NtileJ == 8                              ! J-direction partition
-!      NtileI == 6                               ! I-direction partition
-!      NtileJ == 16                              ! J-direction partition
+!      NtileI == 4                               ! I-direction partition
+       NtileI == 6                               ! I-direction partition
+!      NtileJ == 10                              ! J-direction partition
+       NtileJ == 20                              ! J-direction partition
 
 ! Time-Stepping parameters.
 
-       NTIMES == 4320
-!      NTIMES == 51840
-!      NTIMES == 3073152       ! to 1/Nov/2001
-!      NTIMES == 6872472       ! for 200 days
-          DT == 200.0d0
+       NTIMES == 43200
+!!          DT == 50.0d0
+!        DT == 100.0d0
+        DT == 200.0d0
      NDTFAST == 20
 
 ! Model iteration loops parameters.
@@ -98,7 +99,7 @@
 
 ! Input/Output parameters.
 
-       NRREC =  1
+       NRREC = 0
    LcycleRST == T
         NRST == 432
         NSTA == 18
@@ -108,6 +109,10 @@
 ! Output history, average, diagnostic files parameters.
 
      LDEFOUT == T
+!!       NHIS == 17280
+!!    NDEFHIS == 172800
+!       NHIS == 8640
+!    NDEFHIS == 86400
         NHIS == 4320
      NDEFHIS == 43200
       NTSAVG == 1
@@ -401,7 +406,7 @@ Hout(idWro) == T
 ! NPT values are expected. However, these switches can be activated using
 ! compact parameter specification.
 
- Hout(inert) == T                          ! inert passive tracers
+ Hout(inert) == T T T T                          ! inert passive tracers
 
 ! Logical switches (TRUE/FALSE) to activate writing of exposed sediment
 ! layer properties into HISTORY output file.  Currently, MBOTP properties
@@ -560,6 +565,30 @@ Aout(idUTav) == F F                        ! quadratic <u*t> T/S terms
 Aout(idVTav) == F F                        ! quadratic <v*t> T/S terms
 Aout(iHUTav) == F F                        ! T/S volume flux, <Huon*t>
 Aout(iHVTav) == F F                        ! T/S volume flux, <Hvom*t>
+
+! Logical switches (TRUE/FALSE) to activate writing of ice prognostic
+! variables into AVERAGES output file.
+Aout(idUice) == T
+Aout(idVice) == T
+Aout(idAice) == T
+Aout(idHice) == T
+Aout(idTice) == T
+Aout(idHsno) == T
+Aout(idTimid) == T
+Aout(idSfwat) == T
+Aout(idTauiw) == F
+Aout(idChuiw) == F
+Aout(idAgeice) == T
+Aout(idSig11) == T
+Aout(idSig12) == T
+Aout(idSig22) == T
+Aout(idS0mk) == T
+Aout(idT0mk) == T
+Aout(idWfr) == T
+Aout(idWai) == T
+Aout(idWao) == T
+Aout(idWio) == T
+Aout(idWro) == T
 
 ! Logical switches (TRUE/FALSE) to activate writing of extra inert passive
 ! tracers other than biological and sediment tracers into the AVERAGE file.

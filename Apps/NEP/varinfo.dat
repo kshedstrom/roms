@@ -587,6 +587,15 @@
   'r2dvar'
   1.0d0
 
+'SSSf'                                             ! Input/Output
+  'surface net freswater flux from salinity nudging'
+  'meter second-1'                                 ! computed by NLM ROMS
+  'SSSf, scalar, series'                           ! bulk_flux.F and
+  'ocean_time'                                     ! needed in adjoint-based
+  'idSSSf'                                         ! applications
+  'r2dvar'
+  1.0d0
+
 'bhflux'                                           ! Input
   'bottom net heat flux'
   'watt meter-2'                                   ! Input:  [Watt/m2]
@@ -7013,7 +7022,7 @@
   'r2dvar'
   1.0d0
 
-  'Stat4_2d'
+'Stat4_2d'
   '4th 2D stationary variable'
   'milligram carbon meter-3 d-1'
   'StatVar scalar series'
@@ -7022,7 +7031,7 @@
   'r2dvar'
   1.0d0
 
-  'Stat5_2d'
+'Stat5_2d'
   '5th 2D stationary variable'
   'milligram carbon meter-3 d-1'
   'StatVar scalar series'
@@ -7031,7 +7040,7 @@
   'r2dvar'
   1.0d0
 
-  'Stat6_2d'
+'Stat6_2d'
   '6th 2D stationary variable'
   'milligram carbon meter-3 d-1'
   'StatVar scalar series'
@@ -7049,7 +7058,7 @@
   'r2dvar'
   1.0d0
 
-  'Stat8_2d'
+'Stat8_2d'
   '8th 2D stationary variable'
   'milligram carbon meter-3 d-1'
   'StatVar scalar series'
