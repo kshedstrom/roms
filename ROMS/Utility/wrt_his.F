@@ -1087,7 +1087,7 @@
         END IF
       END IF
 # endif
-# ifdef WRT_SSSFLX
+# ifdef SSSFLX
 !
 !  Write out sea surface salinity correction salt flux
 !

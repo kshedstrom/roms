@@ -1,5 +1,5 @@
 /*
-** svn $Id: basin.h 8 2007-02-06 19:00:29Z arango $
+** svn $Id$
 *******************************************************************************
 ** Copyright (c) 2002-2010 The ROMS/TOMS Group
 **
@@ -31,11 +31,9 @@
 #define STATIONS
 #undef WET_DRY
 
-#define T_PASSIVE
+#undef T_PASSIVE
 #ifdef T_PASSIVE
 # define ANA_PASSIVE
-# define TRC_PSOURCE
-# define ANA_TRC_PSOURCE
 #endif
 
 /* ice */
@@ -85,12 +83,12 @@
 
 #ifdef SOLVE3D
 # define TS_U3HADVECTION
-# define TS_C4VADVECTION
+# define TS_A4VADVECTION
 # undef TS_MPDATA
 #endif
 
 #define UV_VIS2
-#define UV_SMAGORINSKY
+#undef UV_SMAGORINSKY
 #define VISC_3DCOEF
 #define MIX_S_UV
 #define VISC_GRID
@@ -161,9 +159,9 @@
 
 /* Using Runoff instead now */
 #ifdef SOLVE3D
-#define RUNOFF
-# define UV_PSOURCE
-# define ANA_PSOURCE
+# define RUNOFF
+# undef UV_PSOURCE
+# undef ANA_PSOURCE
 # undef TS_PSOURCE
 #endif
 
@@ -178,7 +176,7 @@
 # define ADD_M2OBC
 # undef RAMP_TIDES
 # define TIDES_ASTRO
-# define POT_TIDES
+# undef POT_TIDES
 
 # define UV_LDRAG
 # define RDRG_GRID
@@ -190,7 +188,7 @@
 
 /* Boundary conditions...careful with grid orientation */
 
-#define EASTERN_WALL
+#undef EASTERN_WALL
 #define NORTHERN_WALL
 #undef WESTERN_WALL
 #undef SOUTHERN_WALL
@@ -257,7 +255,8 @@
 /*
 **  Biological model options.
 */
-#define NEMURO
+#undef NEMURO
+#undef LIMIT_BIO_AKT
 #undef BIO_GOANPZ        /* Sarah Hinckley's 11 box model */
 #undef BEST_NPZ         /* Georgina Gibsons BEST NPZ model  */
 
@@ -273,10 +272,7 @@
 #endif
 
 #if defined NEMURO
-# define LIMIT_BIO_AKT
 # define BIO_SEDIMENT
-# define NEMURO_SED1
-# undef NEMURO_SED2
 # undef ANA_BIOLOGY       /* analytical biology initial conditions */
 # define ANA_BPFLUX        /* analytical bottom passive tracers fluxes */
 # define ANA_SPFLUX        /* analytical surface passive tracers fluxes */
