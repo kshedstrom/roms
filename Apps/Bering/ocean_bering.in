@@ -68,14 +68,14 @@
 ! shared-memory configurations used to determine tile horizontal range
 ! indices (Istr,Iend) and (Jstr,Jend), [1:Ngrids].
 
-      NtileI == 3                               ! I-direction partition
-      NtileJ == 16                               ! J-direction partition
+      NtileI == 6                               ! I-direction partition
+      NtileJ == 16                              ! J-direction partition
 
 ! Time-Stepping parameters.
 
-      NTIMES == 4320
-          DT == 200.0d0
-     NDTFAST == 20
+      NTIMES == 57024
+          DT == 50.0d0
+     NDTFAST == 10
 
 ! Model iteration loops parameters.
 
@@ -96,21 +96,21 @@
 
        NRREC =  0
    LcycleRST == T
-        NRST == 432
-        NSTA == 1
-        NFLT == 1
+        NRST == 1728
+        NSTA == 72
+        NFLT == 72
        NINFO == 1
 
 ! Output history, average, diagnostic files parameters.
 
      LDEFOUT == T
-        NHIS == 432
-     NDEFHIS == 4320
+        NHIS == 1728
+     NDEFHIS == 17280
       NTSAVG == 1
-        NAVG == 432
-     NDEFAVG == 432
+        NAVG == 1728
+     NDEFAVG == 1728
       NTSDIA == 1
-        NDIA == 432
+        NDIA == 1440
      NDEFDIA == 0
 
 ! Output tangent linear and adjoint models parameters.
@@ -217,7 +217,7 @@
 ! origin for tidal forcing, and model reference time for output
 ! NetCDF units attribute.
 
-      DSTART =  36892.0d0                  ! days
+      DSTART =  36762.0d0                  ! days
   TIDE_START =  -693962.0d0                ! days
     TIME_REF =  19000101.0d0               ! yyyymmdd.dd
 
@@ -310,12 +310,12 @@ Hout(idFsur) == T                          ! free-surface
 
 Hout(idTvar) == T T                        ! temperature and salinity
 
-Hout(idUair) == T                          ! surface U-wind
-Hout(idVair) == T                          ! surface V-wind
+Hout(idUair) == F                          ! surface U-wind
+Hout(idVair) == F                          ! surface V-wind
 Hout(idUsms) == T                          ! surface U-stress
 Hout(idVsms) == T                          ! surface V-stress
-Hout(idUbms) == F                          ! bottom U-stress
-Hout(idVbms) == F                          ! bottom V-stress
+Hout(idUbms) == T                          ! bottom U-stress
+Hout(idVbms) == T                          ! bottom V-stress
 
 Hout(idUbrs) == F                          ! bottom U-current stress
 Hout(idVbrs) == F                          ! bottom V-current stress
@@ -343,7 +343,7 @@ Hout(idVvis) == T                          ! vertical viscosity
 Hout(idTdif) == T                          ! vertical T-diffusion
 Hout(idSdif) == F                          ! vertical Salinity diffusion
 Hout(idHsbl) == T                          ! depth of surface boundary layer
-Hout(idHbbl) == F                          ! depth of bottom boundary layer
+Hout(idHbbl) == T                          ! depth of bottom boundary layer
 Hout(idMtke) == F                          ! turbulent kinetic energy
 Hout(idMtls) == F                          ! turbulent length scale
 
@@ -406,6 +406,59 @@ Hout(idWro) == T
 
 Hout(idBott) == T T T T T T T T T F F F F F F F
 
+! Logical switches (TRUE/FALSE) to activate writing of fields into
+! secondary Averages History output file.
+
+Aout2(idUvel) == T                          ! 3D U-velocity
+Aout2(idVvel) == T                          ! 3D V-velocity
+Aout2(idUbar) == T                          ! 2D U-velocity
+Aout2(idVbar) == T                          ! 2D V-velocity
+Aout2(idFsur) == T                          ! free-surface
+
+Aout2(idTvar) == T T                        ! temperature and salinity
+
+Aout2(idUair) == T                          ! surface U-wind
+Aout2(idVair) == T                          ! surface V-wind
+Aout2(idUsms) == T                          ! surface U-stress
+Aout2(idVsms) == T                          ! surface V-stress
+
+Aout2(idTsur) == T T                        ! surface net heat and salt flux
+Aout2(idLhea) == T                          ! latent heat flux
+Aout2(idShea) == T                          ! sensible heat flux
+Aout2(idLrad) == T                          ! longwave radiation flux
+Aout2(idSrad) == T                          ! shortwave radiation flux
+Aout2(idEmPf) == F                          ! E-P flux
+Aout2(idevap) == T                          ! evaporation rate
+Aout2(idrain) == T                          ! precipitation rate
+
+! Logical switches (TRUE/FALSE) to activate writing of ice prognostic
+! variables into HISTORY output file.
+Aout2(idUice) == T
+Aout2(idVice) == T
+Aout2(idAice) == T
+Aout2(idHice) == T
+Aout2(idTice) == T
+Aout2(idHsno) == T
+Aout2(idTimid) == T
+Aout2(idSfwat) == T
+Aout2(idTauiw) == F
+Aout2(idChuiw) == F
+Aout2(idAgeice) == T
+Aout2(idSig11) == F
+Aout2(idSig12) == F
+Aout2(idSig22) == F
+Aout2(idS0mk) == F
+Aout2(idT0mk) == F
+
+! Logical switches (TRUE/FALSE) to activate writing of extra inert passive
+! tracers other than biological and sediment tracers. An inert passive tracer
+! is one that it is only advected and diffused. Other processes are ignored.
+! These tracers include, for example, dyes, pollutants, oil spills, etc.
+! NPT values are expected. However, these switches can be activated using
+! compact parameter specification.
+
+ Aout2(inert) == F                          ! inert passive tracers
+
 ! Logical switches (TRUE/FALSE) to activate writing of time-averaged
 ! fields into AVERAGE output file.
 
@@ -442,20 +495,20 @@ Aout(idV3rs) == F                          ! 3D V-radiation stress
 Aout(idU3Sd) == F                          ! 3D U-Stokes velocity
 Aout(idV3Sd) == F                          ! 3D V-Stokes velocity
 
-Aout(idTsur) == F F                        ! surface net heat and salt flux
-Aout(idLhea) == F                          ! latent heat flux
-Aout(idShea) == F                          ! sensible heat flux
-Aout(idLrad) == F                          ! longwave radiation flux
-Aout(idSrad) == F                          ! shortwave radiation flux
-Aout(idevap) == F                          ! evaporation rate
-Aout(idrain) == F                          ! precipitation rate
+Aout(idTsur) == T T                        ! surface net heat and salt flux
+Aout(idLhea) == T                          ! latent heat flux
+Aout(idShea) == T                          ! sensible heat flux
+Aout(idLrad) == T                          ! longwave radiation flux
+Aout(idSrad) == T                          ! shortwave radiation flux
+Aout(idevap) == T                          ! evaporation rate
+Aout(idrain) == T                          ! precipitation rate
 
-Aout(idDano) == F                          ! density anomaly
-Aout(idVvis) == F                          ! vertical viscosity
+Aout(idDano) == T                          ! density anomaly
+Aout(idVvis) == T                          ! vertical viscosity
 Aout(idTdif) == F                          ! vertical T-diffusion
 Aout(idSdif) == F                          ! vertical Salinity diffusion
-Aout(idHsbl) == F                          ! depth of surface boundary layer
-Aout(idHbbl) == F                          ! depth of bottom boundary layer
+Aout(idHsbl) == T                          ! depth of surface boundary layer
+Aout(idHbbl) == T                          ! depth of bottom boundary layer
 
 Aout(id2dRV) == F                          ! 2D relative vorticity
 Aout(id3dRV) == F                          ! 3D relative vorticity
@@ -484,6 +537,30 @@ Aout(idUTav) == F F                        ! quadratic <u*t> T/S terms
 Aout(idVTav) == F F                        ! quadratic <v*t> T/S terms
 Aout(iHUTav) == F F                        ! T/S volume flux, <Huon*t>
 Aout(iHVTav) == F F                        ! T/S volume flux, <Hvom*t>
+
+! Logical switches (TRUE/FALSE) to activate writing of ice prognostic
+! variables into AVERAGES output file.
+Aout(idUice) == T
+Aout(idVice) == T
+Aout(idAice) == T
+Aout(idHice) == T
+Aout(idTice) == T
+Aout(idHsno) == T
+Aout(idTimid) == T
+Aout(idSfwat) == T
+Aout(idTauiw) == F
+Aout(idChuiw) == F
+Aout(idAgeice) == T
+Aout(idSig11) == T
+Aout(idSig12) == T
+Aout(idSig22) == T
+Aout(idS0mk) == T
+Aout(idT0mk) == T
+Aout(idWfr) == T
+Aout(idWai) == T
+Aout(idWao) == T
+Aout(idWio) == T
+Aout(idWro) == T
 
 ! Logical switches (TRUE/FALSE) to activate writing of extra inert passive
 ! tracers other than biological and sediment tracers into the AVERAGE file.
@@ -553,12 +630,12 @@ Dout(iTvdif) == T T                        ! vertical diffusion
 
      GRDNAME == /workdir/users/kate/Bering/Files/Bering_grid_4.nc
 !    ININAME == bering_rst.nc
-     ININAME == /workdir/users/kate/Bering/Files/soda2.0.2_Bering_init_2001.nc
+     ININAME == /workdir/users/kate/Bering/Files/Bering_ini_fall_2000.nc
      ITLNAME == ocean_itl.nc
      IRPNAME == ocean_irp.nc
      IADNAME == ocean_iad.nc
      CLMNAME == ocean_clm.nc
-     BRYNAME == /workdir/users/kate/Bering/Files/soda2.0.2_NEP5a_bry_58-05.nc
+     BRYNAME == /workdir/users/kate/Bering/Files/Bering_soda_bry.nc
      FWDNAME == ocean_fwd.nc
      ADSNAME == ocean_ads.nc
 
@@ -582,9 +659,9 @@ Dout(iTvdif) == T T                        ! vertical diffusion
                /workdir/users/kate/Bering/Files/Uwind.1948-2006.nc  \
                /workdir/users/kate/Bering/Files/Vwind.1948-2006.nc  \
                /workdir/users/kate/Bering/Files/CCSM_Runoff.nc   \
-               /workdir/users/kate/Bering/Files/sss_file_2004.nc   \
+               /workdir/users/kate/Bering/Files/sss_fill_2004.nc   \
                /workdir/users/kate/Bering/Files/rain.1948-2006.nc  \
-               /workdir/users/kate/Bering/Files/Bering_tides_otps.nc
+               /workdir/users/kate/Bering/Files/bering_tides_otps.nc
 
 ! Output NetCDF file names, [1:Ngrids].
 
