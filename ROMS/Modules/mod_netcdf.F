@@ -164,8 +164,6 @@
 !            nf_independent = 0,    nf90_independent = 0
 !            nf_collective  = 1,    nf90_collective  = 1
 !
-!ksh      integer, parameter :: IO_independent = 0      ! nf90_independent
-!ksh      integer, parameter :: IO_collective = 0       ! nf90_collective
 !!    integer, parameter :: IO_nontiled_access = 0   ! nf90_independent
 !!    integer, parameter :: IO_tiled_access    = 1   ! nf90_independent
 !!
