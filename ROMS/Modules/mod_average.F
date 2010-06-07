@@ -347,8 +347,6 @@
 !
       IF (Aout(idFsur,ng)) THEN
         allocate ( AVERAGE(ng) % avgzeta(LBi:UBi,LBj:UBj) )
-      ELSE
-        nullify ( AVERAGE(ng) % avgzeta )
       END IF
       IF (Aout(idUbar,ng)) THEN
         allocate ( AVERAGE(ng) % avgu2d(LBi:UBi,LBj:UBj) )
