@@ -288,6 +288,23 @@
           END IF
         END DO
 
+#  ifdef NEMURO_SED1
+        IF (Aout(idPONsed,ng)) THEN
+          DO j=JstrR,JendR
+            DO i=IstrR,IendR
+              AVERAGE(ng)%avgPONsed(i,j)=OCEAN(ng)%PONsed(i,j)
+            END DO
+          END DO
+        END IF
+        IF (Aout(idOPALsed,ng)) THEN
+          DO j=JstrR,JendR
+            DO i=IstrR,IendR
+              AVERAGE(ng)%avgOPALsed(i,j)=OCEAN(ng)%OPALsed(i,j)
+            END DO
+          END DO
+        END IF
+#  endif
+
 #  if defined LMD_MIXING || defined MY25_MIXING || defined GLS_MIXING
         IF (Aout(idVvis,ng)) THEN
           DO k=0,N(ng)
@@ -1159,6 +1176,25 @@
             END DO
           END IF
         END DO
+
+#  ifdef NEMURO_SED1
+        IF (Aout(idPONsed,ng)) THEN
+          DO j=JstrR,JendR
+            DO i=IstrR,IendR
+              AVERAGE(ng)%avgPONsed(i,j)=AVERAGE(ng)%avgPONsed(i,j)+    &
+     &                                 OCEAN(ng)%PONsed(i,j)
+            END DO
+          END DO
+        END IF
+        IF (Aout(idOPALsed,ng)) THEN
+          DO j=JstrR,JendR
+            DO i=IstrR,IendR
+              AVERAGE(ng)%avgOPALsed(i,j)=AVERAGE(ng)%avgOPALsed(i,j)+  &
+     &                                 OCEAN(ng)%OPALsed(i,j)
+            END DO
+          END DO
+        END IF
+#  endif
 
 #  if defined LMD_MIXING || defined MY25_MIXING || defined GLS_MIXING
         IF (Aout(idVvis,ng)) THEN
@@ -2128,6 +2164,24 @@
             END DO
           END IF
         END DO
+
+#  ifdef NEMURO_SED1
+        IF (Aout(idPONsed,ng)) THEN
+          DO j=JstrR,JendR
+            DO i=IstrR,IendR
+              AVERAGE(ng)%avgPONsed(i,j)=fac*AVERAGE(ng)%avgPONsed(i,j)
+            END DO
+          END DO
+        END IF
+        IF (Aout(idOPALsed,ng)) THEN
+          DO j=JstrR,JendR
+            DO i=IstrR,IendR
+              AVERAGE(ng)%avgOPALsed(i,j)=fac*                          &
+     &                                    AVERAGE(ng)%avgOPALsed(i,j)
+            END DO
+          END DO
+        END IF
+#  endif
 
 #  if defined LMD_MIXING || defined MY25_MIXING || defined GLS_MIXING
         IF (Aout(idVvis,ng)) THEN

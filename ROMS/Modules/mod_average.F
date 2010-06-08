@@ -143,33 +143,33 @@
 
 # ifdef SOLVE3D
 
-# ifdef BEST_NPZ
-#ifdef STATIONARY
+#  ifdef BEST_NPZ
+#   ifdef STATIONARY
           real(r8), pointer :: avgst(:,:,:,:)
-#endif
-#ifdef STATIONARY2
+#   endif
+#   ifdef STATIONARY2
           real(r8), pointer :: avgst2(:,:,:)
-#endif
-#ifdef PROD3  
+#   endif
+#   ifdef PROD3
           real(r8), pointer :: avgpt3(:,:,:,:)
-#endif
-#ifdef PROD2  
+#   endif
+#   ifdef PROD2
           real(r8), pointer :: avgpt2(:,:,:)
-#endif
-#ifdef BENTHIC    
+#   endif
+#   ifdef BENTHIC
           real(r8), pointer :: avgbt(:,:,:,:)
-#endif
-#ifdef ICE_BIO    
+#   endif
+#   ifdef ICE_BIO
           real(r8), pointer :: avgit(:,:,:)
-#endif
-#  if defined BIOFLUX
-        real(r8), pointer :: avgbflx(:,:) 
-#  endif      
-# endif
+#   endif
+#   if defined BIOFLUX
+        real(r8), pointer :: avgbflx(:,:)
+#   endif
+#  endif
 
-# ifdef BIO_GOANPZ
+#  ifdef BIO_GOANPZ
           real(r8), pointer :: avgst(:,:,:,:)
-# endif
+#  endif
           real(r8), pointer :: avgu3d(:,:,:)
           real(r8), pointer :: avgv3d(:,:,:)
 
@@ -179,6 +179,10 @@
           real(r8), pointer :: avgrho(:,:,:)
           real(r8), pointer :: avgt(:,:,:,:)
 
+#  ifdef NEMURO_SED1
+          real(r8), pointer :: avgPONsed(:,:)
+          real(r8), pointer :: avgOPALsed(:,:)
+#  endif
 #  if defined LMD_MIXING || defined MY25_MIXING || defined GLS_MIXING
           real(r8), pointer :: avgAKv(:,:,:)
           real(r8), pointer :: avgAKt(:,:,:)
@@ -406,6 +410,15 @@
       IF (ANY(Aout(idTvar(:),ng))) THEN
         allocate ( AVERAGE(ng) % avgt(LBi:UBi,LBj:UBj,N(ng),NT(ng)) )
       END IF
+
+#  ifdef NEMURO_SED1
+      IF (Aout(idPONsed,ng)) THEN
+        allocate ( AVERAGE(ng) % avgPONsed(LBi:UBi,LBj:UBj) )
+      END IF
+      IF (Aout(idOPALsed,ng)) THEN
+        allocate ( AVERAGE(ng) % avgOPALsed(LBi:UBi,LBj:UBj) )
+      END IF
+#  endif
 
 #  if defined LMD_MIXING || defined MY25_MIXING || defined GLS_MIXING
       IF (Aout(idVvis,ng)) THEN
@@ -853,6 +866,23 @@
           END DO
         END DO
       END IF
+
+#  ifdef NEMURO_SED1
+      IF (Aout(idPONsed,ng)) THEN
+        DO j=Jmin,Jmax
+          DO i=Imin,Imax
+            AVERAGE(ng) % avgPONsed(i,j) = IniVal
+          END DO
+        END DO
+      END IF
+      IF (Aout(idOPALsed,ng)) THEN
+        DO j=Jmin,Jmax
+          DO i=Imin,Imax
+            AVERAGE(ng) % avgOPALsed(i,j) = IniVal
+          END DO
+        END DO
+      END IF
+#  endif
 
 #  if defined LMD_MIXING || defined MY25_MIXING || defined GLS_MIXING
       IF (Aout(idVvis,ng)) THEN

@@ -385,6 +385,10 @@ Hout(idHbbl) == T                          ! depth of bottom boundary layer
 Hout(idMtke) == F                          ! turbulent kinetic energy
 Hout(idMtls) == F                          ! turbulent length scale
 
+! Logical switches for bio sediment variables.
+Hout(idPONsed) == T
+Hout(idOPALsed) == T
+
 ! Logical switches (TRUE/FALSE) to activate writing of ice prognostic
 ! variables into HISTORY output file.
 Hout(idUice) == T
@@ -575,6 +579,10 @@ Aout(idUTav) == F F                        ! quadratic <u*t> T/S terms
 Aout(idVTav) == F F                        ! quadratic <v*t> T/S terms
 Aout(iHUTav) == F F                        ! T/S volume flux, <Huon*t>
 Aout(iHVTav) == F F                        ! T/S volume flux, <Hvom*t>
+
+! Logical switches for bio sediment variables.
+Aout(idPONsed) == T
+Aout(idOPALsed) == T
 
 ! Logical switches (TRUE/FALSE) to activate writing of ice prognostic
 ! variables into AVERAGES output file.
