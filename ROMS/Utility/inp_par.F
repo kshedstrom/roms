@@ -5168,6 +5168,14 @@
           IF (Aout(idDano,ng)) WRITE (out,170) Aout(idDano,ng),         &
      &       'Aout(idDano)',                                            &
      &       'Write out averaged density anomaly.'
+#  ifdef NEMURO_SED1
+          IF (Aout(idPONsed,ng)) WRITE (out,170) Aout(idPONsed,ng),     &
+     &       'Aout(idPONsed)',                                          &
+     &       'Write out averaged PON in sediment.'
+          IF (Aout(idOPALsed,ng)) WRITE (out,170) Aout(idOPALsed,ng),   &
+     &       'Aout(idOPALsed)',                                         &
+     &       'Write out averaged OPAL in sediment.'
+#  endif
 #  if defined LMD_MIXING || defined MY25_MIXING || defined GLS_MIXING
           IF (Aout(idVvis,ng)) WRITE (out,170) Aout(idVvis,ng),         &
      &       'Aout(idVvis)',                                            &
@@ -8329,6 +8337,14 @@
             IF (Sout(idSdif,ng)) WRITE (out,80) Sout(idSdif,ng),        &
      &          'Sout(idSdif)',                                         &
      &          'Write out vertical S-diffusion coefficient.'
+#  ifdef NEMURO_SED1
+            IF (Sout(idPONsed,ng)) WRITE (out,80) Sout(idPONsed,ng),    &
+     &          'Sout(idPONsed)',                                       &
+     &          'Write out PON in sediment.'
+            IF (Sout(idOPALsed,ng)) WRITE (out,80) Sout(idOPALsed,ng),  &
+     &          'Sout(idOPALsed)',                                      &
+     &          'Write out OPAL in sediment.'
+#  endif
 #  ifdef LMD_SKPP
             IF (Sout(idHsbl,ng)) WRITE (out,80) Sout(idHsbl,ng),        &
      &          'Sout(idHsbl)',                                         &
