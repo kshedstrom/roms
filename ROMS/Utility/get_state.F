@@ -855,6 +855,68 @@
           END IF
         END DO
 
+#  ifdef NEMURO_SED1
+!
+!  Read in bio sediment variables.
+!
+        IF (get_var(idPONsed)) THEN
+          foundit=find_string(var_name, n_var,                          &
+     &                          TRIM(Vname(1,idPONsed)), varid)
+          gtype=var_flag(varid)*r2dvar
+          status=nf_fread2d(ng, IDmod, ncname, ncINPid,                 &
+     &                      Vname(1,idPONsed), varid,                   &
+     &                      InpRec, gtype, Vsize,                       &
+     &                      LBi, UBi, LBj, UBj,                         &
+     &                      Fscl, Fmin, Fmax,                           &
+#   ifdef MASKING
+     &                      GRID(ng) % rmask,                           &
+#   endif
+     &                      OCEAN(ng) % PONsed)
+          IF (status.ne.nf90_noerr) THEN
+            IF (Master) THEN
+              WRITE (stdout,30) string, TRIM(Vname(1,idPONsed)),        &
+     &                          InpRec, TRIM(ncname)
+            END IF
+            exit_flag=2
+            ioerror=status
+            RETURN
+          ELSE
+            IF (Master) THEN
+              WRITE (stdout,100) TRIM(Vname(2,idPONsed)),               &
+     &                           Fmin, Fmax
+            END IF
+          END IF
+        END IF
+        IF (get_var(idOPALsed)) THEN
+          foundit=find_string(var_name, n_var,                          &
+     &                          TRIM(Vname(1,idOPALsed)), varid)
+          gtype=var_flag(varid)*r2dvar
+          status=nf_fread2d(ng, IDmod, ncname, ncINPid,                 &
+     &                      Vname(1,idOPALsed), varid,                  &
+     &                      InpRec, gtype, Vsize,                       &
+     &                      LBi, UBi, LBj, UBj,                         &
+     &                      Fscl, Fmin, Fmax,                           &
+#   ifdef MASKING
+     &                      GRID(ng) % rmask,                           &
+#   endif
+     &                      OCEAN(ng) % OPALsed)
+          IF (status.ne.nf90_noerr) THEN
+            IF (Master) THEN
+              WRITE (stdout,30) string, TRIM(Vname(1,idOPALsed)),       &
+     &                          InpRec, TRIM(ncname)
+            END IF
+            exit_flag=2
+            ioerror=status
+            RETURN
+          ELSE
+            IF (Master) THEN
+              WRITE (stdout,100) TRIM(Vname(2,idOPALsed)),              &
+     &                           Fmin, Fmax
+            END IF
+          END IF
+        END IF
+#  endif
+
 #  if defined GLS_MIXING || defined MY25_MIXING || defined LMD_MIXING
 !
 !  Read in vertical viscosity.

@@ -955,6 +955,44 @@
      &                   NF_FOUT, nvd4, t3dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
+#  ifdef NEMURO_SED1
+!
+!  Define PON in sediment.
+!
+        IF (Aout(idPONsed,ng)) THEN
+          Vinfo( 1)=Vname(1,idPONsed)
+          WRITE (Vinfo( 2),'(a,1x,a)') Prefix, TRIM(Vname(2,idPONsed))
+          Vinfo( 3)=Vname(3,idPONsed)
+          Vinfo(14)=Vname(4,idPONsed)
+          Vinfo(16)=Vname(1,idtime)
+#   if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_rho'
+#   endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idPONsed,ng),r8)
+          status=def_var(ng, model, ncAVGid(ng), avgVid(idPONsed,ng),   &
+     &                   NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+!
+!  Define OPAL in sediment.
+!
+        IF (Aout(idOPALsed,ng)) THEN
+          Vinfo( 1)=Vname(1,idOPALsed)
+          WRITE (Vinfo( 2),'(a,1x,a)') Prefix, TRIM(Vname(2,idOPALsed))
+          Vinfo( 3)=Vname(3,idOPALsed)
+          Vinfo(14)=Vname(4,idOPALsed)
+          Vinfo(16)=Vname(1,idtime)
+#   if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_rho'
+#   endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idOPALsed,ng),r8)
+          status=def_var(ng, model, ncAVGid(ng), avgVid(idOPALsed,ng),   &
+     &                   NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+#  endif
 #  ifdef LMD_SKPP
 !
 !  Define depth of surface boundary layer.
@@ -2535,6 +2573,14 @@
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idDano))) THEN
             got_var(idDano)=.TRUE.
             avgVid(idDano,ng)=var_id(i)
+#  ifdef NEMURO_SED1
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idPONsed))) THEN
+            got_var(idPONsed)=.TRUE.
+            avgVid(idPONsed,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idOPALsed))) THEN
+            got_var(idOPALsed)=.TRUE.
+            avgVid(idOPALsed,ng)=var_id(i)
+#  endif
 #  ifdef LMD_SKPP
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idHsbl))) THEN
             got_var(idHsbl)=.TRUE.
@@ -2940,6 +2986,20 @@
           exit_flag=3
           RETURN
         END IF
+#  ifdef NEMURO_SED1
+        IF (.not.got_var(idPONsed).and.Aout(idPONsed,ng)) THEN
+          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idPONsed)),        &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idOPALsed).and.Aout(idOPALsed,ng)) THEN
+          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idOPALsed)),       &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+#  endif
 #  ifdef LMD_SKPP
         IF (.not.got_var(idHsbl).and.Aout(idHsbl,ng)) THEN
           IF (Master) WRITE (stdout,60) TRIM(Vname(1,idHsbl)),          &
