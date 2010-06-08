@@ -51,10 +51,10 @@
                 idTvar(iFeD_)=varid
 # endif
 # ifdef NEMURO_SED1
-              CASE ('idTvar(iPONsed)')
-                idTvar(iPONsed)=varid
-              CASE ('idTvar(iOPALsed)')
-                idTvar(iOPALsed)=varid
+              CASE ('idPONsed')
+                idPONsed=varid
+              CASE ('idOPALsed')
+                idOPALsed=varid
 # endif
 
 /*
