@@ -365,7 +365,6 @@
       allocate ( OCEAN(ng) % OPALsed(LBi:UBi,LBj:UBj) )
 #    endif
 
-
 # ifdef BIO_GOANPZ
       !--------------------------------------------
       ! Add a stationary array to the biology module
