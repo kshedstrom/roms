@@ -72,23 +72,23 @@
 !
 !  Set biological tracer identification indices.
 !
-      integer, allocatable :: idbio(:)! Biological tracers
-      integer :: iNO3_                ! Nitrate concentration
-      integer :: iNH4_                ! Ammonium concentration
-      integer :: iSiOH                ! Silicate concentration
-      integer :: iSphy                ! Samll phytoplankton
-      integer :: iLphy                ! Diatom concentration
-      integer :: iSzoo                ! Small zooplankotn concentration
-      integer :: iLzoo                ! Mesozooplankotn concentration
-      integer :: iSDet                ! Detritus notrogen concentration
-      integer :: iopal                ! Biogenic silicate concentration
-      integer :: iPO4_                ! Phosphate concentration
+      integer, allocatable :: idbio(:) ! Biological tracers
+      integer :: iNO3_                 ! Nitrate concentration
+      integer :: iNH4_                 ! Ammonium concentration
+      integer :: iSiOH                 ! Silicate concentration
+      integer :: iSphy                 ! Samll phytoplankton
+      integer :: iLphy                 ! Diatom concentration
+      integer :: iSzoo                 ! Small zooplankotn concentration
+      integer :: iLzoo                 ! Mesozooplankotn concentration
+      integer :: iSDet                 ! Detritus notrogen concentration
+      integer :: iopal                 ! Biogenic silicate concentration
+      integer :: iPO4_                 ! Phosphate concentration
 #ifdef OXYGEN
-      integer :: iOxyg                ! Dissolved oxygen concentration
+      integer :: iOxyg                 ! Dissolved oxygen concentration
 #endif
 #ifdef CARBON
-      integer :: iTIC_                ! Total inorganic carbon
-      integer :: iTAlk                ! Total alkalinity
+      integer :: iTIC_                 ! Total inorganic carbon
+      integer :: iTAlk                 ! Total alkalinity
 #endif
 
       integer, dimension(Ngrids) :: BioIter
