@@ -65,8 +65,8 @@
 ! shared-memory configurations used to determine tile horizontal range
 ! indices (Istr,Iend) and (Jstr,Jend), [1:Ngrids].
 
-       NtileI == 1                               ! I-direction partition
-       NtileJ == 16                              ! J-direction partition
+!      NtileI == 1                               ! I-direction partition
+!      NtileJ == 16                              ! J-direction partition
 !      NtileI == 6                               ! I-direction partition
 !      NtileJ == 8                              ! J-direction partition
 !      NtileI == 4                               ! I-direction partition
@@ -117,7 +117,7 @@
      NDEFHIS == 43200
       NTSAVG == 1
         NAVG == 432
-     NDEFAVG == 4320
+     NDEFAVG == 432
      NTSAVG2 == 1
        NAVG2 == 27
     NDEFAVG2 == 1920
@@ -696,8 +696,8 @@ Dout(iTvdif) == T T                        ! vertical diffusion
                /wrkdir/kate/NEP5/Files/Tair.1948-2006.nc   \
                /wrkdir/kate/NEP5/Files/Uwind.1948-2006.nc  \
                /wrkdir/kate/NEP5/Files/Vwind.1948-2006.nc  \
-	       /wrkdir/kate/NEP5/Files/CCSM_Runoff.nc   \
-	       /wrkdir/kate/NEP5/Files/sss_fill_2004.nc  \
+               /wrkdir/kate/NEP5/Files/CCSM_Runoff.nc   \
+               /wrkdir/kate/NEP5/Files/sss_fill_2004.nc  \
                /wrkdir/kate/NEP5/Files/rain.1948-2006.nc  \
                /wrkdir/kate/NEP5/Files/NEP4_tides_otps.nc
 
