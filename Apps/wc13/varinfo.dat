@@ -1,7 +1,6 @@
 !
 !  ROMS/TOMS IO NetCDF variables.
 !
-!svn $Id: varinfo.dat 82 2007-07-12 03:13:42Z arango $
 !========================================================= Hernan G. Arango ===
 !  Copyright (c) 2002-2007 The ROMS/TOMS Group                                !
 !    Licensed under a MIT/X style license                                     !
@@ -175,6 +174,234 @@
   'salinity, scalar, series'
   'ocean_time'
   'idTvar(isalt)'
+  'r3dvar'
+  1.0d0
+
+!
+!------------------------------------------------------------------------------
+!  Wet/dry masks.
+!------------------------------------------------------------------------------
+!
+
+'wetdry_mask_rho'                                  ! Input/Output
+  'wet/dry mask on RHO-points'
+  'nondimensional'
+  'wetdry_mask_rho, scalar, series'
+  'ocean_time'
+  'idRwet'
+  'r2dvar'
+  1.0d0
+
+'wetdry_mask_u'                                    ! Input/Output
+  'wet/dry mask on U-points'
+  'nondimensional'
+  'wetdry_mask_u, scalar, series'
+  'ocean_time'
+  'idUwet'
+  'u2dvar'
+  1.0d0
+
+'wetdry_mask_v'                                    ! Input/Output
+  'wet/dry mask on V-points'
+  'nondimensional'
+  'wetdry_mask_v, scalar, series'
+  'ocean_time'
+  'idVwet'
+  'v2dvar'
+  1.0d0
+
+!
+!------------------------------------------------------------------------------
+!  Detided variables
+!------------------------------------------------------------------------------
+!
+
+'CosW'                                             ! Input/Output
+  'time-accumulated COS(omega(k)*t)'
+  'radians'                                        ! [radians]
+  'CosW, scalar'
+  'tide_period'
+  'idCosW'
+  'nulvar'
+  1.0d0
+
+'SinW'                                             ! Input/Output
+  'time-accumulated SIN(omega(k)*t)'
+  'radians'                                        ! [radians]
+  'SinW, scalar'
+  'tide_period'
+  'idSinW'
+  'nulvar'
+  1.0d0
+
+'CosWCosW'                                         ! Input/Output
+  'time-accumulated COS(omega(k)*t)*COS(omega(l)*t) matrix'
+  'radians'                                        ! [radians]
+  'CosWCosW, scalar'
+  'tide_period'
+  'idCos2'
+  'nulvar'
+  1.0d0
+
+'SinWSinW'                                         ! Input/Output
+  'time-accumulated SIN(omega(k)*t)*SIN(omega(l)*t) matrix'
+  'radians'                                        ! [radians]
+  'SinWSinW, scalar'
+  'tide_period'
+  'idSin2'
+  'nulvar'
+  1.0d0
+
+'SinWCosW'                                         ! Input/Output
+  'time-accumulated SIN(omega(k)*t)*COS(omega(l)*t) matrix'
+  'radians'                                        ! [radians]
+  'SinWCosW, scalar'
+  'tide_period'
+  'idSWCW'
+  'nulvar'
+  1.0d0
+
+'zeta_tide'                                        ! Input/Output
+  'time-accumulated free-surface tide harmonics'
+  'meter'                                          ! [m]
+  'zeta_tide, scalar'
+  'ocean_time'
+  'idFsuH'
+  'r2dvar'
+  1.0d0
+
+'zeta_detided'                                     ! Output
+  'detided free-surface'
+  'meter'                                          ! [m]
+  'zeta_detided, scalar, series'
+  'ocean_time'
+  'idFsuD'
+  'r2dvar'
+  1.0d0
+
+'ubar_tide'                                        ! Input/Ouput
+  'time-accumulated 2D u-momentum tide harmonics'
+  'meter second-1'                                 ! [m/s]
+  'ubar_tide, scalar'
+  'ocean_time'
+  'idu2dH'
+  'u2dvar'
+  1.0d0
+
+'ubar_detided'                                     ! Ouput
+  'detided 2D u-momentum'
+  'meter second-1'                                 ! [m/s]
+  'ubar_detided, scalar, series'
+  'ocean_time'
+  'idu2dD'
+  'u2dvar'
+  1.0d0
+
+'vbar_tide'                                        ! Input/Output
+  'time-accumulated 2D v-momentum tide harmonics'
+  'meter second-1'                                 ! [m/s]
+  'vbar_tide, scalar'
+  'ocean_time'
+  'idv2dH'
+  'v2dvar'
+  1.0d0
+
+'vbar_detided'                                     ! Output
+  'detided 2D v-momentum'
+  'meter second-1'                                 ! [m/s]
+  'vbar_detided, scalar, series'
+  'ocean_time'
+  'idv2dD'
+  'v2dvar'
+  1.0d0
+
+'u_tide'                                           ! Input/Output
+  'time-accumulated 3D u-momentum tide harmonics'
+  'meter second-1'                                 ! [m/s]
+  'u_tide, scalar'
+  'ocean_time'
+  'idu3dH'
+  'u3dvar'
+  1.0d0
+
+'u_detided'                                        ! Output
+  'detided 3D u-momentum'
+  'meter second-1'                                 ! [m/s]
+  'u_detided, scalar, series'
+  'ocean_time'
+  'idu3dD'
+  'u3dvar'
+  1.0d0
+
+'v_tide'                                           ! Input/Output
+  'time-accumulated 3D v-momentum tide harmonics'
+  'meter second-1'                                 ! [m/s]
+  'v_tide, scalar'
+  'ocean_time'
+  'idv3dH'
+  'v3dvar'
+  1.0d0
+
+'v_detided'                                        ! Output
+  'detided 3D v-momentum'
+  'meter second-1'                                 ! [m/s]
+  'v_detided, scalar, series'
+  'ocean_time'
+  'idv3dD'
+  'v3dvar'
+  1.0d0
+
+'temp_tide'                                        ! Input/Output
+  'time-accumulated potential temperature tide harmonics'
+  'Celsius'                                        ! [Celsius]
+  'temp_tide, scalar'
+  'ocean_time'
+  'idTrcH(itemp)'
+  'r3dvar'
+  1.0d0
+
+'temp_detided'                                     ! Output
+  'detided potential temperature'
+  'Celsius'                                        ! [Celsius]
+  'v_detided, scalar, series'
+  'ocean_time'
+  'idTrcD(itemp)'
+  'r3dvar'
+  1.0d0
+
+'temp_tide'                                        ! Input/Output
+  'time-accumulated potential temperature tide harmonics'
+  'Celsius'                                        ! [Celsius]
+  'temp_tide, scalar'
+  'ocean_time'
+  'idTrcH(itemp)'
+  'r3dvar'
+  1.0d0
+
+'temp_detided'                                     ! Output
+  'detided potential temperature'
+  'Celsius'                                        ! [Celsius]
+  'temp_detided, scalar, series'
+  'ocean_time'
+  'idTrcD(itemp)'
+  'r3dvar'
+  1.0d0
+
+'salt_tide'                                        ! Input/Output
+  'time-accumulated salinity tide harmonics'
+  'nondimensional'                                 ! [PSU]
+  'salt_tide, scalar'
+  'ocean_time'
+  'idTrcH(isalt)'
+  'r3dvar'
+  1.0d0
+
+'salt_detided'                                     ! Output
+  'detided potential temperature'
+  'nondimensional'                                 ! [PSU]
+  'salt_detided, scalar, series'
+  'ocean_time'
+  'idTrcD(isalt)'
   'r3dvar'
   1.0d0
 
@@ -357,6 +584,15 @@
   'EminusP, scalar, series'                        ! bulk_flux.F and
   'ocean_time'                                     ! needed in adjoint-based
   'idEmPf'                                         ! applications
+  'r2dvar'
+  1.0d0
+
+'SSSf'                                             ! Input/Output
+  'surface net freswater flux from salinity nudging'
+  'meter second-1'                                 ! computed by NLM ROMS
+  'SSSf, scalar, series'                           ! bulk_flux.F and
+  'ocean_time'                                     ! needed in adjoint-based
+  'idSSSf'                                         ! applications
   'r2dvar'
   1.0d0
 
@@ -2632,6 +2868,51 @@
   'r3dvar'
   1.0d0
 
+'FeSp'                                             ! Input/Output
+  'small phytop. iron concentration'
+  'millimole_iron  meter-3'                        ! [millimole/m3]
+  'iron, scalar, series'
+  'ocean_time'
+  'idTvar(iFeSp)'
+  'r3dvar'
+  1.0d0
+
+'FeLp'                                            ! Input/Output
+  'large phytop. iron concentration'
+  'millimole_iron  meter-3'                       ! [millimole/m3]
+  'iron, scalar, series'
+  'ocean_time'
+  'idTvar(iFeLp)'
+  'r3dvar'
+  1.0d0
+
+'FeD'                                             ! Input/Output
+  'dissolved iron concentration'
+  'millimole_iron  meter-3'                       ! [millimole/m3]
+  'iron, scalar, series'
+  'ocean_time'
+  'idTvar(iFeD_)'
+  'r3dvar'
+  1.0d0
+
+'PONsed'                                          ! Input/Output
+  'Sediment PON'
+  'millimole_nitrogen meter-3'                     ! [millimole/m3]
+  'PONsed, scalar, series'
+  'ocean_time'
+  'idPONsed'
+  'r2dvar'
+  1.0d0
+
+'OPALsed'                                         ! Input/Output
+  'Sediment OPAL'
+  'millimole_silica meter-3'                      ! [millimole/m3]
+  'OPALsed, scalar, series'
+  'ocean_time'
+  'idOPALsed'
+  'r2dvar'
+  1.0d0
+
 'TIC'                                              ! Input/Output
   'total inorganic carbon'
   'millimole_carbon meter-3'                       ! [millimole/m3]
@@ -4455,6 +4736,24 @@
   'p3dvar'
   1.0d0
 
+'pvorticity'                                       ! Input/Output
+  'potential vorticity'
+  'meter-1 second-1'                               ! [1/m/s]
+  'pvorticity, scalar, series'
+  'ocean_time'
+  'id3dPV'
+  'p3dvar'
+  1.0d0
+
+'rvorticity'                                       ! Input/Output
+  'relative vorticity'
+  'second-1'                                       ! [1/s]
+  'rvorticity, scalar, series'
+  'ocean_time'
+  'id3dRV'
+  'p3dvar'
+  1.0d0
+
 'u_accel'                                          ! Input/Output
   '3D u-momentum, acceleration term'
   'meter second-2'                                 ! [m/s2]
@@ -4655,6 +4954,24 @@
 
 'v_xvisc'                                          ! Input/Output
   '3D v-momentum, horizontal XI-viscosity term'
+  'meter second-2'                                 ! [m/s2]
+  'v_xvisc, scalar, series'
+  'ocean_time'
+  'idDv3d(M3xvis)'
+  'v3dvar'
+  1.0d0
+
+'v_yvisc'                                          ! Input/Output
+  '3D v-momentum, horizontal ETA-viscosity term'
+  'meter second-2'                                 ! [m/s2]
+  'v_yvisc, scalar, series'
+  'ocean_time'
+  'idDv3d(M3yvis)'
+  'v3dvar'
+  1.0d0
+
+'u_vvisc'                                          ! Input/Output
+  '3D u-momentum, vertical viscosity term'
   'meter second-2'                                 ! [m/s2]
   'v_xvisc, scalar, series'
   'ocean_time'
@@ -5176,3 +5493,648 @@
   'idFeatf'
   'r3dvar'
   1.0d0
+
+'eup_westO'
+  'Offshore euphausiids western boundary condition'
+  'mg C per m3'
+  'eup_west, scalar, series'
+  'bio_time'
+  'idTbry(iwest,iEupO)'
+  'nulvar'
+  1.0d0
+
+'eup_eastO'
+  'Offshore euphausiids eastern boundary condition'
+  'mg C per m3'
+  'eup_east, scalar, series'
+  'bio_time'
+  'idTbry(ieast,iEupO)'
+  'nulvar'
+  1.0d0
+
+'eup_southO'
+  'Offshore euphausiids southern boundary condition'
+  'mg C per m3'
+  'eup_south, scalar, series'
+  'bio_time'
+  'idTbry(isouth,iEupO)'
+  'nulvar'
+  1.0d0
+
+'eup_northO'
+  'Offshore euphausiids northern boundary condition'
+  'mg C per m3'
+  'eup_north, scalar, series'
+  'bio_time'
+  'idTbry(inorth,iEupO)'
+  'nulvar'
+  1.0d0
+
+!-------------------------------------------------------
+'Det'
+  'detritus concentration'
+  'milligram carbon meter-3'
+  'detritus, scalar, series'
+  'bio_time'
+  'idTvar(iDet)'
+  'r3dvar'
+  1.0d0
+
+'det_west'
+  'detritus western boundary condition'
+  'mg C per m3'
+  'det_west, scalar, series'
+  'bio_time'
+  'idTbry(iwest,iDet)'
+  'nulvar'
+  1.0d0
+
+'det_east'
+  'detritus eastern boundary condition'
+  'mg C per m3'
+  'det_east, scalar, series'
+  'bio_time'
+  'idTbry(ieast,iDet)'
+  'nulvar'
+  1.0d0
+
+'det_south'
+  'detritus southern boundary condition'
+  'mg C per m3'
+  'det_south, scalar, series'
+  'bio_time'
+  'idTbry(isouth,iDet)'
+  'nulvar'
+  1.0d0
+
+'det_north'
+  'detritus northern boundary condition'
+  'mg C per m3'
+  'det_north, scalar, series'
+  'bio_time'
+  'idTbry(inorth,iDet)'
+  'nulvar'
+  1.0d0
+
+!-------------------------------------------------------
+'DetF'
+  'Fast sinking detritus concentration'
+  'milligram carbon meter-3'
+  'detritus, scalar, series'
+  'bio_time'
+  'idTvar(iDetF)'
+  'r3dvar'
+  1.0d0
+
+'detF_west'
+  'Fast sinking detritus western boundary condition'
+  'mg C per m3'
+  'detF_west, scalar, series'
+  'bio_time'
+  'idTbry(iwest,iDetF)'
+  'nulvar'
+  1.0d0
+
+'detF_east'
+  'Fast sinking detritus eastern boundary condition'
+  'mg C per m3'
+  'detF_east, scalar, series'
+  'bio_time'
+  'idTbry(ieast,iDetF)'
+  'nulvar'
+  1.0d0
+
+'detF_south'
+  'Fast sinking detritus southern boundary condition'
+  'mg C per m3'
+  'detF_south, scalar, series'
+  'bio_time'
+  'idTbry(isouth,iDetF)'
+  'nulvar'
+  1.0d0
+
+'detF_north'
+  'Fast sinking detritus northern boundary condition'
+  'mg C per m3'
+  'detF_north, scalar, series'
+  'bio_time'
+  'idTbry(inorth,iDetF)'
+  'nulvar'
+  1.0d0
+
+!--------------
+'Iron'
+  'iron concentration'
+  'micromol Fe m-3'
+  'iron, scalar, series'
+  'bio_time'
+  'idTvar(iFe)'
+  'r3dvar'
+  1.0d0
+
+'iron_west'
+  'iron western boundary condition'
+  'micromol Fe m-3'
+  'iron_west, scalar, series'
+  'bio_time'
+  'idTbry(iwest,iFe)'
+  'nulvar'
+  1.0d0
+
+'iron_east'
+  'iron eastern boundary condition'
+  'micromol Fe m-3'
+  'iron_east, scalar, series'
+  'bio_time'
+  'idTbry(ieast,iFe)'
+  'nulvar'
+  1.0d0
+
+'iron_south'
+  'iron southern boundary condition'
+  'micromol Fe m-3'
+  'iron_south, scalar, series'
+  'bio_time'
+  'idTbry(isouth,iFe)'
+  'nulvar'
+  1.0d0
+
+'iron_north'
+  'iron northern boundary condition'
+  'micromol Fe m-3'
+  'iron_north, scalar, series'
+  'bio_time'
+  'idTbry(inorth,iFe)'
+  'nulvar'
+  1.0d0
+
+'Iron'
+  'iron climatology'
+  'micromol Fe m-3'
+  'iron, scalar, series'
+  'ocean_time'
+  'idTclm(iFe)'
+  'r3dvar'
+  1.0d0
+
+!ICE_BIO
+'ice_thick'
+  'ice thickness climatology'
+  'metesrs'
+  'ice_thick, scalar, series'
+  'ocean_time'
+  'idTclm(iFe+1)'
+  'r2dvar'
+  1.0d0
+
+
+
+
+!------------------------------------------------------------
+ 'Jel'
+  'Jellyfish concentration'
+  'milligram carbon meter-3'
+  'jellyfish, scalar, series'
+  'bio_time'
+  'idTvar(iJel)'
+  'r3dvar'
+  1.0d0
+
+
+'jel_west'
+  'jellyfish western boundary condition'
+  'mg C per m3'
+  'jel_west, scalar, series'
+  'bio_time'
+  'idTbry(iwest,iJel)'
+  'nulvar'
+  1.0d0
+
+'jel_east'
+  'jellyfish eastern boundary condition'
+  'mg C per m3'
+  'jel_east, scalar, series'
+  'bio_time'
+  'idTbry(ieast,iJel)'
+  'nulvar'
+  1.0d0
+
+'jel_south'
+  'jellyfish southern boundary condition'
+  'mg C per m3'
+  'jel_south, scalar, series'
+  'bio_time'
+  'idTbry(isouth,iJel)'
+  'nulvar'
+  1.0d0
+
+'jel_north'
+  'jellyfish northern boundary condition'
+  'mg C per m3'
+  'jel_north, scalar, series'
+  'bio_time'
+  'idTbry(inorth,iJel)'
+  'nulvar'
+  1.0d0
+
+!------------------------------------------------------------
+!BENTHIC
+!--------------------
+'Ben'
+  'benthos concentration'
+  'milligram carbon meter-2'
+  'benthos, scalar, series'
+  'bio_time'
+  'idBvar(iBen)'
+  'r3dvar'
+  1.0d0
+
+'DetBen'
+  'benthic detritus concentration'
+  'milligram carbon meter-2'
+  'benthic detritus, scalar, series'
+  'bio_time'
+  'idBvar(iBenDet)'
+  'r3dvar'
+  1.0d0
+
+!-------
+!ICE_BIO
+!-------
+'IcePhL'
+  'Ice algae concentration'
+  'milligram carbon meter-3'
+  'Ice algae, scalar, series'
+  'bio_time'
+  'idIceBvar(iIcePhL)'
+  'r2dvar'
+  1.0d0
+
+'IceNO3'
+  'Ice nitrate concentration'
+  'mmol N per m3'
+  'Ice nitrate, scalar, series'
+  'bio_time'
+  'idIceBvar(iIceNO3)'
+  'r2dvar'
+  1.0d0
+
+'IceNH4'
+  'Ice ammonium concentration'
+  'mmol N per m3'
+  'Ice ammonium, scalar, series'
+  'bio_time'
+  'idIceBvar(iIceNH4)'
+  'r2dvar'
+  1.0d0
+
+'IceZ'
+  'Ice Thickness'
+  'meters'
+  'Ice thickness, series'
+  'bio_time'
+  'idIceBvar(iIceZ)'
+  'r2dvar'
+  1.0d0
+
+'IceLog'
+  'Logical Ice Counter'
+  'unitless'
+  'Logical Ice Counter, scalar, series'
+  'bio_time'
+  'idIceLogvar(iIceLog)'
+  'r2dvar'
+  1.0d0
+
+!------------------------------------------------------------
+!STATIONARY
+!-----------------------
+'Stat1_3d'
+  '1st 3D stationary variable'
+  'milligram carbon meter-3 d-1'
+  'StatVar scalar series'
+  'bio_time'
+  'idTSvar(i3Stat1)'
+  'r3dvar'
+  1.0d0
+
+'Stat2_3d'
+  '2nd 3D stationary variable'
+  'milligram carbon meter-3 d-1'
+  'StatVar scalar series'
+  'bio_time'
+  'idTSvar(i3Stat2)'
+  'r3dvar'
+  1.0d0
+
+'Stat3_3d'
+  '3rd 3D stationary variable'
+  'milligram carbon meter-3 d-1'
+  'StatVar scalar series'
+  'bio_time'
+  'idTSvar(i3Stat3)'
+  'r3dvar'
+  1.0d0
+
+'Stat4_3d'
+  '4th 3D stationary variable'
+  'milligram carbon meter-3 d-1'
+  'StatVar scalar series'
+  'bio_time'
+  'idTSvar(i3Stat4)'
+  'r3dvar'
+  1.0d0
+
+'Stat5_3d'
+  '5th 3D stationary variable'
+  'milligram carbon meter-3 d-1'
+  'StatVar scalar series'
+  'bio_time'
+  'idTSvar(i3Stat5)'
+  'r3dvar'
+  1.0d0
+
+'Stat6_3d'
+  '6th 3D stationary variable'
+  'milligram carbon meter-3 d-1'
+  'StatVar scalar series'
+  'bio_time'
+  'idTSvar(i3Stat6)'
+  'r3dvar'
+  1.0d0
+
+'Stat7_3d'
+  '7th 3D stationary variable'
+  'milligram carbon meter-3 d-1'
+  'StatVar scalar series'
+  'bio_time'
+  'idTSvar(i3Stat7)'
+  'r3dvar'
+  1.0d0
+
+'Stat8_3d'
+  '8th 3D stationary variable'
+  'milligram carbon meter-3 d-1'
+  'StatVar scalar series'
+  'bio_time'
+  'idTSvar(i3Stat8)'
+  'r3dvar'
+  1.0d0
+
+
+'Stat9_3d'
+  '9th 3D stationary variable'
+  'milligram carbon meter-3 d-1'
+  'StatVar scalar series'
+  'bio_time'
+  'idTSvar(i3Stat9)'
+  'r3dvar'
+  1.0d0
+
+
+'Stat10_3d'
+  '10th 3D stationary variable'
+  'milligram carbon meter-3 d-1'
+  'StatVar scalar series'
+  'bio_time'
+  'idTSvar(i3Stat10)'
+  'r3dvar'
+  1.0d0
+
+
+'Stat11_3d'
+  '11th 3D stationary variable'
+  'milligram carbon meter-3 d-1'
+  'StatVar scalar series'
+  'bio_time'
+  'idTSvar(i3Stat11)'
+  'r3dvar'
+  1.0d0
+
+'Stat12_3d'
+  '12th 3D stationary variable'
+  'milligram carbon meter-3 d-1'
+  'StatVar scalar series'
+  'bio_time'
+  'idTSvar(i3Stat12)'
+  'r3dvar'
+  1.0d0
+
+'Stat13_3d'
+  '13th 3D stationary variable'
+  'milligram carbon meter-3 d-1'
+  'StatVar scalar series'
+  'bio_time'
+  'idTSvar(i3Stat13)'
+  'r3dvar'
+  1.0d0
+
+'Stat14_3d'
+  '14th 3D stationary variable'
+  'milligram carbon meter-3 d-1'
+  'StatVar scalar series'
+  'bio_time'
+  'idTSvar(i3Stat14)'
+  'r3dvar'
+  1.0d0
+
+'Stat15_3d'
+  '15th 3D stationary variable'
+  'milligram carbon meter-3 d-1'
+  'StatVar scalar series'
+  'bio_time'
+  'idTSvar(i3Stat15)'
+  'r3dvar'
+  1.0d0
+
+'Stat16_3d'
+  '16th 3D stationary variable'
+  'milligram carbon meter-3 d-1'
+  'StatVar scalar series'
+  'bio_time'
+  'idTSvar(i3Stat16)'
+  'r3dvar'
+  1.0d0
+!-----------------------------
+!PROD3
+!---------------------------
+'prod_PhS'
+  'primary production small phytoplankton'
+  'milligram carbon meter-3 d-1'
+  'PrimProd scalar series'
+  'bio_time'
+  'idPT3var(iPhSprd)'
+  'r3dvar'
+  1.0d0
+
+'prod_PhL'
+  'primary production large phytoplankton'
+  'milligram carbon meter-3 d-1'
+  'PrimProd scalar series'
+  'bio_time'
+  'idPT3var(iPhLprd)'
+  'r3dvar'
+  1.0d0
+
+'prod_MZS'
+  'secondary production small microzooplankton'
+  'milligram carbon meter-3 d-1'
+  'PrimProd scalar series'
+  'bio_time'
+  'idPT3var(iMZSprd)'
+  'r3dvar'
+  1.0d0
+
+'prod_MZL'
+  'secondary production large microzooplankton'
+  'milligram carbon meter-3 d-1'
+  'PrimProd scalar series'
+  'bio_time'
+  'idPT3var(iMZLprd)'
+  'r3dvar'
+  1.0d0
+
+'prod_Cop'
+  'secondary production copepods'
+  'milligram carbon meter-3 d-1'
+  'PrimProd scalar series'
+  'bio_time'
+  'idPT3var(iCopPrd)'
+  'r3dvar'
+  1.0d0
+
+'prod_NCa'
+  'secondary production Neocalanus'
+  'milligram carbon meter-3 d-1'
+  'PrimProd scalar series'
+  'bio_time'
+  'idPT3var(iNCaPrd)'
+  'r3dvar'
+  1.0d0
+
+'prod_Eup'
+  'secondary production Euphausiids'
+  'milligram carbon meter-3 d-1'
+  'PrimProd scalar series'
+  'bio_time'
+  'idPT3var(iEupPrd)'
+  'r3dvar'
+  1.0d0
+
+'prod_Jel'
+  'secondary production Jellyfish'
+  'milligram carbon meter-3 d-1'
+  'PrimProd scalar series'
+  'bio_time'
+  'idPT3var(iJelPrd)'
+  'r3dvar'
+  1.0d0
+
+!----------------------------
+! PROD2
+!----------------------------
+  'prod_Ben'
+  'secondary production Benthos'
+  'milligram carbon meter-3 d-1'
+  'PrimProd scalar series'
+  'bio_time'
+  'idPT2var(iBenPrd)'
+  'r2dvar'
+  1.0d0
+
+  'prod_IcePhL'
+  'primary production ice algae'
+  'milligram carbon meter-3 d-1'
+  'PrimProd scalar series'
+  'bio_time'
+  'idPT2var(iIAPrd)'
+  'r2dvar'
+  1.0d0
+
+!----------------------------
+! BIOFLUX
+!----------------------------
+'bioflux'
+  '2d bioflux variable'
+  'flux mmol'
+  'BioFlx scalar series'
+  'bio_time'
+  'idTBFvar(iBF)'
+  'r2dvar'
+  1.0d0
+
+!------------------------------------------------------------
+!STATIONARY2
+!-----------------------
+'Stat1_2d'
+  '1st 2D stationary variable'
+  'milligram carbon meter-3 d-1'
+  'StatVar scalar series'
+  'bio_time'
+  'idTS2var(i2Stat1)'
+  'r2dvar'
+  1.0d0
+
+'Stat2_2d'
+  '2nd 2D stationary variable'
+  'milligram carbon meter-3 d-1'
+  'StatVar scalar series'
+  'bio_time'
+  'idTS2var(i2Stat2)'
+  'r2dvar'
+  1.0d0
+
+'Stat3_2d'
+  '3rd 2D stationary variable'
+  'milligram carbon meter-3 d-1'
+  'StatVar scalar series'
+  'bio_time'
+  'idTS2var(i2Stat3)'
+  'r2dvar'
+  1.0d0
+
+'Stat4_2d'
+  '4th 2D stationary variable'
+  'milligram carbon meter-3 d-1'
+  'StatVar scalar series'
+  'bio_time'
+  'idTS2var(i2Stat4)'
+  'r2dvar'
+  1.0d0
+
+'Stat5_2d'
+  '5th 2D stationary variable'
+  'milligram carbon meter-3 d-1'
+  'StatVar scalar series'
+  'bio_time'
+  'idTS2var(i2Stat5)'
+  'r2dvar'
+  1.0d0
+
+'Stat6_2d'
+  '6th 2D stationary variable'
+  'milligram carbon meter-3 d-1'
+  'StatVar scalar series'
+  'bio_time'
+  'idTS2var(i2Stat6)'
+  'r2dvar'
+  1.0d0
+
+'Stat7_2d'
+  '7th 2D stationary variable'
+  'milligram carbon meter-3 d-1'
+  'StatVar scalar series'
+  'bio_time'
+  'idTS2var(i2Stat7)'
+  'r2dvar'
+  1.0d0
+
+'Stat8_2d'
+  '8th 2D stationary variable'
+  'milligram carbon meter-3 d-1'
+  'StatVar scalar series'
+  'bio_time'
+  'idTS2var(i2Stat8)'
+  'r2dvar'
+  1.0d0
+
