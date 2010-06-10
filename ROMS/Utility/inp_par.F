@@ -7994,6 +7994,10 @@
             Npts=load_l(Nval, Cval, Ngrids, Sout(idHsbl,:))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idHbbl)') THEN
             Npts=load_l(Nval, Cval, Ngrids, Sout(idHbbl,:))
+          ELSE IF (TRIM(KeyWord).eq.'Sout(idPONsed)') THEN
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idPONsed,:))
+          ELSE IF (TRIM(KeyWord).eq.'Sout(idOPALsed)') THEN
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idOPALsed,:))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idMtke)') THEN
             Npts=load_l(Nval, Cval, Ngrids, Sout(idMtke,:))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idMtls)') THEN

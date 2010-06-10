@@ -336,6 +336,22 @@
                 Hout(i,ng)=Ltrc(itrc,ng)
               END DO
             END DO
+#ifdef NEMURO_SED1
+          ELSE IF (TRIM(KeyWord).eq.'Hout(idPONsed)') THEN
+            IF (idPONsed.eq.0) THEN 
+              IF (Master) WRITE (out,280) 'idPONsed'
+              exit_flag=5
+              RETURN
+            END IF
+            Npts=load_l(Nval, Cval, Ngrids, Hout(idPONsed,:))
+          ELSE IF (TRIM(KeyWord).eq.'Hout(idOPALsed)') THEN
+            IF (idOPALsed.eq.0) THEN 
+              IF (Master) WRITE (out,280) 'idOPALsed'
+              exit_flag=5
+              RETURN
+            END IF
+            Npts=load_l(Nval, Cval, Ngrids, Hout(idOPALsed,:))
+#endif
 #ifdef AVERAGES
           ELSE IF (TRIM(KeyWord).eq.'Aout(idTvar)') THEN
             Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
@@ -345,6 +361,12 @@
                 Aout(i,ng)=Ltrc(itrc,ng)
               END DO
             END DO
+#ifdef NEMURO_SED1
+          ELSE IF (TRIM(KeyWord).eq.'Aout(idPONsed)') THEN
+            Npts=load_l(Nval, Cval, Ngrids, Aout(idPONsed,:))
+          ELSE IF (TRIM(KeyWord).eq.'Aout(idOPALsed)') THEN
+            Npts=load_l(Nval, Cval, Ngrids, Aout(idOPALsed,:))
+#endif
 #endif
 #ifdef DIAGNOSTICS_TS
           ELSE IF (TRIM(KeyWord).eq.'Dout(iTrate)') THEN
@@ -924,6 +946,7 @@
   90  FORMAT (1p,e11.4,2x,a,'(',i2.2,')',t30,a,/,t32,a,i2.2,':',1x,a)
  100  FORMAT (10x,l1,2x,a,'(',i2.2,')',t30,a,i2.2,':',1x,a)
  110  FORMAT (10x,l1,2x,a,t30,a,i2.2,':',1x,a)
+ 280  FORMAT (/,' READ_BioPar - variable info not yet loaded, ', a)
 
       RETURN
       END SUBROUTINE read_BioPar

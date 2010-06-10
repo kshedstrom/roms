@@ -288,10 +288,19 @@
 Hout(idTvar) == 14*T                       ! biological tracers
 Hout(idTsur) == 14*F                       ! surface tracer flux
 
+! Logical switches for bio sediment variables.
+Hout(idPONsed) == T
+Hout(idOPALsed) == T
+
 ! Logical switches (TRUE/FALSE) to activate writing of time-averaged fields
 ! into AVERAGE output file: [1;NBT,Ngrids].
 
 Aout(idTvar) == 14*T                       ! biological tracer
+Aout(idTsur) == 14*F                       ! surface tracer flux
+
+! Logical switches for bio sediment variables.
+Aout(idPONsed) == T
+Aout(idOPALsed) == T
 
 ! Logical switches (TRUE/FALSE) to activate writing of time-averaged,
 ! biological tracer diagnostic terms into DIAGNOSTIC output file:
