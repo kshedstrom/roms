@@ -89,7 +89,8 @@
       IF (NT(ng) .gt. NAT) THEN
         IF (((iic(ng).gt.ntsAVG(ng)).and.                               &
      &     (MOD(iic(ng)-1,nAVG(ng)).eq.1)).or.                          &
-     &    ((nrrec(ng).gt.0).and.(iic(ng).eq.ntstart(ng)))) THEN
+     &    (iic(ng).eq.ntstart(ng))) THEN
+!    &    ((nrrec(ng).gt.0).and.(iic(ng).eq.ntstart(ng)))) THEN
           DO itrc=NAT+1,NT(ng)
             IF (Aout(idTvar(itrc),ng)) THEN
               DO k=1,N(ng)
@@ -102,6 +103,22 @@
               END DO
             END IF
           END DO
+#  ifdef NEMURO_SED1
+          IF (Aout(idPONsed,ng)) THEN
+            DO j=JstrR,JendR
+              DO i=IstrR,IendR
+                AVERAGE(ng)%avgPONsed(i,j)=OCEAN(ng)%PONsed(i,j)
+              END DO
+            END DO
+          END IF
+          IF (Aout(idOPALsed,ng)) THEN
+            DO j=JstrR,JendR
+              DO i=IstrR,IendR
+                AVERAGE(ng)%avgOPALsed(i,j)=OCEAN(ng)%OPALsed(i,j)
+              END DO
+            END DO
+          END IF
+#  endif
 !-----------------------------------------------------------------------
 !  Accumulate time-averaged fields.
 !-----------------------------------------------------------------------
@@ -120,16 +137,34 @@
               END DO
             END IF
           END DO
+#  ifdef NEMURO_SED1
+          IF (Aout(idPONsed,ng)) THEN
+            DO j=JstrR,JendR
+              DO i=IstrR,IendR
+                AVERAGE(ng)%avgPONsed(i,j)=AVERAGE(ng)%avgPONsed(i,j)+  &
+     &                                 OCEAN(ng)%PONsed(i,j)
+              END DO
+            END DO
+          END IF
+          IF (Aout(idOPALsed,ng)) THEN
+            DO j=JstrR,JendR
+              DO i=IstrR,IendR
+                AVERAGE(ng)%avgOPALsed(i,j)=AVERAGE(ng)%avgOPALsed(i,j)+&
+     &                                 OCEAN(ng)%OPALsed(i,j)
+              END DO
+            END DO
+          END IF
+#  endif
         END IF
 !-----------------------------------------------------------------------
 !  Convert accumulated sums into time-averages, if appropriate.
 !-----------------------------------------------------------------------
 !
         IF ((iic(ng).gt.ntsAVG(ng)).and.                                &
-     &    (MOD(iic(ng)-1,nAVG(ng)).eq.0).and.                           &
-     &    ((iic(ng).ne.ntstart(ng)))) THEN
-!    &    ((iic(ng).ne.ntstart(ng)).or.(nrrec(ng).eq.0))) THEN
-        fac=1.0_r8/REAL(nAVG(ng),r8)
+     &       (MOD(iic(ng)-1,nAVG(ng)).eq.0).and.                        &
+     &       ((iic(ng).ne.ntstart(ng)))) THEN
+!    &       ((iic(ng).ne.ntstart(ng)).or.(nrrec(ng).eq.0))) THEN
+          fac=1.0_r8/REAL(nAVG(ng),r8)
           DO itrc=NAT+1,NT(ng)
             IF (Aout(idTvar(itrc),ng)) THEN
               DO k=1,N(ng)
@@ -142,6 +177,24 @@
               END DO
             END IF
           END DO
+#  ifdef NEMURO_SED1
+          IF (Aout(idPONsed,ng)) THEN
+            DO j=JstrR,JendR
+              DO i=IstrR,IendR
+                AVERAGE(ng)%avgPONsed(i,j)=fac*                         &
+     &                          AVERAGE(ng)%avgPONsed(i,j)
+              END DO
+            END DO
+          END IF
+          IF (Aout(idOPALsed,ng)) THEN
+            DO j=JstrR,JendR
+              DO i=IstrR,IendR
+                AVERAGE(ng)%avgOPALsed(i,j)=fac*                        &
+     &                          AVERAGE(ng)%avgOPALsed(i,j)
+              END DO
+            END DO
+          END IF
+#  endif
         END IF
       END IF
 !     IF (Master) THEN
