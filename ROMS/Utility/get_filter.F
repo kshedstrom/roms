@@ -589,7 +589,7 @@
 !
 !  Read in sensible heat flux.
 !
-      IF (Aout(idVbar,ng)) THEN
+      IF (Aout(idShea,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idShea),       &
      &                       ncFILid(1,ng), varid)
         IF (exit_flag.ne.NoError) RETURN

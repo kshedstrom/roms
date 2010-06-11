@@ -504,10 +504,10 @@ Aout(idFsur) == T                          ! free-surface
 
 Aout(idTvar) == T T                        ! temperature and salinity
 
-Aout(idUsms) == F                          ! surface U-stress
-Aout(idVsms) == F                          ! surface V-stress
-Aout(idUbms) == F                          ! bottom U-stress
-Aout(idVbms) == F                          ! bottom V-stress
+Aout(idUsms) == T                          ! surface U-stress
+Aout(idVsms) == T                          ! surface V-stress
+Aout(idUbms) == T                          ! bottom U-stress
+Aout(idVbms) == T                          ! bottom V-stress
 
 Aout(idW2xx) == F                          ! 2D radiation stress, Sxx component
 Aout(idW2xy) == F                          ! 2D radiation stress, Sxy component
@@ -527,16 +527,17 @@ Aout(idV3rs) == F                          ! 3D V-radiation stress
 Aout(idU3Sd) == F                          ! 3D U-Stokes velocity
 Aout(idV3Sd) == F                          ! 3D V-Stokes velocity
 
-Aout(idTsur) == F F                        ! surface net heat and salt flux
-Aout(idLhea) == F                          ! latent heat flux
-Aout(idShea) == F                          ! sensible heat flux
-Aout(idLrad) == F                          ! longwave radiation flux
-Aout(idSrad) == F                          ! shortwave radiation flux
+Aout(idTsur) == T T                        ! surface net heat and salt flux
+Aout(idLhea) == T                          ! latent heat flux
+Aout(idShea) == T                          ! sensible heat flux
+Aout(idLrad) == T                          ! longwave radiation flux
+Aout(idSrad) == T                          ! shortwave radiation flux
+Aout(idEmPf) == F                          ! E-P flux
 Aout(idevap) == F                          ! evaporation rate
 Aout(idrain) == F                          ! precipitation rate
 
 Aout(idDano) == F                          ! density anomaly
-Aout(idVvis) == F                          ! vertical viscosity
+Aout(idVvis) == T                          ! vertical viscosity
 Aout(idTdif) == F                          ! vertical T-diffusion
 Aout(idSdif) == F                          ! vertical Salinity diffusion
 Aout(idHsbl) == F                          ! depth of surface boundary layer
