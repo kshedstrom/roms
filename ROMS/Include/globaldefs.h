@@ -299,7 +299,8 @@
     defined SANITY_CHECK        || defined SENSITIVITY_4DVAR  || \
     defined TLM_CHECK           || defined TLM_DRIVER         || \
     defined TL_W4DPSAS          || defined TL_W4DVAR          || \
-    defined W4DPSAS             || defined W4DVAR
+    defined W4DPSAS             || defined W4DVAR             || \
+    defined ARRAY_MODES         || defined CLIPPING
 # define TANGENT
 #endif
 #if defined AD_SENSITIVITY      || defined ADM_DRIVER         || \
@@ -311,12 +312,14 @@
     defined SANITY_CHECK        || defined SENSITIVITY_4DVAR  || \
     defined SO_SEMI             || defined TLM_CHECK          || \
     defined TL_W4DPSAS          || defined TL_W4DVAR          || \
-    defined W4DPSAS             || defined W4DVAR
+    defined W4DPSAS             || defined W4DVAR             || \
+    defined ARRAY_MODES         || defined CLIPPING
 # define ADJOINT
 #endif
 #if defined PICARD_TEST        || defined RPM_DRIVER         || \
     defined TL_W4DVAR          || defined W4DVAR             || \
-    defined W4DVAR_SENSITIVITY
+    defined W4DVAR_SENSITIVITY || defined ARRAY_MODES        || \
+    defined CLIPPING
 # define TL_IOMS
 #endif
 #if !defined ANA_PERTURB                                 && \
@@ -479,7 +482,8 @@
     (defined CONVOLUTION         || defined R_SYMMETRY         || \
      defined TL_W4DPSAS          || defined TL_W4DVAR          || \
      defined W4DPSAS             || defined W4DVAR             || \
-     defined W4DPSAS_SENSITIVITY || defined W4DVAR_SENSITIVITY)
+     defined W4DPSAS_SENSITIVITY || defined W4DVAR_SENSITIVITY || \
+     defined ARRAY_MODES         || defined CLIPPING )
 # define WEAK_CONSTRAINT
 #endif
 #if !defined WEAK_CONSTRAINT     && defined RPM_RELAXATION
@@ -519,7 +523,8 @@
     defined SENSITIVITY_4DVAR  || defined TLM_CHECK           || \
     defined TL_W4DPSAS         || defined TL_W4DVAR           || \
     defined VERIFICATION       || defined W4DPSAS             || \
-    defined W4DVAR
+    defined W4DVAR             || defined ARRAY_MODES         || \
+    defined CLIPPING
 # define OBSERVATIONS
 #endif
 
@@ -527,7 +532,8 @@
     defined R_SYMMETRY         || defined SENSITIVITY_4DVAR   || \
     defined TLM_CHECK          || defined TL_W4DPSAS          || \
     defined TL_W4DVAR          || defined W4DPSAS             || \
-    defined W4DVAR
+    defined W4DVAR             || defined ARRAY_MODES         || \
+    defined CLIPPING
 # define TLM_OBS
 #endif
 
@@ -539,14 +545,16 @@
     (defined IS4DVAR           || defined IS4DVAR_SENSITIVITY || \
      defined SENSITIVITY_4DVAR || defined TL_W4DPSAS          || \
      defined TL_W4DVAR         || defined W4DPSAS             || \
-     defined W4DVAR)
+     defined W4DVAR            || defined ARRAY_MODES         || \
+     defined CLIPPING)
 # define FORWARD_READ
 #endif
 #if !defined FORWARD_WRITE     && \
     (defined IS4DVAR           || defined IS4DVAR_SENSITIVITY || \
      defined SENSITIVITY_4DVAR || defined TL_W4DPSAS          || \
      defined TL_W4DVAR         || defined W4DPSAS             || \
-     defined W4DVAR)
+     defined W4DVAR            || defined ARRAY_MODES         || \
+     defined CLIPPING)
 # define FORWARD_WRITE
 #endif
 
@@ -994,28 +1002,6 @@
 #if defined NUDGING_SST   || defined NUDGING_T   || \
     defined NUDGING_UVsur || defined NUDGING_UV
 # define NUDGING
-#endif
-
-/*
-** Check if it is meaningful to write out time-averaged vertical
-** mixing coefficients.
-*/
-
-#if !defined LMD_MIXING && !defined MY25_MIXING && !defined GLS_MIXING
-# if defined AVERAGES
-#  if defined AVERAGES_AKV
-#    undef AVERAGES_AKV
-#  endif
-#  if defined AVERAGES_AKT
-#    undef AVERAGES_AKT
-#  endif
-#  if defined AVERAGES_AKS && !defined SALINITY
-#    undef AVERAGES_AKS
-#  endif
-# endif
-#endif
-#if defined AVERAGES_NEARSHORE && !defined NEARSHORE_MELLOR
-# undef AVERAGES_NEARSHORE
 #endif
 
 /*

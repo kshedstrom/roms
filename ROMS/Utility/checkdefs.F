@@ -174,6 +174,19 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+14)=' ALBEDO_CURVE,'
 #endif
+#ifdef ARRAY_MODES
+      IF (Master) WRITE (stdout,20) 'ARRAY_MODES',                      &
+     &   'Stabilized Representer Matrix Array Modes.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+13)=' ARRAY_MODES,'
+      idriver=idriver+1
+# ifdef ARRAY_MODES_SPLIT
+      IF (Master) WRITE (stdout,20) 'ARRAY_MODES_SPLIT',                &
+     &   'Separate analysis due to IC, surface forcing, and OBC'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+19)=' ARRAY_MODES_SPLIT,'
+# endif
+#endif
 #ifdef ATM_PRESS
       IF (Master) WRITE (stdout,20) 'ATM_PRESS',                        &
      &   'Impose atmospheric pressure onto sea surface.'
@@ -185,6 +198,19 @@
      &   'Error Covariance Multivariate Balance Operator.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+18)=' BALANCE_OPERATOR,'
+#endif
+#ifdef CLIPPING
+      IF (Master) WRITE (stdout,20) 'CLIPPING',                         &
+     &   'Stabilized Representer Matrix clipping spectrum analysis.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+10)=' CLIPPING,'
+      idriver=idriver+1
+# ifdef CLIPPING_SPLIT
+      IF (Master) WRITE (stdout,20) 'CLIPPING_SPLIT',                   &
+     &   'Separate analysis due to IC, surface forcing, and OBC'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+16)=' CLIPPING_SPLIT,'
+# endif
 #endif
 #ifdef CONVOLUTION
       IF (Master) WRITE (stdout,20) 'CONVOLUTION',                      &
@@ -503,47 +529,11 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+11)=' AVERAGES2,'
 # endif
-# ifdef AVERAGES_AKS
-      IF (Master) WRITE (stdout,20) 'AVERAGES_AKS',                     &
-     &   'Writing out time-averaged vertical S-diffusion.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+14)=' AVERAGES_AKS,'
-# endif
-# ifdef AVERAGES_AKT
-      IF (Master) WRITE (stdout,20) 'AVERAGES_AKT',                     &
-     &   'Writing out time-averaged vertical T-diffusion.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+14)=' AVERAGES_AKT,'
-# endif
-# if defined AVERAGES_BEDLOAD && defined SEDIMENT && defined BEDLOAD
-      IF (Master) WRITE (stdout,20) 'AVERAGES_BELOAD',                  &
-     &   'Writing out time-averaged bed load.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+18)=' AVERAGES_BEDLOAD,'
-# endif
 # if defined AVERAGES_DETIDE && (defined SSH_TIDES || defined UV_TIDES)
       IF (Master) WRITE (stdout,20) 'AVERAGES_DETIDE',                  &
      &   'Writing out time-averaged detided fields.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+17)=' AVERAGES_DETIDE,'
-# endif
-# ifdef AVERAGES_FLUXES
-      IF (Master) WRITE (stdout,20) 'AVERAGES_FLUXES',                  &
-     &   'Writing out time-averaged surface fluxes.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+17)=' AVERAGES_FLUXES,'
-# endif
-# ifdef AVERAGES_NEARSHORE
-      IF (Master) WRITE (stdout,20) 'AVERAGES_NEARSHORE',               &
-     &   'Writing out time-averaged nearshore radiation fields.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+20)=' AVERAGES_NEARSHORE,'
-# endif
-# ifdef AVERAGES_QUADRATIC
-      IF (Master) WRITE (stdout,20) 'AVERAGES_QUADRATIC',               &
-     &   'Writing out time-averaged quadratic terms.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+20)=' AVERAGES_QUADRATIC,'
 # endif
 #endif
 #if defined BACKGROUND && defined FOUR_DVAR
@@ -2043,6 +2033,12 @@
      &   'Reading data at water points only.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+12)=' READ_WATER,'
+#endif
+#if defined RECOMPUTE_4DVAR && defined FOUR_DVAR
+      IF (Master) WRITE (stdout,20) 'RECOMPUTE_4DVAR',                  &
+     &   'Recomputing 4DVar during data assimilation analysis.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+17)=' RECOMPUTE_4DVAR,'
 #endif
 #ifdef R_SYMMETRY
       IF (Master) WRITE (stdout,20) 'REP_MATRIX',                       &

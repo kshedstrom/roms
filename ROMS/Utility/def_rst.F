@@ -986,6 +986,51 @@
      &                 NF_FRST, nvd4, r3dgrd, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 
+# ifdef NEMURO_SED1
+!
+!  Define PON in sediment.
+!
+        Vinfo( 1)=Vname(1,idPONsed)
+        Vinfo( 2)=Vname(2,idPONsed)
+        Vinfo( 3)=Vname(3,idPONsed)
+        Vinfo(14)=Vname(4,idPONsed)
+        Vinfo(16)=Vname(1,idtime)
+#  if defined WRITE_WATER && defined MASKING
+#   if defined PERFECT_RESTART
+        Vinfo(24)='_FillValue'
+        Aval(6)=spval
+#   else
+        Vinfo(20)='mask_rho'
+#   endif
+#  endif
+        Vinfo(22)='coordinates'
+        Aval(5)=REAL(Iinfo(1,idPONsed,ng),r8)
+        status=def_var(ng, iNLM, ncRSTid(ng), rstVid(idPONsed,ng),      &
+     &                 NF_FRST, nvd3, t2dgrd, Aval, Vinfo, ncname)
+        IF (exit_flag.ne.NoError) RETURN
+!
+!  Define OPAL in sediment.
+!
+        Vinfo( 1)=Vname(1,idOPALsed)
+        Vinfo( 2)=Vname(2,idOPALsed)
+        Vinfo( 3)=Vname(3,idOPALsed)
+        Vinfo(14)=Vname(4,idOPALsed)
+        Vinfo(16)=Vname(1,idtime)
+#  if defined WRITE_WATER && defined MASKING
+#   if defined PERFECT_RESTART
+        Vinfo(24)='_FillValue'
+        Aval(6)=spval
+#   else
+        Vinfo(20)='mask_rho'
+#   endif
+#  endif
+        Vinfo(22)='coordinates'
+        Aval(5)=REAL(Iinfo(1,idOPALsed,ng),r8)
+        status=def_var(ng, iNLM, ncRSTid(ng), rstVid(idOPALsed,ng),     &
+     &                 NF_FRST, nvd3, t2dgrd, Aval, Vinfo, ncname)
+        IF (exit_flag.ne.NoError) RETURN
+# endif
+
 # ifdef LMD_SKPP
 !
 !  Define depth of surface boundary layer.
@@ -2017,6 +2062,14 @@
             rstVid(idV3Sd,ng)=var_id(i)
 # endif
 #endif
+#if defined NEMURO_SED1
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idPONsed))) THEN
+            got_var(idPONsed)=.TRUE.
+            rstVid(idPONsed,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idOPALsed))) THEN
+            got_var(idOPALsed)=.TRUE.
+            rstVid(idOPALsed,ng)=var_id(i)
+#endif
           END IF
 #ifdef SOLVE3D
           DO itrc=1,NT(ng)
@@ -2329,6 +2382,20 @@
           RETURN
         END IF
 # endif
+#endif
+#ifdef NEMURO_SED1
+        IF (.not.got_var(idPONsed)) THEN
+          IF (Master) WRITE (stdout,40) TRIM(Vname(1,idPONsed)),        &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idOPALsed)) THEN
+          IF (Master) WRITE (stdout,40) TRIM(Vname(1,idOPALsed)),       &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
 #endif
 #ifdef SOLVE3D
         DO itrc=1,NT(ng)

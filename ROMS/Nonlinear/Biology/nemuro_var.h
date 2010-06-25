@@ -50,6 +50,12 @@
               CASE ('idTvar(iFeD_)')
                 idTvar(iFeD_)=varid
 # endif
+# ifdef NEMURO_SED1
+              CASE ('idPONsed')
+                idPONsed=varid
+              CASE ('idOPALsed')
+                idOPALsed=varid
+# endif
 
 /*
 **  Biological tracers open boundary conditions.

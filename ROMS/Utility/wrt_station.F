@@ -310,6 +310,40 @@
         IF (exit_flag.ne.NoError) RETURN
       END IF
 
+#  ifdef NEMURO_SED1
+!
+!  Write out PON in sediment.
+!
+      IF (Sout(idPONsed,ng)) THEN
+        scale=1.0_r8
+        CALL extract_sta2d (ng, iNLM, Cgrid, idPONsed, r2dvar,          &
+     &                      LBi, UBi, LBj, UBj,                         &
+     &                      scale, OCEAN(ng)%PONsed,                    &
+     &                      Nstation(ng), Xpos, Ypos, psta)
+        CALL netcdf_put_fvar (ng, iNLM, STAname(ng),                    &
+     &                        TRIM(Vname(1,idPONsed)), psta,            &
+     &                        (/1,tSTAindx(ng)/), (/Nstation(ng),1/),   &
+     &                        ncid = ncSTAid(ng),                       &
+     &                        varid = staVid(idPONsed,ng))
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
+!
+!  Write out OPAL in sediment.
+!
+      IF (Sout(idOPALsed,ng)) THEN
+        scale=1.0_r8
+        CALL extract_sta2d (ng, iNLM, Cgrid, idOPALsed, r2dvar,         &
+     &                      LBi, UBi, LBj, UBj,                         &
+     &                      scale, OCEAN(ng)%OPALsed,                   &
+     &                      Nstation(ng), Xpos, Ypos, psta)
+        CALL netcdf_put_fvar (ng, iNLM, STAname(ng),                    &
+     &                        TRIM(Vname(1,idOPALsed)), psta,           &
+     &                        (/1,tSTAindx(ng)/), (/Nstation(ng),1/),   &
+     &                        ncid = ncSTAid(ng),                       &
+     &                        varid = staVid(idOPALsed,ng))
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
+#  endif
 #  ifdef LMD_SKPP
 !
 !  Write out depth of surface boundary layer.

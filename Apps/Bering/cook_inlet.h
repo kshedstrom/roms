@@ -115,9 +115,6 @@
 # undef TS_DIF2
 # undef MIX_GEO_TS
 # define FILTERED
-# define AVERAGES_AKV
-# define AVERAGES_AKT
-# define AVERAGES_AKS
 
 # undef TCLIMATOLOGY
 # undef TCLM_NUDGING
