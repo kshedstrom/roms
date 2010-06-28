@@ -238,6 +238,10 @@
      &                     srflx(i,j)/cff*                              &
      &                     (cff1+cff2*COS(Hangle-lonr(i,j)*deg2rad)))
           END IF
+!         IF (i==525 .and. j>=360 .and. j<=363) THEN
+!           print *, 'ANA_SRFLUX: srf 1 ', j, srflx(i,j)
+!           print *, cff, cff1, cff2, Hangle, lonr(i,j)
+!         ENDIF
 # endif
         END DO
       END DO

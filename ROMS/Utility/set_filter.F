@@ -466,7 +466,7 @@
             IF (Aout(idAgeice,ng)) THEN
               DO j=JstrR,JendR
                 DO i=IstrR,IendR
-                  FILTER(ng)%filAgeice(i,j,f) =              &
+                  FILTER(ng)%filAgeice(i,j,f) =                         &
      &                            ICE(ng)%ageice(i,j,Iout)*fw(iw)
                 END DO
               END DO
@@ -848,8 +848,9 @@
               IF (Aout(idAgeice,ng)) THEN
                 DO j=JstrR,JendR
                   DO i=IstrR,IendR
-                    FILTER(ng)%filti(i,j,f)=FILTER(ng)%filAgeice(i,j,f)+&
-     &                                ICE(ng)%ageice(i,j,Iout)*fw(iw)
+                    FILTER(ng)%filAgeice(i,j,f)=                        &
+     &                              FILTER(ng)%filAgeice(i,j,f)+        &
+     &                              ICE(ng)%ageice(i,j,Iout)*fw(iw)
                   END DO
                 END DO
               END IF

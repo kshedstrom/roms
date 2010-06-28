@@ -5059,6 +5059,74 @@
      &          TRIM(Vname(1,idTvar(itrc)))
           END DO
 # endif
+# ifdef ICE_MODEL
+          IF (Aout(idUice,ng)) WRITE (out,170) Aout(idUice,ng),         &
+     &       'Aout(idUice)',                                            &
+     &       'Write out time-averaged U-component ice velocity.'
+          IF (Aout(idVice,ng)) WRITE (out,170) Aout(idVice,ng),         &
+     &       'Aout(idVice)',                                            &
+     &       'Write out time-averaged V-component ice velocity.'
+          IF (Aout(idAice,ng)) WRITE (out,170) Aout(idAice,ng),         &
+     &       'Aout(idAice)',                                            &
+     &       'Write out time-averaged ice concentration.'
+          IF (Aout(idHice,ng)) WRITE (out,170) Aout(idHice,ng),         &
+     &       'Aout(idHice)',                                            &
+     &       'Write out time-averaged average ice thickness.'
+          IF (Aout(idHsno,ng)) WRITE (out,170) Aout(idHsno,ng),         &
+     &       'Aout(idHsno)',                                            &
+     &       'Write out time-averaged snow thickness.'
+          IF (Aout(idTice,ng)) WRITE (out,170) Aout(idTice,ng),         &
+     &       'Aout(idTice)',                                            &
+     &       'Write out time-averaged ice/snow surface temperature.'
+          IF (Aout(idTimid,ng)) WRITE (out,170) Aout(idTimid,ng),       &
+     &       'Aout(idTimid)',                                           &
+     &       'Write out time-averaged interior ice temperature.'
+          IF (Aout(idSfwat,ng)) WRITE (out,170) Aout(idSfwat,ng),       &
+     &       'Aout(idSfwat)',                                           &
+     &       'Write out time-averaged surface water (on ice) thickness.'
+          IF (Aout(idAgeice,ng)) WRITE (out,170) Aout(idAgeice,ng),     &
+     &       'Aout(idAgeice)',                                          &
+     &       'Write out time-averaged ice age.'
+          IF (Aout(idIomflx,ng)) WRITE (out,170) Aout(idIomflx,ng),     &
+     &       'Aout(idIomflx)',                                          &
+     &       'Write out time-averaged ice-ocean mass flux'
+          IF (Aout(idSig11,ng)) WRITE (out,170) Aout(idSig11,ng),       &
+     &       'Aout(idSig11)',                                           &
+     &       'Write out time-averaged internal ice stress component 11.'
+          IF (Aout(idSig12,ng)) WRITE (out,170) Aout(idSig12,ng),       &
+     &       'Aout(idSig12)',                                           &
+     &       'Write out time-averaged internal ice stress component 12.'
+          IF (Aout(idSig22,ng)) WRITE (out,170) Aout(idSig22,ng),       &
+     &       'Aout(idSig22)',                                           &
+     &       'Write out time-averaged internal ice stress component 22.'
+          IF (Aout(idTauiw,ng)) WRITE (out,170) Aout(idTauiw,ng),       &
+     &       'Aout(idTauiw)',                                           &
+     &       'Write out time-averaged ice-water friction velocity.'
+          IF (Aout(idChuiw,ng)) WRITE (out,170) Aout(idChuiw,ng),       &
+     &       'Aout(idChuiw)',                                           &
+     &       'Write out time-averaged ice-water transfer coefficient.'
+          IF (Aout(idT0mk,ng)) WRITE (out,170) Aout(idT0mk,ng),         &
+     &       'Aout(idT0mk)',                                            &
+     &       'Write out time-averaged under ice temperature.'
+          IF (Aout(idS0mk,ng)) WRITE (out,170) Aout(idS0mk,ng),         &
+     &       'Aout(idS0mk)',                                            &
+     &       'Write out time-averaged under ice salinity.'
+          IF (Aout(idWfr,ng)) WRITE (out,170) Aout(idWfr,ng),           &
+     &       'Aout(idWfr)',                                             &
+     &       'Write out time-averaged frazil ice growth rate.'
+          IF (Aout(idWai,ng)) WRITE (out,170) Aout(idWai,ng),           &
+     &       'Aout(idWai)',                                             &
+     &       'Write out time-averaged ice growth/melt rate.'
+          IF (Aout(idWao,ng)) WRITE (out,170) Aout(idWao,ng),           &
+     &       'Aout(idWao)',                                             &
+     &       'Write out time-averaged ice growth/melt rate.'
+          IF (Aout(idWio,ng)) WRITE (out,170) Aout(idWio,ng),           &
+     &       'Aout(idWio)',                                             &
+     &       'Write out time-averaged ice growth/melt rate.'
+          IF (Aout(idWro,ng)) WRITE (out,170) Aout(idWro,ng),           &
+     &       'Aout(idWro)',                                             &
+     &       'Write out time-averaged ice melt runoff rate.'
+#endif
           IF (Aout(idUsms,ng)) WRITE (out,170) Aout(idUsms,ng),         &
      &       'Aout(idUsms)',                                            &
      &       'Write out averaged surface U-momentum stress.'
