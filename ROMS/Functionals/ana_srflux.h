@@ -233,15 +233,15 @@
               srflx(i,j)=0.0_r8                        ! All night case
             END IF
           ELSE
-            cff=(cff1*ACOS(-cff1/cff2)+SQRT(cff2*cff2-cff1*cff1))/pi
-            srflx(i,j)=MAX(0.0_r8,                                      &
+            cff=(cff1*ACOS(-cff1/cff2)+SQRT((cff2+cff1)*(cff2-cff1)))/pi
+	    IF (cff .lt. 10.e-10) THEN
+              srflx(i,j)=0.0_r8
+            ELSE
+              srflx(i,j)=MAX(0.0_r8,                                      &
      &                     srflx(i,j)/cff*                              &
      &                     (cff1+cff2*COS(Hangle-lonr(i,j)*deg2rad)))
+            END IF
           END IF
-!         IF (i==525 .and. j>=360 .and. j<=363) THEN
-!           print *, 'ANA_SRFLUX: srf 1 ', j, srflx(i,j)
-!           print *, cff, cff1, cff2, Hangle, lonr(i,j)
-!         ENDIF
 # endif
         END DO
       END DO
