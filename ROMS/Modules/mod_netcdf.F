@@ -1824,6 +1824,7 @@
           IF (status.ne.nf90_noerr) THEN
             WRITE (stdout,10) TRIM(myVarName), TRIM(ncname),            &
      &                        TRIM(SourceFile)
+            PRINT *, trim(nf90_strerror(status))
             exit_flag=2
             ioerror=status
           END IF
