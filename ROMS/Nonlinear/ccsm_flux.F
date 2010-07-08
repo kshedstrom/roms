@@ -845,20 +845,20 @@ contains
      &    (0.39_r8-0.005_r8*SQRT(vap_p_i))*(1.0_r8-0.65_r8*cloud(i,j))  &
      &    - 4.0_r8)
 # else
-           qlwi = lrflx(i,j)*Hscale
-           RHS_Ice(i,j) = RHS_Ice(i,j) -                                &
+          qlwi = lrflx(i,j)*Hscale
+          RHS_Ice(i,j) = RHS_Ice(i,j) -                                 &
      &           lrflx(i,j)*Hscale -                                    &
      &     4._r8*StefBo*emmiss*TairK(i)**3*(sfc_temp-2._r8*TairK(i))
 
-           Coef_Ice(i,j) = Coef_Ice(i,j) +                              &
+          Coef_Ice(i,j) = Coef_Ice(i,j) +                               &
      &            4._r8*StefBo*emmiss*TairK(i)**3
 # endif
 ! Correct for Kelvin to Celsius in RHS
-           RHS_Ice(i,j) = RHS_Ice(i,j) -                                &
+          RHS_Ice(i,j) = RHS_Ice(i,j) -                                 &
      &            Coef_Ice(i,j)*273.16_r8
 
 ! Net heat flux from ice to atmosphere
-           Qai(i,j) =-qsh_i - qlh_i - qswi + qlwi
+          Qai(i,j) =-qsh_i - qlh_i - qswi + qlwi
 #  endif
 # endif
           !--- heat flux ---
@@ -881,7 +881,8 @@ contains
      &                 (1._r8-cloud(i,j))+cawdif*cloud(i,j))
 # endif
 # if defined SHORTWAVE && defined ALBEDO_CURVE
-          caw_curve = 1._r8-(0.069_r8 - 0.011_r8*cos(2*latr(i,j)))
+          caw_curve = 1._r8-(0.069_r8 - 0.011_r8*                       &
+     &                        cos(2*deg2rad*latr(i,j)))
           srflx(i,j) = srflx(i,j)*caw_curve
 # endif
           lrflx(i,j) = lwup*Hscale2 + lrflx(i,j)
@@ -918,7 +919,7 @@ contains
 ! Limit shortwave radiation to be used in computing penetrative
 ! radiation by presence of ice and biology
 
-          ice_thick(i,j) = hi(i,j,1)/(ai(i,j,1)+eps)
+          ice_thick(i,j) = hi(i,j,linew)/(ai(i,j,linew)+eps)
           snow_thick(i,j) = hsn(i,j,linew)/(ai(i,j,linew)+eps)
 
           IF (ice_thick(i,j).le.0.1_r8) THEN
@@ -934,7 +935,11 @@ contains
 #   endif
 
           srflx(i,j)=(1-ai(i,j,linew))*srflx(i,j)                       &
+#   ifdef ICE_BIO
      &            +ai(i,j,linew)*srflx(i,j)*exp(-cff1-cff2)
+#   else
+     &            +ai(i,j,linew)*srflx(i,j)*exp(-cff1)
+#   endif
 
           qao_n(i,j) = -stflx(i,j,itemp)*Hscale
 
@@ -963,9 +968,10 @@ contains
 
 #   ifdef ICE_BIO
           cff2=0.5*0.02_r8*0.005*it(i,j,nstp,iIcePhL)
-#   endif
-
           srflx(i,j)=srflx(i,j)*exp(-cff1-cff2)
+#   else
+          srflx(i,j)=srflx(i,j)*exp(-cff1)
+#   endif
 # endif
 
 !--- water flux ---

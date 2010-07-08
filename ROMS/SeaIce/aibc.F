@@ -93,23 +93,23 @@
 !
         DO j=Jstr,Jend
           IF(ui(1,j,linew).ge.0._r8) THEN
-             ai(0,j,linew)=BOUNDARY(ng)%ai_west(j)
+            ai(0,j,linew)=BOUNDARY(ng)%ai_west(j)
 #  ifdef MASKING
-          ai(0,j,linew)=ai(0,j,linew)*                               &
+            ai(0,j,linew)=ai(0,j,linew)*                                &
      &                   GRID(ng)%rmask(0,j)
 #  endif
 #  ifdef WET_DRY
-          ai(0,j,linew)=ai(0,j,linew)*                               &
+            ai(0,j,linew)=ai(0,j,linew)*                                &
      &                   GRID(ng)%rmask_wet(0,j)
 #  endif
           ELSE
              ai(0,j,linew)=ai(1,j,liold)
 #  ifdef MASKING
-             ai(0,j,linew)=ai(0,j,linew)*                            &
+             ai(0,j,linew)=ai(0,j,linew)*                               &
      &                   GRID(ng)%rmask(0,j)
 #  endif
 #  ifdef WET_DRY
-             ai(0,j,linew)=ai(0,j,linew)*                            &
+             ai(0,j,linew)=ai(0,j,linew)*                               &
      &                   GRID(ng)%rmask_wet(0,j)
 #  endif
           ENDIF
@@ -229,11 +229,11 @@
           IF(vi(i,1,linew).ge.0._r8) THEN
              ai(i,0,linew)=BOUNDARY(ng)%ai_south(i)
 #  ifdef MASKING
-             ai(i,0,linew)=ai(i,0,linew)*                                  &
+             ai(i,0,linew)=ai(i,0,linew)*                               &
      &                   GRID(ng)%rmask(i,0)
 #  endif
 #  ifdef WET_DRY
-             ai(i,0,linew)=ai(i,0,linew)*                                  &
+             ai(i,0,linew)=ai(i,0,linew)*                               &
      &                   GRID(ng)%rmask_wet(i,0)
 #  endif
           ELSE

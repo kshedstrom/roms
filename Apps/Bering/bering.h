@@ -160,8 +160,8 @@
 /* Using Runoff instead now */
 #ifdef SOLVE3D
 # define RUNOFF
-# undef UV_PSOURCE
-# undef ANA_PSOURCE
+# define UV_PSOURCE
+# define ANA_PSOURCE
 # undef TS_PSOURCE
 #endif
 
