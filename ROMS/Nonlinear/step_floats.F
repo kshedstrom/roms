@@ -743,7 +743,7 @@
      &       time(ng)+HalfDT.gt.Tinfo(itstr,l))) THEN
 #ifdef NEP5
           IF (Master) print *,'Starting float ', l
-	  Tinfo(itstr,l) = Tinfo(itstr,l) + day2sec*365.25_r8
+          Tinfo(itstr,l) = Tinfo(itstr,l) + day2sec*365.25_r8
 #endif
           bounded(l)=.TRUE.
 # ifdef DISTRIBUTE
