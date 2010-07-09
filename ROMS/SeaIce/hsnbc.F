@@ -92,7 +92,7 @@
 !  Western edge, clamped boundary condition.
 !
         DO j=Jstr,Jend
-          IF(ui(1,j,linew).ge.0._r8) THEN
+          IF (ui(1,j,linew).ge.0._r8) THEN
              hsn(0,j,linew)=BOUNDARY(ng)%hsn_west(j)
 #  ifdef MASKING
              hsn(0,j,linew)=hsn(0,j,linew)*                             &
@@ -112,7 +112,7 @@
              hsn(0,j,linew)=hsn(0,j,linew)*                             &
      &                   GRID(ng)%rmask_wet(0,j)
 #  endif
-          ENDIF
+          END IF
         END DO
 # elif defined WEST_HSNGRADIENT
 !
@@ -158,7 +158,7 @@
 !  Eastern edge, clamped boundary condition.
 !
         DO j=Jstr,Jend
-          IF(ui(Lm(ng)+1,j,linew).le.0._r8) THEN
+          IF (ui(Lm(ng)+1,j,linew).le.0._r8) THEN
              hsn(Lm(ng)+1,j,linew)=BOUNDARY(ng)%hsn_east(j)
 #  ifdef MASKING
              hsn(Lm(ng)+1,j,linew)=hsn(Lm(ng)+1,j,linew)*               &
@@ -178,7 +178,7 @@
              hsn(Lm(ng)+1,j,linew)=hsn(Lm(ng)+1,j,linew)*               &
      &                          GRID(ng)%rmask_wet(Lm(ng)+1,j)
 #  endif
-          ENDIF
+          END IF
         END DO
 # elif defined EAST_HSNGRADIENT
 !
@@ -226,7 +226,7 @@
 !  Southern edge, clamped boundary condition.
 !
         DO i=Istr,Iend
-          IF(vi(i,1,linew).ge.0._r8) THEN
+          IF (vi(i,1,linew).ge.0._r8) THEN
              hsn(i,0,linew)=BOUNDARY(ng)%hsn_south(i)
 #  ifdef MASKING
              hsn(i,0,linew)=hsn(i,0,linew)*                             &
@@ -246,7 +246,7 @@
              hsn(i,0,linew)=hsn(i,0,linew)*                             &
      &                   GRID(ng)%rmask_wet(i,0)
 #  endif
-          ENDIF
+          END IF
         END DO
 # elif defined SOUTH_HSNGRADIENT
 !
@@ -292,27 +292,27 @@
 !  Northern edge, clamped boundary condition.
 !
         DO i=Istr,Iend
-          IF(vi(i,Mm(ng)+1,linew).le.0._r8) THEN
-             hsn(i,Mm(ng)+1,linew)=BOUNDARY(ng)%hsn_north(i)
+          IF (vi(i,Mm(ng)+1,linew).le.0._r8) THEN
+            hsn(i,Mm(ng)+1,linew)=BOUNDARY(ng)%hsn_north(i)
 #  ifdef MASKING
-             hsn(i,Mm(ng)+1,linew)=hsn(i,Mm(ng)+1,linew)*               &
+            hsn(i,Mm(ng)+1,linew)=hsn(i,Mm(ng)+1,linew)*                &
      &                          GRID(ng)%rmask(i,Mm(ng)+1)
 #  endif
 #  ifdef WET_DRY
-             hsn(i,Mm(ng)+1,linew)=hsn(i,Mm(ng)+1,linew)*               &
+            hsn(i,Mm(ng)+1,linew)=hsn(i,Mm(ng)+1,linew)*                &
      &                          GRID(ng)%rmask_wet(i,Mm(ng)+1)
 #  endif
           ELSE
-             hsn(i,Mm(ng)+1,linew)=hsn(i,Mm(ng),liold)
+            hsn(i,Mm(ng)+1,linew)=hsn(i,Mm(ng),liold)
 #  ifdef MASKING
-             hsn(i,Mm(ng)+1,linew)=hsn(i,Mm(ng)+1,linew)*               &
+            hsn(i,Mm(ng)+1,linew)=hsn(i,Mm(ng)+1,linew)*                &
      &                          GRID(ng)%rmask(i,Mm(ng)+1)
 #  endif
 #  ifdef WET_DRY
-             hsn(i,Mm(ng)+1,linew)=hsn(i,Mm(ng)+1,linew)*               &
+            hsn(i,Mm(ng)+1,linew)=hsn(i,Mm(ng)+1,linew)*                &
      &                          GRID(ng)%rmask_wet(i,Mm(ng)+1)
 #  endif
-          ENDIF
+          END IF
         END DO
 # elif defined NORTH_HSNGRADIENT
 !
