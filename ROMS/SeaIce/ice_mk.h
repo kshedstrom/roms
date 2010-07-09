@@ -24,23 +24,23 @@
 
 # include "tile.h"
 
-# ifdef PROFILE
+#ifdef PROFILE
       CALL wclock_on (ng, iNLM, 44)
-# endif
+#endif
 
       CALL ice_thermo_tile (ng, tile,                                   &
      &                      LBi, UBi, LBj, UBj,                         &
      &                      IminS, ImaxS, JminS, JmaxS,                 &
      &                      nrhs(ng), liold(ng), linew(ng),             &
-# ifdef MASKING
+#ifdef MASKING
      &                      GRID(ng) % rmask,                           &
-# endif
-# ifdef WET_DRY
+#endif
+#ifdef WET_DRY
      &                      GRID(ng) % rmask_wet,                       &
-# endif
-# ifdef ICESHELF
+#endif
+#ifdef ICESHELF
      &                      GRID(ng) % zice,                            &
-# endif
+#endif
      &                      GRID(ng) % z_r,                             &
      &                      GRID(ng) % z_w,                             &
      &                      GRID(ng) % pm,                              &
@@ -86,15 +86,15 @@
      &                        LBi, UBi, LBj, UBj,                       &
      &                        IminS, ImaxS, JminS, JmaxS,               &
      &                        nrhs, liold, linew,                       &
-# ifdef MASKING
+#ifdef MASKING
      &                        rmask,                                    &
-# endif
-# ifdef WET_DRY
+#endif
+#ifdef WET_DRY
      &                        rmask_wet,                                &
-# endif
-# ifdef ICESHELF
+#endif
+#ifdef ICESHELF
      &                        zice,                                     &
-# endif
+#endif
      &                        z_r, z_w, pm, pn, t,                      &
      &                        wfr, wai, wao, wio, wro,                  &
      &                        ai, hi, hsn, sfwat, ageice, tis, ti,      &
@@ -212,9 +212,9 @@
 #if defined EW_PERIODIC || defined NS_PERIODIC
       USE exchange_2d_mod, ONLY : exchange_r2d_tile
 #endif
-# ifdef DISTRIBUTE
+#ifdef DISTRIBUTE
       USE mp_exchange_mod, ONLY : mp_exchange2d
-# endif
+#endif
       implicit none
 
 !  Imported variable declarations.
@@ -223,16 +223,16 @@
       integer, intent(in) :: LBi, UBi, LBj, UBj
       integer, intent(in) :: IminS, ImaxS, JminS, JmaxS
       integer, intent(in) :: nrhs, liold, linew
-# ifdef ASSUMED_SHAPE
-#  ifdef MASKING
+#ifdef ASSUMED_SHAPE
+# ifdef MASKING
       real(r8), intent(in) :: rmask(LBi:,LBj:)
-#  endif
-#  ifdef WET_DRY
+# endif
+# ifdef WET_DRY
       real(r8), intent(in) :: rmask_wet(LBi:,LBj:)
-#  endif
-#  ifdef ICESHELF
+# endif
+# ifdef ICESHELF
       real(r8), intent(in) :: zice(LBi:,LBj:)
-#  endif
+# endif
       real(r8), intent(in) :: z_r(LBi:,LBj:,:)
       real(r8), intent(in) :: z_w(LBi:,LBj:,0:)
       real(r8), intent(in) :: pm(LBi:,LBj:)
@@ -267,16 +267,16 @@
       real(r8), intent(in) :: snow_n(LBi:,LBj:)
       real(r8), intent(in) :: rain(LBi:,LBj:)
       real(r8), intent(out) :: stflx(LBi:,LBj:,:)
-# else
-#  ifdef MASKING
+#else
+# ifdef MASKING
       real(r8), intent(in) :: rmask(LBi:UBi,LBj:UBj)
-#  endif
-#  ifdef WET_DRY
+# endif
+# ifdef WET_DRY
       real(r8), intent(in) :: rmask_wet(LBi:UBi,LBj:UBj)
-#  endif
-#  ifdef ICESHELF
+# endif
+# ifdef ICESHELF
       real(r8), intent(in) :: zice(LBi:UBi,LBj:UBj)
-#  endif
+# endif
       real(r8), intent(in) :: z_r(LBi:UBi,LBj:UBj,N(ng))
       real(r8), intent(in) :: z_w(LBi:UBi,LBj:UBj,0:N(ng))
       real(r8), intent(in) :: pm(LBi:UBi,LBj:UBj)
@@ -311,22 +311,22 @@
       real(r8), intent(in) :: snow_n(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: rain(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: stflx(LBi:UBi,LBj:UBj,NT(ng))
-# endif
+#endif
 
 ! Local variable definitions
 !
-# ifdef DISTRIBUTE
-#  ifdef EW_PERIODIC
+#ifdef DISTRIBUTE
+# ifdef EW_PERIODIC
       logical :: EWperiodic=.TRUE.
-#  else
+# else
       logical :: EWperiodic=.FALSE.
-#  endif
-#  ifdef NS_PERIODIC
-      logical :: NSperiodic=.TRUE.
-#  else
-      logical :: NSperiodic=.FALSE.
-#  endif
 # endif
+# ifdef NS_PERIODIC
+      logical :: NSperiodic=.TRUE.
+# else
+      logical :: NSperiodic=.FALSE.
+# endif
+#endif
 
       integer :: i, j, it
 
@@ -402,11 +402,11 @@
       real(r8) :: d2i
       real(r8) :: d3
 
-# ifdef ICE_CONVSNOW
+#ifdef ICE_CONVSNOW
       real(r8) :: hstar
-# endif
+#endif
 
-# include "set_bounds.h"
+#include "set_bounds.h"
 
       DO j=Jstr,Jend
         DO i=Istr,Iend
@@ -463,9 +463,9 @@
 !      alph - thermal conductivity of ice
           alph(i,j) = alphic*MAX(1._r8-1.2_r8*brnfr(i,j),0.25_r8)
           corfac = 1._r8/(0.5_r8*(1._r8+EXP(-(hi(i,j,linew)/1._r8)**2)))
-# ifndef SOGLOBEC
+#ifndef SOGLOBEC
           alph(i,j) = alph(i,j)*corfac
-# endif
+#endif
           coa(i,j) = 2.0_r8*alph(i,j)*snow_thick(i,j)/                  &
      &                   (alphsn*ice_thick(i,j))
         END DO
@@ -539,32 +539,32 @@
       DO j = Jstr,Jend
         DO i = Istr,Iend
           IF (ai(i,j,linew) .le. min_a(ng)) THEN
-# ifdef MASKING
-#  ifdef WET_DRY
+#ifdef MASKING
+# ifdef WET_DRY
             tis(i,j) = t0mk(i,j)*rmask(i,j)*rmask_wet(i,j)
             t2(i,j) = t0mk(i,j)*rmask(i,j)*rmask_wet(i,j)
             ti(i,j,linew) = -2.0_r8*rmask(i,j)*rmask_wet(i,j)
-#  else
+# else
             tis(i,j) = t0mk(i,j)*rmask(i,j)
             t2(i,j) = t0mk(i,j)*rmask(i,j)
             ti(i,j,linew) = -2.0_r8*rmask(i,j)
-#  endif
-# elif defined WET_DRY
+#endif
+#elif defined WET_DRY
             tis(i,j) = t0mk(i,j)*rmask_wet(i,j)
             t2(i,j) = t0mk(i,j)*rmask_wet(i,j)
             ti(i,j,linew) = -2.0_r8*rmask_wet(i,j)
-# else
+#else
             tis(i,j) = t0mk(i,j)
             t2(i,j) = t0mk(i,j)
             ti(i,j,linew) = -2.0_r8
-# endif
-# ifdef ICESHELF
+#endif
+#ifdef ICESHELF
             IF (zice(i,j).ne.0.0_r8) THEN
               tis(i,j) = 0.0_r8
               t2(i,j) = 0.0_r8
               ti(i,j,linew) = 0.0_r8
             END IF
-# endif
+#endif
             qi2(i,j) = 0._r8
             qai(i,j) = 0._r8
             qio(i,j) = 0._r8
@@ -704,9 +704,9 @@
           END IF
 
           w0(i,j) = xtot-ai(i,j,linew)*wai(i,j)
-# ifdef ICESHELF
+#ifdef ICESHELF
 	  IF (zice(i,j).eq.0.0_r8) THEN
-# endif
+#endif
             IF(ai(i,j,linew).LE.min_a(ng)) THEN
                stflx(i,j,itemp) = qao_n(i,j)
             ELSE
@@ -718,12 +718,12 @@
 ! Change stflx(i,j,itemp) back to ROMS convention
             stflx(i,j,itemp) = -stflx(i,j,itemp) * rhocpr
 
-# ifdef MASKING
+#ifdef MASKING
             stflx(i,j,itemp) = stflx(i,j,itemp)*rmask(i,j)
-# endif
-# ifdef WET_DRY
+#endif
+#ifdef WET_DRY
             stflx(i,j,itemp) = stflx(i,j,itemp)*rmask_wet(i,j)
-# endif
+#endif
             stflx(i,j,isalt) = stflx(i,j,isalt)                         &
      &          - (xtot-ai(i,j,linew)*xwai)*(sice-s0mk(i,j))            &
      &          - ai(i,j,linew)*wro(i,j)*s0mk(i,j)
@@ -738,19 +738,19 @@
 !  io_mflux is ice production rate (+ve for growth)
             io_mflux(i,j) = xtot -ai(i,j,linew)*xwai -                    &
      &                            ai(i,j,linew)*wro(i,j) + wfr(i,j)
-# ifdef MASKING
+#ifdef MASKING
             stflx(i,j,isalt) = stflx(i,j,isalt)*rmask(i,j)
             io_mflux(i,j) = io_mflux(i,j)*rmask(i,j)
-# endif
-# ifdef WET_DRY
+#endif
+#ifdef WET_DRY
             stflx(i,j,isalt) = stflx(i,j,isalt)*rmask_wet(i,j)
             io_mflux(i,j) = io_mflux(i,j)*rmask_wet(i,j)
-# endif
-# ifdef ICESHELF
+#endif
+#ifdef ICESHELF
           ELSE
             io_mflux(i,j) = 0.0_r8
           END IF
-# endif
+#endif
         END DO
       END DO
 
