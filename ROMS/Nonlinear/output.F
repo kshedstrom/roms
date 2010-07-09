@@ -113,7 +113,7 @@
             IF (Master) THEN
               lstr=LEN_TRIM(HISbase(ng))
               WRITE (HISname(ng),10) HISbase(ng)(1:lstr-3),ifile
-#ifdef NEP5
+#if defined NEP5 || defined CASPIAN
   10          FORMAT (a,'_',i5.5,'.nc')
 #else
   10          FORMAT (a,'_',i4.4,'.nc')
@@ -212,7 +212,7 @@
             IF (Master) THEN
               lstr=LEN_TRIM(AVGbase(ng))
               WRITE (AVGname(ng),20) AVGbase(ng)(1:lstr-3),ifile
-#ifdef NEP5
+#if defined NEP5 || defined CASPIAN
   20          FORMAT (a,'_',i5.5,'.nc')
 #else
   20          FORMAT (a,'_',i4.4,'.nc')
@@ -380,7 +380,7 @@
             IF (Master) THEN
               lstr=LEN_TRIM(DIAbase(ng))
               WRITE (DIAname(ng),30) DIAbase(ng)(1:lstr-3),ifile
-#ifdef NEP5
+#if defined NEP5 || defined CASPIAN
   30          FORMAT (a,'_',i5.5,'.nc')
 #else
   30          FORMAT (a,'_',i4.4,'.nc')

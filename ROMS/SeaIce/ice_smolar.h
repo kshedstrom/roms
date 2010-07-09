@@ -619,27 +619,27 @@
 !
 #ifdef FOO
 #ifdef MASKING
-      do j=J_RANGE
-      do i=I_RANGE
-        aif(i,j)=aif(i,j)*rmask(i,j)
-      enddo
-      enddo
+      DO j=J_RANGE
+        DO i=I_RANGE
+          aif(i,j)=aif(i,j)*rmask(i,j)
+        END DO
+      END DO
 #endif
 #ifdef WET_DRY
-      do j=J_RANGE
-      do i=I_RANGE
-        aif(i,j)=aif(i,j)*rmask_wet(i,j)
-      enddo
-      enddo
+      DO j=J_RANGE
+        DO i=I_RANGE
+          aif(i,j)=aif(i,j)*rmask_wet(i,j)
+        END DO
+      END DO
 #endif
 #ifdef ICESHELF
-      do j=J_RANGE
-      do i=I_RANGE
-         IF (zice(i,j).ne.0.0_r8) THEN
+      DO j=J_RANGE
+        DO i=I_RANGE
+          IF (zice(i,j).ne.0.0_r8) THEN
             aif(i,j) = 0.0_r8
-         ENDIF
-      enddo
-      enddo
+          END IF
+        END DO
+      END DO
 #endif
 #endif
 

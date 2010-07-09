@@ -298,7 +298,7 @@
 !
 ! Update ice velocity
 !
-      IF(ievp(ng).eq.1) THEN
+      IF (ievp(ng).eq.1) THEN
         DO j=Jstr,Jend
           DO i=IstrU,Iend
             uie(i,j,1) = ui(i,j,liuol)

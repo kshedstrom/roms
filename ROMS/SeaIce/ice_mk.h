@@ -17,12 +17,15 @@
       USE mod_ice
       USE mod_forces
       USE mod_stepping
+#ifdef ICE_SHOREFAST
+      USE mod_coupling
+#endif
 
       implicit none
 
       integer, intent(in) :: ng, tile
 
-# include "tile.h"
+#include "tile.h"
 
 #ifdef PROFILE
       CALL wclock_on (ng, iNLM, 44)
@@ -40,6 +43,10 @@
 #endif
 #ifdef ICESHELF
      &                      GRID(ng) % zice,                            &
+#endif
+#ifdef ICE_SHOREFAST
+     &                      GRID(ng) % h,                               &
+     &                      COUPLING(ng) % Zt_avg1,                     &
 #endif
      &                      GRID(ng) % z_r,                             &
      &                      GRID(ng) % z_w,                             &
@@ -75,9 +82,9 @@
      &                      FORCES(ng) % snow_n,                        &
      &                      FORCES(ng) % rain,                          &
      &                      FORCES(ng) % stflx)
-# ifdef PROFILE
+#ifdef PROFILE
       CALL wclock_off (ng, iNLM, 44)
-# endif
+#endif
       RETURN
       END SUBROUTINE ice_thermo
 !
@@ -94,6 +101,9 @@
 #endif
 #ifdef ICESHELF
      &                        zice,                                     &
+#endif
+#ifdef ICE_SHOREFAST
+     &                        h, Zt_avg1,                               &
 #endif
      &                        z_r, z_w, pm, pn, t,                      &
      &                        wfr, wai, wao, wio, wro,                  &
@@ -233,6 +243,10 @@
 # ifdef ICESHELF
       real(r8), intent(in) :: zice(LBi:,LBj:)
 # endif
+# ifdef ICE_SHOREFAST
+      real(r8), intent(in) :: h(LBi:,LBj:)
+      real(r8), intent(in) :: Zt_avg1(LBi:,LBj:)
+# endif
       real(r8), intent(in) :: z_r(LBi:,LBj:,:)
       real(r8), intent(in) :: z_w(LBi:,LBj:,0:)
       real(r8), intent(in) :: pm(LBi:,LBj:)
@@ -276,6 +290,10 @@
 # endif
 # ifdef ICESHELF
       real(r8), intent(in) :: zice(LBi:UBi,LBj:UBj)
+# endif
+# ifdef ICE_SHOREFAST
+      real(r8), intent(in) :: h(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: Zt_avg1(LBi:UBi,LBj:UBj)
 # endif
       real(r8), intent(in) :: z_r(LBi:UBi,LBj:UBj,N(ng))
       real(r8), intent(in) :: z_w(LBi:UBi,LBj:UBj,0:N(ng))
@@ -402,6 +420,14 @@
       real(r8) :: d2i
       real(r8) :: d3
 
+      real(r8) :: tt0
+      real(r8) :: fac_shflx
+
+#ifdef ICE_SHOREFAST
+      real(r8) :: hh
+      real(r8) :: clear
+      real(r8) :: fac_sf
+#endif
 #ifdef ICE_CONVSNOW
       real(r8) :: hstar
 #endif
@@ -414,7 +440,11 @@
           salt_top(i,j)=t(i,j,N(ng),nrhs,isalt)
           salt_top(i,j) = MIN(MAX(0.0_r8,salt_top(i,j)),40.0_r8)
           dztop(i,j)=z_w(i,j,N(ng))-z_r(i,j,N(ng))
-          stflx(i,j,isalt) = stflx(i,j,isalt)*t(i,j,N(ng),nrhs,isalt)
+          stflx(i,j,isalt) = stflx(i,j,isalt)*                          &
+     &          MIN(MAX(t(i,j,N(ng),nrhs,isalt),0.0_r8),60.0_r8)
+#  if defined WET_DRY && defined CASPIAN
+          stflx(i,j,isalt) = stflx(i,j,isalt)*rmask_wet(i,j)
+#  endif
         END DO
       END DO
 
@@ -463,9 +493,7 @@
 !      alph - thermal conductivity of ice
           alph(i,j) = alphic*MAX(1._r8-1.2_r8*brnfr(i,j),0.25_r8)
           corfac = 1._r8/(0.5_r8*(1._r8+EXP(-(hi(i,j,linew)/1._r8)**2)))
-#ifndef SOGLOBEC
           alph(i,j) = alph(i,j)*corfac
-#endif
           coa(i,j) = 2.0_r8*alph(i,j)*snow_thick(i,j)/                  &
      &                   (alphsn*ice_thick(i,j))
         END DO
@@ -548,7 +576,7 @@
             tis(i,j) = t0mk(i,j)*rmask(i,j)
             t2(i,j) = t0mk(i,j)*rmask(i,j)
             ti(i,j,linew) = -2.0_r8*rmask(i,j)
-#endif
+# endif
 #elif defined WET_DRY
             tis(i,j) = t0mk(i,j)*rmask_wet(i,j)
             t2(i,j) = t0mk(i,j)*rmask_wet(i,j)
@@ -704,15 +732,44 @@
           END IF
 
           w0(i,j) = xtot-ai(i,j,linew)*wai(i,j)
+#ifdef CASPIAN_XXX
+          hh = h(i,j)+Zt_avg1(i,j)
+          IF (hh.LT.1.0_r8) THEN
+            fac_shflx = hh
+!            fac_shflx = 0.0_r8
+          ELSE
+            fac_shflx = 1.0_r8
+          END IF
+#else
+          fac_shflx = 1.0_r8
+#endif
 #ifdef ICESHELF
 	  IF (zice(i,j).eq.0.0_r8) THEN
 #endif
             IF(ai(i,j,linew).LE.min_a(ng)) THEN
-               stflx(i,j,itemp) = qao_n(i,j)
+               stflx(i,j,itemp) = qao_n(i,j)*fac_shflx
             ELSE
-               stflx(i,j,itemp) = (1.0_r8-ai(i,j,linew))*qao_n(i,j)     &
-     &                     +ai(i,j,linew)*qio(i,j)                      &
-     &                     -xtot*hfus1(i,j)
+#ifdef ICE_SHOREFAST
+              hh = h(i,j)+Zt_avg1(i,j)
+              clear = hh-0.9_r8*hi(i,j,liold)
+              clear = MAX(clear,0.0_r8)
+              IF (clear.lt.1.5_r8) THEN
+                fac_sf = MAX(clear-0.5_r8,0.0_r8)/1.0_r8
+              ELSE
+                fac_sf = 1.0_r8
+              END IF
+              stflx(i,j,itemp) = (1.0_r8-ai(i,j,linew))*qao_n(i,j)      &
+     &                          *fac_shflx                              &
+     &                   +(ai(i,j,linew)*qio(i,j)                       &
+     &                   -xtot*hfus1(i,j))*fac_sf
+#else
+              stflx(i,j,itemp) = (1.0_r8-ai(i,j,linew))*qao_n(i,j)      &
+     &                   +ai(i,j,linew)*qio(i,j)                        &
+     &                   -xtot*hfus1(i,j)
+#endif
+#if defined WET_DRY && defined CASPIAN
+          stflx(i,j,itemp) = stflx(i,j,itemp)*rmask_wet(i,j)
+#endif
             END IF
 
 ! Change stflx(i,j,itemp) back to ROMS convention
@@ -722,11 +779,20 @@
             stflx(i,j,itemp) = stflx(i,j,itemp)*rmask(i,j)
 #endif
 #ifdef WET_DRY
-            stflx(i,j,itemp) = stflx(i,j,itemp)*rmask_wet(i,j)
+!            stflx(i,j,itemp) = stflx(i,j,itemp)*rmask_wet(i,j)
 #endif
+#ifdef ICE_SHOREFAST
+            stflx(i,j,isalt) = stflx(i,j,isalt) +                       &
+     &        (- (xtot-ai(i,j,linew)*xwai)*                             &
+     &          (sice-MIN(MAX(s0mk(i,j),0.0_r8),60.0_r8))               &
+     &        - ai(i,j,linew)*wro(i,j)*                                 &
+     &          MIN(MAX(s0mk(i,j),0.0_r8),60.0_r8))*fac_sf
+#else
             stflx(i,j,isalt) = stflx(i,j,isalt)                         &
      &          - (xtot-ai(i,j,linew)*xwai)*(sice-s0mk(i,j))            &
-     &          - ai(i,j,linew)*wro(i,j)*s0mk(i,j)
+     &          - ai(i,j,linew)*wro(i,j)*                               &
+     &          MIN(MAX(s0mk(i,j),0.0_r8),60.0_r8))
+#endif
 
 ! Test for case of rainfall on snow/ice and assume 100% drainage
 #ifndef NCEP_FLUXES
@@ -810,8 +876,8 @@
           hi(i,j,linew) = hi(i,j,linew)*rmask(i,j)
 #endif
 #ifdef WET_DRY
-          ai(i,j,linew) = ai(i,j,linew)*rmask_wet(i,j)
-          hi(i,j,linew) = hi(i,j,linew)*rmask_wet(i,j)
+!          ai(i,j,linew) = ai(i,j,linew)*rmask_wet(i,j)
+!          hi(i,j,linew) = hi(i,j,linew)*rmask_wet(i,j)
 #endif
 #ifdef ICESHELF
           IF (zice(i,j).ne.0.0_r8) THEN

@@ -704,41 +704,41 @@
         write(*,*) 'ice',tdays,qai_n(i,j),-qsh_i,-qlh_i,-qswi,qlwi,     &
      &              tsrf,tsrf_d
         print *, 'ice2', dswrf, albs, tsrf, alb_s_wet, alb_i_wet
-      endif
+      END IF
 #endif
 
 #endif
-      ENDDO
-      ENDDO
+      END DO
+      END DO
 
 # ifdef ICE_MODEL
       DO j=JstrR,JendR
-         DO i=Istr,IendR
-            rhoO = 1000._r8 + 0.5_r8*(rho(i,j,N(ng))+rho(i-1,j,N(ng)))
-            sustr_aw(i,j) = 0.5_r8*(tau_awx_n(i-1,j)+tau_awx_n(i,j))/rhoO
-         ENDDO
-      ENDDO
+        DO i=Istr,IendR
+          rhoO = 1000._r8 + 0.5_r8*(rho(i,j,N(ng))+rho(i-1,j,N(ng)))
+          sustr_aw(i,j) = 0.5_r8*(tau_awx_n(i-1,j)+tau_awx_n(i,j))/rhoO
+        END DO
+      END DO
 
       DO j=Jstr,JendR
-         DO i=IstrR,IendR
-            rhoO = 1000._r8 + 0.5_r8*(rho(i,j,N(ng))+rho(i,j-1,N(ng)))
-            svstr_aw(i,j) = 0.5_r8*(tau_awy_n(i,j-1)+tau_awy_n(i,j))/rhoO
-         ENDDO
-      ENDDO
+        DO i=IstrR,IendR
+          rhoO = 1000._r8 + 0.5_r8*(rho(i,j,N(ng))+rho(i,j-1,N(ng)))
+          svstr_aw(i,j) = 0.5_r8*(tau_awy_n(i,j-1)+tau_awy_n(i,j))/rhoO
+        END DO
+      END DO
 # else
       DO j=JstrR,JendR
-         DO i=Istr,IendR
-            rhoO = 1000._r8 + 0.5_r8*(rho(i,j,N(ng))+rho(i-1,j,N(ng)))
-            sustr(i,j) = 0.5_r8*(tau_awx_n(i-1,j)+tau_awx_n(i,j))/rhoO
-         ENDDO
-      ENDDO
+        DO i=Istr,IendR
+          rhoO = 1000._r8 + 0.5_r8*(rho(i,j,N(ng))+rho(i-1,j,N(ng)))
+          sustr(i,j) = 0.5_r8*(tau_awx_n(i-1,j)+tau_awx_n(i,j))/rhoO
+        END DO
+      END DO
 
       DO j=Jstr,JendR
-         DO i=IstrR,IendR
-            rhoO = 1000._r8 + 0.5_r8*(rho(i,j,N(ng))+rho(i,j-1,N(ng)))
-            svstr(i,j) = 0.5_r8*(tau_awy_n(i,j-1)+tau_awy_n(i,j))/rhoO
-         ENDDO
-      ENDDO
+        DO i=IstrR,IendR
+          rhoO = 1000._r8 + 0.5_r8*(rho(i,j,N(ng))+rho(i,j-1,N(ng)))
+          svstr(i,j) = 0.5_r8*(tau_awy_n(i,j-1)+tau_awy_n(i,j))/rhoO
+        END DO
+      END DO
 # endif
 !
 !-----------------------------------------------------------------------
@@ -747,87 +747,87 @@
 !
 # if defined EW_PERIODIC || defined NS_PERIODIC
 
-        CALL exchange_r2d_tile (ng, tile,                               &
+      CALL exchange_r2d_tile (ng, tile,                                 &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          rhoa_n)
-        CALL exchange_r2d_tile (ng, tile,                               &
+      CALL exchange_r2d_tile (ng, tile,                                 &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          wg2_d)
-        CALL exchange_r2d_tile (ng, tile,                               &
+      CALL exchange_r2d_tile (ng, tile,                                 &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          cd_d)
-        CALL exchange_r2d_tile (ng, tile,                               &
+      CALL exchange_r2d_tile (ng, tile,                                 &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          ch_d)
-        CALL exchange_r2d_tile (ng, tile,                               &
+      CALL exchange_r2d_tile (ng, tile,                                 &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          ce_d)
-        CALL exchange_r2d_tile (ng, tile,                               &
+      CALL exchange_r2d_tile (ng, tile,                                 &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          wg2_m)
-        CALL exchange_r2d_tile (ng, tile,                               &
+      CALL exchange_r2d_tile (ng, tile,                                 &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          cd_m)
-        CALL exchange_r2d_tile (ng, tile,                               &
+      CALL exchange_r2d_tile (ng, tile,                                 &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          ch_m)
-        CALL exchange_r2d_tile (ng, tile,                               &
+      CALL exchange_r2d_tile (ng, tile,                                 &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          ce_m)
-        CALL exchange_r2d_tile (ng, tile,                               &
+      CALL exchange_r2d_tile (ng, tile,                                 &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          srflx)
-        CALL exchange_r2d_tile (ng, tile,                               &
+      CALL exchange_r2d_tile (ng, tile,                                 &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          tau_awx_n)
-        CALL exchange_r2d_tile (ng, tile,                               &
+      CALL exchange_r2d_tile (ng, tile,                                 &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          tau_awy_n)
 #  ifdef ICE_MODEL
 #   ifdef ICE_THERMO
-        CALL exchange_r2d_tile (ng, tile,                               &
+      CALL exchange_r2d_tile (ng, tile,                                 &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          qao_n)
-        CALL exchange_r2d_tile (ng, tile,                               &
+      CALL exchange_r2d_tile (ng, tile,                                 &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          qai_n)
-        CALL exchange_r2d_tile (ng, tile,                               &
+      CALL exchange_r2d_tile (ng, tile,                                 &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          p_e_n)
-        CALL exchange_r2d_tile (ng, tile,                               &
+      CALL exchange_r2d_tile (ng, tile,                                 &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          coef_ice_heat)
-        CALL exchange_r2d_tile (ng, tile,                               &
+      CALL exchange_r2d_tile (ng, tile,                                 &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          rhs_ice_heat)
-        CALL exchange_r2d_tile (ng, tile,                               &
+      CALL exchange_r2d_tile (ng, tile,                                 &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          snow_n)
 #   endif
-        CALL exchange_r2d_tile (ng, tile,                               &
+      CALL exchange_r2d_tile (ng, tile,                                 &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          tau_aix_n)
-        CALL exchange_r2d_tile (ng, tile,                               &
+      CALL exchange_r2d_tile (ng, tile,                                 &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          tau_aiy_n)
-        CALL exchange_u2d_tile (ng, tile,                               &
+      CALL exchange_u2d_tile (ng, tile,                                 &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          sustr_aw)
-        CALL exchange_v2d_tile (ng, tile,                               &
+      CALL exchange_v2d_tile (ng, tile,                                 &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          svstr_aw)
 #  endif
-        CALL exchange_r2d_tile (ng, tile,                               &
+      CALL exchange_r2d_tile (ng, tile,                                 &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          stflx(:,:,isalt))
-        CALL exchange_r2d_tile (ng, tile,                               &
+      CALL exchange_r2d_tile (ng, tile,                                 &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          stflx(:,:,itemp))
 #  ifndef ICE_MODEL
-        CALL exchange_u2d_tile (ng, tile,                               &
+      CALL exchange_u2d_tile (ng, tile,                                 &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          sustr)
-        CALL exchange_v2d_tile (ng, tile,                               &
+      CALL exchange_v2d_tile (ng, tile,                                 &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          svstr)
 #  endif
