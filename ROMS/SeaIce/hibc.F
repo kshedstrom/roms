@@ -92,27 +92,27 @@
 !  Western edge, clamped boundary condition.
 !
         DO j=Jstr,Jend
-          IF(ui(1,j,linew).ge.0._r8) THEN
-             hi(0,j,linew)=BOUNDARY(ng)%hi_west(j)
+          IF (ui(1,j,linew).ge.0._r8) THEN
+            hi(0,j,linew)=BOUNDARY(ng)%hi_west(j)
 #  ifdef MASKING
-             hi(0,j,linew)=hi(0,j,linew)*                               &
+            hi(0,j,linew)=hi(0,j,linew)*                               &
      &                   GRID(ng)%rmask(0,j)
 #  endif
 #  ifdef WET_DRY
-             hi(0,j,linew)=hi(0,j,linew)*                               &
+            hi(0,j,linew)=hi(0,j,linew)*                                &
      &                   GRID(ng)%rmask_wet(0,j)
 #  endif
           ELSE
-             hi(0,j,linew)=hi(1,j,liold)
+            hi(0,j,linew)=hi(1,j,liold)
 #  ifdef MASKING
-             hi(0,j,linew)=hi(0,j,linew)*                               &
+            hi(0,j,linew)=hi(0,j,linew)*                                &
      &                   GRID(ng)%rmask(0,j)
 #  endif
 #  ifdef WET_DRY
-             hi(0,j,linew)=hi(0,j,linew)*                               &
+            hi(0,j,linew)=hi(0,j,linew)*                                &
      &                   GRID(ng)%rmask_wet(0,j)
 #  endif
-          ENDIF
+          END IF
         END DO
 # elif defined WEST_HIGRADIENT
 !
@@ -158,7 +158,7 @@
 !  Eastern edge, clamped boundary condition.
 !
         DO j=Jstr,Jend
-          IF(ui(Lm(ng)+1,j,linew).le.0._r8) THEN
+          IF (ui(Lm(ng)+1,j,linew).le.0._r8) THEN
              hi(Lm(ng)+1,j,linew)=BOUNDARY(ng)%hi_east(j)
 #  ifdef MASKING
              hi(Lm(ng)+1,j,linew)=hi(Lm(ng)+1,j,linew)*                 &
@@ -178,7 +178,7 @@
              hi(Lm(ng)+1,j,linew)=hi(Lm(ng)+1,j,linew)*                 &
      &                          GRID(ng)%rmask_wet(Lm(ng)+1,j)
 #  endif
-          ENDIF
+          END IF
         END DO
 # elif defined EAST_HIGRADIENT
 !
@@ -226,7 +226,7 @@
 !  Southern edge, clamped boundary condition.
 !
         DO i=Istr,Iend
-          IF(vi(i,1,linew).ge.0._r8) THEN
+          IF (vi(i,1,linew).ge.0._r8) THEN
              hi(i,0,linew)=BOUNDARY(ng)%hi_south(i)
 #  ifdef MASKING
              hi(i,0,linew)=hi(i,0,linew)*                               &
@@ -246,7 +246,7 @@
              hi(i,0,linew)=hi(i,0,linew)*                               &
      &                   GRID(ng)%rmask_wet(i,0)
 #  endif
-          ENDIF
+          END IF
         END DO
 # elif defined SOUTH_HIGRADIENT
 !
@@ -292,7 +292,7 @@
 !  Northern edge, clamped boundary condition.
 !
         DO i=Istr,Iend
-          IF(vi(i,Mm(ng)+1,linew).le.0._r8) THEN
+          IF (vi(i,Mm(ng)+1,linew).le.0._r8) THEN
              hi(i,Mm(ng)+1,linew)=BOUNDARY(ng)%hi_north(i)
 #  ifdef MASKING
              hi(i,Mm(ng)+1,linew)=hi(i,Mm(ng)+1,linew)*                 &
@@ -312,7 +312,7 @@
              hi(i,Mm(ng)+1,linew)=hi(i,Mm(ng)+1,linew)*                 &
      &                          GRID(ng)%rmask_wet(i,Mm(ng)+1)
 #  endif
-           ENDIF
+           END IF
         END DO
 # elif defined NORTH_HIGRADIENT
 !

@@ -42,7 +42,9 @@ contains
 # if defined BEST_NPZ && defined CLIM_ICE_1D
       USE mod_clima
 # endif
-
+# ifdef EVAP_SHALLOW
+      USE mod_coupling
+# endif
       USE mod_stepping
 !
 !  Imported variable declarations.
@@ -95,6 +97,10 @@ contains
 # endif
 # ifdef RUNOFF
      &                     FORCES(ng) % runoff,                         &
+# endif
+# ifdef EVAP_SHALLOW
+     &                     GRID(ng) % h,                                &
+     &                     COUPLING(ng) % Zt_avg1,                      &
 # endif
      &                     FORCES(ng) % rain,                           &
      &                     FORCES(ng) % lhflx,                          &
@@ -172,6 +178,9 @@ contains
 # endif
 # ifdef RUNOFF
      &                           runoff,                                &
+# endif
+# ifdef EVAP_SHALLOW
+     &                           h, Zt_avg1,                            &
 # endif
      &                           rain, lhflx, lrflx, shflx,             &
      &                           srflx, stflx,                          &
@@ -266,6 +275,10 @@ contains
 #  ifdef RUNOFF
       real(r8), intent(in) :: runoff(LBi:,LBj:)
 #  endif
+#  ifdef EVAP_SHALLOW
+      real(r8), intent(in) :: h(LBi:,LBj:)
+      real(r8), intent(in) :: Zt_avg1(LBi:,LBj:)
+#  endif
 
       real(r8), intent(inout) :: lhflx(LBi:,LBj:)
       real(r8), intent(inout) :: lrflx(LBi:,LBj:)
@@ -345,6 +358,10 @@ contains
       real(r8), intent(in) :: rain(LBi:UBi,LBj:UBj)
 #  ifdef RUNOFF
       real(r8), intent(in) :: runoff(LBi:UBi,LBj:UBj)
+#  endif
+#  ifdef EVAP_SHALLOW
+      real(r8), intent(in) :: h(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: Zt_avg1(LBi:UBi,LBj:UBj)
 #  endif
 
       real(r8), intent(inout) :: lhflx(LBi:UBi,LBj:UBj)
@@ -435,9 +452,14 @@ contains
       real(r8) :: caw_curve
 # endif
 # if defined ICE_MODEL
-      real(r8), dimension(PRIVATE_2D_SCRATCH_ARRAY) :: ice_thick
-      real(r8), dimension(PRIVATE_2D_SCRATCH_ARRAY) :: snow_thick
+      real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: ice_thick
+      real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: snow_thick
 # endif
+#ifdef EVAP_SHALLOW
+      real(r8), parameter :: coef_shallow = 5.28_r8
+!      real(r8), parameter :: coef_shallow = 4.69_r8
+      real(r8) :: cffe
+#endif
 
 ! ------------------------------------------------------------------
 ! !DESCRIPTION:
@@ -899,6 +921,13 @@ contains
           evap(i,j) = (1.0_r8-ai(i,j,linew))*evap(i,j)
           stflx(i,j,isalt) = (1.0_r8-ai(i,j,linew))*stflx(i,j,isalt)
 #  endif
+#  ifdef EVAP_SHALLOW
+          cffe = 1._r8/(h(i,j)+Zt_avg1(i,j))
+          cffe = min(cffe,0.2_r8)
+          IF (evap(i,j).GT.0._r8) THEN
+             evap(i,j) = (1.0_r8+coef_shallow*cffe)*evap(i,j)
+          END IF
+#  endif
 # endif
 # ifdef MASKING
           stflx(i,j,itemp)=stflx(i,j,itemp)*rmask(i,j)
@@ -1115,7 +1144,7 @@ contains
      &                    qai_n, coef_ice_heat, rhs_ice_heat, snow_n )
 #   endif
 #  endif
-#  ifdef EMINUSP
+#  if defined EMINUSP || (defined ICE_MODEL && defined ICE_THERMO)
       CALL mp_exchange2d (ng, tile, iNLM, 3,                            &
      &                    LBi, UBi, LBj, UBj,                           &
      &                    NghostPoints, EWperiodic, NSperiodic,         &

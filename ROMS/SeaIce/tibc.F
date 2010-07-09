@@ -99,38 +99,33 @@
 !  Western edge, clamped boundary condition.
 !
         DO j=Jstr,Jend
-          IF(ui(1,j,linew).ge.0._r8) THEN
-             enthalpi(0,j,linew)=BOUNDARY(ng)%hi_west(j)* &
+          IF (ui(1,j,linew).ge.0._r8) THEN
+            enthalpi(0,j,linew)=BOUNDARY(ng)%hi_west(j)*                &
      &                           BOUNDARY(ng)%ti_west(j)
 #  ifdef MASKING
-             enthalpi(0,j,linew)=enthalpi(0,j,linew)*                   &
+            enthalpi(0,j,linew)=enthalpi(0,j,linew)*                    &
      &                   GRID(ng)%rmask(0,j)
 #  endif
 #  ifdef WET_DRY
-             enthalpi(0,j,linew)=enthalpi(0,j,linew)*                   &
+            enthalpi(0,j,linew)=enthalpi(0,j,linew)*                    &
      &                   GRID(ng)%rmask_wet(0,j)
 #  endif
           ELSE
-             enthalpi(0,j,linew)=enthalpi(1,j,liold)
+            enthalpi(0,j,linew)=enthalpi(1,j,liold)
 #  ifdef MASKING
-             enthalpi(0,j,linew)=enthalpi(0,j,linew)*                   &
+            enthalpi(0,j,linew)=enthalpi(0,j,linew)*                    &
      &                   GRID(ng)%rmask(0,j)
 #  endif
 #  ifdef WET_DRY
-             enthalpi(0,j,linew)=enthalpi(0,j,linew)*                   &
+            enthalpi(0,j,linew)=enthalpi(0,j,linew)*                    &
      &                   GRID(ng)%rmask_wet(0,j)
 #  endif
-
-#  ifdef WET_DRY
-             enthalpi(0,j,linew)=enthalpi(0,j,linew)*                   &
-     &                   GRID(ng)%rmask_wet(0,j)
-#  endif
-         ENDIF
+          ENDIF
           ti(0,j,linew) = enthalpi(0,j,linew)/                          &
      &                       MAX(hi(0,j,linew),1.0E-6_r8)
           IF (hi(0,j,linew).LE.min_h) THEN
-                enthalpi(0,j,linew) = 0.0_r8
-                ti(0,j,linew) = 0.0_r8
+            enthalpi(0,j,linew) = 0.0_r8
+            ti(0,j,linew) = 0.0_r8
           END IF
         END DO
 # elif defined WEST_TIGRADIENT
@@ -175,12 +170,12 @@
           enthalpi(0,j,linew)=enthalpi(0,j,linew)*                      &
      &                   GRID(ng)%rmask_wet(0,j)
 #  endif
-             ti(0,j,linew) = enthalpi(0,j,linew)/                       &
+          ti(0,j,linew) = enthalpi(0,j,linew)/                          &
      &                       MAX(hi(0,j,linew),1.0E-6_r8)
-             IF(hi(0,j,linew).LE.min_h) THEN
-                enthalpi(0,j,linew) = 0.0_r8
-                ti(0,j,linew) = 0.0_r8
-             END IF
+          IF (hi(0,j,linew).LE.min_h) THEN
+            enthalpi(0,j,linew) = 0.0_r8
+            ti(0,j,linew) = 0.0_r8
+          END IF
         END DO
 # endif
       END IF
@@ -393,13 +388,13 @@
      &                          GRID(ng)%rmask_wet(i,Mm(ng)+1)
 #  endif
           ELSE
-             enthalpi(i,Mm(ng)+1,linew)=enthalpi(i,Mm(ng),liold)
+            enthalpi(i,Mm(ng)+1,linew)=enthalpi(i,Mm(ng),liold)
 #  ifdef MASKING
-             enthalpi(i,Mm(ng)+1,linew)=enthalpi(i,Mm(ng)+1,linew)*     &
+            enthalpi(i,Mm(ng)+1,linew)=enthalpi(i,Mm(ng)+1,linew)*      &
      &                          GRID(ng)%rmask(i,Mm(ng)+1)
 #  endif
 #  ifdef WET_DRY
-             enthalpi(i,Mm(ng)+1,linew)=enthalpi(i,Mm(ng)+1,linew)*     &
+            enthalpi(i,Mm(ng)+1,linew)=enthalpi(i,Mm(ng)+1,linew)*      &
      &                          GRID(ng)%rmask_wet(i,Mm(ng)+1)
 #  endif
           ENDIF
@@ -472,14 +467,14 @@
         enthalpi(0,0,linew)=0.5_r8*(enthalpi(1,0,linew)+                &
      &                         enthalpi(0,1,linew))
 #  ifdef MASKING
-             enthalpi(0,0,linew)=enthalpi(0,0,linew)* &
+        enthalpi(0,0,linew)=enthalpi(0,0,linew)*                        &
      &                   GRID(ng)%rmask(0,0)
 #  endif
 #  ifdef WET_DRY
-             enthalpi(0,0,linew)=enthalpi(0,0,linew)* &
+        enthalpi(0,0,linew)=enthalpi(0,0,linew)*                        &
      &                   GRID(ng)%rmask_wet(0,0)
 #  endif
-        ti(0,0,linew) = enthalpi(0,0,linew)/ &
+        ti(0,0,linew) = enthalpi(0,0,linew)/                            &
      &                       MAX(hi(0,0,linew),1.0E-6_r8)
         IF (hi(0,0,linew).LE.min_h) THEN
           enthalpi(0,0,linew) = 0.0_r8
