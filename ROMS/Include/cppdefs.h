@@ -790,6 +790,7 @@
 **                                                                           **
 ** ADRIA02             Adriatic Sea Application                              **
 ** NJ_BIGHT            New Jersey Bight Application                          **
+** WC13                California Current System, 1/3 degree resolution      **
 **                                                                           **
 *******************************************************************************
 *******************************************************************************
