@@ -3697,7 +3697,7 @@
 !  Set size of additonal dimension for error covariance normalization
 !  and standard deviation factors.
 !
-# ifdef WEAK_CONSTRAINT
+# if defined CORRELATION || defined WEAK_CONSTRAINT
         IF (nADJ(ng).lt.ntimes(ng)) THEN
           NSA=2
         ELSE
@@ -7496,9 +7496,9 @@
      &                    TRIM(fname)
 #    endif
 #   endif
-#   if defined SENSITIVITY_4DVAR || \
-       defined TL_W4DPSAS        || defined TL_W4DVAR || \
-       defined W4DPSAS           || defined W4DVAR
+#   if defined CORRELATION || defined SENSITIVITY_4DVAR || \
+       defined TL_W4DPSAS  || defined TL_W4DVAR         || \
+       defined W4DPSAS     || defined W4DVAR
           fname=NRMname(2,ng)
           WRITE (out,160) '              Model Norm File:  ',           &
      &                    TRIM(fname)
