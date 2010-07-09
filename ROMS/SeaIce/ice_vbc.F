@@ -262,9 +262,9 @@
           spd = max(spd,0.10_r8)
           clear = h(i,j)+MIN(Zt_avg1(i,j),0.0_r8)-0.9*hi(i,j,liold)
           clear = MAX(clear,0.001_r8)
-          IF(clear < 5.0_r8) THEN
+          IF (clear < 5.0_r8) THEN
             spd = (clear/5.0_r8)*spd
-          ENDIF
+          END IF
 #  else
           spd = max(spd,0.15_r8)
 #  endif
@@ -285,7 +285,7 @@
           hh = h(i,j)+MIN(Zt_avg1(i,j),0.0_r8)
           clear = hh-0.9_r8*hi(i,j,liold)
           clear = MAX(clear,0.0_r8)
-          IF(clear.lt.5.0_r8) chuiw(i,j) =                              &
+          IF (clear.lt.5.0_r8) chuiw(i,j) =                             &
      &       (MAX(clear-1.0_r8,0.0_r8)/4.0_r8)*chuiw(i,j)
 #   endif
 #  endif
@@ -359,10 +359,10 @@
 # ifdef ICE_SHOREFAST
           clear = h(i,j)+MIN(Zt_avg1(i,j),0.0_r8)-0.9*hi(i,j,liold)
           clear = MAX(clear,0.001_r8)
-          IF(clear < 5.0_r8) THEN
+          IF (clear < 5.0_r8) THEN
             spdiw(i,j) = (clear/5.0_r8)*spdiw(i,j)
             wind(i,j) = (clear/5.0_r8)*wind(i,j)
-          ENDIF
+          END IF
 # endif
         END DO
       END DO

@@ -8,7 +8,7 @@ dimensions:
 	xi_v = 66 ;
 	eta_v = 193 ;
 	s_rho = 30 ;
-        s-w = 31 ;
+        s_w = 31 ;
 	zeta_time = 22 ;
 	v2d_time = 22 ;
 	v3d_time = 22 ;

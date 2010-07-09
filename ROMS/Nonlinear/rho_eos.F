@@ -276,8 +276,10 @@
 !  pressure.
 !
             Tt=MAX(-2.5_r8,t(i,j,k,nrhs,itemp))
+            Tt=MIN(40.0_r8,Tt)
 #  ifdef SALINITY
             Ts=MAX(0.0_r8,t(i,j,k,nrhs,isalt))
+            Ts=MIN(100.0_r8,Ts)
             sqrtTs=SQRT(Ts)
 #  else
             Ts=0.0_r8

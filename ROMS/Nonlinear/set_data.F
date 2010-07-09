@@ -889,8 +889,15 @@
 #    ifdef SOLVE3D
         DO k=1,N(ng)
           DO i=1,Nsrc(ng)
+# ifdef CASPIAN_REDUCED_RIVER
+            SOURCES(ng)%Qsrc(i,k)=SOURCES(ng)%Qbar(i)*                  &
+     &                            SOURCES(ng)%Qshape(i,k)*              &
+     &                            0.93_r8
+
+# else
             SOURCES(ng)%Qsrc(i,k)=SOURCES(ng)%Qbar(i)*                  &
      &                            SOURCES(ng)%Qshape(i,k)
+# endif
           END DO
         END DO
 #    endif
