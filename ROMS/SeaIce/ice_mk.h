@@ -791,7 +791,7 @@
             stflx(i,j,isalt) = stflx(i,j,isalt)                         &
      &          - (xtot-ai(i,j,linew)*xwai)*(sice-s0mk(i,j))            &
      &          - ai(i,j,linew)*wro(i,j)*                               &
-     &          MIN(MAX(s0mk(i,j),0.0_r8),60.0_r8))
+     &          MIN(MAX(s0mk(i,j),0.0_r8),60.0_r8)
 #endif
 
 ! Test for case of rainfall on snow/ice and assume 100% drainage
