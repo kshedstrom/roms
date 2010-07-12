@@ -28,6 +28,7 @@
 # undef SPLINES
 #endif
 #define FLOATS
+#undef DIAPAUSE
 #define STATIONS
 #undef WET_DRY
 
