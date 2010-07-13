@@ -588,7 +588,8 @@
           SRad(i,j) = SRad(i,j)*cawdir(i,j)
 # endif
 # if defined SHORTWAVE && defined ALBEDO_CURVE
-          caw_curve = 1._r8-(0.069_r8 - 0.011_r8*cos(2*latr(i,j)))
+          caw_curve = 1._r8-(0.069_r8 - 0.011_r8*                       &
+     &                        cos(2*deg2rad*latr(i,j)))
           SRad(i,j) = SRad(i,j)*caw_curve
 # endif
           Tcff(i)=alpha(i,j)
@@ -1187,7 +1188,8 @@
      &                 (1._r8-cloud(i,j))+cawdif*cloud(i,j))
 # endif
 # if defined SHORTWAVE && defined ALBEDO_CURVE
-          caw_curve = 1._r8-(0.069_r8 - 0.011_r8*cos(2*latr(i,j)))
+          caw_curve = 1._r8-(0.069_r8 - 0.011_r8*                       &
+     &                        cos(2*deg2rad*latr(i,j)))
           srflx(i,j) = srflx(i,j)*caw_curve
 # endif
           lrflx(i,j)=LRad(i,j)*Hscale2
