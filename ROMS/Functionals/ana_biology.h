@@ -21,10 +21,12 @@
 # if defined CLIM_ICE_1D
       USE mod_clima
 # endif
+# ifdef  ICE_BIO
+      USE mod_ice
+# endif
 #endif
 
-
-#ifdef BIO_GOANPZ 
+#if defined BIO_GOANPZ || defined BEST_NPZ
       USE mod_grid
 #endif
 !

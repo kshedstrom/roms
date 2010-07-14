@@ -73,7 +73,7 @@
 !
 !  Local variable declarations.
 !
-      integer :: ng
+      integer :: ng, ic
       integer :: LBi, UBi, LBj, UBj, LBij, UBij
       integer :: tile, subs, thread
 
@@ -113,7 +113,7 @@
 #if defined AD_SENSITIVITY      || defined CLIMATOLOGY      || \
     defined IS4DVAR_SENSITIVITY || defined OPT_OBSERVATIONS || \
     defined SENSITIVITY_4DVAR   || defined SO_SEMI
-          CALL allocate_clima (ng, LBi, UBi, LBj, UBj)
+          CALL allocate_clima (ng, LBi, UBi, LBj, UBj, ic)
 #endif
 #ifdef SOLVE3D
           CALL allocate_coupling (ng, LBi, UBi, LBj, UBj)

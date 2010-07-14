@@ -127,6 +127,11 @@
       real(r8), dimension(NAT+NBT,NAT+NBT) :: bflx = 0.0_r8
 #endif
 
+      integer, allocatable :: idTSvar(:)    ! Stationary production variables
+      integer, allocatable :: hisTSid(:,:)  ! history St tracer IDs
+      integer, allocatable :: avgTSid(:,:)  ! averages stationary tracer IDs
+      integer, allocatable :: avg2TSid(:,:) ! averages stationary tracer IDs
+
       CONTAINS
 
       SUBROUTINE initialize_biology
@@ -153,7 +158,10 @@
       NBT = 10
 #endif
 
-
+      allocate ( idTSvar(MST) )
+      allocate ( hisTSid(MST,Ngrids) )
+      allocate ( avgTSid(MST,Ngrids) )
+      allocate ( avg2TSid(MST,Ngrids) )
 !
 !  Initialize biology diagnostic indices.
 !

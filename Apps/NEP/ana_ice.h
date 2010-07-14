@@ -21,7 +21,6 @@
 !
       implicit none
 
-
       integer, intent(in) :: ng, tile
 
 #include "tile.h"

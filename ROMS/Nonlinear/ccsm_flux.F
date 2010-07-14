@@ -133,10 +133,15 @@ contains
      &                     FORCES(ng) % tau_aix_n,                      &
      &                     FORCES(ng) % tau_aiy_n,                      &
 # endif
-# if defined BEST_NPZ && defined CLIM_ICE_1D
+# if defined BEST_NPZ
+#  if defined CLIM_ICE_1D
      &                    OCEAN(ng) % it,                               &
      &                    CLIMA(ng) % tclmG,                            &
      &                    nstp(ng),                                     &
+#  elif defined BERING_10K && defined ICE_BIO
+     &                    ICE(ng) % IcePhL,                             &
+     &                    ICE(ng) % IceLog,                             &
+#  endif
 # endif
 # ifdef EMINUSP
      &                     FORCES(ng) % EminusP,                        &
@@ -200,9 +205,14 @@ contains
      &                           sustr_aw, svstr_aw, qao_n, p_e_n,      &
      &                           tau_aix_n, tau_aiy_n,                  &
 # endif
-#  if defined BEST_NPZ && defined CLIM_ICE_1D
+#  if defined BEST_NPZ
+#   if defined CLIM_ICE_1D
      &                           it,                                    &
-     &                           tclmG,nstp,                            &
+     &                           tclmG, nstp,                           &
+#   elif defined BERING_10K && defined ICE_BIO
+     &                           IcePhL,                                &
+     &                           IceLog,                                &
+#   endif
 #  endif
 # ifdef EMINUSP
      &                           EminusP, evap,                         &
@@ -311,6 +321,16 @@ contains
       real(r8), intent(out) :: tau_aix_n(LBi:,LBj:)
       real(r8), intent(out) :: tau_aiy_n(LBi:,LBj:)
 #  endif
+#  if defined BEST_NPZ
+#   if defined CLIM_ICE_1D
+      real(r8), intent(in) ::tclm(LBi:,LBj:,:,:,:)
+      real(r8), intent(in) :: it(LBi:,LBj:,:,:)
+      integer, intent(in) :: nstp
+#   elif defined BERING_10K && defined ICE_BIO
+      real(r8), intent(in) :: IcePhL(LBi:,LBj:,:)
+      real(r8), intent(inout) :: IceLog(LBi:,LBj:,:)
+#   endif
+#  endif
 
 #  ifdef EMINUSP
       real(r8), intent(out) :: EminusP(LBi:,LBj:)
@@ -319,12 +339,6 @@ contains
       real(r8), intent(out) :: sustr(LBi:,LBj:)
       real(r8), intent(out) :: svstr(LBi:,LBj:)
 
-#   if defined BEST_NPZ && defined CLIM_ICE_1D
-
-       real(r8), intent(in) ::tclmG(LBi:,LBj:,:,:,:)
-       real(r8), intent(in) :: it(LBi:,LBj:,:,:)
-        integer, intent(in) :: nstp
-#   endif
 # else
 #  ifdef MASKING
       real(r8), intent(in) :: rmask(LBi:UBi,LBj:UBj)
@@ -395,6 +409,16 @@ contains
       real(r8), intent(out) :: tau_aix_n(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: tau_aiy_n(LBi:UBi,LBj:UBj)
 #  endif
+#  if defined BEST_NPZ
+#   if defined CLIM_ICE_1D
+      real(r8), intent(in) :: it(LBi:UBi,LBj:UBj,3,1)
+      real(r8), intent(in) ::tclm(LBi:UBi,LBj:UBj,UBk,3,UBt+1)
+      integer, intent(in) :: nstp
+#   elif defined BERING_10K && defined ICE_BIO
+      real(r8), intent(in) :: IcePhL(LBi:,LBj:,:)
+      real(r8), intent(inout) :: IceLog(LBi:,LBj:,:)
+#   endif
+#  endif
 
 #  ifdef EMINUSP
       real(r8), intent(out) :: EminusP(LBi:UBi,LBj:UBj)
@@ -403,12 +427,6 @@ contains
       real(r8), intent(out) :: sustr(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: svstr(LBi:UBi,LBj:UBj)
 
-#  if defined BEST_NPZ && defined CLIM_ICE_1D
-
-      real(r8), intent(in) :: it(LBi:UBi,LBj:UBj,3,1)
-      real(r8), intent(in) ::tclmG(LBi:UBi,LBj:UBj,UBk,3,UBt+1)
-      integer, intent(in) :: nstp
-#  endif
 # endif
 !
 !  Local variable declarations.
@@ -903,6 +921,12 @@ contains
      &                 (1._r8-cloud(i,j))+cawdif*cloud(i,j))
 # endif
 # if defined SHORTWAVE && defined ALBEDO_CURVE
+# ifdef BIO_1D
+!using lat for M2 for whole domain
+          caw_curve = 1._r8-(0.069_r8 - 0.011_r8*                       &
+     &                        cos(2*deg2rad*56.877))
+          srflx(i,j) = srflx(i,j)*caw_curve
+# else
           caw_curve = 1._r8-(0.069_r8 - 0.011_r8*                       &
      &                        cos(2*deg2rad*latr(i,j)))
           srflx(i,j) = srflx(i,j)*caw_curve
@@ -948,6 +972,16 @@ contains
 ! Limit shortwave radiation to be used in computing penetrative
 ! radiation by presence of ice and biology
 
+#  if defined BEST_NPZ && defined BERING_10K && defined ICE_BIO
+        IF (IceLog(i,j,liold).gt.0_r8 ) THEN
+!only attenuate light by ice when have more than thin smear of ice
+          IF (hi(i,j,liold).le.0.1_r8) THEN
+            cff1=hi(i,j,liold)*5._r8
+          ELSE
+            cff1=0.1_r8*5._r8+(hi(i,j,liold)-0.1_r8)*1._r8
+          ENDIF
+          cff1= cff1+hsn(i,j,liold)*20._r8
+#  else
           ice_thick(i,j) = hi(i,j,linew)/(ai(i,j,linew)+eps)
           snow_thick(i,j) = hsn(i,j,linew)/(ai(i,j,linew)+eps)
 
@@ -958,18 +992,16 @@ contains
           ENDIF
 
           cff1= cff1+snow_thick(i,j)*20._r8
+#  endif
 
-#   ifdef ICE_BIO
+#  ifdef ICE_BIO
           cff2=0.5*0.02_r8*0.005*it(i,j,nstp,iIcePhL)
-#   endif
-
           srflx(i,j)=(1-ai(i,j,linew))*srflx(i,j)                       &
-#   ifdef ICE_BIO
      &            +ai(i,j,linew)*srflx(i,j)*exp(-cff1-cff2)
-#   else
+#  else
+          srflx(i,j)=(1-ai(i,j,linew))*srflx(i,j)                       &
      &            +ai(i,j,linew)*srflx(i,j)*exp(-cff1)
-#   endif
-
+#  endif
           qao_n(i,j) = -stflx(i,j,itemp)*Hscale
 
 ! Net precipitation - evaporation in m/s
@@ -984,7 +1016,7 @@ contains
 
 # elif !defined ICE_MODEL && defined BEST_NPZ && defined CLIM_ICE_1D
 
-          ice_thick(i,j) = tclmG(i,j,42,1,15)
+          ice_thick(i,j) = tclmG(i,j,N(ng),1,i1CI)
           snow_thick(i,j) = ice_thick(i,j)*0.1 !assume 10% of ice depth
 
           IF (ice_thick(i,j).le.0.1_r8) THEN
