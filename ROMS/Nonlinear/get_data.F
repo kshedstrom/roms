@@ -19,6 +19,9 @@
 !=======================================================================
 !
       USE mod_param
+#if defined BEST_NPZ || defined BIO_GOANPZ
+      USE mod_biology
+#endif
       USE mod_boundary
 #ifdef CLIMATOLOGY
       USE mod_clima
@@ -236,8 +239,8 @@
 !  Surface runoff rate
 !-----------------------------------------------------------------------
 !
-      CALL get_2dfld (ng, iNLM, idRunoff, ncfrcid(idRunoff,ng),         &
-     &                nFfiles(ng), frcname(1,ng),                       &
+      CALL get_2dfld (ng, iNLM, idRunoff, ncFRCid(idRunoff,ng),         &
+     &                nFfiles(ng), FRCname(1,ng),                       &
      &                update(1), LBi, UBi, LBj, UBj, 2, 1,              &
 #  ifdef MASKING
      &                GRID(ng) % rmask(LBi,LBj),                        &
@@ -545,8 +548,8 @@
 !  Surface runoff rate
 !-----------------------------------------------------------------------
 !
-      CALL get_2dfld (ng, iNLM, idRunoff, ncfrcid(idRunoff,ng),         &
-     &                nFfiles(ng), frcname(1,ng),                       &
+      CALL get_2dfld (ng, iNLM, idRunoff, ncFRCid(idRunoff,ng),         &
+     &                nFfiles(ng), FRCname(1,ng),                       &
      &                update(1), LBi, UBi, LBj, UBj, 2, 1,              &
 #  ifdef MASKING
      &                GRID(ng) % rmask(LBi,LBj),                        &
@@ -1236,6 +1239,17 @@
       END DO
 #   endif
 
+#   ifdef AKT_3D
+!get the Akt from climatology file -used in SEBS 1D simulation
+
+     CALL get_3dfld (ng, iNLM, idTclm(iAKt3), ncCLMid(ng), 1,           &
+     &                  CLMname(ng), update(1),                         &
+     &                  LBi, UBi, LBj, UBj, 1, N(ng), 2, 1,             &
+#    ifdef MASKING
+     &                  GRID(ng) % rmask(LBi,LBj),                      &
+#    endif
+     &                  CLIMA(ng) % tclmG(LBi,LBj,1,1,iAKt3))
+#   endif
 
 #   if (defined BEST_NPZ || defined BIO_GOANPZ) && defined IRON_LIMIT
       CALL get_3dfld (ng, iNLM, idTclm(iFe), ncclmid(ng), 1,            &
@@ -1246,14 +1260,14 @@
 #    endif
      &                CLIMA(ng) % tclmG(LBi,LBj,1,1,iFe))
 #   endif
-#    if defined ICE_BIO 
-       CALL get_3dfld (ng, iNLM, idTclm(iFe+1), ncclmid(ng), 1,         &
+#    if defined ICE_BIO && defined CLIM_ICE_1D
+       CALL get_3dfld (ng, iNLM, idTclm(i1CI), ncclmid(ng), 1,          &
      &                clmname(ng), update(1),                           &
      &                LBi, UBi, LBj, UBj, 1, N(ng), 2, 1,               &
 #    ifdef MASKING
      &                GRID(ng) % rmask(LBi,LBj),                        &
 #    endif
-     &                CLIMA(ng) % tclmG(LBi,LBj,1,1,15))
+     &                CLIMA(ng) % tclmG(LBi,LBj,1,1,i1CI))
 #   endif
 #  endif
 #  if !defined ANA_OCLIMA && defined OCLIMATOLOGY

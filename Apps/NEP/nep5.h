@@ -36,6 +36,7 @@
 # define ANA_PASSIVE
 # define TRC_PSOURCE
 # define ANA_TRC_PSOURCE
+# define AGE_TRACER
 #endif
 
 /* ice */
@@ -257,11 +258,11 @@
 /*
 **  Biological model options.
 */
-#define NEMURO
+#undef NEMURO
 #undef BIO_GOANPZ        /* Sarah Hinckley's 11 box model */
-#undef BEST_NPZ         /* Georgina Gibsons BEST NPZ model  */
+#define BEST_NPZ         /* Georgina Gibsons BEST NPZ model  */
 
-#if defined BEST_NPZ || defined BIO_GOANPZ || defined PASSIVE_TRACERS
+#if defined BEST_NPZ || defined BIO_GOANPZ
 # undef  BIOFLUX           /* sum Nitrogen fluxes between boxes */
 # define ANA_BIOLOGY       /* analytical biology initial conditions */
 # define ANA_BPFLUX        /* analytical bottom passive tracers fluxes */

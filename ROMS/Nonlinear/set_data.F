@@ -44,6 +44,9 @@
 !
       USE mod_param
       USE mod_boundary
+# ifdef BEST_NPZ
+      USE mod_biology
+# endif
 # ifdef CLIMATOLOGY
       USE mod_clima
 # endif
@@ -889,8 +892,15 @@
 #    ifdef SOLVE3D
         DO k=1,N(ng)
           DO i=1,Nsrc(ng)
+# ifdef CASPIAN_REDUCED_RIVER
+            SOURCES(ng)%Qsrc(i,k)=SOURCES(ng)%Qbar(i)*                  &
+     &                            SOURCES(ng)%Qshape(i,k)*              &
+     &                            0.93_r8
+
+# else
             SOURCES(ng)%Qsrc(i,k)=SOURCES(ng)%Qbar(i)*                  &
      &                            SOURCES(ng)%Qshape(i,k)
+# endif
           END DO
         END DO
 #    endif
@@ -1159,6 +1169,14 @@
      &                  update)
 #  endif
       END IF
+# endif
+
+# if defined ICE_BIO
+#  ifdef BERING_10K
+      CALL ana_IcePhLbc (ng, tile)
+      CALL ana_IceNO3bc (ng, tile)
+      CALL ana_IceNH4bc (ng, tile)
+#  endif
 # endif
 
 # ifdef ANA_HSNOBC
@@ -1650,7 +1668,7 @@
       CALL ana_tclima (ng, tile, iNLM)
 #  else
 ! in 3D want nudge only Fe not T and S
-#   if !defined BERING10k
+#   if !defined BERING_10K
 
 #    if defined SOGLOBEC
       DO itrc=1,NT(ng)
@@ -1665,25 +1683,30 @@
       END DO
 #   endif
 
-#  if defined BEST_NPZ 
-#   ifdef ICE_BIO      
-           CALL set_3dfld_tile (ng, tile, iNLM, idTclm(iFe+1),             &
+#   ifdef AKT_3D /* use 3dAkt for 1D SEBS model  index was iFe+2 */
+! Set the Akt
+      CALL set_3dfld_tile (ng, tile, iNLM, idTclm(iAKt3),               &
      &                       LBi, UBi, LBj, UBj, 1, N(ng),              &
-     &                       CLIMA(ng)%tclmG(:,:,:,:,15),               &
-     &                       CLIMA(ng)%tclm(:,:,:,15),                 &
+     &                       CLIMA(ng)%tclmG(:,:,:,:,iAKt3),            &
+     &                       CLIMA(ng)%tclm(:,:,:,iAKt3),               &
      &                       update)
 
- 
-#     if defined CLIM_ICE_1D
-          DO j=Jstr,Jend
-            DO i=Istr,Iend
-              OCEAN(ng)%it(i,j,nnew(ng),iIceZ) =                        &
-     &                  CLIMA(ng)%tclm(i,j,N(ng),15)
-            ENDDO
-          ENDDO
-#     endif          
 #   endif
-
+#   if defined BEST_NPZ
+#    if defined ICE_BIO && defined CLIM_ICE_1D
+      CALL set_3dfld_tile (ng, tile, iNLM, idTclm(i1CI),                &
+     &                       LBi, UBi, LBj, UBj, 1, N(ng),              &
+     &                       CLIMA(ng)%tclmG(:,:,:,:,i1CI),             &
+     &                       CLIMA(ng)%tclm(:,:,:,i1CI),                &
+     &                       update)
+      DO j=Jstr,Jend
+        DO i=Istr,Iend
+          OCEAN(ng)%it(i,j,nnew(ng),iIceZ) =                            &
+     &                  CLIMA(ng)%tclm(i,j,N(ng),i1CI)
+        END DO
+      END DO
+#    endif
+#   endif
 
 #   if defined IRON_LIMIT
         CALL set_3dfld_tile (ng, tile, iNLM, idTclm(iFe),               &
@@ -1692,8 +1715,7 @@
      &                       CLIMA(ng)%tclm (:,:,:,iFe),                &
      &                       update)
 #   endif
-#  endif
- 
+
 #   if defined BIO_GOANPZ && defined IRON_LIMIT
         CALL set_3dfld_tile (ng, tile, iNLM, idTclm(iFe),               &
      &                       LBi, UBi, LBj, UBj, 1, N(ng),              &
@@ -1702,8 +1724,7 @@
      &                       update)
 #   endif
 
-
-#  endif
+#  endif  /* ! BERING_10K */
 #  if defined OFFLINE_FLOATS || defined OFFLINE_BIOLOGY
       DO itrc=1,NAT
         DO k=1,N(ng)

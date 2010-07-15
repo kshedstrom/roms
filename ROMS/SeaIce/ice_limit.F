@@ -32,6 +32,12 @@
      &                     LBi, UBi, LBj, UBj,                          &
      &                     IminS, ImaxS, JminS, JmaxS,                  &
      &                     liold(ng), linew(ng),                        &
+# if defined ICE_BIO && defined BERING_10K
+     &                     ICE(ng) % IcePhL,                            &
+     &                     ICE(ng) % IceNO3,                            &
+     &                     ICE(ng) % IceNH4,                            &
+     &                     ICE(ng) % IceLog,                            &
+# endif 
      &                     ICE(ng) % ui,                                &
      &                     ICE(ng) % vi,                                &
      &                     ICE(ng) % ai,                                &
@@ -50,6 +56,10 @@
      &                        LBi, UBi, LBj, UBj,                       &
      &                        IminS, ImaxS, JminS, JmaxS,               &
      &                        liold, linew,                             &
+# if defined ICE_BIO && defined BERING_10K
+     &                        IcePhL,IceNO3,IceNH4,IceLog,              &
+# endif
+
      &                        ui, vi, ai, hi, hsn, ti, enthalpi, sfwat)
 !***********************************************************************
 !
@@ -61,13 +71,18 @@
       USE hsnbc_mod, ONLY : hsnbc_tile
       USE tibc_mod, ONLY : tibc_tile
       USE sfwatbc_mod, ONLY : sfwatbc_tile
+# if defined ICE_BIO && defined BERING_10K
+      USE IcePhLbc_mod, ONLY : IcePhLbc_tile
+      USE IceNO3bc_mod, ONLY : IceNO3bc_tile
+      USE IceNH4bc_mod, ONLY : IceNH4bc_tile
+# endif
 !
-#if defined EW_PERIODIC || defined NS_PERIODIC
+# if defined EW_PERIODIC || defined NS_PERIODIC
       USE exchange_2d_mod, ONLY : exchange_r2d_tile
-#endif
-#ifdef DISTRIBUTE
+# endif
+# ifdef DISTRIBUTE
       USE mp_exchange_mod, ONLY : mp_exchange2d
-#endif
+# endif
 !
       implicit none
 !
@@ -79,6 +94,12 @@
       integer, intent(inout) :: liold, linew
 
 # ifdef ASSUMED_SHAPE
+#  if defined ICE_BIO && defined BERING_10K
+      real(r8), intent(inout) :: IcePhL(LBi:,LBj:,:)
+      real(r8), intent(inout) :: IceNO3(LBi:,LBj:,:)
+      real(r8), intent(inout) :: IceNH4(LBi:,LBj:,:)
+      integer, intent(inout) :: IceLog(LBi:,LBj:,:)
+#  endif
       real(r8), intent(in)    :: ui(LBi:,LBj:,:)
       real(r8), intent(in)    :: vi(LBi:,LBj:,:)
       real(r8), intent(inout) :: ai(LBi:,LBj:,:)
@@ -88,6 +109,12 @@
       real(r8), intent(inout) :: enthalpi(LBi:,LBj:,:)
       real(r8), intent(inout) :: sfwat(LBi:,LBj:,:)
 # else
+# if defined ICE_BIO && defined BERING_10K
+      real(r8), intent(inout) :: IcePhL(LBi:UBi,LBj:UBj,2)
+      real(r8), intent(inout) :: IceNO3(LBi:UBi,LBj:UBj,2)
+      real(r8), intent(inout) :: IceNH4(LBi:UBi,LBj:UBj,2)
+      integer, intent(inout) :: IceLog(LBi:UBi,LBj:UBj,2)
+#  endif
       real(r8), intent(in)    :: ui(LBi:UBi,LBj:UBj,2)
       real(r8), intent(in)    :: vi(LBi:UBi,LBj:UBj,2)
       real(r8), intent(inout) :: ai(LBi:UBi,LBj:UBj,2)
@@ -133,6 +160,22 @@
           END IF
         END DO
       END DO
+
+# if defined ICE_BIO && defined BERING_10K
+      DO j=Jstr,Jend
+        DO i=Istr,Iend
+          IcePhL(i,j,linew) = MAX(IcePhL(i,j,linew),0.0_r8)
+          IceNO3(i,j,linew) = MAX(IceNO3(i,j,linew),0.0_r8)
+          IceNH4(i,j,linew) = MAX(IceNH4(i,j,linew),0.0_r8)
+        
+          IF (hi(i,j,linew).le. 0.02.or.ai(i,j,linew).le.0.5) THEN
+            IceLog(i,j,linew) = -1
+          ELSE 
+            IceLog(i,j,linew) = 1  !min(IceLog(i,j,linew),1)
+          END IF
+        END DO
+      END DO
+# endif
 !
       CALL aibc_tile (ng, tile,                                         &
      &                LBi, UBi, LBj, UBj,                               &
@@ -154,6 +197,20 @@
      &                LBi, UBi, LBj, UBj,                               &
      &                liold, linew,                                     &
      &                ui, vi, sfwat)
+# if defined ICE_BIO && defined BERING_10K
+      CALL IcePhLbc_tile (ng, tile,                                     &
+     &                LBi, UBi, LBj, UBj,                               &
+     &                liold, linew,                                     &
+     &                ui, vi, IcePhL)
+      CALL IceNO3bc_tile (ng, tile,                                     &
+     &                LBi, UBi, LBj, UBj,                               &
+     &                liold, linew,                                     &
+     &                ui, vi, IceNO3)
+      CALL IceNH4bc_tile (ng, tile,                                     &
+     &                LBi, UBi, LBj, UBj,                               &
+     &                liold, linew,                                     &
+     &                ui, vi, IceNH4)
+# endif
 
 #if defined EW_PERIODIC || defined NS_PERIODIC
 
@@ -172,6 +229,20 @@
       CALL exchange_r2d_tile (ng, tile,                                 &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          sfwat(:,:,linew))
+# if defined ICE_BIO && defined BERING_10K
+      CALL exchange_r2d_tile (ng, tile,                                 &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          IcePhL(:,:,linew))
+      CALL exchange_r2d_tile (ng, tile,                                 &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          IceNO3(:,:,linew))
+      CALL exchange_r2d_tile (ng, tile,                                 &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          IceNH4(:,:,linew))
+      CALL exchange_r2d_tile (ng, tile,                                 &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          IceLog(:,:,linew))
+# endif
 #endif
 # ifdef DISTRIBUTE
       CALL mp_exchange2d (ng, tile, iNLM, 4,                            &
@@ -183,6 +254,17 @@
      &                    LBi, UBi, LBj, UBj,                           &
      &                    NghostPoints, EWperiodic, NSperiodic,         &
      &                    sfwat(:,:,linew))
+#  if defined ICE_BIO && defined BERING_10K
+      CALL mp_exchange2d (ng, tile, iNLM, 3,                            &
+     &                    LBi, UBi, LBj, UBj,                           &
+     &                    NghostPoints, EWperiodic, NSperiodic,         &
+     &                    IcePhL(:,:,linew), IceNO3(:,:,linew),         &
+     &                    IceNH4(:,:,linew))
+      CALL mp_exchange2d (ng, tile, iNLM, 1,                            &
+     &                    LBi, UBi, LBj, UBj,                           &
+     &                    NghostPoints, EWperiodic, NSperiodic,         &
+     &                    IceLog(:,:,linew))
+#  endif
 # endif
       RETURN
       END SUBROUTINE ice_limit_tile

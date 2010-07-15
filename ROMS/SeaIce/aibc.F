@@ -92,27 +92,27 @@
 !  Western edge, clamped boundary condition.
 !
         DO j=Jstr,Jend
-          IF(ui(1,j,linew).ge.0._r8) THEN
-             ai(0,j,linew)=BOUNDARY(ng)%ai_west(j)
+          IF (ui(1,j,linew).ge.0._r8) THEN
+            ai(0,j,linew)=BOUNDARY(ng)%ai_west(j)
 #  ifdef MASKING
-          ai(0,j,linew)=ai(0,j,linew)*                               &
+            ai(0,j,linew)=ai(0,j,linew)*                                &
      &                   GRID(ng)%rmask(0,j)
 #  endif
 #  ifdef WET_DRY
-          ai(0,j,linew)=ai(0,j,linew)*                               &
+            ai(0,j,linew)=ai(0,j,linew)*                                &
      &                   GRID(ng)%rmask_wet(0,j)
 #  endif
           ELSE
              ai(0,j,linew)=ai(1,j,liold)
 #  ifdef MASKING
-             ai(0,j,linew)=ai(0,j,linew)*                            &
+             ai(0,j,linew)=ai(0,j,linew)*                               &
      &                   GRID(ng)%rmask(0,j)
 #  endif
 #  ifdef WET_DRY
-             ai(0,j,linew)=ai(0,j,linew)*                            &
+             ai(0,j,linew)=ai(0,j,linew)*                               &
      &                   GRID(ng)%rmask_wet(0,j)
 #  endif
-          ENDIF
+          END IF
         END DO
 # elif defined WEST_AIGRADIENT
 !
@@ -158,7 +158,7 @@
 !  Eastern edge, clamped boundary condition.
 !
         DO j=Jstr,Jend
-          IF(ui(Lm(ng)+1,j,linew).le.0._r8) THEN
+          IF (ui(Lm(ng)+1,j,linew).le.0._r8) THEN
              ai(Lm(ng)+1,j,linew)=BOUNDARY(ng)%ai_east(j)
 #  ifdef MASKING
              ai(Lm(ng)+1,j,linew)=ai(Lm(ng)+1,j,linew)*                 &
@@ -178,7 +178,7 @@
              ai(Lm(ng)+1,j,linew)=ai(Lm(ng)+1,j,linew)*                 &
      &                          GRID(ng)%rmask_wet(Lm(ng)+1,j)
 #  endif
-          ENDIF
+          END IF
         END DO
 # elif defined EAST_AIGRADIENT
 !
@@ -226,14 +226,14 @@
 !  Southern edge, clamped boundary condition.
 !
         DO i=Istr,Iend
-          IF(vi(i,1,linew).ge.0._r8) THEN
+          IF (vi(i,1,linew).ge.0._r8) THEN
              ai(i,0,linew)=BOUNDARY(ng)%ai_south(i)
 #  ifdef MASKING
-             ai(i,0,linew)=ai(i,0,linew)*                                  &
+             ai(i,0,linew)=ai(i,0,linew)*                               &
      &                   GRID(ng)%rmask(i,0)
 #  endif
 #  ifdef WET_DRY
-             ai(i,0,linew)=ai(i,0,linew)*                                  &
+             ai(i,0,linew)=ai(i,0,linew)*                               &
      &                   GRID(ng)%rmask_wet(i,0)
 #  endif
           ELSE
@@ -246,7 +246,7 @@
           ai(i,0,linew)=ai(i,0,linew)*                                  &
      &                   GRID(ng)%rmask_wet(i,0)
 #  endif
-          ENDIF
+          END IF
         END DO
 # elif defined SOUTH_AIGRADIENT
 !
@@ -292,7 +292,7 @@
 !  Northern edge, clamped boundary condition.
 !
         DO i=Istr,Iend
-          IF(vi(i,Mm(ng)+1,linew).le.0._r8) THEN
+          IF (vi(i,Mm(ng)+1,linew).le.0._r8) THEN
              ai(i,Mm(ng)+1,linew)=BOUNDARY(ng)%ai_north(i)
 #  ifdef MASKING
              ai(i,Mm(ng)+1,linew)=ai(i,Mm(ng)+1,linew)*                 &
@@ -312,7 +312,7 @@
           ai(i,Mm(ng)+1,linew)=ai(i,Mm(ng)+1,linew)*                    &
      &                          GRID(ng)%rmask_wet(i,Mm(ng)+1)
 #  endif
-          ENDIF
+          END IF
         END DO
 # elif defined NORTH_AIGRADIENT
 !

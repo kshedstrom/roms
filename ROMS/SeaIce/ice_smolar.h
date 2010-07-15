@@ -58,6 +58,11 @@
       USE tibc_mod, ONLY : tibc_tile
       USE sfwatbc_mod, ONLY : sfwatbc_tile
       USE ageicebc_mod, ONLY : ageicebc_tile
+# if defined ICE_BIO && defined BERING_10K
+      USE IcePhLbc_mod, ONLY : IcePhLbc_tile
+      USE IceNO3bc_mod, ONLY : IceNO3bc_tile
+      USE IceNH4bc_mod, ONLY : IceNH4bc_tile
+#endif
 !
       implicit none
 !
@@ -187,6 +192,118 @@
      &                          ICE(ng)%ui,                             &
      &                          ICE(ng)%vi,                             &
      &                          ICE(ng)%hsn)
+# if defined ICE_BIO && defined BERING_10K
+!  ---------------------------------------------------------------------
+!  Advect the icePhL
+!  ---------------------------------------------------------------------
+       
+      CALL ice_advect_tile (ng, tile,                                   &
+     &                      LBi, UBi, LBj, UBj,                         &
+     &                      IminS, ImaxS, JminS, JmaxS,                 &
+     &                      nrhs(ng), linew(ng), liold(ng), liunw(ng),  &
+# ifdef MASKING
+     &                      GRID(ng) % rmask,                           &
+# endif
+# ifdef WET_DRY
+     &                      GRID(ng) % rmask_wet,                       &
+# endif
+# ifdef ICESHELF
+     &                      GRID(ng) % zice,                            &
+# endif
+#ifndef ICE_UPWIND
+     &                      GRID(ng) % pm,                              &
+     &                      GRID(ng) % pn,                              &
+#endif
+     &                      GRID(ng) % on_u,                            &
+     &                      GRID(ng) % om_v,                            &
+     &                      GRID(ng) % omn,                             &
+     &                      ICE(ng) % ui,                               &
+     &                      ICE(ng) % vi,                               &
+     &                      ICE(ng) % IcePhL                            &
+     &                      )
+!
+        CALL IcePhLbc_tile (ng, tile,                                   &
+    &                          LBi, UBi, LBj, UBj,                      &
+     &                          liold(ng), linew(ng),                   &
+     &                          ICE(ng)%ui,                             &
+     &                          ICE(ng)%vi,                             &
+     &                          ICE(ng)%IcePhL)
+
+!  ---------------------------------------------------------------------
+!  Advect the iceNH4
+!  ---------------------------------------------------------------------
+
+      CALL ice_advect_tile (ng, tile,                                   &
+     &                      LBi, UBi, LBj, UBj,                         &
+     &                      IminS, ImaxS, JminS, JmaxS,                 &
+     &                      nrhs(ng), linew(ng), liold(ng), liunw(ng),  &
+# ifdef MASKING
+     &                      GRID(ng) % rmask,                           &
+# endif
+# ifdef WET_DRY
+     &                      GRID(ng) % rmask_wet,                       &
+# endif
+# ifdef ICESHELF
+     &                      GRID(ng) % zice,                            &
+# endif
+#ifndef ICE_UPWIND
+     &                      GRID(ng) % pm,                              &
+     &                      GRID(ng) % pn,                              &
+#endif
+     &                      GRID(ng) % on_u,                            &
+     &                      GRID(ng) % om_v,                            &
+     &                      GRID(ng) % omn,                             &
+     &                      ICE(ng) % ui,                               &
+     &                      ICE(ng) % vi,                               &
+     &                      ICE(ng) % IceNH4                            &
+     &                      )
+!
+        CALL IceNH4bc_tile (ng, tile,                                   &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          liold(ng), linew(ng),                   &
+     &                          ICE(ng)%ui,                             &
+     &                          ICE(ng)%vi,                             &
+     &                          ICE(ng)%IceNH4)
+!
+
+!
+!  ---------------------------------------------------------------------
+!  Advect the iceNO3.
+!  ---------------------------------------------------------------------
+
+      CALL ice_advect_tile (ng, tile,                                   &
+     &                      LBi, UBi, LBj, UBj,                         &
+     &                      IminS, ImaxS, JminS, JmaxS,                 &
+     &                      nrhs(ng), linew(ng), liold(ng), liunw(ng),  &
+# ifdef MASKING
+     &                      GRID(ng) % rmask,                           &
+# endif
+# ifdef WET_DRY
+     &                      GRID(ng) % rmask_wet,                       &
+# endif
+# ifdef ICESHELF
+     &                      GRID(ng) % zice,                            &
+# endif
+#ifndef ICE_UPWIND
+     &                      GRID(ng) % pm,                              &
+     &                      GRID(ng) % pn,                              &
+#endif
+     &                      GRID(ng) % on_u,                            &
+     &                      GRID(ng) % om_v,                            &
+     &                      GRID(ng) % omn,                             &
+     &                      ICE(ng) % ui,                               &
+     &                      ICE(ng) % vi,                               &
+     &                      ICE(ng) % IceNO3                            &
+     &                      )
+!
+        CALL IceNO3bc_tile (ng, tile,                                   &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          liold(ng), linew(ng),                   &
+     &                          ICE(ng)%ui,                             &
+     &                          ICE(ng)%vi,                             &
+     &                          ICE(ng)%IceNO3)
+!
+# endif
 !
 ! ---------------------------------------------------------------------
 !  Advect the surface melt water.
@@ -324,7 +441,7 @@
         ENDDO
       ENDDO
 !
-        CALL ageicebc_tile (ng, tile,                                   &
+      CALL ageicebc_tile (ng, tile,                                     &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          liold(ng), linew(ng), min_h(ng),        &
      &                          ICE(ng)%ui,                             &
@@ -334,46 +451,65 @@
      &                          ICE(ng)%hage)
 !
 # if defined EW_PERIODIC || defined NS_PERIODIC
-        CALL exchange_r2d_tile (ng, tile,                               &
+      CALL exchange_r2d_tile (ng, tile,                                 &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          ICE(ng)%ai(:,:,linew(ng)))
-        CALL exchange_r2d_tile (ng, tile,                               &
+      CALL exchange_r2d_tile (ng, tile,                                 &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          ICE(ng)%hi(:,:,linew(ng)))
-        CALL exchange_r2d_tile (ng, tile,                               &
+      CALL exchange_r2d_tile (ng, tile,                                 &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          ICE(ng)%hsn(:,:,linew(ng)))
-        CALL exchange_r2d_tile (ng, tile,                               &
+      CALL exchange_r2d_tile (ng, tile,                                 &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          ICE(ng)%sfwat(:,:,linew(ng)))
-        CALL exchange_r2d_tile (ng, tile,                               &
+      CALL exchange_r2d_tile (ng, tile,                                 &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          ICE(ng)%ti(:,:,linew(ng)))
-        CALL exchange_r2d_tile (ng, tile,                               &
+      CALL exchange_r2d_tile (ng, tile,                                 &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          ICE(ng)%enthalpi(:,:,linew(ng)))
-        CALL exchange_r2d_tile (ng, tile,                               &
+      CALL exchange_r2d_tile (ng, tile,                                 &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          ICE(ng)%ageice(:,:,linew(ng)))
-        CALL exchange_r2d_tile (ng, tile,                               &
+      CALL exchange_r2d_tile (ng, tile,                                 &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          ICE(ng)%hage(:,:,linew(ng)))
+#  if defined ICE_BIO && defined BERING_10K
+      CALL exchange_r2d_tile (ng, tile,                                 &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          ICE(ng)%IcePhL(:,:,linew(ng)))
+      CALL exchange_r2d_tile (ng, tile,                                 &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          ICE(ng)%IceNO3(:,:,linew(ng)))
+      CALL exchange_r2d_tile (ng, tile,                                 &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          ICE(ng)%IceNH4(:,:,linew(ng)))
+#  endif
 # endif
 # ifdef DISTRIBUTE
-        CALL mp_exchange2d (ng, tile, iNLM, 4,                          &
+      CALL mp_exchange2d (ng, tile, iNLM, 4,                            &
      &                      LBi, UBi, LBj, UBj,                         &
      &                      NghostPoints, EWperiodic, NSperiodic,       &
      &                      ICE(ng)%ai(:,:,linew(ng)),                  &
      &                      ICE(ng)%hi(:,:,linew(ng)),                  &
      &                      ICE(ng)%hsn(:,:,linew(ng)),                 &
      &                      ICE(ng)%sfwat(:,:,linew(ng)))
-        CALL mp_exchange2d (ng, tile, iNLM, 4,                          &
+      CALL mp_exchange2d (ng, tile, iNLM, 4,                            &
      &                      LBi, UBi, LBj, UBj,                         &
      &                      NghostPoints, EWperiodic, NSperiodic,       &
      &                      ICE(ng)%ti(:,:,linew(ng)),                  &
      &                      ICE(ng)%enthalpi(:,:,linew(ng)),            &
      &                      ICE(ng)%ageice(:,:,linew(ng)),              &
      &                      ICE(ng)%hage(:,:,linew(ng)))
+#  if defined ICE_BIO && defined BERING_10K
+        CALL mp_exchange2d (ng, tile, iNLM, 3,                          &
+     &                      LBi, UBi, LBj, UBj,                         &
+     &                      NghostPoints, EWperiodic, NSperiodic,       &
+     &                      ICE(ng)%IcePhL(:,:,linew(ng)),              &
+     &                      ICE(ng)%IceNO3(:,:,linew(ng)),              &
+     &                      ICE(ng)%IceNH4(:,:,linew(ng)))
+#  endif
 # endif
 #endif
       RETURN
@@ -619,27 +755,27 @@
 !
 #ifdef FOO
 #ifdef MASKING
-      do j=J_RANGE
-      do i=I_RANGE
-        aif(i,j)=aif(i,j)*rmask(i,j)
-      enddo
-      enddo
+      DO j=J_RANGE
+        DO i=I_RANGE
+          aif(i,j)=aif(i,j)*rmask(i,j)
+        END DO
+      END DO
 #endif
 #ifdef WET_DRY
-      do j=J_RANGE
-      do i=I_RANGE
-        aif(i,j)=aif(i,j)*rmask_wet(i,j)
-      enddo
-      enddo
+      DO j=J_RANGE
+        DO i=I_RANGE
+          aif(i,j)=aif(i,j)*rmask_wet(i,j)
+        END DO
+      END DO
 #endif
 #ifdef ICESHELF
-      do j=J_RANGE
-      do i=I_RANGE
-         IF (zice(i,j).ne.0.0_r8) THEN
+      DO j=J_RANGE
+        DO i=I_RANGE
+          IF (zice(i,j).ne.0.0_r8) THEN
             aif(i,j) = 0.0_r8
-         ENDIF
-      enddo
-      enddo
+          END IF
+        END DO
+      END DO
 #endif
 #endif
 

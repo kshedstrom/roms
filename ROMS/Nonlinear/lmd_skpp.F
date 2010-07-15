@@ -50,6 +50,7 @@
       USE mod_mixing
       USE mod_ocean
       USE mod_stepping
+      USE mod_clima
 !
 !  Imported variable declarations.
 !
@@ -89,6 +90,9 @@
 # endif
      &                    MIXING(ng) % Akt,                             &
      &                    MIXING(ng) % Akv,                             &
+#ifdef AKT_3D
+     &                    CLIMA(ng) % tclm,                             &
+#endif
      &                    MIXING(ng) % hsbl,                            &
      &                    MIXING(ng) % ksbl)
       RETURN
@@ -114,7 +118,11 @@
 # ifdef LMD_NONLOCAL
      &                          ghats,                                  &
 # endif
-     &                          Akt, Akv, hsbl, ksbl)
+     &                          Akt, Akv,                               &
+#ifdef AKT_3D
+     &                          tclm,                                   &
+#endif
+     &                          hsbl, ksbl)
 !***********************************************************************
 !
       USE mod_param
@@ -159,6 +167,9 @@
       real(r8), intent(in) :: bvf(LBi:,LBj:,0:)
       real(r8), intent(inout) :: Akt(LBi:,LBj:,0:,:)
       real(r8), intent(inout) :: Akv(LBi:,LBj:,0:)
+#ifdef AKT_3D
+      real(r8), intent(in) :: tclm(LBi:,LBj:,:,:)
+# endif
       real(r8), intent(inout) :: hsbl(LBi:,LBj:)
       integer,  intent(out) :: ksbl(LBi:,LBj:)
 #  ifdef LMD_NONLOCAL
@@ -188,6 +199,9 @@
       real(r8), intent(in) :: bvf(LBi:UBi,LBj:UBj,0:N(ng))
       real(r8), intent(inout) :: Akt(LBi:UBi,LBj:UBj,0:N(ng),NAT)
       real(r8), intent(inout) :: Akv(LBi:UBi,LBj:UBj,0:N(ng))
+#ifdef AKT_3D
+      real(r8), intent(in) :: tclm(LBi:UBi,LBj:UBj,N(ng),NT(ng)+2)
+# endif
       real(r8), intent(inout) :: hsbl(LBi:UBi,LBj:UBj)
       integer,  intent(out) :: ksbl(LBi:UBi,LBj:UBj)
 #  ifdef LMD_NONLOCAL
@@ -1021,6 +1035,17 @@
           END DO
         END DO
       END DO
+#ifdef AKT_3D
+      DO itrc=1,2
+        DO j=Jstr-2,Jend+2
+          DO k=1,N(ng)
+            DO i=Istr-2,Iend+2
+              Akt(i,j,k,itrc)=tclm(i,j,k,iAKt3)
+            END DO
+          END DO
+        END DO
+      END DO
+#endif
 
       RETURN
       END SUBROUTINE lmd_skpp_tile

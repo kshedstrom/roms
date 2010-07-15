@@ -970,7 +970,7 @@
             Vinfo( 3)=Vname(3,idPT3var(itrc))
             Vinfo(14)=Vname(4,idPT3var(itrc))
             Vinfo(16)=Vname(1,idtime)
-         status=def_var(ng,iNLM,ncHISid(ng),hisPT3id(itrc,ng),NF_FOUT,&
+         status=def_var(ng,iNLM,ncHISid(ng),hisPT3id(itrc,ng),NF_FOUT,  &
      &                     nvd4,t3dgrd,Aval,Vinfo,ncname)
           END IF
         END DO
@@ -996,56 +996,120 @@
 !------------------------------------------
 !  Define benthic tracer type variables.
 !------------------------------------------   
-         DO itrc=1,NBeT(ng)
+        DO itrc=1,NBeT(ng)
           hisBid(itrc,ng) = 0
  
           IF (Hout(idBvar(itrc),ng)) THEN
 
-          Vinfo( 1)=Vname(1,idBvar(itrc))
-          Vinfo( 2)=Vname(2,idBvar(itrc))
-          Vinfo(3)=Vname(3,idBvar(itrc))
-          Vinfo(14)=Vname(4,idBvar(itrc))
-          Vinfo(16)=Vname(1,idtime)
-          Vinfo(22)='coordinates'
-          Aval(5)=REAL(r2dvar,r8)
-          status=def_var(ng,iNLM,ncHISid(ng),hisBid(itrc,ng),NF_FOUT,    &
+            Vinfo( 1)=Vname(1,idBvar(itrc))
+            Vinfo( 2)=Vname(2,idBvar(itrc))
+            Vinfo(3)=Vname(3,idBvar(itrc))
+            Vinfo(14)=Vname(4,idBvar(itrc))
+            Vinfo(16)=Vname(1,idtime)
+            Vinfo(22)='coordinates'
+            Aval(5)=REAL(r2dvar,r8)
+            status=def_var(ng,iNLM,ncHISid(ng),hisBid(itrc,ng),NF_FOUT, &
      &                     nvd3,t2dgrd,Aval,Vinfo,ncname)
 
 !Will need to switch this if have more than one depth level for benthos 
 !         status=def_var(ncHISid(ng),hisBid(itrc,ng),NF_FOUT,            &
 !    &                     nvd4,t3dgrd,Aval,Vinfo,ncname)
-               END IF
-            END DO
+          END IF
+        END DO
 #  endif
 !------------------------------------------
 !  Define ice bio tracer type variables.
 !------------------------------------------  
 #  if defined ICE_BIO
+#   ifdef CLIM_ICE_1D
 
-         DO itrc=1,NIceT(ng)
+        DO itrc=1,NIceT(ng)
 !         hisIceBid(itrc,ng) = 0
 
           IF (Hout(idIceBvar(itrc),ng)) THEN
 
-          Vinfo( 1)=Vname(1,idIceBvar(itrc))
-          Vinfo( 2)=Vname(2,idIceBvar(itrc))
-          Vinfo(3)=Vname(3,idIceBvar(itrc))
-          Vinfo(14)=Vname(4,idIceBvar(itrc))
-          Vinfo(16)=Vname(1,idtime)
-          Vinfo(22)='coordinates'
-          Aval(5)=REAL(r2dvar,r8)  
-          status=def_var(ng,iNLM,ncHISid(ng),hisIceBid(itrc,ng),NF_FOUT,            &
-     &                     nvd3,t2dgrd,Aval,Vinfo,ncname)
+            Vinfo( 1)=Vname(1,idIceBvar(itrc))
+            Vinfo( 2)=Vname(2,idIceBvar(itrc))
+            Vinfo(3)=Vname(3,idIceBvar(itrc))
+            Vinfo(14)=Vname(4,idIceBvar(itrc))
+            Vinfo(16)=Vname(1,idtime)
+            Vinfo(22)='coordinates'
+            Aval(5)=REAL(r2dvar,r8)  
+            status=def_var(ng,iNLM,ncHISid(ng),hisIceBid(itrc,ng),      &
+     &                    NF_FOUT, nvd3,t2dgrd,Aval,Vinfo,ncname)
 
 !Will need to switch this if have more than one depth level for benthos
 !         status=def_var(ncHISid(ng),hisBid(itrc,ng),NF_FOUT,            &
 !    &                     nvd4,t3dgrd,Aval,Vinfo,ncname)
-               END IF
-            END DO
+          END IF
+        END DO
+#  else
+!
+!  Define Ice Algae.
+!
+        IF (Hout(idIcePhL,ng)) THEN
+          Vinfo( 1)=Vname(1,idIcePhL)
+          Vinfo( 2)=Vname(2,idIcePhL)
+          Vinfo( 3)=Vname(3,idIcePhL)
+          Vinfo(14)=Vname(4,idIcePhL)
+          Vinfo(16)=Vname(1,idtime)
+#if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_rho'
+#endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idIcePhL,ng),r8)
+          status=def_var(ng, iNLM, ncHISid(ng), hisVid(idIcePhL,ng),    &
+     &                     NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+       IF (Hout(idIceNO3,ng)) THEN
+          Vinfo( 1)=Vname(1,idIceNO3)
+          Vinfo( 2)=Vname(2,idIceNO3)
+          Vinfo( 3)=Vname(3,idIceNO3)
+          Vinfo(14)=Vname(4,idIceNO3)
+          Vinfo(16)=Vname(1,idtime)
+#if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_rho'
+#endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idIceNO3,ng),r8)
+          status=def_var(ng, iNLM, ncHISid(ng), hisVid(idIceNO3,ng),    &
+     &                     NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+       IF (Hout(idIceNH4,ng)) THEN
+          Vinfo( 1)=Vname(1,idIceNH4)
+          Vinfo( 2)=Vname(2,idIceNH4)
+          Vinfo( 3)=Vname(3,idIceNH4)
+          Vinfo(14)=Vname(4,idIceNH4)
+          Vinfo(16)=Vname(1,idtime)
+#if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_rho'
+#endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idIceNH4,ng),r8)
+          status=def_var(ng, iNLM, ncHISid(ng), hisVid(idIceNH4,ng),    &
+     &                     NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+       IF (Hout(idIceLog,ng)) THEN
+          Vinfo( 1)=Vname(1,idIceLog)
+          Vinfo( 2)=Vname(2,idIceLog)
+          Vinfo( 3)=Vname(3,idIceLog)
+          Vinfo(14)=Vname(4,idIceLog)
+          Vinfo(16)=Vname(1,idtime)
+#if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_rho'
+#endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idIceLog,ng),r8)
+          status=def_var(ng, iNLM, ncHISid(ng), hisVid(idIceLog,ng),    &
+     &                     NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+#   endif
 #  endif
-
 # endif
-
 
 # if defined BIO_GOANPZ
 !------------------------------------------
@@ -3116,6 +3180,20 @@
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idHsno))) THEN
             got_var(idHsno)=.true.
             hisVid(idHsno,ng)=var_id(i)
+# if defined ICE_BIO
+         ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idIcePhL))) THEN
+            got_var(idIcePhL)=.true.
+            hisVid(idIcePhL,ng)=var_id(i)
+         ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idIceNO3))) THEN
+            got_var(idIceNO3)=.true.
+            hisVid(idIceNO3,ng)=var_id(i)
+         ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idIceNH4))) THEN
+            got_var(idIceNH4)=.true.
+            hisVid(idIceNH4,ng)=var_id(i)
+         ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idIceLog))) THEN
+            got_var(idIceLog)=.true.
+            hisVid(idIceLog,ng)=var_id(i)
+# endif
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idSfwat))) THEN
             got_var(idSfwat)=.true.
             hisVid(idSfwat,ng)=var_id(i)
@@ -3699,6 +3777,14 @@
           exit_flag=3
           RETURN
         END IF
+# if defined ICE_BIO
+        IF (.not.got_var(idIcePhL).and.Hout(idIcePhL,ng)) THEN
+          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idIcePhL)),        &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF            
+# endif
         IF (.not.got_var(idSfwat).and.Hout(idSfwat,ng)) THEN
           IF (Master) WRITE (stdout,60) TRIM(Vname(1,idSfwat)),         &
      &                                  TRIM(ncname)
@@ -3795,7 +3881,7 @@
           exit_flag=3
           RETURN
         END IF
-# endif
+#endif
 #if defined NEARSHORE_MELLOR
         IF (.not.got_var(idW2xx).and.Hout(idW2xx,ng)) THEN
           IF (Master) WRITE (stdout,60) TRIM(Vname(1,idW2xx)),          &

@@ -17,30 +17,37 @@
       USE mod_ice
       USE mod_forces
       USE mod_stepping
+#ifdef ICE_SHOREFAST
+      USE mod_coupling
+#endif
 
       implicit none
 
       integer, intent(in) :: ng, tile
 
-# include "tile.h"
+#include "tile.h"
 
-# ifdef PROFILE
+#ifdef PROFILE
       CALL wclock_on (ng, iNLM, 44)
-# endif
+#endif
 
       CALL ice_thermo_tile (ng, tile,                                   &
      &                      LBi, UBi, LBj, UBj,                         &
      &                      IminS, ImaxS, JminS, JmaxS,                 &
      &                      nrhs(ng), liold(ng), linew(ng),             &
-# ifdef MASKING
+#ifdef MASKING
      &                      GRID(ng) % rmask,                           &
-# endif
-# ifdef WET_DRY
+#endif
+#ifdef WET_DRY
      &                      GRID(ng) % rmask_wet,                       &
-# endif
-# ifdef ICESHELF
+#endif
+#ifdef ICESHELF
      &                      GRID(ng) % zice,                            &
-# endif
+#endif
+#ifdef ICE_SHOREFAST
+     &                      GRID(ng) % h,                               &
+     &                      COUPLING(ng) % Zt_avg1,                     &
+#endif
      &                      GRID(ng) % z_r,                             &
      &                      GRID(ng) % z_w,                             &
      &                      GRID(ng) % pm,                              &
@@ -67,6 +74,11 @@
      &                      ICE(ng) % s0mk,                             &
      &                      ICE(ng) % t0mk,                             &
      &                      ICE(ng) % io_mflux,                         &
+#if defined ICE_BIO && defined BERING_10K
+     &                      ICE(ng) % IcePhL,                           &
+     &                      ICE(ng) % IceNO3,                           &
+     &                      ICE(ng) % IceNH4,                           &
+#endif
      &                      FORCES(ng) % sustr,                         &
      &                      FORCES(ng) % svstr,                         &
      &                      FORCES(ng) % qai_n,                         &
@@ -75,9 +87,9 @@
      &                      FORCES(ng) % snow_n,                        &
      &                      FORCES(ng) % rain,                          &
      &                      FORCES(ng) % stflx)
-# ifdef PROFILE
+#ifdef PROFILE
       CALL wclock_off (ng, iNLM, 44)
-# endif
+#endif
       RETURN
       END SUBROUTINE ice_thermo
 !
@@ -86,21 +98,27 @@
      &                        LBi, UBi, LBj, UBj,                       &
      &                        IminS, ImaxS, JminS, JmaxS,               &
      &                        nrhs, liold, linew,                       &
-# ifdef MASKING
+#ifdef MASKING
      &                        rmask,                                    &
-# endif
-# ifdef WET_DRY
+#endif
+#ifdef WET_DRY
      &                        rmask_wet,                                &
-# endif
-# ifdef ICESHELF
+#endif
+#ifdef ICESHELF
      &                        zice,                                     &
-# endif
+#endif
+#ifdef ICE_SHOREFAST
+     &                        h, Zt_avg1,                               &
+#endif
      &                        z_r, z_w, pm, pn, t,                      &
      &                        wfr, wai, wao, wio, wro,                  &
      &                        ai, hi, hsn, sfwat, ageice, tis, ti,      &
      &                        enthalpi, hage,                           &
      &                        ui, vi, coef_ice_heat, rhs_ice_heat,      &
      &                        s0mk, t0mk, io_mflux,                     &
+#if defined ICE_BIO && defined BERING_10K
+     &                        IcePhL, IceNO3, IceNH4,                   &
+#endif
      &                        sustr, svstr,                             &
      &                        qai_n, qao_n,                             &
      &                        p_e_n,                                    &
@@ -208,13 +226,18 @@
       USE tibc_mod, ONLY : tibc_tile
       USE sfwatbc_mod, ONLY : sfwatbc_tile
       USE ageicebc_mod, ONLY : ageicebc_tile
+#if defined ICE_BIO && defined BERING_10K
+      USE IcePhLbc_mod, ONLY : IcePhLbc_tile
+      USE IceNO3bc_mod, ONLY : IceNO3bc_tile
+      USE IceNH4bc_mod, ONLY : IceNH4bc_tile
+#endif
 !
 #if defined EW_PERIODIC || defined NS_PERIODIC
       USE exchange_2d_mod, ONLY : exchange_r2d_tile
 #endif
-# ifdef DISTRIBUTE
+#ifdef DISTRIBUTE
       USE mp_exchange_mod, ONLY : mp_exchange2d
-# endif
+#endif
       implicit none
 
 !  Imported variable declarations.
@@ -223,16 +246,20 @@
       integer, intent(in) :: LBi, UBi, LBj, UBj
       integer, intent(in) :: IminS, ImaxS, JminS, JmaxS
       integer, intent(in) :: nrhs, liold, linew
-# ifdef ASSUMED_SHAPE
-#  ifdef MASKING
+#ifdef ASSUMED_SHAPE
+# ifdef MASKING
       real(r8), intent(in) :: rmask(LBi:,LBj:)
-#  endif
-#  ifdef WET_DRY
+# endif
+# ifdef WET_DRY
       real(r8), intent(in) :: rmask_wet(LBi:,LBj:)
-#  endif
-#  ifdef ICESHELF
+# endif
+# ifdef ICESHELF
       real(r8), intent(in) :: zice(LBi:,LBj:)
-#  endif
+# endif
+# ifdef ICE_SHOREFAST
+      real(r8), intent(in) :: h(LBi:,LBj:)
+      real(r8), intent(in) :: Zt_avg1(LBi:,LBj:)
+# endif
       real(r8), intent(in) :: z_r(LBi:,LBj:,:)
       real(r8), intent(in) :: z_w(LBi:,LBj:,0:)
       real(r8), intent(in) :: pm(LBi:,LBj:)
@@ -259,6 +286,11 @@
       real(r8), intent(inout) :: s0mk(LBi:,LBj:)
       real(r8), intent(inout) :: t0mk(LBi:,LBj:)
       real(r8), intent(out) :: io_mflux(LBi:,LBj:)
+#if defined ICE_BIO && defined BERING_10K
+      real(r8), intent(inout) :: IcePhL(LBi:,LBj:,:)
+      real(r8), intent(inout) :: IceNO3(LBi:,LBj:,:)
+      real(r8), intent(inout) :: IceNH4(LBi:,LBj:,:)
+#endif
       real(r8), intent(in) :: sustr(LBi:,LBj:)
       real(r8), intent(in) :: svstr(LBi:,LBj:)
       real(r8), intent(in) :: qai_n(LBi:,LBj:)
@@ -267,16 +299,20 @@
       real(r8), intent(in) :: snow_n(LBi:,LBj:)
       real(r8), intent(in) :: rain(LBi:,LBj:)
       real(r8), intent(out) :: stflx(LBi:,LBj:,:)
-# else
-#  ifdef MASKING
+#else
+# ifdef MASKING
       real(r8), intent(in) :: rmask(LBi:UBi,LBj:UBj)
-#  endif
-#  ifdef WET_DRY
+# endif
+# ifdef WET_DRY
       real(r8), intent(in) :: rmask_wet(LBi:UBi,LBj:UBj)
-#  endif
-#  ifdef ICESHELF
+# endif
+# ifdef ICESHELF
       real(r8), intent(in) :: zice(LBi:UBi,LBj:UBj)
-#  endif
+# endif
+# ifdef ICE_SHOREFAST
+      real(r8), intent(in) :: h(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: Zt_avg1(LBi:UBi,LBj:UBj)
+# endif
       real(r8), intent(in) :: z_r(LBi:UBi,LBj:UBj,N(ng))
       real(r8), intent(in) :: z_w(LBi:UBi,LBj:UBj,0:N(ng))
       real(r8), intent(in) :: pm(LBi:UBi,LBj:UBj)
@@ -303,6 +339,11 @@
       real(r8), intent(inout) :: s0mk(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: t0mk(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: io_mflux(LBi:UBi,LBj:UBj)
+#if defined ICE_BIO && defined BERING_10K
+      real(r8), intent(inout) :: IcePhL(LBi:UBi,LBj:UBj,2)
+      real(r8), intent(inout) :: IceNO3(LBi:UBi,LBj:UBj,2)
+      real(r8), intent(inout) :: IceNH4(LBi:UBi,LBj:UBj,2)
+# endif
       real(r8), intent(in) :: sustr(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: svstr(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: qai_n(LBi:UBi,LBj:UBj)
@@ -311,22 +352,22 @@
       real(r8), intent(in) :: snow_n(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: rain(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: stflx(LBi:UBi,LBj:UBj,NT(ng))
-# endif
+#endif
 
 ! Local variable definitions
 !
-# ifdef DISTRIBUTE
-#  ifdef EW_PERIODIC
+#ifdef DISTRIBUTE
+# ifdef EW_PERIODIC
       logical :: EWperiodic=.TRUE.
-#  else
+# else
       logical :: EWperiodic=.FALSE.
-#  endif
-#  ifdef NS_PERIODIC
-      logical :: NSperiodic=.TRUE.
-#  else
-      logical :: NSperiodic=.FALSE.
-#  endif
 # endif
+# ifdef NS_PERIODIC
+      logical :: NSperiodic=.TRUE.
+# else
+      logical :: NSperiodic=.FALSE.
+# endif
+#endif
 
       integer :: i, j, it
 
@@ -402,11 +443,19 @@
       real(r8) :: d2i
       real(r8) :: d3
 
-# ifdef ICE_CONVSNOW
-      real(r8) :: hstar
-# endif
+      real(r8) :: tt0
+      real(r8) :: fac_shflx
 
-# include "set_bounds.h"
+#ifdef ICE_SHOREFAST
+      real(r8) :: hh
+      real(r8) :: clear
+      real(r8) :: fac_sf
+#endif
+#ifdef ICE_CONVSNOW
+      real(r8) :: hstar
+#endif
+
+#include "set_bounds.h"
 
       DO j=Jstr,Jend
         DO i=Istr,Iend
@@ -414,7 +463,11 @@
           salt_top(i,j)=t(i,j,N(ng),nrhs,isalt)
           salt_top(i,j) = MIN(MAX(0.0_r8,salt_top(i,j)),40.0_r8)
           dztop(i,j)=z_w(i,j,N(ng))-z_r(i,j,N(ng))
-          stflx(i,j,isalt) = stflx(i,j,isalt)*t(i,j,N(ng),nrhs,isalt)
+          stflx(i,j,isalt) = stflx(i,j,isalt)*                          &
+     &          MIN(MAX(t(i,j,N(ng),nrhs,isalt),0.0_r8),60.0_r8)
+#  if defined WET_DRY && defined CASPIAN
+          stflx(i,j,isalt) = stflx(i,j,isalt)*rmask_wet(i,j)
+#  endif
         END DO
       END DO
 
@@ -463,9 +516,7 @@
 !      alph - thermal conductivity of ice
           alph(i,j) = alphic*MAX(1._r8-1.2_r8*brnfr(i,j),0.25_r8)
           corfac = 1._r8/(0.5_r8*(1._r8+EXP(-(hi(i,j,linew)/1._r8)**2)))
-# ifndef SOGLOBEC
           alph(i,j) = alph(i,j)*corfac
-# endif
           coa(i,j) = 2.0_r8*alph(i,j)*snow_thick(i,j)/                  &
      &                   (alphsn*ice_thick(i,j))
         END DO
@@ -539,32 +590,32 @@
       DO j = Jstr,Jend
         DO i = Istr,Iend
           IF (ai(i,j,linew) .le. min_a(ng)) THEN
-# ifdef MASKING
-#  ifdef WET_DRY
+#ifdef MASKING
+# ifdef WET_DRY
             tis(i,j) = t0mk(i,j)*rmask(i,j)*rmask_wet(i,j)
             t2(i,j) = t0mk(i,j)*rmask(i,j)*rmask_wet(i,j)
             ti(i,j,linew) = -2.0_r8*rmask(i,j)*rmask_wet(i,j)
-#  else
+# else
             tis(i,j) = t0mk(i,j)*rmask(i,j)
             t2(i,j) = t0mk(i,j)*rmask(i,j)
             ti(i,j,linew) = -2.0_r8*rmask(i,j)
-#  endif
-# elif defined WET_DRY
+# endif
+#elif defined WET_DRY
             tis(i,j) = t0mk(i,j)*rmask_wet(i,j)
             t2(i,j) = t0mk(i,j)*rmask_wet(i,j)
             ti(i,j,linew) = -2.0_r8*rmask_wet(i,j)
-# else
+#else
             tis(i,j) = t0mk(i,j)
             t2(i,j) = t0mk(i,j)
             ti(i,j,linew) = -2.0_r8
-# endif
-# ifdef ICESHELF
+#endif
+#ifdef ICESHELF
             IF (zice(i,j).ne.0.0_r8) THEN
               tis(i,j) = 0.0_r8
               t2(i,j) = 0.0_r8
               ti(i,j,linew) = 0.0_r8
             END IF
-# endif
+#endif
             qi2(i,j) = 0._r8
             qai(i,j) = 0._r8
             qio(i,j) = 0._r8
@@ -704,29 +755,67 @@
           END IF
 
           w0(i,j) = xtot-ai(i,j,linew)*wai(i,j)
-# ifdef ICESHELF
+#ifdef CASPIAN_XXX
+          hh = h(i,j)+Zt_avg1(i,j)
+          IF (hh.LT.1.0_r8) THEN
+            fac_shflx = hh
+!            fac_shflx = 0.0_r8
+          ELSE
+            fac_shflx = 1.0_r8
+          END IF
+#else
+          fac_shflx = 1.0_r8
+#endif
+#ifdef ICESHELF
 	  IF (zice(i,j).eq.0.0_r8) THEN
-# endif
+#endif
             IF(ai(i,j,linew).LE.min_a(ng)) THEN
-               stflx(i,j,itemp) = qao_n(i,j)
+               stflx(i,j,itemp) = qao_n(i,j)*fac_shflx
             ELSE
-               stflx(i,j,itemp) = (1.0_r8-ai(i,j,linew))*qao_n(i,j)     &
-     &                     +ai(i,j,linew)*qio(i,j)                      &
-     &                     -xtot*hfus1(i,j)
+#ifdef ICE_SHOREFAST
+              hh = h(i,j)+Zt_avg1(i,j)
+              clear = hh-0.9_r8*hi(i,j,liold)
+              clear = MAX(clear,0.0_r8)
+              IF (clear.lt.1.5_r8) THEN
+                fac_sf = MAX(clear-0.5_r8,0.0_r8)/1.0_r8
+              ELSE
+                fac_sf = 1.0_r8
+              END IF
+              stflx(i,j,itemp) = (1.0_r8-ai(i,j,linew))*qao_n(i,j)      &
+     &                          *fac_shflx                              &
+     &                   +(ai(i,j,linew)*qio(i,j)                       &
+     &                   -xtot*hfus1(i,j))*fac_sf
+#else
+              stflx(i,j,itemp) = (1.0_r8-ai(i,j,linew))*qao_n(i,j)      &
+     &                   +ai(i,j,linew)*qio(i,j)                        &
+     &                   -xtot*hfus1(i,j)
+#endif
+#if defined WET_DRY && defined CASPIAN
+          stflx(i,j,itemp) = stflx(i,j,itemp)*rmask_wet(i,j)
+#endif
             END IF
 
 ! Change stflx(i,j,itemp) back to ROMS convention
             stflx(i,j,itemp) = -stflx(i,j,itemp) * rhocpr
 
-# ifdef MASKING
+#ifdef MASKING
             stflx(i,j,itemp) = stflx(i,j,itemp)*rmask(i,j)
-# endif
-# ifdef WET_DRY
-            stflx(i,j,itemp) = stflx(i,j,itemp)*rmask_wet(i,j)
-# endif
+#endif
+#ifdef WET_DRY
+!            stflx(i,j,itemp) = stflx(i,j,itemp)*rmask_wet(i,j)
+#endif
+#ifdef ICE_SHOREFAST
+            stflx(i,j,isalt) = stflx(i,j,isalt) +                       &
+     &        (- (xtot-ai(i,j,linew)*xwai)*                             &
+     &          (sice-MIN(MAX(s0mk(i,j),0.0_r8),60.0_r8))               &
+     &        - ai(i,j,linew)*wro(i,j)*                                 &
+     &          MIN(MAX(s0mk(i,j),0.0_r8),60.0_r8))*fac_sf
+#else
             stflx(i,j,isalt) = stflx(i,j,isalt)                         &
      &          - (xtot-ai(i,j,linew)*xwai)*(sice-s0mk(i,j))            &
-     &          - ai(i,j,linew)*wro(i,j)*s0mk(i,j)
+     &          - ai(i,j,linew)*wro(i,j)*                               &
+     &          MIN(MAX(s0mk(i,j),0.0_r8),60.0_r8)
+#endif
 
 ! Test for case of rainfall on snow/ice and assume 100% drainage
 #ifndef NCEP_FLUXES
@@ -738,19 +827,19 @@
 !  io_mflux is ice production rate (+ve for growth)
             io_mflux(i,j) = xtot -ai(i,j,linew)*xwai -                    &
      &                            ai(i,j,linew)*wro(i,j) + wfr(i,j)
-# ifdef MASKING
+#ifdef MASKING
             stflx(i,j,isalt) = stflx(i,j,isalt)*rmask(i,j)
             io_mflux(i,j) = io_mflux(i,j)*rmask(i,j)
-# endif
-# ifdef WET_DRY
+#endif
+#ifdef WET_DRY
             stflx(i,j,isalt) = stflx(i,j,isalt)*rmask_wet(i,j)
             io_mflux(i,j) = io_mflux(i,j)*rmask_wet(i,j)
-# endif
-# ifdef ICESHELF
+#endif
+#ifdef ICESHELF
           ELSE
             io_mflux(i,j) = 0.0_r8
           END IF
-# endif
+#endif
         END DO
       END DO
 
@@ -810,8 +899,8 @@
           hi(i,j,linew) = hi(i,j,linew)*rmask(i,j)
 #endif
 #ifdef WET_DRY
-          ai(i,j,linew) = ai(i,j,linew)*rmask_wet(i,j)
-          hi(i,j,linew) = hi(i,j,linew)*rmask_wet(i,j)
+!          ai(i,j,linew) = ai(i,j,linew)*rmask_wet(i,j)
+!          hi(i,j,linew) = hi(i,j,linew)*rmask_wet(i,j)
 #endif
 #ifdef ICESHELF
           IF (zice(i,j).ne.0.0_r8) THEN
@@ -850,79 +939,111 @@
         ENDDO
       ENDDO
 
-        CALL bc_r2d_tile (ng, tile,                                     &
+      CALL bc_r2d_tile (ng, tile,                                     &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          tis)
-        CALL bc_r2d_tile (ng, tile,                                     &
+      CALL bc_r2d_tile (ng, tile,                                     &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          coef_ice_heat)
-        CALL bc_r2d_tile (ng, tile,                                     &
+      CALL bc_r2d_tile (ng, tile,                                     &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          rhs_ice_heat)
-        CALL bc_r2d_tile (ng, tile,                                     &
+      CALL bc_r2d_tile (ng, tile,                                     &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          stflx(:,:,isalt))
-        CALL bc_r2d_tile (ng, tile,                                     &
+      CALL bc_r2d_tile (ng, tile,                                     &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          stflx(:,:,itemp))
 
-        CALL aibc_tile (ng, tile,                                       &
+      CALL aibc_tile (ng, tile,                                         &
      &                          LBi, UBi, LBj, UBj, liold, linew,       &
      &                          ui, vi, ai)
-        CALL hibc_tile (ng, tile,                                       &
+      CALL hibc_tile (ng, tile,                                         &
      &                          LBi, UBi, LBj, UBj, liold, linew,       &
      &                          ui, vi, hi)
-        CALL hsnbc_tile (ng, tile,                                      &
+      CALL hsnbc_tile (ng, tile,                                        &
      &                          LBi, UBi, LBj, UBj, liold, linew,       &
      &                          ui, vi, hsn)
-        CALL tibc_tile (ng, tile,                                       &
+      CALL tibc_tile (ng, tile,                                         &
      &                          LBi, UBi, LBj, UBj, liold, linew,       &
      &                          min_h(ng), ui, vi, hi, ti, enthalpi)
-        CALL sfwatbc_tile (ng, tile,                                    &
+      CALL sfwatbc_tile (ng, tile,                                      &
      &                        LBi, UBi, LBj, UBj, liold, linew,         &
      &                        ui, vi, sfwat)
-        CALL ageicebc_tile (ng, tile,                                   &
+      CALL ageicebc_tile (ng, tile,                                     &
      &                          LBi, UBi, LBj, UBj, liold, linew,       &
      &                          min_h(ng), ui, vi, hi, ageice, hage)
+#if defined ICE_BIO && defined BERING_10K
+      CALL IcePhLbc_tile (ng, tile,                                     &
+     &                LBi, UBi, LBj, UBj,                               &
+     &                liold, linew,                                     &
+     &                ui, vi, IcePhL)
+      CALL IceNO3bc_tile (ng, tile,                                     &
+     &                LBi, UBi, LBj, UBj,                               &
+     &                liold, linew,                                     &
+     &                ui, vi, IceNO3)
+      CALL IceNH4bc_tile (ng, tile,                                     &
+     &                LBi, UBi, LBj, UBj,                               &
+     &                liold, linew,                                     &
+     &                ui, vi, IceNH4)
+#endif
 
 #if defined EW_PERIODIC || defined NS_PERIODIC
-        CALL exchange_r2d_tile (ng, tile,                               &
+      CALL exchange_r2d_tile (ng, tile,                                 &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          ai(:,:,linew))
-        CALL exchange_r2d_tile (ng, tile,                               &
+      CALL exchange_r2d_tile (ng, tile,                                 &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          hi(:,:,linew))
-        CALL exchange_r2d_tile (ng, tile,                               &
+      CALL exchange_r2d_tile (ng, tile,                                 &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          hsn(:,:,linew))
-        CALL exchange_r2d_tile (ng, tile,                               &
+      CALL exchange_r2d_tile (ng, tile,                                 &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          ti(:,:,linew))
-        CALL exchange_r2d_tile (ng, tile,                               &
+      (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          enthalpi(:,:,linew))
-        CALL exchange_r2d_tile (ng, tile,                               &
+      CALL exchange_r2d_tile (ng, tile,                                 &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          sfwat(:,:,linew))
-        CALL exchange_r2d_tile (ng, tile,                               &
+      CALL exchange_r2d_tile (ng, tile,                                 &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          ageice(:,:,linew))
-        CALL exchange_r2d_tile (ng, tile,                               &
+      CALL exchange_r2d_tile (ng, tile,                                 &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          hage(:,:,linew))
-
+# if defined ICE_BIO && defined BERING_10K
+      CALL exchange_r2d_tile (ng, tile,                                 &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          IcePhL(:,:,linew))
+      CALL exchange_r2d_tile (ng, tile,                                 &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          IceNO3(:,:,linew))
+      CALL exchange_r2d_tile (ng, tile,                                 &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          IceNH4(:,:,linew))
+# endif
 #endif
 #ifdef DISTRIBUTE
-        CALL mp_exchange2d (ng, tile, iNLM, 4,                          &
+      CALL mp_exchange2d (ng, tile, iNLM, 4,                            &
      &                      LBi, UBi, LBj, UBj,                         &
      &                      NghostPoints, EWperiodic, NSperiodic,       &
      &                      ai(:,:,linew), hi(:,:,linew),               &
      &                      hsn(:,:,linew), ti(:,:,linew))
-        CALL mp_exchange2d (ng, tile, iNLM, 4,                          &
+      CALL mp_exchange2d (ng, tile, iNLM, 4,                            &
      &                      LBi, UBi, LBj, UBj,                         &
      &                      NghostPoints, EWperiodic, NSperiodic,       &
      &                      enthalpi(:,:,linew), sfwat(:,:,linew),      &
      &                      ageice(:,:,linew), hage(:,:,linew))
+# if defined ICE_BIO && defined BERING_10K
+      CALL mp_exchange2d (ng, tile, iNLM, 3,                            &
+     &                    LBi, UBi, LBj, UBj,                           &
+     &                    NghostPoints, EWperiodic, NSperiodic,         &
+     &                    IcePhL(:,:,linew), IceNO3(:,:,linew),         &
+     &                    IceNH4(:,:,linew))
+   
+# endif
 #endif
 
       RETURN

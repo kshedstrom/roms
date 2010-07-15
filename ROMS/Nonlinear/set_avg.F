@@ -105,8 +105,8 @@
       USE mod_coupling
 # endif
       USE mod_forces
-# ifdef SOLVE3D
       USE mod_grid
+# ifdef SOLVE3D
       USE mod_mixing
 #  ifdef ICE_MODEL
       USE mod_ice
@@ -114,6 +114,9 @@
 # endif
       USE mod_ocean
       USE mod_scalars
+# if defined BEST_NPZ || defined BIO_GOANPZ
+      USE mod_biology
+# endif
 !
       USE vorticity_mod, ONLY : vorticity_tile
 !
@@ -134,7 +137,10 @@
 !
 !  Local variable declarations.
 !
-      integer :: i, it, j, k
+      integer :: i, it, itrc, j, k
+#ifdef  BIOFLUX
+       integer ::itrc2
+#endif
 
       real(r8) :: fac
 # ifdef SOLVE3D
@@ -651,6 +657,38 @@
           END DO
         END IF
 # endif
+# ifdef ICE_BIO
+#  ifdef BERING_10K
+        IF (Aout(idIceNO3,ng)) THEN
+          DO j=JstrR,JendR
+            DO i=IstrR,IendR
+              AVERAGE(ng)%avgINO3(i,j)=ICE(ng)%IceNO3(i,j,Iout)
+            END DO
+          END DO
+        END IF
+        IF (Aout(idIcePhL,ng)) THEN
+          DO j=JstrR,JendR
+            DO i=IstrR,IendR
+              AVERAGE(ng)%avgIPhL(i,j)=ICE(ng)%IcePhL(i,j,Iout)
+            END DO
+          END DO
+        END IF
+        IF (Aout(idIceNH4,ng)) THEN
+          DO j=JstrR,JendR
+            DO i=IstrR,IendR
+              AVERAGE(ng)%avgINH4(i,j)=ICE(ng)%IceNH4(i,j,Iout)
+            END DO
+          END DO
+        END IF
+        IF (Aout(idIceLog,ng)) THEN
+          DO j=JstrR,JendR
+            DO i=IstrR,IendR
+              AVERAGE(ng)%avgILog(i,j)=ICE(ng)%IceLog(i,j,Iout)
+            END DO
+          END DO
+        END IF
+#  endif
+# endif
 
 # ifdef BEST_NPZ
 #  ifdef STATIONARY
@@ -709,7 +747,7 @@
              END DO
           END DO
 #  endif
-#  ifdef ICE_BIO
+#  if defined CLIM_ICE_1D
            DO itrc=1,NIceT(ng)
              DO j=JstrR,JendR
                DO i=IstrR,IendR
@@ -1586,6 +1624,42 @@
           END DO
         END IF
 # endif
+# ifdef ICE_BIO
+#  if defined BERING_10K
+        IF (Aout(idIcePhL,ng)) THEN
+          DO j=JstrR,JendR
+            DO i=Istr,IendR
+              AVERAGE(ng)%avgIPhL(i,j)=AVERAGE(ng)%avgIPhL(i,j)+        &
+     &                                 ICE(ng)%IcePhL(i,j,Iout)
+            END DO
+          END DO
+        END IF
+        IF (Aout(idIceNO3,ng)) THEN
+          DO j=JstrR,JendR
+            DO i=Istr,IendR
+              AVERAGE(ng)%avgINO3(i,j)=AVERAGE(ng)%avgINO3(i,j)+        &
+     &                                 ICE(ng)%IceNO3(i,j,Iout)
+            END DO
+          END DO
+        END IF
+        IF (Aout(idIceNH4,ng)) THEN
+          DO j=JstrR,JendR
+            DO i=Istr,IendR
+              AVERAGE(ng)%avgINH4(i,j)=AVERAGE(ng)%avgINH4(i,j)+        &
+     &                                 ICE(ng)%IceNH4(i,j,Iout)
+            END DO
+          END DO
+        END IF
+        IF (Aout(idIceLog,ng)) THEN
+          DO j=JstrR,JendR
+            DO i=Istr,IendR
+              AVERAGE(ng)%avgILog(i,j)=AVERAGE(ng)%avgILog(i,j)+        &
+     &                                 ICE(ng)%IceLog(i,j,Iout)
+            END DO
+          END DO
+        END IF
+#  endif
+# endif
 
 # ifdef BEST_NPZ
 !--------------------------------------------
@@ -1652,19 +1726,16 @@
           END DO
 
 #endif
-#ifdef ICE_BIO
+#if defined CLIM_ICE_1D
           DO itrc=1,NIceT(ng)
-
-              DO j=JstrR,JendR
-                DO i=IstrR,IendR
-                  AVERAGE(ng)%avgit(i,j,itrc)=avgit(i,j,itrc)+          &
+            DO j=JstrR,JendR
+              DO i=IstrR,IendR
+                AVERAGE(ng)%avgit(i,j,itrc)=avgit(i,j,itrc)+            &
      &                           OCEAN(ng)%it(i,j,Nout,itrc)
 
-                END DO
               END DO
-
+            END DO
           END DO
-
 #  endif
 #  ifdef BIOFLUX
          DO itrc=1,NT(ng)
@@ -2534,6 +2605,38 @@
           END DO
         END IF
 # endif
+# ifdef ICE_BIO
+#  ifdef BERING_10K
+        IF (Aout(idIcePhL,ng)) THEN
+          DO j=JstrR,JendR
+            DO i=Istr,IendR
+              AVERAGE(ng)%avgIPhL(i,j)=fac*AVERAGE(ng)%avgIPhL(i,j)
+            END DO
+          END DO
+        END IF
+        IF (Aout(idIceNO3,ng)) THEN
+          DO j=JstrR,JendR
+            DO i=Istr,IendR
+              AVERAGE(ng)%avgINO3(i,j)=fac*AVERAGE(ng)%avgINO3(i,j)
+            END DO
+          END DO
+        END IF
+        IF (Aout(idIceNH4,ng)) THEN
+          DO j=JstrR,JendR
+            DO i=Istr,IendR
+              AVERAGE(ng)%avgINH4(i,j)=fac*AVERAGE(ng)%avgINH4(i,j)
+            END DO
+          END DO
+        END IF
+        IF (Aout(idIceLog,ng)) THEN
+          DO j=JstrR,JendR
+            DO i=Istr,IendR
+              AVERAGE(ng)%avgILog(i,j)=fac*AVERAGE(ng)%avgILog(i,j)
+            END DO
+          END DO
+        END IF
+#  endif
+# endif
 
 # ifdef BEST_NPZ
 #  ifdef BENTHIC
@@ -2548,7 +2651,7 @@
           END DO
         END DO
 #  endif
-#  ifdef ICE_BIO
+#  ifdef CLIM_ICE_1D
         DO itrc=1,NIceT(ng)
           DO j=JstrR,JendR
             DO i=IstrR,IendR

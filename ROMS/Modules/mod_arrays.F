@@ -73,7 +73,7 @@
 !
 !  Local variable declarations.
 !
-      integer :: ng
+      integer :: ng, ic
       integer :: LBi, UBi, LBj, UBj, LBij, UBij
       integer :: tile, subs, thread
 

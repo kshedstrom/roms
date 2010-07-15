@@ -10,7 +10,7 @@
 !
 !  Set biological tracer identification indices.
 !
-      integer, pointer :: idbio(:)    ! Biological tracers
+      integer, allocatable :: idbio(:)! Biological tracers
       integer :: iNO3                 ! Nitrate
       integer :: iNH4                 ! Ammonium
       integer :: iPhS                 ! Small Phytoplankton
@@ -30,6 +30,12 @@
 #ifdef BIOFLUX
       integer :: iBF
 #endif
+# ifdef CLIM_ICE_1D
+      integer :: i1CI
+# endif
+# ifdef AKT_3D
+      integer ::iAKt3
+# endif
 
 #ifdef IRON_LIMIT
       integer :: iFe                  ! Iron
@@ -41,7 +47,9 @@
 #endif
 #ifdef ICE_BIO
       integer, pointer :: idice(:)    ! Ice tracers
+# ifdef CLIM_ICE_1D
       integer, pointer :: idiceLog(:) ! Ice tracers
+# endif
       integer :: iIcePhL
       integer :: iIceNO3
       integer :: iIceNH4
@@ -83,6 +91,7 @@
       integer, pointer :: idbioP2(:)
       integer :: iIAPrd
       integer :: iBenPrd
+      integer :: iXPrd
 #endif
 #ifdef PROD3
       integer, pointer :: idbioP3(:)
@@ -105,7 +114,7 @@
       integer, dimension(Ngrids) :: NBeT
 #endif
 #if defined ICE_BIO
-      integer,parameter :: NIB=4
+      integer, parameter :: NIB=4
       integer, dimension(Ngrids) :: NIceT
       integer, dimension(Ngrids) :: NIceLog
 #endif
@@ -131,7 +140,7 @@
       !2D producrion tracers (stationary)
       !------------------------------------
       integer, dimension(Ngrids) :: NPT2
-      integer, parameter :: NBPT2 = 2
+      integer, parameter :: NBPT2 = 3
 #endif
 #ifdef PROD3
       !------------------------------------
@@ -154,12 +163,12 @@
 !  extinction coefficients
       real(r8) :: k_ext, k_chl
 !  PhS growth params
-      real(r8) :: DiS, DpS
+      real(r8) :: DiS, DpS, aPS
       real(r8) :: alphaPhS
       real(r8) :: psiPhS
       real(r8) :: k1PhS, k2PhS
 !  PhL growth params
-      real(r8) :: DiL
+      real(r8) :: DiL, aPL
       real(r8) :: DpL
       real(r8) :: alphaPhL
       real(r8) :: psiPhL
@@ -212,7 +221,7 @@
       real(r8) :: kEup
 #ifdef JELLY
 !  Jellyfish Parameters
-      real(r8) :: eJel, gammaJel
+      real(r8) :: eJel, gammaJel, fJel
       real(r8) :: respJel,mpredJel
       real(r8) :: fpCopJel, fpNCaJel, fpEupJel
       real(r8) :: Q10Jelr, Q10JelTr,Q10Jele, Q10JelTe
@@ -220,8 +229,8 @@
 #endif
 
 !  Phytoplankton senescence
-      real(r8) :: minmPhS, maxmPhS, NcritPhS
-      real(r8) :: minmPhL, maxmPhL, NcritPhL
+      real(r8) :: mPhS, maxmPhS, NcritPhS,minmPhS
+      real(r8) :: mPhL, maxmPhL, NcritPhL, minmPhL
 !  Zoopkankton mortality
       real(r8) :: mMZS, mMZL, mCop, mNCa, mEup
 !  predation closure
@@ -267,6 +276,61 @@
       real(r8) :: rg0,rg,annit
       real(r8) :: aidz
 #endif
+!#if defined BIOFLUX
+!        real(r8), dimension(NAT+NBT,NAT+NBT) :: bflx
+!#endif
+
+#ifdef BIOFLUX
+      integer, allocatable :: idTBFvar(:)    ! 3D Stationary variables
+      integer, allocatable :: avgTBFid(:,:)  ! averages stationary tracer IDs
+#endif
+#ifdef STATIONARY
+      integer, allocatable :: idTSvar(:)    ! 3D Stationary variables
+      integer, allocatable :: hisTSid(:,:)  ! history St tracer IDs
+      integer, allocatable :: avgTSid(:,:)  ! averages stationary tracer IDs
+#endif
+
+#ifdef STATIONARY2
+      integer, allocatable :: idTS2var(:)    ! 2D Stationary variables
+      integer, allocatable :: hisTS2id(:,:)  ! history St tracer IDs
+      integer, allocatable :: avgTS2id(:,:)  ! averages stationary tracer IDs
+#endif
+#ifdef PROD3
+      integer, allocatable :: idPT3var(:)    ! 3D  production variables
+      integer, allocatable :: hisPT3id(:,:)  ! history St tracer IDs
+      integer, allocatable :: avgPT3id(:,:)  ! averages stationary tracer IDs
+#endif
+#ifdef PROD2
+      integer, allocatable :: idPT2var(:)    ! 2D production variables
+      integer, allocatable :: hisPT2id(:,:)  ! history St tracer IDs
+      integer, allocatable :: avgPT2id(:,:)  ! averages stationary tracer IDs
+#endif
+
+#if defined BENTHIC
+      integer, allocatable :: idBvar(:)
+      integer, allocatable :: hisBid(:,:)
+      integer, allocatable :: avgBid(:,:)
+      integer, allocatable :: rstBid(:,:)
+#endif
+#if defined ICE_BIO
+# if defined CLIM_ICE_1D
+      integer, allocatable :: idIceBvar(:)
+      integer, allocatable :: hisIceBid(:,:)
+      integer, allocatable :: rstIceBid(:,:)
+      integer, allocatable :: avgIceBid(:,:)
+      integer, allocatable :: idIceLogvar(:)
+# elif defined BERING_10K
+      integer  :: idIcePhL
+      integer  :: idIceNO3
+      integer  :: idIceNH4
+      integer  :: idIceLog
+
+      integer  :: idIcePhLbc(4)     ! ice algae boundary conditions
+      integer  :: idIceNO3bc(4)     ! ice nitrate boundary conditions
+      integer  :: idIceNH4bc(4)     ! ice ammonium boundary conditions
+      integer  :: idIceLogbc(4)     ! ice switch boundary conditions
+# endif
+#endif
 
       CONTAINS
 
@@ -278,10 +342,12 @@
 !  It allocates and assigns biological tracers indices.                !
 !                                                                      !
 !=======================================================================
+
+       USE mod_param
 !
 !  Local variable declarations
 !
-      integer :: i, ic
+      integer :: i, ic, ng
 !
 !-----------------------------------------------------------------------
 !  Determine number of biological tracers.
@@ -334,12 +400,16 @@
       allocate ( idBvar(NBEN) )
       allocate ( hisBid(NBEN,Ngrids) )
       allocate ( avgBid(NBEN,Ngrids) )
+      allocate ( rstBid(NBEN,Ngrids) )
 #endif
 #if defined ICE_BIO
+# ifdef CLIM_ICE_1D
       allocate ( idIceBvar(NIB) )
       allocate ( idIceLogvar(1) )
       allocate ( hisIceBid(NIB,Ngrids) )
+      allocate ( rstIceBid(NIB,Ngrids) )
       allocate ( avgIceBid(NIB,Ngrids) )
+# endif
 #endif
 #if defined BIOFLUX
       allocate ( idTBFvar(1) )
@@ -375,7 +445,9 @@
 #endif
 #ifdef ICE_BIO
       allocate ( idice(NIB) )
+# ifdef CLIM_ICE_1D
       allocate ( idiceLog(1) )
+# endif
 #endif
 
 !
@@ -409,6 +481,14 @@
       iFe=ic+1
       ic=ic+1
 #endif
+# ifdef CLIM_ICE_1D
+       i1CI=ic+1
+       ic=ic+1
+# endif
+# ifdef AKT_3D
+       iAKt3=ic+1
+       ic=ic+1
+# endif
 
 #ifdef BIOFLUX
       iBF=1
@@ -471,6 +551,7 @@
       END DO
       iBenPrd = 1
       iIAPrd = 2
+      iXPrd = 3
 #endif
 
 #ifdef BENTHIC
@@ -484,12 +565,17 @@
       DO i=1,NIB
         idice(i)=i
       END DO
-      idiceLog=1
+# ifdef CLIM_ICE_1D
+      iIceLog=1
       iIcePhL=1
       iIceNO3=2
       iIceNH4=3
       iIceZ=4
-      iIceLog=1
+# elif defined BERING_10K
+      iIcePhL=1
+      iIceNO3=2
+      iIceNH4=3
+# endif
 #endif
 !---------------------------------------------
 !Adding stationary and production tracers to model

@@ -42,7 +42,9 @@ contains
 # if defined BEST_NPZ && defined CLIM_ICE_1D
       USE mod_clima
 # endif
-
+# ifdef EVAP_SHALLOW
+      USE mod_coupling
+# endif
       USE mod_stepping
 !
 !  Imported variable declarations.
@@ -63,6 +65,9 @@ contains
 # ifdef ICE_MODEL
      &                     liold(ng),                                   &
      &                     linew(ng),                                   &
+# endif
+# if defined BEST_NPZ && defined ICE_BIO
+     &                     nstp(ng),                                    &
 # endif
 # ifdef MASKING
      &                     GRID(ng) % rmask,                            &
@@ -96,6 +101,10 @@ contains
 # ifdef RUNOFF
      &                     FORCES(ng) % runoff,                         &
 # endif
+# ifdef EVAP_SHALLOW
+     &                     GRID(ng) % h,                                &
+     &                     COUPLING(ng) % Zt_avg1,                      &
+# endif
      &                     FORCES(ng) % rain,                           &
      &                     FORCES(ng) % lhflx,                          &
      &                     FORCES(ng) % lrflx,                          &
@@ -127,10 +136,15 @@ contains
      &                     FORCES(ng) % tau_aix_n,                      &
      &                     FORCES(ng) % tau_aiy_n,                      &
 # endif
-# if defined BEST_NPZ && defined CLIM_ICE_1D
+# if defined BEST_NPZ
+#  if defined CLIM_ICE_1D
      &                    OCEAN(ng) % it,                               &
      &                    CLIMA(ng) % tclmG,                            &
-     &                    nstp(ng),                                     &
+#  elif defined ICE_BIO
+     &                    OCEAN(ng) % it,                               &
+     &                    ICE(ng) % IcePhL,                             &
+     &                    ICE(ng) % IceLog,                             &
+#  endif
 # endif
 # ifdef EMINUSP
      &                     FORCES(ng) % EminusP,                        &
@@ -151,6 +165,9 @@ contains
      &                           nrhs,                                  &
 # ifdef ICE_MODEL
      &                           liold, linew,                          &
+# endif
+# if defined BEST_NPZ && defined ICE_BIO
+     &                           nstp,                                  &
 # endif
 # ifdef MASKING
      &                           rmask, umask, vmask,                   &
@@ -173,6 +190,9 @@ contains
 # ifdef RUNOFF
      &                           runoff,                                &
 # endif
+# ifdef EVAP_SHALLOW
+     &                           h, Zt_avg1,                            &
+# endif
      &                           rain, lhflx, lrflx, shflx,             &
      &                           srflx, stflx,                          &
 # if defined SHORTWAVE && defined ALBEDO
@@ -191,9 +211,12 @@ contains
      &                           sustr_aw, svstr_aw, qao_n, p_e_n,      &
      &                           tau_aix_n, tau_aiy_n,                  &
 # endif
-#  if defined BEST_NPZ && defined CLIM_ICE_1D
-     &                           it,                                    &
-     &                           tclmG,nstp,                            &
+#  if defined BEST_NPZ
+#   if defined CLIM_ICE_1D
+     &                           it, tclmG,                             &
+#   elif defined ICE_BIO
+     &                           it, IcePhL, IceLog,                    &
+#   endif
 #  endif
 # ifdef EMINUSP
      &                           EminusP, evap,                         &
@@ -209,6 +232,9 @@ contains
 !
       USE mod_param
       USE mod_scalars
+# if defined BEST_NPZ
+      USE mod_biology
+# endif
 !
 # if defined BEST_NPZ && defined CLIM_ICE_1D
       USE mod_clima
@@ -230,6 +256,9 @@ contains
 # ifdef ICE_MODEL
       integer, intent(in) :: liold
       integer, intent(in) :: linew
+# endif
+# if defined BEST_NPZ && defined ICE_BIO
+      integer, intent(in) :: nstp
 # endif
 !
 # ifdef ASSUMED_SHAPE
@@ -266,6 +295,10 @@ contains
 #  ifdef RUNOFF
       real(r8), intent(in) :: runoff(LBi:,LBj:)
 #  endif
+#  ifdef EVAP_SHALLOW
+      real(r8), intent(in) :: h(LBi:,LBj:)
+      real(r8), intent(in) :: Zt_avg1(LBi:,LBj:)
+#  endif
 
       real(r8), intent(inout) :: lhflx(LBi:,LBj:)
       real(r8), intent(inout) :: lrflx(LBi:,LBj:)
@@ -298,6 +331,16 @@ contains
       real(r8), intent(out) :: tau_aix_n(LBi:,LBj:)
       real(r8), intent(out) :: tau_aiy_n(LBi:,LBj:)
 #  endif
+#  if defined BEST_NPZ
+#   if defined CLIM_ICE_1D
+      real(r8), intent(in) ::tclm(LBi:,LBj:,:,:,:)
+      real(r8), intent(in) :: it(LBi:,LBj:,:,:)
+#   elif defined ICE_BIO
+      real(r8), intent(in) :: it(LBi:,LBj:,:,:)
+      real(r8), intent(in) :: IcePhL(LBi:,LBj:,:)
+      integer, intent(inout) :: IceLog(LBi:,LBj:,:)
+#   endif
+#  endif
 
 #  ifdef EMINUSP
       real(r8), intent(out) :: EminusP(LBi:,LBj:)
@@ -306,12 +349,6 @@ contains
       real(r8), intent(out) :: sustr(LBi:,LBj:)
       real(r8), intent(out) :: svstr(LBi:,LBj:)
 
-#   if defined BEST_NPZ && defined CLIM_ICE_1D
-
-       real(r8), intent(in) ::tclmG(LBi:,LBj:,:,:,:)
-       real(r8), intent(in) :: it(LBi:,LBj:,:,:)
-        integer, intent(in) :: nstp
-#   endif
 # else
 #  ifdef MASKING
       real(r8), intent(in) :: rmask(LBi:UBi,LBj:UBj)
@@ -346,6 +383,10 @@ contains
 #  ifdef RUNOFF
       real(r8), intent(in) :: runoff(LBi:UBi,LBj:UBj)
 #  endif
+#  ifdef EVAP_SHALLOW
+      real(r8), intent(in) :: h(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: Zt_avg1(LBi:UBi,LBj:UBj)
+#  endif
 
       real(r8), intent(inout) :: lhflx(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: lrflx(LBi:UBi,LBj:UBj)
@@ -378,6 +419,16 @@ contains
       real(r8), intent(out) :: tau_aix_n(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: tau_aiy_n(LBi:UBi,LBj:UBj)
 #  endif
+#  if defined BEST_NPZ
+#   if defined CLIM_ICE_1D
+      real(r8), intent(in) :: it(LBi:UBi,LBj:UBj,3,1)
+      real(r8), intent(in) ::tclm(LBi:UBi,LBj:UBj,UBk,3,UBt+1)
+#   elif defined ICE_BIO
+      real(r8), intent(in) :: it(LBi:UBi,LBj:UBj,3,1)
+      real(r8), intent(in) :: IcePhL(LBi:,LBj:,:)
+      integer, intent(inout) :: IceLog(LBi:,LBj:,:)
+#   endif
+#  endif
 
 #  ifdef EMINUSP
       real(r8), intent(out) :: EminusP(LBi:UBi,LBj:UBj)
@@ -386,12 +437,6 @@ contains
       real(r8), intent(out) :: sustr(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: svstr(LBi:UBi,LBj:UBj)
 
-#  if defined BEST_NPZ && defined CLIM_ICE_1D
-
-      real(r8), intent(in) :: it(LBi:UBi,LBj:UBj,3,1)
-      real(r8), intent(in) ::tclmG(LBi:UBi,LBj:UBj,UBk,3,UBt+1)
-      integer, intent(in) :: nstp
-#  endif
 # endif
 !
 !  Local variable declarations.
@@ -435,9 +480,14 @@ contains
       real(r8) :: caw_curve
 # endif
 # if defined ICE_MODEL
-      real(r8), dimension(PRIVATE_2D_SCRATCH_ARRAY) :: ice_thick
-      real(r8), dimension(PRIVATE_2D_SCRATCH_ARRAY) :: snow_thick
+      real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: ice_thick
+      real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: snow_thick
 # endif
+#ifdef EVAP_SHALLOW
+      real(r8), parameter :: coef_shallow = 5.28_r8
+!      real(r8), parameter :: coef_shallow = 4.69_r8
+      real(r8) :: cffe
+#endif
 
 ! ------------------------------------------------------------------
 ! !DESCRIPTION:
@@ -845,20 +895,20 @@ contains
      &    (0.39_r8-0.005_r8*SQRT(vap_p_i))*(1.0_r8-0.65_r8*cloud(i,j))  &
      &    - 4.0_r8)
 # else
-           qlwi = lrflx(i,j)*Hscale
-           RHS_Ice(i,j) = RHS_Ice(i,j) -                                &
+          qlwi = lrflx(i,j)*Hscale
+          RHS_Ice(i,j) = RHS_Ice(i,j) -                                 &
      &           lrflx(i,j)*Hscale -                                    &
      &     4._r8*StefBo*emmiss*TairK(i)**3*(sfc_temp-2._r8*TairK(i))
 
-           Coef_Ice(i,j) = Coef_Ice(i,j) +                              &
+          Coef_Ice(i,j) = Coef_Ice(i,j) +                               &
      &            4._r8*StefBo*emmiss*TairK(i)**3
 # endif
 ! Correct for Kelvin to Celsius in RHS
-           RHS_Ice(i,j) = RHS_Ice(i,j) -                                &
+          RHS_Ice(i,j) = RHS_Ice(i,j) -                                 &
      &            Coef_Ice(i,j)*273.16_r8
 
 ! Net heat flux from ice to atmosphere
-           Qai(i,j) =-qsh_i - qlh_i - qswi + qlwi
+          Qai(i,j) =-qsh_i - qlh_i - qswi + qlwi
 #  endif
 # endif
           !--- heat flux ---
@@ -881,8 +931,16 @@ contains
      &                 (1._r8-cloud(i,j))+cawdif*cloud(i,j))
 # endif
 # if defined SHORTWAVE && defined ALBEDO_CURVE
-          caw_curve = 1._r8-(0.069_r8 - 0.011_r8*cos(2*latr(i,j)))
+#  ifdef BIO_1D
+!using lat for M2 for whole domain
+          caw_curve = 1._r8-(0.069_r8 - 0.011_r8*                       &
+     &                        cos(2*deg2rad*56.877))
           srflx(i,j) = srflx(i,j)*caw_curve
+#  else
+          caw_curve = 1._r8-(0.069_r8 - 0.011_r8*                       &
+     &                        cos(2*deg2rad*latr(i,j)))
+          srflx(i,j) = srflx(i,j)*caw_curve
+#  endif
 # endif
           lrflx(i,j) = lwup*Hscale2 + lrflx(i,j)
           lhflx(i,j) = lhflx(i,j)*Hscale2
@@ -897,6 +955,13 @@ contains
 #  ifdef ICE_MODEL
           evap(i,j) = (1.0_r8-ai(i,j,linew))*evap(i,j)
           stflx(i,j,isalt) = (1.0_r8-ai(i,j,linew))*stflx(i,j,isalt)
+#  endif
+#  ifdef EVAP_SHALLOW
+          cffe = 1._r8/(h(i,j)+Zt_avg1(i,j))
+          cffe = min(cffe,0.2_r8)
+          IF (evap(i,j).GT.0._r8) THEN
+             evap(i,j) = (1.0_r8+coef_shallow*cffe)*evap(i,j)
+          END IF
 #  endif
 # endif
 # ifdef MASKING
@@ -918,7 +983,20 @@ contains
 ! Limit shortwave radiation to be used in computing penetrative
 ! radiation by presence of ice and biology
 
-          ice_thick(i,j) = hi(i,j,1)/(ai(i,j,1)+eps)
+#  if defined BEST_NPZ && defined ICE_BIO
+        IF (IceLog(i,j,liold).gt.0) THEN
+!only attenuate light by ice when have more than thin smear of ice
+          IF (hi(i,j,liold).le.0.1_r8) THEN
+            cff1=hi(i,j,liold)*5._r8
+          ELSE
+            cff1=0.1_r8*5._r8+(hi(i,j,liold)-0.1_r8)*1._r8
+          ENDIF
+          cff1= cff1+hsn(i,j,liold)*20._r8
+        ELSE
+          cff1 = 0
+        ENDIF
+#  else
+          ice_thick(i,j) = hi(i,j,linew)/(ai(i,j,linew)+eps)
           snow_thick(i,j) = hsn(i,j,linew)/(ai(i,j,linew)+eps)
 
           IF (ice_thick(i,j).le.0.1_r8) THEN
@@ -928,14 +1006,16 @@ contains
           ENDIF
 
           cff1= cff1+snow_thick(i,j)*20._r8
+#  endif
 
-#   ifdef ICE_BIO
+#  if defined ICE_BIO
           cff2=0.5*0.02_r8*0.005*it(i,j,nstp,iIcePhL)
-#   endif
-
           srflx(i,j)=(1-ai(i,j,linew))*srflx(i,j)                       &
      &            +ai(i,j,linew)*srflx(i,j)*exp(-cff1-cff2)
-
+#  else
+          srflx(i,j)=(1-ai(i,j,linew))*srflx(i,j)                       &
+     &            +ai(i,j,linew)*srflx(i,j)*exp(-cff1)
+#  endif
           qao_n(i,j) = -stflx(i,j,itemp)*Hscale
 
 ! Net precipitation - evaporation in m/s
@@ -948,9 +1028,9 @@ contains
           rhs_ice_heat(i,j) = RHS_Ice(i,j)
           qai_n(i,j) = Qai(i,j)
 
-# elif !defined ICE_MODEL && defined BEST_NPZ && defined CLIM_ICE_1D
+# elif defined BEST_NPZ && defined CLIM_ICE_1D
 
-          ice_thick(i,j) = tclmG(i,j,42,1,15)
+          ice_thick(i,j) = tclmG(i,j,N(ng),1,i1CI)
           snow_thick(i,j) = ice_thick(i,j)*0.1 !assume 10% of ice depth
 
           IF (ice_thick(i,j).le.0.1_r8) THEN
@@ -961,11 +1041,12 @@ contains
 
           cff1= cff1+snow_thick(i,j)*20._r8
 
-#   ifdef ICE_BIO
+#  if defined ICE_BIO && defined CLIM_ICE_1D
           cff2=0.5*0.02_r8*0.005*it(i,j,nstp,iIcePhL)
-#   endif
-
           srflx(i,j)=srflx(i,j)*exp(-cff1-cff2)
+#  else
+          srflx(i,j)=srflx(i,j)*exp(-cff1)
+#  endif
 # endif
 
 !--- water flux ---
@@ -1109,7 +1190,7 @@ contains
      &                    qai_n, coef_ice_heat, rhs_ice_heat, snow_n )
 #   endif
 #  endif
-#  ifdef EMINUSP
+#  if defined EMINUSP || (defined ICE_MODEL && defined ICE_THERMO)
       CALL mp_exchange2d (ng, tile, iNLM, 3,                            &
      &                    LBi, UBi, LBj, UBj,                           &
      &                    NghostPoints, EWperiodic, NSperiodic,         &

@@ -57,8 +57,13 @@
      &                       ICE(ng) % t0mk,                            &
      &                       ICE(ng) % utau_iw,                         &
      &                       ICE(ng) % chu_iw,                          &
-     &                       OCEAN(ng) % t                              &
-     &                   )
+#if defined BERING_10K && defined ICE_BIO
+     &                       ICE(ng) % IcePhL,                          &
+     &                       ICE(ng) % IceNO3,                          &
+     &                       ICE(ng) % IceNH4,                          &
+     &                       ICE(ng) % IceLog,                          &
+#endif
+     &                       OCEAN(ng) % t )
 !
 ! Set analytical header file name used.
 !
@@ -85,6 +90,10 @@
      &                             rhoa_n,                              &
 #endif
      &                             tis, s0mk, t0mk, utau_iw, chu_iw,    &
+#if defined BERING_10K && defined ICE_BIO
+     &                             IcePhL, IceNO3,                      &
+     &                             IceNH4, IceLog,                      &
+#endif
      &                             t )
 !***********************************************************************
 !
@@ -135,6 +144,12 @@
       real(r8), intent(inout) :: t0mk(LBi:,LBj:)
       real(r8), intent(inout) :: utau_iw(LBi:,LBj:)
       real(r8), intent(inout) :: chu_iw(LBi:,LBj:)
+# if defined BERING_10K && defined ICE_BIO
+      real(r8), intent(inout) :: IcePhL(LBi:,LBj:,:)
+      real(r8), intent(inout) :: IceNO3(LBi:,LBj:,:)
+      real(r8), intent(inout) :: IceNH4(LBi:,LBj:,:)
+      integer, intent(inout) :: IceLog(LBi:,LBj:,:)
+# endif
       real(r8), intent(inout) :: t(LBi:,LBj:,:,:,:)
 #else
       real(r8), intent(inout) :: ui(LBi:UBi,LBj:UBj,2)
@@ -166,6 +181,12 @@
       real(r8), intent(inout) :: t0mk(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: utau_iw(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: chu_iw(LBi:UBi,LBj:UBj)
+# if defined BERING_10K && defined ICE_BIO
+      real(r8), intent(inout) :: IcePhL(LBi:UBi,LBj:UBj,2)
+      real(r8), intent(inout) :: IceNO3(LBi:UBi,LBj:UBj,2)
+      real(r8), intent(inout) :: IceNH4(LBi:UBi,LBj:UBj,2)
+      integer, intent(inout) :: IceLog(LBi:UBi,LBj:UBj,2)
+# endif
       real(r8), intent(inout) :: t(LBi:UBi,LBj:UBj,N(ng),3,NT(ng))
 #endif
 !
@@ -295,6 +316,15 @@
            t0mk(i,j) = t(i,j,N(ng),1,itemp)
            utau_iw(i,j) = 0.001_r8
            chu_iw(i,j) = 0.001125_r8
+#elif defined BERING_10K && defined ICE_BIO
+           IcePhL(i,j,1) = 0._r8
+           IceNO3(i,j,1) = 0._r8
+           IceNH4(i,j,1) = 0._r8
+           IceLog(i,j,1) = -1
+           IcePhL(i,j,2) = IcePhL(i,j,1)
+           IceNO3(i,j,2) = IceNO3(i,j,1)
+           IceNH4(i,j,2) = IceNH4(i,j,1)
+           IceLog(i,j,2) = IceLog(i,j,1)
 #else
         Must define a case for ice initialization.
 #endif
@@ -341,6 +371,20 @@
         CALL exchange_r2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          sig12(:,:,i))
+# if defined BERING_10K && defined ICE_BIO
+        CALL exchange_r2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          IcePhL(:,:,i))
+        CALL exchange_r2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          IceNO3(:,:,i))
+        CALL exchange_r2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          IceNH4(:,:,i))
+        CALL exchange_r2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          IceLog(:,:,i))
+# endif
       END DO
 #ifdef NCEP_FLUXES
       CALL exchange_r2d_tile (ng, tile,                                 &
@@ -401,6 +445,16 @@
      &                    LBi, UBi, LBj, UBj, 1, 2,                     &
      &                    NghostPoints, EWperiodic, NSperiodic,         &
      &                    sfwat, sig11, sig12, sig22)
+# if defined BERING_10K && defined ICE_BIO
+      CALL mp_exchange3d (ng, tile, model, 3,                           &
+     &                    LBi, UBi, LBj, UBj, 1, 2,                     &
+     &                    NghostPoints, EWperiodic, NSperiodic,         &
+     &                    IcePhL, IceNO3, IceNH4)
+      CALL mp_exchange3d (ng, tile, model, 1,                           &
+     &                    LBi, UBi, LBj, UBj, 1, 2,                     &
+     &                    NghostPoints, EWperiodic, NSperiodic,         &
+     &                    IceLog)
+# endif
 # ifdef NCEP_FLUXES
       CALL mp_exchange2d (ng, tile, model, 4,                           &
      &                    LBi, UBi, LBj, UBj,                           &
