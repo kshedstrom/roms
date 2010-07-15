@@ -98,7 +98,7 @@
       real(r8), intent(inout) :: IcePhL(LBi:,LBj:,:)
       real(r8), intent(inout) :: IceNO3(LBi:,LBj:,:)
       real(r8), intent(inout) :: IceNH4(LBi:,LBj:,:)
-      real(r8), intent(inout) :: IceLog(LBi:,LBj:,:)
+      integer, intent(inout) :: IceLog(LBi:,LBj:,:)
 #  endif
       real(r8), intent(in)    :: ui(LBi:,LBj:,:)
       real(r8), intent(in)    :: vi(LBi:,LBj:,:)
@@ -113,7 +113,7 @@
       real(r8), intent(inout) :: IcePhL(LBi:UBi,LBj:UBj,2)
       real(r8), intent(inout) :: IceNO3(LBi:UBi,LBj:UBj,2)
       real(r8), intent(inout) :: IceNH4(LBi:UBi,LBj:UBj,2)
-      real(r8), intent(inout) :: IceLog(LBi:UBi,LBj:UBj,2)
+      integer, intent(inout) :: IceLog(LBi:UBi,LBj:UBj,2)
 #  endif
       real(r8), intent(in)    :: ui(LBi:UBi,LBj:UBj,2)
       real(r8), intent(in)    :: vi(LBi:UBi,LBj:UBj,2)
@@ -169,9 +169,9 @@
           IceNH4(i,j,linew) = MAX(IceNH4(i,j,linew),0.0_r8)
         
           IF (hi(i,j,linew).le. 0.02.or.ai(i,j,linew).le.0.5) THEN
-            IceLog(i,j,linew) = -1.0_r8
+            IceLog(i,j,linew) = -1
           ELSE 
-            IceLog(i,j,linew) = 1.0_r8  !min(IceLog(i,j,linew),1.0_r8)
+            IceLog(i,j,linew) = 1  !min(IceLog(i,j,linew),1)
           END IF
         END DO
       END DO
@@ -255,11 +255,15 @@
      &                    NghostPoints, EWperiodic, NSperiodic,         &
      &                    sfwat(:,:,linew))
 #  if defined ICE_BIO && defined BERING_10K
-      CALL mp_exchange2d (ng, tile, iNLM, 4,                            &
+      CALL mp_exchange2d (ng, tile, iNLM, 3,                            &
      &                    LBi, UBi, LBj, UBj,                           &
      &                    NghostPoints, EWperiodic, NSperiodic,         &
      &                    IcePhL(:,:,linew), IceNO3(:,:,linew),         &
-     &                    IceNH4(:,:,linew),IceLog(:,:,linew))
+     &                    IceNH4(:,:,linew))
+      CALL mp_exchange2d (ng, tile, iNLM, 1,                            &
+     &                    LBi, UBi, LBj, UBj,                           &
+     &                    NghostPoints, EWperiodic, NSperiodic,         &
+     &                    IceLog(:,:,linew))
 #  endif
 # endif
       RETURN

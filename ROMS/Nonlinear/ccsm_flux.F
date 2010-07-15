@@ -140,7 +140,8 @@ contains
 #  if defined CLIM_ICE_1D
      &                    OCEAN(ng) % it,                               &
      &                    CLIMA(ng) % tclmG,                            &
-#  elif defined BERING_10K && defined ICE_BIO
+#  elif defined ICE_BIO
+     &                    OCEAN(ng) % it,                               &
      &                    ICE(ng) % IcePhL,                             &
      &                    ICE(ng) % IceLog,                             &
 #  endif
@@ -213,8 +214,8 @@ contains
 #  if defined BEST_NPZ
 #   if defined CLIM_ICE_1D
      &                           it, tclmG,                             &
-#   elif defined BERING_10K && defined ICE_BIO
-     &                           IcePhL, IceLog,                        &
+#   elif defined ICE_BIO
+     &                           it, IcePhL, IceLog,                    &
 #   endif
 #  endif
 # ifdef EMINUSP
@@ -334,9 +335,10 @@ contains
 #   if defined CLIM_ICE_1D
       real(r8), intent(in) ::tclm(LBi:,LBj:,:,:,:)
       real(r8), intent(in) :: it(LBi:,LBj:,:,:)
-#   elif defined BERING_10K && defined ICE_BIO
+#   elif defined ICE_BIO
+      real(r8), intent(in) :: it(LBi:,LBj:,:,:)
       real(r8), intent(in) :: IcePhL(LBi:,LBj:,:)
-      real(r8), intent(inout) :: IceLog(LBi:,LBj:,:)
+      integer, intent(inout) :: IceLog(LBi:,LBj:,:)
 #   endif
 #  endif
 
@@ -421,9 +423,10 @@ contains
 #   if defined CLIM_ICE_1D
       real(r8), intent(in) :: it(LBi:UBi,LBj:UBj,3,1)
       real(r8), intent(in) ::tclm(LBi:UBi,LBj:UBj,UBk,3,UBt+1)
-#   elif defined BERING_10K && defined ICE_BIO
+#   elif defined ICE_BIO
+      real(r8), intent(in) :: it(LBi:UBi,LBj:UBj,3,1)
       real(r8), intent(in) :: IcePhL(LBi:,LBj:,:)
-      real(r8), intent(inout) :: IceLog(LBi:,LBj:,:)
+      integer, intent(inout) :: IceLog(LBi:,LBj:,:)
 #   endif
 #  endif
 
@@ -980,8 +983,8 @@ contains
 ! Limit shortwave radiation to be used in computing penetrative
 ! radiation by presence of ice and biology
 
-#  if defined BEST_NPZ && defined BERING_10K && defined ICE_BIO
-        IF (IceLog(i,j,liold).gt.0_r8 ) THEN
+#  if defined BEST_NPZ && defined ICE_BIO
+        IF (IceLog(i,j,liold).gt.0) THEN
 !only attenuate light by ice when have more than thin smear of ice
           IF (hi(i,j,liold).le.0.1_r8) THEN
             cff1=hi(i,j,liold)*5._r8
@@ -989,6 +992,9 @@ contains
             cff1=0.1_r8*5._r8+(hi(i,j,liold)-0.1_r8)*1._r8
           ENDIF
           cff1= cff1+hsn(i,j,liold)*20._r8
+        ELSE
+          cff1 = 0
+        ENDIF
 #  else
           ice_thick(i,j) = hi(i,j,linew)/(ai(i,j,linew)+eps)
           snow_thick(i,j) = hsn(i,j,linew)/(ai(i,j,linew)+eps)
@@ -1002,7 +1008,7 @@ contains
           cff1= cff1+snow_thick(i,j)*20._r8
 #  endif
 
-#  if defined ICE_BIO && defined CLIM_ICE_1D
+#  if defined ICE_BIO
           cff2=0.5*0.02_r8*0.005*it(i,j,nstp,iIcePhL)
           srflx(i,j)=(1-ai(i,j,linew))*srflx(i,j)                       &
      &            +ai(i,j,linew)*srflx(i,j)*exp(-cff1-cff2)
@@ -1022,7 +1028,7 @@ contains
           rhs_ice_heat(i,j) = RHS_Ice(i,j)
           qai_n(i,j) = Qai(i,j)
 
-# elif !defined ICE_MODEL && defined BEST_NPZ && defined CLIM_ICE_1D
+# elif defined BEST_NPZ && defined CLIM_ICE_1D
 
           ice_thick(i,j) = tclmG(i,j,N(ng),1,i1CI)
           snow_thick(i,j) = ice_thick(i,j)*0.1 !assume 10% of ice depth

@@ -7903,6 +7903,9 @@
 !
       USE mod_param
       USE mod_parallel
+# if defined BEST_NPZ
+      USE mod_biology
+# endif
       USE mod_iounits
       USE mod_ncparam
 # if defined SEDIMENT || defined BBL_MODEL
@@ -8485,7 +8488,7 @@
           IF (Sout(idHsno,ng)) WRITE (out,80) Sout(idHsno,ng),          &
      &       'Sout(idHsno)',                                            &
      &       'Write out snow thickness.'
-# if defined ICE_BIO && defined BERING_10K     
+# if defined ICE_BIO
           IF (Sout(idIcePhL,ng)) WRITE (out,80) Sout(idIcePhL,ng),      &
      &       'Sout(idIcePhL)',                                          &
      &       'Write out average ice algae.'                             

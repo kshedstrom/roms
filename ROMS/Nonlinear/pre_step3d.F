@@ -163,6 +163,9 @@
 # ifdef SOGLOBEC
       USE mod_clima
 # endif
+# ifdef BEST_NPZ
+      USE mod_biology
+# endif
 !
 # if defined EW_PERIODIC || defined NS_PERIODIC
       USE exchange_3d_mod, ONLY : exchange_r3d_tile

@@ -300,26 +300,25 @@
 #endif
 
 #ifdef ICE_BIO
-# ifdef CLIM_ICE_1D
       DO i=IstrR,IendR
         DO j=JstrR,JendR
           it(i,j,1,iIcePhL) =0.0_r8       !was eps
-          it(i,j,1,iIceNO3) =0.0_r8        !was eps
+          it(i,j,1,iIceNO3) =0.0_r8       !was eps
           it(i,j,1,iIceNH4) =0.0_r8       !was eps
-          itL(i,j,1,iIceLog) =-1.0_r8       !was eps
+          itL(i,j,1,iIceLog) =-1.0_r8     !was eps
         END DO
       END DO
-#elif defined BERING_10K
+# if defined BERING_10K
       DO i=IstrR,IendR
         DO j=JstrR,JendR  
-          IcePhL(i,j,1) =0.0_r8       !was eps
+          IcePhL(i,j,1) =0.0_r8        !was eps
           IceNO3(i,j,1) =0.0_r8        !was eps
-          IceNH4(i,j,1) =0.0_r8       !was eps
-          IceLog(i,j,1) =-1.0_r8       !was eps
-          IcePhL(i,j,2) =0.0_r8       !was eps
+          IceNH4(i,j,1) =0.0_r8        !was eps
+          IceLog(i,j,1) =-1            !was eps
+          IcePhL(i,j,2) =0.0_r8        !was eps
           IceNO3(i,j,2) =0.0_r8        !was eps
-          IceNH4(i,j,2) =0.0_r8       !was eps
-          IceLog(i,j,2) =-1.0_r8       !was eps
+          IceNH4(i,j,2) =0.0_r8        !was eps
+          IceLog(i,j,2) =-1            !was eps
         END DO
       END DO
 # endif

@@ -107,7 +107,7 @@
 #   ifdef BENTHIC
          real(r8), pointer :: bt(:,:,:,:,:)
 #   endif
-#   if defined ICE_BIO && defined CLIM_ICE_1D
+#   if defined ICE_BIO
           real(r8), pointer :: it(:,:,:,:)
           real(r8), pointer :: itL(:,:,:,:)
 #   endif
@@ -377,7 +377,7 @@
 # ifdef BENTHIC
       allocate ( OCEAN(ng) % bt(LBi:UBi,LBj:UBj,NBL(ng),3,NBeT(ng)) )
 # endif
-# if defined ICE_BIO && defined CLIM_ICE_1D
+# if defined ICE_BIO
       allocate ( OCEAN(ng) % it(LBi:UBi,LBj:UBj,3,NIceT(ng)) )
       allocate ( OCEAN(ng) % itL(LBi:UBi,LBj:UBj,3, NIceLog(ng)) )
 # endif
@@ -796,7 +796,7 @@
           END DO
 #  endif
 
-#  if defined ICE_BIO && defined CLIM_ICE_1D
+#  if defined ICE_BIO
           DO itrc=1,NIceT(ng)
             DO i=Imin,Imax
               OCEAN(ng) % it(i,j,1,itrc) = IniVal
