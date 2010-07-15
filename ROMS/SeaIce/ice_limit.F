@@ -260,10 +260,10 @@
      &                    NghostPoints, EWperiodic, NSperiodic,         &
      &                    IcePhL(:,:,linew), IceNO3(:,:,linew),         &
      &                    IceNH4(:,:,linew))
-      CALL mp_exchange2d (ng, tile, iNLM, 1,                            &
-     &                    LBi, UBi, LBj, UBj,                           &
-     &                    NghostPoints, EWperiodic, NSperiodic,         &
-     &                    IceLog(:,:,linew))
+!     CALL mp_exchange2d (ng, tile, iNLM, 1,                            &
+!    &                    LBi, UBi, LBj, UBj,                           &
+!    &                    NghostPoints, EWperiodic, NSperiodic,         &
+!    &                    IceLog(:,:,linew))
 #  endif
 # endif
       RETURN
