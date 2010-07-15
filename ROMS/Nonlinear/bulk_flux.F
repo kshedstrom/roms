@@ -164,12 +164,12 @@
      &                     FORCES(ng) % tau_aix_n,                      &
      &                     FORCES(ng) % tau_aiy_n,                      &
 # endif
-# if defined BEST_NPZ 
+# if defined BEST_NPZ
 #  if defined CLIM_ICE_1D
      &                     OCEAN(ng) % it,                              &
      &                     CLIMA(ng) % tclm,                            &
      &                     nstp(ng),                                    &
-#  elif defined BERING_10K && defined ICE_BIO
+#  elif defined ICE_BIO
      &                     ICE(ng) % IcePhL,                            &
      &                     ICE(ng) % IceLog,                            &
 #  endif
@@ -241,7 +241,7 @@
 #  if defined CLIM_ICE_1D
      &                           it,                                    &
      &                           tclm, nstp,                            &
-#  elif defined BERING_10K && defined ICE_BIO
+#  elif defined ICE_BIO
      &                           IcePhL,                                &
      &                           IceLog,                                &
 #  endif
@@ -348,7 +348,7 @@
 #   endif
       real(r8), intent(out) :: tau_aix_n(LBi:,LBj:)
       real(r8), intent(out) :: tau_aiy_n(LBi:,LBj:)
-#   if definded BERING_10K && definded ICE_BIO
+#   if definded ICE_BIO
       real(r8), intent(in) :: IcePhL(LBi:,LBj:,:)
       integer, intent(inout) :: IceLog(LBi:,LBj:,:)
 #   endif
@@ -434,7 +434,7 @@
 #   endif
       real(r8), intent(out) :: tau_aix_n(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: tau_aiy_n(LBi:UBi,LBj:UBj)
-#   if definded BERING_10K && definded ICE_BIO
+#   if definded ICE_BIO
       real(r8), intent(in) :: IcePhL(LBi:UBi,LBj:UBj,2)
       integer, intent(inout) :: IceLog(LBi:UBi,LBj:UBj,2)
 #   endif
@@ -1112,7 +1112,7 @@
           SRad(i,j) = SRad(i,j) * 1.075269_r8
 ! This is to take out the ocean albedo out of the shortwave radiation
 !  (1.075 = 1/(1-0.07)) before the ice albedo is applied to it.  I've
-!  just done this for SOGLOBEC, but I think this may be a real bug for 
+!  just done this for SOGLOBEC, but I think this may be a real bug for
 !  everything.
 #   endif
           qswi = (1._r8-albs)*SRad(i,j)
@@ -1199,7 +1199,7 @@
 !
 !  Note that fresh water flux is positive out of the ocean and the
 !  salt flux (stflx(isalt)) is positive into the ocean. It is converted
-!  to (psu m/s) for stflx(isalt) in "set_vbc.F" or "ice_mk.h". The E-P 
+!  to (psu m/s) for stflx(isalt) in "set_vbc.F" or "ice_mk.h". The E-P
 !  value is saved in variable EminusP for I/O purposes.
 !
       cff=1.0_r8/rhow
@@ -1257,7 +1257,7 @@
 ! Limit shortwave radiation to be used in computing penetrative
 ! radiation by presence of ice alone
 
-#  if defined BEST_NPZ && defined BERING_10K
+#  if defined BEST_NPZ && defined ICE_BIO
           IF (IceLog(i,j,nstp).lt.0) THEN
             IF (hi(i,j,liold).le.0.1_r8) THEN
               cff1=hi(i,j,liold)*5._r8
