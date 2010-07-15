@@ -197,7 +197,7 @@
       DO i=IstrR,IendR
         DO j=JstrR,JendR
           var1 = MAX(0._r8,MIN(1._r8,                                   &
-     &             (GRID(ng)%h(i,j)-Feinh)/(Feoffh-Feinh)))
+     &             (h(i,j)-Feinh)/(Feoffh-Feinh)))
           FeSurf = Feinlo + var1*(Feofflo-Feinlo)
           FeDeep = Feinhi + var1*(Feoffhi-Feinhi)
           var1 = (FeDeep-FeSurf) / 100._r8
@@ -280,7 +280,7 @@
               loval(iEupO) = t(i,j,k,1,iEupO)
               loval(iDet) = t(i,j,k,1,iDet)
               loval(iDetF) = t(i,j,k,1,iDetF)
-              loval(iGel) = t(i,j,k,1,iGel)
+              loval(iJel) = t(i,j,k,1,iJel)
             END IF
           END DO
         END DO

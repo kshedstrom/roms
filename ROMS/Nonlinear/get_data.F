@@ -19,6 +19,9 @@
 !=======================================================================
 !
       USE mod_param
+#if defined BEST_NPZ || defined BIO_GOANPZ
+      USE mod_biology
+#endif
       USE mod_boundary
 #ifdef CLIMATOLOGY
       USE mod_clima
@@ -1257,7 +1260,7 @@
 #    endif
      &                CLIMA(ng) % tclmG(LBi,LBj,1,1,iFe))
 #   endif
-#    if defined ICE_BIO 
+#    if defined ICE_BIO && defined CLIM_ICE_1D
        CALL get_3dfld (ng, iNLM, idTclm(i1CI), ncclmid(ng), 1,          &
      &                clmname(ng), update(1),                           &
      &                LBi, UBi, LBj, UBj, 1, N(ng), 2, 1,               &
