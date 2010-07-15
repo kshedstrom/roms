@@ -164,10 +164,15 @@
      &                     FORCES(ng) % tau_aix_n,                      &
      &                     FORCES(ng) % tau_aiy_n,                      &
 # endif
-# if defined BEST_NPZ && defined CLIM_ICE_1D
+# if defined BEST_NPZ
+#  if defined CLIM_ICE_1D
      &                    OCEAN(ng) % it,                               &
-     &                    CLIMA(ng) % tclmG,                            &
-     &                    nstp(ng),                                    &
+     &                    CLIMA(ng) % tclm,                             &
+     &                    nstp(ng),                                     &
+#  elif defined ICE_BIO
+     &                     ICE(ng) % IcePhL,                            &
+     &                     ICE(ng) % IceLog,                            &
+#  endif
 # endif
 
 # ifdef EMINUSP
@@ -232,10 +237,15 @@
      &                           sustr_aw, svstr_aw, qao_n, p_e_n,      &
      &                           tau_aix_n, tau_aiy_n,                  &
 # endif
-#  if defined BEST_NPZ && defined CLIM_ICE_1D
+# if defined BEST_NPZ
+#  if defined CLIM_ICE_1D
      &                           it,                                    &
-     &                           tclmG,nstp,                            &
+     &                           tclm, nstp,                            &
+#  elif defined ICE_BIO
+     &                           IcePhL,                                &
+     &                           IceLog,                                &
 #  endif
+# endif
 
 # ifdef EMINUSP
      &                           EminusP, evap,                         &
@@ -317,9 +327,8 @@
       real(r8), intent(inout) :: cawdir(LBi:,LBj:)
 #  endif
 #  if defined SHORTWAVE && defined ALBEDO_CURVE
-      real(r8), intent(inout) :: latr(LBi:,LBj:)
+      real(r8), intent(in) :: latr(LBi:,LBj:)
 #  endif
-
 
 #  ifdef ICE_MODEL
       real(r8), intent(out) :: sustr_aw(LBi:,LBj:)
@@ -339,6 +348,10 @@
 #   endif
       real(r8), intent(out) :: tau_aix_n(LBi:,LBj:)
       real(r8), intent(out) :: tau_aiy_n(LBi:,LBj:)
+#   if definded ICE_BIO
+      real(r8), intent(in) :: IcePhL(LBi:,LBj:,:)
+      real(r8), intent(inout) :: IceLog(LBi:,LBj:,:)
+#   endif
 #  endif
 
 #  ifdef EMINUSP
@@ -349,7 +362,7 @@
       real(r8), intent(out) :: svstr(LBi:,LBj:)
 
 #   if defined BEST_NPZ && defined CLIM_ICE_1D
-       real(r8), intent(in) ::tclmG(LBi:,LBj:,:,:,:)
+       real(r8), intent(in) :: tclm(LBi:,LBj:,:,:,:)
        real(r8), intent(in) :: it(LBi:,LBj:,:,:)
         integer, intent(in) :: nstp
 #   endif
@@ -400,7 +413,7 @@
       real(r8), intent(inout) :: cawdir(LBi:UBi,LBj:UBj)
 #  endif
 # if defined SHORTWAVE && defined ALBEDO_CURVE
-      real(r8), intent(inout) :: latr(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: latr(LBi:UBi,LBj:UBj)
 #  endif
 
 #  ifdef ICE_MODEL
@@ -421,6 +434,10 @@
 #   endif
       real(r8), intent(out) :: tau_aix_n(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: tau_aiy_n(LBi:UBi,LBj:UBj)
+#   if definded ICE_BIO
+       real(r8), intent(in) :: IcePhL(LBi:UBi,LBj:UBj,2)
+       real(r8), intent(inout) :: IceLog(LBi:UBi,LBj:UBj,2)
+#   endif
 #  endif
 
 #  ifdef EMINUSP
@@ -432,7 +449,7 @@
 
 #  if defined BEST_NPZ && defined CLIM_ICE_1D
       real(r8), intent(in) :: it(LBi:UBi,LBj:UBj,3,1)
-      real(r8), intent(in) ::tclmG(LBi:UBi,LBj:UBj,UBk,3,UBt+1)
+      real(r8), intent(in) ::tclm(LBi:UBi,LBj:UBj,UBk,3,UBt+1)
       integer, intent(in) :: nstp
 #  endif
 
@@ -588,9 +605,15 @@
           SRad(i,j) = SRad(i,j)*cawdir(i,j)
 # endif
 # if defined SHORTWAVE && defined ALBEDO_CURVE
+#  ifdef BIO_1D
           caw_curve = 1._r8-(0.069_r8 - 0.011_r8*                       &
-     &                        cos(2*deg2rad*latr(i,j)))
+     &               cos(2*deg2rad*56.877))
           SRad(i,j) = SRad(i,j)*caw_curve
+#  else
+          caw_curve = 1._r8-(0.069_r8 - 0.011_r8*                       &
+     &               cos(2*deg2rad*latr(i,j)))
+          SRad(i,j) = SRad(i,j)*caw_curve
+#  endif
 # endif
           Tcff(i)=alpha(i,j)
           Scff(i)=beta(i,j)
@@ -1089,7 +1112,7 @@
           SRad(i,j) = SRad(i,j) * 1.075269_r8
 ! This is to take out the ocean albedo out of the shortwave radiation
 !  (1.075 = 1/(1-0.07)) before the ice albedo is applied to it.  I've
-!  just done this for SOGLOBEC, but I think this may be a real bug for 
+!  just done this for SOGLOBEC, but I think this may be a real bug for
 !  everything.
 #   endif
           qswi = (1._r8-albs)*SRad(i,j)
@@ -1176,7 +1199,7 @@
 !
 !  Note that fresh water flux is positive out of the ocean and the
 !  salt flux (stflx(isalt)) is positive into the ocean. It is converted
-!  to (psu m/s) for stflx(isalt) in "set_vbc.F" or "ice_mk.h". The E-P 
+!  to (psu m/s) for stflx(isalt) in "set_vbc.F" or "ice_mk.h". The E-P
 !  value is saved in variable EminusP for I/O purposes.
 !
       cff=1.0_r8/rhow
@@ -1189,7 +1212,7 @@
 # endif
 # if defined SHORTWAVE && defined ALBEDO_CURVE
           caw_curve = 1._r8-(0.069_r8 - 0.011_r8*                       &
-     &                        cos(2*deg2rad*latr(i,j)))
+     &               cos(2*deg2rad*latr(i,j)))
           srflx(i,j) = srflx(i,j)*caw_curve
 # endif
           lrflx(i,j)=LRad(i,j)*Hscale2
@@ -1234,6 +1257,18 @@
 ! Limit shortwave radiation to be used in computing penetrative
 ! radiation by presence of ice alone
 
+#  if defined BEST_NPZ && defined ICE_BIO
+          IF (IceLog(i,j,nstp).lt.0_r8 ) THEN
+            IF (hi(i,j,liold).le.0.1_r8) THEN
+              cff1=hi(i,j,liold)*5._r8
+            ELSE
+              cff1=0.1_r8*5._r8+(hi(i,j,liold)-0.1_r8)*1._r8
+            ENDIF
+            cff1= cff1+hsn(i,j,liold)*20._r8
+          ELSE
+            cff1= 0._r8
+          END IF
+#  else
           ice_thick(i,j) = hi(i,j,1)/(ai(i,j,1)+eps)
           snow_thick(i,j) = hsn(i,j,linew)/(ai(i,j,linew)+eps)
 
@@ -1244,14 +1279,16 @@
           ENDIF
 
           cff1= cff1+snow_thick(i,j)*20._r8
+#  end if
 
-#   ifdef ICE_BIO
-          cff2=0.5*0.02_r8*0.005*it(i,j,nstp,iIcePhL)
-#   endif
-
-          srflx(i,j)=(1-ai(i,j,linew))*srflx(i,j)                       &
+#  ifdef ICE_BIO
+          cff2=0.5*0.02_r8*0.005*IcePhL(i,j,liold)
+          srflx(i,j)=(1.0_r8-ai(i,j,linew))*srflx(i,j)                  &
      &            +ai(i,j,linew)*srflx(i,j)*exp(-cff1-cff2)
-
+#  else
+          srflx(i,j)=(1.0_r8-ai(i,j,linew))*srflx(i,j)                  &
+     &            +ai(i,j,linew)*srflx(i,j)*exp(-cff1)
+#  endif
           qao_n(i,j) = -stflx(i,j,itemp)*Hscale
 
 ! Net precipitation - evaporation in m/s
@@ -1269,7 +1306,7 @@
 
 # elif !defined ICE_MODEL && defined BEST_NPZ && defined CLIM_ICE_1D
 
-          ice_thick(i,j) = tclmG(i,j,42,1,15)
+          ice_thick(i,j) = tclm(i,j,N(ng),i1CI)
           snow_thick(i,j) = ice_thick(i,j)*0.1 !assume 10% of ice depth
 
           IF (ice_thick(i,j).le.0.1_r8) THEN
@@ -1280,11 +1317,12 @@
 
           cff1= cff1+snow_thick(i,j)*20._r8
 
-#   ifdef ICE_BIO
-          cff2=0.5*0.02_r8*0.005*it(i,j,nstp,iIcePhL)
-#   endif
-
+#  ifdef ICE_BIO
+          cff2=0.5*0.02_r8*0.005*IcePhL(i,j,liold)
           srflx(i,j)=srflx(i,j)*exp(-cff1-cff2)
+#  else
+          srflx(i,j)=srflx(i,j)*exp(-cff1)
+#  endif
 # endif
 
 # ifdef EMINUSP

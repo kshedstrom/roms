@@ -1168,6 +1168,14 @@
       END IF
 # endif
 
+# if defined ICE_BIO
+#  ifdef BERING_10K
+      CALL ana_IcePhLbc (ng, tile)
+      CALL ana_IceNO3bc (ng, tile)
+      CALL ana_IceNH4bc (ng, tile)
+#  endif
+# endif
+
 # ifdef ANA_HSNOBC
       CALL ana_hsnobc (ng, tile)
 # else
@@ -1672,25 +1680,30 @@
       END DO
 #   endif
 
-#  if defined BEST_NPZ 
-#   ifdef ICE_BIO      
-           CALL set_3dfld_tile (ng, tile, iNLM, idTclm(iFe+1),             &
+#   ifdef AKT_3D !use 3dAkt for 1D SEBS model  index was iFe+2
+! Set the Akt
+      CALL set_3dfld_tile (ng, tile, iNLM, idTclm(iAKt3),               &
      &                       LBi, UBi, LBj, UBj, 1, N(ng),              &
-     &                       CLIMA(ng)%tclmG(:,:,:,:,15),               &
-     &                       CLIMA(ng)%tclm(:,:,:,15),                 &
+     &                       CLIMA(ng)%tclmG(:,:,:,:,iAKt3),            &
+     &                       CLIMA(ng)%tclm(:,:,:,iAKt3),               &
      &                       update)
 
- 
-#     if defined CLIM_ICE_1D
-          DO j=Jstr,Jend
-            DO i=Istr,Iend
-              OCEAN(ng)%it(i,j,nnew(ng),iIceZ) =                        &
-     &                  CLIMA(ng)%tclm(i,j,N(ng),15)
-            ENDDO
-          ENDDO
-#     endif          
 #   endif
-
+#  if defined BEST_NPZ
+#   ifdef ICE_BIO && defined CLIM_ICE_1D
+      CALL set_3dfld_tile (ng, tile, iNLM, idTclm(i1CI),                &
+     &                       LBi, UBi, LBj, UBj, 1, N(ng),              &
+     &                       CLIMA(ng)%tclmG(:,:,:,:,i1CI),             &
+     &                       CLIMA(ng)%tclm(:,:,:,i1CI),                &
+     &                       update)
+      DO j=Jstr,Jend
+        DO i=Istr,Iend
+          OCEAN(ng)%it(i,j,nnew(ng),iIceZ) =                            &
+     &                  CLIMA(ng)%tclm(i,j,N(ng),i1CI)
+        END DO
+      END DO
+#    endif
+#   endif
 
 #   if defined IRON_LIMIT
         CALL set_3dfld_tile (ng, tile, iNLM, idTclm(iFe),               &
@@ -1700,7 +1713,7 @@
      &                       update)
 #   endif
 #  endif
- 
+
 #   if defined BIO_GOANPZ && defined IRON_LIMIT
         CALL set_3dfld_tile (ng, tile, iNLM, idTclm(iFe),               &
      &                       LBi, UBi, LBj, UBj, 1, N(ng),              &
@@ -1708,7 +1721,6 @@
      &                       CLIMA(ng)%tclm (:,:,:,iFe),                &
      &                       update)
 #   endif
-
 
 #  endif
 #  if defined OFFLINE_FLOATS || defined OFFLINE_BIOLOGY
