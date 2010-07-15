@@ -350,7 +350,7 @@
       real(r8), intent(out) :: tau_aiy_n(LBi:,LBj:)
 #   if definded ICE_BIO
       real(r8), intent(in) :: IcePhL(LBi:,LBj:,:)
-      real(r8), intent(inout) :: IceLog(LBi:,LBj:,:)
+      integer, intent(inout) :: IceLog(LBi:,LBj:,:)
 #   endif
 #  endif
 

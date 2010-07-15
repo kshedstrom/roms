@@ -24,6 +24,9 @@
 !
       USE mod_param
       USE mod_parallel
+#if defined BEST_NPZ
+      USE mod_biology
+#endif
 #if defined ADJUST_BOUNDARY
       USE mod_boundary
 #endif
