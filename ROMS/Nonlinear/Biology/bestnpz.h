@@ -15,6 +15,7 @@
 !=======================================================================
 !
       USE mod_param
+      USE mod_biology
       USE mod_forces
       USE mod_grid
       USE mod_ncparam
@@ -67,8 +68,6 @@
      &                   CLIMA(ng) % tclmG,                             &
      &                   CLIMA(ng) % tclm,                              &
 # else
-     &                   ICE(ng) % it,                                  &
-     &                   ICE(ng) % itL,                                 &
      &                   ICE(ng) % ti,                                  &
      &                   ICE(ng) % hi,                                  &
      &                   ICE(ng) % ai,                                  &
@@ -122,8 +121,6 @@
      &                         tclmG,                                   &
      &                         tclm,                                    &
 # else
-     &                         it,                                      &
-     &                         itL,                                     &
      &                         ti,                                      &
      &                         hi,                                      &
      &                         ai,                                      &
@@ -158,6 +155,7 @@
       USE mod_scalars
       USE mod_ocean
       USE mod_grid
+      USE mod_biology
 #if defined CLIM_ICE_1D
       USE mod_clima
 #endif
@@ -211,9 +209,9 @@
       real(r8), intent(inout) :: bt(LBi:,LBj:,:,:,:)
 # endif
 # if defined ICE_BIO
+#  ifdef CLIM_ICE_1D
       real(r8), intent(inout) :: it(LBi:,LBj:,:,:)
       real(r8), intent(inout) :: itL(LBi:,LBj:,:,:)
-#  ifdef CLIM_ICE_1D
       real(r8), intent(inout) ::tclmG(LBi:,LBj:,:,:,:)
       real(r8), intent(inout) ::tclm(LBi:,LBj:,:,:)
 #  else
@@ -252,9 +250,9 @@
       real(r8), intent(inout) :: bt(LBi:UBi,LBj:UBj,UBk,3,1)
 # endif
 # if defined ICE_BIO
+#  ifdef CLIM_ICE_1D
       real(r8), intent(inout) :: it(LBi:UBi,LBj:UBj,3,1)
       real(r8), intent(inout) :: itL(LBi:UBi,LBj:UBj,3,1)
-#  ifdef CLIM_ICE_1D
       real(r8), intent(inout) ::tclmG(LBi:UBi,LBj:UBj,UBk,3,UBt+1)
       real(r8), intent(inout) ::tclm(LBi:UBi,LBj:UBj,UBk,UBt+1)
 #  else
@@ -367,9 +365,9 @@
       dtdays = dt(ng)*sec2day/REAL(BioIter(ng),r8)
       k_phy = k_chl / ccr
 !
-        IF (yday.eq.34)THEN
+      IF (yday.eq.34)THEN
         print*,'DAY =155'
-        END IF
+      END IF
 
 #ifdef DIAPAUSE
 !  Based on date, determine if NCa are going upwards or downwards
@@ -444,10 +442,10 @@
      &                    ai(i,j,nstp)
 # endif
 
-!g          if (hi(i,j,nstp).eq.0.002.and.ai(i,j,nstp).eq.0.002)THEN
+!g         IF (hi(i,j,nstp).eq.0.002.and.ai(i,j,nstp).eq.0.002)THEN
 
 !g           ice_thick(i,j) =0_r8
-!g           endif
+!g         END IF
         END DO
 #endif
 !
@@ -509,7 +507,7 @@
         END DO
 #endif
 
-#ifdef ICE_BIO
+#if defined ICE_BIO && defined CLIM_ICE_1D
         DO i=Istr,Iend
           IF (ice_thick(i,j).ge.0.02)          THEN
             IF (itL(i,j,nstp,iIceLog).le.0 )  THEN
@@ -743,7 +741,7 @@
               !-------------------------
               Par1 = PAR(i,k)
 !             IF (i.eq.3) THEN
-!             Stat2(i,1)=Par1
+!               Stat2(i,1)=Par1
 !             END IF
 
               LightLim = GetLightLimIronSml(alphaPhS, Par1,             &
@@ -2660,6 +2658,7 @@
 !              ENDIF
 
             ELSE IF (ice_thick(i,j).lt.0.02)      THEN
+# if defined ICE_BIO && defined CLIM_ICE_1D
               IF (itL(i,j,nstp,iIceLog).eq.1_r8 ) THEN
                 DBio(i,N(ng),iPhL) = DBio(i,N(ng),iPhL)                 &
      &                     + it(i,j,nnew,iIcePhL)*aidz/Hz(i,j,N(ng))
@@ -2668,7 +2667,7 @@
                 DBio(i,N(ng),iNH4) = DBio(i,N(ng),iNH4)                 &
      &                     + it(i,j,nnew,iIceNH4)*aidz/Hz(i,j,N(ng))
                 itL(i,j,nnew,iIceLog) =-1_r8
-# if defined BIOFLUX && defined BIO_GOANPZ
+#  if defined BIOFLUX && defined BIO_GOANPZ
                 IF (i.eq.3.and.j.eq.3) THEN
 !PLi->PhL
                   bflx(NT(ng)+3,iPhL)=bflx(NT(ng)+3,iPhL)               &
@@ -2682,13 +2681,12 @@
                   bflx(NT(ng)+5,iNH4)=bflx(NT(ng)+5,iNH4)               &
      &              + it(i,j,nnew,iIceNH4)*aidz/Hz(i,j,N(ng))
                 ENDIF
-# endif
+#  endif
                 DO itrc=1,3 !NIB
                   ibioBI=idice(itrc)
                   DBioBI(i,ibioBI)=DBioBI(i,ibioBI)-BioBI(i,ibioBI)
                   it(i,j,nnew,ibioBI)=0_r8
                 END DO
-
               ELSE
                 DO itrc=1,3 !NIB
                   ibioBI=idice(itrc)
@@ -2699,10 +2697,11 @@
 !                DBio(i,N(ng),iNO3)=0_r8
 !                DBio(i,N(ng),iNH4)=0_r8
               END IF
+# endif
+#endif
             END IF
           END DO
 
-#   endif
 
 !=======================================================================
 ! Update Bio array
@@ -2783,9 +2782,7 @@
 
         DO itrc=1,3 !NIB
           ibioBI=idice(itrc)
-
           DO i=Istr,Iend
-
 !            IF (ice_thick(i,j).ge.0.02)THEN
 
             it(i,j,nnew,ibioBI)=MAX(it(i,j,nnew,ibioBI)+                &
@@ -2799,36 +2796,32 @@
 
           END DO
         END DO
-
 #endif
-
-
-
 
 #ifdef STATIONARY
         DO k=1,N(ng)
 !         DO itrc=1,UBst
 !          ibio=idbio3(itrc)
-            DO i=Istr,Iend
+          DO i=Istr,Iend
 !                  st(i,j,k,nstp, ibio)=0.0_r8
 !               st(i,j,k,nstp, ibio)= Stat3(i,k,ibio)
 !              END DO
-             st(i,j,k,nstp,1) =    Stat3(i,k,1)
-             st(i,j,k,nstp,2) =    Stat3(i,k,2)
-             st(i,j,k,nstp,3) =    Stat3(i,k,3)
-             st(i,j,k,nstp,4) =    Stat3(i,k,4)
-             st(i,j,k,nstp,5) =    Stat3(i,k,5)
-             st(i,j,k,nstp,6) =    Stat3(i,k,6)
-             st(i,j,k,nstp,7) =    Stat3(i,k,7)
-             st(i,j,k,nstp,8) =    Stat3(i,k,8)
-             st(i,j,k,nstp,9) =    Stat3(i,k,9)
-             st(i,j,k,nstp,10) =    Stat3(i,k,10)
-             st(i,j,k,nstp,11) =    Stat3(i,k,11)
-             st(i,j,k,nstp,12) =    Stat3(i,k,12)
-             st(i,j,k,nstp,13) =    Stat3(i,k,13)
-             st(i,j,k,nstp,14) =    Stat3(i,k,14)
-             st(i,j,k,nstp,15) =    Stat3(i,k,15)
-             st(i,j,k,nstp,16) =    Stat3(i,k,16)
+            st(i,j,k,nstp,1) =    Stat3(i,k,1)
+            st(i,j,k,nstp,2) =    Stat3(i,k,2)
+            st(i,j,k,nstp,3) =    Stat3(i,k,3)
+            st(i,j,k,nstp,4) =    Stat3(i,k,4)
+            st(i,j,k,nstp,5) =    Stat3(i,k,5)
+            st(i,j,k,nstp,6) =    Stat3(i,k,6)
+            st(i,j,k,nstp,7) =    Stat3(i,k,7)
+            st(i,j,k,nstp,8) =    Stat3(i,k,8)
+            st(i,j,k,nstp,9) =    Stat3(i,k,9)
+            st(i,j,k,nstp,10) =    Stat3(i,k,10)
+            st(i,j,k,nstp,11) =    Stat3(i,k,11)
+            st(i,j,k,nstp,12) =    Stat3(i,k,12)
+            st(i,j,k,nstp,13) =    Stat3(i,k,13)
+            st(i,j,k,nstp,14) =    Stat3(i,k,14)
+            st(i,j,k,nstp,15) =    Stat3(i,k,15)
+            st(i,j,k,nstp,16) =    Stat3(i,k,16)
 
 
 !            st(i,j,k,nnew, i3Stat2) = st(i,j,k,nstp, i3Stat2)
@@ -2909,7 +2902,7 @@
 
       integer, intent(in)     :: ng, LBi, UBi, IminS, ImaxS
       real(r8), intent(in)    :: wBio
-       real(r8), intent(in)    :: zlimit
+      real(r8), intent(in)    :: zlimit
 
       real(r8), intent(in) :: z_wL(IminS:ImaxS,0:N(ng))
       real(r8), intent(inout) :: Bio(IminS:ImaxS,N(ng))
@@ -2925,15 +2918,15 @@
       real(r8) :: cffL, cffR, cu, dltL, dltR,cff
 
 
-       real(r8):: dBio(0:N(ng)), wBiod(LBi:UBi,0:N(ng))
-       real(r8) :: FC(IminS:ImaxS,0:N(ng))
+      real(r8):: dBio(0:N(ng)), wBiod(LBi:UBi,0:N(ng))
+      real(r8) :: FC(IminS:ImaxS,0:N(ng))
 
       real(r8) :: Hz_inv(IminS:ImaxS,N(ng))
       real(r8) :: Hz_inv2(IminS:ImaxS,N(ng))
       real(r8) :: Hz_inv3(IminS:ImaxS,N(ng))
 
 
-       integer :: ksource(IminS:ImaxS,N(ng))
+      integer :: ksource(IminS:ImaxS,N(ng))
 
       real(r8) :: qR(IminS:ImaxS,N(ng))
       real(r8) :: qL(IminS:ImaxS,N(ng))
@@ -2941,14 +2934,9 @@
       real(r8) :: WR(IminS:ImaxS,N(ng))
       real(r8), dimension(IminS:ImaxS,N(ng)) :: qc
 
-
-
-
-
-
-        IF ( zlimit .lt. 0 ) THEN
-         DO k=0,N(ng)
-           DO i=LBi, UBi
+      IF ( zlimit .lt. 0 ) THEN
+        DO k=0,N(ng)
+          DO i=LBi, UBi
             IF ( z_wL(i,k) .ge. zlimit ) THEN
               wBiod(i,k) = wBio*exp( -1*(z_wL(i,k)-(zlimit/2))**2/   &
      &          (zlimit/2)**2 )
@@ -2956,72 +2944,72 @@
               wBiod(i,k) = 0.0_r8
             END IF
           END DO
-         END DO
-        ELSE
-          DO k=0,N(ng)
-            DO i=LBi, UBi
-              wBiod(i,k) = wBio
-            END DO
+        END DO
+      ELSE
+        DO k=0,N(ng)
+          DO i=LBi, UBi
+            wBiod(i,k) = wBio
           END DO
-        END IF
+        END DO
+      END IF
 !
 !
 !  Compute inverse thickness to avoid repeated divisions.
 !
 
-         DO k=1,N(ng)
-          DO i=LBi,UBi
-            Hz_inv(i,k)=1.0_r8/HzL(i,k)
-          END DO
-         END DO
-         DO k=1,N(ng)-1
-          DO i=LBi,UBi
-            Hz_inv2(i,k)=1.0_r8/(HzL(i,k)+HzL(i,k+1))
-          END DO
-         END DO
-         DO k=2,N(ng)-1
-          DO i=LBi,UBi
-            Hz_inv3(i,k)=1.0_r8/(HzL(i,k-1)+HzL(i,k)+HzL(i,k+1))
-          END DO
-         END DO
+      DO k=1,N(ng)
+        DO i=LBi,UBi
+          Hz_inv(i,k)=1.0_r8/HzL(i,k)
+        END DO
+      END DO
+      DO k=1,N(ng)-1
+        DO i=LBi,UBi
+          Hz_inv2(i,k)=1.0_r8/(HzL(i,k)+HzL(i,k+1))
+        END DO
+      END DO
+      DO k=2,N(ng)-1
+        DO i=LBi,UBi
+          Hz_inv3(i,k)=1.0_r8/(HzL(i,k-1)+HzL(i,k)+HzL(i,k+1))
+        END DO
+      END DO
 
-         DO k=1,N(ng)
-            DO i=LBi,UBi
-              qc(i,k)=Bio(i,k)
-            END DO
-         END DO
+      DO k=1,N(ng)
+        DO i=LBi,UBi
+          qc(i,k)=Bio(i,k)
+        END DO
+      END DO
 
 !
 !  Reconstruct vertical profile of suspended sediment "qc" in terms
 !  of a set of parabolic segments within each grid box. Then, compute
 !  semi-Lagrangian flux due to sinking.
 !
-          DO k=N(ng)-1,1,-1
-            DO i=LBi,UBi
-              FC(i,k)=(qc(i,k+1)-qc(i,k))*Hz_inv2(i,k)
-!r              FC(i,k)=2_r8
-            END DO
-          END DO
+      DO k=N(ng)-1,1,-1
+        DO i=LBi,UBi
+          FC(i,k)=(qc(i,k+1)-qc(i,k))*Hz_inv2(i,k)
+!r         FC(i,k)=2_r8
+        END DO
+      END DO
 
-          DO k=2,N(ng)-1
-             DO i=LBi,UBi
-              dltR=HzL(i,k)*FC(i,k)
-              dltL=HzL(i,k)*FC(i,k-1)
-              cff=HzL(i,k-1)+2.0_r8*HzL(i,k)+HzL(i,k+1)
-              cffR=cff*FC(i,k)
-              cffL=cff*FC(i,k-1)
+      DO k=2,N(ng)-1
+        DO i=LBi,UBi
+          dltR=HzL(i,k)*FC(i,k)
+          dltL=HzL(i,k)*FC(i,k-1)
+          cff=HzL(i,k-1)+2.0_r8*HzL(i,k)+HzL(i,k+1)
+          cffR=cff*FC(i,k)
+          cffL=cff*FC(i,k-1)
 !
 !  Apply PPM monotonicity constraint to prevent oscillations within the
 !  grid box.
 !
-              IF ((dltR*dltL).le.0.0_r8) THEN
-                dltR=0.0_r8
-                dltL=0.0_r8
-              ELSE IF (ABS(dltR).gt.ABS(cffL)) THEN
-                dltR=cffL
-              ELSE IF (ABS(dltL).gt.ABS(cffR)) THEN
-                dltL=cffR
-              END IF
+          IF ((dltR*dltL).le.0.0_r8) THEN
+            dltR=0.0_r8
+            dltL=0.0_r8
+          ELSE IF (ABS(dltR).gt.ABS(cffL)) THEN
+            dltR=cffL
+          ELSE IF (ABS(dltL).gt.ABS(cffR)) THEN
+            dltL=cffR
+          END IF
 !
 !  Compute right and left side values (qR,qL) of parabolic segments
 !  within grid box Hz(k); (WR,WL) are measures of quadratic variations.
@@ -3032,73 +3020,73 @@
 !        qc(k+1)-qc(k).  This possibility is excluded, after qL and qR
 !        are reconciled using WENO procedure.
 !
-              cff=(dltR-dltL)*Hz_inv3(i,k)
-              dltR=dltR-cff*HzL(i,k+1)
-              dltL=dltL+cff*HzL(i,k-1)
-              qR(i,k)=qc(i,k)+dltR
-              qL(i,k)=qc(i,k)-dltL
-              WR(i,k)=(2.0_r8*dltR-dltL)**2
-              WL(i,k)=(dltR-2.0_r8*dltL)**2
-            END DO
-          END DO
-          cff=1.0E-14_r8
-          DO k=2,N(ng)-2
-             DO i=LBi,UBi
-              dltL=MAX(cff,WL(i,k  ))
-              dltR=MAX(cff,WR(i,k+1))
-              qR(i,k)=(dltR*qR(i,k)+dltL*qL(i,k+1))/(dltR+dltL)
-              qL(i,k+1)=qR(i,k)
-            END DO
-          END DO
+          cff=(dltR-dltL)*Hz_inv3(i,k)
+          dltR=dltR-cff*HzL(i,k+1)
+          dltL=dltL+cff*HzL(i,k-1)
+          qR(i,k)=qc(i,k)+dltR
+          qL(i,k)=qc(i,k)-dltL
+          WR(i,k)=(2.0_r8*dltR-dltL)**2
+          WL(i,k)=(dltR-2.0_r8*dltL)**2
+        END DO
+      END DO
+      cff=1.0E-14_r8
+      DO k=2,N(ng)-2
+        DO i=LBi,UBi
+          dltL=MAX(cff,WL(i,k  ))
+          dltR=MAX(cff,WR(i,k+1))
+          qR(i,k)=(dltR*qR(i,k)+dltL*qL(i,k+1))/(dltR+dltL)
+          qL(i,k+1)=qR(i,k)
+        END DO
+      END DO
 
-           DO i=LBi,UBi
-            FC(i,N(ng))=0.0_r8              ! no-flux boundary condition
+      DO i=LBi,UBi
+        FC(i,N(ng))=0.0_r8              ! no-flux boundary condition
 #  if defined LINEAR_CONTINUATION
-            qL(i,N(ng))=qR(i,N(ng)-1)
-            qR(i,N(ng))=2.0_r8*qc(i,N(ng))-qL(i,N(ng))
+        qL(i,N(ng))=qR(i,N(ng)-1)
+        qR(i,N(ng))=2.0_r8*qc(i,N(ng))-qL(i,N(ng))
 #  elif defined NEUMANN
-            qL(i,N(ng))=qR(i,N(ng)-1)
-            qR(i,N(ng))=1.5_r8*qc(i,N(ng))-0.5_r8*qL(i,N(ng))
+        qL(i,N(ng))=qR(i,N(ng)-1)
+        qR(i,N(ng))=1.5_r8*qc(i,N(ng))-0.5_r8*qL(i,N(ng))
 #  else
-            qR(i,N(ng))=qc(i,N(ng))         ! default strictly monotonic
-            qL(i,N(ng))=qc(i,N(ng))         ! conditions
-            qR(i,N(ng)-1)=qc(i,N(ng))
+        qR(i,N(ng))=qc(i,N(ng))         ! default strictly monotonic
+        qL(i,N(ng))=qc(i,N(ng))         ! conditions
+        qR(i,N(ng)-1)=qc(i,N(ng))
 #  endif
 #  if defined LINEAR_CONTINUATION
-            qR(i,1)=qL(i,2)
-            qL(i,1)=2.0_r8*qc(i,1)-qR(i,1)
+        qR(i,1)=qL(i,2)
+        qL(i,1)=2.0_r8*qc(i,1)-qR(i,1)
 #  elif defined NEUMANN
-            qR(i,1)=qL(i,2)
-            qL(i,1)=1.5_r8*qc(i,1)-0.5_r8*qR(i,1)
+        qR(i,1)=qL(i,2)
+        qL(i,1)=1.5_r8*qc(i,1)-0.5_r8*qR(i,1)
 #  else
-            qL(i,2)=qc(i,1)                 ! bottom grid boxes are
-            qR(i,1)=qc(i,1)                 ! re-assumed to be
-            qL(i,1)=qc(i,1)                 ! piecewise constant.
+        qL(i,2)=qc(i,1)                 ! bottom grid boxes are
+        qR(i,1)=qc(i,1)                 ! re-assumed to be
+        qL(i,1)=qc(i,1)                 ! piecewise constant.
 #  endif
-          END DO
+      END DO
 !
 !  Apply monotonicity constraint again, since the reconciled interfacial
 !  values may cause a non-monotonic behavior of the parabolic segments
 !  inside the grid box.
 !
-          DO k=1,N(ng)
-            DO i=LBi,UBi
-              dltR=qR(i,k)-qc(i,k)
-              dltL=qc(i,k)-qL(i,k)
-              cffR=2.0_r8*dltR
-              cffL=2.0_r8*dltL
-              IF ((dltR*dltL).lt.0.0_r8) THEN
-                dltR=0.0_r8
-                dltL=0.0_r8
-              ELSE IF (ABS(dltR).gt.ABS(cffL)) THEN
-                dltR=cffL
-              ELSE IF (ABS(dltL).gt.ABS(cffR)) THEN
-                dltL=cffR
-              END IF
-              qR(i,k)=qc(i,k)+dltR
-              qL(i,k)=qc(i,k)-dltL
-            END DO
-          END DO
+      DO k=1,N(ng)
+        DO i=LBi,UBi
+          dltR=qR(i,k)-qc(i,k)
+          dltL=qc(i,k)-qL(i,k)
+          cffR=2.0_r8*dltR
+          cffL=2.0_r8*dltL
+          IF ((dltR*dltL).lt.0.0_r8) THEN
+            dltR=0.0_r8
+            dltL=0.0_r8
+          ELSE IF (ABS(dltR).gt.ABS(cffL)) THEN
+            dltR=cffL
+          ELSE IF (ABS(dltL).gt.ABS(cffR)) THEN
+            dltL=cffR
+          END IF
+          qR(i,k)=qc(i,k)+dltR
+          qL(i,k)=qc(i,k)-dltL
+        END DO
+      END DO
 !
 !  After this moment reconstruction is considered complete. The next
 !  stage is to compute vertical advective fluxes, FC. It is expected
@@ -3115,56 +3103,55 @@
 !  participating in FC.
 !
 
-          DO k=1,N(ng)
-            DO i=LBi,UBi
-            cff=dtdays*ABS(wBiod(i,k))
-              FC(i,k-1)=0.0_r8
-              WL(i,k)=z_wL(i,k-1)+cff
-              WR(i,k)=HzL(i,k)*qc(i,k)
-              ksource(i,k)=k
-            END DO
+      DO k=1,N(ng)
+        DO i=LBi,UBi
+          cff=dtdays*ABS(wBiod(i,k))
+          FC(i,k-1)=0.0_r8
+          WL(i,k)=z_wL(i,k-1)+cff
+          WR(i,k)=HzL(i,k)*qc(i,k)
+          ksource(i,k)=k
+        END DO
+      END DO
+      DO k=1,N(ng)
+        DO ks=k,N(ng)-1
+          DO i=LBi,UBi
+            IF (WL(i,k).gt.z_wL(i,ks)) THEN
+              ksource(i,k)=ks+1
+              FC(i,k-1)=FC(i,k-1)+WR(i,ks)
+            END IF
           END DO
-          DO k=1,N(ng)
-            DO ks=k,N(ng)-1
-              DO i=LBi,UBi
-                IF (WL(i,k).gt.z_wL(i,ks)) THEN
-                  ksource(i,k)=ks+1
-                  FC(i,k-1)=FC(i,k-1)+WR(i,ks)
-                END IF
-              END DO
-            END DO
-          END DO
+        END DO
+      END DO
 !
 !  Finalize computation of flux: add fractional part.
 !
-          DO k=1,N(ng)
-            DO i=LBi,UBi
-              ks=ksource(i,k)
-              cu=MIN(1.0_r8,(WL(i,k)-z_wL(i,ks-1))*Hz_inv(i,ks))
-              FC(i,k-1)=FC(i,k-1)+                                      &
+      DO k=1,N(ng)
+        DO i=LBi,UBi
+          ks=ksource(i,k)
+          cu=MIN(1.0_r8,(WL(i,k)-z_wL(i,ks-1))*Hz_inv(i,ks))
+          FC(i,k-1)=FC(i,k-1)+                                          &
      &                  HzL(i,ks)*cu*                                   &
      &                  (qL(i,ks)+                                      &
      &                   cu*(0.5_r8*(qR(i,ks)-qL(i,ks))-                &
      &                       (1.5_r8-cu)*                               &
      &                       (qR(i,ks)+qL(i,ks)-2.0_r8*qc(i,ks))))
 
-
             !G.Gibson      - FC is the flux into the level
             !              - should be 0 at the surface
-               if (k.eq.N(ng)) then
-                  FC(i,k)=0.0_r8
-               endif
-           END DO
-         END DO
+          IF (k.eq.N(ng)) THEN
+            FC(i,k)=0.0_r8
+          END IF
+        END DO
+      END DO
 
-          DO k=1,N(ng)
-            DO i=LBi,UBi
+      DO k=1,N(ng)
+        DO i=LBi,UBi
 !            The Bio variables are now updated in the main subroutine
-!             Bio(i,k)=qc(i,k)+(FC(i,k)-FC(i,k-1))*Hz_inv(i,k)
-              sinkIN(i,k)=FC(i,k)
-            sinkOUT(i,k)=FC(i,k-1)
-            END DO
-          END DO
+!          Bio(i,k)=qc(i,k)+(FC(i,k)-FC(i,k-1))*Hz_inv(i,k)
+          sinkIN(i,k)=FC(i,k)
+          sinkOUT(i,k)=FC(i,k-1)
+        END DO
+      END DO
 
       RETURN
       END SUBROUTINE BIOSINK_1
@@ -3183,7 +3170,7 @@
 !      real(r8), intent(in)    :: z_w(0:N(ng))
       integer, intent(in)     :: ng, LBi, UBi, IminS, ImaxS
       real(r8), intent(in)    :: wBio
-       real(r8), intent(in)    :: zlimit
+      real(r8), intent(in)    :: zlimit
 !      real(r8), intent(inout) :: Bio(LBi:UBi,N(ng))
       real(r8), intent(in) :: z_wL(IminS:ImaxS,N(ng))
       real(r8), intent(inout) :: Bio(IminS:ImaxS,N(ng))
@@ -3200,15 +3187,15 @@
       real(r8) :: cffL, cffR, cu, dltL, dltR,cff
 
 !      real(r8):: FC(0:N(ng)), dBio(0:N(ng)),
-       real(r8):: dBio(0:N(ng)), wBiod(LBi:UBi,N(ng))
-       real(r8) :: FC(IminS:ImaxS,N(ng))
+      real(r8):: dBio(0:N(ng)), wBiod(LBi:UBi,N(ng))
+      real(r8) :: FC(IminS:ImaxS,N(ng))
 
       real(r8) :: Hz_inv(IminS:ImaxS,N(ng))
       real(r8) :: Hz_inv2(IminS:ImaxS,N(ng))
       real(r8) :: Hz_inv3(IminS:ImaxS,N(ng))
 
 !      real(r8):: Hz_inv(0:N(ng))
-       integer :: ksource(IminS:ImaxS,N(ng))
+      integer :: ksource(IminS:ImaxS,N(ng))
 
 !      real(r8):: Hz_inv3(N(ng))
 !      real(r8):: Hz_inv2(N(ng))
@@ -3227,7 +3214,7 @@
 
 
 
-             IF ( zlimit .lt. 0 ) THEN
+      IF ( zlimit .lt. 0 ) THEN
         DO k=1,N(ng)
           DO i=LBi,UBi
             IF ( z_wL(i,k-1).ge.zlimit/2) THEN
@@ -3237,9 +3224,9 @@
               wBiod(i,k) = wBio
             END IF
 ! This check used to be outside the whole function call.
-!            IF ( Bio(i,N(ng)).ge.dlimit) THEN
-!              wBiod(i,k) = 0.0_r8
-!            END IF
+!           IF ( Bio(i,N(ng)).ge.dlimit) THEN
+!             wBiod(i,k) = 0.0_r8
+!           END IF
           END DO
         END DO
         DO i=LBi,UBi
@@ -3253,78 +3240,61 @@
         END DO
       END IF
 !
-
-
-!
 !  Compute inverse thickness to avoid repeated divisions.
 !
+      DO k=1,N(ng)
+        DO i=LBi,UBi
+          Hz_inv(i,k)=1.0_r8/HzL(i,k)
+        END DO
+      END DO
 
+      DO k=2,N(ng)+1
+        DO i=LBi,UBi
+          Hz_inv2(i,k)=1.0_r8/(HzL(i,k)+HzL(i,k-1))
+        END DO
+      END DO
+      DO k=2,N(ng)+1
+        DO i=LBi,UBi
+          Hz_inv3(i,k)=1.0_r8/(HzL(i,k+1)+HzL(i,k)+HzL(i,k-1))
+        END DO
+      END DO
 
-         DO k=1,N(ng)
-          DO i=LBi,UBi
-            Hz_inv(i,k)=1.0_r8/HzL(i,k)
-          END DO
-         END DO
-         DO k=2,N(ng)+1
-
-          DO i=LBi,UBi
-
-            Hz_inv2(i,k)=1.0_r8/(HzL(i,k)+HzL(i,k-1))
-          END DO
-         END DO
-         DO k=2,N(ng)+1
-
-          DO i=LBi,UBi
-            Hz_inv3(i,k)=1.0_r8/(HzL(i,k+1)+HzL(i,k)+HzL(i,k-1))
-
-          END DO
-         END DO
-
-         DO k=1,N(ng)
-            DO i=LBi,UBi
-              qc(i,k)=Bio(i,k)
-            END DO
-         END DO
+      DO k=1,N(ng)
+        DO i=LBi,UBi
+          qc(i,k)=Bio(i,k)
+        END DO
+      END DO
 
 !
 !  Reconstruct vertical profile of suspended sediment "qc" in terms
 !  of a set of parabolic segments within each grid box. Then, compute
 !  semi-Lagrangian flux due to sinking.
 !
+      DO k=2,N(ng)
+        DO i=LBi,UBi
+          FC(i,k)=(qc(i,k-1)-qc(i,k))*Hz_inv2(i,k)
+        END DO
+      END DO
 
-
-          DO k=2,N(ng)
-            DO i=LBi,UBi
-
-              FC(i,k)=(qc(i,k-1)-qc(i,k))*Hz_inv2(i,k)
-            END DO
-          END DO
-
-          DO k=N(ng),2,-1
-             DO i=LBi,UBi
-              dltR=HzL(i,k)*FC(i,k)
-              dltL=HzL(i,k)*FC(i,k+1)
-
-              cff=HzL(i,k+1)+2.0_r8*HzL(i,k)+HzL(i,k-1)
-
-              cffR=cff*FC(i,k)
-              cffL=cff*FC(i,k+1)
-
-
-
-
+      DO k=N(ng),2,-1
+        DO i=LBi,UBi
+          dltR=HzL(i,k)*FC(i,k)
+          dltL=HzL(i,k)*FC(i,k+1)
+          cff=HzL(i,k+1)+2.0_r8*HzL(i,k)+HzL(i,k-1)
+          cffR=cff*FC(i,k)
+          cffL=cff*FC(i,k+1)
 !
 !  Apply PPM monotonicity constraint to prevent oscillations within the
 !  grid box.
 !
-              IF ((dltR*dltL).le.0.0_r8) THEN
-                dltR=0.0_r8
-                dltL=0.0_r8
-              ELSE IF (ABS(dltR).gt.ABS(cffL)) THEN
-                dltR=cffL
-              ELSE IF (ABS(dltL).gt.ABS(cffR)) THEN
-                dltL=cffR
-              END IF
+          IF ((dltR*dltL).le.0.0_r8) THEN
+            dltR=0.0_r8
+            dltL=0.0_r8
+          ELSE IF (ABS(dltR).gt.ABS(cffL)) THEN
+            dltR=cffL
+          ELSE IF (ABS(dltL).gt.ABS(cffR)) THEN
+            dltL=cffR
+          END IF
 !
 !  Compute right and left side values (qR,qL) of parabolic segments
 !  within grid box Hz(k); (WR,WL) are measures of quadratic variations.
@@ -3335,78 +3305,75 @@
 !        qc(k+1)-qc(k).  This possibility is excluded, after qL and qR
 !        are reconciled using WENO procedure.
 !
-              cff=(dltR-dltL)*Hz_inv3(i,k)
-              dltR=dltR-cff*HzL(i,k-1)
-              dltL=dltL+cff*HzL(i,k+1)
+          cff=(dltR-dltL)*Hz_inv3(i,k)
+          dltR=dltR-cff*HzL(i,k-1)
+          dltL=dltL+cff*HzL(i,k+1)
 
-              qR(i,k)=qc(i,k)+dltR
-              qL(i,k)=qc(i,k)-dltL
-              WR(i,k)=(2.0_r8*dltR-dltL)**2
-              WL(i,k)=(dltR-2.0_r8*dltL)**2
-            END DO
-          END DO
-          cff=1.0E-14_r8
+          qR(i,k)=qc(i,k)+dltR
+          qL(i,k)=qc(i,k)-dltL
+          WR(i,k)=(2.0_r8*dltR-dltL)**2
+          WL(i,k)=(dltR-2.0_r8*dltL)**2
+        END DO
+      END DO
+      cff=1.0E-14_r8
 
-         DO k=N(ng),2,-1
-             DO i=LBi,UBi
-              dltL=MAX(cff,WL(i,k  ))
+      DO k=N(ng),2,-1
+        DO i=LBi,UBi
+          dltL=MAX(cff,WL(i,k  ))
+          dltR=MAX(cff,WR(i,k-1))
+          qR(i,k)=(dltR*qR(i,k)+dltL*qL(i,k-1))/(dltR+dltL)
+          qL(i,k-1)=qR(i,k)
+        END DO
+      END DO
 
-              dltR=MAX(cff,WR(i,k-1))
-
-              qR(i,k)=(dltR*qR(i,k)+dltL*qL(i,k-1))/(dltR+dltL)
-
-              qL(i,k-1)=qR(i,k)
-            END DO
-          END DO
-
-           DO i=LBi,UBi
-            FC(i,N(ng))=0.0_r8              ! no-flux boundary condition
+      DO i=LBi,UBi
+        FC(i,N(ng))=0.0_r8              ! no-flux boundary condition
 #  if defined LINEAR_CONTINUATION
-            qL(i,N(ng))=qR(i,N(ng)-1)
-            qR(i,N(ng))=2.0_r8*qc(i,N(ng))-qL(i,N(ng))
+        qL(i,N(ng))=qR(i,N(ng)-1)
+        qR(i,N(ng))=2.0_r8*qc(i,N(ng))-qL(i,N(ng))
 #  elif defined NEUMANN
-            qL(i,N(ng))=qR(i,N(ng)-1)
-            qR(i,N(ng))=1.5_r8*qc(i,N(ng))-0.5_r8*qL(i,N(ng))
+        qL(i,N(ng))=qR(i,N(ng)-1)
+        qR(i,N(ng))=1.5_r8*qc(i,N(ng))-0.5_r8*qL(i,N(ng))
 #  else
-            qR(i,N(ng))=qc(i,N(ng))         ! default strictly monotonic
-            qL(i,N(ng))=qc(i,N(ng))         ! conditions
-            qR(i,N(ng)-1)=qc(i,N(ng))
+        qR(i,N(ng))=qc(i,N(ng))         ! default strictly monotonic
+        qL(i,N(ng))=qc(i,N(ng))         ! conditions
+        qR(i,N(ng)-1)=qc(i,N(ng))
 #  endif
 #  if defined LINEAR_CONTINUATION
-            qR(i,1)=qL(i,2)
-            qL(i,1)=2.0_r8*qc(i,1)-qR(i,1)
+        qR(i,1)=qL(i,2)
+        qL(i,1)=2.0_r8*qc(i,1)-qR(i,1)
 #  elif defined NEUMANN
-            qR(i,1)=qL(i,2)
-            qL(i,1)=1.5_r8*qc(i,1)-0.5_r8*qR(i,1)
+        qR(i,1)=qL(i,2)
+        qL(i,1)=1.5_r8*qc(i,1)-0.5_r8*qR(i,1)
 #  else
-            qL(i,2)=qc(i,1)                 ! bottom grid boxes are
-            qR(i,1)=qc(i,1)                 ! re-assumed to be
-            qL(i,1)=qc(i,1)                 ! piecewise constant.
+        qL(i,2)=qc(i,1)                 ! bottom grid boxes are
+        qR(i,1)=qc(i,1)                 ! re-assumed to be
+        qL(i,1)=qc(i,1)                 ! piecewise constant.
 #  endif
-          END DO
+      END DO
 !
 !  Apply monotonicity constraint again, since the reconciled interfacial
 !  values may cause a non-monotonic behavior of the parabolic segments
 !  inside the grid box.
 !
-          DO k=N(ng),1,-1
-            DO i=LBi,UBi
-              dltR=qR(i,k)-qc(i,k)
-              dltL=qc(i,k)-qL(i,k)
-              cffR=2.0_r8*dltR
-              cffL=2.0_r8*dltL
-              IF ((dltR*dltL).lt.0.0_r8) THEN
-                dltR=0.0_r8
-                dltL=0.0_r8
-              ELSE IF (ABS(dltR).gt.ABS(cffL)) THEN
-                dltR=cffL
-              ELSE IF (ABS(dltL).gt.ABS(cffR)) THEN
-                dltL=cffR
-              END IF
-              qR(i,k)=qc(i,k)+dltR
-              qL(i,k)=qc(i,k)-dltL
-            END DO
-          END DO
+      DO k=N(ng),1,-1
+        DO i=LBi,UBi
+          dltR=qR(i,k)-qc(i,k)
+          dltL=qc(i,k)-qL(i,k)
+          cffR=2.0_r8*dltR
+          cffL=2.0_r8*dltL
+          IF ((dltR*dltL).lt.0.0_r8) THEN
+            dltR=0.0_r8
+            dltL=0.0_r8
+          ELSE IF (ABS(dltR).gt.ABS(cffL)) THEN
+            dltR=cffL
+          ELSE IF (ABS(dltL).gt.ABS(cffR)) THEN
+            dltL=cffR
+          END IF
+          qR(i,k)=qc(i,k)+dltR
+          qL(i,k)=qc(i,k)-dltL
+        END DO
+      END DO
 !
 !  After this moment reconstruction is considered complete. The next
 !  stage is to compute vertical advective fluxes, FC. It is expected
@@ -3422,68 +3389,60 @@
 !  During the search: also add in content of whole grid boxes
 !  participating in FC.
 !
-
-          DO k=N(ng),1,-1
-            DO i=LBi,UBi
-               cff=dtdays*ABS(wBiod(i,k))
-              FC(i,k+1)=0.0_r8
-              WL(i,k)=z_wL(i,k+1)+cff
-              WR(i,k)=HzL(i,k)*qc(i,k)
-              ksource(i,k)=k
-            END DO
+      DO k=N(ng),1,-1
+        DO i=LBi,UBi
+          cff=dtdays*ABS(wBiod(i,k))
+          FC(i,k+1)=0.0_r8
+          WL(i,k)=z_wL(i,k+1)+cff
+          WR(i,k)=HzL(i,k)*qc(i,k)
+          ksource(i,k)=k
+        END DO
+      END DO
+      DO k=N(ng),1,-1
+        DO ks=N(ng),k,1
+          DO i=LBi,UBi
+            IF (WL(i,k).gt.z_wL(i,ks)) THEN
+              ksource(i,k)=ks-1
+              FC(i,k+1)=FC(i,k+1)+WR(i,ks)
+            END IF
           END DO
-          DO k=N(ng),1,-1
-            DO ks=N(ng),k,1
-              DO i=LBi,UBi
-                IF (WL(i,k).gt.z_wL(i,ks)) THEN
-                  ksource(i,k)=ks-1
-
-                  FC(i,k+1)=FC(i,k+1)+WR(i,ks)
-
-                END IF
-              END DO
-            END DO
-          END DO
+        END DO
+      END DO
 !
 !  Finalize computation of flux: add fractional part.
 !
-          DO k=N(ng),1,-1
-            DO i=LBi,UBi
-              ks=ksource(i,k)
+      DO k=N(ng),1,-1
+        DO i=LBi,UBi
+          ks=ksource(i,k)
 
-              cu=MIN(1.0_r8,(WL(i,k)-z_wL(i,ks+1))*Hz_inv(i,ks))
-              FC(i,k+1)=FC(i,k+1)+                                      &
+          cu=MIN(1.0_r8,(WL(i,k)-z_wL(i,ks+1))*Hz_inv(i,ks))
+          FC(i,k+1)=FC(i,k+1)+                                          &
      &                  HzL(i,ks)*cu*                                   &
      &                  (qL(i,ks)+                                      &
      &                   cu*(0.5_r8*(qR(i,ks)-qL(i,ks))-                &
      &                       (1.5_r8-cu)*                               &
      &                       (qR(i,ks)+qL(i,ks)-2.0_r8*qc(i,ks))))
-            END DO
+        END DO
+      END DO
 
 
-           END DO
-
-
-          DO k=N(ng),1,-1
-            DO i=LBi,UBi
+      DO k=N(ng),1,-1
+        DO i=LBi,UBi
 !           The Bio variables are now updated in the main biology subroutine
 !             Bio(i,k)=qc(i,k)+(FC(i,k)-FC(i,k-1))*Hz_inv(i,k)
-              riseIN(i,k)=FC(i,k)
-            riseOUT(i,k)=FC(i,k+1)
-            riseOUT(i,N)=0.0_r8
-            END DO
-          END DO
+          riseIN(i,k)=FC(i,k)
+          riseOUT(i,k)=FC(i,k+1)
+          riseOUT(i,N)=0.0_r8
+        END DO
+      END DO
 
       RETURN
       END SUBROUTINE BIORISE_1
 
 
-
-
 !=====================================================================
 ! BIOSINK_2      -original goanpz sink code (C.Lewis+ E. Dobbins)
 !=====================================================================
-
 
 !=====================================================================
 !     BIORISE
