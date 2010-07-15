@@ -314,6 +314,9 @@
 #ifdef NEMURO_SAN
       USE mod_types
 #endif
+#ifdef BEST_NPZ
+      USE mod_biology
+#endif
 !
 !  Imported variable declarations.
 !
@@ -610,6 +613,9 @@
       USE mod_param
 #ifdef NEMURO_SAN
       USE mod_types
+#endif
+#ifdef BEST_NPZ
+      USE mod_biology
 #endif
 !
 !  Imported variable declarations.

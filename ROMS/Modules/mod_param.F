@@ -269,13 +269,6 @@
 !
         integer, dimension(Ngrids) :: NT
         integer :: MT
-#if defined BIO_GOANPZ || defined BEST_NPZ
-        !------------------------------------
-        !Maximum number of production tracers
-        !------------------------------------
-        integer :: MST
-        integer, dimension(Ngrids) :: NTS
-#endif
 !
 !  Number of active tracers. Usually, NAT=2 for potential temperature
 !  and salinity.

@@ -10,7 +10,7 @@
 !
 !  Set biological tracer identification indices.
 !
-      integer, pointer :: idbio(:)    ! Biological tracers
+      integer, allocatable :: idbio(:)! Biological tracers
       integer :: iNO3                 ! Nitrate
       integer :: iNH4                 ! Ammonium
       integer :: iPhS                 ! Small Phytoplankton
@@ -281,54 +281,54 @@
 !#endif
 
 #ifdef BIOFLUX
-        integer, allocatable :: idTBFvar(:)    ! 3D Stationary variables
-        integer, allocatable :: avgTBFid(:,:)  ! averages stationary tracer IDs
+      integer, allocatable :: idTBFvar(:)    ! 3D Stationary variables
+      integer, allocatable :: avgTBFid(:,:)  ! averages stationary tracer IDs
 #endif
 #ifdef STATIONARY
-        integer, allocatable :: idTSvar(:)    ! 3D Stationary variables
-        integer, allocatable :: hisTSid(:,:)  ! history St tracer IDs
-        integer, allocatable :: avgTSid(:,:)  ! averages stationary tracer IDs
+      integer, allocatable :: idTSvar(:)    ! 3D Stationary variables
+      integer, allocatable :: hisTSid(:,:)  ! history St tracer IDs
+      integer, allocatable :: avgTSid(:,:)  ! averages stationary tracer IDs
 #endif
 
 #ifdef STATIONARY2
-        integer, allocatable :: idTS2var(:)    ! 2D Stationary variables
-        integer, allocatable :: hisTS2id(:,:)  ! history St tracer IDs
-        integer, allocatable :: avgTS2id(:,:)  ! averages stationary tracer IDs
+      integer, allocatable :: idTS2var(:)    ! 2D Stationary variables
+      integer, allocatable :: hisTS2id(:,:)  ! history St tracer IDs
+      integer, allocatable :: avgTS2id(:,:)  ! averages stationary tracer IDs
 #endif
 #ifdef PROD3
-        integer, allocatable :: idPT3var(:)    ! 3D  production variables
-        integer, allocatable :: hisPT3id(:,:)  ! history St tracer IDs
-        integer, allocatable :: avgPT3id(:,:)  ! averages stationary tracer IDs
+      integer, allocatable :: idPT3var(:)    ! 3D  production variables
+      integer, allocatable :: hisPT3id(:,:)  ! history St tracer IDs
+      integer, allocatable :: avgPT3id(:,:)  ! averages stationary tracer IDs
 #endif
 #ifdef PROD2
-        integer, allocatable :: idPT2var(:)    ! 2D production variables
-        integer, allocatable :: hisPT2id(:,:)  ! history St tracer IDs
-        integer, allocatable :: avgPT2id(:,:)  ! averages stationary tracer IDs
+      integer, allocatable :: idPT2var(:)    ! 2D production variables
+      integer, allocatable :: hisPT2id(:,:)  ! history St tracer IDs
+      integer, allocatable :: avgPT2id(:,:)  ! averages stationary tracer IDs
 #endif
 
 #if defined BENTHIC
-        integer, allocatable :: idBvar(:)
-        integer, allocatable :: hisBid(:,:)
-        integer, allocatable :: avgBid(:,:)
-        integer, allocatable :: rstBid(:,:)
+      integer, allocatable :: idBvar(:)
+      integer, allocatable :: hisBid(:,:)
+      integer, allocatable :: avgBid(:,:)
+      integer, allocatable :: rstBid(:,:)
 #endif
 #if defined ICE_BIO
 # if defined CLIM_ICE_1D
-        integer, allocatable :: idIceBvar(:)
-        integer, allocatable :: hisIceBid(:,:)
-        integer, allocatable :: rstIceBid(:,:)
-        integer, allocatable :: avgIceBid(:,:)
-        integer, allocatable :: idIceLogvar(:)
+      integer, allocatable :: idIceBvar(:)
+      integer, allocatable :: hisIceBid(:,:)
+      integer, allocatable :: rstIceBid(:,:)
+      integer, allocatable :: avgIceBid(:,:)
+      integer, allocatable :: idIceLogvar(:)
 # elif defined BERING_10K
-        integer  :: idIcePhL
-        integer  :: idIceNO3
-        integer  :: idIceNH4
-        integer  :: idIceLog
+      integer  :: idIcePhL
+      integer  :: idIceNO3
+      integer  :: idIceNH4
+      integer  :: idIceLog
 
-        integer  :: idIcePhLbc(4)     ! ice algae boundary conditions
-        integer  :: idIceNO3bc(4)     ! ice nitrate boundary conditions
-        integer  :: idIceNH4bc(4)     ! ice ammonium boundary conditions
-        integer  :: idIceLogbc(4)     ! ice switch boundary conditions
+      integer  :: idIcePhLbc(4)     ! ice algae boundary conditions
+      integer  :: idIceNO3bc(4)     ! ice nitrate boundary conditions
+      integer  :: idIceNH4bc(4)     ! ice ammonium boundary conditions
+      integer  :: idIceLogbc(4)     ! ice switch boundary conditions
 # endif
 #endif
 
@@ -342,10 +342,12 @@
 !  It allocates and assigns biological tracers indices.                !
 !                                                                      !
 !=======================================================================
+
+       USE mod_param
 !
 !  Local variable declarations
 !
-      integer :: i, ic
+      integer :: i, ic, ng
 !
 !-----------------------------------------------------------------------
 !  Determine number of biological tracers.
@@ -407,6 +409,7 @@
       allocate ( hisIceBid(NIB,Ngrids) )
       allocate ( rstIceBid(NIB,Ngrids) )
       allocate ( avgIceBid(NIB,Ngrids) )
+# endif
 #endif
 #if defined BIOFLUX
       allocate ( idTBFvar(1) )
@@ -572,6 +575,7 @@
       iIcePhL=1
       iIceNO3=2
       iIceNH4=3
+# endif
 #endif
 !---------------------------------------------
 !Adding stationary and production tracers to model
