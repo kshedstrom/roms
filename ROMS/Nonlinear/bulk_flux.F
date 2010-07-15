@@ -1279,7 +1279,7 @@
           ENDIF
 
           cff1= cff1+snow_thick(i,j)*20._r8
-#  end if
+#  endif
 
 #  ifdef ICE_BIO
           cff2=0.5*0.02_r8*0.005*IcePhL(i,j,liold)
@@ -1301,28 +1301,6 @@
           rhs_ice_heat(i,j) = RHS_Ice(i,j)
           qai_n(i,j) = Qai(i,j)
 
-! Limit shortwave radiation to be used in computing penetrative
-! radiation by presence of climatology ice and biology
-
-# elif !defined ICE_MODEL && defined BEST_NPZ && defined CLIM_ICE_1D
-
-          ice_thick(i,j) = tclm(i,j,N(ng),i1CI)
-          snow_thick(i,j) = ice_thick(i,j)*0.1 !assume 10% of ice depth
-
-          IF (ice_thick(i,j).le.0.1_r8) THEN
-            cff1=ice_thick(i,j)*5._r8
-          ELSE
-            cff1=0.1_r8*5._r8+(ice_thick(i,j)-0.1_r8)*1._r8
-          ENDIF
-
-          cff1= cff1+snow_thick(i,j)*20._r8
-
-#  ifdef ICE_BIO
-          cff2=0.5*0.02_r8*0.005*IcePhL(i,j,liold)
-          srflx(i,j)=srflx(i,j)*exp(-cff1-cff2)
-#  else
-          srflx(i,j)=srflx(i,j)*exp(-cff1)
-#  endif
 # endif
 
 # ifdef EMINUSP

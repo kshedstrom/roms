@@ -289,6 +289,9 @@
 !=======================================================================
 !
       USE mod_param
+#ifdef BEST_NPZ
+      USE mod_biology
+#endif
 !
 !  Imported variable declarations.
 !
@@ -573,6 +576,9 @@
 !=======================================================================
 !
       USE mod_param
+#ifdef BEST_NPZ
+      USE mod_biology
+#endif
 !
 !  Imported variable declarations.
 !
