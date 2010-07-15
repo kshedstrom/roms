@@ -343,6 +343,9 @@
       USE mod_param
       USE mod_ncparam
       USE mod_scalars
+# if defined BEST_NPZ || defined BIO_GOANPZ
+      USE mod_biology
+# endif
 !
 !  Local variable declarations.
 !
@@ -753,6 +756,9 @@
       USE mod_param
       USE mod_ncparam
       USE mod_scalars
+# if defined BEST_NPZ || defined BIO_GOANPZ
+      USE mod_biology
+# endif
 !
 !  Imported variable declarations.
 !

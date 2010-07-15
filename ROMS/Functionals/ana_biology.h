@@ -17,7 +17,6 @@
       USE mod_ocean
 
 #ifdef BEST_NPZ
-      USE mod_grid
 # if defined CLIM_ICE_1D
       USE mod_clima
 # endif
@@ -28,6 +27,7 @@
 
 #if defined BIO_GOANPZ || defined BEST_NPZ
       USE mod_grid
+      USE mod_biology
 #endif
 !
 ! Imported variable declarations.
@@ -52,8 +52,6 @@
      &                       CLIMA(ng) % tclmG,                         &
      &                       CLIMA(ng) % tclm,                          &
 #  else
-     &                       ICE(ng) % it,                              &
-     &                       ICE(ng) % itL,                             &
      &                       ICE(ng) % ti,                              &
      &                       ICE(ng) % hi,                              &
      &                       ICE(ng) % ai,                              &
@@ -113,8 +111,6 @@
      &                             tclmG,                               &
      &                             tclm,                                &
 #  else
-     &                             it ,                                 &
-     &                             itL,                                 &
      &                             ti ,                                 &
      &                             hi ,                                 &
      &                             ai ,                                 &
@@ -186,10 +182,10 @@
 #  endif
 
 #  ifdef ICE_BIO
-        real(r8), intent(inout) :: it(LBi:,LBj:,:,:)
-        real(r8), intent(inout) :: itL(LBi:,LBj:,:,:)
 #    ifdef CLIM_ICE_1D
-       real(r8), intent(inout) ::tclmG(LBi:,LBj:,:,:,:)
+      real(r8), intent(inout) :: it(LBi:,LBj:,:,:)
+      real(r8), intent(inout) :: itL(LBi:,LBj:,:,:)
+      real(r8), intent(inout) ::tclmG(LBi:,LBj:,:,:,:)
       real(r8), intent(inout) ::tclm(LBi:,LBj:,:,:)
 #    else
       real(r8), intent(in) :: ti(LBi:,LBj:,:)
