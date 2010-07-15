@@ -1043,7 +1043,7 @@
 !    &                     nvd4,t3dgrd,Aval,Vinfo,ncname)
           END IF
         END DO
-#  elif defined BERING_10K
+#  else
 !
 !  Define Ice Algae.
 !
@@ -3180,7 +3180,7 @@
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idHsno))) THEN
             got_var(idHsno)=.true.
             hisVid(idHsno,ng)=var_id(i)
-# if defined ICE_BIO && defined BERING_10K
+# if defined ICE_BIO
          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idIcePhL))) THEN
             got_var(idIcePhL)=.true.
             hisVid(idIcePhL,ng)=var_id(i)
@@ -3777,14 +3777,14 @@
           exit_flag=3
           RETURN
         END IF
-# if defined ICE_BIO && defined BERING_10K
+# if defined ICE_BIO
         IF (.not.got_var(idIcePhL).and.Hout(idIcePhL,ng)) THEN
           IF (Master) WRITE (stdout,60) TRIM(Vname(1,idIcePhL)),        &
      &                                  TRIM(ncname)
           exit_flag=3
           RETURN
         END IF            
-+# endif
+# endif
         IF (.not.got_var(idSfwat).and.Hout(idSfwat,ng)) THEN
           IF (Master) WRITE (stdout,60) TRIM(Vname(1,idSfwat)),         &
      &                                  TRIM(ncname)
@@ -3881,7 +3881,7 @@
           exit_flag=3
           RETURN
         END IF
-# endif
+#endif
 #if defined NEARSHORE_MELLOR
         IF (.not.got_var(idW2xx).and.Hout(idW2xx,ng)) THEN
           IF (Master) WRITE (stdout,60) TRIM(Vname(1,idW2xx)),          &

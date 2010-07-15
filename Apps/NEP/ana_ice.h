@@ -319,7 +319,7 @@
            IcePhL(i,j,1) = 0._r8
            IceNO3(i,j,1) = 0._r8
            IceNH4(i,j,1) = 0._r8
-           IceLog(i,j,1) = -1._r8
+           IceLog(i,j,1) = -1
            IcePhL(i,j,2) = IcePhL(i,j,1)
            IceNO3(i,j,2) = IceNO3(i,j,1)
            IceNH4(i,j,2) = IceNH4(i,j,1)
@@ -445,10 +445,14 @@
      &                    NghostPoints, EWperiodic, NSperiodic,         &
      &                    sfwat, sig11, sig12, sig22)
 # if defined BERING_10K && defined ICE_BIO
-      CALL mp_exchange3d (ng, tile, model, 4,                           &
+      CALL mp_exchange3d (ng, tile, model, 3,                           &
      &                    LBi, UBi, LBj, UBj, 1, 2,                     &
      &                    NghostPoints, EWperiodic, NSperiodic,         &
-     &                    IcePhL,IceNO3,IceNH4,IceLog)
+     &                    IcePhL, IceNO3, IceNH4)
+      CALL mp_exchange3d (ng, tile, model, 1,                           &
+     &                    LBi, UBi, LBj, UBj, 1, 2,                     &
+     &                    NghostPoints, EWperiodic, NSperiodic,         &
+     &                    IceLog)
 # endif
 # ifdef NCEP_FLUXES
       CALL mp_exchange2d (ng, tile, model, 4,                           &

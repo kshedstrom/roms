@@ -303,35 +303,6 @@
      &                          ICE(ng)%vi,                             &
      &                          ICE(ng)%IceNO3)
 !
-!
-!  ---------------------------------------------------------------------
-!  Advect the iceLog (doesn't work because IceLog is an int.
-!  ---------------------------------------------------------------------
-
-!      CALL ice_advect_tile (ng, tile,                                   &
-!     &                      LBi, UBi, LBj, UBj,                         &
-!!     &                      IminS, ImaxS, JminS, JmaxS,                &
-!     &                      nrhs(ng), linew(ng), liold(ng), liunw(ng),  &
-!# ifdef MASKING
-!     &                      GRID(ng) % rmask,                           &
-!# endif
-!# ifdef WET_DRY
-!     &                      GRID(ng) % rmask_wet,                       &
-!# endif
-!# ifdef ICESHELF
-!     &                      GRID(ng) % zice,                            &
-!# endif
-!#ifndef ICE_UPWIND
-!     &                      GRID(ng) % pm,                              &
-!     &                      GRID(ng) % pn,                              &
-!#endif
-!     &                      GRID(ng) % on_u,                            &
-!     &                      GRID(ng) % om_v,                            &
-!     &                      GRID(ng) % omn,                             &
-!     &                      ICE(ng) % ui,                               &
-!     &                      ICE(ng) % vi,                               &
-!     &                      ICE(ng) % IceLog                            &
-!     &                      )
 # endif
 !
 ! ---------------------------------------------------------------------
@@ -514,9 +485,6 @@
       CALL exchange_r2d_tile (ng, tile,                                 &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          ICE(ng)%IceNH4(:,:,linew(ng)))
-!      CALL exchange_r2d_tile (ng, tile,                                 &
-!     &                          LBi, UBi, LBj, UBj,                     &
-!     &                          ICE(ng)%IceLog(:,:,linew(ng)))
 #  endif
 # endif
 # ifdef DISTRIBUTE

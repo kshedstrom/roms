@@ -129,14 +129,8 @@
      &                    ,OCEAN(ng) % bt                               &
 # endif
 # ifdef ICE_BIO
-#  ifdef CLIM_ICE_1D
      &                    ,OCEAN(ng) % itL                              &
      &                    ,OCEAN(ng) % it                               &
-!#  elif defined BERING_10K
-!     &                   ,ICE(ng) % IcePhL                             &
-!     &                   ,ICE(ng) % IceNO3                             &
-!     &                   ,ICE(ng) % IceNH4                             &
-#  endif
 # endif
 # ifdef STATIONARY
       &                   ,OCEAN(ng) %st                                &
@@ -203,11 +197,7 @@
      &                          ,bt                                     &
 #  endif
 #  ifdef ICE_BIO
-#   ifdef CLIM_ICE_1D
      &                          ,itL ,it                                &
-!#  elif defined BERING_10K
-!     &                          ,IcePhL ,IceNO3 ,IceNH4                &
-#   endif
 #  endif
 #  ifdef STATIONARY
                                 ,st                                     &
@@ -221,6 +211,9 @@
       USE mod_scalars
 # ifdef SOGLOBEC
       USE mod_clima
+# endif
+# ifdef BEST_NPZ
+      USE mod_biology
 # endif
 !
 # if defined EW_PERIODIC || defined NS_PERIODIC
@@ -326,15 +319,8 @@
 
 #  if defined BEST_NPZ
 #   ifdef ICE_BIO
-#    if defined CLIM_ICE_1D
        real(r8), intent(inout) :: itL(LBi:,LBj:,:,:)
        real(r8), intent(inout) :: it(LBi:,LBj:,:,:)
-!#    elif defined BERING_10K
-!          real(r8), intent(inout) :: IcePhL(LBi:,LBj:,:)
-!      real(r8), intent(inout) :: IceNO3(LBi:,LBj:,:)
-!      real(r8), intent(inout) :: IceNH4(LBi:,LBj:,:)
-!      integer, intent(inout) :: IceLog(LBi:,LBj:,:)
-#    endif
 #   endif
 #   ifdef STATIONARY
      real(r8), intent(inout) :: st(LBi:,LBj:,:,:,:)
@@ -416,21 +402,14 @@
 
 #  if defined BEST_NPZ
 #   ifdef ICE_BIO
-#    if defined CLIM_ICE_1D
-       real(r8), intent(inout) :: itL(LBi:UBi,LBj:UBj,3,1)
-       real(r8), intent(inout) :: it(LBi:UBi,LBj:UBj,3,NIceT(ng))
-!#    elif defined BERING_10K
-!          real(r8), intent(inout) :: IcePhL(LBi:,LBj:,:)
-!      real(r8), intent(inout) :: IceNO3(LBi:,LBj:,:)
-!      real(r8), intent(inout) :: IceNH4(LBi:,LBj:,:)
-!      integer, intent(inout) :: IceLog(LBi:,LBj:,:)
-#    endif
+      real(r8), intent(inout) :: itL(LBi:UBi,LBj:UBj,3,1)
+      real(r8), intent(inout) :: it(LBi:UBi,LBj:UBj,3,NIceT(ng))
 #   endif
 #   ifdef STATIONARY
-     real(r8), intent(inout) :: st(LBi:UBi,LBj:UBj,N(ng),3,NTS(ng))
+      real(r8), intent(inout) :: st(LBi:UBi,LBj:UBj,N(ng),3,NTS(ng))
 #   endif
 #   ifdef BENTHIC
-     real(r8), intent(inout) :: bt(LBi:UBi,LBj:UBj,NBL(ng),3,NBeT(ng))
+      real(r8), intent(inout) :: bt(LBi:UBi,LBj:UBj,NBL(ng),3,NBeT(ng))
 #   endif
 #  endif
 # endif
@@ -1294,7 +1273,7 @@
               IF (itrc.eq.iNCaS.or.itrc.eq.iNCaO.or.itrc.eq.iEupS.or.   &
      &            itrc.eq.iEupO.or.itrc.eq.iJel ) THEN
 #  else
-              IF (itrc.eq.iNCaS.or.itrc.eq.iNCaO.or. itrc.eq.iEupS.or. &
+              IF (itrc.eq.iNCaS.or.itrc.eq.iNCaO.or. itrc.eq.iEupS.or.  &
      &        itrc.eq.iEupO) THEN
 #  endif
                 cff1=0.0_r8
@@ -1406,11 +1385,11 @@
 #   endif
 #  endif
 
-#  if defined BIO_GOANPZ || defined BEST_NPZ
+#  if defined BIO_GOANPZ
               IF ( itrc.ne.iNCa .and. itrc.ne.iEup ) THEN
 #  endif
                 t(i,j,k,nnew,itrc)=DC(i,k)
-#  if defined BIO_GOANPZ || defined BEST_NPZ
+#  if defined BIO_GOANPZ
               END IF
 #  endif
 #  ifdef DIAGNOSTICS_TS
@@ -1719,9 +1698,7 @@
 #  endif
 # endif
 
-#ifdef BEST_NPZ
-
-!# if !defined ANA_BIOLOGY
+# ifdef BEST_NPZ
 #  ifdef BENTHIC
       DO i=IstrR,IendR
         DO j=JstrR,JendR
@@ -1731,33 +1708,29 @@
           END DO
         END DO
       END DO
-#    endif
-# endif
-# if defined ICE_BIO
-#  if defined CLIM_ICE_1D
+#  endif
+#  if defined ICE_BIO
       DO j=Jstr,Jend
         DO itrc=1,NIB
           DO i=Istr,Iend
             it(i,j,nstp,itrc)=it(i,j,nnew,itrc)
-#  ifdef MASKING
+#   ifdef MASKING
             it(i,j,nstp,itrc)=  it(i,j,nstp,itrc)*rmask(i,j)
-
-#  endif
+#   endif
           END DO
         END DO
       END DO
       DO j=Jstr,Jend
         DO i=Istr,Iend
           itL(i,j,nstp,1)=itL(i,j,nnew,1)
-#  ifdef MASKING
+#   ifdef MASKING
           itL(i,j,nstp,1)=  itL(i,j,nstp,1)*rmask(i,j)
-#  endif
+#   endif
         END DO
       END DO
 #  endif
-# endif
 
-# if defined STATIONARY
+#  if defined STATIONARY
       DO j=LBj ,UBj
         DO k=1,N(ng)
           DO itrc=1,8
@@ -1767,8 +1740,6 @@
           END DO
         END DO
       END DO
-
-
       DO j=Jstr,Jend
         DO k=1,N(ng)
           DO itrc=1,8
@@ -1778,8 +1749,8 @@
           END DO
         END DO
       END DO
-!# endif
-#endif
+#  endif
+# endif
 
       RETURN
       END SUBROUTINE step3d_t_tile

@@ -62,9 +62,9 @@
 
 #endif
 #if defined ICE_BIO
-# ifdef CLIM_ICE_1D
      &                   OCEAN(ng) % it,                                &
      &                   OCEAN(ng) % itL,                               &
+# ifdef CLIM_ICE_1D
      &                   CLIMA(ng) % tclmG,                             &
      &                   CLIMA(ng) % tclm,                              &
 # else
@@ -115,9 +115,9 @@
      &                         bt,                                      &
 #endif
 #if defined ICE_BIO
-# ifdef CLIM_ICE_1D
      &                         it,                                      &
      &                         itL,                                     &
+# ifdef CLIM_ICE_1D
      &                         tclmG,                                   &
      &                         tclm,                                    &
 # else
@@ -209,9 +209,9 @@
       real(r8), intent(inout) :: bt(LBi:,LBj:,:,:,:)
 # endif
 # if defined ICE_BIO
-#  ifdef CLIM_ICE_1D
       real(r8), intent(inout) :: it(LBi:,LBj:,:,:)
       real(r8), intent(inout) :: itL(LBi:,LBj:,:,:)
+#  ifdef CLIM_ICE_1D
       real(r8), intent(inout) ::tclmG(LBi:,LBj:,:,:,:)
       real(r8), intent(inout) ::tclm(LBi:,LBj:,:,:)
 #  else
@@ -250,9 +250,9 @@
       real(r8), intent(inout) :: bt(LBi:UBi,LBj:UBj,UBk,3,1)
 # endif
 # if defined ICE_BIO
-#  ifdef CLIM_ICE_1D
       real(r8), intent(inout) :: it(LBi:UBi,LBj:UBj,3,1)
       real(r8), intent(inout) :: itL(LBi:UBi,LBj:UBj,3,1)
+#  ifdef CLIM_ICE_1D
       real(r8), intent(inout) ::tclmG(LBi:UBi,LBj:UBj,UBk,3,UBt+1)
       real(r8), intent(inout) ::tclm(LBi:UBi,LBj:UBj,UBk,UBt+1)
 #  else
@@ -507,7 +507,7 @@
         END DO
 #endif
 
-#if defined ICE_BIO && defined CLIM_ICE_1D
+#if defined ICE_BIO
         DO i=Istr,Iend
           IF (ice_thick(i,j).ge.0.02)          THEN
             IF (itL(i,j,nstp,iIceLog).le.0 )  THEN
@@ -2658,7 +2658,7 @@
 !              ENDIF
 
             ELSE IF (ice_thick(i,j).lt.0.02)      THEN
-# if defined ICE_BIO && defined CLIM_ICE_1D
+# if defined ICE_BIO
               IF (itL(i,j,nstp,iIceLog).eq.1_r8 ) THEN
                 DBio(i,N(ng),iPhL) = DBio(i,N(ng),iPhL)                 &
      &                     + it(i,j,nnew,iIcePhL)*aidz/Hz(i,j,N(ng))

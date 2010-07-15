@@ -248,13 +248,11 @@
 
 !$OMP BARRIER
 
-#  if defined NEP5
         DO k=1,N(ng)
           DO is=1,Nsrc
             Qshape(is,k)=1.0_r8/REAL(N(ng),r8)
           END DO
         END DO
-#  endif
 # endif
 !
 !  Set-up vertically integrated mass transport (m3/s) of point
@@ -267,7 +265,7 @@
 
 !$OMP BARRIER
 
-# if defined NEP5
+# if defined NEP5 || defined BERING_10K
       cff = 800000._r8/Nsrc
       DO is=1,Nsrc
         Qbar(is)=cff
