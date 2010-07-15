@@ -78,7 +78,6 @@
      &                      ICE(ng) % IcePhL,                           &
      &                      ICE(ng) % IceNO3,                           &
      &                      ICE(ng) % IceNH4,                           &
-     &                      ICE(ng) % IceLog,                           &
 #endif
      &                      FORCES(ng) % sustr,                         &
      &                      FORCES(ng) % svstr,                         &
@@ -118,7 +117,7 @@
      &                        ui, vi, coef_ice_heat, rhs_ice_heat,      &
      &                        s0mk, t0mk, io_mflux,                     &
 #if defined ICE_BIO && defined BERING_10K
-     &                        IcePhL, IceNO3, IceNH4, IceLog,           &
+     &                        IcePhL, IceNO3, IceNH4,                   &
 #endif
      &                        sustr, svstr,                             &
      &                        qai_n, qao_n,                             &
@@ -291,7 +290,6 @@
       real(r8), intent(inout) :: IcePhL(LBi:,LBj:,:)
       real(r8), intent(inout) :: IceNO3(LBi:,LBj:,:)
       real(r8), intent(inout) :: IceNH4(LBi:,LBj:,:)
-      real(r8), intent(inout) :: IceLog(LBi:,LBj:,:)
 #endif
       real(r8), intent(in) :: sustr(LBi:,LBj:)
       real(r8), intent(in) :: svstr(LBi:,LBj:)
@@ -345,7 +343,6 @@
       real(r8), intent(inout) :: IcePhL(LBi:UBi,LBj:UBj,2)
       real(r8), intent(inout) :: IceNO3(LBi:UBi,LBj:UBj,2)
       real(r8), intent(inout) :: IceNH4(LBi:UBi,LBj:UBj,2)
-      real(r8), intent(inout) :: IceLog(LBi:UBi,LBj:UBj,2)
 # endif
       real(r8), intent(in) :: sustr(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: svstr(LBi:UBi,LBj:UBj)
@@ -1026,9 +1023,6 @@
       CALL exchange_r2d_tile (ng, tile,                                 &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          IceNH4(:,:,linew))
-      CALL exchange_r2d_tile (ng, tile,                                 &
-     &                          LBi, UBi, LBj, UBj,                     &
-     &                          IceLog(:,:,linew))
 # endif
 #endif
 #ifdef DISTRIBUTE

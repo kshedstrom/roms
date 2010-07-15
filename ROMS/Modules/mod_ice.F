@@ -51,7 +51,7 @@
          real(r8), pointer ::IcePhL(:,:,:)
          real(r8), pointer ::IceNO3(:,:,:)
          real(r8), pointer ::IceNH4(:,:,:)
-         real(r8), pointer ::IceLog(:,:,:)
+         integer, pointer ::IceLog(:,:,:)
 #  endif
 # endif
 
@@ -270,8 +270,8 @@
           ICE(ng) % IceNO3(i,j,2) = IniVal
           ICE(ng) % IceNH4(i,j,1) = IniVal
           ICE(ng) % IceNH4(i,j,2) = IniVal
-          ICE(ng) % IceLog(i,j,1) = -1.0_r8
-          ICE(ng) % IceLog(i,j,2) = -1.0_r8
+          ICE(ng) % IceLog(i,j,1) = -1
+          ICE(ng) % IceLog(i,j,2) = -1
 #  endif
 # endif
         END DO
