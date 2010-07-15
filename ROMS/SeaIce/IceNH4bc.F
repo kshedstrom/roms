@@ -26,18 +26,18 @@
 
 # include "tile.h"
 !
-      CALL iceNH4bc_tile (ng, tile,                                        &
+      CALL iceNH4bc_tile (ng, tile,                                     &
      &                 LBi, UBi, LBj, UBj,                              &
      &                 liold(ng), linew(ng),                            &
      &                 ICE(ng) % ui,                                    &
      &                 ICE(ng) % vi,                                    &
-     &                 ICE(ng) % iceNH4)
+     &                 ICE(ng) % IceNH4)
       RETURN
       END SUBROUTINE iceNH4bc
 
 !
 !***********************************************************************
-      SUBROUTINE iceNH4bc_tile (ng, tile,                                  &
+      SUBROUTINE iceNH4bc_tile (ng, tile,                               &
      &                           LBi, UBi, LBj, UBj,                    &
      &                           liold, linew,                          &
      &                           ui, vi, iceNH4)
@@ -96,21 +96,21 @@
           IF(ui(1,j,linew).ge.0._r8) THEN
              iceNH4(0,j,linew)=BOUNDARY(ng)%iceNH4_west(j)
 #  ifdef MASKING
-             iceNH4(0,j,linew)=iceNH4(0,j,linew)*                             &
+             iceNH4(0,j,linew)=iceNH4(0,j,linew)*                       &
      &                   GRID(ng)%rmask(0,j)
 #  endif
 #  ifdef WET_DRY
-             iceNH4(0,j,linew)=iceNH4(0,j,linew)*                             &
+             iceNH4(0,j,linew)=iceNH4(0,j,linew)*                       &
      &                   GRID(ng)%rmask_wet(0,j)
 #  endif
           ELSE
              iceNH4(0,j,linew)=iceNH4(1,j,liold)
 #  ifdef MASKING
-             iceNH4(0,j,linew)=iceNH4(0,j,linew)*                             &
+             iceNH4(0,j,linew)=iceNH4(0,j,linew)*                       &
      &                   GRID(ng)%rmask(0,j)
 #  endif
 #  ifdef WET_DRY
-             iceNH4(0,j,linew)=iceNH4(0,j,linew)*                             &
+             iceNH4(0,j,linew)=iceNH4(0,j,linew)*                       &
      &                   GRID(ng)%rmask_wet(0,j)
 #  endif
           ENDIF
@@ -122,11 +122,11 @@
         DO j=Jstr,Jend
           iceNH4(0,j,linew)=iceNH4(1,j,linew)
 #  ifdef MASKING
-          iceNH4(0,j,linew)=iceNH4(0,j,linew)*                                &
+          iceNH4(0,j,linew)=iceNH4(0,j,linew)*                          &
      &                   GRID(ng)%rmask(0,j)
 #  endif
 #  ifdef WET_DRY
-          iceNH4(0,j,linew)=iceNH4(0,j,linew)*                                &
+          iceNH4(0,j,linew)=iceNH4(0,j,linew)*                          &
      &                   GRID(ng)%rmask_wet(0,j)
 #  endif
         END DO
@@ -137,11 +137,11 @@
         DO j=Jstr,Jend
           iceNH4(0,j,linew)=iceNH4(1,j,linew)
 #  ifdef MASKING
-          iceNH4(0,j,linew)=iceNH4(0,j,linew)*                                &
+          iceNH4(0,j,linew)=iceNH4(0,j,linew)*                          &
      &                   GRID(ng)%rmask(0,j)
 #  endif
 #  ifdef WET_DRY
-          iceNH4(0,j,linew)=iceNH4(0,j,linew)*                                &
+          iceNH4(0,j,linew)=iceNH4(0,j,linew)*                          &
      &                   GRID(ng)%rmask_wet(0,j)
 #  endif
         END DO
@@ -162,21 +162,21 @@
           IF(ui(Lm(ng)+1,j,linew).le.0._r8) THEN
              iceNH4(Lm(ng)+1,j,linew)=BOUNDARY(ng)%iceNH4_east(j)
 #  ifdef MASKING
-             iceNH4(Lm(ng)+1,j,linew)=iceNH4(Lm(ng)+1,j,linew)*               &
+             iceNH4(Lm(ng)+1,j,linew)=iceNH4(Lm(ng)+1,j,linew)*         &
      &                          GRID(ng)%rmask(Lm(ng)+1,j)
 #  endif
 #  ifdef WET_DRY
-             iceNH4(Lm(ng)+1,j,linew)=iceNH4(Lm(ng)+1,j,linew)*               &
+             iceNH4(Lm(ng)+1,j,linew)=iceNH4(Lm(ng)+1,j,linew)*         &
      &                          GRID(ng)%rmask_wet(Lm(ng)+1,j)
 #  endif
           ELSE
              iceNH4(Lm(ng)+1,j,linew)=iceNH4(Lm(ng),j,liold)
 #  ifdef MASKING
-             iceNH4(Lm(ng)+1,j,linew)=iceNH4(Lm(ng)+1,j,linew)*               &
+             iceNH4(Lm(ng)+1,j,linew)=iceNH4(Lm(ng)+1,j,linew)*         &
      &                          GRID(ng)%rmask(Lm(ng)+1,j)
 #  endif
 #  ifdef WET_DRY
-             iceNH4(Lm(ng)+1,j,linew)=iceNH4(Lm(ng)+1,j,linew)*               &
+             iceNH4(Lm(ng)+1,j,linew)=iceNH4(Lm(ng)+1,j,linew)*         &
      &                          GRID(ng)%rmask_wet(Lm(ng)+1,j)
 #  endif
           ENDIF
@@ -188,11 +188,11 @@
         DO j=Jstr,Jend
           iceNH4(Lm(ng)+1,j,linew)=iceNH4(Lm(ng),j,linew)
 #  ifdef MASKING
-          iceNH4(Lm(ng)+1,j,linew)=iceNH4(Lm(ng)+1,j,linew)*                  &
+          iceNH4(Lm(ng)+1,j,linew)=iceNH4(Lm(ng)+1,j,linew)*            &
      &                          GRID(ng)%rmask(Lm(ng)+1,j)
 #  endif
 #  ifdef WET_DRY
-          iceNH4(Lm(ng)+1,j,linew)=iceNH4(Lm(ng)+1,j,linew)*                  &
+          iceNH4(Lm(ng)+1,j,linew)=iceNH4(Lm(ng)+1,j,linew)*            &
      &                          GRID(ng)%rmask_wet(Lm(ng)+1,j)
 #  endif
         END DO
@@ -203,11 +203,11 @@
         DO j=Jstr,Jend
           iceNH4(Lm(ng)+1,j,linew)=iceNH4(Lm(ng),j,linew)
 #  ifdef MASKING
-          iceNH4(Lm(ng)+1,j,linew)=iceNH4(Lm(ng)+1,j,linew)*                  &
+          iceNH4(Lm(ng)+1,j,linew)=iceNH4(Lm(ng)+1,j,linew)*            &
      &                          GRID(ng)%rmask(Lm(ng)+1,j)
 #  endif
 #  ifdef WET_DRY
-          iceNH4(Lm(ng)+1,j,linew)=iceNH4(Lm(ng)+1,j,linew)*                  &
+          iceNH4(Lm(ng)+1,j,linew)=iceNH4(Lm(ng)+1,j,linew)*            &
      &                          GRID(ng)%rmask_wet(Lm(ng)+1,j)
 #  endif
         END DO
@@ -230,21 +230,21 @@
           IF(vi(i,1,linew).ge.0._r8) THEN
              iceNH4(i,0,linew)=BOUNDARY(ng)%iceNH4_south(i)
 #  ifdef MASKING
-             iceNH4(i,0,linew)=iceNH4(i,0,linew)*                             &
+             iceNH4(i,0,linew)=iceNH4(i,0,linew)*                       &
      &                   GRID(ng)%rmask(i,0)
 #  endif
 #  ifdef WET_DRY
-             iceNH4(i,0,linew)=iceNH4(i,0,linew)*                             &
+             iceNH4(i,0,linew)=iceNH4(i,0,linew)*                       &
      &                   GRID(ng)%rmask_wet(i,0)
 #  endif
           ELSE
              iceNH4(i,0,linew)=iceNH4(i,1,liold)
 #  ifdef MASKING
-             iceNH4(i,0,linew)=iceNH4(i,0,linew)*                             &
+             iceNH4(i,0,linew)=iceNH4(i,0,linew)*                       &
      &                   GRID(ng)%rmask(i,0)
 #  endif
 #  ifdef WET_DRY
-             iceNH4(i,0,linew)=iceNH4(i,0,linew)*                             &
+             iceNH4(i,0,linew)=iceNH4(i,0,linew)*                       &
      &                   GRID(ng)%rmask_wet(i,0)
 #  endif
           ENDIF
@@ -256,11 +256,11 @@
         DO i=Istr,Iend
           iceNH4(i,0,linew)=iceNH4(i,1,linew)
 #  ifdef MASKING
-          iceNH4(i,0,linew)=iceNH4(i,0,linew)*                                &
+          iceNH4(i,0,linew)=iceNH4(i,0,linew)*                          &
      &                   GRID(ng)%rmask(i,0)
 #  endif
 #  ifdef WET_DRY
-          iceNH4(i,0,linew)=iceNH4(i,0,linew)*                                &
+          iceNH4(i,0,linew)=iceNH4(i,0,linew)*                          &
      &                   GRID(ng)%rmask_wet(i,0)
 #  endif
         END DO
@@ -271,11 +271,11 @@
         DO i=Istr,Iend
           iceNH4(i,0,linew)=iceNH4(i,1,linew)
 #  ifdef MASKING
-          iceNH4(i,0,linew)=iceNH4(i,0,linew)*                                &
+          iceNH4(i,0,linew)=iceNH4(i,0,linew)*                          &
      &                   GRID(ng)%rmask(i,0)
 #  endif
 #  ifdef WET_DRY
-          iceNH4(i,0,linew)=iceNH4(i,0,linew)*                                &
+          iceNH4(i,0,linew)=iceNH4(i,0,linew)*                          &
      &                   GRID(ng)%rmask_wet(i,0)
 #  endif
         END DO
@@ -296,21 +296,21 @@
           IF(vi(i,Mm(ng)+1,linew).le.0._r8) THEN
              iceNH4(i,Mm(ng)+1,linew)=BOUNDARY(ng)%iceNH4_north(i)
 #  ifdef MASKING
-             iceNH4(i,Mm(ng)+1,linew)=iceNH4(i,Mm(ng)+1,linew)*               &
+             iceNH4(i,Mm(ng)+1,linew)=iceNH4(i,Mm(ng)+1,linew)*         &
      &                          GRID(ng)%rmask(i,Mm(ng)+1)
 #  endif
 #  ifdef WET_DRY
-             iceNH4(i,Mm(ng)+1,linew)=iceNH4(i,Mm(ng)+1,linew)*               &
+             iceNH4(i,Mm(ng)+1,linew)=iceNH4(i,Mm(ng)+1,linew)*         &
      &                          GRID(ng)%rmask_wet(i,Mm(ng)+1)
 #  endif
           ELSE
              iceNH4(i,Mm(ng)+1,linew)=iceNH4(i,Mm(ng),liold)
 #  ifdef MASKING
-             iceNH4(i,Mm(ng)+1,linew)=iceNH4(i,Mm(ng)+1,linew)*               &
+             iceNH4(i,Mm(ng)+1,linew)=iceNH4(i,Mm(ng)+1,linew)*         &
      &                          GRID(ng)%rmask(i,Mm(ng)+1)
 #  endif
 #  ifdef WET_DRY
-             iceNH4(i,Mm(ng)+1,linew)=iceNH4(i,Mm(ng)+1,linew)*               &
+             iceNH4(i,Mm(ng)+1,linew)=iceNH4(i,Mm(ng)+1,linew)*         &
      &                          GRID(ng)%rmask_wet(i,Mm(ng)+1)
 #  endif
           ENDIF
@@ -322,11 +322,11 @@
         DO i=Istr,Iend
           iceNH4(i,Mm(ng)+1,linew)=iceNH4(i,Mm(ng),linew)
 #  ifdef MASKING
-          iceNH4(i,Mm(ng)+1,linew)=iceNH4(i,Mm(ng)+1,linew)*                  &
+          iceNH4(i,Mm(ng)+1,linew)=iceNH4(i,Mm(ng)+1,linew)*            &
      &                          GRID(ng)%rmask(i,Mm(ng)+1)
 #  endif
 #  ifdef WET_DRY
-          iceNH4(i,Mm(ng)+1,linew)=iceNH4(i,Mm(ng)+1,linew)*                  &
+          iceNH4(i,Mm(ng)+1,linew)=iceNH4(i,Mm(ng)+1,linew)*            &
      &                          GRID(ng)%rmask_wet(i,Mm(ng)+1)
 #  endif
         END DO
@@ -337,11 +337,11 @@
         DO i=Istr,Iend
           iceNH4(i,Mm(ng)+1,linew)=iceNH4(i,Mm(ng),linew)
 #  ifdef MASKING
-          iceNH4(i,Mm(ng)+1,linew)=iceNH4(i,Mm(ng)+1,linew)*                  &
+          iceNH4(i,Mm(ng)+1,linew)=iceNH4(i,Mm(ng)+1,linew)*            &
      &                          GRID(ng)%rmask(i,Mm(ng)+1)
 #  endif
 #  ifdef WET_DRY
-          iceNH4(i,Mm(ng)+1,linew)=iceNH4(i,Mm(ng)+1,linew)*                  &
+          iceNH4(i,Mm(ng)+1,linew)=iceNH4(i,Mm(ng)+1,linew)*            &
      &                          GRID(ng)%rmask_wet(i,Mm(ng)+1)
 #  endif
         END DO
@@ -355,20 +355,20 @@
 !-----------------------------------------------------------------------
 !
       IF (SOUTHERN_EDGE.and.WESTERN_EDGE) THEN
-        iceNH4(0,0,linew)=0.5_r8*(iceNH4(1,0,linew)+                          &
+        iceNH4(0,0,linew)=0.5_r8*(iceNH4(1,0,linew)+                    &
      &                         iceNH4(0,1,linew))
       END IF
       IF (SOUTHERN_EDGE.and.EASTERN_EDGE) THEN
-        iceNH4(Lm(ng)+1,0,linew)=0.5_r8*(iceNH4(Lm(ng)+1,1,linew)+            &
+        iceNH4(Lm(ng)+1,0,linew)=0.5_r8*(iceNH4(Lm(ng)+1,1,linew)+      &
      &                                iceNH4(Lm(ng)  ,0,linew))
       END IF
       IF (NORTHERN_EDGE.and.WESTERN_EDGE) THEN
-        iceNH4(0,Mm(ng)+1,linew)=0.5_r8*(iceNH4(0,Mm(ng)  ,linew)+            &
+        iceNH4(0,Mm(ng)+1,linew)=0.5_r8*(iceNH4(0,Mm(ng)  ,linew)+      &
      &                                iceNH4(1,Mm(ng)+1,linew))
       END IF
       IF (NORTHERN_EDGE.and.EASTERN_EDGE) THEN
-        iceNH4(Lm(ng)+1,Mm(ng)+1,linew)=0.5_r8*                            &
-     &             (iceNH4(Lm(ng)+1,Mm(ng)  ,linew)+                       &
+        iceNH4(Lm(ng)+1,Mm(ng)+1,linew)=0.5_r8*                         &
+     &             (iceNH4(Lm(ng)+1,Mm(ng)  ,linew)+                    &
      &              iceNH4(Lm(ng)  ,Mm(ng)+1,linew))
       END IF
 #endif

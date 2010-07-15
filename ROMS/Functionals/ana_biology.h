@@ -46,12 +46,16 @@
      &                       OCEAN(ng) % bt,                            &
 # endif
 # ifdef ICE_BIO
-#  ifdef CLIM_ICE_1D
      &                       OCEAN(ng) % it,                            &
      &                       OCEAN(ng) % itL,                           &
+#  ifdef CLIM_ICE_1D
      &                       CLIMA(ng) % tclmG,                         &
      &                       CLIMA(ng) % tclm,                          &
 #  else
+     &                       ICE(ng) % IcePhL,                          &
+     &                       ICE(ng) % IceNO3,                          &
+     &                       ICE(ng) % IceNH4,                          &
+     &                       ICE(ng) % IceLog,                          &
      &                       ICE(ng) % ti,                              &
      &                       ICE(ng) % hi,                              &
      &                       ICE(ng) % ai,                              &
@@ -106,14 +110,13 @@
      &                             bt,                                  &
 # endif
 # ifdef ICE_BIO
-#  ifdef CLIM_ICE_1D
      &                             it, itL,                             &
+#  ifdef CLIM_ICE_1D
      &                             tclmG,                               &
      &                             tclm,                                &
 #  else
-     &                             ti ,                                 &
-     &                             hi ,                                 &
-     &                             ai ,                                 &
+     &                             IcePhL, IceNO3, IceNH4, IceLog,      &
+     &                             ti, hi, ai,                          &
      &                             ageice ,                             &
 #  endif
 # endif
@@ -182,12 +185,16 @@
 #  endif
 
 #  ifdef ICE_BIO
-#    ifdef CLIM_ICE_1D
       real(r8), intent(inout) :: it(LBi:,LBj:,:,:)
       real(r8), intent(inout) :: itL(LBi:,LBj:,:,:)
+#    ifdef CLIM_ICE_1D
       real(r8), intent(inout) ::tclmG(LBi:,LBj:,:,:,:)
       real(r8), intent(inout) ::tclm(LBi:,LBj:,:,:)
 #    else
+      real(r8), intent(inout) :: IcePhL(LBi:,LBj:,:)
+      real(r8), intent(inout) :: IceNO3(LBi:,LBj:,:)
+      real(r8), intent(inout) :: IceNH4(LBi:,LBj:,:)
+      integer, intent(inout)  :: IceLog(LBi:,LBj:,:)
       real(r8), intent(in) :: ti(LBi:,LBj:,:)
       real(r8), intent(in) :: hi(LBi:,LBj:,:)
       real(r8), intent(in) :: ai(LBi:,LBj:,:)
@@ -226,11 +233,15 @@
 
 #  ifdef ICE_BIO
       real(r8), intent(inout) :: it(LBi:UBi,LBj:UBj,3,NIceT(ng))
-       real(r8), intent(inout) :: itL(LBi:UBi,LBj:UBj,3,NIceLog(ng))
+      real(r8), intent(inout) :: itL(LBi:UBi,LBj:UBj,3,NIceLog(ng))
 #    ifdef CLIM_ICE_1D
       real(r8), intent(inout) ::tclmG(LBi:UBi,LBj:UBj,UBk,3,UBt+1)
       real(r8), intent(inout) ::tclm(LBi:UBi,LBj:UBj,UBk,UBt+1)
 #    else
+      real(r8), intent(inout) :: IcePhL(LBi:UBi,LBj:UBJ,2)
+      real(r8), intent(inout) :: IceNO3(LBi:UBi,LBj:UBJ,2)
+      real(r8), intent(inout) :: IceNH4(LBi:UBi,LBj:UBJ,2)
+      integer, intent(inout)  :: IceLog(LBi:UBi,LBj:UBJ,2)
       real(r8), intent(in) :: ti(LBi:UBi,LBj:UBj,2)
       real(r8), intent(in) :: hi(LBi:UBi,LBj:UBj,2)
       real(r8), intent(in) :: ai(LBi:UBi,LBj:UBj,2)

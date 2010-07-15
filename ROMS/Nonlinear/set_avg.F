@@ -1626,15 +1626,15 @@
 # endif
 # ifdef ICE_BIO
 #  if defined BERING_10K
-        IF (Aout(idIPhL,ng)) THEN
+        IF (Aout(idIcePhL,ng)) THEN
           DO j=JstrR,JendR
             DO i=Istr,IendR
-              AVERAGE(ng)%avgPhL(i,j)=AVERAGE(ng)%avgIPhL(i,j)+        &
+              AVERAGE(ng)%avgIPhL(i,j)=AVERAGE(ng)%avgIPhL(i,j)+        &
      &                                 ICE(ng)%IcePhL(i,j,Iout)
             END DO
           END DO
         END IF
-        IF (Aout(idINO3,ng)) THEN
+        IF (Aout(idIceNO3,ng)) THEN
           DO j=JstrR,JendR
             DO i=Istr,IendR
               AVERAGE(ng)%avgINO3(i,j)=AVERAGE(ng)%avgINO3(i,j)+        &
@@ -1642,7 +1642,7 @@
             END DO
           END DO
         END IF
-        IF (Aout(idINH4,ng)) THEN
+        IF (Aout(idIceNH4,ng)) THEN
           DO j=JstrR,JendR
             DO i=Istr,IendR
               AVERAGE(ng)%avgINH4(i,j)=AVERAGE(ng)%avgINH4(i,j)+        &
@@ -1650,7 +1650,7 @@
             END DO
           END DO
         END IF
-        IF (Aout(idILog,ng)) THEN
+        IF (Aout(idIceLog,ng)) THEN
           DO j=JstrR,JendR
             DO i=Istr,IendR
               AVERAGE(ng)%avgILog(i,j)=AVERAGE(ng)%avgILog(i,j)+        &
@@ -2607,28 +2607,28 @@
 # endif
 # ifdef ICE_BIO
 #  ifdef BERING_10K
-        IF (Aout(idIPhL,ng)) THEN
+        IF (Aout(idIcePhL,ng)) THEN
           DO j=JstrR,JendR
             DO i=Istr,IendR
               AVERAGE(ng)%avgIPhL(i,j)=fac*AVERAGE(ng)%avgIPhL(i,j)
             END DO
           END DO
         END IF
-        IF (Aout(idINO3,ng)) THEN
+        IF (Aout(idIceNO3,ng)) THEN
           DO j=JstrR,JendR
             DO i=Istr,IendR
               AVERAGE(ng)%avgINO3(i,j)=fac*AVERAGE(ng)%avgINO3(i,j)
             END DO
           END DO
         END IF
-        IF (Aout(idINH4,ng)) THEN
+        IF (Aout(idIceNH4,ng)) THEN
           DO j=JstrR,JendR
             DO i=Istr,IendR
               AVERAGE(ng)%avgINH4(i,j)=fac*AVERAGE(ng)%avgINH4(i,j)
             END DO
           END DO
         END IF
-        IF (Aout(idILog,ng)) THEN
+        IF (Aout(idIceLog,ng)) THEN
           DO j=JstrR,JendR
             DO i=Istr,IendR
               AVERAGE(ng)%avgILog(i,j)=fac*AVERAGE(ng)%avgILog(i,j)
