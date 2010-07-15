@@ -166,9 +166,9 @@
 # endif
 # if defined BEST_NPZ
 #  if defined CLIM_ICE_1D
-     &                    OCEAN(ng) % it,                               &
-     &                    CLIMA(ng) % tclm,                             &
-     &                    nstp(ng),                                     &
+     &                     OCEAN(ng) % it,                              &
+     &                     CLIMA(ng) % tclm,                            &
+     &                     nstp(ng),                                    &
 #  elif defined ICE_BIO
      &                     ICE(ng) % IcePhL,                            &
      &                     ICE(ng) % IceLog,                            &
@@ -435,8 +435,8 @@
       real(r8), intent(out) :: tau_aix_n(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: tau_aiy_n(LBi:UBi,LBj:UBj)
 #   if definded ICE_BIO
-       real(r8), intent(in) :: IcePhL(LBi:UBi,LBj:UBj,2)
-       real(r8), intent(inout) :: IceLog(LBi:UBi,LBj:UBj,2)
+      real(r8), intent(in) :: IcePhL(LBi:UBi,LBj:UBj,2)
+      integer, intent(inout) :: IceLog(LBi:UBi,LBj:UBj,2)
 #   endif
 #  endif
 
@@ -1258,7 +1258,7 @@
 ! radiation by presence of ice alone
 
 #  if defined BEST_NPZ && defined ICE_BIO
-          IF (IceLog(i,j,nstp).lt.0_r8 ) THEN
+          IF (IceLog(i,j,nstp).lt.0) THEN
             IF (hi(i,j,liold).le.0.1_r8) THEN
               cff1=hi(i,j,liold)*5._r8
             ELSE
