@@ -160,10 +160,17 @@
           real(r8), pointer :: avgbt(:,:,:,:)
 #   endif
 #   ifdef ICE_BIO
+#     ifdef CLIM_ICE_1D   
           real(r8), pointer :: avgit(:,:,:)
+#     elif defined BERING_10K
+          real(r8), pointer :: avgIPhL(:,:)
+          real(r8),pointer:: avgINO3(:,:)
+          real(r8), pointer :: avgINH4(:,:)
+          real(r8), pointer :: avgILog(:,:)
+#     endif
 #   endif
 #   if defined BIOFLUX
-        real(r8), pointer :: avgbflx(:,:)
+          real(r8), pointer :: avgbflx(:,:)
 #   endif
 #  endif
 
@@ -378,14 +385,28 @@
        allocate ( AVERAGE(ng) % avgbt(LBi:UBi,LBj:UBj,NBL(ng),NBeT(ng)) )
 #   endif
 #   ifdef ICE_BIO
-       allocate ( AVERAGE(ng) % avgit(LBi:UBi,LBj:UBj,NIceT(ng)) )
+#    ifdef CLIM_ICE_1D
+        allocate ( AVERAGE(ng) % avgit(LBi:UBi,LBj:UBj,NIceT(ng)) )
+#    elif defined BERING_10K
+      IF (Aout(idIceNO3,ng)) THEN
+        allocate ( AVERAGE(ng) % avgINO3(LBi:UBi,LBj:UBj) )
+      END IF
+      IF (Aout(idIcePhL,ng)) THEN
+        allocate ( AVERAGE(ng) % avgIPhL(LBi:UBi,LBj:UBj) )
+      END IF
+      IF (Aout(idIceNH4,ng)) THEN
+        allocate ( AVERAGE(ng) % avgINH4(LBi:UBi,LBj:UBj) )
+      END IF
+      IF (Aout(idIceLog,ng)) THEN
+        allocate ( AVERAGE(ng) % avgILog(LBi:UBi,LBj:UBj) )
+      END IF
+#    endif
 #   endif
 
 #   ifdef BIOFLUX
         allocate ( AVERAGE(ng) % avgbflx(NAT+NBT,NAT+NBT) )
 #   endif
 #  endif
-
 
 #  ifdef BIO_GOANPZ
         allocate ( AVERAGE(ng) % avgst(LBi:UBi,LBj:UBj,N(ng),NTS(ng)) )
@@ -742,7 +763,7 @@
       integer :: Imin, Imax, Jmin, Jmax
       integer :: i, j
 # ifdef SOLVE3D
-      integer :: itrc, k
+      integer :: itrc, itrc2, k
 # endif
 
       real(r8), parameter :: IniVal = 0.0_r8
@@ -1394,9 +1415,9 @@
 # endif
 # ifdef STATIONARY2
         DO itrc=1,NTS2(ng)
-            DO i=Imin,Imax
-              AVERAGE(ng) % avgst2(i,j,itrc) = IniVal
-            END DO
+          DO i=Imin,Imax
+            AVERAGE(ng) % avgst2(i,j,itrc) = IniVal
+          END DO
         END DO
 # endif
 # ifdef PROD3
@@ -1410,15 +1431,13 @@
 # endif
 # ifdef PROD2
         DO itrc=1,NPT2(ng)
-
-            DO i=Imin,Imax
-              AVERAGE(ng) % avgpt2(i,j,itrc) = IniVal
-            END DO
-
+          DO i=Imin,Imax
+            AVERAGE(ng) % avgpt2(i,j,itrc) = IniVal
+          END DO
         END DO
 # endif
 # ifdef BENTHIC
-       DO itrc=1,NBeT(ng)
+        DO itrc=1,NBeT(ng)
           DO k=1,NBL(ng)
             DO i=Imin,Imax
               AVERAGE(ng) % avgbt(i,j,k,itrc) = IniVal
@@ -1427,15 +1446,46 @@
         END DO
 # endif
 # ifdef ICE_BIO
-       DO itrc=1,NIceT(ng)
-            DO i=Imin,Imax
-              AVERAGE(ng) % avgit(i,j,itrc) = IniVal
-            END DO
+#  ifdef CLIM_ICE_1D
+        DO itrc=1,NIceT(ng)
+          DO i=Imin,Imax
+            AVERAGE(ng) % avgit(i,j,itrc) = IniVal
+          END DO
         END DO
+#  elif defined BERING_10K       
+      IF (Aout(idIceNO3,ng)) THEN
+        DO j=Jmin,Jmax
+          DO i=Imin,Imax
+            AVERAGE(ng) % avgINO3(i,j) = IniVal
+          END DO
+        END DO
+      END IF
+      IF (Aout(idIceNH4,ng)) THEN
+        DO j=Jmin,Jmax
+          DO i=Imin,Imax
+            AVERAGE(ng) % avgINH4(i,j) = IniVal
+          END DO
+        END DO
+      END IF
+      IF (Aout(idIcePhL,ng)) THEN
+        DO j=Jmin,Jmax
+          DO i=Imin,Imax
+            AVERAGE(ng) % avgIPhL(i,j) = IniVal
+          END DO
+        END DO
+      END IF
+      IF (Aout(idIceLog,ng)) THEN
+        DO j=Jmin,Jmax
+          DO i=Imin,Imax
+            AVERAGE(ng) % avgILog(i,j) = IniVal
+          END DO
+        END DO
+      END IF
+#  endif
 # endif
 # ifdef BIOFLUX
         DO itrc=1,NT(ng)
-         DO itrc2=1,NT(ng)
+          DO itrc2=1,NT(ng)
             AVERAGE(ng) % avgbflx(itrc,itrc2) = IniVal
           END DO
         END DO

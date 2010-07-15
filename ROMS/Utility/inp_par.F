@@ -8485,6 +8485,11 @@
           IF (Sout(idHsno,ng)) WRITE (out,80) Sout(idHsno,ng),          &
      &       'Sout(idHsno)',                                            &
      &       'Write out snow thickness.'
+# if defined ICE_BIO && defined BERING_10K     
+          IF (Sout(idIcePhL,ng)) WRITE (out,80) Sout(idIcePhL,ng),      &
+     &       'Sout(idIcePhL)',                                          &
+     &       'Write out average ice algae.'                             
+# endif
           IF (Sout(idTice,ng)) WRITE (out,80) Sout(idTice,ng),          &
      &       'Sout(idTice)',                                            &
      &       'Write out ice/snow surface temperature.'

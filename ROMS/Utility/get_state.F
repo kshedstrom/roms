@@ -1379,6 +1379,53 @@
         END DO
 #  endif
 
+#if defined BEST_NPZ && defined BERING_10K
+    
+!  Read in benthic initial conditions.
+        DO itrc=1,1 !,NBeT(ng)
+          IF (get_var(idBvar(itrc))) THEN
+            foundit=find_string(var_name, n_var,                        &
+     &                          TRIM(Vname(1,idBvar(itrc))), varid)
+            gtype=var_flag(varid)*r2dvar
+            IF (Perfect2D) THEN
+              status=nf_fread3d(ng, IDmod, ncname, ncINPid,             &
+     &                          Vname(1,idBvar(itrc)), varid,           &
+     &                          InpRec, gtype, Vsize,                   &
+     &                          LBi, UBi, LBj, UBj, 1, 3,               &
+     &                          Fscl, Fmin, Fmax,                       &
+#  ifdef MASKING
+     &                          GRID(ng) % rmask,                       &
+#  endif
+     &                          OCEAN(ng) % bt(:,:,1,:,itrc))
+            ELSE
+              status=nf_fread2d(ng, IDmod, ncname, ncINPid,             &
+     &                          Vname(1,idBvar(itrc)), varid,           &
+     &                          InpRec, gtype, Vsize,                   &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          Fscl, Fmin, Fmax,                       &
+#  ifdef MASKING
+     &                          GRID(ng) % rmask,                       &
+#  endif
+     &                          OCEAN(ng) % bt(:,:,1,Tindex,itrc))
+            END IF
+            IF (status.ne.nf90_noerr) THEN
+              IF (Master) THEN
+                WRITE (stdout,30) string, TRIM(Vname(1,idBvar(itrc))),  &
+     &                            InpRec, TRIM(ncname)
+              END IF
+              exit_flag=2
+              ioerror=status
+              RETURN
+            ELSE
+              IF (Master) THEN
+                WRITE (stdout,100) TRIM(Vname(2,idBvar(itrc))),         &
+     &                             Fmin, Fmax
+              END IF
+            END IF
+          END IF
+        END DO
+#  endif
+
 #  ifdef ICE_MODEL
 !
 !  Read in 2D ice momentum component (m/s) in the XI-direction.

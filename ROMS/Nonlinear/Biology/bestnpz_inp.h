@@ -27,6 +27,9 @@
 
       logical, dimension(NBT,Ngrids) :: Ltrc
 
+#ifdef ICE_BIO      
+      logical, dimension(NIB,Ngrids) :: LtrcI
+#endif
       real(r8), dimension(NBT,Ngrids) :: Rbio
 
       real(r8), dimension(100) :: Rval
@@ -85,6 +88,8 @@
             Npts=load_r(Nval, Rval, 1, k1PhS)
           ELSE IF (TRIM(KeyWord).eq.'k2PhS') THEN
             Npts=load_r(Nval, Rval, 1, k2PhS)
+          ELSE IF (TRIM(KeyWord).eq.'aPS') THEN
+            Npts=load_r(Nval, Rval, 1, aPS)
 !-------------------
 !  PhL growth params
 !-------------------
@@ -100,6 +105,8 @@
             Npts=load_r(Nval, Rval, 1, k1PhL)
           ELSE IF (TRIM(KeyWord).eq.'k2PhL') THEN
             Npts=load_r(Nval, Rval, 1, k2PhL)
+          ELSE IF (TRIM(KeyWord).eq.'aPL') THEN
+            Npts=load_r(Nval, Rval, 1, aPL)
 !-----------------------
 !  MZS preference params
 !-----------------------
@@ -256,15 +263,17 @@
             Npts=load_r(Nval, Rval, 1,ktbmJ)
           ELSE IF (TRIM(KeyWord).eq.'TrefJ') THEN
             Npts=load_r(Nval, Rval, 1,TrefJ)
+          ELSE IF (TRIM(KeyWord).eq.'fJel') THEN
+            Npts=load_r(Nval, Rval, 1,fJel)
 #endif
 
 !--------------------------
 !  Phytoplankton senescence
 !--------------------------
-          ELSE IF (TRIM(KeyWord).eq.'minmPhS') THEN
-            Npts=load_r(Nval, Rval, 1, minmPhS)
-          ELSE IF (TRIM(KeyWord).eq.'maxmPhS') THEN
-            Npts=load_r(Nval, Rval, 1, maxmPhS)
+          ELSE IF (TRIM(KeyWord).eq.'mPhS') THEN
+            Npts=load_r(Nval, Rval, 1, mPhS)
+          ELSE IF (TRIM(KeyWord).eq.'mPhL') THEN
+            Npts=load_r(Nval, Rval, 1, mPhL)
           ELSE IF (TRIM(KeyWord).eq.'NcritPhS') THEN
             Npts=load_r(Nval, Rval, 1, NcritPhS)
           ELSE IF (TRIM(KeyWord).eq.'minmPhL') THEN
@@ -289,6 +298,8 @@
 !-------------------
 !  predation closure
 !-------------------
+          ELSE IF (TRIM(KeyWord).eq.'mpredMZL') THEN
+            Npts=load_r(Nval, Rval, 1, mpredMZL)
           ELSE IF (TRIM(KeyWord).eq.'mpredCop') THEN
             Npts=load_r(Nval, Rval, 1, mpredCop)
           ELSE IF (TRIM(KeyWord).eq.'mpredNCa') THEN
@@ -438,73 +449,99 @@
 !Benthic Parameters
 !-------------------
 #ifdef BENTHIC
-           ELSE IF (TRIM(KeyWord).eq.'Hout(idBvar)') THEN
-             Npts=load_l(Nval, Cval,NBEN*Ngrids, Ltrc)
+          ELSE IF (TRIM(KeyWord).eq.'Hout(idBvar)') THEN
+            Npts=load_l(Nval, Cval,NBEN*Ngrids, Ltrc)
             DO ng=1,Ngrids
-               DO itrc=1,NBEN
-                 i=idBvar(idben(itrc))
-                  Hout(i,ng)=Ltrc(itrc,ng)
-               END DO
+              DO itrc=1,NBEN
+                i=idBvar(idben(itrc))
+                Hout(i,ng)=Ltrc(itrc,ng)
               END DO
-           ELSE IF (TRIM(KeyWord).eq.'iremin') THEN
+            END DO
+          ELSE IF (TRIM(KeyWord).eq.'iremin') THEN
             Npts=load_r(Nval, Rval, 1, iremin)
-             ELSE IF (TRIM(KeyWord).eq.'q10') THEN
+          ELSE IF (TRIM(KeyWord).eq.'q10') THEN
             Npts=load_r(Nval, Rval, 1, q10)
-            ELSE IF (TRIM(KeyWord).eq.'q10r') THEN
+          ELSE IF (TRIM(KeyWord).eq.'q10r') THEN
             Npts=load_r(Nval, Rval, 1, q10r)
-             ELSE IF (TRIM(KeyWord).eq.'Rup') THEN
+          ELSE IF (TRIM(KeyWord).eq.'Rup') THEN
             Npts=load_r(Nval, Rval, 1, Rup)
-             ELSE IF (TRIM(KeyWord).eq.'KupD') THEN
+          ELSE IF (TRIM(KeyWord).eq.'KupD') THEN
             Npts=load_r(Nval, Rval, 1, KupD)
-             ELSE IF (TRIM(KeyWord).eq.'KupP') THEN
+          ELSE IF (TRIM(KeyWord).eq.'KupP') THEN
             Npts=load_r(Nval, Rval, 1, KupP)
-             ELSE IF (TRIM(KeyWord).eq.'LupD') THEN
+          ELSE IF (TRIM(KeyWord).eq.'LupD') THEN
             Npts=load_r(Nval, Rval, 1, LupD)
-             ELSE IF (TRIM(KeyWord).eq.'LupP') THEN
+          ELSE IF (TRIM(KeyWord).eq.'LupP') THEN
             Npts=load_r(Nval, Rval, 1, LupP)
-             ELSE IF (TRIM(KeyWord).eq.'Qres') THEN
+          ELSE IF (TRIM(KeyWord).eq.'Qres') THEN
             Npts=load_r(Nval, Rval, 1, Qres)
-             ELSE IF (TRIM(KeyWord).eq.'Rres') THEN
+          ELSE IF (TRIM(KeyWord).eq.'Rres') THEN
             Npts=load_r(Nval, Rval, 1, Rres)
-             ELSE IF (TRIM(KeyWord).eq.'rmort') THEN
+          ELSE IF (TRIM(KeyWord).eq.'rmort') THEN
             Npts=load_r(Nval, Rval, 1, rmort)
-             ELSE IF (TRIM(KeyWord).eq.'eex') THEN
+          ELSE IF (TRIM(KeyWord).eq.'eex') THEN
             Npts=load_r(Nval, Rval, 1, eex)
-             ELSE IF (TRIM(KeyWord).eq.'eexD') THEN
+          ELSE IF (TRIM(KeyWord).eq.'eexD') THEN
             Npts=load_r(Nval, Rval, 1, eexD)
-             ELSE IF (TRIM(KeyWord).eq.'prefD') THEN
+          ELSE IF (TRIM(KeyWord).eq.'prefD') THEN
             Npts=load_r(Nval, Rval, 1, prefD)
-             ELSE IF (TRIM(KeyWord).eq.'prefPL') THEN
+          ELSE IF (TRIM(KeyWord).eq.'prefPL') THEN
             Npts=load_r(Nval, Rval, 1, prefPL)
-            ELSE IF (TRIM(KeyWord).eq.'prefPS') THEN
+          ELSE IF (TRIM(KeyWord).eq.'prefPS') THEN
             Npts=load_r(Nval, Rval, 1, prefPS)
-             ELSE IF (TRIM(KeyWord).eq.'T0ben') THEN
+          ELSE IF (TRIM(KeyWord).eq.'T0ben') THEN
             Npts=load_r(Nval, Rval, 1, T0ben)
-            ELSE IF (TRIM(KeyWord).eq.'T0benr') THEN
+          ELSE IF (TRIM(KeyWord).eq.'T0benr') THEN
             Npts=load_r(Nval, Rval, 1, T0benr)
-            ELSE IF (TRIM(KeyWord).eq.'BenPred') THEN
+          ELSE IF (TRIM(KeyWord).eq.'BenPred') THEN
             Npts=load_r(Nval, Rval, 1, BenPred)
-            ELSE IF (TRIM(KeyWord).eq.'bmB') THEN
+          ELSE IF (TRIM(KeyWord).eq.'bmB') THEN
             Npts=load_r(Nval, Rval, 1,bmB)
-             ELSE IF (TRIM(KeyWord).eq.'ktbmB') THEN
+          ELSE IF (TRIM(KeyWord).eq.'ktbmB') THEN
             Npts=load_r(Nval, Rval, 1,ktbmB)
-             ELSE IF (TRIM(KeyWord).eq.'TrefB') THEN
+          ELSE IF (TRIM(KeyWord).eq.'TrefB') THEN
             Npts=load_r(Nval, Rval, 1,TrefB)
-   
 #endif
 
 !--------------
 !ice bio params
 !--------------
 #ifdef ICE_BIO
-           ELSE IF (TRIM(KeyWord).eq.'Hout(idIceBvar)') THEN
-             Npts=load_l(Nval, Cval,NIB*Ngrids, Ltrc)
+# ifdef CLIM_ICE_1D
+          ELSE IF (TRIM(KeyWord).eq.'Hout(idIceBvar)') THEN
+            Npts=load_l(Nval, Cval,NIB*Ngrids, Ltrc)
+            DO ng=1,Ngrids
+              DO itrc=1,NIB
+                i=idIceBvar(idice(itrc))
+                Hout(i,ng)=Ltrc(itrc,ng)
+              END DO
+            END DO
+# elif defined BERING_10K  
+          ELSE IF (TRIM(KeyWord).eq.'Hout(idIcePhL)') THEN
+            Npts=load_l(Nval, Cval,NIB*Ngrids, LtrcI)
+            DO ng=1,Ngrids
+!g            Hout(idIcePhL,ng)=LtrcI(idIcePhL,ng)
+              Hout(idIcePhL,ng)=LtrcI(1,ng)
+            END DO
+          ELSE IF (TRIM(KeyWord).eq.'Hout(idIceNO3)') THEN
+!            Npts=load_l(Nval, Cval,NIB*Ngrids, LtrcI)
              DO ng=1,Ngrids
-               DO itrc=1,NIB
-                 i=idIceBvar(idice(itrc))
-                 Hout(i,ng)=Ltrc(itrc,ng)
-               END DO
+               Hout(idIceNO3,ng)=LtrcI(2,ng)
+!g             Hout(idIceNO3,ng)=LtrcI(idIceNO3,ng)
              END DO
+           ELSE IF (TRIM(KeyWord).eq.'Hout(idIceNH4)') THEN
+!            Npts=load_l(Nval, Cval,NIB*Ngrids, LtrcI)
+             DO ng=1,Ngrids
+!g             Hout(idIceNH4,ng)=LtrcI(idIceNH4,ng)
+               Hout(idIceNH4,ng)=LtrcI(3,ng)
+             END DO
+           ELSE IF (TRIM(KeyWord).eq.'Hout(idIceLog)') THEN
+!            Npts=load_l(Nval, Cval,NIB*Ngrids, LtrcI)
+             DO ng=1,Ngrids
+!              Hout(idIceLog,ng)=LtrcI(idIceLog,ng)
+               Hout(idIceLog,ng)=LtrcI(4,ng)
+             END DO
+# endif
            ELSE IF (TRIM(KeyWord).eq.'alphaIb') THEN
              Npts=load_r(Nval, Rval, 1,alphaIb)
            ELSE IF (TRIM(KeyWord).eq.'betaI') THEN
@@ -555,6 +592,10 @@
             END DO
           ELSE IF (TRIM(KeyWord).eq.'TNUDG') THEN
             Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
+
+! Hard wired this in for now as wasnt reading correctly from input file    
+            Rbio(15,1)=360_r8
+
             DO ng=1,Ngrids
               DO itrc=1,NBT
                 i=idbio(itrc)
@@ -578,6 +619,53 @@
                 Aout(i,ng)=Ltrc(itrc,ng)
               END DO
             END DO
+# ifdef BENTHIC
+          ELSE IF (TRIM(KeyWord).eq.'Aout(idBvar)') THEN
+            Npts=load_l(Nval, Cval,NBEN*Ngrids, Ltrc)
+            DO ng=1,Ngrids
+              DO itrc=1,NBEN
+                i=idBvar(idben(itrc))
+                Aout(i,ng)=Ltrc(itrc,ng)
+              END DO
+            END DO
+# endif
+# ifdef ICE_BIO
+#  ifdef CLIM_ICE_1D
+          ELSE IF (TRIM(KeyWord).eq.'Aout(idIceBvar)') THEN
+            Npts=load_l(Nval, Cval,NIB*Ngrids, Ltrc)
+            DO ng=1,Ngrids
+              DO itrc=1,NIB
+                i=idIceBvar(idice(itrc))
+                Aout(i,ng)=Ltrc(itrc,ng)
+              END DO
+            END DO
+#  elif defined BERING_10K  
+          ELSE IF (TRIM(KeyWord).eq.'Aout(idIcePhL)') THEN
+            Npts=load_l(Nval, Cval,NIB*Ngrids, LtrcI)
+            DO ng=1,Ngrids
+!g            Aout(idIcePhL,ng)=LtrcI(idIcePhL,ng)
+              Aout(idIcePhL,ng)=LtrcI(1,ng)
+            END DO
+          ELSE IF (TRIM(KeyWord).eq.'Aout(idIceNO3)') THEN
+!           Npts=load_l(Nval, Cval,NIB*Ngrids, LtrcI)
+            DO ng=1,Ngrids
+              Aout(idIceNO3,ng)=LtrcI(2,ng)
+!g            Aout(idIceNO3,ng)=LtrcI(idIceNO3,ng)
+            END DO
+          ELSE IF (TRIM(KeyWord).eq.'Aout(idIceNH4)') THEN
+!           Npts=load_l(Nval, Cval,NIB*Ngrids, LtrcI)
+            DO ng=1,Ngrids
+!g            Aout(idIceNH4,ng)=LtrcI(idIceNH4,ng)
+              Aout(idIceNH4,ng)=LtrcI(3,ng)
+            END DO
+          ELSE IF (TRIM(KeyWord).eq.'Aout(idIceLog)') THEN
+!           Npts=load_l(Nval, Cval,NIB*Ngrids, LtrcI)
+            DO ng=1,Ngrids
+!             Aout(idIceLog,ng)=LtrcI(idIceLog,ng)
+              Aout(idIceLog,ng)=LtrcI(4,ng)
+            END DO
+#  endif
+# endif
 #endif
 #ifdef STATIONARY
           ELSE IF (TRIM(KeyWord).eq.'Hout(idTSvar)') THEN
@@ -633,49 +721,7 @@
                 Hout(i,ng)=Ltrc(itrc,ng)
               END DO
             END DO
-          
 #endif
-
-          ELSE IF (TRIM(KeyWord).eq.'TNU2') THEN
-            Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idbio(itrc)
-                tnu2(i,ng)=Rbio(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'TNU4') THEN
-            Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idbio(itrc)
-                tnu4(i,ng)=Rbio(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'AKT_BAK') THEN
-            Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idbio(itrc)
-                Akt_bak(i,ng)=Rbio(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'TNUDG') THEN
-            Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idbio(itrc)
-                Tnudg(i,ng)=Rbio(itrc,ng)
-              END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idTvar)') THEN
-            Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idTvar(idbio(itrc))
-                Hout(i,ng)=Ltrc(itrc,ng)
-              END DO
-            END DO
 
           END IF 
 

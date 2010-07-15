@@ -47,7 +47,7 @@
       write(stdout,134) ' Cumulative biological fluxes'
       DO ng=1,Ngrids
         IF (Master) THEN
-# ifdef BIO_GOANPZ
+# if defined BIO_GOANPZ || (defined BIOFLUX && defined BEST_NPZ)
 !         Scale fluxes by maximum
           xi = 0.0_r8
           DO i = itemp,iDet

@@ -687,7 +687,10 @@
         allocate ( idTads(MT) )
         allocate ( idTbry(4,MT) )
 
-#ifdef ICE_BIO	
+!Make space for Akt climatology
+#if (defined CLIM_ICE_1D && defined AKT_3D)
+        allocate ( idTclm(MT+2) )
+#elif (defined CLIM_ICE_1D && !defined AKT_3D)
         allocate ( idTclm(MT+1) )
 #else
         allocate ( idTclm(MT) )
@@ -1317,6 +1320,10 @@
               CASE ('idTdif')
                 idTdif=varid
                 idDiff(itemp)=idTdif
+#ifdef AKT_3D
+              CASE ('idTclm(iAKt3)')
+                idTclm(iAKt3)=varid
+#endif
               CASE ('idSdif')
                 idSdif=varid
                 idDiff(isalt)=idSdif

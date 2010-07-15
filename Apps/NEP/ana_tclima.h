@@ -50,7 +50,7 @@
       USE mod_param
       USE mod_grid
       USE mod_scalars
-#if defined BIO_GOANPZ && defined IRON_LIMIT
+#if defined BEST_NPZ && defined IRON_LIMIT
       USE mod_biology
 #endif
 !
@@ -88,6 +88,9 @@
 # endif
 #endif
       integer :: i, itrc, j, k
+#if defined BEST_NPZ && defined IRON_LIMIT
+      real(r8) :: val3, val1, val2
+#endif
 
 #include "set_bounds.h"
 !
@@ -95,11 +98,12 @@
 !  Set tracer climatology.
 !-----------------------------------------------------------------------
 !
-#if defined BIO_GOANPZ && defined IRON_LIMIT
+#if defined BEST_NPZ && defined IRON_LIMIT
 ! Iron - linear from surface value to value at 100m and increase onshore
       DO i=IstrR,IendR
         DO j=JstrR,JendR
-          val3 = MAX(0.,MIN(1.,(GRID(ng)%h(i,j)-Feinh)/(Feoffh-Feinh)))
+          val3 = MAX(0._r8,MIN(1._r8,(GRID(ng)%h(i,j)-Feinh)/           &
+     &                 (Feoffh-Feinh)))
           val1 = Feinlo + val3*(Feofflo-Feinlo)
           val2 = Feinhi + val3*(Feoffhi-Feinhi)
           val3 = (val2-val1) / 100._r8
