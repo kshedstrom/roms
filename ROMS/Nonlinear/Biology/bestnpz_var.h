@@ -64,8 +64,9 @@
                 idBvar(iBenDet)=varid
 #endif
 #ifdef ICE_BIO
+# ifdef CLIM_ICE_1D
               CASE ('idIceBvar(iIcePhL)')
-               idIceBvar(iIcePhL)=varid
+                idIceBvar(iIcePhL)=varid
               CASE ('idIceBvar(iIceNO3)')
                 idIceBvar(iIceNO3)=varid
               CASE ('idIceBvar(iIceNH4)')
@@ -74,11 +75,49 @@
                 idIceBvar(iIceZ)=varid
               CASE ('idIceBvar(iIceLog)')
                 idIceBvar(iIceLog)=varid
-                CASE ('idIceLogvar(iIceLog)')
-               idIceLogvar(iIceLog)=varid
-# ifdef CLIM_ICE_1D
-              CASE ('idTclm(iFe+1)')
-                idTclm(iFe+1)=varid
+              CASE ('idIceLogvar(iIceLog)')
+                idIceLogvar(iIceLog)=varid
+              CASE ('idTclm(i1CI)')
+                idTclm(i1CI)=varid
+# elif defined BERING_10K 
+              CASE ('idIcePhL')
+                idIcePhL=varid
+
+              CASE ('idIcePhLbc(iwest)')
+                idIcePhLbc(iwest)=varid
+              CASE ('idIcePhLbc(ieast)')
+                idIcePhLbc(ieast)=varid
+              CASE ('idIcePhLbc(isouth)')
+                idIcePhLbc(isouth)=varid
+              CASE ('idIcePhLbc(inorth)')
+                idIcePhLbc(inorth)=varid
+               
+              CASE ('idIceNO3')
+                idIceNO3=varid
+               
+              CASE ('idIceNO3bc(iwest)')
+                idIceNO3bc(iwest)=varid
+              CASE ('idIceNO3bc(ieast)')
+                idIceNO3bc(ieast)=varid
+              CASE ('idIceNO3bc(isouth)')
+                idIceNO3bc(isouth)=varid
+              CASE ('idIceNO3bc(inorth)')
+                idIceNO3bc(inorth)=varid
+               
+              CASE ('idIceNH4')
+                idIceNH4=varid
+               
+              CASE ('idIceNH4bc(iwest)')
+                idIceNH4bc(iwest)=varid
+              CASE ('idIceNH4bc(ieast)')
+                idIceNH4bc(ieast)=varid
+              CASE ('idIceNH4bc(isouth)')
+                idIceNH4bc(isouth)=varid
+              CASE ('idIceNH4bc(inorth)')
+                idIceNH4bc(inorth)=varid
+
+              CASE ('idIceLog')
+                idIceLog=varid
 # endif
 #endif
 #ifdef STATIONARY
@@ -110,13 +149,13 @@
                 idTSvar(i3Stat11) = varid
               CASE ('idTSvar(i3Stat12)')
                 idTSvar(i3Stat12) = varid
-                CASE ('idTSvar(i3Stat13)')
+              CASE ('idTSvar(i3Stat13)')
                 idTSvar(i3Stat13) = varid
-                CASE ('idTSvar(i3Stat14)')
+              CASE ('idTSvar(i3Stat14)')
                 idTSvar(i3Stat14) = varid
-                CASE ('idTSvar(i3Stat15)')
+              CASE ('idTSvar(i3Stat15)')
                 idTSvar(i3Stat15) = varid
-                CASE ('idTSvar(i3Stat16)')
+              CASE ('idTSvar(i3Stat16)')
                 idTSvar(i3Stat16) = varid
 #endif
 #ifdef STATIONARY2
@@ -139,7 +178,6 @@
                 idTS2var(i2Stat7) = varid
               CASE ('idTS2var(i2Stat8)')
                 idTS2var(i2Stat8) = varid
-
 
 #endif
 #ifdef PROD3
@@ -175,7 +213,8 @@
                 idPT2var(iBenPrd) = varid
               CASE ('idPT2var(iIAPrd)')
                 idPT2var(iIAPrd) = varid
-
+              CASE ('idPT2var(iXPrd)')
+                idPT2var(iXPrd) = varid
 #endif
 #ifdef BIOFLUX
              !-----------------------------
@@ -183,7 +222,6 @@
              !-----------------------------
               CASE ('idTBFvar(iBF)')
                 idTBFvar(iBF) = varid
-
 #endif
 
 /*

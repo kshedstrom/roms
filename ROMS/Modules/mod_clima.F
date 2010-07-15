@@ -175,6 +175,7 @@
 !=======================================================================
 !
       USE mod_param
+      USE mod_scalars
 !
 !  Local variable declarations.
 !
@@ -228,9 +229,17 @@
 
 # ifdef SOLVE3D
 #  ifdef TCLIMATOLOGY
+#   ifdef SOMETHING
+      allocate ( CLIMA(ng) % tclm(LBi:UBi,LBj:UBj,N(ng),NT(ng)+2) )
+#   else
       allocate ( CLIMA(ng) % tclm(LBi:UBi,LBj:UBj,N(ng),NT(ng)) )
+#   endif
 #   ifndef ANA_TCLIMA
+#   ifdef SOMETHING
+      allocate ( CLIMA(ng) % tclmG(LBi:UBi,LBj:UBj,N(ng),2,NT(ng)+2) )
+#   else
       allocate ( CLIMA(ng) % tclmG(LBi:UBi,LBj:UBj,N(ng),2,NT(ng)) )
+#   endif
 #   endif
 #  endif
 

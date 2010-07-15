@@ -95,10 +95,10 @@
 #   ifdef BENTHIC
          real(r8), pointer :: bt(:,:,:,:,:)
 #   endif
-#if defined ICE_BIO && defined CLIM_ICE_1D
+#   if defined ICE_BIO && defined CLIM_ICE_1D
           real(r8), pointer :: it(:,:,:,:)
           real(r8), pointer :: itL(:,:,:,:)
-#endif
+#   endif
 #   ifdef BIOFLUX
           real(r8), pointer :: bflx(:,:)
 #   endif
@@ -583,7 +583,7 @@
       integer :: Imin, Imax, Jmin, Jmax
       integer :: i, j, rec
 #ifdef SOLVE3D
-      integer :: itrc, k
+      integer :: itrc, itrc2, k
 #endif
 
       real(r8), parameter :: IniVal = 0.0_r8
@@ -753,7 +753,6 @@
 #  endif
 
 #  if defined ICE_BIO && defined CLIM_ICE_1D
-
           DO itrc=1,NIceT(ng)
             DO i=Imin,Imax
               OCEAN(ng) % it(i,j,1,itrc) = IniVal

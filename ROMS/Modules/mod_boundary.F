@@ -755,6 +755,24 @@
           real(r8), pointer :: viG_north(:,:)
 # endif
 
+# if defined ICE_BIO  
+#  ifdef BERING_10K 
+          real(r8), pointer :: IceNO3_west(:)
+          real(r8), pointer :: IceNO3_east(:)
+          real(r8), pointer :: IceNO3_south(:)
+          real(r8), pointer :: IceNO3_north(:)
+         
+          real(r8), pointer :: IceNH4_west(:)
+          real(r8), pointer :: IceNH4_east(:)
+          real(r8), pointer :: IceNH4_south(:)
+          real(r8), pointer :: IceNH4_north(:)
+         
+          real(r8), pointer :: IcePhL_west(:)
+          real(r8), pointer :: IcePhL_east(:)
+          real(r8), pointer :: IcePhL_south(:)
+          real(r8), pointer :: IcePhL_north(:)
+#  endif
+# endif
 #endif
 
 # if defined TANGENT || defined TL_IOMS
@@ -1347,6 +1365,24 @@
       allocate ( BOUNDARY(ng) % viG_north(XI_DIM,2) )
 # endif
 
+# if defined ICE_BIO  
+#  ifdef BERING_10K 
+      allocate ( BOUNDARY(ng) % IceNO3_west(ETA_DIM) )
+      allocate ( BOUNDARY(ng) % IceNO3_east(ETA_DIM) )
+      allocate ( BOUNDARY(ng) % IceNO3_south(XI_DIM) )
+      allocate ( BOUNDARY(ng) % IceNO3_north(XI_DIM) )
+      
+      allocate ( BOUNDARY(ng) % IceNH4_west(ETA_DIM) )
+      allocate ( BOUNDARY(ng) % IceNH4_east(ETA_DIM) )
+      allocate ( BOUNDARY(ng) % IceNH4_south(XI_DIM) )
+      allocate ( BOUNDARY(ng) % IceNH4_north(XI_DIM) )
+      
+      allocate ( BOUNDARY(ng) % IcePhL_west(ETA_DIM) )
+      allocate ( BOUNDARY(ng) % IcePhL_east(ETA_DIM) )
+      allocate ( BOUNDARY(ng) % IcePhL_south(XI_DIM) )
+      allocate ( BOUNDARY(ng) % IcePhL_north(XI_DIM) )
+#  endif
+# endif
 #endif
 
 # if defined TANGENT || defined TL_IOMS
@@ -1895,6 +1931,13 @@
 #  ifndef ANA_MIOBC
           BOUNDARY(ng) % viG_west = IniVal
 #  endif
+#  if defined ICE_BIO  
+#   ifdef BERING_10K 
+          BOUNDARY(ng) % IceNO3_west = IniVal
+          BOUNDARY(ng) % IceNH4_west = IniVal
+          BOUNDARY(ng) % IcePhL_west = IniVal
+#   endif
+#  endif
         END IF
 
         IF (SOUTH_EAST_TEST) THEN
@@ -1943,6 +1986,13 @@
 #  ifndef ANA_MIOBC
           BOUNDARY(ng) % viG_east = IniVal
 #  endif
+#  if defined ICE_BIO  
+#   ifdef BERING_10K 
+          BOUNDARY(ng) % IceNO3_east = IniVal
+          BOUNDARY(ng) % IceNH4_east = IniVal
+          BOUNDARY(ng) % IcePhL_east = IniVal
+#   endif
+#  endif
         END IF
         IF (SOUTH_WEST_TEST) THEN
           BOUNDARY(ng) % ai_south = IniVal
@@ -1988,6 +2038,13 @@
           BOUNDARY(ng) % vi_south = IniVal
 #  ifndef ANA_MIOBC
           BOUNDARY(ng) % viG_south = IniVal
+#  endif
+#  if defined ICE_BIO  
+#   ifdef BERING_10K 
+          BOUNDARY(ng) % IceNO3_south = IniVal
+         BOUNDARY(ng) % IceNH4_south = IniVal
+         BOUNDARY(ng) % IcePhL_south = IniVal
+#   endif
 #  endif
         END IF
 
@@ -2035,6 +2092,13 @@
           BOUNDARY(ng) % vi_north = IniVal
 #  ifndef ANA_MIOBC
           BOUNDARY(ng) % viG_north = IniVal
+#  endif
+#  if defined ICE_BIO  
+#   ifdef BERING_10K 
+          BOUNDARY(ng) % IceNO3_north = IniVal
+          BOUNDARY(ng) % IceNH4_north = IniVal
+          BOUNDARY(ng) % IcePhL_north = IniVal
+#   endif
 #  endif
         END IF
 # endif

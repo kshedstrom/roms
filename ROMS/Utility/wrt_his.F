@@ -921,10 +921,11 @@
 !-----------------------------
 
 #  if defined ICE_BIO
-              DO itrc=1,NIceT(ng)
-              IF (Hout(idIceBvar(itrc),ng)) THEN
-                 scale=1.0_r8
-                 gtype=gfactor*r2dvar
+#   ifdef CLIM_ICE_1D
+      DO itrc=1,NIceT(ng)
+        IF (Hout(idIceBvar(itrc),ng)) THEN
+          scale=1.0_r8
+          gtype=gfactor*r2dvar
           status=nf_fwrite2d(ng, iNLM, ncHISid(ng), hisIceBid(itrc,ng), &
      &                          tHISindx(ng), gtype,                    &
      &                          LBi, UBi, LBj, UBj, scale,              &
@@ -937,23 +938,119 @@
 #   ifdef MASKING
      &                     GRID(ng) % rmask,                            &
 #   endif
-#   ifdef CLIM_ICE_1D
      &                       OCEAN(ng) % it(:,:,NOUT,itrc))
-#   else
-     &                       ICE(ng) % it(:,:,NOUT,itrc))
-#   endif
-
-           IF (status.ne.nf90_noerr) THEN
-           IF (Master) THEN
-            WRITE (stdout,10)TRIM(Vname(1,idIceBvar(itrc))),           &
+          IF (status.ne.nf90_noerr) THEN
+            IF (Master) THEN
+              WRITE (stdout,10)TRIM(Vname(1,idIceBvar(itrc))),          &
      &                       tHISindx(ng)
-           END IF
-              exit_flag=3
-              ioerror=status
+            END IF
+            exit_flag=3
+            ioerror=status
             RETURN
           END IF
         END IF
       END DO
+#   elif defined BERING_10K 
+!
+!  Write out Ice Algae
+!
+      IF (Hout(idIcePhL,ng)) THEN
+        scale=1.0_r8
+        gtype=gfactor*r2dvar
+        status=nf_fwrite2d(ng, iNLM, ncHISid(ng),                       &
+     &                     hisVid(idIcePhL,ng),                         &
+     &                     tHISindx(ng), gtype,                         &
+     &                     LBi, UBi, LBj, UBj, scale,                            &
+#  ifdef MASKING
+     &                     GRID(ng) % rmask,                            &
+#  endif
+     &                     ICE(ng) % IcePhL(:,:,IUOUT))
+        IF (status.ne.nf90_noerr) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,idIcePhL)),                  &
+     &                        tHISindx(ng)
+          END IF
+          exit_flag=3
+          ioerror=status
+          RETURN
+        END IF
+      END IF
+      
+      !
+!  Write out Ice Nitrate
+!
+      IF (Hout(idIceNO3,ng)) THEN
+        scale=1.0_r8
+        gtype=gfactor*r2dvar
+        status=nf_fwrite2d(ng, iNLM, ncHISid(ng),                       &
+     &                     hisVid(idIceNO3,ng),                         &
+     &                     tHISindx(ng), gtype,                         &
+     &                     LBi, UBi, LBj, UBj, scale,                   &
+#  ifdef MASKING
+     &                     GRID(ng) % rmask,                            &
+#  endif
+     &                     ICE(ng) % IceNO3(:,:,IUOUT))
+        IF (status.ne.nf90_noerr) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,idIceNO3)),                  &
+     &                        tHISindx(ng)
+          END IF
+          exit_flag=3
+          ioerror=status
+          RETURN
+        END IF
+      END IF
+
+!  Write out Ice Ammonium
+!
+      IF (Hout(idIceNH4,ng)) THEN
+!      IF (Hout(idIceBvar,ng)) THEN 
+        scale=1.0_r8
+        gtype=gfactor*r2dvar
+        status=nf_fwrite2d(ng, iNLM, ncHISid(ng),                       &
+     &                     hisVid(idIceNH4,ng),                         &
+     &                     tHISindx(ng), gtype,                         &
+     &                     LBi, UBi, LBj, UBj, scale,                   &
+#  ifdef MASKING
+     &                     GRID(ng) % rmask,                            &
+#  endif
+     &                     ICE(ng) % IceNH4(:,:,IUOUT))
+        IF (status.ne.nf90_noerr) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,idIceNH4)),                  &
+     &                        tHISindx(ng)
+          END IF
+          exit_flag=3
+          ioerror=status
+          RETURN
+        END IF
+      END IF
+      
+!  Write out IceLog
+!
+      IF (Hout(idIceLog,ng)) THEN
+!      IF (Hout(idIceBvar,ng)) THEN 
+        scale=1.0_r8
+        gtype=gfactor*r2dvar
+        status=nf_fwrite2d(ng, iNLM, ncHISid(ng),                       &
+     &                     hisVid(idIceLog,ng),                         &
+     &                     tHISindx(ng), gtype,                         &
+     &                     LBi, UBi, LBj, UBj, scale,                   &
+#  ifdef MASKING
+     &                     GRID(ng) % rmask,                            &
+#  endif
+     &                     ICE(ng) % IceLog(:,:,IUOUT))
+        IF (status.ne.nf90_noerr) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,idIceLog)),                  &
+     &                        tHISindx(ng)
+          END IF
+          exit_flag=3
+          ioerror=status
+          RETURN
+        END IF
+      END IF
+#   endif
 #  endif
 
 # endif
@@ -1016,6 +1113,151 @@
           END IF
         END IF
       END DO
+# endif
+
+# if defined BENTHIC
+!------------------------------
+!Write out benthic variables
+!-----------------------------
+
+      DO itrc=1,NBeT(ng)
+        IF (Hout(idBvar(itrc),ng)) THEN
+          scale=1.0_r8
+          gtype=gfactor*r2dvar
+          status=nf_fwrite2d(ng, iNLM, ncRSTid(ng), rstBid(itrc,ng),    &
+     &                          tRSTindx(ng), gtype,                    &
+     &                          LBi, UBi, LBj, UBj, scale,              &
+#ifdef MASKING
+     &                     GRID(ng) % rmask,                            &
+# endif 
+     &                       OCEAN(ng) % bt(:,:,1,NOUT,itrc))
+          IF (status.ne.nf90_noerr) THEN
+            IF (Master) THEN
+              WRITE (stdout,10)TRIM(Vname(1,idBvar(itrc))),             &
+     &                       tRSTindx(ng)
+            END IF
+            exit_flag=3
+            ioerror=status
+            RETURN
+          END IF
+        END IF
+      END DO
+# endif
+
+!------------------------------
+!Write out ice bio variables
+!-----------------------------
+
+# if defined ICE_BIO
+#     ifdef CLIM_ICE_1D
+      DO itrc=1,NIceT(ng)
+        IF (Hout(idIceBvar(itrc),ng)) THEN
+          scale=1.0_r8
+          gtype=gfactor*r2dvar
+          status=nf_fwrite2d(ng, iNLM, ncRSTid(ng), rstIceBid(itrc,ng), &
+     &                          tRSTindx(ng), gtype,                    &
+     &                          LBi, UBi, LBj, UBj, scale,              &
+# ifdef MASKING
+     &                     GRID(ng) % rmask,                            &
+# endif
+     &                       OCEAN(ng) % it(:,:,NOUT,itrc))
+
+          IF (status.ne.nf90_noerr) THEN
+            IF (Master) THEN
+              WRITE (stdout,10)TRIM(Vname(1,idIceBvar(itrc))),          &
+     &                       tRSTindx(ng)
+            END IF
+            exit_flag=3
+            ioerror=status
+            RETURN
+          END IF
+        END IF
+      END DO
+#elif defined BERING_10K
+      IF (Hout(idIcePhL,ng)) THEN
+        scale=1.0_r8
+        gtype=gfactor*r2dvar
+        status=nf_fwrite2d(ng, iNLM, ncRSTid(ng), rstVid(idIcePhL,ng),  &
+     &                 trstindx(ng), gtype,                             &
+     &                 LBi, UBi, LBj, UBj, scale,                       &
+#ifdef MASKING
+     &                 GRID(ng) % rmask,                                &
+#endif
+     &                 ICE (ng) % IcePhL(:,:,IOUT))
+        IF (status.ne.nf90_noerr) THEN
+          IF (Master) THEN
+            WRITE (stdout,10)TRIM(Vname(1,idIcePhL)),                   &
+     &                       tRSTindx(ng)
+          END IF
+          exit_flag=3
+          ioerror=status
+          RETURN
+        END IF
+      END IF
+
+      IF (Hout(idIceLog,ng)) THEN
+        scale=1.0_r8
+        gtype=gfactor*r2dvar
+        status=nf_fwrite2d(ng, iNLM, ncRSTid(ng), rstVid(idIceLog,ng),  &
+     &                 trstindx(ng), gtype,                             &
+     &                 LBi, UBi, LBj, UBj, scale,                       &
+#ifdef MASKING
+     &                 GRID(ng) % rmask,                                &
+#endif
+     &                 ICE (ng) % IceLog(:,:,IOUT))
+        IF (status.ne.nf90_noerr) THEN
+          IF (Master) THEN
+            WRITE (stdout,10)TRIM(Vname(1,idIceLog)),                   &
+     &                       tRSTindx(ng)
+          END IF
+          exit_flag=3
+          ioerror=status
+          RETURN
+        END IF
+      END IF
+
+      IF (Hout(idIceNO3,ng)) THEN
+        scale=1.0_r8
+        gtype=gfactor*r2dvar
+        status=nf_fwrite2d(ng, iNLM, ncRSTid(ng), rstVid(idIceNO3,ng),  &
+     &                 trstindx(ng), gtype,                             &
+     &                 LBi, UBi, LBj, UBj, scale,                       &
+#ifdef MASKING
+     &                 GRID(ng) % rmask,                                &
+#endif
+     &                 ICE (ng) % IceNO3(:,:,IOUT))
+        IF (status.ne.nf90_noerr) THEN
+          IF (Master) THEN
+            WRITE (stdout,10)TRIM(Vname(1,idIceNO3)),                   &
+     &                       tRSTindx(ng)
+          END IF
+          exit_flag=3
+          ioerror=status
+          RETURN
+        END IF
+      END IF
+      
+      IF (Hout(idIceNH4,ng)) THEN
+        scale=1.0_r8
+        gtype=gfactor*r2dvar
+        status=nf_fwrite2d(ng, iNLM, ncRSTid(ng), rstVid(idIceNH4,ng),  &
+     &                 trstindx(ng), gtype,                             &
+     &                 LBi, UBi, LBj, UBj, scale,                       &
+#ifdef MASKING
+     &                 GRID(ng) % rmask,                                &
+#endif
+     &                 ICE (ng) % IceNH4(:,:,IOUT))
+        IF (status.ne.nf90_noerr) THEN
+          IF (Master) THEN
+            WRITE (stdout,10)TRIM(Vname(1,idIceNH4)),                   &
+     &                       tRSTindx(ng)
+          END IF
+          exit_flag=3
+          ioerror=status
+          RETURN
+        END IF
+      END IF
+#  endif      
 # endif
 !
 !  Write out density anomaly.
