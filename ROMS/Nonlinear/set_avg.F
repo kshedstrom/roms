@@ -114,6 +114,9 @@
 # endif
       USE mod_ocean
       USE mod_scalars
+# if defined BEST_NPZ || defined BIO_GOANPZ
+      USE mod_biology
+# endif
 !
       USE vorticity_mod, ONLY : vorticity_tile
 !
