@@ -66,6 +66,9 @@ contains
      &                     liold(ng),                                   &
      &                     linew(ng),                                   &
 # endif
+# if defined BEST_NPZ && defined ICE_BIO
+     &                     nstp(ng),                                    &
+# endif
 # ifdef MASKING
      &                     GRID(ng) % rmask,                            &
      &                     GRID(ng) % umask,                            &
@@ -137,7 +140,6 @@ contains
 #  if defined CLIM_ICE_1D
      &                    OCEAN(ng) % it,                               &
      &                    CLIMA(ng) % tclmG,                            &
-     &                    nstp(ng),                                     &
 #  elif defined BERING_10K && defined ICE_BIO
      &                    ICE(ng) % IcePhL,                             &
      &                    ICE(ng) % IceLog,                             &
@@ -162,6 +164,9 @@ contains
      &                           nrhs,                                  &
 # ifdef ICE_MODEL
      &                           liold, linew,                          &
+# endif
+# if defined BEST_NPZ && defined ICE_BIO
+     &                           nstp,                                  &
 # endif
 # ifdef MASKING
      &                           rmask, umask, vmask,                   &
@@ -207,11 +212,9 @@ contains
 # endif
 #  if defined BEST_NPZ
 #   if defined CLIM_ICE_1D
-     &                           it,                                    &
-     &                           tclmG, nstp,                           &
+     &                           it, tclmG,                             &
 #   elif defined BERING_10K && defined ICE_BIO
-     &                           IcePhL,                                &
-     &                           IceLog,                                &
+     &                           IcePhL, IceLog,                        &
 #   endif
 #  endif
 # ifdef EMINUSP
@@ -228,6 +231,9 @@ contains
 !
       USE mod_param
       USE mod_scalars
+# if defined BEST_NPZ
+      USE mod_biology
+# endif
 !
 # if defined BEST_NPZ && defined CLIM_ICE_1D
       USE mod_clima
@@ -249,6 +255,9 @@ contains
 # ifdef ICE_MODEL
       integer, intent(in) :: liold
       integer, intent(in) :: linew
+# endif
+# if defined BEST_NPZ && defined ICE_BIO
+      integer, intent(in) :: nstp
 # endif
 !
 # ifdef ASSUMED_SHAPE
@@ -325,7 +334,6 @@ contains
 #   if defined CLIM_ICE_1D
       real(r8), intent(in) ::tclm(LBi:,LBj:,:,:,:)
       real(r8), intent(in) :: it(LBi:,LBj:,:,:)
-      integer, intent(in) :: nstp
 #   elif defined BERING_10K && defined ICE_BIO
       real(r8), intent(in) :: IcePhL(LBi:,LBj:,:)
       real(r8), intent(inout) :: IceLog(LBi:,LBj:,:)
@@ -413,7 +421,6 @@ contains
 #   if defined CLIM_ICE_1D
       real(r8), intent(in) :: it(LBi:UBi,LBj:UBj,3,1)
       real(r8), intent(in) ::tclm(LBi:UBi,LBj:UBj,UBk,3,UBt+1)
-      integer, intent(in) :: nstp
 #   elif defined BERING_10K && defined ICE_BIO
       real(r8), intent(in) :: IcePhL(LBi:,LBj:,:)
       real(r8), intent(inout) :: IceLog(LBi:,LBj:,:)
@@ -921,15 +928,16 @@ contains
      &                 (1._r8-cloud(i,j))+cawdif*cloud(i,j))
 # endif
 # if defined SHORTWAVE && defined ALBEDO_CURVE
-# ifdef BIO_1D
+#  ifdef BIO_1D
 !using lat for M2 for whole domain
           caw_curve = 1._r8-(0.069_r8 - 0.011_r8*                       &
      &                        cos(2*deg2rad*56.877))
           srflx(i,j) = srflx(i,j)*caw_curve
-# else
+#  else
           caw_curve = 1._r8-(0.069_r8 - 0.011_r8*                       &
      &                        cos(2*deg2rad*latr(i,j)))
           srflx(i,j) = srflx(i,j)*caw_curve
+#  endif
 # endif
           lrflx(i,j) = lwup*Hscale2 + lrflx(i,j)
           lhflx(i,j) = lhflx(i,j)*Hscale2
@@ -994,7 +1002,7 @@ contains
           cff1= cff1+snow_thick(i,j)*20._r8
 #  endif
 
-#  ifdef ICE_BIO
+#  if defined ICE_BIO && defined CLIM_ICE_1D
           cff2=0.5*0.02_r8*0.005*it(i,j,nstp,iIcePhL)
           srflx(i,j)=(1-ai(i,j,linew))*srflx(i,j)                       &
      &            +ai(i,j,linew)*srflx(i,j)*exp(-cff1-cff2)
@@ -1027,12 +1035,12 @@ contains
 
           cff1= cff1+snow_thick(i,j)*20._r8
 
-#   ifdef ICE_BIO
+#  if defined ICE_BIO && defined CLIM_ICE_1D
           cff2=0.5*0.02_r8*0.005*it(i,j,nstp,iIcePhL)
           srflx(i,j)=srflx(i,j)*exp(-cff1-cff2)
-#   else
+#  else
           srflx(i,j)=srflx(i,j)*exp(-cff1)
-#   endif
+#  endif
 # endif
 
 !--- water flux ---
