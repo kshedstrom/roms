@@ -873,16 +873,22 @@
               FC(i,k)=cff3*cff*Akt(i,j,k,ltrc)*                          &
      &                (t(i,j,k+1,nstp,itrc)-                             &
      &                 t(i,j,k  ,nstp,itrc))
+            END DO
+          END DO
 #  ifdef LMD_NONLOCAL
 !
 !  Add in the nonlocal transport flux for unstable (convective)
 !  forcing conditions into matrix FC when using the Large et al.
 !  KPP scheme.
 !
-              FC(i,k)=FC(i,k)-dt(ng)*Akt(i,j,k,ltrc)*ghats(i,j,k,ltrc)
-#  endif
+          IF (itrc <= NAT) THEN
+            DO k=1,N(ng)-1
+              DO i=Istr,Iend
+                FC(i,k)=FC(i,k)-dt(ng)*Akt(i,j,k,ltrc)*ghats(i,j,k,ltrc)
+              END DO
             END DO
-          END DO
+          END IF
+#  endif
 #  ifdef SOLAR_SOURCE
 !
 !  Add in incoming solar radiation at interior W-points using decay
