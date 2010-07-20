@@ -46,7 +46,11 @@
 !
       integer, parameter :: Natt = 25
 
+#ifdef OFFLINE_FLOATS_LATLON
+      logical :: got_var(-9:NV)
+#else
       logical :: got_var(-6:NV)
+#endif
 
       integer :: fltdim, i, itrc, j, l
       integer :: recdim, status
@@ -281,6 +285,86 @@
 !
 !  Define floats (lon,lat) or (x,y) locations.
 !
+#ifdef OFFLINE_FLOATS_LATLON
+        IF (.not.spherical) THEN
+          WRITE(stdout,*) 'OFFLINE FLOATS MODULE NEEDS SPHERICAL GRID!'
+          exit_flag=2
+          RETURN
+        END IF
+        IF (spherical) THEN
+          Vinfo( 1)='lon'
+          Vinfo( 2)='longitude of floats trajectories'
+          Vinfo( 3)='degree_east'
+          Vinfo( 5)='valid_min'
+          Vinfo( 6)='valid_max'
+          Vinfo(14)='lon, scalar, series'
+          Vinfo(16)=Vname(1,idtime)
+# ifndef NO_4BYTE_REALS
+          Vinfo(24)='_FillValue'
+          Aval(6)=spval
+# endif
+          Aval(2)=-180.0_r8
+          Aval(3)=180.0_r8
+          status=def_var(ng, iNLM, ncFLTid(ng), fltVid(idglon,ng),       &
+     &                   NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+
+          Vinfo( 1)='lat'
+          Vinfo( 2)='latitude of floats trajectories'
+          Vinfo( 3)='degree_north'
+          Vinfo( 5)='valid_min'
+          Vinfo( 6)='valid_max'
+          Vinfo(14)='lat, scalar, series'
+          Vinfo(16)=Vname(1,idtime)
+# ifndef NO_4BYTE_REALS
+          Vinfo(24)='_FillValue'
+          Aval(6)=spval
+# endif
+          Aval(2)=-90.0_r8
+          Aval(3)=90.0_r8
+          status=def_var(ng, iNLM, ncFLTid(ng), fltVid(idglat,ng),      &
+     &                   NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+
+          Vinfo( 1)='x'
+          Vinfo( 2)='x-location of floats trajectories'
+          Vinfo( 3)='meter'
+          Vinfo(14)='x, scalar, series'
+          Vinfo(16)=Vname(1,idtime)
+# ifndef NO_4BYTE_REALS
+          Vinfo(24)='_FillValue'
+          Aval(6)=spval
+# endif
+          status=def_var(ng, iNLM, ncFLTid(ng), fltVid(idxspc,ng), &
+     &                   NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+          Vinfo( 1)='y'
+          Vinfo( 2)='y-location of floats trajectories'
+          Vinfo( 3)='meter'
+          Vinfo(14)='y, scalar, series'
+          Vinfo(16)=Vname(1,idtime)
+# ifndef NO_4BYTE_REALS
+          Vinfo(24)='_FillValue'
+          Aval(6)=spval
+# endif
+          status=def_var(ng, iNLM, ncFLTid(ng), fltVid(idyspc,ng),      &
+     &                   NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+
+          Vinfo( 1)='wd'
+          Vinfo( 2)='water depth of floats trajectories'
+          Vinfo( 3)='meter'
+          Vinfo(14)='wd, scalar, series'
+          Vinfo(16)=Vname(1,idtime)
+# ifndef NO_4BYTE_REALS
+          Vinfo(24)='_FillValue'
+          Aval(6)=spval
+# endif
+          status=def_var(ng, iNLM, ncFLTid(ng), fltVid(idwdph,ng),      &
+     &                   NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+       END IF
+#else
         IF (spherical) THEN
           Vinfo( 1)='lon'
           Vinfo( 2)='longitude of floats trajectories'
@@ -342,6 +426,7 @@
      &                   NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
+#endif
 
 # ifdef SOLVE3D
 !
@@ -487,6 +572,23 @@
             got_var(idZgrd)=.TRUE.
             fltVid(idZgrd,ng)=var_id(i)
 # endif
+# ifdef OFFLINE_FLOATS_LATLON
+          ELSE IF (spherical.and.TRIM(var_name(i)).eq.'lon') THEN
+            got_var(idglon)=.TRUE.
+            fltVid(idglon,ng)=var_id(i)
+          ELSE IF (spherical.and.TRIM(var_name(i)).eq.'lat') THEN
+            got_var(idglat)=.TRUE.
+            fltVid(idglat,ng)=var_id(i)
+          ELSE IF (spherical.and.TRIM(var_name(i)).eq.'x') THEN
+            got_var(idxspc)=.TRUE.
+            fltVid(idxspc,ng)=var_id(i)
+          ELSE IF (spherical.and.TRIM(var_name(i)).eq.'y') THEN
+            got_var(idyspc)=.TRUE.
+            fltVid(idyspc,ng)=var_id(i)
+          ELSE IF (spherical.and.TRIM(var_name(i)).eq.'wd') THEN
+            got_var(idwdph)=.TRUE.
+            fltVid(idwdph,ng)=var_id(i)
+# else
           ELSE IF (spherical.and.TRIM(var_name(i)).eq.'lon') THEN
             got_var(idglon)=.TRUE.
             fltVid(idglon,ng)=var_id(i)
@@ -499,6 +601,7 @@
           ELSE IF (.not.spherical.and.TRIM(var_name(i)).eq.'y') THEN
             got_var(idglat)=.TRUE.
             fltVid(idglat,ng)=var_id(i)
+# endif
 # ifdef SOLVE3D
           ELSE IF (TRIM(var_name(i)).eq.'depth') THEN
             got_var(iddpth)=.TRUE.
@@ -543,6 +646,33 @@
           RETURN
         END IF
 # endif
+# ifdef OFFLINE_FLOATS_LATLON
+        IF (.not.got_var(idglon)) THEN
+          IF (Master) WRITE (stdout,60) 'lon', TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idxspc)) THEN
+          IF (Master) WRITE (stdout,60) 'x', TRIM(ncname)
+          exit_flag=3
+         RETURN
+        END IF
+        IF (.not.got_var(idglat)) THEN
+          IF (Master) WRITE (stdout,60) 'lat', TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idyspc)) THEN
+          IF (Master) WRITE (stdout,60) 'y', TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idwdph)) THEN
+          IF (Master) WRITE (stdout,60) 'wd', TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+# else
         IF (.not.got_var(idglon)) THEN
           IF (spherical) THEN
             IF (Master) WRITE (stdout,60) 'lon', TRIM(ncname)
@@ -561,6 +691,7 @@
           exit_flag=3
           RETURN
         END IF
+# endif
 # ifdef SOLVE3D
         IF (.not.got_var(iddpth)) THEN
           IF (Master) WRITE (stdout,60) 'depth', TRIM(ncname)
