@@ -471,6 +471,9 @@ contains
       real(r8) :: albs, qswi, qlwi, qlh_i, qsh_i
       real(r8) :: le_i, dq_i,fqlat1, sfc_temp, slp, Qsati
       real(r8) :: vap_p_i
+#  ifdef ICE_ALB_EC92
+      real(r8) :: albi, albsn, thki_n, thksn_n
+#  endif
 # endif
 # if defined SHORTWAVE && defined ALBEDO
       real(r8) :: cawdif
@@ -829,6 +832,8 @@ contains
           albi=0._r8
           albsn=0._r8
           IF (ai(i,j,liold) .gt. min_a(ng)) THEN
+            thki_n = hi(i,j,liold)/(ai(i,j,liold)+0.01_r8)
+            thksn_n = hsn(i,j,liold)/(ai(i,j,liold)+0.01_r8)
             albi=0.082409_r8*LOG(thki_n)+0.485472_r8
             IF (thki_n.GE.1._r8) albi=0.07616_r8*thki_n+0.414492_r8
             IF (thki_n.GE.2._r8) albi=0.561632_r8
@@ -842,7 +847,7 @@ contains
               ENDIF
             ENDIF
             albs=albi
-            IF (hsn_n.GT.0._r8) albs=albsn
+            IF (hsn(i,j,liold).GT.0._r8) albs=albsn
 !            IF (sfwat_n.GT.0._r8) albs=0.100737_r8                      &
 !     &         +0.518_r8*EXP(-8.1_r8 *sfwat_n-0.47_r8)                  &
 !     &         +0.341_r8*EXP(-31.8_r8*sfwat_n-0.94_r8)                  &
