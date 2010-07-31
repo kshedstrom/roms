@@ -1258,12 +1258,6 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+16)=' KANTHA_CLAYSON,'
 #endif
-#ifdef LIMIT_BIO_AKT
-      IF (Master) WRITE (stdout,20) 'LIMIT_BIO_AKT',                    &
-     &   'Limit the vertical diffusivity for biological tracers.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+15)=' LIMIT_BIO_AKT,'
-#endif
 #ifdef LMD_BKPP
       IF (Master) WRITE (stdout,20) 'LMD_BKPP',                         &
      &   'KPP bottom boundary layer mixing.'

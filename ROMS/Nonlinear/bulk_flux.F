@@ -164,12 +164,12 @@
      &                     FORCES(ng) % tau_aix_n,                      &
      &                     FORCES(ng) % tau_aiy_n,                      &
 # endif
-# if defined BEST_NPZ 
+# if defined BEST_NPZ
 #  if defined CLIM_ICE_1D
      &                     OCEAN(ng) % it,                              &
      &                     CLIMA(ng) % tclm,                            &
      &                     nstp(ng),                                    &
-#  elif defined BERING_10K && defined ICE_BIO
+#  elif defined ICE_BIO
      &                     ICE(ng) % IcePhL,                            &
      &                     ICE(ng) % IceLog,                            &
 #  endif
@@ -241,7 +241,7 @@
 #  if defined CLIM_ICE_1D
      &                           it,                                    &
      &                           tclm, nstp,                            &
-#  elif defined BERING_10K && defined ICE_BIO
+#  elif defined ICE_BIO
      &                           IcePhL,                                &
      &                           IceLog,                                &
 #  endif
@@ -348,7 +348,7 @@
 #   endif
       real(r8), intent(out) :: tau_aix_n(LBi:,LBj:)
       real(r8), intent(out) :: tau_aiy_n(LBi:,LBj:)
-#   if definded BERING_10K && definded ICE_BIO
+#   if definded ICE_BIO
       real(r8), intent(in) :: IcePhL(LBi:,LBj:,:)
       integer, intent(inout) :: IceLog(LBi:,LBj:,:)
 #   endif
@@ -434,7 +434,7 @@
 #   endif
       real(r8), intent(out) :: tau_aix_n(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: tau_aiy_n(LBi:UBi,LBj:UBj)
-#   if definded BERING_10K && definded ICE_BIO
+#   if definded ICE_BIO
       real(r8), intent(in) :: IcePhL(LBi:UBi,LBj:UBj,2)
       integer, intent(inout) :: IceLog(LBi:UBi,LBj:UBj,2)
 #   endif
@@ -487,6 +487,9 @@
       real(r8) :: albs, qswi, qlwi, qlh_i, qsh_i
       real(r8) :: le_i, dq_i,fqlat1, sfc_temp, slp, Qsati
       real(r8) :: vap_p_i
+#  ifdef ICE_ALB_EC92
+      real(r8) :: albi, albsn, thki_n, thksn_n
+#  endif
 # endif
 
       real(r8) :: cff, cff1, cff2, diffh, diffw, oL, upvel
@@ -1062,6 +1065,8 @@
           albi=0._r8
           albsn=0._r8
           IF (ai(i,j,liold) .gt. min_a(ng)) THEN
+            thki_n = hi(i,j,liold)/(ai(i,j,liold)+0.01_r8)
+            thksn_n = hsn(i,j,liold)/(ai(i,j,liold)+0.01_r8)
             albi=0.082409_r8*LOG(thki_n)+0.485472_r8
             IF (thki_n.GE.1._r8) albi=0.07616_r8*thki_n+0.414492_r8
             IF (thki_n.GE.2._r8) albi=0.561632_r8
@@ -1075,7 +1080,7 @@
               ENDIF
             ENDIF
             albs=albi
-            IF (hsn_n.GT.0._r8) albs=albsn
+            IF (hsn(i,j,liold).GT.0._r8) albs=albsn
 !            IF (sfwat_n.GT.0._r8) albs=0.100737_r8                      &
 !     &         +0.518_r8*EXP(-8.1_r8 *sfwat_n-0.47_r8)                  &
 !     &         +0.341_r8*EXP(-31.8_r8*sfwat_n-0.94_r8)                  &
@@ -1112,8 +1117,11 @@
           SRad(i,j) = SRad(i,j) * 1.075269_r8
 ! This is to take out the ocean albedo out of the shortwave radiation
 !  (1.075 = 1/(1-0.07)) before the ice albedo is applied to it.  I've
-!  just done this for SOGLOBEC, but I think this may be a real bug for 
-!  everything.
+!  just done this for SOGLOBEC and ROSS, but I think this may be a real
+!  bug for everything.
+#   endif
+#   ifdef ROSS
+          SRad(i,j) = SRad(i,j) * 1.075269_r8
 #   endif
           qswi = (1._r8-albs)*SRad(i,j)
 ! Already in W/m**2
@@ -1199,7 +1207,7 @@
 !
 !  Note that fresh water flux is positive out of the ocean and the
 !  salt flux (stflx(isalt)) is positive into the ocean. It is converted
-!  to (psu m/s) for stflx(isalt) in "set_vbc.F" or "ice_mk.h". The E-P 
+!  to (psu m/s) for stflx(isalt) in "set_vbc.F" or "ice_mk.h". The E-P
 !  value is saved in variable EminusP for I/O purposes.
 !
       cff=1.0_r8/rhow
@@ -1257,7 +1265,7 @@
 ! Limit shortwave radiation to be used in computing penetrative
 ! radiation by presence of ice alone
 
-#  if defined BEST_NPZ && defined BERING_10K
+#  if defined BEST_NPZ && defined ICE_BIO
           IF (IceLog(i,j,nstp).lt.0) THEN
             IF (hi(i,j,liold).le.0.1_r8) THEN
               cff1=hi(i,j,liold)*5._r8
