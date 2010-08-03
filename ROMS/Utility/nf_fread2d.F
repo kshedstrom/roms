@@ -274,7 +274,11 @@
 !
         IF (interpolate) THEN
           IF (.not.allocated(Awrk)) THEN
+#ifdef GLOBAL_PERIODIC
+            allocate ( Awrk(0:Ilen+1,Jlen) )
+#else
             allocate ( Awrk(Ilen,Jlen) )
+#endif
             Awrk=IniVal
           END IF
           IF (.not.allocated(wrk)) THEN
@@ -347,6 +351,13 @@
                 Awrk(i,j)=wrk(ic)
               END DO
             END DO
+#ifdef GLOBAL_PERIODIC
+            DO j=Jstr,Jend
+              Awrk(0,j) = Awrk(Iend,j)
+              Awrk(Iend+1,j) = Awrk(1,j)
+            END DO
+            Npts=(Ilen+2)*Jlen
+#endif
             CALL mp_collect (ng, model, Npts, IniVal, Awrk)
           ELSE
             ic=0
@@ -887,6 +898,9 @@
 !-----------------------------------------------------------------------
 !
       IF (interpolate) THEN
+#ifdef GLOBAL_PERIODIC
+        Ilen = Ilen+2
+#endif
         SELECT CASE (ABS(MyType))
           CASE (p2dvar, p3dvar)
             CALL regrid (ng, model, ncname, ncid, ncvname, ncvarid,     &
