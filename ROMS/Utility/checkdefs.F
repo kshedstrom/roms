@@ -1092,6 +1092,12 @@
       Coptions(is:is+12)=' !FULL_GRID,'
 # endif
 #endif
+#ifdef GLOBAL_PERIODIC
+      IF (Master) WRITE (stdout,20) 'GLOBAL_PERIODIC',                  &
+     &   'Globally periodic domain when interpolating forcing.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+17)=' GLOBAL_PERIODIC,'
+#endif
 #ifdef GLS_MIXING
       IF (Master) WRITE (stdout,20) 'GLS_MIXING',                       &
      &   'Generic Length-Scale turbulence closure.'
