@@ -47,12 +47,10 @@
           real(r8), pointer :: sig12(:,:,:)
 
 # if defined ICE_BIO  
-#  ifdef BERING_10K
          real(r8), pointer ::IcePhL(:,:,:)
          real(r8), pointer ::IceNO3(:,:,:)
          real(r8), pointer ::IceNH4(:,:,:)
          integer, pointer ::IceLog(:,:,:)
-#  endif
 # endif
 
         END TYPE T_ICE
@@ -124,12 +122,10 @@
       allocate ( ICE(ng) % sig12(LBi:UBi,LBj:UBj,2) )
 
 # if defined ICE_BIO  
-#  if defined BERING_10K
       allocate (ICE(ng) % IcePhL(LBi:UBi,LBj:UBj,2) )
       allocate (ICE(ng) % IceNO3(LBi:UBi,LBj:UBj,2) )
       allocate (ICE(ng) % IceNH4(LBi:UBi,LBj:UBj,2) )
       allocate (ICE(ng) % IceLog(LBi:UBi,LBj:UBj,2) )
-#  endif
 # endif
 
       RETURN
@@ -263,7 +259,6 @@
           ICE(ng) % sig12(i,j,2) = IniVal
 
 # if defined ICE_BIO  
-#  if defined BERING_10K
           ICE(ng) % IcePhL(i,j,1) = IniVal
           ICE(ng) % IcePhL(i,j,2) = IniVal
           ICE(ng) % IceNO3(i,j,1) = IniVal
@@ -272,7 +267,6 @@
           ICE(ng) % IceNH4(i,j,2) = IniVal
           ICE(ng) % IceLog(i,j,1) = -1
           ICE(ng) % IceLog(i,j,2) = -1
-#  endif
 # endif
         END DO
       END DO
