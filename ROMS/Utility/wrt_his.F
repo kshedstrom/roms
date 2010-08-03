@@ -1302,7 +1302,8 @@
      &                     GRID(ng) % rmask,                            &
 #  endif
 # endif
-     &                     MIXING(ng) % Akv)
+     &                     MIXING(ng) % Akv,                            &
+     &                     SetFillVal = .FALSE.)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
             WRITE (stdout,10) TRIM(Vname(1,idVvis)), tHISindx(ng)
@@ -1324,7 +1325,8 @@
 # ifdef MASKING
      &                     GRID(ng) % rmask,                            &
 # endif
-     &                     MIXING(ng) % Akt(:,:,:,itemp))
+     &                     MIXING(ng) % Akt(:,:,:,itemp),               &
+     &                     SetFillVal = .FALSE.)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
             WRITE (stdout,10) TRIM(Vname(1,idTdif)), tHISindx(ng)
@@ -1347,7 +1349,8 @@
 #  ifdef MASKING
      &                     GRID(ng) % rmask,                            &
 #  endif
-     &                     MIXING(ng) % Akt(:,:,:,isalt))
+     &                     MIXING(ng) % Akt(:,:,:,isalt),               &
+     &                     SetFillVal = .FALSE.)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
             WRITE (stdout,10) TRIM(Vname(1,idSdif)), tHISindx(ng)
@@ -1371,7 +1374,8 @@
 #  ifdef MASKING
      &                     GRID(ng) % rmask,                            &
 #  endif
-     &                     MIXING(ng) % tke(:,:,:,NOUT))
+     &                     MIXING(ng) % tke(:,:,:,NOUT),                &
+     &                     SetFillVal = .FALSE.)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
             WRITE (stdout,10) TRIM(Vname(1,idMtke)), tHISindx(ng)
@@ -1412,7 +1416,8 @@
 #  ifdef MASKING
      &                     GRID(ng) % rmask,                            &
 #  endif
-     &                     MIXING(ng) % gls(:,:,:,NOUT))
+     &                     MIXING(ng) % gls(:,:,:,NOUT),                &
+     &                     SetFillVal = .FALSE.)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
             WRITE (stdout,10) TRIM(Vname(1,idMtls)), tHISindx(ng)
