@@ -274,7 +274,6 @@
 #endif
 
 #if defined NEMURO
-# define LIMIT_BIO_AKT
 # define BIO_SEDIMENT
 # define NEMURO_SED1
 # undef NEMURO_SED2

@@ -258,9 +258,9 @@
 /*
 **  Biological model options.
 */
-#undef NEMURO
+#define NEMURO
 #undef BIO_GOANPZ        /* Sarah Hinckley's 11 box model */
-#define BEST_NPZ         /* Georgina Gibsons BEST NPZ model  */
+#undef BEST_NPZ         /* Georgina Gibsons BEST NPZ model  */
 
 #if defined BEST_NPZ || defined BIO_GOANPZ
 # undef  BIOFLUX           /* sum Nitrogen fluxes between boxes */
@@ -274,7 +274,6 @@
 #endif
 
 #if defined NEMURO
-# undef LIMIT_BIO_AKT
 # define BIO_SEDIMENT
 # define NEMURO_SED1
 # undef NEMURO_SED2
