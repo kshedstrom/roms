@@ -2209,7 +2209,8 @@
 #   ifdef MASKING
      &                     GRID(ng) % rmask,                            &
 #   endif
-     &                     AVERAGE(ng) % avgAKv)
+     &                     AVERAGE(ng) % avgAKv,                        &
+     &                     SetFillVal = .FALSE.)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
             WRITE (stdout,10) TRIM(Vname(1,idVvis)), tAVGindx(ng)
@@ -2231,7 +2232,8 @@
 #   ifdef MASKING
      &                     GRID(ng) % rmask,                            &
 #   endif
-     &                     AVERAGE(ng) % avgAKt)
+     &                     AVERAGE(ng) % avgAKt,                        &
+     &                     SetFillVal = .FALSE.)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
             WRITE (stdout,10) TRIM(Vname(1,idTdif)), tAVGindx(ng)
@@ -2253,7 +2255,8 @@
 #   ifdef MASKING
      &                     GRID(ng) % rmask,                            &
 #   endif
-     &                     AVERAGE(ng) % avgAKs)
+     &                     AVERAGE(ng) % avgAKs,                        &
+     &                     SetFillVal = .FALSE.)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
             WRITE (stdout,10) TRIM(Vname(1,idSdif)), tAVGindx(ng)
