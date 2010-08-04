@@ -348,7 +348,7 @@
 #   endif
       real(r8), intent(out) :: tau_aix_n(LBi:,LBj:)
       real(r8), intent(out) :: tau_aiy_n(LBi:,LBj:)
-#   if definded ICE_BIO
+#   if defined ICE_BIO
       real(r8), intent(in) :: IcePhL(LBi:,LBj:,:)
       integer, intent(inout) :: IceLog(LBi:,LBj:,:)
 #   endif
@@ -434,7 +434,7 @@
 #   endif
       real(r8), intent(out) :: tau_aix_n(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: tau_aiy_n(LBi:UBi,LBj:UBj)
-#   if definded ICE_BIO
+#   if defined ICE_BIO
       real(r8), intent(in) :: IcePhL(LBi:UBi,LBj:UBj,2)
       integer, intent(inout) :: IceLog(LBi:UBi,LBj:UBj,2)
 #   endif

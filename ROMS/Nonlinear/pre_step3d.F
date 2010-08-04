@@ -890,8 +890,6 @@
             END DO
           END IF
 #  endif
-            END DO
-          END DO
 #  ifdef SOLAR_SOURCE
 !
 !  Add in incoming solar radiation at interior W-points using decay
