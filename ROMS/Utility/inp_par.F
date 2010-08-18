@@ -2780,6 +2780,7 @@
             END DO
 #  endif
 # endif
+# ifdef SOLVE3D
           ELSE IF (TRIM(KeyWord).eq.'Aout(idHUav)') THEN
             IF (idHUav.eq.0) THEN
               IF (Master) WRITE (out,280) 'idHUav'
@@ -2815,6 +2816,7 @@
               RETURN
             END IF
             Npts=load_l(Nval, Cval, Ngrids, Aout(idVVav,:))
+# endif
           ELSE IF (TRIM(KeyWord).eq.'Aout(idU2av)') THEN
             IF (idU2av.eq.0) THEN
               IF (Master) WRITE (out,280) 'idU2av'
@@ -2836,6 +2838,7 @@
               RETURN
             END IF
             Npts=load_l(Nval, Cval, Ngrids, Aout(idZZav,:))
+# ifdef SOLVE3D
           ELSE IF (TRIM(KeyWord).eq.'Aout(idTTav)') THEN
             IF (MAXVAL(idTTav).eq.0) THEN
               IF (Master) WRITE (out,280) 'idTTav'
@@ -2901,7 +2904,7 @@
                 Aout(i,ng)=Ltracer(itrc,ng)
               END DO
             END DO
-#ifdef ICE_MODEL
+#  ifdef ICE_MODEL
           ELSE IF (TRIM(KeyWord).eq.'Aout(idUice)') THEN
             Npts=load_l(Nval, Cval, Ngrids, Aout(idUice,:))
           ELSE IF (TRIM(KeyWord).eq.'Aout(idVice)') THEN
@@ -2936,7 +2939,8 @@
             Npts=load_l(Nval, Cval, Ngrids, Aout(idT0mk,:))
           ELSE IF (TRIM(KeyWord).eq.'Aout(idS0mk)') THEN
             Npts=load_l(Nval, Cval, Ngrids, Aout(idS0mk,:))
-#endif
+#  endif
+# endif
 # if defined SOLVE3D && defined T_PASSIVE
           ELSE IF (TRIM(KeyWord).eq.'Aout(inert)') THEN
             Npts=load_l(Nval, Cval, NPT*Ngrids, Linert)
