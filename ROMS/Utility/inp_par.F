@@ -2780,6 +2780,7 @@
             END DO
 #  endif
 # endif
+# ifdef SOLVE3D
           ELSE IF (TRIM(KeyWord).eq.'Aout(idHUav)') THEN
             IF (idHUav.eq.0) THEN
               IF (Master) WRITE (out,280) 'idHUav'
@@ -2815,6 +2816,7 @@
               RETURN
             END IF
             Npts=load_l(Nval, Cval, Ngrids, Aout(idVVav,:))
+# endif
           ELSE IF (TRIM(KeyWord).eq.'Aout(idU2av)') THEN
             IF (idU2av.eq.0) THEN
               IF (Master) WRITE (out,280) 'idU2av'
@@ -2836,6 +2838,7 @@
               RETURN
             END IF
             Npts=load_l(Nval, Cval, Ngrids, Aout(idZZav,:))
+# ifdef SOLVE3D
           ELSE IF (TRIM(KeyWord).eq.'Aout(idTTav)') THEN
             IF (MAXVAL(idTTav).eq.0) THEN
               IF (Master) WRITE (out,280) 'idTTav'
@@ -2901,7 +2904,7 @@
                 Aout(i,ng)=Ltracer(itrc,ng)
               END DO
             END DO
-#ifdef ICE_MODEL
+#  ifdef ICE_MODEL
           ELSE IF (TRIM(KeyWord).eq.'Aout(idUice)') THEN
             Npts=load_l(Nval, Cval, Ngrids, Aout(idUice,:))
           ELSE IF (TRIM(KeyWord).eq.'Aout(idVice)') THEN
@@ -2936,7 +2939,8 @@
             Npts=load_l(Nval, Cval, Ngrids, Aout(idT0mk,:))
           ELSE IF (TRIM(KeyWord).eq.'Aout(idS0mk)') THEN
             Npts=load_l(Nval, Cval, Ngrids, Aout(idS0mk,:))
-#endif
+#  endif
+# endif
 # if defined SOLVE3D && defined T_PASSIVE
           ELSE IF (TRIM(KeyWord).eq.'Aout(inert)') THEN
             Npts=load_l(Nval, Cval, NPT*Ngrids, Linert)
@@ -7496,37 +7500,71 @@
      &                    TRIM(fname)
 #    endif
 #   endif
-#   if defined CORRELATION || defined SENSITIVITY_4DVAR || \
-       defined TL_W4DPSAS  || defined TL_W4DVAR         || \
-       defined W4DPSAS     || defined W4DVAR
+#   if defined SENSITIVITY_4DVAR || defined TL_W4DPSAS  || \
+       defined TL_W4DVAR         || defined W4DPSAS     || \
+       defined W4DVAR
           fname=NRMname(2,ng)
           WRITE (out,160) '              Model Norm File:  ',           &
      &                    TRIM(fname)
           IF (.not.LdefNRM(2,ng)) THEN
             IF (.not.find_file(ng, fname)) GO TO 30
           END IF
+#   elif defined CORRELATION
+          fname=NRMname(2,ng)
+          WRITE (out,160) '              Model Norm File:  ',           &
+     &                    TRIM(fname)
+          IF (.not.LdefNRM(2,ng).and.LwrtNRM(2,ng)) THEN
+            IF (.not.find_file(ng, fname)) GO TO 30
+          END IF
 #   endif
+#   if defined CORRELATION
+          fname=NRMname(1,ng)
+          WRITE (out,160) ' Initial Conditions Norm File:  ',           &
+     &                    TRIM(fname)
+          IF (.not.LdefNRM(1,ng).and.LwrtNRM(1,ng)) THEN
+            IF (.not.find_file(ng, fname)) GO TO 30
+          END IF
+#   else
           fname=NRMname(1,ng)
           WRITE (out,160) ' Initial Conditions Norm File:  ',           &
      &                    TRIM(fname)
           IF (.not.LdefNRM(1,ng)) THEN
             IF (.not.find_file(ng, fname)) GO TO 30
           END IF
+#   endif
 #   ifdef ADJUST_BOUNDARY
+#    ifdef CORRELATION
+          fname=NRMname(3,ng)
+          WRITE (out,160) 'Boundary Conditions Norm File:  ',           &
+     &                    TRIM(fname)
+          IF (.not.LdefNRM(3,ng).and.LwrtNRM(3,ng)) THEN
+            IF (.not.find_file(ng, fname)) GO TO 30
+          END IF
+#    else
           fname=NRMname(3,ng)
           WRITE (out,160) 'Boundary Conditions Norm File:  ',           &
      &                    TRIM(fname)
           IF (.not.LdefNRM(3,ng)) THEN
             IF (.not.find_file(ng, fname)) GO TO 30
           END IF
+#    endif
 #   endif
 #   if defined ADJUST_WSTRESS || defined ADJUST_STFLUX
+#    ifdef CORRELATION
+          fname=NRMname(4,ng)
+          WRITE (out,160) '    Surface Forcing Norm File:  ',           &
+     &                    TRIM(fname)
+          IF (.not.LdefNRM(4,ng).and.LwrtNRM(4,ng)) THEN
+            IF (.not.find_file(ng, fname)) GO TO 30
+          END IF
+#    else
           fname=NRMname(4,ng)
           WRITE (out,160) '    Surface Forcing Norm File:  ',           &
      &                    TRIM(fname)
           IF (.not.LdefNRM(4,ng)) THEN
             IF (.not.find_file(ng, fname)) GO TO 30
           END IF
+#    endif
 #   endif
 #   if !(defined CORRELATION || defined CONVOLUTION || \
          defined OPT_OBSERVATIONS)
