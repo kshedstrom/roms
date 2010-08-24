@@ -215,10 +215,10 @@ POS = G, C, T, N,   Ft0,    Fx0,    Fy0,    Fz0,    Fdt,    Fdx,    Fdy,   Fdz
 ! the 4 sites out at the shelf break.  Is 140 a crazy number of drifters
 ! to deploy once per month?  I could certainly trim the number down if
 ! you think so. Also, perhaps it isnt necessary to deploy these in every
-! month of every year, we could be selective about years. 
-! 
+! month of every year, we could be selective about years.
+!
 ! Locations, station names (and measured/nominal depths) are here:
-! 
+!
 
 ! N55    -171.9748      61.96195       54.4
 ! N40    -169.2787      61.80546667    40.3
@@ -241,7 +241,7 @@ POS = G, C, T, N,   Ft0,    Fx0,    Fy0,    Fz0,    Fdt,    Fdx,    Fdy,   Fdz
 ! SB2    -168.2         56.2          200
 ! SB3    -173.75        58.7          200
 ! SB4    -178.7         61.3          200
-! 
+!
 !  GLOSSARY:
 !  =========
 !
@@ -252,7 +252,7 @@ POS = G, C, T, N,   Ft0,    Fx0,    Fy0,    Fz0,    Fdt,    Fdx,    Fdy,   Fdz
 ! Control Switches.
 !------------------------------------------------------------------------------
 !
-! Lfloats   Switch to control the computation of floats trajectories within 
+! Lfloats   Switch to control the computation of floats trajectories within
 !             nested and/or multiple connected grids. Ngrids values are
 !             expected. By default this switch is set to TRUE in "mod_scalars"
 !             for all grids when the CPP option FLOATS is activated. The
@@ -302,7 +302,7 @@ POS = G, C, T, N,   Ft0,    Fx0,    Fy0,    Fz0,    Fdt,    Fdx,    Fdy,   Fdz
 !              centered at (Fx0,Fy0,Fz0) is activated.
 !
 !              NOTE:  The total number of floats trajectories to compute
-!              ====   must add to NFLOATS. 
+!              ====   must add to NFLOATS.
 !
 !  Ft0       Time (days) of float release after model initialization (real).
 !
