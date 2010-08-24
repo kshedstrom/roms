@@ -112,7 +112,7 @@ MY_CPP_FLAGS ?=
 #  In this, case the user need to select the desired compiler below and
 #  turn on both USE_MPI and USE_MPIF90 macros.
 
-  USE_MPIF90 ?= 
+  USE_MPIF90 ?= on
 
 #  If applicable, activate 64-bit compilation:
 
@@ -152,7 +152,7 @@ MY_CPP_FLAGS ?=
 #  NetCDF and so on.
 #--------------------------------------------------------------------------
 
-        FORT ?= xt5-pgi
+        FORT ?= pgi
 
 #--------------------------------------------------------------------------
 #  Set directory for executable.
@@ -169,7 +169,7 @@ MY_CPP_FLAGS ?=
 #  Set directory for temporary objects.
 #--------------------------------------------------------------------------
 
-SCRATCH_DIR ?= /wrkdir/kate/Build_NEP
+SCRATCH_DIR ?= /workdir/users/kate/Build_NEP
  clean_list := core *.ipo $(SCRATCH_DIR)
 
 ifeq "$(strip $(SCRATCH_DIR))" "."
