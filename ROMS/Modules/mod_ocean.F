@@ -82,11 +82,11 @@
 # if defined NEMURO_SAN
 !  fish_list    Linked list of fish in the box for each box.           !
 !  fish_count   Number of fish in each box.                            !
-!  ships_list   Linked list of ships in the box for each box.          !
-!  ships_count  Number of ships in each box.                           !
+!  spawn_loc    2D spawning locations for each fish species.           !
+#  if defined PREDATOR
 !  pred_list    Linked list of predators in the box for each box.      !
 !  pred_count   Number of predators in each box.                       !
-!  spawn_loc    2D spawning locations for each fish species.           !
+#  endif
 #  if defined EGGS_BISECTION
 !  egg_count    Number of eggs in each box for each species.           !
 #  endif
@@ -183,8 +183,10 @@
 # if defined NEMURO_SAN
           type(fishnode), pointer :: fish_list(:,:)
           integer, pointer :: fish_count(:,:)
-          type(fishnode), pointer :: ships_list(:,:)
-          integer, pointer :: ships_count(:,:)
+#  ifdef PREDATOR
+          type(prednode), pointer :: pred_list(:,:)
+          integer, pointer :: pred_count(:,:)
+#  endif
 #  ifdef EGGS_BISECTION
           real(r8), pointer :: egg_count(:,:,:)
 #  endif
@@ -502,8 +504,10 @@
 # if defined NEMURO_SAN
       allocate ( OCEAN(ng) % fish_count(LBi:UBi,LBj:UBj) )
       allocate ( OCEAN(ng) % fish_list(LBi:UBi,LBj:UBj) )
-      allocate ( OCEAN(ng) % ships_count(LBi:UBi,LBj:UBj) )
-      allocate ( OCEAN(ng) % ships_list(LBi:UBi,LBj:UBj) )
+#  ifdef PREDATOR
+      allocate ( OCEAN(ng) % pred_count(LBi:UBi,LBj:UBj) )
+      allocate ( OCEAN(ng) % pred_list(LBi:UBi,LBj:UBj) )
+#  endif
 #  ifdef EGGS_BISECTION
       allocate ( OCEAN(ng) % egg_count(LBi:UBi,LBj:UBj,Nspecies(ng)) )
 #  endif
@@ -994,8 +998,8 @@
           DO i=Imin,Imax
             OCEAN(ng) % fish_count(i,j) = 0
             OCEAN(ng) % fish_list(i,j) % next => null()
-            OCEAN(ng) % ships_count(i,j) = 0
-            OCEAN(ng) % ships_list(i,j) % next => null()
+            OCEAN(ng) % pred_count(i,j) = 0
+            OCEAN(ng) % pred_list(i,j) % next => null()
           END DO
 # endif
 #endif

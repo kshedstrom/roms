@@ -64,7 +64,7 @@
       real(r8) :: SZooC, LZooC, PZooC, TZooC
       real(r8) :: FSZoo, FLZoo, FPZoo, FTZoo
       real(r8) :: dtdays, Csmp, Egst, Excr, Resp, Actv, SDA
-      real(r8) :: mmol2g, g2mmol, C_max
+      real(r8) :: mmol2gww, gww2mmol, C_max
 !      real(r8) :: K_ZS, K_ZL, K_ZP, CAL_ZF
 !      real(r8) :: a_C, b_C, a_F, a_E, a_R, b_R, d_R, a_S
 !
@@ -73,22 +73,22 @@
 !  Compute growth conditions based on food concentration
 !-----------------------------------------------------------------------
 !
-      mmol2g=1.0_r8
-      g2mmol=1.0_r8/mmol2g
+      mmol2gww=1.0_r8
+      gww2mmol=1.0_r8/mmol2gww
 !
 ! Comsumption
       C_max=a_C(isp,ng)*Fweight**(-b_C(isp,ng))
 # ifdef MASKING
-      SZooC=mmol2g*GRID(ng)%rmask(Ipos,Jpos)*                           &
+      SZooC=mmol2gww*GRID(ng)%rmask(Ipos,Jpos)*                         &
      &             OCEAN(ng)%t(Ipos,Jpos,Kpos,nnew,iSzoo)
-      LZooC=mmol2g*GRID(ng)%rmask(Ipos,Jpos)*                           &
+      LZooC=mmol2gww*GRID(ng)%rmask(Ipos,Jpos)*                         &
      &             OCEAN(ng)%t(Ipos,Jpos,Kpos,nnew,iLzoo)
-      PZooC=mmol2g*GRID(ng)%rmask(Ipos,Jpos)*                           &
+      PZooC=mmol2gww*GRID(ng)%rmask(Ipos,Jpos)*                         &
      &             OCEAN(ng)%t(Ipos,Jpos,Kpos,nnew,iPzoo)
 # else
-      SZooC=mmol2g*OCEAN(ng)%t(Ipos,Jpos,Kpos,nnew,iSzoo)
-      LZooC=mmol2g*OCEAN(ng)%t(Ipos,Jpos,Kpos,nnew,iLzoo)
-      PZooC=mmol2g*OCEAN(ng)%t(Ipos,Jpos,Kpos,nnew,iPzoo)
+      SZooC=mmol2gww*OCEAN(ng)%t(Ipos,Jpos,Kpos,nnew,iSzoo)
+      LZooC=mmol2gww*OCEAN(ng)%t(Ipos,Jpos,Kpos,nnew,iLzoo)
+      PZooC=mmol2gww*OCEAN(ng)%t(Ipos,Jpos,Kpos,nnew,iPzoo)
 # endif
       FSZoo=SZooC*ZSpref(isp,ng)/K_ZS(isp,ng)
       FLZoo=LZooC*ZLpref(isp,ng)/K_ZL(isp,ng)

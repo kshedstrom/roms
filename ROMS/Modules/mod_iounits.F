@@ -24,6 +24,7 @@
 !  FILname     Output filter file name.                                !
 !  FLTname     Output floats file name.                                !
 !  FISHname    Output fish file name.                                  !
+!  PREDname    Output predator file name.                              !
 !  FRCids      NetCDF ID descriptors associated with FRCname.          ! 
 !  FRCname     Input forcing fields file name(s).                      !
 !  FWDbase     Input forward solution base file name.                  !
@@ -67,6 +68,7 @@
 !  bparnam     Input biology parameters file name.                     !
 !  fposnam     Input initial floats positions file name.               !
 !  fishposnam  Input initial fish positions file name.                 !
+!  predposnam  Input initial predtor positions file name.              !
 !  iparnam     Input ice parameters file name.                         !
 !  ioerror     IO error flag.                                          !
 !  ncfile      Current NetCDF file name being processed.               !
@@ -133,6 +135,7 @@
         character (len=fname_len), dimension(Ngrids) :: ERRname
         character (len=fname_len), dimension(Ngrids) :: FLTname
         character (len=fname_len), dimension(Ngrids) :: FISHname
+        character (len=fname_len), dimension(Ngrids) :: PREDname
 #ifdef FILTERED_RST
         character (len=fname_len), dimension(nfile,Ngrids) :: FILname
 #endif
@@ -176,6 +179,7 @@
         character (len=fname_len) :: bparnam
         character (len=fname_len) :: fposnam
         character (len=fname_len) :: fishposnam
+        character (len=fname_len) :: predposnam
         character (len=fname_len) :: iparnam
         character (len=fname_len) :: ncfile
         character (len=fname_len) :: shipposnam

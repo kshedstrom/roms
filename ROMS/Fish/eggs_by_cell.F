@@ -133,8 +133,8 @@
 !
       DO l=1,Nfish(ng)
         IF (bounded(l) .and. alive(l)) THEN
-          i = int(track(ixgrd,nf(ng),l)+0.5)
-          j = int(track(iygrd,nf(ng),l)+0.5)
+          i = nint(track(ixgrd,nf(ng),l))
+          j = nint(track(iygrd,nf(ng),l))
           isp = idfish(species(l))
 ! bounded has been collected and no longer reflects whether the float is
 ! on this tile

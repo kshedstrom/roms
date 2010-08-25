@@ -57,6 +57,7 @@
 # endif
       real(r8), pointer :: eggs(:)
       real(r8) :: wgt
+      real(r8) :: sp_time
       real(r8) :: xnudg, ynudg
       real(r8) :: maxwth, sumwth
 
@@ -117,6 +118,8 @@
           DO i=1,NFishV(ng)
             FISHES(ng) % bioenergy(i,l)=Fspv
           END DO
+          FISHES(ng) % egg_dur(l)=Fspv
+          FISHES(ng) % egg_num(l)=Fspv
           FISHES(ng) % lifestage(l)=iFspv
           FISHES(ng) % swimtype(l)=iFspv
           FISHES(ng) % species(l)=iFspv
@@ -134,59 +137,60 @@
       count = 0
       IF (Master) THEN
 
-        Navail = sum(FISHES(ng) % num_super)
-        print *, "New_fish avail:", Navail
-        IF (Navail > 0) THEN
+        sp_time=REAL(INT(time(ng)/86400.0_r8/days_year))
+        sp_time=time(ng)/86400.0_r8-days_year*sp_time
+
+        DO isp=1,Nspecies(ng)
+
+          Navail = FISHES(ng) % num_super(isp)
+          print *, "New_fish avail:", Navail
+          IF ((Navail.gt.0).and.                                        &
+     &        (sp_time.ge.FISHES(ng)%sp_start(isp)).and.                &
+     &        (sp_time.le.FISHES(ng)%sp_end(isp))) THEN
 # ifdef EGGS_BISECTION
-          allocate(ifish(Navail))
-          allocate(jfish(Navail))
+            allocate(ifish(Navail))
+            allocate(jfish(Navail))
 # else
-          allocate(moms(Navail))
+            allocate(moms(Navail))
 # endif
-          allocate(eggs(Navail))
+            allocate(eggs(Navail))
 
 !  Load up the respective data structures with the eggs
 # ifdef EGGS_TREE_FORT
-          DO isp2=1,Nspecies(ng)
+            isp2=isp
             call tree_init(tree(isp2))
-          END DO
 
-          DO l=1,Nfish(ng)
-            isp = idfish(FISHES(ng) % species(l))
-            IF (FISHES(ng) % bioenergy(ifeggs, l) .gt. 0.0_r8) THEN
-              CALL tree_insert(tree(isp),                               &
-     &              FISHES(ng) % bioenergy(ifspwnloc,l),                &
-     &              FISHES(ng) % bioenergy(ifeggs, l), l)
-              FISHES(ng) % bioenergy(ifeggs, l) = 0.0_r8
-            END IF
-          END DO
-# elif defined EGGS_TREE_CXX
-          DO isp=1,Nspecies(ng)
-            CALL c_tree_init(isp)
-          END DO
-
-          DO l=1,Nfish(ng)
-            IF (FISHES(ng) % bioenergy(ifeggs, l) .gt. 0.0_r8) THEN
+            DO l=1,Nfish(ng)
               isp = idfish(FISHES(ng) % species(l))
-              count(isp) = count(isp) + 1
-              CALL c_tree_insert(isp,                                   &
-     &             FISHES(ng) % bioenergy(ifspwnloc,l),                 &
-     &             FISHES(ng) % bioenergy(ifeggs,l), l)
-!              print *, "New_fish mom ", l,                              &
-!     &              FISHES(ng) % bioenergy(ifspwnloc, l),               &
-!     &              FISHES(ng) % bioenergy(ifeggs, l)
-            END IF
-          END DO
+              IF (FISHES(ng) % bioenergy(ifeggs, l) .gt. 0.0_r8) THEN
+                CALL tree_insert(tree(isp),                             &
+     &                FISHES(ng) % bioenergy(ifspwnloc,l),              &
+     &                FISHES(ng) % bioenergy(ifeggs, l), l)
+                FISHES(ng) % bioenergy(ifeggs, l) = 0.0_r8
+              END IF
+            END DO
+# elif defined EGGS_TREE_CXX
+            CALL c_tree_init(isp)
+  
+            DO l=1,Nfish(ng)
+              IF (FISHES(ng) % bioenergy(ifeggs, l) .gt. 0.0_r8) THEN
+                isp = idfish(FISHES(ng) % species(l))
+                count(isp) = count(isp) + 1
+                CALL c_tree_insert(isp,                                 &
+     &               FISHES(ng) % bioenergy(ifspwnloc,l),               &
+     &               FISHES(ng) % bioenergy(ifeggs,l), l)
+!                print *, "New_fish mom ", l,                              &
+!     &                FISHES(ng) % bioenergy(ifspwnloc, l),               &
+!     &                FISHES(ng) % bioenergy(ifeggs, l)
+              END IF
+            END DO
 # elif defined EGGS_BISECTION
-          CALL egglist_init(ng)
-          DO isp=1,Nspecies(ng)
+            CALL egglist_init(ng)
             CALL egglist_split(isp, FISHES(ng) % num_super(isp),        &
      &                 count(isp))
-          END DO
 # endif
 
-          DO isp=1,Nspecies(ng)
-!           call tree_traverse(tree(is))
+!             call tree_traverse(tree(is))
             IF (count(isp) > 0) THEN
 # ifdef EGGS_TREE_FORT
               CALL tree_collect(tree(isp), FISHES(ng) % num_super(isp), &
@@ -212,11 +216,14 @@
 !  Place it at the mother's location
                 CALL ran1 (xnudg)
                 CALL ran1 (ynudg)
+! JF: NEED TO MAKE SURE I,J IS NOT A LAND CELL !!!!!!!!
                 DO j=0,NFT
 # ifdef EGGS_BISECTION
-                  FISHES(ng)%track(ixgrd,j,ifsh) = ifish(i)+xnudg
-                  FISHES(ng)%track(iygrd,j,ifsh) = jfish(i)+ynudg
-                  FISHES(ng)%track(izgrd,j,ifsh) = N(ng)   !!!! KLUDGE
+                  FISHES(ng)%track(ixgrd,j,ifsh)=ifish(i)+              &
+     &                                           (xnudg-0.5_r8)
+                  FISHES(ng)%track(iygrd,j,ifsh)=jfish(i)+              &
+     &                                           (ynudg-0.5_r8)
+                  FISHES(ng)%track(izgrd,j,ifsh)=FISHES(ng)%Fz0(ifsh)
 # else
 !                  DO k=1,NFV(ng)
 !                    FISHES(ng) % track(k,j,ifsh) =                      &
@@ -234,13 +241,13 @@
                   FISHES(ng)%track(izrhs,j,ifsh)=0.0_r8
                 END DO
 # ifdef EGGS_BISECTION
-                FISHES(ng)%Tinfo(ixgrd,ifsh) = ifish(i)+xnudg
-                FISHES(ng)%Tinfo(iygrd,ifsh) = jfish(i)+ynudg
-                FISHES(ng)%Tinfo(izgrd,ifsh) = N(ng)  !!!! KLUDGE
+                FISHES(ng)%Tinfo(ixgrd,ifsh)=ifish(i)+(xnudg-0.5_r8)
+                FISHES(ng)%Tinfo(iygrd,ifsh)=jfish(i)+(ynudg-0.5_r8)
+                FISHES(ng)%Tinfo(izgrd,ifsh)=FISHES(ng)%Fz0(ifsh)
 # else
                 FISHES(ng)%Tinfo(ixgrd,ifsh) =                          &
      &                     FISHES(ng)%Tinfo(ixgrd,moms(i))
-                FISHES(ng)%Tinfo(iygrd,ifsh) =                          & 
+                FISHES(ng)%Tinfo(iygrd,ifsh) =                          &
      &                     FISHES(ng)%Tinfo(iygrd,moms(i))
                 FISHES(ng)%Tinfo(izgrd,ifsh) =                          &
      &                     FISHES(ng)%Tinfo(izgrd,moms(i))
@@ -254,6 +261,10 @@
                 FISHES(ng) % lifestage(ifsh) = if_egg
                 FISHES(ng) % eatfish(ifsh) = .FALSE.
                 FISHES(ng) % swimtype(ifsh) = Fbehave(isp,ng)
+! number individuals entering egg stage (for life table)
+                FISHES(ng)%egg_num(ifsh)=eggs(i)
+                FISHES(ng)%egg_dur(ifsh)=0.0_r8
+
 # ifdef EGGS_BISECTION
                 print *, 'New_fish: ', ifsh, eggs(i),                   &
      &                                 ifish(i)+xnudg, jfish(i)+ynudg
@@ -263,22 +274,22 @@
                 ifsh = ifsh + 1
               END DO
             END IF
-          END DO
 # ifdef EGGS_TREE_FORT
-          CALL tree_destroy(tree(1))
+            CALL tree_destroy(tree(1))
 # elif defined EGGS_TREE_CXX
-          CALL c_tree_trim
+            CALL c_tree_trim
 # elif defined EGGS_BISECTION
-          CALL egglist_destroy(1)
+            CALL egglist_destroy(1)
 # endif
 # ifdef EGGS_BISECTION
-          deallocate(ifish)
-          deallocate(jfish)
+            deallocate(ifish)
+            deallocate(jfish)
 # else
-          deallocate(moms)
+            deallocate(moms)
 # endif
-          deallocate(eggs)
-        END IF
+            deallocate(eggs)
+          END IF
+        END DO
       END IF
 
 # ifdef DISTRIBUTE
@@ -294,6 +305,10 @@
       FwrkF=RESHAPE(FISHES(ng) % bioenergy,(/NptsF/))
       CALL mp_collect (ng, iNLM, NptsF, Fspv, FwrkF)
       FISHES(ng) % bioenergy=RESHAPE(FwrkF,(/NFishV(ng),Nfish(ng)/))
+      CALL mp_collect (ng, iNLM, Nfish(ng), Fspv,                       &
+     &                                   FISHES(ng) % egg_dur)
+      CALL mp_collect (ng, iNLM, Nfish(ng), Fspv,                       &
+     &                                   FISHES(ng) % egg_num)
       CALL mp_collecti (ng, iNLM, Nfish(ng), iFspv,                     &
      &                                   FISHES(ng) % lifestage)
       CALL mp_collecti (ng, iNLM, Nfish(ng), iFspv,                     &

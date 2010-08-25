@@ -373,6 +373,17 @@
         integer  :: idFage         ! fish age
         integer  :: idFbday        ! fish birthday
         integer  :: idFyield       ! fish yield
+        integer  :: idFcsmPS       ! PS consumption
+        integer  :: idFcsmPL       ! PL consumption
+        integer  :: idFcsmZS       ! ZS consumption
+        integer  :: idFcsmZL       ! ZL consumption
+        integer  :: idFcsmZP       ! ZP consumption
+        integer  :: idFcsmF1       ! Fish consumption on species 1
+        integer  :: idFcsmF2       ! Fish consumption on species 2
+        integer  :: idFcsmF3       ! Fish consumption on species 3
+        integer  :: idFcsmF4       ! Fish consumption on species 4
+        integer  :: idFcsmF5       ! Fish consumption on species 5
+        integer  :: idFresp        ! Fish respiration
         integer  :: idSpwnloc      ! fish batch number
         integer  :: idFspwn        ! spawning distribution
         integer  :: idFbatch       ! fish batch
@@ -382,6 +393,30 @@
         integer  :: idFalv         ! fish is alive
         integer  :: idFeatf        ! fish eats fish
         integer  :: idFgrl         ! fish is female
+        integer  :: idFdegg        ! duration of egg stage
+        integer  :: idFnegg        ! number of eggs
+        integer  :: idFdysac       ! duration of yolk sac stage
+        integer  :: idFnysac       ! number of yolk sacs
+        integer  :: idFdlarv       ! duration of larval stage
+        integer  :: idFnlarv       ! number of larvae
+        integer  :: idFdjuv        ! duration of juvenile stage
+        integer  :: idFnjuv        ! number of juveniles
+        integer  :: idFnsuba       ! number of juveniles
+        integer  :: idFmortN       ! natural mortality
+        integer  :: idFmortS       ! starvation mortality
+        integer  :: idFmortF       ! fishing mortality
+        integer  :: idFmortP       ! predation mortality
+        integer  :: idPwwt         ! Pred wet weight
+        integer  :: idPworth       ! Pred worth
+        integer  :: idPpval        ! Pred P-value
+        integer  :: idPcsmF1       ! Pred consumption on species 1
+        integer  :: idPcsmF2       ! Pred consumption on species 2
+        integer  :: idPcsmF3       ! Pred consumption on species 3
+        integer  :: idPcsmF4       ! Pred consumption on species 4
+        integer  :: idPcsmF5       ! Pred consumption on species 5
+        integer  :: idPspc         ! Pred species
+        integer  :: idPalv         ! Pred is alive
+        integer  :: idPeatf        ! Pred eats fish
 
         integer, allocatable :: idRtrc(:)    ! river runoff for tracers
         integer, allocatable :: idTads(:)    ! tracers adjoint sentivity
@@ -1899,6 +1934,54 @@
                 idFbday=varid
               CASE ('idFyield')
                 idFyield=varid
+              CASE ('idFcsmPS')
+                idFcsmPS=varid
+              CASE ('idFcsmPL')
+                idFcsmPL=varid
+              CASE ('idFcsmZS')
+                idFcsmZS=varid
+              CASE ('idFcsmZL')
+                idFcsmZL=varid
+              CASE ('idFcsmZP')
+                idFcsmZP=varid
+              CASE ('idFcsmF1')
+                idFcsmF1=varid
+              CASE ('idFcsmF2')
+                idFcsmF2=varid
+              CASE ('idFcsmF3')
+                idFcsmF3=varid
+              CASE ('idFcsmF4')
+                idFcsmF4=varid
+              CASE ('idFcsmF5')
+                idFcsmF5=varid
+              CASE ('idFresp')
+                idFresp=varid
+              CASE ('idFdegg')
+                idFdegg=varid
+              CASE ('idFnegg')
+                idFnegg=varid
+              CASE ('idFdysac')
+                idFdysac=varid
+              CASE ('idFnysac')
+                idFnysac=varid
+              CASE ('idFdlarv')
+                idFdlarv=varid
+              CASE ('idFnlarv')
+                idFnlarv=varid
+              CASE ('idFdjuv')
+                idFdjuv=varid
+              CASE ('idFnjuv')
+                idFnjuv=varid
+              CASE ('idFnsuba')
+                idFnsuba=varid
+              CASE ('idFmortN')
+                idFmortN=varid
+              CASE ('idFmortS')
+                idFmortS=varid
+              CASE ('idFmortF')
+                idFmortF=varid
+              CASE ('idFmortP')
+                idFmortP=varid
               CASE ('idFbatch')
                 idFbatch=varid
               CASE ('idSpwnloc')
@@ -1915,6 +1998,30 @@
                 idFeatf=varid
               CASE ('idFgrl')
                 idFgrl=varid
+# ifdef PREDATOR
+              CASE ('idPwwt')
+                idPwwt=varid
+              CASE ('idPworth')
+                idPworth=varid
+              CASE ('idPpval')
+                idPpval=varid
+              CASE ('idPcsmF1')
+                idPcsmF1=varid
+              CASE ('idPcsmF2')
+                idPcsmF2=varid
+              CASE ('idPcsmF3')
+                idPcsmF3=varid
+              CASE ('idPcsmF4')
+                idPcsmF4=varid
+              CASE ('idPcsmF5')
+                idPcsmF5=varid
+              CASE ('idPspc')
+                idPspc=varid
+              CASE ('idPalv')
+                idPalv=varid
+              CASE ('idPeatf')
+                idPeatf=varid
+# endif
 #endif
 #ifdef SEDIMENT
               CASE ('idRtrc(idmud)')

@@ -671,15 +671,17 @@
             ioerror=status
           END IF
         END IF
+# ifdef PREDATOR
         IF (exit_flag.eq.NoError) THEN
-          status=nf90_put_att(ncid, nf90_global, 'shippos_file',        &
-     &                        TRIM(shipposnam))
+          status=nf90_put_att(ncid, nf90_global, 'predpos_file',        &
+     &                        TRIM(predposnam))
           IF (status.ne.nf90_noerr) THEN
-            IF (Master) WRITE (stdout,20) 'shippos_file', TRIM(ncname)
+            IF (Master) WRITE (stdout,20) 'predpos_file', TRIM(ncname)
             exit_flag=3
             ioerror=status
           END IF
         END IF
+# endif
 #endif
 
 #ifdef STATIONS

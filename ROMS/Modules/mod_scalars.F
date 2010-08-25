@@ -338,6 +338,10 @@
 #ifdef NEMURO_SAN
         integer, pointer :: idfish(:) ! Fish species map
         integer, pointer :: idfish_inv(:) ! Fish species inverse map
+# ifdef PREDATOR
+        integer, pointer :: idpred(:) ! Pred species map
+        integer, pointer :: idpred_inv(:) ! Pred species inverse map
+# endif
 #endif
 #ifdef DIAGNOSTICS
 !
@@ -400,6 +404,9 @@
         integer, parameter :: ifdak = 12         ! d(Akt)/d(s)
 # endif
 # ifdef NEMURO_SAN
+!
+! NOTE: When adding variables, must update NFishV in mod_param.F
+!
         integer, parameter :: ifwwt = 1          ! fish wet weight
         integer, parameter :: ifworth = 2        ! fish worth
         integer, parameter :: ifage = 3          ! age as stage
@@ -408,9 +415,20 @@
         integer, parameter :: ifbatch = 6        ! number of batches spawned
         integer, parameter :: iftspwn = 7        ! time of last batch spawned
         integer, parameter :: ifeggs = 8         ! number of eggs spawned
-        integer, parameter :: ifpval = 9         ! number of eggs spawned
+        integer, parameter :: ifpval = 9         ! fish p-value
         integer, parameter :: ifeatme = 10       ! fish-eat-fish predation rate
         integer, parameter :: ifyield = 11       ! yield to fisheries
+        integer, parameter :: ifcsmPS = 12       ! PS consumption
+        integer, parameter :: ifcsmPL = 13       ! PL consumption
+        integer, parameter :: ifcsmZS = 14       ! ZS consumption
+        integer, parameter :: ifcsmZL = 15       ! ZL consumption
+        integer, parameter :: ifcsmZP = 16       ! ZP consumption
+        integer, parameter :: ifcsmF1 = 17       ! Fish consumption on species 1
+        integer, parameter :: ifcsmF2 = 18       ! Fish consumption on species 2
+        integer, parameter :: ifcsmF3 = 19       ! Fish consumption on species 3
+        integer, parameter :: ifcsmF4 = 20       ! Fish consumption on species 4
+        integer, parameter :: ifcsmF5 = 21       ! Fish consumption on species 5
+        integer, parameter :: ifresp = 22        ! Respiration
 ! Lifestage and gender
         integer, parameter :: if_egg = 1
         integer, parameter :: if_yolksac = 2
@@ -427,6 +445,20 @@
         integer, parameter :: if_pinksalmon = 5
         integer, parameter :: max_species = 5
         integer, parameter :: max_yearclass = 10
+#  ifdef PREDATOR
+        integer, parameter :: ipwwt = 1         ! pred wet weight
+        integer, parameter :: ipworth = 2       ! pred worth
+        integer, parameter :: ippval = 3        ! pred p-value
+        integer, parameter :: ipcsmF1 = 4       ! Fish consumption on species 1
+        integer, parameter :: ipcsmF2 = 5       ! Fish consumption on species 2
+        integer, parameter :: ipcsmF3 = 6       ! Fish consumption on species 3
+        integer, parameter :: ipcsmF4 = 7       ! Fish consumption on species 4
+        integer, parameter :: ipcsmF5 = 8       ! Fish consumption on species 5
+! Species IDs
+        integer, parameter :: ip_none = 0
+        integer, parameter :: ip_albacore = 1
+        integer, parameter :: max_predspecies = 1
+#  endif
 #  ifdef EGGS_BISECTION
         logical :: lr_split = .true.
 #  endif
@@ -619,7 +651,9 @@
 #ifdef NEMURO_SAN
         logical, dimension(Ngrids) :: Lfish
         logical, dimension(Ngrids) :: Lships
-        logical, dimension(Ngrids) :: Lpredators
+# ifdef PREDATOR
+        logical, dimension(Ngrids) :: Lpred
+# endif
 #endif
 #ifdef ICE_MODEL
         logical, dimension(Ngrids) :: Lice
@@ -984,6 +1018,7 @@
         logical, dimension(Ngrids) :: LdefERR    ! 4DVar error file
         logical, dimension(Ngrids) :: LdefFLT    ! Floats file
         logical, dimension(Ngrids) :: LdefFISH   ! Fish file
+        logical, dimension(Ngrids) :: LdefPRED   ! Fish file
         logical, dimension(Ngrids) :: LdefHIS    ! History file
         logical, dimension(Ngrids) :: LdefHSS    ! Hessian file
         logical, dimension(Ngrids) :: LdefINI    ! Initial file
@@ -1055,7 +1090,7 @@
         integer, dimension(Ngrids) :: nDIA       ! Diagnostics file
         integer, dimension(Ngrids) :: nFLT       ! Floats file
         integer, dimension(Ngrids) :: nFSH       ! Fish file
-        integer, dimension(Ngrids) :: nSHP       ! Ships file
+        integer, dimension(Ngrids) :: nPRD       ! Ships file
         integer, dimension(Ngrids) :: nHIS       ! History file
         integer, dimension(Ngrids) :: nRST       ! Restart file
         integer, dimension(Ngrids) :: nSTA       ! Stations file
@@ -1167,7 +1202,9 @@
 !
         integer, dimension(Ngrids) :: fishrrec
         integer, dimension(Ngrids) :: shiprrec
+# ifdef PREDATOR
         integer, dimension(Ngrids) :: predrrec
+# endif
 #endif
 !
 !  Switch to activate processing of input data.  This switch becomes
@@ -2039,6 +2076,10 @@
 #  ifdef NEMURO_SAN
       allocate ( idfish(max_species) )
       allocate ( idfish_inv(max_species) )
+#   ifdef PREDATOR
+      allocate ( idpred(max_predspecies) )
+      allocate ( idpred_inv(max_predspecies) )
+#   endif
 #  endif
 
 # ifdef BEST_NPZ
@@ -2602,6 +2643,9 @@
 #ifdef NEMURO_SAN
         Lfish(ng)=.TRUE.
         Lships(ng)=.TRUE.
+# ifdef PREDATOR
+        Lpred(ng)=.TRUE.
+# endif
 #endif
 #ifdef ICE_MODEL
         Lice(ng)=.TRUE.
@@ -2731,6 +2775,9 @@
 #endif
 #ifdef NEMURO_SAN
         LdefFISH(ng)=.TRUE.
+# ifdef PREDATOR
+        LdefPRED(ng)=.TRUE.
+# endif
 #endif
         LdefHIS(ng)=.TRUE.
         LdefINI(ng)=.FALSE.

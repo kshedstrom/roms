@@ -105,6 +105,7 @@
       integer :: Ir, Jr, Kr, IrMax, JrMax, KrMax, kZmax
       integer :: i1, i2, j1, j2, i, j, ii, jj, kk, itm1
       integer :: ifish, fid, isp
+      integer :: iopt, iind(3), jind(3), nind
 
       type(fishnode), pointer :: thisfish
 
@@ -123,8 +124,8 @@
 !  Compute swimming velocity based on Railsback or Humston behavior
 !-----------------------------------------------------------------------
 !
-      DO i=LBi,UBi
-        DO j=LBj,UBj
+      DO i=LBi+1,UBi-1
+        DO j=LBj+1,UBj-1
           IF (fish_count(i,j).gt.0) THEN
             thisfish => fish_list(i,j) % next
             DO ifish=1,fish_count(i,j)
@@ -133,42 +134,104 @@
               IF (MyThread(fid).and.bounded(fid).and.                   &
      &            alive(fid).and.(lifestage(fid).ge.if_juvenile)) THEN
 !
-                Ir=INT(track(ixgrd,itime,fid))
+                Ir=NINT(track(ixgrd,itime,fid))
                 Ir=MIN(MAX(Ir,1),Lm(ng))
-                Jr=INT(track(iygrd,itime,fid))
+                Jr=NINT(track(iygrd,itime,fid))
                 Jr=MIN(MAX(Jr,1),Mm(ng))
-                Kr=INT(track(izgrd,itime,fid))
+                Kr=NINT(track(izgrd,itime,fid))
                 Kr=MIN(MAX(Kr,2),N(ng))
                 Fweight=bioenergy(ifwwt,fid)
 
 ! Swimming velocity based on fish weight (in cm/s)
                 Uswim=a_A(isp,ng)*Fweight**b_A(isp,ng)
 !
-! -------- FITNESS-BASED SWIMMING BEHAVIOR (RAILSBACK) --------
-                IF (swimtype(fid).eq.1) THEN
 !
-! MISSING HERE: CELL SEARCH RANDOMIZATION
+! -------- NO MOVEMENT (ONLY FOR DEBUGGING) --------
+                IF (swimtype(fid).eq.0) THEN
+!
+                  track(ixgrd,itimep1,fid)=track(ixgrd,itime,fid)
+                  track(iygrd,itimep1,fid)=track(iygrd,itime,fid)
+                  track(izgrd,itimep1,fid)=track(izgrd,itime,fid)
+!
+! -------- FITNESS-BASED SWIMMING BEHAVIOR (RAILSBACK) --------
+                ELSE IF (swimtype(fid).eq.1) THEN
 !
                   scoreMax=-99.0_r8
                   IrMax=Ir
                   JrMax=Jr
                   KrMax=Kr
-                  DO jj=MAX(Jr-1,1),MIN(Jr+1,Mm(ng))
-                    DO ii=MAX(Ir-1,1),MIN(Ir+1,Lm(ng))
-                      DO kk=2,N(ng)
-!                      DO kk=MAX(Kr-1,1),MIN(Kr+1,N(ng))
-                        CALL fish_growth_ijk (ng, ii, jj, kk, nnew,     &
-     &                                isp, Fweight, Uswim, Fgrowth)
+!
+! Randomization of i indices
+                  CALL ran1 (snudg)
+                  iopt=INT(6.0_r8*snudg)+1
+                  IF (iopt.eq.1) THEN
+                   iind(1)=MAX(Ir-1,1)
+                   iind(2)=Ir
+                   iind(3)=MIN(Ir+1,Lm(ng))
+                  ELSE IF (iopt.eq.2) THEN
+                   iind(1)=MAX(Ir-1,1)
+                   iind(3)=Ir
+                   iind(2)=MIN(Ir+1,Lm(ng))
+                  ELSE IF (iopt.eq.3) THEN
+                   iind(2)=MAX(Ir-1,1)
+                   iind(1)=Ir
+                   iind(3)=MIN(Ir+1,Lm(ng))
+                  ELSE IF (iopt.eq.4) THEN
+                   iind(2)=MAX(Ir-1,1)
+                   iind(3)=Ir
+                   iind(1)=MIN(Ir+1,Lm(ng))
+                  ELSE IF (iopt.eq.5) THEN
+                   iind(3)=MAX(Ir-1,1)
+                   iind(1)=Ir
+                   iind(2)=MIN(Ir+1,Lm(ng))
+                  ELSE IF (iopt.eq.6) THEN
+                   iind(3)=MAX(Ir-1,1)
+                   iind(2)=Ir
+                   iind(1)=MIN(Ir+1,Lm(ng))
+                  END IF
+! Randomization of j indices
+                  CALL ran1 (snudg)
+                  iopt=INT(6.0_r8*snudg)+1
+                  IF (iopt.eq.1) THEN
+                   jind(1)=MAX(Jr-1,1)
+                   jind(2)=Jr
+                   jind(3)=MIN(Jr+1,Mm(ng))
+                  ELSE IF (iopt.eq.2) THEN
+                   jind(1)=MAX(Jr-1,1)
+                   jind(3)=Jr
+                   jind(2)=MIN(Jr+1,Mm(ng))
+                  ELSE IF (iopt.eq.3) THEN
+                   jind(2)=MAX(Jr-1,1)
+                   jind(1)=Jr
+                   jind(3)=MIN(Jr+1,Mm(ng))
+                  ELSE IF (iopt.eq.4) THEN
+                   jind(2)=MAX(Jr-1,1)
+                   jind(3)=Jr
+                   jind(1)=MIN(Jr+1,Mm(ng))
+                  ELSE IF (iopt.eq.5) THEN
+                   jind(3)=MAX(Jr-1,1)
+                   jind(1)=Jr
+                   jind(2)=MIN(Jr+1,Mm(ng))
+                  ELSE IF (iopt.eq.6) THEN
+                   jind(3)=MAX(Jr-1,1)
+                   jind(2)=Jr
+                   jind(1)=MIN(Jr+1,Mm(ng))
+                  END IF
+                  DO nind=1,3
+                    ii=iind(nind)
+                    jj=jind(nind)
+                    DO kk=N(ng),2,-1
+                      CALL fish_growth_ijk (ng, ii, jj, kk, nnew,       &
+     &                              isp, Fweight, Uswim, Fgrowth)
 ! MISSING HERE: CALL FOR MORTALITY SUBROUTINE
-                        Fmort=0.0_r8
-                        score=exp(Fgrowth)*exp(Fmort)
-                        IF (score.gt.scoreMax) THEN
-                          scoreMax=score
-                          IrMax=ii
-                          JrMax=jj
-                          KrMax=kk
-                        END IF
-                      END DO
+                      Fmort=0.0_r8
+                      score=exp(Fgrowth)*exp(Fmort)
+                      IF (score.gt.scoreMax) THEN
+                        scoreMax=score
+                        IrMax=ii
+                        JrMax=jj
+                        KrMax=kk
+                      END IF
                     END DO
                   END DO
                   CALL ran1 (snudg)
@@ -192,14 +255,33 @@
 ! -------- KINESIS-BASED SWIMMING BEHAVIOR (HUMSTON) --------
                 ELSE IF (swimtype(fid).eq.2) THEN
 !
+#ifdef NEMSAN_TEST
+                  Ftemp=track(iNO3_+NFV(ng)-NT(ng),itime,fid)
+#else
                   Ftemp=track(itemp+NFV(ng)-NT(ng),itime,fid)
+#endif
                   Fpval=bioenergy(ifpval,fid)
                   Fdens=track(ifden,itime,fid)
 ! Behavior based on temperature
                   Fvar=Ftemp
-                  Fvar_opt=12.0_r8
-!                  Fvar_opt=15.0_r8
-                  Fvar_sigma=3.0_r8
+                  IF (isp.eq.if_anchovy) THEN
+#ifdef NEMSAN_TEST
+                    Fvar_opt=8.0_r8
+                    Fvar_sigma=3.0_r8
+#else
+                    Fvar_opt=12.0_r8
+                    Fvar_sigma=3.0_r8
+#endif
+                  END IF
+                  IF (isp.eq.if_sardine) THEN
+#ifdef NEMSAN_TEST
+                    Fvar_opt=15.0_r8
+                    Fvar_sigma=3.0_r8
+#else
+                    Fvar_opt=12.0_r8
+                    Fvar_sigma=3.0_r8
+#endif
+                  END IF
 ! Behavior based on p-value
 !                  Fvar=Fpval
 !                  Fvar_opt=0.2_r8
@@ -207,10 +289,6 @@
 !
 ! ----- Horizontal behavior (updated once daily) -----
 !
-! Use commented lines below to check behavior based on longitude gradient
-!                  Fvar=track(ixgrd,itime,fid)
-!                  Fvar_opt=15.0_r8
-!                  Fvar_sigma=5.0_r8
                   xdis=(track(ixgrd,itime,fid)-                         &
      &                  track(ixgrd,itimem1,fid))/pm(Ir,Jr)
                   ydis=(track(iygrd,itime,fid)-                         &
@@ -256,19 +334,19 @@
                     ydis=f_ydis+g_epsy
                   END IF
 ! Reflect if hits land using density anomaly
-                  IF (Fdens.eq.0.0_r8) THEN
-                    xdis=-1.0_r8*xdis
-                    ydis=-1.0_r8*ydis
-                  END IF
+!                  IF (Fdens.eq.0.0_r8) THEN
+!                    xdis=-1.0_r8*xdis
+!                    ydis=-1.0_r8*ydis
+!                  END IF
 ! Swim towards best location
                   track(ixgrd,itimep1,fid)=track(ixgrd,itime,fid)+      &
      &                                     xdis*pm(Ir,Jr)
                   track(iygrd,itimep1,fid)=track(iygrd,itime,fid)+      &
      &                                     ydis*pn(Ir,Jr)
-                  track(ixgrd,itimep1,fid)=MIN(REAL(Lm(ng),r8),         &
-     &                    MAX(1.0_r8,track(ixgrd,itimep1,fid)))
-                  track(iygrd,itimep1,fid)=MIN(REAL(Mm(ng),r8),         &
-     &                    MAX(1.0_r8,track(iygrd,itimep1,fid)))
+!                  track(ixgrd,itimep1,fid)=MIN(REAL(Lm(ng),r8),         &
+!     &                    MAX(1.0_r8,track(ixgrd,itimep1,fid)))
+!                  track(iygrd,itimep1,fid)=MIN(REAL(Mm(ng),r8),         &
+!     &                    MAX(1.0_r8,track(iygrd,itimep1,fid)))
 !
 ! ----- Vertical behavior (update at every time step) -----
 !
@@ -322,6 +400,8 @@
                   END IF
                   KrMax=MIN(N(ng),MAX(2,KrMax))
                   track(izgrd,itimep1,fid)=REAL(KrMax,r8)
+! Impose 2D movement at surface
+!                  track(izgrd,itimep1,fid)=REAL(N(ng),r8)
 !
                 END IF
 !

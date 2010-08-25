@@ -85,7 +85,12 @@
 !  Nfish        Total number of fish
 !  Nbatch       Number of days per year an individual will release eggs
 !  Nships       Total number of ships
-!  Npred        Total number of predatory fish
+# ifdef PREDATOR
+!  max_predspecies   Maximum number of species
+!  Npredspecies      Number of predator species
+!  Npredperspecies   Number of fish per year class per species
+!  Npred             Total number of predators
+# endif
 #endif
 !                                                                      !
 !=======================================================================
@@ -544,11 +549,21 @@
         integer, dimension(Ngrids) :: Nfish
 
         integer, dimension(Ngrids) :: Nships
+
+# ifdef PREDATOR
+        integer, dimension(Ngrids) :: Npredperspecies
+        integer, dimension(Ngrids) :: Npredspecies
         integer, dimension(Ngrids) :: Npred
+# endif
 
 !  Total number of fish variables to process and output.
 !
         integer, dimension(Ngrids) :: NFishV
+
+# ifdef PREDATOR
+        integer, dimension(Ngrids) :: NPredV
+# endif
+
 #endif
 #if defined FLOATS || defined NEMURO_SAN
 !
@@ -834,7 +849,10 @@
 # endif
 #endif
 #ifdef NEMURO_SAN
-          NFishV(ng)=11
+          NFishV(ng)=22
+# ifdef PREDATOR
+          NPredV(ng)=8
+# endif
 #endif
           NSV(ng)=NT(ng)+5
 #ifdef ADJUST_WSTRESS

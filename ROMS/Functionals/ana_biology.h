@@ -371,23 +371,36 @@
       DO k=1,N(ng)
         DO j=JstrR,JendR
           DO i=IstrR,IendR
-#ifdef CGOA_ANABIO
+#ifdef NEMSAN_TEST
+            t(i,j,k,1,iSphy)=0.0_r8
+            t(i,j,k,1,iLphy)=0.0_r8
+# if defined H_BEHAVE
+! Horizontal gradient
+            t(i,j,k,1,iNO3_)=20.0_r8*REAL(i,r8)/REAL(Lm(ng),r8)
+            t(i,j,k,1,iSzoo)=1.0_r8*                                    &
+     &                 sin(3.14159_r8*REAL(i,r8)/REAL(Lm(ng),r8))*      &
+     &                 sin(3.14159_r8*REAL(j,r8)/REAL(Mm(ng),r8))
+            t(i,j,k,1,iLzoo)=1.0_r8*                                    &
+     &                 sin(3.14159_r8*REAL(i,r8)/REAL(Lm(ng),r8))*      &
+     &                 sin(3.14159_r8*REAL(j,r8)/REAL(Mm(ng),r8))
+# elif defined V_BEHAVE
+! Vertical gradient
+            t(i,j,k,1,iNO3_)=20.0_r8*REAL(k,r8)/REAL(N(ng),r8)
+            t(i,j,k,1,iSzoo)=1.0_r8*sin(3.14159_r8*REAL(k,r8)/          &
+     &                                         REAL(N(ng),r8))
+            t(i,j,k,1,iLzoo)=1.0_r8*sin(3.14159_r8*REAL(k,r8)/          &
+     &                                         REAL(N(ng),r8))
+# else
             t(i,j,k,1,iNO3_)=15.0_r8
-            t(i,j,k,1,iSphy)=0.1_r8
-            t(i,j,k,1,iLphy)=0.1_r8
-            t(i,j,k,1,iSzoo)=0.1_r8
-            t(i,j,k,1,iLzoo)=0.1_r8
-            t(i,j,k,1,iPzoo)=0.1_r8
+            t(i,j,k,1,iSzoo)=0.0_r8
+            t(i,j,k,1,iLzoo)=0.0_r8
+# endif
+            t(i,j,k,1,iPzoo)=0.0_r8
             t(i,j,k,1,iNH4_)=0.0_r8
             t(i,j,k,1,iPON_)=0.0_r8
             t(i,j,k,1,iDON_)=0.0_r8
-            t(i,j,k,1,iSiOH)=25.0_r8
+            t(i,j,k,1,iSiOH)=0.0_r8
             t(i,j,k,1,iopal)=0.0_r8
-# ifdef IRON_LIMIT
-            t(i,j,k,1,iFeD_)=0.2_r8
-            t(i,j,k,1,iFeSp)=0.0_r8
-            t(i,j,k,1,iFeLp)=0.0_r8
-# endif
 #else
             temp=t(i,j,k,1,itemp)
             IF (temp.lt.8.0_r8) THEN

@@ -17,5 +17,11 @@
           type(fishnode), pointer :: next => null()
           integer :: fish
         end type fishnode
+# if defined PREDATOR
+        type prednode
+          type(prednode), pointer :: next => null()
+          integer :: pred
+        end type prednode
+# endif
 #endif
       END MODULE mod_types

@@ -1,6 +1,6 @@
 #include "cppdefs.h"
-      MODULE step_ships_mod
-#if defined NONLINEAR && defined NEMURO_SAN && defined FLEET
+      MODULE step_pred_mod
+#if defined NONLINEAR && defined NEMURO_SAN && defined PREDATOR
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
@@ -9,7 +9,7 @@
 !    See License_ROMS.txt                                              !
 !=======================================================================
 !                                                                      !
-!  This routine time-steps  simulated  floats  trajectories using a    !
+!  This routine time-steps  simulated  predators  trajectories using a !
 !  fourth-order Milne predictor and fourth-order Hamming corrector.    !
 !                                                                      !
 !  Vertical diffusion is optionally represented by a random walk,      !
@@ -29,16 +29,16 @@
       implicit none
 
       PRIVATE
-      PUBLIC  :: step_ships
+      PUBLIC  :: step_pred
 
       CONTAINS
 !
 !***********************************************************************
-      SUBROUTINE step_ships (ng, Lstr, Lend)
+      SUBROUTINE step_pred (ng, Lstr, Lend)
 !***********************************************************************
 !
       USE mod_param
-      USE mod_ships
+      USE mod_pred
       USE mod_stepping
 !
 !  Imported variable declarations.
@@ -48,26 +48,31 @@
 # ifdef PROFILE
       CALL wclock_on (ng, iNLM, 10)
 # endif
-      CALL step_ships_tile (ng, Lstr, Lend,                             &
+      CALL step_pred_tile (ng, Lstr, Lend,                              &
      &                       knew(ng), nnew(ng), nfm3(ng), nfm2(ng),    &
      &                       nfm1(ng), nf(ng), nfp1(ng),                &
-     &                       SHIPS(ng) % bounded,                       &
-     &                       SHIPS(ng) % Ftype,                         &
-     &                       SHIPS(ng) % Tinfo,                         &
-     &                       SHIPS(ng) % Fz0,                           &
-     &                       SHIPS(ng) % track)
+     &                       PREDS(ng) % bounded,                       &
+     &                       PREDS(ng) % Ftype,                         &
+     &                       PREDS(ng) % Tinfo,                         &
+     &                       PREDS(ng) % Fz0,                           &
+     &                       PREDS(ng) % bioenergy,                     &
+     &                       PREDS(ng) % species,                       &
+     &                       PREDS(ng) % alive,                         &
+     &                       PREDS(ng) % eatfish,                       &
+     &                       PREDS(ng) % track)
 # ifdef PROFILE
       CALL wclock_off (ng, iNLM, 10)
 # endif
       RETURN
-      END SUBROUTINE step_ships
+      END SUBROUTINE step_pred
 !
 !***********************************************************************
-      SUBROUTINE step_ships_tile (ng, Lstr, Lend,                       &
+      SUBROUTINE step_pred_tile (ng, Lstr, Lend,                        &
      &                             knew, nnew,                          &
      &                             nfm3, nfm2, nfm1, nf, nfp1,          &
      &                             bounded, Ftype, Tinfo, Fz0,          &
-     &                             track)
+     &                             bioenergy, species, alive,           &
+     &                             eatfish, track)
 !***********************************************************************
 !
       USE mod_param
@@ -79,12 +84,16 @@
 # endif
       USE mod_ncparam
       USE mod_ocean
+      USE mod_pred
+      USE mod_fish
       USE mod_scalars
       USE mod_biology
+      USE pred_mort_mod
+      USE pred_swim_mod
       USE interp_floats_mod
 !
 # ifdef DISTRIBUTE
-      USE distribute_mod, ONLY : mp_collect
+      USE distribute_mod
 # endif
       USE utility_mod, ONLY : nrng
 !
@@ -94,19 +103,27 @@
       integer, intent(in) :: knew, nnew, nfm3, nfm2, nfm1, nf, nfp1
 !
 # ifdef ASSUMED_SHAPE
-      integer, intent(in) :: Ftype(:)
+      integer, intent(in)     :: Ftype(:)
       real(r8), intent(inout) :: Tinfo(0:,:)
       real(r8), intent(inout) :: Fz0(:)
 
-      logical, intent(inout) :: bounded(:)
+      logical, intent(inout)  :: bounded(:)
+      real(r8), intent(inout) :: bioenergy(:,:)
+      integer, intent(inout)  :: species(:)
+      logical, intent(inout)  :: alive(:)
+      logical, intent(inout)  :: eatfish(:)
       real(r8), intent(inout) :: track(:,0:,:)
 # else
-      integer, intent(in) :: Ftype(Nships(ng))
-      real(r8), intent(inout) :: Tinfo(0:izrhs,Nships(ng))
-      real(r8), intent(inout) :: Fz0(Nships(ng))
+      integer, intent(in)     :: Ftype(Npred(ng))
+      real(r8), intent(inout) :: Tinfo(0:izrhs,Npred(ng))
+      real(r8), intent(inout) :: Fz0(Npred(ng))
 
-      logical, intent(inout) :: bounded(Nships(ng))
-      real(r8), intent(inout) :: track(NFV(ng),0:NFT,Nships(ng))
+      logical, intent(inout)  :: bounded(Npred(ng))
+      real(r8), intent(inout) :: bioenergy(NPredV(ng),Npred(ng))
+      integer, intent(inout)  :: species(Npred(ng))
+      logical, intent(inout)  :: alive(Npred(ng))
+      logical, intent(inout)  :: eatfish(Npred(ng))
+      real(r8), intent(inout) :: track(NFV(ng),0:NFT,Npred(ng))
 # endif
 !
 !  Local variable declarations.
@@ -120,14 +137,17 @@
       logical, dimension(Lstr:Lend) :: MyThread
 
       integer :: LBi, UBi, LBj, UBj
-      integer :: Ir, Jr, Npts, i, i1, i2, j, j1, j2, itrc, l, k
+      integer :: Ir, Jr, Npts, i, i1, i2, j, j1, j2, itrc, l, k, isp
+      integer :: NptsF, NptsL, NptsM
 
       real(r8), parameter :: Fspv = 0.0_r8
+      integer, parameter :: iFspv = 0
+      logical, parameter :: lFspv = .false.
 
       real(r8) :: cff1, cff2, cff3, cff4, cff5, cff6, cff7, cff8, cff9
       real(r8) :: p1, p2, q1, q2, xrhs, yrhs, zrhs, zfloat
-      real(r8) :: diZoo, djZoo
-      integer :: kZmax
+      real(r8) :: tspawn, Fworth0
+!      real(r8) :: Nymort
 
 # ifdef FLOAT_VWALK
       integer :: ierr
@@ -138,7 +158,11 @@
 
 # ifdef DISTRIBUTE
       real(r8) :: Xstr, Xend, Ystr, Yend
-      real(r8), dimension(Nships(ng)*NFV(ng)*(NFT+1)) :: Fwrk
+      real(r8), dimension(Npred(ng)*NFV(ng)*(NFT+1)) :: Fwrk
+      real(r8), dimension(Npred(ng)*NPredV(ng)) :: FwrkF
+      real(r8), dimension(Npred(ng)*Nspecies(ng)) :: FwrkM
+      logical,  dimension(Npred(ng)) :: FwrkL
+      integer,  dimension(Npred(ng)) :: FwrkI
 # endif
 !
 ! Set tile array bounds.
@@ -152,18 +176,21 @@
 !
 !-----------------------------------------------------------------------
 ! In distributed-memory configuration, determine which node bounds the
-! current location of the ships. Assign non-bounded ships to the
+! current location of the predator. Assign non-bounded predators to the
 ! master node.
 !-----------------------------------------------------------------------
 !
-! The strategy here is to build a switch that processes only the ships
+! The strategy here is to build a switch that processes only the pred
 ! contained within the node bounds. The trajectory data for the new
 ! time-level (nfp1) is initialized to Fspv. These values are used during
 ! recombining step at the end of the routine.  Since a SUM reduction is
-! carried-out, setting Fspv to zero means the ships only contribute in
+! carried-out, setting Fspv to zero means the pred only contribute in
 ! their own tile.
 !
-      Npts=NFV(ng)*(NFT+1)*Nships(ng)
+      Npts=NFV(ng)*(NFT+1)*Npred(ng)
+      NptsF=NPredV(ng)*Npred(ng)
+      NptsL=Npred(ng)
+      NptsM=Nspecies(ng)*Npred(ng)
 
       Xstr=REAL(BOUNDS(ng)%Istr(MyRank),r8)-0.5_r8
       Xend=REAL(BOUNDS(ng)%Iend(MyRank),r8)+0.5_r8
@@ -184,6 +211,10 @@
               track(i,j,l)=Fspv
             END DO
           END DO
+          DO i=1,NPredV(ng)
+            bioenergy(i,l)=Fspv
+          END DO
+          alive(l)=lFspv
         END IF
       END DO
 # else
@@ -193,219 +224,12 @@
 # endif
 !
 !-----------------------------------------------------------------------
-! Compute nudging velocities for vertical random walk.
-!-----------------------------------------------------------------------
-!
-# if defined SOLVE3D && defined FLOAT_VWALK
-
-      DO l=Lstr,Lend
-        nudg(l)=0.0_r8
-      END DO
-
-      CALL interp_floats (ng, LBi, UBi, LBj, UBj, 0, N(ng),             &
-     &                    Lstr, Lend, nf, ifakt, Nships(ng),            &
-     &                    w3dvar, Lmask, spval, nudg,                   &
-     &                    GRID(ng) % pm,                                &
-     &                    GRID(ng) % pn,                                &
-     &                    GRID(ng) % Hz,                                &
-# ifdef MASKING
-     &                    GRID(ng) % rmask,                             &
-# endif
-     &                    MIXING(ng) % Akt(:,:,:,itemp),                &
-     &                    MyThread, bounded, track)
-
-      CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, N(ng),             &
-     &                    Lstr, Lend, nf, ifdak, Nships(ng),            &
-     &                    r3dvar, Lmask, spval, nudg,                   &
-     &                    GRID(ng) % pm,                                &
-     &                    GRID(ng) % pn,                                &
-     &                    GRID(ng) % Hz,                                &
-# ifdef MASKING
-     &                    GRID(ng) % rmask,                             &
-# endif
-     &                    MIXING(ng) % dAktdz,                          &
-     &                    MyThread, bounded, track)
-
-      CALL nrng (iseed, nudg(Lstr:Lend), Lend-Lstr+1, ierr)
-      DO l=Lstr,Lend
-        IF (MyThread(l).and.bounded(l)) THEN
-          nudg(l)=SQRT(2.0_r8*MAX(track(ifakt,nf,l),0.0_r8)/dt(ng))*    &
-     &            nudg(l)+track(ifdak,nf,l)
-        ELSE
-          nudg(l)=0.0_r8
-        END IF
-      END DO
-
-      CALL interp_floats (ng, LBi, UBi, LBj, UBj, 0, N(ng),             &
-     &                    Lstr, Lend, nf, izrhs, Nships(ng),            &
-     &                    -w3dvar, Lmask, spval, nudg,                  &
-     &                    GRID(ng) % pm,                                &
-     &                    GRID(ng) % pn,                                &
-     &                    GRID(ng) % Hz,                                &
-# ifdef MASKING
-     &                    GRID(ng) % rmask,                             &
-# endif
-     &                    OCEAN(ng) % W,                                &
-     &                    MyThread, bounded, track)
-!
-!  For now, use a forward time step for vertical position.
-!
-      DO l=Lstr,Lend
-        IF (MyThread(l).and.bounded(l)) THEN
-          track(izgrd,nfp1,l)=track(izgrd,nf,l)+                        &
-     &                        dt(ng)*track(izrhs,nf,l)
-        END IF
-      END DO
-# endif
-
-      DO l=Lstr,Lend
-        nudg(l)=0.0_r8
-      END DO
-!
-!  If newly released floats, initialize ships weight
-!
-      DO l=Lstr,Lend
-        IF (MyThread(l).and.bounded(l).and.                             &
-     &      (time(ng)-dt(ng).le.Tinfo(itstr,l).and.                     &
-     &       time(ng)+dt(ng).gt.Tinfo(itstr,l))) THEN
-!           bioenergy(ifwwt,l)=Fwwt0(ng)
-!           bioenergy(ifage,l)=0.0_r8
-        END IF
-      END DO
-!
-!-----------------------------------------------------------------------
-!  Predictor step: compute first guess ships locations using a
-!                  4th-order Milne time-stepping scheme.
-!-----------------------------------------------------------------------
-!
-      cff1=8.0_r8/3.0_r8
-      cff2=4.0_r8/3.0_r8
-      DO l=Lstr,Lend
-        IF (MyThread(l).and.bounded(l)) THEN
-          CALL ships_move (ng, LBi, UBi, LBj, UBj, 1, N(ng),            &
-     &                        l, nf, nnew,                              &
-     &                        diZoo, djZoo, kZmax,                      &
-     &                        GRID(ng) % pm(LBi,LBj),                   &
-     &                        GRID(ng) % pn(LBi,LBj),                   &
-     &                        GRID(ng) % Hz(LBi,LBj,1),                 &
-#  ifdef MASKING
-     &                        GRID(ng) % rmask(LBi,LBj),                &
-#  endif
-     &                        OCEAN(ng) % t,                            &
-     &                        track(1,0,1))
-
-          track(ixgrd,nfp1,l)=track(ixgrd,nfm3,l)+                      &
-     &                dt(ng)*(cff1*(track(ixrhs,nf  ,l)+diZoo)-         &
-     &                        cff2*(track(ixrhs,nfm1,l)+diZoo)+         &
-     &                        cff1*(track(ixrhs,nfm2,l)+diZoo))
-          track(iygrd,nfp1,l)=track(iygrd,nfm3,l)+                      &
-     &                dt(ng)*(cff1*(track(iyrhs,nf  ,l)+djZoo)-         &
-     &                        cff2*(track(iyrhs,nfm1,l)+djZoo)+         &
-     &                        cff1*(track(iyrhs,nfm2,l)+djZoo))
-
-# if defined SOLVE3D && !defined FLOAT_VWALK
-!
-!  Compute vertical position (grid units) 3D Lagrangian ships.
-!
-          IF (Ftype(l).eq.flt_Lagran) THEN
-            track(izgrd,nfp1,l)=track(izgrd,nfm3,l)+                    &
-     &                          dt(ng)*(cff1*track(izrhs,nf  ,l)-       &
-     &                                  cff2*track(izrhs,nfm1,l)+       &
-     &                                  cff1*track(izrhs,nfm2,l))
-!
-!  Compute vertical position (grid units) for isobaric ships
-!  (p=g*(z+zeta)=constant) or geopotential ships (constant depth).
-!  Use bilinear interpolation to determine vertical position.
-!
-          ELSE IF ((Ftype(l).eq.flt_Isobar).or.                         &
-     &             (Ftype(l).eq.flt_Geopot)) THEN
-            Ir=INT(track(ixgrd,nfp1,l))
-            Jr=INT(track(iygrd,nfp1,l))
-!
-            i1=MIN(MAX(Ir  ,0),Lm(ng)+1)
-            i2=MIN(MAX(Ir+1,1),Lm(ng)+1)
-            j1=MIN(MAX(Jr  ,0),Mm(ng)+1)
-            j2=MIN(MAX(Jr+1,0),Mm(ng)+1)
-!
-            p2=REAL(i2-i1,r8)*(track(ixgrd,nfp1,l)-REAL(i1,r8))
-            q2=REAL(j2-j1,r8)*(track(iygrd,nfp1,l)-REAL(j1,r8))
-            p1=1.0_r8-p2
-            q1=1.0_r8-q2
-#  ifdef MASKING
-            cff7=p1*q1*GRID(ng)%z_w(i1,j1,N(ng))*GRID(ng)%rmask(i1,j1)+ &
-     &           p2*q1*GRID(ng)%z_w(i2,j1,N(ng))*GRID(ng)%rmask(i2,j1)+ &
-     &           p1*q2*GRID(ng)%z_w(i1,j2,N(ng))*GRID(ng)%rmask(i1,j2)+ &
-     &           p2*q2*GRID(ng)%z_w(i2,j2,N(ng))*GRID(ng)%rmask(i2,j2)
-            cff8=p1*q1*GRID(ng)%rmask(i1,j1)+                           &
-     &           p2*q1*GRID(ng)%rmask(i2,j1)+                           &
-     &           p1*q2*GRID(ng)%rmask(i1,j2)+                           &
-     &           p2*q2*GRID(ng)%rmask(i2,j2)
-            cff9=0.0_r8
-            IF (cff8.gt.0.0_r8) cff9=cff7/cff8
-#  else
-            cff9=p1*q1*GRID(ng)%z_w(i1,j1,N(ng))+                       &
-     &           p2*q1*GRID(ng)%z_w(i2,j1,N(ng))+                       &
-     &           p1*q2*GRID(ng)%z_w(i1,j2,N(ng))+                       &
-     &           p2*q2*GRID(ng)%z_w(i2,j2,N(ng))
-#  endif
-            cff6=cff9
-!
-            IF (Ftype(l).eq.flt_Geopot) THEN
-              zfloat=Fz0(l)
-            ELSE IF (Ftype(l).eq.flt_Isobar) THEN
-              zfloat=Fz0(l)+cff9
-            END IF
-!
-            DO k=N(ng),0,-1
-!            DO k=N(ng)-1,1,-1
-#  ifdef MASKING
-              cff7=p1*q1*GRID(ng)%z_w(i1,j1,k)*GRID(ng)%rmask(i1,j1)+   &
-     &             p2*q1*GRID(ng)%z_w(i2,j1,k)*GRID(ng)%rmask(i2,j1)+   &
-     &             p1*q2*GRID(ng)%z_w(i1,j2,k)*GRID(ng)%rmask(i1,j2)+   &
-     &             p2*q2*GRID(ng)%z_w(i2,j2,k)*GRID(ng)%rmask(i2,j2)
-              cff8=p1*q1*GRID(ng)%rmask(i1,j1)+                         &
-     &             p2*q1*GRID(ng)%rmask(i2,j1)+                         &
-     &             p1*q2*GRID(ng)%rmask(i1,j2)+                         &
-     &             p2*q2*GRID(ng)%rmask(i2,j2)
-              IF (cff8.gt.0.0_r8) THEN
-                cff5=cff7/cff8
-              ELSE
-                cff5=0.0_r8
-              END IF
-#  else
-              cff5=p1*q1*GRID(ng)%z_w(i1,j1,k)+                         &
-     &             p2*q1*GRID(ng)%z_w(i2,j1,k)+                         &
-     &             p1*q2*GRID(ng)%z_w(i1,j2,k)+                         &
-     &             p2*q2*GRID(ng)%z_w(i2,j2,k)
-#  endif
-              IF ((zfloat-cff5)*(cff6-zfloat).ge.0.0_r8) THEN
-                track(izgrd,nfp1,l)=REAL(k,r8)+(zfloat-cff5)/(cff6-cff5)
-              END IF
-              cff6=cff5
-            END DO
-! Check for shallowing water
-            IF (zfloat < cff5) THEN
-              print *, 'STEP_FLOAT getting too shallow', zfloat, cff5, l
-              Fz0(l) = cff5 + 5.0
-            END IF
-          ELSE
-            track(izgrd,nfp1,l)=track(izgrd,nfm3,l)+                    &
-     &                          dt(ng)*(cff1*track(izrhs,nf  ,l)-       &
-     &                                  cff2*track(izrhs,nfm1,l)+       &
-     &                                  cff1*track(izrhs,nfm2,l))
-          END IF
-          track(izgrd,nfp1,l)=REAL(kZmax,r8)
-# endif
-        END IF
-      END DO
-!
-!-----------------------------------------------------------------------
 !  Calculate slopes at new time-step.
 !-----------------------------------------------------------------------
 !
 # ifdef SOLVE3D
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, N(ng),             &
-     &                    Lstr, Lend, nfp1, ixrhs, Nships(ng),          &
+     &                    Lstr, Lend, nfp1, ixrhs, Npred(ng),           &
      &                    -u3dvar, Lmask, spval, nudg,                  &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
@@ -417,7 +241,7 @@
      &                    MyThread, bounded, track)
 
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, N(ng),             &
-     &                    Lstr, Lend, nfp1, iyrhs, Nships(ng),          &
+     &                    Lstr, Lend, nfp1, iyrhs, Npred(ng),           &
      &                    -v3dvar, Lmask, spval, nudg,                  &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
@@ -430,7 +254,7 @@
 
 #  if !defined FLOAT_VWALK
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 0, N(ng),             &
-     &                    Lstr, Lend, nfp1, izrhs, Nships(ng),          &
+     &                    Lstr, Lend, nfp1, izrhs, Npred(ng),           &
      &                    -w3dvar, Lmask, spval, nudg,                  &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
@@ -443,7 +267,7 @@
 #  endif
 # else
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,                 &
-     &                    Lstr, Lend, nfp1, ixrhs, Nships(ng),          &
+     &                    Lstr, Lend, nfp1, ixrhs, Npred(ng),           &
      &                    -u2dvar, Lmask, spval, nudg,                  &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
@@ -454,10 +278,11 @@
      &                    MyThread, bounded, track)
 
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,                 &
-     &                    Lstr, Lend, nfp1, iyrhs, Nships(ng),          &
+     &                    Lstr, Lend, nfp1, iyrhs, Npred(ng),           &
      &                    -v2dvar, Lmask, spval, nudg,                  &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
+     &                    GRID(ng) % Hz,                                &
 # ifdef MASKING
      &                    GRID(ng) % rmask,                             &
 # endif
@@ -466,139 +291,27 @@
 # endif
 !
 !-----------------------------------------------------------------------
-!  Corrector step: correct ships locations using a 4th-order
-!                  Hamming time-stepping scheme.
+!  Predator swimming behavior
 !-----------------------------------------------------------------------
 !
-      cff1=9.0_r8/8.0_r8
-      cff2=1.0_r8/8.0_r8
-      cff3=3.0_r8/8.0_r8
-      cff4=6.0_r8/8.0_r8
-      DO l=Lstr,Lend
-        IF (MyThread(l).and.bounded(l)) THEN
-          CALL ships_move (ng, LBi, UBi, LBj, UBj, 1, N(ng),            &
-     &                        l, nfp1, nnew,                            &
-     &                        diZoo, djZoo, kZmax,                      &
-     &                        GRID(ng) % pm,                            &
-     &                        GRID(ng) % pn,                            &
-     &                        GRID(ng) % Hz,                            &
-# ifdef MASKING
-     &                        GRID(ng) % rmask,                         &
+      CALL pred_swim (ng, LBi, UBi, LBj, UBj, 1, N(ng),                 &
+     &                    nfm1, nf, nfp1, nnew,                         &
+     &                    GRID(ng) % pm,                                &
+     &                    GRID(ng) % pn,                                &
+# ifdef SOLVE3D
+     &                    GRID(ng) % Hz,                                &
 # endif
-     &                        OCEAN(ng) % t,                            &
-     &                        track)
-!
-          track(ixgrd,nfp1,l)=cff1*track(ixgrd,nf  ,l)-                 &
-     &                        cff2*track(ixgrd,nfm2,l)+                 &
-     &                dt(ng)*(cff3*(track(ixrhs,nfp1,l)+diZoo)+         &
-     &                        cff4*(track(ixrhs,nf  ,l)+diZoo)-         &
-     &                        cff3*(track(ixrhs,nfm1,l)+diZoo))
-          track(iygrd,nfp1,l)=cff1*track(iygrd,nf  ,l)-                 &
-     &                        cff2*track(iygrd,nfm2,l)+                 &
-     &                dt(ng)*(cff3*(track(iyrhs,nfp1,l)+djZoo)+         &
-     &                        cff4*(track(iyrhs,nf  ,l)+djZoo)-         &
-     &                        cff3*(track(iyrhs,nfm1,l)+djZoo))
-
-# if defined SOLVE3D && !defined FLOAT_VWALK
-!
-!  Compute vertical position (grid units) 3D Lagrangian ships.
-!
-          IF (Ftype(l).eq.flt_Lagran) THEN
-            track(izgrd,nfp1,l)=cff1*track(izgrd,nf  ,l)-               &
-     &                          cff2*track(izgrd,nfm2,l)+               &
-     &                          dt(ng)*(cff3*track(izrhs,nfp1,l)+       &
-     &                                  cff4*track(izrhs,nf  ,l)-       &
-     &                                  cff3*track(izrhs,nfm1,l))
-!
-!  Compute vertical position (grid units) for isobaric ships
-!  (p=g*(z+zeta)=constant) or geopotential ships (constant depth).
-!  Use bilinear interpolation to determine vertical position.
-!
-          ELSE IF ((Ftype(l).eq.flt_Isobar).or.                         &
-     &             (Ftype(l).eq.flt_Geopot)) THEN
-            Ir=INT(track(ixgrd,nfp1,l))
-            Jr=INT(track(iygrd,nfp1,l))
-!
-            i1=MIN(MAX(Ir  ,0),Lm(ng)+1)
-            i2=MIN(MAX(Ir+1,1),Lm(ng)+1)
-            j1=MIN(MAX(Jr  ,0),Mm(ng)+1)
-            j2=MIN(MAX(Jr+1,0),Mm(ng)+1)
-!
-            p2=REAL(i2-i1,r8)*(track(ixgrd,nfp1,l)-REAL(i1,r8))
-            q2=REAL(j2-j1,r8)*(track(iygrd,nfp1,l)-REAL(j1,r8))
-            p1=1.0_r8-p2
-            q1=1.0_r8-q2
-#  ifdef MASKING
-            cff7=p1*q1*GRID(ng)%z_w(i1,j1,N(ng))*GRID(ng)%rmask(i1,j1)+ &
-     &           p2*q1*GRID(ng)%z_w(i2,j1,N(ng))*GRID(ng)%rmask(i2,j1)+ &
-     &           p1*q2*GRID(ng)%z_w(i1,j2,N(ng))*GRID(ng)%rmask(i1,j2)+ &
-     &           p2*q2*GRID(ng)%z_w(i2,j2,N(ng))*GRID(ng)%rmask(i2,j2)
-            cff8=p1*q1*GRID(ng)%rmask(i1,j1)+                           &
-     &           p2*q1*GRID(ng)%rmask(i2,j1)+                           &
-     &           p1*q2*GRID(ng)%rmask(i1,j2)+                           &
-     &           p2*q2*GRID(ng)%rmask(i2,j2)
-            IF (cff8.gt.0.0_r8) THEN
-              cff9=cff7/cff8
-            ELSE
-              cff9=0.0_r8
-            END IF
-#  else
-            cff9=p1*q1*GRID(ng)%z_w(i1,j1,N(ng))+                       &
-     &           p2*q1*GRID(ng)%z_w(i2,j1,N(ng))+                       &
-     &           p1*q2*GRID(ng)%z_w(i1,j2,N(ng))+                       &
-     &           p2*q2*GRID(ng)%z_w(i2,j2,N(ng))
-#  endif
-            cff6=cff9
-!
-            IF (Ftype(l).eq.flt_Geopot) THEN
-              zfloat=Fz0(l)
-            ELSE IF (Ftype(l).eq.flt_Isobar) THEN
-              zfloat=Fz0(l)+cff9
-            END IF
-!
-            DO k=N(ng)-1,1,-1
-#  ifdef MASKING
-              cff7=p1*q1*GRID(ng)%z_w(i1,j1,k)*GRID(ng)%rmask(i1,j1)+   &
-     &             p2*q1*GRID(ng)%z_w(i2,j1,k)*GRID(ng)%rmask(i2,j1)+   &
-     &             p1*q2*GRID(ng)%z_w(i1,j2,k)*GRID(ng)%rmask(i1,j2)+   &
-     &             p2*q2*GRID(ng)%z_w(i2,j2,k)*GRID(ng)%rmask(i2,j2)
-              cff8=p1*q1*GRID(ng)%rmask(i1,j1)+                         &
-     &             p2*q1*GRID(ng)%rmask(i2,j1)+                         &
-     &             p1*q2*GRID(ng)%rmask(i1,j2)+                         &
-     &             p2*q2*GRID(ng)%rmask(i2,j2)
-              cff5=0.0_r8
-              IF (cff8.gt.0.0_r8) cff5=cff7/cff8
-#  else
-              cff5=p1*q1*GRID(ng)%z_w(i1,j1,k)+                         &
-     &             p2*q1*GRID(ng)%z_w(i2,j1,k)+                         &
-     &             p1*q2*GRID(ng)%z_w(i1,j2,k)+                         &
-     &             p2*q2*GRID(ng)%z_w(i2,j2,k)
-#  endif
-              IF ((zfloat-cff5)*(cff6-zfloat).ge.0.0_r8) THEN
-                track(izgrd,nfp1,l)=REAL(k,r8)+(zfloat-cff5)/(cff6-cff5)
-              END IF
-              cff6=cff5
-            END DO
-! Check for shallowing water
-            IF (zfloat < cff5) THEN
-              print *, 'STEP_FLOAT getting too shallow', zfloat,        &
-     &            cff5, l
-              Fz0(l) = cff5 + 5.0
-            END IF
-          ELSE
-            track(izgrd,nfp1,l)=cff1*track(izgrd,nf  ,l)-               &
-     &                          cff2*track(izgrd,nfm2,l)+               &
-     &                          dt(ng)*(cff3*track(izrhs,nfp1,l)+       &
-     &                                  cff4*track(izrhs,nf  ,l)-       &
-     &                                  cff3*track(izrhs,nfm1,l))
-          END IF
-          track(izgrd,nfp1,l)=REAL(kZmax,r8)
-# endif
-        END IF
-      END DO
+     &                    MyThread, bounded, track,                     &
+     &                    bioenergy, alive, species,                    &
+     &                    OCEAN(ng) % pred_count,                       &
+     &                    OCEAN(ng) % pred_list,                        &
+     &                    PREDS(ng) % prednodes,                        &
+     &                    OCEAN(ng) % fish_count,                       &
+     &                    OCEAN(ng) % fish_list,                        &
+     &                    FISHES(ng) % fishnodes)
 !
 !-----------------------------------------------------------------------
-!  Determine ships status.
+!  Determine pred status.
 !-----------------------------------------------------------------------
 !
 # ifdef EW_PERIODIC
@@ -624,7 +337,7 @@
       IF (NtileI(ng).gt.1) THEN
         Fwrk=RESHAPE(track,(/Npts/))
         CALL mp_collect (ng, iNLM, Npts, Fspv, Fwrk)
-        track=RESHAPE(Fwrk,(/NFV(ng),NFT+1,Nships(ng)/))
+        track=RESHAPE(Fwrk,(/NFV(ng),NFT+1,Npred(ng)/))
         DO l=Lstr,Lend
           IF ((Xstr.le.track(ixgrd,nfp1,l)).and.                        &
      &        (track(ixgrd,nfp1,l).lt.Xend).and.                        &
@@ -640,6 +353,10 @@
                 track(i,j,l)=Fspv
               END DO
             END DO
+            DO i=1,NPredV(ng)
+              bioenergy(i,l)=Fspv
+            END DO
+            alive(l)=lFspv
           END IF
         END DO
       END IF
@@ -647,6 +364,32 @@
 # else
       DO l=Lstr,Lend
         IF (MyThread(l).and.bounded(l)) THEN
+! JF: Relocation at starting position for non-periodic case
+!          IF ((track(ixgrd,nfp1,l).ge.REAL(Lm(ng)+1,r8)-0.5_r8).or.     &
+!     &        (track(ixgrd,nfp1,l).lt.0.5_r8)) THEN
+!            DO j=0,NFT
+!              track(ixgrd,j,l)=Tinfo(ixgrd,l) 
+!              track(iygrd,j,l)=Tinfo(iygrd,l) 
+!              track(izgrd,j,l)=Tinfo(izgrd,l) 
+!              track(ixrhs,j,l)=0.0_r8
+!              track(iyrhs,j,l)=0.0_r8
+!              track(izrhs,j,l)=0.0_r8
+!            END DO
+!          END IF
+! JF: Crude reflective boundary condition for non-periodic case
+!          IF (track(ixgrd,nfp1,l).ge.REAL(Lm(ng)+1,r8)-2.5_r8) THEN
+!            DO j=0,NFT
+!              track(ixgrd,j,l)=REAL(Lm(ng)+1-3) 
+!              track(ixrhs,j,l)=-track(ixrhs,nfp1,l)
+!            END DO
+!          END IF
+!          IF (track(ixgrd,nfp1,l).lt.2.5_r8) THEN
+!            DO j=0,NFT
+!              track(ixgrd,j,l)=3.0_r8 
+!              track(ixrhs,j,l)=-track(ixrhs,nfp1,l)
+!            END DO
+!          END IF
+! Original ROMS code
           IF ((track(ixgrd,nfp1,l).ge.REAL(Lm(ng)+1,r8)-0.5_r8).or.     &
      &        (track(ixgrd,nfp1,l).lt.0.5_r8)) THEN
             bounded(l)=.FALSE.
@@ -677,7 +420,7 @@
       IF (NtileJ(ng).gt.1) THEN
         Fwrk=RESHAPE(track,(/Npts/))
         CALL mp_collect (ng, iNLM, Npts, Fspv, Fwrk)
-        track=RESHAPE(Fwrk,(/NFV(ng),NFT+1,Nships(ng)/))
+        track=RESHAPE(Fwrk,(/NFV(ng),NFT+1,Npred(ng)/))
         DO l=Lstr,Lend
           IF ((Xstr.le.track(ixgrd,nfp1,l)).and.                        &
      &        (track(ixgrd,nfp1,l).lt.Xend).and.                        &
@@ -693,6 +436,10 @@
                 track(i,j,l)=Fspv
               END DO
             END DO
+            DO i=1,NPredV(ng)
+                bioenergy(i,l)=Fspv
+            END DO
+            alive(l)=lFspv
           END IF
         END DO
       END IF
@@ -700,6 +447,32 @@
 # else
       DO l=Lstr,Lend
         IF (MyThread(l).and.bounded(l)) THEN
+! JF: Relocation at starting position for non-periodic case
+!          IF ((track(iygrd,nfp1,l).ge.REAL(Mm(ng)+1,r8)-0.5_r8).or.     &
+!     &        (track(iygrd,nfp1,l).lt.0.5_r8)) THEN
+!            DO j=0,NFT
+!              track(ixgrd,j,l)=Tinfo(ixgrd,l) 
+!              track(iygrd,j,l)=Tinfo(iygrd,l) 
+!              track(izgrd,j,l)=Tinfo(izgrd,l) 
+!              track(ixrhs,j,l)=0.0_r8
+!              track(iyrhs,j,l)=0.0_r8
+!              track(izrhs,j,l)=0.0_r8
+!            END DO
+!          END IF
+! JF: Crude reflective boundary condition for non-periodic case
+!          IF (track(iygrd,nfp1,l).ge.REAL(Mm(ng)+1,r8)-2.5_r8) THEN
+!            DO j=0,NFT
+!              track(iygrd,j,l)=REAL(Mm(ng)+1-3) 
+!              track(iyrhs,j,l)=-track(iyrhs,nfp1,l)
+!            END DO
+!          END IF
+!          IF (track(iygrd,nfp1,l).lt.2.5_r8) THEN
+!            DO j=0,NFT
+!              track(iygrd,j,l)=3.0_r8 
+!              track(iyrhs,j,l)=-track(iyrhs,nfp1,l)
+!            END DO
+!          END IF
+! Original ROMS code
           IF ((track(iygrd,nfp1,l).ge.REAL(Mm(ng)+1,r8)-0.5_r8).or.     &
      &        (track(iygrd,nfp1,l).lt.0.5_r8)) THEN
             bounded(l)=.FALSE.
@@ -709,7 +482,7 @@
 # endif
 # ifdef SOLVE3D
 !
-!  Reflect ships at surface or bottom.
+!  Reflect pred at surface or bottom.
 !
       DO l=Lstr,Lend
         IF (MyThread(l).and.bounded(l)) THEN
@@ -723,56 +496,12 @@
 # endif
 !
 !-----------------------------------------------------------------------
-!  If appropriate, activate the release of new ships and set initial
-!  positions for all time levels.
-!-----------------------------------------------------------------------
-!
-      DO l=Lstr,Lend
-        IF (.not.bounded(l).and.                                        &
-     &      (time(ng)-dt(ng).le.Tinfo(itstr,l).and.                     &
-     &       time(ng)+dt(ng).gt.Tinfo(itstr,l))) THEN
-          bounded(l)=.TRUE.
-# ifdef DISTRIBUTE
-          IF ((Xstr.le.Tinfo(ixgrd,l)).and.                             &
-     &        (Tinfo(ixgrd,l).lt.Xend).and.                             &
-     &        (Ystr.le.Tinfo(iygrd,l)).and.                             &
-     &        (Tinfo(iygrd,l).lt.Yend)) THEN
-            DO j=0,NFT
-              track(ixgrd,j,l)=Tinfo(ixgrd,l)
-              track(iygrd,j,l)=Tinfo(iygrd,l)
-#  ifdef SOLVE3D
-              track(izgrd,j,l)=Tinfo(izgrd,l)
-#  endif
-            END DO
-            MyThread(l)=.TRUE.
-          ELSE
-            MyThread(l)=.FALSE.
-            DO j=0,NFT
-              DO i=1,NFV(ng)
-                track(i,j,l)=Fspv
-              END DO
-            END DO
-          END IF
-# else
-          MyThread(l)=.TRUE.
-          DO j=0,NFT
-            track(ixgrd,j,l)=Tinfo(ixgrd,l)
-            track(iygrd,j,l)=Tinfo(iygrd,l)
-#  ifdef SOLVE3D
-            track(izgrd,j,l)=Tinfo(izgrd,l)
-#  endif
-          END DO
-# endif
-        END IF
-      END DO
-!
-!-----------------------------------------------------------------------
 !  Calculate slopes with corrected locations.
 !-----------------------------------------------------------------------
 !
 # ifdef SOLVE3D
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, N(ng),             &
-     &                    Lstr, Lend, nfp1, ixrhs, Nships(ng),          &
+     &                    Lstr, Lend, nfp1, ixrhs, Npred(ng),           &
      &                    -u3dvar, Lmask, spval, nudg,                  &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
@@ -784,7 +513,7 @@
      &                    MyThread, bounded, track)
 
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, N(ng),             &
-     &                    Lstr, Lend, nfp1, iyrhs, Nships(ng),          &
+     &                    Lstr, Lend, nfp1, iyrhs, Npred(ng),           &
      &                    -v3dvar, Lmask, spval, nudg,                  &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
@@ -797,7 +526,7 @@
 
 #  if !defined FLOAT_VWALK
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 0, N(ng),             &
-     &                    Lstr, Lend, nfp1, izrhs, Nships(ng),          &
+     &                    Lstr, Lend, nfp1, izrhs, Npred(ng),           &
      &                    -w3dvar, Lmask, spval, nudg,                  &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
@@ -810,7 +539,7 @@
 #  endif
 # else
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,                 &
-     &                    Lstr, Lend, nfp1, ixrhs, Nships(ng),          &
+     &                    Lstr, Lend, nfp1, ixrhs, Npred(ng),           &
      &                    -u2dvar, Lmask, spval, nudg,                  &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
@@ -821,7 +550,7 @@
      &                    MyThread, bounded, track)
 
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,                 &
-     &                    Lstr, Lend, nfp1, iyrhs, Nships(ng),          &
+     &                    Lstr, Lend, nfp1, iyrhs, Npred(ng),           &
      &                    -v2dvar, Lmask, spval, nudg,                  &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
@@ -832,26 +561,26 @@
      &                    MyThread, bounded, track)
 # endif
 !
-!  If newly released ships, initialize slopes at all time levels.
+!  If newly released pred, initialize slopes at all time levels.
 !
-      DO l=Lstr,Lend
-        IF (MyThread(l).and.bounded(l).and.                             &
-     &      (time(ng)-dt(ng).le.Tinfo(itstr,l).and.                     &
-     &       time(ng)+dt(ng).gt.Tinfo(itstr,l))) THEN
-          xrhs=track(ixrhs,nfp1,l)
-          yrhs=track(iyrhs,nfp1,l)
-# ifdef SOLVE3D
-          zrhs=track(izrhs,nfp1,l)
-# endif
-          DO i=0,NFT
-            track(ixrhs,i,l)=xrhs
-            track(iyrhs,i,l)=yrhs
-# ifdef SOLVE3D
-            track(izrhs,i,l)=zrhs
-# endif
-          END DO
-        END IF
-      END DO
+!      DO l=Lstr,Lend
+!        IF (MyThread(l).and.bounded(l).and.                             &
+!     &      (time(ng)-dt(ng).le.Tinfo(itstr,l).and.                     &
+!     &       time(ng)+dt(ng).gt.Tinfo(itstr,l))) THEN
+!          xrhs=track(ixrhs,nfp1,l)
+!          yrhs=track(iyrhs,nfp1,l)
+!# ifdef SOLVE3D
+!          zrhs=track(izrhs,nfp1,l)
+!# endif
+!          DO i=0,NFT
+!            track(ixrhs,i,l)=xrhs
+!            track(iyrhs,i,l)=yrhs
+!# ifdef SOLVE3D
+!            track(izrhs,i,l)=zrhs
+!# endif
+!          END DO
+!        END IF
+!      END DO
 !
 !-----------------------------------------------------------------------
 !  Interpolate various output variables at the corrected locations.
@@ -859,7 +588,7 @@
 !
       IF (spherical) THEN
         CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,               &
-     &                      Lstr, Lend, nfp1, iflon, Nships(ng),        &
+     &                      Lstr, Lend, nfp1, iflon, Npred(ng),         &
      &                      r2dvar, Gmask, spval, nudg,                 &
      &                      GRID(ng) % pm,                              &
      &                      GRID(ng) % pn,                              &
@@ -873,7 +602,7 @@
      &                      MyThread, bounded, track)
 
         CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,               &
-     &                      Lstr, Lend, nfp1, iflat, Nships(ng),        &
+     &                      Lstr, Lend, nfp1, iflat, Npred(ng),         &
      &                      r2dvar, Gmask, spval, nudg,                 &
      &                      GRID(ng) % pm,                              &
      &                      GRID(ng) % pn,                              &
@@ -887,7 +616,7 @@
      &                      MyThread, bounded, track)
       ELSE
         CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,               &
-     &                      Lstr, Lend, nfp1, iflon, Nships(ng),        &
+     &                      Lstr, Lend, nfp1, iflon, Npred(ng),         &
      &                      r2dvar, Gmask, spval, nudg,                 &
      &                      GRID(ng) % pm,                              &
      &                      GRID(ng) % pn,                              &
@@ -901,7 +630,7 @@
      &                      MyThread, bounded, track)
 
         CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,               &
-     &                      Lstr, Lend, nfp1, iflat, Nships(ng),        &
+     &                      Lstr, Lend, nfp1, iflat, Npred(ng),         &
      &                      r2dvar, Gmask, spval, nudg,                 &
      &                      GRID(ng) % pm,                              &
      &                      GRID(ng) % pn,                              &
@@ -917,7 +646,7 @@
 # ifdef SOLVE3D
 
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 0, N(ng),             &
-     &                    Lstr, Lend, nfp1, idpth, Nships(ng),          &
+     &                    Lstr, Lend, nfp1, idpth, Npred(ng),           &
      &                    w3dvar, Lmask, spval, nudg,                   &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
@@ -929,7 +658,7 @@
      &                    MyThread, bounded, track)
 
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, N(ng),             &
-     &                    Lstr, Lend, nfp1, ifden, Nships(ng),          &
+     &                    Lstr, Lend, nfp1, ifden, Npred(ng),           &
      &                    r3dvar, Lmask, spval, nudg,                   &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
@@ -943,7 +672,7 @@
       DO itrc=1,NT(ng)
         CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, N(ng),           &
      &                      Lstr, Lend, nfp1, itrc+NFV(ng)-NT(ng),      &
-     &                      Nships(ng),                                 &
+     &                      Npred(ng),                                  &
      &                      r3dvar, Lmask, spval, nudg,                 &
      &                      GRID(ng) % pm,                              &
      &                      GRID(ng) % pn,                              &
@@ -954,35 +683,89 @@
      &                      OCEAN(ng) % t(:,:,:,nnew,itrc),             &
      &                      MyThread, bounded, track)
       END DO
+!
+      CALL pred_mort (ng, LBi, UBi, LBj, UBj, 1, N(ng), nfp1,           &
+     &                      GRID(ng) % pm,                              &
+     &                      GRID(ng) % pn,                              &
+# ifdef SOLVE3D
+     &                      GRID(ng) % Hz,                              &
+# endif
+     &                      MyThread, bounded, track(:,:,:),            &
+     &                      bioenergy, alive, eatfish, species,         &
+     &                      OCEAN(ng) % pred_count,                     &
+     &                      OCEAN(ng) % pred_list,                      &
+     &                      PREDS(ng) % prednodes,                      &
+     &                      OCEAN(ng) % fish_count,                     &
+     &                      OCEAN(ng) % fish_list,                      &
+     &                      FISHES(ng) % fishnodes)
+!
 # endif
 # ifdef DISTRIBUTE
 !
 !-----------------------------------------------------------------------
-!  Collect ships on all nodes.
+!  Collect pred on all nodes.
 !-----------------------------------------------------------------------
 !
       Fwrk=RESHAPE(track,(/Npts/))
       CALL mp_collect (ng, iNLM, Npts, Fspv, Fwrk)
-      track=RESHAPE(Fwrk,(/NFV(ng),NFT+1,Nships(ng)/))
+      track=RESHAPE(Fwrk,(/NFV(ng),NFT+1,Npred(ng)/))
+      FwrkF=RESHAPE(bioenergy,(/NptsF/))
+      CALL mp_collect (ng, iNLM, NptsF, Fspv, FwrkF)
+      bioenergy=RESHAPE(FwrkF,(/NPredV(ng),Npred(ng)/))
+      CALL mp_collectl (ng, iNLM, Npred(ng), alive)
+      CALL mp_collectl (ng, iNLM, Npred(ng), eatfish)
 !
-!  Collect the bounded status switch.
-!
+#ifdef FOO
+!  Collect the alive status.
       Fwrk=Fspv
-      DO l=1,Nships(ng)
+      DO l=1,Npred(ng)
         IF (bounded(l)) THEN
           Fwrk(l)=1.0_r8
         END IF
       END DO
-      CALL mp_collect (ng, iNLM, Nships(ng), Fspv, Fwrk)
-      DO l=1,Nships(ng)
+      CALL mp_collect (ng, iNLM, Npred(ng), Fspv, Fwrk)
+      DO l=1,Npred(ng)
+        IF (Fwrk(l).ne.Fspv) THEN
+          alive(l)=.TRUE.
+        ELSE
+          alive(l)=.FALSE.
+        END IF
+      END DO
+!  Collect the eatfish status.
+      Fwrk=Fspv
+      DO l=1,Npred(ng)
+        IF (bounded(l)) THEN
+          Fwrk(l)=1.0_r8
+        END IF
+      END DO
+      CALL mp_collect (ng, iNLM, Npred(ng), Fspv, Fwrk)
+      DO l=1,Npred(ng)
+        IF (Fwrk(l).ne.Fspv) THEN
+          eatfish(l)=.TRUE.
+        ELSE
+          eatfish(l)=.FALSE.
+        END IF
+      END DO
+#endif
+!
+!  Collect the bounded status switch.
+      Fwrk=Fspv
+      DO l=1,Npred(ng)
+        IF (bounded(l)) THEN
+          Fwrk(l)=1.0_r8
+        END IF
+      END DO
+      CALL mp_collect (ng, iNLM, Npred(ng), Fspv, Fwrk)
+      DO l=1,Npred(ng)
         IF (Fwrk(l).ne.Fspv) THEN
           bounded(l)=.TRUE.
         ELSE
           bounded(l)=.FALSE.
         END IF
       END DO
+!
 # endif
       RETURN
-      END SUBROUTINE step_ships_tile
+      END SUBROUTINE step_pred_tile
 #endif
-      END MODULE step_ships_mod
+      END MODULE step_pred_mod

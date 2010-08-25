@@ -1291,8 +1291,8 @@
             Npts=load_i(Nval, Rval, Ngrids, nFLT)
           ELSE IF (TRIM(KeyWord).eq.'NFSH') THEN
             Npts=load_i(Nval, Rval, Ngrids, nFSH)
-          ELSE IF (TRIM(KeyWord).eq.'NSHP') THEN
-            Npts=load_i(Nval, Rval, Ngrids, nSHP)
+          ELSE IF (TRIM(KeyWord).eq.'NPRD') THEN
+            Npts=load_i(Nval, Rval, Ngrids, nPRD)
           ELSE IF (TRIM(KeyWord).eq.'NINFO') THEN
             Npts=load_i(Nval, Rval, Ngrids, ninfo)
           ELSE IF (TRIM(KeyWord).eq.'LDEFOUT') THEN
@@ -2605,11 +2605,13 @@
               fishposnam(i:i)=blank
             END DO
             fishposnam=TRIM(ADJUSTL(Cval(Nval)))
-          ELSE IF (TRIM(KeyWord).eq.'SHIPPOSNAM') THEN
-            DO i=1,LEN(shipposnam)
-              shipposnam(i:i)=blank
+# ifdef PREDATOR
+          ELSE IF (TRIM(KeyWord).eq.'PREDPOSNAM') THEN
+            DO i=1,LEN(predposnam)
+              predposnam(i:i)=blank
             END DO
-            shipposnam=TRIM(ADJUSTL(Cval(Nval)))
+            predposnam=TRIM(ADJUSTL(Cval(Nval)))
+# endif
 #endif
           ELSE IF (TRIM(KeyWord).eq.'BPARNAM') THEN
             DO i=1,LEN(bparnam)
@@ -2750,10 +2752,10 @@
      &      (nFSH(ng).eq.0)) THEN
           LdefFISH(ng)=.FALSE.
         END IF
-!       IF (((nrrec(ng).eq.0).and.(nSHP(ng).gt.ntimes(ng))).or.         &
-!    &      (nSHP(ng).eq.0)) THEN
-!         LdefSHIP(ng)=.FALSE.
-!       END IF
+        IF (((nrrec(ng).eq.0).and.(nPRD(ng).gt.ntimes(ng))).or.         &
+     &      (nPRD(ng).eq.0)) THEN
+          LdefPRED(ng)=.FALSE.
+        END IF
         IF (((nrrec(ng).eq.0).and.(nHIS(ng).gt.ntimes(ng))).or.         &
      &      (nHIS(ng).eq.0)) THEN
           LdefHIS(ng)=.FALSE.
@@ -2872,9 +2874,11 @@
           WRITE (out,130) nFSH(ng), 'nFSH',                             &
      &          'Number of timesteps between the writing of data',      &
      &          'into fish file.'
-          WRITE (out,130) nSHP(ng), 'nSHP',                             &
+# ifdef PREDATOR
+          WRITE (out,130) nPRD(ng), 'nPRD',                             &
      &          'Number of timesteps between the writing of data',      &
-     &          'into ship file.'
+     &          'into predator file.'
+# endif
 #endif
           WRITE (out,170) ldefout(ng), 'ldefout',                       &
      &          'Switch to create a new output NetCDF file(s).'
@@ -4009,10 +4013,14 @@
      &                    TRIM(FLTname(ng))
 #endif
 #ifdef NEMURO_SAN
-          WRITE (out,230) '            Output Fish File:  ',          &
+          WRITE (out,230) '            Output Fish File:  ',            &
      &                    TRIM(FISHname(ng))
+# ifdef PREDATOR
+          WRITE (out,230) '            Output Predator File:  ',        &
+     &                    TRIM(PREDname(ng))
+# endif
 # ifdef FLEET
-          WRITE (out,230) '            Output Ships File:  ',          &
+          WRITE (out,230) '            Output Ships File:  ',           &
      &                    TRIM(SHIPname(ng))
 # endif
 #endif

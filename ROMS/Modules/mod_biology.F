@@ -628,6 +628,23 @@
         real(r8), dimension(max_species, Ngrids) :: a_S           !
         real(r8), dimension(max_species, Ngrids) :: Nymort        !
         real(r8), dimension(max_species, Ngrids) :: Fymort        !
+#   ifdef PREDATOR
+        real(r8), dimension(max_predspecies, Ngrids) :: Pwwt0     ! grams
+        real(r8), dimension(max_predspecies, Ngrids) :: Pwth0     ! millions of fish
+        integer, dimension(max_predspecies, Ngrids)  :: Peatfish  ! 1=True, 0=False
+        real(r8), dimension(max_predspecies, Ngrids) :: PK_Fish   !
+        real(r8), dimension(max_predspecies, Ngrids) :: PprefF    !
+        real(r8), dimension(max_predspecies, Ngrids) :: Pa_C      !
+        real(r8), dimension(max_predspecies, Ngrids) :: Pb_C      !
+        real(r8), dimension(max_predspecies, Ngrids) :: Pa_F      !
+        real(r8), dimension(max_predspecies, Ngrids) :: Pa_E      !
+        real(r8), dimension(max_predspecies, Ngrids) :: Pa_R      !
+        real(r8), dimension(max_predspecies, Ngrids) :: Pb_R      !
+        real(r8), dimension(max_predspecies, Ngrids) :: Pd_R      !
+        real(r8), dimension(max_predspecies, Ngrids) :: Pa_A      !
+        real(r8), dimension(max_predspecies, Ngrids) :: Pb_A      !
+        real(r8), dimension(max_predspecies, Ngrids) :: Pa_S      !
+#   endif
 #  endif
 # endif
 
