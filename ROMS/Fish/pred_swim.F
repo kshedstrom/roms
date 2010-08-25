@@ -131,7 +131,7 @@
                 Pweight=bioenergy(ipwwt,pid)
 
 ! Swimming velocity based on fish weight (in cm/s)
-                Uswim=Pa_A(isp,ng)*Pweight**Pb_A(isp,ng)
+                Uswim=a_Swim(isp,ng)*Pweight**b_Swim(isp,ng)
 !
 ! -------- FITNESS-BASED SWIMMING BEHAVIOR (RAILSBACK) --------
 !

@@ -606,7 +606,6 @@
         real(r8), dimension(max_species, Ngrids) :: Fspstr        ! yearday
         real(r8), dimension(max_species, Ngrids) :: Fspend        ! yearday
         integer, dimension(max_species, Ngrids)  :: Fbehave       ! 1=Fitness, 2=Kinesis
-        integer, dimension(max_species, Ngrids)  :: Featfish      ! 1=True, 0=False
         real(r8), dimension(max_species, Ngrids) :: ZSpref        ! nondimensional
         real(r8), dimension(max_species, Ngrids) :: ZLpref        ! nondimensional
         real(r8), dimension(max_species, Ngrids) :: ZPpref        ! nondimensional
@@ -614,8 +613,6 @@
         real(r8), dimension(max_species, Ngrids) :: K_ZS          !
         real(r8), dimension(max_species, Ngrids) :: K_ZL          !
         real(r8), dimension(max_species, Ngrids) :: K_ZP          !
-        real(r8), dimension(max_species, Ngrids) :: K_Fish        !
-        real(r8), dimension(max_species, Ngrids) :: Fpref         !
         real(r8), dimension(max_species, Ngrids) :: a_C           !
         real(r8), dimension(max_species, Ngrids) :: b_C           !
         real(r8), dimension(max_species, Ngrids) :: a_F           !
@@ -632,18 +629,12 @@
         real(r8), dimension(max_predspecies, Ngrids) :: Pwwt0     ! grams
         real(r8), dimension(max_predspecies, Ngrids) :: Pwth0     ! millions of fish
         integer, dimension(max_predspecies, Ngrids)  :: Peatfish  ! 1=True, 0=False
-        real(r8), dimension(max_predspecies, Ngrids) :: PK_Fish   !
-        real(r8), dimension(max_predspecies, Ngrids) :: PprefF    !
-        real(r8), dimension(max_predspecies, Ngrids) :: Pa_C      !
-        real(r8), dimension(max_predspecies, Ngrids) :: Pb_C      !
-        real(r8), dimension(max_predspecies, Ngrids) :: Pa_F      !
-        real(r8), dimension(max_predspecies, Ngrids) :: Pa_E      !
-        real(r8), dimension(max_predspecies, Ngrids) :: Pa_R      !
-        real(r8), dimension(max_predspecies, Ngrids) :: Pb_R      !
-        real(r8), dimension(max_predspecies, Ngrids) :: Pd_R      !
-        real(r8), dimension(max_predspecies, Ngrids) :: Pa_A      !
-        real(r8), dimension(max_predspecies, Ngrids) :: Pb_A      !
-        real(r8), dimension(max_predspecies, Ngrids) :: Pa_S      !
+        real(r8), dimension(max_predspecies, Ngrids) :: K_Fish    !
+        real(r8), dimension(max_predspecies, Ngrids) :: Fpref     !
+        real(r8), dimension(max_predspecies, Ngrids) :: a_Cmax    !
+        real(r8), dimension(max_predspecies, Ngrids) :: b_Cmax    !
+        real(r8), dimension(max_predspecies, Ngrids) :: a_Swim    !
+        real(r8), dimension(max_predspecies, Ngrids) :: b_Swim    !
 #   endif
 #  endif
 # endif

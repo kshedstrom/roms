@@ -146,10 +146,10 @@
                 Px=track(ixgrd,itime,ipid)
                 Py=track(iygrd,itime,ipid)
 ! Swimming velocity based on fish weight (in cm/s)
-                Uswim=Pa_A(ipsp,ng)*Pweight**Pb_A(ipsp,ng)
+                Uswim=a_Swim(ipsp,ng)*Pweight**b_Swim(ipsp,ng)
 
 ! Max. Consumption (NEEDS TEMPERATURE DEPENDENCE)
-                Cmax=Pa_C(ipsp,ng)*Pweight**(-Pb_C(ipsp,ng))
+                Cmax=a_Cmax(ipsp,ng)*Pweight**(-b_Cmax(ipsp,ng))
                 IF (eatfish(ipid)) THEN
                   DO nsp=1,Nspecies(ng)
                     FishVul(nsp)=0.0_r8
@@ -185,7 +185,7 @@
                   FTotFish=0.0_r8
                   DO nsp=1,Nspecies(ng)
                     FFish(nsp)=BioVul(nsp)*                             &
-     &                         PprefF(ipsp,ng)/PK_Fish(ipsp,ng)
+     &                         Fpref(ipsp,ng)/K_Fish(ipsp,ng)
                     FTotFish=FTotFish+FFish(nsp)
                   END DO
                   DO nsp=1,Nspecies(ng)

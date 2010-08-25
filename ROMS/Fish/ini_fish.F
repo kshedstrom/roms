@@ -211,11 +211,6 @@
             FISHES(ng)%bioenergy(ifyield,fid)=0.0_r8
             FISHES(ng)%species(fid)=idfish_inv(isp)
             FISHES(ng)%alive(fid)=.TRUE.
-            IF (Featfish(isp,ng).eq.1) THEN
-              FISHES(ng)%eatfish(fid)=.TRUE.
-            ELSE
-              FISHES(ng)%eatfish(fid)=.FALSE.
-            END IF
             IF (REAL(Nyearclass(ng)-i,r8).ge.Fage0(isp,ng)) THEN
               FISHES(ng)%lifestage(fid)=if_adult
             ELSE
@@ -312,24 +307,18 @@
             Npts=load_r(Nval, Rval, max_species*Ngrids, Fspend)
           ELSE IF (TRIM(KeyWord).eq.'Fbehave') THEN
             Npts=load_i(Nval, Rval, max_species*Ngrids, Fbehave)
-          ELSE IF (TRIM(KeyWord).eq.'Featfish') THEN
-            Npts=load_i(Nval, Rval, max_species*Ngrids, Featfish)
           ELSE IF (TRIM(KeyWord).eq.'ZSpref') THEN
             Npts=load_r(Nval, Rval, max_species*Ngrids, ZSpref)
           ELSE IF (TRIM(KeyWord).eq.'ZLpref') THEN
             Npts=load_r(Nval, Rval, max_species*Ngrids, ZLpref)
           ELSE IF (TRIM(KeyWord).eq.'ZPpref') THEN
             Npts=load_r(Nval, Rval, max_species*Ngrids, ZPpref)
-          ELSE IF (TRIM(KeyWord).eq.'Fpref') THEN
-            Npts=load_r(Nval, Rval, max_species*Ngrids, Fpref)
           ELSE IF (TRIM(KeyWord).eq.'K_ZS') THEN
             Npts=load_r(Nval, Rval, max_species*Ngrids, K_ZS)
           ELSE IF (TRIM(KeyWord).eq.'K_ZL') THEN
             Npts=load_r(Nval, Rval, max_species*Ngrids, K_ZL)
           ELSE IF (TRIM(KeyWord).eq.'K_ZP') THEN
             Npts=load_r(Nval, Rval, max_species*Ngrids, K_ZP)
-          ELSE IF (TRIM(KeyWord).eq.'K_Fish') THEN
-            Npts=load_r(Nval, Rval, max_species*Ngrids, K_Fish)
           ELSE IF (TRIM(KeyWord).eq.'CAL_ZF') THEN
             Npts=load_r(Nval, Rval, max_species*Ngrids, CAL_ZF)
           ELSE IF (TRIM(KeyWord).eq.'a_C') THEN
@@ -467,25 +456,18 @@
               WRITE (out,80) Fbehave(isp,ng),                           &
      &              'Fbehave',                                          &
      &              'Fish behavior (1=Fitness, 2=Kinesis)'
-              WRITE (out,80) Featfish(isp,ng),                          &
-     &              'Featfish',                                         &
-     &              'Fish eat other fishes (1=True, 2=False)'
               WRITE (out,110) ZSpref(isp,ng), 'ZSpref',                 &
      &              'Fish preference for ZS (-).'
               WRITE (out,110) ZLpref(isp,ng), 'ZLpref',                 &
      &              'Fish preference for ZL (-).'
               WRITE (out,110) ZPpref(isp,ng), 'ZPpref',                 &
      &              'Fish preference for ZP (-).'
-              WRITE (out,110) Fpref(isp,ng), 'Fpref',                   &
-     &              'Fish preference for Fish.'
               WRITE (out,110) K_ZS(isp,ng), 'K_ZS',                     &
      &              'Fish half-saturation constant for ZS.'
               WRITE (out,110) K_ZL(isp,ng), 'K_ZL',                     &
      &              'Fish half-saturation constant for ZL.'
               WRITE (out,110) K_ZP(isp,ng), 'K_ZP',                     &
      &              'Fish half-saturation constant for ZP.'
-              WRITE (out,110) K_Fish(isp,ng), 'K_Fish',                 &
-     &              'Fish half-saturation constant for Fish.'
               WRITE (out,110) CAL_ZF(isp,ng), 'CAL_ZF',                 &
      &              'Energy conversion from Z to Fish.'
               WRITE (out,110) a_C(isp,ng), 'a_C',                       &

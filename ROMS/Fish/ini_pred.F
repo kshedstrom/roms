@@ -235,31 +235,19 @@
           ELSE IF (TRIM(KeyWord).eq.'Pwth0') THEN
             Npts=load_r(Nval, Rval, max_predspecies*Ngrids, Pwth0)
           ELSE IF (TRIM(KeyWord).eq.'Peatfish') THEN
-            Npts=load_i(Nval, Rval, max_predspecies*Ngrids, Peatfish)
-          ELSE IF (TRIM(KeyWord).eq.'PprefF') THEN
-            Npts=load_r(Nval, Rval, max_predspecies*Ngrids, PprefF)
-          ELSE IF (TRIM(KeyWord).eq.'PK_Fish') THEN
-            Npts=load_r(Nval, Rval, max_predspecies*Ngrids, PK_Fish)
-          ELSE IF (TRIM(KeyWord).eq.'Pa_C') THEN
-            Npts=load_r(Nval, Rval, max_predspecies*Ngrids, Pa_C)
-          ELSE IF (TRIM(KeyWord).eq.'Pb_C') THEN
-            Npts=load_r(Nval, Rval, max_predspecies*Ngrids, Pb_C)
-          ELSE IF (TRIM(KeyWord).eq.'Pa_F') THEN
-            Npts=load_r(Nval, Rval, max_predspecies*Ngrids, Pa_F)
-          ELSE IF (TRIM(KeyWord).eq.'Pa_E') THEN
-            Npts=load_r(Nval, Rval, max_predspecies*Ngrids, Pa_E)
-          ELSE IF (TRIM(KeyWord).eq.'Pa_R') THEN
-            Npts=load_r(Nval, Rval, max_predspecies*Ngrids, Pa_R)
-          ELSE IF (TRIM(KeyWord).eq.'Pb_R') THEN
-            Npts=load_r(Nval, Rval, max_predspecies*Ngrids, Pb_R)
-          ELSE IF (TRIM(KeyWord).eq.'Pd_R') THEN
-            Npts=load_r(Nval, Rval, max_predspecies*Ngrids, Pd_R)
-          ELSE IF (TRIM(KeyWord).eq.'Pa_A') THEN
-            Npts=load_r(Nval, Rval, max_predspecies*Ngrids, Pa_A)
-          ELSE IF (TRIM(KeyWord).eq.'Pb_A') THEN
-            Npts=load_r(Nval, Rval, max_predspecies*Ngrids, Pb_A)
-          ELSE IF (TRIM(KeyWord).eq.'Pa_S') THEN
-            Npts=load_r(Nval, Rval, max_predspecies*Ngrids, Pa_S)
+            Npts=load_i(Nval, Rval, max_species*Ngrids, Peatfish)
+          ELSE IF (TRIM(KeyWord).eq.'Fpref') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, Fpref)
+          ELSE IF (TRIM(KeyWord).eq.'K_Fish') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, K_Fish)
+          ELSE IF (TRIM(KeyWord).eq.'a_Cmax') THEN
+            Npts=load_r(Nval, Rval, max_predspecies*Ngrids, a_Cmax)
+          ELSE IF (TRIM(KeyWord).eq.'b_Cmax') THEN
+            Npts=load_r(Nval, Rval, max_predspecies*Ngrids, b_Cmax)
+          ELSE IF (TRIM(KeyWord).eq.'a_Swim') THEN
+            Npts=load_r(Nval, Rval, max_predspecies*Ngrids, a_Swim)
+          ELSE IF (TRIM(KeyWord).eq.'b_Swim') THEN
+            Npts=load_r(Nval, Rval, max_predspecies*Ngrids, b_Swim)
           END IF
         END IF
       END DO
@@ -362,26 +350,14 @@
      &              'Pred preference for Fish.'
               WRITE (out,110) K_Fish(isp,ng), 'K_Fish',                 &
      &              'Pred half-saturation constant for Fish.'
-              WRITE (out,110) a_C(isp,ng), 'a_C',                       &
+              WRITE (out,110) a_Cmax(isp,ng), 'a_Cmax',                 &
      &              'Pred comsumption coefficient.'
-              WRITE (out,110) b_C(isp,ng), 'b_C',                       &
+              WRITE (out,110) b_Cmax(isp,ng), 'b_Cmax',                 &
      &              'Pred comsumption exponent.'
-              WRITE (out,110) a_F(isp,ng), 'a_F',                       &
-     &              'Pred egestion coefficient.'
-              WRITE (out,110) a_E(isp,ng), 'a_E',                       &
-     &              'Pred excretion coefficient.'
-              WRITE (out,110) a_R(isp,ng), 'a_R',                       &
-     &              'Pred respiration coefficient.'
-              WRITE (out,110) b_R(isp,ng), 'b_R',                       &
-     &              'Pred respiration exponent.'
-              WRITE (out,110) d_R(isp,ng), 'd_R',                       &
-     &              'Pred swimming coefficient.'
-              WRITE (out,110) a_A(isp,ng), 'a_A',                       &
+              WRITE (out,110) a_Swim(isp,ng), 'a_Swim',                 &
      &              'Pred activity coefficient.'
-              WRITE (out,110) b_A(isp,ng), 'b_A',                       &
+              WRITE (out,110) b_Swim(isp,ng), 'b_Swim',                 &
      &              'Pred activity exponent.'
-              WRITE (out,110) a_S(isp,ng), 'a_S',                       &
-     &              'Pred SDA coefficient.'
             END DO
           END IF
         END DO
