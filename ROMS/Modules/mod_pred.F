@@ -1,6 +1,6 @@
 #include "cppdefs.h"
-      MODULE mod_predators
-#ifdef NEMURO_SAN
+      MODULE mod_pred
+#if defined NEMURO_SAN && defined PREDATOR
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
@@ -28,7 +28,7 @@
 !
         implicit none
 
-        TYPE T_PREDATORS
+        TYPE T_PREDS
 
           logical, pointer  :: bounded(:)
 
@@ -43,19 +43,18 @@
 
 ! Predator fields
           real(r8), pointer :: bioenergy(:,:)
-          real(r8), pointer :: feedback(:,:)
           integer, pointer  :: species(:)
           logical, pointer  :: alive(:)
           logical, pointer  :: eatfish(:)
-          type(fishnode), pointer :: fishnodes(:)
+          type(prednode), pointer :: prednodes(:)
 
-        END TYPE T_PREDATORS
+        END TYPE T_PREDS
 
-        TYPE (T_PREDATORS), allocatable :: PREDATORS(:)
+        TYPE (T_PREDS), allocatable :: PREDS(:)
 
       CONTAINS
 
-      SUBROUTINE allocate_predators (ng)
+      SUBROUTINE allocate_pred (ng)
 !
 !=======================================================================
 !                                                                      !
@@ -80,71 +79,66 @@
 !  Allocate module variables.
 !-----------------------------------------------------------------------
 !
-      IF (ng.eq.1) allocate ( PREDATORS(Ngrids) )
+      IF (ng.eq.1) allocate ( PREDS(Ngrids) )
 !
-      allocate ( PREDATORS(ng) % bounded(Npred(ng)) )
+      allocate ( PREDS(ng) % bounded(Npred(ng)) )
 
-      allocate ( PREDATORS(ng) % Findex(0:Npred(ng)) )
+      allocate ( PREDS(ng) % Findex(0:Npred(ng)) )
 
-      allocate ( PREDATORS(ng) % Ftype(Npred(ng)) )
+      allocate ( PREDS(ng) % Ftype(Npred(ng)) )
 
-      allocate ( PREDATORS(ng) % Flon(Npred(ng)) )
+      allocate ( PREDS(ng) % Flon(Npred(ng)) )
 
-      allocate ( PREDATORS(ng) % Flat(Npred(ng)) )
+      allocate ( PREDS(ng) % Flat(Npred(ng)) )
 
-      allocate ( PREDATORS(ng) % Tinfo(0:izrhs,Npred(ng)) )
+      allocate ( PREDS(ng) % Tinfo(0:izrhs,Npred(ng)) )
 
-      allocate ( PREDATORS(ng) % track(NFV(ng),0:NFT,Npred(ng)) )
+      allocate ( PREDS(ng) % track(NFV(ng),0:NFT,Npred(ng)) )
 
-      allocate ( PREDATORS(ng) % Fz0(Npred(ng)) )
+      allocate ( PREDS(ng) % Fz0(Npred(ng)) )
 
-      allocate ( PREDATORS(ng) % feedback(NT(ng),Npred(ng)) )
+      allocate ( PREDS(ng) % bioenergy(NPredV(ng),Npred(ng)) )
 
-      allocate ( PREDATORS(ng) % bioenergy(NFishV(ng),Npred(ng)) )
+      allocate ( PREDS(ng) % species(Npred(ng)) )
 
-      allocate ( PREDATORS(ng) % species(Npred(ng)) )
+      allocate ( PREDS(ng) % alive(Npred(ng)) )
 
-      allocate ( PREDATORS(ng) % alive(Npred(ng)) )
+      allocate ( PREDS(ng) % eatfish(Npred(ng)) )
 
-      allocate ( PREDATORS(ng) % eatfish(Npred(ng)) )
-
-      allocate ( PREDATORS(ng) % fishnodes(Npred(ng)) )
+      allocate ( PREDS(ng) % prednodes(Npred(ng)) )
 !
 !-----------------------------------------------------------------------
 !  Initialize module variables.
 !-----------------------------------------------------------------------
 !
-      PREDATORS(ng) % Findex(0) = 0
+      PREDS(ng) % Findex(0) = 0
       DO iflt=1,Npred(ng)
-        PREDATORS(ng) % bounded(iflt) = .FALSE.
-        PREDATORS(ng) % Findex(iflt) = 0
-        PREDATORS(ng) % Ftype(iflt) = 0
-        PREDATORS(ng) % Flon(iflt) = IniVal
-        PREDATORS(ng) % Flat(iflt) = IniVal
-        PREDATORS(ng) % Fz0(iflt) = 0
-        DO i=1,NT(ng)
-          PREDATORS(ng) % feedback(i,iflt) = IniVal
-        END DO
+        PREDS(ng) % bounded(iflt) = .FALSE.
+        PREDS(ng) % Findex(iflt) = 0
+        PREDS(ng) % Ftype(iflt) = 0
+        PREDS(ng) % Flon(iflt) = IniVal
+        PREDS(ng) % Flat(iflt) = IniVal
+        PREDS(ng) % Fz0(iflt) = 0
         DO i=0,izrhs
-          PREDATORS(ng) % Tinfo(i,iflt) = IniVal
+          PREDS(ng) % Tinfo(i,iflt) = IniVal
         END DO
         DO i=1,NFV(ng)
-          PREDATORS(ng) % track(i,0,iflt) = IniVal
-          PREDATORS(ng) % track(i,1,iflt) = IniVal
-          PREDATORS(ng) % track(i,2,iflt) = IniVal
-          PREDATORS(ng) % track(i,3,iflt) = IniVal
-          PREDATORS(ng) % track(i,4,iflt) = IniVal
+          PREDS(ng) % track(i,0,iflt) = IniVal
+          PREDS(ng) % track(i,1,iflt) = IniVal
+          PREDS(ng) % track(i,2,iflt) = IniVal
+          PREDS(ng) % track(i,3,iflt) = IniVal
+          PREDS(ng) % track(i,4,iflt) = IniVal
         END DO
-        DO i=1,NFishV(ng)
-          PREDATORS(ng) % bioenergy(i,iflt) = IniVal
+        DO i=1,NPredV(ng)
+          PREDS(ng) % bioenergy(i,iflt) = IniVal
         END DO
-        PREDATORS(ng) % species(iflt) = if_none
-        PREDATORS(ng) % alive(iflt) = .FALSE.
-        PREDATORS(ng) % eatfish(iflt) = .FALSE.
-        PREDATORS(ng) % fishnodes(iflt) % fish = iflt
+        PREDS(ng) % species(iflt) = if_none
+        PREDS(ng) % alive(iflt) = .FALSE.
+        PREDS(ng) % eatfish(iflt) = .FALSE.
+        PREDS(ng) % prednodes(iflt) % pred = iflt
       END DO
 
       RETURN
-      END SUBROUTINE allocate_predators
+      END SUBROUTINE allocate_pred
 #endif
-      END MODULE mod_predators
+      END MODULE mod_pred

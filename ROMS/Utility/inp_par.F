@@ -1347,8 +1347,8 @@
             Npts=load_i(Nval, Rval, Ngrids, nFLT)
           ELSE IF (TRIM(KeyWord).eq.'NFSH') THEN
             Npts=load_i(Nval, Rval, Ngrids, nFSH)
-          ELSE IF (TRIM(KeyWord).eq.'NSHP') THEN
-            Npts=load_i(Nval, Rval, Ngrids, nSHP)
+          ELSE IF (TRIM(KeyWord).eq.'NPRD') THEN
+            Npts=load_i(Nval, Rval, Ngrids, nPRD)
           ELSE IF (TRIM(KeyWord).eq.'NINFO') THEN
             Npts=load_i(Nval, Rval, Ngrids, ninfo)
           ELSE IF (TRIM(KeyWord).eq.'LDEFOUT') THEN
@@ -3042,6 +3042,19 @@
                 Aout(itrc,ng)=Linert(i,ng)
               END DO
             END DO
+            fposnam=TRIM(ADJUSTL(Cval(Nval)))
+#ifdef NEMURO_SAN
+          ELSE IF (TRIM(KeyWord).eq.'FISHPOSNAM') THEN
+            DO i=1,LEN(fishposnam)
+              fishposnam(i:i)=blank
+            END DO
+            fishposnam=TRIM(ADJUSTL(Cval(Nval)))
+# ifdef PREDATOR
+          ELSE IF (TRIM(KeyWord).eq.'PREDPOSNAM') THEN
+            DO i=1,LEN(predposnam)
+              predposnam(i:i)=blank
+            END DO
+            predposnam=TRIM(ADJUSTL(Cval(Nval)))
 # endif
 #endif
 #ifdef DIAGNOSTICS_UV
@@ -3698,6 +3711,13 @@
               fishposnam(i:i)=blank
             END DO
             fishposnam=TRIM(ADJUSTL(Cval(Nval)))
+# ifdef PREDATOR
+          ELSE IF (TRIM(KeyWord).eq.'PREDPOSNAM') THEN
+            DO i=1,LEN(predposnam)
+              predposnam(i:i)=blank
+            END DO
+            predposnam=TRIM(ADJUSTL(Cval(Nval)))
+# endif
           ELSE IF (TRIM(KeyWord).eq.'SHIPPOSNAM') THEN
             DO i=1,LEN(shipposnam)
               shipposnam(i:i)=blank
@@ -3872,6 +3892,10 @@
      &      (nFSH(ng).eq.0)) THEN
           LdefFISH(ng)=.FALSE.
         END IF
+        IF (((nrrec(ng).eq.0).and.(nPRD(ng).gt.ntimes(ng))).or.         &
+     &      (nPRD(ng).eq.0)) THEN
+          LdefPRED(ng)=.FALSE.
+        END IF
 !       IF (((nrrec(ng).eq.0).and.(nSHP(ng).gt.ntimes(ng))).or.         &
 !    &      (nSHP(ng).eq.0)) THEN
 !         LdefSHIP(ng)=.FALSE.
@@ -3998,6 +4022,11 @@
           WRITE (out,130) nFSH(ng), 'nFSH',                             &
      &          'Number of timesteps between the writing of data',      &
      &          'into fish file.'
+# ifdef PREDATOR
+          WRITE (out,130) nPRD(ng), 'nPRD',                             &
+     &          'Number of timesteps between the writing of data',      &
+     &          'into predator file.'
+# endif
           WRITE (out,130) nSHP(ng), 'nSHP',                             &
      &          'Number of timesteps between the writing of data',      &
      &          'into ship file.'
@@ -5839,10 +5868,14 @@
      &                    TRIM(FLTname(ng))
 #endif
 #ifdef NEMURO_SAN
-          WRITE (out,230) '            Output Fish File:  ',          &
+          WRITE (out,230) '            Output Fish File:  ',            &
      &                    TRIM(FISHname(ng))
+# ifdef PREDATOR
+          WRITE (out,230) '            Output Predator File:  ',        &
+     &                    TRIM(PREDname(ng))
+# endif
 # ifdef FLEET
-          WRITE (out,230) '            Output Ships File:  ',          &
+          WRITE (out,230) '            Output Ships File:  ',           &
      &                    TRIM(SHIPname(ng))
 # endif
 #endif
@@ -7437,7 +7470,7 @@
 #    if defined SENSITIVITY_4DVAR || \
         defined TL_W4DPSAS        || defined TL_W4DVAR || \
         defined W4DPSAS           || defined W4DVAR
-          IF (nADJ(ng).lt.ntimes(ng)) THEN
+         IF (nADJ(ng).lt.ntimes(ng)) THEN
             WRITE (out,120) Hdecay(2,isFsur,ng), 'HdecayM(isFsur)',     &
      &            'Model decorrelation H-scale (m), free-surface.'
             WRITE (out,120) Hdecay(2,isUbar,ng), 'HdecayM(isUbar)',     &
@@ -8650,7 +8683,7 @@
 # if defined ICE_BIO
           IF (Sout(idIcePhL,ng)) WRITE (out,80) Sout(idIcePhL,ng),      &
      &       'Sout(idIcePhL)',                                          &
-     &       'Write out average ice algae.'                             
+     &       'Write out average ice algae.'
 # endif
           IF (Sout(idTice,ng)) WRITE (out,80) Sout(idTice,ng),          &
      &       'Sout(idTice)',                                            &

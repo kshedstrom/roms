@@ -329,6 +329,13 @@
         logical, dimension(Ngrids) :: Lassimilate
         logical, dimension(Ngrids) :: Lbiology
         logical, dimension(Ngrids) :: Lfloats
+#ifdef NEMURO_SAN
+        logical, dimension(Ngrids) :: Lfish
+        logical, dimension(Ngrids) :: Lships
+# ifdef PREDATOR
+        logical, dimension(Ngrids) :: Lpred
+# endif
+#endif
 #ifdef ICE_MODEL
         logical, dimension(Ngrids) :: Lice
 #endif
@@ -748,6 +755,7 @@
         logical, dimension(Ngrids) :: LdefERR    ! 4DVar error file
         logical, dimension(Ngrids) :: LdefFLT    ! Floats file
         logical, dimension(Ngrids) :: LdefFISH   ! Fish file
+        logical, dimension(Ngrids) :: LdefPRED   ! Fish file
         logical, dimension(Ngrids) :: LdefHIS    ! History file
         logical, dimension(Ngrids) :: LdefHSS    ! Hessian file
         logical, dimension(Ngrids) :: LdefINI    ! Initial file
@@ -819,7 +827,7 @@
         integer, dimension(Ngrids) :: nDIA       ! Diagnostics file
         integer, dimension(Ngrids) :: nFLT       ! Floats file
         integer, dimension(Ngrids) :: nFSH       ! Fish file
-        integer, dimension(Ngrids) :: nSHP       ! Ships file
+        integer, dimension(Ngrids) :: nPRD       ! Ships file
         integer, dimension(Ngrids) :: nHIS       ! History file
         integer, dimension(Ngrids) :: nRST       ! Restart file
         integer, dimension(Ngrids) :: nSTA       ! Stations file
@@ -924,6 +932,16 @@
 !  Floats restart switch.
 !
         integer, dimension(Ngrids) :: frrec
+#endif
+#ifdef NEMURO_SAN
+!
+!  Fish restart switch.
+!
+        integer, dimension(Ngrids) :: fishrrec
+        integer, dimension(Ngrids) :: shiprrec
+# ifdef PREDATOR
+        integer, dimension(Ngrids) :: predrrec
+# endif
 #endif
 !
 !  Switch to activate processing of input data.  This switch becomes
@@ -2005,6 +2023,13 @@
         LcycleRST(ng)=.FALSE.
         LcycleTLM(ng)=.FALSE.
         Lfloats(ng)=.TRUE.
+#ifdef NEMURO_SAN
+        Lfish(ng)=.TRUE.
+        Lships(ng)=.TRUE.
+# ifdef PREDATOR
+        Lpred(ng)=.TRUE.
+# endif
+#endif
 #ifdef ICE_MODEL
         Lice(ng)=.TRUE.
 #endif
@@ -2147,6 +2172,12 @@
         LdefERR(ng)=.FALSE.
 #ifdef FLOATS
         LdefFLT(ng)=.TRUE.
+#endif
+#ifdef NEMURO_SAN
+        LdefFISH(ng)=.TRUE.
+# ifdef PREDATOR
+        LdefPRED(ng)=.TRUE.
+# endif
 #endif
         LdefHIS(ng)=.TRUE.
         LdefINI(ng)=.FALSE.

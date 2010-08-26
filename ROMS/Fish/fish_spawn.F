@@ -191,24 +191,33 @@
       END DO
 !
       DO ifid=1,Nfish(ng)
-        IF (bounded(ifid).and.MyThread(ifid).and.                       &
-     &      alive(ifid).and.(lifestage(ifid).eq.if_adult)) THEN
+#ifdef NEMSAN_TEST
+        IF (bounded(ifid).and.MyThread(ifid).and.alive(ifid)) THEN
           isp = idfish(species(ifid))
 ! If inside spawning window compute spawning attributes
           IF ((sp_time.ge.sp_start(isp)).and.                           &
-     &              (sp_time.le.sp_end(isp))) THEN
-            Ftemp=track(itemp+NFV(ng)-NT(ng),nnew,ifid)
-            IF ((INT(bioenergy(ifbatch,ifid)).lt.Nbatch(isp,ng)).and.   &
-     &          (ABS(Ftemp-temp_opt).le.temp_sigma).and.                &
-     &          ((sp_time-bioenergy(iftspwn,ifid)).ge.7.0_r8)) THEN
-              bioenergy(ifeggs,ifid)=10000.0_r8*                        &
-     &                     MAX(bioenergy(ifworth,ifid),0.0_r8)
-              bioenergy(ifbatch,ifid)=bioenergy(ifbatch,ifid)+1.0_r8
-              bioenergy(iftspwn,ifid)=sp_time
-            ELSE
-              bioenergy(ifeggs,ifid)=0.0_r8
-              bioenergy(ifspwnloc,ifid)=0.0_r8
-            END IF
+     &        (sp_time.le.sp_end(isp)).and.                             &
+     &        (INT(bioenergy(ifbatch,ifid)).lt.Nbatch(isp,ng)).and.     &
+     &        (INT(bioenergy(ifage,ifid)).eq.5)) THEN
+#else
+        IF (bounded(ifid).and.MyThread(ifid).and.                       &
+     &      alive(ifid).and.(lifestage(ifid).eq.if_adult)) THEN
+          isp = idfish(species(ifid))
+          Ftemp=track(itemp+NFV(ng)-NT(ng),nnew,ifid)
+! If inside spawning window compute spawning attributes
+          IF ((sp_time.ge.sp_start(isp)).and.                           &
+     &        (sp_time.le.sp_end(isp)).and.                             &
+     &        (INT(bioenergy(ifbatch,ifid)).lt.Nbatch(isp,ng)).and.     &
+     &        (ABS(Ftemp-temp_opt).le.temp_sigma).and.                  &
+     &        ((sp_time-bioenergy(iftspwn,ifid)).ge.7.0_r8)) THEN
+#endif
+            bioenergy(ifeggs,ifid)=10000.0_r8*                          &
+     &                   MAX(bioenergy(ifworth,ifid),0.0_r8)
+            bioenergy(ifbatch,ifid)=bioenergy(ifbatch,ifid)+1.0_r8
+            bioenergy(iftspwn,ifid)=sp_time
+          ELSE
+            bioenergy(ifeggs,ifid)=0.0_r8
+            bioenergy(ifspwnloc,ifid)=0.0_r8
           END IF
 ! If after end of spawning window, zero out spawning attributes
           IF (sp_time.gt.sp_end(isp)) THEN

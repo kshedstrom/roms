@@ -50,8 +50,21 @@
           logical, pointer  :: alive(:)
           logical, pointer  :: eatfish(:)
           type(fishnode), pointer :: fishnodes(:)
+          real(r8), pointer :: egg_dur(:)
+          real(r8), pointer :: egg_num(:)
+          real(r8), pointer :: ysac_dur(:)
+          real(r8), pointer :: ysac_num(:)
+          real(r8), pointer :: larv_dur(:)
+          real(r8), pointer :: larv_num(:)
+          real(r8), pointer :: juv_dur(:)
+          real(r8), pointer :: juv_num(:)
+          real(r8), pointer :: suba_num(:)
           real(r8), pointer :: sp_start(:)
           real(r8), pointer :: sp_end(:)
+          real(r8), pointer :: fmortN(:)
+          real(r8), pointer :: fmortS(:)
+          real(r8), pointer :: fmortF(:)
+          real(r8), pointer :: fmortP(:,:)
           integer, pointer  :: num_free(:)
           integer, pointer  :: next_free(:)
           integer, pointer  :: num_super(:)
@@ -162,9 +175,9 @@
 
       allocate ( FISHES(ng) % Fz0(Nfish(ng)) )
 
-      allocate ( FISHES(ng) % feedback(NT(ng),Nfish(ng)) )
-
       allocate ( FISHES(ng) % bioenergy(NFishV(ng),Nfish(ng)) )
+
+      allocate ( FISHES(ng) % feedback(NT(ng),Nfish(ng)) )
 
       allocate ( FISHES(ng) % species(Nfish(ng)) )
 
@@ -178,9 +191,35 @@
 
       allocate ( FISHES(ng) % fishnodes(Nfish(ng)) )
 
+      allocate ( FISHES(ng) % egg_dur(Nfish(ng)) )
+
+      allocate ( FISHES(ng) % egg_num(Nfish(ng)) )
+
+      allocate ( FISHES(ng) % ysac_dur(Nfish(ng)) )
+
+      allocate ( FISHES(ng) % ysac_num(Nfish(ng)) )
+
+      allocate ( FISHES(ng) % larv_dur(Nfish(ng)) )
+
+      allocate ( FISHES(ng) % larv_num(Nfish(ng)) )
+
+      allocate ( FISHES(ng) % juv_dur(Nfish(ng)) )
+
+      allocate ( FISHES(ng) % juv_num(Nfish(ng)) )
+
+      allocate ( FISHES(ng) % suba_num(Nfish(ng)) )
+
       allocate ( FISHES(ng) % sp_start(Nspecies(ng)) )
 
       allocate ( FISHES(ng) % sp_end(Nspecies(ng)) )
+
+      allocate ( FISHES(ng) % fmortN(Nfish(ng)) )
+
+      allocate ( FISHES(ng) % fmortS(Nfish(ng)) )
+
+      allocate ( FISHES(ng) % fmortF(Nfish(ng)) )
+
+      allocate ( FISHES(ng) % fmortP(Nspecies(ng),Nfish(ng)) )
 
       allocate ( FISHES(ng) % num_free(Nspecies(ng)) )
 

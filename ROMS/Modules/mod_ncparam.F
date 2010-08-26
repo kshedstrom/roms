@@ -385,6 +385,17 @@
         integer  :: idFage         ! fish age
         integer  :: idFbday        ! fish birthday
         integer  :: idFyield       ! fish yield
+        integer  :: idFcsmPS       ! PS consumption
+        integer  :: idFcsmPL       ! PL consumption
+        integer  :: idFcsmZS       ! ZS consumption
+        integer  :: idFcsmZL       ! ZL consumption
+        integer  :: idFcsmZP       ! ZP consumption
+        integer  :: idFcsmF1       ! Fish consumption on species 1
+        integer  :: idFcsmF2       ! Fish consumption on species 2
+        integer  :: idFcsmF3       ! Fish consumption on species 3
+        integer  :: idFcsmF4       ! Fish consumption on species 4
+        integer  :: idFcsmF5       ! Fish consumption on species 5
+        integer  :: idFresp        ! Fish respiration
         integer  :: idSpwnloc      ! fish batch number
         integer  :: idFspwn        ! spawning distribution
         integer  :: idFbatch       ! fish batch
@@ -394,6 +405,30 @@
         integer  :: idFalv         ! fish is alive
         integer  :: idFeatf        ! fish eats fish
         integer  :: idFgrl         ! fish is female
+        integer  :: idFdegg        ! duration of egg stage
+        integer  :: idFnegg        ! number of eggs
+        integer  :: idFdysac       ! duration of yolk sac stage
+        integer  :: idFnysac       ! number of yolk sacs
+        integer  :: idFdlarv       ! duration of larval stage
+        integer  :: idFnlarv       ! number of larvae
+        integer  :: idFdjuv        ! duration of juvenile stage
+        integer  :: idFnjuv        ! number of juveniles
+        integer  :: idFnsuba       ! number of juveniles
+        integer  :: idFmortN       ! natural mortality
+        integer  :: idFmortS       ! starvation mortality
+        integer  :: idFmortF       ! fishing mortality
+        integer  :: idFmortP       ! predation mortality
+        integer  :: idPwwt         ! Pred wet weight
+        integer  :: idPworth       ! Pred worth
+        integer  :: idPpval        ! Pred P-value
+        integer  :: idPcsmF1       ! Pred consumption on species 1
+        integer  :: idPcsmF2       ! Pred consumption on species 2
+        integer  :: idPcsmF3       ! Pred consumption on species 3
+        integer  :: idPcsmF4       ! Pred consumption on species 4
+        integer  :: idPcsmF5       ! Pred consumption on species 5
+        integer  :: idPspc         ! Pred species
+        integer  :: idPalv         ! Pred is alive
+        integer  :: idPeatf        ! Pred eats fish
 
         integer, allocatable :: idRtrc(:)    ! river runoff for tracers
         integer, allocatable :: idTads(:)    ! tracers adjoint sentivity

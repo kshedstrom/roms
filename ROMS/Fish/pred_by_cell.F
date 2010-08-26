@@ -1,6 +1,6 @@
 #include "cppdefs.h"
       MODULE pred_by_cell_mod
-#if defined NEMURO_SAN && defined PREDATORS
+#if defined NEMURO_SAN && defined PREDATOR
 !
 !svn $Id$
 !=======================================================================
@@ -27,7 +27,7 @@
       USE mod_param
       USE mod_types
       USE mod_ocean
-      USE mod_predators
+      USE mod_pred
 #ifdef MASKING
       USE mod_grid
 #endif
@@ -46,9 +46,10 @@
 # endif
      &                       OCEAN(ng) % pred_count,                    &
      &                       OCEAN(ng) % pred_list,                     &
-     &                       PREDATORS(ng) % shipnodes,                 &
-     &                       PREDATORS(ng) % bounded,                   &
-     &                       PREDATORS(ng) % track)
+     &                       PREDS(ng) % prednodes,                     &
+     &                       PREDS(ng) % bounded,                       &
+     &                       PREDS(ng) % alive,                         &
+     &                       PREDS(ng) % track)
 
       END SUBROUTINE pred_by_cell
 
@@ -59,8 +60,8 @@
 # ifdef MASKING
      &                        rmask,                                    &
 # endif
-     &                        pred_count, pred_list, shipnodes,         &
-     &                        bounded, track)
+     &                        pred_count, pred_list, prednodes,         &
+     &                        bounded, alive, track)
 !***********************************************************************
 !
       USE mod_param
@@ -79,19 +80,21 @@
       real(r8), intent(in) :: rmask(LBi:,LBj:)
 #  endif
       integer, intent(out) :: pred_count(LBi:,LBj:)
-      type(fishnode), intent(out) :: pred_list(LBi:,LBj:)
-      type(fishnode), target, intent(inout) :: shipnodes(:)
+      type(prednode), intent(out) :: pred_list(LBi:,LBj:)
+      type(prednode), target, intent(inout) :: prednodes(:)
       logical, intent(in) :: bounded(:)
+      logical, intent(in) :: alive(:)
       real(r8), intent(in) :: track(:,0:,:)
 # else
 #  ifdef MASKING
       real(r8), intent(in) :: rmask(LBi:UBi,LBj:UBj)
 #  endif
       integer, intent(out) :: pred_count(LBi:UBi,LBj:UBj)
-      type(fishnode), intent(out) :: pred_list(LBi:UBi,LBj:UBj)
-      type(fishnode), target, intent(inout) :: shipnodes(Nfloats(ng))
-      logical, intent(in) :: bounded(Nfloats(ng))
-      real(r8), intent(in) :: track(NFV(ng),0:NFT,Nfloats(ng))
+      type(prednode), intent(out) :: pred_list(LBi:UBi,LBj:UBj)
+      type(prednode), target, intent(inout) :: prednodes(Npred(ng))
+      logical, intent(in) :: bounded(Npred(ng))
+      logical, intent(in) :: alive(Npred(ng))
+      real(r8), intent(in) :: track(NFV(ng),0:NFT,Npred(ng))
 # endif
 !
       integer :: i, j, l
@@ -128,9 +131,9 @@
 !-----------------------------------------------------------------------
 !
       DO l=1,Npred(ng)
-        IF (bounded(l)) THEN
-          i = int(track(ixgrd,nf(ng),l)+0.5)
-          j = int(track(iygrd,nf(ng),l)+0.5)
+        IF (bounded(l) .and. alive(l)) THEN
+          i = nint(track(ixgrd,nf(ng),l))
+          j = nint(track(iygrd,nf(ng),l))
 ! bounded has been collected and no longer reflects whether the float is
 ! on this tile
           IF (i .ge. Imin .and. i .le. Imax .and.                       &

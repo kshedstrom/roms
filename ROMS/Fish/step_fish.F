@@ -62,8 +62,21 @@
      &                       FISHES(ng) % eatfish,                      &
      &                       FISHES(ng) % lifestage,                    &
      &                       FISHES(ng) % swimtype,                     &
+     &                       FISHES(ng) % egg_dur,                      &
+     &                       FISHES(ng) % egg_num,                      &
+     &                       FISHES(ng) % ysac_dur,                     &
+     &                       FISHES(ng) % ysac_num,                     &
+     &                       FISHES(ng) % larv_dur,                     &
+     &                       FISHES(ng) % larv_num,                     &
+     &                       FISHES(ng) % juv_dur,                      &
+     &                       FISHES(ng) % juv_num,                      &
+     &                       FISHES(ng) % suba_num,                     &
      &                       FISHES(ng) % sp_start,                     &
      &                       FISHES(ng) % sp_end,                       &
+     &                       FISHES(ng) % fmortN,                       &
+     &                       FISHES(ng) % fmortS,                       &
+     &                       FISHES(ng) % fmortF,                       &
+     &                       FISHES(ng) % fmortP,                       &
      &                       FISHES(ng) % num_free,                     &
      &                       FISHES(ng) % num_super,                    &
      &                       FISHES(ng) % track)
@@ -81,8 +94,13 @@
      &                             feedback, bioenergy, species,        &
      &                             alive, eatfish,                      &
      &                             lifestage, swimtype,                 &
-     &                             sp_start, sp_end, num_free,          &
-     &                             num_super, track)
+     &                             egg_dur, egg_num,                    &
+     &                             ysac_dur, ysac_num,                  &
+     &                             larv_dur, larv_num,                  &
+     &                             juv_dur, juv_num, suba_num,          &
+     &                             sp_start, sp_end,                    &
+     &                             fmortN, fmortS, fmortF, fmortP,      &
+     &                             num_free, num_super, track)
 !***********************************************************************
 !
       USE mod_param
@@ -124,8 +142,21 @@
       logical, intent(inout)  :: eatfish(:)
       integer, intent(inout)  :: lifestage(:)
       integer, intent(inout)  :: swimtype(:)
+      real(r8), intent(inout) :: egg_dur(:)
+      real(r8), intent(inout) :: egg_num(:)
+      real(r8), intent(inout) :: ysac_dur(:)
+      real(r8), intent(inout) :: ysac_num(:)
+      real(r8), intent(inout) :: larv_dur(:)
+      real(r8), intent(inout) :: larv_num(:)
+      real(r8), intent(inout) :: juv_dur(:)
+      real(r8), intent(inout) :: juv_num(:)
+      real(r8), intent(inout) :: suba_num(:)
       real(r8), intent(in)    :: sp_start(:)
       real(r8), intent(in)    :: sp_end(:)
+      real(r8), intent(inout) :: fmortN(:)
+      real(r8), intent(inout) :: fmortS(:)
+      real(r8), intent(inout) :: fmortF(:)
+      real(r8), intent(inout) :: fmortP(:,:)
       integer, intent(in)     :: num_free(:)
       integer, intent(out)    :: num_super(:)
       real(r8), intent(inout) :: track(:,0:,:)
@@ -142,8 +173,21 @@
       logical, intent(inout)  :: eatfish(Nfish(ng))
       integer, intent(inout)  :: lifestage(Nfish(ng))
       integer, intent(inout)  :: swimtype(Nfish(ng))
+      real(r8), intent(inout) :: egg_dur(Nfish(ng))
+      real(r8), intent(inout) :: egg_num(Nfish(ng))
+      real(r8), intent(inout) :: ysac_dur(Nfish(ng))
+      real(r8), intent(inout) :: ysac_num(Nfish(ng))
+      real(r8), intent(inout) :: larv_dur(Nfish(ng))
+      real(r8), intent(inout) :: larv_num(Nfish(ng))
+      real(r8), intent(inout) :: juv_dur(Nfish(ng))
+      real(r8), intent(inout) :: juv_num(Nfish(ng))
+      real(r8), intent(inout) :: suba_num(Nfish(ng))
       real(r8), intent(in)    :: sp_start(Nspecies(ng))
       real(r8), intent(in)    :: sp_end(Nspecies(ng))
+      real(r8), intent(inout) :: fmortN(Nfish(ng))
+      real(r8), intent(inout) :: fmortS(Nfish(ng))
+      real(r8), intent(inout) :: fmortF(Nfish(ng))
+      real(r8), intent(inout) :: fmortP(Nspecies(ng),Nfish(ng))
       real(r8), intent(inout) :: track(NFV(ng),0:NFT,Nfish(ng))
 # endif
 !
@@ -158,8 +202,8 @@
       logical, dimension(Lstr:Lend) :: MyThread
 
       integer :: LBi, UBi, LBj, UBj
-      integer :: Ir, Jr, Npts, i, i1, i2, j, j1, j2, itrc, l, k
-      integer :: NptsF, NptsL
+      integer :: Ir, Jr, Npts, i, i1, i2, j, j1, j2, itrc, l, k, isp
+      integer :: NptsF, NptsL, NptsM
 
       real(r8), parameter :: Fspv = 0.0_r8
       integer, parameter :: iFspv = 0
@@ -181,6 +225,7 @@
       real(r8) :: Xstr, Xend, Ystr, Yend
       real(r8), dimension(Nfish(ng)*NFV(ng)*(NFT+1)) :: Fwrk
       real(r8), dimension(Nfish(ng)*NFishV(ng)) :: FwrkF
+      real(r8), dimension(Nfish(ng)*Nspecies(ng)) :: FwrkM
       logical,  dimension(Nfish(ng)) :: FwrkL
       integer,  dimension(Nfish(ng)) :: FwrkI
 # endif
@@ -210,6 +255,7 @@
       Npts=NFV(ng)*(NFT+1)*Nfish(ng)
       NptsF=NFishV(ng)*Nfish(ng)
       NptsL=Nfish(ng)
+      NptsM=Nspecies(ng)*Nfish(ng)
 
       Xstr=REAL(BOUNDS(ng)%Istr(MyRank),r8)-0.5_r8
       Xend=REAL(BOUNDS(ng)%Iend(MyRank),r8)+0.5_r8
@@ -232,6 +278,21 @@
           END DO
           DO i=1,NFishV(ng)
             bioenergy(i,l)=Fspv
+          END DO
+          egg_dur(l)=Fspv
+          egg_num(l)=Fspv
+          ysac_dur(l)=Fspv
+          ysac_num(l)=Fspv
+          larv_dur(l)=Fspv
+          larv_num(l)=Fspv
+          juv_dur(l)=Fspv
+          juv_num(l)=Fspv
+          suba_num(l)=Fspv
+          fmortN(l)=Fspv
+          fmortS(l)=Fspv
+          fmortF(l)=Fspv
+          DO isp=1,Nspecies(ng)
+            fmortP(isp,l)=Fspv
           END DO
           lifestage(l)=iFspv
           swimtype(l)=iFspv
@@ -364,8 +425,8 @@
 !
           ELSE IF ((Ftype(l).eq.flt_Isobar).or.                         &
      &             (Ftype(l).eq.flt_Geopot)) THEN
-            Ir=INT(track(ixgrd,nfp1,l))
-            Jr=INT(track(iygrd,nfp1,l))
+            Ir=NINT(track(ixgrd,nfp1,l))
+            Jr=NINT(track(iygrd,nfp1,l))
 !
             i1=MIN(MAX(Ir  ,0),Lm(ng)+1)
             i2=MIN(MAX(Ir+1,1),Lm(ng)+1)
@@ -567,8 +628,8 @@
 !
           ELSE IF ((Ftype(l).eq.flt_Isobar).or.                         &
      &             (Ftype(l).eq.flt_Geopot)) THEN
-            Ir=INT(track(ixgrd,nfp1,l))
-            Jr=INT(track(iygrd,nfp1,l))
+            Ir=NINT(track(ixgrd,nfp1,l))
+            Jr=NINT(track(iygrd,nfp1,l))
 !
             i1=MIN(MAX(Ir  ,0),Lm(ng)+1)
             i2=MIN(MAX(Ir+1,1),Lm(ng)+1)
@@ -711,6 +772,21 @@
             DO i=1,NFishV(ng)
               bioenergy(i,l)=Fspv
             END DO
+            egg_dur(l)=Fspv
+            egg_num(l)=Fspv
+            ysac_dur(l)=Fspv
+            ysac_num(l)=Fspv
+            larv_dur(l)=Fspv
+            larv_num(l)=Fspv
+            juv_dur(l)=Fspv
+            juv_num(l)=Fspv
+            suba_num(l)=Fspv
+            fmortN(l)=Fspv
+            fmortS(l)=Fspv
+            fmortF(l)=Fspv
+            DO isp=1,Nspecies(ng)
+              fmortP(isp,l)=Fspv
+            END DO
             lifestage(l)=iFspv
             swimtype(l)=iFspv
             alive(l)=lFspv
@@ -734,23 +810,23 @@
 !            END DO
 !          END IF
 ! JF: Crude reflective boundary condition for non-periodic case
-          IF (track(ixgrd,nfp1,l).ge.REAL(Lm(ng)+1,r8)-2.5_r8) THEN
-            DO j=0,NFT
-              track(ixgrd,j,l)=REAL(Lm(ng)+1-3) 
-              track(ixrhs,j,l)=-track(ixrhs,nfp1,l)
-            END DO
-          END IF
-          IF (track(ixgrd,nfp1,l).lt.2.5_r8) THEN
-            DO j=0,NFT
-              track(ixgrd,j,l)=3.0_r8 
-              track(ixrhs,j,l)=-track(ixrhs,nfp1,l)
-            END DO
-          END IF
-! Original ROMS code
-!          IF ((track(ixgrd,nfp1,l).ge.REAL(Lm(ng)+1,r8)-0.5_r8).or.     &
-!     &        (track(ixgrd,nfp1,l).lt.0.5_r8)) THEN
-!            bounded(l)=.FALSE.
+!          IF (track(ixgrd,nfp1,l).ge.REAL(Lm(ng)+1,r8)-2.5_r8) THEN
+!            DO j=0,NFT
+!              track(ixgrd,j,l)=REAL(Lm(ng)+1-3) 
+!              track(ixrhs,j,l)=-track(ixrhs,nfp1,l)
+!            END DO
 !          END IF
+!          IF (track(ixgrd,nfp1,l).lt.2.5_r8) THEN
+!            DO j=0,NFT
+!              track(ixgrd,j,l)=3.0_r8 
+!              track(ixrhs,j,l)=-track(ixrhs,nfp1,l)
+!            END DO
+!          END IF
+! Original ROMS code
+          IF ((track(ixgrd,nfp1,l).ge.REAL(Lm(ng)+1,r8)-0.5_r8).or.     &
+     &        (track(ixgrd,nfp1,l).lt.0.5_r8)) THEN
+            bounded(l)=.FALSE.
+          END IF
         END IF
       END DO
 # endif
@@ -796,6 +872,21 @@
             DO i=1,NFishV(ng)
                 bioenergy(i,l)=Fspv
             END DO
+            egg_dur(l)=Fspv
+            egg_num(l)=Fspv
+            ysac_dur(l)=Fspv
+            ysac_num(l)=Fspv
+            larv_dur(l)=Fspv
+            larv_num(l)=Fspv
+            juv_dur(l)=Fspv
+            juv_num(l)=Fspv
+            suba_num(l)=Fspv
+            fmortN(l)=Fspv
+            fmortS(l)=Fspv
+            fmortF(l)=Fspv
+            DO isp=1,Nspecies(ng)
+              fmortP(isp,l)=Fspv
+            END DO
             lifestage(l)=iFspv
             swimtype(l)=iFspv
             alive(l)=lFspv
@@ -819,23 +910,23 @@
 !            END DO
 !          END IF
 ! JF: Crude reflective boundary condition for non-periodic case
-          IF (track(iygrd,nfp1,l).ge.REAL(Mm(ng)+1,r8)-2.5_r8) THEN
-            DO j=0,NFT
-              track(iygrd,j,l)=REAL(Mm(ng)+1-3) 
-              track(iyrhs,j,l)=-track(iyrhs,nfp1,l)
-            END DO
-          END IF
-          IF (track(iygrd,nfp1,l).lt.2.5_r8) THEN
-            DO j=0,NFT
-              track(iygrd,j,l)=3.0_r8 
-              track(iyrhs,j,l)=-track(iyrhs,nfp1,l)
-            END DO
-          END IF
-! Original ROMS code
-!          IF ((track(iygrd,nfp1,l).ge.REAL(Mm(ng)+1,r8)-0.5_r8).or.     &
-!     &        (track(iygrd,nfp1,l).lt.0.5_r8)) THEN
-!            bounded(l)=.FALSE.
+!          IF (track(iygrd,nfp1,l).ge.REAL(Mm(ng)+1,r8)-2.5_r8) THEN
+!            DO j=0,NFT
+!              track(iygrd,j,l)=REAL(Mm(ng)+1-3) 
+!              track(iyrhs,j,l)=-track(iyrhs,nfp1,l)
+!            END DO
 !          END IF
+!          IF (track(iygrd,nfp1,l).lt.2.5_r8) THEN
+!            DO j=0,NFT
+!              track(iygrd,j,l)=3.0_r8 
+!              track(iyrhs,j,l)=-track(iyrhs,nfp1,l)
+!            END DO
+!          END IF
+! Original ROMS code
+          IF ((track(iygrd,nfp1,l).ge.REAL(Mm(ng)+1,r8)-0.5_r8).or.     &
+     &        (track(iygrd,nfp1,l).lt.0.5_r8)) THEN
+            bounded(l)=.FALSE.
+          END IF
         END IF
       END DO
 # endif
@@ -1052,6 +1143,11 @@
      &                      MyThread, bounded, track(:,:,:), feedback,  &
      &                      bioenergy, alive, eatfish,                  &
      &                      species, lifestage,                         &
+     &                      egg_dur, egg_num,                           &
+     &                      ysac_dur, ysac_num,                         &
+     &                      larv_dur, larv_num,                         &
+     &                      juv_dur, juv_num, suba_num,                 &
+     &                      fmortN, fmortS, fmortF, fmortP,             &
      &                      OCEAN(ng) % fish_count,                     &
      &                      OCEAN(ng) % fish_list,                      &
      &                      FISHES(ng) % fishnodes)
@@ -1069,6 +1165,21 @@
       FwrkF=RESHAPE(bioenergy,(/NptsF/))
       CALL mp_collect (ng, iNLM, NptsF, Fspv, FwrkF)
       bioenergy=RESHAPE(FwrkF,(/NFishV(ng),Nfish(ng)/))
+      CALL mp_collect (ng, iNLM, Nfish(ng), Fspv, egg_dur)
+      CALL mp_collect (ng, iNLM, Nfish(ng), Fspv, egg_num)
+      CALL mp_collect (ng, iNLM, Nfish(ng), Fspv, ysac_dur)
+      CALL mp_collect (ng, iNLM, Nfish(ng), Fspv, ysac_num)
+      CALL mp_collect (ng, iNLM, Nfish(ng), Fspv, larv_dur)
+      CALL mp_collect (ng, iNLM, Nfish(ng), Fspv, larv_num)
+      CALL mp_collect (ng, iNLM, Nfish(ng), Fspv, juv_dur)
+      CALL mp_collect (ng, iNLM, Nfish(ng), Fspv, juv_num)
+      CALL mp_collect (ng, iNLM, Nfish(ng), Fspv, suba_num)
+      CALL mp_collect (ng, iNLM, Nfish(ng), Fspv, fmortN)
+      CALL mp_collect (ng, iNLM, Nfish(ng), Fspv, fmortS)
+      CALL mp_collect (ng, iNLM, Nfish(ng), Fspv, fmortF)
+      FwrkM=RESHAPE(fmortP,(/NptsM/))
+      CALL mp_collect (ng, iNLM, NptsM, Fspv, FwrkM)
+      fmortP=RESHAPE(FwrkM,(/Nspecies(ng),Nfish(ng)/))
       CALL mp_collecti (ng, iNLM, Nfish(ng), iFspv, lifestage)
       CALL mp_collecti (ng, iNLM, Nfish(ng), iFspv, swimtype)
       CALL mp_collectl (ng, iNLM, Nfish(ng), alive)

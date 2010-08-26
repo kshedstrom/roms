@@ -117,6 +117,10 @@
 #ifdef NEMURO_SAN
         CALL ini_fish (iNLM)
         IF (exit_flag.ne.NoError) RETURN
+# ifdef PREDATOR
+        CALL ini_pred (iNLM)
+        IF (exit_flag.ne.NoError) RETURN
+# endif
 #endif
 !
 !  Allocate and initialize modules variables.

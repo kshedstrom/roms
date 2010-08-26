@@ -445,6 +445,12 @@
       depth=50.0_r8
       f0=1.0E-04_r8
       beta=0.0_r8
+#elif defined NEMSAN_TEST
+      Xsize=300.0E+03_r8
+      Esize=300.0E+03_r8
+      depth=500.0_r8
+      f0=0.0_r8
+      beta=0.0_r8
 #else
       ana_grid.h: no values provided for Xsize, Esize, depth, f0, beta.
 #endif

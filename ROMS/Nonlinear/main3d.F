@@ -131,6 +131,10 @@
       USE fish_by_cell_mod, ONLY : fish_by_cell
       USE fish_spawn_mod, ONLY : fish_spawn
       USE new_year_mod, ONLY : new_year
+#  ifdef PREDATOR
+      USE step_pred_mod, ONLY : step_pred
+      USE pred_by_cell_mod, ONLY : pred_by_cell
+#  endif
 #  ifdef EGGS_BISECTION
       USE eggs_by_cell_mod, ONLY : eggs_by_cell
 #  endif
@@ -677,6 +681,17 @@
           CALL step_fish (ng, Lstr, Lend)
         END DO
 !$OMP END PARALLEL DO
+#  ifdef PREDATOR
+!$OMP PARALLEL DO PRIVATE(thread,chunk_size,Lstr,Lend)                  &
+!$OMP&            SHARED(ng,numthreads,Nships)
+        DO thread=0,numthreads-1
+          chunk_size=(Npred(ng)+numthreads-1)/numthreads
+          Lstr=1+thread*chunk_size
+          Lend=MIN(Npred(ng),Lstr+chunk_size-1)
+          CALL step_pred (ng, Lstr, Lend)
+        END DO
+!$OMP END PARALLEL DO
+#  endif
 #  ifdef FLEET
 !$OMP PARALLEL DO PRIVATE(thread,chunk_size,Lstr,Lend)                  &
 !$OMP&            SHARED(ng,numthreads,Nships)
