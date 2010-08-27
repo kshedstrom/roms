@@ -129,12 +129,12 @@
 # endif
 # ifdef NEMSAN_TEST
 ! ---- FOR TEST CONFIGURATION ----
-!          CALL ran1 (snudg)
+          CALL ran1 (snudg)
 !          xini=4.0_r8+(snudg-0.5_r8)
 !          CALL ran1 (snudg)
 !          yini=7.0_r8+(snudg-0.5_r8)
-          xini=REAL(12,r8)
-          yini=REAL(12,r8)
+          xini=REAL(12,r8)+10.0_r8*(snudg-0.5_r8)
+          yini=REAL(12,r8)+10.0_r8*(snudg-0.5_r8)
           zini=REAL(N(ng),r8)
 # endif
           PREDS(ng)%Tinfo(ixgrd,pid)=xini

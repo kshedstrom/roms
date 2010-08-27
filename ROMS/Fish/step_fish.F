@@ -809,23 +809,23 @@
 !            END DO
 !          END IF
 ! JF: Crude reflective boundary condition for non-periodic case
-!          IF (track(ixgrd,nfp1,l).ge.REAL(Lm(ng)+1,r8)-2.5_r8) THEN
-!            DO j=0,NFT
-!              track(ixgrd,j,l)=REAL(Lm(ng)+1-3) 
-!              track(ixrhs,j,l)=-track(ixrhs,nfp1,l)
-!            END DO
-!          END IF
-!          IF (track(ixgrd,nfp1,l).lt.2.5_r8) THEN
-!            DO j=0,NFT
-!              track(ixgrd,j,l)=3.0_r8 
-!              track(ixrhs,j,l)=-track(ixrhs,nfp1,l)
-!            END DO
-!          END IF
-! Original ROMS code
-          IF ((track(ixgrd,nfp1,l).ge.REAL(Lm(ng)+1,r8)-0.5_r8).or.     &
-     &        (track(ixgrd,nfp1,l).lt.0.5_r8)) THEN
-            bounded(l)=.FALSE.
+          IF (track(ixgrd,nfp1,l).ge.REAL(Lm(ng)+1,r8)-1.5_r8) THEN
+            DO j=0,NFT
+              track(ixgrd,j,l)=REAL(Lm(ng)+1-2) 
+              track(ixrhs,j,l)=-track(ixrhs,nfp1,l)
+            END DO
           END IF
+          IF (track(ixgrd,nfp1,l).lt.1.5_r8) THEN
+            DO j=0,NFT
+              track(ixgrd,j,l)=2.0_r8 
+              track(ixrhs,j,l)=-track(ixrhs,nfp1,l)
+            END DO
+          END IF
+! Original ROMS code
+!          IF ((track(ixgrd,nfp1,l).ge.REAL(Lm(ng)+1,r8)-0.5_r8).or.     &
+!     &        (track(ixgrd,nfp1,l).lt.0.5_r8)) THEN
+!            bounded(l)=.FALSE.
+!          END IF
         END IF
       END DO
 # endif
@@ -907,23 +907,23 @@
 !            END DO
 !          END IF
 ! JF: Crude reflective boundary condition for non-periodic case
-!          IF (track(iygrd,nfp1,l).ge.REAL(Mm(ng)+1,r8)-2.5_r8) THEN
-!            DO j=0,NFT
-!              track(iygrd,j,l)=REAL(Mm(ng)+1-3) 
-!              track(iyrhs,j,l)=-track(iyrhs,nfp1,l)
-!            END DO
-!          END IF
-!          IF (track(iygrd,nfp1,l).lt.2.5_r8) THEN
-!            DO j=0,NFT
-!              track(iygrd,j,l)=3.0_r8 
-!              track(iyrhs,j,l)=-track(iyrhs,nfp1,l)
-!            END DO
-!          END IF
-! Original ROMS code
-          IF ((track(iygrd,nfp1,l).ge.REAL(Mm(ng)+1,r8)-0.5_r8).or.     &
-     &        (track(iygrd,nfp1,l).lt.0.5_r8)) THEN
-            bounded(l)=.FALSE.
+          IF (track(iygrd,nfp1,l).ge.REAL(Mm(ng)+1,r8)-1.5_r8) THEN
+            DO j=0,NFT
+              track(iygrd,j,l)=REAL(Mm(ng)+1-2) 
+              track(iyrhs,j,l)=-track(iyrhs,nfp1,l)
+            END DO
           END IF
+          IF (track(iygrd,nfp1,l).lt.1.5_r8) THEN
+            DO j=0,NFT
+              track(iygrd,j,l)=2.0_r8 
+              track(iyrhs,j,l)=-track(iyrhs,nfp1,l)
+            END DO
+          END IF
+! Original ROMS code
+!          IF ((track(iygrd,nfp1,l).ge.REAL(Mm(ng)+1,r8)-0.5_r8).or.     &
+!     &        (track(iygrd,nfp1,l).lt.0.5_r8)) THEN
+!            bounded(l)=.FALSE.
+!          END IF
         END IF
       END DO
 # endif
@@ -1149,6 +1149,7 @@
      &                      OCEAN(ng) % pred_list,                      &
      &                      PREDS(ng) % prednodes,                      &
      &                      PREDS(ng) % bioenergy,                      &
+     &                      PREDS(ng) % species,                        &
      &                      PREDS(ng) % track,                          &
 # endif
      &                      OCEAN(ng) % fish_count,                     &

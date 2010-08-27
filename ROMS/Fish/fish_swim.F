@@ -124,8 +124,8 @@
 !  Compute swimming velocity based on Railsback or Humston behavior
 !-----------------------------------------------------------------------
 !
-      DO i=LBi+1,UBi-1
-        DO j=LBj+1,UBj-1
+      DO i=LBi+2,UBi-2
+        DO j=LBj+2,UBj-2
           IF (fish_count(i,j).gt.0) THEN
             thisfish => fish_list(i,j) % next
             DO ifish=1,fish_count(i,j)

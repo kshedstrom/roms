@@ -67,7 +67,8 @@
      &                            fmortN, fmortS, fmortF, fmortP,       &
 # ifdef PREDATOR
      &                            pred_count, pred_list, prednodes,     &
-     &                            pred_bioenergy, pred_track,           &
+     &                            pred_bioenergy, pred_species,         &
+     &                            pred_track,                           &
 # endif
      &                            fish_count, fish_list, fishnodes)
 !***********************************************************************
@@ -87,6 +88,9 @@
       integer, intent(in) :: pred_count(LBi:UBi,LBj:UBj)
 # endif
       integer, intent(inout) :: species(Nfish(ng))
+# ifdef PREDATOR
+      integer, intent(inout) :: pred_species(Npred(ng))
+# endif
       integer, intent(inout) :: lifestage(Nfish(ng))
 
       type(fishnode), intent(in) :: fish_list(LBi:UBi,LBj:UBj)
@@ -112,7 +116,7 @@
       real(r8), intent(inout) :: feedback(NT(ng),Nfish(ng))
       real(r8), intent(inout) :: bioenergy(NFishV(ng),Nfish(ng))
 # ifdef PREDATOR
-      real(r8), intent(inout) :: pred_bioenergy(NPredV(ng),Npred(ng))
+      real(r8), intent(in) :: pred_bioenergy(NPredV(ng),Npred(ng))
 # endif
       real(r8), intent(inout) :: egg_dur(Nfish(ng))
       real(r8), intent(inout) :: egg_num(Nfish(ng))
@@ -155,7 +159,6 @@
       real(r8) :: CFish(Nspecies(ng))
       real(r8) :: Pmort(Nspecies(ng))
 !
-!
 !-----------------------------------------------------------------------
 !  Compute growth and mortality terms for fish
 !-----------------------------------------------------------------------
@@ -168,8 +171,8 @@
 !--------------------------------------------------------------
 !-----  PART 1: GROWTH FOR JUV, SUBADULT, AND ADULT STAGES -----
 !
-      DO i=LBi+1,UBi-1
-        DO j=LBj+1,UBj-1
+      DO i=LBi+2,UBi-2
+        DO j=LBj+2,UBj-2
           IF (fish_count(i,j).gt.0) THEN
             thisfish => fish_list(i,j) % next
             DO ifish=1,fish_count(i,j)
@@ -208,8 +211,13 @@
 ! Specific Dynamic Action
                 SDA=a_S(isp,ng)*(Csmp-Egst)
 ! Update Fish Weight (g wet wt)
+#ifdef NEMSAN_TEST
+                bioenergy(ifwwt,ifid)=Fweight*(1.0_r8+dtdays*           &
+     &                 MAX((Csmp-Egst-Excr-Resp-SDA),0.0_r8))
+#else
                 bioenergy(ifwwt,ifid)=Fweight*(1.0_r8+dtdays*           &
      &                                (Csmp-Egst-Excr-Resp-SDA))
+#endif
 ! NEMURO sink terms for ZOO consumption and for DON egestion/excretion
 ! (will need to be converted from mmolN/day to mmolN/m3 in NEMURO)
 ! Recompute FFish
@@ -252,8 +260,8 @@
 ! PREDATION MORTALITY
 !
 ! Zero out predation mortality from previous time step
-      DO i=LBi,UBi
-        DO j=LBj,UBj
+      DO i=LBi+2,UBi-2
+        DO j=LBj+2,UBj-2
           IF (fish_count(i,j).gt.0) THEN
             thisfish => fish_list(i,j) % next
             DO ifish=1,fish_count(i,j)
@@ -275,7 +283,7 @@
             thispred => pred_list(i,j) % next
             DO ipred=1,pred_count(i,j)
               ipid = thispred % pred
-              ipsp = idpred(species(ipid))
+              ipsp = idpred(pred_species(ipid))
               Pweight=pred_bioenergy(ipwwt,ipid)
               Pworth=pred_bioenergy(ipworth,ipid)
               Px=pred_track(ixgrd,itime,ipid)
@@ -292,27 +300,29 @@
               END DO
               DO ii=i-1,i+1
                 DO jj=j-1,j+1
-                  thisfish => fish_list(ii,jj) % next
-                  DO ifish=1,fish_count(ii,jj)
-                    ifid = thisfish % fish
-                    ifsp = idfish(species(ifid))
-                    IF (MyThread(ifid).and.bounded(ifid).and.           &
-     &                  alive(ifid).and.                                &
-     &                  (lifestage(ifid).ge.if_subadult)) THEN
-                      Fweight=bioenergy(ifwwt,ifid)
-                      Fworth=bioenergy(ifworth,ifid)
-                      Fx=track(ixgrd,itime,ifid)
-                      Fy=track(iygrd,itime,ifid)
-                      dist=(((Px-Fx)/pm(i,j))**2+                       &
-     &                      ((Py-Fy)/pn(i,j))**2)**0.5_r8
-                      IF (dist.lt.0.01_r8*Uswim*dt(ng)) THEN
-                        FishVul(ifsp)=FishVul(ifsp)+Fweight
-                        PopVul(ifsp)=PopVul(ifsp)+Fworth
-                        BioVul(ifsp)=BioVul(ifsp)+Fweight*Fworth
+                  IF (fish_count(ii,jj).gt.0) THEN
+                    thisfish => fish_list(ii,jj) % next
+                    DO ifish=1,fish_count(ii,jj)
+                      ifid = thisfish % fish
+                      ifsp = idfish(species(ifid))
+                      IF (MyThread(ifid).and.bounded(ifid).and.         &
+     &                    alive(ifid).and.                              &
+     &                    (lifestage(ifid).ge.if_subadult)) THEN
+                        Fweight=bioenergy(ifwwt,ifid)
+                        Fworth=bioenergy(ifworth,ifid)
+                        Fx=track(ixgrd,itime,ifid)
+                        Fy=track(iygrd,itime,ifid)
+                        dist=(((Px-Fx)/pm(i,j))**2+                     &
+     &                        ((Py-Fy)/pn(i,j))**2)**0.5_r8
+                        IF (dist.lt.0.01_r8*Uswim*dt(ng)) THEN
+                          FishVul(ifsp)=FishVul(ifsp)+Fweight
+                          PopVul(ifsp)=PopVul(ifsp)+Fworth
+                          BioVul(ifsp)=BioVul(ifsp)+Fweight*Fworth
+                        END IF
                       END IF
-                    END IF
-                    thisfish => thisfish % next
-                  END DO
+                      thisfish => thisfish % next
+                    END DO
+                  END IF
                 END DO
               END DO
 ! PK_fish in units of biomass (g fish) instead of concentration (g fish/m3)
@@ -340,28 +350,30 @@
 ! Decrease worth of prey individuals accordingly
               DO ii=i-1,i+1
                 DO jj=j-1,j+1
-                  thisfish => fish_list(ii,jj) % next
-                  DO ifish=1,fish_count(ii,jj)
-                    ifid = thisfish % fish
-                    ifsp = idfish(species(ifid))
-                    IF (MyThread(ifid).and.bounded(ifid).and.           &
-     &                  alive(ifid).and.                                &
-     &                  (lifestage(ifid).ge.if_subadult)) THEN
-                      Fweight=bioenergy(ifwwt,ifid)
-                      Fworth=bioenergy(ifworth,ifid)
-                      Fx=track(ixgrd,itime,ifid)
-                      Fy=track(iygrd,itime,ifid)
-                      dist=(((Px-Fx)/pm(i,j))**2+                       &
-     &                      ((Py-Fy)/pn(i,j))**2)**0.5_r8
-                      IF (dist.lt.0.01_r8*Uswim*dt(ng)) THEN
-                         bioenergy(ifworth,ifid)=Fworth-                &
-     &                      (1.0_r8-exp(-Pmort(ifsp)*dtdays))*Fworth
+                  IF (fish_count(ii,jj).gt.0) THEN
+                    thisfish => fish_list(ii,jj) % next
+                    DO ifish=1,fish_count(ii,jj)
+                      ifid = thisfish % fish
+                      ifsp = idfish(species(ifid))
+                      IF (MyThread(ifid).and.bounded(ifid).and.         &
+     &                    alive(ifid).and.                              &
+     &                    (lifestage(ifid).ge.if_subadult)) THEN
+                        Fweight=bioenergy(ifwwt,ifid)
+                        Fworth=bioenergy(ifworth,ifid)
+                        Fx=track(ixgrd,itime,ifid)
+                        Fy=track(iygrd,itime,ifid)
+                        dist=(((Px-Fx)/pm(i,j))**2+                     &
+     &                        ((Py-Fy)/pn(i,j))**2)**0.5_r8
+                        IF (dist.lt.0.01_r8*Uswim*dt(ng)) THEN
+                           bioenergy(ifworth,ifid)=Fworth-              &
+     &                        (1.0_r8-exp(-Pmort(ifsp)*dtdays))*Fworth
 ! Predation mortality by species for output
-                         fmortP(ifid)=fmortP(ifid)+Pmort(ifsp)
+                           fmortP(ifid)=fmortP(ifid)+Pmort(ifsp)
+                        END IF
                       END IF
-                    END IF
-                    thisfish => thisfish % next
-                  END DO
+                      thisfish => thisfish % next
+                    END DO
+                  END IF
                 END DO
               END DO
               thispred => thispred % next
@@ -373,8 +385,8 @@
 !
 ! NATURAL AND FISHING MORTALITY
 !
-      DO i=LBi,UBi
-        DO j=LBj,UBj
+      DO i=LBi+2,UBi-2
+        DO j=LBj+2,UBj-2
           IF (fish_count(i,j).gt.0) THEN
             thisfish => fish_list(i,j) % next
             DO ifish=1,fish_count(i,j)
@@ -407,8 +419,8 @@
 !-----------------------------------------------------------------
 !-----   PART 3: EARLY LIFE HISTORY (EGG, YSAC, LARVA, JUV)  -----
 !
-      DO i=LBi,UBi
-        DO j=LBj,UBj
+      DO i=LBi+2,UBi-2
+        DO j=LBj+2,UBj-2
           IF (fish_count(i,j).gt.0) THEN
             thisfish => fish_list(i,j) % next
             DO ifish=1,fish_count(i,j)
@@ -474,8 +486,8 @@
 !----------------------------------------------
 !-----   PART 4: UPDATE FISH ATTRIBUTES   -----
 !
-      DO i=LBi,UBi
-        DO j=LBj,UBj
+      DO i=LBi+2,UBi-2
+        DO j=LBj+2,UBj-2
           IF (fish_count(i,j).gt.0) THEN
             thisfish => fish_list(i,j) % next
             DO ifish=1,fish_count(i,j)
