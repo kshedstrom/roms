@@ -2503,6 +2503,11 @@
               FISHname(Nval)(i:i)=blank
             END DO
             FISHname(Nval)=TRIM(ADJUSTL(Cval(Nval)))
+          ELSE IF (TRIM(KeyWord).eq.'PREDNAME') THEN
+            DO i=1,LEN(PREDname(Nval))
+              PREDname(Nval)(i:i)=blank
+            END DO
+            PREDname(Nval)=TRIM(ADJUSTL(Cval(Nval)))
           ELSE IF (TRIM(KeyWord).eq.'SHIPNAME') THEN
             DO i=1,LEN(SHIPname(Nval))
               SHIPname(Nval)(i:i)=blank

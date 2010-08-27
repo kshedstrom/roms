@@ -65,7 +65,7 @@
           real(r8), pointer :: fmortN(:)
           real(r8), pointer :: fmortS(:)
           real(r8), pointer :: fmortF(:)
-          real(r8), pointer :: fmortP(:,:)
+          real(r8), pointer :: fmortP(:)
           integer, pointer  :: num_free(:)
           integer, pointer  :: next_free(:)
           integer, pointer  :: num_super(:)
@@ -168,7 +168,7 @@
 
       allocate ( FISHES(ng) % fmortF(Nfish(ng)) )
 
-      allocate ( FISHES(ng) % fmortP(Nspecies(ng),Nfish(ng)) )
+      allocate ( FISHES(ng) % fmortP(Nfish(ng)) )
 
       allocate ( FISHES(ng) % num_free(Nspecies(ng)) )
 
@@ -215,6 +215,10 @@
         FISHES(ng) % eatfish(iflt) = .FALSE.
         FISHES(ng) % fishgirl(iflt) = .FALSE.
         FISHES(ng) % fishnodes(iflt) % fish = iflt
+        FISHES(ng) % fmortN(iflt) = IniVal
+        FISHES(ng) % fmortS(iflt) = IniVal
+        FISHES(ng) % fmortF(iflt) = IniVal
+        FISHES(ng) % fmortP(iflt) = IniVal
       END DO
 
       RETURN

@@ -24,7 +24,6 @@
 !  FILname     Output filter file name.                                !
 !  FLTname     Output floats file name.                                !
 !  FISHname    Output fish file name.                                  !
-!  PREDname    Output predator file name.                              !
 !  FRCids      NetCDF ID descriptors associated with FRCname.          ! 
 !  FRCname     Input forcing fields file name(s).                      !
 !  FWDbase     Input forward solution base file name.                  !
@@ -49,6 +48,7 @@
 !                NRMname(3)  boundary conditions                       !
 !                NRMname(4)  surface forcing                           !
 !  OBSname     Input/output datum observations file name.              !
+!  PREDname    Output predator file name.                              !
 !  REPname     Input/output representer coefficients file name.        !
 !  Rerror      Running error messages.                                 !
 !  RSTname     Output restart file name.                               !
@@ -68,11 +68,11 @@
 !  bparnam     Input biology parameters file name.                     !
 !  fposnam     Input initial floats positions file name.               !
 !  fishposnam  Input initial fish positions file name.                 !
-!  predposnam  Input initial predtor positions file name.              !
 !  iparnam     Input ice parameters file name.                         !
 !  ioerror     IO error flag.                                          !
 !  ncfile      Current NetCDF file name being processed.               !
 !  nFfiles     Number of forcing files.                                !
+!  predposnam  Input initial predtor positions file name.              !
 !  shipposnam  Input initial ship positions file name.                 !
 !  sparnam     Input sediment transport parameters file name.          !
 !  sposnam     Input station positions file name.                      !
@@ -179,9 +179,9 @@
         character (len=fname_len) :: bparnam
         character (len=fname_len) :: fposnam
         character (len=fname_len) :: fishposnam
-        character (len=fname_len) :: predposnam
         character (len=fname_len) :: iparnam
         character (len=fname_len) :: ncfile
+        character (len=fname_len) :: predposnam
         character (len=fname_len) :: shipposnam
         character (len=fname_len) :: sparnam
         character (len=fname_len) :: sposnam

@@ -142,6 +142,11 @@
         IF (ncFISHid(ng).ne.-1) THEN
           CALL netcdf_close (ng, iNLM, ncFISHid(ng))
         END IF
+# ifdef PREDATOR
+        IF (ncPREDid(ng).ne.-1) THEN
+          CALL netcdf_close (ng, iNLM, ncPREDid(ng))
+        END IF
+# endif
 # ifdef FLEET
         IF (ncSHIPSid(ng).ne.-1) THEN
           CALL netcdf_close (ng, iNLM, ncSHIPSid(ng))

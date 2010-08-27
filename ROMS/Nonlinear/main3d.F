@@ -711,6 +711,9 @@
           subs=NtileX(ng)*NtileE(ng)/numthreads
           DO tile=subs*thread,subs*(thread+1)-1,+1
             CALL fish_by_cell (ng, TILE)
+#  ifdef PREDATOR
+            CALL pred_by_cell (ng, TILE)
+#  endif
 ! Don't need these yet...
 #  ifdef FLEET
 !            CALL ships_by_cell (ng, TILE)

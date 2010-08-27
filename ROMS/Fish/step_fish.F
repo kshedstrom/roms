@@ -113,6 +113,9 @@
       USE mod_ncparam
       USE mod_ocean
       USE mod_fish
+# ifdef PREDATOR
+      USE mod_pred
+# endif
       USE mod_scalars
       USE mod_biology
       USE fish_growth_mod
@@ -156,7 +159,7 @@
       real(r8), intent(inout) :: fmortN(:)
       real(r8), intent(inout) :: fmortS(:)
       real(r8), intent(inout) :: fmortF(:)
-      real(r8), intent(inout) :: fmortP(:,:)
+      real(r8), intent(inout) :: fmortP(:)
       integer, intent(in)     :: num_free(:)
       integer, intent(out)    :: num_super(:)
       real(r8), intent(inout) :: track(:,0:,:)
@@ -187,7 +190,7 @@
       real(r8), intent(inout) :: fmortN(Nfish(ng))
       real(r8), intent(inout) :: fmortS(Nfish(ng))
       real(r8), intent(inout) :: fmortF(Nfish(ng))
-      real(r8), intent(inout) :: fmortP(Nspecies(ng),Nfish(ng))
+      real(r8), intent(inout) :: fmortP(Nfish(ng))
       real(r8), intent(inout) :: track(NFV(ng),0:NFT,Nfish(ng))
 # endif
 !
@@ -291,9 +294,7 @@
           fmortN(l)=Fspv
           fmortS(l)=Fspv
           fmortF(l)=Fspv
-          DO isp=1,Nspecies(ng)
-            fmortP(isp,l)=Fspv
-          END DO
+          fmortP(l)=Fspv
           lifestage(l)=iFspv
           swimtype(l)=iFspv
           alive(l)=lFspv
@@ -784,9 +785,7 @@
             fmortN(l)=Fspv
             fmortS(l)=Fspv
             fmortF(l)=Fspv
-            DO isp=1,Nspecies(ng)
-              fmortP(isp,l)=Fspv
-            END DO
+            fmortP(l)=Fspv
             lifestage(l)=iFspv
             swimtype(l)=iFspv
             alive(l)=lFspv
@@ -884,9 +883,7 @@
             fmortN(l)=Fspv
             fmortS(l)=Fspv
             fmortF(l)=Fspv
-            DO isp=1,Nspecies(ng)
-              fmortP(isp,l)=Fspv
-            END DO
+            fmortP(l)=Fspv
             lifestage(l)=iFspv
             swimtype(l)=iFspv
             alive(l)=lFspv
@@ -1141,13 +1138,19 @@
      &                      GRID(ng) % Hz,                              &
 # endif
      &                      MyThread, bounded, track(:,:,:), feedback,  &
-     &                      bioenergy, alive, eatfish,                  &
-     &                      species, lifestage,                         &
+     &                      bioenergy, alive, species, lifestage,       &
      &                      egg_dur, egg_num,                           &
      &                      ysac_dur, ysac_num,                         &
      &                      larv_dur, larv_num,                         &
      &                      juv_dur, juv_num, suba_num,                 &
      &                      fmortN, fmortS, fmortF, fmortP,             &
+# ifdef PREDATOR
+     &                      OCEAN(ng) % pred_count,                     &
+     &                      OCEAN(ng) % pred_list,                      &
+     &                      PREDS(ng) % prednodes,                      &
+     &                      PREDS(ng) % bioenergy,                      &
+     &                      PREDS(ng) % track,                          &
+# endif
      &                      OCEAN(ng) % fish_count,                     &
      &                      OCEAN(ng) % fish_list,                      &
      &                      FISHES(ng) % fishnodes)
@@ -1177,9 +1180,7 @@
       CALL mp_collect (ng, iNLM, Nfish(ng), Fspv, fmortN)
       CALL mp_collect (ng, iNLM, Nfish(ng), Fspv, fmortS)
       CALL mp_collect (ng, iNLM, Nfish(ng), Fspv, fmortF)
-      FwrkM=RESHAPE(fmortP,(/NptsM/))
-      CALL mp_collect (ng, iNLM, NptsM, Fspv, FwrkM)
-      fmortP=RESHAPE(FwrkM,(/Nspecies(ng),Nfish(ng)/))
+      CALL mp_collect (ng, iNLM, Nfish(ng), Fspv, fmortP)
       CALL mp_collecti (ng, iNLM, Nfish(ng), iFspv, lifestage)
       CALL mp_collecti (ng, iNLM, Nfish(ng), iFspv, swimtype)
       CALL mp_collectl (ng, iNLM, Nfish(ng), alive)

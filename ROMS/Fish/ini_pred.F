@@ -48,7 +48,7 @@
       integer :: MaxHaloLenI, MaxHaloLenJ
 # endif
       integer :: inp, out, itrc, ng, npts, sequence
-      integer :: i, isp, l, fid, j
+      integer :: i, isp, l, pid, j
 
       real(r8) :: cff, Pwwght0, Pworth0, snudg
       real(r8) :: xini, yini, zini
@@ -83,8 +83,11 @@
       idpred_inv(1) = ip_albacore
 
 !  Put the new predators in here
+      ng=1
+      pid=0
       DO isp=1,Npredspecies(ng)
         DO i=1,Npredperspecies(ng)
+          pid=pid+1
           Pwwght0=Pwwt0(isp,ng)
           Pworth0=Pwth0(isp,ng)
 # ifdef CCS30
@@ -130,34 +133,29 @@
 !          xini=4.0_r8+(snudg-0.5_r8)
 !          CALL ran1 (snudg)
 !          yini=7.0_r8+(snudg-0.5_r8)
-          xini=REAL(i+7,r8)
-          yini=REAL(i+7,r8)
+          xini=REAL(12,r8)
+          yini=REAL(12,r8)
           zini=REAL(N(ng),r8)
 # endif
-          PREDS(ng)%Tinfo(ixgrd,fid)=xini
-          PREDS(ng)%Tinfo(iygrd,fid)=yini
-          PREDS(ng)%Tinfo(izgrd,fid)=zini
+          PREDS(ng)%Tinfo(ixgrd,pid)=xini
+          PREDS(ng)%Tinfo(iygrd,pid)=yini
+          PREDS(ng)%Tinfo(izgrd,pid)=zini
           DO j=0,NFT
-            PREDS(ng)%track(ixgrd,j,fid)=xini
-            PREDS(ng)%track(iygrd,j,fid)=yini
+            PREDS(ng)%track(ixgrd,j,pid)=xini
+            PREDS(ng)%track(iygrd,j,pid)=yini
 #  ifdef SOLVE3D
-            PREDS(ng)%track(izgrd,j,fid)=zini
-            PREDS(ng)%track(ixrhs,j,fid)=0.0_r8
-            PREDS(ng)%track(iyrhs,j,fid)=0.0_r8
-            PREDS(ng)%track(izrhs,j,fid)=0.0_r8
+            PREDS(ng)%track(izgrd,j,pid)=zini
+            PREDS(ng)%track(ixrhs,j,pid)=0.0_r8
+            PREDS(ng)%track(iyrhs,j,pid)=0.0_r8
+            PREDS(ng)%track(izrhs,j,pid)=0.0_r8
 #  endif
           END DO
           CALL ran1 (snudg)
-          PREDS(ng)%bioenergy(ifwwt,fid)=Pwwght0*(snudg+0.5_r8)
-          PREDS(ng)%bioenergy(ifworth,fid)=Pworth0
-          PREDS(ng)%species(fid)=idpred_inv(isp)
-          PREDS(ng)%alive(fid)=.TRUE.
-          IF (Peatfish(isp,ng).eq.1) THEN
-            PREDS(ng)%eatfish(fid)=.TRUE.
-          ELSE
-            PREDS(ng)%eatfish(fid)=.FALSE.
-          END IF
-          PREDS(ng)%bounded(fid)=.TRUE.
+          PREDS(ng)%bioenergy(ipwwt,pid)=Pwwght0*(snudg+0.5_r8)
+          PREDS(ng)%bioenergy(ipworth,pid)=Pworth0
+          PREDS(ng)%species(pid)=idpred_inv(isp)
+          PREDS(ng)%alive(pid)=.TRUE.
+          PREDS(ng)%bounded(pid)=.TRUE.
         END DO
       END DO
 
@@ -189,7 +187,7 @@
 !  Local variable declarations.
 !
       integer :: Npts, Nval
-      integer :: i, j, igrid, mc, nc, ng, status, isp
+      integer :: i, j, igrid, mc, nc, ng, status, isp, ifsp
 
       integer, dimension(Ngrids) :: ncount, nentry
       integer, dimension(Ngrids) :: Npos
@@ -234,8 +232,6 @@
             Npts=load_r(Nval, Rval, max_predspecies*Ngrids, Pwwt0)
           ELSE IF (TRIM(KeyWord).eq.'Pwth0') THEN
             Npts=load_r(Nval, Rval, max_predspecies*Ngrids, Pwth0)
-          ELSE IF (TRIM(KeyWord).eq.'Peatfish') THEN
-            Npts=load_i(Nval, Rval, max_species*Ngrids, Peatfish)
           ELSE IF (TRIM(KeyWord).eq.'Fpref') THEN
             Npts=load_r(Nval, Rval, max_species*Ngrids, Fpref)
           ELSE IF (TRIM(KeyWord).eq.'K_Fish') THEN
@@ -343,13 +339,14 @@
      &                'Pred initial wet weight (g).'
               WRITE (out,110) Pwth0(isp,ng), 'Pwth0',                   &
      &                'Pred initial worth.'
-              WRITE (out,80) Peatfish(isp,ng),                          &
-     &              'Peatfish',                                         &
-     &              'Pred eat other fishes (1=True, 2=False)'
-              WRITE (out,110) Fpref(isp,ng), 'Fpref',                   &
-     &              'Pred preference for Fish.'
-              WRITE (out,110) K_Fish(isp,ng), 'K_Fish',                 &
-     &              'Pred half-saturation constant for Fish.'
+              DO ifsp=1,Nspecies(ng)
+                WRITE (out,110) Fpref(ifsp,ng), 'Fpref',                &
+     &                'Pred preference for Fish.'
+              END DO
+              DO ifsp=1,Nspecies(ng)
+                WRITE (out,110) K_Fish(ifsp,ng), 'K_Fish',              &
+     &                'Pred half-saturation constant for Fish.'
+              END DO
               WRITE (out,110) a_Cmax(isp,ng), 'a_Cmax',                 &
      &              'Pred comsumption coefficient.'
               WRITE (out,110) b_Cmax(isp,ng), 'b_Cmax',                 &

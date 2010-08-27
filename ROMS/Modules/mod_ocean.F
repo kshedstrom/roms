@@ -79,18 +79,18 @@
 !  v_stokes     3D V-Stokes drift velocity (m/s).                      !
 !                                                                      !
 #endif
-# if defined NEMURO_SAN
+#if defined NEMURO_SAN
 !  fish_list    Linked list of fish in the box for each box.           !
 !  fish_count   Number of fish in each box.                            !
 !  spawn_loc    2D spawning locations for each fish species.           !
-#  if defined PREDATOR
+# if defined PREDATOR
 !  pred_list    Linked list of predators in the box for each box.      !
 !  pred_count   Number of predators in each box.                       !
-#  endif
-#  if defined EGGS_BISECTION
-!  egg_count    Number of eggs in each box for each species.           !
-#  endif
 # endif
+# if defined EGGS_BISECTION
+!  egg_count    Number of eggs in each box for each species.           !
+# endif
+#endif
 !=======================================================================
 !
         USE mod_kinds
@@ -998,8 +998,10 @@
           DO i=Imin,Imax
             OCEAN(ng) % fish_count(i,j) = 0
             OCEAN(ng) % fish_list(i,j) % next => null()
+#  ifdef PREDATOR
             OCEAN(ng) % pred_count(i,j) = 0
             OCEAN(ng) % pred_list(i,j) % next => null()
+#  endif
           END DO
 # endif
 #endif

@@ -26,6 +26,9 @@
 # endif
 # ifdef NEMURO_SAN
       USE mod_fish
+#  ifdef PREDATOR
+      USE mod_pred
+#  endif
 # endif
 # if defined FOUR_DVAR || defined VERIFICATION
       USE mod_fourdvar
@@ -471,9 +474,9 @@
             NewFile=.FALSE.
           END IF
           CALL def_fish (ng, NewFile)
-# ifdef FLEET
+#  ifdef FLEET
           CALL def_ships (ng, NewFile)
-# endif
+#  endif
           IF (exit_flag.ne.NoError) RETURN
           LdefFISH(ng)=.FALSE.
         END IF
@@ -487,6 +490,34 @@
           IF (exit_flag.ne.NoError) RETURN
         END IF
       END IF
+
+
+#  ifdef PREDATOR
+      IF (Npred(ng).gt.0.and.(nPRD(ng).gt.0)) THEN
+!
+!  Create output pred NetCDF file or prepare existing file to
+!  append new data to it.
+!
+        IF (LdefPRED(ng)) THEN
+          IF (predrrec(ng).eq.0) THEN
+            NewFile=.TRUE.
+          ELSE
+            NewFile=.FALSE.
+          END IF
+          CALL def_pred (ng, NewFile)
+          IF (exit_flag.ne.NoError) RETURN
+          LdefPRED(ng)=.FALSE.
+        END IF
+!
+!  Write out data into fish NetCDF file.
+!
+        IF ((MOD(iic(ng)-1,nPRD(ng)).eq.0).and.                      &
+     &      ((predrrec(ng).eq.0).or.(iic(ng).ne.ntstart(ng)))) THEN
+          CALL wrt_pred (ng)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+      END IF
+#  endif
 # endif
 !
 !-----------------------------------------------------------------------

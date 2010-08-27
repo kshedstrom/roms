@@ -700,6 +700,20 @@
      &                      ncid = ncFISHid(ng),                        &
      &                      varid = fishVid(idFmortF,ng))
       IF (exit_flag.ne.NoError) RETURN
+!  Write predation mortality
+      DO l=1,Nfish(ng)
+        IF (FISHES(ng)%bounded(l)) THEN
+          Tout(l)=FISHES(ng)%fmortP(l)
+        ELSE
+          Tout(l)=spval
+        END IF
+      END DO
+      CALL netcdf_put_fvar (ng, iNLM, FISHname(ng),                     &
+     &                      TRIM(Vname(1,idFmortP)), Tout,              &
+     &                      (/1,tFISHindx(ng)/), (/Nfish(ng),1/),       &
+     &                      ncid = ncFISHid(ng),                        &
+     &                      varid = fishVid(idFmortP,ng))
+      IF (exit_flag.ne.NoError) RETURN
 !  Write fish lifestage
       DO l=1,Nfish(ng)
         IF (FISHES(ng)%bounded(l)) THEN

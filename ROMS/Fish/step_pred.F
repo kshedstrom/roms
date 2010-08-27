@@ -58,7 +58,6 @@
      &                       PREDS(ng) % bioenergy,                     &
      &                       PREDS(ng) % species,                       &
      &                       PREDS(ng) % alive,                         &
-     &                       PREDS(ng) % eatfish,                       &
      &                       PREDS(ng) % track)
 # ifdef PROFILE
       CALL wclock_off (ng, iNLM, 10)
@@ -71,8 +70,7 @@
      &                             knew, nnew,                          &
      &                             nfm3, nfm2, nfm1, nf, nfp1,          &
      &                             bounded, Ftype, Tinfo, Fz0,          &
-     &                             bioenergy, species, alive,           &
-     &                             eatfish, track)
+     &                             bioenergy, species, alive, track)
 !***********************************************************************
 !
       USE mod_param
@@ -88,7 +86,6 @@
       USE mod_fish
       USE mod_scalars
       USE mod_biology
-      USE pred_mort_mod
       USE pred_swim_mod
       USE interp_floats_mod
 !
@@ -111,7 +108,6 @@
       real(r8), intent(inout) :: bioenergy(:,:)
       integer, intent(inout)  :: species(:)
       logical, intent(inout)  :: alive(:)
-      logical, intent(inout)  :: eatfish(:)
       real(r8), intent(inout) :: track(:,0:,:)
 # else
       integer, intent(in)     :: Ftype(Npred(ng))
@@ -122,7 +118,6 @@
       real(r8), intent(inout) :: bioenergy(NPredV(ng),Npred(ng))
       integer, intent(inout)  :: species(Npred(ng))
       logical, intent(inout)  :: alive(Npred(ng))
-      logical, intent(inout)  :: eatfish(Npred(ng))
       real(r8), intent(inout) :: track(NFV(ng),0:NFT,Npred(ng))
 # endif
 !
@@ -308,7 +303,9 @@
      &                    PREDS(ng) % prednodes,                        &
      &                    OCEAN(ng) % fish_count,                       &
      &                    OCEAN(ng) % fish_list,                        &
-     &                    FISHES(ng) % fishnodes)
+     &                    FISHES(ng) % fishnodes,                       &
+     &                    FISHES(ng) % bioenergy,                       &
+     &                    FISHES(ng) % species)
 !
 !-----------------------------------------------------------------------
 !  Determine pred status.
@@ -684,21 +681,6 @@
      &                      MyThread, bounded, track)
       END DO
 !
-      CALL pred_mort (ng, LBi, UBi, LBj, UBj, 1, N(ng), nfp1,           &
-     &                      GRID(ng) % pm,                              &
-     &                      GRID(ng) % pn,                              &
-# ifdef SOLVE3D
-     &                      GRID(ng) % Hz,                              &
-# endif
-     &                      MyThread, bounded, track(:,:,:),            &
-     &                      bioenergy, alive, eatfish, species,         &
-     &                      OCEAN(ng) % pred_count,                     &
-     &                      OCEAN(ng) % pred_list,                      &
-     &                      PREDS(ng) % prednodes,                      &
-     &                      OCEAN(ng) % fish_count,                     &
-     &                      OCEAN(ng) % fish_list,                      &
-     &                      FISHES(ng) % fishnodes)
-!
 # endif
 # ifdef DISTRIBUTE
 !
@@ -713,7 +695,6 @@
       CALL mp_collect (ng, iNLM, NptsF, Fspv, FwrkF)
       bioenergy=RESHAPE(FwrkF,(/NPredV(ng),Npred(ng)/))
       CALL mp_collectl (ng, iNLM, Npred(ng), alive)
-      CALL mp_collectl (ng, iNLM, Npred(ng), eatfish)
 !
 #ifdef FOO
 !  Collect the alive status.

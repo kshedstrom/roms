@@ -416,7 +416,6 @@
         integer  :: idPcsmF5       ! Pred consumption on species 5
         integer  :: idPspc         ! Pred species
         integer  :: idPalv         ! Pred is alive
-        integer  :: idPeatf        ! Pred eats fish
 
         integer, allocatable :: idRtrc(:)    ! river runoff for tracers
         integer, allocatable :: idTads(:)    ! tracers adjoint sentivity
@@ -538,6 +537,7 @@
         integer  :: ncMODid(Ngrids)     ! output 4DVAR fields
         integer  :: ncNRMid(4,Ngrids)   ! input/output covariance norm
         integer  :: ncOBSid(Ngrids)     ! input/output observations
+        integer  :: ncPREDid(Ngrids)    ! output predator
         integer  :: ncRSTid(Ngrids)     ! input/output restart
         integer  :: ncSHIPSid(Ngrids)   ! output ships
         integer  :: ncSSHid(Ngrids)     ! SSH observations
@@ -628,6 +628,7 @@
         integer, allocatable :: itlTid(:,:)   ! initial TLM tracers IDs
         integer, allocatable :: lczTid(:,:)   ! Lanczos tracers IDs
         integer, allocatable :: obsTid(:,:)   ! observations tracers IDs
+        integer, allocatable :: predTid(:,:)  ! pred tracers IDs
         integer, allocatable :: rstTid(:,:)   ! restart tracers IDs
         integer, allocatable :: shipsTid(:,:) ! ships tracers IDs
         integer, allocatable :: staTid(:,:)   ! stations tracers IDs
@@ -651,6 +652,7 @@
         integer  :: modVid(NV,Ngrids)    ! 4DVAR variables IDs
         integer  :: nrmVid(4,NV,Ngrids)  ! norm variables IDs
         integer  :: obsVid(NV,Ngrids)    ! observations variables IDs
+        integer  :: predVid(-6:NV,Ngrids)! pred variables IDs
         integer  :: rstVid(NV,Ngrids)    ! restart variables IDs
         integer  :: shipsVid(-6:NV,Ngrids)! ships variables IDs
         integer  :: staVid(NV,Ngrids)    ! stations variables IDs
@@ -673,6 +675,7 @@
         integer  :: tITLindx(Ngrids)     ! initial TLM time record index
         integer  :: tLCZindx(Ngrids)     ! Lanczos time record index
         integer  :: tNRMindx(4,Ngrids)   ! norm time record index
+        integer  :: tPREDindx(Ngrids)    ! pred time record index
         integer  :: tRSTindx(Ngrids)     ! restart time record index
         integer  :: tSHIPSindx(Ngrids)   ! ships time record index
         integer  :: tSTAindx(Ngrids)     ! stations time record index
@@ -850,6 +853,7 @@
         allocate ( itlTid(MT,Ngrids) )
         allocate ( lczTid(MT,Ngrids) )
         allocate ( obsTid(MT,Ngrids) )
+        allocate ( predTid(MT,Ngrids) )
         allocate ( rstTid(MT,Ngrids) )
         allocate ( shipsTid(MT,Ngrids) )
         allocate ( staTid(MT,Ngrids) )
@@ -1168,6 +1172,7 @@
           ncMODid(ng)=-1
           ncNRMid(1:4,ng)=-1
           ncOBSid(ng)=-1
+          ncPREDid(ng)=-1
           ncRSTid(ng)=-1
           ncSHIPSid(ng)=-1
           ncSSHid(ng)=-1
@@ -1192,6 +1197,7 @@
           tIRPindx(ng)=1
           tITLindx(ng)=1
           tNRMindx(1:4,ng)=0
+          tPREDindx(ng)=0
           tRSTindx(ng)=0
           tSHIPSindx(ng)=0
           tSTAindx(ng)=0
@@ -2019,8 +2025,6 @@
                 idPspc=varid
               CASE ('idPalv')
                 idPalv=varid
-              CASE ('idPeatf')
-                idPeatf=varid
 # endif
 #endif
 #ifdef SEDIMENT

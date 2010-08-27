@@ -921,6 +921,21 @@
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 !
+!  Define predation mortality
+!
+        Vinfo( 1)='FmortP'
+        Vinfo( 2)='predation mortality'
+        Vinfo( 3)='day-1'
+        Vinfo(14)='fmortp, scalar, series'
+        Vinfo(16)=Vname(1,idtime)
+# ifndef NO_4BYTE_REALS
+        Vinfo(24)='_FillValue'
+        Aval(6)=spval
+# endif
+        status=def_var(ng, iNLM, ncFISHid(ng),fishVid(idFmortP,ng),     &
+     &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
+        IF (exit_flag.ne.NoError) RETURN
+!
 !  Define fish lifestage
 !
         Vinfo( 1)='Lifestage'
