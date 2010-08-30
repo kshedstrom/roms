@@ -3042,19 +3042,6 @@
                 Aout(itrc,ng)=Linert(i,ng)
               END DO
             END DO
-            fposnam=TRIM(ADJUSTL(Cval(Nval)))
-#ifdef NEMURO_SAN
-          ELSE IF (TRIM(KeyWord).eq.'FISHPOSNAM') THEN
-            DO i=1,LEN(fishposnam)
-              fishposnam(i:i)=blank
-            END DO
-            fishposnam=TRIM(ADJUSTL(Cval(Nval)))
-# ifdef PREDATOR
-          ELSE IF (TRIM(KeyWord).eq.'PREDPOSNAM') THEN
-            DO i=1,LEN(predposnam)
-              predposnam(i:i)=blank
-            END DO
-            predposnam=TRIM(ADJUSTL(Cval(Nval)))
 # endif
 #endif
 #ifdef DIAGNOSTICS_UV
