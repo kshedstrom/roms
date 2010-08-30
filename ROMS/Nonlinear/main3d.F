@@ -139,7 +139,7 @@
       USE eggs_by_cell_mod, ONLY : eggs_by_cell
 #  endif
 #  ifdef FLEET
-      USE ships_by_cell_mod, ONLY : ships_by_cell
+      USE fishing_fleet_mod, ONLY : fishing_fleet
 #  endif
 # endif
       USE wvelocity_mod, ONLY : wvelocity
@@ -692,17 +692,6 @@
         END DO
 !$OMP END PARALLEL DO
 #  endif
-#  ifdef FLEET
-!$OMP PARALLEL DO PRIVATE(thread,chunk_size,Lstr,Lend)                  &
-!$OMP&            SHARED(ng,numthreads,Nships)
-        DO thread=0,numthreads-1
-          chunk_size=(Nships(ng)+numthreads-1)/numthreads
-          Lstr=1+thread*chunk_size
-          Lend=MIN(Nships(ng),Lstr+chunk_size-1)
-          CALL step_ships (ng, Lstr, Lend)
-        END DO
-!$OMP END PARALLEL DO
-#  endif
 !
 !  Find out how many and which fish in each cell
 !
@@ -714,10 +703,6 @@
 #  ifdef PREDATOR
             CALL pred_by_cell (ng, TILE)
 #  endif
-! Don't need these yet...
-#  ifdef FLEET
-!            CALL ships_by_cell (ng, TILE)
-#  endif
 !  Make new fish once a day
             IF (iyesterday(ng) .ne. idays(ng)) THEN
           IF (Master) print *, 'MAIN3D idays ', idays(ng), iyears(ng)
@@ -727,6 +712,9 @@
               CALL eggs_by_cell (ng, TILE)
 #  endif
               CALL new_fish(ng)
+#  ifdef FLEET
+              CALL fishing_fleet (ng)
+#  endif
               iyesterday(ng) = idays(ng)
 !  Once a year, we clean out the oldest fish
               IF (iyesteryear(ng) .ne. iyears(ng)) THEN
