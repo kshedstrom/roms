@@ -67,6 +67,7 @@
       USE mod_param
       USE mod_scalars
       USE mod_types
+      USE mod_biology
       USE mod_stepping
 !
 !  Imported variable declarations.

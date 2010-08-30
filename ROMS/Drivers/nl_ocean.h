@@ -44,6 +44,9 @@
 #endif
       USE mod_iounits
       USE mod_scalars
+#ifdef NEMURO_SAN
+      USE mod_fish
+#endif
 !
 #ifdef AIR_OCEAN
       USE ocean_coupler_mod, ONLY : initialize_ocn2atm_coupling
@@ -218,6 +221,9 @@
 #endif
       USE mod_iounits
       USE mod_scalars
+#ifdef NEMURO_SAN
+      USE mod_fish
+#endif
 !
 !  Imported variable declarations.
 !

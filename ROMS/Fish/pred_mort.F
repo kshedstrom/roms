@@ -70,6 +70,7 @@
       USE mod_biology
       USE mod_types
       USE mod_grid
+      USE mod_fish
 !
 !  Imported variable declarations.
 !

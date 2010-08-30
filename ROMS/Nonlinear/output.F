@@ -25,6 +25,7 @@
       USE mod_floats
 # endif
 # ifdef NEMURO_SAN
+      USE mod_biology
       USE mod_fish
 # endif
 # if defined FOUR_DVAR || defined VERIFICATION

@@ -67,6 +67,7 @@
       USE mod_ncparam
       USE mod_scalars
       USE mod_biology
+      USE mod_fish
       USE mod_grid
       USE mod_types
       USE utility_mod, ONLY : nrng

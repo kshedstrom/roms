@@ -64,6 +64,8 @@
 !=======================================================================
 !
       USE mod_scalars
+      USE mod_biology
+      USE mod_fish
 !
 !  Imported variable declarations.
 !

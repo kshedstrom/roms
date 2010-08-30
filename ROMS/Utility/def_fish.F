@@ -17,6 +17,7 @@
       USE mod_param
       USE mod_parallel
       USE mod_fish
+      USE mod_biology
 # ifdef FOUR_DVAR
       USE mod_fourdvar
 # endif

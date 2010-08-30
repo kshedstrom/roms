@@ -62,6 +62,7 @@
 !=======================================================================
 !
       USE mod_scalars
+      USE mod_biology
 !
 !  Imported variable declarations.
 !

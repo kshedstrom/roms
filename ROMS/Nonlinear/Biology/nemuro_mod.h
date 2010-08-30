@@ -371,7 +371,7 @@
 # endif
 #endif
 
-# ifdef NEMURO_SAN
+#ifdef NEMURO_SAN
 !
 ! NOTE: When adding variables, must update NFishV in mod_param.F
 !
@@ -388,61 +388,7 @@
       integer, dimension(Ngrids) :: Npredspecies
       integer, dimension(Ngrids) :: Npred
 # endif
-
-      integer, parameter :: ifwwt = 1          ! fish wet weight
-      integer, parameter :: ifworth = 2        ! fish worth
-      integer, parameter :: ifage = 3          ! age as stage
-      integer, parameter :: ifbday = 4         ! birthday
-      integer, parameter :: ifspwnloc = 5      ! spawn_dist of mother
-      integer, parameter :: ifbatch = 6        ! number of batches spawned
-      integer, parameter :: iftspwn = 7        ! time of last batch spawned
-      integer, parameter :: ifeggs = 8         ! number of eggs spawned
-      integer, parameter :: ifpval = 9         ! fish p-value
-      integer, parameter :: ifeatme = 10       ! fish-eat-fish predation rate
-      integer, parameter :: ifyield = 11       ! yield to fisheries
-      integer, parameter :: ifcsmPS = 12       ! PS consumption
-      integer, parameter :: ifcsmPL = 13       ! PL consumption
-      integer, parameter :: ifcsmZS = 14       ! ZS consumption
-      integer, parameter :: ifcsmZL = 15       ! ZL consumption
-      integer, parameter :: ifcsmZP = 16       ! ZP consumption
-      integer, parameter :: ifcsmF1 = 17       ! Fish consumption on species 1
-      integer, parameter :: ifcsmF2 = 18       ! Fish consumption on species 2
-      integer, parameter :: ifcsmF3 = 19       ! Fish consumption on species 3
-      integer, parameter :: ifcsmF4 = 20       ! Fish consumption on species 4
-      integer, parameter :: ifcsmF5 = 21       ! Fish consumption on species 5
-      integer, parameter :: ifresp = 22        ! Respiration
-! Lifestage and gender
-      integer, parameter :: if_egg = 1
-      integer, parameter :: if_yolksac = 2
-      integer, parameter :: if_larva = 3
-      integer, parameter :: if_juvenile = 4
-      integer, parameter :: if_subadult = 5
-      integer, parameter :: if_adult = 6
-! Species IDs
-      integer, parameter :: if_none = 0
-      integer, parameter :: if_anchovy = 1
-      integer, parameter :: if_sardine = 2
-      integer, parameter :: if_herring = 3
-      integer, parameter :: if_polluck = 4
-      integer, parameter :: if_pinksalmon = 5
-      integer, parameter :: max_yearclass = 10
-#  ifdef PREDATOR
-      integer, parameter :: ipwwt = 1         ! pred wet weight
-      integer, parameter :: ipworth = 2       ! pred worth
-      integer, parameter :: ippval = 3        ! pred p-value
-      integer, parameter :: ipcsmF1 = 4       ! Fish consumption on species 1
-      integer, parameter :: ipcsmF2 = 5       ! Fish consumption on species 2
-      integer, parameter :: ipcsmF3 = 6       ! Fish consumption on species 3
-      integer, parameter :: ipcsmF4 = 7       ! Fish consumption on species 4
-      integer, parameter :: ipcsmF5 = 8       ! Fish consumption on species 5
-! Species IDs
-      integer, parameter :: ip_none = 0
-      integer, parameter :: ip_albacore = 1
-#  endif
-#  ifdef EGGS_BISECTION
-      logical :: lr_split = .true.
-#  endif
-# endif
+#endif
 
       CONTAINS
 

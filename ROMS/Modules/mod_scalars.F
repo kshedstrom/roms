@@ -329,13 +329,6 @@
         logical, dimension(Ngrids) :: Lassimilate
         logical, dimension(Ngrids) :: Lbiology
         logical, dimension(Ngrids) :: Lfloats
-#ifdef NEMURO_SAN
-        logical, dimension(Ngrids) :: Lfish
-        logical, dimension(Ngrids) :: Lships
-# ifdef PREDATOR
-        logical, dimension(Ngrids) :: Lpred
-# endif
-#endif
 #ifdef ICE_MODEL
         logical, dimension(Ngrids) :: Lice
 #endif
@@ -932,16 +925,6 @@
 !  Floats restart switch.
 !
         integer, dimension(Ngrids) :: frrec
-#endif
-#ifdef NEMURO_SAN
-!
-!  Fish restart switch.
-!
-        integer, dimension(Ngrids) :: fishrrec
-        integer, dimension(Ngrids) :: shiprrec
-# ifdef PREDATOR
-        integer, dimension(Ngrids) :: predrrec
-# endif
 #endif
 !
 !  Switch to activate processing of input data.  This switch becomes
@@ -2023,13 +2006,6 @@
         LcycleRST(ng)=.FALSE.
         LcycleTLM(ng)=.FALSE.
         Lfloats(ng)=.TRUE.
-#ifdef NEMURO_SAN
-        Lfish(ng)=.TRUE.
-        Lships(ng)=.TRUE.
-# ifdef PREDATOR
-        Lpred(ng)=.TRUE.
-# endif
-#endif
 #ifdef ICE_MODEL
         Lice(ng)=.TRUE.
 #endif

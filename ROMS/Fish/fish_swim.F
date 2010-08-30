@@ -71,6 +71,7 @@
       USE mod_types
       USE utility_mod, ONLY : nrng
       USE nrutil
+      USE mod_fish
 !
 !  Imported variable declarations.
 !
