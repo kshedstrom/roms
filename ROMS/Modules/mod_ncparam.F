@@ -1822,6 +1822,7 @@
                 idUVav=varid
               CASE ('idVVav')
                 idVVav=varid
+# ifdef SALINITY
               CASE ('idTTav(isalt)')
                 idTTav(isalt)=varid
               CASE ('iHUTav(isalt)')
@@ -1832,6 +1833,7 @@
                 idUTav(isalt)=varid
               CASE ('idVTav(isalt)')
                 idVTav(isalt)=varid
+# endif
 #endif
 #ifdef T_PASSIVE
               CASE ('idTvar(inert(i))')
