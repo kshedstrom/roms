@@ -78,9 +78,6 @@
 !
 !  Set biological tracer identification indices.
 !
-      integer, allocatable :: idfish(:)     ! Fish species map
-      integer, allocatable :: idfish_inv(:) ! Fish species inverse map
-
       integer, parameter :: ifwwt = 1       ! fish wet weight
       integer, parameter :: ifworth = 2     ! fish worth
       integer, parameter :: ifage = 3       ! age as stage
@@ -142,6 +139,7 @@
 !=======================================================================
 !
       USE mod_scalars
+      USE mod_biology
 !
 !  Imported variable declarations.
 !
@@ -230,13 +228,6 @@
       allocate ( FISHES(ng) % age_base(Nspecies(ng)) ) 
 
       allocate ( FISHES(ng) % species_base(Nspecies(ng)) )
-
-      IF (.not.allocated(idfish)) THEN
-        allocate ( idfish(max_species) )
-      END IF
-      IF (.not.allocated(idfish_inv)) THEN
-        allocate ( idfish_inv(max_species) )
-      END IF
 !
 !-----------------------------------------------------------------------
 !  Initialize module variables.
@@ -274,11 +265,9 @@
         FISHES(ng) % fishnodes(iflt) % fish = iflt
       END DO
 
-      DO ng=1,Ngrids
-        Lfish(ng)=.TRUE.
-        Lships(ng)=.TRUE.
-        LdefFISH(ng)=.TRUE.
-      END DO
+      Lfish(ng)=.TRUE.
+      Lships(ng)=.TRUE.
+      LdefFISH(ng)=.TRUE.
 
       RETURN
       END SUBROUTINE allocate_fish

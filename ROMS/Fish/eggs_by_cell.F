@@ -28,6 +28,7 @@
       USE mod_types
       USE mod_ocean
       USE mod_fish
+      USE mod_biology
 #ifdef MASKING
       USE mod_grid
 #endif

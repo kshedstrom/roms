@@ -119,12 +119,12 @@ MY_CPP_FLAGS ?=
 
 #  If applicable, activate 64-bit compilation:
 
-   USE_LARGE ?= on
+   USE_LARGE ?=
 
 #  If applicable, link with NetCDF-4 library. Notice that the NetCDF-4
 #  library needs both the HDF5 and MPI libraries.
 
- USE_NETCDF4 ?=
+ USE_NETCDF4 ?= on
 
 #  If applicable, activate Data Access Protocol (like OPeNDAP) support
 #  for input NetCDF files.  This is only possible for NetCDF library
@@ -155,7 +155,7 @@ MY_CPP_FLAGS ?=
 #  NetCDF and so on.
 #--------------------------------------------------------------------------
 
-        FORT ?= pgi
+        FORT ?= gfortran
 
 #--------------------------------------------------------------------------
 #  Set directory for executable.

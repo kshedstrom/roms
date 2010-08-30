@@ -21,6 +21,7 @@
         USE mod_kinds
         USE mod_types
         USE mod_param
+	USE mod_biology
 
         implicit none
 

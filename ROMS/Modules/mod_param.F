@@ -66,24 +66,6 @@
 !  NDM2d      Number of diagnostic 2D momentum fields.                 !
 !  NDM3d      Number of diagnostic 3D momentum fields.                 !
 !  NDrhs      Number of diagnostic 3D right-hand-side fields.          !
-!
-#ifdef NEMURO_SAN
-! parameters for the fish particle model
-!  max_species  Maximum number of species
-!  Nbox         Number of spawning areas
-!  Nfishperyear Number of fish per year class per species
-!  Nspecies     Number of fish species
-!  Nyearclass   Number of year classes
-!  Nfish        Total number of fish
-!  Nbatch       Number of days per year an individual will release eggs
-!  Nships       Total number of ships
-# ifdef PREDATOR
-!  max_predspecies   Maximum number of species
-!  Npredspecies      Number of predator species
-!  Npredperspecies   Number of fish per year class per species
-!  Npred             Total number of predators
-# endif
-#endif
 !                                                                      !
 !=======================================================================
 !
@@ -319,24 +301,6 @@
         integer :: NNS = 0
 
 #ifdef NEMURO_SAN
-        integer, parameter :: max_species = 5
-
-        integer, dimension(Ngrids) :: Nbox
-        integer, dimension(Ngrids) :: Nfishperyear
-        integer, dimension(Ngrids) :: Nspecies
-        integer, dimension(Ngrids) :: Nyearclass
-        integer, dimension(max_species,Ngrids) :: Nbatch
-!   Nfish=Nfishperyear*Nspecies*Nyearclass
-        integer, dimension(Ngrids) :: Nfish
-
-        integer, dimension(Ngrids) :: Nships
-
-# ifdef PREDATOR
-        integer, dimension(Ngrids) :: Npredperspecies
-        integer, dimension(Ngrids) :: Npredspecies
-        integer, dimension(Ngrids) :: Npred
-# endif
-
 !  Total number of fish variables to process and output.
 !
         integer, dimension(Ngrids) :: NFishV
