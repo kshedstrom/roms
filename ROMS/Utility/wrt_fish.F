@@ -17,6 +17,7 @@
       USE mod_param
       USE mod_parallel
       USE mod_fish
+      USE mod_biology
       USE mod_iounits
       USE mod_ncparam
       USE mod_netcdf
