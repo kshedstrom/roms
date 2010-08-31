@@ -2780,6 +2780,7 @@
             END DO
 #  endif
 # endif
+# ifdef SOLVE3D
           ELSE IF (TRIM(KeyWord).eq.'Aout(idHUav)') THEN
             IF (idHUav.eq.0) THEN
               IF (Master) WRITE (out,280) 'idHUav'
@@ -2815,6 +2816,7 @@
               RETURN
             END IF
             Npts=load_l(Nval, Cval, Ngrids, Aout(idVVav,:))
+# endif
           ELSE IF (TRIM(KeyWord).eq.'Aout(idU2av)') THEN
             IF (idU2av.eq.0) THEN
               IF (Master) WRITE (out,280) 'idU2av'
@@ -2836,6 +2838,7 @@
               RETURN
             END IF
             Npts=load_l(Nval, Cval, Ngrids, Aout(idZZav,:))
+# ifdef SOLVE3D
           ELSE IF (TRIM(KeyWord).eq.'Aout(idTTav)') THEN
             IF (MAXVAL(idTTav).eq.0) THEN
               IF (Master) WRITE (out,280) 'idTTav'
@@ -2901,42 +2904,128 @@
                 Aout(i,ng)=Ltracer(itrc,ng)
               END DO
             END DO
-#ifdef ICE_MODEL
+#  ifdef ICE_MODEL
           ELSE IF (TRIM(KeyWord).eq.'Aout(idUice)') THEN
+            IF (idUice.eq.0) THEN
+              IF (Master) WRITE (out,280) 'idUice'
+              exit_flag=5
+              RETURN
+            END IF
             Npts=load_l(Nval, Cval, Ngrids, Aout(idUice,:))
           ELSE IF (TRIM(KeyWord).eq.'Aout(idVice)') THEN
+            IF (idVice.eq.0) THEN
+              IF (Master) WRITE (out,280) 'idVice'
+              exit_flag=5
+              RETURN
+            END IF
             Npts=load_l(Nval, Cval, Ngrids, Aout(idVice,:))
           ELSE IF (TRIM(KeyWord).eq.'Aout(idAice)') THEN
+            IF (idAice.eq.0) THEN
+              IF (Master) WRITE (out,280) 'idAice'
+              exit_flag=5
+              RETURN
+            END IF
             Npts=load_l(Nval, Cval, Ngrids, Aout(idAice,:))
           ELSE IF (TRIM(KeyWord).eq.'Aout(idHice)') THEN
+            IF (idHice.eq.0) THEN
+              IF (Master) WRITE (out,280) 'idHice'
+              exit_flag=5
+              RETURN
+            END IF
             Npts=load_l(Nval, Cval, Ngrids, Aout(idHice,:))
           ELSE IF (TRIM(KeyWord).eq.'Aout(idHsno)') THEN
+            IF (idHsno.eq.0) THEN
+              IF (Master) WRITE (out,280) 'idHsno'
+              exit_flag=5
+              RETURN
+            END IF
             Npts=load_l(Nval, Cval, Ngrids, Aout(idHsno,:))
           ELSE IF (TRIM(KeyWord).eq.'Aout(idTice)') THEN
+            IF (idTice.eq.0) THEN
+              IF (Master) WRITE (out,280) 'idTice'
+              exit_flag=5
+              RETURN
+            END IF
             Npts=load_l(Nval, Cval, Ngrids, Aout(idTice,:))
           ELSE IF (TRIM(KeyWord).eq.'Aout(idTimid)') THEN
+            IF (idTimid.eq.0) THEN
+              IF (Master) WRITE (out,280) 'idTimid'
+              exit_flag=5
+              RETURN
+            END IF
             Npts=load_l(Nval, Cval, Ngrids, Aout(idTimid,:))
           ELSE IF (TRIM(KeyWord).eq.'Aout(idTauiw)') THEN
+            IF (idTauiw.eq.0) THEN
+              IF (Master) WRITE (out,280) 'idTauiw'
+              exit_flag=5
+              RETURN
+            END IF
             Npts=load_l(Nval, Cval, Ngrids, Aout(idTauiw,:))
           ELSE IF (TRIM(KeyWord).eq.'Aout(idChuiw)') THEN
+            IF (idChuiw.eq.0) THEN
+              IF (Master) WRITE (out,280) 'idChuiw'
+              exit_flag=5
+              RETURN
+            END IF
             Npts=load_l(Nval, Cval, Ngrids, Aout(idChuiw,:))
           ELSE IF (TRIM(KeyWord).eq.'Aout(idSfwat)') THEN
+            IF (idSfwat.eq.0) THEN
+              IF (Master) WRITE (out,280) 'idSfwat'
+              exit_flag=5
+              RETURN
+            END IF
             Npts=load_l(Nval, Cval, Ngrids, Aout(idSfwat,:))
           ELSE IF (TRIM(KeyWord).eq.'Aout(idAgeice)') THEN
+            IF (idAgeice.eq.0) THEN
+              IF (Master) WRITE (out,280) 'idAgeice'
+              exit_flag=5
+              RETURN
+            END IF
             Npts=load_l(Nval, Cval, Ngrids, Aout(idAgeice,:))
           ELSE IF (TRIM(KeyWord).eq.'Aout(idIomflx)') THEN
+            IF (idIomflx.eq.0) THEN
+              IF (Master) WRITE (out,280) 'idIomflx'
+              exit_flag=5
+              RETURN
+            END IF
             Npts=load_l(Nval, Cval, Ngrids, Aout(idIomflx,:))
           ELSE IF (TRIM(KeyWord).eq.'Aout(idSig11)') THEN
+            IF (idSig11.eq.0) THEN
+              IF (Master) WRITE (out,280) 'idSig11'
+              exit_flag=5
+              RETURN
+            END IF
             Npts=load_l(Nval, Cval, Ngrids, Aout(idSig11,:))
           ELSE IF (TRIM(KeyWord).eq.'Aout(idSig12)') THEN
+            IF (idSig12.eq.0) THEN
+              IF (Master) WRITE (out,280) 'idSig12'
+              exit_flag=5
+              RETURN
+            END IF
             Npts=load_l(Nval, Cval, Ngrids, Aout(idSig12,:))
           ELSE IF (TRIM(KeyWord).eq.'Aout(idSig22)') THEN
+            IF (idSig22.eq.0) THEN
+              IF (Master) WRITE (out,280) 'idSig22'
+              exit_flag=5
+              RETURN
+            END IF
             Npts=load_l(Nval, Cval, Ngrids, Aout(idSig22,:))
           ELSE IF (TRIM(KeyWord).eq.'Aout(idT0mk)') THEN
+            IF (idT0mk.eq.0) THEN
+              IF (Master) WRITE (out,280) 'idT0mk'
+              exit_flag=5
+              RETURN
+            END IF
             Npts=load_l(Nval, Cval, Ngrids, Aout(idT0mk,:))
           ELSE IF (TRIM(KeyWord).eq.'Aout(idS0mk)') THEN
+            IF (idS0mk.eq.0) THEN
+              IF (Master) WRITE (out,280) 'idS0mk'
+              exit_flag=5
+              RETURN
+            END IF
             Npts=load_l(Nval, Cval, Ngrids, Aout(idS0mk,:))
-#endif
+#  endif
+# endif
 # if defined SOLVE3D && defined T_PASSIVE
           ELSE IF (TRIM(KeyWord).eq.'Aout(inert)') THEN
             Npts=load_l(Nval, Cval, NPT*Ngrids, Linert)
@@ -7496,37 +7585,71 @@
      &                    TRIM(fname)
 #    endif
 #   endif
-#   if defined CORRELATION || defined SENSITIVITY_4DVAR || \
-       defined TL_W4DPSAS  || defined TL_W4DVAR         || \
-       defined W4DPSAS     || defined W4DVAR
+#   if defined SENSITIVITY_4DVAR || defined TL_W4DPSAS  || \
+       defined TL_W4DVAR         || defined W4DPSAS     || \
+       defined W4DVAR
           fname=NRMname(2,ng)
           WRITE (out,160) '              Model Norm File:  ',           &
      &                    TRIM(fname)
           IF (.not.LdefNRM(2,ng)) THEN
             IF (.not.find_file(ng, fname)) GO TO 30
           END IF
+#   elif defined CORRELATION
+          fname=NRMname(2,ng)
+          WRITE (out,160) '              Model Norm File:  ',           &
+     &                    TRIM(fname)
+          IF (.not.LdefNRM(2,ng).and.LwrtNRM(2,ng)) THEN
+            IF (.not.find_file(ng, fname)) GO TO 30
+          END IF
 #   endif
+#   if defined CORRELATION
+          fname=NRMname(1,ng)
+          WRITE (out,160) ' Initial Conditions Norm File:  ',           &
+     &                    TRIM(fname)
+          IF (.not.LdefNRM(1,ng).and.LwrtNRM(1,ng)) THEN
+            IF (.not.find_file(ng, fname)) GO TO 30
+          END IF
+#   else
           fname=NRMname(1,ng)
           WRITE (out,160) ' Initial Conditions Norm File:  ',           &
      &                    TRIM(fname)
           IF (.not.LdefNRM(1,ng)) THEN
             IF (.not.find_file(ng, fname)) GO TO 30
           END IF
+#   endif
 #   ifdef ADJUST_BOUNDARY
+#    ifdef CORRELATION
+          fname=NRMname(3,ng)
+          WRITE (out,160) 'Boundary Conditions Norm File:  ',           &
+     &                    TRIM(fname)
+          IF (.not.LdefNRM(3,ng).and.LwrtNRM(3,ng)) THEN
+            IF (.not.find_file(ng, fname)) GO TO 30
+          END IF
+#    else
           fname=NRMname(3,ng)
           WRITE (out,160) 'Boundary Conditions Norm File:  ',           &
      &                    TRIM(fname)
           IF (.not.LdefNRM(3,ng)) THEN
             IF (.not.find_file(ng, fname)) GO TO 30
           END IF
+#    endif
 #   endif
 #   if defined ADJUST_WSTRESS || defined ADJUST_STFLUX
+#    ifdef CORRELATION
+          fname=NRMname(4,ng)
+          WRITE (out,160) '    Surface Forcing Norm File:  ',           &
+     &                    TRIM(fname)
+          IF (.not.LdefNRM(4,ng).and.LwrtNRM(4,ng)) THEN
+            IF (.not.find_file(ng, fname)) GO TO 30
+          END IF
+#    else
           fname=NRMname(4,ng)
           WRITE (out,160) '    Surface Forcing Norm File:  ',           &
      &                    TRIM(fname)
           IF (.not.LdefNRM(4,ng)) THEN
             IF (.not.find_file(ng, fname)) GO TO 30
           END IF
+#    endif
 #   endif
 #   if !(defined CORRELATION || defined CONVOLUTION || \
          defined OPT_OBSERVATIONS)
