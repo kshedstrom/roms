@@ -602,16 +602,16 @@
 !
 !  Hardcode the names of the filter restart files.
 !
-        filname(1,ng)=TRIM(ADJUSTL('ocean_fil2d.nc'))
-        filname(2,ng)=TRIM(ADJUSTL('ocean_filu.nc'))
-        filname(3,ng)=TRIM(ADJUSTL('ocean_filv.nc'))
-        filname(4,ng)=TRIM(ADJUSTL('ocean_filakt.nc'))
-        filname(5,ng)=TRIM(ADJUSTL('ocean_filaks.nc'))
-        filname(6,ng)=TRIM(ADJUSTL('ocean_filakv.nc'))
-        filname(7,ng)=TRIM(ADJUSTL('ocean_filr.nc'))
-        filname(8,ng)=TRIM(ADJUSTL('ocean_filt.nc'))
-        filname(9,ng)=TRIM(ADJUSTL('ocean_filw.nc'))
-        filname(10,ng)=TRIM(ADJUSTL('ocean_filice.nc'))
+        FILname(1,ng)=TRIM(ADJUSTL('ocean_fil2d.nc'))
+        FILname(2,ng)=TRIM(ADJUSTL('ocean_filu.nc'))
+        FILname(3,ng)=TRIM(ADJUSTL('ocean_filv.nc'))
+        FILname(4,ng)=TRIM(ADJUSTL('ocean_filakt.nc'))
+        FILname(5,ng)=TRIM(ADJUSTL('ocean_filaks.nc'))
+        FILname(6,ng)=TRIM(ADJUSTL('ocean_filakv.nc'))
+        FILname(7,ng)=TRIM(ADJUSTL('ocean_filr.nc'))
+        FILname(8,ng)=TRIM(ADJUSTL('ocean_filt.nc'))
+        FILname(9,ng)=TRIM(ADJUSTL('ocean_filw.nc'))
+        FILname(10,ng)=TRIM(ADJUSTL('ocean_filice.nc'))
 # endif
 #endif
 !
