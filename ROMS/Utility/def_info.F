@@ -463,6 +463,24 @@
         END IF
 #endif
 
+#ifdef NEMURO_SAN
+        IF (exit_flag.eq.NoError) THEN
+          IF (ndefFISH(ng).gt.0) THEN
+            lstr=LEN_TRIM(FISHbase(ng))-3
+            status=nf90_put_att(ncid, nf90_global, 'fish_base',         &
+     &                          FISHbase(ng)(1:lstr))
+          ELSE
+            status=nf90_put_att(ncid, nf90_global, 'fish_file',         &
+     &                          TRIM(FISHname(ng)))
+          END IF
+          IF (status.ne.nf90_noerr) THEN
+            IF (Master) WRITE (stdout,20) 'fish_file', TRIM(ncname)
+            exit_flag=3
+            ioerror=status
+          END IF
+        END IF
+#endif
+
 #ifndef ANA_GRID
         IF (exit_flag.eq.NoError) THEN
           status=nf90_put_att(ncid, nf90_global, 'grd_file',            &

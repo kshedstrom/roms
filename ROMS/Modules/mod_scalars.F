@@ -766,6 +766,7 @@
         logical, dimension(Ngrids) :: LwrtAVG    ! Write average file
         logical, dimension(Ngrids) :: LwrtAVG2   ! Write average file
         logical, dimension(Ngrids) :: LwrtDIA    ! Write diagnostic file
+        logical, dimension(Ngrids) :: LwrtFISH   ! Write fish file
         logical, dimension(Ngrids) :: LwrtHIS    ! Write history file
         logical, dimension(Ngrids) :: LwrtPER    ! Write during ensemble
         logical, dimension(Ngrids) :: LwrtRST    ! Write restart file
@@ -803,6 +804,7 @@
         integer, dimension(Ngrids) :: ndefAVG    ! Average file
         integer, dimension(Ngrids) :: ndefAVG2   ! Average file
         integer, dimension(Ngrids) :: ndefDIA    ! Diagnostics file
+        integer, dimension(Ngrids) :: ndefFISH   ! Fish file
         integer, dimension(Ngrids) :: ndefHIS    ! History file
         integer, dimension(Ngrids) :: ndefTLM    ! Tangent linear file
 !
@@ -2171,6 +2173,7 @@
         LwrtAVG(ng)=.FALSE.
         LwrtAVG2(ng)=.FALSE.
         LwrtDIA(ng)=.FALSE.
+        LwrtFISH(ng)=.FALSE.
         LwrtHIS(ng)=.FALSE.
         LwrtPER(ng)=.FALSE.
         LwrtRST(ng)=.FALSE.

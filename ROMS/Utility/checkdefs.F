@@ -1478,6 +1478,12 @@
       Coptions(is:is+8)=' NEMURO,'
       ibiology=ibiology+1
 #endif
+#ifdef NEMURO_SAN
+      IF (Master) WRITE (stdout,20) 'NEMURO_SAN',                       &
+     &   'Nemuro with sardine and anchovy fish model.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+12)=' NEMURO_SAN,'
+#endif
 #ifdef NEMURO_SED1
       IF (Master) WRITE (stdout,20) 'NEMURO_SED1',                      &
      &   'Nemuro with sediment remineralization type 1.'
@@ -1949,6 +1955,12 @@
      &   'Standard density Jacobian formulation (Song, 1998).'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+10)=' PRSGRD31,'
+#endif
+#if defined PREDATOR
+      IF (Master) WRITE (stdout,20) 'PREDATOR',                        &
+     &   'Predators on the fish.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+10)=' PREDATOR,'
 #endif
 #ifdef PROFILE
       IF (Master) WRITE (stdout,20) 'PROFILE',                          &

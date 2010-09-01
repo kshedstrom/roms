@@ -552,6 +552,7 @@
         integer  :: idefAVG(Ngrids)     ! averages file creation flag
         integer  :: idefAVG2(Ngrids)    ! averages file creation flag
         integer  :: idefDIA(Ngrids)     ! diagnostics file creation flag
+        integer  :: idefFISh(Ngrids)    ! fish file creation flag
         integer  :: idefHIS(Ngrids)     ! history file creation flag
         integer  :: idefTLM(Ngrids)     ! tangent file creation flag
 !

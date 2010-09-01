@@ -487,21 +487,75 @@
 !
       IF (Nfish(ng).gt.0.and.(nFSH(ng).gt.0)) THEN
 !
-!  Create output fish NetCDF file or prepare existing file to
-!  append new data to it.
+!  Create output fish NetCDF file or prepare existing file
+!  to append new data to it. Also, notice that it is possible to
+!  create several files during a single model run.
 !
         IF (LdefFISH(ng)) THEN
-          IF (fishrrec(ng).eq.0) THEN
-            NewFile=.TRUE.
-          ELSE
-            NewFile=.FALSE.
-          END IF
-          CALL def_fish (ng, NewFile)
-# ifdef FLEET
-          CALL def_ships (ng, NewFile)
+          IF (ndefFISH(ng).gt.0) THEN
+            IF (idefFISH(ng).lt.0) THEN
+              idefFISH(ng)=((ntstart(ng)-1)/ndefFISH(ng))*ndefFISH(ng)
+              IF ((ndefFISH(ng).eq.nFSH(ng)).and.(idefFISH(ng).le.0)) THEN
+                idefFISH(ng)=ndefFISH(ng)         ! one file per record
+              ELSE IF (idefFISH(ng).lt.iic(ng)-1) THEN
+                idefFISH(ng)=idefFISH(ng)+ndefFISH(ng)
+              END IF
+            END IF
+            IF ((nrrec(ng).ne.0).and.(iic(ng).eq.ntstart(ng))) THEN
+              IF ((iic(ng)-1).eq.idefFISH(ng)) THEN
+                Ldefine=.FALSE.                 ! finished file, delay
+              ELSE                              ! creation of next file
+                NewFile=.FALSE.
+                Ldefine=.TRUE.                  ! unfinished file, inquire
+              END IF                            ! content for appending
+              idefFISH(ng)=idefFISH(ng)+nFSH(ng)  ! restart offset
+            ELSE IF ((iic(ng)-1).eq.idefFISH(ng)) THEN
+              idefFISH(ng)=idefFISH(ng)+ndefFISH(ng)
+              IF (nFSH(ng).ne.ndefFISH(ng).and.iic(ng).eq.ntstart(ng)) THEN
+                idefFISH(ng)=idefFISH(ng)+nFSH(ng)
+              END IF
+              Ldefine=.TRUE.
+              Newfile=.TRUE.
+            ELSE
+              Ldefine=.FALSE.
+            END IF
+            IF (Ldefine) THEN
+              NrecFISH(ng)=0
+              IF (ndefFISH(ng).eq.nFSH(ng)) THEN
+                ifile=(iic(ng)-1)/ndefFISH(ng)
+              ELSE
+                ifile=(iic(ng)-1)/ndefFISH(ng)+1
+              END IF
+              IF (Master) THEN
+                lstr=LEN_TRIM(FISHbase(ng))
+                WRITE (FISHname(ng),60) FISHbase(ng)(1:lstr-3),ifile
+#if defined NEP5 || defined CASPIAN
+  60            FORMAT (a,'_',i5.5,'.nc')
+#else
+  60            FORMAT (a,'_',i4.4,'.nc')
+#endif
+              END IF
+# ifdef DISTRIBUTE
+              CALL mp_bcasts (ng, iNLM, FISHname(ng))
 # endif
-          IF (exit_flag.ne.NoError) RETURN
-          LdefFISH(ng)=.FALSE.
+              IF (ncFISHid(ng).ne.-1) THEN
+                CALL netcdf_close (ng, iNLM, ncFISHid(ng))
+              END IF
+              CALL def_fish (ng, Newfile)
+              IF (exit_flag.ne.NoError) RETURN
+              LwrtFISH(ng)=.TRUE.
+            END IF
+          ELSE
+            IF (iic(ng).eq.ntstart(ng)) THEN
+              CALL def_fish (ng, ldefout(ng))
+# ifdef FLEET
+              CALL def_ships (ng, NewFile)
+# endif
+              IF (exit_flag.ne.NoError) RETURN
+              LwrtFISh(ng)=.TRUE.
+              LdefFISh(ng)=.FALSE.
+            END IF
+          END IF
         END IF
 !
 !  Write out data into fish NetCDF file.

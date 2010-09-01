@@ -101,6 +101,7 @@
         NSTA == 48
         NFLT == 48
         NFSH == 120
+    NDEFFISH == 8760
         NPRD == 120
         NSHP == 48
        NINFO == 1
@@ -474,6 +475,7 @@ Hout(idBott) == T T T T T T T T T F F F F F F F
      FLTNAME == flt.nc
      FISHNAME == fish.nc
      PREDNAME == pred.nc
+     SHIPNAME == ships.nc
 
 ! Input ASCII parameter filenames.
 
@@ -482,6 +484,7 @@ Hout(idBott) == T T T T T T T T T F F F F F F F
      FPOSNAM =  floats.in
      FISHPOSNAM =  fish.in
      PREDPOSNAM =  pred.in
+     SHIPPOSNAM =  ships.in
      BPARNAM =  nemsan.in
      SPARNAM =  ROMS/External/sediment.in
      USRNAME =  ROMS/External/MyFile.dat

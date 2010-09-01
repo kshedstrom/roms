@@ -1345,6 +1345,8 @@
             Npts=load_i(Nval, Rval, Ngrids, nSTA)
           ELSE IF (TRIM(KeyWord).eq.'NFLT') THEN
             Npts=load_i(Nval, Rval, Ngrids, nFLT)
+          ELSE IF (TRIM(KeyWord).eq.'NDEFFISH') THEN
+            Npts=load_i(Nval, Rval, Ngrids, ndefFISH)
           ELSE IF (TRIM(KeyWord).eq.'NFSH') THEN
             Npts=load_i(Nval, Rval, Ngrids, nFSH)
           ELSE IF (TRIM(KeyWord).eq.'NPRD') THEN
@@ -3594,8 +3596,15 @@
           ELSE IF (TRIM(KeyWord).eq.'FISHNAME') THEN
             DO i=1,LEN(FISHname(Nval))
               FISHname(Nval)(i:i)=blank
+              FISHbase(Nval)(i:i)=blank
             END DO
             FISHname(Nval)=TRIM(ADJUSTL(Cval(Nval)))
+            FISHbase(Nval)=TRIM(ADJUSTL(FISHname(Nval)))
+          ELSE IF (TRIM(KeyWord).eq.'PREDNAME') THEN
+            DO i=1,LEN(PREDname(Nval))
+              PREDname(Nval)(i:i)=blank
+            END DO
+            PREDname(Nval)=TRIM(ADJUSTL(Cval(Nval)))
           ELSE IF (TRIM(KeyWord).eq.'SHIPNAME') THEN
             DO i=1,LEN(SHIPname(Nval))
               SHIPname(Nval)(i:i)=blank
@@ -4009,6 +4018,11 @@
           WRITE (out,130) nFSH(ng), 'nFSH',                             &
      &          'Number of timesteps between the writing of data',      &
      &          'into fish file.'
+          IF (ndefFISh(ng).gt.0) THEN
+            WRITE (out,130) ndefFISh(ng), 'ndefFISh',                   &
+     &            'Number of timesteps between creation of new',        &
+     &            'fish files.'
+          END IF
 # ifdef PREDATOR
           WRITE (out,130) nPRD(ng), 'nPRD',                             &
      &          'Number of timesteps between the writing of data',      &
@@ -4042,10 +4056,10 @@
           END IF
 #endif
 #ifdef AVERAGES2
-          WRITE (out,130) ntsAVG2(ng), 'ntsAVG2',                         &
+          WRITE (out,130) ntsAVG2(ng), 'ntsAVG2',                       &
      &          'Starting timestep for the accumulation of output',     &
      &          'secondary time-averaged data.'
-          WRITE (out,130) nAVG2(ng), 'nAVG2',                             &
+          WRITE (out,130) nAVG2(ng), 'nAVG2',                           &
      &          'Number of timesteps between the writing of',           &
      &          'secondary time-averaged data into averages file.'
           IF (ndefAVG2(ng).gt.0) THEN
@@ -5855,8 +5869,14 @@
      &                    TRIM(FLTname(ng))
 #endif
 #ifdef NEMURO_SAN
-          WRITE (out,230) '            Output Fish File:  ',            &
+          IF (ndefFISh(ng).eq.0) THEN
+            WRITE (out,230) '            Output Fish File:  ',          &
      &                    TRIM(FISHname(ng))
+          ELSE
+            Lstr=LEN_TRIM(FISHname(ng))
+            WRITE (out,230) '  Prefix for Fish Files:  ',               &
+     &                      FISHname(ng)(1:Lstr-3)
+          END IF
 # ifdef PREDATOR
           WRITE (out,230) '            Output Predator File:  ',        &
      &                    TRIM(PREDname(ng))

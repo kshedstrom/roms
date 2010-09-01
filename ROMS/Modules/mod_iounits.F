@@ -23,6 +23,7 @@
 !  ERRname     Output 4DVar posterior error file name.                 !
 !  FILname     Output filter file name.                                !
 !  FLTname     Output floats file name.                                !
+!  FISHbase    Output fish base file name.                             !
 !  FISHname    Output fish file name.                                  !
 !  PREDname    Output predator file name.                              !
 !  FRCids      NetCDF ID descriptors associated with FRCname.          ! 
@@ -130,6 +131,7 @@
         character (len=256), dimension(Ngrids) :: DIAname
         character (len=256), dimension(Ngrids) :: ERRname
         character (len=256), dimension(Ngrids) :: FLTname
+        character (len=256), dimension(Ngrids) :: FISHbase
         character (len=256), dimension(Ngrids) :: FISHname
         character (len=256), dimension(Ngrids) :: PREDname
 #ifdef FILTERED_RST
