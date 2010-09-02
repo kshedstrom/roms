@@ -5127,15 +5127,6 @@
   'r3dvar'
   1.0d0
 
- 'Fishgirl'
-  'fish is female'
-  'nondimensional'
-  'fishgirl, scalar, series'
-  'bio_time'
-  'idFgrl'
-  'r3dvar'
-  1.0d0
-
 ! Predator variables
 
  'Pwwt'
