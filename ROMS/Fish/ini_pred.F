@@ -222,7 +222,7 @@
         IF (status.gt.0) THEN
           IF (TRIM(KeyWord).eq.'Lpred') THEN 
             Npts=load_l(Nval, Cval, Ngrids, Lpred)
-          ELSE IF (TRIM(KeyWord).eq.'PREDSRREC') THEN
+          ELSE IF (TRIM(KeyWord).eq.'PREDRREC') THEN
             Npts=load_i(Nval, Rval, Ngrids, predrrec)
           ELSE IF (TRIM(KeyWord).eq.'Npredspecies') THEN
             Npts=load_i(Nval, Rval, Ngrids, Npredspecies)

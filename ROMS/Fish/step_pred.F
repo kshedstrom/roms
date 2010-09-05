@@ -712,21 +712,6 @@
           alive(l)=.FALSE.
         END IF
       END DO
-!  Collect the eatfish status.
-      Fwrk=Fspv
-      DO l=1,Npred(ng)
-        IF (bounded(l)) THEN
-          Fwrk(l)=1.0_r8
-        END IF
-      END DO
-      CALL mp_collect (ng, iNLM, Npred(ng), Fspv, Fwrk)
-      DO l=1,Npred(ng)
-        IF (Fwrk(l).ne.Fspv) THEN
-          eatfish(l)=.TRUE.
-        ELSE
-          eatfish(l)=.FALSE.
-        END IF
-      END DO
 #endif
 !
 !  Collect the bounded status switch.

@@ -55,7 +55,7 @@
 
 ! Pred initial wet weight [g], {5000.0d0}.
 
-       Pwwt0 == 5000.0d0
+       Pwwt0 == 1000.0d0
 
 ! Pred initial worth [pred], {1.0d0}.
 

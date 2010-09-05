@@ -97,16 +97,6 @@
      &                      varid = fishVid(idFalv,ng))
       IF (exit_flag.ne.NoError) RETURN
 !
-!  Write out fish eat fish logic.
-!
-      CALL netcdf_put_lvar (ng, iNLM, FISHname(ng),                     &
-     &                      TRIM(Vname(1,idFeatf)),                     &
-     &                      FISHES(ng) % eatfish,                       &
-     &                      (/1/), (/Nfish(ng)/),                       &
-     &                      ncid = ncFISHid(ng),                        &
-     &                      varid = fishVid(idFeatf,ng))
-      IF (exit_flag.ne.NoError) RETURN
-!
 !  Write out fish gender.
 !
       CALL netcdf_put_lvar (ng, iNLM, FISHname(ng),                     &

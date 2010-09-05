@@ -48,7 +48,6 @@
           integer, pointer  :: lifestage(:)
           integer, pointer  :: swimtype(:)
           logical, pointer  :: alive(:)
-          logical, pointer  :: eatfish(:)
           logical, pointer  :: fishgirl(:)
           type(fishnode), pointer :: fishnodes(:)
           real(r8), pointer :: egg_dur(:)
@@ -69,6 +68,7 @@
           integer, pointer  :: num_free(:)
           integer, pointer  :: next_free(:)
           integer, pointer  :: num_super(:)
+          integer, pointer  :: cellid(:)
 
 ! "Pointers" into big Nfish dimension:
           integer, pointer :: age_base(:)
@@ -134,8 +134,6 @@
 
       allocate ( FISHES(ng) % alive(Nfish(ng)) )
 
-      allocate ( FISHES(ng) % eatfish(Nfish(ng)) )
-
       allocate ( FISHES(ng) % fishgirl(Nfish(ng)) )
 
       allocate ( FISHES(ng) % fishnodes(Nfish(ng)) )
@@ -169,6 +167,8 @@
       allocate ( FISHES(ng) % fmortF(Nfish(ng)) )
 
       allocate ( FISHES(ng) % fmortP(Nfish(ng)) )
+
+      allocate ( FISHES(ng) % cellid(Nfish(ng)) )
 
       allocate ( FISHES(ng) % num_free(Nspecies(ng)) )
 
@@ -212,13 +212,13 @@
         FISHES(ng) % lifestage(iflt) = if_none
         FISHES(ng) % swimtype(iflt) = 0
         FISHES(ng) % alive(iflt) = .FALSE.
-        FISHES(ng) % eatfish(iflt) = .FALSE.
         FISHES(ng) % fishgirl(iflt) = .FALSE.
         FISHES(ng) % fishnodes(iflt) % fish = iflt
         FISHES(ng) % fmortN(iflt) = IniVal
         FISHES(ng) % fmortS(iflt) = IniVal
         FISHES(ng) % fmortF(iflt) = IniVal
         FISHES(ng) % fmortP(iflt) = IniVal
+        FISHES(ng) % cellid(iflt) = 0
       END DO
 
       RETURN

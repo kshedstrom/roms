@@ -256,16 +256,6 @@
      &                 nf90_int, 1, (/fishdim/), Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 !
-!  Define fish eatfish
-!
-        Vinfo( 1)='Eatfish'
-        Vinfo( 2)='Fish eater'
-        Vinfo( 9)='Fish eat fish'
-        Vinfo(10)='Fish do not eat fish'
-        status=def_var(ng, iNLM, ncFISHid(ng), fishVid(idFeatf,ng),     &
-     &                 nf90_int, 1, (/fishdim/), Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
-!
 !  Define fish gender
 !
         Vinfo( 1)='Fishgirl'
@@ -1408,13 +1398,6 @@
         CALL netcdf_get_lvar (ng, iNLM, ncname,                         &
      &                        TRIM(Vname(1,idFalv)),                    &
      &                        FISHES(ng)%alive,                         &
-     &                        ncid = ncFISHid(ng),                      &
-     &                        start = (/1,tFISHindx(ng)/),              &
-     &                        total = (/Nfish(ng),1/))
-
-        CALL netcdf_get_lvar (ng, iNLM, ncname,                         &
-     &                        TRIM(Vname(1,idFeatf)),                   &
-     &                        FISHES(ng)%eatfish,                       &
      &                        ncid = ncFISHid(ng),                      &
      &                        start = (/1,tFISHindx(ng)/),              &
      &                        total = (/Nfish(ng),1/))

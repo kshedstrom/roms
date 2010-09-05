@@ -87,6 +87,15 @@
 !  pred_list    Linked list of predators in the box for each box.      !
 !  pred_count   Number of predators in each box.                       !
 # endif
+# if defined FLEET
+!  cpue         Catch per unit effort in each box for 10 days.         !
+!  avgcpue      10-day average CPUE in each box.                       !
+!  percpue      "Perceived" average CPUE (replacement of zero values). !
+!  yearcpue     Daily CPUE in each box during year for climatology.    !
+!  climcpue     CPUE climatology in each box based on ndays average.   !
+!  nearport     Nearest port from given i,j location.                  !
+!  distport     Distance to nearest port in km from i,j location.      !
+# endif
 # if defined EGGS_BISECTION
 !  egg_count    Number of eggs in each box for each species.           !
 # endif
@@ -186,6 +195,15 @@
 #  ifdef PREDATOR
           type(prednode), pointer :: pred_list(:,:)
           integer, pointer :: pred_count(:,:)
+#  endif
+#  ifdef FLEET
+          integer, pointer :: nearport(:,:)
+          real(r8), pointer :: cpue(:,:,:)
+          real(r8), pointer :: avgcpue(:,:)
+          real(r8), pointer :: percpue(:,:)
+          real(r8), pointer :: yearcpue(:,:,:)
+          real(r8), pointer :: climcpue(:,:,:)
+          real(r8), pointer :: distport(:,:)
 #  endif
 #  ifdef EGGS_BISECTION
           real(r8), pointer :: egg_count(:,:,:)
@@ -507,6 +525,15 @@
 #  ifdef PREDATOR
       allocate ( OCEAN(ng) % pred_count(LBi:UBi,LBj:UBj) )
       allocate ( OCEAN(ng) % pred_list(LBi:UBi,LBj:UBj) )
+#  endif
+#  ifdef FLEET
+      allocate ( OCEAN(ng) % cpue(LBi:UBi,LBj:UBj,10) )
+      allocate ( OCEAN(ng) % avgcpue(LBi:UBi,LBj:UBj) )
+      allocate ( OCEAN(ng) % percpue(LBi:UBi,LBj:UBj) )
+      allocate ( OCEAN(ng) % yearcpue(LBi:UBi,LBj:UBj,366) )
+      allocate ( OCEAN(ng) % climcpue(LBi:UBi,LBj:UBj,366) )
+      allocate ( OCEAN(ng) % nearport(LBi:UBi,LBj:UBj) )
+      allocate ( OCEAN(ng) % distport(LBi:UBi,LBj:UBj) )
 #  endif
 #  ifdef EGGS_BISECTION
       allocate ( OCEAN(ng) % egg_count(LBi:UBi,LBj:UBj,Nspecies(ng)) )
@@ -1001,6 +1028,19 @@
 #  ifdef PREDATOR
             OCEAN(ng) % pred_count(i,j) = 0
             OCEAN(ng) % pred_list(i,j) % next => null()
+#  endif
+#  ifdef FLEET
+          DO itrc=1,10
+            OCEAN(ng) % cpue(i,j,itrc) = iniVal
+          END DO
+          OCEAN(ng) % avgcpue(i,j) = iniVal
+          OCEAN(ng) % percpue(i,j) = iniVal
+          DO itrc=1,366
+            OCEAN(ng) % yearcpue(i,j,itrc) = iniVal
+            OCEAN(ng) % climcpue(i,j,itrc) = iniVal
+          END DO
+          OCEAN(ng) % nearport(i,j) = 0
+          OCEAN(ng) % distport(i,j) = IniVal
 #  endif
           END DO
 # endif

@@ -217,7 +217,9 @@
               FISHES(ng)%lifestage(fid)=if_subadult
             ENDIF 
             FISHES(ng)%swimtype(fid)=Fbehave(isp,ng)
+            FISHES(ng)%species(fid)=idfish_inv(isp)
             FISHES(ng)%bounded(fid)=.TRUE.
+            FISHES(ng)%cellid(fid)=nint(xini)+(Lm(ng)+2)*nint(yini)
           END DO
         END DO
       END DO

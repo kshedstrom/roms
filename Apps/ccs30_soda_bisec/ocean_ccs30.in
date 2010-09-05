@@ -68,7 +68,7 @@
 ! indices (Istr,Iend) and (Jstr,Jend), [1:Ngrids].
 
       NtileI == 2                               ! I-direction partition
-      NtileJ == 4                               ! J-direction partition
+      NtileJ == 4                              ! J-direction partition
 
 ! Time-Stepping parameters.
 
@@ -474,6 +474,7 @@ Hout(idBott) == T T T T T T T T T F F F F F F F
      FLTNAME == flt.nc
      FISHNAME == fish.nc
      PREDNAME == pred.nc
+     FLEETNAME == fleet.nc
 
 ! Input ASCII parameter filenames.
 
@@ -482,6 +483,7 @@ Hout(idBott) == T T T T T T T T T F F F F F F F
      FPOSNAM =  floats.in
      FISHPOSNAM =  fish.in
      PREDPOSNAM =  pred.in
+     FLEETPOSNAM =  fleet.in
      BPARNAM =  nemsan.in
      SPARNAM =  ROMS/External/sediment.in
      USRNAME =  ROMS/External/MyFile.dat

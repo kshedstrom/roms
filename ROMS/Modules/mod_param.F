@@ -91,6 +91,12 @@
 !  Npredperspecies   Number of fish per year class per species
 !  Npred             Total number of predators
 # endif
+# ifdef FLEET
+!  max_boats     Maximum number of boats
+!  max_ports     Maximum number of ports
+!  Nboats        Total number of boats
+!  Nports        Total number of ports
+# endif
 #endif
 !                                                                      !
 !=======================================================================
@@ -555,6 +561,10 @@
         integer, dimension(Ngrids) :: Npredspecies
         integer, dimension(Ngrids) :: Npred
 # endif
+# ifdef FLEET
+        integer, dimension(Ngrids) :: Nboats
+        integer, dimension(Ngrids) :: Nports
+# endif
 
 !  Total number of fish variables to process and output.
 !
@@ -562,6 +572,9 @@
 
 # ifdef PREDATOR
         integer, dimension(Ngrids) :: NPredV
+# endif
+# ifdef FLEET
+        integer, dimension(Ngrids) :: NBoatV
 # endif
 
 #endif
@@ -852,6 +865,9 @@
           NFishV(ng)=22
 # ifdef PREDATOR
           NPredV(ng)=8
+# endif
+# ifdef FLEET
+          NBoatV(ng)=4
 # endif
 #endif
           NSV(ng)=NT(ng)+5

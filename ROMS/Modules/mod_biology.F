@@ -635,6 +635,18 @@
         real(r8), dimension(max_predspecies, Ngrids) :: a_Swim    !
         real(r8), dimension(max_predspecies, Ngrids) :: b_Swim    !
 #   endif
+#   ifdef FLEET
+        integer, dimension(max_ports, Ngrids) :: iPort            ! grid cell
+        integer, dimension(max_ports, Ngrids) :: jPort            ! grid cell
+        integer, dimension(Ngrids) :: EncMax                      ! nondimensional
+        real(r8), dimension(Ngrids) :: CatchMax                   ! kg
+        real(r8), dimension(Ngrids) :: TravCost                   ! $
+        real(r8), dimension(Ngrids) :: BoatVel                    ! km/h
+        real(r8), dimension(Ngrids) :: Qcatch                     ! nondimensional
+        real(r8), dimension(Ngrids) :: FishTime                   ! hour
+        real(r8), dimension(Ngrids) :: EncRate                    ! nondimensional
+        real(r8), dimension(max_ports, Ngrids) :: CatchPrice      ! $/kg
+#   endif
 #  endif
 # endif
 

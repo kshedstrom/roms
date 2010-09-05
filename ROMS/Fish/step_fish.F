@@ -59,9 +59,9 @@
      &                       FISHES(ng) % bioenergy,                    &
      &                       FISHES(ng) % species,                      &
      &                       FISHES(ng) % alive,                        &
-     &                       FISHES(ng) % eatfish,                      &
      &                       FISHES(ng) % lifestage,                    &
      &                       FISHES(ng) % swimtype,                     &
+     &                       FISHES(ng) % cellid,                       &
      &                       FISHES(ng) % egg_dur,                      &
      &                       FISHES(ng) % egg_num,                      &
      &                       FISHES(ng) % ysac_dur,                     &
@@ -92,8 +92,8 @@
      &                             nfm3, nfm2, nfm1, nf, nfp1,          &
      &                             bounded, Ftype, Tinfo, Fz0,          &
      &                             feedback, bioenergy, species,        &
-     &                             alive, eatfish,                      &
-     &                             lifestage, swimtype,                 &
+     &                             alive, lifestage,                    &
+     &                             swimtype, cellid,                    &
      &                             egg_dur, egg_num,                    &
      &                             ysac_dur, ysac_num,                  &
      &                             larv_dur, larv_num,                  &
@@ -142,9 +142,9 @@
       real(r8), intent(inout) :: bioenergy(:,:)
       integer, intent(inout)  :: species(:)
       logical, intent(inout)  :: alive(:)
-      logical, intent(inout)  :: eatfish(:)
       integer, intent(inout)  :: lifestage(:)
       integer, intent(inout)  :: swimtype(:)
+      integer, intent(inout)  :: cellid(:)
       real(r8), intent(inout) :: egg_dur(:)
       real(r8), intent(inout) :: egg_num(:)
       real(r8), intent(inout) :: ysac_dur(:)
@@ -173,9 +173,9 @@
       real(r8), intent(inout) :: bioenergy(NFishV(ng),Nfish(ng))
       integer, intent(inout)  :: species(Nfish(ng))
       logical, intent(inout)  :: alive(Nfish(ng))
-      logical, intent(inout)  :: eatfish(Nfish(ng))
       integer, intent(inout)  :: lifestage(Nfish(ng))
       integer, intent(inout)  :: swimtype(Nfish(ng))
+      integer, intent(inout)  :: cellid(Nfish(ng))
       real(r8), intent(inout) :: egg_dur(Nfish(ng))
       real(r8), intent(inout) :: egg_num(Nfish(ng))
       real(r8), intent(inout) :: ysac_dur(Nfish(ng))
@@ -297,6 +297,7 @@
           fmortP(l)=Fspv
           lifestage(l)=iFspv
           swimtype(l)=iFspv
+          cellid(l)=iFspv
           alive(l)=lFspv
         END IF
       END DO
@@ -727,6 +728,16 @@
      &                    OCEAN(ng) % fish_list,                        &
      &                    FISHES(ng) % fishnodes)
 !
+! JF: added a "cell-by-fish" for fishing fleet
+! (don't know how to dealwith fish_list on entire grid)
+      DO l=Lstr,Lend
+        IF (MyThread(l).and.bounded(l)) THEN
+          Ir=NINT(track(ixgrd,nf,l))
+          Jr=NINT(track(iygrd,nf,l))
+          cellid(l)=Ir+(Lm(ng)+2)*Jr
+        END IF
+      END DO
+!
 !-----------------------------------------------------------------------
 !  Determine fish status.
 !-----------------------------------------------------------------------
@@ -788,6 +799,7 @@
             fmortP(l)=Fspv
             lifestage(l)=iFspv
             swimtype(l)=iFspv
+            cellid(l)=iFspv
             alive(l)=lFspv
           END IF
         END DO
@@ -886,6 +898,7 @@
             fmortP(l)=Fspv
             lifestage(l)=iFspv
             swimtype(l)=iFspv
+            cellid(l)=iFspv
             alive(l)=lFspv
           END IF
         END DO
@@ -1184,8 +1197,8 @@
       CALL mp_collect (ng, iNLM, Nfish(ng), Fspv, fmortP)
       CALL mp_collecti (ng, iNLM, Nfish(ng), iFspv, lifestage)
       CALL mp_collecti (ng, iNLM, Nfish(ng), iFspv, swimtype)
+      CALL mp_collecti (ng, iNLM, Nfish(ng), iFspv, cellid)
       CALL mp_collectl (ng, iNLM, Nfish(ng), alive)
-      CALL mp_collectl (ng, iNLM, Nfish(ng), eatfish)
 !
 #ifdef FOO
 !  Collect the alive status.
@@ -1201,21 +1214,6 @@
           alive(l)=.TRUE.
         ELSE
           alive(l)=.FALSE.
-        END IF
-      END DO
-!  Collect the eatfish status.
-      Fwrk=Fspv
-      DO l=1,Nfish(ng)
-        IF (bounded(l)) THEN
-          Fwrk(l)=1.0_r8
-        END IF
-      END DO
-      CALL mp_collect (ng, iNLM, Nfish(ng), Fspv, Fwrk)
-      DO l=1,Nfish(ng)
-        IF (Fwrk(l).ne.Fspv) THEN
-          eatfish(l)=.TRUE.
-        ELSE
-          eatfish(l)=.FALSE.
         END IF
       END DO
 #endif

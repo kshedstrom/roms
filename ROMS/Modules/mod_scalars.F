@@ -459,6 +459,14 @@
         integer, parameter :: ip_albacore = 1
         integer, parameter :: max_predspecies = 1
 #  endif
+#  ifdef FLEET
+        integer, parameter :: ibiloc = 1         ! boat grid i location
+        integer, parameter :: ibjloc = 2         ! boat grid j location
+        integer, parameter :: ibport = 3         ! boat port
+        integer, parameter :: ibnloc = 4         ! boat port
+        integer, parameter :: max_boats = 100
+        integer, parameter :: max_ports = 3
+#  endif
 #  ifdef EGGS_BISECTION
         logical :: lr_split = .true.
 #  endif
@@ -653,6 +661,9 @@
         logical, dimension(Ngrids) :: Lships
 # ifdef PREDATOR
         logical, dimension(Ngrids) :: Lpred
+# endif
+# ifdef FLEET
+        logical, dimension(Ngrids) :: Lfleet
 # endif
 #endif
 #ifdef ICE_MODEL
@@ -1018,6 +1029,7 @@
         logical, dimension(Ngrids) :: LdefERR    ! 4DVar error file
         logical, dimension(Ngrids) :: LdefFLT    ! Floats file
         logical, dimension(Ngrids) :: LdefFISH   ! Fish file
+        logical, dimension(Ngrids) :: LdefFLEET  ! Pred file
         logical, dimension(Ngrids) :: LdefHIS    ! History file
         logical, dimension(Ngrids) :: LdefHSS    ! Hessian file
         logical, dimension(Ngrids) :: LdefINI    ! Initial file
@@ -1205,6 +1217,9 @@
         integer, dimension(Ngrids) :: shiprrec
 # ifdef PREDATOR
         integer, dimension(Ngrids) :: predrrec
+# endif
+# ifdef FLEET
+        integer, dimension(Ngrids) :: fleetrrec
 # endif
 #endif
 !
@@ -2647,6 +2662,9 @@
 # ifdef PREDATOR
         Lpred(ng)=.TRUE.
 # endif
+# ifdef FLEET
+        Lfleet(ng)=.TRUE.
+# endif
 #endif
 #ifdef ICE_MODEL
         Lice(ng)=.TRUE.
@@ -2778,6 +2796,9 @@
         LdefFISH(ng)=.TRUE.
 # ifdef PREDATOR
         LdefPRED(ng)=.TRUE.
+# endif
+# ifdef FLEET
+        LdefFLEET(ng)=.TRUE.
 # endif
 #endif
         LdefHIS(ng)=.TRUE.

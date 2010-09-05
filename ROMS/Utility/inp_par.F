@@ -2617,6 +2617,13 @@
             END DO
             predposnam=TRIM(ADJUSTL(Cval(Nval)))
 # endif
+# ifdef FLEET
+          ELSE IF (TRIM(KeyWord).eq.'FLEETPOSNAM') THEN
+            DO i=1,LEN(fleetposnam)
+              fleetposnam(i:i)=blank
+            END DO
+            fleetposnam=TRIM(ADJUSTL(Cval(Nval)))
+# endif
 #endif
           ELSE IF (TRIM(KeyWord).eq.'BPARNAM') THEN
             DO i=1,LEN(bparnam)

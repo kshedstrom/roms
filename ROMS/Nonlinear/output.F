@@ -475,7 +475,7 @@
           END IF
           CALL def_fish (ng, NewFile)
 #  ifdef FLEET
-          CALL def_ships (ng, NewFile)
+!          CALL def_ships (ng, NewFile)
 #  endif
           IF (exit_flag.ne.NoError) RETURN
           LdefFISH(ng)=.FALSE.
@@ -486,7 +486,7 @@
         IF ((MOD(iic(ng)-1,nFSH(ng)).eq.0).and.                      &
      &      ((fishrrec(ng).eq.0).or.(iic(ng).ne.ntstart(ng)))) THEN
           CALL wrt_fish (ng)
-          CALL wrt_ships (ng)
+!          CALL wrt_ships (ng)
           IF (exit_flag.ne.NoError) RETURN
         END IF
       END IF

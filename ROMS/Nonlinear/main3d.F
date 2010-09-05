@@ -139,7 +139,7 @@
       USE eggs_by_cell_mod, ONLY : eggs_by_cell
 #  endif
 #  ifdef FLEET
-      USE fishing_fleet_mod, ONLY : fishing_fleet
+      USE step_fleet_mod, ONLY : step_fleet
 #  endif
 # endif
       USE wvelocity_mod, ONLY : wvelocity
@@ -713,7 +713,7 @@
 #  endif
               CALL new_fish(ng)
 #  ifdef FLEET
-              CALL fishing_fleet (ng)
+              CALL step_fleet (ng, TILE)
 #  endif
               iyesterday(ng) = idays(ng)
 !  Once a year, we clean out the oldest fish

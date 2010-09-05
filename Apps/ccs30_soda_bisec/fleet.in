@@ -1,8 +1,8 @@
 !  Floats Input Parameters.
 !
-!svn $Id: floats_flt_test3d.in 588 2008-03-21 23:09:01Z kate $
+!svn $Id: floats_adria02.in 23 2007-03-29 16:11:29Z arango $
 !========================================================= Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                                !
+!  Copyright (c) 2002-2007 The ROMS/TOMS Group                                !
 !    Licensed under a MIT/X style license                                     !
 !    See License_ROMS.txt                                                     !
 !==============================================================================
@@ -11,7 +11,7 @@
 ! KEYWORD (usually, upper case) is typed correctly followed by "="  or "=="   !
 ! symbols. Any comment lines are allowed and must begin with an exclamation   !
 ! mark (!) in column one.  Comments may  appear to the right of a parameter   !
-! specification to improve documentation.  Comments will be ignored  during   !
+! specification to improve documentation.  All comments will ignored during   !
 ! reading.  Blank lines are also allowed and ignored. Continuation lines in   !
 ! a parameter specification are allowed and must be preceded by a backslash   !
 ! (\).  In some instances, more than one value is required for a parameter.   !
@@ -35,81 +35,67 @@
 !                                                                             !
 !==============================================================================
 !
-! Switch to control the computation of floats trajectories within nested
+! Switch to control the computation of fishing fleet within nested
 ! and/or multiple connected grids, [1:Ngrids].
 !
-     Lfloats == T
+     Lfleet == T
 
-! Flag indicating re-start from previous solution. If FRREC = 0, a new
+! Flag indicating re-start from previous solution. If FLEETRREC = 0, a new
 ! NetCDF output file is created.
 
-       FRREC == 0
+       FLEETRREC == 0
 
-! Number of floats to release in each nested grid.  These values are
-! essential because the FLOATS structure in "mod_floats" is dynamically
-! allocated using these values, [1:Ngrids].
+! Number of boats in fleet [-], {100}.
 
-     NFLOATS == 240
+       Nboats == 100
 
-! Initial floats locations for all grids:
+! Number of ports [-], {3}.
+
+       Nports == 3
+
+! Maximum daily catch [kg], {30000.0d0}.
+
+       CatchMax == 30000.0d0
+
+! Cost per hour of traveling [$], {30.0d0}.
+
+       TravCost == 30.0d0
+
+! Boat motoring speed [km/h], {30.0d0}.
+
+       BoatVel == 30.0d0
+
+! Catchability [-], {0.01d0}.
+
+       Qcatch == 0.01d0
+
+! Time to fish and process catch at a location, [hr], {2.0d0}.
+
+       FishTime == 2.0d0
+
+! Maximum numer of encounters with fish, [-], {20.0d0}.
+
+       EncMax == 20
+
+! Mean encounter rate (1.0 means boats see all fish in cell), [-], {0.9d0}.
+
+       EncRate == 0.9d0
+
+! Price for catch by port [$/kg], {0.5d0}.
+
+       CatchPrice == 0.5d0 0.5d0 0.5d0
+
+! Port grid i location. {San Pedro(CA), Monterey(CA), Newport(OR)}
+
+!       LonPort == -118.285d0 -121.890d0 -124.052d0
+       iPort == 35 30 39
+
+! Port grid j location. {San Pedro(CA), Monterey(CA), Newport(OR)}
+
+!       LatPort == 33.741d0 36.608d0 44.636d0
+       jPort == 48 62 91
+
 !
-!   G      Nested grid number
-!   C      Initial horizontal coordinate type (0: grid units, 1: spherical)
-!   T      Float trajectory type (0: neutral 3D Lagrangian, 2:isobaric)
-!   N      Number floats to be released at (Fx0,Fy0,Fz0)
-!   Ft0    Float release time (days) after model initialization
-!   Fx0    Initial float X-location (grid units or longitude)
-!   Fy0    Initial float Y-location (grid units or latitude)
-!   Fz0    Initial float Z-location (grid units or depth)
-!   Fdt    Float cluster release time interval (days)
-!   Fdx    Float cluster X-distribution parameter
-!   Fdy    Float cluster Y-distribution parameter
-!   Fdz    Float cluster Z-distribution parameter
-
-POS = G, C, T, N,   Ft0,    Fx0,    Fy0,    Fz0,    Fdt,    Fdx,    Fdy,   Fdz
-
-      1  1  0  40  0.5d0   180.d0   50.0d0  -2.0d0   0.d0    0.25d0   0.0d0  0.d0
-      1  1  0  40  0.5d0   180.d0   50.5d0  -2.0d0   0.d0    0.25d0   0.0d0  0.d0
-      1  1  0  40  0.5d0   180.d0   51.0d0  -2.0d0   0.d0    0.25d0   0.0d0  0.d0
-      1  1  0  40  0.5d0   180.d0   51.5d0  -2.0d0   0.d0    0.25d0   0.0d0  0.d0
-      1  1  0  40  0.5d0   180.d0   52.0d0  -2.0d0   0.d0    0.25d0   0.0d0  0.d0
-      1  1  0  40  0.5d0   180.d0   52.5d0  -2.0d0   0.d0    0.25d0   0.0d0  0.d0
-
-!
-! OK, so how many drifters?  My thought is that it would be nice to get
-! drifters deployed once per month at each location and every 10m from
-! the surface to 50m depth and then every 25m below this, and ideally
-! with one drifter say 1 m above the bottom. This would require about 90
-! drifters for the 16 sites at less than 100m and another 50 drifters on
-! the 4 sites out at the shelf break.  Is 140 a crazy number of drifters
-! to deploy once per month?  I could certainly trim the number down if
-! you think so. Also, perhaps it isnt necessary to deploy these in every
-! month of every year, we could be selective about years. 
-! 
-! Locations, station names (and measured/nominal depths) are here:
-! 
-! N55    -171.9748      61.96195       54.4
-! N40    -169.2787      61.80546667    40.3
-! N25    -167.451867    61.7001        25.6
-! C55    -170.088517    60.17228333    55.0
-! C55    -170.08945     60.17193333    54.9
-! C40    -169.0211      60.33673333    40.5
-! C25    -167.337617    60.68265       24.9
-! S55    -168.3941      58.58963333    55.3
-! S40    -167.982333    59.13625       42.0
-! S25    -167.7814      59.85146667    26.2
-! M2     -164.057       56.877         73
-! M4     -168.87        57.853         71
-! M6     -171.711       59.898         72
-! M8     -174.668       62.194         73
-! UP3    -164.744       54.301         83
-! YK1    -162.4         59.5           15
-! YK2    -166.5         61.3           15
-! SB1    -165.7         54.8          200
-! SB2    -168.2         56.2          200
-! SB3    -173.75        58.7          200
-! SB4    -178.7         61.3          200
-! 
 !  GLOSSARY:
 !  =========
 !
@@ -120,27 +106,27 @@ POS = G, C, T, N,   Ft0,    Fx0,    Fy0,    Fz0,    Fdt,    Fdx,    Fdy,   Fdz
 ! Control Switches.
 !------------------------------------------------------------------------------
 !
-! Lfloats   Switch to control the computation of floats trajectories within 
+! Lfloats   Switch to control the computation of floats tracjectories within 
 !             nested and/or multiple connected grids. Ngrids values are
 !             expected. By default this switch is set to TRUE in "mod_scalars"
-!             for all grids when the CPP option FLOATS is activated. The
+!             for all grids when the CPP option FLOATS is activacted. The
 !             USER can control which grid to process by turning on/off this
 !             switch.
 !
-! FRREC     Flag to indicate re-start from a previous solution.  Use
-!             FRREC=0 for new solutions. In a re-start solution, FRREC
-!             is the time index in the floats NetCDF file assigned for
-!             initialization.  If FRREC is negative (say FRREC=-1), the
-!             floats will re-start from the most recent time record.
+! FISHRREC  Flag to indicate re-start from a previous solution.  Use
+!             FISHRREC=0 for new solutions. In a re-start solution,
+!             FISHRREC is the time index in the floats NetCDF file assigned
+!             for initialization. If FISHRREC is negative (say NISHRREC=-1),
+!             the floats will re-start from the most recent time record.
 !             That is, the initialization record is assigned internally.
 !
 !------------------------------------------------------------------------------
 ! Number of floats.
 !------------------------------------------------------------------------------
 !
-!  NFLOATS   Number of floats to release in each nested grid.  Provide
-!              the exact number of floats.  These values are used to
-!              dynamically allocate the arrays in FLOATS array structure.
+!  NFISH     Number of fish to release in each nested grid.  Provide
+!              the exact number of fish.  These values are used to
+!              dynamically allocate the arrays in FISHES array structure.
 !
 !------------------------------------------------------------------------------
 ! Initial float location KEYWORDS.  The model variable name is not used as
@@ -164,22 +150,22 @@ POS = G, C, T, N,   Ft0,    Fx0,    Fy0,    Fz0,    Fdt,    Fdx,    Fdy,   Fdz
 !
 !              Ftype = 2,  isobaric (constant depth) floats.
 !
-!  N         Number of floats [Fcount] to be released at the (Fx0,Fy0,Fz0)
+!  N         Number of fish [Fcount] to be released at the (Fx0,Fy0,Fz0)
 !              location.  It must be equal or greater than one. If Fcount
 !              is greater than one, a cluster distribution of floats
 !              centered at (Fx0,Fy0,Fz0) is activated.
 !
-!              NOTE:  The total number of floats trajectories to compute
-!              ====   must add to NFLOATS. 
+!              NOTE:  The total number of fish trajectories to compute
+!              ====   must add to NFISH. 
 !
-!  Ft0       Time (days) of float release after model initialization (real).
+!  Ft0       Time (days) of fish release after model initialization .
 !
-!  Fx0       Initial float x-location (real; grid units or longitude).
+!  Fx0       Initial fish x-location (real; grid units or longitude).
 !
-!  Fy0       Initial float y-location (real; grid units or latitude).
+!  Fy0       Initial fish y-location (real; grid units or latitude).
 !
-!  Fz0       Initial float z-location (real; vertical level or depth).
-!              If Fz0 is less than or equal to zero, Fz0 is the initial
+!  Fz0       Initial fish z-location (real; vertical level or depth).
+!              If Fz0 is less or equal than zero, Fz0 is the initial
 !              depth in meters.  Otherwise, if Fz0 is positive and
 !
 !                             0 < Fz0 =< N(ng),
@@ -188,19 +174,19 @@ POS = G, C, T, N,   Ft0,    Fx0,    Fy0,    Fz0,    Fdt,    Fdx,    Fdy,   Fdz
 !              (0 = bottom; N = surface).
 !
 !              WARNING: If the depth in meters at particular horizontal
-!                       is not bounded, the floats are released at the
+!                       is not bounded, the fish are released at the
 !                       surface.
 !
 !  Fdt       Float cluster release time interval (real; days), only used
 !              if Fcount > 1:
 !
-!              Fdt = 0,  Fcount floats will be deployed simultaneously
+!              Fdt = 0,  Fcount fish will be deployed simulataneously
 !                        with a distribution centered at (Fx0,Fy0,Fz0)
 !                        and defined by (Fdx,Fdy,Fdz).
 !
-!              Fdt > 0,  a cluster of floats will be deployed from
+!              Fdt > 0,  a cluster of fish will be deployed from
 !                        (Fx0,Fy0,Fz0) at Fdt intervals until Fcount
-!                        floats are released.
+!                        fish are released.
 !
 !  Fdx       Cluster x-distribution parameter (real), only used if
 !              Fcount > 1 and Fdt = 0.
@@ -214,11 +200,11 @@ POS = G, C, T, N,   Ft0,    Fx0,    Fy0,    Fz0,    Fdt,    Fdx,    Fdy,   Fdz
 !            NOTE:  the parameters (Fdx,Fdy,Fdz) can be used to specify
 !            ====   any type of cluster distribution, for instance:
 !
-!                   * Lines of floats:
+!                   * Lines of fish:
 !
 !                         Fdx > 0,  Fdy = 0,  Fdz = 0
 !                         Fdx = 0,  Fdy > 0,  Fdz = 0
 !                         Fdx = 0,  Fdy = 0,  Fdz > 0
 !
 !             The USER can use any of these parameters to design any
-!             cluster distribution in routine "init_floats.F".
+!             cluster distribution in routine "init_fish.F".
