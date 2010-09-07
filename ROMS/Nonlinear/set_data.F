@@ -2,9 +2,9 @@
 #ifdef NONLINEAR
       SUBROUTINE set_data (ng, tile)
 !
-!svn $Id: set_data.F 1098 2009-11-18 17:54:22Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -44,6 +44,9 @@
 !
       USE mod_param
       USE mod_boundary
+# ifdef BEST_NPZ
+      USE mod_biology
+# endif
 # ifdef CLIMATOLOGY
       USE mod_clima
 # endif
@@ -60,7 +63,9 @@
 # if defined TS_PSOURCE || defined UV_PSOURCE || defined Q_PSOURCE
       USE mod_sources
 # endif
-!
+# if defined TRC_PSOURCE
+      USE mod_trc_sources
+# endif
 # ifdef ANALYTICAL
       USE analytical_mod
 # endif
@@ -74,9 +79,6 @@
 #   endif
 #  endif
 # endif
-#  if defined WET_DRY
-      USE distribute_mod, ONLY : mp_boundary
-#  endif
 # ifdef DISTRIBUTE
 #  if defined WET_DRY
       USE distribute_mod, ONLY : mp_boundary
@@ -864,6 +866,13 @@
       CALL ana_spinning (ng, tile, iNLM)
 # endif
 
+# if defined TRC_PSOURCE
+#  ifdef ANA_TRC_PSOURCE
+      CALL ana_trc_psource (ng, tile, iNLM)
+#  endif
+# endif
+
+
 # if defined UV_PSOURCE || defined TS_PSOURCE || defined Q_PSOURCE
 !
 !-----------------------------------------------------------------------
@@ -883,26 +892,27 @@
 #    ifdef SOLVE3D
         DO k=1,N(ng)
           DO i=1,Nsrc(ng)
+# ifdef CASPIAN_REDUCED_RIVER
+            SOURCES(ng)%Qsrc(i,k)=SOURCES(ng)%Qbar(i)*                  &
+     &                            SOURCES(ng)%Qshape(i,k)*              &
+     &                            0.93_r8
+
+# else
             SOURCES(ng)%Qsrc(i,k)=SOURCES(ng)%Qbar(i)*                  &
      &                            SOURCES(ng)%Qshape(i,k)
+# endif
           END DO
         END DO
 #    endif
 #   endif
 #   if defined TS_PSOURCE && defined SOLVE3D
         DO itrc=1,NT(ng)
-          IF (SOURCES(ng)%Ltracer(itrc)) THEN
+          IF (LtracerSrc(itrc,ng)) THEN
             CALL set_ngfld (ng, iNLM, idRtrc(itrc), 1, Nsrc(ng), N(ng), &
      &                      1, Nsrc(ng), N(ng),                         &
      &                      SOURCES(ng) % TsrcG(1,1,1,itrc),            &
      &                      SOURCES(ng) % Tsrc(1,1,itrc),               &
      &                      update)
-            IF (.not.update) THEN
-              DO i=1,Nsrc(ng)
-                SOURCES(ng) % Lsrc(i,itrc)=.FALSE.
-              END DO
-              exit_flag=0
-            END IF
           END IF
         END DO
 #   endif
@@ -1159,6 +1169,14 @@
      &                  update)
 #  endif
       END IF
+# endif
+
+# if defined ICE_BIO
+#  ifdef BERING_10K
+      CALL ana_IcePhLbc (ng, tile)
+      CALL ana_IceNO3bc (ng, tile)
+      CALL ana_IceNH4bc (ng, tile)
+#  endif
 # endif
 
 # ifdef ANA_HSNOBC
@@ -1650,9 +1668,13 @@
       CALL ana_tclima (ng, tile, iNLM)
 #  else
 ! in 3D want nudge only Fe not T and S
-#   if !defined BERING10k
+#   if !defined BERING_10K
 
+#    if defined SOGLOBEC
+      DO itrc=1,NT(ng)
+#    else
       DO itrc=1,NAT
+#    endif
         CALL set_3dfld_tile (ng, tile, iNLM, idTclm(itrc),              &
      &                       LBi, UBi, LBj, UBj, 1, N(ng),              &
      &                       CLIMA(ng)%tclmG(:,:,:,:,itrc),             &
@@ -1661,25 +1683,30 @@
       END DO
 #   endif
 
-#  if defined BEST_NPZ 
-#   ifdef ICE_BIO      
-           CALL set_3dfld_tile (ng, tile, iNLM, idTclm(iFe+1),             &
+#   ifdef AKT_3D /* use 3dAkt for 1D SEBS model  index was iFe+2 */
+! Set the Akt
+      CALL set_3dfld_tile (ng, tile, iNLM, idTclm(iAKt3),               &
      &                       LBi, UBi, LBj, UBj, 1, N(ng),              &
-     &                       CLIMA(ng)%tclmG(:,:,:,:,15),               &
-     &                       CLIMA(ng)%tclm(:,:,:,15),                 &
+     &                       CLIMA(ng)%tclmG(:,:,:,:,iAKt3),            &
+     &                       CLIMA(ng)%tclm(:,:,:,iAKt3),               &
      &                       update)
 
- 
-#     if defined CLIM_ICE_1D
-          DO j=Jstr,Jend
-            DO i=Istr,Iend
-              OCEAN(ng)%it(i,j,nnew(ng),iIceZ) =                        &
-     &                  CLIMA(ng)%tclm(i,j,N(ng),15)
-            ENDDO
-          ENDDO
-#     endif          
 #   endif
-
+#   if defined BEST_NPZ
+#    if defined ICE_BIO && defined CLIM_ICE_1D
+      CALL set_3dfld_tile (ng, tile, iNLM, idTclm(i1CI),                &
+     &                       LBi, UBi, LBj, UBj, 1, N(ng),              &
+     &                       CLIMA(ng)%tclmG(:,:,:,:,i1CI),             &
+     &                       CLIMA(ng)%tclm(:,:,:,i1CI),                &
+     &                       update)
+      DO j=Jstr,Jend
+        DO i=Istr,Iend
+          OCEAN(ng)%it(i,j,nnew(ng),iIceZ) =                            &
+     &                  CLIMA(ng)%tclm(i,j,N(ng),i1CI)
+        END DO
+      END DO
+#    endif
+#   endif
 
 #   if defined IRON_LIMIT
         CALL set_3dfld_tile (ng, tile, iNLM, idTclm(iFe),               &
@@ -1688,8 +1715,7 @@
      &                       CLIMA(ng)%tclm (:,:,:,iFe),                &
      &                       update)
 #   endif
-#  endif
- 
+
 #   if defined BIO_GOANPZ && defined IRON_LIMIT
         CALL set_3dfld_tile (ng, tile, iNLM, idTclm(iFe),               &
      &                       LBi, UBi, LBj, UBj, 1, N(ng),              &
@@ -1698,8 +1724,7 @@
      &                       update)
 #   endif
 
-
-#  endif
+#  endif  /* ! BERING_10K */
 #  if defined OFFLINE_FLOATS || defined OFFLINE_BIOLOGY
       DO itrc=1,NAT
         DO k=1,N(ng)
@@ -1819,30 +1844,6 @@
       END DO
 #   endif
 #  endif
-# endif
-
-# if defined NUDGING_SSH
-!
-!-----------------------------------------------------------------------
-!  Set sea surface height observations and error variance.
-!-----------------------------------------------------------------------
-!
-      IF (assi_SSH(ng)) THEN
-        CALL set_2dfld_tile (ng, tile, iNLM, idSSHo,                    &
-     &                       LBi, UBi, LBj, UBj,                        &
-     &                       OBS(ng)%SSHdat,                            &
-     &                       OBS(ng)%SSHobs,                            &
-     &                       update)
-        CALL set_2dfld_tile (ng, tile, iNLM, idSSHe,                    &
-     &                       LBi, UBi, LBj, UBj,                        &
-     &                       OBS(ng)%EdatSSH,                           &
-     &                       OBS(ng)%EobsSSH,                           &
-     &                       update)
-        IF (.not.update.and.SOUTH_WEST_TEST) THEN
-          update_SSH(ng)=.FALSE.
-          exit_flag=0
-        END IF
-      END IF
 # endif
 
 # ifdef SOLVE3D
@@ -2094,6 +2095,8 @@
      &                       OCEAN(ng)%zetaG,                           &
      &                       OCEAN(ng)%f_zeta,                          &
      &                       update)
+
+#  ifndef SOLVE3D
 !
 !  Set 2D momentum forcing.
 !
@@ -2107,7 +2110,7 @@
      &                       OCEAN(ng)%vbarG,                           &
      &                       OCEAN(ng)%f_vbar,                          &
      &                       update)
-
+#  endif
 #  ifdef SOLVE3D
 !
 !  Set 3D momentum.

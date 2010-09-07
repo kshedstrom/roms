@@ -1,9 +1,9 @@
 #include "cppdefs.h"
       SUBROUTINE def_rst (ng)
 !
-!svn $Id: def_rst.F 1023 2009-07-20 21:45:24Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -20,6 +20,9 @@
 !
       USE mod_param
       USE mod_parallel
+#ifdef BIOLOGY
+      USE mod_biology
+#endif
 #ifdef FOUR_DVAR
       USE mod_fourdvar
 #endif
@@ -48,7 +51,7 @@
       integer :: i, j, nvd3, nvd4, nvd5
       integer :: recdim, status, varid
 
-      integer :: DimIDs(31)
+      integer :: DimIDs(32)
       integer :: r2dgrd(4), ru2dgrd(4), rv2dgrd(4)
       integer :: sr2dgrd(3), su2dgrd(3), sv2dgrd(3)
       integer :: sr3dgrd(4), su3dgrd(4), sv3dgrd(4)
@@ -61,14 +64,13 @@
       integer :: itrc
 
       integer :: k3dgrd(5), t3dgrd(5)
-      integer :: r3dgrd(4), ru3dgrd(5), rv3dgrd(5) 
+      integer :: r3dgrd(4), ru3dgrd(5), rv3dgrd(5)
       integer :: u3dgrd(5), v3dgrd(5), w3dgrd(4)
 #endif
-
       real(r8) :: Aval(6)
 
-      character (len=80) :: Vinfo(Natt)
-      character (len=80) :: fname, ncname
+      character (len=120) :: Vinfo(Natt)
+      character (len=256) :: ncname
 !
       SourceFile='def_rst.F'
 !
@@ -186,6 +188,10 @@
         IF (exit_flag.ne.NoError) RETURN
 
 # ifdef SEDIMENT
+        status=def_dim(ng, iNLM, ncRSTid(ng), ncname, 'NST',            &
+     &                 NST, DimIDs(32))
+        IF (exit_flag.ne.NoError) RETURN
+
         status=def_dim(ng, iNLM, ncRSTid(ng), ncname, 'Nbed',           &
      &                 Nbed, DimIDs(16))
         IF (exit_flag.ne.NoError) RETURN
@@ -452,16 +458,27 @@
         k3dgrd(5)=DimIDs(12)
 #  endif
 # endif
+#endif
 !
 !  Define dimension vector for sediment, radiation stress variables.
 !
-# if !defined PERFECT_RESTART && \
-     (defined WRITE_WATER && defined MASKING)
+#if !defined PERFECT_RESTART && \
+    (defined WRITE_WATER && defined MASKING)
         su2dgrd(1)=DimIDs(18)
         su2dgrd(2)=DimIDs(12)
         sv2dgrd(1)=DimIDs(19)
         sv2dgrd(2)=DimIDs(12)
-
+#else
+        su2dgrd(1)=DimIDs( 2)
+        su2dgrd(2)=DimIDs( 6)
+        su2dgrd(3)=DimIDs(12)
+        sv2dgrd(1)=DimIDs( 3)
+        sv2dgrd(2)=DimIDs( 7)
+        sv2dgrd(3)=DimIDs(12)
+#endif
+#ifdef SOLVE3D
+# if !defined PERFECT_RESTART && \
+     (defined WRITE_WATER && defined MASKING)
         sr3dgrd(1)=DimIDs(24)
         sr3dgrd(2)=DimIDs(12)
         su3dgrd(1)=DimIDs(21)
@@ -469,13 +486,6 @@
         sv3dgrd(1)=DimIDs(22)
         sv3dgrd(2)=DimIDs(12)
 # else
-        su2dgrd(1)=DimIDs( 2)
-        su2dgrd(2)=DimIDs( 6)
-        su2dgrd(3)=DimIDs(12)
-        sv2dgrd(1)=DimIDs( 3)
-        sv2dgrd(2)=DimIDs( 7)
-        sv2dgrd(3)=DimIDs(12)
-
         sr3dgrd(1)=DimIDs( 1)
         sr3dgrd(2)=DimIDs( 5)
         sr3dgrd(3)=DimIDs(16)
@@ -640,17 +650,13 @@
 #endif
 #if defined SEDIMENT && defined SED_MORPH
 !
-!  Define time-varying bathymetry.
+!  Define  time-varying bathymetry
 !
         Vinfo( 1)=Vname(1,idbath)
         Vinfo( 2)=Vname(2,idbath)
         Vinfo( 3)=Vname(3,idbath)
         Vinfo(14)=Vname(4,idbath)
         Vinfo(16)=Vname(1,idtime)
-# if !defined PERFECT_RESTART && \
-     (defined WRITE_WATER && defined MASKING)
-        Vinfo(20)='mask_rho'
-# endif
         Vinfo(22)='coordinates'
         Aval(5)=REAL(Iinfo(1,idbath,ng),r8)
         status=def_var(ng, iNLM, ncRSTid(ng), rstVid(idbath,ng),        &
@@ -667,7 +673,7 @@
         Vinfo(14)=Vname(4,idFsur)
         Vinfo(16)=Vname(1,idtime)
 #if defined WRITE_WATER && defined MASKING
-# if defined PERFECT_RESTART
+# if !defined WET_DRY && defined PERFECT_RESTART
         Vinfo(24)='_FillValue'
         Aval(6)=spval
 # else
@@ -954,6 +960,112 @@
 # endif
           IF (exit_flag.ne.NoError) RETURN
         END DO
+
+#  if defined BENTHIC
+!------------------------------------------
+!  Define benthic tracer type variables.
+!------------------------------------------   
+        DO itrc=1,NBeT(ng)
+          rstBid(itrc,ng) = var_id(i)
+          IF (Hout(idBvar(itrc),ng)) THEN
+
+            Vinfo( 1)=Vname(1,idBvar(itrc))
+            Vinfo( 2)=Vname(2,idBvar(itrc))
+            Vinfo(3)=Vname(3,idBvar(itrc))
+            Vinfo(14)=Vname(4,idBvar(itrc))
+            Vinfo(16)=Vname(1,idtime)
+            Vinfo(22)='coordinates'
+            Aval(5)=REAL(r2dvar,r8)
+            status=def_var(ng,iNLM,ncRSTid(ng),rstBid(itrc,ng),NF_FOUT, &
+     &                     nvd3,t2dgrd,Aval,Vinfo,ncname)
+
+!Will need to switch this if have more than one depth level for benthos 
+!         status=def_var(ncHISid(ng),hisBid(itrc,ng),NF_FOUT, &
+!    &                     nvd4,t3dgrd,Aval,Vinfo,ncname)
+          END IF
+        END DO
+#  endif
+
+!------------------------------------------
+!  Define ice bio tracer type variables.
+!------------------------------------------  
+#  if defined ICE_BIO
+# ifdef CLIM_ICE_1D
+        DO itrc=1,NIceT(ng)
+          IF (Hout(idIceBvar(itrc),ng)) THEN
+
+            Vinfo( 1)=Vname(1,idIceBvar(itrc))
+            Vinfo( 2)=Vname(2,idIceBvar(itrc))
+            Vinfo(3)=Vname(3,idIceBvar(itrc))
+            Vinfo(14)=Vname(4,idIceBvar(itrc))
+            Vinfo(16)=Vname(1,idtime)
+            Vinfo(22)='coordinates'
+            Aval(5)=REAL(r2dvar,r8)  
+            status=def_var(ng,iNLM,ncRSTid(ng),rstIceBid(itrc,ng),      &
+     &                   NF_FOUT, nvd3,t2dgrd,Aval,Vinfo,ncname)
+          END IF
+        END DO
+           
+#elif defined BERING_10K
+
+        Vinfo( 1)=Vname(1,idIcePhL)
+        Vinfo( 2)=Vname(2,idIcePhL)
+        Vinfo( 3)=Vname(3,idIcePhL)
+        Vinfo(14)=Vname(4,idIcePhL)
+        Vinfo(16)=Vname(1,idtime)
+#if defined WRITE_WATER && defined MASKING
+        Vinfo(20)='mask_rho'
+#endif
+        Vinfo(22)='coordinates'
+        Aval(5)=REAL(Iinfo(1,idIcePhL,ng),r8)
+        status=def_var(ng, iNLM, ncRSTid(ng), rstVid(idIcePhL,ng),      &
+     &                 NF_FRST, nvd3, t2dgrd, Aval, Vinfo, ncname)
+        IF (exit_flag.ne.NoError) RETURN
+       
+        Vinfo( 1)=Vname(1,idIceNO3)
+        Vinfo( 2)=Vname(2,idIceNO3)
+        Vinfo( 3)=Vname(3,idIceNO3)
+        Vinfo(14)=Vname(4,idIceNO3)
+        Vinfo(16)=Vname(1,idtime)
+#if defined WRITE_WATER && defined MASKING
+        Vinfo(20)='mask_rho'
+#endif
+        Vinfo(22)='coordinates'
+        Aval(5)=REAL(Iinfo(1,idIceNO3,ng),r8)
+        status=def_var(ng, iNLM, ncRSTid(ng), rstVid(idIceNO3,ng),      &
+     &                 NF_FRST, nvd3, t2dgrd, Aval, Vinfo, ncname)
+        IF (exit_flag.ne.NoError) RETURN
+       
+        Vinfo( 1)=Vname(1,idIceNH4)
+        Vinfo( 2)=Vname(2,idIceNH4)
+        Vinfo( 3)=Vname(3,idIceNH4)
+        Vinfo(14)=Vname(4,idIceNH4)
+        Vinfo(16)=Vname(1,idtime)
+#if defined WRITE_WATER && defined MASKING
+        Vinfo(20)='mask_rho'
+#endif
+        Vinfo(22)='coordinates'
+        Aval(5)=REAL(Iinfo(1,idIceNH4,ng),r8)
+        status=def_var(ng, iNLM, ncRSTid(ng), rstVid(idIceNH4,ng),      &
+     &                 NF_FRST, nvd3, t2dgrd, Aval, Vinfo, ncname)
+        IF (exit_flag.ne.NoError) RETURN
+       
+        Vinfo( 1)=Vname(1,idIceLog)
+        Vinfo( 2)=Vname(2,idIceLog)
+        Vinfo( 3)=Vname(3,idIceLog)
+        Vinfo(14)=Vname(4,idIceLog)
+        Vinfo(16)=Vname(1,idtime)
+#if defined WRITE_WATER && defined MASKING
+        Vinfo(20)='mask_rho'
+#endif
+        Vinfo(22)='coordinates'
+        Aval(5)=REAL(Iinfo(1,idIceLog,ng),r8)
+        status=def_var(ng, iNLM, ncRSTid(ng), rstVid(idIceLog,ng),      &
+     &                 NF_FRST, nvd3, t2dgrd, Aval, Vinfo, ncname)
+        IF (exit_flag.ne.NoError) RETURN
+#  endif
+# endif     
+
 !
 !  Define density anomaly.
 !
@@ -975,6 +1087,51 @@
         status=def_var(ng, iNLM, ncRSTid(ng), rstVid(idDano,ng),        &
      &                 NF_FRST, nvd4, r3dgrd, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
+
+# ifdef NEMURO_SED1
+!
+!  Define PON in sediment.
+!
+        Vinfo( 1)=Vname(1,idPONsed)
+        Vinfo( 2)=Vname(2,idPONsed)
+        Vinfo( 3)=Vname(3,idPONsed)
+        Vinfo(14)=Vname(4,idPONsed)
+        Vinfo(16)=Vname(1,idtime)
+#  if defined WRITE_WATER && defined MASKING
+#   if defined PERFECT_RESTART
+        Vinfo(24)='_FillValue'
+        Aval(6)=spval
+#   else
+        Vinfo(20)='mask_rho'
+#   endif
+#  endif
+        Vinfo(22)='coordinates'
+        Aval(5)=REAL(Iinfo(1,idPONsed,ng),r8)
+        status=def_var(ng, iNLM, ncRSTid(ng), rstVid(idPONsed,ng),      &
+     &                 NF_FRST, nvd3, t2dgrd, Aval, Vinfo, ncname)
+        IF (exit_flag.ne.NoError) RETURN
+!
+!  Define OPAL in sediment.
+!
+        Vinfo( 1)=Vname(1,idOPALsed)
+        Vinfo( 2)=Vname(2,idOPALsed)
+        Vinfo( 3)=Vname(3,idOPALsed)
+        Vinfo(14)=Vname(4,idOPALsed)
+        Vinfo(16)=Vname(1,idtime)
+#  if defined WRITE_WATER && defined MASKING
+#   if defined PERFECT_RESTART
+        Vinfo(24)='_FillValue'
+        Aval(6)=spval
+#   else
+        Vinfo(20)='mask_rho'
+#   endif
+#  endif
+        Vinfo(22)='coordinates'
+        Aval(5)=REAL(Iinfo(1,idOPALsed,ng),r8)
+        status=def_var(ng, iNLM, ncRSTid(ng), rstVid(idOPALsed,ng),     &
+     &                 NF_FRST, nvd3, t2dgrd, Aval, Vinfo, ncname)
+        IF (exit_flag.ne.NoError) RETURN
+# endif
 
 # ifdef LMD_SKPP
 !
@@ -1033,18 +1190,11 @@
         Vinfo( 3)=Vname(3,idVvis)
         Vinfo(14)=Vname(4,idVvis)
         Vinfo(16)=Vname(1,idtime)
-#  if defined WRITE_WATER && defined MASKING
-#   if defined PERFECT_RESTART
-        Vinfo(24)='_FillValue'
-        Aval(6)=spval
-#   else
-        Vinfo(20)='mask_rho'
-#   endif
-#  endif
         Vinfo(22)='coordinates'
         Aval(5)=REAL(Iinfo(1,idVvis,ng),r8)
         status=def_var(ng, iNLM, ncRSTid(ng), rstVid(idVvis,ng),        &
-     &                 NF_FRST, nvd4, w3dgrd, Aval, Vinfo, ncname)
+     &                 NF_FRST, nvd4, w3dgrd, Aval, Vinfo, ncname,      &
+     &                 SetFillVal = .FALSE.)
         IF (exit_flag.ne.NoError) RETURN
 !
 !  Define vertical diffusion coefficient for potential temperature.
@@ -1054,18 +1204,12 @@
         Vinfo( 3)=Vname(3,idTdif)
         Vinfo(14)=Vname(4,idTdif)
         Vinfo(16)=Vname(1,idtime)
-#  if defined WRITE_WATER && defined MASKING
-#   if defined PERFECT_RESTART
-        Vinfo(24)='_FillValue'
-        Aval(6)=spval
-#   else
-        Vinfo(20)='mask_rho'
-#   endif
-#  endif
         Vinfo(22)='coordinates'
         Aval(5)=REAL(Iinfo(1,idTdif,ng),r8)
         status=def_var(ng, iNLM, ncRSTid(ng), rstVid(idTdif,ng),        &
-     &                 NF_FRST, nvd4, w3dgrd, Aval, Vinfo, ncname)
+     &                 NF_FRST, nvd4, w3dgrd, Aval, Vinfo, ncname,      &
+     &                 SetFillVal = .FALSE.)
+
         IF (exit_flag.ne.NoError) RETURN
 
 #  ifdef SALINITY
@@ -1077,18 +1221,11 @@
         Vinfo( 3)=Vname(3,idSdif)
         Vinfo(14)=Vname(4,idSdif)
         Vinfo(16)=Vname(1,idtime)
-#   if defined WRITE_WATER && defined MASKING
-#    if defined PERFECT_RESTART
-        Vinfo(24)='_FillValue'
-        Aval(6)=spval
-#    else
-        Vinfo(20)='mask_rho'
-#    endif
-#   endif
         Vinfo(22)='coordinates'
         Aval(5)=REAL(Iinfo(1,idSdif,ng),r8)
         status=def_var(ng, iNLM, ncRSTid(ng), rstVid(idSdif,ng),        &
-     &                 NF_FRST, nvd4, w3dgrd, Aval, Vinfo, ncname)
+     &                 NF_FRST, nvd4, w3dgrd, Aval, Vinfo, ncname,      &
+     &                 SetFillVal = .FALSE.)
         IF (exit_flag.ne.NoError) RETURN
 #  endif
 # endif
@@ -1102,18 +1239,12 @@
         Vinfo( 3)=Vname(3,idMtke)
         Vinfo(14)=Vname(4,idMtke)
         Vinfo(16)=Vname(1,idtime)
-#  if defined WRITE_WATER && defined MASKING
-#   if defined PERFECT_RESTART
-        Vinfo(24)='_FillValue'
-        Aval(6)=spval
-#   else
-        Vinfo(20)='mask_rho'
-#   endif
-#  endif
         Vinfo(22)='coordinates'
         Aval(5)=REAL(Iinfo(1,idMtke,ng),r8)
         status=def_var(ng, iNLM, ncRSTid(ng), rstVid(idMtke,ng),        &
-     &                 NF_FRST, nvd5, k3dgrd, Aval, Vinfo, ncname)
+     &                 NF_FRST, nvd5, k3dgrd, Aval, Vinfo, ncname,      &
+     &                 SetFillVal = .FALSE.)
+
         IF (exit_flag.ne.NoError) RETURN
 !
 !  Define turbulent kinetic energy time length scale.
@@ -1123,18 +1254,11 @@
         Vinfo( 3)=Vname(3,idMtls)
         Vinfo(14)=Vname(4,idMtls)
         Vinfo(16)=Vname(1,idtime)
-#  if defined WRITE_WATER && defined MASKING
-#   if defined PERFECT_RESTART
-        Vinfo(24)='_FillValue'
-        Aval(6)=spval
-#   else
-        Vinfo(20)='mask_rho'
-#   endif
-#  endif
         Vinfo(22)='coordinates'
         Aval(5)=REAL(Iinfo(1,idMtls,ng),r8)
         status=def_var(ng, iNLM, ncRSTid(ng), rstVid(idMtls,ng),        &
-     &                 NF_FRST, nvd5, k3dgrd, Aval, Vinfo, ncname)
+     &                 NF_FRST, nvd5, k3dgrd, Aval, Vinfo, ncname,      &
+     &                 SetFillVal = .FALSE.)
         IF (exit_flag.ne.NoError) RETURN
 !
 !  Define vertical mixing turbulent length scale.
@@ -1326,7 +1450,7 @@
 !
 !  define exposed sediment layer properties. Notice that only the
 !  first four properties (mean grain diameter, mean grain density,
-!  mean settling velocity, mean critical erosion stress, 
+!  mean settling velocity, mean critical erosion stress,
 !  ripple length and ripple height) are written.
 !
         DO i=1,6
@@ -2007,6 +2131,14 @@
             rstVid(idV3Sd,ng)=var_id(i)
 # endif
 #endif
+#if defined NEMURO_SED1
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idPONsed))) THEN
+            got_var(idPONsed)=.TRUE.
+            rstVid(idPONsed,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idOPALsed))) THEN
+            got_var(idOPALsed)=.TRUE.
+            rstVid(idOPALsed,ng)=var_id(i)
+#endif
           END IF
 #ifdef SOLVE3D
           DO itrc=1,NT(ng)
@@ -2015,6 +2147,14 @@
               rstTid(itrc,ng)=var_id(i)
             END IF
           END DO
+# ifdef BENTHIC
+          DO itrc=1,NBeT(ng)
+            IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idBvar(itrc)))) THEN
+              got_var(idBvar(itrc))=.TRUE.
+              rstBid(itrc,ng)=var_id(i)
+            END IF
+          END DO
+#endif
 # ifdef SEDIMENT
           DO itrc=1,NST
             IF (TRIM(var_name(i)).eq.                                   &
@@ -2072,6 +2212,20 @@
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idHsno))) THEN
             got_var(idHsno)=.TRUE.
             rstVid(idHsno,ng)=var_id(i)
+# if defined ICE_BIO && defined BERING_10K
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idIcePhL))) THEN
+            got_var(idIcePhL)=.TRUE.
+            rstVid(idIcePhL,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idIceNO3))) THEN
+            got_var(idIceNO3)=.TRUE.
+            rstVid(idIceNO3,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idIceNH4))) THEN
+            got_var(idIceNH4)=.TRUE.
+            rstVid(idIceNH4,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idIceLog))) THEN
+            got_var(idIceLog)=.TRUE.
+            rstVid(idIceLog,ng)=var_id(i)
+# endif
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idSfwat))) THEN
             got_var(idSfwat)=.TRUE.
             rstVid(idSfwat,ng)=var_id(i)
@@ -2132,12 +2286,6 @@
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idRhoa))) THEN
             got_var(idRhoa)=.TRUE.
             rstVid(idRhoa,ng)=var_id(i)
-          END IF
-#endif
-#if defined WET_DRY
-          IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idWmsk))) THEN
-            got_var(idWmsk)=.TRUE.
-            rstVid(idWmsk,ng)=var_id(i)
           END IF
 #endif
         END DO
@@ -2320,6 +2468,20 @@
         END IF
 # endif
 #endif
+#ifdef NEMURO_SED1
+        IF (.not.got_var(idPONsed)) THEN
+          IF (Master) WRITE (stdout,40) TRIM(Vname(1,idPONsed)),        &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idOPALsed)) THEN
+          IF (Master) WRITE (stdout,40) TRIM(Vname(1,idOPALsed)),       &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+#endif
 #ifdef SOLVE3D
         DO itrc=1,NT(ng)
           IF (.not.got_var(idTvar(itrc))) THEN
@@ -2415,6 +2577,32 @@
           exit_flag=3
           RETURN
         END IF
+# if defined ICE_BIO && defined BERING_10K
+        IF (.not.got_var(idIcePhL)) THEN
+          IF (Master) WRITE (stdout,40) TRIM(Vname(1,idIcePhL)),        &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idIceNO3)) THEN
+          IF (Master) WRITE (stdout,40) TRIM(Vname(1,idIceNO3)),        &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idIceNH4)) THEN
+          IF (Master) WRITE (stdout,40) TRIM(Vname(1,idIceNH4)),        &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idIceLog)) THEN
+          IF (Master) WRITE (stdout,40) TRIM(Vname(1,idIceLog)),        &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+# endif
         IF (.not.got_var(idSfwat)) THEN
           IF (Master) WRITE (stdout,40) TRIM(Vname(1,idSfwat)),         &
      &                                  TRIM(ncname)

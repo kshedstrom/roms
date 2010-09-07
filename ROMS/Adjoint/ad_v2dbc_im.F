@@ -2,9 +2,9 @@
       MODULE ad_v2dbc_mod
 #ifdef ADJOINT
 !
-!svn $Id: ad_v2dbc_im.F 993 2009-05-29 20:56:30Z arango $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -1351,7 +1351,7 @@
 !>
           adfac=-g*0.5_r8*(GRID(ng)%pn(i,Jstr-1)+                       &
      &                     GRID(ng)%pn(i,Jstr  ))*ad_bry_pgr
-          ad_zeta(i,Jstr-1,know)=ad_zeta(i,Jstr-1,know)-adfac         
+          ad_zeta(i,Jstr-1,know)=ad_zeta(i,Jstr-1,know)-adfac
           ad_zeta(i,Jstr  ,know)=ad_zeta(i,Jstr  ,know)+adfac
           ad_bry_pgr=0.0_r8
 #    endif

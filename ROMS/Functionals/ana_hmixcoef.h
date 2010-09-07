@@ -1,11 +1,11 @@
       SUBROUTINE ana_hmixcoef (ng, tile, model)
 !
-!! svn $Id: ana_hmixcoef.h 975 2009-05-05 22:51:13Z kate $
+!! svn $Id$
 !!================================================= Hernan G. Arango ===
-!! Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!! Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !!   Licensed under a MIT/X style license                              !
 !!   See License_ROMS.txt                                              !
-!!======================================================================
+!=======================================================================
 !                                                                      !
 !  This routine rescales horizontal mixing coefficients according      !
 !  to the grid size.  Also,  if applicable,  increases horizontal      !
@@ -179,7 +179,7 @@
 !
 !! WARNING:  This section is generic for all applications. Please do not
 !!           change the code below.
-!!            
+!!
 # ifdef UV_VIS2
       cff=visc2(ng)/grdmax(ng)
       DO j=JstrR,JendR
@@ -219,7 +219,7 @@
 !
 !! WARNING:  This section is generic for all applications. Please do not
 !!           change the code below.
-!!            
+!!
 # ifdef TS_DIF2
       DO itrc=1,NT(ng)
         cff=tnu2(itrc,ng)/grdmax(ng)
@@ -249,77 +249,8 @@
 !
 !! User modifiable section.  Please specify the appropiate sponge area
 !! by increasing its horizontal mixing coefficients.
-!!            
-# if defined CCS_SPONGE
-!
-!  W,S,N sponge areas for CCS
-!
-      fac=100.0_r8
-#  if defined UV_VIS2
-! Western boundary
-      DO j=JstrR,JendR
-        DO i=IstrR,MIN(10,IendR)
-          cff=visc2(ng)+REAL(10-i,r8)*                                  &
-     &        (fac*visc2(ng)-visc2(ng))/10.0_r8
-          visc2_r(i,j)=cff
-          visc2_p(i,j)=cff
-        END DO
-      END DO
-! Southern boundary
-      DO i=IstrR,IendR
-        DO j=JstrR,MIN(10,JendR)
-          cff=visc2(ng)+REAL(10-j,r8)*                                  &
-     &        (fac*visc2(ng)-visc2(ng))/10.0_r8
-          visc2_r(i,j)=visc2_r(i,j)+cff
-          visc2_p(i,j)=visc2_p(i,j)+cff
-        END DO
-      END DO
-! Northern boundary
-      DO i=IstrR,IendR
-        DO j=MAX(JstrR,Mm(ng)+1-10),JendR
-          cff=visc2(ng)+REAL(j-(Mm(ng)+1-10),r8)*                       &
-     &        (fac*visc2(ng)-visc2(ng))/10.0_r8
-          visc2_r(i,j)=visc2_r(i,j)+cff
-          visc2_p(i,j)=visc2_p(i,j)+cff
-        END DO
-      END DO
-#  endif
-#  if defined TS_DIF2
-! Western boundary
-      DO j=JstrR,JendR
-        DO i=IstrR,MIN(10,IendR)
-          cff1=tnu2(itemp,ng)+REAL(10-i,r8)*                            &
-     &         (fac*tnu2(itemp,ng)-tnu2(itemp,ng))/10.0_r8
-          cff2=tnu2(isalt,ng)+REAL(10-i,r8)*                            &
-     &         (fac*tnu2(isalt,ng)-tnu2(isalt,ng))/10.0_r8
-          diff2(i,j,itemp)=cff1
-          diff2(i,j,isalt)=cff2
-        END DO
-      END DO
-! Southern boundary
-      DO i=IstrR,IendR
-        DO j=JstrR,MIN(10,JendR)
-          cff1=tnu2(itemp,ng)+REAL(10-j,r8)*                            &
-     &         (fac*tnu2(itemp,ng)-tnu2(itemp,ng))/10.0_r8
-          cff2=tnu2(isalt,ng)+REAL(10-j,r8)*                            &
-     &         (fac*tnu2(isalt,ng)-tnu2(isalt,ng))/10.0_r8
-          diff2(i,j,itemp)=diff2(i,j,itemp)+cff1
-          diff2(i,j,isalt)=diff2(i,j,isalt)+cff2
-        END DO
-      END DO
-! Northern boundary
-      DO i=IstrR,IendR
-        DO j=MAX(JstrR,Mm(ng)+1-10),JendR
-          cff1=tnu2(itemp,ng)+REAL(j-(Mm(ng)+1-10),r8)*                 &
-     &         (fac*tnu2(itemp,ng)-tnu2(itemp,ng))/10.0_r8
-          cff2=tnu2(isalt,ng)+REAL(j-(Mm(ng)+1-10),r8)*                 &
-     &         (fac*tnu2(isalt,ng)-tnu2(isalt,ng))/10.0_r8
-          diff2(i,j,itemp)=diff2(i,j,itemp)+cff1
-          diff2(i,j,isalt)=diff2(i,j,isalt)+cff2
-        END DO
-      END DO
-#  endif
-# endif
+!!
+
 # if defined ADRIA02
 !
 !  Adriatic Sea southern sponge areas.
@@ -364,7 +295,7 @@
 !
 !! WARNING:  This section is generic for all applications. Please do not
 !!           change the code below.
-!!            
+!!
 # if defined EW_PERIODIC || defined NS_PERIODIC
 #  ifdef UV_VIS2
       CALL exchange_r2d_tile (ng, tile,                                 &

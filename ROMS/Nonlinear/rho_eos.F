@@ -2,9 +2,9 @@
       MODULE rho_eos_mod
 #ifdef SOLVE3D
 !
-!svn $Id: rho_eos.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -93,7 +93,7 @@
      &                   MIXING(ng) % alfaobeta,                        &
 #  endif
 # endif
-# if defined LMD_SKPP || defined LMD_BKPP
+# if defined LMD_SKPP || defined LMD_BKPP || defined DIAGNOSTICS
      &                   OCEAN(ng) % pden,                              &
 # endif
      &                   OCEAN(ng) % rho)
@@ -129,7 +129,7 @@
      &                         alfaobeta,                               &
 #   endif
 #  endif
-#  if defined LMD_SKPP || defined LMD_BKPP
+#  if defined LMD_SKPP || defined LMD_BKPP || defined DIAGNOSTICS
      &                         pden,                                    &
 #  endif
      &                         rho)
@@ -182,7 +182,7 @@
       real(r8), intent(out) :: alfaobeta(LBi:,LBj:,0:)
 #    endif
 #   endif
-#   if defined LMD_SKPP || defined LMD_BKPP
+#   if defined LMD_SKPP || defined LMD_BKPP || defined DIAGNOSTICS
       real(r8), intent(out) :: pden(LBi:,LBj:,:)
 #   endif
       real(r8), intent(out) :: rho(LBi:,LBj:,:)
@@ -211,7 +211,7 @@
       real(r8), intent(out) :: alfaobeta(LBi:UBi,LBj:UBj,0:N(ng))
 #    endif
 #   endif
-#   if defined LMD_SKPP || defined LMD_BKPP
+#   if defined LMD_SKPP || defined LMD_BKPP || defined DIAGNOSTICS
       real(r8), intent(out) :: pden(LBi:UBi,LBj:UBj,N(ng))
 #   endif
       real(r8), intent(out) :: rho(LBi:UBi,LBj:UBj,N(ng))
@@ -274,10 +274,12 @@
 !
 !  Check temperature and salinity lower values. Assign depth to the
 !  pressure.
-!  
+!
             Tt=MAX(-2.5_r8,t(i,j,k,nrhs,itemp))
+            Tt=MIN(40.0_r8,Tt)
 #  ifdef SALINITY
             Ts=MAX(0.0_r8,t(i,j,k,nrhs,isalt))
+            Ts=MIN(100.0_r8,Ts)
             sqrtTs=SQRT(Ts)
 #  else
             Ts=0.0_r8
@@ -299,7 +301,7 @@
      &                      Tt*5.0_r8*Q05)))
             dCdT(1)=U01+Tt*(2.0_r8*U02+Tt*(3.0_r8*U03+Tt*4.0_r8*U04))
             dCdT(2)=V01+Tt*2.0_r8*V02
-#  endif  
+#  endif
 !
             den1(i,k)=C(0)+Ts*(C(1)+sqrtTs*C(2)+Ts*W00)
 
@@ -492,7 +494,7 @@
         DO k=1,N(ng)
           DO i=IstrR,IendR
             rho(i,j,k)=den(i,k)
-#  if defined LMD_SKPP || defined LMD_BKPP
+#  if defined LMD_SKPP || defined LMD_BKPP || defined DIAGNOSTICS
             pden(i,j,k)=(den1(i,k)-1000.0_r8)
 #   ifdef MASKING
             pden(i,j,k)=pden(i,j,k)*rmask(i,j)
@@ -511,7 +513,7 @@
       CALL exchange_r3d_tile (ng, tile,                                 &
      &                        LBi, UBi, LBj, UBj, 1, N(ng),             &
      &                        rho)
-#    if defined LMD_SKPP || defined LMD_BKPP
+#    if defined LMD_SKPP || defined LMD_BKPP || defined DIAGNOSTICS
       CALL exchange_r3d_tile (ng, tile,                                 &
      &                        LBi, UBi, LBj, UBj, 1, N(ng),             &
      &                        pden)
@@ -530,7 +532,7 @@
       CALL exchange_r2d_tile (ng, tile,                                 &
      &                        LBi, UBi, LBj, UBj,                       &
      &                        beta)
-#    endif    
+#    endif
 #    ifdef VAR_RHO_2D
       CALL exchange_r2d_tile (ng, tile,                                 &
      &                        LBi, UBi, LBj, UBj,                       &
@@ -551,7 +553,7 @@
      &                    LBi, UBi, LBj, UBj, 1, N(ng),                 &
      &                    NghostPoints, EWperiodic, NSperiodic,         &
      &                    rho)
-#    if defined LMD_SKPP || defined LMD_BKPP
+#    if defined LMD_SKPP || defined LMD_BKPP || defined DIAGNOSTICS
       CALL mp_exchange3d (ng, tile, iNLM, 1,                            &
      &                    LBi, UBi, LBj, UBj, 1, N(ng),                 &
      &                    NghostPoints, EWperiodic, NSperiodic,         &
@@ -569,7 +571,7 @@
      &                    LBi, UBi, LBj, UBj,                           &
      &                    NghostPoints, EWperiodic, NSperiodic,         &
      &                    alpha, beta)
-#    endif    
+#    endif
 #    ifdef VAR_RHO_2D
       CALL mp_exchange2d (ng, tile, iNLM, 2,                            &
      &                    LBi, UBi, LBj, UBj,                           &
@@ -616,7 +618,7 @@
      &                         alfaobeta,                               &
 #   endif
 #  endif
-#  if defined LMD_SKPP || defined LMD_BKPP
+#  if defined LMD_SKPP || defined LMD_BKPP || defined DIAGNOSTICS
      &                         pden,                                    &
 #  endif
      &                         rho)
@@ -669,7 +671,7 @@
       real(r8), intent(out) :: alfaobeta(LBi:,LBj:,0:)
 #    endif
 #   endif
-#   if defined LMD_SKPP || defined LMD_BKPP
+#   if defined LMD_SKPP || defined LMD_BKPP || defined DIAGNOSTICS
       real(r8), intent(out) :: pden(LBi:,LBj:,:)
 #   endif
       real(r8), intent(out) :: rho(LBi:,LBj:,:)
@@ -698,7 +700,7 @@
       real(r8), intent(out) :: alfaobeta(LBi:UBi,LBj:UBj,0:N(ng))
 #    endif
 #   endif
-#   if defined LMD_SKPP || defined LMD_BKPP
+#   if defined LMD_SKPP || defined LMD_BKPP || defined DIAGNOSTICS
       real(r8), intent(out) :: pden(LBi:UBi,LBj:UBj,N(ng))
 #   endif
       real(r8), intent(out) :: rho(LBi:UBi,LBj:UBj,N(ng))
@@ -756,7 +758,7 @@
 #  ifdef MASKING
             rho(i,j,k)=rho(i,j,k)*rmask(i,j)
 #  endif
-#  if defined LMD_SKPP || defined LMD_BKPP
+#  if defined LMD_SKPP || defined LMD_BKPP || defined DIAGNOSTICS
             pden(i,j,k)=rho(i,j,k)
 #  endif
           END DO
@@ -848,7 +850,7 @@
       CALL exchange_r3d_tile (ng, tile,                                 &
      &                        LBi, UBi, LBj, UBj, 1, N(ng),             &
      &                        rho)
-#    if defined LMD_SKPP || defined LMD_BKPP
+#    if defined LMD_SKPP || defined LMD_BKPP || defined DIAGNOSTICS
       CALL exchange_r3d_tile (ng, tile,                                 &
      &                        LBi, UBi, LBj, UBj, 1, N(ng),             &
      &                        pden)
@@ -866,7 +868,7 @@
       CALL exchange_r2d_tile (ng, tile,                                 &
      &                        LBi, UBi, LBj, UBj,                       &
      &                        beta)
-#    endif    
+#    endif
 #    ifdef VAR_RHO_2D
       CALL exchange_r2d_tile (ng, tile,                                 &
      &                        LBi, UBi, LBj, UBj,                       &
@@ -887,7 +889,7 @@
      &                    LBi, UBi, LBj, UBj, 1, N(ng),                 &
      &                    NghostPoints, EWperiodic, NSperiodic,         &
      &                    rho)
-#    if defined LMD_SKPP || defined LMD_BKPP
+#    if defined LMD_SKPP || defined LMD_BKPP || defined DIAGNOSTICS
       CALL mp_exchange3d (ng, tile, iNLM, 1,                            &
      &                    LBi, UBi, LBj, UBj, 1, N(ng),                 &
      &                    NghostPoints, EWperiodic, NSperiodic,         &
@@ -905,7 +907,7 @@
      &                    LBi, UBi, LBj, UBj,                           &
      &                    NghostPoints, EWperiodic, NSperiodic,         &
      &                    alpha, beta)
-#    endif    
+#    endif
 #    ifdef VAR_RHO_2D
       CALL mp_exchange2d (ng, tile, iNLM, 2,                            &
      &                    LBi, UBi, LBj, UBj,                           &

@@ -1,7 +1,7 @@
 /*
-** svn $Id: riverplume1.h 975 2009-05-05 22:51:13Z kate $
+** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2009 The ROMS/TOMS Group                               **
+** Copyright (c) 2002-2010 The ROMS/TOMS Group                               **
 **   Licensed under a MIT/X style license                                    **
 **   See License_ROMS.txt                                                    **
 *******************************************************************************
@@ -28,9 +28,6 @@
 #define SOLVE3D
 #define SPLINES
 #define AVERAGES
-#define AVERAGES_AKV
-#define AVERAGES_AKT
-#define AVERAGES_AKS
 
 #define NS_PERIODIC
 #define WESTERN_WALL

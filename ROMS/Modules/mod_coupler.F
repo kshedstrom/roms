@@ -3,9 +3,9 @@
 
 #if defined MODEL_COUPLING || defined ESMF_LIB
 !
-!svn $Id: mod_coupler.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -38,7 +38,7 @@
       TYPE T_FIELD
         integer :: FieldID              ! field ID
         integer :: GridID               ! associated grid ID
-        integer :: MaskID               ! associated land/sea mask ID         
+        integer :: MaskID               ! associated land/sea mask ID
         integer :: GridType             ! grid type (RHO-, U-, V-points)
         real(r8) :: AddOffset           ! number added to data
         real(r8) :: scale               ! scaling factor
@@ -119,17 +119,17 @@
 !
 !  Standard input file name for each coupled model.
 !
-      character (len=80), allocatable :: INPname(:)
+      character (len=256), allocatable :: INPname(:)
 !
 !  Export/Import fields information file name.
 !
-      character (len=80) :: CPLname
+      character (len=256) :: CPLname
 !
 !  Number of parallel nodes assigned to each model in the coupled model.
 !  Their sum must be equal to the total number of processors.
 !
       integer, allocatable :: Nthreads(:)
-!      
+!
 !  Assigned Pertsistent Execution Threads (PETs) for each coupled
 !  model.
 !
@@ -177,7 +177,7 @@
 
 # if defined ESMF_COUPLING || defined ESMF_LIB
 !
-!  Gridded components objects handle.  
+!  Gridded components objects handle.
 !
       TYPE (ESMF_GridComp), allocatable :: GridComp(:)
 !
@@ -245,9 +245,9 @@
 
       real(r8) :: add_offset, scale
 
-      character (len=40) :: code
-      character (len=80) :: string
-      character (len=80), dimension(5) :: Vinfo
+      character (len=40 ) :: code
+      character (len=80 ) :: string
+      character (len=120), dimension(5) :: Vinfo
 !
 !-----------------------------------------------------------------------
 !  Read in coupling export/import variable information.
@@ -427,7 +427,7 @@
         STOP
       ELSE
         IF (MyRank.eq.0) THEN
-          WRITE (stdout,90) 
+          WRITE (stdout,90)
           DO model=1,Nmodels
             IF (model.eq.Iocean) THEN
               string='Ocean Model MPI nodes:'
@@ -463,7 +463,7 @@
 !  Allocate various coupling models arrays.
 !-----------------------------------------------------------------------
 !
-!  Gridded components objects handle.  
+!  Gridded components objects handle.
 !
       IF (.not.allocated(GridComp)) THEN
         allocate ( GridComp(Nmodels) )

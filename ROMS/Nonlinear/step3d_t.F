@@ -2,9 +2,9 @@
       MODULE step3d_t_mod
 #if !defined TS_FIXED && (defined NONLINEAR && defined SOLVE3D)
 !
-!svn $Id: step3d_t.F 1090 2009-10-27 23:59:27Z kate $
+!svn $Id$
 !=======================================================================
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                           Hernan G. Arango   !
 !========================================== Alexander F. Shchepetkin ===
@@ -29,7 +29,7 @@
 # ifdef CLIMATOLOGY
       USE mod_clima
 # endif
-# ifdef DIAGNOSTICS
+# ifdef DIAGNOSTICS_TS
       USE mod_diags
 # endif
       USE mod_grid
@@ -38,8 +38,11 @@
       USE mod_obs
 # endif
       USE mod_ocean
-# ifdef TS_PSOURCE
+# if defined TS_PSOURCE
       USE mod_sources
+# endif
+# if defined TRC_PSOURCE
+      USE mod_trc_sources
 # endif
       USE mod_stepping
 !
@@ -64,12 +67,18 @@
      &                    SOURCES(ng) % Jsrc,                           &
      &                    SOURCES(ng) % Tsrc,                           &
 # endif
-# ifdef TS_PSOURCE
-     &                    SOURCES(ng) % Lsrc,                           &
+# if defined TS_PSOURCE
      &                    SOURCES(ng) % Dsrc,                           &
 # endif
 # ifdef Q_PSOURCE
      &                    SOURCES(ng) % Qsrc,                           &
+# endif
+# if defined TRC_PSOURCE
+     &                    Msrcpt(ng), Nsrcpt(ng),                       &
+     &                    TRC_SOURCES(ng) % Isrcpt,                     &
+     &                    TRC_SOURCES(ng) % Jsrcpt,                     &
+     &                    TRC_SOURCES(ng) % Tsrcpt,                     &
+     &                    TRC_SOURCES(ng) % Lsrcpt,                     &
 # endif
 # ifdef MASKING
      &                    GRID(ng) % rmask,                             &
@@ -116,18 +125,17 @@
 # endif
      &                    OCEAN(ng) % t                                 &
 #if defined BEST_NPZ
-# ifdef BENTHIC     
+# ifdef BENTHIC
      &                    ,OCEAN(ng) % bt                               &
 # endif
 # ifdef ICE_BIO
-#  ifdef CLIM_ICE_1D
+     &                    ,OCEAN(ng) % itL                              &
      &                    ,OCEAN(ng) % it                               &
-#  endif 
-# endif    
+# endif
 # ifdef STATIONARY
       &                   ,OCEAN(ng) %st                                &
 # endif
-#endif     
+#endif
      &                               )
 # ifdef PROFILE
       CALL wclock_off (ng, iNLM, 35)
@@ -144,11 +152,15 @@
      &                          Msrc, Nsrc,                             &
      &                          Isrc, Jsrc, Tsrc,                       &
 # endif
-# ifdef TS_PSOURCE
-     &                          Lsrc, Dsrc,                             &
+# if defined TS_PSOURCE
+     &                          Dsrc,                                   &
 # endif
 # ifdef Q_PSOURCE
      &                          Qsrc,                                   &
+# endif
+# if defined TRC_PSOURCE
+     &                          Msrcpt, Nsrcpt,                         &
+     &                          Isrcpt, Jsrcpt, Tsrcpt, Lsrcpt,         &
 # endif
 # ifdef MASKING
      &                          rmask, umask, vmask,                    &
@@ -181,24 +193,28 @@
 # endif
      &                          t                                       &
 #if defined BEST_NPZ
-#  ifdef  BENTHIC     
+#  ifdef  BENTHIC
      &                          ,bt                                     &
-#  endif     
+#  endif
 #  ifdef ICE_BIO
-#   ifdef CLIM_ICE_1D
-     &                          ,it                                     &
-#   endif     
-#  endif        
+     &                          ,itL ,it                                &
+#  endif
 #  ifdef STATIONARY
                                 ,st                                     &
-#  endif  
-#endif   
+#  endif
+#endif
      &                           )
 !***********************************************************************
 !
       USE mod_param
       USE mod_ncparam
       USE mod_scalars
+# ifdef SOGLOBEC
+      USE mod_clima
+# endif
+# ifdef BEST_NPZ
+      USE mod_biology
+# endif
 !
 # if defined EW_PERIODIC || defined NS_PERIODIC
       USE exchange_3d_mod, ONLY : exchange_r3d_tile
@@ -213,6 +229,9 @@
       USE mpdata_adiff_mod
 # endif
       USE t3dbc_mod, ONLY : t3dbc_tile
+# ifdef T_PASSIVE
+      USE pt3dbc_mod, ONLY : pt3dbc_tile
+# endif
 !
 !  Imported variable declarations.
 !
@@ -223,22 +242,27 @@
 # if defined TS_PSOURCE || defined Q_PSOURCE
       integer, intent(in) :: Msrc, Nsrc
 # endif
+# if defined TRC_PSOURCE
+      integer, intent(in) :: Msrcpt, Nsrcpt
+# endif
 !
 # ifdef ASSUMED_SHAPE
-#  ifdef TS_PSOURCE
-      logical, intent(in) :: Lsrc(:,:)
-#  endif
 #  if defined TS_PSOURCE || defined Q_PSOURCE
       integer, intent(in) :: Isrc(:)
       integer, intent(in) :: Jsrc(:)
-
       real(r8), intent(in) :: Tsrc(:,:,:)
 #  endif
-#  ifdef TS_PSOURCE
+#  if defined TS_PSOURCE
       real(r8), intent(in) :: Dsrc(:)
 #  endif
 #  ifdef Q_PSOURCE
       real(r8), intent(in) :: Qsrc(:,:)
+#  endif
+#  if defined TRC_PSOURCE
+      logical, intent(in) :: Lsrcpt(:,:)
+      integer, intent(in) :: Isrcpt(:)
+      integer, intent(in) :: Jsrcpt(:)
+      real(r8), intent(in) :: Tsrcpt(:,:,:)
 #  endif
 #  ifdef MASKING
       real(r8), intent(in) :: rmask(LBi:,LBj:)
@@ -293,27 +317,24 @@
       real(r8), intent(out) :: dAktdz(LBi:,LBj:,:)
 #  endif
 
-#if defined BEST_NPZ
-# ifdef ICE_BIO    
-       real(r8), intent(inout) :: it(LBi:UBi,LBj:UBj,3,NIceT(ng))
-# endif    
-# ifdef STATIONARY
-     real(r8), intent(inout) :: st(LBi:UBi,LBj:UBj,N(ng),3,NTS(ng))
-# endif
-# ifdef BENTHIC 
-     real(r8), intent(inout) :: bt(LBi:UBi,LBj:UBj,NBL(ng),3,NBeT(ng))
-# endif 
-#endif
+#  if defined BEST_NPZ
+#   ifdef ICE_BIO
+       real(r8), intent(inout) :: itL(LBi:,LBj:,:,:)
+       real(r8), intent(inout) :: it(LBi:,LBj:,:,:)
+#   endif
+#   ifdef STATIONARY
+     real(r8), intent(inout) :: st(LBi:,LBj:,:,:,:)
+#   endif
+#   ifdef BENTHIC
+     real(r8), intent(inout) :: bt(LBi:,LBj:,:,:,:)
+#   endif
+#  endif
 
 # else
 
-#  ifdef TS_PSOURCE
-      logical, intent(in) :: Lsrc(Msrc,NT(ng))
-#  endif
 #  if defined TS_PSOURCE || defined Q_PSOURCE
       integer, intent(in) :: Isrc(Msrc)
       integer, intent(in) :: Jsrc(Msrc)
-
       real(r8), intent(in) :: Tsrc(Msrc,N(ng),NT(ng))
 #  endif
 #  ifdef TS_PSOURCE
@@ -321,6 +342,12 @@
 #  endif
 #  ifdef Q_PSOURCE
       real(r8), intent(in) :: Qsrc(Msrc,N(ng))
+#  endif
+#  if defined TRC_PSOURCE
+      logical, intent(in) :: Lsrcpt(Msrcpt,NT(ng))
+      integer, intent(in) :: Isrcpt(Msrcpt)
+      integer, intent(in) :: Jsrcpt(Msrcpt)
+      real(r8), intent(in) :: Tsrcpt(Msrcpt,N(ng),NT(ng))
 #  endif
 #  ifdef MASKING
       real(r8), intent(in) :: rmask(LBi:UBi,LBj:UBj)
@@ -343,14 +370,11 @@
       real(r8), intent(in) :: pn(LBi:UBi,LBj:UBj)
 #  if defined TCLM_NUDGING && defined TCLIMATOLOGY
       real(r8), intent(in) :: Tnudgcof(LBi:UBi,LBj:UBj,NT(ng))
-      
-     
-# if defined BEST_NPZ && defined ICE_BIO      
-      real(r8), intent(in) :: tclm(LBi:UBi,LBj:UBj,N(ng),15)
-# else      
-      real(r8), intent(in) :: tclm(LBi:UBi,LBj:UBj,N(ng),NT(ng)
-# endif       
-      
+# if defined  CLIM_ICE_1D && defined ICE_BIO
+      real(r8), intent(in) :: tclm(LBi:UBi,LBj:UBj,N(ng),iCI) !was iFe
+#   else
+      real(r8), intent(in) :: tclm(LBi:UBi,LBj:UBj,N(ng),NT(ng))
+#   endif
 #  endif
 
 #  if defined NUDGING_SST || defined NUDGING_T
@@ -367,28 +391,26 @@
       real(r8), intent(in) :: v(LBi:UBi,LBj:UBj,N(ng),2)
 #  endif
       real(r8), intent(in) :: W(LBi:UBi,LBj:UBj,0:N(ng))
-
 #  ifdef DIAGNOSTICS_TS
       real(r8), intent(inout) :: DiaTwrk(LBi:UBi,LBj:UBj,N(ng),NT(ng),  &
      &                                   NDT)
 #  endif
       real(r8), intent(inout) :: t(LBi:UBi,LBj:UBj,N(ng),3,NT(ng))
-#if defined BEST_NPZ
-#ifdef STATIONARY
-     real(r8), intent(inout) :: st(LBi:UBi,LBj:UBj,N(ng),3,NTS(ng))
-#endif
-
-#ifdef BENTHIC
-     real(r8), intent(inout) :: bt(LBi:UBi,LBj:UBj,NBL(ng),3,NBeT(ng))
-#endif
-# ifdef ICE_BIO    
-       real(r8), intent(inout) :: it(LBi:UBi,LBj:UBj,3,NIceT(ng))
-           
-# endif 
-#endif
-
 #  if defined FLOATS && defined FLOAT_VWALK
       real(r8), intent(out) :: dAktdz(LBi:UBi,LBj:UBj,N(ng))
+#  endif
+
+#  if defined BEST_NPZ
+#   ifdef ICE_BIO
+      real(r8), intent(inout) :: itL(LBi:UBi,LBj:UBj,3,1)
+      real(r8), intent(inout) :: it(LBi:UBi,LBj:UBj,3,NIceT(ng))
+#   endif
+#   ifdef STATIONARY
+      real(r8), intent(inout) :: st(LBi:UBi,LBj:UBj,N(ng),3,NTS(ng))
+#   endif
+#   ifdef BENTHIC
+      real(r8), intent(inout) :: bt(LBi:UBi,LBj:UBj,NBL(ng),3,NBeT(ng))
+#   endif
 #  endif
 # endif
 !
@@ -407,11 +429,12 @@
 #  endif
 # endif
       integer :: i, ibt, is, itrc, j, k, ltrc
+# ifdef DIAGNOSTICS_TS
       integer :: idiag
-
+# endif
       real(r8), parameter :: eps = 1.0E-16_r8
 
-      real(r8) :: cff, cff1, cff2, cff3
+      real(r8) :: cff, cff1, cff2, cff3, cff4
 
       real(r8), dimension(IminS:ImaxS,0:N(ng)) :: CF
       real(r8), dimension(IminS:ImaxS,0:N(ng)) :: BC
@@ -430,7 +453,14 @@
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS,N(ng)) :: Va
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS,0:N(ng)) :: Wa
 # endif
-
+      real(r8) :: my_maxbio(15)
+# if defined AGE_PASSIVE  || defined AGE_DISTRIBUTION
+      integer :: iactrc, iwctrc
+# endif
+# ifdef AGE_DISTRIBUTION
+      real(r8) :: fac
+# endif
+!
 # include "set_bounds.h"
 !
 !-----------------------------------------------------------------------
@@ -574,7 +604,7 @@
 #  else
 !  Fourth-order, centered differences horizontal advective fluxes.
 #  endif
-!  
+!
 #  ifdef EW_PERIODIC
 #   define I_RANGE Istr-1,Iend+2
 #  else
@@ -720,7 +750,7 @@
               IF (((Istr.le.i).and.(i.le.Iend+1)).and.                  &
      &            ((Jstr.le.j).and.(j.le.Jend))) THEN
 #  endif
-                IF (Lsrc(is,itrc)) THEN
+                IF (LtracerSrc(itrc,ng)) THEN
                   FX(i,j)=Huon(i,j,k)*Tsrc(is,k,itrc)
 #  ifdef MASKING
                 ELSE
@@ -742,7 +772,7 @@
               IF (((Istr.le.i).and.(i.le.Iend)).and.                    &
      &            ((Jstr.le.j).and.(j.le.Jend+1))) THEN
 #  endif
-                IF (Lsrc(is,itrc)) THEN
+                IF (LtracerSrc(itrc,ng)) THEN
                   FE(i,j)=Hvom(i,j,k)*Tsrc(is,k,itrc)
 #  ifdef MASKING
                 ELSE
@@ -780,19 +810,46 @@
           DO j=J_RANGE
             DO i=I_RANGE
               cff=dt(ng)*pm(i,j)*pn(i,j)
-              cff1=cff*(FX(i+1,j)-FX(i,j)+                              &
-     &                  FE(i,j+1)-FE(i,j))
+              cff1=cff*(FX(i+1,j)-FX(i,j))
+              cff2=cff*(FE(i,j+1)-FE(i,j))
+              cff3=cff1+cff2
 #  ifdef TS_MPDATA
-              cff2=Hz(i,j,k)+                                           &
+              cff4=Hz(i,j,k)+                                           &
      &             cff*(Huon(i+1,j,k)-Huon(i,j,k)+                      &
      &                  Hvom(i,j+1,k)-Hvom(i,j,k)+                      &
      &                  (W(i,j,k)-W(i,j,k-1)))                 ! Hz_old
-              Ta(i,j,k,itrc)=t(i,j,k,3,itrc)*cff2-cff1
+              Ta(i,j,k,itrc)=t(i,j,k,3,itrc)*cff4-cff3
 #  else
-              t(i,j,k,nnew,itrc)=t(i,j,k,nnew,itrc)-cff1
+              t(i,j,k,nnew,itrc)=t(i,j,k,nnew,itrc)-cff3
+#   if defined BERING_10K && defined BEST_NPZ
+!Constraining nutrients in inlets that are only 1 grid cell wide
+!Cook Inlet
+        IF (i.ge.171.and.i.le.179.and.j.ge.18.and.j.le.27) THEN
+          IF (itrc.eq.iFe) THEN
+            t(i,j,k,nnew,itrc)=min(2.0_r8,t(i,j,k,nnew,itrc))
+          ELSE IF (itrc.eq.iNH4) THEN
+            t(i,j,k,nnew,itrc)=min(5.0_r8,t(i,j,k,nnew,itrc))
+          ELSE IF (itrc.eq.iNO3) THEN
+            t(i,j,k,nnew,itrc)=min(15.0_r8,t(i,j,k,nnew,itrc))
+          END IF
+        END IF
+
+!Hagemeister Strait
+        IF (i.ge.121.and.i.le.124.and.j.ge.56.and.j.le.59) THEN
+          IF (itrc.eq.iFe) THEN
+            t(i,j,k,nnew,itrc)=min(2.0_r8,t(i,j,k,nnew,itrc))
+          ELSE IF (itrc.eq.iNH4) THEN
+            t(i,j,k,nnew,itrc)=min(5.0_r8,t(i,j,k,nnew,itrc))
+          ELSE IF (itrc.eq.iNO3) THEN
+            t(i,j,k,nnew,itrc)=min(15.0_r8,t(i,j,k,nnew,itrc))
+          END IF
+        END IF
+#   endif
 #  endif
 #  ifdef DIAGNOSTICS_TS
-              DiaTwrk(i,j,k,itrc,iThadv)=-cff1
+              DiaTwrk(i,j,k,itrc,iTxadv)=-cff1
+              DiaTwrk(i,j,k,itrc,iTyadv)=-cff2
+              DiaTwrk(i,j,k,itrc,iThadv)=-cff3
 #  endif
 #   if defined RUNOFF && defined BARENTS_0_2
               IF(itrc.eq.isalt) THEN
@@ -1016,18 +1073,10 @@
 #  endif
 #  ifdef DIAGNOSTICS_TS
               DiaTwrk(i,j,k,itrc,iTvadv)=-cff1
-              DiaTwrk(i,j,k,itrc,iThadv)=DiaTwrk(i,j,k,itrc,iThadv)*    &
-     &                                   oHz(i,j,k)
-              DiaTwrk(i,j,k,itrc,iTvadv)=DiaTwrk(i,j,k,itrc,iTvadv)*    &
-     &                                   oHz(i,j,k)
-#   if defined TS_DIF2 || defined TS_DIF4
-              DiaTwrk(i,j,k,itrc,iThdif)=DiaTwrk(i,j,k,itrc,iThdif)*    &
-     &                                   oHz(i,j,k)
-#   endif
-              DiaTwrk(i,j,k,itrc,iTvdif)=DiaTwrk(i,j,k,itrc,iTvdif)*    &
-     &                                   oHz(i,j,k)
-              DiaTwrk(i,j,k,itrc,iTrate)=DiaTwrk(i,j,k,itrc,iTrate)*    &
-     &                                   oHz(i,j,k)
+              DO idiag=1,NDT
+                DiaTwrk(i,j,k,itrc,idiag)=DiaTwrk(i,j,k,itrc,idiag)*    &
+     &                                    oHz(i,j,k)
+              END DO
 #  endif
 # endif
             END DO
@@ -1089,13 +1138,18 @@
 !
           DO j=Jstr,Jend
             DO i=Istr,Iend
-              cff1=dt(ng)*pm(i,j)*pn(i,j)*                              &
-     &             (FX(i+1,j)-FX(i,j)+                                  &
-     &              FE(i,j+1)-FE(i,j))
-              t(i,j,k,nnew,itrc)=Ta(i,j,k,itrc)*Hz(i,j,k)-cff1
+              cff=dt(ng)*pm(i,j)*pn(i,j)
+              cff1=cff*(FX(i+1,j)-FX(i,j))
+              cff2=cff*(FE(i,j+1)-FE(i,j))
+              cff3=cff1+cff2
+              t(i,j,k,nnew,itrc)=Ta(i,j,k,itrc)*Hz(i,j,k)-cff3
 #  ifdef DIAGNOSTICS_TS
-              DiaTwrk(i,j,k,itrc,iThadv)=DiaTwrk(i,j,k,itrc,iThadv)-    &
+              DiaTwrk(i,j,k,itrc,iTxadv)=DiaTwrk(i,j,k,itrc,iTxadv)-    &
      &                                   cff1
+              DiaTwrk(i,j,k,itrc,iTyadv)=DiaTwrk(i,j,k,itrc,iTyadv)-    &
+     &                                   cff2
+              DiaTwrk(i,j,k,itrc,iThadv)=DiaTwrk(i,j,k,itrc,iThadv)-    &
+     &                                   cff3
 #  endif
             END DO
           END DO
@@ -1132,18 +1186,10 @@
 #  ifdef DIAGNOSTICS_TS
               DiaTwrk(i,j,k,itrc,iTvadv)=DiaTwrk(i,j,k,itrc,iTvadv)-    &
      &                                   cff1
-              DiaTwrk(i,j,k,itrc,iThadv)=DiaTwrk(i,j,k,itrc,iThadv)*    &
-     &                                   oHz(i,j,k)
-              DiaTwrk(i,j,k,itrc,iTvadv)=DiaTwrk(i,j,k,itrc,iTvadv)*    &
-     &                                   oHz(i,j,k)
-#   if defined TS_DIF2 || defined TS_DIF4
-              DiaTwrk(i,j,k,itrc,iThdif)=DiaTwrk(i,j,k,itrc,iThdif)*    &
-     &                                   oHz(i,j,k)
-#   endif
-              DiaTwrk(i,j,k,itrc,iTvdif)=DiaTwrk(i,j,k,itrc,iTvdif)*    &
-     &                                   oHz(i,j,k)
-              DiaTwrk(i,j,k,itrc,iTrate)=DiaTwrk(i,j,k,itrc,iTrate)*    &
-     &                                   oHz(i,j,k)
+              DO idiag=1,NDT
+                DiaTwrk(i,j,k,itrc,idiag)=DiaTwrk(i,j,k,itrc,idiag)*    &
+     &                                    oHz(i,j,k)
+              END DO
 #  endif
             END DO
           END DO
@@ -1166,9 +1212,6 @@
         DO itrc=1,NT(ng)
 #endif
           ltrc=MIN(NAT,itrc)
-#ifdef LIMIT_BIO_AKT
-          IF (itrc == 2) ltrc = 1
-#endif
 
 # if defined SPLINES && !defined TS_MPDATA
 !
@@ -1225,18 +1268,17 @@
 
 #  ifdef JELLY
               IF (itrc.eq.iNCaS.or.itrc.eq.iNCaO.or.itrc.eq.iEupS.or.   &
-     &      itrc.eq.iEupO.or.itrc.eq.iJel ) THEN
-#  else       
-              IF (itrc.eq.iNCaS.or.itrc.eq.iNCaO.or. itrc.eq.iEupS.or. &
+     &            itrc.eq.iEupO.or.itrc.eq.iJel ) THEN
+#  else
+              IF (itrc.eq.iNCaS.or.itrc.eq.iNCaO.or. itrc.eq.iEupS.or.  &
      &        itrc.eq.iEupO) THEN
 #  endif
-
-              cff1=0.0_r8
-               END IF
+                cff1=0.0_r8
+              END IF
 ! -Remove effects of mixing on biology - usefull for model testing
 !g             IF ( itrc.gt.2)    THEN
 !g               cff1=0.0_r8
-!g            END IF
+!g             END IF
 #  endif
 
 
@@ -1331,13 +1373,20 @@
 #  endif
               DC(i,k)=DC(i,k)-CF(i,k)*DC(i,k+1)
 #  ifdef BEST_NPZ
-              IF (itrc.ne.iNCaS .and. itrc.ne.iNCaO .and. itrc.ne.iEupS &
-     &                 .and. itrc.ne.iEupO) THEN
-#  elif defined BIO_GOANPZ
+#   ifdef JELLY
+!g        IF (itrc.eq.iNCaS.or.itrc.eq.iNCaO.or.itrc.eq.iEupS.or. &
+!g     &   itrc.eq.iEupO.or.itrc.eq.iJel) THEN
+#   else
+!g         IF (itrc.eq.iNCaS.or.itrc.eq.iNCaO.or.itrc.eq.iEupS.or.  &
+!g     &        itrc.eq.iEupO) THEN
+#   endif
+#  endif
+
+#  if defined BIO_GOANPZ
               IF ( itrc.ne.iNCa .and. itrc.ne.iEup ) THEN
 #  endif
                 t(i,j,k,nnew,itrc)=DC(i,k)
-#  if defined BIO_GOANPZ || defined BEST_NPZ
+#  if defined BIO_GOANPZ
               END IF
 #  endif
 #  ifdef DIAGNOSTICS_TS
@@ -1349,7 +1398,89 @@
 # endif
         END DO
       END DO
+# if defined TRC_PSOURCE
 !
+!  Apply tracers point sources to the horizontal advection terms.
+!
+        DO itrc=1,NT(ng)
+          DO is=1,Nsrcpt
+            i=Isrcpt(is)
+            j=Jsrcpt(is)
+            DO k=1,N(ng)
+#  ifdef TS_MPDATA
+              IF (((Istr-2.le.i).and.(i.le.Iend+2)).and.                &
+     &            ((Jstr-2.le.j).and.(j.le.Jend+2))) THEN
+#  else
+              IF (((Istr.le.i).and.(i.le.Iend+1)).and.                  &
+     &            ((Jstr.le.j).and.(j.le.Jend))) THEN
+#  endif
+!
+                IF (Lsrcpt(is,itrc)) THEN
+                  t(i,j,k,3,itrc)=0.
+                  t(i,j,k,nstp,itrc)=Tsrcpt(is,k,itrc)
+                  t(i,j,k,nnew,itrc)=Tsrcpt(is,k,itrc)
+                END IF
+              END IF
+            END DO
+          END DO
+        END DO
+# endif
+# if defined AGE_PASSIVE || defined AGE_DISTRIBUTION
+!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+!  Add water concentration to the right-hand-side of age concentration
+!  equation.
+!------Added by W.G.Zhang
+!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+      iactrc=inert(3)
+      iwctrc=inert(1)
+      DO k=1,N(ng)
+        DO j=Jstr,Jend
+          DO i=Istr,Iend
+            t(i,j,k,nnew,iactrc)=t(i,j,k,nnew,iactrc)+                  &
+     &                           dt(ng)*t(i,j,k,nnew,iwctrc)
+          END DO
+        END DO
+      END DO
+      iactrc=inert(4)
+      iwctrc=inert(2)
+      DO k=1,N(ng)
+        DO j=Jstr,Jend
+          DO i=Istr,Iend
+            t(i,j,k,nnew,iactrc)=t(i,j,k,nnew,iactrc)+                  &
+     &                           dt(ng)*t(i,j,k,nnew,iwctrc)
+          END DO
+        END DO
+      END DO
+# endif
+# ifdef AGE_DISTRIBUTION
+!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+! The aging term (dc/dtau) in the equation of age concentration
+! distribution function.
+! ------Added by W.G.Zhang to compute the age concentration distribution
+!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+!
+      fac=dt(ng)/dtau(ng)
+      itrc=NAT+3
+      DO k=1,N(ng)
+        DO j=Jstr,Jend
+          DO i=Istr,Iend
+              t(i,j,k,nnew,itrc)=t(i,j,k,nnew,itrc)-fac*                &
+     &                           t(i,j,k,nnew,itrc)
+          END DO
+        END DO
+      END DO
+!
+      DO itrc=NAT+4,NT(ng)
+        DO k=1,N(ng)
+          DO j=Jstr,Jend
+            DO i=Istr,Iend
+              t(i,j,k,nnew,itrc)=t(i,j,k,nnew,itrc)-fac*                &
+     &                         (t(i,j,k,nnew,itrc)-t(i,j,k,nnew,itrc-1))
+            END DO
+          END DO
+        END DO
+      END DO
+# endif
 !-----------------------------------------------------------------------
 !  Apply lateral boundary conditions and, if appropriate, nudge
 !  to tracer data and apply Land/Sea mask.
@@ -1364,10 +1495,17 @@
 !
 !  Set lateral boundary conditions.
 !
+!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+       IF (itrc.le.NAT) THEN
+!    added by Weifeng Zhang for passive tracer boundary condition
+!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         CALL t3dbc_tile (ng, tile, itrc,                                &
      &                   LBi, UBi, LBj, UBj, N(ng), NT(ng),             &
      &                   IminS, ImaxS, JminS, JmaxS,                    &
      &                   nstp, nnew,                                    &
+# ifdef SOGLOBEC
+     &                   tclm,                                          &
+# endif
      &                   t)
 
 # if defined TCLM_NUDGING && defined TCLIMATOLOGY
@@ -1414,6 +1552,16 @@
      &                           dt(ng)*cff*                            &
      & (tclm(i,j,k,itrc)-t(i,j,k,nnew,itrc))
 #  else
+#   ifdef SOGLOBEC2
+              IF (i.eq.401 .and. j.eq.9 .and. k.eq.14) THEN
+                print*,'New T: ',t(i,j,k,nnew,itrc),Tnudgcof(i,j,itrc), &
+     &                           tclm(i,j,k,itrc),tdays(ng),j
+              END IF
+              IF (i.eq.401 .and. j.eq.3 .and. k.eq.14) THEN
+                print*,'New T: ',t(i,j,k,nnew,itrc),Tnudgcof(i,j,itrc), &
+     &                           tclm(i,j,k,itrc),tdays(ng),j
+              END IF
+#   endif
               t(i,j,k,nnew,itrc)=t(i,j,k,nnew,itrc)+                    &
      &                           dt(ng)*Tnudgcof(i,j,itrc)*             &
      &                           (tclm(i,j,k,itrc)-t(i,j,k,nnew,itrc))
@@ -1440,6 +1588,19 @@
           END DO
         END IF
 # endif
+!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# ifdef T_PASSIVE
+       ELSE
+!       else condition added by Weifeng Zhang for passive tracer
+!       boundary condition
+        CALL pt3dbc_tile (ng, tile, itrc,                               &
+     &                    LBi, UBi, LBj, UBj, N(ng), NT(ng),            &
+     &                    IminS, ImaxS, JminS, JmaxS,                   &
+     &                    nstp, nnew,                                   &
+     &                    t)
+# endif
+       END IF
+!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # ifdef MASKING
 !
 !  Apply Land/Sea mask.
@@ -1451,6 +1612,25 @@
             END DO
           END DO
         END DO
+# endif
+# define SALT_CLAMP
+# ifdef SALT_CLAMP
+!
+!  Apply clamp to salt
+!
+#  ifdef SOGLOBEC
+      IF (itrc .ge. isalt) THEN
+#  else
+      IF (itrc == isalt) THEN
+#  endif
+        DO k=1,N(ng)
+          DO j=JstrR,JendR
+            DO i=IstrR,IendR
+              t(i,j,k,nnew,itrc) = max(t(i,j,k,nnew,itrc),0.0_r8)
+            END DO
+          END DO
+        END DO
+      END IF
 # endif
 # ifdef DIAGNOSTICS_TS
 !
@@ -1515,54 +1695,59 @@
 #  endif
 # endif
 
-#ifdef BEST_NPZ
-
-# if !defined ANA_BIOLOGY
+# ifdef BEST_NPZ
 #  ifdef BENTHIC
-        do i=IstrR,IendR
-         do j=JstrR,JendR
-            do k=1,NBL(ng)
-                  bt(i,j,k,nstp,1) = bt(i,j,k,nnew,1)
-                  bt(i,j,k,nstp,2) = bt(i,j,k,nnew,2)
-            enddo
-         enddo
-      enddo
-#    endif
-# endif
-# if defined ICE_BIO
-        DO j=Jstr,Jend
-          DO itrc=1,NIB
-             DO i=Istr,Iend
-              it(i,j,nstp,itrc)=it(i,j,nnew,itrc)
-             END DO
+      DO i=IstrR,IendR
+        DO j=JstrR,JendR
+          DO k=1,NBL(ng)
+            bt(i,j,k,nstp,1) = bt(i,j,k,nnew,1)
+            bt(i,j,k,nstp,2) = bt(i,j,k,nnew,2)
           END DO
         END DO
-# endif
+      END DO
+#  endif
+#  if defined ICE_BIO
+      DO j=Jstr,Jend
+        DO itrc=1,NIB
+          DO i=Istr,Iend
+            it(i,j,nstp,itrc)=it(i,j,nnew,itrc)
+#   ifdef MASKING
+            it(i,j,nstp,itrc)=  it(i,j,nstp,itrc)*rmask(i,j)
+#   endif
+          END DO
+        END DO
+      END DO
+      DO j=Jstr,Jend
+        DO i=Istr,Iend
+          itL(i,j,nstp,1)=itL(i,j,nnew,1)
+#   ifdef MASKING
+          itL(i,j,nstp,1)=  itL(i,j,nstp,1)*rmask(i,j)
+#   endif
+        END DO
+      END DO
+#  endif
 
-# if defined STATIONARY
-       DO j=LBj ,UBj
-           DO k=1,N(ng)
-             DO itrc=1,8
-              DO i=LBi ,UBi
+#  if defined STATIONARY
+      DO j=LBj ,UBj
+        DO k=1,N(ng)
+          DO itrc=1,8
+            DO i=LBi ,UBi
               st(i,j,k,nnew,itrc)= 0_r8
-                 END DO
             END DO
           END DO
-       END DO
-
-
-       DO j=Jstr,Jend
-           DO k=1,N(ng)
-             DO itrc=1,8
-              DO i=Istr,Iend
+        END DO
+      END DO
+      DO j=Jstr,Jend
+        DO k=1,N(ng)
+          DO itrc=1,8
+            DO i=Istr,Iend
               st(i,j,k,nnew,itrc)= st(i,j,k,nstp,itrc)
-                 END DO
             END DO
           END DO
-       END DO
+        END DO
+      END DO
+#  endif
 # endif
-#endif
-
 
       RETURN
       END SUBROUTINE step3d_t_tile

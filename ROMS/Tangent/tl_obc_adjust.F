@@ -3,9 +3,9 @@
 
 #ifdef ADJUST_BOUNDARY
 !
-!svn $Id: tl_obc_adjust.F 1007 2009-06-30 16:29:00Z arango $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -23,7 +23,7 @@
 !=======================================================================
 !
       implicit none
- 
+
       PRIVATE
       PUBLIC :: tl_obc_adjust
 # ifdef SOLVE3D

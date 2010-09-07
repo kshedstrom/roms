@@ -2,9 +2,9 @@
 #ifdef TIMELESS_DATA
       SUBROUTINE get_idata (ng)
 !
-!svn $Id: get_idata.F 1056 2009-09-08 18:51:43Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -78,6 +78,7 @@
         Vsize(is)=0
       END DO
 # endif
+
 # ifdef PROFILE
 !
 !-----------------------------------------------------------------------
@@ -102,6 +103,7 @@
         IF (exit_flag.ne.NoError) RETURN
       END IF
 # endif
+
 # ifdef SSH_TIDES
 !
 !  Tidal elevation amplitude and phase. In order to read data as a
@@ -112,6 +114,7 @@
         time_save=time(ng)
         time(ng)=8640000.0_r8
         tdays(ng)=time(ng)*sec2day
+
         CALL get_2dfld (ng, iNLM, idTzam, ncFRCid(idTzam,ng),           &
      &                  nFfiles(ng), FRCname(1,ng), update(1),          &
      &                  LBi, UBi, LBj, UBj, MTC, NTC(ng),               &
@@ -134,6 +137,7 @@
         tdays(ng)=time(ng)*sec2day
       END IF
 # endif
+
 # ifdef UV_TIDES
 !
 !  Tidal currents angle, phase, major and minor ellipse axis.
@@ -142,6 +146,7 @@
         time_save=time(ng)
         time(ng)=8640000.0_r8
         tdays(ng)=time(ng)*sec2day
+
         CALL get_2dfld (ng, iNLM, idTvan, ncFRCid(idTvan,ng),           &
      &                  nFfiles(ng), FRCname(1,ng), update(1),          &
      &                  LBi, UBi, LBj, UBj, MTC, NTC(ng),               &
@@ -182,6 +187,7 @@
         tdays(ng)=time(ng)*sec2day
       END IF
 # endif
+
 # if defined AVERAGES_DETIDE && (defined SSH_TIDES || defined UV_TIDES)
 !
 !-----------------------------------------------------------------------
@@ -265,76 +271,85 @@
 !
 !  Time-accumulated free-surface tide harmonics.
 !
-        gtype=r3dvar
-        status=nf_fread3d(ng, iNLM, TIDEname(ng), ncTIDEid(ng),         &
-     &                    Vname(1,idFsuH), tideVid(idFsuH,ng),          &
-     &                    0, gtype, Vsize,                              &
-     &                    LBi, UBi, LBj, UBj, 0, 2*NTC(ng),             &
-     &                    Fscl, Fmin, Fmax,                             &
+        IF (Aout(idFsuD,ng)) THEN
+          gtype=r3dvar
+          status=nf_fread3d(ng, iNLM, TIDEname(ng), ncTIDEid(ng),       &
+     &                      Vname(1,idFsuH), tideVid(idFsuH,ng),        &
+     &                      0, gtype, Vsize,                            &
+     &                      LBi, UBi, LBj, UBj, 0, 2*NTC(ng),           &
+     &                      Fscl, Fmin, Fmax,                           &
 #  ifdef MASKING
-     &                    GRID(ng) % rmask,                             &
+     &                      GRID(ng) % rmask,                           &
 #  endif
-     &                    TIDES(ng) % zeta_tide)
-        IF (status.ne.nf90_noerr) THEN
-          IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idFsuH)), TRIM(TIDEname(ng))
-          END IF
-          exit_flag=2
-          ioerror=status
-          RETURN
-        ELSE
-          IF (Master) THEN
-            WRITE (stdout,30) TRIM(Vname(2,idFsuH)), Fmin, Fmax
+     &                      TIDES(ng) % zeta_tide)
+          IF (status.ne.nf90_noerr) THEN
+            IF (Master) THEN
+              WRITE (stdout,10) TRIM(Vname(1,idFsuH)),                  &
+     &                          TRIM(TIDEname(ng))
+            END IF
+            exit_flag=2
+            ioerror=status
+            RETURN
+          ELSE
+            IF (Master) THEN
+              WRITE (stdout,30) TRIM(Vname(2,idFsuH)), Fmin, Fmax
+            END IF
           END IF
         END IF
 !
 !  Time-accumulated 2D u-momentum tide harmonics.
 !
-        gtype=u3dvar
-        status=nf_fread3d(ng, iNLM, TIDEname(ng), ncTIDEid(ng),         &
-     &                    Vname(1,idu2dH), tideVid(idu2dH,ng),          &
-     &                    0, gtype, Vsize,                              &
-     &                    LBi, UBi, LBj, UBj, 0, 2*NTC(ng),             &
-     &                    Fscl, Fmin, Fmax,                             &
+        IF (Aout(idu2dD,ng)) THEN
+          gtype=u3dvar
+          status=nf_fread3d(ng, iNLM, TIDEname(ng), ncTIDEid(ng),       &
+     &                      Vname(1,idu2dH), tideVid(idu2dH,ng),        &
+     &                      0, gtype, Vsize,                            &
+     &                      LBi, UBi, LBj, UBj, 0, 2*NTC(ng),           &
+     &                      Fscl, Fmin, Fmax,                           &
 #  ifdef MASKING
-     &                    GRID(ng) % umask,                             &
+     &                      GRID(ng) % umask,                           &
 #  endif
-     &                    TIDES(ng) % ubar_tide)
-        IF (status.ne.nf90_noerr) THEN
-          IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idu2dH)), TRIM(TIDEname(ng))
-          END IF
-          exit_flag=2
-          ioerror=status
-          RETURN
-        ELSE
-          IF (Master) THEN
-            WRITE (stdout,30) TRIM(Vname(2,idu2dH)), Fmin, Fmax
+     &                      TIDES(ng) % ubar_tide)
+          IF (status.ne.nf90_noerr) THEN
+            IF (Master) THEN
+              WRITE (stdout,10) TRIM(Vname(1,idu2dH)),                  &
+     &                          TRIM(TIDEname(ng))
+            END IF
+            exit_flag=2
+            ioerror=status
+            RETURN
+          ELSE
+            IF (Master) THEN
+              WRITE (stdout,30) TRIM(Vname(2,idu2dH)), Fmin, Fmax
+            END IF
           END IF
         END IF
 !
 !  Time-accumulated 2D v-momentum tide harmonics.
 !
-        gtype=v3dvar
-        status=nf_fread3d(ng, iNLM, TIDEname(ng), ncTIDEid(ng),         &
-     &                    Vname(1,idv2dH), tideVid(idv2dH,ng),          &
-     &                    0, gtype, Vsize,                              &
-     &                    LBi, UBi, LBj, UBj, 0, 2*NTC(ng),             &
-     &                    Fscl, Fmin, Fmax,                             &
+        IF (Aout(idv2dD,ng)) THEN
+          gtype=v3dvar
+          status=nf_fread3d(ng, iNLM, TIDEname(ng), ncTIDEid(ng),       &
+     &                      Vname(1,idv2dH), tideVid(idv2dH,ng),        &
+     &                      0, gtype, Vsize,                            &
+     &                      LBi, UBi, LBj, UBj, 0, 2*NTC(ng),           &
+     &                      Fscl, Fmin, Fmax,                           &
 #  ifdef MASKING
-     &                    GRID(ng) % vmask,                             &
+     &                      GRID(ng) % vmask,                           &
 #  endif
-     &                    TIDES(ng) % vbar_tide)
-        IF (status.ne.nf90_noerr) THEN
-          IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idv2dH)), TRIM(TIDEname(ng))
-          END IF
-          exit_flag=2
-          ioerror=status
-          RETURN
-        ELSE
-          IF (Master) THEN
-            WRITE (stdout,30) TRIM(Vname(2,idv2dH)), Fmin, Fmax
+     &                      TIDES(ng) % vbar_tide)
+          IF (status.ne.nf90_noerr) THEN
+            IF (Master) THEN
+              WRITE (stdout,10) TRIM(Vname(1,idv2dH)),                  &
+     &                          TRIM(TIDEname(ng))
+            END IF
+            exit_flag=2
+            ioerror=status
+            RETURN
+          ELSE
+            IF (Master) THEN
+              WRITE (stdout,30) TRIM(Vname(2,idv2dH)), Fmin, Fmax
+            END IF
           END IF
         END IF
 
@@ -342,54 +357,93 @@
 !
 !  Time-accumulated 3D u-momentum tide harmonics.
 !
-        gtype=u3dvar
-        status=nf_fread4d(ng, iNLM, TIDEname(ng), ncTIDEid(ng),         &
-     &                    Vname(1,idu3dH), tideVid(idu3dH,ng),          &
-     &                    0, gtype, Vsize,                              &
-     &                    LBi, UBi, LBj, UBj, 1, N(ng), 0, 2*NTC(ng),   &
-     &                    Fscl, Fmin, Fmax,                             &
+        IF (Aout(idu3dD,ng)) THEN
+          gtype=u3dvar
+          status=nf_fread4d(ng, iNLM, TIDEname(ng), ncTIDEid(ng),       &
+     &                      Vname(1,idu3dH), tideVid(idu3dH,ng),        &
+     &                      0, gtype, Vsize,                            &
+     &                      LBi, UBi, LBj, UBj, 1, N(ng), 0, 2*NTC(ng), &
+     &                      Fscl, Fmin, Fmax,                           &
 #   ifdef MASKING
-     &                    GRID(ng) % umask,                             &
+     &                      GRID(ng) % umask,                           &
 #   endif
-     &                    TIDES(ng) % u_tide)
-        IF (status.ne.nf90_noerr) THEN
-          IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idu3dH)), TRIM(TIDEname(ng))
-          END IF
-          exit_flag=2
-          ioerror=status
-          RETURN
-        ELSE
-          IF (Master) THEN
-            WRITE (stdout,30) TRIM(Vname(2,idu3dH)), Fmin, Fmax
+     &                      TIDES(ng) % u_tide)
+          IF (status.ne.nf90_noerr) THEN
+            IF (Master) THEN
+              WRITE (stdout,10) TRIM(Vname(1,idu3dH)),                  &
+     &                          TRIM(TIDEname(ng))
+            END IF
+            exit_flag=2
+            ioerror=status
+            RETURN
+          ELSE
+            IF (Master) THEN
+              WRITE (stdout,30) TRIM(Vname(2,idu3dH)), Fmin, Fmax
+            END IF
           END IF
         END IF
 !
 !  Time-accumulated 3D v-momentum tide harmonics.
 !
-        gtype=v3dvar
-        status=nf_fread4d(ng, iNLM, TIDEname(ng), ncTIDEid(ng),         &
-     &                    Vname(1,idv3dH), tideVid(idv3dH,ng),          &
-     &                    0, gtype, Vsize,                              &
-     &                    LBi, UBi, LBj, UBj, 1, N(ng), 0, 2*NTC(ng),   &
-     &                    Fscl, Fmin, Fmax,                             &
+        IF (Aout(idv3dD,ng)) THEN
+          gtype=v3dvar
+          status=nf_fread4d(ng, iNLM, TIDEname(ng), ncTIDEid(ng),       &
+     &                      Vname(1,idv3dH), tideVid(idv3dH,ng),        &
+     &                      0, gtype, Vsize,                            &
+     &                      LBi, UBi, LBj, UBj, 1, N(ng), 0, 2*NTC(ng), &
+     &                      Fscl, Fmin, Fmax,                           &
 #   ifdef MASKING
-     &                    GRID(ng) % vmask,                             &
+     &                      GRID(ng) % vmask,                           &
 #   endif
-     &                    TIDES(ng) % v_tide)
-#  endif
-        IF (status.ne.nf90_noerr) THEN
-          IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idv3dH)), TRIM(TIDEname(ng))
-          END IF
-          exit_flag=2
-          ioerror=status
-          RETURN
-        ELSE
-          IF (Master) THEN
-            WRITE (stdout,30) TRIM(Vname(2,idv3dH)), Fmin, Fmax
+     &                      TIDES(ng) % v_tide)
+          IF (status.ne.nf90_noerr) THEN
+            IF (Master) THEN
+              WRITE (stdout,10) TRIM(Vname(1,idv3dH)),                  &
+     &                          TRIM(TIDEname(ng))
+            END IF
+            exit_flag=2
+            ioerror=status
+            RETURN
+          ELSE
+            IF (Master) THEN
+              WRITE (stdout,30) TRIM(Vname(2,idv3dH)), Fmin, Fmax
+            END IF
           END IF
         END IF
+!
+!  Time-accumulated temperature and salinity tide harmonics.
+!
+        DO itrc=1,NAT
+          IF (Aout(idTrcD(itrc),ng)) THEN
+            gtype=r3dvar
+            status=nf_fread4d(ng, iNLM, TIDEname(ng), ncTIDEid(ng),     &
+     &                        Vname(1,idTrcH(itrc)),                    &
+     &                        tideVid(idTrcH(itrc),ng),                 &
+     &                        0, gtype, Vsize,                          &
+     &                        LBi, UBi, LBj, UBj, 1, N(ng),             &
+     &                        0, 2*NTC(ng),                             &
+     &                        Fscl, Fmin, Fmax,                         &
+#   ifdef MASKING
+     &                        GRID(ng) % rmask,                         &
+#   endif
+     &                        TIDES(ng) % t_tide(:,:,:,:,itrc))
+            IF (status.ne.nf90_noerr) THEN
+              IF (Master) THEN
+                WRITE (stdout,10) TRIM(Vname(1,idTrcH(itrc))),          &
+     &                            TRIM(TIDEname(ng))
+              END IF
+              exit_flag=2
+              ioerror=status
+              RETURN
+            ELSE
+              IF (Master) THEN
+                WRITE (stdout,30) TRIM(Vname(2,idTrcH(itrc))),          &
+     &                            Fmin, Fmax
+              END IF
+            END IF
+          END IF
+        END DO
+#  endif
       END IF
 # endif
 # ifdef POT_TIDES
@@ -458,54 +512,6 @@
      &                  SOURCES(ng) % Qshape(1,1))
         IF (exit_flag.ne.NoError) RETURN
 
-#  ifdef TS_PSOURCE
-        CALL get_ngfld (ng, iNLM, idRflg, ncFRCid(idRflg,ng),           &
-     &                  nFfiles(ng), FRCname(1,ng), update(1),          &
-     &                  1, Nsrc(ng), 1, 1, 1, Nsrc(ng), 1,              &
-     &                  SOURCES(ng) % Fsrc(1))
-        IF (exit_flag.ne.NoError) RETURN
-
-        IF (update(1)) THEN
-          DO itrc=1,NT(ng)
-            SOURCES(ng)%Ltracer(itrc)=.FALSE.
-            DO is=1,Nsrc(ng)
-              SOURCES(ng)%Lsrc(is,itrc)=.FALSE.
-            END DO
-          END DO
-          DO is=1,Nsrc(ng)
-            IF (SOURCES(ng)%Fsrc(is).eq.1.0_r8) THEN
-              SOURCES(ng)%Lsrc(is,itemp)=.TRUE.
-              SOURCES(ng)%Ltracer(itemp)=.TRUE.
-            END IF
-            IF (SOURCES(ng)%Fsrc(is).eq.2.0_r8) THEN
-              SOURCES(ng)%Lsrc(is,isalt)=.TRUE.
-              SOURCES(ng)%Ltracer(isalt)=.TRUE.
-            END IF
-            IF (SOURCES(ng)%Fsrc(is).ge.3.0_r8) THEN
-              SOURCES(ng)%Lsrc(is,itemp)=.TRUE.
-              SOURCES(ng)%Lsrc(is,isalt)=.TRUE.
-              SOURCES(ng)%Ltracer(itemp)=.TRUE.
-              SOURCES(ng)%Ltracer(isalt)=.TRUE.
-            END IF
-#   if defined RIVER_SEDIMENT && defined SEDIMENT
-            IF (SOURCES(ng)%Fsrc(is).ge.4.0_r8) THEN
-              DO itrc=1,NST
-                SOURCES(ng)%Lsrc(is,idsed(itrc))=.TRUE.
-                SOURCES(ng)%Ltracer(idsed(itrc))=.TRUE.
-              END DO
-            END IF
-#   endif
-#   if defined RIVER_BIOLOGY && defined BIOLOGY
-            IF (SOURCES(ng)%Fsrc(is).ge.5.0_r8) THEN
-              DO itrc=1,NBT
-                SOURCES(ng)%Lsrc(is,idbio(itrc))=.TRUE.
-                SOURCES(ng)%Ltracer(idbio(itrc))=.TRUE.
-              END DO
-            END IF
-#   endif
-          END DO
-        END IF
-#  endif
         DO is=1,Nsrc(ng)
           SOURCES(ng)%Isrc(is)=                                         &
      &                MAX(1,MIN(NINT(SOURCES(ng)%Xsrc(is)),Lm(ng)+1))
@@ -514,6 +520,7 @@
         END DO
       END IF
 # endif
+
 # ifdef PROFILE
 !
 !-----------------------------------------------------------------------
@@ -522,6 +529,7 @@
 !
       CALL wclock_off (ng, iNLM, 3)
 # endif
+
 # if defined AVERAGES_DETIDE && (defined SSH_TIDES || defined UV_TIDES)
 !
   10  FORMAT (/,' GET_IDATA - error while reading variable: ',a,        &
@@ -531,9 +539,10 @@
   30  FORMAT (16x,'- ',a,/,19x,'(Min = ',1p,e15.8,                      &
      &        ' Max = ',1p,e15.8,')')
 # endif
+
       RETURN
       END SUBROUTINE get_idata
-#else 
+#else
       SUBROUTINE get_idata
       RETURN
       END SUBROUTINE get_idata

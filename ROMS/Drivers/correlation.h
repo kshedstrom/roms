@@ -1,8 +1,8 @@
       MODULE ocean_control_mod
 !
-!svn $Id: correlation.h 975 2009-05-05 22:51:13Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -69,7 +69,7 @@
       USE mod_iounits
       USE mod_scalars
 !
-#ifdef AIR_OCEAN 
+#ifdef AIR_OCEAN
       USE ocean_coupler_mod, ONLY : initialize_atmos_coupling
 #endif
 #ifdef WAVES_OCEAN
@@ -164,8 +164,10 @@
         STDrec=1
         Tindex=1
         DO ng=1,Ngrids
-          CALL get_state (ng, 6, 6, STDname(1,ng), STDrec, Tindex)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (LdefNRM(1,ng).or.LwrtNRM(1,ng)) THEN
+            CALL get_state (ng, 6, 6, STDname(1,ng), STDrec, Tindex)
+            IF (exit_flag.ne.NoError) RETURN
+          END IF
         END DO
 !
 !  Read in standard deviation factors for model error covariance.
@@ -175,7 +177,7 @@
         STDrec=1
         Tindex=2
         DO ng=1,Ngrids
-          IF (NSA.eq.2) THEN
+          IF ((LdefNRM(2,ng).or.LwrtNRM(2,ng)).and.(NSA.eq.2)) THEN
             CALL get_state (ng, 6, 6, STDname(2,ng), STDrec, Tindex)
             IF (exit_flag.ne.NoError) RETURN
           END IF
@@ -189,8 +191,10 @@
         STDrec=1
         Tindex=1
         DO ng=1,Ngrids
-          CALL get_state (ng, 8, 8, STDname(3,ng), STDrec, Tindex)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (LdefNRM(3,ng).or.LwrtNRM(3,ng)) THEN
+            CALL get_state (ng, 8, 8, STDname(3,ng), STDrec, Tindex)
+            IF (exit_flag.ne.NoError) RETURN
+          END IF
         END DO
 #endif
 #if defined ADJUST_WSTRESS || defined ADJUST_STFLUX
@@ -201,8 +205,10 @@
         STDrec=1
         Tindex=1
         DO ng=1,Ngrids
-          CALL get_state (ng, 9, 9, STDname(4,ng), STDrec, Tindex)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (LdefNRM(4,ng).or.LwrtNRM(4,ng)) THEN
+            CALL get_state (ng, 9, 9, STDname(4,ng), STDrec, Tindex)
+            IF (exit_flag.ne.NoError) RETURN
+          END IF
         END DO
 #endif
       END IF
@@ -253,6 +259,7 @@
 #ifdef BALANCE_OPERATOR
       integer :: Lbck = 1
 #endif
+      integer :: NRMrec
 !
 !=======================================================================
 !  Run model for all nested grids, if any.
@@ -274,22 +281,28 @@
 !  Compute or read in background-error covariance normalization factors.
 !  If computing, write out factors to NetCDF. This is an expensive
 !  computation and needs to be computed once for an application grid.
-!  
+!
         IF (ANY(LwrtNRM(:,ng))) THEN
-          CALL def_norm (ng, iNLM, 1)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (LdefNRM(1,ng).or.LwrtNRM(1,ng)) THEN
+            CALL def_norm (ng, iNLM, 1)
+            IF (exit_flag.ne.NoError) RETURN
+          END IF
 
-          IF (NSA.eq.2) THEN
+          IF ((LdefNRM(2,ng).or.LwrtNRM(2,ng)).and.(NSA.eq.2)) THEN
             CALL def_norm (ng, iNLM, 2)
           IF (exit_flag.ne.NoError) RETURN
           END IF
 #ifdef ADJUST_BOUNDARY
-          CALL def_norm (ng, iNLM, 3)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (LdefNRM(3,ng).or.LwrtNRM(3,ng)) THEN
+            CALL def_norm (ng, iNLM, 3)
+            IF (exit_flag.ne.NoError) RETURN
+          END IF
 #endif
 #if defined ADJUST_WSTRESS || defined ADJUST_STFLUX
-          CALL def_norm (ng, iNLM, 4)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (LdefNRM(4,ng).or.LwrtNRM(4,ng)) THEN
+            CALL def_norm (ng, iNLM, 4)
+            IF (exit_flag.ne.NoError) RETURN
+          END IF
 #endif
 !$OMP PARALLEL DO PRIVATE(ng,thread,subs,tile) SHARED(numthreads)
           DO thread=0,numthreads-1
@@ -301,22 +314,6 @@
 !$OMP END PARALLEL DO
           LdefNRM(1:4,ng)=.FALSE.
           LwrtNRM(1:4,ng)=.FALSE.
-        ELSE
-          CALL get_state (ng, 5, 5, NRMname(1,ng), 1, 1)
-          IF (exit_flag.ne.NoError) RETURN
-
-          IF (NSA.eq.2) THEN
-            CALL get_state (ng, 5, 5, NRMname(2,ng), 1, 2)
-            IF (exit_flag.ne.NoError) RETURN
-          END IF
-#ifdef ADJUST_BOUNDARY
-          CALL get_state (ng, 10, 10, NRMname(3,ng), 1, 1)
-          IF (exit_flag.ne.NoError) RETURN
-#endif
-#if defined ADJUST_WSTRESS || defined ADJUST_STFLUX
-          CALL get_state (ng, 11, 11, NRMname(4,ng), 1, 1)
-          IF (exit_flag.ne.NoError) RETURN
-#endif
         END IF
 
 #ifdef BALANCE_OPERATOR
@@ -337,7 +334,7 @@
 !  point. Use USER parameters from standard input to perturb solution
 !  in routine "ana_perturb". Then, convolve solution with the adjoint
 !  diffusion operator.
-! 
+!
         ADmodel=.TRUE.
         Lweak=.FALSE.
         Lnew(ng)=1
@@ -392,7 +389,7 @@
 #if defined ADJUST_STFLUX || defined ADJUST_WSTRESS
         Ladjusted(ng)=.TRUE.
 #endif
-        CALL ad_wrt_his (ng)    
+        CALL ad_wrt_his (ng)
         IF (exit_flag.ne.NoError) RETURN
 #if defined ADJUST_STFLUX || defined ADJUST_WSTRESS
         Ladjusted(ng)=.FALSE.

@@ -1,9 +1,9 @@
 #include "cppdefs.h"
       MODULE nf_fwrite3d_bry_mod
 !
-!svn $Id: nf_fwrite3d_bry.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -88,7 +88,7 @@
 
       real(r8), parameter :: Aspv = 0.0_r8
 
-      real(r8), dimension((UBij-LBij+1)*(UBk-LBk+1)*4*Nrec) :: Aout
+      real(r8), dimension((UBij-LBij+1)*(UBk-LBk+1)*4*Nrec) :: Awrk
 !
 !-----------------------------------------------------------------------
 !  Set starting and ending indices to process.
@@ -167,7 +167,7 @@
 !  Pack and scale output data.
 !-----------------------------------------------------------------------
 !
-      Aout=Aspv
+      Awrk=Aspv
 
       DO ir=1,Nrec
         rc=(ir-1)*IJKlen*4
@@ -179,7 +179,7 @@
                 kc=(k-LBk)*IorJ+bc
                 DO j=Jmin,Jmax
                   ic=1+(j-LBij)+kc
-                  Aout(ic)=A(j,k,ib,ir)*Ascl
+                  Awrk(ic)=A(j,k,ib,ir)*Ascl
                 END DO
               END DO
             ELSE IF ((ib.eq.isouth).or.(ib.eq.inorth)) THEN
@@ -187,20 +187,20 @@
                 kc=(k-LBk)*IorJ+bc
                 DO i=Imin,Imax
                   ic=1+(i-LBij)+kc
-                  Aout(ic)=A(i,k,ib,ir)*Ascl
+                  Awrk(ic)=A(i,k,ib,ir)*Ascl
                 END DO
               END DO
             END IF
           END IF
         END DO
       END DO
-  
+
 #ifdef DISTRIBUTE
 !
 !  If distributed-memory set-up, collect data from all spawned
 !  nodes.
 !
-      CALL mp_collect (ng, model, Npts, Aspv, Aout)
+      CALL mp_collect (ng, model, Npts, Aspv, Awrk)
 #endif
 !
 !-----------------------------------------------------------------------
@@ -209,7 +209,7 @@
 !
       status=nf90_noerr
       IF (OutThread) THEN
-        status=nf90_put_var(ncid, ncvarid, Aout, start, total)
+        status=nf90_put_var(ncid, ncvarid, Awrk, start, total)
       END IF
 
 #ifdef DISTRIBUTE

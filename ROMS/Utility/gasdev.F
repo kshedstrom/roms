@@ -1,9 +1,9 @@
 #include "cppdefs.h"
       SUBROUTINE gasdev_s (harvest)
 !
-!svn $Id: gasdev.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -139,7 +139,8 @@
 !
           rsq(ng:n)=v1(ng:n)**2+v2(ng:n)**2
           mask(ng:n)=((rsq(ng:n).gt.0.0_r8).and.(rsq(ng:n).lt.1.0_r8))
-          CALL array_copy (PACK(v1(ng:n), mask(ng:n)), v1(ng:), nn, m)
+          CALL array_copy (REAL(PACK(v1(ng:n), mask(ng:n)),r8),        &
+     &                     v1(ng:), nn, m)
           v2(ng:ng+nn-1)=PACK(v2(ng:n), mask(ng:n))
           rsq(ng:ng+nn-1)=PACK(rsq(ng:n), mask(ng:n))
           ng=ng+nn

@@ -5,9 +5,9 @@
       MODULE lmd_skpp_mod
 #if defined NONLINEAR && defined LMD_SKPP && defined SOLVE3D
 !
-!svn $Id: lmd_skpp.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id$
 !=======================================================================
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                           Hernan G. Arango   !
 !========================================== Alexander F. Shchepetkin ===
@@ -50,6 +50,7 @@
       USE mod_mixing
       USE mod_ocean
       USE mod_stepping
+      USE mod_clima
 !
 !  Imported variable declarations.
 !
@@ -89,6 +90,9 @@
 # endif
      &                    MIXING(ng) % Akt,                             &
      &                    MIXING(ng) % Akv,                             &
+#ifdef AKT_3D
+     &                    CLIMA(ng) % tclm,                             &
+#endif
      &                    MIXING(ng) % hsbl,                            &
      &                    MIXING(ng) % ksbl)
       RETURN
@@ -114,7 +118,11 @@
 # ifdef LMD_NONLOCAL
      &                          ghats,                                  &
 # endif
-     &                          Akt, Akv, hsbl, ksbl)
+     &                          Akt, Akv,                               &
+#ifdef AKT_3D
+     &                          tclm,                                   &
+#endif
+     &                          hsbl, ksbl)
 !***********************************************************************
 !
       USE mod_param
@@ -159,6 +167,9 @@
       real(r8), intent(in) :: bvf(LBi:,LBj:,0:)
       real(r8), intent(inout) :: Akt(LBi:,LBj:,0:,:)
       real(r8), intent(inout) :: Akv(LBi:,LBj:,0:)
+#ifdef AKT_3D
+      real(r8), intent(in) :: tclm(LBi:,LBj:,:,:)
+# endif
       real(r8), intent(inout) :: hsbl(LBi:,LBj:)
       integer,  intent(out) :: ksbl(LBi:,LBj:)
 #  ifdef LMD_NONLOCAL
@@ -188,6 +199,9 @@
       real(r8), intent(in) :: bvf(LBi:UBi,LBj:UBj,0:N(ng))
       real(r8), intent(inout) :: Akt(LBi:UBi,LBj:UBj,0:N(ng),NAT)
       real(r8), intent(inout) :: Akv(LBi:UBi,LBj:UBj,0:N(ng))
+#ifdef AKT_3D
+      real(r8), intent(in) :: tclm(LBi:UBi,LBj:UBj,N(ng),NT(ng)+2)
+# endif
       real(r8), intent(inout) :: hsbl(LBi:UBi,LBj:UBj)
       integer,  intent(out) :: ksbl(LBi:UBi,LBj:UBj)
 #  ifdef LMD_NONLOCAL
@@ -684,6 +698,19 @@
             hekman=lmd_cekman*Ustar(i,j)/MAX(ABS(f(i,j)),eps)
             hmonob=lmd_cmonob*Ustar(i,j)*Ustar(i,j)*Ustar(i,j)/         &
      &             MAX(vonKar*Bfsfc(i,j),eps)
+# ifdef SOGLOBEC
+!
+!  SOGLOBEC mod: If neutral and stable, let depth of surface boundary
+!   layer be set to Niiler-Krauss wind mixing min depth (and then
+!   limited to Ekman depth or Monin-Obukov if that turns out to be 
+!   shallower), but only if solar forcing is really weak (1 W/m^2
+!   ~ 1.43e-10).
+!
+            IF (Bosol(i,j).lt.1.43E-10_r8) THEN
+              hsbl(i,j)=z_w(i,j,N(ng))-hmonob*vonKar*2.5_r8*            &
+     &                  EXP(-10.0_r8*sl_dpth(i,j)/20.0_r8)
+            ENDIF
+# endif
             hsbl(i,j)=(z_w(i,j,N(ng))-                                  &
      &                 MIN(hekman,hmonob,z_w(i,j,N(ng))-hsbl(i,j)))
           END IF
@@ -1008,6 +1035,17 @@
           END DO
         END DO
       END DO
+#ifdef AKT_3D
+      DO itrc=1,2
+        DO j=Jstr-2,Jend+2
+          DO k=1,N(ng)
+            DO i=Istr-2,Iend+2
+              Akt(i,j,k,itrc)=tclm(i,j,k,iAKt3)
+            END DO
+          END DO
+        END DO
+      END DO
+#endif
 
       RETURN
       END SUBROUTINE lmd_skpp_tile

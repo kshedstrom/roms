@@ -1,6 +1,6 @@
 # svn $Id: Linux-gfortran.mk 975 2009-05-05 22:51:13Z kate $
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-# Copyright (c) 2002-2009 The ROMS/TOMS Group                           :::
+# Copyright (c) 2002-2010 The ROMS/TOMS Group                           :::
 #   Licensed under a MIT/X style license                                :::
 #   See License_ROMS.txt                                                :::
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -67,7 +67,10 @@ else
 endif
              LIBS += -L$(NETCDF_LIBDIR) -lnetcdf
 ifdef USE_NETCDF4
-             LIBS += -L$(HDF5_LIBDIR) -lhdf5_hl -lhdf5 -lz
+             LIBS += -L$(HDF5_LIBDIR) -lhdf5_hl -lhdf5 -lz -lcurl
+ ifdef USE_DAP
+             LIBS += $(shell curl-config --libs)
+ endif
 endif
 
 ifdef USE_ARPACK

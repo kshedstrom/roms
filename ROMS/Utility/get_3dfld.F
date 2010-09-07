@@ -8,9 +8,9 @@
 # endif
      &                      Fout)
 !
-!svn $Id: get_3dfld.F 1101 2009-11-19 00:56:17Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -298,6 +298,11 @@
               ELSE
                 Tmono=Tmono+(Tstr-MOD(tdays(ng)+Tstr,Clength))
               END IF
+#ifdef SOGLOBEC
+              IF ((tdays(ng)-Tmono).gt.Clength) THEN
+                Tmono=Tmono+Clength
+              END IF
+#endif
             END IF
           ELSE
             IF (tdays(ng).gt.Clength) THEN
@@ -457,7 +462,7 @@
      &                              ncid = ncid,                        &
      &                              start = (/Trec/),                   &
      &                              total = (/1/))
-              Fval=Fval*Finfo(10,ifield,ng)*Fscale(ifield,ng)
+              Fval=Fval*Fscale(ifield,ng)
               Fpoint(Tindex,ifield,ng)=Fval
               Fmin=Fval
               Fmax=Fval
@@ -513,7 +518,7 @@
   50  FORMAT (3x,' GET_3DFLD   - ',a,/,19x,'(Min = ',1p,e15.8,0p,       &
      &        ' Max = ',1p,e15.8,0p,')')
   60  FORMAT (3x,' GET_3DFLD   - ',a,',',t62,'t = ',a,/,19x,            &
-     &        '(Rec=',i4.4,', Index=',i1,', File: ',a,')',/,19x,        &
+     &        '(Rec=',i5.5,', Index=',i1,', File: ',a,')',/,19x,        &
      &        '(Tmin= ', f15.4, ' Tmax= ', f15.4,')',/, 19x,            &
      &        '(Min = ', 1p,e15.8,0p,' Max = ',1p,e15.8,0p,')')
 

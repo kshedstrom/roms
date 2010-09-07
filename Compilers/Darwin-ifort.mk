@@ -1,6 +1,6 @@
-# svn $Id: Darwin-ifort.mk 1090 2009-10-27 23:59:27Z kate $
+# svn $Id$
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-# Copyright (c) 2002-2009 The ROMS/TOMS Group                           :::
+# Copyright (c) 2002-2010 The ROMS/TOMS Group                           :::
 #   Licensed under a MIT/X style license                                :::
 #   See License_ROMS.txt                                                :::
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -66,6 +66,9 @@ endif
              LIBS += -L$(NETCDF_LIBDIR) -lnetcdf
 ifdef USE_NETCDF4
              LIBS += -L$(HDF5_LIBDIR) -lhdf5_hl -lhdf5 -lz
+ ifdef USE_DAP
+             LIBS += $(shell curl-config --libs)
+ endif
 endif
 
 ifdef USE_ARPACK
@@ -82,7 +85,7 @@ ifdef USE_MPI
  ifdef USE_MPIF90
                FC := mpif90
  else
-             LIBS += -lfmpi-pgi -lmpi-pgi 
+             LIBS += -lfmpi-pgi -lmpi-pgi
  endif
 endif
 
@@ -93,7 +96,7 @@ endif
 
 ifdef USE_DEBUG
 #           FFLAGS += -g -check bounds
-           FFLAGS += -g 
+           FFLAGS += -g
            CFLAGS += -g
          CXXFLAGS += -g
 else
@@ -112,7 +115,7 @@ ifdef USE_MCT
              LIBS += -L$(MCT_LIBDIR) -lmct -lmpeu
 endif
 
-ifdef USE_ESMF 
+ifdef USE_ESMF
       ESMF_SUBDIR := $(ESMF_OS).$(ESMF_COMPILER).$(ESMF_ABI).$(ESMF_COMM).$(ESMF_SITE)
       ESMF_MK_DIR ?= $(ESMF_DIR)/lib/lib$(ESMF_BOPT)/$(ESMF_SUBDIR)
                      include $(ESMF_MK_DIR)/esmf.mk

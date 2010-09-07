@@ -2,9 +2,9 @@
 #ifdef ADJOINT
       SUBROUTINE ad_get_data (ng)
 !
-!svn $Id: ad_get_data.F 1098 2009-11-18 17:54:22Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -24,9 +24,9 @@
 # if defined FORWARD_READ && defined SOLVE3D
       USE mod_coupling
 # endif
-# if defined AD_SENSITIVITY    || defined CLIMATOLOGY      || \
-     defined OBS_SENSITIVITY   || defined OPT_OBSERVATIONS || \
-     defined SENSITIVITY_4DVAR || defined SO_SEMI
+# if defined AD_SENSITIVITY      || defined CLIMATOLOGY      || \
+     defined IS4DVAR_SENSITIVITY || defined OPT_OBSERVATIONS || \
+     defined SENSITIVITY_4DVAR   || defined SO_SEMI
       USE mod_clima
 # endif
       USE mod_forces
@@ -65,6 +65,10 @@
 # endif
       integer :: LBi, UBi, LBj, UBj
       integer :: i
+
+# ifdef FORWARD_MIXING
+      real(r8) :: scale
+# endif
 
 # ifdef OBC
 !
@@ -121,7 +125,7 @@
 !  Tracer Sources/Sinks.
 !
       DO i=1,NT(ng)
-        IF (SOURCES(ng)%Ltracer(i)) THEN
+        IF (LtracerSrc(i,ng)) THEN
           CALL get_ngfldr (ng, iADM, idRtrc(i), ncFRCid(idRtrc(i),ng),  &
      &                     nFfiles(ng), FRCname(1,ng), update(1),       &
      &                     1, Nsrc(ng), N(ng), 2, 1, Nsrc(ng), N(ng),   &
@@ -806,43 +810,26 @@
 !  Read in assimilation data from ASSIMILATION NetCDF files.
 !=======================================================================
 !
-#  if defined NUDGING_SSH || defined ASSIMILATION_SSH
+#  ifdef ASSIMILATION_SSH
 !
 !-----------------------------------------------------------------------
 !  Read in sea surface height observations and error variance.
 !-----------------------------------------------------------------------
 !
       IF (assi_SSH(ng)) THEN
-#   ifdef NUDGING_SSH
-        CALL get_2dfldr (ng, iADM, idSSHo, ncSSHid(ng), 1,              &
-     &                   SSHname(ng), update(1),                        &
-     &                   LBi, UBi, LBj, UBj, 2, 1,                      &
-#    ifdef MASKING
-     &                   GRID(ng) % rmask(LBi,LBj),                     &
-#    endif
-     &                   OBS(ng) % SSHdat(LBi,LBj,1))
-        CALL get_2dfldr (ng, iADM, idSSHe, ncSSHid(ng), 1,              &
-     &                   SSHname(ng), update(2),                        &
-     &                   LBi, UBi, LBj, UBj, 2, 1,                      &
-#    ifdef MASKING
-     &                   GRID(ng) % rmask(LBi,LBj),                     &
-#    endif
-     &                   OBS(ng) % EdatSSH(LBi,LBj,1))
-        IF (update(1).and.update(2)) update_SSH(ng)=.TRUE.
-#   else
         CALL get_2dfldr (ng, iADM, idSSHo, ncSSHid(ng), 1,              &
      &                   SSHname(ng), update(1),                        &
      &                   LBi, UBi, LBj, UBj, 1, 1,                      &
-#    ifdef MASKING
+#   ifdef MASKING
      &                   GRID(ng) % rmask(LBi,LBj),                     &
-#    endif
+#   endif
      &                   OBS(ng) % SSHobs(LBi,LBj))
         CALL get_2dfldr (ng, iADM, idSSHe, ncSSHid(ng), 1,              &
      &                   SSHname(ng), update(2),                        &
      &                   LBi, UBi, LBj, UBj, 1, 1,                      &
-#    ifdef MASKING
+#   ifdef MASKING
      &                   GRID(ng) % rmask(LBi,LBj),                     &
-#    endif
+#   endif
      &                   OBS(ng) % EobsSSH(LBi,LBj))
         IF (update(1).and.update(2)) THEN
           update_SSH(ng)=.TRUE.
@@ -853,7 +840,6 @@
           EobsSSHmin(ng)=Finfo(8,idSSHe,ng)
           EobsSSHmax(ng)=Finfo(9,idSSHe,ng)
         END IF
-#   endif
       END IF
 #  endif
 
@@ -1233,6 +1219,8 @@
 ! Read in vertical mixing variables.
 !
       DO i=1,NAT
+        scale=Fscale(idDiff(i),ng)                    ! save and rescale
+        Fscale(idDiff(i),ng)=ad_Akt_fac(i,ng)
         CALL get_3dfldr (ng, iADM, idDiff(i), ncFWDid(ng), 1,           &
      &                   FWDname(ng), update(1),                        &
      &                   LBi, UBi, LBj, UBj, 0, N(ng), 2, 1,            &
@@ -1240,7 +1228,11 @@
      &                   GRID(ng) % rmask(LBi,LBj),                     &
 #    endif
      &                   MIXING(ng) % AktG(LBi,LBj,0,1,i))
+        Fscale(idDiff(i),ng)=scale
       END DO
+
+      scale=Fscale(idVvis,ng)                         ! save and rescale
+      Fscale(idVvis,ng)=ad_Akv_fac(ng)
       CALL get_3dfldr (ng, iADM, idVvis, ncFWDid(ng), 1,                &
      &                 FWDname(ng), update(1),                          &
      &                 LBi, UBi, LBj, UBj, 0, N(ng), 2, 1,              &
@@ -1248,6 +1240,7 @@
      &                 GRID(ng) % rmask(LBi,LBj),                       &
 #    endif
      &                 MIXING(ng) % AkvG(LBi,LBj,0,1))
+      Fscale(idVvis,ng)=scale
 #   endif
 
 #   if defined MY25_MIXING_NOT_YET || defined GLS_MIXING_NOT_YET
@@ -1346,8 +1339,8 @@
 #  endif
 # endif
 
-# if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
-     defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR || \
+# if defined AD_SENSITIVITY   || defined IS4DVAR_SENSITIVITY || \
+     defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR   || \
      defined SO_SEMI
 !
 !-----------------------------------------------------------------------

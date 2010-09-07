@@ -2,9 +2,9 @@
 #if defined PROPAGATOR && defined CHECKPOINTING
       SUBROUTINE def_gst (ng, model)
 !
-!svn $Id: def_gst.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -40,14 +40,14 @@
       integer :: iparamdim, ipntrdim, laitrdim, laup2dim, raitrdim
       integer :: raup2dim
       integer :: i, j, status, varid
-      integer :: DimIDs(31), vardim(2)
+      integer :: DimIDs(32), vardim(2)
 
       integer :: def_dim
 
       real(r8) :: Aval(6)
 
-      character (len=80) :: Vinfo(Natt)
-      character (len=80) :: ncname
+      character (len=120) :: Vinfo(Natt)
+      character (len=256) :: ncname
 !
 !-----------------------------------------------------------------------
 !  Set and report file name.
@@ -135,10 +135,6 @@
 
         status=def_dim(ng, model, ncGSTid(ng), ncname, 'raup2',         &
      &                 SIZE(raup2), raup2dim)
-        IF (exit_flag.ne.NoError) RETURN
-
-        status=def_dim(ng, model, ncGSTid(ng), ncname, 'char1',         &
-     &                 1, char1dim)
         IF (exit_flag.ne.NoError) RETURN
 
         status=def_dim(ng, model, ncGSTid(ng), ncname, 'char2',         &
@@ -320,10 +316,10 @@
 !
         Vinfo( 1)='laitr'
         Vinfo( 2)='ARPACK internal logical parameters to _aitr routines'
-        vardim(1)=char1dim
-        vardim(2)=laitrdim
-        status=def_var(ng, model, ncGSTid(ng), varid, nf90_char,        &
-     &                 2, vardim, Aval, Vinfo, ncname,                  &
+        Vinfo( 9)='.FALSE.'
+        Vinfo(10)='.TRUE.'
+        status=def_var(ng, model, ncGSTid(ng), varid, nf90_int,         &
+     &                 1, (/laitrdim/), Aval, Vinfo, ncname,            &
      &                 SetParAccess = .FALSE.)
         IF (exit_flag.ne.NoError) RETURN
 !
@@ -331,10 +327,10 @@
 !
         Vinfo( 1)='laup2'
         Vinfo( 2)='ARPACK internal logical parameters to _aup2 routines'
-        vardim(1)=char1dim
-        vardim(2)=laup2dim
-        status=def_var(ng, model, ncGSTid(ng), varid, nf90_char,        &
-     &                 2, vardim, Aval, Vinfo, ncname,                  &
+        Vinfo( 9)='.FALSE.'
+        Vinfo(10)='.TRUE.'
+        status=def_var(ng, model, ncGSTid(ng), varid, nf90_int,         &
+     &                 1, (/laup2dim/), Aval, Vinfo, ncname,            &
      &                 SetParAccess = .FALSE.)
         IF (exit_flag.ne.NoError) RETURN
 !

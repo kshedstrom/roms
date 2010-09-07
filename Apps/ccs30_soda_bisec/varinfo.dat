@@ -5118,15 +5118,6 @@
   'r3dvar'
   1.0d0
 
- 'Eatfish'
-  'fish eats other fish'
-  'nondimensional'
-  'eatfish, scalar, series'
-  'bio_time'
-  'idFeatf'
-  'r3dvar'
-  1.0d0
-
  'Fishgirl'
   'fish is female'
   'nondimensional'

@@ -1,7 +1,7 @@
 /*
-** svn $Id: cblast.h 975 2009-05-05 22:51:13Z kate $
+** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2009 The ROMS/TOMS Group                               **
+** Copyright (c) 2002-2010 The ROMS/TOMS Group                               **
 **   Licensed under a MIT/X style license                                    **
 **   See License_ROMS.txt                                                    **
 *******************************************************************************
@@ -13,15 +13,17 @@
 */
 
 /* Basic physics options */
-#define	UV_ADV
-#define	UV_COR
-#undef	UV_VIS2
-#undef	MIX_S_UV
+
+#define UV_ADV
+#define UV_COR
+#undef  UV_VIS2
+#undef  MIX_S_UV
 #define SOLVE3D
-#define	SALINITY
-#define	NONLIN_EOS
+#define SALINITY
+#define NONLIN_EOS
 
 /* Basic numerics options */
+
 #define UV_SADVECTION
 #define TS_U3HADVECTION
 #define TS_SVADVECTION
@@ -31,15 +33,15 @@
 #define MASKING
 
 /* Outputs */
-#define	AVERAGES
-#define AVERAGES_QUADRATIC
-#define AVERAGES_FLUXES
+
+#define AVERAGES
 #define DIAGNOSTICS_UV
 #define DIAGNOSTICS_TS
 #define STATIONS
 #undef  FLOATS
 
 /* Surface and bottom boundary conditions */
+
 #define BULK_FLUXES
 #define SOLAR_SOURCE
 #define LONGWAVE_OUT /* input is lwrad downward - model computes upward */
@@ -49,7 +51,8 @@
 #define ANA_BSFLUX
 #define ANA_BTFLUX
 
-/* Vertical subgridscale turbuelnce closure */
+/* Vertical subgridscale turbulence closure */
+
 #undef  LMD_MIXING
 #define MY25_MIXING
 #ifdef MY25_MIXING
@@ -65,15 +68,16 @@
 #endif
 
 /* Open boundary conditions */
+
 #define RADIATION_2D
 #define RAMP_TIDES
-#define	SSH_TIDES
+#define SSH_TIDES
 # define ADD_FSOBC
 # define EAST_FSCHAPMAN
 # define WEST_FSCHAPMAN
 # define SOUTH_FSCHAPMAN
 # define NORTH_FSCHAPMAN
-#define	UV_TIDES
+#define UV_TIDES
 # define ADD_M2OBC
 # define EAST_M2FLATHER
 # define WEST_M2FLATHER

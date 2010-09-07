@@ -1,9 +1,9 @@
 #include "cppdefs.h"
       MODULE strings_mod
 !
-!svn $Id: strings.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -43,7 +43,7 @@
 !  This logical function scans an array of type character for an       !
 !  specific string.                                                    !
 !                                                                      !
-!  On Input:                                                           ! 
+!  On Input:                                                           !
 !                                                                      !
 !     A            Array of strings (character)                        !
 !     Asize        Size of A (integer)                                 !
@@ -89,20 +89,20 @@
       RETURN
       END FUNCTION find_string
 
-      FUNCTION lowercase (Ainp) RESULT (Aout)
+      FUNCTION lowercase (Sinp) RESULT (Sout)
 !
 !=======================================================================
 !                                                                      !
 !  This character function converts input string elements to           !
 !  lowercase.                                                          !
 !                                                                      !
-!  On Input:                                                           ! 
+!  On Input:                                                           !
 !                                                                      !
-!     Ainp       String with uppercase elements (character)            !
+!     Sinp       String with uppercase elements (character)            !
 !                                                                      !
 !  On Output:                                                          !
 !                                                                      !
-!     Aout       Lowercase string (character)                          !
+!     Sout       Lowercase string (character)                          !
 !                                                                      !
 !  Reference:                                                          !
 !                                                                      !
@@ -113,13 +113,13 @@
 !
 !  Imported variable declarations.
 !
-      character (*), intent(in) :: Ainp
+      character (*), intent(in) :: Sinp
 !
 !  Local variable definitions.
 !
       integer :: i, j, lstr
 
-      character (LEN(Ainp)) :: Aout
+      character (LEN(Sinp)) :: Sout
 
       character (26), parameter :: Lcase = 'abcdefghijklmnopqrstuvwxyz'
       character (26), parameter :: Ucase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
@@ -127,33 +127,33 @@
 !-----------------------------------------------------------------------
 !  Convert input string to lowercase.
 !-----------------------------------------------------------------------
-! 
-      lstr=LEN(Ainp)
-      Aout=Ainp
+!
+      lstr=LEN(Sinp)
+      Sout=Sinp
       DO i=1,lstr
-        j=INDEX(Ucase, Aout(i:i))
+        j=INDEX(Ucase, Sout(i:i))
         IF (j.ne.0) THEN
-          Aout(i:i)=Lcase(j:j)
+          Sout(i:i)=Lcase(j:j)
         END IF
       END DO
 
       RETURN
       END FUNCTION lowercase
 
-      FUNCTION uppercase (Ainp) RESULT (Aout)
+      FUNCTION uppercase (Sinp) RESULT (Sout)
 !
 !=======================================================================
 !                                                                      !
 !  This character function converts input string elements to           !
 !  uppercase.                                                          !
 !                                                                      !
-!  On Input:                                                           ! 
+!  On Input:                                                           !
 !                                                                      !
-!     Ainp       String with lowercase characters (character)          !
+!     Sinp       String with lowercase characters (character)          !
 !                                                                      !
 !  On Output:                                                          !
 !                                                                      !
-!     Aout       Uppercase string (character)                          !
+!     Sout       Uppercase string (character)                          !
 !                                                                      !
 !  Reference:                                                          !
 !                                                                      !
@@ -164,13 +164,13 @@
 !
 !  Imported variable declarations.
 !
-      character (*), intent(in) :: Ainp
+      character (*), intent(in) :: Sinp
 !
 !  Local variable definitions.
 !
       integer :: i, j, lstr
 
-      character (LEN(Ainp)) :: Aout
+      character (LEN(Sinp)) :: Sout
 
       character (26), parameter :: Lcase = 'abcdefghijklmnopqrstuvwxyz'
       character (26), parameter :: Ucase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
@@ -179,12 +179,12 @@
 !  Convert input string to uppercase.
 !-----------------------------------------------------------------------
 !
-      lstr=LEN(Ainp)
-      Aout=Ainp
+      lstr=LEN(Sinp)
+      Sout=Sinp
       DO i=1,lstr
-        j=INDEX(Lcase, Aout(i:i))
+        j=INDEX(Lcase, Sout(i:i))
         IF (j.ne.0) THEN
-          Aout(i:i)=Ucase(j:j)
+          Sout(i:i)=Ucase(j:j)
         END IF
       END DO
 

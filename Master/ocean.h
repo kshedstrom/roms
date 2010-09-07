@@ -1,11 +1,11 @@
       PROGRAM ocean
 !
-!svn $Id: ocean.h 975 2009-05-05 22:51:13Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
-!======================================================================= 
+!=======================================================================
 !                                                                      !
 !  Regional Ocean Model System (ROMS)                                  !
 !  Terrain-following Ocean Model System (TOMS)                         !
@@ -113,7 +113,7 @@
         Tend(ng)=ntend(ng)+1
       END DO
       IF (exit_flag.eq.NoError) THEN
-        CALL ROMS_run (Tstr, Tend) 
+        CALL ROMS_run (Tstr, Tend)
       END IF
 !
 !-----------------------------------------------------------------------

@@ -1,8 +1,8 @@
       SUBROUTINE ana_nudgcoef (ng, tile, model)
 !
-!! svn $Id: ana_nudgcoef.h 1023 2009-07-20 21:45:24Z kate $
+!! svn $Id$
 !!================================================= Hernan G. Arango ===
-!! Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!! Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !!   Licensed under a MIT/X style license                              !
 !!   See License_ROMS.txt                                              !
 !=======================================================================
@@ -210,7 +210,7 @@
 !
 !! WARNING:  This section is generic for all applications. Please do not
 !!           change the code below.
-!!            
+!!
 !  Free-surface nudging coefficients.
 !
 # ifdef WEST_FSNUDGING

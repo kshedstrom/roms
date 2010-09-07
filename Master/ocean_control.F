@@ -1,8 +1,8 @@
 #include "cppdefs.h"
 !!
-!!svn $Id: ocean_control.F 1098 2009-11-18 17:54:22Z kate $
+!!svn $Id$
 !!================================================= Hernan G. Arango ===
-!! Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
+!! Copyright (c) 2002-2010 The ROMS/TOMS Group       Andrew M. Moore   !
 !!   Licensed under a MIT/X style license                              !
 !!   See License_ROMS.txt                                              !
 !!======================================================================
@@ -12,6 +12,7 @@
 !!  ad_ocean.h             Adjoint model driver                        !
 !!  adsen_ocean.h          Adjoint sensitivity analysis driver         !
 !!  afte_ocean.h           Adjoint finite time eigenmodes driver       !
+!!  array_modes_w4dvar.h   W4DVAR array modes driver                   !
 !!  convolution.h          Error covariance convolution driver         !
 !!  correlation.h          Error covariance correlation driver         !
 !!  fte_ocean.h            Finite time eigenmodes driver               !
@@ -21,7 +22,7 @@
 !!  nl_ocean.h             Nonlinear model driver (default)            !
 !!  op_ocean.h             Optimal perturbations driver                !
 !!  optobs_ocean.h         Optimal observations driver                 !
-!!  obs_sen_ocean.h        Observations sensitivity driver to the      !
+!!  obs_sen_is4dvar.h      Observations sensitivity driver to the      !
 !!                           IS4DVAR data assimilation system          !
 !!  obs_sen_w4dpsas.h      Observations sensitivity driver to the      !
 !!                           W4DPSAS data assimilation system          !
@@ -59,8 +60,8 @@
 # include "fte_ocean.h"
 #elif defined FORCING_SV
 # include "fsv_ocean.h"
-#elif defined OBS_SENSITIVITY
-# include "obs_sen_ocean.h"
+#elif defined IS4DVAR_SENSITIVITY
+# include "obs_sen_is4dvar.h"
 #elif defined OPT_PERTURBATION
 # include "op_ocean.h"
 #elif defined OPT_OBSERVATIONS
@@ -89,6 +90,8 @@
 # include "obs_sen_w4dvar.h"
 #elif defined TL_W4DVAR
 # include "tl_w4dvar_ocean.h"
+#elif defined ARRAY_MODES || defined CLIPPING
+# include "array_modes_w4dvar.h"
 #else
 # if defined TLM_DRIVER
 #  include "tl_ocean.h"

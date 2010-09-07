@@ -2,9 +2,9 @@
 #ifdef NONLINEAR
       SUBROUTINE output (ng)
 !
-!svn $Id: output.F 1098 2009-11-18 17:54:22Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -25,6 +25,7 @@
       USE mod_floats
 # endif
 # ifdef NEMURO_SAN
+      USE mod_biology
       USE mod_fish
 #  ifdef PREDATOR
       USE mod_pred
@@ -86,38 +87,37 @@
 #ifndef NO_HIS
       IF (LdefHIS(ng)) THEN
         IF (ndefHIS(ng).gt.0) THEN
-          IF (iic(ng).eq.ntstart(ng)) THEN
-            NewFile=.TRUE.
-            IF (idefHIS(ng).lt.0) THEN
-              idefHIS(ng)=((ntstart(ng)-1)/ndefHIS(ng))*ndefHIS(ng)
-              IF (idefHIS(ng).lt.iic(ng)-1) THEN
-                idefHIS(ng)=idefHIS(ng)+ndefHIS(ng)
-              END IF
+          IF (idefHIS(ng).lt.0) THEN
+            idefHIS(ng)=((ntstart(ng)-1)/ndefHIS(ng))*ndefHIS(ng)
+            IF (idefHIS(ng).lt.iic(ng)-1) THEN
+              idefHIS(ng)=idefHIS(ng)+ndefHIS(ng)
             END IF
-            IF (MOD(iic(ng)-1,ndefHIS(ng)).gt.0) THEN
-              Ldefine=ldefout(ng)
-            ELSE
-              Ldefine=.TRUE.
-            END IF
-          ELSE
-            NewFile=.FALSE.
           END IF
-          IF ((iic(ng)-1).eq.idefHIS(ng)) THEN
+          IF ((nrrec(ng).ne.0).and.(iic(ng).eq.ntstart(ng))) THEN
+            IF ((iic(ng)-1).eq.idefHIS(ng)) THEN
+              Ldefine=.FALSE.                 ! finished file, delay
+            ELSE                              ! creation of next file
+              Ldefine=.TRUE.
+              NewFile=.FALSE.                 ! unfinished file, inquire
+            END IF                            ! content for appending
+            idefHIS(ng)=idefHIS(ng)+nHIS(ng)  ! restart offset
+          ELSE IF ((iic(ng)-1).eq.idefHIS(ng)) THEN
             idefHIS(ng)=idefHIS(ng)+ndefHIS(ng)
+            IF (nHIS(ng).ne.ndefHIS(ng).and.iic(ng).eq.ntstart(ng)) THEN
+              idefHIS(ng)=idefHIS(ng)+nHIS(ng)  ! multiple record offset
+            END IF
             Ldefine=.TRUE.
             NewFile=.TRUE.
-! think about this one...
-            IF (nHIS(ng).ne.ndefHIS(ng).and.iic(ng).eq.ntstart(ng)) THEN
-              idefHIS(ng)=idefHIS(ng)+nHIS(ng)
-            END IF
+          ELSE
+            Ldefine=.FALSE.
           END IF
-          IF (NewFile) THEN
-            NrecHIS(ng)=0
+          IF (Ldefine) THEN                     ! create new file or
+            NrecHIS(ng)=0                       ! inquire existing file
             ifile=(iic(ng)-1)/ndefHIS(ng)+1
             IF (Master) THEN
               lstr=LEN_TRIM(HISbase(ng))
               WRITE (HISname(ng),10) HISbase(ng)(1:lstr-3),ifile
-#ifdef NEP5
+#if defined NEP5 || defined CASPIAN
   10          FORMAT (a,'_',i5.5,'.nc')
 #else
   10          FORMAT (a,'_',i4.4,'.nc')
@@ -129,8 +129,12 @@
             IF (ncHISid(ng).ne.-1) THEN
               CALL netcdf_close (ng, iNLM, ncHISid(ng))
             END IF
-            CALL def_his (ng, Ldefine)
+            CALL def_his (ng, NewFile)
             IF (exit_flag.ne.NoError) RETURN
+          END IF
+          IF ((iic(ng).eq.ntstart(ng)).and.(nrrec(ng).ne.0)) THEN
+            LwrtHIS(ng)=.FALSE.                 ! avoid writing initial
+          ELSE                                  ! fields during restart
             LwrtHIS(ng)=.TRUE.
           END IF
         ELSE
@@ -176,37 +180,43 @@
 !
       IF (LdefAVG(ng)) THEN
         IF (ndefAVG(ng).gt.0) THEN
-          IF (iic(ng).eq.ntstart(ng)) THEN
-            NewFile=.TRUE.
-            IF (idefAVG(ng).lt.0) THEN
-              idefAVG(ng)=((ntstart(ng)-1)/ndefAVG(ng))*ndefAVG(ng)
-              IF (idefAVG(ng).lt.iic(ng)-1) THEN
-                idefAVG(ng)=idefAVG(ng)+ndefAVG(ng)
-              END IF
+          IF (idefAVG(ng).lt.0) THEN
+            idefAVG(ng)=((ntstart(ng)-1)/ndefAVG(ng))*ndefAVG(ng)
+            IF ((ndefAVG(ng).eq.nAVG(ng)).and.(idefAVG(ng).le.0)) THEN
+              idefAVG(ng)=ndefAVG(ng)         ! one file per record
+            ELSE IF (idefAVG(ng).lt.iic(ng)-1) THEN
+              idefAVG(ng)=idefAVG(ng)+ndefAVG(ng)
             END IF
-            IF (MOD(iic(ng)-1,ndefAVG(ng)).gt.0) THEN
-              Ldefine=ldefout(ng)
-            ELSE
-              Ldefine=.TRUE.
-            END IF
-          ELSE
-            NewFile=.FALSE.
           END IF
-          IF ((iic(ng)-1).eq.idefAVG(ng)) THEN
+          IF ((nrrec(ng).ne.0).and.(iic(ng).eq.ntstart(ng))) THEN
+            IF ((iic(ng)-1).eq.idefAVG(ng)) THEN
+              Ldefine=.FALSE.                 ! finished file, delay
+            ELSE                              ! creation of next file
+              NewFile=.FALSE.
+              Ldefine=.TRUE.                  ! unfinished file, inquire
+            END IF                            ! content for appending
+            idefAVG(ng)=idefAVG(ng)+nAVG(ng)  ! restart offset
+          ELSE IF ((iic(ng)-1).eq.idefAVG(ng)) THEN
             idefAVG(ng)=idefAVG(ng)+ndefAVG(ng)
-            Ldefine=.TRUE.
-            NewFile=.TRUE.
-! think about this one...
             IF (nAVG(ng).ne.ndefAVG(ng).and.iic(ng).eq.ntstart(ng)) THEN
               idefAVG(ng)=idefAVG(ng)+nAVG(ng)
             END IF
+            Ldefine=.TRUE.
+            Newfile=.TRUE.
+          ELSE
+            Ldefine=.FALSE.
           END IF
-          IF (NewFile) THEN
-            ifile=(iic(ng)-1)/ndefAVG(ng)+1
+          IF (Ldefine) THEN
+            NrecAVG(ng)=0
+            IF (ndefAVG(ng).eq.nAVG(ng)) THEN
+              ifile=(iic(ng)-1)/ndefAVG(ng)
+            ELSE
+              ifile=(iic(ng)-1)/ndefAVG(ng)+1
+            END IF
             IF (Master) THEN
               lstr=LEN_TRIM(AVGbase(ng))
               WRITE (AVGname(ng),20) AVGbase(ng)(1:lstr-3),ifile
-#ifdef NEP5
+#if defined NEP5 || defined CASPIAN
   20          FORMAT (a,'_',i5.5,'.nc')
 #else
   20          FORMAT (a,'_',i4.4,'.nc')
@@ -218,7 +228,7 @@
             IF (ncAVGid(ng).ne.-1) THEN
               CALL netcdf_close (ng, iNLM, ncAVGid(ng))
             END IF
-            CALL def_avg (ng, Ldefine)
+            CALL def_avg (ng, Newfile)
             IF (exit_flag.ne.NoError) RETURN
             LwrtAVG(ng)=.TRUE.
           END IF
@@ -258,34 +268,40 @@
 !
       IF (LdefAVG2(ng)) THEN
         IF (ndefAVG2(ng).gt.0) THEN
-          IF (iic(ng).eq.ntstart(ng)) THEN
-            NewFile=.TRUE.
-            IF (idefAVG2(ng).lt.0) THEN
-              idefAVG2(ng)=((ntstart(ng)-1)/ndefAVG2(ng))*ndefAVG2(ng)
-              IF (idefAVG2(ng).lt.iic(ng)-1) THEN
-                idefAVG2(ng)=idefAVG2(ng)+ndefAVG2(ng)
-              END IF
+          IF (idefAVG2(ng).lt.0) THEN
+            idefAVG2(ng)=((ntstart(ng)-1)/ndefAVG2(ng))*ndefAVG2(ng)
+            IF ((ndefAVG2(ng).eq.nAVG2(ng)).and.(idefAVG2(ng).le.0)) THEN
+              idefAVG2(ng)=ndefAVG2(ng)         ! one file per record
+            ELSE IF (idefAVG2(ng).lt.iic(ng)-1) THEN
+              idefAVG2(ng)=idefAVG2(ng)+ndefAVG2(ng)
             END IF
-            IF (MOD(iic(ng)-1,ndefAVG2(ng)).gt.0) THEN
-              Ldefine=ldefout(ng)
-            ELSE
-              Ldefine=.TRUE.
-            END IF
-          ELSE
-            NewFile=.FALSE.
           END IF
-          IF ((iic(ng)-1).eq.idefAVG2(ng)) THEN
+          IF ((nrrec(ng).ne.0).and.(iic(ng).eq.ntstart(ng))) THEN
+            IF ((iic(ng)-1).eq.idefAVG2(ng)) THEN
+              Ldefine=.FALSE.                    ! finished file, delay
+            ELSE                                 ! creation of next file
+              NewFile=.FALSE.
+              Ldefine=.TRUE.                     ! unfinished file, inquire
+            END IF                               ! content for appending
+            idefAVG2(ng)=idefAVG2(ng)+nAVG2(ng)  ! restart offset
+          ELSE IF ((iic(ng)-1).eq.idefAVG2(ng)) THEN
             idefAVG2(ng)=idefAVG2(ng)+ndefAVG2(ng)
-            Ldefine=.TRUE.
-            NewFile=.TRUE.
-! think about this one...
             IF (nAVG2(ng).ne.ndefAVG2(ng).and.iic(ng).eq.ntstart(ng))   &
      &              THEN
               idefAVG2(ng)=idefAVG2(ng)+nAVG2(ng)
             END IF
+            Ldefine=.TRUE.
+            NewFile=.TRUE.
+          ELSE
+            Ldefine=.FALSE.
           END IF
-          IF (NewFile) THEN
-            ifile=(iic(ng)-1)/ndefAVG2(ng)+1
+          IF (Ldefine) THEN
+            NrecAVG2(ng)=0
+            IF (nAVG2(ng).eq.ndefAVG2(ng)) THEN
+              ifile=(iic(ng)-1)/ndefAVG2(ng)
+            ELSE
+              ifile=(iic(ng)-1)/ndefAVG2(ng)+1
+            END IF
             IF (Master) THEN
               lstr=LEN_TRIM(AVG2base(ng))
               WRITE (AVG2name(ng),20) AVG2base(ng)(1:lstr-3),ifile
@@ -296,7 +312,7 @@
             IF (ncAVG2id(ng).ne.-1) THEN
               CALL netcdf_close(ng, iNLM, ncAVG2id(ng))
             END IF
-            CALL def_avg2 (ng, Ldefine)
+            CALL def_avg2 (ng, Newfile)
             IF (exit_flag.ne.NoError) RETURN
             LwrtAVG2(ng)=.TRUE.
           END IF
@@ -332,37 +348,43 @@
 !
       IF (LdefDIA(ng)) THEN
         IF (ndefDIA(ng).gt.0) THEN
-          IF (iic(ng).eq.ntstart(ng)) THEN
-            NewFile=.TRUE.
-            IF (idefDIA(ng).lt.0) THEN
-              idefDIA(ng)=((ntstart(ng)-1)/ndefDIA(ng))*ndefDIA(ng)
-              IF (idefDIA(ng).lt.iic(ng)-1) THEN
-                idefDIA(ng)=idefDIA(ng)+ndefDIA(ng)
-              END IF
+          IF (idefDIA(ng).lt.0) THEN
+            idefDIA(ng)=((ntstart(ng)-1)/ndefDIA(ng))*ndefDIA(ng)
+            IF ((ndefDIA(ng).eq.nDIA(ng)).and.(idefDIA(ng).le.0)) THEN
+              idefDIA(ng)=ndefDIA(ng)         ! one file per record
+            ELSE IF (idefDIA(ng).lt.iic(ng)-1) THEN
+              idefDIA(ng)=idefDIA(ng)+ndefDIA(ng)
             END IF
-            IF (MOD(iic(ng)-1,ndefDIA(ng)).gt.0) THEN
-              Ldefine=ldefout(ng)
-            ELSE
-              Ldefine=.TRUE.
-            END IF
-          ELSE
-            NewFile=.FALSE.
           END IF
-          IF ((iic(ng)-1).eq.idefDIA(ng)) THEN
+          IF ((nrrec(ng).ne.0).and.(iic(ng).eq.ntstart(ng))) THEN
+            IF ((iic(ng)-1).eq.idefDIA(ng)) THEN
+              Ldefine=.FALSE.                 ! finished file, delay
+            ELSE                              ! creation of next file
+              NewFile=.FALSE.
+              Ldefine=.TRUE.                  ! unfinished file, inquire
+            END IF                            ! content for appending
+            idefDIA(ng)=idefDIA(ng)+nDIA(ng)  ! restart offset
+          ELSE IF ((iic(ng)-1).eq.idefDIA(ng)) THEN
             idefDIA(ng)=idefDIA(ng)+ndefDIA(ng)
-            Ldefine=.TRUE.
-            NewFile=.TRUE.
-! think about this one...
             IF (nDIA(ng).ne.ndefDIA(ng).and.iic(ng).eq.ntstart(ng)) THEN
               idefDIA(ng)=idefDIA(ng)+nDIA(ng)
             END IF
+            Ldefine=.TRUE.
+            Newfile=.TRUE.
+          ELSE
+            Ldefine=.FALSE.
           END IF
-          IF (NewFile) THEN
-            ifile=(iic(ng)-1)/ndefDIA(ng)+1
+          IF (Ldefine) THEN
+            NrecDIA(ng)=0
+            IF (ndefDIA(ng).eq.nDIA(ng)) THEN
+              ifile=(iic(ng)-1)/ndefDIA(ng)
+            ELSE
+              ifile=(iic(ng)-1)/ndefDIA(ng)+1
+            END IF
             IF (Master) THEN
               lstr=LEN_TRIM(DIAbase(ng))
               WRITE (DIAname(ng),30) DIAbase(ng)(1:lstr-3),ifile
-#ifdef NEP5
+#if defined NEP5 || defined CASPIAN
   30          FORMAT (a,'_',i5.5,'.nc')
 #else
   30          FORMAT (a,'_',i4.4,'.nc')
@@ -374,7 +396,7 @@
             IF (ncDIAid(ng).ne.-1) THEN
               CALL netcdf_close (ng, iNLM, ncDIAid(ng))
             END IF
-            CALL def_diags (ng, Ldefine)
+            CALL def_diags (ng, Newfile)
             IF (exit_flag.ne.NoError) RETURN
             LwrtDIA(ng)=.TRUE.
           END IF
@@ -411,7 +433,11 @@
 !  append new data to it.
 !
         IF (LdefSTA(ng).and.(iic(ng).eq.ntstart(ng))) THEN
+#if defined NEP5 || defined BERING
+          CALL def_station (ng, .true.)
+#else
           CALL def_station (ng, ldefout(ng))
+#endif
           IF (exit_flag.ne.NoError) RETURN
           LdefSTA(ng)=.FALSE.
         END IF
@@ -464,21 +490,75 @@
 !
       IF (Nfish(ng).gt.0.and.(nFSH(ng).gt.0)) THEN
 !
-!  Create output fish NetCDF file or prepare existing file to
-!  append new data to it.
+!  Create output fish NetCDF file or prepare existing file
+!  to append new data to it. Also, notice that it is possible to
+!  create several files during a single model run.
 !
         IF (LdefFISH(ng)) THEN
-          IF (fishrrec(ng).eq.0) THEN
-            NewFile=.TRUE.
+          IF (ndefFISH(ng).gt.0) THEN
+            IF (idefFISH(ng).lt.0) THEN
+              idefFISH(ng)=((ntstart(ng)-1)/ndefFISH(ng))*ndefFISH(ng)
+              IF ((ndefFISH(ng).eq.nFSH(ng)).and.(idefFISH(ng).le.0)) THEN
+                idefFISH(ng)=ndefFISH(ng)         ! one file per record
+              ELSE IF (idefFISH(ng).lt.iic(ng)-1) THEN
+                idefFISH(ng)=idefFISH(ng)+ndefFISH(ng)
+              END IF
+            END IF
+            IF ((nrrec(ng).ne.0).and.(iic(ng).eq.ntstart(ng))) THEN
+              IF ((iic(ng)-1).eq.idefFISH(ng)) THEN
+                Ldefine=.FALSE.                 ! finished file, delay
+              ELSE                              ! creation of next file
+                NewFile=.FALSE.
+                Ldefine=.TRUE.                  ! unfinished file, inquire
+              END IF                            ! content for appending
+              idefFISH(ng)=idefFISH(ng)+nFSH(ng)  ! restart offset
+            ELSE IF ((iic(ng)-1).eq.idefFISH(ng)) THEN
+              idefFISH(ng)=idefFISH(ng)+ndefFISH(ng)
+              IF (nFSH(ng).ne.ndefFISH(ng).and.iic(ng).eq.ntstart(ng)) THEN
+                idefFISH(ng)=idefFISH(ng)+nFSH(ng)
+              END IF
+              Ldefine=.TRUE.
+              Newfile=.TRUE.
+            ELSE
+              Ldefine=.FALSE.
+            END IF
+            IF (Ldefine) THEN
+              NrecFISH(ng)=0
+              IF (ndefFISH(ng).eq.nFSH(ng)) THEN
+                ifile=(iic(ng)-1)/ndefFISH(ng)
+              ELSE
+                ifile=(iic(ng)-1)/ndefFISH(ng)+1
+              END IF
+              IF (Master) THEN
+                lstr=LEN_TRIM(FISHbase(ng))
+                WRITE (FISHname(ng),60) FISHbase(ng)(1:lstr-3),ifile
+#if defined NEP5 || defined CASPIAN
+  60            FORMAT (a,'_',i5.5,'.nc')
+#else
+  60            FORMAT (a,'_',i4.4,'.nc')
+#endif
+              END IF
+# ifdef DISTRIBUTE
+              CALL mp_bcasts (ng, iNLM, FISHname(ng))
+# endif
+              IF (ncFISHid(ng).ne.-1) THEN
+                CALL netcdf_close (ng, iNLM, ncFISHid(ng))
+              END IF
+              CALL def_fish (ng, Newfile)
+              IF (exit_flag.ne.NoError) RETURN
+              LwrtFISH(ng)=.TRUE.
+            END IF
           ELSE
-            NewFile=.FALSE.
+            IF (iic(ng).eq.ntstart(ng)) THEN
+              CALL def_fish (ng, ldefout(ng))
+# ifdef FLEET
+!              CALL def_ships (ng, NewFile)
+# endif
+              IF (exit_flag.ne.NoError) RETURN
+              LwrtFISh(ng)=.TRUE.
+              LdefFISh(ng)=.FALSE.
+            END IF
           END IF
-          CALL def_fish (ng, NewFile)
-#  ifdef FLEET
-!          CALL def_ships (ng, NewFile)
-#  endif
-          IF (exit_flag.ne.NoError) RETURN
-          LdefFISH(ng)=.FALSE.
         END IF
 !
 !  Write out data into fish NetCDF file.
@@ -553,7 +633,7 @@
         END IF
       END IF
 # if (defined FOUR_DVAR || defined VERIFICATION) && \
-     !defined OBS_SENSITIVITY
+     !defined IS4DVAR_SENSITIVITY
 #  ifdef OBSERVATIONS
 !
 !-----------------------------------------------------------------------
@@ -561,14 +641,14 @@
 !  locations. Compute misfit (model-observations) cost function.
 !-----------------------------------------------------------------------
 !
+      IF (((time(ng)-0.5_r8*dt(ng)).le.ObsTime(ng)).and.                &
+     &    (ObsTime(ng).lt.(time(ng)+0.5_r8*dt(ng)))) THEN
+        ProcessObs=.TRUE.
 #   ifdef DISTRIBUTE
         tile=MyRank
 #   else
         tile=-1
 #   endif
-      IF (((time(ng)-0.5_r8*dt(ng)).le.ObsTime(ng)).and.                &
-     &    (ObsTime(ng).lt.(time(ng)+0.5_r8*dt(ng)))) THEN
-        ProcessObs=.TRUE.
         CALL obs_read (ng, iNLM, .FALSE.)
         CALL obs_write (ng, tile, iNLM)
 #   ifndef W4DVAR

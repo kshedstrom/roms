@@ -2,9 +2,9 @@
 #if defined TANGENT || defined TL_IOMS
       SUBROUTINE tl_def_his (ng, ldef)
 !
-!svn $Id: tl_def_his.F 993 2009-05-29 20:56:30Z arango $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -16,6 +16,9 @@
 !
       USE mod_param
       USE mod_parallel
+# ifdef BIOLOGY
+      USE mod_biology
+# endif
 # ifdef FOUR_DVAR
       USE mod_fourdvar
 # endif
@@ -51,7 +54,7 @@
 # if defined ADJUST_STFLUX || defined ADJUST_WSTRESS
       integer :: frecdim
 # endif
-      integer :: DimIDs(31), t2dgrd(3), u2dgrd(3), v2dgrd(3)
+      integer :: DimIDs(32), t2dgrd(3), u2dgrd(3), v2dgrd(3)
 # ifdef ADJUST_BOUNDARY
       integer :: t2dobc(4)
 # endif
@@ -74,8 +77,8 @@
 
       real(r8) :: Aval(6)
 
-      character (len=80) :: ncname
       character (len=120) :: Vinfo(Natt)
+      character (len=256) :: ncname
 !
       SourceFile='tl_def_his.F'
 !
@@ -198,7 +201,11 @@
      &                 NT(ng), DimIDs(11))
         IF (exit_flag.ne.NoError) RETURN
 
-#  ifdef SEDIMENT_NOT_YET
+#  ifdef SEDIMENT
+        status=def_dim(ng, iTLM, ncTLMid(ng), ncname, 'NST',            &
+     &                 NST, DimIDs(32))
+        IF (exit_flag.ne.NoError) RETURN
+
         status=def_dim(ng, iTLM, ncTLMid(ng), ncname, 'Nbed',           &
      &                 Nbed, DimIDs(16))
         IF (exit_flag.ne.NoError) RETURN
@@ -533,7 +540,7 @@
           Vinfo( 3)=Vname(3,idFsur)
           Vinfo(14)=Vname(4,idFsur)
           Vinfo(16)=Vname(1,idtime)
-# if defined WRITE_WATER && defined MASKING
+# if !defined WET_DRY && (defined WRITE_WATER && defined MASKING)
           Vinfo(20)='mask_rho'
 # endif
           Vinfo(22)='coordinates'
@@ -970,13 +977,11 @@
           Vinfo( 3)=Vname(3,idVvis)
           Vinfo(14)=Vname(4,idVvis)
           Vinfo(16)=Vname(1,idtime)
-#   if defined WRITE_WATER && defined MASKING
-          Vinfo(20)='mask_rho'
-#   endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idVvis,ng),r8)
           status=def_var(ng, iTLM, ncTLMid(ng), tlmVid(idVvis,ng),      &
-     &                   NF_FOUT, nvd4, w3dgrd, Aval, Vinfo, ncname)
+     &                   NF_FOUT, nvd4, w3dgrd, Aval, Vinfo, ncname,    &
+     &                   SetFillVal = .FALSE.)
           IF (exit_flag.ne.NoError) RETURN
         END IF
 !
@@ -988,13 +993,11 @@
           Vinfo( 3)=Vname(3,idTdif)
           Vinfo(14)=Vname(4,idTdif)
           Vinfo(16)=Vname(1,idtime)
-#   if defined WRITE_WATER && defined MASKING
-          Vinfo(20)='mask_rho'
-#   endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idTdif,ng),r8)
           status=def_var(ng, iTLM, ncTLMid(ng), tlmVid(idTdif,ng),      &
-     &                   NF_FOUT, nvd4, w3dgrd, Aval, Vinfo, ncname)
+     &                   NF_FOUT, nvd4, w3dgrd, Aval, Vinfo, ncname,    &
+     &                   SetFillVal = .FALSE.)
           IF (exit_flag.ne.NoError) RETURN
         END IF
 #   ifdef SALINITY
@@ -1007,13 +1010,11 @@
           Vinfo( 3)=Vname(3,idSdif)
           Vinfo(14)=Vname(4,idSdif)
           Vinfo(16)=Vname(1,idtime)
-#    if defined WRITE_WATER && defined MASKING
-          Vinfo(20)='mask_rho'
-#    endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idSdif,ng),r8)
           status=def_var(ng, iTLM, ncTLMid(ng), tlmVid(idSdif,ng),      &
-     &                   NF_FOUT, nvd4, w3dgrd, Aval, Vinfo, ncname)
+     &                   NF_FOUT, nvd4, w3dgrd, Aval, Vinfo, ncname,    &
+     &                   SetFillVal = .FALSE.)
           IF (exit_flag.ne.NoError) RETURN
         END IF
 #   endif
@@ -1027,13 +1028,11 @@
           Vinfo( 3)=Vname(3,idMtke)
           Vinfo(14)=Vname(4,idMtke)
           Vinfo(16)=Vname(1,idtime)
-#    if defined WRITE_WATER && defined MASKING
-          Vinfo(20)='mask_rho'
-#    endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idMtke,ng),r8)
           status=def_var(ng, iTLM, ncTLMid(ng), tlmVid(idMtke,ng),      &
-     &                   NF_FOUT, nvd4, w3dgrd, Aval, Vinfo, ncname)
+     &                   NF_FOUT, nvd4, w3dgrd, Aval, Vinfo, ncname,    &
+     &                   SetFillVal = .FALSE.)
           IF (exit_flag.ne.NoError) RETURN
 
           Vinfo( 1)=Vname(1,idVmKK)
@@ -1059,13 +1058,11 @@
           Vinfo( 3)=Vname(3,idMtls)
           Vinfo(14)=Vname(4,idMtls)
           Vinfo(16)=Vname(1,idtime)
-#    if defined WRITE_WATER && defined MASKING
-          Vinfo(20)='mask_rho'
-#    endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idMtls,ng),r8)
           status=def_var(ng, iTLM, ncTLMid(ng), tlmVid(idMtls,ng),      &
-     &                   NF_FOUT, nvd4, w3dgrd, Aval, Vinfo, ncname)
+     &                   NF_FOUT, nvd4, w3dgrd, Aval, Vinfo, ncname,    &
+     &                   SetFillVal = .FALSE.)
           IF (exit_flag.ne.NoError) RETURN
 
           Vinfo( 1)=Vname(1,idVmLS)

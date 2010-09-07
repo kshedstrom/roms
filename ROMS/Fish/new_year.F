@@ -31,6 +31,7 @@
       USE mod_scalars
       USE mod_stepping
       USE mod_parallel
+      USE mod_biology
 # ifdef DISTRIBUTE
       USE distribute_mod, ONLY : mp_collect
 # endif

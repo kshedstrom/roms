@@ -4,9 +4,9 @@
       SUBROUTINE congrad (ng, model, outLoop, innLoop, NinnLoop,        &
      &                    Lcgini)
 !
-!svn $Id: congrad.F 1098 2009-11-18 17:54:22Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -208,18 +208,6 @@
               px(iobs)=0.0_r8
               cg_pxsave(iobs)=0.0_r8
             END DO
-
-# if defined W4DPSAS             || defined TL_W4DPSAS || \
-     defined W4DPSAS_SENSITIVITY
-!
-!  If this is the first outer-loop, save NLmodVal in BCKmodVal.
-!
-            IF (outLoop.eq.1) THEN
-              DO iobs=1,Ndatum(ng)
-                BCKmodVal(iobs)=NLmodVal(iobs)
-              END DO
-            END IF
-# endif
 !
 !  If this is the first pass of the inner loop, set up the vectors and
 !  store the first guess. The initial starting guess is assumed to be

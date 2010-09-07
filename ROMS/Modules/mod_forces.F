@@ -1,9 +1,9 @@
 #include "cppdefs.h"
       MODULE mod_forces
 !
-!svn $Id: mod_forces.F 1098 2009-11-18 17:54:22Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -68,7 +68,7 @@
 !                                                                      !
 !  Surface heat fluxes, Atmosphere-Ocean bulk parameterization.        !
 !                                                                      !
-!  lhflx        Kinematic net sensible heat flux (degC m/s).           !
+!  lhflx        Kinematic net latent heat flux (degC m/s).             !
 !  lrflx        Kinematic net longwave radiation (degC m/s).           !
 !  shflx        Kinematic net sensible heat flux (degC m/s).           !
 !                                                                      !
@@ -294,7 +294,7 @@
 #  ifndef ANA_SRFLUX
           real(r8), pointer :: srflxG(:,:,:)
 #  endif
-#  if defined ALBEDO && !defined BENCHMARK
+#  if defined ALBEDO
           real(r8), pointer :: cawdir(:,:)
 #  endif
 # endif
@@ -397,7 +397,7 @@
 #  endif
 # endif
 
-# if defined SSSFLX || defined WRT_SSSFLX
+# if defined SSSFLX
           real(r8), pointer :: sssflx(:,:)
 #  ifndef ANA_SSSFLX
           real(r8), pointer :: sssflxG(:,:,:)
@@ -521,6 +521,9 @@
 !=======================================================================
 !
       USE mod_param
+#ifdef BIOLOGY
+      USE mod_biology
+#endif
 #if defined ADJUST_STFLUX || defined ADJUST_WSTRESS
       USE mod_scalars
 #endif
@@ -674,7 +677,7 @@
 #  ifndef ANA_SRFLUX
       allocate ( FORCES(ng) % srflxG(LBi:UBi,LBj:UBj,2) )
 #  endif
-#  if defined ALBEDO && !defined BENCHMARK
+#  if defined ALBEDO
       allocate ( FORCES(ng) % cawdir(LBi:UBi,LBj:UBj) )
 #  endif
 # endif
@@ -793,7 +796,7 @@
 #  endif
 # endif
 
-# if defined SSSFLX || defined WRT_SSSFLX
+# if defined SSSFLX
       allocate ( FORCES(ng) % sssflx(LBi:UBi,LBj:UBj) )
 
 #  ifndef ANA_SSSFLX
@@ -922,6 +925,9 @@
 !=======================================================================
 !
       USE mod_param
+#ifdef BIOLOGY
+      USE mod_biology
+#endif
 #if defined ADJUST_STFLUX || defined ADJUST_WSTRESS
       USE mod_scalars
 #endif
@@ -1148,7 +1154,7 @@
             FORCES(ng) % srflxG(i,j,1) = IniVal
             FORCES(ng) % srflxG(i,j,2) = IniVal
 #  endif
-#  if defined ALBEDO && !defined BENCHMARK
+#  if defined ALBEDO
             FORCES(ng) % cawdir(i,j) = IniVal
 #  endif
 # endif
@@ -1251,7 +1257,7 @@
             FORCES(ng) % sssG(i,j,2) = IniVal
 #  endif
 # endif
-# if defined SSSFLX || defined WRT_SSSFLX
+# if defined SSSFLX
             FORCES(ng) % sssflx(i,j) = IniVal
 #  ifndef ANA_SSSFLX
             FORCES(ng) % sssflxG(i,j,1) = IniVal

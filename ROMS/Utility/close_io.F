@@ -1,9 +1,9 @@
 #include "cppdefs.h"
       SUBROUTINE close_io
 !
-!svn $Id: close_io.F 1090 2009-10-27 23:59:27Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -47,7 +47,7 @@
       write(stdout,134) ' Cumulative biological fluxes'
       DO ng=1,Ngrids
         IF (Master) THEN
-# ifdef BIO_GOANPZ
+# if defined BIO_GOANPZ || (defined BIOFLUX && defined BEST_NPZ)
 !         Scale fluxes by maximum
           xi = 0.0_r8
           DO i = itemp,iDet
@@ -227,7 +227,7 @@
 !
       IF (Master) THEN
         First=.TRUE.
-        DO i=1,48
+        DO i=1,49
           IF (LEN_TRIM(ANANAME(i)).gt.0) THEN
             IF (First) THEN
               First=.FALSE.

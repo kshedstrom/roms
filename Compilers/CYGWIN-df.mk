@@ -1,6 +1,6 @@
-# svn $Id: CYGWIN-df.mk 1090 2009-10-27 23:59:27Z kate $
+# svn $Id$
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-# Copyright (c) 2002-2009 The ROMS/TOMS Group                           :::
+# Copyright (c) 2002-2010 The ROMS/TOMS Group                           :::
 #   Licensed under a MIT/X style license                                :::
 #   See License_ROMS.txt                                                :::
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -38,7 +38,7 @@
               CXX := g++
            CFLAGS :=
          CXXFLAGS :=
-          LDFLAGS := /link /nodefaultlib:libcmt /nodefaultlib:libifcore /stack:67108864 
+          LDFLAGS := /link /nodefaultlib:libcmt /nodefaultlib:libifcore /stack:67108864
                AR := ar
           ARFLAGS := r
             MKDIR := mkdir -p
@@ -68,6 +68,9 @@ endif
        NETCDF_LIB := $(NETCDF_LIBDIR)/netcdfs.lib
 ifdef USE_NETCDF4
        NETCDF_LIB += -L$(HDF5_LIBDIR) -lhdf5_hl -lhdf5 -lz
+ ifdef USE_DAP
+             LIBS += $(shell curl-config --libs)
+ endif
 endif
 
 
@@ -83,7 +86,7 @@ endif
 ifdef USE_MPI
        MPI_INCDIR ?= c:\\work\\models\\MPICH2\\include
        MPI_LIBDIR ?= c:\\work\\models\\MPICH2\\lib
-       LIBS_WIN32 += $(MPI_LIBDIR)\\fmpich2s.lib 
+       LIBS_WIN32 += $(MPI_LIBDIR)\\fmpich2s.lib
            FFLAGS += -I$(MPI_INCDIR)
          CPPFLAGS += -DMPI -I$(MPI_INCDIR)
 endif
@@ -93,7 +96,7 @@ ifdef USE_MCT
       MPEU_LIBDIR ?= c:\\work\\models\\MCT_v2.2\\mpeu
        LIBS_WIN32 += $(MCT_LIBDIR)\\libmct.a $(MPEU_LIBDIR)\\libmpeu.a
          CPPFLAGS += -traditional-cpp
-           FFLAGS += -I$(MCT_LIBDIR) -I$(MPEU_LIBDIR) 
+           FFLAGS += -I$(MCT_LIBDIR) -I$(MPEU_LIBDIR)
            FFLAGS += /noextend_source -assume:byterecl
 endif
 

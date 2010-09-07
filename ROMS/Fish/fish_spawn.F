@@ -70,6 +70,7 @@
       USE interp_fish_mod
       USE mod_ncparam
       USE mod_grid
+      USE mod_fish
 # ifdef DISTRIBUTE
       USE distribute_mod
 # endif

@@ -3,7 +3,7 @@
 #if defined NEMURO_SAN && defined EGGS_BISECTION
 !
 !================================================== Kate Hedstrom ======
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -21,6 +21,7 @@
         USE mod_kinds
         USE mod_types
         USE mod_param
+	USE mod_biology
 
         implicit none
 
@@ -37,8 +38,8 @@
         type(egg_box), target, save :: nil
 
         real(r8), allocatable :: eggs_all(:,:,:)
-	integer, allocatable :: eggs_in(:,:,:)
-	integer, allocatable :: egg_cells(:)
+        integer, allocatable :: eggs_in(:,:,:)
+        integer, allocatable :: egg_cells(:)
         type(egg_box), pointer :: roe_list(:)
 
         PRIVATE :: eggs_all, push_box, pop_box, isLast, find_fish, nil, &
@@ -103,20 +104,20 @@
           END DO
         END DO
 # endif
-	eggs_in = 0
+        eggs_in = 0
         DO isp=1,Nspecies(ng)
           DO j=0,Mm(ng)+1
             DO i=0,Lm(ng)+1
-	      IF (eggs_all(i,j,isp) .gt. 0.01_r8) eggs_in(i,j,isp) = 1
+              IF (eggs_all(i,j,isp) .gt. 0.01_r8) eggs_in(i,j,isp) = 1
             END DO
           END DO
         END DO
-	
+        
         IF (.not. ALLOCATED(egg_cells)) THEN
           ALLOCATE(egg_cells(Nspecies(ng)))
         END IF
         DO isp=1,Nspecies(ng)
-	  egg_cells(isp) = sum(eggs_in(:,:,isp))
+          egg_cells(isp) = sum(eggs_in(:,:,isp))
         END DO
 
         END SUBROUTINE eggs_share
@@ -149,7 +150,7 @@
         SUBROUTINE egglist_split(isp, Nsuper, Nboxes)
           integer, intent(in)  :: isp
           integer, intent(in)  :: Nsuper
-	  integer, intent(out) :: Nboxes
+          integer, intent(out) :: Nboxes
           type(egg_box), pointer :: bigbox, ur_box, ll_box
           logical :: OneCell = .false.
 !
@@ -163,12 +164,12 @@
               print *, 'TROUBLE: eggs without a home ', isp,            &
      &                bigbox % egg_sum
             END IF
-	    Nboxes = 0
+            Nboxes = 0
             RETURN
           ELSE IF (Nsuper .eq. 1) THEN
             RETURN
           ELSE IF (bigbox % egg_sum .lt. 0.01_r8) THEN
-	    Nboxes = 0
+            Nboxes = 0
             RETURN
           ELSE
 !

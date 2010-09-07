@@ -2,9 +2,9 @@
       MODULE ad_step2d_mod
 #ifdef ADJOINT
 !
-!svn $Id: ad_step2d.F 889 2009-01-09 21:27:08Z arango $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================

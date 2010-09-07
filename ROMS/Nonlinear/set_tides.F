@@ -3,9 +3,9 @@
 #if defined NONLINEAR && \
   ( defined SSH_TIDES || defined UV_TIDES || defined POT_TIDES )
 !
-!svn $Id: set_tides.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group        Robert Hetland   !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group        Robert Hetland   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================

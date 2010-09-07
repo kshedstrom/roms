@@ -1,9 +1,9 @@
 #include "cppdefs.h"
       MODULE mod_ncparam
 !
-!svn $Id: mod_ncparam.F 1101 2009-11-19 00:56:17Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -140,11 +140,13 @@
 !
 !  Switches indicating which variables are written to output files.
 !
-        logical  :: Hout(NV,Ngrids)  ! history file switches
-        logical  :: Hout2(NV,Ngrids) ! secondary averages file switches
-        logical  :: Sout(NV,Ngrids)  ! station file switches
+        logical  :: Aout(NV,Ngrids) ! average file switches
+        logical  :: Dout(NV,Ngrids) ! diagnostic file switches
+        logical  :: Hout(NV,Ngrids) ! history file switches
+        logical  :: Aout2(NV,Ngrids) ! secondary averages file switches
+        logical  :: Sout(NV,Ngrids) ! station file switches
 !
-!  Input/output identification indices.
+!  Grid identification indices.
 !
         integer  :: idXgrd = -1   ! XI-grid position
         integer  :: idYgrd = -2   ! ETA-grid position
@@ -152,7 +154,9 @@
         integer  :: iddpth = -4   ! depth
         integer  :: idglon = -5   ! longitude
         integer  :: idglat = -6   ! latitude
-
+!
+!  Input/output identification indices.
+!
         integer  :: idAice        ! fraction of cell covered by ice
         integer  :: idbath        ! bathymetry
         integer  :: idCfra        ! cloud fraction
@@ -192,6 +196,7 @@
         integer  :: idObsZ        ! observations Z-grid location
         integer  :: idOday        ! observations survey time
         integer  :: idOerr        ! observations error
+        integer  :: idOPALsed     ! opal in sediment
         integer  :: idOtyp        ! observations type
         integer  :: idOval        ! observations value
         integer  :: idOvar        ! observations global variance
@@ -200,6 +205,7 @@
         integer  :: idQair        ! surface air humidity
         integer  :: idPair        ! surface air pressure
         integer  :: idPbar        ! streamfunction
+        integer  :: idPONsed      ! PON in sediment
         integer  :: idRdir        ! river runoff direction
         integer  :: idRepo        ! river runoff ETA-positions
         integer  :: idRflg        ! river runoff flag
@@ -333,7 +339,13 @@
         integer  :: idWvel        ! true vertical velocity
         integer  :: idZads        ! Free-surface adjoint sensitivity
         integer  :: idZtlf        ! Free-surface impulse forcing
-
+        integer  :: id2dPV        ! 2D potential vorticity
+        integer  :: id2dRV        ! 2D relative vorticity
+        integer  :: id3dPV        ! 3D potential vorticity
+        integer  :: id3dRV        ! 3D relative vorticity
+!
+!  Input/output identification tracer indices.
+!
         integer  :: idRunoff       ! Surface freshwater runoff rate
         integer  :: idIcec         ! observed (NCEP) ice concentration
         integer  :: idSkt          ! observed (NCEP) skin temperature
@@ -391,7 +403,6 @@
         integer  :: idFlfsg        ! fish lifestage
         integer  :: idFswmt        ! fish swim type
         integer  :: idFalv         ! fish is alive
-        integer  :: idFeatf        ! fish eats fish
         integer  :: idFgrl         ! fish is female
         integer  :: idFdegg        ! duration of egg stage
         integer  :: idFnegg        ! number of eggs
@@ -426,7 +437,9 @@
         integer, allocatable :: idTobs(:)    ! tracers observations
         integer, allocatable :: idTsur(:)    ! surface flux for tracers
         integer, allocatable :: idTtlf(:)    ! tracers impulse forcing
-
+!
+!  Boundary conditions identification indices.
+!
         integer  :: idU2bc(4)      ! 2D U-velocity boundary conditions
         integer  :: idU3bc(4)      ! 3D U-velocity boundary conditions
         integer  :: idV2bc(4)      ! 2D V-velocity boundary conditions
@@ -468,22 +481,6 @@
          integer  :: idS12bc(4)     ! ice stress Sig12 boundary conditions
 #endif
 #ifdef DIAGNOSTICS
-!
-!  Biological 2D diagnostic variable IDs.
-!
-        integer, allocatable :: iDbio2(:)     ! 2D biological terms
-
-        integer  :: iCOfx                     ! air-sea CO2 flux
-        integer  :: iDNIT                     ! denitrification flux
-        integer  :: ipCO2                     ! partial pressure of CO2
-        integer  :: iO2fx                     ! air-sea O2 flux
-!
-!  Biological 3D diagnostic variable IDs.
-!
-        integer, allocatable :: iDbio3(:)     ! 3D biological terms
-
-        integer  :: iPPro = 1                 ! primary productivity
-        integer  :: iNO3u = 2                 ! NO3 uptake
 !
 !  Tracer/Momentum Diagnostic variable IDs.
 !
@@ -554,66 +551,16 @@
         integer  :: idefAVG(Ngrids)     ! averages file creation flag
         integer  :: idefAVG2(Ngrids)    ! averages file creation flag
         integer  :: idefDIA(Ngrids)     ! diagnostics file creation flag
+        integer  :: idefFISh(Ngrids)    ! fish file creation flag
         integer  :: idefHIS(Ngrids)     ! history file creation flag
         integer  :: idefTLM(Ngrids)     ! tangent file creation flag
 !
 !  Output NetCDF variables IDs.
 !
         integer, allocatable :: idTvar(:)     ! tracers variables
-	
+        integer, allocatable :: idTrcD(:)     ! detided tracer variables
+        integer, allocatable :: idTrcH(:)     ! tracer variables hamonics
 
-# ifdef BEST_NPZ
-
-#ifdef BIOFLUX
-        integer, allocatable :: idTBFvar(:)    ! 3D Stationary variables
-        integer, allocatable :: avgTBFid(:,:)  ! averages stationary tracer IDs
-#endif
-#ifdef STATIONARY
-        integer, allocatable :: idTSvar(:)    ! 3D Stationary variables
-        integer, allocatable :: hisTSid(:,:)  ! history St tracer IDs
-        integer, allocatable :: avgTSid(:,:)  ! averages stationary tracer IDs
-#endif
-
-#ifdef STATIONARY2
-        integer, allocatable :: idTS2var(:)    ! 2D Stationary variables
-        integer, allocatable :: hisTS2id(:,:)  ! history St tracer IDs
-        integer, allocatable :: avgTS2id(:,:)  ! averages stationary tracer IDs
-#endif
-
-
-#ifdef PROD3
-        integer, allocatable :: idPT3var(:)    ! 3D  production variables
-        integer, allocatable :: hisPT3id(:,:)  ! history St tracer IDs
-        integer, allocatable :: avgPT3id(:,:)  ! averages stationary tracer IDs
-#endif
-#ifdef PROD2  
-        integer, allocatable :: idPT2var(:)    ! 2D production variables
-        integer, allocatable :: hisPT2id(:,:)  ! history St tracer IDs
-        integer, allocatable :: avgPT2id(:,:)  ! averages stationary tracer IDs
-#endif
-
-#    if defined BENTHIC
-        integer, allocatable :: idBvar(:)
-        integer, allocatable :: hisBid(:,:)
-        integer, allocatable :: avgBid(:,:)
-#     endif
-#    if defined ICE_BIO
-        integer, allocatable :: idIceBvar(:)
-        integer, allocatable :: hisIceBid(:,:)
-        integer, allocatable :: avgIceBid(:,:)
-        integer, allocatable :: idIceLogvar(:)
-#     endif
-
-
-# endif
-	
-	
-# ifdef BIO_GOANPZ
-        integer, allocatable :: idTSvar(:)    ! Stationary production variables
-        integer, allocatable :: hisTSid(:,:)  ! history St tracer IDs
-        integer, allocatable :: avgTSid(:,:)  ! averages stationary tracer IDs
-        integer, allocatable :: avg2TSid(:,:) ! averages stationary tracer IDs
-# endif
         integer, allocatable :: adjTid(:,:)   ! adjoint tracers IDs
         integer, allocatable :: avgTid(:,:)   ! averages tracers IDs
         integer, allocatable :: avg2Tid(:,:)  ! averages tracers IDs
@@ -695,27 +642,27 @@
 
         real(r8), allocatable :: Vtime(:,:,:)
 
-        character (len=5  ) :: version = '3.2  '
+        character (len=5  ) :: version = '3.4  '
         character (len=40 ) :: varnam(MV)
         character (len=44 ) :: date_str
         character (len=46 ) :: Tname(0:NV)
-        character (len=80 ) :: Cinfo(NV,Ngrids)
         character (len=100) :: Vname(5,0:NV)
         character (len=120) :: history
+        character (len=256) :: Cinfo(NV,Ngrids)
 !
 !  Source code root directory, cpp header file and directory, and
 !  analytical expression directory.
 !
-        character (len=80 ) :: Rdir
-        character (len=80 ) :: Hdir
-        character (len=80 ) :: Hfile
-        character (len=80)  :: Adir
+        character (len=256) :: Rdir
+        character (len=256) :: Hdir
+        character (len=256) :: Hfile
+        character (len=256) :: Adir
 !
 !  Analyical header file logical and names.
 !
         logical :: Lanafile
 
-        character (len=200), dimension(48) :: ANANAME
+        character (len=256), dimension(49) :: ANANAME
 
 #ifdef BIOLOGY
 !
@@ -723,13 +670,13 @@
 !
         logical, dimension(4) :: Lbiofile
 
-        character (len=200), dimension(4) :: BIONAME
+        character (len=256), dimension(4) :: BIONAME
 #endif
 !
 !  SVN revision and repository root URL.
 !
         character (len=40 ) :: svn_rev
-        character (len=120) :: svn_url
+        character (len=256) :: svn_url
 
       CONTAINS
 
@@ -743,6 +690,9 @@
 !=======================================================================
 !
         USE mod_parallel
+#ifdef BIOLOGY
+        USE mod_biology
+#endif
         USE mod_iounits
         USE mod_scalars
 #if defined SEDIMENT || defined BBL_MODEL
@@ -764,7 +714,7 @@
         real(r8), parameter :: spv = 0.0_r8
         real(r8) :: offset, scale
 
-        character (len=80), dimension(7) :: Vinfo
+        character (len=120), dimension(7) :: Vinfo
 !
 !-----------------------------------------------------------------------
 !  Allocate several indices variables.
@@ -775,69 +725,24 @@
         allocate ( idTads(MT) )
         allocate ( idTbry(4,MT) )
 
-#ifdef ICE_BIO	
+!Make space for Akt climatology
+#if (defined CLIM_ICE_1D && defined AKT_3D)
+        allocate ( idTclm(MT+2) )
+#elif (defined CLIM_ICE_1D && !defined AKT_3D)
         allocate ( idTclm(MT+1) )
 #else
         allocate ( idTclm(MT) )
 #endif
-        
+
         allocate ( idTerr(MT) )
         allocate ( idTobs(MT) )
+        allocate ( idTrcD(NAT) )
+        allocate ( idTrcH(NAT) )
         allocate ( idTsur(MT) )
         allocate ( idTtlf(MT) )
         allocate ( idTvar(MT) )
         allocate ( isTvar(MT) )
         allocate ( isTsur(MT) )
-
-# ifdef BEST_NPZ
-# ifdef STATIONARY
-        allocate ( idTSvar(NBTS) )
-        allocate ( hisTSid(NBTS,Ngrids) )
-        allocate ( avgTSid(NBTS,Ngrids) )
-# endif
-
-# ifdef STATIONARY2
-        allocate ( idTS2var(NBTS2) )
-        allocate ( hisTS2id(NBTS2,Ngrids) )
-        allocate ( avgTS2id(NBTS2,Ngrids) )
-# endif
-# ifdef PROD2
-        allocate ( idPT2var(NBPT2) )
-        allocate ( hisPT2id(NBPT2,Ngrids) )
-        allocate ( avgPT2id(NBPT2,Ngrids) )
-# endif
-# ifdef PROD3
-        allocate ( idPT3var(NBPT3) )
-        allocate ( hisPT3id(NBPT3,Ngrids) )
-        allocate ( avgPT3id(NBPT3,Ngrids) )
-# endif
-
-# if defined BENTHIC
-        allocate ( idBvar(NBEN) )
-        allocate ( hisBid(NBEN,Ngrids) )
-        allocate ( avgBid(NBEN,Ngrids) )
-# endif
-# if defined ICE_BIO
-        allocate ( idIceBvar(NIB) )
-          allocate ( idIceLogvar(1) )
-        allocate ( hisIceBid(NIB,Ngrids) )
-        allocate ( avgIceBid(NIB,Ngrids) )
-# endif
-#  if defined BIOFLUX
-       allocate ( idTBFvar(1) )
-
-        allocate ( avgTBFid(1,Ngrids) )
-
-#  endif
-
-#endif
-
-# ifdef BIO_GOANPZ
-        allocate ( idTSvar(MST) )
-        allocate ( hisTSid(MST,Ngrids) )
-        allocate ( avgTSid(MST,Ngrids) )
-        allocate ( avg2TSid(MST,Ngrids) )
-# endif
 
         allocate ( adjTid(MT,Ngrids) )
         allocate ( avgTid(MT,Ngrids) )
@@ -866,17 +771,7 @@
         allocate ( idUTav(NAT) )
         allocate ( idVTav(NAT) )
 
-#ifdef SEDIMENT
-        allocate ( idBmas(NST) )
-        allocate ( idfrac(NST) )
-        allocate ( idUbld(NST) )
-        allocate ( idVbld(NST) )
-#endif
 #ifdef DIAGNOSTICS
-# if defined BIO_FENNEL && defined DIAGNOSTICS_BIO
-        allocate ( iDbio2(NDbio2d) )
-        allocate ( iDbio3(NDbio3d) )
-# endif
         allocate ( idDtrc(MT,NDT) )
         allocate ( idDu2d(NDM2d) )
         allocate ( idDv2d(NDM2d) )
@@ -1215,8 +1110,8 @@
 !  Analytical files switch and names.
 !
         Lanafile=.TRUE.
-        DO i=1,48
-          DO j=1,200
+        DO i=1,49
+          DO j=1,LEN(ANANAME(1))
             ANANAME(i)(j:j)=' '
           END DO
         END DO
@@ -1227,7 +1122,7 @@
 !
         DO i=1,4
           Lbiofile(i)=.TRUE.
-          DO j=1,200
+          DO j=1,LEN(BIONAME(1))
             BIONAME(i)(j:j)=' '
           END DO
         END DO
@@ -1261,24 +1156,6 @@
         END DO
 # endif
 #endif
-#if defined BIO_FENNEL && defined DIAGNOSTICS_BIO
-!
-!  Initialize biology diagnostic indices.
-!
-        i=0
-# ifdef DENITRIFICATION
-        iDNIT=i+1
-        i=i+1
-# endif
-# ifdef CARBON
-        iCOfx=i+1
-        ipCO2=i+2
-        i=i+2
-# endif
-# ifdef OXYGEN
-        iO2fx=i+1
-# endif
-#endif
 !
 !  Initialize IO information variables.
 !
@@ -1288,8 +1165,10 @@
             Linfo(2,i,ng)=.FALSE.
             Linfo(3,i,ng)=.FALSE.
             Linfo(4,i,ng)=.FALSE.
+            Aout(i,ng)=.FALSE.
+            Dout(i,ng)=.FALSE.
             Hout(i,ng)=.FALSE.
-            Hout2(i,ng)=.FALSE.
+            Aout2(i,ng)=.FALSE.
             Sout(i,ng)=.FALSE.
             Iinfo(1,i,ng)=0
             Iinfo(2,i,ng)=-1
@@ -1482,6 +1361,10 @@
               CASE ('idTdif')
                 idTdif=varid
                 idDiff(itemp)=idTdif
+#ifdef AKT_3D
+              CASE ('idTclm(iAKt3)')
+                idTclm(iAKt3)=varid
+#endif
               CASE ('idSdif')
                 idSdif=varid
                 idDiff(isalt)=idSdif
@@ -1547,6 +1430,21 @@
                 idTbry(isouth,isalt)=varid
               CASE ('idTbry(inorth,isalt)')
                 idTbry(inorth,isalt)=varid
+#if defined RESIDENCE_TIME ||   defined AGE_DISTRIBUTION
+              CASE ('idTbry(iwest,inert(i))')
+                load=.TRUE.
+!                idTbry(iwest,inert(i))=varid
+              CASE ('idTbry(ieast,inert(i))')
+                load=.TRUE.
+!                idTbry(ieast,inert(i))=varid
+              CASE ('idTbry(isouth,inert(i))')
+                load=.TRUE.
+!                idTbry(isouth,inert(i))=varid
+              CASE ('idTbry(inorth,inert(i))')
+                load=.TRUE.
+!                idTbry(inorth,inert(i))=varid
+!------Added by W.G.Zhang
+#endif
 #ifdef ICE_MODEL
               CASE ('idAibc(iwest)')
                 idAibc(iwest)=varid
@@ -1755,284 +1653,6 @@
                 idRtrc(itemp)=varid
               CASE ('idRtrc(isalt)')
                 idRtrc(isalt)=varid
-#if defined NPZD_FRANKS || defined NPZD_POWELL
-              CASE ('idRtrc(iNO3_)')
-                idRtrc(iNO3_)=varid
-              CASE ('idRtrc(iPhyt)')
-                idRtrc(iPhyt)=varid
-              CASE ('idRtrc(iZoop)')
-                idRtrc(iZoop)=varid
-              CASE ('idRtrc(iSDet)')
-                idRtrc(iSDet)=varid
-#endif
-#ifdef NPZD_IRON
-              CASE ('idRtrc(iNO3_)')
-                idRtrc(iNO3_)=varid
-              CASE ('idRtrc(iPhyt)')
-                idRtrc(iPhyt)=varid
-              CASE ('idRtrc(iZoop)')
-                idRtrc(iZoop)=varid
-              CASE ('idRtrc(iSDet)')
-                idRtrc(iSDet)=varid
-# ifdef IRON_LIMIT
-              CASE ('idRtrc(iFphy)')
-                idRtrc(iFphy)=varid
-              CASE ('idRtrc(iFdis)')
-                idRtrc(iFdis)=varid
-# endif
-#endif
-#ifdef BIO_FENNEL
-              CASE ('idRtrc(iNO3_)')
-                idRtrc(iNO3_)=varid
-              CASE ('idRtrc(iNH4_)')
-                idRtrc(iNH4_)=varid
-              CASE ('idRtrc(iPhyt)')
-                idRtrc(iPhyt)=varid
-              CASE ('idRtrc(iZoop)')
-                idRtrc(iZoop)=varid
-              CASE ('idRtrc(iLDeN)')
-                idRtrc(iLDeN)=varid
-              CASE ('idRtrc(iSDeN)')
-                idRtrc(iSDeN)=varid
-              CASE ('idRtrc(iChlo)')
-                idRtrc(iChlo)=varid
-# ifdef CARBON
-              CASE ('idRtrc(iTIC_)')
-                idRtrc(iTIC_)=varid
-              CASE ('idRtrc(iTAlk)')
-                idRtrc(iTAlk)=varid
-              CASE ('idRtrc(iLDeC)')
-                idRtrc(iLDeC)=varid
-              CASE ('idRtrc(iSDeC)')
-                idRtrc(iSDeC)=varid
-# endif
-# ifdef OXYGEN
-              CASE ('idRtrc(iOxyg)')
-                idRtrc(iOxyg)=varid
-# endif
-#endif
-#ifdef NCEP_FLUXES
-              CASE ('idWg2d')
-                idWg2d=varid
-              CASE ('idCdd')
-                idCdd=varid
-              CASE ('idChd')
-                idChd=varid
-              CASE ('idCed')
-                idCed=varid
-              CASE ('idWg2m')
-                idWg2m=varid
-              CASE ('idCdm')
-                idCdm=varid
-              CASE ('idChm')
-                idChm=varid
-              CASE ('idCem')
-                idCem=varid
-              CASE ('idRhoa')
-                idRhoa=varid
-              CASE ('idIcec')
-                idIcec=varid
-              CASE ('idSkt')
-                idSkt=varid
-              CASE ('idUnms')
-                idUnms=varid
-              CASE ('idVnms')
-                idVnms=varid
-#endif
-#ifdef ICE_MODEL
-              CASE ('idUice')
-                idUice=varid
-              CASE ('idVice')
-                idVice=varid
-              CASE ('idAice')
-                idAice=varid
-              CASE ('idHice')
-                idHice=varid
-              CASE ('idHsno')
-                idHsno=varid
-              CASE ('idTice')
-                idTice=varid
-              CASE ('idTimid')
-                idTimid=varid
-              CASE ('idTauiw')
-                idTauiw=varid
-              CASE ('idChuiw')
-                idChuiw=varid
-              CASE ('idS0mk')
-                idS0mk=varid
-              CASE ('idT0mk')
-                idT0mk=varid
-              CASE ('idWfr')
-                idWfr=varid
-              CASE ('idWai')
-                idWai=varid
-              CASE ('idWao')
-                idWao=varid
-              CASE ('idWio')
-                idWio=varid
-              CASE ('idWro')
-                idWro=varid
-              CASE ('idSfwat')
-                idSfwat=varid
-              CASE ('idAgeice')
-                idAgeice=varid
-              CASE ('idIomflx')
-                idIomflx=varid
-              CASE ('idSig11')
-                idSig11=varid
-              CASE ('idSig22')
-                idSig22=varid
-              CASE ('idSig12')
-                idSig12=varid
-#endif
-#ifdef BIO_UMAINE
-              CASE ('idRtrc(iNO3_)')
-                idRtrc(iNO3_)=varid
-              CASE ('idRtrc(iNH4_)')
-                idRtrc(iNH4_)=varid
-              CASE ('idRtrc(iSiOH)')
-                idRtrc(iSiOH)=varid
-              CASE ('idRtrc(iSphy)')
-                idRtrc(iSphy)=varid
-              CASE ('idRtrc(iLphy)')
-                idRtrc(iLphy)=varid
-              CASE ('idRtrc(iSzoo)')
-                idRtrc(iSzoo)=varid
-              CASE ('idRtrc(iLzoo)')
-                idRtrc(iLzoo)=varid
-              CASE ('idRtrc(iSDet)')
-                idRtrc(iSDet)=varid
-              CASE ('idRtrc(iopal)')
-                idRtrc(iopal)=varid
-              CASE ('idRtrc(iPO4_)')
-                idRtrc(iPO4_)=varid
-# ifdef OXYGEN
-              CASE ('idRtrc(iOxyg)')
-                idRtrc(iOxyg)=varid
-# endif
-# ifdef CARBON
-              CASE ('idRtrc(iTIC_)')
-                idRtrc(iTIC_)=varid
-              CASE ('idRtrc(iTAlk)')
-                idRtrc(iTAlk)=varid
-# endif
-#endif
-#ifdef NEMURO
-              CASE ('idRtrc(iNO3_)')
-                idRtrc(iNO3_)=varid
-              CASE ('idRtrc(iNH4_)')
-                idRtrc(iNH4_)=varid
-              CASE ('idRtrc(iDON_)')
-                idRtrc(iDON_)=varid
-              CASE ('idRtrc(iPON_)')
-                idRtrc(iPON_)=varid
-#endif
-#ifdef NEMURO_SAN
-              CASE ('idFwwt')
-                idFwwt=varid
-              CASE ('idFworth')
-                idFworth=varid
-              CASE ('idFpval')
-                idFpval=varid
-              CASE ('idFage')
-                idFage=varid
-              CASE ('idFbday')
-                idFbday=varid
-              CASE ('idFyield')
-                idFyield=varid
-              CASE ('idFcsmPS')
-                idFcsmPS=varid
-              CASE ('idFcsmPL')
-                idFcsmPL=varid
-              CASE ('idFcsmZS')
-                idFcsmZS=varid
-              CASE ('idFcsmZL')
-                idFcsmZL=varid
-              CASE ('idFcsmZP')
-                idFcsmZP=varid
-              CASE ('idFcsmF1')
-                idFcsmF1=varid
-              CASE ('idFcsmF2')
-                idFcsmF2=varid
-              CASE ('idFcsmF3')
-                idFcsmF3=varid
-              CASE ('idFcsmF4')
-                idFcsmF4=varid
-              CASE ('idFcsmF5')
-                idFcsmF5=varid
-              CASE ('idFresp')
-                idFresp=varid
-              CASE ('idFdegg')
-                idFdegg=varid
-              CASE ('idFnegg')
-                idFnegg=varid
-              CASE ('idFdysac')
-                idFdysac=varid
-              CASE ('idFnysac')
-                idFnysac=varid
-              CASE ('idFdlarv')
-                idFdlarv=varid
-              CASE ('idFnlarv')
-                idFnlarv=varid
-              CASE ('idFdjuv')
-                idFdjuv=varid
-              CASE ('idFnjuv')
-                idFnjuv=varid
-              CASE ('idFnsuba')
-                idFnsuba=varid
-              CASE ('idFmortN')
-                idFmortN=varid
-              CASE ('idFmortS')
-                idFmortS=varid
-              CASE ('idFmortF')
-                idFmortF=varid
-              CASE ('idFmortP')
-                idFmortP=varid
-              CASE ('idFbatch')
-                idFbatch=varid
-              CASE ('idSpwnloc')
-                idSpwnloc=varid
-              CASE ('idFspc')
-                idFspc=varid
-              CASE ('idFlfsg')
-                idFlfsg=varid
-              CASE ('idFswmt')
-                idFswmt=varid
-              CASE ('idFalv')
-                idFalv=varid
-              CASE ('idFeatf')
-                idFeatf=varid
-              CASE ('idFgrl')
-                idFgrl=varid
-# ifdef PREDATOR
-              CASE ('idPwwt')
-                idPwwt=varid
-              CASE ('idPworth')
-                idPworth=varid
-              CASE ('idPpval')
-                idPpval=varid
-              CASE ('idPcsmF1')
-                idPcsmF1=varid
-              CASE ('idPcsmF2')
-                idPcsmF2=varid
-              CASE ('idPcsmF3')
-                idPcsmF3=varid
-              CASE ('idPcsmF4')
-                idPcsmF4=varid
-              CASE ('idPcsmF5')
-                idPcsmF5=varid
-              CASE ('idPspc')
-                idPspc=varid
-              CASE ('idPalv')
-                idPalv=varid
-# endif
-#endif
-#ifdef SEDIMENT
-              CASE ('idRtrc(idmud)')
-                load=.TRUE.
-              CASE ('idRtrc(isand)')
-                load=.TRUE.
-#endif
               CASE ('idHsbl')
                 idHsbl=varid
               CASE ('idHbbl')
@@ -2071,8 +1691,8 @@
                 idTclm(itemp)=varid
               CASE ('idTclm(isalt)')
                 idTclm(isalt)=varid
-#if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
-    defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR || \
+#if defined AD_SENSITIVITY   || defined IS4DVAR_SENSITIVITY || \
+    defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR   || \
     defined SO_SEMI
               CASE ('idZads')
                 idZads=varid
@@ -2088,6 +1708,12 @@
                 idTads(itemp)=varid
               CASE ('idTads(isalt)')
                 idTads(isalt)=varid
+# if defined RESIDENCE_TIME
+              CASE ('idTads(inert(1))')
+                idTads(inert(1))=varid
+              CASE ('idTads(inert(2))')
+                idTads(inert(2))=varid
+# endif
 #endif
 #ifdef WEAK_CONSTRAINT
               CASE ('idZtlf')
@@ -2165,19 +1791,23 @@
                 idv3dD=varid
               CASE ('idv3dH')
                 idv3dH=varid
+              CASE ('idTrcD(itemp)')
+                idTrcD(itemp)=varid
+              CASE ('idTrcH(itemp)')
+                idTrcH(itemp)=varid
+              CASE ('idTrcD(isalt)')
+                idTrcD(isalt)=varid
+              CASE ('idTrcH(isalt)')
+                idTrcH(isalt)=varid
 # endif
 #endif
-#ifdef AVERAGES_QUADRATIC
               CASE ('idU2av')
                 idU2av=varid
               CASE ('idV2av')
                 idV2av=varid
               CASE ('idZZav')
                 idZZav=varid
-#endif
 #ifdef SOLVE3D
-# ifdef AVERAGES_QUADRATIC
-
               CASE ('idTTav(itemp)')
                 idTTav(itemp)=varid
               CASE ('iHUTav(itemp)')
@@ -2198,9 +1828,7 @@
                 idUVav=varid
               CASE ('idVVav')
                 idVVav=varid
-# endif
 # ifdef SALINITY
-#  ifdef AVERAGES_QUADRATIC
               CASE ('idTTav(isalt)')
                 idTTav(isalt)=varid
               CASE ('iHUTav(isalt)')
@@ -2211,7 +1839,6 @@
                 idUTav(isalt)=varid
               CASE ('idVTav(isalt)')
                 idVTav(isalt)=varid
-#  endif
 # endif
 #endif
 #ifdef T_PASSIVE
@@ -2225,1363 +1852,19 @@
                 load=.TRUE.
               CASE ('idTbry(inorth,inert(i))')
                 load=.TRUE.
-#endif
-#if defined SEDIMENT || defined BBL_MODEL
-              CASE ('idTvar(idmud(i))')
+# ifdef TS_PSOURCE
+              CASE ('idRtrc(inert(i))')
                 load=.TRUE.
-              CASE ('idTbry(iwest,idmud(i))')
-                load=.TRUE.
-              CASE ('idTbry(ieast,idmud(i))')
-                load=.TRUE.
-              CASE ('idTbry(isouth,idmud(i))')
-                load=.TRUE.
-              CASE ('idTbry(inorth,idmud(i))')
-                load=.TRUE.
-              CASE ('idTvar(isand(i))')
-                load=.TRUE.
-              CASE ('idTbry(iwest,isand(i))')
-                load=.TRUE.
-              CASE ('idTbry(ieast,isand(i))')
-                load=.TRUE.
-              CASE ('idTbry(isouth,isand(i))')
-                load=.TRUE.
-              CASE ('idTbry(inorth,isand(i))')
-                load=.TRUE.
-              CASE ('idfrac')
-                load=.TRUE.
-              CASE ('idBmas')
-                load=.TRUE.
-# ifdef BEDLOAD
-              CASE ('idUbld')
-                load=.TRUE.
-              CASE ('idVbld')
-                load=.TRUE.
-# endif
-              CASE ('idSbed(ithck)')
-                idSbed(ithck)=varid
-              CASE ('idSbed(iaged)')
-                idSbed(iaged)=varid
-              CASE ('idSbed(iporo)')
-                idSbed(iporo)=varid
-              CASE ('idSbed(idiff)')
-                idSbed(idiff)=varid
-# if defined COHESIVE_BED || defined SED_BIODIFF || defined MIXED_BED
-              CASE ('idSbed(ibtcr)')
-                idSbed(ibtcr)=varid
-# endif
-              CASE ('idBott(isd50)')
-                idBott(isd50)=varid
-              CASE ('idBott(idens)')
-                idBott(idens)=varid
-              CASE ('idBott(iwsed)')
-                idBott(iwsed)=varid
-              CASE ('idBott(itauc)')
-                idBott(itauc)=varid
-              CASE ('idBott(irlen)')
-                idBott(irlen)=varid
-              CASE ('idBott(irhgt)')
-                idBott(irhgt)=varid
-              CASE ('idBott(ibwav)')
-                idBott(ibwav)=varid
-              CASE ('idBott(izdef)')
-                idBott(izdef)=varid
-              CASE ('idBott(izapp)')
-                idBott(izapp)=varid
-              CASE ('idBott(izNik)')
-                idBott(izNik)=varid
-              CASE ('idBott(izbio)')
-                idBott(izbio)=varid
-              CASE ('idBott(izbfm)')
-                idBott(izbfm)=varid
-              CASE ('idBott(izbld)')
-                idBott(izbld)=varid
-              CASE ('idBott(izwbl)')
-                idBott(izwbl)=varid
-              CASE ('idBott(iactv)')
-                idBott(iactv)=varid
-              CASE ('idBott(ishgt)')
-                idBott(ishgt)=varid
-              CASE ('idBott(idefx)')
-                idBott(idefx)=varid
-              CASE ('idBott(idnet)')
-                idBott(idnet)=varid
-# if defined COHESIVE_BED || defined SED_BIODIFF || defined MIXED_BED
-              CASE ('idBott(idoff)')
-                idBott(idoff)=varid
-              CASE ('idBott(idslp)')
-                idBott(idslp)=varid
-              CASE ('idBott(idtim)')
-                idBott(idtim)=varid
-              CASE ('idBott(idbmx)')
-                idBott(idbmx)=varid
-              CASE ('idBott(idbmm)')
-                idBott(idbmm)=varid
-              CASE ('idBott(idbzs)')
-                idBott(idbzs)=varid
-              CASE ('idBott(idbzm)')
-                idBott(idbzm)=varid
-              CASE ('idBott(idbzp)')
-                idBott(idbzp)=varid
-# endif
-# if defined MIXED_BED
-              CASE ('idBott(idprp)')
-                idBott(idprp)=varid
 # endif
 #endif
-#if defined NPZD_FRANKS || defined NPZD_POWELL
-              CASE ('idTvar(iNO3_)')
-                idTvar(iNO3_)=varid
-              CASE ('idTvar(iPhyt)')
-                idTvar(iPhyt)=varid
-              CASE ('idTvar(iZoop)')
-                idTvar(iZoop)=varid
-              CASE ('idTvar(iSDet)')
-                idTvar(iSDet)=varid
-# if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
-     defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR || \
-     defined SO_SEMI
-              CASE ('idTads(iNO3_)')
-                idTads(iNO3_)=varid
-              CASE ('idTads(iPhyt)')
-                idTads(iPhyt)=varid
-              CASE ('idTads(iZoop)')
-                idTads(iZoop)=varid
-              CASE ('idTads(iSDet)')
-                idTads(iSDet)=varid
-# endif
-              CASE ('idTbry(iwest,iNO3_)')
-                idTbry(iwest,iNO3_)=varid
-              CASE ('idTbry(ieast,iNO3_)')
-                idTbry(ieast,iNO3_)=varid
-              CASE ('idTbry(isouth,iNO3_)')
-                idTbry(isouth,iNO3_)=varid
-              CASE ('idTbry(inorth,iNO3_)')
-                idTbry(inorth,iNO3_)=varid
-              CASE ('idTbry(iwest,iPhyt)')
-                idTbry(iwest,iPhyt)=varid
-              CASE ('idTbry(ieast,iPhyt)')
-                idTbry(ieast,iPhyt)=varid
-              CASE ('idTbry(isouth,iPhyt)')
-                idTbry(isouth,iPhyt)=varid
-              CASE ('idTbry(inorth,iPhyt)')
-                idTbry(inorth,iPhyt)=varid
-              CASE ('idTbry(iwest,iZoop)')
-                idTbry(iwest,iZoop)=varid
-              CASE ('idTbry(ieast,iZoop)')
-                idTbry(ieast,iZoop)=varid
-              CASE ('idTbry(isouth,iZoop)')
-                idTbry(isouth,iZoop)=varid
-              CASE ('idTbry(inorth,iZoop)')
-                idTbry(inorth,iZoop)=varid
-              CASE ('idTbry(iwest,iSDet)')
-                idTbry(iwest,iSDet)=varid
-              CASE ('idTbry(ieast,iSDet)')
-                idTbry(ieast,iSDet)=varid
-              CASE ('idTbry(isouth,iSDet)')
-                idTbry(isouth,iSDet)=varid
-              CASE ('idTbry(inorth,iSDet)')
-                idTbry(inorth,iSDet)=varid
-#endif
-#ifdef NPZD_IRON
-              CASE ('idTvar(iNO3_)')
-                idTvar(iNO3_)=varid
-              CASE ('idTvar(iPhyt)')
-                idTvar(iPhyt)=varid
-              CASE ('idTvar(iZoop)')
-                idTvar(iZoop)=varid
-              CASE ('idTvar(iSDet)')
-                idTvar(iSDet)=varid
-# ifdef IRON_LIMIT
-              CASE ('idTvar(iFphy)')
-                idTvar(iFphy)=varid
-              CASE ('idTvar(iFdis)')
-                idTvar(iFdis)=varid
-# endif
-# if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
-     defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR || \
-     defined SO_SEMI
-              CASE ('idTads(iNO3_)')
-                idTads(iNO3_)=varid
-              CASE ('idTads(iPhyt)')
-                idTads(iPhyt)=varid
-              CASE ('idTads(iZoop)')
-                idTads(iZoop)=varid
-              CASE ('idTads(iSDet)')
-                idTads(iSDet)=varid
-#  ifdef IRON_LIMIT
-              CASE ('idTads(iFphy)')
-                idTads(iFphy)=varid
-              CASE ('idTads(iFdis)')
-                idTads(iFdis)=varid
-#  endif
-# endif
-              CASE ('idTbry(iwest,iNO3_)')
-                idTbry(iwest,iNO3_)=varid
-              CASE ('idTbry(ieast,iNO3_)')
-                idTbry(ieast,iNO3_)=varid
-              CASE ('idTbry(isouth,iNO3_)')
-                idTbry(isouth,iNO3_)=varid
-              CASE ('idTbry(inorth,iNO3_)')
-                idTbry(inorth,iNO3_)=varid
-              CASE ('idTbry(iwest,iPhyt)')
-                idTbry(iwest,iPhyt)=varid
-              CASE ('idTbry(ieast,iPhyt)')
-                idTbry(ieast,iPhyt)=varid
-              CASE ('idTbry(isouth,iPhyt)')
-                idTbry(isouth,iPhyt)=varid
-              CASE ('idTbry(inorth,iPhyt)')
-                idTbry(inorth,iPhyt)=varid
-              CASE ('idTbry(iwest,iZoop)')
-                idTbry(iwest,iZoop)=varid
-              CASE ('idTbry(ieast,iZoop)')
-                idTbry(ieast,iZoop)=varid
-              CASE ('idTbry(isouth,iZoop)')
-                idTbry(isouth,iZoop)=varid
-              CASE ('idTbry(inorth,iZoop)')
-                idTbry(inorth,iZoop)=varid
-              CASE ('idTbry(iwest,iSDet)')
-                idTbry(iwest,iSDet)=varid
-              CASE ('idTbry(ieast,iSDet)')
-                idTbry(ieast,iSDet)=varid
-              CASE ('idTbry(isouth,iSDet)')
-                idTbry(isouth,iSDet)=varid
-              CASE ('idTbry(inorth,iSDet)')
-                idTbry(inorth,iSDet)=varid
-# ifdef IRON_LIMIT
-              CASE ('idTbry(iwest,iFphy)')
-                idTbry(iwest,iFphy)=varid
-              CASE ('idTbry(ieast,iFphy)')
-                idTbry(ieast,iFphy)=varid
-              CASE ('idTbry(isouth,iFphy)')
-                idTbry(isouth,iFphy)=varid
-              CASE ('idTbry(inorth,iFphy)')
-                idTbry(inorth,iFphy)=varid
-              CASE ('idTbry(iwest,iFdis)')
-                idTbry(iwest,iFdis)=varid
-              CASE ('idTbry(ieast,iFdis)')
-                idTbry(ieast,iFdis)=varid
-              CASE ('idTbry(isouth,iFdis)')
-                idTbry(isouth,iFdis)=varid
-              CASE ('idTbry(inorth,iFdis)')
-                idTbry(inorth,iFdis)=varid
-# endif
-#endif
-#ifdef BIO_FENNEL
-              CASE ('idTvar(iNO3_)')
-                idTvar(iNO3_)=varid
-              CASE ('idTvar(iNH4_)')
-                idTvar(iNH4_)=varid
-              CASE ('idTvar(iPhyt)')
-                idTvar(iPhyt)=varid
-              CASE ('idTvar(iZoop)')
-                idTvar(iZoop)=varid
-              CASE ('idTvar(iLDeN)')
-                idTvar(iLDeN)=varid
-              CASE ('idTvar(iSDeN)')
-                idTvar(iSDeN)=varid
-              CASE ('idTvar(iChlo)')
-                idTvar(iChlo)=varid
-# if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
-     defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR || \
-     defined SO_SEMI
-              CASE ('idTads(iNO3_)')
-                idTads(iNO3_)=varid
-              CASE ('idTads(iNH4_)')
-                idTads(iNH4_)=varid
-              CASE ('idTads(iPhyt)')
-                idTads(iPhyt)=varid
-              CASE ('idTads(iZoop)')
-                idTads(iZoop)=varid
-              CASE ('idTads(iLDeN)')
-                idTads(iLDeN)=varid
-              CASE ('idTads(iSDeN)')
-                idTads(iSDeN)=varid
-              CASE ('idTads(iChlo)')
-                idTads(iChlo)=varid
-# endif
-# ifdef CARBON
-              CASE ('idTvar(iTIC_)')
-                idTvar(iTIC_)=varid
-              CASE ('idTvar(iTAlk)')
-                idTvar(iTAlk)=varid
-              CASE ('idTvar(iLDeC)')
-                idTvar(iLDeC)=varid
-              CASE ('idTvar(iSDeC)')
-                idTvar(iSDeC)=varid
-#  if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
-      defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR || \
-      defined SO_SEMI
-              CASE ('idTads(iTIC_)')
-                idTads(iTIC_)=varid
-              CASE ('idTads(iTAlk)')
-                idTads(iTAlk)=varid
-              CASE ('idTads(iLDeC)')
-                idTads(iLDeC)=varid
-              CASE ('idTads(iSDeC)')
-                idTads(iSDeC)=varid
-#  endif
-# endif
-# ifdef OXYGEN
-              CASE ('idTvar(iOxyg)')
-                idTvar(iOxyg)=varid
-#  if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
-      defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR || \
-      defined SO_SEMI
-              CASE ('idTads(iOxyg)')
-                idTads(iOxyg)=varid
-#  endif
-# endif
-              CASE ('idTbry(iwest,iNO3_)')
-                idTbry(iwest,iNO3_)=varid
-              CASE ('idTbry(ieast,iNO3_)')
-                idTbry(ieast,iNO3_)=varid
-              CASE ('idTbry(isouth,iNO3_)')
-                idTbry(isouth,iNO3_)=varid
-              CASE ('idTbry(inorth,iNO3_)')
-                idTbry(inorth,iNO3_)=varid
-              CASE ('idTbry(iwest,iNH4_)')
-                idTbry(iwest,iNH4_)=varid
-              CASE ('idTbry(ieast,iNH4_)')
-                idTbry(ieast,iNH4_)=varid
-              CASE ('idTbry(isouth,iNH4_)')
-                idTbry(isouth,iNH4_)=varid
-              CASE ('idTbry(inorth,iNH4_)')
-                idTbry(inorth,iNH4_)=varid
-              CASE ('idTbry(iwest,iPhyt)')
-                idTbry(iwest,iPhyt)=varid
-              CASE ('idTbry(ieast,iPhyt)')
-                idTbry(ieast,iPhyt)=varid
-              CASE ('idTbry(isouth,iPhyt)')
-                idTbry(isouth,iPhyt)=varid
-              CASE ('idTbry(inorth,iPhyt)')
-                idTbry(inorth,iPhyt)=varid
-              CASE ('idTbry(iwest,iZoop)')
-                idTbry(iwest,iZoop)=varid
-              CASE ('idTbry(ieast,iZoop)')
-                idTbry(ieast,iZoop)=varid
-              CASE ('idTbry(isouth,iZoop)')
-                idTbry(isouth,iZoop)=varid
-              CASE ('idTbry(inorth,iZoop)')
-                idTbry(inorth,iZoop)=varid
-              CASE ('idTbry(iwest,iSDeN)')
-                idTbry(iwest,iSDeN)=varid
-              CASE ('idTbry(ieast,iSDeN)')
-                idTbry(ieast,iSDeN)=varid
-              CASE ('idTbry(isouth,iSDeN)')
-                idTbry(isouth,iSDeN)=varid
-              CASE ('idTbry(inorth,iSDeN)')
-                idTbry(inorth,iSDeN)=varid
-              CASE ('idTbry(iwest,iLDeN)')
-                idTbry(iwest,iLDeN)=varid
-              CASE ('idTbry(ieast,iLDeN)')
-                idTbry(ieast,iLDeN)=varid
-              CASE ('idTbry(isouth,iLDeN)')
-                idTbry(isouth,iLDeN)=varid
-              CASE ('idTbry(inorth,iLDeN)')
-                idTbry(inorth,iLDeN)=varid
-              CASE ('idTbry(iwest,iChlo)')
-                idTbry(iwest,iChlo)=varid
-              CASE ('idTbry(ieast,iChlo)')
-                idTbry(ieast,iChlo)=varid
-              CASE ('idTbry(isouth,iChlo)')
-                idTbry(isouth,iChlo)=varid
-              CASE ('idTbry(inorth,iChlo)')
-                idTbry(inorth,iChlo)=varid
-# ifdef CARBON
-              CASE ('idTbry(iwest,iSDeC)')
-                idTbry(iwest,iSDeC)=varid
-              CASE ('idTbry(ieast,iSDeC)')
-                idTbry(ieast,iSDeC)=varid
-              CASE ('idTbry(isouth,iSDeC)')
-                idTbry(isouth,iSDeC)=varid
-              CASE ('idTbry(inorth,iSDeC)')
-                idTbry(inorth,iSDeC)=varid
-              CASE ('idTbry(iwest,iLDeC)')
-                idTbry(iwest,iLDeC)=varid
-              CASE ('idTbry(ieast,iLDeC)')
-                idTbry(ieast,iLDeC)=varid
-              CASE ('idTbry(isouth,iLDeC)')
-                idTbry(isouth,iLDeC)=varid
-              CASE ('idTbry(inorth,iLDeC)')
-                idTbry(inorth,iLDeC)=varid
-              CASE ('idTbry(iwest,iTIC_)')
-                idTbry(iwest,iTIC_)=varid
-              CASE ('idTbry(ieast,iTIC_)')
-                idTbry(ieast,iTIC_)=varid
-              CASE ('idTbry(isouth,iTIC_)')
-                idTbry(isouth,iTIC_)=varid
-              CASE ('idTbry(inorth,iTIC_)')
-                idTbry(inorth,iTIC_)=varid
-              CASE ('idTbry(iwest,iTAlk)')
-                idTbry(iwest,iTAlk)=varid
-              CASE ('idTbry(ieast,iTAlk)')
-                idTbry(ieast,iTAlk)=varid
-              CASE ('idTbry(isouth,iTAlk)')
-                idTbry(isouth,iTAlk)=varid
-              CASE ('idTbry(inorth,iTAlk)')
-                idTbry(inorth,iTAlk)=varid
-# endif
-# ifdef OXYGEN
-              CASE ('idTbry(iwest,iOxyg)')
-                idTbry(iwest,iOxyg)=varid
-              CASE ('idTbry(ieast,iOxyg)')
-                idTbry(ieast,iOxyg)=varid
-              CASE ('idTbry(isouth,iOxyg)')
-                idTbry(isouth,iOxyg)=varid
-              CASE ('idTbry(inorth,iOxyg)')
-                idTbry(inorth,iOxyg)=varid
-# endif
-# ifdef DIAGNOSTICS_BIO
-              CASE ('iDbio2(iDNIT)')
-                iDbio2(iDNIT)=varid
-#  ifdef CARBON
-              CASE ('iDbio2(iCOfx)')
-                iDbio2(iCOfx)=varid
-              CASE ('iDbio2(ipCO2)')
-                iDbio2(ipCO2)=varid
-#  endif
-#  ifdef OXYGEN
-              CASE ('iDbio2(iO2fx)')
-                iDbio2(iO2fx)=varid
-#  endif
-              CASE ('iDbio3(iPPro)')
-                iDbio3(iPPro)=varid
-              CASE ('iDbio3(iNO3u)')
-                iDbio3(iNO3u)=varid
-# endif
-#endif
-#ifdef BIO_UMAINE
-              CASE ('idTvar(iNO3_)')
-                idTvar(iNO3_)=varid
-              CASE ('idTvar(iNH4_)')
-                idTvar(iNH4_)=varid
-              CASE ('idTvar(iSiOH)')
-                idTvar(iSiOH)=varid
-              CASE ('idTvar(iSphy)')
-                idTvar(iSphy)=varid
-              CASE ('idTvar(iLphy)')
-                idTvar(iLphy)=varid
-              CASE ('idTvar(iSzoo)')
-                idTvar(iSzoo)=varid
-              CASE ('idTvar(iLzoo)')
-                idTvar(iLzoo)=varid
-              CASE ('idTvar(iSDet)')
-                idTvar(iSDet)=varid
-              CASE ('idTvar(iopal)')
-                idTvar(iopal)=varid
-              CASE ('idTvar(iPO4_)')
-                idTvar(iPO4_)=varid
-# ifdef OXYGEN
-              CASE ('idTvar(iOxyg)')
-                idTvar(iOxyg)=varid
-# endif
-# ifdef CARBON
-              CASE ('idTvar(iTIC_)')
-                idTvar(iTIC_)=varid
-              CASE ('idTvar(iTAlk)')
-                idTvar(iTAlk)=varid
-# endif
-              CASE ('idTbry(iwest,iNO3_)')
-                idTbry(iwest,iNO3_)=varid
-              CASE ('idTbry(ieast,iNO3_)')
-                idTbry(ieast,iNO3_)=varid
-              CASE ('idTbry(isouth,iNO3_)')
-                idTbry(isouth,iNO3_)=varid
-              CASE ('idTbry(inorth,iNO3_)')
-                idTbry(inorth,iNO3_)=varid
-              CASE ('idTbry(iwest,iNH4_)')
-                idTbry(iwest,iNH4_)=varid
-              CASE ('idTbry(ieast,iNH4_)')
-                idTbry(ieast,iNH4_)=varid
-              CASE ('idTbry(isouth,iNH4_)')
-                idTbry(isouth,iNH4_)=varid
-              CASE ('idTbry(inorth,iNH4_)')
-                idTbry(inorth,iNH4_)=varid
-              CASE ('idTbry(iwest,iSiOH)')
-                idTbry(iwest,iSiOH)=varid
-              CASE ('idTbry(ieast,iSiOH)')
-                idTbry(ieast,iSiOH)=varid
-              CASE ('idTbry(isouth,iSiOH)')
-                idTbry(isouth,iSiOH)=varid
-              CASE ('idTbry(inorth,iSiOH)')
-                idTbry(inorth,iSiOH)=varid
-              CASE ('idTbry(iwest,iSphy)')
-                idTbry(iwest,iSphy)=varid
-              CASE ('idTbry(ieast,iSphy)')
-                idTbry(ieast,iSphy)=varid
-              CASE ('idTbry(isouth,iSphy)')
-                idTbry(isouth,iSphy)=varid
-              CASE ('idTbry(inorth,iSphy)')
-                idTbry(inorth,iSphy)=varid
-              CASE ('idTbry(iwest,iLphy)')
-                idTbry(iwest,iLphy)=varid
-              CASE ('idTbry(ieast,iLphy)')
-                idTbry(ieast,iLphy)=varid
-              CASE ('idTbry(isouth,iLphy)')
-                idTbry(isouth,iLphy)=varid
-              CASE ('idTbry(inorth,iLphy)')
-                idTbry(inorth,iLphy)=varid
-              CASE ('idTbry(iwest,iSzoo)')
-                idTbry(iwest,iSzoo)=varid
-              CASE ('idTbry(ieast,iSzoo)')
-                idTbry(ieast,iSzoo)=varid
-              CASE ('idTbry(isouth,iSzoo)')
-                idTbry(isouth,iSzoo)=varid
-              CASE ('idTbry(inorth,iSzoo)')
-                idTbry(inorth,iSzoo)=varid
-              CASE ('idTbry(iwest,iLzoo)')
-                idTbry(iwest,iLzoo)=varid
-              CASE ('idTbry(ieast,iLzoo)')
-                idTbry(ieast,iLzoo)=varid
-              CASE ('idTbry(isouth,iLzoo)')
-                idTbry(isouth,iLzoo)=varid
-              CASE ('idTbry(inorth,iLzoo)')
-                idTbry(inorth,iLzoo)=varid
-              CASE ('idTbry(iwest,iSDet)')
-                idTbry(iwest,iSDet)=varid
-              CASE ('idTbry(ieast,iSDet)')
-                idTbry(ieast,iSDet)=varid
-              CASE ('idTbry(isouth,iSDet)')
-                idTbry(isouth,iSDet)=varid
-              CASE ('idTbry(inorth,iSDet)')
-                idTbry(inorth,iSDet)=varid
-              CASE ('idTbry(iwest,iopal)')
-                idTbry(iwest,iopal)=varid
-              CASE ('idTbry(ieast,iopal)')
-                idTbry(ieast,iopal)=varid
-              CASE ('idTbry(isouth,iopal)')
-                idTbry(isouth,iopal)=varid
-              CASE ('idTbry(inorth,iopal)')
-                idTbry(inorth,iopal)=varid
-              CASE ('idTbry(iwest,iPO4_)')
-                idTbry(iwest,iPO4_)=varid
-              CASE ('idTbry(ieast,iPO4_)')
-                idTbry(ieast,iPO4_)=varid
-              CASE ('idTbry(isouth,iPO4_)')
-                idTbry(isouth,iPO4_)=varid
-              CASE ('idTbry(inorth,iPO4_)')
-                idTbry(inorth,iPO4_)=varid
-# ifdef OXYGEN
-              CASE ('idTbry(iwest,iOxyg)')
-                idTbry(iwest,iOxyg)=varid
-              CASE ('idTbry(ieast,iOxyg)')
-                idTbry(ieast,iOxyg)=varid
-              CASE ('idTbry(isouth,iOxyg)')
-                idTbry(isouth,iOxyg)=varid
-              CASE ('idTbry(inorth,iOxyg)')
-                idTbry(inorth,iOxyg)=varid
-# endif
-# ifdef CARBON
-              CASE ('idTbry(iwest,iTIC_)')
-                idTbry(iwest,iTIC_)=varid
-              CASE ('idTbry(ieast,iTIC_)')
-                idTbry(ieast,iTIC_)=varid
-              CASE ('idTbry(isouth,iTIC_)')
-                idTbry(isouth,iTIC_)=varid
-              CASE ('idTbry(inorth,iTIC_)')
-                idTbry(inorth,iTIC_)=varid
-              CASE ('idTbry(iwest,iTAlk)')
-                idTbry(iwest,iTAlk)=varid
-              CASE ('idTbry(ieast,iTAlk)')
-                idTbry(ieast,iTAlk)=varid
-              CASE ('idTbry(isouth,iTAlk)')
-                idTbry(isouth,iTAlk)=varid
-              CASE ('idTbry(inorth,iTAlk)')
-                idTbry(inorth,iTAlk)=varid
-# endif
-#endif
-#ifdef BIO_LIMADONEY
-              CASE ('idTvar(iNO3_)')
-                idTvar(iNO3_)=varid
-              CASE ('idTvar(iNH4_)')
-                idTvar(iNH4_)=varid
-              CASE ('idTvar(iPhy1)')
-                idTvar(iPhy1)=varid
-              CASE ('idTvar(iPhy2)')
-                idTvar(iPhy2)=varid
-              CASE ('idTvar(iPhC1)')
-                idTvar(iPhC1)=varid
-              CASE ('idTvar(iPhC2)')
-                idTvar(iPhC2)=varid
-              CASE ('idTvar(iChl1)')
-                idTvar(iChl1)=varid
-              CASE ('idTvar(iChl2)')
-                idTvar(iChl2)=varid
-              CASE ('idTvar(iZoo_)')
-                idTvar(iZoo_)=varid
-              CASE ('idTvar(iZooC)')
-                idTvar(iZooC)=varid
-              CASE ('idTvar(iDet1)')
-                idTvar(iDet1)=varid
-              CASE ('idTvar(iDet2)')
-                idTvar(iDet2)=varid
-              CASE ('idTvar(iDeC1)')
-                idTvar(iDeC1)=varid
-              CASE ('idTvar(iDeC2)')
-                idTvar(iDeC2)=varid
-              CASE ('idTbry(iwest,iNO3_)')
-                idTbry(iwest,iNO3_)=varid
-              CASE ('idTbry(ieast,iNO3_)')
-                idTbry(ieast,iNO3_)=varid
-              CASE ('idTbry(isouth,iNO3_)')
-                idTbry(isouth,iNO3_)=varid
-              CASE ('idTbry(inorth,iNO3_)')
-                idTbry(inorth,iNO3_)=varid
-              CASE ('idTbry(iwest,iNH4_)')
-                idTbry(iwest,iNH4_)=varid
-              CASE ('idTbry(ieast,iNH4_)')
-                idTbry(ieast,iNH4_)=varid
-              CASE ('idTbry(isouth,iNH4_)')
-                idTbry(isouth,iNH4_)=varid
-              CASE ('idTbry(inorth,iNH4_)')
-                idTbry(inorth,iNH4_)=varid
-              CASE ('idTbry(iwest,iPhy1)')
-                idTbry(iwest,iPhy1)=varid
-              CASE ('idTbry(ieast,iPhy1)')
-                idTbry(ieast,iPhy1)=varid
-              CASE ('idTbry(isouth,iPhy1)')
-                idTbry(isouth,iPhy1)=varid
-              CASE ('idTbry(inorth,iPhy1)')
-                idTbry(inorth,iPhy1)=varid
-              CASE ('idTbry(iwest,iPhy2)')
-                idTbry(iwest,iPhy2)=varid
-              CASE ('idTbry(ieast,iPhy2)')
-                idTbry(ieast,iPhy2)=varid
-              CASE ('idTbry(isouth,iPhy2)')
-                idTbry(isouth,iPhy2)=varid
-              CASE ('idTbry(inorth,iPhy2)')
-                idTbry(inorth,iPhy2)=varid
-              CASE ('idTbry(iwest,iPhC1)')
-                idTbry(iwest,iPhC1)=varid
-              CASE ('idTbry(ieast,iPhC1)')
-                idTbry(ieast,iPhC1)=varid
-              CASE ('idTbry(isouth,iPhC1)')
-                idTbry(isouth,iPhC1)=varid
-              CASE ('idTbry(inorth,iPhC1)')
-                idTbry(inorth,iPhC1)=varid
-              CASE ('idTbry(iwest,iPhC2)')
-                idTbry(iwest,iPhC2)=varid
-              CASE ('idTbry(ieast,iPhC2)')
-                idTbry(ieast,iPhC2)=varid
-              CASE ('idTbry(isouth,iPhC2)')
-                idTbry(isouth,iPhC2)=varid
-              CASE ('idTbry(inorth,iPhC2)')
-                idTbry(inorth,iPhC2)=varid
-              CASE ('idTbry(iwest,iZoo_)')
-                idTbry(iwest,iZoo_)=varid
-              CASE ('idTbry(ieast,iZoo_)')
-                idTbry(ieast,iZoo_)=varid
-              CASE ('idTbry(isouth,iZoo_)')
-                idTbry(isouth,iZoo_)=varid
-              CASE ('idTbry(inorth,iZoo_)')
-                idTbry(inorth,iZoo_)=varid
-              CASE ('idTbry(iwest,iZooC)')
-                idTbry(iwest,iZooC)=varid
-              CASE ('idTbry(ieast,iZooC)')
-                idTbry(ieast,iZooC)=varid
-              CASE ('idTbry(isouth,iZooC)')
-                idTbry(isouth,iZooC)=varid
-              CASE ('idTbry(inorth,iZooC)')
-                idTbry(inorth,iZooC)=varid
-              CASE ('idTbry(iwest,iDet1)')
-                idTbry(iwest,iDet1)=varid
-              CASE ('idTbry(ieast,iDet1)')
-                idTbry(ieast,iDet1)=varid
-              CASE ('idTbry(isouth,iDet1)')
-                idTbry(isouth,iDet1)=varid
-              CASE ('idTbry(inorth,iDet1)')
-                idTbry(inorth,iDet1)=varid
-              CASE ('idTbry(iwest,iDet2)')
-                idTbry(iwest,iDet2)=varid
-              CASE ('idTbry(ieast,iDet2)')
-                idTbry(ieast,iDet2)=varid
-              CASE ('idTbry(isouth,iDet2)')
-                idTbry(isouth,iDet2)=varid
-              CASE ('idTbry(inorth,iDet2)')
-                idTbry(inorth,iDet2)=varid
-              CASE ('idTbry(iwest,iDeC1)')
-                idTbry(iwest,iDeC1)=varid
-              CASE ('idTbry(ieast,iDeC1)')
-                idTbry(ieast,iDeC1)=varid
-              CASE ('idTbry(isouth,iDeC1)')
-                idTbry(isouth,iDeC1)=varid
-              CASE ('idTbry(inorth,iDeC1)')
-                idTbry(inorth,iDeC1)=varid
-              CASE ('idTbry(iwest,iDeC2)')
-                idTbry(iwest,iDeC2)=varid
-              CASE ('idTbry(ieast,iDeC2)')
-                idTbry(ieast,iDeC2)=varid
-              CASE ('idTbry(isouth,iDeC2)')
-                idTbry(isouth,iDeC2)=varid
-              CASE ('idTbry(inorth,iDeC2)')
-                idTbry(inorth,iDeC2)=varid
-              CASE ('idTbry(iwest,iChl1)')
-                idTbry(iwest,iChl1)=varid
-              CASE ('idTbry(ieast,iChl1)')
-                idTbry(ieast,iChl1)=varid
-              CASE ('idTbry(isouth,iChl1)')
-                idTbry(isouth,iChl1)=varid
-              CASE ('idTbry(inorth,iChl1)')
-                idTbry(inorth,iChl1)=varid
-              CASE ('idTbry(iwest,iChl2)')
-                idTbry(iwest,iChl2)=varid
-              CASE ('idTbry(ieast,iChl2)')
-                idTbry(ieast,iChl2)=varid
-              CASE ('idTbry(isouth,iChl2)')
-                idTbry(isouth,iChl2)=varid
-              CASE ('idTbry(inorth,iChl2)')
-                idTbry(inorth,iChl2)=varid
-#endif
-#ifdef NEMURO
-              CASE ('idTvar(iLphy)')
-                idTvar(iLphy)=varid
-              CASE ('idTvar(iSphy)')
-                idTvar(iSphy)=varid
-              CASE ('idTvar(iLzoo)')
-                idTvar(iLzoo)=varid
-              CASE ('idTvar(iSzoo)')
-                idTvar(iSzoo)=varid
-              CASE ('idTvar(iPzoo)')
-                idTvar(iPzoo)=varid
-              CASE ('idTvar(iNO3_)')
-                idTvar(iNO3_)=varid
-              CASE ('idTvar(iNH4_)')
-                idTvar(iNH4_)=varid
-              CASE ('idTvar(iPON_)')
-                idTvar(iPON_)=varid
-              CASE ('idTvar(iDON_)')
-                idTvar(iDON_)=varid
-              CASE ('idTvar(iSiOH)')
-                idTvar(iSiOH)=varid
-              CASE ('idTvar(iopal)')
-                idTvar(iopal)=varid
-# ifdef IRON_LIMIT
-              CASE ('idTvar(iFeSp)')
-                idTvar(iFeSp)=varid
-              CASE ('idTvar(iFeLp)')
-                idTvar(iFeLp)=varid
-              CASE ('idTvar(iFeD_)')
-                idTvar(iFeD_)=varid
-# endif
-              CASE ('idTbry(iwest,iLphy)')
-                idTbry(iwest,iLphy)=varid
-              CASE ('idTbry(ieast,iLphy)')
-                idTbry(ieast,iLphy)=varid
-              CASE ('idTbry(isouth,iLphy)')
-                idTbry(isouth,iLphy)=varid
-              CASE ('idTbry(inorth,iLphy)')
-                idTbry(inorth,iLphy)=varid
-              CASE ('idTbry(iwest,iSphy)')
-                idTbry(iwest,iSphy)=varid
-              CASE ('idTbry(ieast,iSphy)')
-                idTbry(ieast,iSphy)=varid
-              CASE ('idTbry(isouth,iSphy)')
-                idTbry(isouth,iSphy)=varid
-              CASE ('idTbry(inorth,iSphy)')
-                idTbry(inorth,iSphy)=varid
-              CASE ('idTbry(iwest,iLzoo)')
-                idTbry(iwest,iLzoo)=varid
-              CASE ('idTbry(ieast,iLzoo)')
-                idTbry(ieast,iLzoo)=varid
-              CASE ('idTbry(isouth,iLzoo)')
-                idTbry(isouth,iLzoo)=varid
-              CASE ('idTbry(inorth,iLzoo)')
-                idTbry(inorth,iLzoo)=varid
-              CASE ('idTbry(iwest,iSzoo)')
-                idTbry(iwest,iSzoo)=varid
-              CASE ('idTbry(ieast,iSzoo)')
-                idTbry(ieast,iSzoo)=varid
-              CASE ('idTbry(isouth,iSzoo)')
-                idTbry(isouth,iSzoo)=varid
-              CASE ('idTbry(inorth,iSzoo)')
-                idTbry(inorth,iSzoo)=varid
-              CASE ('idTbry(iwest,iPzoo)')
-                idTbry(iwest,iPzoo)=varid
-              CASE ('idTbry(ieast,iPzoo)')
-                idTbry(ieast,iPzoo)=varid
-              CASE ('idTbry(isouth,iPzoo)')
-                idTbry(isouth,iPzoo)=varid
-              CASE ('idTbry(inorth,iPzoo)')
-                idTbry(inorth,iPzoo)=varid
-              CASE ('idTbry(iwest,iNO3_)')
-                idTbry(iwest,iNO3_)=varid
-              CASE ('idTbry(ieast,iNO3_)')
-                idTbry(ieast,iNO3_)=varid
-              CASE ('idTbry(isouth,iNO3_)')
-                idTbry(isouth,iNO3_)=varid
-              CASE ('idTbry(inorth,iNO3_)')
-                idTbry(inorth,iNO3_)=varid
-              CASE ('idTbry(iwest,iNH4_)')
-                idTbry(iwest,iNH4_)=varid
-              CASE ('idTbry(ieast,iNH4_)')
-                idTbry(ieast,iNH4_)=varid
-              CASE ('idTbry(isouth,iNH4_)')
-                idTbry(isouth,iNH4_)=varid
-              CASE ('idTbry(inorth,iNH4_)')
-                idTbry(inorth,iNH4_)=varid
-              CASE ('idTbry(iwest,iPON_)')
-                idTbry(iwest,iPON_)=varid
-              CASE ('idTbry(ieast,iPON_)')
-                idTbry(ieast,iPON_)=varid
-              CASE ('idTbry(isouth,iPON_)')
-                idTbry(isouth,iPON_)=varid
-              CASE ('idTbry(inorth,iPON_)')
-                idTbry(inorth,iPON_)=varid
-              CASE ('idTbry(iwest,iDON_)')
-                idTbry(iwest,iDON_)=varid
-              CASE ('idTbry(ieast,iDON_)')
-                idTbry(ieast,iDON_)=varid
-              CASE ('idTbry(isouth,iDON_)')
-                idTbry(isouth,iDON_)=varid
-              CASE ('idTbry(inorth,iDON_)')
-                idTbry(inorth,iDON_)=varid
-              CASE ('idTbry(iwest,iSiOH)')
-                idTbry(iwest,iSiOH)=varid
-              CASE ('idTbry(ieast,iSiOH)')
-                idTbry(ieast,iSiOH)=varid
-              CASE ('idTbry(isouth,iSiOH)')
-                idTbry(isouth,iSiOH)=varid
-              CASE ('idTbry(inorth,iSiOH)')
-                idTbry(inorth,iSiOH)=varid
-              CASE ('idTbry(iwest,iopal)')
-                idTbry(iwest,iopal)=varid
-              CASE ('idTbry(ieast,iopal)')
-                idTbry(ieast,iopal)=varid
-              CASE ('idTbry(isouth,iopal)')
-                idTbry(isouth,iopal)=varid
-              CASE ('idTbry(inorth,iopal)')
-                idTbry(inorth,iopal)=varid
-# ifdef IRON_LIMIT
-              CASE ('idTbry(iwest,iFeSp)')
-                idTbry(iwest,iFeSp)=varid
-              CASE ('idTbry(ieast,iFeSp)')
-                idTbry(ieast,iFeSp)=varid
-              CASE ('idTbry(isouth,iFeSp)')
-                idTbry(isouth,iFeSp)=varid
-              CASE ('idTbry(inorth,iFeSp)')
-                idTbry(inorth,iFeSp)=varid
-              CASE ('idTbry(iwest,iFeLp)')
-                idTbry(iwest,iFeLp)=varid
-              CASE ('idTbry(ieast,iFeLp)')
-                idTbry(ieast,iFeLp)=varid
-              CASE ('idTbry(isouth,iFeLp)')
-                idTbry(isouth,iFeLp)=varid
-              CASE ('idTbry(inorth,iFeLp)')
-                idTbry(inorth,iFeLp)=varid
-              CASE ('idTbry(iwest,iFeD_)')
-                idTbry(iwest,iFeD_)=varid
-              CASE ('idTbry(ieast,iFeD_)')
-                idTbry(ieast,iFeD_)=varid
-              CASE ('idTbry(isouth,iFeD_)')
-                idTbry(isouth,iFeD_)=varid
-              CASE ('idTbry(inorth,iFeD_)')
-                idTbry(inorth,iFeD_)=varid
-# endif
-#endif
-#ifdef ECOSIM
-              CASE ('idTvar(iNO3_)')
-                idTvar(iNO3_)=varid
-              CASE ('idTvar(iNH4_)')
-                idTvar(iNH4_)=varid
-              CASE ('idTvar(iPO4_)')
-                idTvar(iPO4_)=varid
-              CASE ('idTvar(iFeO_)')
-                idTvar(iFeO_)=varid
-              CASE ('idTvar(iSiO_)')
-                idTvar(iSiO_)=varid
-              CASE ('idTvar(iDIC_)')
-                idTvar(iDIC_)=varid
-              CASE ('idTvar(iBacC)')
-                load=.TRUE.
-              CASE ('idTvar(iBacF)')
-                load=.TRUE.
-              CASE ('idTvar(iBacN)')
-                load=.TRUE.
-              CASE ('idTvar(iBacP)')
-                load=.TRUE.
-              CASE ('idTvar(iCDMC)')
-                load=.TRUE.
-              CASE ('idTvar(iDOMC)')
-                load=.TRUE.
-              CASE ('idTvar(iDOMN)')
-                load=.TRUE.
-              CASE ('idTvar(iDOMP)')
-                load=.TRUE.
-              CASE ('idTvar(iFecC)')
-                load=.TRUE.
-              CASE ('idTvar(iFecF)')
-                load=.TRUE.
-              CASE ('idTvar(iFecN)')
-                load=.TRUE.
-              CASE ('idTvar(iFecP)')
-                load=.TRUE.
-              CASE ('idTvar(iFecS)')
-                load=.TRUE.
-              CASE ('idTvar(iPhyC)')
-                load=.TRUE.
-              CASE ('idTvar(iPhyF)')
-                load=.TRUE.
-              CASE ('idTvar(iPhyN)')
-                load=.TRUE.
-              CASE ('idTvar(iPhyP)')
-                load=.TRUE.
-              CASE ('idTvar(iPhyS)')
-                load=.TRUE.
-              CASE ('idTvar(iPigs)')
-                load=.TRUE.
-#endif
-!==================================================
-# ifdef BEST_NPZ
-!-------------------------------------------------
-
-              CASE ('idTvar(iNO3)')
-                idTvar(iNO3)=varid
-              CASE ('idTbry(iwest,iNO3)')
-                idTbry(iwest,iNO3)=varid
-              CASE ('idTbry(ieast,iNO3)')
-                idTbry(ieast,iNO3)=varid
-              CASE ('idTbry(isouth,iNO3)')
-                idTbry(isouth,iNO3)=varid
-              CASE ('idTbry(inorth,iNO3)')
-                idTbry(inorth,iNO3)=varid
-!----------------------------------------------------
-              CASE ('idTvar(iNH4)')
-                idTvar(iNH4)=varid
-              CASE ('idTbry(iwest,iNH4)')
-                idTbry(iwest,iNH4)=varid
-              CASE ('idTbry(ieast,iNH4)')
-                idTbry(ieast,iNH4)=varid
-              CASE ('idTbry(isouth,iNH4)')
-                idTbry(isouth,iNH4)=varid
-              CASE ('idTbry(inorth,iNH4)')
-                idTbry(inorth,iNH4)=varid
-!-------------------------------------------------------------
-              CASE ('idTvar(iPhS)')
-                idTvar(iPhS)=varid
-              CASE ('idTbry(iwest,iPhS)')
-                idTbry(iwest,iPhS)=varid
-              CASE ('idTbry(ieast,iPhS)')
-                idTbry(ieast,iPhS)=varid
-              CASE ('idTbry(isouth,iPhS)')
-                idTbry(isouth,iPhS)=varid
-              CASE ('idTbry(inorth,iPhS)')
-                idTbry(inorth,iPhS)=varid
-!--------------------------------------------------------
-              CASE ('idTvar(iPhL)')
-                idTvar(iPhL)=varid
-              CASE ('idTbry(iwest,iPhL)')
-                idTbry(iwest,iPhL)=varid
-              CASE ('idTbry(ieast,iPhL)')
-                idTbry(ieast,iPhL)=varid
-              CASE ('idTbry(isouth,iPhL)')
-                idTbry(isouth,iPhL)=varid
-              CASE ('idTbry(inorth,iPhL)')
-                idTbry(inorth,iPhL)=varid
-!---------------------------------------------------------
-              CASE ('idTvar(iMZS)')
-                idTvar(iMZS)=varid
-              CASE ('idTbry(iwest,iMZS)')
-                idTbry(iwest,iMZS)=varid
-              CASE ('idTbry(ieast,iMZS)')
-                idTbry(ieast,iMZS)=varid
-              CASE ('idTbry(isouth,iMZS)')
-                idTbry(isouth,iMZS)=varid
-              CASE ('idTbry(inorth,iMZS)')
-                idTbry(inorth,iMZS)=varid
-!---------------------------------------------------------
-              CASE ('idTvar(iMZL)')
-                idTvar(iMZL)=varid
-              CASE ('idTbry(iwest,iMZL)')
-                idTbry(iwest,iMZL)=varid
-              CASE ('idTbry(ieast,iMZL)')
-                idTbry(ieast,iMZL)=varid
-              CASE ('idTbry(isouth,iMZL)')
-                idTbry(isouth,iMZL)=varid
-              CASE ('idTbry(inorth,iMZL)')
-                idTbry(inorth,iMZL)=varid
-!--------------------------------------------------------
-              CASE ('idTvar(iCop)')
-                idTvar(iCop)=varid
-              CASE ('idTbry(iwest,iCop)')
-                idTbry(iwest,iCop)=varid
-              CASE ('idTbry(ieast,iCop)')
-                idTbry(ieast,iCop)=varid
-              CASE ('idTbry(isouth,iCop)')
-                idTbry(isouth,iCop)=varid
-              CASE ('idTbry(inorth,iCop)')
-                idTbry(inorth,iCop)=varid
-!--------------------------------------------------------
-              CASE ('idTvar(iNCaS)')
-                idTvar(iNCaS)=varid
-              CASE ('idTbry(iwest,iNCaS)')
-                idTbry(iwest,iNCaS)=varid
-              CASE ('idTbry(ieast,iNCaS)')
-                idTbry(ieast,iNCaS)=varid
-              CASE ('idTbry(isouth,iNCaS)')
-                idTbry(isouth,iNCaS)=varid
-              CASE ('idTbry(inorth,iNCaS)')
-                idTbry(inorth,iNCaS)=varid
-!--------------------------------------------------------------
-              CASE ('idTvar(iEupS)')
-                idTvar(iEupS)=varid
-              CASE ('idTbry(iwest,iEupS)')
-                idTbry(iwest,iEupS)=varid
-              CASE ('idTbry(ieast,iEupS)')
-                idTbry(ieast,iEupS)=varid
-              CASE ('idTbry(isouth,iEupS)')
-                idTbry(isouth,iEupS)=varid
-              CASE ('idTbry(inorth,iEupS)')
-                idTbry(inorth,iEupS)=varid
-!--------------------------------------------------------
-              CASE ('idTvar(iNCaO)')
-                idTvar(iNCaO)=varid
-              CASE ('idTbry(iwest,iNCaO)')
-                idTbry(iwest,iNCaO)=varid
-              CASE ('idTbry(ieast,iNCaO)')
-                idTbry(ieast,iNCaO)=varid
-              CASE ('idTbry(isouth,iNCaO)')
-                idTbry(isouth,iNCaO)=varid
-              CASE ('idTbry(inorth,iNCaO)')
-                idTbry(inorth,iNCaO)=varid
-!--------------------------------------------------------------
-              CASE ('idTvar(iEupO)')
-                idTvar(iEupO)=varid
-              CASE ('idTbry(iwest,iEupO)')
-                idTbry(iwest,iEupO)=varid
-              CASE ('idTbry(ieast,iEupO)')
-                idTbry(ieast,iEupO)=varid
-              CASE ('idTbry(isouth,iEupO)')
-                idTbry(isouth,iEupO)=varid
-              CASE ('idTbry(inorth,iEupO)')
-                idTbry(inorth,iEupO)=varid
-!--------------------------------------------------------------
-              CASE ('idTvar(iDet)')
-                idTvar(iDet)=varid
-              CASE ('idTbry(iwest,iDet)')
-                idTbry(iwest,iDet)=varid
-              CASE ('idTbry(ieast,iDet)')
-                idTbry(ieast,iDet)=varid
-              CASE ('idTbry(isouth,iDet)')
-                idTbry(isouth,iDet)=varid
-              CASE ('idTbry(inorth,iDet)')
-                idTbry(inorth,iDet)=varid
-!--------------------------------------------------------------
-              CASE ('idTvar(iDetF)')
-                idTvar(iDetF)=varid
-              CASE ('idTbry(iwest,iDetF)')
-                idTbry(iwest,iDetF)=varid
-              CASE ('idTbry(ieast,iDetF)')
-                idTbry(ieast,iDetF)=varid
-              CASE ('idTbry(isouth,iDetF)')
-                idTbry(isouth,iDetF)=varid
-              CASE ('idTbry(inorth,iDetF)')
-                idTbry(inorth,iDetF)=varid
-!----------------------------------------------------------------
-# ifdef JELLY
-              CASE ('idTvar(iJel)')
-                idTvar(iJel)=varid
-              CASE ('idTbry(iwest,iJel)')
-                idTbry(iwest,iJel)=varid
-              CASE ('idTbry(ieast,iJel)')
-                idTbry(ieast,iJel)=varid
-              CASE ('idTbry(isouth,iJel)')
-                idTbry(isouth,iJel)=varid
-              CASE ('idTbry(inorth,iJel)')
-                idTbry(inorth,iJel)=varid
-#endif
-!----------------------------------------------------------------
-#  ifdef IRON_LIMIT
-              CASE ('idTvar(iFe)')
-                idTvar(iFe)=varid
-              CASE ('idTbry(iwest,iFe)')
-                idTbry(iwest,iFe)=varid
-              CASE ('idTbry(ieast,iFe)')
-                idTbry(ieast,iFe)=varid
-              CASE ('idTbry(isouth,iFe)')
-                idTbry(isouth,iFe)=varid
-              CASE ('idTbry(inorth,iFe)')
-                idTbry(inorth,iFe)=varid
-              CASE ('idTclm(iFe)')
-                idTclm(iFe)=varid
-#  endif
-
-# ifdef BENTHIC
-              CASE ('idBvar(iBen)')
-               idBvar(iBen)=varid
-              CASE ('idBvar(iBenDet)')
-                idBvar(iBenDet)=varid
-# endif
-# ifdef ICE_BIO
-              CASE ('idIceBvar(iIcePhL)')
-               idIceBvar(iIcePhL)=varid
-              CASE ('idIceBvar(iIceNO3)')
-                idIceBvar(iIceNO3)=varid
-              CASE ('idIceBvar(iIceNH4)')
-                idIceBvar(iIceNH4)=varid
-              CASE ('idIceBvar(iIceZ)')
-                idIceBvar(iIceZ)=varid
-              CASE ('idIceBvar(iIceLog)')
-                idIceBvar(iIceLog)=varid
-                CASE ('idIceLogvar(iIceLog)')
-               idIceLogvar(iIceLog)=varid
-#ifdef CLIM_ICE_1D
-              CASE ('idTclm(iFe+1)')
-                idTclm(iFe+1)=varid
-#endif
-# endif
-#ifdef STATIONARY
-             !-----------------------------
-             !3D Stationary Array
-             !-----------------------------
-              CASE ('idTSvar(i3Stat1)')
-                idTSvar(i3Stat1) = varid
-              CASE ('idTSvar(i3Stat2)')
-                idTSvar(i3Stat2) = varid
-              CASE ('idTSvar(i3Stat3)')
-                idTSvar(i3Stat3) = varid
-              CASE ('idTSvar(i3Stat4)')
-                idTSvar(i3Stat4) = varid
-              CASE ('idTSvar(i3Stat5)')
-                idTSvar(i3Stat5) = varid
-              CASE ('idTSvar(i3Stat6)')
-                idTSvar(i3Stat6) = varid
-              CASE ('idTSvar(i3Stat7)')
-                idTSvar(i3Stat7) = varid
-
-              CASE ('idTSvar(i3Stat8)')
-                idTSvar(i3Stat8) = varid
-              CASE ('idTSvar(i3Stat9)')
-                idTSvar(i3Stat9) = varid
-              CASE ('idTSvar(i3Stat10)')
-                idTSvar(i3Stat10) = varid
-              CASE ('idTSvar(i3Stat11)')
-                idTSvar(i3Stat11) = varid
-              CASE ('idTSvar(i3Stat12)')
-                idTSvar(i3Stat12) = varid
-                CASE ('idTSvar(i3Stat13)')
-                idTSvar(i3Stat13) = varid
-                CASE ('idTSvar(i3Stat14)')
-                idTSvar(i3Stat14) = varid
-                CASE ('idTSvar(i3Stat15)')
-                idTSvar(i3Stat15) = varid
-                CASE ('idTSvar(i3Stat16)')
-                idTSvar(i3Stat16) = varid
-#endif
-#ifdef STATIONARY2
-             !-----------------------------
-             !2D Stationary Array
-             !-----------------------------
-              CASE ('idTS2var(i2Stat1)')
-                idTS2var(i2Stat1) = varid
-              CASE ('idTS2var(i2Stat2)')
-                idTS2var(i2Stat2) = varid
-              CASE ('idTS2var(i2Stat3)')
-                idTS2var(i2Stat3) = varid
-              CASE ('idTS2var(i2Stat4)')
-                idTS2var(i2Stat4) = varid
-              CASE ('idTS2var(i2Stat5)')
-                idTS2var(i2Stat5) = varid
-              CASE ('idTS2var(i2Stat6)')
-                idTS2var(i2Stat6) = varid
-              CASE ('idTS2var(i2Stat7)')
-                idTS2var(i2Stat7) = varid
-              CASE ('idTS2var(i2Stat8)')
-                idTS2var(i2Stat8) = varid
-
-
-#endif
-#ifdef PROD3
-             !-----------------------------
-             !3D Production Array
-             !-----------------------------
-              CASE ('idPT3var(iPhSprd)')
-                idPT3var(iPhSprd) = varid
-              CASE ('idPT3var(iPhLprd)')
-                idPT3var(iPhLprd) = varid
-              CASE ('idPT3var(iMZSprd)')
-                idPT3var(iMZSprd) = varid
-              CASE ('idPT3var(iMZLprd)')
-                idPT3var(iMZLprd) = varid
-              CASE ('idPT3var(iCopPrd)')
-                idPT3var(iCopPrd) = varid
-              CASE ('idPT3var(iNCaPrd)')
-                idPT3var(iNCaPrd) = varid
-              CASE ('idPT3var(iEupPrd)')
-                idPT3var(iEupPrd) = varid
-
-#ifdef JELLY
-              CASE ('idPT3var(iJelPrd)')
-                idPT3var(iJelPrd) = varid
-#endif
-# endif
-
-#ifdef PROD2
-             !-----------------------------
-             !2D Production Array
-             !-----------------------------
-              CASE ('idPT2var(iBenPrd)')
-                idPT2var(iBenPrd) = varid
-              CASE ('idPT2var(iIAPrd)')
-                idPT2var(iIAPrd) = varid
-
-#endif
-#ifdef BIOFLUX
-             !-----------------------------
-             !bio flux Array
-             !-----------------------------
-              CASE ('idTBFvar(iBF)')
-                idTBFvar(iBF) = varid
-
-#endif
-# endif
-
-
-!==================================================
-# ifdef BIO_GOANPZ
-!-------------------------------------------------
-              CASE ('idTvar(iNO3)')
-                idTvar(iNO3)=varid
-              CASE ('idTbry(iwest,iNO3)')
-                idTbry(iwest,iNO3)=varid
-              CASE ('idTbry(ieast,iNO3)')
-                idTbry(ieast,iNO3)=varid
-              CASE ('idTbry(isouth,iNO3)')
-                idTbry(isouth,iNO3)=varid
-              CASE ('idTbry(inorth,iNO3)')
-                idTbry(inorth,iNO3)=varid
-!----------------------------------------------------
-              CASE ('idTvar(iNH4)')
-                idTvar(iNH4)=varid
-              CASE ('idTbry(iwest,iNH4)')
-                idTbry(iwest,iNH4)=varid
-              CASE ('idTbry(ieast,iNH4)')
-                idTbry(ieast,iNH4)=varid
-              CASE ('idTbry(isouth,iNH4)')
-                idTbry(isouth,iNH4)=varid
-              CASE ('idTbry(inorth,iNH4)')
-                idTbry(inorth,iNH4)=varid
-!-------------------------------------------------------------
-              CASE ('idTvar(iPhS)')
-                idTvar(iPhS)=varid
-              CASE ('idTbry(iwest,iPhS)')
-                idTbry(iwest,iPhS)=varid
-              CASE ('idTbry(ieast,iPhS)')
-                idTbry(ieast,iPhS)=varid
-              CASE ('idTbry(isouth,iPhS)')
-                idTbry(isouth,iPhS)=varid
-              CASE ('idTbry(inorth,iPhS)')
-                idTbry(inorth,iPhS)=varid
-!--------------------------------------------------------
-              CASE ('idTvar(iPhL)')
-                idTvar(iPhL)=varid
-              CASE ('idTbry(iwest,iPhL)')
-                idTbry(iwest,iPhL)=varid
-              CASE ('idTbry(ieast,iPhL)')
-                idTbry(ieast,iPhL)=varid
-              CASE ('idTbry(isouth,iPhL)')
-                idTbry(isouth,iPhL)=varid
-              CASE ('idTbry(inorth,iPhL)')
-                idTbry(inorth,iPhL)=varid
-!---------------------------------------------------------
-              CASE ('idTvar(iMZS)')
-                idTvar(iMZS)=varid
-              CASE ('idTbry(iwest,iMZS)')
-                idTbry(iwest,iMZS)=varid
-              CASE ('idTbry(ieast,iMZS)')
-                idTbry(ieast,iMZS)=varid
-              CASE ('idTbry(isouth,iMZS)')
-                idTbry(isouth,iMZS)=varid
-              CASE ('idTbry(inorth,iMZS)')
-                idTbry(inorth,iMZS)=varid
-!---------------------------------------------------------
-              CASE ('idTvar(iMZL)')
-                idTvar(iMZL)=varid
-              CASE ('idTbry(iwest,iMZL)')
-                idTbry(iwest,iMZL)=varid
-              CASE ('idTbry(ieast,iMZL)')
-                idTbry(ieast,iMZL)=varid
-              CASE ('idTbry(isouth,iMZL)')
-                idTbry(isouth,iMZL)=varid
-              CASE ('idTbry(inorth,iMZL)')
-                idTbry(inorth,iMZL)=varid
-!--------------------------------------------------------
-              CASE ('idTvar(iCop)')
-                idTvar(iCop)=varid
-              CASE ('idTbry(iwest,iCop)')
-                idTbry(iwest,iCop)=varid
-              CASE ('idTbry(ieast,iCop)')
-                idTbry(ieast,iCop)=varid
-              CASE ('idTbry(isouth,iCop)')
-                idTbry(isouth,iCop)=varid
-              CASE ('idTbry(inorth,iCop)')
-                idTbry(inorth,iCop)=varid
-!--------------------------------------------------------
-              CASE ('idTvar(iNCa)')
-                idTvar(iNCa)=varid
-              CASE ('idTbry(iwest,iNCa)')
-                idTbry(iwest,iNCa)=varid
-              CASE ('idTbry(ieast,iNCa)')
-                idTbry(ieast,iNCa)=varid
-              CASE ('idTbry(isouth,iNCa)')
-                idTbry(isouth,iNCa)=varid
-              CASE ('idTbry(inorth,iNCa)')
-                idTbry(inorth,iNCa)=varid
-!--------------------------------------------------------------
-              CASE ('idTvar(iEup)')
-                idTvar(iEup)=varid
-              CASE ('idTbry(iwest,iEup)')
-                idTbry(iwest,iEup)=varid
-              CASE ('idTbry(ieast,iEup)')
-                idTbry(ieast,iEup)=varid
-              CASE ('idTbry(isouth,iEup)')
-                idTbry(isouth,iEup)=varid
-              CASE ('idTbry(inorth,iEup)')
-                idTbry(inorth,iEup)=varid
-!--------------------------------------------------------------
-              CASE ('idTvar(iDet)')
-                idTvar(iDet)=varid
-              CASE ('idTbry(iwest,iDet)')
-                idTbry(iwest,iDet)=varid
-              CASE ('idTbry(ieast,iDet)')
-                idTbry(ieast,iDet)=varid
-              CASE ('idTbry(isouth,iDet)')
-                idTbry(isouth,iDet)=varid
-              CASE ('idTbry(inorth,iDet)')
-                idTbry(inorth,iDet)=varid
-!----------------------------------------------------------------
-#  ifdef IRON_LIMIT
-              CASE ('idTvar(iFe)')
-                idTvar(iFe)=varid
-              CASE ('idTbry(iwest,iFe)')
-                idTbry(iwest,iFe)=varid
-              CASE ('idTbry(ieast,iFe)')
-                idTbry(ieast,iFe)=varid
-              CASE ('idTbry(isouth,iFe)')
-                idTbry(isouth,iFe)=varid
-              CASE ('idTbry(inorth,iFe)')
-                idTbry(inorth,iFe)=varid
-              CASE ('idTclm(iFe)')
-                idTclm(iFe)=varid
-#  endif
-             !-----------------------------
-             !Stationary production tracers
-             !-----------------------------
-              CASE ('idTSvar(iPhSprd)')
-                idTSvar(iPhSprd) = varid
-              CASE ('idTSvar(iPhLprd)')
-                idTSvar(iPhLprd) = varid
-              CASE ('idTSvar(iMZSprd)')
-                idTSvar(iMZSprd) = varid
-              CASE ('idTSvar(iMZLprd)')
-                idTSvar(iMZLprd) = varid
-              CASE ('idTSvar(iCopPrd)')
-                idTSvar(iCopPrd) = varid
-              CASE ('idTSvar(iNCaPrd)')
-                idTSvar(iNCaPrd) = varid
-              CASE ('idTSvar(iEupPrd)')
-                idTSvar(iEupPrd) = varid
-# endif
-!=============================================
+              CASE ('id2dPV')
+                id2dPV=varid
+              CASE ('id2dRV')
+                id2dRV=varid
+              CASE ('id3dPV')
+                id3dPV=varid
+              CASE ('id3dRV')
+                id3dRV=varid
 #ifdef DIAGNOSTICS_UV
               CASE ('idDu2d(M2pgrd)')
                 idDu2d(M2pgrd)=varid
@@ -3600,8 +1883,16 @@
               CASE ('idDv2d(M2rate)')
                 idDv2d(M2rate)=varid
 # ifdef UV_ADV
+              CASE ('idDu2d(M2xadv)')
+                idDu2d(M2xadv)=varid
+              CASE ('idDu2d(M2yadv)')
+                idDu2d(M2yadv)=varid
               CASE ('idDu2d(M2hadv)')
                 idDu2d(M2hadv)=varid
+              CASE ('idDv2d(M2xadv)')
+                idDv2d(M2xadv)=varid
+              CASE ('idDv2d(M2yadv)')
+                idDv2d(M2yadv)=varid
               CASE ('idDv2d(M2hadv)')
                 idDv2d(M2hadv)=varid
 # endif
@@ -3620,8 +1911,16 @@
 # if defined UV_VIS2 || defined UV_VIS4
               CASE ('idDu2d(M2hvis)')
                 idDu2d(M2hvis)=varid
+              CASE ('idDu2d(M2xvis)')
+                idDu2d(M2xvis)=varid
+              CASE ('idDu2d(M2yvis)')
+                idDu2d(M2yvis)=varid
               CASE ('idDv2d(M2hvis)')
                 idDv2d(M2hvis)=varid
+              CASE ('idDv2d(M2xvis)')
+                idDv2d(M2xvis)=varid
+              CASE ('idDv2d(M2yvis)')
+                idDv2d(M2yvis)=varid
 # endif
 # ifdef SOLVE3D
               CASE ('idDu3d(M3pgrd)')
@@ -3637,8 +1936,16 @@
               CASE ('idDv3d(M3rate)')
                 idDv3d(M3rate)=varid
 #  ifdef UV_ADV
+              CASE ('idDu3d(M3xadv)')
+                idDu3d(M3xadv)=varid
+              CASE ('idDu3d(M3yadv)')
+                idDu3d(M3yadv)=varid
               CASE ('idDu3d(M3hadv)')
                 idDu3d(M3hadv)=varid
+              CASE ('idDv3d(M3xadv)')
+                idDv3d(M3xadv)=varid
+              CASE ('idDv3d(M3yadv)')
+                idDv3d(M3yadv)=varid
               CASE ('idDv3d(M3hadv)')
                 idDv3d(M3hadv)=varid
               CASE ('idDu3d(M3vadv)')
@@ -3665,8 +1972,16 @@
 #  if defined UV_VIS2 || defined UV_VIS4
               CASE ('idDu3d(M3hvis)')
                 idDu3d(M3hvis)=varid
+              CASE ('idDu3d(M3xvis)')
+                idDu3d(M3xvis)=varid
+              CASE ('idDu3d(M3yvis)')
+                idDu3d(M3yvis)=varid
               CASE ('idDv3d(M3hvis)')
                 idDv3d(M3hvis)=varid
+              CASE ('idDv3d(M3xvis)')
+                idDv3d(M3xvis)=varid
+              CASE ('idDv3d(M3yvis)')
+                idDv3d(M3yvis)=varid
 #  endif
 # endif
 #endif
@@ -3675,14 +1990,30 @@
                 load=.TRUE.
               CASE ('idDtrc(iThadv)')
                 load=.TRUE.
+              CASE ('idDtrc(iTxadv)')
+                load=.TRUE.
+              CASE ('idDtrc(iTyadv)')
+                load=.TRUE.
               CASE ('idDtrc(iTvadv)')
                 load=.TRUE.
 # if defined TS_DIF2 || defined TS_DIF4
               CASE ('idDtrc(iThdif)')
                 load=.TRUE.
+              CASE ('idDtrc(iTxdif)')
+                load=.TRUE.
+              CASE ('idDtrc(iTydif)')
+                load=.TRUE.
+#  if defined MIX_GEO_TS || defined MIX_ISO_TS
+              CASE ('idDtrc(iTsdif)')
+                load=.TRUE.
+#  endif
 # endif
               CASE ('idDtrc(iTvdif)')
                 load=.TRUE.
+# ifdef SOGLOBEC
+              CASE ('idTclm(inert(i))')
+                load=.TRUE.
+# endif
 #endif
 #if defined FORWARD_READ || defined FORWARD_WRITE
               CASE ('idRuct')
@@ -3738,6 +2069,109 @@
               CASE ('idMOMf')
                 idMOMf=varid
 #endif
+#ifdef NCEP_FLUXES
+              CASE ('idWg2d')
+                idWg2d=varid
+              CASE ('idCdd')
+                idCdd=varid
+              CASE ('idChd')
+                idChd=varid
+              CASE ('idCed')
+                idCed=varid
+              CASE ('idWg2m')
+                idWg2m=varid
+              CASE ('idCdm')
+                idCdm=varid
+              CASE ('idChm')
+                idChm=varid
+              CASE ('idCem')
+                idCem=varid
+              CASE ('idRhoa')
+                idRhoa=varid
+              CASE ('idIcec')
+                idIcec=varid
+              CASE ('idSkt')
+                idSkt=varid
+              CASE ('idUnms')
+                idUnms=varid
+              CASE ('idVnms')
+                idVnms=varid
+#endif
+#ifdef ICE_MODEL
+              CASE ('idUice')
+                idUice=varid
+              CASE ('idVice')
+                idVice=varid
+              CASE ('idAice')
+                idAice=varid
+              CASE ('idHice')
+                idHice=varid
+              CASE ('idHsno')
+                idHsno=varid
+              CASE ('idTice')
+                idTice=varid
+              CASE ('idTimid')
+                idTimid=varid
+              CASE ('idTauiw')
+                idTauiw=varid
+              CASE ('idChuiw')
+                idChuiw=varid
+              CASE ('idS0mk')
+                idS0mk=varid
+              CASE ('idT0mk')
+                idT0mk=varid
+              CASE ('idWfr')
+                idWfr=varid
+              CASE ('idWai')
+                idWai=varid
+              CASE ('idWao')
+                idWao=varid
+              CASE ('idWio')
+                idWio=varid
+              CASE ('idWro')
+                idWro=varid
+              CASE ('idSfwat')
+                idSfwat=varid
+              CASE ('idAgeice')
+                idAgeice=varid
+              CASE ('idIomflx')
+                idIomflx=varid
+              CASE ('idSig11')
+                idSig11=varid
+              CASE ('idSig22')
+                idSig22=varid
+              CASE ('idSig12')
+                idSig12=varid
+#endif
+
+#ifdef BIOLOGY
+# if defined BIO_FENNEL
+#  include <fennel_var.h>
+# elif defined BEST_NPZ
+#  include <bestnpz_var.h>
+# elif defined BIO_GOANPZ
+#  include <goanpz_var.h>
+# elif defined BIO_UMAINE
+#  include <umaine_var.h>
+# elif defined ECOSIM
+#  include <ecosim_var.h>
+# elif defined NEMURO
+#  include <nemuro_var.h>
+# elif defined NEMURO_SAN
+#  include <fish_var.h>
+# elif defined NPZD_FRANKS
+#  include <npzd_Franks_var.h>
+# elif defined NPZD_POWELL
+#  include <npzd_Powell_var.h>
+# elif defined NPZD_IRON
+#  include <npzd_iron_var.h>
+# endif
+#endif
+
+#if defined SEDIMENT || defined BBL_MODEL
+#  include <sediment_var.h>
+#endif
+
               CASE DEFAULT
                 load=.FALSE.
             END SELECT
@@ -3757,6 +2191,7 @@
                 Iinfo(1,varid,ng)=gtype
                 Fscale(varid,ng)=scale
               END DO
+
 #ifdef T_PASSIVE
 !
 !  Adjust information for all inert passive tracers.
@@ -3872,19 +2307,13 @@
      &                      TRIM(ADJUSTL(Vinfo(5)))
                     END DO
                   END IF
-              END SELECT
-#endif
-#ifdef SEDIMENT
-!
-!  Adjust information for all sediment tracers.
-!
-              SELECT CASE (Vinfo(1))
-                CASE ('mud_')
-                  IF (NCS.gt.0) THEN
+# ifdef TS_PSOURCE
+                CASE ('idRtrc(inert(i))')
+                  IF (NPT.gt.0) THEN
                     varid=varid-1
-                    DO i=1,NCS
+                    DO i=1,NPT
                       varid=varid+1
-                      idTvar(idmud(i))=varid
+                      idRtrc(inert(i))=varid
                       DO ng=1,Ngrids
                         Fscale(varid,ng)=scale
                         Iinfo(1,varid,ng)=gtype
@@ -3892,7 +2321,7 @@
                       WRITE (Vname(1,varid),'(a,i2.2)')                 &
      &                      TRIM(ADJUSTL(Vinfo(1))), i
                       WRITE (Vname(2,varid),'(a,a,i2.2)')               &
-     &                      TRIM(ADJUSTL(Vinfo(2))), ', size class ', i
+     &                      TRIM(ADJUSTL(Vinfo(2))), ', type ', i
                       WRITE (Vname(3,varid),'(a)')                      &
      &                      TRIM(ADJUSTL(Vinfo(3)))
                       WRITE (Vname(4,varid),'(a,a)')                    &
@@ -3901,803 +2330,192 @@
      &                      TRIM(ADJUSTL(Vinfo(5)))
                     END DO
                   END IF
-                CASE ('mud_west_')
-                  IF (NCS.gt.0) THEN
+# endif
+# ifdef SOGLOBEC
+                CASE ('idTclm(inert(i))')
+                  IF (NPT.gt.0) THEN
                     varid=varid-1
-                    DO i=1,NCS
+                    DO i=1,NPT
                       varid=varid+1
-                      idTbry(iwest,idmud(i))=varid
+                      idTclm(inert(i))=varid
                       DO ng=1,Ngrids
                         Fscale(varid,ng)=scale
                         Iinfo(1,varid,ng)=gtype
                       END DO
-                      WRITE (Vname(1,varid),'(a,i2.2)')                 &
-     &                      TRIM(ADJUSTL(Vinfo(1))), i
-                      WRITE (Vname(2,varid),'(a,a,i2.2)')               &
-     &                      TRIM(ADJUSTL(Vinfo(2))), ', size class ', i
-                      WRITE (Vname(3,varid),'(a)')                      &
-     &                      TRIM(ADJUSTL(Vinfo(3)))
-                      WRITE (Vname(4,varid),'(a,a)')                    &
-     &                      TRIM(Vname(1,varid)), ', scalar, series'
-                      WRITE (Vname(5,varid),'(a)')                      &
-     &                      TRIM(ADJUSTL(Vinfo(5)))
-                    END DO
-                  END IF
-                CASE ('mud_east_')
-                  IF (NCS.gt.0) THEN
-                    varid=varid-1
-                    DO i=1,NCS
-                      varid=varid+1
-                      idTbry(ieast,idmud(i))=varid
-                      DO ng=1,Ngrids
-                        Fscale(varid,ng)=scale
-                        Iinfo(1,varid,ng)=gtype
-                      END DO
-                      WRITE (Vname(1,varid),'(a,i2.2)')                 &
-     &                      TRIM(ADJUSTL(Vinfo(1))), i
-                      WRITE (Vname(2,varid),'(a,a,i2.2)')               &
-     &                      TRIM(ADJUSTL(Vinfo(2))), ', size class ', i
-                      WRITE (Vname(3,varid),'(a)')                      &
-     &                      TRIM(ADJUSTL(Vinfo(3)))
-                      WRITE (Vname(4,varid),'(a,a)')                    &
-     &                      TRIM(Vname(1,varid)), ', scalar, series'
-                      WRITE (Vname(5,varid),'(a)')                      &
-     &                      TRIM(ADJUSTL(Vinfo(5)))
-                    END DO
-                  END IF
-                CASE ('mud_south_')
-                  IF (NCS.gt.0) THEN
-                    varid=varid-1
-                    DO i=1,NCS
-                      varid=varid+1
-                      idTbry(isouth,idmud(i))=varid
-                      DO ng=1,Ngrids
-                        Fscale(varid,ng)=scale
-                        Iinfo(1,varid,ng)=gtype
-                      END DO
-                      WRITE (Vname(1,varid),'(a,i2.2)')                 &
-     &                      TRIM(ADJUSTL(Vinfo(1))), i
-                      WRITE (Vname(2,varid),'(a,a,i2.2)')               &
-     &                      TRIM(ADJUSTL(Vinfo(2))), ', size class ', i
-                      WRITE (Vname(3,varid),'(a)')                      &
-     &                      TRIM(ADJUSTL(Vinfo(3)))
-                      WRITE (Vname(4,varid),'(a,a)')                    &
-     &                      TRIM(Vname(1,varid)), ', scalar, series'
-                      WRITE (Vname(5,varid),'(a)')                      &
-     &                      TRIM(ADJUSTL(Vinfo(5)))
-                    END DO
-                  END IF
-                CASE ('mud_north_')
-                  IF (NCS.gt.0) THEN
-                    varid=varid-1
-                    DO i=1,NCS
-                      varid=varid+1
-                      idTbry(inorth,idmud(i))=varid
-                      DO ng=1,Ngrids
-                        Fscale(varid,ng)=scale
-                        Iinfo(1,varid,ng)=gtype
-                      END DO
-                      WRITE (Vname(1,varid),'(a,i2.2)')                 &
-     &                      TRIM(ADJUSTL(Vinfo(1))), i
-                      WRITE (Vname(2,varid),'(a,a,i2.2)')               &
-     &                      TRIM(ADJUSTL(Vinfo(2))), ', size class ', i
-                      WRITE (Vname(3,varid),'(a)')                      &
-     &                      TRIM(ADJUSTL(Vinfo(3)))
-                      WRITE (Vname(4,varid),'(a,a)')                    &
-     &                      TRIM(Vname(1,varid)), ', scalar, series'
-                      WRITE (Vname(5,varid),'(a)')                      &
-     &                      TRIM(ADJUSTL(Vinfo(5)))
-                    END DO
-                  END IF
-                CASE ('sand_')
-                  IF (NNS.gt.0) THEN
-                    varid=varid-1
-                    DO i=1,NNS
-                      varid=varid+1
-                      idTvar(isand(i))=varid
-                      DO ng=1,Ngrids
-                        Fscale(varid,ng)=scale
-                        Iinfo(1,varid,ng)=gtype
-                      END DO
-                      WRITE (Vname(1,varid),'(a,i2.2)')                 &
-     &                      TRIM(ADJUSTL(Vinfo(1))), i
-                      WRITE (Vname(2,varid),'(a,a,i2.2)')               &
-     &                      TRIM(ADJUSTL(Vinfo(2))), ', size class ', i
-                      WRITE (Vname(3,varid),'(a)')                      &
-     &                      TRIM(ADJUSTL(Vinfo(3)))
-                      WRITE (Vname(4,varid),'(a,a)')                    &
-     &                      TRIM(Vname(1,varid)), ', scalar, series'
-                      WRITE (Vname(5,varid),'(a)')                      &
-     &                      TRIM(ADJUSTL(Vinfo(5)))
-                    END DO
-                  END IF
-                CASE ('sand_west_')
-                  IF (NNS.gt.0) THEN
-                    varid=varid-1
-                    DO i=1,NNS
-                      varid=varid+1
-                      idTbry(iwest,isand(i))=varid
-                      DO ng=1,Ngrids
-                        Fscale(varid,ng)=scale
-                        Iinfo(1,varid,ng)=gtype
-                      END DO
-                      WRITE (Vname(1,varid),'(a,i2.2)')                 &
-     &                      TRIM(ADJUSTL(Vinfo(1))), i
-                      WRITE (Vname(2,varid),'(a,a,i2.2)')               &
-     &                      TRIM(ADJUSTL(Vinfo(2))), ', size class ', i
-                      WRITE (Vname(3,varid),'(a)')                      &
-     &                      TRIM(ADJUSTL(Vinfo(3)))
-                      WRITE (Vname(4,varid),'(a,a)')                    &
-     &                      TRIM(Vname(1,varid)), ', scalar, series'
-                      WRITE (Vname(5,varid),'(a)')                      &
-     &                      TRIM(ADJUSTL(Vinfo(5)))
-                    END DO
-                  END IF
-                CASE ('sand_east_')
-                  IF (NNS.gt.0) THEN
-                    varid=varid-1
-                    DO i=1,NNS
-                      varid=varid+1
-                      idTbry(ieast,isand(i))=varid
-                      DO ng=1,Ngrids
-                        Fscale(varid,ng)=scale
-                        Iinfo(1,varid,ng)=gtype
-                      END DO
-                      WRITE (Vname(1,varid),'(a,i2.2)')                 &
-     &                      TRIM(ADJUSTL(Vinfo(1))), i
-                      WRITE (Vname(2,varid),'(a,a,i2.2)')               &
-     &                      TRIM(ADJUSTL(Vinfo(2))), ', size class ', i
-                      WRITE (Vname(3,varid),'(a)')                      &
-     &                      TRIM(ADJUSTL(Vinfo(3)))
-                      WRITE (Vname(4,varid),'(a,a)')                    &
-     &                      TRIM(Vname(1,varid)), ', scalar, series'
-                      WRITE (Vname(5,varid),'(a)')                      &
-     &                      TRIM(ADJUSTL(Vinfo(5)))
-                    END DO
-                  END IF
-                CASE ('sand_south_')
-                  IF (NNS.gt.0) THEN
-                    varid=varid-1
-                    DO i=1,NNS
-                      varid=varid+1
-                      idTbry(isouth,isand(i))=varid
-                      DO ng=1,Ngrids
-                        Fscale(varid,ng)=scale
-                        Iinfo(1,varid,ng)=gtype
-                      END DO
-                      WRITE (Vname(1,varid),'(a,i2.2)')                 &
-     &                      TRIM(ADJUSTL(Vinfo(1))), i
-                      WRITE (Vname(2,varid),'(a,a,i2.2)')               &
-     &                      TRIM(ADJUSTL(Vinfo(2))), ', size class ', i
-                      WRITE (Vname(3,varid),'(a)')                      &
-     &                      TRIM(ADJUSTL(Vinfo(3)))
-                      WRITE (Vname(4,varid),'(a,a)')                    &
-     &                      TRIM(Vname(1,varid)), ', scalar, series'
-                      WRITE (Vname(5,varid),'(a)')                      &
-     &                      TRIM(ADJUSTL(Vinfo(5)))
-                    END DO
-                  END IF
-                CASE ('sand_north_')
-                  IF (NNS.gt.0) THEN
-                    varid=varid-1
-                    DO i=1,NNS
-                      varid=varid+1
-                      idTbry(inorth,isand(i))=varid
-                      DO ng=1,Ngrids
-                        Fscale(varid,ng)=scale
-                        Iinfo(1,varid,ng)=gtype
-                      END DO
-                      WRITE (Vname(1,varid),'(a,i2.2)')                 &
-     &                      TRIM(ADJUSTL(Vinfo(1))), i
-                      WRITE (Vname(2,varid),'(a,a,i2.2)')               &
-     &                      TRIM(ADJUSTL(Vinfo(2))), ', size class ', i
-                      WRITE (Vname(3,varid),'(a)')                      &
-     &                      TRIM(ADJUSTL(Vinfo(3)))
-                      WRITE (Vname(4,varid),'(a,a)')                    &
-     &                      TRIM(Vname(1,varid)), ', scalar, series'
-                      WRITE (Vname(5,varid),'(a)')                      &
-     &                      TRIM(ADJUSTL(Vinfo(5)))
-                    END DO
-                  END IF
-                CASE ('mudfrac_')
-                  IF (NCS.gt.0) THEN
-                    varid=varid-1
-                    DO i=1,NCS
-                      varid=varid+1
-                      idfrac(i)=varid
-                      DO ng=1,Ngrids
-                        Fscale(varid,ng)=scale
-                        Iinfo(1,varid,ng)=gtype
-                      END DO
-                      WRITE (Vname(1,varid),'(a,i2.2)')                 &
-     &                      TRIM(ADJUSTL(Vinfo(1))), i
-                      WRITE (Vname(2,varid),'(a,a,i2.2)')               &
-     &                      TRIM(ADJUSTL(Vinfo(2))), ', size class ', i
-                      WRITE (Vname(3,varid),'(a)')                      &
-     &                      TRIM(ADJUSTL(Vinfo(3)))
-                      WRITE (Vname(4,varid),'(a,a)')                    &
-     &                      TRIM(Vname(1,varid)), ', scalar, series'
-                      WRITE (Vname(5,varid),'(a)')                      &
-     &                      TRIM(ADJUSTL(Vinfo(5)))
-                    END DO
-                  END IF
-                CASE ('sandfrac_')
-                  IF (NNS.gt.0) THEN
-                    varid=varid-1
-                    DO i=1,NNS
-                      varid=varid+1
-                      idfrac(NCS+i)=varid
-                      DO ng=1,Ngrids
-                        Fscale(varid,ng)=scale
-                        Iinfo(1,varid,ng)=gtype
-                      END DO
-                      WRITE (Vname(1,varid),'(a,i2.2)')                 &
-     &                      TRIM(ADJUSTL(Vinfo(1))), i
-                      WRITE (Vname(2,varid),'(a,a,i2.2)')               &
-     &                      TRIM(ADJUSTL(Vinfo(2))), ', size class ', i
-                      WRITE (Vname(3,varid),'(a)')                      &
-     &                      TRIM(ADJUSTL(Vinfo(3)))
-                      WRITE (Vname(4,varid),'(a,a)')                    &
-     &                      TRIM(Vname(1,varid)), ', scalar, series'
-                      WRITE (Vname(5,varid),'(a)')                      &
-     &                      TRIM(ADJUSTL(Vinfo(5)))
-                    END DO
-                  END IF
-                CASE ('mudmass_')
-                  IF (NCS.gt.0) THEN
-                    varid=varid-1
-                    DO i=1,NCS
-                      varid=varid+1
-                      idBmas(i)=varid
-                      DO ng=1,Ngrids
-                        Fscale(varid,ng)=scale
-                        Iinfo(1,varid,ng)=gtype
-                      END DO
-                      WRITE (Vname(1,varid),'(a,i2.2)')                 &
-     &                      TRIM(ADJUSTL(Vinfo(1))), i
-                      WRITE (Vname(2,varid),'(a,a,i2.2)')               &
-     &                      TRIM(ADJUSTL(Vinfo(2))), ', size class ', i
-                      WRITE (Vname(3,varid),'(a)')                      &
-     &                      TRIM(ADJUSTL(Vinfo(3)))
-                      WRITE (Vname(4,varid),'(a,a)')                    &
-     &                      TRIM(Vname(1,varid)), ', scalar, series'
-                      WRITE (Vname(5,varid),'(a)')                      &
-     &                      TRIM(ADJUSTL(Vinfo(5)))
-                    END DO
-                  END IF
-                CASE ('sandmass_')
-                  IF (NNS.gt.0) THEN
-                    varid=varid-1
-                    DO i=1,NNS
-                      varid=varid+1
-                      idBmas(NCS+i)=varid
-                      DO ng=1,Ngrids
-                        Fscale(varid,ng)=scale
-                        Iinfo(1,varid,ng)=gtype
-                      END DO
-                      WRITE (Vname(1,varid),'(a,i2.2)')                 &
-     &                      TRIM(ADJUSTL(Vinfo(1))), i
-                      WRITE (Vname(2,varid),'(a,a,i2.2)')               &
-     &                      TRIM(ADJUSTL(Vinfo(2))), ', size class ', i
-                      WRITE (Vname(3,varid),'(a)')                      &
-     &                      TRIM(ADJUSTL(Vinfo(3)))
-                      WRITE (Vname(4,varid),'(a,a)')                    &
-     &                      TRIM(Vname(1,varid)), ', scalar, series'
-                      WRITE (Vname(5,varid),'(a)')                      &
-     &                      TRIM(ADJUSTL(Vinfo(5)))
-                    END DO
-                  END IF
-                CASE ('bedload_Umud_')
-                  IF (NCS.gt.0) THEN
-                    varid=varid-1
-                    DO i=1,NCS
-                      varid=varid+1
-                      idUbld(i)=varid
-                      DO ng=1,Ngrids
-                        Fscale(varid,ng)=scale
-                        Iinfo(1,varid,ng)=gtype
-                      END DO
-                      WRITE (Vname(1,varid),'(a,i2.2)')                 &
-     &                      TRIM(ADJUSTL(Vinfo(1))), i
-                      WRITE (Vname(2,varid),'(a,a,i2.2)')               &
-     &                      TRIM(ADJUSTL(Vinfo(2))), ', size class ', i
-                      WRITE (Vname(3,varid),'(a)')                      &
-     &                      TRIM(ADJUSTL(Vinfo(3)))
-                      WRITE (Vname(4,varid),'(a,a)')                    &
-     &                      TRIM(Vname(1,varid)), ', scalar, series'
-                      WRITE (Vname(5,varid),'(a)')                      &
-     &                      TRIM(ADJUSTL(Vinfo(5)))
-                    END DO
-                  END IF
-                CASE ('bedload_Usand_')
-                  IF (NNS.gt.0) THEN
-                    varid=varid-1
-                    DO i=1,NNS
-                      varid=varid+1
-                      idUbld(NCS+i)=varid
-                      DO ng=1,Ngrids
-                        Fscale(varid,ng)=scale
-                        Iinfo(1,varid,ng)=gtype
-                      END DO
-                      WRITE (Vname(1,varid),'(a,i2.2)')                 &
-     &                      TRIM(ADJUSTL(Vinfo(1))), i
-                      WRITE (Vname(2,varid),'(a,a,i2.2)')               &
-     &                      TRIM(ADJUSTL(Vinfo(2))), ', size class ', i
-                      WRITE (Vname(3,varid),'(a)')                      &
-     &                      TRIM(ADJUSTL(Vinfo(3)))
-                      WRITE (Vname(4,varid),'(a,a)')                    &
-     &                      TRIM(Vname(1,varid)), ', scalar, series'
-                      WRITE (Vname(5,varid),'(a)')                      &
-     &                      TRIM(ADJUSTL(Vinfo(5)))
-                    END DO
-                  END IF
-                CASE ('bedload_Vmud_')
-                  IF (NCS.gt.0) THEN
-                    varid=varid-1
-                    DO i=1,NCS
-                      varid=varid+1
-                      idVbld(i)=varid
-                      DO ng=1,Ngrids
-                        Fscale(varid,ng)=scale
-                        Iinfo(1,varid,ng)=gtype
-                      END DO
-                      WRITE (Vname(1,varid),'(a,i2.2)')                 &
-     &                      TRIM(ADJUSTL(Vinfo(1))), i
-                      WRITE (Vname(2,varid),'(a,a,i2.2)')               &
-     &                      TRIM(ADJUSTL(Vinfo(2))), ', size class ', i
-                      WRITE (Vname(3,varid),'(a)')                      &
-     &                      TRIM(ADJUSTL(Vinfo(3)))
-                      WRITE (Vname(4,varid),'(a,a)')                    &
-     &                      TRIM(Vname(1,varid)), ', scalar, series'
-                      WRITE (Vname(5,varid),'(a)')                      &
-     &                      TRIM(ADJUSTL(Vinfo(5)))
-                    END DO
-                  END IF
-                CASE ('bedload_Vsand_')
-                  IF (NNS.gt.0) THEN
-                    varid=varid-1
-                    DO i=1,NNS
-                      varid=varid+1
-                      idVbld(NCS+i)=varid
-                      DO ng=1,Ngrids
-                        Fscale(varid,ng)=scale
-                        Iinfo(1,varid,ng)=gtype
-                      END DO
-                      WRITE (Vname(1,varid),'(a,i2.2)')                 &
-     &                      TRIM(ADJUSTL(Vinfo(1))), i
-                      WRITE (Vname(2,varid),'(a,a,i2.2)')               &
-     &                      TRIM(ADJUSTL(Vinfo(2))), ', size class ', i
-                      WRITE (Vname(3,varid),'(a)')                      &
-     &                      TRIM(ADJUSTL(Vinfo(3)))
-                      WRITE (Vname(4,varid),'(a,a)')                    &
-     &                      TRIM(Vname(1,varid)), ', scalar, series'
-                      WRITE (Vname(5,varid),'(a)')                      &
-     &                      TRIM(ADJUSTL(Vinfo(5)))
-                    END DO
-                  END IF
-                CASE ('river_mud_')
-                  IF (NCS.gt.0) THEN
-                    varid=varid-1
-                    DO i=1,NCS
-                      varid=varid+1
-                      idRtrc(idmud(i))=varid
-                      DO ng=1,Ngrids
-                        Fscale(varid,ng)=scale
-                        Iinfo(1,varid,ng)=gtype
-                      END DO
-                      WRITE (Vname(1,varid),'(a,i2.2)')                 &
-     &                      TRIM(ADJUSTL(Vinfo(1))), i
-                      WRITE (Vname(2,varid),'(a,a,i2.2)')               &
-     &                      TRIM(ADJUSTL(Vinfo(2))), ', size class ', i
-                      WRITE (Vname(3,varid),'(a)')                      &
-     &                      TRIM(ADJUSTL(Vinfo(3)))
-                      WRITE (Vname(4,varid),'(a,a)')                    &
-     &                      TRIM(Vname(1,varid)), ', scalar, series'
-                      WRITE (Vname(5,varid),'(a)')                      &
-     &                      TRIM(ADJUSTL(Vinfo(5)))
-                    END DO
-                  END IF
-                CASE ('river_sand_')
-                  IF (NNS.gt.0) THEN
-                    varid=varid-1
-                    DO i=1,NNS
-                      varid=varid+1
-                      idRtrc(isand(i))=varid
-                      DO ng=1,Ngrids
-                        Fscale(varid,ng)=scale
-                        Iinfo(1,varid,ng)=gtype
-                      END DO
-                      WRITE (Vname(1,varid),'(a,i2.2)')                 &
-     &                      TRIM(ADJUSTL(Vinfo(1))), i
-                      WRITE (Vname(2,varid),'(a,a,i2.2)')               &
-     &                      TRIM(ADJUSTL(Vinfo(2))), ', size class ', i
-                      WRITE (Vname(3,varid),'(a)')                      &
-     &                      TRIM(ADJUSTL(Vinfo(3)))
-                      WRITE (Vname(4,varid),'(a,a)')                    &
-     &                      TRIM(Vname(1,varid)), ', scalar, series'
-                      WRITE (Vname(5,varid),'(a)')                      &
-     &                      TRIM(ADJUSTL(Vinfo(5)))
-                    END DO
-                  END IF
-              END SELECT
-#endif
-#ifdef ECOSIM
-!
-!  Adjust information for all EcoSim tracers.
-!
-              SELECT CASE (Vinfo(1))
-                CASE ('Bac_C')
-                  varid=varid-1
-                  DO i=1,Nbac
-                    varid=varid+1
-                    idTvar(iBacC(i))=varid
-                    DO ng=1,Ngrids
-                      Fscale(varid,ng)=scale
-                      Iinfo(1,varid,ng)=gtype
-                    END DO
-                    WRITE (Vname(1,varid),'(a,i1)') 'Bac_C', i
-                    WRITE (Vname(2,varid),'(a,i1)')                     &
-     &                    'bacteria, carbon group ', i
-                    WRITE (Vname(3,varid),'(a)')                        &
-     &                    TRIM(ADJUSTL(Vinfo(3)))
-                    WRITE (Vname(4,varid),'(a,a)')                      &
-     &                    TRIM(Vname(1,varid)), ', scalar, series'
-                    WRITE (Vname(5,varid),'(a)')                        &
-     &                    TRIM(ADJUSTL(Vinfo(5)))
-                  END DO
-                CASE ('Bac_F')
-                  varid=varid-1
-                  DO i=1,Nbac
-                    varid=varid+1
-                    idTvar(iBacF(i))=varid
-                    DO ng=1,Ngrids
-                      Fscale(varid,ng)=scale
-                      Iinfo(1,varid,ng)=gtype
-                    END DO
-                    WRITE (Vname(1,varid),'(a,i1)') 'Bac_F', i
-                    WRITE (Vname(2,varid),'(a,i1)')                     &
-     &                    'bacteria, iron group ', i
-                    WRITE (Vname(3,varid),'(a)')                        &
-     &                    TRIM(ADJUSTL(Vinfo(3)))
-                    WRITE (Vname(4,varid),'(a,a)')                      &
-     &                    TRIM(Vname(1,varid)), ', scalar, series'
-                    WRITE (Vname(5,varid),'(a)')                        &
-     &                    TRIM(ADJUSTL(Vinfo(5)))
-                  END DO
-                CASE ('Bac_N')
-                  varid=varid-1
-                  DO i=1,Nbac
-                    varid=varid+1
-                    idTvar(iBacN(i))=varid
-                    DO ng=1,Ngrids
-                      Fscale(varid,ng)=scale
-                      Iinfo(1,varid,ng)=gtype
-                    END DO
-                    WRITE (Vname(1,varid),'(a,i1)') 'Bac_N', i
-                    WRITE (Vname(2,varid),'(a,i1)')                     &
-     &                    'bacteria, nitrogen group ', i
-                    WRITE (Vname(3,varid),'(a)')                        &
-     &                    TRIM(ADJUSTL(Vinfo(3)))
-                    WRITE (Vname(4,varid),'(a,a)')                      &
-     &                    TRIM(Vname(1,varid)), ', scalar, series'
-                    WRITE (Vname(5,varid),'(a)')                        &
-     &                    TRIM(ADJUSTL(Vinfo(5)))
-                  END DO
-                CASE ('Bac_P')
-                  varid=varid-1
-                  DO i=1,Nbac
-                    varid=varid+1
-                    idTvar(iBacP(i))=varid
-                    DO ng=1,Ngrids
-                      Fscale(varid,ng)=scale
-                      Iinfo(1,varid,ng)=gtype
-                    END DO
-                    WRITE (Vname(1,varid),'(a,i1)') 'Bac_P', i
-                    WRITE (Vname(2,varid),'(a,i1)')                     &
-     &                    'bacteria, phosphorus group ', i
-                    WRITE (Vname(3,varid),'(a)')                        &
-     &                    TRIM(ADJUSTL(Vinfo(3)))
-                    WRITE (Vname(4,varid),'(a,a)')                      &
-     &                    TRIM(Vname(1,varid)), ', scalar, series'
-                    WRITE (Vname(5,varid),'(a)')                        &
-     &                    TRIM(ADJUSTL(Vinfo(5)))
-                  END DO
-                CASE ('CDM_C')
-                  varid=varid-1
-                  DO i=1,Ndom
-                    varid=varid+1
-                    idTvar(iCDMC(i))=varid
-                    DO ng=1,Ngrids
-                      Fscale(varid,ng)=scale
-                      Iinfo(1,varid,ng)=gtype
-                    END DO
-                    WRITE (Vname(1,varid),'(a,i1)') 'CDM_C', i
-                    WRITE (Vname(2,varid),'(a,i1)')                     &
-     &                    'color degradational matter, carbon group ', i
-                    WRITE (Vname(3,varid),'(a)')                        &
-     &                    TRIM(ADJUSTL(Vinfo(3)))
-                    WRITE (Vname(4,varid),'(a,a)')                      &
-     &                    TRIM(Vname(1,varid)), ', scalar, series'
-                    WRITE (Vname(5,varid),'(a)')                        &
-     &                    TRIM(ADJUSTL(Vinfo(5)))
-                  END DO
-                CASE ('DOM_C')
-                  varid=varid-1
-                  DO i=1,Ndom
-                    varid=varid+1
-                    idTvar(iDOMC(i))=varid
-                    DO ng=1,Ngrids
-                      Fscale(varid,ng)=scale
-                      Iinfo(1,varid,ng)=gtype
-                    END DO
-                    WRITE (Vname(1,varid),'(a,i1)') 'DOM_C', i
-                    WRITE (Vname(2,varid),'(a,i1)')                     &
-     &                    'dissolved organic matter, carbon group ', i
-                    WRITE (Vname(3,varid),'(a)')                        &
-     &                    TRIM(ADJUSTL(Vinfo(3)))
-                    WRITE (Vname(4,varid),'(a,a)')                      &
-     &                    TRIM(Vname(1,varid)), ', scalar, series'
-                    WRITE (Vname(5,varid),'(a)')                        &
-     &                    TRIM(ADJUSTL(Vinfo(5)))
-                  END DO
-                CASE ('DOM_N')
-                  varid=varid-1
-                  DO i=1,Ndom
-                    varid=varid+1
-                    idTvar(iDOMN(i))=varid
-                    DO ng=1,Ngrids
-                      Fscale(varid,ng)=scale
-                      Iinfo(1,varid,ng)=gtype
-                    END DO
-                    WRITE (Vname(1,varid),'(a,i1)') 'DOM_N', i
-                    WRITE (Vname(2,varid),'(a,i1)')                     &
-     &                    'dissolved organic matter, nitrogen group ', i
-                    WRITE (Vname(3,varid),'(a)')                        &
-     &                    TRIM(ADJUSTL(Vinfo(3)))
-                    WRITE (Vname(4,varid),'(a,a)')                      &
-     &                    TRIM(Vname(1,varid)), ', scalar, series'
-                    WRITE (Vname(5,varid),'(a)')                        &
-     &                    TRIM(ADJUSTL(Vinfo(5)))
-                  END DO
-                CASE ('DOM_P')
-                  varid=varid-1
-                  DO i=1,Ndom
-                    varid=varid+1
-                    idTvar(iDOMP(i))=varid
-                    DO ng=1,Ngrids
-                      Fscale(varid,ng)=scale
-                      Iinfo(1,varid,ng)=gtype
-                    END DO
-                    WRITE (Vname(1,varid),'(a,i1)') 'DOM_P', i
-                    WRITE (Vname(2,varid),'(a,i1)')                     &
-     &                  'dissolved organic matter, phosphorus group ', i
-                    WRITE (Vname(3,varid),'(a)')                        &
-     &                    TRIM(ADJUSTL(Vinfo(3)))
-                    WRITE (Vname(4,varid),'(a,a)')                      &
-     &                    TRIM(Vname(1,varid)), ', scalar, series'
-                    WRITE (Vname(5,varid),'(a)')                        &
-     &                    TRIM(ADJUSTL(Vinfo(5)))
-                  END DO
-                CASE ('Fec_C')
-                  varid=varid-1
-                  DO i=1,Nfec
-                    varid=varid+1
-                    idTvar(iFecC(i))=varid
-                    DO ng=1,Ngrids
-                      Fscale(varid,ng)=scale
-                      Iinfo(1,varid,ng)=gtype
-                    END DO
-                    WRITE (Vname(1,varid),'(a,i1)') 'Fec_C', i
-                    WRITE (Vname(2,varid),'(a,i1)')                     &
-     &                    'fecal matter, carbon group ', i
-                    WRITE (Vname(3,varid),'(a)')                        &
-     &                    TRIM(ADJUSTL(Vinfo(3)))
-                    WRITE (Vname(4,varid),'(a,a)')                      &
-     &                    TRIM(Vname(1,varid)), ', scalar, series'
-                    WRITE (Vname(5,varid),'(a)')                        &
-     &                    TRIM(ADJUSTL(Vinfo(5)))
-                  END DO
-                CASE ('Fec_F')
-                  varid=varid-1
-                  DO i=1,Nfec
-                    varid=varid+1
-                    idTvar(iFecF(i))=varid
-                    DO ng=1,Ngrids
-                      Fscale(varid,ng)=scale
-                      Iinfo(1,varid,ng)=gtype
-                    END DO
-                    WRITE (Vname(1,varid),'(a,i1)') 'Fec_F', i
-                    WRITE (Vname(2,varid),'(a,i1)')                     &
-     &                    'fecal matter, iron group ', i
-                    WRITE (Vname(3,varid),'(a)')                        &
-     &                    TRIM(ADJUSTL(Vinfo(3)))
-                    WRITE (Vname(4,varid),'(a,a)')                      &
-     &                    TRIM(Vname(1,varid)), ', scalar, series'
-                    WRITE (Vname(5,varid),'(a)')                        &
-     &                    TRIM(ADJUSTL(Vinfo(5)))
-                  END DO
-                CASE ('Fec_N')
-                  varid=varid-1
-                  DO i=1,Nfec
-                    varid=varid+1
-                    idTvar(iFecN(i))=varid
-                    DO ng=1,Ngrids
-                      Fscale(varid,ng)=scale
-                      Iinfo(1,varid,ng)=gtype
-                    END DO
-                    WRITE (Vname(1,varid),'(a,i1)') 'Fec_N', i
-                    WRITE (Vname(2,varid),'(a,i1)')                     &
-     &                    'fecal matter, nitrogen group ', i
-                    WRITE (Vname(3,varid),'(a)')                        &
-     &                    TRIM(ADJUSTL(Vinfo(3)))
-                    WRITE (Vname(4,varid),'(a,a)')                      &
-     &                    TRIM(Vname(1,varid)), ', scalar, series'
-                    WRITE (Vname(5,varid),'(a)')                        &
-     &                    TRIM(ADJUSTL(Vinfo(5)))
-                  END DO
-                CASE ('Fec_P')
-                  varid=varid-1
-                  DO i=1,Nfec
-                    varid=varid+1
-                    idTvar(iFecP(i))=varid
-                    DO ng=1,Ngrids
-                      Fscale(varid,ng)=scale
-                      Iinfo(1,varid,ng)=gtype
-                    END DO
-                    WRITE (Vname(1,varid),'(a,i1)') 'Fec_P', i
-                    WRITE (Vname(2,varid),'(a,i1)')                     &
-     &                    'fecal matter, phosphorus group ', i
-                    WRITE (Vname(3,varid),'(a)')                        &
-     &                    TRIM(ADJUSTL(Vinfo(3)))
-                    WRITE (Vname(4,varid),'(a,a)')                      &
-     &                    TRIM(Vname(1,varid)), ', scalar, series'
-                    WRITE (Vname(5,varid),'(a)')                        &
-     &                    TRIM(ADJUSTL(Vinfo(5)))
-                  END DO
-                CASE ('Fec_S')
-                  varid=varid-1
-                  DO i=1,Nfec
-                    varid=varid+1
-                    idTvar(iFecS(i))=varid
-                    DO ng=1,Ngrids
-                      Fscale(varid,ng)=scale
-                      Iinfo(1,varid,ng)=gtype
-                    END DO
-                    WRITE (Vname(1,varid),'(a,i1)') 'Fec_S', i
-                    WRITE (Vname(2,varid),'(a,i1)')                     &
-     &                    'fecal matter, silica group ', i
-                    WRITE (Vname(3,varid),'(a)')                        &
-     &                    TRIM(ADJUSTL(Vinfo(3)))
-                    WRITE (Vname(4,varid),'(a,a)')                      &
-     &                    TRIM(Vname(1,varid)), ', scalar, series'
-                    WRITE (Vname(5,varid),'(a)')                        &
-     &                    TRIM(ADJUSTL(Vinfo(5)))
-                  END DO
-                CASE ('Phy_C')
-                  varid=varid-1
-                  DO i=1,Nphy
-                    varid=varid+1
-                    idTvar(iPhyC(i))=varid
-                    DO ng=1,Ngrids
-                      Fscale(varid,ng)=scale
-                      Iinfo(1,varid,ng)=gtype
-                    END DO
-                    WRITE (Vname(1,varid),'(a,i1)') 'Phy_C', i
-                    WRITE (Vname(2,varid),'(a,a)')                      &
-     &                    TRIM(PhyName(i)), ', carbon group'
-                    WRITE (Vname(3,varid),'(a)')                        &
-     &                    TRIM(ADJUSTL(Vinfo(3)))
-                    WRITE (Vname(4,varid),'(a,a)')                      &
-     &                    TRIM(Vname(1,varid)), ', scalar, series'
-                    WRITE (Vname(5,varid),'(a)')                        &
-     &                    TRIM(ADJUSTL(Vinfo(5)))
-                  END DO
-                CASE ('Phy_F')
-                  varid=varid-1
-                  DO i=1,Nphy
-                    varid=varid+1
-                    idTvar(iPhyF(i))=varid
-                    DO ng=1,Ngrids
-                      Fscale(varid,ng)=scale
-                      Iinfo(1,varid,ng)=gtype
-                    END DO
-                    WRITE (Vname(1,varid),'(a,i1)') 'Phy_F', i
-                    WRITE (Vname(2,varid),'(a,a)')                      &
-     &                    TRIM(PhyName(i)), ', iron group'
-                    WRITE (Vname(3,varid),'(a)')                        &
-     &                    TRIM(ADJUSTL(Vinfo(3)))
-                    WRITE (Vname(4,varid),'(a,a)')                      &
-     &                    TRIM(Vname(1,varid)), ', scalar, series'
-                    WRITE (Vname(5,varid),'(a)')                        &
-     &                    TRIM(ADJUSTL(Vinfo(5)))
-                  END DO
-                CASE ('Phy_N')
-                  varid=varid-1
-                  DO i=1,Nphy
-                    varid=varid+1
-                    idTvar(iPhyN(i))=varid
-                    DO ng=1,Ngrids
-                      Fscale(varid,ng)=scale
-                      Iinfo(1,varid,ng)=gtype
-                    END DO
-                    WRITE (Vname(1,varid),'(a,i1)') 'Phy_N', i
-                    WRITE (Vname(2,varid),'(a,a)')                      &
-     &                    TRIM(PhyName(i)), ', nitrogen group'
-                    WRITE (Vname(3,varid),'(a)')                        &
-     &                    TRIM(ADJUSTL(Vinfo(3)))
-                    WRITE (Vname(4,varid),'(a,a)')                      &
-     &                    TRIM(Vname(1,varid)), ', scalar, series'
-                    WRITE (Vname(5,varid),'(a)')                        &
-     &                    TRIM(ADJUSTL(Vinfo(5)))
-                  END DO
-                CASE ('Phy_P')
-                  varid=varid-1
-                  DO i=1,Nphy
-                    varid=varid+1
-                    idTvar(iPhyP(i))=varid
-                    DO ng=1,Ngrids
-                      Fscale(varid,ng)=scale
-                      Iinfo(1,varid,ng)=gtype
-                    END DO
-                    WRITE (Vname(1,varid),'(a,i1)') 'Phy_P', i
-                    WRITE (Vname(2,varid),'(a,a)')                      &
-     &                    TRIM(PhyName(i)), ', phosphorus group'
-                    WRITE (Vname(3,varid),'(a)')                        &
-     &                    TRIM(ADJUSTL(Vinfo(3)))
-                    WRITE (Vname(4,varid),'(a,a)')                      &
-     &                    TRIM(Vname(1,varid)), ', scalar, series'
-                    WRITE (Vname(5,varid),'(a)')                        &
-     &                    TRIM(ADJUSTL(Vinfo(5)))
-                  END DO
-                CASE ('Phy_S')
-                  j=0
-                  DO i=1,Nphy
-                    IF (PHY(i).le.2) j=j+1
-                  END DO
-                  IF (j.gt.0) varid=varid-1
-                  DO i=1,Nphy
-                    IF (PHY(i).le.2) THEN
-                      varid=varid+1
-                      idTvar(iPhyS(i))=varid
-                      DO ng=1,Ngrids
-                        Fscale(varid,ng)=scale
-                        Iinfo(1,varid,ng)=gtype
-                      END DO
-                      WRITE (Vname(1,varid),'(a,i1)') 'Phy_S', i
-                      WRITE (Vname(2,varid),'(a,a)')                    &
-     &                      TRIM(PhyName(i)), ', silica group'
-                      WRITE (Vname(3,varid),'(a)')                      &
-     &                      TRIM(ADJUSTL(Vinfo(3)))
-                      WRITE (Vname(4,varid),'(a,a)')                    &
-     &                      TRIM(Vname(1,varid)), ', scalar, series'
-                      WRITE (Vname(5,varid),'(a)')                      &
-     &                      TRIM(ADJUSTL(Vinfo(5)))
-                    END IF
-                  END DO
-                CASE ('Pigs_XY')
-                  varid=varid-1
-                  DO j=1,Npig
-                    DO i=1,Nphy
-                      IF (PIG(PHY(i),j).gt.0) THEN
-                        varid=varid+1
-                        idTvar(iPigs(i,j))=varid
-                        DO ng=1,Ngrids
-                          Fscale(varid,ng)=scale
-                          Iinfo(1,varid,ng)=gtype
-                        END DO
-                        WRITE (Vname(1,varid),'(a,i1,i1)') 'Pigs_', i, j
-                        WRITE (Vname(2,varid),'(a,a,a)')                &
-     &                        TRIM(PhyName(i)), ', ', TRIM(PigName(j))
-                        WRITE (Vname(3,varid),'(a)')                    &
-     &                        TRIM(ADJUSTL(Vinfo(3)))
-                        WRITE (Vname(4,varid),'(a,a)')                  &
-     &                        TRIM(Vname(1,varid)), ', scalar, series'
-                        WRITE (Vname(5,varid),'(a)')                    &
-     &                        TRIM(ADJUSTL(Vinfo(5)))
+!  IF condition added by Weifeng Zhang for more than 100 passive tracers
+                      IF (i.lt.100) THEN
+                       WRITE (Vname(1,varid),'(a,i2.2)')                &
+     &                       TRIM(ADJUSTL(Vinfo(1))), i
+                       WRITE (Vname(2,varid),'(a,a,i2.2)')              &
+     &                       TRIM(ADJUSTL(Vinfo(2))), ', type ', i
+                      ELSE
+                       WRITE (Vname(1,varid),'(a,i3.3)')                &
+     &                       TRIM(ADJUSTL(Vinfo(1))), i
+                       WRITE (Vname(2,varid),'(a,a,i3.3)')              &
+     &                       TRIM(ADJUSTL(Vinfo(2))), ', type ', i
                       END IF
+                      WRITE (Vname(3,varid),'(a)')                      &
+     &                      TRIM(ADJUSTL(Vinfo(3)))
+                      WRITE (Vname(4,varid),'(a,a)')                    &
+     &                      TRIM(Vname(1,varid)), ', scalar, series'
+                      WRITE (Vname(5,varid),'(a)')                      &
+     &                      TRIM(ADJUSTL(Vinfo(5)))
                     END DO
-                  END DO
+                  END IF
+# endif
               END SELECT
+# if defined RESIDENCE_TIME
+              SELECT CASE (Vinfo(1))
+                CASE ('river_age_')
+                  IF (NPT.gt.0) THEN
+                    varid=varid-1
+                    DO i=1,NPT
+                      varid=varid+1
+                      idRtrc(inert(i))=varid
+                      DO ng=1,Ngrids
+                        Fscale(varid,ng)=scale
+                        Iinfo(1,varid,ng)=gtype
+                      END DO
+                      IF (i.lt.100) THEN
+                       WRITE (Vname(1,varid),'(a,i2.2)')                &
+     &                       TRIM(ADJUSTL(Vinfo(1))), i
+                       WRITE (Vname(2,varid),'(a,a,i2.2)')              &
+     &                       TRIM(ADJUSTL(Vinfo(2))), ', type ', i
+                      ELSE
+                       WRITE (Vname(1,varid),'(a,i3.3)')                &
+     &                       TRIM(ADJUSTL(Vinfo(1))), i
+                       WRITE (Vname(2,varid),'(a,a,i3.3)')              &
+     &                       TRIM(ADJUSTL(Vinfo(2))), ', type ', i
+                      END IF
+                      WRITE (Vname(3,varid),'(a)')                      &
+     &                      TRIM(ADJUSTL(Vinfo(3)))
+                      WRITE (Vname(4,varid),'(a,a)')                    &
+     &                      TRIM(Vname(1,varid)), ', scalar, series'
+                      WRITE (Vname(5,varid),'(a)')                      &
+     &                      TRIM(ADJUSTL(Vinfo(5)))
+                    END DO
+                  END IF
+# endif
+# if defined AGE_DISTRIBUTION || \
+    defined RESIDENCE_TIME
+                CASE ('age_west_')
+                  IF (NPT.gt.0) THEN
+                    varid=varid-1
+                    DO i=1,NPT
+                      varid=varid+1
+                      idTbry(iwest,inert(i))=varid
+                      DO ng=1,Ngrids
+                        Fscale(varid,ng)=scale
+                        Iinfo(1,varid,ng)=gtype
+                      END DO
+                      IF (i.lt.100) THEN
+                       WRITE (Vname(1,varid),'(a,i2.2)')                &
+     &                       TRIM(ADJUSTL(Vinfo(1))), i
+                       WRITE (Vname(2,varid),'(a,a,i2.2)')              &
+     &                       TRIM(ADJUSTL(Vinfo(2))), ', type ', i
+                      ELSE
+                       WRITE (Vname(1,varid),'(a,i3.3)')                &
+     &                       TRIM(ADJUSTL(Vinfo(1))), i
+                       WRITE (Vname(2,varid),'(a,a,i3.3)')              &
+     &                       TRIM(ADJUSTL(Vinfo(2))), ', type ', i
+                      END IF
+                      WRITE (Vname(3,varid),'(a)')                      &
+     &                      TRIM(ADJUSTL(Vinfo(3)))
+                      WRITE (Vname(4,varid),'(a,a)')                    &
+     &                      TRIM(Vname(1,varid)), ', scalar, series'
+                      WRITE (Vname(5,varid),'(a)')                      &
+     &                      TRIM(ADJUSTL(Vinfo(5)))
+                    END DO
+                  END IF
+                CASE ('age_east_')
+                  IF (NPT.gt.0) THEN
+                    varid=varid-1
+                    DO i=1,NPT
+                      varid=varid+1
+                      idTbry(ieast,inert(i))=varid
+                      DO ng=1,Ngrids
+                        Fscale(varid,ng)=scale
+                        Iinfo(1,varid,ng)=gtype
+                      END DO
+                      IF (i.lt.100) THEN
+                       WRITE (Vname(1,varid),'(a,i2.2)')                &
+     &                       TRIM(ADJUSTL(Vinfo(1))), i
+                       WRITE (Vname(2,varid),'(a,a,i2.2)')              &
+     &                       TRIM(ADJUSTL(Vinfo(2))), ', type ', i
+                      ELSE
+                       WRITE (Vname(1,varid),'(a,i3.3)')                &
+     &                       TRIM(ADJUSTL(Vinfo(1))), i
+                       WRITE (Vname(2,varid),'(a,a,i3.3)')              &
+     &                       TRIM(ADJUSTL(Vinfo(2))), ', type ', i
+                      END IF
+                      WRITE (Vname(3,varid),'(a)')                      &
+     &                      TRIM(ADJUSTL(Vinfo(3)))
+                      WRITE (Vname(4,varid),'(a,a)')                    &
+     &                      TRIM(Vname(1,varid)), ', scalar, series'
+                      WRITE (Vname(5,varid),'(a)')                      &
+     &                      TRIM(ADJUSTL(Vinfo(5)))
+                    END DO
+                  END IF
+                CASE ('age_south_')
+                  IF (NPT.gt.0) THEN
+                    varid=varid-1
+                    DO i=1,NPT
+                      varid=varid+1
+                      idTbry(isouth,inert(i))=varid
+                      DO ng=1,Ngrids
+                        Fscale(varid,ng)=scale
+                        Iinfo(1,varid,ng)=gtype
+                      END DO
+                      IF (i.lt.100) THEN
+                       WRITE (Vname(1,varid),'(a,i2.2)')                &
+     &                       TRIM(ADJUSTL(Vinfo(1))), i
+                       WRITE (Vname(2,varid),'(a,a,i2.2)')              &
+     &                       TRIM(ADJUSTL(Vinfo(2))), ', type ', i
+                      ELSE
+                       WRITE (Vname(1,varid),'(a,i3.3)')                &
+     &                       TRIM(ADJUSTL(Vinfo(1))), i
+                       WRITE (Vname(2,varid),'(a,a,i3.3)')              &
+     &                       TRIM(ADJUSTL(Vinfo(2))), ', type ', i
+                      END IF
+                      WRITE (Vname(3,varid),'(a)')                      &
+     &                      TRIM(ADJUSTL(Vinfo(3)))
+                      WRITE (Vname(4,varid),'(a,a)')                    &
+     &                      TRIM(Vname(1,varid)), ', scalar, series'
+                      WRITE (Vname(5,varid),'(a)')                      &
+     &                      TRIM(ADJUSTL(Vinfo(5)))
+                    END DO
+                  END IF
+                CASE ('age_north_')
+                  IF (NPT.gt.0) THEN
+                    varid=varid-1
+                    DO i=1,NPT
+                      varid=varid+1
+                      idTbry(iwest,inert(i))=varid
+                      DO ng=1,Ngrids
+                        Fscale(varid,ng)=scale
+                        Iinfo(1,varid,ng)=gtype
+                      END DO
+                      IF (i.lt.100) THEN
+                       WRITE (Vname(1,varid),'(a,i2.2)')                &
+     &                       TRIM(ADJUSTL(Vinfo(1))), i
+                       WRITE (Vname(2,varid),'(a,a,i2.2)')              &
+     &                       TRIM(ADJUSTL(Vinfo(2))), ', type ', i
+                      ELSE
+                       WRITE (Vname(1,varid),'(a,i3.3)')                &
+     &                       TRIM(ADJUSTL(Vinfo(1))), i
+                       WRITE (Vname(2,varid),'(a,a,i3.3)')              &
+     &                       TRIM(ADJUSTL(Vinfo(2))), ', type ', i
+                      END IF
+                      WRITE (Vname(3,varid),'(a)')                      &
+     &                      TRIM(ADJUSTL(Vinfo(3)))
+                      WRITE (Vname(4,varid),'(a,a)')                    &
+     &                      TRIM(Vname(1,varid)), ', scalar, series'
+                      WRITE (Vname(5,varid),'(a)')                      &
+     &                      TRIM(ADJUSTL(Vinfo(5)))
+                    END DO
+                  END IF
+              END SELECT
+# endif
 #endif
 #ifdef DIAGNOSTICS_TS
 !
@@ -4734,6 +2552,52 @@
                   DO i=1,MT
                     varid=varid+1
                     idDtrc(i,iThadv)=varid
+                    DO ng=1,Ngrids
+                      Fscale(varid,ng)=scale
+                      Iinfo(1,varid,ng)=gtype
+                    END DO
+                    WRITE (Vname(1,varid),'(a,a)')                      &
+     &                    TRIM(ADJUSTL(Vname(1,idTvar(i)))),            &
+     &                    TRIM(ADJUSTL(Vinfo(1)))
+                    WRITE (Vname(2,varid),'(a,", ",a)')                 &
+     &                    TRIM(ADJUSTL(Vname(2,idTvar(i)))),            &
+     &                    TRIM(ADJUSTL(Vinfo(2)))
+                    WRITE (Vname(3,varid),'(a,1x,a)')                   &
+     &                    TRIM(ADJUSTL(Vname(3,idTvar(i)))),            &
+     &                    TRIM(ADJUSTL(Vinfo(3)))
+                    WRITE (Vname(4,varid),'(a,a)')                      &
+     &                    TRIM(Vname(1,varid)), ', scalar, series'
+                    WRITE (Vname(5,varid),'(a)')                        &
+     &                    TRIM(ADJUSTL(Vinfo(5)))
+                  END DO
+                CASE ('_xadv')
+                  varid=varid-1
+                  DO i=1,MT
+                    varid=varid+1
+                    idDtrc(i,iTxadv)=varid
+                    DO ng=1,Ngrids
+                      Fscale(varid,ng)=scale
+                      Iinfo(1,varid,ng)=gtype
+                    END DO
+                    WRITE (Vname(1,varid),'(a,a)')                      &
+     &                    TRIM(ADJUSTL(Vname(1,idTvar(i)))),            &
+     &                    TRIM(ADJUSTL(Vinfo(1)))
+                    WRITE (Vname(2,varid),'(a,", ",a)')                 &
+     &                    TRIM(ADJUSTL(Vname(2,idTvar(i)))),            &
+     &                    TRIM(ADJUSTL(Vinfo(2)))
+                    WRITE (Vname(3,varid),'(a,1x,a)')                   &
+     &                    TRIM(ADJUSTL(Vname(3,idTvar(i)))),            &
+     &                    TRIM(ADJUSTL(Vinfo(3)))
+                    WRITE (Vname(4,varid),'(a,a)')                      &
+     &                    TRIM(Vname(1,varid)), ', scalar, series'
+                    WRITE (Vname(5,varid),'(a)')                        &
+     &                    TRIM(ADJUSTL(Vinfo(5)))
+                  END DO
+                CASE ('_yadv')
+                  varid=varid-1
+                  DO i=1,MT
+                    varid=varid+1
+                    idDtrc(i,iTyadv)=varid
                     DO ng=1,Ngrids
                       Fscale(varid,ng)=scale
                       Iinfo(1,varid,ng)=gtype
@@ -4796,9 +2660,80 @@
      &                    TRIM(ADJUSTL(Vinfo(3)))
                     WRITE (Vname(4,varid),'(a,a)')                      &
      &                    TRIM(Vname(1,varid)), ', scalar, series'
-                    WRITE (Vname(5,varid),'(a)')                      &
+                    WRITE (Vname(5,varid),'(a)')                        &
      &                    TRIM(ADJUSTL(Vinfo(5)))
                   END DO
+                CASE ('_xdiff')
+                  varid=varid-1
+                  DO i=1,MT
+                    varid=varid+1
+                    idDtrc(i,iTxdif)=varid
+                    DO ng=1,Ngrids
+                      Fscale(varid,ng)=scale
+                      Iinfo(1,varid,ng)=gtype
+                    END DO
+                    WRITE (Vname(1,varid),'(a,a)')                      &
+     &                    TRIM(ADJUSTL(Vname(1,idTvar(i)))),            &
+     &                    TRIM(ADJUSTL(Vinfo(1)))
+                    WRITE (Vname(2,varid),'(a,", ",a)')                 &
+     &                    TRIM(ADJUSTL(Vname(2,idTvar(i)))),            &
+     &                    TRIM(ADJUSTL(Vinfo(2)))
+                    WRITE (Vname(3,varid),'(a,1x,a)')                   &
+     &                    TRIM(ADJUSTL(Vname(3,idTvar(i)))),            &
+     &                    TRIM(ADJUSTL(Vinfo(3)))
+                    WRITE (Vname(4,varid),'(a,a)')                      &
+     &                    TRIM(Vname(1,varid)), ', scalar, series'
+                    WRITE (Vname(5,varid),'(a)')                        &
+     &                    TRIM(ADJUSTL(Vinfo(5)))
+                  END DO
+                CASE ('_ydiff')
+                  varid=varid-1
+                  DO i=1,MT
+                    varid=varid+1
+                    idDtrc(i,iTydif)=varid
+                    DO ng=1,Ngrids
+                      Fscale(varid,ng)=scale
+                      Iinfo(1,varid,ng)=gtype
+                    END DO
+                    WRITE (Vname(1,varid),'(a,a)')                      &
+     &                    TRIM(ADJUSTL(Vname(1,idTvar(i)))),            &
+     &                    TRIM(ADJUSTL(Vinfo(1)))
+                    WRITE (Vname(2,varid),'(a,", ",a)')                 &
+     &                    TRIM(ADJUSTL(Vname(2,idTvar(i)))),            &
+     &                    TRIM(ADJUSTL(Vinfo(2)))
+                    WRITE (Vname(3,varid),'(a,1x,a)')                   &
+     &                    TRIM(ADJUSTL(Vname(3,idTvar(i)))),            &
+     &                    TRIM(ADJUSTL(Vinfo(3)))
+                    WRITE (Vname(4,varid),'(a,a)')                      &
+     &                    TRIM(Vname(1,varid)), ', scalar, series'
+                    WRITE (Vname(5,varid),'(a)')                        &
+     &                    TRIM(ADJUSTL(Vinfo(5)))
+                  END DO
+#  if defined MIX_GEO_TS || defined MIX_ISO_TS
+                CASE ('_sdiff')
+                  varid=varid-1
+                  DO i=1,MT
+                    varid=varid+1
+                    idDtrc(i,iTsdif)=varid
+                    DO ng=1,Ngrids
+                      Fscale(varid,ng)=scale
+                      Iinfo(1,varid,ng)=gtype
+                    END DO
+                    WRITE (Vname(1,varid),'(a,a)')                      &
+     &                    TRIM(ADJUSTL(Vname(1,idTvar(i)))),            &
+     &                    TRIM(ADJUSTL(Vinfo(1)))
+                    WRITE (Vname(2,varid),'(a,", ",a)')                 &
+     &                    TRIM(ADJUSTL(Vname(2,idTvar(i)))),            &
+     &                    TRIM(ADJUSTL(Vinfo(2)))
+                    WRITE (Vname(3,varid),'(a,1x,a)')                   &
+     &                    TRIM(ADJUSTL(Vname(3,idTvar(i)))),            &
+     &                    TRIM(ADJUSTL(Vinfo(3)))
+                    WRITE (Vname(4,varid),'(a,a)')                      &
+     &                    TRIM(Vname(1,varid)), ', scalar, series'
+                    WRITE (Vname(5,varid),'(a)')                        &
+     &                    TRIM(ADJUSTL(Vinfo(5)))
+                  END DO
+#  endif
 # endif
                 CASE ('_vdiff')
                   varid=varid-1

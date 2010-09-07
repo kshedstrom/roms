@@ -2,9 +2,9 @@
 #ifdef FOUR_DVAR
       SUBROUTINE def_ini (ng)
 !
-!svn $Id: def_ini.F 999 2009-06-09 23:48:31Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -50,7 +50,7 @@
 # if defined ADJUST_STFLUX || defined ADJUST_WSTRESS
       integer :: frecdim
 # endif
-      integer :: DimIDs(31), Vsize(4)
+      integer :: DimIDs(32), Vsize(4)
 # ifdef ADJUST_BOUNDARY
       integer :: t2dobc(4)
 #  ifdef SOLVE3D
@@ -64,8 +64,8 @@
 
       real(r8) :: Aval(6)
 
-      character (len=80) :: ncname
       character (len=120) :: Vinfo(Natt)
+      character (len=256) :: ncname
 !
       SourceFile='def_ini.F'
 
@@ -234,7 +234,7 @@
               got_boundary=.TRUE.
             CASE ('IorJ')
               IorJdim=dim_id(i)
-              got_IorJ=.TRUE.             
+              got_IorJ=.TRUE.
 #  endif
 #  if defined ADJUST_STFLUX || defined ADJUST_WSTRESS
             CASE ('frc_adjust')

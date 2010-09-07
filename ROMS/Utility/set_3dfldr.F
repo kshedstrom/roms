@@ -2,9 +2,9 @@
       MODULE set_3dfldr_mod
 #if defined ADJOINT && defined SOLVE3D
 !
-!svn $Id: set_3dfldr.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -119,7 +119,7 @@
           END DO
         END IF
 !
-!  Time-interpolate from grided or point data.
+!  Time-interpolate from gridded or point data.
 !
       ELSE IF (((fac1*fac2).ge.0.0_r8).and.                             &
      &        ((fac1+fac2).gt.0.0_r8)) THEN

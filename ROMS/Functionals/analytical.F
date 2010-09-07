@@ -2,9 +2,9 @@
       MODULE analytical_mod
 #ifdef ANALYTICAL
 !
-!svn $Id: analytical.F 983 2009-05-23 01:07:05Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -20,8 +20,7 @@
 !!                       tracers.                                      !
 !! ana_btflux.h        Analytical kinematic bottom flux of tracer      !
 !!                       type variables.                               !
-!! ana_bmflux.h        Analytical bottom momentm flux - so can have    !
-!!                       spatially varying zo                          !
+!! ana_bmflux.h        Analytical spatially varying bottom roughness   !
 !! ana_cloud.h         Analytical cloud fraction.                      !
 !! ana_diag.h          Customized diagnostics.                         !
 !! ana_fsobc.h         Analytical free-surface boundary conditions.    !
@@ -43,6 +42,7 @@
 !! ana_perturb.h       Peturb analytical initial conditions with       !
 !!                       analytical expressions.                       !
 !! ana_psource.h       Analytical mass/tracer point sources/sinks.     !
+!! ana_trc_psource.h   Analytical mass/tracer point sources/sinks.     !
 !! ana_rain.h          Analytical rain fall rate.                      !
 !! ana_scope.h         Analytical adjoint sensitivity spatial scope    !
 !!                       mask.                                         !
@@ -82,7 +82,7 @@
       CONTAINS
 
 # if defined ANA_AIOBC && defined ICE_MODEL
-#  include "ana_aiobc.h"
+#  include <ana_aiobc.h>
 # endif
 
 # if defined ANA_BIOLOGY && defined BIOLOGY
@@ -116,11 +116,17 @@
 # endif
 
 # if defined ANA_HIOBC && defined ICE_MODEL
-#  include "ana_hiobc.h"
+#  include <ana_hiobc.h>
 # endif
 
 # if defined ANA_HSNOBC && defined ICE_MODEL
-#  include "ana_hsnobc.h"
+#  include <ana_hsnobc.h>
+# endif
+
+# if defined ANA_ICEBIOBC && defined ICE_BIO
+#  include <ana_IcePhLbc.h>
+#  include <ana_IceNO3bc.h>
+#  include <ana_IceNH4bc.h>
 # endif
 
 # if defined ANA_HUMIDITY && \
@@ -134,7 +140,7 @@
 # endif
 
 # if defined ANA_ICE && defined ICE_MODEL
-#  include "ana_ice.h"
+#  include <ana_ice.h>
 # endif
 
 # ifdef ANA_INITIAL
@@ -187,13 +193,17 @@
 #  include <ana_psource.h>
 # endif
 
+# if defined TRC_PSOURCE  && defined ANA_TRC_PSOURCE
+#  include <ana_trc_psource.h>
+# endif
+
 # if defined ANA_RAIN && defined BULK_FLUXES
 #  include <ana_rain.h>
 # endif
 
-# if defined ANA_GRID       && \
-   (defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
-    defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR || \
+# if defined ANA_GRID        && \
+   (defined AD_SENSITIVITY   || defined IS4DVAR_SENSITIVITY || \
+    defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR   || \
     defined SO_SEMI)
 #  include <ana_scope.h>
 # endif
@@ -214,7 +224,7 @@
 #  include <ana_spinning.h>
 # endif
 
-# if (defined ANA_SRFLUX && defined SOLVE3D) || defined DIURNAL_SRFLUX 
+# if (defined ANA_SRFLUX && defined SOLVE3D) || defined DIURNAL_SRFLUX
 #  include <ana_srflux.h>
 # endif
 

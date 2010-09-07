@@ -2,9 +2,9 @@
       MODULE mod_obs
 #if defined ASSIMILATION || defined NUDGING
 !
-!svn $Id: mod_obs.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -71,17 +71,11 @@
         implicit none
 
         TYPE T_OBS
-      
-# if defined ASSIMILATION_SSH || defined NUDGING_SSH
+
+# ifdef ASSIMILATION_SSH
+          real(r8), pointer :: EmodSSH(:,:)
           real(r8), pointer :: EobsSSH(:,:)
           real(r8), pointer :: SSHobs (:,:)
-#  ifdef ASSIMILATION_SSH
-          real(r8), pointer :: EmodSSH(:,:)
-#  endif
-#  ifdef NUDGING_SSH
-          real(r8), pointer :: EdatSSH(:,:,:)
-          real(r8), pointer :: SSHdat (:,:,:)
-#  endif
 # endif
 
 # if defined ASSIMILATION_SST || defined NUDGING_SST
@@ -162,16 +156,10 @@
 !
       IF (ng.eq.1) allocate ( OBS(Ngrids) )
 !
-# if defined ASSIMILATION_SSH || defined NUDGING_SSH
+# ifdef ASSIMILATION_SSH
+      allocate ( OBS(ng) % EmodSSH(LBi:UBi,LBj:UBj) )
       allocate ( OBS(ng) % EobsSSH(LBi:UBi,LBj:UBj) )
       allocate ( OBS(ng) % SSHobs(LBi:UBi,LBj:UBj) )
-#  ifdef ASSIMILATION_SSH
-      allocate ( OBS(ng) % EmodSSH(LBi:UBi,LBj:UBj) )
-#  endif
-#  ifdef NUDGING_SSH
-      allocate ( OBS(ng) % EdatSSH(LBi:UBi,LBj:UBj,2) )
-      allocate ( OBS(ng) % SSHdat(LBi:UBi,LBj:UBj,2) )
-#  endif
 # endif
 
 # if defined ASSIMILATION_SST || defined NUDGING_SST
@@ -293,24 +281,12 @@
 !-----------------------------------------------------------------------
 !
       DO j=Jmin,Jmax
-# if defined ASSIMILATION_SSH || defined NUDGING_SSH
+# ifdef ASSIMILATION_SSH
         DO i=Imin,Imax
+          OBS(ng) % EmodSSH(i,j) = IniVal
           OBS(ng) % EobsSSH(i,j) = IniVal
           OBS(ng) % SSHobs(i,j) = IniVal
         END DO
-#  ifdef ASSIMILATION_SSH
-        DO i=Imin,Imax
-          OBS(ng) % EmodSSH(i,j) = IniVal
-        END DO
-#  endif
-#  ifdef NUDGING_SSH
-        DO i=Imin,Imax
-          OBS(ng) % EdatSSH(i,j,1) = IniVal
-          OBS(ng) % EdatSSH(i,j,2) = IniVal
-          OBS(ng) % SSHdat(i,j,1) = IniVal
-          OBS(ng) % SSHdat(i,j,2) = IniVal
-        END DO        
-#  endif
 # endif
 # if defined ASSIMILATION_SST || defined NUDGING_SST
         DO i=Imin,Imax

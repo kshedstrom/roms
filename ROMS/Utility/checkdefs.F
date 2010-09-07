@@ -1,9 +1,9 @@
 #include "cppdefs.h"
       SUBROUTINE checkdefs
 !
-!svn $Id: checkdefs.F 1101 2009-11-19 00:56:17Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -43,6 +43,10 @@
       integer :: T_west = 0
       integer :: T_north = 0
       integer :: T_south = 0
+      integer :: PT_east = 0
+      integer :: PT_west = 0
+      integer :: PT_north = 0
+      integer :: PT_south = 0
       integer :: ibbl = 0
       integer :: ibiology = 0
       integer :: idriver = 0
@@ -92,28 +96,28 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+9)=' ADJOINT,'
 #endif
-#if defined ADJUST_BOUNDARY && \
-   (defined IS4DVAR           || defined OBS_SENSITIVITY || \
-    defined SENSITIVITY_4DVAR || defined W4DPSAS         || \
-    defined W4DVAR)
+#if defined ADJUST_BOUNDARY     && \
+   (defined CORRELATION         || defined IS4DVAR           || \
+    defined IS4DVAR_SENSITIVITY || defined SENSITIVITY_4DVAR || \
+    defined W4DPSAS             || defined W4DVAR)
       IF (Master) WRITE (stdout,20) 'ADJUST_BOUNDARY',                  &
      &   'Including boundary conditions in 4DVar state estimation.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+17)=' ADJUST_BOUNDARY,'
 #endif
-#if defined ADJUST_STFLUX && \
-   (defined IS4DVAR           || defined OBS_SENSITIVITY || \
-    defined SENSITIVITY_4DVAR || defined W4DPSAS         || \
-    defined W4DVAR)
+#if defined ADJUST_STFLUX       && \
+   (defined CORRELATION         || defined IS4DVAR           || \
+    defined IS4DVAR_SENSITIVITY || defined SENSITIVITY_4DVAR || \
+    defined W4DPSAS             || defined W4DVAR)
       IF (Master) WRITE (stdout,20) 'ADJUST_STFLUX',                    &
      &   'Including surface tracer flux in 4DVar state estimation.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+15)=' ADJUST_STFLUX,'
 #endif
-#if defined ADJUST_WSTRESS && \
-   (defined IS4DVAR           || defined OBS_SENSITIVITY || \
-    defined SENSITIVITY_4DVAR || defined W4DPSAS         || \
-    defined W4DVAR)
+#if defined ADJUST_WSTRESS      && \
+   (defined CORRELATION         || defined IS4DVAR           || \
+    defined IS4DVAR_SENSITIVITY || defined SENSITIVITY_4DVAR || \
+    defined W4DPSAS             || defined W4DVAR)
       IF (Master) WRITE (stdout,20) 'ADJUST_WSTRESS',                   &
      &   'Including surface wind stress in 4DVar state estimation.'
       is=LEN_TRIM(Coptions)+1
@@ -146,11 +150,42 @@
       Coptions(is:is+16)=' AFT_EIGENMODES,'
       idriver=idriver+1
 #endif
+#ifdef AGE_DISTRIBUTION
+      IF (Master) WRITE (stdout,20) 'AGE_DISTRIBUTION',                 &
+     &   'Water/tracer age passive tracers distribution simulation.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+18)=' AGE_DISTRIBUTION,'
+#endif
+#ifdef AGE_PASSIVE
+      IF (Master) WRITE (stdout,20) 'AGE_PASSIVE',                      &
+     &   'Mean water/tracer age passive tracers simulation.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+13)=' AGE_PASSIVE,'
+#endif
 #if defined ALBEDO && defined ANA_SRFLUX
       IF (Master) WRITE (stdout,20) 'ALBEDO',                           &
      &   'Shortwave radiation from albedo equation.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+8)=' ALBEDO,'
+#endif
+#if defined ALBEDO_CURVE && defined ANA_SRFLUX
+      IF (Master) WRITE (stdout,20) 'ALBEDO_CURVE',                           &
+     &   'Shortwave radiation adjusted by albedo curve.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+14)=' ALBEDO_CURVE,'
+#endif
+#ifdef ARRAY_MODES
+      IF (Master) WRITE (stdout,20) 'ARRAY_MODES',                      &
+     &   'Stabilized Representer Matrix Array Modes.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+13)=' ARRAY_MODES,'
+      idriver=idriver+1
+# ifdef ARRAY_MODES_SPLIT
+      IF (Master) WRITE (stdout,20) 'ARRAY_MODES_SPLIT',                &
+     &   'Separate analysis due to IC, surface forcing, and OBC'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+19)=' ARRAY_MODES_SPLIT,'
+# endif
 #endif
 #ifdef ATM_PRESS
       IF (Master) WRITE (stdout,20) 'ATM_PRESS',                        &
@@ -163,6 +198,19 @@
      &   'Error Covariance Multivariate Balance Operator.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+18)=' BALANCE_OPERATOR,'
+#endif
+#ifdef CLIPPING
+      IF (Master) WRITE (stdout,20) 'CLIPPING',                         &
+     &   'Stabilized Representer Matrix clipping spectrum analysis.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+10)=' CLIPPING,'
+      idriver=idriver+1
+# ifdef CLIPPING_SPLIT
+      IF (Master) WRITE (stdout,20) 'CLIPPING_SPLIT',                   &
+     &   'Separate analysis due to IC, surface forcing, and OBC'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+16)=' CLIPPING_SPLIT,'
+# endif
 #endif
 #ifdef CONVOLUTION
       IF (Master) WRITE (stdout,20) 'CONVOLUTION',                      &
@@ -189,6 +237,14 @@
      &   'Analytical biology initial conditions.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+13)=' ANA_BIOLOGY,'
+#endif
+#if defined SEDIMENT && !defined ANA_SEDIMENT
+# ifdef ANA_BMFLUX
+      IF (Master) WRITE (stdout,20) 'ANA_BMFLUX',                       &
+     &   'Analytical spatially varying bottom roughness.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+12)=' ANA_BMFLUX,'
+# endif
 #endif
 #if defined SEDIMENT || defined BIOLOGY
 # ifdef ANA_BPFLUX
@@ -318,9 +374,9 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+10)=' ANA_RDRG,'
 #endif
-#if defined ANA_SCOPE && \
-   (defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
-    defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR || \
+#if defined ANA_SCOPE        && \
+   (defined AD_SENSITIVITY   || defined IS4DVAR_SENSITIVITY || \
+    defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR   || \
     defined SO_SEMI)
       IF (Master) WRITE (stdout,20) 'ANA_SCOPE',                        &
      &   'Analytical spatial scope masking arrays.'
@@ -346,12 +402,6 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+12)=' ANA_SPFLUX,'
 # endif
-#endif
-#ifdef ANA_SPAWN_DIST
-      IF (Master) WRITE (stdout,20) 'ANA_SPAWN_DIST',                   &
-     &   'Analytical spawning "distance".'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+16)=' ANA_SPAWN_DIST,'
 #endif
 #ifdef ANA_SPINNING
       IF (Master) WRITE (stdout,20) 'ANA_SPINNING',                     &
@@ -406,6 +456,12 @@
      &   'Analytical tracers boundary conditions.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+10)=' ANA_TOBC,'
+#endif
+#if defined ANA_PTOBC && defined SOLVE3D
+      IF (Master) WRITE (stdout,20) 'ANA_PTOBC',                        &
+     &   'Analytical passive tracers boundary conditions.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+11)=' ANA_PTOBC,'
 #endif
 #if defined ANA_VMIX && defined SOLVE3D
       IF (Master) WRITE (stdout,20) 'ANA_VMIX',                         &
@@ -473,47 +529,11 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+11)=' AVERAGES2,'
 # endif
-# ifdef AVERAGES_AKS
-      IF (Master) WRITE (stdout,20) 'AVERAGES_AKS',                     &
-     &   'Writing out time-averaged vertical S-diffusion.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+14)=' AVERAGES_AKS,'
-# endif
-# ifdef AVERAGES_AKT
-      IF (Master) WRITE (stdout,20) 'AVERAGES_AKT',                     &
-     &   'Writing out time-averaged vertical T-diffusion.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+14)=' AVERAGES_AKT,'
-# endif
-# if defined AVERAGES_BEDLOAD && defined SEDIMENT && defined BEDLOAD
-      IF (Master) WRITE (stdout,20) 'AVERAGES_BELOAD',                  &
-     &   'Writing out time-averaged bed load.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+18)=' AVERAGES_BEDLOAD,'
-# endif
 # if defined AVERAGES_DETIDE && (defined SSH_TIDES || defined UV_TIDES)
       IF (Master) WRITE (stdout,20) 'AVERAGES_DETIDE',                  &
      &   'Writing out time-averaged detided fields.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+17)=' AVERAGES_DETIDE,'
-# endif
-# ifdef AVERAGES_FLUXES
-      IF (Master) WRITE (stdout,20) 'AVERAGES_FLUXES',                  &
-     &   'Writing out time-averaged surface fluxes.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+17)=' AVERAGES_FLUXES,'
-# endif
-# ifdef AVERAGES_NEARSHORE
-      IF (Master) WRITE (stdout,20) 'AVERAGES_NEARSHORE',               &
-     &   'Writing out time-averaged nearshore radiation fields.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+20)=' AVERAGES_NEARSHORE,'
-# endif
-# ifdef AVERAGES_QUADRATIC
-      IF (Master) WRITE (stdout,20) 'AVERAGES_QUADRATIC',               &
-     &   'Writing out time-averaged quadratic terms.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+20)=' AVERAGES_QUADRATIC,'
 # endif
 #endif
 #if defined BACKGROUND && defined FOUR_DVAR
@@ -909,6 +929,33 @@
       Coptions(is:is+17)=' EAST_TRADIATION,'
       T_east=T_east+1
 #endif
+#ifdef EAST_PTCLAMPED
+      IF (Master) WRITE (stdout,20) 'EAST_PTCLAMPED',                   &
+     &   'Eastern edge, passive tracers, Clamped condition.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+16)=' EAST_PTCLAMPED,'
+      PT_east=PT_east+1
+#endif
+#ifdef EAST_PTGRADIENT
+      IF (Master) WRITE (stdout,20) 'EAST_PTGRADIENT',                  &
+     &   'Eastern edge, passive tracers, gradient condition.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+17)=' EAST_PTGRADIENT,'
+      PT_east=PT_east+1
+#endif
+#ifdef EAST_PTRADIATION
+# ifdef EAST_PTNUDGING
+      IF (Master) WRITE (stdout,20) 'EAST_PTNUDGING',                   &
+     &  'Eastern edge, passive tracers, passive/active outflow/inflow.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+16)=' EAST_PTNUDGING,'
+# endif
+      IF (Master) WRITE (stdout,20) 'EAST_PTRADIATION',                 &
+     &   'Eastern edge, passive tracers, radiation condition.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+18)=' EAST_PTRADIATION,'
+      PT_east=PT_east+1
+#endif
 #ifdef EAST_VOLCONS
       IF (Master) WRITE (stdout,20) 'EAST_VOLCONS',                     &
      &   'Eastern edge, enforce mass conservation.'
@@ -927,30 +974,6 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+8)=' ECOSIM,'
       ibiology=ibiology+1
-#endif
-#ifdef EGGS_BISECTION
-      IF (Master) WRITE (stdout,20) 'EGGS_BISECTION',                   &
-     &   'Bisection of gridded spawners to make eggs.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+16)=' EGGS_BISECTION,'
-#endif
-#ifdef EGGS_TREE_CXX
-      IF (Master) WRITE (stdout,20) 'EGGS_TREE_CXX',                    &
-     &   'Binary tree of spawners to make eggs (C++ version).'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+15)=' EGGS_TREE_CXX,'
-#endif
-#ifdef EGGS_TREE_FORT
-      IF (Master) WRITE (stdout,20) 'EGGS_TREE_FORT',                   &
-     &   'Binary tree of spawners to make eggs (Fortran version).'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+16)=' TREE_FORT,'
-#endif
-#ifdef EGGS_VECTOR_CXX
-      IF (Master) WRITE (stdout,20) 'EGGS_VECTOR_CXX',                   &
-     &   'Vector of spawners to make eggs (C++ version).'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+16)=' EGGS_VECTOR_CXX,'
 #endif
 #if defined EMINUSP && defined BULK_FLUXES
       IF (Master) WRITE (stdout,20) 'EMINUSP',                          &
@@ -991,18 +1014,6 @@
      &   'Writing out time-filtered output.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+10)=' FILTERED,'
-#endif
-#ifdef FISH_FEEDBACK
-      IF (Master) WRITE (stdout,20) 'FISH_FEEDBACK',                    &
-     &   'Feedback from fish onto NPZD (NEMURO for now).'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+15)=' FISH_FEEDBACK,'
-#endif
-#ifdef FLEET
-      IF (Master) WRITE (stdout,20) 'FLEET',                            &
-     &   'Fishing fleet.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+7)=' FLEET,'
 #endif
 #ifdef FLOATS
       IF (Master) WRITE (stdout,20) 'FLOATS',                           &
@@ -1081,6 +1092,12 @@
       Coptions(is:is+12)=' !FULL_GRID,'
 # endif
 #endif
+#ifdef GLOBAL_PERIODIC
+      IF (Master) WRITE (stdout,20) 'GLOBAL_PERIODIC',                  &
+     &   'Globally periodic domain when interpolating forcing.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+17)=' GLOBAL_PERIODIC,'
+#endif
 #ifdef GLS_MIXING
       IF (Master) WRITE (stdout,20) 'GLS_MIXING',                       &
      &   'Generic Length-Scale turbulence closure.'
@@ -1111,6 +1128,12 @@
      &   'Ice bulk fluxes from the atmosphere.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+17)=' ICE_BULK_FLUXES,'
+#endif
+#ifdef ICE_CONVSNOW
+      IF (Master) WRITE (stdout,20) 'ICE_CONVSNOW',                     &
+     &   'Conversion of flooded snow to ice.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+14)=' ICE_CONVSNOW,'
 #endif
 #ifdef ICE_EVP
       IF (Master) WRITE (stdout,20) 'ICE_EVP',                          &
@@ -1166,6 +1189,12 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+10)=' ICESHELF,'
 #endif
+#ifdef ICESHELF_3EQ
+      IF (Master) WRITE (stdout,20) 'ICESHELF_3EQ',                     &
+     &   'Include 3eq Ice Shelf Thermodynamics.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+14)=' ICESHELF_3EQ,'
+#endif
 #if defined IMPLICIT_VCONV && defined FOUR_DVAR && defined VCONVOLUTION
       IF (Master) WRITE (stdout,20) 'IMPLICIT_VCONV',                   &
      &   'Implicit Vertical Convolution Algorithm.'
@@ -1205,9 +1234,16 @@
 #endif
 #ifdef IS4DVAR
       IF (Master) WRITE (stdout,20) 'IS4DVAR',                          &
-     &   'Incremental strong constraint 4DVAR data assimilation.'
+     &   'Incremental strong constraint 4D-Var data assimilation.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+9)=' IS4DVAR,'
+      idriver=idriver+1
+#endif
+#ifdef IS4DVAR_SENSITIVITY
+      IF (Master) WRITE (stdout,20) 'IS4DVAR_SENSITIVITY',              &
+     &   'I4D-Var Observations Sensitivity Analysis.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+21)=' IS4DVAR_SENSITIVITY,'
       idriver=idriver+1
 #endif
 #if defined INLINE_2DIO && defined DISTRIBUTE
@@ -1227,12 +1263,6 @@
      &   'Kantha and Clayson stability function formulation.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+16)=' KANTHA_CLAYSON,'
-#endif
-#ifdef LIMIT_BIO_AKT
-      IF (Master) WRITE (stdout,20) 'LIMIT_BIO_AKT',                    &
-     &   'Limit the vertical diffusivity for biological tracers.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+15)=' LIMIT_BIO_AKT,'
 #endif
 #ifdef LMD_BKPP
       IF (Master) WRITE (stdout,20) 'LMD_BKPP',                         &
@@ -1448,6 +1478,24 @@
       Coptions(is:is+8)=' NEMURO,'
       ibiology=ibiology+1
 #endif
+#ifdef NEMURO_SAN
+      IF (Master) WRITE (stdout,20) 'NEMURO_SAN',                       &
+     &   'Nemuro with sardine and anchovy fish model.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+12)=' NEMURO_SAN,'
+#endif
+#ifdef NEMURO_SED1
+      IF (Master) WRITE (stdout,20) 'NEMURO_SED1',                      &
+     &   'Nemuro with sediment remineralization type 1.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+13)=' NEMURO_SED1,'
+#endif
+#ifdef NEMURO_SED2
+      IF (Master) WRITE (stdout,20) 'NEMURO_SED2',                      &
+     &   'Nemuro with sediment remineralization type 2.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+13)=' NEMURO_SED2,'
+#endif
 #ifdef NETCDF4
       IF (Master) WRITE (stdout,20) 'NETCDF4',                          &
      &   'Creating NetCDF-4/HDF5 format files.'
@@ -1471,12 +1519,6 @@
      &   'Nonlinear Model.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+10)=' NONLINEAR,'
-#endif
-#ifdef NEMURO_SAN
-      IF (Master) WRITE (stdout,20) 'NEMURO_SAN',                        &
-     &   'Fish trajectories and biology feedback.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+12)=' NEMURO_SAN,'
 #endif
 #ifdef SOLVE3D
 # if defined NONLIN_EOS
@@ -1648,6 +1690,34 @@
       Coptions(is:is+18)=' NORTH_TRADIATION,'
       T_north=T_north+1
 #endif
+#ifdef NORTH_PTCLAMPED
+      IF (Master) WRITE (stdout,20) 'NORTH_PTCLAMPED',                  &
+     &   'Northern edge, passive tracers, Clamped condition.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+17)=' NORTH_PTCLAMPED,'
+      PT_north=PT_north+1
+#endif
+#ifdef NORTH_PTGRADIENT
+      IF (Master) WRITE (stdout,20) 'NORTH_PTGRADIENT',                 &
+     &   'Northern edge, passive tracers, gradient condition.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+18)=' NORTH_PTGRADIENT,'
+      PT_north=PT_north+1
+#endif
+#ifdef NORTH_PTRADIATION
+# ifdef NORTH_PTNUDGING
+      IF (Master) WRITE (stdout,20) 'NORTH_PTNUDGING',                  &
+     &  'Northern edge, passive tracers, passive/active outflow/inflow.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+17)=' NORTH_PTNUDGING,'
+# endif
+      IF (Master) WRITE (stdout,20) 'NORTH_PTRADIATION',                &
+     &   'Northern edge, passive tracers, radiation condition.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+19)=' NORTH_PTRADIATION,'
+      PT_north=PT_north+1
+#endif
+
 #if defined NO_READ_GHOST && defined DISTRIBUTE
       IF (Master) WRITE (stdout,20) 'NO_READ_GRID',                     &
      &   'Not including ghost points during scattering read data.'
@@ -1680,12 +1750,6 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+13)=' NPZD_POWELL,'
       ibiology=ibiology+1
-#endif
-#ifdef NUDGING_SSH
-      IF (Master) WRITE (stdout,20) 'NUDGING_SSH',                      &
-     &   'Nudging SSH observations.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+13)=' NUDGING_SSH,'
 #endif
 #ifdef NUDGING_SST
       IF (Master) WRITE (stdout,20) 'NUDGING_SST',                      &
@@ -1745,12 +1809,11 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+12)=' OBS_IMPACT,'
 #endif
-#ifdef OBS_SENSITIVITY
-      IF (Master) WRITE (stdout,20) 'OBS_SENSITIVITY',                  &
-     &   '4DVAR Observations Sensitivity Analysis.'
+#if defined OBS_IMPACT && defined OBS_IMPACT_SPLIT
+      IF (Master) WRITE (stdout,20) 'OBS_IMPACT_SPLIT',                 &
+     &   'Separate impact due to IC, surface forcing, and OBC'
       is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+17)=' OBS_SENSITIVITY,'
-      idriver=idriver+1
+      Coptions(is:is+18)=' OBS_IMPACT_SPLIT,'
 #endif
 #ifdef OCLIMATOLOGY
       IF (Master) WRITE (stdout,20) 'OCLIMATOLOGY',                     &
@@ -1781,6 +1844,12 @@
      &   'OpenMP parallel shared-memory directives.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+9)=' _OPENMP,'
+#endif
+#ifdef OPP_SUBDOMAIN
+      IF (Master) WRITE (stdout,20) 'OPP_SUBDOMAIN',                    &
+     &   'subdomain optimal observation.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+15)=' OPP_SUBDOMAIN,'
 #endif
 #ifdef OPT_OBSERVATIONS
       IF (Master) WRITE (stdout,20) 'OPT_OBSERVATIONS',                 &
@@ -1815,9 +1884,9 @@
 #endif
 #if defined PARALLEL_IO && defined DISTRIBUTE
       IF (Master) WRITE (stdout,20) 'PARALLEL_IO',                      &
-     &   'Parallel I/O processing with NetCDF-4/HDF5 libraries.'
+     &   'Parallel I/O processing.'
       is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+17)=' PERFECT_RESTART,'
+      Coptions(is:is+13)=' PARALLEL_IO,'
 #endif
 #ifdef PERFECT_RESTART
       IF (Master) WRITE (stdout,20) 'PERFECT_RESTART',                  &
@@ -1886,6 +1955,12 @@
      &   'Standard density Jacobian formulation (Song, 1998).'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+10)=' PRSGRD31,'
+#endif
+#if defined PREDATOR
+      IF (Master) WRITE (stdout,20) 'PREDATOR',                        &
+     &   'Predators on the fish.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+10)=' PREDATOR,'
 #endif
 #ifdef PROFILE
       IF (Master) WRITE (stdout,20) 'PROFILE',                          &
@@ -1971,6 +2046,12 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+12)=' READ_WATER,'
 #endif
+#if defined RECOMPUTE_4DVAR && defined FOUR_DVAR
+      IF (Master) WRITE (stdout,20) 'RECOMPUTE_4DVAR',                  &
+     &   'Recomputing 4DVar during data assimilation analysis.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+17)=' RECOMPUTE_4DVAR,'
+#endif
 #ifdef R_SYMMETRY
       IF (Master) WRITE (stdout,20) 'REP_MATRIX',                       &
      &   'Representers Matrix Symmetry Test.'
@@ -1978,17 +2059,11 @@
       Coptions(is:is+12)=' REP_MATRIX,'
       idriver=idriver+1
 #endif
-#if defined RIVER_BIOLOGY && defined BIOLOGY
-      IF (Master) WRITE (stdout,20) 'RIVER_BIOLOGY',                    &
-     &   'River biology point sources.'
+#ifdef RESIDENCE_TIME
+      IF (Master) WRITE (stdout,20) 'RESIDENCE_TIME',                   &
+     &   'Water/tracer residence time passive tracers simulation.'
       is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+15)=' RIVER_BIOLOGY,'
-#endif
-#if defined RIVER_SEDIMENT && defined SEDIMENT
-      IF (Master) WRITE (stdout,20) 'RIVER_SEDIMENT',                   &
-     &   'River sediment point sources.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+16)=' RIVER_SEDIMENT,'
+      Coptions(is:is+16)=' RESIDENCE_TIME,'
 #endif
 #if defined LMD_MIXING
 # ifdef RI_HORAVG
@@ -2265,6 +2340,33 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+18)=' SOUTH_TRADIATION,'
       T_south=T_south+1
+#endif
+#ifdef SOUTH_PTCLAMPED
+      IF (Master) WRITE (stdout,20) 'SOUTH_PTCLAMPED',                  &
+     &   'Southern edge, passive tracers, Clamped condition.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+17)=' SOUTH_PTCLAMPED,'
+      PT_south=PT_south+1
+#endif
+#ifdef SOUTH_PTGRADIENT
+      IF (Master) WRITE (stdout,20) 'SOUTH_PTGRADIENT',                 &
+     &   'Southern edge, passive tracers, gradient condition.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+18)=' SOUTH_PTGRADIENT,'
+      PT_south=PT_south+1
+#endif
+#ifdef SOUTH_PTRADIATION
+# ifdef SOUTH_PTNUDGING
+      IF (Master) WRITE (stdout,20) 'SOUTH_PTNUDGING',                  &
+     &  'Southern edge, passive tracers, passive/active outflow/inflow.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+17)=' SOUTH_PTNUDGING,'
+# endif
+      IF (Master) WRITE (stdout,20) 'SOUTH_PTRADIATION',                &
+     &   'Southern edge, passive tracers, radiation condition.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+19)=' SOUTH_PTRADIATION,'
+      PT_south=PT_south+1
 #endif
 #ifdef SOUTH_VOLCONS
       IF (Master) WRITE (stdout,20) 'SOUTH_VOLCONS',                    &
@@ -3020,6 +3122,33 @@
       Coptions(is:is+17)=' WEST_TRADIATION,'
       T_west=T_west+1
 #endif
+#ifdef WEST_PTCLAMPED
+      IF (Master) WRITE (stdout,20) 'WEST_PTCLAMPED',                   &
+     &   'Western edge, passive tracers, Clamped condition.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+16)=' WEST_PTCLAMPED,'
+      PT_west=PT_west+1
+#endif
+#ifdef WEST_PTGRADIENT
+      IF (Master) WRITE (stdout,20) 'WEST_PTGRADIENT',                  &
+     &   'Western edge, passive tracers, gradient condition.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+17)=' WEST_PTGRADIENT,'
+      PT_west=PT_west+1
+#endif
+#ifdef WEST_PTRADIATION
+# ifdef WEST_PTNUDGING
+      IF (Master) WRITE (stdout,20) 'WEST_PTNUDGING',                   &
+     &  'Western edge, passive tracers, passive/active outflow/inflow.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+16)=' WEST_PTNUDGING,'
+# endif
+      IF (Master) WRITE (stdout,20) 'WEST_PTRADIATION',                 &
+     &   'Western edge, passive tracers, radiation condition.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+18)=' WEST_PTRADIATION,'
+      PT_west=PT_west+1
+#endif
 #ifdef WEST_VOLCONS
       IF (Master) WRITE (stdout,20) 'WEST_VOLCONS',                     &
      &   'Western edge, enforce mass conservation.'
@@ -3219,6 +3348,22 @@
         WRITE (stdout,80) 'tracers','southern edge'
         exit_flag=5
       END IF
+      IF (Master.and.(PT_east.gt.1)) THEN
+        WRITE (stdout,80) 'passive tracers','eastern edge'
+        exit_flag=5
+      END IF
+      IF (Master.and.(PT_west.gt.1)) THEN
+        WRITE (stdout,80) 'passive tracers','western edge'
+        exit_flag=5
+      END IF
+      IF (Master.and.(PT_north.gt.1)) THEN
+        WRITE (stdout,80) 'passive tracers','northern edge'
+        exit_flag=5
+      END IF
+      IF (Master.and.(PT_south.gt.1)) THEN
+        WRITE (stdout,80) 'passive tracers','southern edge'
+        exit_flag=5
+      END IF
 # if defined GLS_MIXING || defined MY25_MIXING
 !
 !  Stop if more than one boundary conditions option for tracers is
@@ -3352,6 +3497,48 @@
      &            ' option;',/,13x,'use either IVLEV_EXPLICIT or',      &
      &            ' implicit HOLLING_GRAZING.',/,13x,'The default',     &
      &            ' implicit IVLEV algorithm does not work well yet.')
+        exit_flag=5
+      END IF
+# endif
+#endif
+#if defined ICESHELF && !defined SOLVE3D
+!
+!  Stop if ICESHELF defined in shallow water setup
+!
+      IF (Master) THEN
+        WRITE (stdout,170)
+ 170    FORMAT (/,' CHECKDEFS - ICESHELF does not currently work',      &
+     &            ' in shallow water mode.')
+        exit_flag=5
+      END IF
+#endif
+#if defined ICESHELF && !defined DJ_GRADPS
+!
+!  PGF for ICESHELF only works for DJ_GRADPS
+!
+      IF (Master) THEN
+        WRITE (stdout,180)
+ 180    FORMAT (/,' CHECKDEFS - ICESHELF does not currently work',      &
+     &            ' for any PGF scheme other than DJ_GRADPS')
+        exit_flag=5
+      END IF
+#endif
+#ifdef PARALLEL_IO
+# if !(defined HDF5 || defined PNETCDF)
+      IF (Master) THEN
+        WRITE (stdout,170)
+ 170    FORMAT (/,' CHECKDEFS - Need to activate either HDF5 or',       &
+     &            ' PNETCDF options',/,13x,'for parallel I/O',          &
+     &            ' processing.')
+        exit_flag=5
+      END IF
+# endif
+# if defined HDF5 && defined PNETCDF
+      IF (Master) THEN
+        WRITE (stdout,180)
+ 180    FORMAT (/,' CHECKDEFS - Both HDF5 and PNETCDF options',         &
+     &            ' selected',/,13x,'for parallel I/O processing.',     &
+     &          /,13x,'Choose only one.')
         exit_flag=5
       END IF
 # endif

@@ -20,9 +20,9 @@
 #  define JV_RANGE Jstr,JendR
 # endif
 !
-!svn $Id: ini_adjust.F 1098 2009-11-18 17:54:22Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -47,7 +47,9 @@
 # ifdef TLM_CHECK
       PUBLIC :: ini_perturb
 # endif
-# if defined TL_W4DVAR ||  defined W4DVAR || defined W4DVAR_SENSITIVITY
+# if defined TL_W4DVAR          || defined W4DVAR      || \
+     defined W4DVAR_SENSITIVITY || defined ARRAY_MODES || \
+     defined CLIPPING
       PUBLIC :: rp_ini_adjust
 # endif
 # ifdef TLM_CHECK
@@ -505,7 +507,9 @@
       END SUBROUTINE ini_adjust_tile
 #  endif
 
-#  if defined TL_W4DVAR || defined W4DVAR || defined W4DVAR_SENSITIVITY
+#  if defined TL_W4DVAR          || defined W4DVAR      || \
+      defined W4DVAR_SENSITIVITY || defined ARRAY_MODES || \
+      defined CLIPPING
       SUBROUTINE rp_ini_adjust (ng, tile, Linp, Lout)
 !
 !=======================================================================
@@ -1558,6 +1562,9 @@
 #  endif
       USE mod_grid
       USE mod_ocean
+#  if defined SEDIMENT && defined SED_MORPH && defined SOLVE3D
+      USE mod_sedbed
+#  endif
       USE mod_stepping
 !
 !  Imported variable declarations.
@@ -1582,7 +1589,7 @@
 #  endif
 #  ifdef SOLVE3D
 #   if defined SEDIMENT && defined SED_MORPH
-     &                       GRID(ng) % bed_thick,                      &
+     &                       SEDBED(ng) % bed_thick,                    &
 #   endif
      &                       GRID(ng) % Hz,                             &
      &                       GRID(ng) % h,                              &
@@ -2366,6 +2373,9 @@
 #  endif
       USE mod_grid
       USE mod_ocean
+#  if defined SEDIMENT && defined SED_MORPH && defined SOLVE3D
+      USE mod_sedbed
+#  endif
       USE mod_stepping
 !
 !  Imported variable declarations.
@@ -2385,7 +2395,7 @@
      &                          nstp(ng), nnew(ng), Linp, Lout,         &
 #  ifdef SOLVE3D
 #   if defined SEDIMENT && defined SED_MORPH
-     &                          GRID(ng) % tl_bed_thick,                &
+     &                          SEDBED(ng) % tl_bed_thick,              &
 #   endif
      &                          GRID(ng) % tl_Hz,                       &
      &                          GRID(ng) % h,                           &

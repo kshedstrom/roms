@@ -1,11 +1,11 @@
-# svn $Id: Linux-gfortran.mk 1090 2009-10-27 23:59:27Z kate $
+# svn $Id$
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-# Copyright (c) 2002-2009 The ROMS/TOMS Group                           :::
+# Copyright (c) 2002-2010 The ROMS/TOMS Group                           :::
 #   Licensed under a MIT/X style license                                :::
 #   See License_ROMS.txt                                                :::
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 #
-# Include file for GNU G95 compiler on Linux
+# Include file for GNU Fortran compiler on Linux
 # -------------------------------------------------------------------------
 #
 # ARPACK_LIBDIR  ARPACK libary directory
@@ -58,7 +58,7 @@ endif
 ifdef USE_NETCDF4
 #   NETCDF_INCDIR ?= /usr/local/netcdf4/include
 #   NETCDF_LIBDIR ?= /usr/local/netcdf4/lib
-      HDF5_LIBDIR ?= /usr/local/hdf5/lib
+      HDF5_LIBDIR ?= /u1/uaf/kate/lib
     NETCDF_INCDIR := /archive/u1/uaf/kate/netcdf/include
     NETCDF_LIBDIR := /archive/u1/uaf/kate/netcdf/lib
 else
@@ -70,6 +70,9 @@ endif
              LIBS += -L$(NETCDF_LIBDIR) -lnetcdf
 ifdef USE_NETCDF4
              LIBS += -L$(HDF5_LIBDIR) -lhdf5_hl -lhdf5 -lz
+ ifdef USE_DAP
+             LIBS += $(shell curl-config --libs)
+ endif
 endif
 
 ifdef USE_ARPACK
@@ -125,10 +128,25 @@ endif
                FC := $(shell which ${FC})
                LD := $(FC)
 
+#
 # Turn off bounds checking for function def_var, as "dimension(*)"
 # declarations confuse Gnu Fortran 95 bounds-checking code.
+#
 
 $(SCRATCH_DIR)/def_var.o: FFLAGS += -fno-bounds-check
+
+#
+# Allow integer overflow in ran_state.F.  This is not allowed
+# during -O3 optimization. This option should be applied only for
+# Gfortran versions >= 4.2.
+#
+
+FC_TEST := $(findstring $(shell ${FC} --version | head -1 | cut -d " " -f 5 | \
+                              cut -d "." -f 1-2),4.0 4.1)
+
+ifeq "${FC_TEST}" ""
+$(SCRATCH_DIR)/ran_state.o: FFLAGS += -fno-strict-overflow
+endif
 
 #
 # Set free form format in source files to allow long string for

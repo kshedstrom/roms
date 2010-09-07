@@ -68,7 +68,7 @@
 ! indices (Istr,Iend) and (Jstr,Jend), [1:Ngrids].
 
       NtileI == 2                               ! I-direction partition
-      NtileJ == 4                              ! J-direction partition
+      NtileJ == 4                               ! J-direction partition
 
 ! Time-Stepping parameters.
 
@@ -101,6 +101,7 @@
         NSTA == 48
         NFLT == 48
         NFSH == 120
+    NDEFFISH == 8760
         NPRD == 120
         NSHP == 48
        NINFO == 1
@@ -474,7 +475,7 @@ Hout(idBott) == T T T T T T T T T F F F F F F F
      FLTNAME == flt.nc
      FISHNAME == fish.nc
      PREDNAME == pred.nc
-     FLEETNAME == fleet.nc
+     SHIPNAME == ships.nc
 
 ! Input ASCII parameter filenames.
 

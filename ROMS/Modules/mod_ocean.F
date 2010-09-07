@@ -1,9 +1,9 @@
 #include "cppdefs.h"
       MODULE mod_ocean
 !
-!svn $Id: mod_ocean.F 1098 2009-11-18 17:54:22Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -32,39 +32,6 @@
 !  Biology Variables.                                                  !
 !                                                                      !
 !  pH           Surface concentration of hydrogen ions.                !
-!                                                                      !
-!  Sediment Variables.                                                 !
-!                                                                      !
-!  bed          Sediment properties in each bed layer:                 !
-!                 bed(:,:,:,ithck) => layer thickness                  !
-!                 bed(:,:,:,iaged) => layer age                        !
-!                 bed(:,:,:,iporo) => layer porosity                   !
-!                 bed(:,:,:,idiff) => layer bio-diffusivity            !
-!  bedldu         Bed load u-transport (kg/m/s)                        !
-!  bedldv         Bed load v-transport (kg/m/s)                        !
-!  bed_frac     Sediment fraction of each size class in each bed layer !
-!                 (nondimensional: 0-1.0).  Sum of bed_frac = 1.0      !
-!  bed_mass     Sediment mass of each size class in each bed layer     !
-!                 (kg/m2).                                             !
-!  bottom       Exposed sediment layer properties:                     !
-!                 bottom(:,:,isd50) => mean grain diameter             !
-!                 bottom(:,:,idens) => mean grain density              !
-!                 bottom(:,:,iwsed) => mean settling velocity          !
-!                 bottom(:,:,itauc) => mean critical erosion stress    !
-!                 bottom(:,:,irlen) => ripple length                   !
-!                 bottom(:,:,irhgt) => ripple height                   !
-!                 bottom(:,:,ibwav) => bed wave excursion amplitude    !
-!                 bottom(:,:,izNik) => Nikuradse bottom roughness      !
-!                 bottom(:,:,izbio) => biological bottom roughness     !
-!                 bottom(:,:,izbfm) => bed form bottom roughness       !
-!                 bottom(:,:,izbld) => bed load bottom roughness       !
-!                 bottom(:,:,izapp) => apparent bottom roughness       !
-!                 bottom(:,:,izwbl) => wave bottom roughness           !
-!                 bottom(:,:,izdef) => default bottom roughness        !
-!                 bottom(:,:,iactv) => active layer thickness          !
-!                 bottom(:,:,ishgt) => saltation height                !
-!  ero_flux       Flux from erosion.                                   !
-!  settling_flux  Flux from settling.                                  !
 !                                                                      !
 #ifdef NEARSHORE_MELLOR
 !  Nearshore radiation stresses:                                       !
@@ -150,15 +117,19 @@
 #   ifdef BENTHIC
          real(r8), pointer :: bt(:,:,:,:,:)
 #   endif
-#if defined ICE_BIO && defined CLIM_ICE_1D
+#   if defined ICE_BIO
           real(r8), pointer :: it(:,:,:,:)
           real(r8), pointer :: itL(:,:,:,:)
-#endif
+#   endif
 #   ifdef BIOFLUX
           real(r8), pointer :: bflx(:,:)
 #   endif
 # endif
 
+#   ifdef NEMURO_SED1
+          real(r8), pointer :: PONsed(:,:)
+          real(r8), pointer :: OPALsed(:,:)
+#   endif
 
 # ifdef BIO_GOANPZ
           real(r8), pointer :: st(:,:,:,:,:)
@@ -171,22 +142,6 @@
 # endif
 # if (defined BIO_FENNEL || defined BIO_UMAINE) && defined CARBON
           real(r8), pointer :: pH(:,:)
-# endif
-# if defined SEDIMENT
-          real(r8), pointer :: bed(:,:,:,:)
-          real(r8), pointer :: bed_frac(:,:,:,:)
-          real(r8), pointer :: bed_mass(:,:,:,:,:)
-#  ifdef SUSPLOAD
-          real(r8), pointer :: ero_flux(:,:,:)
-          real(r8), pointer :: settling_flux(:,:,:)
-#  endif
-# endif
-# if defined SEDIMENT || defined BBL_MODEL
-          real(r8), pointer :: bottom(:,:,:)
-#  ifdef BEDLOAD
-          real(r8), pointer :: bedldu(:,:,:)
-          real(r8), pointer :: bedldv(:,:,:)
-#  endif
 # endif
 
 # if defined NEMURO_SAN
@@ -208,8 +163,6 @@
 #  ifdef EGGS_BISECTION
           real(r8), pointer :: egg_count(:,:,:)
 #  endif
-
-          real(r8), pointer :: spawn_loc(:,:,:)
 # endif
 #endif
 
@@ -282,33 +235,6 @@
           real(r8), pointer :: ad_v_stokes(:,:,:)
 #  endif
 # endif
-#endif
-
-#if defined BALANCE_OPERATOR || defined ZETA_ELLIPTIC
-          real(r8), pointer :: bc_ak(:)
-          real(r8), pointer :: bc_bk(:)
-
-          real(r8), pointer :: zdf1(:)
-          real(r8), pointer :: zdf2(:)
-          real(r8), pointer :: zdf3(:)
-
-          real(r8), pointer :: pc_r2d(:,:)
-          real(r8), pointer :: rhs_r2d(:,:)
-          real(r8), pointer :: r2d_ref(:,:)
-          real(r8), pointer :: zeta_ref(:,:)
-
-          real(r8), pointer :: p_r2d(:,:,:)
-          real(r8), pointer :: r_r2d(:,:,:)
-          real(r8), pointer :: bp_r2d(:,:,:)
-          real(r8), pointer :: br_r2d(:,:,:)
-
-          real(r8), pointer :: tl_rhs_r2d(:,:)
-          real(r8), pointer :: tl_r2d_ref(:,:)
-          real(r8), pointer :: tl_zeta_ref(:,:)
-
-          real(r8), pointer :: ad_rhs_r2d(:,:)
-          real(r8), pointer :: ad_r2d_ref(:,:)
-          real(r8), pointer :: ad_zeta_ref(:,:)
 #endif
 
 #if defined FOUR_DVAR || defined IMPULSE
@@ -406,11 +332,11 @@
 !=======================================================================
 !
       USE mod_param
-#if defined SEDIMENT || defined BBL_MODEL
-      USE mod_sediment
-#endif
 #ifdef NEMURO_SAN
       USE mod_types
+#endif
+#if defined NEMURO || defined BEST_NPZ
+      USE mod_biology
 #endif
 !
 !  Imported variable declarations.
@@ -472,7 +398,7 @@
 # ifdef BENTHIC
       allocate ( OCEAN(ng) % bt(LBi:UBi,LBj:UBj,NBL(ng),3,NBeT(ng)) )
 # endif
-# if defined ICE_BIO && defined CLIM_ICE_1D
+# if defined ICE_BIO
       allocate ( OCEAN(ng) % it(LBi:UBi,LBj:UBj,3,NIceT(ng)) )
       allocate ( OCEAN(ng) % itL(LBi:UBi,LBj:UBj,3, NIceLog(ng)) )
 # endif
@@ -482,6 +408,11 @@
 #    endif
 # endif
 
+# ifdef NEMURO_SED1
+      ! Add a 2D array for sediment pools
+      allocate ( OCEAN(ng) % PONsed(LBi:UBi,LBj:UBj) )
+      allocate ( OCEAN(ng) % OPALsed(LBi:UBi,LBj:UBj) )
+#    endif
 
 
 # ifdef BIO_GOANPZ
@@ -500,23 +431,6 @@
 
 # if (defined BIO_FENNEL || defined BIO_UMAINE) && defined CARBON
       allocate ( OCEAN(ng) % pH(LBi:UBi,LBj:UBj) )
-# endif
-
-# if defined SEDIMENT
-      allocate ( OCEAN(ng) % bed(LBi:UBi,LBj:UBj,Nbed,MBEDP) )
-      allocate ( OCEAN(ng) % bed_frac(LBi:UBi,LBj:UBj,Nbed,NST) )
-      allocate ( OCEAN(ng) % bed_mass(LBi:UBi,LBj:UBj,Nbed,2,NST) )
-#  ifdef SUSPLOAD
-      allocate ( OCEAN(ng) % ero_flux(LBi:UBi,LBj:UBj,NST) )
-      allocate ( OCEAN(ng) % settling_flux(LBi:UBi,LBj:UBj,NST) )
-#  endif
-# endif
-# if defined SEDIMENT || defined BBL_MODEL
-      allocate ( OCEAN(ng) % bottom(LBi:UBi,LBj:UBj,MBOTP) )
-#  ifdef BEDLOAD
-      allocate ( OCEAN(ng) % bedldu(LBi:UBi,LBj:UBj,NST) )
-      allocate ( OCEAN(ng) % bedldv(LBi:UBi,LBj:UBj,NST) )
-#  endif
 # endif
 
 # if defined NEMURO_SAN
@@ -538,7 +452,6 @@
 #  ifdef EGGS_BISECTION
       allocate ( OCEAN(ng) % egg_count(LBi:UBi,LBj:UBj,Nspecies(ng)) )
 #  endif
-      allocate ( OCEAN(ng) % spawn_loc(LBi:UBi,LBj:UBj,Nspecies(ng)) )
 # endif
 #endif
 
@@ -624,33 +537,6 @@
       allocate ( OCEAN(ng) % ad_v_stokes(LBi:UBi,LBj:UBj,N(ng)) )
 #  endif
 # endif
-#endif
-
-#if defined BALANCE_OPERATOR || defined ZETA_ELLIPTIC
-      allocate ( OCEAN(ng) % bc_ak(Nbico(ng)) )
-      allocate ( OCEAN(ng) % bc_bk(Nbico(ng)) )
-
-      allocate ( OCEAN(ng) % zdf1(Nbico(ng)) )
-      allocate ( OCEAN(ng) % zdf2(Nbico(ng)) )
-      allocate ( OCEAN(ng) % zdf3(Nbico(ng)) )
-
-      allocate ( OCEAN(ng) % pc_r2d(LBi:UBi,LBj:UBj) )
-      allocate ( OCEAN(ng) % rhs_r2d(LBi:UBi,LBj:UBj) )
-      allocate ( OCEAN(ng) % r2d_ref(LBi:UBi,LBj:UBj) )
-      allocate ( OCEAN(ng) % zeta_ref(LBi:UBi,LBj:UBj) )
-
-      allocate ( OCEAN(ng) % p_r2d(LBi:UBi,LBj:UBj,Nbico(ng)) )
-      allocate ( OCEAN(ng) % r_r2d(LBi:UBi,LBj:UBj,Nbico(ng)) )
-      allocate ( OCEAN(ng) % bp_r2d(LBi:UBi,LBj:UBj,Nbico(ng)) )
-      allocate ( OCEAN(ng) % br_r2d(LBi:UBi,LBj:UBj,Nbico(ng)) )
-
-      allocate ( OCEAN(ng) % tl_rhs_r2d(LBi:UBi,LBj:UBj) )
-      allocate ( OCEAN(ng) % tl_r2d_ref(LBi:UBi,LBj:UBj) )
-      allocate ( OCEAN(ng) % tl_zeta_ref(LBi:UBi,LBj:UBj) )
-
-      allocate ( OCEAN(ng) % ad_rhs_r2d(LBi:UBi,LBj:UBj) )
-      allocate ( OCEAN(ng) % ad_r2d_ref(LBi:UBi,LBj:UBj) )
-      allocate ( OCEAN(ng) % ad_zeta_ref(LBi:UBi,LBj:UBj) )
 #endif
 
 #if defined FOUR_DVAR || defined IMPULSE
@@ -757,11 +643,11 @@
 !=======================================================================
 !
       USE mod_param
-#if defined SEDIMENT || defined BBL_MODEL
-      USE mod_sediment
-#endif
 #ifdef NEMURO_SAN
       USE mod_types
+#endif
+#if defined NEMURO || defined BEST_NPZ
+      USE mod_biology
 #endif
 !
 !  Imported variable declarations.
@@ -773,7 +659,7 @@
       integer :: Imin, Imax, Jmin, Jmax
       integer :: i, j, rec
 #ifdef SOLVE3D
-      integer :: itrc, k
+      integer :: itrc, itrc2, k
 #endif
 
       real(r8), parameter :: IniVal = 0.0_r8
@@ -845,6 +731,11 @@
       defined CARBON && defined SOLVED3D
             OCEAN(ng) % pH(i,j) = 8.0_r8
 # endif
+
+# if defined NEMURO_SED1
+            OCEAN(ng) % PONsed(i,j) = IniVal
+            OCEAN(ng) % OPALsed(i,j) = IniVal
+#endif
           END DO
 #ifdef SOLVE3D
           DO k=1,N(ng)
@@ -937,8 +828,7 @@
           END DO
 #  endif
 
-#  if defined ICE_BIO && defined CLIM_ICE_1D
-
+#  if defined ICE_BIO
           DO itrc=1,NIceT(ng)
             DO i=Imin,Imax
               OCEAN(ng) % it(i,j,1,itrc) = IniVal
@@ -972,51 +862,9 @@
             END DO
           END DO
 # endif
-# ifdef SEDIMENT
-          DO itrc=1,NST
-            DO k=1,Nbed
-              DO i=Imin,Imax
-                OCEAN(ng) % bed_frac(i,j,k,itrc) = IniVal
-                OCEAN(ng) % bed_mass(i,j,k,1,itrc) = IniVal
-                OCEAN(ng) % bed_mass(i,j,k,2,itrc) = IniVal
-              END DO
-            END DO
-          END DO
-          DO itrc=1,MBEDP
-            DO k=1,Nbed
-              DO i=Imin,Imax
-                OCEAN(ng) % bed(i,j,k,itrc) = IniVal
-              END DO
-            END DO
-          END DO
-#  ifdef SUSPLOAD
-          DO itrc=1,NST
-            DO i=Imin,Imax
-              OCEAN(ng) % ero_flux(i,j,itrc) = IniVal
-              OCEAN(ng) % settling_flux(i,j,itrc) = IniVal
-            END DO
-          END DO
-#  endif
-# endif
-# if defined SEDIMENT || defined BBL_MODEL
-          DO itrc=1,MBOTP
-            DO i=Imin,Imax
-              OCEAN(ng) % bottom(i,j,itrc) = IniVal
-            END DO
-          END DO
-#  ifdef BEDLOAD
-          DO itrc=1,NST
-            DO i=Imin,Imax
-              OCEAN(ng) % bedldu(i,j,itrc) = IniVal
-              OCEAN(ng) % bedldv(i,j,itrc) = IniVal
-            END DO
-          END DO
-#  endif
-# endif
 # if defined NEMURO_SAN
           DO itrc=1,Nspecies(ng)
             DO i=Imin,Imax
-              OCEAN(ng) % spawn_loc(i,j,itrc) = IniVal
 #  ifdef EGGS_BISECTION
               OCEAN(ng) % egg_count(i,j,itrc) = IniVal
 #  endif
@@ -1192,45 +1040,6 @@
             END DO
           END DO
 # endif
-        END DO
-      END IF
-#endif
-
-#if defined BALANCE_OPERATOR || defined ZETA_ELLIPTIC
-      IF (model.eq.0) THEN
-        DO rec=1,Nbico(ng)
-          OCEAN(ng) % bc_ak(rec) = IniVal
-          OCEAN(ng) % bc_bk(rec) = IniVal
-
-          OCEAN(ng) % zdf1(rec) = IniVal
-          OCEAN(ng) % zdf2(rec) = IniVal
-          OCEAN(ng) % zdf3(rec) = IniVal
-        END DO
-        DO j=Jmin,Jmax
-          DO i=Imin,Imax
-            OCEAN(ng) % pc_r2d(i,j) = 1.0_r8
-            OCEAN(ng) % rhs_r2d(i,j) = IniVal
-            OCEAN(ng) % r2d_ref(i,j) = IniVal
-            OCEAN(ng) % zeta_ref(i,j) = IniVal
-
-            OCEAN(ng) % tl_rhs_r2d(i,j) = IniVal
-            OCEAN(ng) % tl_r2d_ref(i,j) = IniVal
-            OCEAN(ng) % tl_zeta_ref(i,j) = IniVal
-
-            OCEAN(ng) % ad_rhs_r2d(i,j) = IniVal
-            OCEAN(ng) % ad_r2d_ref(i,j) = IniVal
-            OCEAN(ng) % ad_zeta_ref(i,j) = IniVal
-          END DO
-        END DO
-        DO j=Jmin,Jmax
-          DO rec=1,Nbico(ng)
-            DO i=Imin,Imax
-              OCEAN(ng) % p_r2d(i,j,rec) = IniVal
-              OCEAN(ng) % r_r2d(i,j,rec) = IniVal
-              OCEAN(ng) % bp_r2d(i,j,rec) = IniVal
-              OCEAN(ng) % br_r2d(i,j,rec) = IniVal
-            END DO
-          END DO
         END DO
       END IF
 #endif

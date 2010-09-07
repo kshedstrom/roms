@@ -23,9 +23,9 @@
 #  define JV_RANGE Jstr,JendR
 # endif
 !
-!svn $Id: posterior_var.F 1020 2009-07-10 23:10:30Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -544,7 +544,7 @@
 
       logical :: Lweak
 
-      character (len=80) :: ncname
+      character (len=256) :: ncname
 
 # include "set_bounds.h"
 !
@@ -562,7 +562,7 @@
 !
       Lweak=.FALSE.
 !
-!  Invert the tridiagonal matrix of inner-loop Lanczos vector 
+!  Invert the tridiagonal matrix of inner-loop Lanczos vector
 !  coefficients.
 !
       zLanczos_coef=0.0_r8
@@ -936,7 +936,7 @@
         END DO
       END DO
 !
-!  Finally subtract the result in tl_var(L1) from the background 
+!  Finally subtract the result in tl_var(L1) from the background
 !  error variances to get the posterior/analysis error variance.
 !
       CALL analysis_var (ng, tile, model,                               &
@@ -982,7 +982,7 @@
 # endif
      &                   tl_zeta)
 
-      RETURN 
+      RETURN
       END SUBROUTINE posterior_var_tile
 !
 !***********************************************************************

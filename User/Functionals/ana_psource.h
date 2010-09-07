@@ -1,8 +1,8 @@
       SUBROUTINE ana_psource (ng, tile, model)
 !
-!! svn $Id: ana_psource.h 1039 2009-08-11 22:52:28Z kate $
+!! svn $Id$
 !!======================================================================
-!! Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!! Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !!   Licensed under a MIT/X style license                              !
 !!   See License_ROMS.txt                                              !
 !=======================================================================
@@ -40,7 +40,6 @@
      &                       GRID(ng) % om_v,                           &
      &                       SOURCES(ng) % Isrc,                        &
      &                       SOURCES(ng) % Jsrc,                        &
-     &                       SOURCES(ng) % Lsrc,                        &
      &                       SOURCES(ng) % Dsrc,                        &
 #ifdef SOLVE3D
 # if defined UV_PSOURCE || defined Q_PSOURCE
@@ -76,7 +75,7 @@
      &                             u, v, z_w,                           &
 #endif
      &                             h, on_u, om_v,                       &
-     &                             Isrc, Jsrc, Lsrc, Dsrc,              &
+     &                             Isrc, Jsrc, Dsrc,                    &
 #ifdef SOLVE3D
 # if defined UV_PSOURCE || defined Q_PSOURCE
      &                             Qshape, Qsrc,                        &
@@ -96,7 +95,7 @@
 #endif
 #ifdef DISTRIBUTE
 !
-      USE distribute_mod, ONLY : mp_bcastf, mp_bcasti, mp_bcastl
+      USE distribute_mod, ONLY : mp_bcastf, mp_bcasti
       USE distribute_mod, ONLY : mp_collect, mp_reduce
 #endif
 !
@@ -111,8 +110,6 @@
       integer, intent(out) :: Nsrc
 !
 #ifdef ASSUMED_SHAPE
-      logical, intent(inout) :: Lsrc(:,:)
-
       integer, intent(inout) :: Isrc(:)
       integer, intent(inout) :: Jsrc(:)
 
@@ -140,8 +137,6 @@
 #  endif
 # endif
 #else
-      logical, intent(inout) :: Lsrc(Msrc,NT(ng))
-
       integer, intent(inout) :: Isrc(Msrc)
       integer, intent(inout) :: Jsrc(Msrc)
 
@@ -199,11 +194,10 @@
       IF (iic(ng).eq.ntstart(ng)) THEN
 !
 !  Set-up point Sources/Sink number (Nsrc), direction (Dsrc), I- and
-!  J-grid locations (Isrc,Jsrc), and logical switch for type of tracer
-!  to apply (Lsrc). Currently, the direction can be along XI-direction
-!  (Dsrc = 0) or along ETA-direction (Dsrc > 0).  The mass sources are
-!  located at U- or V-points so the grid locations should range from
-!  1 =< Isrc =< L  and  1 =< Jsrc =< M.
+!  J-grid locations (Isrc,Jsrc). Currently, the direction can be along
+!  XI-direction (Dsrc = 0) or along ETA-direction (Dsrc > 0).  The
+!  mass sources are located at U- or V-points so the grid locations
+!  should range from 1 =< Isrc =< L  and  1 =< Jsrc =< M.
 !
 #if defined MY_APPLICATION
         IF (Master.and.SOUTH_WEST_TEST) THEN
@@ -211,12 +205,9 @@
           Dsrc(:)=???
           Isrc(:)=???
           Jsrc(:)=???
-          Lsrc(:,itemp)=???
-          Lsrc(:,isalt)=???
         END IF
 #else
-        ana_psource.h: No values provided for Lsrc, Nsrc, Dsrc,
-                                              Isrc, Jsrc.
+        ana_psource.h: No values provided for Nsrc, Dsrc, Isrc, Jsrc.
 #endif
 #ifdef DISTRIBUTE
 !
@@ -225,7 +216,6 @@
         CALL mp_bcasti (ng, iNLM, Nsrc)
         CALL mp_bcasti (ng, iNLM, Isrc)
         CALL mp_bcasti (ng, iNLM, Jsrc)
-        CALL mp_bcastl (ng, iNLM, Lsrc)
         CALL mp_bcastf (ng, iNLM, Dsrc)
 #endif
       END IF
@@ -241,7 +231,7 @@
 #  endif
       Npts=Msrc*N(ng)
 
-!$OMP BARRRIER
+!$OMP BARRIER
 
 #  if defined MY_APPLICATION
 !!

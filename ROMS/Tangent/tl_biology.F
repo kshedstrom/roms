@@ -2,9 +2,9 @@
       MODULE tl_biology_mod
 #if defined TANGENT && defined BIOLOGY
 !
-!svn $Id: tl_biology.F 1011 2009-07-07 20:47:05Z arango $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !======================================================================= 
@@ -23,10 +23,10 @@
 
 # if defined BIO_FENNEL
 !!#  include <tl_fennel.h>
-# elif defined BIO_UMAINE
-!!#  include <tl_umaine.h>
 # elif defined NEMURO
 !!#  include <tl_nemuro.h>
+# elif defined BIO_UMAINE
+!!#  include <tl_UMAINE.h>
 # elif defined NPZD_FRANKS
 #  include <tl_npzd_Franks.h>
 # elif defined NPZD_IRON

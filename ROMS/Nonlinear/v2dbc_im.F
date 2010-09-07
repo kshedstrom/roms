@@ -2,9 +2,9 @@
 
       MODULE v2dbc_mod
 !
-!svn $Id: v2dbc_im.F 984 2009-05-24 01:43:19Z kate $
+!svn $Id$
 !=======================================================================
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                           Hernan G. Arango   !
 !========================================== Alexander F. Shchepetkin ===
@@ -238,8 +238,10 @@
 #  ifdef ICESHELF
           cff=1.0_r8/(0.5_r8*(GRID(ng)%h(i,Jstr-1)-                     &
      &                        ABS(GRID(ng)%zice(i,Jstr-1))+             &
+     &                        zeta(i,Jstr-1,know)+                      &
      &                        GRID(ng)%h(i,Jstr  )-                     &
-     &                        ABS(GRID(ng)%zice(i,Jstr  ))))
+     &                        ABS(GRID(ng)%zice(i,Jstr  ))+             &
+     &                        zeta(i,Jstr  ,know)))
 #  else
           cff=1.0_r8/(0.5_r8*(GRID(ng)%h(i,Jstr-1)+                     &
      &                        zeta(i,Jstr-1,know)+                      &
@@ -468,8 +470,10 @@
 #  ifdef ICESHELF
           cff=1.0_r8/(0.5_r8*(GRID(ng)%h(i,Jend  )-                     &
      &                        ABS(GRID(ng)%zice(i,Jend  ))+             &
+     &                        zeta(i,Jend  ,know)+                      &
      &                        GRID(ng)%h(i,Jend+1)-                     &
-     &                        ABS(GRID(ng)%zice(i,Jend+1))))
+     &                        ABS(GRID(ng)%zice(i,Jend+1))+             &
+     &                        zeta(i,Jend+1,know)))
 #  else
           cff=1.0_r8/(0.5_r8*(GRID(ng)%h(i,Jend  )+                     &
      &                        zeta(i,Jend  ,know)+                      &
@@ -645,8 +649,10 @@
 #  ifdef ICESHELF
           cff1=SQRT(g*0.5_r8*(GRID(ng)%h(Istr,j-1)-                     &
      &                        ABS(GRID(ng)%zice(Istr,j-1))+             &
+     &                        zeta(Istr,j-1,know)+                      &
      &                        GRID(ng)%h(Istr,j  )-                     &
-     &                        ABS(GRID(ng)%zice(Istr,j  ))))
+     &                        ABS(GRID(ng)%zice(Istr,j  ))+             &
+     &                        zeta(Istr,j  ,know)))
 #  else
           cff1=SQRT(g*0.5_r8*(GRID(ng)%h(Istr,j-1)+                     &
      &                        zeta(Istr,j-1,know)+                      &
@@ -779,8 +785,10 @@
 #  ifdef ICESHELF
           cff1=SQRT(g*0.5_r8*(GRID(ng)%h(Iend,j-1)-                     &
      &                        ABS(GRID(ng)%zice(Iend,j-1))+             &
+     &                        zeta(Iend,j-1,know)+                      &
      &                        GRID(ng)%h(Iend,j  )-                     &
-     &                        ABS(GRID(ng)%zice(Iend,j  ))))
+     &                        ABS(GRID(ng)%zice(Iend,j  ))+             &
+     &                        zeta(Iend,j  ,know)))
 #  else
           cff1=SQRT(g*0.5_r8*(GRID(ng)%h(Iend,j-1)+                     &
      &                        zeta(Iend,j-1,know)+                      &

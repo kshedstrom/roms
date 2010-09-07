@@ -1,7 +1,7 @@
 /*
-** svn $Id: damee_4.h 975 2009-05-05 22:51:13Z kate $
+** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2009 The ROMS/TOMS Group                               **
+** Copyright (c) 2002-2010 The ROMS/TOMS Group                               **
 **   Licensed under a MIT/X style license                                    **
 **   See License_ROMS.txt                                                    **
 *******************************************************************************
@@ -27,9 +27,6 @@
 #define SRELAXATION
 #define CURVGRID
 #define AVERAGES
-#define AVERAGES_AKV
-#define AVERAGES_AKT
-#define AVERAGES_AKS
 #define EASTERN_WALL
 #define WESTERN_WALL
 #define SOUTHERN_WALL

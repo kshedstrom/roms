@@ -1,9 +1,9 @@
 #include "cppdefs.h"
       MODULE nf_fread3d_bry_mod
 !
-!svn $Id: nf_fread3d_bry.F 1055 2009-09-07 19:57:50Z arango $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -196,7 +196,7 @@
 !
       AttName(1)='scale_factor'
       AttName(2)='add_offset  '
-      AttName(3)='_FillValue  ' 
+      AttName(3)='_FillValue  '
 
       CALL netcdf_get_fatt (ng, model, ncname, ncvarid, AttName,        &
      &                      AttValue, foundit,                          &

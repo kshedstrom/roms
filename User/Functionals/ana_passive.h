@@ -1,8 +1,8 @@
       SUBROUTINE ana_passive (ng, tile, model)
 !
-!! svn $Id: ana_passive.h 975 2009-05-05 22:51:13Z kate $
+!! svn $Id$
 !!======================================================================
-!! Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!! Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !!   Licensed under a MIT/X style license                              !
 !!   See License_ROMS.txt                                              !
 !=======================================================================
@@ -74,7 +74,7 @@
 !
 #if defined MY_APPLICATION
       DO ip=1,NPT
-        itrc=inert(ip)        
+        itrc=inert(ip)
         DO k=1,N(ng)
           DO j=JstrR,JendR
             DO i=IstrR,IendR

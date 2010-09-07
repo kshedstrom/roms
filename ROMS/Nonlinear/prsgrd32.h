@@ -1,8 +1,8 @@
       SUBROUTINE prsgrd (ng, tile)
 !
-!svn $Id: prsgrd32.h 984 2009-05-24 01:43:19Z kate $
+!svn $Id$
 !***********************************************************************
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                           Hernan G. Arango   !
 !****************************************** Alexander F. Shchepetkin ***
@@ -256,11 +256,11 @@
      &                 (z_w(i,j,N(ng))-z_r(i,j,N(ng)))
 #else
           P(i,j,N(ng))=GRho0*z_w(i,j,N(ng))+                            &
-# ifdef ATM_PRESS
-     &                 fac*(Pair(i,j)-OneAtm)+                          &
-# endif
      &                 GRho*(rho(i,j,N(ng))+cff2)*                      &
      &                 (z_w(i,j,N(ng))-z_r(i,j,N(ng)))
+#endif
+#ifdef ATM_PRESS
+	  P(i,j,N(ng)) = P(i,j,N(ng) + fac*(Pair(i,j)-OneAtm)
 #endif
 #ifdef POT_TIDES
           P(i,j,N(ng)) = P(i,j,N(ng)) - g*Ptide(i,j)

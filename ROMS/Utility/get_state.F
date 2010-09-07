@@ -1,9 +1,9 @@
 #include "cppdefs.h"
       SUBROUTINE get_state (ng, model, msg, ncname, IniRec, Tindex)
 !
-!svn $Id: get_state.F 1098 2009-11-18 17:54:22Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -24,6 +24,9 @@
 !
       USE mod_param
       USE mod_parallel
+#if defined BEST_NPZ
+      USE mod_biology
+#endif
 #if defined ADJUST_BOUNDARY
       USE mod_boundary
 #endif
@@ -44,6 +47,7 @@
       USE mod_ocean
       USE mod_scalars
 #if defined SEDIMENT || defined BBL_MODEL
+      USE mod_sedbed
       USE mod_sediment
 #endif
 #ifdef ICE_MODEL
@@ -184,7 +188,7 @@
       Perfect2D=.FALSE.
       Perfect3D=.FALSE.
 #ifdef PERFECT_RESTART
-      IF ((model.eq.0).and.(nrrec(ng).ne.0)) THEN
+      IF (((model.eq.0).or.(model.eq.iNLM)).and.(nrrec(ng).ne.0)) THEN
         Perfect2D=.TRUE.
         Perfect3D=.TRUE.
       END IF
@@ -217,7 +221,7 @@
 !
       CALL netcdf_open (ng, IDmod, ncname, 0, ncINPid)
       IF (exit_flag.ne.NoError) THEN
-        WRITE (stdout,20) TRIM(ncname)
+        IF (Master) WRITE (stdout,20) TRIM(ncname)
         RETURN
       END IF
 !
@@ -307,7 +311,9 @@
         END IF
 #endif
       ELSE IF (model.eq.iADM) THEN
-        IF (msg.ne.1) THEN
+        IF ((msg.eq.1).and.(INPtime.eq.0.0_r8)) THEN
+          INPtime=time(ng)
+        ELSE IF (msg.ne.1) THEN
           time(ng)=INPtime
           tdays(ng)=time(ng)*sec2day
         END IF
@@ -852,6 +858,68 @@
           END IF
         END DO
 
+#  ifdef NEMURO_SED1
+!
+!  Read in bio sediment variables.
+!
+        IF (get_var(idPONsed)) THEN
+          foundit=find_string(var_name, n_var,                          &
+     &                          TRIM(Vname(1,idPONsed)), varid)
+          gtype=var_flag(varid)*r2dvar
+          status=nf_fread2d(ng, IDmod, ncname, ncINPid,                 &
+     &                      Vname(1,idPONsed), varid,                   &
+     &                      InpRec, gtype, Vsize,                       &
+     &                      LBi, UBi, LBj, UBj,                         &
+     &                      Fscl, Fmin, Fmax,                           &
+#   ifdef MASKING
+     &                      GRID(ng) % rmask,                           &
+#   endif
+     &                      OCEAN(ng) % PONsed)
+          IF (status.ne.nf90_noerr) THEN
+            IF (Master) THEN
+              WRITE (stdout,30) string, TRIM(Vname(1,idPONsed)),        &
+     &                          InpRec, TRIM(ncname)
+            END IF
+            exit_flag=2
+            ioerror=status
+            RETURN
+          ELSE
+            IF (Master) THEN
+              WRITE (stdout,100) TRIM(Vname(2,idPONsed)),               &
+     &                           Fmin, Fmax
+            END IF
+          END IF
+        END IF
+        IF (get_var(idOPALsed)) THEN
+          foundit=find_string(var_name, n_var,                          &
+     &                          TRIM(Vname(1,idOPALsed)), varid)
+          gtype=var_flag(varid)*r2dvar
+          status=nf_fread2d(ng, IDmod, ncname, ncINPid,                 &
+     &                      Vname(1,idOPALsed), varid,                  &
+     &                      InpRec, gtype, Vsize,                       &
+     &                      LBi, UBi, LBj, UBj,                         &
+     &                      Fscl, Fmin, Fmax,                           &
+#   ifdef MASKING
+     &                      GRID(ng) % rmask,                           &
+#   endif
+     &                      OCEAN(ng) % OPALsed)
+          IF (status.ne.nf90_noerr) THEN
+            IF (Master) THEN
+              WRITE (stdout,30) string, TRIM(Vname(1,idOPALsed)),       &
+     &                          InpRec, TRIM(ncname)
+            END IF
+            exit_flag=2
+            ioerror=status
+            RETURN
+          ELSE
+            IF (Master) THEN
+              WRITE (stdout,100) TRIM(Vname(2,idOPALsed)),              &
+     &                           Fmin, Fmax
+            END IF
+          END IF
+        END IF
+#  endif
+
 #  if defined GLS_MIXING || defined MY25_MIXING || defined LMD_MIXING
 !
 !  Read in vertical viscosity.
@@ -1136,7 +1204,7 @@
 #   ifdef MASKING
      &                        GRID(ng) % rmask,                         &
 #   endif
-     &                        OCEAN(ng) % bed_frac(:,:,:,i))
+     &                        SEDBED(ng) % bed_frac(:,:,:,i))
             IF (status.ne.nf90_noerr) THEN
               IF (Master) THEN
                 WRITE (stdout,30) string, TRIM(Vname(1,idfrac(i))),     &
@@ -1166,7 +1234,7 @@
 #   ifdef MASKING
      &                        GRID(ng) % rmask,                         &
 #   endif
-     &                        OCEAN(ng) % bed_mass(:,:,:,Tindex,i))
+     &                        SEDBED(ng) % bed_mass(:,:,:,Tindex,i))
             IF (status.ne.nf90_noerr) THEN
               IF (Master) THEN
                 WRITE (stdout,30) string, TRIM(Vname(1,idBmas(i))),     &
@@ -1198,7 +1266,7 @@
 #   ifdef MASKING
      &                        GRID(ng) % rmask,                         &
 #   endif
-     &                        OCEAN(ng) % bed(:,:,:,i))
+     &                        SEDBED(ng) % bed(:,:,:,i))
             IF (status.ne.nf90_noerr) THEN
               IF (Master) THEN
                 WRITE (stdout,30) string, TRIM(Vname(1,idSbed(i))),     &
@@ -1232,7 +1300,7 @@
 #    ifdef MASKING
      &                        GRID(ng) % umask,                         &
 #    endif
-     &                        OCEAN(ng) % bedldu(:,:,i))
+     &                        SEDBED(ng) % bedldu(:,:,i))
             IF (status.ne.nf90_noerr) THEN
               IF (Master) THEN
                 WRITE (stdout,30) string, TRIM(Vname(1,idUbld(i))),     &
@@ -1260,7 +1328,7 @@
 #    ifdef MASKING
      &                        GRID(ng) % vmask,                         &
 #    endif
-     &                        OCEAN(ng) % bedldv(:,:,i))
+     &                        SEDBED(ng) % bedldv(:,:,i))
             IF (status.ne.nf90_noerr) THEN
               IF (Master) THEN
                 WRITE (stdout,30) string, TRIM(Vname(1,idVbld(i))),     &
@@ -1296,7 +1364,7 @@
 #   ifdef MASKING
      &                        GRID(ng) % rmask,                         &
 #   endif
-     &                        OCEAN(ng) % bottom(:,:,i))
+     &                        SEDBED(ng) % bottom(:,:,i))
             IF (status.ne.nf90_noerr) THEN
               IF (Master) THEN
                 WRITE (stdout,30) string, TRIM(Vname(1,idBott(i))),     &
@@ -1313,37 +1381,52 @@
           END IF
         END DO
 #  endif
-#  ifdef NEMURO_SAN
-!
-!  Read in spawning locations.
-!
-!       IF (get_var(idFspwn)) THEN
-!         foundit=find_string(var_name, n_var, TRIM(Vname(1,idFspwn)),  &
-!    &                        varid)
-!         gtype=var_flag(varid)*r3dvar
-!         status=nf_fread3d(ng, IDmod, ncname, ncINPid,                 &
-!    &                        Vname(1,idFspwn), varid,                  &
-!    &                        InpRec, gtype, Vsize,                     &
-!    &                        LBi, UBi, LBj, UBj, 1, Nspecies(ng),      &
-!    &                        Fscl, Foff, Fmin, Fmax,                   &
-# ifdef MASKING
-!    &                        GRID(ng) % rmask,                         &
-# endif
-!    &                        OCEAN(ng) % spawn_loc)
-!         IF (status.ne.nf90_noerr) THEN
-!           IF (Master) THEN
-!             WRITE (stdout,30) string, TRIM(Vname(1,idFspwn)), InpRec, &
-!    &                          TRIM(ncname)
-!           END IF
-!           exit_flag=2
-!           ioerror=status
-!           RETURN
-!         ELSE
-!           IF (Master) THEN
-!             WRITE (stdout,100) TRIM(Vname(2,idFspwn)), Fmin, Fmax
-!           END IF
-!         END IF
-!       END IF
+
+#if defined BEST_NPZ && defined BERING_10K
+    
+!  Read in benthic initial conditions.
+        DO itrc=1,1 !,NBeT(ng)
+          IF (get_var(idBvar(itrc))) THEN
+            foundit=find_string(var_name, n_var,                        &
+     &                          TRIM(Vname(1,idBvar(itrc))), varid)
+            gtype=var_flag(varid)*r2dvar
+            IF (Perfect2D) THEN
+              status=nf_fread3d(ng, IDmod, ncname, ncINPid,             &
+     &                          Vname(1,idBvar(itrc)), varid,           &
+     &                          InpRec, gtype, Vsize,                   &
+     &                          LBi, UBi, LBj, UBj, 1, 3,               &
+     &                          Fscl, Fmin, Fmax,                       &
+#  ifdef MASKING
+     &                          GRID(ng) % rmask,                       &
+#  endif
+     &                          OCEAN(ng) % bt(:,:,1,:,itrc))
+            ELSE
+              status=nf_fread2d(ng, IDmod, ncname, ncINPid,             &
+     &                          Vname(1,idBvar(itrc)), varid,           &
+     &                          InpRec, gtype, Vsize,                   &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          Fscl, Fmin, Fmax,                       &
+#  ifdef MASKING
+     &                          GRID(ng) % rmask,                       &
+#  endif
+     &                          OCEAN(ng) % bt(:,:,1,Tindex,itrc))
+            END IF
+            IF (status.ne.nf90_noerr) THEN
+              IF (Master) THEN
+                WRITE (stdout,30) string, TRIM(Vname(1,idBvar(itrc))),  &
+     &                            InpRec, TRIM(ncname)
+              END IF
+              exit_flag=2
+              ioerror=status
+              RETURN
+            ELSE
+              IF (Master) THEN
+                WRITE (stdout,100) TRIM(Vname(2,idBvar(itrc))),         &
+     &                             Fmin, Fmax
+              END IF
+            END IF
+          END IF
+        END DO
 #  endif
 
 #  ifdef ICE_MODEL
@@ -2578,7 +2661,7 @@
 #   ifdef MASKING
      &                        GRID(ng) % rmask,                         &
 #   endif
-     &                        OCEAN(ng) % tl_bed_frac(:,:,:,i))
+     &                        SEDBED(ng) % tl_bed_frac(:,:,:,i))
             IF (status.ne.nf90_noerr) THEN
               IF (Master) THEN
                 WRITE (stdout,30) string, TRIM(Vname(1,idfrac(i))),     &
@@ -2609,7 +2692,7 @@
 #   ifdef MASKING
      &                        GRID(ng) % rmask,                         &
 #   endif
-     &                        OCEAN(ng)%tl_bed_mass(:,:,:,Tindex,i))
+     &                        SEDBED(ng) % tl_bed_mass(:,:,:,Tindex,i))
             IF (status.ne.nf90_noerr) THEN
               IF (Master) THEN
                 WRITE (stdout,30) string, TRIM(Vname(1,idBmas(i))),     &
@@ -2641,7 +2724,7 @@
 #   ifdef MASKING
      &                        GRID(ng) % rmask,                         &
 #   endif
-     &                        OCEAN(ng) % tl_bed(:,:,:,i))
+     &                        SEDBED(ng) % tl_bed(:,:,:,i))
             IF (status.ne.nf90_noerr) THEN
               IF (Master) THEN
                 WRITE (stdout,30) string, TRIM(Vname(1,idSbed(i))),     &
@@ -2675,7 +2758,7 @@
 #    ifdef MASKING
      &                        GRID(ng) % umask,                         &
 #    endif
-     &                        OCEAN(ng) % tl_bedldu(:,:,i))
+     &                        SEDBED(ng) % tl_bedldu(:,:,i))
             IF (status.ne.nf90_noerr) THEN
               IF (Master) THEN
                 WRITE (stdout,30) string, TRIM(Vname(1,idUbld(i))),     &
@@ -2703,7 +2786,7 @@
 #    ifdef MASKING
      &                        GRID(ng) % vmask,                         &
 #    endif
-     &                        OCEAN(ng) % tl_bedldv(:,:,i))
+     &                        SEDBED(ng) % tl_bedldv(:,:,i))
             IF (status.ne.nf90_noerr) THEN
               IF (Master) THEN
                 WRITE (stdout,30) string, TRIM(Vname(1,idVbld(i))),     &
@@ -2739,7 +2822,7 @@
 #   ifdef MASKING
      &                        GRID(ng) % rmask,                         &
 #   endif
-     &                        OCEAN(ng) % tl_bottom(:,:,i))
+     &                        SEDBED(ng) % tl_bottom(:,:,i))
             IF (status.ne.nf90_noerr) THEN
               IF (Master) THEN
                 WRITE (stdout,30) string, TRIM(Vname(1,idBott(i))),     &
@@ -3259,7 +3342,7 @@
 #   ifdef MASKING
      &                        GRID(ng) % rmask,                         &
 #   endif
-     &                        OCEAN(ng) % ad_bed_frac(:,:,:,i))
+     &                        SEDBED(ng) % ad_bed_frac(:,:,:,i))
             IF (status.ne.nf90_noerr) THEN
               IF (Master) THEN
                 WRITE (stdout,30) string, TRIM(Vname(1,idfrac(i))),     &
@@ -3289,7 +3372,7 @@
 #   ifdef MASKING
      &                        GRID(ng) % rmask,                         &
 #   endif
-     &                        OCEAN(ng)%ad_bed_mass(:,:,:,Tindex,i))
+     &                        SEDBED(ng) % ad_bed_mass(:,:,:,Tindex,i))
             IF (status.ne.nf90_noerr) THEN
               IF (Master) THEN
                 WRITE (stdout,30) string, TRIM(Vname(1,idBmas(i))),     &
@@ -3321,7 +3404,7 @@
 #   ifdef MASKING
      &                        GRID(ng) % rmask,                         &
 #   endif
-     &                        OCEAN(ng) % ad_bed(:,:,:,i))
+     &                        SEDBED(ng) % ad_bed(:,:,:,i))
             IF (status.ne.nf90_noerr) THEN
               IF (Master) THEN
                 WRITE (stdout,30) string, TRIM(Vname(1,idSbed(i))),     &
@@ -3354,7 +3437,7 @@
 #    ifdef MASKING
      &                        GRID(ng) % umask,                         &
 #    endif
-     &                        OCEAN(ng) % ad_bedldu(:,:,i))
+     &                        SEDBED(ng) % ad_bedldu(:,:,i))
             IF (status.ne.nf90_noerr) THEN
               IF (Master) THEN
                 WRITE (stdout,30) string, TRIM(Vname(1,idUbld(i))),     &
@@ -3382,7 +3465,7 @@
 #    ifdef MASKING
      &                        GRID(ng) % vmask,                         &
 #    endif
-     &                        OCEAN(ng) % ad_bedldv(:,:,i))
+     &                        SEDBED(ng) % ad_bedldv(:,:,i))
             IF (status.ne.nf90_noerr) THEN
               IF (Master) THEN
                 WRITE (stdout,30) string, TRIM(Vname(1,idVbld(i))),     &
@@ -3417,7 +3500,7 @@
 #   ifdef MASKING
      &                        GRID(ng) % rmask,                         &
 #   endif
-     &                        OCEAN(ng) % ad_bottom(:,:,i))
+     &                        SEDBED(ng) % ad_bottom(:,:,i))
             IF (status.ne.nf90_noerr) THEN
               IF (Master) THEN
                 WRITE (stdout,30) string, TRIM(Vname(1,idBott(i))),     &
@@ -4974,7 +5057,7 @@
 !  Close input NetCDF file.
 !-----------------------------------------------------------------------
 !
-      CALL netcdf_close (ng, IDmod, ncINPid, ncname)
+      CALL netcdf_close (ng, IDmod, ncINPid, ncname, .FALSE.)
 !
   20  FORMAT (/,a,'GET_STATE - unable to open input NetCDF file: ',a)
   30  FORMAT (/,a,'GET_STATE - error while reading variable: ',a,2x,    &

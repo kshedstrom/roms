@@ -2,9 +2,9 @@
       MODULE ini_fields_mod
 #ifdef NONLINEAR
 !
-!svn $Id: ini_fields.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -33,6 +33,9 @@
       USE mod_coupling
 # endif
       USE mod_ocean
+# if defined SOLVE3D && (defined SEDIMENT || defined BBL_MODEL)
+      USE mod_sedbed
+# endif
       USE mod_stepping
 !
 !  Imported variable declarations.
@@ -73,15 +76,15 @@
 # endif
 # ifdef SOLVE3D
 #  if defined SEDIMENT || defined BBL_MODEL
-     &                      OCEAN(ng) % bottom,                         &
+     &                      SEDBED(ng) % bottom,                        &
 #  endif
 #  if defined SEDIMENT
-     &                      OCEAN(ng) % bed,                            &
-     &                      OCEAN(ng) % bed_frac,                       &
-     &                      OCEAN(ng) % bed_mass,                       &
+     &                      SEDBED(ng) % bed,                           &
+     &                      SEDBED(ng) % bed_frac,                      &
+     &                      SEDBED(ng) % bed_mass,                      &
 #   ifdef SED_MORPH
-     &                      GRID(ng) % bed_thick0,                      &
-     &                      GRID(ng) % bed_thick,                       &
+     &                      SEDBED(ng) % bed_thick0,                    &
+     &                      SEDBED(ng) % bed_thick,                     &
 #   endif
 #  endif
      &                      GRID(ng) % Hz,                              &
@@ -94,7 +97,7 @@
      &                      OCEAN(ng) % t,                              &
      &                      OCEAN(ng) % u,                              &
      &                      OCEAN(ng) % v,                              &
-# endif 
+# endif
      &                      OCEAN(ng) % ubar,                           &
      &                      OCEAN(ng) % vbar,                           &
      &                      OCEAN(ng) % zeta)
@@ -147,6 +150,9 @@
 !
       USE mod_param
       USE mod_scalars
+# ifdef SOGLOBEC
+      USE mod_clima
+# endif
 # if defined SEDIMENT || defined BBL_MODEL
       USE mod_sediment
 # endif
@@ -174,6 +180,9 @@
 # ifdef SOLVE3D
       USE set_depth_mod, ONLY : set_depth_tile
       USE t3dbc_mod, ONLY : t3dbc_tile
+# ifdef T_PASSIVE
+      USE pt3dbc_mod, ONLY : pt3dbc_tile
+# endif
       USE u3dbc_mod, ONLY : u3dbc_tile
       USE v3dbc_mod, ONLY : v3dbc_tile
 # endif
@@ -628,17 +637,42 @@
 !
 !  Apply boundary conditions.
 !
+        IF (itrc.le.NAT) THEN
           CALL t3dbc_tile (ng, tile, itrc,                              &
      &                     LBi, UBi, LBj, UBj, N(ng), NT(ng),           &
      &                     IminS, ImaxS, JminS, JmaxS,                  &
      &                     nstp, nstp,                                  &
+#  ifdef SOGLOBEC
+                           CLIMA(ng) % tclm,                            &
+#  endif
      &                     t)
           CALL t3dbc_tile (ng, tile, itrc,                              &
      &                     LBi, UBi, LBj, UBj, N(ng), NT(ng),           &
      &                     IminS, ImaxS, JminS, JmaxS,                  &
      &                     nstp, nnew,                                  &
+#  ifdef SOGLOBEC
+     &                     CLIMA(ng) % tclm,                            &
+#  endif
      &                     t)
-        END DO
+!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#  ifdef T_PASSIVE
+         ELSE
+!         else condition added by Weifeng Zhang for passive tracer
+!         boundary condition
+          CALL pt3dbc_tile (ng, tile, itrc,                             &
+     &                      LBi, UBi, LBj, UBj, N(ng), NT(ng),          &
+     &                      IminS, ImaxS, JminS, JmaxS,                 &
+     &                      nstp, nstp,                                 &
+     &                      t)
+          CALL pt3dbc_tile (ng, tile, itrc,                             &
+     &                      LBi, UBi, LBj, UBj, N(ng), NT(ng),          &
+     &                      IminS, ImaxS, JminS, JmaxS,                 &
+     &                      nstp, nnew,                                 &
+     &                      t)
+#  endif
+!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+         END IF
+       END DO
       END IF
 
 #  if defined EW_PERIODIC || defined NS_PERIODIC
@@ -735,7 +769,7 @@
               vbar(i,j,kstp)=cff2
               vbar(i,j,knew)=cff2
             END DO
-          END IF   
+          END IF
         END DO
 #  ifndef OBC_M2RADIATION
 !
@@ -931,7 +965,7 @@
 # endif
 # ifdef SOLVE3D
      &                    COUPLING(ng) % Zt_avg1,                       &
-# endif 
+# endif
      &                    OCEAN(ng) % zeta)
 
       RETURN

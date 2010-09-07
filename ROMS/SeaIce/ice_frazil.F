@@ -193,7 +193,7 @@
           END IF
         END DO
       END DO
-        CALL bc_r2d_tile (ng, tile,                                     &
+      CALL bc_r2d_tile (ng, tile,                                       &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          wfr)
 #ifdef DISTRIBUTE

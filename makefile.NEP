@@ -1,6 +1,6 @@
-# $Id: makefile 1020 2009-07-10 23:10:30Z kate $
+# $Id$
 #::::::::::::::::::::::::::::::::::::::::::::::::::::: Hernan G. Arango :::
-# Copyright (c) 2002-2009 The ROMS/TOMS Group             Kate Hedstrom :::
+# Copyright (c) 2002-2010 The ROMS/TOMS Group             Kate Hedstrom :::
 #   Licensed under a MIT/X style license                                :::
 #   See License_ROMS.txt                                                :::
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -36,7 +36,7 @@ $(if $(filter $(MAKE_VERSION),$(NEED_VERSION)),,        \
 #  Initialize some things.
 #--------------------------------------------------------------------------
 
-  sources    := 
+  sources    :=
   libraries  :=
   c_sources    := 
 
@@ -58,7 +58,7 @@ $(if $(filter $(MAKE_VERSION),$(NEED_VERSION)),,        \
 #  The only constrain is that the application CPP option must be unique
 #  and header file name is the lowercase value of ROMS_APPLICATION with
 #  the .h extension. For example, the upwelling application includes the
-#  "upwelling.h" header file.  
+#  "upwelling.h" header file.
 
 ROMS_APPLICATION := NEP5
 
@@ -96,7 +96,7 @@ MY_CPP_FLAGS ?=
 
 #  Activate debugging compiler options:
 
-   USE_DEBUG ?= 
+   USE_DEBUG ?=
 
 #  If parallel applications, use at most one of these definitions
 #  (leave both definitions blank in serial applications):
@@ -175,19 +175,6 @@ ifeq "$(strip $(SCRATCH_DIR))" "./"
   clean_list += $(CURDIR)/*.ipo
 endif
 
-#--------------------------------------------------------------------------
-#  Set Pattern rules.
-#--------------------------------------------------------------------------
-
-%.o: %.F
-
-%.o: %.f90
-	cd $(SCRATCH_DIR); $(FC) -c $(FFLAGS) $(notdir $<)
-
-%.f90: %.F
-	$(CPP) $(CPPFLAGS) $(MY_CPP_FLAGS) $< > $*.f90
-	$(CLEAN) $*.f90
-
 CLEAN := ROMS/Bin/cpp_clean
 
 #--------------------------------------------------------------------------
@@ -221,7 +208,7 @@ endif
 
   COMPILERS ?= $(CURDIR)/Compilers
 
-MAKE_MACROS := $(COMPILERS)/make_macros.mk
+MAKE_MACROS := $(shell echo ${HOME} | sed 's| |\\ |g')/make_macros.mk
 
 ifneq "$(MAKECMDGOALS)" "clean"
  MACROS := $(shell cpp -P $(ROMS_CPPFLAGS) Compilers/make_macros.h > \
@@ -251,11 +238,11 @@ clean_list += $(MAKE_MACROS)
 source-dir-to-binary-dir = $(addprefix $(SCRATCH_DIR)/, $(notdir $1))
 
 # $(call source-to-object, source-file-list)
-source-to-object = $(call source-dir-to-binary-dir,      \
+source-to-object = $(call source-dir-to-binary-dir,       \
                    $(subst .F,.o,$1))
 
 # $(call source-to-object, source-file-list)
-c-source-to-object = $(call source-dir-to-binary-dir,      \
+c-source-to-object = $(call source-dir-to-binary-dir,       \
                      $(subst .c,.o,$(filter %.c,$1))        \
                      $(subst .cc,.o,$(filter %.cc,$1)))
 
@@ -406,7 +393,7 @@ ifdef SVNREV
 else
   SVNREV := $(shell grep Revision ./ROMS/Version | sed 's/.* \([0-9]*\) .*/\1/')
   CPPFLAGS += -D'SVN_REV="$(SVNREV)"'
-endif  
+endif
 
 #--------------------------------------------------------------------------
 #  Build target directories.
@@ -418,15 +405,20 @@ all: $(SCRATCH_DIR) $(SCRATCH_DIR)/MakeDepend $(BIN) rm_macros
 
  modules  :=
 ifdef USE_ADJOINT
- modules  +=	ROMS/Adjoint
+ modules  +=	ROMS/Adjoint \
+		ROMS/Adjoint/Biology
 endif
 ifdef USE_REPRESENTER
- modules  +=	ROMS/Representer
+ modules  +=	ROMS/Representer \
+		ROMS/Representer/Biology
 endif
 ifdef USE_TANGENT
- modules  +=	ROMS/Tangent
+ modules  +=	ROMS/Tangent \
+		ROMS/Tangent/Biology
 endif
  modules  +=	ROMS/Nonlinear \
+		ROMS/Nonlinear/Biology \
+		ROMS/Nonlinear/Sediment \
 		ROMS/Functionals \
 		ROMS/Modules
 ifdef USE_SEAICE
@@ -442,18 +434,23 @@ ifdef MY_ANALYTICAL
  includes +=	$(MY_ANALYTICAL_DIR)
 endif
 ifdef USE_ADJOINT
- includes +=	ROMS/Adjoint
+ includes +=	ROMS/Adjoint \
+		ROMS/Adjoint/Biology
 endif
 ifdef USE_REPRESENTER
- includes +=	ROMS/Representer
+ includes +=	ROMS/Representer \
+		ROMS/Representer/Biology
 endif
 ifdef USE_SEAICE
  includes +=	ROMS/SeaIce
 endif
 ifdef USE_TANGENT
- includes +=	ROMS/Tangent
+ includes +=	ROMS/Tangent \
+		ROMS/Tangent/Biology
 endif
  includes +=	ROMS/Nonlinear \
+		ROMS/Nonlinear/Biology \
+		ROMS/Nonlinear/Sediment \
 		ROMS/Utility \
 		ROMS/Drivers \
                 ROMS/Functionals
@@ -547,7 +544,7 @@ $(SCRATCH_DIR)/MakeDepend: makefile \
 SFMAKEDEPEND := ./ROMS/Bin/sfmakedepend
 
 depend: $(SCRATCH_DIR)
-	$(SFMAKEDEPEND) $(MDEPFLAGS) $(sources) > $(SCRATCH_DIR)/MakeDepend 
+	$(SFMAKEDEPEND) $(MDEPFLAGS) $(sources) > $(SCRATCH_DIR)/MakeDepend
 
 ifneq "$(MAKECMDGOALS)" "clean"
   -include $(SCRATCH_DIR)/MakeDepend

@@ -1,4 +1,0 @@
-#define SWAN_COUPLING  /* this gives winds to swan */
-#define ATM_OCEAN      /* keep this one on always */
-
-

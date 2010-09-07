@@ -1,9 +1,9 @@
 #include "cppdefs.h"
       MODULE diag_mod
 !
-!svn $Id: diag.F 1102 2009-11-19 01:03:09Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -95,9 +95,11 @@
       USE mod_parallel
       USE mod_iounits
       USE mod_scalars
+#ifdef BIOLOGY
+      USE mod_biology, ONLY : idbio
+#endif
 
 #ifdef DISTRIBUTE
-!
       USE distribute_mod, ONLY : mp_reduce
 #endif
 !
@@ -156,17 +158,17 @@
 #ifdef DISTRIBUTE
 # ifdef SOLVE3D
 #  ifdef BIOLOGY
-      integer, parameter :: Nreduce = 5 + NBT
+      integer :: Nreduce
 #  else
       integer, parameter :: Nreduce = 5
 #  endif
 # else
       integer, parameter :: Nreduce = 4
 # endif
-      real(r8), dimension(Nreduce) :: buffer
-      character (len=3), dimension(Nreduce) :: op_handle
+      real(r8), allocatable           :: buffer(:)
+      character (len=3), allocatable  :: op_handle(:)
 #else
-      integer :: my_threadnum      
+      integer :: my_threadnum
 #endif
 
       real(r8) :: cff, my_avgke, my_avgpe, my_volume
@@ -179,6 +181,9 @@
 #endif
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: ke2d
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: pe2d
+      real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: uvmax
+      integer :: ii_max, jj_max, kk_max
+      real(r8) :: uv_max
 
       character (len=8) :: kechar, pechar
 
@@ -189,6 +194,14 @@
 !  total energy, and volume.
 !-----------------------------------------------------------------------
 !
+#ifdef DISTRIBUTE
+# ifdef BIOLOGY
+      Nreduce = 5 + NBT
+# endif
+      IF (.not. allocated(buffer))    allocate (buffer(Nreduce))
+      IF (.not. allocated(op_handle)) allocate (op_handle(Nreduce))
+#endif
+
       IF (MOD(iic(ng)-1,ninfo(ng)).eq.0) THEN
         my_maxspeed=0.0_r8
 #ifdef SOLVE3D
@@ -412,6 +425,42 @@
           IF (maxspeed(ng).gt.max_speed) THEN
             exit_flag=1
 	    IF (Master) print *, 'DIAG speed trouble ', maxspeed(ng)
+	    ii_max = Istr
+	    jj_max = Jstr
+#ifdef SOLVE3D
+	    kk_max = 1
+	    uv_max = max(u(Istr,Jstr,1,nstp),v(Istr,Jstr,1,nstp))
+            DO j=Jstr,Jend
+              DO k=1,N(ng)
+                DO i=Istr,Iend
+		  IF (max(u(i,j,k,nstp),v(i,j,k,nstp)) > uv_max) THEN
+		    ii_max = i
+		    jj_max = j
+		    kk_max = k
+		    uv_max = max(u(i,j,k,nstp),v(i,j,k,nstp))
+		  END IF
+                END DO
+              END DO
+            END DO
+            IF (uv_max.gt.max_speed) THEN
+	      print *, 'DIAG speed ijk ', uv_max, ii_max, jj_max, kk_max
+	    END IF
+#else
+	    uv_max = max(ubar(Istr,Jstr,krhs),v(Istr,Jstr,krhs))
+            DO j=Jstr,Jend
+              DO i=Istr,Iend
+	        IF (max(ubar(i,j,krhs),vbar(i,j,krhs)) > uv_max) THEN
+		    ii_max = i
+		    jj_max = j
+		    uv_max = max(ubar(i,j,krhs),vbar(i,j,krhs))
+		  END IF
+                END DO
+              END DO
+            END DO
+            IF (uv_max.gt.max_speed) THEN
+	      print *, 'DIAG speed ij ', uv_max, ii_max, jj_max
+	    END IF
+#endif
           END IF
 #ifdef SOLVE3D
 !

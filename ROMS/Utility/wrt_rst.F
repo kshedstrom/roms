@@ -1,9 +1,9 @@
 #include "cppdefs.h"
       SUBROUTINE wrt_rst (ng)
 !
-!svn $Id: wrt_rst.F 1023 2009-07-20 21:45:24Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -25,6 +25,7 @@
       USE mod_ocean
       USE mod_scalars
 #if defined SEDIMENT || defined BBL_MODEL
+      USE mod_sedbed
       USE mod_sediment
 #endif
 #ifdef NCEP_FLUXES
@@ -553,6 +554,48 @@
         ioerror=status
         RETURN
       END IF
+# ifdef NEMURO_SED1
+!
+!  Write out PON in sediment.
+!
+      scale=1.0_r8
+      gtype=gfactor*r2dvar
+      status=nf_fwrite2d(ng, iNLM, ncRSTid(ng), rstVid(idPONsed,ng),    &
+     &                   tRSTindx(ng), gtype,                           &
+     &                   LBi, UBi, LBj, UBj, scale,                     &
+#  ifdef MASKING
+     &                   GRID(ng) % rmask,                              &
+#  endif
+     &                   OCEAN(ng) % PONsed)
+      IF (status.ne.nf90_noerr) THEN
+        IF (Master) THEN
+          WRITE (stdout,10) TRIM(Vname(1,idPONsed)), tRSTindx(ng)
+        END IF
+        exit_flag=3
+        ioerror=status
+        RETURN
+      END IF
+!
+!  Write out OPAL in sediment.
+!
+      scale=1.0_r8
+      gtype=gfactor*r2dvar
+      status=nf_fwrite2d(ng, iNLM, ncRSTid(ng), rstVid(idOPALsed,ng),   &
+     &                   tRSTindx(ng), gtype,                           &
+     &                   LBi, UBi, LBj, UBj, scale,                     &
+#  ifdef MASKING
+     &                   GRID(ng) % rmask,                              &
+#  endif
+     &                   OCEAN(ng) % OPALsed)
+      IF (status.ne.nf90_noerr) THEN
+        IF (Master) THEN
+          WRITE (stdout,10) TRIM(Vname(1,idOPALsed)), tRSTindx(ng)
+        END IF
+        exit_flag=3
+        ioerror=status
+        RETURN
+      END IF
+# endif
 # ifdef LMD_SKPP
 !
 !  Write out depth of surface boundary layer.
@@ -610,7 +653,8 @@
 #  ifdef MASKING
      &                   GRID(ng) % rmask,                              &
 #  endif
-     &                   MIXING(ng) % Akv)
+     &                   MIXING(ng) % Akv,                              &
+     &                   SetFillVal = .FALSE.)
       IF (status.ne.nf90_noerr) THEN
         IF (Master) THEN
           WRITE (stdout,10) TRIM(Vname(1,idVvis)), tRSTindx(ng)
@@ -630,7 +674,9 @@
 #  ifdef MASKING
      &                   GRID(ng) % rmask,                              &
 #  endif
-     &                   MIXING(ng) % Akt(:,:,:,itemp))
+     &                   MIXING(ng) % Akt(:,:,:,itemp),                 &
+     &                   SetFillVal = .FALSE.)
+
       IF (status.ne.nf90_noerr) THEN
         IF (Master) THEN
           WRITE (stdout,10) TRIM(Vname(1,idTdif)), tRSTindx(ng)
@@ -651,7 +697,8 @@
 #   ifdef MASKING
      &                   GRID(ng) % rmask,                              &
 #   endif
-     &                   MIXING(ng) % Akt(:,:,:,isalt))
+     &                   MIXING(ng) % Akt(:,:,:,isalt),                 &
+     &                   SetFillVal = .FALSE.)
       IF (status.ne.nf90_noerr) THEN
         IF (Master) THEN
           WRITE (stdout,10) TRIM(Vname(1,idSdif)), tRSTindx(ng)
@@ -966,7 +1013,9 @@
 #  ifdef MASKING
      &                   GRID(ng) % rmask,                              &
 #  endif
-     &                   MIXING(ng) % tke)
+     &                   MIXING(ng) % tke,                              &
+     &                   SetFillVal = .FALSE.)
+
       IF (status.ne.nf90_noerr) THEN
         IF (Master) THEN
           WRITE (stdout,10) TRIM(Vname(1,idMtke)), tRSTindx(ng)
@@ -986,7 +1035,8 @@
 #  ifdef MASKING
      &                   GRID(ng) % rmask,                              &
 #  endif
-     &                   MIXING(ng) % gls)
+     &                   MIXING(ng) % gls,                              &
+     &                   SetFillVal = .FALSE.)
       IF (status.ne.nf90_noerr) THEN
         IF (Master) THEN
           WRITE (stdout,10) TRIM(Vname(1,idMtls)), tRSTindx(ng)
@@ -1254,7 +1304,7 @@
 #   ifdef MASKING
      &                     GRID(ng) % umask,                            &
 #   endif
-     &                     OCEAN(ng) % bedldu(:,:,i))
+     &                     SEDBED(ng) % bedldu(:,:,i))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
             WRITE (stdout,10) TRIM(Vname(1,idUbld(i))), tRSTindx(ng)
@@ -1276,7 +1326,7 @@
 #   ifdef MASKING
      &                     GRID(ng) % vmask,                            &
 #   endif
-     &                     OCEAN(ng) % bedldv(:,:,i))
+     &                     SEDBED(ng) % bedldv(:,:,i))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
             WRITE (stdout,10) TRIM(Vname(1,idVbld(i))), tRSTindx(ng)
@@ -1299,7 +1349,7 @@
 #  ifdef MASKING
      &                     GRID(ng) % rmask,                            &
 #  endif
-     &                     OCEAN(ng) % bed_frac(:,:,:,i))
+     &                     SEDBED(ng) % bed_frac(:,:,:,i))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
             WRITE (stdout,10) TRIM(Vname(1,idfrac(i))), tRSTindx(ng)
@@ -1321,7 +1371,7 @@
 #  ifdef MASKING
      &                     GRID(ng) % rmask,                            &
 #  endif
-     &                     OCEAN(ng) % bed_mass(:,:,:,NOUT,i))
+     &                     SEDBED(ng) % bed_mass(:,:,:,NOUT,i))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
             WRITE (stdout,10) TRIM(Vname(1,idBmas(i))), tRSTindx(ng)
@@ -1347,7 +1397,7 @@
 #  ifdef MASKING
      &                     GRID(ng) % rmask,                            &
 #  endif
-     &                     OCEAN(ng) % bed(:,:,:,i))
+     &                     SEDBED(ng) % bed(:,:,:,i))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
             WRITE (stdout,10) TRIM(Vname(1,idSbed(i))), tRSTindx(ng)
@@ -1362,7 +1412,7 @@
 !
 !  Write out exposed sediment layer properties. Notice that only the
 !  first four properties (mean grain diameter, mean grain density,
-!  mean settling velocity, mean critical erosion stress, 
+!  mean settling velocity, mean critical erosion stress,
 !  ripple length and ripple height) are written.
 !
       DO i=1,6
@@ -1374,7 +1424,7 @@
 #  ifdef MASKING
      &                     GRID(ng) % rmask,                            &
 #  endif
-     &                     OCEAN(ng) % bottom(:,:,i))
+     &                     SEDBED(ng) % bottom(:,:,i))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
             WRITE (stdout,10) TRIM(Vname(1,idBott(i))), tRSTindx(ng)

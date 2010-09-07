@@ -2,9 +2,9 @@
 #ifdef ADJOINT
       SUBROUTINE ad_initial (ng)
 !
-!svn $Id: ad_initial.F 1098 2009-11-18 17:54:22Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -44,11 +44,12 @@
 # ifdef DISTRIBUTE
       USE distribute_mod, ONLY : mp_bcasti
 # endif
-# if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
-     defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR || \
+# if defined AD_SENSITIVITY   || defined IS4DVAR_SENSITIVITY || \
+     defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR   || \
      defined SO_SEMI
       USE adsen_initial_mod, ONLY : adsen_initial
 # endif
+      USE ini_hmixcoef_mod, ONLY : ini_hmixcoef
       USE metrics_mod, ONLY : metrics
 # ifdef SOLVE3D
       USE set_depth_mod, ONLY : set_depth
@@ -158,8 +159,8 @@
 !$OMP END PARALLEL DO
 # endif
 
-# if defined FOUR_DVAR && \
-    !(defined OBS_SENSITIVITY || defined OPT_OBSERVATIONS)
+# if defined FOUR_DVAR            && \
+    !(defined IS4DVAR_SENSITIVITY || defined OPT_OBSERVATIONS)
 !
 !-----------------------------------------------------------------------
 !  If variational data assimilation, reset several IO switches and
@@ -234,8 +235,8 @@
 #  ifdef MASKING
             CALL ana_mask (ng, TILE, iADM)
 #  endif
-#  if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY || \
-      defined OPT_OBSERVATIONS || defined SO_SEMI         || \
+#  if defined AD_SENSITIVITY   || defined IS4DVAR_SENSITIVITY || \
+      defined OPT_OBSERVATIONS || defined SO_SEMI             || \
       defined SENSITIVITY_4DVAR
             CALL ana_scope (ng, TILE, iADM)
 #  endif
@@ -285,24 +286,6 @@
         END DO
 !$OMP END PARALLEL DO
 
-# if defined VISC_GRID || defined DIFF_GRID || defined SPONGE
-!
-!-----------------------------------------------------------------------
-!  Set horizontal mixing coefficients. Rescale according to the local
-!  grid size. If applicable, increases horizontal mixing in sponge
-!  areas.
-!-----------------------------------------------------------------------
-!
-!$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(ng,numthreads)
-        DO thread=0,numthreads-1
-          subs=NtileX(ng)*NtileE(ng)/numthreads
-          DO tile=subs*thread,subs*(thread+1)-1
-            CALL ana_hmixcoef (ng, TILE, iADM)
-          END DO
-        END DO
-!$OMP END PARALLEL DO
-# endif
-
 # ifdef NUDGING_COFF
 !
 !-----------------------------------------------------------------------
@@ -320,12 +303,43 @@
 # endif
       END IF
 !
+!-----------------------------------------------------------------------
+!  Initialize horizontal mixing coefficients.
+!-----------------------------------------------------------------------
+!
+!$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(ng,numthreads)
+      DO thread=0,numthreads-1
+        subs=NtileX(ng)*NtileE(ng)/numthreads
+        DO tile=subs*thread,subs*(thread+1)-1
+          CALL ini_hmixcoef (ng, TILE, iADM)
+        END DO
+      END DO
+!$OMP END PARALLEL DO
+
+# if defined VISC_GRID || defined DIFF_GRID || defined SPONGE
+!
+!-----------------------------------------------------------------------
+!  Set horizontal mixing coefficients. Rescale according to the local
+!  grid size. If applicable, increases horizontal mixing in sponge
+!  areas.
+!-----------------------------------------------------------------------
+!
+!$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(ng,numthreads)
+      DO thread=0,numthreads-1
+        subs=NtileX(ng)*NtileE(ng)/numthreads
+        DO tile=subs*thread,subs*(thread+1)-1
+          CALL ana_hmixcoef (ng, TILE, iADM)
+        END DO
+      END DO
+!$OMP END PARALLEL DO
+# endif
+!
 !=======================================================================
 !  Initialize model state variables and forcing.  This part is
 !  executed for each ensemble/perturbation/iteration pass.
 !=======================================================================
 
-# if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY || \
+# if defined AD_SENSITIVITY   || defined IS4DVAR_SENSITIVITY || \
      defined OPT_OBSERVATIONS || defined SO_SEMI
 !
 !-----------------------------------------------------------------------
@@ -350,7 +364,7 @@
       END DO
 !$OMF END PARALLEL DO
 
-# elif defined FOUR_DVAR && !defined OBS_SENSITIVITY
+# elif defined FOUR_DVAR && !defined IS4DVAR_SENSITIVITY
 !
 !-----------------------------------------------------------------------
 !  Clear all adjoint variables.  In variational data assimilation the
@@ -563,8 +577,8 @@
 #  endif
       IF (exit_flag.ne.NoError) RETURN
 
-# if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
-     defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR || \
+# if defined AD_SENSITIVITY   || defined IS4DVAR_SENSITIVITY || \
+     defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR   || \
      defined SO_SEMI
 !
 !-----------------------------------------------------------------------

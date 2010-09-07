@@ -2,9 +2,9 @@
 #ifdef DIAGNOSTICS
       SUBROUTINE set_diags (ng, tile)
 !
-!svn $Id: set_diags.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -34,7 +34,14 @@
       CALL wclock_on (ng, iNLM, 5)
 # endif
       CALL set_diags_tile (ng, tile,                                    &
-     &                     LBi, UBi, LBj, UBj)
+     &                     LBi, UBi, LBj, UBj,                          &
+     &                     IminS, ImaxS, JminS, JmaxS,                  &
+# ifdef SOLVE3D
+     &                     kstp(ng),                                    &
+# else
+     &                     knew(ng),                                    &
+# endif
+     &                     nrhs(ng))
 # ifdef PROFILE
       CALL wclock_off (ng, iNLM, 5)
 # endif
@@ -43,12 +50,15 @@
 !
 !***********************************************************************
       SUBROUTINE set_diags_tile (ng, tile,                              &
-     &                           LBi, UBi, LBj, UBj)
+     &                           LBi, UBi, LBj, UBj,                    &
+     &                           IminS, ImaxS, JminS, JmaxS,            &
+     &                           kout, nrhs)
 !***********************************************************************
 !
       USE mod_param
       USE mod_diags
       USE mod_grid
+      USE mod_ocean
       USE mod_scalars
 !
       USE bc_2d_mod
@@ -56,7 +66,10 @@
       USE bc_3d_mod
 # endif
 # ifdef DISTRIBUTE
-      USE mp_exchange_mod, ONLY : mp_exchange3d, mp_exchange4d
+      USE mp_exchange_mod, ONLY : mp_exchange3d
+#  ifdef SOLVE3D
+      USE mp_exchange_mod, ONLY : mp_exchange4d
+#  endif
 # endif
 !
       implicit none
@@ -65,6 +78,8 @@
 !
       integer, intent(in) :: ng, tile
       integer, intent(in) :: LBi, UBi, LBj, UBj
+      integer, intent(in) :: IminS, ImaxS, JminS, JmaxS
+      integer, intent(in) :: kout, nrhs
 !
 !  Local variable declarations.
 !
@@ -119,26 +134,36 @@
         END DO
 #  endif
 #  ifdef DIAGNOSTICS_UV
-        DO j=JstrR,JendR
-          DO idiag=1,NDM2d
-            DO i=IstrR,IendR
+        DO idiag=1,NDM2d
+          DO j=JstrR,JendR
+            DO i=Istr,IendR
               DIAGS(ng)%DiaU2d(i,j,idiag)=DIAGS(ng)%DiaU2wrk(i,j,idiag)
+            END DO
+          END DO
+          DO j=Jstr,JendR
+            DO i=IstrR,IendR
               DIAGS(ng)%DiaV2d(i,j,idiag)=DIAGS(ng)%DiaV2wrk(i,j,idiag)
             END DO
           END DO
+        END DO
 #   ifdef SOLVE3D
-          DO idiag=1,NDM3d
-            DO k=1,N(ng)
-              DO i=IstrR,IendR
+        DO idiag=1,NDM3d
+          DO k=1,N(ng)
+            DO j=JstrR,JendR
+              DO i=Istr,IendR
                 DIAGS(ng)%DiaU3d(i,j,k,idiag)=                          &
      &                    DIAGS(ng)%DiaU3wrk(i,j,k,idiag)
+              END DO
+            END DO
+            DO j=Jstr,JendR
+              DO i=IstrR,IendR
                 DIAGS(ng)%DiaV3d(i,j,k,idiag)=                          &
      &                    DIAGS(ng)%DiaV3wrk(i,j,k,idiag)
               END DO
             END DO
           END DO
-#   endif
         END DO
+#   endif
 #  endif
 !
 !-----------------------------------------------------------------------
@@ -162,30 +187,40 @@
         END DO
 #  endif
 #  ifdef DIAGNOSTICS_UV
-        DO j=JstrR,JendR
-          DO idiag=1,NDM2d
-            DO i=IstrR,IendR
+        DO idiag=1,NDM2d
+          DO j=JstrR,JendR
+            DO i=Istr,IendR
               DIAGS(ng)%DiaU2d(i,j,idiag)=DIAGS(ng)%DiaU2d(i,j,idiag)+  &
      &                                    DIAGS(ng)%DiaU2wrk(i,j,idiag)
+            END DO
+          END DO
+          DO j=Jstr,JendR
+            DO i=IstrR,IendR
               DIAGS(ng)%DiaV2d(i,j,idiag)=DIAGS(ng)%DiaV2d(i,j,idiag)+  &
      &                                    DIAGS(ng)%DiaV2wrk(i,j,idiag)
             END DO
           END DO
+        END DO
 #   ifdef SOLVE3D
-          DO idiag=1,NDM3d
-            DO k=1,N(ng)
-              DO i=IstrR,IendR
+        DO idiag=1,NDM3d
+          DO k=1,N(ng)
+            DO j=JstrR,JendR
+              DO i=Istr,IendR
                 DIAGS(ng)%DiaU3d(i,j,k,idiag)=                          &
      &                    DIAGS(ng)%DiaU3d(i,j,k,idiag)+                &
      &                    DIAGS(ng)%DiaU3wrk(i,j,k,idiag)
+              END DO
+            END DO
+            DO j=Jstr,JendR
+              DO i=IstrR,IendR
                 DIAGS(ng)%DiaV3d(i,j,k,idiag)=                          &
      &                    DIAGS(ng)%DiaV3d(i,j,k,idiag)+                &
      &                    DIAGS(ng)%DiaV3wrk(i,j,k,idiag)
               END DO
             END DO
           END DO
-#   endif
         END DO
+#   endif
 #  endif
       END IF
 # endif
@@ -207,10 +242,10 @@
 !  Apply periodic or gradient boundary conditions and land-mask
 !  for output purposes.
 !-----------------------------------------------------------------------
-
+!
 #  ifdef DIAGNOSTICS_TS
 !
-!  Apply periodic or gradient boundary conditions for output purposes.
+!  3D tracer diagnostics.
 !
         DO idiag=1,NDT
           DO it=1,NT(ng)
@@ -239,7 +274,7 @@
 #  endif
 #  ifdef DIAGNOSTICS_UV
 !
-!  Apply periodic or gradient boundary conditions for output purposes.
+!  2D momentum diagnostics.
 !
         DO idiag=1,NDM2d
           CALL bc_u2d_tile (ng, tile,                                   &
@@ -257,6 +292,9 @@
      &                      DIAGS(ng)%DiaV2d)
 #   endif
 #   ifdef SOLVE3D
+!
+!  3D momentum diagnostics.
+!
         DO idiag=1,NDM3d
           CALL bc_u3d_tile (ng, tile,                                   &
      &                      LBi, UBi, LBj, UBj, 1, N(ng),               &
@@ -274,30 +312,41 @@
 #    endif
 #   endif
 #   ifdef MASKING
-        DO j=JstrR,JendR
-          DO idiag=1,NDM2d
-            DO i=IstrR,IendR
+        DO idiag=1,NDM2d
+          DO j=JstrR,JendR
+            DO i=Istr,IendR
               DIAGS(ng)%DiaU2d(i,j,idiag)=DIAGS(ng)%DiaU2d(i,j,idiag)*  &
      &                                    GRID(ng)%umask(i,j)
+            END DO
+          END DO
+          DO j=Jstr,JendR
+            DO i=IstrR,IendR
               DIAGS(ng)%DiaV2d(i,j,idiag)=DIAGS(ng)%DiaV2d(i,j,idiag)*  &
      &                                    GRID(ng)%vmask(i,j)
             END DO
           END DO
+        END DO
 #    ifdef SOLVE3D
-          DO idiag=1,NDM3d
-            DO k=1,N(ng)
-              DO i=IstrR,IendR
+        DO idiag=1,NDM3d
+          DO k=1,N(ng)
+            DO j=JstrR,JendR
+              DO i=Istr,IendR
                 DIAGS(ng)%DiaU3d(i,j,k,idiag)=                          &
      &                                 DIAGS(ng)%DiaU3d(i,j,k,idiag)*   &
      &                                 GRID(ng)%umask(i,j)
+              END DO
+            END DO
+            DO j=Jstr,JendR
+              DO i=IstrR,IendR
+
                 DIAGS(ng)%DiaV3d(i,j,k,idiag)=                          &
      &                                 DIAGS(ng)%DiaV3d(i,j,k,idiag)*   &
      &                                 GRID(ng)%vmask(i,j)
               END DO
             END DO
           END DO
-#    endif
         END DO
+#    endif
 #   endif
 #  endif
 # endif

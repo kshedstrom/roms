@@ -3,9 +3,9 @@
 
 #if defined TANGENT && defined FOUR_DVAR && defined ADJUST_BOUNDARY
 !
-!svn $Id: tl_conv_bry2d.F 931 2009-02-20 22:03:57Z arango $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================

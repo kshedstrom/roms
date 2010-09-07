@@ -2,9 +2,9 @@
 #ifdef NEMURO_SAN
       SUBROUTINE def_fish (ng, ldef)
 !
-!svn $Id: def_fish.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -17,6 +17,7 @@
       USE mod_param
       USE mod_parallel
       USE mod_fish
+      USE mod_biology
 # ifdef FOUR_DVAR
       USE mod_fourdvar
 # endif
@@ -1056,9 +1057,6 @@
           ELSE IF (TRIM(var_name(i)).eq.'Alive') THEN
             got_var(idFalv)=.TRUE.
             fishVid(idFalv,ng)=var_id(i)
-          ELSE IF (TRIM(var_name(i)).eq.'Eatfish') THEN
-            got_var(idFeatf)=.TRUE.
-            fishVid(idFeatf,ng)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.'Fishgirl') THEN
             got_var(idFgrl)=.TRUE.
             fishVid(idFgrl,ng)=var_id(i)
@@ -1162,12 +1160,6 @@
         END IF
         IF (.not.got_var(idFalv)) THEN
           IF (Master) WRITE (stdout,60) TRIM(Vname(1,idFalv)),          &
-     &                                  TRIM(ncname)
-          exit_flag=3
-          RETURN
-        END IF
-        IF (.not.got_var(idFeatf)) THEN
-          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idFeatf)),         &
      &                                  TRIM(ncname)
           exit_flag=3
           RETURN

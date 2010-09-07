@@ -1,8 +1,8 @@
       MODULE ocean_control_mod
 !
-!svn $Id: w4dvar_ocean.h 1101 2009-11-19 00:56:17Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group   Emanuele Di Lorenzo   !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group   Emanuele Di Lorenzo   !
 !    Licensed under a MIT/X style license            Andrew M. Moore   !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -252,8 +252,9 @@
       logical :: Ltrace
 #endif
       integer :: my_inner, my_outer
-      integer :: ADrec, Lbck, Lini, Nrec, Rec1, Rec2
-      integer :: i, lstr, my_iic, ng, rec, status, subs, tile, thread
+      integer :: ADrec, Lbck, Lini, Nrec, Rec, Rec1, Rec2
+      integer :: i, irec, lstr, my_iic, ng, status, subs, tile, thread
+      integer :: NRMrec
 
       real(r8) :: MyTime, LB_time, UB_time
 
@@ -366,19 +367,20 @@
           LdefNRM(1:4,ng)=.FALSE.
           LwrtNRM(1:4,ng)=.FALSE.
         ELSE
-          CALL get_state (ng, 5, 5, NRMname(1,ng), 1, 1)
+          NRMrec=1
+          CALL get_state (ng, 5, 5, NRMname(1,ng), NRMrec, 1)
           IF (exit_flag.ne.NoError) RETURN
 
           IF (NSA.eq.2) THEN
-            CALL get_state (ng, 5, 5, NRMname(2,ng), 1, 2)
+            CALL get_state (ng, 5, 5, NRMname(2,ng), NRMrec, 2)
             IF (exit_flag.ne.NoError) RETURN
           END IF
 #ifdef ADJUST_BOUNDARY
-          CALL get_state (ng, 10, 10, NRMname(3,ng), 1, 1)
+          CALL get_state (ng, 10, 10, NRMname(3,ng), NRMrec, 1)
           IF (exit_flag.ne.NoError) RETURN
 #endif
 #if defined ADJUST_WSTRESS || defined ADJUST_STFLUX
-          CALL get_state (ng, 11, 11, NRMname(4,ng), 1, 1)
+          CALL get_state (ng, 11, 11, NRMname(4,ng), NRMrec, 1)
           IF (exit_flag.ne.NoError) RETURN
 #endif
         END IF
@@ -545,8 +547,7 @@
 
           END DO RP_LOOP1
 !
-!  Report data penalty function. Then, clean array before next run of
-!  RP model.
+!  Report data penalty function.
 !
           IF (Master) THEN
             DO i=0,NstateVar(ng)
@@ -562,6 +563,20 @@
               END IF
             END DO
           END IF
+!
+!  Write out initial data penalty function to NetCDF file.
+!
+          SourceFile='w4dvar_ocean.h, ROMS_run'
+
+          CALL netcdf_put_fvar (ng, iRPM, MODname(ng),                  &
+     &                          'RP_iDataPenalty',                      &
+     &                          FOURDVAR(ng)%DataPenalty(0:),           &
+     &                          (/1,outer/), (/NstateVar(ng)+1,1/),     &
+     &                          ncid = ncMODid(ng))
+          IF (exit_flag.ne.NoError) RETURN
+!
+!  Clean penalty array before next run of RP model.
+!
           FOURDVAR(ng)%DataPenalty=0.0_r8
 !
 !  Turn off IO switches.
@@ -835,14 +850,14 @@
 !
               IF (Nrec.gt.3) THEN
                 LwrtTime(ng)=.TRUE.
-                DO rec=1,Nrec-1
+                DO irec=1,Nrec-1
                   Lweak=.TRUE.
 !
 !  Read adjoint solution. Since routine "get_state" loads data into the
 !  ghost points, the adjoint solution is read in the tangent linear
 !  state arrays by using iTLM instead of iADM in the calling arguments.
 !
-                  ADrec=rec
+                  ADrec=irec
                   CALL get_state (ng, iTLM, 4, ADJname(ng), ADrec,      &
      &                            Lold(ng))
                   IF (exit_flag.ne.NoError) RETURN
@@ -1226,14 +1241,14 @@
 !
           IF (Nrec.gt.3) THEN
             LwrtTime(ng)=.TRUE.
-            DO rec=1,Nrec-1
+            DO irec=1,Nrec-1
               Lweak=.TRUE.
 !
 !  Read adjoint solution. Since routine "get_state" loads data into the
 !  ghost points, the adjoint solution is read in the tangent linear
 !  state arrays by using iTLM instead of iADM in the calling arguments.
 !
-              ADrec=rec
+              ADrec=irec
               CALL get_state (ng, iTLM, 4, ADJname(ng), ADrec, Lold(ng))
               IF (exit_flag.ne.NoError) RETURN
 !
@@ -1405,14 +1420,14 @@
             END DO
           END IF
 !
-!  Write data penalty function to NetCDF file.
+!  Write final data penalty function to NetCDF file.
 !
-          SourceFile='w4dvar_ocean.F, ROMS_run'
+          SourceFile='w4dvar_ocean.h, ROMS_run'
 
           CALL netcdf_put_fvar (ng, iRPM, MODname(ng),                  &
-     &                          'RPcost_function',                      &
-     &                          FOURDVAR(ng)%DataPenalty(0),            &
-     &                          (/outer/), (/1/),                       &
+     &                          'RP_fDataPenalty',                      &
+     &                          FOURDVAR(ng)%DataPenalty(0:),           &
+     &                          (/1,outer/), (/NstateVar(ng)+1,1/),     &
      &                          ncid = ncMODid(ng))
           IF (exit_flag.ne.NoError) RETURN
 !
@@ -1634,7 +1649,8 @@
 !        For now we can use what ever is in record 1.
 !
             IF (inner.ne.0) THEN
-              CALL get_state (ng, iTLM, 1, ITLname(ng), 1, Lold(ng))
+              Rec=1
+              CALL get_state (ng, iTLM, 1, ITLname(ng), Rec, Lold(ng))
             ELSE
 !
 !$OMP PARALLEL DO PRIVATE(ng,thread,subs,tile)                          &

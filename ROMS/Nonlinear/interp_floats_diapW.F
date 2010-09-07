@@ -4,7 +4,7 @@
 !
 !svn $Id: interp_floats_diapW.F 526 2008-01-29 01:06:18Z kate $
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2008 The ROMS/TOMS Group         Mark Hadfield   !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group         Mark Hadfield   !
 !    Licensed under a MIT/X style license             John M. Klinck   !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -60,7 +60,7 @@
 # ifdef MASKING
      &                          Amask,                                  &
 # endif
-     &                          A2, A3,MyThread, bounded, track)
+     &                          A2, A3, MyThread, bounded, track)
 !***********************************************************************
       USE mod_param
       USE mod_ncparam

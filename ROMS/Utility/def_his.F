@@ -1,9 +1,9 @@
 #include "cppdefs.h"
       SUBROUTINE def_his (ng, ldef)
 !
-!svn $Id: def_his.F 1098 2009-11-18 17:54:22Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -15,6 +15,9 @@
 !
       USE mod_param
       USE mod_parallel
+#ifdef BIOLOGY
+      USE mod_biology
+#endif
 #ifdef FOUR_DVAR
       USE mod_fourdvar
 #endif
@@ -47,7 +50,7 @@
 #ifdef ADJUST_BOUNDARY
       integer :: IorJdim, brecdim
 #endif
-      integer :: DimIDs(31), t2dgrd(3), u2dgrd(3), v2dgrd(3)
+      integer :: DimIDs(32), t2dgrd(3), u2dgrd(3), v2dgrd(3)
 #ifdef ADJUST_BOUNDARY
       integer :: t2dobc(4)
 #endif
@@ -67,8 +70,8 @@
 
       real(r8) :: Aval(6)
 
-      character (len=80) :: fname, ncname
       character (len=120) :: Vinfo(Natt)
+      character (len=256) :: ncname
 !
       SourceFile='def_his.F'
 !
@@ -192,6 +195,10 @@
         IF (exit_flag.ne.NoError) RETURN
 
 # ifdef SEDIMENT
+        status=def_dim(ng, iNLM, ncHISid(ng), ncname, 'NST',            &
+     &                 NST, DimIDs(32))
+        IF (exit_flag.ne.NoError) RETURN
+
         status=def_dim(ng, iNLM, ncHISid(ng), ncname, 'Nbed',           &
      &                 Nbed, DimIDs(16))
         IF (exit_flag.ne.NoError) RETURN
@@ -439,9 +446,6 @@
           Vinfo( 3)=Vname(3,idbath)
           Vinfo(14)=Vname(4,idbath)
           Vinfo(16)=Vname(1,idtime)
-# if defined WRITE_WATER && defined MASKING
-          Vinfo(20)='mask_rho'
-# endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idbath,ng),r8)
           status=def_var(ng, iNLM, ncHISid(ng), hisVid(idbath,ng),      &
@@ -509,7 +513,7 @@
           Vinfo( 3)=Vname(3,idFsur)
           Vinfo(14)=Vname(4,idFsur)
           Vinfo(16)=Vname(1,idtime)
-#if defined WRITE_WATER && defined MASKING
+#if !defined WET_DRY && (defined WRITE_WATER && defined MASKING)
           Vinfo(20)='mask_rho'
 #endif
           Vinfo(22)='coordinates'
@@ -963,7 +967,7 @@
             Vinfo( 3)=Vname(3,idPT3var(itrc))
             Vinfo(14)=Vname(4,idPT3var(itrc))
             Vinfo(16)=Vname(1,idtime)
-         status=def_var(ng,iNLM,ncHISid(ng),hisPT3id(itrc,ng),NF_FOUT,&
+         status=def_var(ng,iNLM,ncHISid(ng),hisPT3id(itrc,ng),NF_FOUT,  &
      &                     nvd4,t3dgrd,Aval,Vinfo,ncname)
           END IF
         END DO
@@ -989,56 +993,120 @@
 !------------------------------------------
 !  Define benthic tracer type variables.
 !------------------------------------------   
-         DO itrc=1,NBeT(ng)
+        DO itrc=1,NBeT(ng)
           hisBid(itrc,ng) = 0
  
           IF (Hout(idBvar(itrc),ng)) THEN
 
-          Vinfo( 1)=Vname(1,idBvar(itrc))
-          Vinfo( 2)=Vname(2,idBvar(itrc))
-          Vinfo(3)=Vname(3,idBvar(itrc))
-          Vinfo(14)=Vname(4,idBvar(itrc))
-          Vinfo(16)=Vname(1,idtime)
-          Vinfo(22)='coordinates'
-          Aval(5)=REAL(r2dvar,r8)
-          status=def_var(ng,iNLM,ncHISid(ng),hisBid(itrc,ng),NF_FOUT,    &
+            Vinfo( 1)=Vname(1,idBvar(itrc))
+            Vinfo( 2)=Vname(2,idBvar(itrc))
+            Vinfo(3)=Vname(3,idBvar(itrc))
+            Vinfo(14)=Vname(4,idBvar(itrc))
+            Vinfo(16)=Vname(1,idtime)
+            Vinfo(22)='coordinates'
+            Aval(5)=REAL(r2dvar,r8)
+            status=def_var(ng,iNLM,ncHISid(ng),hisBid(itrc,ng),NF_FOUT, &
      &                     nvd3,t2dgrd,Aval,Vinfo,ncname)
 
 !Will need to switch this if have more than one depth level for benthos 
 !         status=def_var(ncHISid(ng),hisBid(itrc,ng),NF_FOUT,            &
 !    &                     nvd4,t3dgrd,Aval,Vinfo,ncname)
-               END IF
-            END DO
+          END IF
+        END DO
 #  endif
 !------------------------------------------
 !  Define ice bio tracer type variables.
 !------------------------------------------  
 #  if defined ICE_BIO
+#   ifdef CLIM_ICE_1D
 
-         DO itrc=1,NIceT(ng)
+        DO itrc=1,NIceT(ng)
 !         hisIceBid(itrc,ng) = 0
 
           IF (Hout(idIceBvar(itrc),ng)) THEN
 
-          Vinfo( 1)=Vname(1,idIceBvar(itrc))
-          Vinfo( 2)=Vname(2,idIceBvar(itrc))
-          Vinfo(3)=Vname(3,idIceBvar(itrc))
-          Vinfo(14)=Vname(4,idIceBvar(itrc))
-          Vinfo(16)=Vname(1,idtime)
-          Vinfo(22)='coordinates'
-          Aval(5)=REAL(r2dvar,r8)  
-          status=def_var(ng,iNLM,ncHISid(ng),hisIceBid(itrc,ng),NF_FOUT,            &
-     &                     nvd3,t2dgrd,Aval,Vinfo,ncname)
+            Vinfo( 1)=Vname(1,idIceBvar(itrc))
+            Vinfo( 2)=Vname(2,idIceBvar(itrc))
+            Vinfo(3)=Vname(3,idIceBvar(itrc))
+            Vinfo(14)=Vname(4,idIceBvar(itrc))
+            Vinfo(16)=Vname(1,idtime)
+            Vinfo(22)='coordinates'
+            Aval(5)=REAL(r2dvar,r8)  
+            status=def_var(ng,iNLM,ncHISid(ng),hisIceBid(itrc,ng),      &
+     &                    NF_FOUT, nvd3,t2dgrd,Aval,Vinfo,ncname)
 
 !Will need to switch this if have more than one depth level for benthos
 !         status=def_var(ncHISid(ng),hisBid(itrc,ng),NF_FOUT,            &
 !    &                     nvd4,t3dgrd,Aval,Vinfo,ncname)
-               END IF
-            END DO
+          END IF
+        END DO
+#  else
+!
+!  Define Ice Algae.
+!
+        IF (Hout(idIcePhL,ng)) THEN
+          Vinfo( 1)=Vname(1,idIcePhL)
+          Vinfo( 2)=Vname(2,idIcePhL)
+          Vinfo( 3)=Vname(3,idIcePhL)
+          Vinfo(14)=Vname(4,idIcePhL)
+          Vinfo(16)=Vname(1,idtime)
+#if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_rho'
+#endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idIcePhL,ng),r8)
+          status=def_var(ng, iNLM, ncHISid(ng), hisVid(idIcePhL,ng),    &
+     &                     NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+       IF (Hout(idIceNO3,ng)) THEN
+          Vinfo( 1)=Vname(1,idIceNO3)
+          Vinfo( 2)=Vname(2,idIceNO3)
+          Vinfo( 3)=Vname(3,idIceNO3)
+          Vinfo(14)=Vname(4,idIceNO3)
+          Vinfo(16)=Vname(1,idtime)
+#if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_rho'
+#endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idIceNO3,ng),r8)
+          status=def_var(ng, iNLM, ncHISid(ng), hisVid(idIceNO3,ng),    &
+     &                     NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+       IF (Hout(idIceNH4,ng)) THEN
+          Vinfo( 1)=Vname(1,idIceNH4)
+          Vinfo( 2)=Vname(2,idIceNH4)
+          Vinfo( 3)=Vname(3,idIceNH4)
+          Vinfo(14)=Vname(4,idIceNH4)
+          Vinfo(16)=Vname(1,idtime)
+#if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_rho'
+#endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idIceNH4,ng),r8)
+          status=def_var(ng, iNLM, ncHISid(ng), hisVid(idIceNH4,ng),    &
+     &                     NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+       IF (Hout(idIceLog,ng)) THEN
+          Vinfo( 1)=Vname(1,idIceLog)
+          Vinfo( 2)=Vname(2,idIceLog)
+          Vinfo( 3)=Vname(3,idIceLog)
+          Vinfo(14)=Vname(4,idIceLog)
+          Vinfo(16)=Vname(1,idtime)
+#if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_rho'
+#endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idIceLog,ng),r8)
+          status=def_var(ng, iNLM, ncHISid(ng), hisVid(idIceLog,ng),    &
+     &                     NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+#   endif
 #  endif
-
 # endif
-
 
 # if defined BIO_GOANPZ
 !------------------------------------------
@@ -1103,6 +1171,44 @@
      &                   NF_FOUT, nvd4, t3dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
+# ifdef NEMURO_SED1
+!
+!  Define PON in sediment.
+!
+        IF (Hout(idPONsed,ng)) THEN
+          Vinfo( 1)=Vname(1,idPONsed)
+          Vinfo( 2)=Vname(2,idPONsed)
+          Vinfo( 3)=Vname(3,idPONsed)
+          Vinfo(14)=Vname(4,idPONsed)
+          Vinfo(16)=Vname(1,idtime)
+#  if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_rho'
+#  endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idPONsed,ng),r8)
+          status=def_var(ng, iNLM, ncHISid(ng), hisVid(idPONsed,ng),    &
+     &                   NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+!
+!  Define OPAL in sediment.
+!
+        IF (Hout(idOPALsed,ng)) THEN
+          Vinfo( 1)=Vname(1,idOPALsed)
+          Vinfo( 2)=Vname(2,idOPALsed)
+          Vinfo( 3)=Vname(3,idOPALsed)
+          Vinfo(14)=Vname(4,idOPALsed)
+          Vinfo(16)=Vname(1,idtime)
+#  if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_rho'
+#  endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idOPALsed,ng),r8)
+          status=def_var(ng, iNLM, ncHISid(ng), hisVid(idOPALsed,ng),   &
+     &                   NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+# endif
 # ifdef LMD_SKPP
 !
 !  Define depth of surface boundary layer.
@@ -1169,7 +1275,6 @@
 !
 !  Define sea surface salinity flux correction
 !
-# ifdef WRT_SSSFLX
         IF (Hout(idSSSf,ng)) THEN
           Vinfo( 1)=Vname(1,idSSSf)
           Vinfo( 2)=Vname(2,idSSSf)
@@ -1181,11 +1286,10 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idSSSf,ng),r8)
-          status=def_var(ng, iNLM, ncHISid(ng), hisVid(idSSSf,ng),        &
+          status=def_var(ng, iNLM, ncHISid(ng), hisVid(idSSSf,ng),      &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
-# endif
 !
 !  Define vertical viscosity coefficient.
 !
@@ -1195,13 +1299,11 @@
           Vinfo( 3)=Vname(3,idVvis)
           Vinfo(14)=Vname(4,idVvis)
           Vinfo(16)=Vname(1,idtime)
-# if defined WRITE_WATER && defined MASKING
-          Vinfo(20)='mask_rho'
-# endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idVvis,ng),r8)
           status=def_var(ng, iNLM, ncHISid(ng), hisVid(idVvis,ng),      &
-     &                   NF_FOUT, nvd4, w3dgrd, Aval, Vinfo, ncname)
+     &                   NF_FOUT, nvd4, w3dgrd, Aval, Vinfo, ncname,    &
+     &                   SetFillVal = .FALSE.)
           IF (exit_flag.ne.NoError) RETURN
         END IF
 !
@@ -1213,13 +1315,11 @@
           Vinfo( 3)=Vname(3,idTdif)
           Vinfo(14)=Vname(4,idTdif)
           Vinfo(16)=Vname(1,idtime)
-# if defined WRITE_WATER && defined MASKING
-          Vinfo(20)='mask_rho'
-# endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idTdif,ng),r8)
           status=def_var(ng, iNLM, ncHISid(ng), hisVid(idTdif,ng),      &
-     &                   NF_FOUT, nvd4, w3dgrd, Aval, Vinfo, ncname)
+     &                   NF_FOUT, nvd4, w3dgrd, Aval, Vinfo, ncname,    &
+     &                   SetFillVal = .FALSE.)
           IF (exit_flag.ne.NoError) RETURN
         END IF
 # ifdef SALINITY
@@ -1232,13 +1332,11 @@
           Vinfo( 3)=Vname(3,idSdif)
           Vinfo(14)=Vname(4,idSdif)
           Vinfo(16)=Vname(1,idtime)
-#  if defined WRITE_WATER && defined MASKING
-          Vinfo(20)='mask_rho'
-#  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idSdif,ng),r8)
           status=def_var(ng, iNLM, ncHISid(ng), hisVid(idSdif,ng),      &
-     &                   NF_FOUT, nvd4, w3dgrd, Aval, Vinfo, ncname)
+     &                   NF_FOUT, nvd4, w3dgrd, Aval, Vinfo, ncname,    &
+     &                   SetFillVal = .FALSE.)
           IF (exit_flag.ne.NoError) RETURN
         END IF
 # endif
@@ -1252,13 +1350,11 @@
           Vinfo( 3)=Vname(3,idMtke)
           Vinfo(14)=Vname(4,idMtke)
           Vinfo(16)=Vname(1,idtime)
-#  if defined WRITE_WATER && defined MASKING
-          Vinfo(20)='mask_rho'
-#  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idMtke,ng),r8)
           status=def_var(ng, iNLM, ncHISid(ng), hisVid(idMtke,ng),      &
-     &                   NF_FOUT, nvd4, w3dgrd, Aval, Vinfo, ncname)
+     &                   NF_FOUT, nvd4, w3dgrd, Aval, Vinfo, ncname,    &
+     &                   SetFillVal = .FALSE.)
           IF (exit_flag.ne.NoError) RETURN
 #  ifdef FORWARD_WRITE
           Vinfo( 1)=Vname(1,idVmKK)
@@ -1285,13 +1381,11 @@
           Vinfo( 3)=Vname(3,idMtls)
           Vinfo(14)=Vname(4,idMtls)
           Vinfo(16)=Vname(1,idtime)
-#  if defined WRITE_WATER && defined MASKING
-          Vinfo(20)='mask_rho'
-#  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idMtls,ng),r8)
           status=def_var(ng, iNLM, ncHISid(ng), hisVid(idMtls,ng),      &
-     &                   NF_FOUT, nvd4, w3dgrd, Aval, Vinfo, ncname)
+     &                   NF_FOUT, nvd4, w3dgrd, Aval, Vinfo, ncname,    &
+     &                   SetFillVal = .FALSE.)
           IF (exit_flag.ne.NoError) RETURN
 #  ifdef FORWARD_WRITE
           Vinfo( 1)=Vname(1,idVmLS)
@@ -2627,7 +2721,7 @@
 #endif
 #ifdef WAVES_HEIGHT
 !
-!  Define Hwave.
+!  Define wind-induced significat wave height.
 !
         IF (Hout(idWamp,ng)) THEN
           Vinfo( 1)=Vname(1,idWamp)
@@ -2647,7 +2741,7 @@
 #endif
 #ifdef WAVES_LENGTH
 !
-!  Define Lwave.
+!  Define wind-induced mean wavelenght.
 !
         IF (Hout(idWlen,ng)) THEN
           Vinfo( 1)=Vname(1,idWlen)
@@ -2667,7 +2761,7 @@
 #endif
 #ifdef WAVES_DIR
 !
-!  Define Dwave.
+!  Define wind-induced wave direction.
 !
         IF (Hout(idWdir,ng)) THEN
           Vinfo( 1)=Vname(1,idWdir)
@@ -2681,6 +2775,88 @@
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idWdir,ng),r8)
           status=def_var(ng, iNLM, ncHISid(ng), hisVid(idWdir,ng),      &
+     &                   NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+#endif
+#ifdef WAVES_TOP_PERIOD
+!
+!  Define wind-induced surface wave period.
+!
+        IF (Hout(idWptp,ng)) THEN
+          Vinfo( 1)=Vname(1,idWptp)
+          Vinfo( 2)=Vname(2,idWptp)
+          Vinfo( 3)=Vname(3,idWptp)
+          Vinfo(14)=Vname(4,idWptp)
+          Vinfo(16)=Vname(1,idtime)
+# if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_rho'
+# endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idWptp,ng),r8)
+          status=def_var(ng, iNLM, ncHISid(ng), hisVid(idWptp,ng),      &
+     &                   NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+
+#endif
+#ifdef WAVES_BOT_PERIOD
+!
+!  Define wind-induced bottom wave period.
+!
+        IF (Hout(idWpbt,ng)) THEN
+          Vinfo( 1)=Vname(1,idWpbt)
+          Vinfo( 2)=Vname(2,idWpbt)
+          Vinfo( 3)=Vname(3,idWpbt)
+          Vinfo(14)=Vname(4,idWpbt)
+          Vinfo(16)=Vname(1,idtime)
+# if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_rho'
+# endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idWpbt,ng),r8)
+          status=def_var(ng, iNLM, ncHISid(ng), hisVid(idWpbt,ng),      &
+     &                   NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+
+#endif
+#ifdef WAVES_UB
+!
+!  Define wind-induced bottom orbital velocity.
+!
+        IF (Hout(idWorb,ng)) THEN
+          Vinfo( 1)=Vname(1,idWorb)
+          Vinfo( 2)=Vname(2,idWorb)
+          Vinfo( 3)=Vname(3,idWorb)
+          Vinfo(14)=Vname(4,idWorb)
+          Vinfo(16)=Vname(1,idtime)
+# if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_rho'
+# endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idWorb,ng),r8)
+          status=def_var(ng, iNLM, ncHISid(ng), hisVid(idWorb,ng),      &
+     &                   NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+#endif
+#if defined TKE_WAVEDISS || defined WAVES_OCEAN
+!
+!  Define wave dissipation.
+!
+        IF (Hout(idWdis,ng)) THEN
+          Vinfo( 1)=Vname(1,idWdis)
+          Vinfo( 2)=Vname(2,idWdis)
+          Vinfo( 3)=Vname(3,idWdis)
+          Vinfo(14)=Vname(4,idWdis)
+          Vinfo(16)=Vname(1,idtime)
+# if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_rho'
+# endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idWdis,ng),r8)
+          status=def_var(ng, iNLM, ncHISid(ng), hisVid(idWdis,ng),      &
      &                   NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -2851,6 +3027,14 @@
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idDano))) THEN
             got_var(idDano)=.TRUE.
             hisVid(idDano,ng)=var_id(i)
+# ifdef NEMURO_SED1
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idPONsed))) THEN
+            got_var(idPONsed)=.TRUE.
+            hisVid(idPONsed,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idOPALsed))) THEN
+            got_var(idOPALsed)=.TRUE.
+            hisVid(idOPALsed,ng)=var_id(i)
+# endif
 # ifdef LMD_SKPP
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idHsbl))) THEN
             got_var(idHsbl)=.TRUE.
@@ -2861,11 +3045,9 @@
             got_var(idHbbl)=.TRUE.
             hisVid(idHbbl,ng)=var_id(i)
 # endif
-# ifdef WRT_SSSFLX
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idSSSf))) THEN
             got_var(idSSSf)=.TRUE.
             hisVid(idSSSf,ng)=var_id(i)
-# endif
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idVvis))) THEN
             got_var(idVvis)=.TRUE.
             hisVid(idVvis,ng)=var_id(i)
@@ -2985,6 +3167,20 @@
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idHsno))) THEN
             got_var(idHsno)=.true.
             hisVid(idHsno,ng)=var_id(i)
+# if defined ICE_BIO
+         ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idIcePhL))) THEN
+            got_var(idIcePhL)=.true.
+            hisVid(idIcePhL,ng)=var_id(i)
+         ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idIceNO3))) THEN
+            got_var(idIceNO3)=.true.
+            hisVid(idIceNO3,ng)=var_id(i)
+         ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idIceNH4))) THEN
+            got_var(idIceNH4)=.true.
+            hisVid(idIceNH4,ng)=var_id(i)
+         ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idIceLog))) THEN
+            got_var(idIceLog)=.true.
+            hisVid(idIceLog,ng)=var_id(i)
+# endif
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idSfwat))) THEN
             got_var(idSfwat)=.true.
             hisVid(idSfwat,ng)=var_id(i)
@@ -3100,6 +3296,26 @@
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idWdir))) THEN
             got_var(idWdir)=.TRUE.
             hisVid(idWdir,ng)=var_id(i)
+#endif
+#ifdef WAVES_TOP_PERIOD
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idWptp))) THEN
+            got_var(idWptp)=.TRUE.
+            hisVid(idWptp,ng)=var_id(i)
+#endif
+#ifdef WAVES_BOT_PERIOD
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idWpbt))) THEN
+            got_var(idWpbt)=.TRUE.
+            hisVid(idWpbt,ng)=var_id(i)
+#endif
+#ifdef WAVES_UB
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idWorb))) THEN
+            got_var(idWorb)=.TRUE.
+            hisVid(idWorb,ng)=var_id(i)
+#endif
+#if defined TKE_WAVEDISS || defined WAVES_OCEAN
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idWdis))) THEN
+            got_var(idWdis)=.TRUE.
+            hisVid(idWdis,ng)=var_id(i)
 #endif
           END IF
 #ifdef SOLVE3D
@@ -3286,6 +3502,20 @@
           exit_flag=3
           RETURN
         END IF
+# ifdef NEMURO_SED1
+        IF (.not.got_var(idPONsed).and.Hout(idPONsed,ng)) THEN
+          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idPONsed)),        &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idOPALsed).and.Hout(idOPALsed,ng)) THEN
+          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idOPALsed)),       &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+# endif
 # ifdef LMD_SKPP
         IF (.not.got_var(idHsbl).and.Hout(idHsbl,ng)) THEN
           IF (Master) WRITE (stdout,60) TRIM(Vname(1,idHsbl)),          &
@@ -3302,14 +3532,12 @@
           RETURN
         END IF
 # endif
-# ifdef WRT_SSSFLX
         IF (.not.got_var(idSSSf).and.Hout(idSSSf,ng)) THEN
           IF (Master) WRITE (stdout,60) TRIM(Vname(1,idSSSf)),          &
      &                                  TRIM(ncname)
           exit_flag=3
           RETURN
         END IF
-# endif
         IF (.not.got_var(idVvis).and.Hout(idVvis,ng)) THEN
           IF (Master) WRITE (stdout,60) TRIM(Vname(1,idVvis)),          &
      &                                  TRIM(ncname)
@@ -3536,6 +3764,14 @@
           exit_flag=3
           RETURN
         END IF
+# if defined ICE_BIO
+        IF (.not.got_var(idIcePhL).and.Hout(idIcePhL,ng)) THEN
+          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idIcePhL)),        &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF            
+# endif
         IF (.not.got_var(idSfwat).and.Hout(idSfwat,ng)) THEN
           IF (Master) WRITE (stdout,60) TRIM(Vname(1,idSfwat)),         &
      &                                  TRIM(ncname)
@@ -3632,7 +3868,7 @@
           exit_flag=3
           RETURN
         END IF
-# endif
+#endif
 #if defined NEARSHORE_MELLOR
         IF (.not.got_var(idW2xx).and.Hout(idW2xx,ng)) THEN
           IF (Master) WRITE (stdout,60) TRIM(Vname(1,idW2xx)),          &
@@ -3752,6 +3988,38 @@
 #ifdef WAVES_DIR
         IF (.not.got_var(idWdir).and.Hout(idWdir,ng)) THEN
           IF (Master) WRITE (stdout,60) TRIM(Vname(1,idWdir)),          &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+#endif
+#ifdef WAVES_TOP_PERIOD
+        IF (.not.got_var(idWptp).and.Hout(idWptp,ng)) THEN
+          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idWptp)),          &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+#endif
+#ifdef WAVES_BOT_PERIOD
+        IF (.not.got_var(idWpbt).and.Hout(idWpbt,ng)) THEN
+          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idWpbt)),          &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+#endif
+#ifdef WAVES_UB
+        IF (.not.got_var(idWorb).and.Hout(idWorb,ng)) THEN
+          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idWorb)),          &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+#endif
+#if defined TKE_WAVEDISS || defined WAVES_OCEAN
+        IF (.not.got_var(idWdis).and.Hout(idWdis,ng)) THEN
+          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idWdis)),          &
      &                                  TRIM(ncname)
           exit_flag=3
           RETURN

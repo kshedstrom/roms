@@ -19,6 +19,7 @@
       USE mod_scalars
       USE mod_fleet
       USE mod_biology
+      USE mod_fish
       USE mod_grid
       USE nrutil
 # ifdef DISTRIBUTE
@@ -103,6 +104,7 @@
       USE mod_parallel
       USE mod_biology
       USE mod_fleet
+      USE mod_fish
       USE mod_iounits
       USE mod_ncparam
       USE mod_scalars

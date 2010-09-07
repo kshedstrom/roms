@@ -2,9 +2,9 @@
 #if defined FOUR_DVAR || defined VERIFICATION
       SUBROUTINE def_mod (ng)
 !
-!svn $Id: def_mod.F 1101 2009-11-19 00:56:17Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -56,8 +56,9 @@
 
       real(r8) :: Aval(6)
 
-      character (len=80) :: Vinfo(Natt)
-      character (len=80) :: ncname, type
+      character (len=80 ) :: type
+      character (len=120) :: Vinfo(Natt)
+      character (len=256) :: ncname
 !
       SourceFile='def_mod.F'
 !
@@ -148,13 +149,14 @@
         IF (exit_flag.ne.NoError) RETURN
 #   endif
 #  endif
-
+#  if defined IS4DVAR || defined BACKGROUND
         status=def_dim(ng, iNLM, ncMODid(ng), ncname, 'iteration',      &
      &                 nf90_unlimited, iterDim)
         IF (exit_flag.ne.NoError) RETURN
 !
         CostDim(1)=stateDim
         CostDim(2)=iterDim
+#  endif
 # endif
 !
 !-----------------------------------------------------------------------
@@ -345,7 +347,7 @@
      &                 1, (/0/), Aval, Vinfo, ncname,                   &
      &                 SetParAccess = .FALSE.)
         IF (exit_flag.ne.NoError) RETURN
-
+!
         Vinfo( 1)='inner'
         Vinfo( 2)='inner loop counter'
         status=def_var(ng, iNLM, ncMODid(ng), varid, nf90_int,          &
@@ -353,7 +355,7 @@
      &                 SetParAccess = .FALSE.)
         IF (exit_flag.ne.NoError) RETURN
 # endif
-# ifndef OBS_SENSITIVITY
+# ifndef IS4DVAR_SENSITIVITY
 !
 !  Define model-observation comparison statistics.
 !
@@ -363,56 +365,56 @@
      &                 1, (/stateDim/), Aval, Vinfo, ncname,            &
      &                 SetParAccess = .FALSE.)
         IF (exit_flag.ne.NoError) RETURN
-
+!
         Vinfo( 1)='obs_mean'
         Vinfo( 2)='observations mean'
         status=def_var(ng, iNLM, ncMODid(ng), varid, NF_FRST,           &
      &                 1, (/stateDim/), Aval, Vinfo, ncname,            &
      &                 SetParAccess = .FALSE.)
         IF (exit_flag.ne.NoError) RETURN
-
+!
         Vinfo( 1)='obs_std'
         Vinfo( 2)='observations standard deviation'
         status=def_var(ng, iNLM, ncMODid(ng), varid, NF_FRST,           &
      &                 1, (/stateDim/), Aval, Vinfo, ncname,            &
      &                 SetParAccess = .FALSE.)
         IF (exit_flag.ne.NoError) RETURN
-
+!
         Vinfo( 1)='model_mean'
         Vinfo( 2)='model mean'
         status=def_var(ng, iNLM, ncMODid(ng), varid, NF_FRST,           &
      &                 1, (/stateDim/), Aval, Vinfo, ncname,            &
      &                 SetParAccess = .FALSE.)
         IF (exit_flag.ne.NoError) RETURN
-
+!
         Vinfo( 1)='model_std'
         Vinfo( 2)='model standard deviation'
         status=def_var(ng, iNLM, ncMODid(ng), varid, NF_FRST,           &
      &                 1, (/stateDim/), Aval, Vinfo, ncname,            &
      &                 SetParAccess = .FALSE.)
         IF (exit_flag.ne.NoError) RETURN
-
+!
         Vinfo( 1)='model_bias'
         Vinfo( 2)='model bias'
         status=def_var(ng, iNLM, ncMODid(ng), varid, NF_FRST,           &
      &                 1, (/stateDim/), Aval, Vinfo,ncname,             &
      &                 SetParAccess = .FALSE.)
         IF (exit_flag.ne.NoError) RETURN
-
+!
         Vinfo( 1)='SDE'
         Vinfo( 2)='model-observations standard deviation error'
         status=def_var(ng, iNLM, ncMODid(ng), varid, NF_FRST,           &
      &                 1, (/stateDim/), Aval, Vinfo, ncname,            &
      &                 SetParAccess = .FALSE.)
         IF (exit_flag.ne.NoError) RETURN
-
+!
         Vinfo( 1)='CC'
         Vinfo( 2)='model-observations cross-correlation'
         status=def_var(ng, iNLM, ncMODid(ng), varid, NF_FRST,           &
      &                 1, (/stateDim/), Aval, Vinfo, ncname,            &
      &                 SetParAccess = .FALSE.)
         IF (exit_flag.ne.NoError) RETURN
-
+!
         Vinfo( 1)='MSE'
         Vinfo( 2)='model-observations mean squared error'
         status=def_var(ng, iNLM, ncMODid(ng), varid, NF_FRST,           &
@@ -425,7 +427,7 @@
 !  Number of converged Ritz eigenvalues.
 !
         Vinfo( 1)='nConvRitz'
-        Vinfo( 2)='Number of converged Ritz eigenvalues'
+        Vinfo( 2)='number of converged Ritz eigenvalues'
         status=def_var(ng, iNLM, ncMODid(ng), varid, nf90_int,          &
      &                 1, (/0/), Aval, Vinfo, ncname,                   &
      &                 SetParAccess = .FALSE.)
@@ -435,9 +437,26 @@
 !  Number of converged Ritz eigenvalues.
 !
         Vinfo( 1)='nConvRitz'
-        Vinfo( 2)='Number of converged Ritz eigenvalues'
+        Vinfo( 2)='number of converged Ritz eigenvalues'
         status=def_var(ng, iNLM, ncMODid(ng), varid, nf90_int,          &
      &                 1, (/Nouterdim/), Aval, Vinfo, ncname,           &
+     &                 SetParAccess = .FALSE.)
+        IF (exit_flag.ne.NoError) RETURN
+# endif
+# if defined WEAK_CONSTRAINT && \
+    (defined ARRAY_MODES     || defined CLIPPING)
+!
+!  Number of converged Ritz eigenvalues.
+!
+        Vinfo( 1)='Nvct'
+#  if defined ARRAY_MODES
+        Vinfo( 2)='representer matrix array mode eigenvector '//        &
+     &            'processed'
+#  elif defined CLIPPING
+        Vinfo( 2)='representer matric cut-off eigenvectors'
+#  endif
+        status=def_var(ng, iNLM, ncMODid(ng), varid, nf90_int,          &
+     &                 1, (/0/), Aval, Vinfo, ncname,                   &
      &                 SetParAccess = .FALSE.)
         IF (exit_flag.ne.NoError) RETURN
 # endif
@@ -489,7 +508,9 @@
      &                 2, vardim, Aval, Vinfo, ncname,                  &
      &                 SetParAccess = .FALSE.)
         IF (exit_flag.ne.NoError) RETURN
+
 #  ifdef WEAK_CONSTRAINT
+!
         Vinfo( 1)='cg_dla'
         Vinfo( 2)='normalization coefficients for Lanczos vectors'
         vardim(1)=NinnerDim
@@ -500,6 +521,7 @@
         IF (exit_flag.ne.NoError) RETURN
 #  endif
 #  ifdef IS4DVAR
+!
         Vinfo( 1)='cg_gamma'
         Vinfo( 2)='Lanczos algorithm gamma coefficient'
         vardim(1)=NinnerDim
@@ -530,7 +552,7 @@
      &                 1, (/NouterDim/), Aval, Vinfo, ncname,           &
      &                 SetParAccess = .FALSE.)
         IF (exit_flag.ne.NoError) RETURN
-
+!
         Vinfo( 1)='cg_Gnorm_y'
         Vinfo( 2)='initial gradient normalization factor, y-space'
         status=def_var(ng, iNLM, ncMODid(ng), varid, NF_FRST,           &
@@ -575,7 +597,7 @@
      &                 2, vardim, Aval, Vinfo, ncname,                  &
      &                 SetParAccess = .FALSE.)
         IF (exit_flag.ne.NoError) RETURN
-
+!
         Vinfo( 1)='cg_Greduc_y'
         Vinfo( 2)='reduction in the gradient norm, y-space'
         vardim(1)=NinnerDim
@@ -660,14 +682,43 @@
      &                 SetParAccess = .FALSE.)
         IF (exit_flag.ne.NoError) RETURN
 # endif
-# if defined TL_W4DVAR || defined W4DVAR || defined W4DVAR_SENSITIVITY
+# if defined TL_W4DPSAS          || defined W4DPSAS || \
+     defined W4DPSAS_SENSITIVITY
 !
-!  Define RPM data penalty function.
+!  Define NLM initial and final data penalty function.
 !
-        Vinfo( 1)='RPcost_function'
-        Vinfo( 2)='representer model data penalty function'
+        Vinfo( 1)='NL_iDataPenalty'
+        Vinfo( 2)='nonlinear model initial data penalty function'
         status=def_var(ng, iNLM, ncMODid(ng), varid, nf90_double,       &
-     &                 1, (/NouterDim/), Aval, Vinfo, ncname,           &
+     &                 1, (/stateDim/), Aval, Vinfo, ncname,            &
+     &                 SetParAccess = .FALSE.)
+        IF (exit_flag.ne.NoError) RETURN
+!
+        Vinfo( 1)='NL_fDataPenalty'
+        Vinfo( 2)='nonlinear model final data penalty function'
+        status=def_var(ng, iNLM, ncMODid(ng), varid, nf90_double,       &
+     &                 2, (/stateDim,NouterDim/), Aval, Vinfo, ncname,  &
+     &                 SetParAccess = .FALSE.)
+        IF (exit_flag.ne.NoError) RETURN
+# endif
+# if (defined RECOMPUTE_4DVAR   && \
+     (defined ARRAY_MODES       || defined CLIPPING)) || \
+     defined TL_W4DVAR          || defined W4DVAR     || \
+     defined W4DVAR_SENSITIVITY
+!
+!  Define RPM initial and final data penalty function.
+!
+        Vinfo( 1)='RP_iDataPenalty'
+        Vinfo( 2)='representer model initial data penalty function'
+        status=def_var(ng, iNLM, ncMODid(ng), varid, nf90_double,       &
+     &                 2, (/stateDim,NouterDim/), Aval, Vinfo, ncname,  &
+     &                 SetParAccess = .FALSE.)
+        IF (exit_flag.ne.NoError) RETURN
+!
+        Vinfo( 1)='RP_fDataPenalty'
+        Vinfo( 2)='representer model final data penalty function'
+        status=def_var(ng, iNLM, ncMODid(ng), varid, nf90_double,       &
+     &                 2, (/stateDim,NouterDim/), Aval, Vinfo, ncname,  &
      &                 SetParAccess = .FALSE.)
         IF (exit_flag.ne.NoError) RETURN
 # endif
@@ -759,7 +810,7 @@
      &                 NF_FRST, 1, (/datumDim/), Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 
-# if defined FOUR_DVAR && !defined OBS_SENSITIVITY
+# if defined FOUR_DVAR && !defined IS4DVAR_SENSITIVITY
 !
 !  Initial nonlinear model at observation locations.
 !
@@ -769,7 +820,7 @@
      &                 NF_FRST, 1, (/datumDim/), Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 # endif
-# ifndef OBS_SENSITIVITY
+# ifndef IS4DVAR_SENSITIVITY
 !
 !  Nonlinear model at observation points.
 !
@@ -780,14 +831,14 @@
      &                 NF_FRST, 1, (/datumDim/), Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 # endif
-# if defined IS4DVAR         || defined OBS_SENSITIVITY || \
+# if defined IS4DVAR         || defined IS4DVAR_SENSITIVITY || \
      defined WEAK_CONSTRAINT
 !
 !  Tangent linear or representer model at observation points.
 !
         haveTLmod(ng)=.FALSE.
         Vinfo( 1)=Vname(1,idTLmo)
-#  ifdef OBS_SENSITIVITY
+#  ifdef IS4DVAR_SENSITIVITY
         Vinfo( 2)='4DVAR sensitivity analysis at observations location'
 #  else
         Vinfo( 2)=Vname(2,idTLmo)
@@ -901,6 +952,66 @@
         status=def_var(ng, iNLM, ncMODid(ng), varid, nf90_double,       &
      &                 1, vardim, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
+# endif
+# if defined W4DVAR_SENSITIVITY  || defined W4DPSAS_SENSITIVITY || \
+     defined IS4DVAR_SENSITIVITY
+#  ifdef OBS_IMPACT
+!
+!  Define total observations impact.
+!
+        Vinfo( 1)='ObsImpact_total'
+        Vinfo( 2)='total observation impact'
+        vardim(1)=datumDim
+        status=def_var(ng, iNLM, ncMODid(ng), varid, nf90_double,       &
+     &                 1, vardim, Aval, Vinfo, ncname)
+        IF (exit_flag.ne.NoError) RETURN
+#  else
+!
+!  Define total observation sensitivity.
+!
+        Vinfo( 1)='ObsSens_total'
+        Vinfo( 2)='total observation sensitivity'
+        vardim(1)=datumDim
+        status=def_var(ng, iNLM, ncMODid(ng), varid, nf90_double,       &
+     &                 1, vardim, Aval, Vinfo, ncname)
+        IF (exit_flag.ne.NoError) RETURN
+#  endif
+# endif
+# if defined OBS_IMPACT_SPLIT     && \
+     (defined W4DVAR_SENSITIVITY  || defined W4DPSAS_SENSITIVITY || \
+      defined IS4DVAR_SENSITIVITY)
+!
+!  Define observation impact due to initial condition increments.
+!
+        Vinfo( 1)='ObsImpact_IC'
+        Vinfo( 2)='observation impact due to initial conditions'
+        vardim(1)=datumDim
+        status=def_var(ng, iNLM, ncMODid(ng), varid, nf90_double,       &
+     &                 1, vardim, Aval, Vinfo, ncname)
+        IF (exit_flag.ne.NoError) RETURN
+
+#  if defined ADJUST_WSTRESS || defined ADJUST_STFLUX
+!
+!  Define observation impact due to surface forcing increments.
+!
+        Vinfo( 1)='ObsImpact_FC'
+        Vinfo( 2)='observation impact due to surface forcing'
+        vardim(1)=datumDim
+        status=def_var(ng, iNLM, ncMODid(ng), varid, nf90_double,       &
+     &                 1, vardim, Aval, Vinfo, ncname)
+        IF (exit_flag.ne.NoError) RETURN
+#  endif
+#  if defined ADJUST_BOUNDARY
+!
+!  Define observation impact due to boundary condition increments.
+!
+        Vinfo( 1)='ObsImpact_BC'
+        Vinfo( 2)='observation impact due to open boundary conditions'
+        vardim(1)=datumDim
+        status=def_var(ng, iNLM, ncMODid(ng), varid, nf90_double,       &
+     &                 1, vardim, Aval, Vinfo, ncname)
+        IF (exit_flag.ne.NoError) RETURN
+#  endif
 # endif
 # if defined BALANCE_OPERATOR && defined ZETA_ELLIPTIC
 !

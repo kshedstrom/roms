@@ -2,9 +2,9 @@
 #if defined PROPAGATOR && defined CHECKPOINTING
       SUBROUTINE wrt_gst (ng, model)
 !
-!svn $Id: wrt_gst.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -45,8 +45,6 @@
 
       character (len=6) :: var
 # endif
-      character (len=1) :: lchar(5)
-!
       SourceFile='wrt_gst.F'
 !
 !-----------------------------------------------------------------------
@@ -172,29 +170,15 @@
 !
 !  Write ARPACK internal logical parameters to _aitr routines.
 !
-      DO i=1,SIZE(laitr)
-        IF (laitr(i)) THEN
-          lchar(i)='T'
-        ELSE
-          lchar(i)='F'
-        END IF
-      END DO
-      CALL netcdf_put_svar (ng, model, GSTname(ng), 'laitr',            &
-     &                      lchar, (/1/), (/SIZE(laitr)/),              &
+      CALL netcdf_put_lvar (ng, model, GSTname(ng), 'laitr',            &
+     &                      laitr, (/1/), (/SIZE(laitr)/),              &
      &                      ncid = ncGSTid(ng))
       IF (exit_flag.ne.NoError) RETURN
 !
 !  Write ARPACK internal logical parameters to _aupd routines.
 !
-      DO i=1,SIZE(laup2)
-        IF (laup2(i)) THEN
-          lchar(i)='T'
-        ELSE
-          lchar(i)='F'
-        END IF
-      END DO
-      CALL netcdf_put_svar (ng, model, GSTname(ng), 'laup2',            &
-     &                      lchar, (/1/), (/SIZE(laup2)/),              &
+      CALL netcdf_put_lvar (ng, model, GSTname(ng), 'laup2',            &
+     &                      laup2, (/1/), (/SIZE(laup2)/),              &
      &                      ncid = ncGSTid(ng))
       IF (exit_flag.ne.NoError) RETURN
 !
@@ -278,7 +262,7 @@
       CALL netcdf_put_fvar (ng, model, GSTname(ng), 'SworkL',           &
      &                      SworkL, (/1/), (/LworkL/),                  &
      &                      ncid = ncGSTid(ng))
-# endif 
+# endif
       IF (exit_flag.ne.NoError) RETURN
 !
 !-----------------------------------------------------------------------

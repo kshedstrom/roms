@@ -2,9 +2,9 @@
       MODULE ad_zetabc_mod
 #ifdef ADJOINT
 !
-!svn $Id: ad_zetabc.F 993 2009-05-29 20:56:30Z arango $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -216,7 +216,7 @@
 !>          tl_zeta(Istr-1,j,kout)=-GRID(ng)%tl_h(Istr-1,j)
 !>
             GRID(ng)%ad_h(Istr-1,j)=GRID(ng)%ad_h(Istr-1,j)-            &
-     &                              ad_zeta(Istr-1,j,kout)  
+     &                              ad_zeta(Istr-1,j,kout)
             ad_zeta(Istr-1,j,kout)=0.0_r8
           END IF
         END DO

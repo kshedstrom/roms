@@ -8,12 +8,12 @@
      &                               IminS, ImaxS, JminS, JmaxS,        &
      &                               Zscale, Z, tl_Z, tl_swdk)
 !
-!svn $Id: tl_lmd_swfrac.F 889 2009-01-09 21:27:08Z arango $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
-!======================================================================= 
+!=======================================================================
 !                                                                      !
 !  This routine computes the  tangent linear  fraction of solar        !
 !  shortwave flux penetrating to specified depth (times Zscale)        !

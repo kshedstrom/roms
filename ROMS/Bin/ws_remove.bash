@@ -1,8 +1,8 @@
 #!/bin/bash
 #
-# svn $Id: ws_remove.bash 1087 2009-10-21 00:21:28Z kate $
+# svn $Id$
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-# Copyright (c) 2002-2008 The ROMS/TOMS Group                           :::
+# Copyright (c) 2002-2010 The ROMS/TOMS Group                           :::
 #   Licensed under a MIT/X style license                                :::
 #   See License_ROMS.txt                                                :::
 #:::::::::::::::::::::::::::::::::::::::::::::::::::::: David Robertson :::
@@ -15,7 +15,7 @@
 #                                                                       :::
 # Usage:                                                                :::
 #                                                                       :::
-#    ./ws_remove.sh [options]                                           :::
+#    ws_remove.bash [options]                                           :::
 #                                                                       :::
 # Options:                                                              :::
 #                                                                       :::
@@ -97,7 +97,7 @@ do
         exit 1
       fi
     ;;
-    
+
     * )
       cmd=`basename $0`
       echo ""

@@ -2,9 +2,9 @@
 #if defined NEMURO_SAN && defined PREDATOR
       SUBROUTINE def_pred (ng, ldef)
 !
-!svn $Id: def_pred.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -17,6 +17,8 @@
       USE mod_param
       USE mod_parallel
       USE mod_pred
+      USE mod_fish
+      USE mod_biology
 # ifdef FOUR_DVAR
       USE mod_fourdvar
 # endif

@@ -2,9 +2,9 @@
 #ifdef ADJOINT
       SUBROUTINE ad_set_data (ng, tile)
 !
-!svn $Id: ad_set_data.F 1098 2009-11-18 17:54:22Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -44,9 +44,9 @@
 !
       USE mod_param
       USE mod_boundary
-# if defined AD_SENSITIVITY    || defined CLIMATOLOGY      || \
-     defined OBS_SENSITIVITY   || defined OPT_OBSERVATIONS || \
-     defined SENSITIVITY_4DVAR || defined SO_SEMI
+# if defined AD_SENSITIVITY      || defined CLIMATOLOGY      || \
+     defined IS4DVAR_SENSITIVITY || defined OPT_OBSERVATIONS || \
+     defined SENSITIVITY_4DVAR   || defined SO_SEMI
       USE mod_clima
 # endif
 # if defined FORWARD_READ && defined SOLVE3D
@@ -679,18 +679,12 @@
 #   endif
 #   if defined TS_PSOURCE && defined SOLVE3D
         DO itrc=1,NT(ng)
-          IF (SOURCES(ng)%Ltracer(itrc)) THEN
+          IF (LtracerSrc(itrc,ng)) THEN
             CALL set_ngfldr (ng, iADM, idRtrc(itrc), 1, Nsrc(ng), N(ng),&
      &                       1, Nsrc(ng), N(ng),                        &
      &                       SOURCES(ng) % TsrcG(1,1,1,itrc),           &
      &                       SOURCES(ng) % Tsrc(1,1,itrc),              &
      &                       update)
-            IF (.not.update) THEN
-              DO i=1,Nsrc(ng)
-                SOURCES(ng) % Lsrc(i,itrc)=.FALSE.
-              END DO
-              exit_flag=0
-            END IF
           END IF
         END DO
 #   endif
@@ -1049,30 +1043,6 @@
      &                      CLIMA(ng)%vclm,                             &
      &                      update)
 #  endif
-# endif
-
-# if defined NUDGING_SSH
-!
-!-----------------------------------------------------------------------
-!  Set sea surface height observations and error variance.
-!-----------------------------------------------------------------------
-!
-      IF (assi_SSH(ng)) THEN
-        CALL set_2dfldr_tile (ng, tile, iADM, idSSHo,                   &
-     &                        LBi, UBi, LBj, UBj,                       &
-     &                        OBS(ng)%SSHdat,                           &
-     &                        OBS(ng)%SSHobs,                           &
-     &                        update)
-        CALL set_2dfldr_tile (ng, tile, iADM, idSSHe,                   &
-     &                        LBi, UBi, LBj, UBj,                       &
-     &                        OBS(ng)%EdatSSH,                          &
-     &                        OBS(ng)%EobsSSH,                          &
-     &                        update)
-        IF (.not.update.and.SOUTH_WEST_TEST) THEN
-          update_SSH(ng)=.FALSE.
-          exit_flag=0
-        END IF
-      END IF
 # endif
 
 # ifdef SOLVE3D
@@ -1541,8 +1511,8 @@
 #  endif
 # endif
 
-# if defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
-     defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR || \
+# if defined AD_SENSITIVITY   || defined IS4DVAR_SENSITIVITY || \
+     defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR   || \
      defined SO_SEMI
 !
 !-----------------------------------------------------------------------
@@ -1617,9 +1587,9 @@
 #  endif
 # endif
 
-# if defined ADJUST_STFLUX    || defined ADJUST_WSTRESS    || \
-     defined AD_SENSITIVITY   || defined OBS_SENSITIVITY   || \
-     defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR || \
+# if defined ADJUST_STFLUX    || defined ADJUST_WSTRESS      || \
+     defined AD_SENSITIVITY   || defined IS4DVAR_SENSITIVITY || \
+     defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR   || \
      defined SO_SEMI
 !
 !-----------------------------------------------------------------------

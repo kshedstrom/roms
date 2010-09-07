@@ -3,9 +3,9 @@
 
 #if defined FOUR_DVAR || defined VERIFICATION
 !
-!svn $Id: mod_fourdvar.F 1098 2009-11-18 17:54:22Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -120,6 +120,33 @@
           real(r8), pointer :: NLPenalty(:)
 #   endif
           real(r8), pointer :: NLobsCost(:)
+
+#   if defined BALANCE_OPERATOR && defined ZETA_ELLIPTIC
+          real(r8), pointer :: bc_ak(:)
+          real(r8), pointer :: bc_bk(:)
+
+          real(r8), pointer :: zdf1(:)
+          real(r8), pointer :: zdf2(:)
+          real(r8), pointer :: zdf3(:)
+
+          real(r8), pointer :: pc_r2d(:,:)
+          real(r8), pointer :: rhs_r2d(:,:)
+          real(r8), pointer :: r2d_ref(:,:)
+          real(r8), pointer :: zeta_ref(:,:)
+
+          real(r8), pointer :: p_r2d(:,:,:)
+          real(r8), pointer :: r_r2d(:,:,:)
+          real(r8), pointer :: bp_r2d(:,:,:)
+          real(r8), pointer :: br_r2d(:,:,:)
+
+          real(r8), pointer :: tl_rhs_r2d(:,:)
+          real(r8), pointer :: tl_r2d_ref(:,:)
+          real(r8), pointer :: tl_zeta_ref(:,:)
+
+          real(r8), pointer :: ad_rhs_r2d(:,:)
+          real(r8), pointer :: ad_r2d_ref(:,:)
+          real(r8), pointer :: ad_zeta_ref(:,:)
+#   endif
 #  endif
           real(r8), pointer :: ObsVar(:)
           real(r8), pointer :: SurveyTime(:)
@@ -145,9 +172,10 @@
         real(r8), allocatable :: NLmodVal(:)
 #  ifdef TLM_OBS
         real(r8), allocatable :: TLmodVal(:)
-#   if defined SENSITIVITY_4DVAR    || defined TL_W4DPSAS || \
-       defined TL_W4DVAR            || defined W4DPSAS    || \
-       defined W4DVAR
+#   if defined SENSITIVITY_4DVAR    || defined TL_W4DPSAS  || \
+       defined TL_W4DVAR            || defined W4DPSAS     || \
+       defined W4DVAR               || defined ARRAY_MODES || \
+       defined CLIPPING
         real(r8), allocatable :: TLmodVal_S(:,:,:)
 #   endif
 #   if defined TL_W4DPSAS           || defined W4DPSAS    || \
@@ -270,6 +298,15 @@
 !
         integer :: NpostI
 !
+!  Parameter to either process the eigenvector of the stabilized
+!  representer matrix to whe computing array modes (Nvct=1 less
+!  important eigenvector, Nvct=Ninner most important eigenvector)
+!  or cut-off eigenvector for the clipped analysis when (only
+!  eigenvector Nvct:Ninner to will be processed, others will be
+!  disgarded).
+!
+        integer :: Nvct
+!
 !  Optimal, normalized cost funtion minimum.  If the statistical
 !  hypotheses between the background and observations errors
 !  is consistemt, the cost function value at the minimum, Jmin,
@@ -302,6 +339,37 @@
 !  misfit (innovation) vector into 4DVAR output NetCDF file.
 !
         logical, dimension(Ngrids) :: wrtMisfit
+
+# if defined IS4DVAR_SENSITIVITY
+#  ifdef OBS_IMPACT
+!
+!  Switch to control the writing of the total observation impact for
+!  incremental 4D-Var.
+!
+        logical, dimension(Ngrids) :: wrtIMPACT_TOT
+#  endif
+#  ifdef OBS_IMPACT_SPLIT
+!
+!  Switch to control the writing of the observation impact for initial
+!  conditions for incremental 4D-Var.
+!
+        logical, dimension(Ngrids) :: wrtIMPACT_IC
+#   if defined ADJUST_WSTRESS || defined ADJUST_STFLUX
+!
+!  Switch to control the writing of the observation impact for surface
+!  forcing for incremental 4D-Var.
+!
+        logical, dimension(Ngrids) :: wrtIMPACT_FC
+#   endif
+#   if defined ADJUST_BOUNDARY
+!
+!  Switch to control the writing of the observation impact for surface
+!  forcing for incremental 4D-Var.
+!
+        logical, dimension(Ngrids) :: wrtIMPACT_BC
+#   endif
+#  endif
+# endif
 !
 !  Swiches indicating that there is representer coeffiecients,
 !  nonlinear, and tangent linear model data available to process
@@ -474,7 +542,7 @@
         real(r8), allocatable :: zLanczos_err(:,:)     ! error, identity
 #  endif
 # endif
-# if defined OBS_SENSITIVITY
+# if defined IS4DVAR_SENSITIVITY
 !
 !-----------------------------------------------------------------------
 !  Lanczos algorithm coefficients.
@@ -602,7 +670,11 @@
 !  Local variable declarations.
 !
       integer :: my_NstateVar, i, ng
+# if defined BALANCE_OPERATOR && defined ZETA_ELLIPTIC
+      integer :: LBi, UBi, LBj, UBj
 
+      integer, parameter :: tile = 0
+# endif
       real(r8), parameter :: IniVal = 0.0_r8
 !
       SourceFile='mod_fourdvar.F, initialize_fourdvar'
@@ -656,6 +728,12 @@
 !
       DO ng=1,Ngrids
 
+#  if defined BALANCE_OPERATOR && defined ZETA_ELLIPTIC
+        LBi=BOUNDS(ng)%LBi(TILE)
+        UBi=BOUNDS(ng)%UBi(TILE)
+        LBj=BOUNDS(ng)%LBj(TILE)
+        UBj=BOUNDS(ng)%UBj(TILE)
+#  endif
 #  ifdef SOLVE3D
         NstateVar(ng)=5+NT(ng)
 #   ifdef ADJUST_STFLUX
@@ -704,7 +782,67 @@
 
         allocate ( FOURDVAR(ng) % NLobsCost(0:NstateVar(ng)) )
         FOURDVAR(ng) % NLobsCost = IniVal
+
+#   if defined BALANCE_OPERATOR && defined ZETA_ELLIPTIC
+        allocate ( FOURDVAR(ng) % bc_ak(Nbico(ng)) )
+        FOURDVAR(ng) % bc_ak = IniVal
+
+        allocate ( FOURDVAR(ng) % bc_bk(Nbico(ng)) )
+        FOURDVAR(ng) % bc_bk = IniVal
+
+        allocate ( FOURDVAR(ng) % zdf1(Nbico(ng)) )
+        FOURDVAR(ng) % zdf1 = IniVal
+
+        allocate ( FOURDVAR(ng) % zdf2(Nbico(ng)) )
+        FOURDVAR(ng) % zdf2 = IniVal
+
+        allocate ( FOURDVAR(ng) % zdf3(Nbico(ng)) )
+        FOURDVAR(ng) % zdf3 = IniVal
+
+        allocate ( FOURDVAR(ng) % pc_r2d(LBi:UBi,LBj:UBj) )
+        FOURDVAR(ng) % pc_r2d = IniVal
+
+        allocate ( FOURDVAR(ng) % rhs_r2d(LBi:UBi,LBj:UBj) )
+        FOURDVAR(ng) % rhs_r2d = IniVal
+
+        allocate ( FOURDVAR(ng) % r2d_ref(LBi:UBi,LBj:UBj) )
+        FOURDVAR(ng) % r2d_ref = IniVal
+
+        allocate ( FOURDVAR(ng) % zeta_ref(LBi:UBi,LBj:UBj) )
+        FOURDVAR(ng) % zeta_ref = IniVal
+
+        allocate ( FOURDVAR(ng) % p_r2d(LBi:UBi,LBj:UBj,Nbico(ng)) )
+        FOURDVAR(ng) % p_r2d = IniVal
+
+        allocate ( FOURDVAR(ng) % r_r2d(LBi:UBi,LBj:UBj,Nbico(ng)) )
+        FOURDVAR(ng) % r_r2d = IniVal
+
+        allocate ( FOURDVAR(ng) % bp_r2d(LBi:UBi,LBj:UBj,Nbico(ng)) )
+        FOURDVAR(ng) % bp_r2d = IniVal
+
+        allocate ( FOURDVAR(ng) % br_r2d(LBi:UBi,LBj:UBj,Nbico(ng)) )
+        FOURDVAR(ng) % br_r2d = IniVal
+
+        allocate ( FOURDVAR(ng) % tl_rhs_r2d(LBi:UBi,LBj:UBj) )
+        FOURDVAR(ng) % tl_rhs_r2d = IniVal
+
+        allocate ( FOURDVAR(ng) % tl_r2d_ref(LBi:UBi,LBj:UBj) )
+        FOURDVAR(ng) % tl_r2d_ref = IniVal
+
+        allocate ( FOURDVAR(ng) % tl_zeta_ref(LBi:UBi,LBj:UBj) )
+        FOURDVAR(ng) % tl_zeta_ref = IniVal
+
+        allocate ( FOURDVAR(ng) % ad_rhs_r2d(LBi:UBi,LBj:UBj) )
+        FOURDVAR(ng) % ad_rhs_r2d = IniVal
+
+        allocate ( FOURDVAR(ng) % ad_r2d_ref(LBi:UBi,LBj:UBj) )
+        FOURDVAR(ng) % ad_r2d_ref = IniVal
+
+        allocate ( FOURDVAR(ng) % ad_zeta_ref(LBi:UBi,LBj:UBj) )
+        FOURDVAR(ng) % ad_zeta_ref = IniVal
+#   endif
 #  endif
+
         allocate ( FOURDVAR(ng) % ObsVar(NstateVar(ng)) )
         FOURDVAR(ng) % ObsVar = 1.0_r8
 
@@ -791,9 +929,10 @@
 #  ifdef TLM_OBS
       allocate ( TLmodVal(Mobs) )
       TLmodVal = IniVal
-#   if defined SENSITIVITY_4DVAR    || defined TL_W4DPSAS || \
-       defined TL_W4DVAR            || defined W4DPSAS    || \
-       defined W4DVAR
+#   if defined SENSITIVITY_4DVAR    || defined TL_W4DPSAS  || \
+       defined TL_W4DVAR            || defined W4DPSAS     || \
+       defined W4DVAR               || defined ARRAY_MODES || \
+       defined CLIPPING
       allocate ( TLmodVal_S(Mobs,Ninner,Nouter) )
       TLmodVal_S = IniVal
 #   endif
@@ -1044,7 +1183,7 @@
       cg_zu = IniVal
 
 # endif
-# if defined OBS_SENSITIVITY
+# if defined IS4DVAR_SENSITIVITY
 !
 !  Allocate Lanczos algorithm coefficients.
 !
@@ -1072,6 +1211,20 @@
         wrtTLmod(ng)=.FALSE.
 # ifdef BALANCE_OPERATOR
         wrtZetaRef(ng)=.FALSE.
+# endif
+# ifdef IS4DVAR_SENSITIVITY
+#  ifdef OBS_IMPACT
+        wrtIMPACT_TOT(ng)=.FALSE.
+#  endif
+#  ifdef OBS_IMPACT_SPLIT
+        wrtIMPACT_IC(ng)=.FALSE.
+#   if defined ADJUST_WSTRESS || defined ADJUST_STFLUX
+        wrtIMPACT_FC(ng)=.FALSE.
+#   endif
+#   if defined ADJUST_BOUNDARY
+        wrtIMPACT_BC(ng)=.FALSE.
+#   endif
+#  endif
 # endif
         KhMin(ng)=1.0_r8
         KhMax(ng)=1.0_r8

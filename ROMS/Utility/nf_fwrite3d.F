@@ -1,9 +1,9 @@
 #include "cppdefs.h"
       MODULE nf_fwrite3d_mod
 !
-!svn $Id: nf_fwrite3d.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -102,7 +102,7 @@
 
       real(r8), parameter :: IniVal = 0.0_r8
 
-      real(r8), allocatable :: Aout(:)
+      real(r8), allocatable :: Awrk(:)
 !
 !-----------------------------------------------------------------------
 !  Set starting and ending indices to process.
@@ -207,22 +207,22 @@
         IJlen=Ilen*Jlen
         Npts=IJlen*Klen
 
-        IF (.not.allocated(Aout)) THEN
-          allocate ( Aout(Npts) )
-          Aout=IniVal
+        IF (.not.allocated(Awrk)) THEN
+          allocate ( Awrk(Npts) )
+          Awrk=IniVal
         END IF
 !
-!  Pack ans scale tile data.
+!  Pack and scale tile data.
 !
         ic=0
         DO k=LBk,UBk
           DO j=Jmin,Jmax
             DO i=Imin,Imax
               ic=ic+1
-              Aout(ic)=A(i,j,k)*Ascl
+              Awrk(ic)=A(i,j,k)*Ascl
 # ifdef MASKING
               IF ((Amask(i,j).eq.0.0_r8).and.LandFill) THEN
-                Aout(ic)=spval
+                Awrk(ic)=spval
               END IF
 # endif
             END DO
@@ -240,7 +240,7 @@
         start(4)=tindex
         total(4)=1
 
-        status=nf90_put_var(ncid, ncvarid, Aout, start, total)
+        status=nf90_put_var(ncid, ncvarid, Awrk, start, total)
         nf_fwrite3d=status
       END IF
 
@@ -283,9 +283,9 @@
         IJlen=Isize*Jsize
         Npts=IJlen*Klen
 
-        IF (.not.allocated(Aout)) THEN
-          allocate ( Aout(Npts) )
-          Aout=IniVal
+        IF (.not.allocated(Awrk)) THEN
+          allocate ( Awrk(Npts) )
+          Awrk=IniVal
         END IF
 !
 !  Scale and gather data from all spawned nodes. Store data into a 1D
@@ -298,9 +298,9 @@
             jc=(j-Joff)*Isize+kc
             DO i=Imin,Imax
               ic=i+Ioff+jc
-              Aout(ic)=A(i,j,k)*Ascl
+              Awrk(ic)=A(i,j,k)*Ascl
               IF (Amask(i,j).eq.0.0_r8) THEN
-                Aout(ic)=spval
+                Awrk(ic)=spval
               END IF
             END DO
           END DO
@@ -308,15 +308,15 @@
 !
 !  Global reduction of work array.
 !
-        CALL mp_collect (ng, model, Npts, IniVal, Aout)
+        CALL mp_collect (ng, model, Npts, IniVal, Awrk)
 !
 !  Remove land points.
 !
         ic=0
         DO i=1,Npts
-          IF (Aout(i).lt.spval) THEN
+          IF (Awrk(i).lt.spval) THEN
             ic=ic+1
-            Aout(ic)=Aout(i)
+            Awrk(ic)=Awrk(i)
           END IF
         END DO
         Npts=ic
@@ -331,7 +331,7 @@
         start(2)=tindex
         total(2)=1
 
-        status=nf90_put_var(ncid, ncvarid, Aout(Istr:), start, total)
+        status=nf90_put_var(ncid, ncvarid, Awrk(Istr:), start, total)
         nf_fwrite3d=status
       END IF
 # endif
@@ -340,14 +340,14 @@
 !  Deallocate scratch work array.
 !-----------------------------------------------------------------------
 !
-      IF (allocated(Aout)) THEN
-        deallocate (Aout)
+      IF (allocated(Awrk)) THEN
+        deallocate (Awrk)
       END IF
 
       RETURN
       END FUNCTION nf_fwrite3d
 
-#else  
+#else
 
 !
 !***********************************************************************
@@ -410,9 +410,9 @@
       integer :: nf_fwrite3d
 
 # if defined INLINE_2DIO && defined DISTRIBUTE
-      real(r8), dimension((Lm(ng)+2)*(Mm(ng)+2)) :: Aout
+      real(r8), dimension((Lm(ng)+2)*(Mm(ng)+2)) :: Awrk
 # else
-      real(r8), dimension((Lm(ng)+2)*(Mm(ng)+2)*(UBk-LBk+1)) :: Aout
+      real(r8), dimension((Lm(ng)+2)*(Mm(ng)+2)*(UBk-LBk+1)) :: Awrk
 # endif
 !
 !-----------------------------------------------------------------------
@@ -477,7 +477,7 @@
 !  Initialize local array to avoid denormalized numbers. This
 !  facilitates processing and debugging.
 !
-      Aout=0.0_r8
+      Awrk=0.0_r8
 
 # ifdef DISTRIBUTE
 !
@@ -486,7 +486,7 @@
 !  nodes and store it into a global scratch 1D array, packed in column-
 !  major order.
 #  ifdef MASKING
-#   ifdef WRITE_WATER 
+#   ifdef WRITE_WATER
 !  Remove land points and pack water points into 1D-array.
 #   else
 !  Overwrite masked points with special value.
@@ -505,14 +505,14 @@
 #   ifdef MASKING
      &                    Amask,                                        &
 #   endif
-     &                    A(:,:,k), Npts, Aout, SetFillVal)
+     &                    A(:,:,k), Npts, Awrk, SetFillVal)
 #  else
         CALL mp_gather3d (ng, model, LBi, UBi, LBj, UBj, LBk, UBk,      &
      &                    tindex, gtype, Ascl,                          &
 #   ifdef MASKING
      &                    Amask,                                        &
 #   endif
-     &                    A, Npts, Aout, SetFillVal)
+     &                    A, Npts, Awrk, SetFillVal)
 #  endif
 !
 !-----------------------------------------------------------------------
@@ -543,7 +543,7 @@
             total(2)=1
 #  endif
           END IF
-          status=nf90_put_var(ncid, ncvarid, Aout, start, total)
+          status=nf90_put_var(ncid, ncvarid, Awrk, start, total)
           nf_fwrite3d=status
         END IF
 #  ifdef INLINE_2DIO
@@ -555,7 +555,7 @@
 !  If serial or shared-memory applications and serial output, pack data
 !  into a global 1D array in column-major order.
 #  ifdef MASKING
-#   ifdef WRiTE_WATER 
+#   ifdef WRITE_WATER
 !  Remove land points and pack water points into 1D-array.
 #   else
 !  Overwrite masked points with special value.
@@ -570,10 +570,10 @@
           DO j=Jmin,Jmax
             DO i=Imin,Imax
               ic=ic+1
-              Aout(ic)=A(i,j,k)*Ascl
+              Awrk(ic)=A(i,j,k)*Ascl
 #  ifdef MASKING
               IF ((Amask(i,j).eq.0.0_r8).and.LandFill) THEN
-                Aout(ic)=spval
+                Awrk(ic)=spval
               END IF
 #  endif
             END DO
@@ -587,7 +587,7 @@
             DO i=Imin,Imax
               IF (Amask(i,j).gt.0.0_r8) THEN
                 Npts=Npts+1
-                Aout(Npts)=A(i,j,k)*Ascl
+                Awrk(Npts)=A(i,j,k)*Ascl
               END IF
             END DO
           END DO
@@ -618,7 +618,7 @@
           total(2)=1
 #  endif
         END IF
-        status=nf90_put_var(ncid, ncvarid, Aout, start, total)
+        status=nf90_put_var(ncid, ncvarid, Awrk, start, total)
       END IF
 # endif
 # ifdef DISTRIBUTE

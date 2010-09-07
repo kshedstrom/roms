@@ -1,9 +1,9 @@
 /*
 ** Include file "globaldef.h"
 **
-** svn $Id: globaldefs.h 1101 2009-11-19 00:56:17Z kate $
+** svn $Id$
 ********************************************************** Hernan G. Arango ***
-** Copyright (c) 2002-2009 The ROMS/TOMS Group     Alexander F. Shchepetkin  **
+** Copyright (c) 2002-2010 The ROMS/TOMS Group     Alexander F. Shchepetkin  **
 **   Licensed under a MIT/X style license                                    **
 **   See License_ROMS.txt                                                    **
 *******************************************************************************
@@ -37,14 +37,6 @@
 
 #if defined UNICOS_SN
 # define NO_4BYTE_REALS
-#endif
-
-/*
-** If parallel I/O and applicable, turn on NetCDF-4 type files.
-*/
-
-#if !defined NETCDF4 && defined PARALLEL_IO
-# define NETCDF4
 #endif
 
 /*
@@ -298,33 +290,36 @@
 ** Set tangent, tl_ioms and adjoint switches.
 */
 
-#if defined CONVOLUTION        || defined CORRELATION        || \
-    defined FT_EIGENMODES      || defined FORCING_SV         || \
-    defined INNER_PRODUCT      || defined IS4DVAR            || \
-    defined OBS_SENSITIVITY    || defined OPT_PERTURBATION   || \
-    defined OPT_OBSERVATIONS   || defined PICARD_TEST        || \
-    defined R_SYMMETRY         || defined RPM_DRIVER         || \
-    defined SANITY_CHECK       || defined SENSITIVITY_4DVAR  || \
-    defined TLM_CHECK          || defined TLM_DRIVER         || \
-    defined TL_W4DPSAS         || defined TL_W4DVAR          || \
-    defined W4DPSAS            || defined W4DVAR
+#if defined CONVOLUTION         || defined CORRELATION        || \
+    defined FT_EIGENMODES       || defined FORCING_SV         || \
+    defined INNER_PRODUCT       || defined IS4DVAR            || \
+    defined IS4DVAR_SENSITIVITY || defined OPT_PERTURBATION   || \
+    defined OPT_OBSERVATIONS    || defined PICARD_TEST        || \
+    defined R_SYMMETRY          || defined RPM_DRIVER         || \
+    defined SANITY_CHECK        || defined SENSITIVITY_4DVAR  || \
+    defined TLM_CHECK           || defined TLM_DRIVER         || \
+    defined TL_W4DPSAS          || defined TL_W4DVAR          || \
+    defined W4DPSAS             || defined W4DVAR             || \
+    defined ARRAY_MODES         || defined CLIPPING
 # define TANGENT
 #endif
-#if defined AD_SENSITIVITY     || defined ADM_DRIVER         || \
-    defined AFT_EIGENMODES     || defined CONVOLUTION        || \
-    defined CORRELATION        || defined FORCING_SV         || \
-    defined INNER_PRODUCT      || defined IS4DVAR            || \
-    defined OBS_SENSITIVITY    || defined OPT_PERTURBATION   || \
-    defined OPT_OBSERVATIONS   || defined R_SYMMETRY         || \
-    defined SANITY_CHECK       || defined SENSITIVITY_4DVAR  || \
-    defined SO_SEMI            || defined TLM_CHECK          || \
-    defined TL_W4DPSAS         || defined TL_W4DVAR          || \
-    defined W4DPSAS            || defined W4DVAR
+#if defined AD_SENSITIVITY      || defined ADM_DRIVER         || \
+    defined AFT_EIGENMODES      || defined CONVOLUTION        || \
+    defined CORRELATION         || defined FORCING_SV         || \
+    defined INNER_PRODUCT       || defined IS4DVAR            || \
+    defined IS4DVAR_SENSITIVITY || defined OPT_PERTURBATION   || \
+    defined OPT_OBSERVATIONS    || defined R_SYMMETRY         || \
+    defined SANITY_CHECK        || defined SENSITIVITY_4DVAR  || \
+    defined SO_SEMI             || defined TLM_CHECK          || \
+    defined TL_W4DPSAS          || defined TL_W4DVAR          || \
+    defined W4DPSAS             || defined W4DVAR             || \
+    defined ARRAY_MODES         || defined CLIPPING
 # define ADJOINT
 #endif
 #if defined PICARD_TEST        || defined RPM_DRIVER         || \
     defined TL_W4DVAR          || defined W4DVAR             || \
-    defined W4DVAR_SENSITIVITY
+    defined W4DVAR_SENSITIVITY || defined ARRAY_MODES        || \
+    defined CLIPPING
 # define TL_IOMS
 #endif
 #if !defined ANA_PERTURB                                 && \
@@ -487,15 +482,16 @@
     (defined CONVOLUTION         || defined R_SYMMETRY         || \
      defined TL_W4DPSAS          || defined TL_W4DVAR          || \
      defined W4DPSAS             || defined W4DVAR             || \
-     defined W4DPSAS_SENSITIVITY || defined W4DVAR_SENSITIVITY)
+     defined W4DPSAS_SENSITIVITY || defined W4DVAR_SENSITIVITY || \
+     defined ARRAY_MODES         || defined CLIPPING )
 # define WEAK_CONSTRAINT
 #endif
 #if !defined WEAK_CONSTRAINT     && defined RPM_RELAXATION
 # undef RPM_RELAXATION
 #endif
-#if defined CONVOLUTION          || defined CORRELATION        || \
-    defined IS4DVAR              || defined OBS_SENSITIVITY    || \
-    defined OPT_OBSERVATIONS     || defined TLM_CHECK          || \
+#if defined CONVOLUTION          || defined CORRELATION         || \
+    defined IS4DVAR              || defined IS4DVAR_SENSITIVITY || \
+    defined OPT_OBSERVATIONS     || defined TLM_CHECK           || \
     defined WEAK_CONSTRAINT
 # define FOUR_DVAR
 #endif
@@ -514,7 +510,7 @@
 #if !(defined W4DPSAS || defined W4DVAR) && defined POSTERIOR_ERROR_I
 # undef POSTERIOR_ERROR_I
 #endif
-#if !(defined WEAK_CONSTRAINT || defined OBS_SENSITIVITY) && \
+#if !(defined WEAK_CONSTRAINT || defined IS4DVAR_SENSITIVITY) && \
       defined OBS_IMPACT
 # undef OBS_IMPACT
 #endif
@@ -523,19 +519,21 @@
 ** Activate internal switch to process 4DVAR observations.
 */
 
-#if defined IS4DVAR            || defined OBS_SENSITIVITY   || \
-    defined SENSITIVITY_4DVAR  || defined TLM_CHECK         || \
-    defined TL_W4DPSAS         || defined TL_W4DVAR         || \
-    defined VERIFICATION       || defined W4DPSAS           || \
-    defined W4DVAR
+#if defined IS4DVAR            || defined IS4DVAR_SENSITIVITY || \
+    defined SENSITIVITY_4DVAR  || defined TLM_CHECK           || \
+    defined TL_W4DPSAS         || defined TL_W4DVAR           || \
+    defined VERIFICATION       || defined W4DPSAS             || \
+    defined W4DVAR             || defined ARRAY_MODES         || \
+    defined CLIPPING
 # define OBSERVATIONS
 #endif
 
-#if defined IS4DVAR            || defined OBS_SENSITIVITY   || \
-    defined R_SYMMETRY         || defined SENSITIVITY_4DVAR || \
-    defined TLM_CHECK          || defined TL_W4DPSAS        || \
-    defined TL_W4DVAR          || defined W4DPSAS           || \
-    defined W4DVAR
+#if defined IS4DVAR            || defined IS4DVAR_SENSITIVITY || \
+    defined R_SYMMETRY         || defined SENSITIVITY_4DVAR   || \
+    defined TLM_CHECK          || defined TL_W4DPSAS          || \
+    defined TL_W4DVAR          || defined W4DPSAS             || \
+    defined W4DVAR             || defined ARRAY_MODES         || \
+    defined CLIPPING
 # define TLM_OBS
 #endif
 
@@ -544,17 +542,19 @@
 */
 
 #if !defined FORWARD_READ      && \
-    (defined IS4DVAR           || defined OBS_SENSITIVITY || \
-     defined SENSITIVITY_4DVAR || defined TL_W4DPSAS      || \
-     defined TL_W4DVAR         || defined W4DPSAS         || \
-     defined W4DVAR)
+    (defined IS4DVAR           || defined IS4DVAR_SENSITIVITY || \
+     defined SENSITIVITY_4DVAR || defined TL_W4DPSAS          || \
+     defined TL_W4DVAR         || defined W4DPSAS             || \
+     defined W4DVAR            || defined ARRAY_MODES         || \
+     defined CLIPPING)
 # define FORWARD_READ
 #endif
 #if !defined FORWARD_WRITE     && \
-    (defined IS4DVAR           || defined OBS_SENSITIVITY || \
-     defined SENSITIVITY_4DVAR || defined TL_W4DPSAS      || \
-     defined TL_W4DVAR         || defined W4DPSAS         || \
-     defined W4DVAR)
+    (defined IS4DVAR           || defined IS4DVAR_SENSITIVITY || \
+     defined SENSITIVITY_4DVAR || defined TL_W4DPSAS          || \
+     defined TL_W4DVAR         || defined W4DPSAS             || \
+     defined W4DVAR            || defined ARRAY_MODES         || \
+     defined CLIPPING)
 # define FORWARD_WRITE
 #endif
 
@@ -999,32 +999,9 @@
     defined ASSIMILATION_UV
 # define ASSIMILATION
 #endif
-#if defined NUDGING_SSH || defined NUDGING_SST   || \
-    defined NUDGING_T   || defined NUDGING_UVsur || \
-    defined NUDGING_UV
+#if defined NUDGING_SST   || defined NUDGING_T   || \
+    defined NUDGING_UVsur || defined NUDGING_UV
 # define NUDGING
-#endif
-
-/*
-** Check if it is meaningful to write out time-averaged vertical
-** mixing coefficients.
-*/
-
-#if !defined LMD_MIXING && !defined MY25_MIXING && !defined GLS_MIXING
-# if defined AVERAGES
-#  if defined AVERAGES_AKV
-#    undef AVERAGES_AKV
-#  endif
-#  if defined AVERAGES_AKT
-#    undef AVERAGES_AKT
-#  endif
-#  if defined AVERAGES_AKS && !defined SALINITY
-#    undef AVERAGES_AKS
-#  endif
-# endif
-#endif
-#if defined AVERAGES_NEARSHORE && !defined NEARSHORE_MELLOR
-# undef AVERAGES_NEARSHORE
 #endif
 
 /*

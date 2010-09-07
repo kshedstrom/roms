@@ -1,9 +1,9 @@
 #include "cppdefs.h"
       SUBROUTINE get_data (ng)
 !
-!svn $Id: get_data.F 1098 2009-11-18 17:54:22Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -19,6 +19,9 @@
 !=======================================================================
 !
       USE mod_param
+#if defined BEST_NPZ || defined BIO_GOANPZ
+      USE mod_biology
+#endif
       USE mod_boundary
 #ifdef CLIMATOLOGY
       USE mod_clima
@@ -111,7 +114,7 @@
 !  Tracer Sources/Sinks.
 !
       DO i=1,NT(ng)
-        IF (SOURCES(ng)%Ltracer(i)) THEN
+        IF (LtracerSrc(i,ng)) THEN
           CALL get_ngfld (ng, iNLM, idRtrc(i), ncFRCid(idRtrc(i),ng),   &
      &                    nFfiles(ng), FRCname(1,ng), update(1),        &
      &                    1, Nsrc(ng), N(ng), 2, 1, Nsrc(ng), N(ng),    &
@@ -236,8 +239,8 @@
 !  Surface runoff rate
 !-----------------------------------------------------------------------
 !
-      CALL get_2dfld (ng, iNLM, idRunoff, ncfrcid(idRunoff,ng),         &
-     &                nFfiles(ng), frcname(1,ng),                       &
+      CALL get_2dfld (ng, iNLM, idRunoff, ncFRCid(idRunoff,ng),         &
+     &                nFfiles(ng), FRCname(1,ng),                       &
      &                update(1), LBi, UBi, LBj, UBj, 2, 1,              &
 #  ifdef MASKING
      &                GRID(ng) % rmask(LBi,LBj),                        &
@@ -545,8 +548,8 @@
 !  Surface runoff rate
 !-----------------------------------------------------------------------
 !
-      CALL get_2dfld (ng, iNLM, idRunoff, ncfrcid(idRunoff,ng),         &
-     &                nFfiles(ng), frcname(1,ng),                       &
+      CALL get_2dfld (ng, iNLM, idRunoff, ncFRCid(idRunoff,ng),         &
+     &                nFfiles(ng), FRCname(1,ng),                       &
      &                update(1), LBi, UBi, LBj, UBj, 2, 1,              &
 #  ifdef MASKING
      &                GRID(ng) % rmask(LBi,LBj),                        &
@@ -1224,6 +1227,30 @@
       END DO
 #     endif
 
+#   if defined SOGLOBEC
+      DO i=1,NT(ng)
+        CALL get_3dfld (ng, iNLM, idTclm(i), ncCLMid(ng), 1,            &
+     &                  CLMname(ng), update(1),                         &
+     &                  LBi, UBi, LBj, UBj, 1, N(ng), 2, 1,             &
+#    ifdef MASKING
+     &                  GRID(ng) % rmask(LBi,LBj),                      &
+#    endif
+     &                  CLIMA(ng) % tclmG(LBi,LBj,1,1,i))
+      END DO
+#   endif
+
+#   ifdef AKT_3D
+!get the Akt from climatology file -used in SEBS 1D simulation
+
+     CALL get_3dfld (ng, iNLM, idTclm(iAKt3), ncCLMid(ng), 1,           &
+     &                  CLMname(ng), update(1),                         &
+     &                  LBi, UBi, LBj, UBj, 1, N(ng), 2, 1,             &
+#    ifdef MASKING
+     &                  GRID(ng) % rmask(LBi,LBj),                      &
+#    endif
+     &                  CLIMA(ng) % tclmG(LBi,LBj,1,1,iAKt3))
+#   endif
+
 #   if (defined BEST_NPZ || defined BIO_GOANPZ) && defined IRON_LIMIT
       CALL get_3dfld (ng, iNLM, idTclm(iFe), ncclmid(ng), 1,            &
      &                clmname(ng), update(1),                           &
@@ -1233,14 +1260,14 @@
 #    endif
      &                CLIMA(ng) % tclmG(LBi,LBj,1,1,iFe))
 #   endif
-#    if defined ICE_BIO 
-       CALL get_3dfld (ng, iNLM, idTclm(iFe+1), ncclmid(ng), 1,         &
+#    if defined ICE_BIO && defined CLIM_ICE_1D
+       CALL get_3dfld (ng, iNLM, idTclm(i1CI), ncclmid(ng), 1,          &
      &                clmname(ng), update(1),                           &
      &                LBi, UBi, LBj, UBj, 1, N(ng), 2, 1,               &
 #    ifdef MASKING
      &                GRID(ng) % rmask(LBi,LBj),                        &
 #    endif
-     &                CLIMA(ng) % tclmG(LBi,LBj,1,1,15))
+     &                CLIMA(ng) % tclmG(LBi,LBj,1,1,i1CI))
 #   endif
 #  endif
 #  if !defined ANA_OCLIMA && defined OCLIMATOLOGY
@@ -1277,43 +1304,26 @@
 !  Read in assimilation data from ASSIMILATION NetCDF files.
 !=======================================================================
 !
-# if defined NUDGING_SSH || defined ASSIMILATION_SSH
+# ifdef ASSIMILATION_SSH
 !
 !-----------------------------------------------------------------------
 !  Read in sea surface height observations and error variance.
 !-----------------------------------------------------------------------
 !
       IF (assi_SSH(ng)) THEN
-#  ifdef NUDGING_SSH
-        CALL get_2dfld (ng, iNLM, idSSHo, ncSSHid(ng), 1,               &
-     &                  SSHname(ng), update(1),                         &
-     &                  LBi, UBi, LBj, UBj, 2, 1,                       &
-#   ifdef MASKING
-     &                  GRID(ng) % rmask(LBi,LBj),                      &
-#   endif
-     &                  OBS(ng) % SSHdat(LBi,LBj,1))
-        CALL get_2dfld (ng, iNLM, idSSHe, ncSSHid(ng), 1,               &
-     &                  SSHname(ng), update(2),                         &
-     &                  LBi, UBi, LBj, UBj, 2, 1,                       &
-#   ifdef MASKING
-     &                  GRID(ng) % rmask(LBi,LBj),                      &
-#   endif
-     &                  OBS(ng) % EdatSSH(LBi,LBj,1))
-        IF (update(1).and.update(2)) update_SSH(ng)=.TRUE.
-#  else
         CALL get_2dfld (ng, iNLM, idSSHo, ncSSHid(ng), 1,               &
      &                  SSHname(ng), update(1),                         &
      &                  LBi, UBi, LBj, UBj, 1, 1,                       &
-#   ifdef MASKING
+#  ifdef MASKING
      &                  GRID(ng) % rmask(LBi,LBj),                      &
-#   endif
+#  endif
      &                  OBS(ng) % SSHobs(LBi,LBj))
         CALL get_2dfld (ng, iNLM, idSSHe, ncSSHid(ng), 1,               &
      &                  SSHname(ng), update(2),                         &
      &                  LBi, UBi, LBj, UBj, 1, 1,                       &
-#   ifdef MASKING
+#  ifdef MASKING
      &                  GRID(ng) % rmask(LBi,LBj),                      &
-#   endif
+#  endif
      &                  OBS(ng) % EobsSSH(LBi,LBj))
         IF (update(1).and.update(2)) THEN
           update_SSH(ng)=.TRUE.
@@ -1324,7 +1334,6 @@
           EobsSSHmin(ng)=Finfo(8,idSSHe,ng)
           EobsSSHmax(ng)=Finfo(9,idSSHe,ng)
         END IF
-#  endif
       END IF
 # endif
 
@@ -1637,23 +1646,25 @@
      &                  GRID(ng) % rmask(LBi,LBj),                      &
 # endif
      &                  OCEAN(ng) % zetaG(LBi,LBj,1))
+# ifndef SOLVE3D
 !
 !  Read 2D momentum.
 !
         CALL get_2dfld (ng, iNLM, idUbar, ncTLFid(ng), 1,               &
      &                  TLFname(ng), update(1),                         &
      &                  LBi, UBi, LBj, UBj, 2, 1,                       &
-# ifdef MASKING
+#  ifdef MASKING
      &                  GRID(ng) % umask(LBi,LBj),                      &
-# endif
+#  endif
      &                  OCEAN(ng) % ubarG(LBi,LBj,1))
         CALL get_2dfld (ng, iNLM, idVbar, ncTLFid(ng), 1,               &
      &                  TLFname(ng), update(1),                         &
      &                  LBi, UBi, LBj, UBj, 2, 1,                       &
-# ifdef MASKING
+#  ifdef MASKING
      &                  GRID(ng) % vmask(LBi,LBj),                      &
-# endif
+#  endif
      &                  OCEAN(ng) % vbarG(LBi,LBj,1))
+# endif
 # ifdef SOLVE3D
 !
 !  Read in 3D momentum.

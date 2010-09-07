@@ -2,9 +2,9 @@
       MODULE t3dbc_mod
 #ifdef SOLVE3D
 !
-!svn $Id: t3dbc_ex.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                           Hernan G. Arango   !
 !========================================== Alexander F. Shchepetkin ===
@@ -96,7 +96,7 @@
             grad(Istr-1,j)=grad(Istr-1,j)*GRID(ng)%vmask(Istr-1,j)
 #   endif
             grad(Istr  ,j)=t(Istr  ,j  ,k,nstp,itrc)-                   &
-     &                     t(Istr  ,j-1,k,nstp,itrc) 
+     &                     t(Istr  ,j-1,k,nstp,itrc)
 #   ifdef MASKING
             grad(Istr  ,j)=grad(Istr  ,j)*GRID(ng)%vmask(Istr  ,j)
 #   endif

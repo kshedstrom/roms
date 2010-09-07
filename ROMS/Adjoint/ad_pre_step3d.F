@@ -4,9 +4,9 @@
 #if defined ADJOINT && defined SOLVE3D
 # define NEUMANN
 !
-!svn $Id: ad_pre_step3d.F 1036 2009-08-11 19:49:12Z arango $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -77,7 +77,6 @@
      &                         nrhs(ng), nstp(ng), nnew(ng),            &
 # ifdef TS_PSOURCE
      &                         Msrc(ng), Nsrc(ng),                      &
-     &                         SOURCES(ng) % Lsrc,                      &
      &                         SOURCES(ng) % Isrc,                      &
      &                         SOURCES(ng) % Jsrc,                      &
      &                         SOURCES(ng) % Dsrc,                      &
@@ -159,7 +158,7 @@
      &                               nrhs, nstp, nnew,                  &
 # ifdef TS_PSOURCE
      &                               Msrc, Nsrc,                        &
-     &                               Lsrc, Isrc, Jsrc, Dsrc,            &
+     &                               Isrc, Jsrc, Dsrc,                  &
      &                               Tsrc,                              &
 # endif
 # ifdef MASKING
@@ -227,7 +226,6 @@
 !
 # ifdef ASSUMED_SHAPE
 #  ifdef TS_PSOURCE
-      logical, intent(in) :: Lsrc(:,:)
       integer, intent(in) :: Isrc(:)
       integer, intent(in) :: Jsrc(:)
       real(r8), intent(in) :: Dsrc(:)
@@ -314,7 +312,6 @@
 # else
 
 #  ifdef TS_PSOURCE
-      logical, intent(in) :: Lsrc(Msrc,NT(ng))
       integer, intent(in) :: Isrc(Msrc)
       integer, intent(in) :: Jsrc(Msrc)
       real(r8), intent(in) :: Dsrc(Msrc)
@@ -436,7 +433,7 @@
 !>                          ! nnew=3-nstp
 !>    indx=3-nrhs           ! nrhs=nstp
 !>
-      indx=nnew 
+      indx=nnew
 !
 !-----------------------------------------------------------------------
 !  Initialize adjoint private variables.
@@ -450,7 +447,7 @@
       DO j=JminS,JmaxS
         DO i=IminS,ImaxS
           ad_FE(i,j)=0.0_r8
-          ad_FX(i,j)=0.0_r8 
+          ad_FX(i,j)=0.0_r8
           ad_curv(i,j)=0.0_r8
           ad_grad(i,j)=0.0_r8
         END DO
@@ -737,7 +734,7 @@
           DO k=1,N(ng)-1
             DO i=Istr,Iend
               cff=1.0_r8/(z_r(i,j,k+1)+z_r(i,j-1,k+1)-                  &
-     &                    z_r(i,j,k  )-z_r(i,j-1,k  )) 
+     &                    z_r(i,j,k  )-z_r(i,j-1,k  ))
 !>            tl_FC(i,k)=cff3*                                          &
 !>   &                   (cff*((tl_v(i,j,k+1,nstp)-tl_v(i,j,k,nstp))*   &
 !>   &                         (Akv(i,j,k)+Akv(i,j-1,k))+               &
@@ -1048,7 +1045,7 @@
 !>   &                           t(i,j,k,nnew,itrc)*tl_cff4
 !>
               ad_t(i,j,k,nnew,itrc)=ad_t(i,j,k,nnew,itrc)+              &
-     &                              ad_t(i,j,k,3,itrc)*cff4       
+     &                              ad_t(i,j,k,3,itrc)*cff4
               ad_cff4=ad_cff4+                                          &
      &                t(i,j,k,nnew,itrc)*ad_t(i,j,k,3,itrc)
               ad_t(i,j,k,3,itrc)=0.0_r8
@@ -1106,31 +1103,41 @@
             END DO
           END IF
 #  endif
+#  ifdef LMD_NONLOCAL_NOT_YET
+!
+!  Add in the nonlocal transport flux for unstable (convective)
+!  forcing conditions into matrix FC when using the Large et al.
+!  KPP scheme. The nonlocal transport is only applied to active
+!  tracers.
+!
+          IF (itrc.le.NAT) THEN
+            DO k=1,N(ng)-1
+              DO i=Istr,Iend
+!>              tl_FC(i,k)=tl_FC(i,k)-                                  &
+!>   &                     dt(ng)*(tl_Akt(i,j,k,itrc)*                  &
+!>   &                             ghats(i,j,k,itrc)+                   &
+!>   &                             Akt(i,j,k,itrc)*                     &
+!>   &                             tl_ghats(i,j,k,itrc))
+!>
+                adfac=dt(ng)*ad_FC(i,k)
+                ad_ghats(i,j,k,itrc)=ad_ghats(i,j,k,itrc)-              &
+     &                               Akt(i,j,k,itrc)*adfac
+                ad_Akt(i,j,k,itrc)=ad_Akt(i,j,k,itrc)-                  &
+     &                             ghats(i,j,k,itrc)*adfac
+              END DO
+            END DO
+          END IF
+#  endif
 !
 !  Compute adjoint vertical diffusive fluxes "FC" of the tracer fields
 !  at current time step n, and at horizontal RHO-points and vertical
-!  W-points.
+!  W-points. Notice that the vertical diffusion coefficients for
+!  passive tracers is the same as that for salinity (ltrc=NAT).
 !
           cff3=dt(ng)*(1.0_r8-lambda)
           ltrc=MIN(NAT,itrc)
           DO k=1,N(ng)-1
             DO i=Istr,Iend
-#  ifdef LMD_NONLOCAL_NOT_YET
-!
-!  Add in the nonlocal transport flux for unstable (convective)
-!  forcing conditions into matrix FC when using the Large et al.
-!  KPP scheme.
-!
-!>            tl_FC(i,k)=tl_FC(i,k)-                                    &
-!>   &                   dt(ng)*(tl_Akt(i,j,k,ltrc)*ghats(i,j,k,ltrc)+  &
-!>   &                           Akt(i,j,k,ltrc)*tl_ghats(i,j,k,ltrc))
-!>
-              adfac=dt(ng)*ad_FC(i,k)
-              ad_ghats(i,j,k,ltrc)=ad_ghats(i,j,k,ltrc)-                &
-     &                             Akt(i,j,k,ltrc)*adfac
-              ad_Akt(i,j,k,ltrc)=ad_Akt(i,j,k,ltrc)-                    &
-     &                           ghats(i,j,k,ltrc)*adfac
-#  endif
               cff=1.0_r8/(z_r(i,j,k+1)-z_r(i,j,k))
 !>            tl_FC(i,k)=cff3*                                          &
 !>   &                   (cff*(tl_Akt(i,j,k,ltrc)*                      &
@@ -1438,7 +1445,7 @@
      &                                3.0_r8*adfac
             ad_FC(i,N(ng)-1)=ad_FC(i,N(ng)-1)-adfac
             ad_FC(i,N(ng))=0.0_r8
-#    else 
+#    else
 !>          tl_FC(i,N(ng))=(2.0_r8*tl_t(i,j,N(ng),nstp,itrc)-           &
 !>   &                      tl_FC(i,N(ng)-1))/                          &
 !>   &                     (1.0_r8-CF(i,N(ng)))
@@ -1481,7 +1488,7 @@
      &                       t(i,j,k  ,nstp,itrc)*adfac1-               &
      &                       FC(i,k-1)*adfac-                           &
      &                       FC(i,k  )*adfac2
-              ad_FC(i,k-1)=ad_FC(i,k-1)-Hz(i,j,k+1)*adfac 
+              ad_FC(i,k-1)=ad_FC(i,k-1)-Hz(i,j,k+1)*adfac
               ad_FC(i,k)=0.0_r8
             END DO
           END DO
@@ -1858,7 +1865,7 @@
           DO is=1,Nsrc
             i=Isrc(is)
             j=Jsrc(is)
-            IF (Lsrc(is,itrc).and.                                      &
+            IF (LtracerSrc(itrc,ng).and.                                &
      &          ((Istr.le.i).and.(i.le.Iend+1)).and.                    &
      &          ((Jstr.le.j).and.(j.le.Jend+1))) THEN
               IF (INT(Dsrc(is)).eq.0) THEN
@@ -1899,7 +1906,7 @@
      &                              t(i,j-1,k,nstp,itrc))
               ad_t(i,j-1,k,nstp,itrc)=ad_t(i,j-1,k,nstp,itrc)+adfac1
               ad_t(i,j  ,k,nstp,itrc)=ad_t(i,j  ,k,nstp,itrc)+adfac1
-              ad_FE(i,j)=0.0_r8 
+              ad_FE(i,j)=0.0_r8
             END DO
           END DO
           DO j=Jstr,Jend
@@ -2256,7 +2263,7 @@
                 adfac=ad_grad(i,j)/                                     &
      &                ((FX(i+1,j)+FX(i,j))*(FX(i+1,j)+FX(i,j)))
                 adfac1=adfac*cff
-                ad_FX(i  ,j)=ad_FX(i  ,j)-adfac1        
+                ad_FX(i  ,j)=ad_FX(i  ,j)-adfac1
                 ad_FX(i+1,j)=ad_FX(i+1,j)-adfac1
                 ad_cff=ad_cff+(FX(i+1,j)+FX(i,j))*adfac
                 ad_grad(i,j)=0.0_r8

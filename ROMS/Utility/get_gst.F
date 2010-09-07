@@ -2,9 +2,9 @@
 #if defined PROPAGATOR && defined CHECKPOINTING
       SUBROUTINE get_gst (ng, model)
 !
-!svn $Id: get_gst.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -44,9 +44,9 @@
 # endif
       real(r8) :: rval
 
-      character (len=1 ) :: char1, lchar(5)
-      character (len=2 ) :: char2
-      character (len=80) :: ncname
+      character (len=1  ) :: char1, lchar(5)
+      character (len=2  ) :: char2
+      character (len=256) :: ncname
 !
       SourceFile='get_gst.F'
 !

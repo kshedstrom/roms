@@ -1,6 +1,6 @@
-# svn $Id: Linux-pgi.mk 1090 2009-10-27 23:59:27Z kate $
+# svn $Id$
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-# Copyright (c) 2002-2009 The ROMS/TOMS Group                           :::
+# Copyright (c) 2002-2010 The ROMS/TOMS Group                           :::
 #   Licensed under a MIT/X style license                                :::
 #   See License_ROMS.txt                                                :::
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -68,13 +68,17 @@ ifdef USE_NETCDF4
     NETCDF_INCDIR ?= /opt/pgisoft/netcdf4/include
     NETCDF_LIBDIR ?= /opt/pgisoft/netcdf4/lib
       HDF5_LIBDIR ?= /opt/pgisoft/hdf5/lib
+             LIBS += -L$(NETCDF_LIBDIR) -lnetcdf -lnetcdff
 else
     NETCDF_INCDIR ?= /usr/local/pkg/netcdf/netcdf-3.6.1.pgi/include
     NETCDF_LIBDIR ?= /usr/local/pkg/netcdf/netcdf-3.6.1.pgi/lib
-endif
              LIBS += -L$(NETCDF_LIBDIR) -lnetcdf
+endif
 ifdef USE_NETCDF4
              LIBS += -L$(HDF5_LIBDIR) -lhdf5_hl -lhdf5 -lz
+ ifdef USE_DAP
+             LIBS += $(shell curl-config --libs)
+ endif
 endif
 
 ifdef USE_ARPACK
@@ -114,8 +118,8 @@ ifdef USE_DEBUG
            CFLAGS += -g
          CXXFLAGS += -g
 else
-#          FFLAGS += -Bstatic -fastsse -Mipa=fast -tp k8-64
-           FFLAGS += -O3 -tp k8-64
+#          FFLAGS += -Bstatic -fastsse -Mipa=fast
+           FFLAGS += -O3
            CFLAGS += -O3
          CXXFLAGS += -O3
 endif

@@ -1,8 +1,8 @@
       SUBROUTINE ana_biology (ng, tile, model)
 !
-!! svn $Id: ana_biology.h 1025 2009-07-21 21:26:00Z kate $
+!! svn $Id$
 !!======================================================================
-!! Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!! Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !!   Licensed under a MIT/X style license                              !
 !!   See License_ROMS.txt                                              !
 !=======================================================================
@@ -17,15 +17,17 @@
       USE mod_ocean
 
 #ifdef BEST_NPZ
-      USE mod_grid
 # if defined CLIM_ICE_1D
       USE mod_clima
 # endif
+# ifdef  ICE_BIO
+      USE mod_ice
+# endif
 #endif
 
-
-#ifdef BIO_GOANPZ 
+#if defined BIO_GOANPZ || defined BEST_NPZ
       USE mod_grid
+      USE mod_biology
 #endif
 !
 ! Imported variable declarations.
@@ -44,14 +46,16 @@
      &                       OCEAN(ng) % bt,                            &
 # endif
 # ifdef ICE_BIO
-#  ifdef CLIM_ICE_1D
      &                       OCEAN(ng) % it,                            &
      &                       OCEAN(ng) % itL,                           &
+#  ifdef CLIM_ICE_1D
      &                       CLIMA(ng) % tclmG,                         &
      &                       CLIMA(ng) % tclm,                          &
 #  else
-     &                       ICE(ng) % it,                              &
-     &                       ICE(ng) % itL,                             &
+     &                       ICE(ng) % IcePhL,                          &
+     &                       ICE(ng) % IceNO3,                          &
+     &                       ICE(ng) % IceNH4,                          &
+     &                       ICE(ng) % IceLog,                          &
      &                       ICE(ng) % ti,                              &
      &                       ICE(ng) % hi,                              &
      &                       ICE(ng) % ai,                              &
@@ -106,16 +110,13 @@
      &                             bt,                                  &
 # endif
 # ifdef ICE_BIO
-#  ifdef CLIM_ICE_1D
      &                             it, itL,                             &
+#  ifdef CLIM_ICE_1D
      &                             tclmG,                               &
      &                             tclm,                                &
 #  else
-     &                             it ,                                 &
-     &                             itL,                                 &
-     &                             ti ,                                 &
-     &                             hi ,                                 &
-     &                             ai ,                                 &
+     &                             IcePhL, IceNO3, IceNH4, IceLog,      &
+     &                             ti, hi, ai,                          &
      &                             ageice ,                             &
 #  endif
 # endif
@@ -184,12 +185,16 @@
 #  endif
 
 #  ifdef ICE_BIO
-        real(r8), intent(inout) :: it(LBi:,LBj:,:,:)
-        real(r8), intent(inout) :: itL(LBi:,LBj:,:,:)
+      real(r8), intent(inout) :: it(LBi:,LBj:,:,:)
+      real(r8), intent(inout) :: itL(LBi:,LBj:,:,:)
 #    ifdef CLIM_ICE_1D
-       real(r8), intent(inout) ::tclmG(LBi:,LBj:,:,:,:)
+      real(r8), intent(inout) ::tclmG(LBi:,LBj:,:,:,:)
       real(r8), intent(inout) ::tclm(LBi:,LBj:,:,:)
 #    else
+      real(r8), intent(inout) :: IcePhL(LBi:,LBj:,:)
+      real(r8), intent(inout) :: IceNO3(LBi:,LBj:,:)
+      real(r8), intent(inout) :: IceNH4(LBi:,LBj:,:)
+      integer, intent(inout)  :: IceLog(LBi:,LBj:,:)
       real(r8), intent(in) :: ti(LBi:,LBj:,:)
       real(r8), intent(in) :: hi(LBi:,LBj:,:)
       real(r8), intent(in) :: ai(LBi:,LBj:,:)
@@ -228,11 +233,15 @@
 
 #  ifdef ICE_BIO
       real(r8), intent(inout) :: it(LBi:UBi,LBj:UBj,3,NIceT(ng))
-       real(r8), intent(inout) :: itL(LBi:UBi,LBj:UBj,3,NIceLog(ng))
+      real(r8), intent(inout) :: itL(LBi:UBi,LBj:UBj,3,NIceLog(ng))
 #    ifdef CLIM_ICE_1D
       real(r8), intent(inout) ::tclmG(LBi:UBi,LBj:UBj,UBk,3,UBt+1)
       real(r8), intent(inout) ::tclm(LBi:UBi,LBj:UBj,UBk,UBt+1)
 #    else
+      real(r8), intent(inout) :: IcePhL(LBi:UBi,LBj:UBJ,2)
+      real(r8), intent(inout) :: IceNO3(LBi:UBi,LBj:UBJ,2)
+      real(r8), intent(inout) :: IceNH4(LBi:UBi,LBj:UBJ,2)
+      integer, intent(inout)  :: IceLog(LBi:UBi,LBj:UBJ,2)
       real(r8), intent(in) :: ti(LBi:UBi,LBj:UBj,2)
       real(r8), intent(in) :: hi(LBi:UBi,LBj:UBj,2)
       real(r8), intent(in) :: ai(LBi:UBi,LBj:UBj,2)
@@ -469,11 +478,11 @@
             t(i,j,k,1,iZoop)=BioIni(iZoop,ng)
             t(i,j,k,1,iSDet)=BioIni(iSDet,ng)
 # ifdef IRON_LIMIT
-            t(i,j,k,1,iFphy)=BioIni(iFphy,ng) 
+            t(i,j,k,1,iFphy)=BioIni(iFphy,ng)
             t(i,j,k,1,iFdis)=BioIni(iFdis,ng)
 # endif
           END DO
-        END DO 
+        END DO
       END DO
 
 #elif defined ECOSIM
@@ -567,7 +576,7 @@
               IF (iPigs(is,3).gt.0) THEN
                  t(i,j,k,1,iPigs(is,3))=t(i,j,k,1,iPigs(is,1))*         &
      &                                  (b_ChlC(is,ng)+                 &
-     &                                   mxChlC(is,ng)*cff6) 
+     &                                   mxChlC(is,ng)*cff6)
               END IF
 !
 !  Photosynthetic Carotenoids.
@@ -583,7 +592,7 @@
               IF (iPigs(is,5).gt.0) THEN
                  t(i,j,k,1,iPigs(is,5))=t(i,j,k,1,iPigs(is,1))*         &
      &                                  (b_PPC(is,ng)+                  &
-     &                                   mxPPC(is,ng)*cff6) 
+     &                                   mxPPC(is,ng)*cff6)
               END IF
 !
 !  Low Urobilin Phycoeurythin Carotenoids.
@@ -591,7 +600,7 @@
               IF (iPigs(is,6).gt.0) THEN
                  t(i,j,k,1,iPigs(is,6))=t(i,j,k,1,iPigs(is,1))*         &
      &                                  (b_LPUb(is,ng)+                 &
-     &                                   mxLPUb(is,ng)*cff6) 
+     &                                   mxLPUb(is,ng)*cff6)
               END IF
 !
 !  High Urobilin Phycoeurythin Carotenoids.
@@ -599,7 +608,7 @@
               IF (iPigs(is,7).gt.0) THEN
                  t(i,j,k,1,iPigs(is,7))=t(i,j,k,1,iPigs(is,1))*         &
      &                                  (b_HPUb(is,ng)+                 &
-     &                                   mxHPUb(is,ng)*cff6) 
+     &                                   mxHPUb(is,ng)*cff6)
               END IF
             END DO
 !

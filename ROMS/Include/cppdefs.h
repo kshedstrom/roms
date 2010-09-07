@@ -1,9 +1,9 @@
 /*
 ** Include file "cppdefs.h"
 **
-** svn $Id: cppdefs.h 1098 2009-11-18 17:54:22Z kate $
+** svn $Id$
 ********************************************************** Hernan G. Arango ***
-** Copyright (c) 2002-2009 The ROMS/TOMS Group                               **
+** Copyright (c) 2002-2010 The ROMS/TOMS Group                               **
 **   Licensed under a MIT/X style license                                    **
 **   See License_ROMS.txt                                                    **
 *******************************************************************************
@@ -87,6 +87,9 @@
 ** SOLAR_SOURCE        use if solar radiation source term                    **
 ** SRELAXATION         use if salinity relaxation as a freshwater flux       **
 ** TS_PSOURCE          use to turn ON or OFF point Sources/Sinks             **
+** TRC_PSOURCE         use if source of inert passive tracers (dyes, etc)    **
+** AGE_PASSIVE         use if aging of inert passive tracers                 **
+** AGE_DISTRIBUTION    use if aging of inert passive tracers                 **
 **                                                                           **
 ** Tracer advection OPTIONS for adjoint-based algorithms:                    **
 **                                                                           **
@@ -167,6 +170,7 @@
 **   which is a function longitude, latitude and day-of-year.                **
 **                                                                           **
 ** ALBEDO              use if albedo equation for shortwave radiation        **
+** ALBEDO_CURVE        use if albedo function of lat from Large and Yeager   **
 ** DIURNAL_SRFLUX      use to impose shortwave radiation local diurnal cycle **
 **                                                                           **
 ** Model configuration OPTIONS:                                              **
@@ -177,14 +181,7 @@
 ** BODYFORCE           use if applying stresses as bodyforces                **
 ** PROFILE             use if time profiling                                 **
 ** AVERAGES            use if writing out time-averaged data                 **
-** AVERAGES_AKV        use if writing out time-averaged AKv                  **
-** AVERAGES_AKT        use if writing out time-averaged AKt                  **
-** AVERAGES_AKS        use if writing out time-averaged AKs                  **
 ** AVERAGES_DETIDE     use if writing out time-averaged detided fields       **
-** AVERAGES_FLUXES     use if writing out time-averaged fluxes               **
-** AVERAGES_NEARSHORE  use if writing out time-averaged nearshore stresses   **
-** AVERAGES_QUADRATIC  use if writing out quadratic terms                    **
-** AVERAGES_BEDLOAD    use if writing out time-averaged bed load             **
 ** DIAGNOSTICS_BIO     use if writing out biological diagnostics             **
 ** DIAGNOSTICS_UV      use if writing out momentum diagnostics               **
 ** DIAGNOSTICS_TS      use if writing out tracer diagnostics                 **
@@ -192,6 +189,10 @@
 ** SPHERICAL           use if analytical spherical grid                      **
 ** STATIONS            use if writing out station data                       **
 ** STATIONS_CGRID      use if extracting data at native C-grid               **
+**                                                                           **
+** OPTIONS for floating iceshelves:                                          **
+**                                                                           **
+** ICESHELF_3EQ        use if using 3 eqn. thermodynamic formulation         **
 **                                                                           **
 ** OPTIONS for Lagrangian drifters:                                          **
 **                                                                           **
@@ -210,6 +211,7 @@
 **    Any of the analytical expressions are coded in "analytical.F".         **
 **                                                                           **
 ** ANA_BIOLOGY         use if analytical biology initial conditions          **
+** ANA_BMFLUX          use if analytical spatially varying bottom roughness  **
 ** ANA_BPFLUX          use if analytical bottom passive tracers fluxes       **
 ** ANA_BSFLUX          use if analytical bottom salinity flux                **
 ** ANA_BTFLUX          use if analytical bottom temperature flux             **
@@ -229,6 +231,7 @@
 ** ANA_PASSIVE         use if analytical inert tracers initial conditions    **
 ** ANA_PERTURB         use if analytical perturbation of initial conditions  **
 ** ANA_PSOURCE         use if analytical point Sources/Sinks                 **
+** ANA_PTOBC           use if analytical passive tracers boundary conditions **
 ** ANA_RAIN            use if analytical rain fall rate                      **
 ** ANA_SEDIMENT        use if analytical sediment initial fields             **
 ** ANA_SMFLUX          use if analytical surface momentum stress             **
@@ -243,6 +246,7 @@
 ** ANA_TAIR            use if analytical surface air temperature             **
 ** ANA_TCLIMA          use if analytical tracers climatology                 **
 ** ANA_TOBC            use if analytical tracers boundary conditions         **
+** ANA_TRC_PSOURCE     use if analytical point sources of inert tracers      **
 ** ANA_VMIX            use if analytical vertical mixing coefficients        **
 ** ANA_WINDS           use if analytical surface winds                       **
 ** ANA_WWAVE           use if analytical wind induced waves                  **
@@ -401,6 +405,12 @@
 ** EAST_TRADIATION     use if tracers radiation condition                    **
 ** EAST_TNUDGING       use if tracers passive/active nudging term            **
 ** EAST_TCLAMPED       use if tracers clamped condition                      **
+**---------------------------------------------------------------------------**
+** EAST_PTGRADIENT    use if passive tracers gradient condition              **
+** EAST_PTRADIATION   use if passive tracers radiation condition             **
+** EAST_PTNUDGING     use if passive tracers passive/active nudging term     **
+** EAST_PTCLAMPED     use if passive tracers clamped condition               **
+**---------------------------------------------------------------------------**
 **                                                                           **
 ** Western edge open boundary conditions OPTIONS:                            **
 **                                                                           **
@@ -425,6 +435,13 @@
 ** WEST_TRADIATION     use if tracers radiation condition                    **
 ** WEST_TNUDGING       use if tracers passive/active nudging term            **
 ** WEST_TCLAMPED       use if tracers clamped condition                      **
+**---------------------------------------------------------------------------**
+** WEST_PTGRADIENT    use if passive tracers gradient condition              **
+** WEST_PTRADIATION   use if passive tracers radiation condition             **
+** WEST_PTNUDGING     use if passive tracers passive/active nudging term     **
+** WEST_PTCLAMPED     use if passive tracers clamped condition               **
+**---------------------------------------------------------------------------**
+
 **                                                                           **
 ** Northern edge open boundary conditions OPTIONS:                           **
 **                                                                           **
@@ -449,6 +466,12 @@
 ** NORTH_TRADIATION    use if tracers radiation condition                    **
 ** NORTH_TNUDGING      use if tracers passive/active nudging term            **
 ** NORTH_TCLAMPED      use if tracers clamped condition                      **
+**---------------------------------------------------------------------------**
+** NORTH_PTGRADIENT    use if passive tracers gradient condition             **
+** NORTH_PTRADIATION   use if passive tracers radiation condition            **
+** NORTH_PTNUDGING     use if passive tracers passive/active nudging term    **
+** NORTH_PTCLAMPED     use if passive tracers clamped condition              **
+**---------------------------------------------------------------------------**
 **                                                                           **
 ** Southern edge open boundary conditions OPTIONS:                           **
 **                                                                           **
@@ -473,6 +496,12 @@
 ** SOUTH_TRADIATION    use if tracers radiation condition                    **
 ** SOUTH_TNUDGING      use if tracers passive/active nudging term            **
 ** SOUTH_TCLAMPED      use if tracers clamped condition                      **
+**---------------------------------------------------------------------------**
+** SOUTH_PTGRADIENT    use if passive tracers gradient condition             **
+** SOUTH_PTRADIATION   use if passive tracers radiation condition            **
+** SOUTH_PTNUDGING     use if passive tracers passive/active nudging term    **
+** SOUTH_PTCLAMPED     use if passive tracers clamped condition              **
+**---------------------------------------------------------------------------**
 **                                                                           **
 ** OPTIONS for tidal forcing at open boundaries:                             **
 **                                                                           **
@@ -524,7 +553,6 @@
 ** ASSIMILATION_UVsur  use if assimilating surface current observations      **
 ** ASSIMILATION_UV     use if assimilating horizontal current observations   **
 ** UV_BAROCLINIC       use if assimilating baroclinic currents only          **
-** NUDGING_SSH         use if nudging SSH observations                       **
 ** NUDGING_SST         use if nudging SST observations                       **
 ** NUDGING_T           use if nudging tracers observations                   **
 ** NUDGING_UVsur       use if nudging surface current observations           **
@@ -535,6 +563,8 @@
 ** ADM_DRIVER          use if generic adjoint model driver                   **
 ** AD_SENSITIVITY      use if adjoint sensitivity driver                     **
 ** AFT_EIGENMODES      use if adjoint finite time eingenmodes driver         **
+** ARRAY_MODES         use if W4DVAR representer matrix array modes          **
+** CLIPPING            use if W4DVAR representer matrix clipping analysis    **
 ** CONVOLUTION         use if adjoint convolution driver                     **
 ** CORRELATION         use if background-error correlation model driver      **
 ** ENSEMBLE            use if ensemble prediction driver                     **
@@ -542,7 +572,7 @@
 ** FT_EIGENMODES       use if finite time eingenmodes driver: normal modes   **
 ** INNER_PRODUCT       use if tangent linear and adjoint inner product check **
 ** IS4DVAR             use if incremental 4DVar data assimilation            **
-** OBS_SENSITIVITY     use if 4DVAR observations sensitivity driver          **
+** IS4DVAR_SENSITIVITY use if I4DVar observations sensitivity driver         **
 ** OPT_OBSERVATIONS    use if optimal observations driver                    **
 ** OPT_PERTURBATION    use if optimal perturbations driver, singular vectors **
 ** PICARD_TEST         use if representer tangent linear model test          **
@@ -565,8 +595,10 @@
 ** AD_IMPULSE          use to force adjoint model with intermittent impulses **
 ** ADJUST_STFLUX       use if including surface tracer flux in 4DVar state   **
 ** ADJUST_WSTRESS      use if including wind-stress in 4DVar state           **
+** ARRAY_MODES_SPLIT   use to separate analysis due to IC, forcing, and OBC  **
 ** BALANCE_OPERATOR    use if error covariance multivariate balance term     **
 ** CELERITY_WRITE      use if writing radiation celerity in forward file     **
+** CLIPPING_SPLIT      use to separate analysis due to IC, forcing, and OBC  **
 ** CONVOLVE            use if convolving solution with diffusion operators   **
 ** DATALESS_LOOPS      use if testing convergence of Picard iterations       **
 ** FORWARD_MIXING      use if processing forward vertical mixing coefficient **
@@ -578,9 +610,11 @@
 ** MULTIPLE_TLM        use if multiple TLM history files in 4DVAR            **
 ** NLM_OUTER           use if nonlinear model as basic state in outer loop   **
 ** OBS_IMPACT          use if observation impact to 4DVAR data assimilation  **
-** POSTERIOR_EOFS      Use if posterior analysis error covariance EOFS       **
-** POSTERIOR_ERROR_F   Use if final posterior analysis error covariance      **
-** POSTERIOR_ERROR_I   Use if initial posterior analysis error covariance    **
+** OBS_IMPACT_SPLIT    use to separate impact due to IC, forcing, and OBC    **
+** POSTERIOR_EOFS      use if posterior analysis error covariance EOFS       **
+** POSTERIOR_ERROR_F   use if final posterior analysis error covariance      **
+** POSTERIOR_ERROR_I   use if initial posterior analysis error covariance    **
+** RECOMPUTE_4DVAR     use if recomputing 4DVar in analysis algorithms       **
 ** RPM_RELAXATION      use if Picard iterations, Diffusive Relaxation of RPM **
 ** SO_SEMI_WHITE       use to activate white/red noise processes             **
 ** SPLINES_VCONV       use to activate implicit splines vertical convolution **
@@ -602,7 +636,6 @@
 ** DENITRIFICATION     use to add denitrification processes                  **
 ** OXYGEN              use to add oxygen dynamics                            **
 ** OCMIP_OXYGEN_SC     use if Schmidt number from Keeling et al. (1998)      **
-** RIVER_BIOLOGY       use to process river biology point-sources            **
 ** TALK_NONCONSERV     use if nonconservative computation of alkalinity      **
 **                                                                           **
 ** Bering Sea biology model OPTIONS:                                         **
@@ -635,6 +668,8 @@
 **    work yet.                                                              **
 **                                                                           **
 ** NEMURO              use if Nemuro ecosystem model.                        **
+** NEMURO_SED1         use if Nemuro sediment remineralization version1      **
+** NEMURO_SED2         use if Nemuro sediment remineralization version1      **
 ** BIO_SEDIMENT        use to restore fallen material to the nutrient pool   **
 ** HOLLING_GRAZING     use Holling-type s-shaped curve grazing (implicit)    **
 ** IVLEV_EXPLICIT      use Ivlev explicit grazing algorithm                  **
@@ -657,7 +692,6 @@
 ** SEDIMENT            use to activate sediment transport model              **
 ** BEDLOAD_MPM         use to activate Meyer-Peter-Mueller bed load          **
 ** BEDLOAD_SOULSBY     use to activate Soulsby wave/current bed load         **
-** RIVER_SEDIMENT      use to process river sediment point-sources           **
 ** SED_DENS            use to activate sediment to affect equation of state  **
 ** SED_MORPH           use to allow bottom model elevation to evolve         **
 ** SUSPLOAD            use to activate suspended load transport              **
@@ -676,11 +710,13 @@
 ** NetCDF input/output OPTIONS:                                              **
 **                                                                           **
 ** DEFLATE             use to set compression NetCDF-4/HDF5 format files     **
-** NETCDF4             use to create NetCDF-4/HDF5 format files              **
+** HDF5                use to create NetCDF-4/HDF5 format files              **
 ** PARALLEL_IO         use to create NetCDF-4/HDF5 format files with MPI-I/O ** 
 ** NO_READ_GHOST       use to not include ghost points during read/scatter   **
 ** NO_WRITE_GRID       use if not writing grid arrays                        **
+** PARALLEL_IO         use if parallel I/O via HDF5 or pnetcdf libraries     **
 ** PERFECT_RESTART     use to include perfect restart variables              **
+** PNETCDF             use if parallel I/O with pnetcdf (classic format)     **
 ** READ_WATER          use if only reading water points data                 **
 ** WRITE_WATER         use if only writing water points data                 **
 ** RST_SINGLE          use if writing single precision restart fields        **
@@ -711,6 +747,7 @@
 ** ICE_SMOLAR          use for MPDATA advection scheme
 ** ICE_UPWIND          use for upwind advection scheme
 ** ICE_BULK_FLUXES     use for ice part of bulk flux computation
+** ICE_CONVSNOW        use for conversion of flooded snow to ice
 **
 ** OPTION to avoid writing current date and CPP options to NetCDF file       **
 ** headers. This is used to compare serial and parallel solutions where      **
@@ -739,6 +776,7 @@
 ** FLT_TEST            Float Tracking Example                                **
 ** GRAV_ADJ            Gravitational Adjustment Example                      **
 ** INLET_TEST          Test Inlet Application                                **
+** ISOMIP              ISOMIP 2.01 Ice Shelf test case                       **
 ** KELVIN              Kelvin wave test                                      **
 ** LAB_CANYON          Lab Canyon, Polar Coordinates Example                 **
 ** LAKE_SIGNELL        Lake Signell Sediment Test Case                       **
@@ -765,6 +803,7 @@
 **                                                                           **
 ** ADRIA02             Adriatic Sea Application                              **
 ** NJ_BIGHT            New Jersey Bight Application                          **
+** WC13                California Current System, 1/3 degree resolution      **
 **                                                                           **
 *******************************************************************************
 *******************************************************************************

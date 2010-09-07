@@ -2,9 +2,9 @@
       MODULE ad_obc_volcons_mod
 #if defined ADJOINT && defined OBC_VOLCONS
 !
-!svn $Id: ad_obc_volcons.F 889 2009-01-09 21:27:08Z arango $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -180,7 +180,7 @@
 !>   &               cff*tl_vbar(i,Jend+1,kinp)
 !>
           ad_vbar(i,Jend+1,kinp)=ad_vbar(i,Jend+1,kinp)-                &
-     &                           cff*ad_my_flux           
+     &                           cff*ad_my_flux
           ad_cff=ad_cff-ad_my_flux*vbar(i,Jend+1,kinp)
 !>        tl_my_area=tl_my_area+tl_cff
 !>

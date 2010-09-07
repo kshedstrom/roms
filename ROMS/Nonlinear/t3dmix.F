@@ -6,9 +6,9 @@
     (defined TS_DIF2  || defined TS_DIF4)
 
 !
-!svn $Id: t3dmix.F 975 2009-05-05 22:51:13Z kate $
+!svn $Id$
 !=======================================================================
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                           Hernan G. Arango   !
 !========================================== Alexander F. Shchepetkin ===

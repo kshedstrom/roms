@@ -1,9 +1,9 @@
 !
 !  ROMS/TOMS IO NetCDF variables.
 !
-!svn $Id: varinfo.dat 895 2009-01-12 21:06:20Z kate $
+!svn $Id$
 !========================================================= Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                                !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                                !
 !    Licensed under a MIT/X style license                                     !
 !    See License_ROMS.txt                                                     !
 !==============================================================================
@@ -3452,11 +3452,47 @@
 !  Boundary variables.
 ! 
 
+'nit_east'                                         ! Input
+  'nitrate eastern boundary condition'
+  'millimole_nitrogen meter-3'                     ! [millimole/m3]
+  'nit_east, scalar, series'
+  'bio_time'
+  'idTbry(ieast,iNit_)'
+  'nulvar'
+  1.0d0
+
+'nit_west'                                         ! Input
+  'nitrate western boundary condition'
+  'millimole_nitrogen meter-3'                     ! [millimole/m3]
+  'nit_west, scalar, series'
+  'bio_time'
+  'idTbry(iwest,iNit_)'
+  'nulvar'
+  1.0d0
+
+'nit_south'                                        ! Input
+  'nitrate southern boundary condition'
+  'millimole_nitrogen meter-3'                     ! [millimole/m3]
+  'nit_south, scalar, series'
+  'bio_time'
+  'idTbry(isouth,iNit_)'
+  'nulvar'
+  1.0d0
+
+'nit_north'                                        ! Input
+  'nitrate northern boundary condition'
+  'millimole_nitrogen meter-3'                     ! [millimole/m3]
+  'nit_north, scalar, series'
+  'bio_time'
+  'idTbry(inorth,iNit_)'
+  'nulvar'
+  1.0d0
+
 'NO3_east'                                         ! Input
   'nitrate eastern boundary condition'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'NO3_east, scalar, series'
-  'NO3_time'
+  'bio_time'
   'idTbry(ieast,iNO3_)'
   'nulvar'
   1.0d0
@@ -3465,7 +3501,7 @@
   'nitrate western boundary condition'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'NO3_west, scalar, series'
-  'NO3_time'
+  'bio_time'
   'idTbry(iwest,iNO3_)'
   'nulvar'
   1.0d0
@@ -3474,7 +3510,7 @@
   'nitrate southern boundary condition'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'NO3_south, scalar, series'
-  'NO3_time'
+  'bio_time'
   'idTbry(isouth,iNO3_)'
   'nulvar'
   1.0d0
@@ -3483,7 +3519,7 @@
   'nitrate northern boundary condition'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'NO3_north, scalar, series'
-  'NO3_time'
+  'bio_time'
   'idTbry(inorth,iNO3_)'
   'nulvar'
   1.0d0
@@ -3600,7 +3636,7 @@
   'ammonium eastern boundary condition'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'NH4_east, scalar, series'
-  'NH4_time'
+  'bio_time'
   'idTbry(ieast,iNH4_)'
   'nulvar'
   1.0d0
@@ -3609,7 +3645,7 @@
   'ammonium western boundary condition'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'NH4_west, scalar, series'
-  'NH4_time'
+  'bio_time'
   'idTbry(iwest,iNH4_)'
   'nulvar'
   1.0d0
@@ -3618,7 +3654,7 @@
   'ammonium southern boundary condition'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'NH4_south, scalar, series'
-  'NH4_time'
+  'bio_time'
   'idTbry(isouth,iNH4_)'
   'nulvar'
   1.0d0
@@ -3627,7 +3663,7 @@
   'ammonium northern boundary condition'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'NH4_north, scalar, series'
-  'NH4_time'
+  'bio_time'
   'idTbry(inorth,iNH4_)'
   'nulvar'
   1.0d0
@@ -3636,7 +3672,7 @@
   'dissolved organic nitrogen eastern boundary condition'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'DON_east, scalar, series'
-  'DON_time'
+  'bio_time'
   'idTbry(ieast,iDON_)'
   'nulvar'
   1.0d0
@@ -3645,7 +3681,7 @@
   'dissolved organic nitrogen western boundary condition'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'DON_west, scalar, series'
-  'DON_time'
+  'bio_time'
   'idTbry(iwest,iDON_)'
   'nulvar'
   1.0d0
@@ -3654,7 +3690,7 @@
   'dissolved organic nitrogen southern boundary condition'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'DON_south, scalar, series'
-  'DON_time'
+  'bio_time'
   'idTbry(isouth,iDON_)'
   'nulvar'
   1.0d0
@@ -3663,7 +3699,7 @@
   'dissolved organic nitrogen northern boundary condition'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'DON_north, scalar, series'
-  'DON_time'
+  'bio_time'
   'idTbry(inorth,iDON_)'
   'nulvar'
   1.0d0
@@ -3672,7 +3708,7 @@
   'particulate organic nitrogen eastern boundary condition'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'PON_east, scalar, series'
-  'PON_time'
+  'bio_time'
   'idTbry(ieast,iPON_)'
   'nulvar'
   1.0d0
@@ -3681,7 +3717,7 @@
   'particulate organic nitrogen western boundary condition'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'PON_west, scalar, series'
-  'PON_time'
+  'bio_time'
   'idTbry(iwest,iPON_)'
   'nulvar'
   1.0d0
@@ -3690,7 +3726,7 @@
   'particulate organic nitrogen southern boundary condition'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'PON_south, scalar, series'
-  'PON_time'
+  'bio_time'
   'idTbry(isouth,iPON_)'
   'nulvar'
   1.0d0
@@ -3699,7 +3735,7 @@
   'particulate organic nitrogen northern boundary condition'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'PON_north, scalar, series'
-  'PON_time'
+  'bio_time'
   'idTbry(inorth,iPON_)'
   'nulvar'
   1.0d0
@@ -3708,7 +3744,7 @@
   'silicate eastern boundary condition'
   'millimole_silica meter-3'                       ! [millimole/m3]
   'SiOH4_east, scalar, series'
-  'SiOH4_time'
+  'bio_time'
   'idTbry(ieast,iSiOH)'
   'nulvar'
   1.0d0
@@ -3717,7 +3753,7 @@
   'silicate western boundary condition'
   'millimole_silica meter-3'                       ! [millimole/m3]
   'SiOH4_west, scalar, series'
-  'SiOH4_time'
+  'bio_time'
   'idTbry(iwest,iSiOH)'
   'nulvar'
   1.0d0
@@ -3726,7 +3762,7 @@
   'silicate southern boundary condition'
   'millimole_silica meter-3'                       ! [millimole/m3]
   'SiOH4_south, scalar, series'
-  'SiOH4_time'
+  'bio_time'
   'idTbry(isouth,iSiOH)'
   'nulvar'
   1.0d0
@@ -3735,7 +3771,7 @@
   'silicate northern boundary condition'
   'millimole_silica meter-3'                       ! [millimole/m3]
   'SiOH4_north, scalar, series'
-  'SiOH4_time'
+  'bio_time'
   'idTbry(inorth,iSiOH)'
   'nulvar'
   1.0d0
@@ -3744,7 +3780,7 @@
   'particulate organic silica eastern boundary condition'
   'millimole_silica meter-3'                       ! [millimole/m3]
   'opal_east, scalar, series'
-  'opal_time'
+  'bio_time'
   'idTbry(ieast,iopal)'
   'nulvar'
   1.0d0
@@ -3753,7 +3789,7 @@
   'particulate organic silica western boundary condition'
   'millimole_silica meter-3'                       ! [millimole/m3]
   'opal_west, scalar, series'
-  'opal_time'
+  'bio_time'
   'idTbry(iwest,iopal)'
   'nulvar'
   1.0d0
@@ -3762,7 +3798,7 @@
   'particulate organic silica southern boundary condition'
   'millimole_silica meter-3'                       ! [millimole/m3]
   'opal_south, scalar, series'
-  'opal_time'
+  'bio_time'
   'idTbry(isouth,iopal)'
   'nulvar'
   1.0d0
@@ -3771,7 +3807,7 @@
   'particulate organic silica northern boundary condition'
   'millimole_silica meter-3'                       ! [millimole/m3]
   'opal_north, scalar, series'
-  'opal_time'
+  'bio_time'
   'idTbry(inorth,iopal)'
   'nulvar'
   1.0d0
@@ -3780,7 +3816,7 @@
   'phytoplankton eastern boundary condition'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'phyt_east, scalar, series'
-  'phyt_time'
+  'bio_time'
   'idTbry(ieast,iPhyt)'
   'nulvar'
   1.0d0
@@ -3789,7 +3825,7 @@
   'phytoplankton western boundary condition'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'phyt_west, scalar, series'
-  'phyt_time'
+  'bio_time'
   'idTbry(iwest,iPhyt)'
   'nulvar'
   1.0d0
@@ -3798,7 +3834,7 @@
   'phytoplankton southern boundary condition'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'phyt_south, scalar, series'
-  'phyt_time'
+  'bio_time'
   'idTbry(isouth,iPhyt)'
   'nulvar'
   1.0d0
@@ -3807,7 +3843,7 @@
   'phytoplankton northern boundary condition'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'phyt_north, scalar, series'
-  'phyt_time'
+  'bio_time'
   'idTbry(inorth,iPhyt)'
   'nulvar'
   1.0d0
@@ -3816,7 +3852,7 @@
   'nanophytoplankton eastern boundary condition'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'nanophy_east, scalar, series'
-  'nanophy_time'
+  'bio_time'
   'idTbry(ieast,iSphy)'
   'nulvar'
   1.0d0
@@ -3825,7 +3861,7 @@
   'nanophytoplankton western boundary condition'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'nanophy_west, scalar, series'
-  'nanophy_time'
+  'bio_time'
   'idTbry(iwest,iSphy)'
   'nulvar'
   1.0d0
@@ -3834,7 +3870,7 @@
   'nanophytoplankton southern boundary condition'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'nanophy_south, scalar, series'
-  'nanophy_time'
+  'bio_time'
   'idTbry(isouth,iSphy)'
   'nulvar'
   1.0d0
@@ -3843,7 +3879,7 @@
   'nanophytoplankton northern boundary condition'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'nanophy_north, scalar, series'
-  'nanophy_time'
+  'bio_time'
   'idTbry(inorth,iSphy)'
   'nulvar'
   1.0d0
@@ -3852,7 +3888,7 @@
   'diatom eastern boundary condition'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'diatom_east, scalar, series'
-  'diatom_time'
+  'bio_time'
   'idTbry(ieast,iLphy)'
   'nulvar'
   1.0d0
@@ -3861,7 +3897,7 @@
   'diatom western boundary condition'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'diatom_west, scalar, series'
-  'diatom_time'
+  'bio_time'
   'idTbry(iwest,iLphy)'
   'nulvar'
   1.0d0
@@ -3870,7 +3906,7 @@
   'diatom southern boundary condition'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'diatom_south, scalar, series'
-  'diatom_time'
+  'bio_time'
   'idTbry(isouth,iLphy)'
   'nulvar'
   1.0d0
@@ -3879,7 +3915,7 @@
   'diatom northern boundary condition'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'diatom_north, scalar, series'
-  'diatom_time'
+  'bio_time'
   'idTbry(inorth,iLphy)'
   'nulvar'
   1.0d0
@@ -3888,7 +3924,7 @@
   'zooplankton eastern boundary condition'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'zoop_east, scalar, series'
-  'zoop_time'
+  'bio_time'
   'idTbry(ieast,iZoop)'
   'nulvar'
   1.0d0
@@ -3897,7 +3933,7 @@
   'zooplankton western boundary condition'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'zoop_west, scalar, series'
-  'zoop_time'
+  'bio_time'
   'idTbry(iwest,iZoop)'
   'nulvar'
   1.0d0
@@ -3906,7 +3942,7 @@
   'zooplankton southern boundary condition'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'zoop_south, scalar, series'
-  'zoop_time'
+  'bio_time'
   'idTbry(isouth,iZoop)'
   'nulvar'
   1.0d0
@@ -3915,7 +3951,7 @@
   'zooplankton northern boundary condition'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'zoop_north, scalar, series'
-  'zoop_time'
+  'bio_time'
   'idTbry(inorth,iZoop)'
   'nulvar'
   1.0d0
@@ -3924,7 +3960,7 @@
   'microzooplankton eastern boundary condition'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'microzoo_east, scalar, series'
-  'microzoo_time'
+  'bio_time'
   'idTbry(ieast,iSzoo)'
   'nulvar'
   1.0d0
@@ -3933,7 +3969,7 @@
   'microzooplankton western boundary condition'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'microzoo_west, scalar, series'
-  'microzoo_time'
+  'bio_time'
   'idTbry(iwest,iSzoo)'
   'nulvar'
   1.0d0
@@ -3942,7 +3978,7 @@
   'microzooplankton southern boundary condition'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'microzoo_south, scalar, series'
-  'microzoo_time'
+  'bio_time'
   'idTbry(isouth,iSzoo)'
   'nulvar'
   1.0d0
@@ -3951,7 +3987,7 @@
   'microzooplankton northern boundary condition'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'microzoo_north, scalar, series'
-  'microzoo_time'
+  'bio_time'
   'idTbry(inorth,iSzoo)'
   'nulvar'
   1.0d0
@@ -3960,7 +3996,7 @@
   'mesozooplankton eastern boundary condition'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'mesozoo_east, scalar, series'
-  'mesozoo_time'
+  'bio_time'
   'idTbry(ieast,iLzoo)'
   'nulvar'
   1.0d0
@@ -3969,7 +4005,7 @@
   'mesozooplankton western boundary condition'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'mesozoo_west, scalar, series'
-  'mesozoo_time'
+  'bio_time'
   'idTbry(iwest,iLzoo)'
   'nulvar'
   1.0d0
@@ -3978,7 +4014,7 @@
   'mesozooplankton southern boundary condition'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'mesozoo_south, scalar, series'
-  'mesozoo_time'
+  'bio_time'
   'idTbry(isouth,iLzoo)'
   'nulvar'
   1.0d0
@@ -3987,7 +4023,7 @@
   'mesozooplankton northern boundary condition'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'mesozoo_north, scalar, series'
-  'mesozoo_time'
+  'bio_time'
   'idTbry(inorth,iLzoo)'
   'nulvar'
   1.0d0
@@ -3996,7 +4032,7 @@
   'predator-zooplankton eastern boundary condition'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'Pzoo_east, scalar, series'
-  'Pzoo_time'
+  'bio_time'
   'idTbry(ieast,iPzoo)'
   'nulvar'
   1.0d0
@@ -4005,7 +4041,7 @@
   'predator-zooplankton western boundary condition'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'Pzoo_west, scalar, series'
-  'Pzoo_time'
+  'bio_time'
   'idTbry(iwest,iPzoo)'
   'nulvar'
   1.0d0
@@ -4014,7 +4050,7 @@
   'predator-zooplankton southern boundary condition'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'Pzoo_south, scalar, series'
-  'Pzoo_time'
+  'bio_time'
   'idTbry(isouth,iPzoo)'
   'nulvar'
   1.0d0
@@ -4023,7 +4059,7 @@
   'predator-zooplankton northern boundary condition'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'Pzoo_north, scalar, series'
-  'Pzoo_time'
+  'bio_time'
   'idTbry(inorth,iPzoo)'
   'nulvar'
   1.0d0
@@ -4068,7 +4104,7 @@
   'detritus eastern boundary condition'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'detritus_east, scalar, series'
-  'detritus_time'
+  'bio_time'
   'idTbry(ieast,iSDet)'
   'nulvar'
   1.0d0
@@ -4077,7 +4113,7 @@
   'detritus western boundary condition'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'detritus_west, scalar, series'
-  'detritus_time'
+  'bio_time'
   'idTbry(iwest,iSDet)'
   'nulvar'
   1.0d0
@@ -4086,7 +4122,7 @@
   'detritus southern boundary condition'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'detritus_south, scalar, series'
-  'detritus_time'
+  'bio_time'
   'idTbry(isouth,iSDet)'
   'nulvar'
   1.0d0
@@ -4095,8 +4131,188 @@
   'detritus northern boundary condition'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'detritus_north, scalar, series'
-  'detritus_time'
+  'bio_time'
   'idTbry(inorth,iSDet)'
+  'nulvar'
+  1.0d0
+
+'ironp_east'                                       ! Input
+  'phytop. iron eastern boundary condition'
+  'millimole_iron meter-3'                         ! [millimole/m3]
+  'ironp_east, scalar, series'                     
+  'bio_time'
+  'idTbry(ieast,iFdis)'
+  'nulvar'
+  1.0d0
+  
+'ironp_west'                                       ! Input
+  'phytop. iron western boundary condition'
+  'millimole_iron meter-3'                         ! [millimole/m3]
+  'ironp_west, scalar, series'                     
+  'bio_time'
+  'idTbry(iwest,iFphy)'
+  'nulvar'
+  1.0d0
+
+'ironp_north'                                      ! Input
+  'phytop. iron northern boundary condition'
+  'millimole_iron meter-3'                         ! [millimole/m3]
+  'ironp_north, scalar, series'
+  'bio_time'
+  'idTbry(inorth,iFphy)'
+  'nulvar'
+  1.0d0
+
+'ironp_south'                                      ! Input
+  'phytop. iron southern boundary condition'
+  'millimole_iron meter-3'                         ! [millimole/m3]
+  'ironp_south, scalar, series'
+  'bio_time'
+  'idTbry(isouth,iFphy)'
+  'nulvar'
+  1.0d0
+
+'irond_east'                                       ! Input
+  'disolved iron eastern boundary condition'
+  'millimole_iron meter-3'                         ! [millimole/m3]
+  'irond_east, scalar, series'
+  'bio_time'
+  'idTbry(ieast,iFdis)'
+  'nulvar'
+  1.0d0
+
+'irond_west'                                       ! Input
+  'disolved iron western boundary condition'
+  'millimole_iron meter-3'                         ! [millimole/m3]
+  'irond_west, scalar, series'
+  'bio_time'
+  'idTbry(iwest,iFdis)'
+  'nulvar'
+  1.0d0
+
+'irond_north'                                      ! Input
+  'disolved iron northern boundary condition'
+  'millimole_iron meter-3'                         ! [millimole/m3]
+  'irond_north, scalar, series'
+  'bio_time'
+  'idTbry(inorth,iFdis)'
+  'nulvar'
+  1.0d0
+
+'irond_south'                                      ! Input
+  'disolved iron southern boundary condition'
+  'millimole_iron meter-3'                         ! [millimole/m3]
+  'irond_south, scalar, series'
+  'bio_time'
+  'idTbry(isouth,iFdis)'
+  'nulvar'
+  1.0d0
+
+'FeSp_east'                                        ! Input
+  'small phytop. iron eastern boundary condition'
+  'millimole_iron meter-3'                         ! [millimole/m3]
+  'FeSp_east, scalar, series'
+  'bio_time'
+  'idTbry(ieast,iFeSp)'
+  'nulvar'
+  1.0d0
+
+'FeSp_west'                                        ! Input
+  'small phytop. iron western boundary condition'
+  'millimole_iron meter-3'                         ! [millimole/m3]
+  'FeSp_west, scalar, series'
+  'bio_time'
+  'idTbry(iwest,iFeSp)'
+  'nulvar'
+  1.0d0
+
+'FeSp_north'                                       ! Input
+  'small phytop. iron northern boundary condition'
+  'millimole_iron meter-3'                         ! [millimole/m3]
+  'FeSp_north, scalar, series'
+  'bio_time'
+  'idTbry(inorth,iFeSp)'
+  'nulvar'
+  1.0d0
+
+'FeSp_south'                                       ! Input
+  'small phytop. iron southern boundary condition'
+  'millimole_iron meter-3'                         ! [millimole/m3]
+  'FeSp_south, scalar, series'
+  'bio_time'
+  'idTbry(isouth,iFeSp)'
+  'nulvar'
+  1.0d0
+
+'FeLp_east'                                        ! Input
+  'large phytop. iron eastern boundary condition'
+  'millimole_iron meter-3'                         ! [millimole/m3]
+  'FeLp_east, scalar, series'
+  'bio_time'
+  'idTbry(ieast,iFeLp)'
+  'nulvar'
+  1.0d0
+
+'FeLp_west'                                        ! Input
+  'large phytop. iron western boundary condition'
+  'millimole_iron meter-3'                         ! [millimole/m3]
+  'FeLp_west, scalar, series'
+  'bio_time'
+  'idTbry(iwest,iFeLp)'
+  'nulvar'
+  1.0d0
+
+'FeLp_north'                                       ! Input
+  'large phytop. iron northern boundary condition'
+  'millimole_iron meter-3'                         ! [millimole/m3]
+  'FeLp_north, scalar, series'
+  'bio_time'
+  'idTbry(inorth,iFeLp)'
+  'nulvar'
+  1.0d0
+
+'FeLp_south'                                       ! Input
+  'large phytop. iron southern boundary condition'
+  'millimole_iron meter-3'                         ! [millimole/m3]
+  'FeLp_south, scalar, series'
+  'bio_time'
+  'idTbry(isouth,iFeLp)'
+  'nulvar'
+  1.0d0
+
+'FeD_east'                                         ! Input
+  'disolved iron eastern boundary condition'
+  'millimole_iron meter-3'                         ! [millimole/m3]
+  'FeD_east, scalar, series'
+  'bio_time'
+  'idTbry(ieast,iFeD_)'
+  'nulvar'
+  1.0d0
+
+'FeD_west'                                         ! Input
+  'disolved iron western boundary condition'
+  'millimole_iron meter-3'                         ! [millimole/m3]
+  'FeD_west, scalar, series'
+  'bio_time'
+  'idTbry(iwest,iFeD_)'
+  'nulvar'
+  1.0d0
+
+'FeD_north'                                        ! Input
+  'disolved iron northern boundary condition'
+  'millimole_iron meter-3'                         ! [millimole/m3]
+  'FeD_north, scalar, series'
+  'bio_time'
+  'idTbry(inorth,iFeD_)'
+  'nulvar'
+  1.0d0
+
+'FeD_south'                                        ! Input
+  'disolved iron southern boundary condition'
+  'millimole_iron meter-3'                         ! [millimole/m3]
+  'FeD_south, scalar, series'
+  'bio_time'
+  'idTbry(isouth,iFeD_)'
   'nulvar'
   1.0d0
 

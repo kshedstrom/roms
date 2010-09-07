@@ -1,8 +1,8 @@
       MODULE ocean_control_mod
 !
-!svn $Id: convolution.h 975 2009-05-05 22:51:13Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -208,6 +208,7 @@
 #ifdef BALANCE_OPERATOR
       integer :: Lbck = 1
 #endif
+      integer :: NRMrec
 !
 !-----------------------------------------------------------------------
 !  Run model for all nested grids, if any.
@@ -259,19 +260,20 @@
           LdefNRM(1:4,ng)=.FALSE.
           LwrtNRM(1:4,ng)=.FALSE.
         ELSE
-          CALL get_state (ng, 5, 5, NRMname(1,ng), 1, 1)
+          NRMrec=1
+          CALL get_state (ng, 5, 5, NRMname(1,ng), NRMrec, 1)
           IF (exit_flag.ne.NoError) RETURN
 
           IF (NSA.eq.2) THEN
-            CALL get_state (ng, 5, 5, NRMname(2,ng), 1, 2)
+            CALL get_state (ng, 5, 5, NRMname(2,ng), NRMrec, 2)
             IF (exit_flag.ne.NoError) RETURN
           END IF
 #ifdef ADJUST_BOUNDARY
-          CALL get_state (ng, 10, 10, NRMname(3,ng), 1, 1)
+          CALL get_state (ng, 10, 10, NRMname(3,ng), NRMrec, 1)
           IF (exit_flag.ne.NoError) RETURN
 #endif
 #if defined ADJUST_WSTRESS || defined ADJUST_STFLUX
-          CALL get_state (ng, 11, 11, NRMname(4,ng), 1, 1)
+          CALL get_state (ng, 11, 11, NRMname(4,ng), NRMrec, 1)
           IF (exit_flag.ne.NoError) RETURN
 #endif
         END IF
@@ -335,9 +337,9 @@
           CALL get_state (ng, iTLM, 4, IADname(ng), IADrec, Lnew(ng))
           IF (exit_flag.ne.NoError) RETURN
 !
-!  Load interior solution, read above, into adjoint state arrays. 
+!  Load interior solution, read above, into adjoint state arrays.
 !  Then, multiply adjoint solution by the background-error standard
-!  deviations. Next, convolve resulting adjoint solution with the 
+!  deviations. Next, convolve resulting adjoint solution with the
 !  squared-root adjoint diffusion operator which impose the model-error
 !  spatial correlations. Notice that the spatial convolution is only
 !  done for half of the diffusion steps (squared-root filter). Clear
@@ -446,7 +448,7 @@
       DO ng=1,Ngrids
         IF (LwrtRST(ng).and.(exit_flag.eq.1)) THEN
           IF (Master) WRITE (stdout,10)
- 10       FORMAT (/,' Blowing-up: Saving latest model state into ',     & 
+ 10       FORMAT (/,' Blowing-up: Saving latest model state into ',     &
      &              ' RESTART file',/)
           IF (LcycleRST(ng).and.(NrecRST(ng).ge.2)) THEN
             tRSTindx(ng)=2

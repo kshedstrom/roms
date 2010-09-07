@@ -4,9 +4,9 @@
      &                      Istr, Iend, Jrec,                           &
      &                      Fout)
 !
-!svn $Id: get_ngfld.F 1101 2009-11-19 00:56:17Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -295,6 +295,11 @@
               ELSE
                 Tmono=Tmono+(Tstr-MOD(tdays(ng)+Tstr,Clength))
               END IF
+#ifdef SOGLOBEC
+              IF ((tdays(ng)-Tmono).gt.Clength) THEN
+                Tmono=Tmono+Clength
+              END IF
+#endif
             END IF
           ELSE
             IF (tdays(ng).gt.Clength) THEN
@@ -409,13 +414,13 @@
               IF (Master) WRITE (stdout,50) TRIM(Vname(1,ifield)), Trec
               RETURN
             END IF
-            Fmin=A(1)*Finfo(10,ifield,ng)*Fscale(ifield,ng)
-            Fmax=A(1)*Finfo(10,ifield,ng)*Fscale(ifield,ng)
+            Fmin=A(1)*Fscale(ifield,ng)
+            Fmax=A(1)*Fscale(ifield,ng)
             ic=0
             DO j=1,Jrec
               DO i=Istr,Iend
                 ic=ic+1
-                Aval=A(ic)*Finfo(10,ifield,ng)*Fscale(ifield,ng)
+                Aval=A(ic)*Fscale(ifield,ng)
                 Fmin=MIN(Fmin,Aval)
                 Fmax=MAX(Fmax,Aval)
                 Fout(i,j,Tindex)=Aval
@@ -469,7 +474,7 @@
   60  FORMAT (3x,' GET_NGFLD   - ',a,/,19x,'(Min = ',1pe15.8,' Max = ', &
      &        1pe15.8,')')
   70  FORMAT (3x,' GET_NGFLD   - ',a,',',t62,'t = ',a,/,19x,            &
-     &        '(Rec=',i4.4,', Index=',i1,', File: ',a,')',/,19x,        &
+     &        '(Rec=',i5.5,', Index=',i1,', File: ',a,')',/,19x,        &
      &        '(Tmin= ', f15.4, ' Tmax= ', f15.4,')',/, 19x,            &
      &        '(Min = ', 1p,e15.8,0p,' Max = ',1p,e15.8,0p,')')
 

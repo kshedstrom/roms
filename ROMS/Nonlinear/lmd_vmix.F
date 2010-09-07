@@ -2,9 +2,9 @@
       MODULE lmd_vmix_mod
 #if defined NONLINEAR && defined LMD_MIXING && defined SOLVE3D
 !
-!svn $Id: lmd_vmix.F 1090 2009-10-27 23:59:27Z kate $
+!svn $Id$
 !=======================================================================
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                           Hernan G. Arango   !
 !========================================== Alexander F. Shchepetkin ===
@@ -354,7 +354,7 @@
 !
 # ifdef ISOMIP
             Akv(i,j,k)=lmd_iwm
-            Akt(i,j,k)=lmd_iws
+            Akt(i,j,k,itemp)=lmd_iws
 # else
             Akv(i,j,k)=lmd_iwm+lmd_nu0m*nu_sx
             Akt(i,j,k,itemp)=lmd_iws+lmd_nu0s*nu_sx
@@ -568,11 +568,7 @@
             Akv(i,j,k)=Akv(i,j,k)+lmd_nu0c*nu_sxc
             Akt(i,j,k,itemp)=Akt(i,j,k,itemp)+lmd_nu0c*nu_sxc
 #  ifdef SALINITY
-#   ifdef LIMIT_BIO_AKT
-            Akt(i,j,k,isalt)=MIN(Akt(i,j,k,itemp),0.25)
-#   else
             Akt(i,j,k,isalt)=Akt(i,j,k,isalt)+lmd_nu0c*nu_sxc
-#   endif
 #  endif
 # endif
           END DO

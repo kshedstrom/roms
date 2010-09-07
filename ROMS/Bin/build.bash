@@ -1,8 +1,8 @@
 #!/bin/bash
-# 
-# svn $Id: build.bash 1020 2009-07-10 23:10:30Z kate $
+#
+# svn $Id$
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-# Copyright (c) 2002-2009 The ROMS/TOMS Group                           :::
+# Copyright (c) 2002-2010 The ROMS/TOMS Group                           :::
 #   Licensed under a MIT/X style license                                :::
 #   See License_ROMS.txt                                                :::
 #::::::::::::::::::::::::::::::::::::::::::::::::::::: Hernan G. Arango :::
@@ -41,7 +41,7 @@
 parallel=0
 clean=1
 
-while [ $# -gt 0 ] 
+while [ $# -gt 0 ]
 do
   case "$1" in
     -j )
@@ -73,11 +73,11 @@ do
       echo ""
       exit 1
       ;;
-  esac         
+  esac
 done
 
 # Set the CPP option defining the particular application. This will
-# determine the name of the ".h" header file with the application 
+# determine the name of the ".h" header file with the application
 # CPP definitions.
 
 export   ROMS_APPLICATION=UPWELLING
@@ -93,15 +93,15 @@ export        NestedGrids=1
 export        MY_ROOT_DIR=/home/arango/ocean/toms/repository
 export     MY_PROJECT_DIR=${PWD}
 
-# The path to the user's local current ROMS source code. 
+# The path to the user's local current ROMS source code.
 #
-# If using svn locally, this would be the user's Working Copy Path (WCPATH). 
-# Note that one advantage of maintaining your source code locally with svn 
-# is that when working simultaneously on multiple machines (e.g. a local 
-# workstation, a local cluster and a remote supercomputer) you can checkout 
-# the latest release and always get an up-to-date customized source on each 
-# machine. This script is designed to more easily allow for differing paths 
-# to the code and inputs on differing machines. 
+# If using svn locally, this would be the user's Working Copy Path (WCPATH).
+# Note that one advantage of maintaining your source code locally with svn
+# is that when working simultaneously on multiple machines (e.g. a local
+# workstation, a local cluster and a remote supercomputer) you can checkout
+# the latest release and always get an up-to-date customized source on each
+# machine. This script is designed to more easily allow for differing paths
+# to the code and inputs on differing machines.
 
 export        MY_ROMS_SRC=${MY_ROOT_DIR}/branches/arango
 
@@ -139,6 +139,16 @@ export        MY_ROMS_SRC=${MY_ROOT_DIR}/branches/arango
 #export         USE_DEBUG=on
  export         USE_LARGE=on
 #export       USE_NETCDF4=on
+
+# Activate Data Access Protocol (like OPeNDAP) support for input
+# NetCDF files.  This is only possible for NetCDF library version
+# 4.1.1 or higher. Also, add the path of the "curl-config" script
+# that includes all linking libraries for DAP support.
+
+if [ -n "${USE_NETCDF4:+1}" ]; then
+ export           USE_DAP=on
+ export              PATH=/usr/bin:$PATH
+fi
 
 # There are several MPI libraries out there. The user can select here the
 # appropriate "mpif90" script to compile, provided that the makefile
@@ -189,7 +199,7 @@ fi
 # serial and parallel version of the NetCDF-4/HDF5 library. The
 # parallel library uses parallel I/O through MPI-I/O so we need
 # compile also with the MPI library. This is fine in ROMS
-# distributed-memory applications.  However, in serial or 
+# distributed-memory applications.  However, in serial or
 # shared-memory ROMS applications we need to use the serial
 # version of the NetCDF-4/HDF5 to avoid conflicts with the
 # compiler. Recall also that the MPI library comes in several
@@ -368,7 +378,7 @@ fi
  export            BINDIR=${MY_PROJECT_DIR}
 
 # Put the f90 files in a project specific Build directory to avoid conflict
-# with other projects. 
+# with other projects.
 
  export       SCRATCH_DIR=${MY_PROJECT_DIR}/Build
 
@@ -377,13 +387,13 @@ fi
 
  cd ${MY_ROMS_SRC}
 
-# Remove build directory. 
+# Remove build directory.
 
 if [ $clean -eq 1 ]; then
   make clean
 fi
 
-# Compile (the binary will go to BINDIR set above).  
+# Compile (the binary will go to BINDIR set above).
 
 if [ $parallel -eq 1 ]; then
   make $NCPUS

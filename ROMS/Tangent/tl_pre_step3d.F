@@ -3,9 +3,9 @@
 #if defined TANGENT && defined SOLVE3D
 # define NEUMANN
 !
-!svn $Id: tl_pre_step3d.F 1036 2009-08-11 19:49:12Z arango $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group       Andrew M. Moore   !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -73,7 +73,6 @@
      &                         nrhs(ng), nstp(ng), nnew(ng),            &
 # ifdef TS_PSOURCE
      &                         Msrc(ng), Nsrc(ng),                      &
-     &                         SOURCES(ng) % Lsrc,                      &
      &                         SOURCES(ng) % Isrc,                      &
      &                         SOURCES(ng) % Jsrc,                      &
      &                         SOURCES(ng) % Dsrc,                      &
@@ -144,7 +143,7 @@
      &                               nrhs, nstp, nnew,                  &
 # ifdef TS_PSOURCE
      &                               Msrc, Nsrc,                        &
-     &                               Lsrc, Isrc, Jsrc, Dsrc,            &
+     &                               Isrc, Jsrc, Dsrc,                  &
      &                               Tsrc,                              &
 # endif
 # ifdef MASKING
@@ -203,8 +202,6 @@
 !
 # ifdef ASSUMED_SHAPE
 #  ifdef TS_PSOURCE
-      logical, intent(in) :: Lsrc(:,:)
-
       integer, intent(in) :: Isrc(:)
       integer, intent(in) :: Jsrc(:)
 
@@ -285,8 +282,6 @@
 # else
 
 #  ifdef TS_PSOURCE
-      logical, intent(in) :: Lsrc(Msrc,NT(ng))
-
       integer, intent(in) :: Isrc(Msrc)
       integer, intent(in) :: Jsrc(Msrc)
 
@@ -710,7 +705,7 @@
           DO is=1,Nsrc
             i=Isrc(is)
             j=Jsrc(is)
-            IF (Lsrc(is,itrc).and.                                      &
+            IF (LtracerSrc(itrc,ng).and.                                &
      &          ((Istr.le.i).and.(i.le.Iend+1)).and.                    &
      &          ((Jstr.le.j).and.(j.le.Jend+1))) THEN
               IF (INT(Dsrc(is)).eq.0) THEN
@@ -870,7 +865,7 @@
             tl_FC(i,N(ng))=(3.0_r8*tl_t(i,j,N(ng),nstp,itrc)-           &
      &                      tl_FC(i,N(ng)-1))/                          &
      &                     (2.0_r8-CF(i,N(ng)))
-#    else 
+#    else
 !>          FC(i,N(ng))=(2.0_r8*t(i,j,N(ng),nstp,itrc)-                 &
 !>   &                   FC(i,N(ng)-1))/(1.0_r8-CF(i,N(ng)))
 !>
@@ -1112,7 +1107,8 @@
 !
 !  Compute vertical diffusive fluxes "FC" of the tracer fields at
 !  current time step n, and at horizontal RHO-points and vertical
-!  W-points.
+!  W-points.  Notice that the vertical diffusion coefficients for
+!  passive tracers is the same as that for salinity (ltrc=NAT).
 !
       DO j=Jstr,Jend
         cff3=dt(ng)*(1.0_r8-lambda)
@@ -1136,20 +1132,31 @@
      &                    tl_cff*(Akt(i,j,k,ltrc)*                      &
      &                            (t(i,j,k+1,nstp,itrc)-                &
      &                             t(i,j,k,nstp,itrc))))
+            END DO
+          END DO
+
 #  ifdef LMD_NONLOCAL_NOT_YET
 !
 !  Add in the nonlocal transport flux for unstable (convective)
 !  forcing conditions into matrix FC when using the Large et al.
-!  KPP scheme.
+!  KPP scheme. The nonlocal transport is only applied to active
+!  tracers.
 !
-!>            FC(i,k)=FC(i,k)-dt(ng)*Akt(i,j,k,ltrc)*ghats(i,j,k,ltrc)
+          IF (itrc.le.NAT) THEN
+            DO k=1,N(ng)-1
+              DO i=Istr,Iend
+!>              FC(i,k)=FC(i,k)-                                        &
+!>   &                  dt(ng)*Akt(i,j,k,itrc)*ghats(i,j,k,itrc)
 !>
-              tl_FC(i,k)=tl_FC(i,k)-                                    &
-     &                   dt(ng)*(tl_Akt(i,j,k,ltrc)*ghats(i,j,k,ltrc)+  &
-     &                           Akt(i,j,k,ltrc)*tl_ghats(i,j,k,ltrc))
-#  endif
+                tl_FC(i,k)=tl_FC(i,k)-                                  &
+     &                     dt(ng)*(tl_Akt(i,j,k,itrc)*                  &
+     &                             ghats(i,j,k,itrc)+                   &
+     &                             Akt(i,j,k,itrc)*                     &
+     &                             tl_ghats(i,j,k,itrc))
+              END DO
             END DO
-          END DO
+          END IF
+#  endif
 #  ifdef SOLAR_SOURCE
 !
 !  Add in incoming solar radiation at interior W-points using decay

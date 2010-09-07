@@ -4,9 +4,9 @@
       SUBROUTINE ad_congrad (ng, model, outLoop, innLoop, NinnLoop,     &
      &                       Lcgini)
 !
-!svn $Id: ad_congrad.F 1087 2009-10-21 00:21:28Z kate $
+!svn $Id$
 !=================================================== Andrew M. Moore ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group      Hernan G. Arango   !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group      Hernan G. Arango   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -160,7 +160,7 @@
 !  Initialize internal parameters.  This is needed here for output
 !  reasons.
 !
-! 
+!
 ! Clear arrays.
 !
         ADmodVal=0.0_r8
@@ -179,7 +179,7 @@
         IF (innLoop.eq.0) THEN
 
 # ifdef W4DPSAS
-!  
+!
 !  If this is the first inner-loop, save NLmodVal in BCKmodVal.
 !
           DO iobs=1,Ndatum(ng)
@@ -304,7 +304,7 @@
             END DO
 
 # ifdef W4DPSAS_SENSITIVITY
-! 
+!
 !  For observation sensitivity, copy ADmodVal into TLmodVal.
 !
 !           DO iobs=1,Ndatum(ng)
@@ -577,7 +577,7 @@
 !>
               ad_px(iobs)=0.0_r8
             END DO
- 
+
             IF (NinnLoop.eq.1) THEN
               zu(1)=-cg_QG(1,outLoop)/cg_delta(1,outLoop)
 !>            tl_zu(1)=tl_zrhs(1)/cg_delta(1,outLoop)
@@ -989,7 +989,7 @@
 # ifdef DISTRIBUTE
 !
 !  Broadcast new solution to other nodes.
-!     
+!
       CALL mp_bcasti (ng, model, exit_flag)
       CALL mp_bcastf (ng, model, ADmodVal)
       CALL mp_bcastf (ng, model, ad_ObsVal)

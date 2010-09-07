@@ -1,7 +1,7 @@
 /*
-** svn $Id: double_gyre.h 1098 2009-11-18 17:54:22Z kate $
+** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2009 The ROMS/TOMS Group                               **
+** Copyright (c) 2002-2010 The ROMS/TOMS Group                               **
 **   Licensed under a MIT/X style license                                    **
 **   See License_ROMS.txt                                                    **
 *******************************************************************************
@@ -303,9 +303,6 @@
 #  define NORTHERN_WALL
 #  define SOUTHERN_WALL
 #  define ANA_SMFLUX
-#  undef  ENERGY1_NORM
-#  undef  ENERGY2_NORM
-#  undef  ENERGY3_NORM
 #  define FORWARD_WRITE
 #  define FORWARD_READ
 #  define OUT_DOUBLE
@@ -412,10 +409,6 @@
 #  define NONLIN_EOS
 #  undef  SPLINES
 #  define AVERAGES
-#  define AVERAGES_FLUXES
-#  define AVERAGES_AKV
-#  define AVERAGES_AKT
-#  define AVERAGES_QUADRATIC
 #  define WESTERN_WALL
 #  define EASTERN_WALL
 #  define NORTHERN_WALL

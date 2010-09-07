@@ -3,9 +3,9 @@
 #if defined NONLINEAR && defined SOLVE3D
 # define NEUMANN
 !
-!svn $Id: pre_step3d.F 1090 2009-10-27 23:59:27Z kate $
+!svn $Id$
 !=======================================================================
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                           Hernan G. Arango   !
 !========================================== Alexander F. Shchepetkin ===
@@ -69,7 +69,6 @@
      &                      nrhs(ng), nstp(ng), nnew(ng),               &
 # ifdef TS_PSOURCE
      &                      Msrc(ng), Nsrc(ng),                         &
-     &                      SOURCES(ng) % Lsrc,                         &
      &                      SOURCES(ng) % Isrc,                         &
      &                      SOURCES(ng) % Jsrc,                         &
      &                      SOURCES(ng) % Dsrc,                         &
@@ -129,7 +128,7 @@
      &                            nrhs, nstp, nnew,                     &
 # ifdef TS_PSOURCE
      &                            Msrc, Nsrc,                           &
-     &                            Lsrc, Isrc, Jsrc, Dsrc,               &
+     &                            Isrc, Jsrc, Dsrc,                     &
      &                            Tsrc,                                 &
 # endif
 # ifdef MASKING
@@ -161,6 +160,12 @@
 !
       USE mod_param
       USE mod_scalars
+# ifdef SOGLOBEC
+      USE mod_clima
+# endif
+# ifdef BEST_NPZ
+      USE mod_biology
+# endif
 !
 # if defined EW_PERIODIC || defined NS_PERIODIC
       USE exchange_3d_mod, ONLY : exchange_r3d_tile
@@ -169,6 +174,9 @@
       USE mp_exchange_mod, ONLY : mp_exchange4d
 # endif
       USE t3dbc_mod, ONLY : t3dbc_tile
+# ifdef T_PASSIVE
+      USE pt3dbc_mod, ONLY : pt3dbc_tile
+# endif
 !
 !  Imported variable declarations.
 !
@@ -182,8 +190,6 @@
 !
 # ifdef ASSUMED_SHAPE
 #  ifdef TS_PSOURCE
-      logical, intent(in) :: Lsrc(:,:)
-
       integer, intent(in) :: Isrc(:)
       integer, intent(in) :: Jsrc(:)
 
@@ -243,8 +249,6 @@
 # else
 
 #  ifdef TS_PSOURCE
-      logical, intent(in) :: Lsrc(Msrc,NT(ng))
-
       integer, intent(in) :: Isrc(Msrc)
       integer, intent(in) :: Jsrc(Msrc)
 
@@ -311,6 +315,9 @@
 # endif
       integer :: i, ibt, indx, is, itrc, j, k, ltrc
 
+# if defined DIAGNOSTICS_TS || defined DIAGNOSTICS_UV
+      integer :: idiag
+# endif
       real(r8), parameter :: Gamma = 1.0_r8/6.0_r8
       real(r8), parameter :: eps = 1.0E-16_r8
 
@@ -328,6 +335,9 @@
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: curv
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: grad
 
+# if defined AGE_PASSIVE || defined AGE_DISTRIBUTION
+      integer :: iactrc, iwctrc
+# endif
 # include "set_bounds.h"
 
 # ifndef TS_FIXED
@@ -541,7 +551,7 @@
           DO is=1,Nsrc
             i=Isrc(is)
             j=Jsrc(is)
-            IF (Lsrc(is,itrc).and.                                      &
+            IF (LtracerSrc(itrc,ng).and.                                &
      &          ((Istr.le.i).and.(i.le.Iend+1)).and.                    &
      &          ((Jstr.le.j).and.(j.le.Jend+1))) THEN
               IF (INT(Dsrc(is)).eq.0) THEN
@@ -576,6 +586,77 @@
         END DO K_LOOP
       END DO T_LOOP1
 !
+#   if defined AGE_DISTRIBUTION || defined AGE_PASSIVE
+!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+!  Add water concentration to the right-hand-side of age concentration
+!  equation.
+!------Added by W.G.Zhang
+!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+      IF (iic(ng).eq.ntfirst(ng)) THEN
+        cff=0.5_r8*dt(ng)
+      ELSE
+        cff=(1.0_r8-Gamma)*dt(ng)
+      END IF
+
+      iactrc=inert(3)
+      iwctrc=inert(1)
+      DO k=1,N(ng)
+        DO j=Jstr,Jend
+          DO i=Istr,Iend
+            t(i,j,k,3,iactrc)=t(i,j,k,3,iactrc)+                        &
+     &                           cff*Hz(i,j,k)*t(i,j,k,nstp,iwctrc)
+          END DO
+        END DO
+      END DO
+
+      iactrc=inert(4)
+      iwctrc=inert(2)
+      DO k=1,N(ng)
+        DO j=Jstr,Jend
+          DO i=Istr,Iend
+            t(i,j,k,3,iactrc)=t(i,j,k,3,iactrc)+                        &
+     &                           cff*Hz(i,j,k)*t(i,j,k,nstp,iwctrc)
+          END DO
+        END DO
+      END DO
+#   endif
+!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#   ifdef AGE_DISTRIBUTION
+!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+! Time-step the aging term (dc/dtau) in the equation of age
+! concentration distribution function.
+! -----Added by W.G.Zhang to compute the age concentration distribution
+!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+!
+      IF (iic(ng).eq.ntfirst(ng)) THEN
+        cff=0.5_r8*dt(ng)/dtau(ng)
+      ELSE
+        cff=(1.0_r8-Gamma)*dt(ng)/dtau(ng)
+      END IF
+!
+      itrc=NAT+3
+      DO k=1,N(ng)
+        DO j=Jstr,Jend
+          DO i=Istr,Iend
+              t(i,j,k,3,itrc)=t(i,j,k,3,itrc)-cff*Hz(i,j,k)*            &
+     &                        t(i,j,k,nstp,itrc)
+          END DO
+        END DO
+      END DO
+!
+      DO itrc=NAT+4,NT(ng)
+        DO k=1,N(ng)
+          DO j=Jstr,Jend
+            DO i=Istr,Iend
+              t(i,j,k,3,itrc)=t(i,j,k,3,itrc)-cff*Hz(i,j,k)*            &
+     &                        (t(i,j,k,nstp,itrc)-t(i,j,k,nstp,itrc-1))
+            END DO
+          END DO
+        END DO
+      END DO
+!
+#   endif
+!----------------------------------------------------------------------
 !  Compute artificial continuity equation (same for all tracers) and
 !  load it into private array DC (1/m). Notice pipelined J-loop.
 !
@@ -772,7 +853,8 @@
 !
 !  Compute vertical diffusive fluxes "FC" of the tracer fields at
 !  current time step n, and at horizontal RHO-points and vertical
-!  W-points.
+!  W-points. Notice that the vertical diffusion coefficients for
+!  passive tracers is the same as that for salinity (ltrc=NAT).
 !
       DO j=Jstr,Jend
         cff3=dt(ng)*(1.0_r8-lambda)
@@ -783,25 +865,31 @@
         DO itrc=1,NT(ng)
 #endif
           ltrc=MIN(NAT,itrc)
-#ifdef LIMIT_BIO_AKT
-          IF (itrc == 2) ltrc = 1
-#endif
           DO k=1,N(ng)-1
             DO i=Istr,Iend
               cff=1.0_r8/(z_r(i,j,k+1)-z_r(i,j,k))
-              FC(i,k)=cff3*cff*Akt(i,j,k,ltrc)*                          &
-     &                (t(i,j,k+1,nstp,itrc)-                             &
+              FC(i,k)=cff3*cff*Akt(i,j,k,ltrc)*                         &
+     &                (t(i,j,k+1,nstp,itrc)-                            &
      &                 t(i,j,k  ,nstp,itrc))
+            END DO
+          END DO
+
 #  ifdef LMD_NONLOCAL
 !
 !  Add in the nonlocal transport flux for unstable (convective)
 !  forcing conditions into matrix FC when using the Large et al.
-!  KPP scheme.
+!  KPP scheme. The nonlocal transport is only applied to active
+!  tracers.
 !
-              FC(i,k)=FC(i,k)-dt(ng)*Akt(i,j,k,ltrc)*ghats(i,j,k,ltrc)
-#  endif
+          IF (itrc.le.NAT) THEN
+            DO k=1,N(ng)-1
+              DO i=Istr,Iend
+                FC(i,k)=FC(i,k)-                                        &
+     &                  dt(ng)*Akt(i,j,k,itrc)*ghats(i,j,k,itrc)
+              END DO
             END DO
-          END DO
+          END IF
+#  endif
 #  ifdef SOLAR_SOURCE
 !
 !  Add in incoming solar radiation at interior W-points using decay
@@ -836,10 +924,10 @@
 #  ifdef JELLY
               IF (itrc.eq.iNCaS.or.itrc.eq.iNCaO.or.itrc.eq.iEupS.or.   &
      &      itrc.eq.iEupO.or.itrc.eq.iJel ) THEN
-#  else       
+#  else
               IF (itrc.eq.iNCaS.or.itrc.eq.iNCaO.or. itrc.eq.ieEupS.or. &
      &        itrc.eq.iEupO) THEN
-#  endif        
+#  endif
                  cff2=0.0_r8
              END IF
 
@@ -916,20 +1004,11 @@
               cff2=FC(i,k)-FC(i,k-1)
               u(i,j,k,nnew)=cff1+cff2
 # ifdef DIAGNOSTICS_UV
-              DiaU3wrk(i,j,k,M3rate)=cff1
+              DO idiag=1,M3pgrd
+                DiaU3wrk(i,j,k,idiag)=0.0_r8
+              END DO
               DiaU3wrk(i,j,k,M3vvis)=cff2
-              DiaU3wrk(i,j,k,M3pgrd)=0.0_r8
-#  ifdef UV_ADV
-              DiaU3wrk(i,j,k,M3hadv)=0.0_r8
-              DiaU3wrk(i,j,k,M3vadv)=0.0_r8
-#  endif
-#  ifdef NEARSHORE_MELLOR
-              DiaU3wrk(i,j,k,M3hrad)=0.0_r8
-              DiaU3wrk(i,j,k,M3vrad)=0.0_r8
-#  endif
-#  ifdef UV_COR
-              DiaU3wrk(i,j,k,M3fcor)=0.0_r8
-#  endif
+              DiaU3wrk(i,j,k,M3rate)=cff1
 # endif
             END DO
           END DO
@@ -938,35 +1017,20 @@
             DO i=IstrU,Iend
               cff1=u(i,j,k,nstp)*0.5_r8*(Hz(i,j,k)+Hz(i-1,j,k))
               cff2=FC(i,k)-FC(i,k-1)
+              cff3=0.5_r8*DC(i,0)
               u(i,j,k,nnew)=cff1-                                       &
-     &                      0.5_r8*DC(i,0)*ru(i,j,k,indx)+              &
+     &                      cff3*ru(i,j,k,indx)+                        &
      &                      cff2
 # ifdef DIAGNOSTICS_UV
-              DiaU3wrk(i,j,k,M3rate)=cff1
+              DO idiag=1,M3pgrd
+                DiaU3wrk(i,j,k,idiag)=-cff3*DiaRU(i,j,k,indx,idiag)
+              END DO
               DiaU3wrk(i,j,k,M3vvis)=cff2
-              DiaU3wrk(i,j,k,M3pgrd)=-0.5_r8*DC(i,0)*                   &
-     &                               DiaRU(i,j,k,indx,M3pgrd)
-#  ifdef UV_ADV
-              DiaU3wrk(i,j,k,M3hadv)=-0.5_r8*DC(i,0)*                   &
-     &                               DiaRU(i,j,k,indx,M3hadv)
-              DiaU3wrk(i,j,k,M3vadv)=-0.5_r8*DC(i,0)*                   &
-     &                               DiaRU(i,j,k,indx,M3vadv)
-#  endif
-#  ifdef NEARSHORE_MELLOR
-              DiaU3wrk(i,j,k,M3hrad)=-0.5_r8*DC(i,0)*                   &
-     &                               DiaRU(i,j,k,indx,M3hrad)
-              DiaU3wrk(i,j,k,M3vrad)=-0.5_r8*DC(i,0)*                   &
-     &                               DiaRU(i,j,k,indx,M3vrad)
-#  endif
-#  ifdef UV_COR
-              DiaU3wrk(i,j,k,M3fcor)=-0.5_r8*DC(i,0)*                   &
-     &                               DiaRU(i,j,k,indx,M3fcor)
-#  endif
 #  ifdef BODYFORCE
               DiaU3wrk(i,j,k,M3vvis)=DiaU3wrk(i,j,k,M3vvis)-            &
-     &                               0.5_r8*DC(i,0)*                    &
-     &                               DiaRU(i,j,k,indx,M3vvis)
+     &                               cff3*DiaRU(i,j,k,indx,M3vvis)
 #  endif
+              DiaU3wrk(i,j,k,M3rate)=cff1
 # endif
             END DO
           END DO
@@ -982,38 +1046,19 @@
      &                               cff2*ru(i,j,k,indx))+              &
      &                      cff4
 # ifdef DIAGNOSTICS_UV
-              DiaU3wrk(i,j,k,M3rate)=cff3
+              DO idiag=1,M3pgrd
+                DiaU3wrk(i,j,k,idiag)=DC(i,0)*                          &
+     &                                (cff1*DiaRU(i,j,k,nrhs,idiag)-    &
+     &                                 cff2*DiaRU(i,j,k,indx,idiag))
+              END DO
               DiaU3wrk(i,j,k,M3vvis)=cff4
-              DiaU3wrk(i,j,k,M3pgrd)=DC(i,0)*                           &
-     &                               (cff1*DiaRU(i,j,k,nrhs,M3pgrd)-    &
-     &                                cff2*DiaRU(i,j,k,indx,M3pgrd))
-#  ifdef UV_ADV
-              DiaU3wrk(i,j,k,M3hadv)=DC(i,0)*                           &
-     &                               (cff1*DiaRU(i,j,k,nrhs,M3hadv)-    &
-     &                                cff2*DiaRU(i,j,k,indx,M3hadv))
-              DiaU3wrk(i,j,k,M3vadv)=DC(i,0)*                           &
-     &                               (cff1*DiaRU(i,j,k,nrhs,M3vadv)-    &
-     &                                cff2*DiaRU(i,j,k,indx,M3vadv))
-#  endif
-#  ifdef NEARSHORE_MELLOR
-              DiaU3wrk(i,j,k,M3hrad)=DC(i,0)*                           &
-     &                               (cff1*DiaRU(i,j,k,nrhs,M3hrad)-    &
-     &                                cff2*DiaRU(i,j,k,indx,M3hrad))
-              DiaU3wrk(i,j,k,M3vrad)=DC(i,0)*                           &
-     &                               (cff1*DiaRU(i,j,k,nrhs,M3vrad)-    &
-     &                                cff2*DiaRU(i,j,k,indx,M3vrad))
-#  endif
-#  ifdef UV_COR
-              DiaU3wrk(i,j,k,M3fcor)=DC(i,0)*                           &
-     &                               (cff1*DiaRU(i,j,k,nrhs,M3fcor)-    &
-     &                                cff2*DiaRU(i,j,k,indx,M3fcor))
-#  endif
 #  ifdef BODYFORCE
               DiaU3wrk(i,j,k,M3vvis)=DiaU3wrk(i,j,k,M3vvis)+            &
      &                               DC(i,0)*                           &
      &                               (cff1*DiaRU(i,j,k,nrhs,M3vvis)-    &
      &                                cff2*DiaRU(i,j,k,indx,M3vvis))
 #  endif
+              DiaU3wrk(i,j,k,M3rate)=cff3
 # endif
             END DO
           END DO
@@ -1063,20 +1108,11 @@
                 cff2=FC(i,k)-FC(i,k-1)
                 v(i,j,k,nnew)=cff1+cff2
 # ifdef DIAGNOSTICS_UV
-                DiaV3wrk(i,j,k,M3rate)=cff1
+                DO idiag=1,M3pgrd
+                  DiaV3wrk(i,j,k,idiag)=0.0_r8
+                END DO
                 DiaV3wrk(i,j,k,M3vvis)=cff2
-                DiaV3wrk(i,j,k,M3pgrd)=0.0_r8
-#  ifdef UV_ADV
-                DiaV3wrk(i,j,k,M3hadv)=0.0_r8
-                DiaV3wrk(i,j,k,M3vadv)=0.0_r8
-#  endif
-#  ifdef NEARSHORE_MELLOR
-                DiaV3wrk(i,j,k,M3hrad)=0.0_r8
-                DiaV3wrk(i,j,k,M3vrad)=0.0_r8
-#  endif
-#  ifdef UV_COR
-                DiaV3wrk(i,j,k,M3fcor)=0.0_r8
-#  endif
+                DiaV3wrk(i,j,k,M3rate)=cff1
 # endif
               END DO
             END DO
@@ -1085,35 +1121,20 @@
               DO i=Istr,Iend
                 cff1=v(i,j,k,nstp)*0.5_r8*(Hz(i,j,k)+Hz(i,j-1,k))
                 cff2=FC(i,k)-FC(i,k-1)
+                cff3=0.5_r8*DC(i,0)
                 v(i,j,k,nnew)=cff1-                                     &
-     &                        0.5_r8*DC(i,0)*rv(i,j,k,indx)+            &
+     &                        cff3*rv(i,j,k,indx)+                      &
      &                        cff2
 # ifdef DIAGNOSTICS_UV
-                DiaV3wrk(i,j,k,M3rate)=cff1
+                DO idiag=1,M3pgrd
+                  DiaV3wrk(i,j,k,idiag)=-cff3*DiaRV(i,j,k,indx,idiag)
+                END DO
                 DiaV3wrk(i,j,k,M3vvis)=cff2
-                DiaV3wrk(i,j,k,M3pgrd)=-0.5_r8*DC(i,0)*                 &
-     &                                  DiaRV(i,j,k,indx,M3pgrd)
-#  ifdef UV_ADV
-                DiaV3wrk(i,j,k,M3hadv)=-0.5_r8*DC(i,0)*                 &
-     &                                  DiaRV(i,j,k,indx,M3hadv)
-                DiaV3wrk(i,j,k,M3vadv)=-0.5_r8*DC(i,0)*                 &
-     &                                  DiaRV(i,j,k,indx,M3vadv)
-#  endif
-#  ifdef NEARSHORE_MELLOR
-                DiaV3wrk(i,j,k,M3hrad)=-0.5_r8*DC(i,0)*                 &
-     &                                  DiaRV(i,j,k,indx,M3hrad)
-                DiaV3wrk(i,j,k,M3vrad)=-0.5_r8*DC(i,0)*                 &
-     &                                  DiaRV(i,j,k,indx,M3vrad)
-#  endif
-#  ifdef UV_COR
-                DiaV3wrk(i,j,k,M3fcor)=-0.5_r8*DC(i,0)*                 &
-     &                                  DiaRV(i,j,k,indx,M3fcor)
-#  endif
 #  ifdef BODYFORCE
                 DiaV3wrk(i,j,k,M3vvis)=DiaV3wrk(i,j,k,M3vvis)-          &
-     &                                 0.5_r8*DC(i,0)*                  &
-     &                                 DiaRV(i,j,k,indx,M3vvis)
+     &                                 cff3*DiaRV(i,j,k,indx,M3vvis)
 #  endif
+                DiaV3wrk(i,j,k,M3rate)=cff1
 # endif
               END DO
             END DO
@@ -1129,38 +1150,19 @@
      &                                 cff2*rv(i,j,k,indx))+            &
      &                        cff4
 # ifdef DIAGNOSTICS_UV
-                DiaV3wrk(i,j,k,M3rate)=cff3
+                DO idiag=1,M3pgrd
+                  DiaV3wrk(i,j,k,idiag)=DC(i,0)*                        &
+     &                                  (cff1*DiaRV(i,j,k,nrhs,idiag)-  &
+     &                                   cff2*DiaRV(i,j,k,indx,idiag))
+                END DO
                 DiaV3wrk(i,j,k,M3vvis)=cff4
-                DiaV3wrk(i,j,k,M3pgrd)=DC(i,0)*                         &
-     &                                 (cff1*DiaRV(i,j,k,nrhs,M3pgrd)-  &
-     &                                  cff2*DiaRV(i,j,k,indx,M3pgrd))
-#  ifdef UV_ADV
-                DiaV3wrk(i,j,k,M3hadv)=DC(i,0)*                         &
-     &                                 (cff1*DiaRV(i,j,k,nrhs,M3hadv)-  &
-     &                                  cff2*DiaRV(i,j,k,indx,M3hadv))
-                DiaV3wrk(i,j,k,M3vadv)=DC(i,0)*                         &
-     &                                 (cff1*DiaRV(i,j,k,nrhs,M3vadv)-  &
-     &                                  cff2*DiaRV(i,j,k,indx,M3vadv))
-#  endif
-#  ifdef NEARSHORE_MELLOR
-                DiaV3wrk(i,j,k,M3hrad)=DC(i,0)*                         &
-     &                                 (cff1*DiaRV(i,j,k,nrhs,M3hrad)-  &
-     &                                  cff2*DiaRV(i,j,k,indx,M3hrad))
-                DiaV3wrk(i,j,k,M3vrad)=DC(i,0)*                         &
-     &                                 (cff1*DiaRV(i,j,k,nrhs,M3vrad)-  &
-     &                                  cff2*DiaRV(i,j,k,indx,M3vrad))
-#  endif
-#  ifdef UV_COR
-                DiaV3wrk(i,j,k,M3fcor)=DC(i,0)*                         &
-     &                                 (cff1*DiaRV(i,j,k,nrhs,M3fcor)-  &
-     &                                  cff2*DiaRV(i,j,k,indx,M3fcor))
-#  endif
 #  ifdef BODYFORCE
                 DiaV3wrk(i,j,k,M3vvis)=DiaV3wrk(i,j,k,M3vvis)+          &
      &                                 DC(i,0)*                         &
      &                                 (cff1*DiaRV(i,j,k,nrhs,M3vvis)-  &
      &                                  cff2*DiaRV(i,j,k,indx,M3vvis))
 #  endif
+                DiaV3wrk(i,j,k,M3rate)=cff3
 # endif
               END DO
             END DO
@@ -1181,16 +1183,33 @@
 #  else
       DO itrc=1,NT(ng)
 #  endif
+       IF (itrc.le.NAT) THEN
         CALL t3dbc_tile (ng, tile, itrc,                                &
      &                   LBi, UBi, LBj, UBj, N(ng), NT(ng),             &
      &                   IminS, ImaxS, JminS, JmaxS,                    &
      &                   nstp, 3,                                       &
+#  ifdef SOGLOBEC
+     &                   CLIMA(ng) % tclm,                              &
+#  endif
      &                   t)
 #  if defined EW_PERIODIC || defined NS_PERIODIC
         CALL exchange_r3d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj, 1, N(ng),           &
      &                          t(:,:,:,3,itrc))
 #  endif
+!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#  ifdef T_PASSIVE
+       ELSE
+!       else condition added by Weifeng Zhang for passive tracer
+!       boundary condition
+        CALL pt3dbc_tile (ng, tile, itrc,                               &
+     &                    LBi, UBi, LBj, UBj, N(ng), NT(ng),            &
+     &                    IminS, ImaxS, JminS, JmaxS,                   &
+     &                    nstp, 3,                                      &
+     &                    t)
+#  endif
+!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+       END IF
       END DO
 #  ifdef DISTRIBUTE
 #   ifdef TS_MPDATA

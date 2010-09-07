@@ -2,9 +2,9 @@
 #ifdef TANGENT
       SUBROUTINE tl_initial (ng)
 !
-!svn $Id: tl_initial.F 1098 2009-11-18 17:54:22Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -40,7 +40,8 @@
 # ifdef TLM_CHECK
       USE ini_adjust_mod, ONLY : tl_ini_perturb
 # endif
-# ifdef OBS_SENSITIVITY
+      USE ini_hmixcoef_mod, ONLY : ini_hmixcoef
+# ifdef IS4DVAR_SENSITIVITY
       USE ini_lanczos_mod, ONLY : ini_lanczos
 # endif
       USE metrics_mod, ONLY : metrics
@@ -180,7 +181,7 @@
 !  variables.
 !-----------------------------------------------------------------------
 
-#  ifndef OBS_SENSITIVITY
+#  ifndef IS4DVAR_SENSITIVITY
 #   ifdef IS4DVAR
 !
 !  Set switch to create (TRUE) tangent linear initial conditions and
@@ -323,24 +324,6 @@
         END DO
 !$OMP END PARALLEL DO
 
-# if defined VISC_GRID || defined DIFF_GRID || defined SPONGE
-!
-!-----------------------------------------------------------------------
-!  Set horizontal mixing coefficients. Rescale according to the local
-!  grid size. If applicable, increases horizontal mixing in sponge
-!  areas.
-!-----------------------------------------------------------------------
-!
-!$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(ng,numthreads)
-        DO thread=0,numthreads-1
-          subs=NtileX(ng)*NtileE(ng)/numthreads
-          DO tile=subs*thread,subs*(thread+1)-1
-            CALL ana_hmixcoef (ng, TILE, iTLM)
-          END DO
-        END DO
-!$OMP END PARALLEL DO
-# endif
-
 # ifdef NUDGING_COFF
 !
 !-----------------------------------------------------------------------
@@ -358,12 +341,43 @@
 # endif
       END IF
 !
+!-----------------------------------------------------------------------
+!  Initialize horizontal mixing coefficients.
+!-----------------------------------------------------------------------
+!
+!$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(ng,numthreads)
+      DO thread=0,numthreads-1
+        subs=NtileX(ng)*NtileE(ng)/numthreads
+        DO tile=subs*thread,subs*(thread+1)-1
+          CALL ini_hmixcoef (ng, TILE, iTLM)
+        END DO
+      END DO
+!$OMP END PARALLEL DO
+
+# if defined VISC_GRID || defined DIFF_GRID || defined SPONGE
+!
+!-----------------------------------------------------------------------
+!  Set horizontal mixing coefficients. Rescale according to the local
+!  grid size. If applicable, increases horizontal mixing in sponge
+!  areas.
+!-----------------------------------------------------------------------
+!
+!$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(ng,numthreads)
+      DO thread=0,numthreads-1
+        subs=NtileX(ng)*NtileE(ng)/numthreads
+        DO tile=subs*thread,subs*(thread+1)-1
+          CALL ana_hmixcoef (ng, TILE, iTLM)
+        END DO
+      END DO
+!$OMP END PARALLEL DO
+# endif
+!
 !=======================================================================
 !  Initialize model state variables and forcing.  This part is
 !  executed for each ensemble/perturbation/iteration pass.
 !=======================================================================
 
-# if defined FOUR_DVAR && !defined OBS_SENSITIVITY
+# if defined FOUR_DVAR && !defined IS4DVAR_SENSITIVITY
 #  if defined OPT_OBSERVATIONS || defined TLM_CHECK || \
       defined WEAK_CONSTRAINT
 !
@@ -526,7 +540,7 @@
       END IF
 # endif
 
-# ifdef OBS_SENSITIVITY
+# ifdef IS4DVAR_SENSITIVITY
 !
 !  Initialize with the weighted sum of all Lanczos vectors computed
 !  from the first outer loop of the IS4DVAR Lanczos algorithm.
