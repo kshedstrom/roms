@@ -51,6 +51,11 @@
 
         SUBROUTINE eggs_share(ng, model, LBi, UBi, LBj, UBj,            &
      &             egg_count)
+!  Each process knows about the eggs on its own tile in egg_count.
+!  Create an array covering the entire grid with the egg counts in eggs_all.
+!  Then set eggs_in to zero or one depending if it has eggs in that cell.
+!  Finally, egg_cells contains the number of cells with eggs in the entire
+!  domain.
           USE mod_parallel
 # ifdef DISTRIBUTE
           USE distribute_mod, ONLY : mp_bcasti, mp_gather3d
@@ -65,8 +70,6 @@
 # else
           real(r8), intent(out) ::                                       &
      &              egg_count(LBi:UBi,LBj:UBj,Nspecies(ng))
-          integer, intent(out) ::                                        &
-     &              eggs_in(LBi:UBi,LBj:UBj,Nspecies(ng))
 # endif
           integer :: isp, i, j, Isize, Jsize, Npts
 # ifdef DISTRIBUTE
@@ -148,11 +151,14 @@
         END SUBROUTINE egglist_init
 
         SUBROUTINE egglist_split(isp, Nsuper, Nboxes)
+          USE mod_param
+
           integer, intent(in)  :: isp
           integer, intent(in)  :: Nsuper
           integer, intent(out) :: Nboxes
-          type(egg_box), pointer :: bigbox, ur_box, ll_box
+          type(egg_box), pointer :: bigbox, ur_box, ll_box, next_box
           logical :: OneCell = .false.
+          integer :: i, j
 !
 ! First, if there's only one superindividual, put all the eggs in one
 ! basket.
@@ -171,6 +177,45 @@
           ELSE IF (bigbox % egg_sum .lt. 0.01_r8) THEN
             Nboxes = 0
             RETURN
+          ELSE IF (egg_cells(isp) .le. Nsuper) THEN
+!
+! Transfer all cells with eggs to the list for later.
+! If there are extras, split them up to use all Nsuper.
+!
+            Nboxes = 0
+!  Clean out the list before adding mini-boxes to the list.
+            bigbox => pop_box(isp)
+            DO j=0,Mm(ng)+1
+              DO i=0,Lm(ng)+1
+                IF (eggs_all(i,j,isp) .gt. 0.01_r8) THEN
+                  allocate(next_box)
+                  next_box % i1 = i
+                  next_box % j1 = j
+                  next_box % i2 = i
+                  next_box % j2 = j
+                  next_box % egg_sum = eggs_all(i,j,isp)
+                  CALL push_box(isp, next_box)
+                  Nboxes = Nboxes + 1
+                END IF
+              END DO
+            END DO
+!
+!  Now we should have one box per cell with eggs. If there are more
+!  superindividuals than that, split the largest ones.
+!
+            DO WHILE (Nsuper .gt. Nboxes)
+              bigbox = pop_box(isp)
+              allocate(next_box)
+              next_box % i1 = bigbox % i1
+              next_box % j1 = bigbox % j1
+              next_box % i2 = bigbox % i2
+              next_box % j2 = bigbox % j2
+              next_box % egg_sum = 0.5 * bigbox % egg_sum
+              bigbox % egg_sum = 0.5 * bigbox % egg_sum
+              CALL push_box(isp, next_box)
+              CALL push_box(isp, bigbox)
+              Nboxes = Nboxes + 1
+            END DO
           ELSE
 !
 ! Now we have to split the eggs into the available superindividuals.
