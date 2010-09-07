@@ -186,7 +186,7 @@
             END DO
 # elif defined EGGS_BISECTION
             CALL egglist_init(ng)
-            CALL egglist_split(isp, Navail, count(isp))
+            CALL egglist_split(ng, isp, Navail, count(isp))
 # endif
 
 !             call tree_traverse(tree(is))

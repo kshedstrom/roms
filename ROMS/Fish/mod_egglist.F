@@ -150,9 +150,10 @@
           END DO
         END SUBROUTINE egglist_init
 
-        SUBROUTINE egglist_split(isp, Nsuper, Nboxes)
+        SUBROUTINE egglist_split(ng, isp, Nsuper, Nboxes)
           USE mod_param
 
+          integer, intent(in)  :: ng
           integer, intent(in)  :: isp
           integer, intent(in)  :: Nsuper
           integer, intent(out) :: Nboxes
