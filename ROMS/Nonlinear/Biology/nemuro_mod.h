@@ -185,7 +185,6 @@
 !  Nspecies     Number of fish species
 !  Nyearclass   Number of year classes
 !  Nfish        Total number of fish
-!  Nships       Total number of ships
 # ifdef PREDATOR
 !  Npredspecies      Number of predator species
 !  Npredperspecies   Number of fish per year class per species
@@ -400,8 +399,6 @@
       integer, dimension(Ngrids) :: Nyearclass
 !   Nfish=Nfishperyear*Nspecies*Nyearclass
       integer, dimension(Ngrids) :: Nfish
-
-      integer, dimension(Ngrids) :: Nships
 
 # ifdef PREDATOR
       integer, dimension(Ngrids) :: Npredperspecies

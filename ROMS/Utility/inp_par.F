@@ -3612,11 +3612,6 @@
               FLEETname(Nval)(i:i)=blank
             END DO
             FLEETname(Nval)=TRIM(ADJUSTL(Cval(Nval)))
-          ELSE IF (TRIM(KeyWord).eq.'SHIPNAME') THEN
-            DO i=1,LEN(SHIPname(Nval))
-              SHIPname(Nval)(i:i)=blank
-            END DO
-            SHIPname(Nval)=TRIM(ADJUSTL(Cval(Nval)))
           ELSE IF (TRIM(KeyWord).eq.'GRDNAME') THEN
             DO i=1,LEN(GRDname(Nval))
               GRDname(Nval)(i:i)=blank
@@ -3901,10 +3896,6 @@
      &      (nPRD(ng).eq.0)) THEN
           LdefPRED(ng)=.FALSE.
         END IF
-!       IF (((nrrec(ng).eq.0).and.(nSHP(ng).gt.ntimes(ng))).or.         &
-!    &      (nSHP(ng).eq.0)) THEN
-!         LdefSHIP(ng)=.FALSE.
-!       END IF
         IF (((nrrec(ng).eq.0).and.(nHIS(ng).gt.ntimes(ng))).or.         &
      &      (nHIS(ng).eq.0)) THEN
           LdefHIS(ng)=.FALSE.
@@ -4042,9 +4033,6 @@
      &          'Number of timesteps between the writing of data',      &
      &          'into fleet file.'
 # endif
-          WRITE (out,130) nSHP(ng), 'nSHP',                             &
-     &          'Number of timesteps between the writing of data',      &
-     &          'into ship file.'
 #endif
           WRITE (out,170) ldefout(ng), 'ldefout',                       &
      &          'Switch to create a new output NetCDF file(s).'

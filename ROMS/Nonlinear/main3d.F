@@ -685,7 +685,7 @@
 !$OMP END PARALLEL DO
 #  ifdef PREDATOR
 !$OMP PARALLEL DO PRIVATE(thread,chunk_size,Lstr,Lend)                  &
-!$OMP&            SHARED(ng,numthreads,Nships)
+!$OMP&            SHARED(ng,numthreads,Npred)
         DO thread=0,numthreads-1
           chunk_size=(Npred(ng)+numthreads-1)/numthreads
           Lstr=1+thread*chunk_size

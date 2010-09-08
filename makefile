@@ -60,15 +60,12 @@ $(if $(filter $(MAKE_VERSION),$(NEED_VERSION)),,        \
 #  the .h extension. For example, the upwelling application includes the
 #  "upwelling.h" header file.  
 
-#ROMS_APPLICATION := WC13
-ROMS_APPLICATION := CCS30
+ROMS_APPLICATION := NEMSAN_TEST
 
 #  If application header files is not located in "ROMS/Include",
 #  provide an alternate directory FULL PATH.
 
-#MY_HEADER_DIR ?= Apps/wc13
-#MY_HEADER_DIR ?= Apps/wc13_clim_bisec
-MY_HEADER_DIR ?= Apps/ccs30_soda_bisec
+MY_HEADER_DIR ?= Apps/nemsan_test
 
 #  If your application requires analytical expressions and they are
 #  not located in "ROMS/Functionals", provide an alternate directory.
@@ -78,7 +75,7 @@ MY_HEADER_DIR ?= Apps/ccs30_soda_bisec
 #  If applicable, also used this directory to place your customized
 #  biology model header file (like fennel.h, nemuro.h, ecosim.h, etc).
 
-MY_ANALYTICAL_DIR ?= Apps/ccs30_soda_bisec/ROMS/Biology
+MY_ANALYTICAL_DIR ?= Apps/nemsan_test/ROMS/Biology
 
 #  Sometimes it is desirable to activate one or more CPP options to
 #  run different variants of the same application without modifying

@@ -825,7 +825,6 @@
         integer, dimension(Ngrids) :: nFSH       ! Fish file
         integer, dimension(Ngrids) :: nPRD       ! Predators file
         integer, dimension(Ngrids) :: nFLE       ! Fleet file
-        integer, dimension(Ngrids) :: nSHP       ! Ships file
         integer, dimension(Ngrids) :: nHIS       ! History file
         integer, dimension(Ngrids) :: nRST       ! Restart file
         integer, dimension(Ngrids) :: nSTA       ! Stations file
@@ -849,7 +848,6 @@
         integer, dimension(Ngrids) :: NrecLCZ    ! Lanczos file
         integer, dimension(Ngrids) :: NrecPRED   ! Pred file
         integer, dimension(Ngrids) :: NrecRST    ! Restart file
-        integer, dimension(Ngrids) :: NrecSHIPS  ! Ships file
         integer, dimension(Ngrids) :: NrecSTA    ! Station file
         integer, dimension(Ngrids) :: NrecTLM    ! Tangent linear file
 
@@ -2207,7 +2205,6 @@
         NrecITL(ng)=0
         NrecPRED(ng)=0
         NrecRST(ng)=0
-        NrecSHIPS(ng)=0
         NrecSTA(ng)=0
         NrecTLM(ng)=0
 

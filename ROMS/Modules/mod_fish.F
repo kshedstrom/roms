@@ -142,7 +142,6 @@
 !  Logical switches.
 !
       logical, dimension(Ngrids) :: Lfish
-      logical, dimension(Ngrids) :: Lships
 # ifdef PREDATOR
       logical, dimension(Ngrids) :: Lpred
 # endif
@@ -154,7 +153,6 @@
 !  Fish restart switch.
 !
       integer, dimension(Ngrids) :: fishrrec
-      integer, dimension(Ngrids) :: shiprrec
 # ifdef PREDATOR
       integer, dimension(Ngrids) :: predrrec
 # endif
@@ -309,7 +307,6 @@
       END DO
 
       Lfish(ng)=.TRUE.
-      Lships(ng)=.TRUE.
 # ifdef PREDATOR
       Lpred(ng)=.TRUE.
 # endif

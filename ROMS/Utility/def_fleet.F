@@ -337,7 +337,7 @@
 !
 !       DO i=1,n_dim
 !         IF (TRIM(dim_name(i)).eq.'drifter') THEN
-!           Nships(ng)=dim_size(i)
+!           Nboats(ng)=dim_size(i)
 !           EXIT
 !         END IF
 !       END DO

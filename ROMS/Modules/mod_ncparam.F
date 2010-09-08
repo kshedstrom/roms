@@ -545,7 +545,6 @@
         integer  :: ncOBSid(Ngrids)     ! input/output observations
         integer  :: ncPREDid(Ngrids)    ! output predator
         integer  :: ncRSTid(Ngrids)     ! input/output restart
-        integer  :: ncSHIPSid(Ngrids)   ! output ships
         integer  :: ncSSHid(Ngrids)     ! SSH observations
         integer  :: ncSSTid(Ngrids)     ! SST observations
         integer  :: ncSTAid(Ngrids)     ! output stations
@@ -587,7 +586,6 @@
         integer, allocatable :: obsTid(:,:)   ! observations tracers IDs
         integer, allocatable :: predTid(:,:)  ! pred tracers IDs
         integer, allocatable :: rstTid(:,:)   ! restart tracers IDs
-        integer, allocatable :: shipsTid(:,:) ! ships tracers IDs
         integer, allocatable :: staTid(:,:)   ! stations tracers IDs
         integer, allocatable :: tlfTid(:,:)   ! TLM impulse tracers IDs
         integer, allocatable :: tlmTid(:,:)   ! tangent tracers IDs
@@ -612,7 +610,6 @@
         integer  :: obsVid(NV,Ngrids)    ! observations variables IDs
         integer  :: predVid(-6:NV,Ngrids)! pred variables IDs
         integer  :: rstVid(NV,Ngrids)    ! restart variables IDs
-        integer  :: shipsVid(-6:NV,Ngrids)! ships variables IDs
         integer  :: staVid(NV,Ngrids)    ! stations variables IDs
         integer  :: tideVid(NV,Ngrids)   ! tide variables IDs
         integer  :: tlfVid(NV,Ngrids)    ! TLM impulse variables IDs
@@ -636,7 +633,6 @@
         integer  :: tNRMindx(4,Ngrids)   ! norm time record index
         integer  :: tPREDindx(Ngrids)    ! pred time record index
         integer  :: tRSTindx(Ngrids)     ! restart time record index
-        integer  :: tSHIPSindx(Ngrids)   ! ships time record index
         integer  :: tSTAindx(Ngrids)     ! stations time record index
         integer  :: tTLFindx(Ngrids)     ! TLM impulse time record index
         integer  :: tTLMindx(Ngrids)     ! tangent time record index
@@ -773,7 +769,6 @@
         allocate ( obsTid(MT,Ngrids) )
         allocate ( predTid(MT,Ngrids) )
         allocate ( rstTid(MT,Ngrids) )
-        allocate ( shipsTid(MT,Ngrids) )
         allocate ( staTid(MT,Ngrids) )
         allocate ( tlfTid(MT,Ngrids) )
         allocate ( tlmTid(MT,Ngrids) )
@@ -1083,7 +1078,6 @@
           ncOBSid(ng)=-1
           ncPREDid(ng)=-1
           ncRSTid(ng)=-1
-          ncSHIPSid(ng)=-1
           ncSSHid(ng)=-1
           ncSSTid(ng)=-1
           ncSTAid(ng)=-1
@@ -1109,7 +1103,6 @@
           tNRMindx(1:4,ng)=0
           tPREDindx(ng)=0
           tRSTindx(ng)=0
-          tSHIPSindx(ng)=0
           tSTAindx(ng)=0
           tTLFindx(ng)=0
           tTLMindx(ng)=0
