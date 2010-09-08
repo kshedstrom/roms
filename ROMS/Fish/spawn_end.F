@@ -37,7 +37,7 @@
           USE mod_fish
           integer, intent(in) :: ng
           integer, intent(in) :: isp
-          integer, intent(in) :: Navail
+          integer, intent(inout) :: Navail
 
           integer :: ifish, nfish
           type(fish_node), pointer :: this_fish
@@ -70,7 +70,7 @@
 
         END SUBROUTINE split_biggest
 
-        FUNCTION pop_fish
+        FUNCTION pop_fish()
           type(fish_node), pointer :: pop_fish
           type(fish_node), pointer :: cur, prev
 
