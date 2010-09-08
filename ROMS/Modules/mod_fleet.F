@@ -40,6 +40,7 @@
           real(r8), pointer :: t2LocOpt(:)
           real(r8), pointer :: t2PortOpt(:)
           real(r8), pointer :: catch(:)
+          real(r8), pointer :: cumcatch(:)
           real(r8), pointer :: TotCatch
           real(r8), pointer :: AvgTotCatch
           real(r8), pointer :: AnnCatch
@@ -102,6 +103,8 @@
 
       allocate ( BOATS(ng) % catch(Nboats(ng)) )
 
+      allocate ( BOATS(ng) % cumcatch(Nboats(ng)) )
+
       allocate ( BOATS(ng) % TotCatch )
 
       allocate ( BOATS(ng) % AvgTotCatch )
@@ -128,6 +131,7 @@
         BOATS(ng) % t2LocOpt(iflt) = IniVal
         BOATS(ng) % t2PortOpt(iflt) = IniVal
         BOATS(ng) % catch(iflt) = IniVal
+        BOATS(ng) % cumcatch(iflt) = IniVal
       END DO
       BOATS(ng) % initcpue = .FALSE.
       BOATS(ng) % initports = .FALSE.

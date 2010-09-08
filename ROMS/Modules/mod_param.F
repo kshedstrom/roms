@@ -553,7 +553,7 @@
 # endif
 #endif
 #ifdef NEMURO_SAN
-          NFishV(ng)=22
+          NFishV(ng)=15
 # ifdef PREDATOR
           NPredV(ng)=8
 # endif

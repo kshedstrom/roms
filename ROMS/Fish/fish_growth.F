@@ -404,8 +404,8 @@
                 bioenergy(ifworth,ifid)=Fworth-                         &
      &                        (1.0_r8-exp(-Tdmort*dtdays))*Fworth
 ! Compute yield: yield=(Fm/(Fm+Nm))*(1-exp(-(Fm+Nm)))*Worth
-                bioenergy(ifyield,ifid)=bioenergy(ifyield,ifid)+        &
-     &            (Fdmort/Tdmort)*(1.0_r8-exp(-Tdmort*dtdays))*Fworth
+!                bioenergy(ifyield,ifid)=bioenergy(ifyield,ifid)+        &
+!     &            (Fdmort/Tdmort)*(1.0_r8-exp(-Tdmort*dtdays))*Fworth
 ! Natural and fishing mortality
                 fmortN(ifid)=Ndmort
                 fmortF(ifid)=Fdmort

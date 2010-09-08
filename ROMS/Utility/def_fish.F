@@ -552,21 +552,6 @@
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 !
-!  Define fish yield
-!
-        Vinfo( 1)='Fyield'
-        Vinfo( 2)='fish yield'
-        Vinfo( 3)='individuals'
-        Vinfo(14)='fyield, scalar, series'
-        Vinfo(16)=Vname(1,idtime)
-# ifndef NO_4BYTE_REALS
-        Vinfo(24)='_FillValue'
-        Aval(6)=spval
-# endif
-        status=def_var(ng, iNLM, ncFISHid(ng),fishVid(idFyield,ng),     &
-     &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
-!
 !  Define PS consumption
 !
         Vinfo( 1)='FcsmPS'
@@ -644,78 +629,78 @@
 !
 !  Define Fish consumption on species 1
 !
-        Vinfo( 1)='FcsmF1'
-        Vinfo( 2)='fish csmp on sp1'
-        Vinfo( 3)='gPrey / gFish / hour'
-        Vinfo(14)='fcsmf1, scalar, series'
-        Vinfo(16)=Vname(1,idtime)
-# ifndef NO_4BYTE_REALS
-        Vinfo(24)='_FillValue'
-        Aval(6)=spval
-# endif
-        status=def_var(ng, iNLM, ncFISHid(ng),fishVid(idFcsmF1,ng),     &
-     &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+!        Vinfo( 1)='FcsmF1'
+!        Vinfo( 2)='fish csmp on sp1'
+!        Vinfo( 3)='gPrey / gFish / hour'
+!        Vinfo(14)='fcsmf1, scalar, series'
+!        Vinfo(16)=Vname(1,idtime)
+!# ifndef NO_4BYTE_REALS
+!        Vinfo(24)='_FillValue'
+!        Aval(6)=spval
+!# endif
+!        status=def_var(ng, iNLM, ncFISHid(ng),fishVid(idFcsmF1,ng),     &
+!     &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
+!        IF (exit_flag.ne.NoError) RETURN
 !
 !  Define Fish consumption on species 2
 !
-        Vinfo( 1)='FcsmF2'
-        Vinfo( 2)='fish csmp on sp2'
-        Vinfo( 3)='gPrey / gFish / hour'
-        Vinfo(14)='fcsmf2, scalar, series'
-        Vinfo(16)=Vname(1,idtime)
-# ifndef NO_4BYTE_REALS
-        Vinfo(24)='_FillValue'
-        Aval(6)=spval
-# endif
-        status=def_var(ng, iNLM, ncFISHid(ng),fishVid(idFcsmF2,ng),     &
-     &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+!        Vinfo( 1)='FcsmF2'
+!        Vinfo( 2)='fish csmp on sp2'
+!        Vinfo( 3)='gPrey / gFish / hour'
+!        Vinfo(14)='fcsmf2, scalar, series'
+!        Vinfo(16)=Vname(1,idtime)
+!# ifndef NO_4BYTE_REALS
+!        Vinfo(24)='_FillValue'
+!        Aval(6)=spval
+!# endif
+!        status=def_var(ng, iNLM, ncFISHid(ng),fishVid(idFcsmF2,ng),     &
+!     &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
+!        IF (exit_flag.ne.NoError) RETURN
 !
 !  Define Fish consumption on species 3
 !
-        Vinfo( 1)='FcsmF3'
-        Vinfo( 2)='fish csmp on sp3'
-        Vinfo( 3)='gPrey / gFish / hour'
-        Vinfo(14)='fcsmf3, scalar, series'
-        Vinfo(16)=Vname(1,idtime)
-# ifndef NO_4BYTE_REALS
-        Vinfo(24)='_FillValue'
-        Aval(6)=spval
-# endif
-        status=def_var(ng, iNLM, ncFISHid(ng),fishVid(idFcsmF3,ng),     &
-     &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+!        Vinfo( 1)='FcsmF3'
+!        Vinfo( 2)='fish csmp on sp3'
+!        Vinfo( 3)='gPrey / gFish / hour'
+!        Vinfo(14)='fcsmf3, scalar, series'
+!        Vinfo(16)=Vname(1,idtime)
+!# ifndef NO_4BYTE_REALS
+!        Vinfo(24)='_FillValue'
+!        Aval(6)=spval
+!# endif
+!        status=def_var(ng, iNLM, ncFISHid(ng),fishVid(idFcsmF3,ng),     &
+!     &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
+!        IF (exit_flag.ne.NoError) RETURN
 !
 !  Define Fish consumption on species 4
 !
-        Vinfo( 1)='FcsmF4'
-        Vinfo( 2)='fish csmp on sp4'
-        Vinfo( 3)='gPrey / gFish / hour'
-        Vinfo(14)='fcsmf4, scalar, series'
-        Vinfo(16)=Vname(1,idtime)
-# ifndef NO_4BYTE_REALS
-        Vinfo(24)='_FillValue'
-        Aval(6)=spval
-# endif
-        status=def_var(ng, iNLM, ncFISHid(ng),fishVid(idFcsmF4,ng),     &
-     &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+!        Vinfo( 1)='FcsmF4'
+!        Vinfo( 2)='fish csmp on sp4'
+!        Vinfo( 3)='gPrey / gFish / hour'
+!        Vinfo(14)='fcsmf4, scalar, series'
+!        Vinfo(16)=Vname(1,idtime)
+!# ifndef NO_4BYTE_REALS
+!        Vinfo(24)='_FillValue'
+!        Aval(6)=spval
+!# endif
+!        status=def_var(ng, iNLM, ncFISHid(ng),fishVid(idFcsmF4,ng),     &
+!     &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
+!        IF (exit_flag.ne.NoError) RETURN
 !
 !  Define Fish consumption on species 5
 !
-        Vinfo( 1)='FcsmF5'
-        Vinfo( 2)='fish csmp on sp5'
-        Vinfo( 3)='gPrey / gFish / hour'
-        Vinfo(14)='fcsmf5, scalar, series'
-        Vinfo(16)=Vname(1,idtime)
-# ifndef NO_4BYTE_REALS
-        Vinfo(24)='_FillValue'
-        Aval(6)=spval
-# endif
-        status=def_var(ng, iNLM, ncFISHid(ng),fishVid(idFcsmF5,ng),     &
-     &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+!        Vinfo( 1)='FcsmF5'
+!        Vinfo( 2)='fish csmp on sp5'
+!        Vinfo( 3)='gPrey / gFish / hour'
+!        Vinfo(14)='fcsmf5, scalar, series'
+!        Vinfo(16)=Vname(1,idtime)
+!# ifndef NO_4BYTE_REALS
+!        Vinfo(24)='_FillValue'
+!        Aval(6)=spval
+!# endif
+!        status=def_var(ng, iNLM, ncFISHid(ng),fishVid(idFcsmF5,ng),     &
+!     &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
+!        IF (exit_flag.ne.NoError) RETURN
 !
 !  Define respiration
 !
@@ -1039,9 +1024,6 @@
           ELSE IF (TRIM(var_name(i)).eq.'Fbday') THEN
             got_var(idFbday)=.TRUE.
             fishVid(idFbday,ng)=var_id(i)
-          ELSE IF (TRIM(var_name(i)).eq.'Fyield') THEN
-            got_var(idFyield)=.TRUE.
-            fishVid(idFyield,ng)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.'Fbatch') THEN
             got_var(idFbatch)=.TRUE.
             fishVid(idFbatch,ng)=var_id(i)
@@ -1130,12 +1112,6 @@
         END IF
         IF (.not.got_var(idFbday)) THEN
           IF (Master) WRITE (stdout,60) TRIM(Vname(1,idFbday)),         &
-     &                                  TRIM(ncname)
-          exit_flag=3
-          RETURN
-        END IF
-        IF (.not.got_var(idFyield)) THEN
-          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idFyield)),        &
      &                                  TRIM(ncname)
           exit_flag=3
           RETURN
@@ -1344,16 +1320,6 @@
      &                        total = (/Nfish(ng),1/))
         DO l=1,Nfish(ng)
           FISHES(ng)%bioenergy(ifbday,l)=Tinp(l)
-        END DO
-
-        CALL netcdf_get_fvar (ng, iNLM, ncname,                         &
-     &                        TRIM(Vname(1,idFyield)),                  &
-     &                        Tinp,                                     &
-     &                        ncid = ncFISHid(ng),                      &
-     &                        start = (/1,tFISHindx(ng)/),              &
-     &                        total = (/Nfish(ng),1/))
-        DO l=1,Nfish(ng)
-          FISHES(ng)%bioenergy(ifyield,l)=Tinp(l)
         END DO
 
         CALL netcdf_get_fvar (ng, iNLM, ncname,                         &

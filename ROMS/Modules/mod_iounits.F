@@ -25,6 +25,7 @@
 !  FLTname     Output floats file name.                                !
 !  FISHbase    Output fish base file name.                             !
 !  FISHname    Output fish file name.                                  !
+!  FLEETname   Output fleet file name.                                 !
 !  FRCids      NetCDF ID descriptors associated with FRCname.          ! 
 !  FRCname     Input forcing fields file name(s).                      !
 !  FWDbase     Input forward solution base file name.                  !
@@ -134,6 +135,7 @@
         character (len=256), dimension(Ngrids) :: FISHbase
         character (len=256), dimension(Ngrids) :: FISHname
         character (len=256), dimension(Ngrids) :: PREDname
+        character (len=256), dimension(Ngrids) :: FLEETname
 #ifdef FILTERED_RST
         character (len=256), dimension(nfile,Ngrids) :: FILname
 #endif

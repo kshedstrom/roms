@@ -5182,3 +5182,77 @@
   'idPalv'
   'r3dvar'
   1.0d0
+
+! Fleet variables
+
+ 'Xport'
+  'port x location'
+  'nondimensional'
+  'xport, scalar, series'
+  'bio_time'
+  'idBxprt'
+  'r3dvar'
+  1.0d0
+
+ 'Yport'
+  'port y location'
+  'nondimensional'
+  'yport, scalar, series'
+  'bio_time'
+  'idByprt'
+  'r3dvar'
+  1.0d0
+
+ 'Nport'
+  'port number'
+  'nondimensional'
+  'nport, scalar, series'
+  'bio_time'
+  'idBnprt'
+  'r3dvar'
+  1.0d0
+
+ 'Nfloc'
+  'number of fishing locations'
+  'nondimensional'
+  'nfloc, scalar, series'
+  'bio_time'
+  'idBnfloc'
+  'r3dvar'
+  1.0d0
+
+ 'Catch'
+  'total daily catch'
+  'kg'
+  'catch, scalar, series'
+  'bio_time'
+  'idBcatch'
+  'r3dvar'
+  1.0d0
+
+ 'CumCatch'
+  'cummulative annual catch'
+  'kg'
+  'cumcatch, scalar, series'
+  'bio_time'
+  'idBcmctch'
+  'r3dvar'
+  1.0d0
+
+ 'AvgCPUE'
+  'average catch per unit effort'
+  'kg'
+  'avgcpue, scalar, series'
+  'bio_time'
+  'idBacpue'
+  'r2dvar'
+  1.0d0
+
+ 'PerCPUE'
+  'perceived catch per unit effort'
+  'kg'
+  'percpue, scalar, series'
+  'bio_time'
+  'idBpcpue'
+  'r2dvar'
+  1.0d0

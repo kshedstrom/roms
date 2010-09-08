@@ -208,7 +208,6 @@
             FISHES(ng)%bioenergy(ifworth,fid)=Fworth0
             FISHES(ng)%bioenergy(ifage,fid)=REAL(Nyearclass(ng)-i,r8)
             FISHES(ng)%bioenergy(ifbday,fid)=REAL(Nyearclass(ng)-i,r8)
-            FISHES(ng)%bioenergy(ifyield,fid)=0.0_r8
             FISHES(ng)%species(fid)=idfish_inv(isp)
             FISHES(ng)%alive(fid)=.TRUE.
             IF (REAL(Nyearclass(ng)-i,r8).ge.Fage0(isp,ng)) THEN

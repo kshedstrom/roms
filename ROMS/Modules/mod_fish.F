@@ -88,19 +88,12 @@
       integer, parameter :: iftspwn = 7        ! time of last batch spawned
       integer, parameter :: ifeggs = 8         ! number of eggs spawned
       integer, parameter :: ifpval = 9         ! fish p-value
-      integer, parameter :: ifeatme = 10       ! fish-eat-fish predation rate
-      integer, parameter :: ifyield = 11       ! yield to fisheries
-      integer, parameter :: ifcsmPS = 12       ! PS consumption
-      integer, parameter :: ifcsmPL = 13       ! PL consumption
-      integer, parameter :: ifcsmZS = 14       ! ZS consumption
-      integer, parameter :: ifcsmZL = 15       ! ZL consumption
-      integer, parameter :: ifcsmZP = 16       ! ZP consumption
-      integer, parameter :: ifcsmF1 = 17       ! Fish consumption on species 1
-      integer, parameter :: ifcsmF2 = 18       ! Fish consumption on species 2
-      integer, parameter :: ifcsmF3 = 19       ! Fish consumption on species 3
-      integer, parameter :: ifcsmF4 = 20       ! Fish consumption on species 4
-      integer, parameter :: ifcsmF5 = 21       ! Fish consumption on species 5
-      integer, parameter :: ifresp = 22        ! Respiration
+      integer, parameter :: ifcsmPS = 10       ! PS consumption
+      integer, parameter :: ifcsmPL = 11       ! PL consumption
+      integer, parameter :: ifcsmZS = 12       ! ZS consumption
+      integer, parameter :: ifcsmZL = 13       ! ZL consumption
+      integer, parameter :: ifcsmZP = 14       ! ZP consumption
+      integer, parameter :: ifresp = 15        ! Respiration
 ! Lifestage and gender
       integer, parameter :: if_egg = 1
       integer, parameter :: if_yolksac = 2
@@ -166,7 +159,7 @@
       integer, dimension(Ngrids) :: predrrec
 # endif
 # ifdef FLEET
-        integer, dimension(Ngrids) :: fleetrrec
+      integer, dimension(Ngrids) :: fleetrrec
 # endif
 
 
@@ -321,7 +314,7 @@
       Lpred(ng)=.TRUE.
 # endif
 # ifdef FLEET
-        Lfleet(ng)=.TRUE.
+      Lfleet(ng)=.TRUE.
 # endif
       LdefFISH(ng)=.TRUE.
 

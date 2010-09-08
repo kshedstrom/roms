@@ -1242,7 +1242,7 @@
 #else
       GRID_VARS : IF (ncid.ne.ncFLTid(ng) .and. ncid.ne.ncFISHid(ng)    &
      &                .and. ncid.ne.ncPREDid(ng)                        &
-     &                .and. ncid.ne.ncSHIPSid(ng)) THEN
+     &                .and. ncid.ne.ncFLEETid(ng)) THEN
 #endif
 #if !(defined SED_MORPH && defined SEDIMENT)
 !

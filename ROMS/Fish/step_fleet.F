@@ -108,10 +108,11 @@
           ip=BOATS(ng)%boat(ibport,ib)
           BOATS(ng)%boat(ibiloc,ib)=iPort(ip,ng)
           BOATS(ng)%boat(ibjloc,ib)=jPort(ip,ng)
-        print*, 'CATCH', ib, BOATS(ng)%catch(ib), BOATS(ng)%tAvail(ib)
+!        print*, 'CATCH', ib, BOATS(ng)%catch(ib), BOATS(ng)%tAvail(ib)
         END DO
 !
 !----   Aggregated catch values  ----
+!  Note: TotCatch, TotLoc, PortCatch, and AvgTotCatch can be done as postprocessing
         BOATS(ng)%TotCatch=0.0_r8
         BOATS(ng)%TotLoc=0.0_r8
         DO ip=1,Nports(ng)
@@ -120,6 +121,9 @@
         IF (iyesteryear(ng).ne.iyears(ng)) THEN
           BOATS(ng)%AnnCatch=0.0_r8
           BOATS(ng)%TotFishBio=0.0_r8
+          DO ib=1,Nboats(ng)
+            BOATS(ng)%cumcatch(ib)=0.0_r8
+          END DO
           DO ifid=1,Nfish(ng)
             IF ((FISHES(ng)%species(ifid).eq.if_sardine).and.           &
      &          (FISHES(ng)%alive(ifid)).and.                           &
@@ -131,6 +135,8 @@
           END DO
         END IF
         DO ib=1,Nboats(ng)
+          BOATS(ng)%cumcatch(ib)=BOATS(ng)%cumcatch(ib)+                &
+     &                               BOATS(ng)%catch(ib)
           BOATS(ng)%TotCatch=BOATS(ng)%TotCatch+BOATS(ng)%catch(ib)
           BOATS(ng)%TotLoc=BOATS(ng)%TotLoc+BOATS(ng)%boat(ibnloc,ib)
           ip=BOATS(ng)%boat(ibport,ib)
@@ -151,7 +157,7 @@
         ELSE
           BOATS(ng)%AnnFishMort=0.0_r8
         END IF
-        print*, 'SUMCATCH', BOATS(ng)%TotCatch, BOATS(ng)%TotLoc
+!        print*, 'SUMCATCH', BOATS(ng)%TotCatch, BOATS(ng)%TotLoc
 !
 !----  Update CPUE to reflect today's catch  ----
 ! (includes yearly update of climatological CPUE)

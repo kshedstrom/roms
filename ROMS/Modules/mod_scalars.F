@@ -824,6 +824,7 @@
         integer, dimension(Ngrids) :: nFLT       ! Floats file
         integer, dimension(Ngrids) :: nFSH       ! Fish file
         integer, dimension(Ngrids) :: nPRD       ! Predators file
+        integer, dimension(Ngrids) :: nFLE       ! Fleet file
         integer, dimension(Ngrids) :: nSHP       ! Ships file
         integer, dimension(Ngrids) :: nHIS       ! History file
         integer, dimension(Ngrids) :: nRST       ! Restart file
@@ -840,6 +841,7 @@
         integer, dimension(Ngrids) :: NrecFIL    ! Filters file
         integer, dimension(Ngrids) :: NrecFLT    ! Floats file
         integer, dimension(Ngrids) :: NrecFISH   ! Fish file
+        integer, dimension(Ngrids) :: NrecFLEET  ! Fleet file
         integer, dimension(Ngrids) :: NrecHIS    ! History file
         integer, dimension(Ngrids) :: NrecHSS    ! Hessian file
         integer, dimension(Ngrids) :: NrecINI    ! NLM Initial file
@@ -2197,6 +2199,7 @@
         NrecERR(ng)=0
         NrecFIL(ng)=0
         NrecFISH(ng)=0
+        NrecFLEET(ng)=0
         NrecFLT(ng)=0
         NrecHIS(ng)=0
         NrecHSS(ng)=0

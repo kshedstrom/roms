@@ -1351,6 +1351,8 @@
             Npts=load_i(Nval, Rval, Ngrids, nFSH)
           ELSE IF (TRIM(KeyWord).eq.'NPRD') THEN
             Npts=load_i(Nval, Rval, Ngrids, nPRD)
+          ELSE IF (TRIM(KeyWord).eq.'NFLE') THEN
+            Npts=load_i(Nval, Rval, Ngrids, nFLE)
           ELSE IF (TRIM(KeyWord).eq.'NINFO') THEN
             Npts=load_i(Nval, Rval, Ngrids, ninfo)
           ELSE IF (TRIM(KeyWord).eq.'LDEFOUT') THEN
@@ -3605,6 +3607,11 @@
               PREDname(Nval)(i:i)=blank
             END DO
             PREDname(Nval)=TRIM(ADJUSTL(Cval(Nval)))
+          ELSE IF (TRIM(KeyWord).eq.'FLEETNAME') THEN
+            DO i=1,LEN(FLEETname(Nval))
+              FLEETname(Nval)(i:i)=blank
+            END DO
+            FLEETname(Nval)=TRIM(ADJUSTL(Cval(Nval)))
           ELSE IF (TRIM(KeyWord).eq.'SHIPNAME') THEN
             DO i=1,LEN(SHIPname(Nval))
               SHIPname(Nval)(i:i)=blank
@@ -4029,6 +4036,11 @@
           WRITE (out,130) nPRD(ng), 'nPRD',                             &
      &          'Number of timesteps between the writing of data',      &
      &          'into predator file.'
+# endif
+# ifdef FLEET
+          WRITE (out,130) nFLE(ng), 'nFLE',                             &
+     &          'Number of timesteps between the writing of data',      &
+     &          'into fleet file.'
 # endif
           WRITE (out,130) nSHP(ng), 'nSHP',                             &
      &          'Number of timesteps between the writing of data',      &
@@ -5884,8 +5896,8 @@
      &                    TRIM(PREDname(ng))
 # endif
 # ifdef FLEET
-          WRITE (out,230) '            Output Ships File:  ',           &
-     &                    TRIM(SHIPname(ng))
+          WRITE (out,230) '            Output Fleet File:  ',           &
+     &                    TRIM(FLEETname(ng))
 # endif
 #endif
 #ifdef MODEL_COUPLING

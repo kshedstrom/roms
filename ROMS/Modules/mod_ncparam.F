@@ -427,6 +427,14 @@
         integer  :: idPcsmF5       ! Pred consumption on species 5
         integer  :: idPspc         ! Pred species
         integer  :: idPalv         ! Pred is alive
+        integer  :: idBxprt        ! Boat x port location
+        integer  :: idByprt        ! Boat y port location
+        integer  :: idBnprt        ! Boat port number
+        integer  :: idBnfloc       ! Boat number of fishing locations
+        integer  :: idBcatch       ! Boat daily catch
+        integer  :: idBcmctch      ! Boat cummulative annual catch
+        integer  :: idBacpue       ! Boat average CPUE
+        integer  :: idBpcpue       ! Boat perceived CPUE
 
         integer, allocatable :: idRtrc(:)    ! river runoff for tracers
         integer, allocatable :: idTads(:)    ! tracers adjoint sentivity
@@ -521,6 +529,7 @@
 #endif
         integer  :: ncFLTid(Ngrids)     ! output floats
         integer  :: ncFISHid(Ngrids)    ! output fish
+        integer  :: ncFLEETid(Ngrids)   ! output fish
         integer  :: ncFRCid(NV,Ngrids)  ! input forcing
         integer  :: ncFWDid(Ngrids)     ! forward solution
         integer  :: ncGRDid(Ngrids)     ! input grid
@@ -568,6 +577,7 @@
         integer, allocatable :: errTid(:,:)   ! error tracer IDs
         integer, allocatable :: fltTid(:,:)   ! floats tracers IDs
         integer, allocatable :: fishTid(:,:)  ! fish tracers IDs
+        integer, allocatable :: fleetTid(:,:) ! fish tracers IDs
         integer, allocatable :: hisTid(:,:)   ! history tracers IDs
         integer, allocatable :: hssTid(:,:)   ! Hessian tracers IDs
         integer, allocatable :: iniTid(:,:)   ! initial NLM tracers IDs
@@ -590,6 +600,7 @@
         integer  :: errVid(NV,Ngrids)    ! error variables IDs
         integer  :: fltVid(-6:NV,Ngrids) ! floats variables IDs
         integer  :: fishVid(-6:NV,Ngrids)! fish variables IDs
+        integer  :: fleetVid(-6:NV,Ngrids)! fish variables IDs
         integer  :: hisVid(NV,Ngrids)    ! history variables IDs
         integer  :: hssVid(NV,Ngrids)    ! Hessian variables IDs
         integer  :: iniVid(NV,Ngrids)    ! initial NLM variables IDs
@@ -615,6 +626,7 @@
         integer  :: tFILindx(Ngrids)     ! filter time record index
         integer  :: tFLTindx(Ngrids)     ! floats time record index
         integer  :: tFISHindx(Ngrids)    ! fish time record index
+        integer  :: tFLEETindx(Ngrids)   ! fish time record index
         integer  :: tHISindx(Ngrids)     ! history time record index
         integer  :: tHSSindx(Ngrids)     ! Hessian time record index
         integer  :: tINIindx(Ngrids)     ! initial NLM time record index
@@ -751,6 +763,7 @@
         allocate ( filTid(MT,Ngrids) )
         allocate ( fltTid(MT,Ngrids) )
         allocate ( fishTid(MT,Ngrids) )
+        allocate ( fleetTid(MT,Ngrids) )
         allocate ( hisTid(MT,Ngrids) )
         allocate ( hssTid(MT,Ngrids) )
         allocate ( iniTid(MT,Ngrids) )
@@ -1055,6 +1068,7 @@
           ncERRid(ng)=-1
           ncFLTid(ng)=-1
           ncFISHid(ng)=-1
+          ncFLEETid(ng)=-1
           ncGSTid(ng)=-1
           ncFWDid(ng)=-1
           ncGRDid(ng)=-1
@@ -1087,6 +1101,7 @@
           tFILindx(ng)=0
           tFLTindx(ng)=0
           tFISHindx(ng)=0
+          tFLEETindx(ng)=0
           tHISindx(ng)=0
           tINIindx(ng)=0
           tIRPindx(ng)=1

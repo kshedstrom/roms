@@ -153,6 +153,24 @@
               CASE ('idPalv')
                 idPalv=varid
 # endif
+# ifdef FLEET
+              CASE ('idBxprt')
+                idBxprt=varid
+              CASE ('idByprt')
+                idByprt=varid
+              CASE ('idBnprt')
+                idBnprt=varid
+              CASE ('idBnfloc')
+                idBnfloc=varid
+              CASE ('idBcatch')
+                idBcatch=varid
+              CASE ('idBcmctch')
+                idBcmctch=varid
+              CASE ('idBacpue')
+                idBacpue=varid
+              CASE ('idBpcpue')
+                idBpcpue=varid
+# endif
 #endif
 
 /*
