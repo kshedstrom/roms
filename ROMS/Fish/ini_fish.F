@@ -101,7 +101,8 @@
         FISHES(ng)%sp_start(isp)=Fspstr(isp,ng)
         FISHES(ng)%sp_end(isp)=Fspend(isp,ng)
         FISHES(ng)%num_free(isp)=Nfishperyear(ng)
-        FISHES(ng)%num_super(isp)=0
+        FISHES(ng)%num_super(isp) = FISHES(ng)%num_free(isp) /          &
+     &        (FISHES(ng)%sp_end(isp)-FISHES(ng)%sp_start(isp) + 1)
         FISHES(ng)%next_free(isp)=1+FISHES(ng)%age_base(isp)
       END DO
       IF (Master) THEN

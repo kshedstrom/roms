@@ -7,8 +7,6 @@
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
-!  Set up tree structure and functions.                                !
-!=======================================================================
 !
 ! This is Chris Edward's "bisection" idea. Start by knowing the locations
 ! of all the eggs. The routine eggs_by_cell finds the eggs for each cell,
@@ -21,7 +19,7 @@
         USE mod_kinds
         USE mod_types
         USE mod_param
-	USE mod_biology
+        USE mod_biology
 
         implicit none
 
