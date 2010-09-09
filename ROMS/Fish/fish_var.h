@@ -91,8 +91,6 @@
                 idPspc=varid
               CASE ('idPalv')
                 idPalv=varid
-              CASE ('idPeatf')
-                idPeatf=varid
 # endif
 # ifdef FLEET
               CASE ('idBxprt')

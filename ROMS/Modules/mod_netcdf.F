@@ -294,6 +294,7 @@
             IF (status.ne.nf90_noerr) THEN
               WRITE (stdout,10) dim_id(i), TRIM(ncname),                &
      &                          TRIM(SourceFile)
+              PRINT *, trim(nf90_strerror(status))
               exit_flag=2
               ioerror=status
               EXIT
@@ -313,6 +314,7 @@
           END IF
           IF (status.ne.nf90_noerr) THEN
             WRITE (stdout,30) TRIM(ncname), TRIM(SourceFile)
+            PRINT *, trim(nf90_strerror(status))
             exit_flag=2
             ioerror=status
           END IF
@@ -1243,6 +1245,7 @@
           END IF
           IF (status.ne.nf90_noerr) THEN
             WRITE (stdout,40) TRIM(ncname), TRIM(SourceFile)
+            PRINT *, trim(nf90_strerror(status))
             exit_flag=2
             ioerror=status
           END IF
@@ -1327,6 +1330,7 @@
               IF (status.ne.nf90_noerr) THEN
                 WRITE (stdout,50) i, TRIM(myVarName), TRIM(ncname),     &
      &                            TRIM(SourceFile)
+                PRINT *, trim(nf90_strerror(status))
                 exit_flag=2
                 ioerror=status
                 EXIT
@@ -1351,6 +1355,7 @@
      &                                    TRIM(myVarName),              &
      &                                    TRIM(ncname),                 &
      &                                    TRIM(SourceFile)
+                        PRINT *, trim(nf90_strerror(status))
                         exit_flag=2
                         ioerror=status
                         EXIT
@@ -1366,6 +1371,7 @@
      &                                    TRIM(myVarName),              &
      &                                    TRIM(ncname),                 &
      &                                    TRIM(SourceFile)
+                        PRINT *, trim(nf90_strerror(status))
                         exit_flag=2
                         ioerror=status
                         EXIT
@@ -1380,6 +1386,7 @@
      &                                    TRIM(myVarName),              &
      &                                    TRIM(ncname),                 &
      &                                    TRIM(SourceFile)
+                        PRINT *, trim(nf90_strerror(status))
                         exit_flag=2
                         ioerror=status
                         EXIT
@@ -1531,6 +1538,7 @@
         IF (status.ne.nf90_noerr) THEN
           WRITE (stdout,10) TRIM(myVarName), TRIM(ncname),              &
      &                      TRIM(SourceFile)
+          PRINT *, trim(nf90_strerror(status))
           exit_flag=3
           ioerror=status
         END IF
@@ -1653,6 +1661,7 @@
      &                                            TRIM(my_Vname),       &
      &                                            TRIM(ncname),         &
      &                                            TRIM(SourceFile)
+                    PRINT *, trim(nf90_strerror(status))
                     exit_flag=2
                     ioerror=status
                   END IF
@@ -1989,6 +1998,7 @@
           IF (status.ne.nf90_noerr) THEN
             WRITE (stdout,10) TRIM(myVarName), TRIM(ncname),            &
      &                        TRIM(SourceFile)
+            PRINT *, trim(nf90_strerror(status))
             exit_flag=2
             ioerror=status
           END IF
@@ -2201,6 +2211,7 @@
           IF (status.ne.nf90_noerr) THEN
             WRITE (stdout,10) TRIM(myVarName), TRIM(ncname),            &
      &                        TRIM(SourceFile)
+            PRINT *, trim(nf90_strerror(status))
             exit_flag=2
             ioerror=status
           END IF
@@ -2413,6 +2424,7 @@
           IF (status.ne.nf90_noerr) THEN
             WRITE (stdout,10) TRIM(myVarName), TRIM(ncname),            &
      &                        TRIM(SourceFile)
+            PRINT *, trim(nf90_strerror(status))
             exit_flag=2
             ioerror=status
           END IF
@@ -2630,6 +2642,7 @@
           IF (status.ne.nf90_noerr) THEN
             WRITE (stdout,10) TRIM(myVarName), TRIM(ncname),            &
      &                        TRIM(SourceFile)
+            PRINT *, trim(nf90_strerror(status))
             exit_flag=2
             ioerror=status
           END IF
@@ -2854,6 +2867,7 @@
             IF (status.ne.nf90_noerr) THEN
               WRITE (stdout,10) TRIM(myVarName), TRIM(ncname),          &
      &                        TRIM(SourceFile)
+              PRINT *, trim(nf90_strerror(status))
               exit_flag=2
               ioerror=status
             END IF
@@ -3026,6 +3040,7 @@
             IF (status.ne.nf90_noerr) THEN
               WRITE (stdout,10) TRIM(myVarName), TRIM(ncname),          &
      &                        TRIM(SourceFile)
+              PRINT *, trim(nf90_strerror(status))
               exit_flag=2
               ioerror=status
             END IF
@@ -3167,6 +3182,7 @@
           IF (status.ne.nf90_noerr) THEN
             WRITE (stdout,10) TRIM(myVarName), TRIM(ncname),            &
      &                        TRIM(SourceFile)
+            PRINT *, trim(nf90_strerror(status))
             exit_flag=2
             ioerror=status
           END IF
@@ -3297,6 +3313,7 @@
           IF (status.ne.nf90_noerr) THEN
             WRITE (stdout,10) TRIM(myVarName), TRIM(ncname),            &
      &                        TRIM(SourceFile)
+            PRINT *, trim(nf90_strerror(status))
             exit_flag=2
             ioerror=status
           END IF
@@ -3428,6 +3445,7 @@
           IF (status.ne.nf90_noerr) THEN
             WRITE (stdout,10) TRIM(myVarName), TRIM(ncname),            &
      &                        TRIM(SourceFile)
+            PRINT *, trim(nf90_strerror(status))
             exit_flag=2
             ioerror=status
           END IF
@@ -3557,6 +3575,7 @@
           IF (status.ne.nf90_noerr) THEN
             WRITE (stdout,10) TRIM(myVarName), TRIM(ncname),            &
      &                        TRIM(SourceFile)
+            PRINT *, trim(nf90_strerror(status))
             exit_flag=2
             ioerror=status
           END IF
@@ -3687,6 +3706,7 @@
           IF (status.ne.nf90_noerr) THEN
             WRITE (stdout,10) TRIM(myVarName), TRIM(ncname),            &
      &                        TRIM(SourceFile)
+            PRINT *, trim(nf90_strerror(status))
             exit_flag=2
             ioerror=status
           END IF
@@ -3813,6 +3833,7 @@
           IF (status.ne.nf90_noerr) THEN
             WRITE (stdout,10) TRIM(myVarName), TRIM(ncname),            &
      &                        TRIM(SourceFile)
+            PRINT *, trim(nf90_strerror(status))
             exit_flag=3
             ioerror=status
           END IF
@@ -3832,6 +3853,7 @@
           IF (status.ne.nf90_noerr) THEN
             WRITE (stdout,20) TRIM(myVarName), TRIM(ncname),            &
      &                        TRIM(SourceFile)
+            PRINT *, trim(nf90_strerror(status))
             exit_flag=3
             ioerror=status
           END IF
@@ -3949,6 +3971,7 @@
           IF (status.ne.nf90_noerr) THEN
             WRITE (stdout,10) TRIM(myVarName), TRIM(ncname),            &
      &                        TRIM(SourceFile)
+            PRINT *, trim(nf90_strerror(status))
             exit_flag=3
             ioerror=status
           END IF
@@ -3963,6 +3986,7 @@
           IF (status.ne.nf90_noerr) THEN
             WRITE (stdout,20) TRIM(myVarName), TRIM(ncname),            &
      &                        TRIM(SourceFile)
+            PRINT *, trim(nf90_strerror(status))
             exit_flag=3
             ioerror=status
           END IF
@@ -4080,6 +4104,7 @@
           IF (status.ne.nf90_noerr) THEN
             WRITE (stdout,10) TRIM(myVarName), TRIM(ncname),            &
      &                        TRIM(SourceFile)
+            PRINT *, trim(nf90_strerror(status))
             exit_flag=3
             ioerror=status
           END IF
@@ -4094,6 +4119,7 @@
           IF (status.ne.nf90_noerr) THEN
             WRITE (stdout,20) TRIM(myVarName), TRIM(ncname),            &
      &                        TRIM(SourceFile)
+            PRINT *, trim(nf90_strerror(status))
             exit_flag=3
             ioerror=status
           END IF
@@ -4211,6 +4237,7 @@
           IF (status.ne.nf90_noerr) THEN
             WRITE (stdout,10) TRIM(myVarName), TRIM(ncname),            &
      &                        TRIM(SourceFile)
+            PRINT *, trim(nf90_strerror(status))
             exit_flag=3
             ioerror=status
           END IF
@@ -4225,6 +4252,7 @@
           IF (status.ne.nf90_noerr) THEN
             WRITE (stdout,20) TRIM(myVarName), TRIM(ncname),            &
      &                        TRIM(SourceFile)
+            PRINT *, trim(nf90_strerror(status))
             exit_flag=3
             ioerror=status
           END IF
@@ -4342,6 +4370,7 @@
           IF (status.ne.nf90_noerr) THEN
             WRITE (stdout,10) TRIM(myVarName), TRIM(ncname),            &
      &                        TRIM(SourceFile)
+            PRINT *, trim(nf90_strerror(status))
             exit_flag=3
             ioerror=status
           END IF
@@ -4356,6 +4385,7 @@
           IF (status.ne.nf90_noerr) THEN
             WRITE (stdout,20) TRIM(myVarName), TRIM(ncname),            &
      &                        TRIM(SourceFile)
+            PRINT *, trim(nf90_strerror(status))
             exit_flag=3
             ioerror=status
           END IF
@@ -4475,6 +4505,7 @@
           IF (status.ne.nf90_noerr) THEN
             WRITE (stdout,10) TRIM(myVarName), TRIM(ncname),            &
      &                        TRIM(SourceFile)
+            PRINT *, trim(nf90_strerror(status))
             exit_flag=3
             ioerror=status
           END IF
@@ -4494,6 +4525,7 @@
           IF (status.ne.nf90_noerr) THEN
             WRITE (stdout,20) TRIM(myVarName), TRIM(ncname),            &
      &                        TRIM(SourceFile)
+            PRINT *, trim(nf90_strerror(status))
             exit_flag=3
             ioerror=status
           END IF
@@ -4611,6 +4643,7 @@
           IF (status.ne.nf90_noerr) THEN
             WRITE (stdout,10) TRIM(myVarName), TRIM(ncname),            &
      &                        TRIM(SourceFile)
+            PRINT *, trim(nf90_strerror(status))
             exit_flag=3
             ioerror=status
           END IF
@@ -4625,6 +4658,7 @@
           IF (status.ne.nf90_noerr) THEN
             WRITE (stdout,20) TRIM(myVarName), TRIM(ncname),            &
      &                        TRIM(SourceFile)
+            PRINT *, trim(nf90_strerror(status))
             exit_flag=3
             ioerror=status
           END IF
@@ -4742,6 +4776,7 @@
           IF (status.ne.nf90_noerr) THEN
             WRITE (stdout,10) TRIM(myVarName), TRIM(ncname),            &
      &                        TRIM(SourceFile)
+            PRINT *, trim(nf90_strerror(status))
             exit_flag=3
             ioerror=status
           END IF
@@ -4756,6 +4791,7 @@
           IF (status.ne.nf90_noerr) THEN
             WRITE (stdout,20) TRIM(myVarName), TRIM(ncname),            &
      &                        TRIM(SourceFile)
+            PRINT *, trim(nf90_strerror(status))
             exit_flag=3
             ioerror=status
           END IF
@@ -4879,6 +4915,7 @@
           IF (status.ne.nf90_noerr) THEN
             WRITE (stdout,10) TRIM(myVarName), TRIM(ncname),            &
      &                        TRIM(SourceFile)
+            PRINT *, trim(nf90_strerror(status))
             exit_flag=3
             ioerror=status
           END IF
@@ -4907,6 +4944,7 @@
           IF (status.ne.nf90_noerr) THEN
             WRITE (stdout,20) TRIM(myVarName), TRIM(ncname),            &
      &                        TRIM(SourceFile)
+            PRINT *, trim(nf90_strerror(status))
             exit_flag=3
             ioerror=status
           END IF
@@ -5029,6 +5067,7 @@
           IF (status.ne.nf90_noerr) THEN
             WRITE (stdout,10) TRIM(myVarName), TRIM(ncname),            &
      &                        TRIM(SourceFile)
+            PRINT *, trim(nf90_strerror(status))
             exit_flag=3
             ioerror=status
           END IF
@@ -5054,6 +5093,7 @@
           IF (status.ne.nf90_noerr) THEN
             WRITE (stdout,20) TRIM(myVarName), TRIM(ncname),            &
      &                        TRIM(SourceFile)
+            PRINT *, trim(nf90_strerror(status))
             exit_flag=3
             ioerror=status
           END IF
@@ -5176,6 +5216,7 @@
           IF (status.ne.nf90_noerr) THEN
             WRITE (stdout,10) TRIM(myVarName), TRIM(ncname),            &
      &                        TRIM(SourceFile)
+            PRINT *, trim(nf90_strerror(status))
             exit_flag=3
             ioerror=status
           END IF
@@ -5203,6 +5244,7 @@
           IF (status.ne.nf90_noerr) THEN
             WRITE (stdout,20) TRIM(myVarName), TRIM(ncname),            &
      &                        TRIM(SourceFile)
+            PRINT *, trim(nf90_strerror(status))
             exit_flag=3
             ioerror=status
           END IF
@@ -5320,6 +5362,7 @@
           IF (status.ne.nf90_noerr) THEN
             WRITE (stdout,10) TRIM(myVarName), TRIM(ncname),            &
      &                        TRIM(SourceFile)
+            PRINT *, trim(nf90_strerror(status))
             exit_flag=3
             ioerror=status
           END IF
@@ -5336,6 +5379,7 @@
           IF (status.ne.nf90_noerr) THEN
             WRITE (stdout,20) TRIM(myVarName), TRIM(ncname),             &
      &                        TRIM(SourceFile)
+            PRINT *, trim(nf90_strerror(status))
             exit_flag=3
             ioerror=status
           END IF
@@ -5454,6 +5498,7 @@
           IF (status.ne.nf90_noerr) THEN
             WRITE (stdout,10) TRIM(myVarName), TRIM(ncname),            &
      &                        TRIM(SourceFile)
+            PRINT *, trim(nf90_strerror(status))
             exit_flag=3
             ioerror=status
           END IF
@@ -5472,6 +5517,7 @@
           IF (status.ne.nf90_noerr) THEN
             WRITE (stdout,20) TRIM(myVarName), TRIM(ncname),            &
      &                        TRIM(SourceFile)
+            PRINT *, trim(nf90_strerror(status))
             exit_flag=3
             ioerror=status
           END IF
@@ -5620,6 +5666,7 @@
               IF (status.ne.nf90_noerr) THEN
                 WRITE (stdout,10) 'bio_file', TRIM(my_ncname),          &
      &                            TRIM(SourceFile)
+                PRINT *, trim(nf90_strerror(status))
                 exit_flag=3
                 ioerror=status
               END IF
@@ -5634,6 +5681,7 @@
           status=nf90_close(ncid)
           IF (status.ne.nf90_noerr) THEN
             WRITE (stdout,20) ncid, TRIM(my_ncname), TRIM(SourceFile)
+            PRINT *, trim(nf90_strerror(status))
             exit_flag=3
             ioerror=status
           END IF
@@ -5723,6 +5771,7 @@
      &                       OCN_COMM_WORLD, MP_INFO, ncid)
       IF (status.ne.nf90_noerr) THEN
         IF (Master) WRITE (stdout,10) TRIM(ncname), TRIM(SourceFile)
+        PRINT *, trim(nf90_strerror(status))
         exit_flag=3
         ioerror=status
       END IF
@@ -5731,6 +5780,7 @@
         status=nf90_create(TRIM(ncname), CMODE, ncid)
         IF (status.ne.nf90_noerr) THEN
           WRITE (stdout,10) TRIM(ncname), TRIM(SourceFile)
+          PRINT *, trim(nf90_strerror(status))
           exit_flag=3
           ioerror=status
         END IF
@@ -5815,6 +5865,7 @@
         status=nf90_enddef(ncid)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) WRITE (stdout,10) TRIM(ncname), TRIM(SourceFile)
+          PRINT *, trim(nf90_strerror(status))
           exit_flag=3
           ioerror=status
         END IF
@@ -5902,6 +5953,7 @@
       END SELECT
       IF (status.ne.nf90_noerr) THEN
         IF (Master) WRITE (stdout,10) TRIM(ncname), TRIM(SourceFile)
+        PRINT *, trim(nf90_strerror(status))
         exit_flag=3
         ioerror=status
       END IF
@@ -5917,6 +5969,7 @@
         END SELECT
         IF (status.ne.nf90_noerr) THEN
           WRITE (stdout,10) TRIM(ncname), TRIM(SourceFile)
+          PRINT *, trim(nf90_strerror(status))
           exit_flag=3
           ioerror=status
         END IF
@@ -6059,6 +6112,7 @@
         status=nf90_redef(ncid)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) WRITE (stdout,10) TRIM(ncname), TRIM(SourceFile)
+          PRINT *, trim(nf90_strerror(status))
           exit_flag=3
           ioerror=status
         END IF
@@ -6133,6 +6187,7 @@
         status=nf90_sync(ncid)
         IF (status.ne.nf90_noerr) THEN
           WRITE (stdout,10) TRIM(ncname), TRIM(SourceFile)
+          PRINT *, trim(nf90_strerror(status))
           exit_flag=3
           ioerror=status
         END IF
