@@ -301,6 +301,36 @@
      &                 NF_FOUT, 3, t2dgrd, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 !
+!  Define distance to nearest port
+!
+        Vinfo( 1)='DistPort'
+        Vinfo( 2)='distance to nearest port'
+        Vinfo( 3)='km'
+        Vinfo(14)='distport, scalar, series'
+        Vinfo(16)=Vname(1,idtime)
+# ifndef NO_4BYTE_REALS
+        Vinfo(24)='_FillValue'
+        Aval(6)=spval
+# endif
+        status=def_var(ng, iNLM, ncFLEETid(ng), fleetVid(idBpdist,ng),  &
+     &                 NF_FOUT, 3, t2dgrd, Aval, Vinfo, ncname)
+        IF (exit_flag.ne.NoError) RETURN
+!
+!  Define nearest port number
+!
+        Vinfo( 1)='NearPort'
+        Vinfo( 2)='nearest port number'
+        Vinfo( 3)='nondimensional'
+        Vinfo(14)='nearport, scalar, series'
+        Vinfo(16)=Vname(1,idtime)
+# ifndef NO_4BYTE_REALS
+        Vinfo(24)='_FillValue'
+        Aval(6)=spval
+# endif
+        status=def_var(ng, iNLM, ncFLEETid(ng), fleetVid(idBpnear,ng),  &
+     &                 NF_FOUT, 3, t2dgrd, Aval, Vinfo, ncname)
+        IF (exit_flag.ne.NoError) RETURN
+!
 !  Initialize unlimited time record dimension.
 !
         tFLEETindx(ng)=0
@@ -392,6 +422,12 @@
           ELSE IF (TRIM(var_name(i)).eq.'PerCPUE') THEN
             got_var(idBpcpue)=.TRUE.
             fleetVid(idBpcpue,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.'DistPort') THEN
+            got_var(idBpdist)=.TRUE.
+            fleetVid(idBpdist,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.'NearPort') THEN
+            got_var(idBpnear)=.TRUE.
+            fleetVid(idBpnear,ng)=var_id(i)
           END IF
         END DO
 !

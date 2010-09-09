@@ -170,6 +170,10 @@
                 idBacpue=varid
               CASE ('idBpcpue')
                 idBpcpue=varid
+              CASE ('idBpdist')
+                idBpdist=varid
+              CASE ('idBpnear')
+                idBpnear=varid
 # endif
 #endif
 

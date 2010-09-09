@@ -435,6 +435,8 @@
         integer  :: idBcmctch      ! Boat cummulative annual catch
         integer  :: idBacpue       ! Boat average CPUE
         integer  :: idBpcpue       ! Boat perceived CPUE
+        integer  :: idBpdist       ! Boat perceived CPUE
+        integer  :: idBpnear       ! Boat perceived CPUE
 
         integer, allocatable :: idRtrc(:)    ! river runoff for tracers
         integer, allocatable :: idTads(:)    ! tracers adjoint sentivity

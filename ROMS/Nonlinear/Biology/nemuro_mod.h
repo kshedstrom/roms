@@ -227,7 +227,7 @@
 #  endif
 #  ifdef FLEET
       integer, parameter :: max_boats = 100
-      integer, parameter :: max_ports = 3
+      integer, parameter :: max_ports = 5
 #  endif
 
 

@@ -471,21 +471,18 @@
         SUBROUTINE initports(ng)
           integer, intent(in) :: ng
           integer :: i, j, ip, ipc, jpc
-          real(r8) :: dist2port, dlon, dlat, dist
-          real(r8) :: dg2rd, dg2km
+          real(r8) :: dist2port, dxm, dym, dist
 !
 ! Find closest port and distance from a given i,j location on grid
-          dg2rd=3.14159_r8/180.0_r8
-          dg2km=1.852_r8*60.0_r8
           DO i=0,Lm(ng)+1
             DO j=0,Mm(ng)+1
               dist2port=1.0e30_r8
               DO ip=1,Nports(ng)
                 ipc=iPort(ip,ng)
                 jpc=jPort(ip,ng)
-                dlon=xr_all(i,j)-xr_all(ipc,jpc)
-                dlat=yr_all(i,j)-yr_all(ipc,jpc)
-                dist=0.001_r8*(dlon**2+dlat**2)**0.5_r8
+                dxm=xr_all(i,j)-xr_all(ipc,jpc)
+                dym=yr_all(i,j)-yr_all(ipc,jpc)
+                dist=0.001_r8*(dxm**2+dym**2)**0.5_r8
                 IF (dist.lt.dist2port) THEN
                   dist2port=dist
                   distport_all(i,j)=dist
@@ -556,14 +553,11 @@
         SUBROUTINE bestlocation(ng,ib)
           integer, intent(in) :: ng, ib
           integer :: i, j, ip, idport, ibc, jbc
-          real(r8) :: dg2rd, dg2km
-          real(r8) :: dlon, dlat, dist
+          real(r8) :: dxm, dym, dist
           real(r8) :: dist2loc, time2loc, dist2port, time2port
           real(r8) :: time2fish, exprev, t1
           real(r8) :: exprevOpt, ev1mu, ev1beta, snudg
 !
-          dg2rd=3.14159_r8/180.0_r8
-          dg2km=1.852_r8*60.0_r8
           ev1mu=0.0_r8
           ev1beta=500.0_r8
 !
@@ -580,9 +574,9 @@
           jbc=BOATS(ng)%boat(ibjloc,ib)
           DO i=0,Lm(ng)+1
             DO j=0,Mm(ng)+1
-              dlon=xr_all(i,j)-xr_all(ibc,jbc)
-              dlat=yr_all(i,j)-yr_all(ibc,jbc)
-              dist2loc=0.001_r8*(dlon**2+dlat**2)**0.5_r8
+              dxm=xr_all(i,j)-xr_all(ibc,jbc)
+              dym=yr_all(i,j)-yr_all(ibc,jbc)
+              dist2loc=0.001_r8*(dxm**2+dym**2)**0.5_r8
               time2loc=dist2loc/BoatVel(ng)
               dist2port=distport_all(i,j)
               idport=nearport_all(i,j)

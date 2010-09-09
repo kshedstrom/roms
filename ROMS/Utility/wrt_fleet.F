@@ -161,7 +161,30 @@
 #endif
      &                   OCEAN(ng) % percpue(:,:))
       IF (status.ne.nf90_noerr) RETURN
-
+!
+!  Write out distance to nearest port (km)
+!
+        status=nf_fwrite2d(ng, iNLM, ncFLEETid(ng),                     &
+     &                     fleetVid(idBpdist,ng),                       &
+     &                     tFLEETindx(ng), r2dvar,                      &
+     &                     LBi, UBi, LBj, UBj, 1.0_r8,                  &
+#ifdef MASKING
+     &                     GRID(ng) % rmask,                            &
+#endif
+     &                     OCEAN(ng) % distport(:,:))
+        IF (status.ne.nf90_noerr) RETURN
+!
+!  Write out nearest port number
+!
+        status=nf_fwrite2d(ng, iNLM, ncFLEETid(ng),                     &
+     &                     fleetVid(idBpnear,ng),                       &
+     &                     tFLEETindx(ng), r2dvar,                      &
+     &                     LBi, UBi, LBj, UBj, 1.0_r8,                  &
+#ifdef MASKING
+     &                     GRID(ng) % rmask,                            &
+#endif
+     &                     REAL(OCEAN(ng) % nearport(:,:),r8))
+        IF (status.ne.nf90_noerr) RETURN
 !
 !-----------------------------------------------------------------------
 !  Synchronize fleet NetCDF file to disk.

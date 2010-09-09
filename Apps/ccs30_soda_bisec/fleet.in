@@ -50,7 +50,7 @@
 
 ! Number of ports [-], {3}.
 
-       Nports == 3
+       Nports == 4
 
 ! Maximum daily catch [kg], {30000.0d0}.
 
@@ -62,7 +62,7 @@
 
 ! Boat motoring speed [km/h], {30.0d0}.
 
-       BoatVel == 30.0d0
+       BoatVel == 20.0d0
 
 ! Catchability [-], {0.01d0}.
 
@@ -84,15 +84,15 @@
 
        CatchPrice == 0.5d0 0.5d0 0.5d0
 
-! Port grid i location. {San Pedro(CA), Monterey(CA), Newport(OR)}
+! Port grid i location. {San Diego(CA), San Pedro(CA), Monterey(CA), Newport(OR)}
 
-!       LonPort == -118.285d0 -121.890d0 -124.052d0
-       iPort == 35 30 39
+!       LonPort == -117.167 -118.285 -121.890 -124.052
+       iPort == 36 35 30 39
 
-! Port grid j location. {San Pedro(CA), Monterey(CA), Newport(OR)}
+! Port grid j location. {San Diego(CA), San Pedro(CA), Monterey(CA), Newport(OR)}
 
-!       LatPort == 33.741d0 36.608d0 44.636d0
-       jPort == 48 62 91
+!       LatPort == 32.733 33.741 36.608 44.636
+       jPort == 43 48 62 91
 
 !
 !  GLOSSARY:

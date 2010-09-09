@@ -5256,3 +5256,21 @@
   'idBpcpue'
   'r2dvar'
   1.0d0
+
+ 'DistPort'
+  'distance to nearest port'
+  'km'
+  'distport, scalar, series'
+  'bio_time'
+  'idBpdist'
+  'r2dvar'
+  1.0d0
+
+ 'NearPort'
+  'nearest port number'
+  'nondimensional'
+  'nearport, scalar, series'
+  'bio_time'
+  'idBpnear'
+  'r2dvar'
+  1.0d0
