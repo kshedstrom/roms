@@ -27,6 +27,12 @@
 # ifdef NEMURO_SAN
       USE mod_biology
       USE mod_fish
+#  ifdef PREDATOR
+      USE mod_pred
+#  endif
+#  ifdef FLEET
+      USE mod_fleet
+#  endif
 # endif
 # if defined FOUR_DVAR || defined VERIFICATION
       USE mod_fourdvar
@@ -548,9 +554,6 @@
           ELSE
             IF (iic(ng).eq.ntstart(ng)) THEN
               CALL def_fish (ng, ldefout(ng))
-# ifdef FLEET
-              CALL def_ships (ng, NewFile)
-# endif
               IF (exit_flag.ne.NoError) RETURN
               LwrtFISh(ng)=.TRUE.
               LdefFISh(ng)=.FALSE.
@@ -563,10 +566,63 @@
         IF ((MOD(iic(ng)-1,nFSH(ng)).eq.0).and.                      &
      &      ((fishrrec(ng).eq.0).or.(iic(ng).ne.ntstart(ng)))) THEN
           CALL wrt_fish (ng)
-          CALL wrt_ships (ng)
           IF (exit_flag.ne.NoError) RETURN
         END IF
       END IF
+
+#  ifdef PREDATOR
+      IF (Npred(ng).gt.0.and.(nPRD(ng).gt.0)) THEN
+!
+!  Create output pred NetCDF file or prepare existing file to
+!  append new data to it.
+!
+        IF (LdefPRED(ng)) THEN
+          IF (predrrec(ng).eq.0) THEN
+            NewFile=.TRUE.
+          ELSE
+            NewFile=.FALSE.
+          END IF
+          CALL def_pred (ng, NewFile)
+          IF (exit_flag.ne.NoError) RETURN
+          LdefPRED(ng)=.FALSE.
+        END IF
+!
+!  Write out data into pred NetCDF file.
+!
+        IF ((MOD(iic(ng)-1,nPRD(ng)).eq.0).and.                      &
+     &      ((predrrec(ng).eq.0).or.(iic(ng).ne.ntstart(ng)))) THEN
+          CALL wrt_pred (ng)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+      END IF
+#  endif
+
+#  ifdef FLEET
+      IF (Nboats(ng).gt.0.and.(nFLE(ng).gt.0)) THEN
+!
+!  Create output pred NetCDF file or prepare existing file to
+!  append new data to it.
+!
+        IF (LdefFLEET(ng)) THEN
+          IF (fleetrrec(ng).eq.0) THEN
+            NewFile=.TRUE.
+          ELSE
+            NewFile=.FALSE.
+          END IF
+          CALL def_fleet (ng, NewFile)
+          IF (exit_flag.ne.NoError) RETURN
+          LdefFLEET(ng)=.FALSE.
+        END IF
+!
+!  Write out data into fish NetCDF file.
+!
+        IF ((MOD(iic(ng)-1,nFLE(ng)).eq.0).and.                      &
+     &      ((fleetrrec(ng).eq.0).or.(iic(ng).ne.ntstart(ng)))) THEN
+          CALL wrt_fleet (ng)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+      END IF
+#  endif
 # endif
 !
 !-----------------------------------------------------------------------

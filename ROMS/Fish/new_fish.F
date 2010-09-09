@@ -258,7 +258,6 @@
                 FISHES(ng) % species(ifsh) = idfish_inv(isp)
                 FISHES(ng) % alive(ifsh) = .TRUE.
                 FISHES(ng) % lifestage(ifsh) = if_egg
-                FISHES(ng) % eatfish(ifsh) = .FALSE.
                 FISHES(ng) % swimtype(ifsh) = Fbehave(isp,ng)
 ! number individuals entering egg stage (for life table)
                 FISHES(ng)%egg_num(ifsh)=eggs(i)
@@ -316,7 +315,6 @@
      &                                   FISHES(ng) % swimtype)
       CALL mp_collectl (ng, iNLM, Nfish(ng), FISHES(ng) % alive)
       CALL mp_collectl (ng, iNLM, Nfish(ng), FISHES(ng) % bounded)
-      CALL mp_collectl (ng, iNLM, Nfish(ng), FISHES(ng) % eatfish)
 # endif
 
 # ifdef PROFILE

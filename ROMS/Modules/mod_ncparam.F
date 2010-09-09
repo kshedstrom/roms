@@ -403,7 +403,6 @@
         integer  :: idFlfsg        ! fish lifestage
         integer  :: idFswmt        ! fish swim type
         integer  :: idFalv         ! fish is alive
-        integer  :: idFeatf        ! fish eats fish
         integer  :: idFdegg        ! duration of egg stage
         integer  :: idFnegg        ! number of eggs
         integer  :: idFdysac       ! duration of yolk sac stage
@@ -427,7 +426,14 @@
         integer  :: idPcsmF5       ! Pred consumption on species 5
         integer  :: idPspc         ! Pred species
         integer  :: idPalv         ! Pred is alive
-        integer  :: idPeatf        ! Pred eats fish
+        integer  :: idBxprt        ! Boat x port location
+        integer  :: idByprt        ! Boat y port location
+        integer  :: idBnprt        ! Boat port number
+        integer  :: idBnfloc       ! Boat number of fishing locations
+        integer  :: idBcatch       ! Boat daily catch
+        integer  :: idBcmctch      ! Boat cummulative annual catch
+        integer  :: idBacpue       ! Boat average CPUE
+        integer  :: idBpcpue       ! Boat perceived CPUE
 
         integer, allocatable :: idRtrc(:)    ! river runoff for tracers
         integer, allocatable :: idTads(:)    ! tracers adjoint sentivity
@@ -522,6 +528,7 @@
 #endif
         integer  :: ncFLTid(Ngrids)     ! output floats
         integer  :: ncFISHid(Ngrids)    ! output fish
+        integer  :: ncFLEETid(Ngrids)   ! output fish
         integer  :: ncFRCid(NV,Ngrids)  ! input forcing
         integer  :: ncFWDid(Ngrids)     ! forward solution
         integer  :: ncGRDid(Ngrids)     ! input grid
@@ -535,8 +542,8 @@
         integer  :: ncMODid(Ngrids)     ! output 4DVAR fields
         integer  :: ncNRMid(4,Ngrids)   ! input/output covariance norm
         integer  :: ncOBSid(Ngrids)     ! input/output observations
+        integer  :: ncPREDid(Ngrids)    ! output predator
         integer  :: ncRSTid(Ngrids)     ! input/output restart
-        integer  :: ncSHIPSid(Ngrids)   ! output ships
         integer  :: ncSSHid(Ngrids)     ! SSH observations
         integer  :: ncSSTid(Ngrids)     ! SST observations
         integer  :: ncSTAid(Ngrids)     ! output stations
@@ -568,6 +575,7 @@
         integer, allocatable :: errTid(:,:)   ! error tracer IDs
         integer, allocatable :: fltTid(:,:)   ! floats tracers IDs
         integer, allocatable :: fishTid(:,:)  ! fish tracers IDs
+        integer, allocatable :: fleetTid(:,:) ! fish tracers IDs
         integer, allocatable :: hisTid(:,:)   ! history tracers IDs
         integer, allocatable :: hssTid(:,:)   ! Hessian tracers IDs
         integer, allocatable :: iniTid(:,:)   ! initial NLM tracers IDs
@@ -575,8 +583,8 @@
         integer, allocatable :: itlTid(:,:)   ! initial TLM tracers IDs
         integer, allocatable :: lczTid(:,:)   ! Lanczos tracers IDs
         integer, allocatable :: obsTid(:,:)   ! observations tracers IDs
+        integer, allocatable :: predTid(:,:)  ! pred tracers IDs
         integer, allocatable :: rstTid(:,:)   ! restart tracers IDs
-        integer, allocatable :: shipsTid(:,:) ! ships tracers IDs
         integer, allocatable :: staTid(:,:)   ! stations tracers IDs
         integer, allocatable :: tlfTid(:,:)   ! TLM impulse tracers IDs
         integer, allocatable :: tlmTid(:,:)   ! tangent tracers IDs
@@ -589,6 +597,7 @@
         integer  :: errVid(NV,Ngrids)    ! error variables IDs
         integer  :: fltVid(-6:NV,Ngrids) ! floats variables IDs
         integer  :: fishVid(-6:NV,Ngrids)! fish variables IDs
+        integer  :: fleetVid(-6:NV,Ngrids)! fish variables IDs
         integer  :: hisVid(NV,Ngrids)    ! history variables IDs
         integer  :: hssVid(NV,Ngrids)    ! Hessian variables IDs
         integer  :: iniVid(NV,Ngrids)    ! initial NLM variables IDs
@@ -598,8 +607,8 @@
         integer  :: modVid(NV,Ngrids)    ! 4DVAR variables IDs
         integer  :: nrmVid(4,NV,Ngrids)  ! norm variables IDs
         integer  :: obsVid(NV,Ngrids)    ! observations variables IDs
+        integer  :: predVid(-6:NV,Ngrids)! pred variables IDs
         integer  :: rstVid(NV,Ngrids)    ! restart variables IDs
-        integer  :: shipsVid(-6:NV,Ngrids)! ships variables IDs
         integer  :: staVid(NV,Ngrids)    ! stations variables IDs
         integer  :: tideVid(NV,Ngrids)   ! tide variables IDs
         integer  :: tlfVid(NV,Ngrids)    ! TLM impulse variables IDs
@@ -613,6 +622,7 @@
         integer  :: tFILindx(Ngrids)     ! filter time record index
         integer  :: tFLTindx(Ngrids)     ! floats time record index
         integer  :: tFISHindx(Ngrids)    ! fish time record index
+        integer  :: tFLEETindx(Ngrids)   ! fish time record index
         integer  :: tHISindx(Ngrids)     ! history time record index
         integer  :: tHSSindx(Ngrids)     ! Hessian time record index
         integer  :: tINIindx(Ngrids)     ! initial NLM time record index
@@ -620,8 +630,8 @@
         integer  :: tITLindx(Ngrids)     ! initial TLM time record index
         integer  :: tLCZindx(Ngrids)     ! Lanczos time record index
         integer  :: tNRMindx(4,Ngrids)   ! norm time record index
+        integer  :: tPREDindx(Ngrids)    ! pred time record index
         integer  :: tRSTindx(Ngrids)     ! restart time record index
-        integer  :: tSHIPSindx(Ngrids)   ! ships time record index
         integer  :: tSTAindx(Ngrids)     ! stations time record index
         integer  :: tTLFindx(Ngrids)     ! TLM impulse time record index
         integer  :: tTLMindx(Ngrids)     ! tangent time record index
@@ -748,6 +758,7 @@
         allocate ( filTid(MT,Ngrids) )
         allocate ( fltTid(MT,Ngrids) )
         allocate ( fishTid(MT,Ngrids) )
+        allocate ( fleetTid(MT,Ngrids) )
         allocate ( hisTid(MT,Ngrids) )
         allocate ( hssTid(MT,Ngrids) )
         allocate ( iniTid(MT,Ngrids) )
@@ -755,8 +766,8 @@
         allocate ( itlTid(MT,Ngrids) )
         allocate ( lczTid(MT,Ngrids) )
         allocate ( obsTid(MT,Ngrids) )
+        allocate ( predTid(MT,Ngrids) )
         allocate ( rstTid(MT,Ngrids) )
-        allocate ( shipsTid(MT,Ngrids) )
         allocate ( staTid(MT,Ngrids) )
         allocate ( tlfTid(MT,Ngrids) )
         allocate ( tlmTid(MT,Ngrids) )
@@ -1051,6 +1062,7 @@
           ncERRid(ng)=-1
           ncFLTid(ng)=-1
           ncFISHid(ng)=-1
+          ncFLEETid(ng)=-1
           ncGSTid(ng)=-1
           ncFWDid(ng)=-1
           ncGRDid(ng)=-1
@@ -1063,8 +1075,8 @@
           ncMODid(ng)=-1
           ncNRMid(1:4,ng)=-1
           ncOBSid(ng)=-1
+          ncPREDid(ng)=-1
           ncRSTid(ng)=-1
-          ncSHIPSid(ng)=-1
           ncSSHid(ng)=-1
           ncSSTid(ng)=-1
           ncSTAid(ng)=-1
@@ -1082,13 +1094,14 @@
           tFILindx(ng)=0
           tFLTindx(ng)=0
           tFISHindx(ng)=0
+          tFLEETindx(ng)=0
           tHISindx(ng)=0
           tINIindx(ng)=0
           tIRPindx(ng)=1
           tITLindx(ng)=1
           tNRMindx(1:4,ng)=0
+          tPREDindx(ng)=0
           tRSTindx(ng)=0
-          tSHIPSindx(ng)=0
           tSTAindx(ng)=0
           tTLFindx(ng)=0
           tTLMindx(ng)=0

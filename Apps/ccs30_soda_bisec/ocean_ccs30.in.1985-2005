@@ -480,7 +480,7 @@ Hout(idBott) == T T T T T T T T T F F F F F F F
      SPOSNAM =  ROMS/External/stations.in
      FPOSNAM =  floats.in
      FISHPOSNAM =  fish.in
-     SHIPPOSNAM =  ships.in
+     FLEETPOSNAM =  fleet.in
      BPARNAM =  nemsan.in
      SPARNAM =  ROMS/External/sediment.in
      USRNAME =  ROMS/External/MyFile.dat

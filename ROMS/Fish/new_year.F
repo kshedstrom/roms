@@ -71,6 +71,7 @@
           FISHES(ng) % bioenergy(ifwwt,ifsh) = 0.0_r8
           FISHES(ng) % bioenergy(ifworth,ifsh) = 0.0_r8
           FISHES(ng) % bioenergy(ifage,ifsh) = 0.0_r8
+!          FISHES(ng) % bioenergy(ifage,ifsh) = 0.0_r8
           FISHES(ng) % bioenergy(ifbday,ifsh) = 0.0_r8
           FISHES(ng) % lifestage(ifsh) = 0
           DO j=0,NFT

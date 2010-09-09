@@ -1,6 +1,6 @@
 #include "cppdefs.h"
-#if defined NEMURO_SAN && defined FLEET
-      SUBROUTINE def_ships (ng, ldef)
+#if defined NEMURO_SAN && defined PREDATOR
+      SUBROUTINE def_pred (ng, ldef)
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
@@ -9,14 +9,16 @@
 !    See License_ROMS.txt                                              !
 !=======================================================================
 !                                                                      !
-!  This routine creates SHIPS NetCDF file, it defines dimensions,      !
+!  This routine creates PRED NetCDF file, it defines dimensions,       !
 !  attributes, and variables.                                          !
 !                                                                      !
 !=======================================================================
 !
       USE mod_param
       USE mod_parallel
-      USE mod_ships
+      USE mod_pred
+      USE mod_fish
+      USE mod_biology
 # ifdef FOUR_DVAR
       USE mod_fourdvar
 # endif
@@ -45,27 +47,27 @@
 
       logical :: got_var(-6:NV)
 
-      integer :: shipsdim, i, itrc, j, l
-      integer :: recdim, status
+      integer :: preddim, i, itrc, j, l
+      integer :: recdim, status, specdim, ycdim
 
-      integer :: DimIDs(31), fgrd(2), start(2), total(2)
+      integer :: DimIDs(33), fgrd(2), start(2), total(2)
       integer :: Vsize(4)
 
       integer :: def_dim, varid
 
-      real(r8) :: Aval(6), Tinp(Nships(ng))
+      real(r8) :: Aval(6), Tinp(Npred(ng))
 
       character (len=80) :: Vinfo(Natt)
       character (len=80) :: ncname
 !
-      SourceFile='def_ships.F'
+      SourceFile='def_pred.F'
 !
 !-----------------------------------------------------------------------
 !  Set and report file name.
 !-----------------------------------------------------------------------
 !
       IF (exit_flag.ne.NoError) RETURN
-      ncname=SHIPname(ng)
+      ncname=PREDname(ng)
 !
       IF (Master) THEN
         IF (ldef) THEN
@@ -76,11 +78,11 @@
       END IF
 !
 !=======================================================================
-!  Create a new ships data file.
+!  Create a new pred data file.
 !=======================================================================
 !
       DEFINE : IF (ldef) THEN
-        CALL netcdf_create (ng, iNLM, TRIM(ncname), ncSHIPSid(ng))
+        CALL netcdf_create (ng, iNLM, TRIM(ncname), ncPREDid(ng))
         IF (exit_flag.ne.NoError) THEN
           IF (Master) WRITE (stdout,30) TRIM(ncname)
           RETURN
@@ -93,64 +95,70 @@
         DimIDs=0
 !
 # ifdef SOLVE3D
-        status=def_dim(ng, iNLM, ncSHIPSid(ng), ncname, 's_rho',        &
+        status=def_dim(ng, iNLM, ncPREDid(ng), ncname, 's_rho',         &
      &                 N(ng), DimIDs( 9))
         IF (exit_flag.ne.NoError) RETURN
 
-        status=def_dim(ng, iNLM, ncSHIPSid(ng), ncname, 's_w',          &
+        status=def_dim(ng, iNLM, ncPREDid(ng), ncname, 's_w',           &
      &                 N(ng)+1, DimIDs(10))
         IF (exit_flag.ne.NoError) RETURN
 
-        status=def_dim(ng, iNLM, ncSHIPSid(ng), ncname, 'tracer',       &
+        status=def_dim(ng, iNLM, ncPREDid(ng), ncname, 'tracer',        &
      &                 NT(ng), DimIDs(11))
         IF (exit_flag.ne.NoError) RETURN
 
 #  ifdef SEDIMENT
-        status=def_dim(ng, iNLM, ncSHIPSid(ng), ncname, 'Nbed',         &
+        status=def_dim(ng, iNLM, ncPREDid(ng), ncname, 'Nbed',          &
      &                 Nbed, DimIDs(16))
         IF (exit_flag.ne.NoError) RETURN
 #  endif
 
 #  ifdef ECOSIM
-        status=def_dim(ng, iNLM, ncSHIPSid(ng), ncname, 'Nphy',         &
+        status=def_dim(ng, iNLM, ncPREDid(ng), ncname, 'Nphy',          &
      &                 Nphy, DimIDs(25))
         IF (exit_flag.ne.NoError) RETURN
 
-        status=def_dim(ng, iNLM, ncSHIPSid(ng), ncname, 'Nbac',         &
+        status=def_dim(ng, iNLM, ncPREDid(ng), ncname, 'Nbac',          &
      &                 Nbac, DimIDs(26))
         IF (exit_flag.ne.NoError) RETURN
 
-        status=def_dim(ng, iNLM, ncSHIPSid(ng), ncname, 'Ndom',         &
+        status=def_dim(ng, iNLM, ncPREDid(ng), ncname, 'Ndom',          &
      &                 Ndom, DimIDs(27))
         IF (exit_flag.ne.NoError) RETURN
 
-        status=def_dim(ng, iNLM, ncSHIPSid(ng), ncname, 'Nfec',         &
+        status=def_dim(ng, iNLM, ncPREDid(ng), ncname, 'Nfec',          &
      &                 Nfec, DimIDs(28))
         IF (exit_flag.ne.NoError) RETURN
 #  endif
 # endif
 
-        status=def_dim(ng, iNLM, ncSHIPSid(ng), ncname, 'drifter' ,     &
-     &                 Nships(ng), DimIDs(15))
+        status=def_dim(ng, iNLM, ncPREDid(ng), ncname, 'drifter' ,      &
+     &                 Npred(ng), DimIDs(15))
         IF (exit_flag.ne.NoError) RETURN
 
-        status=def_dim(ng, iNLM, ncSHIPSid(ng), ncname, 'boundary',     &
+        status=def_dim(ng, iNLM, ncPREDid(ng), ncname, 'species' ,      &
+     &                 Npredspecies(ng), DimIDs(32))
+        IF (exit_flag.ne.NoError) RETURN
+
+        status=def_dim(ng, iNLM, ncPREDid(ng), ncname, 'boundary',      &
      &                 4, DimIDs(14))
         IF (exit_flag.ne.NoError) RETURN
 
 # ifdef FOUR_DVAR
-        status=def_dim(ng, iNLM, ncSHIPSid(ng), ncname, 'Nstate',       &
+        status=def_dim(ng, iNLM, ncPREDid(ng), ncname, 'Nstate',        &
      &                 NstateVar(ng), DimIDs(29))
         IF (exit_flag.ne.NoError) RETURN
 # endif
 
-        status=def_dim(ng, iNLM, ncSHIPSid(ng), ncname,                 &
+        status=def_dim(ng, iNLM, ncPREDid(ng), ncname,                  &
      &                 TRIM(ADJUSTL(Vname(5,idtime))),                  &
      &                 nf90_unlimited, DimIDs(12))
         IF (exit_flag.ne.NoError) RETURN
 
         recdim=DimIDs(12)
-        shipsdim=DimIDs(15)
+        preddim=DimIDs(15)
+        specdim=DimIDs(32)
+        ycdim=DimIDs(33)
 !
 !  Define dimension vectors for point variables.
 !
@@ -159,7 +167,7 @@
 !
 !  Initialize unlimited time record dimension.
 !
-        tSHIPSindx(ng)=0
+        tPREDindx(ng)=0
 !
 !  Initialize local information variable arrays.
 !
@@ -176,7 +184,7 @@
 !  Define time-recordless information variables.
 !-----------------------------------------------------------------------
 !
-        CALL def_info (ng, iNLM, ncSHIPSid(ng), ncname, DimIDs)
+        CALL def_info (ng, iNLM, ncPREDid(ng), ncname, DimIDs)
         IF (exit_flag.ne.NoError) RETURN
 !
 !-----------------------------------------------------------------------
@@ -201,24 +209,39 @@
           Vinfo( 4)='gregorian'
         END IF
         Vinfo(14)=Vname(4,idtime)
-        status=def_var(ng, iNLM, ncSHIPSid(ng), shipsVid(idtime,ng),    &
+        status=def_var(ng, iNLM, ncPREDid(ng), predVid(idtime,ng),      &
      &                 NF_TYPE, 1, (/recdim/), Aval, Vinfo, ncname,     &
      &                 SetParAccess = .FALSE.)
         IF (exit_flag.ne.NoError) RETURN
 !
-!  Define ship types
+!*********************************************************************
+! This next batch gets written out, but not as a timeseries, they get
+! overwritten with the current lifestage, etc., of the pred for restart
+! purposes.
+!*********************************************************************
 !
-        Vinfo( 1)='Ftype'
-        Vinfo( 2)='Ship type'
-        Vinfo( 9)='one day'
-        Vinfo(10)='ten day'
-        status=def_var(ng, iNLM, ncSHIPSid(ng), varid, nf90_int,        &
-     &                 1, (/shipsdim/), Aval, Vinfo, ncname)
+!  Define pred species
 !
-!  Define ships X-grid locations.
+        Vinfo( 1)='Species'
+        Vinfo( 2)='Pred species'
+        status=def_var(ng, iNLM, ncPREDid(ng), predVid(idPspc,ng),      &
+     &                 nf90_int, 1, (/preddim/), Aval, Vinfo, ncname)
+        IF (exit_flag.ne.NoError) RETURN
+!
+!  Define pred alive
+!
+        Vinfo( 1)='Alive'
+        Vinfo( 2)='Pred alive'
+        Vinfo( 9)='Pred alive'
+        Vinfo(10)='Pred dead'
+        status=def_var(ng, iNLM, ncPREDid(ng), predVid(idPalv,ng),      &
+     &                 nf90_int, 1, (/preddim/), Aval, Vinfo, ncname)
+        IF (exit_flag.ne.NoError) RETURN
+!
+!  Define pred X-grid locations.
 !
         Vinfo( 1)='Xgrid'
-        Vinfo( 2)='x-grid ships locations'
+        Vinfo( 2)='x-grid pred locations'
         Vinfo( 5)='valid_min'
         Vinfo( 6)='valid_max'
         Aval(2)=0.0_r8
@@ -229,14 +252,14 @@
         Vinfo(24)='_FillValue'
         Aval(6)=spval
 # endif
-        status=def_var(ng, iNLM, ncSHIPSid(ng), shipsVid(idXgrd,ng),    &
+        status=def_var(ng, iNLM, ncPREDid(ng), predVid(idXgrd,ng),      &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 !
-!  Define ship Y-grid locations.
+!  Define pred Y-grid locations.
 !
         Vinfo( 1)='Ygrid'
-        Vinfo( 2)='Y-grid ship locations'
+        Vinfo( 2)='Y-grid pred locations'
         Vinfo( 5)='valid_min'
         Vinfo( 6)='valid_max'
         Aval(2)=0.0_r8
@@ -247,16 +270,16 @@
         Vinfo(24)='_FillValue'
         Aval(6)=spval
 # endif
-        status=def_var(ng, iNLM, ncSHIPSid(ng), shipsVid(idYgrd,ng),    &
+        status=def_var(ng, iNLM, ncPREDid(ng), predVid(idYgrd,ng),      &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 
 # ifdef SOLVE3D
 !
-!  Define ship Z-grid locations.
+!  Define pred Z-grid locations.
 !
         Vinfo( 1)='Zgrid'
-        Vinfo( 2)='Z-grid ship locations'
+        Vinfo( 2)='Z-grid pred locations'
         Vinfo( 5)='valid_min'
         Vinfo( 6)='valid_max'
         Aval(2)=0.0_r8
@@ -267,16 +290,16 @@
         Vinfo(24)='_FillValue'
         Aval(6)=spval
 #  endif
-        status=def_var(ng, iNLM, ncSHIPSid(ng), shipsVid(idZgrd,ng),    &
+        status=def_var(ng, iNLM, ncPREDid(ng), predVid(idZgrd,ng),      &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 # endif
 !
-!  Define ship (lon,lat) or (x,y) locations.
+!  Define pred (lon,lat) or (x,y) locations.
 !
         IF (spherical) THEN
           Vinfo( 1)='lon'
-          Vinfo( 2)='longitude of ship trajectories'
+          Vinfo( 2)='longitude of pred trajectories'
           Vinfo( 3)='degree_east'
           Vinfo( 5)='valid_min'
           Vinfo( 6)='valid_max'
@@ -288,12 +311,12 @@
 # endif
           Aval(2)=-180.0_r8
           Aval(3)=180.0_r8
-          status=def_var(ng, iNLM, ncSHIPSid(ng), shipsVid(idglon,ng),  &
+          status=def_var(ng, iNLM, ncPREDid(ng), predVid(idglon,ng),    &
      &                   NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
 
           Vinfo( 1)='lat'
-          Vinfo( 2)='latitude of ship trajectories'
+          Vinfo( 2)='latitude of pred trajectories'
           Vinfo( 3)='degree_north'
           Vinfo( 5)='valid_min'
           Vinfo( 6)='valid_max'
@@ -305,12 +328,12 @@
 # endif
           Aval(2)=-90.0_r8
           Aval(3)=90.0_r8
-          status=def_var(ng, iNLM, ncSHIPSid(ng), shipsVid(idglat,ng),  &
+          status=def_var(ng, iNLM, ncPREDid(ng), predVid(idglat,ng),    &
      &                   NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
        ELSE
           Vinfo( 1)='x'
-          Vinfo( 2)='x-location of ship trajectories'
+          Vinfo( 2)='x-location of pred trajectories'
           Vinfo( 3)='meter'
           Vinfo(14)='x, scalar, series'
           Vinfo(16)=Vname(1,idtime)
@@ -318,12 +341,12 @@
           Vinfo(24)='_FillValue'
           Aval(6)=spval
 # endif
-          status=def_var(ng, iNLM, ncSHIPSid(ng), shipsVid(idglon,ng),  &
+          status=def_var(ng, iNLM, ncPREDid(ng), predVid(idglon,ng),    &
      &                   NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
 
           Vinfo( 1)='y'
-          Vinfo( 2)='y-location of ship trajectories'
+          Vinfo( 2)='y-location of pred trajectories'
           Vinfo( 3)='meter'
           Vinfo(14)='y, scalar, series'
           Vinfo(16)=Vname(1,idtime)
@@ -331,17 +354,17 @@
           Vinfo(24)='_FillValue'
           Aval(6)=spval
 # endif
-          status=def_var(ng, iNLM, ncSHIPSid(ng), shipsVid(idglat,ng),  &
+          status=def_var(ng, iNLM, ncPREDid(ng), predVid(idglat,ng),    &
      &                   NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
 
 # ifdef SOLVE3D
 !
-!  Define ship depths. (FOO - doesn't make sense)
+!  Define pred depths.
 !
         Vinfo( 1)='depth'
-        Vinfo( 2)='depth of ship trajectories'
+        Vinfo( 2)='depth of pred trajectories'
         Vinfo( 3)='meter'
         Vinfo(14)='depth, scalar, series'
         Vinfo(16)=Vname(1,idtime)
@@ -349,7 +372,7 @@
         Vinfo(24)='_FillValue'
         Aval(6)=spval
 #  endif
-        status=def_var(ng, iNLM, ncSHIPSid(ng), shipsVid(iddpth,ng),    &
+        status=def_var(ng, iNLM, ncPREDid(ng), predVid(iddpth,ng),      &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 !
@@ -364,7 +387,7 @@
         Vinfo(24)='_FillValue'
         Aval(6)=spval
 #  endif
-        status=def_var(ng, iNLM, ncSHIPSid(ng), shipsVid(idDano,ng),    &
+        status=def_var(ng, iNLM, ncPREDid(ng), predVid(idDano,ng),      &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 !
@@ -387,60 +410,158 @@
             END IF
           END DO
 #  endif
-          status=def_var(ng, iNLM, ncSHIPSid(ng), shipsTid(itrc,ng),    &
+          status=def_var(ng, iNLM, ncPREDid(ng), predTid(itrc,ng),      &
      &                   NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END DO
-!  Define ships wet weight (this will become catch or whatever)
-        Vinfo( 1)='fwwt'
-        Vinfo( 2)='ships wet weight'
+# endif
+!
+!  Define pred wet weight
+!
+        Vinfo( 1)='Pwwt'
+        Vinfo( 2)='pred wet weight'
         Vinfo( 3)='g'
-        Vinfo(14)='fwwt, scalar, series'
+        Vinfo(14)='pwwt, scalar, series'
         Vinfo(16)=Vname(1,idtime)
-#  ifndef NO_4BYTE_REALS
+# ifndef NO_4BYTE_REALS
         Vinfo(24)='_FillValue'
         Aval(6)=spval
-#  endif
-        status=def_var(ng, iNLM, ncSHIPSid(ng),shipsVid(idfwwt,ng),     &
+# endif
+        status=def_var(ng, iNLM, ncPREDid(ng),predVid(idPwwt,ng),       &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
-#  endif
+!
+!  Define pred worth
+!
+        Vinfo( 1)='Pworth'
+        Vinfo( 2)='pred worth'
+        Vinfo( 3)='nondimensional'
+        Vinfo(14)='pworth, scalar, series'
+        Vinfo(16)=Vname(1,idtime)
+# ifndef NO_4BYTE_REALS
+        Vinfo(24)='_FillValue'
+        Aval(6)=spval
+# endif
+        status=def_var(ng, iNLM, ncPREDid(ng),predVid(idPworth,ng),     &
+     &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
+        IF (exit_flag.ne.NoError) RETURN
+!
+!  Define pred P-value
+!
+        Vinfo( 1)='Ppval'
+        Vinfo( 2)='pred p-value'
+        Vinfo( 3)='nondimensional'
+        Vinfo(14)='ppval, scalar, series'
+        Vinfo(16)=Vname(1,idtime)
+# ifndef NO_4BYTE_REALS
+        Vinfo(24)='_FillValue'
+        Aval(6)=spval
+# endif
+        status=def_var(ng, iNLM, ncPREDid(ng),predVid(idPpval,ng),      &
+     &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
+        IF (exit_flag.ne.NoError) RETURN
+!
+!  Define Pred consumption on species 1
+!
+        Vinfo( 1)='PcsmF1'
+        Vinfo( 2)='pred csmp on sp1'
+        Vinfo( 3)='gPrey / gFish / hour'
+        Vinfo(14)='pcsmf1, scalar, series'
+        Vinfo(16)=Vname(1,idtime)
+# ifndef NO_4BYTE_REALS
+        Vinfo(24)='_FillValue'
+        Aval(6)=spval
+# endif
+        status=def_var(ng, iNLM, ncPREDid(ng),predVid(idPcsmF1,ng),     &
+     &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
+        IF (exit_flag.ne.NoError) RETURN
+!
+!  Define Pred consumption on species 2
+!
+        Vinfo( 1)='PcsmF2'
+        Vinfo( 2)='pred csmp on sp2'
+        Vinfo( 3)='gPrey / gFish / hour'
+        Vinfo(14)='pcsmf2, scalar, series'
+        Vinfo(16)=Vname(1,idtime)
+# ifndef NO_4BYTE_REALS
+        Vinfo(24)='_FillValue'
+        Aval(6)=spval
+# endif
+        status=def_var(ng, iNLM, ncPREDid(ng),predVid(idPcsmF2,ng),     &
+     &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
+        IF (exit_flag.ne.NoError) RETURN
+!
+!  Define Pred consumption on species 3
+!
+        Vinfo( 1)='PcsmF3'
+        Vinfo( 2)='pred csmp on sp3'
+        Vinfo( 3)='gPrey / gFish / hour'
+        Vinfo(14)='pcsmf3, scalar, series'
+        Vinfo(16)=Vname(1,idtime)
+# ifndef NO_4BYTE_REALS
+        Vinfo(24)='_FillValue'
+        Aval(6)=spval
+# endif
+        status=def_var(ng, iNLM, ncPREDid(ng),predVid(idPcsmF3,ng),     &
+     &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
+        IF (exit_flag.ne.NoError) RETURN
+!
+!  Define Pred consumption on species 4
+!
+        Vinfo( 1)='PcsmF4'
+        Vinfo( 2)='pred csmp on sp4'
+        Vinfo( 3)='gPrey / gFish / hour'
+        Vinfo(14)='pcsmf4, scalar, series'
+        Vinfo(16)=Vname(1,idtime)
+# ifndef NO_4BYTE_REALS
+        Vinfo(24)='_FillValue'
+        Aval(6)=spval
+# endif
+        status=def_var(ng, iNLM, ncPREDid(ng),predVid(idPcsmF4,ng),     &
+     &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
+        IF (exit_flag.ne.NoError) RETURN
+!
+!  Define Pred consumption on species 5
+!
+        Vinfo( 1)='PcsmF5'
+        Vinfo( 2)='pred csmp on sp5'
+        Vinfo( 3)='gPrey / gFish / hour'
+        Vinfo(14)='pcsmf5, scalar, series'
+        Vinfo(16)=Vname(1,idtime)
+# ifndef NO_4BYTE_REALS
+        Vinfo(24)='_FillValue'
+        Aval(6)=spval
+# endif
+        status=def_var(ng, iNLM, ncPREDid(ng),predVid(idPcsmF5,ng),     &
+     &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
+        IF (exit_flag.ne.NoError) RETURN
 !
 !  Initialize unlimited time record dimension.
 !
-        tSHIPSindx(ng)=0
+        tPREDindx(ng)=0
 !
 !-----------------------------------------------------------------------
 !  Leave definition mode.
 !-----------------------------------------------------------------------
 !
-        CALL netcdf_enddef (ng, iNLM, ncname, ncSHIPSid(ng))
+        CALL netcdf_enddef (ng, iNLM, ncname, ncPREDid(ng))
         IF (exit_flag.ne.NoError) RETURN
 !
 !-----------------------------------------------------------------------
 !  Write out time-recordless, information variables.
 !-----------------------------------------------------------------------
 !
-        CALL wrt_info (ng, iNLM, ncSHIPSid(ng), ncname)
+        CALL wrt_info (ng, iNLM, ncPREDid(ng), ncname)
         IF (exit_flag.ne.NoError) RETURN
       END IF DEFINE
-      IF (LdefSHIPS(ng).and.OutThread) THEN
-        status=nf90_inq_varid(ncSHIPSid(ng),'Ftype',varid)
-        status=nf90_put_var(ncSHIPSid(ng), varid, SHIPS(ng)%Ftype)
-        IF (status.ne.nf90_noerr) THEN
-          WRITE (stdout,10) 'Ftype', TRIM(ncname)
-          exit_flag=3
-          RETURN
-        END IF
-      END IF
 !
 !=======================================================================
-!  Open an existing ships file, check its contents, and prepare for
+!  Open an existing pred file, check its contents, and prepare for
 !  appending data.
 !=======================================================================
 !
       QUERY : IF (.not.ldef) THEN
-        ncname=SHIPname(ng)
+        ncname=PREDname(ng)
 !
 !  Inquire about the dimensions and check for consistency.
 !
@@ -451,7 +572,7 @@
 !
 !       DO i=1,n_dim
 !         IF (TRIM(dim_name(i)).eq.'drifter') THEN
-!           Nships(ng)=dim_size(i)
+!           Npred(ng)=dim_size(i)
 !           EXIT
 !         END IF
 !       END DO
@@ -461,9 +582,9 @@
         CALL netcdf_inq_var (ng, iNLM, ncname)
         IF (exit_flag.ne.NoError) RETURN
 !
-!  Open ships file for read/write.
+!  Open pred file for read/write.
 !
-        CALL netcdf_open (ng, iNLM, ncname, 1, ncSHIPSid(ng))
+        CALL netcdf_open (ng, iNLM, ncname, 1, ncPREDid(ng))
         IF (exit_flag.ne.NoError) THEN
           WRITE (stdout,50) TRIM(ncname)
           RETURN
@@ -476,61 +597,97 @@
         END DO
 !
 !  Scan variable list from input NetCDF and activate switches for
-!  ship variables. Get variable IDs.
+!  pred variables. Get variable IDs.
 !
         DO i=1,n_var
           IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idtime))) THEN
             got_var(idtime)=.TRUE.
-            shipsVid(idtime,ng)=var_id(i)
+            predVid(idtime,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.'Pwwt') THEN
+            got_var(idPwwt)=.TRUE.
+            predVid(idPwwt,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.'Pworth') THEN
+            got_var(idPworth)=.TRUE.
+            predVid(idPworth,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.'Ppval') THEN
+            got_var(idPpval)=.TRUE.
+            predVid(idPpval,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.'Species') THEN
+            got_var(idPspc)=.TRUE.
+            predVid(idPspc,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.'Alive') THEN
+            got_var(idPalv)=.TRUE.
+            predVid(idPalv,ng)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.'Xgrid') THEN
             got_var(idXgrd)=.TRUE.
-            shipsVid(idXgrd,ng)=var_id(i)
+            predVid(idXgrd,ng)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.'Ygrid') THEN
             got_var(idYgrd)=.TRUE.
-            shipsVid(idYgrd,ng)=var_id(i)
+            predVid(idYgrd,ng)=var_id(i)
 # ifdef SOLVE3D
           ELSE IF (TRIM(var_name(i)).eq.'Zgrid') THEN
             got_var(idZgrd)=.TRUE.
-            shipsVid(idZgrd,ng)=var_id(i)
+            predVid(idZgrd,ng)=var_id(i)
 # endif
           ELSE IF (spherical.and.TRIM(var_name(i)).eq.'lon') THEN
             got_var(idglon)=.TRUE.
-            shipsVid(idglon,ng)=var_id(i)
+            predVid(idglon,ng)=var_id(i)
           ELSE IF (spherical.and.TRIM(var_name(i)).eq.'lat') THEN
             got_var(idglat)=.TRUE.
-            shipsVid(idglat,ng)=var_id(i)
+            predVid(idglat,ng)=var_id(i)
           ELSE IF (.not.spherical.and.TRIM(var_name(i)).eq.'x') THEN
             got_var(idglon)=.TRUE.
-            shipsVid(idglon,ng)=var_id(i)
+            predVid(idglon,ng)=var_id(i)
           ELSE IF (.not.spherical.and.TRIM(var_name(i)).eq.'y') THEN
             got_var(idglat)=.TRUE.
-            shipsVid(idglat,ng)=var_id(i)
+            predVid(idglat,ng)=var_id(i)
 # ifdef SOLVE3D
           ELSE IF (TRIM(var_name(i)).eq.'depth') THEN
             got_var(iddpth)=.TRUE.
-            shipsVid(iddpth,ng)=var_id(i)
+            predVid(iddpth,ng)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idDano))) THEN
             got_var(idDano)=.TRUE.
-            shipsVid(idDano,ng)=var_id(i)
+            predVid(idDano,ng)=var_id(i)
 # endif
-          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idfwwt))) THEN
-            got_var(idfwwt)=.TRUE.
-            shipsVid(idfwwt,ng)=var_id(i)
           END IF
 # ifdef SOLVE3D
           DO itrc=1,NT(ng)
             IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idTvar(itrc)))) THEN
               got_var(idTvar(itrc))=.TRUE.
-              shipsTid(itrc,ng)=var_id(i)
+              predTid(itrc,ng)=var_id(i)
             END IF
           END DO
 # endif
         END DO
 !
-!  Check if ships variables are available in input NetCDF file.
+!  Check if pred variables are available in input NetCDF file.
 !
         IF (.not.got_var(idtime)) THEN
           IF (Master) WRITE (stdout,60) TRIM(Vname(1,idtime)),          &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idPwwt)) THEN
+          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idPwwt)),          &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idPworth)) THEN
+          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idPworth)),        &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idPspc)) THEN
+          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idPspc)),          &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idPalv)) THEN
+          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idPalv)),          &
      &                                  TRIM(ncname)
           exit_flag=3
           RETURN
@@ -572,7 +729,8 @@
         END IF
 # ifdef SOLVE3D
         IF (.not.got_var(iddpth)) THEN
-          IF (Master) WRITE (stdout,60) 'depth', TRIM(ncname)
+          IF (Master) WRITE (stdout,60) TRIM(Vname(1,iddpth)),          &
+     &                                  TRIM(ncname)
           exit_flag=3
           RETURN
         END IF
@@ -582,14 +740,6 @@
           exit_flag=3
           RETURN
         END IF
-# endif
-        IF (.not.got_var(idfwwt)) THEN
-          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idfwwt)),          &
-     &                                  TRIM(ncname)
-          exit_flag=3
-          RETURN
-        END IF
-# ifdef SOLVE3D
         DO itrc=1,NT(ng)
           IF (.not.got_var(idTvar(itrc))) THEN
             IF (Master) WRITE (stdout,60) TRIM(Vname(1,idTvar(itrc))),  &
@@ -601,56 +751,56 @@
 # endif
 !
 !-----------------------------------------------------------------------
-!  Initialize ships positions to the appropriate values.
+!  Initialize pred positions to the appropriate values.
 !-----------------------------------------------------------------------
 !
-!  Set-up ship time record.
+!  Set-up pred time record.
 !
-        IF (shiprrec(ng).lt.0) THEN
-          tSHIPSindx(ng)=rec_size
+        IF (predrrec(ng).lt.0) THEN
+          tPREDindx(ng)=rec_size
         ELSE
-         tSHIPSindx(ng)=ABS(shiprrec(ng))
+         tPREDindx(ng)=ABS(predrrec(ng))
         END IF
-        NrecSHIPS(ng)=tSHIPSindx(ng)
+        NrecPRED(ng)=tPREDindx(ng)
 !
-!  Read in ship nondimentional horizontal positions.
+!  Read in pred nondimentional horizontal positions.
 !
         CALL netcdf_get_fvar (ng, iNLM, ncname, 'Xgrid',                &
      &                        Tinp,                                     &
-     &                        ncid = ncSHIPSid(ng),                     &
-     &                        start = (/1,tSHIPSindx(ng)/),             &
-     &                        total = (/Nships(ng),1/))
+     &                        ncid = ncPREDid(ng),                      &
+     &                        start = (/1,tPREDindx(ng)/),              &
+     &                        total = (/Npred(ng),1/))
         IF (exit_flag.ne.NoError) RETURN
 
-        DO l=1,Nships(ng)
+        DO l=1,Npred(ng)
           IF ((Tinp(l).gt.REAL(Lm(ng)+1,r8)-0.5_r8).or.                 &
      &        (Tinp(l).lt.0.5_r8)) THEN
-            SHIPS(ng)%bounded(l)=.FALSE.
+            PREDS(ng)%bounded(l)=.FALSE.
           ELSE
-            SHIPS(ng)%bounded(l)=.TRUE.
+            PREDS(ng)%bounded(l)=.TRUE.
             DO i=0,NFT
-              SHIPS(ng)%track(ixgrd,i,l)=Tinp(l)
-              SHIPS(ng)%track(ixrhs,i,l)=0.0_r8
+              PREDS(ng)%track(ixgrd,i,l)=Tinp(l)
+              PREDS(ng)%track(ixrhs,i,l)=0.0_r8
             END DO
           END IF
         END DO
 
         CALL netcdf_get_fvar (ng, iNLM, ncname, 'Ygrid',                &
      &                        Tinp,                                     &
-     &                        ncid = ncSHIPSid(ng),                     &
-     &                        start = (/1,tSHIPSindx(ng)/),             &
-     &                        total = (/Nships(ng),1/))
+     &                        ncid = ncPREDid(ng),                      &
+     &                        start = (/1,tPREDindx(ng)/),              &
+     &                        total = (/Npred(ng),1/))
         IF (exit_flag.ne.NoError) RETURN
 
-        DO l=1,Nships(ng)
+        DO l=1,Npred(ng)
           IF ((Tinp(l).gt.REAL(Mm(ng)+1,r8)-0.5_r8).or.                 &
      &        (Tinp(l).lt.0.5_r8)) THEN
-            SHIPS(ng)%bounded(l)=.FALSE.
+            PREDS(ng)%bounded(l)=.FALSE.
           ELSE
-            SHIPS(ng)%bounded(l)=.TRUE.
+            PREDS(ng)%bounded(l)=.TRUE.
             DO i=0,NFT
-              SHIPS(ng)%track(iygrd,i,l)=Tinp(l)
-              SHIPS(ng)%track(iyrhs,i,l)=0.0_r8
+              PREDS(ng)%track(iygrd,i,l)=Tinp(l)
+              PREDS(ng)%track(iyrhs,i,l)=0.0_r8
             END DO
           END IF
         END DO
@@ -658,52 +808,79 @@
 # ifdef SOLVE3D
         CALL netcdf_get_fvar (ng, iNLM, ncname, 'Zgrid',                &
      &                        Tinp,                                     &
-     &                        ncid = ncSHIPSid(ng),                     &
-     &                        start = (/1,tSHIPSindx(ng)/),             &
-     &                        total = (/Nships(ng),1/))
+     &                        ncid = ncPREDid(ng),                      &
+     &                        start = (/1,tPREDindx(ng)/),              &
+     &                        total = (/Npred(ng),1/))
 
-        DO l=1,Nships(ng)
+        DO l=1,Npred(ng)
           IF ((Tinp(l).gt.REAL(N(ng),r8)).or.                           &
      &        (Tinp(l).lt.0.0_r8)) THEN
-            SHIPS(ng)%bounded(l)=.FALSE.
+            PREDS(ng)%bounded(l)=.FALSE.
           ELSE
-            SHIPS(ng)%bounded(l)=.TRUE.
+            PREDS(ng)%bounded(l)=.TRUE.
             DO i=0,NFT
-              SHIPS(ng)%track(izgrd,i,l)=Tinp(l)
-              SHIPS(ng)%track(izrhs,i,l)=0.0_r8
+              PREDS(ng)%track(izgrd,i,l)=Tinp(l)
+              PREDS(ng)%track(izrhs,i,l)=0.0_r8
             END DO
           END IF
         END DO
 # endif
 !
-!  Read fish variables
+!  Read pred variables
 !
-!       CALL netcdf_get_fvar (ng, iNLM, ncname, 'fwwt',                 &
-!    &                        Tinp,                                     &
-!    &                        ncid = ncSHIPSid(ng),                     &
-!    &                        start = (/1,tSHIPSindx(ng)/),             &
-!    &                        total = (/Nships(ng),1/))
-!       DO l=1,Nships(ng)
-!         SHIPS(ng)%bioenergy(l)=Tinp(l)
-!       END DO
+        CALL netcdf_get_fvar (ng, iNLM, ncname,                         &
+     &                        TRIM(Vname(1,idPwwt)),                    &
+     &                        Tinp,                                     &
+     &                        ncid = ncPREDid(ng),                      &
+     &                        start = (/1,tPREDindx(ng)/),              &
+     &                        total = (/Npred(ng),1/))
+        DO l=1,Npred(ng)
+          PREDS(ng)%bioenergy(ipwwt,l)=Tinp(l)
+        END DO
+
+        CALL netcdf_get_fvar (ng, iNLM, ncname,                         &
+     &                        TRIM(Vname(1,idPworth)),                  &
+     &                        Tinp,                                     &
+     &                        ncid = ncPREDid(ng),                      &
+     &                        start = (/1,tPREDindx(ng)/),              &
+     &                        total = (/Npred(ng),1/))
+        DO l=1,Npred(ng)
+          PREDS(ng)%bioenergy(ipworth,l)=Tinp(l)
+        END DO
+
+        CALL netcdf_get_ivar (ng, iNLM, ncname,                         &
+     &                        TRIM(Vname(1,idPspc)),                    &
+     &                        PREDS(ng)%species,                       &
+     &                        ncid = ncPREDid(ng),                      &
+     &                        start = (/1,tPREDindx(ng)/),              &
+     &                        total = (/Npred(ng),1/))
+
+        CALL netcdf_get_lvar (ng, iNLM, ncname,                         &
+     &                        TRIM(Vname(1,idPalv)),                    &
+     &                        PREDS(ng)%alive,                         &
+     &                        ncid = ncPREDid(ng),                      &
+     &                        start = (/1,tPREDindx(ng)/),              &
+     &                        total = (/Npred(ng),1/))
 
         IF (exit_flag.ne.NoError) RETURN
 
       END IF QUERY
 !
-  10  FORMAT (6x,'DEF_SHIPS  - creating ships file: ',a)
-  20  FORMAT (6x,'DEF_SHIPS  - inquiring history file: ',a)
-  30  FORMAT (/,' DEF_SHIPS - unable to create ship NetCDF',            &
+  10  FORMAT (6x,'DEF_PRED  - creating pred file: ',a)
+  20  FORMAT (6x,'DEF_PRED  - inquiring pred file: ',a)
+  30  FORMAT (/,' DEF_PRED - unable to create pred NetCDF',             &
      &        ' file: ',a)
   40  FORMAT (1pe11.4,1x,'millimeter')
-  50  FORMAT (/,' DEF_SHIPS - unable to open ships NetCDF file: ',a)
-  60  FORMAT (/,' DEF_SHIPS - unable to find variable: ',a,2x,          &
-     &        ' in ships NetCDF file: ',a)
+  50  FORMAT (/,' DEF_PRED - unable to open pred NetCDF file: ',a)
+  60  FORMAT (/,' DEF_PRED - unable to find variable: ',a,2x,           &
+     &        ' in pred NetCDF file: ',a)
+  70  FORMAT (/,' DEF_PRED - unable to write variable: ',a,2x,          &
+     &        ' in pred NetCDF file: ',a)
 
       RETURN
-      END SUBROUTINE def_ships
+      END SUBROUTINE def_pred
 #else
-      SUBROUTINE def_ships
+      SUBROUTINE def_pred
       RETURN
-      END SUBROUTINE def_ships
+      END SUBROUTINE def_pred
 #endif

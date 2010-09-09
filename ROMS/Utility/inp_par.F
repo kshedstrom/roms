@@ -1351,6 +1351,8 @@
             Npts=load_i(Nval, Rval, Ngrids, nFSH)
           ELSE IF (TRIM(KeyWord).eq.'NPRD') THEN
             Npts=load_i(Nval, Rval, Ngrids, nPRD)
+          ELSE IF (TRIM(KeyWord).eq.'NFLE') THEN
+            Npts=load_i(Nval, Rval, Ngrids, nFLE)
           ELSE IF (TRIM(KeyWord).eq.'NINFO') THEN
             Npts=load_i(Nval, Rval, Ngrids, ninfo)
           ELSE IF (TRIM(KeyWord).eq.'LDEFOUT') THEN
@@ -3605,11 +3607,11 @@
               PREDname(Nval)(i:i)=blank
             END DO
             PREDname(Nval)=TRIM(ADJUSTL(Cval(Nval)))
-          ELSE IF (TRIM(KeyWord).eq.'SHIPNAME') THEN
-            DO i=1,LEN(SHIPname(Nval))
-              SHIPname(Nval)(i:i)=blank
+          ELSE IF (TRIM(KeyWord).eq.'FLEETNAME') THEN
+            DO i=1,LEN(FLEETname(Nval))
+              FLEETname(Nval)(i:i)=blank
             END DO
-            SHIPname(Nval)=TRIM(ADJUSTL(Cval(Nval)))
+            FLEETname(Nval)=TRIM(ADJUSTL(Cval(Nval)))
           ELSE IF (TRIM(KeyWord).eq.'GRDNAME') THEN
             DO i=1,LEN(GRDname(Nval))
               GRDname(Nval)(i:i)=blank
@@ -3714,11 +3716,13 @@
             END DO
             predposnam=TRIM(ADJUSTL(Cval(Nval)))
 # endif
-          ELSE IF (TRIM(KeyWord).eq.'SHIPPOSNAM') THEN
-            DO i=1,LEN(shipposnam)
-              shipposnam(i:i)=blank
+# ifdef FLEET
+          ELSE IF (TRIM(KeyWord).eq.'FLEETPOSNAM') THEN
+            DO i=1,LEN(fleetposnam)
+              fleetposnam(i:i)=blank
             END DO
-            shipposnam=TRIM(ADJUSTL(Cval(Nval)))
+            fleetposnam=TRIM(ADJUSTL(Cval(Nval)))
+# endif
 #endif
           ELSE IF (TRIM(KeyWord).eq.'BPARNAM') THEN
             DO i=1,LEN(bparnam)
@@ -3892,10 +3896,6 @@
      &      (nPRD(ng).eq.0)) THEN
           LdefPRED(ng)=.FALSE.
         END IF
-!       IF (((nrrec(ng).eq.0).and.(nSHP(ng).gt.ntimes(ng))).or.         &
-!    &      (nSHP(ng).eq.0)) THEN
-!         LdefSHIP(ng)=.FALSE.
-!       END IF
         IF (((nrrec(ng).eq.0).and.(nHIS(ng).gt.ntimes(ng))).or.         &
      &      (nHIS(ng).eq.0)) THEN
           LdefHIS(ng)=.FALSE.
@@ -4028,9 +4028,11 @@
      &          'Number of timesteps between the writing of data',      &
      &          'into predator file.'
 # endif
-          WRITE (out,130) nSHP(ng), 'nSHP',                             &
+# ifdef FLEET
+          WRITE (out,130) nFLE(ng), 'nFLE',                             &
      &          'Number of timesteps between the writing of data',      &
-     &          'into ship file.'
+     &          'into fleet file.'
+# endif
 #endif
           WRITE (out,170) ldefout(ng), 'ldefout',                       &
      &          'Switch to create a new output NetCDF file(s).'
@@ -5882,8 +5884,8 @@
      &                    TRIM(PREDname(ng))
 # endif
 # ifdef FLEET
-          WRITE (out,230) '            Output Ships File:  ',           &
-     &                    TRIM(SHIPname(ng))
+          WRITE (out,230) '            Output Fleet File:  ',           &
+     &                    TRIM(FLEETname(ng))
 # endif
 #endif
 #ifdef MODEL_COUPLING

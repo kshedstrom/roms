@@ -183,12 +183,12 @@
 # endif
 # ifdef NEMSAN_TEST
 ! ---- FOR TEST CONFIGURATION ----
-!            CALL ran1 (snudg)
+            CALL ran1 (snudg)
 !            xini=4.0_r8+(snudg-0.5_r8)
 !            CALL ran1 (snudg)
 !            yini=7.0_r8+(snudg-0.5_r8)
-            xini=REAL(i+7,r8)
-            yini=REAL(i+7,r8)
+            xini=REAL(i+7,r8)+0.1_r8*(snudg-0.5_r8)
+            yini=REAL(i+7,r8)+0.1_r8*(snudg-0.5_r8)
             zini=REAL(N(ng),r8)
 # endif
             FISHES(ng)%Tinfo(ixgrd,fid)=xini
@@ -209,7 +209,6 @@
             FISHES(ng)%bioenergy(ifworth,fid)=Fworth0
             FISHES(ng)%bioenergy(ifage,fid)=REAL(Nyearclass(ng)-i,r8)
             FISHES(ng)%bioenergy(ifbday,fid)=REAL(Nyearclass(ng)-i,r8)
-            FISHES(ng)%bioenergy(ifyield,fid)=0.0_r8
             FISHES(ng)%species(fid)=idfish_inv(isp)
             FISHES(ng)%alive(fid)=.TRUE.
             IF (REAL(Nyearclass(ng)-i,r8).ge.Fage0(isp,ng)) THEN
@@ -218,7 +217,9 @@
               FISHES(ng)%lifestage(fid)=if_subadult
             ENDIF 
             FISHES(ng)%swimtype(fid)=Fbehave(isp,ng)
+            FISHES(ng)%species(fid)=idfish_inv(isp)
             FISHES(ng)%bounded(fid)=.TRUE.
+            FISHES(ng)%cellid(fid)=nint(xini)+(Lm(ng)+2)*nint(yini)
           END DO
         END DO
       END DO

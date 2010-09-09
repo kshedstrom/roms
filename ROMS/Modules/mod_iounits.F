@@ -25,7 +25,7 @@
 !  FLTname     Output floats file name.                                !
 !  FISHbase    Output fish base file name.                             !
 !  FISHname    Output fish file name.                                  !
-!  PREDname    Output predator file name.                              !
+!  FLEETname   Output fleet file name.                                 !
 !  FRCids      NetCDF ID descriptors associated with FRCname.          ! 
 !  FRCname     Input forcing fields file name(s).                      !
 !  FWDbase     Input forward solution base file name.                  !
@@ -50,10 +50,10 @@
 !                NRMname(3)  boundary conditions                       !
 !                NRMname(4)  surface forcing                           !
 !  OBSname     Input/output datum observations file name.              !
+!  PREDname    Output predator file name.                              !
 !  REPname     Input/output representer coefficients file name.        !
 !  Rerror      Running error messages.                                 !
 !  RSTname     Output restart file name.                               !
-!  SHIPname    Output ship file name.                                  !
 !  SSHname     Input SSH observations file name.                       !
 !  SSTname     Input SST observations file name.                       !
 !  TIDEname    Input tide forcing file name.                           !
@@ -69,12 +69,12 @@
 !  bparnam     Input biology parameters file name.                     !
 !  fposnam     Input initial floats positions file name.               !
 !  fishposnam  Input initial fish positions file name.                 !
-!  predposnam  Input initial predtor positions file name.              !
+!  fleetposnam Input initial fleet parameters file name.               !
 !  iparnam     Input ice parameters file name.                         !
 !  ioerror     IO error flag.                                          !
 !  ncfile      Current NetCDF file name being processed.               !
 !  nFfiles     Number of forcing files.                                !
-!  shipposnam  Input initial ship positions file name.                 !
+!  predposnam  Input initial predtor positions file name.              !
 !  sparnam     Input sediment transport parameters file name.          !
 !  sposnam     Input station positions file name.                      !
 !  SourceFile  Current executed file name. It is used for IO error     !
@@ -134,6 +134,7 @@
         character (len=256), dimension(Ngrids) :: FISHbase
         character (len=256), dimension(Ngrids) :: FISHname
         character (len=256), dimension(Ngrids) :: PREDname
+        character (len=256), dimension(Ngrids) :: FLEETname
 #ifdef FILTERED_RST
         character (len=256), dimension(nfile,Ngrids) :: FILname
 #endif
@@ -153,7 +154,6 @@
         character (len=256), dimension(Ngrids) :: MODname
         character (len=256), dimension(Ngrids) :: OBSname
         character (len=256), dimension(Ngrids) :: REPname
-        character (len=256), dimension(Ngrids) :: SHIPname
         character (len=256), dimension(Ngrids) :: SSHname
         character (len=256), dimension(Ngrids) :: SSTname
         character (len=256), dimension(Ngrids) :: TIDEname
@@ -178,10 +178,10 @@
         character (len=256) :: bparnam
         character (len=256) :: fposnam
         character (len=256) :: fishposnam
+        character (len=256) :: fleetposnam
         character (len=256) :: iparnam
         character (len=256) :: ncfile
         character (len=256) :: predposnam
-        character (len=256) :: shipposnam
         character (len=256) :: sparnam
         character (len=256) :: sposnam
         character (len=256) :: varname

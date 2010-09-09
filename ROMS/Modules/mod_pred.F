@@ -45,7 +45,6 @@
           real(r8), pointer :: bioenergy(:,:)
           integer, pointer  :: species(:)
           logical, pointer  :: alive(:)
-          logical, pointer  :: eatfish(:)
           type(prednode), pointer :: prednodes(:)
 
         END TYPE T_PREDS
@@ -105,8 +104,6 @@
 
       allocate ( PREDS(ng) % alive(Npred(ng)) )
 
-      allocate ( PREDS(ng) % eatfish(Npred(ng)) )
-
       allocate ( PREDS(ng) % prednodes(Npred(ng)) )
 !
 !-----------------------------------------------------------------------
@@ -136,7 +133,6 @@
         END DO
         PREDS(ng) % species(iflt) = if_none
         PREDS(ng) % alive(iflt) = .FALSE.
-        PREDS(ng) % eatfish(iflt) = .FALSE.
         PREDS(ng) % prednodes(iflt) % pred = iflt
       END DO
 

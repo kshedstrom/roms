@@ -1,13 +1,3 @@
-              CASE ('idFspc')
-                idFspc=varid
-              CASE ('idFlfsg')
-                idFlfsg=varid
-              CASE ('idFswmt')
-                idFswmt=varid
-              CASE ('idFalv')
-                idFalv=varid
-              CASE ('idFeatf')
-                idFeatf=varid
               CASE ('idFwwt')
                 idFwwt=varid
               CASE ('idFworth')
@@ -80,10 +70,6 @@
                 idFswmt=varid
               CASE ('idFalv')
                 idFalv=varid
-              CASE ('idFeatf')
-                idFeatf=varid
-              CASE ('idFgrl')
-                idFgrl=varid
 # ifdef PREDATOR
               CASE ('idPwwt')
                 idPwwt=varid
@@ -107,4 +93,22 @@
                 idPalv=varid
               CASE ('idPeatf')
                 idPeatf=varid
+# endif
+# ifdef FLEET
+              CASE ('idBxprt')
+                idBxprt=varid
+              CASE ('idByprt')
+                idByprt=varid
+              CASE ('idBnprt')
+                idBnprt=varid
+              CASE ('idBnfloc')
+                idBnfloc=varid
+              CASE ('idBcatch')
+                idBcatch=varid
+              CASE ('idBcmctch')
+                idBcmctch=varid
+              CASE ('idBacpue')
+                idBacpue=varid
+              CASE ('idBpcpue')
+                idBpcpue=varid
 # endif

@@ -48,7 +48,7 @@
           integer, pointer  :: lifestage(:)
           integer, pointer  :: swimtype(:)
           logical, pointer  :: alive(:)
-          logical, pointer  :: eatfish(:)
+          logical, pointer  :: fishgirl(:)
           type(fishnode), pointer :: fishnodes(:)
           real(r8), pointer :: egg_dur(:)
           real(r8), pointer :: egg_num(:)
@@ -64,10 +64,11 @@
           real(r8), pointer :: fmortN(:)
           real(r8), pointer :: fmortS(:)
           real(r8), pointer :: fmortF(:)
-          real(r8), pointer :: fmortP(:,:)
+          real(r8), pointer :: fmortP(:)
           integer, pointer  :: num_free(:)
           integer, pointer  :: next_free(:)
           integer, pointer  :: num_super(:)
+          integer, pointer  :: cellid(:)
 
 ! "Pointers" into big Nfish dimension:
           integer, pointer :: age_base(:)
@@ -87,19 +88,12 @@
       integer, parameter :: iftspwn = 7        ! time of last batch spawned
       integer, parameter :: ifeggs = 8         ! number of eggs spawned
       integer, parameter :: ifpval = 9         ! fish p-value
-      integer, parameter :: ifeatme = 10       ! fish-eat-fish predation rate
-      integer, parameter :: ifyield = 11       ! yield to fisheries
-      integer, parameter :: ifcsmPS = 12       ! PS consumption
-      integer, parameter :: ifcsmPL = 13       ! PL consumption
-      integer, parameter :: ifcsmZS = 14       ! ZS consumption
-      integer, parameter :: ifcsmZL = 15       ! ZL consumption
-      integer, parameter :: ifcsmZP = 16       ! ZP consumption
-      integer, parameter :: ifcsmF1 = 17       ! Fish consumption on species 1
-      integer, parameter :: ifcsmF2 = 18       ! Fish consumption on species 2
-      integer, parameter :: ifcsmF3 = 19       ! Fish consumption on species 3
-      integer, parameter :: ifcsmF4 = 20       ! Fish consumption on species 4
-      integer, parameter :: ifcsmF5 = 21       ! Fish consumption on species 5
-      integer, parameter :: ifresp = 22        ! Respiration
+      integer, parameter :: ifcsmPS = 10       ! PS consumption
+      integer, parameter :: ifcsmPL = 11       ! PL consumption
+      integer, parameter :: ifcsmZS = 12       ! ZS consumption
+      integer, parameter :: ifcsmZL = 13       ! ZL consumption
+      integer, parameter :: ifcsmZP = 14       ! ZP consumption
+      integer, parameter :: ifresp = 15        ! Respiration
 ! Lifestage and gender
       integer, parameter :: if_egg = 1
       integer, parameter :: if_yolksac = 2
@@ -128,6 +122,12 @@
       integer, parameter :: ip_none = 0
       integer, parameter :: ip_albacore = 1
 # endif
+# ifdef FLEET
+      integer, parameter :: ibiloc = 1         ! boat grid i location
+      integer, parameter :: ibjloc = 2         ! boat grid j location
+      integer, parameter :: ibport = 3         ! boat port
+      integer, parameter :: ibnloc = 4         ! number of location visited
+# endif
 # ifdef EGGS_BISECTION
       logical :: lr_split = .true.
 # endif
@@ -142,18 +142,24 @@
 !  Logical switches.
 !
       logical, dimension(Ngrids) :: Lfish
-      logical, dimension(Ngrids) :: Lships
 # ifdef PREDATOR
       logical, dimension(Ngrids) :: Lpred
 # endif
+# ifdef FLEET
+      logical, dimension(Ngrids) :: Lfleet
+# endif
+
 !
 !  Fish restart switch.
 !
       integer, dimension(Ngrids) :: fishrrec
-      integer, dimension(Ngrids) :: shiprrec
 # ifdef PREDATOR
       integer, dimension(Ngrids) :: predrrec
 # endif
+# ifdef FLEET
+      integer, dimension(Ngrids) :: fleetrrec
+# endif
+
 
       CONTAINS
 
@@ -213,7 +219,7 @@
 
       allocate ( FISHES(ng) % alive(Nfish(ng)) )
 
-      allocate ( FISHES(ng) % eatfish(Nfish(ng)) )
+      allocate ( FISHES(ng) % fishgirl(Nfish(ng)) )
 
       allocate ( FISHES(ng) % fishnodes(Nfish(ng)) )
 
@@ -245,7 +251,9 @@
 
       allocate ( FISHES(ng) % fmortF(Nfish(ng)) )
 
-      allocate ( FISHES(ng) % fmortP(Nspecies(ng),Nfish(ng)) )
+      allocate ( FISHES(ng) % fmortP(Nfish(ng)) )
+
+      allocate ( FISHES(ng) % cellid(Nfish(ng)) )
 
       allocate ( FISHES(ng) % num_free(Nspecies(ng)) )
 
@@ -289,14 +297,21 @@
         FISHES(ng) % lifestage(iflt) = if_none
         FISHES(ng) % swimtype(iflt) = 0
         FISHES(ng) % alive(iflt) = .FALSE.
-        FISHES(ng) % eatfish(iflt) = .FALSE.
+        FISHES(ng) % fishgirl(iflt) = .FALSE.
         FISHES(ng) % fishnodes(iflt) % fish = iflt
+        FISHES(ng) % fmortN(iflt) = IniVal
+        FISHES(ng) % fmortS(iflt) = IniVal
+        FISHES(ng) % fmortF(iflt) = IniVal
+        FISHES(ng) % fmortP(iflt) = IniVal
+        FISHES(ng) % cellid(iflt) = 0
       END DO
 
       Lfish(ng)=.TRUE.
-      Lships(ng)=.TRUE.
 # ifdef PREDATOR
       Lpred(ng)=.TRUE.
+# endif
+# ifdef FLEET
+      Lfleet(ng)=.TRUE.
 # endif
       LdefFISH(ng)=.TRUE.
 

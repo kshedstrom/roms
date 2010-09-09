@@ -1,6 +1,6 @@
-# $Id$
+# $Id: makefile 1090 2009-10-27 23:59:27Z kate $
 #::::::::::::::::::::::::::::::::::::::::::::::::::::: Hernan G. Arango :::
-# Copyright (c) 2002-2010 The ROMS/TOMS Group             Kate Hedstrom :::
+# Copyright (c) 2002-2009 The ROMS/TOMS Group             Kate Hedstrom :::
 #   Licensed under a MIT/X style license                                :::
 #   See License_ROMS.txt                                                :::
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -36,7 +36,7 @@ $(if $(filter $(MAKE_VERSION),$(NEED_VERSION)),,        \
 #  Initialize some things.
 #--------------------------------------------------------------------------
 
-  sources    :=
+  sources    := 
   libraries  :=
   c_sources    := 
 
@@ -58,17 +58,14 @@ $(if $(filter $(MAKE_VERSION),$(NEED_VERSION)),,        \
 #  The only constrain is that the application CPP option must be unique
 #  and header file name is the lowercase value of ROMS_APPLICATION with
 #  the .h extension. For example, the upwelling application includes the
-#  "upwelling.h" header file.
+#  "upwelling.h" header file.  
 
-#ROMS_APPLICATION := WC13
-ROMS_APPLICATION := CCS30
+ROMS_APPLICATION := NEMSAN_TEST
 
 #  If application header files is not located in "ROMS/Include",
 #  provide an alternate directory FULL PATH.
 
-#MY_HEADER_DIR ?= Apps/wc13
-#MY_HEADER_DIR ?= Apps/wc13_clim_bisec
-MY_HEADER_DIR ?= Apps/ccs30_soda_bisec
+MY_HEADER_DIR ?= Apps/nemsan_test
 
 #  If your application requires analytical expressions and they are
 #  not located in "ROMS/Functionals", provide an alternate directory.
@@ -78,7 +75,7 @@ MY_HEADER_DIR ?= Apps/ccs30_soda_bisec
 #  If applicable, also used this directory to place your customized
 #  biology model header file (like fennel.h, nemuro.h, ecosim.h, etc).
 
-MY_ANALYTICAL_DIR ?=
+MY_ANALYTICAL_DIR ?= Apps/nemsan_test/ROMS/Biology
 
 #  Sometimes it is desirable to activate one or more CPP options to
 #  run different variants of the same application without modifying
@@ -119,18 +116,12 @@ MY_CPP_FLAGS ?=
 
 #  If applicable, activate 64-bit compilation:
 
-   USE_LARGE ?=
+   USE_LARGE ?= on
 
 #  If applicable, link with NetCDF-4 library. Notice that the NetCDF-4
 #  library needs both the HDF5 and MPI libraries.
 
- USE_NETCDF4 ?= on
-
-#  If applicable, activate Data Access Protocol (like OPeNDAP) support
-#  for input NetCDF files.  This is only possible for NetCDF library
-#  version 4.1.1 or higher.
-
-     USE_DAP ?=
+ USE_NETCDF4 ?=
 
 #--------------------------------------------------------------------------
 #  We are going to include a file with all the settings that depend on
@@ -155,7 +146,7 @@ MY_CPP_FLAGS ?=
 #  NetCDF and so on.
 #--------------------------------------------------------------------------
 
-        FORT ?= gfortran
+        FORT ?= pgi
 
 #--------------------------------------------------------------------------
 #  Set directory for executable.
@@ -217,7 +208,7 @@ endif
 
   COMPILERS ?= $(CURDIR)/Compilers
 
-MAKE_MACROS := $(shell echo ${HOME} | sed 's| |\\ |g')/make_macros.mk
+MAKE_MACROS := $(COMPILERS)/make_macros.mk
 
 ifneq "$(MAKECMDGOALS)" "clean"
  MACROS := $(shell cpp -P $(ROMS_CPPFLAGS) Compilers/make_macros.h > \
@@ -402,7 +393,7 @@ ifdef SVNREV
 else
   SVNREV := $(shell grep Revision ./ROMS/Version | sed 's/.* \([0-9]*\) .*/\1/')
   CPPFLAGS += -D'SVN_REV="$(SVNREV)"'
-endif
+endif  
 
 #--------------------------------------------------------------------------
 #  Build target directories.
@@ -415,19 +406,19 @@ all: $(SCRATCH_DIR) $(SCRATCH_DIR)/MakeDepend $(BIN) rm_macros
  modules  :=
 ifdef USE_ADJOINT
  modules  +=	ROMS/Adjoint \
-		ROMS/Adjoint/Biology
+                ROMS/Adjoint/Biology
 endif
 ifdef USE_REPRESENTER
  modules  +=	ROMS/Representer \
-		ROMS/Representer/Biology
+                ROMS/Representer/Biology
 endif
 ifdef USE_TANGENT
  modules  +=	ROMS/Tangent \
-		ROMS/Tangent/Biology
+                ROMS/Tangent/Biology
 endif
  modules  +=	ROMS/Nonlinear \
-		ROMS/Nonlinear/Biology \
-		ROMS/Nonlinear/Sediment \
+                ROMS/Nonlinear/Biology \
+                ROMS/Nonlinear/Sediment \
 		ROMS/Functionals \
 		ROMS/Modules
 ifdef USE_SEAICE
@@ -445,22 +436,22 @@ ifdef MY_ANALYTICAL
 endif
 ifdef USE_ADJOINT
  includes +=	ROMS/Adjoint \
-		ROMS/Adjoint/Biology
+                ROMS/Adjoint/Biology
 endif
 ifdef USE_REPRESENTER
  includes +=	ROMS/Representer \
-		ROMS/Representer/Biology
+                ROMS/Representer/Biology
 endif
 ifdef USE_SEAICE
  includes +=	ROMS/SeaIce
 endif
 ifdef USE_TANGENT
  includes +=	ROMS/Tangent \
-		ROMS/Tangent/Biology
+                ROMS/Tangent/Biology
 endif
  includes +=	ROMS/Nonlinear \
-		ROMS/Nonlinear/Biology \
-		ROMS/Nonlinear/Sediment \
+                ROMS/Nonlinear/Biology \
+                ROMS/Nonlinear/Sediment \
 		ROMS/Utility \
 		ROMS/Drivers \
                 ROMS/Functionals
@@ -554,7 +545,7 @@ $(SCRATCH_DIR)/MakeDepend: makefile \
 SFMAKEDEPEND := ./ROMS/Bin/sfmakedepend
 
 depend: $(SCRATCH_DIR)
-	$(SFMAKEDEPEND) $(MDEPFLAGS) $(sources) > $(SCRATCH_DIR)/MakeDepend
+	$(SFMAKEDEPEND) $(MDEPFLAGS) $(sources) > $(SCRATCH_DIR)/MakeDepend 
 
 ifneq "$(MAKECMDGOALS)" "clean"
   -include $(SCRATCH_DIR)/MakeDepend

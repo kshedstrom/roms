@@ -124,6 +124,10 @@
         CALL ini_pred (iNLM)
         IF (exit_flag.ne.NoError) RETURN
 # endif
+# ifdef FLEET
+        CALL ini_fleet (iNLM)
+        IF (exit_flag.ne.NoError) RETURN
+# endif
 #endif
 !
 !  Allocate and initialize modules variables.

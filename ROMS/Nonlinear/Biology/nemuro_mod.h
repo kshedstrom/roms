@@ -185,11 +185,14 @@
 !  Nspecies     Number of fish species
 !  Nyearclass   Number of year classes
 !  Nfish        Total number of fish
-!  Nships       Total number of ships
 # ifdef PREDATOR
 !  Npredspecies      Number of predator species
 !  Npredperspecies   Number of fish per year class per species
 !  Npred             Total number of predators
+# endif
+# ifdef FLEET
+!  Nboats        Total number of boats
+!  Nports        Total number of ports
 # endif
 #endif
 !                                                                      !
@@ -222,6 +225,11 @@
 #  ifdef PREDATOR
       integer, parameter :: max_predspecies = 1
 #  endif
+#  ifdef FLEET
+      integer, parameter :: max_boats = 100
+      integer, parameter :: max_ports = 3
+#  endif
+
 
 !
 !  Biological parameters.
@@ -352,13 +360,24 @@
 # ifdef PREDATOR
       real(r8), dimension(max_predspecies, Ngrids) :: Pwwt0     !  grams
       real(r8), dimension(max_predspecies, Ngrids) :: Pwth0     !  millions of fish
-      integer, dimension(max_predspecies, Ngrids)  :: Peatfish  !  1=True, 0=False
       real(r8), dimension(max_predspecies, Ngrids) :: K_Fish    !
       real(r8), dimension(max_predspecies, Ngrids) :: Fpref     !
       real(r8), dimension(max_predspecies, Ngrids) :: a_Cmax    !
       real(r8), dimension(max_predspecies, Ngrids) :: b_Cmax    !
       real(r8), dimension(max_predspecies, Ngrids) :: a_Swim    !
       real(r8), dimension(max_predspecies, Ngrids) :: b_Swim    !
+# endif
+# ifdef FLEET
+      integer, dimension(max_ports, Ngrids) :: iPort            ! grid cell
+      integer, dimension(max_ports, Ngrids) :: jPort            ! grid cell
+      integer, dimension(Ngrids) :: EncMax                      ! nondimensional
+      real(r8), dimension(Ngrids) :: CatchMax                   ! kg
+      real(r8), dimension(Ngrids) :: TravCost                   ! $
+      real(r8), dimension(Ngrids) :: BoatVel                    ! km/h
+      real(r8), dimension(Ngrids) :: Qcatch                     ! nondimensional
+      real(r8), dimension(Ngrids) :: FishTime                   ! hour
+      real(r8), dimension(Ngrids) :: EncRate                    ! nondimensional
+      real(r8), dimension(max_ports, Ngrids) :: CatchPrice      ! $/kg
 # endif
 #endif
 
@@ -381,12 +400,14 @@
 !   Nfish=Nfishperyear*Nspecies*Nyearclass
       integer, dimension(Ngrids) :: Nfish
 
-      integer, dimension(Ngrids) :: Nships
-
 # ifdef PREDATOR
       integer, dimension(Ngrids) :: Npredperspecies
       integer, dimension(Ngrids) :: Npredspecies
       integer, dimension(Ngrids) :: Npred
+# endif
+# ifdef FLEET
+      integer, dimension(Ngrids) :: Nboats
+      integer, dimension(Ngrids) :: Nports
 # endif
 #endif
 

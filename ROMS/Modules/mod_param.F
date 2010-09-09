@@ -308,6 +308,9 @@
 # ifdef PREDATOR
         integer, dimension(Ngrids) :: NPredV
 # endif
+# ifdef FLEET
+        integer, dimension(Ngrids) :: NBoatV
+# endif
 
 #endif
 #if defined FLOATS || defined NEMURO_SAN
@@ -550,9 +553,12 @@
 # endif
 #endif
 #ifdef NEMURO_SAN
-          NFishV(ng)=22
+          NFishV(ng)=15
 # ifdef PREDATOR
           NPredV(ng)=8
+# endif
+# ifdef FLEET
+          NBoatV(ng)=4
 # endif
 #endif
           NSV(ng)=NT(ng)+5

@@ -101,9 +101,9 @@
         NSTA == 48
         NFLT == 48
         NFSH == 120
-    NDEFFISH == 8760
+    NDEFFISH == 0
         NPRD == 120
-        NSHP == 48
+        NFLE == 120
        NINFO == 1
 
 ! Output history, average, diagnostic files parameters.
@@ -475,7 +475,7 @@ Hout(idBott) == T T T T T T T T T F F F F F F F
      FLTNAME == flt.nc
      FISHNAME == fish.nc
      PREDNAME == pred.nc
-     SHIPNAME == ships.nc
+     FLEETNAME == fleet.nc
 
 ! Input ASCII parameter filenames.
 
@@ -484,7 +484,7 @@ Hout(idBott) == T T T T T T T T T F F F F F F F
      FPOSNAM =  floats.in
      FISHPOSNAM =  fish.in
      PREDPOSNAM =  pred.in
-     SHIPPOSNAM =  ships.in
+     FLEETPOSNAM =  fleet.in
      BPARNAM =  nemsan.in
      SPARNAM =  ROMS/External/sediment.in
      USRNAME =  ROMS/External/MyFile.dat
