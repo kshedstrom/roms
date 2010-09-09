@@ -257,9 +257,6 @@
      &                 nf90_int, 1, (/fishdim/), Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 !
-     &                 nf90_int, 1, (/fishdim/), Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
-!
 !  Define fish age base
 !
         Vinfo( 1)='Fish_age_base'
@@ -1202,10 +1199,6 @@
           exit_flag=3
           RETURN
         END IF
-     &                                  TRIM(ncname)
-          exit_flag=3
-          RETURN
-        END IF
         IF (.not.got_var(idXgrd)) THEN
           IF (Master) WRITE (stdout,60) 'Xgrid', TRIM(ncname)
           exit_flag=3
@@ -1416,13 +1409,6 @@
         CALL netcdf_get_lvar (ng, iNLM, ncname,                         &
      &                        TRIM(Vname(1,idFalv)),                    &
      &                        FISHES(ng)%alive,                         &
-     &                        ncid = ncFISHid(ng),                      &
-     &                        start = (/1,tFISHindx(ng)/),              &
-     &                        total = (/Nfish(ng),1/))
-
-        CALL netcdf_get_lvar (ng, iNLM, ncname,                         &
-     &                        TRIM(Vname(1,idFgrl)),                    &
-     &                        FISHES(ng)%fishgirl,                      &
      &                        ncid = ncFISHid(ng),                      &
      &                        start = (/1,tFISHindx(ng)/),              &
      &                        total = (/Nfish(ng),1/))

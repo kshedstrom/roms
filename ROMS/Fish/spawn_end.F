@@ -141,7 +141,6 @@
           FISHES(ng) % swimtype(fish2) = FISHES(ng) % swimtype(fish1)
           FISHES(ng) % species(fish2)  = FISHES(ng) % species(fish1)
           FISHES(ng) % alive(fish2)    = FISHES(ng) % alive(fish1)
-          FISHES(ng) % eatfish(fish2)  = FISHES(ng) % eatfish(fish1)
 
 !  Randomize the location just a little
           CALL ran1 (xnudg)

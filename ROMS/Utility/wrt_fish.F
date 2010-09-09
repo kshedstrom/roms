@@ -98,16 +98,6 @@
      &                      varid = fishVid(idFalv,ng))
       IF (exit_flag.ne.NoError) RETURN
 !
-!  Write out fish gender.
-!
-      CALL netcdf_put_lvar (ng, iNLM, FISHname(ng),                     &
-     &                      TRIM(Vname(1,idFgrl)),                      &
-     &                      FISHES(ng) % fishgirl,                      &
-     &                      (/1/), (/Nfish(ng)/),                       &
-     &                      ncid = ncFISHid(ng),                        &
-     &                      varid = fishVid(idFgrl,ng))
-      IF (exit_flag.ne.NoError) RETURN
-!
 !  Write out fish age base.
 !
       CALL netcdf_put_ivar (ng, iNLM, FISHname(ng),                     &
