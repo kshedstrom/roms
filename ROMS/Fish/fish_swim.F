@@ -335,10 +335,10 @@
                     ydis=f_ydis+g_epsy
                   END IF
 ! Reflect if hits land using density anomaly
-!                  IF (Fdens.eq.0.0_r8) THEN
-!                    xdis=-1.0_r8*xdis
-!                    ydis=-1.0_r8*ydis
-!                  END IF
+                  IF (Fdens.eq.0.0_r8) THEN
+                    xdis=-1.0_r8*xdis
+                    ydis=-1.0_r8*ydis
+                  END IF
 ! Swim towards best location
                   track(ixgrd,itimep1,fid)=track(ixgrd,itime,fid)+      &
      &                                     xdis*pm(Ir,Jr)
@@ -355,6 +355,7 @@
 !                  Fvar=track(idpth,itime,fid)
 !                  Fvar_opt=300.0_r8
 !                  Fvar_sigma=100.0_r8
+!
                   zdis=(track(idpth,itime,fid)-                         &
      &                  track(idpth,itimem1,fid))
 ! Use zdis below for purely random motion

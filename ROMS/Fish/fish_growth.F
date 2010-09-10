@@ -327,7 +327,7 @@
                   END IF
                 END DO
               END DO
-! PK_fish in units of biomass (g fish) instead of concentration (g fish/m3)
+! K_fish in units of biomass (g fish) instead of concentration (g fish/m3)
               FTotFish=0.0_r8
               DO nsp=1,Nspecies(ng)
                 FFish(nsp)=BioVul(nsp)*Fpref(nsp,ng)/K_Fish(nsp,ng)
