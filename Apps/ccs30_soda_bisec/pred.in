@@ -63,7 +63,7 @@
 
 ! Pred preference for fish
 
-       Fpref == 1.0d0 1.0d0 1.0d0 1.0d0 1.0d0
+       Fpref == 0.0d0 0.0d0 0.0d0 0.0d0 0.0d0
 
 ! Pred half saturation for fish
 

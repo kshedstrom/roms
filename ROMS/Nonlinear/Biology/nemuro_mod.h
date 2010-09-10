@@ -360,8 +360,8 @@
 # ifdef PREDATOR
       real(r8), dimension(max_predspecies, Ngrids) :: Pwwt0     !  grams
       real(r8), dimension(max_predspecies, Ngrids) :: Pwth0     !  millions of fish
-      real(r8), dimension(max_predspecies, Ngrids) :: K_Fish    !
-      real(r8), dimension(max_predspecies, Ngrids) :: Fpref     !
+      real(r8), dimension(max_species, Ngrids) :: K_Fish        !  K value for each fish species
+      real(r8), dimension(max_species, Ngrids) :: Fpref         !  Pref. for each fish species
       real(r8), dimension(max_predspecies, Ngrids) :: a_Cmax    !
       real(r8), dimension(max_predspecies, Ngrids) :: b_Cmax    !
       real(r8), dimension(max_predspecies, Ngrids) :: a_Swim    !

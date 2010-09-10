@@ -262,8 +262,8 @@
 ! PREDATION MORTALITY
 !
 ! Zero out predation mortality from previous time step
-      DO i=LBi+2,UBi-2
-        DO j=LBj+2,UBj-2
+      DO i=LBi,UBi
+        DO j=LBj,UBj
           IF (fish_count(i,j).gt.0) THEN
             thisfish => fish_list(i,j) % next
             DO ifish=1,fish_count(i,j)
