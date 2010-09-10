@@ -2167,14 +2167,15 @@
 #  include <ecosim_var.h>
 # elif defined NEMURO
 #  include <nemuro_var.h>
-# elif defined NEMURO_SAN
-#  include <fish_var.h>
 # elif defined NPZD_FRANKS
 #  include <npzd_Franks_var.h>
 # elif defined NPZD_POWELL
 #  include <npzd_Powell_var.h>
 # elif defined NPZD_IRON
 #  include <npzd_iron_var.h>
+# endif
+# if defined NEMURO_SAN
+#  include <fish_var.h>
 # endif
 #endif
 
