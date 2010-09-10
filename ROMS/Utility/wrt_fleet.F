@@ -70,6 +70,7 @@
 !
 !  Write out fleet X-grid locations.
 !
+      print*, 'WFLT:', ibiloc, idBxprt
       DO l=1,Nboats(ng)
         Tout(l)=REAL(BOATS(ng)%boat(ibiloc,l),r8)
       END DO
@@ -164,27 +165,25 @@
 !
 !  Write out distance to nearest port (km)
 !
-        status=nf_fwrite2d(ng, iNLM, ncFLEETid(ng),                     &
-     &                     fleetVid(idBpdist,ng),                       &
-     &                     tFLEETindx(ng), r2dvar,                      &
-     &                     LBi, UBi, LBj, UBj, 1.0_r8,                  &
+      status=nf_fwrite2d(ng, iNLM, ncFLEETid(ng), fleetVid(idBpdist,ng),&
+     &                   tFLEETindx(ng), r2dvar,                        &
+     &                   LBi, UBi, LBj, UBj, 1.0_r8,                    &
 #ifdef MASKING
-     &                     GRID(ng) % rmask,                            &
+     &                   GRID(ng) % rmask,                              &
 #endif
-     &                     OCEAN(ng) % distport(:,:))
-        IF (status.ne.nf90_noerr) RETURN
+     &                   OCEAN(ng) % distport(:,:))
+      IF (status.ne.nf90_noerr) RETURN
 !
 !  Write out nearest port number
 !
-        status=nf_fwrite2d(ng, iNLM, ncFLEETid(ng),                     &
-     &                     fleetVid(idBpnear,ng),                       &
-     &                     tFLEETindx(ng), r2dvar,                      &
-     &                     LBi, UBi, LBj, UBj, 1.0_r8,                  &
+      status=nf_fwrite2d(ng, iNLM, ncFLEETid(ng), fleetVid(idBpnear,ng),&
+     &                   tFLEETindx(ng), r2dvar,                        &
+     &                   LBi, UBi, LBj, UBj, 1.0_r8,                    &
 #ifdef MASKING
-     &                     GRID(ng) % rmask,                            &
+     &                   GRID(ng) % rmask,                              &
 #endif
-     &                     REAL(OCEAN(ng) % nearport(:,:),r8))
-        IF (status.ne.nf90_noerr) RETURN
+     &                   REAL(OCEAN(ng) % nearport(:,:),r8))
+      IF (status.ne.nf90_noerr) RETURN
 !
 !-----------------------------------------------------------------------
 !  Synchronize fleet NetCDF file to disk.

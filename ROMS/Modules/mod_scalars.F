@@ -758,6 +758,7 @@
         logical, dimension(Ngrids) :: LdefMOD    ! 4DVAR file
         logical, dimension(Ngrids) :: LdefPRED   ! Pred file
         logical, dimension(Ngrids) :: LdefRST    ! Restart file
+        logical, dimension(Ngrids) :: LdefSHIPS  ! Ships file
         logical, dimension(Ngrids) :: LdefSTA    ! Stations file
         logical, dimension(Ngrids) :: LdefTIDE   ! tide forcing file
         logical, dimension(Ngrids) :: LdefTLM    ! Tangent linear file
@@ -2178,7 +2179,9 @@
         LwrtAVG(ng)=.FALSE.
         LwrtAVG2(ng)=.FALSE.
         LwrtDIA(ng)=.FALSE.
+#ifdef NEMURO_SAN
         LwrtFISH(ng)=.FALSE.
+#endif
         LwrtHIS(ng)=.FALSE.
         LwrtPER(ng)=.FALSE.
         LwrtRST(ng)=.FALSE.

@@ -186,7 +186,7 @@
       DO isp=1, Nspecies(ng)
         IF ((sp_time.ge.sp_start(isp)).and.                             &
      &              (sp_time.le.sp_end(isp))) THEN
-          num_super(isp) = num_free(isp) / (sp_end(isp) - sp_time + 1)
+!         num_super(isp) = num_free(isp) / (sp_end(isp) - sp_time + 1)
         END IF
       END DO
 !

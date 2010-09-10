@@ -616,7 +616,7 @@
 !
 !  Write out data into fish NetCDF file.
 !
-        IF ((MOD(iic(ng)-1,nFLE(ng)).eq.0).and.                      &
+        IF ((MOD(iic(ng)-1,nFLE(ng)).eq.0).and.                         &
      &      ((fleetrrec(ng).eq.0).or.(iic(ng).ne.ntstart(ng)))) THEN
           CALL wrt_fleet (ng)
           IF (exit_flag.ne.NoError) RETURN

@@ -257,16 +257,6 @@
      &                 nf90_int, 1, (/fishdim/), Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 !
-!  Define fish gender
-!
-        Vinfo( 1)='Fishgirl'
-        Vinfo( 2)='Fish gender'
-        Vinfo( 9)='Fish is female'
-        Vinfo(10)='Fish is male'
-        status=def_var(ng, iNLM, ncFISHid(ng), fishVid(idFgrl,ng),      &
-     &                 nf90_int, 1, (/fishdim/), Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
-!
 !  Define fish age base
 !
         Vinfo( 1)='Fish_age_base'
@@ -1024,6 +1014,78 @@
           ELSE IF (TRIM(var_name(i)).eq.'Fbday') THEN
             got_var(idFbday)=.TRUE.
             fishVid(idFbday,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.'Fyield') THEN
+            got_var(idFyield)=.TRUE.
+            fishVid(idFyield,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.'FcsmPS') THEN
+            got_var(idFcsmPS)=.TRUE.
+            fishVid(idFcsmPS,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.'FcsmPL') THEN
+            got_var(idFcsmPL)=.TRUE.
+            fishVid(idFcsmPL,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.'FcsmZS') THEN
+            got_var(idFcsmZS)=.TRUE.
+            fishVid(idFcsmZS,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.'FcsmZL') THEN
+            got_var(idFcsmZL)=.TRUE.
+            fishVid(idFcsmZL,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.'FcsmZP') THEN
+            got_var(idFcsmZP)=.TRUE.
+            fishVid(idFcsmZP,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.'FcsmF1') THEN
+            got_var(idFcsmF1)=.TRUE.
+            fishVid(idFcsmF1,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.'FcsmF2') THEN
+            got_var(idFcsmF2)=.TRUE.
+            fishVid(idFcsmF2,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.'FcsmF3') THEN
+            got_var(idFcsmF3)=.TRUE.
+            fishVid(idFcsmF3,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.'FcsmF4') THEN
+            got_var(idFcsmF4)=.TRUE.
+            fishVid(idFcsmF4,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.'FcsmF5') THEN
+            got_var(idFcsmF5)=.TRUE.
+            fishVid(idFcsmF5,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.'Fresp') THEN
+            got_var(idFresp)=.TRUE.
+            fishVid(idFresp,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.'EggDur') THEN
+            got_var(idFdegg)=.TRUE.
+            fishVid(idFdegg,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.'EggNum') THEN
+            got_var(idFnegg)=.TRUE.
+            fishVid(idFnegg,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.'YsacDur') THEN
+            got_var(idFdysac)=.TRUE.
+            fishVid(idFdysac,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.'YsacNum') THEN
+            got_var(idFnysac)=.TRUE.
+            fishVid(idFnysac,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.'LarvDur') THEN
+            got_var(idFdlarv)=.TRUE.
+            fishVid(idFdlarv,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.'LarvNum') THEN
+            got_var(idFnlarv)=.TRUE.
+            fishVid(idFnlarv,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.'JuvDur') THEN
+            got_var(idFdjuv)=.TRUE.
+            fishVid(idFdjuv,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.'JuvNum') THEN
+            got_var(idFnjuv)=.TRUE.
+            fishVid(idFnjuv,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.'SubaNum') THEN
+            got_var(idFnsuba)=.TRUE.
+            fishVid(idFnsuba,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.'FmortN') THEN
+            got_var(idFmortN)=.TRUE.
+            fishVid(idFmortN,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.'FmortS') THEN
+            got_var(idFmortS)=.TRUE.
+            fishVid(idFmortS,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.'FmortF') THEN
+            got_var(idFmortF)=.TRUE.
+            fishVid(idFmortF,ng)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.'Fbatch') THEN
             got_var(idFbatch)=.TRUE.
             fishVid(idFbatch,ng)=var_id(i)
@@ -1039,9 +1101,6 @@
           ELSE IF (TRIM(var_name(i)).eq.'Alive') THEN
             got_var(idFalv)=.TRUE.
             fishVid(idFalv,ng)=var_id(i)
-          ELSE IF (TRIM(var_name(i)).eq.'Fishgirl') THEN
-            got_var(idFgrl)=.TRUE.
-            fishVid(idFgrl,ng)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.'Xgrid') THEN
             got_var(idXgrd)=.TRUE.
             fishVid(idXgrd,ng)=var_id(i)
@@ -1136,12 +1195,6 @@
         END IF
         IF (.not.got_var(idFalv)) THEN
           IF (Master) WRITE (stdout,60) TRIM(Vname(1,idFalv)),          &
-     &                                  TRIM(ncname)
-          exit_flag=3
-          RETURN
-        END IF
-        IF (.not.got_var(idFgrl)) THEN
-          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idFgrl)),          &
      &                                  TRIM(ncname)
           exit_flag=3
           RETURN
@@ -1356,13 +1409,6 @@
         CALL netcdf_get_lvar (ng, iNLM, ncname,                         &
      &                        TRIM(Vname(1,idFalv)),                    &
      &                        FISHES(ng)%alive,                         &
-     &                        ncid = ncFISHid(ng),                      &
-     &                        start = (/1,tFISHindx(ng)/),              &
-     &                        total = (/Nfish(ng),1/))
-
-        CALL netcdf_get_lvar (ng, iNLM, ncname,                         &
-     &                        TRIM(Vname(1,idFgrl)),                    &
-     &                        FISHES(ng)%fishgirl,                      &
      &                        ncid = ncFISHid(ng),                      &
      &                        start = (/1,tFISHindx(ng)/),              &
      &                        total = (/Nfish(ng),1/))

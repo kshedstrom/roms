@@ -27,6 +27,7 @@
 !
       USE mod_param
       USE mod_fish
+      USE spawn_end
       USE mod_biology
       USE mod_scalars
       USE mod_stepping
@@ -186,8 +187,7 @@
             END DO
 # elif defined EGGS_BISECTION
             CALL egglist_init(ng)
-            CALL egglist_split(isp, FISHES(ng) % num_super(isp),        &
-     &                 count(isp))
+            CALL egglist_split(ng, isp, Navail, count(isp))
 # endif
 
 !             call tree_traverse(tree(is))
@@ -263,6 +263,9 @@
 ! number individuals entering egg stage (for life table)
                 FISHES(ng)%egg_num(ifsh)=eggs(i)
                 FISHES(ng)%egg_dur(ifsh)=0.0_r8
+! Save initial worth for splitting at end of spawning season
+                FISHES(ng) % bioenergy(ifiniwth,ifsh) =                 &
+     &                       FISHES(ng) % bioenergy(ifworth,ifsh)
 
 # ifdef EGGS_BISECTION
                 print *, 'New_fish: ', ifsh, eggs(i),                   &
@@ -288,6 +291,10 @@
 # endif
             deallocate(eggs)
           END IF
+! Allocate remaining individuals at the end of the spawning season
+! based on worth at creation
+          IF ((Navail.gt.0).and.(sp_time.gt.FISHES(ng)%sp_end(isp)))    &
+     &      CALL split_biggest (ng, isp, Navail)
         END DO
       END IF
 

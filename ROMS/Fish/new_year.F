@@ -70,6 +70,7 @@
           FISHES(ng) % bounded(ifsh) = .FALSE.
           FISHES(ng) % bioenergy(ifwwt,ifsh) = 0.0_r8
           FISHES(ng) % bioenergy(ifworth,ifsh) = 0.0_r8
+          FISHES(ng) % bioenergy(ifiniwth,ifsh) = 0.0_r8
           FISHES(ng) % bioenergy(ifage,ifsh) = 0.0_r8
 !          FISHES(ng) % bioenergy(ifage,ifsh) = 0.0_r8
           FISHES(ng) % bioenergy(ifbday,ifsh) = 0.0_r8
@@ -85,13 +86,14 @@
 !  Get ready for the new eggs
       DO isp=1,Nspecies(ng)
         FISHES(ng)%num_free(isp)=Nfishperyear(ng)
-        FISHES(ng)%num_super(isp)=0
+        FISHES(ng)%num_super(isp) = FISHES(ng)%num_free(isp) /          &
+     &        (FISHES(ng)%sp_end(isp) - FISHES(ng)%sp_start(isp) + 1)
         FISHES(ng)%next_free(isp)=1+FISHES(ng)%age_base(isp)
       END DO
       IF (Master) THEN
         print *, 'New Year for Fish'
-	print *, 'Free fish ', FISHES(ng) % num_free
-	print *, 'Fish ages ', FISHES(ng) % age_base
+        print *, 'Free fish ', FISHES(ng) % num_free
+        print *, 'Fish ages ', FISHES(ng) % age_base
       END IF
 
 # ifdef PROFILE

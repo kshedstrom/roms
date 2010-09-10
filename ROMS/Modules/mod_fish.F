@@ -94,6 +94,7 @@
       integer, parameter :: ifcsmZL = 13       ! ZL consumption
       integer, parameter :: ifcsmZP = 14       ! ZP consumption
       integer, parameter :: ifresp = 15        ! Respiration
+      integer, parameter :: ifiniwth = 16      ! worth at creation (for split)
 ! Lifestage and gender
       integer, parameter :: if_egg = 1
       integer, parameter :: if_yolksac = 2

@@ -18,6 +18,7 @@
 ! Because we create and destroy this thing each day, we need an
 ! efficient way to deallocate everything; hence the need for the gc_list.
 !
+	USE mod_kinds
         USE mod_param
         USE mod_types
         USE mod_ocean
@@ -34,7 +35,6 @@
           USE mod_param
           USE mod_ncparam, ONLY : r2dvar, r3dvar
 # endif
-
 
         implicit none
 
@@ -58,6 +58,7 @@
      &                          xr, yr, fish_count, distport, nearport, &
      &                          cpue, avgcpue, percpue, yearcpue,       &
      &                          climcpue)
+          USE mod_kinds
 # ifdef DISTRIBUTE
           USE distribute_mod, ONLY : mp_gather2d, mp_gather3d
 # endif
@@ -86,7 +87,7 @@
           real(r8), intent(in) :: yearcpue((LBi:UBi,LBj:UBj,1:366)
           real(r8), intent(in) :: climcpue((LBi:UBi,LBj:UBj,1:366)
 # endif
-          integer :: i, j
+          integer :: i, j, l
 # ifdef DISTRIBUTE
           integer :: Npts
           real(r8), dimension(LBi:UBi,LBj:UBj) :: r_fshcnt
@@ -137,6 +138,7 @@
             allocate(climcpue_all(0:(Lm(ng)+1),0:(Mm(ng)+1),1:366))
           END IF
 ! Gather 2D integer variables
+# ifdef DISTRIBUTE
           Npts=IOBOUNDS(ng)%xi_rho*IOBOUNDS(ng)%eta_rho
           DO i=LBi,UBi
             DO j=LBj,UBj
@@ -226,6 +228,25 @@
      &                      climcpue, Npts, line3d_366, .false.)
           climcpue_all = reshape(line3d_366,                            &
      &                           (/ Lm(ng)+2, Mm(ng)+2, 366 /))
+# else
+          DO i=0,Lm(ng)+1
+            DO j=0,Mm(ng)+1
+              nearport_all(i,j)=nearport(i,j)
+              xr_all(i,j)=xr(i,j)
+              yr_all(i,j)=yr(i,j)
+              distport_all(i,j)=distport(i,j)
+              avgcpue_all(i,j)=avgcpue(i,j)
+              percpue_all(i,j)=percpue(i,j)
+              DO l=1,10
+                cpue_all(i,j,l)=cpue(i,j,l)
+              END DO
+              DO l=1,366
+                yearcpue_all(i,j,l)=yearcpue(i,j,l)
+                climcpue_all(i,j,l)=climcpue(i,j,l)
+              END DO
+            END DO
+          END DO
+# endif
 !        print*, 'END gather'
         END SUBROUTINE gather_array
 !
@@ -429,6 +450,25 @@
           CALL mp_scatter3d (ng, model, LBi, UBi, LBj, UBj, 1, 366,     &
      &                       NghostPoints, r3dvar, Vmin, Vmax,          &
      &                       Npts, line3d_366, climcpue)
+# else
+          DO i=LBi,UBi
+            DO j=LBj,UBj
+              nearport(i,j)=nearport_all(i,j)
+              xr(i,j)=xr_all(i,j)
+              yr(i,j)=yr_all(i,j)
+              distport(i,j)=distport_all(i,j)
+              avgcpue(i,j)=avgcpue_all(i,j)
+              percpue(i,j)=percpue_all(i,j)
+              DO l=1,10
+                cpue(i,j,l)=cpue_all(i,j,l)
+              END DO
+              DO l=1,366
+                yearcpue(i,j,l)=yearcpue_all(i,j,l)
+                climcpue(i,j,l)=climcpue_all(i,j,l)
+              END DO
+            END DO
+          END DO
+# endif
           IF (Master) THEN
             IF (ALLOCATED(fish_count_all)) THEN
               deallocate(fish_count_all)
@@ -464,7 +504,6 @@
               deallocate(climcpue_all)
             END IF
           END IF
-# endif
 !        print*, 'END scatter'
         END SUBROUTINE scatter_array
 !

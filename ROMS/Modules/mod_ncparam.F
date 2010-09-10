@@ -403,7 +403,6 @@
         integer  :: idFlfsg        ! fish lifestage
         integer  :: idFswmt        ! fish swim type
         integer  :: idFalv         ! fish is alive
-        integer  :: idFgrl         ! fish is female
         integer  :: idFdegg        ! duration of egg stage
         integer  :: idFnegg        ! number of eggs
         integer  :: idFdysac       ! duration of yolk sac stage
@@ -561,7 +560,7 @@
         integer  :: idefAVG(Ngrids)     ! averages file creation flag
         integer  :: idefAVG2(Ngrids)    ! averages file creation flag
         integer  :: idefDIA(Ngrids)     ! diagnostics file creation flag
-        integer  :: idefFISh(Ngrids)    ! fish file creation flag
+        integer  :: idefFISH(Ngrids)    ! fish file creation flag
         integer  :: idefHIS(Ngrids)     ! history file creation flag
         integer  :: idefTLM(Ngrids)     ! tangent file creation flag
 !
@@ -1113,6 +1112,7 @@
           idefAVG(ng)=-1
           idefAVG2(ng)=-1
           idefDIA(ng)=-1
+          idefFISH(ng)=-1
           idefHIS(ng)=-1
           idefTLM(ng)=-1
         END DO
