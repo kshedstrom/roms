@@ -293,8 +293,10 @@
           END IF
 ! Allocate remaining individuals at the end of the spawning season
 ! based on worth at creation
-          IF ((Navail.gt.0).and.(sp_time.gt.FISHES(ng)%sp_end(isp)))    &
-     &      CALL split_biggest (ng, isp, Navail)
+          IF ((FISHES(ng)%num_free(isp).gt.0).and.                      &
+     &        (sp_time.gt.FISHES(ng)%sp_end(isp))) THEN
+            CALL split_biggest (ng, isp, FISHES(ng)%num_free(isp))
+          END IF
         END DO
       END IF
 

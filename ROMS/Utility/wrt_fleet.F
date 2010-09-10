@@ -70,7 +70,6 @@
 !
 !  Write out fleet X-grid locations.
 !
-      print*, 'WFLT:', ibiloc, idBxprt
       DO l=1,Nboats(ng)
         Tout(l)=REAL(BOATS(ng)%boat(ibiloc,l),r8)
       END DO
