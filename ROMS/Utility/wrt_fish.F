@@ -134,6 +134,15 @@
      &                      ncid = ncFISHid(ng))
       IF (exit_flag.ne.NoError) RETURN
 !
+!  Write out superindividuals per spawn.
+!
+      CALL netcdf_put_ivar (ng, iNLM, FISHname(ng),                     &
+     &                      'Fish_num_super',                           &
+     &                      FISHES(ng) % num_super,                     &
+     &                      (/1/), (/Nspecies(ng)/),                    &
+     &                      ncid = ncFISHid(ng))
+      IF (exit_flag.ne.NoError) RETURN
+!
 !  Write out fish X-grid locations.
 !
       DO l=1,Nfish(ng)

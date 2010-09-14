@@ -120,6 +120,7 @@
         DO isp=1,Nspecies(ng)
           egg_cells(isp) = sum(eggs_in(:,:,isp))
         END DO
+        IF (Master) print *, 'Eggs_share number of spawners', egg_cells
 
         END SUBROUTINE eggs_share
 
@@ -312,6 +313,7 @@
               Nfound = Nfound + 1
               eggs(Nfound) = box % egg_sum 
               CALL find_fish(isp, box, ifish(Nfound), jfish(Nfound))
+              DEALLOCATE(box)
             ELSE
               RETURN
             END IF
