@@ -76,14 +76,14 @@
 ! Fish start of spawning season [yearday], {1.0d0}.
 
 !       Fspstr == 30.0d0 30.0d0 0.0d0 0.0d0 0.0d0
-!       Fspstr == 100.0d0 100.0d0 0.0d0 0.0d0 0.0d0
-       Fspstr == 30.0d0 30.0d0 0.0d0 0.0d0 0.0d0
+       Fspstr == 101.0d0 101.0d0 0.0d0 0.0d0 0.0d0
+!       Fspstr == 30.0d0 30.0d0 0.0d0 0.0d0 0.0d0
 
 ! Fish end of spawning season [yearday], {210.0d0}.
 
 !       Fspend == 150.0d0 240.0d0 0.0d0 0.0d0 0.0d0
-!       Fspend == 150.0d0 150.0d0 0.0d0 0.0d0 0.0d0
-       Fspend == 60.0d0 60.0d0 0.0d0 0.0d0 0.0d0
+       Fspend == 150.0d0 150.0d0 0.0d0 0.0d0 0.0d0
+!       Fspend == 60.0d0 60.0d0 0.0d0 0.0d0 0.0d0
 
 ! Fish behavior [1=Fitness, 2=Kinesis]
 
@@ -103,15 +103,15 @@
 
 ! Fish half saturation for ZS
 
-       K_ZS == 0.8d0 0.8d0 0.0d0 0.0d0 0.0d0
+       K_ZS == 0.2d0 0.15d0 0.0d0 0.0d0 0.0d0
 
 ! Fish half saturation for ZL
 
-       K_ZL == 0.8d0 0.8d0 0.0d0 0.0d0 0.0d0
+       K_ZL == 0.2d0 0.15d0 0.0d0 0.0d0 0.0d0
 
 ! Fish half saturation for ZP
 
-       K_ZP == 0.8d0 0.8d0 0.0d0 0.0d0 0.0d0
+       K_ZP == 0.2d0 0.15d0 0.0d0 0.0d0 0.0d0
 
 ! Energy conversion from Zooplankton to Fish
 ! (CAL_ZF for age 2+ is computed from 2580/7775)

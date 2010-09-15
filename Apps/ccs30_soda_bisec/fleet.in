@@ -82,7 +82,7 @@
 
 ! Price for catch by port [$/kg], {0.5d0}.
 
-       CatchPrice == 0.5d0 0.5d0 0.5d0
+       CatchPrice == 0.5d0 0.5d0 0.5d0 0.5d0
 
 ! Port grid i location. {San Diego(CA), San Pedro(CA), Monterey(CA), Newport(OR)}
 

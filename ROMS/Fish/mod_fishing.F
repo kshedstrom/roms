@@ -18,7 +18,7 @@
 ! Because we create and destroy this thing each day, we need an
 ! efficient way to deallocate everything; hence the need for the gc_list.
 !
-	USE mod_kinds
+        USE mod_kinds
         USE mod_param
         USE mod_types
         USE mod_ocean
