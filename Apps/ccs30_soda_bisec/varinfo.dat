@@ -367,7 +367,16 @@
   'bwf_time'
   'idTbot(isalt)'
   'r2dvar'
-  1.157407d-7                                     ! 0.01/86400
+  1.157407d-7                                      ! 0.01/86400
+
+'EminusP'                                          ! Input/Output
+  'bulk_flux surface net freswater flux, (E-P)'
+  'meter second-1'                                 ! computed by NLM ROMS 
+  'EminusP, scalar, series'                        ! bulk_flux.F and
+  'ocean_time'                                     ! needed in adjoint-based
+  'idEmPf'                                         !  applications
+  'r2dvar'
+  1.0d0
 
 !
 !------------------------------------------------------------------------------
@@ -1665,6 +1674,15 @@
   'SSS, scalar, series'
   'sss_time'
   'idSSSc'
+  'r2dvar'
+  1.0d0
+
+'SSSflx'                                          ! Input
+  'sea surface salinity flux correction'
+  'PSU meter second-1'                            ! [PSU meter second-1]
+  'SSSflx, scalar, series'
+  'SSSflx_time'
+  'idSSSf'
   'r2dvar'
   1.0d0
 
@@ -4190,6 +4208,24 @@
 !  2D momentum diagnostic terms.
 !
 
+'pvorticity_bar'                                   ! Input/Output
+  '2D potential vorticity'
+  'meter-1 second-1'                               ! [1/m/s]
+  'pvorticity_bar, scalar, series'
+  'ocean_time'
+  'id2dPV'
+  'p2dvar'
+  1.0d0
+
+'rvorticity_bar'                                   ! Input/Output
+  '2D relative vorticity'
+  'second-1'                                       ! [1/s]
+  'rvorticity_bar, scalar, series'
+  'ocean_time'
+  'id2dRV'
+  'p2dvar'
+  1.0d0
+
 'ubar_accel'                                       ! Input/Output
   '2D u-momentum, acceleration term'
   'meter second-2'                                 ! [m/s2]
@@ -4338,6 +4374,24 @@
 !  3D momentum diagnostic terms.
 !
  
+'pvorticity'                                       ! Input/Output
+  'potential vorticity'
+  'meter-1 second-1'                               ! [1/m/s]
+  'pvorticity, scalar, series'
+  'ocean_time'
+  'id3dPV'
+  'p3dvar'
+  1.0d0
+
+'rvorticity'                                       ! Input/Output
+  'relative vorticity'
+  'second-1'                                       ! [1/s]
+  'rvorticity, scalar, series'
+  'ocean_time'
+  'id3dRV'
+  'p3dvar'
+  1.0d0
+
 'u_accel'                                          ! Input/Output
   '3D u-momentum, acceleration term'
   'meter second-2'                                 ! [m/s2]

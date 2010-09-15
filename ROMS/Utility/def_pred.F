@@ -649,6 +649,21 @@
             got_var(idDano)=.TRUE.
             predVid(idDano,ng)=var_id(i)
 # endif
+          ELSE IF (TRIM(var_name(i)).eq.'PcsmF1') THEN
+            got_var(idPcsmF1)=.TRUE.
+            predVid(idPcsmF1,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.'PcsmF2') THEN
+            got_var(idPcsmF2)=.TRUE.
+            predVid(idPcsmF2,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.'PcsmF3') THEN
+            got_var(idPcsmF3)=.TRUE.
+            predVid(idPcsmF3,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.'PcsmF4') THEN
+            got_var(idPcsmF4)=.TRUE.
+            predVid(idPcsmF4,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.'PcsmF5') THEN
+            got_var(idPcsmF5)=.TRUE.
+            predVid(idPcsmF5,ng)=var_id(i)
           END IF
 # ifdef SOLVE3D
           DO itrc=1,NT(ng)

@@ -233,11 +233,11 @@
 !
 !  Define fish lifestage
 !
-!        Vinfo( 1)='Lifestage'
-!        Vinfo( 2)='Fish lifestage'
-!        status=def_var(ng, iNLM, ncFISHid(ng), fishVid(idFlfsg,ng),     &
-!     &                 nf90_int, 1, (/fishdim/), Aval, Vinfo, ncname)
-!        IF (exit_flag.ne.NoError) RETURN
+         Vinfo( 1)='Lifestage'
+         Vinfo( 2)='Fish lifestage'
+         status=def_var(ng, iNLM, ncFISHid(ng), fishVid(idFlfsg,ng),     &
+      &                 nf90_int, 1, (/fishdim/), Aval, Vinfo, ncname)
+         IF (exit_flag.ne.NoError) RETURN
 !
 !  Define fish swimtype
 !
@@ -912,18 +912,18 @@
 !
 !  Define fish lifestage
 !
-        Vinfo( 1)='Lifestage'
-        Vinfo( 2)='fish lifestage'
-        Vinfo( 3)='nondimensional'
-        Vinfo(14)='lifestage, scalar, series'
-        Vinfo(16)=Vname(1,idtime)
+!       Vinfo( 1)='Lifestage'
+!       Vinfo( 2)='fish lifestage'
+!       Vinfo( 3)='nondimensional'
+!       Vinfo(14)='lifestage, scalar, series'
+!       Vinfo(16)=Vname(1,idtime)
 # ifndef NO_4BYTE_REALS
-        Vinfo(24)='_FillValue'
-        Aval(6)=spval
+!       Vinfo(24)='_FillValue'
+!       Aval(6)=spval
 # endif
-        status=def_var(ng, iNLM, ncFISHid(ng),fishVid(idFlfsg,ng),      &
-     &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+!       status=def_var(ng, iNLM, ncFISHid(ng),fishVid(idFlfsg,ng),      &
+!    &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
+!       IF (exit_flag.ne.NoError) RETURN
 !
 !  Define fish batch count
 !
@@ -1094,6 +1094,9 @@
           ELSE IF (TRIM(var_name(i)).eq.'FmortF') THEN
             got_var(idFmortF)=.TRUE.
             fishVid(idFmortF,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.'FmortP') THEN
+            got_var(idFmortP)=.TRUE.
+            fishVid(idFmortP,ng)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.'Fbatch') THEN
             got_var(idFbatch)=.TRUE.
             fishVid(idFbatch,ng)=var_id(i)

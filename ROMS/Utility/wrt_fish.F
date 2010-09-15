@@ -70,13 +70,13 @@
 !
 !  Write out fish lifestage.
 !
-!      CALL netcdf_put_ivar (ng, iNLM, FISHname(ng),                     &
-!     &                      TRIM(Vname(1,idFlfsg)),                     &
-!     &                      FISHES(ng) % lifestage,                     &
-!     &                      (/1/), (/Nfish(ng)/),                       &
-!     &                      ncid = ncFISHid(ng),                        &
-!     &                      varid = fishVid(idFlfsg,ng))
-!      IF (exit_flag.ne.NoError) RETURN
+      CALL netcdf_put_ivar (ng, iNLM, FISHname(ng),                     &
+     &                      TRIM(Vname(1,idFlfsg)),                     &
+     &                      FISHES(ng) % lifestage,                     &
+     &                      (/1/), (/Nfish(ng)/),                       &
+     &                      ncid = ncFISHid(ng),                        &
+     &                      varid = fishVid(idFlfsg,ng))
+      IF (exit_flag.ne.NoError) RETURN
 !
 !  Write out fish swimtype.
 !
@@ -691,19 +691,19 @@
      &                      varid = fishVid(idFmortP,ng))
       IF (exit_flag.ne.NoError) RETURN
 !  Write fish lifestage
-      DO l=1,Nfish(ng)
-        IF (FISHES(ng)%bounded(l)) THEN
-          Tout(l)=FISHES(ng)%lifestage(l)
-        ELSE
-          Tout(l)=spval
-        END IF
-      END DO
-      CALL netcdf_put_fvar (ng, iNLM, FISHname(ng),                     &
-     &                      TRIM(Vname(1,idFlfsg)), Tout,               &
-     &                      (/1,tFISHindx(ng)/), (/Nfish(ng),1/),       &
-     &                      ncid = ncFISHid(ng),                        &
-     &                      varid = fishVid(idFlfsg,ng))
-      IF (exit_flag.ne.NoError) RETURN
+!     DO l=1,Nfish(ng)
+!       IF (FISHES(ng)%bounded(l)) THEN
+!         Tout(l)=FISHES(ng)%lifestage(l)
+!       ELSE
+!         Tout(l)=spval
+!       END IF
+!     END DO
+!     CALL netcdf_put_fvar (ng, iNLM, FISHname(ng),                     &
+!    &                      TRIM(Vname(1,idFlfsg)), Tout,               &
+!    &                      (/1,tFISHindx(ng)/), (/Nfish(ng),1/),       &
+!    &                      ncid = ncFISHid(ng),                        &
+!    &                      varid = fishVid(idFlfsg,ng))
+!     IF (exit_flag.ne.NoError) RETURN
 !  Write fish batch.
       DO l=1,Nfish(ng)
         IF (FISHES(ng)%bounded(l)) THEN
