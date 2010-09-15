@@ -18,7 +18,7 @@ $(eval $(call make-c-library,$(local_c_lib),$(local_c_src)))
 
 $(eval $(compile-rules))
 
-#$(eval $(c-compile-rules))
-Build/c_tree.o: $(local_sub)/c_tree.cc
+$(eval $(c-compile-rules))
+$(SCRATCH_DIR)/c_tree.o: $(local_sub)/c_tree.cc
 	cd $(SCRATCH_DIR); $(CXX) -c $(CXXFLAGS) $(CPPFLAGS) -o $(notdir $@) ../$<
 
