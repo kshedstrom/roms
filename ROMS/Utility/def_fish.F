@@ -289,6 +289,14 @@
      &           1, (/specdim/), Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 !
+!  Define fish number per spawn
+!
+        Vinfo( 1)='Fish_num_super'
+        Vinfo( 2)='Number superindividuals per spawn'
+        status=def_var(ng, iNLM, ncFISHid(ng), varid, nf90_int,         &
+     &           1, (/specdim/), Aval, Vinfo, ncname)
+        IF (exit_flag.ne.NoError) RETURN
+!
 !  Define fish X-grid locations.
 !
         Vinfo( 1)='Xgrid'
@@ -1437,6 +1445,13 @@
         CALL netcdf_get_ivar (ng, iNLM, ncname,                         &
      &                        'Fish_next_free',                         &
      &                        FISHES(ng)%next_free,                     &
+     &                        ncid = ncFISHid(ng),                      &
+     &                        start = (/1/),                            &
+     &                        total = (/Nspecies(ng)/))
+
+        CALL netcdf_get_ivar (ng, iNLM, ncname,                         &
+     &                        'Fish_num_super',                         &
+     &                        FISHES(ng)%num_super,                     &
      &                        ncid = ncFISHid(ng),                      &
      &                        start = (/1/),                            &
      &                        total = (/Nspecies(ng)/))

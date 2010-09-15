@@ -28,7 +28,8 @@
 
         type(fish_node), pointer :: fish_list
 
-        PRIVATE :: push_fish, pop_fish, clone_fish, isLast, nil
+        PRIVATE :: push_fish, pop_fish, clone_fish, clean_list,         &
+     &             isLast, nil
         PUBLIC  :: split_biggest
 
         CONTAINS
@@ -39,17 +40,28 @@
           integer, intent(in) :: isp
           integer, intent(inout) :: Navail
 
-          integer :: ifish, nfish
+          integer :: ifish, nfish, nf
           type(fish_node), pointer :: this_fish
           type(fish_node), pointer :: half_fish
+          real(r8) :: worth
 
 !  Store all the first-year fish of this species
-          DO ifish = FISHES(ng)%age_base(isp),                          &
-     &              FISHES(ng)%age_base(isp)+Nfishperyear(ng)-1
-            ALLOCATE(this_fish)
-            this_fish % fish = ifish
-            this_fish % fish_worth = FISHES(ng)%bioenergy(ifworth,ifish)
-            CALL push_fish(this_fish)
+          ALLOCATE(fish_list)
+          fish_list % next => nil
+          nf = 0
+          DO ifish = FISHES(ng)%age_base(isp)+1,                        &
+     &              FISHES(ng)%age_base(isp)+Nfishperyear(ng)
+            worth = FISHES(ng)%bioenergy(ifworth,ifish)
+!           print *, 'fish x has worth y', ifish, worth
+            IF (worth .gt. 0.1_r8) THEN
+              ALLOCATE(this_fish)
+              this_fish % fish = ifish
+              this_fish % fish_worth = worth
+              CALL push_fish(this_fish)
+              nf = nf + 1
+            ELSE
+              EXIT
+            END IF
           END DO
 
 !  Find the largest and split them in two
@@ -59,7 +71,8 @@
             ifish = this_fish % fish
             nfish = FISHES(ng) % next_free(isp)
             FISHES(ng) % next_free(isp) =                               &
-      &                  FISHES(ng) % next_free(isp) + 1
+     &                  FISHES(ng) % next_free(isp) + 1
+            ALLOCATE(half_fish)
             half_fish % fish = nfish
             half_fish % fish_worth = this_fish % fish_worth
             CALL clone_fish(ng, ifish, nfish)
@@ -67,7 +80,7 @@
             CALL push_fish(half_fish)
             Navail = Navail - 1
           END DO
-
+!         CALL clean_list
         END SUBROUTINE split_biggest
 
         FUNCTION pop_fish()
@@ -165,5 +178,18 @@
 
           b = ASSOCIATED(x, nil)
         END FUNCTION isLast
+
+        SUBROUTINE clean_list
+          type(fish_node), pointer :: cur, next
+
+          cur => fish_list % next
+          DEALLOCATE(fish_list)
+          DO WHILE (.not. isLast(cur))
+            next => cur % next
+!           print *, 'deallocating', cur % fish_worth, cur % fish
+            DEALLOCATE(cur)
+            cur => next
+          END DO
+        END SUBROUTINE clean_list
 #endif
       END MODULE spawn_end

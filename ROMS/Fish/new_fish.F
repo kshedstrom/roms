@@ -144,7 +144,7 @@
         DO isp=1,Nspecies(ng)
 
           Navail = FISHES(ng) % num_super(isp)
-          print *, "New_fish avail:", Navail
+!         print *, "New_fish avail:", Navail
           IF ((Navail.gt.0).and.                                        &
      &        (sp_time.ge.FISHES(ng)%sp_start(isp)).and.                &
      &        (sp_time.le.FISHES(ng)%sp_end(isp))) THEN
@@ -205,7 +205,6 @@
 !             do i=1,Nfound
 !               print *, i, eggs(i), moms(i)
 !             end do
-              print *, 'New_fish count: ', isp, Nfound, count(isp)
               DO i=1,Nfound
                 ifsh = FISHES(ng) % next_free(isp)
                 FISHES(ng) % next_free(isp) =                           &
@@ -268,10 +267,10 @@
      &                       FISHES(ng) % bioenergy(ifworth,ifsh)
 
 # ifdef EGGS_BISECTION
-                print *, 'New_fish: ', ifsh, eggs(i),                   &
+                print *, 'New_fish spawn: ', ifsh, eggs(i),             &
      &                                 ifish(i)+xnudg, jfish(i)+ynudg
 # else
-                print *, 'New_fish: ', ifsh, eggs(i), moms(i)
+                print *, 'New_fish spawn: ', ifsh, eggs(i), moms(i)
 # endif
                 ifsh = ifsh + 1
               END DO
