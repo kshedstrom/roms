@@ -50,6 +50,7 @@
       integer :: i, isp, isp2, j, k, l, Nfound, Navail, Npts, ifsh
       integer :: count(Nspecies(ng)), count_sum
       integer :: idmaxw
+      integer :: Ir, Jr
 # ifdef EGGS_BISECTION
       integer, pointer :: ifish(:)
       integer, pointer :: jfish(:)
@@ -124,6 +125,7 @@
           FISHES(ng) % lifestage(l)=iFspv
           FISHES(ng) % swimtype(l)=iFspv
           FISHES(ng) % species(l)=iFspv
+          FISHES(ng) % cellid(l)=iFspv
           FISHES(ng) % alive(l)=lFspv
         END IF
       END DO
@@ -265,7 +267,11 @@
 ! Save initial worth for splitting at end of spawning season
                 FISHES(ng) % bioenergy(ifiniwth,ifsh) =                 &
      &                       FISHES(ng) % bioenergy(ifworth,ifsh)
-
+! Cell identification for each fish (needed for fishing fleet)
+                Ir=NINT(FISHES(ng)%Tinfo(ixgrd,ifsh))
+                Jr=NINT(FISHES(ng)%Tinfo(iygrd,ifsh))
+                FISHES(ng)%cellid(ifsh)=Ir+(Lm(ng)+2)*Jr
+!
 # ifdef EGGS_BISECTION
                 print *, 'New_fish spawn: ', ifsh, eggs(i),             &
      &                                 ifish(i)+xnudg, jfish(i)+ynudg
@@ -292,10 +298,10 @@
           END IF
 ! Allocate remaining individuals at the end of the spawning season
 ! based on worth at creation
-          IF ((FISHES(ng)%num_free(isp).gt.0).and.                      &
-     &        (sp_time.gt.FISHES(ng)%sp_end(isp))) THEN
-            CALL split_biggest (ng, isp, FISHES(ng)%num_free(isp))
-          END IF
+!          IF ((FISHES(ng)%num_free(isp).gt.0).and.                      &
+!     &        (sp_time.gt.FISHES(ng)%sp_end(isp))) THEN
+!            CALL split_biggest (ng, isp, FISHES(ng)%num_free(isp))
+!          END IF
         END DO
       END IF
 
@@ -322,6 +328,8 @@
      &                                   FISHES(ng) % species)
       CALL mp_collecti (ng, iNLM, Nfish(ng), iFspv,                     &
      &                                   FISHES(ng) % swimtype)
+      CALL mp_collecti (ng, iNLM, Nfish(ng), iFspv,                     &
+     &                                   FISHES(ng) % cellid)
       CALL mp_collectl (ng, iNLM, Nfish(ng), FISHES(ng) % alive)
       CALL mp_collectl (ng, iNLM, Nfish(ng), FISHES(ng) % bounded)
 # endif
