@@ -164,6 +164,8 @@
             DO j=0,Mm(ng)+1
               fish_count_all(i,j)=INT(r_fshcnt_all(i,j))
               nearport_all(i,j)=INT(r_nrport_all(i,j))
+! reset cpuecount each time
+              cpuecount_all(i,j)=0
             END DO
           END DO
 ! Gather 2D real variables
@@ -237,6 +239,8 @@
               distport_all(i,j)=distport(i,j)
               avgcpue_all(i,j)=avgcpue(i,j)
               percpue_all(i,j)=percpue(i,j)
+! reset cpuecount each time
+              cpuecount_all(i,j)=0
               DO l=1,10
                 cpue_all(i,j,l)=cpue(i,j,l)
               END DO
@@ -550,9 +554,12 @@
                 foundsard=.FALSE.
                 ijcell=i+(Lm(ng)+2)*j
                 DO ifid=1,Nfish(ng)
-                  IF ((FISHES(ng)%cellid(ifid).eq.ijcell).and.          &
-     &                (FISHES(ng)%species(ifid).eq.if_sardine)) THEN
-                    foundsard=.TRUE.
+                  IF ((FISHES(ng)%species(ifid).eq.if_sardine).and.     &
+     &                (FISHES(ng)%alive(ifid)).and.                     &
+     &                (FISHES(ng)%lifestage(ifid).ge.if_subadult)) THEN
+                    IF (FISHES(ng)%cellid(ifid).eq.ijcell) THEN
+                      foundsard=.TRUE.
+                    END IF
                   END IF
                 END DO
 ! CPUE for last 10 days
@@ -678,10 +685,10 @@
           ELSE
             DO ifid=1,Nfish(ng)
               IF (nsardenc.lt.EncMax(ng)) THEN
-                IF (FISHES(ng)%cellid(ifid).eq.ijcell) THEN
-                  IF ((FISHES(ng)%species(ifid).eq.if_sardine).and.     &
-     &                (FISHES(ng)%alive(ifid)).and.                     &
-     &                (FISHES(ng)%lifestage(ifid).ge.if_subadult)) THEN
+                IF ((FISHES(ng)%species(ifid).eq.if_sardine).and.       &
+     &              (FISHES(ng)%alive(ifid)).and.                       &
+     &              (FISHES(ng)%lifestage(ifid).ge.if_subadult)) THEN
+                  IF (FISHES(ng)%cellid(ifid).eq.ijcell) THEN
                     nsard=nsard+1
                     CALL ran1 (snudg)
                     IF (snudg.lt.EncRate(ng)) THEN
@@ -749,9 +756,12 @@
                     overcatch=BOATS(ng)%catch(ib)-CatchMax(ng)
                     IF (overcatch.gt.0.0_r8) THEN
                       BOATS(ng)%catch(ib)=CatchMax(ng)
-                      FISHES(ng)%bioenergy(ifworth,ifid)=               &
-     &                FISHES(ng)%bioenergy(ifworth,ifid)+overcatch*     &
-     &                   1000.0_r8/FISHES(ng)%bioenergy(ifwwt,ifid)
+                      IF (FISHES(ng)%bioenergy(ifwwt,ifid).gt.          &
+     &                                          0.001_r8) THEN
+                        FISHES(ng)%bioenergy(ifworth,ifid)=             &
+     &                  FISHES(ng)%bioenergy(ifworth,ifid)+overcatch*   &
+     &                     1000.0_r8/FISHES(ng)%bioenergy(ifwwt,ifid)
+                      END IF
                       IF (FISHES(ng)%bioenergy(ifworth,ifid).gt.0.01)   &
      &                  FISHES(ng)%alive(ifid)=.TRUE.
                     END IF
