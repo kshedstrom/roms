@@ -74,7 +74,6 @@
           FISHES(ng) % bioenergy(ifage,ifsh) = 0.0_r8
           FISHES(ng) % bioenergy(ifbday,ifsh) = 0.0_r8
           FISHES(ng) % lifestage(ifsh) = 0
-          FISHES(ng) % cellid(ifsh) = 0
           DO j=0,NFT
             FISHES(ng) % track(ixgrd,j,ifsh) = 0.
             FISHES(ng) % track(iygrd,j,ifsh) = 0.

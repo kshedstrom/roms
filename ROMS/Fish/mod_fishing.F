@@ -797,20 +797,18 @@
           iday=INT(time(ng)/86400.0_r8-days_year*nyears)+1
           iday=MIN(MAX(iday,1),366)
           ndclm=30
+          imonth=iday/ndclm+1
           DO i=0,Lm(ng)+1
             DO j=0,Mm(ng)+1
               IF (cpuecount_all(i,j).ge.1) THEN
                 cpue_all(i,j,1)=cpue_all(i,j,1)/REAL(cpuecount_all(i,j))
-                yearcpue_all(i,j,iday)=cpue_all(i,j,1)
                 sumcpue=0.0_r8
                 DO l=1,10
                   sumcpue=sumcpue+cpue_all(i,j,l)
                 END DO
-                avgcpue_all(i,j)=sumcpue/10.0_r8
-                percpue_all(i,j)=avgcpue_all(i,j)
+                percpue_all(i,j)=sumcpue/10.0_r8
               ELSE
                 cpue_all(i,j,1)=0.0_r8
-                imonth=iday/ndclm+1
                 percpue1=climcpue_all(i,j,imonth)
                 DO l=2,10
                   IF (cpue_all(i,j,l).gt.percpue1)                      &
@@ -826,6 +824,12 @@
                 END DO
                 percpue_all(i,j)=sumcpue/10.0_r8
               END IF
+              yearcpue_all(i,j,iday)=cpue_all(i,j,1)
+              sumcpue=0.0_r8
+              DO l=1,10
+                sumcpue=sumcpue+cpue_all(i,j,l)
+              END DO
+              avgcpue_all(i,j)=sumcpue/10.0_r8
             END DO
           END DO
 !
