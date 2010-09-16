@@ -794,8 +794,8 @@
 
 ! Update CPUE based on today's catch
           nyears=REAL(INT(time(ng)/86400.0_r8/days_year),r8)
-          iday=INT(time(ng)/86400.0_r8-days_year*nyears)
-	  IF (iday .eq. 0) iday = 365
+          iday=INT(time(ng)/86400.0_r8-days_year*nyears)+1
+          iday=MIN(MAX(iday,1),366)
           ndclm=30
           DO i=0,Lm(ng)+1
             DO j=0,Mm(ng)+1
