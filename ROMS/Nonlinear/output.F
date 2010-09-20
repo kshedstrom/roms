@@ -501,19 +501,28 @@
           IF (ndefFISH(ng).gt.0) THEN
             IF (idefFISH(ng).lt.0) THEN
               idefFISH(ng)=((ntstart(ng)-1)/ndefFISH(ng))*ndefFISH(ng)
-              IF ((ndefFISH(ng).eq.nFSH(ng)).and.(idefFISH(ng).le.0)) THEN
+              IF ((ndefFISH(ng).eq.nFSH(ng)).and.                       &
+     &                      (idefFISH(ng).le.0)) THEN
                 idefFISH(ng)=ndefFISH(ng)         ! one file per record
               ELSE IF (idefFISH(ng).lt.iic(ng)-1) THEN
                 idefFISH(ng)=idefFISH(ng)+ndefFISH(ng)
               END IF
             END IF
+            IF (ndefFISH(ng).eq.nFSH(ng)) THEN
+              ifile=(iic(ng)-1)/ndefFISH(ng)
+            ELSE
+              ifile=(iic(ng)-1)/ndefFISH(ng)+1
+            END IF
+!
+!  Restart case
+!  First, let's check if we need to read from the old file.
+!
             IF ((nrrec(ng).ne.0).and.(iic(ng).eq.ntstart(ng))) THEN
+              NewFile=.FALSE.
+              Ldefine=.TRUE.                  
               IF ((iic(ng)-1).eq.idefFISH(ng)) THEN
-                Ldefine=.FALSE.                 ! finished file, delay
-              ELSE                              ! creation of next file
-                NewFile=.FALSE.
-                Ldefine=.TRUE.                  ! unfinished file, inquire
-              END IF                            ! content for appending
+                ifile=(iic(ng)-1)/ndefFISH(ng)
+              END IF
               idefFISH(ng)=idefFISH(ng)+nFSH(ng)  ! restart offset
             ELSE IF ((iic(ng)-1).eq.idefFISH(ng)) THEN
               idefFISH(ng)=idefFISH(ng)+ndefFISH(ng)
@@ -527,11 +536,6 @@
             END IF
             IF (Ldefine) THEN
               NrecFISH(ng)=0
-              IF (ndefFISH(ng).eq.nFSH(ng)) THEN
-                ifile=(iic(ng)-1)/ndefFISH(ng)
-              ELSE
-                ifile=(iic(ng)-1)/ndefFISH(ng)+1
-              END IF
               IF (Master) THEN
                 lstr=LEN_TRIM(FISHbase(ng))
                 WRITE (FISHname(ng),60) FISHbase(ng)(1:lstr-3),ifile

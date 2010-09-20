@@ -73,7 +73,7 @@
       CALL netcdf_put_ivar (ng, iNLM, FISHname(ng),                     &
      &                      TRIM(Vname(1,idFlfsg)),                     &
      &                      FISHES(ng) % lifestage,                     &
-     &                      (/1/), (/Nfish(ng)/),                       &
+     &                      (/1,tFISHindx(ng)/), (/Nfish(ng),1/),       &
      &                      ncid = ncFISHid(ng),                        &
      &                      varid = fishVid(idFlfsg,ng))
       IF (exit_flag.ne.NoError) RETURN
