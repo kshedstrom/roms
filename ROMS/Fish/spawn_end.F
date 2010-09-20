@@ -51,7 +51,10 @@
           nf = 0
           DO ifish = FISHES(ng)%age_base(isp)+1,                        &
      &              FISHES(ng)%age_base(isp)+Nfishperyear(ng)
-            worth = FISHES(ng)%bioenergy(ifworth,ifish)
+! use current worth to split individuals
+!            worth = FISHES(ng)%bioenergy(ifworth,ifish)
+! use initial worth to split individuals
+            worth = FISHES(ng)%bioenergy(ifiniwth,ifish)
 !           print *, 'fish x has worth y', ifish, worth
             IF (worth .gt. 0.1_r8) THEN
               ALLOCATE(this_fish)
@@ -135,10 +138,15 @@
 
         integer, intent(in) :: ng, fish1, fish2
 
-        integer :: i, j, xfish, yfish
-        real(r8) :: xnudg, ynudg
+        integer :: i, j, Ir, Jr
+        real(r8) :: xnudg, ynudg, xfish, yfish
 
 !  Copy location and other features of first fish
+
+          print*, 'CLONE', fish1, fish2
+
+          FISHES(ng) % bounded(fish2) = .TRUE.
+
           DO j=0,NFT
             DO i=1,NFV(ng)
               FISHES(ng) % track(i,j,fish2) =                           &
@@ -152,6 +160,12 @@
 
           FISHES(ng) % egg_dur(fish2)  = FISHES(ng) % egg_dur(fish1)
           FISHES(ng) % egg_num(fish2)  = FISHES(ng) % egg_num(fish1)
+          FISHES(ng) % ysac_dur(fish2) = FISHES(ng) % ysac_dur(fish1)
+          FISHES(ng) % ysac_num(fish2) = FISHES(ng) % ysac_num(fish1)
+          FISHES(ng) % larv_dur(fish2) = FISHES(ng) % larv_dur(fish1)
+          FISHES(ng) % larv_num(fish2) = FISHES(ng) % larv_num(fish1)
+          FISHES(ng) % juv_dur(fish2)  = FISHES(ng) % juv_dur(fish1)
+          FISHES(ng) % juv_num(fish2)  = FISHES(ng) % juv_num(fish1)
           FISHES(ng) % lifestage(fish2)= FISHES(ng) % lifestage(fish1)
           FISHES(ng) % swimtype(fish2) = FISHES(ng) % swimtype(fish1)
           FISHES(ng) % species(fish2)  = FISHES(ng) % species(fish1)
@@ -160,12 +174,19 @@
 !  Randomize the location just a little
           CALL ran1 (xnudg)
           CALL ran1 (ynudg)
-          xfish = int(FISHES(ng)%track(ixgrd,0,fish2))
-          yfish = int(FISHES(ng)%track(iygrd,0,fish2))
+          xfish = FISHES(ng)%track(ixgrd,0,fish2)
+          yfish = FISHES(ng)%track(iygrd,0,fish2)
           DO j=0,NFT
             FISHES(ng)%track(ixgrd,j,fish2) = xfish + (xnudg-0.5_r8)
             FISHES(ng)%track(iygrd,j,fish2) = yfish + (ynudg-0.5_r8)
           END DO
+          FISHES(ng)%Tinfo(ixgrd,fish2)=FISHES(ng)%Tinfo(ixgrd,fish1)
+          FISHES(ng)%Tinfo(iygrd,fish2)=FISHES(ng)%Tinfo(iygrd,fish1)
+          FISHES(ng)%Tinfo(izgrd,fish2)=FISHES(ng)%Tinfo(izgrd,fish1)
+          Ir=NINT(FISHES(ng)%track(ixgrd,0,fish2))
+          Jr=NINT(FISHES(ng)%track(iygrd,0,fish2))
+          FISHES(ng)%cellid(fish2)=Ir+(Lm(ng)+2)*Jr
+
         END SUBROUTINE clone_fish
 
 !...........................................................................

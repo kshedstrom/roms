@@ -300,6 +300,7 @@
 ! based on worth at creation
           IF ((FISHES(ng)%num_free(isp).gt.0).and.                      &
      &        (sp_time.gt.FISHES(ng)%sp_end(isp))) THEN
+            print*, 'SPLIT', FISHES(ng)%num_free(isp)
             CALL split_biggest (ng, isp, FISHES(ng)%num_free(isp))
           END IF
         END DO

@@ -660,19 +660,23 @@
 !
         SUBROUTINE catch(ng, ib)
           integer, intent(in) :: ng, ib
-          integer :: ibc, jbc, ifid, isp, ienc, ifish, ijcell
+          integer :: ibc, jbc, ifid, isp, ienc, ind, ifish, ijcell
           integer :: nsard, nsardenc
           integer :: numcaught, nsardcaught
-          integer :: idsard(Nfish(ng))
+          integer :: idsard(EncMax(ng))
           type(fishnode), pointer :: thisfish
           logical :: fishing
-          real(r8) :: snudg, time2fish, overcatch
-          real(r8) :: biosard(Nfish(ng))
+          real(r8) :: snudg, time2fish, overcatch, sbio
+          real(r8) :: biosard(EncMax(ng))
           real(r8) :: totsardenc(Nboats(ng),Lm(ng)+2,Mm(ng)+2)
           real(r8) :: totsardcaught(Nboats(ng),Lm(ng)+2,Mm(ng)+2)
 !
           nsard=0
           nsardenc=0
+          DO ienc=1,EncMax(ng)
+            idsard(ienc)=0
+            biosard(ienc)=0.0_r8
+          END DO
           BOATS(ng)%bfishflag(ib)=0
           BOATS(ng)%tAvail(ib)=BOATS(ng)%tAvail(ib)-                    &
      &                  BOATS(ng)%t2LocOpt(ib)-BOATS(ng)%t2PortOpt(ib)
@@ -693,41 +697,39 @@
                     CALL ran1 (snudg)
                     IF (snudg.lt.EncRate(ng)) THEN
                       nsardenc=nsardenc+1
-                      idsard(nsardenc)=ifid
-                      biosard(nsardenc)=0.001_r8*                       &
-     &                            FISHES(ng)%bioenergy(ifwwt,ifid)*     &
-     &                            FISHES(ng)%bioenergy(ifworth,ifid)
+! Order sardines from largest to smallest biomass
+                      sbio=0.001_r8*FISHES(ng)%bioenergy(ifwwt,ifid)*   &
+     &                             FISHES(ng)%bioenergy(ifworth,ifid)
+                      IF (nsardenc.eq.1) THEN
+                        idsard(nsardenc)=ifid
+                        biosard(nsardenc)=sbio
+                      ELSE
+                        DO ienc=1,nsardenc-1
+                          IF ((sbio.gt.biosard(ienc)).and.              &
+     &                              (sbio.gt.0.0_r8)) THEN
+                            DO ind=nsardenc-1,ienc,-1
+                              idsard(ind+1)=idsard(ind)
+                              biosard(ind+1)=biosard(ind)
+                            END DO
+                            idsard(ienc)=ifid
+                            biosard(ienc)=sbio
+                            sbio=-99.0_r8
+                          END IF
+                          IF (sbio.gt.0.0_r8) THEN
+                            idsard(nsardenc)=ifid
+                            biosard(nsardenc)=sbio
+                          END IF
+                        END DO
+                      END IF
                     END IF
                   END IF
                 END IF
               END IF
             END DO
-!  CODE BELOW REQUIRES KNOWLEDGE OF FISH_LIST OVER ENTIRE GRID
-!            thisfish => OCEAN(ng)%fish_list(ibc,jbc) % next
-!            DO ifish=1,fish_count_all(ibc,jbc)
-!              IF (nsardenc.lt.EncMax(ng)) THEN
-!                ifid = thisfish % fish
-!                IF ((FISHES(ng)%species(ifid).eq.if_sardine).and.       &
-!     &              (FISHES(ng)%alive(ifid)).and.                       &
-!     &              (FISHES(ng)%lifestage(ifid).ge.if_subadult)) THEN
-!                  nsard=nsard+1
-!                  CALL ran1 (snudg)
-!                  IF (snudg.lt.EncRate(ng)) THEN
-!                    nsardenc=nsardenc+1
-!                    idsard(nsardenc)=ifid
-!                    biosard(nsardenc)=FISHES(ng)%bioenergy(ifwwt,ifid)* &
-!     &                      0.001_r8*FISHES(ng)%bioenergy(ifworth,ifid)
-!                  END IF
-!                END IF
-!                thisfish => thisfish % next
-!              END IF
-!            END DO
             totsardenc(ib,ibc,jbc)=nsardenc
             IF (nsardenc.eq.0) THEN
               BOATS(ng)%bfishflag(ib)=1
             ELSE
-! Need to order biosard from low to high, or randomly
-! call indexx_sp in KR code
               numcaught=0
               nsardcaught=0
               fishing=.TRUE.
