@@ -464,6 +464,26 @@
       END DO
 !$OMP END PARALLEL DO
 !
+!  Once a year, we clean out the oldest fish.
+!  Must do this before calling output.
+!
+# ifdef NEMURO_SAN
+!$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(ng,numthreads)
+      DO thread=0,numthreads-1
+        subs=NtileX(ng)*NtileE(ng)/numthreads
+        DO tile=subs*thread,subs*(thread+1)-1,+1
+          IF (iyesterday(ng) .ne. idays(ng)) THEN
+            IF (iyesteryear(ng) .ne. iyears(ng)) THEN
+!  So, problem here if OpenMP
+!               CALL new_year (ng, TILE)
+              CALL new_year (ng)
+              iyesteryear(ng) = iyears(ng)
+            END IF
+          END IF
+        END DO
+      END DO
+!$OMP END PARALLEL DO
+# endif
 !-----------------------------------------------------------------------
 !  If appropriate, write out fields into output NetCDF files.  Notice
 !  that IO data is written in delayed and serial mode.  Exit if last
@@ -718,13 +738,6 @@
               CALL step_fleet (ng, TILE)
 #  endif
               iyesterday(ng) = idays(ng)
-!  Once a year, we clean out the oldest fish
-              IF (iyesteryear(ng) .ne. iyears(ng)) THEN
-!  So, problem here if OpenMP
-!               CALL new_year (ng, TILE)
-                CALL new_year (ng)
-                iyesteryear(ng) = iyears(ng)
-              END IF
             END IF
           END DO
         END DO
