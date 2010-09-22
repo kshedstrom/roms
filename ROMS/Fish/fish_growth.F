@@ -504,7 +504,7 @@
                   alive(ifid)=.FALSE.
                 END IF
                 IF (alive(ifid)) THEN
-! Update fish age and birthday
+! Update fish age
                   bioenergy(ifage,ifid)=bioenergy(ifage,ifid)+          &
      &                                        dtdays/days_year
                 ELSE

@@ -33,17 +33,27 @@
       USE mod_parallel
       USE mod_biology
 # ifdef DISTRIBUTE
-      USE distribute_mod, ONLY : mp_collect
+      USE distribute_mod, ONLY : mp_collect, mp_collecti
 # endif
 !
 !  Imported variable declarations.
 !
       integer, intent(in) :: ng, Lstr, Lend
-      integer :: i, isp, isp2, j, l, Nfound, Navail, Npts, ifsh, ifid
+      integer :: i, isp, isp2, j, l, Nfound, Navail, ifsh, ifid
       integer :: count(Nspecies(ng)), count_sum
       logical, dimension(Lstr:Lend) :: MyThread
 # ifdef DISTRIBUTE
       real(r8) :: Xstr, Xend, Ystr, Yend
+      real(r8), dimension(Nfish(ng)*NFV(ng)*(NFT+1)) :: Fwrk 
+      real(r8), dimension(Nfish(ng)*NFishV(ng)) :: FwrkF
+      real(r8), dimension(Nfish(ng)*Nspecies(ng)) :: FwrkM
+      logical,  dimension(Nfish(ng)) :: FwrkL
+      integer,  dimension(Nfish(ng)) :: FwrkI
+
+      real(r8), parameter :: Fspv = 0.0_r8
+      integer, parameter :: iFspv = 0
+      logical, parameter :: lFspv = .false.
+      integer :: NptsF
 # endif
 !
 # ifdef PROFILE
@@ -51,6 +61,22 @@
 # endif
 
 # ifdef DISTRIBUTE
+!
+!-----------------------------------------------------------------------
+! In distributed-memory configuration, determine which node bounds the
+! current location of the fish. Assign non-bounded fish to the
+! master node.
+!-----------------------------------------------------------------------
+!
+! The strategy here is to build a switch that processes only the fish
+! contained within the node bounds. The trajectory data for the new
+! time-level (nfp1) is initialized to Fspv. These values are used during
+! recombining step at the end of the routine.  Since a SUM reduction is
+! carried-out, setting Fspv to zero means the fish only contribute in
+! their own tile.
+!
+      NptsF=NFishV(ng)*Nfish(ng)
+
       Xstr=REAL(BOUNDS(ng)%Istr(MyRank),r8)-0.5_r8
       Xend=REAL(BOUNDS(ng)%Iend(MyRank),r8)+0.5_r8
       Ystr=REAL(BOUNDS(ng)%Jstr(MyRank),r8)-0.5_r8
@@ -63,7 +89,13 @@
      &        (Ystr.le.FISHES(ng)%track(iygrd,nf(ng),l)).and.           &
      &        (FISHES(ng)%track(iygrd,nf(ng),l).lt.Yend)) THEN
             MyThread(l)=.TRUE.
+          ELSE IF (Master.and.(.not.FISHES(ng)%bounded(l))) THEN
+            MyThread(l)=.TRUE.
           ELSE
+            DO i=1,NFishV(ng)
+              FISHES(ng)%bioenergy(i,l)=Fspv
+            END DO
+            FISHES(ng)%lifestage(l)=iFspv
             MyThread(l)=.FALSE.
           END IF
         END DO
@@ -135,6 +167,18 @@
           END IF
         END IF
       END DO
+# ifdef DISTRIBUTE
+!
+!-----------------------------------------------------------------------
+!  Collect fish on all nodes.
+!-----------------------------------------------------------------------
+!
+      FwrkF=RESHAPE(FISHES(ng)%bioenergy,(/NptsF/))
+      CALL mp_collect (ng, iNLM, NptsF, Fspv, FwrkF)
+      FISHES(ng)%bioenergy=RESHAPE(FwrkF,(/NFishV(ng),Nfish(ng)/))
+      CALL mp_collecti(ng, iNLM, Nfish(ng), iFspv, FISHES(ng)%lifestage)
+# endif
+
 # ifdef PROFILE
       CALL wclock_off (ng, iNLM, 10)
 # endif
