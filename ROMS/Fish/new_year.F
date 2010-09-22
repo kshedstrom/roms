@@ -23,7 +23,7 @@
       CONTAINS
 !
 !***********************************************************************
-      SUBROUTINE new_year(ng)
+      SUBROUTINE new_year(ng, Lstr, Lend)
 !***********************************************************************
 !
       USE mod_param
@@ -38,17 +38,42 @@
 !
 !  Imported variable declarations.
 !
-      integer, intent(in) :: ng
-      integer :: i, isp, isp2, j, l, Nfound, Navail, Npts, ifsh
+      integer, intent(in) :: ng, Lstr, Lend
+      integer :: i, isp, isp2, j, l, Nfound, Navail, Npts, ifsh, ifid
       integer :: count(Nspecies(ng)), count_sum
+      logical, dimension(Lstr:Lend) :: MyThread
 # ifdef DISTRIBUTE
       real(r8) :: Xstr, Xend, Ystr, Yend
-      real(r8), parameter :: Fspv = 0.0_r8
 # endif
 !
 # ifdef PROFILE
       CALL wclock_on (ng, iNLM, 10)
 # endif
+
+# ifdef DISTRIBUTE
+      Xstr=REAL(BOUNDS(ng)%Istr(MyRank),r8)-0.5_r8
+      Xend=REAL(BOUNDS(ng)%Iend(MyRank),r8)+0.5_r8
+      Ystr=REAL(BOUNDS(ng)%Jstr(MyRank),r8)-0.5_r8
+      Yend=REAL(BOUNDS(ng)%Jend(MyRank),r8)+0.5_r8
+      IF (Lfish(ng)) THEN
+        DO l=Lstr,Lend
+          MyThread(l)=.FALSE.
+          IF ((Xstr.le.FISHES(ng)%track(ixgrd,nf(ng),l)).and.           &
+     &        (FISHES(ng)%track(ixgrd,nf(ng),l).lt.Xend).and.           &
+     &        (Ystr.le.FISHES(ng)%track(iygrd,nf(ng),l)).and.           &
+     &        (FISHES(ng)%track(iygrd,nf(ng),l).lt.Yend)) THEN
+            MyThread(l)=.TRUE.
+          ELSE
+            MyThread(l)=.FALSE.
+          END IF
+        END DO
+      END IF
+# else
+      DO l=1,Nfloats(ng)
+        MyThread(l)=.TRUE.
+      END DO
+# endif
+!
 
 !  Update the indices
       DO isp=1,Nspecies(ng)
@@ -95,6 +120,21 @@
         print *, 'Fish ages ', FISHES(ng) % age_base
       END IF
 
+      DO ifid=Lstr,Lend
+        IF (MyThread(ifid).and.FISHES(ng)%bounded(ifid)) THEN
+          FISHES(ng) % bioenergy(ifbday,ifid) =                         &
+     &               FISHES(ng) % bioenergy(ifbday,ifid)+1.0_r8
+! Upgrade subadults to adult upon reaching maturity (Fage0)
+          IF ((FISHES(ng)%lifestage(ifid).eq.if_subadult).and.          &
+     &        (FISHES(ng)%bioenergy(ifbday,ifid).ge.Fage0(isp,ng))) THEN
+            FISHES(ng)%lifestage(ifid)=if_adult
+          END IF
+          IF ((FISHES(ng)%lifestage(ifid).eq.if_juvenile).and.          &
+     &         (FISHES(ng)%bioenergy(ifbday,ifid).ge.1.0_r8)) THEN
+            FISHES(ng)%lifestage(ifid)=if_subadult
+          END IF
+        END IF
+      END DO
 # ifdef PROFILE
       CALL wclock_off (ng, iNLM, 10)
 # endif

@@ -470,17 +470,15 @@
 # ifdef NEMURO_SAN
 !$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(ng,numthreads)
       DO thread=0,numthreads-1
-        subs=NtileX(ng)*NtileE(ng)/numthreads
-        DO tile=subs*thread,subs*(thread+1)-1,+1
-          IF (iyesterday(ng) .ne. idays(ng)) THEN
-            IF (iyesteryear(ng) .ne. iyears(ng)) THEN
-!  So, problem here if OpenMP
-!               CALL new_year (ng, TILE)
-              CALL new_year (ng)
-              iyesteryear(ng) = iyears(ng)
-            END IF
+        IF (iyesterday(ng) .ne. idays(ng)) THEN
+          IF (iyesteryear(ng) .ne. iyears(ng)) THEN
+            chunk_size=(Nfish(ng)+numthreads-1)/numthreads
+            Lstr=1+thread*chunk_size
+            Lend=MIN(Nfish(ng),Lstr+chunk_size-1)
+            CALL new_year (ng, Lstr, Lend)
+            iyesteryear(ng) = iyears(ng)
           END IF
-        END DO
+        END IF
       END DO
 !$OMP END PARALLEL DO
 # endif
