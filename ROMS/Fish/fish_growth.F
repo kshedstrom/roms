@@ -504,21 +504,9 @@
                   alive(ifid)=.FALSE.
                 END IF
                 IF (alive(ifid)) THEN
-! Update fish age and birthday
+! Update fish age
                   bioenergy(ifage,ifid)=bioenergy(ifage,ifid)+          &
      &                                        dtdays/days_year
-                  IF (iyesteryear(ng).ne.iyears(ng)) THEN
-                    bioenergy(ifbday,ifid)=bioenergy(ifbday,ifid)+1.0_r8
-                  END IF
-! Upgrade subadults to adult upon reaching maturity (Fage0)
-                  IF ((lifestage(ifid).eq.if_subadult).and.             &
-     &                (bioenergy(ifbday,ifid).ge.Fage0(isp,ng))) THEN
-                    lifestage(ifid)=if_adult
-                  END IF
-                  IF ((lifestage(ifid).eq.if_juvenile).and.             &
-     &                (bioenergy(ifbday,ifid).ge.1.0_r8)) THEN
-                    lifestage(ifid)=if_subadult
-                  END IF
                 ELSE
                   bounded(ifid) = .FALSE.
                   bioenergy(ifwwt,ifid)=0.0_r8
