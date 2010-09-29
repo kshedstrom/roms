@@ -102,6 +102,20 @@
           Tair(i,j)=23.567_r8
         END DO
       END DO
+#elif defined ICE_OCEAN_1D
+      CALL caldate (r_date, tdays(ng), year, yday, month, iday, hour)
+      DO j=JstrR,JendR
+        DO i=IstrR,IendR
+          Tair(i,j)=-5.0_r8 - 15.0_r8*                                  &
+     &               COS(2.0_r8*pi*(yday-60.0_r8)/365.25_r8)
+        END DO
+      END DO
+#elif defined MEDDY
+      DO j=JstrR,JendR
+        DO i=IstrR,IendR
+          Tair(i,j)=14.0_r8
+        END DO
+      END DO
 #else
       ana_tair.h: No values provided for Tair.
 #endif

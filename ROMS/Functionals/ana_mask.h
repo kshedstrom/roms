@@ -190,16 +190,6 @@
           mask(i,j)=1.0_r8
         END DO
       END DO
-#elif defined WBC_2 || defined WBC_3
-      DO j=Jstr-2,Jend+2
-        DO i=Istr-2,Iend+2
-          mask(i,j)=1.0_r8
-          if (xr(i,j) .lt. 0.0 .or. xr(i,j) .gt. 1000.0e+3_r8)          &
-     &                     mask(i,j)=0.0_r8
-          if (yr(i,j) .lt. 0.0 .or. yr(i,j) .gt. 1000.0e+3_r8)          &
-     &                     mask(i,j)=0.0_r8
-        END DO
-      END DO
 #else
       ana_mask.h: no values provided for mask.
 #endif
