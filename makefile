@@ -60,12 +60,12 @@ $(if $(filter $(MAKE_VERSION),$(NEED_VERSION)),,        \
 #  the .h extension. For example, the upwelling application includes the
 #  "upwelling.h" header file.
 
-ROMS_APPLICATION := WC13
+ROMS_APPLICATION := UPWELLING
 
 #  If application header files is not located in "ROMS/Include",
 #  provide an alternate directory FULL PATH.
 
-MY_HEADER_DIR ?= Apps/wc13
+MY_HEADER_DIR ?= 
 
 #  If your application requires analytical expressions and they are
 #  not located in "ROMS/Functionals", provide an alternate directory.
@@ -101,7 +101,7 @@ MY_CPP_FLAGS ?=
 #  If parallel applications, use at most one of these definitions
 #  (leave both definitions blank in serial applications):
 
-     USE_MPI ?= on
+     USE_MPI ?=
   USE_OpenMP ?=
 
 #  If distributed-memory, turn on compilation via the script "mpif90".
@@ -116,7 +116,7 @@ MY_CPP_FLAGS ?=
 
 #  If applicable, activate 64-bit compilation:
 
-   USE_LARGE ?= on
+   USE_LARGE ?=
 
 #  If applicable, link with NetCDF-4 library. Notice that the NetCDF-4
 #  library needs both the HDF5 and MPI libraries.
@@ -127,7 +127,7 @@ MY_CPP_FLAGS ?=
 #  for input NetCDF files.  This is only possible for NetCDF library
 #  version 4.1.1 or higher.
 
-     USE_DAP ?=
+     USE_DAP ?= on
 
 #--------------------------------------------------------------------------
 #  We are going to include a file with all the settings that depend on
@@ -152,7 +152,7 @@ MY_CPP_FLAGS ?=
 #  NetCDF and so on.
 #--------------------------------------------------------------------------
 
-        FORT ?= xt5-pgi
+        FORT ?= gfortran
 
 #--------------------------------------------------------------------------
 #  Set directory for executable.
