@@ -285,23 +285,43 @@
       depth=10.0_r8
       f0=0.0_r8
       beta=0.0_r8
-#elif defined KELVIN
-      Xsize=20000.0_r8*REAL(Lm(ng),r8)
-      Esize=20000.0_r8*REAL(Mm(ng),r8)
-      depth=100.0_r8
-      f0=1.0E-04_r8
-      beta=0.0_r8
 #elif defined FLT_TEST
       Xsize=1.0E+03_r8*REAL(Lm(ng),r8)
       Esize=1.0E+03_r8*REAL(Mm(ng),r8)
       depth=10.0_r8
       f0=0.0_r8
       beta=0.0_r8
+#elif defined GAK1D
+      Xsize=50.0E+3
+      Esize=50.0E+3
+!      depth=100.0_r8
+      depth=120.118_r8
+!      depth=4220.0_r8
+      f0=1.0E-4
+      beta=0.0_r8
 #elif defined GRAV_ADJ
       Xsize=64.0E+03_r8
       Esize=2.0E+03_r8
       depth=20.0_r8
       f0=0.0_r8
+      beta=0.0_r8
+#elif defined ICE_BASIN
+      Xsize=1000.0E+03_r8
+      Esize=750.0E+03_r8
+      depth=2000.0_r8
+      f0=1.4E-04_r8
+      beta=0.0_r8
+#elif defined ICE_OCEAN_1D
+      Xsize=50.0E+03_r8*REAL(Lm(ng),r8)
+      Esize=50.0E+03_r8*REAL(Mm(ng),r8)
+      depth=100.0_r8
+      f0=1.4227e-04_r8
+      beta=0.0_r8
+#elif defined KELVIN
+      Xsize=20000.0_r8*REAL(Lm(ng),r8)
+      Esize=20000.0_r8*REAL(Mm(ng),r8)
+      depth=100.0_r8
+      f0=1.0E-04_r8
       beta=0.0_r8
 #elif defined LAB_CANYON
       Xsize=0.55_r8                  ! width of annulus
@@ -319,6 +339,12 @@
       Esize=100.0E+03_r8
       depth=50.0_r8
       f0=1.09E-04_r8
+      beta=0.0_r8
+#elif defined MEDDY
+      Xsize=80.0e+3_r8
+      Esize=80.0e+3_r8
+      depth=1000.0_r8
+      f0=1.0e-4_r8
       beta=0.0_r8
 # elif defined MIXED_LAYER
       Xsize=500.0_r8
@@ -389,6 +415,24 @@
       depth=150.0_r8
       f0=-8.26E-05_r8
       beta=0.0_r8
+#elif defined WBC_1
+      Xsize=1000.0e+3_r8
+      Esize=1000.0e+3_r8
+      depth=5000.0_r8
+      f0=0.0001_r8
+      beta=2.0e-11_r8
+#elif defined WBC_2
+      Xsize=1250.0e+3_r8
+      Esize=1250.0e+3_r8
+      depth=5000.0_r8
+      f0=0.0001_r8
+      beta=2.0e-11_r8
+#elif defined WBC_3
+      Xsize=1450.0e+3_r8
+      Esize=1450.0e+3_r8
+      depth=5000.0_r8
+      f0=0.0001_r8
+      beta=2.0e-11_r8
 #elif defined WEDDELL
       Xsize=4000.0_r8*REAL(Lm(ng),r8)
       Esize=4000.0_r8*REAL(Mm(ng),r8)
@@ -463,6 +507,28 @@
           latp(i,j)=latv(i,j)
         END DO
       END DO
+#elif defined GAK1D && defined BIO_GOANPZ
+!     not really spherical, but use latr in day length calculation
+      dx=Xsize/REAL(Lm(ng),r8)
+      dy=Esize/REAL(Mm(ng),r8)
+      DO j=JstrR,JendR
+        DO i=IstrR,IendR
+          lonr(i,j)=149.467_r8
+          latr(i,j)= 59.3_r8
+!          lonr(i,j)=145.0_r8
+!          latr(i,j)= 50.0_r8
+        END DO
+      END DO
+#elif defined ICE_OCEAN_1D
+!     not really spherical, but use latr in day length calculation
+      dx=Xsize/REAL(Lm(ng),r8)
+      dy=Esize/REAL(Mm(ng),r8)
+      DO j=JstrR,JendR
+        DO i=IstrR,IendR
+          lonr(i,j)=30.0_r8
+          latr(i,j)= 78.0_r8
+        END DO
+      END DO
 #elif defined LAB_CANYON
 !
 !  Polar coordinates set-up.
@@ -493,6 +559,36 @@
           yu(i,j)=yr(i,j)
           xv(i,j)=xr(i,j)
           yv(i,j)=yp(i,j)
+        END DO
+      END DO
+#elif defined WBC_2
+      cff = cos(17.0_r8*pi/180._r8)
+      val2 = sin(17.0_r8*pi/180._r8)
+      DO j=JstrR,JendR
+        DO i=IstrR,IendR
+          xp(i,j) = 85.5e+3_r8 + dx*REAL(i-1,r8)*cff                    &
+     &                 - dy*REAL(j-1,r8)*val2
+          xr(i,j) = 85.5e+3_r8 + dx*(REAL(i-1,r8)+0.5_r8)*cff           &
+     &                 - dy*(REAL(j-1,r8)+0.5_r8)*val2
+          yp(i,j) = -279.6e+3_r8 + dy*REAL(j-1,r8)*cff                  &
+     &                 + dx*REAL(i-1,r8)*val2
+          yr(i,j) = -279.6e+3_r8 + dy*(REAL(j-1,r8)+0.5_r8)*cff         &
+     &                 + dx*(REAL(i-1,r8)+0.5_r8)*val2
+        END DO
+      END DO
+#elif defined WBC_3
+      cff = cos(45.0_r8*pi/180._r8)
+      val2 = sin(45.0_r8*pi/180._r8)
+      DO j=JstrR,JendR
+        DO i=IstrR,IendR
+          xp(i,j) = 512.65e+3_r8 + dx*REAL(i-1,r8)*cff                  &
+     &                 - dy*REAL(j-1,r8)*val2
+          xr(i,j) = 512.65e+3_r8 + dx*(REAL(i-1,r8)+0.5_r8)*cff         &
+     &                 - dy*(REAL(j-1,r8)+0.5_r8)*val2
+          yp(i,j) = -512.65e+3_r8 + dy*REAL(j-1,r8)*cff                 &
+     &                 + dx*REAL(i-1,r8)*val2
+          yr(i,j) = -512.65e+3_r8 + dy*(REAL(j-1,r8)+0.5_r8)*cff        &
+     &                 + dx*(REAL(i-1,r8)+0.5_r8)*val2
         END DO
       END DO
 #else
@@ -552,7 +648,7 @@
       val1=REAL(Lm(ng),r8)/(2.0_r8*pi*Eradius)
       val2=REAL(Mm(ng),r8)*360.0_r8/(2.0_r8*pi*Eradius*Esize)
       DO j=J_RANGE
-         cff=1.0_r8/COS((-70.0_r8+dy*(REAL(j,r8)-0.5_r8))*deg2rad)
+        cff=1.0_r8/COS((-70.0_r8+dy*(REAL(j,r8)-0.5_r8))*deg2rad)
         DO i=I_RANGE
           wrkX(i,j)=val1*cff
           wrkY(i,j)=val2
@@ -570,6 +666,14 @@
      &                      COS(twopi*REAL(j-1,r8)/REAL(Mm(ng),r8)))
           wrkX(i,j)=1.0_r8/dx
           wrkY(i,j)=1.0_r8/(r*theta)
+        END DO
+      END DO
+#elif defined WBC_2 || defined WBC_3
+      DO j=Jstr-1,Jend+1
+        DO i=Istr-1,Iend+1
+          wrkX(i,j)=2.0e-5_r8
+          wrkY(i,j)=2.0e-5_r8
+          angler(i,j) = atan2((yr(2,2)-yr(1,2)),(xr(2,2)-xr(1,2)))
         END DO
       END DO
 #else
@@ -687,6 +791,14 @@
           f(i,j)=val1*SIN(latr(i,j)*deg2rad)
         END DO
       END DO
+#elif defined ICE_OCEAN_1D
+      val1=2.0_r8*(2.0_r8*pi*366.25_r8/365.25_r8)/86400.0_r8
+      DO j=JstrR,JendR
+        DO i=IstrR,IendR
+          f(i,j)=val1*SIN(latr(i,j)*deg2rad)
+!          f(i,j)=f0
+        END DO
+      END DO
 #elif defined WEDDELL
       val1=10.4_r8/REAL(Lm(ng),r8)
       DO j=JstrR,JendR
@@ -696,7 +808,11 @@
         END DO
       END DO
 #else
+# if defined WBC_2 || defined WBC_3
+      val1=500.e+3_r8
+# else
       val1=0.5_r8*Esize
+# endif
       DO j=JstrR,JendR
         DO i=IstrR,IendR
           f(i,j)=f0+beta*(yr(i,j)-val1)

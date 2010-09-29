@@ -1476,7 +1476,7 @@
             DO ng=1,Ngrids
               tl_visc2(ng)=ad_visc2(ng)
             END DO
-          ELSE IF (TRIM(KeyWord).eq.'VISC4') THEN
+          ELSE IF (TRIM(KeyWord).eq.'ad_VISC4') THEN
             Npts=load_r(Nval, Rval, Ngrids, ad_visc4)
             DO ng=1,Ngrids
               tl_visc4(ng)=ad_visc4(ng)
@@ -4679,12 +4679,14 @@
           IF (Hout(idW3yy,ng)) WRITE (out,170) Hout(idW3yy,ng),         &
      &       'Hout(idW3yy)',                                            &
      &       'Write out 3D radiation stress, Syy.'
+#  ifdef NEARSHORE_MELLOR05
           IF (Hout(idW3zx,ng)) WRITE (out,170) Hout(idW3zx,ng),         &
      &       'Hout(idW3zx)',                                            &
      &       'Write out 3D radiation stress, Szx.'
           IF (Hout(idW3zy,ng)) WRITE (out,170) Hout(idW3zy,ng),         &
      &       'Hout(idW3zy)',                                            &
      &       'Write out 3D radiation stress, Szy.'
+#  endif
           IF (Hout(idU3rs,ng)) WRITE (out,170) Hout(idU3rs,ng),         &
      &       'Hout(idU3rs)',                                            &
      &       'Write out total 3D u-radiation stress.'

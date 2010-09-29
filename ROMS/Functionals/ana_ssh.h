@@ -89,19 +89,11 @@
 !  Set sea surface height (meters).
 !-----------------------------------------------------------------------
 !
-# ifdef GAK1D
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
-          ssh(i,j)=0.0_r8
-        END DO
-      END DO
-# else
       DO j=JstrR,JendR
         DO i=IstrR,IendR
           ssh(i,j)=???
         END DO
       END DO
-#endif
 #if defined EW_PERIODIC || defined NS_PERIODIC
       CALL exchange_r2d_tile (ng, tile,                                 &
      &                        LBi, UBi, LBj, UBj,                       &

@@ -1,4 +1,4 @@
-      SUBROUTINE ana_tair (ng, tile, model)
+      SUBROUTINE ana_m2clima (ng, tile, model)
 !
 !! svn $Id$
 !!======================================================================
@@ -7,13 +7,12 @@
 !!   See License_ROMS.txt                                              !
 !=======================================================================
 !                                                                      !
-!  This routine sets surface air temperature (degC) using an           !
-!  analytical expression.                                              !
+!  This routine sets analytical 2D momentum climatology fields.        !
 !                                                                      !
 !=======================================================================
 !
       USE mod_param
-      USE mod_forces
+      USE mod_clima
       USE mod_ncparam
 !
 ! Imported variable declarations.
@@ -22,10 +21,11 @@
 
 #include "tile.h"
 !
-      CALL ana_tair_tile (ng, tile, model,                              &
-     &                    LBi, UBi, LBj, UBj,                           &
-     &                    IminS, ImaxS, JminS, JmaxS,                   &
-     &                    FORCES(ng) % Tair)
+      CALL ana_m2clima_tile (ng, tile, model,                           &
+     &                       LBi, UBi, LBj, UBj,                        &
+     &                       IminS, ImaxS, JminS, JmaxS,                &
+     &                       CLIMA(ng) % ubarclm,                       &
+     &                       CLIMA(ng) % vbarclm)
 !
 ! Set analytical header file name used.
 !
@@ -34,23 +34,23 @@
 #else
       IF (Lanafile.and.(tile.eq.0)) THEN
 #endif
-        ANANAME(32)=__FILE__
+        ANANAME(11)=__FILE__
       END IF
 
       RETURN
-      END SUBROUTINE ana_tair
+      END SUBROUTINE ana_m2clima
 !
 !***********************************************************************
-      SUBROUTINE ana_tair_tile (ng, tile, model,                        &
-     &                          LBi, UBi, LBj, UBj,                     &
-     &                          IminS, ImaxS, JminS, JmaxS,             &
-     &                          Tair)
+      SUBROUTINE ana_m2clima_tile (ng, tile, model,                     &
+     &                             LBi, UBi, LBj, UBj,                  &
+     &                             IminS, ImaxS, JminS, JmaxS,          &
+     &                             ubarclm, vbarclm)
 !***********************************************************************
 !
       USE mod_param
 !
 #if defined EW_PERIODIC || defined NS_PERIODIC
-      USE exchange_2d_mod, ONLY : exchange_r2d_tile
+      USE exchange_2d_mod
 #endif
 #ifdef DISTRIBUTE
       USE mp_exchange_mod, ONLY : mp_exchange2d
@@ -63,9 +63,11 @@
       integer, intent(in) :: IminS, ImaxS, JminS, JmaxS
 !
 #ifdef ASSUMED_SHAPE
-      real(r8), intent(out) :: Tair(LBi:,LBj:)
+      real(r8), intent(out) :: ubarclm(LBi:,LBj:)
+      real(r8), intent(out) :: vbarclm(LBi:,LBj:)
 #else
-      real(r8), intent(out) :: Tair(LBi:UBi,LBj:UBj)
+      real(r8), intent(out) :: ubarclm(LBi:UBi,LBj:UBj)
+      real(r8), intent(out) :: vbarclm(LBi:UBi,LBj:UBj)
 #endif
 !
 !  Local variable declarations.
@@ -87,34 +89,45 @@
 #include "set_bounds.h"
 !
 !-----------------------------------------------------------------------
-!  Set analytical surface air temperature (degC).
+!  Set 2D momentum climatology.
 !-----------------------------------------------------------------------
 !
-#if defined BENCHMARK
+#ifdef GAK1D
       DO j=JstrR,JendR
-        DO i=IstrR,IendR
-          Tair(i,j)=4.0_r8
+        DO i=Istr,IendR
+          ubarclm(i,j)=0.0_r8
         END DO
       END DO
-#elif defined BL_TEST
-      DO j=JstrR,JendR
+      DO j=Jstr,JendR
         DO i=IstrR,IendR
-          Tair(i,j)=23.567_r8
+          vbarclm(i,j)=0.0_r8
         END DO
       END DO
 #else
-      ana_tair.h: No values provided for Tair.
+      DO j=JstrR,JendR
+        DO i=Istr,IendR
+          ubarclm(i,j)=???
+        END DO
+      END DO
+      DO j=Jstr,JendR
+        DO i=IstrR,IendR
+          vbarclm(i,j)=???
+        END DO
+      END DO
 #endif
 #if defined EW_PERIODIC || defined NS_PERIODIC
-      CALL exchange_r2d_tile (ng, tile,                                 &
+      CALL exchange_u2d_tile (ng, tile,                                 &
      &                        LBi, UBi, LBj, UBj,                       &
-     &                        Tair)
+     &                        ubarclm)
+      CALL exchange_v2d_tile (ng, tile,                                 &
+     &                        LBi, UBi, LBj, UBj,                       &
+     &                        vbarclm)
 #endif
 #ifdef DISTRIBUTE
-      CALL mp_exchange2d (ng, tile, model, 1,                           &
+      CALL mp_exchange2d (ng, tile, model, 2,                           &
      &                    LBi, UBi, LBj, UBj,                           &
      &                    NghostPoints, EWperiodic, NSperiodic,         &
-     &                    Tair)
+     &                    ubarclm, vbarclm)
 #endif
       RETURN
-      END SUBROUTINE ana_tair_tile
+      END SUBROUTINE ana_m2clima_tile

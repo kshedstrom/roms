@@ -143,6 +143,17 @@
           Vwind(i,j)=v_wind
         END DO
       END DO
+#elif defined ICE_OCEAN_1D
+!      IF ((tdays(ng)-dstart).le.6.0_r8) THEN
+        u_wind=2.0_r8
+        v_wind=2.0_r8
+!      END IF
+      DO j=JstrR,JendR
+        DO i=IstrR,IendR
+          Uwind(i,j)=u_wind
+          Vwind(i,j)=v_wind
+        END DO
+      END DO
 #else
       ana_winds.h: No values provided for Uwind and Vwind.
 #endif

@@ -108,6 +108,10 @@
 # endif
 #endif
       integer :: i, j
+#if defined GAK1D
+      integer :: iday, month, year
+      real(r8) :: cff, hour, yday
+#endif
 
 #include "set_bounds.h"
 !
@@ -117,21 +121,33 @@
 !-----------------------------------------------------------------------
 !
       IF (itrc.eq.itemp) THEN
+#if defined GAK1D
+!       Eyeball fit to COADS Climatological net heat flux near GAK1
+        CALL caldate (r_date, tdays(ng), year, yday, month, iday, hour)
+        cff = -125.0_r8 * COS( (yday-24.5_r8) * 2.4_r8  * pi / 360._r8) &
+     &         / (rho0*Cp)
         DO j=JstrR,JendR
           DO i=IstrR,IendR
-#ifdef BL_TEST
-            stflx(i,j,itrc)=srflx(i,j)
-# ifdef TL_IOMS
-            tl_stflx(i,j,itrc)=srflx(i,j)
-# endif
-#else
-            stflx(i,j,itrc)=0.0_r8
-# ifdef TL_IOMS
-            tl_stflx(i,j,itrc)=0.0_r8
-# endif
-#endif
+            stflx(i,j,itrc)=cff
           END DO
         END DO
+#else
+        DO j=JstrR,JendR
+          DO i=IstrR,IendR
+# ifdef BL_TEST
+            stflx(i,j,itrc)=srflx(i,j)
+#  ifdef TL_IOMS
+            tl_stflx(i,j,itrc)=srflx(i,j)
+#  endif
+# else
+            stflx(i,j,itrc)=0.0_r8
+#  ifdef TL_IOMS
+            tl_stflx(i,j,itrc)=0.0_r8
+#  endif
+# endif
+          END DO
+        END DO
+#endif
 !
 !-----------------------------------------------------------------------
 !  Set kinematic surface freshwater flux (m/s) at horizontal
@@ -139,14 +155,26 @@
 !-----------------------------------------------------------------------
 !
       ELSE IF (itrc.eq.isalt) THEN
+#ifdef GAK1D
+!       Tuned to generate S profile at GAK1 - includes effect of runoff
+        CALL caldate (r_date, tdays(ng), year, yday, month, iday, hour)
+        cff = ( -0.025_r8 + 0.025_r8 * &
+     &    COS( (yday-61._r8) * 2.0_r8 * pi / 360._r8 ) ) / 86400.0_r8
+        DO j=JstrR,JendR
+          DO i=IstrR,IendR
+            stflx(i,j,itrc) = cff
+          END DO
+        END DO
+#else
         DO j=JstrR,JendR
           DO i=IstrR,IendR
             stflx(i,j,itrc)=0.0_r8
-#ifdef TL_IOMS
+# ifdef TL_IOMS
             tl_stflx(i,j,itrc)=0.0_r8
-#endif
+# endif
           END DO
         END DO
+#endif
 !
 !-----------------------------------------------------------------------
 !  Set kinematic surface flux (T m/s) of passive tracers, if any.
