@@ -110,6 +110,7 @@
 # endif
 # ifdef MOVE_SET_DEPTH
       USE set_depth_mod, ONLY : set_depth
+# endif
       USE set_massflux_mod, ONLY : set_massflux
 # if defined SSH_TIDES || defined UV_TIDES || defined POT_TIDES
       USE set_tides_mod, ONLY : set_tides

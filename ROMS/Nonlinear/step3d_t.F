@@ -845,34 +845,17 @@
           END IF
         END IF
 #   endif
-# endif
-# ifdef DIAGNOSTICS_TS
-#  ifdef TS_MPDATA
-              Dhadv(i,j,iTxadv)=-cff1
-              Dhadv(i,j,iTyadv)=-cff2
-              Dhadv(i,j,iThadv)=-cff3
-#  else
-              t(i,j,k,nnew,itrc)=t(i,j,k,nnew,itrc)-cff3
 #  endif
 #  ifdef DIAGNOSTICS_TS
               DiaTwrk(i,j,k,itrc,iTxadv)=-cff1
               DiaTwrk(i,j,k,itrc,iTyadv)=-cff2
               DiaTwrk(i,j,k,itrc,iThadv)=-cff3
 #  endif
-# endif
-#   if defined RUNOFF && defined BARENTS_0_2
+#  if defined RUNOFF && defined BARENTS_0_2
               IF(itrc.eq.isalt) THEN
                 t(i,j,k,nnew,isalt)=MAX(0.001_r8,t(i,j,k,nnew,isalt))
               ENDIF
-#   endif
-            END DO
-          END DO
-# if defined DIAGNOSTICS_TS && defined TS_MPDATA
-          DO j=Jstr,Jend
-            DO i=Istr,Iend
-              DiaTwrk(i,j,k,itrc,iTxadv)=Dhadv(i,j,iTxadv)
-              DiaTwrk(i,j,k,itrc,iTyadv)=Dhadv(i,j,iTyadv)
-              DiaTwrk(i,j,k,itrc,iThadv)=Dhadv(i,j,iThadv)
+#  endif
             END DO
           END DO
         END DO K_LOOP
