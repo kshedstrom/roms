@@ -1,4 +1,4 @@
-      SUBROUTINE ana_tair (ng, tile, model)
+      SUBROUTINE ana_pair (ng, tile, model)
 !
 !! svn $Id$
 !!======================================================================
@@ -7,8 +7,8 @@
 !!   See License_ROMS.txt                                              !
 !=======================================================================
 !                                                                      !
-!  This routine sets surface air temperature (degC) using an           !
-!  analytical expression.                                              !
+!  This routine sets surface air pressure (mb) using an analytical     !
+!  expression.                                                         !
 !                                                                      !
 !=======================================================================
 !
@@ -22,10 +22,10 @@
 
 #include "tile.h"
 !
-      CALL ana_tair_tile (ng, tile, model,                              &
+      CALL ana_pair_tile (ng, tile, model,                              &
      &                    LBi, UBi, LBj, UBj,                           &
      &                    IminS, ImaxS, JminS, JmaxS,                   &
-     &                    FORCES(ng) % Tair)
+     &                    FORCES(ng) % Pair)
 !
 ! Set analytical header file name used.
 !
@@ -34,17 +34,17 @@
 #else
       IF (Lanafile.and.(tile.eq.0)) THEN
 #endif
-        ANANAME(32)=__FILE__
+        ANANAME(17)=__FILE__
       END IF
 
       RETURN
-      END SUBROUTINE ana_tair
+      END SUBROUTINE ana_pair
 !
 !***********************************************************************
-      SUBROUTINE ana_tair_tile (ng, tile, model,                        &
+      SUBROUTINE ana_pair_tile (ng, tile, model,                        &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          IminS, ImaxS, JminS, JmaxS,             &
-     &                          Tair)
+     &                          Pair)
 !***********************************************************************
 !
       USE mod_param
@@ -63,9 +63,9 @@
       integer, intent(in) :: IminS, ImaxS, JminS, JmaxS
 !
 #ifdef ASSUMED_SHAPE
-      real(r8), intent(out) :: Tair(LBi:,LBj:)
+      real(r8), intent(out) :: Pair(LBi:,LBj:)
 #else
-      real(r8), intent(out) :: Tair(LBi:UBi,LBj:UBj)
+      real(r8), intent(out) :: Pair(LBi:UBi,LBj:UBj)
 #endif
 !
 !  Local variable declarations.
@@ -87,34 +87,41 @@
 #include "set_bounds.h"
 !
 !-----------------------------------------------------------------------
-!  Set analytical surface air temperature (degC).
+!  Set analytical surface air pressure (mb).
+!  (1 mb = 100 Pa = 1 hPa,  1 bar = 1.0e+5 N/m2 = 1.0e+5 dynes/cm2).
 !-----------------------------------------------------------------------
 !
 #if defined BENCHMARK
       DO j=JstrR,JendR
         DO i=IstrR,IendR
-          Tair(i,j)=4.0_r8
+          Pair(i,j)=1025.0_r8
         END DO
       END DO
 #elif defined BL_TEST
       DO j=JstrR,JendR
         DO i=IstrR,IendR
-          Tair(i,j)=23.567_r8
+          Pair(i,j)=1013.48_r8
+        END DO
+      END DO
+#elif defined ICE_OCEAN_1D
+      DO j=JstrR,JendR
+        DO i=IstrR,IendR
+          Pair(i,j)=1013.48_r8
         END DO
       END DO
 #else
-      ana_tair.h: No values provided for Tair.
+      ana_pair.h: no values provided for Pair.
 #endif
 #if defined EW_PERIODIC || defined NS_PERIODIC
       CALL exchange_r2d_tile (ng, tile,                                 &
      &                        LBi, UBi, LBj, UBj,                       &
-     &                        Tair)
+     &                        Pair)
 #endif
 #ifdef DISTRIBUTE
       CALL mp_exchange2d (ng, tile, model, 1,                           &
      &                    LBi, UBi, LBj, UBj,                           &
      &                    NghostPoints, EWperiodic, NSperiodic,         &
-     &                    Tair)
+     &                    Pair)
 #endif
       RETURN
-      END SUBROUTINE ana_tair_tile
+      END SUBROUTINE ana_pair_tile

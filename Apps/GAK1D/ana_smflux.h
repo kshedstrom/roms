@@ -137,6 +137,10 @@
 #if defined LAKE_SIGNELL
       real(r8) :: cff1, mxst, ramp_u, ramp_time, ramp_d
 #endif
+#if defined GAK1D
+      integer :: iday, month, year
+      real(r8) :: hour, yday
+#endif
 
 #include "set_bounds.h"
 !
@@ -334,7 +338,20 @@
 #  endif
         END DO
       END DO
-# endif
+#elif defined GAK1D
+      CALL caldate (r_date, tdays(ng), year, yday, month, iday, hour)
+      IF ( yday.lt.100.5_r8 ) THEN
+        windamp=0.05_r8/rho0
+      ELSE
+        windamp = 0.0467_r8*EXP(-1*(yday-100.5_r8)**2/10.0_r8**2)/rho0  &
+     &          + 0.0367_r8*EXP(-1*(271.5_r8-yday)**2/25.0_r8**2)/rho0  &
+     &          + 0.0033/rho0
+      ENDIF
+      DO j=JstrR,JendR
+        DO i=Istr,IendR
+          sustr(i,j)=windamp
+        END DO
+      END DO
 #elif defined WINDBASIN
       IF ((tdays(ng)-dstart).le.2.0_r8) THEN
         windamp=-0.1_r8*SIN(pi*(tdays(ng)-dstart)/4.0_r8)/rho0

@@ -1,4 +1,4 @@
-      SUBROUTINE ana_tair (ng, tile, model)
+      SUBROUTINE ana_ssh (ng, tile, model)
 !
 !! svn $Id$
 !!======================================================================
@@ -7,13 +7,12 @@
 !!   See License_ROMS.txt                                              !
 !=======================================================================
 !                                                                      !
-!  This routine sets surface air temperature (degC) using an           !
-!  analytical expression.                                              !
+!  This routine sets analytical sea surface height climatology.        !
 !                                                                      !
 !=======================================================================
 !
       USE mod_param
-      USE mod_forces
+      USE mod_clima
       USE mod_ncparam
 !
 ! Imported variable declarations.
@@ -22,10 +21,10 @@
 
 #include "tile.h"
 !
-      CALL ana_tair_tile (ng, tile, model,                              &
-     &                    LBi, UBi, LBj, UBj,                           &
-     &                    IminS, ImaxS, JminS, JmaxS,                   &
-     &                    FORCES(ng) % Tair)
+      CALL ana_ssh_tile (ng, tile, model,                               &
+     &                   LBi, UBi, LBj, UBj,                            &
+     &                   IminS, ImaxS, JminS, JmaxS,                    &
+     &                   CLIMA(ng) % ssh)
 !
 ! Set analytical header file name used.
 !
@@ -34,17 +33,17 @@
 #else
       IF (Lanafile.and.(tile.eq.0)) THEN
 #endif
-        ANANAME(32)=__FILE__
+        ANANAME(28)=__FILE__
       END IF
 
       RETURN
-      END SUBROUTINE ana_tair
+      END SUBROUTINE ana_ssh
 !
 !***********************************************************************
-      SUBROUTINE ana_tair_tile (ng, tile, model,                        &
-     &                          LBi, UBi, LBj, UBj,                     &
-     &                          IminS, ImaxS, JminS, JmaxS,             &
-     &                          Tair)
+      SUBROUTINE ana_ssh_tile (ng, tile, model,                         &
+     &                         LBi, UBi, LBj, UBj,                      &
+     &                         IminS, ImaxS, JminS, JmaxS,              &
+     &                         ssh)
 !***********************************************************************
 !
       USE mod_param
@@ -63,9 +62,9 @@
       integer, intent(in) :: IminS, ImaxS, JminS, JmaxS
 !
 #ifdef ASSUMED_SHAPE
-      real(r8), intent(out) :: Tair(LBi:,LBj:)
+      real(r8), intent(out) :: ssh(LBi:,LBj:)
 #else
-      real(r8), intent(out) :: Tair(LBi:UBi,LBj:UBj)
+      real(r8), intent(out) :: ssh(LBi:UBi,LBj:UBj)
 #endif
 !
 !  Local variable declarations.
@@ -87,34 +86,32 @@
 #include "set_bounds.h"
 !
 !-----------------------------------------------------------------------
-!  Set analytical surface air temperature (degC).
+!  Set sea surface height (meters).
 !-----------------------------------------------------------------------
 !
-#if defined BENCHMARK
+# ifdef GAK1D
       DO j=JstrR,JendR
         DO i=IstrR,IendR
-          Tair(i,j)=4.0_r8
+          ssh(i,j)=0.0_r8
         END DO
       END DO
-#elif defined BL_TEST
+# else
       DO j=JstrR,JendR
         DO i=IstrR,IendR
-          Tair(i,j)=23.567_r8
+          ssh(i,j)=???
         END DO
       END DO
-#else
-      ana_tair.h: No values provided for Tair.
 #endif
 #if defined EW_PERIODIC || defined NS_PERIODIC
       CALL exchange_r2d_tile (ng, tile,                                 &
      &                        LBi, UBi, LBj, UBj,                       &
-     &                        Tair)
+     &                        ssh)
 #endif
 #ifdef DISTRIBUTE
       CALL mp_exchange2d (ng, tile, model, 1,                           &
      &                    LBi, UBi, LBj, UBj,                           &
      &                    NghostPoints, EWperiodic, NSperiodic,         &
-     &                    Tair)
+     &                    ssh)
 #endif
       RETURN
-      END SUBROUTINE ana_tair_tile
+      END SUBROUTINE ana_ssh_tile

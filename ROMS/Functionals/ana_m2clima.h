@@ -92,18 +92,6 @@
 !  Set 2D momentum climatology.
 !-----------------------------------------------------------------------
 !
-#ifdef GAK1D
-      DO j=JstrR,JendR
-        DO i=Istr,IendR
-          ubarclm(i,j)=0.0_r8
-        END DO
-      END DO
-      DO j=Jstr,JendR
-        DO i=IstrR,IendR
-          vbarclm(i,j)=0.0_r8
-        END DO
-      END DO
-#else
       DO j=JstrR,JendR
         DO i=Istr,IendR
           ubarclm(i,j)=???
@@ -114,7 +102,6 @@
           vbarclm(i,j)=???
         END DO
       END DO
-#endif
 #if defined EW_PERIODIC || defined NS_PERIODIC
       CALL exchange_u2d_tile (ng, tile,                                 &
      &                        LBi, UBi, LBj, UBj,                       &
