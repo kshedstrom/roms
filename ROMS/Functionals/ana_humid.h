@@ -109,18 +109,6 @@
           Hair(i,j)=0.776_r8
         END DO
       END DO
-#elif defined ICE_OCEAN_1D
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
-          Hair(i,j)=0.8_r8
-        END DO
-      END DO
-#elif defined MEDDY
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
-          Hair(i,j)=0.8_r8
-        END DO
-      END DO
 #else
       ana_humidity.h: no values provided for Hair.
 #endif

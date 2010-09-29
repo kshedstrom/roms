@@ -503,6 +503,26 @@
 !!        END DO
         END DO
       END DO
+# elif defined ICE_BASIN
+      DO k=1,N(ng)
+        DO j=JstrR,JendR
+          DO i=IstrR,IendR
+!           t(i,j,k,1,itemp)=1.5_r8-3.0_r8*EXP(z_r(i,j,k)/50.0_r8)
+!           t(i,j,k,1,isalt)=35.5_r8-2.5_r8*EXP(z_r(i,j,k)/50.0_r8)
+            t(i,j,k,1,itemp)=-1.5_r8
+            t(i,j,k,1,isalt)=33.5_r8
+          END DO
+        END DO
+      END DO
+# elif defined ICE_OCEAN_1D
+      DO k=1,N(ng)
+        DO j=JstrR,JendR
+          DO i=IstrR,IendR
+            t(i,j,k,1,itemp)=1.5_r8-3.0_r8*EXP(z_r(i,j,k)/50.0_r8)
+            t(i,j,k,1,isalt)=35.5_r8-2.5_r8*EXP(z_r(i,j,k)/50.0_r8)
+          END DO
+        END DO
+      END DO
 # elif defined LAB_CANYON
       DO k=1,N(ng)
         DO j=JstrR,JendR
@@ -527,6 +547,30 @@
             t(i,j,k,1,itemp)=MIN(13.0_r8,                               &
      &                           7.0_r8+0.2_r8*(z_r(i,j,k)+50.0_r8))
             t(i,j,k,1,isalt)=35.0_r8
+          END DO
+        END DO
+      END DO
+# elif defined MEDDY
+! Linear background
+      DO k=1,N(ng)
+        DO j=JstrR,JendR
+          DO i=IstrR,IendR
+            val1 = -0.02*z_r(i,j,k)
+            t(i,j,k,1,itemp)=val1
+            t(i,j,k,1,isalt)=0.0
+          END DO
+        END DO
+      END DO
+      DO k=1,N(ng)
+        DO j=JstrR,JendR
+            DO i=IstrR,IendR
+            val1 = sqrt( ((xr(i,j)-40.e+3_r8)/10000.)**2 +              &
+     &                   ((yr(i,j)-40.e+3_r8)/10000.)**2 +              &
+     &                   ((z_r(i,j,k) + 500.)/200.)**2 )
+            IF (val1 .le. 1) THEN
+              t(i,j,k,1,itemp)=10.
+              t(i,j,k,1,isalt)=1.0
+            END IF
           END DO
         END DO
       END DO

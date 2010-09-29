@@ -121,6 +121,10 @@
       real(r8) :: Rsolar, e_sat, vap_p, zenith
 # endif
 #endif
+#if defined GAK1D && !defined ALBEDO
+      integer :: iday, month, year
+      real(r8) :: hour, yday
+#endif
       real(r8) :: cff
 
 #include "set_bounds.h"
@@ -257,6 +261,17 @@
       DO j=JstrR,JendR
         DO i=IstrR,IendR
           srflx(i,j)=cff*150.0_r8
+        END DO
+      END DO
+#  elif defined GAK1D
+!  Eyeball fit to COADS climatological shortwave radiation near GAK1
+      CALL caldate (r_date, tdays(ng), year, yday, month, iday, hour)
+      cff = ( 41.0_r8 - 38.0_r8                                         &
+     &        * COS( (yday-9.0_r8) * 2.21_r8 * pi / 360.0_r8 ) )        &
+     &        / (rho0*Cp*0.394848_r8)
+      DO j=JstrR,JendR
+        DO i=IstrR,IendR
+          srflx(i,j)=cff
         END DO
       END DO
 # else
