@@ -3510,6 +3510,7 @@
         WRITE (stdout,180)
  180    FORMAT (/,' CHECKDEFS - ICESHELF does not currently work',      &
      &            ' for any PGF scheme other than DJ_GRADPS')
+#endif
 #ifdef NEARSHORE
 !
 !  Stop if more that one radiation stress formulation is activated.

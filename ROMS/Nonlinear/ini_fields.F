@@ -443,66 +443,7 @@
      &                    u(:,:,:,nstp), v(:,:,:,nstp),                 &
      &                    u(:,:,:,nnew), v(:,:,:,nnew))
 #  endif
-!
-!-----------------------------------------------------------------------
-!  Initialize other tracers time-levels.
-!-----------------------------------------------------------------------
-!
-      IF (.not.PerfectRST(ng)) THEN
-        DO itrc=1,NT(ng)
-          DO k=1,N(ng)
-            DO j=Jstr,Jend
-              DO i=Istr,Iend
-                cff1=t(i,j,k,nstp,itrc)
-#  ifdef MASKING
-                cff1=cff1*rmask(i,j)
-#  endif
-                t(i,j,k,nstp,itrc)=cff1
-                t(i,j,k,nnew,itrc)=cff1
-              END DO
-            END DO
-          END DO
-!
-!  Apply boundary conditions.
-!
-        IF (itrc.le.NAT) THEN
-          CALL t3dbc_tile (ng, tile, itrc,                              &
-     &                     LBi, UBi, LBj, UBj, N(ng), NT(ng),           &
-     &                     IminS, ImaxS, JminS, JmaxS,                  &
-     &                     nstp, nstp,                                  &
-#  ifdef SOGLOBEC
-                           CLIMA(ng) % tclm,                            &
-#  endif
-     &                     t)
-          CALL t3dbc_tile (ng, tile, itrc,                              &
-     &                     LBi, UBi, LBj, UBj, N(ng), NT(ng),           &
-     &                     IminS, ImaxS, JminS, JmaxS,                  &
-     &                     nstp, nnew,                                  &
-#  ifdef SOGLOBEC
-     &                     CLIMA(ng) % tclm,                            &
-#  endif
-     &                     t)
-!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-#  ifdef T_PASSIVE
-         ELSE
-!         else condition added by Weifeng Zhang for passive tracer
-!         boundary condition
-          CALL pt3dbc_tile (ng, tile, itrc,                             &
-     &                      LBi, UBi, LBj, UBj, N(ng), NT(ng),          &
-     &                      IminS, ImaxS, JminS, JmaxS,                 &
-     &                      nstp, nstp,                                 &
-     &                      t)
-          CALL pt3dbc_tile (ng, tile, itrc,                             &
-     &                      LBi, UBi, LBj, UBj, N(ng), NT(ng),          &
-     &                      IminS, ImaxS, JminS, JmaxS,                 &
-     &                      nstp, nnew,                                 &
-     &                      t)
-#  endif
-!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-         END IF
-       END DO
-      END IF
-
+# endif
 # ifdef SOLVE3D
 !
 !-----------------------------------------------------------------------
@@ -734,18 +675,44 @@
 !
 !  Apply boundary conditions.
 !
+        IF (itrc.le.NAT) THEN
           CALL t3dbc_tile (ng, tile, itrc,                              &
      &                     LBi, UBi, LBj, UBj, N(ng), NT(ng),           &
      &                     IminS, ImaxS, JminS, JmaxS,                  &
      &                     nstp, nstp,                                  &
+#  ifdef SOGLOBEC
+                           CLIMA(ng) % tclm,                            &
+#  endif
      &                     t)
           CALL t3dbc_tile (ng, tile, itrc,                              &
      &                     LBi, UBi, LBj, UBj, N(ng), NT(ng),           &
      &                     IminS, ImaxS, JminS, JmaxS,                  &
      &                     nstp, nnew,                                  &
+#  ifdef SOGLOBEC
+     &                     CLIMA(ng) % tclm,                            &
+#  endif
      &                     t)
-        END DO
+!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#  ifdef T_PASSIVE
+         ELSE
+!         else condition added by Weifeng Zhang for passive tracer
+!         boundary condition
+          CALL pt3dbc_tile (ng, tile, itrc,                             &
+     &                      LBi, UBi, LBj, UBj, N(ng), NT(ng),          &
+     &                      IminS, ImaxS, JminS, JmaxS,                 &
+     &                      nstp, nstp,                                 &
+     &                      t)
+          CALL pt3dbc_tile (ng, tile, itrc,                             &
+     &                      LBi, UBi, LBj, UBj, N(ng), NT(ng),          &
+     &                      IminS, ImaxS, JminS, JmaxS,                 &
+     &                      nstp, nnew,                                 &
+     &                      t)
+#  endif
+!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+         END IF
+       END DO
       END IF
+
 #  if defined EW_PERIODIC || defined NS_PERIODIC
 !
       DO itrc=1,NT(ng)
