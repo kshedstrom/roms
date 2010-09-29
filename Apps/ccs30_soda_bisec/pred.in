@@ -43,7 +43,7 @@
 ! Flag indicating re-start from previous solution. If PREDRREC = 0, a new
 ! NetCDF output file is created.
 
-       PREDRREC == 0
+       PREDRREC == -1
 
 ! Number of predator species.
 
