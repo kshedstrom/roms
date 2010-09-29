@@ -110,7 +110,6 @@
 # endif
 # ifdef MOVE_SET_DEPTH
       USE set_depth_mod, ONLY : set_depth
-# endif
       USE set_massflux_mod, ONLY : set_massflux
 # if defined SSH_TIDES || defined UV_TIDES || defined POT_TIDES
       USE set_tides_mod, ONLY : set_tides
@@ -214,13 +213,15 @@
 !
       IF (iic(ng).eq.ntstart(ng)) THEN
 !
-!  Initialize free-surface.
+!  Initialize free-surface and compute initial level thicknesses and
+!  depths.
 !
 !$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(ng,numthreads)
         DO thread=0,numthreads-1
           subs=NtileX(ng)*NtileE(ng)/numthreads
           DO tile=subs*thread,subs*(thread+1)-1,+1
             CALL ini_zeta (ng, TILE, iNLM)
+            CALL set_depth (ng, TILE)
           END DO
         END DO
 !$OMP END PARALLEL DO

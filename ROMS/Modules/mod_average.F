@@ -94,8 +94,10 @@
 !  avgSxx3d   3D radiation stress, xx-component.                       !
 !  avgSxy3d   3D radiation stress, xy-component.                       !
 !  avgSyy3d   3D radiation stress, yy-component.                       !
+#   ifdef NEARSHORE_MELLOR05
 !  avgSzx3d   3D radiation stress, zx-component.                       !
 !  avgSzy3d   3D radiation stress, zy-component.                       !
+#   endif
 #  endif
 # endif
 !                                                                      !
@@ -266,8 +268,10 @@
           real(r8), pointer :: avgSxx3d(:,:,:)
           real(r8), pointer :: avgSxy3d(:,:,:)
           real(r8), pointer :: avgSyy3d(:,:,:)
+#   ifdef NEARSHORE_MELLOR05
           real(r8), pointer :: avgSzx3d(:,:,:)
           real(r8), pointer :: avgSzy3d(:,:,:)
+#   endif
 #  endif
 # endif
 !
@@ -596,12 +600,14 @@
       IF (Aout(idW3yy,ng)) THEN
         allocate ( AVERAGE(ng) % avgSyy3d(LBi:UBi,LBj:UBj,N(ng)) )
       END IF
+#   ifdef NEARSHORE_MELLOR05
       IF (Aout(idW3zx,ng)) THEN
         allocate ( AVERAGE(ng) % avgSzx3d(LBi:UBi,LBj:UBj,N(ng)) )
       END IF
       IF (Aout(idW3zy,ng)) THEN
         allocate ( AVERAGE(ng) % avgSzy3d(LBi:UBi,LBj:UBj,N(ng)) )
       END IF
+#   endif
 #  endif
 #  ifdef ICE_MODEL
       IF (Aout(idUice,ng)) THEN
@@ -1240,6 +1246,7 @@
           END DO
         END DO
       END IF
+#   ifdef NEARSHORE_MELLOR05
       IF (Aout(idW3zx,ng)) THEN
         DO k=1,N(ng)
           DO j=Jmin,Jmax
@@ -1258,6 +1265,7 @@
           END DO
         END DO
       END IF
+#   endif
 #  endif
 # endif
 !

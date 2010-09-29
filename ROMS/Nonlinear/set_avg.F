@@ -902,6 +902,7 @@
             END DO
           END DO
         END IF
+#   ifdef NEARSHORE_MELLOR05
         IF (Aout(idW3zx,ng)) THEN
           DO k=1,N(ng)
             DO j=JstrR,JendR
@@ -920,6 +921,7 @@
             END DO
           END DO
         END IF
+#   endif
 #  endif
 # endif
 !
@@ -1899,6 +1901,7 @@
             END DO
           END DO
         END IF
+#   ifdef NEARSHORE_MELLOR05
         IF (Aout(idW3zx,ng)) THEN
           DO k=1,N(ng)
             DO j=JstrR,JendR
@@ -1919,6 +1922,7 @@
             END DO
           END DO
         END IF
+#   endif
 #  endif
 # endif
 !
@@ -2814,6 +2818,7 @@
             END DO
           END DO
         END IF
+#   ifdef NEARSHORE_MELLOR05
         IF (Aout(idW3zx,ng)) THEN
           DO k=1,N(ng)
             DO j=JstrR,JendR
@@ -2834,6 +2839,7 @@
             END DO
           END DO
         END IF
+#   endif
 #  endif
 # endif
 !
