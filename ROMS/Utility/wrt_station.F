@@ -1133,6 +1133,8 @@
      &                        varid = staVid(idW3yy,ng))
         IF (exit_flag.ne.NoError) RETURN
       END IF
+
+#   ifdef NEARSHORE_MELLOR05
 !
 !  Write out 3D radiation stress, Szx-vertical component.
 !
@@ -1167,6 +1169,7 @@
      &                        varid = staVid(idW3zy,ng))
         IF (exit_flag.ne.NoError) RETURN
       END IF
+#   endif
 !
 !  Write out 3D total U-radiation stress.
 !
