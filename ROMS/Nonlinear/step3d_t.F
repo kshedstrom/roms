@@ -1495,10 +1495,10 @@
 !
 !  Set lateral boundary conditions.
 !
-!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-       IF (itrc.le.NAT) THEN
-!    added by Weifeng Zhang for passive tracer boundary condition
-!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+!!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+!       IF (itrc.le.NAT) THEN
+!!    added by Weifeng Zhang for passive tracer boundary condition
+!!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         CALL t3dbc_tile (ng, tile, itrc,                                &
      &                   LBi, UBi, LBj, UBj, N(ng), NT(ng),             &
      &                   IminS, ImaxS, JminS, JmaxS,                    &
@@ -1507,6 +1507,19 @@
      &                   tclm,                                          &
 # endif
      &                   t)
+!!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+!# ifdef T_PASSIVE
+!       ELSE
+!!       else condition added by Weifeng Zhang for passive tracer
+!!       boundary condition
+!        CALL pt3dbc_tile (ng, tile, itrc,                               &
+!     &                    LBi, UBi, LBj, UBj, N(ng), NT(ng),            &
+!     &                    IminS, ImaxS, JminS, JmaxS,                   &
+!     &                    nstp, nnew,                                   &
+!     &                    t)
+!# endif
+!       END IF
+!!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 # if defined TCLM_NUDGING && defined TCLIMATOLOGY
 !
@@ -1588,19 +1601,6 @@
           END DO
         END IF
 # endif
-!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# ifdef T_PASSIVE
-       ELSE
-!       else condition added by Weifeng Zhang for passive tracer
-!       boundary condition
-        CALL pt3dbc_tile (ng, tile, itrc,                               &
-     &                    LBi, UBi, LBj, UBj, N(ng), NT(ng),            &
-     &                    IminS, ImaxS, JminS, JmaxS,                   &
-     &                    nstp, nnew,                                   &
-     &                    t)
-# endif
-       END IF
-!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # ifdef MASKING
 !
 !  Apply Land/Sea mask.
