@@ -813,13 +813,13 @@
               cff1=cff*(FX(i+1,j)-FX(i,j))
               cff2=cff*(FE(i,j+1)-FE(i,j))
               cff3=cff1+cff2
-#  ifdef TS_MPDATA
+# ifdef TS_MPDATA
               cff4=Hz(i,j,k)+                                           &
      &             cff*(Huon(i+1,j,k)-Huon(i,j,k)+                      &
      &                  Hvom(i,j+1,k)-Hvom(i,j,k)+                      &
      &                  (W(i,j,k)-W(i,j,k-1)))                 ! Hz_old
               Ta(i,j,k,itrc)=t(i,j,k,3,itrc)*cff4-cff3
-#  else
+# else
               t(i,j,k,nnew,itrc)=t(i,j,k,nnew,itrc)-cff3
 #   if defined BERING_10K && defined BEST_NPZ
 !Constraining nutrients in inlets that are only 1 grid cell wide
@@ -851,11 +851,11 @@
               DiaTwrk(i,j,k,itrc,iTyadv)=-cff2
               DiaTwrk(i,j,k,itrc,iThadv)=-cff3
 #  endif
-#   if defined RUNOFF && defined BARENTS_0_2
+#  if defined RUNOFF && defined BARENTS_0_2
               IF(itrc.eq.isalt) THEN
                 t(i,j,k,nnew,isalt)=MAX(0.001_r8,t(i,j,k,nnew,isalt))
               ENDIF
-#   endif
+#  endif
             END DO
           END DO
         END DO K_LOOP
@@ -1495,10 +1495,10 @@
 !
 !  Set lateral boundary conditions.
 !
-!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-       IF (itrc.le.NAT) THEN
-!    added by Weifeng Zhang for passive tracer boundary condition
-!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+!!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+!       IF (itrc.le.NAT) THEN
+!!    added by Weifeng Zhang for passive tracer boundary condition
+!!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         CALL t3dbc_tile (ng, tile, itrc,                                &
      &                   LBi, UBi, LBj, UBj, N(ng), NT(ng),             &
      &                   IminS, ImaxS, JminS, JmaxS,                    &
@@ -1507,6 +1507,19 @@
      &                   tclm,                                          &
 # endif
      &                   t)
+!!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+!# ifdef T_PASSIVE
+!       ELSE
+!!       else condition added by Weifeng Zhang for passive tracer
+!!       boundary condition
+!        CALL pt3dbc_tile (ng, tile, itrc,                               &
+!     &                    LBi, UBi, LBj, UBj, N(ng), NT(ng),            &
+!     &                    IminS, ImaxS, JminS, JmaxS,                   &
+!     &                    nstp, nnew,                                   &
+!     &                    t)
+!# endif
+!       END IF
+!!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 # if defined TCLM_NUDGING && defined TCLIMATOLOGY
 !
@@ -1588,19 +1601,6 @@
           END DO
         END IF
 # endif
-!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# ifdef T_PASSIVE
-       ELSE
-!       else condition added by Weifeng Zhang for passive tracer
-!       boundary condition
-        CALL pt3dbc_tile (ng, tile, itrc,                               &
-     &                    LBi, UBi, LBj, UBj, N(ng), NT(ng),            &
-     &                    IminS, ImaxS, JminS, JmaxS,                   &
-     &                    nstp, nnew,                                   &
-     &                    t)
-# endif
-       END IF
-!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # ifdef MASKING
 !
 !  Apply Land/Sea mask.

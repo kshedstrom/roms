@@ -2731,7 +2731,9 @@
 !     A          Field to read in (real).                              !
 !     mp_ncread  Error flag (integer).                                 !
 !                                                                      !
-!  Note: We cannot use mod_netcdf here because of cyclic dependency.   !
+!  Note: We cannot include "USE mod_netcdf" here because of cyclic     !
+!        dependency. Instead we need original NetCDF library module    !
+!        "USE netcdf".                                                 !
 !                                                                      !
 !***********************************************************************
 !
@@ -2965,7 +2967,9 @@
 !                                                                      !
 !     mp_ncwrite Error flag (integer).                                 !
 !                                                                      !
-!  Note: We cannot use mod_netcdf here because of cyclic dependency.   !
+!  Note: We cannot include "USE mod_netcdf" here because of cyclic     !
+!        dependency. Instead we need original NetCDF library module    !
+!        "USE netcdf".                                                 !
 !                                                                      !
 !***********************************************************************
 !

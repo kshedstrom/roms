@@ -602,16 +602,16 @@
 !
 !  Hardcode the names of the filter restart files.
 !
-        filname(1,ng)=TRIM(ADJUSTL('ocean_fil2d.nc'))
-        filname(2,ng)=TRIM(ADJUSTL('ocean_filu.nc'))
-        filname(3,ng)=TRIM(ADJUSTL('ocean_filv.nc'))
-        filname(4,ng)=TRIM(ADJUSTL('ocean_filakt.nc'))
-        filname(5,ng)=TRIM(ADJUSTL('ocean_filaks.nc'))
-        filname(6,ng)=TRIM(ADJUSTL('ocean_filakv.nc'))
-        filname(7,ng)=TRIM(ADJUSTL('ocean_filr.nc'))
-        filname(8,ng)=TRIM(ADJUSTL('ocean_filt.nc'))
-        filname(9,ng)=TRIM(ADJUSTL('ocean_filw.nc'))
-        filname(10,ng)=TRIM(ADJUSTL('ocean_filice.nc'))
+        FILname(1,ng)=TRIM(ADJUSTL('ocean_fil2d.nc'))
+        FILname(2,ng)=TRIM(ADJUSTL('ocean_filu.nc'))
+        FILname(3,ng)=TRIM(ADJUSTL('ocean_filv.nc'))
+        FILname(4,ng)=TRIM(ADJUSTL('ocean_filakt.nc'))
+        FILname(5,ng)=TRIM(ADJUSTL('ocean_filaks.nc'))
+        FILname(6,ng)=TRIM(ADJUSTL('ocean_filakv.nc'))
+        FILname(7,ng)=TRIM(ADJUSTL('ocean_filr.nc'))
+        FILname(8,ng)=TRIM(ADJUSTL('ocean_filt.nc'))
+        FILname(9,ng)=TRIM(ADJUSTL('ocean_filw.nc'))
+        FILname(10,ng)=TRIM(ADJUSTL('ocean_filice.nc'))
 # endif
 #endif
 !
@@ -1476,7 +1476,7 @@
             DO ng=1,Ngrids
               tl_visc2(ng)=ad_visc2(ng)
             END DO
-          ELSE IF (TRIM(KeyWord).eq.'VISC4') THEN
+          ELSE IF (TRIM(KeyWord).eq.'ad_VISC4') THEN
             Npts=load_r(Nval, Rval, Ngrids, ad_visc4)
             DO ng=1,Ngrids
               tl_visc4(ng)=ad_visc4(ng)
@@ -4679,12 +4679,14 @@
           IF (Hout(idW3yy,ng)) WRITE (out,170) Hout(idW3yy,ng),         &
      &       'Hout(idW3yy)',                                            &
      &       'Write out 3D radiation stress, Syy.'
+#  ifdef NEARSHORE_MELLOR05
           IF (Hout(idW3zx,ng)) WRITE (out,170) Hout(idW3zx,ng),         &
      &       'Hout(idW3zx)',                                            &
      &       'Write out 3D radiation stress, Szx.'
           IF (Hout(idW3zy,ng)) WRITE (out,170) Hout(idW3zy,ng),         &
      &       'Hout(idW3zy)',                                            &
      &       'Write out 3D radiation stress, Szy.'
+#  endif
           IF (Hout(idU3rs,ng)) WRITE (out,170) Hout(idU3rs,ng),         &
      &       'Hout(idU3rs)',                                            &
      &       'Write out total 3D u-radiation stress.'

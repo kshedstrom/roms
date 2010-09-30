@@ -2978,6 +2978,8 @@
           RETURN
         END IF
       END IF
+
+# ifdef NEARSHORE_MELLOR05
 !
 !  Write out 3D radiation stress, Szx-vertical component.
 !
@@ -2987,13 +2989,13 @@
         status=nf_fwrite3d(ng, iNLM, ncHISid(ng), hisVid(idW3zx,ng),    &
      &                     tHISindx(ng), gtype,                         &
      &                     LBi, UBi, LBj, UBj, 1, N(ng), scale,         &
-# ifdef MASKING
-#  ifdef WET_DRY
+#  ifdef MASKING
+#   ifdef WET_DRY
      &                     GRID(ng) % rmask_full,                       &
-#  else
+#   else
      &                     GRID(ng) % rmask,                            &
+#   endif
 #  endif
-# endif
      &                     MIXING(ng) % Szx)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
@@ -3013,13 +3015,13 @@
         status=nf_fwrite3d(ng, iNLM, ncHISid(ng), hisVid(idW3zy,ng),    &
      &                     tHISindx(ng), gtype,                         &
      &                     LBi, UBi, LBj, UBj, 1, N(ng), scale,         &
-# ifdef MASKING
-#  ifdef WET_DRY
+#  ifdef MASKING
+#   ifdef WET_DRY
      &                     GRID(ng) % rmask_full,                       &
-#  else
+#   else
      &                     GRID(ng) % rmask,                            &
+#   endif
 #  endif
-# endif
      &                     MIXING(ng) % Szy)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
@@ -3030,6 +3032,7 @@
           RETURN
         END IF
       END IF
+# endif
 !
 !  Write out 3D total U-radiation stress.
 !

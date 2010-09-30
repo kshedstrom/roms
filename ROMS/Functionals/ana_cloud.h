@@ -119,8 +119,6 @@
       Cval=0.6_r8
 #elif defined NJ_BIGHT
       Cval=0.3_r8
-# elif defined ICE_OCEAN_1D
-      Cval=0.7_r8
 #else
       Cval=0.0_r8
 #endif
