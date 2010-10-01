@@ -43,7 +43,7 @@
 ! Flag indicating re-start from previous solution. If FISHRREC = 0, a new
 ! NetCDF output file is created.
 
-       FISHRREC == -1
+       FISHRREC == 0
 
 ! Number of fish species.
 

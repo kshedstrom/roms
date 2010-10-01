@@ -118,22 +118,6 @@
         DO ip=1,Nports(ng)
           BOATS(ng)%PortCatch(ip)=0.0_r8
         END DO
-        IF (iyesteryear(ng).ne.iyears(ng)) THEN
-          BOATS(ng)%AnnCatch=0.0_r8
-          BOATS(ng)%TotFishBio=0.0_r8
-          DO ib=1,Nboats(ng)
-            BOATS(ng)%cumcatch(ib)=0.0_r8
-          END DO
-          DO ifid=1,Nfish(ng)
-            IF ((FISHES(ng)%species(ifid).eq.if_sardine).and.           &
-     &          (FISHES(ng)%alive(ifid)).and.                           &
-     &          (FISHES(ng)%lifestage(ifid).ge.if_subadult)) THEN
-              BOATS(ng)%TotFishBio=BOATS(ng)%TotFishBio+                &
-     &                    0.001_r8*FISHES(ng)%bioenergy(ifwwt,ifid)*    &
-     &                            FISHES(ng)%bioenergy(ifworth,ifid)
-            END IF
-          END DO
-        END IF
         DO ib=1,Nboats(ng)
           BOATS(ng)%cumcatch(ib)=BOATS(ng)%cumcatch(ib)+                &
      &                               BOATS(ng)%catch(ib)
@@ -160,7 +144,7 @@
 !        print*, 'SUMCATCH', BOATS(ng)%TotCatch, BOATS(ng)%TotLoc
 !
 !----  Update CPUE to reflect today's catch  ----
-! (includes yearly update of climatological CPUE)
+! (yearly update of climatological CPUE done in new_year_fleet)
         CALL updatecpue(ng)
 !
       END IF

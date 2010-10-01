@@ -143,7 +143,15 @@
 
 !  Copy location and other features of first fish
 
-          print*, 'CLONE', fish1, fish2
+          print*, 'CLONE', fish1, fish2,                                &
+     &                     FISHES(ng)%bioenergy(ifiniwth,fish1)
+
+          FISHES(ng)%bioenergy(ifworth,fish1)=0.5_r8*                   &
+     &                           FISHES(ng)%bioenergy(ifworth,fish1)
+          FISHES(ng)%egg_num(fish1)=0.5_r8*FISHES(ng)%egg_num(fish1)
+          FISHES(ng)%ysac_num(fish1)=0.5_r8*FISHES(ng)%ysac_num(fish1)
+          FISHES(ng)%larv_num(fish1)=0.5_r8*FISHES(ng)%larv_num(fish1)
+          FISHES(ng)%juv_num(fish1)=0.5_r8*FISHES(ng)%juv_num(fish1)
 
           FISHES(ng) % bounded(fish2) = .TRUE.
 
@@ -157,7 +165,6 @@
             FISHES(ng) % bioenergy(i,fish2) =                           &
      &              FISHES(ng) % bioenergy(i,fish1)
           END DO
-
           FISHES(ng) % egg_dur(fish2)  = FISHES(ng) % egg_dur(fish1)
           FISHES(ng) % egg_num(fish2)  = FISHES(ng) % egg_num(fish1)
           FISHES(ng) % ysac_dur(fish2) = FISHES(ng) % ysac_dur(fish1)

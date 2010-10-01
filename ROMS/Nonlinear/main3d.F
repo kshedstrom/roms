@@ -133,6 +133,7 @@
       USE fish_by_cell_mod, ONLY : fish_by_cell
       USE fish_spawn_mod, ONLY : fish_spawn
       USE new_year_mod, ONLY : new_year
+      USE new_year_fleet_mod, ONLY : new_year_fleet
 #  ifdef PREDATOR
       USE step_pred_mod, ONLY : step_pred
       USE pred_by_cell_mod, ONLY : pred_by_cell
@@ -476,6 +477,9 @@
             Lstr=1+thread*chunk_size
             Lend=MIN(Nfish(ng),Lstr+chunk_size-1)
             CALL new_year (ng, Lstr, Lend)
+#  ifdef FLEET
+            CALL new_year_fleet (ng, TILE)
+#  endif
             iyesteryear(ng) = iyears(ng)
           END IF
         END IF

@@ -834,29 +834,35 @@
               avgcpue_all(i,j)=sumcpue/10.0_r8
             END DO
           END DO
-!
-! Yearly update of climatological CPUE
-          IF (iyesteryear(ng).ne.iyears(ng)) THEN
-            DO i=0,Lm(ng)+1
-              DO j=0,Mm(ng)+1
-                sumcpue=0.0_r8
-                nav=0
-                DO l=1,INT(days_year)
-                  sumcpue=sumcpue+yearcpue_all(i,j,l)
-! CPUE climatology based on averaging period of ndclm
-                  IF (MOD(l,ndclm).eq.0) THEN
-                    nav=nav+1
-                    climcpue_all(i,j,nav)=sumcpue/REAL(ndclm,r8)
-                    sumcpue=0.0_r8
-                  END IF
-                END DO
-                DO l=1,INT(days_year)
-                  yearcpue_all(i,j,l)=0.0_r8
-                END DO
-              END DO
-            END DO
-          END IF
 !        print*, 'END updcpue'
         END SUBROUTINE updatecpue
+!
+        SUBROUTINE updatecpue_clim(ng)
+          integer, intent(in) :: ng
+          integer :: i, j, l, ndclm, nav
+          real(r8) :: sumcpue
+!
+! Yearly update of climatological CPUE
+          ndclm=30
+          DO i=0,Lm(ng)+1
+            DO j=0,Mm(ng)+1
+              sumcpue=0.0_r8
+              nav=0
+              DO l=1,INT(days_year)
+                sumcpue=sumcpue+yearcpue_all(i,j,l)
+! CPUE climatology based on averaging period of ndclm
+                IF (MOD(l,ndclm).eq.0) THEN
+                  nav=nav+1
+                  climcpue_all(i,j,nav)=sumcpue/REAL(ndclm,r8)
+                  sumcpue=0.0_r8
+                END IF
+              END DO
+              DO l=1,INT(days_year)
+                yearcpue_all(i,j,l)=0.0_r8
+              END DO
+            END DO
+          END DO
+!        print*, 'END updcpue_clim'
+        END SUBROUTINE updatecpue_clim
 #endif
       END MODULE mod_fishing
