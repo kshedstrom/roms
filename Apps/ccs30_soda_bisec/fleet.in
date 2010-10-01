@@ -42,7 +42,7 @@
 ! Flag indicating re-start from previous solution. If FLEETRREC = 0, a new
 ! NetCDF output file is created.
 
-       FLEETRREC == -1
+       FLEETRREC == 0
 
 ! Number of boats in fleet [-], {100}.
 

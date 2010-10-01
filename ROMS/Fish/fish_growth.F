@@ -433,11 +433,7 @@
 ! Juvenile (note: growth is done in PART 1 with subadult and adult) 
                 IF (lifestage(ifid).eq.if_juvenile) THEN
                   Tdmort=0.03_r8
-                  IF (iyesteryear(ng).ne.iyears(ng)) THEN
-                    suba_num(ifid)=bioenergy(ifworth,ifid)
-                  ELSE
-                    juv_dur(ifid)=juv_dur(ifid)+dtdays
-                  END IF
+                  juv_dur(ifid)=juv_dur(ifid)+dtdays
 ! Larva
                 ELSE IF (lifestage(ifid).eq.if_larva) THEN
                   Fweight=Fweight+0.05_r8*dtdays

@@ -96,6 +96,7 @@
               FISHES(ng)%bioenergy(i,l)=Fspv
             END DO
             FISHES(ng)%lifestage(l)=iFspv
+            FISHES(ng)%suba_num(l)=Fspv
             MyThread(l)=.FALSE.
           END IF
         END DO
@@ -152,21 +153,27 @@
         print *, 'Fish ages ', FISHES(ng) % age_base
       END IF
 
+! Update fish attributes
       DO ifid=Lstr,Lend
         IF (MyThread(ifid).and.FISHES(ng)%bounded(ifid)) THEN
           FISHES(ng) % bioenergy(ifbday,ifid) =                         &
      &               FISHES(ng) % bioenergy(ifbday,ifid)+1.0_r8
-! Upgrade subadults to adult upon reaching maturity (Fage0)
+! upgrade subadults to adult upon reaching maturity (Fage0)
           IF ((FISHES(ng)%lifestage(ifid).eq.if_subadult).and.          &
      &        (FISHES(ng)%bioenergy(ifbday,ifid).ge.Fage0(isp,ng))) THEN
             FISHES(ng)%lifestage(ifid)=if_adult
           END IF
-          IF ((FISHES(ng)%lifestage(ifid).eq.if_juvenile).and.          &
-     &         (FISHES(ng)%bioenergy(ifbday,ifid).ge.1.0_r8)) THEN
-            FISHES(ng)%lifestage(ifid)=if_subadult
+! upgrade juvenile to subadult upon reaching 1st birthday
+! and record number of juvenile entering subadult stage
+          IF (FISHES(ng)%lifestage(ifid).eq.if_juvenile) THEN
+            FISHES(ng)%suba_num(ifid)=FISHES(ng)%bioenergy(ifworth,ifid)
+            IF (FISHES(ng)%bioenergy(ifbday,ifid).ge.1.0_r8) THEN
+              FISHES(ng)%lifestage(ifid)=if_subadult
+            END IF
           END IF
         END IF
       END DO
+
 # ifdef DISTRIBUTE
 !
 !-----------------------------------------------------------------------
@@ -177,6 +184,7 @@
       CALL mp_collect (ng, iNLM, NptsF, Fspv, FwrkF)
       FISHES(ng)%bioenergy=RESHAPE(FwrkF,(/NFishV(ng),Nfish(ng)/))
       CALL mp_collecti(ng, iNLM, Nfish(ng), iFspv, FISHES(ng)%lifestage)
+      CALL mp_collect (ng, iNLM, Nfish(ng), Fspv, FISHES(ng)%suba_num)
 # endif
 
 # ifdef PROFILE
