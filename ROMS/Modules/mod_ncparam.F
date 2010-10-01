@@ -530,7 +530,7 @@
 #endif
         integer  :: ncFLTid(Ngrids)     ! output floats
         integer  :: ncFISHid(Ngrids)    ! output fish
-        integer  :: ncFLEETid(Ngrids)   ! output fish
+        integer  :: ncFLEETid(Ngrids)   ! output fishing fleet
         integer  :: ncFRCid(NV,Ngrids)  ! input forcing
         integer  :: ncFWDid(Ngrids)     ! forward solution
         integer  :: ncGRDid(Ngrids)     ! input grid
@@ -577,7 +577,7 @@
         integer, allocatable :: errTid(:,:)   ! error tracer IDs
         integer, allocatable :: fltTid(:,:)   ! floats tracers IDs
         integer, allocatable :: fishTid(:,:)  ! fish tracers IDs
-        integer, allocatable :: fleetTid(:,:) ! fish tracers IDs
+        integer, allocatable :: fleetTid(:,:) ! fleet tracers IDs
         integer, allocatable :: hisTid(:,:)   ! history tracers IDs
         integer, allocatable :: hssTid(:,:)   ! Hessian tracers IDs
         integer, allocatable :: iniTid(:,:)   ! initial NLM tracers IDs
@@ -599,7 +599,7 @@
         integer  :: errVid(NV,Ngrids)    ! error variables IDs
         integer  :: fltVid(-6:NV,Ngrids) ! floats variables IDs
         integer  :: fishVid(-6:NV,Ngrids)! fish variables IDs
-        integer  :: fleetVid(-6:NV,Ngrids)! fish variables IDs
+        integer  :: fleetVid(-6:NV,Ngrids)! fleet variables IDs
         integer  :: hisVid(NV,Ngrids)    ! history variables IDs
         integer  :: hssVid(NV,Ngrids)    ! Hessian variables IDs
         integer  :: iniVid(NV,Ngrids)    ! initial NLM variables IDs

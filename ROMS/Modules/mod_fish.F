@@ -48,7 +48,6 @@
           integer, pointer  :: lifestage(:)
           integer, pointer  :: swimtype(:)
           logical, pointer  :: alive(:)
-          logical, pointer  :: fishgirl(:)
           type(fishnode), pointer :: fishnodes(:)
           real(r8), pointer :: egg_dur(:)
           real(r8), pointer :: egg_num(:)
@@ -220,8 +219,6 @@
 
       allocate ( FISHES(ng) % alive(Nfish(ng)) )
 
-      allocate ( FISHES(ng) % fishgirl(Nfish(ng)) )
-
       allocate ( FISHES(ng) % fishnodes(Nfish(ng)) )
 
       allocate ( FISHES(ng) % egg_dur(Nfish(ng)) )
@@ -298,7 +295,6 @@
         FISHES(ng) % lifestage(iflt) = if_none
         FISHES(ng) % swimtype(iflt) = 0
         FISHES(ng) % alive(iflt) = .FALSE.
-        FISHES(ng) % fishgirl(iflt) = .FALSE.
         FISHES(ng) % fishnodes(iflt) % fish = iflt
         FISHES(ng) % fmortN(iflt) = IniVal
         FISHES(ng) % fmortS(iflt) = IniVal

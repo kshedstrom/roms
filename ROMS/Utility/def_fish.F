@@ -231,14 +231,6 @@
      &                 nf90_int, 1, (/fishdim/), Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 !
-!  Define fish lifestage
-!
-!        Vinfo( 1)='Lifestage'
-!        Vinfo( 2)='Fish lifestage'
-!        status=def_var(ng, iNLM, ncFISHid(ng), fishVid(idFlfsg,ng),     &
-!     &                 nf90_int, 1, (/fishdim/), Aval, Vinfo, ncname)
-!        IF (exit_flag.ne.NoError) RETURN
-!
 !  Define fish swimtype
 !
         Vinfo( 1)='Swimtype'

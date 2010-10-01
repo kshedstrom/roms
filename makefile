@@ -1,6 +1,6 @@
-# $Id: makefile 1090 2009-10-27 23:59:27Z kate $
+# $Id$
 #::::::::::::::::::::::::::::::::::::::::::::::::::::: Hernan G. Arango :::
-# Copyright (c) 2002-2009 The ROMS/TOMS Group             Kate Hedstrom :::
+# Copyright (c) 2002-2010 The ROMS/TOMS Group             Kate Hedstrom :::
 #   Licensed under a MIT/X style license                                :::
 #   See License_ROMS.txt                                                :::
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -36,9 +36,9 @@ $(if $(filter $(MAKE_VERSION),$(NEED_VERSION)),,        \
 #  Initialize some things.
 #--------------------------------------------------------------------------
 
-  sources    := 
+  sources    :=
   libraries  :=
-  c_sources    := 
+  c_sources    :=
 
 #==========================================================================
 #  Start of user-defined options. In some macro definitions below: "on" or
@@ -58,7 +58,7 @@ $(if $(filter $(MAKE_VERSION),$(NEED_VERSION)),,        \
 #  The only constrain is that the application CPP option must be unique
 #  and header file name is the lowercase value of ROMS_APPLICATION with
 #  the .h extension. For example, the upwelling application includes the
-#  "upwelling.h" header file.  
+#  "upwelling.h" header file.
 
 #ROMS_APPLICATION := WC13
 ROMS_APPLICATION := CCS30
@@ -115,7 +115,7 @@ MY_CPP_FLAGS ?=
 #  In this, case the user need to select the desired compiler below and
 #  turn on both USE_MPI and USE_MPIF90 macros.
 
-  USE_MPIF90 ?= 
+  USE_MPIF90 ?=
 
 #  If applicable, activate 64-bit compilation:
 
@@ -217,7 +217,7 @@ endif
 
   COMPILERS ?= $(CURDIR)/Compilers
 
-MAKE_MACROS := $(COMPILERS)/make_macros.mk
+MAKE_MACROS := $(shell echo ${HOME} | sed 's| |\\ |g')/make_macros.mk
 
 ifneq "$(MAKECMDGOALS)" "clean"
  MACROS := $(shell cpp -P $(ROMS_CPPFLAGS) Compilers/make_macros.h > \
@@ -402,7 +402,7 @@ ifdef SVNREV
 else
   SVNREV := $(shell grep Revision ./ROMS/Version | sed 's/.* \([0-9]*\) .*/\1/')
   CPPFLAGS += -D'SVN_REV="$(SVNREV)"'
-endif  
+endif
 
 #--------------------------------------------------------------------------
 #  Build target directories.
@@ -554,7 +554,7 @@ $(SCRATCH_DIR)/MakeDepend: makefile \
 SFMAKEDEPEND := ./ROMS/Bin/sfmakedepend
 
 depend: $(SCRATCH_DIR)
-	$(SFMAKEDEPEND) $(MDEPFLAGS) $(sources) > $(SCRATCH_DIR)/MakeDepend 
+	$(SFMAKEDEPEND) $(MDEPFLAGS) $(sources) > $(SCRATCH_DIR)/MakeDepend
 
 ifneq "$(MAKECMDGOALS)" "clean"
   -include $(SCRATCH_DIR)/MakeDepend

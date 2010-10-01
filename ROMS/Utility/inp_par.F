@@ -4065,7 +4065,7 @@
      &          'Number of timesteps between the writing of',           &
      &          'secondary time-averaged data into averages file.'
           IF (ndefAVG2(ng).gt.0) THEN
-            WRITE (out,130) ndefAVG2(ng), 'ndefAVG2',                     &
+            WRITE (out,130) ndefAVG2(ng), 'ndefAVG2',                   &
      &            'Number of timesteps between creation of new',        &
      &            'time-averaged file.'
           END IF
@@ -7481,7 +7481,7 @@
 #    if defined SENSITIVITY_4DVAR || \
         defined TL_W4DPSAS        || defined TL_W4DVAR || \
         defined W4DPSAS           || defined W4DVAR
-         IF (nADJ(ng).lt.ntimes(ng)) THEN
+          IF (nADJ(ng).lt.ntimes(ng)) THEN
             WRITE (out,120) Hdecay(2,isFsur,ng), 'HdecayM(isFsur)',     &
      &            'Model decorrelation H-scale (m), free-surface.'
             WRITE (out,120) Hdecay(2,isUbar,ng), 'HdecayM(isUbar)',     &
