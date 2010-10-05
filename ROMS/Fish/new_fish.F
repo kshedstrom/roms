@@ -298,8 +298,9 @@
           END IF
 ! Allocate remaining individuals at the end of the spawning season
 ! based on worth at creation
-          IF ((FISHES(ng)%num_free(isp).gt.0).and.                      &
-     &        (sp_time.gt.FISHES(ng)%sp_end(isp))) THEN
+          IF ((FISHES(ng)%num_free(isp) .gt. 0).and.                    &
+     &        (sp_time .gt. FISHES(ng)%sp_end(isp)) .and.               &
+     &        (FISHES(ng)%num_free(isp) .lt. Nfishperyear(ng))) THEN
             print*, 'SPLIT', FISHES(ng)%num_free(isp)
             CALL split_biggest (ng, isp, FISHES(ng)%num_free(isp))
           END IF
