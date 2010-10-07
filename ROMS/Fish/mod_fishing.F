@@ -455,11 +455,11 @@
      &                       NghostPoints, r3dvar, Vmin, Vmax,          &
      &                       Npts, line3d_366, climcpue)
 # else
-          DO i=LBi,UBi
-            DO j=LBj,UBj
+          DO i=0,Lm(ng)+1
+            DO j=0,Mm(ng)+1
               nearport(i,j)=nearport_all(i,j)
-              xr(i,j)=xr_all(i,j)
-              yr(i,j)=yr_all(i,j)
+!             xr(i,j)=xr_all(i,j)
+!             yr(i,j)=yr_all(i,j)
               distport(i,j)=distport_all(i,j)
               avgcpue(i,j)=avgcpue_all(i,j)
               percpue(i,j)=percpue_all(i,j)

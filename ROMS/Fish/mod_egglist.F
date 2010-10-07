@@ -38,7 +38,7 @@
         real(r8), allocatable :: eggs_all(:,:,:)
         integer, allocatable :: eggs_in(:,:,:)
         integer, allocatable :: egg_cells(:)
-        type(egg_box), pointer :: roe_list(:)
+        type(egg_box), allocatable, target :: roe_list(:)
 
         PRIVATE :: eggs_all, push_box, pop_box, isLast, find_fish, nil, &
      &             eggs_in, egg_cells
