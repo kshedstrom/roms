@@ -55,7 +55,7 @@
 
 ! Number of fish per year per species.
 
-       Nfishperyear == 100
+       Nfishperyear == 200
 
 ! Number of batches of eggs per female per year.
 
@@ -75,15 +75,17 @@
 
 ! Fish start of spawning season [yearday], {1.0d0}.
 
+       Fspstr == 1.0d0 1.0d0 0.0d0 0.0d0 0.0d0
 !       Fspstr == 30.0d0 30.0d0 0.0d0 0.0d0 0.0d0
-!       Fspstr == 101.0d0 101.0d0 0.0d0 0.0d0 0.0d0
-       Fspstr == 30.0d0 30.0d0 0.0d0 0.0d0 0.0d0
+!       Fspstr == 91.0d0 91.0d0 0.0d0 0.0d0 0.0d0
+!       Fspstr == 30.0d0 30.0d0 0.0d0 0.0d0 0.0d0
 
 ! Fish end of spawning season [yearday], {210.0d0}.
 
+       Fspend == 30.0d0 30.0d0 0.0d0 0.0d0 0.0d0
 !       Fspend == 150.0d0 240.0d0 0.0d0 0.0d0 0.0d0
 !       Fspend == 150.0d0 150.0d0 0.0d0 0.0d0 0.0d0
-       Fspend == 60.0d0 60.0d0 0.0d0 0.0d0 0.0d0
+!       Fspend == 60.0d0 60.0d0 0.0d0 0.0d0 0.0d0
 
 ! Fish behavior [1=Fitness, 2=Kinesis]
 

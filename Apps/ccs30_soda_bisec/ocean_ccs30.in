@@ -74,7 +74,8 @@
 
 !      NTIMES =  24  (1 day)
 !      NTIMES =  8760 (1 year)
-      NTIMES =  175200 (20 years)
+!      NTIMES =  175200 (20 years)
+      NTIMES =  240
           DT == 3600.0d0
      NDTFAST == 45
 
