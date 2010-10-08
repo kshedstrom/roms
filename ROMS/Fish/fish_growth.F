@@ -53,8 +53,8 @@
       CONTAINS
 !
 !***********************************************************************
-      SUBROUTINE fish_growth (ng, LBi, UBi, LBj, UBj, LBk, UBk, itime,  &
-     &                            pm, pn,                               &
+      SUBROUTINE fish_growth (ng, tile, LBi, UBi, LBj, UBj, LBk, UBk,   &
+     &                            itime, pm, pn,                        &
 # ifdef SOLVE3D
      &                            Hz,                                   &
 # endif
@@ -84,7 +84,8 @@
 !
 !  Imported variable declarations.
 !
-      integer, intent(in) :: ng, LBi, UBi, LBj, UBj, LBk, UBk, itime
+      integer, intent(in) :: ng, tile, itime
+      integer, intent(in) :: LBi, UBi, LBj, UBj, LBk, UBk
       integer, intent(in) :: fish_count(LBi:UBi,LBj:UBj)
 # ifdef PREDATOR
       integer, intent(in) :: pred_count(LBi:UBi,LBj:UBj)
@@ -160,6 +161,8 @@
       real(r8) :: FFish(Nspecies(ng))
       real(r8) :: CFish(Nspecies(ng))
       real(r8) :: Pmort(Nspecies(ng))
+
+# include "set_bounds.h"
 !
 !-----------------------------------------------------------------------
 !  Compute growth and mortality terms for fish
@@ -173,8 +176,10 @@
 !--------------------------------------------------------------
 !-----  PART 1: GROWTH FOR JUV, SUBADULT, AND ADULT STAGES -----
 !
-      DO i=LBi+2,UBi-2
-        DO j=LBj+2,UBj-2
+!      DO i=LBi+2,UBi-2
+!        DO j=LBj+2,UBj-2
+      DO i=Istr,Iend
+        DO j=Jstr,Jend
           IF (fish_count(i,j).gt.0) THEN
             thisfish => fish_list(i,j) % next
             DO ifish=1,fish_count(i,j)
@@ -262,8 +267,10 @@
 ! PREDATION MORTALITY
 !
 ! Zero out predation mortality from previous time step
-      DO i=LBi,UBi
-        DO j=LBj,UBj
+!      DO i=LBi,UBi
+!        DO j=LBj,UBj
+      DO i=MAX(Istr-2,1),MIN(Iend+2,Lm(ng))
+        DO j=MAX(Jstr-2,1),MIN(Jend+2,Mm(ng))
           IF (fish_count(i,j).gt.0) THEN
             thisfish => fish_list(i,j) % next
             DO ifish=1,fish_count(i,j)
@@ -279,8 +286,10 @@
       END DO
 !
 ! Predation mortality at current time step
-      DO i=LBi+1,UBi-1
-        DO j=LBj+1,UBj-1
+!      DO i=LBi+1,UBi-1
+!        DO j=LBj+1,UBj-1
+      DO i=MAX(Istr-1,1),MIN(Iend+1,Lm(ng))
+        DO j=MAX(Jstr-1,1),MIN(Jend+1,Mm(ng))
           IF (pred_count(i,j).gt.0) THEN
             thispred => pred_list(i,j) % next
             DO ipred=1,pred_count(i,j)
@@ -387,8 +396,10 @@
 !
 ! NATURAL AND FISHING MORTALITY
 !
-      DO i=LBi+2,UBi-2
-        DO j=LBj+2,UBj-2
+!      DO i=LBi+2,UBi-2
+!        DO j=LBj+2,UBj-2
+      DO i=Istr,Iend
+        DO j=Jstr,Jend
           IF (fish_count(i,j).gt.0) THEN
             thisfish => fish_list(i,j) % next
             DO ifish=1,fish_count(i,j)
@@ -421,8 +432,10 @@
 !-----------------------------------------------------------------
 !-----   PART 3: EARLY LIFE HISTORY (EGG, YSAC, LARVA, JUV)  -----
 !
-      DO i=LBi+2,UBi-2
-        DO j=LBj+2,UBj-2
+!      DO i=LBi+2,UBi-2
+!        DO j=LBj+2,UBj-2
+      DO i=Istr,Iend
+        DO j=Jstr,Jend
           IF (fish_count(i,j).gt.0) THEN
             thisfish => fish_list(i,j) % next
             DO ifish=1,fish_count(i,j)
@@ -484,8 +497,10 @@
 !----------------------------------------------
 !-----   PART 4: UPDATE FISH ATTRIBUTES   -----
 !
-      DO i=LBi+2,UBi-2
-        DO j=LBj+2,UBj-2
+!      DO i=LBi+2,UBi-2
+!        DO j=LBj+2,UBj-2
+      DO i=Istr,Iend
+        DO j=Jstr,Jend
           IF (fish_count(i,j).gt.0) THEN
             thisfish => fish_list(i,j) % next
             DO ifish=1,fish_count(i,j)

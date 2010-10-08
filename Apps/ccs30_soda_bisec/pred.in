@@ -58,7 +58,7 @@
 
 ! Pred preference for fish
 
-       Fpref == 0.5d0 1.0d0 0.0d0 0.0d0 0.0d0
+       Fpref == 0.0d0 0.0d0 0.0d0 0.0d0 0.0d0
 
 ! Pred half saturation for fish
 
@@ -72,13 +72,13 @@
 
        b_Cmax == 0.256d0 0.256d0 0.0d0 0.0d0 0.0d0
 
-! Pred activity coefficient
+! Pred minimum swimming speed
 
-       a_Swim == 30.0d0 15.0d0 0.0d0 0.0d0 0.0d0
+       a_Swim == 50.0d0 50.0d0 0.0d0 0.0d0 0.0d0
 
-! Pred activity exponent
+! Pred mutliplier of minimum swiming speed
 
-       b_Swim == 0.13d0 0.13d0 0.0d0 0.0d0 0.0d0
+       b_Swim == 1.75d0 1.75d0 0.0d0 0.0d0 0.0d0
 
 ! Initial floats locations for all grids:
 !

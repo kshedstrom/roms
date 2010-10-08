@@ -51,7 +51,7 @@
       CONTAINS
 !
 !***********************************************************************
-      SUBROUTINE fish_swim (ng, LBi, UBi, LBj, UBj, LBk, UBk,           &
+      SUBROUTINE fish_swim (ng, tile, LBi, UBi, LBj, UBj, LBk, UBk,     &
      &                          itimem1, itime, itimep1, nnew,          &
      &                          pm, pn,                                 &
 # ifdef SOLVE3D
@@ -75,7 +75,7 @@
 !
 !  Imported variable declarations.
 !
-      integer, intent(in) :: ng, LBi, UBi, LBj, UBj, LBk, UBk
+      integer, intent(in) :: ng, tile, LBi, UBi, LBj, UBj, LBk, UBk
       integer, intent(in) :: itimem1, itime, itimep1, nnew
       integer, intent(in) :: species(Nfish(ng))
       integer, intent(in) :: lifestage(Nfish(ng))
@@ -120,13 +120,17 @@
       real(r8) :: f_xdis, g_epsx, f_ydis, g_epsy, xdis, ydis
       real(r8) :: f_zdis, g_epsz, epsz, zdis, zpos, cff1, cff2, zkdis
       real(r8) :: tcheck
+
+# include "set_bounds.h"
 !
 !-----------------------------------------------------------------------
 !  Compute swimming velocity based on Railsback or Humston behavior
 !-----------------------------------------------------------------------
 !
-      DO i=LBi+1,UBi-1
-        DO j=LBj+1,UBj-1
+!      DO i=LBi+1,UBi-1
+!        DO j=LBj+1,UBj-1
+      DO i=MAX(Istr-1,1),MIN(Iend+1,Lm(ng))
+        DO j=MAX(Jstr-1,1),MIN(Jend+1,Mm(ng))
           IF (fish_count(i,j).gt.0) THEN
             thisfish => fish_list(i,j) % next
             DO ifish=1,fish_count(i,j)
@@ -258,35 +262,28 @@
 !
 #ifdef NEMSAN_TEST
                   Ftemp=track(iNO3_+NFV(ng)-NT(ng),itime,fid)
-#else
-                  Ftemp=track(itemp+NFV(ng)-NT(ng),itime,fid)
-#endif
-                  Fpval=bioenergy(ifpval,fid)
-                  Fdens=track(ifden,itime,fid)
-! Behavior based on temperature
                   Fvar=Ftemp
                   IF (isp.eq.if_anchovy) THEN
-#ifdef NEMSAN_TEST
                     Fvar_opt=8.0_r8
                     Fvar_sigma=3.0_r8
-#else
-                    Fvar_opt=12.0_r8
-                    Fvar_sigma=3.0_r8
-#endif
                   END IF
                   IF (isp.eq.if_sardine) THEN
-#ifdef NEMSAN_TEST
                     Fvar_opt=15.0_r8
                     Fvar_sigma=3.0_r8
-#else
-                    Fvar_opt=12.0_r8
-                    Fvar_sigma=3.0_r8
-#endif
                   END IF
+#else
+! Behavior based on temperature
+                  Ftemp=track(itemp+NFV(ng)-NT(ng),itime,fid)
+                  Fvar=Ftemp
+                  Fvar_opt=12.0_r8
+                  Fvar_sigma=3.0_r8
 ! Behavior based on p-value
+!                  Fpval=bioenergy(ifpval,fid)
 !                  Fvar=Fpval
 !                  Fvar_opt=0.2_r8
-!                  Fvar_sigma=0.2_r8
+!                  Fvar_sigma=0.1_r8
+#endif
+                  Fdens=track(ifden,itime,fid)
 !
 ! ----- Horizontal behavior (updated once daily) -----
 !

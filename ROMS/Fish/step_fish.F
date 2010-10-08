@@ -34,7 +34,7 @@
       CONTAINS
 !
 !***********************************************************************
-      SUBROUTINE step_fish (ng, Lstr, Lend)
+      SUBROUTINE step_fish (ng, tile, Lstr, Lend)
 !***********************************************************************
 !
       USE mod_param
@@ -43,12 +43,12 @@
 !
 !  Imported variable declarations.
 !
-      integer, intent(in) :: ng, Lstr, Lend
+      integer, intent(in) :: ng, tile, Lstr, Lend
 !
 # ifdef PROFILE
       CALL wclock_on (ng, iNLM, 10)
 # endif
-      CALL step_fish_tile (ng, Lstr, Lend,                              &
+      CALL step_fish_tile (ng, tile, Lstr, Lend,                        &
      &                       knew(ng), nnew(ng), nfm3(ng), nfm2(ng),    &
      &                       nfm1(ng), nf(ng), nfp1(ng),                &
      &                       FISHES(ng) % bounded,                      &
@@ -87,7 +87,7 @@
       END SUBROUTINE step_fish
 !
 !***********************************************************************
-      SUBROUTINE step_fish_tile (ng, Lstr, Lend,                        &
+      SUBROUTINE step_fish_tile (ng, tile, Lstr, Lend,                  &
      &                             knew, nnew,                          &
      &                             nfm3, nfm2, nfm1, nf, nfp1,          &
      &                             bounded, Ftype, Tinfo, Fz0,          &
@@ -129,7 +129,7 @@
 !
 !  Imported variable declarations.
 !
-      integer, intent(in) :: ng, Lstr, Lend
+      integer, intent(in) :: ng, tile, Lstr, Lend
       integer, intent(in) :: knew, nnew, nfm3, nfm2, nfm1, nf, nfp1
 !
 # ifdef ASSUMED_SHAPE
@@ -714,7 +714,7 @@
 !  Fish swimming behavior for adults
 !-----------------------------------------------------------------------
 !
-      CALL fish_swim (ng, LBi, UBi, LBj, UBj, 1, N(ng),                 &
+      CALL fish_swim (ng, tile, LBi, UBi, LBj, UBj, 1, N(ng),           &
      &                    nfm1, nf, nfp1, nnew,                         &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
@@ -1144,7 +1144,7 @@
      &                      MyThread, bounded, track)
       END DO
 !
-      CALL fish_growth (ng, LBi, UBi, LBj, UBj, 1, N(ng), nfp1,         &
+      CALL fish_growth (ng, tile, LBi, UBi, LBj, UBj, 1, N(ng), nfp1,   &
      &                      GRID(ng) % pm,                              &
      &                      GRID(ng) % pn,                              &
 # ifdef SOLVE3D

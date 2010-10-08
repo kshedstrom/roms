@@ -273,6 +273,10 @@
 
 Hout(idTvar) == 14*T
 
+! Logical switches (TRUE/FALSE) to activate writing of time-averaged fields
+! into AVERAGE output file: [1;NBT,Ngrids].
+
+Aout(idTvar) == 14*T                       ! biological tracer
 
 !
 !  GLOSSARY:

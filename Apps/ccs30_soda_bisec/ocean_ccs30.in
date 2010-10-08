@@ -67,14 +67,15 @@
 ! shared-memory configurations used to determine tile horizontal range
 ! indices (Istr,Iend) and (Jstr,Jend), [1:Ngrids].
 
-      NtileI == 5                               ! I-direction partition
-      NtileJ == 8                               ! J-direction partition
+      NtileI == 8                               ! I-direction partition
+      NtileJ == 16                              ! J-direction partition
 
 ! Time-Stepping parameters.
 
 !      NTIMES =  24  (1 day)
 !      NTIMES =  8760 (1 year)
-      NTIMES =  175200 (20 years)
+!      NTIMES =  175200 (20 years)
+      NTIMES =  87600
           DT == 3600.0d0
      NDTFAST == 45
 
@@ -425,6 +426,44 @@ Hout(idMtls) == F                          ! turbulent length scale
 !               1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6
 
 Hout(idBott) == T T T T T T T T T F F F F F F F
+
+! Logical switches (TRUE/FALSE) to activate writing of time-averaged
+! fields into AVERAGE output file.
+
+Aout(idUvel) == T                          ! 3D U-velocity
+Aout(idVvel) == T                          ! 3D V-velocity
+Aout(idWvel) == T                          ! 3D W-velocity
+Aout(idOvel) == T                          ! omega vertical velocity
+Aout(idUbar) == T                          ! 2D U-velocity
+Aout(idVbar) == T                          ! 2D V-velocity
+Aout(idFsur) == T                          ! free-surface
+
+Aout(idTvar) == T T                        ! temperature and salinity
+
+Aout(idUsms) == T                          ! surface U-stress
+Aout(idVsms) == T                          ! surface V-stress
+Aout(idUbms) == F                          ! bottom U-stress
+Aout(idVbms) == F                          ! bottom V-stress
+
+Aout(idTsur) == F F                        ! surface net heat and salt flux
+Aout(idLhea) == F                          ! latent heat flux
+Aout(idShea) == F                          ! sensible heat flux
+Aout(idLrad) == F                          ! longwave radiation flux
+Aout(idSrad) == F                          ! shortwave radiation flux
+Aout(idevap) == F                          ! evaporation rate
+Aout(idrain) == F                          ! precipitation rate
+
+Aout(idDano) == F                          ! density anomaly
+Aout(idVvis) == F                          ! vertical viscosity
+Aout(idTdif) == F                          ! vertical T-diffusion
+Aout(idSdif) == F                          ! vertical Salinity diffusion
+Aout(idHsbl) == F                          ! depth of surface boundary layer
+Aout(idHbbl) == F                          ! depth of bottom boundary layer
+
+! Logical switches (TRUE/FALSE) to activate writing of extra inert passive
+! tracers other than biological and sediment tracers into the AVERAGE file.
+
+ Aout(inert) == T                          ! inert passive tracers
 
 ! Generic User parameters, [1:NUSER].
 

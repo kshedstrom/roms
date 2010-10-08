@@ -73,7 +73,7 @@
 
 ! Mean encounter rate (1.0 means boats see all fish in cell), [-], {0.9d0}.
 
-       EncRate == 0.9d0
+       EncRate == 0.0d0
 
 ! Price for catch by port [$/kg], {0.5d0}.
 

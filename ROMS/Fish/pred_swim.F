@@ -51,7 +51,7 @@
       CONTAINS
 !
 !***********************************************************************
-      SUBROUTINE pred_swim (ng, LBi, UBi, LBj, UBj, LBk, UBk,           &
+      SUBROUTINE pred_swim (ng, tile, LBi, UBi, LBj, UBj, LBk, UBk,     &
      &                          itimem1, itime, itimep1, nnew,          &
      &                          pm, pn,                                 &
 # ifdef SOLVE3D
@@ -76,7 +76,7 @@
 !
 !  Imported variable declarations.
 !
-      integer, intent(in) :: ng, LBi, UBi, LBj, UBj, LBk, UBk
+      integer, intent(in) :: ng, tile, LBi, UBi, LBj, UBj, LBk, UBk
       integer, intent(in) :: itimem1, itime, itimep1, nnew
       integer, intent(in) :: species(Npred(ng))
       integer, intent(in) :: fish_species(Nfish(ng))
@@ -114,13 +114,17 @@
       real(r8) :: Pweight, score, scoreMax, Uswim
       real(r8) :: Fweight, Fworth
       real(r8) :: d_i, d_j, d_ij, theta_ij, fac, snudg
+
+# include "set_bounds.h"
 !
 !-----------------------------------------------------------------------
 !  Compute swimming velocity based on Railsback or Humston behavior
 !-----------------------------------------------------------------------
 !
-      DO i=LBi+1,UBi-1
-        DO j=LBj+1,UBj-1
+!      DO i=LBi+1,UBi-1
+!        DO j=LBj+1,UBj-1
+      DO i=MAX(Istr-1,1),MIN(Iend+1,Lm(ng))
+        DO j=MAX(Jstr-1,1),MIN(Jend+1,Mm(ng))
           IF (pred_count(i,j).gt.0) THEN
             thispred => pred_list(i,j) % next
             DO ipred=1,pred_count(i,j)
@@ -136,7 +140,7 @@
 
 ! Swimming velocity based on fish weight (in cm/s)
                 Pweight=bioenergy(ipwwt,ipid)
-                Uswim=a_Swim(ipsp,ng)*Pweight**b_Swim(ipsp,ng)
+                Uswim=a_Swim(ipsp,ng)*b_Swim(ipsp,ng)
 !
 ! -------- FITNESS-BASED SWIMMING BEHAVIOR (RAILSBACK) --------
 !

@@ -704,7 +704,7 @@
           chunk_size=(Nfish(ng)+numthreads-1)/numthreads
           Lstr=1+thread*chunk_size
           Lend=MIN(Nfish(ng),Lstr+chunk_size-1)
-          CALL step_fish (ng, Lstr, Lend)
+          CALL step_fish (ng, TILE, Lstr, Lend)
         END DO
 !$OMP END PARALLEL DO
 #  ifdef PREDATOR
@@ -714,7 +714,7 @@
           chunk_size=(Npred(ng)+numthreads-1)/numthreads
           Lstr=1+thread*chunk_size
           Lend=MIN(Npred(ng),Lstr+chunk_size-1)
-          CALL step_pred (ng, Lstr, Lend)
+          CALL step_pred (ng, TILE, Lstr, Lend)
         END DO
 !$OMP END PARALLEL DO
 #  endif
