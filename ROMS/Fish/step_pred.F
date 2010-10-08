@@ -34,7 +34,7 @@
       CONTAINS
 !
 !***********************************************************************
-      SUBROUTINE step_pred (ng, Lstr, Lend)
+      SUBROUTINE step_pred (ng, tile, Lstr, Lend)
 !***********************************************************************
 !
       USE mod_param
@@ -43,12 +43,12 @@
 !
 !  Imported variable declarations.
 !
-      integer, intent(in) :: ng, Lstr, Lend
+      integer, intent(in) :: ng, tile, Lstr, Lend
 !
 # ifdef PROFILE
       CALL wclock_on (ng, iNLM, 10)
 # endif
-      CALL step_pred_tile (ng, Lstr, Lend,                              &
+      CALL step_pred_tile (ng, tile, Lstr, Lend,                        &
      &                       knew(ng), nnew(ng), nfm3(ng), nfm2(ng),    &
      &                       nfm1(ng), nf(ng), nfp1(ng),                &
      &                       PREDS(ng) % bounded,                       &
@@ -66,7 +66,7 @@
       END SUBROUTINE step_pred
 !
 !***********************************************************************
-      SUBROUTINE step_pred_tile (ng, Lstr, Lend,                        &
+      SUBROUTINE step_pred_tile (ng, tile, Lstr, Lend,                  &
      &                             knew, nnew,                          &
      &                             nfm3, nfm2, nfm1, nf, nfp1,          &
      &                             bounded, Ftype, Tinfo, Fz0,          &
@@ -96,7 +96,7 @@
 !
 !  Imported variable declarations.
 !
-      integer, intent(in) :: ng, Lstr, Lend
+      integer, intent(in) :: ng, tile, Lstr, Lend
       integer, intent(in) :: knew, nnew, nfm3, nfm2, nfm1, nf, nfp1
 !
 # ifdef ASSUMED_SHAPE
@@ -289,7 +289,7 @@
 !  Predator swimming behavior
 !-----------------------------------------------------------------------
 !
-      CALL pred_swim (ng, LBi, UBi, LBj, UBj, 1, N(ng),                 &
+      CALL pred_swim (ng, tile, LBi, UBi, LBj, UBj, 1, N(ng),           &
      &                    nfm1, nf, nfp1, nnew,                         &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
