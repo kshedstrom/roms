@@ -100,6 +100,14 @@
         NRST == 8760
         NSTA == 48
         NFLT == 48
+
+! Flag indicating re-start from previous solution. If FISHRREC = 0, a new
+! NetCDF output file is created.
+
+       FISHRREC  == 0
+       FLEETRREC == 0
+       PREDRREC  == 0
+
         NFSH == 120
     NDEFFISH == 0
         NPRD == 120
@@ -703,6 +711,14 @@ Hout(idBott) == T T T T T T T T T F F F F F F F
 !  NINFO       Number of time-steps between print of single line information
 !              to standard output.  It also determines the interval between
 !              computation of global energy diagnostics.
+!
+! FISHRREC, FLEETRREC, PREDRREC  Flag to indicate re-start from a
+!              previous solution.  Use FISHRREC=0 for new solutions.
+!              In a re-start solution, FISHRREC is the time index
+!              in the floats NetCDF file assigned for initialization.
+!              If FISHRREC is negative (say NISHRREC=-1), the fish,
+!              etc. will re-start from the most recent time record.
+!              That is, the initialization record is assigned internally.
 !
 !------------------------------------------------------------------------------
 !  Output history and average files parameters.

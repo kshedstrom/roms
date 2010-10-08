@@ -494,7 +494,6 @@
                 prev % next => cur % next
               END IF
               pop_tree => cur % egg_tree % left
-              prev % next => cur % next
               RETURN
             END IF
             prev => cur

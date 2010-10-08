@@ -5172,6 +5172,15 @@
   'r3dvar'
   1.0d0
 
+ 'Tspawn'
+  'time since last spawn'
+  'nondimensional'
+  'Tspawn, scalar, series'
+  'bio_time'
+  'idFTspwn'
+  'r3dvar'
+  1.0d0
+
 ! Predator variables
 
  'Pwwt'

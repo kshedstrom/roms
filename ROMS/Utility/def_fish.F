@@ -249,6 +249,14 @@
      &                 nf90_int, 1, (/fishdim/), Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 !
+!  Define time since last spawn (needed on restart)
+!
+        Vinfo( 1)='Tspawn'
+        Vinfo( 2)='Time since last spawn'
+        status=def_var(ng, iNLM, ncFISHid(ng), fishVid(idFTspwn,ng),    &
+     &                 NF_FOUT, 1, (/fishdim/), Aval, Vinfo, ncname)
+        IF (exit_flag.ne.NoError) RETURN
+!
 !  Define fish age base
 !
         Vinfo( 1)='Fish_age_base'
@@ -1104,6 +1112,9 @@
           ELSE IF (TRIM(var_name(i)).eq.'Alive') THEN
             got_var(idFalv)=.TRUE.
             fishVid(idFalv,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.'Tspawn') THEN
+            got_var(idFTspwn)=.TRUE.
+            fishVid(idFTspwn,ng)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.'Xgrid') THEN
             got_var(idXgrd)=.TRUE.
             fishVid(idXgrd,ng)=var_id(i)
@@ -1198,6 +1209,12 @@
         END IF
         IF (.not.got_var(idFalv)) THEN
           IF (Master) WRITE (stdout,60) TRIM(Vname(1,idFalv)),          &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idFTspwn)) THEN
+          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idFTspwn)),        &
      &                                  TRIM(ncname)
           exit_flag=3
           RETURN
@@ -1415,6 +1432,16 @@
      &                        ncid = ncFISHid(ng),                      &
      &                        start = (/1,tFISHindx(ng)/),              &
      &                        total = (/Nfish(ng),1/))
+
+        CALL netcdf_get_fvar (ng, iNLM, ncname,                         &
+     &                        TRIM(Vname(1,idFTspwn)),                  &
+     &                        Tinp,                                     &
+     &                        ncid = ncFISHid(ng),                      &
+     &                        start = (/1/),                            &
+     &                        total = (/Nfish(ng)/))
+        DO l=1,Nfish(ng)
+          FISHES(ng)%bioenergy(iftspwn,l)=Tinp(l)
+        END DO
 
         CALL netcdf_get_ivar (ng, iNLM, ncname,                         &
      &                        'Fish_age_base',                          &

@@ -100,8 +100,8 @@
 #  define PREDATOR
 #  define FLEET
 #  define ANA_SPAWN_DIST
-#  define EGGS_BISECTION
-#  undef  EGGS_TREE_FORT
+#  undef EGGS_BISECTION
+#  define  EGGS_TREE_FORT
 #  undef  EGGS_TREE_CXX
 #  undef  EGGS_VECTOR_CXX
 # endif

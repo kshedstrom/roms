@@ -403,6 +403,7 @@
         integer  :: idFlfsg        ! fish lifestage
         integer  :: idFswmt        ! fish swim type
         integer  :: idFalv         ! fish is alive
+        integer  :: idFTspwn       ! time since last spawn
         integer  :: idFdegg        ! duration of egg stage
         integer  :: idFnegg        ! number of eggs
         integer  :: idFdysac       ! duration of yolk sac stage

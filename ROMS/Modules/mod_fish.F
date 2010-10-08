@@ -149,18 +149,6 @@
       logical, dimension(Ngrids) :: Lfleet
 # endif
 
-!
-!  Fish restart switch.
-!
-      integer, dimension(Ngrids) :: fishrrec
-# ifdef PREDATOR
-      integer, dimension(Ngrids) :: predrrec
-# endif
-# ifdef FLEET
-      integer, dimension(Ngrids) :: fleetrrec
-# endif
-
-
       CONTAINS
 
       SUBROUTINE allocate_fish (ng)
