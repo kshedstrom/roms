@@ -164,8 +164,8 @@
             call tree_init(tree(isp2))
 
             DO l=1,Nfish(ng)
-              isp = idfish(FISHES(ng) % species(l))
               IF (FISHES(ng) % bioenergy(ifeggs, l) .gt. 0.0_r8) THEN
+                isp = idfish(FISHES(ng) % species(l))
                 CALL tree_insert(tree(isp),                             &
      &                FISHES(ng) % bioenergy(ifspwnloc,l),              &
      &                FISHES(ng) % bioenergy(ifeggs, l), l)

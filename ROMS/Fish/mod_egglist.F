@@ -157,7 +157,6 @@
           integer, intent(in)  :: Nsuper
           integer, intent(out) :: Nboxes
           type(egg_box), pointer :: bigbox, ur_box, ll_box, next_box
-          logical :: OneCell = .false.
           integer :: i, j
 !
 ! First, if there's only one superindividual, put all the eggs in one
@@ -184,7 +183,7 @@
 !
             Nboxes = 0
 !  Clean out the list before adding mini-boxes to the list.
-            bigbox => pop_box(isp)
+            bigbox => pop_box(isp, .false.)
             DO j=0,Mm(ng)+1
               DO i=0,Lm(ng)+1
                 IF (eggs_all(i,j,isp) .gt. 0.01_r8) THEN
@@ -204,7 +203,7 @@
 !  superindividuals than that, split the largest ones.
 !
             DO WHILE (Nsuper .gt. Nboxes)
-              bigbox = pop_box(isp)
+              bigbox => pop_box(isp, .false.)
               allocate(next_box)
               next_box % i1 = bigbox % i1
               next_box % j1 = bigbox % j1
@@ -222,75 +221,62 @@
 ! I'm going to keep a sorted linked list of my boxes, splitting
 ! them until I have enough to fill my superindividuals.
 !
-            OneCell = .false.
             DO WHILE (Nboxes .lt. Nsuper .and.                          &
-     &                Nboxes .lt.  egg_cells(isp) .and.                 &
-     &                (.not. OneCell))
+     &                Nboxes .lt.  egg_cells(isp))
 
 ! Pop the top box from the stack and split it.
-              bigbox => pop_box(isp)
+              bigbox => pop_box(isp, .true.)
               IF (.not. ASSOCIATED(bigbox)) THEN
                 print *, "I'm in trouble again..."
               END IF
 
-              IF ((bigbox%i1.eq.bigbox%i2).and.                         &
-     &            (bigbox%j1.eq.bigbox%j2)) THEN
-
-                OneCell = .true.
-
-              ELSE
-
 ! Need to make some new boxes.
-                ALLOCATE(ll_box)
-                ALLOCATE(ur_box)
+              ALLOCATE(ll_box)
+              ALLOCATE(ur_box)
 
-                IF (bigbox % last_lr_split) THEN
+              IF (bigbox % last_lr_split) THEN
 !  split north-south
-                  ll_box % i1 = bigbox % i1
-                  ll_box % i2 = bigbox % i2
-                  ll_box % j1 = bigbox % j1
-                  ll_box % j2 = (bigbox % j1 + bigbox % j2)/2
-                  ur_box % i1 = bigbox % i1
-                  ur_box % i2 = bigbox % i2
-                  ur_box % j1 = (bigbox % j1 + bigbox % j2)/2 + 1
-                  ur_box % j2 = bigbox % j2
-                  ll_box % last_lr_split = .false.
-                  ur_box % last_lr_split = .false.
-                ELSE
+                ll_box % i1 = bigbox % i1
+                ll_box % i2 = bigbox % i2
+                ll_box % j1 = bigbox % j1
+                ll_box % j2 = (bigbox % j1 + bigbox % j2)/2
+                ur_box % i1 = bigbox % i1
+                ur_box % i2 = bigbox % i2
+                ur_box % j1 = (bigbox % j1 + bigbox % j2)/2 + 1
+                ur_box % j2 = bigbox % j2
+                ll_box % last_lr_split = .false.
+                ur_box % last_lr_split = .false.
+              ELSE
 !  split left-right
-                  ll_box % i1 = bigbox % i1
-                  ll_box % i2 = (bigbox % i1 + bigbox % i2)/2
-                  ll_box % j1 = bigbox % j1
-                  ll_box % j2 = bigbox % j2
-                  ur_box % i1 = (bigbox % i1 + bigbox % i2)/2 + 1
-                  ur_box % i2 = bigbox % i2
-                  ur_box % j1 = bigbox % j1
-                  ur_box % j2 = bigbox % j2
-                  ll_box % last_lr_split = .true.
-                  ur_box % last_lr_split = .true.
-!                  ll_box % last_lr_split = .false.
-!                  ur_box % last_lr_split = .false.
-                END IF
-                Nboxes = Nboxes - 1
-                ll_box % egg_sum = SUM(eggs_all(ll_box % i1:ll_box % i2, &
-     &                             ll_box % j1:ll_box % j2,isp))
-                ur_box % egg_sum = SUM(eggs_all(ur_box % i1:ur_box % i2, &
-     &                             ur_box % j1:ur_box % j2,isp))
-                IF (ll_box % egg_sum > 0) THEN
-                  CALL push_box(isp, ll_box)
-                  Nboxes = Nboxes + 1
-                ELSE
-                  deallocate(ll_box)
-                END IF
-                IF (ur_box % egg_sum > 0) THEN
-                  CALL push_box(isp, ur_box)
-                  Nboxes = Nboxes + 1
-                ELSE
-                  deallocate(ur_box)
-                END IF
-                deallocate(bigbox)
-
+                ll_box % i1 = bigbox % i1
+                ll_box % i2 = (bigbox % i1 + bigbox % i2)/2
+                ll_box % j1 = bigbox % j1
+                ll_box % j2 = bigbox % j2
+                ur_box % i1 = (bigbox % i1 + bigbox % i2)/2 + 1
+                ur_box % i2 = bigbox % i2
+                ur_box % j1 = bigbox % j1
+                ur_box % j2 = bigbox % j2
+                ll_box % last_lr_split = .true.
+                ur_box % last_lr_split = .true.
               END IF
+              Nboxes = Nboxes - 1
+              ll_box % egg_sum = SUM(eggs_all(ll_box % i1:ll_box % i2,  &
+     &                             ll_box % j1:ll_box % j2,isp))
+              ur_box % egg_sum = SUM(eggs_all(ur_box % i1:ur_box % i2,  &
+     &                             ur_box % j1:ur_box % j2,isp))
+              IF (ll_box % egg_sum > 0) THEN
+                CALL push_box(isp, ll_box)
+                Nboxes = Nboxes + 1
+              ELSE
+                deallocate(ll_box)
+              END IF
+              IF (ur_box % egg_sum > 0) THEN
+                CALL push_box(isp, ur_box)
+                Nboxes = Nboxes + 1
+              ELSE
+                deallocate(ur_box)
+              END IF
+              deallocate(bigbox)
             END DO
           END IF
         END SUBROUTINE egglist_split
@@ -308,7 +294,7 @@
 !
           Nfound = 0
           DO
-            box => pop_box(isp)
+            box => pop_box(isp, .false.)
             IF (.not. isLast(box)) THEN
               Nfound = Nfound + 1
               eggs(Nfound) = box % egg_sum 
@@ -320,22 +306,37 @@
           END DO
         END SUBROUTINE egglist_collect
 
-        FUNCTION pop_box(isp)
+        FUNCTION pop_box(isp, splittable)
           integer, intent(in) :: isp
+          logical, intent(in) :: splittable
           type(egg_box), pointer :: pop_box
           type(egg_box), pointer :: cur, prev
 
           prev => roe_list(isp)
-!  Returning the first box.
           cur => roe_list(isp) % next
-          prev % next => cur % next
-          pop_box => cur
-          RETURN
+!  I'm either returning the first no matter what, or I'm returning the
+!  first with more than one grid cell.
+          DO
+            IF (.not. splittable .or. (cur % i1 .ne. cur % i2) .or.     &
+     &           (cur % j1 .ne. cur % j2) ) THEN
+              IF (ASSOCIATED(cur % next)) THEN
+                prev % next => cur % next
+              END IF
+              pop_box => cur
+              RETURN
+            END IF
+            prev => cur
+            IF (ASSOCIATED(cur % next)) THEN
+              cur => cur % next
+            ELSE
+              pop_box => null()
+            END IF
+          END DO
         END FUNCTION pop_box
 
         SUBROUTINE push_box(isp, box)
           integer, intent(in) :: isp
-          type(egg_box), pointer :: box
+          type(egg_box), target :: box
           type(egg_box), pointer :: cur, next
           real(r8) :: cur_eggs, next_eggs, my_eggs
 
