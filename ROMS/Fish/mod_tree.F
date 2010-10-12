@@ -377,7 +377,7 @@
             RETURN
           ELSE IF (Nsuper >= this % nitems) THEN
             IF (ASSOCIATED(this % root)) CALL copy_traverse(            &
-     &               this % root, Nsuper, Nfound, eggs, momfish)
+     &               this % root % left, Nsuper, Nfound, eggs, momfish)
             IF (Nfound .ne. this % nitems) print *, "Oh, noes!",        &
      &               Nfound, this % nitems
           ELSE
