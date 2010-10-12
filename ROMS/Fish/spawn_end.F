@@ -69,7 +69,7 @@
 
 !  Find the largest and split them in two
           DO WHILE (Navail .gt. 0)
-            this_fish = pop_fish()
+            this_fish => pop_fish()
             this_fish % fish_worth = 0.5 * this_fish % fish_worth
             ifish = this_fish % fish
             nfish = FISHES(ng) % next_free(isp)
@@ -83,7 +83,7 @@
             CALL push_fish(half_fish)
             Navail = Navail - 1
           END DO
-!         CALL clean_list
+          CALL clean_list
         END SUBROUTINE split_biggest
 
         FUNCTION pop_fish()
