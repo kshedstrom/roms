@@ -72,6 +72,8 @@
                 idFalv=varid
               CASE ('idFTspwn')
                 idFTspwn=varid
+              CASE ('idFiniw')
+                idFiniw=varid
 # ifdef PREDATOR
               CASE ('idPwwt')
                 idPwwt=varid

@@ -257,6 +257,14 @@
      &                 NF_FOUT, 1, (/fishdim/), Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 !
+!  Define initial worth (needed on restart)
+!
+        Vinfo( 1)='Iniworth'
+        Vinfo( 2)='Initial worth'
+        status=def_var(ng, iNLM, ncFISHid(ng), fishVid(idFiniw,ng),     &
+     &                 NF_FOUT, 1, (/fishdim/), Aval, Vinfo, ncname)
+        IF (exit_flag.ne.NoError) RETURN
+!
 !  Define fish age base
 !
         Vinfo( 1)='Fish_age_base'
@@ -1115,6 +1123,9 @@
           ELSE IF (TRIM(var_name(i)).eq.'Tspawn') THEN
             got_var(idFTspwn)=.TRUE.
             fishVid(idFTspwn,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.'Iniworth') THEN
+            got_var(idFiniw)=.TRUE.
+            fishVid(idFiniw,ng)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.'Xgrid') THEN
             got_var(idXgrd)=.TRUE.
             fishVid(idXgrd,ng)=var_id(i)
@@ -1215,6 +1226,12 @@
         END IF
         IF (.not.got_var(idFTspwn)) THEN
           IF (Master) WRITE (stdout,60) TRIM(Vname(1,idFTspwn)),        &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idFiniw)) THEN
+          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idFiniw)),         &
      &                                  TRIM(ncname)
           exit_flag=3
           RETURN
@@ -1441,6 +1458,16 @@
      &                        total = (/Nfish(ng)/))
         DO l=1,Nfish(ng)
           FISHES(ng)%bioenergy(iftspwn,l)=Tinp(l)
+        END DO
+
+        CALL netcdf_get_fvar (ng, iNLM, ncname,                         &
+     &                        TRIM(Vname(1,idFiniw)),                   &
+     &                        Tinp,                                     &
+     &                        ncid = ncFISHid(ng),                      &
+     &                        start = (/1/),                            &
+     &                        total = (/Nfish(ng)/))
+        DO l=1,Nfish(ng)
+          FISHES(ng)%bioenergy(ifiniwth,l)=Tinp(l)
         END DO
 
         CALL netcdf_get_ivar (ng, iNLM, ncname,                         &
