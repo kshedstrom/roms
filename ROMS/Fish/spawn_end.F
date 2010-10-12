@@ -148,6 +148,8 @@
 
           FISHES(ng)%bioenergy(ifworth,fish1)=0.5_r8*                   &
      &                           FISHES(ng)%bioenergy(ifworth,fish1)
+          FISHES(ng)%bioenergy(ifiniwth,fish1)=0.5_r8*                   &
+     &                           FISHES(ng)%bioenergy(ifiniwth,fish1)
           FISHES(ng)%egg_num(fish1)=0.5_r8*FISHES(ng)%egg_num(fish1)
           FISHES(ng)%ysac_num(fish1)=0.5_r8*FISHES(ng)%ysac_num(fish1)
           FISHES(ng)%larv_num(fish1)=0.5_r8*FISHES(ng)%larv_num(fish1)
