@@ -70,9 +70,9 @@ endif
              LIBS += -L$(NETCDF_LIBDIR) -lnetcdf
 ifdef USE_NETCDF4
              LIBS += -L$(HDF5_LIBDIR) -lhdf5_hl -lhdf5 -lz
- ifdef USE_DAP
+endif
+ifdef USE_DAP
              LIBS += $(shell curl-config --libs)
- endif
 endif
 
 ifdef USE_ARPACK
@@ -97,6 +97,7 @@ ifdef USE_DEBUG
            FFLAGS += -g -fbounds-check
            CFLAGS += -g
          CXXFLAGS += -g
+$(SCRATCH_DIR)/interp_floats.o:FFLAGS = -frepack-arrays -g
 else
            FFLAGS += -O3 -ffast-math
            CFLAGS += -O3
@@ -144,9 +145,9 @@ $(SCRATCH_DIR)/def_var.o: FFLAGS += -fno-bounds-check
 FC_TEST := $(findstring $(shell ${FC} --version | head -1 | cut -d " " -f 5 | \
                               cut -d "." -f 1-2),4.0 4.1)
 
-ifeq "${FC_TEST}" ""
-$(SCRATCH_DIR)/ran_state.o: FFLAGS += -fno-strict-overflow
-endif
+#ifeq "${FC_TEST}" ""
+#$(SCRATCH_DIR)/ran_state.o: FFLAGS += -fno-strict-overflow
+#endif
 
 #
 # Set free form format in source files to allow long string for
