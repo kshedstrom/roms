@@ -3672,11 +3672,43 @@
                 END IF
               END DO
             END DO
+#ifdef OFFLINE_FLOATS
+          ELSE IF (TRIM(KeyWord).eq.'NCFILES') THEN
+            Npts=load_i(Nval, Rval, Ngrids, nCfiles)
+              DO ng=1,Ngrids
+              IF (nCfiles(ng).le.0) THEN 
+                IF (Master) WRITE (out,260) 'NCFILES',                  &
+     &                            'Must be equal or greater than one.'
+                exit_flag=4
+                RETURN
+              END IF
+            END DO     
+            Npts=MAXVAL(nCfiles)     
+            allocate ( CLMids (Npts,Ngrids) )
+            allocate ( CLMname(Npts,Ngrids) )
+            CLMids(1:Npts,1:Ngrids)=-1
+            DO ng=1,Ngrids
+              DO k=1,Npts
+                DO i=1,LEN(CLMname(k,ng))
+                  CLMname(k,ng)(i:i)=blank
+                END DO
+              END DO
+            END DO
+          ELSE IF (TRIM(KeyWord).eq.'CLMNAME') THEN
+            DO ng=1,Ngrids
+              DO i=1,nCfiles(ng)
+                IF (Nval.eq.(i+(Ngrids-1)*nCfiles(ng))) THEN
+                  CLMname(i,ng)=TRIM(ADJUSTL(Cval(Nval)))
+                END IF
+              END DO
+            END DO
+#else
           ELSE IF (TRIM(KeyWord).eq.'CLMNAME') THEN
             DO i=1,LEN(CLMname(Nval))
               CLMname(Nval)(i:i)=blank
             END DO
             CLMname(Nval)=TRIM(ADJUSTL(Cval(Nval)))
+#endif
           ELSE IF (TRIM(KeyWord).eq.'BRYNAME') THEN
             DO i=1,LEN(BRYname(Nval))
               BRYname(Nval)(i:i)=blank
@@ -5907,7 +5939,8 @@
      &                    TRIM(fname)
 #endif
 #ifdef INI_FILE
-# ifdef NONLINEAR
+# if defined NONLINEAR && !defined OFFLINE_FLOATS
+! Don't search for INI file if doing OFFLINE FLOATS
           fname=INIname(ng)
           IF (.not.find_file(ng, fname)) GO TO 30
           WRITE (out,230) '  Input Nonlinear Initial File:  ',          &
@@ -5940,7 +5973,8 @@
      &                    TRIM(fname)
 # endif
 #endif
-#ifdef FRC_FILE
+#if defined FRC_FILE && !defined OFFLINE_FLOATS
+! Don't check for forcing files if doing OFFLINE_FLOATS
           DO i=1,nFfiles(ng)
             fname=FRCname(i,ng)
             IF (.not.find_file(ng, fname)) GO TO 30
@@ -5949,10 +5983,21 @@
           END DO
 #endif
 #ifdef CLM_FILE
+# ifdef OFFLINE_FLOATS
+          DO i=1,nCfiles(ng)
+            fname=CLMname(i,ng)
+            INQUIRE (FILE=TRIM(fname), EXIST=inhere)
+            IF (.not.inhere) GO TO 30
+            WRITE (out,310) '         Climatology File ', i, ':  ',
+&
+     &                      TRIM(fname)
+          END DO
+# else
           fname=CLMname(ng)
           IF (.not.find_file(ng, fname)) GO TO 30
           WRITE (out,230) '        Input Climatology File:  ',          &
      &                    TRIM(fname)
+# endif
 #endif
 #if defined FORWARD_READ && !(defined FOUR_DVAR || defined PICARD_TEST)
           fname=FWDname(ng)

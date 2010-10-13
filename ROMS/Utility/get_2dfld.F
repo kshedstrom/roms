@@ -642,7 +642,7 @@
             Iinfo(8,ifield,ng)=Tindex
           END IF
 
-#ifdef OFFLINE_FLOATS_PD
+#ifdef OFFLINE_FLOATS
           CALL netcdf_open (ng, model, ncfile, 0, ncid)
 #endif
 !
@@ -726,7 +726,7 @@
             END IF
             update=.TRUE.
           END IF
-#ifdef OFFLINE_FLOATS_PD
+#ifdef OFFLINE_FLOATS
           CALL netcdf_close (ng, model, ncid, ncfile)
 #endif
         END IF
@@ -752,7 +752,7 @@
      &        /,15x,'file is not CF compliant...')
   20  FORMAT (/,' GET_2DFLD   - unable to find requested variable: ',a, &
      &        /,15x,'in file: ',a)
-#ifdef OFFLINE_FLOATS_PD
+#ifdef OFFLINE_FLOATS
   25  FORMAT (/,' GET_2DFLD - model start time not found in any ',      &
      &        'Climatology file! ')
 #endif
