@@ -120,7 +120,7 @@
         foundit=.FALSE.
         QUERY: DO ifile=1,nfiles
 
-#ifdef OFFLINE_FLOATS_PD
+#ifdef OFFLINE_FLOATS
 !
 !  Intialize local variables.
 !
@@ -233,7 +233,7 @@
 !
 !  Determine initial time record to read and cycling switch.
 !
-#ifdef OFFLINE_FLOATS_PD
+#ifdef OFFLINE_FLOATS
           IF (foundit.and.got_time) THEN
             CALL get_cycle (ng, model, ncfile, Tname(ifield), nrec,     &
      &                      tdays(ng), Tid, Liocycle, Clength,          &
@@ -259,7 +259,7 @@
 !
 !  Store variable information into global information arrays.
 !
-#ifdef OFFLINE_FLOATS_PD
+#ifdef OFFLINE_FLOATS
           IF (foundit.and.got_time) THEN
 #else
           IF (foundit) THEN
@@ -602,7 +602,7 @@
             Iinfo(8,ifield,ng)=Tindex
           END IF
 
-#ifdef OFFLINE_FLOATS_PD
+#ifdef OFFLINE_FLOATS
           CALL netcdf_open (ng, model, ncfile, 0, ncid)
 #endif
 !
@@ -739,7 +739,7 @@
      &        /,15x,'file is not CF compliant...')
   20  FORMAT (/,' GET_3DFLD   - unable to find requested variable: ',a, &
      &        /,15x,'in input NetCDF file: ',a)
-#ifdef OFFLINE_FLOATS_PD
+#ifdef OFFLINE_FLOATS
   25  FORMAT (/,' GET_3DFLD - model start time not found in any ',      &
      &        'Climatology file!')
 #endif

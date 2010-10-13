@@ -157,7 +157,7 @@
           IF (MyThread(l)) THEN
             zfloat=FLT(ng)%Tinfo(izgrd,l)
             FLT(ng)%Fz0(l)=zfloat               ! Save original value
-#ifdef OFFLINE_FLOATS_PD
+#ifdef OFFLINE_FLOATS
             IF (l.eq.1) THEN
               print *, 'Float # ', l, ' FLT(ng)%Fz0: ', FLT(ng)%Fz0(l)
               print *, 'The preceeding print fixes a memory bug somehow.'
