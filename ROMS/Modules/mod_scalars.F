@@ -146,6 +146,16 @@
         integer, parameter :: ifakt = 11         ! diffusivity, Akt
         integer, parameter :: ifdak = 12         ! d(Akt)/d(s)
 # endif
+# ifdef OFFLINE_FLOATS
+        integer, parameter :: ixspc = 11         ! x-space location
+        integer, parameter :: iyspc = 12         ! y-space location
+        integer, parameter :: iwdph = 13         ! water depth
+        integer, parameter :: ifHzz = 14         ! Hz
+#  ifdef FLOAT_VWALK
+        integer, parameter :: ifakt = 15         ! diffusivity, Akt
+        integer, parameter :: ifdak = 16         ! d(Akt)/d(s)
+#  endif
+# endif
 # ifdef SOLVE3D
 !
 !  Tracer variables indices in the track array.

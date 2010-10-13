@@ -3672,7 +3672,6 @@
                 END IF
               END DO
             END DO
-#ifdef OFFLINE_FLOATS
           ELSE IF (TRIM(KeyWord).eq.'NCFILES') THEN
             Npts=load_i(Nval, Rval, Ngrids, nCfiles)
               DO ng=1,Ngrids
@@ -3702,13 +3701,6 @@
                 END IF
               END DO
             END DO
-#else
-          ELSE IF (TRIM(KeyWord).eq.'CLMNAME') THEN
-            DO i=1,LEN(CLMname(Nval))
-              CLMname(Nval)(i:i)=blank
-            END DO
-            CLMname(Nval)=TRIM(ADJUSTL(Cval(Nval)))
-#endif
           ELSE IF (TRIM(KeyWord).eq.'BRYNAME') THEN
             DO i=1,LEN(BRYname(Nval))
               BRYname(Nval)(i:i)=blank
@@ -5939,7 +5931,7 @@
      &                    TRIM(fname)
 #endif
 #ifdef INI_FILE
-# if defined NONLINEAR && !defined OFFLINE_FLOATS
+# if defined NONLINEAR && !defined OFFLINE
 ! Don't search for INI file if doing OFFLINE FLOATS
           fname=INIname(ng)
           IF (.not.find_file(ng, fname)) GO TO 30
@@ -5983,7 +5975,6 @@
           END DO
 #endif
 #ifdef CLM_FILE
-# ifdef OFFLINE_FLOATS
           DO i=1,nCfiles(ng)
             fname=CLMname(i,ng)
             INQUIRE (FILE=TRIM(fname), EXIST=inhere)
@@ -5992,12 +5983,6 @@
 &
      &                      TRIM(fname)
           END DO
-# else
-          fname=CLMname(ng)
-          IF (.not.find_file(ng, fname)) GO TO 30
-          WRITE (out,230) '        Input Climatology File:  ',          &
-     &                    TRIM(fname)
-# endif
 #endif
 #if defined FORWARD_READ && !(defined FOUR_DVAR || defined PICARD_TEST)
           fname=FWDname(ng)

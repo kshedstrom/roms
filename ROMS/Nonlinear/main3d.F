@@ -1,6 +1,5 @@
 #include "cppdefs.h"
-#if defined NONLINEAR && defined SOLVE3D && \
-    (!defined OFFLINE_BIOLOGY && ! defined OFFLINE_FLOATS)
+#if defined NONLINEAR && defined SOLVE3D && (!defined OFFLINE)
       SUBROUTINE main3d (ng)
 !
 !svn $Id$

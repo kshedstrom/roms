@@ -206,11 +206,6 @@
            dtdays = dt(ng)*sec2day
 
 # endif
-# if !(defined SOLVE3D && defined FLOAT_VWALK)
-      DO l=Lstr,Lend
-        nudg(l)=0.0_r8
-      END DO
-# endif
 # if defined SOLVE3D && defined FLOAT_VWALK
 !
 !-----------------------------------------------------------------------
@@ -219,6 +214,10 @@
 !-----------------------------------------------------------------------
 !
       CALL vwalk_floats (ng, Lstr, Lend, .TRUE., MyThread, nudg)
+# else
+      DO l=Lstr,Lend
+        nudg(l)=0.0_r8
+      END DO
 # endif
 !
 !-----------------------------------------------------------------------
