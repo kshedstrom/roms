@@ -22,9 +22,7 @@
 #if defined BEST_NPZ || defined BIO_GOANPZ
       USE mod_biology
 #endif
-#ifndef OFFLINE_FLOATS
       USE mod_boundary
-#endif
 #ifdef CLIMATOLOGY
       USE mod_clima
 #endif
@@ -88,9 +86,7 @@
 !
       CALL wclock_on (ng, iNLM, 3)
 #endif
-
-#ifndef OFFLINE_FLOATS
-#if defined FRC_FILE
+#ifdef FRC_FILE
 !
 !=======================================================================
 !  Read in forcing data from FORCING NetCDF file.
@@ -1185,68 +1181,14 @@
 # endif
 #endif
 
-#endif /* !OFFLINE_FLOATS */
-
 #ifdef CLM_FILE
 !
 !=======================================================================
 !  Read in climatology data from CLIMATOLOGY NetCDF file.
 !=======================================================================
 !
-#ifdef OFFLINE_FLOATS
-
-# ifdef SOLVE3D
-#  if !defined ANA_TCLIMA && defined TCLIMATOLOGY
-      DO i=1,NAT
-        CALL get_3dfld (ng, iNLM, idTclm(i), ncCLMid(idTclm(i),ng),     &
-     &                  nCfiles(ng), CLMname(1,ng), update(1),          &
-     &                  LBi, UBi, LBj, UBj, 1, N(ng), 2, 1,             &
-#   ifdef MASKING
-     &                  GRID(ng) % rmask(LBi,LBj),                      &
-#   endif
-     &                  CLIMA(ng) % tclmG(LBi,LBj,1,1,i))
-      END DO
-#  endif
-#  if !defined ANA_M3CLIMA && defined M3CLIMATOLOGY
-      CALL get_3dfld (ng, iNLM, idUclm, ncCLMid(idUclm,ng),             &
-     &                nCfiles(ng),CLMname(1,ng), update(1),             &
-     &                LBi, UBi, LBj, UBj, 1, N(ng), 2, 1,               &
-#   ifdef MASKING
-     &                GRID(ng) % umask(LBi,LBj),                        &
-#   endif
-     &                CLIMA(ng) % uclmG(LBi,LBj,1,1))
-      CALL get_3dfld (ng, iNLM, idVclm, ncCLMid(idVclm,ng),             &
-     &                nCfiles(ng),CLMname(1,ng), update(1),             &
-     &                LBi, UBi, LBj, UBj, 1, N(ng), 2, 1,               &
-#   ifdef MASKING
-     &                GRID(ng) % vmask(LBi,LBj),                        &
-#   endif
-     &                CLIMA(ng) % vclmG(LBi,LBj,1,1))
-#  endif
-#  if !defined ANA_OCLIMA && defined OCLIMATOLOGY
-      CALL get_3dfld (ng, iNLM, idOclm, ncCLMid(idOclm,ng),             &
-     &                nCfiles(ng),CLMname(1,ng), update(1),             &
-     &                LBi, UBi, LBj, UBj, 0, N(ng), 2, 1,               &
-#    ifdef MASKING
-     &                GRID(ng) % rmask(LBi,LBj),                        &
-#    endif
-     &                CLIMA(ng) % oclmG(LBi,LBj,0,1))
-#  endif
-#ifdef AKTCLIMATOLOGY
-      CALL get_3dfld (ng, iNLM, idAclm, ncCLMid(idAclm,ng),             &
-     &                nCfiles(ng),CLMname(1,ng), update(1),             &
-     &                LBi, UBi, LBj, UBj, 0, N(ng), 2, 1,               &
-#    ifdef MASKING
-     &                GRID(ng) % rmask(LBi,LBj),                        &
-#    endif
-     &                CLIMA(ng) % AclmG(LBi,LBj,0,1))
-#endif
-
-# endif   /* SOLVE3D */
-
-
 # if !defined ANA_SSH && defined ZCLIMATOLOGY
-      CALL get_2dfld (ng, iNLM, idSSHc, ncCLMid(idSSHc,ng),                        &
+      CALL get_2dfld (ng, iNLM, idSSHc, ncCLMid(idSSHc,ng),             &
      &                nCfiles(ng), CLMname(1,ng), update(1),            &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &
 #  ifdef MASKING
@@ -1270,76 +1212,32 @@
 #  endif
      &                CLIMA(ng) % vbarclmG(LBi,LBj,1))
 # endif
-
-#else /* OFFLINE_FLOATS_PD */
-
-# if !defined ANA_SSH && defined ZCLIMATOLOGY
-      CALL get_2dfld (ng, iNLM, idSSHc, ncCLMid(ng), 1,                 &
-     &                CLMname(ng), update(1),                           &
-     &                LBi, UBi, LBj, UBj, 2, 1,                         &
-#  ifdef MASKING
-     &                GRID(ng) % rmask(LBi,LBj),                        &
-#  endif
-     &                CLIMA(ng) % sshG(LBi,LBj,1))
-# endif
-# if !defined ANA_M2CLIMA && defined M2CLIMATOLOGY
-      CALL get_2dfld (ng, iNLM, idUbcl, ncCLMid(ng), 1,                 &
-     &                CLMname(ng), update(1),                           &
-     &                LBi, UBi, LBj, UBj, 2, 1,                         &
-#  ifdef MASKING
-     &                GRID(ng) % umask(LBi,LBj),                        &
-#  endif
-     &                CLIMA(ng) % ubarclmG(LBi,LBj,1))
-      CALL get_2dfld (ng, iNLM, idVbcl, ncCLMid(ng), 1,                 &
-     &                CLMname(ng), update(1),                           &
-     &                LBi, UBi, LBj, UBj, 2, 1,                         &
-#  ifdef MASKING
-     &                GRID(ng) % vmask(LBi,LBj),                        &
-#  endif
-     &                CLIMA(ng) % vbarclmG(LBi,LBj,1))
-# endif
 # ifdef SOLVE3D
 #  if !defined ANA_TCLIMA && defined TCLIMATOLOGY
-! Only nudge the active tracers if doing a 1D simulation
-#    if defined SEBS1D
+!  KLUDGE - how many tracers to read? It depends...
       DO i=1,NAT
-        CALL get_3dfld (ng, iNLM, idTclm(i), ncCLMid(ng), 1,            &
-     &                  CLMname(ng), update(1),                         &
+        CALL get_3dfld (ng, iNLM, idTclm(i), ncCLMid(idTclm(i),ng),     &
+     &                  nCfiles(ng), CLMname(1,ng), update(1),          &
      &                  LBi, UBi, LBj, UBj, 1, N(ng), 2, 1,             &
 #   ifdef MASKING
      &                  GRID(ng) % rmask(LBi,LBj),                      &
 #   endif
      &                  CLIMA(ng) % tclmG(LBi,LBj,1,1,i))
       END DO
-#     endif
 
-#   if defined SOGLOBEC
-      DO i=1,NT(ng)
-        CALL get_3dfld (ng, iNLM, idTclm(i), ncCLMid(ng), 1,            &
-     &                  CLMname(ng), update(1),                         &
-     &                  LBi, UBi, LBj, UBj, 1, N(ng), 2, 1,             &
+#   if !defined ANA_AKTCLIMA && defined AKTCLIMATOLOGY
+     CALL get_3dfld (ng, iNLM, idAclm, ncCLMid(idAclm,ng),              &
+     &                  nCfiles(ng), CLMname(1,ng), update(1),          &
+     &                  LBi, UBi, LBj, UBj, 0, N(ng), 2, 1,             &
 #    ifdef MASKING
      &                  GRID(ng) % rmask(LBi,LBj),                      &
 #    endif
-     &                  CLIMA(ng) % tclmG(LBi,LBj,1,1,i))
-      END DO
-#   endif
-
-#   ifdef AKT_3D
-!get the Akt from climatology file -used in SEBS 1D simulation
-
-     CALL get_3dfld (ng, iNLM, idTclm(iAKt3), ncCLMid(ng), 1,           &
-     &                  CLMname(ng), update(1),                         &
-     &                  LBi, UBi, LBj, UBj, 1, N(ng), 2, 1,             &
-#    ifdef MASKING
-     &                  GRID(ng) % rmask(LBi,LBj),                      &
-#    endif
-     &                  CLIMA(ng) % tclmG(LBi,LBj,1,1,iAKt3))
+     &                  CLIMA(ng) % AclmG(LBi,LBj,0,1))
 #   endif
 
 #   if (defined BEST_NPZ || defined BIO_GOANPZ) && defined IRON_LIMIT
-      CALL get_3dfld (ng, iNLM, idTclm(iFe), ncclmid(ng), 1,            &
-     &                clmname(ng), update(1),                           &
+      CALL get_3dfld (ng, iNLM, idTclm(iFe), ncCLMid(ng), nCfiles(ng),  &
+     &                CLMname(1,ng), update(1),                         &
      &                LBi, UBi, LBj, UBj, 1, N(ng), 2, 1,               &
 #    ifdef MASKING
      &                GRID(ng) % rmask(LBi,LBj),                        &
@@ -1347,8 +1245,8 @@
      &                CLIMA(ng) % tclmG(LBi,LBj,1,1,iFe))
 #   endif
 #    if defined ICE_BIO && defined CLIM_ICE_1D
-       CALL get_3dfld (ng, iNLM, idTclm(i1CI), ncclmid(ng), 1,          &
-     &                clmname(ng), update(1),                           &
+       CALL get_3dfld (ng, iNLM, idTclm(i1CI), ncCLMid(ng),             &
+     &                nCfiles(ng), CLMname(1,ng), update(1),            &
      &                LBi, UBi, LBj, UBj, 1, N(ng), 2, 1,               &
 #    ifdef MASKING
      &                GRID(ng) % rmask(LBi,LBj),                        &
@@ -1357,8 +1255,8 @@
 #   endif
 #  endif
 #  if !defined ANA_OCLIMA && defined OCLIMATOLOGY
-      CALL get_3dfld (ng, iNLM, idOclm, ncCLMid(ng), 1,                 &
-     &                CLMname(ng), update(1),                           &
+      CALL get_3dfld (ng, iNLM, idOclm, ncCLMid(idOclm,ng),             &
+     &                nCfiles(ng), CLMname(1,ng), update(1),            &
      &                LBi, UBi, LBj, UBj, 1, N(ng), 2, 1,               &
 #    ifdef MASKING
      &                GRID(ng) % rmask(LBi,LBj),                        &
@@ -1366,15 +1264,15 @@
      &                CLIMA(ng) % oclmG(LBi,LBj,1,1))
 #  endif
 #  if !defined ANA_M3CLIMA && defined M3CLIMATOLOGY
-      CALL get_3dfld (ng, iNLM, idUclm, ncCLMid(ng), 1,                 &
-     &                CLMname(ng), update(1),                           &
+      CALL get_3dfld (ng, iNLM, idUclm, ncCLMid(idUclm,ng),             &
+     &                nCfiles(ng), CLMname(1,ng), update(1),            &
      &                LBi, UBi, LBj, UBj, 1, N(ng), 2, 1,               &
 #   ifdef MASKING
      &                GRID(ng) % umask(LBi,LBj),                        &
 #   endif
      &                CLIMA(ng) % uclmG(LBi,LBj,1,1))
-      CALL get_3dfld (ng, iNLM, idVclm, ncCLMid(ng), 1,                 &
-     &                CLMname(ng), update(1),                           &
+      CALL get_3dfld (ng, iNLM, idVclm, ncCLMid(idVclm,ng),             &
+     &                nCfiles(ng), CLMname(1,ng), update(1),            &
      &                LBi, UBi, LBj, UBj, 1, N(ng), 2, 1,               &
 #   ifdef MASKING
      &                GRID(ng) % vmask(LBi,LBj),                        &
@@ -1382,7 +1280,6 @@
      &                CLIMA(ng) % vclmG(LBi,LBj,1,1))
 #  endif
 # endif
-# endif  /* OFFLINE_FLOATS */
 #endif
 
 #if defined ASSIMILATION || defined NUDGING
