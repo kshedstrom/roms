@@ -24,7 +24,7 @@
       USE mod_scalars
       USE mod_stepping
 # ifdef NEMURO_SAN
-      USE mod_fish 
+      USE mod_fish
       USE mod_biology
 # endif
 !

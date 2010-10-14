@@ -276,7 +276,6 @@
 !# else
             Tout(l)=FLT(ng)%track(ifTvar(itrc),nf(ng),l)
 #  endif
-# endif
           ELSE
             Tout(l)=spval
           END IF
@@ -289,8 +288,9 @@
         IF (exit_flag.ne.NoError) RETURN
       END DO
 
-# ifdef OFFLINE_FLOATS
-      IF (Master) print *, '  WRT_FLOATS, model time (days), t=', tdays
+#  ifdef OFFLINE_FLOATS
+      IF (Master) print, *, '  WRT_FLOATS, model time (days), t=', tdays
+#  endif
 # endif
 !
 !-----------------------------------------------------------------------
