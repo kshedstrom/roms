@@ -997,6 +997,8 @@
       real(r8) :: cff1
 
 # include "set_bounds.h"
+
+#ifndef OFFLINE_FLOATS
 !
 !-----------------------------------------------------------------------
 !  Initialize other time levels for free-surface.
@@ -1122,6 +1124,8 @@
      &                      rmask_wet)
 #  endif
 # endif
+
+#endif  /* OFFLINE_FLOATS */
 
 # ifdef SOLVE3D
 !

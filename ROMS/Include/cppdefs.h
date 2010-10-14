@@ -531,6 +531,7 @@
 ** M2CLIMATOLOGY       use if processing 2D momentum climatology             **
 ** M3CLIMATOLOGY       use if processing 3D momentum climatology             **
 ** OCLIMATOLOGY        use if processing 3D vertical momentum climatology    **
+** AKTCLIMATOLOGY      use if processing 3D vertical salinity diffustion     **
 ** TCLIMATOLOGY        use if processing tracers climatology                 **
 ** ZCLIMATOLOGY        use if processing SSH climatology                     **
 **                                                                           **

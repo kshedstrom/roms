@@ -66,16 +66,14 @@
 ! indices (Istr,Iend) and (Jstr,Jend), [1:Ngrids].
 
        NtileI == 1                               ! I-direction partition
-       NtileJ == 1                              ! J-direction partition
+       NtileJ == 4                              ! J-direction partition
 !      NtileI == 6                               ! I-direction partition
 !      NtileJ == 8                              ! J-direction partition
 
 ! Time-Stepping parameters.
 
-!      NTIMES == 216
-       NTIMES == 1296
-!      NTIMES == 51840
-!      NTIMES == 25920
+!      NTIMES == 756
+       NTIMES == 51840
 !      NTIMES == 3073152       ! to 1/Nov/2001
 !      NTIMES == 6872472       ! for 200 days
           DT == 400.0d0
@@ -101,23 +99,18 @@
        NRREC =  0
    LcycleRST == T
         NRST == 216
-        NSTA == 1
+        NSTA == 9
         NFLT == 1
        NINFO == 1
 
 ! Output history, average, diagnostic files parameters.
 
      LDEFOUT == T
-!        NHIS == 9
-!    NDEFHIS == 180
         NHIS == 216
      NDEFHIS == 2160
       NTSAVG == 1
         NAVG == 216
      NDEFAVG == 2160
-      NTSAVG2 == 1
-        NAVG2 == 27
-     NDEFAVG2 == 2700
       NTSDIA == 1
         NDIA == 10
      NDEFDIA == 0
@@ -430,63 +423,6 @@ Hout(idWro) == T
 
 Hout(idBott) == T T T T T T T T T F F F F F F F
 
-! Logical switches (TRUE/FALSE) to activate writing of fields into
-! SECONDARY output file.
-
-Aout2(idUvel) == T                          ! 3D U-velocity
-Aout2(idVvel) == T                          ! 3D V-velocity
-Aout2(idUbar) == T                          ! 2D U-velocity
-Aout2(idVbar) == T                          ! 2D V-velocity
-Aout2(idFsur) == T                          ! free-surface
-
-Aout2(idTvar) == T T                        ! temperature and salinity
-
-Aout2(idUair) == T                          ! surface U-wind
-Aout2(idVair) == T                          ! surface V-wind
-Aout2(idUsms) == T                          ! surface U-stress
-Aout2(idVsms) == T                          ! surface V-stress
-
-Aout2(idTsur) == T T                        ! surface net heat and salt flux
-Aout2(idLhea) == T                          ! latent heat flux
-Aout2(idShea) == T                          ! sensible heat flux
-Aout2(idLrad) == T                          ! longwave radiation flux
-Aout2(idSrad) == T                          ! shortwave radiation flux
-Aout2(idEmPf) == F                          ! E-P flux
-Aout2(idevap) == F                          ! evaporation rate
-Aout2(idrain) == F                          ! precipitation rate
-
-Aout2(idDano) == F                          ! density anomaly
-Aout2(idHsbl) == F                          ! depth of surface boundary layer
-Aout2(idHbbl) == F                          ! depth of bottom boundary layer
-
-! Logical switches (TRUE/FALSE) to activate writing of ice prognostic
-! variables into HISTORY output file.
-Aout2(idUice) == T
-Aout2(idVice) == T
-Aout2(idAice) == T
-Aout2(idHice) == T
-Aout2(idTice) == T
-Aout2(idHsno) == T
-Aout2(idTimid) == T
-Aout2(idSfwat) == T
-Aout2(idTauiw) == F
-Aout2(idChuiw) == F
-Aout2(idAgeice) == T
-Aout2(idSig11) == F
-Aout2(idSig12) == F
-Aout2(idSig22) == F
-Aout2(idS0mk) == F
-Aout2(idT0mk) == F
-
-! Logical switches (TRUE/FALSE) to activate writing of extra inert passive
-! tracers other than biological and sediment tracers. An inert passive tracer
-! is one that it is only advected and diffused. Other processes are ignored.
-! These tracers include, for example, dyes, pollutants, oil spills, etc.
-! NPT values are expected. However, these switches can be activated using
-! compact parameter specification.
-
- Aout2(inert) == F                          ! inert passive tracers
-
 ! Logical switches (TRUE/FALSE) to activate writing of time-averaged
 ! fields into AVERAGE output file.
 
@@ -634,8 +570,8 @@ Dout(iTvdif) == T T                        ! vertical diffusion
 
 !     GRDNAME == /wrkdir/kate/BiomModel/NEP4/NEP4_grid.nc
      GRDNAME == /wrkdir/kate/Bering_10k/Files/Bering_grid_10k.nc
-     ININAME == /wrkdir/kate/Bering_10k/Files/Bering_10k_SODA_1999.nc
-!    ININAME == nep5_rst.nc
+    ININAME == /wrkdir/kate/Bering_10k/Files/Bering_10k_SODA_1999.nc
+!     ININAME == nep5_rst.nc
      ITLNAME == /ptmp/enrique/ROMS/NEP4/Inputs/ocean_itl.nc
      IRPNAME == ocean_irp.nc
      IADNAME == ocean_iad.nc
@@ -668,7 +604,6 @@ Dout(iTvdif) == T T                        ! vertical diffusion
                /wrkdir/kate/Bering_10k/Files/CCSM_rain.nc  \
                /wrkdir/kate/Bering_10k/Files/Bering_tides_otps.nc
 
-
 ! Output NetCDF file names, [1:Ngrids].
 
      GSTNAME == ocean_gst.nc
@@ -678,7 +613,6 @@ Dout(iTvdif) == T T                        ! vertical diffusion
      TLFNAME == ocean_tlf.nc
      ADJNAME == nep5_tlm.nc
      AVGNAME == nep5_avg.nc
-     AVG2NAME == nep5_avg2.nc
      DIANAME == nep5_dia.nc
      STANAME == nep5_sta.nc
      FLTNAME == nep5_flt.nc
