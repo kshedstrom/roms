@@ -334,6 +334,7 @@
 !  Compute right-hand-side terms for 3D equations.
 !-----------------------------------------------------------------------
 !
+# ifndef OFFLINE_FLOATS
 !$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(ng,numthreads)
       DO thread=0,numthreads-1
         subs=NtileX(ng)*NtileE(ng)/numthreads
@@ -347,7 +348,9 @@
         END DO
       END DO
 !$OMP END PARALLEL DO
+# endif
 
+# ifndef OFFLINE_FLOATS
 !
 !-----------------------------------------------------------------------
 !  Time-step vertical mixing turbulent equations and passive tracer
@@ -374,6 +377,7 @@
         END DO
       END DO
 !$OMP END PARALLEL DO
+# endif
 
 # ifndef TS_FIXED
 !
@@ -394,22 +398,6 @@
       END DO
 !$OMP END PARALLEL DO
 # endif
-# endif
-
-# ifdef ASSIMILATION
-!
-!-----------------------------------------------------------------------
-!  Assimilate observations via Optimal Interpolation.
-!-----------------------------------------------------------------------
-!
-!$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(ng,numthreads)
-      DO thread=0,numthreads-1
-        subs=NtileX(ng)*NtileE(ng)/numthreads
-        DO tile=subs*thread,subs*(thread+1)-1,+1
-          CALL oi_update (ng, TILE)
-        END DO
-      END DO
-!$OMP END PARALLEL DO
 # endif
 
 # ifdef FLOATS
