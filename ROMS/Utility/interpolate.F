@@ -621,6 +621,9 @@
 !
       USE mod_param
       USE mod_scalars
+#ifdef OFFLINE_FLOATS
+      USE mod_iounits
+#endif
 !
 !  Imported variable declarations.
 !
@@ -649,6 +652,9 @@
 
       real(r8) :: aa2, ang, bb2, diag2, dx, dy, phi
       real(r8) :: xfac, xpp, yfac, ypp
+#ifdef OFFLINE_FLOATS
+      real(r8) :: xh(5), yh(5), xh0, yh0
+#endif
 !
 !-----------------------------------------------------------------------
 !  Determine grid cell indices containing requested position points.
@@ -730,6 +736,57 @@
      &              (Js.le.Jmax).and.(Jmax.le.Je)
             END IF
           END IF
+
+#ifdef OFFLINE_FLOATS
+
+          found=try_range(ng, LBi, UBi, LBj, UBj,                       &
+     &                    Xgrd, Ygrd,                                   &
+     &                    Imin, Imax, Jmin, Jmax,                       &
+     &                    Xpos(mp,np), Ypos(mp,np))
+           
+          IF (.not. found) THEN
+            WRITE(stdout,*) 'Initial float ', mp,                       &
+     &                      ' location not found in grid.  ... '
+            WRITE(stdout,*) '(x,y)=',Xpos(mp,np),Ypos(mp,np)
+!            WRITE(stdout,*) '(I,J)min=',Imin,Jmin
+!            WRITE(stdout,*) '(I,J)max=',Imax,Jmax
+!            WRITE(stdout,*) 'grid (x(0,0),y(0,0))=',                   &
+!     &                       Xgrd(Imin,Jmin),Ygrd(Imin,Jmin)
+!            WRITE(stdout,*) 'grid (x(0,1),y(0,1))=',                   &
+!     &                       Xgrd(Imin,Jmax),Ygrd(Imin,Jmax)
+!            WRITE(stdout,*) 'grid (x(1,1),y(1,1))=',                   &
+!     &                       Xgrd(Imax,Jmax),Ygrd(Imax,Jmax)
+!            WRITE(stdout,*) 'grid (x(1,0),y(1,0))=',                   &
+!     &                       Xgrd(Imax,Jmin),Ygrd(Imax,Jmin)
+            WRITE(stdout,*) 'Check for float location error or ',       &
+     &                      'missing float.'
+            WRITE(stdout,*) 'Float grid coords will be default (0.5,0.5).'
+          END IF
+
+! New code by HPB, modified by Patrick Drake, added Feb. 2007
+!
+! knowing the exact cell, calculate the exact indices
+!       CAE adding this if statement for mpi case where proc does not have float
+        IF (found) THEN
+          yh(1) = Ygrd(Imin,Jmin+1)
+          yh(2) = Ygrd(Imin+1,Jmin+1)
+          yh(3) = Ygrd(Imin+1,Jmin)
+          yh(4) = Ygrd(Imin,Jmin)
+          xh(1) = Xgrd(Imin,Jmin+1)
+          xh(2) = Xgrd(Imin+1,Jmin+1)
+          xh(3) = Xgrd(Imin+1,Jmin)
+          xh(4) = Xgrd(Imin,Jmin)
+
+          yh0 = Ypos(mp,np)
+          xh0 = Xpos(mp,np)
+
+          call quadbisect(mp,xh0,yh0,xh,yh,dx,dy)
+          Ipos(mp,np)=REAL(Imin,r8)+dx
+          Jpos(mp,np)=REAL(Jmin,r8)+dy
+        END IF
+
+! End New code by HPB
+#else /* OFFLINE_FLOATS */
 !
 !  Knowing the correct cell, calculate the exact indices, accounting
 !  for a possibly rotated grid.  If spherical, convert all positions
@@ -777,6 +834,7 @@
             Ipos(mp,np)=REAL(Imin,r8)+dx
             Jpos(mp,np)=REAL(Jmin,r8)+dy
           END IF
+#endif /* OFFLINE_FLOATS */
         END DO
       END DO
 
@@ -859,6 +917,383 @@
       try_range=inside(Nb, Xb, Yb, Xo, Yo)
       RETURN
       END FUNCTION try_range
+
+#ifdef OFFLINE_FLOATS
+
+      LOGICAL FUNCTION inside (Nb, Xb, Yb, Xo, Yo)
+!
+!=======================================================================
+!                                                                      !
+!  Given the vectors Xb and Yb of size Nb, defining the coordinates    !
+!  of a closed polygon,  this function find if the point (Xo,Yo) is    !
+!  inside the polygon.  If the point  (Xo,Yo)  falls exactly on the    !
+!  boundary of the polygon, it is still considered inside.             !
+!                                                                      !
+!  This algorithm does not rely on the setting of  Xb(Nb)=Xb(1) and    !
+!  Yb(Nb)=Yb(1).  Instead, it assumes that the last closing segment    !
+!  is (Xb(Nb),Yb(Nb)) --> (Xb(1),Yb(1)).                               !
+!                                                                      !
+!  Reference:                                                          !
+!                                                                      !
+!    Reid, C., 1969: A long way from Euclid. Oceanography EMR,         !
+!      page 174.                                                       !
+!                                                                      !
+!  Algorithm:                                                          !
+!                                                                      !
+!  The decision whether the point is  inside or outside the polygon    !
+!  is done by counting the number of crossings from the ray (Xo,Yo)    !
+!  to (Xo,-infinity), hereafter called meridian, by the boundary of    !
+!  the polygon.  In this counting procedure,  a crossing is counted    !
+!  as +2 if the crossing happens from "left to right" or -2 if from    !
+!  "right to left". If the counting adds up to zero, then the point    !
+!  is outside.  Otherwise,  it is either inside or on the boundary.    !
+!                                                                      !
+!  This routine is a modified version of the Reid (1969) algorithm,    !
+!  where all crossings were counted as positive and the decision is    !
+!  made  based on  whether the  number of crossings is even or odd.    !
+!  This new algorithm may produce different results  in cases where    !
+!  Xo accidentally coinsides with one of the (Xb(k),k=1:Nb) points.    !
+!  In this case, the crossing is counted here as +1 or -1 depending    !
+!  of the sign of (Xb(k+1)-Xb(k)).  Crossings  are  not  counted if    !
+!  Xo=Xb(k)=Xb(k+1).  Therefore, if Xo=Xb(k0) and Yo>Yb(k0), and if    !
+!  Xb(k0-1) < Xb(k0) < Xb(k0+1),  the crossing is counted twice but    !
+!  with weight +1 (for segments with k=k0-1 and k=k0). Similarly if    !
+!  Xb(k0-1) > Xb(k0) > Xb(k0+1), the crossing is counted twice with    !
+!  weight -1 each time.  If,  on the other hand,  the meridian only    !
+!  touches the boundary, that is, for example, Xb(k0-1) < Xb(k0)=Xo    !
+!  and Xb(k0+1) < Xb(k0)=Xo, then the crossing is counted as +1 for    !
+!  segment k=k0-1 and -1 for segment k=k0, resulting in no crossing.   !
+!                                                                      !
+!  Note 1: (Explanation of the logical condition)                      !
+!                                                                      !
+!  Suppose  that there exist two points  (x1,y1)=(Xb(k),Yb(k))  and    !
+!  (x2,y2)=(Xb(k+1),Yb(k+1)),  such that,  either (x1 < Xo < x2) or    !
+!  (x1 > Xo > x2).  Therefore, meridian x=Xo intersects the segment    !
+!  (x1,y1) -> (x2,x2) and the ordinate of the point of intersection    !
+!  is:                                                                 !
+!                                                                      !
+!                 y1*(x2-Xo) + y2*(Xo-x1)                              !
+!             y = -----------------------                              !
+!                          x2-x1                                       !
+!                                                                      !
+!  The mathematical statement that point  (Xo,Yo)  either coinsides    !
+!  with the point of intersection or lies to the north (Yo>=y) from    !
+!  it is, therefore, equivalent to the statement:                      !
+!                                                                      !
+!         Yo*(x2-x1) >= y1*(x2-Xo) + y2*(Xo-x1),   if   x2-x1 > 0      !
+!  or                                                                  !
+!         Yo*(x2-x1) <= y1*(x2-Xo) + y2*(Xo-x1),   if   x2-x1 < 0      !
+!                                                                      !
+!  which, after noting that  Yo*(x2-x1) = Yo*(x2-Xo + Xo-x1) may be    !
+!  rewritten as:                                                       !
+!                                                                      !
+!        (Yo-y1)*(x2-Xo) + (Yo-y2)*(Xo-x1) >= 0,   if   x2-x1 > 0      !
+!  or                                                                  !
+!        (Yo-y1)*(x2-Xo) + (Yo-y2)*(Xo-x1) <= 0,   if   x2-x1 < 0      !
+!                                                                      !
+!  and both versions can be merged into  essentially  the condition    !
+!  that (Yo-y1)*(x2-Xo)+(Yo-y2)*(Xo-x1) has the same sign as x2-x1.    !
+!  That is, the product of these two must be positive or zero.         !
+!                                                                      !
+!=======================================================================
+!
+!  Imported variable declarations.
+!
+      integer, intent(in) :: Nb
+
+      real(r8), intent(in) :: Xo, Yo
+
+#ifdef ASSUMED_SHAPE
+      real(r8), intent(inout) :: Xb(:), Yb(:)
+#else
+      real(r8), intent(inout) :: Xb(Nb+1), Yb(Nb+1)
+#endif
+!
+!  Local variable declarations.
+!
+      integer, parameter :: Nstep =128
+
+      integer :: crossings, i, inc, k, kk, nc
+
+      integer, dimension(Nstep) :: Sindex
+
+      real(r8) :: dx1, dx2, dxy
+!
+!-----------------------------------------------------------------------
+!  Find intersections.
+!-----------------------------------------------------------------------
+!
+!  Set crossings counter and close the contour of the polygon.
+!
+      crossings=0
+      Xb(Nb+1)=Xb(1)
+      Yb(Nb+1)=Yb(1)
+!
+!  The search is optimized.  First select the indices of segments
+!  where Xb(k) is different from Xb(k+1) and Xo falls between them.
+!  Then, further investigate these segments in a separate loop.
+!  Doing it in two stages takes less time because the first loop is
+!  pipelined.
+!
+      DO kk=0,Nb-1,Nstep
+        nc=0
+        DO k=kk+1,MIN(kk+Nstep,Nb)
+          !Fix missing search step, added by Patrick Drake, Feb.  2007
+          !Does meridian coincide with a vertical side of the polygon?
+          !If so, count it as inside with 1 crossing
+          IF ( ((Xb(k).eq.Xo).and.(Xb(k+1).eq.Xo)).and.                 &
+     &        (((Yb(k+1)-Yo)*(Yo-Yb(k))) .gt.0.0_r8) ) THEN
+             crossings = 1
+             goto 10
+          END IF
+          !End PTD Fix
+          !Only investigate points for crossings if they fall
+          !between Xb(k+1) and Xb(k) 
+          IF (((Xb(k+1)-Xo)*(Xo-Xb(k)).ge.0.0_r8).and.                  &
+     &        (Xb(k).ne.Xb(k+1))) THEN
+            nc=nc+1
+            Sindex(nc)=k
+          END IF
+        END DO
+        !Now investigate crossings
+        DO i=1,nc
+          k=Sindex(i)
+          IF (Xb(k).ne.Xb(k+1)) THEN
+            dx1=Xo-Xb(k)
+            dx2=Xb(k+1)-Xo
+            dxy=dx2*(Yo-Yb(k))-dx1*(Yb(k+1)-Yo)
+            inc=0
+
+            !This is the case where (Xo,Yo) is on a vertex
+            IF ((Xb(k).eq.Xo).and.(Yb(k).eq.Yo)) THEN
+              crossings=1
+              goto 10
+            !This is the case where the meridian intersects a vertex
+            ELSE IF (((dx1.eq.0.0_r8).and.(Yo.gt.Yb(k))) .or.           &
+     &              ((dx2.eq.0.0_r8).and.(Yo.gt.Yb(k+1))) ) THEN
+              inc=1
+            !This is the test for whether the meridian is "north" of segment
+            ELSE IF ((dx1*dx2.gt.0.0_r8).and.                           &
+     &              ((Xb(k+1)-Xb(k))*dxy.ge.0.0_r8)) THEN  ! see note 1
+              inc=2
+            END IF
+            !Account for the Meridian crossing polygon twice, so point is
+            !outside and net crossings equal 0
+            IF (Xb(k+1).gt.Xb(k)) THEN
+              crossings=crossings+inc
+            ELSE
+              crossings=crossings-inc
+            END IF
+          ELSE
+            print *, '  Not sure if this should happen.  Check logic.'
+            print *, 'CAE in interpolate.F . Exiting.'
+            stop
+          END IF
+        END DO
+      END DO
+!
+!  Determine if point (Xo,Yo) is inside of closed polygon.
+!
+  10  IF (crossings.eq.0) THEN
+        inside=.FALSE.
+      ELSE
+        inside=.TRUE.
+      END IF
+      !END IF !End HPB test for vertex
+      RETURN
+      END FUNCTION inside
+
+       subroutine quadbisect(mp,x0,y0,x,y,xfrac,yfrac)
+!=======================================================================
+! Copyright (c) ?
+!=======================================================================
+! QUADBISECT determines the fractional loaction (0-1)
+! of a point within a quadrilateral by iterative bisection
+! in both axis
+!
+! x0 and y0 are coordinates of the point
+! x and y are the coordinates of the vertices of the quadrilateral
+! xfrac and yfrac are the fractional coordinates (0..1)
+!
+! routine calls INSIDE, to determine whether a point is within a
+! quadrilateral
+!
+! Harold P. Batchelder, 11 July 2006,
+! Modified by Patrick Drake, Feb. 2007
+!========================================================================
+
+      USE mod_iounits
+
+      real(r8), intent(in) :: x0, y0
+      real(r8), intent(inout) :: x(5),y(5) !add an extra element that inside will use
+      real(r8), intent(out) :: xfrac, yfrac
+      real(r8) :: tol, xmin, xmax, ymin, ymax
+      real(r8) :: mx(9), my(9)
+      real(r8) :: xur(5), yur(5), xlr(5), ylr(5)
+      real(r8) :: xul(5), yul(5), xll(5), yll(5)
+      real(r8) :: xcn, ycn, xd, yd, eps
+      logical :: done
+      logical :: result
+      integer :: nbv, count, quad, try, mp
+
+! some setup
+
+       tol = 0.000001_r8
+       xmin = 0.0_r8
+       xmax = 1.0_r8
+       ymin = 0.0_r8
+       ymax = 1.0_r8
+       done = .FALSE.
+       count = 0
+       nbv = 4
+       eps = epsilon(x0)
+
+      try = 0
+      DO WHILE (.not. done)
+        count = count + 1
+        mx(1) = x(1)
+        mx(3) = x(2)
+        mx(5) = x(3)
+        mx(7) = x(4)
+        my(1) = y(1)
+        my(3) = y(2)
+        my(5) = y(3)
+        my(7) = y(4)
+!
+! find midpoints of edges
+        mx(2) = 0.5_r8 * (mx(1) + mx(3))
+        mx(4) = 0.5_r8 * (mx(3) + mx(5))
+        mx(6) = 0.5_r8 * (mx(5) + mx(7))
+        mx(8) = 0.5_r8 * (mx(7) + mx(1))
+        my(2) = 0.5_r8 * (my(1) + my(3))
+        my(4) = 0.5_r8 * (my(3) + my(5))
+        my(6) = 0.5_r8 * (my(5) + my(7))
+        my(8) = 0.5_r8 * (my(7) + my(1))
+
+! find centroid 
+        mx(9) = 0.25_r8 * (mx(1)+mx(3)+mx(5)+mx(7));
+        my(9) = 0.25_r8 * (my(1)+my(3)+my(5)+my(7));
+!
+! Define upper left quadrant
+        xul(1:4) = (/mx(1), mx(2), mx(9), mx(8)/)
+        yul(1:4) = (/my(1), my(2), my(9), my(8)/)
+!
+! Define upper right quadrant
+        xur(1:4) = (/mx(2), mx(3), mx(4), mx(9)/)
+        yur(1:4) = (/my(2), my(3), my(4), my(9)/)
+!
+! Define lower right quadrant
+        xlr(1:4) = (/mx(9), mx(4), mx(5), mx(6)/)
+        ylr(1:4) = (/my(9), my(4), my(5), my(6)/)
+!
+! Define lower left quadrant
+        xll(1:4) = (/mx(8), mx(9), mx(6), mx(7)/)
+        yll(1:4) = (/my(8), my(9), my(6), my(7)/)
+
+!cae 11/07 moving this outside loop        try = 0
+        IF (inside(nbv, xul, yul, x0, y0)) THEN
+!
+! Try upper left quadrant  
+          quad = 1
+          xmax = 0.5_r8 * (xmin + xmax)
+          ymin = 0.5_r8 * (ymin + ymax)
+          x = xul
+          y = yul
+          try = 0
+        ELSE IF (inside(nbv, xur, yur, x0, y0)) THEN
+!
+! Try upper right quadrant
+          quad = 2
+          xmin = 0.5_r8 * (xmin + xmax)
+          ymin = 0.5_r8 * (ymin + ymax)
+          x = xur
+          y = yur
+          try = 0
+        ELSE IF (inside(nbv, xlr, ylr, x0, y0)) THEN
+!
+! Try lower right quadrant
+          quad = 3
+          xmin = 0.5_r8 * (xmin + xmax)
+          ymax = 0.5_r8 * (ymin + ymax)
+          x = xlr
+          y = ylr
+          try = 0
+        ELSE IF (inside(nbv, xll, yll, x0, y0)) THEN
+!
+! Try lower left quadrant
+          quad = 4 
+          xmax = 0.5_r8 * (xmin + xmax)
+          ymax = 0.5_r8 * (ymin + ymax)
+          x = xll
+          y = yll
+          try = 0
+        ELSE
+!
+! Point lost inside box, probably due to machine error,
+! so bloat box a little, one side at a time
+          try = try + 1
+          IF (try.eq.1) THEN
+            WRITE(stdout,*) 'Bloated right side of bounding box ',      &
+     &                      'during grid coords. Search for float ', mp
+            x(2) = x(2) + 2*eps
+            x(3) = x(3) + 2*eps
+          ELSE IF (try.eq.2) THEN 
+!
+! Unbloat right side
+            x(2) = x(2) - 2*eps
+            x(3) = x(3) - 2*eps
+            WRITE(stdout,*) 'Bloated bottom of bounding box ',          &
+     &                      'during grid coords. Search for float ', mp
+            y(3) = y(3) - 2*eps
+            y(4) = y(4) - 2*eps
+          ELSE IF (try.eq.3) THEN 
+!
+! Unbloat bottom
+            y(3) = y(3) + 2*eps
+            y(4) = y(4) + 2*eps
+            WRITE(stdout,*) 'Bloated left side of bounding box ',       &
+     &                      'during grid coords. Search for float ', mp
+            x(4) = x(4) - 2*eps
+            x(1) = x(1) - 2*eps
+          ELSE IF (try.eq.4) THEN 
+!
+! Unbloat left side
+            x(4) = x(4) + 2*eps
+            x(1) = x(1) + 2*eps
+            WRITE(stdout,*) 'Bloated top of bounding box during ',      &
+     &                      'grid coords. Search for float ', mp
+            y(1) = y(1) + 2*eps
+            y(2) = y(2) + 2*eps
+          ELSE
+!
+! Float lost, break program
+           WRITE(stdout,*) 'Float ', mp, ' lost during grid coords.  ', &
+     &                      'Search, giving up and stopping program.'
+           WRITE(stdout,*) 'Last bounding box:'
+           WRITE(stdout,*) 'x1, x2, x3, x4: ', x(1:4)
+           WRITE(stdout,*) 'y1, y2, y3, y4: ', y(1:4)
+           WRITE(stdout,*) 'Float(x0,y0): ', x0, y0
+           STOP
+          END IF
+
+        END IF
+
+!       evaluate convergence using relative change of centroids
+        xcn = SUM(x(1:4))/4.0_r8 ! centroid of new subregion
+        ycn = SUM(y(1:4))/4.0_r8
+        xd = ABS((mx(9)-xcn))
+        yd = ABS((my(9)-ycn))
+        IF ((try.eq.0) .AND. ((xd .LT. tol)) .AND. (yd .LT. tol))       &
+     &      done = .TRUE.
+
+      END DO
+
+      xfrac = 0.5_r8 * (xmin+xmax)
+      yfrac = 0.5_r8 * (ymin+ymax)
+
+     END SUBROUTINE quadbisect
+
+#else /* OFFLINE_FLOATS */
 
       LOGICAL FUNCTION inside (Nb, Xb, Yb, Xo, Yo)
 !
@@ -1019,5 +1454,6 @@
       END IF
       RETURN
       END FUNCTION inside
+#endif /* OFFLINE_FLOATS */
 
       END MODULE interpolate_mod

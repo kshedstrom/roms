@@ -151,6 +151,10 @@
           real(r8), pointer :: v_adsG(:,:,:,:)
 #  endif
 
+# ifdef AKTCLIMATOLOGY
+          real(r8), pointer :: Aclm(:,:,:)
+          real(r8), pointer :: AclmG(:,:,:,:)
+# endif
 #  ifdef OCLIMATOLOGY
           real(r8), pointer :: oclm(:,:,:)
 #   ifndef ANA_OCLIMA
@@ -229,17 +233,9 @@
 
 # ifdef SOLVE3D
 #  ifdef TCLIMATOLOGY
-#   ifdef SOMETHING
-      allocate ( CLIMA(ng) % tclm(LBi:UBi,LBj:UBj,N(ng),NT(ng)+2) )
-#   else
       allocate ( CLIMA(ng) % tclm(LBi:UBi,LBj:UBj,N(ng),NT(ng)) )
-#   endif
 #   ifndef ANA_TCLIMA
-#   ifdef SOMETHING
-      allocate ( CLIMA(ng) % tclmG(LBi:UBi,LBj:UBj,N(ng),2,NT(ng)+2) )
-#   else
       allocate ( CLIMA(ng) % tclmG(LBi:UBi,LBj:UBj,N(ng),2,NT(ng)) )
-#   endif
 #   endif
 #  endif
 
@@ -276,10 +272,16 @@
       allocate ( CLIMA(ng) % v_adsG(LBi:UBi,LBj:UBj,N(ng),2) )
 #  endif
 
+#  if defined AKTCLIMATOLOGY && defined OFFLINE_FLOATS
+      allocate ( CLIMA(ng) % Aclm(LBi:UBi,LBj:UBj,0:N(ng)) )
+#   ifndef ANA_AKTCLIMA
+      allocate ( CLIMA(ng) % AclmG(LBi:UBi,LBj:UBj,0:N(ng),2) )
+#   endif
+#  endif
 #  ifdef OCLIMATOLOGY
-      allocate ( CLIMA(ng) % oclm(LBi:UBi,LBj:UBj,N(ng)) )
+      allocate ( CLIMA(ng) % oclm(LBi:UBi,LBj:UBj,0:N(ng)) )
 #   ifndef ANA_OCLIMA
-      allocate ( CLIMA(ng) % oclmG(LBi:UBi,LBj:UBj,N(ng),2) )
+      allocate ( CLIMA(ng) % oclmG(LBi:UBi,LBj:UBj,0:N(ng),2) )
 #   endif
 #  endif
 # endif
@@ -448,8 +450,19 @@
 #  endif
         END DO
 
+#  ifdef AKTCLIMATOLOGY
+        DO k=0,N(ng)
+          DO i=Imin,Imax
+            CLIMA(ng) % Aclm(i,j,k) = IniVal
+#   ifndef ANA_AKTCLIMA
+            CLIMA(ng) % AclmG(i,j,k,1) = IniVal
+            CLIMA(ng) % AclmG(i,j,k,2) = IniVal
+#   endif
+          END DO
+        END DO
+#  endif
 #  ifdef OCLIMATOLOGY
-        DO k=1,N(ng)
+        DO k=0,N(ng)
           DO i=Imin,Imax
             CLIMA(ng) % oclm(i,j,k) = IniVal
 #   ifndef ANA_OCLIMA
