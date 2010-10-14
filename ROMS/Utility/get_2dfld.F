@@ -111,7 +111,7 @@
 !
         foundit=.FALSE.
         QUERY: DO ifile=1,nfiles
-#ifdef OFFLINE_FLOATS
+#ifdef OFFLINE
 !
 !  Intialize local variables.
 !
@@ -237,7 +237,7 @@
 !
 !  Determine initial time record to read and cycling switch.
 !
-#ifdef OFFLINE_FLOATS
+#ifdef OFFLINE
           IF (foundit.and.got_time) THEN
             CALL get_cycle (ng, model, ncfile, Tname(ifield), nrec,     &
      &                      tdays(ng), Tid, Liocycle, Clength,          &
@@ -263,7 +263,7 @@
 !
 !  Store variable information into global information arrays.
 !
-#ifdef OFFLINE_FLOATS
+#ifdef OFFLINE
           IF (foundit.and.got_time) THEN
 #else
           IF (foundit) THEN
@@ -319,7 +319,7 @@
 !  field has been already opened and get/save its ID from/to the
 !  association table.
 !
-#ifndef OFFLINE_FLOATS
+#ifndef OFFLINE
         CALL netcdf_openid (nFfiles(ng), FRCname(1,ng), FRCids(1,ng),   &
      &                      ncfile, ncid)
         IF (ncid.eq.-1) THEN
@@ -423,7 +423,7 @@
         END IF
         Iinfo(9,ifield,ng)=Trec
 
-#ifdef OFFLINE_FLOATS
+#ifdef OFFLINE
      IF (Trec.gt.nrec) THEN !start all over with a new file
 
         DO ifile=1,nfiles
@@ -642,7 +642,7 @@
             Iinfo(8,ifield,ng)=Tindex
           END IF
 
-#ifdef OFFLINE_FLOATS
+#ifdef OFFLINE
           CALL netcdf_open (ng, model, ncfile, 0, ncid)
 #endif
 !
@@ -726,7 +726,7 @@
             END IF
             update=.TRUE.
           END IF
-#ifdef OFFLINE_FLOATS
+#ifdef OFFLINE
           CALL netcdf_close (ng, model, ncid, ncfile)
 #endif
         END IF
@@ -752,7 +752,7 @@
      &        /,15x,'file is not CF compliant...')
   20  FORMAT (/,' GET_2DFLD   - unable to find requested variable: ',a, &
      &        /,15x,'in file: ',a)
-#ifdef OFFLINE_FLOATS
+#ifdef OFFLINE
   25  FORMAT (/,' GET_2DFLD - model start time not found in any ',      &
      &        'Climatology file! ')
 #endif
