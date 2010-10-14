@@ -538,6 +538,10 @@
 # else
           NFV(ng)=NT(ng)+10
 # endif
+#ifdef OFFLINE_FLOATS
+! add 4 variables: x-space, y-space, water depth and Hz 
+          NFV(ng)=NFV(ng)+4
+#endif
 #endif
           NSV(ng)=NT(ng)+5
 #ifdef ADJUST_WSTRESS

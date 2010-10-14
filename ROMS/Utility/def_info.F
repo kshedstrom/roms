@@ -110,6 +110,9 @@
       real(r8) :: Aval(6)
 
       character (len=11 ) :: frcatt
+#ifdef OFFLINE
+      character (len=11 ) :: clmatt
+#endif
       character (len=50 ) :: tiling
       character (len=80 ) :: type
       character (len=120) :: Vinfo(Natt)
@@ -581,7 +584,27 @@
         END IF
 #endif
 
-#if (defined  ZCLIMATOLOGY && !defined ANA_SSH)     || \
+#ifdef OFFLINE
+# if (defined  ZCLIMATOLOGY && !defined ANA_SSH)     || \
+    (defined M2CLIMATOLOGY && !defined ANA_M2CLIMA) || \
+    (defined  TCLIMATOLOGY && !defined ANA_TCLIMA)  || \
+    (defined M3CLIMATOLOGY && !defined ANA_M3CLIMA)
+        IF (exit_flag.eq.NoError) THEN
+          DO i=1,nCfiles(ng)
+            WRITE (clmatt,40) i
+            status=nf90_put_att(ncid, nf90_global, clmatt, &
+     &                          TRIM(CLMname(i,ng)))
+            IF (status.ne.nf90_noerr) THEN
+              IF (Master) WRITE (stdout,20) TRIM(clmatt), TRIM(ncname)
+              exit_flag=3
+              ioerror=status
+              EXIT
+            END IF
+          END DO
+        END IF
+# endif
+#else
+# if (defined  ZCLIMATOLOGY && !defined ANA_SSH)     || \
     (defined M2CLIMATOLOGY && !defined ANA_M2CLIMA) || \
     (defined  TCLIMATOLOGY && !defined ANA_TCLIMA)  || \
     (defined M3CLIMATOLOGY && !defined ANA_M3CLIMA)
@@ -594,6 +617,7 @@
             ioerror=status
           END IF
         END IF
+# endif
 #endif
 
 #ifdef FORWARD_READ
@@ -2935,6 +2959,9 @@
   20  FORMAT (/,' DEF_INFO - error while creating global attribute: ',  &
      &        a,/,12x,a)
   30  FORMAT ('frc_file_',i2.2)
+#ifdef OFFLINE
+  40  FORMAT ('clm_file_',i2.2)
+#endif
 
       RETURN
       END SUBROUTINE def_info

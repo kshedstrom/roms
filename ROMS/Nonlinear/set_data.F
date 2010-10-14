@@ -92,7 +92,7 @@
 # ifdef SOLVE3D
       USE set_3dfld_mod
 # endif
-# if defined OFFLINE_FLOATS || defined OFFLINE_BIOLOGY
+# if defined OFFLINE
       USE mod_stepping
 #  if defined EW_PERIODIC || defined NS_PERIODIC || defined DISTRIBUTE
       USE exchange_2d_mod
@@ -1590,7 +1590,7 @@
      &                     CLIMA(ng)%ssh,                               &
      &                     update)
 #  endif
-#  if defined OFFLINE_FLOATS || defined OFFLINE_BIOLOGY
+#  if defined OFFLINE
       DO j=Jstr,Jend
         DO i=Istr,Iend
           OCEAN(ng)%zeta(i,j,1) = CLIMA(ng)%ssh(i,j)
@@ -1632,7 +1632,7 @@
      &                     CLIMA(ng)%vbarclm,                           &
      &                     update)
 #  endif
-#  if defined OFFLINE_FLOATS || defined OFFLINE_BIOLOGY
+#  if defined OFFLINE
       DO j=Jstr,Jend
         DO i=Istr,Iend
           OCEAN(ng)%ubar(i,j,1) = CLIMA(ng)%ubarclm(i,j)
@@ -1725,7 +1725,7 @@
 #   endif
 
 #  endif  /* ! BERING_10K */
-#  if defined OFFLINE_FLOATS || defined OFFLINE_BIOLOGY
+#  if defined OFFLINE
       DO itrc=1,NAT
         DO k=1,N(ng)
           DO j=Jstr,Jend
@@ -1768,13 +1768,13 @@
       CALL ana_oclima (ng, tile)
 #  else
       CALL set_3dfld_tile (ng, tile, iNLM, idOclm,                      &
-     &                       LBi, UBi, LBj, UBj, 1, N(ng),              &
+     &                       LBi, UBi, LBj, UBj, 0, N(ng),              &
      &                       CLIMA(ng)%oclmG,                           &
      &                       CLIMA(ng)%oclm,                            &
      &                       update)
 #  endif
-#  if defined OFFLINE_FLOATS || defined OFFLINE_BIOLOGY
-      DO k=1,N(ng)
+#  if defined OFFLINE
+      DO k=0,N(ng)
         DO j=Jstr,Jend
           DO i=Istr,Iend
             OCEAN(ng)%W(i,j,k) = CLIMA(ng)%oclm(i,j,k)/                 &
@@ -1785,13 +1785,50 @@
 #   if defined EW_PERIODIC || defined NS_PERIODIC
       CALL exchange_w3d_tile (ng, tile,                                 &
      &                        LBi, UBi, LBj, UBj, 0, N(ng),             &
-     &                        OCEAN(ng)%w(:,:,:))
+     &                        OCEAN(ng)%W(:,:,:))
 #   endif
 #   ifdef DISTRIBUTE
       CALL mp_exchange3d (ng, tile, iNLM, 1,                            &
      &                    LBi, UBi, LBj, UBj, 0, N(ng),                 &
      &                    NghostPoints, EWperiodic, NSperiodic,         &
-     &                    OCEAN(ng)%w)
+     &                    OCEAN(ng)%W)
+#   endif
+#  endif
+# endif
+
+# if defined SOLVE3D && defined AKTCLIMATOLOGY
+!
+!-----------------------------------------------------------------------
+!  Set vertical diffusion climatology.
+!-----------------------------------------------------------------------
+!
+#  ifdef ANA_AKTCLIMA
+      CALL ana_aktclima (ng, tile)
+#  else
+      CALL set_3dfld_tile (ng, tile, iNLM, idAclm,                      &
+     &                       LBi, UBi, LBj, UBj, 0, N(ng),              &
+     &                       CLIMA(ng)%AclmG,                           &
+     &                       CLIMA(ng)%Aclm,                            &
+     &                       update)
+#  endif
+#  if defined OFFLINE
+      DO k=0,N(ng)
+        DO j=Jstr,Jend
+          DO i=Istr,Iend
+            MIXING(ng)%Akt(i,j,k,2) = CLIMA(ng)%Aclm(i,j,k)
+          ENDDO
+        ENDDO
+      ENDDO
+#   if defined EW_PERIODIC || defined NS_PERIODIC
+      CALL exchange_w3d_tile (ng, tile,                                 &
+     &                        LBi, UBi, LBj, UBj, 0, N(ng),             &
+     &                        MIXING(ng)%Akt(:,:,:,2))
+#   endif
+#   ifdef DISTRIBUTE
+      CALL mp_exchange3d (ng, tile, iNLM, 1,                            &
+     &                    LBi, UBi, LBj, UBj, 0, N(ng),                 &
+     &                    NghostPoints, EWperiodic, NSperiodic,         &
+     &                    MIXING(ng)%Akt(:,:,:,2))
 #   endif
 #  endif
 # endif
@@ -1816,7 +1853,7 @@
      &                     CLIMA(ng)%vclm,                              &
      &                     update)
 #  endif
-#  if defined OFFLINE_FLOATS || defined OFFLINE_BIOLOGY
+#  if defined OFFLINE
       DO k=1,N(ng)
         DO j=Jstr,Jend
           DO i=Istr,Iend
