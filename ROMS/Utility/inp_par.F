@@ -5876,10 +5876,8 @@
 #ifdef CLM_FILE
           DO i=1,nCfiles(ng)
             fname=CLMname(i,ng)
-            INQUIRE (FILE=TRIM(fname), EXIST=inhere)
-            IF (.not.inhere) GO TO 30
-            WRITE (out,310) '         Climatology File ', i, ':  ',
-&
+            IF (.not.find_file(ng, fname)) GO TO 30
+            WRITE (out,310) '         Climatology File ', i, ':  ',     &
      &                      TRIM(fname)
           END DO
 #endif

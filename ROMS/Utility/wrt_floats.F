@@ -268,15 +268,14 @@
       DO itrc=1,NT(ng)
         DO l=1,Nfloats(ng)
           IF (FLT(ng)%bounded(l)) THEN
-#ifdef OFFLINE_FLOATS_PD
+#  ifdef OFFLINE_FLOATS
             Tout(l)=FLT(ng)%track(itrc+(NFV(ng)-NT(ng)),nf(ng),l)
-#else
+#  else
 !# ifdef FLOAT_VWALK
 !            Tout(l)=FLT(ng)%track(itrc+12,nf(ng),l)
 !# else
             Tout(l)=FLT(ng)%track(ifTvar(itrc),nf(ng),l)
-# endif
-#endif
+#  endif
           ELSE
             Tout(l)=spval
           END IF
@@ -289,9 +288,9 @@
         IF (exit_flag.ne.NoError) RETURN
       END DO
 
-#ifdef OFFLINE_FLOATS_PD
-      IF (Master) print, *, '  WRT_FLOATS, model time (days), t=', tdays
-#endif
+#  ifdef OFFLINE_FLOATS
+      IF (Master) print *, '  WRT_FLOATS, model time (days), t=', tdays
+#  endif
 # endif
 !
 !-----------------------------------------------------------------------

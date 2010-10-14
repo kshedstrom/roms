@@ -750,7 +750,7 @@
         IF (Hout(idTSvar(itrc),ng)) THEN
           scale=1.0_r8
           gtype=gfactor*r3dvar
-!           print*,'st=',OCEAN(ng) % st(:,:,:,NOUT,itrc)
+!           print *,'st=',OCEAN(ng) % st(:,:,:,NOUT,itrc)
 !          if (hisTSid(itrc,ng) .lt. 0) hisTSid(itrc,ng) = 0
           status=nf_fwrite3d(ng, iNLM, ncHISid(ng), hisTSid(itrc,ng),   &
      &                       tHISindx(ng), gtype,                       &
@@ -763,9 +763,9 @@
           !Zero the output array
           !---------------------
 
-!           print*,'st=',OCEAN(ng) % st(:,:,:,1,1)
-!           print*,'NOUT=',NOUT
-!           print*,'itrc=',itrc
+!           print *,'st=',OCEAN(ng) % st(:,:,:,1,1)
+!           print *,'NOUT=',NOUT
+!           print *,'itrc=',itrc
 
           OCEAN(ng) % st(:,:,:,NOUT,itrc) = 0.0_r8
           IF (status.ne.nf90_noerr) THEN
@@ -903,7 +903,7 @@
      &                     GRID(ng) % rmask,                            &
 #   endif
      &                       OCEAN(ng) % bt(:,:,1,NOUT,itrc))
-!             print*,OCEAN(ng) % bt(LBi,LBj,1,NOUT,itrc)
+!             print *,OCEAN(ng) % bt(LBi,LBj,1,NOUT,itrc)
 !             print *, 'LBi=',LBi,'LBj=',LBj,'NOUT=',NOUT,'itrc=',itrc
 
            IF (status.ne.nf90_noerr) THEN
@@ -3319,7 +3319,7 @@
 #ifdef SOLVE3D
       IF (Master) WRITE (stdout,20) KOUT, NOUT, tHISindx(ng)
 #ifdef OFFLINE_FLOATS
-      IF (Master) print, *, '  WRT_HIS model time (days), t=', tdays
+      IF (Master) print *, '  WRT_HIS model time (days), t=', tdays
 #endif
 #else
       IF (Master) WRITE (stdout,20) KOUT, tHISindx(ng)
