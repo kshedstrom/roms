@@ -184,7 +184,7 @@
 !
       IF (.not.TimeLess) THEN
         IF (.not.cycle.and.(ntime.gt.1)) THEN
-#ifdef OFFLINE_FLOATS
+#ifdef OFFLINE
           IF (iic(ng).eq.0) THEN
             IF ((mday.lt.Tmin).or.(mday.gt.Tmax)) THEN
                exit_flag=2

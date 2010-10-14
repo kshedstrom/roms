@@ -45,7 +45,7 @@
 ! Input variable information file name.  This file needs to be processed
 ! first so all information arrays can be initialized properly.
 
-     VARNAME = /wrkdir/kate/GOA_Tides/Model/Apps/NEP/varinfo.dat
+     VARNAME = /wrkdir/kate/Bering_10k/External/varinfo.dat
 
 ! Grid dimension parameters. See notes below in the Glossary for how to set
 ! these parameters correctly.
@@ -382,6 +382,11 @@ Hout(idSig12) == T
 Hout(idSig22) == T
 Hout(idS0mk) == T
 Hout(idT0mk) == T
+Hout(idWfr) == T
+Hout(idWai) == T
+Hout(idWao) == T
+Hout(idWio) == T
+Hout(idWro) == T
 
 ! Logical switches (TRUE/FALSE) to activate writing of extra inert passive
 ! tracers other than biological and sediment tracers. An inert passive tracer
@@ -595,11 +600,9 @@ Dout(iTvdif) == T T                        ! vertical diffusion
                /wrkdir/kate/Bering_10k/Files/CCSM_1999_Tair.nc   \
                /wrkdir/kate/Bering_10k/Files/CCSM_1999_Uwind.nc  \
                /wrkdir/kate/Bering_10k/Files/CCSM_1999_Vwind.nc  \
-               /wrkdir/kate/GOA_Tides/NEP5/CCSM_Runoff.nc   \
-               /wrkdir/kate/GOA_Tides/NEP5/CCSM_rain.nc  \
+               /wrkdir/kate/Bering_10k/Files/CCSM_Runoff.nc   \
+               /wrkdir/kate/Bering_10k/Files/CCSM_rain.nc  \
                /wrkdir/kate/Bering_10k/Files/Bering_tides_otps.nc
-
-
 
 ! Output NetCDF file names, [1:Ngrids].
 
@@ -617,10 +620,11 @@ Dout(iTvdif) == T T                        ! vertical diffusion
 ! Input ASCII parameter filenames.
 
      APARNAM =  External/assimilation.in
-     SPOSNAM =  /wrkdir/kate/Bering_10k/stations_bering_10k.in
-     FPOSNAM =  /wrkdir/kate/GOA_Tides/Model/Apps/NEP/floats.in
-     IPARNAM =  /wrkdir/kate/GOA_Tides/Model/Apps/NEP/ice.in
-     BPARNAM =  /wrkdir/kate/GOA_Tides/Model/Apps/NEP/goanpz.in
+     SPOSNAM =  /wrkdir/kate/Bering_10k/External/stations_bering_10k.in
+!    SPOSNAM =  /wrkdir/kate/Bering_10k/stations_bering_10k.in
+     FPOSNAM =  /wrkdir/kate/Bering_10k/External/floats.in
+     IPARNAM =  /wrkdir/kate/Bering_10k/External/ice.in
+     BPARNAM =  /wrkdir/kate/Bering_10k/External/goanpz.in
      SPARNAM =  External/sediment.in
      USRNAME =  External/MyFile.dat
 
