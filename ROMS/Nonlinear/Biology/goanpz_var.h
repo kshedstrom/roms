@@ -43,6 +43,30 @@
 #ifdef IRON_LIMIT
               CASE ('idTvar(iFe)')
                 idTvar(iFe)=varid
+#endif
+
+! Do it again for climatologies
+              CASE ('idTclm(iNO3)')
+                idTclm(iNO3)=varid
+              CASE ('idTclm(iNH4)')
+                idTclm(iNH4)=varid
+              CASE ('idTclm(iPhS)')
+                idTclm(iPhS)=varid
+              CASE ('idTclm(iPhL)')
+                idTclm(iPhL)=varid
+              CASE ('idTclm(iMZS)')
+                idTclm(iMZS)=varid
+              CASE ('idTclm(iMZL)')
+                idTclm(iMZL)=varid
+              CASE ('idTclm(iCop)')
+                idTclm(iCop)=varid
+              CASE ('idTclm(iNCa)')
+                idTclm(iNCa)=varid
+              CASE ('idTclm(iEup)')
+                idTclm(iEup)=varid
+              CASE ('idTclm(iDet)')
+                idTclm(iDet)=varid
+#ifdef IRON_LIMIT
               CASE ('idTclm(iFe)')
                 idTclm(iFe)=varid
 #endif

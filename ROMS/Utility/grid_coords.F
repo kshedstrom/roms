@@ -160,7 +160,7 @@
 #ifdef OFFLINE_FLOATS
             IF (l.eq.1) THEN
               print *, 'Float # ', l, ' FLT(ng)%Fz0: ', FLT(ng)%Fz0(l)
-              print *, 'The preceeding print fixes a memory bug somehow.'
+              print *,'The preceeding print fixes a memory bug somehow.'
             END IF
 #endif
             Kflt(l)=zfloat

@@ -29,6 +29,16 @@
               CASE ('idTvar(iSDet)')
                 idTvar(iSDet)=varid
 
+! Do it again for climatologies
+              CASE ('idTclm(iNO3_)')
+                idTclm(iNO3_)=varid
+              CASE ('idTclm(iPhyt)')
+                idTclm(iPhyt)=varid
+              CASE ('idTclm(iZoop)')
+                idTclm(iZoop)=varid
+              CASE ('idTclm(iSDet)')
+                idTclm(iSDet)=varid
+
 #if defined AD_SENSITIVITY   || defined IS4DVAR_SENSITIVITY || \
     defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR   || \
     defined SO_SEMI

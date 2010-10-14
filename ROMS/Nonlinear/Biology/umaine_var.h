@@ -16,9 +16,9 @@
 ************************************************************************
 */
 
-/*
-**  Model state biological tracers.
-*/
+!
+!  Model state biological tracers.
+!
 
               CASE ('idTvar(iNO3_)')
                 idTvar(iNO3_)=varid
@@ -51,9 +51,41 @@
                 idTvar(iTAlk)=varid
 #endif
 
-/*
-**  Biological tracers open boundary conditions.
-*/
+! Do it again for climatologies
+              CASE ('idTclm(iNO3_)')
+                idTclm(iNO3_)=varid
+              CASE ('idTclm(iNH4_)')
+                idTclm(iNH4_)=varid
+              CASE ('idTclm(iSiOH)')
+                idTclm(iSiOH)=varid
+              CASE ('idTclm(iSphy)')
+                idTclm(iSphy)=varid
+              CASE ('idTclm(iLphy)')
+                idTclm(iLphy)=varid
+              CASE ('idTclm(iSzoo)')
+                idTclm(iSzoo)=varid
+              CASE ('idTclm(iLzoo)')
+                idTclm(iLzoo)=varid
+              CASE ('idTclm(iSDet)')
+                idTclm(iSDet)=varid
+              CASE ('idTclm(iopal)')
+                idTclm(iopal)=varid
+              CASE ('idTclm(iPO4_)')
+                idTclm(iPO4_)=varid
+#ifdef OXYGEN
+              CASE ('idTclm(iOxyg)')
+                idTclm(iOxyg)=varid
+#endif
+#ifdef CARBON
+              CASE ('idTclm(iTIC_)')
+                idTclm(iTIC_)=varid
+              CASE ('idTclm(iTAlk)')
+                idTclm(iTAlk)=varid
+#endif
+
+!
+!  Biological tracers open boundary conditions.
+!
 
               CASE ('idTbry(iwest,iNO3_)')
                 idTbry(iwest,iNO3_)=varid
@@ -166,9 +198,9 @@
 
 #ifdef TS_PSOURCE
 
-/*
-**  Biological tracers point Source/Sinks (river runoff).
-*/
+!
+!  Biological tracers point Source/Sinks (river runoff).
+!
 
               CASE ('idRtrc(iNO3_)')
                 idRtrc(iNO3_)=varid
