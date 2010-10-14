@@ -603,6 +603,10 @@
 */
 
 # if defined OFFLINE_FLOATS || defined OFFLINE_BIOLOGY
+#  define OFFLINE
+# endif
+
+# if defined OFFLINE
 # define ZCLIMATOLOGY
 # define M2CLIMATOLOGY
 # define TCLIMATOLOGY

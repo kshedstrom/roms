@@ -78,7 +78,11 @@
 
       logical, intent(in) :: maskit
       logical, intent(in) :: MyThread(Lstr:Lend)
+# ifdef OFFLINE_FLOATS
+      logical, intent(inout) :: bounded(Nfloats(ng))
+# else
       logical, intent(in) :: bounded(Nfloats(ng))
+# endif
 
       real(r8), intent(in) :: Fspval
 
@@ -248,7 +252,13 @@
                 IF (cff2.gt.0.0_r8) THEN
                   track(ifield,itime,l)=cff1/cff2+nudg(l)
                 ELSE
+# ifdef OFFLINE_FLOATS
+! Float has likely moved into land, maybe becuase offline DT is too big??
+                  track(ifield,itime,l)=spval
+                  bounded(l)=.FALSE.
+#else
                   track(ifield,itime,l)=0.0_r8
+#endif
                 END IF
 # endif
               ELSE

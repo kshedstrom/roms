@@ -65,8 +65,8 @@
 ! shared-memory configurations used to determine tile horizontal range
 ! indices (Istr,Iend) and (Jstr,Jend), [1:Ngrids].
 
-!      NtileI == 1                               ! I-direction partition
-!      NtileJ == 16                              ! J-direction partition
+!      NtileI == 2                               ! I-direction partition
+!      NtileJ == 8                              ! J-direction partition
 !      NtileI == 6                               ! I-direction partition
 !      NtileJ == 8                              ! J-direction partition
 !      NtileI == 4                               ! I-direction partition
@@ -101,6 +101,12 @@
 
        NRREC = 0
    LcycleRST == T
+!!       NRST == 1728
+!!       NSTA == 72
+!!       NFLT == 72
+!       NRST == 864
+!       NSTA == 36
+!       NFLT == 36
         NRST == 432
         NSTA == 18
         NFLT == 18
@@ -113,9 +119,13 @@
 !!    NDEFHIS == 172800
 !       NHIS == 8640
 !    NDEFHIS == 86400
-        NHIS == 4320
-     NDEFHIS == 43200
+!       NHIS == 4320
+!    NDEFHIS == 43200
       NTSAVG == 1
+!!       NAVG == 1728
+!!    NDEFAVG == 1728
+!       NAVG == 864
+!    NDEFAVG == 864
         NAVG == 432
      NDEFAVG == 432
      NTSAVG2 == 1
@@ -243,7 +253,7 @@
 ! origin for tidal forcing, and model reference time for output
 ! NetCDF units attribute.
 
-!     DSTART =  21185.0d0                  ! days
+!     DSTART =  21187.0d0                  ! days
       DSTART =  25202.0d0                  ! days
 !     DSTART =  31049.0d0                  ! days
   TIDE_START =  -693962.0d0                ! days
@@ -698,8 +708,8 @@ Dout(iTvdif) == T T                        ! vertical diffusion
                /wrkdir/kate/NEP5/Files/Uwind.1948-2006.nc  \
                /wrkdir/kate/NEP5/Files/Vwind.1948-2006.nc  \
                /wrkdir/kate/NEP5/Files/CCSM_Runoff.nc   \
-               /wrkdir/kate/NEP5/Files/sss_fill_2004.nc  \
                /wrkdir/kate/NEP5/Files/rain.1948-2006.nc  \
+               /wrkdir/kate/NEP5/Files/sss_fill_2004.nc  \
                /wrkdir/kate/NEP5/Files/NEP4_tides_otps.nc
 
 ! Output NetCDF file names, [1:Ngrids].
