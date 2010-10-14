@@ -1073,7 +1073,7 @@
           ncBLKid(ng)=-1
           ncBRYid(ng)=-1
           DO i=1,NV
-            ncCLMid(ing)=-1
+            ncCLMid(i,ng)=-1
           END DO
           ncDIAid(ng)=-1
           ncERRid(ng)=-1

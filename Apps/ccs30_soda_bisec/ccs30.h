@@ -1,5 +1,8 @@
 #define OUT_DOUBLE
 
+#define  FLOATS
+#define OFFLINE_FLOATS
+
 #undef  FORWARD_WRITE
 #undef  AD_SENSITIVITY
 
@@ -90,11 +93,9 @@
 # define CCS_SPONGE
 #endif
 
-#undef  FLOATS
-
 #define NEMURO
 #ifdef NEMURO
-# define NEMURO_SAN
+# undef NEMURO_SAN
 # ifdef NEMURO_SAN
 #  undef  FISH_FEEDBACK
 #  define PREDATOR

@@ -706,7 +706,10 @@
           chunk_size=(Nfish(ng)+numthreads-1)/numthreads
           Lstr=1+thread*chunk_size
           Lend=MIN(Nfish(ng),Lstr+chunk_size-1)
-          CALL step_fish (ng, TILE, Lstr, Lend)
+          subs=NtileX(ng)*NtileE(ng)/numthreads
+          DO tile=subs*thread,subs*(thread+1)-1,+1
+            CALL step_fish (ng, TILE, Lstr, Lend)
+          END DO
         END DO
 !$OMP END PARALLEL DO
 #  ifdef PREDATOR

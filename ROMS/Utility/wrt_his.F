@@ -3318,7 +3318,7 @@
 #ifdef SOLVE3D
       IF (Master) WRITE (stdout,20) KOUT, NOUT, tHISindx(ng)
 #ifdef OFFLINE_FLOATS
-      IF (Master) print, *, '  WRT_HIS model time (days), t=', tdays
+      IF (Master) print *, '  WRT_HIS model time (days), t=', tdays
 #endif
 #else
       IF (Master) WRITE (stdout,20) KOUT, tHISindx(ng)

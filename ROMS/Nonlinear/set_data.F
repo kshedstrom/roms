@@ -1669,19 +1669,13 @@
 #  else
 ! in 3D want nudge only Fe not T and S
 #   if !defined BERING_10K
-
-#    if defined SOGLOBEC
       DO itrc=1,NT(ng)
-#    else
-      DO itrc=1,NAT
-#    endif
         CALL set_3dfld_tile (ng, tile, iNLM, idTclm(itrc),              &
      &                       LBi, UBi, LBj, UBj, 1, N(ng),              &
      &                       CLIMA(ng)%tclmG(:,:,:,:,itrc),             &
      &                       CLIMA(ng)%tclm (:,:,:,itrc),               &
      &                       update)
       END DO
-#   endif
 
 #   ifdef AKT_3D /* use 3dAkt for 1D SEBS model  index was iFe+2 */
 ! Set the Akt
@@ -1723,10 +1717,10 @@
      &                       CLIMA(ng)%tclm (:,:,:,iFe),                &
      &                       update)
 #   endif
+#   endif  /* ! BERING_10K */
 
-#  endif  /* ! BERING_10K */
-#  if defined OFFLINE
-      DO itrc=1,NAT
+#   if defined OFFLINE
+      DO itrc=1,NT(ng)
         DO k=1,N(ng)
           DO j=Jstr,Jend
             DO i=Istr,Iend
@@ -1736,17 +1730,17 @@
           ENDDO
         ENDDO
       ENDDO
-#   if defined EW_PERIODIC || defined NS_PERIODIC
-      DO itrc=1,NAT
+#    if defined EW_PERIODIC || defined NS_PERIODIC
+      DO itrc=1,NT(ng)
         DO i=1,2
           CALL exchange_r3d_tile (ng, tile,                             &
      &                            LBi, UBi, LBj, UBj, 1, N(ng),         &
      &                            OCEAN(ng)%t(:,:,:,i,itrc))
         END DO
       END DO
-#   endif
-#   ifdef DISTRIBUTE
-      DO itrc=1,NAT
+#    endif
+#    ifdef DISTRIBUTE
+      DO itrc=1,NT(ng)
         DO i=1,2
           CALL mp_exchange3d (ng, tile, iNLM, 1,                        &
      &                    LBi, UBi, LBj, UBj, 1, N(ng),                 &
@@ -1754,6 +1748,7 @@
      &                    OCEAN(ng)%t(:,:,:,i,itrc))
         END DO
       END DO
+#    endif
 #   endif
 #  endif
 # endif

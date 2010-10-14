@@ -85,7 +85,7 @@
       real(r8) :: Clength, Fmax, Fmin, Tdelta, Tend
       real(r8) :: Tmax, Tmin, Tmono, Tscale, Tstr, scale
       real(r8) :: Fval, Tval
-#if defined OFFLINE_FLOATS || defined OFFLINE_BIOLOGY
+#if defined OFFLINE
       real(r8) :: Tnear(1)
 #endif
 
@@ -120,7 +120,7 @@
         foundit=.FALSE.
         QUERY: DO ifile=1,nfiles
 
-#ifdef OFFLINE_FLOATS
+#ifdef OFFLINE
 !
 !  Intialize local variables.
 !
@@ -233,7 +233,7 @@
 !
 !  Determine initial time record to read and cycling switch.
 !
-#ifdef OFFLINE_FLOATS
+#ifdef OFFLINE
           IF (foundit.and.got_time) THEN
             CALL get_cycle (ng, model, ncfile, Tname(ifield), nrec,     &
      &                      tdays(ng), Tid, Liocycle, Clength,          &
@@ -259,7 +259,7 @@
 !
 !  Store variable information into global information arrays.
 !
-#ifdef OFFLINE_FLOATS
+#ifdef OFFLINE
           IF (foundit.and.got_time) THEN
 #else
           IF (foundit) THEN
@@ -300,7 +300,7 @@
 !  field has been already opened and get/save its ID from/to the
 !  association table.
 !
-#ifndef OFFLINE_FLOATS
+#ifndef OFFLINE
         CALL netcdf_openid (nFfiles(ng), FRCname(1,ng), FRCids(1,ng),   &
      &                       ncfile, ncid)
         IF (ncid.eq.-1) THEN
@@ -404,10 +404,8 @@
         END IF
         Iinfo(9,ifield,ng)=Trec
 
-#ifdef OFFLINE_FLOATS
+#ifdef OFFLINE
        IF (Trec.gt.nrec) THEN !start all over with a new file
-
-
 !
 !  If several input NetCDF files (nfiles>1), scan files until the
 !  requested variable is found.
@@ -602,7 +600,7 @@
             Iinfo(8,ifield,ng)=Tindex
           END IF
 
-#ifdef OFFLINE_FLOATS
+#ifdef OFFLINE
           CALL netcdf_open (ng, model, ncfile, 0, ncid)
 #endif
 !
@@ -619,7 +617,7 @@
               RETURN
             END IF
           END IF
-#if defined OFFLINE_FLOATS || defined OFFLINE_BIOLOGY
+#if defined OFFLINE
 !
 !  During restart between AVG files, there is a gap between timestamps,
 !  so be forgiving at beginning and end of files by shifting 1st and last
@@ -631,7 +629,7 @@
      &                            ncid = ncid,                          &
      &                            start = (/2/),                        &
      &                            total = (/1/))
-            Tval = 2*Tval - Tnear
+            Tval = 2*Tval - Tnear(1)
           END IF
           IF (Trec.eq.nrec) THEN
             CALL netcdf_get_fvar (ng, model, ncfile, Tname(ifield),     &
@@ -639,7 +637,7 @@
      &                            ncid = ncid,                          &
      &                            start = (/nrec-1/),                   &
      &                            total = (/1/))
-            Tval = 2*Tval - Tnear
+            Tval = 2*Tval - Tnear(1)
           END IF
 #endif
           Tval=Tval*Tscale
@@ -713,7 +711,7 @@
             END IF
             update=.TRUE.
           END IF
-#ifdef OFFLINE_FLOATS
+#ifdef OFFLINE
           CALL netcdf_close (ng, model, ncid, ncfile)
 #endif
         END IF
@@ -739,7 +737,7 @@
      &        /,15x,'file is not CF compliant...')
   20  FORMAT (/,' GET_3DFLD   - unable to find requested variable: ',a, &
      &        /,15x,'in input NetCDF file: ',a)
-#ifdef OFFLINE_FLOATS
+#ifdef OFFLINE
   25  FORMAT (/,' GET_3DFLD - model start time not found in any ',      &
      &        'Climatology file!')
 #endif

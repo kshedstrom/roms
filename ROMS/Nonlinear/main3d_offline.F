@@ -23,6 +23,10 @@
       USE mod_iounits
       USE mod_scalars
       USE mod_stepping
+# ifdef NEMURO_SAN
+      USE mod_fish 
+      USE mod_biology
+# endif
 !
 # ifdef ANA_VMIX
       USE analytical_mod, ONLY : ana_vmix
@@ -443,7 +447,10 @@
         chunk_size=(Nfish(ng)+numthreads-1)/numthreads
         Lstr=1+thread*chunk_size
         Lend=MIN(Nfish(ng),Lstr+chunk_size-1)
-        CALL step_fish (ng, Lstr, Lend)
+        subs=NtileX(ng)*NtileE(ng)/numthreads
+        DO tile=subs*thread,subs*(thread+1)-1,+1
+          CALL step_fish (ng, TILE, Lstr, Lend)
+        END DO
       END DO
 !$OMP END PARALLEL DO
 # endif

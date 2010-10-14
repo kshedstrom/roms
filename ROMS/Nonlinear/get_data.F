@@ -1215,7 +1215,7 @@
 # ifdef SOLVE3D
 #  if !defined ANA_TCLIMA && defined TCLIMATOLOGY
 !  KLUDGE - how many tracers to read? It depends...
-      DO i=1,NAT
+      DO i=1,NT(ng)
         CALL get_3dfld (ng, iNLM, idTclm(i), ncCLMid(idTclm(i),ng),     &
      &                  nCfiles(ng), CLMname(1,ng), update(1),          &
      &                  LBi, UBi, LBj, UBj, 1, N(ng), 2, 1,             &
