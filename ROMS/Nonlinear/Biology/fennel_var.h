@@ -48,6 +48,36 @@
                 idTvar(iOxyg)=varid
 # endif
 
+! Do it again for climatologies
+              CASE ('idTclm(iNO3_)')
+                idTclm(iNO3_)=varid
+              CASE ('idTclm(iNH4_)')
+                idTclm(iNH4_)=varid
+              CASE ('idTclm(iPhyt)')
+                idTclm(iPhyt)=varid
+              CASE ('idTclm(iZoop)')
+                idTclm(iZoop)=varid
+              CASE ('idTclm(iLDeN)')
+                idTclm(iLDeN)=varid
+              CASE ('idTclm(iSDeN)')
+                idTclm(iSDeN)=varid
+              CASE ('idTclm(iChlo)')
+                idTclm(iChlo)=varid
+# ifdef CARBON
+              CASE ('idTclm(iTIC_)')
+                idTclm(iTIC_)=varid
+              CASE ('idTclm(iTAlk)')
+                idTclm(iTAlk)=varid
+              CASE ('idTclm(iLDeC)')
+                idTclm(iLDeC)=varid
+              CASE ('idTclm(iSDeC)')
+                idTclm(iSDeC)=varid
+# endif
+# ifdef OXYGEN
+              CASE ('idTclm(iOxyg)')
+                idTclm(iOxyg)=varid
+# endif
+
 /*
 **  Adjoint sensitivity state biological tracers.
 */
