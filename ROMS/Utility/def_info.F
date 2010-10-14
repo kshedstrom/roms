@@ -110,7 +110,7 @@
       real(r8) :: Aval(6)
 
       character (len=11 ) :: frcatt
-#ifdef OFFLINE_FLOATS
+#ifdef OFFLINE
       character (len=11 ) :: clmatt
 #endif
       character (len=50 ) :: tiling
@@ -584,7 +584,7 @@
         END IF
 #endif
 
-#ifdef OFFLINE_FLOATS
+#ifdef OFFLINE
 # if (defined  ZCLIMATOLOGY && !defined ANA_SSH)     || \
     (defined M2CLIMATOLOGY && !defined ANA_M2CLIMA) || \
     (defined  TCLIMATOLOGY && !defined ANA_TCLIMA)  || \
@@ -2959,7 +2959,7 @@
   20  FORMAT (/,' DEF_INFO - error while creating global attribute: ',  &
      &        a,/,12x,a)
   30  FORMAT ('frc_file_',i2.2)
-#ifdef OFFLINE_FLOATS
+#ifdef OFFLINE
   40  FORMAT ('clm_file_',i2.2)
 #endif
 

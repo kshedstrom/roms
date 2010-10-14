@@ -1,8 +1,8 @@
 !  Floats Input Parameters.
 !
-!svn $Id: floats_flt_test3d.in 588 2008-03-21 23:09:01Z kate $
+!svn $Id$
 !========================================================= Hernan G. Arango ===
-!  Copyright (c) 2002-2008 The ROMS/TOMS Group                                !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                                !
 !    Licensed under a MIT/X style license                                     !
 !    See License_ROMS.txt                                                     !
 !==============================================================================
@@ -72,7 +72,7 @@ POS = G, C, T, N,   Ft0,    Fx0,    Fy0,    Fz0,    Fdt,    Fdx,    Fdy,   Fdz
       1  1  1 14  34.0d0    192.d0   53.7d0  -400.0d0   1.00d0    0.0d0   0.0d0  0.d0
       1  1  1 14  34.0d0    191.d0   55.9d0  -400.0d0   1.00d0    0.0d0   0.0d0  0.d0
       1  1  1 14  34.0d0    190.d0   56.1d0  -400.0d0   1.00d0    0.0d0   0.0d0  0.d0
-      1  1  1 14  34.0d0    189.0d0  56.3d0  -400.0d0   1.00d0    0.0d0   0.0d0  0.d0 
+      1  1  1 14  34.0d0    189.0d0  56.3d0  -400.0d0   1.00d0    0.0d0   0.0d0  0.d0
       1  1  1 14  34.0d0    188.0d0  56.55d0 -400.0d0   1.00d0    0.0d0   0.0d0  0.d0
       1  1  1 14  34.0d0    187.0d0  56.7d0  -400.0d0   1.00d0    0.0d0   0.0d0  0.d0
       1  1  1 14  34.0d0    186.0d0  57.9d0  -400.0d0   1.00d0    0.0d0   0.0d0  0.d0
@@ -102,7 +102,7 @@ POS = G, C, T, N,   Ft0,    Fx0,    Fy0,    Fz0,    Fdt,    Fdx,    Fdy,   Fdz
       1  1  1 14  34.0d0    192.d0   53.7d0  -800.0d0   1.00d0    0.0d0   0.0d0  0.d0
       1  1  1 14  34.0d0    191.d0   55.9d0  -800.0d0   1.00d0    0.0d0   0.0d0  0.d0
       1  1  1 14  34.0d0    190.d0   56.1d0  -800.0d0   1.00d0    0.0d0   0.0d0  0.d0
-      1  1  1 14  34.0d0    189.0d0  56.3d0  -800.0d0   1.00d0    0.0d0   0.0d0  0.d0 
+      1  1  1 14  34.0d0    189.0d0  56.3d0  -800.0d0   1.00d0    0.0d0   0.0d0  0.d0
       1  1  1 14  34.0d0    188.0d0  56.55d0 -800.0d0   1.00d0    0.0d0   0.0d0  0.d0
       1  1  1 14  34.0d0    187.0d0  56.7d0  -800.0d0   1.00d0    0.0d0   0.0d0  0.d0
       1  1  1 14  34.0d0    186.0d0  57.9d0  -800.0d0   1.00d0    0.0d0   0.0d0  0.d0
@@ -126,7 +126,7 @@ POS = G, C, T, N,   Ft0,    Fx0,    Fy0,    Fz0,    Fdt,    Fdx,    Fdy,   Fdz
       1  1  1 14  34.0d0    195.d0   53.7d0  -800.0d0   1.00d0    0.0d0   0.0d0  0.d0
       1  1  1 14  34.0d0    192.5d0  53.1d0  -800.0d0   1.00d0    0.0d0   0.0d0  0.d0
       1  1  1 14  34.0d0    191.d0   52.7d0  -800.0d0   1.00d0    0.0d0   0.0d0  0.d0
-      1  1  1 14  34.0d0    188.5d0  52.2d0  -800.0d0   1.00d0    0.0d0   0.0d0  0.d0 
+      1  1  1 14  34.0d0    188.5d0  52.2d0  -800.0d0   1.00d0    0.0d0   0.0d0  0.d0
 !
 !  GLOSSARY:
 !  =========
@@ -138,7 +138,7 @@ POS = G, C, T, N,   Ft0,    Fx0,    Fy0,    Fz0,    Fdt,    Fdx,    Fdy,   Fdz
 ! Control Switches.
 !------------------------------------------------------------------------------
 !
-! Lfloats   Switch to control the computation of floats trajectories within 
+! Lfloats   Switch to control the computation of floats trajectories within
 !             nested and/or multiple connected grids. Ngrids values are
 !             expected. By default this switch is set to TRUE in "mod_scalars"
 !             for all grids when the CPP option FLOATS is activated. The
@@ -188,7 +188,7 @@ POS = G, C, T, N,   Ft0,    Fx0,    Fy0,    Fz0,    Fdt,    Fdx,    Fdy,   Fdz
 !              centered at (Fx0,Fy0,Fz0) is activated.
 !
 !              NOTE:  The total number of floats trajectories to compute
-!              ====   must add to NFLOATS. 
+!              ====   must add to NFLOATS.
 !
 !  Ft0       Time (days) of float release after model initialization (real).
 !

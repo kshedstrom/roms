@@ -64,7 +64,7 @@
 #define NO_WRITE_GRID
 #undef OUT_DOUBLE
 #define RST_SINGLE
-#undef AVERAGES
+#define AVERAGES
 #undef AVERAGES2
 #ifdef SOLVE3D
 # undef AVERAGES_DETIDE
@@ -170,7 +170,7 @@
 
 #define LTIDES
 #ifdef LTIDES
-# undef FILTERED
+# define FILTERED
 # define SSH_TIDES
 # define UV_TIDES
 # define ADD_FSOBC
