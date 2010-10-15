@@ -85,7 +85,7 @@
       real(r8) :: Clength, Fmax, Fmin, Tdelta, Tend
       real(r8) :: Tmax, Tmin, Tmono, Tscale, Tstr, scale
       real(r8) :: Fval, Tval
-#if defined OFFLINE
+#if defined OFFLINE_HACK
       real(r8) :: Tnear(1)
 #endif
 
@@ -422,8 +422,6 @@
           got_var=.FALSE.
           got_time=.FALSE.
           Vtype=Iinfo(1,ifield,ng)
-
-
 !
 !  Inquire about the dimensions and check for consistency.
 !
@@ -545,7 +543,7 @@
           IF (foundit.and.got_time) THEN
 
             Trec=1 !Assume first time record is appropriate time record to read
-	    Iinfo(9,ifield,ng)=Trec
+            Iinfo(9,ifield,ng)=Trec
             Linfo(1,ifield,ng)=Lgridded
             Linfo(2,ifield,ng)=Liocycle
             Iinfo(2,ifield,ng)=Vid
@@ -563,7 +561,6 @@
             EXIT
           END IF
         END DO
-
 !
 !  Terminate execution requested variables are not found.
 !
@@ -581,7 +578,7 @@
         END IF
         Cinfo(ifield,ng)=TRIM(ncfile)
 
-       END IF ! END (Trec.gt.nrec) IF statement
+      END IF ! END (Trec.gt.nrec) IF statement
 #endif
         IF (Trec.le.nrec) THEN
 !
@@ -616,7 +613,7 @@
               RETURN
             END IF
           END IF
-#if defined OFFLINE
+#if defined OFFLINE_HACK
 !
 !  During restart between AVG files, there is a gap between timestamps,
 !  so be forgiving at beginning and end of files by shifting 1st and last
