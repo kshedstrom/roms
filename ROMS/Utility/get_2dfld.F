@@ -424,7 +424,7 @@
         Iinfo(9,ifield,ng)=Trec
 
 #ifdef OFFLINE
-     IF (Trec.gt.nrec) THEN !start all over with a new file
+      IF (Trec.gt.nrec) THEN !start all over with a new file
 
         DO ifile=1,nfiles
 
@@ -565,11 +565,9 @@
                RETURN
             END IF
           END IF
-
 !
 !  Store variable information into global information arrays.
 !
-
           IF (foundit.and.got_time) THEN
 
             Trec=1 !Assume first time record is appropriate time record to read
@@ -595,7 +593,7 @@
 !  Terminate execution requested variables are not found.
 !
 
-       IF (.not.got_var) THEN
+        IF (.not.got_var) THEN
           IF (nfiles.gt.1) THEN
             WRITE (stdout,20) TRIM(Vname(1,ifield)), 'files:'
             DO i=1,nfiles
@@ -622,8 +620,8 @@
           RETURN
         END IF
 
-       Cinfo(ifield,ng)=TRIM(ncfile)
-    END IF ! end Trec.gt.nrec IF statement
+        Cinfo(ifield,ng)=TRIM(ncfile)
+      END IF ! end Trec.gt.nrec IF statement
 #endif
 
         IF (Trec.le.nrec) THEN

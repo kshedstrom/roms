@@ -1,5 +1,8 @@
 #define OUT_DOUBLE
 
+#undef  FLOATS
+#undef OFFLINE_FLOATS
+
 #undef  FORWARD_WRITE
 #undef  AD_SENSITIVITY
 
@@ -63,7 +66,9 @@
 #undef  M3CLM_NUDGING
 #undef  TCLM_NUDGING
 
-#undef CLOSED_OBC
+#ifdef OFFLINE_FLOATS
+# define CLOSED_OBC
+#endif
 #ifdef CLOSED_OBC
 # define NORTHERN_WALL
 # define SOUTHERN_WALL
@@ -90,11 +95,12 @@
 # define CCS_SPONGE
 #endif
 
-#undef  FLOATS
-
 #define NEMURO
 #ifdef NEMURO
 # define NEMURO_SAN
+#ifdef OFFLINE_FLOATS
+# undef NEMURO_SAN
+#endif
 # ifdef NEMURO_SAN
 #  undef  FISH_FEEDBACK
 #  define PREDATOR
