@@ -156,7 +156,8 @@
 !
                   track(ixgrd,itimep1,fid)=track(ixgrd,itime,fid)
                   track(iygrd,itimep1,fid)=track(iygrd,itime,fid)
-                  track(izgrd,itimep1,fid)=track(izgrd,itime,fid)
+!                  track(izgrd,itimep1,fid)=track(izgrd,itime,fid)
+                  track(izgrd,itimep1,fid)=REAL(N(ng),r8)
 !
 ! -------- FITNESS-BASED SWIMMING BEHAVIOR (RAILSBACK) --------
                 ELSE IF (swimtype(fid).eq.1) THEN
@@ -398,9 +399,9 @@
                     END DO
                   END IF
                   KrMax=MIN(N(ng),MAX(2,KrMax))
-                  track(izgrd,itimep1,fid)=REAL(KrMax,r8)
+!                  track(izgrd,itimep1,fid)=REAL(KrMax,r8)
 ! Impose 2D movement at surface
-!                  track(izgrd,itimep1,fid)=REAL(N(ng),r8)
+                  track(izgrd,itimep1,fid)=REAL(N(ng),r8)
 !
                 END IF
 !

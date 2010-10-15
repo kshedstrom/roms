@@ -55,7 +55,7 @@
 
 ! Number of fish per year per species.
 
-       Nfishperyear == 100
+       Nfishperyear == 200
 
 ! Number of batches of eggs per female per year.
 
@@ -71,23 +71,23 @@
 
 ! Fish spawning maturity [years], {3.0d0}.
 
-       Fage0 == 2.0d0 2.0d0 0.0d0 0.0d0 0.0d0
+       Fage0 == 0.0d0 0.0d0 0.0d0 0.0d0 0.0d0
 
 ! Fish start of spawning season [yearday], {1.0d0}.
 
 !       Fspstr == 30.0d0 30.0d0 0.0d0 0.0d0 0.0d0
 !       Fspstr == 91.0d0 91.0d0 0.0d0 0.0d0 0.0d0
-       Fspstr == 30.0d0 30.0d0 0.0d0 0.0d0 0.0d0
+       Fspstr == 60.0d0 60.0d0 0.0d0 0.0d0 0.0d0
 
 ! Fish end of spawning season [yearday], {210.0d0}.
 
 !       Fspend == 150.0d0 240.0d0 0.0d0 0.0d0 0.0d0
-!       Fspend == 150.0d0 150.0d0 0.0d0 0.0d0 0.0d0
-       Fspend == 60.0d0 60.0d0 0.0d0 0.0d0 0.0d0
+       Fspend == 150.0d0 150.0d0 0.0d0 0.0d0 0.0d0
+!       Fspend == 120.0d0 120.0d0 0.0d0 0.0d0 0.0d0
 
 ! Fish behavior [1=Fitness, 2=Kinesis]
 
-       Fbehave == 2 2 0 0 0
+       Fbehave == 0 0 0 0 0
 
 ! Fish preference for ZS, {0.5d0}.
 
@@ -103,15 +103,15 @@
 
 ! Fish half saturation for ZS
 
-       K_ZS == 1.2d0 0.9d0 0.0d0 0.0d0 0.0d0
+       K_ZS == 1.0d0 0.7d0 0.0d0 0.0d0 0.0d0
 
 ! Fish half saturation for ZL
 
-       K_ZL == 1.2d0 0.9d0 0.0d0 0.0d0 0.0d0
+       K_ZL == 1.0d0 0.7d0 0.0d0 0.0d0 0.0d0
 
 ! Fish half saturation for ZP
 
-       K_ZP == 1.2d0 0.9d0 0.0d0 0.0d0 0.0d0
+       K_ZP == 1.0d0 0.7d0 0.0d0 0.0d0 0.0d0
 
 ! Energy conversion from Zooplankton to Fish
 ! (CAL_ZF for age 2+ is computed from 2580/7775)

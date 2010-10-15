@@ -1,9 +1,9 @@
 !
 !  ROMS/TOMS Standard Input parameters.
 !
-!svn $Id: ocean.in 983 2009-05-23 01:07:05Z kate $
+!svn $Id$
 !========================================================= Hernan G. Arango ===
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                                !
+!  Copyright (c) 2002-2010 The ROMS/TOMS Group                                !
 !    Licensed under a MIT/X style license                                     !
 !    See License_ROMS.txt                                                     !
 !==============================================================================
@@ -68,13 +68,14 @@
 ! indices (Istr,Iend) and (Jstr,Jend), [1:Ngrids].
 
       NtileI == 8                               ! I-direction partition
-      NtileJ == 16                               ! J-direction partition
+      NtileJ == 16                              ! J-direction partition
 
 ! Time-Stepping parameters.
 
 !      NTIMES =  24  (1 day)
 !      NTIMES =  8760 (1 year)
-      NTIMES =  175200
+!      NTIMES =  175200 (20 years)
+      NTIMES =  87600
           DT == 3600.0d0
      NDTFAST == 45
 
@@ -101,7 +102,9 @@
         NSTA == 48
         NFLT == 48
         NFSH == 120
-        NSHP == 48
+    NDEFFISH == 0
+        NPRD == 120
+        NFLE == 120
        NINFO == 1
 
 ! Output history, average, diagnostic files parameters.
@@ -416,6 +419,44 @@ Hout(idMtls) == F                          ! turbulent length scale
 
 Hout(idBott) == T T T T T T T T T F F F F F F F
 
+! Logical switches (TRUE/FALSE) to activate writing of time-averaged
+! fields into AVERAGE output file.
+
+Aout(idUvel) == T                          ! 3D U-velocity
+Aout(idVvel) == T                          ! 3D V-velocity
+Aout(idWvel) == T                          ! 3D W-velocity
+Aout(idOvel) == T                          ! omega vertical velocity
+Aout(idUbar) == T                          ! 2D U-velocity
+Aout(idVbar) == T                          ! 2D V-velocity
+Aout(idFsur) == T                          ! free-surface
+
+Aout(idTvar) == T T                        ! temperature and salinity
+
+Aout(idUsms) == T                          ! surface U-stress
+Aout(idVsms) == T                          ! surface V-stress
+Aout(idUbms) == F                          ! bottom U-stress
+Aout(idVbms) == F                          ! bottom V-stress
+
+Aout(idTsur) == F F                        ! surface net heat and salt flux
+Aout(idLhea) == F                          ! latent heat flux
+Aout(idShea) == F                          ! sensible heat flux
+Aout(idLrad) == F                          ! longwave radiation flux
+Aout(idSrad) == F                          ! shortwave radiation flux
+Aout(idevap) == F                          ! evaporation rate
+Aout(idrain) == F                          ! precipitation rate
+
+Aout(idDano) == F                          ! density anomaly
+Aout(idVvis) == F                          ! vertical viscosity
+Aout(idTdif) == F                          ! vertical T-diffusion
+Aout(idSdif) == F                          ! vertical Salinity diffusion
+Aout(idHsbl) == F                          ! depth of surface boundary layer
+Aout(idHbbl) == F                          ! depth of bottom boundary layer
+
+! Logical switches (TRUE/FALSE) to activate writing of extra inert passive
+! tracers other than biological and sediment tracers into the AVERAGE file.
+
+ Aout(inert) == T                          ! inert passive tracers
+
 ! Generic User parameters, [1:NUSER].
 
        NUSER =  0
@@ -472,7 +513,8 @@ Hout(idBott) == T T T T T T T T T F F F F F F F
      STANAME == /dev/null
      FLTNAME == flt.nc
      FISHNAME == fish.nc
-     SHIPNAME == ships.nc
+     PREDNAME == pred.nc
+     FLEETNAME == fleet.nc
 
 ! Input ASCII parameter filenames.
 
@@ -480,6 +522,7 @@ Hout(idBott) == T T T T T T T T T F F F F F F F
      SPOSNAM =  ROMS/External/stations.in
      FPOSNAM =  floats.in
      FISHPOSNAM =  fish.in
+     PREDPOSNAM =  pred.in
      FLEETPOSNAM =  fleet.in
      BPARNAM =  nemsan.in
      SPARNAM =  ROMS/External/sediment.in
