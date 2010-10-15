@@ -5172,6 +5172,24 @@
   'r3dvar'
   1.0d0
 
+ 'Tspawn'
+  'time since last spawn'
+  'second'
+  'Tspawn, scalar, series'
+  'bio_time'
+  'idFTspwn'
+  'r3dvar'
+  1.0d0
+
+ 'Iniworth'
+  'Initial fish worth'
+  'nondimensional'
+  'Iniworth, scalar, series'
+  'bio_time'
+  'idFiniw'
+  'r3dvar'
+  1.0d0
+
 ! Predator variables
 
  'Pwwt'

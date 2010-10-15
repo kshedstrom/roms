@@ -98,6 +98,38 @@
      &                      varid = fishVid(idFalv,ng))
       IF (exit_flag.ne.NoError) RETURN
 !
+!  Write out time since last spawn.
+!
+      DO l=1,Nfish(ng)
+        IF (FISHES(ng)%bounded(l)) THEN
+          Tout(l)=FISHES(ng)%bioenergy(iftspwn,l)
+        ELSE
+          Tout(l)=spval
+        END IF
+      END DO
+      CALL netcdf_put_fvar (ng, iNLM, FISHname(ng),                     &
+     &                      TRIM(Vname(1,idFTspwn)),                    &
+     &                      Tout, (/1/), (/Nfish(ng)/),                 &
+     &                      ncid = ncFISHid(ng),                        &
+     &                      varid = fishVid(idFTspwn,ng))
+      IF (exit_flag.ne.NoError) RETURN
+!
+!  Write out initial worth.
+!
+      DO l=1,Nfish(ng)
+        IF (FISHES(ng)%bounded(l)) THEN
+          Tout(l)=FISHES(ng)%bioenergy(ifiniwth,l)
+        ELSE
+          Tout(l)=spval
+        END IF
+      END DO
+      CALL netcdf_put_fvar (ng, iNLM, FISHname(ng),                     &
+     &                      TRIM(Vname(1,idFiniw)),                     &
+     &                      Tout, (/1/), (/Nfish(ng)/),                 &
+     &                      ncid = ncFISHid(ng),                        &
+     &                      varid = fishVid(idFiniw,ng))
+      IF (exit_flag.ne.NoError) RETURN
+!
 !  Write out fish age base.
 !
       CALL netcdf_put_ivar (ng, iNLM, FISHname(ng),                     &

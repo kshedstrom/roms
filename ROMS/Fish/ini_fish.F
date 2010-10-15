@@ -287,8 +287,6 @@
         IF (status.gt.0) THEN
           IF (TRIM(KeyWord).eq.'Lfish') THEN 
             Npts=load_l(Nval, Cval, Ngrids, Lfish)
-          ELSE IF (TRIM(KeyWord).eq.'FISHRREC') THEN
-            Npts=load_i(Nval, Rval, Ngrids, fishrrec)
           ELSE IF (TRIM(KeyWord).eq.'Nspecies') THEN
             Npts=load_i(Nval, Rval, Ngrids, Nspecies)
           ELSE IF (TRIM(KeyWord).eq.'Nyearclass') THEN

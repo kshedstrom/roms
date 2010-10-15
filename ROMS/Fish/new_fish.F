@@ -160,16 +160,17 @@
 
 !  Load up the respective data structures with the eggs
 # ifdef EGGS_TREE_FORT
-            isp2=isp
-            call tree_init(tree(isp2))
+            call tree_init(tree(isp))
 
             DO l=1,Nfish(ng)
-              IF (FISHES(ng) % bioenergy(ifeggs, l) .gt. 0.0_r8) THEN
-                isp = idfish(FISHES(ng) % species(l))
-                CALL tree_insert(tree(isp),                             &
-     &                FISHES(ng) % bioenergy(ifspwnloc,l),              &
-     &                FISHES(ng) % bioenergy(ifeggs, l), l)
+              IF (FISHES(ng) % bioenergy(ifeggs, l) .gt. 0.0_r8 .and.   &
+     &             idfish(FISHES(ng) % species(l)) .eq. isp) THEN
+                isp2 = idfish(FISHES(ng) % species(l))
+                CALL tree_insert(tree(isp2),                            &
+     &                FISHES(ng) % bioenergy(ifeggs,l),                 &
+     &                FISHES(ng) % bioenergy(ifspwnloc, l), l)
                 FISHES(ng) % bioenergy(ifeggs, l) = 0.0_r8
+		count(isp2) = count(isp2) + 1
               END IF
             END DO
 # elif defined EGGS_TREE_CXX
@@ -195,7 +196,9 @@
 !             call tree_traverse(tree(is))
             IF (count(isp) > 0) THEN
 # ifdef EGGS_TREE_FORT
-              CALL tree_collect(tree(isp), FISHES(ng) % num_super(isp), &
+	      print *, 'New_fish found ', count(isp),                   &
+     &             'spawners in species ', isp
+              CALL tree_collect(tree(isp), Navail,                      &
      &             Nfound, eggs, moms)
 # elif defined EGGS_TREE_CXX
               CALL c_tree_collect(isp, FISHES(ng) % num_super(isp),     &

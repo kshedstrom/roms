@@ -1337,6 +1337,12 @@
                 LastRec(ng)=.FALSE.
               END IF
             END DO
+          ELSE IF (TRIM(KeyWord).eq.'FISHRREC') THEN
+            Npts=load_i(Nval, Rval, Ngrids, fishrrec)
+          ELSE IF (TRIM(KeyWord).eq.'FLEETRREC') THEN
+            Npts=load_i(Nval, Rval, Ngrids, fleetrrec)
+          ELSE IF (TRIM(KeyWord).eq.'PREDRREC') THEN
+            Npts=load_i(Nval, Rval, Ngrids, predrrec)
           ELSE IF (TRIM(KeyWord).eq.'LcycleRST') THEN
             Npts=load_l(Nval, Cval, Ngrids, LcycleRST)
           ELSE IF (TRIM(KeyWord).eq.'NRST') THEN

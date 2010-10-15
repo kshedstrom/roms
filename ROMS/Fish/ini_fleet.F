@@ -144,8 +144,6 @@
         IF (status.gt.0) THEN
           IF (TRIM(KeyWord).eq.'Lfleet') THEN 
             Npts=load_l(Nval, Cval, Ngrids, Lfleet)
-          ELSE IF (TRIM(KeyWord).eq.'FLEETRREC') THEN
-            Npts=load_i(Nval, Rval, Ngrids, fleetrrec)
           ELSE IF (TRIM(KeyWord).eq.'Nboats') THEN
             Npts=load_i(Nval, Rval, Ngrids, Nboats)
           ELSE IF (TRIM(KeyWord).eq.'Nports') THEN

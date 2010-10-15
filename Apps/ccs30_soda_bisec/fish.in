@@ -40,11 +40,6 @@
 !
      Lfish == T
 
-! Flag indicating re-start from previous solution. If FISHRREC = 0, a new
-! NetCDF output file is created.
-
-       FISHRREC == 0
-
 ! Number of fish species.
 
        Nspecies == 2
@@ -198,13 +193,6 @@
 !             for all grids when the CPP option FLOATS is activacted. The
 !             USER can control which grid to process by turning on/off this
 !             switch.
-!
-! FISHRREC  Flag to indicate re-start from a previous solution.  Use
-!             FISHRREC=0 for new solutions. In a re-start solution,
-!             FISHRREC is the time index in the floats NetCDF file assigned
-!             for initialization. If FISHRREC is negative (say NISHRREC=-1),
-!             the floats will re-start from the most recent time record.
-!             That is, the initialization record is assigned internally.
 !
 !------------------------------------------------------------------------------
 ! Number of floats.

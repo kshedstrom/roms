@@ -377,7 +377,7 @@
             RETURN
           ELSE IF (Nsuper >= this % nitems) THEN
             IF (ASSOCIATED(this % root)) CALL copy_traverse(            &
-     &               this % root, Nsuper, Nfound, eggs, momfish)
+     &               this % root % left, Nsuper, Nfound, eggs, momfish)
             IF (Nfound .ne. this % nitems) print *, "Oh, noes!",        &
      &               Nfound, this % nitems
           ELSE
@@ -494,7 +494,6 @@
                 prev % next => cur % next
               END IF
               pop_tree => cur % egg_tree % left
-              prev % next => cur % next
               RETURN
             END IF
             prev => cur

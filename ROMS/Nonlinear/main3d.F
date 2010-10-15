@@ -480,7 +480,10 @@
             Lend=MIN(Nfish(ng),Lstr+chunk_size-1)
             CALL new_year (ng, Lstr, Lend)
 #  ifdef FLEET
-            CALL new_year_fleet (ng, TILE)
+            subs=NtileX(ng)*NtileE(ng)/numthreads
+            DO tile=subs*thread,subs*(thread+1)-1,+1     ! irreversible loop
+              CALL new_year_fleet (ng, TILE)
+            END DO
 #  endif
             iyesteryear(ng) = iyears(ng)
           END IF
