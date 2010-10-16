@@ -5154,6 +5154,15 @@
   'r3dvar'
   1.0d0
 
+ 'Deathby'
+  'fish cause of death'
+  'nondimensional'
+  'deathby, scalar, series'
+  'bio_time'
+  'idFdeath'
+  'r3dvar'
+  1.0d0
+
  'Swimtype'
   'swim type of fish'
   'nondimensional'

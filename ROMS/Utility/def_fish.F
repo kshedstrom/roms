@@ -933,6 +933,21 @@
      &                 nf90_int, 2, fgrd, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 !
+!  Define fish cause of death (1=starve, 2=Nmort, 3=Pmort, 4=Fmort)
+!
+        Vinfo( 1)='Deathby'
+        Vinfo( 2)='fish cause of death'
+        Vinfo( 3)='nondimensional'
+        Vinfo(14)='deathby, scalar, series'
+        Vinfo(16)=Vname(1,idtime)
+# ifndef NO_4BYTE_REALS
+        Vinfo(24)='_FillValue'
+        Aval(6)=spval
+# endif
+        status=def_var(ng, iNLM, ncFISHid(ng),fishVid(idFdeath,ng),     &
+     &                 nf90_int, 2, fgrd, Aval, Vinfo, ncname)
+        IF (exit_flag.ne.NoError) RETURN
+!
 !  Define fish batch count
 !
         Vinfo( 1)='Fbatch'
@@ -1114,6 +1129,9 @@
           ELSE IF (TRIM(var_name(i)).eq.'Lifestage') THEN
             got_var(idFlfsg)=.TRUE.
             fishVid(idFlfsg,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.'Deathby') THEN
+            got_var(idFdeath)=.TRUE.
+            fishVid(idFdeath,ng)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.'Swimtype') THEN
             got_var(idFswmt)=.TRUE.
             fishVid(idFswmt,ng)=var_id(i)
@@ -1208,6 +1226,12 @@
         END IF
         IF (.not.got_var(idFlfsg)) THEN
           IF (Master) WRITE (stdout,60) TRIM(Vname(1,idFlfsg)),         &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idFdeath)) THEN
+          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idFdeath)),        &
      &                                  TRIM(ncname)
           exit_flag=3
           RETURN
@@ -1432,6 +1456,13 @@
         CALL netcdf_get_ivar (ng, iNLM, ncname,                         &
      &                        TRIM(Vname(1,idFlfsg)),                   &
      &                        FISHES(ng)%lifestage,                     &
+     &                        ncid = ncFISHid(ng),                      &
+     &                        start = (/1,tFISHindx(ng)/),              &
+     &                        total = (/Nfish(ng),1/))
+
+        CALL netcdf_get_ivar (ng, iNLM, ncname,                         &
+     &                        TRIM(Vname(1,idFdeath)),                  &
+     &                        FISHES(ng)%deathby,                       &
      &                        ncid = ncFISHid(ng),                      &
      &                        start = (/1,tFISHindx(ng)/),              &
      &                        total = (/Nfish(ng),1/))

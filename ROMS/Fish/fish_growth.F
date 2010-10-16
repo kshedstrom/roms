@@ -59,7 +59,8 @@
      &                            Hz,                                   &
 # endif
      &                            MyThread, bounded, track, feedback,   &
-     &                            bioenergy, alive, species, lifestage, &
+     &                            bioenergy, alive, species,            &
+     &                            lifestage, deathby,                   &
      &                            egg_dur, egg_num,                     &
      &                            ysac_dur, ysac_num,                   &
      &                            larv_dur, larv_num,                   &
@@ -95,6 +96,7 @@
       integer, intent(inout) :: pred_species(Npred(ng))
 # endif
       integer, intent(inout) :: lifestage(Nfish(ng))
+      integer, intent(inout) :: deathby(Nfish(ng))
 
       type(fishnode), intent(in) :: fish_list(LBi:UBi,LBj:UBj)
       type(fishnode), target, intent(in) :: fishnodes(Nfish(ng))
@@ -380,6 +382,9 @@
      &                        (1.0_r8-exp(-Pmort(ifsp)*dtdays))*Fworth
 ! Predation mortality by species for output
                            fmortP(ifid)=fmortP(ifid)+Pmort(ifsp)
+                          IF (bioenergy(ifworth,ifid).lt.1.0_r8) THEN
+                            IF (deathby(ifid).eq.0) deathby(ifid)=3
+                          END IF
                         END IF
                       END IF
                       thisfish => thisfish % next
@@ -422,6 +427,9 @@
                 fmortF(ifid)=Fdmort
 ! Starvation mortality (need to be computed somewhere else)
                 fmortS(ifid)=0.0_r8
+                IF (bioenergy(ifworth,ifid).lt.1.0_r8) THEN
+                  IF (deathby(ifid).eq.0) deathby(ifid)=2
+                END IF
               END IF
               thisfish => thisfish % next
             END DO
@@ -505,14 +513,17 @@
             thisfish => fish_list(i,j) % next
             DO ifish=1,fish_count(i,j)
               ifid = thisfish % fish
+              isp = idfish(species(ifid))
               IF (MyThread(ifid).and.bounded(ifid)) THEN
 ! From Kenny's code:
-                IF (bioenergy(ifworth,ifid).lt.0.001_r8) THEN
+                IF (bioenergy(ifworth,ifid).lt.1.0_r8) THEN
                   alive(ifid)=.FALSE.
+! note: deathby already handled in predation or natural mort code
                 END IF
-                IF ((bioenergy(ifwwt,ifid).lt.0.001_r8).and.            &
-     &              (lifestage(ifid).ge.if_juvenile)) THEN
+                IF ((bioenergy(ifwwt,ifid).lt.0.01_r8*Fwwt0(isp,ng))    &
+     &              .and.(lifestage(ifid).ge.if_juvenile)) THEN
                   alive(ifid)=.FALSE.
+                  IF (deathby(ifid).eq.0) deathby(ifid)=1
                 END IF
                 IF (alive(ifid)) THEN
 ! Update fish age

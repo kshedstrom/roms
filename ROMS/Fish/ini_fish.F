@@ -220,6 +220,7 @@
             FISHES(ng)%species(fid)=idfish_inv(isp)
             FISHES(ng)%bounded(fid)=.TRUE.
             FISHES(ng)%cellid(fid)=nint(xini)+(Lm(ng)+2)*nint(yini)
+            FISHES(ng)%deathby(fid)=0
           END DO
         END DO
       END DO

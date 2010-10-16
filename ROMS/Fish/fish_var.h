@@ -66,8 +66,12 @@
                 idFspc=varid
               CASE ('idFlfsg')
                 idFlfsg=varid
+              CASE ('idFdeath')
+                idFdeath=varid
               CASE ('idFswmt')
                 idFswmt=varid
+!              CASE ('idFdeath')
+!                idFdeath=varid
               CASE ('idFalv')
                 idFalv=varid
               CASE ('idFTspwn')

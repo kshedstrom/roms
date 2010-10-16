@@ -96,6 +96,7 @@
               FISHES(ng)%bioenergy(i,l)=Fspv
             END DO
             FISHES(ng)%lifestage(l)=iFspv
+            FISHES(ng)%deathby(l)=iFspv
             FISHES(ng)%suba_num(l)=Fspv
             MyThread(l)=.FALSE.
           END IF
@@ -132,6 +133,7 @@
           FISHES(ng) % bioenergy(ifage,ifsh) = 0.0_r8
           FISHES(ng) % bioenergy(ifbday,ifsh) = 0.0_r8
           FISHES(ng) % lifestage(ifsh) = 0
+          FISHES(ng) % deathby(ifsh) = 0
           DO j=0,NFT
             FISHES(ng) % track(ixgrd,j,ifsh) = 0.
             FISHES(ng) % track(iygrd,j,ifsh) = 0.
@@ -184,6 +186,7 @@
       CALL mp_collect (ng, iNLM, NptsF, Fspv, FwrkF)
       FISHES(ng)%bioenergy=RESHAPE(FwrkF,(/NFishV(ng),Nfish(ng)/))
       CALL mp_collecti(ng, iNLM, Nfish(ng), iFspv, FISHES(ng)%lifestage)
+      CALL mp_collecti(ng, iNLM, Nfish(ng), iFspv, FISHES(ng)%deathby)
       CALL mp_collect (ng, iNLM, Nfish(ng), Fspv, FISHES(ng)%suba_num)
 # endif
 

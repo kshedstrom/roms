@@ -736,14 +736,17 @@
               DO ienc=1,nsardenc
                 IF (fishing) THEN
                   ifid=idsard(ienc)
+                  isp = idfish(FISHES(ng)%species(ifid))
                   BOATS(ng)%catch(ib)=BOATS(ng)%catch(ib)+              &
      &                                       Qcatch(ng)*biosard(ienc)
                   numcaught=numcaught+1
                   FISHES(ng)%bioenergy(ifworth,ifid)=                   &
      &                             (1.0_r8-Qcatch(ng))*                 &
                                    FISHES(ng)%bioenergy(ifworth,ifid)
-                  IF (FISHES(ng)%bioenergy(ifworth,ifid).lt.0.0001) THEN
+                  IF (FISHES(ng)%bioenergy(ifworth,ifid).lt.1.0_r8) THEN
                     FISHES(ng)%alive(ifid)=.FALSE.
+                    IF (FISHES(ng)%deathby(ifid).eq.0)                  &
+     &                      FISHES(ng)%deathby(ifid)=4
                     BOATS(ng)%catch(ib)=BOATS(ng)%catch(ib)+            &
      &                               FISHES(ng)%bioenergy(ifworth,ifid)
                   END IF
@@ -759,13 +762,14 @@
                     IF (overcatch.gt.0.0_r8) THEN
                       BOATS(ng)%catch(ib)=CatchMax(ng)
                       IF (FISHES(ng)%bioenergy(ifwwt,ifid).gt.          &
-     &                                          0.001_r8) THEN
+     &                             0.01_r8*Fwwt0(isp,ng)) THEN
                         FISHES(ng)%bioenergy(ifworth,ifid)=             &
      &                  FISHES(ng)%bioenergy(ifworth,ifid)+overcatch*   &
      &                     1000.0_r8/FISHES(ng)%bioenergy(ifwwt,ifid)
                       END IF
-                      IF (FISHES(ng)%bioenergy(ifworth,ifid).gt.0.01)   &
+                      IF (FISHES(ng)%bioenergy(ifworth,ifid).ge.1.0_r8) &
      &                  FISHES(ng)%alive(ifid)=.TRUE.
+                        FISHES(ng)%deathby(ifid)=0
                     END IF
                   END IF
                 END IF

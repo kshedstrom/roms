@@ -401,6 +401,7 @@
         integer  :: idFbatch       ! fish batch
         integer  :: idFspc         ! fish species
         integer  :: idFlfsg        ! fish lifestage
+        integer  :: idFdeath       ! fish cause of death
         integer  :: idFswmt        ! fish swim type
         integer  :: idFalv         ! fish is alive
         integer  :: idFTspwn       ! time since last spawn

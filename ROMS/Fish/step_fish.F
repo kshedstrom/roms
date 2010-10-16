@@ -61,6 +61,7 @@
      &                       FISHES(ng) % alive,                        &
      &                       FISHES(ng) % lifestage,                    &
      &                       FISHES(ng) % swimtype,                     &
+     &                       FISHES(ng) % deathby,                      &
      &                       FISHES(ng) % cellid,                       &
      &                       FISHES(ng) % egg_dur,                      &
      &                       FISHES(ng) % egg_num,                      &
@@ -93,7 +94,7 @@
      &                             bounded, Ftype, Tinfo, Fz0,          &
      &                             feedback, bioenergy, species,        &
      &                             alive, lifestage,                    &
-     &                             swimtype, cellid,                    &
+     &                             swimtype, deathby, cellid,           &
      &                             egg_dur, egg_num,                    &
      &                             ysac_dur, ysac_num,                  &
      &                             larv_dur, larv_num,                  &
@@ -144,6 +145,7 @@
       logical, intent(inout)  :: alive(:)
       integer, intent(inout)  :: lifestage(:)
       integer, intent(inout)  :: swimtype(:)
+      integer, intent(inout)  :: deathby(:)
       integer, intent(inout)  :: cellid(:)
       real(r8), intent(inout) :: egg_dur(:)
       real(r8), intent(inout) :: egg_num(:)
@@ -175,6 +177,7 @@
       logical, intent(inout)  :: alive(Nfish(ng))
       integer, intent(inout)  :: lifestage(Nfish(ng))
       integer, intent(inout)  :: swimtype(Nfish(ng))
+      integer, intent(inout)  :: deathby(Nfish(ng))
       integer, intent(inout)  :: cellid(Nfish(ng))
       real(r8), intent(inout) :: egg_dur(Nfish(ng))
       real(r8), intent(inout) :: egg_num(Nfish(ng))
@@ -297,6 +300,7 @@
           fmortP(l)=Fspv
           lifestage(l)=iFspv
           swimtype(l)=iFspv
+          deathby(l)=iFspv
           cellid(l)=iFspv
           alive(l)=lFspv
         END IF
@@ -799,6 +803,7 @@
             fmortP(l)=Fspv
             lifestage(l)=iFspv
             swimtype(l)=iFspv
+            deathby(l)=iFspv
             cellid(l)=iFspv
             alive(l)=lFspv
           END IF
@@ -898,6 +903,7 @@
             fmortP(l)=Fspv
             lifestage(l)=iFspv
             swimtype(l)=iFspv
+            deathby(l)=iFspv
             cellid(l)=iFspv
             alive(l)=lFspv
           END IF
@@ -1151,7 +1157,8 @@
      &                      GRID(ng) % Hz,                              &
 # endif
      &                      MyThread, bounded, track(:,:,:), feedback,  &
-     &                      bioenergy, alive, species, lifestage,       &
+     &                      bioenergy, alive, species,                  &
+     &                      lifestage, deathby,                         &
      &                      egg_dur, egg_num,                           &
      &                      ysac_dur, ysac_num,                         &
      &                      larv_dur, larv_num,                         &
@@ -1197,6 +1204,7 @@
       CALL mp_collect (ng, iNLM, Nfish(ng), Fspv, fmortP)
       CALL mp_collecti (ng, iNLM, Nfish(ng), iFspv, lifestage)
       CALL mp_collecti (ng, iNLM, Nfish(ng), iFspv, swimtype)
+      CALL mp_collecti (ng, iNLM, Nfish(ng), iFspv, deathby)
       CALL mp_collecti (ng, iNLM, Nfish(ng), iFspv, cellid)
       CALL mp_collectl (ng, iNLM, Nfish(ng), alive)
 !

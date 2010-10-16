@@ -63,11 +63,11 @@
           BOATS(ng)%cumcatch(ib)=0.0_r8
         END DO
         DO ifid=1,Nfish(ng)
-          IF ((FISHES(ng)%species(ifid).eq.if_sardine).and.               &
-     &        (FISHES(ng)%alive(ifid)).and.                               &
+          IF ((FISHES(ng)%species(ifid).eq.if_sardine).and.             &
+     &        (FISHES(ng)%alive(ifid)).and.                             &
      &        (FISHES(ng)%lifestage(ifid).ge.if_subadult)) THEN
-            BOATS(ng)%TotFishBio=BOATS(ng)%TotFishBio+                    &
-     &                      0.001_r8*FISHES(ng)%bioenergy(ifwwt,ifid)*    &
+            BOATS(ng)%TotFishBio=BOATS(ng)%TotFishBio+                  &
+     &                      0.001_r8*FISHES(ng)%bioenergy(ifwwt,ifid)*  &
      &                              FISHES(ng)%bioenergy(ifworth,ifid)
           END IF
         END DO

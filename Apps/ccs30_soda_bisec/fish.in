@@ -64,9 +64,9 @@
 
        Fwth0 == 25000.0d0 5000.0d0 0.0d0 0.0d0 0.0d0
 
-! Fish spawning maturity [years], {3.0d0}.
+! Fish spawning maturity [years], {2.0d0}.
 
-       Fage0 == 0.0d0 0.0d0 0.0d0 0.0d0 0.0d0
+       Fage0 == 2.0d0 2.0d0 0.0d0 0.0d0 0.0d0
 
 ! Fish start of spawning season [yearday], {1.0d0}.
 
@@ -98,15 +98,15 @@
 
 ! Fish half saturation for ZS
 
-       K_ZS == 1.0d0 0.7d0 0.0d0 0.0d0 0.0d0
+       K_ZS == 1.1d0 0.8d0 0.0d0 0.0d0 0.0d0
 
 ! Fish half saturation for ZL
 
-       K_ZL == 1.0d0 0.7d0 0.0d0 0.0d0 0.0d0
+       K_ZL == 1.1d0 0.8d0 0.0d0 0.0d0 0.0d0
 
 ! Fish half saturation for ZP
 
-       K_ZP == 1.0d0 0.7d0 0.0d0 0.0d0 0.0d0
+       K_ZP == 1.1d0 0.8d0 0.0d0 0.0d0 0.0d0
 
 ! Energy conversion from Zooplankton to Fish
 ! (CAL_ZF for age 2+ is computed from 2580/7775)

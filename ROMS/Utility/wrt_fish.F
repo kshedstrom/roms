@@ -78,6 +78,16 @@
      &                      varid = fishVid(idFlfsg,ng))
       IF (exit_flag.ne.NoError) RETURN
 !
+!  Write out fish cause of death
+!
+      CALL netcdf_put_ivar (ng, iNLM, FISHname(ng),                     &
+     &                      TRIM(Vname(1,idFdeath)),                    &
+     &                      FISHES(ng) % deathby,                       &
+     &                      (/1,tFISHindx(ng)/), (/Nfish(ng),1/),       &
+     &                      ncid = ncFISHid(ng),                        &
+     &                      varid = fishVid(idFdeath,ng))
+      IF (exit_flag.ne.NoError) RETURN
+!
 !  Write out fish swimtype.
 !
       CALL netcdf_put_ivar (ng, iNLM, FISHname(ng),                     &
