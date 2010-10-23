@@ -154,9 +154,15 @@
         integer  :: iddpth = -4   ! depth
         integer  :: idglon = -5   ! longitude
         integer  :: idglat = -6   ! latitude
+#ifdef OFFLINE_FLOATS
+        integer  :: idxspc = -7   ! x-space
+        integer  :: idyspc = -8   ! y-space
+        integer  :: idwdph = -9   ! water depth
+#endif
 !
 !  Input/output identification indices.
 !
+        integer  :: idAclm        ! 3D Aks (salinity) climatology
         integer  :: idAice        ! fraction of cell covered by ice
         integer  :: idbath        ! bathymetry
         integer  :: idCfra        ! cloud fraction
@@ -463,7 +469,7 @@
         integer  :: ncAVG2id(Ngrids)    ! output secondary averages
         integer  :: ncBLKid(Ngrids)     ! Basic state surface fluxes
         integer  :: ncBRYid(Ngrids)     ! input boundary conditions
-        integer  :: ncCLMid(Ngrids)     ! input climatology
+        integer  :: ncCLMid(NV,Ngrids)  ! input climatology
         integer  :: ncDIAid(Ngrids)     ! output diagnostics
         integer  :: ncERRid(Ngrids)     ! output 4DVar posterior error
 #ifdef FILTERED_RST
@@ -513,7 +519,6 @@
         integer, allocatable :: filTid(:,:)   ! filter tracers IDs
         integer, allocatable :: errTid(:,:)   ! error tracer IDs
         integer, allocatable :: fltTid(:,:)   ! floats tracers IDs
-        integer, allocatable :: fishTid(:,:)  ! fish tracers IDs
         integer, allocatable :: hisTid(:,:)   ! history tracers IDs
         integer, allocatable :: hssTid(:,:)   ! Hessian tracers IDs
         integer, allocatable :: iniTid(:,:)   ! initial NLM tracers IDs
@@ -532,8 +537,11 @@
         integer  :: diaVid(NV,Ngrids)    ! diagnostics variables IDs
         integer  :: filVid(NV,Ngrids)    ! filter variables IDs
         integer  :: errVid(NV,Ngrids)    ! error variables IDs
+#ifdef OFFLINE_FLOATS
+        integer  :: fltVid(-9:NV,Ngrids) ! floats variables IDs
+#else
         integer  :: fltVid(-6:NV,Ngrids) ! floats variables IDs
-        integer  :: fishVid(-6:NV,Ngrids)! fish variables IDs
+#endif
         integer  :: hisVid(NV,Ngrids)    ! history variables IDs
         integer  :: hssVid(NV,Ngrids)    ! Hessian variables IDs
         integer  :: iniVid(NV,Ngrids)    ! initial NLM variables IDs
@@ -689,7 +697,6 @@
         allocate ( errTid(MT,Ngrids) )
         allocate ( filTid(MT,Ngrids) )
         allocate ( fltTid(MT,Ngrids) )
-        allocate ( fishTid(MT,Ngrids) )
         allocate ( hisTid(MT,Ngrids) )
         allocate ( hssTid(MT,Ngrids) )
         allocate ( iniTid(MT,Ngrids) )
@@ -987,7 +994,9 @@
           ncAVG2id(ng)=-1
           ncBLKid(ng)=-1
           ncBRYid(ng)=-1
-          ncCLMid(ng)=-1
+          DO i=1,NV
+            ncCLMid(i,ng)=-1
+          END DO
           ncDIAid(ng)=-1
           ncERRid(ng)=-1
           ncFLTid(ng)=-1
@@ -1610,6 +1619,8 @@
                 idUclm=varid
               CASE ('idVclm')
                 idVclm=varid
+              CASE ('idAclm')
+                idAclm=varid
               CASE ('idOclm')
                 idOclm=varid
               CASE ('idSSSc')

@@ -184,11 +184,37 @@
 !
       IF (.not.TimeLess) THEN
         IF (.not.cycle.and.(ntime.gt.1)) THEN
+#ifdef OFFLINE
+          IF (iic(ng).eq.0) THEN
+            IF ((mday.lt.Tmin).or.(mday.gt.Tmax)) THEN
+               exit_flag=2
+               RETURN
+            END IF
+          ELSE
+! This allows code to find record in next file, before the model
+! gets there time-wise
+            IF ((mday.lt.(Tmin-(Tval(2)-Tval(1)))).or.                  &
+     &          (mday.gt.Tmax)) THEN
+              exit_flag=2
+              RETURN
+            END IF
+! This allows run to start on last time record in a file
+! Fix needed because model time does not advance
+! between iic=0 and icc=1
+            IF (iic(ng).eq.1) THEN
+               IF (mday.eq.Tmax) THEN
+                 exit_flag=2
+                 RETURN
+               END IF
+            END IF
+          END IF
+#else
           IF (smday.lt.Tmin) THEN
             IF (Master) WRITE (stdout,20) TRIM(TvarName), Tmin, smday
             exit_flag=2
             RETURN
           END IF
+#endif
         END IF
       END IF
 !

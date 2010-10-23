@@ -311,6 +311,7 @@
       END DO
 !$OMP END PARALLEL DO
 
+#ifndef OFFLINE_FLOATS
 #if defined VISC_GRID || defined DIFF_GRID || defined SPONGE
 !
 !-----------------------------------------------------------------------
@@ -328,6 +329,7 @@
         END DO
 !$OMP END PARALLEL DO
 #endif
+#endif /* OFFLINE_FLOATS */
 !
 !=======================================================================
 !  Initialize model state variables and forcing.  This part is
@@ -434,6 +436,7 @@
       END IF
 #endif
 
+#ifndef OFFLINE_FLOATS
 #ifdef INI_FILE
 !
 !  Read in initial conditions from initial NetCDF file.
@@ -564,6 +567,7 @@
       END DO
 !$OMP END PARALLEL DO
 #endif
+#endif /* !OFFLINE_FLOATS */
 
 #if defined FOUR_DVAR || !defined TANGENT || !defined ADJOINT
 !
