@@ -69,7 +69,7 @@
 ! indices (Istr,Iend) and (Jstr,Jend), [1:Ngrids].
 
       NtileI == 6                               ! I-direction partition
-      NtileJ == 16                               ! J-direction partition
+      NtileJ == 16                              ! J-direction partition
 
 ! Time-Stepping parameters.
 
