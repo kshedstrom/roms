@@ -1370,21 +1370,6 @@
                 idTbry(isouth,isalt)=varid
               CASE ('idTbry(inorth,isalt)')
                 idTbry(inorth,isalt)=varid
-#if defined RESIDENCE_TIME ||   defined AGE_DISTRIBUTION
-              CASE ('idTbry(iwest,inert(i))')
-                load=.TRUE.
-!                idTbry(iwest,inert(i))=varid
-              CASE ('idTbry(ieast,inert(i))')
-                load=.TRUE.
-!                idTbry(ieast,inert(i))=varid
-              CASE ('idTbry(isouth,inert(i))')
-                load=.TRUE.
-!                idTbry(isouth,inert(i))=varid
-              CASE ('idTbry(inorth,inert(i))')
-                load=.TRUE.
-!                idTbry(inorth,inert(i))=varid
-!------Added by W.G.Zhang
-#endif
 #ifdef ICE_MODEL
               CASE ('idAibc(iwest)')
                 idAibc(iwest)=varid
@@ -1783,7 +1768,7 @@
                 idVTav(isalt)=varid
 # endif
 #endif
-#ifdef T_PASSIVE
+#if defined T_PASSIVE || defined RESIDENCE_TIME
               CASE ('idTvar(inert(i))')
                 load=.TRUE.
               CASE ('idTbry(iwest,inert(i))')
@@ -2304,8 +2289,9 @@
                   END IF
 # endif
               END SELECT
-# if defined RESIDENCE_TIME
+# if defined AGE_PASSIVE || defined RESIDENCE_TIME
               SELECT CASE (Vinfo(1))
+#  if defined RESIDENCE_TIME
                 CASE ('river_age_')
                   IF (NPT.gt.0) THEN
                     varid=varid-1
@@ -2335,9 +2321,7 @@
      &                      TRIM(ADJUSTL(Vinfo(5)))
                     END DO
                   END IF
-# endif
-# if defined AGE_DISTRIBUTION || \
-    defined RESIDENCE_TIME
+#  endif
                 CASE ('age_west_')
                   IF (NPT.gt.0) THEN
                     varid=varid-1
