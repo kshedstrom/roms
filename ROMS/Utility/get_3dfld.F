@@ -85,9 +85,6 @@
       real(r8) :: Clength, Fmax, Fmin, Tdelta, Tend
       real(r8) :: Tmax, Tmin, Tmono, Tscale, Tstr, scale
       real(r8) :: Fval, Tval
-#if defined OFFLINE_HACK
-      real(r8) :: Tnear(1)
-#endif
 
       character (len=14) :: t_code
       character (len=45) :: attnam
@@ -614,29 +611,7 @@
               RETURN
             END IF
           END IF
-#if defined OFFLINE_HACK
-!
-!  During restart between AVG files, there is a gap between timestamps,
-!  so be forgiving at beginning and end of files by shifting 1st and last
-!  times by dt.
-!
-          IF (Trec.eq.1) THEN
-            CALL netcdf_get_fvar (ng, model, ncfile, Tname(ifield),     &
-     &                            Tnear,                                &
-     &                            ncid = ncid,                          &
-     &                            start = (/2/),                        &
-     &                            total = (/1/))
-            Tval = 2*Tval - Tnear(1)
-          END IF
-          IF (Trec.eq.nrec) THEN
-            CALL netcdf_get_fvar (ng, model, ncfile, Tname(ifield),     &
-     &                            Tnear,                                &
-     &                            ncid = ncid,                          &
-     &                            start = (/nrec-1/),                   &
-     &                            total = (/1/))
-            Tval = 2*Tval - Tnear(1)
-          END IF
-#endif
+
           Tval=Tval*Tscale
           Vtime(Tindex,ifield,ng)=Tval
 !
