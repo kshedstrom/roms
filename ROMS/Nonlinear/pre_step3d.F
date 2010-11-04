@@ -586,7 +586,7 @@
         END DO K_LOOP
       END DO T_LOOP1
 !
-#   if defined AGE_DISTRIBUTION || defined AGE_PASSIVE
+#   if defined AGE_PASSIVE || defined AGE_DISTRIBUTION
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 !  Add water concentration to the right-hand-side of age concentration
 !  equation.
@@ -634,7 +634,7 @@
         cff=(1.0_r8-Gamma)*dt(ng)/dtau(ng)
       END IF
 !
-      itrc=NAT+3
+      itrc=inert(3)
       DO k=1,N(ng)
         DO j=Jstr,Jend
           DO i=Istr,Iend
@@ -644,7 +644,7 @@
         END DO
       END DO
 !
-      DO itrc=NAT+4,NT(ng)
+      DO itrc=inert(4),NT(ng)
         DO k=1,N(ng)
           DO j=Jstr,Jend
             DO i=Istr,Iend

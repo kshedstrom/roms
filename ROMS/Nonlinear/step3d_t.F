@@ -1460,7 +1460,7 @@
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 !
       fac=dt(ng)/dtau(ng)
-      itrc=NAT+3
+      itrc=inert(3)
       DO k=1,N(ng)
         DO j=Jstr,Jend
           DO i=Istr,Iend
@@ -1470,7 +1470,7 @@
         END DO
       END DO
 !
-      DO itrc=NAT+4,NT(ng)
+      DO itrc=inert(4),NT(ng)
         DO k=1,N(ng)
           DO j=Jstr,Jend
             DO i=Istr,Iend
