@@ -36,7 +36,7 @@
 # define ANA_PASSIVE
 # define TRC_PSOURCE
 # define ANA_TRC_PSOURCE
-# define AGE_TRACER
+# define AGE_PASSIVE
 #endif
 
 /* ice */
