@@ -84,12 +84,12 @@
 
 #ifdef SOLVE3D
 # define TS_U3HADVECTION
-# define TS_A4VADVECTION
+# define TS_C4VADVECTION
 # undef TS_MPDATA
 #endif
 
 #define UV_VIS2
-#undef UV_SMAGORINSKY
+#define UV_SMAGORINSKY
 #define VISC_3DCOEF
 #define MIX_S_UV
 #define VISC_GRID
