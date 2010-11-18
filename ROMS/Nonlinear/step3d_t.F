@@ -456,6 +456,8 @@
       real(r8) :: my_maxbio(15)
 # if defined AGE_PASSIVE || defined AGE_DISTRIBUTION
       integer :: iactrc, iwctrc
+# endif
+# ifdef AGE_DISTRIBUTION
       real(r8) :: fac
 # endif
 !
