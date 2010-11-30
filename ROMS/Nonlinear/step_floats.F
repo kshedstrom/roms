@@ -60,7 +60,8 @@
       SUBROUTINE step_floats_tile (ng, Lstr, Lend,                      &
      &                             knew, nnew,                          &
      &                             nfm3, nfm2, nfm1, nf, nfp1,          &
-     &                             bounded, Ftype, Tinfo, Fz0, track)
+     &                             bounded, Ftype, Tinfo, Fz0,          &
+     &                             track)
 !***********************************************************************
 !
       USE mod_param
@@ -142,7 +143,7 @@
       CALL caldate (r_date, tdays(ng), year, yday, month, iday, hour)
 # endif
 !
-! Set tile array bounds.
+!  Set tile array bounds.
 !
       LBi=LBOUND(GRID(ng)%h,DIM=1)
       UBi=UBOUND(GRID(ng)%h,DIM=1)
@@ -152,17 +153,17 @@
 # ifdef DISTRIBUTE
 !
 !-----------------------------------------------------------------------
-! In distributed-memory configuration, determine which node bounds the
-! current location of the floats. Assign unbounded floats to the master
-! node.
+!  In distributed-memory configuration, determine which node bounds the
+!  current location of the floats. Assign unbounded floats to the master
+!  node.
 !-----------------------------------------------------------------------
 !
-! The strategy here is to build a switch that processes only the floats
-! contained within the tile node. The trajectory data for unbounded
-! floats is initialized to Fspv. These values are used during the
-! collection step at the end of the routine.  Since a SUM reduction is
-! carried-out, setting Fspv to zero means the floats only contribute in
-! their own tile.
+!  The strategy here is to build a switch that processes only the floats
+!  contained within the tile node. The trajectory data for unbounded
+!  floats is initialized to Fspv. These values are used during the
+!  collection step at the end of the routine.  Since a SUM reduction is
+!  carried-out, setting Fspv to zero means the floats only contribute in
+!  their own tile.
 !
       Npts=NFV(ng)*(NFT+1)*Nfloats(ng)
 
@@ -188,6 +189,11 @@
         END IF
       END DO
 # else
+!
+!-----------------------------------------------------------------------
+!  Initialize.
+!-----------------------------------------------------------------------
+!
       DO l=Lstr,Lend
         MyThread(l)=.TRUE.
       END DO
@@ -741,11 +747,17 @@
 	  Tinfo(itstr,l) = Tinfo(itstr,l) + day2sec*365.25_r8
 #endif
           bounded(l)=.TRUE.
+          IF ((Tinfo(ixgrd,l).lt.0.5_r8).or.                            &
+     &        (Tinfo(iygrd,l).lt.0.5_r8).or.                            &
+     &        (Tinfo(ixgrd,l).gt.REAL(Lm(ng),r8)+0.5_r8).or.            &
+     &        (Tinfo(iygrd,l).gt.REAL(Mm(ng),r8)+0.5_r8)) THEN
+            bounded(l)=.FALSE.               ! outside application grid
+          END IF
 # ifdef DISTRIBUTE
           IF ((Xstr.le.Tinfo(ixgrd,l)).and.                             &
      &        (Tinfo(ixgrd,l).lt.Xend).and.                             &
      &        (Ystr.le.Tinfo(iygrd,l)).and.                             &
-     &        (Tinfo(iygrd,l).lt.Yend)) THEN
+     &        (Tinfo(iygrd,l).lt.Yend).and.bounded(l)) THEN
             DO j=0,NFT
               track(ixgrd,j,l)=Tinfo(ixgrd,l)
               track(iygrd,j,l)=Tinfo(iygrd,l)
@@ -764,14 +776,16 @@
             END DO
           END IF
 # else
-          MyThread(l)=.TRUE.
-          DO j=0,NFT
-            track(ixgrd,j,l)=Tinfo(ixgrd,l)
-            track(iygrd,j,l)=Tinfo(iygrd,l)
+          IF (bounded(l)) THEN
+            MyThread(l)=.TRUE.
+            DO j=0,NFT
+              track(ixgrd,j,l)=Tinfo(ixgrd,l)
+              track(iygrd,j,l)=Tinfo(iygrd,l)
 #  ifdef SOLVE3D
-            track(izgrd,j,l)=Tinfo(izgrd,l)
+              track(izgrd,j,l)=Tinfo(izgrd,l)
 #  endif
-          END DO
+            END DO
+          END IF
 # endif
         END IF
       END DO
