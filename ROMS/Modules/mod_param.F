@@ -558,7 +558,7 @@
           NPredV(ng)=8
 # endif
 # ifdef FLEET
-          NBoatV(ng)=4
+          NBoatV(ng)=8
 # endif
 #endif
           NSV(ng)=NT(ng)+5

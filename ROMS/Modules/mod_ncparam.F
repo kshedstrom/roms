@@ -433,6 +433,10 @@
         integer  :: idByprt        ! Boat y port location
         integer  :: idBnprt        ! Boat port number
         integer  :: idBnfloc       ! Boat number of fishing locations
+        integer  :: idBxfsh1       ! Boat x 1st fishing location
+        integer  :: idByfsh1       ! Boat y 1st fishing location
+        integer  :: idBxfsh2       ! Boat x 2nd fishing location
+        integer  :: idByfsh2       ! Boat y 2nd fishing location
         integer  :: idBcatch       ! Boat daily catch
         integer  :: idBcmctch      ! Boat cummulative annual catch
         integer  :: idBacpue       ! Boat average CPUE

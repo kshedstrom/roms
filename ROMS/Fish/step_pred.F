@@ -305,7 +305,8 @@
      &                    OCEAN(ng) % fish_list,                        &
      &                    FISHES(ng) % fishnodes,                       &
      &                    FISHES(ng) % bioenergy,                       &
-     &                    FISHES(ng) % species)
+     &                    FISHES(ng) % species,                         &
+     &                    FISHES(ng) % lifestage)
 !
 !-----------------------------------------------------------------------
 !  Determine pred status.

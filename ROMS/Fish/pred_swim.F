@@ -61,7 +61,8 @@
      &                          bioenergy, alive, species,              &
      &                          pred_count, pred_list, prednodes,       &
      &                          fish_count, fish_list, fishnodes,       &
-     &                          fish_bioenergy, fish_species)
+     &                          fish_bioenergy, fish_species,           &
+     &                          fish_lifestage)
 !***********************************************************************
 !
       USE mod_param
@@ -82,6 +83,7 @@
       integer, intent(in) :: fish_species(Nfish(ng))
       integer, intent(in) :: pred_count(LBi:UBi,LBj:UBj)
       integer, intent(in) :: fish_count(LBi:UBi,LBj:UBj)
+      integer, intent(in) :: fish_lifestage(Nfish(ng))
 
       type(prednode), intent(in) :: pred_list(LBi:UBi,LBj:UBj)
       type(prednode), target, intent(in) :: prednodes(Npred(ng))
@@ -214,10 +216,12 @@
                     DO ifish=1,fish_count(ii,jj)
                       ifid = thisfish % fish
                       ifsp = idfish(fish_species(ifid))
-                      Fweight=fish_bioenergy(ifwwt,ifid)
-                      Fworth=fish_bioenergy(ifworth,ifid)
-                      score=score+Fweight*Fworth*                       &
-     &                            Fpref(ifsp,ng)/K_Fish(ifsp,ng)
+                      IF (fish_lifestage(ifid).ge.if_subadult) THEN
+                        Fweight=fish_bioenergy(ifwwt,ifid)
+                        Fworth=fish_bioenergy(ifworth,ifid)
+                        score=score+Fweight*Fworth*                     &
+     &                              Fpref(ifsp,ng)/K_Fish(ifsp,ng)
+                      END IF
                       thisfish => thisfish % next
                     END DO
                   END IF

@@ -116,6 +116,54 @@
      &                      varid = fleetVid(idBnfloc,ng))
       IF (exit_flag.ne.NoError) RETURN
 !
+!  Write out fleet X-grid 1st fishing locations.
+!
+      DO l=1,Nboats(ng)
+        Tout(l)=REAL(BOATS(ng)%boat(ibifsh1,l),r8)
+      END DO
+      CALL netcdf_put_fvar (ng, iNLM, FLEETname(ng),                    &
+     &                      TRIM(Vname(1,idBxfsh1)), Tout,              &
+     &                      (/1,tFLEETindx(ng)/), (/Nboats(ng),1/),     &
+     &                      ncid = ncFLEETid(ng),                       &
+     &                      varid = fleetVid(idBxfsh1,ng))
+      IF (exit_flag.ne.NoError) RETURN
+!
+!  Write out fleet Y-grid 1st fishing locations.
+!
+      DO l=1,Nboats(ng)
+        Tout(l)=REAL(BOATS(ng)%boat(ibjfsh1,l),r8)
+      END DO
+      CALL netcdf_put_fvar (ng, iNLM, FLEETname(ng),                    &
+     &                      TRIM(Vname(1,idByfsh1)), Tout,              &
+     &                      (/1,tFLEETindx(ng)/), (/Nboats(ng),1/),     &
+     &                      ncid = ncFLEETid(ng),                       &
+     &                      varid = fleetVid(idByfsh1,ng))
+      IF (exit_flag.ne.NoError) RETURN
+!
+!  Write out fleet X-grid 2nd fishing locations.
+!
+      DO l=1,Nboats(ng)
+        Tout(l)=REAL(BOATS(ng)%boat(ibifsh2,l),r8)
+      END DO
+      CALL netcdf_put_fvar (ng, iNLM, FLEETname(ng),                    &
+     &                      TRIM(Vname(1,idBxfsh2)), Tout,              &
+     &                      (/1,tFLEETindx(ng)/), (/Nboats(ng),1/),     &
+     &                      ncid = ncFLEETid(ng),                       &
+     &                      varid = fleetVid(idBxfsh2,ng))
+      IF (exit_flag.ne.NoError) RETURN
+!
+!  Write out fleet Y-grid 2nd fishing locations.
+!
+      DO l=1,Nboats(ng)
+        Tout(l)=REAL(BOATS(ng)%boat(ibjfsh2,l),r8)
+      END DO
+      CALL netcdf_put_fvar (ng, iNLM, FLEETname(ng),                    &
+     &                      TRIM(Vname(1,idByfsh2)), Tout,              &
+     &                      (/1,tFLEETindx(ng)/), (/Nboats(ng),1/),     &
+     &                      ncid = ncFLEETid(ng),                       &
+     &                      varid = fleetVid(idByfsh2,ng))
+      IF (exit_flag.ne.NoError) RETURN
+!
 !  Write out fleet daily catch.
 !
       DO l=1,Nboats(ng)

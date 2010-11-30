@@ -5293,6 +5293,42 @@
   'r3dvar'
   1.0d0
 
+ 'Xfish1'
+  'fishing x 1st location'
+  'nondimensional'
+  'xfish1, scalar, series'
+  'bio_time'
+  'idBxfsh1'
+  'r3dvar'
+  1.0d0
+
+ 'Yfish1'
+  'fishing y 1st location'
+  'nondimensional'
+  'yfish1, scalar, series'
+  'bio_time'
+  'idByfsh1'
+  'r3dvar'
+  1.0d0
+
+ 'Xfish2'
+  'fishing x 2nd location'
+  'nondimensional'
+  'xfish2, scalar, series'
+  'bio_time'
+  'idBxfsh2'
+  'r3dvar'
+  1.0d0
+
+ 'Yfish2'
+  'fishing y 2nd location'
+  'nondimensional'
+  'yfish2, scalar, series'
+  'bio_time'
+  'idByfsh2'
+  'r3dvar'
+  1.0d0
+
  'Catch'
   'total daily catch'
   'kg'

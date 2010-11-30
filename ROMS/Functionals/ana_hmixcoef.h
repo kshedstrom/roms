@@ -93,6 +93,7 @@
 !
       USE mod_param
       USE mod_scalars
+      USE mod_biology
 !
 #if defined EW_PERIODIC || defined NS_PERIODIC
       USE exchange_2d_mod
@@ -294,6 +295,8 @@
      &         (fac*tnu2(isalt,ng)-tnu2(isalt,ng))/10.0_r8
           diff2(i,j,itemp)=cff1
           diff2(i,j,isalt)=cff2
+          diff2(i,j,iNO3_)=cff2
+          diff2(i,j,iSiOH)=cff2
         END DO
       END DO
 ! Southern boundary
@@ -305,6 +308,8 @@
      &         (fac*tnu2(isalt,ng)-tnu2(isalt,ng))/10.0_r8
           diff2(i,j,itemp)=diff2(i,j,itemp)+cff1
           diff2(i,j,isalt)=diff2(i,j,isalt)+cff2
+          diff2(i,j,iNO3_)=diff2(i,j,iNO3_)+cff2
+          diff2(i,j,iSiOH)=diff2(i,j,iSiOH)+cff2
         END DO
       END DO
 ! Northern boundary
@@ -316,6 +321,8 @@
      &         (fac*tnu2(isalt,ng)-tnu2(isalt,ng))/10.0_r8
           diff2(i,j,itemp)=diff2(i,j,itemp)+cff1
           diff2(i,j,isalt)=diff2(i,j,isalt)+cff2
+          diff2(i,j,iNO3_)=diff2(i,j,iNO3_)+cff1
+          diff2(i,j,iSiOH)=diff2(i,j,iSiOH)+cff2
         END DO
       END DO
 #  endif

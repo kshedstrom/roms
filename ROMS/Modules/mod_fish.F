@@ -128,6 +128,10 @@
       integer, parameter :: ibjloc = 2         ! boat grid j location
       integer, parameter :: ibport = 3         ! boat port
       integer, parameter :: ibnloc = 4         ! number of location visited
+      integer, parameter :: ibifsh1 = 5        ! 1st fishing i location
+      integer, parameter :: ibjfsh1 = 6        ! 1st fishing j location
+      integer, parameter :: ibifsh2 = 7        ! 2nd fishing i location
+      integer, parameter :: ibjfsh2 = 8        ! 2nd fishing j location
 # endif
 # ifdef EGGS_BISECTION
       logical :: lr_split = .true.

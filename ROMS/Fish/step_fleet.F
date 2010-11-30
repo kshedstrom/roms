@@ -78,16 +78,24 @@
           BOATS(ng)%tAvail=24.0_r8
           BOATS(ng)%catch(ib)=0.0_r8
           BOATS(ng)%boat(ibnloc,ib)=0
+          BOATS(ng)%boat(ibifsh1,ib)=0
+          BOATS(ng)%boat(ibjfsh1,ib)=0
+          BOATS(ng)%boat(ibifsh2,ib)=0
+          BOATS(ng)%boat(ibjfsh2,ib)=0
           CALL bestlocation(ng,ib)
 ! At least on cell has a positive net revenue based on expected CPUE
           IF (BOATS(ng)%blocflag(ib).eq.1) THEN
             BOATS(ng)%boat(ibnloc,ib)=BOATS(ng)%boat(ibnloc,ib)+1
+            BOATS(ng)%boat(ibifsh1,ib)=BOATS(ng)%boat(ibiloc,ib)
+            BOATS(ng)%boat(ibjfsh1,ib)=BOATS(ng)%boat(ibjloc,ib)
             CALL catch(ng,ib)
 ! No fish in cell or sardine encountered -> Try a 2nd location
             IF ((BOATS(ng)%bfishflag(ib).eq.0).or.                      &
      &          (BOATS(ng)%bfishflag(ib).eq.1)) THEN
               CALL bestlocation(ng,ib)
               BOATS(ng)%boat(ibnloc,ib)=BOATS(ng)%boat(ibnloc,ib)+1
+              BOATS(ng)%boat(ibifsh2,ib)=BOATS(ng)%boat(ibiloc,ib)
+              BOATS(ng)%boat(ibjfsh2,ib)=BOATS(ng)%boat(ibjloc,ib)
               CALL catch(ng,ib)
             END IF
 ! No time or spcae left -> Done fishing
@@ -100,6 +108,8 @@
 ! At least on cell has a positive net revenue based on expected CPUE
               IF (BOATS(ng)%blocflag(ib).eq.1) THEN
                 BOATS(ng)%boat(ibnloc,ib)=BOATS(ng)%boat(ibnloc,ib)+1
+                BOATS(ng)%boat(ibifsh2,ib)=BOATS(ng)%boat(ibiloc,ib)
+                BOATS(ng)%boat(ibjfsh2,ib)=BOATS(ng)%boat(ibjloc,ib)
                 CALL catch(ng,ib)
               END IF
             END IF

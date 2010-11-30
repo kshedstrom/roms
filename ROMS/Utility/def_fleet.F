@@ -241,6 +241,66 @@
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 !
+!  Define fleet X-grid 1st fishing location.
+!
+        Vinfo( 1)='Xfish1'
+        Vinfo( 2)='fishing x location 1'
+        Vinfo( 3)='nondimensional'
+        Vinfo(14)='xfish1, scalar, series'
+        Vinfo(16)=Vname(1,idtime)
+# ifndef NO_4BYTE_REALS
+        Vinfo(24)='_FillValue'
+        Aval(6)=spval
+# endif
+        status=def_var(ng, iNLM, ncFLEETid(ng), fleetVid(idBxfsh1,ng),  &
+     &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
+        IF (exit_flag.ne.NoError) RETURN
+!
+!  Define fleet Y-grid 1st fishing location.
+!
+        Vinfo( 1)='Yfish1'
+        Vinfo( 2)='fishing y location 1'
+        Vinfo( 3)='nondimensional'
+        Vinfo(14)='yfish1, scalar, series'
+        Vinfo(16)=Vname(1,idtime)
+# ifndef NO_4BYTE_REALS
+        Vinfo(24)='_FillValue'
+        Aval(6)=spval
+# endif
+        status=def_var(ng, iNLM, ncFLEETid(ng), fleetVid(idByfsh1,ng),  &
+     &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
+        IF (exit_flag.ne.NoError) RETURN
+!
+!  Define fleet X-grid 2st fishing location.
+!
+        Vinfo( 1)='Xfish2'
+        Vinfo( 2)='fishing x location 2'
+        Vinfo( 3)='nondimensional'
+        Vinfo(14)='xfish2, scalar, series'
+        Vinfo(16)=Vname(1,idtime)
+# ifndef NO_4BYTE_REALS
+        Vinfo(24)='_FillValue'
+        Aval(6)=spval
+# endif
+        status=def_var(ng, iNLM, ncFLEETid(ng), fleetVid(idBxfsh2,ng),  &
+     &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
+        IF (exit_flag.ne.NoError) RETURN
+!
+!  Define fleet Y-grid 1st fishing location.
+!
+        Vinfo( 1)='Yfish2'
+        Vinfo( 2)='fishing y location 2'
+        Vinfo( 3)='nondimensional'
+        Vinfo(14)='yfish2, scalar, series'
+        Vinfo(16)=Vname(1,idtime)
+# ifndef NO_4BYTE_REALS
+        Vinfo(24)='_FillValue'
+        Aval(6)=spval
+# endif
+        status=def_var(ng, iNLM, ncFLEETid(ng), fleetVid(idByfsh2,ng),  &
+     &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
+        IF (exit_flag.ne.NoError) RETURN
+!
 !  Define fleet catch
 !
         Vinfo( 1)='Catch'

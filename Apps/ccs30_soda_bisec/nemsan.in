@@ -226,8 +226,8 @@
 
 ! Settling (sinking) velocities [m/day].
 
-      setVPON == 40.0d0                    ! PON
-     setVOpal == 40.0d0                    ! Opal
+      setVPON == 10.0d0                    ! PON
+     setVOpal == 10.0d0                    ! Opal
 
 ! Iron uptake timescale, [day], {1.0d0}.
 
@@ -261,12 +261,12 @@
 
 ! Vertical mixing coefficients for biological tracers: [1:NBT,Ngrids].
 
-     AKT_BAK == 14*1.0d-6                  ! m2/s
+     AKT_BAK == 14*1.0d-5                  ! m2/s
 
 ! Nudging/relaxation time scales, inverse scales will be computed
 ! internally: [1:NBT,Ngrids].
 
-       TNUDG == 14*0.0d0                   ! days
+       TNUDG == 14*10.0d0                   ! days
 
 ! Logical switches (TRUE/FALSE) to activate writing of biological tracers
 ! into HISTORY output file: [1:NBT,Ngrids].

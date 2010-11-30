@@ -109,6 +109,14 @@
                 idBnprt=varid
               CASE ('idBnfloc')
                 idBnfloc=varid
+              CASE ('idBxfsh1')
+                idBxfsh1=varid
+              CASE ('idByfsh1')
+                idByfsh1=varid
+              CASE ('idBxfsh2')
+                idBxfsh2=varid
+              CASE ('idByfsh2')
+                idByfsh2=varid
               CASE ('idBcatch')
                 idBcatch=varid
               CASE ('idBcmctch')
