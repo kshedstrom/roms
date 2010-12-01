@@ -77,10 +77,6 @@
      &                   GRID(ng) % z_r,                                &
      &                   GRID(ng) % z_w,                                &
      &                   FORCES(ng) % srflx,                            &
-#ifdef NEMURO_SED1
-     &                   OCEAN(ng) % PONsed,                            &
-     &                   OCEAN(ng) % OPALsed,                           &
-#endif
 #if defined NEMURO_SAN && defined FISH_FEEDBACK
      &                   OCEAN(ng) % fish_count,                        &
      &                   OCEAN(ng) % fish_list,                         &
@@ -108,9 +104,6 @@
 #endif
      &                         Hz, z_r, z_w,                            &
      &                         srflx,                                   &
-#ifdef NEMURO_SED1
-     &                         PONsed, OPALsed,                         &
-#endif
 #if defined NEMURO_SAN && defined FISH_FEEDBACK
      &                         fish_count,                              &
      &                         fish_list,                               &
@@ -152,10 +145,6 @@
       real(r8), intent(in) :: z_r(LBi:,LBj:,:)
       real(r8), intent(in) :: z_w(LBi:,LBj:,0:)
       real(r8), intent(in) :: srflx(LBi:,LBj:)
-# ifdef NEMURO_SED1
-      real(r8), intent(inout) :: PONsed(LBi:,LBj:)
-      real(r8), intent(inout) :: OPALsed(LBi:,LBj:)
-# endif
 # if defined NEMURO_SAN && defined FISH_FEEDBACK
       integer, intent(in) :: fish_count(LBi:,LBj:)
       type(fishnode), intent(in) :: fish_list(LBi:,LBj:)
@@ -172,10 +161,6 @@
       real(r8), intent(in) :: z_r(LBi:UBi,LBj:UBj,UBk)
       real(r8), intent(in) :: z_w(LBi:UBi,LBj:UBj,0:UBk)
       real(r8), intent(in) :: srflx(LBi:UBi,LBj:UBj)
-# ifdef NEMURO_SED1
-      real(r8), intent(inout) :: PONsed(LBi:UBi,LBj:UBj)
-      real(r8), intent(inout) :: OPALsed(LBi:UBi,LBj:UBj)
-# endif
 # if defined NEMURO_SAN && defined FISH_FEEDBACK
       integer, intent(in) :: fish_count(LBi:UBi,LBj:UBj)
       type(fishnode), intent(in) :: fish_list(LBi:UBi,LBj:UBj)
@@ -290,9 +275,9 @@
               thisfish => fish_list(i,j) % next
               DO ifish=1,fish_count(i,j)
                 ifid = thisfish % fish
-                xR=FISHES(ng)%track(ixgrd,nfm1(ng),ifid)
-                yR=FISHES(ng)%track(iygrd,nfm1(ng),ifid)
-                Kr=NINT(FISHES(ng)%track(izgrd,nnew,ifid))
+                xR=FISHES(ng)%track(ixgrd,nf(ng),ifid)
+                yR=FISHES(ng)%track(iygrd,nf(ng),ifid)
+                Kr=NINT(FISHES(ng)%track(izgrd,nf(ng),ifid))
                 IF (((xR-REAL(i,r8)).lt.MinVal).and.                    &
      &              ((yR-REAL(j,r8)).lt.MinVal)) THEN
 ! CASE 1: Fish exactly at cell center
@@ -1213,26 +1198,6 @@
      &                       Bio(i,k,iopal)*cff5
             END DO
           END DO
-#ifdef NEMURO_SED1
-!ENC:  using sediment pools
-
-          DO i=Istr,Iend
-!
-!  Decomposition: Sediment Opal to SiOH4.
-!
-            cff6=fac5*EXP(KO2S(ng)*Bio(i,1,itemp))
-            OPALsed(i,j)=OPALsed(i,j)/(1.0_r8+cff6)
-            Bio(i,1,iSiOH)=Bio(i,1,iSiOH)+                              &
-      &                       OPALsed(i,j)*cff6*Hz_inv(i,1)
-!
-!  Decomposition: Sediment PON to NH4.
-!
-            cff7=fac2*EXP(KP2N(ng)*Bio(i,1,itemp))
-            PONsed(i,j)=PONsed(i,j)/(1.0_r8+cff7)
-            Bio(i,1,iNH4_)=Bio(i,1,iNH4_)+                              &
-      &                       PONsed(i,j)*cff7*Hz_inv(i,1)
-          END DO
-#endif
 !
 !-----------------------------------------------------------------------
 !  Vertical sinking terms: PON and Opal.
@@ -1411,11 +1376,6 @@
                 Bio(i,k,ibio)=qc(i,k)+(FC(i,k)-FC(i,k-1))*Hz_inv(i,k)
               END DO
             END DO
-#ifdef NEMURO_SED2
-            DO i=Istr,Iend
-              Bio(i,1,ibio)=Bio(i,1,ibio)+FC(i,0)*Hz_inv(i,1)
-            END DO
-#endif
 
 #ifdef BIO_SEDIMENT
 !
@@ -1430,51 +1390,19 @@
 !       Lagrangian algorithm. What is the correct nutrient path from
 !       the benthos to the water column?  NH4 to NO3?
 !
-#ifdef NEMURO_SED2
-            fac2=dtdays*VP2N0(ng)
-            fac3=dtdays*VP2D0(ng)
-            fac5=dtdays*VO2S0(ng)
-#endif
-!
             IF (ibio.eq.iPON_) THEN
               DO i=Istr,Iend
-# ifdef NEMURO_SED1
-                cff1=FC(i,0)
-                PONsed(i,j) = PONsed(i,j)+cff1
-# elif defined NEMURO_SED2
                 cff1=FC(i,0)*Hz_inv(i,1)
-                cff2=fac2*EXP(KP2N(ng)*Bio(i,1,itemp))
-                cff3=fac3*EXP(KP2D(ng)*Bio(i,1,itemp))
-                Bio(i,1,iNH4_)=Bio(i,1,iNH4_)+cff1*cff2
-                Bio(i,1,iDON_)=Bio(i,1,iDON_)+cff1*cff3
-                Bio(i,1,iPON_)=Bio(i,1,iPON_)+cff1*(1.0_r8-cff2-cff3)
-# else
-                cff1=FC(i,0)*Hz_inv(i,1)
-                Bio(i,1,iNO3_)=Bio(i,1,iNO3_)+cff1
-!ENC: put the sinking PON into the ammonia pool. Do not need this if using
-!     the sediment pools
-!               Bio(i,1,iNH4_)=Bio(i,1,iNH4_)+cff1
-!
-# endif
+                Bio(i,1,iNH4_)=Bio(i,1,iNH4_)+cff1
               END DO
             ELSE IF (ibio.eq.iopal) THEN
               DO i=Istr,Iend
-# ifdef NEMURO_SED1
-                cff1=FC(i,0)
-                OPALsed(i,j) = OPALsed(i,j)+cff1
-# elif defined NEMURO_SED2
-                cff1=FC(i,0)*Hz_inv(i,1)
-                cff5=fac5*EXP(KO2S(ng)*Bio(i,1,itemp))
-                Bio(i,1,iSiOH)=Bio(i,1,iSiOH)+cff1*cff5
-                Bio(i,1,iopal)=Bio(i,1,iopal)+cff1*(1.0_r8-cff5)
-# else
                 cff1=FC(i,0)*Hz_inv(i,1)
                 Bio(i,1,iSiOH)=Bio(i,1,iSiOH)+cff1
-# endif
               END DO
             END IF
 #endif
-
+!
           END DO SINK_LOOP
         END DO ITER_LOOP
 !

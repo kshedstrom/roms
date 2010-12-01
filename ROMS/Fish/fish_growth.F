@@ -520,8 +520,8 @@
                   alive(ifid)=.FALSE.
 ! note: deathby already handled in predation or natural mort code
                 END IF
-                IF ((bioenergy(ifwwt,ifid).lt.0.01_r8*Fwwt0(isp,ng))    &
-     &              .and.(lifestage(ifid).ge.if_juvenile)) THEN
+                IF ((bioenergy(ifwwt,ifid).lt.Fwwt0(isp,ng))            &
+     &              .and.(lifestage(ifid).eq.if_adult)) THEN
                   alive(ifid)=.FALSE.
                   IF (deathby(ifid).eq.0) deathby(ifid)=1
                 END IF
