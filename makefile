@@ -430,7 +430,8 @@ endif
 ifdef USE_SEAICE
  modules  +=	ROMS/SeaIce
 endif
- modules  +=	ROMS/Utility
+ modules  +=	ROMS/Utility \
+		ROMS/Modules
 
  includes :=	ROMS/Include
 ifdef MY_ANALYTICAL

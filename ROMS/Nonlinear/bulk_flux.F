@@ -160,7 +160,6 @@
      &                     FORCES(ng) % sustr_aw,                       &
      &                     FORCES(ng) % svstr_aw,                       &
      &                     FORCES(ng) % qao_n,                          &
-     &                     FORCES(ng) % p_e_n,                          &
      &                     FORCES(ng) % tau_aix_n,                      &
      &                     FORCES(ng) % tau_aiy_n,                      &
 # endif
@@ -234,7 +233,7 @@
      &                           hsn, tis, sfwat,                       &
      &                           coef_ice_heat, rhs_ice_heat, snow_n,   &
 #  endif
-     &                           sustr_aw, svstr_aw, qao_n, p_e_n,      &
+     &                           sustr_aw, svstr_aw, qao_n,             &
      &                           tau_aix_n, tau_aiy_n,                  &
 # endif
 # if defined BEST_NPZ
@@ -334,7 +333,6 @@
       real(r8), intent(out) :: sustr_aw(LBi:,LBj:)
       real(r8), intent(out) :: svstr_aw(LBi:,LBj:)
       real(r8), intent(out) :: qao_n(LBi:,LBj:)
-      real(r8), intent(out) :: p_e_n(LBi:,LBj:)
       real(r8), intent(in) :: ai(LBi:,LBj:,:)
       real(r8), intent(in) :: hi(LBi:,LBj:,:)
 #   ifdef ICE_THERMO
@@ -420,7 +418,6 @@
       real(r8), intent(out) :: sustr_aw(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: svstr_aw(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: qao_n(LBi:UBi,LBj:UBj)
-      real(r8), intent(out) :: p_e_n(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: ai(LBi:UBi,LBj:UBj,2)
       real(r8), intent(in) :: hi(LBi:UBi,LBj:UBj,2)
 #   ifdef ICE_THERMO
@@ -494,6 +491,7 @@
 
       real(r8) :: cff, cff1, cff2, diffh, diffw, oL, upvel
       real(r8) :: twopi_inv, wet_bulb
+      real(r8) :: sfwat_n
 # if defined SHORTWAVE && defined ALBEDO
       real(r8), parameter :: albw_d=0.065_r8
       real(r8) :: cawdif
@@ -1064,6 +1062,11 @@
 ! Ice and snow albedo is calculated from Ebert and Curry,1992b
           albi=0._r8
           albsn=0._r8
+#if defined ICE_MODEL && defined ICE_THERMO
+          sfwat_n = sfwat(i,j,liold)
+#else
+          sfwat_n = 0._r8
+#endif
           IF (ai(i,j,liold) .gt. min_a(ng)) THEN
             thki_n = hi(i,j,liold)/(ai(i,j,liold)+0.01_r8)
             thksn_n = hsn(i,j,liold)/(ai(i,j,liold)+0.01_r8)
