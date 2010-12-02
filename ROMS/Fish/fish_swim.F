@@ -57,7 +57,7 @@
 # ifdef SOLVE3D
      &                          Hz,                                     &
 # endif
-     &                          MyThread, bounded, track,               &
+     &                          MyThread, bounded, rwalk, track,        &
      &                          bioenergy, alive,                       &
      &                          species, lifestage, swimtype,           &
      &                          fish_count, fish_list, fishnodes)
@@ -69,7 +69,6 @@
       USE mod_biology
       USE mod_grid
       USE mod_types
-      USE utility_mod, ONLY : nrng
       USE nrutil
       USE mod_fish
 !
@@ -95,6 +94,7 @@
       real(r8), intent(in) :: Hz(LBi:UBi,LBj:UBj,UBk)
 # endif
       real(r8), intent(in) :: bioenergy(NFishV(ng),Nfish(ng))
+      real(r8), intent(inout) :: rwalk(Nfish(ng))
       real(r8), intent(inout) :: track(NFV(ng),0:NFT,Nfish(ng))
 !
 !  Local variable declarations.
@@ -122,6 +122,25 @@
       real(r8) :: tcheck
 
 # include "set_bounds.h"
+!
+!-----------------------------------------------------------------------
+!  Initialize some random numbers
+!-----------------------------------------------------------------------
+!
+# ifdef DISTRIBUTE
+      IF (Master) THEN
+        CALL gasdev (rwalk)
+      END IF
+      CALL mp_bcastf (ng, iNLM, rwalk)
+# elif defined _OPENMP
+!$OMP SINGLE
+      CALL gasdev (rwalk)
+!$OMP END SINGLE
+# else
+      IF (Lstr.eq.1) THEN
+        CALL gasdev (rwalk)
+      END IF
+# endif
 !
 !-----------------------------------------------------------------------
 !  Compute swimming velocity based on Railsback or Humston behavior

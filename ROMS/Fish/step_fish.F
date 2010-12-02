@@ -233,7 +233,7 @@
       integer,  dimension(Nfish(ng)) :: FwrkI
 # endif
 !
-! Set tile array bounds.
+!  Set tile array bounds.
 !
       LBi=LBOUND(GRID(ng)%h,DIM=1)
       UBi=UBOUND(GRID(ng)%h,DIM=1)
@@ -243,17 +243,17 @@
 # ifdef DISTRIBUTE
 !
 !-----------------------------------------------------------------------
-! In distributed-memory configuration, determine which node bounds the
-! current location of the fish. Assign non-bounded fish to the
-! master node.
+!  In distributed-memory configuration, determine which node bounds the
+!  current location of the fish. Assign non-bounded fish to the
+!  master node.
 !-----------------------------------------------------------------------
 !
-! The strategy here is to build a switch that processes only the fish
-! contained within the node bounds. The trajectory data for the new
-! time-level (nfp1) is initialized to Fspv. These values are used during
-! recombining step at the end of the routine.  Since a SUM reduction is
-! carried-out, setting Fspv to zero means the fish only contribute in
-! their own tile.
+!  The strategy here is to build a switch that processes only the fish
+!  contained within the node bounds. The trajectory data for the new
+!  time-level (nfp1) is initialized to Fspv. These values are used during
+!  recombining step at the end of the routine.  Since a SUM reduction is
+!  carried-out, setting Fspv to zero means the fish only contribute in
+!  their own tile.
 !
       Npts=NFV(ng)*(NFT+1)*Nfish(ng)
       NptsF=NFishV(ng)*Nfish(ng)
@@ -302,6 +302,11 @@
         END IF
       END DO
 # else
+!
+!-----------------------------------------------------------------------
+!  Initialize.
+!-----------------------------------------------------------------------
+!
       DO l=Lstr,Lend
         MyThread(l)=.TRUE.
       END DO
