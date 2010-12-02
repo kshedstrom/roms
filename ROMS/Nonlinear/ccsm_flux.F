@@ -132,7 +132,6 @@ contains
      &                     FORCES(ng) % sustr_aw,                       &
      &                     FORCES(ng) % svstr_aw,                       &
      &                     FORCES(ng) % qao_n,                          &
-     &                     FORCES(ng) % p_e_n,                          &
      &                     FORCES(ng) % tau_aix_n,                      &
      &                     FORCES(ng) % tau_aiy_n,                      &
 # endif
@@ -208,7 +207,7 @@ contains
      &                           hsn, tis, sfwat,                       &
      &                           coef_ice_heat, rhs_ice_heat, snow_n,   &
 #  endif
-     &                           sustr_aw, svstr_aw, qao_n, p_e_n,      &
+     &                           sustr_aw, svstr_aw, qao_n,             &
      &                           tau_aix_n, tau_aiy_n,                  &
 # endif
 #  if defined BEST_NPZ
@@ -316,7 +315,6 @@ contains
       real(r8), intent(out) :: sustr_aw(LBi:,LBj:)
       real(r8), intent(out) :: svstr_aw(LBi:,LBj:)
       real(r8), intent(out) :: qao_n(LBi:,LBj:)
-      real(r8), intent(out) :: p_e_n(LBi:,LBj:)
       real(r8), intent(in) :: ai(LBi:,LBj:,:)
       real(r8), intent(in) :: hi(LBi:,LBj:,:)
 #   ifdef ICE_THERMO
@@ -404,7 +402,6 @@ contains
       real(r8), intent(out) :: sustr_aw(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: svstr_aw(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: qao_n(LBi:UBi,LBj:UBj)
-      real(r8), intent(out) :: p_e_n(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: ai(LBi:UBi,LBj:UBj,2)
       real(r8), intent(in) :: hi(LBi:UBi,LBj:UBj,2)
 #   ifdef ICE_THERMO

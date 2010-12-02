@@ -65,7 +65,7 @@ else
      NETCDF_INCDIR ?= /Users/kate/include
      NETCDF_LIBDIR ?= /Users/kate/lib
 endif
-             LIBS += -L$(NETCDF_LIBDIR) -lnetcdf
+             LIBS += -L$(NETCDF_LIBDIR) -lnetcdf -lnetcdff
 ifdef USE_NETCDF4
              LIBS += -L$(HDF5_LIBDIR) -lhdf5_hl -lhdf5 -lz -lcurl
  ifdef USE_DAP
