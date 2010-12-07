@@ -57,8 +57,8 @@
 # ifdef SOLVE3D
      &                          Hz,                                     &
 # endif
-     &                          MyThread, bounded, rwalk, track,        &
-     &                          bioenergy, alive,                       &
+     &                          MyThread, bounded, rwalk, r2walk,       &
+     &                          track, bioenergy, alive,                &
      &                          species, lifestage, swimtype,           &
      &                          fish_count, fish_list, fishnodes)
 !***********************************************************************
@@ -94,7 +94,8 @@
       real(r8), intent(in) :: Hz(LBi:UBi,LBj:UBj,UBk)
 # endif
       real(r8), intent(in) :: bioenergy(NFishV(ng),Nfish(ng))
-      real(r8), intent(inout) :: rwalk(Nfish(ng))
+      real(r8), intent(inout) :: rwalk(Nfish(ng)*3)
+      real(r8), intent(inout) :: r2walk(Nfish(ng)*6)
       real(r8), intent(inout) :: track(NFV(ng),0:NFT,Nfish(ng))
 !
 !  Local variable declarations.
@@ -113,8 +114,7 @@
       real(r8) :: SZooC, LZooC, PZooC, TZooC, ZooMax
       real(r8) :: Fweight, Fgrowth, Fmort, Ftemp, Fdens, Fpval
       real(r8) :: score, scoreMax, Uswim
-      real(r8) :: d_i, d_j, d_ij, d_k, theta_ij, fac, snudg
-      real(r8) :: vnudg(1)
+      real(r8) :: d_i, d_j, d_ij, d_k, theta_ij, fac
       real(r8) :: Fvar, Fvar_opt, Fvar_sigma, var_f, var_g
       real(r8) :: dist, epsd, epsd_sigma, ee, epsx, epsy, h1, h2
       real(r8) :: f_xdis, g_epsx, f_ydis, g_epsy, xdis, ydis
@@ -129,17 +129,21 @@
 !
 # ifdef DISTRIBUTE
       IF (Master) THEN
-        CALL gasdev (rwalk)
+        CALL gasdev_clamp (rwalk, 3.0_r8)
+        CALL ran1 (r2walk)
       END IF
       CALL mp_bcastf (ng, iNLM, rwalk)
+      CALL mp_bcastf (ng, iNLM, r2walk)
 # elif defined _OPENMP
 !$OMP SINGLE
-      CALL gasdev (rwalk)
+      CALL gasdev_clamp (rwalk, 3.0_r8)
+      CALL ran1 (r2walk)
 !$OMP END SINGLE
 # else
-      IF (Lstr.eq.1) THEN
-        CALL gasdev (rwalk)
-      END IF
+!     IF (Lstr.eq.1) THEN
+        CALL gasdev_clamp (rwalk, 3.0_r8)
+        CALL ran1 (r2walk)
+!     END IF
 # endif
 !
 !-----------------------------------------------------------------------
@@ -186,8 +190,7 @@
                   KrMax=Kr
 !
 ! Randomization of i indices
-                  CALL ran1 (snudg)
-                  iopt=INT(6.0_r8*snudg)+1
+                  iopt=INT(6.0_r8*r2walk(fid+3*Nfish(ng)))+1
                   IF (iopt.eq.1) THEN
                    iind(1)=MAX(Ir-1,1)
                    iind(2)=Ir
@@ -214,8 +217,7 @@
                    iind(1)=MIN(Ir+1,Lm(ng))
                   END IF
 ! Randomization of j indices
-                  CALL ran1 (snudg)
-                  iopt=INT(6.0_r8*snudg)+1
+                  iopt=INT(6.0_r8*r2walk(fid+4*Nfish(ng)))+1
                   IF (iopt.eq.1) THEN
                    jind(1)=MAX(Jr-1,1)
                    jind(2)=Jr
@@ -258,8 +260,7 @@
                       END IF
                     END DO
                   END DO
-                  CALL ran1 (snudg)
-                  fac=2.0_r8*(snudg-0.5_r8)
+                  fac=2.0_r8*(r2walk(fid+5*Nfish(ng))-0.5_r8)
                   d_i=REAL(IrMax,r8)-track(ixgrd,itime,fid)
                   d_j=REAL(JrMax,r8)-track(iygrd,itime,fid)
 ! Angle with +-0.5 radians randomness
@@ -319,24 +320,18 @@
 ! Compute random displacements
                     epsd=(0.5_r8*dist**2)**0.5_r8
                     epsd_sigma=0.5_r8*dist
-                    lflag=.TRUE.
-                    DO WHILE (lflag)
-                      CALL nrng (iseed, vnudg(:), 1, ierr)
-                      IF (ABS(vnudg(1)).le.3.0_r8) lflag=.FALSE.
-                    END DO
-                    ee=vnudg(1)*epsd_sigma+epsd
-                    CALL ran1 (snudg)
-                    IF (snudg.lt.0.5_r8) epsx=-ee
-                    IF (snudg.ge.0.5_r8) epsx=ee
-                    lflag=.TRUE.
-                    DO WHILE (lflag)
-                      CALL nrng (iseed, vnudg(:), 1, ierr)
-                      IF (ABS(vnudg(1)).le.3.0_r8) lflag=.FALSE.
-                    END DO
-                    ee=vnudg(1)*epsd_sigma+epsd
-                    CALL ran1 (snudg)
-                    IF (snudg.lt.0.5_r8) epsy=-ee
-                    IF (snudg.ge.0.5_r8) epsy=ee
+                    ee=rwalk(fid)*epsd_sigma+epsd
+                    IF (r2walk(fid).lt.0.5_r8) THEN
+                      epsx=-ee
+                    ELSE
+                      epsx=ee
+                    END IF
+                    ee=rwalk(fid+Nfish(ng))*epsd_sigma+epsd
+                    IF (r2walk(fid).lt.0.5_r8) THEN
+                      epsy=-ee
+                    ELSE
+                      epsy=ee
+                    END IF
 ! Compute happiness-based  displacements
                     fac=EXP(-0.5_r8*((Fvar-Fvar_opt)/Fvar_sigma)**2)
                     h1=0.75_r8
@@ -383,15 +378,12 @@
 ! Compute random displacements
                   epsd=(0.5_r8*dist**2)**0.5_r8
                   epsd_sigma=0.5_r8*dist
-                  lflag=.TRUE.
-                  DO WHILE (lflag)
-                    CALL nrng (iseed, vnudg(:), 1, ierr)
-                    IF (ABS(vnudg(1)).le.3.0_r8) lflag=.FALSE.
-                  END DO
-                  ee=vnudg(1)*epsd_sigma+epsd
-                  CALL ran1 (snudg)
-                  IF (snudg.lt.0.5_r8) epsz=-ee
-                  IF (snudg.ge.0.5_r8) epsz=ee
+                  ee=rwalk(fid+2*Nfish(ng))*epsd_sigma+epsd
+                  IF (r2walk(fid).lt.0.5_r8) THEN
+                    epsz=-ee
+                  ELSE
+                    epsz=ee
+                  END IF
 ! Compute happiness-based  displacements
                   fac=EXP(-0.5_r8*((Fvar-Fvar_opt)/Fvar_sigma)**2)
                   h1=0.75_r8

@@ -55,6 +55,7 @@
      &                       PREDS(ng) % Ftype,                         &
      &                       PREDS(ng) % Tinfo,                         &
      &                       PREDS(ng) % Fz0,                           &
+     &                       PREDS(ng) % rwalk,                         &
      &                       PREDS(ng) % bioenergy,                     &
      &                       PREDS(ng) % species,                       &
      &                       PREDS(ng) % alive,                         &
@@ -70,7 +71,8 @@
      &                             knew, nnew,                          &
      &                             nfm3, nfm2, nfm1, nf, nfp1,          &
      &                             bounded, Ftype, Tinfo, Fz0,          &
-     &                             bioenergy, species, alive, track)
+     &                             rwalk, bioenergy, species,           &
+     &                             alive, track)
 !***********************************************************************
 !
       USE mod_param
@@ -92,7 +94,6 @@
 # ifdef DISTRIBUTE
       USE distribute_mod
 # endif
-      USE utility_mod, ONLY : nrng
 !
 !  Imported variable declarations.
 !
@@ -103,6 +104,7 @@
       integer, intent(in)     :: Ftype(:)
       real(r8), intent(inout) :: Tinfo(0:,:)
       real(r8), intent(inout) :: Fz0(:)
+      real(r8), intent(inout) :: rwalk(:)
 
       logical, intent(inout)  :: bounded(:)
       real(r8), intent(inout) :: bioenergy(:,:)
@@ -113,6 +115,7 @@
       integer, intent(in)     :: Ftype(Npred(ng))
       real(r8), intent(inout) :: Tinfo(0:izrhs,Npred(ng))
       real(r8), intent(inout) :: Fz0(Npred(ng))
+      real(r8), intent(inout) :: rwalk(Npred(ng))
 
       logical, intent(inout)  :: bounded(Npred(ng))
       real(r8), intent(inout) :: bioenergy(NPredV(ng),Npred(ng))
@@ -296,7 +299,7 @@
 # ifdef SOLVE3D
      &                    GRID(ng) % Hz,                                &
 # endif
-     &                    MyThread, bounded, track,                     &
+     &                    MyThread, bounded, rwalk, track,              &
      &                    bioenergy, alive, species,                    &
      &                    OCEAN(ng) % pred_count,                       &
      &                    OCEAN(ng) % pred_list,                        &

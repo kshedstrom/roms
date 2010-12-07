@@ -18,6 +18,8 @@
 !               Ftype(:) = 2,  isobaric (constant depth) float.        !
 !  Tinfo      Float trajectory initial information.                    !
 !  bounded    Float bounded status switch.                             !
+!  rwalk      Normally distributed random deviates used in 3-D         !
+!               random walk.                                           !
 !  track      Multivariate float trajectory data at several time       !
 !               time levels.                                           !
 !                                                                      !
@@ -38,6 +40,7 @@
           real(r8), pointer :: Flon(:)
           real(r8), pointer :: Flat(:)
           real(r8), pointer :: Tinfo(:,:)
+          real(r8), pointer :: rwalk(:)
           real(r8), pointer :: track(:,:,:)
           real(r8), pointer :: Fz0(:)
 
@@ -94,6 +97,8 @@
 
       allocate ( PREDS(ng) % Tinfo(0:izrhs,Npred(ng)) )
 
+      allocate ( PREDS(ng) % rwalk(Npred(ng)*6) )
+
       allocate ( PREDS(ng) % track(NFV(ng),0:NFT,Npred(ng)) )
 
       allocate ( PREDS(ng) % Fz0(Npred(ng)) )
@@ -118,6 +123,12 @@
         PREDS(ng) % Flon(iflt) = IniVal
         PREDS(ng) % Flat(iflt) = IniVal
         PREDS(ng) % Fz0(iflt) = 0
+        PREDS(ng) % rwalk(iflt) = IniVal
+        PREDS(ng) % rwalk(iflt+Npred(ng)) = IniVal
+        PREDS(ng) % rwalk(iflt+2*Npred(ng)) = IniVal
+        PREDS(ng) % rwalk(iflt+3*Npred(ng)) = IniVal
+        PREDS(ng) % rwalk(iflt+4*Npred(ng)) = IniVal
+        PREDS(ng) % rwalk(iflt+5*Npred(ng)) = IniVal
         DO i=0,izrhs
           PREDS(ng) % Tinfo(i,iflt) = IniVal
         END DO

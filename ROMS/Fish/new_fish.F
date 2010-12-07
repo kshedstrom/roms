@@ -134,6 +134,20 @@
         MyThread(l)=.TRUE.
       END DO
 # endif
+# ifdef DISTRIBUTE
+      IF (Master) THEN
+        CALL ran1 (FISHES(ng)%rwalk)
+      END IF
+      CALL mp_bcastf (ng, iNLM, FISHES(ng)%rwalk)
+# elif defined _OPENMP
+!$OMP SINGLE
+      CALL ran1 (FISHES(ng)%rwalk)
+!$OMP END SINGLE
+# else
+!     IF (Lstr.eq.1) THEN
+        CALL ran1 (FISHES(ng)%rwalk)
+!     END IF
+# endif
 
 !  We need to know how many new superindividuals are available for each
 !  species. Only the Master gets to do any of this.
@@ -218,8 +232,8 @@
      &                  FISHES(ng) % num_free(isp) - 1
                 FISHES(ng) % bounded(ifsh) = .TRUE.
 !  Place it at the mother's location
-                CALL ran1 (xnudg)
-                CALL ran1 (ynudg)
+                xnudg = FISHES(ng) % rwalk(ifsh)
+                ynudg = FISHES(ng) % rwalk(ifsh + Nfish(ng))
 ! JF: NEED TO MAKE SURE I,J IS NOT A LAND CELL !!!!!!!!
                 DO j=0,NFT
 # ifdef EGGS_BISECTION

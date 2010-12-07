@@ -50,7 +50,7 @@
       integer :: inp, out, itrc, ng, npts, sequence
       integer :: i, isp, l, fid, j
 
-      real(r8) :: cff, Fwwght0, Fworth0, snudg
+      real(r8) :: cff, Fwwght0, Fworth0
       real(r8) :: xini, yini, zini
       real(r8), parameter :: spv = 0.0_r8
 !
@@ -77,6 +77,21 @@
       OPEN (46, FILE=TRIM(fishposnam), FORM='formatted', STATUS='old')
 
       CALL read_FishPar (model, 46, out, Lwrite)
+
+# ifdef DISTRIBUTE
+      IF (Master) THEN
+        CALL ran1 (FISHES(ng)%r2walk)
+      END IF
+      CALL mp_bcastf (ng, iNLM, FISHES(ng)%r2walk)
+# elif defined _OPENMP
+!$OMP SINGLE
+      CALL ran1 (FISHES(ng)%r2walk)
+!$OMP END SINGLE
+# else
+!     IF (Lstr.eq.1) THEN
+        CALL ran1 (FISHES(ng)%r2walk)
+!     END IF
+# endif
 !
 !  KLUDGE WARNING!
 !      idfish(if_herring) = 1
@@ -131,10 +146,9 @@
             fid=FISHES(ng)%species_base(isp)+i*Nfishperyear(ng)+l
 # ifdef CCS30
 ! ---- FOR CCS CONFIGURATION ----
-            CALL ran1 (snudg)
-            IF (snudg.lt.0.5_r8) THEN
+            IF (FISHES(ng)%r2walk(fid).lt.0.5_r8) THEN
 ! southern domain
-              yini=20.0_r8+2.0_r8*snudg*25_r8
+              yini=20.0_r8+2.0_r8*FISHES(ng)%r2walk(fid)*25_r8
               IF (isp.eq.if_anchovy) THEN
 ! for anchovy (inshore)
                 xini=31.0_r8
@@ -143,7 +157,7 @@
                 xini=30.0_r8
               END IF
             ELSE
-              yini=55.0_r8+2.0_r8*(snudg-0.5_r8)*25_r8
+              yini=55.0_r8+2.0_r8*(FISHES(ng)%r2walk(fid)-0.5_r8)*25_r8
               IF (isp.eq.if_anchovy) THEN
 ! for anchovy (inshore)
                 xini=27.0_r8
@@ -152,14 +166,12 @@
                 xini=26.0_r8
               END IF
             END IF
-            CALL ran1 (snudg)
-            xini=xini+2.0_r8*(snudg-0.5_r8)
+            xini=xini+2.0_r8*(FISHES(ng)%r2walk(fid+Nfish(ng))-0.5_r8)
             zini=REAL(N(ng),r8)
 # endif
 # ifdef WC13
 ! ---- FOR WC CONFIGURATION ----
-            CALL ran1 (snudg)
-            yini=MAX(5.0_r8,snudg*REAL(Mm(ng)-4,r8))
+            yini=MAX(5.0_r8,FISHES(ng)%r2walk(fid))*REAL(Mm(ng)-4,r8))
             IF (yini.lt.33.0_r8) THEN
               IF (isp.eq.if_anchovy) THEN
 ! for anchovy (inshore)
@@ -177,18 +189,14 @@
                 xini=19.0_r8
               END IF
             END IF
-            CALL ran1 (snudg)
-            xini=xini+2.0_r8*(snudg-0.5_r8)
+            xini=xini+2.0_r8*(FISHES(ng)%r2walk(fid+Nfish(ng))-0.5_r8)
             zini=REAL(N(ng),r8)
 # endif
 # ifdef NEMSAN_TEST
 ! ---- FOR TEST CONFIGURATION ----
-            CALL ran1 (snudg)
-!            xini=4.0_r8+(snudg-0.5_r8)
-!            CALL ran1 (snudg)
-!            yini=7.0_r8+(snudg-0.5_r8)
-            xini=REAL(i+7,r8)+0.1_r8*(snudg-0.5_r8)
-            yini=REAL(i+7,r8)+0.1_r8*(snudg-0.5_r8)
+            xini=REAL(i+7,r8)+0.1_r8*(FISHES(ng)%r2walk(fid)-0.5_r8)
+            yini=REAL(i+7,r8)+0.1_r8*(FISHES(ng)%r2walk(fid+Nfish(ng))  &
+     &                     -0.5_r8)
             zini=REAL(N(ng),r8)
 # endif
             FISHES(ng)%Tinfo(ixgrd,fid)=xini
@@ -204,8 +212,8 @@
               FISHES(ng)%track(izrhs,j,fid)=0.0_r8
 #  endif
             END DO
-            CALL ran1 (snudg)
-            FISHES(ng)%bioenergy(ifwwt,fid)=Fwwght0*(snudg+0.5_r8)
+            FISHES(ng)%bioenergy(ifwwt,fid)=Fwwght0*(FISHES(ng)%        &
+     &               r2walk(fid+2*Nfish(ng))+0.5_r8)
             FISHES(ng)%bioenergy(ifworth,fid)=Fworth0
             FISHES(ng)%bioenergy(ifage,fid)=REAL(Nyearclass(ng)-i,r8)
             FISHES(ng)%bioenergy(ifbday,fid)=REAL(Nyearclass(ng)-i,r8)

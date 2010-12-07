@@ -52,6 +52,20 @@
         END SUBROUTINE gasdev_v
       END INTERFACE
 
+      INTERFACE gasdev_clamp
+        SUBROUTINE gasdev_clamp_s (harvest, clamp)
+        USE mod_kinds
+        real(r8), intent(out) :: harvest
+        real(r8), intent(in)  :: clamp
+        END SUBROUTINE gasdev_clamp_s
+!
+        SUBROUTINE gasdev_clamp_v (harvest, clamp)
+        USE mod_kinds
+        real(r8), dimension(:), intent(out) :: harvest
+        real(r8), intent(in)  :: clamp
+        END SUBROUTINE gasdev_clamp_v
+      END INTERFACE
+
       INTERFACE ran1
         SUBROUTINE ran1_s (harvest)
         USE mod_kinds

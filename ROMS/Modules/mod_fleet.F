@@ -18,6 +18,8 @@
 !               Ftype(:) = 2,  isobaric (constant depth) float.        !
 !  Tinfo      Float trajectory initial information.                    !
 !  bounded    Float bounded status switch.                             !
+!  rwalk      Normally distributed random deviates used in 3-D         !
+!               random walk.                                           !
 !  track      Multivariate float trajectory data at several time       !
 !               time levels.                                           !
 !                                                                      !
@@ -47,6 +49,7 @@
           real(r8), pointer :: TotFishBio
           real(r8), pointer :: AnnFishMort
           real(r8), pointer :: PortCatch(:)
+          real(r8), pointer :: rwalk(:)
 
         END TYPE T_BOATS
 
@@ -116,6 +119,8 @@
       allocate ( BOATS(ng) % AnnFishMort )
 
       allocate ( BOATS(ng) % PortCatch(Nports(ng)) )
+
+      allocate ( BOATS(ng) % rwalk(Nboats(ng)) )
 !
 !-----------------------------------------------------------------------
 !  Initialize module variables.
@@ -132,6 +137,7 @@
         BOATS(ng) % t2PortOpt(iflt) = IniVal
         BOATS(ng) % catch(iflt) = IniVal
         BOATS(ng) % cumcatch(iflt) = IniVal
+        BOATS(ng) % rwalk(iflt) = IniVal
       END DO
       BOATS(ng) % initcpue = .FALSE.
       BOATS(ng) % initports = .FALSE.

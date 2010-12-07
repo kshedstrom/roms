@@ -51,7 +51,7 @@
       integer :: inp, out, itrc, ng, npts, sequence
       integer :: i, isp, l, pid, j
 
-      real(r8) :: cff, Pwwght0, Pworth0, snudg
+      real(r8) :: cff, Pwwght0, Pworth0
       real(r8) :: xini, yini, zini
       real(r8), parameter :: spv = 0.0_r8
 !
@@ -78,6 +78,21 @@
       OPEN (47, FILE=TRIM(predposnam), FORM='formatted', STATUS='old')
 
       CALL read_PredPar (model, 47, out, Lwrite)
+
+# ifdef DISTRIBUTE
+      IF (Master) THEN
+        CALL ran1 (PREDS(ng)%rwalk)
+      END IF
+      CALL mp_bcastf (ng, iNLM, PREDS(ng)%rwalk)
+# elif defined _OPENMP
+!$OMP SINGLE
+      CALL ran1 (PREDS(ng)%rwalk)
+!$OMP END SINGLE
+# else
+!     IF (Lstr.eq.1) THEN
+        CALL ran1 (PREDS(ng)%rwalk)
+!     END IF
+# endif
 !
 !  KLUDGE WARNING!
       idpred(ip_albacore) = 1
@@ -93,28 +108,25 @@
           Pworth0=Pwth0(isp,ng)
 # ifdef CCS30
 ! ---- FOR CCS CONFIGURATION ----
-          CALL ran1 (snudg)
-          IF (snudg.lt.0.5_r8) THEN
+          IF (PREDS(ng)%rwalk(pid).lt.0.5_r8) THEN
 ! southern domain
-            yini=20.0_r8+2.0_r8*snudg*25_r8
+            yini=20.0_r8+2.0_r8*PREDS(ng)%rwalk(pid)*25_r8
             IF (isp.eq.ip_albacore) THEN
               xini=29.0_r8
             END IF
           ELSE
 ! northern domain
-            yini=55.0_r8+2.0_r8*(snudg-0.5_r8)*25_r8
+            yini=55.0_r8+2.0_r8*(PREDS(ng)%rwalk(pid)-0.5_r8)*25_r8
             IF (isp.eq.ip_albacore) THEN
               xini=25.0_r8
             END IF
           END IF
-          CALL ran1 (snudg)
-          xini=xini+2.0_r8*(snudg-0.5_r8)
+          xini=xini+2.0_r8*(PREDS(ng)%rwalk(pid+Npred(ng))-0.5_r8)
           zini=REAL(N(ng),r8)
 # endif
 # ifdef WC13
 ! ---- FOR WC CONFIGURATION ----
-          CALL ran1 (snudg)
-          yini=MAX(5.0_r8,snudg*REAL(Mm(ng)-4,r8))
+          yini=MAX(5.0_r8,PREDS(ng)%rwalk(pid)*REAL(Mm(ng)-4,r8))
           IF (yini.lt.33.0_r8) THEN
             IF (isp.eq.ip_albacore) THEN
               xini=44.0_r8-(yini-3.0_r8)*25.0_r8/30.0_r8
@@ -124,18 +136,13 @@
               xini=18.0_r8
             END IF
           END IF
-          CALL ran1 (snudg)
-          xini=xini+2.0_r8*(snudg-0.5_r8)
+          xini=xini+2.0_r8*(PREDS(ng)%rwalk(pid+Npred(ng))-0.5_r8)
           zini=REAL(N(ng),r8)
 # endif
 # ifdef NEMSAN_TEST
 ! ---- FOR TEST CONFIGURATION ----
-          CALL ran1 (snudg)
-!          xini=4.0_r8+(snudg-0.5_r8)
-!          CALL ran1 (snudg)
-!          yini=7.0_r8+(snudg-0.5_r8)
-          xini=REAL(12,r8)+10.0_r8*(snudg-0.5_r8)
-          yini=REAL(12,r8)+10.0_r8*(snudg-0.5_r8)
+          xini=REAL(12,r8)+10.0_r8*(PREDS(ng)%rwalk(pid)-0.5_r8)
+          yini=REAL(12,r8)+10.0_r8*(PREDS(ng)%rwalk(pid)-0.5_r8)
           zini=REAL(N(ng),r8)
 # endif
           PREDS(ng)%Tinfo(ixgrd,pid)=xini
@@ -151,8 +158,8 @@
             PREDS(ng)%track(izrhs,j,pid)=0.0_r8
 #  endif
           END DO
-          CALL ran1 (snudg)
-          PREDS(ng)%bioenergy(ipwwt,pid)=Pwwght0*(snudg+0.5_r8)
+          PREDS(ng)%bioenergy(ipwwt,pid)=Pwwght0*                       &
+     &              (PREDS(ng)%rwalk(pid+2*Npred(ng))+0.5_r8)
           PREDS(ng)%bioenergy(ipworth,pid)=Pworth0
           PREDS(ng)%species(pid)=idpred_inv(isp)
           PREDS(ng)%alive(pid)=.TRUE.
