@@ -74,8 +74,9 @@
 
 !      NTIMES =  24  (1 day)
 !      NTIMES =  8760 (1 year)
-!      NTIMES =  402960 (40 years)
-      NTIMES =  175200
+!      NTIMES =  402960 (46 years)
+!      NTIMES =  175200 (20 years)
+      NTIMES =  350400 (40 years)
           DT == 3600.0d0
      NDTFAST == 45
 
@@ -96,7 +97,7 @@
 
 ! Input/Output parameters.
 
-       NRREC =  0
+       NRREC =  -1
    LcycleRST == F
         NRST == 8760
         NSTA == 48
@@ -105,9 +106,9 @@
 ! Flag indicating re-start from previous solution. If FISHRREC = 0, a new
 ! NetCDF output file is created.
 
-       FISHRREC  == 0
-       FLEETRREC == 0
-       PREDRREC  == 0
+       FISHRREC  == -1
+       FLEETRREC == -1
+       PREDRREC  == -1
 
         NFSH == 120
     NDEFFISH == 0
@@ -117,7 +118,7 @@
 
 ! Output history, average, diagnostic files parameters.
 
-     LDEFOUT == T
+     LDEFOUT == F
         NHIS == 8760
      NDEFHIS == 0
       NTSAVG == 1
@@ -479,7 +480,8 @@ Aout(idHbbl) == F                          ! depth of bottom boundary layer
 ! Input NetCDF file names, [1:Ngrids].
 
      GRDNAME == /home/fiechter/NemFish/Grid/ccs30_grd.nc
-     ININAME == /home/fiechter/NemFish/Frc/SODA/ccs30_clm_inibio_1960.nc
+!     ININAME == /home/fiechter/NemFish/Frc/SODA/ccs30_clm_inibio_1960.nc
+     ININAME == Post_20yrs/rst.nc
      ITLNAME == /dev/null
      IRPNAME == /dev/null
      IADNAME == /dev/null

@@ -399,9 +399,9 @@
                     END DO
                   END IF
                   KrMax=MIN(N(ng),MAX(2,KrMax))
-!                  track(izgrd,itimep1,fid)=REAL(KrMax,r8)
+                  track(izgrd,itimep1,fid)=REAL(KrMax,r8)
 ! Impose 2D movement at surface
-                  track(izgrd,itimep1,fid)=REAL(N(ng),r8)
+!                  track(izgrd,itimep1,fid)=REAL(N(ng),r8)
 !
                 END IF
 !

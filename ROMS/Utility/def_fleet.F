@@ -470,6 +470,18 @@
           ELSE IF (TRIM(var_name(i)).eq.'Nfloc') THEN
             got_var(idBnfloc)=.TRUE.
             fleetVid(idBnfloc,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.'Xfish1') THEN
+            got_var(idBxfsh1)=.TRUE.
+            fleetVid(idBxfsh1,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.'Yfish1') THEN
+            got_var(idByfsh1)=.TRUE.
+            fleetVid(idByfsh1,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.'Xfish2') THEN
+            got_var(idBxfsh2)=.TRUE.
+            fleetVid(idBxfsh2,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.'Yfish2') THEN
+            got_var(idByfsh2)=.TRUE.
+            fleetVid(idByfsh2,ng)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.'Catch') THEN
             got_var(idBcatch)=.TRUE.
             fleetVid(idBcatch,ng)=var_id(i)

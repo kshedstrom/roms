@@ -39,13 +39,18 @@
 !
      Lfleet == T
 
+! Flag indicating re-start from previous solution. If FLEETRREC = 0, a new
+! NetCDF output file is created.
+
+       FLEETRREC == 0
+
 ! Number of boats in fleet [-], {100}.
 
        Nboats == 100
 
 ! Number of ports [-], {3}.
 
-       Nports == 4
+       Nports == 5
 
 ! Maximum daily catch [kg], {30000.0d0}.
 
@@ -77,18 +82,20 @@
 
 ! Price for catch by port [$/kg], {0.5d0}.
 
-       CatchPrice == 0.5d0 0.5d0 0.5d0 0.5d0
+       CatchPrice == 0.5d0 0.5d0 0.5d0 0.5d0 0.5d0
 
-! Port grid i location. {San Diego(CA), San Pedro(CA), Monterey(CA), Newport(OR)}
+! Port grid i location.
+! {Los Angeles(CA), Port Hueneme(CA), Monterey Bay(CA), Astoria(OR), Westport(WA)}
 
-!       LonPort == -117.167 -118.285 -121.890 -124.052
-       iPort == 36 35 30 39
+!       LonPort == -118.31 -119.20 -121.79 -123.83 -124.10
+       iPort == 35 33 30 42 43
 
-! Port grid j location. {San Diego(CA), San Pedro(CA), Monterey(CA), Newport(OR)}
+! Port grid j location.
+! {Los Angeles(CA), Port Hueneme(CA), Monterey Bay(CA), Astoria(OR), Westport(WA)}
 
-!       LatPort == 32.733 33.741 36.608 44.636
-       jPort == 43 48 62 91
-
+!       LatPort == 33.73 34.15 36.80 46.19 46.32
+       jPort == 48 51 63 97 99
+ 
 !
 !  GLOSSARY:
 !  =========
@@ -106,6 +113,13 @@
 !             for all grids when the CPP option FLOATS is activacted. The
 !             USER can control which grid to process by turning on/off this
 !             switch.
+!
+! FISHRREC  Flag to indicate re-start from a previous solution.  Use
+!             FISHRREC=0 for new solutions. In a re-start solution,
+!             FISHRREC is the time index in the floats NetCDF file assigned
+!             for initialization. If FISHRREC is negative (say NISHRREC=-1),
+!             the floats will re-start from the most recent time record.
+!             That is, the initialization record is assigned internally.
 !
 !------------------------------------------------------------------------------
 ! Number of floats.
