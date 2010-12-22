@@ -1,6 +1,6 @@
 #include "cppdefs.h"
       MODULE interp_floats_diapW_mod
-#if defined NONLINEAR && defined FLOATS
+#if defined NONLINEAR && defined FLOATS && defined SOLVE3D
 !
 !svn $Id: interp_floats_diapW.F 526 2008-01-29 01:06:18Z kate $
 !================================================== Hernan G. Arango ===
