@@ -2,7 +2,7 @@
       MODULE set_vbc_mod
 #ifdef NONLINEAR
 !
-!svn $Id$
+!svn $Id: set_vbc.F 1234 2010-05-29 01:24:46Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -351,30 +351,44 @@
 #     ifdef ICE_THERMO
           stflx(i,j,isalt)=stflx(i,j,isalt) -                           &
      &                     Tnudg(isalt,ng)*Hz(i,j,N(ng))*               &
-#if defined NEP5 || defined BERING
-!  60 days from Tnudg of 360 days
+#       if defined NEP5 || defined BERING
+! 60 days from Tnudg of 360 days
      &                     6.0_r8*                                      &
-#endif
+#       endif
      &                     (t(i,j,N(ng),nrhs,isalt)-sss(i,j))
+#     else
+          stflx(i,j,isalt)=stflx(i,j,isalt)*t(i,j,N(ng),nrhs,isalt)-    &
+     &                     Tnudg(isalt,ng)*Hz(i,j,N(ng))*               &
+#       if defined NEP5 || defined BERING
+! 60 days from Tnudg of 360 days
+     &                     6.0_r8*                                      &
+#       endif
+#       if defined CORAL
+! 90 days from Tnudg of 360 days
+     &                     4.0_r8*                                      &
+! limit mismatch to avoid too strong relaxation fluxes
+     &                     MIN(0.2_r8,(t(i,j,N(ng),nrhs,isalt)-sss(i,j)))
+#       else
+     &                     (t(i,j,N(ng),nrhs,isalt)-sss(i,j))
+#       endif
+#     endif
 #     ifdef MASKING
           stflx(i,j,isalt) = rmask(i,j)*stflx(i,j,isalt)
 #     endif
-#    else
-          stflx(i,j,isalt)=stflx(i,j,isalt)*t(i,j,N(ng),nrhs,isalt)-    &
-     &                     Tnudg(isalt,ng)*Hz(i,j,N(ng))*               &
-#if defined NEP5 || defined BERING
-!  60 days from Tnudg of 360 days
-     &                     6.0_r8*                                      &
-#endif
-     &                     (t(i,j,N(ng),nrhs,isalt)-sss(i,j))
-#     endif
 #   elif defined SRELAXATION
           stflx(i,j,isalt)=-Tnudg(isalt,ng)*Hz(i,j,N(ng))*              &
-#if defined NEP5 || defined BERING
-!  60 days from Tnudg of 360 days
+#     if defined NEP5 || defined BERING
+! 60 days from Tnudg of 360 days
      &                     6.0_r8*                                      &
-#endif
+#     endif
+#     if defined CORAL
+! 90 days from Tnudg of 360 days
+     &                     4.0_r8*                                      &
+! limit mismatch to avoid too strong relaxation fluxes
+     &                     MIN(0.2_r8,(t(i,j,N(ng),nrhs,isalt)-sss(i,j)))
+#     else
      &                     (t(i,j,N(ng),nrhs,isalt)-sss(i,j))
+#     endif
 #     ifdef MASKING
           stflx(i,j,isalt) = rmask(i,j)*stflx(i,j,isalt)
 #     endif

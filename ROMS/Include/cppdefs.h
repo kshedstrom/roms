@@ -809,6 +809,9 @@
 ** SEBS            Southeast Bering Sea at 4 km resolution
 ** CCS             Northeast Pacific - small Oregon domain
 
+** Fred's apps
+** CARAL           Coral Triangle 5km Grid
+
 ** Pauls Applications
 ** SMALL_AREA      Arctic region test application
 ** LARGE_AREA      Atlantic + Arctic region
