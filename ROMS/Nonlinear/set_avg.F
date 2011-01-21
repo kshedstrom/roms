@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2011 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -615,6 +615,45 @@
         END IF
 
 # ifdef SOLVE3D
+#  if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS
+        IF (Aout(idPair,ng)) THEN
+          DO j=JstrR,JendR
+            DO i=IstrR,IendR
+              AVERAGE(ng)%avgPair(i,j)=FORCES(ng)%Pair(i,j)
+#   ifdef WET_DRY
+              AVERAGE(ng)%avgPair(i,j)=AVERAGE(ng)%avgPair(i,j)*        &
+     &                                 GRID(ng)%rmask_io(i,j)
+#   endif
+            END DO
+          END DO
+        END IF
+#  endif
+#  if defined BULK_FLUXES || defined ECOSIM
+        IF (Aout(idUair,ng)) THEN
+          DO j=JstrR,JendR
+            DO i=IstrR,IendR
+              AVERAGE(ng)%avgUwind(i,j)=FORCES(ng)%Uwind(i,j)
+#   ifdef WET_DRY
+              AVERAGE(ng)%avgUwind(i,j)=AVERAGE(ng)%avgUwind(i,j)*      &
+     &                                  GRID(ng)%rmask_io(i,j)
+#   endif
+            END DO
+          END DO
+        END IF
+
+        IF (Aout(idVair,ng)) THEN
+          DO j=JstrR,JendR
+            DO i=IstrR,IendR
+              AVERAGE(ng)%avgVwind(i,j)=FORCES(ng)%Vwind(i,j)
+#   ifdef WET_DRY
+              AVERAGE(ng)%avgVwind(i,j)=AVERAGE(ng)%avgVwind(i,j)*      &
+     &                                  GRID(ng)%rmask_io(i,j)
+#   endif
+            END DO
+          END DO
+        END IF
+#  endif
+
         IF (Aout(idTsur(itemp),ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR
@@ -2002,6 +2041,46 @@
         END IF
 
 # ifdef SOLVE3D
+
+#  if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS
+        IF (Aout(idPair,ng)) THEN
+          DO j=JstrR,JendR
+            DO i=IstrR,IendR
+              AVERAGE(ng)%avgPair(i,j)=AVERAGE(ng)%avgPair(i,j)+        &
+#   ifdef WET_DRY
+     &                                 GRID(ng)%rmask_io(i,j)*          &
+#   endif
+     &                                 FORCES(ng)%Pair(i,j)
+            END DO
+          END DO
+        END IF
+#  endif
+#  if defined BULK_FLUXES || defined ECOSIM
+        IF (Aout(idUair,ng)) THEN
+          DO j=JstrR,JendR
+            DO i=IstrR,IendR
+              AVERAGE(ng)%avgUwind(i,j)=AVERAGE(ng)%avgUwind(i,j)+      &
+#   ifdef WET_DRY
+     &                                  GRID(ng)%rmask_io(i,j)*         &
+#   endif
+     &                                  FORCES(ng)%Uwind(i,j)
+            END DO
+          END DO
+        END IF
+
+        IF (Aout(idVair,ng)) THEN
+          DO j=JstrR,JendR
+            DO i=IstrR,IendR
+              AVERAGE(ng)%avgVwind(i,j)=AVERAGE(ng)%avgVwind(i,j)+      &
+#   ifdef WET_DRY
+     &                                  GRID(ng)%rmask_io(i,j)*         &
+#   endif
+     &                                  FORCES(ng)%Vwind(i,j)
+            END DO
+          END DO
+        END IF
+#  endif
+
         IF (Aout(idTsur(itemp),ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR
@@ -3298,6 +3377,36 @@
         END IF
 
 # ifdef SOLVE3D
+#  if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS
+        IF (Aout(idPair,ng)) THEN
+          DO j=JstrR,JendR
+            DO i=IstrR,IendR
+              AVERAGE(ng)%avgPair(i,j)=rfac(i,j)*                       &
+     &                                 AVERAGE(ng)%avgPair(i,j)
+            END DO
+          END DO
+        END IF
+#  endif
+#  if defined BULK_FLUXES || defined ECOSIM
+        IF (Aout(idUair,ng)) THEN
+          DO j=JstrR,JendR
+            DO i=IstrR,IendR
+              AVERAGE(ng)%avgUwind(i,j)=rfac(i,j)*                      &
+     &                                  AVERAGE(ng)%avgUwind(i,j)
+            END DO
+          END DO
+        END IF
+
+        IF (Aout(idVair,ng)) THEN
+          DO j=JstrR,JendR
+            DO i=IstrR,IendR
+              AVERAGE(ng)%avgVwind(i,j)=rfac(i,j)*                      &
+     &                                  AVERAGE(ng)%avgVwind(i,j)
+            END DO
+          END DO
+        END IF
+#  endif
+
         IF (Aout(idTsur(itemp),ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR

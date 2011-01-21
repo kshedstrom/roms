@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2010 The ROMS/TOMS Group       Andrew M. Moore   !
+!  Copyright (c) 2002-2011 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -108,6 +108,10 @@
 # endif
 # ifdef WEAK_CONSTRAINT
       USE tl_forcing_mod, ONLY : tl_forcing
+# endif
+# if defined PROPAGATOR || \
+    (defined MASKING    && (defined READ_WATER || defined WRITE_WATER))
+      USE wpoints_mod, ONLY : wpoints
 # endif
 !!    USE wvelocity_mod, ONLY : wvelocity
 !
@@ -215,6 +219,9 @@
           DO tile=subs*thread,subs*(thread+1)-1,+1
             CALL rp_ini_zeta (ng, TILE, iRPM)
             CALL rp_set_depth (ng, TILE)
+# ifdef MASKING
+            CALL set_masks (ng, TILE, iRPM)
+# endif
           END DO
         END DO
 !$OMP END PARALLEL DO
@@ -226,8 +233,9 @@
           subs=NtileX(ng)*NtileE(ng)/numthreads
           DO tile=subs*(thread+1)-1,subs*thread,-1
             CALL rp_ini_fields (ng, TILE, iRPM)
-# ifdef MASKING
-            CALL set_masks (ng, TILE, iRPM)
+# if defined PROPAGATOR || \
+    (defined MASKING    && (defined READ_WATER || defined WRITE_WATER ))
+            CALL wpoints (ng, TILE, iRPM)
 # endif
           END DO
         END DO

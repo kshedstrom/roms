@@ -3,7 +3,7 @@
 **
 ** svn $Id$
 ********************************************************** Hernan G. Arango ***
-** Copyright (c) 2002-2010 The ROMS/TOMS Group     Alexander F. Shchepetkin  **
+** Copyright (c) 2002-2011 The ROMS/TOMS Group     Alexander F. Shchepetkin  **
 **   Licensed under a MIT/X style license                                    **
 **   See License_ROMS.txt                                                    **
 *******************************************************************************
@@ -639,6 +639,20 @@
 #endif
 
 /*
+** Check if spatially varying bottom friction parameters are needed.
+*/
+
+#if defined UV_DRAG_GRID && \
+  !(defined BBL_MODEL    || defined SEDIMENT || \
+    defined UV_LOGDRAG   || defined UV_LDRAG || \
+    defined UV_QDRAG)
+# undef UV_DRAG_GRID
+#endif
+#if defined ANA_DRAG     && !defined UV_DRAG_GRID
+# undef ANA_DRAG
+#endif
+
+/*
 ** Activate internal switch for imposing REFDIF as a
 ** monochromatic wave driver.
 */
@@ -726,7 +740,7 @@
 # define NORTH_FSOBC
 #endif
 
-#if defined FSOBC_REDUCED && \
+#if defined FSOBC_REDUCED   && \
   !(defined WEST_M2REDUCED  || defined EAST_M2REDUCED  || \
     defined NORTH_M2REDUCED || defined SOUTH_M2REDUCED || \
     defined WEST_M2FLATHER  || defined EAST_M2FLATHER  || \
@@ -965,16 +979,16 @@
 ** NetCDF file.
 */
 
-#if (!defined ANA_FSOBC && \
+#if (!defined ANA_FSOBC   && \
      (defined WEST_FSOBC  || defined EAST_FSOBC    || \
       defined SOUTH_FSOBC || defined NORTH_FSOBC)) || \
-    (!defined ANA_M2OBC && \
+    (!defined ANA_M2OBC   && \
      (defined WEST_M2OBC  || defined EAST_M2OBC    || \
       defined SOUTH_M2OBC || defined NORTH_M2OBC)) || \
-    (!defined ANA_M3OBC && \
+    (!defined ANA_M3OBC   && \
      (defined WEST_M3OBC  || defined EAST_M3OBC    || \
       defined SOUTH_M3OBC || defined NORTH_M3OBC)) || \
-    (!defined ANA_TOBC && \
+    (!defined ANA_TOBC    && \
      (defined WEST_TOBC   || defined EAST_TOBC    || \
       defined SOUTH_TOBC  || defined NORTH_TOBC))
 # define OBC_DATA

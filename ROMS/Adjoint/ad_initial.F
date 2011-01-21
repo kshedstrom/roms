@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2011 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -58,10 +58,6 @@
       USE set_massflux_mod, ONLY : set_massflux
 # endif
       USE stiffness_mod, ONLY : stiffness
-# if defined PROPAGATOR || \
-    (defined MASKING && (defined READ_WATER || defined WRITE_WATER ))
-      USE wpoints_mod, ONLY : wpoints
-# endif
 # ifdef WAVES_OCEAN
       USE ocean_coupler_mod, ONLY : waves_coupling
 # endif
@@ -278,10 +274,6 @@
           subs=NtileX(ng)*NtileE(ng)/numthreads
           DO tile=subs*thread,subs*(thread+1)-1
             CALL metrics (ng, TILE, iADM)
-# if defined PROPAGATOR || \
-    (defined MASKING && (defined READ_WATER || defined WRITE_WATER ))
-            CALL wpoints (ng, TILE, iADM)
-# endif
           END DO
         END DO
 !$OMP END PARALLEL DO
@@ -602,6 +594,24 @@
 #  ifdef SENSITIVITY_4DVAR
       END IF
 #  endif
+# endif
+
+# if defined ANA_DRAG && defined UV_DRAG_GRID
+!
+!-----------------------------------------------------------------------
+!  Set analytical spatially varying bottom friction parameter.
+!-----------------------------------------------------------------------
+!
+      IF (Nrun.eq.ERstr) THEN
+!$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(ng,numthreads)
+        DO thread=0,numthreads-1
+          subs=NtileX(ng)*NtileE(ng)/numthreads
+          DO tile=subs*thread,subs*(thread+1)-1
+            CALL ana_drag (ng, TILE, iADM)
+          END DO
+        END DO
+!$OMP END PARALLEL DO
+      END IF
 # endif
 !
 !-----------------------------------------------------------------------

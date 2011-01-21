@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2011 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -239,14 +239,6 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+13)=' ANA_BIOLOGY,'
 #endif
-#if defined SEDIMENT && !defined ANA_SEDIMENT
-# ifdef ANA_BMFLUX
-      IF (Master) WRITE (stdout,20) 'ANA_BMFLUX',                       &
-     &   'Analytical spatially varying bottom roughness.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+12)=' ANA_BMFLUX,'
-# endif
-#endif
 #if defined SEDIMENT || defined BIOLOGY
 # ifdef ANA_BPFLUX
       IF (Master) WRITE (stdout,20) 'ANA_BPFLUX',                       &
@@ -272,6 +264,18 @@
      &   'Analytical cloud fraction.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+11)=' ANA_CLOUD,'
+#endif
+#if defined ANA_DRAG && defined UV_DRAG_GRID
+      IF (Master) WRITE (stdout,20) 'ANA_DRAG_GRID',                    &
+# if defined UV_LOGDRAG
+     &   'Analytical spatially varying bottom roughness length.'
+# elif defined UV_LDRAG
+     &   'Analytical spatially varying linear drag coefficient.'
+# elif defined UV_QDRAG
+     &   'Analytical spatially varying quadratic drag coefficient.'
+# endif
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+10)=' ANA_DRAG,'
 #endif
 #ifdef ANA_DIAG
       IF (Master) WRITE (stdout,20) 'ANA_DIAG',                         &
@@ -368,12 +372,6 @@
      &   'Analytical rain fall rate.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+10)=' ANA_RAIN,'
-#endif
-#if defined ANA_RDRG
-      IF (Master) WRITE (stdout,20) 'ANA_RDRG',                         &
-     &   'Analytical bottom drag.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+10)=' ANA_RDRG,'
 #endif
 #if defined ANA_SCOPE        && \
    (defined AD_SENSITIVITY   || defined IS4DVAR_SENSITIVITY || \
@@ -1022,6 +1020,12 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+8)=' FLOATS,'
 #endif
+#if defined FLOATS && defined FLOAT_STICKY && defined SOLVE3D
+      IF (Master) WRITE (stdout,20) 'FLOAT_STICKY',                     &
+     &   'Reflect (stick) floats that hit the surface (bottom).'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+14)=' FLOAT_STICKY,'
+#endif
 #if defined FLOATS && defined FLOAT_VWALK && defined SOLVE3D
       IF (Master) WRITE (stdout,20) 'FLOAT_VWALK',                      &
      &   'Lagrangian drifters with vertical diffusion, random walk.'
@@ -1412,6 +1416,12 @@
      &   'Using Model Coupling Toolkit library.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+9)=' MCT_LIB,'
+#endif
+#if defined MINRES && defined FOUR_DVAR
+      IF (Master) WRITE (stdout,20) 'MINRES',                           &
+     &   'Minimal Residual Method for 4D-Var minimization.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+8)=' MINRES,'
 #endif
 #if (defined TS_DIF2 || defined TS_DIF4) && defined SOLVE3D
 # ifdef MIX_GEO_TS
@@ -1975,12 +1985,6 @@
      &   'Mass point sources, volume influx.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+11)=' Q_PSOURCE,'
-#endif
-#if defined RDRG_GRID
-      IF (Master) WRITE (stdout,20) 'RDRG_GRID',                        &
-     &   'Spatially varying bottom drag.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+11)=' RDRG_GRID,'
 #endif
 #if defined RUNOFF
       IF (Master) WRITE (stdout,20) 'RUNOFF',                           &
@@ -2824,6 +2828,18 @@
       Coptions(is:is+16)=' UV_U3ADV_SPLIT,'
 #  endif
 # endif
+#endif
+#ifdef UV_DRAG_GRID
+      IF (Master) WRITE (stdout,20) 'UV_DRAG_GRID',                     &
+# if defined UV_LOGDRAG
+     &   'Spatially varying bottom roughness length.'
+# elif defined UV_LDRAG
+     &   'Spatially varying linear drag coefficient.'
+# elif defined UV_QDRAG
+     &   'Spatially varying quadratic drag coefficient.'
+# endif
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+14)=' UV_DRAG_GRID,'
 #endif
 #ifdef UV_LDRAG
       IF (Master) WRITE (stdout,20) 'UV_LDRAG',                         &

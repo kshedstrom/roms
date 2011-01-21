@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2011 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -20,8 +20,8 @@
 !  avgzeta    Free surface (m).                                        !
 
 # ifdef SOLVE3D
-!  avguwind   2D wind velocity component (m/s) in the XI-direction.    !
-!  avgvwind   2D wind velocity component (m/s) in the ETA-direction.   !
+!  avgUwind   2D wind velocity component (m/s) in the XI-direction.    !
+!  avgVwind   2D wind velocity component (m/s) in the ETA-direction.   !
 !  avgu3d     3D velocity component (m/s) in the XI-direction.         !
 !  avgv3d     3D velocity component (m/s) in the ETA-direction.        !
 !  avgw3d     S-coordinate [omega*Hz/mn] vertical velocity (m3/s).     !
@@ -225,6 +225,13 @@
           real(r8), pointer :: avgbvs(:,:)
 
 # ifdef SOLVE3D
+#  if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS
+          real(r8), pointer :: avgPair(:,:)
+#  endif
+#  if defined BULK_FLUXES || defined ECOSIM
+          real(r8), pointer :: avgUwind(:,:)
+          real(r8), pointer :: avgVwind(:,:)
+#  endif
           real(r8), pointer :: avgstf(:,:)
           real(r8), pointer :: avgswf(:,:)
 #  ifdef SHORTWAVE
@@ -234,8 +241,6 @@
           real(r8), pointer :: avglhf(:,:)
           real(r8), pointer :: avglrf(:,:)
           real(r8), pointer :: avgshf(:,:)
-          real(r8), pointer :: avguwind(:,:)
-          real(r8), pointer :: avgvwind(:,:)
           real(r8), pointer :: avgsssflx(:,:)
 #   ifdef EMINUSP
           real(r8), pointer :: avgevap(:,:)
@@ -507,6 +512,19 @@
       END IF
 
 # ifdef SOLVE3D
+#  if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS
+      IF (Aout(idPair,ng)) THEN
+        allocate ( AVERAGE(ng) % avgPair(LBi:UBi,LBj:UBj) )
+      END IF
+#  endif
+#  if defined BULK_FLUXES || defined ECOSIM
+      IF (Aout(idUair,ng)) THEN
+        allocate ( AVERAGE(ng) % avgUwind(LBi:UBi,LBj:UBj) )
+      END IF
+      IF (Aout(idVair,ng)) THEN
+        allocate ( AVERAGE(ng) % avgVwind(LBi:UBi,LBj:UBj) )
+      END IF
+#  endif
       IF (Aout(idTsur(itemp),ng)) THEN
         allocate ( AVERAGE(ng) % avgstf(LBi:UBi,LBj:UBj) )
       END IF
@@ -527,12 +545,6 @@
       END IF
       IF (Aout(idShea,ng)) THEN
         allocate ( AVERAGE(ng) % avgshf(LBi:UBi,LBj:UBj) )
-      END IF
-      IF (Aout(idUair,ng)) THEN
-        allocate ( AVERAGE(ng) % avguwind(LBi:UBi,LBj:UBj) )
-      END IF
-      IF (Aout(idVair,ng)) THEN
-        allocate ( AVERAGE(ng) % avgvwind(LBi:UBi,LBj:UBj) )
       END IF
       IF (Aout(idSSSf,ng)) THEN
         allocate ( AVERAGE(ng) % avgsssflx(LBi:UBi,LBj:UBj) )
@@ -1036,6 +1048,31 @@
       END IF
 
 # ifdef SOLVE3D
+#  if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS
+      IF (Aout(idPair,ng)) THEN
+        DO j=Jmin,Jmax
+          DO i=Imin,Imax
+            AVERAGE(ng) % avgPair(i,j) = IniVal
+          END DO
+        END DO
+      END IF
+#  endif
+#  if defined BULK_FLUXES || defined ECOSIM
+      IF (Aout(idUair,ng)) THEN
+        DO j=Jmin,Jmax
+          DO i=Imin,Imax
+            AVERAGE(ng) % avgUwind(i,j) = IniVal
+          END DO
+        END DO
+      END IF
+      IF (Aout(idVair,ng)) THEN
+        DO j=Jmin,Jmax
+          DO i=Imin,Imax
+            AVERAGE(ng) % avgVwind(i,j) = IniVal
+          END DO
+        END DO
+      END IF
+#  endif
       IF (Aout(idTsur(itemp),ng)) THEN
         DO j=Jmin,Jmax
           DO i=Imin,Imax
@@ -1080,20 +1117,6 @@
         DO j=Jmin,Jmax
           DO i=Imin,Imax
             AVERAGE(ng) % avgshf(i,j) = IniVal
-          END DO
-        END DO
-      END IF
-      IF (Aout(idUair,ng)) THEN
-        DO j=Jmin,Jmax
-          DO i=Imin,Imax
-            AVERAGE(ng) % avguwind(i,j) = IniVal
-          END DO
-        END DO
-      END IF
-      IF (Aout(idVair,ng)) THEN
-        DO j=Jmin,Jmax
-          DO i=Imin,Imax
-            AVERAGE(ng) % avgvwind(i,j) = IniVal
           END DO
         END DO
       END IF
