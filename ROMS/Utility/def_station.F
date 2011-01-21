@@ -528,6 +528,50 @@
           IF (exit_flag.ne.NoError) RETURN
         END IF
 #  endif
+#  if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS
+!
+!  Define surface air pressure.
+!
+        IF (Sout(idPair,ng)) THEN
+          Vinfo( 1)=Vname(1,idPair)
+          Vinfo( 2)=Vname(2,idPair)
+          Vinfo( 3)=Vname(3,idPair)
+          Vinfo(14)=Vname(4,idPair)
+          Vinfo(16)=Vname(1,idtime)
+          status=def_var(ng, iNLM, ncSTAid(ng), staVid(idPair,ng),      &
+     &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
+     &                   SetParAccess = .FALSE.)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+#  endif
+#  if defined BULK_FLUXES || defined ECOSIM
+!
+!  Define surface winds.
+!
+        IF (Sout(idUair,ng)) THEN
+          Vinfo( 1)=Vname(1,idUair)
+          Vinfo( 2)=Vname(2,idUair)
+          Vinfo( 3)=Vname(3,idUair)
+          Vinfo(14)=Vname(4,idUair)
+          Vinfo(16)=Vname(1,idtime)
+          status=def_var(ng, iNLM, ncSTAid(ng), staVid(idUair,ng),      &
+     &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
+     &                   SetParAccess = .FALSE.)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+
+        IF (Sout(idVair,ng)) THEN
+          Vinfo( 1)=Vname(1,idVair)
+          Vinfo( 2)=Vname(2,idVair)
+          Vinfo( 3)=Vname(3,idVair)
+          Vinfo(14)=Vname(4,idVair)
+          Vinfo(16)=Vname(1,idtime)
+          status=def_var(ng, iNLM, ncSTAid(ng), staVid(idVair,ng),      &
+     &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
+     &                   SetParAccess = .FALSE.)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+#  endif
 !
 !  Define surface net heat flux.
 !
@@ -610,32 +654,6 @@
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetParAccess = .FALSE.)
           IF (exit_flag.ne.NoError) RETURN
-        END IF
-!
-!  Define surface U-wind.
-!
-        IF (Sout(idUair,ng)) THEN
-          Vinfo( 1)=Vname(1,idUair)
-          Vinfo( 2)=Vname(2,idUair)
-          Vinfo( 3)=Vname(3,idUair)
-          Vinfo(14)=Vname(4,idUair)
-          Vinfo(16)=Vname(1,idtime)
-          status=def_var(ng, iNLM, ncSTAid(ng), staVid(idUair,ng),      &
-     &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
-     &                   SetParAccess = .FALSE.)
-        END IF
-!
-!  Define surface V-wind.
-!
-        IF (Sout(idVair,ng)) THEN
-          Vinfo( 1)=Vname(1,idVair)
-          Vinfo( 2)=Vname(2,idVair)
-          Vinfo( 3)=Vname(3,idVair)
-          Vinfo(14)=Vname(4,idVair)
-          Vinfo(16)=Vname(1,idtime)
-          status=def_var(ng, iNLM, ncSTAid(ng), staVid(idVair,ng),      &
-     &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
-     &                   SetParAccess = .FALSE.)
         END IF
 #  endif
 #  ifdef SHORTWAVE
@@ -1746,6 +1764,19 @@
             got_var(idMtls)=.TRUE.
             staVid(idMtls,ng)=var_id(i)
 #  endif
+#  if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idPair))) THEN
+            got_var(idPair)=.TRUE.
+            staVid(idPair,ng)=var_id(i)
+#  endif
+#  if defined BULK_FLUXES || defined ECOSIM
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idUair))) THEN
+            got_var(idUair)=.TRUE.
+            staVid(idUair,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idVair))) THEN
+            got_var(idVair)=.TRUE.
+            staVid(idVair,ng)=var_id(i)
+#  endif
           ELSE IF (TRIM(var_name(i)).eq.                                &
      &             TRIM(Vname(1,idTsur(itemp)))) THEN
             got_var(idTsur(itemp))=.TRUE.
@@ -1764,15 +1795,6 @@
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idLrad))) THEN
             got_var(idLrad)=.TRUE.
             staVid(idLrad,ng)=var_id(i)
-          IF (TRIM(varnam(i)).eq.TRIM(Vname(1,idUair))) THEN
-            got_var(idUair)=.TRUE.
-            status=nf90_inq_varid(ncSTAid(ng),TRIM(Vname(1,idUair)),    &
-     &                            staVid(idUair,ng))
-          END IF
-          IF (TRIM(varnam(i)).eq.TRIM(Vname(1,idVair))) THEN
-            got_var(idVair)=.TRUE.
-            status=nf90_inq_varid(ncSTAid(ng),TRIM(Vname(1,idVair)),    &
-     &                            staVid(idVair,ng))
           END IF
 #  endif
 #  ifdef SHORTWAVE
@@ -2240,6 +2262,28 @@
           RETURN
         END IF
 #  endif
+#  if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS
+        IF (.not.got_var(idPair).and.Sout(idPair,ng)) THEN
+          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idPair)),          &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+#  endif
+#  if defined BULK_FLUXES || defined ECOSIM
+        IF (.not.got_var(idUair).and.Sout(idUair,ng)) THEN
+          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idUair)),          &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idVair).and.Sout(idVair,ng)) THEN
+          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idVair)),          &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+#  endif
         IF (.not.got_var(idTsur(itemp)).and.Sout(idTsur(itemp),ng)) THEN
           IF (Master) WRITE (stdout,60) TRIM(Vname(1,idTsur(itemp))),   &
      &                                  TRIM(ncname)
@@ -2268,16 +2312,6 @@
         IF (.not.got_var(idLrad).and.Sout(idLrad,ng)) THEN
           IF (Master) WRITE (stdout,60) TRIM(Vname(1,idLrad)),          &
      &                                  TRIM(ncname)
-          exit_flag=3
-          RETURN
-        END IF
-        IF (.not.got_var(idUair).and.Sout(idUair,ng)) THEN
-          WRITE (stdout,60) TRIM(Vname(1,idUair)), TRIM(ncname)
-          exit_flag=3
-          RETURN
-        END IF
-        IF (.not.got_var(idVair).and.Sout(idVair,ng)) THEN
-          WRITE (stdout,60) TRIM(Vname(1,idVair)), TRIM(ncname)
           exit_flag=3
           RETURN
         END IF
