@@ -46,6 +46,9 @@
 !
 # include "tile.h"
 !
+# ifdef PROFILE
+      CALL wclock_on (ng, iNLM, 1)
+# endif
       CALL ini_fields_tile (ng, tile, model,                            &
      &                      LBi, UBi, LBj, UBj,                         &
      &                      IminS, ImaxS, JminS, JmaxS,                 &
@@ -90,7 +93,9 @@
      &                      OCEAN(ng) % ubar,                           &
      &                      OCEAN(ng) % vbar,                           &
      &                      OCEAN(ng) % zeta)
-
+# ifdef PROFILE
+      CALL wclock_off (ng, iNLM, 1)
+# endif
       RETURN
       END SUBROUTINE ini_fields
 !
@@ -868,6 +873,9 @@
 !
 # include "tile.h"
 !
+# ifdef PROFILE
+      CALL wclock_on (ng, iNLM, 1)
+# endif
       CALL ini_zeta_tile (ng, tile, model,                              &
      &                    LBi, UBi, LBj, UBj,                           &
      &                    IminS, ImaxS, JminS, JmaxS,                   &
@@ -888,7 +896,9 @@
      &                    COUPLING(ng) % Zt_avg1,                       &
 # endif
      &                    OCEAN(ng) % zeta)
-
+# ifdef PROFILE
+      CALL wclock_off (ng, iNLM, 1)
+# endif
       RETURN
       END SUBROUTINE ini_zeta
 !
