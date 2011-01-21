@@ -23,6 +23,9 @@
 #ifdef RDRG_GRID
       USE mod_forces
 #endif
+#ifdef WTYPE_GRID
+      USE mod_mixing
+#endif
 !
 # if defined EW_PERIODIC || defined NS_PERIODIC
       USE exchange_2d_mod
@@ -127,6 +130,14 @@
         RETURN
       END IF
 # endif
+# ifdef WTYPE_GRID
+      IF (.not.find_string(var_name,n_var,'wtype_grid',vindex)) THEN
+        IF (Master) WRITE (stdout,10) 'wtype_grid', TRIM(ncname)
+        exit_flag=2
+        RETURN
+      END IF
+# endif
+
       IF (.not.find_string(var_name,n_var,'f',vindex)) THEN
         IF (Master) WRITE (stdout,10) 'f', TRIM(ncname)
         exit_flag=2
@@ -462,6 +473,37 @@
      &                          LBi, UBi, LBj, UBj,                     &
      &                          NghostPoints, EWperiodic, NSperiodic,   &
      &                          FORCES(ng) % rdrg_grid)
+#  endif
+# endif
+# if defined WTYPE_GRID && ! defined ANA_WTYPE
+!
+!  Read in Jerlov water type.
+!
+          CASE ('wtype_grid')
+            gtype=r2dvar
+            status=nf_fread2d(ng, model, ncname, ncGRDid(ng),           &
+     &                        var_name(it), var_id(it), 0,              &
+     &                        gtype, Vsize, LBi, UBi, LBj, UBj,         &
+     &                        Fscl, Fmin, Fmax,                         &
+#  ifdef MASKING
+     &                        GRID(ng) % rmask,                         &
+#  endif
+     &                        MIXING(ng) % wtype_grid)
+            IF (status.ne.nf90_noerr) THEN
+              exit_flag=2
+              ioerror=status
+              EXIT
+            END IF
+#  if defined EW_PERIODIC || defined NS_PERIODIC
+            CALL exchange_r2d_tile (ng, tile,                           &
+     &                              LBi, UBi, LBj, UBj,                 &
+     &                              MIXING(ng) % wtype_grid)
+#  endif
+#  ifdef DISTRIBUTE
+            CALL mp_exchange2d (ng, tile, model, 1,                     &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          NghostPoints, EWperiodic, NSperiodic,   &
+     &                          MIXING(ng) % wtype_grid)
 #  endif
 # endif
 !
