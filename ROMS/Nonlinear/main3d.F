@@ -107,8 +107,9 @@
 # if defined ICE_MODEL && defined ICE_THERMO
       USE ice_frazil_mod, ONLY : ice_frazil
 # endif
-# ifdef MOVE_SET_DEPTH
       USE set_depth_mod, ONLY : set_depth
+# ifdef MASKING
+      USE set_masks_mod, ONLY : set_masks
 # endif
       USE set_massflux_mod, ONLY : set_massflux
 # if defined SSH_TIDES || defined UV_TIDES || defined POT_TIDES
@@ -214,6 +215,9 @@
           subs=NtileX(ng)*NtileE(ng)/numthreads
           DO tile=subs*(thread+1)-1,subs*thread,-1
             CALL ini_fields (ng, TILE, iNLM)
+# ifdef MASKING
+            CALL set_masks (ng, TILE, iNLM)
+# endif
           END DO
         END DO
 !$OMP END PARALLEL DO
