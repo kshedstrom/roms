@@ -227,9 +227,6 @@
           real(r8), pointer :: bustr(:,:)
           real(r8), pointer :: bvstr(:,:)
 #endif
-#ifdef RDRG_GRID
-          real(r8), pointer :: rdrg_grid(:,:)
-#endif
 
 #ifdef WAVES_DIR
           real(r8), pointer :: Dwave(:,:)
@@ -608,9 +605,6 @@
 # endif
       allocate ( FORCES(ng) % bustr(LBi:UBi,LBj:UBj) )
       allocate ( FORCES(ng) % bvstr(LBi:UBi,LBj:UBj) )
-#endif
-#ifdef RDRG_GRID
-      allocate ( FORCES(ng) % rdrg_grid(LBi:UBi,LBj:UBj) )
 #endif
 
 #ifdef WAVES_DIR
@@ -1086,9 +1080,6 @@
 # endif
             FORCES(ng) % bustr(i,j) = IniVal
             FORCES(ng) % bvstr(i,j) = IniVal
-# ifdef RDRG_GRID
-            FORCES(ng) % rdrg_grid(i,j) = IniVal
-# endif
 # ifdef WAVES_DIR
             FORCES(ng) % Dwave(i,j) = IniVal
 #  ifndef ANA_WWAVE

@@ -1964,7 +1964,74 @@
         END IF
       END IF
 # endif
-# ifndef ADJUST_STFLUX
+# if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS
+!
+!  Write out surface air pressure.
+!
+      IF (Hout(idPair,ng)) THEN
+        scale=1.0_r8
+        gtype=gfactor*r2dvar
+        status=nf_fwrite2d(ng, iNLM, ncHISid(ng), hisVid(idPair,ng),    &
+     &                     tHISindx(ng), gtype,                         &
+     &                     LBi, UBi, LBj, UBj, scale,                   &
+#  ifdef MASKING
+     &                     GRID(ng) % rmask_io,                         &
+#  endif
+     &                     FORCES(ng) % Pair)
+        IF (status.ne.nf90_noerr) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,idPair)), tHISindx(ng)
+          END IF
+          exit_flag=3
+          ioerror=status
+          RETURN
+        END IF
+      END IF
+# endif
+# if defined BULK_FLUXES || defined ECOSIM
+!
+!  Write out surface winds.
+!
+      IF (Hout(idUair,ng)) THEN
+        scale=1.0_r8
+        gtype=gfactor*r2dvar
+        status=nf_fwrite2d(ng, iNLM, ncHISid(ng), hisVid(idUair,ng),    &
+     &                     tHISindx(ng), gtype,                         &
+     &                     LBi, UBi, LBj, UBj, scale,                   &
+#  ifdef MASKING
+     &                     GRID(ng) % rmask_io,                         &
+#  endif
+     &                     FORCES(ng) % Uwind)
+        IF (status.ne.nf90_noerr) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,idUair)), tHISindx(ng)
+          END IF
+          exit_flag=3
+          ioerror=status
+          RETURN
+        END IF
+      END IF
+
+      IF (Hout(idVair,ng)) THEN
+        scale=1.0_r8
+        gtype=gfactor*r2dvar
+        status=nf_fwrite2d(ng, iNLM, ncHISid(ng), hisVid(idVair,ng),    &
+     &                     tHISindx(ng), gtype,                         &
+     &                     LBi, UBi, LBj, UBj, scale,                   &
+#  ifdef MASKING
+     &                     GRID(ng) % rmask_io,                         &
+#  endif
+     &                     FORCES(ng) % Vwind)
+        IF (status.ne.nf90_noerr) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,idVair)), tHISindx(ng)
+          END IF
+          exit_flag=3
+          ioerror=status
+          RETURN
+        END IF
+      END IF
+# endif
 !
 !  Write out surface active traces fluxes.
 !
@@ -2061,50 +2128,6 @@
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
             WRITE (stdout,10) TRIM(Vname(1,idLrad)), tHISindx(ng)
-          END IF
-          exit_flag=3
-          ioerror=status
-          RETURN
-        END IF
-      END IF
-!
-!  Write out surface U-wind.
-!
-      IF (Hout(idUair,ng)) THEN
-        scale=1.0_r8
-        gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncHISid(ng), hisVid(idUair,ng),    &
-     &                     tHISindx(ng), gtype,                         &
-     &                     LBi, UBi, LBj, UBj, scale,                   &
-#ifdef MASKING
-     &                     GRID(ng) % rmask_io,                         &
-#endif
-     &                     FORCES(ng) % Uwind)
-        IF (status.ne.nf90_noerr) THEN
-          IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idUair)), tHISindx(ng)
-          END IF
-          exit_flag=3
-          ioerror=status
-          RETURN
-        END IF
-      END IF
-!
-!  Write out surface V-wind.
-!
-      IF (Hout(idVair,ng)) THEN
-        scale=1.0_r8
-        gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncHISid(ng), hisVid(idVair,ng),    &
-     &                     tHISindx(ng), gtype,                         &
-     &                     LBi, UBi, LBj, UBj, scale,                   &
-#ifdef MASKING
-     &                     GRID(ng) % rmask_io,                         &
-#endif
-     &                     FORCES(ng) % Vwind)
-        IF (status.ne.nf90_noerr) THEN
-          IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idVair)), tHISindx(ng)
           END IF
           exit_flag=3
           ioerror=status

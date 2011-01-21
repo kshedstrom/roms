@@ -61,7 +61,7 @@
 !#define AVERAGES_DETIDE
 #undef  UV_QDRAG        /* turn ON or OFF quadratic bottom friction */
 #define UV_LDRAG        /* turn ON or OFF lineat bottom friction */
-#define RDRG_GRID
+#define UV_DRAG_GRID
 #define DRAG_LIMITER
 #undef  MY25_MIXING
 #define GLS_MIXING

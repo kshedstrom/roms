@@ -95,7 +95,7 @@
 
 #define SCORRECTION
 
-#define RDRG_GRID
+#define UV_DRAG_GRID
 
 #define SSH_TIDES       /* turn on computation of tidal elevation */
 #define UV_TIDES        /* turn on computation of tidal currents */
