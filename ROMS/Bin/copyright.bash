@@ -38,8 +38,8 @@ c_dirs="Apps Compilers Master ROMS User"
 
 special_files="makefile Waves/SWAN/Src/Module.mk Waves/SWAN/Src/waves_coupler.F"
 
-setsvn=1
-verbose=0
+setsvn=0
+verbose=1
 
 while [ $# -gt 0 ]
 do
