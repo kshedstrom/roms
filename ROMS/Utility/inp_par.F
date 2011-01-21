@@ -1890,20 +1890,6 @@
                 Hout(i,ng)=Ltracer(itrc,ng)
               END DO
             END DO
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idUair)') THEN
-            IF (idUair.eq.0) THEN
-              IF (Master) WRITE (out,280) 'idUair'
-              exit_flag=5
-              RETURN
-            END IF
-            Npts=load_l(Nval, Cval, Ngrids, Hout(idUair,:))
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idVair)') THEN
-            IF (idVair.eq.0) THEN
-              IF (Master) WRITE (out,280) 'idVair'
-              exit_flag=5
-              RETURN
-            END IF
-            Npts=load_l(Nval, Cval, Ngrids, Hout(idVair,:))
           ELSE IF (TRIM(KeyWord).eq.'Hout(idUsms)') THEN
             IF (idUsms.eq.0) THEN
               IF (Master) WRITE (out,280) 'idUsms'
@@ -2170,6 +2156,33 @@
               RETURN
             END IF
             Npts=load_l(Nval, Cval, Ngrids, Hout(idWdis,:))
+#endif
+#ifdef SOLVE3D
+# if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS
+          ELSE IF (TRIM(KeyWord).eq.'Hout(idPair)') THEN
+            IF (idPair.eq.0) THEN
+              IF (Master) WRITE (out,280) 'idPair'
+              exit_flag=5
+              RETURN
+            END IF
+            Npts=load_l(Nval, Cval, Ngrids, Hout(idPair,:))
+# endif
+# if defined BULK_FLUXES || defined ECOSIM
+          ELSE IF (TRIM(KeyWord).eq.'Hout(idUair)') THEN
+            IF (idUair.eq.0) THEN
+              IF (Master) WRITE (out,280) 'idUair'
+              exit_flag=5
+              RETURN
+            END IF
+            Npts=load_l(Nval, Cval, Ngrids, Hout(idUair,:))
+          ELSE IF (TRIM(KeyWord).eq.'Hout(idVair)') THEN
+            IF (idPair.eq.0) THEN
+              IF (Master) WRITE (out,280) 'idVair'
+              exit_flag=5
+              RETURN
+            END IF
+            Npts=load_l(Nval, Cval, Ngrids, Hout(idVair,:))
+# endif
 #endif
           ELSE IF (TRIM(KeyWord).eq.'Hout(idTsur)') THEN
             IF (idTsur(itemp).eq.0) THEN
@@ -2666,6 +2679,18 @@
             Npts=load_l(Nval, Cval, Ngrids, Aout(idU3Sd,:))
           ELSE IF (TRIM(KeyWord).eq.'Aout(idV3Sd)') THEN
             Npts=load_l(Nval, Cval, Ngrids, Aout(idV3Sd,:))
+# ifdef SOLVE3D
+#  if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS
+          ELSE IF (TRIM(KeyWord).eq.'Aout(idPair)') THEN
+            Npts=load_l(Nval, Cval, Ngrids, Aout(idPair,:))
+#  endif
+#  if defined BULK_FLUXES || defined ECOSIM
+          ELSE IF (TRIM(KeyWord).eq.'Aout(idUair)') THEN
+            Npts=load_l(Nval, Cval, Ngrids, Aout(idUair,:))
+          ELSE IF (TRIM(KeyWord).eq.'Aout(idVair)') THEN
+            Npts=load_l(Nval, Cval, Ngrids, Aout(idVair,:))
+#  endif
+# endif
           ELSE IF (TRIM(KeyWord).eq.'Aout(idTsur)') THEN
             Npts=load_l(Nval, Cval, NAT*Ngrids, Ltracer)
             DO ng=1,Ngrids
@@ -3720,6 +3745,7 @@
             END DO
             USRname=TRIM(ADJUSTL(Cval(Nval)))
           END IF
+          IF (exit_flag.ne.NoError) RETURN
         END IF
       END DO
   10  IF (Master) WRITE (out,50) line
@@ -4621,12 +4647,6 @@
      &       'Hout(idWro)',                                             &
      &       'Write out ice melt runoff rate.'
 #endif
-          IF (Hout(idUair,ng)) WRITE (out,170) Hout(idUair,ng),         &
-     &       'Hout(idUair)',                                            &
-     &       'Write out surface U-winds.'
-          IF (Hout(idVair,ng)) WRITE (out,170) Hout(idVair,ng),         &
-     &       'Hout(idVair)',                                            &
-     &       'Write out surface V-winds.'
           IF (Hout(idUsms,ng)) WRITE (out,170) Hout(idUsms,ng),         &
      &       'Hout(idUsms)',                                            &
      &       'Write out surface U-momentum stress.'
@@ -4777,6 +4797,19 @@
           END DO
 #endif
 #ifdef SOLVE3D
+# if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS
+          IF (Hout(idPair,ng)) WRITE (out,170) Hout(idPair,ng),         &
+     &       'Hout(idPair)',                                            &
+     &       'Write out surface air pressure.'
+# endif
+# if defined BULK_FLUXES || defined ECOSIM
+          IF (Hout(idUair,ng)) WRITE (out,170) Hout(idUair,ng),         &
+     &       'Hout(idUair)',                                            &
+     &       'Write out surface U-wind component.'
+          IF (Hout(idVair,ng)) WRITE (out,170) Hout(idVair,ng),         &
+     &       'Hout(idVair)',                                            &
+     &       'Write out surface V-wind component.'
+# endif
           IF (Hout(idTsur(itemp),ng)) WRITE (out,170)                   &
      &        Hout(idTsur(itemp),ng), 'Hout(idTsur)',                   &
      &       'Write out surface net heat flux.'
@@ -5306,6 +5339,19 @@
           END DO
 # endif
 # ifdef SOLVE3D
+#  if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS
+          IF (Aout(idPair,ng)) WRITE (out,170) Aout(idPair,ng),         &
+     &       'Aout(idPair)',                                            &
+     &       'Write out averaged surface air pressure.'
+#  endif
+#  if defined BULK_FLUXES || defined ECOSIM
+          IF (Aout(idUair,ng)) WRITE (out,170) Aout(idUair,ng),         &
+     &       'Aout(idUair)',                                            &
+     &       'Write out averaged surface U-wind component.'
+          IF (Aout(idVair,ng)) WRITE (out,170) Aout(idVair,ng),         &
+     &       'Aout(idVair)',                                            &
+     &       'Write out averaged surface V-wind component.'
+#  endif
           IF (Aout(idTsur(itemp),ng)) WRITE (out,170)                   &
      &        Aout(idTsur(itemp),ng), 'Aout(idTsur)',                   &
      &       'Write out averaged surface net heat flux.'
@@ -8103,10 +8149,6 @@
                 Sout(idTvar(itrc),ng)=Lsta(itrc,ng)
               END DO
             END DO
-          ELSE IF (TRIM(KeyWord).eq.'Sout(idUair)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idUair,1))
-          ELSE IF (TRIM(KeyWord).eq.'Sout(idVair)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idVair,1))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idUsms)') THEN
             Npts=load_l(Nval, Cval, Ngrids, Sout(idUsms,:))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idVsms)') THEN
@@ -8189,6 +8231,17 @@
           ELSE IF (TRIM(KeyWord).eq.'Sout(idWdis)') THEN
             Npts=load_l(Nval, Cval, Ngrids, Sout(idWdis,:))
 # endif
+# ifdef SOLVE3D
+#  if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS
+          ELSE IF (TRIM(KeyWord).eq.'Sout(idPair)') THEN
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idPair,:))
+#  endif
+#  if defined BULK_FLUXES || defined ECOSIM
+          ELSE IF (TRIM(KeyWord).eq.'Sout(idUair)') THEN
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idUair,:))
+          ELSE IF (TRIM(KeyWord).eq.'Sout(idVair)') THEN
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idVair,:))
+#  endif
           ELSE IF (TRIM(KeyWord).eq.'Sout(idTsur)') THEN
             Npts=load_l(Nval, Cval, NAT*Ngrids, Lsta)
             DO ng=1,Ngrids
@@ -8232,7 +8285,7 @@
             Npts=load_l(Nval, Cval, Ngrids, Sout(idMtke,:))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idMtls)') THEN
             Npts=load_l(Nval, Cval, Ngrids, Sout(idMtls,:))
-# if defined SOLVE3D && (defined BBL_MODEL || defined SEDIMENT)
+#  if defined BBL_MODEL || defined SEDIMENT
           ELSE IF (TRIM(KeyWord).eq.'Sout(idBott)') THEN
             Npts=load_l(Nval, Cval, MBOTP*Ngrids, Lbottom)
             DO ng=1,Ngrids
@@ -8241,6 +8294,7 @@
                 Sout(i,ng)=Lbottom(itrc,ng)
               END DO
             END DO
+#  endif
 # endif
 # if defined SOLVE3D && defined ICE_MODEL
           ELSE IF (TRIM(KeyWord).eq.'Sout(idUice)') THEN
@@ -8377,12 +8431,6 @@
      &            'Write out tracer ', itrc, TRIM(Vname(1,idTvar(itrc)))
             END DO
 # endif
-            IF (Sout(idUair,ng)) WRITE (out,80) Sout(idUair,ng),        &
-     &          'Sout(idUair)',                                         &
-     &          'Write out surface U-wind.'
-            IF (Sout(idVair,ng)) WRITE (out,80) Sout(idVair,ng),        &
-     &          'Sout(idVair)',                                         &
-     &          'Write out surface V-wind.'
             IF (Sout(idUsms,ng)) WRITE (out,80) Sout(idUsms,ng),        &
      &          'Sout(idUsms)',                                         &
      &          'Write out surface U-momentum stress.'
@@ -8523,6 +8571,19 @@
             END DO
 # endif
 # ifdef SOLVE3D
+#  if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS
+            IF (Sout(idPair,ng)) WRITE (out,80) Sout(idPair,ng),        &
+     &          'Sout(idPair)',                                         &
+     &          'Write out surface air pressure.'
+#  endif
+#  if defined BULK_FLUXES || defined ECOSIM
+            IF (Sout(idUair,ng)) WRITE (out,80) Sout(idUair,ng),        &
+     &          'Sout(idUair)',                                         &
+     &          'Write out surface U-wind component.'
+            IF (Sout(idVair,ng)) WRITE (out,80) Sout(idVair,ng),        &
+     &          'Sout(idVair)',                                         &
+     &          'Write out surface V-wind component.'
+#  endif
             IF (Sout(idTsur(itemp),ng)) WRITE (out,80)                  &
      &          Sout(idTsur(itemp),ng), 'Sout(idTsur)',                 &
      &          'Write out surface net heat flux.'

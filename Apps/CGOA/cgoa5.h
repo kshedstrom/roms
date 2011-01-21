@@ -162,7 +162,7 @@
 # define TIDES_ASTRO
 # undef POT_TIDES
 # define UV_LDRAG
-# define RDRG_GRID
+# define UV_DRAG_GRID
 #else
 #define UV_QDRAG
 #endif
