@@ -73,8 +73,8 @@
 ! Time-Stepping parameters.
 
       NTIMES == 4320
-          DT == 200.0d0
-     NDTFAST == 20
+          DT == 100.0d0
+     NDTFAST == 1
 
 ! Model iteration loops parameters.
 
