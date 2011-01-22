@@ -945,7 +945,6 @@
      &                                GRID(ng)%rmask_io(i,j)
 # endif
             END DO
-            END DO
           END DO
         END IF
         IF (Aout(idWao,ng)) THEN
@@ -956,7 +955,6 @@
               AVERAGE(ng)%avgWao(i,j)=AVERAGE(ng)%avgWao(i,j)*          &
      &                                GRID(ng)%rmask_io(i,j)
 # endif
-            END DO
             END DO
           END DO
         END IF
@@ -969,7 +967,6 @@
      &                                GRID(ng)%rmask_io(i,j)
 # endif
             END DO
-            END DO
           END DO
         END IF
         IF (Aout(idWro,ng)) THEN
@@ -980,7 +977,6 @@
               AVERAGE(ng)%avgWro(i,j)=AVERAGE(ng)%avgWro(i,j)*          &
      &                                GRID(ng)%rmask_io(i,j)
 # endif
-            END DO
             END DO
           END DO
         END IF
@@ -993,7 +989,6 @@
      &                                GRID(ng)%rmask_io(i,j)
 # endif
             END DO
-            END DO
           END DO
         END IF
         IF (Aout(idChuiw,ng)) THEN
@@ -1004,7 +999,6 @@
               AVERAGE(ng)%avgchu_iw(i,j)=AVERAGE(ng)%avgchu_iw(i,j)*    &
      &                                GRID(ng)%rmask_io(i,j)
 # endif
-            END DO
             END DO
           END DO
         END IF
@@ -3206,7 +3200,6 @@
           END IF
         END DO
 
-<<<<<<< HEAD
 #  ifdef NEMURO_SED1
         IF (Aout(idPONsed,ng)) THEN
           DO j=JstrR,JendR
@@ -3223,7 +3216,7 @@
             END DO
           END DO
         END IF
-=======
+#  endif
 #  if defined SEDIMENT && defined BEDLOAD
         DO it=1,NST
           IF (Aout(idUbld(it),ng)) THEN
@@ -3244,7 +3237,6 @@
             END DO
           END IF
         END DO
->>>>>>> 4a46a10... src:ticket:476
 #  endif
 
 #  if defined LMD_MIXING || defined MY25_MIXING || defined GLS_MIXING
