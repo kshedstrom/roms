@@ -1795,7 +1795,6 @@
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idLrad))) THEN
             got_var(idLrad)=.TRUE.
             staVid(idLrad,ng)=var_id(i)
-          END IF
 #  endif
 #  ifdef SHORTWAVE
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idSrad))) THEN
