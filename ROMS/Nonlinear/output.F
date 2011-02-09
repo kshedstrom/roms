@@ -426,7 +426,7 @@
 !  append new data to it.
 !
         IF (LdefSTA(ng).and.(iic(ng).eq.ntstart(ng))) THEN
-#if defined NEP5 || defined BERING
+#if defined NEP5 || defined BERING || defined CORAL
           CALL def_station (ng, .true.)
 #else
           CALL def_station (ng, ldefout(ng))
