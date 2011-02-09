@@ -141,7 +141,7 @@
 #endif
       integer :: i, j
 
-      real(r8) :: cff, rdrg, h0
+      real(r8) :: cff, h0
 
 #include "set_bounds.h"
 !
@@ -157,11 +157,11 @@
 !
 #if defined NEP5
 # if defined UV_LDRAG
-      rdrg =  3.0d-04
+      cff =  3.0d-04
       h0 = 150.
       DO j=JstrR,JendR
         DO i=IstrR,IendR
-          rdrag(i,j)=rdrg + (h0-GRID(ng)%h(i,j))*57.0d-4/h0
+          rdrag(i,j)=cff + (h0-GRID(ng)%h(i,j))*57.0d-4/h0
         END DO
       END DO
 # elif defined UV_QDRAG

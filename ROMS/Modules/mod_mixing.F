@@ -136,7 +136,11 @@
 !
 #ifdef SOLVE3D
 # if defined LMD_SKPP || defined SOLAR_SOURCE
+#   if defined WTYPE_GRID
+          real(r8), pointer :: Jwtype(:,:)
+#   else
           integer,  pointer :: Jwtype(:,:)
+#   endif
 # endif
 # if defined LMD_SKPP || defined LMD_BKPP
           integer,  pointer :: ksbl(:,:)
@@ -892,9 +896,15 @@
           END DO
 # endif
 # if defined LMD_SKPP || defined SOLAR_SOURCE
+#   if defined WTYPE_GRID
+          DO i=Imin,Imax
+            MIXING(ng) % Jwtype(i,j) = IniVal
+          END DO
+#   else
           DO i=Imin,Imax
             MIXING(ng) % Jwtype(i,j) = lmd_Jwt(ng)
           END DO
+#   endif
 # endif
 # if defined LMD_SKPP || defined LMD_BKPP
           DO i=Imin,Imax
