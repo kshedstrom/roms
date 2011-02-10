@@ -488,7 +488,7 @@
 #  ifdef MASKING
      &                        GRID(ng) % rmask,                         &
 #  endif
-     &                        MIXING(ng) % wtype_grid)
+     &                        MIXING(ng) % Jwtype)
             IF (status.ne.nf90_noerr) THEN
               exit_flag=2
               ioerror=status
@@ -497,13 +497,13 @@
 #  if defined EW_PERIODIC || defined NS_PERIODIC
             CALL exchange_r2d_tile (ng, tile,                           &
      &                              LBi, UBi, LBj, UBj,                 &
-     &                              MIXING(ng) % wtype_grid)
+     &                              MIXING(ng) % Jwtype)
 #  endif
 #  ifdef DISTRIBUTE
             CALL mp_exchange2d (ng, tile, model, 1,                     &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          NghostPoints, EWperiodic, NSperiodic,   &
-     &                          MIXING(ng) % wtype_grid)
+     &                          MIXING(ng) % Jwtype)
 #  endif
 # endif
 !
