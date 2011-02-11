@@ -158,7 +158,7 @@
 #if defined NEP5
 # if defined UV_LDRAG
       cff =  3.0d-04
-      h0 = 150.
+      h0 = 1000.
       DO j=JstrR,JendR
         DO i=IstrR,IendR
           rdrag(i,j)=cff + (h0-GRID(ng)%h(i,j))*57.0d-4/h0
