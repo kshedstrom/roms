@@ -12,7 +12,7 @@
 **  Options for Northeast Pacific (NEP5) simulation
 */
 
-#undef NO_HIS
+#define NO_HIS
 #undef NETCDF4
 #undef PARALLEL_IO
 #undef OFFLINE_FLOATS
@@ -27,8 +27,8 @@
 #ifdef SOLVE3D
 # undef SPLINES
 #endif
-#undef FLOATS
-#undef STATIONS
+#define FLOATS
+#define STATIONS
 #undef WET_DRY
 
 #undef T_PASSIVE
@@ -66,7 +66,7 @@
 #define NO_WRITE_GRID
 #undef OUT_DOUBLE
 #define RST_SINGLE
-#undef AVERAGES
+#define AVERAGES
 #undef AVERAGES2
 #ifdef SOLVE3D
 # undef AVERAGES_DETIDE
@@ -164,8 +164,8 @@
 /* Using Runoff instead now */
 #ifdef SOLVE3D
 # define RUNOFF
-# define UV_PSOURCE
-# define ANA_PSOURCE
+# undef UV_PSOURCE
+# undef ANA_PSOURCE
 # undef TS_PSOURCE
 #endif
 
@@ -173,7 +173,7 @@
 
 #define LTIDES
 #ifdef LTIDES
-# undef FILTERED
+# define FILTERED
 # define SSH_TIDES
 # define UV_TIDES
 # define ADD_FSOBC
@@ -193,7 +193,7 @@
 
 /* Boundary conditions...careful with grid orientation */
 
-#define EASTERN_WALL
+#undef EASTERN_WALL
 #define NORTHERN_WALL
 #undef WESTERN_WALL
 #undef SOUTHERN_WALL
