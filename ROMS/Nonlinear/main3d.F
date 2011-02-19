@@ -132,7 +132,9 @@
       USE fish_by_cell_mod, ONLY : fish_by_cell
       USE fish_spawn_mod, ONLY : fish_spawn
       USE new_year_mod, ONLY : new_year
+#  if defined FLEET
       USE new_year_fleet_mod, ONLY : new_year_fleet
+#  endif
 #  ifdef PREDATOR
       USE step_pred_mod, ONLY : step_pred
       USE pred_by_cell_mod, ONLY : pred_by_cell

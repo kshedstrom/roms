@@ -966,12 +966,8 @@
 !  Fish restart switch.
 !
       integer, dimension(Ngrids) :: fishrrec
-# ifdef PREDATOR
       integer, dimension(Ngrids) :: predrrec
-# endif
-# ifdef FLEET
       integer, dimension(Ngrids) :: fleetrrec
-# endif
 #endif
 !
 !  Switch to activate processing of input data.  This switch becomes

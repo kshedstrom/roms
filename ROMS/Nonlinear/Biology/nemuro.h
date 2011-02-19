@@ -66,7 +66,7 @@
       CALL biology_tile (ng, tile,                                      &
      &                   LBi, UBi, LBj, UBj, N(ng), NT(ng),             &
      &                   IminS, ImaxS, JminS, JmaxS,                    &
-     &                   nstp(ng), nnew(ng),                            &
+     &                   nstp(ng), nnew(ng), nfm1(ng),                  &
 #ifdef MASKING
      &                   GRID(ng) % rmask,                              &
 #endif
@@ -99,7 +99,7 @@
       SUBROUTINE biology_tile (ng, tile,                                &
      &                         LBi, UBi, LBj, UBj, UBk, UBt,            &
      &                         IminS, ImaxS, JminS, JmaxS,              &
-     &                         nstp, nnew,                              &
+     &                         nstp, nnew, nfm1,                        &
 #ifdef MASKING
      &                         rmask,                                   &
 #endif
@@ -127,7 +127,7 @@
 #if defined NEMURO_SAN && defined FISH_FEEDBACK
       USE mod_fish
       USE mod_grid
-      USE mod_stepping
+!     USE mod_stepping
 #endif
 !
 !  Imported variable declarations.
@@ -135,7 +135,7 @@
       integer, intent(in) :: ng, tile
       integer, intent(in) :: LBi, UBi, LBj, UBj, UBk, UBt
       integer, intent(in) :: IminS, ImaxS, JminS, JmaxS
-      integer, intent(in) :: nstp, nnew
+      integer, intent(in) :: nstp, nnew, nfm1
 #if defined NEMURO_SAN && defined FISH_FEEDBACK
       type(fishnode), target, intent(in) :: fishnodes(Nfish(ng))
       real(r8), intent(in) :: feedback(NT(ng),Nfish(ng))
@@ -290,8 +290,8 @@
               thisfish => fish_list(i,j) % next
               DO ifish=1,fish_count(i,j)
                 ifid = thisfish % fish
-                xR=FISHES(ng)%track(ixgrd,nfm1(ng),ifid)
-                yR=FISHES(ng)%track(iygrd,nfm1(ng),ifid)
+                xR=FISHES(ng)%track(ixgrd,nfm1,ifid)
+                yR=FISHES(ng)%track(iygrd,nfm1,ifid)
                 Kr=NINT(FISHES(ng)%track(izgrd,nnew,ifid))
                 IF (((xR-REAL(i,r8)).lt.MinVal).and.                    &
      &              ((yR-REAL(j,r8)).lt.MinVal)) THEN

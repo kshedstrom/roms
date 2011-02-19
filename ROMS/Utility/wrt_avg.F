@@ -2470,50 +2470,6 @@
           RETURN
         END IF
       END IF
-!
-!  Write out surface u-wind.
-!
-      IF (Aout(idUair,ng)) THEN
-        scale=1.0_r8
-        gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idUair,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
-     &                     LBi, UBi, LBj, UBj, scale,                   &
-#  ifdef MASKING
-     &                     GRID(ng) % rmask_avg,                        &
-#  endif
-     &                     AVERAGE(ng) % avguwind)
-        IF (status.ne.nf90_noerr) THEN
-          IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idUair)), tAVGindx(ng)
-          END IF
-          exit_flag=3
-          ioerror=status
-          RETURN
-        END IF
-      END IF
-!
-!  Write out surface v-wind.
-!
-      IF (Aout(idVair,ng)) THEN
-        scale=1.0_r8
-        gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idVair,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
-     &                     LBi, UBi, LBj, UBj, scale,                   &
-#  ifdef MASKING
-     &                     GRID(ng) % rmask_avg,                        &
-#  endif
-     &                     AVERAGE(ng) % avgvwind)
-        IF (status.ne.nf90_noerr) THEN
-          IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idVair)), tAVGindx(ng)
-          END IF
-          exit_flag=3
-          ioerror=status
-          RETURN
-        END IF
-      END IF
 #   ifdef EMINUSP
 !
 !  Write out evaportaion rate (kg/m2/s).

@@ -20,8 +20,6 @@
 !  avgzeta    Free surface (m).                                        !
 
 # ifdef SOLVE3D
-!  avguwind   2D wind velocity component (m/s) in the XI-direction.    !
-!  avgvwind   2D wind velocity component (m/s) in the ETA-direction.   !
 !  avgu3d     3D velocity component (m/s) in the XI-direction.         !
 !  avgv3d     3D velocity component (m/s) in the ETA-direction.        !
 !  avgw3d     S-coordinate [omega*Hz/mn] vertical velocity (m3/s).     !
@@ -241,8 +239,6 @@
           real(r8), pointer :: avglhf(:,:)
           real(r8), pointer :: avglrf(:,:)
           real(r8), pointer :: avgshf(:,:)
-          real(r8), pointer :: avguwind(:,:)
-          real(r8), pointer :: avgvwind(:,:)
           real(r8), pointer :: avgsssflx(:,:)
 #   ifdef EMINUSP
           real(r8), pointer :: avgevap(:,:)
@@ -547,12 +543,6 @@
       END IF
       IF (Aout(idShea,ng)) THEN
         allocate ( AVERAGE(ng) % avgshf(LBi:UBi,LBj:UBj) )
-      END IF
-      IF (Aout(idUair,ng)) THEN
-        allocate ( AVERAGE(ng) % avguwind(LBi:UBi,LBj:UBj) )
-      END IF
-      IF (Aout(idVair,ng)) THEN
-        allocate ( AVERAGE(ng) % avgvwind(LBi:UBi,LBj:UBj) )
       END IF
       IF (Aout(idSSSf,ng)) THEN
         allocate ( AVERAGE(ng) % avgsssflx(LBi:UBi,LBj:UBj) )
@@ -1125,20 +1115,6 @@
         DO j=Jmin,Jmax
           DO i=Imin,Imax
             AVERAGE(ng) % avgshf(i,j) = IniVal
-          END DO
-        END DO
-      END IF
-      IF (Aout(idUair,ng)) THEN
-        DO j=Jmin,Jmax
-          DO i=Imin,Imax
-            AVERAGE(ng) % avguwind(i,j) = IniVal
-          END DO
-        END DO
-      END IF
-      IF (Aout(idVair,ng)) THEN
-        DO j=Jmin,Jmax
-          DO i=Imin,Imax
-            AVERAGE(ng) % avgvwind(i,j) = IniVal
           END DO
         END DO
       END IF
