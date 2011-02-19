@@ -475,6 +475,12 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+11)=' ANA_WINDS,'
 #endif
+#if defined ANA_WTYPE
+      IF (Master) WRITE (stdout,20) 'ANA_WTYPE',                         &
+     &   'Analytical Jerlov water type.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+11)=' ANA_WTYPE,'
+#endif
 #ifdef ANA_WWAVE
       IF (Master) WRITE (stdout,20) 'ANA_WWAVE',                        &
      &   'Analytical wind induced waves.'
@@ -3191,6 +3197,12 @@
      &   'Two-way WRF/ROMS coupling.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+14)=' WRF_COUPLING,'
+#endif
+#if defined WTYPE_GRID
+      IF (Master) WRITE (stdout,20) 'WTYPE_GRID',                        &
+     &   'Spatially varying Jerlov water type.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+12)=' WTYPE_GRID,'
 #endif
 #ifdef ZCLIMATOLOGY
       IF (Master) WRITE (stdout,20) 'ZCLIMATOLOGY',                     &

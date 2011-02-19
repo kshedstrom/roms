@@ -48,6 +48,8 @@
      &                IminS, ImaxS, JminS, JmaxS,                       &
      &                nstp(ng), krhs(ng),                               &
      &                GRID(ng) % h,                                     &
+     &                GRID(ng) % pm,                                    &
+     &                GRID(ng) % pn,                                    &
      &                GRID(ng) % omn,                                   &
 #ifdef SOLVE3D
      &                GRID(ng) % Hz,                                    &
@@ -57,10 +59,10 @@
      &                OCEAN(ng) % u,                                    &
      &                OCEAN(ng) % v,                                    &
      &                OCEAN(ng) % t,                                    &
-#else
-# ifdef ICESHELF
+     &                OCEAN(ng) % wvel,                                 &
+#endif
+#ifdef ICESHELF
      &                GRID(ng) % zice,                                  &
-# endif
 #endif
      &                OCEAN(ng) % ubar,                                 &
      &                OCEAN(ng) % vbar,                                 &
@@ -79,14 +81,13 @@
      &                      LBi, UBi, LBj, UBj,                         &
      &                      IminS, ImaxS, JminS, JmaxS,                 &
      &                      nstp, krhs,                                 &
-     &                      h, omn,                                     &
+     &                      h, pm, pn, omn,                             &
 #ifdef SOLVE3D
      &                      Hz, z_r, z_w,                               &
-     &                      rho, u, v, t,                               &
-#else
-# ifdef ICESHELF
+     &                      rho, u, v, t, wvel,                         &
+#endif
+#ifdef ICESHELF
      &                      zice,                                       &
-# endif
 #endif
      &                      ubar, vbar, zeta)
 !***********************************************************************
@@ -101,6 +102,7 @@
 
 #ifdef DISTRIBUTE
       USE distribute_mod, ONLY : mp_reduce
+      USE distribute_mod, ONLY : mp_reduce2
 #endif
 !
       implicit none
@@ -114,6 +116,8 @@
 
 #ifdef ASSUMED_SHAPE
       real(r8), intent(in) :: h(LBi:,LBj:)
+      real(r8), intent(in) :: pm(LBi:,LBj:)
+      real(r8), intent(in) :: pn(LBi:,LBj:)
       real(r8), intent(in) :: omn(LBi:,LBj:)
 # ifdef SOLVE3D
       real(r8), intent(in) :: Hz(LBi:,LBj:,:)
@@ -123,16 +127,18 @@
       real(r8), intent(in) :: u(LBi:,LBj:,:,:)
       real(r8), intent(in) :: v(LBi:,LBj:,:,:)
       real(r8), intent(in) :: t(LBi:,LBj:,:,:,:)
-# else
-#  ifdef ICESHELF
+      real(r8), intent(in) :: wvel(LBi:,LBj:,0:)
+# endif
+# ifdef ICESHELF
       real(r8), intent(in) :: zice(LBi:,LBj:)
-#  endif
 # endif
       real(r8), intent(in) :: ubar(LBi:,LBj:,:)
       real(r8), intent(in) :: vbar(LBi:,LBj:,:)
       real(r8), intent(in) :: zeta(LBi:,LBj:,:)
 #else
       real(r8), intent(in) :: h(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: pm(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: pn(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: omn(LBi:UBi,LBj:UBj)
 # ifdef SOLVE3D
       real(r8), intent(in) :: Hz(LBi:UBi,LBj:UBj,N(ng))
@@ -142,10 +148,10 @@
       real(r8), intent(in) :: u(LBi:UBi,LBj:UBj,N(ng),2)
       real(r8), intent(in) :: v(LBi:UBi,LBj:UBj,N(ng),2)
       real(r8), intent(in) :: t(LBi:UBi,LBj:UBj,N(ng),NT(ng),2)
-# else
-#  ifdef ICESHELF
+      real(r8), intent(in) :: wvel(LBi:UBi,LBj:UBj,0:N(ng))
+# endif
+# ifdef ICESHELF
       real(r8), intent(in) :: zice(LBi:UBi,LBj:UBj)
-#  endif
 # endif
       real(r8), intent(in) :: ubar(LBi:UBi,LBj:UBj,3)
       real(r8), intent(in) :: vbar(LBi:UBi,LBj:UBj,3)
@@ -154,7 +160,9 @@
 !
 !  Local variable declarations.
 !
-      integer :: NSUB, i, j, k, trd, ibt, itrc
+      integer :: ibt, itrc
+      integer :: NSUB, i, ispace, j, k, trd
+      integer :: my_max_Ci, my_max_Cj, my_max_Ck
 #ifdef DISTRIBUTE
 # ifdef SOLVE3D
 #  ifdef BIOLOGY
@@ -162,16 +170,26 @@
 #  else
       integer, parameter :: Nreduce = 5
 #  endif
+      integer, parameter :: Ncourant = 7
 # else
       integer, parameter :: Nreduce = 4
+      integer, parameter :: Ncourant = 5
 # endif
       real(r8), allocatable           :: buffer(:)
       character (len=3), allocatable  :: op_handle(:)
+      character (len=6), allocatable  :: C_handle(:)
+      real(r8), dimension(Ncourant) :: Courant
 #else
       integer :: my_threadnum
 #endif
 
       real(r8) :: cff, my_avgke, my_avgpe, my_volume
+      real(r8) :: my_C , my_max_C
+      real(r8) :: my_Cu, my_max_Cu
+      real(r8) :: my_Cv, my_max_Cv
+#ifdef SOLVE3D
+      real(r8) :: my_Cw, my_max_Cw
+#endif
       real(r8) :: my_maxspeed, u2v2
 #ifdef SOLVE3D
       real(r8) :: my_maxrho
@@ -185,13 +203,14 @@
       integer :: ii_max, jj_max, kk_max
       real(r8) :: uv_max
 
-      character (len=8) :: kechar, pechar
+      character (len=8 ) :: kechar, pechar
+      character (len=60) :: frmt
 
 #include "set_bounds.h"
 !
 !-----------------------------------------------------------------------
 !  Compute and report out volume averaged kinetic, potential
-!  total energy, and volume.
+!  total energy, volume, Courant numbers.
 !-----------------------------------------------------------------------
 !
 #ifdef DISTRIBUTE
@@ -200,9 +219,19 @@
 # endif
       IF (.not. allocated(buffer))    allocate (buffer(Nreduce))
       IF (.not. allocated(op_handle)) allocate (op_handle(Nreduce))
+      IF (.not. allocated(C_handle)) allocate (C_handle(Nreduce))
 #endif
 
       IF (MOD(iic(ng)-1,ninfo(ng)).eq.0) THEN
+        my_max_C =0.0_r8
+        my_max_Cu=0.0_r8
+        my_max_Cv=0.0_r8
+#ifdef SOLVE3D
+        my_max_Cw=0.0_r8
+#endif
+        my_max_Ci=0
+        my_max_Cj=0
+        my_max_Ck=0
         my_maxspeed=0.0_r8
 #ifdef SOLVE3D
         my_maxrho=-1.0E+20_r8
@@ -230,6 +259,22 @@
               pe2d(i,j)=pe2d(i,j)+                                      &
      &                  cff*Hz(i,j,k)*(rho(i,j,k)+1000.0_r8)*           &
      &                  (z_r(i,j,k)-z_w(i,j,0))
+              my_Cu=0.5_r8*ABS(u(i,j,k,nstp)+u(i+1,j,k,nstp))*          &
+     &              dt(ng)*pm(i,j)
+              my_Cv=0.5_r8*ABS(v(i,j,k,nstp)+v(i,j+1,k,nstp))*          &
+     &              dt(ng)*pn(i,j)
+              my_Cw=0.5_r8*ABS(wvel(i,j,k-1)+wvel(i,j,k))*              &
+     &              dt(ng)/Hz(i,j,k)
+              my_C=my_Cu+my_Cv+my_Cw
+              IF (my_C.gt.my_max_C) THEN
+                my_max_C =my_C
+                my_max_Cu=my_Cu
+                my_max_Cv=my_Cv
+                my_max_Cw=my_Cw
+                my_max_Ci=i
+                my_max_Cj=j
+                my_max_Ck=k
+              END IF
               my_maxspeed=MAX(my_maxspeed,SQRT(0.5_r8*u2v2))
               my_maxrho=MAX(my_maxrho,rho(i,j,k))
             END DO
@@ -258,6 +303,18 @@
             ke2d(i,j)=(zeta(i,j,krhs)+h(i,j))*0.25_r8*u2v2
 # endif
             pe2d(i,j)=cff*zeta(i,j,krhs)*zeta(i,j,krhs)
+            my_Cu=0.5_r8*ABS(ubar(i,j,krhs)+ubar(i+1,j,krhs))*          &
+     &            dt(ng)*pn(i,j)
+            my_Cv=0.5_r8*ABS(vbar(i,j,krhs)+vbar(i,j+1,krhs))*          &
+     &            dt(ng)*pn(i,j)
+            my_C=my_Cu+my_Cv
+            IF (my_C.gt.my_max_C) THEN
+              my_max_C =my_C
+              my_max_Cu=my_Cu
+              my_max_Cv=my_Cv
+              my_max_Ci=i
+              my_max_Cj=j
+            END IF
             my_maxspeed=MAX(my_maxspeed,SQRT(0.5_r8*u2v2))
           END DO
 #endif
@@ -318,23 +375,34 @@
         END IF
 !$OMP CRITICAL (NL_DIAGNOSTICS)
         IF (tile_count.eq.0) THEN
-          volume=0.0_r8
-          avgke=0.0_r8
-          avgpe=0.0_r8
-          maxspeed(ng)=0.0_r8
+          volume=my_volume
+          avgke=my_avgke
+          avgpe=my_avgpe
+          maxspeed(ng)=my_maxspeed
 #ifdef SOLVE3D
-          maxrho(ng)=0.0_r8
+          maxrho(ng)=my_maxrho
 # ifdef BIOLOGY
           DO ibt=1,NBT
             maxbio(ibt,ng)=0.0_r8
           END DO
 # endif
 #endif
-        END IF
-        volume=volume+my_volume
-        avgke=avgke+my_avgke
-        avgpe=avgpe+my_avgpe
-        maxspeed(ng)=MAX(maxspeed(ng),my_maxspeed)
+          max_C =my_max_C
+          max_Cu=my_max_Cu
+          max_Cv=my_max_Cv
+#ifdef SOLVE3D
+          max_Cw=my_max_Cw
+#endif
+          max_Ci=my_max_Ci
+          max_Cj=my_max_Cj
+#ifdef SOLVE3D
+          max_Ck=my_max_Ck
+#endif
+        ELSE
+          volume=volume+my_volume
+          avgke=avgke+my_avgke
+          avgpe=avgpe+my_avgpe
+          maxspeed(ng)=MAX(maxspeed(ng),my_maxspeed)
 #ifdef SOLVE3D
         maxrho(ng)=MAX(maxrho(ng),my_maxrho)
 # ifdef BIOLOGY
@@ -343,6 +411,26 @@
         END DO
 # endif
 #endif
+          IF (my_max_C.eq.max_C) THEN
+            max_Ci=MIN(max_Ci,my_max_Ci)
+            max_Cj=MIN(max_Cj,my_max_Cj)
+#ifdef SOLVE3D
+            max_Ck=MIN(max_Ck,my_max_Ck)
+#endif
+          ELSE IF (my_max_C.gt.max_C) THEN
+            max_C =my_max_C
+            max_Cu=my_max_Cu
+            max_Cv=my_max_Cv
+#ifdef SOLVE3D
+            max_Cw=my_max_Cw
+#endif
+            max_Ci=my_max_Ci
+            max_Cj=my_max_Cj
+#ifdef SOLVE3D
+            max_Ck=my_max_Ck
+#endif
+          END IF
+        END IF
         tile_count=tile_count+1
         IF (tile_count.eq.NSUB) THEN
           tile_count=0
@@ -384,6 +472,28 @@
           END DO
 #  endif
 # endif
+!
+          Courant(1)=max_C
+          Courant(2)=max_Cu
+          Courant(3)=max_Cv
+          Courant(4)=REAL(max_Ci,r8)
+          Courant(5)=REAL(max_Cj,r8)
+# ifdef SOLVE3D
+          Courant(6)=max_Cw
+          Courant(7)=REAL(max_Ck,r8)
+# endif
+          C_handle(1)='MAXLOC'
+          CALL mp_reduce2 (ng, iNLM, Ncourant, 1, Courant, C_handle)
+          max_C =Courant(1)
+          max_Cu=Courant(2)
+          max_Cv=Courant(3)
+          max_Ci=INT(Courant(4))
+          max_Cj=INT(Courant(5))
+# ifdef SOLVE3D
+          max_Cw=Courant(6)
+          max_Ck=INT(Courant(7))
+# endif
+!
           trd=MyMaster
 #else
           trd=my_threadnum()
@@ -393,10 +503,50 @@
           avgkp=avgke+avgpe
           IF (first_time(ng).eq.0) THEN
             first_time(ng)=1
-            IF (Master) WRITE (stdout,10) 'STEP', 'Day HH:MM:SS',       &
-     &                                    'KINETIC_ENRG', 'POTEN_ENRG', &
-     &                                    'TOTAL_ENRG', 'NET_VOLUME'
- 10         FORMAT (/,3x,a,3x,a,2x,a,3x,a,4x,a,4x,a,/)
+            IF (Master) THEN
+              WRITE (stdout,10) 'STEP', 'Day HH:MM:SS',                 &
+     &                          'KINETIC_ENRG', 'POTEN_ENRG',           &
+     &                          'TOTAL_ENRG', 'NET_VOLUME'
+#ifdef SOLVE3D
+              WRITE (stdout,20) 'C => (i,j,k)', 'Cu', 'Cv',             &
+     &                          '  Cw  ', 'Max Speed'
+#else
+              WRITE (stdout,20) '  C => (i,j)', 'Cu', 'Cv',             &
+     &                          ' C Max', 'Max Speed'
+#endif
+ 10           FORMAT (/,3x,a,3x,a,2x,a,3x,a,4x,a,4x,a)
+ 20           FORMAT (10x,a,7x,a,12x,a,10x,a,7x,a,/)
+            END IF
+          END IF
+          IF (Master) THEN
+            WRITE (stdout,30) iic(ng)-1, time_code(ng),                 &
+     &                        avgke, avgpe, avgkp, volume
+#ifdef SOLVE3D
+            ispace=24-(6+Idigits(ng)+Jdigits(ng)+Kdigits(ng))
+            WRITE (frmt,40) ispace,                                     &
+     &                      '"("', Idigits(ng), Idigits(ng),            &
+     &                      '","', Jdigits(ng), Jdigits(ng),            &
+     &                      '","', Kdigits(ng), Kdigits(ng), '")"'
+            WRITE (stdout,frmt) max_Ci, max_Cj,                         &
+     &                          max_Ck, max_Cu, max_Cv, max_Cw,         &
+     &                          maxspeed(ng)
+#else
+            ispace=24-(5+Idigits(ng)+Jdigits(ng))
+            WRITE (frmt,40) ispace,                                     &
+     &                      '"("', Idigits(ng), Idigits(ng),            &
+     &                      '","', Jdigits(ng), Jdigits(ng), '")"'
+            WRITE (stdout,frmt) max_Ci, max_Cj,                         &
+     &                          max_Cu, max_Cv, max_C,                  &
+     &                          maxspeed(ng)
+#endif
+            CALL my_flush (stdout)
+ 30         FORMAT (i7,1x,a,4(1pe14.6))
+ 40         FORMAT ('(',i2.2,'x,',a,',i',i1,'.',i1,',',                 &
+     &                            a,',i',i1,'.',i1,',',                 &
+#ifdef SOLVE3D
+     &                            a,',i',i1,'.',i1,',',                 &
+#endif
+     &                            a,',t24,4(1pe13.6,1x))')
           END IF
           IF (Master) WRITE (stdout,20) iic(ng)-1, time_code(ng),       &
      &                                  avgke, avgpe, avgkp, volume
