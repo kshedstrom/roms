@@ -332,12 +332,12 @@
 !-----------------------------------------------------------------------
 !
 !$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(ng,numthreads)
-        DO thread=0,numthreads-1
-          subs=NtileX(ng)*NtileE(ng)/numthreads
-          DO tile=subs*thread,subs*(thread+1)-1
-            CALL ana_hmixcoef (ng, TILE, iNLM)
-          END DO
+      DO thread=0,numthreads-1
+        subs=NtileX(ng)*NtileE(ng)/numthreads
+        DO tile=subs*thread,subs*(thread+1)-1
+          CALL ana_hmixcoef (ng, TILE, iNLM)
         END DO
+      END DO
 !$OMP END PARALLEL DO
 #endif
 #endif /* OFFLINE_FLOATS */
@@ -352,12 +352,12 @@
 !  Clear state variables.
 !
 !$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(ng,numthreads)
-        DO thread=0,numthreads-1
-          subs=NtileX(ng)*NtileE(ng)/numthreads
-          DO tile=subs*thread,subs*(thread+1)-1
-            CALL initialize_ocean (ng, TILE, iNLM)
-          END DO
+      DO thread=0,numthreads-1
+        subs=NtileX(ng)*NtileE(ng)/numthreads
+        DO tile=subs*thread,subs*(thread+1)-1
+          CALL initialize_ocean (ng, TILE, iNLM)
         END DO
+      END DO
 !$OMP END PARALLEL DO
 #endif
 
@@ -616,7 +616,6 @@
 !  If applicable, read in input data.
 !
 # ifdef TIMELESS_DATA
-!
       CALL get_idata (ng)
 # endif
 # ifdef DISTRIBUTE
@@ -640,6 +639,24 @@
         CALL mp_bcasti (ng, iTLM, exit_flag)
 # endif
         IF (exit_flag.ne.NoError) RETURN
+      END IF
+#endif
+
+#if defined ANA_DRAG && defined UV_DRAG_GRID
+!
+!-----------------------------------------------------------------------
+!  Set analytical spatially varying bottom friction parameter.
+!-----------------------------------------------------------------------
+!
+      IF (Nrun.eq.ERstr) THEN
+!$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(ng,numthreads)
+        DO thread=0,numthreads-1
+          subs=NtileX(ng)*NtileE(ng)/numthreads
+          DO tile=subs*thread,subs*(thread+1)-1
+            CALL ana_drag (ng, TILE, iNLM)
+          END DO
+        END DO
+!$OMP END PARALLEL DO
       END IF
 #endif
 !
@@ -689,7 +706,7 @@
 #ifdef PROFILE
 !
 !-----------------------------------------------------------------------
-!  Turn off initiialization time wall clock.
+!  Turn off initialization time wall clock.
 !-----------------------------------------------------------------------
 !
 !$OMP PARALLEL DO PRIVATE(thread) SHARED(ng,numthreads)
