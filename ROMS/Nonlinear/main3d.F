@@ -108,9 +108,6 @@
       USE ice_frazil_mod, ONLY : ice_frazil
 # endif
       USE set_depth_mod, ONLY : set_depth
-# ifdef MASKING
-      USE set_masks_mod, ONLY : set_masks
-# endif
       USE set_massflux_mod, ONLY : set_massflux
 # if defined SSH_TIDES || defined UV_TIDES || defined POT_TIDES
       USE set_tides_mod, ONLY : set_tides
@@ -124,10 +121,6 @@
       USE step3d_uv_mod, ONLY : step3d_uv
 # ifdef FLOATS
       USE step_floats_mod, ONLY : step_floats
-# endif
-# if defined PROPAGATOR || \
-    (defined MASKING    && (defined READ_WATER || defined WRITE_WATER))
-      USE wpoints_mod, ONLY : wpoints
 # endif
       USE wvelocity_mod, ONLY : wvelocity
 !
@@ -208,9 +201,6 @@
           DO tile=subs*thread,subs*(thread+1)-1,+1
             CALL ini_zeta (ng, TILE, iNLM)
             CALL set_depth (ng, TILE)
-# ifdef MASKING
-            CALL set_masks (ng, TILE, iNLM)
-# endif
           END DO
         END DO
 !$OMP END PARALLEL DO
@@ -222,10 +212,6 @@
           subs=NtileX(ng)*NtileE(ng)/numthreads
           DO tile=subs*(thread+1)-1,subs*thread,-1
             CALL ini_fields (ng, TILE, iNLM)
-# if defined PROPAGATOR || \
-    (defined MASKING    && (defined READ_WATER || defined WRITE_WATER ))
-            CALL wpoints (ng, TILE, iNLM)
-# endif
           END DO
         END DO
 !$OMP END PARALLEL DO
