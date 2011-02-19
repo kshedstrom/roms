@@ -548,13 +548,6 @@
 #endif
      &                            a,',t24,4(1pe13.6,1x))')
           END IF
-          IF (Master) WRITE (stdout,20) iic(ng)-1, time_code(ng),       &
-     &                                  avgke, avgpe, avgkp, volume
- 20       FORMAT (i7,1x,a,4(1pe14.6))
-!#ifdef BIOLOGY
-!          IF (Master) print *, 'BIO in diag ', maxbio(:,ng)
-!#endif
-          IF (Master) CALL my_flush (stdout)
 !
 !  If blowing-up, set exit_flag to stop computations.
 !

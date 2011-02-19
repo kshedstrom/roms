@@ -950,7 +950,7 @@
           RETURN
         END IF
       END IF
-      
+
       !
 !  Write out Ice Nitrate
 !
@@ -979,7 +979,7 @@
 !  Write out Ice Ammonium
 !
       IF (Hout(idIceNH4,ng)) THEN
-!      IF (Hout(idIceBvar,ng)) THEN 
+!      IF (Hout(idIceBvar,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
         status=nf_fwrite2d(ng, iNLM, ncHISid(ng),                       &
@@ -1000,7 +1000,7 @@
           RETURN
         END IF
       END IF
-      
+
 !  Write out IceLog (doesn't work with IceLog being int)
 !
 #    ifdef FOO

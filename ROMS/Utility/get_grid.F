@@ -294,13 +294,13 @@
      &                        GRID(ng) % rmask,                         &
 # endif
      &                        GRID(ng) % h)
-            IF (status.eq.nf90_noerr) THEN
-              DO j=LBj,UBj
-                DO i=LBi,UBi
-                  IF (GRID(ng)%h(i,j) .eq. 0.0) GRID(ng) % h(i,j) = -1.
-                END DO
-              END DO
-            ELSE
+            IF (status.ne.nf90_noerr) THEN
+!             DO j=LBj,UBj
+!               DO i=LBi,UBi
+!                 IF (GRID(ng)%h(i,j) .eq. 0.0) GRID(ng) % h(i,j) = -1.
+!               END DO
+!             END DO
+!           ELSE
               IF (Master) THEN
                 WRITE (stdout,30) 'h', TRIM(ncname)
               END IF

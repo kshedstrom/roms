@@ -877,7 +877,7 @@
             Vinfo(16)=Vname(1,idtime)
 #  if defined WRITE_WATER && defined MASKING
             Vinfo(20)='mask_rho'
-#  endif   
+#  endif
             Vinfo(22)='coordinates'
             Aval(5)=REAL(r2dvar,r8)
             status=def_var(ng, model,ncavgid(ng),avgBid(itrc,ng),  &
@@ -905,9 +905,9 @@
           END IF
         END DO
 #elif defined BERING_10K
-!       
+!
 !  Define ice algae.
-!  
+!
         IF (Aout(idIcePhL,ng)) THEN
           Vinfo( 1)=Vname(1,idIcePhL)
           WRITE (Vinfo( 2),'(a,1x,a)') Prefix, TRIM(Vname(2,idIcePhL))
@@ -916,17 +916,17 @@
           Vinfo(16)=Vname(1,idtime)
 #  if defined WRITE_WATER && defined MASKING
           Vinfo(20)='mask_rho'
-#  endif   
+#  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idIcePhL,ng),r8)
           status=def_var(ng, model, ncAVGid(ng),                        &
      &                   avgVid(idIcePhL,ng), NF_FOUT,                  &
      &                   nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
-        END IF         
-       
+        END IF
+
 !  Define ice nitrate.
-!  
+!
         IF (Aout(idIceNO3,ng)) THEN
           Vinfo( 1)=Vname(1,idIceNO3)
           WRITE (Vinfo( 2),'(a,1x,a)') Prefix, TRIM(Vname(2,idIceNO3))
@@ -935,17 +935,17 @@
           Vinfo(16)=Vname(1,idtime)
 #  if defined WRITE_WATER && defined MASKING
           Vinfo(20)='mask_rho'
-#  endif   
+#  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idIceNO3,ng),r8)
           status=def_var(ng, model, ncAVGid(ng),                        &
      &                   avgVid(idIceNO3,ng), NF_FOUT,                  &
      &                   nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
-        END IF  
-       
+        END IF
+
 !  Define ice ammonium.
-!  
+!
         IF (Aout(idIceNH4,ng)) THEN
           Vinfo( 1)=Vname(1,idIceNH4)
           WRITE (Vinfo( 2),'(a,1x,a)') Prefix, TRIM(Vname(2,idIceNH4))
@@ -954,17 +954,17 @@
           Vinfo(16)=Vname(1,idtime)
 #  if defined WRITE_WATER && defined MASKING
           Vinfo(20)='mask_rho'
-#  endif   
+#  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idIceNH4,ng),r8)
           status=def_var(ng, model, ncAVGid(ng),                        &
      &                   avgVid(idIceNH4,ng), NF_FOUT,                  &
      &                   nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
-        END IF                          
-               
+        END IF
+
 !  Define ice log.
-!  
+!
         IF (Aout(idIceLog,ng)) THEN
           Vinfo( 1)=Vname(1,idIceLog)
           WRITE (Vinfo( 2),'(a,1x,a)') Prefix, TRIM(Vname(2,idIceLog))
@@ -973,15 +973,15 @@
           Vinfo(16)=Vname(1,idtime)
 #  if defined WRITE_WATER && defined MASKING
           Vinfo(20)='mask_rho'
-#  endif   
+#  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idIceLog,ng),r8)
           status=def_var(ng, model, ncAVGid(ng),                        &
      &                   avgVid(idIceLog,ng), NF_FOUT,                  &
      &                   nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
-        END IF   
-# endif              
+        END IF
+# endif
 #endif
 
 # endif
