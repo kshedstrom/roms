@@ -610,7 +610,7 @@
     (defined M3CLIMATOLOGY && !defined ANA_M3CLIMA)
         IF (exit_flag.eq.NoError) THEN
           status=nf90_put_att(ncid, nf90_global, 'clm_file',            &
-     &                        TRIM(CLMname(ng)))
+     &                        TRIM(CLMname(i,ng)))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) WRITE (stdout,20) 'clm_file', TRIM(ncname)
             exit_flag=3
