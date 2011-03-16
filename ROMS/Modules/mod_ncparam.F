@@ -173,6 +173,7 @@
         integer  :: iddQdT        ! heat flux sensitivity to SST
         integer  :: idEmPf        ! E-P from bulk_flux.F
         integer  :: idevap        ! evaporation rate
+        integer  :: idFastIce     ! landfast ice extent
         integer  :: idFsur        ! free-surface
         integer  :: idFsuD        ! detided free-surface
         integer  :: idFsuH        ! free-surface tide harmonics
@@ -1497,6 +1498,8 @@
                 idEmPf=varid
               CASE ('idevap')
                 idevap=varid
+              CASE ('idFastIce')
+                idFastIce=varid
               CASE ('idRunoff')
                 idRunoff=varid
               CASE ('idUair')
