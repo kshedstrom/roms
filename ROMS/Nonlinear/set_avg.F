@@ -842,7 +842,7 @@
             DO i=IstrR,IendR
               AVERAGE(ng)%avgsfwat(i,j)=ICE(ng)%sfwat(i,j,Iout)
 # ifdef WET_DRY
-              AVERAGE(ng)%avgsfwat(i,j)=AVERAGE(ng)%avgsfwat(i,j)*        &
+              AVERAGE(ng)%avgsfwat(i,j)=AVERAGE(ng)%avgsfwat(i,j)*      &
      &                                GRID(ng)%rmask_io(i,j)
 # endif
             END DO
@@ -1143,14 +1143,14 @@
               AVERAGE(ng)%avgit(i,j,itrc)=AVERAGE(ng)%avgit(i,j,itrc)*  &
      &                                GRID(ng)%rmask_io(i,j)
 # endif
-               END DO
             END DO
           END DO
+        END DO
 #  endif
 #  ifdef BIOFLUX
-          DO itrc=1,NT(ng)
-            DO itrc2=1,NT(ng)
-              AVERAGE(ng)%avgbflx(itrc,itrc2)=                          &
+        DO itrc=1,NT(ng)
+          DO itrc2=1,NT(ng)
+            AVERAGE(ng)%avgbflx(itrc,itrc2)=                            &
      &                      OCEAN(ng)%bflx(itrc,itrc2)
           END DO
         END DO
@@ -2486,7 +2486,7 @@
                DO i=IstrR,IendR
                  AVERAGE(ng)%avgst(i,j,k,itrc)=                         &
 #  ifdef WET_DRY
-     &                                 GRID(ng)%rmask_io(i,j)*          &
+     &                     GRID(ng)%rmask_io(i,j)*                      &
 #  endif
      &                     OCEAN(ng)%st(i,j,k,Nout,itrc)
                END DO
@@ -2501,7 +2501,7 @@
                DO i=IstrR,IendR
                  AVERAGE(ng)%avgpt3(i,j,k,itrc)=                        &
 #  ifdef WET_DRY
-     &                                 GRID(ng)%rmask_io(i,j)*          &
+     &                     GRID(ng)%rmask_io(i,j)*                      &
 #  endif
      &                     OCEAN(ng)%pt3(i,j,k,Nout,itrc)
                END DO
@@ -2515,7 +2515,7 @@
                DO i=IstrR,IendR
                  AVERAGE(ng)%avgpt2(i,j,itrc)=                          &
 #  ifdef WET_DRY
-     &                                 GRID(ng)%rmask_io(i,j)*          &
+     &                     GRID(ng)%rmask_io(i,j)*                      &
 #  endif
      &                     OCEAN(ng)%pt2(i,j,Nout,itrc)
                END DO
@@ -2529,7 +2529,7 @@
                DO i=IstrR,IendR
                  AVERAGE(ng)%avgst2(i,j,itrc)=                          &
 #  ifdef WET_DRY
-     &                                 GRID(ng)%rmask_io(i,j)*          &
+     &                     GRID(ng)%rmask_io(i,j)*                      &
 #  endif
      &                     OCEAN(ng)%st2(i,j,Nout,itrc)
                END DO
@@ -2544,6 +2544,9 @@
                 DO i=IstrR,IendR
                   AVERAGE(ng)%avgbt(i,j,k,itrc)=                        &
      &                   AVERAGE(ng)%avgbt(i,j,k,itrc)+                 &
+#  ifdef WET_DRY
+     &                   GRID(ng)%rmask_io(i,j)*                        &
+#  endif
      &                   OCEAN(ng)%bt(i,j,k,Nout,itrc)
                 END DO
               END DO
@@ -2557,6 +2560,9 @@
               DO i=IstrR,IendR
                 AVERAGE(ng)%avgit(i,j,itrc)=                            &
      &                           AVERAGE(ng)%avgit(i,j,itrc)+           &
+#  ifdef WET_DRY
+     &                           GRID(ng)%rmask_io(i,j)*                &
+#  endif
      &                           OCEAN(ng)%it(i,j,Nout,itrc)
 
               END DO
@@ -2583,7 +2589,7 @@
                DO i=IstrR,IendR
                  AVERAGE(ng)%avgst(i,j,k,itrc)=                         &
 #  ifdef WET_DRY
-     &                                 GRID(ng)%rmask_io(i,j)*          &
+     &                       GRID(ng)%rmask_io(i,j)*                    &
 #  endif
      &                       OCEAN(ng)%st(i,j,k,Nout,itrc)
                END DO

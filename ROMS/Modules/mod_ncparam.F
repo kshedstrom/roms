@@ -173,6 +173,7 @@
         integer  :: iddQdT        ! heat flux sensitivity to SST
         integer  :: idEmPf        ! E-P from bulk_flux.F
         integer  :: idevap        ! evaporation rate
+        integer  :: idFastIce     ! landfast ice extent
         integer  :: idFsur        ! free-surface
         integer  :: idFsuD        ! detided free-surface
         integer  :: idFsuH        ! free-surface tide harmonics
@@ -1181,7 +1182,11 @@
           IF ((Lvar.gt.0).and.(Vinfo(1)(1:1).eq.CHAR(36))) THEN
             is=INDEX(Vinfo(1),'https')
             ie=INDEX(Vinfo(1),'/ROMS')-1
-            svn_url=Vinfo(1)(is:ie)
+            IF (ie.gt.is) THEN
+              svn_url=Vinfo(1)(is:ie)
+            ELSE
+              svn_url='https:://myroms.org/svn/src'
+            END IF
 #ifdef SVN_REV
             svn_rev=SVN_REV
 #endif
@@ -1493,6 +1498,8 @@
                 idEmPf=varid
               CASE ('idevap')
                 idevap=varid
+              CASE ('idFastIce')
+                idFastIce=varid
               CASE ('idRunoff')
                 idRunoff=varid
               CASE ('idUair')

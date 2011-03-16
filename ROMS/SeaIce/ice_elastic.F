@@ -23,6 +23,9 @@
       USE mod_grid
       USE mod_ice
       USE mod_stepping
+#ifdef FASTICE_CLIMATOLOGY
+      USE mod_forces
+#endif
 #ifdef ICE_SHOREFAST
       USE mod_coupling
 #endif
@@ -63,6 +66,9 @@
 # ifdef ICE_SHOREFAST
      &                      GRID(ng) % h,                               &
      &                      COUPLING(ng) % Zt_avg1,                     &
+# endif
+# ifdef FASTICE_CLIMATOLOGY
+     &                      FORCES(ng) % fastice_clm,                  &
 # endif
      &                      ICE(ng) % ui,                               &
      &                      ICE(ng) % vi,                               &
@@ -108,6 +114,9 @@
 # ifdef ICE_SHOREFAST
      &                        h,                                        &
      &                        Zt_avg1,                                  &
+# endif
+# ifdef FASTICE_CLIMATOLOGY
+     &                        fastice_clm,                              &
 # endif
      &                        ui, vi, uwater, vwater, sealev,           &
      &                        uie, vie,                                 &
@@ -164,6 +173,9 @@
       real(r8), intent(in) :: h(LBi:,LBj:)
       real(r8), intent(in) :: Zt_avg1(LBi:,LBj:)
 # endif
+# ifdef FASTICE_CLIMATOLOGY
+      real(r8), intent(in) :: fastice_clm(LBi:,LBj:)
+# endif
       real(r8), intent(out) :: ui(LBi:,LBj:,:)
       real(r8), intent(out) :: vi(LBi:,LBj:,:)
       real(r8), intent(in) :: uwater(LBi:,LBj:)
@@ -203,8 +215,15 @@
       real(r8), intent(in) :: om_v(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: on_v(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: f(LBi:UBi,LBj:UBj)
-      real(r8), intent(inout) :: ui(LBi:UBi,LBj:UBj,2)
-      real(r8), intent(inout) :: vi(LBi:UBi,LBj:UBj,2)
+# ifdef ICE_SHOREFAST
+      real(r8), intent(in) :: h(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: Zt_avg1(LBi:UBi,LBj:UBj)
+# endif
+# ifdef FASTICE_CLIMATOLOGY
+      real(r8), intent(in) :: fastice_clm(LBi:UBi,LBj:UBj)
+# endif
+      real(r8), intent(out) :: ui(LBi:UBi,LBj:UBj,2)
+      real(r8), intent(out) :: vi(LBi:UBi,LBj:UBj,2)
       real(r8), intent(in) :: uwater(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: vwater(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: sealev(LBi:UBi,LBj:UBj)
@@ -582,6 +601,10 @@
           IF(clear.lt.5.0_r8) uie(i,j,lienw) =                          &
      &       MAX(clear-1.0_r8,0.0_r8)/4.0_r8*uie(i,j,lienw)
 # endif
+# ifdef FASTICE_CLIMATOLOGY
+          uie(i,j,lienw) = 0.5*(fastice_clm(i,j)+fastice_clm(i-1,j))    &
+     &              *uie(i,j,lienw)
+# endif
 # ifdef MASKING
           uie(i,j,lienw) = umask(i,j)*uie(i,j,lienw)
 # endif
@@ -615,174 +638,178 @@
 # ifdef WET_DRY
           ELSE IF (vmask_wet(i,j).gt.0.0_r8.and.                        &
      &             vmask_wet(i+1,j).lt.1.0_r8) THEN
-             f1 = 0.5_r8*(sig12(i,j,lienw)+sig12(i,j-1,lienw))
+            f1 = 0.5_r8*(sig12(i,j,lienw)+sig12(i,j-1,lienw))
 # endif
 # ifdef ICESHELF
           ELSE IF (zice(i,j-1).eq.0.0_r8.and.zice(i,j).eq.0.0_r8.and.   &
      &             zice(i+1,j-1)+zice(i+1,j).ne.0.0_r8) then
-             f1 = 0.5_r8*(sig12(i,j,lienw)+sig12(i,j-1,lienw))
+            f1 = 0.5_r8*(sig12(i,j,lienw)+sig12(i,j-1,lienw))
 # endif
           ELSE
-             f1 = 0.25_r8*(sig12(i,j,lienw)+sig12(i+1,j,lienw)          &
+            f1 = 0.25_r8*(sig12(i,j,lienw)+sig12(i+1,j,lienw)           &
      &           + sig12(i+1,j-1,lienw)+sig12(i,j-1,lienw))
           END IF
 #elif defined WET_DRY
           IF (vmask_wet(i,j).gt.0.0_r8.and.vmask_wet(i+1,j).lt.1.0_r8)  &
-     &      THEN
+     &                 THEN
              f1 = 0.5_r8*(sig12(i,j,lienw)+sig12(i,j-1,lienw))
 # ifdef ICESHELF
-          ELSE IF (zice(i,j-1).eq.0.0_r8.and.zice(i,j).eq.0.0_r8.and.   &
+          ELSE IF (zice(i,j-1).eq.0.0_r8.and.zice(i,j).eq.0.0_r8.and. &
      &             zice(i+1,j-1)+zice(i+1,j).ne.0.0_r8) then
-             f1 = 0.5_r8*(sig12(i,j,lienw)+sig12(i,j-1,lienw))
+            f1 = 0.5_r8*(sig12(i,j,lienw)+sig12(i,j-1,lienw))
 # endif
           ELSE
-             f1 = 0.25_r8*(sig12(i,j,lienw)+sig12(i+1,j,lienw)          &
+          f1 = 0.25_r8*(sig12(i,j,lienw)+sig12(i+1,j,lienw)         &
      &           + sig12(i+1,j-1,lienw)+sig12(i,j-1,lienw))
           END IF
 #else
-          f1 = 0.25_r8*(sig12(i,j,lienw)+sig12(i+1,j,lienw)             &
+          f1 = 0.25_r8*(sig12(i,j,lienw)+sig12(i+1,j,lienw)           &
      &           + sig12(i+1,j-1,lienw)+sig12(i,j-1,lienw))
 #endif
 #ifdef MASKING
           IF (vmask(i,j).gt.0.0_r8.and.vmask(i-1,j).lt.1.0_r8 ) THEN
-             f2 = 0.5_r8*(sig12(i,j,lienw)+sig12(i,j-1,lienw))
+              f2 = 0.5_r8*(sig12(i,j,lienw)+sig12(i,j-1,lienw))
 # ifdef WET_DRY
-          ELSE IF (vmask_wet(i,j).gt.0.0_r8.and.                            &
+          ELSE IF (vmask_wet(i,j).gt.0.0_r8.and.                      &
      &             vmask_wet(i-1,j).lt.1.0_r8 ) THEN
-             f2 = 0.5_r8*(sig12(i,j,lienw)+sig12(i,j-1,lienw))
+            f2 = 0.5_r8*(sig12(i,j,lienw)+sig12(i,j-1,lienw))
 # endif
 # ifdef ICESHELF
-          ELSE IF (zice(i,j-1).eq.0.0_r8.and.zice(i,j).eq.0.0_r8.and.   &
-     &             zice(i-1,j-1)+zice(i-1,j).ne.0.0_r8) then
-             f2 = 0.5_r8*(sig12(i,j,lienw)+sig12(i,j-1,lienw))
+          ELSE IF (zice(i,j-1).eq.0.0_r8.and.zice(i,j).eq.0.0_r8.and. &
+     &          zice(i-1,j-1)+zice(i-1,j).ne.0.0_r8) then
+            f2 = 0.5_r8*(sig12(i,j,lienw)+sig12(i,j-1,lienw))
 # endif
           ELSE
-             f2 = 0.25_r8*(sig12(i,j,lienw)+sig12(i-1,j,lienw)          &
+            f2 = 0.25_r8*(sig12(i,j,lienw)+sig12(i-1,j,lienw)         &
      &           + sig12(i-1,j-1,lienw)+sig12(i,j-1,lienw))
           END IF
 #elif defined WET_DRY
-          IF (vmask_wet(i,j).gt.0.0_r8.and.                             &
-     &        vmask_wet(i-1,j).lt.1.0_r8 ) THEN
-             f2 = 0.5_r8*(sig12(i,j,lienw)+sig12(i,j-1,lienw))
+          IF (vmask_wet(i,j).gt.0.0_r8.and.                           &
+     &          vmask_wet(i-1,j).lt.1.0_r8 ) THEN
+            f2 = 0.5_r8*(sig12(i,j,lienw)+sig12(i,j-1,lienw))
 # ifdef ICESHELF
-          ELSE IF (zice(i,j-1).eq.0.0_r8.and.zice(i,j).eq.0.0_r8.and.   &
+          ELSE IF (zice(i,j-1).eq.0.0_r8.and.zice(i,j).eq.0.0_r8.and. &
      &             zice(i-1,j-1)+zice(i-1,j).ne.0.0_r8) then
-             f2 = 0.5_r8*(sig12(i,j,lienw)+sig12(i,j-1,lienw))
+            f2 = 0.5_r8*(sig12(i,j,lienw)+sig12(i,j-1,lienw))
 # endif
           ELSE
-             f2 = 0.25_r8*(sig12(i,j,lienw)+sig12(i-1,j,lienw)          &
+              f2 = 0.25_r8*(sig12(i,j,lienw)+sig12(i-1,j,lienw)         &
      &           + sig12(i-1,j-1,lienw)+sig12(i,j-1,lienw))
           END IF
 #else
-          f2 = 0.25_r8*(sig12(i,j,lienw)+sig12(i-1,j,lienw)             &
+          f2 = 0.25_r8*(sig12(i,j,lienw)+sig12(i-1,j,lienw)           &
      &           + sig12(i-1,j-1,lienw)+sig12(i,j-1,lienw))
 #endif
 !
-           s2 = (f1-f2)*pmv 
-           vforce = (s1+s2)*om_v(i,j)*on_v(i,j)
+          s2 = (f1-f2)*pmv 
+          vforce = (s1+s2)*om_v(i,j)*on_v(i,j)
 #ifdef ACTIVE
 !ACTIVE
 #endif
 ! *** wind force
-           vforce = vforce + rhoice(ng)*tauaiv(i,j)*om_v(i,j)*on_v(i,j)
+          vforce = vforce + rhoice(ng)*tauaiv(i,j)*om_v(i,j)*on_v(i,j)
 
 ! *** pressure from tilting ocean surface 
-          vforce = vforce - g*(masv)*om_v(i,j)                          &
+          vforce = vforce - g*(masv)*om_v(i,j)                        &
      &            *(sealev(i,j)-sealev(i,j-1))
 !
-           fakt = 0.0_r8
+          fakt = 0.0_r8
 #ifdef MASKING
 # ifdef WET_DRY
-           dsum = umask(i,j-1)*umask_wet(i,j-1) +                       &
+          dsum = umask(i,j-1)*umask_wet(i,j-1) +                        &
      &            umask(i+1,j-1)*umask_wet(i+1,j-1) +                   &
      &            umask(i,j)*umask_wet(i,j) +                           &
      &            umask(i+1,j)*umask_wet(i,j)
-           IF (dsum.gt.0.0_r8) fakt = 1.0_r8/dsum
-           mfu11 = 0.5_r8*(hi(i-1,j-1,liold)*f(i-1,j-1)+                &
+          IF (dsum.gt.0.0_r8) fakt = 1.0_r8/dsum
+          mfu11 = 0.5_r8*(hi(i-1,j-1,liold)*f(i-1,j-1)+                 &
      &                     hi(i,j-1,liold)*f(i,j-1))*                   &
      &             uie(i,j-1,lieol)*umask(i,j-1)*umask_wet(i,j-1)
-           mfu21 = 0.5_r8*(hi(i,j-1,liold)*f(i,j-1)+                    &
+          mfu21 = 0.5_r8*(hi(i,j-1,liold)*f(i,j-1)+                     &
      &                     hi(i+1,j-1,liold)*f(i+1,j-1))*               &
      &             uie(i+1,j-1,lieol)*umask(i+1,j-1)*umask_wet(i+1,j-1)
-           mfu12 = 0.5_r8*(hi(i-1,j,liold)*f(i-1,j)+                    &
+          mfu12 = 0.5_r8*(hi(i-1,j,liold)*f(i-1,j)+                     &
      &                     hi(i,j,liold)*f(i,j))*                       &
      &             uie(i,j,lieol)*umask(i,j)*umask_wet(i,j)
-           mfu22 = 0.5_r8*(hi(i,j,liold)*f(i,j)+                        &
+          mfu22 = 0.5_r8*(hi(i,j,liold)*f(i,j)+                         &
      &                     hi(i+1,j,liold)*f(i+1,j))*                   &
      &             uie(i+1,j,lieol)*umask(i+1,j)*umask_wet(i+1,j)
 # else
-           dsum = umask(i,j-1)+umask(i+1,j-1)+umask(i,j)+umask(i+1,j)
-           IF (dsum.gt.0.0_r8) fakt = 1.0_r8/dsum
-           mfu11 = 0.5_r8*(hi(i-1,j-1,liold)*f(i-1,j-1)+                &
+          dsum = umask(i,j-1)+umask(i+1,j-1)+umask(i,j)+umask(i+1,j)
+          IF (dsum.gt.0.0_r8) fakt = 1.0_r8/dsum
+          mfu11 = 0.5_r8*(hi(i-1,j-1,liold)*f(i-1,j-1)+                 &
      &                     hi(i,j-1,liold)*f(i,j-1))*                   &
      &                      uie(i,j-1,lieol)*umask(i,j-1)
-           mfu21 = 0.5_r8*(hi(i,j-1,liold)*f(i,j-1)+                    &
+          mfu21 = 0.5_r8*(hi(i,j-1,liold)*f(i,j-1)+                     &
      &                     hi(i+1,j-1,liold)*f(i+1,j-1))*               &
      &                      uie(i+1,j-1,lieol)*umask(i+1,j-1)
-           mfu12 = 0.5_r8*(hi(i-1,j,liold)*f(i-1,j)+                    &
+          mfu12 = 0.5_r8*(hi(i-1,j,liold)*f(i-1,j)+                     &
      &                     hi(i,j,liold)*f(i,j))*                       &
      &                      uie(i,j,lieol)*umask(i,j)
-           mfu22 = 0.5_r8*(hi(i,j,liold)*f(i,j)+                        &
+          mfu22 = 0.5_r8*(hi(i,j,liold)*f(i,j)+                         &
      &                     hi(i+1,j,liold)*f(i+1,j))*                   &
      &                      uie(i+1,j,lieol)*umask(i+1,j)
 # endif
 #elif defined WET_DRY
-           dsum = umask_wet(i,j-1)+umask_wet(i+1,j-1)+                  &
+          dsum = umask_wet(i,j-1)+umask_wet(i+1,j-1)+                   &
      &            umask_wet(i,j)+umask_wet(i+1,j)
-           IF (dsum.gt.0.0_r8) fakt = 1.0_r8/dsum
-           mfu11 = 0.5_r8*(hi(i-1,j-1,liold)*f(i-1,j-1)+                &
+          IF (dsum.gt.0.0_r8) fakt = 1.0_r8/dsum
+          mfu11 = 0.5_r8*(hi(i-1,j-1,liold)*f(i-1,j-1)+                 &
      &                     hi(i,j-1,liold)*f(i,j-1))*                   &
      &                      uie(i,j-1,lieol)*umask_wet(i,j-1)
-           mfu21 = 0.5_r8*(hi(i,j-1,liold)*f(i,j-1)+                    &
+          mfu21 = 0.5_r8*(hi(i,j-1,liold)*f(i,j-1)+                     &
      &                     hi(i+1,j-1,liold)*f(i+1,j-1))*               &
      &                      uie(i+1,j-1,lieol)*umask_wet(i+1,j-1)
-           mfu12 = 0.5_r8*(hi(i-1,j,liold)*f(i-1,j)+                    &
+          mfu12 = 0.5_r8*(hi(i-1,j,liold)*f(i-1,j)+                     &
      &                     hi(i,j,liold)*f(i,j))*                       &
      &                      uie(i,j,lieol)*umask_wet(i,j)
-           mfu22 = 0.5_r8*(hi(i,j,liold)*f(i,j)+                        &
+         mfu22 = 0.5_r8*(hi(i,j,liold)*f(i,j)+                          &
      &                     hi(i+1,j,liold)*f(i+1,j))*                   &
      &                      uie(i+1,j,lieol)*umask_wet(i+1,j)
 #else
-           fakt = 0.25_r8
-           mfu11 = 0.5_r8*(hi(i-1,j-1,liold)*f(i-1,j-1)+                &
+          fakt = 0.25_r8
+          mfu11 = 0.5_r8*(hi(i-1,j-1,liold)*f(i-1,j-1)+                 &
      &                     hi(i,j-1,liold)*f(i,j-1))*                   &
      &                      uie(i,j-1,lieol)
-           mfu21 = 0.5_r8*(hi(i,j-1,liold)*f(i,j-1)+                    &
+          mfu21 = 0.5_r8*(hi(i,j-1,liold)*f(i,j-1)+                     &
      &                     hi(i+1,j-1,liold)*f(i+1,j-1))*               &
      &                      uie(i+1,j-1,lieol)
-           mfu12 = 0.5_r8*(hi(i-1,j,liold)*f(i-1,j)+                    &
+          mfu12 = 0.5_r8*(hi(i-1,j,liold)*f(i-1,j)+                     &
      &                     hi(i,j,liold)*f(i,j))*                       &
      &                      uie(i,j,lieol)
-           mfu22 = 0.5_r8*(hi(i,j,liold)*f(i,j)+                        &
+          mfu22 = 0.5_r8*(hi(i,j,liold)*f(i,j)+                         &
      &                     hi(i+1,j,liold)*f(i+1,j))*                   &
      &                      uie(i+1,j,lieol)
 #endif
 
 ! *** coriolis force v
-           vforce = vforce - fakt*rhoice(ng)*om_v(i,j)*on_v(i,j)*       &
+          vforce = vforce - fakt*rhoice(ng)*om_v(i,j)*on_v(i,j)*       &
      &                            (mfu11 + mfu21 + mfu12 + mfu22)
 !
 ! *** stress from ocean current 
-           vforce = vforce/(om_v(i,j)*on_v(i,j)) +                      &
+          vforce = vforce/(om_v(i,j)*on_v(i,j)) +                      &
      &                         avf*chuy*rho0*vwater(i,j)
 !
-           alfa = masv + dte(ng)*avf*rho0*chuy
-!
+          alfa = masv + dte(ng)*avf*rho0*chuy
+
 !  solving the momentum equation for v
-           vie(i,j,lienw) = (masv*vie(i,j,lieol) +                      &
+          vie(i,j,lienw) = (masv*vie(i,j,lieol) +                      &
      &                       dte(ng)*vforce)/alfa 
 !
 # ifdef ICE_SHOREFAST
-           hv = 0.5_r8*(h(i,j-1)+MIN(Zt_avg1(i,j-1),0.0_r8) +           &
+          hv = 0.5_r8*(h(i,j-1)+MIN(Zt_avg1(i,j-1),0.0_r8) +           &
      &          h(i,j)+MIN(Zt_avg1(i,j),0.0_r8))
-           masv = 0.5_r8*(hi(i,j,liold)+hi(i,j-1,liold))
-           clear = hv-0.9_r8*masv
-           clear = MAX(clear,0.0_r8)
-           IF(clear.lt.5.0_r8) vie(i,j,lienw) =                          &
+          masv = 0.5_r8*(hi(i,j,liold)+hi(i,j-1,liold))
+          clear = hv-0.9_r8*masv
+          clear = MAX(clear,0.0_r8)
+          IF (clear.lt.5.0_r8) vie(i,j,lienw) =                         &
      &       MAX(clear-1.0_r8,0.0_r8)/4.0_r8*vie(i,j,lienw)
 # endif
+# ifdef FASTICE_CLIMATOLOGY
+          vie(i,j,lienw) = 0.5*(fastice_clm(i,j)+fastice_clm(i,j-1))    &
+     &              *vie(i,j,lienw)
+# endif
 # ifdef MASKING
-           vie(i,j,lienw) = vmask(i,j)*vie(i,j,lienw)
+          vie(i,j,lienw) = vmask(i,j)*vie(i,j,lienw)
 # endif
 # ifdef ICESHELF
           IF (zice(i,j-1)+zice(i,j).ne.0.0_r8) THEN

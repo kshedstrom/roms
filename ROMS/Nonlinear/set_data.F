@@ -846,6 +846,14 @@
      &                     update)
 # endif
 
+# if defined FASTICE_CLIMATOLOGY && defined SOLVE3D
+      CALL set_2dfld_tile (ng, tile, iNLM, idFastIce,                   &
+     &                     LBi, UBi, LBj, UBj,                          &
+     &                     FORCES(ng)%fastice_clmG,                     &
+     &                     FORCES(ng)%fastice_clm,                      &
+     &                     update)
+# endif
+
 # if defined ECOSIM && defined SOLVE3D
 !
 !-----------------------------------------------------------------------

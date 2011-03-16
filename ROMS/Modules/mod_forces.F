@@ -401,6 +401,13 @@
 #  endif
 # endif
 
+# ifdef FASTICE_CLIMATOLOGY
+          real(r8), pointer :: fastice_clm(:,:)
+#  ifndef ANA_FASTICE
+          real(r8), pointer :: fastice_clmG(:,:,:)
+#  endif
+# endif
+
 # ifdef ECOSIM
           real(r8), pointer :: SpecIr(:,:,:)
           real(r8), pointer :: avcos(:,:,:)
@@ -795,6 +802,14 @@
 
 #  ifndef ANA_SSSFLX
       allocate ( FORCES(ng) % sssflxG(LBi:UBi,LBj:UBj,2) )
+#  endif
+# endif
+
+# if defined FASTICE_CLIMATOLOGY
+      allocate ( FORCES(ng) % fastice_clm(LBi:UBi,LBj:UBj) )
+
+#  ifndef ANA_FASTICE
+      allocate ( FORCES(ng) % fastice_clmG(LBi:UBi,LBj:UBj,2) )
 #  endif
 # endif
 
@@ -1253,6 +1268,13 @@
 #  ifndef ANA_SSSFLX
             FORCES(ng) % sssflxG(i,j,1) = IniVal
             FORCES(ng) % sssflxG(i,j,2) = IniVal
+#  endif
+# endif
+# if defined FASTICE_CLIMATOLOGY
+            FORCES(ng) % fastice_clm(i,j) = IniVal
+#  ifndef ANA_FASTICE
+            FORCES(ng) % fastice_clmG(i,j,1) = IniVal
+            FORCES(ng) % fastice_clmG(i,j,2) = IniVal
 #  endif
 # endif
             DO itrc=1,NT(ng)

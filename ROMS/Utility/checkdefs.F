@@ -1014,6 +1014,12 @@
       T_east=T_east+1
       T_west=T_west+1
 #endif
+#ifdef FASTICE_CLIMATOLOGY
+      IF (Master) WRITE(stdout,20) 'FASTICE_CLIMATOLOGY',               &
+     &   'Climatology of landfast ice.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+21)=' FASTICE_CLIMATOLOGY,'
+#endif
 #ifdef FILTERED
       IF (Master) WRITE(stdout,20) 'FILTERED',                          &
      &   'Writing out time-filtered output.'

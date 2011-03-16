@@ -1,8 +1,8 @@
       SUBROUTINE ana_IceNH4bc (ng, tile)
 !
-!! svn $Id: ana_cloud.h 75 2007-03-13 13:10:14Z arango $
+!! svn $Id$
 !!======================================================================
-!! Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!! Copyright (c) 2002-2011 The ROMS/TOMS Group                         !
 !!   Licensed under a MIT/X style license                              !
 !!   See License_ROMS.txt                                              !
 !!                                                                     !
