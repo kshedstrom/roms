@@ -639,7 +639,7 @@
 !
             temp_b=0.0939_r8-0.057_r8*salt_b+7.6410E-4_r8*zice(i,j)
             IF (salt_b .gt. 5.0_r8) THEN
-              melt_rate=-((rho(i,j,N(ng))+1000.0_r8)/rho_ice)*gamma_s*  &
+              melt_rate=-gamma_s*                                       &
      &                   (1.0_r8-(t(i,j,N(ng),nrhs,isalt)/salt_b))
             ELSE
               melt_rate=0.0_r8
