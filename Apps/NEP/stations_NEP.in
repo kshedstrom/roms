@@ -82,6 +82,9 @@ Sout(idMtls) == F                          ! turbulent length scale
 ! Logical switches for bio sediment variables.
 Sout(idPONsed) == T
 Sout(idOPALsed) == T
+Sout(idDENITsed) == T
+Sout(idPONbur) == T
+Sout(idOPALbur) == T
 
 ! Logical switches (TRUE/FALSE) to activate writing of ice prognostic
 ! variables into HISTORY output file.

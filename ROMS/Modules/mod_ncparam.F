@@ -169,6 +169,7 @@
         integer  :: idCosW        ! COS(omega(k)*t)
         integer  :: idCos2        ! COS(omega(k)*t)*COS(omega(l)*t)
         integer  :: idDano        ! density anomaly
+        integer  :: idDENITsed    ! Denitrification in sediment
         integer  :: idDiff(2)     ! temperature and salinity diffusion
         integer  :: iddQdT        ! heat flux sensitivity to SST
         integer  :: idEmPf        ! E-P from bulk_flux.F
@@ -203,6 +204,7 @@
         integer  :: idObsZ        ! observations Z-grid location
         integer  :: idOday        ! observations survey time
         integer  :: idOerr        ! observations error
+        integer  :: idOPALbur     ! buried opal in sediment
         integer  :: idOPALsed     ! opal in sediment
         integer  :: idOtyp        ! observations type
         integer  :: idOval        ! observations value
@@ -212,6 +214,7 @@
         integer  :: idQair        ! surface air humidity
         integer  :: idPair        ! surface air pressure
         integer  :: idPbar        ! streamfunction
+        integer  :: idPONbur      ! buried PON in sediment
         integer  :: idPONsed      ! PON in sediment
         integer  :: idRdir        ! river runoff direction
         integer  :: idRepo        ! river runoff ETA-positions

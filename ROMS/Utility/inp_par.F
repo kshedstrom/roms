@@ -5395,6 +5395,15 @@
           IF (Aout(idOPALsed,ng)) WRITE (out,170) Aout(idOPALsed,ng),   &
      &       'Aout(idOPALsed)',                                         &
      &       'Write out averaged OPAL in sediment.'
+          IF (Aout(idDENITsed,ng)) WRITE (out,170) Aout(idDENITsed,ng), &
+     &       'Aout(idDENITsed)',                                        &
+     &       'Write out averaged DENIT in sediment.'
+          IF (Aout(idPONbur,ng)) WRITE (out,170) Aout(idPONbur,ng),     &
+     &       'Aout(idPONbur)',                                          &
+     &       'Write out averaged buried PON in sediment.'
+          IF (Aout(idOPALbur,ng)) WRITE (out,170) Aout(idOPALbur,ng),   &
+     &       'Aout(idOPALbur)',                                         &
+     &       'Write out averaged buried OPAL in sediment.'
 #  endif
 #  if defined LMD_MIXING || defined MY25_MIXING || defined GLS_MIXING
           IF (Aout(idVvis,ng)) WRITE (out,170) Aout(idVvis,ng),         &
@@ -8281,6 +8290,12 @@
             Npts=load_l(Nval, Cval, Ngrids, Sout(idPONsed,:))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idOPALsed)') THEN
             Npts=load_l(Nval, Cval, Ngrids, Sout(idOPALsed,:))
+          ELSE IF (TRIM(KeyWord).eq.'Sout(idDENITsed)') THEN
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idDENITsed,:))
+          ELSE IF (TRIM(KeyWord).eq.'Sout(idPONbur)') THEN
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idPONbur,:))
+          ELSE IF (TRIM(KeyWord).eq.'Sout(idOPALbur)') THEN
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idOPALbur,:))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idMtke)') THEN
             Npts=load_l(Nval, Cval, Ngrids, Sout(idMtke,:))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idMtls)') THEN
@@ -8639,6 +8654,15 @@
             IF (Sout(idOPALsed,ng)) WRITE (out,80) Sout(idOPALsed,ng),  &
      &          'Sout(idOPALsed)',                                      &
      &          'Write out OPAL in sediment.'
+            IF (Sout(idDENITsed,ng)) WRITE (out,80) Sout(idDENITsed,ng),&
+     &          'Sout(idDENITsed)',                                     &
+     &          'Write out DENIT in sediment.'
+            IF (Sout(idPONbur,ng)) WRITE (out,80) Sout(idPONbur,ng),    &
+     &          'Sout(idPONbur)',                                       &
+     &          'Write out buried PON in sediment.'
+            IF (Sout(idOPALbur,ng)) WRITE (out,80) Sout(idOPALbur,ng),  &
+     &          'Sout(idOPALbur)',                                      &
+     &          'Write out buried OPAL in sediment.'
 #  endif
 #  ifdef LMD_SKPP
             IF (Sout(idHsbl,ng)) WRITE (out,80) Sout(idHsbl,ng),        &
