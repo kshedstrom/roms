@@ -191,6 +191,9 @@
 #  ifdef NEMURO_SED1
           real(r8), pointer :: avgPONsed(:,:)
           real(r8), pointer :: avgOPALsed(:,:)
+          real(r8), pointer :: avgDENITsed(:,:)
+          real(r8), pointer :: avgPONbur(:,:)
+          real(r8), pointer :: avgOPALbur(:,:)
 #  endif
 #  if defined LMD_MIXING || defined MY25_MIXING || defined GLS_MIXING
           real(r8), pointer :: avgAKv(:,:,:)
@@ -450,6 +453,15 @@
       END IF
       IF (Aout(idOPALsed,ng)) THEN
         allocate ( AVERAGE(ng) % avgOPALsed(LBi:UBi,LBj:UBj) )
+      END IF
+      IF (Aout(idDENITsed,ng)) THEN
+        allocate ( AVERAGE(ng) % avgDENITsed(LBi:UBi,LBj:UBj) )
+      END IF
+      IF (Aout(idPONbur,ng)) THEN
+        allocate ( AVERAGE(ng) % avgPONbur(LBi:UBi,LBj:UBj) )
+      END IF
+      IF (Aout(idOPALbur,ng)) THEN
+        allocate ( AVERAGE(ng) % avgOPALbur(LBi:UBi,LBj:UBj) )
       END IF
 #  endif
 
@@ -924,6 +936,27 @@
         DO j=Jmin,Jmax
           DO i=Imin,Imax
             AVERAGE(ng) % avgOPALsed(i,j) = IniVal
+          END DO
+        END DO
+      END IF
+      IF (Aout(idDENITsed,ng)) THEN
+        DO j=Jmin,Jmax
+          DO i=Imin,Imax
+            AVERAGE(ng) % avgDENITsed(i,j) = IniVal
+          END DO
+        END DO
+      END IF
+      IF (Aout(idPONbur,ng)) THEN
+        DO j=Jmin,Jmax
+          DO i=Imin,Imax
+            AVERAGE(ng) % avgPONbur(i,j) = IniVal
+          END DO
+        END DO
+      END IF
+      IF (Aout(idOPALbur,ng)) THEN
+        DO j=Jmin,Jmax
+          DO i=Imin,Imax
+            AVERAGE(ng) % avgOPALbur(i,j) = IniVal
           END DO
         END DO
       END IF

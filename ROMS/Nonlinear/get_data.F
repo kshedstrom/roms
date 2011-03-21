@@ -332,6 +332,16 @@
 #   endif
      &                FORCES(ng) % sssflxG(LBi,LBj,1))
 # endif
+
+# if !defined ANA_FASTICE && defined FASTICE_CLIMATOLOGY
+      CALL get_2dfld (ng, iNLM, idFastIce, ncFRCid(idFastIce,ng),       &
+     &                nFfiles(ng), FRCname(1,ng), update(1),            &
+     &                LBi, UBi, LBj, UBj, 2, 1,                         &
+#   ifdef MASKING
+     &                GRID(ng) % rmask(LBi,LBj),                        &
+#   endif
+     &                FORCES(ng) % fastice_clmG(LBi,LBj,1))
+# endif
 #endif
 
 #if !defined ANA_PAIR && (defined BULK_FLUXES || defined ECOSIM || \
