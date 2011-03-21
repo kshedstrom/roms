@@ -343,6 +343,54 @@
      &                        varid = staVid(idOPALsed,ng))
         IF (exit_flag.ne.NoError) RETURN
       END IF
+!
+!  Write out DENIT in sediment.
+!
+      IF (Sout(idDENITsed,ng)) THEN
+        scale=1.0_r8
+        CALL extract_sta2d (ng, iNLM, Cgrid, idDENITsed, r2dvar,         &
+     &                      LBi, UBi, LBj, UBj,                         &
+     &                      scale, OCEAN(ng)%DENITsed,                   &
+     &                      Nstation(ng), Xpos, Ypos, psta)
+        CALL netcdf_put_fvar (ng, iNLM, STAname(ng),                    &
+     &                        TRIM(Vname(1,idDENITsed)), psta,           &
+     &                        (/1,tSTAindx(ng)/), (/Nstation(ng),1/),   &
+     &                        ncid = ncSTAid(ng),                       &
+     &                        varid = staVid(idDENITsed,ng))
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
+!
+!  Write out buried PON in sediment.
+!
+      IF (Sout(idPONbur,ng)) THEN
+        scale=1.0_r8
+        CALL extract_sta2d (ng, iNLM, Cgrid, idPONbur, r2dvar,          &
+     &                      LBi, UBi, LBj, UBj,                         &
+     &                      scale, OCEAN(ng)%PON_burial,                &
+     &                      Nstation(ng), Xpos, Ypos, psta)
+        CALL netcdf_put_fvar (ng, iNLM, STAname(ng),                    &
+     &                        TRIM(Vname(1,idPONbur)), psta,            &
+     &                        (/1,tSTAindx(ng)/), (/Nstation(ng),1/),   &
+     &                        ncid = ncSTAid(ng),                       &
+     &                        varid = staVid(idPONbur,ng))
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
+!
+!  Write out buried OPAL in sediment.
+!
+      IF (Sout(idOPALbur,ng)) THEN
+        scale=1.0_r8
+        CALL extract_sta2d (ng, iNLM, Cgrid, idOPALbur, r2dvar,         &
+     &                      LBi, UBi, LBj, UBj,                         &
+     &                      scale, OCEAN(ng)%OPAL_burial,               &
+     &                      Nstation(ng), Xpos, Ypos, psta)
+        CALL netcdf_put_fvar (ng, iNLM, STAname(ng),                    &
+     &                        TRIM(Vname(1,idOPALbur)), psta,           &
+     &                        (/1,tSTAindx(ng)/), (/Nstation(ng),1/),   &
+     &                        ncid = ncSTAid(ng),                       &
+     &                        varid = staVid(idOPALbur,ng))
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
 #  endif
 #  ifdef LMD_SKPP
 !

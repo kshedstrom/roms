@@ -351,6 +351,27 @@
               RETURN
             END IF
             Npts=load_l(Nval, Cval, Ngrids, Hout(idOPALsed,:))
+          ELSE IF (TRIM(KeyWord).eq.'Hout(idDENITsed)') THEN
+            IF (idDENITsed.eq.0) THEN 
+              IF (Master) WRITE (out,280) 'idDENITsed'
+              exit_flag=5
+              RETURN
+            END IF
+            Npts=load_l(Nval, Cval, Ngrids, Hout(idDENITsed,:))
+          ELSE IF (TRIM(KeyWord).eq.'Hout(idPONbur)') THEN
+            IF (idPONbur.eq.0) THEN 
+              IF (Master) WRITE (out,280) 'idPONbur'
+              exit_flag=5
+              RETURN
+            END IF
+            Npts=load_l(Nval, Cval, Ngrids, Hout(idPONbur,:))
+          ELSE IF (TRIM(KeyWord).eq.'Hout(idOPALbur)') THEN
+            IF (idOPALbur.eq.0) THEN 
+              IF (Master) WRITE (out,280) 'idOPALbur'
+              exit_flag=5
+              RETURN
+            END IF
+            Npts=load_l(Nval, Cval, Ngrids, Hout(idOPALbur,:))
 #endif
 #ifdef AVERAGES
           ELSE IF (TRIM(KeyWord).eq.'Aout(idTvar)') THEN
@@ -366,6 +387,12 @@
             Npts=load_l(Nval, Cval, Ngrids, Aout(idPONsed,:))
           ELSE IF (TRIM(KeyWord).eq.'Aout(idOPALsed)') THEN
             Npts=load_l(Nval, Cval, Ngrids, Aout(idOPALsed,:))
+          ELSE IF (TRIM(KeyWord).eq.'Aout(idDENITsed)') THEN
+            Npts=load_l(Nval, Cval, Ngrids, Aout(idDENITsed,:))
+          ELSE IF (TRIM(KeyWord).eq.'Aout(idPONbur)') THEN
+            Npts=load_l(Nval, Cval, Ngrids, Aout(idPONbur,:))
+          ELSE IF (TRIM(KeyWord).eq.'Aout(idOPALbur)') THEN
+            Npts=load_l(Nval, Cval, Ngrids, Aout(idOPALbur,:))
 #endif
 #endif
 #ifdef DIAGNOSTICS_TS

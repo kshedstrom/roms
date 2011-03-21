@@ -44,6 +44,7 @@
 #ifdef SOLVE3D
 # define  ICE_MODEL
 # ifdef ICE_MODEL
+#  define  FASTICE_CLIMATOLOGY
 #  define  ICE_THERMO
 #  define  ICE_MK
 #  undef   ICE_ALB_EC92
@@ -91,7 +92,7 @@
 #endif
 
 #define UV_VIS2
-#define UV_SMAGORINSKY
+#undef UV_SMAGORINSKY
 #define VISC_3DCOEF
 #define MIX_S_UV
 #define VISC_GRID
@@ -103,11 +104,11 @@
 # define DIFF_GRID
 #endif
 
-
 /* vertical mixing */
 
 #ifdef SOLVE3D
 # define SOLAR_SOURCE
+# define WTYPE_GRID
 
 # define LMD_MIXING
 # ifdef LMD_MIXING
@@ -149,7 +150,8 @@
 /* surface and side corrections */
 
 #ifdef SOLVE3D
-# define SRELAXATION
+# define SCORRECTION
+# undef SRELAXATION
 # undef QCORRECTION
 #endif
 
@@ -162,9 +164,9 @@
 
 /* Using Runoff instead now */
 #ifdef SOLVE3D
-#define RUNOFF
-# define UV_PSOURCE
-# define ANA_PSOURCE
+# define RUNOFF
+# undef UV_PSOURCE
+# undef ANA_PSOURCE
 # undef TS_PSOURCE
 #endif
 
@@ -183,6 +185,7 @@
 
 # define UV_LDRAG
 # define UV_DRAG_GRID
+# define ANA_DRAG
 # define DRAG_LIMITER
 # undef UV_QDRAG
 #else
@@ -191,8 +194,8 @@
 
 /* Boundary conditions...careful with grid orientation */
 
-#define EASTERN_WALL
-#define NORTHERN_WALL
+#undef EASTERN_WALL
+#undef NORTHERN_WALL
 #undef WESTERN_WALL
 #undef SOUTHERN_WALL
 
@@ -260,7 +263,7 @@
 */
 #undef NEMURO
 #undef BIO_GOANPZ        /* Sarah Hinckley's 11 box model */
-#define BEST_NPZ         /* Georgina Gibsons BEST NPZ model  */
+#undef BEST_NPZ         /* Georgina Gibsons BEST NPZ model  */
 
 #if defined BEST_NPZ || defined BIO_GOANPZ
 # undef  BIOFLUX           /* sum Nitrogen fluxes between boxes */
@@ -299,7 +302,6 @@
 # define PROD2
 # define BENTHIC /*FENNEL or BENTHIC or TRAP*/
 # define ICE_BIO
-# define ANA_ICEBIOBC
 # undef CLIM_ICE_1D
 
 # undef SINKVAR      /* for variable sinking rate*/

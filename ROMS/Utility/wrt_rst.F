@@ -595,6 +595,66 @@
         ioerror=status
         RETURN
       END IF
+!
+!  Write out DENIT in sediment.
+!
+      scale=1.0_r8
+      gtype=gfactor*r2dvar
+      status=nf_fwrite2d(ng, iNLM, ncRSTid(ng), rstVid(idDENITsed,ng),   &
+     &                   tRSTindx(ng), gtype,                           &
+     &                   LBi, UBi, LBj, UBj, scale,                     &
+#  ifdef MASKING
+     &                   GRID(ng) % rmask_io,                           &
+#  endif
+     &                   OCEAN(ng) % DENITsed)
+      IF (status.ne.nf90_noerr) THEN
+        IF (Master) THEN
+          WRITE (stdout,10) TRIM(Vname(1,idDENITsed)), tRSTindx(ng)
+        END IF
+        exit_flag=3
+        ioerror=status
+        RETURN
+      END IF
+!
+!  Write out buried PON in sediment.
+!
+      scale=1.0_r8
+      gtype=gfactor*r2dvar
+      status=nf_fwrite2d(ng, iNLM, ncRSTid(ng), rstVid(idPONbur,ng),    &
+     &                   tRSTindx(ng), gtype,                           &
+     &                   LBi, UBi, LBj, UBj, scale,                     &
+#  ifdef MASKING
+     &                   GRID(ng) % rmask_io,                           &
+#  endif
+     &                   OCEAN(ng) % PON_burial)
+      IF (status.ne.nf90_noerr) THEN
+        IF (Master) THEN
+          WRITE (stdout,10) TRIM(Vname(1,idPONbur)), tRSTindx(ng)
+        END IF
+        exit_flag=3
+        ioerror=status
+        RETURN
+      END IF
+!
+!  Write out buried OPAL in sediment.
+!
+      scale=1.0_r8
+      gtype=gfactor*r2dvar
+      status=nf_fwrite2d(ng, iNLM, ncRSTid(ng), rstVid(idOPALbur,ng),   &
+     &                   tRSTindx(ng), gtype,                           &
+     &                   LBi, UBi, LBj, UBj, scale,                     &
+#  ifdef MASKING
+     &                   GRID(ng) % rmask_io,                           &
+#  endif
+     &                   OCEAN(ng) % OPAL_burial)
+      IF (status.ne.nf90_noerr) THEN
+        IF (Master) THEN
+          WRITE (stdout,10) TRIM(Vname(1,idOPALbur)), tRSTindx(ng)
+        END IF
+        exit_flag=3
+        ioerror=status
+        RETURN
+      END IF
 # endif
 # ifdef LMD_SKPP
 !

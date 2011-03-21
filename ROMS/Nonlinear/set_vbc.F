@@ -366,7 +366,7 @@
 #     ifdef ICE_THERMO
           stflx(i,j,isalt)=stflx(i,j,isalt) -                           &
      &                     Tnudg(isalt,ng)*Hz(i,j,N(ng))*               &
-#if defined NEP5 || defined BERING
+#if defined NEP5 || defined BERING || defined CHUKCHI
 !  60 days from Tnudg of 360 days
      &                     6.0_r8*                                      &
 #endif
@@ -377,7 +377,7 @@
 #    else
           stflx(i,j,isalt)=stflx(i,j,isalt)*t(i,j,N(ng),nrhs,isalt)-    &
      &                     Tnudg(isalt,ng)*Hz(i,j,N(ng))*               &
-#if defined NEP5 || defined BERING
+#if defined NEP5 || defined BERING || defined CHUKCHI
 !  60 days from Tnudg of 360 days
      &                     6.0_r8*                                      &
 #endif
@@ -385,7 +385,7 @@
 #     endif
 #   elif defined SRELAXATION
           stflx(i,j,isalt)=-Tnudg(isalt,ng)*Hz(i,j,N(ng))*              &
-#if defined NEP5 || defined BERING
+#if defined NEP5 || defined BERING || defined CHUKCHI
 !  60 days from Tnudg of 360 days
      &                     6.0_r8*                                      &
 #endif

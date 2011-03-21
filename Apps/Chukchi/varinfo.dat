@@ -3676,33 +3676,6 @@
   'r2dvar'
   1.0d0
 
-'DENITsed'                                        ! Input/Output
-  'Sediment DENIT'
-  'millimole_nitrogen meter-3'                    ! [millimole/m3]
-  'DENITsed, scalar, series'
-  'ocean_time'
-  'idDENITsed'
-  'r2dvar'
-  1.0d0
-
-'PON_burial'                                       ! Input/Output
-  'Buried PON'
-  'millimole_nitrogen meter-3'                      ! [millimole/m3]
-  'PON_burial, scalar, series'
-  'ocean_time'
-  'idPONbur'
-  'r2dvar'
-  1.0d0
-
-'OPAL_burial'                                     ! Input/Output
-  'Buried OPAL'
-  'millimole_silica meter-3'                      ! [millimole/m3]
-  'OPAL_burial, scalar, series'
-  'ocean_time'
-  'idOPALbur'
-  'r2dvar'
-  1.0d0
-
 'TIC'                                              ! Input/Output
   'total inorganic carbon'
   'millimole_carbon meter-3'                       ! [millimole/m3]

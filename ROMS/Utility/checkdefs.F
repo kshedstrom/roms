@@ -1014,6 +1014,12 @@
       T_east=T_east+1
       T_west=T_west+1
 #endif
+#ifdef FASTICE_CLIMATOLOGY
+      IF (Master) WRITE(stdout,20) 'FASTICE_CLIMATOLOGY',               &
+     &   'Climatology of landfast ice.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+21)=' FASTICE_CLIMATOLOGY,'
+#endif
 #ifdef FILTERED
       IF (Master) WRITE(stdout,20) 'FILTERED',                          &
      &   'Writing out time-filtered output.'
@@ -1501,12 +1507,6 @@
      &   'Nemuro with sediment remineralization type 1.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+13)=' NEMURO_SED1,'
-#endif
-#ifdef NEMURO_SED2
-      IF (Master) WRITE (stdout,20) 'NEMURO_SED2',                      &
-     &   'Nemuro with sediment remineralization type 2.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+13)=' NEMURO_SED2,'
 #endif
 #ifdef NETCDF4
       IF (Master) WRITE (stdout,20) 'NETCDF4',                          &
