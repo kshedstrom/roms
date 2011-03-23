@@ -155,7 +155,7 @@
 #endif
 !-----------------------------------------------------------------------
 !
-#if defined NEP5
+#if defined NEP5 || defined NEP6
 # if defined UV_LDRAG
       cff =  3.0d-04
       h0 = 1000.

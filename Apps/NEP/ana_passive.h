@@ -73,7 +73,7 @@
 !  Set analytical initial conditions for passive inert tracers.
 !-----------------------------------------------------------------------
 !
-#if defined  NEP5 || defined NEP4
+#if defined NEP6 || defined  NEP5 || defined NEP4
 !     DO k=1,N(ng)
 !       DO j=JstrR,JendR
 !         DO i=IstrR,IendR

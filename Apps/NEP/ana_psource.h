@@ -198,7 +198,7 @@
 !
         LtracerSrc(itemp,ng)=.TRUE.
         LtracerSrc(isalt,ng)=.TRUE.
-#if defined NEP5
+#if defined NEP5 || defined NEP6
 !       IF (Master.and.SOUTH_WEST_TEST) THEN
           Nsrc=149
           DO is=1,Nsrc
@@ -265,7 +265,7 @@
 
 !$OMP BARRIER
 
-# if defined NEP5 || defined BERING_10K
+# if defined NEP5 || defined NEP6 || defined BERING_10K
       cff = 800000._r8/Nsrc
       DO is=1,Nsrc
         Qbar(is)=cff

@@ -806,6 +806,7 @@
 ** NPAC            GLOBEC North Pacific
 ** NEP4            Northeast Pacific - Baja to Arctic
 ** NEP5            Northeast Pacific - Baja to Arctic
+** NEP6            Northeast Pacific - Baja to Arctic
 ** CGOA            Coastal Gulf of Alaska, any resolution
 ** BERING          Bering Sea at 4 km resolution
 ** SEBS            Southeast Bering Sea at 4 km resolution
