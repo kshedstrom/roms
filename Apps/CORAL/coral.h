@@ -24,9 +24,9 @@
 #define NONLIN_EOS
 #define SOLVE3D
 #define SALINITY
-#undef SPLINES
+#define SPLINES
 #undef FLOATS
-#undef STATIONS
+#define STATIONS
 #undef WET_DRY
 
 /* output stuff */
@@ -47,9 +47,9 @@
 
 #define UV_ADV
 #define UV_COR
-#define UV_SADVECTION            /* deep water so no splines vertical advection */
+#undef UV_SADVECTION             /* deep water so no splines vertical advection */
 #define UV_VIS2                  /* horizontal, harmonic viscosity of momentum */
-#define UV_SMAGORINSKY           /* use Smagorinsky-like viscosity */
+#undef UV_SMAGORINSKY            /* use Smagorinsky-like viscosity */
 #define VISC_3DCOEF
 #define MIX_S_UV                 /* mixing along constant S-surfaces for horizontal mixing of momentum */
 #define VISC_GRID
@@ -58,13 +58,10 @@
 #ifdef SOLVE3D
 # define TS_DIF2
 # define MIX_GEO_TS              /* mixing on geopotential surfaces for horizontal mixing of tracers */
+# define DIFF_GRID               /* scale diffusion coefficients by grid size for horizontal mixing of tracers */
 # define TS_U3HADVECTION         /* 3rd-order upstream biased advection */
 # define TS_C4VADVECTION         /* 4th-order center vert advection instead */
 # undef TS_MPDATA
-#endif
-
-#ifdef SOLVE3D
-# define DIFF_GRID               /* scale diffusion coefficients by grid size for horizontal mixing of tracers */
 #endif
 
 
@@ -141,7 +138,8 @@
 # define TIDES_ASTRO
 # define POT_TIDES
 # define UV_LDRAG
-# define RDRG_GRID
+# define UV_DRAG_GRID
+# define ANA_DRAG
 # define DRAG_LIMITER
 # undef UV_QDRAG
 #else
