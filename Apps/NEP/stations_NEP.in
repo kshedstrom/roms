@@ -1,7 +1,7 @@
 !  Station Extraction Parameters.
 !
 !==============================================================================
-!  Copyright (c) 2002-2010 The ROMS/TOMS Group                              ===
+!  Copyright (c) 2002-2011 The ROMS/TOMS Group                              ===
 !========================================================= Hernan G. Arango ===
 !                                                                             !
 ! Input parameters can be entered in ANY order, provided that the parameter   !
@@ -82,6 +82,9 @@ Sout(idMtls) == F                          ! turbulent length scale
 ! Logical switches for bio sediment variables.
 Sout(idPONsed) == T
 Sout(idOPALsed) == T
+Sout(idDENITsed) == T
+Sout(idPONbur) == T
+Sout(idOPALbur) == T
 
 ! Logical switches (TRUE/FALSE) to activate writing of ice prognostic
 ! variables into HISTORY output file.

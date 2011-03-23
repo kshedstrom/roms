@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2011 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -20,12 +20,9 @@
       USE mod_ncparam
       USE mod_netcdf
       USE mod_scalars
-#ifdef RDRG_GRID
-      USE mod_forces
-#endif
-#ifdef WTYPE_GRID
+# ifdef WTYPE_GRID
       USE mod_mixing
-#endif
+# endif
 !
 # if defined EW_PERIODIC || defined NS_PERIODIC
       USE exchange_2d_mod
@@ -62,8 +59,10 @@
       logical :: GotScope(6)
 # endif
       integer :: tile, LBi, UBi, LBj, UBj
-      integer :: gtype, i, j, it, status, vindex
-
+      integer :: gtype, i, it, status, vindex
+# if defined UV_DRAG_GRID && !defined ANA_DRAG
+      integer :: varid_dragL, varid_dragQ, varid_ZoBL
+# endif
       integer :: Vsize(4)
 
       real(r8), parameter :: Fscl = 1.0_r8
@@ -123,13 +122,6 @@
         RETURN
       END IF
 # endif
-# ifdef RDRG_GRID
-      IF (.not.find_string(var_name,n_var,'rdrg_grid',vindex)) THEN
-        IF (Master) WRITE (stdout,10) 'rdrg_grid', TRIM(ncname)
-        exit_flag=2
-        RETURN
-      END IF
-# endif
 # ifdef WTYPE_GRID
       IF (.not.find_string(var_name,n_var,'wtype_grid',vindex)) THEN
         IF (Master) WRITE (stdout,10) 'wtype_grid', TRIM(ncname)
@@ -137,7 +129,6 @@
         RETURN
       END IF
 # endif
-
       IF (.not.find_string(var_name,n_var,'f',vindex)) THEN
         IF (Master) WRITE (stdout,10) 'f', TRIM(ncname)
         exit_flag=2
@@ -193,6 +184,35 @@
         exit_flag=2
         RETURN
       END IF
+# endif
+# if defined UV_DRAG_GRID && !defined ANA_DRAG
+#  ifdef UV_LOGDRAG
+      IF (.not.find_string(var_name,n_var,TRIM(Vname(1,idZoBL)),        &
+     &                     varid_ZoBL)) THEN
+        IF (Master) WRITE (stdout,10) TRIM(Vname(1,idZoBL)),            &
+     &                                TRIM(ncname)
+        exit_flag=2
+        RETURN
+      END IF
+#  endif
+#  ifdef UV_LDRAG
+      IF (.not.find_string(var_name,n_var,TRIM(Vname(1,idragL)),        &
+     &                     varid_dragL)) THEN
+        IF (Master) WRITE (stdout,10) TRIM(Vname(1,idragL)),            &
+     &                                TRIM(ncname)
+        exit_flag=2
+        RETURN
+      END IF
+#  endif
+#  ifdef UV_QDRAG
+      IF (.not.find_string(var_name,n_var,TRIM(Vname(1,idragQ)),        &
+     &                     varid_dragQ)) THEN
+        IF (Master) WRITE (stdout,10) TRIM(Vname(1,idragQ)),            &
+     &                                TRIM(ncname)
+        exit_flag=2
+        RETURN
+      END IF
+#  endif
 # endif
 !
 !  Open grid NetCDF file for reading.
@@ -273,13 +293,13 @@
      &                        GRID(ng) % rmask,                         &
 # endif
      &                        GRID(ng) % h)
-            IF (status.eq.nf90_noerr) THEN
-              DO j=LBj,UBj
-                DO i=LBi,UBi
-                  IF (GRID(ng)%h(i,j) .eq. 0.0) GRID(ng) % h(i,j) = -1.
-                END DO
-              END DO
-            ELSE
+            IF (status.ne.nf90_noerr) THEN
+!             DO j=LBj,UBj
+!               DO i=LBi,UBi
+!                 IF (GRID(ng)%h(i,j) .eq. 0.0) GRID(ng) % h(i,j) = -1.
+!               END DO
+!             END DO
+!           ELSE
               IF (Master) THEN
                 WRITE (stdout,30) 'h', TRIM(ncname)
               END IF
@@ -345,7 +365,7 @@
               EXIT
             END IF
 #  if defined EW_PERIODIC || defined NS_PERIODIC
-            CALL exchange_r2d_tile (ng, tile,                           &
+            CALL exchange_u2d_tile (ng, tile,                           &
      &                              LBi, UBi, LBj, UBj,                 &
      &                              GRID(ng) % umask)
 #  endif
@@ -442,37 +462,6 @@
      &                          LBi, UBi, LBj, UBj,                     &
      &                          NghostPoints, EWperiodic, NSperiodic,   &
      &                          GRID(ng) % zice)
-#  endif
-# endif
-# if defined RDRG_GRID && ! defined ANA_RDRG
-!
-!  Read in bottom drag coefficient.
-!
-          CASE ('rdrg_grid')
-            gtype=r2dvar
-            status=nf_fread2d(ng, model, ncname, ncGRDid(ng),           &
-     &                        var_name(it), var_id(it), 0,              &
-     &                        gtype, Vsize, LBi, UBi, LBj, UBj,         &
-     &                        Fscl, Fmin, Fmax,                         &
-#  ifdef MASKING
-     &                        GRID(ng) % rmask,                         &
-#  endif
-     &                        FORCES(ng) % rdrg_grid)
-            IF (status.ne.nf90_noerr) THEN
-              exit_flag=2
-              ioerror=status
-              EXIT
-            END IF
-#  if defined EW_PERIODIC || defined NS_PERIODIC
-            CALL exchange_r2d_tile (ng, tile,                           &
-     &                              LBi, UBi, LBj, UBj,                 &
-     &                              FORCES(ng) % rdrg_grid)
-#  endif
-#  ifdef DISTRIBUTE
-            CALL mp_exchange2d (ng, tile, model, 1,                     &
-     &                          LBi, UBi, LBj, UBj,                     &
-     &                          NghostPoints, EWperiodic, NSperiodic,   &
-     &                          FORCES(ng) % rdrg_grid)
 #  endif
 # endif
 # if defined WTYPE_GRID && ! defined ANA_WTYPE
@@ -1206,9 +1195,111 @@
         END SELECT
       END DO
       IF (exit_flag.ne.NoError) THEN
-        IF (Master) WRITE (stdout,30) TRIM(var_name(it)), TRIM(ncname)
+        IF (Master) WRITE (stdout,30) TRIM(var_name(i)), TRIM(ncname)
         RETURN
       END IF
+
+# if defined UV_DRAG_GRID && !defined ANA_DRAG
+#  ifdef UV_LOGDRAG
+!
+!  Read in spacially varying bottom roughness length (m).
+!
+      gtype=r2dvar
+      status=nf_fread2d(ng, model, ncname, ncGRDid(ng),                 &
+     &                  Vname(1,idZoBL), varid_ZoBL,                    &
+     &                  0, gtype, Vsize,                                &
+     &                  LBi, UBi, LBj, UBj,                             &
+     &                  Fscl, Fmin, Fmax,                               &
+#   ifdef MASKING
+     &                  GRID(ng) % rmask,                               &
+#   endif
+     &                  GRID(ng) % ZoBot)
+      IF (status.ne.nf90_noerr) THEN
+        IF (Master) WRITE (stdout,30) TRIM(Vname(1,idZoBL)),            &
+     &                                TRIM(ncname)
+        exit_flag=2
+        ioerror=status
+        RETURN
+      END IF
+#   if defined EW_PERIODIC || defined NS_PERIODIC
+      CALL exchange_r2d_tile (ng, tile,                                 &
+     &                        LBi, UBi, LBj, UBj,                       &
+     &                        GRID(ng) % ZoBot)
+#   endif
+#   ifdef DISTRIBUTE
+      CALL mp_exchange2d (ng, tile, model, 1,                           &
+     &                    LBi, UBi, LBj, UBj,                           &
+     &                    NghostPoints, EWperiodic, NSperiodic,         &
+     &                    GRID(ng) % ZoBot)
+#   endif
+#  endif
+#  ifdef UV_LDRAG
+!
+!  Read in spacially varying linear drag coefficients (m/s).
+!
+      gtype=r2dvar
+      status=nf_fread2d(ng, model, ncname, ncGRDid(ng),                 &
+     &                  Vname(1,idragL), varid_dragL,                   &
+     &                  0, gtype, Vsize,                                &
+     &                  LBi, UBi, LBj, UBj,                             &
+     &                  Fscl, Fmin, Fmax,                               &
+#   ifdef MASKING
+     &                  GRID(ng) % rmask,                               &
+#   endif
+     &                  GRID(ng) % rdrag)
+      IF (status.ne.nf90_noerr) THEN
+        IF (Master) WRITE (stdout,30) TRIM(Vname(1,idragL)),            &
+     &                                TRIM(ncname)
+        exit_flag=2
+        ioerror=status
+        RETURN
+      END IF
+#   if defined EW_PERIODIC || defined NS_PERIODIC
+      CALL exchange_r2d_tile (ng, tile,                                 &
+     &                        LBi, UBi, LBj, UBj,                       &
+     &                        GRID(ng) % rdrag)
+#   endif
+#   ifdef DISTRIBUTE
+      CALL mp_exchange2d (ng, tile, model, 1,                           &
+     &                    LBi, UBi, LBj, UBj,                           &
+     &                    NghostPoints, EWperiodic, NSperiodic,         &
+     &                    GRID(ng) % rdrag)
+#   endif
+#  endif
+#  ifdef UV_QDRAG
+!
+!  Read in spacially varying quadratic drag coefficients.
+!
+      gtype=r2dvar
+      status=nf_fread2d(ng, model, ncname, ncGRDid(ng),                 &
+     &                  Vname(1,idragQ), varid_dragQ,                   &
+     &                  0, gtype, Vsize,                                &
+     &                  LBi, UBi, LBj, UBj,                             &
+     &                  Fscl, Fmin, Fmax,                               &
+#   ifdef MASKING
+     &                  GRID(ng) % rmask,                               &
+#   endif
+     &                  GRID(ng) % rdrag2)
+      IF (status.ne.nf90_noerr) THEN
+        IF (Master) WRITE (stdout,30) TRIM(Vname(1,idragQ)),            &
+     &                                TRIM(ncname)
+        exit_flag=2
+        ioerror=status
+        RETURN
+      END IF
+#   if defined EW_PERIODIC || defined NS_PERIODIC
+      CALL exchange_r2d_tile (ng, tile,                                 &
+     &                        LBi, UBi, LBj, UBj,                       &
+     &                        GRID(ng) % rdrag2)
+#   endif
+#   ifdef DISTRIBUTE
+      CALL mp_exchange2d (ng, tile, model, 1,                           &
+     &                    LBi, UBi, LBj, UBj,                           &
+     &                    NghostPoints, EWperiodic, NSperiodic,         &
+     &                    GRID(ng) % rdrag2)
+#   endif
+#  endif
+# endif
 !
 ! Close GRID NetCDF file.
 !

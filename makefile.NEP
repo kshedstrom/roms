@@ -75,7 +75,7 @@ MY_HEADER_DIR ?= Apps/NEP
 #  If applicable, also used this directory to place your customized
 #  biology model header file (like fennel.h, nemuro.h, ecosim.h, etc).
 
-MY_ANALYTICAL_DIR ?=
+MY_ANALYTICAL_DIR ?= Apps/NEP
 
 #  Sometimes it is desirable to activate one or more CPP options to
 #  run different variants of the same application without modifying

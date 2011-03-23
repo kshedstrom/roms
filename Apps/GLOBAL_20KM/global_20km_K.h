@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2010 The ROMS/TOMS Group
+** Copyright (c) 2002-2011 The ROMS/TOMS Group
 **
 **   Licensed under a MIT/X style license
 **
@@ -95,7 +95,7 @@
 
 #define SCORRECTION
 
-#define RDRG_GRID
+#define UV_DRAG_GRID
 
 #define SSH_TIDES       /* turn on computation of tidal elevation */
 #define UV_TIDES        /* turn on computation of tidal currents */

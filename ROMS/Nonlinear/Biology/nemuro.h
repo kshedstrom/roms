@@ -2,7 +2,7 @@
 !
 !svn $Id$
 !************************************************** Hernan G. Arango ***
-!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2011 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !***********************************************************************
@@ -79,6 +79,9 @@
 #ifdef NEMURO_SED1
      &                   OCEAN(ng) % PONsed,                            &
      &                   OCEAN(ng) % OPALsed,                           &
+     &                   OCEAN(ng) % DENITsed,                          &
+     &                   OCEAN(ng) % PON_burial,                        &
+     &                   OCEAN(ng) % OPAL_burial,                       &
 #endif
      &                   OCEAN(ng) % t)
 
@@ -102,7 +105,8 @@
      &                         Hz, z_r, z_w,                            &
      &                         srflx,                                   &
 #ifdef NEMURO_SED1
-     &                         PONsed, OPALsed,                         &
+     &                         PONsed, OPALsed, DENITsed,               &
+     &                         PON_burial, OPAL_burial,                 &
 #endif
      &                         t)
 !-----------------------------------------------------------------------
@@ -133,6 +137,9 @@
 # ifdef NEMURO_SED1
       real(r8), intent(inout) :: PONsed(LBi:,LBj:)
       real(r8), intent(inout) :: OPALsed(LBi:,LBj:)
+      real(r8), intent(inout) :: DENITsed(LBi:,LBj:)
+      real(r8), intent(inout) :: PON_burial(LBi:,LBj:)
+      real(r8), intent(inout) :: OPAL_burial(LBi:,LBj:)
 # endif
       real(r8), intent(inout) :: t(LBi:,LBj:,:,:,:)
 #else
@@ -149,6 +156,9 @@
 # ifdef NEMURO_SED1
       real(r8), intent(inout) :: PONsed(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: OPALsed(LBi:UBi,LBj:UBj)
+      real(r8), intent(inout) :: DENITsed(LBi:UBi,LBj:UBj)
+      real(r8), intent(inout) :: PON_burial(LBi:UBi,LBj:UBj)
+      real(r8), intent(inout) :: OPAL_burial(LBi:UBi,LBj:UBj)
 # endif
       real(r8), intent(inout) :: t(LBi:UBi,LBj:UBj,UBk,3,UBt)
 #endif
@@ -209,6 +219,7 @@
       real(r8), dimension(IminS:ImaxS,N(ng)) :: bR
       real(r8), dimension(IminS:ImaxS,N(ng)) :: qc
       real(r8), dimension(IminS:ImaxS,N(ng)) :: LPSiN
+      real(r8), dimension(IminS:ImaxS) :: frac_buried
 
 #include "set_bounds.h"
 
@@ -1077,6 +1088,17 @@
             PONsed(i,j)=PONsed(i,j)/(1.0_r8+cff7)
             Bio(i,1,iNH4_)=Bio(i,1,iNH4_)+                              &
       &                       PONsed(i,j)*cff7*Hz_inv(i,1)
+!
+!  ENC+CAS:  Our attempt at denitrification
+!  This is the NO3 that is lost to N2 due to denitrification
+!  in the sediments.  We assume 12% of PONsed remineralization is
+!  from denitrification (blame Katja, 2009)
+!
+            cff8= 0.12_r8*PONsed(i,j)*cff7*5.3_r8
+            DENITsed(i,j)=MIN( Bio(i,1,iNO3_)*Hz(i,j,1),cff8)*          &
+     &                     (1.0_r8/dtdays)
+            Bio(i,1,iNO3_)=MAX(Bio(i,1,iNO3_)-cff8*Hz_inv(i,1),0.0_r8)
+
           END DO
 #endif
 !
@@ -1257,11 +1279,6 @@
                 Bio(i,k,ibio)=qc(i,k)+(FC(i,k)-FC(i,k-1))*Hz_inv(i,k)
               END DO
             END DO
-#ifdef NEMURO_SED2
-            DO i=Istr,Iend
-              Bio(i,1,ibio)=Bio(i,1,ibio)+FC(i,0)*Hz_inv(i,1)
-            END DO
-#endif
 
 #ifdef BIO_SEDIMENT
 !
@@ -1276,24 +1293,17 @@
 !       Lagrangian algorithm. What is the correct nutrient path from
 !       the benthos to the water column?  NH4 to NO3?
 !
-#ifdef NEMURO_SED2
-            fac2=dtdays*VP2N0(ng)
-            fac3=dtdays*VP2D0(ng)
-            fac5=dtdays*VO2S0(ng)
-#endif
 !
             IF (ibio.eq.iPON_) THEN
               DO i=Istr,Iend
 # ifdef NEMURO_SED1
+                cff1=FC(i,0)*6.625_r8*(1.0_r8/dtdays)
+                frac_buried(i) = 0.013_r8 + 0.53_r8*cff1**2/            &
+     &                     (7.0_r8+cff1*cff1)
                 cff1=FC(i,0)
-                PONsed(i,j) = PONsed(i,j)+cff1
-# elif defined NEMURO_SED2
-                cff1=FC(i,0)*Hz_inv(i,1)
-                cff2=fac2*EXP(KP2N(ng)*Bio(i,1,itemp))
-                cff3=fac3*EXP(KP2D(ng)*Bio(i,1,itemp))
-                Bio(i,1,iNH4_)=Bio(i,1,iNH4_)+cff1*cff2
-                Bio(i,1,iDON_)=Bio(i,1,iDON_)+cff1*cff3
-                Bio(i,1,iPON_)=Bio(i,1,iPON_)+cff1*(1.0_r8-cff2-cff3)
+                PON_burial(i,j)=frac_buried(i)*FC(i,j)*              &
+     &                           (1.0_r8/dtdays)
+                PONsed(i,j)=PONsed(i,j)+(1.0_r8-frac_buried(i))*cff1
 # else
                 cff1=FC(i,0)*Hz_inv(i,1)
                 Bio(i,1,iNO3_)=Bio(i,1,iNO3_)+cff1
@@ -1307,12 +1317,9 @@
               DO i=Istr,Iend
 # ifdef NEMURO_SED1
                 cff1=FC(i,0)
-                OPALsed(i,j) = OPALsed(i,j)+cff1
-# elif defined NEMURO_SED2
-                cff1=FC(i,0)*Hz_inv(i,1)
-                cff5=fac5*EXP(KO2S(ng)*Bio(i,1,itemp))
-                Bio(i,1,iSiOH)=Bio(i,1,iSiOH)+cff1*cff5
-                Bio(i,1,iopal)=Bio(i,1,iopal)+cff1*(1.0_r8-cff5)
+                OPAL_burial(i,j)=frac_buried(i)*FC(i,j)*             &
+     &                               (1.0_r8/dtdays)
+                OPALsed(i,j)=OPALsed(i,j)+(1.0_r8-frac_buried(i))*cff1
 # else
                 cff1=FC(i,0)*Hz_inv(i,1)
                 Bio(i,1,iSiOH)=Bio(i,1,iSiOH)+cff1

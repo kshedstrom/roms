@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !=======================================================================
-!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2011 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                           Hernan G. Arango   !
 !========================================== Alexander F. Shchepetkin ===
@@ -268,6 +268,13 @@
 !
       USE mod_param
 !
+# if defined EW_PERIODIC || defined NS_PERIODIC
+      USE exchange_3d_mod, ONLY : exchange_w3d_tile
+# endif
+# ifdef DISTRIBUTE
+      USE mp_exchange_mod, ONLY : mp_exchange3d
+# endif
+!
 !  Imported variable declarations.
 !
       integer, intent(in) :: ng, tile
@@ -287,6 +294,18 @@
 !
 !  Local variable declarations.
 !
+# ifdef DISTRIBUTE
+#  ifdef EW_PERIODIC
+      logical :: EWperiodic=.TRUE.
+#  else
+      logical :: EWperiodic=.FALSE.
+#  endif
+#  ifdef NS_PERIODIC
+      logical :: NSperiodic=.TRUE.
+#  else
+      logical :: NSperiodic=.FALSE.
+#  endif
+# endif
       integer :: i, j, k
 
 # include "set_bounds.h"
@@ -302,6 +321,21 @@
           END DO
         END DO
       END DO
+
+# if defined EW_PERIODIC || defined NS_PERIODIC
+!
+!  Exchange boundary data.
+!
+      CALL exchange_w3d_tile (ng, tile,                                 &
+     &                        LBi, UBi, LBj, UBj, LBk, UBk,             &
+     &                        Wscl)
+# endif
+# ifdef DISTRIBUTE
+      CALL mp_exchange3d (ng, tile, iNLM, 1,                            &
+     &                    LBi, UBi, LBj, UBj, 0, N(ng),                 &
+     &                    NghostPoints, EWperiodic, NSperiodic,         &
+     &                    Wscl)
+# endif
 
       RETURN
       END SUBROUTINE scale_omega

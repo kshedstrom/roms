@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2010 The ROMS/TOMS Group
+** Copyright (c) 2002-2011 The ROMS/TOMS Group
 **
 **   Licensed under a MIT/X style license
 **
@@ -161,7 +161,7 @@
 # define TIDES_ASTRO
 # undef POT_TIDES
 # define UV_LDRAG
-# define RDRG_GRID
+# define UV_DRAG_GRID
 #else
 # define UV_QDRAG
 #endif

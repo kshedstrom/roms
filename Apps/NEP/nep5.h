@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2010 The ROMS/TOMS Group
+** Copyright (c) 2002-2011 The ROMS/TOMS Group
 **
 **   Licensed under a MIT/X style license
 **
@@ -31,7 +31,7 @@
 #define STATIONS
 #undef WET_DRY
 
-#define T_PASSIVE
+#undef T_PASSIVE
 #ifdef T_PASSIVE
 # define ANA_PASSIVE
 # define TRC_PSOURCE
@@ -91,7 +91,7 @@
 #endif
 
 #define UV_VIS2
-#define UV_SMAGORINSKY
+#undef UV_SMAGORINSKY
 #define VISC_3DCOEF
 #define MIX_S_UV
 #define VISC_GRID
@@ -103,11 +103,11 @@
 # define DIFF_GRID
 #endif
 
-
 /* vertical mixing */
 
 #ifdef SOLVE3D
 # define SOLAR_SOURCE
+# define WTYPE_GRID
 
 # define LMD_MIXING
 # ifdef LMD_MIXING
@@ -149,7 +149,8 @@
 /* surface and side corrections */
 
 #ifdef SOLVE3D
-# define SRELAXATION
+# define SCORRECTION
+# undef SRELAXATION
 # undef QCORRECTION
 #endif
 
@@ -162,9 +163,9 @@
 
 /* Using Runoff instead now */
 #ifdef SOLVE3D
-#define RUNOFF
-# define UV_PSOURCE
-# define ANA_PSOURCE
+# define RUNOFF
+# undef UV_PSOURCE
+# undef ANA_PSOURCE
 # undef TS_PSOURCE
 #endif
 
@@ -182,7 +183,8 @@
 # define POT_TIDES
 
 # define UV_LDRAG
-# define RDRG_GRID
+# define UV_DRAG_GRID
+# define ANA_DRAG
 # define DRAG_LIMITER
 # undef UV_QDRAG
 #else
@@ -191,7 +193,7 @@
 
 /* Boundary conditions...careful with grid orientation */
 
-#define EASTERN_WALL
+#undef EASTERN_WALL
 #define NORTHERN_WALL
 #undef WESTERN_WALL
 #undef SOUTHERN_WALL
@@ -276,7 +278,6 @@
 #if defined NEMURO
 # define BIO_SEDIMENT
 # define NEMURO_SED1
-# undef NEMURO_SED2
 # undef ANA_BIOLOGY       /* analytical biology initial conditions */
 # define ANA_BPFLUX        /* analytical bottom passive tracers fluxes */
 # define ANA_SPFLUX        /* analytical surface passive tracers fluxes */

@@ -1,7 +1,7 @@
 !  NEMURO Ecosystem Model Parameters.
 !
 !========================================================= Hernan G. Arango ===
-!  Copyright (c) 2002-2010 The ROMS/TOMS Group                                !
+!  Copyright (c) 2002-2011 The ROMS/TOMS Group                                !
 !    Licensed under a MIT/X style license                                     !
 !    See License_ROMS.txt                                                     !
 !==============================================================================
@@ -290,6 +290,9 @@ Hout(idTsur) == 14*F                       ! surface tracer flux
 ! Logical switches for bio sediment variables.
 Hout(idPONsed) == T
 Hout(idOPALsed) == T
+Hout(idDENITsed) == T
+Hout(idPONbur) == T
+Hout(idOPALbur) == T
 
 ! Logical switches (TRUE/FALSE) to activate writing of time-averaged fields
 ! into AVERAGE output file: [1;NBT,Ngrids].
@@ -300,6 +303,9 @@ Aout(idTsur) == 14*F                       ! surface tracer flux
 ! Logical switches for bio sediment variables.
 Aout(idPONsed) == T
 Aout(idOPALsed) == T
+Aout(idDENITsed) == T
+Aout(idPONbur) == T
+Aout(idOPALbur) == T
 
 ! Logical switches (TRUE/FALSE) to activate writing of time-averaged,
 ! biological tracer diagnostic terms into DIAGNOSTIC output file:

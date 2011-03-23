@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2010 The ROMS/TOMS Group
+** Copyright (c) 2002-2011 The ROMS/TOMS Group
 **
 **   Licensed under a MIT/X style license
 **
@@ -182,7 +182,7 @@
 # define POT_TIDES
 
 # define UV_LDRAG
-# define RDRG_GRID
+# define UV_DRAG_GRID
 # define DRAG_LIMITER
 # undef UV_QDRAG
 #else
@@ -276,7 +276,6 @@
 #if defined NEMURO
 # define BIO_SEDIMENT
 # define NEMURO_SED1
-# undef NEMURO_SED2
 # undef ANA_BIOLOGY       /* analytical biology initial conditions */
 # define ANA_BPFLUX        /* analytical bottom passive tracers fluxes */
 # define ANA_SPFLUX        /* analytical surface passive tracers fluxes */

@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2011 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -890,6 +890,7 @@
             END IF
           END IF
         END IF
+!
         IF (get_var(idOPALsed)) THEN
           foundit=find_string(var_name, n_var,                          &
      &                          TRIM(Vname(1,idOPALsed)), varid)
@@ -914,6 +915,93 @@
           ELSE
             IF (Master) THEN
               WRITE (stdout,100) TRIM(Vname(2,idOPALsed)),              &
+     &                           Fmin, Fmax
+            END IF
+          END IF
+        END IF
+!
+        IF (get_var(idDENITsed)) THEN
+          foundit=find_string(var_name, n_var,                          &
+     &                          TRIM(Vname(1,idDENITsed)), varid)
+          gtype=var_flag(varid)*r2dvar
+          status=nf_fread2d(ng, IDmod, ncname, ncINPid,                 &
+     &                      Vname(1,idDENITsed), varid,                 &
+     &                      InpRec, gtype, Vsize,                       &
+     &                      LBi, UBi, LBj, UBj,                         &
+     &                      Fscl, Fmin, Fmax,                           &
+#   ifdef MASKING
+     &                      GRID(ng) % rmask,                           &
+#   endif
+     &                      OCEAN(ng) % DENITsed)
+          IF (status.ne.nf90_noerr) THEN
+            IF (Master) THEN
+              WRITE (stdout,30) string, TRIM(Vname(1,idDENITsed)),      &
+     &                          InpRec, TRIM(ncname)
+            END IF
+            exit_flag=2
+            ioerror=status
+            RETURN
+          ELSE
+            IF (Master) THEN
+              WRITE (stdout,100) TRIM(Vname(2,idDENITsed)),             &
+     &                           Fmin, Fmax
+            END IF
+          END IF
+        END IF
+!
+        IF (get_var(idPONbur)) THEN
+          foundit=find_string(var_name, n_var,                          &
+     &                          TRIM(Vname(1,idPONbur)), varid)
+          gtype=var_flag(varid)*r2dvar
+          status=nf_fread2d(ng, IDmod, ncname, ncINPid,                 &
+     &                      Vname(1,idPONbur), varid,                   &
+     &                      InpRec, gtype, Vsize,                       &
+     &                      LBi, UBi, LBj, UBj,                         &
+     &                      Fscl, Fmin, Fmax,                           &
+#   ifdef MASKING
+     &                      GRID(ng) % rmask,                           &
+#   endif
+     &                      OCEAN(ng) % PON_burial)
+          IF (status.ne.nf90_noerr) THEN
+            IF (Master) THEN
+              WRITE (stdout,30) string, TRIM(Vname(1,idPONbur)),        &
+     &                          InpRec, TRIM(ncname)
+            END IF
+            exit_flag=2
+            ioerror=status
+            RETURN
+          ELSE
+            IF (Master) THEN
+              WRITE (stdout,100) TRIM(Vname(2,idPONbur)),               &
+     &                           Fmin, Fmax
+            END IF
+          END IF
+        END IF
+!
+        IF (get_var(idOPALbur)) THEN
+          foundit=find_string(var_name, n_var,                          &
+     &                          TRIM(Vname(1,idOPALbur)), varid)
+          gtype=var_flag(varid)*r2dvar
+          status=nf_fread2d(ng, IDmod, ncname, ncINPid,                 &
+     &                      Vname(1,idOPALbur), varid,                  &
+     &                      InpRec, gtype, Vsize,                       &
+     &                      LBi, UBi, LBj, UBj,                         &
+     &                      Fscl, Fmin, Fmax,                           &
+#   ifdef MASKING
+     &                      GRID(ng) % rmask,                           &
+#   endif
+     &                      OCEAN(ng) % OPAL_burial)
+          IF (status.ne.nf90_noerr) THEN
+            IF (Master) THEN
+              WRITE (stdout,30) string, TRIM(Vname(1,idOPALbur)),       &
+     &                          InpRec, TRIM(ncname)
+            END IF
+            exit_flag=2
+            ioerror=status
+            RETURN
+          ELSE
+            IF (Master) THEN
+              WRITE (stdout,100) TRIM(Vname(2,idOPALbur)),              &
      &                           Fmin, Fmax
             END IF
           END IF

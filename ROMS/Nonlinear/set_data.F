@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2011 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -843,6 +843,14 @@
      &                     LBi, UBi, LBj, UBj,                          &
      &                     FORCES(ng)%sssflxG,                          &
      &                     FORCES(ng)%sssflx,                           &
+     &                     update)
+# endif
+
+# if defined FASTICE_CLIMATOLOGY && defined SOLVE3D
+      CALL set_2dfld_tile (ng, tile, iNLM, idFastIce,                   &
+     &                     LBi, UBi, LBj, UBj,                          &
+     &                     FORCES(ng)%fastice_clmG,                     &
+     &                     FORCES(ng)%fastice_clm,                      &
      &                     update)
 # endif
 

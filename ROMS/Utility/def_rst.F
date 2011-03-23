@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2011 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -855,6 +855,9 @@
 # ifdef PERFECT_RESTART
 !
 !  Define RHS of 3D momentum equation in the XI-direction.
+!  Although this variable is a U-points, a negative value is used
+!  here to set "s_w" in the "coordinate" attribute.  The k=0 index
+!  is used during coupling in step2d.
 !
         Vinfo( 1)=Vname(1,idRu3d)
         Vinfo( 2)=Vname(2,idRu3d)
@@ -870,7 +873,7 @@
 #   endif
 #  endif
         Vinfo(22)='coordinates'
-        Aval(5)=REAL(Iinfo(1,idRu3d,ng),r8)
+        Aval(5)=REAL(-u3dvar, r8)
         status=def_var(ng, iNLM, ncRSTid(ng), rstVid(idRu3d,ng),        &
      &                 NF_FRST, nvd5, ru3dgrd, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
@@ -905,6 +908,9 @@
 # ifdef PERFECT_RESTART
 !
 !  Define RHS of 3D momentum equation in the ETA-direction.
+!  Although this variable is a V-points, a negative value is used
+!  here to set "s_w" in the "coordinate" attribute.  The k=0 index
+!  is used during coupling in step2d.
 !
         Vinfo( 1)=Vname(1,idRv3d)
         Vinfo( 2)=Vname(2,idRv3d)
@@ -920,7 +926,7 @@
 #   endif
 #  endif
         Vinfo(22)='coordinates'
-        Aval(5)=REAL(Iinfo(1,idRv3d,ng),r8)
+        Aval(5)=REAL(-v3dvar,r8)
         status=def_var(ng, iNLM, ncRSTid(ng), rstVid(idRv3d,ng),        &
      &                 NF_FRST, nvd5, rv3dgrd, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
@@ -935,16 +941,16 @@
           Vinfo(14)=Vname(4,idTvar(itrc))
           Vinfo(16)=Vname(1,idtime)
 # ifdef SEDIMENT
-            DO i=1,NST
-              IF (itrc.eq.idsed(i)) THEN
-                WRITE (Vinfo(19),20) 1000.0_r8*Sd50(i,ng)
-              END IF
-            END DO
+          DO i=1,NST
+            IF (itrc.eq.idsed(i)) THEN
+              WRITE (Vinfo(19),20) 1000.0_r8*Sd50(i,ng)
+            END IF
+          END DO
 # endif
 # if defined WRITE_WATER && defined MASKING
 #  if defined PERFECT_RESTART
-        Vinfo(24)='_FillValue'
-        Aval(6)=spval
+          Vinfo(24)='_FillValue'
+          Aval(6)=spval
 #  else
           Vinfo(20)='mask_rho'
 #  endif
@@ -1129,6 +1135,69 @@
         Vinfo(22)='coordinates'
         Aval(5)=REAL(Iinfo(1,idOPALsed,ng),r8)
         status=def_var(ng, iNLM, ncRSTid(ng), rstVid(idOPALsed,ng),     &
+     &                 NF_FRST, nvd3, t2dgrd, Aval, Vinfo, ncname)
+        IF (exit_flag.ne.NoError) RETURN
+!
+!  Define DENIT in sediment.
+!
+        Vinfo( 1)=Vname(1,idDENITsed)
+        Vinfo( 2)=Vname(2,idDENITsed)
+        Vinfo( 3)=Vname(3,idDENITsed)
+        Vinfo(14)=Vname(4,idDENITsed)
+        Vinfo(16)=Vname(1,idtime)
+#  if defined WRITE_WATER && defined MASKING
+#   if defined PERFECT_RESTART
+        Vinfo(24)='_FillValue'
+        Aval(6)=spval
+#   else
+        Vinfo(20)='mask_rho'
+#   endif
+#  endif
+        Vinfo(22)='coordinates'
+        Aval(5)=REAL(Iinfo(1,idDENITsed,ng),r8)
+        status=def_var(ng, iNLM, ncRSTid(ng), rstVid(idDENITsed,ng),     &
+     &                 NF_FRST, nvd3, t2dgrd, Aval, Vinfo, ncname)
+        IF (exit_flag.ne.NoError) RETURN
+!
+!  Define buried PON in sediment.
+!
+        Vinfo( 1)=Vname(1,idPONbur)
+        Vinfo( 2)=Vname(2,idPONbur)
+        Vinfo( 3)=Vname(3,idPONbur)
+        Vinfo(14)=Vname(4,idPONbur)
+        Vinfo(16)=Vname(1,idtime)
+#  if defined WRITE_WATER && defined MASKING
+#   if defined PERFECT_RESTART
+        Vinfo(24)='_FillValue'
+        Aval(6)=spval
+#   else
+        Vinfo(20)='mask_rho'
+#   endif
+#  endif
+        Vinfo(22)='coordinates'
+        Aval(5)=REAL(Iinfo(1,idPONbur,ng),r8)
+        status=def_var(ng, iNLM, ncRSTid(ng), rstVid(idPONbur,ng),      &
+     &                 NF_FRST, nvd3, t2dgrd, Aval, Vinfo, ncname)
+        IF (exit_flag.ne.NoError) RETURN
+!
+!  Define buried OPAL in sediment.
+!
+        Vinfo( 1)=Vname(1,idOPALbur)
+        Vinfo( 2)=Vname(2,idOPALbur)
+        Vinfo( 3)=Vname(3,idOPALbur)
+        Vinfo(14)=Vname(4,idOPALbur)
+        Vinfo(16)=Vname(1,idtime)
+#  if defined WRITE_WATER && defined MASKING
+#   if defined PERFECT_RESTART
+        Vinfo(24)='_FillValue'
+        Aval(6)=spval
+#   else
+        Vinfo(20)='mask_rho'
+#   endif
+#  endif
+        Vinfo(22)='coordinates'
+        Aval(5)=REAL(Iinfo(1,idOPALbur,ng),r8)
+        status=def_var(ng, iNLM, ncRSTid(ng), rstVid(idOPALbur,ng),     &
      &                 NF_FRST, nvd3, t2dgrd, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 # endif
@@ -2138,6 +2207,15 @@
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idOPALsed))) THEN
             got_var(idOPALsed)=.TRUE.
             rstVid(idOPALsed,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idDENITsed))) THEN
+            got_var(idDENITsed)=.TRUE.
+            rstVid(idDENITsed,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idPONbur))) THEN
+            got_var(idPONbur)=.TRUE.
+            rstVid(idPONbur,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idOPALbur))) THEN
+            got_var(idOPALbur)=.TRUE.
+            rstVid(idOPALbur,ng)=var_id(i)
 #endif
           END IF
 #ifdef SOLVE3D
@@ -2477,6 +2555,24 @@
         END IF
         IF (.not.got_var(idOPALsed)) THEN
           IF (Master) WRITE (stdout,40) TRIM(Vname(1,idOPALsed)),       &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idDENITsed)) THEN
+          IF (Master) WRITE (stdout,40) TRIM(Vname(1,idDENITsed)),       &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idPONbur)) THEN
+          IF (Master) WRITE (stdout,40) TRIM(Vname(1,idPONbur)),        &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idOPALbur)) THEN
+          IF (Master) WRITE (stdout,40) TRIM(Vname(1,idOPALbur)),       &
      &                                  TRIM(ncname)
           exit_flag=3
           RETURN

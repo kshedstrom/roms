@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2011 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -227,9 +227,6 @@
           real(r8), pointer :: bustr(:,:)
           real(r8), pointer :: bvstr(:,:)
 #endif
-#ifdef RDRG_GRID
-          real(r8), pointer :: rdrg_grid(:,:)
-#endif
 
 #ifdef WAVES_DIR
           real(r8), pointer :: Dwave(:,:)
@@ -401,6 +398,13 @@
           real(r8), pointer :: sssflx(:,:)
 #  ifndef ANA_SSSFLX
           real(r8), pointer :: sssflxG(:,:,:)
+#  endif
+# endif
+
+# ifdef FASTICE_CLIMATOLOGY
+          real(r8), pointer :: fastice_clm(:,:)
+#  ifndef ANA_FASTICE
+          real(r8), pointer :: fastice_clmG(:,:,:)
 #  endif
 # endif
 
@@ -609,9 +613,6 @@
       allocate ( FORCES(ng) % bustr(LBi:UBi,LBj:UBj) )
       allocate ( FORCES(ng) % bvstr(LBi:UBi,LBj:UBj) )
 #endif
-#ifdef RDRG_GRID
-      allocate ( FORCES(ng) % rdrg_grid(LBi:UBi,LBj:UBj) )
-#endif
 
 #ifdef WAVES_DIR
       allocate ( FORCES(ng) % Dwave(LBi:UBi,LBj:UBj) )
@@ -801,6 +802,14 @@
 
 #  ifndef ANA_SSSFLX
       allocate ( FORCES(ng) % sssflxG(LBi:UBi,LBj:UBj,2) )
+#  endif
+# endif
+
+# if defined FASTICE_CLIMATOLOGY
+      allocate ( FORCES(ng) % fastice_clm(LBi:UBi,LBj:UBj) )
+
+#  ifndef ANA_FASTICE
+      allocate ( FORCES(ng) % fastice_clmG(LBi:UBi,LBj:UBj,2) )
 #  endif
 # endif
 
@@ -1086,9 +1095,6 @@
 # endif
             FORCES(ng) % bustr(i,j) = IniVal
             FORCES(ng) % bvstr(i,j) = IniVal
-# ifdef RDRG_GRID
-            FORCES(ng) % rdrg_grid(i,j) = IniVal
-# endif
 # ifdef WAVES_DIR
             FORCES(ng) % Dwave(i,j) = IniVal
 #  ifndef ANA_WWAVE
@@ -1262,6 +1268,13 @@
 #  ifndef ANA_SSSFLX
             FORCES(ng) % sssflxG(i,j,1) = IniVal
             FORCES(ng) % sssflxG(i,j,2) = IniVal
+#  endif
+# endif
+# if defined FASTICE_CLIMATOLOGY
+            FORCES(ng) % fastice_clm(i,j) = IniVal
+#  ifndef ANA_FASTICE
+            FORCES(ng) % fastice_clmG(i,j,1) = IniVal
+            FORCES(ng) % fastice_clmG(i,j,2) = IniVal
 #  endif
 # endif
             DO itrc=1,NT(ng)

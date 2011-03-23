@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !=======================================================================
-!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2011 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                           Hernan G. Arango   !
 !========================================== Alexander F. Shchepetkin ===
@@ -107,9 +107,7 @@
 # if defined ICE_MODEL && defined ICE_THERMO
       USE ice_frazil_mod, ONLY : ice_frazil
 # endif
-# ifdef MOVE_SET_DEPTH
       USE set_depth_mod, ONLY : set_depth
-# endif
       USE set_massflux_mod, ONLY : set_massflux
 # if defined SSH_TIDES || defined UV_TIDES || defined POT_TIDES
       USE set_tides_mod, ONLY : set_tides

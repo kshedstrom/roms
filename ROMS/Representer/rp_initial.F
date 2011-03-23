@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2011 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -59,14 +59,16 @@
       USE rho_eos_mod, ONLY : rho_eos
       USE set_massflux_mod, ONLY : set_massflux
 # endif
-
       USE stiffness_mod, ONLY : stiffness
-# if defined PROPAGATOR || \
-    (defined MASKING && (defined READ_WATER || defined WRITE_WATER ))
-      USE wpoints_mod, ONLY : wpoints
-# endif
 # ifdef WAVES_OCEAN
       USE ocean_coupler_mod, ONLY : waves_coupling
+# endif
+# ifdef MASKING
+      USE set_masks_mod, ONLY : set_masks
+# endif
+# if defined PROPAGATOR || \
+    (defined MASKING    && (defined READ_WATER || defined WRITE_WATER))
+      USE wpoints_mod, ONLY : wpoints
 # endif
 !
       implicit none
@@ -305,10 +307,6 @@
         subs=NtileX(ng)*NtileE(ng)/numthreads
         DO tile=subs*thread,subs*(thread+1)-1
           CALL metrics (ng, TILE, iRPM)
-# if defined PROPAGATOR || \
-    (defined MASKING && (defined READ_WATER || defined WRITE_WATER ))
-          CALL wpoints (ng, TILE, iRPM)
-# endif
         END DO
       END DO
 !$OMP END PARALLEL DO
@@ -348,8 +346,7 @@
 !  depths with zero free-surface.
 !-----------------------------------------------------------------------
 !
-!$OMP PARALLEL DO PRIVATE(thread,subs,tile)                             &
-!$OMP&            SHARED(ng,numthreads)
+!$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(ng,numthreads)
       DO thread=0,numthreads-1
         subs=NtileX(ng)*NtileE(ng)/numthreads
         DO tile=subs*thread,subs*(thread+1)-1
@@ -366,8 +363,7 @@
 !  the terms are cancelled in the barotropic pressure gradient.
 !-----------------------------------------------------------------------
 !
-!$OMP PARALLEL DO PRIVATE(thread,subs)                                  &
-!$OMP&            SHARED(ng,numthreads)
+!$OMP PARALLEL DO PRIVATE(thread,subs) SHARED(ng,numthreads)
       DO thread=0,numthreads-1
         subs=NtileX(ng)*NtileE(ng)/numthreads
         DO tile=subs*thread,subs*(thread+1)-1
@@ -477,8 +473,7 @@
 !  Compute initial time-evolving depths.
 !-----------------------------------------------------------------------
 !
-!$OMP PARALLEL DO PRIVATE(thread,subs,tile)                             &
-!$OMP&            SHARED(ng,numthreads)
+!$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(ng,numthreads)
       DO thread=0,numthreads-1
         subs=NtileX(ng)*NtileE(ng)/numthreads
         DO tile=subs*thread,subs*(thread+1)-1
@@ -530,6 +525,40 @@
       CALL rp_get_data (ng)
       IF (exit_flag.ne.NoError) RETURN
 
+# ifdef MASKING
+!
+!-----------------------------------------------------------------------
+!  Set internal I/O mask arrays.
+!-----------------------------------------------------------------------
+!
+!$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(ng,numthreads)
+      DO thread=0,numthreads-1
+        subs=NtileX(ng)*NtileE(ng)/numthreads
+        DO tile=subs*thread,subs*(thread+1)-1,+1
+          CALL set_masks (ng, TILE, iRPM)
+        END DO
+      END DO
+!$OMP END PARALLEL DO
+# endif
+
+# if defined PROPAGATOR || \
+    (defined MASKING    && (defined READ_WATER || defined WRITE_WATER ))
+!
+!-----------------------------------------------------------------------
+!  Set variables associated with the processing water points and/or
+!  size of packed state arrays.
+!-----------------------------------------------------------------------
+!
+!$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(ng,numthreads)
+      DO thread=0,numthreads-1
+        subs=NtileX(ng)*NtileE(ng)/numthreads
+        DO tile=subs*thread,subs*(thread+1)-1
+          CALL wpoints (ng, TILE, iRPM)
+        END DO
+      END DO
+!$OMP END PARALLEL DO
+# endif
+
 # ifdef SOLVE3D
 !-----------------------------------------------------------------------
 !  Compute initial representer tangent linear and basic state equation
@@ -545,6 +574,24 @@
         END DO
       END DO
 !$OMP END PARALLEL DO
+# endif
+
+# if defined ANA_DRAG && defined UV_DRAG_GRID
+!
+!-----------------------------------------------------------------------
+!  Set analytical spatially varying bottom friction parameter.
+!-----------------------------------------------------------------------
+!
+      IF (Nrun.eq.ERstr) THEN
+!$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(ng,numthreads)
+        DO thread=0,numthreads-1
+          subs=NtileX(ng)*NtileE(ng)/numthreads
+          DO tile=subs*thread,subs*(thread+1)-1
+            CALL ana_drag (ng, TILE, iRPM)
+          END DO
+        END DO
+!$OMP END PARALLEL DO
+      END IF
 # endif
 !
 !-----------------------------------------------------------------------

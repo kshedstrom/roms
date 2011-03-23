@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2011 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -794,7 +794,7 @@
               ELSE IF (sat_flag(k,itide) == 2) THEN
                 rr=sat_amp(k,itide)*2.59808*slat
               END IF
-              uudbl=sat_doodson(1,k,itide)*p+sat_doodson(2,k,itide)*enp+    &
+              uudbl=sat_doodson(1,k,itide)*p+sat_doodson(2,k,itide)*enp+&
      &              sat_doodson(3,k,itide)*pp+sat_phase_corr(k,itide)
               iuu=uudbl
               uu=uudbl-iuu

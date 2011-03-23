@@ -4,7 +4,7 @@
 !
 !svn $Id: output.F 1274 2010-07-09 23:28:38Z kate $
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2011 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -110,7 +110,7 @@
             IF (Master) THEN
               lstr=LEN_TRIM(HISbase(ng))
               WRITE (HISname(ng),10) HISbase(ng)(1:lstr-3),ifile
-#if defined NEP5 || defined CASPIAN || defined CORAL
+#if defined NEP5 || defined CASPIAN || defined CHUKCHI || defined CORAL
   10          FORMAT (a,'_',i5.5,'.nc')
 #else
   10          FORMAT (a,'_',i4.4,'.nc')
@@ -209,7 +209,7 @@
             IF (Master) THEN
               lstr=LEN_TRIM(AVGbase(ng))
               WRITE (AVGname(ng),20) AVGbase(ng)(1:lstr-3),ifile
-#if defined NEP5 || defined CASPIAN || defined CORAL
+#if defined NEP5 || defined CASPIAN || defined CHUKCHI || defined CORAL
   20          FORMAT (a,'_',i5.5,'.nc')
 #else
   20          FORMAT (a,'_',i4.4,'.nc')
@@ -377,7 +377,7 @@
             IF (Master) THEN
               lstr=LEN_TRIM(DIAbase(ng))
               WRITE (DIAname(ng),30) DIAbase(ng)(1:lstr-3),ifile
-#if defined NEP5 || defined CASPIAN || defined CORAL
+#if defined NEP5 || defined CASPIAN || defined CHUKCHI || defined CORAL
   30          FORMAT (a,'_',i5.5,'.nc')
 #else
   30          FORMAT (a,'_',i4.4,'.nc')
@@ -426,7 +426,7 @@
 !  append new data to it.
 !
         IF (LdefSTA(ng).and.(iic(ng).eq.ntstart(ng))) THEN
-#if defined NEP5 || defined BERING || defined CORAL
+#if defined NEP5 || defined CASPIAN || defined CHUKCHI || defined CORAL
           CALL def_station (ng, .true.)
 #else
           CALL def_station (ng, ldefout(ng))
