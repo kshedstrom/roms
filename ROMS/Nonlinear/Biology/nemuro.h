@@ -1301,7 +1301,7 @@
                 frac_buried(i) = 0.013_r8 + 0.53_r8*cff1**2/            &
      &                     (7.0_r8+cff1*cff1)
                 cff1=FC(i,0)
-                PON_burial(i,j)=frac_buried(i)*FC(i,j)*              &
+                PON_burial(i,j)=frac_buried(i)*FC(i,0)*              &
      &                           (1.0_r8/dtdays)
                 PONsed(i,j)=PONsed(i,j)+(1.0_r8-frac_buried(i))*cff1
 # else
@@ -1317,7 +1317,7 @@
               DO i=Istr,Iend
 # ifdef NEMURO_SED1
                 cff1=FC(i,0)
-                OPAL_burial(i,j)=frac_buried(i)*FC(i,j)*             &
+                OPAL_burial(i,j)=frac_buried(i)*FC(i,0)*             &
      &                               (1.0_r8/dtdays)
                 OPALsed(i,j)=OPALsed(i,j)+(1.0_r8-frac_buried(i))*cff1
 # else

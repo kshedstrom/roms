@@ -281,6 +281,16 @@
      &                (1.0_r8+(Aweight/Bweight)*                        &
      &                        (1.0_r8-(sc_w+1.0_r8)**Bweight))
               SCALARS(ng)%Cs_w(k)=Cweight*Csur+(1.0_r8-Cweight)*Cbot
+!     if (theta_s.gt.0.D0) then
+!       csrf=(1.D0-cosh(theta_s*sc))/(cosh(theta_s)-1.D0)
+!     else
+!       csrf=-sc**2
+!     endif
+!     if (theta_b.gt.0.D0) then
+!       CSF=(exp(theta_b*csrf)-1.D0)/(1.D0-exp(-theta_b))
+!     else
+!       CSF=csrf
+!     endif
             ELSE
               SCALARS(ng)%Cs_w(k)=Csur
             END IF
