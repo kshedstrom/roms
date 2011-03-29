@@ -129,7 +129,6 @@
         RETURN
       END IF
 # endif
-
       IF (.not.find_string(var_name,n_var,'f',vindex)) THEN
         IF (Master) WRITE (stdout,10) 'f', TRIM(ncname)
         exit_flag=2
