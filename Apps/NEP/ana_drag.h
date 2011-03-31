@@ -155,7 +155,7 @@
 #endif
 !-----------------------------------------------------------------------
 !
-#if defined NEP5 || defined NEP6
+#if defined NEP5
 # if defined UV_LDRAG
       cff =  3.0d-04
       h0 = 1000.
@@ -165,6 +165,27 @@
             rdrag(i,j)=cff
           ELSE
             rdrag(i,j)=cff + (h0-GRID(ng)%h(i,j))*57.0d-4/h0
+          END IF
+        END DO
+      END DO
+# elif defined UV_QDRAG
+      DO j=JstrR,JendR          ! based on Chezy coefficient (g/c^2)
+        DO i=IstrR,IendR
+          cff=1.8_r8*GRID(ng)%h(i,j)*LOG(GRID(ng)%h(i,j))
+          rdrag2(i,j)=g/(cff*cff)
+        END DO
+      END DO
+# endif
+#elif defined NEP6
+# if defined UV_LDRAG
+      cff =  3.0d-04
+      h0 = 1000.
+      DO j=JstrR,JendR
+        DO i=IstrR,IendR
+          IF (GRID(ng)%h(i,j) >= h0) THEN
+            rdrag(i,j)=cff
+          ELSE
+            rdrag(i,j)=cff + (h0-GRID(ng)%h(i,j))*77.0d-4/h0
           END IF
         END DO
       END DO
