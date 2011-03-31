@@ -806,14 +806,17 @@
 ** NPAC            GLOBEC North Pacific
 ** NEP4            Northeast Pacific - Baja to Arctic
 ** NEP5            Northeast Pacific - Baja to Arctic
-** NEP6            Northeast Pacific - Baja to Arctic
 ** CGOA            Coastal Gulf of Alaska, any resolution
 ** BERING          Bering Sea at 4 km resolution
 ** SEBS            Southeast Bering Sea at 4 km resolution
 ** CCS             Northeast Pacific - small Oregon domain
 
 ** Fred's apps
-** CARAL           Coral Triangle 5km Grid
+** CORAL           Coral Triangle 5km Grid
+** NEP6            Northeast Pacific - Baja to Arctic
+
+** Dujuan' apps
+** NWA             North West Atlantic
 
 ** Pauls Applications
 ** SMALL_AREA      Arctic region test application
