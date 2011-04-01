@@ -35,7 +35,7 @@
               CXX := g++
            CFLAGS :=
          CXXFLAGS :=
-          LDFLAGS := -Vaxlib
+          LDFLAGS :=
 ifdef USE_CXX
              LIBS := -lstdc++
 else
