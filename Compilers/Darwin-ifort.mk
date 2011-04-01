@@ -95,12 +95,11 @@ ifdef USE_OpenMP
 endif
 
 ifdef USE_DEBUG
-#           FFLAGS += -g -check bounds
-           FFLAGS += -g
+           FFLAGS += -g -check bounds
            CFLAGS += -g
          CXXFLAGS += -g
 else
-           FFLAGS += -ip -O3 -axP
+           FFLAGS += -ip -O3
            CFLAGS += -O3
          CXXFLAGS += -O3
  ifeq ($(CPU),x86_64)
