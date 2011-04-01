@@ -25,7 +25,7 @@
 #define SOLVE3D
 #define SALINITY
 #ifdef SOLVE3D
-# undef SPLINES
+# define SPLINES
 #endif
 #define FLOATS
 #define STATIONS
@@ -82,7 +82,7 @@
 
 #define UV_ADV
 #define UV_COR
-#define UV_SADVECTION
+#undef UV_SADVECTION
 
 #ifdef SOLVE3D
 # define TS_U3HADVECTION

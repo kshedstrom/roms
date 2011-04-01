@@ -65,9 +65,10 @@ endif
 #
 
 ifdef USE_NETCDF4
-        NC_CONFIG ?= ROMS/Bin/nc-config
-    NETCDF_INCDIR ?= /opt/pgisoft/netcdf4/include
-    NETCDF_LIBDIR ?= /opt/pgisoft/netcdf4/lib
+#        NC_CONFIG ?= ROMS/Bin/nc-config
+        NC_CONFIG ?= /usr/local/pgi/bin/nc-config
+#    NETCDF_INCDIR ?= /opt/pgisoft/netcdf4/include
+#    NETCDF_LIBDIR ?= /opt/pgisoft/netcdf4/lib
     NETCDF_INCDIR ?= $(shell $(NC_CONFIG) --fflags | grep -o "\-I.*" | cut -f 1 | cut -c "3-")
              LIBS += $(shell $(NC_CONFIG) --flibs)
       HDF5_LIBDIR ?= /opt/pgisoft/hdf5/lib
