@@ -25,10 +25,10 @@
 #define SOLVE3D
 #define SALINITY
 #ifdef SOLVE3D
-# undef SPLINES
+# define SPLINES
 #endif
-#define FLOATS
-#define STATIONS
+#undef FLOATS
+#undef STATIONS
 #undef WET_DRY
 
 #undef T_PASSIVE
@@ -56,9 +56,9 @@
 #  define  ICE_SMOLAR
 #  define  ICE_UPWIND
 #  define  ICE_BULK_FLUXES
-#  define  ANA_AIOBC
-#  define  ANA_HIOBC
-#  define  ANA_HSNOBC
+#  undef  ANA_AIOBC
+#  undef  ANA_HIOBC
+#  undef  ANA_HSNOBC
 # endif
 #endif
 
@@ -83,7 +83,7 @@
 
 #define UV_ADV
 #define UV_COR
-#define UV_SADVECTION
+#undef UV_SADVECTION
 
 #ifdef SOLVE3D
 # define TS_U3HADVECTION
@@ -93,7 +93,7 @@
 
 #define UV_VIS2
 #undef UV_SMAGORINSKY
-#define VISC_3DCOEF
+#undef VISC_3DCOEF
 #define MIX_S_UV
 #define VISC_GRID
 #define SPONGE
@@ -209,7 +209,10 @@
 #  define NORTH_M3NUDGING
 #  define NORTH_TRADIATION
 #  define NORTH_TNUDGING
-#  define NORTH_MIGRADIENT
+#  define NORTH_MICLAMPED
+#  define NORTH_AICLAMPED
+#  define NORTH_HICLAMPED
+#  define NORTH_HSNCLAMPED
 # endif
 #endif
 
