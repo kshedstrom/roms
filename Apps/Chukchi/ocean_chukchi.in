@@ -68,18 +68,18 @@
 !      NtileI == 2                               ! I-direction partition
 !      NtileJ == 8                              ! J-direction partition
 !      NtileI == 6                               ! I-direction partition
-!      NtileJ == 8                              ! J-direction partition
-!      NtileI == 4                               ! I-direction partition
-       NtileI == 6                               ! I-direction partition
+       NtileJ == 8                              ! J-direction partition
+       NtileI == 4                               ! I-direction partition
+!      NtileI == 6                               ! I-direction partition
 !      NtileJ == 10                              ! J-direction partition
-       NtileJ == 20                              ! J-direction partition
+!      NtileJ == 20                              ! J-direction partition
 
 ! Time-Stepping parameters.
 
        NTIMES == 43200
 !!          DT == 50.0d0
 !        DT == 100.0d0
-        DT == 200.0d0
+        DT == 400.0d0
      NDTFAST == 20
 
 ! Model iteration loops parameters.
@@ -107,9 +107,9 @@
 !       NRST == 864
 !       NSTA == 36
 !       NFLT == 36
-        NRST == 432
-        NSTA == 18
-        NFLT == 18
+        NRST == 216
+        NSTA == 9
+        NFLT == 9
        NINFO == 1
 
 ! Output history, average, diagnostic files parameters.
@@ -126,8 +126,8 @@
 !!    NDEFAVG == 1728
 !       NAVG == 864
 !    NDEFAVG == 864
-        NAVG == 432
-     NDEFAVG == 432
+        NAVG == 216
+     NDEFAVG == 216
      NTSAVG2 == 1
        NAVG2 == 27
     NDEFAVG2 == 1920
@@ -675,16 +675,15 @@ Dout(iTvdif) == T T                        ! vertical diffusion
 
 ! Input NetCDF file names, [1:Ngrids].
 
-!     GRDNAME == /wrkdir/kate/BiomModel/NEP4/NEP4_grid.nc
-     GRDNAME == /wrkdir/kate/NEP5/Files/NEP_grid_5a.nc
-     ININAME == /wrkdir/kate/NEP5/Files/soda2.0.2_NEP5a_init_1969.nc
+     GRDNAME == /wrkdir/kate/Chukchi/Files/grid_Chukchi.nc
+     ININAME == /wrkdir/kate/Chukchi/Files/SODA_2.1.6_19841230-19850104_ic_CHUKCHI.nc
 !     ININAME == nep5_rst.nc
-     ITLNAME == /ptmp/enrique/ROMS/NEP4/Inputs/ocean_itl.nc
+     ITLNAME == ocean_itl.nc
      IRPNAME == ocean_irp.nc
      IADNAME == ocean_iad.nc
-     CLMNAME == /ptmp/enrique/ROMS/NEP4/Inputs/ocean_clm.nc
-     BRYNAME == /wrkdir/kate/NEP5/Files/soda2.0.2_NEP5a_bry_58-05.nc
-     FWDNAME == /ptmp/enrique/ROMS/NEP4/Inputs/ocean_fwd.nc
+     CLMNAME == ocean_clm.nc
+     BRYNAME == /wrkdir/kate/Chukchi/Files/SODA_bndry_CHUKCHI.nc
+     FWDNAME == ocean_fwd.nc
      ADSNAME == ocean_ads.nc
 
 ! Input forcing NetCDF file name(s).  The USER has the option to enter
@@ -698,7 +697,7 @@ Dout(iTvdif) == T T                        ! vertical diffusion
 ! at the each entry, except the last one.
 
 
-    NFFILES == 11                          ! number of forcing files
+    NFFILES == 12                          ! number of forcing files
 
     FRCNAME == /wrkdir/kate/NEP5/Files/Pair.1948-2006.nc   \
                /wrkdir/kate/NEP5/Files/lwrad.1948-2006.nc  \
@@ -710,7 +709,8 @@ Dout(iTvdif) == T T                        ! vertical diffusion
                /wrkdir/kate/NEP5/Files/CCSM_Runoff.nc   \
                /wrkdir/kate/NEP5/Files/rain.1948-2006.nc  \
                /wrkdir/kate/NEP5/Files/sss_fill_2004.nc  \
-               /wrkdir/kate/NEP5/Files/NEP4_tides_otps.nc
+               /wrkdir/kate/Chukchi/Files/Chukchi_tides_otps.nc \
+               /wrkdir/kate/Chukchi/Files/fastice_Chukchi.nc
 
 ! Output NetCDF file names, [1:Ngrids].
 
