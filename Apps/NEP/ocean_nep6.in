@@ -72,12 +72,13 @@
 !      NtileI == 4                               ! I-direction partition
        NtileI == 6                               ! I-direction partition
 !      NtileJ == 10                              ! J-direction partition
-       NtileJ == 20                              ! J-direction partition
+       NtileJ == 16                              ! J-direction partition
 
 ! Time-Stepping parameters.
 
-       NTIMES == 14400
-          DT == 360.0d0
+       NTIMES == 86400
+!          DT == 180.0d0
+          DT == 600.0d0
      NDTFAST == 20
 
 ! Model iteration loops parameters.
@@ -99,9 +100,12 @@
 
        NRREC = 0
    LcycleRST == T
-       NRST == 240
-       NSTA == 10
-       NFLT == 10
+      NRST == 144
+      NSTA == 6
+      NFLT == 6
+!       NRST == 480
+!       NSTA == 20
+!       NFLT == 20
        NINFO == 1
 
 ! Output history, average, diagnostic files parameters.
@@ -112,8 +116,10 @@
 !       NHIS == 4320
 !    NDEFHIS == 43200
       NTSAVG == 1
-       NAVG == 240
-    NDEFAVG == 240
+      NAVG == 144
+   NDEFAVG == 144
+!       NAVG == 480
+!    NDEFAVG == 480
      NTSAVG2 == 1
        NAVG2 == 27
     NDEFAVG2 == 1920
@@ -222,13 +228,13 @@
 ! stretching function (see below for details), [1:Ngrids].
 
   Vtransform == 2                          ! transformation equation
- Vstretching == 2                          ! stretching function
+ Vstretching == 4                          ! stretching function
 
 ! Vertical S-coordinates parameters (see below for details), [1:Ngrids].
 
      THETA_S == 7.0d0                      ! surface stretching parameter
-     THETA_B == 0.1d0                      ! bottom  stretching parameter
-      TCLINE == 250.0d0                     ! critical depth (m)
+     THETA_B == 2.0d0                      ! bottom  stretching parameter
+      TCLINE == 250.0d0                    ! critical depth (m)
 
 ! Mean Density and Brunt-Vaisala frequency.
 
@@ -665,9 +671,10 @@ Dout(iTvdif) == T T                        ! vertical diffusion
 
 ! Input NetCDF file names, [1:Ngrids].
 
-     GRDNAME == /wrkdir/kate/NEP/Files/NEP6_grd_python.nc
+     GRDNAME == /wrkdir/kate/NEP/Files/NEP6_grd_depth_min_15m.nc
+!     GRDNAME == /wrkdir/kate/NEP/Files/NEP6_grd_python.nc
      ININAME == /wrkdir/kate/NEP/Files/SODA_2.1.6_20000101-20000106_ic_NEP6_bio_ice.nc
-!     ININAME == nep5_rst.nc
+!     ININAME == nep6_rst.nc
      ITLNAME == ocean_itl.nc
      IRPNAME == ocean_irp.nc
      IADNAME == ocean_iad.nc

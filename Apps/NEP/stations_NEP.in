@@ -137,7 +137,7 @@ Sout(idBott) == F F F F F F F F F F F F F F F F
 ! essential because the station arrays are dynamically allocated using
 ! these values, [1:Ngrids].
 
-    NSTATION ==  199
+    NSTATION ==  267
 
 ! Station locations for all grids in any desired order.  The horizontal
 ! location for a particular station may be specified in terms of fractional
@@ -348,6 +348,74 @@ POS =  GRID  FLAG      X-POS       Y-POS     COMMENT
         1    1  220.265         59.54833333     ! Yakutat 9453220
         1    1  197.6           59.5            ! YK1
         1    1  193.5           61.3            ! YK2
+	1    0  190             28              ! San Diego
+	1    0  187             28              ! Off San Diego
+	1    0  182             28              ! Offshore San Diego
+	1    0  188             39              ! Long Beach?
+	1    0  180             43              ! Channel Islands
+	1    0  173             45              ! Channel Islands
+	1    0  179             52              ! Santa Barbara
+	1    0  176             52              ! Santa Barbara
+	1    0  174             79              ! Santa Cruz
+	1    0  170             79              ! Offshore
+	1    0  177             81              ! Monterey Bay
+	1    0  189             10              ! Other random points...
+	1    0  168             10
+	1    0   20             20
+	1    0   60             20
+	1    0  100             20
+	1    0  140             20
+	1    0  157             65
+	1    0   20             80
+	1    0   60             80
+	1    0  100             80
+	1    0  140             80
+	1    0  159             91
+	1    0  155             51
+	1    0  173            119
+	1    0   20            130
+	1    0   60            130
+	1    0  100            130
+	1    0  140            130
+	1    0  156            134
+	1    0  186            158
+	1    0   20            180
+	1    0   60            180
+	1    0  100            180
+	1    0  140            180
+	1    0  216            190
+	1    0  203            191
+	1    0  217            260
+	1    0  202            225
+	1    0  214            224
+	1    0   20            230
+	1    0   60            230
+	1    0  100            230
+	1    0  140            230
+	1    0  214            249
+	1    0  199            262
+	1    0   20            280
+	1    0   60            280
+	1    0  100            280
+	1    0  140            280
+	1    0  180            280
+	1    0  212            280
+	1    0  203            315
+	1    0  176            316
+	1    0   20            330
+	1    0   60            330
+	1    0  100            330
+	1    0  140            330
+	1    0  180            330
+	1    0  212            330
+	1    0  209            337
+	1    0  190            339
+	1    0  194            349
+	1    0  169            352
+	1    0  197            354
+	1    0  193            358
+	1    0  161            371
+	1    0  188            376
 
 ! #7   1    1  210.11          61.23833333     ! Anchorage 9455920
 ! #63  1    1  223.6566667     58.19333333     ! Elfin Cove 9452634
