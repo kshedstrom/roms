@@ -28,7 +28,7 @@
 # define SPLINES
 #endif
 #undef FLOATS
-#undef STATIONS
+#define STATIONS
 #undef WET_DRY
 
 #undef T_PASSIVE
@@ -181,7 +181,7 @@
 # define ADD_M2OBC
 # undef RAMP_TIDES
 # define TIDES_ASTRO
-# define POT_TIDES
+# undef POT_TIDES
 
 # define UV_LDRAG
 # define UV_DRAG_GRID

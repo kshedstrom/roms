@@ -68,18 +68,16 @@
 !      NtileI == 2                               ! I-direction partition
 !      NtileJ == 8                              ! J-direction partition
 !      NtileI == 6                               ! I-direction partition
+       NtileI == 3                               ! I-direction partition
        NtileJ == 8                              ! J-direction partition
-       NtileI == 4                               ! I-direction partition
-!      NtileI == 6                               ! I-direction partition
+!      NtileJ == 6                               ! I-direction partition
 !      NtileJ == 10                              ! J-direction partition
 !      NtileJ == 20                              ! J-direction partition
 
 ! Time-Stepping parameters.
 
        NTIMES == 43200
-!!          DT == 50.0d0
-!        DT == 100.0d0
-        DT == 400.0d0
+        DT == 200.0d0
      NDTFAST == 20
 
 ! Model iteration loops parameters.
@@ -107,9 +105,9 @@
 !       NRST == 864
 !       NSTA == 36
 !       NFLT == 36
-        NRST == 216
-        NSTA == 9
-        NFLT == 9
+        NRST == 432
+        NSTA == 1
+        NFLT == 18
        NINFO == 1
 
 ! Output history, average, diagnostic files parameters.
@@ -126,8 +124,8 @@
 !!    NDEFAVG == 1728
 !       NAVG == 864
 !    NDEFAVG == 864
-        NAVG == 216
-     NDEFAVG == 216
+        NAVG == 432
+     NDEFAVG == 432
      NTSAVG2 == 1
        NAVG2 == 27
     NDEFAVG2 == 1920
@@ -240,9 +238,9 @@
 
 ! Vertical S-coordinates parameters (see below for details), [1:Ngrids].
 
-     THETA_S == 5.0d0                      ! surface stretching parameter
-     THETA_B == 0.001d0                      ! bottom  stretching parameter
-      TCLINE == 200.0d0                     ! critical depth (m)
+     THETA_S == 7.0d0                      ! surface stretching parameter
+     THETA_B == 0.1d0                      ! bottom  stretching parameter
+      TCLINE == 250.0d0                     ! critical depth (m)
 
 ! Mean Density and Brunt-Vaisala frequency.
 
@@ -254,8 +252,7 @@
 ! NetCDF units attribute.
 
 !     DSTART =  21187.0d0                  ! days
-      DSTART =  25202.0d0                  ! days
-!     DSTART =  31049.0d0                  ! days
+      DSTART =  31052.0d0                  ! days
   TIDE_START =  -693962.0d0                ! days
     TIME_REF =  19000101.0d0               ! yyyymmdd.dd
 
@@ -677,7 +674,7 @@ Dout(iTvdif) == T T                        ! vertical diffusion
 
      GRDNAME == /wrkdir/kate/Chukchi/Files/grid_Chukchi.nc
      ININAME == /wrkdir/kate/Chukchi/Files/SODA_2.1.6_19841230-19850104_ic_CHUKCHI.nc
-!     ININAME == nep5_rst.nc
+!     ININAME == chukchi_rst.nc
      ITLNAME == ocean_itl.nc
      IRPNAME == ocean_irp.nc
      IADNAME == ocean_iad.nc
@@ -699,40 +696,40 @@ Dout(iTvdif) == T T                        ! vertical diffusion
 
     NFFILES == 12                          ! number of forcing files
 
-    FRCNAME == /wrkdir/kate/NEP5/Files/Pair.1948-2006.nc   \
-               /wrkdir/kate/NEP5/Files/lwrad.1948-2006.nc  \
-               /wrkdir/kate/NEP5/Files/Qair.1948-2006.nc   \
-               /wrkdir/kate/NEP5/Files/swrad.1948-2006.nc  \
-               /wrkdir/kate/NEP5/Files/Tair.1948-2006.nc   \
-               /wrkdir/kate/NEP5/Files/Uwind.1948-2006.nc  \
-               /wrkdir/kate/NEP5/Files/Vwind.1948-2006.nc  \
-               /wrkdir/kate/NEP5/Files/CCSM_Runoff.nc   \
-               /wrkdir/kate/NEP5/Files/rain.1948-2006.nc  \
-               /wrkdir/kate/NEP5/Files/sss_fill_2004.nc  \
+    FRCNAME == /wrkdir/kate/Bering/Files/Pair.1948-2006.nc   \
+               /wrkdir/kate/Bering/Files/lwrad.1948-2006.nc  \
+               /wrkdir/kate/Bering/Files/Qair.1948-2006.nc   \
+               /wrkdir/kate/Bering/Files/swrad.1948-2006.nc  \
+               /wrkdir/kate/Bering/Files/Tair.1948-2006.nc   \
+               /wrkdir/kate/Bering/Files/Uwind.1948-2006.nc  \
+               /wrkdir/kate/Bering/Files/Vwind.1948-2006.nc  \
+               /wrkdir/kate/Bering/Files/rain.1948-2006.nc  \
+               /wrkdir/kate/Bering/Files/sss_fill_2004.nc  \
+               /wrkdir/kate/Chukchi/Files/runoff_CHUKCHI_daitren_inter_annual_1948-2007.nc   \
                /wrkdir/kate/Chukchi/Files/Chukchi_tides_otps.nc \
                /wrkdir/kate/Chukchi/Files/fastice_Chukchi.nc
 
 ! Output NetCDF file names, [1:Ngrids].
 
      GSTNAME == ocean_gst.nc
-     RSTNAME == nep5_rst.nc
-     HISNAME == nep5_his.nc
-     TLMNAME == nep5_tlm.nc
-     TLFNAME == nep5_tlf.nc
-     ADJNAME == nep5_tlm.nc
-     AVGNAME == nep5_avg.nc
-    AVG2NAME == nep5_avg2.nc
-     DIANAME == nep5_dia.nc
-     STANAME == nep5_sta.nc
-     FLTNAME == nep5_flt.nc
+     RSTNAME == chukchi_rst.nc
+     HISNAME == chukchi_his.nc
+     TLMNAME == chukchi_tlm.nc
+     TLFNAME == chukchi_tlf.nc
+     ADJNAME == chukchi_tlm.nc
+     AVGNAME == chukchi_avg.nc
+    AVG2NAME == chukchi_avg2.nc
+     DIANAME == chukchi_dia.nc
+     STANAME == chukchi_sta.nc
+     FLTNAME == chukchi_flt.nc
 
 ! Input ASCII parameter filenames.
 
      APARNAM =  External/assimilation.in
-     SPOSNAM =  /wrkdir/kate/NEP5/External/stations_NEP.in
-     FPOSNAM =  /wrkdir/kate/NEP5/External/floats_NEP.in
-     IPARNAM =  /wrkdir/kate/NEP5/External/ice.in
-     BPARNAM =  /wrkdir/kate/NEP5/External/nemuro_iron.in
+     SPOSNAM =  /wrkdir/kate/Chukchi/External/stations_Chu.in
+     FPOSNAM =  /wrkdir/kate/Chukchi/External/floats_Chu.in
+     IPARNAM =  /wrkdir/kate/Chukchi/External/ice.in
+     BPARNAM =  /wrkdir/kate/Chukchi/External/nemuro_iron.in
      SPARNAM =  External/sediment.in
      USRNAME =  External/MyFile.dat
 

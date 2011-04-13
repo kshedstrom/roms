@@ -609,7 +609,7 @@
   'landfast ice extent'
   '1'                                              ! 
   'FastIce, scalar, series'                        ! 
-  'ocean_time'                                     !
+  'fastice_time'                                     !
   'idFastIce'                                      !
   'r2dvar'
   1.0d0
@@ -739,7 +739,7 @@
 
 'chu_iw'
   'ice-water momentum transfer coefficient'
-  'metre second-1'
+  'meter second-1'
   'transfer coefficient, scalar, series'
   'ocean_time'
   'idChuiw'
