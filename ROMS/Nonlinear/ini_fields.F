@@ -36,6 +36,9 @@
 # if defined SOLVE3D && (defined SEDIMENT || defined BBL_MODEL)
       USE mod_sedbed
 # endif
+# ifdef ICE_MODEL
+      USE mod_ice
+# endif
       USE mod_stepping
 !
 !  Imported variable declarations.
@@ -89,6 +92,16 @@
      &                      OCEAN(ng) % t,                              &
      &                      OCEAN(ng) % u,                              &
      &                      OCEAN(ng) % v,                              &
+#  ifdef ICE_MODEL
+     &                      ICE(ng) % ui,                               &
+     &                      ICE(ng) % vi,                               &
+     &                      ICE(ng) % ai,                               &
+     &                      ICE(ng) % hi,                               &
+     &                      ICE(ng) % hsn,                              &
+     &                      ICE(ng) % ti,                               &
+     &                      ICE(ng) % sfwat,                            &
+     &                      ICE(ng) % ageice,                           &
+#  endif
 # endif
      &                      OCEAN(ng) % ubar,                           &
      &                      OCEAN(ng) % vbar,                           &
@@ -129,6 +142,10 @@
 #  endif
      &                            Hz,                                   &
      &                            t, u, v,                              &
+#  ifdef ICE_MODEL
+     &                            ui, vi, ai, hi, hsn,                  &
+     &                            ti, sfwat, ageice,                    &
+#  endif
 # endif
      &                            ubar, vbar, zeta)
 !***********************************************************************
@@ -224,6 +241,16 @@
       real(r8), intent(inout) :: t(LBi:,LBj:,:,:,:)
       real(r8), intent(inout) :: u(LBi:,LBj:,:,:)
       real(r8), intent(inout) :: v(LBi:,LBj:,:,:)
+#   ifdef ICE_MODEL
+      real(r8), intent(inout) :: ui(LBi:,LBj:,:)
+      real(r8), intent(inout) :: vi(LBi:,LBj:,:)
+      real(r8), intent(inout) :: ai(LBi:,LBj:,:)
+      real(r8), intent(inout) :: hi(LBi:,LBj:,:)
+      real(r8), intent(inout) :: hsn(LBi:,LBj:,:)
+      real(r8), intent(inout) :: ti(LBi:,LBj:,:)
+      real(r8), intent(inout) :: sfwat(LBi:,LBj:,:)
+      real(r8), intent(inout) :: ageice(LBi:,LBj:,:)
+#   endif
 #  endif
       real(r8), intent(inout) :: ubar(LBi:,LBj:,:)
       real(r8), intent(inout) :: vbar(LBi:,LBj:,:)
@@ -268,6 +295,16 @@
       real(r8), intent(inout) :: t(LBi:UBi,LBj:UBj,N(ng),3,NT(ng))
       real(r8), intent(inout) :: u(LBi:UBi,LBj:UBj,N(ng),2)
       real(r8), intent(inout) :: v(LBi:UBi,LBj:UBj,N(ng),2)
+#   ifdef ICE_MODEL
+      real(r8), intent(inout) :: ui(LBi:UBi,LBj:UBj,2)
+      real(r8), intent(inout) :: vi(LBi:UBi,LBj:UBj,2)
+      real(r8), intent(inout) :: ai(LBi:UBi,LBj:UBj,2)
+      real(r8), intent(inout) :: hi(LBi:UBi,LBj:UBj,2)
+      real(r8), intent(inout) :: hsn(LBi:UBi,LBj:UBj,2)
+      real(r8), intent(inout) :: ti(LBi:UBi,LBj:UBj,2)
+      real(r8), intent(inout) :: sfwat(LBi:UBi,LBj:UBj,2)
+      real(r8), intent(inout) :: ageice(LBi:UBi,LBj:UBj,2)
+#   endif
 #  endif
       real(r8), intent(inout) :: ubar(LBi:UBi,LBj:UBj,3)
       real(r8), intent(inout) :: vbar(LBi:UBi,LBj:UBj,3)
@@ -292,7 +329,7 @@
       integer :: ised
 # endif
 
-      real(r8) :: cff1, cff2
+      real(r8) :: cff1, cff2, cff3, cff4, cff5, cff6
 # ifdef SOLVE3D
       real(r8), dimension(IminS:ImaxS,0:N(ng)) :: CF
       real(r8), dimension(IminS:ImaxS,0:N(ng)) :: DC
@@ -801,6 +838,96 @@
      &                    NghostPoints, EWperiodic, NSperiodic,         &
      &                    bottom)
 #   endif
+#  endif
+# endif
+
+# ifdef ICE_MODEL
+        DO j=Jstr,Jend
+          DO i=IstrU,Iend
+            cff1=ui(i,j,nstp)
+#  ifdef MASKING
+            cff1=cff1*umask(i,j)
+#  endif
+            ui(i,j,nstp)=cff1
+            ui(i,j,nnew)=cff1
+          END DO
+        END DO
+        DO j=JstrV,Jend
+          DO i=Istr,Iend
+            cff1=vi(i,j,nstp)
+#  ifdef MASKING
+            cff1=cff1*vmask(i,j)
+#  endif
+            vi(i,j,nstp)=cff1
+            vi(i,j,nnew)=cff1
+          END DO
+        END DO
+        DO j=JstrR,JendR
+          DO i=IstrR,IendR
+            cff1=ai(i,j,nstp)
+	    cff2=hi(i,j,nstp)
+	    cff3=hsn(i,j,nstp)
+	    cff4=ti(i,j,nstp)
+	    cff5=sfwat(i,j,nstp)
+	    cff6=ageice(i,j,nstp)
+#  ifdef MASKING
+            cff1=cff1*rmask(i,j)
+            cff2=cff2*rmask(i,j)
+            cff3=cff3*rmask(i,j)
+            cff4=cff4*rmask(i,j)
+            cff5=cff5*rmask(i,j)
+            cff6=cff6*rmask(i,j)
+#  endif
+            ai(i,j,nstp)=cff1
+            ai(i,j,nnew)=cff1
+            hi(i,j,nstp)=cff2
+            hi(i,j,nnew)=cff2
+            hsn(i,j,nstp)=cff3
+            hsn(i,j,nnew)=cff3
+            ti(i,j,nstp)=cff4
+            ti(i,j,nnew)=cff4
+            sfwat(i,j,nstp)=cff5
+            sfwat(i,j,nnew)=cff5
+            ageice(i,j,nstp)=cff6
+            ageice(i,j,nnew)=cff6
+          END DO
+        END DO
+#  if (defined EW_PERIODIC     || defined NS_PERIODIC)
+        DO i=1,2
+          CALL exchange_u2d_tile (ng, tile,                             &
+     &                            LBi, UBi, LBj, UBj,                   &
+     &                            ui(:,:,i))
+          CALL exchange_v2d_tile (ng, tile,                             &
+     &                            LBi, UBi, LBj, UBj,                   &
+     &                            vi(:,:,i))
+          CALL exchange_r2d_tile (ng, tile,                             &
+     &                            LBi, UBi, LBj, UBj,                   &
+     &                            ai(:,:,i))
+          CALL exchange_r2d_tile (ng, tile,                             &
+     &                            LBi, UBi, LBj, UBj,                   &
+     &                            hi(:,:,i))
+          CALL exchange_r2d_tile (ng, tile,                             &
+     &                            LBi, UBi, LBj, UBj,                   &
+     &                            hsn(:,:,i))
+          CALL exchange_r2d_tile (ng, tile,                             &
+     &                            LBi, UBi, LBj, UBj,                   &
+     &                            ti(:,:,i))
+          CALL exchange_r2d_tile (ng, tile,                             &
+     &                            LBi, UBi, LBj, UBj,                   &
+     &                            sfwat(:,:,i))
+          CALL exchange_r2d_tile (ng, tile,                             &
+     &                            LBi, UBi, LBj, UBj,                   &
+     &                            ageice(:,:,i))
+#  endif
+#  ifdef DISTRIBUTE
+        CALL mp_exchange3d (ng, tile, model, 4,                         &
+     &                      LBi, UBi, LBj, UBj, 1, 2,                   &
+     &                      NghostPoints, EWperiodic, NSperiodic,       &
+     &                      ui, vi, ai, hi)
+        CALL mp_exchange3d (ng, tile, model, 4,                         &
+     &                      LBi, UBi, LBj, UBj, 1, 2,                   &
+     &                      NghostPoints, EWperiodic, NSperiodic,       &
+     &                      hsn, ti, sfwat, ageice)
 #  endif
 # endif
 
