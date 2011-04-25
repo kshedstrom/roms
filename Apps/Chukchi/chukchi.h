@@ -209,10 +209,14 @@
 #  define NORTH_M3NUDGING
 #  define NORTH_TRADIATION
 #  define NORTH_TNUDGING
-#  define NORTH_MICLAMPED
-#  define NORTH_AICLAMPED
-#  define NORTH_HICLAMPED
-#  define NORTH_HSNCLAMPED
+#  define NORTH_MIRADIATION
+#  define NORTH_AIRADIATION
+#  define NORTH_HIRADIATION
+#  define NORTH_HSNRADIATION
+#  define NORTH_MINUDGING
+#  define NORTH_AINUDGING
+#  define NORTH_HINUDGING
+#  define NORTH_HSNNUDGING
 # endif
 #endif
 
@@ -224,7 +228,14 @@
 #  define WEST_M3NUDGING
 #  define WEST_TRADIATION
 #  define WEST_TNUDGING
-#  define WEST_MIGRADIENT
+#  define WEST_MIRADIATION
+#  define WEST_AIRADIATION
+#  define WEST_HIRADIATION
+#  define WEST_HSNRADIATION
+#  define WEST_MINUDGING
+#  define WEST_AINUDGING
+#  define WEST_HINUDGING
+#  define WEST_HSNNUDGING
 # endif
 #endif
 
@@ -236,7 +247,14 @@
 #  define SOUTH_M3NUDGING
 #  define SOUTH_TRADIATION
 #  define SOUTH_TNUDGING
-#  define SOUTH_MIGRADIENT
+#  define SOUTH_MIRADIATION
+#  define SOUTH_AIRADIATION
+#  define SOUTH_HIRADIATION
+#  define SOUTH_HSNRADIATION
+#  define SOUTH_MINUDGING
+#  define SOUTH_AINUDGING
+#  define SOUTH_HINUDGING
+#  define SOUTH_HSNNUDGING
 # endif
 #endif
 
@@ -248,7 +266,14 @@
 #  define EAST_M3NUDGING
 #  define EAST_TRADIATION
 #  define EAST_TNUDGING
-#  define EAST_MIGRADIENT
+#  define EAST_MIRADIATION
+#  define EAST_AIRADIATION
+#  define EAST_HIRADIATION
+#  define EAST_HSNRADIATION
+#  define EAST_MINUDGING
+#  define EAST_AINUDGING
+#  define EAST_HINUDGING
+#  define EAST_HSNNUDGING
 # endif
 #endif
 

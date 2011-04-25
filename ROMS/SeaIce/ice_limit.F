@@ -179,14 +179,17 @@
 !
       CALL aibc_tile (ng, tile,                                         &
      &                LBi, UBi, LBj, UBj,                               &
+     &                IminS, ImaxS, JminS, JmaxS,                       &
      &                liold, linew,                                     &
      &                ui, vi, ai)
       CALL hibc_tile (ng, tile,                                         &
      &                LBi, UBi, LBj, UBj,                               &
+     &                IminS, ImaxS, JminS, JmaxS,                       &
      &                liold, linew,                                     &
      &                ui, vi, hi)
       CALL hsnbc_tile (ng, tile,                                        &
      &                LBi, UBi, LBj, UBj,                               &
+     &                IminS, ImaxS, JminS, JmaxS,                       &
      &                liold, linew,                                     &
      &                ui, vi, hsn)
       CALL tibc_tile (ng, tile,                                         &

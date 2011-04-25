@@ -27,6 +27,7 @@
 !
       CALL hsnbc_tile (ng, tile,                                        &
      &                 LBi, UBi, LBj, UBj,                              &
+     &                 IminS, ImaxS, JminS, JmaxS,                      &
      &                 liold(ng), linew(ng),                            &
      &                 ICE(ng) % ui,                                    &
      &                 ICE(ng) % vi,                                    &
@@ -37,9 +38,10 @@
 !
 !***********************************************************************
       SUBROUTINE hsnbc_tile (ng, tile,                                  &
-     &                           LBi, UBi, LBj, UBj,                    &
-     &                           liold, linew,                          &
-     &                           ui, vi, hsn)
+     &                       LBi, UBi, LBj, UBj,                        &
+     &                       IminS, ImaxS, JminS, JmaxS,                &
+     &                       liold, linew,                              &
+     &                       ui, vi, hsn)
 !***********************************************************************
 !
       USE mod_param
@@ -54,6 +56,7 @@
 !
       integer, intent(in) :: ng, tile
       integer, intent(in) :: LBi, UBi, LBj, UBj
+      integer, intent(in) :: IminS, ImaxS, JminS, JmaxS
       integer, intent(in) :: liold, linew
 
 # ifdef ASSUMED_SHAPE
@@ -70,6 +73,10 @@
 !  Local variable declarations.
 !
       integer :: i, j, know
+      real(r8), parameter :: eps =1.0E-20_r8
+      real(r8) :: Ce, Cx, cff, dTde, dTdt, dTdx, tau 
+
+      real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: grad
 
 #include "set_bounds.h"
 !
@@ -87,7 +94,58 @@
 !
       IF (WESTERN_EDGE) THEN
 
-# ifdef WEST_HSNCLAMPED
+#  if defined WEST_HSNRADIATION
+!
+!  Western edge, implicit upstream radiation condition.
+!
+        DO j=Jstr,Jend+1
+          grad(Istr-1,j)=hsn(Istr-1,j,know)-hsn(Istr-1,j-1,know)
+#   ifdef MASKING
+          grad(Istr-1,j)=grad(Istr-1,j)*GRID(ng)%vmask(Istr-1,j)
+#   endif
+          grad(Istr,j)=hsn(Istr,j,know)-hsn(Istr,j-1,know)
+#   ifdef MASKING
+          grad(Istr,j)=grad(Istr,j)*GRID(ng)%vmask(Istr,j)
+#   endif
+        END DO
+        DO j=Jstr,Jend
+          dTdt=hsn(Istr,j,know)-hsn(Istr  ,j,linew)
+          dTdx=hsn(Istr,j,linew)-hsn(Istr+1,j,linew)
+#   ifdef WEST_HSNNUDGING
+          tau=Tobc_out(1,ng,iwest)
+          IF ((dTdt*dTdx).lt.0.0_r8) tau=Tobc_in(1,ng,iwest)
+          tau=tau*dt(ng)
+#   endif
+          IF ((dTdt*dTdx).lt.0.0_r8) dTdt=0.0_r8
+          IF ((dTdt*(grad(Istr,j)+grad(Istr,j+1))).gt.0.0_r8) THEN
+            dTde=grad(Istr,j  )
+          ELSE
+            dTde=grad(Istr,j+1)
+          END IF
+          cff=MAX(dTdx*dTdx+dTde*dTde,eps)
+          Cx=dTdt*dTdx
+#   ifdef RADIATION_2D
+          Ce=MIN(cff,MAX(dTdt*dTde,-cff))
+#   else
+          Ce=0.0_r8
+#   endif
+          hsn(Istr-1,j,linew)=(cff*hsn(Istr-1,j,know)+                  &
+     &                        Cx *hsn(Istr  ,j,linew)-                  &
+     &                        MAX(Ce,0.0_r8)*grad(Istr-1,j  )-          &
+     &                        MIN(Ce,0.0_r8)*grad(Istr-1,j+1))/         &
+     &                              (cff+Cx)
+#   ifdef WEST_HSNNUDGING
+          hsn(Istr-1,j,linew)=hsn(Istr-1,j,linew)+                      &
+     &                       tau*(BOUNDARY(ng)%hsn_west(j)-             &
+     &                                   hsn(Istr-1,j,know))
+#   endif
+#   ifdef MASKING
+          hsn(Istr-1,j,linew)=hsn(Istr-1,j,linew)*                      &
+     &                              GRID(ng)%rmask(Istr-1,j)
+#   endif
+        END DO
+
+# elif defined WEST_HSNCLAMPED
 !
 !  Western edge, clamped boundary condition.
 !
@@ -153,7 +211,57 @@
 !
       IF (EASTERN_EDGE) THEN
 
-# ifdef EAST_HSNCLAMPED
+#  if defined EAST_HSNRADIATION
+!
+!  Eastern edge, implicit upstream radiation condition.
+!
+        DO j=Jstr,Jend+1
+         grad(Iend,j)=hsn(Iend,j,know)-hsn(Iend,j-1,know)
+#   ifdef MASKING
+         grad(Iend,j)=grad(Iend,j)*GRID(ng)%vmask(Iend  ,j)
+#   endif
+         grad(Iend+1,j)=hsn(Iend+1,j,know)-hsn(Iend+1,j-1,know)
+#   ifdef MASKING
+         grad(Iend+1,j)=grad(Iend+1,j)*GRID(ng)%vmask(Iend+1,j)
+#   endif
+        END DO
+        DO j=Jstr,Jend
+          dTdt=hsn(Iend,j,know)-hsn(Iend  ,j,linew)
+          dTdx=hsn(Iend,j,linew)-hsn(Iend-1,j,linew)
+#   ifdef EAST_HSNNUDGING
+          tau=Tobc_out(1,ng,ieast)
+          IF ((dTdt*dTdx).lt.0.0_r8) tau=Tobc_in(1,ng,ieast)
+          tau=tau*dt(ng)
+#   endif
+          IF ((dTdt*dTdx).lt.0.0_r8) dTdt=0.0_r8
+          IF ((dTdt*(grad(Iend,j)+grad(Iend,j+1))).gt.0.0_r8) THEN
+            dTde=grad(Iend,j  )
+          ELSE
+            dTde=grad(Iend,j+1)
+          END IF
+          cff=MAX(dTdx*dTdx+dTde*dTde,eps)
+          Cx=dTdt*dTdx
+#   ifdef RADIATION_2D
+          Ce=MIN(cff,MAX(dTdt*dTde,-cff))
+#   else
+          Ce=0.0_r8
+#   endif
+          hsn(Iend+1,j,linew)=(cff*hsn(Iend+1,j,know)+                  &
+     &                        Cx *hsn(Iend  ,j,linew)-                  &
+     &                        MAX(Ce,0.0_r8)*grad(Iend+1,j  )-          &
+     &                        MIN(Ce,0.0_r8)*grad(Iend+1,j+1))/         &
+     &                              (cff+Cx)
+#   ifdef EAST_HSNNUDGING
+          hsn(Iend+1,j,linew)=hsn(Iend+1,j,linew)+                      &
+     &             tau*(BOUNDARY(ng)%hsn_east(j)-hsn(Iend+1,j,know))
+#   endif
+#   ifdef MASKING
+          hsn(Iend+1,j,linew)=hsn(Iend+1,j,linew)*                      &
+     &                              GRID(ng)%rmask(Iend+1,j)
+#   endif
+        END DO
+
+# elif defined EAST_HSNCLAMPED
 !
 !  Eastern edge, clamped boundary condition.
 !
@@ -221,7 +329,57 @@
 !
       IF (SOUTHERN_EDGE) THEN
 
-# ifdef SOUTH_HSNCLAMPED
+#  if defined SOUTH_HSNRADIATION
+!
+!  Southern edge, implicit upstream radiation condition.
+!
+        DO i=Istr,Iend+1
+          grad(i,Jstr)=hsn(i,Jstr,know)-hsn(i-1,Jstr,know)
+#   ifdef MASKING
+          grad(i,Jstr)=grad(i,Jstr)*GRID(ng)%umask(i,Jstr)
+#   endif
+          grad(i,Jstr-1)=hsn(i,Jstr-1,know)-hsn(i-1,Jstr-1,know)
+#   ifdef MASKING
+          grad(i,Jstr-1)=grad(i,Jstr-1)*GRID(ng)%umask(i,Jstr-1)
+#   endif
+        END DO
+        DO i=Istr,Iend
+          dTdt=hsn(i,Jstr,know)-hsn(i,Jstr  ,linew)
+          dTde=hsn(i,Jstr,linew)-hsn(i,Jstr+1,linew)
+#   ifdef SOUTH_HSNNUDGING
+          tau=Tobc_out(1,ng,isouth)
+          IF ((dTdt*dTde).lt.0.0_r8) tau=Tobc_in(1,ng,isouth)
+          tau=tau*dt(ng)
+#   endif
+          IF ((dTdt*dTde).lt.0.0_r8) dTdt=0.0_r8
+          IF ((dTdt*(grad(i,Jstr)+grad(i+1,Jstr))).gt.0.0_r8) THEN
+            dTdx=grad(i  ,Jstr)
+          ELSE
+            dTdx=grad(i+1,Jstr)
+          END IF
+          cff=MAX(dTdx*dTdx+dTde*dTde,eps)
+#   ifdef RADIATION_2D
+          Cx=MIN(cff,MAX(dTdt*dTdx,-cff))
+#   else
+          Cx=0.0_r8
+#   endif
+          Ce=dTdt*dTde
+          hsn(i,Jstr-1,linew)=(cff*hsn(i,Jstr-1,know)+                  &
+     &                        Ce *hsn(i,Jstr  ,linew)-                  &
+     &                        MAX(Cx,0.0_r8)*grad(i  ,Jstr-1)-          &
+     &                        MIN(Cx,0.0_r8)*grad(i+1,Jstr-1))/         &
+     &                              (cff+Ce)
+#   ifdef SOUTH_HSNNUDGING
+          hsn(i,Jstr-1,linew)=hsn(i,Jstr-1,linew)+                      &
+     &           tau*(BOUNDARY(ng)%hsn_south(i)-hsn(i,Jstr-1,know))
+#   endif
+#   ifdef MASKING
+          hsn(i,Jstr-1,linew)=hsn(i,Jstr-1,linew)*                      &
+     &                              GRID(ng)%rmask(i,Jstr-1)
+#   endif
+        END DO
+
+# elif defined SOUTH_HSNCLAMPED
 !
 !  Southern edge, clamped boundary condition.
 !
@@ -287,7 +445,57 @@
 !
       IF (NORTHERN_EDGE) THEN
 
-# ifdef NORTH_HSNCLAMPED
+#  if defined NORTH_HSNRADIATION
+!
+!  Northern edge, implicit upstream radiation condition.
+!
+        DO i=Istr,Iend+1
+          grad(i,Jend)=hsn(i,Jend,know)-hsn(i-1,Jend,know)
+#   ifdef MASKING
+          grad(i,Jend)=grad(i,Jend)*GRID(ng)%umask(i,Jend)
+#   endif
+          grad(i,Jend+1)=hsn(i,Jend+1,know)-hsn(i-1,Jend+1,know)
+#   ifdef MASKING
+          grad(i,Jend+1)=grad(i,Jend+1)*GRID(ng)%umask(i,Jend+1)
+#   endif
+        END DO
+        DO i=Istr,Iend
+          dTdt=hsn(i,Jend,know)-hsn(i,Jend  ,linew)
+          dTde=hsn(i,Jend,linew)-hsn(i,Jend-1,linew)
+#   ifdef NORTH_HSNNUDGING
+          tau=Tobc_out(1,ng,inorth)
+          IF ((dTdt*dTde).lt.0.0_r8) tau=Tobc_in(1,ng,inorth)
+          tau=tau*dt(ng)
+#   endif
+          IF ((dTdt*dTde).lt.0.0_r8) dTdt=0.0_r8
+          IF ((dTdt*(grad(i,Jend)+grad(i+1,Jend))).gt.0.0_r8) THEN
+            dTdx=grad(i  ,Jend)
+          ELSE
+            dTdx=grad(i+1,Jend)
+          END IF
+          cff=MAX(dTdx*dTdx+dTde*dTde,eps)
+#   ifdef RADIATION_2D
+          Cx=MIN(cff,MAX(dTdt*dTdx,-cff))
+#   else
+          Cx=0.0_r8
+#   endif
+          Ce=dTdt*dTde
+          hsn(i,Jend+1,linew)=(cff*hsn(i,Jend+1,know)+                  &
+     &                        Ce *hsn(i,Jend  ,linew)-                  &
+     &                        MAX(Cx,0.0_r8)*grad(i  ,Jend+1)-          &
+     &                        MIN(Cx,0.0_r8)*grad(i+1,Jend+1))/         &
+     &                              (cff+Ce)
+#   ifdef NORTH_HSNNUDGING
+          hsn(i,Jend+1,linew)=hsn(i,Jend+1,linew)+                      &
+     &              tau*(BOUNDARY(ng)%hsn_north(i)-hsn(i,Jend+1,know))
+#   endif
+#   ifdef MASKING
+          hsn(i,Jend+1,linew)=hsn(i,Jend+1,linew)*                      &
+     &                              GRID(ng)%rmask(i,Jend+1)
+#   endif
+        END DO
+
+# elif defined NORTH_HSNCLAMPED
 !
 !  Northern edge, clamped boundary condition.
 !

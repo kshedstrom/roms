@@ -26,6 +26,7 @@
 !
       CALL vibc_tile (ng, tile,                                         &
      &                LBi, UBi, LBj, UBj,                               &
+     &                IminS, ImaxS, JminS, JmaxS,                       &
      &                liuol(ng), liunw(ng),                             &
      &                ICE(ng) % vi)
       RETURN
@@ -33,9 +34,10 @@
 !
 !***********************************************************************
       SUBROUTINE vibc_tile (ng, tile,                                   &
-     &                           LBi, UBi, LBj, UBj,                    &
-     &                           liuol, liunw,                          &
-     &                           vi)
+     &                      LBi, UBi, LBj, UBj,                         &
+     &                      IminS, ImaxS, JminS, JmaxS,                 &
+     &                      liuol, liunw,                               &
+     &                      vi)
 !***********************************************************************
 !
       USE mod_param
@@ -49,6 +51,7 @@
 !
       integer, intent(in) :: ng, tile
       integer, intent(in) :: LBi, UBi, LBj, UBj
+      integer, intent(in) :: IminS, ImaxS, JminS, JmaxS
       integer, intent(in) :: liuol, liunw
 
 # ifdef ASSUMED_SHAPE
@@ -60,6 +63,11 @@
 !  Local variable declarations.
 !
       integer :: i, j, know
+      real(r8), parameter :: eps =1.0E-20_r8
+      real(r8) :: Ce, Cx
+      real(r8):: cff, dVde, dVdt, dVdx, tau
+
+      real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: grad
 
 #include "set_bounds.h"
 !
@@ -77,7 +85,56 @@
 !
       IF (WESTERN_EDGE) THEN
 
-# ifdef WEST_MICLAMPED
+# if defined WEST_MIRADIATION
+!
+!  Western edge, implicit upstream radiation condition.
+!
+        DO j=JstrV-1,Jend
+          grad(Istr-1,j)=vi(Istr-1,j+1,know)-                           &
+     &                   vi(Istr-1,j  ,know)
+          grad(Istr  ,j)=vi(Istr  ,j+1,know)-                           &
+     &                   vi(Istr  ,j  ,know)
+        END DO
+        DO j=JstrV,Jend
+          dVdt=vi(Istr,j,know)-vi(Istr  ,j,liunw)
+          dVdx=vi(Istr,j,liunw)-vi(Istr+1,j,liunw)
+#  ifdef WEST_MINUDGING
+          IF ((dVdt*dVdx).lt.0.0_r8) THEN
+            tau=M2obc_in(ng,iwest)
+          ELSE
+            tau=M2obc_out(ng,iwest)
+          END IF
+          tau=tau*dt(ng)
+#  endif
+          IF ((dVdt*dVdx).lt.0.0_r8) dVdt=0.0_r8
+          IF ((dVdt*(grad(Istr,j-1)+grad(Istr,j))).gt.0.0_r8) THEN
+            dVde=grad(Istr,j-1)
+          ELSE
+            dVde=grad(Istr,j  )
+          END IF
+          cff=MAX(dVdx*dVdx+dVde*dVde,eps)
+          Cx=dVdt*dVdx
+#  ifdef RADIATION_2D
+          Ce=MIN(cff,MAX(dVdt*dVde,-cff))
+#  else
+          Ce=0.0_r8
+#  endif
+          vi(Istr-1,j,liunw)=(cff*vi(Istr-1,j,know)+                    &
+     &                         Cx *vi(Istr  ,j,liunw)-                  &
+     &                         MAX(Ce,0.0_r8)*grad(Istr-1,j-1)-         &
+     &                         MIN(Ce,0.0_r8)*grad(Istr-1,j  ))/        &
+     &                        (cff+Cx)
+#  ifdef WEST_M2NUDGING
+          vi(Istr-1,j,liunw)=vi(Istr-1,j,liunw)+                        &
+     &                        tau*(BOUNDARY(ng)%vi_west(j)-             &
+     &                             vi(Istr-1,j,know))
+#   endif
+#  ifdef MASKING
+          vi(Istr-1,j,liunw)=vi(Istr-1,j,liunw)*                        &
+     &                        GRID(ng)%vmask(Istr-1,j)
+#  endif
+        END DO
+# elif defined WEST_MICLAMPED
 !
 !  Western edge, clamped boundary condition.
 !
@@ -138,7 +195,57 @@
 !
       IF (EASTERN_EDGE) THEN
 
-# ifdef EAST_MICLAMPED
+# if defined EAST_MIRADIATION
+!
+!  Eastern edge, implicit upstream radiation condition.
+!
+        DO j=JstrV-1,Jend
+          grad(Iend  ,j)=vi(Iend  ,j+1,know)-                           &
+     &                   vi(Iend  ,j  ,know)
+          grad(Iend+1,j)=vi(Iend+1,j+1,know)-                           &
+     &                   vi(Iend+1,j  ,know)
+        END DO
+        DO j=JstrV,Jend
+          dVdt=vi(Iend,j,know)-vi(Iend  ,j,liunw)
+          dVdx=vi(Iend,j,liunw)-vi(Iend-1,j,liunw)
+#  ifdef EAST_MINUDGING
+          IF ((dVdt*dVdx).lt.0.0_r8) THEN
+            tau=M2obc_in(ng,ieast)
+          ELSE
+            tau=M2obc_out(ng,ieast)
+          END IF
+          tau=tau*dt(ng)
+#  endif
+          IF ((dVdt*dVdx).lt.0.0_r8) dVdt=0.0_r8
+          IF ((dVdt*(grad(Iend,j-1)+grad(Iend,j))).gt.0.0_r8) THEN
+            dVde=grad(Iend,j-1)
+          ELSE
+            dVde=grad(Iend,j  )
+          END IF
+          cff=MAX(dVdx*dVdx+dVde*dVde,eps)
+          Cx=dVdt*dVdx
+#  ifdef RADIATION_2D
+          Ce=MIN(cff,MAX(dVdt*dVde,-cff))
+#  else
+          Ce=0.0_r8
+#  endif
+          vi(Iend+1,j,liunw)=(cff*vi(Iend+1,j,know)+                    &
+     &                         Cx *vi(Iend  ,j,liunw)-                  &
+     &                         MAX(Ce,0.0_r8)*grad(Iend+1,j-1)-         &
+     &                         MIN(Ce,0.0_r8)*grad(Iend+1,j  ))/        &
+     &                        (cff+Cx)
+#  ifdef EAST_MINUDGING
+          vi(Iend+1,j,liunw)=vi(Iend+1,j,liunw)+                        &
+     &                        tau*(BOUNDARY(ng)%vi_east(j)-             &
+     &                             vi(Iend+1,j,know))
+#  endif
+#  ifdef MASKING
+          vi(Iend+1,j,liunw)=vi(Iend+1,j,liunw)*                        &
+     &                        GRID(ng)%vmask(Iend+1,j)
+#  endif
+        END DO
+
+# elif defined EAST_MICLAMPED
 !
 !  Eastern edge, clamped boundary condition.
 !
@@ -201,7 +308,58 @@
 !
       IF (SOUTHERN_EDGE) THEN
 
-# ifdef SOUTH_MICLAMPED
+# if defined SOUTH_M2RADIATION
+!
+!  Southern edge, implicit upstream radiation condition.
+!
+        DO i=Istr,Iend+1
+          grad(i,Jstr  )=vi(i  ,Jstr  ,know)-                           &
+     &                   vi(i-1,Jstr  ,know)
+          grad(i,Jstr+1)=vi(i  ,Jstr+1,know)-                           &
+     &                   vi(i-1,Jstr+1,know)
+        END DO
+        DO i=Istr,Iend
+          dVdt=vi(i,Jstr+1,know)-vi(i,Jstr+1,liunw)
+          dVde=vi(i,Jstr+1,liunw)-vi(i,Jstr+2,liunw)
+#  ifdef SOUTH_M2NUDGING
+          IF ((dVdt*dVde).lt.0.0_r8) THEN
+            tau=M2obc_in(ng,isouth)
+          ELSE
+            tau=M2obc_out(ng,isouth)
+          END IF
+          tau=tau*dt(ng)
+#  endif
+          IF ((dVdt*dVde).lt.0.0_r8) dVdt=0.0_r8
+          IF ((dVdt*(grad(i,Jstr+1)+grad(i+1,Jstr+1))).gt.0.0_r8)
+THEN
+            dVdx=grad(i  ,Jstr+1)
+          ELSE
+            dVdx=grad(i+1,Jstr+1)
+          END IF
+          cff=MAX(dVdx*dVdx+dVde*dVde,eps)
+#  ifdef RADIATION_2D
+          Cx=MIN(cff,MAX(dVdt*dVdx,-cff))
+#  else
+          Cx=0.0_r8
+#  endif
+          Ce=dVdt*dVde
+          vi(i,Jstr,liunw)=(cff*vi(i,Jstr  ,know)+                      &
+     &                       Ce *vi(i,Jstr+1,liunw)-                    &
+     &                       MAX(Cx,0.0_r8)*grad(i  ,Jstr)-             &
+     &                       MIN(Cx,0.0_r8)*grad(i+1,Jstr))/            &
+     &                      (cff+Ce)
+#  ifdef SOUTH_M2NUDGING 
+          vi(i,Jstr,liunw)=vi(i,Jstr,liunw)+                            &
+     &                      tau*(BOUNDARY(ng)%vi_south(i)-              &
+     &                           vi(i,Jstr,know))
+#  endif
+#  ifdef MASKING
+          vi(i,Jstr,liunw)=vi(i,Jstr,liunw)*                            &
+     &                      GRID(ng)%vmask(i,Jstr)
+#  endif
+        END DO
+
+# elif defined SOUTH_MICLAMPED
 !
 !  Southern edge, clamped boundary condition.
 !
@@ -247,7 +405,57 @@
 !
       IF (NORTHERN_EDGE) THEN
 
-# ifdef NORTH_MICLAMPED
+# if defined NORTH_M2RADIATION
+!
+!  Northern edge, implicit upstream radiation condition.
+!
+        DO i=Istr,Iend+1
+          grad(i,Jend  )=vi(i  ,Jend  ,know)-                           &
+     &                   vi(i-1,Jend  ,know)
+          grad(i,Jend+1)=vi(i  ,Jend+1,know)-                           &
+     &                   vi(i-1,Jend+1,know)
+        END DO
+        DO i=Istr,Iend
+          dVdt=vi(i,Jend,know)-vi(i,Jend  ,liunw)
+          dVde=vi(i,Jend,liunw)-vi(i,Jend-1,liunw)
+#  ifdef NORTH_M2NUDGING
+          IF ((dVdt*dVde).lt.0.0_r8) THEN
+            tau=M2obc_in(ng,inorth)
+          ELSE
+            tau=M2obc_out(ng,inorth)
+          END IF
+          tau=tau*dt(ng)
+#  endif
+          IF ((dVdt*dVde).lt.0.0_r8) dVdt=0.0_r8
+          IF ((dVdt*(grad(i,Jend)+grad(i+1,Jend))).gt.0.0_r8) THEN
+            dVdx=grad(i  ,Jend)
+          ELSE
+            dVdx=grad(i+1,Jend)
+          END IF
+          cff=MAX(dVdx*dVdx+dVde*dVde,eps)
+#  ifdef RADIATION_2D
+          Cx=MIN(cff,MAX(dVdt*dVdx,-cff))
+#  else
+          Cx=0.0_r8
+#  endif
+          Ce=dVdt*dVde
+          vi(i,Jend+1,liunw)=(cff*vi(i,Jend+1,know)+                    &
+     &                         Ce *vi(i,Jend  ,liunw)-                  &
+     &                         MAX(Cx,0.0_r8)*grad(i  ,Jend+1)-         &
+     &                         MIN(Cx,0.0_r8)*grad(i+1,Jend+1))/        &
+     &                        (cff+Ce)
+#  ifdef NORTH_M2NUDGING 
+          vi(i,Jend+1,liunw)=vi(i,Jend+1,liunw)+                        &
+     &                         tau*(BOUNDARY(ng)%vi_north(i)-           &
+     &                              vi(i,Jend+1,know))
+#  endif
+#  ifdef MASKING
+          vi(i,Jend+1,liunw)=vi(i,Jend+1,liunw)* &
+     &                        GRID(ng)%vmask(i,Jend+1)
+#  endif
+        END DO
+
+# elif defined NORTH_MICLAMPED
 !
 !  Northern edge, clamped boundary condition.
 !

@@ -939,31 +939,34 @@
         ENDDO
       ENDDO
 
-      CALL bc_r2d_tile (ng, tile,                                     &
-     &                          LBi, UBi, LBj, UBj,                     &
-     &                          tis)
-      CALL bc_r2d_tile (ng, tile,                                     &
-     &                          LBi, UBi, LBj, UBj,                     &
-     &                          coef_ice_heat)
-      CALL bc_r2d_tile (ng, tile,                                     &
-     &                          LBi, UBi, LBj, UBj,                     &
-     &                          rhs_ice_heat)
-      CALL bc_r2d_tile (ng, tile,                                     &
-     &                          LBi, UBi, LBj, UBj,                     &
-     &                          stflx(:,:,isalt))
-      CALL bc_r2d_tile (ng, tile,                                     &
-     &                          LBi, UBi, LBj, UBj,                     &
-     &                          stflx(:,:,itemp))
+      CALL bc_r2d_tile (ng, tile,                                       &
+     &                  LBi, UBi, LBj, UBj,                             &
+     &                  tis)
+      CALL bc_r2d_tile (ng, tile,                                       &
+     &                  LBi, UBi, LBj, UBj,                             &
+     &                  coef_ice_heat)
+      CALL bc_r2d_tile (ng, tile,                                       &
+     &                  LBi, UBi, LBj, UBj,                             &
+     &                  rhs_ice_heat)
+      CALL bc_r2d_tile (ng, tile,                                       &
+     &                  LBi, UBi, LBj, UBj,                             &
+     &                  stflx(:,:,isalt))
+      CALL bc_r2d_tile (ng, tile,                                       &
+     &                  LBi, UBi, LBj, UBj,                             &
+     &                  stflx(:,:,itemp))
 
       CALL aibc_tile (ng, tile,                                         &
-     &                          LBi, UBi, LBj, UBj, liold, linew,       &
-     &                          ui, vi, ai)
+     &                LBi, UBi, LBj, UBj,                               &
+     &                IminS, ImaxS, JminS, JmaxS,                       &
+     &                liold, linew, ui, vi, ai)
       CALL hibc_tile (ng, tile,                                         &
-     &                          LBi, UBi, LBj, UBj, liold, linew,       &
-     &                          ui, vi, hi)
+     &                LBi, UBi, LBj, UBj,                               &
+     &                IminS, ImaxS, JminS, JmaxS,                       &
+     &                liold, linew, ui, vi, hi)
       CALL hsnbc_tile (ng, tile,                                        &
-     &                          LBi, UBi, LBj, UBj, liold, linew,       &
-     &                          ui, vi, hsn)
+     &                 LBi, UBi, LBj, UBj,                              &
+     &                 IminS, ImaxS, JminS, JmaxS,                      &
+     &                 liold, linew, ui, vi, hsn)
       CALL tibc_tile (ng, tile,                                         &
      &                          LBi, UBi, LBj, UBj, liold, linew,       &
      &                          min_h(ng), ui, vi, hi, ti, enthalpi)
