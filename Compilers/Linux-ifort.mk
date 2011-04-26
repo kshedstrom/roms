@@ -36,11 +36,6 @@
            CFLAGS :=
          CXXFLAGS :=
           LDFLAGS :=
-ifdef USE_CXX
-             LIBS := -lstdc++
-else
-             LIBS :=
-endif
                AR := ar
           ARFLAGS := r
             MKDIR := mkdir -p
@@ -56,19 +51,13 @@ endif
 #
 
 ifdef USE_NETCDF4
-    NETCDF_INCDIR ?= /opt/intelsoft/netcdf4/include
-    NETCDF_LIBDIR ?= /opt/intelsoft/netcdf4/lib
-      HDF5_LIBDIR ?= /opt/intelsoft/hdf5/lib
+        NC_CONFIG ?= nc-config
+    NETCDF_INCDIR ?= $(shell $(NC_CONFIG) --prefix)/include
+             LIBS := $(shell $(NC_CONFIG) --flibs)
 else
-    NETCDF_INCDIR ?= /opt/intelsoft/netcdf/include
-    NETCDF_LIBDIR ?= /opt/intelsoft/netcdf/lib
-endif
-             LIBS += -L$(NETCDF_LIBDIR) -lnetcdf
-ifdef USE_NETCDF4
-             LIBS += -L$(HDF5_LIBDIR) -lhdf5_hl -lhdf5 -lz
- ifdef USE_DAP
-             LIBS += $(shell curl-config --libs)
- endif
+    NETCDF_INCDIR ?= /usr/local/include
+    NETCDF_LIBDIR ?= /usr/local/lib
+             LIBS := -L$(NETCDF_LIBDIR) -lnetcdf
 endif
 
 ifdef USE_ARPACK
@@ -124,6 +113,10 @@ ifdef USE_ESMF
                      include $(ESMF_MK_DIR)/esmf.mk
            FFLAGS += $(ESMF_F90COMPILEPATHS)
              LIBS += $(ESMF_F90LINKPATHS) -lesmf -lC
+endif
+
+ifdef USE_CXX
+             LIBS += -lstdc++
 endif
 
        clean_list += ifc* work.pc*

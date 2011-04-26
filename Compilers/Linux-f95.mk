@@ -36,11 +36,6 @@
            CFLAGS :=
          CXXFLAGS :=
           LDFLAGS :=
-ifdef USE_CXX
-             LIBS := -lstdc++
-else
-             LIBS :=
-endif
                AR := ar
           ARFLAGS := r
             MKDIR := mkdir -p
@@ -56,22 +51,13 @@ endif
 #
 
 ifdef USE_NETCDF4
-    NETCDF_INCDIR := $(HOME)/include_sun
-    NETCDF_LIBDIR := $(HOME)/lib_sun
-      HDF5_LIBDIR := $(HOME)/lib
+        NC_CONFIG ?= nc-config
+    NETCDF_INCDIR ?= $(shell $(NC_CONFIG) --prefix)/include
+             LIBS := $(shell $(NC_CONFIG) --flibs)
 else
     NETCDF_INCDIR ?= /usr/local/include
     NETCDF_LIBDIR ?= /usr/local/lib
-#    NETCDF_INCDIR ?= /archive/u1/uaf/kate/include
-#    NETCDF_LIBDIR ?= /archive/u1/uaf/kate/lib
-endif
-
-             LIBS += -L$(NETCDF_LIBDIR) -lnetcdf
-ifdef USE_NETCDF4
-             LIBS += -L$(HDF5_LIBDIR) -lhdf5_hl -lhdf5
- ifdef USE_DAP
-             LIBS += $(shell curl-config --libs)
- endif
+             LIBS := -L$(NETCDF_LIBDIR) -lnetcdf
 endif
 
 ifdef USE_ARPACK
@@ -101,6 +87,10 @@ else
            FFLAGS += -O3
            CFLAGS += -O3
          CXXFLAGS += -O3
+endif
+
+ifdef USE_CXX
+             LIBS += -lstdc++
 endif
 
 ifdef SWAN_COUPLE
