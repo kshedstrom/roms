@@ -91,12 +91,6 @@ else
            FFLAGS += -ip -O3
            CFLAGS += -g
          CXXFLAGS += -g
- ifeq ($(CPU),i686)
-           FFLAGS += -pc80 -xW
- endif
- ifeq ($(CPU),x86_64)
-           FFLAGS += -xW
- endif
 endif
 
 ifdef USE_MCT
