@@ -6,7 +6,7 @@
 **   See License_ROMS.txt                                                    **
 *******************************************************************************
 **
-** Options for 4DVar Data Assimilation Toy.
+** Options for New York/New Jersey Bight.
 **
 ** Application flag:   NJ_BIGHT
 ** Input script:       ocean_nj_bight.in
