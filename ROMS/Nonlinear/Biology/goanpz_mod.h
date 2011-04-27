@@ -37,9 +37,9 @@
 !
 !  Biological parameters.
 !
-      integer, dimension(Ngrids) :: BioIter
+      integer, allocatable :: BioIter(:)
       real(r8) :: VertMixIncr
-      real(r8), dimension(Ngrids) :: PARfrac       ! nondimensional
+      real(r8), allocatable :: PARfrac(:)       ! nondimensional
 !  Bio- conversions
       real(r8) :: xi, ccr, ccrPhL
 !  extinction coefficients
@@ -157,6 +157,18 @@
 #else
       NBT = 10
 #endif
+
+!-----------------------------------------------------------------------
+!  Allocate various module variables.
+!-----------------------------------------------------------------------
+      IF (.not.allocated(BioIter)) THEN
+        allocate ( BioIter(Ngrids) )
+      END IF
+      IF (.not.allocated(Parfrac)) THEN
+        allocate ( Parfrac(Ngrids) )
+      END IF
+
+!-----------------------------------------------------------------------
 
       allocate ( idTSvar(MST) )
       allocate ( hisTSid(MST,Ngrids) )
