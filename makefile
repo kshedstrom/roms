@@ -33,12 +33,16 @@ $(if $(filter $(MAKE_VERSION),$(NEED_VERSION)),,        \
  $(error This makefile requires one of GNU make version $(NEED_VERSION).))
 
 #--------------------------------------------------------------------------
-#  Initialize some things.
+#  Initialize some things. Notice that the token "libraries" is initialized
+#  with the ROMS/Utility library to account for calls to objects in other
+#  ROMS libraries or cycling dependencies. These type of dependencies are
+#  problematic in some compilers during linking. This library appears twice
+#  at linking step (beggining and almost the end of ROMS library list).
 #--------------------------------------------------------------------------
 
   sources    :=
-  libraries  :=
-  c_sources    := 
+  c_sources  := 
+  libraries  := $(SCRATCH_DIR)/libUTIL.a
 
 #==========================================================================
 #  Start of user-defined options. In some macro definitions below: "on" or
@@ -87,12 +91,6 @@ MY_ANALYTICAL_DIR ?=
 #
 
 MY_CPP_FLAGS ?=
-
-#  Set number of ROMS nested and/or composed grid.  Currently, only
-#  one grid is supported.  This option will be available in the near
-#  future.
-
- NestedGrids ?= 1
 
 #  Activate debugging compiler options:
 

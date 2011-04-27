@@ -84,7 +84,7 @@
 !-----------------------------------------------------------------------
 !
       IF (exit_flag.ne.NoError) RETURN
-      ncname=AVGname(ng)
+      ncname=AVG(ng)%name
 !
       IF (Master) THEN
         IF (ldef) THEN
@@ -105,7 +105,7 @@
 !=======================================================================
 !
       DEFINE : IF (ldef) THEN
-        CALL netcdf_create (ng, model, TRIM(ncname), ncAVGid(ng))
+        CALL netcdf_create (ng, model, TRIM(ncname), AVG(ng)%ncid)
         IF (exit_flag.ne.NoError) THEN
           IF (Master) WRITE (stdout,30) TRIM(ncname)
           RETURN
@@ -117,137 +117,137 @@
 !
         DimIDs=0
 !
-        status=def_dim(ng, model, ncAVGid(ng), ncname, 'xi_rho',        &
+        status=def_dim(ng, model, AVG(ng)%ncid, ncname, 'xi_rho',       &
      &                 IOBOUNDS(ng)%xi_rho, DimIDs( 1))
         IF (exit_flag.ne.NoError) RETURN
 
-        status=def_dim(ng, model, ncAVGid(ng), ncname, 'xi_u',          &
+        status=def_dim(ng, model, AVG(ng)%ncid, ncname, 'xi_u',         &
      &                 IOBOUNDS(ng)%xi_u, DimIDs( 2))
         IF (exit_flag.ne.NoError) RETURN
 
-        status=def_dim(ng, model, ncAVGid(ng), ncname, 'xi_v',          &
+        status=def_dim(ng, model, AVG(ng)%ncid, ncname, 'xi_v',         &
      &                 IOBOUNDS(ng)%xi_v, DimIDs( 3))
         IF (exit_flag.ne.NoError) RETURN
 
-        status=def_dim(ng, model, ncAVGid(ng), ncname, 'xi_psi',        &
+        status=def_dim(ng, model, AVG(ng)%ncid, ncname, 'xi_psi',       &
      &                 IOBOUNDS(ng)%xi_psi, DimIDs( 4))
         IF (exit_flag.ne.NoError) RETURN
 
-        status=def_dim(ng, model, ncAVGid(ng), ncname, 'eta_rho',       &
+        status=def_dim(ng, model, AVG(ng)%ncid, ncname, 'eta_rho',      &
      &                 IOBOUNDS(ng)%eta_rho, DimIDs( 5))
         IF (exit_flag.ne.NoError) RETURN
 
-        status=def_dim(ng, model, ncAVGid(ng), ncname, 'eta_u',         &
+        status=def_dim(ng, model, AVG(ng)%ncid, ncname, 'eta_u',        &
      &                 IOBOUNDS(ng)%eta_u, DimIDs( 6))
         IF (exit_flag.ne.NoError) RETURN
 
-        status=def_dim(ng, model, ncAVGid(ng), ncname, 'eta_v',         &
+        status=def_dim(ng, model, AVG(ng)%ncid, ncname, 'eta_v',        &
      &                 IOBOUNDS(ng)%eta_v, DimIDs( 7))
         IF (exit_flag.ne.NoError) RETURN
 
-        status=def_dim(ng, model, ncAVGid(ng), ncname, 'eta_psi',       &
+        status=def_dim(ng, model, AVG(ng)%ncid, ncname, 'eta_psi',      &
      &                 IOBOUNDS(ng)%eta_psi, DimIDs( 8))
         IF (exit_flag.ne.NoError) RETURN
 
 # if defined WRITE_WATER && defined MASKING
-        status=def_dim(ng, model, ncAVGid(ng), ncname, 'xy_rho',        &
+        status=def_dim(ng, model, AVG(ng)%ncid, ncname, 'xy_rho',       &
      &                 IOBOUNDS(ng)%xy_rho, DimIDs(17))
         IF (exit_flag.ne.NoError) RETURN
 
-        status=def_dim(ng, model, ncAVGid(ng), ncname, 'xy_u',          &
+        status=def_dim(ng, model, AVG(ng)%ncid, ncname, 'xy_u',         &
      &                 IOBOUNDS(ng)%xy_u, DimIDs(18))
         IF (exit_flag.ne.NoError) RETURN
 
-        status=def_dim(ng, model, ncAVGid(ng), ncname, 'xy_v',          &
+        status=def_dim(ng, model, AVG(ng)%ncid, ncname, 'xy_v',         &
      &                 IOBOUNDS(ng)%xy_v, DimIDs(19))
         IF (exit_flag.ne.NoError) RETURN
 
-        status=def_dim(ng, model, ncAVGid(ng), ncname, 'xy_psi',        &
+        status=def_dim(ng, model, AVG(ng)%ncid, ncname, 'xy_psi',       &
      &                 IOBOUNDS(ng)%xy_psi, xy_pdim)
         IF (exit_flag.ne.NoError) RETURN
 # endif
 
 # ifdef SOLVE3D
 #  if defined WRITE_WATER && defined MASKING
-        status=def_dim(ng, model, ncAVGid(ng), ncname, 'xyz_rho',       &
+        status=def_dim(ng, model, AVG(ng)%ncid, ncname, 'xyz_rho',      &
      &                 IOBOUNDS(ng)%xy_rho*N(ng), DimIDs(20))
         IF (exit_flag.ne.NoError) RETURN
 
-        status=def_dim(ng, model, ncAVGid(ng), ncname, 'xyz_u',         &
+        status=def_dim(ng, model, AVG(ng)%ncid, ncname, 'xyz_u',        &
      &                 IOBOUNDS(ng)%xy_u*N(ng), DimIDs(21))
         IF (exit_flag.ne.NoError) RETURN
 
-        status=def_dim(ng, model, ncAVGid(ng), ncname, 'xyz_v',         &
+        status=def_dim(ng, model, AVG(ng)%ncid, ncname, 'xyz_v',        &
      &                 IOBOUNDS(ng)%xy_v*N(ng), DimIDs(22))
         IF (exit_flag.ne.NoError) RETURN
 
-        status=def_dim(ng, model, ncAVGid(ng), ncname, 'xyz_w',         &
+        status=def_dim(ng, model, AVG(ng)%ncid, ncname, 'xyz_w',        &
      &                 IOBOUNDS(ng)%xy_rho*(N(ng)+1), DimIDs(23))
         IF (exit_flag.ne.NoError) RETURN
 
-        status=def_dim(ng, model, ncAVGid(ng), ncname, 'xyz_psi',       &
+        status=def_dim(ng, model, AVG(ng)%ncid, ncname, 'xyz_psi',      &
      &                 IOBOUNDS(ng)%xy_psi*N(ng), xyz_pdim)
         IF (exit_flag.ne.NoError) RETURN
 #  endif
 
-        status=def_dim(ng, model, ncAVGid(ng), ncname, 's_rho',         &
+        status=def_dim(ng, model, AVG(ng)%ncid, ncname, 's_rho',        &
      &                 N(ng), DimIDs( 9))
         IF (exit_flag.ne.NoError) RETURN
 
-        status=def_dim(ng, model, ncAVGid(ng), ncname, 's_w',           &
+        status=def_dim(ng, model, AVG(ng)%ncid, ncname, 's_w',          &
      &                 N(ng)+1, DimIDs(10))
         IF (exit_flag.ne.NoError) RETURN
 
-        status=def_dim(ng, model, ncAVGid(ng), ncname, 'tracer',        &
+        status=def_dim(ng, model, AVG(ng)%ncid, ncname, 'tracer',       &
      &                 NT(ng), DimIDs(11))
         IF (exit_flag.ne.NoError) RETURN
 
 #  ifdef SEDIMENT
-        status=def_dim(ng, iNLM, ncAVGid(ng), ncname, 'NST',            &
+        status=def_dim(ng, iNLM, AVG(ng)%ncid, ncname, 'NST',           &
      &                 NST, DimIDs(32))
         IF (exit_flag.ne.NoError) RETURN
 
-        status=def_dim(ng, model, ncAVGid(ng), ncname, 'Nbed',          &
+        status=def_dim(ng, model, AVG(ng)%ncid, ncname, 'Nbed',         &
      &                 Nbed, DimIDs(16))
         IF (exit_flag.ne.NoError) RETURN
 
 #   if defined WRITE_WATER && defined MASKING
-        status=def_dim(ng, model, ncAVGid(ng), ncname, 'xybed',         &
+        status=def_dim(ng, model, AVG(ng)%ncid, ncname, 'xybed',        &
      &                 IOBOUNDS(ng)%xy_rho*Nbed, DimIDs(24))
         IF (exit_flag.ne.NoError) RETURN
 #   endif
 #  endif
 
 #  ifdef ECOSIM
-        status=def_dim(ng, model, ncAVGid(ng), ncname, 'Nphy',          &
+        status=def_dim(ng, model, AVG(ng)%ncid, ncname, 'Nphy',         &
      &                 Nphy, DimIDs(25))
         IF (exit_flag.ne.NoError) RETURN
 
-        status=def_dim(ng, model, ncAVGid(ng), ncname, 'Nbac',          &
+        status=def_dim(ng, model, AVG(ng)%ncid, ncname, 'Nbac',         &
      &                 Nbac, DimIDs(26))
         IF (exit_flag.ne.NoError) RETURN
 
-        status=def_dim(ng, model, ncAVGid(ng), ncname, 'Ndom',          &
+        status=def_dim(ng, model, AVG(ng)%ncid, ncname, 'Ndom',         &
      &                 Ndom, DimIDs(27))
         IF (exit_flag.ne.NoError) RETURN
 
-        status=def_dim(ng, model, ncAVGid(ng), ncname, 'Nfec',          &
+        status=def_dim(ng, model, AVG(ng)%ncid, ncname, 'Nfec',         &
      &                 Nfec, DimIDs(28))
         IF (exit_flag.ne.NoError) RETURN
 #  endif
 # endif
 
-        status=def_dim(ng, model, ncAVGid(ng), ncname, 'boundary',      &
+        status=def_dim(ng, model, AVG(ng)%ncid, ncname, 'boundary',     &
      &                 4, DimIDs(14))
         IF (exit_flag.ne.NoError) RETURN
 
 # ifdef FOUR_DVAR
-        status=def_dim(ng, model, ncAVGid(ng), ncname, 'Nstate',        &
+        status=def_dim(ng, model, AVG(ng)%ncid, ncname, 'Nstate',       &
      &                 NstateVar(ng), DimIDs(29))
         IF (exit_flag.ne.NoError) RETURN
 # endif
 
-        status=def_dim(ng, model, ncAVGid(ng), ncname,                  &
+        status=def_dim(ng, model, AVG(ng)%ncid, ncname,                 &
      &                 TRIM(ADJUSTL(Vname(5,idtime))),                  &
      &                 nf90_unlimited, DimIDs(12))
         IF (exit_flag.ne.NoError) RETURN
@@ -378,7 +378,7 @@
 !
 !  Initialize unlimited time record dimension.
 !
-        tAVGindx(ng)=0
+        AVG(ng)%Rindex=0
 !
 !  Initialize local information variable arrays.
 !
@@ -403,7 +403,7 @@
 !  Define time-recordless information variables.
 !-----------------------------------------------------------------------
 !
-        CALL def_info (ng, model, ncAVGid(ng), ncname, DimIDs)
+        CALL def_info (ng, model, AVG(ng)%ncid, ncname, DimIDs)
         IF (exit_flag.ne.NoError) RETURN
 !
 !-----------------------------------------------------------------------
@@ -428,7 +428,7 @@
           Vinfo( 4)='gregorian'
         END IF
         Vinfo(14)=Vname(4,idtime)
-        status=def_var(ng, model, ncAVGid(ng), avgVid(idtime,ng),       &
+        status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idtime),    &
      &                 NF_TYPE, 1, (/recdim/), Aval, Vinfo, ncname,     &
      &                 SetParAccess = .FALSE.)
 
@@ -442,12 +442,12 @@
           Vinfo( 3)=Vname(3,idFsur)
           Vinfo(14)=Vname(4,idFsur)
           Vinfo(16)=Vname(1,idtime)
-# if defined WRITE_WATER && defined MASKING
+# if !defined WET_DRY && (defined WRITE_WATER && defined MASKING)
           Vinfo(20)='mask_rho'
 # endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idFsur,ng),r8)
-          status=def_var(ng, model, ncAVGid(ng), avgVid(idFsur,ng),     &
+          status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idFsur),  &
      &                   NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -467,7 +467,7 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idFsuD,ng),r8)
-          status=def_var(ng, model, ncAVGid(ng), avgVid(idFsuD,ng),     &
+          status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idFsuD),  &
      &                   NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -486,7 +486,7 @@
 # endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idUbar,ng),r8)
-          status=def_var(ng, model, ncAVGid(ng), avgVid(idUbar,ng),     &
+          status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idUbar),  &
      &                   NF_FOUT, nvd3, u2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -506,7 +506,7 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idu2dD,ng),r8)
-          status=def_var(ng, model, ncAVGid(ng), avgVid(idu2dD,ng),     &
+          status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idu2dD),  &
      &                   NF_FOUT, nvd3, u2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -525,7 +525,7 @@
 # endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idVbar,ng),r8)
-          status=def_var(ng, model, ncAVGid(ng), avgVid(idVbar,ng),     &
+          status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idVbar),  &
      &                   NF_FOUT, nvd3, v2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -545,7 +545,7 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idv2dD,ng),r8)
-          status=def_var(ng, model, ncAVGid(ng), avgVid(idv2dD,ng),     &
+          status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idv2dD),  &
      &                 NF_FOUT, nvd3, v2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -566,7 +566,7 @@
 #   endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(u2dvar,r8)
-          status=def_var(ng, model, ncAVGid(ng), avgVid(idUfx1,ng),     &
+          status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idUfx1),  &
      &                   NF_FOUT, nvd3, u2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -582,7 +582,7 @@
 #   endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(u2dvar,r8)
-          status=def_var(ng, model, ncAVGid(ng), avgVid(idUfx2,ng),     &
+          status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idUfx2),  &
      &                   NF_FOUT, nvd3, u2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -598,7 +598,7 @@
 #   endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(v2dvar,r8)
-          status=def_var(ng, model, ncAVGid(ng), avgVid(idVfx1,ng),     &
+          status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idVfx1),  &
      &                   NF_FOUT, nvd3, v2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -614,7 +614,7 @@
 #   endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(v2dvar,r8)
-          status=def_var(ng, model, ncAVGid(ng), avgVid(idVfx2,ng),     &
+          status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idVfx2),  &
      &                   NF_FOUT, nvd3, v2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -633,7 +633,7 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idUvel,ng),r8)
-          status=def_var(ng, model, ncAVGid(ng), avgVid(idUvel,ng),     &
+          status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idUvel),  &
      &                   NF_FOUT, nvd4, u3dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -653,7 +653,7 @@
 #   endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idu3dD,ng),r8)
-          status=def_var(ng, model, ncAVGid(ng), avgVid(idu3dD,ng),     &
+          status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idu3dD),  &
      &                   NF_FOUT, nvd4, u3dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -672,7 +672,7 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idVvel,ng),r8)
-          status=def_var(ng, model, ncAVGid(ng), avgVid(idVvel,ng),     &
+          status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idVvel),  &
      &                   NF_FOUT, nvd4, v3dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -692,7 +692,7 @@
 #   endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idv3dD,ng),r8)
-          status=def_var(ng, model, ncAVGid(ng), avgVid(idv3dD,ng),     &
+          status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idv3dD),  &
      &                   NF_FOUT, nvd4, v3dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -711,7 +711,7 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idOvel,ng),r8)
-          status=def_var(ng, model, ncAVGid(ng), avgVid(idOvel,ng),     &
+          status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idOvel),  &
      &                   NF_FOUT, nvd4, w3dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -729,7 +729,7 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idWvel,ng),r8)
-          status=def_var(ng, model, ncAVGid(ng), avgVid(idWvel,ng),     &
+          status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idWvel),  &
      &                   NF_FOUT, nvd4, w3dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -756,7 +756,7 @@
 #  endif
             Vinfo(22)='coordinates'
             Aval(5)=REAL(r3dvar,r8)
-            status=def_var(ng, model, ncAVGid(ng), avgTid(itrc,ng),     &
+            status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Tid(itrc),  &
      &                     NF_FOUT, nvd4, t3dgrd, Aval, Vinfo, ncname)
             IF (exit_flag.ne.NoError) RETURN
           END IF
@@ -777,7 +777,7 @@
             Vinfo(16)=Vname(1,idtime)
             Vinfo(22)='coordinates'
             Aval(5)=REAL(r3dvar,r8)
-            status=def_var(ng, model,ncAVGid(ng),avgTSid(itrc,ng),      &
+            status=def_var(ng, model,AVG(ng)%ncid,AVG(ng)%TSid(itrc),   &
      &                     NF_FOUT,nvd4,t3dgrd,Aval,Vinfo,ncname)
           END IF
         END DO
@@ -796,7 +796,7 @@
             Vinfo(16)=Vname(1,idtime)
             Vinfo(22)='coordinates'
             Aval(5)=REAL(r2dvar,r8)
-            status=def_var(ng, model,ncAVGid(ng),avgTS2id(itrc,ng),     &
+            status=def_var(ng, model,AVG(ng)%ncid,AVG(ng)%TS2id(itrc),  &
      &                     NF_FOUT,nvd3,t2dgrd,Aval,Vinfo,ncname)
           END IF
         END DO
@@ -816,7 +816,7 @@
               Vinfo(16)=Vname(1,idtime)
               Vinfo(22)='coordinates'
               Aval(5)=REAL(r2dvar,r8)
-              status=def_var(ng, model,ncAVGid(ng),avgTBFid(iBF,ng),      &
+              status=def_var(ng, model,AVG(ng)%ncid,AVG(ng)%TBFid(iBF),   &
      &                     NF_FOUT,nvd3,t2dgrd,Aval,Vinfo,ncname)
             END IF
 !        END DO
@@ -836,7 +836,7 @@
             Vinfo(16)=Vname(1,idtime)
             Vinfo(22)='coordinates'
             Aval(5)=REAL(r3dvar,r8)
-            status=def_var(ng, model,ncAVGid(ng),avgPT3id(itrc,ng),     &
+            status=def_var(ng, model,AVG(ng)%ncid,AVG(ng)%PT3id(itrc),  &
      &                    NF_FOUT,nvd4,t3dgrd,Aval,Vinfo,ncname)
           END IF
         END DO
@@ -855,7 +855,7 @@
             Vinfo(16)=Vname(1,idtime)
             Vinfo(22)='coordinates'
             Aval(5)=REAL(r3dvar,r8)
-            status=def_var(ng, model,ncAVGid(ng),avgPT2id(itrc,ng),     &
+            status=def_var(ng, model,AVG(ng)%ncid,AVG(ng)%PT2id(itrc),  &
      &                     NF_FOUT,nvd3,t2dgrd,Aval,Vinfo,ncname)
           END IF
         END DO
@@ -919,8 +919,8 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idIcePhL,ng),r8)
-          status=def_var(ng, model, ncAVGid(ng),                        &
-     &                   avgVid(idIcePhL,ng), NF_FOUT,                  &
+          status=def_var(ng, model, AVG(ng)%ncid,                       &
+     &                   AVG(ng)%Vid(idIcePhL), NF_FOUT,                &
      &                   nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -938,8 +938,8 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idIceNO3,ng),r8)
-          status=def_var(ng, model, ncAVGid(ng),                        &
-     &                   avgVid(idIceNO3,ng), NF_FOUT,                  &
+          status=def_var(ng, model, AVG(ng)%ncid,                       &
+     &                   AVG(ng)%Vid(idIceNO3), NF_FOUT,                &
      &                   nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -957,8 +957,8 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idIceNH4,ng),r8)
-          status=def_var(ng, model, ncAVGid(ng),                        &
-     &                   avgVid(idIceNH4,ng), NF_FOUT,                  &
+          status=def_var(ng, model, AVG(ng)%ncid,                       &
+     &                   AVG(ng)%Vid(idIceNH4), NF_FOUT,                &
      &                   nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -976,8 +976,8 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idIceLog,ng),r8)
-          status=def_var(ng, model, ncAVGid(ng),                        &
-     &                   avgVid(idIceLog,ng), NF_FOUT,                  &
+          status=def_var(ng, model, AVG(ng)%ncid,                       &
+     &                   AVG(ng)%Vid(idIceLog), NF_FOUT,                &
      &                   nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -996,7 +996,7 @@
             Vinfo(16)=Vname(1,idtime)
             Vinfo(22)='coordinates'
             Aval(5)=REAL(r3dvar,r8)
-            status=def_var(ng, model, ncAVGid(ng), avgTSid(itrc,ng),    &
+            status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%TSid(itrc), &
      &                   NF_FOUT, nvd4, t3dgrd, Aval, Vinfo, ncname)
             IF (exit_flag.ne.NoError) RETURN
           END IF
@@ -1020,8 +1020,9 @@
 #   endif
             Vinfo(22)='coordinates'
             Aval(5)=REAL(r3dvar,r8)
-            status=def_var(ng, model, ncAVGid(ng), avgVid(ifield,ng),   &
-     &                     NF_FOUT, nvd4, t3dgrd, Aval, Vinfo, ncname)
+            status=def_var(ng, model, AVG(ng)%ncid,                     &
+     &                     AVG(ng)%Vid(ifield), NF_FOUT,                &
+     &                     nvd4, t3dgrd, Aval, Vinfo, ncname)
             IF (exit_flag.ne.NoError) RETURN
           END IF
         END DO
@@ -1040,7 +1041,7 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idDano,ng),r8)
-          status=def_var(ng, model, ncAVGid(ng), avgVid(idDano,ng),     &
+          status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idDano),  &
      &                   NF_FOUT, nvd4, t3dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -1059,7 +1060,7 @@
 #   endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idPONsed,ng),r8)
-          status=def_var(ng, model, ncAVGid(ng), avgVid(idPONsed,ng),   &
+          status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idPONsed),&
      &                   NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -1077,7 +1078,7 @@
 #   endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idOPALsed,ng),r8)
-          status=def_var(ng, model, ncAVGid(ng), avgVid(idOPALsed,ng),  &
+          status=def_var(ng, model, AVG(ng)%ncid,AVG(ng)%Vid(idOPALsed),&
      &                   NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -1095,7 +1096,8 @@
 #   endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idDENITsed,ng),r8)
-          status=def_var(ng, model, ncAVGid(ng), avgVid(idDENITsed,ng), &
+          status=def_var(ng, model, AVG(ng)%ncid,                       &
+     &                   AVG(ng)%Vid(idDENITsed),                       &
      &                   NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -1113,7 +1115,7 @@
 #   endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idPONbur,ng),r8)
-          status=def_var(ng, model, ncAVGid(ng), avgVid(idPONbur,ng),   &
+          status=def_var(ng, model, AVG(ng)%ncid,AVG(ng)%Vid(idPONbur),&
      &                   NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -1131,7 +1133,7 @@
 #   endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idOPALbur,ng),r8)
-          status=def_var(ng, model, ncAVGid(ng), avgVid(idOPALbur,ng),  &
+          status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idOPALbur),&
      &                   NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -1151,7 +1153,7 @@
 #   endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idHsbl,ng),r8)
-          status=def_var(ng, model, ncAVGid(ng), avgVid(idHsbl,ng),     &
+          status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idHsbl),  &
      &                   NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -1171,7 +1173,7 @@
 #   endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idHbbl,ng),r8)
-          status=def_var(ng, model, ncAVGid(ng), avgVid(idHbbl,ng),     &
+          status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idHbbl),  &
      &                   NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -1191,7 +1193,7 @@
 # endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(p2dvar,r8)
-          status=def_var(ng, iNLM, ncAVGid(ng), avgVid(id2dPV,ng),      &
+          status=def_var(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(id2dPV),   &
      &                   NF_FOUT, nvd3, p2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -1209,7 +1211,7 @@
 # endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(p2dvar,r8)
-          status=def_var(ng, iNLM, ncAVGid(ng), avgVid(id2dRV,ng),      &
+          status=def_var(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(id2dRV),   &
      &                 NF_FOUT, nvd3, p2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -1228,7 +1230,7 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(p3dvar,r8)
-          status=def_var(ng, iNLM, ncAVGid(ng), avgVid(id3dPV,ng),      &
+          status=def_var(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(id3dPV),   &
      &                   NF_FOUT, nvd4, p3dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -1246,7 +1248,7 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(p3dvar,r8)
-          status=def_var(ng, iNLM, ncAVGid(ng), avgVid(id3dRV,ng),      &
+          status=def_var(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(id3dRV),   &
      &                   NF_FOUT, nvd4, p3dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -1265,7 +1267,7 @@
 # endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(r2dvar,r8)
-          status=def_var(ng, model, ncAVGid(ng), avgVid(idZZav,ng),     &
+          status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idZZav),  &
      &                   NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -1283,7 +1285,7 @@
 # endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(u2dvar,r8)
-          status=def_var(ng, model, ncAVGid(ng), avgVid(idU2av,ng),     &
+          status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idU2av),  &
      &                   NF_FOUT, nvd3, u2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -1301,7 +1303,7 @@
 # endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(v2dvar,r8)
-          status=def_var(ng, model, ncAVGid(ng), avgVid(idV2av,ng),     &
+          status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idV2av),  &
      &                   NF_FOUT, nvd3, v2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -1320,7 +1322,7 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(u3dvar,r8)
-          status=def_var(ng, model, ncAVGid(ng), avgVid(idHUav,ng),     &
+          status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idHUav),  &
      &                   NF_FOUT, nvd4, u3dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -1338,7 +1340,7 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(v3dvar,r8)
-          status=def_var(ng, model, ncAVGid(ng), avgVid(idHVav,ng),     &
+          status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idHVav),  &
      &                   NF_FOUT, nvd4, v3dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -1356,7 +1358,7 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(u3dvar,r8)
-          status=def_var(ng, model, ncAVGid(ng), avgVid(idUUav,ng),     &
+          status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idUUav),  &
      &                   NF_FOUT, nvd4, u3dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -1374,7 +1376,7 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(r3dvar,r8)
-          status=def_var(ng, model, ncAVGid(ng), avgVid(idUVav,ng),     &
+          status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idUVav),  &
      &                   NF_FOUT, nvd4, t3dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -1392,7 +1394,7 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(v3dvar,r8)
-          status=def_var(ng, model, ncAVGid(ng), avgVid(idVVav,ng),     &
+          status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idVVav),  &
      &                   NF_FOUT, nvd4, v3dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -1411,8 +1413,8 @@
 #  endif
             Vinfo(22)='coordinates'
             Aval(5)=REAL(r3dvar,r8)
-            status=def_var(ng, model, ncAVGid(ng),                      &
-     &                     avgVid(idTTav(itrc),ng), NF_FOUT,            &
+            status=def_var(ng, model, AVG(ng)%ncid,                     &
+     &                     AVG(ng)%Vid(idTTav(itrc)), NF_FOUT,          &
      &                     nvd4, t3dgrd, Aval, Vinfo, ncname)
             IF (exit_flag.ne.NoError) RETURN
           END IF
@@ -1432,8 +1434,8 @@
 #  endif
             Vinfo(22)='coordinates'
             Aval(5)=REAL(u3dvar,r8)
-            status=def_var(ng, model, ncAVGid(ng),                      &
-     &                     avgVid(iHUTav(itrc),ng), NF_FOUT,            &
+            status=def_var(ng, model, AVG(ng)%ncid,                     &
+     &                     AVG(ng)%Vid(iHUTav(itrc)), NF_FOUT,          &
      &                     nvd4, u3dgrd, Aval, Vinfo, ncname)
             IF (exit_flag.ne.NoError) RETURN
           END IF
@@ -1449,8 +1451,8 @@
 #  endif
             Vinfo(22)='coordinates'
             Aval(5)=REAL(v3dvar,r8)
-            status=def_var(ng, model, ncAVGid(ng),                      &
-     &                     avgVid(iHVTav(itrc),ng), NF_FOUT,            &
+            status=def_var(ng, model, AVG(ng)%ncid,                     &
+     &                     AVG(ng)%Vid(iHVTav(itrc)), NF_FOUT,          &
      &                     nvd4, v3dgrd, Aval, Vinfo, ncname)
             IF (exit_flag.ne.NoError) RETURN
           END IF
@@ -1470,8 +1472,8 @@
 #  endif
             Vinfo(22)='coordinates'
             Aval(5)=REAL(u3dvar,r8)
-            status=def_var(ng, model, ncAVGid(ng),                      &
-     &                     avgVid(idUTav(itrc),ng), NF_FOUT,            &
+            status=def_var(ng, model, AVG(ng)%ncid,                     &
+     &                     AVG(ng)%Vid(idUTav(itrc)), NF_FOUT,          &
      &                     nvd4, u3dgrd, Aval, Vinfo, ncname)
             IF (exit_flag.ne.NoError) RETURN
           END IF
@@ -1487,8 +1489,8 @@
 #  endif
             Vinfo(22)='coordinates'
             Aval(5)=REAL(v3dvar,r8)
-            status=def_var(ng, model, ncAVGid(ng),                      &
-     &                     avgVid(idVTav(itrc),ng), NF_FOUT,            &
+            status=def_var(ng, model, AVG(ng)%ncid,                     &
+     &                     AVG(ng)%Vid(idVTav(itrc)), NF_FOUT,          &
      &                     nvd4, v3dgrd, Aval, Vinfo, ncname)
             IF (exit_flag.ne.NoError) RETURN
           END IF
@@ -1506,7 +1508,7 @@
           Vinfo(16)=Vname(1,idtime)
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idVvis,ng),r8)
-          status=def_var(ng, model, ncAVGid(ng), avgVid(idVvis,ng),     &
+          status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idVvis),  &
      &                   NF_FOUT, nvd4, w3dgrd, Aval, Vinfo, ncname,    &
      &                   SetFillVal = .FALSE.)
           IF (exit_flag.ne.NoError) RETURN
@@ -1522,7 +1524,7 @@
           Vinfo(16)=Vname(1,idtime)
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idTdif,ng),r8)
-          status=def_var(ng, model, ncAVGid(ng), avgVid(idTdif,ng),     &
+          status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idTdif),  &
      &                   NF_FOUT, nvd4, w3dgrd, Aval, Vinfo, ncname,    &
      &                   SetFillVal = .FALSE.)
           IF (exit_flag.ne.NoError) RETURN
@@ -1538,7 +1540,7 @@
           Vinfo(16)=Vname(1,idtime)
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idSdif,ng),r8)
-          status=def_var(ng, model, ncAVGid(ng), avgVid(idSdif,ng),     &
+          status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idSdif),  &
      &                   NF_FOUT, nvd4, w3dgrd, Aval, Vinfo, ncname,    &
      &                   SetFillVal = .FALSE.)
           IF (exit_flag.ne.NoError) RETURN
@@ -1559,7 +1561,7 @@
 #   endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idPair,ng),r8)
-          status=def_var(ng, iNLM, ncAVGid(ng), avgVid(idPair,ng),      &
+          status=def_var(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idPair),   &
      &                   NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -1579,7 +1581,7 @@
 #   endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idUair,ng),r8)
-          status=def_var(ng, iNLM, ncAVGid(ng), avgVid(idUair,ng),      &
+          status=def_var(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idUair),   &
      &                   NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -1595,7 +1597,7 @@
 #   endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idVair,ng),r8)
-          status=def_var(ng, iNLM, ncAVGid(ng), avgVid(idVair,ng),      &
+          status=def_var(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idVair),   &
      &                   NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -1617,8 +1619,8 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idTsur(itemp),ng),r8)
-          status=def_var(ng, model, ncAVGid(ng),                        &
-     &                   avgVid(idTsur(itemp),ng), NF_FOUT,             &
+          status=def_var(ng, model, AVG(ng)%ncid,                       &
+     &                   AVG(ng)%Vid(idTsur(itemp)), NF_FOUT,           &
      &                   nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -1639,8 +1641,8 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idTsur(isalt),ng),r8)
-          status=def_var(ng, model, ncAVGid(ng),                        &
-     &                   avgVid(idTsur(isalt),ng), NF_FOUT,             &
+          status=def_var(ng, model, AVG(ng)%ncid,                       &
+     &                   AVG(ng)%Vid(idTsur(isalt)), NF_FOUT,           &
      &                   nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -1662,7 +1664,7 @@
 #   endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idLhea,ng),r8)
-          status=def_var(ng, model, ncAVGid(ng), avgVid(idLhea,ng),     &
+          status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idLhea),  &
      &                   NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -1682,7 +1684,7 @@
 #   endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idShea,ng),r8)
-          status=def_var(ng, model, ncAVGid(ng), avgVid(idShea,ng),     &
+          status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idShea),  &
      &                   NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -1702,7 +1704,7 @@
 #   endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idLrad,ng),r8)
-          status=def_var(ng, model, ncAVGid(ng), avgVid(idLrad,ng),     &
+          status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idLrad),  &
      &                   NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -1723,7 +1725,7 @@
 #    endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idevap,ng),r8)
-          status=def_var(ng, model, ncAVGid(ng), avgVid(idevap,ng),     &
+          status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idevap),  &
      &                   NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -1742,7 +1744,7 @@
 #    endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idrain,ng),r8)
-          status=def_var(ng, model, ncAVGid(ng), avgVid(idrain,ng),     &
+          status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idrain),  &
      &                   NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -1765,7 +1767,7 @@
 #   endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idSrad,ng),r8)
-          status=def_var(ng, model, ncAVGid(ng), avgVid(idSrad,ng),     &
+          status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idSrad),  &
      &                   NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -1785,7 +1787,7 @@
 # endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idUsms,ng),r8)
-          status=def_var(ng, model, ncAVGid(ng), avgVid(idUsms,ng),     &
+          status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idUsms),  &
      &                   NF_FOUT, nvd3, u2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -1803,7 +1805,7 @@
 # endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idVsms,ng),r8)
-          status=def_var(ng, model, ncAVGid(ng), avgVid(idVsms,ng),     &
+          status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idVsms),  &
      &                   NF_FOUT, nvd3, v2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -1821,7 +1823,7 @@
 # endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idUbms,ng),r8)
-          status=def_var(ng, model, ncAVGid(ng), avgVid(idUbms,ng),     &
+          status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idUbms),  &
      &                   NF_FOUT, nvd3, u2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -1839,7 +1841,7 @@
 # endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idVbms,ng),r8)
-          status=def_var(ng, model, ncAVGid(ng), avgVid(idVbms,ng),     &
+          status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idVbms),  &
      &                   NF_FOUT, nvd3, v2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -1850,7 +1852,7 @@
 !
           IF (Aout(idUbld(i),ng)) THEN
             Vinfo( 1)=Vname(1,idUbld(i))
-            WRITE (Vinfo( 2),'(a,1x,a)') Prefix,                         &
+            WRITE (Vinfo( 2),'(a,1x,a)') Prefix,                        &
      &                                   TRIM(Vname(2,idUbld(i)))
             Vinfo( 3)=Vname(3,idUbld(i))
             Vinfo(14)=Vname(4,idUbld(i))
@@ -1860,8 +1862,8 @@
 #  endif
             Vinfo(22)='coordinates'
             Aval(5)=REAL(Iinfo(1,idUbld(i),ng),r8)
-            status=def_var(ng, model, ncAVGid(ng),                      &
-     &                     avgVid(idUbld(i),ng), NF_FOUT,               &
+            status=def_var(ng, model, AVG(ng)%ncid,                     &
+     &                     AVG(ng)%Vid(idUbld(i)), NF_FOUT,             &
      &                     nvd3, u2dgrd, Aval, Vinfo, ncname)
             IF (exit_flag.ne.NoError) RETURN
           END IF
@@ -1880,8 +1882,8 @@
 #  endif
             Vinfo(22)='coordinates'
             Aval(5)=REAL(Iinfo(1,idVbld(i),ng),r8)
-            status=def_var(ng, model, ncAVGid(ng),                      &
-     &                     avgVid(idVbld(i),ng), NF_FOUT,               &
+            status=def_var(ng, model, AVG(ng)%ncid,                     &
+     &                     AVG(ng)%Vid(idVbld(i)), NF_FOUT,             &
      &                     nvd3, v2dgrd, Aval, Vinfo, ncname)
             IF (exit_flag.ne.NoError) RETURN
           END IF
@@ -1898,10 +1900,10 @@
           Vinfo(20)='mask_rho'
 #  endif
           Vinfo(22)='coordinates'
-          Aval(5)=REAL(Iinfo(1,idSSSf,ng),r8)
-          status=def_var(ng, model, ncAVGid(ng),                        &
-     &                   avgVid(idSSSf,ng), NF_FOUT,                    &
-     &                   nvd3, t2dgrd, Aval, Vinfo, ncname)
+          Aval(5)=REAL(r2dvar,r8)
+          status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idSSSf),  &
+     &                   NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
+          Aval(5)=REAL(r2dvar,r8)
           IF (exit_flag.ne.NoError) RETURN
         END IF
 # endif
@@ -1920,8 +1922,8 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idUice,ng),r8)
-          status=def_var(ng, model, ncAVGid(ng),                        &
-     &                   avgVid(idUice,ng), NF_FOUT,                    &
+          status=def_var(ng, model, AVGid(ng)%ncid,                     &
+     &                   AVG(ng)%Vid(idUice), NF_FOUT,                  &
      &                   nvd3, u2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -1939,8 +1941,8 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idVice,ng),r8)
-          status=def_var(ng, model, ncAVGid(ng),                        &
-     &                   avgVid(idVice,ng), NF_FOUT,                    &
+          status=def_var(ng, model, AVG(ng)%ncid),                      &
+     &                   AVG(ng)%Vid(idVice), NF_FOUT,                  &
      &                   nvd3, v2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -1958,8 +1960,8 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idAice,ng),r8)
-          status=def_var(ng, model, ncAVGid(ng),                        &
-     &                   avgVid(idAice,ng), NF_FOUT,                    &
+          status=def_var(ng, model, AVG(ng)%ncid,                       &
+     &                   AVG(ng)%Vid(idAice), NF_FOUT,                  &
      &                   nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -1977,8 +1979,8 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idHice,ng),r8)
-          status=def_var(ng, model, ncAVGid(ng),                        &
-     &                   avgVid(idHice,ng), NF_FOUT,                    &
+          status=def_var(ng, model, AVG(ng)%ncid,                       &
+     &                   AVG(ng)%Vid(idHice), NF_FOUT,                  &
      &                   nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -1996,8 +1998,8 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idTice,ng),r8)
-          status=def_var(ng, model, ncAVGid(ng),                        &
-     &                   avgVid(idTice,ng), NF_FOUT,                    &
+          status=def_var(ng, model, AVG(ng)%ncid,                       &
+     &                   AVG(ng)%Vid(idTice), NF_FOUT,                  &
      &                   nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -2015,8 +2017,8 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idHsno,ng),r8)
-          status=def_var(ng, model, ncAVGid(ng),                        &
-     &                   avgVid(idHsno,ng), NF_FOUT,                    &
+          status=def_var(ng, model, AVG(ng)%ncid,                       &
+     &                   AVG(ng)%Vid(idHsno), NF_FOUT,                  &
      &                   nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -2034,8 +2036,8 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idSfwat,ng),r8)
-          status=def_var(ng, model, ncAVGid(ng),                        &
-     &                   avgVid(idSfwat,ng), NF_FOUT,                   &
+          status=def_var(ng, model, AVG(ng)%ncid,                       &
+     &                   AVG(ng)%Vid(idSfwat), NF_FOUT,                 &
      &                   nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -2053,8 +2055,8 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idAgeice,ng),r8)
-          status=def_var(ng, model, ncAVGid(ng),                        &
-     &                   avgVid(idAgeice,ng), NF_FOUT,                  &
+          status=def_var(ng, model, AVG(ng)%ncid,                       &
+     &                   AVG(ng)%Vid(idAgeice), NF_FOUT,                &
      &                   nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -2072,8 +2074,8 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idIomflx,ng),r8)
-          status=def_var(ng, model, ncAVGid(ng),                        &
-     &                   avgVid(idIomflx,ng), NF_FOUT,                  &
+          status=def_var(ng, model, AVG(ng)%ncid,                       &
+     &                   AVG(ng)%Vid(idIomflx), NF_FOUT,                &
      &                   nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -2091,8 +2093,8 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idTimid,ng),r8)
-          status=def_var(ng, model, ncAVGid(ng),                        &
-     &                   avgVid(idTimid,ng), NF_FOUT,                   &
+          status=def_var(ng, model, AVG(ng)%ncid,                       &
+     &                   AVG(ng)%Vid(idTimid), NF_FOUT,                 &
      &                   nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -2110,8 +2112,8 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idSig11,ng),r8)
-          status=def_var(ng, model, ncAVGid(ng),                        &
-     &                   avgVid(idSig11,ng), NF_FOUT,                   &
+          status=def_var(ng, model, AVG(ng)%ncid,                       &
+     &                   AVG(ng)%Vid(idSig11), NF_FOUT,                  &
      &                   nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -2129,8 +2131,8 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idSig12,ng),r8)
-          status=def_var(ng, model, ncAVGid(ng),                        &
-     &                   avgVid(idSig12,ng), NF_FOUT,                   &
+          status=def_var(ng, model, AVG(ng)%ncid,                       &
+     &                   AVG(ng)%Vid(idSig12), NF_FOUT,                 &
      &                   nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -2148,8 +2150,8 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idSig22,ng),r8)
-          status=def_var(ng, model, ncAVGid(ng),                        &
-     &                   avgVid(idSig22,ng), NF_FOUT,                   &
+          status=def_var(ng, model, AVG(ng)%ncid,                       &
+     &                   AVG(ng)%Vid(idSig22), NF_FOUT,                 &
      &                   nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -2167,8 +2169,8 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idTauiw,ng),r8)
-          status=def_var(ng, model, ncAVGid(ng),                        &
-     &                   avgVid(idTauiw,ng), NF_FOUT,                   &
+          status=def_var(ng, model, AVG(ng)%ncid,                       &
+     &                   AVG(ng)%Vid(idTauiw), NF_FOUT,                 &
      &                   nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -2186,8 +2188,8 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idChuiw,ng),r8)
-          status=def_var(ng, model, ncAVGid(ng),                        &
-     &                   avgVid(idChuiw,ng), NF_FOUT,                   &
+          status=def_var(ng, model, AVG(ng)%ncid,                       &
+     &                   AVG(ng)%Vid(idChuiw), NF_FOUT,                 &
      &                   nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -2205,8 +2207,8 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idT0mk,ng),r8)
-          status=def_var(ng, model, ncAVGid(ng),                        &
-     &                   avgVid(idT0mk,ng), NF_FOUT,                    &
+          status=def_var(ng, model, AVG(ng)%ncid,                       &
+     &                   AVG(ng)%Vid(idT0mk), NF_FOUT,                  &
      &                   nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -2224,8 +2226,8 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idS0mk,ng),r8)
-          status=def_var(ng, model, ncAVGid(ng),                        &
-     &                   avgVid(idS0mk,ng), NF_FOUT,                    &
+          status=def_var(ng, model, AVG(ng)%ncid,                       &
+     &                   AVG(ng)%Vid(idS0mk), NF_FOUT,                  &
      &                   nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -2243,8 +2245,8 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idWfr,ng),r8)
-          status=def_var(ng, model, ncAVGid(ng),                        &
-     &                   avgVid(idWfr,ng), NF_FOUT,                     &
+          status=def_var(ng, model, AVG(ng)%ncid,                       &
+     &                   AVG(ng)%Vid(idWfr), NF_FOUT,                   &
      &                   nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -2262,8 +2264,8 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idWfr,ng),r8)
-          status=def_var(ng, model, ncAVGid(ng),                        &
-     &                   avgVid(idWai,ng), NF_FOUT,                     &
+          status=def_var(ng, model, AVG(ng)%ncid,                       &
+     &                   AVG(ng)%Vid(idWai), NF_FOUT,                   &
      &                   nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -2281,8 +2283,8 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idWao,ng),r8)
-          status=def_var(ng, model, ncAVGid(ng),                        &
-     &                   avgVid(idWao,ng), NF_FOUT,                     &
+          status=def_var(ng, model, AVG(ng)%ncid,                       &
+     &                   AVG(ng)%Vid(idWao), NF_FOUT,                   &
      &                   nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -2300,8 +2302,8 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idWio,ng),r8)
-          status=def_var(ng, model, ncAVGid(ng),                        &
-     &                   avgVid(idWio,ng), NF_FOUT,                     &
+          status=def_var(ng, model, AVG(ng)%ncid,                       &
+     &                   AVG(ng)%Vid(idWio), NF_FOUT,                   &
      &                   nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -2319,8 +2321,8 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idWro,ng),r8)
-          status=def_var(ng, model, ncAVGid(ng),                        &
-     &                   avgVid(idWro,ng), NF_FOUT,                     &
+          status=def_var(ng, model, AVG(ng)%ncid,                       &
+     &                   AVG(ng)%Vid(idWro), NF_FOUT,                   &
      &                   nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -2340,7 +2342,7 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(r2dvar,r8)
-          status=def_var(ng, model, ncAVGid(ng), avgVid(idW2xx,ng),     &
+          status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idW2xx),  &
      &                   NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -2358,7 +2360,7 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(r2dvar,r8)
-          status=def_var(ng, model, ncAVGid(ng), avgVid(idW2xy,ng),     &
+          status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idW2xy),  &
      &                   NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -2376,7 +2378,7 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(r2dvar,r8)
-          status=def_var(ng, model, ncAVGid(ng), avgVid(idW2yy,ng),     &
+          status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idW2yy),  &
      &                   NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -2394,7 +2396,7 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(u2dvar,r8)
-          status=def_var(ng, model, ncAVGid(ng), avgVid(idU2rs,ng),     &
+          status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idU2rs),  &
      &                   NF_FOUT, nvd3, u2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -2412,7 +2414,7 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(v2dvar,r8)
-          status=def_var(ng, model, ncAVGid(ng), avgVid(idV2rs,ng),     &
+          status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idV2rs),  &
      &                   NF_FOUT, nvd3, v2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -2430,7 +2432,7 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idU2Sd,ng),r8)
-          status=def_var(ng, model, ncAVGid(ng), avgVid(idU2Sd,ng),     &
+          status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idU2Sd),  &
      &                   NF_FOUT, nvd3, u2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -2448,7 +2450,7 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idV2Sd,ng),r8)
-          status=def_var(ng, model, ncAVGid(ng), avgVid(idV2Sd,ng),     &
+          status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idV2Sd),  &
      &                   NF_FOUT, nvd3, v2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -2467,7 +2469,7 @@
 #   endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(u3dvar,r8)
-          status=def_var(ng, model, ncAVGid(ng), avgVid(idW3xx,ng),     &
+          status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idW3xx),  &
      &                   NF_FOUT, nvd4, t3dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -2485,7 +2487,7 @@
 #   endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(u3dvar,r8)
-          status=def_var(ng, model, ncAVGid(ng), avgVid(idW3xy,ng),     &
+          status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idW3xy),  &
      &                   NF_FOUT, nvd4, t3dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -2503,7 +2505,7 @@
 #   endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(u3dvar,r8)
-          status=def_var(ng, model, ncAVGid(ng), avgVid(idW3yy,ng),     &
+          status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idW3yy),  &
      &                   NF_FOUT, nvd4, t3dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -2523,7 +2525,7 @@
 #    endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(u3dvar,r8)
-          status=def_var(ng, model, ncAVGid(ng), avgVid(idW3zx,ng),     &
+          status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idW3zx),  &
      &                   NF_FOUT, nvd4, t3dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -2541,7 +2543,7 @@
 #    endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(u3dvar,r8)
-          status=def_var(ng, model, ncAVGid(ng), avgVid(idW3zy,ng),     &
+          status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idW3zy),  &
      &                   NF_FOUT, nvd4, t3dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -2560,7 +2562,7 @@
 #   endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(u3dvar,r8)
-          status=def_var(ng, model, ncAVGid(ng), avgVid(idU3rs,ng),     &
+          status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idU3rs),  &
      &                   NF_FOUT, nvd4, u3dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -2578,7 +2580,7 @@
 #   endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(v3dvar,r8)
-          status=def_var(ng, model, ncAVGid(ng), avgVid(idV3rs,ng),     &
+          status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idV3rs),  &
      &                   NF_FOUT, nvd4, v3dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -2596,7 +2598,7 @@
 #   endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idU3Sd,ng),r8)
-          status=def_var(ng, model, ncAVGid(ng), avgVid(idU3Sd,ng),     &
+          status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idU3Sd),  &
      &                   NF_FOUT, nvd4, u3dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -2614,7 +2616,7 @@
 #   endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idV3Sd,ng),r8)
-          status=def_var(ng, model, ncAVGid(ng), avgVid(idV3Sd,ng),     &
+          status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idV3Sd),  &
      &                   NF_FOUT, nvd4, v3dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -2625,14 +2627,14 @@
 !  Leave definition mode.
 !-----------------------------------------------------------------------
 !
-        CALL netcdf_enddef (ng, model, ncname, ncAVGid(ng))
+        CALL netcdf_enddef (ng, model, ncname, AVG(ng)%ncid)
         IF (exit_flag.ne.NoError) RETURN
 !
 !-----------------------------------------------------------------------
 !  Write out time-recordless, information variables.
 !-----------------------------------------------------------------------
 !
-        CALL wrt_info (ng, model, ncAVGid(ng), ncname)
+        CALL wrt_info (ng, model, AVG(ng)%ncid, ncname)
         IF (exit_flag.ne.NoError) RETURN
       END IF DEFINE
 !
@@ -2642,7 +2644,7 @@
 !=======================================================================
 !
       QUERY : IF (.not.ldef) THEN
-        ncname=AVGname(ng)
+        ncname=AVG(ng)%name
 !
 !  Inquire about the dimensions and check for consistency.
 !
@@ -2656,7 +2658,7 @@
 !
 !  Open averages file for read/write.
 !
-        CALL netcdf_open (ng, model, ncname, 1, ncAVGid(ng))
+        CALL netcdf_open (ng, model, ncname, 1, AVG(ng)%ncid)
         IF (exit_flag.ne.NoError) THEN
           WRITE (stdout,50) TRIM(ncname)
           RETURN
@@ -2674,64 +2676,65 @@
         DO i=1,n_var
           IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idtime))) THEN
             got_var(idtime)=.TRUE.
-            avgVid(idtime,ng)=var_id(i)
+            AVG(ng)%Vid(idtime)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idFsur))) THEN
             got_var(idFsur)=.TRUE.
-            avgVid(idFsur,ng)=var_id(i)
+            AVG(ng)%Vid(idFsur)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idUbar))) THEN
             got_var(idUbar)=.TRUE.
-            avgVid(idUbar,ng)=var_id(i)
+            AVG(ng)%Vid(idUbar)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idVbar))) THEN
             got_var(idVbar)=.TRUE.
-            avgVid(idVbar,ng)=var_id(i)
+            AVG(ng)%Vid(idVbar)=var_id(i)
 # if defined AVERAGES_DETIDE && (defined SSH_TIDES || defined UV_TIDES)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idFsuD))) THEN
             got_var(idFsuD)=.TRUE.
-            avgVid(idFsuD,ng)=var_id(i)
+            AVG(ng)%Vid(idFsuD)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idu2dD))) THEN
             got_var(idu2dD)=.TRUE.
-            avgVid(idu2dD,ng)=var_id(i)
+            AVG(ng)%Vid(idu2dD)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idv2dD))) THEN
             got_var(idv2dD)=.TRUE.
-            avgVid(idv2dD,ng)=var_id(i)
+            AVG(ng)%Vid(idv2dD)=var_id(i)
 # endif
 # ifdef SOLVE3D
 #  ifdef FORWARD_WRITE
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idUfx1))) THEN
             got_var(idUfx1)=.TRUE.
-            avgVid(idUfx1,ng)=var_id(i)
+            AVG(ng)%Vid(idUfx1)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idUfx2))) THEN
             got_var(idUfx2)=.TRUE.
-            avgVid(idUfx2,ng)=var_id(i)
+            AVG(ng)%Vid(idUfx2)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idVfx1))) THEN
             got_var(idVfx1)=.TRUE.
-            avgVid(idVfx1,ng)=var_id(i)
+            AVG(ng)%Vid(idVfx1)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idVfx2))) THEN
             got_var(idVfx2)=.TRUE.
-            avgVid(idVfx2,ng)=var_id(i)
+            AVG(ng)%Vid(idVfx2)=var_id(i)
 #  endif
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idUvel))) THEN
             got_var(idUvel)=.TRUE.
-            avgVid(idUvel,ng)=var_id(i)
+            AVG(ng)%Vid(idUvel)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idVvel))) THEN
             got_var(idVvel)=.TRUE.
-            avgVid(idVvel,ng)=var_id(i)
+            AVG(ng)%Vid(idVvel)=var_id(i)
 #  if defined AVERAGES_DETIDE && (defined SSH_TIDES || defined UV_TIDES)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idu3dD))) THEN
             got_var(idu3dD)=.TRUE.
-            avgVid(idu3dD,ng)=var_id(i)
+            AVG(ng)%Vid(idu3dD)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idv3dD))) THEN
             got_var(idv3dD)=.TRUE.
-            avgVid(idv3dD,ng)=var_id(i)
+            AVG(ng)%Vid(idv3dD)=var_id(i)
 #  endif
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idOvel))) THEN
             got_var(idOvel)=.TRUE.
-            avgVid(idOvel,ng)=var_id(i)
+            AVG(ng)%Vid(idOvel)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idWvel))) THEN
             got_var(idWvel)=.TRUE.
-            avgVid(idWvel,ng)=var_id(i)
+            AVG(ng)%Vid(idWvel)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idDano))) THEN
             got_var(idDano)=.TRUE.
+<<<<<<< HEAD
             avgVid(idDano,ng)=var_id(i)
 #  ifdef NEMURO_SED1
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idPONsed))) THEN
@@ -2750,66 +2753,69 @@
             got_var(idOPALbur)=.TRUE.
             avgVid(idOPALbur,ng)=var_id(i)
 #  endif
+=======
+            AVG(ng)%Vid(idDano)=var_id(i)
+>>>>>>> ae65909... src:ticket:503
 #  ifdef LMD_SKPP
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idHsbl))) THEN
             got_var(idHsbl)=.TRUE.
-            avgVid(idHsbl,ng)=var_id(i)
+            AVG(ng)%Vid(idHsbl)=var_id(i)
 #  endif
 #  ifdef LMD_BKPP
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idHbbl))) THEN
             got_var(idHbbl)=.TRUE.
-            avgVid(idHbbl,ng)=var_id(i)
+            AVG(ng)%Vid(idHbbl)=var_id(i)
 #  endif
 # endif
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,id2dPV))) THEN
             got_var(id2dPV)=.TRUE.
-            avgVid(id2dPV,ng)=var_id(i)
+            AVG(ng)%Vid(id2dPV)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,id2dRV))) THEN
             got_var(id2dRV)=.TRUE.
-            avgVid(id2dRV,ng)=var_id(i)
+            AVG(ng)%Vid(id2dRV)=var_id(i)
 # ifdef SOLVE3D
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,id3dPV))) THEN
             got_var(id3dPV)=.TRUE.
-            avgVid(id3dPV,ng)=var_id(i)
+            AVG(ng)%Vid(id3dPV)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,id3dRV))) THEN
             got_var(id3dRV)=.TRUE.
-            avgVid(id3dRV,ng)=var_id(i)
+            AVG(ng)%Vid(id3dRV)=var_id(i)
 # endif
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idZZav))) THEN
             got_var(idZZav)=.TRUE.
-            avgVid(idZZav,ng)=var_id(i)
+            AVG(ng)%Vid(idZZav)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idU2av))) THEN
             got_var(idU2av)=.TRUE.
-            avgVid(idU2av,ng)=var_id(i)
+            AVG(ng)%Vid(idU2av)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idV2av))) THEN
             got_var(idV2av)=.TRUE.
-            avgVid(idV2av,ng)=var_id(i)
+            AVG(ng)%Vid(idV2av)=var_id(i)
 # ifdef SOLVE3D
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idHUav))) THEN
             got_var(idHUav)=.TRUE.
-            avgVid(idHUav,ng)=var_id(i)
+            AVG(ng)%Vid(idHUav)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idHVav))) THEN
             got_var(idHVav)=.TRUE.
-            avgVid(idHVav,ng)=var_id(i)
+            AVG(ng)%Vid(idHVav)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idUUav))) THEN
             got_var(idUUav)=.TRUE.
-            avgVid(idUUav,ng)=var_id(i)
+            AVG(ng)%Vid(idUUav)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idUVav))) THEN
             got_var(idUVav)=.TRUE.
-            avgVid(idUVav,ng)=var_id(i)
+            AVG(ng)%Vid(idUVav)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idVVav))) THEN
             got_var(idVVav)=.TRUE.
-            avgVid(idVVav,ng)=var_id(i)
+            AVG(ng)%Vid(idVVav)=var_id(i)
 #  if defined LMD_MIXING || defined MY25_MIXING || defined GLS_MIXING
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idVvis))) THEN
             got_var(idVvis)=.TRUE.
-            avgVid(idVvis,ng)=var_id(i)
+            AVG(ng)%Vid(idVvis)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idTdif))) THEN
             got_var(idTdif)=.TRUE.
-            avgVid(idTdif,ng)=var_id(i)
+            AVG(ng)%Vid(idTdif)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idSdif))) THEN
             got_var(idSdif)=.TRUE.
-            avgVid(idSdif,ng)=var_id(i)
+            AVG(ng)%Vid(idSdif)=var_id(i)
 #  endif
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idSSSf))) THEN
             got_var(idSSSf)=.TRUE.
@@ -2885,116 +2891,116 @@
 #  if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idPair))) THEN
             got_var(idPair)=.TRUE.
-            avgVid(idPair,ng)=var_id(i)
+            AVG(ng)%Vid(idPair)=var_id(i)
 #  endif
 #  if defined BULK_FLUXES || defined ECOSIM
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idUair))) THEN
             got_var(idUair)=.TRUE.
-            avgVid(idUair,ng)=var_id(i)
+            AVG(ng)%Vid(idUair)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idVair))) THEN
             got_var(idVair)=.TRUE.
-            avgVid(idVair,ng)=var_id(i)
+            AVG(ng)%Vid(idVair)=var_id(i)
 #  endif
           ELSE IF (TRIM(var_name(i)).eq.                                &
      &             TRIM(Vname(1,idTsur(itemp)))) THEN
             got_var(idTsur(itemp))=.TRUE.
-            avgVid(idTsur(itemp),ng)=var_id(i)
+            AVG(ng)%Vid(idTsur(itemp))=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.                                &
      &             TRIM(Vname(1,idTsur(isalt)))) THEN
             got_var(idTsur(isalt))=.TRUE.
-            avgVid(idTsur(isalt),ng)=var_id(i)
+            AVG(ng)%Vid(idTsur(isalt))=var_id(i)
 #  ifdef BULK_FLUXES
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idLhea))) THEN
             got_var(idLhea)=.TRUE.
-            avgVid(idLhea,ng)=var_id(i)
+            AVG(ng)%Vid(idLhea)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idShea))) THEN
             got_var(idShea)=.TRUE.
-            avgVid(idShea,ng)=var_id(i)
+            AVG(ng)%Vid(idShea)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idLrad))) THEN
             got_var(idLrad)=.TRUE.
-            avgVid(idLrad,ng)=var_id(i)
+            AVG(ng)%Vid(idLrad)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idTair))) THEN
             got_var(idTair)=.TRUE.
-            avgVid(idTair,ng)=var_id(i)
+            AVG(ng)%Vid(idTair)=var_id(i)
 #   ifdef EMINUSP
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idevap))) THEN
             got_var(idevap)=.TRUE.
-            avgVid(idevap,ng)=var_id(i)
+            AVG(ng)%Vid(idevap)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idrain))) THEN
             got_var(idrain)=.TRUE.
-            avgVid(idrain,ng)=var_id(i)
+            AVG(ng)%Vid(idrain)=var_id(i)
 #   endif
 #  endif
 #  ifdef SHORTWAVE
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idSrad))) THEN
             got_var(idSrad)=.TRUE.
-            avgVid(idSrad,ng)=var_id(i)
+            AVG(ng)%Vid(idSrad)=var_id(i)
 #  endif
 # endif
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idUsms))) THEN
             got_var(idUsms)=.TRUE.
-            avgVid(idUsms,ng)=var_id(i)
+            AVG(ng)%Vid(idUsms)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idVsms))) THEN
             got_var(idVsms)=.TRUE.
-            avgVid(idVsms,ng)=var_id(i)
+            AVG(ng)%Vid(idVsms)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idUbms))) THEN
             got_var(idUbms)=.TRUE.
-            avgVid(idUbms,ng)=var_id(i)
+            AVG(ng)%Vid(idUbms)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idVbms))) THEN
             got_var(idVbms)=.TRUE.
-            avgVid(idVbms,ng)=var_id(i)
+            AVG(ng)%Vid(idVbms)=var_id(i)
 # ifdef NEARSHORE_MELLOR
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idW2xx))) THEN
             got_var(idW2xx)=.TRUE.
-            avgVid(idW2xx,ng)=var_id(i)
+            AVG(ng)%Vid(idW2xx)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idW2xy))) THEN
             got_var(idW2xy)=.TRUE.
-            avgVid(idW2xy,ng)=var_id(i)
+            AVG(ng)%Vid(idW2xy)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idW2yy))) THEN
             got_var(idW2yy)=.TRUE.
-            avgVid(idW2yy,ng)=var_id(i)
+            AVG(ng)%Vid(idW2yy)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idU2rs))) THEN
             got_var(idU2rs)=.TRUE.
-            avgVid(idU2rs,ng)=var_id(i)
+            AVG(ng)%Vid(idU2rs)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idV2rs))) THEN
             got_var(idV2rs)=.TRUE.
-            avgVid(idV2rs,ng)=var_id(i)
+            AVG(ng)%Vid(idV2rs)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idU2Sd))) THEN
             got_var(idU2Sd)=.TRUE.
-            avgVid(idU2Sd,ng)=var_id(i)
+            AVG(ng)%Vid(idU2Sd)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idV2Sd))) THEN
             got_var(idV2Sd)=.TRUE.
-            avgVid(idV2Sd,ng)=var_id(i)
+            AVG(ng)%Vid(idV2Sd)=var_id(i)
 #  ifdef SOLVE3D
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idW3xx))) THEN
             got_var(idW3xx)=.TRUE.
-            avgVid(idW3xx,ng)=var_id(i)
+            AVG(ng)%Vid(idW3xx)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idW3xy))) THEN
             got_var(idW3xy)=.TRUE.
-            avgVid(idW3xy,ng)=var_id(i)
+            AVG(ng)%Vid(idW3xy)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idW3yy))) THEN
             got_var(idW3yy)=.TRUE.
-            avgVid(idW3yy,ng)=var_id(i)
+            AVG(ng)%Vid(idW3yy)=var_id(i)
 #   ifdef NEARSHORE_MELLOR05
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idW3zx))) THEN
             got_var(idW3zx)=.TRUE.
-            avgVid(idW3zx,ng)=var_id(i)
+            AVG(ng)%Vid(idW3zx)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idW3zy))) THEN
             got_var(idW3zy)=.TRUE.
-            avgVid(idW3zy,ng)=var_id(i)
+            AVG(ng)%Vid(idW3zy)=var_id(i)
 #   endif
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idU3rs))) THEN
             got_var(idU3rs)=.TRUE.
-            avgVid(idU3rs,ng)=var_id(i)
+            AVG(ng)%Vid(idU3rs)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idV3rs))) THEN
             got_var(idV3rs)=.TRUE.
-            avgVid(idV3rs,ng)=var_id(i)
+            AVG(ng)%Vid(idV3rs)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idU3Sd))) THEN
             got_var(idU3Sd)=.TRUE.
-            avgVid(idU3Sd,ng)=var_id(i)
+            AVG(ng)%Vid(idU3Sd)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idV3Sd))) THEN
             got_var(idV3Sd)=.TRUE.
-            avgVid(idV3Sd,ng)=var_id(i)
+            AVG(ng)%Vid(idV3Sd)=var_id(i)
 #  endif
 # endif
           END IF
@@ -3002,36 +3008,36 @@
           DO itrc=1,NT(ng)
             IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idTvar(itrc)))) THEN
              got_var(idTvar(itrc))=.TRUE.
-             avgTid(itrc,ng)=var_id(i)
+             AVG(ng)%Tid(itrc)=var_id(i)
             END IF
           END DO
           DO itrc=1,NAT
             IF (TRIM(var_name(i)).eq.TRIM(Vname(1,iHUTav(itrc)))) THEN
               got_var(iHUTav(itrc))=.TRUE.
-              avgVid(iHUTav(itrc),ng)=var_id(i)
+              AVG(ng)%Vid(iHUTav(itrc))=var_id(i)
             ELSE IF (TRIM(var_name(i)).eq.                              &
      &               TRIM(Vname(1,iHVTav(itrc)))) THEN
               got_var(iHVTav(itrc))=.TRUE.
-              avgVid(iHVTav(itrc),ng)=var_id(i)
+              AVG(ng)%Vid(iHVTav(itrc))=var_id(i)
             ELSE IF (TRIM(var_name(i)).eq.                              &
      &               TRIM(Vname(1,idUTav(itrc)))) THEN
               got_var(idUTav(itrc))=.TRUE.
-              avgVid(idUTav(itrc),ng)=var_id(i)
+              AVG(ng)%Vid(idUTav(itrc))=var_id(i)
             ELSE IF (TRIM(var_name(i)).eq.                              &
      &               TRIM(Vname(1,idVTav(itrc)))) THEN
               got_var(idVTav(itrc))=.TRUE.
-              avgVid(idVTav(itrc),ng)=var_id(i)
+              AVG(ng)%Vid(idVTav(itrc))=var_id(i)
             ELSE IF (TRIM(var_name(i)).eq.                              &
      &               TRIM(Vname(1,idTTav(itrc)))) THEN
               got_var(idTTav(itrc))=.TRUE.
-              avgVid(idTTav(itrc),ng)=var_id(i)
+              AVG(ng)%Vid(idTTav(itrc))=var_id(i)
             END IF
           END DO
 #  if defined AVERAGES_DETIDE && (defined SSH_TIDES || defined UV_TIDES)
           DO itrc=1,NAT
             IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idTrcD(itrc)))) THEN
               got_var(idTrcD(itrc))=.TRUE.
-              avgVid(idTrcD(itrc),ng)=var_id(i)
+              AVG(ng)%Vid(idTrcD(itrc))=var_id(i)
             END IF
           END DO
 #  endif
@@ -3039,11 +3045,11 @@
           DO itrc=1,NST
             IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idUbld(itrc)))) THEN
               got_var(idUbld(itrc))=.true.
-              avgVid(idUbld(itrc),ng)=var_id(i)
+              AVG(ng)%Vid(idUbld(itrc))=var_id(i)
             ELSE IF (TRIM(var_name(i)).eq.                              &
      &               TRIM(Vname(1,idVbld(itrc)))) THEN
               got_var(idVbld(itrc))=.true.
-              avgVid(idVbld(itrc),ng)=var_id(i)
+              AVG(ng)%Vid(idVbld(itrc))=var_id(i)
             END IF
           END DO
 #  endif
@@ -3733,14 +3739,14 @@
 !
         IF (nRST(ng).eq.nAVG(ng)) THEN
           IF (ndefAVG(ng).gt.0) THEN
-            tAVGindx(ng)=((ntstart(ng)-1)-                              &
-     &                    ndefAVG(ng)*((ntstart(ng)-1)/ndefAVG(ng)))/   &
-     &                   nAVG(ng)
+            AVG(ng)%Rindex=((ntstart(ng)-1)-                            &
+     &                      ndefAVG(ng)*((ntstart(ng)-1)/ndefAVG(ng)))/ &
+     &                     nAVG(ng)
           ELSE
-            tAVGindx(ng)=(ntstart(ng)-1)/nAVG(ng)
+            AVG(ng)%Rindex=(ntstart(ng)-1)/nAVG(ng)
           END IF
         ELSE
-          tAVGindx(ng)=rec_size
+          AVG(ng)%Rindex=rec_size
         END IF
       END IF QUERY
 !

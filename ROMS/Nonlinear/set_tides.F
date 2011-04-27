@@ -488,7 +488,7 @@
 !
 #  if defined WEST_FSOBC || defined WEST_M2OBC
       update=.FALSE.
-      IF (WESTERN_EDGE) THEN
+      IF (DOMAIN(ng)%Western_Edge(tile)) THEN
         Etide(:,:)=0.0_r8
         DO itide=1,NTC
           IF (Tperiod(itide).gt.0.0_r8) THEN
@@ -530,7 +530,7 @@
 #  endif
 #  if defined EAST_FSOBC || defined EAST_M2OBC
       update=.FALSE.
-      IF (EASTERN_EDGE) THEN
+      IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
         Etide(:,:)=0.0_r8
         DO itide=1,NTC
           IF (Tperiod(itide).gt.0.0_r8) THEN
@@ -572,7 +572,7 @@
 #  endif
 #  if defined SOUTH_FSOBC || defined SOUTH_M2OBC
       update=.FALSE.
-      IF (SOUTHERN_EDGE) THEN
+      IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
         Etide(:,:)=0.0_r8
         DO itide=1,NTC
           IF (Tperiod(itide).gt.0.0_r8) THEN
@@ -614,7 +614,7 @@
 #  endif
 #  if defined NORTH_FSOBC || defined NORTH_M2OBC
       update=.FALSE.
-      IF (NORTHERN_EDGE) THEN
+      IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
         Etide(:,:)=0.0_r8
         DO itide=1,NTC
           IF (Tperiod(itide).gt.0.0_r8) THEN
@@ -800,7 +800,7 @@
 !
 #  ifdef WEST_M2OBC
       update=.FALSE.
-      IF (WESTERN_EDGE) THEN
+      IF (DOMAIN(ng)%Western_Edge(tile)) THEN
         Utide(:,:)=0.0_r8
         Vtide(:,:)=0.0_r8
 #   ifndef ADD_M2OBC
@@ -872,7 +872,7 @@
 #  endif
 #  ifdef EAST_M2OBC
       update=.FALSE.
-      IF (EASTERN_EDGE) THEN
+      IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
         Utide(:,:)=0.0_r8
         Vtide(:,:)=0.0_r8
 #   ifndef ADD_M2OBC
@@ -944,7 +944,7 @@
 #  endif
 #  ifdef SOUTH_M2OBC
       update=.FALSE.
-      IF (SOUTHERN_EDGE) THEN
+      IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
         Utide(:,:)=0.0_r8
         Vtide(:,:)=0.0_r8
 #   ifndef ADD_M2OBC
@@ -1016,7 +1016,7 @@
 #  endif
 #  ifdef NORTH_M2OBC
       update=.FALSE.
-      IF (NORTHERN_EDGE) THEN
+      IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
         Utide(:,:)=0.0_r8
         Vtide(:,:)=0.0_r8
 #   ifndef ADD_M2OBC

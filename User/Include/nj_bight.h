@@ -38,11 +38,6 @@
 #define STATIONS
 #undef  FLOATS
 
-#undef  ASSIMILATION_UVsur
-#undef  ASSIMILATION_T
-#undef  NUDGING_T
-#undef  NUDGING_UVsur
-
 #define WESTERN_WALL
 #define NORTHERN_WALL
 #define RADIATION_2D

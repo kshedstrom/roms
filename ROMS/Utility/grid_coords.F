@@ -94,8 +94,8 @@
 !
       IF (spherical) THEN
         IF (Lfloats(ng)) THEN
-          mc=FLT(ng)%Findex(0)
-          IF (FLT(ng)%Findex(0).gt.0) THEN
+          mc=DRIFTER(ng)%Findex(0)
+          IF (DRIFTER(ng)%Findex(0).gt.0) THEN
             CALL hindices (ng, LBi, UBi, LBj, UBj,                      &
      &                     IstrR, Iend+1, JstrR, Jend+1,                &
      &                     GRID(ng)%angler,                             &
@@ -103,17 +103,17 @@
      &                     GRID(ng)%latr,                               &
      &                     1, mc, 1, 1,                                 &
      &                     1, mc, 1, 1,                                 &
-     &                     FLT(ng)%Flon,                                &
-     &                     FLT(ng)%Flat,                                &
+     &                     DRIFTER(ng)%Flon,                            &
+     &                     DRIFTER(ng)%Flat,                            &
      &                     Iflt, Jflt, spv, .FALSE.)
 #  ifdef DISTRIBUTE
             CALL mp_collect (ng, model, mc, spv, Iflt)
             CALL mp_collect (ng, model, mc, spv, Jflt)
 #  endif
             DO i=1,mc
-              l=FLT(ng)%Findex(i)
-              FLT(ng)%Tinfo(ixgrd,l)=Iflt(i)
-              FLT(ng)%Tinfo(iygrd,l)=Jflt(i)
+              l=DRIFTER(ng)%Findex(i)
+              DRIFTER(ng)%Tinfo(ixgrd,l)=Iflt(i)
+              DRIFTER(ng)%Tinfo(iygrd,l)=Jflt(i)
             END DO
           END IF
         END IF
@@ -126,10 +126,10 @@
 #   ifdef DISTRIBUTE
       IF (Lfloats(ng)) THEN
         DO l=1,Nfloats(ng)
-          IF ((Xstr.le.FLT(ng)%Tinfo(ixgrd,l)).and.                     &
-     &        (FLT(ng)%Tinfo(ixgrd,l).lt.Xend).and.                     &
-     &        (Ystr.le.FLT(ng)%Tinfo(iygrd,l)).and.                     &
-     &        (FLT(ng)%Tinfo(iygrd,l).lt.Yend)) THEN
+          IF ((Xstr.le.DRIFTER(ng)%Tinfo(ixgrd,l)).and.                 &
+     &        (DRIFTER(ng)%Tinfo(ixgrd,l).lt.Xend).and.                 &
+     &        (Ystr.le.DRIFTER(ng)%Tinfo(iygrd,l)).and.                 &
+     &        (DRIFTER(ng)%Tinfo(iygrd,l).lt.Yend)) THEN
             MyThread(l)=.TRUE.
           ELSE
             MyThread(l)=.FALSE.
@@ -152,31 +152,33 @@
       DO l=1,Nfloats(ng)
         IF (Lfloats(ng)) THEN
 #  ifdef SOLVE3D
-          FLT(ng)%Fz0(l)=spv
+          DRIFTER(ng)%Fz0(l)=spv
           IF (MyThread(l).and.                                          &
-     &        ((FLT(ng)%Tinfo(ixgrd,l).ge.0.5_r8).and.                  &
-     &         (FLT(ng)%Tinfo(iygrd,l).ge.0.5_r8).and.                  &
-     &         (FLT(ng)%Tinfo(ixgrd,l).le.REAL(Lm(ng),r8)+0.5_r8).and.  &
-     &         (FLT(ng)%Tinfo(iygrd,l).le.REAL(Mm(ng),r8)+0.5_r8))) THEN
-            zfloat=FLT(ng)%Tinfo(izgrd,l)
-            FLT(ng)%Fz0(l)=zfloat               ! Save original value
+     &        ((DRIFTER(ng)%Tinfo(ixgrd,l).ge.0.5_r8).and.              &
+     &         (DRIFTER(ng)%Tinfo(iygrd,l).ge.0.5_r8).and.              &
+     &         (DRIFTER(ng)%Tinfo(ixgrd,l).le.                          &
+     &          REAL(Lm(ng),r8)+0.5_r8).and.                            &
+     &         (DRIFTER(ng)%Tinfo(iygrd,l).le.                          &
+     &          REAL(Mm(ng),r8)+0.5_r8))) THEN
+            zfloat=DRIFTER(ng)%Tinfo(izgrd,l)
+            DRIFTER(ng)%Fz0(l)=zfloat           ! Save original value
 #ifdef OFFLINE_FLOATS
-            IF (l.eq.1) THEN
-              print *, 'Float # ', l, ' FLT(ng)%Fz0: ', FLT(ng)%Fz0(l)
-              print *,'The preceeding print fixes a memory bug somehow.'
-            END IF
+!            IF (l.eq.1) THEN
+!              print *, 'Float # ', l, ' DRIFTER(ng)%Fz0: ', DRIFTER(ng)%Fz0(l)
+!              print *,'The preceeding print fixes a memory bug somehow.'
+!            END IF
 #endif
             Kflt(l)=zfloat
             IF (zfloat.le.0.0_r8) THEN
 
 #ifndef OFFLINE_FLOATS_LATLON
-              i=INT(FLT(ng)%Tinfo(ixgrd,l))     ! Fractional positions
-              j=INT(FLT(ng)%Tinfo(iygrd,l))     ! are still in this cell
+              i=INT(DRIFTER(ng)%Tinfo(ixgrd,l)) ! Fractional positions
+              j=INT(DRIFTER(ng)%Tinfo(iygrd,l)) ! are still in this cell
               IF (zfloat.lt.GRID(ng)%z_w(i,j,0)) THEN
                 zfloat=GRID(ng)%z_w(i,j,0)+5.0_r8
-                FLT(ng)%Fz0(l)=zfloat
+                DRIFTER(ng)%Fz0(l)=zfloat
               END IF
-              FLT(ng)%Tinfo(izgrd,l)=REAL(N(ng),r8)
+              DRIFTER(ng)%Tinfo(izgrd,l)=REAL(N(ng),r8)
               DO k=N(ng),1,-1
                 IF ((GRID(ng)%z_w(i,j,k)-zfloat)*                       &
      &              (zfloat-GRID(ng)%z_w(i,j,k-1)).ge.0.0_r8) THEN
@@ -187,8 +189,8 @@
               END DO
 #else
               Kflt(l)=spv
-              Ir=INT(FLT(ng)%Tinfo(ixgrd,l))
-              Jr=INT(FLT(ng)%Tinfo(iygrd,l))
+              Ir=INT(DRIFTER(ng)%Tinfo(ixgrd,l))
+              Jr=INT(DRIFTER(ng)%Tinfo(iygrd,l))
 
               i1=MIN(MAX(Ir  ,0),Lm(ng)+1)
               i2=MIN(MAX(Ir+1,1),Lm(ng)+1)
@@ -231,18 +233,18 @@
             Kflt(l)=spv
           END IF
 #  else
-          FLT(ng)%Tinfo(izgrd,l)=0.0_r8
+          DRIFTER(ng)%Tinfo(izgrd,l)=0.0_r8
 #  endif
         END IF
       END DO
 #  ifdef SOLVE3D
       IF (Lfloats(ng)) THEN
 #   ifdef DISTRIBUTE
-        CALL mp_collect (ng, model, Nfloats(ng), spv, FLT(ng)%Fz0)
+        CALL mp_collect (ng, model, Nfloats(ng), spv, DRIFTER(ng)%Fz0)
         CALL mp_collect (ng, model, Nfloats(ng), spv, Kflt)
 #   endif
         DO l=1,Nfloats(ng)
-          FLT(ng)%Tinfo(izgrd,l)=Kflt(l)
+          DRIFTER(ng)%Tinfo(izgrd,l)=Kflt(l)
         END DO
       END IF
 #  endif
