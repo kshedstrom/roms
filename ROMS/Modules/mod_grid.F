@@ -94,6 +94,9 @@
 !  rmask_io   Output FillValue mask at   U-points (0=dry, 1=wet)       !
 !  rmask_io   Output FillValue mask at   V-points (0=dry, 1=wet)       !
 #endif
+#ifdef OUTFLOW_MASK
+!  mask_outflow  Mask at RHO-points for ice BC (0=weak, 1=strong)      !
+#endif
 #ifdef WET_DRY
 !  pmask_wet  Wet/Dry mask at PSI-points (0=dry, 1=wet)                !
 !  rmask_wet  Wet/Dry mask at RHO-points (0=dry, 1=wet)                !
@@ -236,6 +239,9 @@
           real(r8), pointer :: rmask_io(:,:)
           real(r8), pointer :: umask_io(:,:)
           real(r8), pointer :: vmask_io(:,:)
+#endif
+#ifdef OUTFLOW_MASK
+          real(r8), pointer :: mask_outflow(:,:)
 #endif
 #ifdef WET_DRY
           real(r8), pointer :: pmask_wet(:,:)
@@ -424,6 +430,9 @@
       allocate ( GRID(ng) % vmask_io(LBi:UBi,LBj:UBj) )
 #endif
 
+#ifdef OUTFLOW_MASK
+      allocate ( GRID(ng) % mask_outflow(LBi:UBi,LBj:UBj) )
+#endif
 #ifdef WET_DRY
       allocate ( GRID(ng) % pmask_wet(LBi:UBi,LBj:UBj) )
       allocate ( GRID(ng) % rmask_wet(LBi:UBi,LBj:UBj) )
@@ -647,6 +656,9 @@
             GRID(ng) % vmask_io(i,j) = 1.0_r8
 #endif
 
+#ifdef OUTFLOW_MASK
+            GRID(ng) % mask_outflow(i,j) = IniVal
+#endif
 #ifdef WET_DRY
             GRID(ng) % pmask_wet(i,j) = IniVal
             GRID(ng) % rmask_wet(i,j) = IniVal

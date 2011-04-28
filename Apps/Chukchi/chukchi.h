@@ -28,7 +28,7 @@
 # define SPLINES
 #endif
 #undef FLOATS
-#define STATIONS
+#undef STATIONS
 #undef WET_DRY
 
 #undef T_PASSIVE
@@ -194,6 +194,8 @@
 
 /* Boundary conditions...careful with grid orientation */
 
+#define OUTFLOW_MASK
+
 #undef EASTERN_WALL
 #undef NORTHERN_WALL
 #undef WESTERN_WALL
@@ -209,14 +211,11 @@
 #  define NORTH_M3NUDGING
 #  define NORTH_TRADIATION
 #  define NORTH_TNUDGING
-#  define NORTH_MIRADIATION
-#  define NORTH_AIRADIATION
-#  define NORTH_HIRADIATION
-#  define NORTH_HSNRADIATION
-#  define NORTH_MINUDGING
-#  define NORTH_AINUDGING
-#  define NORTH_HINUDGING
-#  define NORTH_HSNNUDGING
+#  define NORTH_MICLAMPED
+#  define NORTH_AICLAMPED
+#  define NORTH_HICLAMPED
+#  define NORTH_HSNCLAMPED
+#  undef NORTH_TICLAMPED
 # endif
 #endif
 
@@ -228,14 +227,11 @@
 #  define WEST_M3NUDGING
 #  define WEST_TRADIATION
 #  define WEST_TNUDGING
-#  define WEST_MIRADIATION
-#  define WEST_AIRADIATION
-#  define WEST_HIRADIATION
-#  define WEST_HSNRADIATION
-#  define WEST_MINUDGING
-#  define WEST_AINUDGING
-#  define WEST_HINUDGING
-#  define WEST_HSNNUDGING
+#  define WEST_MICLAMPED
+#  define WEST_AICLAMPED
+#  define WEST_HICLAMPED
+#  define WEST_HSNCLAMPED
+#  undef WEST_TICLAMPED
 # endif
 #endif
 
@@ -247,14 +243,11 @@
 #  define SOUTH_M3NUDGING
 #  define SOUTH_TRADIATION
 #  define SOUTH_TNUDGING
-#  define SOUTH_MIRADIATION
-#  define SOUTH_AIRADIATION
-#  define SOUTH_HIRADIATION
-#  define SOUTH_HSNRADIATION
-#  define SOUTH_MINUDGING
-#  define SOUTH_AINUDGING
-#  define SOUTH_HINUDGING
-#  define SOUTH_HSNNUDGING
+#  define SOUTH_MICLAMPED
+#  define SOUTH_AICLAMPED
+#  define SOUTH_HICLAMPED
+#  define SOUTH_HSNCLAMPED
+#  undef SOUTH_TICLAMPED
 # endif
 #endif
 
@@ -266,14 +259,11 @@
 #  define EAST_M3NUDGING
 #  define EAST_TRADIATION
 #  define EAST_TNUDGING
-#  define EAST_MIRADIATION
-#  define EAST_AIRADIATION
-#  define EAST_HIRADIATION
-#  define EAST_HSNRADIATION
-#  define EAST_MINUDGING
-#  define EAST_AINUDGING
-#  define EAST_HINUDGING
-#  define EAST_HSNNUDGING
+#  define EAST_MICLAMPED
+#  define EAST_AICLAMPED
+#  define EAST_HICLAMPED
+#  define EAST_HSNCLAMPED
+#  undef EAST_TICLAMPED
 # endif
 #endif
 
