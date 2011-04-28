@@ -820,9 +820,13 @@
       END DO 
 
       CALL uibc_tile (ng, tile,                                         &
-     &                          LBi, UBi, LBj, UBj, lieol, lienw, uie)
+     &                LBi, UBi, LBj, UBj,                               &
+     &                IminS, ImaxS, JminS, JmaxS,                       &
+     &                lieol, lienw, uie)
       CALL vibc_tile (ng, tile,                                         &
-     &                          LBi, UBi, LBj, UBj, lieol, lienw, vie)
+     &                LBi, UBi, LBj, UBj,                               &
+     &                IminS, ImaxS, JminS, JmaxS,                       &
+     &                lieol, lienw, vie)
 #if defined EW_PERIODIC || defined NS_PERIODIC
       CALL exchange_u2d_tile (ng, tile,                                 &
      &                        LBi, UBi, LBj, UBj,                       &

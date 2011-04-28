@@ -117,6 +117,7 @@
 !
         CALL aibc_tile (ng, tile,                                       &
      &                          LBi, UBi, LBj, UBj,                     &
+     &                          IminS, ImaxS, JminS, JmaxS,             &
      &                          liold(ng), linew(ng),                   &
      &                          ICE(ng)%ui,                             &
      &                          ICE(ng)%vi,                             &
@@ -152,6 +153,7 @@
 !
         CALL hibc_tile (ng, tile,                                       &
      &                          LBi, UBi, LBj, UBj,                     &
+     &                          IminS, ImaxS, JminS, JmaxS,             &
      &                          liold(ng), linew(ng),                   &
      &                          ICE(ng)%ui,                             &
      &                          ICE(ng)%vi,                             &
@@ -188,6 +190,7 @@
 !
         CALL hsnbc_tile (ng, tile,                                      &
      &                          LBi, UBi, LBj, UBj,                     &
+     &                          IminS, ImaxS, JminS, JmaxS,             &
      &                          liold(ng), linew(ng),                   &
      &                          ICE(ng)%ui,                             &
      &                          ICE(ng)%vi,                             &

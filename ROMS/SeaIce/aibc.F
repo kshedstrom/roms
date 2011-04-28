@@ -27,6 +27,7 @@
 !
       CALL aibc_tile (ng, tile,                                         &
      &                LBi, UBi, LBj, UBj,                               &
+     &                IminS, ImaxS, JminS, JmaxS,                       &
      &                liold(ng), linew(ng),                             &
      &                ICE(ng) % ui,                                     &
      &                ICE(ng) % vi,                                     &
@@ -38,6 +39,7 @@
 !***********************************************************************
       SUBROUTINE aibc_tile (ng, tile,                                   &
      &                      LBi, UBi, LBj, UBj,                         &
+     &                      IminS, ImaxS, JminS, JmaxS,                 &
      &                      liold, linew,                               &
      &                      ui, vi, ai)
 !***********************************************************************
@@ -54,6 +56,7 @@
 !
       integer, intent(in) :: ng, tile
       integer, intent(in) :: LBi, UBi, LBj, UBj
+      integer, intent(in) :: IminS, ImaxS, JminS, JmaxS
       integer, intent(in) :: liold, linew
 
 # ifdef ASSUMED_SHAPE
@@ -70,6 +73,10 @@
 !  Local variable declarations.
 !
       integer :: i, j, know
+      real(r8), parameter :: eps =1.0E-20_r8
+      real(r8) :: Ce, Cx, cff, dTde, dTdt, dTdx, tau 
+
+      real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: grad
 
 #include "set_bounds.h"
 !
@@ -79,7 +86,7 @@
 !
         know=liold
 
-#ifndef EW_PERIODIC
+# ifndef EW_PERIODIC
 !
 !-----------------------------------------------------------------------
 !  Lateral boundary conditions at the western edge.
@@ -87,7 +94,58 @@
 !
       IF (DOMAIN(ng)%Western_Edge(tile)) THEN
 
-# ifdef WEST_AICLAMPED
+#  if defined WEST_AIRADIATION
+!
+!  Western edge, implicit upstream radiation condition.
+!
+        DO j=Jstr,Jend+1
+          grad(Istr-1,j)=ai(Istr-1,j,know)-ai(Istr-1,j-1,know)
+#   ifdef MASKING
+          grad(Istr-1,j)=grad(Istr-1,j)*GRID(ng)%vmask(Istr-1,j)
+#   endif
+          grad(Istr,j)=ai(Istr,j,know)-ai(Istr,j-1,know)
+#   ifdef MASKING
+          grad(Istr,j)=grad(Istr,j)*GRID(ng)%vmask(Istr,j)
+#   endif
+        END DO
+        DO j=Jstr,Jend
+          dTdt=ai(Istr,j,know)-ai(Istr  ,j,linew)
+          dTdx=ai(Istr,j,linew)-ai(Istr+1,j,linew)
+#   ifdef WEST_AINUDGING
+          tau=Tobc_out(1,ng,iwest)
+          IF ((dTdt*dTdx).lt.0.0_r8) tau=Tobc_in(1,ng,iwest)
+          tau=tau*dt(ng)
+#   endif
+          IF ((dTdt*dTdx).lt.0.0_r8) dTdt=0.0_r8
+          IF ((dTdt*(grad(Istr,j)+grad(Istr,j+1))).gt.0.0_r8) THEN
+            dTde=grad(Istr,j  )
+          ELSE
+            dTde=grad(Istr,j+1)
+          END IF
+          cff=MAX(dTdx*dTdx+dTde*dTde,eps)
+          Cx=dTdt*dTdx
+#   ifdef RADIATION_2D
+          Ce=MIN(cff,MAX(dTdt*dTde,-cff))
+#   else
+          Ce=0.0_r8
+#   endif
+          ai(Istr-1,j,linew)=(cff*ai(Istr-1,j,know)+                    &
+     &                        Cx *ai(Istr  ,j,linew)-                   &
+     &                        MAX(Ce,0.0_r8)*grad(Istr-1,j  )-          &
+     &                        MIN(Ce,0.0_r8)*grad(Istr-1,j+1))/         &
+     &                              (cff+Cx)
+#   ifdef WEST_AINUDGING
+          ai(Istr-1,j,linew)=ai(Istr-1,j,linew)+                        &
+     &                       tau*(BOUNDARY(ng)%ai_west(j)-              &
+     &                                   ai(Istr-1,j,know))
+#   endif
+#   ifdef MASKING
+          ai(Istr-1,j,linew)=ai(Istr-1,j,linew)*                        &
+     &                              GRID(ng)%rmask(Istr-1,j)
+#   endif
+        END DO
+
+# elif defined WEST_AICLAMPED
 !
 !  Western edge, clamped boundary condition.
 !
@@ -153,7 +211,57 @@
 !
       IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
 
-# ifdef EAST_AICLAMPED
+#  if defined EAST_AIRADIATION
+!
+!  Eastern edge, implicit upstream radiation condition.
+!
+        DO j=Jstr,Jend+1
+         grad(Iend,j)=ai(Iend,j,know)-ai(Iend,j-1,know)
+#   ifdef MASKING
+         grad(Iend,j)=grad(Iend,j)*GRID(ng)%vmask(Iend  ,j)
+#   endif
+         grad(Iend+1,j)=ai(Iend+1,j,know)-ai(Iend+1,j-1,know)
+#   ifdef MASKING
+         grad(Iend+1,j)=grad(Iend+1,j)*GRID(ng)%vmask(Iend+1,j)
+#   endif
+        END DO
+        DO j=Jstr,Jend
+          dTdt=ai(Iend,j,know)-ai(Iend  ,j,linew)
+          dTdx=ai(Iend,j,linew)-ai(Iend-1,j,linew)
+#   ifdef EAST_AINUDGING
+          tau=Tobc_out(1,ng,ieast)
+          IF ((dTdt*dTdx).lt.0.0_r8) tau=Tobc_in(1,ng,ieast)
+          tau=tau*dt(ng)
+#   endif
+          IF ((dTdt*dTdx).lt.0.0_r8) dTdt=0.0_r8
+          IF ((dTdt*(grad(Iend,j)+grad(Iend,j+1))).gt.0.0_r8) THEN
+            dTde=grad(Iend,j  )
+          ELSE
+            dTde=grad(Iend,j+1)
+          END IF
+          cff=MAX(dTdx*dTdx+dTde*dTde,eps)
+          Cx=dTdt*dTdx
+#   ifdef RADIATION_2D
+          Ce=MIN(cff,MAX(dTdt*dTde,-cff))
+#   else
+          Ce=0.0_r8
+#   endif
+          ai(Iend+1,j,linew)=(cff*ai(Iend+1,j,know)+                    &
+     &                        Cx *ai(Iend  ,j,linew)-                   &
+     &                        MAX(Ce,0.0_r8)*grad(Iend+1,j  )-          &
+     &                        MIN(Ce,0.0_r8)*grad(Iend+1,j+1))/         &
+     &                              (cff+Cx)
+#   ifdef EAST_AINUDGING
+          ai(Iend+1,j,linew)=ai(Iend+1,j,linew)+                        &
+     &             tau*(BOUNDARY(ng)%ai_east(j)-ai(Iend+1,j,know))
+#   endif
+#   ifdef MASKING
+          ai(Iend+1,j,linew)=ai(Iend+1,j,linew)*                        &
+     &                              GRID(ng)%rmask(Iend+1,j)
+#   endif
+        END DO
+
+# elif defined EAST_AICLAMPED
 !
 !  Eastern edge, clamped boundary condition.
 !
@@ -221,7 +329,57 @@
 !
       IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
 
-# ifdef SOUTH_AICLAMPED
+#  if defined SOUTH_AIRADIATION
+!
+!  Southern edge, implicit upstream radiation condition.
+!
+        DO i=Istr,Iend+1
+          grad(i,Jstr)=ai(i,Jstr,know)-ai(i-1,Jstr,know)
+#   ifdef MASKING
+          grad(i,Jstr)=grad(i,Jstr)*GRID(ng)%umask(i,Jstr)
+#   endif
+          grad(i,Jstr-1)=ai(i,Jstr-1,know)-ai(i-1,Jstr-1,know)
+#   ifdef MASKING
+          grad(i,Jstr-1)=grad(i,Jstr-1)*GRID(ng)%umask(i,Jstr-1)
+#   endif
+        END DO
+        DO i=Istr,Iend
+          dTdt=ai(i,Jstr,know)-ai(i,Jstr  ,linew)
+          dTde=ai(i,Jstr,linew)-ai(i,Jstr+1,linew)
+#   ifdef SOUTH_AINUDGING
+          tau=Tobc_out(1,ng,isouth)
+          IF ((dTdt*dTde).lt.0.0_r8) tau=Tobc_in(1,ng,isouth)
+          tau=tau*dt(ng)
+#   endif
+          IF ((dTdt*dTde).lt.0.0_r8) dTdt=0.0_r8
+          IF ((dTdt*(grad(i,Jstr)+grad(i+1,Jstr))).gt.0.0_r8) THEN
+            dTdx=grad(i  ,Jstr)
+          ELSE
+            dTdx=grad(i+1,Jstr)
+          END IF
+          cff=MAX(dTdx*dTdx+dTde*dTde,eps)
+#   ifdef RADIATION_2D
+          Cx=MIN(cff,MAX(dTdt*dTdx,-cff))
+#   else
+          Cx=0.0_r8
+#   endif
+          Ce=dTdt*dTde
+          ai(i,Jstr-1,linew)=(cff*ai(i,Jstr-1,know)+                    &
+     &                        Ce *ai(i,Jstr  ,linew)-                   &
+     &                        MAX(Cx,0.0_r8)*grad(i  ,Jstr-1)-          &
+     &                        MIN(Cx,0.0_r8)*grad(i+1,Jstr-1))/         &
+     &                              (cff+Ce)
+#   ifdef SOUTH_AINUDGING
+          ai(i,Jstr-1,linew)=ai(i,Jstr-1,linew)+                        &
+     &           tau*(BOUNDARY(ng)%ai_south(i)-ai(i,Jstr-1,know))
+#   endif
+#   ifdef MASKING
+          ai(i,Jstr-1,linew)=ai(i,Jstr-1,linew)*                        &
+     &                              GRID(ng)%rmask(i,Jstr-1)
+#   endif
+        END DO
+
+# elif defined SOUTH_AICLAMPED
 !
 !  Southern edge, clamped boundary condition.
 !
@@ -287,7 +445,57 @@
 !
       IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
 
-# ifdef NORTH_AICLAMPED
+#  if defined NORTH_AIRADIATION
+!
+!  Northern edge, implicit upstream radiation condition.
+!
+        DO i=Istr,Iend+1
+          grad(i,Jend)=ai(i,Jend,know)-ai(i-1,Jend,know)
+#   ifdef MASKING
+          grad(i,Jend)=grad(i,Jend)*GRID(ng)%umask(i,Jend)
+#   endif
+          grad(i,Jend+1)=ai(i,Jend+1,know)-ai(i-1,Jend+1,know)
+#   ifdef MASKING
+          grad(i,Jend+1)=grad(i,Jend+1)*GRID(ng)%umask(i,Jend+1)
+#   endif
+        END DO
+        DO i=Istr,Iend
+          dTdt=ai(i,Jend,know)-ai(i,Jend  ,linew)
+          dTde=ai(i,Jend,linew)-ai(i,Jend-1,linew)
+#   ifdef NORTH_AINUDGING
+          tau=Tobc_out(1,ng,inorth)
+          IF ((dTdt*dTde).lt.0.0_r8) tau=Tobc_in(1,ng,inorth)
+          tau=tau*dt(ng)
+#   endif
+          IF ((dTdt*dTde).lt.0.0_r8) dTdt=0.0_r8
+          IF ((dTdt*(grad(i,Jend)+grad(i+1,Jend))).gt.0.0_r8) THEN
+            dTdx=grad(i  ,Jend)
+          ELSE
+            dTdx=grad(i+1,Jend)
+          END IF
+          cff=MAX(dTdx*dTdx+dTde*dTde,eps)
+#   ifdef RADIATION_2D
+          Cx=MIN(cff,MAX(dTdt*dTdx,-cff))
+#   else
+          Cx=0.0_r8
+#   endif
+          Ce=dTdt*dTde
+          ai(i,Jend+1,linew)=(cff*ai(i,Jend+1,know)+                    &
+     &                        Ce *ai(i,Jend  ,linew)-                   &
+     &                        MAX(Cx,0.0_r8)*grad(i  ,Jend+1)-          &
+     &                        MIN(Cx,0.0_r8)*grad(i+1,Jend+1))/         &
+     &                              (cff+Ce)
+#   ifdef NORTH_AINUDGING
+          ai(i,Jend+1,linew)=ai(i,Jend+1,linew)+                        &
+     &              tau*(BOUNDARY(ng)%ai_north(i)-ai(i,Jend+1,know))
+#   endif
+#   ifdef MASKING
+          ai(i,Jend+1,linew)=ai(i,Jend+1,linew)*                        &
+     &                              GRID(ng)%rmask(i,Jend+1)
+#   endif
+        END DO
+
+# elif defined NORTH_AICLAMPED
 !
 !  Northern edge, clamped boundary condition.
 !
@@ -347,7 +555,7 @@
 # endif
       END IF
 #endif
-#if !defined EW_PERIODIC && !defined NS_PERIODIC
+# if !defined EW_PERIODIC && !defined NS_PERIODIC
 !
 !-----------------------------------------------------------------------
 !  Boundary corners.
@@ -370,7 +578,7 @@
      &             (ai(Lm(ng)+1,Mm(ng)  ,linew)+                        &
      &              ai(Lm(ng)  ,Mm(ng)+1,linew))
       END IF
-#endif
+# endif
       RETURN
       END SUBROUTINE aibc_tile
 #endif

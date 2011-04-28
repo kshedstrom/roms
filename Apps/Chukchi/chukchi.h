@@ -28,7 +28,7 @@
 # define SPLINES
 #endif
 #undef FLOATS
-#define STATIONS
+#undef STATIONS
 #undef WET_DRY
 
 #undef T_PASSIVE
@@ -194,6 +194,8 @@
 
 /* Boundary conditions...careful with grid orientation */
 
+#define OUTFLOW_MASK
+
 #undef EASTERN_WALL
 #undef NORTHERN_WALL
 #undef WESTERN_WALL
@@ -213,6 +215,7 @@
 #  define NORTH_AICLAMPED
 #  define NORTH_HICLAMPED
 #  define NORTH_HSNCLAMPED
+#  undef NORTH_TICLAMPED
 # endif
 #endif
 
@@ -224,7 +227,11 @@
 #  define WEST_M3NUDGING
 #  define WEST_TRADIATION
 #  define WEST_TNUDGING
-#  define WEST_MIGRADIENT
+#  define WEST_MICLAMPED
+#  define WEST_AICLAMPED
+#  define WEST_HICLAMPED
+#  define WEST_HSNCLAMPED
+#  undef WEST_TICLAMPED
 # endif
 #endif
 
@@ -236,7 +243,11 @@
 #  define SOUTH_M3NUDGING
 #  define SOUTH_TRADIATION
 #  define SOUTH_TNUDGING
-#  define SOUTH_MIGRADIENT
+#  define SOUTH_MICLAMPED
+#  define SOUTH_AICLAMPED
+#  define SOUTH_HICLAMPED
+#  define SOUTH_HSNCLAMPED
+#  undef SOUTH_TICLAMPED
 # endif
 #endif
 
@@ -248,7 +259,11 @@
 #  define EAST_M3NUDGING
 #  define EAST_TRADIATION
 #  define EAST_TNUDGING
-#  define EAST_MIGRADIENT
+#  define EAST_MICLAMPED
+#  define EAST_AICLAMPED
+#  define EAST_HICLAMPED
+#  define EAST_HSNCLAMPED
+#  undef EAST_TICLAMPED
 # endif
 #endif
 
