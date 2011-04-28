@@ -92,7 +92,7 @@
 !  Lateral boundary conditions at the western edge.
 !-----------------------------------------------------------------------
 !
-      IF (WESTERN_EDGE) THEN
+      IF (DOMAIN(ng)%Western_Edge(tile)) THEN
 
 # ifdef WEST_AGEICECLAMPED
 !
@@ -208,7 +208,7 @@
 !  Lateral boundary conditions at the eastern edge.
 !-----------------------------------------------------------------------
 !
-      IF (EASTERN_EDGE) THEN
+      IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
 
 # ifdef EAST_AGEICECLAMPED
 !
@@ -327,7 +327,7 @@
 !  Lateral boundary conditions at the southern edge.
 !-----------------------------------------------------------------------
 !
-      IF (SOUTHERN_EDGE) THEN
+      IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
 
 # ifdef SOUTH_AGEICECLAMPED
 !
@@ -441,7 +441,7 @@
 !  Lateral boundary conditions at the northern edge.
 !-----------------------------------------------------------------------
 !
-      IF (NORTHERN_EDGE) THEN
+      IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
 
 # ifdef NORTH_AGEICECLAMPED
 !
@@ -562,7 +562,7 @@
 !  Boundary corners.
 !-----------------------------------------------------------------------
 !
-      IF (SOUTHERN_EDGE.and.WESTERN_EDGE) THEN
+      IF (DOMAIN(ng)%SouthWest_Corner(tile)) THEN
         hage(0,0,linew)=0.5_r8*(hage(1,0,linew)+                        &
      &                         hage(0,1,linew))
         ageice(0,0,linew) = hage(0,0,linew)/                            &
@@ -584,7 +584,7 @@
      &                   GRID(ng)%rmask_wet(0,0)
 #  endif
       END IF
-      IF (SOUTHERN_EDGE.and.EASTERN_EDGE) THEN
+      IF (DOMAIN(ng)%SouthEast_Corner(tile)) THEN
         hage(Lm(ng)+1,0,linew)=0.5_r8*(hage(Lm(ng)+1,1,linew)+          &
      &                                hage(Lm(ng)  ,0,linew))
         ageice(Lm(ng)+1,0,linew) = hage(Lm(ng)+1,0,linew)/              &
@@ -606,7 +606,7 @@
      &                   GRID(ng)%rmask_wet(Lm(ng)+1,0)
 #  endif
       END IF
-      IF (NORTHERN_EDGE.and.WESTERN_EDGE) THEN
+      IF (DOMAIN(ng)%NorthWest_Corner(tile)) THEN
         hage(0,Mm(ng)+1,linew)=0.5_r8*(hage(0,Mm(ng)  ,linew)+          &
      &                                hage(1,Mm(ng)+1,linew))
 
@@ -629,7 +629,7 @@
      &                   GRID(ng)%rmask_wet(0,Mm(ng)+1)
 #  endif
       END IF
-      IF (NORTHERN_EDGE.and.EASTERN_EDGE) THEN
+      IF (DOMAIN(ng)%NorthEast_Corner(tile)) THEN
         hage(Lm(ng)+1,Mm(ng)+1,linew)=0.5_r8*                           &
      &             (hage(Lm(ng)+1,Mm(ng)  ,linew)+                      &
      &              hage(Lm(ng)  ,Mm(ng)+1,linew))

@@ -1886,7 +1886,7 @@
 # endif
 
 # ifdef ICE_MODEL
-        IF (NORTH_WEST_TEST) THEN
+        IF (DOMAIN(ng)%NorthWest_Test(tile)) THEN
           BOUNDARY(ng) % ai_west = IniVal
 #  ifndef ANA_AIOBC
           BOUNDARY(ng) % aiG_west = IniVal
@@ -1940,7 +1940,7 @@
 #  endif
         END IF
 
-        IF (SOUTH_EAST_TEST) THEN
+        IF (DOMAIN(ng)%SouthEast_Test(tile)) THEN
           BOUNDARY(ng) % ai_east = IniVal
 #  ifndef ANA_AIOBC
           BOUNDARY(ng) % aiG_east = IniVal
@@ -1994,7 +1994,7 @@
 #   endif
 #  endif
         END IF
-        IF (SOUTH_WEST_TEST) THEN
+        IF (DOMAIN(ng)%SouthWest_Test(tile)) THEN
           BOUNDARY(ng) % ai_south = IniVal
 #  ifndef ANA_AIOBC
           BOUNDARY(ng) % aiG_south = IniVal
@@ -2048,7 +2048,7 @@
 #  endif
         END IF
 
-        IF (NORTH_EAST_TEST) THEN
+        IF (DOMAIN(ng)%NorthEast_Test(tile)) THEN
           BOUNDARY(ng) % ai_north = IniVal
 #  ifndef ANA_AIOBC
           BOUNDARY(ng) % aiG_north = IniVal

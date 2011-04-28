@@ -66,7 +66,7 @@
 !-----------------------------------------------------------------------
 !
 #if defined SED_TEST1
-      IF (WESTERN_EDGE) THEN
+      IF (DOMAIN(ng)%Western_Edge(tile)) THEN
         fac=5.0E-06_r8
         DO k=1,N(ng)
           DO j=JstrR,JendR
@@ -82,7 +82,7 @@
           END DO
         END DO
       END IF
-      IF (EASTERN_EDGE) THEN
+      IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
         fac=5.0E-06_r8
         DO k=1,N(ng)
           DO j=JstrR,JendR
@@ -99,7 +99,7 @@
         END DO
       END IF
 #elif defined LA_04
-     IF (WESTERN_EDGE) THEN
+      IF (DOMAIN(ng)%Western_Edge(tile)) THEN
        DO k=1,N(ng)
         DO j=JstrR,JendR
 	  BOUNDARY(ng)%u_west(j,k)=0.0179588894377609_r8
@@ -109,7 +109,7 @@
         END DO
        END DO
       END IF
-      IF (EASTERN_EDGE) THEN
+      IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
         DO k=1,N(ng)
          DO j=JstrR,JendR
 	   BOUNDARY(ng)%u_east(j,k)=3.72297256457142E-5_r8
@@ -121,7 +121,7 @@
       END IF
 #else
 # ifdef EAST_M3OBS
-      IF (EASTERN_EDGE) THEN
+      IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
         DO k=1,N(ng)
           DO j=JstrR,JendR
             BOUNDARY(ng)%u_east(j,k)=0.0_r8
@@ -133,7 +133,7 @@
       END IF
 # endif
 # ifdef WEST_M3OBS
-      IF (WESTERN_EDGE) THEN
+      IF (DOMAIN(ng)%Western_Edge(tile)) THEN
         DO k=1,N(ng)
           DO j=JstrR,JendR
             BOUNDARY(ng)%u_west(j,k)=0.0_r8
@@ -145,7 +145,7 @@
       END IF
 # endif
 # ifdef SOUTH_M3OBS
-      IF (SOUTHERN_EDGE) THEN
+      IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
         DO k=1,N(ng)
           DO i=Istr,IendR
             BOUNDARY(ng)%u_south(i,k)=0.0_r8
@@ -157,7 +157,7 @@
       END IF
 # endif
 # ifdef NORTH_M3OBS
-      IF (NORTHERN_EDGE) THEN
+      IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
         DO k=1,N(ng)
           DO i=Istr,IendR
             BOUNDARY(ng)%u_north(i,k)=0.0_r8

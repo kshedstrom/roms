@@ -636,12 +636,12 @@
 
 # ifndef ICE_UPWIND
 #  ifndef EW_PERIODIC
-      IF (WESTERN_EDGE) THEN
+      IF (DOMAIN(ng)%Western_Edge(tile)) THEN
         Imin=Istr
       ELSE
         Imin=Istr-1
       END IF
-      IF (EASTERN_EDGE) THEN
+      IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
         Imax=Iend
       ELSE
         Imax=Iend+1
@@ -651,12 +651,12 @@
       Imax=Iend+1
 #  endif
 #  ifndef NS_PERIODIC
-      IF (SOUTHERN_EDGE) THEN
+      IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
         Jmin=Jstr
       ELSE
         Jmin=Jstr-1
       END IF
-      IF (NORTHERN_EDGE) THEN
+      IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
         Jmax=Jend
       ELSE
         Jmax=Jend+1
@@ -713,39 +713,39 @@
 ! set values at the open boundaries
 !
 # ifndef EW_PERIODIC
-      IF (WESTERN_EDGE) THEN
+      IF (DOMAIN(ng)%Western_Edge(tile)) THEN
         DO j=Jmin,Jmax
           aif(Istr-1,j)=aif(Istr,j)   !? scr(Istr-1,j,liold)
         END DO
       END IF
-      IF (EASTERN_EDGE) THEN
+      IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
         DO j=Jmin,Jmax
           aif(Iend+1,j)=aif(Iend,j)  !? scr(Iend+1,j,liold)
         END DO
       END IF
 # endif
 # ifndef NS_PERIODIC
-      IF (SOUTHERN_EDGE) THEN
+      IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
         DO i=Imin,Imax
              aif(i,Jstr-1)=aif(i,Jstr)  !??? scr(i,Jstr-1,liold)
         END DO
       END IF
-      IF (NORTHERN_EDGE) THEN
+      IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
         DO i=Imin,Imax
              aif(i,Jend+1)=aif(i,Jend)  !??? scr(i,Jend+1,liold)
         END DO
       END IF
 #  ifndef EW_PERIODIC
-      IF (WESTERN_EDGE .and. SOUTHERN_EDGE) THEN
+      IF (DOMAIN(ng)%SouthWest_Corner(tile)) THEN
         aif(Istr-1,Jstr-1)=aif(Istr,Jstr)
       END IF
-      IF (WESTERN_EDGE .and. NORTHERN_EDGE) THEN
+      IF (DOMAIN(ng)%NorthWest_Corner(tile)) THEN
         aif(Istr-1,Jend+1)=aif(Istr,Jend)
       END IF
-      IF (EASTERN_EDGE .and. SOUTHERN_EDGE) THEN
+      IF (DOMAIN(ng)%SouthEast_Corner(tile)) THEN
         aif(Iend+1,Jstr-1)=aif(Iend,Jstr)
       END IF
-      IF (EASTERN_EDGE .and. NORTHERN_EDGE) THEN
+      IF (DOMAIN(ng)%NorthEast_Corner(tile)) THEN
         aif(Iend+1,Jend+1)=aif(Iend,Jend)
       END IF
 #  endif

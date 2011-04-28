@@ -1057,10 +1057,10 @@
 !    &    ((iic(ng).ne.ntstart(ng)).or.(nrrec(ng).eq.0))) THEN
         DO f=1,FIL
           IF (fcount(f).eq.nw) THEN
-             IF (Master) THEN
-               print *,'SET_FILTER transferring sums', f
-             END IF
-            IF (SOUTH_WEST_TEST) THEN
+            IF (Master) THEN
+              print *,'SET_FILTER transferring sums', f
+            END IF
+            IF (DOMAIN(ng)%SouthWest_Test(tile)) THEN
               avgtime(ng)=time(ng)-0.5_r8*REAL(nfil,r8)*dt(ng)
             END IF
             IF (Aout(idFsur,ng)) THEN

@@ -1175,7 +1175,7 @@
 # ifdef ANA_AIOBC
       CALL ana_aiobc (ng, tile)
 # else
-      IF (SOUTH_WEST_TEST) THEN
+      IF (DOMAIN(ng)%SouthWest_Test(tile)) THEN
 #  ifdef WEST_AIOBC
         CALL set_ngfld (ng, iNLM, idAibc(iwest), JLB, JUB, 1,           &
      &                  0, Mm(ng)+1, 1,                                 &
@@ -1210,7 +1210,7 @@
 # ifdef ANA_HIOBC
       CALL ana_hiobc (ng, tile)
 # else
-      IF (SOUTH_WEST_TEST) THEN
+      IF (DOMAIN(ng)%SouthWest_Test(tile)) THEN
 #  ifdef WEST_HIOBC
         CALL set_ngfld (ng, iNLM, idHibc(iwest), JLB, JUB, 1,           &
      &                  0, Mm(ng)+1, 1,                                 &
@@ -1253,7 +1253,7 @@
 # ifdef ANA_HSNOBC
       CALL ana_hsnobc (ng, tile)
 # else
-      IF (SOUTH_WEST_TEST) THEN
+      IF (DOMAIN(ng)%SouthWest_Test(tile)) THEN
 #  ifdef WEST_HSNOBC
         CALL set_ngfld (ng, iNLM, idHsnbc(iwest), JLB, JUB, 1,          &
      &                  0, Mm(ng)+1, 1,                                 &
@@ -1288,7 +1288,7 @@
 # ifdef ANA_TIOBC
       CALL ana_tiobc (ng, tile, iNLM)
 # else
-      IF (SOUTH_WEST_TEST) THEN
+      IF (DOMAIN(ng)%SouthWest_Test(tile)) THEN
 #  ifdef WEST_TIOBC
         CALL set_ngfld (ng, iNLM, idTibc(iwest), JLB, JUB, 1,           &
      &                  0, Mm(ng)+1, 1,                                 &
@@ -1323,7 +1323,7 @@
 # ifdef ANA_SFWATOBC
       CALL ana_sfwatobc (ng, tile)
 # else
-      IF (SOUTH_WEST_TEST) THEN
+      IF (DOMAIN(ng)%SouthWest_Test(tile)) THEN
 #  ifdef WEST_SFWATOBC
         CALL set_ngfld (ng, iNLM, idSfwbc(iwest), JLB, JUB, 1,          &
      &                  0, Mm(ng)+1, 1,                                 &
@@ -1358,7 +1358,7 @@
 # ifdef ANA_AGEICEOBC
       CALL ana_ageiceobc (ng, tile)
 # else
-      IF (SOUTH_WEST_TEST) THEN
+      IF (DOMAIN(ng)%SouthWest_Test(tile)) THEN
 #  ifdef WEST_AGEICEOBC
         CALL set_ngfld (ng, iNLM, idSfwbc(iwest), JLB, JUB, 1,          &
      &                  0, Mm(ng)+1, 1,                                 &
@@ -1393,7 +1393,7 @@
 # ifdef ANA_SIG11OBC
       CALL ana_sig11obc (ng, tile, iNLM)
 # else
-      IF (SOUTH_WEST_TEST) THEN
+      IF (DOMAIN(ng)%SouthWest_Test(tile)) THEN
 #  ifdef WEST_SIG11OBC
         CALL set_ngfld (ng, iNLM, idS11bc(iwest), JLB, JUB, 1,          &
      &                  0, Mm(ng)+1, 1,                                 &
@@ -1428,7 +1428,7 @@
 # ifdef ANA_SIG22OBC
       CALL ana_sig22obc (ng, tile, iNLM)
 # else
-      IF (SOUTH_WEST_TEST) THEN
+      IF (DOMAIN(ng)%SouthWest_Test(tile)) THEN
 #  ifdef WEST_SIG22OBC
         CALL set_ngfld (ng, iNLM, idS22bc(iwest), JLB, JUB, 1,          &
      &                  0, Mm(ng)+1, 1,                                 &
@@ -1463,7 +1463,7 @@
 # ifdef ANA_SIG12OBC
       CALL ana_sig12obc (ng, tile, iNLM)
 # else
-      IF (SOUTH_WEST_TEST) THEN
+      IF (DOMAIN(ng)%SouthWest_Test(tile)) THEN
 #  ifdef WEST_SIG12OBC
         CALL set_ngfld (ng, iNLM, idS12bc(iwest), JLB, JUB, 1,          &
      &                  0, Mm(ng)+1, 1,                                 &
@@ -1498,7 +1498,7 @@
 # ifdef ANA_MIOBC
       CALL ana_miobc (ng, tile, iNLM)
 # else
-      IF (SOUTH_WEST_TEST) THEN
+      IF (DOMAIN(ng)%SouthWest_Test(tile)) THEN
 #  ifdef WEST_MIOBC
         CALL set_ngfld (ng, iNLM, idUibc(iwest), JLB, JUB, 1,           &
      &                  0, Mm(ng)+1, 1,                                 &

@@ -92,7 +92,7 @@
 !  Lateral boundary conditions at the western edge.
 !-----------------------------------------------------------------------
 !
-      IF (WESTERN_EDGE) THEN
+      IF (DOMAIN(ng)%Western_Edge(tile)) THEN
 
 # ifdef WEST_TICLAMPED
 !
@@ -184,7 +184,7 @@
 !  Lateral boundary conditions at the eastern edge.
 !-----------------------------------------------------------------------
 !
-      IF (EASTERN_EDGE) THEN
+      IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
 
 # ifdef EAST_TICLAMPED
 !
@@ -279,7 +279,7 @@
 !  Lateral boundary conditions at the southern edge.
 !-----------------------------------------------------------------------
 !
-      IF (SOUTHERN_EDGE) THEN
+      IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
 
 # ifdef SOUTH_TICLAMPED
 !
@@ -369,7 +369,7 @@
 !  Lateral boundary conditions at the northern edge.
 !-----------------------------------------------------------------------
 !
-      IF (NORTHERN_EDGE) THEN
+      IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
 
 # ifdef NORTH_TICLAMPED
 !
@@ -463,7 +463,7 @@
 !  Boundary corners.
 !-----------------------------------------------------------------------
 !
-      IF (SOUTHERN_EDGE.and.WESTERN_EDGE) THEN
+      IF (DOMAIN(ng)%SouthWest_Corner(tile)) THEN
         enthalpi(0,0,linew)=0.5_r8*(enthalpi(1,0,linew)+                &
      &                         enthalpi(0,1,linew))
 #  ifdef MASKING
@@ -481,7 +481,7 @@
           ti(0,0,linew) = 0.0_r8
         END IF
       END IF
-      IF (SOUTHERN_EDGE.and.EASTERN_EDGE) THEN
+      IF (DOMAIN(ng)%SouthEast_Corner(tile)) THEN
         enthalpi(Lm(ng)+1,0,linew)=0.5_r8*(enthalpi(Lm(ng)+1,1,linew)+  &
      &                                enthalpi(Lm(ng)  ,0,linew))
 #  ifdef MASKING
@@ -499,7 +499,7 @@
           ti(Lm(ng)+1,0,linew) = 0.0_r8
         END IF
       END IF
-      IF (NORTHERN_EDGE.and.WESTERN_EDGE) THEN
+      IF (DOMAIN(ng)%NorthWest_Corner(tile)) THEN
         enthalpi(0,Mm(ng)+1,linew)=0.5_r8*(enthalpi(0,Mm(ng)  ,linew)+  &
      &                                enthalpi(1,Mm(ng)+1,linew))
 #  ifdef MASKING
@@ -517,7 +517,7 @@
           ti(0,Mm(ng)+1,linew) = 0.0_r8
         END IF
       END IF
-      IF (NORTHERN_EDGE.and.EASTERN_EDGE) THEN
+      IF (DOMAIN(ng)%NorthEast_Corner(tile)) THEN
         enthalpi(Lm(ng)+1,Mm(ng)+1,linew)=0.5_r8*                       &
      &             (enthalpi(Lm(ng)+1,Mm(ng)  ,linew)+                  &
      &              enthalpi(Lm(ng)  ,Mm(ng)+1,linew))

@@ -1993,6 +1993,10 @@
               Fscale(varid,ng)=scale
             END DO
 
+#ifdef T_PASSIVE
+!
+!  Adjust information for all inert passive tracers.
+!
             SELECT CASE (TRIM(ADJUSTL(Vinfo(6))))
               CASE ('idTvar(inert(i))')
                 IF (NPT.gt.0) THEN

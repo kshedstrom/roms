@@ -64,22 +64,22 @@
 !  Free-surface open boundary conditions.
 !-----------------------------------------------------------------------
 !
-      IF (EASTERN_EDGE) THEN
+      IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
         DO j=JstrR,JendR
           BOUNDARY(ng)%ai_east(j)=0.0_r8
         END DO
       END IF
-      IF (WESTERN_EDGE) THEN
+      IF (DOMAIN(ng)%Western_Edge(tile)) THEN
         DO j=JstrR,JendR
           BOUNDARY(ng)%ai_west(j)=0.0_r8
         END DO
       END IF
-      IF (SOUTHERN_EDGE) THEN
+      IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
         DO i=IstrR,IendR
           BOUNDARY(ng)%ai_south(i)=0.0_r8
         END DO
       END IF
-      IF (NORTHERN_EDGE) THEN
+      IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
         DO i=IstrR,IendR
           BOUNDARY(ng)%ai_north(i)=0.0_r8
         END DO
