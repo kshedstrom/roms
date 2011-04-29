@@ -1204,7 +1204,7 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idOPALsed,ng),r8)
-          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idOPALsed),   &
+          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idOPALsed),&
      &                   NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -1222,7 +1222,8 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idDENITsed,ng),r8)
-          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idDENITsed),   &
+          status=def_var(ng, iNLM, HIS(ng)%ncid,                        &
+     &                   HIS(ng)%Vid(idDENITsed),                       &
      &                   NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -3142,8 +3143,6 @@
             got_var(idOPALbur)=.TRUE.
             HIS(ng)%Vid(idOPALbur)=var_id(i)
 # endif
-=======
->>>>>>> ae65909... src:ticket:503
 # ifdef LMD_SKPP
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idHsbl))) THEN
             got_var(idHsbl)=.TRUE.
@@ -3314,7 +3313,7 @@
             HIS(ng)%Vid(idSig11)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idSig12))) THEN
             got_var(idSig12)=.true.
-            hisVid(idSig12,ng)=var_id(i)
+            HIS(ng)%Vid(idSig12)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idSig22))) THEN
             got_var(idSig22)=.true.
             HIS(ng)%Vid(idSig22)=var_id(i)

@@ -420,6 +420,7 @@
 # ifdef NESTING
         CALL nesting (100)
 # endif
+# endif
 
 # ifdef FLOATS
 !

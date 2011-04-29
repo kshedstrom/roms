@@ -246,8 +246,8 @@
 #endif
 #ifdef FILTERED_RST
         DO ifile=1,nfile
-          IF (ncFILid(ifile,ng).ne.-1) THEN
-            CALL netcdf_close (ng, iNLM, ncFILid(ifile,ng))
+          IF (FIL(ifile,ng)%ncid.ne.-1) THEN
+            CALL netcdf_close (ng, iNLM, FIL(ifile,ng)%ncid)
           END IF
         END DO
 #endif
@@ -262,8 +262,8 @@
         END IF
 #endif
 #ifdef STATIONS
-        IF (ncSTAid(ng).ne.-1) THEN
-          CALL netcdf_close (ng, iNLM, ncSTAid(ng))
+        IF (STA(ng)%ncid.ne.-1) THEN
+          CALL netcdf_close (ng, iNLM, STA(ng)%ncid)
         END IF
 #endif
 #if defined WEAK_CONSTRAINT   && \
@@ -328,15 +328,21 @@
 #ifdef AVERAGES2
           IF (associated(AVG2(ng)%Nrec)) THEN
             Fcount=AVG2(ng)%Fcount
-            IF (AVG(ng)%Nrec2(Fcount).gt.0) THEN
+            IF (AVG2(ng)%Nrec(Fcount).gt.0) THEN
               WRITE (stdout,20) 'AVERAGE2', AVG2(ng)%Nrec(Fcount)
             END IF
           END IF
 #endif
 #ifdef FILTERED_RST
-          IF (NrecFIL(ng).gt.0) THEN
-            WRITE (stdout,20) 'FILTER RESTART' , NrecFIL(ng)
-          END IF
+          DO ifile=1,nfile
+            IF (associated(FIL(ifile,ng)%Nrec)) THEN
+              Fcount=FIL(ifile,ng)%Fcount
+              IF (FIL(ifile,ng)%Nrec(Fcount).gt.0) THEN
+                WRITE (stdout,20) 'FILTER RESTART',                     &
+     &                     FIL(ifile,ng)%Nrec(Fcount)
+              END IF
+            END IF
+          END DO
 #endif
 
 #ifdef STATIONS

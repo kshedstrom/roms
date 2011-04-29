@@ -188,7 +188,7 @@
 !  Initialize free-surface and compute initial level thicknesses and
 !  depths.
 !
-!$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(numthreads)
+!$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(ng,numthreads)
             DO thread=0,numthreads-1
               subs=NtileX(ng)*NtileE(ng)/numthreads
               DO tile=subs*thread,subs*(thread+1)-1,+1
@@ -199,7 +199,7 @@
 !
 !  Initialize other state variables.
 !
-!$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(numthreads)
+!$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(ng,numthreads)
             DO thread=0,numthreads-1
               subs=NtileX(ng)*NtileE(ng)/numthreads
               DO tile=subs*(thread+1)-1,subs*thread,-1
@@ -398,8 +398,7 @@
 !-----------------------------------------------------------------------
 !
         DO ng=1,Ngrids
-!$OMP PARALLEL DO PRIVATE(thread,subs,tile)                             &
-!$OMP&            SHARED(nnew,numthreads)
+!$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(nnew,numthreads)
           DO thread=0,numthreads-1
             subs=NtileX(ng)*NtileE(ng)/numthreads
             DO tile=subs*thread,subs*(thread+1)-1,+1

@@ -128,15 +128,15 @@
 !  Surface wind stress components.
 !
       CALL get_2dfld (ng, iNLM, idUnms, ncFRCid(idUnms,ng),             &
-     &                nFfiles(ng), FRCname(1,ng),                       &
-     &                update(1), LBi, UBi, LBj, UBj, 2, 1,              &
+     &                nFfiles(ng), FRC(1,ng), update(1)                 &
+     &                LBi, UBi, LBj, UBj, 2, 1,                         &
 # ifdef MASKING
      &                GRID(ng) % rmask(LBi,LBj),                        &
 # endif
      &                FORCES(ng) % nustrG(LBi,LBj,1))
       CALL get_2dfld (ng, iNLM, idVnms, ncFRCid(idVnms,ng),             &
-     &                nFfiles(ng), FRCname(1,ng),                       &
-     &                update(1), LBi, UBi, LBj, UBj, 2, 1,              &
+     &                nFfiles(ng), FRC(1,ng), update(1)                 &
+     &                LBi, UBi, LBj, UBj, 2, 1,                         &
 # ifdef MASKING
      &                GRID(ng) % rmask(LBi,LBj),                        &
 # endif
@@ -145,8 +145,8 @@
 !  Cloud fraction.
 !
       CALL get_2dfld (ng, iNLM, idCfra, ncFRCid(idCfra,ng),             &
-     &                nFfiles(ng), FRCname(1,ng),                       &
-     &                update(1), LBi, UBi, LBj, UBj, 2, 1,              &
+     &                nFfiles(ng), FRC(1,ng), update(1),                &
+     &                LBi, UBi, LBj, UBj, 2, 1,                         &
 # ifdef MASKING
      &                GRID(ng) % rmask(LBi,LBj),                        &
 # endif
@@ -155,8 +155,8 @@
 !  Surface solar shortwave radiation.
 !
       CALL get_2dfld (ng, iNLM, idSrad, ncFRCid(idSrad,ng),             &
-     &                nFfiles(ng), FRCname(1,ng),                       &
-     &                update(1), LBi, UBi, LBj, UBj, 2, 1,              &
+     &                nFfiles(ng), FRC(1,ng), update(1),                &
+     &                LBi, UBi, LBj, UBj, 2, 1,                         &
 # ifdef MASKING
      &                GRID(ng) % rmask(LBi,LBj),                        &
 # endif
@@ -165,8 +165,8 @@
 !  Surface net longwave radiation.
 !
       CALL get_2dfld (ng, iNLM, idLrad, ncFRCid(idLrad,ng),             &
-     &                nFfiles(ng), FRCname(1,ng),                       &
-     &                update(1), LBi, UBi, LBj, UBj, 2, 1,              &
+     &                nFfiles(ng), FRC(1,ng), update(1),                &
+     &                LBi, UBi, LBj, UBj, 2, 1,                         &
 # ifdef MASKING
      &                GRID(ng) % rmask(LBi,LBj),                        &
 # endif
@@ -175,8 +175,8 @@
 !  Net sensible heat flux
 !
       CALL get_2dfld (ng, iNLM, idShea, ncFRCid(idShea,ng),             &
-     &                nFfiles(ng), FRCname(1,ng),                       &
-     &                update(1), LBi, UBi, LBj, UBj, 2, 1,              &
+     &                nFfiles(ng), FRC(1,ng), update(1),                &
+     &                LBi, UBi, LBj, UBj, 2, 1,                         &
 # ifdef MASKING
      &                GRID(ng) % rmask(LBi,LBj),                        &
 # endif
@@ -185,8 +185,8 @@
 !  Net latent heat flux
 !
       CALL get_2dfld (ng, iNLM, idLhea, ncFRCid(idLhea,ng),             &
-     &                nFfiles(ng), FRCname(1,ng),                       &
-     &                update(1), LBi, UBi, LBj, UBj, 2, 1,              &
+     &                nFfiles(ng), FRC(1,ng), update(1),                &
+     &                LBi, UBi, LBj, UBj, 2, 1,                         &
 # ifdef MASKING
      &                GRID(ng) % rmask(LBi,LBj),                        &
 # endif
@@ -195,8 +195,8 @@
 !  Surface air pressure.
 !
       CALL get_2dfld (ng, iNLM, idPair, ncFRCid(idPair,ng),             &
-     &                nFfiles(ng), FRCname(1,ng),                       &
-     &                update(1), LBi, UBi, LBj, UBj, 2, 1,              &
+     &                nFfiles(ng), FRC(1,ng), update(1),                &
+     &                LBi, UBi, LBj, UBj, 2, 1,                         &
 # ifdef MASKING
      &                GRID(ng) % rmask(LBi,LBj),                        &
 # endif
@@ -205,8 +205,8 @@
 !  Rainfall
 !
       CALL get_2dfld (ng, iNLM, idrain, ncFRCid(idrain,ng),             &
-     &                nFfiles(ng), FRCname(1,ng),                       &
-     &                update(1), LBi, UBi, LBj, UBj, 2, 1,              &
+     &                nFfiles(ng), FRC(1,ng), update(1),                &
+     &                LBi, UBi, LBj, UBj, 2, 1,                         &
 # ifdef MASKING
      &                GRID(ng) % rmask(LBi,LBj),                        &
 # endif
@@ -215,8 +215,8 @@
 !  Skin temperature
 !
       CALL get_2dfld (ng, iNLM, idSkt, ncFRCid(idSkt,ng),               &
-     &                nFfiles(ng), FRCname(1,ng),                       &
-     &                update(1), LBi, UBi, LBj, UBj, 2, 1,              &
+     &                nFfiles(ng), FRC(1,ng), update(1),                &
+     &                LBi, UBi, LBj, UBj, 2, 1,                         &
 # ifdef MASKING
      &                GRID(ng) % rmask(LBi,LBj),                        &
 # endif
@@ -225,8 +225,8 @@
 !  Observed (NCEP) ice concentration
 !
       CALL get_2dfld (ng, iNLM, idIcec, ncFRCid(idIcec,ng),             &
-     &                nFfiles(ng), FRCname(1,ng),                       &
-     &                update(1), LBi, UBi, LBj, UBj, 2, 1,              &
+     &                nFfiles(ng), FRC(1,ng), update(1),                &
+     &                LBi, UBi, LBj, UBj, 2, 1,                         &
 # ifdef MASKING
      &                GRID(ng) % rmask(LBi,LBj),                        &
 # endif
@@ -239,8 +239,8 @@
 !-----------------------------------------------------------------------
 !
       CALL get_2dfld (ng, iNLM, idRunoff, ncFRCid(idRunoff,ng),         &
-     &                nFfiles(ng), FRCname(1,ng),                       &
-     &                update(1), LBi, UBi, LBj, UBj, 2, 1,              &
+     &                nFfiles(ng), FRC(1,ng), update(1),                &
+     &                LBi, UBi, LBj, UBj, 2, 1,                         &
 #  ifdef MASKING
      &                GRID(ng) % rmask(LBi,LBj),                        &
 #  endif
@@ -333,7 +333,7 @@
 
 # if !defined ANA_SSSFLX && defined SSSFLX
       CALL get_2dfld (ng, iNLM, idSSSf, ncFRCid(idSSSf,ng),             &
-     &                nFfiles(ng), FRCname(1,ng), update(1),            &
+     &                nFfiles(ng), FRC(1,ng), update(1),            &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &
 #   ifdef MASKING
      &                GRID(ng) % rmask(LBi,LBj),                        &
@@ -343,7 +343,7 @@
 
 # if !defined ANA_FASTICE && defined FASTICE_CLIMATOLOGY
       CALL get_2dfld (ng, iNLM, idFastIce, ncFRCid(idFastIce,ng),       &
-     &                nFfiles(ng), FRCname(1,ng), update(1),            &
+     &                nFfiles(ng), FRC(1,ng), update(1),            &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &
 #   ifdef MASKING
      &                GRID(ng) % rmask(LBi,LBj),                        &
@@ -590,8 +590,8 @@
 !-----------------------------------------------------------------------
 !
       CALL get_2dfld (ng, iNLM, idRunoff, ncFRCid(idRunoff,ng),         &
-     &                nFfiles(ng), FRCname(1,ng),                       &
-     &                update(1), LBi, UBi, LBj, UBj, 2, 1,              &
+     &                nFfiles(ng), FRC(1,ng), update(1),                &
+     &                LBi, UBi, LBj, UBj, 2, 1,                         &
 #  ifdef MASKING
      &                GRID(ng) % rmask(LBi,LBj),                        &
 #  endif
@@ -902,68 +902,68 @@
 #ifdef ICE_MODEL
 # ifndef ANA_MIOBC
 #  ifdef WEST_MIOBC
-      CALL get_ngfld (ng, iNLM, idUibc(iwest), ncBRYid(ng), 1,          &
-     &                BRYname(ng), update(1),                           &
+      CALL get_ngfld (ng, iNLM, idUibc(iwest), BRY(ng)%ncid, 1,         &
+     &                BRY(ng)%name, update(1),                          &
      &                JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % uiG_west(JLB,1))
-      CALL get_ngfld (ng, iNLM, idVibc(iwest), ncBRYid(ng), 1,          &
-     &               BRYname(ng), update(1),                            &
+      CALL get_ngfld (ng, iNLM, idVibc(iwest), BRY(ng)%ncid, 1,         &
+     &               BRY(ng)%name, update(1),                           &
      &               JLB, JUB, 1, 2, 1, Mm(ng)+1, 1,                    &
      &                BOUNDARY(ng) % viG_west(JLB,1))
 #  endif
 #  ifdef EAST_MIOBC
-      CALL get_ngfld (ng, iNLM, idUibc(ieast), ncBRYid(ng), 1,          &
-     &                BRYname(ng), update(1),                           &
+      CALL get_ngfld (ng, iNLM, idUibc(ieast), BRY(ng)%ncid, 1,         &
+     &                BRY(ng)%name, update(1),                          &
      &                JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % uiG_east(JLB,1))
-      CALL get_ngfld (ng, iNLM, idVibc(ieast), ncBRYid(ng), 1,          &
-     &                BRYname(ng), update(1),                           &
+      CALL get_ngfld (ng, iNLM, idVibc(ieast), BRY(ng)%ncid, 1,         &
+     &                BRY(ng)%name, update(1),                          &
      &                JLB, JUB, 1, 2, 1, Mm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % viG_east(JLB,1))
 #  endif
 #  ifdef SOUTH_MIOBC
-      CALL get_ngfld (ng, iNLM, idUibc(isouth), ncBRYid(ng), 1,         &
-     &                BRYname(ng), update(1),                           &
+      CALL get_ngfld (ng, iNLM, idUibc(isouth), BRY(ng)%ncid, 1,        &
+     &                BRY(ng)%name, update(1),                          &
      &                ILB, IUB, 1, 2, 1, Lm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % uiG_south(ILB,1))
-      CALL get_ngfld (ng, iNLM, idVibc(isouth), ncBRYid(ng), 1,         &
-     &                BRYname(ng), update(1),                           &
+      CALL get_ngfld (ng, iNLM, idVibc(isouth), BRY(ng)%ncid, 1,        &
+     &                BRY(ng)%name, update(1),                          &
      &                ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % viG_south(ILB,1))
 #  endif
 #  ifdef NORTH_MIOBC
-      CALL get_ngfld (ng, iNLM, idUibc(inorth), ncBRYid(ng), 1,         &
-     &                BRYname(ng), update(1),                           &
+      CALL get_ngfld (ng, iNLM, idUibc(inorth), BRY(ng)%ncid, 1,        &
+     &                BRY(ng)%name, update(1),                          &
      &                ILB, IUB, 1, 2, 1, Lm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % uiG_north(ILB,1))
-      CALL get_ngfld (ng, iNLM, idVibc(inorth), ncBRYid(ng), 1,         &
-     &                BRYname(ng), update(1),                           &
+      CALL get_ngfld (ng, iNLM, idVibc(inorth), BRY(ng)%ncid, 1,        &
+     &                BRY(ng)%name, update(1),                          &
      &                ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % viG_north(ILB,1))
 #  endif
 # endif
 # ifndef ANA_AIOBC
 #  ifdef WEST_AIOBC
-      CALL get_ngfld (ng, iNLM, idAibc(iwest), ncBRYid(ng), 1,          &
-     &                BRYname(ng), update(1),                           &
+      CALL get_ngfld (ng, iNLM, idAibc(iwest), BRY(ng)%ncid, 1,         &
+     &                BRY(ng)%name, update(1),                          &
      &                JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % aiG_west(JLB,1))
 #  endif
 #  ifdef EAST_AIOBC
-      CALL get_ngfld (ng, iNLM, idAibc(ieast), ncBRYid(ng), 1,          &
-     &                BRYname(ng), update(1),                           &
+      CALL get_ngfld (ng, iNLM, idAibc(ieast), BRY(ng)%ncid, 1,         &
+     &                BRY(ng)%name, update(1),                          &
      &                JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % aiG_east(JLB,1))
 #  endif
 #  ifdef SOUTH_AIOBC
-      CALL get_ngfld (ng, iNLM, idAibc(isouth), ncBRYid(ng), 1,         &
-     &                BRYname(ng), update(1),                           &
+      CALL get_ngfld (ng, iNLM, idAibc(isouth), BRY(ng)%ncid, 1,        &
+     &                BRY(ng)%name, update(1),                          &
      &                ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % aiG_south(ILB,1))
 #  endif
 #  ifdef NORTH_AIOBC
-      CALL get_ngfld (ng, iNLM, idAibc(inorth), ncBRYid(ng), 1,         &
-     &                BRYname(ng), update(1),                           &
+      CALL get_ngfld (ng, iNLM, idAibc(inorth), BRY(ng)%ncid, 1,        &
+     &                BRY(ng)%name, update(1),                          &
      &                ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % aiG_north(ILB,1))
 #  endif
@@ -971,208 +971,208 @@
 
 # ifndef ANA_HIOBC
 #  ifdef WEST_HIOBC
-      CALL get_ngfld (ng, iNLM, idHibc(iwest), ncBRYid(ng), 1,          &
-     &                BRYname(ng), update(1),                           &
+      CALL get_ngfld (ng, iNLM, idHibc(iwest), BRY(ng)%ncid, 1,         &
+     &                BRY(ng)%name, update(1),                          &
      &                JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % hiG_west(JLB,1))
 #  endif
 #  ifdef EAST_HIOBC
-      CALL get_ngfld (ng, iNLM, idHibc(ieast), ncBRYid(ng), 1,          &
-     &                BRYname(ng), update(1),                           &
+      CALL get_ngfld (ng, iNLM, idHibc(ieast), BRY(ng)%ncid, 1,         &
+     &                BRY(ng)%name, update(1),                          &
      &                JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % hiG_east(JLB,1))
 #  endif
 #  ifdef SOUTH_HIOBC
-      CALL get_ngfld (ng, iNLM, idHibc(isouth), ncBRYid(ng), 1,         &
-     &                BRYname(ng), update(1),                           &
+      CALL get_ngfld (ng, iNLM, idHibc(isouth), BRY(ng)%ncid, 1,        &
+     &                BRY(ng)%name, update(1),                          &
      &                ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % hiG_south(ILB,1))
 #  endif
 #  ifdef NORTH_HIOBC
-      CALL get_ngfld (ng, iNLM, idHibc(inorth), ncBRYid(ng), 1,         &
-     &                BRYname(ng), update(1),                           &
+      CALL get_ngfld (ng, iNLM, idHibc(inorth), BRY(ng)%ncid, 1,        &
+     &                BRY(ng)%name, update(1),                          &
      &                ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % hiG_north(ILB,1))
 #  endif
 # endif
 # ifndef ANA_HSNOBC
 #  ifdef WEST_HSNOBC
-      CALL get_ngfld (ng, iNLM, idHsnbc(iwest), ncBRYid(ng), 1,         &
-     &                BRYname(ng), update(1),                           &
+      CALL get_ngfld (ng, iNLM, idHsnbc(iwest), BRY(ng)%ncid, 1,        &
+     &                BRY(ng)%name, update(1),                          &
      &                JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % hsnG_west(JLB,1))
 #  endif
 #  ifdef EAST_HSNOBC
-      CALL get_ngfld (ng, iNLM, idHsnbc(ieast), ncBRYid(ng), 1,         &
-     &                BRYname(ng), update(1),                           &
+      CALL get_ngfld (ng, iNLM, idHsnbc(ieast), BRY(ng)%ncid, 1,        &
+     &                BRY(ng)%name, update(1),                          &
      &                JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % hsnG_east(JLB,1))
 #  endif
 #  ifdef SOUTH_HSNOBC
-      CALL get_ngfld (ng, iNLM, idHsnbc(isouth), ncBRYid(ng), 1,        &
-     &                BRYname(ng), update(1),                           &
+      CALL get_ngfld (ng, iNLM, idHsnbc(isouth), BRY(ng)%ncid, 1,       &
+     &                BRY(ng)%name, update(1),                          &
      &                ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % hsnG_south(ILB,1))
 #  endif
 #  ifdef NORTH_HSNOBC
-      CALL get_ngfld (ng, iNLM, idHsnbc(inorth), ncBRYid(ng), 1,        &
-     &                BRYname(ng), update(1),                           &
+      CALL get_ngfld (ng, iNLM, idHsnbc(inorth), BRY(ng)%ncid, 1,       &
+     &                BRY(ng)%name, update(1),                          &
      &                ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % hsnG_north(ILB,1))
 #  endif
 # endif
 # ifndef ANA_TIOBC
 #  ifdef WEST_TIOBC
-      CALL get_ngfld (ng, iNLM, idTibc(iwest), ncBRYid(ng), 1,          &
-     &                BRYname(ng), update(1),                           &
+      CALL get_ngfld (ng, iNLM, idTibc(iwest), BRY(ng)%ncid, 1,         &
+     &                BRY(ng)%name, update(1),                          &
      &                JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % tiG_west(JLB,1))
 #  endif
 #  ifdef EAST_TIOBC
-      CALL get_ngfld (ng, iNLM, idTibc(ieast), ncBRYid(ng), 1,          &
-     &                BRYname(ng), update(1),                           &
+      CALL get_ngfld (ng, iNLM, idTibc(ieast), BRY(ng)%ncid, 1,         &
+     &                BRY(ng)%name, update(1),                          &
      &                JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % tiG_east(JLB,1))
 #  endif
 #  ifdef SOUTH_TIOBC
-      CALL get_ngfld (ng, iNLM, idTibc(isouth), ncBRYid(ng), 1,         &
-     &                BRYname(ng), update(1),                           &
+      CALL get_ngfld (ng, iNLM, idTibc(isouth), BRY(ng)%ncid, 1,        &
+     &                BRY(ng)%name, update(1),                          &
      &                ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % tiG_south(ILB,1))
 #  endif
 #  ifdef NORTH_TIOBC
-      CALL get_ngfld (ng, iNLM, idTibc(inorth), ncBRYid(ng), 1,         &
-     &                BRYname(ng), update(1),                           &
+      CALL get_ngfld (ng, iNLM, idTibc(inorth), BRY(ng)%ncid, 1,        &
+     &                BRY(ng)%name, update(1),                          &
      &                ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % tiG_north(ILB,1))
 #  endif
 # endif
 # ifndef ANA_SFWATOBC
 #  ifdef WEST_SFWATOBC
-      CALL get_ngfld (ng, iNLM, idSfwbc(iwest), ncBRYid(ng), 1,         &
-     &                BRYname(ng), update(1),                           &
+      CALL get_ngfld (ng, iNLM, idSfwbc(iwest), BRY(ng)%ncid, 1,        &
+     &                BRY(ng)%name, update(1),                          &
      &                JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % sfwatG_west(JLB,1))
 #  endif
 #  ifdef EAST_SFWATOBC
-      CALL get_ngfld (ng, iNLM, idSfwbc(ieast), ncBRYid(ng), 1,         &
-     &                BRYname(ng), update(1),                           &
+      CALL get_ngfld (ng, iNLM, idSfwbc(ieast), BRY(ng)%ncid, 1,        &
+     &                BRY(ng)%name, update(1),                          &
      &                JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % sfwatG_east(JLB,1))
 #  endif
 #  ifdef SOUTH_SFWATOBC
-      CALL get_ngfld (ng, iNLM, idSfwbc(isouth), ncBRYid(ng), 1,        &
-     &               BRYname(ng), update(1),                            &
+      CALL get_ngfld (ng, iNLM, idSfwbc(isouth), BRY(ng)%ncid, 1,       &
+     &               BRY(ng)%name, update(1),                           &
      &               ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                    &
      &                BOUNDARY(ng) % sfwatG_south(ILB,1))
 #  endif
 #  ifdef NORTH_SFWATOBC
-      CALL get_ngfld (ng, iNLM, idSfwbc(inorth), ncBRYid(ng), 1,        &
-     &                BRYname(ng), update(1),                           &
+      CALL get_ngfld (ng, iNLM, idSfwbc(inorth), BRY(ng)%ncid, 1,       &
+     &                BRY(ng)%name, update(1),                          &
      &                ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % sfwatG_north(ILB,1))
 #  endif
 # endif
 # ifndef ANA_AGEICEOBC
 #  ifdef WEST_AGEICEOBC
-      CALL get_ngfld (ng, iNLM, idSfwbc(iwest), ncBRYid(ng), 1,         &
-     &                BRYname(ng), update(1),                           &
+      CALL get_ngfld (ng, iNLM, idSfwbc(iwest), BRY(ng)%ncid, 1,        &
+     &                BRY(ng)%name, update(1),                          &
      &                JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % ageiceG_west(JLB,1))
 #  endif
 #  ifdef EAST_AGEICEOBC
-      CALL get_ngfld (ng, iNLM, idSfwbc(ieast), ncBRYid(ng), 1,         &
-     &                BRYname(ng), update(1),                           &
+      CALL get_ngfld (ng, iNLM, idSfwbc(ieast), BRY(ng)%ncid, 1,        &
+     &                BRY(ng)%name, update(1),                          &
      &                JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % ageiceG_east(JLB,1))
 #  endif
 #  ifdef SOUTH_AGEICEOBC
-      CALL get_ngfld (ng, iNLM, idSfwbc(isouth), ncBRYid(ng), 1,        &
-     &               BRYname(ng), update(1),                            &
+      CALL get_ngfld (ng, iNLM, idSfwbc(isouth), BRY(ng)%ncid, 1,       &
+     &               BRY(ng)%name, update(1),                           &
      &               ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                    &
      &                BOUNDARY(ng) % ageiceG_south(ILB,1))
 #  endif
 #  ifdef NORTH_AGEICEOBC
-      CALL get_ngfld (ng, iNLM, idSfwbc(inorth), ncBRYid(ng), 1,        &
-     &                BRYname(ng), update(1),                           &
+      CALL get_ngfld (ng, iNLM, idSfwbc(inorth), BRY(ng)%ncid, 1,       &
+     &                BRY(ng)%name, update(1),                          &
      &                ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % ageiceG_north(ILB,1))
 #  endif
 # endif
 # ifndef ANA_SIG11OBC
 #  ifdef WEST_SIG11OBC
-      CALL get_ngfld (ng, iNLM, idS11bc(iwest), ncBRYid(ng), 1,         &
-     &                BRYname(ng), update(1),                           &
+      CALL get_ngfld (ng, iNLM, idS11bc(iwest), BRY(ng)%ncid, 1,        &
+     &                BRY(ng)%name, update(1),                          &
      &                JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % sig11G_west(JLB,1))
 #  endif
 #  ifdef EAST_SIG11OBC
-      CALL get_ngfld (ng, iNLM, idS11bc(ieast), ncBRYid(ng), 1,         &
-     &                BRYname(ng), update(1),                           &
+      CALL get_ngfld (ng, iNLM, idS11bc(ieast), BRY(ng)%ncid, 1,        &
+     &                BRY(ng)%name, update(1),                          &
      &                JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % sig11G_east(JLB,1))
 #  endif
 #  ifdef SOUTH_SIG11OBC
-      CALL get_ngfld (ng, iNLM, idS11bc(isouth), ncBRYid(ng), 1,        &
-     &                BRYname(ng), update(1),                           &
+      CALL get_ngfld (ng, iNLM, idS11bc(isouth), BRY(ng)%ncid, 1,       &
+     &                BRY(ng)%name, update(1),                          &
      &                ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % sig11G_south(ILB,1))
 #  endif
 #  ifdef NORTH_SIG11OBC
-      CALL get_ngfld (ng, iNLM, idS11bc(inorth), ncBRYid(ng), 1,        &
-     &                BRYname(ng), update(1),                           &
+      CALL get_ngfld (ng, iNLM, idS11bc(inorth), BRY(ng)%ncid, 1,       &
+     &                BRY(ng)%name, update(1),                          &
      &                ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % sig11G_north(ILB,1))
 #  endif
 # endif
 # ifndef ANA_SIG22OBC
 #  ifdef WEST_SIG22OBC
-      CALL get_ngfld (ng, iNLM, idS22bc(iwest), ncBRYid(ng), 1,         &
-     &                BRYname(ng), update(1),                           &
+      CALL get_ngfld (ng, iNLM, idS22bc(iwest), BRY(ng)%ncid, 1,        &
+     &                BRY(ng)%name, update(1),                          &
      &                JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % sig22G_west(JLB,1))
 #  endif
 #  ifdef EAST_SIG22OBC
-      CALL get_ngfld (ng, iNLM, idS22bc(ieast), ncBRYid(ng), 1,         &
-     &                BRYname(ng), update(1),                           &
+      CALL get_ngfld (ng, iNLM, idS22bc(ieast), BRY(ng)%ncid, 1,        &
+     &                BRY(ng)%name, update(1),                          &
      &                JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % sig22G_east(JLB,1))
 #  endif
 #  ifdef SOUTH_SIG22OBC
-      CALL get_ngfld (ng, iNLM, idS22bc(isouth), ncBRYid(ng), 1,        &
-     &                BRYname(ng), update(1),                           &
+      CALL get_ngfld (ng, iNLM, idS22bc(isouth), BRY(ng)%ncid, 1,       &
+     &                BRY(ng)%name, update(1),                          &
      &                ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % sig22G_south(ILB,1))
 #  endif
 #  ifdef NORTH_SIG22OBC
-      CALL get_ngfld (ng, iNLM, idS22bc(inorth), ncBRYid(ng), 1,        &
-     &                BRYname(ng), update(1),                           &
+      CALL get_ngfld (ng, iNLM, idS22bc(inorth), BRY(ng)%ncid, 1,       &
+     &                BRY(ng)%name, update(1),                          &
      &                ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % sig22G_north(ILB,1))
 #  endif
 # endif
 # ifndef ANA_SIG12OBC
 #  ifdef WEST_SIG12OBC
-      CALL get_ngfld (ng, iNLM, idS12bc(iwest), ncBRYid(ng), 1,         &
-     &                BRYname(ng), update(1),                           &
+      CALL get_ngfld (ng, iNLM, idS12bc(iwest), BRY(ng)%ncid, 1,        &
+     &                BRY(ng)%name, update(1),                          &
      &                JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % sig12G_west(JLB,1))
 #  endif
 #  ifdef EAST_SIG12OBC
-      CALL get_ngfld (ng, iNLM, idS12bc(ieast), ncBRYid(ng), 1,         &
-     &                BRYname(ng), update(1),                           &
+      CALL get_ngfld (ng, iNLM, idS12bc(ieast), BRY(ng)%ncid, 1,        &
+     &                BRY(ng)%name, update(1),                          &
      &                JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % sig12G_east(JLB,1))
 #  endif
 #  ifdef SOUTH_SIG12OBC
-      CALL get_ngfld (ng, iNLM, idS12bc(isouth), ncBRYid(ng), 1,        &
-     &                BRYname(ng), update(1),                           &
+      CALL get_ngfld (ng, iNLM, idS12bc(isouth), BRY(ng)%ncid, 1,       &
+     &                BRY(ng)%name, update(1),                          &
      &                ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % sig12G_south(ILB,1))
 #  endif
 #  ifdef NORTH_SIG12OBC
-      CALL get_ngfld (ng, iNLM, idS12bc(inorth), ncBRYid(ng), 1,        &
-     &                BRYname(ng), update(1),                           &
+      CALL get_ngfld (ng, iNLM, idS12bc(inorth), BRY(ng)%ncid, 1,       &
+     &                BRY(ng)%name, update(1),                          &
      &                ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % sig12G_north(ILB,1))
 #  endif

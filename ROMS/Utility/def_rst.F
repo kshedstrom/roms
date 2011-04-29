@@ -2208,19 +2208,19 @@
 #if defined NEMURO_SED1
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idPONsed))) THEN
             got_var(idPONsed)=.TRUE.
-            rstVid(idPONsed,ng)=var_id(i)
+            RST(ng)%Vid(idPONsed)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idOPALsed))) THEN
             got_var(idOPALsed)=.TRUE.
-            rstVid(idOPALsed,ng)=var_id(i)
+            RST(ng)%Vid(idOPALsed)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idDENITsed))) THEN
             got_var(idDENITsed)=.TRUE.
-            rstVid(idDENITsed,ng)=var_id(i)
+            RST(ng)%Vid(idDENITsed)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idPONbur))) THEN
             got_var(idPONbur)=.TRUE.
-            rstVid(idPONbur,ng)=var_id(i)
+            RST(ng)%Vid(idPONbur)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idOPALbur))) THEN
             got_var(idOPALbur)=.TRUE.
-            rstVid(idOPALbur,ng)=var_id(i)
+            RST(ng)%Vid(idOPALbur)=var_id(i)
 #endif
           END IF
 #ifdef SOLVE3D
@@ -2279,96 +2279,96 @@
 # ifdef ICE_MODEL
           IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idUice))) THEN
             got_var(idUice)=.TRUE.
-            rstVid(idUice,ng)=var_id(i)
+            RST(ng)%Vid(idUice)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idVice))) THEN
             got_var(idVice)=.TRUE.
-            rstVid(idVice,ng)=var_id(i)
+            RST(ng)%Vid(idVice)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idAice))) THEN
             got_var(idAice)=.TRUE.
-            rstVid(idAice,ng)=var_id(i)
+            RST(ng)%Vid(idAice)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idHice))) THEN
             got_var(idHice)=.TRUE.
-            rstVid(idHice,ng)=var_id(i)
+            RST(ng)%Vid(idHice)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idTice))) THEN
             got_var(idTice)=.TRUE.
-            rstVid(idTice,ng)=var_id(i)
+            RST(ng)%Vid(idTice)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idHsno))) THEN
             got_var(idHsno)=.TRUE.
-            rstVid(idHsno,ng)=var_id(i)
+            RST(ng)%Vid(idHsno)=var_id(i)
 # if defined ICE_BIO && defined BERING_10K
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idIcePhL))) THEN
             got_var(idIcePhL)=.TRUE.
-            rstVid(idIcePhL,ng)=var_id(i)
+            RST(ng)%Vid(idIcePhL)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idIceNO3))) THEN
             got_var(idIceNO3)=.TRUE.
-            rstVid(idIceNO3,ng)=var_id(i)
+            RST(ng)%Vid(idIceNO3)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idIceNH4))) THEN
             got_var(idIceNH4)=.TRUE.
-            rstVid(idIceNH4,ng)=var_id(i)
+            RST(ng)%Vid(idIceNH4)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idIceLog))) THEN
             got_var(idIceLog)=.TRUE.
-            rstVid(idIceLog,ng)=var_id(i)
+            RST(ng)%Vid(idIceLog)=var_id(i)
 # endif
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idSfwat))) THEN
             got_var(idSfwat)=.TRUE.
-            rstVid(idSfwat,ng)=var_id(i)
+            RST(ng)%Vid(idSfwat)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idAgeice))) THEN
             got_var(idAgeice)=.TRUE.
-            rstVid(idAgeice,ng)=var_id(i)
+            RST(ng)%Vid(idAgeice)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idTimid))) THEN
             got_var(idTimid)=.TRUE.
-            rstVid(idTimid,ng)=var_id(i)
+            RST(ng)%Vid(idTimid)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idSig11))) THEN
             got_var(idSig11)=.TRUE.
-            rstVid(idSig11,ng)=var_id(i)
+            RST(ng)%Vid(idSig11)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idSig22))) THEN
             got_var(idSig22)=.TRUE.
-            rstVid(idSig22,ng)=var_id(i)
+            RST(ng)%Vid(idSig22)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idSig12))) THEN
             got_var(idSig12)=.TRUE.
-            rstVid(idSig12,ng)=var_id(i)
+            RST(ng)%Vid(idSig12)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idTauiw))) THEN
             got_var(idTauiw)=.TRUE.
-            rstVid(idTauiw,ng)=var_id(i)
+            RST(ng)%Vid(idTauiw)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idChuiw))) THEN
             got_var(idChuiw)=.TRUE.
-            rstVid(idChuiw,ng)=var_id(i)
+            RST(ng)%Vid(idChuiw)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idS0mk))) THEN
             got_var(idS0mk)=.TRUE.
-            rstVid(idS0mk,ng)=var_id(i)
+            RST(ng)%Vid(idS0mk)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idT0mk))) THEN
             got_var(idT0mk)=.TRUE.
-            rstVid(idT0mk,ng)=var_id(i)
+            RST(ng)%Vid(idT0mk)=var_id(i)
           END IF
 # endif
 # ifdef NCEP_FLUXES
           IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idWg2d))) THEN
             got_var(idWg2d)=.TRUE.
-            rstVid(idWg2d,ng)=var_id(i)
+            RST(ng)%Vid(idWg2d)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idCdd))) THEN
             got_var(idCdd)=.TRUE.
-            rstVid(idCdd,ng)=var_id(i)
+            RST(ng)%Vid(idCdd)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idChd))) THEN
             got_var(idChd)=.TRUE.
-            rstVid(idChd,ng)=var_id(i)
+            RST(ng)%Vid(idChd)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idCed))) THEN
             got_var(idCed)=.TRUE.
-            rstVid(idCed,ng)=var_id(i)
+            RST(ng)%Vid(idCed)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idWg2m))) THEN
             got_var(idWg2m)=.TRUE.
-            rstVid(idWg2m,ng)=var_id(i)
+            RST(ng)%Vid(idWg2m)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idCdm))) THEN
             got_var(idCdm)=.TRUE.
-            rstVid(idCdm,ng)=var_id(i)
+            RST(ng)%Vid(idCdm)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idChm))) THEN
             got_var(idChm)=.TRUE.
-            rstVid(idChm,ng)=var_id(i)
+            RST(ng)%Vid(idChm)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idCem))) THEN
             got_var(idCem)=.TRUE.
-            rstVid(idCem,ng)=var_id(i)
+            RST(ng)%Vid(idCem)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idRhoa))) THEN
             got_var(idRhoa)=.TRUE.
-            rstVid(idRhoa,ng)=var_id(i)
+            RST(ng)%Vid(idRhoa)=var_id(i)
           END IF
 #endif
         END DO

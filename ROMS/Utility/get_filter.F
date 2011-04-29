@@ -54,7 +54,7 @@
 !-----------------------------------------------------------------------
 !
       tindx = filterLevel
-      ncname=FILname(1,ng)
+      ncname=FIL(1,ng)%name
       LBi=LBOUND(GRID(ng)%h,DIM=1)
       UBi=UBOUND(GRID(ng)%h,DIM=1)
       LBj=LBOUND(GRID(ng)%h,DIM=2)
@@ -75,8 +75,8 @@
 !  Open input NetCDF file.
 !
       DO ifile = 1,nfile
-        ncname=FILname(ifile,ng)
-        CALL netcdf_open(ng, iNLM, ncname, 0, ncFILid(ifile,ng))
+        ncname=FIL(ifile,ng)%name
+        CALL netcdf_open(ng, iNLM, ncname, 0, FIL(ifile,ng)%ncid)
         IF (exit_flag.ne.nf90_noerr) THEN
           IF (Master) WRITE (stdout,20) TRIM(ncname)
           RETURN
@@ -88,23 +88,23 @@
 !
 !  Get the status of filter sums.
 !
-      ncname=FILname(1,ng)
+      ncname=FIL(1,ng)%name
       CALL netcdf_get_ivar (ng, iNLM, ncname, 'fcount',                 &
      &                      fcount(tindx),                              &
-     &                      ncid = ncFILid(1,ng),                       &
+     &                      ncid = FIL(1,ng)%ncid,                      &
      &                      start = (/tindx/),                          &
      &                      total = (/1/))
       IF (exit_flag.ne.NoError) RETURN 
 !
 !  Read in free-surface (m).
 !
-      ncname=FILname(1,ng)
+      ncname=FIL(1,ng)%name
       IF (Aout(idFsur,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idFsur),       &
-     &                       ncFILid(1,ng), varid)
+     &                       FIL(1,ng)%ncid, varid)
         IF (exit_flag.ne.NoError) RETURN
         gtype=r2dvar
-        status=nf_fread2d(ng, iNLM, ncname, ncFILid(1,ng),              &
+        status=nf_fread2d(ng, iNLM, ncname, FIL(1,ng)%ncid,             &
      &                Vname(1,idFsur), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
      &                Fscl, Fmin, Fmax,                                 &
@@ -130,10 +130,10 @@
 !
       IF (Aout(idUbar,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idUbar),       &
-     &                       ncFILid(1,ng), varid)
+     &                       FIL(1,ng)%ncid, varid)
         IF (exit_flag.ne.NoError) RETURN
         gtype=u2dvar
-        status=nf_fread2d(ng, iNLM, ncname, ncFILid(1,ng),              &
+        status=nf_fread2d(ng, iNLM, ncname, FIL(1,ng)%ncid,             &
      &                Vname(1,idUbar), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
      &                Fscl, Fmin, Fmax,                                 &
@@ -159,10 +159,10 @@
 !
       IF (Aout(idVbar,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idVbar),       &
-     &                       ncFILid(1,ng), varid)
+     &                       FIL(1,ng)%ncid, varid)
         IF (exit_flag.ne.NoError) RETURN
         gtype=v2dvar
-        status=nf_fread2d(ng, iNLM, ncname, ncFILid(1,ng),              &
+        status=nf_fread2d(ng, iNLM, ncname, FIL(1,ng)%ncid,             &
      &                Vname(1,idVbar), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
      &                Fscl, Fmin, Fmax,                                 &
@@ -187,13 +187,13 @@
 !
 !  Read in 3D momentum component (m/s) in the XI-direction.
 !
-      ncname=FILname(2,ng)
+      ncname=FIL(2,ng)%name
       IF (Aout(idUvel,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idUvel),       &
-     &                       ncFILid(2,ng), varid)
+     &                       FIL(2,ng)%ncid, varid)
         IF (exit_flag.ne.NoError) RETURN
         gtype=u3dvar
-        status=nf_fread3d(ng, iNLM, ncname, ncFILid(2,ng),              &
+        status=nf_fread3d(ng, iNLM, ncname, FIL(2,ng)%ncid,             &
      &                Vname(1,idUvel), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj, 1, N(ng),              &
      &                Fscl, Fmin, Fmax,                                 &
@@ -217,13 +217,13 @@
 !
 !  Read in 3D momentum component (m/s) in the ETA-direction.
 !
-      ncname=FILname(3,ng)
+      ncname=FIL(3,ng)%name
       IF (Aout(idVvel,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idVvel),       &
-     &                       ncFILid(3,ng), varid)
+     &                       FIL(3,ng)%ncid, varid)
         IF (exit_flag.ne.NoError) RETURN
         gtype=v3dvar
-        status=nf_fread3d(ng, iNLM, ncname, ncFILid(3,ng),              &
+        status=nf_fread3d(ng, iNLM, ncname, FIL(3,ng)%ncid,             &
      &                Vname(1,idVvel), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj, 1, N(ng),              &
      &                Fscl, Fmin, Fmax,                                 &
@@ -248,13 +248,13 @@
 !
 !  Read in density anomaly.
 !
-      ncname=FILname(7,ng)
+      ncname=FIL(7,ng)%name
       IF (Aout(idDano,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idDano),       &
-     &                       ncFILid(7,ng), varid)
+     &                       FIL(7,ng)%ncid, varid)
         IF (exit_flag.ne.NoError) RETURN
         gtype=r3dvar
-        status=nf_fread3d(ng, iNLM, ncname, ncFILid(7,ng),              &
+        status=nf_fread3d(ng, iNLM, ncname, FIL(7,ng)%ncid,             &
      &                Vname(1,idDano), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj, 1, N(ng),              &
      &                Fscl, Fmin, Fmax,                                 &
@@ -278,14 +278,14 @@
 !
 !  Read in tracer type variables.
 !
-      ncname=FILname(8,ng)
+      ncname=FIL(8,ng)%name
       DO itrc=1,NAT
         IF (Aout(idTvar(itrc),ng)) THEN
           CALL netcdf_inq_varid (ng, iNLM, ncname,                      &
-     &                Vname(1,idTvar(itrc)), ncFILid(8,ng), varid)
+     &                Vname(1,idTvar(itrc)), FIL(8,ng)%ncid, varid)
           IF (exit_flag.ne.NoError) RETURN
           gtype=r3dvar
-          status=nf_fread3d(ng, iNLM, ncname, ncFILid(8,ng),            &
+          status=nf_fread3d(ng, iNLM, ncname, FIL(8,ng)%ncid,           &
      &                Vname(1,idTvar(itrc)), varid, tindx, gtype,       &
      &                  Vsize, LBi, UBi, LBj, UBj, 1, N(ng),            &
      &                  Fscl, Fmin, Fmax,                               &
@@ -311,13 +311,13 @@
 !
 !  Read in vertical (omega) velocity.
 !
-      ncname=FILname(9,ng)
+      ncname=FIL(9,ng)%name
       IF (Aout(idOvel,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idOvel),       &
-     &                       ncFILid(9,ng), varid)
+     &                       FIL(9,ng)%ncid, varid)
         IF (exit_flag.ne.NoError) RETURN
         gtype=w3dvar
-        status=nf_fread3d(ng, iNLM, ncname, ncFILid(9,ng),              &
+        status=nf_fread3d(ng, iNLM, ncname, FIL(9,ng)%ncid,             &
      &                Vname(1,idOvel), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj, 0, N(ng),              &
      &                Fscl, Fmin, Fmax,                                 &
@@ -343,13 +343,13 @@
 !
 !  Read in depth of surface boundary layer.
 !
-      ncname=FILname(1,ng)
+      ncname=FIL(1,ng)%name
       IF (Aout(idHsbl,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idHsbl),       &
-     &                       ncFILid(1,ng), varid)
+     &                       FIL(1,ng)%ncid, varid)
         IF (exit_flag.ne.NoError) RETURN
         gtype=r2dvar
-        status=nf_fread2d(ng, iNLM, ncname, ncFILid(1,ng),              &
+        status=nf_fread2d(ng, iNLM, ncname, FIL(1,ng)%ncid,             &
      &                Vname(1,idHsbl), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
      &                Fscl, Fmin, Fmax,                                 &
@@ -375,13 +375,13 @@
 !
 !  Read in depth of bottom boundary layer.
 !
-      ncname=FILname(1,ng)
+      ncname=FIL(1,ng)%name
       IF (Aout(idHbbl,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idHbbl),       &
-     &                       ncFILid(1,ng), varid)
+     &                       FIL(1,ng)%ncid, varid)
         IF (exit_flag.ne.NoError) RETURN
         gtype=r2dvar
-        status=nf_fread2d(ng, iNLM, ncname, ncFILid(1,ng),              &
+        status=nf_fread2d(ng, iNLM, ncname, FIL(1,ng)%ncid,             &
      &                Vname(1,idHbbl), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
      &                Fscl, Fmin, Fmax,                                 &
@@ -406,13 +406,13 @@
 !
 !  Read in vertical viscosity coefficient.
 !
-      ncname=FILname(6,ng)
+      ncname=FIL(6,ng)%name
       IF (Aout(idVvis,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idVvis),       &
-     &                       ncFILid(6,ng), varid)
+     &                       FIL(6,ng)%ncid, varid)
         IF (exit_flag.ne.NoError) RETURN
         gtype=w3dvar
-        status=nf_fread3d(ng, iNLM, ncname, ncFILid(6,ng),              &
+        status=nf_fread3d(ng, iNLM, ncname, FIL(6,ng)%ncid,             &
      &                Vname(1,idVvis), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj, 0, N(ng),              &
      &                Fscl, Fmin, Fmax,                                 &
@@ -436,13 +436,13 @@
 !
 !  Read in vertical diffusion coefficient for potential temperature.
 !
-      ncname=FILname(4,ng)
+      ncname=FIL(4,ng)%name
       IF (Aout(idTdif,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idTdif),       &
-     &                       ncFILid(4,ng), varid)
+     &                       FIL(4,ng)%ncid, varid)
         IF (exit_flag.ne.NoError) RETURN
         gtype=w3dvar
-        status=nf_fread3d(ng, iNLM, ncname, ncFILid(4,ng),              &
+        status=nf_fread3d(ng, iNLM, ncname, FIL(4,ng)%ncid,             &
      &                Vname(1,idTdif), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj, 0, N(ng),              &
      &                Fscl, Fmin, Fmax,                                 &
@@ -466,13 +466,13 @@
 !
 !  Read in vertical diffusion coefficient for salinity.
 !
-      ncname=FILname(5,ng)
+      ncname=FIL(5,ng)%name
       IF (Aout(idSdif,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idSdif),       &
-     &                       ncFILid(5,ng), varid)
+     &                       FIL(5,ng)%ncid, varid)
         IF (exit_flag.ne.NoError) RETURN
         gtype=w3dvar
-        status=nf_fread3d(ng, iNLM, ncname, ncFILid(5,ng),              &
+        status=nf_fread3d(ng, iNLM, ncname, FIL(5,ng)%ncid,             &
      &                Vname(1,idSdif), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj, 0, N(ng),              &
      &                Fscl, Fmin, Fmax,                                 &
@@ -496,13 +496,13 @@
 !
 !  Read in surface net heat flux.
 !
-      ncname=FILname(1,ng)
+      ncname=FIL(1,ng)%name
       IF (Aout(idTsur(itemp),ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idTsur(itemp)),&
-     &                       ncFILid(1,ng), varid)
+     &                       FIL(1,ng)%ncid, varid)
         IF (exit_flag.ne.NoError) RETURN
         gtype=r2dvar
-        status=nf_fread2d(ng, iNLM, ncname, ncFILid(1,ng),              &
+        status=nf_fread2d(ng, iNLM, ncname, FIL(1,ng)%ncid,             &
      &                Vname(1,idTsur(itemp)), varid, tindx, gtype,      &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
      &                Fscl, Fmin, Fmax,                                 &
@@ -527,13 +527,13 @@
 !
 !  Read in surface net salt flux.
 !
-      ncname=FILname(1,ng)
+      ncname=FIL(1,ng)%name
       IF (Aout(idTsur(isalt),ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idTsur(isalt)),&
-     &                       ncFILid(1,ng), varid)
+     &                       FIL(1,ng)%ncid, varid)
         IF (exit_flag.ne.NoError) RETURN
         gtype=r2dvar
-        status=nf_fread2d(ng, iNLM, ncname, ncFILid(1,ng),              &
+        status=nf_fread2d(ng, iNLM, ncname, FIL(1,ng)%ncid,             &
      &                Vname(1,idTsur(isalt)), varid, tindx, gtype,      &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
      &                Fscl, Fmin, Fmax,                                 &
@@ -559,13 +559,13 @@
 !
 !  Read in latent heat flux.
 !
-      ncname=FILname(1,ng)
+      ncname=FIL(1,ng)%name
       IF (Aout(idLhea,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idLhea),       &
-     &                       ncFILid(1,ng), varid)
+     &                       FIL(1,ng)%ncid, varid)
         IF (exit_flag.ne.NoError) RETURN
         gtype=r2dvar
-        status=nf_fread2d(ng, iNLM, ncname, ncFILid(1,ng),              &
+        status=nf_fread2d(ng, iNLM, ncname, FIL(1,ng)%ncid,             &
      &                Vname(1,idLhea), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
      &                Fscl, Fmin, Fmax,                                 &
@@ -591,10 +591,10 @@
 !
       IF (Aout(idShea,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idShea),       &
-     &                       ncFILid(1,ng), varid)
+     &                       FIL(1,ng)%ncid, varid)
         IF (exit_flag.ne.NoError) RETURN
         gtype=r2dvar
-        status=nf_fread2d(ng, iNLM, ncname, ncFILid(1,ng),              &
+        status=nf_fread2d(ng, iNLM, ncname, FIL(1,ng)%ncid,             &
      &                Vname(1,idShea), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
      &                Fscl, Fmin, Fmax,                                 &
@@ -620,10 +620,10 @@
 !
       IF (Aout(idLrad,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idLrad),       &
-     &                       ncFILid(1,ng), varid)
+     &                       FIL(1,ng)%ncid, varid)
         IF (exit_flag.ne.NoError) RETURN
         gtype=r2dvar
-        status=nf_fread2d(ng, iNLM, ncname, ncFILid(1,ng),              &
+        status=nf_fread2d(ng, iNLM, ncname, FIL(1,ng)%ncid,             &
      &                Vname(1,idLrad), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
      &                Fscl, Fmin, Fmax,                                 &
@@ -651,10 +651,10 @@
 !
       IF (Aout(idSrad,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idSrad),       &
-     &                       ncFILid(1,ng), varid)
+     &                       FIL(1,ng)%ncid, varid)
         IF (exit_flag.ne.NoError) RETURN
         gtype=r2dvar
-        status=nf_fread2d(ng, iNLM, ncname, ncFILid(1,ng),              &
+        status=nf_fread2d(ng, iNLM, ncname, FIL(1,ng)%ncid,             &
      &                Vname(1,idSrad), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
      &                Fscl, Fmin, Fmax,                                 &
@@ -680,13 +680,13 @@
 !
 !  Read in surface u-momentum stress.
 !
-      ncname=FILname(1,ng)
+      ncname=FIL(1,ng)%name
       IF (Aout(idUsms,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idUsms),       &
-     &                       ncFILid(1,ng), varid)
+     &                       FIL(1,ng)%ncid, varid)
         IF (exit_flag.ne.NoError) RETURN
         gtype=u2dvar
-        status=nf_fread2d(ng, iNLM, ncname, ncFILid(1,ng),              &
+        status=nf_fread2d(ng, iNLM, ncname, FIL(1,ng)%ncid,             &
      &                Vname(1,idUsms), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
      &                Fscl, Fmin, Fmax,                                 &
@@ -712,10 +712,10 @@
 !
       IF (Aout(idVsms,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idVsms),       &
-     &                       ncFILid(1,ng), varid)
+     &                       FIL(1,ng)%ncid, varid)
         IF (exit_flag.ne.NoError) RETURN
         gtype=v2dvar
-        status=nf_fread2d(ng, iNLM, ncname, ncFILid(1,ng),              &
+        status=nf_fread2d(ng, iNLM, ncname, FIL(1,ng)%ncid,             &
      &                Vname(1,idVsms), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
      &                Fscl, Fmin, Fmax,                                 &
@@ -740,13 +740,13 @@
 !
 !  Read in ice u-velocity
 !
-      ncname=FILname(10,ng)
+      ncname=FIL(10,ng)%name
       IF (Aout(idUice,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idUice),       &
-     &                       ncFILid(10,ng), varid)
+     &                       FIL(10,ng)%ncid, varid)
         IF (exit_flag.ne.NoError) RETURN
         gtype=u2dvar
-        status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),             &
+        status=nf_fread2d(ng, iNLM, ncname, FIL(10,ng)%ncid,            &
      &                Vname(1,idUice), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
      &                Fscl, Fmin, Fmax,                                 &
@@ -772,9 +772,9 @@
 !
       IF (Aout(idVice,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idVice),       &
-     &                       ncFILid(10,ng), varid)
+     &                       FIL(10,ng)%ncid, varid)
         gtype=v2dvar
-        status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),             &
+        status=nf_fread2d(ng, iNLM, ncname, FIL(10,ng)%ncid,            &
      &                Vname(1,idVice), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
      &                Fscl, Fmin, Fmax,                                 &
@@ -800,9 +800,9 @@
 !
       IF (Aout(idAice,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idAice),       &
-     &                       ncFILid(10,ng), varid)
+     &                       FIL(10,ng)%ncid, varid)
         gtype=r2dvar
-        status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),             &
+        status=nf_fread2d(ng, iNLM, ncname, FIL(10,ng)%ncid,            &
      &                Vname(1,idAice), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
      &                Fscl, Fmin, Fmax,                                 &
@@ -828,9 +828,9 @@
 !
       IF (Aout(idHice,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idHice),       &
-     &                       ncFILid(10,ng), varid)
+     &                       FIL(10,ng)%ncid, varid)
         gtype=r2dvar
-        status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),             &
+        status=nf_fread2d(ng, iNLM, ncname, FIL(10,ng)%ncid,            &
      &                Vname(1,idHice), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
      &                Fscl, Fmin, Fmax,                                 &
@@ -856,9 +856,9 @@
 !
       IF (Aout(idHsno,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idHsno),       &
-     &                       ncFILid(10,ng), varid)
+     &                       FIL(10,ng)%ncid, varid)
         gtype=r2dvar
-        status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),             &
+        status=nf_fread2d(ng, iNLM, ncname, FIL(10,ng)%ncid,            &
      &                Vname(1,idHsno), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
      &                Fscl, Fmin, Fmax,                                 &
@@ -884,9 +884,9 @@
 !
       IF (Aout(idSfwat,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idSfwat),      &
-     &                       ncFILid(10,ng), varid)
+     &                       FIL(10,ng)%ncid, varid)
         gtype=r2dvar
-        status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),             &
+        status=nf_fread2d(ng, iNLM, ncname, FIL(10,ng)%ncid,            &
      &                Vname(1,idSfwat), varid, tindx, gtype,            &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
      &                Fscl, Fmin, Fmax,                                 &
@@ -912,9 +912,9 @@
 !
       IF (Aout(idTice,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idTice),       &
-     &                       ncFILid(10,ng), varid)
+     &                       FIL(10,ng)%ncid, varid)
         gtype=r2dvar
-        status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),             &
+        status=nf_fread2d(ng, iNLM, ncname, FIL(10,ng)%ncid,            &
      &                Vname(1,idTice), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
      &                Fscl, Fmin, Fmax,                                 &
@@ -940,9 +940,9 @@
 !
       IF (Aout(idTimid,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idTimid),      &
-     &                       ncFILid(10,ng), varid)
+     &                       FIL(10,ng)%ncid, varid)
         gtype=r2dvar
-        status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),             &
+        status=nf_fread2d(ng, iNLM, ncname, FIL(10,ng)%ncid,            &
      &                Vname(1,idTimid), varid, tindx, gtype,            &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
      &                Fscl, Fmin, Fmax,                                 &
@@ -968,9 +968,9 @@
 !
       IF (Aout(idAgeice,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idAgeice),     &
-     &                       ncFILid(10,ng), varid)
+     &                       FIL(10,ng)%ncid, varid)
         gtype=r2dvar
-        status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),             &
+        status=nf_fread2d(ng, iNLM, ncname, FIL(10,ng)%ncid,            &
      &                Vname(1,idAgeice), varid, tindx, gtype,           &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
      &                Fscl, Fmin, Fmax,                                 &
@@ -996,9 +996,9 @@
 !
       IF (Aout(idS0mk,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idS0mk),       &
-     &                       ncFILid(10,ng), varid)
+     &                       FIL(10,ng)%ncid, varid)
         gtype=r2dvar
-        status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),             &
+        status=nf_fread2d(ng, iNLM, ncname, FIL(10,ng)%ncid,            &
      &                Vname(1,idS0mk), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
      &                Fscl, Fmin, Fmax,                                 &
@@ -1024,9 +1024,9 @@
 !
       IF (Aout(idT0mk,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idT0mk),       &
-     &                       ncFILid(10,ng), varid)
+     &                       FIL(10,ng)%ncid, varid)
         gtype=r2dvar
-        status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),             &
+        status=nf_fread2d(ng, iNLM, ncname, FIL(10,ng)%ncid,            &
      &                Vname(1,idT0mk), varid, tindx, gtype,             &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
      &                Fscl, Fmin, Fmax,                                 &
@@ -1052,9 +1052,9 @@
 !
       IF (Aout(idWfr,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idWfr),        &
-     &                       ncFILid(10,ng), varid)
+     &                       FIL(10,ng)%ncid, varid)
         gtype=r2dvar
-        status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),             &
+        status=nf_fread2d(ng, iNLM, ncname, FIL(10,ng)%ncid,            &
      &                Vname(1,idWfr), varid, tindx, gtype,              &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
      &                Fscl, Fmin, Fmax,                                 &
@@ -1080,9 +1080,9 @@
 !
       IF (Aout(idWai,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idWai),        &
-     &                       ncFILid(10,ng), varid)
+     &                       FIL(10,ng)%ncid, varid)
         gtype=r2dvar
-        status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),             &
+        status=nf_fread2d(ng, iNLM, ncname, FIL(10,ng)%ncid,            &
      &                Vname(1,idWai), varid, tindx, gtype,              &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
      &                Fscl, Fmin, Fmax,                                 &
@@ -1108,9 +1108,9 @@
 !
       IF (Aout(idWao,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idWao),        &
-     &                       ncFILid(10,ng), varid)
+     &                       FIL(10,ng)%ncid, varid)
         gtype=r2dvar
-        status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),             &
+        status=nf_fread2d(ng, iNLM, ncname, FIL(10,ng)%ncid,            &
      &                Vname(1,idWao), varid, tindx, gtype,              &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
      &                Fscl, Fmin, Fmax,                                 &
@@ -1136,9 +1136,9 @@
 !
       IF (Aout(idWio,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idWio),        &
-     &                       ncFILid(10,ng), varid)
+     &                       FIL(10,ng)%ncid, varid)
         gtype=r2dvar
-        status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),             &
+        status=nf_fread2d(ng, iNLM, ncname, FIL(10,ng)%ncid,            &
      &                Vname(1,idWio), varid, tindx, gtype,              &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
      &                Fscl, Fmin, Fmax,                                 &
@@ -1164,9 +1164,9 @@
 !
       IF (Aout(idWro,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idWro),        &
-     &                       ncFILid(10,ng), varid)
+     &                       FIL(10,ng)%ncid, varid)
         gtype=r2dvar
-        status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),             &
+        status=nf_fread2d(ng, iNLM, ncname, FIL(10,ng)%ncid,            &
      &                Vname(1,idWro), varid, tindx, gtype,              &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
      &                Fscl, Fmin, Fmax,                                 &
@@ -1192,9 +1192,9 @@
 !
       IF (Aout(idSig11,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idSig11),      &
-     &                       ncFILid(10,ng), varid)
+     &                       FIL(10,ng)%ncid, varid)
         gtype=r2dvar
-        status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),             &
+        status=nf_fread2d(ng, iNLM, ncname, FIL(10,ng)%ncid,            &
      &                Vname(1,idSig11), varid, tindx, gtype,            &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
      &                Fscl, Fmin, Fmax,                                 &
@@ -1220,9 +1220,9 @@
 !
       IF (Aout(idSig12,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idSig12),      &
-     &                       ncFILid(10,ng), varid)
+     &                       FIL(10,ng)%ncid, varid)
         gtype=r2dvar
-        status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),             &
+        status=nf_fread2d(ng, iNLM, ncname, FIL(10,ng)%ncid,            &
      &                Vname(1,idSig12), varid, tindx, gtype,            &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
      &                Fscl, Fmin, Fmax,                                 &
@@ -1248,9 +1248,9 @@
 !
       IF (Aout(idSig22,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idSig22),      &
-     &                       ncFILid(10,ng), varid)
+     &                       FIL(10,ng)%ncid, varid)
         gtype=r2dvar
-        status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),             &
+        status=nf_fread2d(ng, iNLM, ncname, FIL(10,ng)%ncid,            &
      &                Vname(1,idSig22), varid, tindx, gtype,            &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
      &                Fscl, Fmin, Fmax,                                 &
@@ -1276,9 +1276,9 @@
 !
       IF (Aout(idIomflx,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idIomflx),     &
-     &                       ncFILid(10,ng), varid)
+     &                       FIL(10,ng)%ncid, varid)
         gtype=r2dvar
-        status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),             &
+        status=nf_fread2d(ng, iNLM, ncname, FIL(10,ng)%ncid,            &
      &                Vname(1,idIomflx), varid, tindx, gtype,           &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
      &                Fscl, Fmin, Fmax,                                 &
@@ -1304,9 +1304,9 @@
 !
       IF (Aout(idTauiw,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idTauiw),      &
-     &                       ncFILid(10,ng), varid)
+     &                       FIL(10,ng)%ncid, varid)
         gtype=r2dvar
-        status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),             &
+        status=nf_fread2d(ng, iNLM, ncname, FIL(10,ng)%ncid,            &
      &                Vname(1,idTauiw), varid, tindx, gtype,            &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
      &                Fscl, Fmin, Fmax,                                 &
@@ -1332,9 +1332,9 @@
 !
       IF (Aout(idChuiw,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idChuiw),      &
-     &                       ncFILid(10,ng), varid)
+     &                       FIL(10,ng)%ncid, varid)
         gtype=r2dvar
-        status=nf_fread2d(ng, iNLM, ncname, ncFILid(10,ng),             &
+        status=nf_fread2d(ng, iNLM, ncname, FIL(10,ng)%ncid,            &
      &                Vname(1,idChuiw), varid, tindx, gtype,            &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
      &                Fscl, Fmin, Fmax,                                 &
@@ -1361,7 +1361,7 @@
 !  Close input NetCDF file.
 !
       DO ifile=1,nfile
-        status=nf90_close(ncFILid(ifile,ng))
+        status=nf90_close(FIL(ifile,ng)%ncid)
       END DO
       IF (Master) WRITE (stdout,80) tindx
 !

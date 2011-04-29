@@ -470,7 +470,7 @@
 !
           CASE ('wtype_grid')
             gtype=r2dvar
-            status=nf_fread2d(ng, model, ncname, ncGRDid(ng),           &
+            status=nf_fread2d(ng, model, ncname, GRD(ng)%ncid,          &
      &                        var_name(it), var_id(it), 0,              &
      &                        gtype, Vsize, LBi, UBi, LBj, UBj,         &
      &                        Fscl, Fmin, Fmax,                         &

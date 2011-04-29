@@ -467,7 +467,7 @@
         time(ng)=8640000.0_r8
         tdays(ng)=time(ng)*sec2day
         CALL get_2dfld (ng, iNLM, idTpam, ncFRCid(idTpam,ng),           &
-     &                  nFfiles(ng), FRCname(1,ng), update(1),          &
+     &                  nFfiles(ng), FRC(1,ng), update(1),              &
      &                  LBi, UBi, LBj, UBj, MTC, NTC(ng),               &
 #  ifdef MASKING
      &                  GRID(ng) % rmask(LBi,LBj),                      &
@@ -476,7 +476,7 @@
         IF (exit_flag.ne.NoError) RETURN
 
         CALL get_2dfld (ng, iNLM, idTpph, ncFRCid(idTpph,ng),           &
-     &                  nFfiles(ng), FRCname(1,ng), update(1),          &
+     &                  nFfiles(ng), FRC(1,ng), update(1),              &
      &                  LBi, UBi, LBj, UBj, MTC, NTC(ng),               &
 #  ifdef MASKING
      &                  GRID(ng) % rmask(LBi,LBj),                      &

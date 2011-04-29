@@ -14,7 +14,7 @@
 !=======================================================================
 !
 #ifdef FILTERED
-      USE mod_filter, ONLY: nfil,fcount,nw,dtfil,FIL
+      USE mod_filter, ONLY: nfil,fcount,nw,dtfil,FILN
 #endif
       USE mod_param
       USE mod_parallel
@@ -49,6 +49,7 @@
 
       real(r8) :: cff
       real(r8), parameter :: spv = 0.0_r8
+      character*2 :: ngnumber
 !
 !-----------------------------------------------------------------------
 !  Read in and report input model parameters.
@@ -128,6 +129,7 @@
      &        /,11x,'mpirun -np 4 ocean ocean.in',/,/,11x,'and not',/,  &
      &        /,11x,'mpirun -np 4 ocean < ocean.in',/)
  40   CONTINUE
+# endif
 #endif
 
       CALL read_PhyPar (model, inp, out, Lwrite)
@@ -584,27 +586,28 @@
      &                'Must write out in sync with filter length'
           exit_flag=2
         END IF
-        IF (nfil/navg(ng).ne.FIL) THEN
+        IF (nfil/navg(ng).ne.FILN) THEN
           IF (Master) print *, 'Number of filter sums is wrong'
           exit_flag=2
         END IF
-        DO itrc=1,FIL
-          fcount(itrc) = (1-itrc)*nw/FIL
+        DO itrc=1,FILN
+          fcount(itrc) = (1-itrc)*nw/FILN
         END DO
 # ifdef FILTERED_RST
 !
 !  Hardcode the names of the filter restart files.
 !
-        FILname(1,ng)=TRIM(ADJUSTL('ocean_fil2d.nc'))
-        FILname(2,ng)=TRIM(ADJUSTL('ocean_filu.nc'))
-        FILname(3,ng)=TRIM(ADJUSTL('ocean_filv.nc'))
-        FILname(4,ng)=TRIM(ADJUSTL('ocean_filakt.nc'))
-        FILname(5,ng)=TRIM(ADJUSTL('ocean_filaks.nc'))
-        FILname(6,ng)=TRIM(ADJUSTL('ocean_filakv.nc'))
-        FILname(7,ng)=TRIM(ADJUSTL('ocean_filr.nc'))
-        FILname(8,ng)=TRIM(ADJUSTL('ocean_filt.nc'))
-        FILname(9,ng)=TRIM(ADJUSTL('ocean_filw.nc'))
-        FILname(10,ng)=TRIM(ADJUSTL('ocean_filice.nc'))
+	WRITE(ngnumber,'(A2)') ng
+        FIL(1,ng)%name=TRIM(ADJUSTL('ocean_fil2d_'))//ngnumber//'.nc'
+        FIL(2,ng)%name=TRIM(ADJUSTL('ocean_filu_'))//ngnumber//'.nc'
+        FIL(3,ng)%name=TRIM(ADJUSTL('ocean_filv_'))//ngnumber//'.nc'
+        FIL(4,ng)%name=TRIM(ADJUSTL('ocean_filakt_'))//ngnumber//'.nc'
+        FIL(5,ng)%name=TRIM(ADJUSTL('ocean_filaks_'))//ngnumber//'.nc'
+        FIL(6,ng)%name=TRIM(ADJUSTL('ocean_filakv_'))//ngnumber//'.nc'
+        FIL(7,ng)%name=TRIM(ADJUSTL('ocean_filr_'))//ngnumber//'.nc'
+        FIL(8,ng)%name=TRIM(ADJUSTL('ocean_filt_'))//ngnumber//'.nc'
+        FIL(9,ng)%name=TRIM(ADJUSTL('ocean_filw_'))//ngnumber//'.nc'
+        FIL(10,ng)%name=TRIM(ADJUSTL('ocean_filice_'))//ngnumber//'.nc'
 # endif
 #endif
 !
@@ -723,7 +726,7 @@
 !=======================================================================
 !
 #ifdef FILTERED
-      USE mod_filter, ONLY: nfil,fcount,nw,dtfil,FIL
+      USE mod_filter, ONLY: nfil,fcount,nw,dtfil,FILN
 #endif
       USE mod_param
       USE mod_parallel

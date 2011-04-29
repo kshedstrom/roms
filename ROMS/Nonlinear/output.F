@@ -19,7 +19,7 @@
       USE mod_param
       USE mod_parallel
 # ifdef FILTERED
-      USE mod_filter, ONLY: nfil, FIL
+      USE mod_filter, ONLY: nfil, FILN
 # endif
 # ifdef FLOATS
       USE mod_floats
@@ -504,7 +504,7 @@
           CALL wrt_rst (ng)
           IF (exit_flag.ne.NoError) RETURN
 # ifdef FILTERED_RST
-          DO i=1,FIL
+          DO i=1,FILN
             CALL wrt_filt (ng, i)
             IF (exit_flag.ne.NoError) RETURN
           END DO

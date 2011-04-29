@@ -1115,7 +1115,7 @@
 #   endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idPONbur,ng),r8)
-          status=def_var(ng, model, AVG(ng)%ncid,AVG(ng)%Vid(idPONbur),&
+          status=def_var(ng, model, AVG(ng)%ncid,AVG(ng)%Vid(idPONbur), &
      &                   NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -1133,7 +1133,8 @@
 #   endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idOPALbur,ng),r8)
-          status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idOPALbur),&
+          status=def_var(ng, model, AVG(ng)%ncid,                       &
+     &                   AVG(ng)%Vid(idOPALbur),                        &
      &                   NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -1922,7 +1923,7 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idUice,ng),r8)
-          status=def_var(ng, model, AVGid(ng)%ncid,                     &
+          status=def_var(ng, model, AVG(ng)%ncid,                       &
      &                   AVG(ng)%Vid(idUice), NF_FOUT,                  &
      &                   nvd3, u2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
@@ -1941,7 +1942,7 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idVice,ng),r8)
-          status=def_var(ng, model, AVG(ng)%ncid),                      &
+          status=def_var(ng, model, AVG(ng)%ncid,                       &
      &                   AVG(ng)%Vid(idVice), NF_FOUT,                  &
      &                   nvd3, v2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
@@ -2734,28 +2735,24 @@
             AVG(ng)%Vid(idWvel)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idDano))) THEN
             got_var(idDano)=.TRUE.
-<<<<<<< HEAD
-            avgVid(idDano,ng)=var_id(i)
+            AVG(ng)%Vid(idDano)=var_id(i)
 #  ifdef NEMURO_SED1
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idPONsed))) THEN
             got_var(idPONsed)=.TRUE.
-            avgVid(idPONsed,ng)=var_id(i)
+            AVG(ng)%Vid(idPONsed)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idOPALsed))) THEN
             got_var(idOPALsed)=.TRUE.
-            avgVid(idOPALsed,ng)=var_id(i)
+            AVG(ng)%Vid(idOPALsed)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idDENITsed))) THEN
             got_var(idDENITsed)=.TRUE.
-            avgVid(idDENITsed,ng)=var_id(i)
+            AVG(ng)%Vid(idDENITsed)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idPONbur))) THEN
             got_var(idPONbur)=.TRUE.
-            avgVid(idPONbur,ng)=var_id(i)
+            AVG(ng)%Vid(idPONbur)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idOPALbur))) THEN
             got_var(idOPALbur)=.TRUE.
-            avgVid(idOPALbur,ng)=var_id(i)
+            AVG(ng)%Vid(idOPALbur)=var_id(i)
 #  endif
-=======
-            AVG(ng)%Vid(idDano)=var_id(i)
->>>>>>> ae65909... src:ticket:503
 #  ifdef LMD_SKPP
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idHsbl))) THEN
             got_var(idHsbl)=.TRUE.
@@ -2819,74 +2816,74 @@
 #  endif
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idSSSf))) THEN
             got_var(idSSSf)=.TRUE.
-            avgVid(idSSSf,ng)=var_id(i)
+            AVG(ng)%Vid(idSSSf)=var_id(i)
 #  ifdef ICE_MODEL
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idUice))) THEN
             got_var(idUice)=.true.
-            avgVid(idUice,ng)=var_id(i)
+            AVG(ng)%Vid(idUice)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idVice))) THEN
             got_var(idVice)=.true.
-            avgVid(idVice,ng)=var_id(i)
+            AVG(ng)%Vid(idVice)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idAice))) THEN
             got_var(idAice)=.true.
-            avgVid(idAice,ng)=var_id(i)
+            AVG(ng)%Vid(idAice)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idHice))) THEN
             got_var(idHice)=.true.
-            avgVid(idHice,ng)=var_id(i)
+            AVG(ng)%Vid(idHice)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idTice))) THEN
             got_var(idTice)=.true.
-            avgVid(idTice,ng)=var_id(i)
+            AVG(ng)%Vid(idTice)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idHsno))) THEN
             got_var(idHsno)=.true.
-            avgVid(idHsno,ng)=var_id(i)
+            AVG(ng)%Vid(idHsno)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idSfwat))) THEN
             got_var(idSfwat)=.true.
-            avgVid(idSfwat,ng)=var_id(i)
+            AVG(ng)%Vid(idSfwat)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idAgeice))) THEN
             got_var(idAgeice)=.true.
-            avgVid(idAgeice,ng)=var_id(i)
+            AVG(ng)%Vid(idAgeice)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idIomflx))) THEN
             got_var(idIomflx)=.true.
-            avgVid(idIomflx,ng)=var_id(i)
+            AVG(ng)%Vid(idIomflx)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idTimid))) THEN
             got_var(idTimid)=.true.
-            avgVid(idTimid,ng)=var_id(i)
+            AVG(ng)%Vid(idTimid)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idSig11))) THEN
             got_var(idSig11)=.true.
-            avgVid(idSig11,ng)=var_id(i)
+            AVG(ng)%Vid(idSig11)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idSig12))) THEN
             got_var(idSig12)=.true.
-            avgVid(idSig12,ng)=var_id(i)
+            AVG(ng)%Vid(idSig12)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idSig22))) THEN
             got_var(idSig22)=.true.
-            avgVid(idSig22,ng)=var_id(i)
+            AVG(ng)%Vid(idSig22)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idTauiw))) THEN
             got_var(idTauiw)=.true.
-            avgVid(idTauiw,ng)=var_id(i)
+            AVG(ng)%Vid(idTauiw)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idChuiw))) THEN
             got_var(idChuiw)=.true.
-            avgVid(idChuiw,ng)=var_id(i)
+            AVG(ng)%Vid(idChuiw)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idT0mk))) THEN
             got_var(idT0mk)=.true.
-            avgVid(idT0mk,ng)=var_id(i)
+            AVG(ng)%Vid(idT0mk)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idS0mk))) THEN
             got_var(idS0mk)=.true.
-            avgVid(idS0mk,ng)=var_id(i)
+            AVG(ng)%Vid(idS0mk)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idWfr))) THEN
             got_var(idWfr)=.true.
-            avgVid(idWfr,ng)=var_id(i)
+            AVG(ng)%Vid(idWfr)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idWai))) THEN
             got_var(idWai)=.true.
-            avgVid(idWai,ng)=var_id(i)
+            AVG(ng)%Vid(idWai)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idWao))) THEN
             got_var(idWao)=.true.
-            avgVid(idWao,ng)=var_id(i)
+            AVG(ng)%Vid(idWao)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idWio))) THEN
             got_var(idWio)=.true.
-            avgVid(idWio,ng)=var_id(i)
+            AVG(ng)%Vid(idWio)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idWro))) THEN
             got_var(idWro)=.true.
-            avgVid(idWro,ng)=var_id(i)
+            AVG(ng)%Vid(idWro)=var_id(i)
 #  endif
 #  if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idPair))) THEN

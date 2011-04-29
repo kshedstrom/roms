@@ -27,7 +27,7 @@
 !                                                                      !
 !  Filter characteristics                                              !
 !                                                                      !
-!  FIL        Number of concurrent filter sums.                        !
+!  FILN       Number of concurrent filter sums.                        !
 !  dtfil      Filter sampling interval in seconds.                     !
 !  nw         Number of filter weights.                                !
 !  nfil       Filter length in timesteps.                              !
@@ -107,11 +107,11 @@
 !    Hourly filter weights for 5 day lolopass2 filter
 #define LOLOPASS2
 # ifdef PL33
-        integer, parameter :: FIL = 3
+        integer, parameter :: FILN = 3
         integer, parameter :: dtfil = 3600
         integer, parameter :: nw = 72
         integer :: nfil
-        integer, dimension(FIL) :: fcount
+        integer, dimension(FILN) :: fcount
         real(r8), dimension(nw) :: fw =                                 &
      &            (/                                                    &
      &             0.0,      0.0,      0.0,      0.0,      0.0,         &
@@ -131,11 +131,11 @@
      &            -0.00427, -0.00317, -0.00211, -0.00114, -0.00027      &
      &              /)
 # elif defined LOLOPASS2
-        integer, parameter :: FIL = 5
+        integer, parameter :: FILN = 5
         integer, parameter :: dtfil = 3600
         integer, parameter :: nw = 120
         integer :: nfil
-        integer, dimension(FIL) :: fcount
+        integer, dimension(FILN) :: fcount
         real(r8), dimension(nw) :: fw =                                 &
      &   (/                                                             &
      &     0.00000e+0, 2.24482e-6, 1.01382e-5, 2.69017e-5, 5.52832e-5,  &
@@ -165,11 +165,11 @@
      &     5.52832e-5, 2.69017e-5, 1.01382e-5, 2.24482e-6               &
      &              /)
 # else
-        integer, parameter :: FIL = 2
+        integer, parameter :: FILN = 2
         integer, parameter :: dtfil = 900
         integer, parameter :: nw = 4
         integer :: nfil
-        integer, dimension(FIL) :: fcount
+        integer, dimension(FILN) :: fcount
         real(r8), dimension(nw) :: fw =                                 &
      &            (/                                                    &
      &             0.25, 0.25, 0.25, 0.25                               &
@@ -204,147 +204,147 @@
       IF (ng.eq.1 ) allocate ( FILTER(Ngrids) )
 !
       IF (Aout(idFsur,ng)) THEN
-        allocate ( FILTER(ng) % filzeta(LBi:UBi,LBj:UBj,FIL) )
+        allocate ( FILTER(ng) % filzeta(LBi:UBi,LBj:UBj,FILN) )
       END IF
       IF (Aout(idUbar,ng)) THEN
-        allocate ( FILTER(ng) % filu2d(LBi:UBi,LBj:UBj,FIL) )
+        allocate ( FILTER(ng) % filu2d(LBi:UBi,LBj:UBj,FILN) )
       END IF
       IF (Aout(idVbar,ng)) THEN
-        allocate ( FILTER(ng) % filv2d(LBi:UBi,LBj:UBj,FIL) )
+        allocate ( FILTER(ng) % filv2d(LBi:UBi,LBj:UBj,FILN) )
       END IF
 # ifdef SOLVE3D
       IF (Aout(idUvel,ng)) THEN
-        allocate ( FILTER(ng) % filu3d(LBi:UBi,LBj:UBj,N(ng),FIL) )
+        allocate ( FILTER(ng) % filu3d(LBi:UBi,LBj:UBj,N(ng),FILN) )
       END IF
       IF (Aout(idVvel,ng)) THEN
-        allocate ( FILTER(ng) % filv3d(LBi:UBi,LBj:UBj,N(ng),FIL) )
+        allocate ( FILTER(ng) % filv3d(LBi:UBi,LBj:UBj,N(ng),FILN) )
       END IF
       IF (Aout(idDano,ng)) THEN
-        allocate ( FILTER(ng) % filrho(LBi:UBi,LBj:UBj,N(ng),FIL) )
+        allocate ( FILTER(ng) % filrho(LBi:UBi,LBj:UBj,N(ng),FILN) )
       END IF
       IF (ANY(Aout(idTvar(:),ng))) THEN
-        allocate ( FILTER(ng) % filt(LBi:UBi,LBj:UBj,N(ng),NAT,FIL) )
+        allocate ( FILTER(ng) % filt(LBi:UBi,LBj:UBj,N(ng),NAT,FILN) )
       END IF
       IF (Aout(idOvel,ng)) THEN
-        allocate ( FILTER(ng) % filw3d(LBi:UBi,LBj:UBj,0:N(ng),FIL) )
+        allocate ( FILTER(ng) % filw3d(LBi:UBi,LBj:UBj,0:N(ng),FILN) )
       END IF
 #  if defined LMD_MIXING || defined MY25_MIXING || defined GLS_MIXING
       IF (Aout(idVvis,ng)) THEN
-        allocate ( FILTER(ng) % filAKv(LBi:UBi,LBj:UBj,0:N(ng),FIL) )
+        allocate ( FILTER(ng) % filAKv(LBi:UBi,LBj:UBj,0:N(ng),FILN) )
       END IF
       IF (Aout(idTdif,ng)) THEN
-        allocate ( FILTER(ng) % filAKt(LBi:UBi,LBj:UBj,0:N(ng),FIL) )
+        allocate ( FILTER(ng) % filAKt(LBi:UBi,LBj:UBj,0:N(ng),FILN) )
       END IF
       IF (Aout(idSdif,ng)) THEN
-        allocate ( FILTER(ng) % filAKs(LBi:UBi,LBj:UBj,0:N(ng),FIL) )
+        allocate ( FILTER(ng) % filAKs(LBi:UBi,LBj:UBj,0:N(ng),FILN) )
       END IF
 #  endif
 #  ifdef LMD_SKPP
       IF (Aout(idHsbl,ng)) THEN
-        allocate ( FILTER(ng) % filhsbl(LBi:UBi,LBj:UBj,FIL) )
+        allocate ( FILTER(ng) % filhsbl(LBi:UBi,LBj:UBj,FILN) )
       END IF
 #  endif
 #  ifdef LMD_BKPP
       IF (Aout(idHbbl,ng)) THEN
-        allocate ( FILTER(ng) % filhbbl(LBi:UBi,LBj:UBj,FIL) )
+        allocate ( FILTER(ng) % filhbbl(LBi:UBi,LBj:UBj,FILN) )
       END IF
 #  endif
 # endif
       IF (Aout(idUsms,ng)) THEN
-        allocate ( FILTER(ng) % filsus(LBi:UBi,LBj:UBj,FIL) )
+        allocate ( FILTER(ng) % filsus(LBi:UBi,LBj:UBj,FILN) )
       END IF
       IF (Aout(idVsms,ng)) THEN
-        allocate ( FILTER(ng) % filsvs(LBi:UBi,LBj:UBj,FIL) )
+        allocate ( FILTER(ng) % filsvs(LBi:UBi,LBj:UBj,FILN) )
       END IF
 # ifdef SOLVE3D
       IF (Aout(idTsur(itemp),ng)) THEN
-        allocate ( FILTER(ng) % filstf(LBi:UBi,LBj:UBj,FIL) )
+        allocate ( FILTER(ng) % filstf(LBi:UBi,LBj:UBj,FILN) )
       END IF
       IF (Aout(idTsur(isalt),ng)) THEN
-        allocate ( FILTER(ng) % filswf(LBi:UBi,LBj:UBj,FIL) )
+        allocate ( FILTER(ng) % filswf(LBi:UBi,LBj:UBj,FILN) )
       END IF
 #  ifdef SHORTWAVE
       IF (Aout(idSrad,ng)) THEN
-        allocate ( FILTER(ng) % filsrf(LBi:UBi,LBj:UBj,FIL) )
+        allocate ( FILTER(ng) % filsrf(LBi:UBi,LBj:UBj,FILN) )
       END IF
 #  endif
 #  ifdef BULK_FLUXES
       IF (Aout(idLhea,ng)) THEN
-        allocate ( FILTER(ng) % fillhf(LBi:UBi,LBj:UBj,FIL) )
+        allocate ( FILTER(ng) % fillhf(LBi:UBi,LBj:UBj,FILN) )
       END IF
       IF (Aout(idLrad,ng)) THEN
-        allocate ( FILTER(ng) % filshf(LBi:UBi,LBj:UBj,FIL) )
+        allocate ( FILTER(ng) % filshf(LBi:UBi,LBj:UBj,FILN) )
       END IF
       IF (Aout(idShea,ng)) THEN
-        allocate ( FILTER(ng) % fillrf(LBi:UBi,LBj:UBj,FIL) )
+        allocate ( FILTER(ng) % fillrf(LBi:UBi,LBj:UBj,FILN) )
       END IF
 #  endif
 #  ifdef ICE_MODEL
       IF (Aout(idUice,ng)) THEN
-        allocate ( FILTER(NG) % filui(LBi:UBi,LBj:UBj,FIL) )
+        allocate ( FILTER(NG) % filui(LBi:UBi,LBj:UBj,FILN) )
       END IF
       IF (Aout(idVice,ng)) THEN
-        allocate ( FILTER(NG) % filvi(LBi:UBi,LBj:UBj,FIL) )
+        allocate ( FILTER(NG) % filvi(LBi:UBi,LBj:UBj,FILN) )
       END IF
       IF (Aout(idAice,ng)) THEN
-        allocate ( FILTER(NG) % filai(LBi:UBi,LBj:UBj,FIL) )
+        allocate ( FILTER(NG) % filai(LBi:UBi,LBj:UBj,FILN) )
       END IF
       IF (Aout(idHice,ng)) THEN
-        allocate ( FILTER(NG) % filhi(LBi:UBi,LBj:UBj,FIL) )
+        allocate ( FILTER(NG) % filhi(LBi:UBi,LBj:UBj,FILN) )
       END IF
       IF (Aout(idTice,ng)) THEN
-        allocate ( FILTER(NG) % filtis(LBi:UBi,LBj:UBj,FIL) )
+        allocate ( FILTER(NG) % filtis(LBi:UBi,LBj:UBj,FILN) )
       END IF
       IF (Aout(idTimid,ng)) THEN
-        allocate ( FILTER(NG) % filti(LBi:UBi,LBj:UBj,FIL) )
+        allocate ( FILTER(NG) % filti(LBi:UBi,LBj:UBj,FILN) )
       END IF
       IF (Aout(idHsno,ng)) THEN
-        allocate ( FILTER(NG) % filhsn(LBi:UBi,LBj:UBj,FIL) )
+        allocate ( FILTER(NG) % filhsn(LBi:UBi,LBj:UBj,FILN) )
       END IF
       IF (Aout(idSfwat,ng)) THEN
-        allocate ( FILTER(NG) % filsfwat(LBi:UBi,LBj:UBj,FIL) )
+        allocate ( FILTER(NG) % filsfwat(LBi:UBi,LBj:UBj,FILN) )
       END IF
       IF (Aout(idIomflx,ng)) THEN
-        allocate ( FILTER(NG) % filio_mflux(LBi:UBi,LBj:UBj,FIL) )
+        allocate ( FILTER(NG) % filio_mflux(LBi:UBi,LBj:UBj,FILN) )
       END IF
       IF (Aout(idAgeice,ng)) THEN
-        allocate ( FILTER(NG) % filAgeice(LBi:UBi,LBj:UBj,FIL) )
+        allocate ( FILTER(NG) % filAgeice(LBi:UBi,LBj:UBj,FILN) )
       END IF
       IF (Aout(idSig11,ng)) THEN
-        allocate ( FILTER(NG) % filsig11(LBi:UBi,LBj:UBj,FIL) )
+        allocate ( FILTER(NG) % filsig11(LBi:UBi,LBj:UBj,FILN) )
       END IF
       IF (Aout(idSig12,ng)) THEN
-        allocate ( FILTER(NG) % filsig22(LBi:UBi,LBj:UBj,FIL) )
+        allocate ( FILTER(NG) % filsig22(LBi:UBi,LBj:UBj,FILN) )
       END IF
       IF (Aout(idSig22,ng)) THEN
-        allocate ( FILTER(NG) % filsig12(LBi:UBi,LBj:UBj,FIL) )
+        allocate ( FILTER(NG) % filsig12(LBi:UBi,LBj:UBj,FILN) )
       END IF
       IF (Aout(idS0mk,ng)) THEN
-        allocate ( FILTER(NG) % fils0mk(LBi:UBi,LBj:UBj,FIL) )
+        allocate ( FILTER(NG) % fils0mk(LBi:UBi,LBj:UBj,FILN) )
       END IF
       IF (Aout(idT0mk,ng)) THEN
-        allocate ( FILTER(NG) % filt0mk(LBi:UBi,LBj:UBj,FIL) )
+        allocate ( FILTER(NG) % filt0mk(LBi:UBi,LBj:UBj,FILN) )
       END IF
       IF (Aout(idWfr,ng)) THEN
-        allocate ( FILTER(NG) % filWfr(LBi:UBi,LBj:UBj,FIL) )
+        allocate ( FILTER(NG) % filWfr(LBi:UBi,LBj:UBj,FILN) )
       END IF
       IF (Aout(idWai,ng)) THEN
-        allocate ( FILTER(NG) % filWai(LBi:UBi,LBj:UBj,FIL) )
+        allocate ( FILTER(NG) % filWai(LBi:UBi,LBj:UBj,FILN) )
       END IF
       IF (Aout(idWao,ng)) THEN
-        allocate ( FILTER(NG) % filWao(LBi:UBi,LBj:UBj,FIL) )
+        allocate ( FILTER(NG) % filWao(LBi:UBi,LBj:UBj,FILN) )
       END IF
       IF (Aout(idWio,ng)) THEN
-        allocate ( FILTER(NG) % filWio(LBi:UBi,LBj:UBj,FIL) )
+        allocate ( FILTER(NG) % filWio(LBi:UBi,LBj:UBj,FILN) )
       END IF
       IF (Aout(idWro,ng)) THEN
-        allocate ( FILTER(NG) % filWro(LBi:UBi,LBj:UBj,FIL) )
+        allocate ( FILTER(NG) % filWro(LBi:UBi,LBj:UBj,FILN) )
       END IF
       IF (Aout(idTauiw,ng)) THEN
-        allocate ( FILTER(NG) % filutau_iw(LBi:UBi,LBj:UBj,FIL) )
+        allocate ( FILTER(NG) % filutau_iw(LBi:UBi,LBj:UBj,FILN) )
       END IF
       IF (Aout(idChuiw,ng)) THEN
-        allocate ( FILTER(NG) % filchu_iw(LBi:UBi,LBj:UBj,FIL) )
+        allocate ( FILTER(NG) % filchu_iw(LBi:UBi,LBj:UBj,FILN) )
       END IF
 #  endif
 # endif
@@ -415,7 +415,7 @@
 !-----------------------------------------------------------------------
 !
       IF (Aout(idFsur,ng)) THEN
-        DO if=1,FIL
+        DO if=1,FILN
           DO j=Jmin,Jmax
             DO i=Imin,Imax
               FILTER(ng) % filzeta(i,j,if) = IniVal
@@ -424,7 +424,7 @@
         END DO
       END IF
       IF (Aout(idUbar,ng)) THEN
-        DO if=1,FIL
+        DO if=1,FILN
           DO j=Jmin,Jmax
             DO i=Imin,Imax
               FILTER(ng) % filu2d(i,j,if) = IniVal
@@ -433,7 +433,7 @@
         END DO
       END IF
       IF (Aout(idVbar,ng)) THEN
-        DO if=1,FIL
+        DO if=1,FILN
           DO j=Jmin,Jmax
             DO i=Imin,Imax
               FILTER(ng) % filv2d(i,j,if) = IniVal
@@ -443,7 +443,7 @@
       END IF
 # ifdef SOLVE3D
       IF (Aout(idUvel,ng)) THEN
-        DO if=1,FIL
+        DO if=1,FILN
           DO k=1,N(ng)
             DO j=Jmin,Jmax
               DO i=Imin,Imax
@@ -454,7 +454,7 @@
         END DO
       END IF
       IF (Aout(idVvel,ng)) THEN
-        DO if=1,FIL
+        DO if=1,FILN
           DO k=1,N(ng)
             DO j=Jmin,Jmax
               DO i=Imin,Imax
@@ -465,7 +465,7 @@
         END DO
       END IF
       IF (Aout(idOvel,ng)) THEN
-        DO if=1,FIL
+        DO if=1,FILN
           DO k=0,N(ng)
             DO j=Jmin,Jmax
               DO i=Imin,Imax
@@ -477,7 +477,7 @@
       END IF
 
       IF (Aout(idDano,ng)) THEN
-        DO if=1,FIL
+        DO if=1,FILN
           DO k=1,N(ng)
             DO j=Jmin,Jmax
               DO i=Imin,Imax
@@ -488,7 +488,7 @@
         END DO
       END IF
       IF (ANY(Aout(idTvar(:),ng))) THEN
-        DO if=1,FIL
+        DO if=1,FILN
           DO itrc=1,NAT
             DO k=1,N(ng)
               DO j=Jmin,Jmax
@@ -503,7 +503,7 @@
 
 #  if defined LMD_MIXING || defined MY25_MIXING || defined GLS_MIXING
       IF (Aout(idVvis,ng)) THEN
-        DO if=1,FIL
+        DO if=1,FILN
           DO k=0,N(ng)
             DO j=Jmin,Jmax
               DO i=Imin,Imax
@@ -514,7 +514,7 @@
         END DO
       END IF
       IF (Aout(idTdif,ng)) THEN
-        DO if=1,FIL
+        DO if=1,FILN
           DO k=0,N(ng)
             DO j=Jmin,Jmax
               DO i=Imin,Imax
@@ -525,7 +525,7 @@
         END DO
       END IF
       IF (Aout(idSdif,ng)) THEN
-        DO if=1,FIL
+        DO if=1,FILN
           DO k=0,N(ng)
             DO j=Jmin,Jmax
               DO i=Imin,Imax
@@ -538,7 +538,7 @@
 #  endif
 #  ifdef LMD_BKPP
       IF (Aout(idHbbl,ng)) THEN
-        DO if=1,FIL
+        DO if=1,FILN
           DO j=Jmin,Jmax
             DO i=Imin,Imax
               FILTER(ng) % filhbbl(i,j,if) = IniVal
@@ -549,7 +549,7 @@
 #  endif
 #  ifdef LMD_SKPP
       IF (Aout(idHsbl,ng)) THEN
-        DO if=1,FIL
+        DO if=1,FILN
           DO j=Jmin,Jmax
             DO i=Imin,Imax
               FILTER(ng) % filhsbl(i,j,if) = IniVal
@@ -563,7 +563,7 @@
 !  Time-averaged surface and bottom fluxes.
 !
       IF (Aout(idUsms,ng)) THEN
-        DO if=1,FIL
+        DO if=1,FILN
           DO j=Jmin,Jmax
             DO i=Imin,Imax
               FILTER(ng) % filsus(i,j,if) = IniVal
@@ -572,7 +572,7 @@
         END DO
       END IF
       IF (Aout(idVsms,ng)) THEN
-        DO if=1,FIL
+        DO if=1,FILN
           DO j=Jmin,Jmax
             DO i=Imin,Imax
               FILTER(ng) % filsvs(i,j,if) = IniVal
@@ -583,7 +583,7 @@
 
 # ifdef SOLVE3D
       IF (Aout(idTsur(itemp),ng)) THEN
-        DO if=1,FIL
+        DO if=1,FILN
           DO j=Jmin,Jmax
             DO i=Imin,Imax
               FILTER(ng) % filstf(i,j,if) = IniVal
@@ -592,7 +592,7 @@
         END DO
       END IF
       IF (Aout(idTsur(isalt),ng)) THEN
-        DO if=1,FIL
+        DO if=1,FILN
           DO j=Jmin,Jmax
             DO i=Imin,Imax
               FILTER(ng) % filswf(i,j,if) = IniVal
@@ -603,7 +603,7 @@
 
 #  ifdef SHORTWAVE
       IF (Aout(idSrad,ng)) THEN
-        DO if=1,FIL
+        DO if=1,FILN
           DO j=Jmin,Jmax
             DO i=Imin,Imax
               FILTER(ng) % filsrf(i,j,if) = IniVal
@@ -615,7 +615,7 @@
 
 #  ifdef BULK_FLUXES
       IF (Aout(idLhea,ng)) THEN
-        DO if=1,FIL
+        DO if=1,FILN
           DO j=Jmin,Jmax
             DO i=Imin,Imax
               FILTER(ng) % fillhf(i,j,if) = IniVal
@@ -624,7 +624,7 @@
         END DO
       END IF
       IF (Aout(idLrad,ng)) THEN
-        DO if=1,FIL
+        DO if=1,FILN
           DO j=Jmin,Jmax
             DO i=Imin,Imax
               FILTER(ng) % filshf(i,j,if) = IniVal
@@ -633,7 +633,7 @@
         END DO
       END IF 
       IF (Aout(idShea,ng)) THEN
-        DO if=1,FIL
+        DO if=1,FILN
           DO j=Jmin,Jmax
             DO i=Imin,Imax
               FILTER(ng) % fillrf(i,j,if) = IniVal
@@ -644,7 +644,7 @@
 #  endif
 #  ifdef ICE_MODEL
       IF (Aout(idUice,ng)) THEN
-        DO if=1,FIL
+        DO if=1,FILN
           DO j=Jmin,Jmax
             DO i=Imin,Imax
               FILTER(ng) % filui(i,j,if) = IniVal
@@ -653,7 +653,7 @@
         END DO
       END IF
       IF (Aout(idVice,ng)) THEN
-        DO if=1,FIL
+        DO if=1,FILN
           DO j=Jmin,Jmax
             DO i=Imin,Imax
               FILTER(ng) % filvi(i,j,if) = IniVal
@@ -662,7 +662,7 @@
         END DO
       END IF
       IF (Aout(idAice,ng)) THEN
-        DO if=1,FIL
+        DO if=1,FILN
           DO j=Jmin,Jmax
             DO i=Imin,Imax
               FILTER(ng) % filai(i,j,if) = IniVal
@@ -671,7 +671,7 @@
         END DO
       END IF
       IF (Aout(idHice,ng)) THEN
-        DO if=1,FIL
+        DO if=1,FILN
           DO j=Jmin,Jmax
             DO i=Imin,Imax
               FILTER(ng) % filhi(i,j,if) = IniVal
@@ -680,7 +680,7 @@
         END DO
       END IF
       IF (Aout(idHsno,ng)) THEN
-        DO if=1,FIL
+        DO if=1,FILN
           DO j=Jmin,Jmax
             DO i=Imin,Imax
               FILTER(ng) % filhsn(i,j,if) = IniVal
@@ -689,7 +689,7 @@
         END DO
       END IF
       IF (Aout(idSfwat,ng)) THEN
-        DO if=1,FIL
+        DO if=1,FILN
           DO j=Jmin,Jmax
             DO i=Imin,Imax
               FILTER(ng) % filsfwat(i,j,if) = IniVal
@@ -698,7 +698,7 @@
         END DO
       END IF
       IF (Aout(idIomflx,ng)) THEN
-        DO if=1,FIL
+        DO if=1,FILN
           DO j=Jmin,Jmax
             DO i=Imin,Imax
               FILTER(ng) % filio_mflux(i,j,if) = IniVal
@@ -707,7 +707,7 @@
         END DO
       END IF
       IF (Aout(idTice,ng)) THEN
-        DO if=1,FIL
+        DO if=1,FILN
           DO j=Jmin,Jmax
             DO i=Imin,Imax
               FILTER(ng) % filtis(i,j,if) = IniVal
@@ -716,7 +716,7 @@
         END DO
       END IF
       IF (Aout(idTimid,ng)) THEN
-        DO if=1,FIL
+        DO if=1,FILN
           DO j=Jmin,Jmax
             DO i=Imin,Imax
               FILTER(ng) % filti(i,j,if) = IniVal
@@ -725,7 +725,7 @@
         END DO
       END IF
       IF (Aout(idAgeice,ng)) THEN
-        DO if=1,FIL
+        DO if=1,FILN
           DO j=Jmin,Jmax
             DO i=Imin,Imax
               FILTER(ng) % filAgeice(i,j,if) = IniVal
@@ -734,7 +734,7 @@
         END DO
       END IF
       IF (Aout(idSig11,ng)) THEN
-        DO if=1,FIL
+        DO if=1,FILN
           DO j=Jmin,Jmax
             DO i=Imin,Imax
               FILTER(ng) % filsig11(i,j,if) = IniVal
@@ -743,7 +743,7 @@
         END DO
       END IF
       IF (Aout(idSig22,ng)) THEN
-        DO if=1,FIL
+        DO if=1,FILN
           DO j=Jmin,Jmax
             DO i=Imin,Imax
               FILTER(ng) % filsig22(i,j,if) = IniVal
@@ -752,7 +752,7 @@
         END DO
       END IF
       IF (Aout(idSig12,ng)) THEN
-        DO if=1,FIL
+        DO if=1,FILN
           DO j=Jmin,Jmax
             DO i=Imin,Imax
               FILTER(ng) % filsig12(i,j,if) = IniVal
@@ -761,7 +761,7 @@
         END DO
       END IF
       IF (Aout(idS0mk,ng)) THEN
-        DO if=1,FIL
+        DO if=1,FILN
           DO j=Jmin,Jmax
             DO i=Imin,Imax
               FILTER(ng) % fils0mk(i,j,if) = IniVal
@@ -770,7 +770,7 @@
         END DO
       END IF
       IF (Aout(idT0mk,ng)) THEN
-        DO if=1,FIL
+        DO if=1,FILN
           DO j=Jmin,Jmax
             DO i=Imin,Imax
               FILTER(ng) % filt0mk(i,j,if) = IniVal
@@ -779,7 +779,7 @@
         END DO
       END IF
       IF (Aout(idWfr,ng)) THEN
-        DO if=1,FIL
+        DO if=1,FILN
           DO j=Jmin,Jmax
             DO i=Imin,Imax
               FILTER(ng) % filWfr(i,j,if) = IniVal
@@ -788,7 +788,7 @@
         END DO
       END IF
       IF (Aout(idWai,ng)) THEN
-        DO if=1,FIL
+        DO if=1,FILN
           DO j=Jmin,Jmax
             DO i=Imin,Imax
               FILTER(ng) % filWai(i,j,if) = IniVal
@@ -797,7 +797,7 @@
         END DO
       END IF
       IF (Aout(idWao,ng)) THEN
-        DO if=1,FIL
+        DO if=1,FILN
           DO j=Jmin,Jmax
             DO i=Imin,Imax
               FILTER(ng) % filWao(i,j,if) = IniVal
@@ -806,7 +806,7 @@
         END DO
       END IF
       IF (Aout(idWio,ng)) THEN
-        DO if=1,FIL
+        DO if=1,FILN
           DO j=Jmin,Jmax
             DO i=Imin,Imax
               FILTER(ng) % filWio(i,j,if) = IniVal
@@ -815,7 +815,7 @@
         END DO
       END IF
       IF (Aout(idWro,ng)) THEN
-        DO if=1,FIL
+        DO if=1,FILN
           DO j=Jmin,Jmax
             DO i=Imin,Imax
               FILTER(ng) % filWro(i,j,if) = IniVal
@@ -824,7 +824,7 @@
         END DO
       END IF
       IF (Aout(idTauiw,ng)) THEN
-        DO if=1,FIL
+        DO if=1,FILN
           DO j=Jmin,Jmax
             DO i=Imin,Imax
               FILTER(ng) % filutau_iw(i,j,if) = IniVal
@@ -833,7 +833,7 @@
         END DO
       END IF
       IF (Aout(idChuiw,ng)) THEN
-        DO if=1,FIL
+        DO if=1,FILN
           DO j=Jmin,Jmax
             DO i=Imin,Imax
               FILTER(ng) % filchu_iw(i,j,if) = IniVal

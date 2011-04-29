@@ -8,10 +8,6 @@
 !    See License_ROMS.txt                                              !
 !=======================================================================
 !                                                                      !
-! WORK TO DO:                                                          !
-!   AVG2        Output secondary base file name.                       !
-!   FILname     Output filter file name.                               !
-!                                                                      !
 !  The input and output files information is stored in compact derived !
 !  type structure, TYPE(T_IO):                                         !
 !                                                                      !
@@ -104,7 +100,7 @@
       TYPE(T_IO), allocatable :: DAV(:)     ! 4D-Var variables
       TYPE(T_IO), allocatable :: DIA(:)     ! diagnostics fields
       TYPE(T_IO), allocatable :: ERR(:)     ! 4D-Var posterior error
-      TYPE(T_IO), allocatable :: FIL(:,:)     ! Filter restart
+      TYPE(T_IO), allocatable :: FIL(:,:)   ! Filter restart
       TYPE(T_IO), allocatable :: FLT(:)     ! Lagrangian trajectories
       TYPE(T_IO), allocatable :: FWD(:)     ! forward solution
       TYPE(T_IO), allocatable :: GRD(:)     ! grid data

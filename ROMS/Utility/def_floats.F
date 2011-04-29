@@ -223,7 +223,7 @@
         Vinfo( 2)='Float type'
         Vinfo( 9)='3-D Lagrangian'
         Vinfo(10)='constant depth'
-        status=def_var(ng, iNLM, ncFLTid(ng), varid, nf90_int,          &
+        status=def_var(ng, iNLM, FLT(ng)%ncid, varid, nf90_int,         &
      &                 1, (/fltdim/), Aval, Vinfo, ncname)
 !
 !  Define floats X-grid locations.
@@ -305,7 +305,7 @@
 # endif
           Aval(2)=-180.0_r8
           Aval(3)=180.0_r8
-          status=def_var(ng, iNLM, ncFLTid(ng), fltVid(idglon,ng),       &
+          status=def_var(ng, iNLM, FLT(ng)%ncid, fltVid(idglon,ng),     &
      &                   NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
 
@@ -322,7 +322,7 @@
 # endif
           Aval(2)=-90.0_r8
           Aval(3)=90.0_r8
-          status=def_var(ng, iNLM, ncFLTid(ng), fltVid(idglat,ng),      &
+          status=def_var(ng, iNLM, FLT(ng)%ncid, fltVid(idglat,ng),     &
      &                   NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
 
@@ -335,7 +335,7 @@
           Vinfo(24)='_FillValue'
           Aval(6)=spval
 # endif
-          status=def_var(ng, iNLM, ncFLTid(ng), fltVid(idxspc,ng), &
+          status=def_var(ng, iNLM, FLT(ng)%ncid, fltVid(idxspc,ng),     &
      &                   NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
           Vinfo( 1)='y'
@@ -347,7 +347,7 @@
           Vinfo(24)='_FillValue'
           Aval(6)=spval
 # endif
-          status=def_var(ng, iNLM, ncFLTid(ng), fltVid(idyspc,ng),      &
+          status=def_var(ng, iNLM, FLT(ng)%ncid, fltVid(idyspc,ng),     &
      &                   NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
 
@@ -360,7 +360,7 @@
           Vinfo(24)='_FillValue'
           Aval(6)=spval
 # endif
-          status=def_var(ng, iNLM, ncFLTid(ng), fltVid(idwdph,ng),      &
+          status=def_var(ng, iNLM, FLT(ng)%ncid, fltVid(idwdph,ng),     &
      &                   NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
        END IF
@@ -503,8 +503,8 @@
         CALL wrt_info (ng, iNLM, FLT(ng)%ncid, ncname)
         IF (exit_flag.ne.NoError) RETURN
         IF (OutThread) THEN
-          status=nf90_inq_varid(ncFLTid(ng),'Ftype',varid)
-          status=nf90_put_var(ncFLTid(ng), varid, FLT(ng)%Ftype)
+          status=nf90_inq_varid(FLT(ng)%ncid,'Ftype',varid)
+          status=nf90_put_var(FLT(ng)%ncid, varid, DRIFTER(ng)%Ftype)
           IF (status.ne.nf90_noerr) THEN
             WRITE (stdout,70) 'Ftype', TRIM(ncname)
             exit_flag=3
@@ -601,6 +601,7 @@
           ELSE IF (.not.spherical.and.TRIM(var_name(i)).eq.'y') THEN
             got_var(idglat)=.TRUE.
             FLT(ng)%Vid(idglat)=var_id(i)
+# endif
 # ifdef SOLVE3D
           ELSE IF (TRIM(var_name(i)).eq.'depth') THEN
             got_var(iddpth)=.TRUE.

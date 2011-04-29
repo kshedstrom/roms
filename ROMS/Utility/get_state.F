@@ -59,7 +59,7 @@
       USE mod_stepping
       USE mod_strings
 #ifdef FILTERED_RST
-      USE mod_filter, ONLY: FIL
+      USE mod_filter, ONLY: FILN
 #endif
 #ifdef DISTRIBUTE
       USE mp_exchange_mod, ONLY : mp_exchange2d
@@ -4077,7 +4077,7 @@
 #endif
 #ifdef FILTERED_RST
       IF (nrrec(ng).ne.0) THEN
-        DO i=1,FIL
+        DO i=1,FILN
           CALL get_filter (ng, i)
         END DO
       END IF

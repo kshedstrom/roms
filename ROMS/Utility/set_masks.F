@@ -153,7 +153,7 @@
       real(r8), intent(in) :: umask(LBi:,LBj:)
       real(r8), intent(in) :: vmask(LBi:,LBj:)
 #  ifdef OUTFLOW_MASK
-      real(r8), intent(in) :: mask_outflow(LBi:,LBj:)
+      real(r8), intent(out) :: mask_outflow(LBi:,LBj:)
 #  endif
 #  ifdef AVERAGES
       real(r8), intent(inout) :: pmask_avg(LBi:,LBj:)
@@ -183,7 +183,7 @@
       real(r8), intent(in) :: umask(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: vmask(LBi:UBi,LBj:UBj)
 #  ifdef OUTFLOW_MASK
-      real(r8), intent(in) :: mask_outflow(LBi:UBi,LBj:UBj)
+      real(r8), intent(out) :: mask_outflow(LBi:UBi,LBj:UBj)
 #  endif
 #  ifdef AVERAGES
       real(r8), intent(inout) :: pmask_avg(LBi:UBi,LBj:UBj)
@@ -260,25 +260,25 @@
         END DO
       END DO
 #  ifdef CHUKCHI
-      IF (WESTERN_EDGE) THEN
+      IF (DOMAIN(ng)%Western_Edge(tile)) THEN
         DO j=JstrR,JendR
           mask_outflow(0,j) = 0.0
           mask_outflow(1,j) = 0.0
         END DO
       END IF
-      IF (EASTERN_EDGE) THEN
+      IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
         DO j=JstrR,JendR
           mask_outflow(Lm(ng),j) = 0.0
           mask_outflow(Lm(ng)+1,j) = 0.0
         END DO
       END IF
-      IF (SOUTHERN_EDGE) THEN
+      IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
         DO i=IstrR,IendR
           mask_outflow(i,0) = 0.0
           mask_outflow(i,1) = 0.0
         END DO
       END IF
-      IF (NORTHERN_EDGE) THEN
+      IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
         DO i=IstrR,IendR
           mask_outflow(i,Mm(ng)) = 0.0
           mask_outflow(i,Mm(ng)+1) = 0.0
