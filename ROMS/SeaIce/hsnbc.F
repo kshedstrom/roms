@@ -86,7 +86,7 @@
 !
         know=liold
 
-#ifndef EW_PERIODIC
+# ifndef EW_PERIODIC
 !
 !-----------------------------------------------------------------------
 !  Lateral boundary conditions at the western edge.
@@ -148,6 +148,22 @@
 # elif defined WEST_HSNCLAMPED
 !
 !  Western edge, clamped boundary condition.
+!
+        DO j=Jstr,Jend
+          hsn(0,j,linew)=BOUNDARY(ng)%hsn_west(j)
+#  ifdef MASKING
+          hsn(0,j,linew)=hsn(0,j,linew)*                                &
+     &                   GRID(ng)%rmask(0,j)
+#  endif
+#  ifdef WET_DRY
+          hsn(0,j,linew)=hsn(0,j,linew)*                                &
+     &                   GRID(ng)%rmask_wet(0,j)
+#  endif
+        END DO
+
+# elif defined WEST_HSNMIXED
+!
+!  Western edge, clamped on inflow, gradient on outflow.
 !
         DO j=Jstr,Jend
           IF (ui(1,j,linew).ge.0._r8) THEN
@@ -264,6 +280,22 @@
 # elif defined EAST_HSNCLAMPED
 !
 !  Eastern edge, clamped boundary condition.
+!
+        DO j=Jstr,Jend
+          hsn(Lm(ng)+1,j,linew)=BOUNDARY(ng)%hsn_east(j)
+#  ifdef MASKING
+          hsn(Lm(ng)+1,j,linew)=hsn(Lm(ng)+1,j,linew)*                  &
+     &                          GRID(ng)%rmask(Lm(ng)+1,j)
+#  endif
+#  ifdef WET_DRY
+          hsn(Lm(ng)+1,j,linew)=hsn(Lm(ng)+1,j,linew)*                  &
+     &                          GRID(ng)%rmask_wet(Lm(ng)+1,j)
+#  endif
+        END DO
+
+# elif defined EAST_HSNMIXED
+!
+!  Eastern edge, clamped on inflow, gradient on outflow.
 !
         DO j=Jstr,Jend
           IF (ui(Lm(ng)+1,j,linew).le.0._r8) THEN
@@ -384,6 +416,22 @@
 !  Southern edge, clamped boundary condition.
 !
         DO i=Istr,Iend
+          hsn(i,0,linew)=BOUNDARY(ng)%hsn_south(i)
+#  ifdef MASKING
+          hsn(i,0,linew)=hsn(i,0,linew)*                                &
+     &                   GRID(ng)%rmask(i,0)
+#  endif
+#  ifdef WET_DRY
+          hsn(i,0,linew)=hsn(i,0,linew)*                                &
+     &                   GRID(ng)%rmask_wet(i,0)
+#  endif
+        END DO
+
+# elif defined SOUTH_HSNMIXED
+!
+!  Southern edge, clamped on inflow, gradient on outflow.
+!
+        DO i=Istr,Iend
           IF (vi(i,1,linew).ge.0._r8) THEN
              hsn(i,0,linew)=BOUNDARY(ng)%hsn_south(i)
 #  ifdef MASKING
@@ -498,6 +546,22 @@
 # elif defined NORTH_HSNCLAMPED
 !
 !  Northern edge, clamped boundary condition.
+!
+        DO i=Istr,Iend
+          hsn(i,Mm(ng)+1,linew)=BOUNDARY(ng)%hsn_north(i)
+#  ifdef MASKING
+          hsn(i,Mm(ng)+1,linew)=hsn(i,Mm(ng)+1,linew)*                  &
+     &                          GRID(ng)%rmask(i,Mm(ng)+1)
+#  endif
+#  ifdef WET_DRY
+          hsn(i,Mm(ng)+1,linew)=hsn(i,Mm(ng)+1,linew)*                  &
+     &                          GRID(ng)%rmask_wet(i,Mm(ng)+1)
+#  endif
+        END DO
+
+# elif defined NORTH_HSNMIXED
+!
+!  Northern edge, clamped on inflow, gradient on outflow.
 !
         DO i=Istr,Iend
           IF (vi(i,Mm(ng)+1,linew).le.0._r8) THEN

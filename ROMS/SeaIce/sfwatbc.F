@@ -91,6 +91,22 @@
 !  Western edge, clamped boundary condition.
 !
         DO j=Jstr,Jend
+          sfwat(0,j,linew)=BOUNDARY(ng)%sfwat_west(j)
+#  ifdef MASKING
+          sfwat(0,j,linew)=sfwat(0,j,linew)*                            &
+     &                   GRID(ng)%rmask(0,j)
+#  endif
+#  ifdef WET_DRY
+          sfwat(0,j,linew)=sfwat(0,j,linew)*                            &
+     &                   GRID(ng)%rmask_wet(0,j)
+#  endif
+        END DO
+
+# elif defined WEST_SFWATMIXED
+!
+!  Western edge, clamped on inflow, gradient on outflow.
+!
+        DO j=Jstr,Jend
           IF (ui(1,j,linew).ge.0._r8) THEN
             sfwat(0,j,linew)=BOUNDARY(ng)%sfwat_west(j)
 #  ifdef MASKING
@@ -155,6 +171,22 @@
 # ifdef EAST_SFWATCLAMPED
 !
 !  Eastern edge, clamped boundary condition.
+!
+        DO j=Jstr,Jend
+          sfwat(Lm(ng)+1,j,linew)=BOUNDARY(ng)%sfwat_east(j)
+#  ifdef MASKING
+          sfwat(Lm(ng)+1,j,linew)=sfwat(Lm(ng)+1,j,linew)*              &
+     &                          GRID(ng)%rmask(Lm(ng)+1,j)
+#  endif
+#  ifdef WET_DRY
+          sfwat(Lm(ng)+1,j,linew)=sfwat(Lm(ng)+1,j,linew)*              &
+     &                          GRID(ng)%rmask_wet(Lm(ng)+1,j)
+#  endif
+        END DO
+
+# elif defined EAST_SFWATMIXED
+!
+!  Eastern edge, clamped on inflow, gradient on outflow.
 !
         DO j=Jstr,Jend
           IF (ui(Lm(ng)+1,j,linew).ge.0._r8) THEN
@@ -225,6 +257,22 @@
 !  Southern edge, clamped boundary condition.
 !
         DO i=Istr,Iend
+          sfwat(i,0,linew)=BOUNDARY(ng)%sfwat_south(i)
+#  ifdef MASKING
+          sfwat(i,0,linew)=sfwat(i,0,linew)*                            &
+     &                   GRID(ng)%rmask(i,0)
+#  endif
+#  ifdef WET_DRY
+          sfwat(i,0,linew)=sfwat(i,0,linew)*                            &
+     &                   GRID(ng)%rmask_wet(i,0)
+#  endif
+        END DO
+
+# elif defined SOUTH_SFWATMIXED
+!
+!  Southern edge, clamped on inflow, gradient on outflow.
+!
+        DO i=Istr,Iend
           IF (vi(i,1,linew).ge.0._r8) THEN
             sfwat(i,0,linew)=BOUNDARY(ng)%sfwat_south(i)
 #  ifdef MASKING
@@ -289,6 +337,22 @@
 # ifdef NORTH_SFWATCLAMPED
 !
 !  Northern edge, clamped boundary condition.
+!
+        DO i=Istr,Iend
+          sfwat(i,Mm(ng)+1,linew)=BOUNDARY(ng)%sfwat_north(i)
+#  ifdef MASKING
+          sfwat(i,Mm(ng)+1,linew)=sfwat(i,Mm(ng)+1,linew)*              &
+     &                          GRID(ng)%rmask(i,Mm(ng)+1)
+#  endif
+#  ifdef WET_DRY
+          sfwat(i,Mm(ng)+1,linew)=sfwat(i,Mm(ng)+1,linew)*              &
+     &                          GRID(ng)%rmask_wet(i,Mm(ng)+1)
+#  endif
+        END DO
+
+# elif defined NORTH_SFWATMIXED
+!
+!  Northern edge, clamped on inflow, gradient on outflow.
 !
         DO i=Istr,Iend
           IF (vi(i,Mm(ng)+1,linew).le.0._r8) THEN

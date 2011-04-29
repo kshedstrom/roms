@@ -99,6 +99,23 @@
 !  Western edge, clamped boundary condition.
 !
         DO j=Jstr,Jend
+          enthalpi(0,j,linew)=BOUNDARY(ng)%hi_west(j)*                  &
+     &                           BOUNDARY(ng)%ti_west(j)
+#  ifdef MASKING
+          enthalpi(0,j,linew)=enthalpi(0,j,linew)*                      &
+     &                   GRID(ng)%rmask(0,j)
+#  endif
+#  ifdef WET_DRY
+          enthalpi(0,j,linew)=enthalpi(0,j,linew)*                      &
+     &                   GRID(ng)%rmask_wet(0,j)
+#  endif
+        END DO
+
+# elif defined WEST_TIMIXED
+!
+!  Western edge, clamped on inflow, gradient on outflow.
+!
+        DO j=Jstr,Jend
           IF (ui(1,j,linew).ge.0._r8) THEN
             enthalpi(0,j,linew)=BOUNDARY(ng)%hi_west(j)*                &
      &                           BOUNDARY(ng)%ti_west(j)
@@ -189,6 +206,23 @@
 # ifdef EAST_TICLAMPED
 !
 !  Eastern edge, clamped boundary condition.
+!
+        DO j=Jstr,Jend
+          enthalpi(Lm(ng)+1,j,linew)=BOUNDARY(ng)%hi_east(j)*           &
+     &                                  BOUNDARY(ng)%ti_east(j)
+#  ifdef MASKING
+          enthalpi(Lm(ng)+1,j,linew)=enthalpi(Lm(ng)+1,j,linew)*        &
+     &                          GRID(ng)%rmask(Lm(ng)+1,j)
+#  endif
+#  ifdef WET_DRY
+          enthalpi(Lm(ng)+1,j,linew)=enthalpi(Lm(ng)+1,j,linew)*        &
+     &                          GRID(ng)%rmask_wet(Lm(ng)+1,j)
+#  endif
+        END DO
+
+# elif defined EAST_TIMIXED
+!
+!  Eastern edge, clamped on inflow, gradient on outflow.
 !
         DO j=Jstr,Jend
           IF (ui(Lm(ng)+1,j,linew).le.0._r8) THEN
@@ -286,6 +320,23 @@
 !  Southern edge, clamped boundary condition.
 !
         DO i=Istr,Iend
+          enthalpi(i,0,linew)=BOUNDARY(ng)%hi_south(i)*                 &
+     &                          BOUNDARY(ng)%ti_south(i)            
+#  ifdef MASKING
+          enthalpi(i,0,linew)=enthalpi(i,0,linew)*                      &
+     &                   GRID(ng)%rmask(i,0)
+#  endif
+#  ifdef WET_DRY
+          enthalpi(i,0,linew)=enthalpi(i,0,linew)*                      &
+     &                   GRID(ng)%rmask_wet(i,0)
+#  endif
+        END DO
+
+# elif defined SOUTH_TIMIXED
+!
+!  Southern edge, clamped boundary condition.
+!
+        DO i=Istr,Iend
           IF (vi(i,1,linew).ge.0._r8) THEN
             enthalpi(i,0,linew)=BOUNDARY(ng)%hi_south(i)*               &
      &                          BOUNDARY(ng)%ti_south(i)            
@@ -374,6 +425,23 @@
 # ifdef NORTH_TICLAMPED
 !
 !  Northern edge, clamped boundary condition.
+!
+        DO i=Istr,Iend
+          enthalpi(i,Mm(ng)+1,linew)=BOUNDARY(ng)%hi_north(i)*          &
+     &                                 BOUNDARY(ng)%ti_north(i)
+#  ifdef MASKING
+          enthalpi(i,Mm(ng)+1,linew)=enthalpi(i,Mm(ng)+1,linew)*        &
+     &                          GRID(ng)%rmask(i,Mm(ng)+1)
+#  endif
+#  ifdef WET_DRY
+          enthalpi(i,Mm(ng)+1,linew)=enthalpi(i,Mm(ng)+1,linew)*        &
+     &                          GRID(ng)%rmask_wet(i,Mm(ng)+1)
+#  endif
+        END DO
+
+# elif defined NORTH_TIMIXED
+!
+!  Northern edge, clamped on inflow, gradient on outflow.
 !
         DO i=Istr,Iend
           IF (vi(i,Mm(ng)+1,linew).le.0._r8) THEN
