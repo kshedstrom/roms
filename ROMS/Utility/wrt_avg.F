@@ -51,7 +51,7 @@
 !  Local variable declarations.
 !
       integer :: LBi, UBi, LBj, UBj
-      integer :: gfactor, gtype, i, itrc, status
+      integer :: Fcount, gfactor, gtype, i, itrc, status
 
       real(r8) :: scale
 !
@@ -79,16 +79,17 @@
 !
 !  Set time record index.
 !
-      tAVGindx(ng)=tAVGindx(ng)+1
-      NrecAVG(ng)=NrecAVG(ng)+1
+      AVG(ng)%Rindex=AVG(ng)%Rindex+1
+      Fcount=AVG(ng)%Fcount
+      AVG(ng)%Nrec(Fcount)=AVG(ng)%Nrec(Fcount)+1
 !
 !  Write out averaged time.
 !
-      CALL netcdf_put_fvar (ng, iNLM, AVGname(ng),                      &
+      CALL netcdf_put_fvar (ng, iNLM, AVG(ng)%name,                     &
      &                      TRIM(Vname(idtime,ng)), AVGtime(ng:),       &
-     &                      (/tAVGindx(ng)/), (/1/),                    &
-     &                      ncid = ncAVGid(ng),                         &
-     &                      varid = avgVid(idtime,ng))
+     &                      (/AVG(ng)%Rindex/), (/1/),                  &
+     &                      ncid = AVG(ng)%ncid,                        &
+     &                      varid = AVG(ng)%Vid(idtime))
       IF (exit_flag.ne.NoError) RETURN
 !
 !  Write out free-surface (m).
@@ -96,8 +97,8 @@
       IF (Aout(idFsur,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idFsur,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idFsur), &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 # ifdef MASKING
      &                     GRID(ng) % rmask_avg,                        &
@@ -105,7 +106,7 @@
      &                     AVERAGE(ng) % avgzeta)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idFsur)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idFsur)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -120,8 +121,8 @@
       IF (Aout(idFsuD,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idFsuD,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idFsuD), &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #  ifdef MASKING
      &                     GRID(ng) % rmask_avg,                        &
@@ -129,7 +130,7 @@
      &                     TIDES(ng) % zeta_detided)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idFsuD)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idFsuD)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -143,8 +144,8 @@
       IF (Aout(idUbar,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*u2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idUbar,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idUbar), &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 # ifdef MASKING
      &                     GRID(ng) % umask_avg,                        &
@@ -152,7 +153,7 @@
      &                     AVERAGE(ng) % avgu2d)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idUbar)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idUbar)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -167,8 +168,8 @@
       IF (Aout(idu2dD,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*u2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idu2dD,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idu2dD), &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #  ifdef MASKING
      &                     GRID(ng) % umask_avg,                        &
@@ -176,7 +177,7 @@
      &                     TIDES(ng) % ubar_detided)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idu2dD)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idu2dD)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -190,8 +191,8 @@
       IF (Aout(idVbar,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*v2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idVbar,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idVbar), &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 # ifdef MASKING
      &                     GRID(ng) % vmask_avg,                        &
@@ -199,7 +200,7 @@
      &                     AVERAGE(ng) % avgv2d)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idVbar)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idVbar)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -214,8 +215,8 @@
       IF (Aout(idv2dD,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*v2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idv2dD,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idv2dD), &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #  ifdef MASKING
      &                     GRID(ng) % vmask_avg,                        &
@@ -223,7 +224,7 @@
      &                     TIDES(ng) % vbar_detided)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idv2dD)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idv2dD)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -238,8 +239,8 @@
       IF (Aout(idUfx1,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*u2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idUfx1,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idUfx1), &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #  ifdef MASKING
      &                     GRID(ng) % umask_avg,                        &
@@ -247,7 +248,7 @@
      &                     AVERAGE(ng) % avgDU_avg1)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idUfx1)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idUfx1)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -257,8 +258,8 @@
 !
       IF (Aout(idUfx2,ng)) THEN
         gtype=gfactor*u2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idUfx2,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idUfx2), &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #  ifdef MASKING
      &                     GRID(ng) % umask_avg,                        &
@@ -266,7 +267,7 @@
      &                     AVERAGE(ng) % avgDU_avg2)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idUfx2)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idUfx2)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -276,8 +277,8 @@
 !
       IF (Aout(idVfx1,ng)) THEN
         gtype=gfactor*v2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idVfx1,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idVfx1), &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #  ifdef MASKING
      &                     GRID(ng) % vmask_avg,                        &
@@ -285,7 +286,7 @@
      &                     AVERAGE(ng) % avgDV_avg1)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idVfx1)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idVfx1)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -295,8 +296,8 @@
 !
       IF (Aout(idVfx2,ng)) THEN
         gtype=gfactor*v2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idVfx2,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idVfx2), &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #  ifdef MASKING
      &                     GRID(ng) % umask_avg,                        &
@@ -304,7 +305,7 @@
      &                     AVERAGE(ng) % avgDV_avg2)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idVfx2)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idVfx2)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -319,8 +320,8 @@
       IF (Aout(idW2xx,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idW2xx,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idW2xx), &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #  ifdef MASKING
      &                     GRID(ng) % rmask_avg,                        &
@@ -328,7 +329,7 @@
      &                     AVERAGE(ng) % avgSxx2d)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idW2xx)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idW2xx)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -341,8 +342,8 @@
       IF (Aout(idW2xy,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idW2xy,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idW2xy), &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #  ifdef MASKING
      &                     GRID(ng) % rmask_avg,                        &
@@ -350,7 +351,7 @@
      &                     AVERAGE(ng) % avgSxy2d)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idW2xy)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idW2xy)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -363,8 +364,8 @@
       IF (Aout(idW2yy,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idW2yy,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idW2yy), &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #  ifdef MASKING
      &                     GRID(ng) % rmask_avg,                        &
@@ -372,7 +373,7 @@
      &                     AVERAGE(ng) % avgSyy2d)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idW2yy)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idW2yy)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -385,8 +386,8 @@
       IF (Aout(idU2rs,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*u2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idU2rs,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idU2rs), &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #  ifdef MASKING
      &                     GRID(ng) % umask_avg,                        &
@@ -394,7 +395,7 @@
      &                     AVERAGE(ng) % avgu2RS)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idU2rs)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idU2rs)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -407,8 +408,8 @@
       IF (Aout(idV2rs,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*v2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idV2rs,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idV2rs), &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #  ifdef MASKING
      &                     GRID(ng) % vmask_avg,                        &
@@ -416,7 +417,7 @@
      &                     AVERAGE(ng) % avgv2RS)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idV2rs)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idV2rs)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -429,8 +430,8 @@
       IF (Aout(idU2Sd,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*u2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idU2Sd,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idU2Sd), &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #  ifdef MASKING
      &                     GRID(ng) % umask_avg,                        &
@@ -438,7 +439,7 @@
      &                     AVERAGE(ng) % avgu2Sd)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idU2Sd)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idU2Sd)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -451,8 +452,8 @@
       IF (Aout(idV2Sd,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*v2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idV2Sd,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idV2Sd), &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #  ifdef MASKING
      &                     GRID(ng) % vmask_avg,                        &
@@ -460,7 +461,7 @@
      &                     AVERAGE(ng) % avgv2Sd)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idV2Sd)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idV2Sd)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -475,8 +476,8 @@
       IF (Aout(idUvel,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*u3dvar
-        status=nf_fwrite3d(ng, iNLM, ncAVGid(ng), avgVid(idUvel,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite3d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idUvel), &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, 1, N(ng), scale,         &
 #  ifdef MASKING
      &                     GRID(ng) % umask_avg,                        &
@@ -484,7 +485,7 @@
      &                     AVERAGE(ng) % avgu3d)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idUvel)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idUvel)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -499,8 +500,8 @@
       IF (Aout(idu3dD,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*u3dvar
-        status=nf_fwrite3d(ng, iNLM, ncAVGid(ng), avgVid(idu3dD,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite3d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idu3dD), &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, 1, N(ng), scale,         &
 #   ifdef MASKING
      &                     GRID(ng) % umask_avg,                        &
@@ -508,7 +509,7 @@
      &                     TIDES(ng) % u_detided)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idu3dD)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idu3dD)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -522,8 +523,8 @@
       IF (Aout(idVvel,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*v3dvar
-        status=nf_fwrite3d(ng, iNLM, ncAVGid(ng), avgVid(idVvel,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite3d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idVvel), &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, 1, N(ng), scale,         &
 #  ifdef MASKING
      &                     GRID(ng) % vmask_avg,                        &
@@ -531,7 +532,7 @@
      &                     AVERAGE(ng) % avgv3d)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idVvel)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idVvel)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -546,8 +547,8 @@
       IF (Aout(idv3dD,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*v3dvar
-        status=nf_fwrite3d(ng, iNLM, ncAVGid(ng), avgVid(idv3dD,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite3d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idv3dD), &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, 1, N(ng), scale,         &
 #   ifdef MASKING
      &                     GRID(ng) % vmask_avg,                        &
@@ -555,7 +556,7 @@
      &                     TIDES(ng) % v_detided)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idv3dD)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idv3dD)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -570,8 +571,8 @@
       IF (Aout(idW3xx,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r3dvar
-        status=nf_fwrite3d(ng, iNLM, ncAVGid(ng), avgVid(idW3xx,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite3d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idW3xx), &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, 1, N(ng), scale,         &
 #   ifdef MASKING
      &                     GRID(ng) % rmask_avg,                        &
@@ -579,7 +580,7 @@
      &                     AVERAGE(ng) % avgSxx3d)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idW3xx)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idW3xx)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -592,8 +593,8 @@
       IF (Aout(idW3xy,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r3dvar
-        status=nf_fwrite3d(ng, iNLM, ncAVGid(ng), avgVid(idW3xy,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite3d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idW3xy), &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, 1, N(ng), scale,         &
 #   ifdef MASKING
      &                     GRID(ng) % rmask_avg,                        &
@@ -601,7 +602,7 @@
      &                     AVERAGE(ng) % avgSxy3d)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idW3xy)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idW3xy)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -614,8 +615,8 @@
       IF (Aout(idW3yy,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r3dvar
-        status=nf_fwrite3d(ng, iNLM, ncAVGid(ng), avgVid(idW3yy,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite3d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idW3yy), &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, 1, N(ng), scale,         &
 #   ifdef MASKING
      &                     GRID(ng) % rmask_avg,                        &
@@ -623,7 +624,7 @@
      &                     AVERAGE(ng) % avgSyy3d)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idW3yy)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idW3yy)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -638,8 +639,8 @@
       IF (Aout(idW3zx,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r3dvar
-        status=nf_fwrite3d(ng, iNLM, ncAVGid(ng), avgVid(idW3zx,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite3d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idW3zx), &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, 1, N(ng), scale,         &
 #    ifdef MASKING
      &                     GRID(ng) % rmask_avg,                        &
@@ -647,7 +648,7 @@
      &                     AVERAGE(ng) % avgSzx3d)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idW3zx)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idW3zx)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -660,8 +661,8 @@
       IF (Aout(idW3zy,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r3dvar
-        status=nf_fwrite3d(ng, iNLM, ncAVGid(ng), avgVid(idW3zy,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite3d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idW3zy), &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, 1, N(ng), scale,         &
 #    ifdef MASKING
      &                     GRID(ng) % rmask_avg,                        &
@@ -669,7 +670,7 @@
      &                     AVERAGE(ng) % avgSzy3d)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idW3zy)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idW3zy)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -683,8 +684,8 @@
       IF (Aout(idU3rs,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*u3dvar
-        status=nf_fwrite3d(ng, iNLM, ncAVGid(ng), avgVid(idU3rs,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite3d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idU3rs), &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, 1, N(ng), scale,         &
 #   ifdef MASKING
      &                     GRID(ng) % umask_avg,                        &
@@ -692,7 +693,7 @@
      &                     AVERAGE(ng) % avgu3RS)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idU3rs)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idU3rs)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -705,8 +706,8 @@
       IF (Aout(idV3rs,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*v3dvar
-        status=nf_fwrite3d(ng, iNLM, ncAVGid(ng), avgVid(idV3rs,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite3d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idV3rs), &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, 1, N(ng), scale,         &
 #   ifdef MASKING
      &                     GRID(ng) % vmask_avg,                        &
@@ -714,7 +715,7 @@
      &                     AVERAGE(ng) % avgv3RS)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idV3rs)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idV3rs)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -727,8 +728,8 @@
       IF (Aout(idU3Sd,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*u3dvar
-        status=nf_fwrite3d(ng, iNLM, ncAVGid(ng), avgVid(idU3Sd,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite3d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idU3Sd), &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, 1, N(ng), scale,         &
 #   ifdef MASKING
      &                     GRID(ng) % umask_avg,                        &
@@ -736,7 +737,7 @@
      &                     AVERAGE(ng) % avgu3Sd)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idU3Sd)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idU3Sd)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -749,8 +750,8 @@
       IF (Aout(idV3Sd,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*v3dvar
-        status=nf_fwrite3d(ng, iNLM, ncAVGid(ng), avgVid(idV3Sd,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite3d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idV3Sd), &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, 1, N(ng), scale,         &
 #   ifdef MASKING
      &                     GRID(ng) % vmask_avg,                        &
@@ -758,7 +759,7 @@
      &                     AVERAGE(ng) % avgv3Sd)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idV3Sd)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idV3Sd)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -772,8 +773,8 @@
       IF (Aout(idOvel,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*w3dvar
-        status=nf_fwrite3d(ng, iNLM, ncAVGid(ng), avgVid(idOvel,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite3d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idOvel), &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, 0, N(ng), scale,         &
 #  ifdef MASKING
      &                     GRID(ng) % rmask_avg,                        &
@@ -781,7 +782,7 @@
      &                     AVERAGE(ng) % avgw3d)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idOvel)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idOvel)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -794,8 +795,8 @@
       IF (Aout(idWvel,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*w3dvar
-        status=nf_fwrite3d(ng, iNLM, ncAVGid(ng), avgVid(idWvel,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite3d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idWvel), &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, 0, N(ng), scale,         &
 #  ifdef MASKING
      &                     GRID(ng) % rmask_avg,                        &
@@ -803,7 +804,7 @@
      &                     AVERAGE(ng) % avgwvel)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idOvel)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idOvel)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -817,8 +818,8 @@
         IF (Aout(idTvar(itrc),ng)) THEN
           scale=1.0_r8
           gtype=gfactor*r3dvar
-          status=nf_fwrite3d(ng, iNLM, ncAVGid(ng), avgTid(itrc,ng),    &
-     &                       tAVGindx(ng), gtype,                       &
+          status=nf_fwrite3d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Tid(itrc), &
+     &                       AVG(ng)%Rindex, gtype,                     &
      &                       LBi, UBi, LBj, UBj, 1, N(ng), scale,       &
 #  ifdef MASKING
      &                       GRID(ng) % rmask_avg,                      &
@@ -827,7 +828,7 @@
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
               WRITE (stdout,10) TRIM(Vname(1,idTvar(itrc))),            &
-     &                          tAVGindx(ng)
+     &                          AVG(ng)%Rindex
             END IF
             exit_flag=3
             ioerror=status
@@ -843,15 +844,16 @@
 !---------------------------------------------
       DO itrc=1,NT(ng)
         DO itrc2=1,NT(ng)
-!g        !print *, 'XXX',ncAVGid(ng),avgTSid(itrc,ng),tAVGindx(ng)
+!g        !print *, 'XXX',AVG(ng)%ncid,AVG(ng)%TSid(itrc),AVG(ng)%Rindex
 !g       !print *, 'xxx',Aout(idTSvar(itrc),ng)
         IF (Aout(idTBFvar(itrc),ng)) THEN
           scale=1.0_r8
           gtype=gfactor*r2dvar
 
-          status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgTBFid(itrc,ng),  &
-     &                     tAVGindx(ng), gtype,                         &
-     &                     1,NT(ng),1, NT(ng), scale,                   &
+          status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid,                    &
+     &                       AVG(ng)%TBFid(itrc),                       &
+     &                       AVG(ng)%Rindex, gtype,                     &
+     &                       1,NT(ng),1, NT(ng), scale,                 &
 #  ifdef MASKING
      &                       GRID(ng) % rmask_avg,                      &
 #  endif
@@ -859,7 +861,7 @@
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
               WRITE (stdout,10) TRIM(Vname(1,idTBFvar(itrc))),          &
-     &                        tAVGindx(ng)
+     &                        AVG(ng)%Rindex
             END IF
             exit_flag=3
             ioerror=status
@@ -876,13 +878,13 @@
 !  Write out 3D stationary variable array.
 !---------------------------------------------
       DO itrc=1,NTS(ng)
-        !print *, 'XXX',ncAVGid(ng),avgTSid(itrc,ng),tAVGindx(ng)
+        !print *, 'XXX',AVG(ng)%ncid,AVG(ng)%TSid(itrc),AVG(ng)%Rindex
         !print *, 'xxx',Aout(idTSvar(itrc),ng)
         IF (Aout(idTSvar(itrc),ng)) THEN
           scale=1.0_r8
           gtype=gfactor*r3dvar
-          status=nf_fwrite3d(ng, iNLM, ncAVGid(ng), avgTSid(itrc,ng),   &
-     &                       tAVGindx(ng), gtype,                       &
+          status=nf_fwrite3d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%TSid(itrc),&
+     &                       AVG(ng)%Rindex, gtype,                     &
      &                       LBi, UBi, LBj, UBj, 1, N(ng), scale,       &
 #  ifdef MASKING
      &                       GRID(ng) % rmask_avg,                      &
@@ -890,8 +892,8 @@
      &                       AVERAGE(ng) % avgst(:,:,:,itrc))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,10) TRIM(Vname(1,idTSvar(itrc))),            &
-     &                        tAVGindx(ng)
+              WRITE (stdout,10) TRIM(Vname(1,idTSvar(itrc))),           &
+     &                        AVG(ng)%Rindex
             END IF
             exit_flag=3
             ioerror=status
@@ -908,9 +910,10 @@
         IF (Aout(idTS2var(itrc),ng)) THEN
           scale=1.0_r8
           gtype=gfactor*r2dvar
-          status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgTS2id(itrc,ng),  &
-     &                     tAVGindx(ng), gtype,                         &
-     &                     LBi, UBi, LBj, UBj, scale,                   &
+          status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid,                    &
+     &                       AVG(ng)%TS2id(itrc),                       &
+     &                       AVG(ng)%Rindex, gtype,                     &
+     &                       LBi, UBi, LBj, UBj, scale,                 &
 #  ifdef MASKING
      &                       GRID(ng) % rmask_avg,                      &
 #  endif
@@ -918,7 +921,7 @@
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
               WRITE (stdout,10) TRIM(Vname(1,idTS2var(itrc))),          &
-     &                        tAVGindx(ng)
+     &                        AVG(ng)%Rindex
             END IF
             exit_flag=3
             ioerror=status
@@ -933,13 +936,15 @@
 !  Write 3D production variables.
 !---------------------------------------------
       DO itrc=1,NPT3(ng)
-        !print *, 'XXX',ncAVGid(ng),avgPT3id(itrc,ng),tAVGindx(ng)
+        !print *,
+	'XXX',AVG(ng)%ncid,AVG(ng)%PT3id(itrc),AVG(ng)%Rindex
         !print *, 'xxx',Aout(idPT3var(itrc),ng)
         IF (Aout(idPT3var(itrc),ng)) THEN
           scale=1.0_r8
           gtype=gfactor*r3dvar
-          status=nf_fwrite3d(ng, iNLM, ncAVGid(ng), avgPT3id(itrc,ng),  &
-     &                       tAVGindx(ng), gtype,                       &
+          status=nf_fwrite3d(ng, iNLM, AVG(ng)%ncid,                    &
+     &                       AVG(ng)%PT3id(itrc),                       &
+     &                       AVG(ng)%Rindex, gtype,                     &
      &                       LBi, UBi, LBj, UBj, 1, N(ng), scale,       &
 #  ifdef MASKING
      &                       GRID(ng) % rmask_avg,                      &
@@ -948,7 +953,7 @@
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
              WRITE (stdout,10) TRIM(Vname(1,idPT3var(itrc))),           &
-     &                        tAVGindx(ng)
+     &                        AVG(ng)%Rindex
             END IF
             exit_flag=3
             ioerror=status
@@ -966,8 +971,8 @@
         IF (Aout(idPT2var(itrc),ng)) THEN
           scale=1.0_r8
           gtype=gfactor*r2dvar
-          status=nf_fwrite2d(ng, iNLM, ncAVGid(ng),avgPT2id(itrc,ng),   &
-     &                     tAVGindx(ng), gtype,                         &
+          status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid,AVG(ng)%PT2id(itrc),&
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #  ifdef MASKING
      &                       GRID(ng) % rmask_avg,                      &
@@ -975,8 +980,8 @@
      &                       AVERAGE(ng) % avgpt2(:,:,itrc))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-             WRITE (stdout,10) TRIM(Vname(1,idPT2var(itrc))),            &
-     &                        tAVGindx(ng)
+             WRITE (stdout,10) TRIM(Vname(1,idPT2var(itrc))),           &
+     &                        AVG(ng)%Rindex
             END IF
             exit_flag=3
             ioerror=status
@@ -993,8 +998,8 @@
         IF (Aout(idBvar(itrc),ng)) THEN
           scale=1.0_r8
           gtype=gfactor*r2dvar
-          status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgBid(itrc,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
+          status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Bid(itrc), &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #   ifdef MASKING
      &                     GRID(ng) % rmask_avg,                        &
@@ -1003,9 +1008,9 @@
 ! switch if have more than one benthic level
 
 !          gtype=gfactor*r3dvar
-!          status=nf_fwrite3d(ng, iNLM, ncAVGid(ng), avgBid(itrc,ng),    &
-!     &                       tAVGindx(ng), gtype,                       &
-!     &                       LBi, UBi, LBj, UBj, 1, N(ng), scale,       &
+!          status=nf_fwrite3d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Bid(itrc),&
+!     &                       AVG(ng)%Rindex, gtype,                    &
+!     &                       LBi, UBi, LBj, UBj, 1, N(ng), scale,      &
 !#  ifdef MASKING
 !     &                       GRID(ng) % rmask_avg,                      &
 !#  endif
@@ -1014,7 +1019,7 @@
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
               WRITE (stdout,10) TRIM(Vname(1,idBvar(itrc))),            &
-     &                        tAVGindx(ng)
+     &                        AVG(ng)%Rindex
             END IF
             exit_flag=3
             ioerror=status
@@ -1035,8 +1040,9 @@
         IF (Aout(idIceBvar(itrc),ng)) THEN
           scale=1.0_r8
           gtype=gfactor*r2dvar
-          status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgIceBid(itrc,ng), &
-     &                     tAVGindx(ng), gtype,                         &
+          status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid,                    &
+     &                     AVG(ng)%IceBid(itrc),                        &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #   ifdef MASKING
      &                     GRID(ng) % rmask_avg,                        &
@@ -1045,9 +1051,10 @@
 ! switch if have more than one ice level
 
 !          gtype=gfactor*r3dvar
-!          status=nf_fwrite3d(ng, iNLM, ncAVGid(ng), avgIceBid(itrc,ng),    &
-!     &                       tAVGindx(ng), gtype,                       &
-!     &                       LBi, UBi, LBj, UBj, 1, NIL(ng), scale,       &
+!          status=nf_fwrite3d(ng, iNLM, AVG(ng)%ncid,                    &
+!     &                       AVG(ng)%IceBid(itrc),                      &
+!     &                       AVG(ng)%Rindex, gtype,                     &
+!     &                       LBi, UBi, LBj, UBj, 1, NIL(ng), scale,     &
 !#  ifdef MASKING
 !     &                       GRID(ng) % rmask_avg,                      &
 !#  endif
@@ -1056,7 +1063,7 @@
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
               WRITE (stdout,10) TRIM(Vname(1,idIceBvar(itrc))),            &
-     &                        tAVGindx(ng)
+     &                        AVG(ng)%Rindex
             END IF
             exit_flag=3
             ioerror=status
@@ -1069,8 +1076,9 @@
       IF (Aout(idIcePhL,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idIcePhL,ng),  &
-     &                   tAVGindx(ng), gtype,                           &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid,                      &
+     &                   AVG(ng)%Vid(idIcePhL),                         &
+     &                   AVG(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, scale,                     &
 #   ifdef MASKING
      &                   GRID(ng) % rmask_avg,                          &
@@ -1078,7 +1086,7 @@
      &                   AVERAGE(ng) % avgIPhL)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idIcePhL)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idIcePhL)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           RETURN
@@ -1090,8 +1098,9 @@
 !       IF (Hout(idIceBvar,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idIceNO3,ng),  &
-     &                   tAVGindx(ng), gtype,                           &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid,                      &
+     &                   AVG(ng)%Vid(idIceNO3),                         &
+     &                   AVG(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, scale,                     &
 #   ifdef MASKING
      &                   GRID(ng) % rmask_avg,                          &
@@ -1099,7 +1108,7 @@
      &                   AVERAGE(ng) % avgINO3)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idIceNO3)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idIceNO3)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           RETURN
@@ -1110,8 +1119,9 @@
       IF (Aout(idIceNH4,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idIceNH4,ng),  &
-     &                   tAVGindx(ng), gtype,                           &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid,                      &
+     &                   AVG(ng)%Vid(idIceNH4),                         &
+     &                   AVG(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, scale,                     &
 #   ifdef MASKING
      &                   GRID(ng) % rmask_avg,                          &
@@ -1119,7 +1129,7 @@
      &                   AVERAGE(ng) % avgINH4)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idIceNH4)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idIceNH4)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           RETURN
@@ -1130,8 +1140,9 @@
 !       IF (Hout(idIceBvar,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idIceLog,ng),  &
-     &                   tAVGindx(ng), gtype,                           &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid,                      &
+     &                   AVG(ng)%Vid(idIceLog),                         &
+     &                   AVG(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, scale,                     &
 #   ifdef MASKING
      &                   GRID(ng) % rmask_avg,                          &
@@ -1139,7 +1150,7 @@
      &                   AVERAGE(ng) % avgILog)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idIceLog)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idIceLog)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           RETURN
@@ -1154,13 +1165,13 @@
 !  Write out stationary tracer type variables.
 !---------------------------------------------
       DO itrc=1,NTS(ng)
-        !print *, 'XXX',ncAVGid(ng),avgTSid(itrc,ng),tAVGindx(ng)
+        !print *, 'XXX',AVG(ng)%ncid,AVG(ng)%TSid(itrc),AVG(ng)%Rindex
         !print *, 'xxx',Aout(idTSvar(itrc),ng)
         IF (Aout(idTSvar(itrc),ng)) THEN
           scale=1.0_r8
           gtype=gfactor*r3dvar
-          status=nf_fwrite3d(ng, iNLM, ncAVGid(ng), avgTSid(itrc,ng),   &
-     &                       tAVGindx(ng), gtype,                       &
+          status=nf_fwrite3d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%TSid(itrc),&
+     &                       AVG(ng)%Rindex, gtype,                     &
      &                       LBi, UBi, LBj, UBj, 1, N(ng), scale,       &
 #  ifdef MASKING
      &                       GRID(ng) % rmask_avg,                      &
@@ -1169,7 +1180,7 @@
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
               WRITE (stdout,10) TRIM(Vname(1,idTSvar(itrc))),            &
-     &                        tAVGindx(ng)
+     &                        AVG(ng)%Rindex
             END IF
             exit_flag=3
             ioerror=status
@@ -1184,9 +1195,9 @@
         IF (Aout(idTrcD(itrc),ng)) THEN
           scale=1.0_r8
           gtype=gfactor*r3dvar
-          status=nf_fwrite3d(ng, iNLM, ncAVGid(ng),                     &
-     &                       avgVid(idTrcD(itrc),ng),                   &
-     &                       tAVGindx(ng), gtype,                       &
+          status=nf_fwrite3d(ng, iNLM, AVG(ng)%ncid,                    &
+     &                       AVG(ng)%Vid(idTrcD(itrc)),                 &
+     &                       AVG(ng)%Rindex, gtype,                     &
      &                       LBi, UBi, LBj, UBj, 1, N(ng), scale,       &
 #   ifdef MASKING
      &                       GRID(ng) % rmask_avg,                      &
@@ -1195,7 +1206,7 @@
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
               WRITE (stdout,10) TRIM(Vname(1,idTrcD(itrc))),            &
-     &                          tAVGindx(ng)
+     &                          AVG(ng)%Rindex
             END IF
             exit_flag=3
             ioerror=status
@@ -1210,8 +1221,8 @@
       IF (Aout(idDano,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r3dvar
-        status=nf_fwrite3d(ng, iNLM, ncAVGid(ng), avgVid(idDano,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite3d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idDano), &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, 1, N(ng), scale,         &
 #  ifdef MASKING
      &                     GRID(ng) % rmask_avg,                        &
@@ -1219,7 +1230,7 @@
      &                     AVERAGE(ng) % avgrho)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idDano)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idDano)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -1233,8 +1244,9 @@
       IF (Aout(idPONsed,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idPONsed,ng),  &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid,                      &
+     &                     AVG(ng)%Vid(idPONsed),                       &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #   ifdef MASKING
      &                     GRID(ng) % rmask_avg,                        &
@@ -1242,7 +1254,7 @@
      &                     AVERAGE(ng) % avgPONsed)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idPONsed)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idPONsed)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -1255,8 +1267,9 @@
       IF (Aout(idOPALsed,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idOPALsed,ng), &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid,                      &
+     &                     AVG(ng)%Vid(idOPALsed),                      &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #   ifdef MASKING
      &                     GRID(ng) % rmask_avg,                        &
@@ -1264,7 +1277,7 @@
      &                     AVERAGE(ng) % avgOPALsed)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idOPALsed)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idOPALsed)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -1277,8 +1290,9 @@
       IF (Aout(idDENITsed,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idDENITsed,ng),&
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid,                      &
+     &                     AVG(ng)%Vid(idDENITsed),                     &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #   ifdef MASKING
      &                     GRID(ng) % rmask_avg,                        &
@@ -1286,7 +1300,7 @@
      &                     AVERAGE(ng) % avgDENITsed)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idDENITsed)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idDENITsed)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -1299,8 +1313,9 @@
       IF (Aout(idPONbur,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idPONbur,ng),  &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid,                      &
+     &                     AVG(ng)%Vid(idPONbur),                       &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #   ifdef MASKING
      &                     GRID(ng) % rmask_avg,                        &
@@ -1308,7 +1323,7 @@
      &                     AVERAGE(ng) % avgPONbur)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idPONbur)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idPONbur)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -1321,8 +1336,9 @@
       IF (Aout(idOPALbur,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idOPALbur,ng), &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid,                      &
+     &                     AVG(ng)%Vid(idOPALbur),                      &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #   ifdef MASKING
      &                     GRID(ng) % rmask_avg,                        &
@@ -1330,7 +1346,7 @@
      &                     AVERAGE(ng) % avgOPALbur)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idOPALbur)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idOPALbur)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -1345,8 +1361,8 @@
       IF (Aout(idHsbl,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idHsbl,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idHsbl), &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #   ifdef MASKING
      &                     GRID(ng) % rmask_avg,                        &
@@ -1354,7 +1370,7 @@
      &                     AVERAGE(ng) % avghsbl)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idHsbl)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idHsbl)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -1369,8 +1385,8 @@
       IF (Aout(idHbbl,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idHbbl,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idHbbl), &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #   ifdef MASKING
      &                     GRID(ng) % rmask_avg,                        &
@@ -1378,7 +1394,7 @@
      &                     AVERAGE(ng) % avghbbl)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idHbbl)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idHbbl)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -1393,8 +1409,8 @@
       IF (Aout(idSSSf,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idSSSf,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idSSSf), &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #   ifdef MASKING
      &                     GRID(ng) % rmask_avg,                        &
@@ -1402,7 +1418,7 @@
      &                     AVERAGE(ng) % avgsssflx)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idSSSf)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idSSSf)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -1417,8 +1433,8 @@
       IF (Aout(idUice,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*u2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idUice,ng),    &
-     &                   tAVGindx(ng), gtype,                           &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idUice), &
+     &                   AVG(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, scale,                     &
 #   ifdef MASKING
      &                   GRID(ng) % umask_avg,                          &
@@ -1426,7 +1442,7 @@
      &                   AVERAGE(ng) % avguice)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idUice)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idUice)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           RETURN
@@ -1438,8 +1454,8 @@
       IF (Aout(idVice,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*v2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idVice,ng),    &
-     &                   tAVGindx(ng), gtype,                           &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idVice), &
+     &                   AVG(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, scale,                     &
 #   ifdef MASKING
      &                   GRID(ng) % vmask_avg,                          &
@@ -1447,7 +1463,7 @@
      &                   AVERAGE(ng) % avgvice)
        IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idVice)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idVice)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           RETURN
@@ -1459,8 +1475,8 @@
       IF (Aout(idAice,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idAice,ng),    &
-     &                   tAVGindx(ng), gtype,                           &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idAice), &
+     &                   AVG(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, scale,                     &
 #   ifdef MASKING
      &                   GRID(ng) % rmask_avg,                          &
@@ -1468,7 +1484,7 @@
      &                   AVERAGE(ng) % avgaice)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idAice)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idAice)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           RETURN
@@ -1480,8 +1496,8 @@
       IF (Aout(idHice,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idHice,ng),    &
-     &                   tAVGindx(ng), gtype,                           &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idHice), &
+     &                   AVG(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, scale,                     &
 #   ifdef MASKING
      &                   GRID(ng) % rmask_avg,                          &
@@ -1489,7 +1505,7 @@
      &                   AVERAGE(ng) % avghice)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idHice)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idHice)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           RETURN
@@ -1501,8 +1517,8 @@
       IF (Aout(idTice,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idTice,ng),    &
-     &                   tAVGindx(ng), gtype,                           &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idTice), &
+     &                   AVG(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, scale,                     &
 #   ifdef MASKING
      &                   GRID(ng) % rmask_avg,                          &
@@ -1510,7 +1526,7 @@
      &                   AVERAGE(ng) % avgtice)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idTice)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idTice)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           RETURN
@@ -1522,8 +1538,8 @@
       IF (Aout(idTimid,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idTimid,ng),   &
-     &                   tAVGindx(ng), gtype,                           &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idTimid),&
+     &                   AVG(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, scale,                     &
 #   ifdef MASKING
      &                   GRID(ng) % rmask_avg,                          &
@@ -1531,7 +1547,7 @@
      &                   AVERAGE(ng) % avgtimid)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idTimid)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idTimid)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           RETURN
@@ -1543,8 +1559,8 @@
       IF (Aout(idHsno,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idHsno,ng),    &
-     &                   tAVGindx(ng), gtype,                           &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idHsno), &
+     &                   AVG(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, scale,                     &
 #   ifdef MASKING
      &                   GRID(ng) % rmask_avg,                          &
@@ -1552,7 +1568,7 @@
      &                   AVERAGE(ng) % avghsno)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idHsno)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idHsno)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           RETURN
@@ -1564,8 +1580,8 @@
       IF (Aout(idSfwat,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idSfwat,ng),   &
-     &                   tAVGindx(ng), gtype,                           &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idSfwat),&
+     &                   AVG(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, scale,                     &
 #   ifdef MASKING
      &                   GRID(ng) % rmask_avg,                          &
@@ -1573,7 +1589,7 @@
      &                   AVERAGE(ng) % avgsfwat)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idSfwat)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idSfwat)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           RETURN
@@ -1585,8 +1601,9 @@
       IF (Aout(idAgeice,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idAgeice,ng),  &
-     &                   tAVGindx(ng), gtype,                           &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid,                      &
+     &                   AVG(ng)%Vid(idAgeice),                         &
+     &                   AVG(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, scale,                     &
 #   ifdef MASKING
      &                   GRID(ng) % rmask_avg,                          &
@@ -1594,7 +1611,7 @@
      &                   AVERAGE(ng) % avgageice)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idAgeice)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idAgeice)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           RETURN
@@ -1606,8 +1623,9 @@
       IF (Aout(idIomflx,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idIomflx,ng),  &
-     &                   tAVGindx(ng), gtype,                           &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid,                      &
+     &                   AVG(ng)%Vid(idIomflx),                         &
+     &                   AVG(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, scale,                     &
 #   ifdef MASKING
      &                   GRID(ng) % rmask_avg,                          &
@@ -1615,7 +1633,7 @@
      &                   AVERAGE(ng) % avgiomflx)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idIomflx)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idIomflx)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           RETURN
@@ -1627,8 +1645,8 @@
       IF (Aout(idSig11,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idSig11,ng),   &
-     &                   tAVGindx(ng), gtype,                           &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idSig11),&
+     &                   AVG(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, scale,                     &
 #   ifdef MASKING
      &                   GRID(ng) % rmask_avg,                          &
@@ -1636,7 +1654,7 @@
      &                   AVERAGE(ng) % avgsig11)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idSig11)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idSig11)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           RETURN
@@ -1648,8 +1666,8 @@
       IF (Aout(idSig12,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idSig12,ng),   &
-     &                   tAVGindx(ng), gtype,                           &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idSig12),&
+     &                   AVG(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, scale,                     &
 #   ifdef MASKING
      &                   GRID(ng) % rmask_avg,                          &
@@ -1657,7 +1675,7 @@
      &                   AVERAGE(ng) % avgsig12)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idSig12)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idSig12)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           RETURN
@@ -1669,8 +1687,8 @@
       IF (Aout(idSig22,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idSig22,ng),   &
-     &                   tAVGindx(ng), gtype,                           &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idSig22),&
+     &                   AVG(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, scale,                     &
 #   ifdef MASKING
      &                   GRID(ng) % rmask_avg,                          &
@@ -1678,7 +1696,7 @@
      &                   AVERAGE(ng) % avgsig22)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idSig22)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idSig22)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           RETURN
@@ -1690,8 +1708,8 @@
       IF (Aout(idT0mk,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idT0mk,ng),    &
-     &                   tAVGindx(ng), gtype,                           &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idT0mk), &
+     &                   AVG(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, scale,                     &
 #   ifdef MASKING
      &                   GRID(ng) % rmask_avg,                          &
@@ -1699,7 +1717,7 @@
      &                   AVERAGE(ng) % avgT0mk)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idT0mk)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idT0mk)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           RETURN
@@ -1711,8 +1729,8 @@
       IF (Aout(idS0mk,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idS0mk,ng),    &
-     &                   tAVGindx(ng), gtype,                           &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idS0mk), &
+     &                   AVG(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, scale,                     &
 #   ifdef MASKING
      &                   GRID(ng) % rmask_avg,                          &
@@ -1720,7 +1738,7 @@
      &                   AVERAGE(ng) % avgS0mk)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idS0mk)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idS0mk)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           RETURN
@@ -1732,8 +1750,8 @@
       IF (Aout(idWfr,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idWfr,ng),     &
-     &                   tAVGindx(ng), gtype,                           &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idWfr),  &
+     &                   AVG(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, scale,                     &
 #   ifdef MASKING
      &                   GRID(ng) % rmask_avg,                          &
@@ -1741,7 +1759,7 @@
      &                   AVERAGE(ng) % avgWfr)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idWfr)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idWfr)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           RETURN
@@ -1753,8 +1771,8 @@
       IF (Aout(idWai,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idWai,ng),     &
-     &                   tAVGindx(ng), gtype,                           &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idWai),  &
+     &                   AVG(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, scale,                     &
 #   ifdef MASKING
      &                   GRID(ng) % rmask_avg,                          &
@@ -1762,7 +1780,7 @@
      &                   AVERAGE(ng) % avgWai)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idWai)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idWai)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           RETURN
@@ -1774,8 +1792,8 @@
       IF (Aout(idWao,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idWao,ng),     &
-     &                   tAVGindx(ng), gtype,                           &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idWao),  &
+     &                   AVG(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, scale,                     &
 #   ifdef MASKING
      &                   GRID(ng) % rmask_avg,                          &
@@ -1783,7 +1801,7 @@
      &                   AVERAGE(ng) % avgWao)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idWao)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idWao)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           RETURN
@@ -1795,8 +1813,8 @@
       IF (Aout(idWio,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idWio,ng),     &
-     &                   tAVGindx(ng), gtype,                           &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idWio),  &
+     &                   AVG(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, scale,                     &
 #   ifdef MASKING
      &                   GRID(ng) % rmask_avg,                          &
@@ -1804,7 +1822,7 @@
      &                   AVERAGE(ng) % avgWio)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idWio)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idWio)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           RETURN
@@ -1816,8 +1834,8 @@
       IF (Aout(idWro,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idWro,ng),     &
-     &                   tAVGindx(ng), gtype,                           &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idWro),  &
+     &                   AVG(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, scale,                     &
 #   ifdef MASKING
      &                   GRID(ng) % rmask_avg,                          &
@@ -1825,7 +1843,7 @@
      &                   AVERAGE(ng) % avgWro)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idWro)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idWro)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           RETURN
@@ -1837,8 +1855,8 @@
       IF (Aout(idTauiw,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idTauiw,ng),   &
-     &                   tAVGindx(ng), gtype,                           &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idTauiw),&
+     &                   AVG(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, scale,                     &
 #   ifdef MASKING
      &                   GRID(ng) % rmask_avg,                          &
@@ -1846,7 +1864,7 @@
      &                   AVERAGE(ng) % avgutau_iw)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idTauiw)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idTauiw)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           RETURN
@@ -1858,8 +1876,8 @@
       IF (Aout(idChuiw,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idChuiw,ng),   &
-     &                   tAVGindx(ng), gtype,                           &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idChuiw),&
+     &                   AVG(ng)%Rindex, gtype,                           &
      &                   LBi, UBi, LBj, UBj, scale,                     &
 #   ifdef MASKING
      &                   GRID(ng) % rmask_avg,                          &
@@ -1867,7 +1885,7 @@
      &                   AVERAGE(ng) % avgchu_iw)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idChuiw)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idChuiw)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           RETURN
@@ -1881,8 +1899,8 @@
       IF (Aout(id2dPV,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*p2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(id2dPV,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(id2dPV), &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 # ifdef MASKING
      &                     GRID(ng) % pmask_avg,                        &
@@ -1890,7 +1908,7 @@
      &                     AVERAGE(ng) % avgpvor2d)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,id2dPV)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,id2dPV)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -1903,8 +1921,8 @@
       IF (Aout(id2dRV,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*p2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(id2dRV,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(id2dRV), &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 # ifdef MASKING
      &                     GRID(ng) % pmask_avg,                        &
@@ -1912,7 +1930,7 @@
      &                     AVERAGE(ng) % avgrvor2d)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,id2dRV)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,id2dRV)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -1926,8 +1944,8 @@
       IF (Aout(id3dPV,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*p3dvar
-        status=nf_fwrite3d(ng, iNLM, ncAVGid(ng), avgVid(id3dPV,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite3d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(id3dPV), &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, 1, N(ng), scale,         &
 #  ifdef MASKING
      &                     GRID(ng) % pmask_avg,                        &
@@ -1935,7 +1953,7 @@
      &                     AVERAGE(ng) % avgpvor3d)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,id3dPV)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,id3dPV)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -1948,8 +1966,8 @@
       IF (Aout(id3dRV,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*p3dvar
-        status=nf_fwrite3d(ng, iNLM, ncAVGid(ng), avgVid(id3dRV,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite3d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(id3dRV), &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, 1, N(ng), scale,         &
 #  ifdef MASKING
      &                     GRID(ng) % pmask_avg,                        &
@@ -1957,7 +1975,7 @@
      &                     AVERAGE(ng) % avgrvor3d)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,id3dRV)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,id3dRV)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -1971,8 +1989,8 @@
       IF (Aout(idZZav,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idZZav,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idZZav), &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 # ifdef MASKING
      &                     GRID(ng) % rmask_avg,                        &
@@ -1980,7 +1998,7 @@
      &                     AVERAGE(ng) % avgZZ)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idZZav)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idZZav)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -1993,8 +2011,8 @@
       IF (Aout(idU2av,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*u2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idU2av,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idU2av), &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 # ifdef MASKING
      &                     GRID(ng) % umask_avg,                        &
@@ -2002,7 +2020,7 @@
      &                     AVERAGE(ng) % avgU2)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idU2av)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idU2av)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -2015,8 +2033,8 @@
       IF (Aout(idV2av,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*v2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idV2av,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idV2av), &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 # ifdef MASKING
      &                     GRID(ng) % vmask_avg,                        &
@@ -2024,7 +2042,7 @@
      &                     AVERAGE(ng) % avgV2)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idV2av)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idV2av)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -2038,8 +2056,8 @@
       IF (Aout(idHUav,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*u3dvar
-        status=nf_fwrite3d(ng, iNLM, ncAVGid(ng), avgVid(idHUav,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite3d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idHUav), &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, 1, N(ng), scale,         &
 #  ifdef MASKING
      &                     GRID(ng) % umask_avg,                        &
@@ -2047,7 +2065,7 @@
      &                     AVERAGE(ng) % avgHuon)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idHUav)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idHUav)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -2060,8 +2078,8 @@
       IF (Aout(idHVav,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*v3dvar
-        status=nf_fwrite3d(ng, iNLM, ncAVGid(ng), avgVid(idHVav,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite3d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idHVav), &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, 1, N(ng), scale,         &
 #  ifdef MASKING
      &                     GRID(ng) % vmask_avg,                        &
@@ -2069,7 +2087,7 @@
      &                     AVERAGE(ng) % avgHvom)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idHVav)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idHVav)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -2082,8 +2100,8 @@
       IF (Aout(idUUav,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*u3dvar
-        status=nf_fwrite3d(ng, iNLM, ncAVGid(ng), avgVid(idUUav,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite3d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idUUav), &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, 1, N(ng), scale,         &
 #  ifdef MASKING
      &                     GRID(ng) % umask_avg,                        &
@@ -2091,7 +2109,7 @@
      &                     AVERAGE(ng) % avgUU)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idUUav)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idUUav)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -2104,8 +2122,8 @@
       IF (Aout(idUVav,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r3dvar
-        status=nf_fwrite3d(ng, iNLM, ncAVGid(ng), avgVid(idUVav,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite3d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idUVav), &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, 1, N(ng), scale,         &
 #  ifdef MASKING
      &                     GRID(ng) % rmask_avg,                        &
@@ -2113,7 +2131,7 @@
      &                     AVERAGE(ng) % avgUV)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idUVav)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idUVav)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -2126,8 +2144,8 @@
       IF (Aout(idVVav,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*v3dvar
-        status=nf_fwrite3d(ng, iNLM, ncAVGid(ng), avgVid(idVVav,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite3d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idVVav), &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, 1, N(ng), scale,         &
 #  ifdef MASKING
      &                     GRID(ng) % vmask_avg,                        &
@@ -2135,7 +2153,7 @@
      &                     AVERAGE(ng) % avgVV)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idVVav)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idVVav)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -2149,8 +2167,9 @@
         IF (Aout(idTTav(i),ng)) THEN
           scale=1.0_r8
           gtype=gfactor*r3dvar
-          status=nf_fwrite3d(ng, iNLM, ncAVGid(ng),                     &
-     &                       avgVid(idTTav(i),ng), tAVGindx(ng), gtype, &
+          status=nf_fwrite3d(ng, iNLM, AVG(ng)%ncid,                    &
+     &                       AVG(ng)%Vid(idTTav(i)),                    &
+     &                       AVG(ng)%Rindex, gtype,                     &
      &                       LBi, UBi, LBj, UBj, 1, N(ng), scale,       &
 #  ifdef MASKING
      &                       GRID(ng) % rmask_avg,                      &
@@ -2158,7 +2177,7 @@
      &                       AVERAGE(ng) % avgTT(:,:,:,i))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,10) TRIM(Vname(1,idTTav(i))), tAVGindx(ng)
+              WRITE (stdout,10) TRIM(Vname(1,idTTav(i))), AVG(ng)%Rindex
             END IF
             exit_flag=3
             ioerror=status
@@ -2173,8 +2192,9 @@
         IF (Aout(iHUTav(i),ng)) THEN
           scale=1.0_r8
           gtype=gfactor*u3dvar
-          status=nf_fwrite3d(ng, iNLM, ncAVGid(ng),                     &
-     &                       avgVid(iHUTav(i),ng), tAVGindx(ng), gtype, &
+          status=nf_fwrite3d(ng, iNLM, AVG(ng)%ncid,                    &
+     &                       AVG(ng)%Vid(iHUTav(i)),                    &
+     &                       AVG(ng)%Rindex, gtype,                     &
      &                       LBi, UBi, LBj, UBj, 1, N(ng), scale,       &
 #  ifdef MASKING
      &                       GRID(ng) % umask_avg,                      &
@@ -2182,7 +2202,7 @@
      &                       AVERAGE(ng) % avgHuonT(:,:,:,i))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,10) TRIM(Vname(1,iHUTav(i))), tAVGindx(ng)
+              WRITE (stdout,10) TRIM(Vname(1,iHUTav(i))), AVG(ng)%Rindex
             END IF
             exit_flag=3
             ioerror=status
@@ -2193,8 +2213,9 @@
         IF (Aout(iHVTav(i),ng)) THEN
           scale=1.0_r8
           gtype=gfactor*v3dvar
-          status=nf_fwrite3d(ng, iNLM, ncAVGid(ng),                     &
-     &                       avgVid(iHVTav(i),ng), tAVGindx(ng), gtype, &
+          status=nf_fwrite3d(ng, iNLM, AVG(ng)%ncid,                    &
+     &                       AVG(ng)%Vid(iHVTav(i)),                    &
+     &                       AVG(ng)%Rindex, gtype,                     &
      &                       LBi, UBi, LBj, UBj, 1, N(ng), scale,       &
 #  ifdef MASKING
      &                       GRID(ng) % vmask_avg,                      &
@@ -2202,7 +2223,7 @@
      &                       AVERAGE(ng) % avgHvomT(:,:,:,i))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,10) TRIM(Vname(1,iHVTav(i))), tAVGindx(ng)
+              WRITE (stdout,10) TRIM(Vname(1,iHVTav(i))), AVG(ng)%Rindex
             END IF
             exit_flag=3
             ioerror=status
@@ -2217,8 +2238,9 @@
         IF (Aout(idUTav(i),ng)) THEN
           scale=1.0_r8
           gtype=gfactor*u3dvar
-          status=nf_fwrite3d(ng, iNLM, ncAVGid(ng),                     &
-     &                       avgVid(idUTav(i),ng), tAVGindx(ng), gtype, &
+          status=nf_fwrite3d(ng, iNLM, AVG(ng)%ncid,                    &
+     &                       AVG(ng)%Vid(idUTav(i)),                    &
+     &                       AVG(ng)%Rindex, gtype,                     &
      &                       LBi, UBi, LBj, UBj, 1, N(ng), scale,       &
 #  ifdef MASKING
      &                       GRID(ng) % umask_avg,                      &
@@ -2226,7 +2248,7 @@
      &                       AVERAGE(ng) % avgUT(:,:,:,i))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,10) TRIM(Vname(1,idUTav(i))), tAVGindx(ng)
+              WRITE (stdout,10) TRIM(Vname(1,idUTav(i))), AVG(ng)%Rindex
             END IF
             exit_flag=3
             ioerror=status
@@ -2237,8 +2259,9 @@
         IF (Aout(idVTav(i),ng)) THEN
           scale=1.0_r8
           gtype=gfactor*v3dvar
-          status=nf_fwrite3d(ng, iNLM, ncAVGid(ng),                     &
-     &                       avgVid(idVTav(i),ng), tAVGindx(ng), gtype, &
+          status=nf_fwrite3d(ng, iNLM, AVG(ng)%ncid,                    &
+     &                       AVG(ng)%Vid(idVTav(i)),                    &
+     &                       AVG(ng)%Rindex, gtype,                     &
      &                       LBi, UBi, LBj, UBj, 1, N(ng), scale,       &
 #  ifdef MASKING
      &                       GRID(ng) % vmask_avg,                      &
@@ -2246,7 +2269,7 @@
      &                       AVERAGE(ng) % avgVT(:,:,:,i))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,10) TRIM(Vname(1,idVTav(i))), tAVGindx(ng)
+              WRITE (stdout,10) TRIM(Vname(1,idVTav(i))), AVG(ng)%Rindex
             END IF
             exit_flag=3
             ioerror=status
@@ -2262,8 +2285,8 @@
       IF (Aout(idVvis,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*w3dvar
-        status=nf_fwrite3d(ng, iNLM, ncAVGid(ng), avgVid(idVvis,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite3d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idVvis), &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, 0, N(ng), scale,         &
 #   ifdef MASKING
      &                     GRID(ng) % rmask_avg,                        &
@@ -2272,7 +2295,7 @@
      &                     SetFillVal = .FALSE.)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idVvis)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idVvis)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -2285,8 +2308,8 @@
       IF (Aout(idTdif,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*w3dvar
-        status=nf_fwrite3d(ng, iNLM, ncAVGid(ng), avgVid(idTdif,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite3d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idTdif), &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, 0, N(ng), scale,         &
 #   ifdef MASKING
      &                     GRID(ng) % rmask_avg,                        &
@@ -2295,7 +2318,7 @@
      &                     SetFillVal = .FALSE.)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idTdif)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idTdif)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -2308,8 +2331,8 @@
       IF (Aout(idSdif,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*w3dvar
-        status=nf_fwrite3d(ng, iNLM, ncAVGid(ng), avgVid(idSdif,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite3d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idSdif), &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, 0, N(ng), scale,         &
 #   ifdef MASKING
      &                     GRID(ng) % rmask_avg,                        &
@@ -2318,7 +2341,7 @@
      &                     SetFillVal = .FALSE.)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idSdif)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idSdif)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -2333,8 +2356,8 @@
       IF (Aout(idPair,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idPair,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idPair), &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #   ifdef MASKING
      &                     GRID(ng) % rmask_avg,                        &
@@ -2342,7 +2365,7 @@
      &                     AVERAGE(ng) % avgPair)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idPair)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idPair)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -2357,8 +2380,8 @@
       IF (Aout(idUair,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idUair,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idUair), &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #   ifdef MASKING
      &                     GRID(ng) % rmask_avg,                        &
@@ -2366,7 +2389,7 @@
      &                     AVERAGE(ng) % avgUwind)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idUair)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idUair)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -2377,8 +2400,8 @@
       IF (Aout(idVair,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idVair,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idVair), &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #   ifdef MASKING
      &                     GRID(ng) % rmask_avg,                        &
@@ -2386,7 +2409,7 @@
      &                     AVERAGE(ng) % avgVwind)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idVair)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idVair)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -2413,9 +2436,9 @@
 #   endif
 #  endif
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng),                       &
-     &                     avgVid(idTsur(itemp),ng),                    &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid,                      &
+     &                     AVG(ng)%Vid(idTsur(itemp)),                  &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #  ifdef MASKING
      &                     GRID(ng) % rmask_avg,                        &
@@ -2423,7 +2446,8 @@
      &                     AVERAGE(ng) % avgstf)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idTsur(itemp))), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idTsur(itemp))),             &
+     &                        AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -2436,9 +2460,9 @@
       IF (Aout(idTsur(isalt),ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng),                       &
-     &                     avgVid(idTsur(isalt),ng),                    &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid,                      &
+     &                     AVG(ng)%Vid(idTsur(isalt)),                  &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #  ifdef MASKING
      &                     GRID(ng) % rmask_avg,                        &
@@ -2446,7 +2470,8 @@
      &                     AVERAGE(ng) % avgswf)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idTsur(isalt))), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idTsur(isalt))),             &
+     &                        AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -2464,8 +2489,8 @@
         scale=rho0*Cp
 #   endif
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idLhea,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idLhea), &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #   ifdef MASKING
      &                     GRID(ng) % rmask_avg,                        &
@@ -2473,7 +2498,7 @@
      &                     AVERAGE(ng) % avglhf)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idLhea)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idLhea)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -2490,8 +2515,8 @@
         scale=rho0*Cp
 #   endif
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idShea,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idShea), &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #   ifdef MASKING
      &                     GRID(ng) % rmask_avg,                        &
@@ -2499,7 +2524,7 @@
      &                     AVERAGE(ng) % avgshf)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idShea)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idShea)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -2516,8 +2541,8 @@
         scale=rho0*Cp
 #   endif
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idLrad,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idLrad), &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #   ifdef MASKING
      &                     GRID(ng) % rmask_avg,                        &
@@ -2525,7 +2550,7 @@
      &                     AVERAGE(ng) % avglrf)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idLrad)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idLrad)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -2539,8 +2564,8 @@
       IF (Aout(idevap,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idevap,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idevap), &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #    ifdef MASKING
      &                     GRID(ng) % rmask_avg,                        &
@@ -2548,7 +2573,7 @@
      &                     AVERAGE(ng) % avgevap)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idevap)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idevap)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -2561,8 +2586,8 @@
       IF (Aout(idrain,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idrain,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idrain), &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #    ifdef MASKING
      &                     GRID(ng) % rmask_avg,                        &
@@ -2570,7 +2595,7 @@
      &                     AVERAGE(ng) % avgrain)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idrain)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idrain)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -2590,8 +2615,8 @@
         scale=rho0*Cp
 #    endif
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idSrad,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idSrad), &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #    ifdef MASKING
      &                     GRID(ng) % rmask_avg,                        &
@@ -2599,7 +2624,7 @@
      &                     AVERAGE(ng) % avgsrf)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idSrad)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idSrad)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -2623,8 +2648,8 @@
         scale=rho0
 # endif
         gtype=gfactor*u2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idUsms,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idUsms), &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 # ifdef MASKING
      &                     GRID(ng) % umask_avg,                        &
@@ -2632,7 +2657,7 @@
      &                     AVERAGE(ng) % avgsus)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idUsms)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idUsms)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -2654,8 +2679,8 @@
         scale=rho0
 # endif
         gtype=gfactor*v2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idVsms,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idVsms), &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 # ifdef MASKING
      &                     GRID(ng) % vmask_avg,                        &
@@ -2663,7 +2688,7 @@
      &                     AVERAGE(ng) % avgsvs)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idVsms)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idVsms)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -2685,8 +2710,8 @@
         scale=rho0
 # endif
         gtype=gfactor*u2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idUbms,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idUbms), &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 # ifdef MASKING
      &                     GRID(ng) % umask_avg,                        &
@@ -2694,7 +2719,7 @@
      &                     AVERAGE(ng) % avgbus)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idUbms)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idUbms)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -2716,8 +2741,8 @@
         scale=rho0
 # endif
         gtype=gfactor*v2dvar
-        status=nf_fwrite2d(ng, iNLM, ncAVGid(ng), avgVid(idVbms,ng),    &
-     &                     tAVGindx(ng), gtype,                         &
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idVbms), &
+     &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 # ifdef MASKING
      &                     GRID(ng) % vmask_avg,                        &
@@ -2725,7 +2750,7 @@
      &                     AVERAGE(ng) % avgbvs)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idVbms)), tAVGindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idVbms)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
@@ -2740,9 +2765,9 @@
         IF (Aout(idUbld(itrc),ng)) THEN
           scale=1.0_r8
           gtype=gfactor*u2dvar
-          status=nf_fwrite2d(ng, iNLM, ncAVGid(ng),                     &
-     &                       avgVid(idUbld(itrc),ng),                   &
-     &                       tAVGindx(ng), gtype,                       &
+          status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid,                    &
+     &                       AVG(ng)%Vid(idUbld(itrc)),                 &
+     &                       AVG(ng)%Rindex, gtype,                     &
      &                       LBi, UBi, LBj, UBj, scale,                 &
 #  ifdef MASKING
      &                       GRID(ng) % umask_avg,                      &
@@ -2751,7 +2776,7 @@
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
               WRITE (stdout,10) TRIM(Vname(1,idUbld(itrc))),            &
-     &                          tAVGindx(ng)
+     &                          AVG(ng)%Rindex
             END IF
             exit_flag=3
             ioerror=status
@@ -2764,9 +2789,9 @@
         IF (Aout(idVbld(itrc),ng)) THEN
           scale=1.0_r8
           gtype=gfactor*v2dvar
-          status=nf_fwrite2d(ng, iNLM, ncAVGid(ng),                     &
-     &                       avgVid(idVbld(itrc),ng),                   &
-     &                       tAVGindx(ng), gtype,                       &
+          status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid,                    &
+     &                       AVG(ng)%Vid(idVbld(itrc)),                 &
+     &                       AVG(ng)%Rindex, gtype,                     &
      &                       LBi, UBi, LBj, UBj, scale,                 &
 #  ifdef MASKING
      &                       GRID(ng) % vmask_avg,                      &
@@ -2775,7 +2800,7 @@
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
               WRITE (stdout,10) TRIM(Vname(1,idVbld(itrc))),            &
-     &                          tAVGindx(ng)
+     &                          AVG(ng)%Rindex
             END IF
             exit_flag=3
             ioerror=status
@@ -2790,10 +2815,10 @@
 !  to access data immediately after it is written.
 !-----------------------------------------------------------------------
 !
-      CALL netcdf_sync (ng, iNLM, AVGname(ng), ncAVGid(ng))
+      CALL netcdf_sync (ng, iNLM, AVG(ng)%name, AVG(ng)%ncid)
       IF (exit_flag.ne.NoError) RETURN
 
-      IF (Master) WRITE (stdout,20) tAVGindx(ng)
+      IF (Master) WRITE (stdout,20) AVG(ng)%Rindex
 !
   10  FORMAT (/,' WRT_AVG - error while writing variable: ',a,/,11x,    &
      &        'into averages NetCDF file for time record: ',i4)

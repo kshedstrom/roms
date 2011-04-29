@@ -86,7 +86,7 @@
 !  Lateral boundary conditions at the western edge.
 !-----------------------------------------------------------------------
 !
-      IF (WESTERN_EDGE) THEN
+      IF (DOMAIN(ng)%Western_Edge(tile)) THEN
 
 # ifdef WEST_HSNCLAMPED
 !
@@ -152,7 +152,7 @@
 !  Lateral boundary conditions at the eastern edge.
 !-----------------------------------------------------------------------
 !
-      IF (EASTERN_EDGE) THEN
+      IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
 
 # ifdef EAST_HSNCLAMPED
 !
@@ -220,7 +220,7 @@
 !  Lateral boundary conditions at the southern edge.
 !-----------------------------------------------------------------------
 !
-      IF (SOUTHERN_EDGE) THEN
+      IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
 
 # ifdef SOUTH_HSNCLAMPED
 !
@@ -286,7 +286,7 @@
 !  Lateral boundary conditions at the northern edge.
 !-----------------------------------------------------------------------
 !
-      IF (NORTHERN_EDGE) THEN
+      IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
 
 # ifdef NORTH_HSNCLAMPED
 !
@@ -354,19 +354,19 @@
 !  Boundary corners.
 !-----------------------------------------------------------------------
 !
-      IF (SOUTHERN_EDGE.and.WESTERN_EDGE) THEN
+      IF (DOMAIN(ng)%SouthWest_Corner(tile)) THEN
         iceNO3(0,0,linew)=0.5_r8*(iceNO3(1,0,linew)+                          &
      &                         iceNO3(0,1,linew))
       END IF
-      IF (SOUTHERN_EDGE.and.EASTERN_EDGE) THEN
+      IF (DOMAIN(ng)%SouthEast_Corner(tile)) THEN
         iceNO3(Lm(ng)+1,0,linew)=0.5_r8*(iceNO3(Lm(ng)+1,1,linew)+            &
      &                                iceNO3(Lm(ng)  ,0,linew))
       END IF
-      IF (NORTHERN_EDGE.and.WESTERN_EDGE) THEN
+      IF (DOMAIN(ng)%NorthWest_Corner(tile)) THEN
         iceNO3(0,Mm(ng)+1,linew)=0.5_r8*(iceNO3(0,Mm(ng)  ,linew)+            &
      &                                iceNO3(1,Mm(ng)+1,linew))
       END IF
-      IF (NORTHERN_EDGE.and.EASTERN_EDGE) THEN
+      IF (DOMAIN(ng)%NorthEast_Corner(tile)) THEN
         iceNO3(Lm(ng)+1,Mm(ng)+1,linew)=0.5_r8*                            &
      &             (iceNO3(Lm(ng)+1,Mm(ng)  ,linew)+                       &
      &              iceNO3(Lm(ng)  ,Mm(ng)+1,linew))

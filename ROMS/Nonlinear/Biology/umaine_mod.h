@@ -91,54 +91,54 @@
       integer :: iTAlk                 ! Total alkalinity
 #endif
 
-      integer, dimension(Ngrids) :: BioIter
+      integer, allocatable :: BioIter(:)
 
-      real(r8), dimension(Ngrids) :: reg1            ! 1/day
-      real(r8), dimension(Ngrids) :: reg2            ! 1/day
-      real(r8), dimension(Ngrids) :: gmaxs1          ! 1/day
-      real(r8), dimension(Ngrids) :: gmaxs2          ! 1/day
-      real(r8), dimension(Ngrids) :: beta1           ! 1/day
-      real(r8), dimension(Ngrids) :: beta2           ! 1/day
-      real(r8), dimension(Ngrids) :: akz1            ! mmol_N/m3
-      real(r8), dimension(Ngrids) :: akz2            ! mmol_N/m3
-      real(r8), dimension(Ngrids) :: PARfrac         ! nondimensional
-      real(r8), dimension(Ngrids) :: amaxs2          ! 1/(Watts/m2)/day
-      real(r8), dimension(Ngrids) :: pis1            ! m3/mmol_N
-      real(r8), dimension(Ngrids) :: pis2            ! m3/mmol_N
-      real(r8), dimension(Ngrids) :: akno3s1         ! mmol_N/m3
-      real(r8), dimension(Ngrids) :: aknh4s1         ! mmol_N/m3
-      real(r8), dimension(Ngrids) :: akpo4s1         ! mmol_P/m3
-      real(r8), dimension(Ngrids) :: akco2s1         ! mmol_C/m3
-      real(r8), dimension(Ngrids) :: akno3s2         ! mmol_N/m3
-      real(r8), dimension(Ngrids) :: aknh4s2         ! mmol_N/m3
-      real(r8), dimension(Ngrids) :: aksio4s2        ! mmol_Si/m3
-      real(r8), dimension(Ngrids) :: akpo4s2         ! mmol_P/m3
-      real(r8), dimension(Ngrids) :: akco2s2         ! mmol_C/m3
-      real(r8), dimension(Ngrids) :: ak1             ! 1/m
-      real(r8), dimension(Ngrids) :: ak2             ! 1/m/(mmol_N/m3)
-      real(r8), dimension(Ngrids) :: parsats1        ! Watts/m2
-      real(r8), dimension(Ngrids) :: parsats2        ! Watts/m2
-      real(r8), dimension(Ngrids) :: bgamma0         ! 1/day
-      real(r8), dimension(Ngrids) :: bgamma1         ! [nondimensional]
-      real(r8), dimension(Ngrids) :: bgamma2         ! [nondimensional]
-      real(r8), dimension(Ngrids) :: bgamma3         ! 1/day
-      real(r8), dimension(Ngrids) :: bgamma4         ! 1/day
-      real(r8), dimension(Ngrids) :: bgamma5         ! 1/day
-      real(r8), dimension(Ngrids) :: bgamma6         ! 
-      real(r8), dimension(Ngrids) :: bgamma7         ! 1/day
-      real(r8), dimension(Ngrids) :: wsd             ! m/day
-      real(r8), dimension(Ngrids) :: wsdsi           ! m/day
-      real(r8), dimension(Ngrids) :: wsp             ! m/day
-      real(r8), dimension(Ngrids) :: si2n            ! mol_Si/mol_N
-      real(r8), dimension(Ngrids) :: pco2a           ! ppmv
-      real(r8), dimension(Ngrids) :: p2n             ! mol_P/mol_N
-      real(r8), dimension(Ngrids) :: o2no            ! mol_O2/mol_NO3
-      real(r8), dimension(Ngrids) :: o2nh            ! mol_O2/mol_NH4
-      real(r8), dimension(Ngrids) :: c2n             ! mol_C/mol_N
-      real(r8), dimension(Ngrids) :: ro5             ! nondimensional
-      real(r8), dimension(Ngrids) :: ro6             ! nondimensional
-      real(r8), dimension(Ngrids) :: ro7             ! nondimensional
-      real(r8), dimension(Ngrids) :: pCO2air         ! ppmv
+      real(r8), allocatable :: reg1(:)            ! 1/day
+      real(r8), allocatable :: reg2(:)            ! 1/day
+      real(r8), allocatable :: gmaxs1(:)          ! 1/day
+      real(r8), allocatable :: gmaxs2(:)          ! 1/day
+      real(r8), allocatable :: beta1(:)           ! 1/day
+      real(r8), allocatable :: beta2(:)           ! 1/day
+      real(r8), allocatable :: akz1(:)            ! mmol_N/m3
+      real(r8), allocatable :: akz2(:)            ! mmol_N/m3
+      real(r8), allocatable :: PARfrac(:)         ! nondimensional
+      real(r8), allocatable :: amaxs2(:)          ! 1/(Watts/m2)/day
+      real(r8), allocatable :: pis1(:)            ! m3/mmol_N
+      real(r8), allocatable :: pis2(:)            ! m3/mmol_N
+      real(r8), allocatable :: akno3s1(:)         ! mmol_N/m3
+      real(r8), allocatable :: aknh4s1(:)         ! mmol_N/m3
+      real(r8), allocatable :: akpo4s1(:)         ! mmol_P/m3
+      real(r8), allocatable :: akco2s1(:)         ! mmol_C/m3
+      real(r8), allocatable :: akno3s2(:)         ! mmol_N/m3
+      real(r8), allocatable :: aknh4s2(:)         ! mmol_N/m3
+      real(r8), allocatable :: aksio4s2(:)        ! mmol_Si/m3
+      real(r8), allocatable :: akpo4s2(:)         ! mmol_P/m3
+      real(r8), allocatable :: akco2s2(:)         ! mmol_C/m3
+      real(r8), allocatable :: ak1(:)             ! 1/m
+      real(r8), allocatable :: ak2(:)             ! 1/m/(mmol_N/m3)
+      real(r8), allocatable :: parsats1(:)        ! Watts/m2
+      real(r8), allocatable :: parsats2(:)        ! Watts/m2
+      real(r8), allocatable :: bgamma0(:)         ! 1/day
+      real(r8), allocatable :: bgamma1(:)         ! [nondimensional]
+      real(r8), allocatable :: bgamma2(:)         ! [nondimensional]
+      real(r8), allocatable :: bgamma3(:)         ! 1/day
+      real(r8), allocatable :: bgamma4(:)         ! 1/day
+      real(r8), allocatable :: bgamma5(:)         ! 1/day
+      real(r8), allocatable :: bgamma6(:)         ! 
+      real(r8), allocatable :: bgamma7(:)         ! 1/day
+      real(r8), allocatable :: wsd(:)             ! m/day
+      real(r8), allocatable :: wsdsi(:)           ! m/day
+      real(r8), allocatable :: wsp(:)             ! m/day
+      real(r8), allocatable :: si2n(:)            ! mol_Si/mol_N
+      real(r8), allocatable :: pco2a(:)           ! ppmv
+      real(r8), allocatable :: p2n(:)             ! mol_P/mol_N
+      real(r8), allocatable :: o2no(:)            ! mol_O2/mol_NO3
+      real(r8), allocatable :: o2nh(:)            ! mol_O2/mol_NH4
+      real(r8), allocatable :: c2n(:)             ! mol_C/mol_N
+      real(r8), allocatable :: ro5(:)             ! nondimensional
+      real(r8), allocatable :: ro6(:)             ! nondimensional
+      real(r8), allocatable :: ro7(:)             ! nondimensional
+      real(r8), allocatable :: pCO2air(:)         ! ppmv
 
       CONTAINS
 
@@ -172,6 +172,150 @@
       NBT=10
 # endif
 #endif
+!-----------------------------------------------------------------------
+!  Allocate various module variables.
+!-----------------------------------------------------------------------
+      IF (.not.allocated(BioIter)) THEN
+        allocate ( BioIter(Ngrids) )
+      END IF
+      IF (.not.allocated(reg1)) THEN
+        allocate ( reg1(Ngrids) )
+      END IF
+      IF (.not.allocated(reg2)) THEN
+        allocate ( reg2(Ngrids) )
+      END IF
+      IF (.not.allocated(gmaxs1)) THEN
+        allocate ( gmaxs1(Ngrids) )
+      END IF
+      IF (.not.allocated(gmaxs2)) THEN
+        allocate ( gmaxs2(Ngrids) )
+      END IF
+      IF (.not.allocated(beta1)) THEN
+        allocate ( beta1(Ngrids) )
+      END IF
+      IF (.not.allocated(beta2)) THEN
+        allocate ( beta2(Ngrids) )
+      END IF
+      IF (.not.allocated(akz1)) THEN
+        allocate ( akz1(Ngrids) )
+      END IF
+      IF (.not.allocated(akz2)) THEN
+        allocate ( akz2(Ngrids) )
+      END IF
+      IF (.not.allocated(PARfrac)) THEN
+        allocate ( PARfrac(Ngrids) )
+      END IF
+      IF (.not.allocated(amaxs2)) THEN
+        allocate ( amaxs2(Ngrids) )
+      END IF
+      IF (.not.allocated(pis1)) THEN
+        allocate ( pis1(Ngrids) )
+      END IF
+      IF (.not.allocated(pis2)) THEN
+        allocate ( pis2(Ngrids) )
+      END IF
+      IF (.not.allocated(akno3s1)) THEN
+        allocate ( akno3s1(Ngrids) )
+      END IF
+      IF (.not.allocated(aknh4s1)) THEN
+        allocate ( aknh4s1(Ngrids) )
+      END IF
+      IF (.not.allocated(akpo4s1)) THEN
+        allocate ( akpo4s1(Ngrids) )
+      END IF
+      IF (.not.allocated(akco2s1)) THEN
+        allocate ( akco2s1(Ngrids) )
+      END IF
+      IF (.not.allocated(akno3d2)) THEN
+        allocate ( akno3d2(Ngrids) )
+      END IF
+      IF (.not.allocated(aknh4s2)) THEN
+        allocate ( aknh4s2(Ngrids) )
+      END IF
+      IF (.not.allocated(aksio4s2)) THEN
+        allocate ( aksio4s2(Ngrids) )
+      END IF
+      IF (.not.allocated(akpo4s2)) THEN
+        allocate ( akpo4s2(Ngrids) )
+      END IF
+      IF (.not.allocated(akco2s2)) THEN
+        allocate ( akco2s2(Ngrids) )
+      END IF
+      IF (.not.allocated(ak1)) THEN
+        allocate ( ak1(Ngrids) )
+      END IF
+      IF (.not.allocated(ak2)) THEN
+        allocate ( ak2(Ngrids) )
+      END IF
+      IF (.not.allocated(parsats1)) THEN
+        allocate ( parsats1(Ngrids) )
+      END IF
+      IF (.not.allocated(parsats2)) THEN
+        allocate ( parsats2(Ngrids) )
+      END IF
+      IF (.not.allocated(bgamma0)) THEN
+        allocate ( bgamma0(Ngrids) )
+      END IF
+      IF (.not.allocated(bgamma1)) THEN
+        allocate ( bgamma1(Ngrids) )
+      END IF
+      IF (.not.allocated(bgamma2)) THEN
+        allocate ( bgamma2(Ngrids) )
+      END IF
+      IF (.not.allocated(bgamma3)) THEN
+        allocate ( bgamma3(Ngrids) )
+      END IF
+      IF (.not.allocated(bgamma4)) THEN
+        allocate ( bgamma4(Ngrids) )
+      END IF
+      IF (.not.allocated(bgamma5)) THEN
+        allocate ( bgamma5(Ngrids) )
+      END IF
+      IF (.not.allocated(bgamma6)) THEN
+        allocate ( bgamma6(Ngrids) )
+      END IF
+      IF (.not.allocated(bgamma7)) THEN
+        allocate ( bgamma7(Ngrids) )
+      END IF
+      IF (.not.allocated(wsd)) THEN
+        allocate ( wsd(Ngrids) )
+      END IF
+      IF (.not.allocated(wsdsi)) THEN
+        allocate ( wsdsi(Ngrids) )
+      END IF
+      IF (.not.allocated(wsp)) THEN
+        allocate ( wsp(Ngrids) )
+      END IF
+      IF (.not.allocated(si2n)) THEN
+        allocate ( si2n(Ngrids) )
+      END IF
+      IF (.not.allocated(pco2a)) THEN
+        allocate ( pco2a(Ngrids) )
+      END IF
+      IF (.not.allocated(p2n)) THEN
+        allocate ( p2n(Ngrids) )
+      END IF
+      IF (.not.allocated(o2no)) THEN
+        allocate ( o2no(Ngrids) )
+      END IF
+      IF (.not.allocated(o2nh)) THEN
+        allocate ( o2nh(Ngrids) )
+      END IF
+      IF (.not.allocated(c2n)) THEN
+        allocate ( c2n(Ngrids) )
+      END IF
+      IF (.not.allocated(ro5)) THEN
+        allocate ( ro5(Ngrids) )
+      END IF
+      IF (.not.allocated(ro6)) THEN
+        allocate ( ro6(Ngrids) )
+      END IF
+      IF (.not.allocated(ro7)) THEN
+        allocate ( ro7(Ngrids) )
+      END IF
+      IF (.not.allocated(pCO2air)) THEN
+        allocate ( pCO2air(Ngrids) )
+      END IF
 !
 !-----------------------------------------------------------------------
 !  Initialize tracer identification indices.

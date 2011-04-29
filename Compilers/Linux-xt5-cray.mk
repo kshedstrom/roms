@@ -36,11 +36,6 @@
            CFLAGS :=
          CXXFLAGS :=
           LDFLAGS :=
-ifdef USE_CXX
-             LIBS := -lstdc++
-else
-             LIBS :=
-endif
                AR := ar
           ARFLAGS := -r
             MKDIR := mkdir -p
@@ -63,26 +58,24 @@ TYPESIZES_MODFILE := TYPESIZES.mod
 #
 
 ifdef USE_NETCDF4
-    NETCDF_INCDIR ?= /opt/cray/netcdf/4.0.1.3/netcdf-cce/include
-    NETCDF_LIBDIR ?= /opt/cray/netcdf/4.0.1.3/netcdf-cce/lib
-      HDF5_LIBDIR ?= /u2/wes/PET_HOME/pkgs/hdf5-1.8.1-parallel/lib
+        NC_CONFIG ?= nc-config
+    NETCDF_INCDIR ?= $(shell $(NC_CONFIG) --prefix)/include
+             LIBS += $(shell $(NC_CONFIG) --flibs)
+else
+    NETCDF_INCDIR ?= /usr/local/include
+    NETCDF_LIBDIR ?= /usr/local/lib
+             LIBS += -L$(NETCDF_LIBDIR) -lnetcdf
+endif
+ifdef USE_NETCDF4
+#    NETCDF_INCDIR ?= /opt/cray/netcdf/4.0.1.3/netcdf-cce/include
+#    NETCDF_LIBDIR ?= /opt/cray/netcdf/4.0.1.3/netcdf-cce/lib
+#      HDF5_LIBDIR ?= /u2/wes/PET_HOME/pkgs/hdf5-1.8.1-parallel/lib
 #    NETCDF_INCDIR ?= /u2/wes/PET_HOME/pkgs/netcdf-4.0-parallel/include
 #    NETCDF_LIBDIR ?= /u2/wes/PET_HOME/pkgs/netcdf-4.0-parallel/lib
 #      HDF5_LIBDIR ?= /u2/wes/PET_HOME/pkgs/hdf5-1.8.1-parallel/lib
-
-#    NETCDF_INCDIR ?= /u2/wes/PET_HOME/include
-#    NETCDF_LIBDIR ?= /u2/wes/PET_HOME/lib
-#      HDF5_LIBDIR ?= /u2/wes/PET_HOME/lib
 else
-    NETCDF_INCDIR ?= /usr/local/pkg/netcdf/netcdf-3.6.3.path/include
-    NETCDF_LIBDIR ?= /usr/local/pkg/netcdf/netcdf-3.6.3.path/lib
-endif
-             LIBS += -L$(NETCDF_LIBDIR) -lnetcdf
-ifdef USE_NETCDF4
-             LIBS += -L$(HDF5_LIBDIR) -lhdf5_hl -lhdf5 -lz
- ifdef USE_DAP
-             LIBS += $(shell curl-config --libs)
- endif
+#    NETCDF_INCDIR ?= /usr/local/pkg/netcdf/netcdf-3.6.3.path/include
+#    NETCDF_LIBDIR ?= /usr/local/pkg/netcdf/netcdf-3.6.3.path/lib
 endif
 
 ifdef USE_ARPACK
@@ -126,6 +119,10 @@ ifdef USE_ESMF
                      include $(ESMF_MK_DIR)/esmf.mk
            FFLAGS += $(ESMF_F90COMPILEPATHS)
              LIBS += $(ESMF_F90LINKPATHS) -lesmf -lC
+endif
+
+ifdef USE_CXX
+             LIBS += -lstdc++
 endif
 
 #

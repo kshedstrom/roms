@@ -36,17 +36,12 @@
            CFLAGS :=
          CXXFLAGS :=
           LDFLAGS :=
-ifdef USE_CXX
-             LIBS := -lstdc++
-else
-             LIBS :=
-endif
                AR := ar
           ARFLAGS := r
             MKDIR := mkdir -p
                RM := rm -f
            RANLIB := ranlib
-	     PERL := perl
+             PERL := perl
              TEST := test
 
         MDEPFLAGS := --cpp --fext=f90 --file=- --objdir=$(SCRATCH_DIR)
@@ -65,23 +60,13 @@ endif
 #
 
 ifdef USE_NETCDF4
-#        NC_CONFIG ?= ROMS/Bin/nc-config
-        NC_CONFIG ?= /usr/local/pgi/bin/nc-config
-#    NETCDF_INCDIR ?= /opt/pgisoft/netcdf4/include
-#    NETCDF_LIBDIR ?= /opt/pgisoft/netcdf4/lib
-    NETCDF_INCDIR ?= $(shell $(NC_CONFIG) --fflags | grep -o "\-I.*" | cut -f 1 | cut -c "3-")
-             LIBS += $(shell $(NC_CONFIG) --flibs)
-      HDF5_LIBDIR ?= /opt/pgisoft/hdf5/lib
+        NC_CONFIG ?= nc-config
+    NETCDF_INCDIR ?= $(shell $(NC_CONFIG) --prefix)/include
+             LIBS := $(shell $(NC_CONFIG) --flibs)
 else
-    NETCDF_INCDIR ?= /usr/local/pkg/netcdf/netcdf-3.6.1.pgi/include
-    NETCDF_LIBDIR ?= /usr/local/pkg/netcdf/netcdf-3.6.1.pgi/lib
-             LIBS += -L$(NETCDF_LIBDIR) -lnetcdf
-endif
-ifdef USE_NETCDF4
-             LIBS += -L$(HDF5_LIBDIR) -lhdf5_hl -lhdf5 -lz
- ifdef USE_DAP
-             LIBS += $(shell curl-config --libs)
- endif
+    NETCDF_INCDIR ?= /usr/local/include
+    NETCDF_LIBDIR ?= /usr/local/lib
+             LIBS := -L$(NETCDF_LIBDIR) -lnetcdf
 endif
 
 ifdef USE_ARPACK
@@ -147,6 +132,10 @@ ifdef USE_ESMF
                      include $(ESMF_MK_DIR)/esmf.mk
            FFLAGS += $(ESMF_F90COMPILEPATHS)
              LIBS += $(ESMF_F90LINKPATHS) -lesmf -lC
+endif
+
+ifdef USE_CXX
+             LIBS += -lstdc++
 endif
 
        clean_list += ifc* work.pc*

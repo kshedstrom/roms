@@ -111,19 +111,19 @@
 #if defined BENTHIC
       integer,parameter :: NBEN=2
       integer :: MBT
-      integer, dimension(Ngrids) :: NBeT
+      integer, allocatable :: NBeT(:)
 #endif
 #if defined ICE_BIO
       integer, parameter :: NIB=4
-      integer, dimension(Ngrids) :: NIceT
-      integer, dimension(Ngrids) :: NIceLog
+      integer, allocatable :: NIceT(:)
+      integer, allocatable :: NIceLog(:)
 #endif
 #ifdef STATIONARY
       !------------------------------------
       !3D stationary tracers
       !------------------------------------
 
-      integer, dimension(Ngrids) :: NTS
+      integer, allocatable :: NTS(:)
       integer, parameter :: NBTS = 16
 
 #endif
@@ -132,14 +132,14 @@
       !2D stationary tracers
       !------------------------------------
 
-      integer, dimension(Ngrids) :: NTS2
+      integer, allocatable :: NTS2(:)
       integer, parameter :: NBTS2 = 8
 #endif
 #ifdef PROD2
       !------------------------------------
       !2D producrion tracers (stationary)
       !------------------------------------
-      integer, dimension(Ngrids) :: NPT2
+      integer, allocatable :: NPT2(:)
       integer, parameter :: NBPT2 = 3
 #endif
 #ifdef PROD3
@@ -147,7 +147,7 @@
       !3D producrion tracers (stationary)
       !------------------------------------
 
-      integer, dimension(Ngrids) :: NPT3
+      integer, allocatable :: NPT3(:)
 # if defined JELLY
       integer, parameter :: NBPT3 = 8
 # else
@@ -155,9 +155,9 @@
 # endif
 #endif
 
-      integer, dimension(Ngrids) :: BioIter
+      integer, allocatable :: BioIter(:)
       real(r8) :: VertMixIncr
-      real(r8), dimension(Ngrids) :: PARfrac       ! nondimensional
+      real(r8), allocatable :: PARfrac(:)       ! nondimensional
 !  Bio- conversions
       real(r8) :: xi, ccr, ccrPhL
 !  extinction coefficients
@@ -368,6 +368,48 @@
 # endif
 #endif
 
+!-----------------------------------------------------------------------
+!  Allocate various module variables.
+!-----------------------------------------------------------------------
+      IF (.not.allocated(BioIter)) THEN
+        allocate ( BioIter(Ngrids) )
+      END IF
+      IF (.not.allocated(Parfrac)) THEN
+        allocate ( Parfrac(Ngrids) )
+      END IF
+#ifdef BENTHIC
+      IF (.not.allocated(NBeT)) THEN
+        allocate ( NBeT(Ngrids) )
+      END IF
+#endif
+#ifdef ICE_BIO
+      IF (.not.allocated(NIceT)) THEN
+        allocate ( NIceT(Ngrids) )
+      END IF
+      IF (.not.allocated(NIceLog)) THEN
+        allocate ( NIceLog(Ngrids) )
+      END IF
+#endif
+#ifdef STATIONARY
+      IF (.not.allocated(NTS)) THEN
+        allocate ( NTS(Ngrids) )
+      END IF
+#endif
+#ifdef STATIONARY2
+      IF (.not.allocated(NTS2)) THEN
+        allocate ( NTS2(Ngrids) )
+      END IF
+#endif
+#ifdef PROD2
+      IF (.not.allocated(NPT2)) THEN
+        allocate ( NPT2(Ngrids) )
+      END IF
+#endif
+#ifdef PROD3
+      IF (.not.allocated(NPT3)) THEN
+        allocate ( NPT3(Ngrids) )
+      END IF
+#endif
 !
 !-----------------------------------------------------------------------
 !  Set sources and sinks biology diagnostic parameters.

@@ -199,7 +199,7 @@
         LtracerSrc(itemp,ng)=.TRUE.
         LtracerSrc(isalt,ng)=.TRUE.
 #if defined NEP5 || defined NEP6
-!       IF (Master.and.SOUTH_WEST_TEST) THEN
+        IF (Master.and.DOMAIN(ng)%SouthWest_Test(tile)) THEN
           Nsrc=149
           DO is=1,Nsrc
             Dsrc(is)=0.0_r8
@@ -208,9 +208,9 @@
             LtracerSrc(itemp,ng)=.FALSE.
             LtracerSrc(isalt,ng)=.FALSE.
           END DO
-!       END IF
+        END IF
 #elif defined BERING_10K
-!       IF (Master.and.SOUTH_WEST_TEST) THEN
+        IF (Master.and.DOMAIN(ng)%SouthWest_Test(tile)) THEN
           Nsrc=51
           DO is=1,Nsrc
             Dsrc(is)=0.0_r8
@@ -219,7 +219,7 @@
             LtracerSrc(itemp,ng)=.FALSE.
             LtracerSrc(isalt,ng)=.FALSE.
           END DO
-!       END IF
+        END IF
 #else
         ana_psource.h: No values provided for LtracerSrc, Nsrc, Dsrc,
                                               Isrc, Jsrc.
@@ -280,7 +280,7 @@
 !
 !$OMP BARRIER
 
-      IF (NORTH_EAST_TEST) THEN
+      IF (DOMAIN(ng)%NorthEast_Test(tile)) THEN
         DO k=1,N(ng)
           DO is=1,Nsrc
             Qsrc(is,k)=Qbar(is)*Qshape(is,k)
@@ -295,7 +295,7 @@
 !  Set-up tracer (tracer units) point Sources/Sinks.
 !
 # if defined RIVERPLUME1
-      IF (NORTH_EAST_TEST) THEN
+      IF (DOMAIN(ng)%NorthEast_Test(tile)) THEN
         DO k=1,N(ng)
           DO is=1,Nsrc
             Tsrc(is,k,itemp)=T0(ng)
@@ -309,7 +309,7 @@
         END DO
       END IF
 # elif defined RIVERPLUME2
-      IF (NORTH_EAST_TEST) THEN
+      IF (DOMAIN(ng)%NorthEast_Test(tile)) THEN
         DO k=1,N(ng)
           DO is=1,Nsrc-1
             Tsrc(is,k,itemp)=T0(ng)

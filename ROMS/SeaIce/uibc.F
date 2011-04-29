@@ -84,7 +84,7 @@
 !  Lateral boundary conditions at the western edge.
 !-----------------------------------------------------------------------
 !
-      IF (WESTERN_EDGE) THEN
+      IF (DOMAIN(ng)%Western_Edge(tile)) THEN
 
 # if defined WEST_M2RADIATION
 !
@@ -181,7 +181,7 @@ THEN
 !  Lateral boundary conditions at the eastern edge.
 !-----------------------------------------------------------------------
 !
-      IF (EASTERN_EDGE) THEN
+      IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
 
 # if defined EAST_M2RADIATION
 !
@@ -279,7 +279,7 @@ THEN
 !  Lateral boundary conditions at the southern edge.
 !-----------------------------------------------------------------------
 !
-      IF (SOUTHERN_EDGE) THEN
+      IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
 
 # if defined SOUTH_M2RADIATION
 !
@@ -390,7 +390,7 @@ THEN
 !  Lateral boundary conditions at the northern edge.
 !-----------------------------------------------------------------------
 !
-      IF (NORTHERN_EDGE) THEN
+      IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
 
 # if defined NORTH_M2RADIATION
 !
@@ -503,19 +503,19 @@ THEN
 !  Boundary corners.
 !-----------------------------------------------------------------------
 !
-      IF (SOUTHERN_EDGE.and.WESTERN_EDGE) THEN
+      IF (DOMAIN(ng)%SouthWest_Corner(tile)) THEN
         ui(1,0,liunw)=0.5_r8*(ui(2,0,liunw)+                            &
      &                         ui(1,1,liunw))
       END IF
-      IF (SOUTHERN_EDGE.and.EASTERN_EDGE) THEN
+      IF (DOMAIN(ng)%SouthEast_Corner(tile)) THEN
         ui(Lm(ng)+1,0,liunw)=0.5_r8*(ui(Lm(ng)  ,0,liunw)+              &
      &                                ui(Lm(ng)+1,1,liunw))
       END IF
-      IF (NORTHERN_EDGE.and.WESTERN_EDGE) THEN
+      IF (DOMAIN(ng)%NorthWest_Corner(tile)) THEN
         ui(1,Mm(ng)+1,liunw)=0.5_r8*(ui(2,Mm(ng)+1,liunw)+              &
      &                                ui(1,Mm(ng)  ,liunw))
       END IF
-      IF (NORTHERN_EDGE.and.EASTERN_EDGE) THEN
+      IF (DOMAIN(ng)%NorthEast_Corner(tile)) THEN
         ui(Lm(ng)+1,Mm(ng)+1,liunw)=0.5_r8*                             &
      &                               (ui(Lm(ng)  ,Mm(ng)+1,liunw)+      &
      &                                ui(Lm(ng)+1,Mm(ng)  ,liunw))

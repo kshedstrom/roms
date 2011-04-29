@@ -19,7 +19,7 @@
       USE mod_param
       USE mod_parallel
 # ifdef FILTERED
-      USE mod_filter, ONLY: nfil, FIL
+      USE mod_filter, ONLY: nfil, FILN
 # endif
 # ifdef FLOATS
       USE mod_floats
@@ -47,7 +47,7 @@
 !
       logical :: Ldefine, NewFile
 
-      integer :: ifile, lstr, status, tile
+      integer :: Fcount, ifile, status, tile
 # ifdef FILTERED_RST
       integer :: i
 # endif
@@ -105,11 +105,11 @@
             Ldefine=.FALSE.
           END IF
           IF (Ldefine) THEN                     ! create new file or
-            NrecHIS(ng)=0                       ! inquire existing file
+            Fcount=HIS(ng)%Fcount               ! inquire existing file
+            HIS(ng)%Nrec(Fcount)=0
             ifile=(iic(ng)-1)/ndefHIS(ng)+1
             IF (Master) THEN
-              lstr=LEN_TRIM(HISbase(ng))
-              WRITE (HISname(ng),10) HISbase(ng)(1:lstr-3),ifile
+              WRITE (HIS(ng)%name,10) TRIM(HIS(ng)%base), ifile
 #if defined NEP5 || defined NEP6 || defined CASPIAN || defined CHUKCHI \
            || defined CORAL || defined NWA
   10          FORMAT (a,'_',i5.5,'.nc')
@@ -118,10 +118,10 @@
 #endif
             END IF
 # ifdef DISTRIBUTE
-            CALL mp_bcasts (ng, iNLM, HISname(ng))
+            CALL mp_bcasts (ng, iNLM, HIS(ng)%name)
 # endif
-            IF (ncHISid(ng).ne.-1) THEN
-              CALL netcdf_close (ng, iNLM, ncHISid(ng))
+            IF (HIS(ng)%ncid.ne.-1) THEN
+              CALL netcdf_close (ng, iNLM, HIS(ng)%ncid)
             END IF
             CALL def_his (ng, NewFile)
             IF (exit_flag.ne.NoError) RETURN
@@ -201,15 +201,15 @@
             Ldefine=.FALSE.
           END IF
           IF (Ldefine) THEN
-            NrecAVG(ng)=0
+            Fcount=AVG(ng)%Fcount
+            AVG(ng)%Nrec(Fcount)=0
             IF (ndefAVG(ng).eq.nAVG(ng)) THEN
               ifile=(iic(ng)-1)/ndefAVG(ng)
             ELSE
               ifile=(iic(ng)-1)/ndefAVG(ng)+1
             END IF
             IF (Master) THEN
-              lstr=LEN_TRIM(AVGbase(ng))
-              WRITE (AVGname(ng),20) AVGbase(ng)(1:lstr-3),ifile
+              WRITE (AVG(ng)%name,20) TRIM(AVG(ng)%base), ifile
 #if defined NEP5 || defined NEP6 || defined CASPIAN || defined CHUKCHI \
             || defined CORAL || defined NWA
   20          FORMAT (a,'_',i5.5,'.nc')
@@ -218,10 +218,10 @@
 #endif
             END IF
 # ifdef DISTRIBUTE
-            CALL mp_bcasts (ng, iNLM, AVGname(ng))
+            CALL mp_bcasts (ng, iNLM, AVG(ng)%name)
 # endif
-            IF (ncAVGid(ng).ne.-1) THEN
-              CALL netcdf_close (ng, iNLM, ncAVGid(ng))
+            IF (AVG(ng)%ncid.ne.-1) THEN
+              CALL netcdf_close (ng, iNLM, AVG(ng)%ncid)
             END IF
             CALL def_avg (ng, Newfile)
             IF (exit_flag.ne.NoError) RETURN
@@ -298,8 +298,7 @@
               ifile=(iic(ng)-1)/ndefAVG2(ng)+1
             END IF
             IF (Master) THEN
-              lstr=LEN_TRIM(AVG2base(ng))
-              WRITE (AVG2name(ng),20) AVG2base(ng)(1:lstr-3),ifile
+              WRITE (AVG2(ng)%name,20) TRIM(AVG(ng)%base), ifile
             END IF
 # ifdef DISTRIBUTE
             CALL mp_bcasts (ng, iNLM, AVG2name(ng))
@@ -370,15 +369,15 @@
             Ldefine=.FALSE.
           END IF
           IF (Ldefine) THEN
-            NrecDIA(ng)=0
+            Fcount=DIA(ng)%Fcount
+            DIA(ng)%Nrec(Fcount)=0
             IF (ndefDIA(ng).eq.nDIA(ng)) THEN
               ifile=(iic(ng)-1)/ndefDIA(ng)
             ELSE
               ifile=(iic(ng)-1)/ndefDIA(ng)+1
             END IF
             IF (Master) THEN
-              lstr=LEN_TRIM(DIAbase(ng))
-              WRITE (DIAname(ng),30) DIAbase(ng)(1:lstr-3),ifile
+              WRITE (DIA(ng)%name,30) TRIM(DIA(ng)%base), ifile
 #if defined NEP5 || defined NEP6 || defined CASPIAN || defined CHUKCHI \
             || defined CORAL || defined NWA
   30          FORMAT (a,'_',i5.5,'.nc')
@@ -387,10 +386,10 @@
 #endif
             END IF
 # ifdef DISTRIBUTE
-            CALL mp_bcasts (ng, iNLM, DIAname(ng))
+            CALL mp_bcasts (ng, iNLM, DIA(ng)%name)
 # endif
-            IF (ncDIAid(ng).ne.-1) THEN
-              CALL netcdf_close (ng, iNLM, ncDIAid(ng))
+            IF (DIA(ng)%ncid.ne.-1) THEN
+              CALL netcdf_close (ng, iNLM, DIA(ng)%ncid)
             END IF
             CALL def_diags (ng, Newfile)
             IF (exit_flag.ne.NoError) RETURN
@@ -505,7 +504,7 @@
           CALL wrt_rst (ng)
           IF (exit_flag.ne.NoError) RETURN
 # ifdef FILTERED_RST
-          DO i=1,FIL
+          DO i=1,FILN
             CALL wrt_filt (ng, i)
             IF (exit_flag.ne.NoError) RETURN
           END DO
