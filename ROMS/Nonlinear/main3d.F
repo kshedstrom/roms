@@ -384,7 +384,7 @@
 !  Run ice model for one step
 !-----------------------------------------------------------------------
 !
-          CALL seaice(ng)
+          CALL seaice
 # endif
 # ifdef ADJUST_BOUNDARY
 !

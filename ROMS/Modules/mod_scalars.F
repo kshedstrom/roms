@@ -237,6 +237,7 @@
         real(r8), allocatable :: time(:)                 ! seconds
         real(r8), allocatable :: TimeEnd(:)              ! seconds
         real(r8), allocatable :: AVGtime(:)              ! seconds
+        real(r8), allocatable :: AVG2time(:)             ! seconds
         real(r8), allocatable :: DIAtime(:)              ! seconds
         real(r8), allocatable :: IMPtime(:)              ! seconds
         real(r8), allocatable :: ObsTime(:)              ! seconds
@@ -1714,6 +1715,7 @@
       allocate ( time(Ngrids) )
       allocate ( TimeEnd(Ngrids) )
       allocate ( AVGtime(Ngrids) )
+      allocate ( AVG2time(Ngrids) )
       allocate ( DIAtime(Ngrids) )
       allocate ( IMPtime(Ngrids) )
       allocate ( ObsTime(Ngrids) )
@@ -1864,6 +1866,7 @@
 
       allocate ( LdefADJ(Ngrids) )
       allocate ( LdefAVG(Ngrids) )
+      allocate ( LdefAVG2(Ngrids) )
       allocate ( LdefDIA(Ngrids) )
       allocate ( LdefERR(Ngrids) )
       allocate ( LdefFLT(Ngrids) )
@@ -1882,6 +1885,7 @@
 
       allocate ( LwrtADJ(Ngrids) )
       allocate ( LwrtAVG(Ngrids) )
+      allocate ( LwrtAVG2(Ngrids) )
       allocate ( LwrtDIA(Ngrids) )
       allocate ( LwrtHIS(Ngrids) )
       allocate ( LwrtPER(Ngrids) )
@@ -1903,15 +1907,18 @@
 
       allocate ( ndefADJ(Ngrids) )
       allocate ( ndefAVG(Ngrids) )
+      allocate ( ndefAVG2(Ngrids) )
       allocate ( ndefDIA(Ngrids) )
       allocate ( ndefHIS(Ngrids) )
       allocate ( ndefTLM(Ngrids) )
 
       allocate ( ntsAVG(Ngrids) )
+      allocate ( ntsAVG2(Ngrids) )
       allocate ( ntsDIA(Ngrids) )
 
       allocate ( nADJ(Ngrids) )
       allocate ( nAVG(Ngrids) )
+      allocate ( nAVG2(Ngrids) )
       allocate ( nDIA(Ngrids) )
       allocate ( nFLT(Ngrids) )
       allocate ( nHIS(Ngrids) )

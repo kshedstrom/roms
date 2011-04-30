@@ -47,6 +47,10 @@
 
      VARNAME = /wrkdir/kate/Chukchi/External/varinfo.dat
 
+! Number of nested grids.
+
+      Ngrids =  1
+
 ! Grid dimension parameters. See notes below in the Glossary for how to set
 ! these parameters correctly.
 
@@ -67,8 +71,8 @@
 
 !      NtileI == 2                               ! I-direction partition
 !      NtileJ == 8                              ! J-direction partition
-!      NtileI == 6                               ! I-direction partition
-       NtileI == 3                               ! I-direction partition
+       NtileI == 6                               ! I-direction partition
+!       NtileI == 3                               ! I-direction partition
        NtileJ == 8                              ! J-direction partition
 !      NtileJ == 6                               ! I-direction partition
 !      NtileJ == 10                              ! J-direction partition
@@ -76,7 +80,8 @@
 
 ! Time-Stepping parameters.
 
-       NTIMES == 43200
+!       NTIMES == 162000
+       NTIMES == 25920
         DT == 200.0d0
      NDTFAST == 20
 
@@ -99,29 +104,22 @@
 
        NRREC = 0
    LcycleRST == T
-!!       NRST == 1728
-!!       NSTA == 72
-!!       NFLT == 72
 !       NRST == 864
 !       NSTA == 36
 !       NFLT == 36
         NRST == 432
-        NSTA == 1
+        NSTA == 18
         NFLT == 18
        NINFO == 1
 
 ! Output history, average, diagnostic files parameters.
 
      LDEFOUT == T
-!!       NHIS == 17280
-!!    NDEFHIS == 172800
 !       NHIS == 8640
 !    NDEFHIS == 86400
 !       NHIS == 4320
 !    NDEFHIS == 43200
       NTSAVG == 1
-!!       NAVG == 1728
-!!    NDEFAVG == 1728
 !       NAVG == 864
 !    NDEFAVG == 864
         NAVG == 432
@@ -234,13 +232,13 @@
 ! stretching function (see below for details), [1:Ngrids].
 
   Vtransform == 2                          ! transformation equation
- Vstretching == 2                          ! stretching function
+ Vstretching == 4                          ! stretching function
 
 ! Vertical S-coordinates parameters (see below for details), [1:Ngrids].
 
      THETA_S == 7.0d0                      ! surface stretching parameter
-     THETA_B == 0.1d0                      ! bottom  stretching parameter
-      TCLINE == 250.0d0                     ! critical depth (m)
+     THETA_B == 2.0d0                      ! bottom  stretching parameter
+      TCLINE == 250.0d0                    ! critical depth (m)
 
 ! Mean Density and Brunt-Vaisala frequency.
 
@@ -673,7 +671,7 @@ Dout(iTvdif) == T T                        ! vertical diffusion
 ! Input NetCDF file names, [1:Ngrids].
 
      GRDNAME == /wrkdir/kate/Chukchi/Files/grid_Chukchi.nc
-     ININAME == /wrkdir/kate/Chukchi/Files/SODA_2.1.6_19841230-19850104_ic_CHUKCHI.nc
+     ININAME == /wrkdir/kate/Chukchi/Files/SODA_ini_CHUKCHI_V4.nc
 !     ININAME == chukchi_rst.nc
      ITLNAME == ocean_itl.nc
      IRPNAME == ocean_irp.nc
@@ -753,6 +751,13 @@ Dout(iTvdif) == T T                        ! vertical diffusion
 !  VARNAME     Input/Output variable information file name.  This file need to
 !              be processed first so all information arrays and indices can be
 !              initialized properly in "mod_ncparam.F".
+!
+!------------------------------------------------------------------------------
+! Nested grid parameters.
+!------------------------------------------------------------------------------
+!
+!  Ngrids      Number of nested grids. It needs to be read at the top of all
+!              other parameters in order to allocate all model variables.
 !
 !------------------------------------------------------------------------------
 ! Grid dimension parameters.

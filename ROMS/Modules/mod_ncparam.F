@@ -1270,6 +1270,12 @@
               idCfra=varid
             CASE ('idSrad')
               idSrad=varid
+            CASE ('idSSSf')
+              idSSSf=varid
+            CASE ('idFastIce')
+              idFastIce=varid
+            CASE ('idRunoff')
+              idRunoff=varid
             CASE ('idLdwn')
               idLdwn=varid
             CASE ('idLrad')

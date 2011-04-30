@@ -193,9 +193,6 @@
           delta=max(sqrt(delta),epso)
           pice(i,j)=pstar(ng)*hi(i,j,liold)                             &
      &                *exp(-astren(ng)*(1.0_r8-ai(i,j,liold)))
-# ifdef OUTFLOW_MASK
-          pice(i,j)=pice(i,j)*mask_outflow(i,j)
-# endif
           zetai(i,j)=pice(i,j)/(2.0_r8*delta)
           zmax = 2.5E+8_r8*pice(i,j)
           zetai(i,j)= min(zetai(i,j),zetamax(ng))
@@ -219,6 +216,16 @@
      &                    NghostPoints, EWperiodic, NSperiodic,         &
      &                    pice, zetai, eta)
 #endif
+
+      DO j=JstrR,JendR
+        DO i=IstrR,IendR
+# ifdef OUTFLOW_MASK
+          pice(i,j)=pice(i,j)*mask_outflow(i,j)
+          zetai(i,j)=zetai(i,j)*mask_outflow(i,j)
+          eta(i,j)=eta(i,j)*mask_outflow(i,j)
+# endif
+        ENDDO
+      ENDDO
 
       RETURN
       END SUBROUTINE ice_evp_tile

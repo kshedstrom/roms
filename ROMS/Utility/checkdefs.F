@@ -1498,6 +1498,12 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+10)=' NONLINEAR,'
 #endif
+#ifdef OUTFLOW_MASK
+      IF (Master) WRITE (stdout,20) 'OUTFLOW_MASK',                     &
+     &   'Hibler-style outflow ice cells.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+14)=' OUTFLOW_MASK,'
+#endif
 #ifdef SOLVE3D
 # if defined NONLIN_EOS
       IF (Master) WRITE (stdout,20) 'NONLIN_EOS',                       &
