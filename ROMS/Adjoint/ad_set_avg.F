@@ -94,6 +94,11 @@
 
       real(r8) :: fac
 
+      real(r8) :: pfac(IminS:ImaxS,JminS:JmaxS)
+      real(r8) :: rfac(IminS:ImaxS,JminS:JmaxS)
+      real(r8) :: ufac(IminS:ImaxS,JminS:JmaxS)
+      real(r8) :: vfac(IminS:ImaxS,JminS:JmaxS)
+
 # include "set_bounds.h"
 !
 !-----------------------------------------------------------------------
@@ -1068,7 +1073,7 @@
       IF ((iic(ng).lt.ntsAVG(ng)).and.                                  &
      &    (MOD(iic(ng)-1,nAVG(ng)).eq.0).and.                           &
      &    ((iic(ng).ne.ntstart(ng)).or.(nrrec(ng).eq.0))) THEN
-        IF (SOUTH_WEST_TEST) THEN
+        IF (DOMAIN(ng)%SouthWest_Test(tile)) THEN
           AVGtime(ng)=AVGtime(ng)-REAL(nAVG(ng),r8)*dt(ng)
         END IF
 !

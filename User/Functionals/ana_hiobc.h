@@ -1,6 +1,6 @@
       SUBROUTINE ana_hiobc (ng, tile)
 !
-!! svn $Id: ana_cloud.h 75 2007-03-13 13:10:14Z arango $
+!! svn $Id$
 !!======================================================================
 !! Copyright (c) 2002-2011 The ROMS/TOMS Group                         !
 !!   Licensed under a MIT/X style license                              !
@@ -22,7 +22,8 @@
 
 #include "tile.h"
 !
-      CALL ana_hiobc_tile (ng, tile, LBi, UBi, LBj, UBj)
+      CALL ana_hiobc_tile (ng, tile,                                    &
+     &                     LBi, UBi, LBj, UBj)
 !
 ! Set analytical header file name used.
 !
@@ -38,7 +39,8 @@
       END SUBROUTINE ana_hiobc
 !
 !***********************************************************************
-      SUBROUTINE ana_hiobc_tile (ng, tile, LBi, UBi, LBj, UBj)
+      SUBROUTINE ana_hiobc_tile (ng, tile,                              &
+     &                           LBi, UBi, LBj, UBj)
 !***********************************************************************
 !
       USE mod_param
@@ -62,22 +64,22 @@
 !  Free-surface open boundary conditions.
 !-----------------------------------------------------------------------
 !
-      IF (EASTERN_EDGE) THEN
+      IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
         DO j=JstrR,JendR
           BOUNDARY(ng)%hi_east(j)=0.0_r8
         END DO
       END IF
-      IF (WESTERN_EDGE) THEN
+      IF (DOMAIN(ng)%Western_Edge(tile)) THEN
         DO j=JstrR,JendR
           BOUNDARY(ng)%hi_west(j)=0.0_r8
         END DO
       END IF
-      IF (SOUTHERN_EDGE) THEN
+      IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
         DO i=IstrR,IendR
           BOUNDARY(ng)%hi_south(i)=0.0_r8
         END DO
       END IF
-      IF (NORTHERN_EDGE) THEN
+      IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
         DO i=IstrR,IendR
           BOUNDARY(ng)%hi_north(i)=0.0_r8
         END DO

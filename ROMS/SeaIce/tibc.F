@@ -92,11 +92,28 @@
 !  Lateral boundary conditions at the western edge.
 !-----------------------------------------------------------------------
 !
-      IF (WESTERN_EDGE) THEN
+      IF (DOMAIN(ng)%Western_Edge(tile)) THEN
 
 # ifdef WEST_TICLAMPED
 !
 !  Western edge, clamped boundary condition.
+!
+        DO j=Jstr,Jend
+          enthalpi(0,j,linew)=BOUNDARY(ng)%hi_west(j)*                  &
+     &                           BOUNDARY(ng)%ti_west(j)
+#  ifdef MASKING
+          enthalpi(0,j,linew)=enthalpi(0,j,linew)*                      &
+     &                   GRID(ng)%rmask(0,j)
+#  endif
+#  ifdef WET_DRY
+          enthalpi(0,j,linew)=enthalpi(0,j,linew)*                      &
+     &                   GRID(ng)%rmask_wet(0,j)
+#  endif
+        END DO
+
+# elif defined WEST_TIMIXED
+!
+!  Western edge, clamped on inflow, gradient on outflow.
 !
         DO j=Jstr,Jend
           IF (ui(1,j,linew).ge.0._r8) THEN
@@ -184,11 +201,28 @@
 !  Lateral boundary conditions at the eastern edge.
 !-----------------------------------------------------------------------
 !
-      IF (EASTERN_EDGE) THEN
+      IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
 
 # ifdef EAST_TICLAMPED
 !
 !  Eastern edge, clamped boundary condition.
+!
+        DO j=Jstr,Jend
+          enthalpi(Lm(ng)+1,j,linew)=BOUNDARY(ng)%hi_east(j)*           &
+     &                                  BOUNDARY(ng)%ti_east(j)
+#  ifdef MASKING
+          enthalpi(Lm(ng)+1,j,linew)=enthalpi(Lm(ng)+1,j,linew)*        &
+     &                          GRID(ng)%rmask(Lm(ng)+1,j)
+#  endif
+#  ifdef WET_DRY
+          enthalpi(Lm(ng)+1,j,linew)=enthalpi(Lm(ng)+1,j,linew)*        &
+     &                          GRID(ng)%rmask_wet(Lm(ng)+1,j)
+#  endif
+        END DO
+
+# elif defined EAST_TIMIXED
+!
+!  Eastern edge, clamped on inflow, gradient on outflow.
 !
         DO j=Jstr,Jend
           IF (ui(Lm(ng)+1,j,linew).le.0._r8) THEN
@@ -279,9 +313,26 @@
 !  Lateral boundary conditions at the southern edge.
 !-----------------------------------------------------------------------
 !
-      IF (SOUTHERN_EDGE) THEN
+      IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
 
 # ifdef SOUTH_TICLAMPED
+!
+!  Southern edge, clamped boundary condition.
+!
+        DO i=Istr,Iend
+          enthalpi(i,0,linew)=BOUNDARY(ng)%hi_south(i)*                 &
+     &                          BOUNDARY(ng)%ti_south(i)            
+#  ifdef MASKING
+          enthalpi(i,0,linew)=enthalpi(i,0,linew)*                      &
+     &                   GRID(ng)%rmask(i,0)
+#  endif
+#  ifdef WET_DRY
+          enthalpi(i,0,linew)=enthalpi(i,0,linew)*                      &
+     &                   GRID(ng)%rmask_wet(i,0)
+#  endif
+        END DO
+
+# elif defined SOUTH_TIMIXED
 !
 !  Southern edge, clamped boundary condition.
 !
@@ -369,11 +420,28 @@
 !  Lateral boundary conditions at the northern edge.
 !-----------------------------------------------------------------------
 !
-      IF (NORTHERN_EDGE) THEN
+      IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
 
 # ifdef NORTH_TICLAMPED
 !
 !  Northern edge, clamped boundary condition.
+!
+        DO i=Istr,Iend
+          enthalpi(i,Mm(ng)+1,linew)=BOUNDARY(ng)%hi_north(i)*          &
+     &                                 BOUNDARY(ng)%ti_north(i)
+#  ifdef MASKING
+          enthalpi(i,Mm(ng)+1,linew)=enthalpi(i,Mm(ng)+1,linew)*        &
+     &                          GRID(ng)%rmask(i,Mm(ng)+1)
+#  endif
+#  ifdef WET_DRY
+          enthalpi(i,Mm(ng)+1,linew)=enthalpi(i,Mm(ng)+1,linew)*        &
+     &                          GRID(ng)%rmask_wet(i,Mm(ng)+1)
+#  endif
+        END DO
+
+# elif defined NORTH_TIMIXED
+!
+!  Northern edge, clamped on inflow, gradient on outflow.
 !
         DO i=Istr,Iend
           IF (vi(i,Mm(ng)+1,linew).le.0._r8) THEN
@@ -463,7 +531,7 @@
 !  Boundary corners.
 !-----------------------------------------------------------------------
 !
-      IF (SOUTHERN_EDGE.and.WESTERN_EDGE) THEN
+      IF (DOMAIN(ng)%SouthWest_Corner(tile)) THEN
         enthalpi(0,0,linew)=0.5_r8*(enthalpi(1,0,linew)+                &
      &                         enthalpi(0,1,linew))
 #  ifdef MASKING
@@ -481,7 +549,7 @@
           ti(0,0,linew) = 0.0_r8
         END IF
       END IF
-      IF (SOUTHERN_EDGE.and.EASTERN_EDGE) THEN
+      IF (DOMAIN(ng)%SouthEast_Corner(tile)) THEN
         enthalpi(Lm(ng)+1,0,linew)=0.5_r8*(enthalpi(Lm(ng)+1,1,linew)+  &
      &                                enthalpi(Lm(ng)  ,0,linew))
 #  ifdef MASKING
@@ -499,7 +567,7 @@
           ti(Lm(ng)+1,0,linew) = 0.0_r8
         END IF
       END IF
-      IF (NORTHERN_EDGE.and.WESTERN_EDGE) THEN
+      IF (DOMAIN(ng)%NorthWest_Corner(tile)) THEN
         enthalpi(0,Mm(ng)+1,linew)=0.5_r8*(enthalpi(0,Mm(ng)  ,linew)+  &
      &                                enthalpi(1,Mm(ng)+1,linew))
 #  ifdef MASKING
@@ -517,7 +585,7 @@
           ti(0,Mm(ng)+1,linew) = 0.0_r8
         END IF
       END IF
-      IF (NORTHERN_EDGE.and.EASTERN_EDGE) THEN
+      IF (DOMAIN(ng)%NorthEast_Corner(tile)) THEN
         enthalpi(Lm(ng)+1,Mm(ng)+1,linew)=0.5_r8*                       &
      &             (enthalpi(Lm(ng)+1,Mm(ng)  ,linew)+                  &
      &              enthalpi(Lm(ng)  ,Mm(ng)+1,linew))

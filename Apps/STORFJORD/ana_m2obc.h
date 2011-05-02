@@ -121,7 +121,7 @@
         cff2=0.08_r8
         riv_flow=cff2*300.0_r8*5.0_r8
         tid_flow=cff1*300.0_r8*10.0_r8
-        IF (WESTERN_EDGE) THEN
+        IF (DOMAIN(ng)%Western_Edge(tile)) THEN
           my_area=0.0_r8
           my_flux=0.0_r8
           DO j=Jstr,Jend
@@ -138,7 +138,7 @@
         END IF
         cff2=0.08_r8                                          ! east end
         riv_flow=cff2*300.0_r8*5.0_r8
-        IF (EASTERN_EDGE) THEN
+        IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
           my_area=0.0_r8
           my_flux=0.0_r8
           DO j=Jstr,Jend
@@ -156,7 +156,7 @@
       fac=1.0_r8                                ! zeta0
       omega=2.0_r8*pi/(12.42_r8*3600.0_r8)      ! M2 Tide period
       val=fac*SIN(omega*time(ng))
-      IF (WESTERN_EDGE) THEN
+      IF (DOMAIN(ng)%Western_Edge(tile)) THEN
         DO j=JstrR,JendR
           cff=SQRT(g*GRID(ng)%h(Istr-1,j))
           BOUNDARY(ng)%ubar_west(j)=(val*cff/GRID(ng)%h(Istr-1,j))*     &
@@ -167,7 +167,7 @@
           BOUNDARY(ng)%vbar_west(j)=0.0_r8
         END DO
       END IF
-      IF (EASTERN_EDGE) THEN
+      IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
         DO j=JstrR,JendR
           cff=SQRT(g*GRID(ng)%h(Iend,j))
           val=fac*EXP(-GRID(ng)%f(Iend,j)*GRID(ng)%yp(Istr-1,j)/cff)
@@ -180,7 +180,7 @@
         END DO
       END IF
 #elif defined LA_04
-	IF (WESTERN_EDGE) THEN
+      IF (DOMAIN(ng)%Western_Edge(tile)) THEN
         DO j=JstrR,JendR
 	  BOUNDARY(ng)%ubar_west(j)=0.0179588894377609_r8
         END DO
@@ -188,7 +188,7 @@
           BOUNDARY(ng)%	vbar_west(j)=0.0_r8
         END DO
       END IF
-	IF (EASTERN_EDGE) THEN
+      IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
         DO j=JstrR,JendR
 	  BOUNDARY(ng)%ubar_east(j)=3.72297256457142E-5_r8
         END DO
@@ -197,7 +197,7 @@
         END DO
       END IF
 #elif defined SED_TEST1
-      IF (WESTERN_EDGE) THEN
+      IF (DOMAIN(ng)%Western_Edge(tile)) THEN
         DO j=JstrR,JendR
           val=0.5_r8*(zeta(Istr-1,j,knew)+h(Istr-1,j)+                  &
      &                zeta(Istr  ,j,knew)+h(Istr  ,j))
@@ -207,7 +207,7 @@
           BOUNDARY(ng)%vbar_west(j)=0.0_r8
         END DO
       END IF
-      IF (EASTERN_EDGE) THEN
+      IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
         DO j=JstrR,JendR
           val=0.5_r8*(zeta(Iend  ,j,knew)+h(Iend  ,j)+                  &
      &                zeta(Iend+1,j,knew)+h(Iend+1,j))
@@ -219,7 +219,7 @@
       END IF
 #elif defined TEST_CHAN
       ramp=MIN(time(ng)/150000.0_r8,1.0_r8)
-      IF (WESTERN_EDGE) THEN
+      IF (DOMAIN(ng)%Western_Edge(tile)) THEN
         my_area =0.0_r8
         my_width=0.0_r8
         DO j=Jstr,Jend
@@ -233,7 +233,7 @@
           BOUNDARY(ng)%ubar_west(j)=fac/my_area
         END DO
       END IF
-      IF (EASTERN_EDGE) THEN
+      IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
         my_area =0.0_r8
         my_width=0.0_r8
         DO j=Jstr,Jend
@@ -248,7 +248,7 @@
         END DO
       END IF
 # elif defined TRENCH
-      IF (WESTERN_EDGE) THEN
+      IF (DOMAIN(ng)%Western_Edge(tile)) THEN
         my_area=0.0_r8
         my_width=0.0_r8
         DO j=Jstr,Jend
@@ -262,7 +262,7 @@
           BOUNDARY(ng)%ubar_west(j)=fac/my_area
         END DO
       END IF
-      IF (EASTERN_EDGE) THEN
+      IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
         my_area=0.0_r8
         my_width=0.0_r8
         DO j=Jstr,Jend
@@ -277,7 +277,7 @@
         END DO
       END IF
 #elif defined WEDDELL
-      IF (WESTERN_EDGE) THEN
+      IF (DOMAIN(ng)%Western_Edge(tile)) THEN
         fac=TANH((tdays(ng)-dstart)/1.0_r8)
         omega=2.0_r8*pi*time(ng)/(12.42_r8*3600.0_r8)  !  M2 Tide period
         minor=0.0143_r8+(0.0143_r8+0.010_r8)/REAL(Iend+1,r8)
@@ -299,7 +299,7 @@
      &                                         COS(omega-phase))
         END DO
       END IF
-      IF (EASTERN_EDGE) THEN
+      IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
         fac=TANH((tdays(ng)-dstart)/1.0_r8)
         omega=2.0_r8*pi*time(ng)/(12.42_r8*3600.0_r8)  !  M2 Tide period
         minor=0.0143_r8+(0.0143_r8+0.010_r8)
@@ -323,7 +323,7 @@
       END IF
 #else
 # ifdef EAST_M2OBC
-      IF (EASTERN_EDGE) THEN
+      IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
         DO j=JstrR,JendR
           BOUNDARY(ng)%ubar_east(j)=0.0_r8
         END DO
@@ -333,7 +333,7 @@
       END IF
 # endif
 # ifdef WEST_M2OBC
-      IF (WESTERN_EDGE) THEN
+      IF (DOMAIN(ng)%Western_Edge(tile)) THEN
         DO j=JstrR,JendR
           BOUNDARY(ng)%ubar_west(j)=0.0_r8
         END DO
@@ -343,7 +343,7 @@
       END IF
 # endif
 # ifdef SOUTH_M2OBC
-      IF (SOUTHERN_EDGE) THEN
+      IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
         DO i=Istr,IendR
           BOUNDARY(ng)%ubar_south(i)=0.0_r8
         END DO
@@ -353,7 +353,7 @@
       END IF
 # endif
 # ifdef NORTH_M2OBC
-      IF (NORTHERN_EDGE) THEN
+      IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
         DO i=Istr,IendR
           BOUNDARY(ng)%ubar_north(i)=0.0_r8
         END DO

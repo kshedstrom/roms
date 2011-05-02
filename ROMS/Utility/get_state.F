@@ -59,7 +59,7 @@
       USE mod_stepping
       USE mod_strings
 #ifdef FILTERED_RST
-      USE mod_filter, ONLY: FIL
+      USE mod_filter, ONLY: FILN
 #endif
 #ifdef DISTRIBUTE
       USE mp_exchange_mod, ONLY : mp_exchange2d
@@ -258,7 +258,7 @@
         InpRec=IniRec
       ELSE
         IF ((IniRec.ne.0).and.(IniRec.gt.mySize)) THEN
-          IF (Master)  WRITE (stdout,40) string, IniRec, TRIM(ncname),   &
+          IF (Master)  WRITE (stdout,40) string, IniRec, TRIM(ncname),  &
      &                                   mySize
           exit_flag=2
           RETURN
@@ -288,7 +288,9 @@
         INPtime=INPtime*time_scale
       END IF
 !
-!  Set starting time index and time clock in days.
+!  Set starting time index and time clock in days.  Notice that the
+!  global time variables and indices are only over-written when
+!  processing initial conditions (msg = 1).
 !
       IF ((model.eq.0).or.(model.eq.iNLM).or.                           &
      &    (model.eq.iTLM).or.(model.eq.iRPM)) THEN
@@ -296,14 +298,16 @@
      &      (INPtime.ne.(dstart*day2sec))) THEN
           INPtime=dstart*day2sec
         END IF
-        time(ng)=INPtime
-        tdays(ng)=time(ng)*sec2day
-        ntstart(ng)=NINT((time(ng)-dstart*day2sec)/dt(ng))+1
-        IF (ntstart(ng).lt.1) ntstart(ng)=1
-        IF (PerfectRST(ng)) THEN
-          ntfirst(ng)=1
-        ELSE
-          ntfirst(ng)=ntstart(ng)
+        IF (msg.eq.1) THEN            ! processing initial conditions
+          time(ng)=INPtime
+          tdays(ng)=time(ng)*sec2day
+          ntstart(ng)=NINT((time(ng)-dstart*day2sec)/dt(ng))+1
+          IF (ntstart(ng).lt.1) ntstart(ng)=1
+          IF (PerfectRST(ng)) THEN
+            ntfirst(ng)=1
+          ELSE
+            ntfirst(ng)=ntstart(ng)
+          END IF
         END IF
 #ifdef WEAK_CONSTRAINT
         IF (msg.eq.4) THEN
@@ -354,7 +358,8 @@
 !  restart variables.
 !-----------------------------------------------------------------------
 !
-      NLM_STATE: IF ((model.eq.iNLM).or.(model.eq.0)) THEN
+      NLM_STATE: IF ((model.eq.iNLM).or.(model.eq.0).or.                &
+     &               (model.eq.13)) THEN
 
 # ifdef PERFECT_RESTART
 !
@@ -4072,7 +4077,7 @@
 #endif
 #ifdef FILTERED_RST
       IF (nrrec(ng).ne.0) THEN
-        DO i=1,FIL
+        DO i=1,FILN
           CALL get_filter (ng, i)
         END DO
       END IF

@@ -276,7 +276,7 @@
      &     (MOD(iic(ng)-ntstart(ng),nfil/nw).eq.0).and.                 &
      &    ((iic(ng).ne.ntstart(ng)))) THEN
 !    &    ((iic(ng).ne.ntstart(ng)).or.(nrrec(ng).eq.0))) THEN
-        DO f = 1,FIL
+        DO f = 1,FILN
           IF (fcount(f).eq.0) THEN
             iw=1
             IF (Master) THEN
@@ -1055,12 +1055,12 @@
       IF ((MOD(iic(ng)-1,navg(ng)).eq.0).and.                           &
      &    ((iic(ng).ne.ntstart(ng)))) THEN
 !    &    ((iic(ng).ne.ntstart(ng)).or.(nrrec(ng).eq.0))) THEN
-        DO f=1,FIL
+        DO f=1,FILN
           IF (fcount(f).eq.nw) THEN
-             IF (Master) THEN
-               print *,'SET_FILTER transferring sums', f
-             END IF
-            IF (SOUTH_WEST_TEST) THEN
+            IF (Master) THEN
+              print *,'SET_FILTER transferring sums', f
+            END IF
+            IF (DOMAIN(ng)%SouthWest_Test(tile)) THEN
               avgtime(ng)=time(ng)-0.5_r8*REAL(nfil,r8)*dt(ng)
             END IF
             IF (Aout(idFsur,ng)) THEN

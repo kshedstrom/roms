@@ -895,7 +895,7 @@
      &    (MOD(iic(ng)-1,nAVG2(ng)).eq.0).and.                          &
      &    ((iic(ng).ne.ntstart(ng)).or.(nrrec(ng).eq.0))) THEN
         fac=1.0_r8/REAL(nAVG2(ng),r8)
-        IF (SOUTH_WEST_TEST) THEN
+        IF (DOMAIN(ng)%SouthWest_Test(tile)) THEN
           AVG2time(ng)=AVG2time(ng)+REAL(nAVG2(ng),r8)*dt(ng)
         END IF
 !

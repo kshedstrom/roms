@@ -36,11 +36,6 @@
            CFLAGS :=
          CXXFLAGS :=
           LDFLAGS :=
-ifdef USE_CXX
-             LIBS := -lstdc++
-else
-             LIBS :=
-endif
                AR := ar
           ARFLAGS := -r
             MKDIR := mkdir -p
@@ -63,21 +58,6 @@ else
     NETCDF_INCDIR ?= /usr/local/include
     NETCDF_LIBDIR ?= /usr/local/lib
              LIBS := -L$(NETCDF_LIBDIR) -lnetcdf
-endif
-#ifdef USE_NETCDF4
-#      HDF5_LIBDIR ?= /u1/uaf/kate/lib
-#    NETCDF_INCDIR := /archive/u1/uaf/kate/netcdf/include
-#    NETCDF_LIBDIR := /archive/u1/uaf/kate/netcdf/lib
-#else
-#    NETCDF_INCDIR ?= /usr/local/include
-#    NETCDF_LIBDIR ?= /usr/local/lib
-#endif
-             LIBS += -L$(NETCDF_LIBDIR) -lnetcdf
-ifdef USE_NETCDF4
-             LIBS += -L$(HDF5_LIBDIR) -lhdf5_hl -lhdf5 -lz
- ifdef USE_DAP
-             LIBS += $(shell curl-config --libs)
- endif
 endif
 
 ifdef USE_ARPACK
@@ -129,6 +109,10 @@ ifdef USE_ESMF
                      include $(ESMF_MK_DIR)/esmf.mk
            FFLAGS += $(ESMF_F90COMPILEPATHS)
              LIBS += $(ESMF_F90LINKPATHS) -lesmf -lC
+endif
+
+ifdef USE_CXX
+             LIBS += -lstdc++
 endif
 
 #

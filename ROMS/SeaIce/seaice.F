@@ -1,6 +1,6 @@
 #include "cppdefs.h"
 #ifdef ICE_MODEL
-      SUBROUTINE seaice(ng)
+      SUBROUTINE seaice
 !
 !=======================================================================
 !  Copyright (c) 2002 ROMS/TOMS Group                                  !
@@ -41,38 +41,40 @@
 
       implicit none
 
-      integer, intent(in) :: ng
-
       integer :: thread, subs, tile
-      integer :: i, nforc, my_ievp, nelas, iter
+      integer :: i, nforc, ng, my_ievp, nelas, iter
       real(r8), parameter :: dt_large = 1.0E+23_r8
       real(r8) :: dtice_sav
 
-      liold(ng) = linew(ng)
-      linew(ng) = 3-liold(ng)
+      DO ng=1,Ngrids
+        liold(ng) = linew(ng)
+        linew(ng) = 3-liold(ng)
 
 ! ----------------------------------------------------------------------
 !  Compute the ice-ocean shear.
 ! ----------------------------------------------------------------------
 !$OMP PARALLEL DO PRIVATE(thread,subs,tile), SHARED(ng,numthreads)
-      DO thread=0,numthreads-1
-        subs=NtileX(ng)*NtileE(ng)/numthreads
-        DO tile=subs*thread,subs*(thread+1)-1,+1
-          CALL ice_spdiw(ng, TILE)
+        DO thread=0,numthreads-1
+          subs=NtileX(ng)*NtileE(ng)/numthreads
+          DO tile=subs*thread,subs*(thread+1)-1,+1
+            CALL ice_spdiw(ng, TILE)
+          END DO
         END DO
-      END DO
 !$OMP END PARALLEL DO
+      END DO
 ! ----------------------------------------------------------------------
 !  Compute the stresses on the ice from the air and water.
 ! ----------------------------------------------------------------------
+      DO ng=1,Ngrids
 !$OMP PARALLEL DO PRIVATE(thread,subs,tile), SHARED(ng,numthreads)
-      DO thread=0,numthreads-1
-        subs=NtileX(ng)*NtileE(ng)/numthreads
-        DO tile=subs*thread,subs*(thread+1)-1,+1
-          CALL ice_vbc(ng, TILE)
+        DO thread=0,numthreads-1
+          subs=NtileX(ng)*NtileE(ng)/numthreads
+          DO tile=subs*thread,subs*(thread+1)-1,+1
+            CALL ice_vbc(ng, TILE)
+          END DO
         END DO
-      END DO
 !$OMP END PARALLEL DO
+      END DO
 
 #undef ACTIVE
 #ifdef ACTIVE
@@ -86,43 +88,45 @@
 !  Elastic-Viscous-Plastic rheology (EVP).
 ! ----------------------------------------------------------------------
 
-      nelas = nevp(ng)
+      DO ng=1,Ngrids
+        nelas = nevp(ng)
 
-      liuol(ng) = liunw(ng)
-      liunw(ng) = 3-liuol(ng)
+        liuol(ng) = liunw(ng)
+        liunw(ng) = 3-liuol(ng)
 
-      dte(ng) = dtice(ng)/FLOAT(nevp(ng))
+        dte(ng) = dtice(ng)/FLOAT(nevp(ng))
 
-      DO my_ievp=1,nelas
+        DO my_ievp=1,nelas
 
-        lieol(ng) = lienw(ng)
-        lienw(ng) = 3-lieol(ng)
+          lieol(ng) = lienw(ng)
+          lienw(ng) = 3-lieol(ng)
 
-        ievp(ng)=my_ievp
+          ievp(ng)=my_ievp
 !$OMP PARALLEL DO PRIVATE(thread,subs,tile), SHARED(ng,numthreads)
-        DO thread=0,numthreads-1
-          subs=NtileX(ng)*NtileE(ng)/numthreads
-          DO tile=subs*thread,subs*(thread+1)-1,+1
-            CALL ice_evp(ng, TILE)
+          DO thread=0,numthreads-1
+            subs=NtileX(ng)*NtileE(ng)/numthreads
+            DO tile=subs*thread,subs*(thread+1)-1,+1
+              CALL ice_evp(ng, TILE)
+            END DO
           END DO
-        END DO
 !$OMP END PARALLEL DO
 !$OMP PARALLEL DO PRIVATE(thread,subs,tile), SHARED(ng,numthreads)
-        DO thread=0,numthreads-1
-          subs=NtileX(ng)*NtileE(ng)/numthreads
-          DO tile=subs*thread,subs*(thread+1)-1,+1
-            CALL ice_evp_sig(ng, TILE)
+          DO thread=0,numthreads-1
+            subs=NtileX(ng)*NtileE(ng)/numthreads
+            DO tile=subs*thread,subs*(thread+1)-1,+1
+              CALL ice_evp_sig(ng, TILE)
+            END DO
           END DO
-        END DO
 !$OMP END PARALLEL DO
 !$OMP PARALLEL DO PRIVATE(thread,subs,tile), SHARED(ng,numthreads)
-        DO thread=0,numthreads-1
-          subs=NtileX(ng)*NtileE(ng)/numthreads
-          DO tile=subs*thread,subs*(thread+1)-1,+1
-            CALL ice_elastic(ng, TILE)
+          DO thread=0,numthreads-1
+            subs=NtileX(ng)*NtileE(ng)/numthreads
+            DO tile=subs*thread,subs*(thread+1)-1,+1
+              CALL ice_elastic(ng, TILE)
+            END DO
           END DO
-        END DO
 !$OMP END PARALLEL DO
+        END DO
       END DO
 
 # else
@@ -136,43 +140,49 @@
 ! ----------------------------------------------------------------------
 !  Compute the ice enthalpi before advection.
 ! ----------------------------------------------------------------------
+      DO ng=1,Ngrids
 !$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(ng,numthreads)
-      DO thread=0,numthreads-1
-        subs=NtileX(ng)*NtileE(ng)/numthreads
-        DO tile=subs*thread,subs*(thread+1)-1,+1
-          CALL ice_enthalpi(ng, TILE)
+        DO thread=0,numthreads-1
+          subs=NtileX(ng)*NtileE(ng)/numthreads
+          DO tile=subs*thread,subs*(thread+1)-1,+1
+            CALL ice_enthalpi(ng, TILE)
+          END DO
         END DO
-      END DO
 !$OMP END PARALLEL DO
+      END DO
 ! ----------------------------------------------------------------------
 !  Compute the advection of the ice tracer fields.
 ! ----------------------------------------------------------------------
+      DO ng=1,Ngrids
 !$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(ng,numthreads)
-      DO thread=0,numthreads-1
-        subs=NtileX(ng)*NtileE(ng)/numthreads
-        DO tile=subs*thread,subs*(thread+1)-1,+1
-          CALL ice_advect(ng, TILE)
-          CALL ice_limit(ng, TILE)
+        DO thread=0,numthreads-1
+          subs=NtileX(ng)*NtileE(ng)/numthreads
+          DO tile=subs*thread,subs*(thread+1)-1,+1
+            CALL ice_advect(ng, TILE)
+            CALL ice_limit(ng, TILE)
+          END DO
         END DO
-      END DO
 !$OMP END PARALLEL DO
+      END DO
 #endif
 
 #ifdef ICE_THERMO
 ! ----------------------------------------------------------------------
 !  Compute the ice thermodynamics.
 ! ----------------------------------------------------------------------
+      DO ng=1,Ngrids
 !$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(ng,numthreads)
-      DO thread=0,numthreads-1
-        subs=NtileX(ng)*NtileE(ng)/numthreads
-        DO tile=subs*thread,subs*(thread+1)-1,+1
-          CALL ice_thermo (ng, TILE)
+        DO thread=0,numthreads-1
+          subs=NtileX(ng)*NtileE(ng)/numthreads
+          DO tile=subs*thread,subs*(thread+1)-1,+1
+            CALL ice_thermo (ng, TILE)
 # ifdef ICE_SMOOTH
-          CALL ice_smoother(ng, TILE)
+            CALL ice_smoother(ng, TILE)
 # endif
+          END DO
         END DO
-      END DO
 !$OMP END PARALLEL DO
+      END DO
 #endif
 
 #else

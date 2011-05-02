@@ -330,7 +330,7 @@
              vie(i,j,2) = vi(i,j,liuol)
           END DO
         END DO
-        IF (WESTERN_EDGE) THEN
+        IF (DOMAIN(ng)%Western_Edge(tile)) THEN
           DO j=Jstr,Jend
              uie(1,j,1) = ui(1,j,liuol)
              uie(1,j,2) = ui(1,j,liuol)
@@ -340,7 +340,7 @@
              vie(0,j,2) = vi(0,j,liuol)
           END DO
         ENDIF
-        IF (EASTERN_EDGE) THEN
+        IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
           DO j=Jstr,Jend
              uie(Lm(ng)+1,j,1) = ui(Lm(ng)+1,j,liuol)
              uie(Lm(ng)+1,j,2) = ui(Lm(ng)+1,j,liuol)
@@ -350,7 +350,7 @@
              vie(Lm(ng)+1,j,2) = vi(Lm(ng)+1,j,liuol)
           END DO
         ENDIF
-        IF (SOUTHERN_EDGE) THEN
+        IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
           DO i=IstrU,Iend
              uie(i,0,1) = ui(i,0,liuol)
              uie(i,0,2) = ui(i,0,liuol)
@@ -360,7 +360,7 @@
              vie(i,1,2) = vi(i,1,liuol)
           END DO
         ENDIF
-        IF (NORTHERN_EDGE) THEN
+        IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
           DO i=IstrU,Iend
              uie(i,Mm(ng)+1,1) = ui(i,Mm(ng)+1,liuol)
              uie(i,Mm(ng)+1,2) = ui(i,Mm(ng)+1,liuol)
@@ -370,25 +370,25 @@
              vie(i,Mm(ng)+1,2) = vi(i,Mm(ng)+1,liuol)
           END DO
         END IF
-        IF (SOUTHERN_EDGE.and.WESTERN_EDGE) THEN
+        IF (DOMAIN(ng)%SouthWest_Corner(tile)) THEN
           uie(1,0,1) = ui(1,0,liuol)
           uie(1,0,2) = ui(1,0,liuol)
           vie(0,1,1) = vi(0,1,liuol)
           vie(0,1,2) = vi(0,1,liuol)
         END IF
-        IF (SOUTHERN_EDGE.and.EASTERN_EDGE) THEN
+        IF (DOMAIN(ng)%SouthEast_Corner(tile)) THEN
           uie(Lm(ng)+1,0,1) = ui(Lm(ng)+1,0,liuol)
           uie(Lm(ng)+1,0,2) = ui(Lm(ng)+1,0,liuol)
           vi(Lm(ng)+1,1,1) = vie(Lm(ng)+1,1,lienw)
           vi(Lm(ng)+1,1,2) = vie(Lm(ng)+1,1,lienw)
         END IF
-        IF (NORTHERN_EDGE.and.WESTERN_EDGE) THEN
+        IF (DOMAIN(ng)%NorthWest_Corner(tile)) THEN
           uie(1,Mm(ng)+1,1) = ui(1,Mm(ng)+1,liuol)
           uie(1,Mm(ng)+1,2) = ui(1,Mm(ng)+1,liuol)
           vie(0,Mm(ng)+1,1) = vi(0,Mm(ng)+1,liuol)
           vie(0,Mm(ng)+1,2) = vi(0,Mm(ng)+1,liuol)
         END IF
-        IF (NORTHERN_EDGE.and.EASTERN_EDGE) THEN
+        IF (DOMAIN(ng)%NorthEast_Corner(tile)) THEN
           uie(Lm(ng)+1,Mm(ng)+1,1) = ui(Lm(ng)+1,Mm(ng)+1,liuol)
           uie(Lm(ng)+1,Mm(ng)+1,2) = ui(Lm(ng)+1,Mm(ng)+1,liuol)
           vie(Lm(ng)+1,Mm(ng)+1,1) = vi(Lm(ng)+1,Mm(ng)+1,liuol)
@@ -820,9 +820,13 @@
       END DO 
 
       CALL uibc_tile (ng, tile,                                         &
-     &                          LBi, UBi, LBj, UBj, lieol, lienw, uie)
+     &                LBi, UBi, LBj, UBj,                               &
+     &                IminS, ImaxS, JminS, JmaxS,                       &
+     &                lieol, lienw, uie)
       CALL vibc_tile (ng, tile,                                         &
-     &                          LBi, UBi, LBj, UBj, lieol, lienw, vie)
+     &                LBi, UBi, LBj, UBj,                               &
+     &                IminS, ImaxS, JminS, JmaxS,                       &
+     &                lieol, lienw, vie)
 #if defined EW_PERIODIC || defined NS_PERIODIC
       CALL exchange_u2d_tile (ng, tile,                                 &
      &                        LBi, UBi, LBj, UBj,                       &
@@ -852,7 +856,7 @@
             vi(i,j,liunw) = vie(i,j,lienw)
           END DO
         END DO
-        IF (WESTERN_EDGE) THEN
+        IF (DOMAIN(ng)%Western_Edge(tile)) THEN
           DO j=Jstr,Jend
             ui(1,j,liunw) = uie(1,j,lienw)
           END DO
@@ -860,7 +864,7 @@
             vi(0,j,liunw) = vie(0,j,lienw)
           END DO
         ENDIF
-        IF (EASTERN_EDGE) THEN
+        IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
           DO j=Jstr,Jend
             ui(Lm(ng)+1,j,liunw) = uie(Lm(ng)+1,j,lienw)
           END DO
@@ -868,7 +872,7 @@
             vi(Lm(ng)+1,j,liunw) = vie(Lm(ng)+1,j,lienw)
           END DO
         ENDIF
-        IF (SOUTHERN_EDGE) THEN
+        IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
           DO i=IstrU,Iend
             ui(i,0,liunw) = uie(i,0,lienw)
           END DO
@@ -876,7 +880,7 @@
             vi(i,1,liunw) = vie(i,1,lienw)
           END DO
         ENDIF
-        IF (NORTHERN_EDGE) THEN
+        IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
           DO i=IstrU,Iend
             ui(i,Mm(ng)+1,liunw) = uie(i,Mm(ng)+1,lienw)
           END DO
@@ -884,19 +888,19 @@
             vi(i,Mm(ng)+1,liunw) = vie(i,Mm(ng)+1,lienw)
           END DO
         END IF
-        IF (SOUTHERN_EDGE.and.WESTERN_EDGE) THEN
+        IF (DOMAIN(ng)%SouthWest_Corner(tile)) THEN
           ui(1,0,liunw) = uie(1,0,lienw)
           vi(0,1,liunw) = vie(0,1,lienw)
         END IF
-        IF (SOUTHERN_EDGE.and.EASTERN_EDGE) THEN
+        IF (DOMAIN(ng)%SouthEast_Corner(tile)) THEN
           ui(Lm(ng)+1,0,liunw) = uie(Lm(ng)+1,0,lienw)
           vi(Lm(ng)+1,1,liunw) = vie(Lm(ng)+1,1,lienw)
         END IF
-        IF (NORTHERN_EDGE.and.WESTERN_EDGE) THEN
+        IF (DOMAIN(ng)%NorthWest_Corner(tile)) THEN
           ui(1,Mm(ng)+1,liunw) = uie(1,Mm(ng)+1,lienw)
           vi(0,Mm(ng)+1,liunw) = vie(0,Mm(ng)+1,lienw)
         END IF
-        IF (NORTHERN_EDGE.and.EASTERN_EDGE) THEN
+        IF (DOMAIN(ng)%NorthEast_Corner(tile)) THEN
           ui(Lm(ng)+1,Mm(ng)+1,liunw) = uie(Lm(ng)+1,Mm(ng)+1,lienw)
           vi(Lm(ng)+1,Mm(ng)+1,liunw) = vie(Lm(ng)+1,Mm(ng)+1,lienw)
         END IF

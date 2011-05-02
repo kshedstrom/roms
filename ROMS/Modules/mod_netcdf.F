@@ -133,7 +133,7 @@
 !  Netcdf file creation mode flag.
 !
 #if defined HDF5
-      integer :: CMODE = nf90_netcdf4      ! NetCDF-4/HDF5 format file
+      integer :: CMODE = nf90_hdf5         ! NetCDF-4/HDF5 format file
 #else
       integer :: CMODE = nf90_clobber      ! NetCDF classic format file
 #endif
@@ -143,6 +143,8 @@
       integer :: shuffle = 1
       integer :: deflate = 1
       integer :: deflate_level = 1
+
+#ifdef PARALLEL_IO
 !
 !  Set parallel I/O access for processing non-tiled and tiled data.
 !  Two modes of parallel I/O access are possible: Independent and
@@ -167,11 +169,12 @@
 !!    integer, parameter :: IO_nontiled_access = 0   ! nf90_independent
 !!    integer, parameter :: IO_tiled_access    = 1   ! nf90_independent
 !!
-      integer, parameter :: IO_nontiled_access = 1   ! nf90_collective
-      integer, parameter :: IO_tiled_access    = 1   ! nf90_collective
-
+      integer, parameter :: IO_nontiled_access = nf90_independent
+      integer, parameter :: IO_tiled_access    = nf90_collective
+#endif
+!
       CONTAINS
-
+!
       SUBROUTINE netcdf_get_dim (ng, model, ncname, DimName, DimSize,   &
      &                           DimID)
 !
@@ -3784,7 +3787,6 @@
       USE mod_parallel
       USE mod_iounits
       USE mod_scalars
-      USE netcdf
 
 #if !defined PARALLEL_IO  && defined DISTRIBUTE
 !
@@ -3923,7 +3925,6 @@
       USE mod_parallel
       USE mod_iounits
       USE mod_scalars
-      USE netcdf
 
 #if !defined PARALLEL_IO  && defined DISTRIBUTE
 !
@@ -4056,7 +4057,6 @@
       USE mod_parallel
       USE mod_iounits
       USE mod_scalars
-      USE netcdf
 
 #if !defined PARALLEL_IO  && defined DISTRIBUTE
 !
@@ -4189,7 +4189,6 @@
       USE mod_parallel
       USE mod_iounits
       USE mod_scalars
-      USE netcdf
 
 #if !defined PARALLEL_IO  && defined DISTRIBUTE
 !
@@ -4322,7 +4321,6 @@
       USE mod_parallel
       USE mod_iounits
       USE mod_scalars
-      USE netcdf
 
 #if !defined PARALLEL_IO  && defined DISTRIBUTE
 !
@@ -4455,7 +4453,6 @@
       USE mod_parallel
       USE mod_iounits
       USE mod_scalars
-      USE netcdf
 
 #if !defined PARALLEL_IO  && defined DISTRIBUTE
 !
@@ -4595,7 +4592,6 @@
       USE mod_parallel
       USE mod_iounits
       USE mod_scalars
-      USE netcdf
 
 #if !defined PARALLEL_IO  && defined DISTRIBUTE
 !
@@ -4728,7 +4724,6 @@
       USE mod_parallel
       USE mod_iounits
       USE mod_scalars
-      USE netcdf
 
 #if !defined PARALLEL_IO  && defined DISTRIBUTE
 !
@@ -4864,7 +4859,6 @@
       USE mod_parallel
       USE mod_iounits
       USE mod_scalars
-      USE netcdf
 
 #if !defined PARALLEL_IO  && defined DISTRIBUTE
 !
@@ -5017,7 +5011,6 @@
       USE mod_parallel
       USE mod_iounits
       USE mod_scalars
-      USE netcdf
 
 #if !defined PARALLEL_IO  && defined DISTRIBUTE
 !
@@ -5166,7 +5159,6 @@
       USE mod_parallel
       USE mod_iounits
       USE mod_scalars
-      USE netcdf
 
 #if !defined PARALLEL_IO  && defined DISTRIBUTE
 !
@@ -5378,7 +5370,7 @@
           mytotal(1)=LEN_TRIM(A)
           status=nf90_put_var(my_ncid, my_varid, A, mystart, mytotal)
           IF (status.ne.nf90_noerr) THEN
-            WRITE (stdout,20) TRIM(myVarName), TRIM(ncname),             &
+            WRITE (stdout,20) TRIM(myVarName), TRIM(ncname),            &
      &                        TRIM(SourceFile)
             PRINT *, trim(nf90_strerror(status))
             exit_flag=3
@@ -5768,8 +5760,13 @@
 !  is to overwrite an existing file on disk with the same file name.
 !  This is what we usually do anyway.
 !
-      status=nf90_create_par(TRIM(ncname), nf90_netcdf4,                &
-     &                       OCN_COMM_WORLD, MP_INFO, ncid)
+!!    status=nf90_create_par(TRIM(ncname), nf90_netcdf4,                &
+!!   &                       OCN_COMM_WORLD, MP_INFO, ncid)
+      status=nf90_create(path = TRIM(ncname),                           &
+     &                   cmode = nf90_hdf5,                             &
+     &                   ncid = ncid,                                   &
+     &                   comm = OCN_COMM_WORLD,                         &
+     &                   info = MP_INFO)
       IF (status.ne.nf90_noerr) THEN
         IF (Master) WRITE (stdout,10) TRIM(ncname), TRIM(SourceFile)
         PRINT *, trim(nf90_strerror(status))
@@ -5943,14 +5940,29 @@
 #if defined PARALLEL_IO && defined DISTRIBUTE
       SELECT CASE (omode)
         CASE (0)
-          status=nf90_open_par(TRIM(ncname), nf90_nowrite,              &
-     &                         OCN_COMM_WORLD, MP_INFO, ncid)
+!!        status=nf90_open_par(TRIM(ncname), nf90_nowrite,              &
+!!   &                         OCN_COMM_WORLD, MP_INFO, ncid)
+          status=nf90_open(path = TRIM(ncname),                         &
+     &                     mode = nf90_nowrite,                         &
+     &                     ncid = ncid,                                 &
+     &                     comm = OCN_COMM_WORLD,                       &
+     &                     info = MP_INFO)
         CASE (1)
-          status=nf90_open_par(TRIM(ncname), nf90_write,                &
-     &                         OCN_COMM_WORLD, MP_INFO, ncid)
+!!        status=nf90_open_par(TRIM(ncname), nf90_write,                &
+!!   &                         OCN_COMM_WORLD, MP_INFO, ncid)
+          status=nf90_open(path = TRIM(ncname),                         &
+     &                     mode = nf90_write,                           &
+     &                     ncid = ncid,                                 &
+     &                     comm = OCN_COMM_WORLD,                       &
+     &                     info = MP_INFO)
         CASE DEFAULT
-          status=nf90_open_par(TRIM(ncname), nf90_nowrite,              &
-     &                         OCN_COMM_WORLD, MP_INFO, ncid)
+!!        status=nf90_open_par(TRIM(ncname), nf90_nowrite,              &
+!!   &                         OCN_COMM_WORLD, MP_INFO, ncid)
+          status=nf90_open(path = TRIM(ncname),                         &
+     &                     mode = nf90_nowrite,                         &
+     &                     ncid = ncid,                                 &
+     &                     comm = OCN_COMM_WORLD,                       &
+     &                     info = MP_INFO)
       END SELECT
       IF (status.ne.nf90_noerr) THEN
         IF (Master) WRITE (stdout,10) TRIM(ncname), TRIM(SourceFile)
@@ -5996,70 +6008,6 @@
 
       RETURN
       END SUBROUTINE netcdf_open
-
-      SUBROUTINE netcdf_openid (nfiles, fname, fid, ncname, ncid)
-!
-!=======================================================================
-!                                                                      !
-!  This routine determines association between pathnames and NetCDF    !
-!  file descriptors. It is used to get the  ID  of an opened NetCDF    !
-!  from file name.  This is done to avoid  opening  too  many files    !
-!  simultaneously for the same dataset.                                !
-!                                                                      !
-!  Input:                                                              !
-!                                                                      !
-!    nfiles    Number of input NetCDF files.                           !
-!    fname     NetCDF file name(s).                                    !
-!    fid       NetCDF ID(s) associated with fname.                     !
-!    ncname    NetCDF file name to check in association table.         !
-!    ncid      NetCDF ID to check in association table.                !
-!                                                                      !
-!  Output:                                                             !
-!                                                                      !
-!    fid       If updated, it stores the ID associated with fname.     !
-!    ncid      If updated, indicates that ncname has been opened       !
-!                previously and this is its associated ID.             !
-!                                                                      !
-!=======================================================================
-!
-      implicit none
-!
-!  Imported variable declarations.
-!
-      integer, intent(in) :: nfiles
-
-      character (len=*), intent(in) :: fname(nfiles)
-      character (len=*), intent(in) :: ncname
-
-      integer, intent(inout) :: fid(nfiles)
-      integer, intent(inout) :: ncid
-!
-!  Local variabel declarations.
-!
-      integer :: i
-!
-!-----------------------------------------------------------------------
-!  Determine association between NetCDF file name and ID descriptor.
-!-----------------------------------------------------------------------
-!
-!  NetCDF file ID descriptors are set to closed state (-1) during
-!  initialization.
-!
-      DO i=1,nfiles
-        IF (TRIM(ncname).eq.TRIM(fname(i))) THEN
-!
-!  NCFILE was just opened. Store its associated ID for future reference.
-!
-          IF (ncid.ne.-1) fid(i)=ncid
-!
-!  NCFILE is already open. Get its ID from reference table.
-!
-          IF ((fid(i).ne.-1).and.(ncid.eq.-1)) ncid=fid(i)
-        END IF
-      END DO
-
-      RETURN
-      END SUBROUTINE netcdf_openid
 
       SUBROUTINE netcdf_redef (ng, model, ncname, ncid)
 !
@@ -6127,7 +6075,7 @@
       ioerror=ibuffer(2)
 #endif
 !
-  10  FORMAT (/,' NETCDF_REDEF - unable to put in definition mode',      &
+  10  FORMAT (/,' NETCDF_REDEF - unable to put in definition mode',     &
      &        ' file:',/,16x,a,/,16x,'call from:',2x,a)
 
       RETURN

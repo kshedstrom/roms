@@ -25,10 +25,10 @@
 #define SOLVE3D
 #define SALINITY
 #ifdef SOLVE3D
-# undef SPLINES
+# define SPLINES
 #endif
-#define FLOATS
-#define STATIONS
+#undef FLOATS
+#undef STATIONS
 #undef WET_DRY
 
 #undef T_PASSIVE
@@ -56,9 +56,9 @@
 #  define  ICE_SMOLAR
 #  define  ICE_UPWIND
 #  define  ICE_BULK_FLUXES
-#  define  ANA_AIOBC
-#  define  ANA_HIOBC
-#  define  ANA_HSNOBC
+#  undef  ANA_AIOBC
+#  undef  ANA_HIOBC
+#  undef  ANA_HSNOBC
 # endif
 #endif
 
@@ -83,7 +83,7 @@
 
 #define UV_ADV
 #define UV_COR
-#define UV_SADVECTION
+#undef UV_SADVECTION
 
 #ifdef SOLVE3D
 # define TS_U3HADVECTION
@@ -93,7 +93,7 @@
 
 #define UV_VIS2
 #undef UV_SMAGORINSKY
-#define VISC_3DCOEF
+#undef VISC_3DCOEF
 #define MIX_S_UV
 #define VISC_GRID
 #define SPONGE
@@ -181,7 +181,7 @@
 # define ADD_M2OBC
 # undef RAMP_TIDES
 # define TIDES_ASTRO
-# define POT_TIDES
+# undef POT_TIDES
 
 # define UV_LDRAG
 # define UV_DRAG_GRID
@@ -193,6 +193,8 @@
 #endif
 
 /* Boundary conditions...careful with grid orientation */
+
+#define OUTFLOW_MASK
 
 #undef EASTERN_WALL
 #undef NORTHERN_WALL
@@ -209,7 +211,11 @@
 #  define NORTH_M3NUDGING
 #  define NORTH_TRADIATION
 #  define NORTH_TNUDGING
-#  define NORTH_MIGRADIENT
+#  define NORTH_MICLAMPED
+#  define NORTH_AICLAMPED
+#  define NORTH_HICLAMPED
+#  define NORTH_HSNCLAMPED
+#  undef NORTH_TICLAMPED
 # endif
 #endif
 
@@ -221,7 +227,11 @@
 #  define WEST_M3NUDGING
 #  define WEST_TRADIATION
 #  define WEST_TNUDGING
-#  define WEST_MIGRADIENT
+#  define WEST_MICLAMPED
+#  define WEST_AICLAMPED
+#  define WEST_HICLAMPED
+#  define WEST_HSNCLAMPED
+#  undef WEST_TICLAMPED
 # endif
 #endif
 
@@ -233,7 +243,11 @@
 #  define SOUTH_M3NUDGING
 #  define SOUTH_TRADIATION
 #  define SOUTH_TNUDGING
-#  define SOUTH_MIGRADIENT
+#  define SOUTH_MICLAMPED
+#  define SOUTH_AICLAMPED
+#  define SOUTH_HICLAMPED
+#  define SOUTH_HSNCLAMPED
+#  undef SOUTH_TICLAMPED
 # endif
 #endif
 
@@ -245,7 +259,11 @@
 #  define EAST_M3NUDGING
 #  define EAST_TRADIATION
 #  define EAST_TNUDGING
-#  define EAST_MIGRADIENT
+#  define EAST_MICLAMPED
+#  define EAST_AICLAMPED
+#  define EAST_HICLAMPED
+#  define EAST_HSNCLAMPED
+#  undef EAST_TICLAMPED
 # endif
 #endif
 

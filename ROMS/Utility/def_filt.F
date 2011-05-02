@@ -61,8 +61,8 @@
 !=======================================================================
 !
 !  Activate creation of filter NetCDF file.  Create a new filter
-!  file if during a restart run, the filter filename "FILname"
-!  is different than the restart filename "RSTname".  I would prefer to
+!  file if during a restart run, the filter filename "FIL%name"
+!  is different than the restart filename "RST%name".  I would prefer to
 !  not create a new filter file during a restart run, but simply write to 
 !  one assumed to have been created before, but this doesn't work yet.
 !
@@ -74,9 +74,9 @@
       END IF
 !
       DO ifile = 1,nfile
-        ncname=FILname(ifile,ng)
+        ncname=FIL(ifile,ng)%name
         IF (Ldefine) THEN
-          CALL netcdf_create(ng, iNLM, TRIM(ncname), ncFILid(ifile,ng))
+          CALL netcdf_create(ng, iNLM, TRIM(ncname), FIL(ifile,ng)%ncid)
           IF (exit_flag.ne.NoError) THEN
             IF (Master) WRITE (stdout,30) TRIM(ncname)
             RETURN
@@ -86,76 +86,76 @@
 !  Define the dimensions of staggered fields.
 !-----------------------------------------------------------------------
 !
-          status = def_dim(ng, iNLM, ncFILid(ifile,ng), ncname,         &
+          status = def_dim(ng, iNLM, FIL(ifile,ng)%ncid, ncname,        &
      &             'xi_rho', IOBOUNDS(ng)%xi_rho, DimIDs( 1))
           IF (exit_flag.ne.NoError) RETURN
-          status = def_dim(ng, iNLM, ncFILid(ifile,ng), ncname,         &
+          status = def_dim(ng, iNLM, FIL(ifile,ng)%ncid, ncname,        &
      &             'xi_u', IOBOUNDS(ng)%xi_u, DimIDs( 2))
           IF (exit_flag.ne.NoError) RETURN
-          status = def_dim(ng, iNLM, ncFILid(ifile,ng), ncname,         &
+          status = def_dim(ng, iNLM, FIL(ifile,ng)%ncid, ncname,        &
      &             'xi_v', IOBOUNDS(ng)%xi_v, DimIDs( 3))
           IF (exit_flag.ne.NoError) RETURN
-          status = def_dim(ng, iNLM, ncFILid(ifile,ng), ncname,         &
+          status = def_dim(ng, iNLM, FIL(ifile,ng)%ncid, ncname,        &
      &             'xi_psi', IOBOUNDS(ng)%xi_psi, DimIDs( 4))
           IF (exit_flag.ne.NoError) RETURN
-          status = def_dim(ng, iNLM, ncFILid(ifile,ng), ncname,         &
+          status = def_dim(ng, iNLM, FIL(ifile,ng)%ncid, ncname,        &
      &             'eta_rho', IOBOUNDS(ng)%eta_rho, DimIDs( 5))
           IF (exit_flag.ne.NoError) RETURN
-          status = def_dim(ng, iNLM, ncFILid(ifile,ng), ncname,         &
+          status = def_dim(ng, iNLM, FIL(ifile,ng)%ncid, ncname,        &
      &             'eta_u', IOBOUNDS(ng)%eta_u, DimIDs( 6))
           IF (exit_flag.ne.NoError) RETURN
-          status = def_dim(ng, iNLM, ncFILid(ifile,ng), ncname,         &
+          status = def_dim(ng, iNLM, FIL(ifile,ng)%ncid, ncname,        &
      &             'eta_v', IOBOUNDS(ng)%eta_v, DimIDs( 7))
           IF (exit_flag.ne.NoError) RETURN
-          status = def_dim(ng, iNLM, ncFILid(ifile,ng), ncname,         &
+          status = def_dim(ng, iNLM, FIL(ifile,ng)%ncid, ncname,        &
      &             'eta_psi', IOBOUNDS(ng)%eta_psi, DimIDs( 8))
           IF (exit_flag.ne.NoError) RETURN
 # if defined WRITE_WATER && defined MASKING
-          status = def_dim(ng, iNLM, ncFILid(ifile,ng), ncname,         &
+          status = def_dim(ng, iNLM, FIL(ifile,ng)%ncid, ncname,        &
      &             'xy_rho', IOBOUNDS(ng)%xy_rho, DimIDs(17))
           IF (exit_flag.ne.NoError) RETURN
-          status = def_dim(ng, iNLM, ncFILid(ifile,ng), ncname,         &
+          status = def_dim(ng, iNLM, FIL(ifile,ng)%ncid, ncname,        &
      &             'xy_u', IOBOUNDS(ng)%xy_u, DimIDs(18))
           IF (exit_flag.ne.NoError) RETURN
-          status = def_dim(ng, iNLM, ncFILid(ifile,ng), ncname,         &
+          status = def_dim(ng, iNLM, FIL(ifile,ng)%ncid, ncname,        &
      &             'xy_v', IOBOUNDS(ng)%xy_v, DimIDs(19))
           IF (exit_flag.ne.NoError) RETURN
 # endif
 # ifdef SOLVE3D
 #  if defined WRITE_WATER && defined MASKING
-          status = def_dim(ng, iNLM, ncFILid(ifile,ng), ncname,         &
+          status = def_dim(ng, iNLM, FIL(ifile,ng)%ncid, ncname,        &
      &             'xyz_rho', IOBOUNDS(ng)%xy_rho*N(ng), DimIDs(20))
           IF (exit_flag.ne.NoError) RETURN
-          status = def_dim(ng, iNLM, ncFILid(ifile,ng), ncname,         &
+          status = def_dim(ng, iNLM, FIL(ifile,ng)%ncid, ncname,        &
      &             'xyz_u', IOBOUNDS(ng)%xy_u*N(ng), DimIDs(21))
           IF (exit_flag.ne.NoError) RETURN
-          status = def_dim(ng, iNLM, ncFILid(ifile,ng), ncname,         &
+          status = def_dim(ng, iNLM, FIL(ifile,ng)%ncid, ncname,        &
      &             'xyz_v', IOBOUNDS(ng)%xy_v*N(ng), DimIDs(22))
           IF (exit_flag.ne.NoError) RETURN
-          status = def_dim(ng, iNLM, ncFILid(ifile,ng), ncname,         &
+          status = def_dim(ng, iNLM, FIL(ifile,ng)%ncid, ncname,        &
      &             'xyz_w', IOBOUNDS(ng)%xy_rho*(N(ng)+1), DimIDs(23))
           IF (exit_flag.ne.NoError) RETURN
 #  endif
-          status = def_dim(ng, iNLM, ncFILid(ifile,ng), ncname,         &
+          status = def_dim(ng, iNLM, FIL(ifile,ng)%ncid, ncname,        &
      &             'N', N(ng), DimIDs( 9))
           IF (exit_flag.ne.NoError) RETURN
-          status = def_dim(ng, iNLM, ncFILid(ifile,ng), ncname,         &
+          status = def_dim(ng, iNLM, FIL(ifile,ng)%ncid, ncname,        &
      &             's_rho', N(ng), DimIDs( 9))
           IF (exit_flag.ne.NoError) RETURN
-          status = def_dim(ng, iNLM, ncFILid(ifile,ng), ncname,         &
+          status = def_dim(ng, iNLM, FIL(ifile,ng)%ncid, ncname,        &
      &             's_w', N(ng)+1, DimIDs(10))
           IF (exit_flag.ne.NoError) RETURN
-          status = def_dim(ng, iNLM, ncFILid(ifile,ng), ncname,         &
+          status = def_dim(ng, iNLM, FIL(ifile,ng)%ncid, ncname,        &
      &             'tracer', NT(ng), DimIDs(11))
           IF (exit_flag.ne.NoError) RETURN
 # endif
-          status = def_dim(ng, iNLM, ncFILid(ifile,ng), ncname,         &
+          status = def_dim(ng, iNLM, FIL(ifile,ng)%ncid, ncname,        &
      &             'boundary', 4, DimIDs(14))
           IF (exit_flag.ne.NoError) RETURN
-          status = def_dim(ng, iNLM, ncFILid(ifile,ng), ncname,         &
+          status = def_dim(ng, iNLM, FIL(ifile,ng)%ncid, ncname,        &
      &             'filterLevel', nf90_unlimited, DimIDs(32))
           IF (exit_flag.ne.NoError) RETURN
-!         status = def_dim(ng, iNLM, ncFILid(ifile,ng), ncname,         &
+!         status = def_dim(ng, iNLM, FIL(ifile,ng)%ncid, ncname,        &
 !     &            TRIM(ADJUSTL(Vname(5,idtime))),                      &
 !     &            nf90_unlimited, DimIDs(12))
 !         IF (exit_flag.ne.NoError) RETURN
@@ -250,7 +250,7 @@
 !
 !  Initialize unlimited time record dimension.
 !
-          tFILindx(ng)=0
+          FIL(ifile,ng)%Rindex=0
 !
 !  Initialize local information variable arrays.
 !
@@ -272,7 +272,7 @@
 !
           type='ROMS/TOMS filter status file for restarts'
           IF (exit_flag.eq.NoError) THEN
-            status = nf90_put_att(ncFILid(ifile,ng), nf90_global,       &
+            status = nf90_put_att(FIL(ifile,ng)%ncid, nf90_global,      &
      &               'type', TRIM(type))
             IF (status.ne.nf90_noerr) THEN 
               IF (Master) WRITE (stdout,20) 'type', TRIM(ncname)
@@ -285,7 +285,7 @@
 !
           Vinfo( 1)='filterLevel'
           Vinfo( 2)='Number of days needed in the time filtering'
-          status = def_var(ng, iNLM, ncFILid(ifile,ng),                 &
+          status = def_var(ng, iNLM, FIL(ifile,ng)%ncid,                &
      &           varid, NF90_INT, 1, (/recdim/), Aval,                  &
      &           Vinfo, ncname, SetParAccess = .FALSE.)
           IF (exit_flag.ne.NoError) RETURN
@@ -308,8 +308,8 @@
             Vinfo( 4)='standard'
           END IF
           Vinfo(14)=Vname(4,idtime)
-          status = def_var(ng, iNLM, ncFILid(ifile,ng),                 &
-     &             filVid(idtime,ng), NF_TYPE, 1, (/ recdim /),         &
+          status = def_var(ng, iNLM, FIL(ifile,ng)%ncid,                &
+     &             FIL(ifile,ng)%Vid(idtime), NF_TYPE, 1, (/ recdim /), &
      &             Aval, Vinfo, ncname, SetParAccess = .FALSE.)
           IF (exit_flag.ne.NoError) RETURN
 !
@@ -317,7 +317,7 @@
 !
           Vinfo( 1)='fcount'
           Vinfo( 2)=Vname(2,idtime)
-          status = def_var(ng, iNLM, ncFILid(ifile,ng),                 &
+          status = def_var(ng, iNLM, FIL(ifile,ng)%ncid,                &
      &             varid, NF90_INT, 1, (/recdim/),                      &
      &             Aval, Vinfo, ncname, SetParAccess = .FALSE.)
           IF (exit_flag.ne.NoError) RETURN
@@ -331,7 +331,7 @@
 !
 !  Define free-surface.
 !
-        ncname=FILname(1,ng)
+        ncname=FIL(1,ng)%name
         IF (Aout(idFsur,ng)) THEN
           Vinfo( 1)=Vname(1,idFsur)
           Vinfo( 2)=Vname(2,idFsur)
@@ -343,7 +343,8 @@
 # endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idFsur,ng),r8)
-          status=def_var(ng, iNLM, ncFILid(1,ng), filVid(idFsur,ng),    &
+          status=def_var(ng, iNLM, FIL(1,ng)%ncid,                      &
+     &                 FIL(1,ng)%Vid(idFsur),                           &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -361,7 +362,8 @@
 # endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idUbar,ng),r8)
-          status=def_var(ng, iNLM, ncFILid(1,ng), filVid(idUbar,ng),    &
+          status=def_var(ng, iNLM, FIL(1,ng)%ncid,                      &
+     &                 FIL(1,ng)%Vid(idUbar),                           &
      &                 NF_FOUT, nvd3, u2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -379,7 +381,8 @@
 # endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idVbar,ng),r8)
-          status=def_var(ng, iNLM, ncFILid(1,ng), filVid(idVbar,ng),    &
+          status=def_var(ng, iNLM, FIL(1,ng)%ncid,                      &
+     &                 FIL(1,ng)%Vid(idVbar),                           &
      &                 NF_FOUT, nvd3, v2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -388,7 +391,7 @@
 !  Define 3D momentum component in the XI-direction.
 !
         IF (Aout(idUvel,ng)) THEN
-          ncname=FILname(2,ng)
+          ncname=FIL(2,ng)%name
           Vinfo( 1)=Vname(1,idUvel)
           Vinfo( 2)=Vname(2,idUvel)
           Vinfo( 3)=Vname(3,idUvel)
@@ -399,7 +402,8 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idUvel,ng),r8)
-          status=def_var(ng, iNLM, ncFILid(2,ng), filVid(idUvel,ng),    &
+          status=def_var(ng, iNLM, FIL(2,ng)%ncid,                      &
+     &                 FIL(2,ng)%Vid(idUvel),                           &
      &                 NF_FOUT, nvd4, u3dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -407,7 +411,7 @@
 !  Define 3D momentum component in the ETA-direction.
 !
         IF (Aout(idVvel,ng)) THEN
-          ncname=FILname(3,ng)
+          ncname=FIL(3,ng)%name
           Vinfo( 1)=Vname(1,idVvel)
           Vinfo( 2)=Vname(2,idVvel)
           Vinfo( 3)=Vname(3,idVvel)
@@ -418,7 +422,8 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idVvel,ng),r8)
-          status=def_var(ng, iNLM, ncFILid(3,ng), filVid(idVvel,ng),    &
+          status=def_var(ng, iNLM, FIL(3,ng)%ncid,                      &
+     &                 FIL(3,ng)%Vid(idVvel),                           &
      &                 NF_FOUT, nvd4, v3dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -426,7 +431,7 @@
 !  Define vertical (omega) velocity.
 !
         IF (Aout(idOvel,ng)) THEN
-          ncname=FILname(9,ng)
+          ncname=FIL(9,ng)%name
           Vinfo( 1)=Vname(1,idOvel)
           Vinfo( 2)=Vname(2,idOvel)
           Vinfo( 3)=Vname(3,idOvel)
@@ -437,7 +442,8 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idOvel,ng),r8)
-          status=def_var(ng, iNLM, ncFILid(9,ng), filVid(idOvel,ng),    &
+          status=def_var(ng, iNLM, FIL(9,ng)%ncid,                      &
+     &                 FIL(9,ng)%Vid(idOvel),                           &
      &                 NF_FOUT, nvd4, w3dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -445,7 +451,7 @@
 !  Define density anomaly.
 !
         IF (Aout(idDano,ng)) THEN
-          ncname=FILname(7,ng)
+          ncname=FIL(7,ng)%name
           Vinfo( 1)=Vname(1,idDano)
           Vinfo( 2)=Vname(2,idDano)
           Vinfo( 3)=Vname(3,idDano)
@@ -456,7 +462,8 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idDano,ng),r8)
-          status=def_var(ng, iNLM, ncFILid(7,ng), filVid(idDano,ng),    &
+          status=def_var(ng, iNLM, FIL(7,ng)%ncid,                      &
+     &                 FIL(7,ng)%Vid(idDano),                           &
      &                 NF_FOUT, nvd4, t3dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -465,7 +472,7 @@
 !
         DO itrc=1,NAT
           IF (Aout(idTvar(itrc),ng)) THEN
-            ncname=FILname(8,ng)
+            ncname=FIL(8,ng)%name
             Vinfo( 1)=Vname(1,idTvar(itrc))
             Vinfo( 2)=Vname(2,idTvar(itrc))
             Vinfo( 3)=Vname(3,idTvar(itrc))
@@ -476,7 +483,8 @@
 #  endif
             Vinfo(22)='coordinates'
             Aval(5)=REAL(r3dvar,r8)
-            status=def_var(ng, iNLM, ncFILid(8,ng), filTid(itrc,ng),    &
+            status=def_var(ng, iNLM, FIL(8,ng)%ncid,                    &
+     &                 FIL(8,ng)%Tid(itrc),                             &
      &                 NF_FOUT, nvd4, t3dgrd, Aval, Vinfo, ncname)
             IF (exit_flag.ne.NoError) RETURN
           END IF
@@ -486,7 +494,7 @@
 !  Define vertical viscosity coefficient.
 !
         IF (Aout(idVvis,ng)) THEN
-          ncname=FILname(6,ng)
+          ncname=FIL(6,ng)%name
           Vinfo( 1)=Vname(1,idVvis)
           Vinfo( 2)=Vname(2,idVvis)
           Vinfo( 3)=Vname(3,idVvis)
@@ -497,7 +505,8 @@
 #   endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idVvis,ng),r8)
-          status=def_var(ng, iNLM, ncFILid(6,ng), filVid(idVvis,ng),    &
+          status=def_var(ng, iNLM, FIL(6,ng)%ncid,                      &
+     &                 FIL(6,ng)%Vid(idVvis),                           &
      &                 NF_FOUT, nvd4, w3dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -505,7 +514,7 @@
 !  Define vertical diffusion coefficient for potential temperature.
 !
         IF (Aout(idTdif,ng)) THEN
-          ncname=FILname(4,ng)
+          ncname=FIL(4,ng)%name
           Vinfo( 1)=Vname(1,idTdif)
           Vinfo( 2)=Vname(2,idTdif)
           Vinfo( 3)=Vname(3,idTdif)
@@ -516,7 +525,8 @@
 #   endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idTdif,ng),r8)
-          status=def_var(ng, iNLM, ncFILid(4,ng), filVid(idTdif,ng),    &
+          status=def_var(ng, iNLM, FIL(4,ng)%ncid,                      &
+     &                 FIL(4,ng)%Vid(idTdif),                           &
      &                 NF_FOUT, nvd4, w3dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -524,7 +534,7 @@
 !  Define vertical diffusion coefficient for salinity.
 !
         IF (Aout(idSdif,ng)) THEN
-          ncname=FILname(5,ng)
+          ncname=FIL(5,ng)%name
           Vinfo( 1)=Vname(1,idSdif)
           Vinfo( 2)=Vname(2,idSdif)
           Vinfo( 3)=Vname(3,idSdif)
@@ -535,7 +545,8 @@
 #   endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idSdif,ng),r8)
-          status=def_var(ng, iNLM, ncFILid(5,ng), filVid(idSdif,ng),    &
+          status=def_var(ng, iNLM, FIL(5,ng)%ncid,                      &
+     &                 FIL(5,ng)%Vid(idSdif),                           &
      &                 NF_FOUT, nvd4, w3dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -546,7 +557,7 @@
 !  Define depth of surface boundary layer.
 !
         IF (Aout(idHsbl,ng)) THEN
-          ncname=FILname(1,ng)
+          ncname=FIL(1,ng)%name
           Vinfo( 1)=Vname(1,idHsbl)
           Vinfo( 2)=Vname(2,idHsbl)
           Vinfo( 3)=Vname(3,idHsbl)
@@ -557,7 +568,8 @@
 #   endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idHsbl,ng),r8)
-          status=def_var(ng, iNLM, ncFILid(1,ng), filVid(idHsbl,ng),    &
+          status=def_var(ng, iNLM, FIL(1,ng)%ncid,                      &
+     &                 FIL(1,ng)%Vid(idHsbl),                           &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -577,7 +589,8 @@
 #   endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idHbbl,ng),r8)
-          status=def_var(ng, iNLM, ncFILid(1,ng), filVid(idHbbl,ng),    &
+          status=def_var(ng, iNLM, FIL(1,ng)%ncid,                      &
+     &                   FIL(1,ng)%Vid(idHbbl),                         &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -585,7 +598,7 @@
 !
 !  Define surface net heat flux.
 !
-        ncname=FILname(1,ng)
+        ncname=FIL(1,ng)%name
         IF (Aout(idTsur(itemp),ng)) THEN
           Vinfo( 1)=Vname(1,idTsur(itemp))
           Vinfo( 2)=Vname(2,idTsur(itemp))
@@ -599,8 +612,8 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idTsur(itemp),ng),r8)
-          status=def_var(ng, iNLM, ncFILid(1,ng),                       &
-     &                 filVid(idTsur(itemp),ng),                        &
+          status=def_var(ng, iNLM, FIL(1,ng)%ncid,                      &
+     &                 FIL(1,ng)%Vid(idTsur(itemp)),                    &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -608,7 +621,7 @@
 !  Define surface net salt flux.
 !
         IF (Aout(idTsur(isalt),ng)) THEN
-          ncname=FILname(1,ng)
+          ncname=FIL(1,ng)%name
           Vinfo( 1)=Vname(1,idTsur(isalt))
           Vinfo( 2)=Vname(2,idTsur(isalt))
           Vinfo( 3)=Vname(3,idTsur(isalt))
@@ -621,8 +634,8 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idTsur(isalt),ng),r8)
-          status=def_var(ng, iNLM, ncFILid(1,ng),                       &
-     &                 filVid(idTsur(isalt),ng),                        &
+          status=def_var(ng, iNLM, FIL(1,ng)%ncid,                      &
+     &                 FIL(1,ng)%Vid(idTsur(isalt)),                    &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -643,7 +656,8 @@
 #   endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idLhea,ng),r8)
-          status=def_var(ng, iNLM, ncFILid(1,ng), filVid(idLhea,ng),    &
+          status=def_var(ng, iNLM, FIL(1,ng)%ncid,                      &
+     &                 FIL(1,ng)%Vid(idLhea),                           &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -663,7 +677,8 @@
 #   endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idShea,ng),r8)
-          status=def_var(ng, iNLM, ncFILid(1,ng), filVid(idShea,ng),    &
+          status=def_var(ng, iNLM, FIL(1,ng)%ncid,                      &
+     &                 FIL(1,ng)%Vid(idShea),                           &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -683,7 +698,8 @@
 #   endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idLrad,ng),r8)
-          status=def_var(ng, iNLM, ncFILid(1,ng), filVid(idLrad,ng),    &
+          status=def_var(ng, iNLM, FIL(1,ng)%ncid,                      &
+     &                 FIL(1,ng)%Vid(idLrad),                           &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -705,7 +721,8 @@
 #   endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idSrad,ng),r8)
-          status=def_var(ng, iNLM, ncFILid(1,ng), filVid(idSrad,ng),    &
+          status=def_var(ng, iNLM, FIL(1,ng)%ncid,                      &
+     &                 FIL(1,ng)%Vid(idSrad),                           &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -725,7 +742,8 @@
 # endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idUsms,ng),r8)
-          status=def_var(ng, iNLM, ncFILid(1,ng), filVid(idUsms,ng),    &
+          status=def_var(ng, iNLM, FIL(1,ng)%ncid,                      &
+     &                 FIL(1,ng)%Vid(idUsms),                           &
      &                 NF_FOUT, nvd3, u2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -743,7 +761,8 @@
 # endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idVsms,ng),r8)
-          status=def_var(ng, iNLM, ncFILid(1,ng), filVid(idVsms,ng),    &
+          status=def_var(ng, iNLM, FIL(1,ng)%ncid,                      &
+     &                 FIL(1,ng)%Vid(idVsms),                           &
      &                 NF_FOUT, nvd3, v2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -751,7 +770,7 @@
 !
 !  Define 2D ice momentum in the XI-direction.
 !
-        ncname=FILname(10,ng)
+        ncname=FIL(10,ng)%name
         IF (Aout(idUice,ng)) THEN
           Vinfo( 1)=Vname(1,idUice)
           Vinfo( 2)=Vname(2,idUice)
@@ -763,7 +782,8 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idUice,ng),r8)
-          status=def_var(ng, iNLM, ncFILid(10,ng), filVid(idUice,ng),   &
+          status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
+     &                 FIL(10,ng)%Vid(idUice),                          &
      &                 NF_FOUT, nvd3, u2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -781,7 +801,8 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idVice,ng),r8)
-          status=def_var(ng, iNLM, ncFILid(10,ng), filVid(idVice,ng),   &
+          status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
+     &                 FIL(10,ng)%Vid(idVice),                          &
      &                 NF_FOUT, nvd3, v2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -799,7 +820,8 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idAice,ng),r8)
-          status=def_var(ng, iNLM, ncFILid(10,ng), filVid(idAice,ng),   &
+          status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
+     &                 FIL(10,ng)%Vid(idAice),                          &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -817,7 +839,8 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idHice,ng),r8)
-          status=def_var(ng, iNLM, ncFILid(10,ng), filVid(idHice,ng),   &
+          status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
+     &                 FIL(10,ng)%Vid(idHice),                          &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -835,7 +858,8 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idHsno,ng),r8)
-          status=def_var(ng, iNLM, ncFILid(10,ng), filVid(idHsno,ng),   &
+          status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
+     &                 FIL(10,ng)%Vid(idHsno),                          &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -853,7 +877,8 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idSfwat,ng),r8)
-          status=def_var(ng, iNLM, ncFILid(10,ng), filVid(idSfwat,ng),  &
+          status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
+     &                 FIL(10,ng)%Vid(idSfwat),                         &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -871,7 +896,8 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idTice,ng),r8)
-          status=def_var(ng, iNLM, ncFILid(10,ng), filVid(idTice,ng),   &
+          status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
+     &                 FIL(10,ng)%Vid(idTice),                          &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -889,7 +915,8 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idTimid,ng),r8)
-          status=def_var(ng, iNLM, ncFILid(10,ng), filVid(idTimid,ng),  &
+          status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
+     &                 FIL(10,ng)%Vid(idTimid),                         &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -907,7 +934,8 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idS0mk,ng),r8)
-          status=def_var(ng, iNLM, ncFILid(10,ng), filVid(idS0mk,ng),   &
+          status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
+     &                 FIL(10,ng)%Vid(idS0mk),                          &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -925,7 +953,8 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idT0mk,ng),r8)
-          status=def_var(ng, iNLM, ncFILid(10,ng), filVid(idT0mk,ng),   &
+          status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
+     &                 FIL(10,ng)%Vid(idT0mk),                          &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -943,7 +972,8 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idAgeice,ng),r8)
-          status=def_var(ng, iNLM, ncFILid(10,ng), filVid(idAgeice,ng), &
+          status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
+     &                 FIL(10,ng)%Vid(idAgeice),                        &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -961,7 +991,8 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idSig11,ng),r8)
-          status=def_var(ng, iNLM, ncFILid(10,ng), filVid(idSig11,ng),  &
+          status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
+     &                 FIL(10,ng)%Vid(idSig11),                         &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -979,7 +1010,8 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idSig12,ng),r8)
-          status=def_var(ng, iNLM, ncFILid(10,ng), filVid(idSig12,ng),  &
+          status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
+     &                 FIL(10,ng)%Vid(idSig12),                         &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -997,7 +1029,8 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idSig22,ng),r8)
-          status=def_var(ng, iNLM, ncFILid(10,ng), filVid(idSig22,ng),  &
+          status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
+     &                 FIL(10,ng)%Vid(idSig22),                         &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -1015,7 +1048,8 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idIomflx,ng),r8)
-          status=def_var(ng, iNLM, ncFILid(10,ng), filVid(idIomflx,ng), &
+          status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
+     &                 FIL(10,ng)%Vid(idIomflx),                        &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -1033,7 +1067,8 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idTauiw,ng),r8)
-          status=def_var(ng, iNLM, ncFILid(10,ng), filVid(idTauiw,ng),  &
+          status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
+     &                 FIL(10,ng)%Vid(idTauiw),                         &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -1051,7 +1086,8 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idChuiw,ng),r8)
-          status=def_var(ng, iNLM, ncFILid(10,ng), filVid(idChuiw,ng),  &
+          status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
+     &                 FIL(10,ng)%Vid(idChuiw),                         &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -1069,7 +1105,8 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idWfr,ng),r8)
-          status=def_var(ng, iNLM, ncFILid(10,ng), filVid(idWfr,ng),    &
+          status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
+     &                 FIL(10,ng)%Vid(idWfr),                           &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -1087,7 +1124,8 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idWai,ng),r8)
-          status=def_var(ng, iNLM, ncFILid(10,ng), filVid(idWai,ng),    &
+          status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
+     &                 FIL(10,ng)%Vid(idWai),                           &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -1105,7 +1143,8 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idWao,ng),r8)
-          status=def_var(ng, iNLM, ncFILid(10,ng), filVid(idWao,ng),    &
+          status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
+     &                 FIL(10,ng)%Vid(idWao),                           &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -1123,7 +1162,8 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idWio,ng),r8)
-          status=def_var(ng, iNLM, ncFILid(10,ng), filVid(idWio,ng),    &
+          status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
+     &                 FIL(10,ng)%Vid(idWio),                           &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -1141,7 +1181,8 @@
 #  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idWro,ng),r8)
-          status=def_var(ng, iNLM, ncFILid(10,ng), filVid(idWro,ng),    &
+          status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
+     &                 FIL(10,ng)%Vid(idWro),                           &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -1152,8 +1193,8 @@
 !-----------------------------------------------------------------------
 !
         DO ifile=1,nfile
-          CALL netcdf_enddef (ng, iNLM, FILname(ifile,ng),              &
-     &                        ncFILid(ifile,ng))
+          CALL netcdf_enddef (ng, iNLM, FIL(ifile,ng)%name,             &
+     &                        FIL(ifile,ng)%ncid)
           IF (exit_flag.ne.NoError) RETURN
         END DO
       END IF
@@ -1172,7 +1213,7 @@
         END DO
 
         DO ifile=1,nfile
-          ncname=FILname(ifile,ng)
+          ncname=FIL(ifile,ng)%name
 !
 !  Inquire about the dimensions and check for consistency.
 !
@@ -1189,7 +1230,7 @@
 !
 !  Open filter files for read/write.
 !
-          CALL netcdf_open (ng, iNLM, ncname, 1, ncFILid(ifile,ng))
+          CALL netcdf_open (ng, iNLM, ncname, 1, FIL(ifile,ng)%ncid)
           IF (exit_flag.ne.NoError) THEN
             IF (Master) WRITE (stdout,50) TRIM(ncname)
             RETURN
@@ -1197,170 +1238,170 @@
           DO i=1,n_var
             IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idtime))) THEN
               got_var(idtime)=.TRUE.
-              filVid(idtime,ng) = var_id(i)
+              FIL(1,ng)%Vid(idtime) = var_id(i)
             ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idFsur))) THEN
               got_var(idFsur)=.TRUE.
-              filVid(idFsur,ng) = var_id(i)
+              FIL(1,ng)%Vid(idFsur) = var_id(i)
             ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idUbar))) THEN
               got_var(idUbar)=.TRUE.
-              filVid(idUbar,ng) = var_id(i)
+              FIL(1,ng)%Vid(idUbar) = var_id(i)
             ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idVbar))) THEN
               got_var(idVbar)=.TRUE.
-              filVid(idVbar,ng) = var_id(i)
+              FIL(1,ng)%Vid(idVbar) = var_id(i)
 # ifdef SOLVE3D
             ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idUvel))) THEN
               got_var(idUvel)=.TRUE.
-              filVid(idUvel,ng) = var_id(i)
+              FIL(2,ng)%Vid(idUvel) = var_id(i)
             ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idVvel))) THEN
               got_var(idVvel)=.TRUE.
-              filVid(idVvel,ng) = var_id(i)
+              FIL(3,ng)%Vid(idVvel) = var_id(i)
             ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idOvel))) THEN
               got_var(idOvel)=.TRUE.
-              filVid(idOvel,ng) = var_id(i)
+              FIL(9,ng)%Vid(idOvel) = var_id(i)
             ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idDano))) THEN
               got_var(idDano)=.TRUE.
-              filVid(idDano,ng) = var_id(i)
+              FIL(7,ng)%Vid(idDano) = var_id(i)
 #  ifdef LMD_SKPP
             ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idHsbl))) THEN
               got_var(idHsbl)=.TRUE.
-              filVid(idHsbl,ng) = var_id(i)
+              FIL(1,ng)%Vid(idHsbl) = var_id(i)
 #  endif
 #  ifdef LMD_BKPP
             ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idHbbl))) THEN
               got_var(idHbbl)=.TRUE.
-              filVid(idHbbl,ng) = var_id(i)
+              FIL(1,ng)%Vid(idHbbl) = var_id(i)
 #  endif
             ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idVvis))) THEN
               got_var(idVvis)=.TRUE.
-              filVid(idVvis,ng) = var_id(i)
+              FIL(6,ng)%Vid(idVvis) = var_id(i)
             ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idTdif))) THEN
               got_var(idTdif)=.TRUE.
-              filVid(idTdif,ng) = var_id(i)
+              FIL(4,ng)%Vid(idTdif) = var_id(i)
             ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idSdif))) THEN
               got_var(idSdif)=.TRUE.
-              filVid(idSdif,ng) = var_id(i)
+              FIL(5,ng)%Vid(idSdif) = var_id(i)
 #  ifdef ICE_MODEL
             ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idUice))) THEN
               got_var(idUice)=.true.
-              filVid(idUice,ng)=var_id(i)
+              FIL(10,ng)%Vid(idUice)=var_id(i)
             ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idVice))) THEN
               got_var(idVice)=.true.
-              filVid(idVice,ng)=var_id(i)
+              FIL(10,ng)%Vid(idVice)=var_id(i)
             ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idAice))) THEN
               got_var(idAice)=.true.
-              filVid(idAice,ng)=var_id(i)
+              FIL(10,ng)%Vid(idAice)=var_id(i)
             ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idHice))) THEN
               got_var(idHice)=.true.
-              filVid(idHice,ng)=var_id(i)
+              FIL(10,ng)%Vid(idHice)=var_id(i)
             ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idTice))) THEN
               got_var(idTice)=.true.
-              filVid(idTice,ng)=var_id(i)
+              FIL(10,ng)%Vid(idTice)=var_id(i)
             ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idHsno))) THEN
               got_var(idHsno)=.true.
-              filVid(idHsno,ng)=var_id(i)
+              FIL(10,ng)%Vid(idHsno)=var_id(i)
             ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idSfwat))) THEN
               got_var(idSfwat)=.true.
-              filVid(idSfwat,ng)=var_id(i)
+              FIL(10,ng)%Vid(idSfwat)=var_id(i)
             ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idAgeice))) THEN
               got_var(idAgeice)=.true.
-              filVid(idAgeice,ng)=var_id(i)
+              FIL(10,ng)%Vid(idAgeice)=var_id(i)
             ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idIomflx))) THEN
               got_var(idIomflx)=.true.
-              filVid(idIomflx,ng)=var_id(i)
+              FIL(10,ng)%Vid(idIomflx)=var_id(i)
             ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idTimid))) THEN
               got_var(idTimid)=.true.
-              filVid(idTimid,ng)=var_id(i)
+              FIL(10,ng)%Vid(idTimid)=var_id(i)
             ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idSig11))) THEN
               got_var(idSig11)=.true.
-              filVid(idSig11,ng)=var_id(i)
+              FIL(10,ng)%Vid(idSig11)=var_id(i)
             ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idSig12))) THEN
               got_var(idSig12)=.true.
-              filVid(idSig12,ng)=var_id(i)
+              FIL(10,ng)%Vid(idSig12)=var_id(i)
             ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idSig22))) THEN
               got_var(idSig22)=.true.
-              filVid(idSig22,ng)=var_id(i)
+              FIL(10,ng)%Vid(idSig22)=var_id(i)
             ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idTauiw))) THEN
               got_var(idTauiw)=.true.
-              filVid(idTauiw,ng)=var_id(i)
+              FIL(10,ng)%Vid(idTauiw)=var_id(i)
             ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idChuiw))) THEN
               got_var(idChuiw)=.true.
-              filVid(idChuiw,ng)=var_id(i)
+              FIL(10,ng)%Vid(idChuiw)=var_id(i)
             ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idT0mk))) THEN
               got_var(idT0mk)=.true.
-              filVid(idT0mk,ng)=var_id(i)
+              FIL(10,ng)%Vid(idT0mk)=var_id(i)
             ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idS0mk))) THEN
               got_var(idS0mk)=.true.
-              filVid(idS0mk,ng)=var_id(i)
+              FIL(10,ng)%Vid(idS0mk)=var_id(i)
             ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idWfr))) THEN
               got_var(idWfr)=.true.
-              filVid(idWfr,ng)=var_id(i)
+              FIL(10,ng)%Vid(idWfr)=var_id(i)
             ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idWai))) THEN
               got_var(idWai)=.true.
-              filVid(idWai,ng)=var_id(i)
+              FIL(10,ng)%Vid(idWai)=var_id(i)
             ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idWao))) THEN
               got_var(idWao)=.true.
-              filVid(idWao,ng)=var_id(i)
+              FIL(10,ng)%Vid(idWao)=var_id(i)
             ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idWio))) THEN
               got_var(idWio)=.true.
-              filVid(idWio,ng)=var_id(i)
+              FIL(10,ng)%Vid(idWio)=var_id(i)
             ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idWro))) THEN
               got_var(idWro)=.true.
-              filVid(idWro,ng)=var_id(i)
+              FIL(10,ng)%Vid(idWro)=var_id(i)
 #  endif
             ELSE IF (TRIM(var_name(i)).eq.                              &
      &               TRIM(Vname(1,idTsur(itemp)))) THEN
               got_var(idTsur(itemp))=.TRUE.
-              filVid(idTsur(itemp),ng)=var_id(i)
+              FIL(10,ng)%Vid(idTsur(itemp))=var_id(i)
             ELSE IF (TRIM(var_name(i)).eq.                              &
      &               TRIM(Vname(1,idTsur(isalt)))) THEN
               got_var(idTsur(isalt))=.TRUE.
-              filVid(idTsur(isalt),ng)=var_id(i)
+              FIL(10,ng)%Vid(idTsur(isalt))=var_id(i)
 #  ifdef BULK_FLUXES
             ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idLhea))) THEN
               got_var(idLhea)=.TRUE.
-              filVid(idLhea,ng)=var_id(i)
+              FIL(1,ng)%Vid(idLhea)=var_id(i)
             ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idShea))) THEN
               got_var(idShea)=.TRUE.
-              filVid(idShea,ng)=var_id(i)
+              FIL(1,ng)%Vid(idShea)=var_id(i)
             ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idLrad))) THEN
               got_var(idLrad)=.TRUE.
-              filVid(idLrad,ng)=var_id(i)
+              FIL(1,ng)%Vid(idLrad)=var_id(i)
 !           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idTair))) THEN
 !             got_var(idTair)=.TRUE.
-!             filVid(idTair,ng)=var_id(i)
+!             FIL(1,ng)%Vid(idTair)=var_id(i)
 !           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idUair))) THEN
 !             got_var(idUair)=.TRUE.
-!             filVid(idUair,ng)=var_id(i)
+!             FIL(1,ng)%Vid(idUair)=var_id(i)
 !           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idVair))) THEN
 !             got_var(idVair)=.TRUE.
-!             filVid(idVair,ng)=var_id(i)
+!             FIL(1,ng)%Vid(idVair)=var_id(i)
 #   ifdef EMINUSP
 !           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idevap))) THEN
 !             got_var(idevap)=.TRUE.
-!             filVid(idevap,ng)=var_id(i)
+!             FIL(1,ng)%Vid(idevap)=var_id(i)
 !           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idrain))) THEN
 !             got_var(idrain)=.TRUE.
-!             filVid(idrain,ng)=var_id(i)
+!             FIL(1,ng)%Vid(idrain)=var_id(i)
 #   endif
 #  endif
 #  ifdef SHORTWAVE
             ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idSrad))) THEN
               got_var(idSrad)=.TRUE.
-              filVid(idSrad,ng)=var_id(i)
+              FIL(1,ng)%Vid(idSrad)=var_id(i)
 #  endif
 # endif
             ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idUsms))) THEN
               got_var(idUsms)=.TRUE.
-              filVid(idUsms,ng)=var_id(i)
+              FIL(1,ng)%Vid(idUsms)=var_id(i)
             ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idVsms))) THEN
               got_var(idVsms)=.TRUE.
-              filVid(idVsms,ng)=var_id(i)
+              FIL(1,ng)%Vid(idVsms)=var_id(i)
             END IF
 # ifdef SOLVE3D
             DO itrc=1,NAT
               IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idTvar(itrc)))) THEN
                 got_var(idTvar(itrc))=.TRUE.
-                filTid(itrc,ng) = var_id(i)
+                FIL(8,ng)%Tid(itrc) = var_id(i)
               END IF
             END DO
 # endif
@@ -1655,7 +1696,7 @@
 !
 !  Set unlimited time record dimension to current value.
 !
-!     tFILindx(ng)=tRSTindx(ng)
+!     FIL(ifile,ng)%Rindex=RST(ng)%Rindex
 !
       END IF
 

@@ -56,7 +56,7 @@
 # include "tile.h"
 !
 # ifdef PROFILE
-      CALL wclock_on (ng, model, 1)
+      CALL wclock_on (ng, model, 2)
 # endif
       CALL set_masks_tile (ng, tile, model,                             &
      &                     LBi, UBi, LBj, UBj,                          &
@@ -71,6 +71,9 @@
      &                     GRID(ng) % rmask,                            &
      &                     GRID(ng) % umask,                            &
      &                     GRID(ng) % vmask,                            &
+# ifdef OUTFLOW_MASK
+     &                     GRID(ng) % mask_outflow,                     &
+# endif
 # ifdef AVERAGES
      &                     GRID(ng) % pmask_avg,                        &
      &                     GRID(ng) % rmask_avg,                        &
@@ -88,7 +91,7 @@
      &                     GRID(ng) % umask_io,                         &
      &                     GRID(ng) % vmask_io)
 # ifdef PROFILE
-      CALL wclock_off (ng, model, 1)
+      CALL wclock_off (ng, model, 2)
 # endif
 
       RETURN
@@ -104,6 +107,9 @@
 # endif
      &                           pmask, rmask,                          &
      &                           umask, vmask,                          &
+# ifdef OUTFLOW_MASK
+     &                           mask_outflow,                          &
+# endif
 # ifdef AVERAGES
      &                           pmask_avg, rmask_avg,                  &
      &                           umask_avg, vmask_avg,                  &
@@ -146,6 +152,9 @@
       real(r8), intent(in) :: rmask(LBi:,LBj:)
       real(r8), intent(in) :: umask(LBi:,LBj:)
       real(r8), intent(in) :: vmask(LBi:,LBj:)
+#  ifdef OUTFLOW_MASK
+      real(r8), intent(out) :: mask_outflow(LBi:,LBj:)
+#  endif
 #  ifdef AVERAGES
       real(r8), intent(inout) :: pmask_avg(LBi:,LBj:)
       real(r8), intent(inout) :: rmask_avg(LBi:,LBj:)
@@ -173,6 +182,9 @@
       real(r8), intent(in) :: rmask(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: umask(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: vmask(LBi:UBi,LBj:UBj)
+#  ifdef OUTFLOW_MASK
+      real(r8), intent(out) :: mask_outflow(LBi:UBi,LBj:UBj)
+#  endif
 #  ifdef AVERAGES
       real(r8), intent(inout) :: pmask_avg(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: rmask_avg(LBi:UBi,LBj:UBj)
@@ -237,6 +249,45 @@
           vmask_io(i,j)=vmask(i,j)
         END DO
       END DO
+
+# ifdef OUTFLOW_MASK
+!
+!  Set outflow mask for the ice model.
+!
+      DO j=JstrR,JendR
+        DO i=IstrR,IendR
+          mask_outflow(i,j)=1.0_r8
+        END DO
+      END DO
+#  ifdef CHUKCHI
+      IF (DOMAIN(ng)%Western_Edge(tile)) THEN
+        DO j=JstrR,JendR
+          mask_outflow(0,j) = 0.0
+          mask_outflow(1,j) = 0.0
+        END DO
+      END IF
+      IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
+        DO j=JstrR,JendR
+          mask_outflow(Lm(ng),j) = 0.0
+          mask_outflow(Lm(ng)+1,j) = 0.0
+        END DO
+      END IF
+      IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
+        DO i=IstrR,IendR
+          mask_outflow(i,0) = 0.0
+          mask_outflow(i,1) = 0.0
+        END DO
+      END IF
+      IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
+        DO i=IstrR,IendR
+          mask_outflow(i,Mm(ng)) = 0.0
+          mask_outflow(i,Mm(ng)+1) = 0.0
+        END DO
+      END IF
+#  else
+      Need to set outflow mask in set_masks.F for your application.
+#  endif
+# endif
 
 # ifdef UV_PSOURCE
 !

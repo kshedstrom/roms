@@ -36,6 +36,9 @@
 # if defined SOLVE3D && (defined SEDIMENT || defined BBL_MODEL)
       USE mod_sedbed
 # endif
+# ifdef ICE_MODEL
+      USE mod_ice
+# endif
       USE mod_stepping
 !
 !  Imported variable declarations.
@@ -47,7 +50,7 @@
 # include "tile.h"
 !
 # ifdef PROFILE
-      CALL wclock_on (ng, iNLM, 1)
+      CALL wclock_on (ng, iNLM, 2)
 # endif
       CALL ini_fields_tile (ng, tile, model,                            &
      &                      LBi, UBi, LBj, UBj,                         &
@@ -89,12 +92,22 @@
      &                      OCEAN(ng) % t,                              &
      &                      OCEAN(ng) % u,                              &
      &                      OCEAN(ng) % v,                              &
+#  ifdef ICE_MODEL
+     &                      ICE(ng) % ui,                               &
+     &                      ICE(ng) % vi,                               &
+     &                      ICE(ng) % ai,                               &
+     &                      ICE(ng) % hi,                               &
+     &                      ICE(ng) % hsn,                              &
+     &                      ICE(ng) % ti,                               &
+     &                      ICE(ng) % sfwat,                            &
+     &                      ICE(ng) % ageice,                           &
+#  endif
 # endif
      &                      OCEAN(ng) % ubar,                           &
      &                      OCEAN(ng) % vbar,                           &
      &                      OCEAN(ng) % zeta)
 # ifdef PROFILE
-      CALL wclock_off (ng, iNLM, 1)
+      CALL wclock_off (ng, iNLM, 2)
 # endif
       RETURN
       END SUBROUTINE ini_fields
@@ -129,6 +142,10 @@
 #  endif
      &                            Hz,                                   &
      &                            t, u, v,                              &
+#  ifdef ICE_MODEL
+     &                            ui, vi, ai, hi, hsn,                  &
+     &                            ti, sfwat, ageice,                    &
+#  endif
 # endif
      &                            ubar, vbar, zeta)
 !***********************************************************************
@@ -224,6 +241,16 @@
       real(r8), intent(inout) :: t(LBi:,LBj:,:,:,:)
       real(r8), intent(inout) :: u(LBi:,LBj:,:,:)
       real(r8), intent(inout) :: v(LBi:,LBj:,:,:)
+#   ifdef ICE_MODEL
+      real(r8), intent(inout) :: ui(LBi:,LBj:,:)
+      real(r8), intent(inout) :: vi(LBi:,LBj:,:)
+      real(r8), intent(inout) :: ai(LBi:,LBj:,:)
+      real(r8), intent(inout) :: hi(LBi:,LBj:,:)
+      real(r8), intent(inout) :: hsn(LBi:,LBj:,:)
+      real(r8), intent(inout) :: ti(LBi:,LBj:,:)
+      real(r8), intent(inout) :: sfwat(LBi:,LBj:,:)
+      real(r8), intent(inout) :: ageice(LBi:,LBj:,:)
+#   endif
 #  endif
       real(r8), intent(inout) :: ubar(LBi:,LBj:,:)
       real(r8), intent(inout) :: vbar(LBi:,LBj:,:)
@@ -268,6 +295,16 @@
       real(r8), intent(inout) :: t(LBi:UBi,LBj:UBj,N(ng),3,NT(ng))
       real(r8), intent(inout) :: u(LBi:UBi,LBj:UBj,N(ng),2)
       real(r8), intent(inout) :: v(LBi:UBi,LBj:UBj,N(ng),2)
+#   ifdef ICE_MODEL
+      real(r8), intent(inout) :: ui(LBi:UBi,LBj:UBj,2)
+      real(r8), intent(inout) :: vi(LBi:UBi,LBj:UBj,2)
+      real(r8), intent(inout) :: ai(LBi:UBi,LBj:UBj,2)
+      real(r8), intent(inout) :: hi(LBi:UBi,LBj:UBj,2)
+      real(r8), intent(inout) :: hsn(LBi:UBi,LBj:UBj,2)
+      real(r8), intent(inout) :: ti(LBi:UBi,LBj:UBj,2)
+      real(r8), intent(inout) :: sfwat(LBi:UBi,LBj:UBj,2)
+      real(r8), intent(inout) :: ageice(LBi:UBi,LBj:UBj,2)
+#   endif
 #  endif
       real(r8), intent(inout) :: ubar(LBi:UBi,LBj:UBj,3)
       real(r8), intent(inout) :: vbar(LBi:UBi,LBj:UBj,3)
@@ -292,7 +329,7 @@
       integer :: ised
 # endif
 
-      real(r8) :: cff1, cff2
+      real(r8) :: cff1, cff2, cff3, cff4, cff5, cff6
 # ifdef SOLVE3D
       real(r8), dimension(IminS:ImaxS,0:N(ng)) :: CF
       real(r8), dimension(IminS:ImaxS,0:N(ng)) :: DC
@@ -373,9 +410,9 @@
 !-----------------------------------------------------------------------
 !
       IF (.not.PerfectRST(ng)) THEN
-        DO j=Jstr,Jend
+        DO j=JstrB,JendB
           DO k=1,N(ng)
-            DO i=IstrU,Iend
+            DO i=IstrM,IendB
               cff1=u(i,j,k,nstp)
 #  ifdef MASKING
               cff1=cff1*umask(i,j)
@@ -385,9 +422,9 @@
             END DO
           END DO
 !
-          IF (j.ge.JstrV) THEN
+          IF (j.ge.JstrM) THEN
             DO k=1,N(ng)
-              DO i=Istr,Iend
+              DO i=IstrB,IendB
                 cff2=v(i,j,k,nstp)
 #  ifdef MASKING
                 cff2=cff2*vmask(i,j)
@@ -460,19 +497,19 @@
 !  depth of the water column, and CF(i,0) is the vertical integral.
 !
       IF (.not.PerfectRST(ng)) THEN
-        DO j=Jstr,Jend
-          DO i=IstrU,Iend
+        DO j=JstrB,JendB
+          DO i=IstrM,IendB
             DC(i,0)=0.0_r8
             CF(i,0)=0.0_r8
           END DO
           DO k=1,N(ng)
-            DO i=IstrU,Iend
+            DO i=IstrM,IendB
               DC(i,k)=0.5_r8*(Hz(i,j,k)+Hz(i-1,j,k))
               DC(i,0)=DC(i,0)+DC(i,k)
               CF(i,0)=CF(i,0)+DC(i,k)*u(i,j,k,nstp)
             END DO
           END DO
-          DO i=IstrU,Iend
+          DO i=IstrM,IendB
             cff1=1.0_r8/DC(i,0)
             cff2=CF(i,0)*cff1
 #  ifdef MASKING
@@ -482,19 +519,19 @@
             ubar(i,j,knew)=cff2
           END DO
 !
-          IF (j.ge.JstrV) THEN
-            DO i=Istr,Iend
+          IF (j.ge.JstrM) THEN
+            DO i=IstrB,IendB
               DC(i,0)=0.0_r8
               CF(i,0)=0.0_r8
             END DO
             DO k=1,N(ng)
-              DO i=Istr,Iend
+              DO i=IstrB,IendB
                 DC(i,k)=0.5_r8*(Hz(i,j,k)+Hz(i,j-1,k))
                 DC(i,0)=DC(i,0)+DC(i,k)
                 CF(i,0)=CF(i,0)+DC(i,k)*v(i,j,k,nstp)
               END DO
             END DO
-            DO i=Istr,Iend
+            DO i=IstrB,IendB
               cff1=1.0_r8/DC(i,0)
               cff2=CF(i,0)*cff1
 #  ifdef MASKING
@@ -566,8 +603,8 @@
 !-----------------------------------------------------------------------
 !
       IF (.not.PerfectRST(ng)) THEN
-        DO j=Jstr,Jend
-          DO i=IstrU,Iend
+        DO j=JstrB,JendB
+          DO i=IstrM,IendB
             cff1=ubar(i,j,kstp)
 #  ifdef MASKING
             cff1=cff1*umask(i,j)
@@ -575,8 +612,8 @@
             ubar(i,j,kstp)=cff1
             ubar(i,j,krhs)=cff1
           END DO
-          IF (j.ge.JstrV) THEN
-            DO i=Istr,Iend
+          IF (j.ge.JstrM) THEN
+            DO i=IstrB,IendB
               cff2=vbar(i,j,kstp)
 #  ifdef MASKING
               cff2=cff2*vmask(i,j)
@@ -666,8 +703,8 @@
       IF (.not.PerfectRST(ng)) THEN
         DO itrc=1,NT(ng)
           DO k=1,N(ng)
-            DO j=Jstr,Jend
-              DO i=Istr,Iend
+            DO j=JstrB,JendB
+              DO i=IstrB,IendB
                 cff1=t(i,j,k,nstp,itrc)
 #  ifdef MASKING
                 cff1=cff1*rmask(i,j)
@@ -747,8 +784,8 @@
 #   ifdef SEDIMENT
       IF (.not.PerfectRST(ng)) THEN
         DO k=1,Nbed
-          DO j=JstrR,JendR
-            DO i=IstrR,IendR
+          DO j=JstrT,JendT
+            DO i=IstrT,IendT
               DO ised=1,NST
                 cff1=bed_mass(i,j,k,1,ised)
                 bed_mass(i,j,k,2,ised)=cff1
@@ -801,6 +838,96 @@
      &                    NghostPoints, EWperiodic, NSperiodic,         &
      &                    bottom)
 #   endif
+#  endif
+# endif
+
+# ifdef ICE_MODEL
+        DO j=Jstr,Jend
+          DO i=IstrU,Iend
+            cff1=ui(i,j,nstp)
+#  ifdef MASKING
+            cff1=cff1*umask(i,j)
+#  endif
+            ui(i,j,nstp)=cff1
+            ui(i,j,nnew)=cff1
+          END DO
+        END DO
+        DO j=JstrV,Jend
+          DO i=Istr,Iend
+            cff1=vi(i,j,nstp)
+#  ifdef MASKING
+            cff1=cff1*vmask(i,j)
+#  endif
+            vi(i,j,nstp)=cff1
+            vi(i,j,nnew)=cff1
+          END DO
+        END DO
+        DO j=JstrR,JendR
+          DO i=IstrR,IendR
+            cff1=ai(i,j,nstp)
+	    cff2=hi(i,j,nstp)
+	    cff3=hsn(i,j,nstp)
+	    cff4=ti(i,j,nstp)
+	    cff5=sfwat(i,j,nstp)
+	    cff6=ageice(i,j,nstp)
+#  ifdef MASKING
+            cff1=cff1*rmask(i,j)
+            cff2=cff2*rmask(i,j)
+            cff3=cff3*rmask(i,j)
+            cff4=cff4*rmask(i,j)
+            cff5=cff5*rmask(i,j)
+            cff6=cff6*rmask(i,j)
+#  endif
+            ai(i,j,nstp)=cff1
+            ai(i,j,nnew)=cff1
+            hi(i,j,nstp)=cff2
+            hi(i,j,nnew)=cff2
+            hsn(i,j,nstp)=cff3
+            hsn(i,j,nnew)=cff3
+            ti(i,j,nstp)=cff4
+            ti(i,j,nnew)=cff4
+            sfwat(i,j,nstp)=cff5
+            sfwat(i,j,nnew)=cff5
+            ageice(i,j,nstp)=cff6
+            ageice(i,j,nnew)=cff6
+          END DO
+        END DO
+#  if (defined EW_PERIODIC     || defined NS_PERIODIC)
+        DO i=1,2
+          CALL exchange_u2d_tile (ng, tile,                             &
+     &                            LBi, UBi, LBj, UBj,                   &
+     &                            ui(:,:,i))
+          CALL exchange_v2d_tile (ng, tile,                             &
+     &                            LBi, UBi, LBj, UBj,                   &
+     &                            vi(:,:,i))
+          CALL exchange_r2d_tile (ng, tile,                             &
+     &                            LBi, UBi, LBj, UBj,                   &
+     &                            ai(:,:,i))
+          CALL exchange_r2d_tile (ng, tile,                             &
+     &                            LBi, UBi, LBj, UBj,                   &
+     &                            hi(:,:,i))
+          CALL exchange_r2d_tile (ng, tile,                             &
+     &                            LBi, UBi, LBj, UBj,                   &
+     &                            hsn(:,:,i))
+          CALL exchange_r2d_tile (ng, tile,                             &
+     &                            LBi, UBi, LBj, UBj,                   &
+     &                            ti(:,:,i))
+          CALL exchange_r2d_tile (ng, tile,                             &
+     &                            LBi, UBi, LBj, UBj,                   &
+     &                            sfwat(:,:,i))
+          CALL exchange_r2d_tile (ng, tile,                             &
+     &                            LBi, UBi, LBj, UBj,                   &
+     &                            ageice(:,:,i))
+#  endif
+#  ifdef DISTRIBUTE
+        CALL mp_exchange3d (ng, tile, model, 4,                         &
+     &                      LBi, UBi, LBj, UBj, 1, 2,                   &
+     &                      NghostPoints, EWperiodic, NSperiodic,       &
+     &                      ui, vi, ai, hi)
+        CALL mp_exchange3d (ng, tile, model, 4,                         &
+     &                      LBi, UBi, LBj, UBj, 1, 2,                   &
+     &                      NghostPoints, EWperiodic, NSperiodic,       &
+     &                      hsn, ti, sfwat, ageice)
 #  endif
 # endif
 
@@ -874,7 +1001,7 @@
 # include "tile.h"
 !
 # ifdef PROFILE
-      CALL wclock_on (ng, iNLM, 1)
+      CALL wclock_on (ng, iNLM, 2)
 # endif
       CALL ini_zeta_tile (ng, tile, model,                              &
      &                    LBi, UBi, LBj, UBj,                           &
@@ -897,7 +1024,7 @@
 # endif
      &                    OCEAN(ng) % zeta)
 # ifdef PROFILE
-      CALL wclock_off (ng, iNLM, 1)
+      CALL wclock_off (ng, iNLM, 2)
 # endif
       RETURN
       END SUBROUTINE ini_zeta
@@ -1016,11 +1143,11 @@
 !
       IF (.not.PerfectRST(ng)) THEN
 # ifndef OBC_FSRADIATION
-        DO j=Jstr,Jend
-          DO i=Istr,Iend
+        DO j=JstrB,JendB
+          DO i=IstrB,IendB
 # else
-        DO j=JstrR,JendR
-          DO i=IstrR,IendR
+        DO j=JstrT,JendT
+          DO i=IstrT,IendT
 # endif
             cff1=zeta(i,j,kstp)
 # ifdef MASKING
@@ -1144,8 +1271,8 @@
 !  free-surface
 !-----------------------------------------------------------------------
 !
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           Zt_avg1(i,j)=zeta(i,j,kstp)
         END DO
       END DO
@@ -1168,8 +1295,8 @@
 !  Compute initial total thickness for all sediment bed layers.
 !-----------------------------------------------------------------------
 !
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           bed_thick0(i,j)=0.0_r8
           DO kbed=1,Nbed
             bed_thick0(i,j)=bed_thick0(i,j)+bed(i,j,kbed,ithck)
