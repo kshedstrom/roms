@@ -212,9 +212,9 @@
 #  define NORTH_TRADIATION
 #  define NORTH_TNUDGING
 #  define NORTH_MICLAMPED
-#  define NORTH_AIMIXED
-#  define NORTH_HIMIXED
-#  define NORTH_HSNMIXED
+#  define NORTH_AICLAMPED
+#  define NORTH_HICLAMPED
+#  define NORTH_HSNCLAMPED
 #  undef NORTH_TICLAMPED
 # endif
 #endif
@@ -228,9 +228,9 @@
 #  define WEST_TRADIATION
 #  define WEST_TNUDGING
 #  define WEST_MICLAMPED
-#  define WEST_AIMIXED
-#  define WEST_HIMIXED
-#  define WEST_HSNMIXED
+#  define WEST_AICLAMPED
+#  define WEST_HICLAMPED
+#  define WEST_HSNCLAMPED
 #  undef WEST_TICLAMPED
 # endif
 #endif
@@ -244,9 +244,9 @@
 #  define SOUTH_TRADIATION
 #  define SOUTH_TNUDGING
 #  define SOUTH_MICLAMPED
-#  define SOUTH_AIMIXED
-#  define SOUTH_HIMIXED
-#  define SOUTH_HSNMIXED
+#  define SOUTH_AICLAMPED
+#  define SOUTH_HICLAMPED
+#  define SOUTH_HSNCLAMPED
 #  undef SOUTH_TICLAMPED
 # endif
 #endif
@@ -260,9 +260,9 @@
 #  define EAST_TRADIATION
 #  define EAST_TNUDGING
 #  define EAST_MICLAMPED
-#  define EAST_AIMIXED
-#  define EAST_HIMIXED
-#  define EAST_HSNMIXED
+#  define EAST_AICLAMPED
+#  define EAST_HICLAMPED
+#  define EAST_HSNCLAMPED
 #  undef EAST_TICLAMPED
 # endif
 #endif

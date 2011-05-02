@@ -597,7 +597,7 @@
 !
 !  Hardcode the names of the filter restart files.
 !
-        WRITE(ngnumber,'(A2)') ng
+        WRITE(ngnumber,'(i2.2)') ng
         FIL(1,ng)%name=TRIM(ADJUSTL('ocean_fil2d_'//ngnumber//'.nc'))
         FIL(2,ng)%name=TRIM(ADJUSTL('ocean_filu_'//ngnumber//'.nc'))
         FIL(3,ng)%name=TRIM(ADJUSTL('ocean_filv_'//ngnumber//'.nc'))
