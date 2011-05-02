@@ -33,16 +33,11 @@ $(if $(filter $(MAKE_VERSION),$(NEED_VERSION)),,        \
  $(error This makefile requires one of GNU make version $(NEED_VERSION).))
 
 #--------------------------------------------------------------------------
-#  Initialize some things. Notice that the token "libraries" is initialized
-#  with the ROMS/Utility library to account for calls to objects in other
-#  ROMS libraries or cycling dependencies. These type of dependencies are
-#  problematic in some compilers during linking. This library appears twice
-#  at linking step (beggining and almost the end of ROMS library list).
+#  Initialize some things.
 #--------------------------------------------------------------------------
 
   sources    :=
   c_sources  := 
-  libraries  := $(SCRATCH_DIR)/libUTIL.a
 
 #==========================================================================
 #  Start of user-defined options. In some macro definitions below: "on" or
@@ -172,6 +167,29 @@ ifeq "$(strip $(SCRATCH_DIR))" "./"
   clean_list := core *.o *.oo *.ipo *.mod *.f90 lib*.a *.bak
   clean_list += $(CURDIR)/*.ipo
 endif
+
+#--------------------------------------------------------------------------
+#  Notice that the token "libraries" is initialize with the ROMS/Utility
+#  library to account for calls to objects in other ROMS libraries or
+#  cycling dependencies. These type of dependencies are problematic in
+#  some compilers during linking. This library appears twice at linking
+#  step (beggining and almost the end of ROMS library list).
+#--------------------------------------------------------------------------
+
+  libraries  := $(SCRATCH_DIR)/libUTIL.a
+
+#--------------------------------------------------------------------------
+#  Set Pattern rules.
+#--------------------------------------------------------------------------
+
+%.o: %.F
+
+%.o: %.f90
+	cd $(SCRATCH_DIR); $(FC) -c $(FFLAGS) $(notdir $<)
+
+%.f90: %.F
+	$(CPP) $(CPPFLAGS) $(MY_CPP_FLAGS) $< > $*.f90
+	$(CLEAN) $*.f90
 
 CLEAN := ROMS/Bin/cpp_clean
 
