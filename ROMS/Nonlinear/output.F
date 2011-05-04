@@ -291,20 +291,21 @@
             Ldefine=.FALSE.
           END IF
           IF (Ldefine) THEN
-            NrecAVG2(ng)=0
+            Fcount=AVG2(ng)%Fcount
+            AVG2(ng)%Nrec(Fcount)=0
             IF (nAVG2(ng).eq.ndefAVG2(ng)) THEN
               ifile=(iic(ng)-1)/ndefAVG2(ng)
             ELSE
               ifile=(iic(ng)-1)/ndefAVG2(ng)+1
             END IF
             IF (Master) THEN
-              WRITE (AVG2(ng)%name,20) TRIM(AVG(ng)%base), ifile
+              WRITE (AVG2(ng)%name,20) TRIM(AVG2(ng)%base), ifile
             END IF
 # ifdef DISTRIBUTE
-            CALL mp_bcasts (ng, iNLM, AVG2name(ng))
+            CALL mp_bcasts (ng, iNLM, AVG2(ng)%name(ng))
 # endif
-            IF (ncAVG2id(ng).ne.-1) THEN
-              CALL netcdf_close(ng, iNLM, ncAVG2id(ng))
+            IF (AVG2(ng)%ncid.ne.-1) THEN
+              CALL netcdf_close(ng, iNLM, AVG2(ng)%ncid)
             END IF
             CALL def_avg2 (ng, Newfile)
             IF (exit_flag.ne.NoError) RETURN

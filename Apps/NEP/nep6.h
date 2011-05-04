@@ -164,9 +164,9 @@
 /* Using Runoff instead now */
 #ifdef SOLVE3D
 # define RUNOFF
-# undef UV_PSOURCE
-# undef ANA_PSOURCE
-# undef TS_PSOURCE
+# define UV_PSOURCE
+# define ANA_PSOURCE
+# define TS_PSOURCE
 #endif
 
 /* tides */
@@ -193,7 +193,7 @@
 
 /* Boundary conditions...careful with grid orientation */
 
-#undef EASTERN_WALL
+#define EASTERN_WALL
 #define NORTHERN_WALL
 #undef WESTERN_WALL
 #undef SOUTHERN_WALL

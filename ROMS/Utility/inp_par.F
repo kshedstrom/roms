@@ -6473,6 +6473,8 @@
             Npts=load_r(Nval, Rval, Ngrids, min_a)
           ELSE IF (TRIM(KeyWord).eq.'max_a') THEN
             Npts=load_r(Nval, Rval, Ngrids, max_a)
+          ELSE IF (TRIM(KeyWord).eq.'sfwat_max') THEN
+            Npts=load_r(Nval, Rval, Ngrids, sfwat_max)
           ELSE IF (TRIM(KeyWord).eq.'stressang') THEN
             Npts=load_r(Nval, Rval, Ngrids, stressang)
             do ng=1,Ngrids
@@ -6539,6 +6541,8 @@
      &            'Minimum ice concentration (nondimensional).'
             WRITE (out,100) max_a(ng), 'max_a',                         &
      &            'Maximum ice concentration (nondimensional).'
+            WRITE (out,100) sfwat_max(ng)*rad2deg, 'sfwat_max',         &
+     &            'Maximum surface fresh water (nondimensional).'
             WRITE (out,100) stressang(ng)*rad2deg, 'stressang',         &
      &            'Turning angle for ice-water drag (degrees).'
             WRITE (out,100) tol, 'tol',                                 &

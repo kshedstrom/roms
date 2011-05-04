@@ -849,8 +849,7 @@ contains
 !     &         +0.518_r8*EXP(-8.1_r8 *sfwat_n-0.47_r8)                  &
 !     &         +0.341_r8*EXP(-31.8_r8*sfwat_n-0.94_r8)                  &
 !     &         +0.131_r8*EXP(-2.6_r8 *sfwat_n-3.82_r8)
-
-            ENDIF
+!            ENDIF
           ELSE
             albs=alb_w
           ENDIF
