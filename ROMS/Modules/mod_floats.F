@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2011 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -18,6 +18,14 @@
 !               Ftype(:) = 2,  isobaric (constant depth) float.        !
 !  Tinfo      Float trajectory initial information.                    !
 !  bounded    Float bounded status switch.                             !
+# if defined SOLVE3D && defined FLOAT_VWALK
+!  rwalk      Normally distributed random deviates used in vertical    !
+!               random walk.                                           !
+# endif
+# if defined SOLVE3D && defined FLOAT_STICKY
+!  stuck      Reflection switch. Floats that hit the surface are       !
+!               reflected and floats that hitthe bottom get stick      !
+# endif
 !  track      Multivariate float trajectory data at several time       !
 !               time levels.                                           !
 !                                                                      !
@@ -31,14 +39,21 @@
 
           logical, pointer  :: bounded(:)
 
+# if defined SOLVE3D && defined FLOAT_STICKY
+          logical, pointer  :: stuck(:)
+# endif
+
           integer, pointer :: Findex(:)
           integer, pointer :: Ftype(:)
 
           real(r8), pointer :: Flon(:)
           real(r8), pointer :: Flat(:)
-          real(r8), pointer :: Tinfo(:,:)
-          real(r8), pointer :: track(:,:,:)
           real(r8), pointer :: Fz0(:)
+          real(r8), pointer :: Tinfo(:,:)
+# if defined SOLVE3D && defined FLOAT_VWALK
+          real(r8), pointer :: rwalk(:)
+# endif
+          real(r8), pointer :: track(:,:,:)
 
         END TYPE T_FLT
 
@@ -75,6 +90,10 @@
 !
       allocate ( FLT(ng) % bounded(Nfloats(ng)) )
 
+# if defined SOLVE3D && defined FLOAT_STICKY
+      allocate ( FLT(ng) % stuck(Nfloats(ng)) )
+# endif
+
       allocate ( FLT(ng) % Findex(0:Nfloats(ng)) )
 
       allocate ( FLT(ng) % Ftype(Nfloats(ng)) )
@@ -83,12 +102,15 @@
 
       allocate ( FLT(ng) % Flat(Nfloats(ng)) )
 
-      allocate ( FLT(ng) % Tinfo(0:izrhs,Nfloats(ng)) )
-
-      allocate ( FLT(ng) % track(NFV(ng),0:NFT,Nfloats(ng)) )
-
       allocate ( FLT(ng) % Fz0(Nfloats(ng)) )
 
+      allocate ( FLT(ng) % Tinfo(0:izrhs,Nfloats(ng)) )
+
+# if defined SOLVE3D && defined FLOAT_VWALK
+      allocate ( FLT(ng) % rwalk(Nfloats(ng)) )
+# endif
+
+      allocate ( FLT(ng) % track(NFV(ng),0:NFT,Nfloats(ng)) )
 !
 !-----------------------------------------------------------------------
 !  Initialize module variables.
@@ -97,11 +119,17 @@
       FLT(ng) % Findex(0) = 0
       DO iflt=1,Nfloats(ng)
         FLT(ng) % bounded(iflt) = .FALSE.
+# if defined SOLVE3D && defined FLOAT_STICKY
+        FLT(ng) % stuck(iflt) = .FALSE.
+# endif
         FLT(ng) % Findex(iflt) = 0
         FLT(ng) % Ftype(iflt) = 0
         FLT(ng) % Flon(iflt) = IniVal
         FLT(ng) % Flat(iflt) = IniVal
         FLT(ng) % Fz0(iflt) = 0
+# if defined SOLVE3D && defined FLOAT_VWALK
+        FLT(ng) % rwalk = IniVal
+# endif
         DO i=0,izrhs
           FLT(ng) % Tinfo(i,iflt) = IniVal
         END DO

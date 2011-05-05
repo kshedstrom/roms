@@ -4,6 +4,9 @@
 #define SOLVE3D
 #define SPLINES
 
+#undef  FLOATS
+#undef OFFLINE_FLOATS
+
 #define AVERAGES
 #define AVERAGES_FLUXES
 
@@ -43,6 +46,9 @@
 #endif
 
 #undef  CLOSED_OBC
+#ifdef OFFLINE_FLOATS
+# define CLOSED_OBC
+#endif
 #ifdef CLOSED_OBC
 # define NORTHERN_WALL
 # define SOUTHERN_WALL
@@ -55,26 +61,14 @@
 # define WEST_M2FLATHER
 # define WEST_M3CLAMPED
 # define WEST_TCLAMPED
-# undef  WEST_M3RADIATION
-# undef  WEST_TRADIATION
-# undef  WEST_M3NUDGING
-# undef  WEST_TNUDGING
 # define NORTH_FSCHAPMAN
 # define NORTH_M2FLATHER
 # define NORTH_M3CLAMPED
 # define NORTH_TCLAMPED
-# undef  NORTH_M3RADIATION
-# undef  NORTH_TRADIATION
-# undef  NORTH_M3NUDGING
-# undef  NORTH_TNUDGING
 # define SOUTH_FSCHAPMAN
 # define SOUTH_M2FLATHER
 # define SOUTH_M3CLAMPED
 # define SOUTH_TCLAMPED
-# undef  SOUTH_M3RADIATION
-# undef  SOUTH_TRADIATION
-# undef  SOUTH_M3NUDGING
-# undef  SOUTH_TNUDGING
 #endif
 
 #define SPONGE
@@ -85,6 +79,9 @@
 #define NEMURO
 #ifdef NEMURO
 # define NEMURO_SAN
+#ifdef OFFLINE_FLOATS
+# undef NEMURO_SAN
+#endif
 # ifdef NEMURO_SAN
 #  undef  FISH_FEEDBACK
 #  define PREDATOR

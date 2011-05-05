@@ -3,7 +3,7 @@
 **
 ** svn $Id$
 ********************************************************** Hernan G. Arango ***
-** Copyright (c) 2002-2010 The ROMS/TOMS Group                               **
+** Copyright (c) 2002-2011 The ROMS/TOMS Group                               **
 **   Licensed under a MIT/X style license                                    **
 **   See License_ROMS.txt                                                    **
 *******************************************************************************
@@ -39,6 +39,7 @@
 ** UV_VIS2             use to turn ON or OFF harmonic horizontal mixing      **
 ** UV_VIS4             use to turn ON or OFF biharmonic horizontal mixing    **
 ** UV_SMAGORINSKY      use to turn ON or OFF Smagorinsky-like viscosity      **
+** UV_DRAG_GRID        use if spatially varying bottom friction parameters   **
 ** UV_LOGDRAG          use to turn ON or OFF logarithmic bottom friction     **
 ** UV_LDRAG            use to turn ON or OFF linear bottom friction          **
 ** UV_QDRAG            use to turn ON or OFF quadratic bottom friction       **
@@ -197,6 +198,7 @@
 ** OPTIONS for Lagrangian drifters:                                          **
 **                                                                           **
 ** FLOATS              use to activate simulated Lagrangian drifters         **
+** FLOAT_STICKY        use to reflect/stick floats that hit surface/bottom   **
 ** FLOAT_VWALK         use if vertical random walk                           **
 ** VWALK_FORWARD       use if forward time stepping vertical random walk     **
 **                                                                           **
@@ -211,12 +213,12 @@
 **    Any of the analytical expressions are coded in "analytical.F".         **
 **                                                                           **
 ** ANA_BIOLOGY         use if analytical biology initial conditions          **
-** ANA_BMFLUX          use if analytical spatially varying bottom roughness  **
 ** ANA_BPFLUX          use if analytical bottom passive tracers fluxes       **
 ** ANA_BSFLUX          use if analytical bottom salinity flux                **
 ** ANA_BTFLUX          use if analytical bottom temperature flux             **
 ** ANA_CLOUD           use if analytical cloud fraction                      **
 ** ANA_DIAG            use if customized diagnostics                         **
+** ANA_DRAG            use if analytical spatially varying drag parameters   **
 ** ANA_FSOBC           use if analytical free-surface boundary conditions    **
 ** ANA_GRID            use if analytical model grid set-up                   **
 ** ANA_HUMIDITY        use if analytical surface air humidity                **
@@ -242,7 +244,7 @@
 ** ANA_SSH             use if analytical sea surface height                  **
 ** ANA_SSS             use if analytical sea surface salinity                **
 ** ANA_SST             use if analytical SST and dQdSST                      **
-** ANA_STFLUX          use if analytical surface temperature flux            **
+** ANA_STFLUX          use if analytical surface net heat flux               **
 ** ANA_TAIR            use if analytical surface air temperature             **
 ** ANA_TCLIMA          use if analytical tracers climatology                 **
 ** ANA_TOBC            use if analytical tracers boundary conditions         **
@@ -531,6 +533,7 @@
 ** M2CLIMATOLOGY       use if processing 2D momentum climatology             **
 ** M3CLIMATOLOGY       use if processing 3D momentum climatology             **
 ** OCLIMATOLOGY        use if processing 3D vertical momentum climatology    **
+** AKTCLIMATOLOGY      use if processing 3D vertical salinity diffustion     **
 ** TCLIMATOLOGY        use if processing tracers climatology                 **
 ** ZCLIMATOLOGY        use if processing SSH climatology                     **
 **                                                                           **
@@ -607,6 +610,7 @@
 ** FORWARD_RHS         use if processing forward right-hand-side terms       **
 ** IMPLICIT_VCONV      use if implicit vertical convolution algorithm        **
 ** IMPULSE             use if processing adjoint impulse forcing             **
+** MINRES              use if Minimal Residual Method for 4DVar minimization **
 ** MULTIPLE_TLM        use if multiple TLM history files in 4DVAR            **
 ** NLM_OUTER           use if nonlinear model as basic state in outer loop   **
 ** OBS_IMPACT          use if observation impact to 4DVAR data assimilation  **

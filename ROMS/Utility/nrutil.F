@@ -2,7 +2,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2011 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -50,6 +50,20 @@
         USE mod_kinds
         real(r8), dimension(:), intent(out) :: harvest
         END SUBROUTINE gasdev_v
+      END INTERFACE
+
+      INTERFACE gasdev_clamp
+        SUBROUTINE gasdev_clamp_s (harvest, clamp)
+        USE mod_kinds
+        real(r8), intent(out) :: harvest
+        real(r8), intent(in)  :: clamp
+        END SUBROUTINE gasdev_clamp_s
+!
+        SUBROUTINE gasdev_clamp_v (harvest, clamp)
+        USE mod_kinds
+        real(r8), dimension(:), intent(out) :: harvest
+        real(r8), intent(in)  :: clamp
+        END SUBROUTINE gasdev_clamp_v
       END INTERFACE
 
       INTERFACE ran1

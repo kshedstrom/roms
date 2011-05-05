@@ -151,6 +151,15 @@
   'w3dvar'
   1.0d0
 
+'omega'                                            ! Output
+  'S-coordinate vertical momentum component'
+  'meter3 second-1'                                ! [m3/s]
+  'omega, scalar, series'
+  'ocean_time'
+  'idOclm'
+  'w3dvar'
+  1.0d0
+
 'rho'                                              ! Output
   'density anomaly'
   'kilogram meter-3'                               ! [kg/m3]
@@ -2362,6 +2371,15 @@
   'r3dvar'
   1.0d0
 
+'NO3'                                              ! Input/Output
+  'nitrate concentration'
+  'millimole_nitrogen meter-3'                     ! [millimole/m3]
+  'NO3, scalar, series'
+  'ocean_time'
+  'idTclm(iNO3_)'
+  'r3dvar'
+  1.0d0
+
 'NO3'                                              ! Input
   'nitrate concentration functional'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
@@ -2377,6 +2395,15 @@
   'NH4, scalar, series'
   'ocean_time'
   'idTvar(iNH4_)'
+  'r3dvar'
+  1.0d0
+
+'NH4'                                              ! Input/Output
+  'ammonium concentration'
+  'millimole_nitrogen meter-3'                     ! [millimole/m3]
+  'NH4, scalar, series'
+  'ocean_time'
+  'idTclm(iNH4_)'
   'r3dvar'
   1.0d0
 
@@ -2398,12 +2425,30 @@
   'r3dvar'
   1.0d0
 
+'PON'                                              ! Input/Output
+  'particulate organic nitrogen concentration'
+  'millimole_nitrogen meter-3'                     ! [millimole/m3]
+  'PON, scalar, series'
+  'ocean_time'
+  'idTclm(iPON_)'
+  'r3dvar'
+  1.0d0
+
 'DON'                                              ! Input/Output
   'dissolved organic nitrogen concentration'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'DON, scalar, series'
   'ocean_time'
   'idTvar(iDON_)'
+  'r3dvar'
+  1.0d0
+
+'DON'                                              ! Input/Output
+  'dissolved organic nitrogen concentration'
+  'millimole_nitrogen meter-3'                     ! [millimole/m3]
+  'DON, scalar, series'
+  'ocean_time'
+  'idTclm(iDON_)'
   'r3dvar'
   1.0d0
 
@@ -2416,12 +2461,30 @@
   'r3dvar'
   1.0d0
 
+'SiOH4'                                            ! Input/Output
+  'silicate concentration'
+  'millimole_silica meter-3'                       ! [millimole/m3]
+  'SiOH4, scalar, series'
+  'ocean_time'
+  'idTclm(iSiOH)'
+  'r3dvar'
+  1.0d0
+
 'opal'                                             ! Input/Output
   'particulate organic silica concentration'
   'millimole_silica meter-3'                       ! [millimole/m3]
   'silica, scalar, series'
   'ocean_time'
   'idTvar(iopal)'
+  'r3dvar'
+  1.0d0
+
+'opal'                                             ! Input/Output
+  'particulate organic silica concentration'
+  'millimole_silica meter-3'                       ! [millimole/m3]
+  'silica, scalar, series'
+  'ocean_time'
+  'idTclm(iopal)'
   'r3dvar'
   1.0d0
 
@@ -2434,6 +2497,15 @@
   'r3dvar'
   1.0d0
 
+'FeSp'                                             ! Input/Output
+  'small phytop. iron concentration'
+  'millimole_iron  meter-3'                        ! [millimole/m3]
+  'iron, scalar, series'
+  'ocean_time'
+  'idTclm(iFeSp)'
+  'r3dvar'
+  1.0d0
+
 'FeLp'                                            ! Input/Output
   'large phytop. iron concentration'
   'millimole_iron  meter-3'                       ! [millimole/m3]
@@ -2443,12 +2515,30 @@
   'r3dvar'
   1.0d0
 
+'FeLp'                                            ! Input/Output
+  'large phytop. iron concentration'
+  'millimole_iron  meter-3'                       ! [millimole/m3]
+  'iron, scalar, series'
+  'ocean_time'
+  'idTclm(iFeLp)'
+  'r3dvar'
+  1.0d0
+
 'FeD'                                             ! Input/Output
   'disolved iron concentration'
   'millimole_iron  meter-3'                       ! [millimole/m3]
   'iron, scalar, series'
   'ocean_time'
   'idTvar(iFeD_)'
+  'r3dvar'
+  1.0d0
+
+'FeD'                                             ! Input/Output
+  'disolved iron concentration'
+  'millimole_iron  meter-3'                       ! [millimole/m3]
+  'iron, scalar, series'
+  'ocean_time'
+  'idTclm(iFeD_)'
   'r3dvar'
   1.0d0
 
@@ -2479,12 +2569,30 @@
   'r3dvar'
   1.0d0
 
+'nanophytoplankton'                                ! Input/Output
+  'nanophytoplankton biomass'
+  'millimole_nitrogen meter-3'                     ! [millimole/m3]
+  'nanophytoplankton, scalar, series'
+  'ocean_time'
+  'idTclm(iSphy)'
+  'r3dvar'
+  1.0d0
+
 'diatom'                                           ! Input/Output
   'diatom biomass'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'diatom, scalar, series'
   'ocean_time'
   'idTvar(iLphy)'
+  'r3dvar'
+  1.0d0
+
+'diatom'                                           ! Input/Output
+  'diatom biomass'
+  'millimole_nitrogen meter-3'                     ! [millimole/m3]
+  'diatom, scalar, series'
+  'ocean_time'
+  'idTclm(iLphy)'
   'r3dvar'
   1.0d0
 
@@ -2515,6 +2623,15 @@
   'r3dvar'
   1.0d0
 
+'microzooplankton'                                 ! Input/Output
+  'microzooplankton biomass'
+  'millimole_nitrogen meter-3'                     ! [millimole/m3]
+  'microzooplankton, scalar, series'
+  'ocean_time'
+  'idTclm(iSzoo)'
+  'r3dvar'
+  1.0d0
+
 'mesozooplankton'                                  ! Input/Output
   'mesozooplankton biomass'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
@@ -2524,12 +2641,30 @@
   'r3dvar'
   1.0d0
 
+'mesozooplankton'                                  ! Input/Output
+  'mesozooplankton biomass'
+  'millimole_nitrogen meter-3'                     ! [millimole/m3]
+  'mesozooplankton, scalar, series'
+  'ocean_time'
+  'idTclm(iLzoo)'
+  'r3dvar'
+  1.0d0
+
 'Pzooplankton'                                     ! Input/Output
   'predator-zooplankton biomass'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'Pzooplankton, scalar, series'
   'ocean_time'
   'idTvar(iPzoo)'
+  'r3dvar'
+  1.0d0
+
+'Pzooplankton'                                     ! Input/Output
+  'predator-zooplankton biomass'
+  'millimole_nitrogen meter-3'                     ! [millimole/m3]
+  'Pzooplankton, scalar, series'
+  'ocean_time'
+  'idTclm(iPzoo)'
   'r3dvar'
   1.0d0
 

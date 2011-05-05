@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *************************************************** Hernan G. Arango ***
-** Copyright (c) 2002-2010 The ROMS/TOMS Group                        **
+** Copyright (c) 2002-2011 The ROMS/TOMS Group                        **
 **   Licensed under a MIT/X style license                             **
 **   See License_ROMS.txt                                             **
 ************************************************************************
@@ -34,6 +34,22 @@
                 idTvar(iFphy)=varid
               CASE ('idTvar(iFdis)')
                 idTvar(iFdis)=varid
+#endif
+
+! Do it again for climatologies
+              CASE ('idTclm(iNO3_)')
+                idTclm(iNO3_)=varid
+              CASE ('idTclm(iPhyt)')
+                idTclm(iPhyt)=varid
+              CASE ('idTclm(iZoop)')
+                idTclm(iZoop)=varid
+              CASE ('idTclm(iSDet)')
+                idTclm(iSDet)=varid
+#ifdef IRON_LIMIT
+              CASE ('idTclm(iFphy)')
+                idTclm(iFphy)=varid
+              CASE ('idTclm(iFdis)')
+                idTclm(iFdis)=varid
 #endif
 
 #if defined AD_SENSITIVITY   || defined IS4DVAR_SENSITIVITY || \

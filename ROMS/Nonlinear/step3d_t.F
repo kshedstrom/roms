@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !=======================================================================
-!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2011 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                           Hernan G. Arango   !
 !========================================== Alexander F. Shchepetkin ===
@@ -454,7 +454,7 @@
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS,0:N(ng)) :: Wa
 # endif
       real(r8) :: my_maxbio(15)
-# if defined AGE_PASSIVE  || defined AGE_DISTRIBUTION
+# if defined AGE_PASSIVE || defined AGE_DISTRIBUTION
       integer :: iactrc, iwctrc
 # endif
 # ifdef AGE_DISTRIBUTION
@@ -1460,7 +1460,7 @@
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 !
       fac=dt(ng)/dtau(ng)
-      itrc=NAT+3
+      itrc=inert(3)
       DO k=1,N(ng)
         DO j=Jstr,Jend
           DO i=Istr,Iend
@@ -1470,7 +1470,7 @@
         END DO
       END DO
 !
-      DO itrc=NAT+4,NT(ng)
+      DO itrc=inert(4),NT(ng)
         DO k=1,N(ng)
           DO j=Jstr,Jend
             DO i=Istr,Iend

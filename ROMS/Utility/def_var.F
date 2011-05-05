@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2011 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -604,10 +604,14 @@
                 text='lon_u lat_u'
               ELSE IF (INT(Aval(5)).eq.u3dvar) THEN
                 text='lon_u lat_u s_rho'
+              ELSE IF (INT(Aval(5)).eq.-u3dvar) THEN
+                text='lon_u lat_u s_w'
               ELSE IF (INT(Aval(5)).eq.v2dvar) THEN
                 text='lon_v lat_v'
               ELSE IF (INT(Aval(5)).eq.v3dvar) THEN
                 text='lon_v lat_v s_rho'
+              ELSE IF (INT(Aval(5)).eq.-v3dvar) THEN
+                text='lon_v lat_v s_w'
               ELSE IF (INT(Aval(5)).eq.p2dvar) THEN
                 text='lon_psi lat_psi'
               ELSE IF (INT(Aval(5)).eq.p3dvar) THEN
@@ -626,10 +630,14 @@
                 text='x_u y_u'
               ELSE IF (INT(Aval(5)).eq.u3dvar) THEN
                 text='x_u y_u s_rho'
+              ELSE IF (INT(Aval(5)).eq.-u3dvar) THEN
+                text='x_u y_u s_w'
               ELSE IF (INT(Aval(5)).eq.v2dvar) THEN
                 text='x_v y_v'
               ELSE IF (INT(Aval(5)).eq.v3dvar) THEN
                 text='x_v y_v s_rho'
+              ELSE IF (INT(Aval(5)).eq.-v3dvar) THEN
+                text='x_v y_v s_w'
               ELSE IF (INT(Aval(5)).eq.p2dvar) THEN
                 text='x_psi y_psi'
               ELSE IF (INT(Aval(5)).eq.p3dvar) THEN

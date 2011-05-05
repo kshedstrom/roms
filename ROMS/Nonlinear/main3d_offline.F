@@ -1,6 +1,5 @@
 #include "cppdefs.h"
-#if defined NONLINEAR && defined SOLVE3D && \
-    (defined OFFLINE_BIOLOGY || defined OFFLINE_FLOATS)
+#if defined NONLINEAR && defined SOLVE3D && (defined OFFLINE)
       SUBROUTINE main3d_offline (ng)
 !
 !svn $Id$
@@ -24,6 +23,10 @@
       USE mod_iounits
       USE mod_scalars
       USE mod_stepping
+# ifdef NEMURO_SAN
+      USE mod_fish
+      USE mod_biology
+# endif
 !
 # ifdef ANA_VMIX
       USE analytical_mod, ONLY : ana_vmix
@@ -161,28 +164,6 @@
       END DO
 !$OMP END PARALLEL DO
       IF (exit_flag.ne.NoError) RETURN
-
-# if defined W4DPSAS || defined NLM_OUTER
-!
-!-----------------------------------------------------------------------
-!  If appropriate, add convolved adjoint solution impulse forcing to
-!  the nonlinear model solution. Notice that the forcing is only needed
-!  after finishing all the inner loops. The forcing is continuous.
-!  That is, it is time interpolated at every time-step from available
-!  snapshots (FrequentImpulse=TRUE).
-!-----------------------------------------------------------------------
-!
-      IF (FrequentImpulse) THEN
-!$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(ng,numthreads)
-        DO thread=0,numthreads-1
-          subs=NtileX(ng)*NtileE(ng)/numthreads
-          DO tile=subs*thread,subs*(thread+1)-1,+1
-            CALL forcing (ng, TILE, kstp(ng), nstp(ng))
-          END DO
-        END DO
-!$OMP END PARALLEL DO
-      END IF
-# endif
 !
 !-----------------------------------------------------------------------
 !  Initialize all time levels and compute other initial fields.
@@ -235,62 +216,6 @@
 !$OMP END PARALLEL DO
       IF (exit_flag.ne.NoError) RETURN
 
-# ifdef AIR_OCEAN
-!
-!-----------------------------------------------------------------------
-!  Couple ocean to atmosphere model every "CoupleSteps(Iatmos)"
-!  timesteps: get air/sea fluxes.
-!-----------------------------------------------------------------------
-!
-      IF ((iic(ng).ne.ntstart(ng)).and.                                 &
-     &    MOD(iic(ng)-1,CoupleSteps(Iatmos,ng)).eq.0) THEN
-!$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(ng,numthreads)
-        DO thread=0,numthreads-1
-          subs=NtileX(ng)*NtileE(ng)/numthreads
-          DO tile=subs*(thread+1)-1,subs*thread,-1
-            CALL ocn2atm_coupling (ng, TILE)
-          END DO
-        END DO
-!$OMP END PARALLEL DO
-      END IF
-# endif
-
-# ifdef WAVES_OCEAN
-!
-!-----------------------------------------------------------------------
-!  Couple to ocean to waves model every "CoupleSteps(Iwaves)"
-!  timesteps: get waves/ocean fluxes.
-!-----------------------------------------------------------------------
-!
-      IF ((iic(ng).ne.ntstart(ng)).and.                                 &
-     &    MOD(iic(ng)-1,CoupleSteps(Iwaves,ng)).eq.0) THEN
-!$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(ng,numthreads)
-        DO thread=0,numthreads-1
-          subs=NtileX(ng)*NtileE(ng)/numthreads
-          DO tile=subs*thread,subs*(thread+1)-1,+1
-            CALL ocn2wav_coupling (ng, TILE)
-          END DO
-        END DO
-!$OMP END PARALLEL DO
-      END IF
-# endif
-
-# ifdef NEARSHORE_MELLOR
-!
-!-----------------------------------------------------------------------
-!  Compute radiation stress terms.
-!-----------------------------------------------------------------------
-!
-!$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(ng,numthreads)
-      DO thread=0,numthreads-1
-        subs=NtileX(ng)*NtileE(ng)/numthreads
-        DO tile=subs*(thread+1)-1,subs*thread,-1
-          CALL radiation_stress (ng, TILE)
-        END DO
-      END DO
-!$OMP END PARALLEL DO
-# endif
-!
 # ifndef OFFLINE_FLOATS
 !-----------------------------------------------------------------------
 !  Set fields for vertical boundary conditions. Process tidal forcing,
@@ -416,6 +341,7 @@
 !  Compute right-hand-side terms for 3D equations.
 !-----------------------------------------------------------------------
 !
+# ifndef OFFLINE_FLOATS
 !$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(ng,numthreads)
       DO thread=0,numthreads-1
         subs=NtileX(ng)*NtileE(ng)/numthreads
@@ -429,7 +355,9 @@
         END DO
       END DO
 !$OMP END PARALLEL DO
+# endif
 
+# ifndef OFFLINE_FLOATS
 !
 !-----------------------------------------------------------------------
 !  Time-step vertical mixing turbulent equations and passive tracer
@@ -456,6 +384,7 @@
         END DO
       END DO
 !$OMP END PARALLEL DO
+# endif
 
 # ifndef TS_FIXED
 !
@@ -476,22 +405,6 @@
       END DO
 !$OMP END PARALLEL DO
 # endif
-# endif
-
-# ifdef ASSIMILATION
-!
-!-----------------------------------------------------------------------
-!  Assimilate observations via Optimal Interpolation.
-!-----------------------------------------------------------------------
-!
-!$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(ng,numthreads)
-      DO thread=0,numthreads-1
-        subs=NtileX(ng)*NtileE(ng)/numthreads
-        DO tile=subs*thread,subs*(thread+1)-1,+1
-          CALL oi_update (ng, TILE)
-        END DO
-      END DO
-!$OMP END PARALLEL DO
 # endif
 
 # ifdef FLOATS
@@ -522,7 +435,10 @@
         chunk_size=(Nfish(ng)+numthreads-1)/numthreads
         Lstr=1+thread*chunk_size
         Lend=MIN(Nfish(ng),Lstr+chunk_size-1)
-        CALL step_fish (ng, Lstr, Lend)
+        subs=NtileX(ng)*NtileE(ng)/numthreads
+        DO tile=subs*thread,subs*(thread+1)-1,+1
+          CALL step_fish (ng, TILE, Lstr, Lend)
+        END DO
       END DO
 !$OMP END PARALLEL DO
 # endif

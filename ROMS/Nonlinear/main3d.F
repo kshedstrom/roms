@@ -1,11 +1,10 @@
 #include "cppdefs.h"
-#if defined NONLINEAR && defined SOLVE3D && \
-    (!defined OFFLINE_BIOLOGY && ! defined OFFLINE_FLOATS)
+#if defined NONLINEAR && defined SOLVE3D && (!defined OFFLINE)
       SUBROUTINE main3d (ng)
 !
 !svn $Id$
 !=======================================================================
-!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2011 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                           Hernan G. Arango   !
 !========================================== Alexander F. Shchepetkin ===
@@ -133,7 +132,9 @@
       USE fish_by_cell_mod, ONLY : fish_by_cell
       USE fish_spawn_mod, ONLY : fish_spawn
       USE new_year_mod, ONLY : new_year
+#  if defined FLEET
       USE new_year_fleet_mod, ONLY : new_year_fleet
+#  endif
 #  ifdef PREDATOR
       USE step_pred_mod, ONLY : step_pred
       USE pred_by_cell_mod, ONLY : pred_by_cell
@@ -144,6 +145,10 @@
 #  ifdef FLEET
       USE step_fleet_mod, ONLY : step_fleet
 #  endif
+# endif
+# if defined PROPAGATOR || \
+    (defined MASKING    && (defined READ_WATER || defined WRITE_WATER))
+      USE wpoints_mod, ONLY : wpoints
 # endif
       USE wvelocity_mod, ONLY : wvelocity
 !
@@ -707,7 +712,10 @@
           chunk_size=(Nfish(ng)+numthreads-1)/numthreads
           Lstr=1+thread*chunk_size
           Lend=MIN(Nfish(ng),Lstr+chunk_size-1)
-          CALL step_fish (ng, TILE, Lstr, Lend)
+          subs=NtileX(ng)*NtileE(ng)/numthreads
+          DO tile=subs*thread,subs*(thread+1)-1,+1
+            CALL step_fish (ng, TILE, Lstr, Lend)
+          END DO
         END DO
 !$OMP END PARALLEL DO
 #  ifdef PREDATOR

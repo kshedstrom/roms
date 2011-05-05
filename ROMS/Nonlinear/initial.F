@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2011 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -44,13 +44,16 @@
       USE rho_eos_mod, ONLY : rho_eos
       USE set_massflux_mod, ONLY : set_massflux
 #endif
-      USE stiffness_mod, ONLY : stiffness
-#if defined PROPAGATOR || \
-   (defined MASKING && (defined READ_WATER || defined WRITE_WATER ))
-      USE wpoints_mod, ONLY : wpoints
+#ifdef MASKING
+      USE set_masks_mod, ONLY : set_masks
 #endif
+      USE stiffness_mod, ONLY : stiffness
 #ifdef WAVES_OCEAN
       USE ocean_coupler_mod, ONLY : ocn2wav_coupling
+#endif
+#if defined PROPAGATOR || \
+    (defined MASKING    && (defined READ_WATER || defined WRITE_WATER))
+      USE wpoints_mod, ONLY : wpoints
 #endif
 !
       implicit none
@@ -284,10 +287,6 @@
           subs=NtileX(ng)*NtileE(ng)/numthreads
           DO tile=subs*thread,subs*(thread+1)-1
             CALL metrics (ng, TILE, iNLM)
-#if defined PROPAGATOR || \
-   (defined MASKING && (defined READ_WATER || defined WRITE_WATER ))
-            CALL wpoints (ng, TILE, iNLM)
-#endif
           END DO
         END DO
 !$OMP END PARALLEL DO
@@ -322,6 +321,7 @@
       END DO
 !$OMP END PARALLEL DO
 
+#ifndef OFFLINE_FLOATS
 #if defined VISC_GRID || defined DIFF_GRID || defined SPONGE
 !
 !-----------------------------------------------------------------------
@@ -331,14 +331,15 @@
 !-----------------------------------------------------------------------
 !
 !$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(ng,numthreads)
-        DO thread=0,numthreads-1
-          subs=NtileX(ng)*NtileE(ng)/numthreads
-          DO tile=subs*thread,subs*(thread+1)-1
-            CALL ana_hmixcoef (ng, TILE, iNLM)
-          END DO
+      DO thread=0,numthreads-1
+        subs=NtileX(ng)*NtileE(ng)/numthreads
+        DO tile=subs*thread,subs*(thread+1)-1
+          CALL ana_hmixcoef (ng, TILE, iNLM)
         END DO
+      END DO
 !$OMP END PARALLEL DO
 #endif
+#endif /* OFFLINE_FLOATS */
 !
 !=======================================================================
 !  Initialize model state variables and forcing.  This part is
@@ -350,12 +351,12 @@
 !  Clear state variables.
 !
 !$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(ng,numthreads)
-        DO thread=0,numthreads-1
-          subs=NtileX(ng)*NtileE(ng)/numthreads
-          DO tile=subs*thread,subs*(thread+1)-1
-            CALL initialize_ocean (ng, TILE, iNLM)
-          END DO
+      DO thread=0,numthreads-1
+        subs=NtileX(ng)*NtileE(ng)/numthreads
+        DO tile=subs*thread,subs*(thread+1)-1
+          CALL initialize_ocean (ng, TILE, iNLM)
         END DO
+      END DO
 !$OMP END PARALLEL DO
 #endif
 
@@ -366,8 +367,7 @@
 !  depths with zero free-surface.
 !-----------------------------------------------------------------------
 !
-!$OMP PARALLEL DO PRIVATE(thread,subs,tile)                             &
-!$OMP&            SHARED(ng,numthreads)
+!$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(ng,numthreads)
       DO thread=0,numthreads-1
         subs=NtileX(ng)*NtileE(ng)/numthreads
         DO tile=subs*thread,subs*(thread+1)-1
@@ -445,6 +445,7 @@
       END IF
 #endif
 
+#ifndef OFFLINE_FLOATS
 #ifdef INI_FILE
 !
 !  Read in initial conditions from initial NetCDF file.
@@ -529,8 +530,7 @@
 !  Compute initial time-evolving depths.
 !-----------------------------------------------------------------------
 !
-!$OMP PARALLEL DO PRIVATE(thread,subs,tile)                             &
-!$OMP&            SHARED(ng,numthreads)
+!$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(ng,numthreads)
       DO thread=0,numthreads-1
         subs=NtileX(ng)*NtileE(ng)/numthreads
         DO tile=subs*thread,subs*(thread+1)-1
@@ -575,6 +575,7 @@
       END DO
 !$OMP END PARALLEL DO
 #endif
+#endif /* !OFFLINE_FLOATS */
 
 #if defined FOUR_DVAR || !defined TANGENT || !defined ADJOINT
 !
@@ -612,13 +613,46 @@
 !  If applicable, read in input data.
 !
 # ifdef TIMELESS_DATA
-!
       CALL get_idata (ng)
 # endif
 # ifdef DISTRIBUTE
       CALL mp_bcasti (ng, iNLM, exit_flag)
 # endif
       IF (exit_flag.ne.NoError) RETURN
+#endif
+
+#ifdef MASKING
+!
+!-----------------------------------------------------------------------
+!  Set internal I/O mask arrays.
+!-----------------------------------------------------------------------
+!
+!$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(ng,numthreads)
+      DO thread=0,numthreads-1
+        subs=NtileX(ng)*NtileE(ng)/numthreads
+        DO tile=subs*thread,subs*(thread+1)-1,+1
+          CALL set_masks (ng, TILE, iNLM)
+        END DO
+      END DO
+!$OMP END PARALLEL DO
+#endif
+
+#if defined PROPAGATOR || \
+   (defined MASKING    && (defined READ_WATER || defined WRITE_WATER ))
+!
+!-----------------------------------------------------------------------
+!  Set variables associated with the processing water points and/or
+!  size of packed state arrays.
+!-----------------------------------------------------------------------
+!
+!$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(ng,numthreads)
+      DO thread=0,numthreads-1
+        subs=NtileX(ng)*NtileE(ng)/numthreads
+        DO tile=subs*thread,subs*(thread+1)-1
+          CALL wpoints (ng, TILE, iNLM)
+        END DO
+      END DO
+!$OMP END PARALLEL DO
 #endif
 
 #if defined NLM_OUTER || defined TL_W4DPSAS          || \
@@ -636,6 +670,24 @@
         CALL mp_bcasti (ng, iTLM, exit_flag)
 # endif
         IF (exit_flag.ne.NoError) RETURN
+      END IF
+#endif
+
+#if defined ANA_DRAG && defined UV_DRAG_GRID
+!
+!-----------------------------------------------------------------------
+!  Set analytical spatially varying bottom friction parameter.
+!-----------------------------------------------------------------------
+!
+      IF (Nrun.eq.ERstr) THEN
+!$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(ng,numthreads)
+        DO thread=0,numthreads-1
+          subs=NtileX(ng)*NtileE(ng)/numthreads
+          DO tile=subs*thread,subs*(thread+1)-1
+            CALL ana_drag (ng, TILE, iNLM)
+          END DO
+        END DO
+!$OMP END PARALLEL DO
       END IF
 #endif
 !
@@ -685,7 +737,7 @@
 #ifdef PROFILE
 !
 !-----------------------------------------------------------------------
-!  Turn off initiialization time wall clock.
+!  Turn off initialization time wall clock.
 !-----------------------------------------------------------------------
 !
 !$OMP PARALLEL DO PRIVATE(thread) SHARED(ng,numthreads)

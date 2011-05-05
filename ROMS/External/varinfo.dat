@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !========================================================= Hernan G. Arango ===
-!  Copyright (c) 2002-2010 The ROMS/TOMS Group                                !
+!  Copyright (c) 2002-2011 The ROMS/TOMS Group                                !
 !    Licensed under a MIT/X style license                                     !
 !    See License_ROMS.txt                                                     !
 !==============================================================================
@@ -2149,7 +2149,7 @@
   'river runoff dye concentration'
   'kilogram meter-3'                               ! [kg/m3]
   'river_dye, scalar, series'
-  'ocean_time'
+  'river_time'
   'idRtrc(inert(i))'
   'nulvar'
   1.0d0
@@ -3124,8 +3124,35 @@
   'r2dvar'
   1.0d0
 
+'rdrag'                                            ! Input/Output
+  'linear bottom drag coefficient'
+  'meter second-1'                                 ! [m/s]
+  'rdrag, scalar, series'
+  'ocean_time'
+  'idragL'
+  'r2dvar'
+  1.0d0
+
+'rdrag2'                                           ! Input/Output
+  'quadratic bottom drag coefficient'
+  'nondimensional'                                 ! [nondimensional]
+  'rdrag2, scalar, series'
+  'ocean_time'
+  'idragQ'
+  'r2dvar'
+  1.0d0
+
+'ZoBot'                                            ! Input/Output
+  'time invariant, bottom roughness length'
+  'meter'                                          ! [m]
+  'ZoBot, scalar, series'
+  'ocean_time'
+  'idZoBL'
+  'r2dvar'
+  1.0d0
+
 'Zo_def'                                           ! Input/Output
-  'default bottom roughness'
+  'default bottom roughness length'
   'meter'                                          ! [m]
   'Zo_def, scalar, series'
   'ocean_time'
@@ -3134,7 +3161,7 @@
   1.0d0
 
 'Zo_app'                                           ! Input/Output
-  'apparent bottom roughness'
+  'apparent bottom roughness length'
   'meter'                                          ! [m]
   'Zo_app, scalar, series'
   'ocean_time'
@@ -3143,7 +3170,7 @@
   1.0d0
 
 'Zo_Nik'                                           ! Input/Output
-  'Nikaradse bottom roughness'
+  'Nikaradse bottom roughness length'
   'meter'                                          ! [m]
   'Zo_Nik, scalar, series'
   'ocean_time'
@@ -3152,7 +3179,7 @@
   1.0d0
 
 'Zo_bio'                                           ! Input/Output
-  'biological bottom roughness'
+  'biological bottom roughness length'
   'meter'                                          ! [m]
   'Zo_bio, scalar, series'
   'ocean_time'
@@ -3161,7 +3188,7 @@
   1.0d0
 
 'Zo_bedform'                                       ! Input/Output
-  'bed form bottom roughness'
+  'bed form bottom roughness length'
   'meter'                                          ! [m]
   'Zo_bedform, scalar, series'
   'ocean_time'
@@ -3170,7 +3197,7 @@
   1.0d0
 
 'Zo_bedload'                                       ! Input/Output
-  'bed load bottom roughness'
+  'bed load bottom roughness length'
   'meter'                                          ! [m]
   'Zo_bedload, scalar, series'
   'ocean_time'
@@ -3179,7 +3206,7 @@
   1.0d0
 
 'Zo_wbl'                                           ! Input/Output
-  'wave bottom boundary layer roughness'
+  'wave bottom boundary layer roughness length'
   'meter'                                          ! [m]
   'Zo_wbl, scalar, series'
   'ocean_time'

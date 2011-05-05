@@ -18,6 +18,9 @@
 !               Ftype(:) = 2,  isobaric (constant depth) float.        !
 !  Tinfo      Float trajectory initial information.                    !
 !  bounded    Float bounded status switch.                             !
+!  rwalk      Normally distributed random deviates used in 3-D         !
+!               random walk.                                           !
+!  r2walk     Vector of random values for random walk.                 !
 !  track      Multivariate float trajectory data at several time       !
 !               time levels.                                           !
 !                                                                      !
@@ -37,9 +40,11 @@
 
           real(r8), pointer :: Flon(:)
           real(r8), pointer :: Flat(:)
-          real(r8), pointer :: Tinfo(:,:)
-          real(r8), pointer :: track(:,:,:)
           real(r8), pointer :: Fz0(:)
+          real(r8), pointer :: Tinfo(:,:)
+          real(r8), pointer :: rwalk(:)
+          real(r8), pointer :: r2walk(:)
+          real(r8), pointer :: track(:,:,:)
 
 ! Fish fields
           real(r8), pointer :: bioenergy(:,:)
@@ -194,11 +199,15 @@
 
       allocate ( FISHES(ng) % Flat(Nfish(ng)) )
 
+      allocate ( FISHES(ng) % Fz0(Nfish(ng)) )
+
       allocate ( FISHES(ng) % Tinfo(0:izrhs,Nfish(ng)) )
 
-      allocate ( FISHES(ng) % track(NFV(ng),0:NFT,Nfish(ng)) )
+      allocate ( FISHES(ng) % rwalk(Nfish(ng)*3) )
 
-      allocate ( FISHES(ng) % Fz0(Nfish(ng)) )
+      allocate ( FISHES(ng) % r2walk(Nfish(ng)*6) )
+
+      allocate ( FISHES(ng) % track(NFV(ng),0:NFT,Nfish(ng)) )
 
       allocate ( FISHES(ng) % bioenergy(NFishV(ng),Nfish(ng)) )
 
@@ -270,6 +279,15 @@
         FISHES(ng) % Flon(iflt) = IniVal
         FISHES(ng) % Flat(iflt) = IniVal
         FISHES(ng) % Fz0(iflt) = 0
+        FISHES(ng) % rwalk(iflt) = IniVal
+        FISHES(ng) % rwalk(iflt+Nfish(ng)) = IniVal
+        FISHES(ng) % rwalk(iflt+2*Nfish(ng)) = IniVal
+        FISHES(ng) % r2walk(iflt) = IniVal
+        FISHES(ng) % r2walk(iflt+Nfish(ng)) = IniVal
+        FISHES(ng) % r2walk(iflt+2*Nfish(ng)) = IniVal
+        FISHES(ng) % r2walk(iflt+3*Nfish(ng)) = IniVal
+        FISHES(ng) % r2walk(iflt+4*Nfish(ng)) = IniVal
+        FISHES(ng) % r2walk(iflt+5*Nfish(ng)) = IniVal
         DO i=1,NT(ng)
           FISHES(ng) % feedback(i,iflt) = IniVal
         END DO

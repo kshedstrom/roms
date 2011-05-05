@@ -55,6 +55,8 @@
      &                       FISHES(ng) % Ftype,                        &
      &                       FISHES(ng) % Tinfo,                        &
      &                       FISHES(ng) % Fz0,                          &
+     &                       FISHES(ng) % rwalk,                        &
+     &                       FISHES(ng) % r2walk,                       &
      &                       FISHES(ng) % feedback,                     &
      &                       FISHES(ng) % bioenergy,                    &
      &                       FISHES(ng) % species,                      &
@@ -91,9 +93,9 @@
       SUBROUTINE step_fish_tile (ng, tile, Lstr, Lend,                  &
      &                             knew, nnew,                          &
      &                             nfm3, nfm2, nfm1, nf, nfp1,          &
-     &                             bounded, Ftype, Tinfo, Fz0,          &
-     &                             feedback, bioenergy, species,        &
-     &                             alive, lifestage,                    &
+     &                             bounded, Ftype, Tinfo, Fz0, rwalk,   &
+     &                             r2walk, feedback, bioenergy,         &
+     &                             species, alive, lifestage,           &
      &                             swimtype, deathby, cellid,           &
      &                             egg_dur, egg_num,                    &
      &                             ysac_dur, ysac_num,                  &
@@ -126,7 +128,7 @@
 # ifdef DISTRIBUTE
       USE distribute_mod
 # endif
-      USE utility_mod, ONLY : nrng
+      USE nrutil, ONLY : gasdev
 !
 !  Imported variable declarations.
 !
@@ -137,6 +139,8 @@
       integer, intent(in)     :: Ftype(:)
       real(r8), intent(inout) :: Tinfo(0:,:)
       real(r8), intent(inout) :: Fz0(:)
+      real(r8), intent(inout) :: rwalk(:)
+      real(r8), intent(inout) :: r2walk(:)
       real(r8), intent(inout) :: feedback(:,:)
 
       logical, intent(inout)  :: bounded(:)
@@ -169,6 +173,8 @@
       integer, intent(in)     :: Ftype(Nfish(ng))
       real(r8), intent(inout) :: Tinfo(0:izrhs,Nfish(ng))
       real(r8), intent(inout) :: Fz0(Nfish(ng))
+      real(r8), intent(inout) :: rwalk(Nfish(ng)*3)
+      real(r8), intent(inout) :: r2walk(Nfish(ng)*6)
       real(r8), intent(inout) :: feedback(NT(ng),Nfish(ng))
 
       logical, intent(inout)  :: bounded(Nfish(ng))
@@ -236,7 +242,7 @@
       integer,  dimension(Nfish(ng)) :: FwrkI
 # endif
 !
-! Set tile array bounds.
+!  Set tile array bounds.
 !
       LBi=LBOUND(GRID(ng)%h,DIM=1)
       UBi=UBOUND(GRID(ng)%h,DIM=1)
@@ -246,17 +252,17 @@
 # ifdef DISTRIBUTE
 !
 !-----------------------------------------------------------------------
-! In distributed-memory configuration, determine which node bounds the
-! current location of the fish. Assign non-bounded fish to the
-! master node.
+!  In distributed-memory configuration, determine which node bounds the
+!  current location of the fish. Assign non-bounded fish to the
+!  master node.
 !-----------------------------------------------------------------------
 !
-! The strategy here is to build a switch that processes only the fish
-! contained within the node bounds. The trajectory data for the new
-! time-level (nfp1) is initialized to Fspv. These values are used during
-! recombining step at the end of the routine.  Since a SUM reduction is
-! carried-out, setting Fspv to zero means the fish only contribute in
-! their own tile.
+!  The strategy here is to build a switch that processes only the fish
+!  contained within the node bounds. The trajectory data for the new
+!  time-level (nfp1) is initialized to Fspv. These values are used during
+!  recombining step at the end of the routine.  Since a SUM reduction is
+!  carried-out, setting Fspv to zero means the fish only contribute in
+!  their own tile.
 !
       Npts=NFV(ng)*(NFT+1)*Nfish(ng)
       NptsF=NFishV(ng)*Nfish(ng)
@@ -306,9 +312,28 @@
         END IF
       END DO
 # else
+!
+!-----------------------------------------------------------------------
+!  Initialize.
+!-----------------------------------------------------------------------
+!
       DO l=Lstr,Lend
         MyThread(l)=.TRUE.
       END DO
+# endif
+# ifdef DISTRIBUTE
+      IF (Master) THEN
+        CALL gasdev (rwalk)
+      END IF
+      CALL mp_bcastf (ng, iNLM, rwalk)
+# elif defined _OPENMP
+!$OMP SINGLE
+      CALL gasdev (rwalk)
+!$OMP END SINGLE
+# else
+      IF (Lstr.eq.1) THEN
+        CALL gasdev (rwalk)
+      END IF
 # endif
 !
 !-----------------------------------------------------------------------
@@ -345,8 +370,8 @@
      &                    MIXING(ng) % dAktdz,                          &
      &                    MyThread, bounded, track)
 
-      CALL nrng (iseed, nudg(Lstr:Lend), Lend-Lstr+1, ierr)
       DO l=Lstr,Lend
+	nudg(l) = rwalk(l)
         IF (MyThread(l).and.bounded(l)) THEN
           nudg(l)=SQRT(2.0_r8*MAX(track(ifakt,nf,l),0.0_r8)/dt(ng))*    &
      &            nudg(l)+track(ifdak,nf,l)
@@ -725,7 +750,8 @@
 # ifdef SOLVE3D
      &                    GRID(ng) % Hz,                                &
 # endif
-     &                    MyThread, bounded, track,                     &
+     &                    MyThread, bounded, rwalk,                     &
+     &                    r2walk, track,                                &
      &                    bioenergy, alive,                             &
      &                    species, lifestage, swimtype,                 &
      &                    OCEAN(ng) % fish_count,                       &

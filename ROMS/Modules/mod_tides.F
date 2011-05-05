@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2011 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -696,7 +696,7 @@
 # endif
 
 ! Local variables
-      real(r8) :: slat, hh, d1, tau, dtau, freq(MTC)
+      real(r8) :: slat, hh, d1, tau, dtau_2, freq(MTC)
       real(r8) :: h, pp, s, p, enp, dh, dpp, ds, dp, dnp
       real(r8) :: uu, twopi, sumc, sums, v, rr, vdbl, uudbl
       integer  :: i, iv, j, k, iuu, itide, intdays
@@ -760,14 +760,14 @@
       intdays=int(ttime*sec2day)
       hh=real(ttime-intdays*day2sec,r8)/3600._r8
       tau = hh/24._r8 + h - s
-      dtau = 365.0_r8 + dh - ds
+      dtau_2 = 365.0_r8 + dh - ds
 !
 !***********************************************************************
 !*  ONLY THE FRACTIONAL PART OF A SOLAR DAY NEED BE RETAINED FOR COMPU-
 !*  TING THE LUNAR TIME TAU.
 !
       DO itide=1,MTC
-        freq(itide)=(doodson(1,itide)*dtau+doodson(2,itide)*ds+         &
+        freq(itide)=(doodson(1,itide)*dtau_2+doodson(2,itide)*ds+       &
      &               doodson(3,itide)*dh+doodson(4,itide)*dp+           &
      &               doodson(5,itide)*dnp+doodson(6,itide)*dpp)         &
      &               /(365._r8*24._r8)

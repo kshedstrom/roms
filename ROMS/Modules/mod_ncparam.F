@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2011 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -154,9 +154,15 @@
         integer  :: iddpth = -4   ! depth
         integer  :: idglon = -5   ! longitude
         integer  :: idglat = -6   ! latitude
+#ifdef OFFLINE_FLOATS
+        integer  :: idxspc = -7   ! x-space
+        integer  :: idyspc = -8   ! y-space
+        integer  :: idwdph = -9   ! water depth
+#endif
 !
 !  Input/output identification indices.
 !
+        integer  :: idAclm        ! 3D Aks (salinity) climatology
         integer  :: idAice        ! fraction of cell covered by ice
         integer  :: idbath        ! bathymetry
         integer  :: idCfra        ! cloud fraction
@@ -221,6 +227,8 @@
         integer  :: idRwet        ! wet/dry mask on RHO-points
         integer  :: idRzet        ! RHS of free-surface
         integer  :: idrain        ! rainfall rate
+        integer  :: idragL        ! bottom linear drag coefficient
+        integer  :: idragQ        ! bottom quadratic drag coefficient
         integer  :: idSdif        ! vertical S-diffusion coefficient
         integer  :: idSinW        ! SIN(omega(k)*t)
         integer  :: idSin2        ! SIN(omega(k)*t)*SIN(omega(l)*t)
@@ -337,6 +345,7 @@
         integer  :: idWpbt        ! wind-induced bottom wave period
         integer  :: idWorb        ! wind-induced wave orbital velocity
         integer  :: idWvel        ! true vertical velocity
+        integer  :: idZoBL        ! bottom roughness length
         integer  :: idZads        ! Free-surface adjoint sensitivity
         integer  :: idZtlf        ! Free-surface impulse forcing
         integer  :: id2dPV        ! 2D potential vorticity
@@ -529,7 +538,7 @@
         integer  :: ncAVG2id(Ngrids)    ! output secondary averages
         integer  :: ncBLKid(Ngrids)     ! Basic state surface fluxes
         integer  :: ncBRYid(Ngrids)     ! input boundary conditions
-        integer  :: ncCLMid(Ngrids)     ! input climatology
+        integer  :: ncCLMid(NV,Ngrids)  ! input climatology
         integer  :: ncDIAid(Ngrids)     ! output diagnostics
         integer  :: ncERRid(Ngrids)     ! output 4DVar posterior error
 #ifdef FILTERED_RST
@@ -604,8 +613,13 @@
         integer  :: diaVid(NV,Ngrids)    ! diagnostics variables IDs
         integer  :: filVid(NV,Ngrids)    ! filter variables IDs
         integer  :: errVid(NV,Ngrids)    ! error variables IDs
+#ifdef OFFLINE_FLOATS
+        integer  :: fltVid(-9:NV,Ngrids) ! floats variables IDs
+        integer  :: fishVid(-9:NV,Ngrids)! fish variables IDs
+#else
         integer  :: fltVid(-6:NV,Ngrids) ! floats variables IDs
         integer  :: fishVid(-6:NV,Ngrids)! fish variables IDs
+#endif
         integer  :: fleetVid(-6:NV,Ngrids)! fleet variables IDs
         integer  :: hisVid(NV,Ngrids)    ! history variables IDs
         integer  :: hssVid(NV,Ngrids)    ! Hessian variables IDs
@@ -1066,7 +1080,9 @@
           ncAVG2id(ng)=-1
           ncBLKid(ng)=-1
           ncBRYid(ng)=-1
-          ncCLMid(ng)=-1
+          DO i=1,NV
+            ncCLMid(i,ng)=-1
+          END DO
           ncDIAid(ng)=-1
           ncERRid(ng)=-1
           ncFLTid(ng)=-1
@@ -1255,7 +1271,11 @@
           IF ((Lvar.gt.0).and.(Vinfo(1)(1:1).eq.CHAR(36))) THEN
             is=INDEX(Vinfo(1),'https')
             ie=INDEX(Vinfo(1),'/ROMS')-1
-            svn_url=Vinfo(1)(is:ie)
+            IF (ie.gt.is) THEN
+              svn_url=Vinfo(1)(is:ie)
+            ELSE
+              svn_url='https:://myroms.org/svn/src'
+            END IF
 #ifdef SVN_REV
             svn_rev=SVN_REV
 #endif
@@ -1447,21 +1467,6 @@
                 idTbry(isouth,isalt)=varid
               CASE ('idTbry(inorth,isalt)')
                 idTbry(inorth,isalt)=varid
-#if defined RESIDENCE_TIME ||   defined AGE_DISTRIBUTION
-              CASE ('idTbry(iwest,inert(i))')
-                load=.TRUE.
-!                idTbry(iwest,inert(i))=varid
-              CASE ('idTbry(ieast,inert(i))')
-                load=.TRUE.
-!                idTbry(ieast,inert(i))=varid
-              CASE ('idTbry(isouth,inert(i))')
-                load=.TRUE.
-!                idTbry(isouth,inert(i))=varid
-              CASE ('idTbry(inorth,inert(i))')
-                load=.TRUE.
-!                idTbry(inorth,inert(i))=varid
-!------Added by W.G.Zhang
-#endif
 #ifdef ICE_MODEL
               CASE ('idAibc(iwest)')
                 idAibc(iwest)=varid
@@ -1674,6 +1679,14 @@
                 idHsbl=varid
               CASE ('idHbbl')
                 idHbbl=varid
+#ifdef UV_DRAG_GRID
+              CASE ('idragL')
+                idragL=varid
+              CASE ('idragQ')
+                idragQ=varid
+              CASE ('idZoBL')
+                idZoBL=varid
+#endif
               CASE ('idUbot')
                 idUbot=varid
               CASE ('idVbot')
@@ -1696,6 +1709,8 @@
                 idUclm=varid
               CASE ('idVclm')
                 idVclm=varid
+              CASE ('idAclm')
+                idAclm=varid
               CASE ('idOclm')
                 idOclm=varid
               CASE ('idSSSc')
@@ -1858,7 +1873,7 @@
                 idVTav(isalt)=varid
 # endif
 #endif
-#ifdef T_PASSIVE
+#if defined T_PASSIVE || defined RESIDENCE_TIME
               CASE ('idTvar(inert(i))')
                 load=.TRUE.
               CASE ('idTbry(iwest,inert(i))')
@@ -2382,8 +2397,9 @@
                   END IF
 # endif
               END SELECT
-# if defined RESIDENCE_TIME
+# if defined AGE_PASSIVE || defined RESIDENCE_TIME
               SELECT CASE (Vinfo(1))
+#  if defined RESIDENCE_TIME
                 CASE ('river_age_')
                   IF (NPT.gt.0) THEN
                     varid=varid-1
@@ -2413,9 +2429,7 @@
      &                      TRIM(ADJUSTL(Vinfo(5)))
                     END DO
                   END IF
-# endif
-# if defined AGE_DISTRIBUTION || \
-    defined RESIDENCE_TIME
+#  endif
                 CASE ('age_west_')
                   IF (NPT.gt.0) THEN
                     varid=varid-1

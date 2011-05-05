@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2011 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -17,7 +17,7 @@
 !  AVG2name    Output secondary file name.                             !
 !  BLKname     Input bulk fluxes file name.                            !
 !  BRYname     Input boundary data file name.                          !
-!  CLMname     Input climatology file name.                            !
+!  CLMname     Input climatology file name(s).                         !
 !  DIAbase     Output diagnostics base file name.                      !
 !  DIAname     Output diagnostics file name.                           !
 !  ERRname     Output 4DVar posterior error file name.                 !
@@ -73,6 +73,7 @@
 !  iparnam     Input ice parameters file name.                         !
 !  ioerror     IO error flag.                                          !
 !  ncfile      Current NetCDF file name being processed.               !
+!  nCfiles     Number of climate files.                                !
 !  nFfiles     Number of forcing files.                                !
 !  predposnam  Input initial predtor positions file name.              !
 !  sparnam     Input sediment transport parameters file name.          !
@@ -101,8 +102,10 @@
         integer, parameter :: usrout = 10
         integer :: ioerror = 0
 
+        integer, dimension(Ngrids) :: nCfiles
         integer, dimension(Ngrids) :: nFfiles
 
+        integer, allocatable :: CLMids(:,:)
         integer, allocatable :: FRCids(:,:)
 
         character (len=50), dimension(8) :: Rerror =                    &
@@ -115,6 +118,7 @@
      &          ' ROMS/TOMS - Illegal input parameter . exit_flag: ',   &
      &          ' ROMS/TOMS - Fatal algorithm result .. exit_flag: ' /)
 
+        character (len=256), allocatable :: CLMname(:,:)
         character (len=256), allocatable :: FRCname(:,:)
 
         character (len=256), dimension(Ngrids) :: ADJbase
@@ -126,7 +130,6 @@
         character (len=256), dimension(Ngrids) :: AVG2name
         character (len=256), dimension(Ngrids) :: BLKname
         character (len=256), dimension(Ngrids) :: BRYname
-        character (len=256), dimension(Ngrids) :: CLMname
         character (len=256), dimension(Ngrids) :: DIAbase
         character (len=256), dimension(Ngrids) :: DIAname
         character (len=256), dimension(Ngrids) :: ERRname

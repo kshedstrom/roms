@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2011 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -45,6 +45,10 @@
       real(r8) :: Xstr, Xend, Ystr, Yend, zfloat
       logical, dimension(Nfloats(ng)) :: MyThread
       real(r8), dimension(Nfloats(ng)) :: Iflt, Jflt
+#ifdef OFFLINE_FLOATS_LATLON
+      integer :: Ir,Jr,i1,i2,j1,j2
+      real(r8) :: p1,p2,q1,q2,cff5,cff6,cff7,cff8
+#endif
 #  ifdef SOLVE3D
       real(r8), dimension(Nfloats(ng)) :: Kflt
 #  endif
@@ -108,14 +112,13 @@
 #  endif
             DO i=1,mc
               l=FLT(ng)%Findex(i)
-              FLT(ng)%Tinfo(ixgrd,l)=MIN(MAX(0.5_r8,Iflt(i)),           &
-     &                               REAL(Lm(ng),r8)+0.5_r8)
-              FLT(ng)%Tinfo(iygrd,l)=MIN(MAX(0.5_r8,Jflt(i)),           &
-     &                               REAL(Mm(ng),r8)+0.5_r8)
+              FLT(ng)%Tinfo(ixgrd,l)=Iflt(i)
+              FLT(ng)%Tinfo(iygrd,l)=Jflt(i)
             END DO
           END IF
         END IF
       END IF
+
 #  ifdef SOLVE3D
 !
 !  Determine which node bounds the initial float location.
@@ -141,20 +144,32 @@
 #  endif
 !
 !-----------------------------------------------------------------------
-!  Set float initial vertical level position.  If the initial float
-!  depth (in meters) is not found, release float at the surface model
-!  level.
+!  Set float initial vertical level position, if inside application
+!  grid.  If the initial float depth (in meters) is not found, release
+!  float at the surface model level.
 !-----------------------------------------------------------------------
 !
       DO l=1,Nfloats(ng)
         IF (Lfloats(ng)) THEN
 #  ifdef SOLVE3D
           FLT(ng)%Fz0(l)=spv
-          IF (MyThread(l)) THEN
+          IF (MyThread(l).and.                                          &
+     &        ((FLT(ng)%Tinfo(ixgrd,l).ge.0.5_r8).and.                  &
+     &         (FLT(ng)%Tinfo(iygrd,l).ge.0.5_r8).and.                  &
+     &         (FLT(ng)%Tinfo(ixgrd,l).le.REAL(Lm(ng),r8)+0.5_r8).and.  &
+     &         (FLT(ng)%Tinfo(iygrd,l).le.REAL(Mm(ng),r8)+0.5_r8))) THEN
             zfloat=FLT(ng)%Tinfo(izgrd,l)
             FLT(ng)%Fz0(l)=zfloat               ! Save original value
+#ifdef OFFLINE_FLOATS
+            IF (l.eq.1) THEN
+              print *, 'Float # ', l, ' FLT(ng)%Fz0: ', FLT(ng)%Fz0(l)
+              print *,'The preceeding print fixes a memory bug somehow.'
+            END IF
+#endif
             Kflt(l)=zfloat
             IF (zfloat.le.0.0_r8) THEN
+
+#ifndef OFFLINE_FLOATS_LATLON
               i=INT(FLT(ng)%Tinfo(ixgrd,l))     ! Fractional positions
               j=INT(FLT(ng)%Tinfo(iygrd,l))     ! are still in this cell
               IF (zfloat.lt.GRID(ng)%z_w(i,j,0)) THEN
@@ -170,6 +185,47 @@
      &                    GRID(ng)%Hz(i,j,k)
                 END IF
               END DO
+#else
+              Kflt(l)=spv
+              Ir=INT(FLT(ng)%Tinfo(ixgrd,l))
+              Jr=INT(FLT(ng)%Tinfo(iygrd,l))
+
+              i1=MIN(MAX(Ir  ,0),Lm(ng)+1)
+              i2=MIN(MAX(Ir+1,1),Lm(ng)+1)
+              j1=MIN(MAX(Jr  ,0),Mm(ng)+1)
+              j2=MIN(MAX(Jr+1,0),Mm(ng)+1)
+              p2=REAL(i2-i1,r8)*(FLT(ng)%Tinfo(ixgrd,l)-REAL(i1,r8))
+              q2=REAL(j2-j1,r8)*(FLT(ng)%Tinfo(iygrd,l)-REAL(j1,r8))
+              p1=1.0_r8-p2
+              q1=1.0_r8-q2
+
+              cff6=0.0_r8
+
+              DO k=N(ng),0,-1
+#  ifdef MASKING
+                cff7=p1*q1*GRID(ng)%z_w(i1,j1,k)*GRID(ng)%rmask(i1,j1)+ &
+     &             p2*q1*GRID(ng)%z_w(i2,j1,k)*GRID(ng)%rmask(i2,j1)+   &
+     &             p1*q2*GRID(ng)%z_w(i1,j2,k)*GRID(ng)%rmask(i1,j2)+   &
+     &             p2*q2*GRID(ng)%z_w(i2,j2,k)*GRID(ng)%rmask(i2,j2)
+                cff8=p1*q1*GRID(ng)%rmask(i1,j1)+                       &
+     &             p2*q1*GRID(ng)%rmask(i2,j1)+                         &
+     &             p1*q2*GRID(ng)%rmask(i1,j2)+                         &
+     &             p2*q2*GRID(ng)%rmask(i2,j2)
+                cff5=0.0_r8
+                IF (cff8.gt.0.0_r8) cff5=cff7/cff8
+#  else
+                cff5=p1*q1*GRID(ng)%z_w(i1,j1,k)+                       &
+     &             p2*q1*GRID(ng)%z_w(i2,j1,k)+                         &
+     &             p1*q2*GRID(ng)%z_w(i1,j2,k)+                         &
+     &             p2*q2*GRID(ng)%z_w(i2,j2,k)
+#  endif
+                IF ((zfloat-cff5)*(cff6-zfloat).ge.0.0_r8) THEN
+                  Kflt(l)=REAL(k,r8)+(zfloat-cff5)/(cff6-cff5)
+                END IF
+                cff6=cff5
+              END DO
+
+#endif
             END IF
           ELSE
             Kflt(l)=spv

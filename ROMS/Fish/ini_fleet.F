@@ -27,9 +27,8 @@
 # endif
 !
 # ifdef DISTRIBUTE
-      USE distribute_mod, ONLY : mp_bcasti, mp_bcasts
+      USE distribute_mod, ONLY : mp_bcasti, mp_bcastf, mp_bcasts
 # endif
-      USE ran_state, ONLY: ran_seed
 !
       implicit none
 !
@@ -51,7 +50,6 @@
       integer :: inp, out, itrc, ng, npts, sequence
       integer :: i, ib, ip, icell, jcell
 
-      real(r8) :: snudg
       real(r8), parameter :: spv = 0.0_r8
 !
 !-----------------------------------------------------------------------
@@ -77,12 +75,27 @@
       OPEN (48, FILE=TRIM(fleetposnam), FORM='formatted', STATUS='old')
 
       CALL read_FleetPar (model, 48, out, Lwrite)
+
+# ifdef DISTRIBUTE
+      IF (Master) THEN
+        CALL ran1 (BOATS(ng)%rwalk)
+      END IF
+      CALL mp_bcastf (ng, iNLM, BOATS(ng)%rwalk)
+# elif defined _OPENMP
+!$OMP SINGLE
+      CALL ran1 (BOATS(ng)%rwalk)
+!$OMP END SINGLE
+# else
+!     IF (Lstr.eq.1) THEN
+        CALL ran1 (BOATS(ng)%rwalk)
+!     END IF
+# endif
+
 !
 !  Put the new boats in here
       ng=1
       DO ib=1,Nboats(ng)
-        CALL ran1 (snudg)
-        ip=INT(REAL(Nports(ng),r8)*snudg)+1
+        ip=INT(REAL(Nports(ng),r8)*BOATS(ng)%rwalk(ib))+1
         BOATS(ng)%boat(ibport,ib)=ip
         BOATS(ng)%boat(ibiloc,ib)=iPort(ip,ng)
         BOATS(ng)%boat(ibjloc,ib)=jPort(ip,ng)

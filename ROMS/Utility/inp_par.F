@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2011 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -2200,6 +2200,33 @@
             END IF
             Npts=load_l(Nval, Cval, Ngrids, Hout(idWdis,:))
 #endif
+#ifdef SOLVE3D
+# if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS
+          ELSE IF (TRIM(KeyWord).eq.'Hout(idPair)') THEN
+            IF (idPair.eq.0) THEN
+              IF (Master) WRITE (out,280) 'idPair'
+              exit_flag=5
+              RETURN
+            END IF
+            Npts=load_l(Nval, Cval, Ngrids, Hout(idPair,:))
+# endif
+# if defined BULK_FLUXES || defined ECOSIM
+          ELSE IF (TRIM(KeyWord).eq.'Hout(idUair)') THEN
+            IF (idUair.eq.0) THEN
+              IF (Master) WRITE (out,280) 'idUair'
+              exit_flag=5
+              RETURN
+            END IF
+            Npts=load_l(Nval, Cval, Ngrids, Hout(idUair,:))
+          ELSE IF (TRIM(KeyWord).eq.'Hout(idVair)') THEN
+            IF (idPair.eq.0) THEN
+              IF (Master) WRITE (out,280) 'idVair'
+              exit_flag=5
+              RETURN
+            END IF
+            Npts=load_l(Nval, Cval, Ngrids, Hout(idVair,:))
+# endif
+#endif
           ELSE IF (TRIM(KeyWord).eq.'Hout(idTsur)') THEN
             IF (idTsur(itemp).eq.0) THEN
               IF (Master) WRITE (out,280) 'idTsur'
@@ -2695,6 +2722,18 @@
             Npts=load_l(Nval, Cval, Ngrids, Aout(idU3Sd,:))
           ELSE IF (TRIM(KeyWord).eq.'Aout(idV3Sd)') THEN
             Npts=load_l(Nval, Cval, Ngrids, Aout(idV3Sd,:))
+# ifdef SOLVE3D
+#  if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS
+          ELSE IF (TRIM(KeyWord).eq.'Aout(idPair)') THEN
+            Npts=load_l(Nval, Cval, Ngrids, Aout(idPair,:))
+#  endif
+#  if defined BULK_FLUXES || defined ECOSIM
+          ELSE IF (TRIM(KeyWord).eq.'Aout(idUair)') THEN
+            Npts=load_l(Nval, Cval, Ngrids, Aout(idUair,:))
+          ELSE IF (TRIM(KeyWord).eq.'Aout(idVair)') THEN
+            Npts=load_l(Nval, Cval, Ngrids, Aout(idVair,:))
+#  endif
+# endif
           ELSE IF (TRIM(KeyWord).eq.'Aout(idTsur)') THEN
             Npts=load_l(Nval, Cval, NAT*Ngrids, Ltracer)
             DO ng=1,Ngrids
@@ -3684,11 +3723,35 @@
                 END IF
               END DO
             END DO
-          ELSE IF (TRIM(KeyWord).eq.'CLMNAME') THEN
-            DO i=1,LEN(CLMname(Nval))
-              CLMname(Nval)(i:i)=blank
+          ELSE IF (TRIM(KeyWord).eq.'NCFILES') THEN
+            Npts=load_i(Nval, Rval, Ngrids, nCfiles)
+              DO ng=1,Ngrids
+              IF (nCfiles(ng).le.0) THEN 
+                IF (Master) WRITE (out,260) 'NCFILES',                  &
+     &                            'Must be equal or greater than one.'
+                exit_flag=4
+                RETURN
+              END IF
+            END DO     
+            Npts=MAXVAL(nCfiles)     
+            allocate ( CLMids (Npts,Ngrids) )
+            allocate ( CLMname(Npts,Ngrids) )
+            CLMids(1:Npts,1:Ngrids)=-1
+            DO ng=1,Ngrids
+              DO k=1,Npts
+                DO i=1,LEN(CLMname(k,ng))
+                  CLMname(k,ng)(i:i)=blank
+                END DO
+              END DO
             END DO
-            CLMname(Nval)=TRIM(ADJUSTL(Cval(Nval)))
+          ELSE IF (TRIM(KeyWord).eq.'CLMNAME') THEN
+            DO ng=1,Ngrids
+              DO i=1,nCfiles(ng)
+                IF (Nval.eq.(i+(Ngrids-1)*nCfiles(ng))) THEN
+                  CLMname(i,ng)=TRIM(ADJUSTL(Cval(Nval)))
+                END IF
+              END DO
+            END DO
           ELSE IF (TRIM(KeyWord).eq.'BRYNAME') THEN
             DO i=1,LEN(BRYname(Nval))
               BRYname(Nval)(i:i)=blank
@@ -3763,6 +3826,7 @@
             END DO
             USRname=TRIM(ADJUSTL(Cval(Nval)))
           END IF
+          IF (exit_flag.ne.NoError) RETURN
         END IF
       END DO
   10  IF (Master) WRITE (out,50) line
@@ -4848,6 +4912,19 @@
           END DO
 #endif
 #ifdef SOLVE3D
+# if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS
+          IF (Hout(idPair,ng)) WRITE (out,170) Hout(idPair,ng),         &
+     &       'Hout(idPair)',                                            &
+     &       'Write out surface air pressure.'
+# endif
+# if defined BULK_FLUXES || defined ECOSIM
+          IF (Hout(idUair,ng)) WRITE (out,170) Hout(idUair,ng),         &
+     &       'Hout(idUair)',                                            &
+     &       'Write out surface U-wind component.'
+          IF (Hout(idVair,ng)) WRITE (out,170) Hout(idVair,ng),         &
+     &       'Hout(idVair)',                                            &
+     &       'Write out surface V-wind component.'
+# endif
           IF (Hout(idTsur(itemp),ng)) WRITE (out,170)                   &
      &        Hout(idTsur(itemp),ng), 'Hout(idTsur)',                   &
      &       'Write out surface net heat flux.'
@@ -5377,6 +5454,19 @@
           END DO
 # endif
 # ifdef SOLVE3D
+#  if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS
+          IF (Aout(idPair,ng)) WRITE (out,170) Aout(idPair,ng),         &
+     &       'Aout(idPair)',                                            &
+     &       'Write out averaged surface air pressure.'
+#  endif
+#  if defined BULK_FLUXES || defined ECOSIM
+          IF (Aout(idUair,ng)) WRITE (out,170) Aout(idUair,ng),         &
+     &       'Aout(idUair)',                                            &
+     &       'Write out averaged surface U-wind component.'
+          IF (Aout(idVair,ng)) WRITE (out,170) Aout(idVair,ng),         &
+     &       'Aout(idVair)',                                            &
+     &       'Write out averaged surface V-wind component.'
+#  endif
           IF (Aout(idTsur(itemp),ng)) WRITE (out,170)                   &
      &        Aout(idTsur(itemp),ng), 'Aout(idTsur)',                   &
      &       'Write out averaged surface net heat flux.'
@@ -5919,7 +6009,8 @@
      &                    TRIM(fname)
 #endif
 #ifdef INI_FILE
-# ifdef NONLINEAR
+# if defined NONLINEAR && !defined OFFLINE
+! Don't search for INI file if doing OFFLINE FLOATS
           fname=INIname(ng)
           IF (.not.find_file(ng, fname)) GO TO 30
           WRITE (out,230) '  Input Nonlinear Initial File:  ',          &
@@ -5952,7 +6043,8 @@
      &                    TRIM(fname)
 # endif
 #endif
-#ifdef FRC_FILE
+#if defined FRC_FILE && !defined OFFLINE_FLOATS
+! Don't check for forcing files if doing OFFLINE_FLOATS
           DO i=1,nFfiles(ng)
             fname=FRCname(i,ng)
             IF (.not.find_file(ng, fname)) GO TO 30
@@ -5961,10 +6053,12 @@
           END DO
 #endif
 #ifdef CLM_FILE
-          fname=CLMname(ng)
-          IF (.not.find_file(ng, fname)) GO TO 30
-          WRITE (out,230) '        Input Climatology File:  ',          &
-     &                    TRIM(fname)
+          DO i=1,nCfiles(ng)
+            fname=CLMname(i,ng)
+            IF (.not.find_file(ng, fname)) GO TO 30
+            WRITE (out,310) '         Climatology File ', i, ':  ',     &
+     &                      TRIM(fname)
+          END DO
 #endif
 #if defined FORWARD_READ && !(defined FOUR_DVAR || defined PICARD_TEST)
           fname=FWDname(ng)
@@ -8014,14 +8108,8 @@
               FLT(ng)%Tinfo(izgrd,nc)=Fz0(i,ng)
               FLT(ng)%Ftype(nc)=Ftype(i,ng)
               IF (Fcoor(i,ng).eq.0) THEN
-                FLT(ng)%Tinfo(ixgrd,nc)=MIN(MAX(0.5_r8,Fx0(i,ng)),      &
-     &                                  REAL(Lm(ng),r8)+0.5_r8)
-                FLT(ng)%Tinfo(iygrd,nc)=MIN(MAX(0.5_r8,Fy0(i,ng)),      &
-     &                                  REAL(Mm(ng),r8)+0.5_r8)
-!               IF (Fz0(i,ng).le.0.0_r8) THEN
-!                 FLT(ng)%Ftype(nc)=Ftype(i,ng)
-!                 FLT(ng)%Fz0(nc)=FLT(ng)%Tinfo(izgrd,nc)
-!               END IF
+                FLT(ng)%Tinfo(ixgrd,nc)=Fx0(i,ng)
+                FLT(ng)%Tinfo(iygrd,nc)=Fy0(i,ng)
               ELSE
                 mc=mc+1
                 FLT(ng)%Flon(mc)=Fx0(i,ng)
@@ -8038,10 +8126,8 @@
                   FLT(ng)%Tinfo(izgrd,nc)=Fz0(i,ng)
                   FLT(ng)%Ftype(nc)=Ftype(i,ng)
                   IF (Fcoor(i,ng).eq.0) THEN
-                    FLT(ng)%Tinfo(ixgrd,nc)=MIN(MAX(0.5_r8,Fx0(i,ng)),  &
-     &                                      REAL(Lm(ng),r8)+0.5_r8)
-                    FLT(ng)%Tinfo(iygrd,nc)=MIN(MAX(0.5_r8,Fy0(i,ng)),  &
-     &                                      REAL(Mm(ng),r8)+0.5_r8)
+                    FLT(ng)%Tinfo(ixgrd,nc)=Fx0(i,ng)
+                    FLT(ng)%Tinfo(iygrd,nc)=Fy0(i,ng)
                   ELSE
                     mc=mc+1
                     FLT(ng)%Flon(mc)=Fx0(i,ng)
@@ -8065,11 +8151,9 @@
                   FLT(ng)%Ftype(nc)=Ftype(i,ng)
                   IF (Fcoor(i,ng).eq.0) THEN
                     xfloat=Fx0(i,ng)+REAL(j-1,r8)*Fdx(i,ng)
-                    FLT(ng)%Tinfo(ixgrd,nc)=MIN(MAX(0.5_r8,xfloat),     &
-     &                                      REAL(Lm(ng),r8)+0.5_r8)
                     yfloat=Fy0(i,ng)+REAL(j-1,r8)*Fdy(i,ng)
-                    FLT(ng)%Tinfo(iygrd,nc)=MIN(MAX(0.5_r8,yfloat),     &
-     &                                      REAL(Mm(ng),r8)+0.5_r8)
+                    FLT(ng)%Tinfo(ixgrd,nc)=xfloat
+                    FLT(ng)%Tinfo(iygrd,nc)=yfloat
                   ELSE
                     mc=mc+1
                     FLT(ng)%Flon(mc)=Fx0(i,ng)+REAL(j-1,r8)*Fdx(i,ng)
@@ -8284,6 +8368,17 @@
           ELSE IF (TRIM(KeyWord).eq.'Sout(idWdis)') THEN
             Npts=load_l(Nval, Cval, Ngrids, Sout(idWdis,:))
 # endif
+# ifdef SOLVE3D
+#  if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS
+          ELSE IF (TRIM(KeyWord).eq.'Sout(idPair)') THEN
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idPair,:))
+#  endif
+#  if defined BULK_FLUXES || defined ECOSIM
+          ELSE IF (TRIM(KeyWord).eq.'Sout(idUair)') THEN
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idUair,:))
+          ELSE IF (TRIM(KeyWord).eq.'Sout(idVair)') THEN
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idVair,:))
+#  endif
           ELSE IF (TRIM(KeyWord).eq.'Sout(idTsur)') THEN
             Npts=load_l(Nval, Cval, NAT*Ngrids, Lsta)
             DO ng=1,Ngrids
@@ -8327,7 +8422,7 @@
             Npts=load_l(Nval, Cval, Ngrids, Sout(idMtke,:))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idMtls)') THEN
             Npts=load_l(Nval, Cval, Ngrids, Sout(idMtls,:))
-# if defined SOLVE3D && (defined BBL_MODEL || defined SEDIMENT)
+#  if defined BBL_MODEL || defined SEDIMENT
           ELSE IF (TRIM(KeyWord).eq.'Sout(idBott)') THEN
             Npts=load_l(Nval, Cval, MBOTP*Ngrids, Lbottom)
             DO ng=1,Ngrids
@@ -8336,6 +8431,7 @@
                 Sout(i,ng)=Lbottom(itrc,ng)
               END DO
             END DO
+#  endif
 # endif
 # if defined SOLVE3D && defined ICE_MODEL
           ELSE IF (TRIM(KeyWord).eq.'Sout(idUice)') THEN
@@ -8618,6 +8714,19 @@
             END DO
 # endif
 # ifdef SOLVE3D
+#  if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS
+            IF (Sout(idPair,ng)) WRITE (out,80) Sout(idPair,ng),        &
+     &          'Sout(idPair)',                                         &
+     &          'Write out surface air pressure.'
+#  endif
+#  if defined BULK_FLUXES || defined ECOSIM
+            IF (Sout(idUair,ng)) WRITE (out,80) Sout(idUair,ng),        &
+     &          'Sout(idUair)',                                         &
+     &          'Write out surface U-wind component.'
+            IF (Sout(idVair,ng)) WRITE (out,80) Sout(idVair,ng),        &
+     &          'Sout(idVair)',                                         &
+     &          'Write out surface V-wind component.'
+#  endif
             IF (Sout(idTsur(itemp),ng)) WRITE (out,80)                  &
      &          Sout(idTsur(itemp),ng), 'Sout(idTsur)',                 &
      &          'Write out surface net heat flux.'

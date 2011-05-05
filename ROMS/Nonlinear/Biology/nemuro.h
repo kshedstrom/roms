@@ -2,7 +2,7 @@
 !
 !svn $Id$
 !************************************************** Hernan G. Arango ***
-!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2011 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !***********************************************************************
@@ -66,7 +66,7 @@
       CALL biology_tile (ng, tile,                                      &
      &                   LBi, UBi, LBj, UBj, N(ng), NT(ng),             &
      &                   IminS, ImaxS, JminS, JmaxS,                    &
-     &                   nstp(ng), nnew(ng),                            &
+     &                   nstp(ng), nnew(ng), nfm1(ng),                  &
 #ifdef MASKING
      &                   GRID(ng) % rmask,                              &
 #endif
@@ -95,7 +95,7 @@
       SUBROUTINE biology_tile (ng, tile,                                &
      &                         LBi, UBi, LBj, UBj, UBk, UBt,            &
      &                         IminS, ImaxS, JminS, JmaxS,              &
-     &                         nstp, nnew,                              &
+     &                         nstp, nnew, nfm1,                        &
 #ifdef MASKING
      &                         rmask,                                   &
 #endif
@@ -120,7 +120,7 @@
 #if defined NEMURO_SAN && defined FISH_FEEDBACK
       USE mod_fish
       USE mod_grid
-      USE mod_stepping
+!     USE mod_stepping
 #endif
 !
 !  Imported variable declarations.
@@ -128,7 +128,7 @@
       integer, intent(in) :: ng, tile
       integer, intent(in) :: LBi, UBi, LBj, UBj, UBk, UBt
       integer, intent(in) :: IminS, ImaxS, JminS, JmaxS
-      integer, intent(in) :: nstp, nnew
+      integer, intent(in) :: nstp, nnew, nfm1
 #if defined NEMURO_SAN && defined FISH_FEEDBACK
       type(fishnode), target, intent(in) :: fishnodes(Nfish(ng))
       real(r8), intent(in) :: feedback(NT(ng),Nfish(ng))

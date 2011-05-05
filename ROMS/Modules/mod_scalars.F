@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2011 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -145,6 +145,16 @@
 # ifdef FLOAT_VWALK
         integer, parameter :: ifakt = 11         ! diffusivity, Akt
         integer, parameter :: ifdak = 12         ! d(Akt)/d(s)
+# endif
+# ifdef OFFLINE_FLOATS
+        integer, parameter :: ixspc = 11         ! x-space location
+        integer, parameter :: iyspc = 12         ! y-space location
+        integer, parameter :: iwdph = 13         ! water depth
+        integer, parameter :: ifHzz = 14         ! Hz
+#  ifdef FLOAT_VWALK
+        integer, parameter :: ifakt = 15         ! diffusivity, Akt
+        integer, parameter :: ifdak = 16         ! d(Akt)/d(s)
+#  endif
 # endif
 # ifdef SOLVE3D
 !
@@ -487,6 +497,14 @@
         real(r8), dimension(Ngrids) :: LatMin   ! degrees north
         real(r8), dimension(Ngrids) :: LatMax   ! degrees north
 !
+!  Number of digits in grid size for format statements.
+!
+        integer, dimension(Ngrids) :: Idigits
+        integer, dimension(Ngrids) :: Jdigits
+#ifdef SOLVE3D
+        integer, dimension(Ngrids) :: Kdigits
+#endif
+!
 !  Diagnostic volume averaged variables.
 !
         integer, dimension(Ngrids) :: first_time
@@ -495,10 +513,10 @@
         real(r8) :: avgpe = 0.0_r8              ! Potential energy
         real(r8) :: avgkp = 0.0_r8              ! Total energy
         real(r8) :: volume = 0.0_r8             ! diagnostics volume
-        real(r8) :: ad_volume = 0.0_r8          ! adjoint volume
-        real(r8) :: TotVolume = 0.0_r8          ! Total volume
-        real(r8) :: MaxVolume = 0.0_r8          ! Minimum cell volume
-        real(r8) :: MinVolume = 0.0_r8          ! Maximum cell volume
+        real(r8) :: ad_volume                   ! adjoint volume
+        real(r8) :: TotVolume                   ! Total volume
+        real(r8) :: MaxVolume                   ! Minimum cell volume
+        real(r8) :: MinVolume                   ! Maximum cell volume
 !
 !  Minimun and maximum grid spacing
 !
@@ -522,11 +540,22 @@
         real(r8), dimension(Ngrids) :: ViscMax  ! Maximum viscosity
 #endif
 !
-!  Courant Numbers.
+!  Courant Numbers due to gravity wave speed limits.
 !
-        real(r8) :: Cu_min = 0.0_r8             ! Minimun barotropic
-        real(r8) :: Cu_max = 0.0_r8             ! Maximun barotropic
-        real(r8) :: Cu_Cor = 0.0_r8             ! Maximun Coriolis
+        real(r8) :: Cg_min                      ! Minimun barotropic
+        real(r8) :: Cg_max                      ! Maximun barotropic
+        real(r8) :: Cg_Cor                      ! Maximun Coriolis
+!
+!  Time dependent Counrant Numbers due to velocity components and
+!  indices location of maximum value.
+!
+        integer :: max_Ci, max_Cj, max_Ck       ! maximum location
+        real(r8) :: max_C                       ! maximum total
+        real(r8) :: max_Cu                      ! maximum I-component
+        real(r8) :: max_Cv                      ! maximum J-component
+#ifdef SOLVE3D
+        real(r8) :: max_Cw                      ! maximum K-component
+#endif
 !
 !  Linear equation of state parameters.
 !
@@ -937,12 +966,8 @@
 !  Fish restart switch.
 !
       integer, dimension(Ngrids) :: fishrrec
-# ifdef PREDATOR
       integer, dimension(Ngrids) :: predrrec
-# endif
-# ifdef FLEET
       integer, dimension(Ngrids) :: fleetrrec
-# endif
 #endif
 !
 !  Switch to activate processing of input data.  This switch becomes
@@ -1253,7 +1278,6 @@
 !    sg_zrmin      Minimum allowed height (m) of current above bed.
 !                    Otherwise, logarithmic interpolation is used.
 !    sg_znotcdef   Default apparent hydraulic roughness (m).
-!    sg_znotdef    Default hydraulic roughness (m).
 !
         integer, parameter :: sg_n = 20
 
@@ -1270,7 +1294,6 @@
         real(r8) :: sg_z1min = 0.20_r8         ! (m)
         real(r8) :: sg_z1p                     ! non-dimensional
         real(r8) :: sg_znotcdef = 0.01_r8      ! (m)
-        real(r8) :: sg_znotdef                 ! (m)
 
         complex(c8) :: sg_mp
 # endif
@@ -2085,6 +2108,11 @@
         SFcount(ng)=0
 #endif
         first_time(ng)=0
+        Idigits(ng)=INT(LOG10(REAL(Lm(ng),r8)))+1
+        Jdigits(ng)=INT(LOG10(REAL(Mm(ng),r8)))+1
+#ifdef SOLVE3D
+        Kdigits(ng)=INT(LOG10(REAL(N (ng),r8)))+1
+#endif
         DO itrc=1,MT
           LtracerSrc(itrc,ng)=.FALSE.
           ad_Akt_fac(itrc,ng)=1.0_r8

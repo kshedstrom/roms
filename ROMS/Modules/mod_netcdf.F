@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2011 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -1345,7 +1345,8 @@
      &                                          xtype = my_Atype,       &
      &                                          len = my_Alen)
                   IF (status.eq.nf90_noerr) THEN
-                    IF (my_Atype.eq.NF90_INT) THEN
+                    IF ((my_Alen.eq.1).and.                             &
+     &                  (my_Atype.eq.NF90_INT)) THEN
                       status=nf90_get_att(my_ncid, my_id,               &
      &                                    TRIM(var_Aname(i)),           &
      &                                    var_Aint(i))
@@ -1360,8 +1361,9 @@
                         ioerror=status
                         EXIT
                       END IF
-                    ELSE IF ((my_Atype.eq.NF90_FLOAT ).or.              &
-     &                       (my_Atype.eq.NF90_DOUBLE)) THEN
+                    ELSE IF ((my_Alen.eq.1).and.                        &
+     &                       ((my_Atype.eq.NF90_FLOAT ).or.             &
+     &                        (my_Atype.eq.NF90_DOUBLE))) THEN
                       status=nf90_get_att(my_ncid, my_id,               &
      &                                    TRIM(var_Aname(i)),           &
      &                                    var_Afloat(i))

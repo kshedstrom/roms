@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2011 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -107,11 +107,97 @@
      &                      varid = fltVid(idZgrd,ng))
       IF (exit_flag.ne.NoError) RETURN
 # endif
+
+# ifdef OFFLINE_FLOATS_LATLON
+!
+!  Write out floats (lon,lat) and (x,y) locations.
+!
+    IF (.not.spherical) THEN
+        WRITE(stdout,*) 'OFFLINE FLOATS MODULE NEEDS SPHERICAL GRID!'
+        exit_flag=2
+        RETURN
+    END IF
+    IF (spherical) THEN
+      DO l=1,Nfloats(ng)
+        IF (FLT(ng)%bounded(l)) THEN
+          Tout(l)=FLT(ng)%track(iflon,nf(ng),l)
+        ELSE
+          Tout(l)=spval
+        END IF
+      END DO
+        CALL netcdf_put_fvar (ng, iNLM, FLTname(ng),                    &
+     &                        'lon', Tout,                              &
+     &                        (/1,tFLTindx(ng)/), (/Nfloats(ng),1/),    &
+     &                        ncid = ncFLTid(ng),                       &
+     &                        varid = fltVid(idglon,ng))
+      IF (exit_flag.ne.NoError) RETURN
+
+      DO l=1,Nfloats(ng)
+        IF (FLT(ng)%bounded(l)) THEN
+          Tout(l)=FLT(ng)%track(ixspc,nf(ng),l)
+        ELSE
+          Tout(l)=spval
+        END IF
+      END DO
+        CALL netcdf_put_fvar (ng, iNLM, FLTname(ng),                    &
+     &                        'x', Tout,                                &
+     &                        (/1,tFLTindx(ng)/), (/Nfloats(ng),1/),    &
+     &                        ncid = ncFLTid(ng),                       &
+     &                        varid = fltVid(idxspc,ng))
+      IF (exit_flag.ne.NoError) RETURN
+
+      DO l=1,Nfloats(ng)
+        IF (FLT(ng)%bounded(l)) THEN
+          Tout(l)=FLT(ng)%track(iflat,nf(ng),l)
+        ELSE
+          Tout(l)=spval
+        END IF
+      END DO
+        CALL netcdf_put_fvar (ng, iNLM, FLTname(ng),                    &
+     &                        'lat', Tout,                              &
+     &                        (/1,tFLTindx(ng)/), (/Nfloats(ng),1/),    &
+     &                        ncid = ncFLTid(ng),                       &
+     &                        varid = fltVid(idglat,ng))
+      IF (exit_flag.ne.NoError) RETURN
+
+      DO l=1,Nfloats(ng)
+        IF (FLT(ng)%bounded(l)) THEN
+          Tout(l)=FLT(ng)%track(iyspc,nf(ng),l)
+        ELSE
+          Tout(l)=spval
+        END IF
+      END DO
+        CALL netcdf_put_fvar (ng, iNLM, FLTname(ng),                    &
+     &                        'y', Tout,                                &
+     &                        (/1,tFLTindx(ng)/), (/Nfloats(ng),1/),    &
+     &                        ncid = ncFLTid(ng),                       &
+     &                        varid = fltVid(idyspc,ng))
+      IF (exit_flag.ne.NoError) RETURN
+
+     DO l=1,Nfloats(ng)
+        IF (FLT(ng)%bounded(l)) THEN
+          Tout(l)=FLT(ng)%track(iwdph,nf(ng),l)
+        ELSE
+          Tout(l)=spval
+        END IF
+      END DO
+        CALL netcdf_put_fvar (ng, iNLM, FLTname(ng),                    &
+     &                        'wd', Tout,                               &
+     &                        (/1,tFLTindx(ng)/), (/Nfloats(ng),1/),    &
+     &                        ncid = ncFLTid(ng),                       &
+     &                        varid = fltVid(idwdph,ng))
+      IF (exit_flag.ne.NoError) RETURN
+     END IF
+# else
 !
 !  Write out floats (lon,lat) or (x,y) locations.
 !
       DO l=1,Nfloats(ng)
-        Tout(l)=FLT(ng)%track(iflon,nf(ng),l)
+        IF (FLT(ng)%bounded(l)) THEN
+          Tout(l)=FLT(ng)%track(iflon,nf(ng),l)
+        ELSE
+          Tout(l)=spval
+        END IF
       END DO
       IF (spherical) THEN
         CALL netcdf_put_fvar (ng, iNLM, FLTname(ng),                    &
@@ -129,7 +215,11 @@
       IF (exit_flag.ne.NoError) RETURN
 !
       DO l=1,Nfloats(ng)
-        Tout(l)=FLT(ng)%track(iflat,nf(ng),l)
+        IF (FLT(ng)%bounded(l)) THEN
+          Tout(l)=FLT(ng)%track(iflat,nf(ng),l)
+        ELSE
+          Tout(l)=spval
+        END IF
       END DO
       IF (spherical) THEN
         CALL netcdf_put_fvar (ng, iNLM, FLTname(ng),                    &
@@ -145,6 +235,7 @@
      &                        varid = fltVid(idglat,ng))
       END IF
       IF (exit_flag.ne.NoError) RETURN
+# endif
 
 # ifdef SOLVE3D
 !
@@ -185,7 +276,14 @@
       DO itrc=1,NT(ng)
         DO l=1,Nfloats(ng)
           IF (FLT(ng)%bounded(l)) THEN
+#  ifdef OFFLINE_FLOATS
+            Tout(l)=FLT(ng)%track(itrc+(NFV(ng)-NT(ng)),nf(ng),l)
+#  else
+!# ifdef FLOAT_VWALK
+!            Tout(l)=FLT(ng)%track(itrc+12,nf(ng),l)
+!# else
             Tout(l)=FLT(ng)%track(ifTvar(itrc),nf(ng),l)
+#  endif
           ELSE
             Tout(l)=spval
           END IF
@@ -197,6 +295,10 @@
      &                        varid = fltTid(itrc,ng))
         IF (exit_flag.ne.NoError) RETURN
       END DO
+
+#  ifdef OFFLINE_FLOATS
+      IF (Master) print *, '  WRT_FLOATS, model time (days), t=', tdays
+#  endif
 # endif
 !
 !-----------------------------------------------------------------------

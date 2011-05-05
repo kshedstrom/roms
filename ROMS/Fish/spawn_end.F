@@ -134,7 +134,6 @@
         USE mod_fish
         USE mod_scalars
         USE nrutil
-        USE ran_state, ONLY: ran_seed
 
         integer, intent(in) :: ng, fish1, fish2
 

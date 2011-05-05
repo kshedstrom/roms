@@ -57,7 +57,7 @@
 # ifdef SOLVE3D
      &                          Hz,                                     &
 # endif
-     &                          MyThread, bounded, track,               &
+     &                          MyThread, bounded, rwalk, track,        &
      &                          bioenergy, alive, species,              &
      &                          pred_count, pred_list, prednodes,       &
      &                          fish_count, fish_list, fishnodes,       &
@@ -72,8 +72,11 @@
       USE mod_fish
       USE mod_grid
       USE mod_types
-      USE utility_mod, ONLY : nrng
+      USE mod_parallel
       USE nrutil
+# ifdef DISTRIBUTE
+      USE distribute_mod, ONLY : mp_bcastf
+# endif
 !
 !  Imported variable declarations.
 !
@@ -100,6 +103,7 @@
       real(r8), intent(in) :: Hz(LBi:UBi,LBj:UBj,UBk)
 # endif
       real(r8), intent(in) :: bioenergy(NPredV(ng),Npred(ng))
+      real(r8), intent(inout) :: rwalk(Npred(ng)*6)
       real(r8), intent(inout) :: track(NFV(ng),0:NFT,Npred(ng))
       real(r8), intent(in) :: fish_bioenergy(NFishV(ng),Nfish(ng))
 !
@@ -115,9 +119,24 @@
 
       real(r8) :: Pweight, score, scoreMax, Uswim
       real(r8) :: Fweight, Fworth
-      real(r8) :: d_i, d_j, d_ij, theta_ij, fac, snudg
+      real(r8) :: d_i, d_j, d_ij, theta_ij, fac
 
 # include "set_bounds.h"
+!
+# ifdef DISTRIBUTE
+      IF (Master) THEN
+        CALL ran1 (rwalk)
+      END IF
+      CALL mp_bcastf (ng, iNLM, rwalk)
+# elif defined _OPENMP
+!$OMP SINGLE
+      CALL ran1 (rwalk)
+!$OMP END SINGLE
+# else
+!     IF (Lstr.eq.1) THEN
+        CALL ran1 (rwalk)
+!     END IF
+# endif
 !
 !-----------------------------------------------------------------------
 !  Compute swimming velocity based on Railsback or Humston behavior
@@ -151,8 +170,7 @@
                 JrMax=Jr
 !
 ! Randomization of i indices
-                CALL ran1 (snudg)
-                iopt=INT(6.0_r8*snudg)+1
+                iopt=INT(6.0_r8*rwalk(ipid))+1
                 IF (iopt.eq.1) THEN
                   iind(1)=MAX(Ir-1,1)
                   iind(2)=Ir
@@ -179,8 +197,7 @@
                   iind(1)=MIN(Ir+1,Lm(ng))
                 END IF
 ! Randomization of j indices
-                CALL ran1 (snudg)
-                iopt=INT(6.0_r8*snudg)+1
+                iopt=INT(6.0_r8*rwalk(ipid+Npred(ng)))+1
                 IF (iopt.eq.1) THEN
                   jind(1)=MAX(Jr-1,1)
                   jind(2)=Jr
@@ -231,8 +248,7 @@
                     JrMax=jj
                   END IF
                 END DO
-                CALL ran1 (snudg)
-                fac=2.0_r8*(snudg-0.5_r8)
+                fac=2.0_r8*(rwalk(ipid+2*Npred(ng))-0.5_r8)
                 d_i=REAL(IrMax,r8)-track(ixgrd,itime,ipid)
                 d_j=REAL(JrMax,r8)-track(iygrd,itime,ipid)
 ! Angle with +-0.5 radians randomness
