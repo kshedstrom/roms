@@ -166,7 +166,7 @@
 # define RUNOFF
 # define UV_PSOURCE
 # define ANA_PSOURCE
-# define TS_PSOURCE
+# undef TS_PSOURCE
 #endif
 
 /* tides */

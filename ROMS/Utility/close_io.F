@@ -240,8 +240,8 @@
         END IF
 #endif
 #ifdef AVERAGES2
-        IF (ncAVG2id(ng).ne.-1) THEN
-          CALL netcdf_close (ng, iNLM, ncAVG2id(ng))
+        IF (AVG2(ng)%ncid.ne.-1) THEN
+          CALL netcdf_close (ng, iNLM, AVG2(ng)%ncid)
         END IF
 #endif
 #ifdef FILTERED_RST

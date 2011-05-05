@@ -302,7 +302,7 @@
               WRITE (AVG2(ng)%name,20) TRIM(AVG2(ng)%base), ifile
             END IF
 # ifdef DISTRIBUTE
-            CALL mp_bcasts (ng, iNLM, AVG2(ng)%name(ng))
+            CALL mp_bcasts (ng, iNLM, AVG2(ng)%name)
 # endif
             IF (AVG2(ng)%ncid.ne.-1) THEN
               CALL netcdf_close(ng, iNLM, AVG2(ng)%ncid)

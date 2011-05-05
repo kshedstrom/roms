@@ -6065,11 +6065,10 @@
 #ifdef AVERAGES2
           IF (ndefAVG2(ng).eq.0) THEN
             WRITE (out,230) '          Output Secondary File:  ',        &
-     &                      TRIM(AVG2name(ng))
+     &                      TRIM(AVG2(ng)%name)
           ELSE
-            Lstr=LEN_TRIM(AVG2name(ng))
             WRITE (out,230) '     Prefix for Secondary Files:  ',        &
-     &                      AVG2name(ng)(1:Lstr-3)
+     &                      TRIM(AVG2(ng)%base)
           END IF
 #endif
 #ifdef DIAGNOSTICS

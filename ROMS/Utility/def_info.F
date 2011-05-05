@@ -395,12 +395,11 @@
 #ifdef AVERAGES2
         IF (exit_flag.eq.NoError) THEN
           IF (ndefAVG2(ng).gt.0) THEN
-            lstr=LEN_TRIM(AVG2base(ng))-3
             status=nf90_put_att(ncid, nf90_global, 'avg2_base',         &
-     &                          AVG2base(ng)(1:lstr))
+     &                          TRIM(AVG2(ng)%base))
           ELSE
             status=nf90_put_att(ncid, nf90_global, 'avg2_file',         &
-     &                          TRIM(AVG2name(ng)))
+     &                          TRIM(AVG2(ng)%name))
           END IF
           IF (status.ne.nf90_noerr) THEN
             IF (Master) WRITE (stdout,20) 'avg2_file', TRIM(ncname)

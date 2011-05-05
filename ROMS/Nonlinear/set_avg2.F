@@ -67,10 +67,11 @@
 # ifdef ICE_MODEL
      &                         Iout, Iuout, Ieout,                      &
 # endif
-     &                         Nout)                                    &
+     &                         Nout)
 !***********************************************************************
 !
       USE mod_param
+      USE mod_ncparam
       USE mod_scalars
       USE mod_average2
       USE mod_forces
@@ -168,8 +169,8 @@
             END DO
           END DO
         END IF
-        DO it=1,NT(ng)
-          IF (Aout2(idTvar(it),ng)) THEN
+        DO itrc=1,NT(ng)
+          IF (Aout2(idTvar(itrc),ng)) THEN
             DO j=JstrR,JendR
               DO i=IstrR,IendR
                 AVERAGE2(ng)%avgt(i,j,itrc)=                            &
@@ -539,13 +540,14 @@
           END DO
         END IF
         DO itrc=1,NT(ng)
-          IF (Aout2(idTvar(it),ng)) THEN
+          IF (Aout2(idTvar(itrc),ng)) THEN
             DO j=JstrR,JendR
               DO i=IstrR,IendR
                 AVERAGE2(ng)%avgt(i,j,itrc)=AVERAGE2(ng)%avgt(i,j,itrc)+&
      &                                  OCEAN(ng)%t(i,j,N(ng),Nout,itrc)
+              END DO
             END DO
-          END DO
+          END IF
         END DO
 #  ifdef LMD_SKPP
         IF (Aout2(idHsbl,ng)) THEN
@@ -575,7 +577,7 @@
           DO j=JstrR,JendR
             DO i=Istr,IendR
               AVERAGE2(ng)%avgsus(i,j)=AVERAGE2(ng)%avgsus(i,j)+        &
-     &                                 FORCING(ng)%sustr(i,j)
+     &                                 FORCES(ng)%sustr(i,j)
             END DO
           END DO
         END IF
@@ -583,7 +585,7 @@
           DO j=Jstr,JendR
             DO i=IstrR,IendR
               AVERAGE2(ng)%avgsvs(i,j)=AVERAGE2(ng)%avgsvs(i,j)+        &
-     &                                 FORCING(ng)%svstr(i,j)
+     &                                 FORCES(ng)%svstr(i,j)
             END DO
           END DO
         END IF
@@ -592,7 +594,7 @@
           DO j=JstrR,JendR
             DO i=Istr,IendR
               AVERAGE2(ng)%avgbus(i,j)=AVERAGE2(ng)%avgbus(i,j)+        &
-     &                                 FORCING(ng)%bustr(i,j)
+     &                                 FORCES(ng)%bustr(i,j)
             END DO
           END DO
         END IF
@@ -600,7 +602,7 @@
           DO j=Jstr,JendR
             DO i=IstrR,IendR
               AVERAGE2(ng)%avgbvs(i,j)=AVERAGE2(ng)%avgbvs(i,j)+        &
-     &                                 FORCING(ng)%bvstr(i,j)
+     &                                 FORCES(ng)%bvstr(i,j)
             END DO
           END DO
         END IF
@@ -609,7 +611,7 @@
           DO j=JstrR,JendR
             DO i=IstrR,IendR
               AVERAGE2(ng)%avgstf(i,j)=AVERAGE2(ng)%avgstf(i,j)+        &
-     &                                  FORCING(ng)%stflx(i,j,itemp)
+     &                                  FORCES(ng)%stflx(i,j,itemp)
             END DO
           END DO
         END IF
@@ -617,7 +619,7 @@
           DO j=JstrR,JendR
             DO i=IstrR,IendR
               AVERAGE2(ng)%avgswf(i,j)=AVERAGE2(ng)%avgswf(i,j)+        &
-     &                                  FORCING(ng)%stflx(i,j,isalt)
+     &                                  FORCES(ng)%stflx(i,j,isalt)
             END DO
           END DO
         END IF
@@ -626,7 +628,7 @@
           DO j=JstrR,JendR
             DO i=IstrR,IendR
               AVERAGE2(ng)%avgsrf(i,j)=AVERAGE2(ng)%avgsrf(i,j)+        &
-     &                                  FORCING(ng)%srflx(i,j)
+     &                                  FORCES(ng)%srflx(i,j)
             END DO
           END DO
         END IF
@@ -636,7 +638,7 @@
           DO j=JstrR,JendR
             DO i=IstrR,IendR
               AVERAGE2(ng)%avglhf(i,j)=AVERAGE2(ng)%avglhf(i,j)+        &
-     &                                  FORCING(ng)%lhflx(i,j)
+     &                                  FORCES(ng)%lhflx(i,j)
             END DO
           END DO
         END IF
@@ -644,7 +646,7 @@
           DO j=JstrR,JendR
             DO i=IstrR,IendR
               AVERAGE2(ng)%avgshf(i,j)=AVERAGE2(ng)%avgshf(i,j)+        &
-     &                                  FORCING(ng)%shflx(i,j)
+     &                                  FORCES(ng)%shflx(i,j)
             END DO
           END DO
         END IF
@@ -652,7 +654,7 @@
           DO j=JstrR,JendR
             DO i=IstrR,IendR
               AVERAGE2(ng)%avglrf(i,j)=AVERAGE2(ng)%avglrf(i,j)+        &
-     &                                  FORCING(ng)%lrflx(i,j)
+     &                                  FORCES(ng)%lrflx(i,j)
             END DO
           END DO
         END IF
@@ -660,7 +662,7 @@
           DO j=JstrR,JendR
             DO i=IstrR,IendR
               AVERAGE2(ng)%avguwind(i,j)=AVERAGE2(ng)%avguwind(i,j)+    &
-     &                                  FORCING(ng)%Uwind(i,j)
+     &                                  FORCES(ng)%Uwind(i,j)
             END DO
           END DO
         END IF
@@ -668,7 +670,7 @@
           DO j=JstrR,JendR
             DO i=IstrR,IendR
               AVERAGE2(ng)%avgvwind(i,j)=AVERAGE2(ng)%avgvwind(i,j)+    &
-     &                                  FORCING(ng)%Vwind(i,j)
+     &                                  FORCES(ng)%Vwind(i,j)
             END DO
           END DO
         END IF
@@ -677,7 +679,7 @@
           DO j=JstrR,JendR
             DO i=IstrR,IendR
               AVERAGE2(ng)%avgevap(i,j)=AVERAGE2(ng)%avgevap(i,j)+      &
-     &                                  FORCING(ng)%evap(i,j)
+     &                                  FORCES(ng)%evap(i,j)
             END DO
           END DO
         END IF
@@ -685,7 +687,7 @@
           DO j=JstrR,JendR
             DO i=IstrR,IendR
               AVERAGE2(ng)%avgrain(i,j)=AVERAGE2(ng)%avgrain(i,j)+      &
-     &                                  FORCING(ng)%rain(i,j)
+     &                                  FORCES(ng)%rain(i,j)
             END DO
           END DO
         END IF
@@ -904,21 +906,21 @@
         IF (Aout2(idFsur,ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR
-              AVERAGES2(ng)%avgzeta(i,j)=fac*AVERAGES2(ng)%avgzeta(i,j)
+              AVERAGE2(ng)%avgzeta(i,j)=fac*AVERAGE2(ng)%avgzeta(i,j)
             END DO
           END DO
         END IF
         IF (Aout2(idUbar,ng)) THEN
           DO j=JstrR,JendR
             DO i=Istr,IendR
-              AVERAGES2(ng)%avgu2d (i,j)=fac*AVERAGES2(ng)%avgu2d (i,j)
+              AVERAGE2(ng)%avgu2d (i,j)=fac*AVERAGE2(ng)%avgu2d (i,j)
             END DO
           END DO
         END IF
         IF (Aout2(idVbar,ng)) THEN
           DO j=Jstr,JendR
             DO i=IstrR,IendR
-              AVERAGES2(ng)%avgv2d (i,j)=fac*AVERAGES2(ng)%avgv2d (i,j)
+              AVERAGE2(ng)%avgv2d (i,j)=fac*AVERAGE2(ng)%avgv2d (i,j)
             END DO
           END DO
         END IF
@@ -926,14 +928,14 @@
         IF (Aout2(idUvel,ng)) THEN
           DO j=JstrR,JendR
             DO i=Istr,IendR
-              AVERAGES2(ng)%avgu3d(i,j)=fac*AVERAGES2(ng)%avgu3d(i,j)
+              AVERAGE2(ng)%avgu3d(i,j)=fac*AVERAGE2(ng)%avgu3d(i,j)
             END DO
           END DO
         END IF
         IF (Aout2(idVvel,ng)) THEN
           DO j=Jstr,JendR
             DO i=IstrR,IendR
-              AVERAGES2(ng)%avgv3d(i,j)=fac*AVERAGES2(ng)%avgv3d(i,j)
+              AVERAGE2(ng)%avgv3d(i,j)=fac*AVERAGE2(ng)%avgv3d(i,j)
             END DO
           END DO
         END IF
@@ -941,7 +943,7 @@
         IF (Aout2(idDano,ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR
-              AVERAGES2(ng)%avgrho(i,j)=fac*AVERAGES2(ng)%avgrho(i,j)
+              AVERAGE2(ng)%avgrho(i,j)=fac*AVERAGE2(ng)%avgrho(i,j)
             END DO
           END DO
         END IF
@@ -949,16 +951,17 @@
           IF (Aout2(idTvar(itrc),ng)) THEN
             DO j=JstrR,JendR
               DO i=IstrR,IendR
-                AVERAGES2(ng)%avgt(i,j,itrc)=fac*                       &
-     &                      AVERAGES2(ng)%avgt(i,j,itrc)
+                AVERAGE2(ng)%avgt(i,j,itrc)=fac*                        &
+     &                      AVERAGE2(ng)%avgt(i,j,itrc)
+              END DO
             END DO
-          END DO
+          END IF
         END DO
 #  ifdef LMD_SKPP
         IF (Aout2(idHsbl,ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR
-              AVERAGES2(ng)%avghsbl(i,j)=fac*AVERAGES2(ng)%avghsbl(i,j)
+              AVERAGE2(ng)%avghsbl(i,j)=fac*AVERAGE2(ng)%avghsbl(i,j)
             END DO
           END DO
         END IF
@@ -967,7 +970,7 @@
         IF (Aout2(idHbbl,ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR
-              AVERAGES2(ng)%avghbbl(i,j)=fac*AVERAGES2(ng)%avghbbl(i,j)
+              AVERAGE2(ng)%avghbbl(i,j)=fac*AVERAGE2(ng)%avghbbl(i,j)
             END DO
           END DO
         END IF
@@ -979,14 +982,14 @@
         IF (Aout2(idUsms,ng)) THEN
           DO j=JstrR,JendR
             DO i=Istr,IendR
-              AVERAGES2(ng)%avgsus(i,j)=fac*AVERAGES2(ng)%avgsus(i,j)
+              AVERAGE2(ng)%avgsus(i,j)=fac*AVERAGE2(ng)%avgsus(i,j)
             END DO
           END DO
         END IF
         IF (Aout2(idVsms,ng)) THEN
           DO j=Jstr,JendR
             DO i=IstrR,IendR
-              AVERAGES2(ng)%avgsvs(i,j)=fac*AVERAGES2(ng)%avgsvs(i,j)
+              AVERAGE2(ng)%avgsvs(i,j)=fac*AVERAGE2(ng)%avgsvs(i,j)
             END DO
           END DO
         END IF
@@ -994,14 +997,14 @@
         IF (Aout2(idUbms,ng)) THEN
           DO j=JstrR,JendR
             DO i=Istr,IendR
-              AVERAGES2(ng)%avgbus(i,j)=fac*AVERAGES2(ng)%avgbus(i,j)
+              AVERAGE2(ng)%avgbus(i,j)=fac*AVERAGE2(ng)%avgbus(i,j)
             END DO
           END DO
         END IF
         IF (Aout2(idVbms,ng)) THEN
           DO j=Jstr,JendR
             DO i=IstrR,IendR
-              AVERAGES2(ng)%avgbvs(i,j)=fac*AVERAGES2(ng)%avgbvs(i,j)
+              AVERAGE2(ng)%avgbvs(i,j)=fac*AVERAGE2(ng)%avgbvs(i,j)
             END DO
           END DO
         END IF
@@ -1010,14 +1013,14 @@
         IF (Aout2(idTsur(itemp),ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR
-              AVERAGES2(ng)%avgstf(i,j)=fac*AVERAGES2(ng)%avgstf(i,j)
+              AVERAGE2(ng)%avgstf(i,j)=fac*AVERAGE2(ng)%avgstf(i,j)
             END DO
           END DO
         END IF
         IF (Aout2(idTsur(isalt),ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR
-              AVERAGES2(ng)%avgswf(i,j)=fac*AVERAGES2(ng)%avgswf(i,j)
+              AVERAGE2(ng)%avgswf(i,j)=fac*AVERAGE2(ng)%avgswf(i,j)
             END DO
           END DO
         END IF
@@ -1025,7 +1028,7 @@
         IF (Aout2(idSrad,ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR
-              AVERAGES2(ng)%avgsrf(i,j)=fac*AVERAGES2(ng)%avgsrf(i,j)
+              AVERAGE2(ng)%avgsrf(i,j)=fac*AVERAGE2(ng)%avgsrf(i,j)
             END DO
           END DO
         END IF
@@ -1034,35 +1037,35 @@
         IF (Aout2(idLhea,ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR
-              AVERAGES2(ng)%avglhf(i,j)=fac*AVERAGES2(ng)%avglhf(i,j)
+              AVERAGE2(ng)%avglhf(i,j)=fac*AVERAGE2(ng)%avglhf(i,j)
             END DO
           END DO
         END IF 
         IF (Aout2(idShea,ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR
-              AVERAGES2(ng)%avgshf(i,j)=fac*AVERAGES2(ng)%avgshf(i,j)
+              AVERAGE2(ng)%avgshf(i,j)=fac*AVERAGE2(ng)%avgshf(i,j)
             END DO
           END DO
         END IF
         IF (Aout2(idLrad,ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR
-              AVERAGES2(ng)%avglrf(i,j)=fac*AVERAGES2(ng)%avglrf(i,j)
+              AVERAGE2(ng)%avglrf(i,j)=fac*AVERAGE2(ng)%avglrf(i,j)
             END DO
           END DO
         END IF
         IF (Aout2(idUair,ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR
-              AVERAGES2(ng)%avguwind(i,j)=fac*AVERAGES2(ng)%avguwind(i,j)
+              AVERAGE2(ng)%avguwind(i,j)=fac*AVERAGE2(ng)%avguwind(i,j)
             END DO
           END DO
         END IF
         IF (Aout2(idVair,ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR
-              AVERAGES2(ng)%avgvwind(i,j)=fac*AVERAGES2(ng)%avgvwind(i,j)
+              AVERAGE2(ng)%avgvwind(i,j)=fac*AVERAGE2(ng)%avgvwind(i,j)
             END DO
           END DO
         END IF
@@ -1070,14 +1073,14 @@
         IF (Aout2(idevap,ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR
-              AVERAGES2(ng)%avgevap(i,j)=fac*AVERAGES2(ng)%avgevap(i,j)
+              AVERAGE2(ng)%avgevap(i,j)=fac*AVERAGE2(ng)%avgevap(i,j)
             END DO
           END DO
         END IF
         IF (Aout2(idrain,ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR
-              AVERAGES2(ng)%avgrain(i,j)=fac*AVERAGES2(ng)%avgrain(i,j)
+              AVERAGE2(ng)%avgrain(i,j)=fac*AVERAGE2(ng)%avgrain(i,j)
             END DO
           END DO
         END IF
@@ -1088,112 +1091,112 @@
         IF (Aout2(idUice,ng)) THEN
           DO j=JstrR,JendR
             DO i=Istr,IendR
-              AVERAGES2(ng)%avguice(i,j)=fac*AVERAGES2(ng)%avguice(i,j)
+              AVERAGE2(ng)%avguice(i,j)=fac*AVERAGE2(ng)%avguice(i,j)
             END DO
           END DO
         END IF
         IF (Aout2(idVice,ng)) THEN
           DO j=Jstr,JendR
             DO i=IstrR,IendR
-              AVERAGES2(ng)%avgvice(i,j)=fac*AVERAGES2(ng)%avgvice(i,j)
+              AVERAGE2(ng)%avgvice(i,j)=fac*AVERAGE2(ng)%avgvice(i,j)
             END DO
           END DO
         END IF
         IF (Aout2(idAice,ng)) THEN
           DO j=JstrR,JendR
             DO i=Istr,IendR
-              AVERAGES2(ng)%avgaice(i,j)=fac*AVERAGES2(ng)%avgaice(i,j)
+              AVERAGE2(ng)%avgaice(i,j)=fac*AVERAGE2(ng)%avgaice(i,j)
             END DO
           END DO
         END IF
         IF (Aout2(idHice,ng)) THEN
           DO j=JstrR,JendR
             DO i=Istr,IendR
-              AVERAGES2(ng)%avghice(i,j)=fac*AVERAGES2(ng)%avghice(i,j)
+              AVERAGE2(ng)%avghice(i,j)=fac*AVERAGE2(ng)%avghice(i,j)
             END DO
           END DO
         END IF
         IF (Aout2(idHsno,ng)) THEN
           DO j=JstrR,JendR
             DO i=Istr,IendR
-              AVERAGES2(ng)%avghsno(i,j)=fac*AVERAGES2(ng)%avghsno(i,j)
+              AVERAGE2(ng)%avghsno(i,j)=fac*AVERAGE2(ng)%avghsno(i,j)
             END DO
           END DO
         END IF
         IF (Aout2(idTice,ng)) THEN
           DO j=JstrR,JendR
             DO i=Istr,IendR
-              AVERAGES2(ng)%avgtice(i,j)=fac*AVERAGES2(ng)%avgtice(i,j)
+              AVERAGE2(ng)%avgtice(i,j)=fac*AVERAGE2(ng)%avgtice(i,j)
             END DO
           END DO
         END IF
         IF (Aout2(idTimid,ng)) THEN
           DO j=JstrR,JendR
             DO i=Istr,IendR
-              AVERAGES2(ng)%avgtimid(i,j)=fac*                          &
-     &                      AVERAGES2(ng)%avgtimid(i,j)
+              AVERAGE2(ng)%avgtimid(i,j)=fac*                           &
+     &                      AVERAGE2(ng)%avgtimid(i,j)
             END DO
           END DO
         END IF
         IF (Aout2(idSfwat,ng)) THEN
           DO j=JstrR,JendR
             DO i=Istr,IendR
-              AVERAGES2(ng)%avgsfwat(i,j)=fac*                          &
-     &                      AVERAGES2(ng)%avgsfwat(i,j)
+              AVERAGE2(ng)%avgsfwat(i,j)=fac*                           &
+     &                      AVERAGE2(ng)%avgsfwat(i,j)
             END DO
           END DO
         END IF
         IF (Aout2(idAgeice,ng)) THEN
           DO j=JstrR,JendR
             DO i=Istr,IendR
-              AVERAGES2(ng)%avgageice(i,j)=fac*                         &
-     &                      AVERAGES2(ng)%avgageice(i,j)
+              AVERAGE2(ng)%avgageice(i,j)=fac*                          &
+     &                      AVERAGE2(ng)%avgageice(i,j)
             END DO
           END DO
         END IF
         IF (Aout2(idIomflx,ng)) THEN
           DO j=JstrR,JendR
             DO i=Istr,IendR
-              AVERAGES2(ng)%avgiomflx(i,j)=fac*                         &
-     &                      AVERAGES2(ng)%avgiomflx(i,j)
+              AVERAGE2(ng)%avgiomflx(i,j)=fac*                          &
+     &                      AVERAGE2(ng)%avgiomflx(i,j)
             END DO
           END DO
         END IF
         IF (Aout2(idSig11,ng)) THEN
           DO j=JstrR,JendR
             DO i=Istr,IendR
-              AVERAGES2(ng)%avgsig11(i,j)=fac*                          &
-     &                      AVERAGES2(ng)%avgsig11(i,j)
+              AVERAGE2(ng)%avgsig11(i,j)=fac*                           &
+     &                      AVERAGE2(ng)%avgsig11(i,j)
             END DO
           END DO
         END IF
         IF (Aout2(idSig12,ng)) THEN
           DO j=JstrR,JendR
             DO i=Istr,IendR
-              AVERAGES2(ng)%avgsig12(i,j)=fac*                          &
-     &                      AVERAGES2(ng)%avgsig12(i,j)
+              AVERAGE2(ng)%avgsig12(i,j)=fac*                           &
+     &                      AVERAGE2(ng)%avgsig12(i,j)
             END DO
           END DO
         END IF
         IF (Aout2(idSig22,ng)) THEN
           DO j=JstrR,JendR
             DO i=Istr,IendR
-              AVERAGES2(ng)%avgsig22(i,j)=fac*                          &
-     &                      AVERAGES2(ng)%avgsig22(i,j)
+              AVERAGE2(ng)%avgsig22(i,j)=fac*                           &
+     &                      AVERAGE2(ng)%avgsig22(i,j)
             END DO
           END DO
         END IF
         IF (Aout2(idT0mk,ng)) THEN
           DO j=JstrR,JendR
             DO i=Istr,IendR
-              AVERAGES2(ng)%avgT0mk(i,j)=fac*AVERAGES2(ng)%avgT0mk(i,j)
+              AVERAGE2(ng)%avgT0mk(i,j)=fac*AVERAGE2(ng)%avgT0mk(i,j)
             END DO
           END DO
         END IF
         IF (Aout2(idS0mk,ng)) THEN
           DO j=JstrR,JendR
             DO i=Istr,IendR
-              AVERAGES2(ng)%avgS0mk(i,j)=fac*AVERAGES2(ng)%avgS0mk(i,j)
+              AVERAGE2(ng)%avgS0mk(i,j)=fac*AVERAGE2(ng)%avgS0mk(i,j)
             END DO
           END DO
         END IF
@@ -1235,16 +1238,16 @@
         IF (Aout2(idTauiw,ng)) THEN
           DO j=JstrR,JendR
             DO i=Istr,IendR
-              AVERAGES2(ng)%avgutau_iw(i,j)=fac*                        &
-     &                      AVERAGES2(ng)%avgutau_iw(i,j)
+              AVERAGE2(ng)%avgutau_iw(i,j)=fac*                         &
+     &                      AVERAGE2(ng)%avgutau_iw(i,j)
             END DO
           END DO
         END IF
         IF (Aout2(idChuiw,ng)) THEN
           DO j=JstrR,JendR
             DO i=Istr,IendR
-              AVERAGES2(ng)%avgchu_iw(i,j)=fac*                         &
-     &                      AVERAGES2(ng)%avgchu_iw(i,j)
+              AVERAGE2(ng)%avgchu_iw(i,j)=fac*                          &
+     &                      AVERAGE2(ng)%avgchu_iw(i,j)
             END DO
           END DO
         END IF
@@ -1260,7 +1263,7 @@
 !        DO itrc=1,NTS(ng)
 !            DO j-JstrR,JendR
 !              DO i-IstrR,IendR
-!                AVERAGES2(ng)%anvst(i,j,itrc)=fac*AVERAGES2(ng)%avgt(i,j,itrc)
+!                AVERAGE2(ng)%anvst(i,j,itrc)=fac*AVERAGE2(ng)%avgt(i,j,itrc)
 !            END DO
 !          END DO
 !        END DO
