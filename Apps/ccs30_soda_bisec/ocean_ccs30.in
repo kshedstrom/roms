@@ -68,7 +68,7 @@
 ! indices (Istr,Iend) and (Jstr,Jend), [1:Ngrids].
 
       NtileI == 8                               ! I-direction partition
-      NtileJ == 10                              ! J-direction partition
+      NtileJ == 16                              ! J-direction partition
 
 ! Time-Stepping parameters.
 
@@ -97,7 +97,7 @@
 
 ! Input/Output parameters.
 
-       NRREC =  -1
+       NRREC =  0
    LcycleRST == F
         NRST == 8760
         NSTA == 48
@@ -106,9 +106,9 @@
 ! Flag indicating re-start from previous solution. If FISHRREC = 0, a new
 ! NetCDF output file is created.
 
-       FISHRREC  == -1
-       FLEETRREC == -1
-       PREDRREC  == -1
+       FISHRREC  == 0
+       FLEETRREC == 0
+       PREDRREC  == 0
 
         NFSH == 120
     NDEFFISH == 0
@@ -118,7 +118,7 @@
 
 ! Output history, average, diagnostic files parameters.
 
-     LDEFOUT == F
+     LDEFOUT == T
         NHIS == 8760
      NDEFHIS == 0
       NTSAVG == 1
@@ -480,8 +480,7 @@ Aout(idHbbl) == F                          ! depth of bottom boundary layer
 ! Input NetCDF file names, [1:Ngrids].
 
      GRDNAME == /home/fiechter/NemFish/Grid/ccs30_grd.nc
-!     ININAME == /home/fiechter/NemFish/Frc/SODA/ccs30_clm_inibio_1960.nc
-     ININAME == Post_20yrs/rst.nc
+     ININAME == /home/fiechter/NemFish/Frc/SODA/ccs30_clm_inibio_1960.nc
      ITLNAME == /dev/null
      IRPNAME == /dev/null
      IADNAME == /dev/null
