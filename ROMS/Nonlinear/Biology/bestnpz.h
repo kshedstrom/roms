@@ -2,7 +2,7 @@
       SUBROUTINE biology (ng,tile)
 !
 !========================================== Alexander F. Shchepetkin ===
-!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2011 The ROMS/TOMS Group                         !
 !================================================== Hernan G. Arango ===
 !                                                                      !
 !  This routine computes the biological sources and sinks and adds     !
