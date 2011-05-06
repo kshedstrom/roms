@@ -226,10 +226,10 @@
           Vinfo( 4)='360_day'
         ELSE IF (INT(time_ref).eq.0) THEN
           Vinfo( 3)='seconds since 0001-01-01 00:00:00'
-          Vinfo( 4)='365.25_day'
+          Vinfo( 4)='julian'
         ELSE IF (time_ref.gt.0.0_r8) THEN
           WRITE (Vinfo( 3),'(a,1x,a)') 'seconds since', TRIM(r_text)
-          Vinfo( 4)='standard'
+          Vinfo( 4)='gregorian'
         END IF
         Vinfo(14)=Vname(4,idtime)
         status=def_var(ng, iNLM, ncSTAid(ng), staVid(idtime,ng),        &
@@ -416,6 +416,48 @@
           Vinfo(14)=Vname(4,idOPALsed)
           Vinfo(16)=Vname(1,idtime)
           status=def_var(ng, iNLM, ncSTAid(ng), staVid(idOPALsed,ng),   &
+     &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
+     &                   SetParAccess = .FALSE.)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+!
+!  Define DENIT in sediment.
+!
+        IF (Sout(idDENITsed,ng)) THEN
+          Vinfo( 1)=Vname(1,idDENITsed)
+          Vinfo( 2)=Vname(2,idDENITsed)
+          Vinfo( 3)=Vname(3,idDENITsed)
+          Vinfo(14)=Vname(4,idDENITsed)
+          Vinfo(16)=Vname(1,idtime)
+          status=def_var(ng, iNLM, ncSTAid(ng), staVid(idDENITsed,ng),  &
+     &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
+     &                   SetParAccess = .FALSE.)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+!
+!  Define buried PON in sediment.
+!
+        IF (Sout(idPONbur,ng)) THEN
+          Vinfo( 1)=Vname(1,idPONbur)
+          Vinfo( 2)=Vname(2,idPONbur)
+          Vinfo( 3)=Vname(3,idPONbur)
+          Vinfo(14)=Vname(4,idPONbur)
+          Vinfo(16)=Vname(1,idtime)
+          status=def_var(ng, iNLM, ncSTAid(ng), staVid(idPONbur,ng),    &
+     &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
+     &                   SetParAccess = .FALSE.)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+!
+!  Define buried OPAL in sediment.
+!
+        IF (Sout(idOPALbur,ng)) THEN
+          Vinfo( 1)=Vname(1,idOPALbur)
+          Vinfo( 2)=Vname(2,idOPALbur)
+          Vinfo( 3)=Vname(3,idOPALbur)
+          Vinfo(14)=Vname(4,idOPALbur)
+          Vinfo(16)=Vname(1,idtime)
+          status=def_var(ng, iNLM, ncSTAid(ng), staVid(idOPALbur,ng),   &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetParAccess = .FALSE.)
           IF (exit_flag.ne.NoError) RETURN
@@ -654,32 +696,6 @@
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetParAccess = .FALSE.)
           IF (exit_flag.ne.NoError) RETURN
-        END IF
-!
-!  Define surface U-wind.
-!
-        IF (Sout(idUair,ng)) THEN
-          Vinfo( 1)=Vname(1,idUair)
-          Vinfo( 2)=Vname(2,idUair)
-          Vinfo( 3)=Vname(3,idUair)
-          Vinfo(14)=Vname(4,idUair)
-          Vinfo(16)=Vname(1,idtime)
-          status=def_var(ng, iNLM, ncSTAid(ng), staVid(idUair,ng),      &
-     &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
-     &                   SetParAccess = .FALSE.)
-        END IF
-!
-!  Define surface V-wind.
-!
-        IF (Sout(idVair,ng)) THEN
-          Vinfo( 1)=Vname(1,idVair)
-          Vinfo( 2)=Vname(2,idVair)
-          Vinfo( 3)=Vname(3,idVair)
-          Vinfo(14)=Vname(4,idVair)
-          Vinfo(16)=Vname(1,idtime)
-          status=def_var(ng, iNLM, ncSTAid(ng), staVid(idVair,ng),      &
-     &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
-     &                   SetParAccess = .FALSE.)
         END IF
 #  endif
 #  ifdef SHORTWAVE
@@ -1762,6 +1778,15 @@
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idOPALsed))) THEN
             got_var(idOPALsed)=.TRUE.
             staVid(idOPALsed,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idDENITsed))) THEN
+            got_var(idDENITsed)=.TRUE.
+            staVid(idDENITsed,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idPONbur))) THEN
+            got_var(idPONbur)=.TRUE.
+            staVid(idPONbur,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idOPALbur))) THEN
+            got_var(idOPALbur)=.TRUE.
+            staVid(idOPALbur,ng)=var_id(i)
 #  endif
 #  ifdef LMD_SKPP
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idHsbl))) THEN
@@ -1821,16 +1846,6 @@
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idLrad))) THEN
             got_var(idLrad)=.TRUE.
             staVid(idLrad,ng)=var_id(i)
-          IF (TRIM(varnam(i)).eq.TRIM(Vname(1,idUair))) THEN
-            got_var(idUair)=.TRUE.
-            status=nf90_inq_varid(ncSTAid(ng),TRIM(Vname(1,idUair)),    &
-     &                            staVid(idUair,ng))
-          END IF
-          IF (TRIM(varnam(i)).eq.TRIM(Vname(1,idVair))) THEN
-            got_var(idVair)=.TRUE.
-            status=nf90_inq_varid(ncSTAid(ng),TRIM(Vname(1,idVair)),    &
-     &                            staVid(idVair,ng))
-          END IF
 #  endif
 #  ifdef SHORTWAVE
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idSrad))) THEN
@@ -2246,6 +2261,24 @@
           exit_flag=3
           RETURN
         END IF
+        IF (.not.got_var(idDENITsed).and.Sout(idDENITsed,ng)) THEN
+          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idDENITsed)),       &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idPONbur).and.Sout(idPONbur,ng)) THEN
+          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idPONbur)),        &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idOPALbur).and.Sout(idOPALbur,ng)) THEN
+          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idOPALbur)),       &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
 #  endif
 #  ifdef LMD_SKPP
         IF (.not.got_var(idHsbl).and.Sout(idHsbl,ng)) THEN
@@ -2347,16 +2380,6 @@
         IF (.not.got_var(idLrad).and.Sout(idLrad,ng)) THEN
           IF (Master) WRITE (stdout,60) TRIM(Vname(1,idLrad)),          &
      &                                  TRIM(ncname)
-          exit_flag=3
-          RETURN
-        END IF
-        IF (.not.got_var(idUair).and.Sout(idUair,ng)) THEN
-          WRITE (stdout,60) TRIM(Vname(1,idUair)), TRIM(ncname)
-          exit_flag=3
-          RETURN
-        END IF
-        IF (.not.got_var(idVair).and.Sout(idVair,ng)) THEN
-          WRITE (stdout,60) TRIM(Vname(1,idVair)), TRIM(ncname)
           exit_flag=3
           RETURN
         END IF

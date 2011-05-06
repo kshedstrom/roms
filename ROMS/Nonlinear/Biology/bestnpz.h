@@ -8,7 +8,7 @@
 !  This routine computes the biological sources and sinks and adds     !
 !  then the global biological fields.                                  !
 !                                                                      !
-!  Sarah Hinckley''s GOANPZ Code                                        !
+!  Sarah Hinckley''s GOANPZ Code                                       !
 !  Implemented by Craig Lewis (CVL)                                    !
 !  Modified by Liz Dobbins and Sarah Hinckley                          !
 !                                                                      !

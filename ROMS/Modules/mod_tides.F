@@ -794,7 +794,7 @@
               ELSE IF (sat_flag(k,itide) == 2) THEN
                 rr=sat_amp(k,itide)*2.59808*slat
               END IF
-              uudbl=sat_doodson(1,k,itide)*p+sat_doodson(2,k,itide)*enp+    &
+              uudbl=sat_doodson(1,k,itide)*p+sat_doodson(2,k,itide)*enp+&
      &              sat_doodson(3,k,itide)*pp+sat_phase_corr(k,itide)
               iuu=uudbl
               uu=uudbl-iuu

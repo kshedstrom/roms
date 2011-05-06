@@ -63,9 +63,12 @@ TYPESIZES_MODFILE := TYPESIZES.mod
 #
 
 ifdef USE_NETCDF4
-    NETCDF_INCDIR ?= /u2/wes/PET_HOME/pkgs/netcdf-4.0-parallel/include
-    NETCDF_LIBDIR ?= /u2/wes/PET_HOME/pkgs/netcdf-4.0-parallel/lib
-      HDF5_LIBDIR ?= /u2/wes/PET_HOME/pkgs/hdf5-1.8.1-parallel/lib
+        NC_CONFIG ?= ROMS/Bin/nc-config
+    NETCDF_INCDIR ?= /opt/cray/netcdf/4.0.1.3/netcdf-pathscale/include
+    NETCDF_LIBDIR ?= /opt/cray/netcdf/4.0.1.3/netcdf-pathscale/lib
+    NETCDF_INCDIR ?= $(shell $(NC_CONFIG) --fflags | grep -o "\-I.*" | cut -f 1 | cut -c "3-")
+             LIBS += $(shell $(NC_CONFIG) --flibs)
+      HDF5_LIBDIR ?= /opt/cray/hdf5/1.8.3.0/hdf5-pathscale/lib
 
 #    NETCDF_INCDIR ?= /u2/wes/PET_HOME/include
 #    NETCDF_LIBDIR ?= /u2/wes/PET_HOME/lib

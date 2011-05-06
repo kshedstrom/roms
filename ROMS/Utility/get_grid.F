@@ -20,9 +20,9 @@
       USE mod_ncparam
       USE mod_netcdf
       USE mod_scalars
-#ifdef RDRG_GRID
-      USE mod_forces
-#endif
+# ifdef WTYPE_GRID
+      USE mod_mixing
+# endif
 !
 # if defined EW_PERIODIC || defined NS_PERIODIC
       USE exchange_2d_mod
@@ -122,9 +122,9 @@
         RETURN
       END IF
 # endif
-# ifdef RDRG_GRID
-      IF (.not.find_string(var_name,n_var,'rdrg_grid',vindex)) THEN
-        IF (Master) WRITE (stdout,10) 'rdrg_grid', TRIM(ncname)
+# ifdef WTYPE_GRID
+      IF (.not.find_string(var_name,n_var,'wtype_grid',vindex)) THEN
+        IF (Master) WRITE (stdout,10) 'wtype_grid', TRIM(ncname)
         exit_flag=2
         RETURN
       END IF
@@ -293,13 +293,13 @@
      &                        GRID(ng) % rmask,                         &
 # endif
      &                        GRID(ng) % h)
-            IF (status.eq.nf90_noerr) THEN
-              DO j=LBj,UBj
-                DO i=LBi,UBi
-                  IF (GRID(ng)%h(i,j) .eq. 0.0) GRID(ng) % h(i,j) = -1.
-                END DO
-              END DO
-            ELSE
+            IF (status.ne.nf90_noerr) THEN
+!             DO j=LBj,UBj
+!               DO i=LBi,UBi
+!                 IF (GRID(ng)%h(i,j) .eq. 0.0) GRID(ng) % h(i,j) = -1.
+!               END DO
+!             END DO
+!           ELSE
               IF (Master) THEN
                 WRITE (stdout,30) 'h', TRIM(ncname)
               END IF
@@ -464,11 +464,11 @@
      &                          GRID(ng) % zice)
 #  endif
 # endif
-# if defined RDRG_GRID && ! defined ANA_RDRG
+# if defined WTYPE_GRID && ! defined ANA_WTYPE
 !
-!  Read in bottom drag coefficient.
+!  Read in Jerlov water type.
 !
-          CASE ('rdrg_grid')
+          CASE ('wtype_grid')
             gtype=r2dvar
             status=nf_fread2d(ng, model, ncname, ncGRDid(ng),           &
      &                        var_name(it), var_id(it), 0,              &
@@ -477,7 +477,7 @@
 #  ifdef MASKING
      &                        GRID(ng) % rmask,                         &
 #  endif
-     &                        FORCES(ng) % rdrg_grid)
+     &                        MIXING(ng) % Jwtype)
             IF (status.ne.nf90_noerr) THEN
               exit_flag=2
               ioerror=status
@@ -486,40 +486,13 @@
 #  if defined EW_PERIODIC || defined NS_PERIODIC
             CALL exchange_r2d_tile (ng, tile,                           &
      &                              LBi, UBi, LBj, UBj,                 &
-     &                              FORCES(ng) % rdrg_grid)
+     &                              MIXING(ng) % Jwtype)
 #  endif
 #  ifdef DISTRIBUTE
             CALL mp_exchange2d (ng, tile, model, 1,                     &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          NghostPoints, EWperiodic, NSperiodic,   &
-     &                          FORCES(ng) % rdrg_grid)
-#  endif
-# endif
-# if defined NEMURO_SAN && ! defined ANA_SPAWN_DIST
-!
-!  Read in spawning distance parameter.
-!
-          CASE ('spawn_dist')
-            gtype=r2dvar
-            status=nf_fread2d(ng, model, ncname, ncGRDid(ng),           &
-     &                        var_name(it), var_id(it), 0,              &
-     &                        gtype, Vsize, LBi, UBi, LBj, UBj,         &
-     &                        Fscl, Fmin, Fmax,                         &
-#  ifdef MASKING
-     &                        GRID(ng) % rmask,                         &
-#  endif
-     &                        GRID(ng) % spawn_dist)
-            IF (status.ne.nf90_noerr) THEN
-              exit_flag=2
-              ioerror=status
-              EXIT
-            END IF
-#  ifdef DISTRIBUTE
-! Like lat, lon, could be that it doesn't wrap nicely.
-            CALL mp_exchange2d (ng, tile, model, 1,                     &
-     &                          LBi, UBi, LBj, UBj,                     &
-     &                          NghostPoints, .FALSE., .FALSE.,         &
-     &                          GRID(ng) % spawn_dist)
+     &                          MIXING(ng) % Jwtype)
 #  endif
 # endif
 !

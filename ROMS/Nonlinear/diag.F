@@ -302,7 +302,6 @@
 # else
             ke2d(i,j)=(zeta(i,j,krhs)+h(i,j))*0.25_r8*u2v2
 # endif
-            ke2d(i,j)=(zeta(i,j,krhs)+h(i,j))*
             pe2d(i,j)=cff*zeta(i,j,krhs)*zeta(i,j,krhs)
             my_Cu=0.5_r8*ABS(ubar(i,j,krhs)+ubar(i+1,j,krhs))*          &
      &            dt(ng)*pn(i,j)
@@ -567,42 +566,42 @@
 !
           IF (maxspeed(ng).gt.max_speed) THEN
             exit_flag=1
-	    IF (Master) print *, 'DIAG speed trouble ', maxspeed(ng)
-	    ii_max = Istr
-	    jj_max = Jstr
+            IF (Master) print *, 'DIAG speed trouble ', maxspeed(ng)
+            ii_max = Istr
+            jj_max = Jstr
 #ifdef SOLVE3D
-	    kk_max = 1
-	    uv_max = max(u(Istr,Jstr,1,nstp),v(Istr,Jstr,1,nstp))
+            kk_max = 1
+            uv_max = max(u(Istr,Jstr,1,nstp),v(Istr,Jstr,1,nstp))
             DO j=Jstr,Jend
               DO k=1,N(ng)
                 DO i=Istr,Iend
-		  IF (max(u(i,j,k,nstp),v(i,j,k,nstp)) > uv_max) THEN
-		    ii_max = i
-		    jj_max = j
-		    kk_max = k
-		    uv_max = max(u(i,j,k,nstp),v(i,j,k,nstp))
-		  END IF
+                  IF (max(u(i,j,k,nstp),v(i,j,k,nstp)) > uv_max) THEN
+                    ii_max = i
+                    jj_max = j
+                    kk_max = k
+                    uv_max = max(u(i,j,k,nstp),v(i,j,k,nstp))
+                  END IF
                 END DO
               END DO
             END DO
             IF (uv_max.gt.max_speed) THEN
-	      print *, 'DIAG speed ijk ', uv_max, ii_max, jj_max, kk_max
-	    END IF
+              print *, 'DIAG speed ijk ', uv_max, ii_max, jj_max, kk_max
+            END IF
 #else
-	    uv_max = max(ubar(Istr,Jstr,krhs),v(Istr,Jstr,krhs))
+            uv_max = max(ubar(Istr,Jstr,krhs),vbar(Istr,Jstr,krhs))
             DO j=Jstr,Jend
               DO i=Istr,Iend
-	        IF (max(ubar(i,j,krhs),vbar(i,j,krhs)) > uv_max) THEN
-		    ii_max = i
-		    jj_max = j
-		    uv_max = max(ubar(i,j,krhs),vbar(i,j,krhs))
-		  END IF
-                END DO
+                IF (max(ubar(i,j,krhs),vbar(i,j,krhs)) > uv_max) THEN
+                  ii_max = i
+                  jj_max = j
+                  uv_max = max(ubar(i,j,krhs),vbar(i,j,krhs))
+                END IF
               END DO
             END DO
             IF (uv_max.gt.max_speed) THEN
-	      print *, 'DIAG speed ij ', uv_max, ii_max, jj_max
-	    END IF
+              print *, 'DIAG speed ij ', uv_max, ii_max, jj_max
+            END IF
+>>>>>>> feedme/kate_svn
 #endif
           END IF
 #ifdef SOLVE3D
@@ -614,7 +613,7 @@
 !
           IF (maxrho(ng).gt.max_rho) THEN
             exit_flag=1
-	    IF (Master) print *, 'DIAG rho trouble ', maxrho(ng)
+            IF (Master) print *, 'DIAG rho trouble ', maxrho(ng)
           END IF
 # ifdef BIOLOGY
           DO ibt=1,NBT

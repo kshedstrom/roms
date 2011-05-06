@@ -2,7 +2,7 @@
       MODULE set_vbc_mod
 #ifdef NONLINEAR
 !
-!svn $Id$
+!svn $Id: set_vbc.F 1234 2010-05-29 01:24:46Z kate $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2011 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -336,6 +336,14 @@
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: wrk
 #  endif
 
+#  if defined SCORRECTION || defined SRELAXATION
+#   if defined CORAL
+      real(r8), parameter :: sss_mismatch_threshold = 0.2_r8
+#   elif defined NEP6 || defined NWA
+      real(r8), parameter :: sss_mismatch_threshold = 0.1_r8
+#   endif
+#  endif
+
 #  include "set_bounds.h"
 
 #  ifdef QCORRECTION
@@ -366,30 +374,58 @@
 #     ifdef ICE_THERMO
           stflx(i,j,isalt)=stflx(i,j,isalt) -                           &
      &                     Tnudg(isalt,ng)*Hz(i,j,N(ng))*               &
-#if defined NEP5 || defined BERING
-!  60 days from Tnudg of 360 days
+#       if defined NEP5 || defined BERING || defined CHUKCHI
+! 60 days from Tnudg of 360 days
      &                     6.0_r8*                                      &
-#endif
+#       elif defined CORAL || defined NEP6 || defined NWA
+! 90 days from Tnudg of 360 days
+     &                     4.0_r8*                                      &
+#       endif
+#       if defined CORAL || defined NEP6 || defined NWA
+! limit mismatch to avoid too strong relaxation fluxes
+     &                     MIN(sss_mismatch_threshold,                  &
+     &                         (t(i,j,N(ng),nrhs,isalt)-sss(i,j)))
+#       else
+
      &                     (t(i,j,N(ng),nrhs,isalt)-sss(i,j))
+#       endif
+#     else
+          stflx(i,j,isalt)=stflx(i,j,isalt)*t(i,j,N(ng),nrhs,isalt)-    &
+     &                     Tnudg(isalt,ng)*Hz(i,j,N(ng))*               &
+#       if defined NEP5 || defined BERING || defined CHUKCHI
+! 60 days from Tnudg of 360 days
+     &                     6.0_r8*                                      &
+#       elif defined CORAL || defined NEP6 || defined NWA
+! 90 days from Tnudg of 360 days
+     &                     4.0_r8*                                      &
+#       endif
+#       if defined CORAL || defined NEP6 || defined NWA
+! limit mismatch to avoid too strong relaxation fluxes
+     &                     MIN(sss_mismatch_threshold,                  &
+     &                         (t(i,j,N(ng),nrhs,isalt)-sss(i,j)))
+#       else
+     &                     (t(i,j,N(ng),nrhs,isalt)-sss(i,j))
+#       endif
+#     endif
 #     ifdef MASKING
           stflx(i,j,isalt) = rmask(i,j)*stflx(i,j,isalt)
 #     endif
-#    else
-          stflx(i,j,isalt)=stflx(i,j,isalt)*t(i,j,N(ng),nrhs,isalt)-    &
-     &                     Tnudg(isalt,ng)*Hz(i,j,N(ng))*               &
-#if defined NEP5 || defined BERING
-!  60 days from Tnudg of 360 days
-     &                     6.0_r8*                                      &
-#endif
-     &                     (t(i,j,N(ng),nrhs,isalt)-sss(i,j))
-#     endif
 #   elif defined SRELAXATION
           stflx(i,j,isalt)=-Tnudg(isalt,ng)*Hz(i,j,N(ng))*              &
-#if defined NEP5 || defined BERING
-!  60 days from Tnudg of 360 days
+#     if defined NEP5 || defined BERING || defined CHUKCHI
+! 60 days from Tnudg of 360 days
      &                     6.0_r8*                                      &
-#endif
+#     elif defined CORAL || defined NEP6 || defined NWA
+! 90 days from Tnudg of 360 days
+     &                     4.0_r8*                                      &
+#     endif
+#     if defined CORAL || defined NEP6 || defined NWA
+! limit mismatch to avoid too strong relaxation fluxes
+     &                     MIN(sss_mismatch_threshold,                  &
+     &                         (t(i,j,N(ng),nrhs,isalt)-sss(i,j)))
+#     else
      &                     (t(i,j,N(ng),nrhs,isalt)-sss(i,j))
+#     endif
 #     ifdef MASKING
           stflx(i,j,isalt) = rmask(i,j)*stflx(i,j,isalt)
 #     endif
@@ -639,7 +675,7 @@
 !
             temp_b=0.0939_r8-0.057_r8*salt_b+7.6410E-4_r8*zice(i,j)
             IF (salt_b .gt. 5.0_r8) THEN
-              melt_rate=-((rho(i,j,N(ng))+1000.0_r8)/rho_ice)*gamma_s*  &
+              melt_rate=-gamma_s*                                       &
      &                   (1.0_r8-(t(i,j,N(ng),nrhs,isalt)/salt_b))
             ELSE
               melt_rate=0.0_r8

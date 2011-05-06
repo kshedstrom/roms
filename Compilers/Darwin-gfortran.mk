@@ -67,7 +67,7 @@ else
 endif
              LIBS += -L$(NETCDF_LIBDIR) -lnetcdf -lnetcdff
 ifdef USE_NETCDF4
-             LIBS += -L$(HDF5_LIBDIR) -lhdf5_hl -lhdf5 -lz -lcurl
+             LIBS += -L$(HDF5_LIBDIR) -lhdf5_hl -lhdf5 -lz
  ifdef USE_DAP
              LIBS += $(shell curl-config --libs)
  endif

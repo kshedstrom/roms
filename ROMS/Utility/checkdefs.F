@@ -373,12 +373,6 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+10)=' ANA_RAIN,'
 #endif
-#if defined ANA_RDRG
-      IF (Master) WRITE (stdout,20) 'ANA_RDRG',                         &
-     &   'Analytical bottom drag.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+10)=' ANA_RDRG,'
-#endif
 #if defined ANA_SCOPE        && \
    (defined AD_SENSITIVITY   || defined IS4DVAR_SENSITIVITY || \
     defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR   || \
@@ -480,6 +474,12 @@
      &   'Analytical surface wind components.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+11)=' ANA_WINDS,'
+#endif
+#if defined ANA_WTYPE
+      IF (Master) WRITE (stdout,20) 'ANA_WTYPE',                         &
+     &   'Analytical Jerlov water type.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+11)=' ANA_WTYPE,'
 #endif
 #ifdef ANA_WWAVE
       IF (Master) WRITE (stdout,20) 'ANA_WWAVE',                        &
@@ -1014,6 +1014,12 @@
       T_east=T_east+1
       T_west=T_west+1
 #endif
+#ifdef FASTICE_CLIMATOLOGY
+      IF (Master) WRITE(stdout,20) 'FASTICE_CLIMATOLOGY',               &
+     &   'Climatology of landfast ice.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+21)=' FASTICE_CLIMATOLOGY,'
+#endif
 #ifdef FILTERED
       IF (Master) WRITE(stdout,20) 'FILTERED',                          &
      &   'Writing out time-filtered output.'
@@ -1508,12 +1514,6 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+13)=' NEMURO_SED1,'
 #endif
-#ifdef NEMURO_SED2
-      IF (Master) WRITE (stdout,20) 'NEMURO_SED2',                      &
-     &   'Nemuro with sediment remineralization type 2.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+13)=' NEMURO_SED2,'
-#endif
 #ifdef NETCDF4
       IF (Master) WRITE (stdout,20) 'NETCDF4',                          &
      &   'Creating NetCDF-4/HDF5 format files.'
@@ -2003,12 +2003,6 @@
      &   'Mass point sources, volume influx.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+11)=' Q_PSOURCE,'
-#endif
-#if defined RDRG_GRID
-      IF (Master) WRITE (stdout,20) 'RDRG_GRID',                        &
-     &   'Spatially varying bottom drag.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+11)=' RDRG_GRID,'
 #endif
 #if defined RUNOFF
       IF (Master) WRITE (stdout,20) 'RUNOFF',                           &
@@ -3216,6 +3210,12 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+14)=' WRF_COUPLING,'
 #endif
+#if defined WTYPE_GRID
+      IF (Master) WRITE (stdout,20) 'WTYPE_GRID',                        &
+     &   'Spatially varying Jerlov water type.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+12)=' WTYPE_GRID,'
+#endif
 #ifdef ZCLIMATOLOGY
       IF (Master) WRITE (stdout,20) 'ZCLIMATOLOGY',                     &
      &   'Processing sea surface height climatology data.'
@@ -3531,6 +3531,31 @@
         exit_flag=5
       END IF
 # endif
+# if defined HDF5 && defined PNETCDF
+      IF (Master) THEN
+        WRITE (stdout,190) uppercase('hdf5'),                           &
+     &                     uppercase('pnetcdf')
+ 190    FORMAT (/,' CHECKDEFS - Both ',a,' and ',a,' options',          &
+     &            ' selected',/,13x,'for parallel I/O processing.',     &
+     &          /,13x,'Choose only one.')
+        exit_flag=5
+      END IF
+# endif
+#endif
+#if defined WRITE_WATER && defined WET_DRY
+!
+!  Stop if writting only water points when wetting and drying is
+!  activated.  This is not possible since the Land/Sea masking is
+!  time dependent.
+!
+      IF (Master) THEN
+        WRITE (stdout,200) uppercase('write_water'),                    &
+     &                     uppercase('wet_dry')
+ 200    FORMAT (/,' CHECKDEFS - cannot activate ',a,' and ',a,          &
+     &            ' together',/,13x,'because of time dependent ',       &
+     &            ' Land/Sea masking.')
+        exit_flag=5
+      END IF
 #endif
 #if defined ICESHELF && !defined SOLVE3D
 !

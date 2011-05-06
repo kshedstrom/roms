@@ -118,19 +118,3 @@
 #else
   USE_ESMF :=
 #endif
-
-/*
-** Compile the Fish directory.
-*/
-
-#ifdef NEMURO_SAN
-  USE_FISH := on
-#else
-  USE_FISH :=
-#endif
-
-#if defined EGGS_TREE_CXX || defined EGGS_VECTOR_CXX
-  USE_CXX := on
-#else
-  USE_CXX :=
-#endif

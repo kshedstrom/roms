@@ -55,6 +55,12 @@
                 idPONsed=varid
               CASE ('idOPALsed')
                 idOPALsed=varid
+              CASE ('idDENITsed')
+                idDENITsed=varid
+              CASE ('idPONbur')
+                idPONbur=varid
+              CASE ('idOPALbur')
+                idOPALbur=varid
 # endif
 
 ! All over again for climatatology

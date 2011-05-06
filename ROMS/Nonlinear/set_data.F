@@ -846,6 +846,14 @@
      &                     update)
 # endif
 
+# if defined FASTICE_CLIMATOLOGY && defined SOLVE3D
+      CALL set_2dfld_tile (ng, tile, iNLM, idFastIce,                   &
+     &                     LBi, UBi, LBj, UBj,                          &
+     &                     FORCES(ng)%fastice_clmG,                     &
+     &                     FORCES(ng)%fastice_clm,                      &
+     &                     update)
+# endif
+
 # if defined ECOSIM && defined SOLVE3D
 !
 !-----------------------------------------------------------------------
@@ -1669,7 +1677,12 @@
 #  else
 ! in 3D want nudge only Fe not T and S
 #   if !defined BERING_10K
+
+#    if defined SOGLOBEC
       DO itrc=1,NT(ng)
+#    else
+      DO itrc=1,NAT
+#    endif
         CALL set_3dfld_tile (ng, tile, iNLM, idTclm(itrc),              &
      &                       LBi, UBi, LBj, UBj, 1, N(ng),              &
      &                       CLIMA(ng)%tclmG(:,:,:,:,itrc),             &
@@ -1717,10 +1730,10 @@
      &                       CLIMA(ng)%tclm (:,:,:,iFe),                &
      &                       update)
 #   endif
-#   endif  /* ! BERING_10K */
 
-#   if defined OFFLINE
-      DO itrc=1,NT(ng)
+#  endif  /* ! BERING_10K */
+#  if defined OFFLINE
+      DO itrc=1,NAT
         DO k=1,N(ng)
           DO j=Jstr,Jend
             DO i=Istr,Iend

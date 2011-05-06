@@ -217,10 +217,6 @@
 #  include <ana_smflux.h>
 # endif
 
-# ifdef ANA_SPAWN_DIST
-#  include <ana_spawn_dist.h>
-# endif
-
 # ifdef ANA_SPINNING
 #  include <ana_spinning.h>
 # endif

@@ -83,6 +83,13 @@
      &                   FISHES(ng) % fishnodes,                        &
      &                   FISHES(ng) % feedback,                         &
 #endif
+#ifdef NEMURO_SED1
+     &                   OCEAN(ng) % PONsed,                            &
+     &                   OCEAN(ng) % OPALsed,                           &
+     &                   OCEAN(ng) % DENITsed,                          &
+     &                   OCEAN(ng) % PON_burial,                        &
+     &                   OCEAN(ng) % OPAL_burial,                       &
+#endif
      &                   OCEAN(ng) % t)
 
 #ifdef PROFILE
@@ -109,6 +116,10 @@
      &                         fish_list,                               &
      &                         fishnodes,                               &
      &                         feedback,                                &
+#endif
+#ifdef NEMURO_SED1
+     &                         PONsed, OPALsed, DENITsed,               &
+     &                         PON_burial, OPAL_burial,                 &
 #endif
      &                         t)
 !-----------------------------------------------------------------------
@@ -149,6 +160,13 @@
       integer, intent(in) :: fish_count(LBi:,LBj:)
       type(fishnode), intent(in) :: fish_list(LBi:,LBj:)
 # endif
+# ifdef NEMURO_SED1
+      real(r8), intent(inout) :: PONsed(LBi:,LBj:)
+      real(r8), intent(inout) :: OPALsed(LBi:,LBj:)
+      real(r8), intent(inout) :: DENITsed(LBi:,LBj:)
+      real(r8), intent(inout) :: PON_burial(LBi:,LBj:)
+      real(r8), intent(inout) :: OPAL_burial(LBi:,LBj:)
+# endif
       real(r8), intent(inout) :: t(LBi:,LBj:,:,:,:)
 #else
 # ifdef MASKING
@@ -164,6 +182,13 @@
 # if defined NEMURO_SAN && defined FISH_FEEDBACK
       integer, intent(in) :: fish_count(LBi:UBi,LBj:UBj)
       type(fishnode), intent(in) :: fish_list(LBi:UBi,LBj:UBj)
+# endif
+# ifdef NEMURO_SED1
+      real(r8), intent(inout) :: PONsed(LBi:UBi,LBj:UBj)
+      real(r8), intent(inout) :: OPALsed(LBi:UBi,LBj:UBj)
+      real(r8), intent(inout) :: DENITsed(LBi:UBi,LBj:UBj)
+      real(r8), intent(inout) :: PON_burial(LBi:UBi,LBj:UBj)
+      real(r8), intent(inout) :: OPAL_burial(LBi:UBi,LBj:UBj)
 # endif
       real(r8), intent(inout) :: t(LBi:UBi,LBj:UBj,UBk,3,UBt)
 #endif
@@ -217,9 +242,6 @@
       real(r8), dimension(NT(ng),2) :: BioTrc
       real(r8), dimension(IminS:ImaxS,N(ng),NT(ng)) :: Bio
       real(r8), dimension(IminS:ImaxS,N(ng),NT(ng)) :: Bio_bak
-#if defined NEMURO_SAN && defined FISH_FEEDBACK
-      real(r8), dimension(IminS:ImaxS,JminS:JmaxS,N(ng),NT(ng)) :: pfish
-#endif
 
       real(r8), dimension(IminS:ImaxS,0:N(ng)) :: FC
 
@@ -234,6 +256,7 @@
       real(r8), dimension(IminS:ImaxS,N(ng)) :: bR
       real(r8), dimension(IminS:ImaxS,N(ng)) :: qc
       real(r8), dimension(IminS:ImaxS,N(ng)) :: LPSiN
+      real(r8), dimension(IminS:ImaxS) :: frac_buried
 
 #include "set_bounds.h"
 
@@ -1198,6 +1221,37 @@
      &                       Bio(i,k,iopal)*cff5
             END DO
           END DO
+#ifdef NEMURO_SED1
+!ENC:  using sediment pools
+
+          DO i=Istr,Iend
+!
+!  Decomposition: Sediment Opal to SiOH4.
+!
+            cff6=fac5*EXP(KO2S(ng)*Bio(i,1,itemp))
+            OPALsed(i,j)=OPALsed(i,j)/(1.0_r8+cff6)
+            Bio(i,1,iSiOH)=Bio(i,1,iSiOH)+                              &
+      &                       OPALsed(i,j)*cff6*Hz_inv(i,1)
+!
+!  Decomposition: Sediment PON to NH4.
+!
+            cff7=fac2*EXP(KP2N(ng)*Bio(i,1,itemp))
+            PONsed(i,j)=PONsed(i,j)/(1.0_r8+cff7)
+            Bio(i,1,iNH4_)=Bio(i,1,iNH4_)+                              &
+      &                       PONsed(i,j)*cff7*Hz_inv(i,1)
+!
+!  ENC+CAS:  Our attempt at denitrification
+!  This is the NO3 that is lost to N2 due to denitrification
+!  in the sediments.  We assume 12% of PONsed remineralization is
+!  from denitrification (blame Katja, 2009)
+!
+            cff8= 0.12_r8*PONsed(i,j)*cff7*5.3_r8
+            DENITsed(i,j)=MIN( Bio(i,1,iNO3_)*Hz(i,j,1),cff8)*          &
+     &                     (1.0_r8/dtdays)
+            Bio(i,1,iNO3_)=MAX(Bio(i,1,iNO3_)-cff8*Hz_inv(i,1),0.0_r8)
+
+          END DO
+#endif
 !
 !-----------------------------------------------------------------------
 !  Vertical sinking terms: PON and Opal.
@@ -1390,15 +1444,37 @@
 !       Lagrangian algorithm. What is the correct nutrient path from
 !       the benthos to the water column?  NH4 to NO3?
 !
+!
             IF (ibio.eq.iPON_) THEN
               DO i=Istr,Iend
+# ifdef NEMURO_SED1
+                cff1=FC(i,0)*6.625_r8*(1.0_r8/dtdays)
+                frac_buried(i) = 0.013_r8 + 0.53_r8*cff1**2/            &
+     &                     (7.0_r8+cff1)**2
+                cff1=FC(i,0)
+                PON_burial(i,j)=frac_buried(i)*FC(i,0)*                 &
+     &                           (1.0_r8/dtdays)
+                PONsed(i,j)=PONsed(i,j)+(1.0_r8-frac_buried(i))*cff1
+# else
                 cff1=FC(i,0)*Hz_inv(i,1)
-                Bio(i,1,iNH4_)=Bio(i,1,iNH4_)+cff1
+                Bio(i,1,iNO3_)=Bio(i,1,iNO3_)+cff1
+!ENC: put the sinking PON into the ammonia pool. Do not need this if using
+!     the sediment pools
+!               Bio(i,1,iNH4_)=Bio(i,1,iNH4_)+cff1
+!
+# endif
               END DO
             ELSE IF (ibio.eq.iopal) THEN
               DO i=Istr,Iend
+# ifdef NEMURO_SED1
+                cff1=FC(i,0)
+                OPAL_burial(i,j)=frac_buried(i)*FC(i,0)*                &
+     &                               (1.0_r8/dtdays)
+                OPALsed(i,j)=OPALsed(i,j)+(1.0_r8-frac_buried(i))*cff1
+# else
                 cff1=FC(i,0)*Hz_inv(i,1)
                 Bio(i,1,iSiOH)=Bio(i,1,iSiOH)+cff1
+# endif
               END DO
             END IF
 #endif

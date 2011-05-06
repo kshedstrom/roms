@@ -42,6 +42,9 @@
 # ifdef MASKING
      &                   GRID(ng) % rmask,                              &
 # endif
+# ifdef OUTFLOW_MASK
+     &                   GRID(ng) % mask_outflow,                       &
+# endif
 # ifdef WET_DRY
      &                   GRID(ng) % rmask_wet,                          &
 # endif
@@ -68,6 +71,9 @@
      &                        liold, lieol,                             &
 # ifdef MASKING
      &                        rmask,                                    &
+# endif
+# ifdef OUTFLOW_MASK
+     &                        mask_outflow,                             &
 # endif
 # ifdef WET_DRY
      &                        rmask_wet,                                &
@@ -97,6 +103,9 @@
 #  ifdef MASKING
       real(r8), intent(in) :: rmask(LBi:,LBj:)
 #  endif
+#  ifdef OUTFLOW_MASK
+      real(r8), intent(in) :: mask_outflow(LBi:,LBj:)
+#  endif
 #  ifdef WET_DRY
       real(r8), intent(in) :: rmask_wet(LBi:,LBj:)
 #  endif
@@ -112,6 +121,9 @@
 # else
 #  ifdef MASKING
       real(r8), intent(in) :: rmask(LBi:UBi,LBj:UBj)
+#  endif
+#  ifdef OUTFLOW_MASK
+      real(r8), intent(in) :: mask_outflow(LBi:UBi,LBj:UBj)
 #  endif
 #  ifdef WET_DRY
       real(r8), intent(in) :: rmask_wet(LBi:UBi,LBj:UBj)
@@ -165,37 +177,40 @@
 !
       DO j=Jstr,Jend
         DO i=Istr,Iend
-         eps11(i,j) = (uie(i+1,j,lieol)-uie(i,j,lieol))*pm(i,j)
-         eps22(i,j) = (vie(i,j+1,lieol)-vie(i,j,lieol))*pn(i,j)
-         epx = 0.25_r8*( vie(i+1,j+1,lieol)+vie(i+1,j,lieol)            &
+          eps11(i,j) = (uie(i+1,j,lieol)-uie(i,j,lieol))*pm(i,j)
+          eps22(i,j) = (vie(i,j+1,lieol)-vie(i,j,lieol))*pn(i,j)
+          epx = 0.25_r8*( vie(i+1,j+1,lieol)+vie(i+1,j,lieol)           &
      &             - vie(i-1,j+1,lieol)-vie(i-1,j,lieol) )*pm(i,j)
-         epy = 0.25_r8*( uie(i+1,j+1,lieol)+uie(i,j+1,lieol)            &
+          epy = 0.25_r8*( uie(i+1,j+1,lieol)+uie(i,j+1,lieol)           &
      &             - uie(i+1,j-1,lieol)-uie(i,j-1,lieol) )*pn(i,j)
-         eps12(i,j) = 0.5_r8*(epx + epy)
+          eps12(i,j) = 0.5_r8*(epx + epy)
 !
-         eone=eps11(i,j)+eps22(i,j) 
-         etwos=(eps11(i,j)-eps22(i,j))*(eps11(i,j)-eps22(i,j))+         &
+          eone=eps11(i,j)+eps22(i,j) 
+          etwos=(eps11(i,j)-eps22(i,j))*(eps11(i,j)-eps22(i,j))+        &
      &         4.0_r8*eps12(i,j)*eps12(i,j)
 ! 
-         delta=abs(eone**2+e2r*etwos)
-         delta=max(sqrt(delta),epso)
-         pice(i,j)=pstar(ng)*hi(i,j,liold)                              &
+          delta=abs(eone**2+e2r*etwos)
+          delta=max(sqrt(delta),epso)
+          pice(i,j)=pstar(ng)*hi(i,j,liold)                             &
      &                *exp(-astren(ng)*(1.0_r8-ai(i,j,liold)))
-         zetai(i,j)=pice(i,j)/(2.0_r8*delta)
-         zmax = 2.5E+8_r8*pice(i,j)
-         zetai(i,j)= min(zetai(i,j),zetamax(ng))
-         zetai(i,j)= max(zetai(i,j),zetamin(ng))
-         eta(i,j)=e2r*zetai(i,j)
+# ifdef OUTFLOW_MASK
+          pice(i,j)=pice(i,j)*mask_outflow(i,j)
+# endif
+          zetai(i,j)=pice(i,j)/(2.0_r8*delta)
+          zmax = 2.5E+8_r8*pice(i,j)
+          zetai(i,j)= min(zetai(i,j),zetamax(ng))
+          zetai(i,j)= max(zetai(i,j),zetamin(ng))
+          eta(i,j)=e2r*zetai(i,j)
         ENDDO
-       ENDDO
+      ENDDO
 
-        CALL bc_r2d_tile (ng, tile,                                     &
+      CALL bc_r2d_tile (ng, tile,                                       &
      &                    LBi, UBi, LBj, UBj,                           &
      &                    pice)
-        CALL bc_r2d_tile (ng, tile,                                     &
+      CALL bc_r2d_tile (ng, tile,                                       &
      &                    LBi, UBi, LBj, UBj,                           &
      &                    zetai)
-        CALL bc_r2d_tile (ng, tile,                                     &
+      CALL bc_r2d_tile (ng, tile,                                       &
      &                    LBi, UBi, LBj, UBj,                           &
      &                    eta)
 #ifdef DISTRIBUTE

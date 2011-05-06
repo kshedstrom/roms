@@ -67,7 +67,7 @@
       out=stdout
 #endif
 !
-!  Get current data.
+!  Get current date.
 !
 #ifndef NO_DATE_STAMP
 # ifdef DISTRIBUTE
@@ -602,16 +602,16 @@
 !
 !  Hardcode the names of the filter restart files.
 !
-        filname(1,ng)=TRIM(ADJUSTL('ocean_fil2d.nc'))
-        filname(2,ng)=TRIM(ADJUSTL('ocean_filu.nc'))
-        filname(3,ng)=TRIM(ADJUSTL('ocean_filv.nc'))
-        filname(4,ng)=TRIM(ADJUSTL('ocean_filakt.nc'))
-        filname(5,ng)=TRIM(ADJUSTL('ocean_filaks.nc'))
-        filname(6,ng)=TRIM(ADJUSTL('ocean_filakv.nc'))
-        filname(7,ng)=TRIM(ADJUSTL('ocean_filr.nc'))
-        filname(8,ng)=TRIM(ADJUSTL('ocean_filt.nc'))
-        filname(9,ng)=TRIM(ADJUSTL('ocean_filw.nc'))
-        filname(10,ng)=TRIM(ADJUSTL('ocean_filice.nc'))
+        FILname(1,ng)=TRIM(ADJUSTL('ocean_fil2d.nc'))
+        FILname(2,ng)=TRIM(ADJUSTL('ocean_filu.nc'))
+        FILname(3,ng)=TRIM(ADJUSTL('ocean_filv.nc'))
+        FILname(4,ng)=TRIM(ADJUSTL('ocean_filakt.nc'))
+        FILname(5,ng)=TRIM(ADJUSTL('ocean_filaks.nc'))
+        FILname(6,ng)=TRIM(ADJUSTL('ocean_filakv.nc'))
+        FILname(7,ng)=TRIM(ADJUSTL('ocean_filr.nc'))
+        FILname(8,ng)=TRIM(ADJUSTL('ocean_filt.nc'))
+        FILname(9,ng)=TRIM(ADJUSTL('ocean_filw.nc'))
+        FILname(10,ng)=TRIM(ADJUSTL('ocean_filice.nc'))
 # endif
 #endif
 !
@@ -1071,9 +1071,9 @@
       logical, dimension(MBOTP,Ngrids) :: Lbottom
 #endif
       logical, allocatable :: Ltracer(:,:)
-#if defined AD_SENSITIVITY   || defined IS4DVAR_SENSITIVITY || \
-    defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR   || \
-    defined SO_SEMI
+#if defined AD_SENSITIVITY    || defined IS4DVAR_SENSITIVITY || \
+    defined FORCING_SV        || defined OPT_OBSERVATIONS    || \
+    defined SENSITIVITY_4DVAR || defined SO_SEMI
       logical, allocatable :: Ladsen(:)
 #endif
 #if defined DIAGNOSTICS_UV
@@ -1245,9 +1245,9 @@
             CALL initialize_param
             CALL initialize_scalars
             CALL initialize_ncparam
-#if defined AD_SENSITIVITY   || defined IS4DVAR_SENSITIVITY || \
-    defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR   || \
-    defined SO_SEMI
+#if defined AD_SENSITIVITY    || defined IS4DVAR_SENSITIVITY || \
+    defined FORCING_SV        || defined OPT_OBSERVATIONS    || \
+    defined SENSITIVITY_4DVAR || defined SO_SEMI
             IF (.not.allocated(Ladsen)) THEN
               allocate (Ladsen(MT*Ngrids))
             END IF
@@ -1307,21 +1307,21 @@
             Npts=load_i(Nval, Rval, 1, NCV)
 # if defined FT_EIGENMMODES || defined AFT_EIGENMODES
             IF (NCV.lt.(2*NEV+1)) THEN
-              IF (Master) WRITE (out,260) 'NCV',                        &
+              IF (Master) WRITE (out,260) 'NCV = ', NCV,                &
      &                       'Must be greater than or equal to 2*NEV+1'
               exit_flag=5
               RETURN
             END IF
 # elif defined OPT_PERTURBATION
             IF (NCV.lt.(2*NEV)) THEN
-              IF (Master) WRITE (out,260) 'NCV',                        &
+              IF (Master) WRITE (out,260) 'NCV = ', NCV,                &
      &                       'Must be greater than or equal to 2*NEV'
               exit_flag=5
               RETURN
             END IF
 # else
             IF (NCV.lt.(2*NEV)) THEN
-              IF (Master) WRITE (out,260) 'NCV',                        &
+              IF (Master) WRITE (out,260) 'NCV = ', NCV,                &
      &                                    'Must be greater than NEV'
               exit_flag=5
               RETURN
@@ -1430,6 +1430,8 @@
             END DO
             allocate ( SF_time(MAXVAL(Nfrec),Ngrids) )
 #endif
+          ELSE IF (TRIM(KeyWord).eq.'LmultiGST') THEN
+            Npts=load_l(Nval, Cval, 1, LmultiGST)
           ELSE IF (TRIM(KeyWord).eq.'LrstGST') THEN
             Npts=load_l(Nval, Cval, 1, LrstGST)
           ELSE IF (TRIM(KeyWord).eq.'MaxIterGST') THEN
@@ -1625,10 +1627,10 @@
             Npts=load_i(Nval, Rval, Ngrids, Vstretching)
             DO ng=1,Ngrids
               IF ((Vstretching(ng).lt.0).or.                            &
-     &            (Vstretching(ng).gt.3)) THEN
+     &            (Vstretching(ng).gt.4)) THEN
                 IF (Master) WRITE (out,260) 'Vstretching = ',           &
      &                                      Vstretching(ng),            &
-     &                                      'Must between 1 and 3'
+     &                                      'Must between 1 and 4'
                 exit_flag=5
                 RETURN
               END IF
@@ -1775,52 +1777,144 @@
               END DO
             END DO
 # endif
-# ifdef SO_SEMI
-          ELSE IF (TRIM(KeyWord).eq.'SO_decay') THEN
-            Npts=load_r(Nval, Rval, Ngrids, SO_decay)
-          ELSE IF (TRIM(KeyWord).eq.'SOstate(isUstr)') THEN
+#endif
+#if defined FORCING_SV || defined SO_SEMI
+          ELSE IF (TRIM(KeyWord).eq.'Fstate(isFsur)') THEN
+            IF (isFsur.eq.0) THEN
+              IF (Master) WRITE (out,280) 'isFsur'
+              exit_flag=5
+              RETURN
+            END IF
             Npts=load_l(Nval, Cval, Ngrids, Ladsen)
             DO ng=1,Ngrids
-              SCALARS(ng)%SOstate(isUstr)=Ladsen(ng)
+              SCALARS(ng)%Fstate(isFsur)=Ladsen(ng)
             END DO
-          ELSE IF (TRIM(KeyWord).eq.'SOstate(isVstr)') THEN
+          ELSE IF (TRIM(KeyWord).eq.'Fstate(isUbar)') THEN
+            IF (isUbar.eq.0) THEN
+              IF (Master) WRITE (out,280) 'isUbar'
+              exit_flag=5
+              RETURN
+            END IF
             Npts=load_l(Nval, Cval, Ngrids, Ladsen)
             DO ng=1,Ngrids
-              SCALARS(ng)%SOstate(isVstr)=Ladsen(ng)
+              SCALARS(ng)%Fstate(isUbar)=Ladsen(ng)
             END DO
-#  ifdef SOLVE3D
-          ELSE IF (TRIM(KeyWord).eq.'SOstate(isTsur)') THEN
+          ELSE IF (TRIM(KeyWord).eq.'Fstate(isVbar)') THEN
+            IF (isVbar.eq.0) THEN
+              IF (Master) WRITE (out,280) 'isVbar'
+              exit_flag=5
+              RETURN
+            END IF
+            Npts=load_l(Nval, Cval, Ngrids, Ladsen)
+            DO ng=1,Ngrids
+              SCALARS(ng)%Fstate(isVbar)=Ladsen(ng)
+            END DO
+# ifdef SOLVE3D
+          ELSE IF (TRIM(KeyWord).eq.'Fstate(isUvel)') THEN
+            IF (isUvel.eq.0) THEN
+              IF (Master) WRITE (out,280) 'isUvel'
+              exit_flag=5
+              RETURN
+            END IF
+            Npts=load_l(Nval, Cval, Ngrids, Ladsen)
+            DO ng=1,Ngrids
+              SCALARS(ng)%Fstate(isUvel)=Ladsen(ng)
+            END DO
+          ELSE IF (TRIM(KeyWord).eq.'Fstate(isVvel)') THEN
+            IF (isVvel.eq.0) THEN
+              IF (Master) WRITE (out,280) 'isVvel'
+              exit_flag=5
+              RETURN
+            END IF
+            Npts=load_l(Nval, Cval, Ngrids, Ladsen)
+            DO ng=1,Ngrids
+              SCALARS(ng)%Fstate(isVvel)=Ladsen(ng)
+            END DO
+          ELSE IF (TRIM(KeyWord).eq.'Fstate(isTvar)') THEN
+            IF (MAXVAL(isTvar).eq.0) THEN
+              IF (Master) WRITE (out,280) 'isTvar'
+              exit_flag=5
+              RETURN
+            END IF
+            Npts=load_l(Nval, Cval, MT*Ngrids, Ladsen)
+            k=0
+            DO ng=1,Ngrids
+              DO itrc=1,MT
+                k=k+1
+                i=isTvar(itrc)
+                SCALARS(ng)%Fstate(i)=Ladsen(k)
+              END DO
+            END DO
+# endif
+          ELSE IF (TRIM(KeyWord).eq.'Fstate(isUstr)') THEN
+            IF (isUstr.eq.0) THEN
+              IF (Master) WRITE (out,280) 'isUstr'
+              exit_flag=5
+              RETURN
+            END IF
+            Npts=load_l(Nval, Cval, Ngrids, Ladsen)
+            DO ng=1,Ngrids
+              SCALARS(ng)%Fstate(isUstr)=Ladsen(ng)
+            END DO
+          ELSE IF (TRIM(KeyWord).eq.'Fstate(isVstr)') THEN
+            IF (isUstr.eq.0) THEN
+              IF (Master) WRITE (out,280) 'isVstr'
+              exit_flag=5
+              RETURN
+            END IF
+            Npts=load_l(Nval, Cval, Ngrids, Ladsen)
+            DO ng=1,Ngrids
+              SCALARS(ng)%Fstate(isVstr)=Ladsen(ng)
+            END DO
+# ifdef SOLVE3D
+          ELSE IF (TRIM(KeyWord).eq.'Fstate(isTsur)') THEN
+            IF (MAXVAL(isTsur).eq.0) THEN
+              IF (Master) WRITE (out,280) 'isTsur'
+              exit_flag=5
+              RETURN
+            END IF
             Npts=load_l(Nval, Cval, MT*Ngrids, Ladsen)
             k=0
             DO ng=1,Ngrids
               DO itrc=1,MT
                 k=k+1
                 i=isTsur(itrc)
-                SCALARS(ng)%SOstate(i)=Ladsen(k)
+                SCALARS(ng)%Fstate(i)=Ladsen(k)
               END DO
             END DO
-#  endif
+# endif
+#endif
+#ifdef SO_SEMI
+          ELSE IF (TRIM(KeyWord).eq.'SO_decay') THEN
+            Npts=load_r(Nval, Rval, Ngrids, SO_decay)
+          ELSE IF (TRIM(KeyWord).eq.'SO_sdev(isFsur)') THEN
+            Npts=load_r(Nval, Rval, Ngrids, SO_sdev(isFsur,1))
+          ELSE IF (TRIM(KeyWord).eq.'SO_sdev(isUbar)') THEN
+            Npts=load_r(Nval, Rval, Ngrids, SO_sdev(isUbar,1))
+          ELSE IF (TRIM(KeyWord).eq.'SO_sdev(isVbar)') THEN
+            Npts=load_r(Nval, Rval, Ngrids, SO_sdev(isVbar,1))
+# ifdef SOLVE3D
+          ELSE IF (TRIM(KeyWord).eq.'SO_sdev(isUvel)') THEN
+            Npts=load_r(Nval, Rval, Ngrids, SO_sdev(isUvel,1))
+          ELSE IF (TRIM(KeyWord).eq.'SO_sdev(isVvel)') THEN
+            Npts=load_r(Nval, Rval, Ngrids, SO_sdev(isVvel,1))
+          ELSE IF (TRIM(KeyWord).eq.'SO_sdev(isTvar)') THEN
+            Npts=load_r(Nval, Rval, MT*Ngrids, tracer)
+            k=0
+            DO ng=1,Ngrids
+              DO itrc=1,MT
+                k=k+1
+                i=isTvar(itrc)
+                SO_sdev(i,ng)=tracer(k,ng)
+              END DO
+            END DO
+# endif
           ELSE IF (TRIM(KeyWord).eq.'SO_sdev(isUstr)') THEN
-            IF (isUstr.eq.0) THEN
-              IF (Master) WRITE (out,280) 'isUstr'
-              exit_flag=5
-              RETURN
-            END IF
             Npts=load_r(Nval, Rval, Ngrids, SO_sdev(isUstr,1))
           ELSE IF (TRIM(KeyWord).eq.'SO_sdev(isVstr)') THEN
-            IF (isUstr.eq.0) THEN
-              IF (Master) WRITE (out,280) 'isVstr'
-              exit_flag=5
-              RETURN
-            END IF
             Npts=load_r(Nval, Rval, Ngrids, SO_sdev(isVstr,1))
-#  ifdef SOLVE3D
+# ifdef SOLVE3D
           ELSE IF (TRIM(KeyWord).eq.'SO_sdev(isTsur)') THEN
-            IF (MAXVAL(isTsur).eq.0) THEN
-              IF (Master) WRITE (out,280) 'isTsur'
-              exit_flag=5
-              RETURN
-            END IF
             Npts=load_r(Nval, Rval, MT*Ngrids, tracer)
             k=0
             DO ng=1,Ngrids
@@ -1830,7 +1924,6 @@
                 SO_sdev(i,ng)=tracer(k,ng)
               END DO
             END DO
-#  endif
 # endif
 #endif
 #if defined SOLVE3D && defined TS_PSOURCE
@@ -1919,20 +2012,6 @@
                 Hout(i,ng)=Ltracer(itrc,ng)
               END DO
             END DO
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idUair)') THEN
-            IF (idUair.eq.0) THEN
-              IF (Master) WRITE (out,280) 'idUair'
-              exit_flag=5
-              RETURN
-            END IF
-            Npts=load_l(Nval, Cval, Ngrids, Hout(idUair,:))
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idVair)') THEN
-            IF (idVair.eq.0) THEN
-              IF (Master) WRITE (out,280) 'idVair'
-              exit_flag=5
-              RETURN
-            END IF
-            Npts=load_l(Nval, Cval, Ngrids, Hout(idVair,:))
           ELSE IF (TRIM(KeyWord).eq.'Hout(idUsms)') THEN
             IF (idUsms.eq.0) THEN
               IF (Master) WRITE (out,280) 'idUsms'
@@ -3698,7 +3777,7 @@
             Npts=load_i(Nval, Rval, Ngrids, nFfiles)
             DO ng=1,Ngrids
               IF (nFfiles(ng).le.0) THEN
-                IF (Master) WRITE (out,260) 'NFFILES',                  &
+                IF (Master) WRITE (out,260) 'NFFILES', nFfiles(ng),     &
      &                            'Must be equal or greater than one.'
                 exit_flag=4
                 RETURN
@@ -3849,6 +3928,33 @@
         Hout(idEmPf,ng)=.TRUE.
 #  endif
 # endif
+      END DO
+#endif
+
+#if defined FORCING_SV || defined SO_SEMI
+!
+!  Make sure that logical output switches are activated for the
+!  Forcing Singular Vectors or Stochastic Optimals variables.
+!
+      DO ng=1,Ngrids
+        IF (SCALARS(ng)%Fstate(isFsur)) Hout(idFsur,ng)=.TRUE.
+# ifndef SOLVE3D
+        IF (SCALARS(ng)%Fstate(isUbar)) Hout(idUbar,ng)=.TRUE.
+        IF (SCALARS(ng)%Fstate(isVbar)) Hout(idVbar,ng)=.TRUE.
+# else
+        IF (SCALARS(ng)%Fstate(isUvel)) Hout(idUvel,ng)=.TRUE.
+        IF (SCALARS(ng)%Fstate(isVvel)) Hout(idVvel,ng)=.TRUE.
+        DO itrc=1,NT(ng)
+          IF (SCALARS(ng)%Fstate(isTvar(itrc))) THEN
+            Hout(idTvar(itrc),ng)=.TRUE.
+          END IF
+          IF (SCALARS(ng)%Fstate(isTsur(itrc))) THEN
+            Hout(idTsur(itrc),ng)=.TRUE.
+          END IF
+        END DO
+# endif
+        IF (SCALARS(ng)%Fstate(isUstr)) Hout(idUsms,ng)=.TRUE.
+        IF (SCALARS(ng)%Fstate(isVstr)) Hout(idVsms,ng)=.TRUE.
       END DO
 #endif
 !
@@ -4200,6 +4306,8 @@
      &          'surface forcing fields.'
 #endif
 #ifdef PROPAGATOR
+          WRITE (out,170) LmultiGST, 'LmultiGST',                       &
+     &          'Switch to write one GST eigenvector per file.'
           WRITE (out,170) LrstGST, 'LrstGST',                           &
      &          'Switch to restart GST analysis.'
           WRITE (out,120) MaxIterGST, 'MaxIterGST',                     &
@@ -4393,7 +4501,7 @@
      &          'Bottom roughness (m).'
 #ifdef BBL_MODEL
           IF (Zob(ng).le.0.0_r8) THEN
-            WRITE (out,260) 'Zob.',                                     &
+            WRITE (out,265) 'Zob = ', Zob(ng),                          &
      &            'It must be greater than zero when BBL is activated.'
             exit_flag=5
             RETURN
@@ -4408,7 +4516,7 @@
           WRITE (out,200) blk_ZQ(ng), 'blk_ZQ',                         &
      &          'Height (m) of surface air humidity measurement.'
           IF (blk_ZQ(ng).le.0.0_r8) THEN
-            WRITE (out,260) 'blk_ZQ.',                                  &
+            WRITE (out,265) 'blk_ZQ = ', blk_ZQ(ng),                    &
      &            'It must be greater than zero.'
             exit_flag=5
             RETURN
@@ -4416,7 +4524,7 @@
           WRITE (out,200) blk_ZT(ng), 'blk_ZT',                         &
      &          'Height (m) of surface air temperature measurement.'
           IF (blk_ZT(ng).le.0.0_r8) THEN
-            WRITE (out,260) 'blk_ZT.',                                  &
+            WRITE (out,265) 'blk_ZT = ', blk_ZT(ng),                    &
      &            'It must be greater than zero.'
             exit_flag=5
             RETURN
@@ -4424,7 +4532,7 @@
           WRITE (out,200) blk_ZW(ng), 'blk_ZW',                         &
      &          'Height (m) of surface winds measurement.'
           IF (blk_ZW(ng).le.0.0_r8) THEN
-            WRITE (out,260) 'blk_ZW.',                                  &
+            WRITE (out,265) 'blk_ZW = ', blk_ZW(ng),                    &
      &            'It must be greater than zero.'
             exit_flag=5
             RETURN
@@ -4440,7 +4548,7 @@
           WRITE (out,120) lmd_Jwt(ng), 'lmd_Jwt',                       &
      &          'Jerlov water type.'
           IF ((lmd_Jwt(ng).lt.1).or.(lmd_Jwt(ng).gt.5)) THEN
-            WRITE (out,260) 'lmd_Jwt.',                                 &
+            WRITE (out,260) 'lmd_Jwt = ', lmd_Jwt(ng),                  &
      &            'It must between one and five.'
             exit_flag=5
             RETURN
@@ -4451,7 +4559,7 @@
      &          'Deepest level to apply surface stress as a',           &
      &          'bodyforce.'
           IF ((levsfrc(ng).lt.1).or.(levsfrc(ng).gt.N(ng))) THEN
-            WRITE (out,260) 'levsfrc.',                                 &
+            WRITE (out,260) 'levsfrc = ', levsfrc(ng),                  &
      &            'Out of range surface bodyforce level.'
             exit_flag=5
             RETURN
@@ -4460,7 +4568,7 @@
      &          'Shallowest level to apply bottom stress as a',         &
      &          'bodyforce.'
           IF ((levbfrc(ng).lt.1).or.(levbfrc(ng).gt.N(ng))) THEN
-            WRITE (out,260) 'levbfrc.',                                 &
+            WRITE (out,260) 'levbfrc = ', levbfrc(ng),                  &
      &            'Out of range bottom bodyforce level.'
             exit_flag=5
             RETURN
@@ -4476,9 +4584,15 @@
      &          'S-coordinate surface control parameter.'
           WRITE (out,200) theta_b(ng), 'theta_b',                       &
      &          'S-coordinate bottom  control parameter.'
-          WRITE (out,160) Tcline(ng), 'Tcline',                         &
-     &          'S-coordinate surface/bottom layer width (m) used',     &
-     &          'in vertical coordinate stretching.'
+          IF (Tcline(ng).gt.1.0E+5_r8) THEN
+            WRITE (out,210) Tcline(ng), 'Tcline',                       &
+     &            'S-coordinate surface/bottom layer width (m) used',   &
+     &            'in vertical coordinate stretching.'
+          ELSE
+            WRITE (out,160) Tcline(ng), 'Tcline',                       &
+     &            'S-coordinate surface/bottom layer width (m) used',   &
+     &            'in vertical coordinate stretching.'
+          END IF
 #endif
           WRITE (out,140) rho0, 'rho0',                                 &
      &          'Mean density (kg/m3) for Boussinesq approximation.'
@@ -4506,7 +4620,7 @@
           END DO
 # ifdef SCORRECTION
           IF (Tnudg(isalt,ng).le.0.0_r8) THEN
-            WRITE (out,260) 'Tnudg(isalt).',                            &
+            WRITE (out,265) 'Tnudg(isalt) = ', Tnudg(isalt,ng),         &
      &            'Must be greater than zero for salt flux correction.'
             exit_flag=5
             RETURN
@@ -4558,7 +4672,7 @@
           WRITE (out,120) KstrS(ng), 'KstrS',                           &
      &          'Deepest level whose ADM sensitivity is required.'
           IF ((KstrS(ng).lt.1).or.(KstrS(ng).gt.N(ng))) THEN
-            WRITE (out,260) 'KstrS',                                    &
+            WRITE (out,260) 'KstrS = ', KstrS(ng),                      &
      &            'Out of range ADM sensitivity starting level.'
             exit_flag=5
             RETURN
@@ -4566,7 +4680,7 @@
           WRITE (out,120) KendS(ng), 'KendS',                           &
      &          'Shallowest level whose ADM sensitivity is required.'
           IF ((KendS(ng).lt.1).or.(KendS(ng).gt.N(ng))) THEN
-            WRITE (out,260) 'KendS',                                    &
+            WRITE (out,260) 'KendS = ', KendS(ng),                      &
      &            'Out of range ADM sensitivity level.'
             exit_flag=5
             RETURN
@@ -4601,43 +4715,136 @@
      &         itrc, TRIM(Vname(1,idTvar(itrc)))
           END DO
 # endif
-# ifdef SO_SEMI
-#  ifndef SO_SEMI_WHITE
+#endif
+#if defined FORCING_SV || defined SO_SEMI
+          IF (SCALARS(ng)%Fstate(isFsur))                               &
+     &       WRITE (out,170) SCALARS(ng)%Fstate(isFsur),                &
+     &       'Fstate(isFsur)',                                          &
+# ifdef FORCING_SV
+     &       'Singular Forcing Vectors on free-surface.'
+# else
+     &       'Stochastic Optimals on free-surface.'
+# endif
+# ifdef SOLVE3D
+          IF (SCALARS(ng)%Fstate(isUvel))                               &
+     &       WRITE (out,170) SCALARS(ng)%Fstate(isUvel),                &
+     &       'Fstate(isUvel)',                                          &
+#  ifdef FORCING_SV
+     &       'Singular Forcing Vectors on 3D U-momentum component.'
+#  else
+     &       'Stochastic Optimals on 3D U-momentum component.'
+#  endif
+          IF (SCALARS(ng)%Fstate(isVvel))                               &
+     &       WRITE (out,170) SCALARS(ng)%Fstate(isVvel),                &
+     &       'Fstate(isVvel)',                                          &
+#  ifdef FORCING_SV
+     &       'Singular Forcing Vectors on 3D V-momentum component.'
+#  else
+     &       'Stochastic Optimals on 3D V-momentum component.'
+#  endif
+          DO itrc=1,NT(ng)
+            IF (SCALARS(ng)%Fstate(isTvar(itrc)))                       &
+     &         WRITE (out,180) SCALARS(ng)%Fstate(isTvar(itrc)),        &
+     &         'Fstate(idTVar)',                                        &
+#  ifdef FORCING_SV
+     &         'Singular Forcing Vectors on tracer',                    &
+#  else
+     &         'Stochastic Optimals on tracer',                         &
+#  endif
+     &         itrc, TRIM(Vname(1,idTvar(itrc)))
+          END DO
+# else
+          IF (SCALARS(ng)%Fstate(isUbar))                               &
+     &       WRITE (out,170) SCALARS(ng)%Fstate(isUbar),                &
+     &       'Fstate(isUbar)',                                          &
+#  ifdef FORCING_SV
+     &       'Singular Forcing Vectors on 2D U-momentum component.'
+#  else
+     &       'Stochastic Optimals on 2D U-momentum component.'
+#  endif
+          IF (SCALARS(ng)%Fstate(isVbar))                               &
+     &       WRITE (out,170) SCALARS(ng)%Fstate(isVbar),                &
+     &       'Fstate(isVbar)',                                          &
+#  ifdef FORCING_SV
+     &       'Singular Forcing Vectors on 2D V-momentum component.'
+#  else
+     &       'Stochastic Optimals on 2D V-momentum component.'
+#  endif
+# endif
+          IF (SCALARS(ng)%Fstate(isUstr))                               &
+     &       WRITE (out,170) SCALARS(ng)%Fstate(isUstr),                &
+     &       'Fstate(isUstr)',                                          &
+# ifdef FORCING_SV
+     &       'Singular Forcing Vectors on surface U-stress.'
+# else
+     &       'Stochastic Optimals on surface U-stress.'
+# endif
+          IF (SCALARS(ng)%Fstate(isVstr))                               &
+     &       WRITE (out,170) SCALARS(ng)%Fstate(isVstr),                &
+     &       'Fstate(isVstr)',                                          &
+# ifdef FORCING_SV
+     &       'Singular Forcing Vectors on surface V-stress.'
+# else
+     &       'Stochastic Optimals on surface V-stress.'
+# endif
+# ifdef SOLVE3D
+          DO itrc=1,NT(ng)
+            IF (SCALARS(ng)%Fstate(isTsur(itrc)))                       &
+     &         WRITE (out,180) SCALARS(ng)%Fstate(isTsur(itrc)),        &
+     &         'Fstate(idTsur)',                                        &
+#  ifdef FORCING_SV
+     &         'Singular Forcing Vectors on surface flux of tracer',    &
+#  else
+     &         'Stochastic Optimals on surface flux of tracer',         &
+#  endif
+     &         itrc, TRIM(Vname(1,idTvar(itrc)))
+          END DO
+# endif
+#endif
+#ifdef SO_SEMI
+# ifndef SO_SEMI_WHITE
           WRITE (out,140) SO_decay(ng), 'SO_decay',                     &
      &          'Stochastic optimals time decorrelation scale (days).'
-#  endif
-          IF (SCALARS(ng)%SOstate(isUstr))                              &
-     &       WRITE (out,170) SCALARS(ng)%SOstate(isUstr),               &
-     &       'SOstate(isUstr)',                                         &
-     &       'Stochastic optimals on surface U-stress.'
-          IF (SCALARS(ng)%SOstate(isVstr))                              &
-     &       WRITE (out,170) SCALARS(ng)%SOstate(isVstr),               &
-     &       'SOstate(isVstr)',                                         &
-     &       'Stochastic optimals on surface V-stress.'
-#  ifdef SOLVE3D
+# endif
+          IF (SCALARS(ng)%Fstate(isFsur))                               &
+            WRITE (out,200) SO_sdev(isFsur,ng), 'SO_sdev(isFsur)',      &
+     &          'Stochastic Optimals scale, free-surface'
+# ifdef SOLVE3D
+          IF (SCALARS(ng)%Fstate(isUvel))                               &
+            WRITE (out,200) SO_sdev(isUvel,ng), 'SO_sdev(isUvel)',      &
+     &          'Stochastic Optimals scale, 3D U-momentum'
+          IF (SCALARS(ng)%Fstate(isVvel))                               &
+            WRITE (out,200) SO_sdev(isVvel,ng), 'SO_sdev(isVvel)',      &
+     &          'Stochastic Optimals scale, 3D V-momentum'
           DO itrc=1,NT(ng)
-            IF (SCALARS(ng)%SOstate(isTsur(itrc)))                      &
-     &         WRITE (out,180) SCALARS(ng)%SOstate(isTsur(itrc)),       &
-     &         'SOstate(idTsur)',                                       &
-     &         'Stochastic optimals on surface flux of tracer',         &
+            IF (SCALARS(ng)%Fstate(isTvar(itrc)))                       &
+     &         WRITE (out,195) SO_sdev(isTvar(itrc),ng),                &
+     &         'SO_sdev(idTvar)',                                       &
+     &         'Stochastic Optimals scale, tracer',                     &
      &         itrc, TRIM(Vname(1,idTvar(itrc)))
           END DO
-#  endif
-          IF (SCALARS(ng)%SOstate(isUstr))                              &
+# else
+          IF (SCALARS(ng)%Fstate(isUbar))                               &
+            WRITE (out,200) SO_sdev(isUbar,ng), 'SO_sdev(isUbar)',      &
+     &          'Stochastic Optimals scale, 2D U-momentum'
+          IF (SCALARS(ng)%Fstate(isVbar))                               &
+            WRITE (out,200) SO_sdev(isVbar,ng), 'SO_sdev(isVbar)',      &
+     &          'Stochastic Optimals scale, 2D V-momentum'
+# endif
+          IF (SCALARS(ng)%Fstate(isUstr))                               &
             WRITE (out,200) SO_sdev(isUstr,ng), 'SO_sdev(isUstr)',      &
-     &          'Stochastic optimals scale, surface U-stress'
-          IF (SCALARS(ng)%SOstate(isVstr))                              &
+     &          'Stochastic Optimals scale, surface U-stress'
+          IF (SCALARS(ng)%Fstate(isVstr))                               &
             WRITE (out,200) SO_sdev(isVstr,ng), 'SO_sdev(isVstr)',      &
-     &          'Stochastic optimals scale, surface V-stress'
-#  ifdef SOLVE3D
+     &          'Stochastic Optimals scale, surface V-stress'
+# ifdef SOLVE3D
           DO itrc=1,NT(ng)
-            IF (SCALARS(ng)%SOstate(isTsur(itrc)))                      &
+            IF (SCALARS(ng)%Fstate(isTsur(itrc)))                       &
      &         WRITE (out,195) SO_sdev(isTsur(itrc),ng),                &
      &         'SO_sdev(idTsur)',                                       &
-     &         'Stochastic optimals scale, surface flux of tracer',     &
+     &         'Stochastic Optimals scale, surface flux of tracer',     &
      &         itrc, TRIM(Vname(1,idTvar(itrc)))
           END DO
-#  endif
 # endif
 #endif
 #if defined SOLVE3D && defined TS_PSOURCE
@@ -4756,12 +4963,6 @@
      &       'Hout(idWro)',                                             &
      &       'Write out ice melt runoff rate.'
 #endif
-          IF (Hout(idUair,ng)) WRITE (out,170) Hout(idUair,ng),         &
-     &       'Hout(idUair)',                                            &
-     &       'Write out surface U-winds.'
-          IF (Hout(idVair,ng)) WRITE (out,170) Hout(idVair,ng),         &
-     &       'Hout(idVair)',                                            &
-     &       'Write out surface V-winds.'
           IF (Hout(idUsms,ng)) WRITE (out,170) Hout(idUsms,ng),         &
      &       'Hout(idUsms)',                                            &
      &       'Write out surface U-momentum stress.'
@@ -5510,6 +5711,15 @@
           IF (Aout(idOPALsed,ng)) WRITE (out,170) Aout(idOPALsed,ng),   &
      &       'Aout(idOPALsed)',                                         &
      &       'Write out averaged OPAL in sediment.'
+          IF (Aout(idDENITsed,ng)) WRITE (out,170) Aout(idDENITsed,ng), &
+     &       'Aout(idDENITsed)',                                        &
+     &       'Write out averaged DENIT in sediment.'
+          IF (Aout(idPONbur,ng)) WRITE (out,170) Aout(idPONbur,ng),     &
+     &       'Aout(idPONbur)',                                          &
+     &       'Write out averaged buried PON in sediment.'
+          IF (Aout(idOPALbur,ng)) WRITE (out,170) Aout(idOPALbur,ng),   &
+     &       'Aout(idOPALbur)',                                         &
+     &       'Write out averaged buried OPAL in sediment.'
 #  endif
 #  if defined LMD_MIXING || defined MY25_MIXING || defined GLS_MIXING
           IF (Aout(idVvis,ng)) WRITE (out,170) Aout(idVvis,ng),         &
@@ -6034,7 +6244,8 @@
 # endif
 # if defined ADJOINT && \
     !(defined AD_SENSITIVITY      || defined FOUR_DVAR         || \
-      defined IS4DVAR_SENSITIVITY || defined OPT_OBSERVATIONS  || \
+      defined IS4DVAR_SENSITIVITY || defined FORCING_SV        || \
+      defined OPT_OBSERVATIONS    || defined OPT_PERTURBATION  || \
       defined SANITY_CHECK        || defined SENSITIVITY_4DVAR || \
       defined SO_SEMI)
           fname=IADname(ng)
@@ -6148,11 +6359,12 @@
 !-----------------------------------------------------------------------
 !
         IF (Nouter.gt.1) THEN
-          exit_flag=5
           IF (Master) THEN
             WRITE (out,320) 'Nouter = ', Nouter,                        &
      &        'Posterior analysis error available for Nouter=1 only.'
           END IF
+          exit_flag=5
+          RETURN
         END IF
 #endif
 
@@ -6257,7 +6469,10 @@
  240  FORMAT (/,' Generic User Parameters:',/)
  250  FORMAT (1p,e11.4,2x,'user(',i2.2,')',t30,                         &
      &        'User parameter ',i2.2,'.')
- 260  FORMAT (/,' READ_PHYPAR - Invalid input parameter, ',a,/,15x,a)
+ 260  FORMAT (/,' READ_PHYPAR - Invalid input parameter, ',a,           &
+     &        i4,/,15x,a)
+ 265  FORMAT (/,' READ_PHYPAR - Invalid input parameter, ',a,           &
+     &        1p,e11.4,/,15x,a)
  270  FORMAT (/,' READ_PHYPAR - could not find input file:  ',a)
  280  FORMAT (/,' READ_PHYPAR - variable info not yet loaded, ', a)
  290  FORMAT (/,' READ_PHYPAR - Invalid dimension parameter, ',a,i4,    &
@@ -8282,10 +8497,6 @@
                 Sout(idTvar(itrc),ng)=Lsta(itrc,ng)
               END DO
             END DO
-          ELSE IF (TRIM(KeyWord).eq.'Sout(idUair)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idUair,1))
-          ELSE IF (TRIM(KeyWord).eq.'Sout(idVair)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idVair,1))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idUsms)') THEN
             Npts=load_l(Nval, Cval, Ngrids, Sout(idUsms,:))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idVsms)') THEN
@@ -8418,6 +8629,12 @@
             Npts=load_l(Nval, Cval, Ngrids, Sout(idPONsed,:))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idOPALsed)') THEN
             Npts=load_l(Nval, Cval, Ngrids, Sout(idOPALsed,:))
+          ELSE IF (TRIM(KeyWord).eq.'Sout(idDENITsed)') THEN
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idDENITsed,:))
+          ELSE IF (TRIM(KeyWord).eq.'Sout(idPONbur)') THEN
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idPONbur,:))
+          ELSE IF (TRIM(KeyWord).eq.'Sout(idOPALbur)') THEN
+            Npts=load_l(Nval, Cval, Ngrids, Sout(idOPALbur,:))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idMtke)') THEN
             Npts=load_l(Nval, Cval, Ngrids, Sout(idMtke,:))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idMtls)') THEN
@@ -8568,12 +8785,6 @@
      &            'Write out tracer ', itrc, TRIM(Vname(1,idTvar(itrc)))
             END DO
 # endif
-            IF (Sout(idUair,ng)) WRITE (out,80) Sout(idUair,ng),        &
-     &          'Sout(idUair)',                                         &
-     &          'Write out surface U-wind.'
-            IF (Sout(idVair,ng)) WRITE (out,80) Sout(idVair,ng),        &
-     &          'Sout(idVair)',                                         &
-     &          'Write out surface V-wind.'
             IF (Sout(idUsms,ng)) WRITE (out,80) Sout(idUsms,ng),        &
      &          'Sout(idUsms)',                                         &
      &          'Write out surface U-momentum stress.'
@@ -8782,6 +8993,15 @@
             IF (Sout(idOPALsed,ng)) WRITE (out,80) Sout(idOPALsed,ng),  &
      &          'Sout(idOPALsed)',                                      &
      &          'Write out OPAL in sediment.'
+            IF (Sout(idDENITsed,ng)) WRITE (out,80) Sout(idDENITsed,ng),&
+     &          'Sout(idDENITsed)',                                     &
+     &          'Write out DENIT in sediment.'
+            IF (Sout(idPONbur,ng)) WRITE (out,80) Sout(idPONbur,ng),    &
+     &          'Sout(idPONbur)',                                       &
+     &          'Write out buried PON in sediment.'
+            IF (Sout(idOPALbur,ng)) WRITE (out,80) Sout(idOPALbur,ng),  &
+     &          'Sout(idOPALbur)',                                      &
+     &          'Write out buried OPAL in sediment.'
 #  endif
 #  ifdef LMD_SKPP
             IF (Sout(idHsbl,ng)) WRITE (out,80) Sout(idHsbl,ng),        &

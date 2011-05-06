@@ -1137,6 +1137,69 @@
         status=def_var(ng, iNLM, ncRSTid(ng), rstVid(idOPALsed,ng),     &
      &                 NF_FRST, nvd3, t2dgrd, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
+!
+!  Define DENIT in sediment.
+!
+        Vinfo( 1)=Vname(1,idDENITsed)
+        Vinfo( 2)=Vname(2,idDENITsed)
+        Vinfo( 3)=Vname(3,idDENITsed)
+        Vinfo(14)=Vname(4,idDENITsed)
+        Vinfo(16)=Vname(1,idtime)
+#  if defined WRITE_WATER && defined MASKING
+#   if defined PERFECT_RESTART
+        Vinfo(24)='_FillValue'
+        Aval(6)=spval
+#   else
+        Vinfo(20)='mask_rho'
+#   endif
+#  endif
+        Vinfo(22)='coordinates'
+        Aval(5)=REAL(Iinfo(1,idDENITsed,ng),r8)
+        status=def_var(ng, iNLM, ncRSTid(ng), rstVid(idDENITsed,ng),     &
+     &                 NF_FRST, nvd3, t2dgrd, Aval, Vinfo, ncname)
+        IF (exit_flag.ne.NoError) RETURN
+!
+!  Define buried PON in sediment.
+!
+        Vinfo( 1)=Vname(1,idPONbur)
+        Vinfo( 2)=Vname(2,idPONbur)
+        Vinfo( 3)=Vname(3,idPONbur)
+        Vinfo(14)=Vname(4,idPONbur)
+        Vinfo(16)=Vname(1,idtime)
+#  if defined WRITE_WATER && defined MASKING
+#   if defined PERFECT_RESTART
+        Vinfo(24)='_FillValue'
+        Aval(6)=spval
+#   else
+        Vinfo(20)='mask_rho'
+#   endif
+#  endif
+        Vinfo(22)='coordinates'
+        Aval(5)=REAL(Iinfo(1,idPONbur,ng),r8)
+        status=def_var(ng, iNLM, ncRSTid(ng), rstVid(idPONbur,ng),      &
+     &                 NF_FRST, nvd3, t2dgrd, Aval, Vinfo, ncname)
+        IF (exit_flag.ne.NoError) RETURN
+!
+!  Define buried OPAL in sediment.
+!
+        Vinfo( 1)=Vname(1,idOPALbur)
+        Vinfo( 2)=Vname(2,idOPALbur)
+        Vinfo( 3)=Vname(3,idOPALbur)
+        Vinfo(14)=Vname(4,idOPALbur)
+        Vinfo(16)=Vname(1,idtime)
+#  if defined WRITE_WATER && defined MASKING
+#   if defined PERFECT_RESTART
+        Vinfo(24)='_FillValue'
+        Aval(6)=spval
+#   else
+        Vinfo(20)='mask_rho'
+#   endif
+#  endif
+        Vinfo(22)='coordinates'
+        Aval(5)=REAL(Iinfo(1,idOPALbur,ng),r8)
+        status=def_var(ng, iNLM, ncRSTid(ng), rstVid(idOPALbur,ng),     &
+     &                 NF_FRST, nvd3, t2dgrd, Aval, Vinfo, ncname)
+        IF (exit_flag.ne.NoError) RETURN
 # endif
 
 # ifdef LMD_SKPP
@@ -2144,6 +2207,15 @@
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idOPALsed))) THEN
             got_var(idOPALsed)=.TRUE.
             rstVid(idOPALsed,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idDENITsed))) THEN
+            got_var(idDENITsed)=.TRUE.
+            rstVid(idDENITsed,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idPONbur))) THEN
+            got_var(idPONbur)=.TRUE.
+            rstVid(idPONbur,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idOPALbur))) THEN
+            got_var(idOPALbur)=.TRUE.
+            rstVid(idOPALbur,ng)=var_id(i)
 #endif
           END IF
 #ifdef SOLVE3D
@@ -2483,6 +2555,24 @@
         END IF
         IF (.not.got_var(idOPALsed)) THEN
           IF (Master) WRITE (stdout,40) TRIM(Vname(1,idOPALsed)),       &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idDENITsed)) THEN
+          IF (Master) WRITE (stdout,40) TRIM(Vname(1,idDENITsed)),       &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idPONbur)) THEN
+          IF (Master) WRITE (stdout,40) TRIM(Vname(1,idPONbur)),        &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idOPALbur)) THEN
+          IF (Master) WRITE (stdout,40) TRIM(Vname(1,idOPALbur)),       &
      &                                  TRIM(ncname)
           exit_flag=3
           RETURN

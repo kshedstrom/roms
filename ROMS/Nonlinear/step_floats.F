@@ -357,7 +357,7 @@
 !
 # ifdef SOLVE3D
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, N(ng),             &
-     &                    Lstr, Lend, nfp1, ixrhs, Nfloats(ng),         &
+     &                    Lstr, Lend, nfp1, ixrhs,                      &
      &                    -u3dvar, Lmask, spval, nudg,                  &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
@@ -369,7 +369,7 @@
      &                    MyThread, bounded, track)
 
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, N(ng),             &
-     &                    Lstr, Lend, nfp1, iyrhs, Nfloats(ng),         &
+     &                    Lstr, Lend, nfp1, iyrhs,                      &
      &                    -v3dvar, Lmask, spval, nudg,                  &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
@@ -439,7 +439,7 @@
 #   else
 
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 0, N(ng),             &
-     &                    Lstr, Lend, nfp1, izrhs, Nfloats(ng),         &
+     &                    Lstr, Lend, nfp1, izrhs,                      &
      &                    -w3dvar, Lmask, spval, nudg,                  &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
@@ -454,7 +454,7 @@
 
 # else
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,                 &
-     &                    Lstr, Lend, nfp1, ixrhs, Nfloats(ng),         &
+     &                    Lstr, Lend, nfp1, ixrhs,                      &
      &                    -u2dvar, Lmask, spval, nudg,                  &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
@@ -465,7 +465,7 @@
      &                    MyThread, bounded, track)
 
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,                 &
-     &                    Lstr, Lend, nfp1, iyrhs, Nfloats(ng),         &
+     &                    Lstr, Lend, nfp1, iyrhs,                      &
      &                    -v2dvar, Lmask, spval, nudg,                  &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
@@ -710,13 +710,14 @@
         END IF
       END DO
 # endif
+!
 !-----------------------------------------------------------------------
 !  If appropriate, activate the release of new floats and set initial
 !  positions for all time levels.
 !-----------------------------------------------------------------------
 !
       HalfDT=0.5_r8*dt(ng)
-#ifdef NEP5
+#if defined NEP5 || defined NEP6 || defined BERING || defined CHUKCHI
 ! Check for start of run. Make sure the start time for all floats is
 ! in the future.
       IF (iic(ng).eq.ntstart(ng)) THEN
@@ -738,9 +739,9 @@
         IF (.not.bounded(l).and.                                        &
      &      (time(ng)-HalfDT.le.Tinfo(itstr,l).and.                     &
      &       time(ng)+HalfDT.gt.Tinfo(itstr,l))) THEN
-#ifdef NEP5
+#if defined NEP5 || defined NEP6 || defined BERING || defined CHUKCHI
           IF (Master) print *,'Starting float ', l
-	  Tinfo(itstr,l) = Tinfo(itstr,l) + day2sec*365.25_r8
+          Tinfo(itstr,l) = Tinfo(itstr,l) + day2sec*365.25_r8
 #endif
           bounded(l)=.TRUE.
           IF ((Tinfo(ixgrd,l).lt.0.5_r8).or.                            &
@@ -795,7 +796,7 @@
 !
 # ifdef SOLVE3D
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, N(ng),             &
-     &                    Lstr, Lend, nfp1, ixrhs, Nfloats(ng),         &
+     &                    Lstr, Lend, nfp1, ixrhs,                      &
      &                    -u3dvar, Lmask, spval, nudg,                  &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
@@ -807,7 +808,7 @@
      &                    MyThread, bounded, track)
 
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, N(ng),             &
-     &                    Lstr, Lend, nfp1, iyrhs, Nfloats(ng),         &
+     &                    Lstr, Lend, nfp1, iyrhs,                      &
      &                    -v3dvar, Lmask, spval, nudg,                  &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
@@ -820,7 +821,7 @@
 
 #  if !defined FLOAT_VWALK
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 0, N(ng),             &
-     &                    Lstr, Lend, nfp1, izrhs, Nfloats(ng),         &
+     &                    Lstr, Lend, nfp1, izrhs,                      &
      &                    -w3dvar, Lmask, spval, nudg,                  &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
@@ -833,7 +834,7 @@
 #  endif
 # else
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,                 &
-     &                    Lstr, Lend, nfp1, ixrhs, Nfloats(ng),         &
+     &                    Lstr, Lend, nfp1, ixrhs,                      &
      &                    -u2dvar, Lmask, spval, nudg,                  &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
@@ -844,7 +845,7 @@
      &                    MyThread, bounded, track)
 
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,                 &
-     &                    Lstr, Lend, nfp1, iyrhs, Nfloats(ng),         &
+     &                    Lstr, Lend, nfp1, iyrhs,                      &
      &                    -v2dvar, Lmask, spval, nudg,                  &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
@@ -882,7 +883,7 @@
 !
       IF (spherical) THEN
         CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,               &
-     &                      Lstr, Lend, nfp1, iflon, Nfloats(ng),       &
+     &                      Lstr, Lend, nfp1, iflon,                    &
      &                      r2dvar, Gmask, spval, nudg,                 &
      &                      GRID(ng) % pm,                              &
      &                      GRID(ng) % pn,                              &
@@ -896,7 +897,7 @@
      &                      MyThread, bounded, track)
 
         CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,               &
-     &                      Lstr, Lend, nfp1, iflat, Nfloats(ng),       &
+     &                      Lstr, Lend, nfp1, iflat,                    &
      &                      r2dvar, Gmask, spval, nudg,                 &
      &                      GRID(ng) % pm,                              &
      &                      GRID(ng) % pn,                              &
@@ -910,7 +911,7 @@
      &                      MyThread, bounded, track)
       ELSE
         CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,               &
-     &                      Lstr, Lend, nfp1, iflon, Nfloats(ng),       &
+     &                      Lstr, Lend, nfp1, iflon,                    &
      &                      r2dvar, Gmask, spval, nudg,                 &
      &                      GRID(ng) % pm,                              &
      &                      GRID(ng) % pn,                              &
@@ -924,7 +925,7 @@
      &                      MyThread, bounded, track)
 
         CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,               &
-     &                      Lstr, Lend, nfp1, iflat, Nfloats(ng),       &
+     &                      Lstr, Lend, nfp1, iflat,                    &
      &                      r2dvar, Gmask, spval, nudg,                 &
      &                      GRID(ng) % pm,                              &
      &                      GRID(ng) % pn,                              &
@@ -939,7 +940,7 @@
       END IF
 # ifdef SOLVE3D
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 0, N(ng),             &
-     &                    Lstr, Lend, nfp1, idpth, Nfloats(ng),         &
+     &                    Lstr, Lend, nfp1, idpth,                      &
      &                    w3dvar, Lmask, spval, nudg,                   &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
@@ -951,7 +952,7 @@
      &                    MyThread, bounded, track)
 
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, N(ng),             &
-     &                    Lstr, Lend, nfp1, ifden, Nfloats(ng),         &
+     &                    Lstr, Lend, nfp1, ifden,                      &
      &                    r3dvar, Lmask, spval, nudg,                   &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
@@ -965,7 +966,6 @@
       DO itrc=1,NT(ng)
         CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, N(ng),           &
      &                      Lstr, Lend, nfp1, ifTvar(itrc),             &
-     &                      Nfloats(ng),                                &
      &                      r3dvar, Lmask, spval, nudg,                 &
      &                      GRID(ng) % pm,                              &
      &                      GRID(ng) % pn,                              &

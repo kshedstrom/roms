@@ -735,9 +735,9 @@
           !Zero the output array
           !---------------------
 
-!           print*,'st=',OCEAN(ng) % st(:,:,:,1,1)
-!           print*,'NOUT=',NOUT
-!           print*,'itrc=',itrc
+!           print *,'st=',OCEAN(ng) % st(:,:,:,1,1)
+!           print *,'NOUT=',NOUT
+!           print *,'itrc=',itrc
 
           OCEAN(ng) % st(:,:,:,NOUT,itrc) = 0.0_r8
           IF (status.ne.nf90_noerr) THEN
@@ -867,15 +867,15 @@
      &                          LBi, UBi, LBj, UBj, scale,              &
 
 !Will need to switch this if have more than one depth level for benthos
-!      status=nf_fwrite3d(ng, iNLM, ncHISid(ng), hisBid(itrc,ng), &
-!     &                          tHISindx(ng), gtype,                    &
-!     &                          LBi, UBi, LBj, UBj, 1, NBL(ng), scale,  &
+!      status=nf_fwrite3d(ng, iNLM, ncHISid(ng), hisBid(itrc,ng),       &
+!     &                          tHISindx(ng), gtype,                   &
+!     &                          LBi, UBi, LBj, UBj, 1, NBL(ng), scale, &
 
 #   ifdef MASKING
      &                       GRID(ng) % rmask_io,                       &
 #   endif
      &                       OCEAN(ng) % bt(:,:,1,NOUT,itrc))
-!             print*,OCEAN(ng) % bt(LBi,LBj,1,NOUT,itrc)
+!             print *,OCEAN(ng) % bt(LBi,LBj,1,NOUT,itrc)
 !             print *, 'LBi=',LBi,'LBj=',LBj,'NOUT=',NOUT,'itrc=',itrc
 
            IF (status.ne.nf90_noerr) THEN
@@ -1141,7 +1141,7 @@
       IF (Hout(idOPALsed,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncHISid(ng), hisVid(idOPALsed,ng),  &
+        status=nf_fwrite2d(ng, iNLM, ncHISid(ng), hisVid(idOPALsed,ng), &
      &                     tHISindx(ng), gtype,                         &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #  ifdef MASKING
@@ -1151,6 +1151,72 @@
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
             WRITE (stdout,10) TRIM(Vname(1,idOPALsed)), tHISindx(ng)
+          END IF
+          exit_flag=3
+          ioerror=status
+          RETURN
+        END IF
+      END IF
+!
+!  Write out DENIT in sediment.
+!
+      IF (Hout(idDENITsed,ng)) THEN
+        scale=1.0_r8
+        gtype=gfactor*r2dvar
+        status=nf_fwrite2d(ng, iNLM, ncHISid(ng), hisVid(idDENITsed,ng),&
+     &                     tHISindx(ng), gtype,                         &
+     &                     LBi, UBi, LBj, UBj, scale,                   &
+#  ifdef MASKING
+     &                     GRID(ng) % rmask_io,                         &
+#  endif
+     &                     OCEAN(ng) % DENITsed)
+        IF (status.ne.nf90_noerr) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,idDENITsed)), tHISindx(ng)
+          END IF
+          exit_flag=3
+          ioerror=status
+          RETURN
+        END IF
+      END IF
+!
+!  Write out buried PON in sediment.
+!
+      IF (Hout(idPONbur,ng)) THEN
+        scale=1.0_r8
+        gtype=gfactor*r2dvar
+        status=nf_fwrite2d(ng, iNLM, ncHISid(ng), hisVid(idPONbur,ng),  &
+     &                     tHISindx(ng), gtype,                         &
+     &                     LBi, UBi, LBj, UBj, scale,                   &
+#  ifdef MASKING
+     &                     GRID(ng) % rmask_io,                         &
+#  endif
+     &                     OCEAN(ng) % PON_burial)
+        IF (status.ne.nf90_noerr) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,idPONbur)), tHISindx(ng)
+          END IF
+          exit_flag=3
+          ioerror=status
+          RETURN
+        END IF
+      END IF
+!
+!  Write out buried OPAL in sediment.
+!
+      IF (Hout(idOPALbur,ng)) THEN
+        scale=1.0_r8
+        gtype=gfactor*r2dvar
+        status=nf_fwrite2d(ng, iNLM, ncHISid(ng), hisVid(idOPALbur,ng), &
+     &                     tHISindx(ng), gtype,                         &
+     &                     LBi, UBi, LBj, UBj, scale,                   &
+#  ifdef MASKING
+     &                     GRID(ng) % rmask_io,                         &
+#  endif
+     &                     OCEAN(ng) % OPAL_burial)
+        IF (status.ne.nf90_noerr) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,idOPALbur)), tHISindx(ng)
           END IF
           exit_flag=3
           ioerror=status
@@ -1619,7 +1685,7 @@
      &                     ICE(ng) % io_mflux)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idIomflx)),                    &
+            WRITE (stdout,10) TRIM(Vname(1,idIomflx)),                  &
      &                        tHISindx(ng)
           END IF
           exit_flag=3

@@ -407,7 +407,6 @@
 !  If several input NetCDF files (nfiles>1), scan files until the
 !  requested variable is found.
 !
-
         DO ifile=1,nfiles
 
           foundit=.FALSE.

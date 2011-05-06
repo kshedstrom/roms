@@ -70,7 +70,6 @@
 !=======================================================================
 !
         USE mod_kinds
-        USE mod_types
 
         implicit none
 
@@ -129,6 +128,9 @@
 #   ifdef NEMURO_SED1
           real(r8), pointer :: PONsed(:,:)
           real(r8), pointer :: OPALsed(:,:)
+          real(r8), pointer :: DENITsed(:,:)
+          real(r8), pointer :: PON_burial(:,:)
+          real(r8), pointer :: OPAL_burial(:,:)
 #   endif
 
 # ifdef BIO_GOANPZ
@@ -332,8 +334,8 @@
 !=======================================================================
 !
       USE mod_param
-#ifdef NEMURO_SAN
-      USE mod_types
+#ifdef BEST_NPZ
+      USE mod_biology
 #endif
 #if defined NEMURO || defined BEST_NPZ
       USE mod_biology
@@ -412,8 +414,10 @@
       ! Add a 2D array for sediment pools
       allocate ( OCEAN(ng) % PONsed(LBi:UBi,LBj:UBj) )
       allocate ( OCEAN(ng) % OPALsed(LBi:UBi,LBj:UBj) )
+      allocate ( OCEAN(ng) % DENITsed(LBi:UBi,LBj:UBj) )
+      allocate ( OCEAN(ng) % PON_burial(LBi:UBi,LBj:UBj) )
+      allocate ( OCEAN(ng) % OPAL_burial(LBi:UBi,LBj:UBj) )
 #    endif
-
 
 # ifdef BIO_GOANPZ
       !--------------------------------------------
@@ -643,8 +647,8 @@
 !=======================================================================
 !
       USE mod_param
-#ifdef NEMURO_SAN
-      USE mod_types
+#ifdef BEST_NPZ
+      USE mod_biology
 #endif
 #if defined NEMURO || defined BEST_NPZ
       USE mod_biology
@@ -735,6 +739,9 @@
 # if defined NEMURO_SED1
             OCEAN(ng) % PONsed(i,j) = IniVal
             OCEAN(ng) % OPALsed(i,j) = IniVal
+            OCEAN(ng) % DENITsed(i,j) = IniVal
+            OCEAN(ng) % PON_burial(i,j) = IniVal
+            OCEAN(ng) % OPAL_burial(i,j) = IniVal
 #endif
           END DO
 #ifdef SOLVE3D

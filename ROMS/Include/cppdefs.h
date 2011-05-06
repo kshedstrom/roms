@@ -43,7 +43,6 @@
 ** UV_LOGDRAG          use to turn ON or OFF logarithmic bottom friction     **
 ** UV_LDRAG            use to turn ON or OFF linear bottom friction          **
 ** UV_QDRAG            use to turn ON or OFF quadratic bottom friction       **
-** RDRG_GRID           use to turn ON or OFF spatially variable bottom drag  **
 ** DRAG_LIMITIER       use to turn ON or OFF bottom drag limiter             **
 ** UV_PSOURCE          use to turn ON or OFF point Sources/Sinks             **
 ** Q_PSOURCE           use to turn ON or OFF mass point Sources              **
@@ -311,6 +310,7 @@
 ** LMD_RIMIX           use to add diffusivity due to shear instability       **
 ** LMD_SHAPIRO         use if Shapiro filtering boundary layer depth         **
 ** LMD_SKPP            use if surface boundary layer KPP mixing              **
+** WTYPE_GRID          use if spatial variation on Jerlov water type         **
 **                                                                           **
 ** OPTIONS to activate smoothing of Richardson number, if SPLINES is not     **
 ** activated:                                                                **
@@ -673,23 +673,9 @@
 **                                                                           **
 ** NEMURO              use if Nemuro ecosystem model.                        **
 ** NEMURO_SED1         use if Nemuro sediment remineralization version1      **
-** NEMURO_SED2         use if Nemuro sediment remineralization version1      **
 ** BIO_SEDIMENT        use to restore fallen material to the nutrient pool   **
 ** HOLLING_GRAZING     use Holling-type s-shaped curve grazing (implicit)    **
 ** IVLEV_EXPLICIT      use Ivlev explicit grazing algorithm                  **
-** NEMURO_SAN          use if Nemuro ecosystem model with fish               **
-**                                                                           **
-** NEMURO_SAN OPTIONS:                                                       **
-**                                                                           **
-** RAILSBACK           use if Railsback fish foraging behavior               **
-** HUMSTON             use if Humston fish foraging behavior                 **
-** FISH_FEEDBACK       use if the fish feeding gets back to the NPZ model    **
-** FLEET               use if fishing fleet enabled                          **
-** ANA_SPAWN_DIST      use if there's an analytic spawning "distance"        **
-** EGGS_BISECTION      use if bisecting the eggs_by_cell in spawning         **
-** EGGS_TREE_CXX       use if eggs are placed in a binary tree, C++ version  **
-** EGGS_VECTOR_CXX     use if eggs are placed in a vector, C++ version       **
-** EGGS_TREE_FORT      use if eggs are placed in a binary tree, Fortran      **
 **                                                                           **
 ** Sediment transport model OPTIONS:                                         **
 **                                                                           **
@@ -767,7 +753,6 @@
 **                                                                           **
 ** Idealized Test Problems:                                                  **
 **                                                                           **
-** A4DVAR_TOY          4DVAR Data Assimilation Toy                           **
 ** BASIN               Big Bad Basin Example                                 **
 ** BENCHMARK           Benchmark Tests (small, Medium, big grids)            **
 ** BIO_TOY             One-dimension (vertical) Biology Toy                  **
@@ -824,6 +809,13 @@
 ** BERING          Bering Sea at 4 km resolution
 ** SEBS            Southeast Bering Sea at 4 km resolution
 ** CCS             Northeast Pacific - small Oregon domain
+
+** Fred's apps
+** CORAL           Coral Triangle 5km Grid
+** NEP6            Northeast Pacific - Baja to Arctic
+
+** Dujuan' apps
+** NWA             North West Atlantic
 
 ** Pauls Applications
 ** SMALL_AREA      Arctic region test application

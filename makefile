@@ -124,7 +124,13 @@ MY_CPP_FLAGS ?=
 #  If applicable, link with NetCDF-4 library. Notice that the NetCDF-4
 #  library needs both the HDF5 and MPI libraries.
 
- USE_NETCDF4 ?=
+ USE_NETCDF4 ?= on
+
+#  If applicable, activate Data Access Protocol (like OPeNDAP) support
+#  for input NetCDF files.  This is only possible for NetCDF library
+#  version 4.1.1 or higher.
+
+     USE_DAP ?= on
 
 #  If applicable, activate Data Access Protocol (like OPeNDAP) support
 #  for input NetCDF files.  This is only possible for NetCDF library
@@ -155,7 +161,7 @@ MY_CPP_FLAGS ?=
 #  NetCDF and so on.
 #--------------------------------------------------------------------------
 
-        FORT ?= pgi
+        FORT ?= gfortran
 
 #--------------------------------------------------------------------------
 #  Set directory for executable.
@@ -464,9 +470,6 @@ endif
 		ROMS/Utility \
 		ROMS/Drivers \
                 ROMS/Functionals
-ifdef USE_FISH
- includes +=	ROMS/Fish
-endif
 ifdef MY_HEADER_DIR
  includes +=	$(MY_HEADER_DIR)
 endif

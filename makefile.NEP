@@ -60,7 +60,7 @@ $(if $(filter $(MAKE_VERSION),$(NEED_VERSION)),,        \
 #  the .h extension. For example, the upwelling application includes the
 #  "upwelling.h" header file.
 
-ROMS_APPLICATION := NEP5
+ROMS_APPLICATION := NEP6
 
 #  If application header files is not located in "ROMS/Include",
 #  provide an alternate directory FULL PATH.
@@ -75,7 +75,7 @@ MY_HEADER_DIR ?= Apps/NEP
 #  If applicable, also used this directory to place your customized
 #  biology model header file (like fennel.h, nemuro.h, ecosim.h, etc).
 
-MY_ANALYTICAL_DIR ?=
+MY_ANALYTICAL_DIR ?= Apps/NEP
 
 #  Sometimes it is desirable to activate one or more CPP options to
 #  run different variants of the same application without modifying
@@ -112,7 +112,7 @@ MY_CPP_FLAGS ?=
 #  In this, case the user need to select the desired compiler below and
 #  turn on both USE_MPI and USE_MPIF90 macros.
 
-  USE_MPIF90 ?= 
+  USE_MPIF90 ?= on
 
 #  If applicable, activate 64-bit compilation:
 
@@ -122,6 +122,12 @@ MY_CPP_FLAGS ?=
 #  library needs both the HDF5 and MPI libraries.
 
  USE_NETCDF4 ?= on
+
+#  If applicable, activate Data Access Protocol (like OPeNDAP) support
+#  for input NetCDF files.  This is only possible for NetCDF library
+#  version 4.1.1 or higher.
+
+     USE_DAP ?=
 
 #--------------------------------------------------------------------------
 #  We are going to include a file with all the settings that depend on
@@ -146,7 +152,7 @@ MY_CPP_FLAGS ?=
 #  NetCDF and so on.
 #--------------------------------------------------------------------------
 
-        FORT ?= xt5-pgi
+        FORT ?= pgi
 
 #--------------------------------------------------------------------------
 #  Set directory for executable.
@@ -424,9 +430,6 @@ endif
 ifdef USE_SEAICE
  modules  +=	ROMS/SeaIce
 endif
-ifdef USE_FISH
- modules  +=	ROMS/Fish
-endif
  modules  +=	ROMS/Utility
 
  includes :=	ROMS/Include
@@ -454,9 +457,6 @@ endif
 		ROMS/Utility \
 		ROMS/Drivers \
                 ROMS/Functionals
-ifdef USE_FISH
- includes +=	ROMS/Fish
-endif
 ifdef MY_HEADER_DIR
  includes +=	$(MY_HEADER_DIR)
 endif

@@ -32,7 +32,6 @@
       INTERFACE netcdf_get_lvar
         MODULE PROCEDURE netcdf_get_lvar_0d
         MODULE PROCEDURE netcdf_get_lvar_1d
-!       MODULE PROCEDURE netcdf_get_lvar_2d
       END INTERFACE netcdf_get_lvar
 
       INTERFACE netcdf_get_ivar

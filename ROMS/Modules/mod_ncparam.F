@@ -64,7 +64,7 @@
 !=======================================================================
 !
         USE mod_param
-
+!
         implicit none
 !
 !  Maximum number of variables in a generic NetCDF file (MV) and
@@ -169,10 +169,12 @@
         integer  :: idCosW        ! COS(omega(k)*t)
         integer  :: idCos2        ! COS(omega(k)*t)*COS(omega(l)*t)
         integer  :: idDano        ! density anomaly
+        integer  :: idDENITsed    ! Denitrification in sediment
         integer  :: idDiff(2)     ! temperature and salinity diffusion
         integer  :: iddQdT        ! heat flux sensitivity to SST
         integer  :: idEmPf        ! E-P from bulk_flux.F
         integer  :: idevap        ! evaporation rate
+        integer  :: idFastIce     ! landfast ice extent
         integer  :: idFsur        ! free-surface
         integer  :: idFsuD        ! detided free-surface
         integer  :: idFsuH        ! free-surface tide harmonics
@@ -202,6 +204,7 @@
         integer  :: idObsZ        ! observations Z-grid location
         integer  :: idOday        ! observations survey time
         integer  :: idOerr        ! observations error
+        integer  :: idOPALbur     ! buried opal in sediment
         integer  :: idOPALsed     ! opal in sediment
         integer  :: idOtyp        ! observations type
         integer  :: idOval        ! observations value
@@ -211,6 +214,7 @@
         integer  :: idQair        ! surface air humidity
         integer  :: idPair        ! surface air pressure
         integer  :: idPbar        ! streamfunction
+        integer  :: idPONbur      ! buried PON in sediment
         integer  :: idPONsed      ! PON in sediment
         integer  :: idRdir        ! river runoff direction
         integer  :: idRepo        ! river runoff ETA-positions
@@ -707,9 +711,9 @@
 !
         character (len=40 ) :: svn_rev
         character (len=256) :: svn_url
-
+!
       CONTAINS
-
+!
       SUBROUTINE initialize_ncparam
 !
 !=======================================================================
@@ -1163,31 +1167,26 @@
 !
 !  Set IDs for state some state variables.
 !
-#if defined FORCING_SV || defined SO_SEMI
-        isUstr=1
-        isVstr=2
-        ic=2
-        DO i=1,MT
-          ic=ic+1
-          isTsur(i)=ic
-        END DO
-#else
-        ic=5
-        DO i=1,MT
-          ic=ic+1
-          isTvar(i)=ic
-        END DO
-# ifdef ADJUST_WSTRESS
-        isUstr=ic+1
-        isVstr=ic+2
-        ic=ic+2
-# endif
-# ifdef ADJUST_STFLUX
-        DO i=1,MT
-          ic=ic+1
-          isTsur(i)=ic
-        END DO
-# endif
+      ic=5
+      DO i=1,MT
+        ic=ic+1
+        isTvar(i)=ic
+      END DO
+      ic=5
+      DO i=1,MT
+        ic=ic+1
+        isTvar(i)=ic
+      END DO
+#if defined ADJUST_WSTRESS || defined FORCING_SV || defined SO_SEMI
+      isUstr=ic+1
+      isVstr=ic+2
+      ic=ic+2
+#endif
+#if defined ADJUST_STFLUX  || defined FORCING_SV || defined SO_SEMI
+      DO i=1,MT
+        ic=ic+1
+        isTsur(i)=ic
+      END DO
 #endif
 !
 !  Initialize IO information variables.
@@ -1587,6 +1586,8 @@
                 idEmPf=varid
               CASE ('idevap')
                 idevap=varid
+              CASE ('idFastIce')
+                idFastIce=varid
               CASE ('idRunoff')
                 idRunoff=varid
               CASE ('idUair')

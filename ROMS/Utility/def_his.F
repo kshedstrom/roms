@@ -1208,6 +1208,60 @@
      &                   NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
+!
+!  Define DENIT in sediment.
+!
+        IF (Hout(idDENITsed,ng)) THEN
+          Vinfo( 1)=Vname(1,idDENITsed)
+          Vinfo( 2)=Vname(2,idDENITsed)
+          Vinfo( 3)=Vname(3,idDENITsed)
+          Vinfo(14)=Vname(4,idDENITsed)
+          Vinfo(16)=Vname(1,idtime)
+#  if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_rho'
+#  endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idDENITsed,ng),r8)
+          status=def_var(ng, iNLM, ncHISid(ng), hisVid(idDENITsed,ng),   &
+     &                   NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+!
+!  Define buried PON in sediment.
+!
+        IF (Hout(idPONbur,ng)) THEN
+          Vinfo( 1)=Vname(1,idPONbur)
+          Vinfo( 2)=Vname(2,idPONbur)
+          Vinfo( 3)=Vname(3,idPONbur)
+          Vinfo(14)=Vname(4,idPONbur)
+          Vinfo(16)=Vname(1,idtime)
+#  if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_rho'
+#  endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idPONbur,ng),r8)
+          status=def_var(ng, iNLM, ncHISid(ng), hisVid(idPONbur,ng),    &
+     &                   NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+!
+!  Define buried OPAL in sediment.
+!
+        IF (Hout(idOPALbur,ng)) THEN
+          Vinfo( 1)=Vname(1,idOPALbur)
+          Vinfo( 2)=Vname(2,idOPALbur)
+          Vinfo( 3)=Vname(3,idOPALbur)
+          Vinfo(14)=Vname(4,idOPALbur)
+          Vinfo(16)=Vname(1,idtime)
+#  if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_rho'
+#  endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idOPALbur,ng),r8)
+          status=def_var(ng, iNLM, ncHISid(ng), hisVid(idOPALbur,ng),   &
+     &                   NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
 # endif
 # ifdef LMD_SKPP
 !
@@ -3072,6 +3126,15 @@
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idOPALsed))) THEN
             got_var(idOPALsed)=.TRUE.
             hisVid(idOPALsed,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idDENITsed))) THEN
+            got_var(idDENITsed)=.TRUE.
+            hisVid(idDENITsed,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idPONbur))) THEN
+            got_var(idPONbur)=.TRUE.
+            hisVid(idPONbur,ng)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idOPALbur))) THEN
+            got_var(idOPALbur)=.TRUE.
+            hisVid(idOPALbur,ng)=var_id(i)
 # endif
 # ifdef LMD_SKPP
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idHsbl))) THEN
@@ -3558,6 +3621,24 @@
         END IF
         IF (.not.got_var(idOPALsed).and.Hout(idOPALsed,ng)) THEN
           IF (Master) WRITE (stdout,60) TRIM(Vname(1,idOPALsed)),       &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idDENITsed).and.Hout(idDENITsed,ng)) THEN
+          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idDENITsed)),      &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idPONbur).and.Hout(idPONbur,ng)) THEN
+          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idPONbur)),        &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idOPALbur).and.Hout(idOPALbur,ng)) THEN
+          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idOPALbur)),       &
      &                                  TRIM(ncname)
           exit_flag=3
           RETURN

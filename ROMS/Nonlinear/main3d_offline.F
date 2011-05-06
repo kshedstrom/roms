@@ -121,9 +121,6 @@
 # ifdef FLOATS
       USE step_floats_mod, ONLY : step_floats
 # endif
-# ifdef NEMURO_SAN
-      USE step_fish_mod, ONLY : step_fish
-# endif
       USE wvelocity_mod, ONLY : wvelocity
 !
       implicit none
@@ -135,7 +132,7 @@
 !  Local variable declarations.
 !
       integer :: my_iif, next_indx1, subs, tile, thread
-# if defined FLOATS || defined NEMURO_SAN
+# if defined FLOATS
       integer :: Lend, Lstr, chunk_size
 # endif
 !
