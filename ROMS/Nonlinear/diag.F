@@ -219,6 +219,7 @@
 # endif
       IF (.not. allocated(buffer))    allocate (buffer(Nreduce))
       IF (.not. allocated(op_handle)) allocate (op_handle(Nreduce))
+      IF (.not. allocated(C_handle))  allocate (C_handle(Nreduce))
 #endif
 
       IF (MOD(iic(ng)-1,ninfo(ng)).eq.0) THEN

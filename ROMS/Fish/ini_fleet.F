@@ -1,6 +1,6 @@
 #include "cppdefs.h"
 #if defined NEMURO_SAN && defined FLEET
-      SUBROUTINE ini_fleet (model)
+      SUBROUTINE ini_fleet
 !
 !================================================== Kate Hedstrom ======
 !  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
@@ -31,10 +31,6 @@
 # endif
 !
       implicit none
-!
-!  Imported variable declarations.
-!
-      integer, intent(in) :: model
 !
 !  Local variable declarations.
 !
@@ -74,7 +70,10 @@
 !
       OPEN (48, FILE=TRIM(fleetposnam), FORM='formatted', STATUS='old')
 
-      CALL read_FleetPar (model, 48, out, Lwrite)
+      CALL read_FleetPar (48, out, Lwrite)
+
+!  Don't have these things for each grid... yet.
+      ng = 1
 
 # ifdef DISTRIBUTE
       IF (Master) THEN
@@ -93,7 +92,6 @@
 
 !
 !  Put the new boats in here
-      ng=1
       DO ib=1,Nboats(ng)
         ip=INT(REAL(Nports(ng),r8)*BOATS(ng)%rwalk(ib))+1
         BOATS(ng)%boat(ibport,ib)=ip
@@ -105,7 +103,7 @@
 
       END SUBROUTINE ini_fleet
 
-      SUBROUTINE read_FleetPar (model, inp, out, Lwrite)
+      SUBROUTINE read_FleetPar (inp, out, Lwrite)
 !
 !=======================================================================
 !                                                                      !
@@ -127,7 +125,7 @@
 !  Imported variable declarations
 !
       logical, intent(in) :: Lwrite
-      integer, intent(in) :: model, inp, out
+      integer, intent(in) :: inp, out
 !
 !  Local variable declarations.
 !

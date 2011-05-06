@@ -1,6 +1,6 @@
 #include "cppdefs.h"
 #if defined NEMURO_SAN && defined PREDATOR
-      SUBROUTINE ini_pred (model)
+      SUBROUTINE ini_pred
 !
 !================================================== Kate Hedstrom ======
 !  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
@@ -32,10 +32,6 @@
       USE ran_state, ONLY: ran_seed
 !
       implicit none
-!
-!  Imported variable declarations.
-!
-      integer, intent(in) :: model
 !
 !  Local variable declarations.
 !
@@ -77,7 +73,10 @@
 !
       OPEN (47, FILE=TRIM(predposnam), FORM='formatted', STATUS='old')
 
-      CALL read_PredPar (model, 47, out, Lwrite)
+      CALL read_PredPar (47, out, Lwrite)
+
+!  Don't have these things for each grid... yet.
+      ng = 1
 
 # ifdef DISTRIBUTE
       IF (Master) THEN
@@ -99,7 +98,6 @@
       idpred_inv(1) = ip_albacore
 
 !  Put the new predators in here
-      ng=1
       pid=0
       DO isp=1,Npredspecies(ng)
         DO i=1,Npredperspecies(ng)
@@ -169,7 +167,7 @@
 
       END SUBROUTINE ini_pred
 
-      SUBROUTINE read_PredPar (model, inp, out, Lwrite)
+      SUBROUTINE read_PredPar (inp, out, Lwrite)
 !
 !=======================================================================
 !                                                                      !
@@ -191,7 +189,7 @@
 !  Imported variable declarations
 !
       logical, intent(in) :: Lwrite
-      integer, intent(in) :: model, inp, out
+      integer, intent(in) :: inp, out
 !
 !  Local variable declarations.
 !
@@ -251,6 +249,9 @@
             Npts=load_r(Nval, Rval, max_predspecies*Ngrids, a_Swim)
           ELSE IF (TRIM(KeyWord).eq.'b_Swim') THEN
             Npts=load_r(Nval, Rval, max_predspecies*Ngrids, b_Swim)
+          ELSE IF (TRIM(KeyWord).eq.'POS') THEN
+! This is a hack for now, until we actually read the positions
+	    GOTO 30
           END IF
         END IF
       END DO

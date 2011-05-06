@@ -1,6 +1,6 @@
 #include "cppdefs.h"
 #ifdef NEMURO_SAN
-      SUBROUTINE ini_fish (model)
+      SUBROUTINE ini_fish
 !
 !================================================== Kate Hedstrom ======
 !  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
@@ -31,10 +31,6 @@
       USE ran_state, ONLY: ran_seed
 !
       implicit none
-!
-!  Imported variable declarations.
-!
-      integer, intent(in) :: model
 !
 !  Local variable declarations.
 !
@@ -76,7 +72,10 @@
 !
       OPEN (46, FILE=TRIM(fishposnam), FORM='formatted', STATUS='old')
 
-      CALL read_FishPar (model, 46, out, Lwrite)
+      CALL read_FishPar (46, out, Lwrite)
+
+!  Don't have these things for each grid... yet.
+      ng = 1
 
 # ifdef DISTRIBUTE
       IF (Master) THEN
@@ -101,8 +100,6 @@
       idfish(if_sardine) = 2
       idfish_inv(2) = if_sardine
 
-!  Don't have these things for each grid... yet.
-      ng = 1
       DO isp=1,Nspecies(ng)
         FISHES(ng)%species_base(isp)=(isp-1)*Nyearclass(ng)*            &
      &                                       Nfishperyear(ng)
@@ -235,7 +232,7 @@
 
       END SUBROUTINE ini_fish
 
-      SUBROUTINE read_FishPar (model, inp, out, Lwrite)
+      SUBROUTINE read_FishPar (inp, out, Lwrite)
 !
 !=======================================================================
 !                                                                      !
@@ -256,7 +253,7 @@
 !  Imported variable declarations
 !
       logical, intent(in) :: Lwrite
-      integer, intent(in) :: model, inp, out
+      integer, intent(in) :: inp, out
 !
 !  Local variable declarations.
 !
