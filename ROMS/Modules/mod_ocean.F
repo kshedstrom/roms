@@ -70,6 +70,7 @@
 !=======================================================================
 !
         USE mod_kinds
+        USE mod_types
 
         implicit none
 
@@ -334,6 +335,9 @@
 !=======================================================================
 !
       USE mod_param
+#ifdef NEMURO_SAN
+      USE mod_types
+#endif
 #ifdef BEST_NPZ
       USE mod_biology
 #endif
@@ -647,6 +651,9 @@
 !=======================================================================
 !
       USE mod_param
+#ifdef NEMURO_SAN
+      USE mod_types
+#endif
 #ifdef BEST_NPZ
       USE mod_biology
 #endif

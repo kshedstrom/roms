@@ -132,12 +132,6 @@ MY_CPP_FLAGS ?=
 
      USE_DAP ?= on
 
-#  If applicable, activate Data Access Protocol (like OPeNDAP) support
-#  for input NetCDF files.  This is only possible for NetCDF library
-#  version 4.1.1 or higher.
-
-     USE_DAP ?=
-
 #--------------------------------------------------------------------------
 #  We are going to include a file with all the settings that depend on
 #  the system and the compiler. We are going to build up the name of the
@@ -421,26 +415,26 @@ all: $(SCRATCH_DIR) $(SCRATCH_DIR)/MakeDepend $(BIN) rm_macros
  modules  :=
 ifdef USE_ADJOINT
  modules  +=	ROMS/Adjoint \
-                ROMS/Adjoint/Biology
+		ROMS/Adjoint/Biology
 endif
 ifdef USE_REPRESENTER
  modules  +=	ROMS/Representer \
-                ROMS/Representer/Biology
+		ROMS/Representer/Biology
 endif
 ifdef USE_TANGENT
  modules  +=	ROMS/Tangent \
-                ROMS/Tangent/Biology
+		ROMS/Tangent/Biology
 endif
  modules  +=	ROMS/Nonlinear \
-                ROMS/Nonlinear/Biology \
-                ROMS/Nonlinear/Sediment \
+		ROMS/Nonlinear/Biology \
+		ROMS/Nonlinear/Sediment \
 		ROMS/Functionals \
 		ROMS/Modules
 ifdef USE_SEAICE
  modules  +=	ROMS/SeaIce
 endif
 ifdef USE_FISH
- modules  +=	ROMS/Fish
+ modules  +=    ROMS/Fish
 endif
  modules  +=	ROMS/Utility \
 		ROMS/Modules
@@ -451,25 +445,28 @@ ifdef MY_ANALYTICAL
 endif
 ifdef USE_ADJOINT
  includes +=	ROMS/Adjoint \
-                ROMS/Adjoint/Biology
+		ROMS/Adjoint/Biology
 endif
 ifdef USE_REPRESENTER
  includes +=	ROMS/Representer \
-                ROMS/Representer/Biology
+		ROMS/Representer/Biology
 endif
 ifdef USE_SEAICE
  includes +=	ROMS/SeaIce
 endif
 ifdef USE_TANGENT
  includes +=	ROMS/Tangent \
-                ROMS/Tangent/Biology
+		ROMS/Tangent/Biology
 endif
  includes +=	ROMS/Nonlinear \
-                ROMS/Nonlinear/Biology \
-                ROMS/Nonlinear/Sediment \
+		ROMS/Nonlinear/Biology \
+		ROMS/Nonlinear/Sediment \
 		ROMS/Utility \
 		ROMS/Drivers \
-                ROMS/Functionals
+		ROMS/Functionals
+ifdef USE_FISH
+ includes +=   ROMS/Fish
+endif
 ifdef MY_HEADER_DIR
  includes +=	$(MY_HEADER_DIR)
 endif

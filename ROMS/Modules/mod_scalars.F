@@ -125,7 +125,7 @@
 #  endif
 # endif
 #endif
-#if defined FLOATS
+#if defined FLOATS || defined NEMURO_SAN
 !
 !-----------------------------------------------------------------------
 !  Floats fields identification indices.
