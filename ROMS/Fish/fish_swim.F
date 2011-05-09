@@ -133,19 +133,37 @@
 !
 # ifdef DISTRIBUTE
       IF (Master) THEN
+#  ifdef CLAMPED
         CALL gasdev_clamp (rwalk, 3.0_r8)
+#  else
+        DO i=1,SIZE(rwalk)
+          IF (rwalk(i) > 3.0_r8) rwalk(i) = 3.0_r8
+        END DO
+#  endif
         CALL ran1 (r2walk)
       END IF
       CALL mp_bcastf (ng, iNLM, rwalk)
       CALL mp_bcastf (ng, iNLM, r2walk)
 # elif defined _OPENMP
 !$OMP SINGLE
+#  ifdef CLAMPED
       CALL gasdev_clamp (rwalk, 3.0_r8)
+#  else
+      DO i=1,SIZE(rwalk)
+        IF (rwalk(i) > 3.0_r8) rwalk(i) = 3.0_r8
+      END DO
+#  endif
       CALL ran1 (r2walk)
 !$OMP END SINGLE
 # else
 !     IF (Lstr.eq.1) THEN
+#  ifdef CLAMPED
         CALL gasdev_clamp (rwalk, 3.0_r8)
+#  else
+        DO i=1,SIZE(rwalk)
+          IF (rwalk(i) > 3.0_r8) rwalk(i) = 3.0_r8
+        END DO
+#  endif
         CALL ran1 (r2walk)
 !     END IF
 # endif

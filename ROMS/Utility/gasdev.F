@@ -202,7 +202,7 @@
 !      real(r8), dimension(INT(SIZE(harvest)*1.5)) :: v1
 
       n=SIZE(harvest)
-      allocate (v1(INT(n*1.5)))
+      allocate (v1(n/3))
       num = 0
 !
 !  We're going to ask for 1.5 times the number of values we need,
