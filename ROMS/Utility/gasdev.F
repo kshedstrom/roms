@@ -179,7 +179,7 @@
 !
       DO
         CALL gasdev_s(harvest)
-	IF (ABS(harvest) .le. 3.0_r8) RETURN
+        IF (ABS(harvest) .le. 3.0_r8) RETURN
       END DO
       END SUBROUTINE gasdev_clamp_s
       SUBROUTINE gasdev_clamp_v (harvest, clamp)
@@ -198,9 +198,11 @@
 !  Local variable declarations.
 !
       integer(i4b) :: i, n, num
-      real(r8), dimension(INT(SIZE(harvest)*1.5)) :: v1
+      real(r8), allocatable :: v1(:)
+!      real(r8), dimension(INT(SIZE(harvest)*1.5)) :: v1
 
       n=SIZE(harvest)
+      allocate (v1(INT(n*1.5)))
       num = 0
 !
 !  We're going to ask for 1.5 times the number of values we need,
@@ -211,11 +213,12 @@
         CALL gasdev_v(v1)
         DO i=1,SIZE(v1)
           IF (v1(i) .le. clamp) THEN
-	    num = num + 1
-	    harvest(num) = v1(i)
-	    IF (num == n) RETURN
+            num = num + 1
+            harvest(num) = v1(i)
+            IF (num == n) RETURN
           END IF
         END DO
       END DO
+      deallocate(v1)
 
       END SUBROUTINE gasdev_clamp_v
