@@ -606,6 +606,7 @@
 # ifdef TIMELESS_DATA
       CALL get_idata (ng)
 # endif
+      CALL get_data (ng)
 # ifdef DISTRIBUTE
       CALL mp_bcasti (ng, iNLM, exit_flag)
 # endif

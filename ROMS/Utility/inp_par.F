@@ -2780,7 +2780,10 @@
               END DO
             END DO
 #endif
-#ifdef AVERAGES
+#if defined AVERAGES    || \
+   (defined AD_AVERAGES && defined ADJOINT) || \
+   (defined RP_AVERAGES && defined TL_IOMS) || \
+   (defined TL_AVERAGES && defined TANGENT)
           ELSE IF (TRIM(KeyWord).eq.'Aout(idUvel)') THEN
             Npts=load_l(Nval, Cval, Ngrids, Aout(idUvel,:))
           ELSE IF (TRIM(KeyWord).eq.'Aout(idVvel)') THEN
@@ -4136,7 +4139,10 @@
      &            'Number of timesteps between creation of new',        &
      &            'history files.'
           END IF
-#ifdef AVERAGES
+#if defined AVERAGES    || \
+   (defined AD_AVERAGES && defined ADJOINT) || \
+   (defined RP_AVERAGES && defined TL_IOMS) || \
+   (defined TL_AVERAGES && defined TANGENT)
           WRITE (out,130) ntsAVG(ng), 'ntsAVG',                         &
      &          'Starting timestep for the accumulation of output',     &
      &          'time-averaged data.'
@@ -5387,7 +5393,10 @@
      &       'Write out turbulent generic length-scale.'
 # endif
 #endif
-#ifdef AVERAGES
+#if defined AVERAGES    || \
+   (defined AD_AVERAGES && defined ADJOINT) || \
+   (defined RP_AVERAGES && defined TL_IOMS) || \
+   (defined TL_AVERAGES && defined TANGENT)
           WRITE (out,'(1x)')
           IF (Aout(idFsur,ng)) WRITE (out,170) Aout(idFsur,ng),         &
      &       'Aout(idFsur)',                                            &
@@ -6053,7 +6062,10 @@
           WRITE (out,230) '     Output Forward State File:  ',          &
      &                    TRIM(FWD(ng)%name)
 #endif
-#ifdef AVERAGES
+#if defined AVERAGES    || \
+   (defined AD_AVERAGES && defined ADJOINT) || \
+   (defined RP_AVERAGES && defined TL_IOMS) || \
+   (defined TL_AVERAGES && defined TANGENT)
           IF (ndefAVG(ng).eq.0) THEN
             WRITE (out,230) '          Output Averages File:  ',        &
      &                      TRIM(AVG(ng)%name)
@@ -6065,11 +6077,10 @@
 #ifdef AVERAGES2
           IF (ndefAVG2(ng).eq.0) THEN
             WRITE (out,230) '          Output Secondary File:  ',        &
-     &                      TRIM(AVG2name(ng))
+     &                      TRIM(AVG2(ng)%name)
           ELSE
-            Lstr=LEN_TRIM(AVG2name(ng))
             WRITE (out,230) '     Prefix for Secondary Files:  ',        &
-     &                      AVG2name(ng)(1:Lstr-3)
+     &                      TRIM(AVG2(ng)%base)
           END IF
 #endif
 #ifdef DIAGNOSTICS
@@ -6473,6 +6484,8 @@
             Npts=load_r(Nval, Rval, Ngrids, min_a)
           ELSE IF (TRIM(KeyWord).eq.'max_a') THEN
             Npts=load_r(Nval, Rval, Ngrids, max_a)
+          ELSE IF (TRIM(KeyWord).eq.'sfwat_max') THEN
+            Npts=load_r(Nval, Rval, Ngrids, sfwat_max)
           ELSE IF (TRIM(KeyWord).eq.'stressang') THEN
             Npts=load_r(Nval, Rval, Ngrids, stressang)
             do ng=1,Ngrids
@@ -6539,6 +6552,8 @@
      &            'Minimum ice concentration (nondimensional).'
             WRITE (out,100) max_a(ng), 'max_a',                         &
      &            'Maximum ice concentration (nondimensional).'
+            WRITE (out,100) sfwat_max(ng)*rad2deg, 'sfwat_max',         &
+     &            'Maximum surface fresh water (nondimensional).'
             WRITE (out,100) stressang(ng)*rad2deg, 'stressang',         &
      &            'Turning angle for ice-water drag (degrees).'
             WRITE (out,100) tol, 'tol',                                 &

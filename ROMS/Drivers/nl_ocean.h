@@ -160,8 +160,6 @@
       DO ng=1,Ngrids
         CALL initial (ng)
 	IF (exit_flag.ne.NoError) RETURN
-        CALL get_data (ng)
-        IF (exit_flag.ne.NoError) RETURN
       END DO
 !
 !  Initialize run or ensemble counter.
