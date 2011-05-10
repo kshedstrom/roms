@@ -836,7 +836,7 @@ contains
             IF (thki_n.GE.2._r8) albi=0.561632_r8
 !approximated values for albsn(depends on COSZ, but small variation)
             albsn=0.83_r8
-            IF (sfwat_n.GT.0._r8) THEN
+            IF (sfwat(i,j,liold).GT.0._r8) THEN
               IF (thksn_n.GE.0.1_r8) THEN
                 albsn=0.701009_r8
               ELSE
@@ -845,12 +845,11 @@ contains
             ENDIF
             albs=albi
             IF (hsn(i,j,liold).GT.0._r8) albs=albsn
-!            IF (sfwat_n.GT.0._r8) albs=0.100737_r8                      &
-!     &         +0.518_r8*EXP(-8.1_r8 *sfwat_n-0.47_r8)                  &
-!     &         +0.341_r8*EXP(-31.8_r8*sfwat_n-0.94_r8)                  &
-!     &         +0.131_r8*EXP(-2.6_r8 *sfwat_n-3.82_r8)
-
-            ENDIF
+!            IF (sfwat(i,j,liold).GT.0._r8) albs=0.10737_r8              &
+!     &         +0.518_r8*EXP(-8.1_r8 *sfwat(i,j,liold)-0.47_r8)         &
+!     &         +0.341_r8*EXP(-31.8_r8*sfwat(i,j,liold)-0.94_r8)         &
+!     &         +0.131_r8*EXP(-2.6_r8 *sfwat(i,j,liold)-3.82_r8)
+!            ENDIF
           ELSE
             albs=alb_w
           ENDIF

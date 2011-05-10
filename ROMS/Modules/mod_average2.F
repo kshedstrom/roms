@@ -146,6 +146,8 @@
 !=======================================================================
 !
       USE mod_param
+      USE mod_ncparam
+      USE mod_scalars
 !
 !  Local variable declarations.
 !
@@ -340,9 +342,8 @@
 !=======================================================================
 !
       USE mod_param
-# if defined SEDIMENT || defined BBL_MODEL
-      USE mod_sediment
-# endif
+      USE mod_ncparam
+      USE mod_scalars
 !
 !  Imported variable declarations.
 !

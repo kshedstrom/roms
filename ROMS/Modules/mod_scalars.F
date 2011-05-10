@@ -1617,6 +1617,7 @@
         real(r8), allocatable :: min_a(:)
         real(r8), allocatable :: max_a(:)
         real(r8), allocatable :: stressang(:)
+        real(r8), allocatable :: sfwat_max(:)
 #endif
 
       CONTAINS
@@ -2069,6 +2070,7 @@
      allocate ( min_a(Ngrids) )
      allocate ( max_a(Ngrids) )
      allocate ( stressang(Ngrids) )
+     allocate ( sfwat_max(Ngrids) )
 #endif
 
       RETURN

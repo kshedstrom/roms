@@ -1354,8 +1354,12 @@
               idU3Sd=varid
             CASE ('idV3Sd')
               idV3Sd=varid
+            CASE ('idTpam')
+              idTpam=varid
             CASE ('idTper')
               idTper=varid
+            CASE ('idTpph')
+              idTpph=varid
             CASE ('idTzam')
               idTzam=varid
             CASE ('idTzph')

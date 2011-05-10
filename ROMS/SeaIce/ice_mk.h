@@ -142,7 +142,6 @@
 !        the following global arrays are calculated:
 !        (description is given below)
 !
-!        sfcalb
 !        sfwat
 !        ageice
 !        qai
@@ -206,7 +205,6 @@
 !            qai(i,j)        -  heat flux atmosphere/ice
 !                               (positive from ice to atm.)
 !            qio(i,j)        -  heat flux ice/oceam (possitive from ocean)
-!            sfcalb(i,j)     -  global albedo
 !            hfus1(i,j)      -  heat of fusion (L_o or L_3)
 !            wro(i,j)        -  production rate of surface runoff
 !            t2(i,j)         -  temperature at ice/snow interface

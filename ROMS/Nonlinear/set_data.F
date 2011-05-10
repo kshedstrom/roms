@@ -465,6 +465,7 @@
      &                     FORCES(ng)%runoffG,                          &
      &                     FORCES(ng)%runoff,                           &
      &                     update)
+      IF (exit_flag.ne.NoError) RETURN
 #   endif
 #  endif
 
@@ -881,6 +882,7 @@
      &                     FORCES(ng)%sssflxG,                          &
      &                     FORCES(ng)%sssflx,                           &
      &                     update)
+      IF (exit_flag.ne.NoError) RETURN
 # endif
 
 # if defined FASTICE_CLIMATOLOGY && defined SOLVE3D
@@ -889,6 +891,7 @@
      &                     FORCES(ng)%fastice_clmG,                     &
      &                     FORCES(ng)%fastice_clm,                      &
      &                     update)
+      IF (exit_flag.ne.NoError) RETURN
 # endif
 
 # if defined ECOSIM && defined SOLVE3D
@@ -1182,6 +1185,7 @@
      &                  BOUNDARY(ng) % aiG_west(JLB,1),                 &
      &                  BOUNDARY(ng) % ai_west(JLB),                    &
      &                  update)
+        IF (exit_flag.ne.NoError) RETURN
 #  endif
 #  ifdef EAST_AIOBC
         CALL set_ngfld (ng, iNLM, idAibc(ieast), JLB, JUB, 1,           &
@@ -1189,6 +1193,7 @@
      &                  BOUNDARY(ng) % aiG_east(JLB,1),                 &
      &                  BOUNDARY(ng) % ai_east(JLB),                    &
      &                  update)
+        IF (exit_flag.ne.NoError) RETURN
 #  endif
 #  ifdef SOUTH_AIOBC
         CALL set_ngfld (ng, iNLM, idAibc(isouth), ILB, IUB, 1,          &
@@ -1196,6 +1201,7 @@
      &                  BOUNDARY(ng) % aiG_south(ILB,1),                &
      &                  BOUNDARY(ng) % ai_south(ILB),                   &
      &                  update)
+        IF (exit_flag.ne.NoError) RETURN
 #  endif
 #  ifdef NORTH_AIOBC
         CALL set_ngfld (ng, iNLM, idAibc(inorth), ILB, IUB, 1,          &
@@ -1203,6 +1209,7 @@
      &                  BOUNDARY(ng) % aiG_north(ILB,1),                &
      &                  BOUNDARY(ng) % ai_north(ILB),                   &
      &                  update)
+        IF (exit_flag.ne.NoError) RETURN
 #  endif
       END IF
 # endif
@@ -1217,6 +1224,7 @@
      &                  BOUNDARY(ng) % hiG_west(JLB,1),                 &
      &                  BOUNDARY(ng) % hi_west(JLB),                    &
      &                  update)
+        IF (exit_flag.ne.NoError) RETURN
 #  endif
 #  ifdef EAST_HIOBC
         CALL set_ngfld (ng, iNLM, idHibc(ieast), JLB, JUB, 1,           &
@@ -1224,6 +1232,7 @@
      &                  BOUNDARY(ng) % hiG_east(JLB,1),                 &
      &                  BOUNDARY(ng) % hi_east(JLB),                    &
      &                  update)
+        IF (exit_flag.ne.NoError) RETURN
 #  endif
 #  ifdef SOUTH_HIOBC
         CALL set_ngfld (ng, iNLM, idHibc(isouth), ILB, IUB, 1,          &
@@ -1231,6 +1240,7 @@
      &                  BOUNDARY(ng) % hiG_south(ILB,1),                &
      &                  BOUNDARY(ng) % hi_south(ILB),                   &
      &                  update)
+        IF (exit_flag.ne.NoError) RETURN
 #  endif
 #  ifdef NORTH_HIOBC
         CALL set_ngfld (ng, iNLM, idHibc(inorth), ILB, IUB, 1,          &
@@ -1238,6 +1248,7 @@
      &                  BOUNDARY(ng) % hiG_north(ILB,1),                &
      &                  BOUNDARY(ng) % hi_north(ILB),                   &
      &                  update)
+        IF (exit_flag.ne.NoError) RETURN
 #  endif
       END IF
 # endif
@@ -1260,6 +1271,7 @@
      &                  BOUNDARY(ng) % hsnG_west(JLB,1),                &
      &                  BOUNDARY(ng) % hsn_west(JLB),                   &
      &                  update)
+        IF (exit_flag.ne.NoError) RETURN
 #  endif
 #  ifdef EAST_HSNOBC
         CALL set_ngfld (ng, iNLM, idHsnbc(ieast), JLB, JUB, 1,          &
@@ -1267,6 +1279,7 @@
      &                  BOUNDARY(ng) % hsnG_east(JLB,1),                &
      &                  BOUNDARY(ng) % hsn_east(JLB),                   &
      &                  update)
+        IF (exit_flag.ne.NoError) RETURN
 #  endif
 #  ifdef SOUTH_HSNOBC
         CALL set_ngfld (ng, iNLM, idHsnbc(isouth), ILB, IUB, 1,         &
@@ -1274,6 +1287,7 @@
      &                  BOUNDARY(ng) % hsnG_south(ILB,1),               &
      &                  BOUNDARY(ng) % hsn_south(ILB),                  &
      &                  update)
+        IF (exit_flag.ne.NoError) RETURN
 #  endif
 #  ifdef NORTH_HSNOBC
         CALL set_ngfld (ng, iNLM, idHsnbc(inorth), ILB, IUB, 1,         &
@@ -1281,6 +1295,7 @@
      &                  BOUNDARY(ng) % hsnG_north(ILB,1),               &
      &                  BOUNDARY(ng) % hsn_north(ILB),                  &
      &                  update)
+        IF (exit_flag.ne.NoError) RETURN
 #  endif
       END IF
 # endif
@@ -1295,6 +1310,7 @@
      &                  BOUNDARY(ng) % tiG_west(JLB,1),                 &
      &                  BOUNDARY(ng) % ti_west(JLB),                    &
      &                  update)
+        IF (exit_flag.ne.NoError) RETURN
 #  endif
 #  ifdef EAST_TIOBC
         CALL set_ngfld (ng, iNLM, idTibc(ieast), JLB, JUB, 1,           &
@@ -1302,6 +1318,7 @@
      &                  BOUNDARY(ng) % tiG_east(JLB,1),                 &
      &                  BOUNDARY(ng) % ti_east(JLB),                    &
      &                  update)
+        IF (exit_flag.ne.NoError) RETURN
 #  endif
 #  ifdef SOUTH_TIOBC
         CALL set_ngfld (ng, iNLM, idTibc(isouth), ILB, IUB, 1,          &
@@ -1309,6 +1326,7 @@
      &                  BOUNDARY(ng) % tiG_south(ILB,1),                &
      &                  BOUNDARY(ng) % ti_south(ILB),                   &
      &                  update)
+        IF (exit_flag.ne.NoError) RETURN
 #  endif
 #  ifdef NORTH_TIOBC
         CALL set_ngfld (ng, iNLM, idTibc(inorth), ILB, IUB, 1,          &
@@ -1316,6 +1334,7 @@
      &                  BOUNDARY(ng) % tiG_north(ILB,1),                &
      &                  BOUNDARY(ng) % ti_north(ILB),                   &
      &                  update)
+        IF (exit_flag.ne.NoError) RETURN
 #  endif
       END IF
 # endif
@@ -1330,6 +1349,7 @@
      &                  BOUNDARY(ng) % sfwatG_west(JLB,1),              &
      &                  BOUNDARY(ng) % sfwat_west(JLB),                 &
      &                  update)
+        IF (exit_flag.ne.NoError) RETURN
 #  endif
 #  ifdef EAST_SFWATOBC
         CALL set_ngfld (ng, iNLM, idSfwbc(ieast), JLB, JUB, 1,          &
@@ -1337,6 +1357,7 @@
      &                  BOUNDARY(ng) % sfwatG_east(JLB,1),              &
      &                  BOUNDARY(ng) % sfwat_east(JLB),                 &
      &                  update)
+        IF (exit_flag.ne.NoError) RETURN
 #  endif
 #  ifdef SOUTH_SFWATOBC
         CALL set_ngfld (ng, iNLM, idSfwbc(isouth), ILB, IUB, 1,         &
@@ -1344,6 +1365,7 @@
      &                  BOUNDARY(ng) % sfwatG_south(ILB,1),             &
      &                  BOUNDARY(ng) % sfwat_south(ILB),                &
      &                  update)
+        IF (exit_flag.ne.NoError) RETURN
 #  endif
 #  ifdef NORTH_SFWATOBC
         CALL set_ngfld (ng, iNLM, idSfwbc(inorth), ILB, IUB, 1,         &
@@ -1351,6 +1373,7 @@
      &                  BOUNDARY(ng) % sfwatG_north(ILB,1),             &
      &                  BOUNDARY(ng) % sfwat_north(ILB),                &
      &                  update)
+        IF (exit_flag.ne.NoError) RETURN
 #  endif
       END IF
 # endif
@@ -1365,6 +1388,7 @@
      &                  BOUNDARY(ng) % ageiceG_west(JLB,1),              &
      &                  BOUNDARY(ng) % ageice_west(JLB),                 &
      &                  update)
+        IF (exit_flag.ne.NoError) RETURN
 #  endif
 #  ifdef EAST_AGEICEOBC
         CALL set_ngfld (ng, iNLM, idSfwbc(ieast), JLB, JUB, 1,          &
@@ -1372,6 +1396,7 @@
      &                  BOUNDARY(ng) % ageiceG_east(JLB,1),              &
      &                  BOUNDARY(ng) % ageice_east(JLB),                 &
      &                  update)
+        IF (exit_flag.ne.NoError) RETURN
 #  endif
 #  ifdef SOUTH_AGEICEOBC
         CALL set_ngfld (ng, iNLM, idSfwbc(isouth), ILB, IUB, 1,         &
@@ -1379,6 +1404,7 @@
      &                  BOUNDARY(ng) % ageiceG_south(ILB,1),             &
      &                  BOUNDARY(ng) % ageice_south(ILB),                &
      &                  update)
+        IF (exit_flag.ne.NoError) RETURN
 #  endif
 #  ifdef NORTH_AGEICEOBC
         CALL set_ngfld (ng, iNLM, idSfwbc(inorth), ILB, IUB, 1,         &
@@ -1386,6 +1412,7 @@
      &                  BOUNDARY(ng) % ageiceG_north(ILB,1),             &
      &                  BOUNDARY(ng) % ageice_north(ILB),                &
      &                  update)
+        IF (exit_flag.ne.NoError) RETURN
 #  endif
       END IF
 # endif
@@ -1400,6 +1427,7 @@
      &                  BOUNDARY(ng) % sig11G_west(JLB,1),              &
      &                  BOUNDARY(ng) % sig11_west(JLB),                 &
      &                  update)
+        IF (exit_flag.ne.NoError) RETURN
 #  endif
 #  ifdef EAST_SIG11OBC
         CALL set_ngfld (ng, iNLM, idS11bc(ieast), JLB, JUB, 1,          &
@@ -1407,6 +1435,7 @@
      &                  BOUNDARY(ng) % sig11G_east(JLB,1),              &
      &                  BOUNDARY(ng) % sig11_east(JLB),                 &
      &                  update)
+        IF (exit_flag.ne.NoError) RETURN
 #  endif
 #  ifdef SOUTH_SIG11OBC
         CALL set_ngfld (ng, iNLM, idS11bc(isouth), ILB, IUB, 1,         &
@@ -1414,6 +1443,7 @@
      &                  BOUNDARY(ng) % sig11G_south(ILB,1),             &
      &                  BOUNDARY(ng) % sig11_south(ILB),                &
      &                  update)
+        IF (exit_flag.ne.NoError) RETURN
 #  endif
 #  ifdef NORTH_SIG11OBC
         CALL set_ngfld (ng, iNLM, idS11bc(inorth), ILB, IUB, 1,         &
@@ -1421,6 +1451,7 @@
      &                  BOUNDARY(ng) % sig11G_north(ILB,1),             &
      &                  BOUNDARY(ng) % sig11_north(ILB),                &
      &                  update)
+        IF (exit_flag.ne.NoError) RETURN
 #  endif
       END IF
 # endif
@@ -1435,6 +1466,7 @@
      &                  BOUNDARY(ng) % sig22G_west(JLB,1),              &
      &                  BOUNDARY(ng) % sig22_west(JLB),                 &
      &                  update)
+        IF (exit_flag.ne.NoError) RETURN
 #  endif
 #  ifdef EAST_SIG22OBC
         CALL set_ngfld (ng, iNLM, idS22bc(ieast), JLB, JUB, 1,          &
@@ -1442,6 +1474,7 @@
      &                  BOUNDARY(ng) % sig22G_east(JLB,1),              &
      &                  BOUNDARY(ng) % sig22_east(JLB),                 &
      &                  update)
+        IF (exit_flag.ne.NoError) RETURN
 #  endif
 #  ifdef SOUTH_SIG22OBC
         CALL set_ngfld (ng, iNLM, idS22bc(isouth), ILB, IUB, 1,         &
@@ -1449,6 +1482,7 @@
      &                  BOUNDARY(ng) % sig22G_south(ILB,1),             &
      &                  BOUNDARY(ng) % sig22_south(ILB),                &
      &                  update)
+        IF (exit_flag.ne.NoError) RETURN
 #  endif
 #  ifdef NORTH_SIG22OBC
         CALL set_ngfld (ng, iNLM, idS22bc(inorth), ILB, IUB, 1,         &
@@ -1456,6 +1490,7 @@
      &                  BOUNDARY(ng) % sig22G_north(ILB,1),             &
      &                  BOUNDARY(ng) % sig22_north(ILB),                &
      &                  update)
+        IF (exit_flag.ne.NoError) RETURN
 #  endif
       END IF
 # endif
@@ -1470,6 +1505,7 @@
      &                  BOUNDARY(ng) % sig12G_west(JLB,1),              &
      &                  BOUNDARY(ng) % sig12_west(JLB),                 &
      &                  update)
+        IF (exit_flag.ne.NoError) RETURN
 #  endif
 #  ifdef EAST_SIG12OBC
         CALL set_ngfld (ng, iNLM, idS12bc(ieast), JLB, JUB, 1,          &
@@ -1477,6 +1513,7 @@
      &                  BOUNDARY(ng) % sig12G_east(JLB,1),              &
      &                  BOUNDARY(ng) % sig12_east(JLB),                 &
      &                  update)
+        IF (exit_flag.ne.NoError) RETURN
 #  endif
 #  ifdef SOUTH_SIG12OBC
         CALL set_ngfld (ng, iNLM, idS12bc(isouth), ILB, IUB, 1,         &
@@ -1484,6 +1521,7 @@
      &                  BOUNDARY(ng) % sig12G_south(ILB,1),             &
      &                  BOUNDARY(ng) % sig12_south(ILB),                &
      &                  update)
+        IF (exit_flag.ne.NoError) RETURN
 #  endif
 #  ifdef NORTH_SIG12OBC
         CALL set_ngfld (ng, iNLM, idS12bc(inorth), ILB, IUB, 1,         &
@@ -1491,6 +1529,7 @@
      &                  BOUNDARY(ng) % sig12G_north(ILB,1),             &
      &                  BOUNDARY(ng) % sig12_north(ILB),                &
      &                  update)
+        IF (exit_flag.ne.NoError) RETURN
 #  endif
       END IF
 # endif
@@ -1505,11 +1544,13 @@
      &                  BOUNDARY(ng) % uiG_west(JLB,1),                 &
      &                  BOUNDARY(ng) % ui_west(JLB),                    &
      &                  update)
+        IF (exit_flag.ne.NoError) RETURN
         CALL set_ngfld (ng, iNLM, idVibc(iwest), JLB, JUB, 1,           &
      &                  1, Mm(ng)+1, 1,                                 &
      &                  BOUNDARY(ng) % viG_west(JLB,1),                 &
      &                  BOUNDARY(ng) % vi_west(JLB),                    &
      &                  update)
+        IF (exit_flag.ne.NoError) RETURN
 #  endif
 #  ifdef EAST_MIOBC
         CALL set_ngfld (ng, iNLM, idUibc(ieast), JLB, JUB, 1,           &
@@ -1517,11 +1558,13 @@
      &                  BOUNDARY(ng) % uiG_east(JLB,1),                 &
      &                  BOUNDARY(ng) % ui_east(JLB),                    &
      &                  update)
+        IF (exit_flag.ne.NoError) RETURN
         CALL set_ngfld (ng, iNLM, idVibc(ieast), JLB, JUB, 1,           &
      &                  1, Mm(ng)+1, 1,                                 &
      &                  BOUNDARY(ng) % viG_east(JLB,1),                 &
      &                  BOUNDARY(ng) % vi_east(JLB),                    &
      &                  update)
+        IF (exit_flag.ne.NoError) RETURN
 
 #  endif
 #  ifdef SOUTH_MIOBC
@@ -1530,11 +1573,13 @@
      &                  BOUNDARY(ng) % uiG_south(ILB,1),                &
      &                  BOUNDARY(ng) % ui_south(ILB),                   &
      &                  update)
+        IF (exit_flag.ne.NoError) RETURN
         CALL set_ngfld (ng, iNLM, idVibc(isouth), ILB, IUB, 1,          &
      &                  0, Lm(ng)+1 ,1,                                 &
      &                  BOUNDARY(ng) % viG_south(ILB,1),                &
      &                  BOUNDARY(ng) % vi_south(ILB),                   &
      &                  update)
+        IF (exit_flag.ne.NoError) RETURN
 #  endif
 #  ifdef NORTH_MIOBC
         CALL set_ngfld (ng, iNLM, idUibc(inorth), ILB, IUB, 1,          &
@@ -1542,11 +1587,13 @@
      &                  BOUNDARY(ng) % uiG_north(ILB,1),                &
      &                  BOUNDARY(ng) % ui_north(ILB),                   &
      &                  update)
+        IF (exit_flag.ne.NoError) RETURN
         CALL set_ngfld (ng, iNLM, idVibc(inorth), ILB, IUB, 1,          &
      &                  0, Lm(ng)+1, 1,                                 &
      &                  BOUNDARY(ng) % viG_north(ILB,1),                &
      &                  BOUNDARY(ng) % vi_north(ILB),                   &
      &                  update)
+        IF (exit_flag.ne.NoError) RETURN
 #  endif
       END IF
 # endif
@@ -1953,6 +2000,7 @@
      &                     CLIMA(ng)%vclmG,                             &
      &                     CLIMA(ng)%vclm,                              &
      &                     update)
+      IF (exit_flag.ne.NoError) RETURN
 #  endif
 #  if defined OFFLINE
       DO k=1,N(ng)
@@ -1982,7 +2030,6 @@
       END DO
 #   endif
 
-      IF (exit_flag.ne.NoError) RETURN
 #  endif
 # endif
 
