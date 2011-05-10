@@ -527,26 +527,28 @@
 !  Once a year, we clean out the oldest fish.
 !  Must do this before calling output.
 !
+        DO ng=1,Ngrids
 # ifdef NEMURO_SAN
 !$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(ng,numthreads)
-      DO thread=0,numthreads-1
-        IF (iyesterday(ng) .ne. idays(ng)) THEN
-          IF (iyesteryear(ng) .ne. iyears(ng)) THEN
-            chunk_size=(Nfish(ng)+numthreads-1)/numthreads
-            Lstr=1+thread*chunk_size
-            Lend=MIN(Nfish(ng),Lstr+chunk_size-1)
-            CALL new_year (ng, Lstr, Lend)
+          DO thread=0,numthreads-1
+            IF (iyesterday(ng) .ne. idays(ng)) THEN
+              IF (iyesteryear(ng) .ne. iyears(ng)) THEN
+                chunk_size=(Nfish(ng)+numthreads-1)/numthreads
+                Lstr=1+thread*chunk_size
+                Lend=MIN(Nfish(ng),Lstr+chunk_size-1)
+                CALL new_year (ng, Lstr, Lend)
 #  ifdef FISHING_FLEET
-            subs=NtileX(ng)*NtileE(ng)/numthreads
-            DO tile=subs*thread,subs*(thread+1)-1,+1     ! irreversible loop
-              CALL new_year_fleet (ng, TILE)
-            END DO
+                subs=NtileX(ng)*NtileE(ng)/numthreads
+                DO tile=subs*thread,subs*(thread+1)-1,+1     ! irreversible loop
+                  CALL new_year_fleet (ng, TILE)
+                END DO
 #  endif
-            iyesteryear(ng) = iyears(ng)
-          END IF
-        END IF
-      END DO
+                iyesteryear(ng) = iyears(ng)
+              END IF
+            END IF
+          END DO
 !$OMP END PARALLEL DO
+        END DO
 # endif
 !-----------------------------------------------------------------------
 !  If appropriate, write out fields into output NetCDF files.  Notice

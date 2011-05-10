@@ -1,13 +1,7 @@
 !
 !  ROMS/TOMS Standard Input parameters.
 !
-<<<<<<< HEAD
-!svn $Id$
-=======
 !==============================================================================
-!  Copyright (c) 2002-2011 The ROMS/TOMS Group                              ===
->>>>>>> kate_svn
-!========================================================= Hernan G. Arango ===
 !  Copyright (c) 2002-2011 The ROMS/TOMS Group                                !
 !    Licensed under a MIT/X style license                                     !
 !    See License_ROMS.txt                                                     !
@@ -76,7 +70,7 @@
 ! shared-memory configurations used to determine tile horizontal range
 ! indices (Istr,Iend) and (Jstr,Jend), [1:Ngrids].
 
-      NtileI == 8                               ! I-direction partition
+      NtileI == 1                               ! I-direction partition
       NtileJ == 16                              ! J-direction partition
 
 ! Time-Stepping parameters.
@@ -252,7 +246,8 @@
 ! origin for tidal forcing, and model reference time for output
 ! NetCDF units attribute.
 
-      DSTART =  730.0d0                    ! days
+!      DSTART =  730.0d0                    ! days
+      DSTART =  9855.0d0                   ! days
   TIDE_START =  0.0d0                      ! days
     TIME_REF =  19580101.0d0               ! yyyymmdd.dd
 
@@ -450,13 +445,6 @@ Aout(idFsur) == T                          ! free-surface
 
 Aout(idTvar) == T T                        ! temperature and salinity
 
-<<<<<<< HEAD
-Aout(idUsms) == T                          ! surface U-stress
-Aout(idVsms) == T                          ! surface V-stress
-Aout(idUbms) == F                          ! bottom U-stress
-Aout(idVbms) == F                          ! bottom V-stress
-
-=======
 Aout(idUsms) == F                          ! surface U-stress
 Aout(idVsms) == F                          ! surface V-stress
 Aout(idUbms) == F                          ! bottom U-stress
@@ -480,7 +468,6 @@ Aout(idV3rs) == F                          ! 3D V-radiation stress
 Aout(idU3Sd) == F                          ! 3D U-Stokes velocity
 Aout(idV3Sd) == F                          ! 3D V-Stokes velocity
 
->>>>>>> kate_svn
 Aout(idTsur) == F F                        ! surface net heat and salt flux
 Aout(idLhea) == F                          ! latent heat flux
 Aout(idShea) == F                          ! sensible heat flux
@@ -496,8 +483,6 @@ Aout(idSdif) == F                          ! vertical Salinity diffusion
 Aout(idHsbl) == F                          ! depth of surface boundary layer
 Aout(idHbbl) == F                          ! depth of bottom boundary layer
 
-<<<<<<< HEAD
-=======
 Aout(id2dRV) == F                          ! 2D relative vorticity
 Aout(id3dRV) == F                          ! 3D relative vorticity
 Aout(id2dPV) == F                          ! 2D potential vorticity
@@ -526,14 +511,11 @@ Aout(idVTav) == F F                        ! quadratic <v*t> T/S terms
 Aout(iHUTav) == F F                        ! T/S volume flux, <Huon*t>
 Aout(iHVTav) == F F                        ! T/S volume flux, <Hvom*t>
 
->>>>>>> kate_svn
 ! Logical switches (TRUE/FALSE) to activate writing of extra inert passive
 ! tracers other than biological and sediment tracers into the AVERAGE file.
 
  Aout(inert) == T                          ! inert passive tracers
 
-<<<<<<< HEAD
-=======
 ! Logical switches (TRUE/FALSE) to activate writing of time-averaged,
 ! 2D momentum (ubar,vbar) diagnostic terms into DIAGNOSTIC output file.
 
@@ -582,7 +564,6 @@ Dout(iTydif) == T T                        ! horizontal ETA-diffusion
 Dout(iTsdif) == T T                        ! horizontal S-diffusion
 Dout(iTvdif) == T T                        ! vertical diffusion
 
->>>>>>> kate_svn
 ! Generic User parameters, [1:NUSER].
 
        NUSER =  0
@@ -596,13 +577,13 @@ Dout(iTvdif) == T T                        ! vertical diffusion
 
 ! Input NetCDF file names, [1:Ngrids].
 
-     GRDNAME == /home/fiechter/NemFish/Grid/ccs30_grd.nc
-     ININAME == /home/fiechter/NemFish/Frc/SODA/ccs30_clm_inibio_1960.nc
+     GRDNAME == Files/ccs30_grd.nc
+     ININAME == Files/ccs30_soda_inibio_1985.nc
      ITLNAME == /dev/null
      IRPNAME == /dev/null
      IADNAME == /dev/null
      CLMNAME == /dev/null
-     BRYNAME == /home/fiechter/NemFish/Frc/SODA/ccs30_soda_brybio.nc
+     BRYNAME == Files/ccs30_soda_brybio.nc
      FWDNAME == /dev/null
      ADSNAME == /dev/null
 
@@ -618,13 +599,13 @@ Dout(iTvdif) == T T                        ! vertical diffusion
 
      NFFILES == 7                          ! number of forcing files
 
-     FRCNAME == /home/fiechter/NemFish/Frc/CORE2/wind_msk.1958-2006.CCS.nc \
-                /home/fiechter/NemFish/Frc/CORE2/tair_msk.1958-2006.CCS.nc \
-                /home/fiechter/NemFish/Frc/CORE2/pair_msk.1958-2006.CCS.nc \
-                /home/fiechter/NemFish/Frc/CORE2/qair_msk.1958-2006.CCS.nc \
-                /home/fiechter/NemFish/Frc/CORE2/ncar_rain_msk.1958-2006.CCS.nc \
-                /home/fiechter/NemFish/Frc/CORE2/ncar_lwrad_down_msk.1958-2006.CCS.nc \
-                /home/fiechter/NemFish/Frc/CORE2/ncar_swrad_msk.1958-2006.CCS.nc
+     FRCNAME == Files/wind_msk.1958-2006.CCS.nc \
+                Files/tair_msk.1958-2006.CCS.nc \
+                Files/pair_msk.1958-2006.CCS.nc \
+                Files/qair_msk.1958-2006.CCS.nc \
+                Files/ncar_rain_msk.1958-2006.CCS.nc \
+                Files/ncar_lwrad_down_msk.1958-2006.CCS.nc \
+                Files/ncar_swrad_msk.1958-2006.CCS.nc
 
 ! Output NetCDF file names, [1:Ngrids].
 

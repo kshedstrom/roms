@@ -148,16 +148,6 @@
       integer, allocatable :: iyesterday(:)
       integer, allocatable :: iyears(:)
       integer, allocatable :: iyesteryear(:)
-!
-!  Logical switches.
-!
-      logical, allocatable :: Lfish(:)
-# ifdef PREDATOR
-      logical, allocatable :: Lpred(:)
-# endif
-# ifdef FISHING_FLEET
-      logical, allocatable :: Lfleet(:)
-# endif
 
       CONTAINS
 
@@ -272,16 +262,6 @@
       allocate ( iyears(Ngrids) )
       allocate ( iyesteryear(Ngrids) )
 !
-!  Logical switches.
-!
-      allocate ( Lfish(Ngrids) )
-# ifdef PREDATOR
-      allocate ( Lpred(Ngrids) )
-# endif
-# ifdef FISHING_FLEET
-      allocate ( Lfleet(Ngrids) )
-# endif
-!
 !-----------------------------------------------------------------------
 !  Initialize module variables.
 !-----------------------------------------------------------------------
@@ -332,13 +312,6 @@
         FISHES(ng) % cellid(iflt) = 0
       END DO
 
-      Lfish(ng)=.TRUE.
-# ifdef PREDATOR
-      Lpred(ng)=.TRUE.
-# endif
-# ifdef FISHING_FLEET
-      Lfleet(ng)=.TRUE.
-# endif
       LdefFISH(ng)=.TRUE.
 
       RETURN

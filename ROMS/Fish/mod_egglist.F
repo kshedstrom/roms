@@ -95,7 +95,8 @@
      &                  GRID(ng) % rmask,                               &
 #  endif
      &                  egg_count, Npts, eggs_line, .false.)
-        eggs_all = reshape(eggs_line,(/ Lm(ng)+2, Mm(ng)+2, Nspecies /))
+        eggs_all = reshape(eggs_line,                                   &
+     &                   (/ Lm(ng)+2, Mm(ng)+2, Nspecies(ng) /))
 # else
         DO isp=1,Nspecies(ng)
           DO j=0,Mm(ng)+1

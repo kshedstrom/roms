@@ -129,8 +129,6 @@
 !
 !  Allocate and initialize all model state arrays.
 !
-        CALL inp_par (iNLM)
-        IF (exit_flag.ne.NoError) RETURN
 #ifdef NEMURO_SAN
         CALL ini_fish
         IF (exit_flag.ne.NoError) RETURN

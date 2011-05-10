@@ -550,7 +550,7 @@
 #endif
               END IF
 # ifdef DISTRIBUTE
-              CALL mp_bcasts (ng, iNLM, FISH(ng)%nme)
+              CALL mp_bcasts (ng, iNLM, FISH(ng)%name)
 # endif
               IF (FISH(ng)%ncid.ne.-1) THEN
                 CALL netcdf_close (ng, iNLM, FISH(ng)%ncid)

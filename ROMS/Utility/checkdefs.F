@@ -1004,13 +1004,13 @@
       Coptions(is:is+10)=' FILTERED,'
 #endif
 #if defined FISH_FEEDBACK && defined NEMURO_SAN
-      IF (Master) WRITE (stdout,20) 'FISH_FEEDBACK',                   &
+      IF (Master) WRITE (stdout,20) 'FISH_FEEDBACK',                    &
      &   'Fish model feedback to NPZ model.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+15)=' FISH_FEEDBACK,'
 #endif
 #if defined FISHING_FLEET && defined NEMURO_SAN
-      IF (Master) WRITE (stdout,20) 'FISHING_FLEET',                   &
+      IF (Master) WRITE (stdout,20) 'FISHING_FLEET',                    &
      &   'Fishing fleet preying on model fish.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+15)=' FISHING_FLEET,'
@@ -1953,7 +1953,7 @@
       Coptions(is:is+10)=' PRSGRD31,'
 #endif
 #if defined PREDATOR && defined NEMURO_SAN
-      IF (Master) WRITE (stdout,20) 'PREDATOR',                        &
+      IF (Master) WRITE (stdout,20) 'PREDATOR',                         &
      &   'Predators on the fish.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+10)=' PREDATOR,'

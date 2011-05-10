@@ -347,6 +347,15 @@
 #endif
         logical, allocatable :: Lsediment(:)
         logical, allocatable :: Lstations(:)
+#ifdef NEMURO_SAN
+        logical, allocatable :: Lfish(:)
+# ifdef PREDATOR
+        logical, allocatable :: Lpred(:)
+# endif
+# ifdef FISHING_FLEET
+        logical, allocatable :: Lfleet(:)
+# endif
+#endif
 !
 !-----------------------------------------------------------------------
 !  Physical constants.
@@ -1761,6 +1770,15 @@
 #endif
       allocate ( Lsediment(Ngrids) )
       allocate ( Lstations(Ngrids) )
+#ifdef NEMURO_SAN
+      allocate ( Lfish(Ngrids) )
+# ifdef PREDATOR
+      allocate ( Lpred(Ngrids) )
+# endif
+# ifdef FISHING_FLEET
+      allocate ( Lfleet(Ngrids) )
+# endif
+#endif
 
       allocate ( LtracerSrc(MT,Ngrids) )
 
@@ -2268,6 +2286,15 @@
 #endif
         Lsediment(ng)=.TRUE.
         Lstations(ng)=.TRUE.
+#ifdef NEMURO_SAN
+        Lfish(ng)=.TRUE.
+# ifdef PREDATOR
+        Lpred(ng)=.TRUE.
+# endif
+# ifdef FISHING_FLEET
+        Lfleet(ng)=.TRUE.
+# endif
+#endif
 #ifdef TIDES_ASTRO
         FIRST_TIDES_ASTRO(ng) = .TRUE.
 #endif
