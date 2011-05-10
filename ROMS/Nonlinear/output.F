@@ -162,7 +162,7 @@
       END IF
 #endif
 
-# if defined AVERAGES && !defined ADJOINT
+# ifdef AVERAGES
 !
 !-----------------------------------------------------------------------
 !  If appropriate, process time-averaged NetCDF file.
@@ -217,9 +217,9 @@
   20          FORMAT (a,'_',i4.4,'.nc')
 #endif
             END IF
-# ifdef DISTRIBUTE
+#  ifdef DISTRIBUTE
             CALL mp_bcasts (ng, iNLM, AVG(ng)%name)
-# endif
+#  endif
             IF (AVG(ng)%ncid.ne.-1) THEN
               CALL netcdf_close (ng, iNLM, AVG(ng)%ncid)
             END IF
@@ -244,10 +244,10 @@
      &      (MOD(iic(ng)-1,nAVG(ng)).eq.0)) THEN
           CALL wrt_avg (ng)
           IF (exit_flag.ne.NoError) RETURN
-# if defined AVERAGES_DETIDE && (defined SSH_TIDES || defined UV_TIDES)
+#  if defined AVERAGES_DETIDE && (defined SSH_TIDES || defined UV_TIDES)
           CALL wrt_tides (ng)
           IF (exit_flag.ne.NoError) RETURN
-# endif
+#  endif
         END IF
       END IF
 # endif
@@ -330,6 +330,7 @@
         END IF
       END IF
 # endif
+
 # ifdef DIAGNOSTICS
 !
 !-----------------------------------------------------------------------
@@ -385,9 +386,9 @@
   30          FORMAT (a,'_',i4.4,'.nc')
 #endif
             END IF
-# ifdef DISTRIBUTE
+#  ifdef DISTRIBUTE
             CALL mp_bcasts (ng, iNLM, DIA(ng)%name)
-# endif
+#  endif
             IF (DIA(ng)%ncid.ne.-1) THEN
               CALL netcdf_close (ng, iNLM, DIA(ng)%ncid)
             END IF
@@ -415,6 +416,7 @@
         END IF
       END IF
 # endif
+
 # ifdef STATIONS
 !
 !-----------------------------------------------------------------------
@@ -446,6 +448,7 @@
         END IF
       END IF
 # endif
+
 # ifdef FLOATS
 !
 !-----------------------------------------------------------------------
@@ -511,6 +514,7 @@
 # endif
         END IF
       END IF
+
 # if (defined FOUR_DVAR || defined VERIFICATION) && \
      !defined IS4DVAR_SENSITIVITY
 #  ifdef OBSERVATIONS

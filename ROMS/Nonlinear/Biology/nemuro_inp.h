@@ -373,7 +373,10 @@
             END IF
             Npts=load_l(Nval, Cval, Ngrids, Hout(idOPALbur,:))
 #endif
-#ifdef AVERAGES
+#if defined AVERAGES    || \
+   (defined AD_AVERAGES && defined ADJOINT) || \
+   (defined RP_AVERAGES && defined TL_IOMS) || \
+   (defined TL_AVERAGES && defined TANGENT)
           ELSE IF (TRIM(KeyWord).eq.'Aout(idTvar)') THEN
             Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
             DO ng=1,Ngrids
@@ -843,7 +846,10 @@
      &            Hout(idTsur(i),ng), 'Hout(idTsur)',                   &
      &            'Write out tracer flux ', i, TRIM(Vname(1,idTvar(i)))
             END DO
-#ifdef AVERAGES
+#if defined AVERAGES    || \
+   (defined AD_AVERAGES && defined ADJOINT) || \
+   (defined RP_AVERAGES && defined TL_IOMS) || \
+   (defined TL_AVERAGES && defined TANGENT)
             WRITE (out,'(1x)')
             DO itrc=1,NBT
               i=idbio(itrc)
