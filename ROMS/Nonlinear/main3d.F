@@ -131,7 +131,7 @@
       USE fish_by_cell_mod, ONLY : fish_by_cell
       USE fish_spawn_mod, ONLY : fish_spawn
       USE new_year_mod, ONLY : new_year
-#  if defined FLEET
+#  if defined FISHING_FLEET
       USE new_year_fleet_mod, ONLY : new_year_fleet
 #  endif
 #  ifdef PREDATOR
@@ -141,7 +141,7 @@
 #  ifdef EGGS_BISECTION
       USE eggs_by_cell_mod, ONLY : eggs_by_cell
 #  endif
-#  ifdef FLEET
+#  ifdef FISHING_FLEET
       USE step_fleet_mod, ONLY : step_fleet
 #  endif
 # endif
@@ -536,7 +536,7 @@
             Lstr=1+thread*chunk_size
             Lend=MIN(Nfish(ng),Lstr+chunk_size-1)
             CALL new_year (ng, Lstr, Lend)
-#  ifdef FLEET
+#  ifdef FISHING_FLEET
             subs=NtileX(ng)*NtileE(ng)/numthreads
             DO tile=subs*thread,subs*(thread+1)-1,+1     ! irreversible loop
               CALL new_year_fleet (ng, TILE)
@@ -825,7 +825,7 @@
                   CALL eggs_by_cell (ng, TILE)
 #  endif
                   CALL new_fish(ng)
-#  ifdef FLEET
+#  ifdef FISHING_FLEET
                   CALL step_fleet (ng, TILE)
 #  endif
                   iyesterday(ng) = idays(ng)

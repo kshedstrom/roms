@@ -1,6 +1,6 @@
 #include "cppdefs.h"
       MODULE new_year_fleet_mod
-#if defined NEMURO_SAN && defined FLEET
+#if defined NEMURO_SAN && defined FISHING_FLEET
 !
 !svn $Id$
 !================================================== Kate Hedstrom ======

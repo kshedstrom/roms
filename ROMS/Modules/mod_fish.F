@@ -128,7 +128,7 @@
       integer, parameter :: ip_none = 0
       integer, parameter :: ip_albacore = 1
 # endif
-# ifdef FLEET
+# ifdef FISHING_FLEET
       integer, parameter :: ibiloc = 1         ! boat grid i location
       integer, parameter :: ibjloc = 2         ! boat grid j location
       integer, parameter :: ibport = 3         ! boat port
@@ -155,7 +155,7 @@
 # ifdef PREDATOR
       logical, allocatable :: Lpred(:)
 # endif
-# ifdef FLEET
+# ifdef FISHING_FLEET
       logical, allocatable :: Lfleet(:)
 # endif
 
@@ -278,7 +278,7 @@
 # ifdef PREDATOR
       allocate ( Lpred(Ngrids) )
 # endif
-# ifdef FLEET
+# ifdef FISHING_FLEET
       allocate ( Lfleet(Ngrids) )
 # endif
 !
@@ -336,7 +336,7 @@
 # ifdef PREDATOR
       Lpred(ng)=.TRUE.
 # endif
-# ifdef FLEET
+# ifdef FISHING_FLEET
       Lfleet(ng)=.TRUE.
 # endif
       LdefFISH(ng)=.TRUE.

@@ -1311,7 +1311,7 @@
 #else
       GRID_VARS : IF (ncid.ne.FLT(ng)%ncid .and. ncid.ne.FISH(ng)%ncid  &
      &                .and. ncid.ne.PRED(ng)%ncid                       &
-     &                .and. ncid.ne.BOAT(ng)%ncid) THEN
+     &                .and. ncid.ne.FLEET(ng)%ncid) THEN
 #endif
 #if !(defined SED_MORPH && defined SEDIMENT)
 !

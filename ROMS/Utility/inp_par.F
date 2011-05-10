@@ -1415,7 +1415,7 @@
           ELSE IF (TRIM(KeyWord).eq.'FLEETRREC') THEN
             Npts=load_i(Nval, Rval, Ngrids, fleetrrec)
 # endif
-# ifdef FLEET
+# ifdef FISHING_FLEET
           ELSE IF (TRIM(KeyWord).eq.'PREDRREC') THEN
             Npts=load_i(Nval, Rval, Ngrids, predrrec)
 # endif
@@ -1437,7 +1437,7 @@
           ELSE IF (TRIM(KeyWord).eq.'NPRD') THEN
             Npts=load_i(Nval, Rval, Ngrids, nPRE)
 # endif
-# ifdef FLEET
+# ifdef FISHING_FLEET
           ELSE IF (TRIM(KeyWord).eq.'NFLE') THEN
             Npts=load_i(Nval, Rval, Ngrids, nFLE)
 # endif
@@ -3775,8 +3775,8 @@
             label='PRED - particles trajectories'
             Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles, PRED)
           ELSE IF (TRIM(KeyWord).eq.'FLEETNAME') THEN
-            label='BOAT - ship trajectories'
-            Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles, BOAT)
+            label='FLEET - ship trajectories'
+            Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles, FLEET)
           ELSE IF (TRIM(KeyWord).eq.'GRDNAME') THEN
             label='GRD - application grid'
             Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles, GRD)
@@ -3852,7 +3852,7 @@
             END DO
             predposnam=TRIM(ADJUSTL(Cval(Nval)))
 # endif
-# ifdef FLEET
+# ifdef FISHING_FLEET
           ELSE IF (TRIM(KeyWord).eq.'FLEETPOSNAM') THEN
             DO i=1,LEN(fleetposnam)
               fleetposnam(i:i)=blank
@@ -4207,7 +4207,7 @@
      &          'Number of timesteps between the writing of data',      &
      &          'into predator file.'
 # endif
-# ifdef FLEET
+# ifdef FISHING_FLEET
           WRITE (out,130) nFLE(ng), 'nFLE',                             &
      &          'Number of timesteps between the writing of data',      &
      &          'into fleet file.'
@@ -6187,9 +6187,9 @@
           WRITE (out,230) '            Output Predator File:  ',        &
      &                    TRIM(PRED(ng)%name)
 # endif
-# ifdef FLEET
+# ifdef FISHING_FLEET
           WRITE (out,230) '            Output Fleet File:  ',           &
-     &                    TRIM(BOAT(ng)%name)
+     &                    TRIM(FLEET(ng)%name)
 # endif
 #endif
 #ifdef MODEL_COUPLING

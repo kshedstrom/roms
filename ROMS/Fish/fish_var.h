@@ -100,7 +100,7 @@
               CASE ('idPalv')
                 idPalv=varid
 # endif
-# ifdef FLEET
+# ifdef FISHING_FLEET
               CASE ('idBxprt')
                 idBxprt=varid
               CASE ('idByprt')

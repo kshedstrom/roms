@@ -1,5 +1,5 @@
 #include "cppdefs.h"
-#if defined NEMURO_SAN && defined FLEET
+#if defined NEMURO_SAN && defined FISHING_FLEET
       SUBROUTINE wrt_fleet (ng)
 !
 !svn $Id$
@@ -56,16 +56,16 @@
 !
 !  Set time record index.
 !
-      BOAT(ng)%Rindex=BOAT(ng)%Rindex+1
-      BOAT(ng)%Nrec=BOAT(ng)%Nrec+1
+      FLEET(ng)%Rindex=FLEET(ng)%Rindex+1
+      FLEET(ng)%Nrec=FLEET(ng)%Nrec+1
 !
 !  Write out model time (s).
 !
-      CALL netcdf_put_fvar (ng, iNLM, BOAT(ng)%name,                    &
+      CALL netcdf_put_fvar (ng, iNLM, FLEET(ng)%name,                   &
      &                      TRIM(Vname(1,idtime)), time(ng:),           &
-     &                      (/BOAT(ng)%Rindex/), (/1/),                 &
-     &                      ncid = BOAT(ng)%ncid,                       &
-     &                      varid = BOAT(ng)%Vid(idtime))
+     &                      (/FLEET(ng)%Rindex/), (/1/),                &
+     &                      ncid = FLEET(ng)%ncid,                      &
+     &                      varid = FLEET(ng)%Vid(idtime))
       IF (exit_flag.ne.NoError) RETURN
 !
 !  Write out fleet X-grid locations.
@@ -73,11 +73,11 @@
       DO l=1,Nboats(ng)
         Tout(l)=REAL(BOATS(ng)%boat(ibiloc,l),r8)
       END DO
-      CALL netcdf_put_fvar (ng, iNLM, BOAT(ng)%name,                    &
+      CALL netcdf_put_fvar (ng, iNLM, FLEET(ng)%name,                   &
      &                      TRIM(Vname(1,idBxprt)), Tout,               &
-     &                      (/1,BOAT(ng)%Rindex/), (/Nboats(ng),1/),    &
-     &                      ncid = BOAT(ng)%ncid,                       &
-     &                      varid = BOAT(ng)%Vid(idBxprt))
+     &                      (/1,FLEET(ng)%Rindex/), (/Nboats(ng),1/),   &
+     &                      ncid = FLEET(ng)%ncid,                      &
+     &                      varid = FLEET(ng)%Vid(idBxprt))
       IF (exit_flag.ne.NoError) RETURN
 !
 !  Write out fleet Y-grid locations.
@@ -85,11 +85,11 @@
       DO l=1,Nboats(ng)
         Tout(l)=REAL(BOATS(ng)%boat(ibjloc,l),r8)
       END DO
-      CALL netcdf_put_fvar (ng, iNLM, BOAT(ng)%name,                    &
+      CALL netcdf_put_fvar (ng, iNLM, FLEET(ng)%name,                   &
      &                      TRIM(Vname(1,idByprt)), Tout,               &
-     &                      (/1,BOAT(ng)%Rindex/), (/Nboats(ng),1/),    &
-     &                      ncid = BOAT(ng)%ncid,                       &
-     &                      varid = BOAT(ng)%Vid(idByprt))
+     &                      (/1,FLEET(ng)%Rindex/), (/Nboats(ng),1/),   &
+     &                      ncid = FLEET(ng)%ncid,                      &
+     &                      varid = FLEET(ng)%Vid(idByprt))
       IF (exit_flag.ne.NoError) RETURN
 !
 !  Write out fleet port locations.
@@ -97,11 +97,11 @@
       DO l=1,Nboats(ng)
         Tout(l)=REAL(BOATS(ng)%boat(ibport,l),r8)
       END DO
-      CALL netcdf_put_fvar (ng, iNLM, BOAT(ng)%name,                    &
+      CALL netcdf_put_fvar (ng, iNLM, FLEET(ng)%name,                   &
      &                      TRIM(Vname(1,idBnprt)), Tout,               &
-     &                      (/1,BOAT(ng)%Rindex/), (/Nboats(ng),1/),    &
-     &                      ncid = BOAT(ng)%ncid,                       &
-     &                      varid = BOAT(ng)%Vid(idBnprt))
+     &                      (/1,FLEET(ng)%Rindex/), (/Nboats(ng),1/),   &
+     &                      ncid = FLEET(ng)%ncid,                      &
+     &                      varid = FLEET(ng)%Vid(idBnprt))
       IF (exit_flag.ne.NoError) RETURN
 !
 !  Write out fleet number of fished locations.
@@ -109,11 +109,11 @@
       DO l=1,Nboats(ng)
         Tout(l)=REAL(BOATS(ng)%boat(ibnloc,l),r8)
       END DO
-      CALL netcdf_put_fvar (ng, iNLM, BOAT(ng)%name,                    &
+      CALL netcdf_put_fvar (ng, iNLM, FLEET(ng)%name,                   &
      &                      TRIM(Vname(1,idBnfloc)), Tout,              &
-     &                      (/1,BOAT(ng)%Rindex/), (/Nboats(ng),1/),    &
-     &                      ncid = BOAT(ng)%ncid,                       &
-     &                      varid = BOAT(ng)%Vid(idBnfloc))
+     &                      (/1,FLEET(ng)%Rindex/), (/Nboats(ng),1/),   &
+     &                      ncid = FLEET(ng)%ncid,                      &
+     &                      varid = FLEET(ng)%Vid(idBnfloc))
       IF (exit_flag.ne.NoError) RETURN
 !
 !  Write out fleet X-grid 1st fishing locations.
@@ -121,11 +121,11 @@
       DO l=1,Nboats(ng)
         Tout(l)=REAL(BOATS(ng)%boat(ibifsh1,l),r8)
       END DO
-      CALL netcdf_put_fvar (ng, iNLM, BOAT(ng)%name,                    &
+      CALL netcdf_put_fvar (ng, iNLM, FLEET(ng)%name,                   &
      &                      TRIM(Vname(1,idBxfsh1)), Tout,              &
-     &                      (/1,BOAT(ng)%Rindex/), (/Nboats(ng),1/),    &
-     &                      ncid = BOAT(ng)%ncid,                       &
-     &                      varid = BOAT(ng)%Vid(idBxfsh1))
+     &                      (/1,FLEET(ng)%Rindex/), (/Nboats(ng),1/),   &
+     &                      ncid = FLEET(ng)%ncid,                      &
+     &                      varid = FLEET(ng)%Vid(idBxfsh1))
       IF (exit_flag.ne.NoError) RETURN
 !
 !  Write out fleet Y-grid 1st fishing locations.
@@ -133,11 +133,11 @@
       DO l=1,Nboats(ng)
         Tout(l)=REAL(BOATS(ng)%boat(ibjfsh1,l),r8)
       END DO
-      CALL netcdf_put_fvar (ng, iNLM, BOAT(ng)%name,                    &
+      CALL netcdf_put_fvar (ng, iNLM, FLEET(ng)%name,                   &
      &                      TRIM(Vname(1,idByfsh1)), Tout,              &
-     &                      (/1,BOAT(ng)%Rindex/), (/Nboats(ng),1/),    &
-     &                      ncid = BOAT(ng)%ncid,                       &
-     &                      varid = BOAT(ng)%Vid(idByfsh1))
+     &                      (/1,FLEET(ng)%Rindex/), (/Nboats(ng),1/),   &
+     &                      ncid = FLEET(ng)%ncid,                      &
+     &                      varid = FLEET(ng)%Vid(idByfsh1))
       IF (exit_flag.ne.NoError) RETURN
 !
 !  Write out fleet X-grid 2nd fishing locations.
@@ -145,11 +145,11 @@
       DO l=1,Nboats(ng)
         Tout(l)=REAL(BOATS(ng)%boat(ibifsh2,l),r8)
       END DO
-      CALL netcdf_put_fvar (ng, iNLM, BOAT(ng)%name,                    &
+      CALL netcdf_put_fvar (ng, iNLM, FLEET(ng)%name,                   &
      &                      TRIM(Vname(1,idBxfsh2)), Tout,              &
-     &                      (/1,BOAT(ng)%Rindex/), (/Nboats(ng),1/),    &
-     &                      ncid = BOAT(ng)%ncid,                       &
-     &                      varid = BOAT(ng)%Vid(idBxfsh2))
+     &                      (/1,FLEET(ng)%Rindex/), (/Nboats(ng),1/),   &
+     &                      ncid = FLEET(ng)%ncid,                      &
+     &                      varid = FLEET(ng)%Vid(idBxfsh2))
       IF (exit_flag.ne.NoError) RETURN
 !
 !  Write out fleet Y-grid 2nd fishing locations.
@@ -157,11 +157,11 @@
       DO l=1,Nboats(ng)
         Tout(l)=REAL(BOATS(ng)%boat(ibjfsh2,l),r8)
       END DO
-      CALL netcdf_put_fvar (ng, iNLM, BOAT(ng)%name,                    &
+      CALL netcdf_put_fvar (ng, iNLM, FLEET(ng)%name,                   &
      &                      TRIM(Vname(1,idByfsh2)), Tout,              &
-     &                      (/1,BOAT(ng)%Rindex/), (/Nboats(ng),1/),    &
-     &                      ncid = BOAT(ng)%ncid,                       &
-     &                      varid = BOAT(ng)%Vid(idByfsh2))
+     &                      (/1,FLEET(ng)%Rindex/), (/Nboats(ng),1/),   &
+     &                      ncid = FLEET(ng)%ncid,                      &
+     &                      varid = FLEET(ng)%Vid(idByfsh2))
       IF (exit_flag.ne.NoError) RETURN
 !
 !  Write out fleet daily catch.
@@ -169,11 +169,11 @@
       DO l=1,Nboats(ng)
         Tout(l)=BOATS(ng)%catch(l)
       END DO
-      CALL netcdf_put_fvar (ng, iNLM, BOAT(ng)%name,                    &
+      CALL netcdf_put_fvar (ng, iNLM, FLEET(ng)%name,                   &
      &                      TRIM(Vname(1,idBcatch)), Tout,              &
-     &                      (/1,BOAT(ng)%Rindex/), (/Nboats(ng),1/),    &
-     &                      ncid = BOAT(ng)%ncid,                       &
-     &                      varid = BOAT(ng)%Vid(idBcatch))
+     &                      (/1,FLEET(ng)%Rindex/), (/Nboats(ng),1/),   &
+     &                      ncid = FLEET(ng)%ncid,                      &
+     &                      varid = FLEET(ng)%Vid(idBcatch))
       IF (exit_flag.ne.NoError) RETURN
 !
 !  Write out fleet cummulative annual catch.
@@ -181,18 +181,18 @@
       DO l=1,Nboats(ng)
         Tout(l)=BOATS(ng)%cumcatch(l)
       END DO
-      CALL netcdf_put_fvar (ng, iNLM, BOAT(ng)%name,                    &
+      CALL netcdf_put_fvar (ng, iNLM, FLEET(ng)%name,                   &
      &                      TRIM(Vname(1,idBcmctch)), Tout,             &
-     &                      (/1,BOAT(ng)%Rindex/), (/Nboats(ng),1/),    &
-     &                      ncid = BOAT(ng)%ncid,                       &
-     &                      varid = BOAT(ng)%Vid(idBcmctch))
+     &                      (/1,FLEET(ng)%Rindex/), (/Nboats(ng),1/),   &
+     &                      ncid = FLEET(ng)%ncid,                      &
+     &                      varid = FLEET(ng)%Vid(idBcmctch))
       IF (exit_flag.ne.NoError) RETURN
 !
 !  Write out average catch per unit effort (kg)
 !
-      status=nf_fwrite2d(ng, iNLM, BOAT(ng)%ncid,                       &
-     &                   BOAT(ng)%Vid(idBacpue),                        &
-     &                   BOAT(ng)%Rindex, r2dvar,                       &
+      status=nf_fwrite2d(ng, iNLM, FLEET(ng)%ncid,                      &
+     &                   FLEET(ng)%Vid(idBacpue),                       &
+     &                   FLEET(ng)%Rindex, r2dvar,                      &
      &                   LBi, UBi, LBj, UBj, 1.0_r8,                    &
 #ifdef MASKING
      &                   GRID(ng) % rmask,                              &
@@ -202,9 +202,9 @@
 !
 !  Write out perceived catch per unit effort (kg)
 !
-      status=nf_fwrite2d(ng, iNLM, BOAT(ng)%ncid,                       &
-     &                   BOAT(ng)%Vid(idBpcpue),                        &
-     &                   BOAT(ng)%Rindex, r2dvar,                       &
+      status=nf_fwrite2d(ng, iNLM, FLEET(ng)%ncid,                      &
+     &                   FLEET(ng)%Vid(idBpcpue),                       &
+     &                   FLEET(ng)%Rindex, r2dvar,                      &
      &                   LBi, UBi, LBj, UBj, 1.0_r8,                    &
 #ifdef MASKING
      &                   GRID(ng) % rmask,                              &
@@ -214,9 +214,9 @@
 !
 !  Write out distance to nearest port (km)
 !
-      status=nf_fwrite2d(ng, iNLM, BOAT(ng)%ncid,                       &
-     &                   BOAT(ng)%Vid(idBpdist),                        &
-     &                   BOAT(ng)%Rindex, r2dvar,                       &
+      status=nf_fwrite2d(ng, iNLM, FLEET(ng)%ncid,                      &
+     &                   FLEET(ng)%Vid(idBpdist),                       &
+     &                   FLEET(ng)%Rindex, r2dvar,                      &
      &                   LBi, UBi, LBj, UBj, 1.0_r8,                    &
 #ifdef MASKING
      &                   GRID(ng) % rmask,                              &
@@ -226,9 +226,9 @@
 !
 !  Write out nearest port number
 !
-      status=nf_fwrite2d(ng, iNLM, BOAT(ng)%ncid,                       &
-     &                   BOAT(ng)%Vid(idBpnear),                        &
-     &                   BOAT(ng)%Rindex, r2dvar,                       &
+      status=nf_fwrite2d(ng, iNLM, FLEET(ng)%ncid,                      &
+     &                   FLEET(ng)%Vid(idBpnear),                       &
+     &                   FLEET(ng)%Rindex, r2dvar,                      &
      &                   LBi, UBi, LBj, UBj, 1.0_r8,                    &
 #ifdef MASKING
      &                   GRID(ng) % rmask,                              &
@@ -240,7 +240,7 @@
 !  Synchronize fleet NetCDF file to disk.
 !-----------------------------------------------------------------------
 !
-      CALL netcdf_sync (ng, iNLM, BOAT(ng)%name, BOAT(ng)%ncid)
+      CALL netcdf_sync (ng, iNLM, FLEET(ng)%name, FLEET(ng)%ncid)
 !
 #else
       SUBROUTINE wrt_fleet

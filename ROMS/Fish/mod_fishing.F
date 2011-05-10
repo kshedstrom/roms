@@ -1,6 +1,6 @@
 #include "cppdefs.h"
       MODULE mod_fishing
-#if defined NEMURO_SAN && defined FLEET
+#if defined NEMURO_SAN && defined FISHING_FLEET
 !
 !================================================== Kate Hedstrom ======
 !  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
@@ -627,7 +627,7 @@
               dist2port=distport_all(i,j)
               idport=nearport_all(i,j)
               time2port=dist2port/BoatVel(ng)
-              time2fish=BOATs(ng)%tAvail(ib)-time2loc-time2port
+              time2fish=BOATS(ng)%tAvail(ib)-time2loc-time2port
               IF (time2fish.gt.FishTime(ng)) THEN
 ! NOTE: percpue from cpue routine in KR code
                 exprev=percpue_all(i,j)*CatchPrice(idport,ng)-          &

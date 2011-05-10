@@ -54,7 +54,7 @@
 !  pred_list    Linked list of predators in the box for each box.      !
 !  pred_count   Number of predators in each box.                       !
 # endif
-# if defined FLEET
+# if defined FISHING_FLEET
 !  cpue         Catch per unit effort in each box for 10 days.         !
 !  avgcpue      10-day average CPUE in each box.                       !
 !  percpue      "Perceived" average CPUE (replacement of zero values). !
@@ -154,7 +154,7 @@
           type(prednode), pointer :: pred_list(:,:)
           integer, pointer :: pred_count(:,:)
 #  endif
-#  ifdef FLEET
+#  ifdef FISHING_FLEET
           integer, pointer :: nearport(:,:)
           real(r8), pointer :: cpue(:,:,:)
           real(r8), pointer :: avgcpue(:,:)
@@ -448,7 +448,7 @@
       allocate ( OCEAN(ng) % pred_count(LBi:UBi,LBj:UBj) )
       allocate ( OCEAN(ng) % pred_list(LBi:UBi,LBj:UBj) )
 #  endif
-#  ifdef FLEET
+#  ifdef FISHING_FLEET
       allocate ( OCEAN(ng) % cpue(LBi:UBi,LBj:UBj,10) )
       allocate ( OCEAN(ng) % avgcpue(LBi:UBi,LBj:UBj) )
       allocate ( OCEAN(ng) % percpue(LBi:UBi,LBj:UBj) )
@@ -891,7 +891,7 @@
             OCEAN(ng) % pred_count(i,j) = 0
             OCEAN(ng) % pred_list(i,j) % next => null()
 #  endif
-#  ifdef FLEET
+#  ifdef FISHING_FLEET
           DO itrc=1,10
             OCEAN(ng) % cpue(i,j,itrc) = iniVal
           END DO

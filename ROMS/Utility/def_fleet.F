@@ -1,5 +1,5 @@
 #include "cppdefs.h"
-#if defined NEMURO_SAN && defined FLEET
+#if defined NEMURO_SAN && defined FISHING_FLEET
       SUBROUTINE def_fleet (ng, ldef)
 !
 !svn $Id: def_fleet.F 975 2009-05-05 22:51:13Z kate $
@@ -67,7 +67,7 @@
 !-----------------------------------------------------------------------
 !
       IF (exit_flag.ne.NoError) RETURN
-      ncname=BOAT(ng)%name
+      ncname=FLEET(ng)%name
 !
       IF (Master) THEN
         IF (ldef) THEN
@@ -82,7 +82,7 @@
 !=======================================================================
 !
       DEFINE : IF (ldef) THEN
-        CALL netcdf_create (ng, iNLM, TRIM(ncname), BOAT(ng)%ncid)
+        CALL netcdf_create (ng, iNLM, TRIM(ncname), FLEET(ng)%ncid)
         IF (exit_flag.ne.NoError) THEN
           IF (Master) WRITE (stdout,30) TRIM(ncname)
           RETURN
@@ -94,29 +94,29 @@
 !
         DimIDs=0
 !
-        status=def_dim(ng, iNLM, BOAT(ng)%ncid, ncname, 'xi_rho',       &
+        status=def_dim(ng, iNLM, FLEET(ng)%ncid, ncname, 'xi_rho',      &
      &                 IOBOUNDS(ng)%xi_rho, DimIDs( 1))
         IF (exit_flag.ne.NoError) RETURN
 
-        status=def_dim(ng, iNLM, BOAT(ng)%ncid, ncname, 'eta_rho',      &
+        status=def_dim(ng, iNLM, FLEET(ng)%ncid, ncname, 'eta_rho',     &
      &                 IOBOUNDS(ng)%eta_rho, DimIDs( 5))
         IF (exit_flag.ne.NoError) RETURN
 
-        status=def_dim(ng, iNLM, BOAT(ng)%ncid, ncname, 'drifter' ,     &
+        status=def_dim(ng, iNLM, FLEET(ng)%ncid, ncname, 'drifter' ,    &
      &                 Nboats(ng), DimIDs(15))
         IF (exit_flag.ne.NoError) RETURN
 
-        status=def_dim(ng, iNLM, BOAT(ng)%ncid, ncname, 'boundary',     &
+        status=def_dim(ng, iNLM, FLEET(ng)%ncid, ncname, 'boundary',    &
      &                 4, DimIDs(14))
         IF (exit_flag.ne.NoError) RETURN
 
 # ifdef FOUR_DVAR
-        status=def_dim(ng, iNLM, BOAT(ng)%ncid, ncname, 'Nstate',       &
+        status=def_dim(ng, iNLM, FLEET(ng)%ncid, ncname, 'Nstate',      &
      &                 NstateVar(ng), DimIDs(29))
         IF (exit_flag.ne.NoError) RETURN
 # endif
 
-        status=def_dim(ng, iNLM, BOAT(ng)%ncid, ncname,                 &
+        status=def_dim(ng, iNLM, FLEET(ng)%ncid, ncname,                &
      &                 TRIM(ADJUSTL(Vname(5,idtime))),                  &
      &                 nf90_unlimited, DimIDs(12))
         IF (exit_flag.ne.NoError) RETURN
@@ -134,7 +134,7 @@
 !
 !  Initialize unlimited time record dimension.
 !
-        BOAT(ng)%Rindex=0
+        FLEET(ng)%Rindex=0
 !
 !  Initialize local information variable arrays.
 !
@@ -151,7 +151,7 @@
 !  Define time-recordless information variables.
 !-----------------------------------------------------------------------
 !
-        CALL def_info (ng, iNLM, BOAT(ng)%ncid, ncname, DimIDs)
+        CALL def_info (ng, iNLM, FLEET(ng)%ncid, ncname, DimIDs)
         IF (exit_flag.ne.NoError) RETURN
 !
 !-----------------------------------------------------------------------
@@ -176,7 +176,8 @@
           Vinfo( 4)='gregorian'
         END IF
         Vinfo(14)=Vname(4,idtime)
-        status=def_var(ng, iNLM, BOAT(ng)%ncid, BOAT(ng)%Vid(idtime),   &
+        status=def_var(ng, iNLM, FLEET(ng)%ncid,                        &
+     &                 FLEET(ng)%Vid(idtime),                           &
      &                 NF_TYPE, 1, (/recdim/), Aval, Vinfo, ncname,     &
      &                 SetParAccess = .FALSE.)
         IF (exit_flag.ne.NoError) RETURN
@@ -192,7 +193,8 @@
         Vinfo(24)='_FillValue'
         Aval(6)=spval
 # endif
-        status=def_var(ng, iNLM, BOAT(ng)%ncid, BOAT(ng)%Vid(idBxprt),  &
+        status=def_var(ng, iNLM, FLEET(ng)%ncid,                        &
+     &                 FLEET(ng)%Vid(idBxprt),                          &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 !
@@ -207,7 +209,8 @@
         Vinfo(24)='_FillValue'
         Aval(6)=spval
 # endif
-        status=def_var(ng, iNLM, BOAT(ng)%ncid, BOAT(ng)%Vid(idByprt),  &
+        status=def_var(ng, iNLM, FLEET(ng)%ncid,                        &
+     &                 FLEET(ng)%Vid(idByprt),                          &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 !
@@ -222,7 +225,8 @@
         Vinfo(24)='_FillValue'
         Aval(6)=spval
 # endif
-        status=def_var(ng, iNLM, BOAT(ng)%ncid, BOAT(ng)%Vid(idBnprt),  &
+        status=def_var(ng, iNLM, FLEET(ng)%ncid,                        &
+     &                 FLEET(ng)%Vid(idBnprt),                          &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 !
@@ -237,7 +241,8 @@
         Vinfo(24)='_FillValue'
         Aval(6)=spval
 # endif
-        status=def_var(ng, iNLM, BOAT(ng)%ncid, BOAT(ng)%Vid(idBnfloc), &
+        status=def_var(ng, iNLM, FLEET(ng)%ncid,                        &
+     &                 FLEET(ng)%Vid(idBnfloc),                         &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 !
@@ -252,7 +257,8 @@
         Vinfo(24)='_FillValue'
         Aval(6)=spval
 # endif
-        status=def_var(ng, iNLM, BOAT(ng)%ncid, BOAT(ng)%Vid(idBxfsh1), &
+        status=def_var(ng, iNLM, FLEET(ng)%ncid,                        &
+     &                 FLEET(ng)%Vid(idBxfsh1),                         &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 !
@@ -267,7 +273,8 @@
         Vinfo(24)='_FillValue'
         Aval(6)=spval
 # endif
-        status=def_var(ng, iNLM, BOAT(ng)%ncid, BOAT(ng)%Vid(idByfsh1), &
+        status=def_var(ng, iNLM, FLEET(ng)%ncid,                        &
+     &                 FLEET(ng)%Vid(idByfsh1),                         &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 !
@@ -282,7 +289,8 @@
         Vinfo(24)='_FillValue'
         Aval(6)=spval
 # endif
-        status=def_var(ng, iNLM, BOAT(ng)%ncid, BOAT(ng)%Vid(idBxfsh2), &
+        status=def_var(ng, iNLM, FLEET(ng)%ncid,                        &
+     &                 FLEET(ng)%Vid(idBxfsh2),                         &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 !
@@ -297,7 +305,8 @@
         Vinfo(24)='_FillValue'
         Aval(6)=spval
 # endif
-        status=def_var(ng, iNLM, BOAT(ng)%ncid, BOAT(ng)%Vid(idByfsh2), &
+        status=def_var(ng, iNLM, FLEET(ng)%ncid,                        &
+     &                 FLEET(ng)%Vid(idByfsh2),                         &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 !
@@ -312,7 +321,8 @@
         Vinfo(24)='_FillValue'
         Aval(6)=spval
 # endif
-        status=def_var(ng, iNLM, BOAT(ng)%ncid, BOAT(ng)%Vid(idBcatch), &
+        status=def_var(ng, iNLM, FLEET(ng)%ncid,                        &
+     &                 FLEET(ng)%Vid(idBcatch),                         &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 !
@@ -327,7 +337,8 @@
         Vinfo(24)='_FillValue'
         Aval(6)=spval
 # endif
-        status=def_var(ng, iNLM, BOAT(ng)%ncid, BOAT(ng)%Vid(idBcmctch),&
+        status=def_var(ng, iNLM, FLEET(ng)%ncid,                        &
+     &                 FLEET(ng)%Vid(idBcmctch),                        &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 !
@@ -342,7 +353,8 @@
         Vinfo(24)='_FillValue'
         Aval(6)=spval
 # endif
-        status=def_var(ng, iNLM, BOAT(ng)%ncid, BOAT(ng)%Vid(idBacpue), &
+        status=def_var(ng, iNLM, FLEET(ng)%ncid,                        &
+     &                 FLEET(ng)%Vid(idBacpue),                         &
      &                 NF_FOUT, 3, t2dgrd, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 !
@@ -357,7 +369,8 @@
         Vinfo(24)='_FillValue'
         Aval(6)=spval
 # endif
-        status=def_var(ng, iNLM, BOAT(ng)%ncid, BOAT(ng)%Vid(idBpcpue), &
+        status=def_var(ng, iNLM, FLEET(ng)%ncid,                        &
+     &                 FLEET(ng)%Vid(idBpcpue),                         &
      &                 NF_FOUT, 3, t2dgrd, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 !
@@ -372,7 +385,8 @@
         Vinfo(24)='_FillValue'
         Aval(6)=spval
 # endif
-        status=def_var(ng, iNLM, BOAT(ng)%ncid, BOAT(ng)%Vid(idBpdist), &
+        status=def_var(ng, iNLM, FLEET(ng)%ncid,                        &
+     &                 FLEET(ng)%Vid(idBpdist),                         &
      &                 NF_FOUT, 3, t2dgrd, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 !
@@ -387,26 +401,27 @@
         Vinfo(24)='_FillValue'
         Aval(6)=spval
 # endif
-        status=def_var(ng, iNLM, BOAT(ng)%ncid, BOAT(ng)%Vid(idBpnear), &
+        status=def_var(ng, iNLM, FLEET(ng)%ncid,                        &
+     &                 FLEET(ng)%Vid(idBpnear),                         &
      &                 NF_FOUT, 3, t2dgrd, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 !
 !  Initialize unlimited time record dimension.
 !
-        BOAT(ng)%Rindex=0
+        FLEET(ng)%Rindex=0
 !
 !-----------------------------------------------------------------------
 !  Leave definition mode.
 !-----------------------------------------------------------------------
 !
-        CALL netcdf_enddef (ng, iNLM, ncname, BOAT(ng)%ncid)
+        CALL netcdf_enddef (ng, iNLM, ncname, FLEET(ng)%ncid)
         IF (exit_flag.ne.NoError) RETURN
 !
 !-----------------------------------------------------------------------
 !  Write out time-recordless, information variables.
 !-----------------------------------------------------------------------
 !
-        CALL wrt_info (ng, iNLM, BOAT(ng)%ncid, ncname)
+        CALL wrt_info (ng, iNLM, FLEET(ng)%ncid, ncname)
         IF (exit_flag.ne.NoError) RETURN
       END IF DEFINE
 !
@@ -416,7 +431,7 @@
 !=======================================================================
 !
       QUERY : IF (.not.ldef) THEN
-        ncname=BOAT(ng)%name
+        ncname=FLEET(ng)%name
 !
 !  Inquire about the dimensions and check for consistency.
 !
@@ -439,7 +454,7 @@
 !
 !  Open fleet file for read/write.
 !
-        CALL netcdf_open (ng, iNLM, ncname, 1, BOAT(ng)%ncid)
+        CALL netcdf_open (ng, iNLM, ncname, 1, FLEET(ng)%ncid)
         IF (exit_flag.ne.NoError) THEN
           WRITE (stdout,50) TRIM(ncname)
           RETURN
@@ -457,49 +472,49 @@
         DO i=1,n_var
           IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idtime))) THEN
             got_var(idtime)=.TRUE.
-            BOAT(ng)%Vid(idtime)=var_id(i)
+            FLEET(ng)%Vid(idtime)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.'Xport') THEN
             got_var(idBxprt)=.TRUE.
-            BOAT(ng)%Vid(idBxprt)=var_id(i)
+            FLEET(ng)%Vid(idBxprt)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.'Yport') THEN
             got_var(idByprt)=.TRUE.
-            BOAT(ng)%Vid(idByprt)=var_id(i)
+            FLEET(ng)%Vid(idByprt)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.'Nport') THEN
             got_var(idBnprt)=.TRUE.
-            BOAT(ng)%Vid(idBnprt)=var_id(i)
+            FLEET(ng)%Vid(idBnprt)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.'Nfloc') THEN
             got_var(idBnfloc)=.TRUE.
-            BOAT(ng)%Vid(idBnfloc)=var_id(i)
+            FLEET(ng)%Vid(idBnfloc)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.'Xfish1') THEN
             got_var(idBxfsh1)=.TRUE.
-            BOAT(ng)%Vid(idBxfsh1)=var_id(i)
+            FLEET(ng)%Vid(idBxfsh1)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.'Yfish1') THEN
             got_var(idByfsh1)=.TRUE.
-            BOAT(ng)%Vid(idByfsh1)=var_id(i)
+            FLEET(ng)%Vid(idByfsh1)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.'Xfish2') THEN
             got_var(idBxfsh2)=.TRUE.
-            BOAT(ng)%Vid(idBxfsh2)=var_id(i)
+            FLEET(ng)%Vid(idBxfsh2)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.'Yfish2') THEN
             got_var(idByfsh2)=.TRUE.
-            BOAT(ng)%Vid(idByfsh2)=var_id(i)
+            FLEET(ng)%Vid(idByfsh2)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.'Catch') THEN
             got_var(idBcatch)=.TRUE.
-            BOAT(ng)%Vid(idBcatch)=var_id(i)
+            FLEET(ng)%Vid(idBcatch)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.'CumCatch') THEN
             got_var(idBcmctch)=.TRUE.
-            BOAT(ng)%Vid(idBcmctch)=var_id(i)
+            FLEET(ng)%Vid(idBcmctch)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.'AvgCPUE') THEN
             got_var(idBacpue)=.TRUE.
-            BOAT(ng)%Vid(idBacpue)=var_id(i)
+            FLEET(ng)%Vid(idBacpue)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.'PerCPUE') THEN
             got_var(idBpcpue)=.TRUE.
-            BOAT(ng)%Vid(idBpcpue)=var_id(i)
+            FLEET(ng)%Vid(idBpcpue)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.'DistPort') THEN
             got_var(idBpdist)=.TRUE.
-            BOAT(ng)%Vid(idBpdist)=var_id(i)
+            FLEET(ng)%Vid(idBpdist)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.'NearPort') THEN
             got_var(idBpnear)=.TRUE.
-            BOAT(ng)%Vid(idBpnear)=var_id(i)
+            FLEET(ng)%Vid(idBpnear)=var_id(i)
           END IF
         END DO
 !
@@ -534,18 +549,18 @@
 !  Set-up fleet time record.
 !
         IF (fleetrrec(ng).lt.0) THEN
-          BOAT(ng)%Rindex=rec_size
+          FLEET(ng)%Rindex=rec_size
         ELSE
-         BOAT(ng)%Rindex=ABS(fleetrrec(ng))
+         FLEET(ng)%Rindex=ABS(fleetrrec(ng))
         END IF
-        BOAT(ng)%Nrec=BOAT(ng)%Rindex
+        FLEET(ng)%Nrec=FLEET(ng)%Rindex
 !
 !  Read in fleet nondimentional horizontal positions.
 !
         CALL netcdf_get_fvar (ng, iNLM, ncname, 'Xport',                &
      &                        Tinp,                                     &
-     &                        ncid = BOAT(ng)%ncid,                     &
-     &                        start = (/1,BOAT(ng)%Rindex/),            &
+     &                        ncid = FLEET(ng)%ncid,                    &
+     &                        start = (/1,FLEET(ng)%Rindex/),           &
      &                        total = (/Nboats(ng),1/))
         IF (exit_flag.ne.NoError) RETURN
 
@@ -555,8 +570,8 @@
 
         CALL netcdf_get_fvar (ng, iNLM, ncname, 'Yport',                &
      &                        Tinp,                                     &
-     &                        ncid = BOAT(ng)%ncid,                     &
-     &                        start = (/1,BOAT(ng)%Rindex/),            &
+     &                        ncid = FLEET(ng)%ncid,                    &
+     &                        start = (/1,FLEET(ng)%Rindex/),           &
      &                        total = (/Nboats(ng),1/))
         IF (exit_flag.ne.NoError) RETURN
 
@@ -566,8 +581,8 @@
 
         CALL netcdf_get_fvar (ng, iNLM, ncname, 'Nport',                &
      &                        Tinp,                                     &
-     &                        ncid = BOAT(ng)%ncid,                     &
-     &                        start = (/1,BOAT(ng)%Rindex/),            &
+     &                        ncid = FLEET(ng)%ncid,                    &
+     &                        start = (/1,FLEET(ng)%Rindex/),           &
      &                        total = (/Nboats(ng),1/))
         IF (exit_flag.ne.NoError) RETURN
 

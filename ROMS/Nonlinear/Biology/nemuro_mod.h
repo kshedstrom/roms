@@ -190,7 +190,7 @@
 !  Npredperspecies   Number of fish per year class per species
 !  Npred             Total number of predators
 # endif
-# ifdef FLEET
+# ifdef FISHING_FLEET
 !  Nboats        Total number of boats
 !  Nports        Total number of ports
 # endif
@@ -225,7 +225,7 @@
 #  ifdef PREDATOR
       integer, parameter :: max_predspecies = 1
 #  endif
-#  ifdef FLEET
+#  ifdef FISHING_FLEET
       integer, parameter :: max_boats = 100
       integer, parameter :: max_ports = 5
 #  endif
@@ -367,7 +367,7 @@
       real(r8), allocatable :: a_Swim(:,:)
       real(r8), allocatable :: b_Swim(:,:)
 # endif
-# ifdef FLEET
+# ifdef FISHING_FLEET
       integer, allocatable :: iPort(:,:)            ! grid cell
       integer, allocatable :: jPort(:,:)            ! grid cell
       integer, allocatable :: EncMax(:)             ! nondimensional
@@ -405,7 +405,7 @@
       integer, allocatable :: Npredspecies(:)
       integer, allocatable :: Npred(:)
 # endif
-# ifdef FLEET
+# ifdef FISHING_FLEET
       integer, allocatable :: Nboats(:)
       integer, allocatable :: Nports(:)
 # endif
@@ -826,7 +826,7 @@
         allocate( b_Swim(max_predspecies, Ngrids))
       END IF
 # endif
-# ifdef FLEET
+# ifdef FISHING_FLEET
       IF (.not.allocated(iPort)) THEN
         allocate( iPort(max_ports, Ngrids))
       END IF
@@ -899,7 +899,7 @@
       IF (.not. allocated(Npred))                                       &
      &                   allocate(Npred(Ngrids))
 # endif
-# ifdef FLEET
+# ifdef FISHING_FLEET
       IF (.not. allocated(Nboats))                                      &
      &                   allocate(Nboats(Ngrids))
       IF (.not. allocated(Nports))                                      &

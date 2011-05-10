@@ -270,9 +270,9 @@
           CALL netcdf_close (ng, iNLM, PRED(ng)%ncid)
         END IF
 # endif
-# ifdef FLEET
-        IF (BOAT(ng)%ncid.ne.-1) THEN
-          CALL netcdf_close (ng, iNLM, BOAT(ng)%ncid)
+# ifdef FISHING_FLEET
+        IF (FLEET(ng)%ncid.ne.-1) THEN
+          CALL netcdf_close (ng, iNLM, FLEET(ng)%ncid)
         END IF
 # endif
 #endif

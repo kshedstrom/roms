@@ -1,6 +1,6 @@
 #include "cppdefs.h"
       MODULE mod_fleet
-#if defined NEMURO_SAN && defined FLEET
+#if defined NEMURO_SAN && defined FISHING_FLEET
 !
 !svn $Id: mod_fleet.F 975 2009-05-05 22:51:13Z kate $
 !================================================== Hernan G. Arango ===

@@ -16,7 +16,6 @@
 !    AVG       Output time-averaged data                               !
 !    AVG2      Secondary time-averaged data                            !
 !    BLK       Input bulk fluxes data in adjoint-based applications    !
-!    BOAT      Fishing fleet data                                      !
 !    BRY       Input open boundary conditions data                     !
 !    CLM       Input climatology data                                  !
 !    DAV       Output 4D-Var data assimilation variables               !
@@ -24,6 +23,7 @@
 !    ERR       Output 4DVar posterior error estimate                   !
 !    FIL       Filter restart files                                    !
 !    FISH      Fish trajectory data                                    !
+!    FLEET     Fishing fleet data                                      !
 !    FLT       Output Lagrangian trajectories data                     !
 !    FRC       Input forcing data                                      !
 !    FWD       Input basic state forward solution                      !
@@ -110,7 +110,7 @@
       TYPE(T_IO), allocatable :: ERR(:)     ! 4D-Var posterior error
       TYPE(T_IO), allocatable :: FIL(:,:)   ! filter restart
       TYPE(T_IO), allocatable :: FISH(:)    ! fish trajectories
-      TYPE(T_IO), allocatable :: BOAT(:)    ! fishing fleet
+      TYPE(T_IO), allocatable :: FLEET(:)   ! fishing fleet
       TYPE(T_IO), allocatable :: FLT(:)     ! Lagrangian trajectories
       TYPE(T_IO), allocatable :: FWD(:)     ! forward solution
       TYPE(T_IO), allocatable :: GRD(:)     ! grid data
@@ -205,7 +205,7 @@
 #endif
 #ifdef NEMURO_SAN
       allocate ( FISH(Ngrids) )
-      allocate ( BOAT(Ngrids) )
+      allocate ( FLEET(Ngrids) )
       allocate ( PRED(Ngrids) )
 #endif
       allocate ( FLT(Ngrids) )

@@ -2732,7 +2732,7 @@
       IF (ncid.eq.STA(ng)%ncid) THEN
 #else
       IF (ncid.ne.FLT(ng)%ncid .and. ncid.ne.FISH(ng)%ncid .and.        &
-     &    ncid.ne.PRED(ng)%ncid .and. ncid.ne.BOAT(ng)%ncid) THEN
+     &    ncid.ne.PRED(ng)%ncid .and. ncid.ne.FLEET(ng)%ncid) THEN
 #endif
 #if !(defined SED_MORPH && defined SEDIMENT)
 !

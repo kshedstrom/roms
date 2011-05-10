@@ -383,6 +383,12 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+12)=' ANA_SMFLUX,'
 #endif
+#ifdef ANA_SPAWN_DIST && defined NEMURO_SAN
+      IF (Master) WRITE (stdout,20) 'ANA_SPAWN_DIST',                   &
+     &   'Analytic spawning distance.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+16)=' ANA_SPAWN_DIST,'
+#endif
 #if defined SEDIMENT || defined BIOLOGY
 # ifdef ANA_SPFLUX
       IF (Master) WRITE (stdout,20) 'ANA_SPFLUX',                       &
@@ -939,6 +945,18 @@
       Coptions(is:is+8)=' ECOSIM,'
       ibiology=ibiology+1
 #endif
+#if defined EGGS_BISECTION && defined NEMURO_SAN
+      IF (Master) WRITE (stdout,20) 'EGGS_BISECTION',                   &
+     &   'Bisection method for egg distribution.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+16)=' EGGS_BISECTION,'
+#endif
+#if defined EGGS_TREE_FORT && defined NEMURO_SAN
+      IF (Master) WRITE (stdout,20) 'EGGS_TREE_FORT',                   &
+     &   'Binary tree method for egg distribution (Fortran).'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+16)=' EGGS_TREE_FORT,'
+#endif
 #if defined EMINUSP && defined BULK_FLUXES
       IF (Master) WRITE (stdout,20) 'EMINUSP',                          &
      &   'Compute Salt Flux using E-P.'
@@ -984,6 +1002,18 @@
      &   'Writing out time-filtered output.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+10)=' FILTERED,'
+#endif
+#if defined FISH_FEEDBACK && defined NEMURO_SAN
+      IF (Master) WRITE (stdout,20) 'FISH_FEEDBACK',                   &
+     &   'Fish model feedback to NPZ model.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+15)=' FISH_FEEDBACK,'
+#endif
+#if defined FISHING_FLEET && defined NEMURO_SAN
+      IF (Master) WRITE (stdout,20) 'FISHING_FLEET',                   &
+     &   'Fishing fleet preying on model fish.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+15)=' FISHING_FLEET,'
 #endif
 #ifdef FLOATS
       IF (Master) WRITE (stdout,20) 'FLOATS',                           &
@@ -1922,7 +1952,7 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+10)=' PRSGRD31,'
 #endif
-#if defined PREDATOR
+#if defined PREDATOR && defined NEMURO_SAN
       IF (Master) WRITE (stdout,20) 'PREDATOR',                        &
      &   'Predators on the fish.'
       is=LEN_TRIM(Coptions)+1

@@ -438,7 +438,7 @@
 # ifdef PREDATOR
       integer, allocatable :: NPredV(:)
 # endif
-# ifdef FLEET
+# ifdef FISHING_FLEET
       integer, allocatable :: NBoatV(:)
 # endif
 #endif
@@ -645,7 +645,7 @@
 # ifdef PREDATOR
       allocate ( NPredV(Ngrids) )
 # endif
-# ifdef FLEET
+# ifdef FISHING_FLEET
       allocate ( NBoatV(Ngrids) )
 # endif
 #endif
@@ -891,7 +891,7 @@
 # ifdef PREDATOR
         NPredV(ng)=8
 # endif
-# ifdef FLEET
+# ifdef FISHING_FLEET
         NBoatV(ng)=8
 # endif
 #endif

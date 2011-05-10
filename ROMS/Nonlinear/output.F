@@ -30,7 +30,7 @@
 #  ifdef PREDATOR
       USE mod_pred
 #  endif
-#  ifdef FLEET
+#  ifdef FISHING_FLEET
       USE mod_fleet
 #  endif
 # endif
@@ -605,7 +605,7 @@
       END IF
 #  endif
 
-#  ifdef FLEET
+#  ifdef FISHING_FLEET
       IF (Nboats(ng).gt.0.and.(nFLE(ng).gt.0)) THEN
 !
 !  Create output pred NetCDF file or prepare existing file to

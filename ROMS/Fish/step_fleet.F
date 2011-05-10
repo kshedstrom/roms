@@ -1,6 +1,6 @@
 #include "cppdefs.h"
       MODULE step_fleet_mod
-#if defined NEMURO_SAN && defined FLEET
+#if defined NEMURO_SAN && defined FISHING_FLEET
 !
 !svn $Id$
 !================================================== Kate Hedstrom ======

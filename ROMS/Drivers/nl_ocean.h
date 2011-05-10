@@ -138,7 +138,7 @@
         CALL ini_pred
         IF (exit_flag.ne.NoError) RETURN
 # endif
-# ifdef FLEET
+# ifdef FISHING_FLEET
         CALL ini_fleet
         IF (exit_flag.ne.NoError) RETURN
 # endif

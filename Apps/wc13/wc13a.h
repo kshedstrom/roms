@@ -93,7 +93,7 @@
 # ifdef NEMURO_SAN
 #  define FISH_FEEDBACK
 #  define PREDATOR
-#  undef FLEET
+#  undef FISHING_FLEET
 #  define ANA_SPAWN_DIST
 #  define EGGS_BISECTION
 #  undef EGGS_TREE_FORT

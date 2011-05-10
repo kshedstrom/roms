@@ -2432,7 +2432,7 @@
 # ifdef PREDATOR
         LdefPRED(ng)=.TRUE.
 # endif
-# ifdef FLEET
+# ifdef FISHING_FLEET
         LdefFLEET(ng)=.TRUE.
 # endif
 #endif

@@ -657,6 +657,14 @@
 ** HOLLING_GRAZING     use Holling-type s-shaped curve grazing (implicit)    **
 ** IVLEV_EXPLICIT      use Ivlev explicit grazing algorithm                  **
 **                                                                           **
+** NEMURO_SAN          use for Rose et al. fish model                        **
+** FISHING_FLEET       use for fishing fleet with fish model                 **
+** PREDATOR            use for predatory fish with fish model                **
+** FISH_FEEDBACK       use for fish feedback to the NEMURO NPZ model         **
+** EGGS_BISECTION      use for bisection method of egg distribution          **
+** EGGS_TREE_FORT      use for binary tree method of egg distribution        **
+** ANA_SPAWN_DIST      use for analytic field in binary tree method          **
+**                                                                           **
 ** Sediment transport model OPTIONS:                                         **
 **                                                                           **
 ** SEDIMENT            use to activate sediment transport model              **

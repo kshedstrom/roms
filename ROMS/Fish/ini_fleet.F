@@ -1,5 +1,5 @@
 #include "cppdefs.h"
-#if defined NEMURO_SAN && defined FLEET
+#if defined NEMURO_SAN && defined FISHING_FLEET
       SUBROUTINE ini_fleet
 !
 !================================================== Kate Hedstrom ======
