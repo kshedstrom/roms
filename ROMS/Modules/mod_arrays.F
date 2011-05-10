@@ -16,7 +16,10 @@
       USE mod_param
       USE mod_parallel
 !
-#ifdef AVERAGES
+#if defined AVERAGES    || \
+   (defined AD_AVERAGES && defined ADJOINT) || \
+   (defined RP_AVERAGES && defined TL_IOMS) || \
+   (defined TL_AVERAGES && defined TANGENT)
       USE mod_average, ONLY : allocate_average, initialize_average
 #endif
 #ifdef AVERAGES2
@@ -107,7 +110,10 @@
           UBj=BOUNDS(ng)%UBj(TILE)
           LBij=BOUNDS(ng)%LBij
           UBij=BOUNDS(ng)%UBij
-#ifdef AVERAGES
+#if defined AVERAGES    || \
+   (defined AD_AVERAGES && defined ADJOINT) || \
+   (defined RP_AVERAGES && defined TL_IOMS) || \
+   (defined TL_AVERAGES && defined TANGENT)
           CALL allocate_average (ng, LBi, UBi, LBj, UBj)
 #endif
 #ifdef AVERAGES2
@@ -171,7 +177,10 @@
           subs=1
 #endif
           DO tile=subs*thread,subs*(thread+1)-1
-#ifdef AVERAGES
+#if defined AVERAGES    || \
+   (defined AD_AVERAGES && defined ADJOINT) || \
+   (defined RP_AVERAGES && defined TL_IOMS) || \
+   (defined TL_AVERAGES && defined TANGENT)
             CALL initialize_average (ng, TILE)
 #endif
 #ifdef AVERAGES2
