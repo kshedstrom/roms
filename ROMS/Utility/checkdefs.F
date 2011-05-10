@@ -2506,6 +2506,7 @@
      &   'Compute astronomical (long-period tide) corrections.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+13)=' TIDES_ASTRO,'
+#endif
 #if defined TL_AVERAGES && defined TANGENT
       IF (Master) WRITE (stdout,20) 'TL_AVERAGES',                      &
      &   'Writing out time-averaged tangent linear model fields.'
