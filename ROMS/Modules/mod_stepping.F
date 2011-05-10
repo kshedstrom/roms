@@ -51,50 +51,161 @@
 !=======================================================================
 !
         USE mod_param
-
+!
         implicit none
+!
+        integer, allocatable :: knew(:)
+        integer, allocatable :: krhs(:)
+        integer, allocatable :: kstp(:)
 
-        integer, private :: ig
-
-        integer, dimension(Ngrids) :: knew = (/ (1, ig=1,Ngrids) /)
-        integer, dimension(Ngrids) :: krhs = (/ (1, ig=1,Ngrids) /)
-        integer, dimension(Ngrids) :: kstp = (/ (1, ig=1,Ngrids) /)
-
-        integer, dimension(Ngrids) :: nnew = (/ (1, ig=1,Ngrids) /)
-        integer, dimension(Ngrids) :: nrhs = (/ (1, ig=1,Ngrids) /)
-        integer, dimension(Ngrids) :: nstp = (/ (1, ig=1,Ngrids) /)
+        integer, allocatable :: nnew(:)
+        integer, allocatable :: nrhs(:)
+        integer, allocatable :: nstp(:)
 
 #if defined FLOATS || defined NEMURO_SAN
-        integer, dimension(Ngrids) :: nf   = (/ (0, ig=1,Ngrids) /)
-        integer, dimension(Ngrids) :: nfp1 = (/ (1, ig=1,Ngrids) /)
-        integer, dimension(Ngrids) :: nfm3 = (/ (2, ig=1,Ngrids) /)
-        integer, dimension(Ngrids) :: nfm2 = (/ (3, ig=1,Ngrids) /)
-        integer, dimension(Ngrids) :: nfm1 = (/ (4, ig=1,Ngrids) /)
+        integer, allocatable :: nf(:)
+        integer, allocatable :: nfp1(:)
+        integer, allocatable :: nfm3(:)
+        integer, allocatable :: nfm2(:)
+        integer, allocatable :: nfm1(:)
 #endif
 
 #ifdef ICE_MODEL
-        integer, dimension(Ngrids) :: linew = (/ (1, ig=1,Ngrids) /)
-        integer, dimension(Ngrids) :: liold = (/ (1, ig=1,Ngrids) /)
-        integer, dimension(Ngrids) :: liunw = (/ (1, ig=1,Ngrids) /)
-        integer, dimension(Ngrids) :: liuol = (/ (1, ig=1,Ngrids) /)
-        integer, dimension(Ngrids) :: lienw = (/ (1, ig=1,Ngrids) /)
-        integer, dimension(Ngrids) :: lieol = (/ (1, ig=1,Ngrids) /)
+        integer, allocatable :: linew(:)
+        integer, allocatable :: liold(:)
+        integer, allocatable :: liunw(:)
+        integer, allocatable :: liuol(:)
+        integer, allocatable :: lienw(:)
+        integer, allocatable :: lieol(:)
 #endif
 
-#if defined SSH_TIDES || defined UV_TIDES || defined POT_TIDES
-        integer, dimension(Ngrids) :: NTC
-#endif
 #ifdef ADJUST_BOUNDARY
-        integer, dimension(Ngrids) :: Lbinp = (/ (1, ig=1,Ngrids) /)
-        integer, dimension(Ngrids) :: Lbout = (/ (1, ig=1,Ngrids) /)
+        integer, allocatable :: Lbinp(:)
+        integer, allocatable :: Lbout(:)
 #endif
+
 #if defined ADJUST_BOUNDARY || defined ADJUST_STFLUX || \
     defined ADJUST_WSTRESS
-        integer, dimension(Ngrids) :: Lfinp = (/ (1, ig=1,Ngrids) /)
-        integer, dimension(Ngrids) :: Lfout = (/ (1, ig=1,Ngrids) /)
+        integer, allocatable :: Lfinp(:)
+        integer, allocatable :: Lfout(:)
 #endif
-        integer, dimension(Ngrids) :: Lnew = (/ (1, ig=1,Ngrids) /)
-        integer, dimension(Ngrids) :: Lold = (/ (1, ig=1,Ngrids) /)
+
+        integer, allocatable :: Lnew(:)
+        integer, allocatable :: Lold(:)
+
+#if defined SSH_TIDES || defined UV_TIDES || defined POT_TIDES
+        integer, allocatable :: NTC(:)
+#endif
+!
+      CONTAINS
+!
+      SUBROUTINE allocate_stepping
+!
+!=======================================================================
+!                                                                      !
+!  This routine allocates several variables in the module that depend  !
+!  on the number of nested grids.                                      !
+!                                                                      !
+!=======================================================================
+!
+!  Local variable declarations.
+!
+      integer :: ng
+!
+!-----------------------------------------------------------------------
+!  Allocate variables.
+!-----------------------------------------------------------------------
+!
+      allocate ( knew(Ngrids) )
+      allocate ( krhs(Ngrids) )
+      allocate ( kstp(Ngrids) )
+
+      allocate ( nnew(Ngrids) )
+      allocate ( nrhs(Ngrids) )
+      allocate ( nstp(Ngrids) )
+
+#if defined FLOATS || defined NEMURO_SAN
+      allocate ( nf(Ngrids) )
+      allocate ( nfp1(Ngrids) )
+      allocate ( nfm3(Ngrids) )
+      allocate ( nfm2(Ngrids) )
+      allocate ( nfm1(Ngrids) )
+#endif
+
+#ifdef ICE_MODEL
+      allocate ( linew(Ngrids) )
+      allocate ( liold(Ngrids) )
+      allocate ( liunw(Ngrids) )
+      allocate ( liuol(Ngrids) )
+      allocate ( lienw(Ngrids) )
+      allocate ( lieol(Ngrids) )
+#endif
+
+#ifdef ADJUST_BOUNDARY
+      allocate ( Lbinp(Ngrids) )
+      allocate ( Lbout(Ngrids) )
+#endif
+
+#if defined ADJUST_BOUNDARY || defined ADJUST_STFLUX || \
+    defined ADJUST_WSTRESS
+      allocate ( Lfinp(Ngrids) )
+      allocate ( Lfout(Ngrids) )
+#endif
+
+      allocate ( Lnew(Ngrids) )
+      allocate ( Lold(Ngrids) )
+
+#if defined SSH_TIDES || defined UV_TIDES || defined POT_TIDES
+      allocate ( NTC(Ngrids) )
+#endif
+!
+!-----------------------------------------------------------------------
+!  Initialize time-stepping indices.
+!-----------------------------------------------------------------------
+!
+      DO ng=1,Ngrids
+        knew(ng)=1
+        krhs(ng)=1
+        kstp(ng)=1
+
+        nnew(ng)=1
+        nrhs(ng)=1
+        nstp(ng)=1
+
+#if defined FLOATS || defined NEMURO_SAN
+        nf  (ng)=0
+        nfp1(ng)=1
+        nfm3(ng)=2
+        nfm2(ng)=3
+        nfm1(ng)=4
+#endif
+
+#ifdef ICE_MODEL
+        linew(ng) = 1
+        liold(ng) = 1
+        liunw(ng) = 1
+        liuol(ng) = 1
+        lienw(ng) = 1
+        lieol(ng) = 1
+#endif
+
+#ifdef ADJUST_BOUNDARY
+        Lbinp(ng)=1
+        Lbout(ng)=1
+#endif
+
+#if defined ADJUST_BOUNDARY || defined ADJUST_STFLUX || \
+    defined ADJUST_WSTRESS
+        Lfinp(ng)=1
+        Lfout(ng)=1
+#endif
+
+        Lnew(ng)=1
+        Lold(ng)=1
+      END DO
+
+      RETURN
+      END SUBROUTINE allocate_stepping
 
       END MODULE mod_stepping
 

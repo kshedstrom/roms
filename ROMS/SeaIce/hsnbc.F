@@ -86,13 +86,13 @@
 !
         know=liold
 
-#ifndef EW_PERIODIC
+# ifndef EW_PERIODIC
 !
 !-----------------------------------------------------------------------
 !  Lateral boundary conditions at the western edge.
 !-----------------------------------------------------------------------
 !
-      IF (WESTERN_EDGE) THEN
+      IF (DOMAIN(ng)%Western_Edge(tile)) THEN
 
 #  if defined WEST_HSNRADIATION
 !
@@ -150,6 +150,22 @@
 !  Western edge, clamped boundary condition.
 !
         DO j=Jstr,Jend
+          hsn(0,j,linew)=BOUNDARY(ng)%hsn_west(j)
+#  ifdef MASKING
+          hsn(0,j,linew)=hsn(0,j,linew)*                                &
+     &                   GRID(ng)%rmask(0,j)
+#  endif
+#  ifdef WET_DRY
+          hsn(0,j,linew)=hsn(0,j,linew)*                                &
+     &                   GRID(ng)%rmask_wet(0,j)
+#  endif
+        END DO
+
+# elif defined WEST_HSNMIXED
+!
+!  Western edge, clamped on inflow, gradient on outflow.
+!
+        DO j=Jstr,Jend
           IF (ui(1,j,linew).ge.0._r8) THEN
              hsn(0,j,linew)=BOUNDARY(ng)%hsn_west(j)
 #  ifdef MASKING
@@ -203,13 +219,27 @@
 #  endif
         END DO
 # endif
+
+# ifdef CHUKCHI
+        DO j=Jstr,Jend
+          hsn(1,j,linew)=BOUNDARY(ng)%hsn_west(j)
+#  ifdef MASKING
+          hsn(1,j,linew)=hsn(1,j,linew)*                                &
+     &                   GRID(ng)%rmask(1,j)
+#  endif
+#  ifdef WET_DRY
+          hsn(1,j,linew)=hsn(1,j,linew)*                                &
+     &                   GRID(ng)%rmask_wet(1,j)
+#  endif
+        END DO
+# endif
       END IF
 !
 !-----------------------------------------------------------------------
 !  Lateral boundary conditions at the eastern edge.
 !-----------------------------------------------------------------------
 !
-      IF (EASTERN_EDGE) THEN
+      IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
 
 #  if defined EAST_HSNRADIATION
 !
@@ -266,6 +296,22 @@
 !  Eastern edge, clamped boundary condition.
 !
         DO j=Jstr,Jend
+          hsn(Lm(ng)+1,j,linew)=BOUNDARY(ng)%hsn_east(j)
+#  ifdef MASKING
+          hsn(Lm(ng)+1,j,linew)=hsn(Lm(ng)+1,j,linew)*                  &
+     &                          GRID(ng)%rmask(Lm(ng)+1,j)
+#  endif
+#  ifdef WET_DRY
+          hsn(Lm(ng)+1,j,linew)=hsn(Lm(ng)+1,j,linew)*                  &
+     &                          GRID(ng)%rmask_wet(Lm(ng)+1,j)
+#  endif
+        END DO
+
+# elif defined EAST_HSNMIXED
+!
+!  Eastern edge, clamped on inflow, gradient on outflow.
+!
+        DO j=Jstr,Jend
           IF (ui(Lm(ng)+1,j,linew).le.0._r8) THEN
              hsn(Lm(ng)+1,j,linew)=BOUNDARY(ng)%hsn_east(j)
 #  ifdef MASKING
@@ -319,6 +365,20 @@
 #  endif
         END DO
 # endif
+
+# ifdef CHUKCHI
+        DO j=Jstr,Jend
+          hsn(Lm(ng),j,linew)=BOUNDARY(ng)%hsn_east(j)
+#  ifdef MASKING
+          hsn(Lm(ng),j,linew)=hsn(Lm(ng),j,linew)*                      &
+     &                          GRID(ng)%rmask(Lm(ng),j)
+#  endif
+#  ifdef WET_DRY
+          hsn(Lm(ng),j,linew)=hsn(Lm(ng),j,linew)*                      &
+     &                          GRID(ng)%rmask_wet(Lm(ng),j)
+#  endif
+        END DO
+# endif
       END IF
 #endif
 #ifndef NS_PERIODIC
@@ -327,7 +387,7 @@
 !  Lateral boundary conditions at the southern edge.
 !-----------------------------------------------------------------------
 !
-      IF (SOUTHERN_EDGE) THEN
+      IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
 
 #  if defined SOUTH_HSNRADIATION
 !
@@ -384,6 +444,22 @@
 !  Southern edge, clamped boundary condition.
 !
         DO i=Istr,Iend
+          hsn(i,0,linew)=BOUNDARY(ng)%hsn_south(i)
+#  ifdef MASKING
+          hsn(i,0,linew)=hsn(i,0,linew)*                                &
+     &                   GRID(ng)%rmask(i,0)
+#  endif
+#  ifdef WET_DRY
+          hsn(i,0,linew)=hsn(i,0,linew)*                                &
+     &                   GRID(ng)%rmask_wet(i,0)
+#  endif
+        END DO
+
+# elif defined SOUTH_HSNMIXED
+!
+!  Southern edge, clamped on inflow, gradient on outflow.
+!
+        DO i=Istr,Iend
           IF (vi(i,1,linew).ge.0._r8) THEN
              hsn(i,0,linew)=BOUNDARY(ng)%hsn_south(i)
 #  ifdef MASKING
@@ -437,13 +513,27 @@
 #  endif
         END DO
 # endif
+
+# ifdef CHUKCHI
+        DO i=Istr,Iend
+          hsn(i,1,linew)=BOUNDARY(ng)%hsn_south(i)
+#  ifdef MASKING
+          hsn(i,1,linew)=hsn(i,1,linew)*                                &
+     &                   GRID(ng)%rmask(i,1)
+#  endif
+#  ifdef WET_DRY
+          hsn(i,1,linew)=hsn(i,1,linew)*                                &
+     &                   GRID(ng)%rmask_wet(i,1)
+#  endif
+        END DO
+# endif
       END IF
 !
 !-----------------------------------------------------------------------
 !  Lateral boundary conditions at the northern edge.
 !-----------------------------------------------------------------------
 !
-      IF (NORTHERN_EDGE) THEN
+      IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
 
 #  if defined NORTH_HSNRADIATION
 !
@@ -500,6 +590,22 @@
 !  Northern edge, clamped boundary condition.
 !
         DO i=Istr,Iend
+          hsn(i,Mm(ng)+1,linew)=BOUNDARY(ng)%hsn_north(i)
+#  ifdef MASKING
+          hsn(i,Mm(ng)+1,linew)=hsn(i,Mm(ng)+1,linew)*                  &
+     &                          GRID(ng)%rmask(i,Mm(ng)+1)
+#  endif
+#  ifdef WET_DRY
+          hsn(i,Mm(ng)+1,linew)=hsn(i,Mm(ng)+1,linew)*                  &
+     &                          GRID(ng)%rmask_wet(i,Mm(ng)+1)
+#  endif
+        END DO
+
+# elif defined NORTH_HSNMIXED
+!
+!  Northern edge, clamped on inflow, gradient on outflow.
+!
+        DO i=Istr,Iend
           IF (vi(i,Mm(ng)+1,linew).le.0._r8) THEN
             hsn(i,Mm(ng)+1,linew)=BOUNDARY(ng)%hsn_north(i)
 #  ifdef MASKING
@@ -553,6 +659,20 @@
 #  endif
         END DO
 # endif
+
+# ifdef CHUKCHI
+        DO i=Istr,Iend
+          hsn(i,Mm(ng),linew)=BOUNDARY(ng)%hsn_north(i)
+#  ifdef MASKING
+          hsn(i,Mm(ng),linew)=hsn(i,Mm(ng),linew)*                      &
+     &                          GRID(ng)%rmask(i,Mm(ng))
+#  endif
+#  ifdef WET_DRY
+          hsn(i,Mm(ng),linew)=hsn(i,Mm(ng),linew)*                      &
+     &                          GRID(ng)%rmask_wet(i,Mm(ng))
+#  endif
+        END DO
+# endif
       END IF
 #endif
 #if !defined EW_PERIODIC && !defined NS_PERIODIC
@@ -561,19 +681,19 @@
 !  Boundary corners.
 !-----------------------------------------------------------------------
 !
-      IF (SOUTHERN_EDGE.and.WESTERN_EDGE) THEN
+      IF (DOMAIN(ng)%SouthWest_Corner(tile)) THEN
         hsn(0,0,linew)=0.5_r8*(hsn(1,0,linew)+                          &
      &                         hsn(0,1,linew))
       END IF
-      IF (SOUTHERN_EDGE.and.EASTERN_EDGE) THEN
+      IF (DOMAIN(ng)%SouthEast_Corner(tile)) THEN
         hsn(Lm(ng)+1,0,linew)=0.5_r8*(hsn(Lm(ng)+1,1,linew)+            &
      &                                hsn(Lm(ng)  ,0,linew))
       END IF
-      IF (NORTHERN_EDGE.and.WESTERN_EDGE) THEN
+      IF (DOMAIN(ng)%NorthWest_Corner(tile)) THEN
         hsn(0,Mm(ng)+1,linew)=0.5_r8*(hsn(0,Mm(ng)  ,linew)+            &
      &                                hsn(1,Mm(ng)+1,linew))
       END IF
-      IF (NORTHERN_EDGE.and.EASTERN_EDGE) THEN
+      IF (DOMAIN(ng)%NorthEast_Corner(tile)) THEN
         hsn(Lm(ng)+1,Mm(ng)+1,linew)=0.5_r8*                            &
      &             (hsn(Lm(ng)+1,Mm(ng)  ,linew)+                       &
      &              hsn(Lm(ng)  ,Mm(ng)+1,linew))

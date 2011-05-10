@@ -192,10 +192,5 @@
 
 #if defined ARRAY_MODES || \
     defined W4DVAR      || defined W4DVAR_SENSITIVITY
-# define CONVOLVE
 # define RPM_RELAXATION
-#endif
-
-#if defined W4DPSAS     || defined W4DPSAS_SENSITIVITY
-# define CONVOLVE
 #endif

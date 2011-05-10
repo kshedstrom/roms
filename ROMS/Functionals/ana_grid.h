@@ -413,7 +413,7 @@
 !
 !  Load grid parameters to global storage.
 !
-      IF (SOUTH_WEST_TEST) THEN
+      IF (DOMAIN(ng)%SouthWest_Test(tile)) THEN
         xl(ng)=Xsize
         el(ng)=Esize
       END IF
@@ -427,22 +427,22 @@
 !  are special in periodic boundary conditons since periodicity cannot
 !  be imposed in the grid coordinates.
 !
-      IF (WESTERN_EDGE) THEN
+      IF (DOMAIN(ng)%Western_Edge(tile)) THEN
         Imin=Istr-1
       ELSE
         Imin=Istr
       END IF
-      IF (EASTERN_EDGE) THEN
+      IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
         Imax=Iend+1
       ELSE
         Imax=Iend
       END IF
-      IF (SOUTHERN_EDGE) THEN
+      IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
         Jmin=Jstr-1
       ELSE
         Jmin=Jstr
       END IF
-      IF (NORTHERN_EDGE) THEN
+      IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
         Jmax=Jend+1
       ELSE
         Jmax=Jend
@@ -897,6 +897,7 @@
       END DO
       DO j=JstrR,JendR
         DO i=IstrR,IendR
+          h(i,j)=375.0_r8
           DO k=1,234
             IF ((xwrk(k).le.xr(i,1)).and.(xr(i,1).lt.xwrk(k+1))) THEN
                cff=1.0_r8/(xwrk(k+1)-xwrk(k))
@@ -955,8 +956,8 @@
           my_max=MAX(my_max,h(i,j))
         END DO
       END DO
-      IF (SOUTH_WEST_CORNER.and.                                        &
-     &    NORTH_EAST_CORNER) THEN
+      IF (DOMAIN(ng)%SouthWest_Corner(tile).and.                        &
+     &    DOMAIN(ng)%NorthEast_Corner(tile)) THEN
         NSUB=1                           ! non-tiled application
       ELSE
         NSUB=NtileX(ng)*NtileE(ng)       ! tiled application
@@ -990,15 +991,16 @@
 !-----------------------------------------------------------------------
 !
 # ifdef WEDDELL
-      val1=340.0_r8/16.0_r8
+      val1=340.0_r8
+      val2=val1/16.0_r8
       DO j=JstrR,JendR
         DO i=IstrR,IendR
           IF (i.gt.20) THEN
             zice(i,j)=0.0_r8
           ELSE IF (i.gt.4) THEN
-            zice(i,j)=-340.0_r8+REAL(i-1,r8)*val1
+            zice(i,j)=-val1+REAL(i-1,r8)*val2
           ELSE
-            zice(i,j)=-340.0_r8
+            zice(i,j)=-val1
           END IF
         END DO
       END DO

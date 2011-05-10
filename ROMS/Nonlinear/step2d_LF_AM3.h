@@ -72,13 +72,6 @@
 # if defined SOLVE3D && defined ICESHELF
      &                  GRID(ng) % zice,                                &
 # endif
-# if !defined MOVE_SET_DEPTH && defined SOLVE3D
-#  if defined SEDIMENT && defined SED_MORPH
-     &                  SEDBED(ng) % bed_thick,                         &
-#  endif
-     &                  GRID(ng) % Hz,                                  &
-     &                  GRID(ng) % z_r,         GRID(ng) % z_w,         &
-# endif
      &                  GRID(ng) % fomn,        GRID(ng) % h,           &
      &                  GRID(ng) % om_u,        GRID(ng) % om_v,        &
      &                  GRID(ng) % on_u,        GRID(ng) % on_v,        &
@@ -171,12 +164,6 @@
 # if defined SOLVE3D && defined ICESHELF
      &                        zice,                                     &
 # endif
-# if !defined MOVE_SET_DEPTH && defined SOLVE3D
-#  if defined SEDIMENT && defined SED_MORPH
-     &                        bed_thick,                                &
-#  endif
-     &                        Hz, z_r, z_w,                             &
-# endif
      &                        fomn, h,                                  &
      &                        om_u, om_v, on_u, on_v, omn, pm, pn,      &
 # if defined CURVGRID && defined UV_ADV
@@ -244,15 +231,12 @@
 # ifdef OBC_VOLCONS
       USE obc_volcons_mod, ONLY : obc_flux_tile, set_DUV_bc_tile
 # endif
-# if !defined MOVE_SET_DEPTH && defined SOLVE3D
-      USE set_depth_mod, ONLY : set_depth_tile
-# endif
-# ifdef WET_DRY
-      USE wetdry_mod, ONLY : wetdry_tile
-# endif
       USE u2dbc_mod, ONLY : u2dbc_tile
       USE v2dbc_mod, ONLY : v2dbc_tile
       USE zetabc_mod, ONLY : zetabc_tile
+# ifdef WET_DRY
+      USE wetdry_mod, ONLY : wetdry_tile
+# endif
 !
 !  Imported variable declarations.
 !
@@ -284,12 +268,8 @@
 #  if defined SOLVE3D && defined ICESHELF
       real(r8), intent(in) :: zice(LBi:,LBj:)
 #  endif
-#  if !defined MOVE_SET_DEPTH && defined SOLVE3D
-#   if defined SEDIMENT && defined SED_MORPH
-      real(r8), intent(in) :: bed_thick(LBi:,LBj:,:)
-#   endif
-#  endif
       real(r8), intent(in) :: fomn(LBi:,LBj:)
+      real(r8), intent(in) :: h(LBi:,LBj:)
       real(r8), intent(in) :: om_u(LBi:,LBj:)
       real(r8), intent(in) :: om_v(LBi:,LBj:)
       real(r8), intent(in) :: on_u(LBi:,LBj:)
@@ -383,18 +363,12 @@
       real(r8), intent(inout) :: DiaRVfrc(LBi:,LBj:,:,:)
 #   endif
 #  endif
-      real(r8), intent(inout) :: h(LBi:,LBj:)
       real(r8), intent(inout) :: rubar(LBi:,LBj:,:)
       real(r8), intent(inout) :: rvbar(LBi:,LBj:,:)
       real(r8), intent(inout) :: rzeta(LBi:,LBj:,:)
       real(r8), intent(inout) :: ubar(LBi:,LBj:,:)
       real(r8), intent(inout) :: vbar(LBi:,LBj:,:)
       real(r8), intent(inout) :: zeta(LBi:,LBj:,:)
-#  if !defined MOVE_SET_DEPTH && defined SOLVE3D
-      real(r8), intent(out) :: Hz(LBi:,LBj:,:)
-      real(r8), intent(out) :: z_r(LBi:,LBj:,:)
-      real(r8), intent(out) :: z_w(LBi:,LBj:,0:)
-#  endif
 
 # else
 
@@ -414,12 +388,8 @@
 #  if defined SOLVE3D && defined ICESHELF
       real(r8), intent(in) :: zice(LBi:UBi,LBj:UBj)
 #  endif
-#  if !defined MOVE_SET_DEPTH && defined SOLVE3D
-#   if defined SEDIMENT && defined SED_MORPH
-      real(r8), intent(inout):: bed_thick(LBi:UBi,LBj:UBi,2)
-#   endif
-#  endif
       real(r8), intent(in) :: fomn(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: h(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: om_u(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: om_v(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: on_u(LBi:UBi,LBj:UBj)
@@ -513,18 +483,12 @@
       real(r8), intent(inout) :: DiaRVfrc(LBi:UBi,LBj:UBj,3,NDM2d-1)
 #   endif
 #  endif
-      real(r8), intent(inout) :: h(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: rubar(LBi:UBi,LBj:UBj,2)
       real(r8), intent(inout) :: rvbar(LBi:UBi,LBj:UBj,2)
       real(r8), intent(inout) :: rzeta(LBi:UBi,LBj:UBj,2)
       real(r8), intent(inout) :: ubar(LBi:UBi,LBj:UBj,3)
       real(r8), intent(inout) :: vbar(LBi:UBi,LBj:UBj,3)
       real(r8), intent(inout) :: zeta(LBi:UBi,LBj:UBj,3)
-#  if !defined MOVE_SET_DEPTH && defined SOLVE3D
-      real(r8), intent(out) :: Hz(LBi:UBi,LBj:UBj,UBk)
-      real(r8), intent(out) :: z_r(LBi:UBi,LBj:UBj,UBk)
-      real(r8), intent(out) :: z_w(LBi:UBi,LBj:UBj,0:UBk)
-#  endif
 # endif
 !
 !  Local variable declarations.
@@ -606,67 +570,45 @@
 !-----------------------------------------------------------------------
 !
 # ifdef DISTRIBUTE
-#  ifdef EW_PERIODIC
-#   define I_RANGE IstrU,Iend+1
-#  else
-#   define I_RANGE IstrU,MIN(Iend+1,Lm(ng))
-#  endif
-#  ifdef NS_PERIODIC
-#   define J_RANGE JstrV,Jend+1
-#  else
-#   define J_RANGE JstrV,MIN(Jend+1,Mm(ng))
-#  endif
-# else
-#  ifdef EW_PERIODIC
-#   define I_RANGE IstrU-1,Iend+1
-#  else
-#   define I_RANGE MAX(2,IstrU-1),MIN(Iend+1,Lm(ng))
-#  endif
-#  ifdef NS_PERIODIC
-#   define J_RANGE JstrV-1,Jend+1
-#  else
-#   define J_RANGE MAX(2,JstrV-1),MIN(Jend+1,Mm(ng))
-#  endif
-# endif
-      DO j=-2+J_RANGE+1
-        DO i=-2+I_RANGE+1
-# ifdef ICESHELF
+!  In distributed-memory, the I- and J-ranges are different and a
+!  special exchange is done to avoid having three ghost points for
+!  high order numerical stencils. Notice that a private array is
+!  passed below to the exchange routine. It also applies periodic
+!  boundary conditions, if appropriate and no partitions in I- or
+!  J-directions.
+!
+      DO j=JstrV-2,Jendp2
+        DO i=IstrU-2,Iendp2
+#  ifdef ICESHELF
           hw(i,j)=h(i,j)-ABS(zice(i,j))
           Drhs(i,j)=zeta(i,j,krhs)+hw(i,j)
-# else
+#  else
           Drhs(i,j)=zeta(i,j,krhs)+h(i,j)
-# endif
+#  endif
         END DO
       END DO
-      DO j=-2+J_RANGE+1
-        DO i=-1+I_RANGE+1
+      DO j=JstrV-2,Jendp2
+        DO i=IstrU-1,Iendp2
           cff=0.5_r8*on_u(i,j)
           cff1=cff*(Drhs(i,j)+Drhs(i-1,j))
           DUon(i,j)=ubar(i,j,krhs)*cff1
-# ifdef NEARSHORE_MELLOR
+#  ifdef NEARSHORE_MELLOR
           DUSon(i,j)=ubar_stokes(i,j)*cff1
           DUon(i,j)=DUon(i,j)+DUSon(i,j)
-# endif
+#  endif
         END DO
       END DO
-      DO j=-1+J_RANGE+1
-        DO i=-2+I_RANGE+1
+      DO j=JstrV-1,Jendp2
+        DO i=IstrU-2,Iendp2
           cff=0.5_r8*om_v(i,j)
           cff1=cff*(Drhs(i,j)+Drhs(i,j-1))
           DVom(i,j)=vbar(i,j,krhs)*cff1
-# ifdef NEARSHORE_MELLOR
+#  ifdef NEARSHORE_MELLOR
           DVSom(i,j)=vbar_stokes(i,j)*cff1
           DVom(i,j)=DVom(i,j)+DVSom(i,j)
-# endif
+#  endif
         END DO
       END DO
-# ifdef DISTRIBUTE
-!
-!  Do a special exchange to avoid having three ghost points for
-!  high order numerical stencil. Notice that a private array is
-!  passed to the exchange routine.  It will also apply periodic
-!  boundary conditions if no partitions in I- or J-directions.
-!
 #  if defined EW_PERIODIC || defined NS_PERIODIC
       CALL exchange_u2d_tile (ng, tile,                                 &
      &                        IminS, ImaxS, JminS, JmaxS,               &
@@ -679,9 +621,42 @@
      &                    IminS, ImaxS, JminS, JmaxS,                   &
      &                    NghostPoints, EWperiodic, NSperiodic,         &
      &                    DUon, DVom)
+
+# else
+
+      DO j=JstrVm2-1,Jendp2
+        DO i=IstrUm2-1,Iendp2
+#  ifdef ICESHELF
+          hw(i,j)=h(i,j)-ABS(zice(i,j))
+          Drhs(i,j)=zeta(i,j,krhs)+hw(i,j)
+#  else
+          Drhs(i,j)=zeta(i,j,krhs)+h(i,j)
+#  endif
+        END DO
+      END DO
+      DO j=JstrVm2-1,Jendp2
+        DO i=IstrUm2,Iendp2
+          cff=0.5_r8*on_u(i,j)
+          cff1=cff*(Drhs(i,j)+Drhs(i-1,j))
+          DUon(i,j)=ubar(i,j,krhs)*cff1
+#  ifdef NEARSHORE_MELLOR
+          DUSon(i,j)=ubar_stokes(i,j)*cff1
+          DUon(i,j)=DUon(i,j)+DUSon(i,j)
+#  endif
+        END DO
+      END DO
+      DO j=JstrVm2,Jendp2
+        DO i=IstrUm2-1,Iendp2
+          cff=0.5_r8*om_v(i,j)
+          cff1=cff*(Drhs(i,j)+Drhs(i,j-1))
+          DVom(i,j)=vbar(i,j,krhs)*cff1
+#  ifdef NEARSHORE_MELLOR
+          DVSom(i,j)=vbar_stokes(i,j)*cff1
+          DVom(i,j)=DVom(i,j)+DVSom(i,j)
+#  endif
+        END DO
+      END DO
 # endif
-# undef I_RANGE
-# undef J_RANGE
 # ifdef OBC_VOLCONS
 !
 !  Set vertically integrated mass fluxes DUon and DVom along the open
@@ -796,20 +771,6 @@
      &                      LBi, UBi, LBj, UBj,                         &
      &                      NghostPoints, EWperiodic, NSperiodic,       &
      &                      Zt_avg1, DU_avg1, DV_avg1)
-#  endif
-#  ifndef MOVE_SET_DEPTH
-        CALL set_depth_tile (ng, tile,                                  &
-     &                       LBi, UBi, LBj, UBj,                        &
-     &                       IminS, ImaxS, JminS, JmaxS,                &
-     &                       nstp, nnew,                                &
-     &                       h,                                         &
-#   ifdef ICESHELF
-     &                       zice,                                      &
-#   endif
-#   if defined SEDIMENT && defined SED_MORPH
-     &                       bed_thick,                                 &
-#   endif
-     &                       Zt_avg1, Hz, z_r, z_w)
 #  endif
       END IF
 # endif
@@ -1173,13 +1134,8 @@
 !
 !  Fourth-order, centered differences advection.
 !
-#   ifdef EW_PERIODIC
-#    define IU_RANGE IstrU-1,Iend+1
-#   else
-#    define IU_RANGE MAX(IstrU-1,2),MIN(Iend+1,Lm(ng))
-#   endif
       DO j=Jstr,Jend
-        DO i=IU_RANGE
+        DO i=IstrUm1,Iendp1
           grad (i,j)=ubar(i-1,j,krhs)-2.0_r8*ubar(i,j,krhs)+            &
 #    ifdef NEARSHORE_MELLOR
      &               ubar_stokes(i-1,j)-2.0_r8*ubar_stokes(i,j)+        &
@@ -1189,15 +1145,14 @@
           Dgrad(i,j)=DUon(i-1,j)-2.0_r8*DUon(i,j)+DUon(i+1,j)
         END DO
       END DO
-#   undef IU_RANGE
-#   ifndef EW_PERIODIC
-      IF (WESTERN_EDGE) THEN
+#   if !defined EW_PERIODIC && !defined COMPOSED_GRID
+      IF (DOMAIN(ng)%Western_Edge(tile)) THEN
         DO j=Jstr,Jend
           grad (Istr,j)=grad (Istr+1,j)
           Dgrad(Istr,j)=Dgrad(Istr+1,j)
         END DO
       END IF
-      IF (EASTERN_EDGE) THEN
+      IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
         DO j=Jstr,Jend
           grad (Iend+1,j)=grad (Iend,j)
           Dgrad(Iend+1,j)=Dgrad(Iend,j)
@@ -1218,12 +1173,7 @@
      &                      cff*(Dgrad(i,j)+Dgrad(i+1,j)))
         END DO
       END DO
-#   ifdef NS_PERIODIC
-#    define JU_RANGE Jstr-1,Jend+1
-#   else
-#    define JU_RANGE MAX(Jstr-1,1),MIN(Jend+1,Mm(ng))
-#   endif
-      DO j=JU_RANGE
+      DO j=Jstrm1,Jendp1
         DO i=IstrU,Iend
           grad(i,j)=ubar(i,j-1,krhs)-2.0_r8*ubar(i,j,krhs)+             &
 #   ifdef NEARSHORE_MELLOR
@@ -1233,14 +1183,13 @@
      &              ubar(i,j+1,krhs)
         END DO
       END DO
-#   undef JU_RANGE
-#   ifndef NS_PERIODIC
-      IF (SOUTHERN_EDGE) THEN
+#   if !defined NS_PERIODIC && !defined COMPOSED_GRID
+      IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
         DO i=IstrU,Iend
           grad(i,Jstr-1)=grad(i,Jstr)
         END DO
       END IF
-      IF (NORTHERN_EDGE) THEN
+      IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
         DO i=IstrU,Iend
           grad(i,Jend+1)=grad(i,Jend)
         END DO
@@ -1265,13 +1214,8 @@
      &                      cff*(Dgrad(i,j)+Dgrad(i-1,j)))
         END DO
       END DO
-#   ifdef EW_PERIODIC
-#    define IV_RANGE Istr-1,Iend+1
-#   else
-#    define IV_RANGE MAX(Istr-1,1),MIN(Iend+1,Lm(ng))
-#   endif
       DO j=JstrV,Jend
-        DO i=IV_RANGE
+        DO i=Istrm1,Iendp1
           grad(i,j)=vbar(i-1,j,krhs)-2.0_r8*vbar(i,j,krhs)+             &
 #   ifdef NEARSHORE_MELLOR
      &              vbar_stokes(i-1,j)-2.0_r8*vbar_stokes(i,j)+         &
@@ -1280,14 +1224,13 @@
      &              vbar(i+1,j,krhs)
         END DO
       END DO
-#   undef IV_RANGE
-#   ifndef EW_PERIODIC
-      IF (WESTERN_EDGE) THEN
+#   if !defined EW_PERIODIC && !defined COMPOSED_GRID
+      IF (DOMAIN(ng)%Western_Edge(tile)) THEN
         DO j=JstrV,Jend
           grad(Istr-1,j)=grad(Istr,j)
         END DO
       END IF
-      IF (EASTERN_EDGE) THEN
+      IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
         DO j=JstrV,Jend
           grad(Iend+1,j)=grad(Iend,j)
         END DO
@@ -1312,12 +1255,7 @@
      &                      cff*(Dgrad(i,j)+Dgrad(i,j-1)))
         END DO
       END DO
-#   ifdef NS_PERIODIC
-#    define JV_RANGE JstrV-1,Jend+1
-#   else
-#    define JV_RANGE MAX(JstrV-1,2),MIN(Jend+1,Mm(ng))
-#   endif
-      DO j=JV_RANGE
+      DO j=JstrVm1,Jendp1
         DO i=Istr,Iend
           grad(i,j)=vbar(i,j-1,krhs)-2.0_r8*vbar(i,j,krhs)+             &
 #   ifdef NEARSHORE_MELLOR
@@ -1328,15 +1266,14 @@
           Dgrad(i,j)=DVom(i,j-1)-2.0_r8*DVom(i,j)+DVom(i,j+1)
         END DO
       END DO
-#   undef JV_RANGE
-#   ifndef NS_PERIODIC
-      IF (SOUTHERN_EDGE) THEN
+#   if !defined NS_PERIODIC && !defined COMPOSED_GRID
+      IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
         DO i=Istr,Iend
           grad (i,Jstr)=grad (i,Jstr+1)
           Dgrad(i,Jstr)=Dgrad(i,Jstr+1)
         END DO
       END IF
-      IF (NORTHERN_EDGE) THEN
+      IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
         DO i=Istr,Iend
           grad (i,Jend+1)=grad (i,Jend)
           Dgrad(i,Jend+1)=Dgrad(i,Jend)
@@ -1489,25 +1426,10 @@
 !-----------------------------------------------------------------------
 !  If horizontal mixing, compute total depth at PSI-points.
 !-----------------------------------------------------------------------
-
-#  ifdef UV_VIS4
-#   ifdef EW_PERIODIC
-#    define IV_RANGE Istr-1,Iend+1
-#    define IU_RANGE Istr-1,Iend+1
-#   else
-#    define IV_RANGE MAX(1,Istr-1),MIN(Iend+1,Lm(ng))
-#    define IU_RANGE MAX(2,IstrU-1),MIN(Iend+1,Lm(ng))
-#   endif
-#   ifdef NS_PERIODIC
-#    define JU_RANGE Jstr-1,Jend+1
-#    define JV_RANGE Jstr-1,Jend+1
-#   else
-#    define JU_RANGE MAX(1,Jstr-1),MIN(Jend+1,Mm(ng))
-#    define JV_RANGE MAX(2,JstrV-1),MIN(Jend+1,Mm(ng))
-#   endif
 !
-      DO j=JU_RANGE+1
-        DO i=IV_RANGE+1
+#  ifdef UV_VIS4
+      DO j=Jstrm1,Jendp2
+        DO i=Istrm1,Iendp2
 #  else
       DO j=Jstr,Jend+1
         DO i=Istr,Iend+1
@@ -1599,8 +1521,8 @@
 !  thickness "D" appears only when computing the second harmonic
 !  operator.
 !
-      DO j=-1+JV_RANGE
-        DO i=-1+IU_RANGE
+      DO j=JstrVm2,Jendp1
+        DO i=IstrUm2,Iendp1
           cff=visc4_r(i,j)*0.5_r8*                                      &
      &        (pmon_r(i,j)*                                             &
      &         ((pn(i  ,j)+pn(i+1,j))*ubar(i+1,j,krhs)-                 &
@@ -1612,8 +1534,8 @@
           VFe(i,j)=om_r(i,j)*om_r(i,j)*cff
         END DO
       END DO
-      DO j=JU_RANGE+1
-        DO i=IV_RANGE+1
+      DO j=Jstrm1,Jendp2
+        DO i=Istrm1,Iendp2
           cff=visc4_p(i,j)*0.5_r8*                                      &
      &        (pmon_p(i,j)*                                             &
      &         ((pn(i  ,j-1)+pn(i  ,j))*vbar(i  ,j,krhs)-               &
@@ -1631,8 +1553,8 @@
 !
 !  Compute first harmonic operator (m s^-3/2).
 !
-      DO j=JU_RANGE
-        DO i=IU_RANGE
+      DO j=Jstrm1,Jendp1
+        DO i=IstrUm1,Iendp1
           LapU(i,j)=0.125_r8*                                           &
      &              (pm(i-1,j)+pm(i,j))*(pn(i-1,j)+pn(i,j))*            &
      &              ((pn(i-1,j)+pn(i,j))*                               &
@@ -1641,8 +1563,8 @@
      &               (UFe(i,j+1)-UFe(i  ,j)))
         END DO
       END DO
-      DO j=JV_RANGE
-        DO i=IV_RANGE
+      DO j=JstrVm1,Jendp1
+        DO i=Istrm1,Iendp1
           LapV(i,j)=0.125_r8*                                           &
      &              (pm(i,j)+pm(i,j-1))*(pn(i,j)+pn(i,j-1))*            &
      &              ((pn(i,j-1)+pn(i,j))*                               &
@@ -1656,16 +1578,16 @@
 !  harmonic operator. These are gradient or closed (free slip or
 !  no slip) boundary conditions.
 !
-#  ifndef EW_PERIODIC
-      IF (WESTERN_EDGE) THEN
-        DO j=JU_RANGE
+#  if !defined EW_PERIODIC && !defined COMPOSED_GRID
+      IF (DOMAIN(ng)%Western_Edge(tile)) THEN
+        DO j=Jstrm1,Jendp1
 #   ifdef WESTERN_WALL
           LapU(IstrU-1,j)=0.0_r8
 #   else
           LapU(IstrU-1,j)=LapU(IstrU,j)
 #   endif
         END DO
-        DO j=JV_RANGE
+        DO j=JstrVm1,Jendp1
 #   ifdef WESTERN_WALL
           LapV(Istr-1,j)=gamma2(ng)*LapV(Istr,j)
 #   else
@@ -1673,15 +1595,15 @@
 #   endif
         END DO
       END IF
-      IF (EASTERN_EDGE) THEN
-        DO j=JU_RANGE
+      IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
+        DO j=Jstrm1,Jendp1
 #   ifdef EASTERN_WALL
           LapU(Iend+1,j)=0.0_r8
 #   else
           LapU(Iend+1,j)=LapU(Iend,j)
 #   endif
         END DO
-        DO j=JV_RANGE
+        DO j=JstrVm1,Jendp1
 #   ifdef EASTERN_WALL
           LapV(Iend+1,j)=gamma2(ng)*LapV(Iend,j)
 #   else
@@ -1690,16 +1612,16 @@
         END DO
       END IF
 #  endif
-#  ifndef NS_PERIODIC
-      IF (SOUTHERN_EDGE) THEN
-        DO i=IU_RANGE
+#  if !defined NS_PERIODIC && !defined COMPOSED_GRID
+      IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
+        DO i=IstrUm1,Iendp1
 #   ifdef SOUTHERN_WALL
           LapU(i,Jstr-1)=gamma2(ng)*LapU(i,Jstr)
 #   else
           LapU(i,Jstr-1)=0.0_r8
 #   endif
         END DO
-        DO i=IV_RANGE
+        DO i=Istrm1,Iendp1
 #   ifdef SOUTHERN_WALL
           LapV(i,JstrV-1)=0.0_r8
 #   else
@@ -1707,15 +1629,15 @@
 #   endif
         END DO
       END IF
-      IF (NORTHERN_EDGE) THEN
-        DO i=IU_RANGE
+      IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
+        DO i=IstrUm1,Iendp1
 #   ifdef NORTHERN_WALL
           LapU(i,Jend+1)=gamma2(ng)*LapU(i,Jend)
 #   else
           LapU(i,Jend+1)=0.0_r8
 #   endif
         END DO
-        DO i=IV_RANGE
+        DO i=Istrm1,Iendp1
 #   ifdef NORTHERN_WALL
           LapV(i,Jend+1)=0.0_r8
 #   else
@@ -1724,36 +1646,33 @@
         END DO
       END IF
 #  endif
-#  if !defined EW_PERIODIC && !defined NS_PERIODIC
-      IF ((SOUTHERN_EDGE).and.(WESTERN_EDGE)) THEN
+#  if !defined EW_PERIODIC   && !defined NS_PERIODIC && \
+      !defined COMPOSED_GRID
+      IF (DOMAIN(ng)%SouthWest_Corner(tile)) THEN
         LapU(Istr  ,Jstr-1)=0.5_r8*(LapU(Istr+1,Jstr-1)+                &
      &                              LapU(Istr  ,Jstr  ))
         LapV(Istr-1,Jstr  )=0.5_r8*(LapV(Istr-1,Jstr+1)+                &
      &                              LapV(Istr  ,Jstr  ))
       END IF
-      IF ((SOUTHERN_EDGE).and.(EASTERN_EDGE)) THEN
+      IF (DOMAIN(ng)%SouthEast_Corner(tile)) THEN
         LapU(Iend+1,Jstr-1)=0.5_r8*(LapU(Iend  ,Jstr-1)+                &
      &                              LapU(Iend+1,Jstr  ))
         LapV(Iend+1,Jstr  )=0.5_r8*(LapV(Iend  ,Jstr  )+                &
      &                              LapV(Iend+1,Jstr+1))
       END IF
-      IF ((NORTHERN_EDGE).and.(WESTERN_EDGE)) THEN
+      IF (DOMAIN(ng)%NorthWest_Corner(tile)) THEN
         LapU(Istr  ,Jend+1)=0.5_r8*(LapU(Istr+1,Jend+1)+                &
      &                              LapU(Istr  ,Jend  ))
         LapV(Istr-1,Jend+1)=0.5_r8*(LapV(Istr  ,Jend+1)+                &
      &                              LapV(Istr-1,Jend  ))
       END IF
-      IF ((NORTHERN_EDGE).and.(EASTERN_EDGE)) THEN
+      IF (DOMAIN(ng)%NorthEast_Corner(tile)) THEN
         LapU(Iend+1,Jend+1)=0.5_r8*(LapU(Iend  ,Jend+1)+                &
      &                              LapU(Iend+1,Jend  ))
         LapV(Iend+1,Jend+1)=0.5_r8*(LapV(Iend  ,Jend+1)+                &
      &                              LapV(Iend+1,Jend  ))
       END IF
 #  endif
-#  undef IU_RANGE
-#  undef IV_RANGE
-#  undef JU_RANGE
-#  undef JV_RANGE
 !
 !  Compute flux-components of the horizontal divergence of the
 !  biharmonic stress tensor (m4/s2) in XI- and ETA-directions.
@@ -2424,14 +2343,14 @@
         DO j=Jstr,Jend
           DO i=IstrU,Iend
             fac=1.0_r8/(Dnew(i,j)+Dnew(i-1,j))
-            DiaU2wrk(i,j,M2rate)=ubar(i,j,knew)-ubar(i,j,kstp)*           &
+            DiaU2wrk(i,j,M2rate)=ubar(i,j,knew)-ubar(i,j,kstp)*         &
      &                           (Dstp(i,j)+Dstp(i-1,j))*fac
           END DO
         END DO
         DO j=JstrV,Jend
           DO i=Istr,Iend
             fac=1.0_r8/(Dnew(i,j)+Dnew(i,j-1))
-            DiaV2wrk(i,j,M2rate)=vbar(i,j,knew)-vbar(i,j,kstp)*           &
+            DiaV2wrk(i,j,M2rate)=vbar(i,j,knew)-vbar(i,j,kstp)*         &
      &                           (Dstp(i,j)+Dstp(i,j-1))*fac
           END DO
         END DO
@@ -2467,7 +2386,6 @@
             DiaU2wrk(i,j,M2rate)=ubar(i,j,knew)-                        &
      &                           ubar(i,j,kstp)*                        &
      &                           (Dstp(i,j)+Dstp(i-1,j))*fac
-!!          DiaU2wrk(i,j,M2rate)=ubar(i,j,knew)-ubar(i,j,kstp)
           END DO
         END DO
         DO j=JstrV,Jend
@@ -2476,7 +2394,6 @@
             DiaV2wrk(i,j,M2rate)=vbar(i,j,knew)-                        &
      &                           vbar(i,j,kstp)*                        &
      &                           (Dstp(i,j)+Dstp(i,j-1))*fac
-!!          DiaV2wrk(i,j,M2rate)=vbar(i,j,knew)-vbar(i,j,kstp)
           END DO
         END DO
       END IF

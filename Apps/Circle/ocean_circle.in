@@ -49,6 +49,10 @@
 
      VARNAME = ROMS/External/varinfo.dat
 
+! Number of nested grids.
+
+      Ngrids =  1
+
 ! Grid dimension parameters. See notes below in the Glossary for how to set
 ! these parameters correctly.
 
@@ -593,6 +597,13 @@ Dout(iTvdif) == T T                        ! vertical diffusion
 !  VARNAME     Input/Output variable information file name.  This file need to
 !              be processed first so all information arrays and indices can be
 !              initialized properly in "mod_ncparam.F".
+!
+!------------------------------------------------------------------------------
+! Nested grid parameters.
+!------------------------------------------------------------------------------
+!
+!  Ngrids      Number of nested grids. It needs to be read at the top of all
+!              other parameters in order to allocate all model variables.
 !
 !------------------------------------------------------------------------------
 ! Grid dimension parameters.

@@ -82,7 +82,7 @@
      &               Amask(i,j-1)*Amask(i,j+1)*Amask(i,j)
 #else
           Awrk1(i,j)=0.25_r8*                                           &
-     &             (A(i,j-1)+A(i,j+1)-2.0_r8*A(i,j))
+     &               (A(i,j-1)+A(i,j+1)-2.0_r8*A(i,j))
 #endif
         END DO
       END DO

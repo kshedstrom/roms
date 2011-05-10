@@ -8,8 +8,8 @@
 
         implicit none
 
-        integer, dimension(Ngrids) :: Msrcpt
-        integer, dimension(Ngrids) :: Nsrcpt
+        integer, allocatable :: Msrcpt(:)
+        integer, allocatable :: Nsrcpt(:)
 
         TYPE T_TRC_SOURCES
 
@@ -51,6 +51,8 @@
 !  Set number of point sources to maximum number of analytical sources.
 !  Notice that a maximum of 200 analytical sources are set-up here.
 !
+      allocate ( Msrcpt(Ngrids) )
+      allocate ( Nsrcpt(Ngrids) )
       Msrcpt(ng)=200
       Nsrcpt(ng)=Msrcpt(ng)
 !

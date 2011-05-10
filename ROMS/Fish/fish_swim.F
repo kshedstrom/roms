@@ -138,6 +138,7 @@
 #  else
         DO i=1,SIZE(rwalk)
           IF (rwalk(i) > 3.0_r8) rwalk(i) = 3.0_r8
+          IF (rwalk(i) < -3.0_r8) rwalk(i) = -3.0_r8
         END DO
 #  endif
         CALL ran1 (r2walk)
@@ -151,6 +152,7 @@
 #  else
       DO i=1,SIZE(rwalk)
         IF (rwalk(i) > 3.0_r8) rwalk(i) = 3.0_r8
+        IF (rwalk(i) < -3.0_r8) rwalk(i) = -3.0_r8
       END DO
 #  endif
       CALL ran1 (r2walk)
@@ -162,6 +164,7 @@
 #  else
         DO i=1,SIZE(rwalk)
           IF (rwalk(i) > 3.0_r8) rwalk(i) = 3.0_r8
+          IF (rwalk(i) < -3.0_r8) rwalk(i) = -3.0_r8
         END DO
 #  endif
         CALL ran1 (r2walk)

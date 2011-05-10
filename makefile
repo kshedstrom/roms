@@ -37,8 +37,7 @@ $(if $(filter $(MAKE_VERSION),$(NEED_VERSION)),,        \
 #--------------------------------------------------------------------------
 
   sources    :=
-  libraries  :=
-  c_sources    :=
+  c_sources  := 
 
 #==========================================================================
 #  Start of user-defined options. In some macro definitions below: "on" or
@@ -91,12 +90,6 @@ MY_ANALYTICAL_DIR ?= Apps/ccs30_soda_bisec/ROMS/Biology
 
 MY_CPP_FLAGS ?=
 
-#  Set number of ROMS nested and/or composed grid.  Currently, only
-#  one grid is supported.  This option will be available in the near
-#  future.
-
- NestedGrids ?= 1
-
 #  Activate debugging compiler options:
 
    USE_DEBUG ?=
@@ -125,12 +118,6 @@ MY_CPP_FLAGS ?=
 #  library needs both the HDF5 and MPI libraries.
 
  USE_NETCDF4 ?= on
-
-#  If applicable, activate Data Access Protocol (like OPeNDAP) support
-#  for input NetCDF files.  This is only possible for NetCDF library
-#  version 4.1.1 or higher.
-
-     USE_DAP ?= on
 
 #--------------------------------------------------------------------------
 #  We are going to include a file with all the settings that depend on
@@ -183,6 +170,29 @@ ifeq "$(strip $(SCRATCH_DIR))" "./"
   clean_list := core *.o *.oo *.ipo *.mod *.f90 lib*.a *.bak
   clean_list += $(CURDIR)/*.ipo
 endif
+
+#--------------------------------------------------------------------------
+#  Notice that the token "libraries" is initialize with the ROMS/Utility
+#  library to account for calls to objects in other ROMS libraries or
+#  cycling dependencies. These type of dependencies are problematic in
+#  some compilers during linking. This library appears twice at linking
+#  step (beggining and almost the end of ROMS library list).
+#--------------------------------------------------------------------------
+
+  libraries  := $(SCRATCH_DIR)/libUTIL.a
+
+#--------------------------------------------------------------------------
+#  Set Pattern rules.
+#--------------------------------------------------------------------------
+
+%.o: %.F
+
+%.o: %.f90
+	cd $(SCRATCH_DIR); $(FC) -c $(FFLAGS) $(notdir $<)
+
+%.f90: %.F
+	$(CPP) $(CPPFLAGS) $(MY_CPP_FLAGS) $< > $*.f90
+	$(CLEAN) $*.f90
 
 CLEAN := ROMS/Bin/cpp_clean
 

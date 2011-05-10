@@ -47,36 +47,36 @@
 !
 !  Set time record index.
 !
-      tPREDindx(ng)=tPREDindx(ng)+1
-      NrecPRED(ng)=NrecPRED(ng)+1
+      PRED(ng)%Rindex=PRED(ng)%Rindex+1
+      PRED(ng)%Nrec=PRED(ng)%Nrec+1
 !
 !  Write out model time (s).
 !
-      CALL netcdf_put_fvar (ng, iNLM, PREDname(ng),                     &
+      CALL netcdf_put_fvar (ng, iNLM, PRED(ng)%name,                    &
      &                      TRIM(Vname(1,idtime)), time(ng:),           &
-     &                      (/tPREDindx(ng)/), (/1/),                   &
-     &                      ncid = ncPREDid(ng),                        &
-     &                      varid = predVid(idtime,ng))
+     &                      (/PRED(ng)%Rindex/), (/1/),                 &
+     &                      ncid = PRED(ng)%ncid,                       &
+     &                      varid = PRED(ng)%Vid(idtime))
       IF (exit_flag.ne.NoError) RETURN
 !
 !  Write out pred species.
 !
-      CALL netcdf_put_ivar (ng, iNLM, PREDname(ng),                     &
+      CALL netcdf_put_ivar (ng, iNLM, PRED(ng)%name,                    &
      &                      TRIM(Vname(1,idPspc)),                      &
      &                      PREDS(ng) % species,                        &
      &                      (/1/), (/Npred(ng)/),                       &
-     &                      ncid = ncPREDid(ng),                        &
-     &                      varid = predVid(idPspc,ng))
+     &                      ncid = PRED(ng)%ncid,                       &
+     &                      varid = PRED(ng)%Vid(idPspc))
       IF (exit_flag.ne.NoError) RETURN
 !
 !  Write out pred aliveness.
 !
-      CALL netcdf_put_lvar (ng, iNLM, PREDname(ng),                     &
+      CALL netcdf_put_lvar (ng, iNLM, PRED(ng)%name,                    &
      &                      TRIM(Vname(1,idPalv)),                      &
      &                      PREDS(ng) % alive,                          &
      &                      (/1/), (/Npred(ng)/),                       &
-     &                      ncid = ncPREDid(ng),                        &
-     &                      varid = predVid(idPalv,ng))
+     &                      ncid = PRED(ng)%ncid,                       &
+     &                      varid = PRED(ng)%Vid(idPalv))
       IF (exit_flag.ne.NoError) RETURN
 !
 !  Write out pred X-grid locations.
@@ -88,11 +88,11 @@
           Tout(l)=spval
         END IF
       END DO
-      CALL netcdf_put_fvar (ng, iNLM, PREDname(ng),                     &
+      CALL netcdf_put_fvar (ng, iNLM, PRED(ng)%name,                    &
      &                      'Xgrid', Tout,                              &
-     &                      (/1,tPREDindx(ng)/), (/Npred(ng),1/),       &
-     &                      ncid = ncPREDid(ng),                        &
-     &                      varid = predVid(idXgrd,ng))
+     &                      (/1,PRED(ng)%Rindex/), (/Npred(ng),1/),     &
+     &                      ncid = PRED(ng)%ncid,                       &
+     &                      varid = PRED(ng)%Vid(idXgrd))
       IF (exit_flag.ne.NoError) RETURN
 !
 !  Write out pred Y-grid locations.
@@ -104,11 +104,11 @@
           Tout(l)=spval
         END IF
       END DO
-      CALL netcdf_put_fvar (ng, iNLM, PREDname(ng),                     &
+      CALL netcdf_put_fvar (ng, iNLM, PRED(ng)%name,                    &
      &                      'Ygrid', Tout,                              &
-     &                      (/1,tPREDindx(ng)/), (/Npred(ng),1/),       &
-     &                      ncid = ncPREDid(ng),                        &
-     &                      varid = predVid(idYgrd,ng))
+     &                      (/1,PRED(ng)%Rindex/), (/Npred(ng),1/),     &
+     &                      ncid = PRED(ng)%ncid,                       &
+     &                      varid = PRED(ng)%Vid(idYgrd))
       IF (exit_flag.ne.NoError) RETURN
 
 # ifdef SOLVE3D
@@ -122,11 +122,11 @@
           Tout(l)=spval
         END IF
       END DO
-      CALL netcdf_put_fvar (ng, iNLM, PREDname(ng),                     &
+      CALL netcdf_put_fvar (ng, iNLM, PRED(ng)%name,                    &
      &                      'Zgrid', Tout,                              &
-     &                      (/1,tPREDindx(ng)/), (/Npred(ng),1/),       &
-     &                      ncid = ncPREDid(ng),                        &
-     &                      varid = predVid(idZgrd,ng))
+     &                      (/1,PRED(ng)%Rindex/), (/Npred(ng),1/),     &
+     &                      ncid = PRED(ng)%ncid,                       &
+     &                      varid = PRED(ng)%Vid(idZgrd))
       IF (exit_flag.ne.NoError) RETURN
 # endif
 !
@@ -136,17 +136,17 @@
         Tout(l)=PREDS(ng)%track(iflon,nf(ng),l)
       END DO
       IF (spherical) THEN
-        CALL netcdf_put_fvar (ng, iNLM, PREDname(ng),                   &
+        CALL netcdf_put_fvar (ng, iNLM, PRED(ng)%name,                  &
      &                        'lon', Tout,                              &
-     &                        (/1,tPREDindx(ng)/), (/Npred(ng),1/),     &
-     &                        ncid = ncPREDid(ng),                      &
-     &                        varid = predVid(idglon,ng))
+     &                        (/1,PRED(ng)%Rindex/), (/Npred(ng),1/),   &
+     &                        ncid = PRED(ng)%ncid,                     &
+     &                        varid = PRED(ng)%Vid(idglon))
       ELSE
-        CALL netcdf_put_fvar (ng, iNLM, PREDname(ng),                   &
+        CALL netcdf_put_fvar (ng, iNLM, PRED(ng)%name,                  &
      &                        'x', Tout,                                &
-     &                        (/1,tPREDindx(ng)/), (/Npred(ng),1/),     &
-     &                        ncid = ncPREDid(ng),                      &
-     &                        varid = predVid(idglon,ng))
+     &                        (/1,PRED(ng)%Rindex/), (/Npred(ng),1/),   &
+     &                        ncid = PRED(ng)%ncid,                     &
+     &                        varid = PRED(ng)%Vid(idglon))
       END IF
       IF (exit_flag.ne.NoError) RETURN
 !
@@ -154,17 +154,17 @@
         Tout(l)=PREDS(ng)%track(iflat,nf(ng),l)
       END DO
       IF (spherical) THEN
-        CALL netcdf_put_fvar (ng, iNLM, PREDname(ng),                   &
+        CALL netcdf_put_fvar (ng, iNLM, PRED(ng)%name,                  &
      &                        'lat', Tout,                              &
-     &                        (/1,tPREDindx(ng)/), (/Npred(ng),1/),     &
-     &                        ncid = ncPREDid(ng),                      &
-     &                        varid = predVid(idglat,ng))
+     &                        (/1,PRED(ng)%Rindex/), (/Npred(ng),1/),   &
+     &                        ncid = PRED(ng)%ncid,                     &
+     &                        varid = PRED(ng)%Vid(idglat))
       ELSE
-        CALL netcdf_put_fvar (ng, iNLM, PREDname(ng),                   &
+        CALL netcdf_put_fvar (ng, iNLM, PRED(ng)%name,                  &
      &                        'y', Tout,                                &
-     &                        (/1,tPREDindx(ng)/), (/Npred(ng),1/),     &
-     &                        ncid = ncPREDid(ng),                      &
-     &                        varid = predVid(idglat,ng))
+     &                        (/1,PRED(ng)%Rindex/), (/Npred(ng),1/),   &
+     &                        ncid = PRED(ng)%ncid,                     &
+     &                        varid = PRED(ng)%Vid(idglat))
       END IF
       IF (exit_flag.ne.NoError) RETURN
 
@@ -179,11 +179,11 @@
           Tout(l)=spval
         END IF
       END DO
-      CALL netcdf_put_fvar (ng, iNLM, PREDname(ng),                     &
+      CALL netcdf_put_fvar (ng, iNLM, PRED(ng)%name,                    &
      &                      'depth', Tout,                              &
-     &                      (/1,tPREDindx(ng)/), (/Npred(ng),1/),       &
-     &                      ncid = ncPREDid(ng),                        &
-     &                      varid = predVid(iddpth,ng))
+     &                      (/1,PRED(ng)%Rindex/), (/Npred(ng),1/),     &
+     &                      ncid = PRED(ng)%ncid,                       &
+     &                      varid = PRED(ng)%Vid(iddpth))
       IF (exit_flag.ne.NoError) RETURN
 !
 !  Write out density anomaly.
@@ -195,11 +195,11 @@
           Tout(l)=spval
         END IF
       END DO
-      CALL netcdf_put_fvar (ng, iNLM, PREDname(ng),                     &
+      CALL netcdf_put_fvar (ng, iNLM, PRED(ng)%name,                    &
      &                      TRIM(Vname(1,idDano)), Tout,                &
-     &                      (/1,tPREDindx(ng)/), (/Npred(ng),1/),       &
-     &                      ncid = ncPREDid(ng),                        &
-     &                      varid = predVid(idDano,ng))
+     &                      (/1,PRED(ng)%Rindex/), (/Npred(ng),1/),     &
+     &                      ncid = PRED(ng)%ncid,                       &
+     &                      varid = PRED(ng)%Vid(idDano))
       IF (exit_flag.ne.NoError) RETURN
 !
 !  Write out tracer type variables.
@@ -212,11 +212,11 @@
             Tout(l)=spval
           END IF
         END DO
-        CALL netcdf_put_fvar (ng, iNLM, PREDname(ng),                   &
+        CALL netcdf_put_fvar (ng, iNLM, PRED(ng)%name,                  &
      &                        TRIM(Vname(1,idTvar(itrc))), Tout,        &
-     &                        (/1,tPREDindx(ng)/), (/Npred(ng),1/),     &
-     &                        ncid = ncPREDid(ng),                      &
-     &                        varid = predTid(itrc,ng))
+     &                        (/1,PRED(ng)%Rindex/), (/Npred(ng),1/),   &
+     &                        ncid = PRED(ng)%ncid,                     &
+     &                        varid = PRED(ng)%Tid(itrc))
         IF (exit_flag.ne.NoError) RETURN
       END DO
 #  if defined NEMURO_SAN && defined PREDATOR
@@ -228,11 +228,11 @@
           Tout(l)=spval
         END IF
       END DO
-      CALL netcdf_put_fvar (ng, iNLM, PREDname(ng),                     &
+      CALL netcdf_put_fvar (ng, iNLM, PRED(ng)%name,                    &
      &                      TRIM(Vname(1,idPwwt)), Tout,                &
-     &                      (/1,tPREDindx(ng)/), (/Npred(ng),1/),       &
-     &                      ncid = ncPREDid(ng),                        &
-     &                      varid = predVid(idPwwt,ng))
+     &                      (/1,PRED(ng)%Rindex/), (/Npred(ng),1/),     &
+     &                      ncid = PRED(ng)%ncid,                       &
+     &                      varid = PRED(ng)%Vid(idPwwt))
       IF (exit_flag.ne.NoError) RETURN
 !  Write pred worth.
       DO l=1,Npred(ng)
@@ -242,11 +242,11 @@
           Tout(l)=spval
         END IF
       END DO
-      CALL netcdf_put_fvar (ng, iNLM, PREDname(ng),                     &
+      CALL netcdf_put_fvar (ng, iNLM, PRED(ng)%name,                    &
      &                      TRIM(Vname(1,idPworth)), Tout,              &
-     &                      (/1,tPREDindx(ng)/), (/Npred(ng),1/),       &
-     &                      ncid = ncPREDid(ng),                        &
-     &                      varid = predVid(idPworth,ng))
+     &                      (/1,PRED(ng)%Rindex/), (/Npred(ng),1/),     &
+     &                      ncid = PRED(ng)%ncid,                       &
+     &                      varid = PRED(ng)%Vid(idPworth))
       IF (exit_flag.ne.NoError) RETURN
 !  Write pred P-value.
       DO l=1,Npred(ng)
@@ -256,11 +256,11 @@
           Tout(l)=spval
         END IF
       END DO
-      CALL netcdf_put_fvar (ng, iNLM, PREDname(ng),                     &
+      CALL netcdf_put_fvar (ng, iNLM, PRED(ng)%name,                    &
      &                      TRIM(Vname(1,idPpval)), Tout,               &
-     &                      (/1,tPREDindx(ng)/), (/Npred(ng),1/),       &
-     &                      ncid = ncPREDid(ng),                        &
-     &                      varid = predVid(idPpval,ng))
+     &                      (/1,PRED(ng)%Rindex/), (/Npred(ng),1/),     &
+     &                      ncid = PRED(ng)%ncid,                       &
+     &                      varid = PRED(ng)%Vid(idPpval))
       IF (exit_flag.ne.NoError) RETURN
 !  Write Pred consumption on species 1
       DO l=1,Npred(ng)
@@ -270,11 +270,11 @@
           Tout(l)=spval
         END IF
       END DO
-      CALL netcdf_put_fvar (ng, iNLM, PREDname(ng),                     &
+      CALL netcdf_put_fvar (ng, iNLM, PRED(ng)%name,                    &
      &                      TRIM(Vname(1,idPcsmF1)), Tout,              &
-     &                      (/1,tPREDindx(ng)/), (/Npred(ng),1/),       &
-     &                      ncid = ncPREDid(ng),                        &
-     &                      varid = predVid(idPcsmF1,ng))
+     &                      (/1,PRED(ng)%Rindex/), (/Npred(ng),1/),     &
+     &                      ncid = PRED(ng)%ncid,                       &
+     &                      varid = PRED(ng)%Vid(idPcsmF1))
       IF (exit_flag.ne.NoError) RETURN
 !  Write Pred consumption on species 2
       DO l=1,Npred(ng)
@@ -284,11 +284,11 @@
           Tout(l)=spval
         END IF
       END DO
-      CALL netcdf_put_fvar (ng, iNLM, PREDname(ng),                     &
+      CALL netcdf_put_fvar (ng, iNLM, PRED(ng)%name,                    &
      &                      TRIM(Vname(1,idPcsmF2)), Tout,              &
-     &                      (/1,tPREDindx(ng)/), (/Npred(ng),1/),       &
-     &                      ncid = ncPREDid(ng),                        &
-     &                      varid = predVid(idPcsmF2,ng))
+     &                      (/1,PRED(ng)%Rindex/), (/Npred(ng),1/),     &
+     &                      ncid = PRED(ng)%ncid,                       &
+     &                      varid = PRED(ng)%Vid(idPcsmF2))
       IF (exit_flag.ne.NoError) RETURN
 !  Write Pred consumption on species 3
       DO l=1,Npred(ng)
@@ -298,11 +298,11 @@
           Tout(l)=spval
         END IF
       END DO
-      CALL netcdf_put_fvar (ng, iNLM, PREDname(ng),                     &
+      CALL netcdf_put_fvar (ng, iNLM, PRED(ng)%name,                    &
      &                      TRIM(Vname(1,idPcsmF3)), Tout,              &
-     &                      (/1,tPREDindx(ng)/), (/Npred(ng),1/),       &
-     &                      ncid = ncPREDid(ng),                        &
-     &                      varid = predVid(idPcsmF3,ng))
+     &                      (/1,PRED(ng)%Rindex/), (/Npred(ng),1/),     &
+     &                      ncid = PRED(ng)%ncid,                       &
+     &                      varid = PRED(ng)%Vid(idPcsmF3))
       IF (exit_flag.ne.NoError) RETURN
 !  Write Pred consumption on species 4
       DO l=1,Npred(ng)
@@ -312,11 +312,11 @@
           Tout(l)=spval
         END IF
       END DO
-      CALL netcdf_put_fvar (ng, iNLM, PREDname(ng),                     &
+      CALL netcdf_put_fvar (ng, iNLM, PRED(ng)%name,                    &
      &                      TRIM(Vname(1,idPcsmF4)), Tout,              &
-     &                      (/1,tPREDindx(ng)/), (/Npred(ng),1/),       &
-     &                      ncid = ncPREDid(ng),                        &
-     &                      varid = predVid(idPcsmF4,ng))
+     &                      (/1,PRED(ng)%Rindex/), (/Npred(ng),1/),     &
+     &                      ncid = PRED(ng)%ncid,                       &
+     &                      varid = PRED(ng)%Vid(idPcsmF4))
       IF (exit_flag.ne.NoError) RETURN
 !  Write Pred consumption on species 5
       DO l=1,Npred(ng)
@@ -326,11 +326,11 @@
           Tout(l)=spval
         END IF
       END DO
-      CALL netcdf_put_fvar (ng, iNLM, PREDname(ng),                     &
+      CALL netcdf_put_fvar (ng, iNLM, PRED(ng)%name,                    &
      &                      TRIM(Vname(1,idPcsmF5)), Tout,              &
-     &                      (/1,tPREDindx(ng)/), (/Npred(ng),1/),       &
-     &                      ncid = ncPREDid(ng),                        &
-     &                      varid = predVid(idPcsmF5,ng))
+     &                      (/1,PRED(ng)%Rindex/), (/Npred(ng),1/),     &
+     &                      ncid = PRED(ng)%ncid,                       &
+     &                      varid = PRED(ng)%Vid(idPcsmF5))
       IF (exit_flag.ne.NoError) RETURN
 #  endif
 # endif
@@ -339,7 +339,7 @@
 !  Synchronize pred NetCDF file to disk.
 !-----------------------------------------------------------------------
 !
-      CALL netcdf_sync (ng, iNLM, PREDname(ng), ncPREDid(ng))
+      CALL netcdf_sync (ng, iNLM, PRED(ng)%name, PRED(ng)%ncid)
 !
 #else
       SUBROUTINE wrt_pred

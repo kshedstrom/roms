@@ -92,7 +92,7 @@
 !  Lateral boundary conditions at the western edge.
 !-----------------------------------------------------------------------
 !
-      IF (WESTERN_EDGE) THEN
+      IF (DOMAIN(ng)%Western_Edge(tile)) THEN
 
 #  if defined WEST_AIRADIATION
 !
@@ -150,6 +150,22 @@
 !  Western edge, clamped boundary condition.
 !
         DO j=Jstr,Jend
+          ai(0,j,linew)=BOUNDARY(ng)%ai_west(j)
+#  ifdef MASKING
+          ai(0,j,linew)=ai(0,j,linew)*                                  &
+     &                 GRID(ng)%rmask(0,j)
+#  endif
+#  ifdef WET_DRY
+          ai(0,j,linew)=ai(0,j,linew)*                                  &
+     &                 GRID(ng)%rmask_wet(0,j)
+#  endif
+        END DO
+
+# elif defined WEST_AIMIXED
+!
+!  Western edge, clamped on inflow, gradient on outflow.
+!
+        DO j=Jstr,Jend
           IF (ui(1,j,linew).ge.0._r8) THEN
             ai(0,j,linew)=BOUNDARY(ng)%ai_west(j)
 #  ifdef MASKING
@@ -203,13 +219,27 @@
 #  endif
         END DO
 # endif
+
+# ifdef CHUKCHI
+        DO j=Jstr,Jend
+          ai(1,j,linew)=BOUNDARY(ng)%ai_west(j)
+#  ifdef MASKING
+          ai(1,j,linew)=ai(1,j,linew)*                                  &
+     &                 GRID(ng)%rmask(1,j)
+#  endif
+#  ifdef WET_DRY
+          ai(1,j,linew)=ai(1,j,linew)*                                  &
+     &                 GRID(ng)%rmask_wet(1,j)
+#  endif
+        END DO
+# endif
       END IF
 !
 !-----------------------------------------------------------------------
 !  Lateral boundary conditions at the eastern edge.
 !-----------------------------------------------------------------------
 !
-      IF (EASTERN_EDGE) THEN
+      IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
 
 #  if defined EAST_AIRADIATION
 !
@@ -266,6 +296,22 @@
 !  Eastern edge, clamped boundary condition.
 !
         DO j=Jstr,Jend
+          ai(Lm(ng)+1,j,linew)=BOUNDARY(ng)%ai_east(j)
+#  ifdef MASKING
+          ai(Lm(ng)+1,j,linew)=ai(Lm(ng)+1,j,linew)*                    &
+     &                        GRID(ng)%rmask(Lm(ng)+1,j)
+#  endif
+#  ifdef WET_DRY
+          ai(Lm(ng)+1,j,linew)=ai(Lm(ng)+1,j,linew)*                    &
+     &                        GRID(ng)%rmask_wet(Lm(ng)+1,j)
+#  endif
+        END DO
+
+# elif defined EAST_AIMIXED
+!
+!  Eastern edge, clamped on inflow, gradient on outflow.
+!
+        DO j=Jstr,Jend
           IF (ui(Lm(ng)+1,j,linew).le.0._r8) THEN
              ai(Lm(ng)+1,j,linew)=BOUNDARY(ng)%ai_east(j)
 #  ifdef MASKING
@@ -319,6 +365,20 @@
 #  endif
         END DO
 # endif
+
+# ifdef CHUKCHI
+        DO j=Jstr,Jend
+          ai(Lm(ng),j,linew)=BOUNDARY(ng)%ai_east(j)
+#  ifdef MASKING
+          ai(Lm(ng),j,linew)=ai(Lm(ng),j,linew)*                        &
+     &                        GRID(ng)%rmask(Lm(ng),j)
+#  endif
+#  ifdef WET_DRY
+          ai(Lm(ng),j,linew)=ai(Lm(ng),j,linew)*                        &
+     &                        GRID(ng)%rmask_wet(Lm(ng),j)
+#  endif
+        END DO
+# endif
       END IF
 #endif
 #ifndef NS_PERIODIC
@@ -327,7 +387,7 @@
 !  Lateral boundary conditions at the southern edge.
 !-----------------------------------------------------------------------
 !
-      IF (SOUTHERN_EDGE) THEN
+      IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
 
 #  if defined SOUTH_AIRADIATION
 !
@@ -384,6 +444,22 @@
 !  Southern edge, clamped boundary condition.
 !
         DO i=Istr,Iend
+          ai(i,0,linew)=BOUNDARY(ng)%ai_south(i)
+#  ifdef MASKING
+          ai(i,0,linew)=ai(i,0,linew)*                                  &
+     &                   GRID(ng)%rmask(i,0)
+#  endif
+#  ifdef WET_DRY
+          ai(i,0,linew)=ai(i,0,linew)*                                  &
+     &                   GRID(ng)%rmask_wet(i,0)
+#  endif
+        END DO
+
+# elif defined SOUTH_AIMIXED
+!
+!  Southern edge, clamped on inflow, gradient on outflow.
+!
+        DO i=Istr,Iend
           IF (vi(i,1,linew).ge.0._r8) THEN
              ai(i,0,linew)=BOUNDARY(ng)%ai_south(i)
 #  ifdef MASKING
@@ -437,13 +513,27 @@
 #  endif
         END DO
 # endif
+
+# ifdef CHUKCHI
+        DO i=Istr,Iend
+          ai(i,1,linew)=BOUNDARY(ng)%ai_south(i)
+#  ifdef MASKING
+          ai(i,1,linew)=ai(i,1,linew)*                                  &
+     &                   GRID(ng)%rmask(i,1)
+#  endif
+#  ifdef WET_DRY
+          ai(i,1,linew)=ai(i,1,linew)*                                  &
+     &                   GRID(ng)%rmask_wet(i,1)
+#  endif
+        END DO
+# endif
       END IF
 !
 !-----------------------------------------------------------------------
 !  Lateral boundary conditions at the northern edge.
 !-----------------------------------------------------------------------
 !
-      IF (NORTHERN_EDGE) THEN
+      IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
 
 #  if defined NORTH_AIRADIATION
 !
@@ -496,6 +586,22 @@
         END DO
 
 # elif defined NORTH_AICLAMPED
+!
+!  Northern edge, clamped boundary condition.
+!
+        DO i=Istr,Iend
+          ai(i,Mm(ng)+1,linew)=BOUNDARY(ng)%ai_north(i)
+#  ifdef MASKING
+          ai(i,Mm(ng)+1,linew)=ai(i,Mm(ng)+1,linew)*                    &
+     &                          GRID(ng)%rmask(i,Mm(ng)+1)
+#  endif
+#  ifdef WET_DRY
+          ai(i,Mm(ng)+1,linew)=ai(i,Mm(ng)+1,linew)*                    &
+     &                          GRID(ng)%rmask_wet(i,Mm(ng)+1)
+#  endif
+        END DO
+
+# elif defined NORTH_AIMIXED
 !
 !  Northern edge, clamped boundary condition.
 !
@@ -553,6 +659,20 @@
 #  endif
         END DO
 # endif
+
+# ifdef CHUKCHI
+        DO i=Istr,Iend
+          ai(i,Mm(ng),linew)=BOUNDARY(ng)%ai_north(i)
+#  ifdef MASKING
+          ai(i,Mm(ng),linew)=ai(i,Mm(ng),linew)*                        &
+     &                          GRID(ng)%rmask(i,Mm(ng))
+#  endif
+#  ifdef WET_DRY
+          ai(i,Mm(ng),linew)=ai(i,Mm(ng),linew)*                        &
+     &                          GRID(ng)%rmask_wet(i,Mm(ng))
+#  endif
+        END DO
+# endif
       END IF
 #endif
 # if !defined EW_PERIODIC && !defined NS_PERIODIC
@@ -561,19 +681,19 @@
 !  Boundary corners.
 !-----------------------------------------------------------------------
 !
-      IF (SOUTHERN_EDGE.and.WESTERN_EDGE) THEN
+      IF (DOMAIN(ng)%SouthWest_Corner(tile)) THEN
         ai(0,0,linew)=0.5_r8*(ai(1,0,linew)+                            &
      &                         ai(0,1,linew))
       END IF
-      IF (SOUTHERN_EDGE.and.EASTERN_EDGE) THEN
+      IF (DOMAIN(ng)%SouthEast_Corner(tile)) THEN
         ai(Lm(ng)+1,0,linew)=0.5_r8*(ai(Lm(ng)+1,1,linew)+              &
      &                                ai(Lm(ng)  ,0,linew))
       END IF
-      IF (NORTHERN_EDGE.and.WESTERN_EDGE) THEN
+      IF (DOMAIN(ng)%NorthWest_Corner(tile)) THEN
         ai(0,Mm(ng)+1,linew)=0.5_r8*(ai(0,Mm(ng)  ,linew)+              &
      &                                ai(1,Mm(ng)+1,linew))
       END IF
-      IF (NORTHERN_EDGE.and.EASTERN_EDGE) THEN
+      IF (DOMAIN(ng)%NorthEast_Corner(tile)) THEN
         ai(Lm(ng)+1,Mm(ng)+1,linew)=0.5_r8*                             &
      &             (ai(Lm(ng)+1,Mm(ng)  ,linew)+                        &
      &              ai(Lm(ng)  ,Mm(ng)+1,linew))

@@ -179,7 +179,7 @@
 !
       DO
         CALL gasdev_s(harvest)
-        IF (ABS(harvest) .le. 3.0_r8) RETURN
+        IF (ABS(harvest) .le. clamp) RETURN
       END DO
       END SUBROUTINE gasdev_clamp_s
       SUBROUTINE gasdev_clamp_v (harvest, clamp)
@@ -212,7 +212,7 @@
       DO
         CALL gasdev_v(v1)
         DO i=1,SIZE(v1)
-          IF (v1(i) .le. clamp) THEN
+          IF (ABS(v1(i)) .le. clamp) THEN
             num = num + 1
             harvest(num) = v1(i)
             IF (num == n) RETURN

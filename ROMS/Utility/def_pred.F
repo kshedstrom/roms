@@ -67,7 +67,7 @@
 !-----------------------------------------------------------------------
 !
       IF (exit_flag.ne.NoError) RETURN
-      ncname=PREDname(ng)
+      ncname=PRED(ng)%name
 !
       IF (Master) THEN
         IF (ldef) THEN
@@ -82,7 +82,7 @@
 !=======================================================================
 !
       DEFINE : IF (ldef) THEN
-        CALL netcdf_create (ng, iNLM, TRIM(ncname), ncPREDid(ng))
+        CALL netcdf_create (ng, iNLM, TRIM(ncname), PRED(ng)%ncid)
         IF (exit_flag.ne.NoError) THEN
           IF (Master) WRITE (stdout,30) TRIM(ncname)
           RETURN
@@ -95,62 +95,62 @@
         DimIDs=0
 !
 # ifdef SOLVE3D
-        status=def_dim(ng, iNLM, ncPREDid(ng), ncname, 's_rho',         &
+        status=def_dim(ng, iNLM, PRED(ng)%ncid, ncname, 's_rho',        &
      &                 N(ng), DimIDs( 9))
         IF (exit_flag.ne.NoError) RETURN
 
-        status=def_dim(ng, iNLM, ncPREDid(ng), ncname, 's_w',           &
+        status=def_dim(ng, iNLM, PRED(ng)%ncid, ncname, 's_w',          &
      &                 N(ng)+1, DimIDs(10))
         IF (exit_flag.ne.NoError) RETURN
 
-        status=def_dim(ng, iNLM, ncPREDid(ng), ncname, 'tracer',        &
+        status=def_dim(ng, iNLM, PRED(ng)%ncid, ncname, 'tracer',       &
      &                 NT(ng), DimIDs(11))
         IF (exit_flag.ne.NoError) RETURN
 
 #  ifdef SEDIMENT
-        status=def_dim(ng, iNLM, ncPREDid(ng), ncname, 'Nbed',          &
+        status=def_dim(ng, iNLM, PRED(ng)%ncid, ncname, 'Nbed',         &
      &                 Nbed, DimIDs(16))
         IF (exit_flag.ne.NoError) RETURN
 #  endif
 
 #  ifdef ECOSIM
-        status=def_dim(ng, iNLM, ncPREDid(ng), ncname, 'Nphy',          &
+        status=def_dim(ng, iNLM, PRED(ng)%ncid, ncname, 'Nphy',         &
      &                 Nphy, DimIDs(25))
         IF (exit_flag.ne.NoError) RETURN
 
-        status=def_dim(ng, iNLM, ncPREDid(ng), ncname, 'Nbac',          &
+        status=def_dim(ng, iNLM, PRED(ng)%ncid, ncname, 'Nbac',         &
      &                 Nbac, DimIDs(26))
         IF (exit_flag.ne.NoError) RETURN
 
-        status=def_dim(ng, iNLM, ncPREDid(ng), ncname, 'Ndom',          &
+        status=def_dim(ng, iNLM, PRED(ng)%ncid, ncname, 'Ndom',         &
      &                 Ndom, DimIDs(27))
         IF (exit_flag.ne.NoError) RETURN
 
-        status=def_dim(ng, iNLM, ncPREDid(ng), ncname, 'Nfec',          &
+        status=def_dim(ng, iNLM, PRED(ng)%ncid, ncname, 'Nfec',         &
      &                 Nfec, DimIDs(28))
         IF (exit_flag.ne.NoError) RETURN
 #  endif
 # endif
 
-        status=def_dim(ng, iNLM, ncPREDid(ng), ncname, 'drifter' ,      &
+        status=def_dim(ng, iNLM, PRED(ng)%ncid, ncname, 'drifter' ,     &
      &                 Npred(ng), DimIDs(15))
         IF (exit_flag.ne.NoError) RETURN
 
-        status=def_dim(ng, iNLM, ncPREDid(ng), ncname, 'species' ,      &
+        status=def_dim(ng, iNLM, PRED(ng)%ncid, ncname, 'species' ,     &
      &                 Npredspecies(ng), DimIDs(32))
         IF (exit_flag.ne.NoError) RETURN
 
-        status=def_dim(ng, iNLM, ncPREDid(ng), ncname, 'boundary',      &
+        status=def_dim(ng, iNLM, PRED(ng)%ncid, ncname, 'boundary',     &
      &                 4, DimIDs(14))
         IF (exit_flag.ne.NoError) RETURN
 
 # ifdef FOUR_DVAR
-        status=def_dim(ng, iNLM, ncPREDid(ng), ncname, 'Nstate',        &
+        status=def_dim(ng, iNLM, PRED(ng)%ncid, ncname, 'Nstate',       &
      &                 NstateVar(ng), DimIDs(29))
         IF (exit_flag.ne.NoError) RETURN
 # endif
 
-        status=def_dim(ng, iNLM, ncPREDid(ng), ncname,                  &
+        status=def_dim(ng, iNLM, PRED(ng)%ncid, ncname,                 &
      &                 TRIM(ADJUSTL(Vname(5,idtime))),                  &
      &                 nf90_unlimited, DimIDs(12))
         IF (exit_flag.ne.NoError) RETURN
@@ -167,7 +167,7 @@
 !
 !  Initialize unlimited time record dimension.
 !
-        tPREDindx(ng)=0
+        PRED(ng)%rindex=0
 !
 !  Initialize local information variable arrays.
 !
@@ -184,7 +184,7 @@
 !  Define time-recordless information variables.
 !-----------------------------------------------------------------------
 !
-        CALL def_info (ng, iNLM, ncPREDid(ng), ncname, DimIDs)
+        CALL def_info (ng, iNLM, PRED(ng)%ncid, ncname, DimIDs)
         IF (exit_flag.ne.NoError) RETURN
 !
 !-----------------------------------------------------------------------
@@ -209,7 +209,7 @@
           Vinfo( 4)='gregorian'
         END IF
         Vinfo(14)=Vname(4,idtime)
-        status=def_var(ng, iNLM, ncPREDid(ng), predVid(idtime,ng),      &
+        status=def_var(ng, iNLM, PRED(ng)%ncid, PRED(ng)%Vid(idtime),   &
      &                 NF_TYPE, 1, (/recdim/), Aval, Vinfo, ncname,     &
      &                 SetParAccess = .FALSE.)
         IF (exit_flag.ne.NoError) RETURN
@@ -224,7 +224,7 @@
 !
         Vinfo( 1)='Species'
         Vinfo( 2)='Pred species'
-        status=def_var(ng, iNLM, ncPREDid(ng), predVid(idPspc,ng),      &
+        status=def_var(ng, iNLM, PRED(ng)%ncid, PRED(ng)%Vid(idPspc),   &
      &                 nf90_int, 1, (/preddim/), Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 !
@@ -234,7 +234,7 @@
         Vinfo( 2)='Pred alive'
         Vinfo( 9)='Pred alive'
         Vinfo(10)='Pred dead'
-        status=def_var(ng, iNLM, ncPREDid(ng), predVid(idPalv,ng),      &
+        status=def_var(ng, iNLM, PRED(ng)%ncid, PRED(ng)%Vid(idPalv),   &
      &                 nf90_int, 1, (/preddim/), Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 !
@@ -252,7 +252,7 @@
         Vinfo(24)='_FillValue'
         Aval(6)=spval
 # endif
-        status=def_var(ng, iNLM, ncPREDid(ng), predVid(idXgrd,ng),      &
+        status=def_var(ng, iNLM, PRED(ng)%ncid, PRED(ng)%Vid(idXgrd),   &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 !
@@ -270,7 +270,7 @@
         Vinfo(24)='_FillValue'
         Aval(6)=spval
 # endif
-        status=def_var(ng, iNLM, ncPREDid(ng), predVid(idYgrd,ng),      &
+        status=def_var(ng, iNLM, PRED(ng)%ncid, PRED(ng)%Vid(idYgrd),   &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 
@@ -290,7 +290,7 @@
         Vinfo(24)='_FillValue'
         Aval(6)=spval
 #  endif
-        status=def_var(ng, iNLM, ncPREDid(ng), predVid(idZgrd,ng),      &
+        status=def_var(ng, iNLM, PRED(ng)%ncid, PRED(ng)%Vid(idZgrd),   &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 # endif
@@ -311,7 +311,7 @@
 # endif
           Aval(2)=-180.0_r8
           Aval(3)=180.0_r8
-          status=def_var(ng, iNLM, ncPREDid(ng), predVid(idglon,ng),    &
+          status=def_var(ng, iNLM, PRED(ng)%ncid, PRED(ng)%Vid(idglon), &
      &                   NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
 
@@ -328,7 +328,7 @@
 # endif
           Aval(2)=-90.0_r8
           Aval(3)=90.0_r8
-          status=def_var(ng, iNLM, ncPREDid(ng), predVid(idglat,ng),    &
+          status=def_var(ng, iNLM, PRED(ng)%ncid, PRED(ng)%Vid(idglat), &
      &                   NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
        ELSE
@@ -341,7 +341,7 @@
           Vinfo(24)='_FillValue'
           Aval(6)=spval
 # endif
-          status=def_var(ng, iNLM, ncPREDid(ng), predVid(idglon,ng),    &
+          status=def_var(ng, iNLM, PRED(ng)%ncid, PRED(ng)%Vid(idglon), &
      &                   NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
 
@@ -354,7 +354,7 @@
           Vinfo(24)='_FillValue'
           Aval(6)=spval
 # endif
-          status=def_var(ng, iNLM, ncPREDid(ng), predVid(idglat,ng),    &
+          status=def_var(ng, iNLM, PRED(ng)%ncid, PRED(ng)%Vid(idglat), &
      &                   NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -372,7 +372,7 @@
         Vinfo(24)='_FillValue'
         Aval(6)=spval
 #  endif
-        status=def_var(ng, iNLM, ncPREDid(ng), predVid(iddpth,ng),      &
+        status=def_var(ng, iNLM, PRED(ng)%ncid, PRED(ng)%Vid(iddpth),   &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 !
@@ -387,7 +387,7 @@
         Vinfo(24)='_FillValue'
         Aval(6)=spval
 #  endif
-        status=def_var(ng, iNLM, ncPREDid(ng), predVid(idDano,ng),      &
+        status=def_var(ng, iNLM, PRED(ng)%ncid, PRED(ng)%Vid(idDano),   &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 !
@@ -410,7 +410,7 @@
             END IF
           END DO
 #  endif
-          status=def_var(ng, iNLM, ncPREDid(ng), predTid(itrc,ng),      &
+          status=def_var(ng, iNLM, PRED(ng)%ncid, PRED(ng)%Tid(itrc),   &
      &                   NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END DO
@@ -427,7 +427,7 @@
         Vinfo(24)='_FillValue'
         Aval(6)=spval
 # endif
-        status=def_var(ng, iNLM, ncPREDid(ng),predVid(idPwwt,ng),       &
+        status=def_var(ng, iNLM, PRED(ng)%ncid,PRED(ng)%Vid(idPwwt),    &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 !
@@ -442,7 +442,7 @@
         Vinfo(24)='_FillValue'
         Aval(6)=spval
 # endif
-        status=def_var(ng, iNLM, ncPREDid(ng),predVid(idPworth,ng),     &
+        status=def_var(ng, iNLM, PRED(ng)%ncid,PRED(ng)%Vid(idPworth),  &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 !
@@ -457,7 +457,7 @@
         Vinfo(24)='_FillValue'
         Aval(6)=spval
 # endif
-        status=def_var(ng, iNLM, ncPREDid(ng),predVid(idPpval,ng),      &
+        status=def_var(ng, iNLM, PRED(ng)%ncid,PRED(ng)%Vid(idPpval),   &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 !
@@ -472,7 +472,7 @@
         Vinfo(24)='_FillValue'
         Aval(6)=spval
 # endif
-        status=def_var(ng, iNLM, ncPREDid(ng),predVid(idPcsmF1,ng),     &
+        status=def_var(ng, iNLM, PRED(ng)%ncid,PRED(ng)%Vid(idPcsmF1),  &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 !
@@ -487,7 +487,7 @@
         Vinfo(24)='_FillValue'
         Aval(6)=spval
 # endif
-        status=def_var(ng, iNLM, ncPREDid(ng),predVid(idPcsmF2,ng),     &
+        status=def_var(ng, iNLM, PRED(ng)%ncid,PRED(ng)%Vid(idPcsmF2),  &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 !
@@ -502,7 +502,7 @@
         Vinfo(24)='_FillValue'
         Aval(6)=spval
 # endif
-        status=def_var(ng, iNLM, ncPREDid(ng),predVid(idPcsmF3,ng),     &
+        status=def_var(ng, iNLM, PRED(ng)%ncid,PRED(ng)%Vid(idPcsmF3),  &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 !
@@ -517,7 +517,7 @@
         Vinfo(24)='_FillValue'
         Aval(6)=spval
 # endif
-        status=def_var(ng, iNLM, ncPREDid(ng),predVid(idPcsmF4,ng),     &
+        status=def_var(ng, iNLM, PRED(ng)%ncid,PRED(ng)%Vid(idPcsmF4),  &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 !
@@ -532,26 +532,26 @@
         Vinfo(24)='_FillValue'
         Aval(6)=spval
 # endif
-        status=def_var(ng, iNLM, ncPREDid(ng),predVid(idPcsmF5,ng),     &
+        status=def_var(ng, iNLM, PRED(ng)%ncid,PRED(ng)%Vid(idPcsmF5),  &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 !
 !  Initialize unlimited time record dimension.
 !
-        tPREDindx(ng)=0
+        PRED(ng)%rindex=0
 !
 !-----------------------------------------------------------------------
 !  Leave definition mode.
 !-----------------------------------------------------------------------
 !
-        CALL netcdf_enddef (ng, iNLM, ncname, ncPREDid(ng))
+        CALL netcdf_enddef (ng, iNLM, ncname, PRED(ng)%ncid)
         IF (exit_flag.ne.NoError) RETURN
 !
 !-----------------------------------------------------------------------
 !  Write out time-recordless, information variables.
 !-----------------------------------------------------------------------
 !
-        CALL wrt_info (ng, iNLM, ncPREDid(ng), ncname)
+        CALL wrt_info (ng, iNLM, PRED(ng)%ncid, ncname)
         IF (exit_flag.ne.NoError) RETURN
       END IF DEFINE
 !
@@ -561,7 +561,7 @@
 !=======================================================================
 !
       QUERY : IF (.not.ldef) THEN
-        ncname=PREDname(ng)
+        ncname=PRED(ng)%name
 !
 !  Inquire about the dimensions and check for consistency.
 !
@@ -584,7 +584,7 @@
 !
 !  Open pred file for read/write.
 !
-        CALL netcdf_open (ng, iNLM, ncname, 1, ncPREDid(ng))
+        CALL netcdf_open (ng, iNLM, ncname, 1, PRED(ng)%ncid)
         IF (exit_flag.ne.NoError) THEN
           WRITE (stdout,50) TRIM(ncname)
           RETURN
@@ -602,74 +602,74 @@
         DO i=1,n_var
           IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idtime))) THEN
             got_var(idtime)=.TRUE.
-            predVid(idtime,ng)=var_id(i)
+            PRED(ng)%Vid(idtime)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.'Pwwt') THEN
             got_var(idPwwt)=.TRUE.
-            predVid(idPwwt,ng)=var_id(i)
+            PRED(ng)%Vid(idPwwt)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.'Pworth') THEN
             got_var(idPworth)=.TRUE.
-            predVid(idPworth,ng)=var_id(i)
+            PRED(ng)%Vid(idPworth)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.'Ppval') THEN
             got_var(idPpval)=.TRUE.
-            predVid(idPpval,ng)=var_id(i)
+            PRED(ng)%Vid(idPpval)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.'Species') THEN
             got_var(idPspc)=.TRUE.
-            predVid(idPspc,ng)=var_id(i)
+            PRED(ng)%Vid(idPspc)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.'Alive') THEN
             got_var(idPalv)=.TRUE.
-            predVid(idPalv,ng)=var_id(i)
+            PRED(ng)%Vid(idPalv)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.'Xgrid') THEN
             got_var(idXgrd)=.TRUE.
-            predVid(idXgrd,ng)=var_id(i)
+            PRED(ng)%Vid(idXgrd)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.'Ygrid') THEN
             got_var(idYgrd)=.TRUE.
-            predVid(idYgrd,ng)=var_id(i)
+            PRED(ng)%Vid(idYgrd)=var_id(i)
 # ifdef SOLVE3D
           ELSE IF (TRIM(var_name(i)).eq.'Zgrid') THEN
             got_var(idZgrd)=.TRUE.
-            predVid(idZgrd,ng)=var_id(i)
+            PRED(ng)%Vid(idZgrd)=var_id(i)
 # endif
           ELSE IF (spherical.and.TRIM(var_name(i)).eq.'lon') THEN
             got_var(idglon)=.TRUE.
-            predVid(idglon,ng)=var_id(i)
+            PRED(ng)%Vid(idglon)=var_id(i)
           ELSE IF (spherical.and.TRIM(var_name(i)).eq.'lat') THEN
             got_var(idglat)=.TRUE.
-            predVid(idglat,ng)=var_id(i)
+            PRED(ng)%Vid(idglat)=var_id(i)
           ELSE IF (.not.spherical.and.TRIM(var_name(i)).eq.'x') THEN
             got_var(idglon)=.TRUE.
-            predVid(idglon,ng)=var_id(i)
+            PRED(ng)%Vid(idglon)=var_id(i)
           ELSE IF (.not.spherical.and.TRIM(var_name(i)).eq.'y') THEN
             got_var(idglat)=.TRUE.
-            predVid(idglat,ng)=var_id(i)
+            PRED(ng)%Vid(idglat)=var_id(i)
 # ifdef SOLVE3D
           ELSE IF (TRIM(var_name(i)).eq.'depth') THEN
             got_var(iddpth)=.TRUE.
-            predVid(iddpth,ng)=var_id(i)
+            PRED(ng)%Vid(iddpth)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idDano))) THEN
             got_var(idDano)=.TRUE.
-            predVid(idDano,ng)=var_id(i)
+            PRED(ng)%Vid(idDano)=var_id(i)
 # endif
           ELSE IF (TRIM(var_name(i)).eq.'PcsmF1') THEN
             got_var(idPcsmF1)=.TRUE.
-            predVid(idPcsmF1,ng)=var_id(i)
+            PRED(ng)%Vid(idPcsmF1)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.'PcsmF2') THEN
             got_var(idPcsmF2)=.TRUE.
-            predVid(idPcsmF2,ng)=var_id(i)
+            PRED(ng)%Vid(idPcsmF2)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.'PcsmF3') THEN
             got_var(idPcsmF3)=.TRUE.
-            predVid(idPcsmF3,ng)=var_id(i)
+            PRED(ng)%Vid(idPcsmF3)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.'PcsmF4') THEN
             got_var(idPcsmF4)=.TRUE.
-            predVid(idPcsmF4,ng)=var_id(i)
+            PRED(ng)%Vid(idPcsmF4)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.'PcsmF5') THEN
             got_var(idPcsmF5)=.TRUE.
-            predVid(idPcsmF5,ng)=var_id(i)
+            PRED(ng)%Vid(idPcsmF5)=var_id(i)
           END IF
 # ifdef SOLVE3D
           DO itrc=1,NT(ng)
             IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idTvar(itrc)))) THEN
               got_var(idTvar(itrc))=.TRUE.
-              predTid(itrc,ng)=var_id(i)
+              PRED(ng)%Tid(itrc)=var_id(i)
             END IF
           END DO
 # endif
@@ -772,18 +772,18 @@
 !  Set-up pred time record.
 !
         IF (predrrec(ng).lt.0) THEN
-          tPREDindx(ng)=rec_size
+          PRED(ng)%rindex=rec_size
         ELSE
-         tPREDindx(ng)=ABS(predrrec(ng))
+         PRED(ng)%rindex=ABS(predrrec(ng))
         END IF
-        NrecPRED(ng)=tPREDindx(ng)
+        PRED(ng)%Nrec=PRED(ng)%rindex
 !
 !  Read in pred nondimentional horizontal positions.
 !
         CALL netcdf_get_fvar (ng, iNLM, ncname, 'Xgrid',                &
      &                        Tinp,                                     &
-     &                        ncid = ncPREDid(ng),                      &
-     &                        start = (/1,tPREDindx(ng)/),              &
+     &                        ncid = PRED(ng)%ncid,                     &
+     &                        start = (/1,PRED(ng)%rindex/),            &
      &                        total = (/Npred(ng),1/))
         IF (exit_flag.ne.NoError) RETURN
 
@@ -802,8 +802,8 @@
 
         CALL netcdf_get_fvar (ng, iNLM, ncname, 'Ygrid',                &
      &                        Tinp,                                     &
-     &                        ncid = ncPREDid(ng),                      &
-     &                        start = (/1,tPREDindx(ng)/),              &
+     &                        ncid = PRED(ng)%ncid,                     &
+     &                        start = (/1,PRED(ng)%rindex/),            &
      &                        total = (/Npred(ng),1/))
         IF (exit_flag.ne.NoError) RETURN
 
@@ -823,8 +823,8 @@
 # ifdef SOLVE3D
         CALL netcdf_get_fvar (ng, iNLM, ncname, 'Zgrid',                &
      &                        Tinp,                                     &
-     &                        ncid = ncPREDid(ng),                      &
-     &                        start = (/1,tPREDindx(ng)/),              &
+     &                        ncid = PRED(ng)%ncid,                     &
+     &                        start = (/1,PRED(ng)%rindex/),            &
      &                        total = (/Npred(ng),1/))
 
         DO l=1,Npred(ng)
@@ -846,8 +846,8 @@
         CALL netcdf_get_fvar (ng, iNLM, ncname,                         &
      &                        TRIM(Vname(1,idPwwt)),                    &
      &                        Tinp,                                     &
-     &                        ncid = ncPREDid(ng),                      &
-     &                        start = (/1,tPREDindx(ng)/),              &
+     &                        ncid = PRED(ng)%ncid,                     &
+     &                        start = (/1,PRED(ng)%rindex/),            &
      &                        total = (/Npred(ng),1/))
         DO l=1,Npred(ng)
           PREDS(ng)%bioenergy(ipwwt,l)=Tinp(l)
@@ -856,8 +856,8 @@
         CALL netcdf_get_fvar (ng, iNLM, ncname,                         &
      &                        TRIM(Vname(1,idPworth)),                  &
      &                        Tinp,                                     &
-     &                        ncid = ncPREDid(ng),                      &
-     &                        start = (/1,tPREDindx(ng)/),              &
+     &                        ncid = PRED(ng)%ncid,                     &
+     &                        start = (/1,PRED(ng)%rindex/),            &
      &                        total = (/Npred(ng),1/))
         DO l=1,Npred(ng)
           PREDS(ng)%bioenergy(ipworth,l)=Tinp(l)
@@ -865,16 +865,16 @@
 
         CALL netcdf_get_ivar (ng, iNLM, ncname,                         &
      &                        TRIM(Vname(1,idPspc)),                    &
-     &                        PREDS(ng)%species,                       &
-     &                        ncid = ncPREDid(ng),                      &
-     &                        start = (/1,tPREDindx(ng)/),              &
+     &                        PREDS(ng)%species,                        &
+     &                        ncid = PRED(ng)%ncid,                     &
+     &                        start = (/1,PRED(ng)%rindex/),            &
      &                        total = (/Npred(ng),1/))
 
         CALL netcdf_get_lvar (ng, iNLM, ncname,                         &
      &                        TRIM(Vname(1,idPalv)),                    &
-     &                        PREDS(ng)%alive,                         &
-     &                        ncid = ncPREDid(ng),                      &
-     &                        start = (/1,tPREDindx(ng)/),              &
+     &                        PREDS(ng)%alive,                          &
+     &                        ncid = PRED(ng)%ncid,                     &
+     &                        start = (/1,PRED(ng)%rindex/),            &
      &                        total = (/Npred(ng),1/))
 
         IF (exit_flag.ne.NoError) RETURN

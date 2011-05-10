@@ -84,11 +84,27 @@
 !  Lateral boundary conditions at the western edge.
 !-----------------------------------------------------------------------
 !
-      IF (WESTERN_EDGE) THEN
+      IF (DOMAIN(ng)%Western_Edge(tile)) THEN
 
 # ifdef WEST_SFWATCLAMPED
 !
 !  Western edge, clamped boundary condition.
+!
+        DO j=Jstr,Jend
+          sfwat(0,j,linew)=BOUNDARY(ng)%sfwat_west(j)
+#  ifdef MASKING
+          sfwat(0,j,linew)=sfwat(0,j,linew)*                            &
+     &                   GRID(ng)%rmask(0,j)
+#  endif
+#  ifdef WET_DRY
+          sfwat(0,j,linew)=sfwat(0,j,linew)*                            &
+     &                   GRID(ng)%rmask_wet(0,j)
+#  endif
+        END DO
+
+# elif defined WEST_SFWATMIXED
+!
+!  Western edge, clamped on inflow, gradient on outflow.
 !
         DO j=Jstr,Jend
           IF (ui(1,j,linew).ge.0._r8) THEN
@@ -150,11 +166,27 @@
 !  Lateral boundary conditions at the eastern edge.
 !-----------------------------------------------------------------------
 !
-      IF (EASTERN_EDGE) THEN
+      IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
 
 # ifdef EAST_SFWATCLAMPED
 !
 !  Eastern edge, clamped boundary condition.
+!
+        DO j=Jstr,Jend
+          sfwat(Lm(ng)+1,j,linew)=BOUNDARY(ng)%sfwat_east(j)
+#  ifdef MASKING
+          sfwat(Lm(ng)+1,j,linew)=sfwat(Lm(ng)+1,j,linew)*              &
+     &                          GRID(ng)%rmask(Lm(ng)+1,j)
+#  endif
+#  ifdef WET_DRY
+          sfwat(Lm(ng)+1,j,linew)=sfwat(Lm(ng)+1,j,linew)*              &
+     &                          GRID(ng)%rmask_wet(Lm(ng)+1,j)
+#  endif
+        END DO
+
+# elif defined EAST_SFWATMIXED
+!
+!  Eastern edge, clamped on inflow, gradient on outflow.
 !
         DO j=Jstr,Jend
           IF (ui(Lm(ng)+1,j,linew).ge.0._r8) THEN
@@ -218,11 +250,27 @@
 !  Lateral boundary conditions at the southern edge.
 !-----------------------------------------------------------------------
 !
-      IF (SOUTHERN_EDGE) THEN
+      IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
 
 # ifdef SOUTH_SFWATCLAMPED
 !
 !  Southern edge, clamped boundary condition.
+!
+        DO i=Istr,Iend
+          sfwat(i,0,linew)=BOUNDARY(ng)%sfwat_south(i)
+#  ifdef MASKING
+          sfwat(i,0,linew)=sfwat(i,0,linew)*                            &
+     &                   GRID(ng)%rmask(i,0)
+#  endif
+#  ifdef WET_DRY
+          sfwat(i,0,linew)=sfwat(i,0,linew)*                            &
+     &                   GRID(ng)%rmask_wet(i,0)
+#  endif
+        END DO
+
+# elif defined SOUTH_SFWATMIXED
+!
+!  Southern edge, clamped on inflow, gradient on outflow.
 !
         DO i=Istr,Iend
           IF (vi(i,1,linew).ge.0._r8) THEN
@@ -284,11 +332,27 @@
 !  Lateral boundary conditions at the northern edge.
 !-----------------------------------------------------------------------
 !
-      IF (NORTHERN_EDGE) THEN
+      IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
 
 # ifdef NORTH_SFWATCLAMPED
 !
 !  Northern edge, clamped boundary condition.
+!
+        DO i=Istr,Iend
+          sfwat(i,Mm(ng)+1,linew)=BOUNDARY(ng)%sfwat_north(i)
+#  ifdef MASKING
+          sfwat(i,Mm(ng)+1,linew)=sfwat(i,Mm(ng)+1,linew)*              &
+     &                          GRID(ng)%rmask(i,Mm(ng)+1)
+#  endif
+#  ifdef WET_DRY
+          sfwat(i,Mm(ng)+1,linew)=sfwat(i,Mm(ng)+1,linew)*              &
+     &                          GRID(ng)%rmask_wet(i,Mm(ng)+1)
+#  endif
+        END DO
+
+# elif defined NORTH_SFWATMIXED
+!
+!  Northern edge, clamped on inflow, gradient on outflow.
 !
         DO i=Istr,Iend
           IF (vi(i,Mm(ng)+1,linew).le.0._r8) THEN
@@ -352,19 +416,19 @@
 !  Boundary corners.
 !-----------------------------------------------------------------------
 !
-      IF (SOUTHERN_EDGE.and.WESTERN_EDGE) THEN
+      IF (DOMAIN(ng)%SouthWest_Corner(tile)) THEN
         sfwat(0,0,linew)=0.5_r8*(sfwat(1,0,linew)+                      &
      &                         sfwat(0,1,linew))
       END IF
-      IF (SOUTHERN_EDGE.and.EASTERN_EDGE) THEN
+      IF (DOMAIN(ng)%SouthEast_Corner(tile)) THEN
         sfwat(Lm(ng)+1,0,linew)=0.5_r8*(sfwat(Lm(ng)+1,1,linew)+        &
      &                                sfwat(Lm(ng)  ,0,linew))
       END IF
-      IF (NORTHERN_EDGE.and.WESTERN_EDGE) THEN
+      IF (DOMAIN(ng)%NorthWest_Corner(tile)) THEN
         sfwat(0,Mm(ng)+1,linew)=0.5_r8*(sfwat(0,Mm(ng)  ,linew)+        &
      &                                sfwat(1,Mm(ng)+1,linew))
       END IF
-      IF (NORTHERN_EDGE.and.EASTERN_EDGE) THEN
+      IF (DOMAIN(ng)%NorthEast_Corner(tile)) THEN
         sfwat(Lm(ng)+1,Mm(ng)+1,linew)=0.5_r8*                          &
      &             (sfwat(Lm(ng)+1,Mm(ng)  ,linew)+                     &
      &              sfwat(Lm(ng)  ,Mm(ng)+1,linew))

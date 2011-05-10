@@ -144,19 +144,19 @@
 !
 !  Other parameters.
 !
-      integer, dimension(Ngrids) :: idays
-      integer, dimension(Ngrids) :: iyesterday
-      integer, dimension(Ngrids) :: iyears
-      integer, dimension(Ngrids) :: iyesteryear
+      integer, allocatable :: idays(:)
+      integer, allocatable :: iyesterday(:)
+      integer, allocatable :: iyears(:)
+      integer, allocatable :: iyesteryear(:)
 !
 !  Logical switches.
 !
-      logical, dimension(Ngrids) :: Lfish
+      logical, allocatable :: Lfish(:)
 # ifdef PREDATOR
-      logical, dimension(Ngrids) :: Lpred
+      logical, allocatable :: Lpred(:)
 # endif
 # ifdef FLEET
-      logical, dimension(Ngrids) :: Lfleet
+      logical, allocatable :: Lfleet(:)
 # endif
 
       CONTAINS
@@ -266,6 +266,21 @@
       allocate ( FISHES(ng) % age_base(Nspecies(ng)) ) 
 
       allocate ( FISHES(ng) % species_base(Nspecies(ng)) )
+
+      allocate ( idays(Ngrids) )
+      allocate ( iyesterday(Ngrids) )
+      allocate ( iyears(Ngrids) )
+      allocate ( iyesteryear(Ngrids) )
+!
+!  Logical switches.
+!
+      allocate ( Lfish(Ngrids) )
+# ifdef PREDATOR
+      allocate ( Lpred(Ngrids) )
+# endif
+# ifdef FLEET
+      allocate ( Lfleet(Ngrids) )
+# endif
 !
 !-----------------------------------------------------------------------
 !  Initialize module variables.

@@ -60,32 +60,34 @@
 # else
         gfactor=1
 # endif
+      DO ifile=1,nfile
 !
 !  Set time record index.
 !
-      tFILindx(ng)=filterLevel
-      NrecFIL(ng)=NrecFIL(ng)+1
+        FIL(ifile,ng)%Rindex=filterLevel
+        FIL(ifile,ng)%Nrec=FIL(ifile,ng)%Nrec+1
 !
 !  Write out model time (s).
 !
-      DO ifile=1,nfile
-        ncname=FILname(ifile,ng)
+        ncname=FIL(ifile,ng)%name
         CALL netcdf_put_ivar (ng, iNLM, ncname, 'filterLevel',          &
-     &                        tFILindx(ng), (/tFILindx(ng)/), (/1/),    &
-     &                        ncid = ncFILid(ifile,ng))
+     &                        FIL(ifile,ng)%Rindex,                     &
+     &                        (/FIL(ifile,ng)%Rindex/),                 &
+     &                        (/1/), ncid = FIL(ifile,ng)%ncid)
         IF (exit_flag.ne.NoError) RETURN
 !
 !  Write out averaged time.
 !
         CALL netcdf_put_fvar (ng, iNLM, ncname,                         &
      &                        TRIM(Vname(idtime,ng)), time(ng),         &
-     &                        (/tFILindx(ng)/), (/1/),                  &
-     &                        ncid = ncFILid(ifile,ng) )
+     &                        (/FIL(ifile,ng)%Rindex/), (/1/),          &
+     &                        ncid = FIL(ifile,ng)%ncid)
         IF (exit_flag.ne.NoError) RETURN
 
         CALL netcdf_put_ivar (ng, iNLM, ncname, 'fcount',               &
-     &                        fcount(tFILindx(ng)), (/tFILindx(ng)/),   &
-     &                        (/1/), ncid = ncFILid(ifile,ng))
+     &                        fcount(FIL(ifile,ng)%Rindex),             &
+     &                        (/FIL(ifile,ng)%Rindex/),                 &
+     &                        (/1/), ncid = FIL(ifile,ng)%ncid)
         IF (exit_flag.ne.NoError) RETURN
       END DO
 !
@@ -94,16 +96,17 @@
       IF (Aout(idFsur,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncFILid(1,ng), filVid(idFsur,ng),  &
-     &                 tFILindx(ng), gtype,                             &
+        status=nf_fwrite2d(ng, iNLM, FIL(1,ng)%ncid,                    &
+     &                 FIL(1,ng)%Vid(idFsur),                           &
+     &                 FIL(1,ng)%Rindex, gtype,                         &
      &                 LBi, UBi, LBj, UBj, scale,                       &
 # ifdef MASKING
      &                 GRID(ng) % rmask,                                &
 # endif
-     &                 FILTER(ng) % filzeta(:,:,tFILindx(ng)))
+     &                 FILTER(ng) % filzeta(:,:,FIL(1,ng)%Rindex))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idFsur)), tFILindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idFsur)), FIL(1,ng)%Rindex
             PRINT *, trim(nf90_strerror(status))
           END IF
           exit_flag=3
@@ -117,16 +120,17 @@
       IF (Aout(idUbar,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*u2dvar
-        status=nf_fwrite2d(ng, iNLM, ncFILid(1,ng), filVid(idUbar,ng),  &
-     &                 tFILindx(ng), gtype,                             &
+        status=nf_fwrite2d(ng, iNLM, FIL(1,ng)%ncid,                    &
+     &                 FIL(1,ng)%Vid(idUbar),                           &
+     &                 FIL(1,ng)%Rindex, gtype,                         &
      &                 LBi, UBi, LBj, UBj, scale,                       &
 # ifdef MASKING
      &                 GRID(ng) % umask,                                &
 # endif
-     &                 FILTER(ng) % filu2d(:,:,tFILindx(ng)))
+     &                 FILTER(ng) % filu2d(:,:,FIL(1,ng)%Rindex))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idUbar)), tFILindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idUbar)), FIL(1,ng)%Rindex
             PRINT *, trim(nf90_strerror(status))
           END IF
           exit_flag=3
@@ -140,16 +144,17 @@
       IF (Aout(idVbar,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*v2dvar
-        status=nf_fwrite2d(ng, iNLM, ncFILid(1,ng), filVid(idVbar,ng),  &
-     &                 tFILindx(ng), gtype,                             &
+        status=nf_fwrite2d(ng, iNLM, FIL(1,ng)%ncid,                    &
+     &                 FIL(1,ng)%Vid(idVbar),                           &
+     &                 FIL(1,ng)%Rindex, gtype,                         &
      &                 LBi, UBi, LBj, UBj, scale,                       &
 # ifdef MASKING
      &                 GRID(ng) % vmask,                                &
 # endif
-     &                 FILTER(ng) % filv2d(:,:,tFILindx(ng)))
+     &                 FILTER(ng) % filv2d(:,:,FIL(1,ng)%Rindex))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idVbar)), tFILindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idVbar)), FIL(1,ng)%Rindex
             PRINT *, trim(nf90_strerror(status))
           END IF
           exit_flag=3
@@ -164,16 +169,17 @@
       IF (Aout(idUvel,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*u3dvar
-        status=nf_fwrite3d(ng, iNLM, ncFILid(2,ng), filVid(idUvel,ng),  &
-     &                 tFILindx(ng), gtype,                             &
+        status=nf_fwrite3d(ng, iNLM, FIL(2,ng)%ncid,                    &
+     &                 FIL(2,ng)%Vid(idUvel),                           &
+     &                 FIL(2,ng)%Rindex, gtype,                         &
      &                 LBi, UBi, LBj, UBj, 1, N(ng), scale,             &
 #  ifdef MASKING
      &                 GRID(ng) % umask,                                &
 #  endif
-     &                 FILTER(ng) % filu3d(:,:,:,tFILindx(ng)))
+     &                 FILTER(ng) % filu3d(:,:,:,FIL(2,ng)%Rindex))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idUvel)), tFILindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idUvel)), FIL(2,ng)%Rindex
             PRINT *, trim(nf90_strerror(status))
           END IF
           exit_flag=3
@@ -187,16 +193,17 @@
       IF (Aout(idVvel,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*v3dvar
-        status=nf_fwrite3d(ng, iNLM, ncFILid(3,ng), filVid(idVvel,ng),  &
-     &                 tFILindx(ng), gtype,                             &
+        status=nf_fwrite3d(ng, iNLM, FIL(3,ng)%ncid,                    &
+     &                 FIL(3,ng)%Vid(idVvel),                           &
+     &                 FIL(3,ng)%Rindex, gtype,                         &
      &                 LBi, UBi, LBj, UBj, 1, N(ng), scale,             &
 #  ifdef MASKING
      &                 GRID(ng) % vmask,                                &
 #  endif
-     &                 FILTER(ng) % filv3d(:,:,:,tFILindx(ng)))
+     &                 FILTER(ng) % filv3d(:,:,:,FIL(3,ng)%Rindex))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idVvel)), tFILindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idVvel)), FIL(3,ng)%Rindex
             PRINT *, trim(nf90_strerror(status))
           END IF
           exit_flag=3
@@ -210,16 +217,17 @@
       IF (Aout(idDano,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r3dvar
-        status=nf_fwrite3d(ng, iNLM, ncFILid(7,ng), filVid(idDano,ng),  &
-     &                 tFILindx(ng), gtype,                             &
+        status=nf_fwrite3d(ng, iNLM, FIL(7,ng)%ncid,                    &
+     &                 FIL(7,ng)%Vid(idDano),                           &
+     &                 FIL(7,ng)%Rindex, gtype,                         &
      &                 LBi, UBi, LBj, UBj, 1, N(ng), scale,             &
 #  ifdef MASKING
      &                 GRID(ng) % rmask,                                &
 #  endif
-     &                 FILTER(ng) % filrho(:,:,:,tFILindx(ng)))
+     &                 FILTER(ng) % filrho(:,:,:,FIL(7,ng)%Rindex))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idDano)), tFILindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idDano)), FIL(7,ng)%Rindex
             PRINT *, trim(nf90_strerror(status))
           END IF
           exit_flag=3
@@ -234,16 +242,18 @@
         IF (Aout(idTvar(itrc),ng)) THEN
           scale=1.0_r8
           gtype=gfactor*r3dvar
-          status=nf_fwrite3d(ng, iNLM, ncFILid(8,ng), filTid(itrc,ng),  &
-     &                   tFILindx(ng), gtype,                           &
+          status=nf_fwrite3d(ng, iNLM, FIL(8,ng)%ncid,                  &
+     &                   FIL(8,ng)%Tid(itrc),                           &
+     &                   FIL(8,ng)%Rindex, gtype,                       &
      &                   LBi, UBi, LBj, UBj, 1, N(ng), scale,           &
 #  ifdef MASKING
      &                   GRID(ng) % rmask,                              &
 #  endif
-     &                   FILTER(ng) % filt(:,:,:,itrc,tFILindx(ng)))
+     &                   FILTER(ng) % filt(:,:,:,itrc,FIL(8,ng)%Rindex))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,10) TRIM(Vname(1,idTvar(itrc))), tFILindx(ng)
+              WRITE (stdout,10) TRIM(Vname(1,idTvar(itrc))),            &
+     &                   FIL(8,ng)%Rindex
               PRINT *, trim(nf90_strerror(status))
             END IF
             exit_flag=3
@@ -258,16 +268,17 @@
       IF (Aout(idOvel,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*w3dvar
-        status=nf_fwrite3d(ng, iNLM, ncFILid(9,ng), filVid(idOvel,ng),  &
-     &                 tFILindx(ng), gtype,                             &
+        status=nf_fwrite3d(ng, iNLM, FIL(9,ng)%ncid,                    &
+     &                 FIL(9,ng)%Vid(idOvel),                           &
+     &                 FIL(9,ng)%Rindex, gtype,                         &
      &                 LBi, UBi, LBj, UBj, 0, N(ng), scale,             &
 #  ifdef MASKING
      &                 GRID(ng) % rmask,                                &
 #  endif
-     &                 FILTER(ng) % filw3d(:,:,:,tFILindx(ng)))
+     &                 FILTER(ng) % filw3d(:,:,:,FIL(9,ng)%Rindex))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idOvel)), tFILindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idOvel)), FIL(9,ng)%Rindex
             PRINT *, trim(nf90_strerror(status))
           END IF
           exit_flag=3
@@ -282,16 +293,17 @@
       IF (Aout(idHsbl,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncFILid(1,ng), filVid(idHsbl,ng),  &
-     &                 tFILindx(ng), gtype,                             &
+        status=nf_fwrite2d(ng, iNLM, FIL(1,ng)%ncid,                    &
+     &                 FIL(1,ng)%Vid(idHsbl),                           &
+     &                 FIL(1,ng)%Rindex, gtype,                         &
      &                 LBi, UBi, LBj, UBj, scale,                       &
 #   ifdef MASKING
      &                 GRID(ng) % rmask,                                &
 #   endif
-     &                 FILTER(ng) % filhsbl(:,:,tFILindx(ng)))
+     &                 FILTER(ng) % filhsbl(:,:,FIL(1,ng)%Rindex))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idHsbl)), tFILindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idHsbl)), FIL(1,ng)%Rindex
             PRINT *, trim(nf90_strerror(status))
           END IF
           exit_flag=3
@@ -307,16 +319,17 @@
       IF (Aout(idHbbl,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncFILid(1,ng), filVid(idHbbl,ng),  &
-     &                 tFILindx(ng), gtype,                             &
+        status=nf_fwrite2d(ng, iNLM, FIL(1,ng)%ncid,                    &
+     &                 FIL(1,ng)%Vid(idHbbl),                           &
+     &                 FIL(1,ng)%Rindex, gtype,                         &
      &                 LBi, UBi, LBj, UBj, scale,                       &
 #   ifdef MASKING
      &                 GRID(ng) % rmask,                                &
 #   endif
-     &                 FILTER(ng) % filhbbl(:,:,tFILindx(ng)))
+     &                 FILTER(ng) % filhbbl(:,:,FIL(1,ng)%Rindex))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idHbbl)), tFILindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idHbbl)), FIL(1,ng)%Rindex
             PRINT *, trim(nf90_strerror(status))
           END IF
           exit_flag=3
@@ -331,16 +344,17 @@
       IF (Aout(idVvis,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r3dvar
-        status=nf_fwrite3d(ng, iNLM, ncFILid(6,ng), filVid(idVvis,ng),  &
-     &                 tFILindx(ng), gtype,                             &
+        status=nf_fwrite3d(ng, iNLM, FIL(6,ng)%ncid,                    &
+     &                 FIL(6,ng)%Vid(idVvis),                           &
+     &                 FIL(6,ng)%Rindex, gtype,                         &
      &                 LBi, UBi, LBj, UBj, 0, N(ng), scale,             &
 #   ifdef MASKING
      &                 GRID(ng) % rmask,                                &
 #   endif
-     &                 FILTER(ng) % filAKv(:,:,:,tFILindx(ng)))
+     &                 FILTER(ng) % filAKv(:,:,:,FIL(6,ng)%Rindex))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idVvis)), tFILindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idVvis)), FIL(6,ng)%Rindex
             PRINT *, trim(nf90_strerror(status))
           END IF
           exit_flag=3
@@ -354,16 +368,17 @@
       IF (Aout(idTdif,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r3dvar
-        status=nf_fwrite3d(ng, iNLM, ncFILid(4,ng), filVid(idTdif,ng),  &
-     &                 tFILindx(ng), gtype,                             &
+        status=nf_fwrite3d(ng, iNLM, FIL(4,ng)%ncid,                    &
+     &                 FIL(4,ng)%Vid(idTdif),                           &
+     &                 FIL(4,ng)%Rindex, gtype,                         &
      &                 LBi, UBi, LBj, UBj, 0, N(ng), scale,             &
 #  ifdef MASKING
      &                 GRID(ng) % rmask,                                &
 #  endif
-     &                 FILTER(ng) % filAKt(:,:,:,tFILindx(ng)))
+     &                 FILTER(ng) % filAKt(:,:,:,FIL(4,ng)%Rindex))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idTdif)), tFILindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idTdif)), FIL(4,ng)%Rindex
             PRINT *, trim(nf90_strerror(status))
           END IF
           exit_flag=3
@@ -377,16 +392,17 @@
       IF (Aout(idSdif,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r3dvar
-        status=nf_fwrite3d(ng, iNLM, ncFILid(5,ng), filVid(idSdif,ng),  &
-     &                 tFILindx(ng), gtype,                             &
+        status=nf_fwrite3d(ng, iNLM, FIL(5,ng)%ncid,                    &
+     &                 FIL(5,ng)%Vid(idSdif),                           &
+     &                 FIL(5,ng)%Rindex, gtype,                         &
      &                 LBi, UBi, LBj, UBj, 0, N(ng), scale,             &
 #  ifdef MASKING
      &                 GRID(ng) % rmask,                                &
 #  endif
-     &                 FILTER(ng) % filAKs(:,:,:,tFILindx(ng)))
+     &                 FILTER(ng) % filAKs(:,:,:,FIL(5,ng)%Rindex))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idSdif)), tFILindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idSdif)), FIL(5,ng)%Rindex
             PRINT *, trim(nf90_strerror(status))
           END IF
           exit_flag=3
@@ -400,17 +416,18 @@
       IF (Aout(idTsur(itemp),ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncFILid(1,ng),                     &
-     &                 filVid(idTsur(itemp),ng),                        &
-     &                 tFILindx(ng), gtype,                             &
+        status=nf_fwrite2d(ng, iNLM, FIL(1,ng)%ncid,                    &
+     &                 FIL(1,ng)%Vid(idTsur(itemp)),                    &
+     &                 FIL(1,ng)%Rindex, gtype,                         &
      &                 LBi, UBi, LBj, UBj, scale,                       &
 #  ifdef MASKING
      &                 GRID(ng) % rmask,                                &
 #  endif
-     &                 FILTER(ng) % filstf(:,:,tFILindx(ng)))
+     &                 FILTER(ng) % filstf(:,:,FIL(1,ng)%Rindex))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idTsur(itemp))), tFILindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idTsur(itemp))),             &
+     &                 FIL(1,ng)%Rindex
             PRINT *, trim(nf90_strerror(status))
           END IF
           exit_flag=3
@@ -424,17 +441,18 @@
       IF (Aout(idTsur(isalt),ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncFILid(1,ng),                     &
-     &                 filVid(idTsur(isalt),ng),                        &
-     &                 tFILindx(ng), gtype,                             &
+        status=nf_fwrite2d(ng, iNLM, FIL(1,ng)%ncid,                    &
+     &                 FIL(1,ng)%Vid(idTsur(isalt)),                    &
+     &                 FIL(1,ng)%Rindex, gtype,                         &
      &                 LBi, UBi, LBj, UBj, scale,                       &
 #  ifdef MASKING
      &                 GRID(ng) % rmask,                                &
 #  endif
-     &                 FILTER(ng) % filswf(:,:,tFILindx(ng)))
+     &                 FILTER(ng) % filswf(:,:,FIL(1,ng)%Rindex))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idTsur(isalt))), tFILindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idTsur(isalt))),             &
+     &                 FIL(1,ng)%Rindex
             PRINT *, trim(nf90_strerror(status))
           END IF
           exit_flag=3
@@ -449,16 +467,17 @@
       IF (Aout(idLhea,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncFILid(1,ng), filVid(idLhea,ng),  &
-     &                 tFILindx(ng), gtype,                             &
+        status=nf_fwrite2d(ng, iNLM, FIL(1,ng)%ncid,                    &
+     &                 FIL(1,ng)%Vid(idLhea),                           &
+     &                 FIL(1,ng)%Rindex, gtype,                         &
      &                 LBi, UBi, LBj, UBj, scale,                       &
 #   ifdef MASKING
      &                 GRID(ng) % rmask,                                &
 #   endif
-     &                 FILTER(ng) % fillhf(:,:,tFILindx(ng)))
+     &                 FILTER(ng) % fillhf(:,:,FIL(1,ng)%Rindex))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idLhea)), tFILindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idLhea)), FIL(1,ng)%Rindex
             PRINT *, trim(nf90_strerror(status))
           END IF
           exit_flag=3
@@ -472,16 +491,17 @@
       IF (Aout(idShea,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncFILid(1,ng), filVid(idShea,ng),  &
-     &                 tFILindx(ng), gtype,                             &
+        status=nf_fwrite2d(ng, iNLM, FIL(1,ng)%ncid,                    &
+     &                 FIL(1,ng)%Vid(idShea),                           &
+     &                 FIL(1,ng)%Rindex, gtype,                         &
      &                 LBi, UBi, LBj, UBj, scale,                       &
 #   ifdef MASKING
      &                 GRID(ng) % rmask,                                &
 #   endif
-     &                 FILTER(ng) % filshf(:,:,tFILindx(ng)))
+     &                 FILTER(ng) % filshf(:,:,FIL(1,ng)%Rindex))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idShea)), tFILindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idShea)), FIL(1,ng)%Rindex
             PRINT *, trim(nf90_strerror(status))
           END IF
           exit_flag=3
@@ -495,16 +515,17 @@
       IF (Aout(idLrad,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncFILid(1,ng), filVid(idLrad,ng),  &
-     &                 tFILindx(ng), gtype,                             &
+        status=nf_fwrite2d(ng, iNLM, FIL(1,ng)%ncid,                    &
+     &                 FIL(1,ng)%Vid(idLrad),                           &
+     &                 FIL(1,ng)%Rindex, gtype,                         &
      &                 LBi, UBi, LBj, UBj, scale,                       &
 #   ifdef MASKING
      &                 GRID(ng) % rmask,                                &
 #   endif
-     &                 FILTER(ng) % fillrf(:,:,tFILindx(ng)))
+     &                 FILTER(ng) % fillrf(:,:,FIL(1,ng)%Rindex))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idLrad)), tFILindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idLrad)), FIL(1,ng)%Rindex
             PRINT *, trim(nf90_strerror(status))
           END IF
           exit_flag=3
@@ -520,16 +541,17 @@
       IF (Aout(idSrad,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncFILid(1,ng), filVid(idSrad,ng),  &
-     &                 tFILindx(ng), gtype,                             &
+        status=nf_fwrite2d(ng, iNLM, FIL(1,ng)%ncid,                    &
+     &                 FIL(1,ng)%Vid(idSrad),                           &
+     &                 FIL(1,ng)%Rindex, gtype,                         &
      &                 LBi, UBi, LBj, UBj, scale,                       &
 #   ifdef MASKING
      &                 GRID(ng) % rmask,                                &
 #   endif
-     &                 FILTER(ng) % filsrf(:,:,tFILindx(ng)))
+     &                 FILTER(ng) % filsrf(:,:,FIL(1,ng)%Rindex))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idSrad)), tFILindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idSrad)), FIL(1,ng)%Rindex
             PRINT *, trim(nf90_strerror(status))
           END IF
           exit_flag=3
@@ -545,16 +567,17 @@
       IF (Aout(idUsms,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*u2dvar
-        status=nf_fwrite2d(ng, iNLM, ncFILid(1,ng), filVid(idUsms,ng),  &
-     &                 tFILindx(ng), gtype,                             &
+        status=nf_fwrite2d(ng, iNLM, FIL(1,ng)%ncid,                    &
+     &                 FIL(1,ng)%Vid(idUsms),                           &
+     &                 FIL(1,ng)%Rindex, gtype,                         &
      &                 LBi, UBi, LBj, UBj, scale,                       &
 # ifdef MASKING
      &                 GRID(ng) % umask,                                &
 # endif
-     &                 FILTER(ng) % filsus(:,:,tFILindx(ng)))
+     &                 FILTER(ng) % filsus(:,:,FIL(1,ng)%Rindex))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idUsms)), tFILindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idUsms)), FIL(1,ng)%Rindex
             PRINT *, trim(nf90_strerror(status))
           END IF
           exit_flag=3
@@ -568,16 +591,17 @@
       IF (Aout(idVsms,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*v2dvar
-        status=nf_fwrite2d(ng, iNLM, ncFILid(1,ng), filVid(idVsms,ng),  &
-     &                 tFILindx(ng), gtype,                             &
+        status=nf_fwrite2d(ng, iNLM, FIL(1,ng)%ncid,                    &
+     &                 FIL(1,ng)%Vid(idVsms),                           &
+     &                 FIL(1,ng)%Rindex, gtype,                         &
      &                 LBi, UBi, LBj, UBj, scale,                       &
 # ifdef MASKING
      &                 GRID(ng) % vmask,                                &
 # endif
-     &                 FILTER(ng) % filsvs(:,:,tFILindx(ng)))
+     &                 FILTER(ng) % filsvs(:,:,FIL(1,ng)%Rindex))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idVsms)), tFILindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idVsms)), FIL(1,ng)%Rindex
             PRINT *, trim(nf90_strerror(status))
           END IF
           exit_flag=3
@@ -592,16 +616,17 @@
       IF (Aout(idUice,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*u2dvar
-        status=nf_fwrite2d(ng, iNLM, ncFILid(10,ng), filVid(idUice,ng), &
-     &                 tFILindx(ng), gtype,                             &
+        status=nf_fwrite2d(ng, iNLM, FIL(10,ng)%ncid,                   &
+     &                 FIL(10,ng)%Vid(idUice),                          &
+     &                 FIL(10,ng)%Rindex, gtype,                        &
      &                 LBi, UBi, LBj, UBj, scale,                       &
 #  ifdef MASKING
      &                 GRID(ng) % umask,                                &
 #  endif
-     &                 FILTER(ng) % filui(:,:,tFILindx(ng)))
+     &                 FILTER(ng) % filui(:,:,FIL(10,ng)%Rindex))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idUice)), tFILindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idUice)), FIL(10,ng)%Rindex
             PRINT *, trim(nf90_strerror(status))
           END IF
           exit_flag=3
@@ -615,16 +640,17 @@
       IF (Aout(idVice,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*v2dvar
-        status=nf_fwrite2d(ng, iNLM, ncFILid(10,ng), filVid(idVice,ng), &
-     &                 tFILindx(ng), gtype,                             &
+        status=nf_fwrite2d(ng, iNLM, FIL(10,ng)%ncid,                   &
+     &                 FIL(10,ng)%Vid(idVice),                          &
+     &                 FIL(10,ng)%Rindex, gtype,                        &
      &                 LBi, UBi, LBj, UBj, scale,                       &
 #  ifdef MASKING
      &                 GRID(ng) % vmask,                                &
 #  endif
-     &                 FILTER(ng) % filvi(:,:,tFILindx(ng)))
+     &                 FILTER(ng) % filvi(:,:,FIL(10,ng)%Rindex))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idVice)), tFILindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idVice)), FIL(10,ng)%Rindex
             PRINT *, trim(nf90_strerror(status))
           END IF
           exit_flag=3
@@ -638,16 +664,17 @@
       IF (Aout(idAice,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncFILid(10,ng), filVid(idAice,ng), &
-     &                 tFILindx(ng), gtype,                             &
+        status=nf_fwrite2d(ng, iNLM, FIL(10,ng)%ncid,                   &
+     &                 FIL(10,ng)%Vid(idAice),                          &
+     &                 FIL(10,ng)%Rindex, gtype,                        &
      &                 LBi, UBi, LBj, UBj, scale,                       &
 #  ifdef MASKING
      &                 GRID(ng) % rmask,                                &
 #  endif
-     &                 FILTER(ng) % filai(:,:,tFILindx(ng)))
+     &                 FILTER(ng) % filai(:,:,FIL(10,ng)%Rindex))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idAice)), tFILindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idAice)), FIL(10,ng)%Rindex
             PRINT *, trim(nf90_strerror(status))
           END IF
           exit_flag=3
@@ -661,16 +688,17 @@
       IF (Aout(idHice,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncFILid(10,ng), filVid(idHice,ng), &
-     &                 tFILindx(ng), gtype,                             &
+        status=nf_fwrite2d(ng, iNLM, FIL(10,ng)%ncid,                   &
+     &                 FIL(10,ng)%Vid(idHice),                          &
+     &                 FIL(10,ng)%Rindex, gtype,                        &
      &                 LBi, UBi, LBj, UBj, scale,                       &
 #  ifdef MASKING
      &                 GRID(ng) % rmask,                                &
 #  endif
-     &                 FILTER(ng) % filhi(:,:,tFILindx(ng)))
+     &                 FILTER(ng) % filhi(:,:,FIL(10,ng)%Rindex))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idHice)), tFILindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idHice)), FIL(10,ng)%Rindex
             PRINT *, trim(nf90_strerror(status))
           END IF
           exit_flag=3
@@ -684,16 +712,17 @@
       IF (Aout(idHsno,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncFILid(10,ng), filVid(idHsno,ng), &
-     &                 tFILindx(ng), gtype,                             &
+        status=nf_fwrite2d(ng, iNLM, FIL(10,ng)%ncid,                   &
+     &                 FIL(10,ng)%Vid(idHsno),                          &
+     &                 FIL(10,ng)%Rindex, gtype,                        &
      &                 LBi, UBi, LBj, UBj, scale,                       &
 #  ifdef MASKING
      &                 GRID(ng) % rmask,                                &
 #  endif
-     &                 FILTER(ng) % filhsn(:,:,tFILindx(ng)))
+     &                 FILTER(ng) % filhsn(:,:,FIL(10,ng)%Rindex))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idHsno)), tFILindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idHsno)), FIL(10,ng)%Rindex
             PRINT *, trim(nf90_strerror(status))
           END IF
           exit_flag=3
@@ -707,16 +736,17 @@
       IF (Aout(idSfwat,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncFILid(10,ng), filVid(idSfwat,ng),&
-     &                 tFILindx(ng), gtype,                             &
+        status=nf_fwrite2d(ng, iNLM, FIL(10,ng)%ncid,                   &
+     &                 FIL(10,ng)%Vid(idSfwat),                         &
+     &                 FIL(10,ng)%Rindex, gtype,                        &
      &                 LBi, UBi, LBj, UBj, scale,                       &
 #  ifdef MASKING
      &                 GRID(ng) % rmask,                                &
 #  endif
-     &                 FILTER(ng) % filsfwat(:,:,tFILindx(ng)))
+     &                 FILTER(ng) % filsfwat(:,:,FIL(10,ng)%Rindex))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idSfwat)), tFILindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idSfwat)), FIL(10,ng)%Rindex
             PRINT *, trim(nf90_strerror(status))
           END IF
           exit_flag=3
@@ -730,16 +760,17 @@
       IF (Aout(idTice,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncFILid(10,ng), filVid(idTice,ng), &
-     &                 tFILindx(ng), gtype,                             &
+        status=nf_fwrite2d(ng, iNLM, FIL(10,ng)%ncid,                   &
+     &                 FIL(10,ng)%Vid(idTice),                          &
+     &                 FIL(10,ng)%Rindex, gtype,                        &
      &                 LBi, UBi, LBj, UBj, scale,                       &
 #  ifdef MASKING
      &                 GRID(ng) % rmask,                                &
 #  endif
-     &                 FILTER(ng) % filtis(:,:,tFILindx(ng)))
+     &                 FILTER(ng) % filtis(:,:,FIL(10,ng)%Rindex))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idTice)), tFILindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idTice)), FIL(10,ng)%Rindex
             PRINT *, trim(nf90_strerror(status))
           END IF
           exit_flag=3
@@ -753,16 +784,17 @@
       IF (Aout(idTimid,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncFILid(10,ng), filVid(idTimid,ng),&
-     &                 tFILindx(ng), gtype,                             &
+        status=nf_fwrite2d(ng, iNLM, FIL(10,ng)%ncid,                   &
+     &                 FIL(10,ng)%Vid(idTimid),                         &
+     &                 FIL(10,ng)%Rindex, gtype,                        &
      &                 LBi, UBi, LBj, UBj, scale,                       &
 #  ifdef MASKING
      &                 GRID(ng) % rmask,                                &
 #  endif
-     &                 FILTER(ng) % filti(:,:,tFILindx(ng)))
+     &                 FILTER(ng) % filti(:,:,FIL(10,ng)%Rindex))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idTimid)), tFILindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idTimid)), FIL(10,ng)%Rindex
             PRINT *, trim(nf90_strerror(status))
           END IF
           exit_flag=3
@@ -776,17 +808,17 @@
       IF (Aout(idAgeice,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncFILid(10,ng),                    &
-     &                 filVid(idAgeice,ng), &
-     &                 tFILindx(ng), gtype,                             &
+        status=nf_fwrite2d(ng, iNLM, FIL(10,ng)%ncid,                   &
+     &                 FIL(10,ng)%Vid(idAgeice),                        &
+     &                 FIL(10,ng)%Rindex, gtype,                        &
      &                 LBi, UBi, LBj, UBj, scale,                       &
 #  ifdef MASKING
      &                 GRID(ng) % rmask,                                &
 #  endif
-     &                 FILTER(ng) % filAgeice(:,:,tFILindx(ng)))
+     &                 FILTER(ng) % filAgeice(:,:,FIL(10,ng)%Rindex))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idAgeice)), tFILindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idAgeice)), FIL(10,ng)%Rindex
             PRINT *, trim(nf90_strerror(status))
           END IF
           exit_flag=3
@@ -800,16 +832,17 @@
       IF (Aout(idS0mk,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncFILid(10,ng), filVid(idS0mk,ng), &
-     &                 tFILindx(ng), gtype,                             &
+        status=nf_fwrite2d(ng, iNLM, FIL(10,ng)%ncid,                   &
+     &                 FIL(10,ng)%Vid(idS0mk),                          &
+     &                 FIL(10,ng)%Rindex, gtype,                        &
      &                 LBi, UBi, LBj, UBj, scale,                       &
 #  ifdef MASKING
      &                 GRID(ng) % rmask,                                &
 #  endif
-     &                 FILTER(ng) % fils0mk(:,:,tFILindx(ng)))
+     &                 FILTER(ng) % fils0mk(:,:,FIL(10,ng)%Rindex))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idS0mk)), tFILindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idS0mk)), FIL(10,ng)%Rindex
             PRINT *, trim(nf90_strerror(status))
           END IF
           exit_flag=3
@@ -823,16 +856,17 @@
       IF (Aout(idT0mk,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncFILid(10,ng), filVid(idT0mk,ng), &
-     &                 tFILindx(ng), gtype,                             &
+        status=nf_fwrite2d(ng, iNLM, FIL(10,ng)%ncid,                   &
+     &                 FIL(10,ng)%Vid(idT0mk),                          &
+     &                 FIL(10,ng)%Rindex, gtype,                        &
      &                 LBi, UBi, LBj, UBj, scale,                       &
 #  ifdef MASKING
      &                 GRID(ng) % rmask,                                &
 #  endif
-     &                 FILTER(ng) % filt0mk(:,:,tFILindx(ng)))
+     &                 FILTER(ng) % filt0mk(:,:,FIL(10,ng)%Rindex))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idT0mk)), tFILindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idT0mk)), FIL(10,ng)%Rindex
             PRINT *, trim(nf90_strerror(status))
           END IF
           exit_flag=3
@@ -846,16 +880,17 @@
       IF (Aout(idWfr,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncFILid(10,ng), filVid(idWfr,ng),  &
-     &                 tFILindx(ng), gtype,                             &
+        status=nf_fwrite2d(ng, iNLM, FIL(10,ng)%ncid,                   &
+     &                 FIL(10,ng)%Vid(idWfr),                            &
+     &                 FIL(10,ng)%Rindex, gtype,                        &
      &                 LBi, UBi, LBj, UBj, scale,                       &
 #  ifdef MASKING
      &                 GRID(ng) % rmask,                                &
 #  endif
-     &                 FILTER(ng) % filWfr(:,:,tFILindx(ng)))
+     &                 FILTER(ng) % filWfr(:,:,FIL(10,ng)%Rindex))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idWfr)), tFILindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idWfr)), FIL(10,ng)%Rindex
             PRINT *, trim(nf90_strerror(status))
           END IF
           exit_flag=3
@@ -869,16 +904,17 @@
       IF (Aout(idWai,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncFILid(10,ng), filVid(idWai,ng),  &
-     &                 tFILindx(ng), gtype,                             &
+        status=nf_fwrite2d(ng, iNLM, FIL(10,ng)%ncid,                   &
+     &                 FIL(10,ng)%Vid(idWai),                           &
+     &                 FIL(10,ng)%Rindex, gtype,                        &
      &                 LBi, UBi, LBj, UBj, scale,                       &
 #  ifdef MASKING
      &                 GRID(ng) % rmask,                                &
 #  endif
-     &                 FILTER(ng) % filWai(:,:,tFILindx(ng)))
+     &                 FILTER(ng) % filWai(:,:,FIL(10,ng)%Rindex))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idWai)), tFILindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idWai)), FIL(10,ng)%Rindex
             PRINT *, trim(nf90_strerror(status))
           END IF
           exit_flag=3
@@ -892,16 +928,17 @@
       IF (Aout(idWao,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncFILid(10,ng), filVid(idWao,ng),  &
-     &                 tFILindx(ng), gtype,                             &
+        status=nf_fwrite2d(ng, iNLM, FIL(10,ng)%ncid,                   &
+     &                 FIL(10,ng)%Vid(idWao),                            &
+     &                 FIL(10,ng)%Rindex, gtype,                        &
      &                 LBi, UBi, LBj, UBj, scale,                       &
 #  ifdef MASKING
      &                 GRID(ng) % rmask,                                &
 #  endif
-     &                 FILTER(ng) % filWao(:,:,tFILindx(ng)))
+     &                 FILTER(ng) % filWao(:,:,FIL(10,ng)%Rindex))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idWao)), tFILindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idWao)), FIL(10,ng)%Rindex
             PRINT *, trim(nf90_strerror(status))
           END IF
           exit_flag=3
@@ -915,16 +952,17 @@
       IF (Aout(idWio,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncFILid(10,ng), filVid(idWio,ng),  &
-     &                 tFILindx(ng), gtype,                             &
+        status=nf_fwrite2d(ng, iNLM, FIL(10,ng)%ncid,                   &
+     &                 FIL(10,ng)%Vid(idWio),                           &
+     &                 FIL(10,ng)%Rindex, gtype,                        &
      &                 LBi, UBi, LBj, UBj, scale,                       &
 #  ifdef MASKING
      &                 GRID(ng) % rmask,                                &
 #  endif
-     &                 FILTER(ng) % filWio(:,:,tFILindx(ng)))
+     &                 FILTER(ng) % filWio(:,:,FIL(10,ng)%Rindex))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idWio)), tFILindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idWio)), FIL(10,ng)%Rindex
             PRINT *, trim(nf90_strerror(status))
           END IF
           exit_flag=3
@@ -938,16 +976,17 @@
       IF (Aout(idWro,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncFILid(10,ng), filVid(idWro,ng),  &
-     &                 tFILindx(ng), gtype,                             &
+        status=nf_fwrite2d(ng, iNLM, FIL(10,ng)%ncid,                   &
+     &                 FIL(10,ng)%Vid(idWro),                           &
+     &                 FIL(10,ng)%Rindex, gtype,                        &
      &                 LBi, UBi, LBj, UBj, scale,                       &
 #  ifdef MASKING
      &                 GRID(ng) % rmask,                                &
 #  endif
-     &                 FILTER(ng) % filWro(:,:,tFILindx(ng)))
+     &                 FILTER(ng) % filWro(:,:,FIL(10,ng)%Rindex))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idWro)), tFILindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idWro)), FIL(10,ng)%Rindex
             PRINT *, trim(nf90_strerror(status))
           END IF
           exit_flag=3
@@ -961,16 +1000,17 @@
       IF (Aout(idSig11,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncFILid(10,ng), filVid(idSig11,ng),&
-     &                 tFILindx(ng), gtype,                             &
+        status=nf_fwrite2d(ng, iNLM, FIL(10,ng)%ncid,                   &
+     &                 FIL(10,ng)%Vid(idSig11),                         &
+     &                 FIL(10,ng)%Rindex, gtype,                        &
      &                 LBi, UBi, LBj, UBj, scale,                       &
 #  ifdef MASKING
      &                 GRID(ng) % rmask,                                &
 #  endif
-     &                 FILTER(ng) % filsig11(:,:,tFILindx(ng)))
+     &                 FILTER(ng) % filsig11(:,:,FIL(10,ng)%Rindex))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idSig11)), tFILindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idSig11)), FIL(10,ng)%Rindex
             PRINT *, trim(nf90_strerror(status))
           END IF
           exit_flag=3
@@ -984,16 +1024,17 @@
       IF (Aout(idSig12,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncFILid(10,ng), filVid(idSig12,ng),&
-     &                 tFILindx(ng), gtype,                             &
+        status=nf_fwrite2d(ng, iNLM, FIL(10,ng)%ncid,                   &
+     &                 FIL(10,ng)%Vid(idSig12),                         &
+     &                 FIL(10,ng)%Rindex, gtype,                        &
      &                 LBi, UBi, LBj, UBj, scale,                       &
 #  ifdef MASKING
      &                 GRID(ng) % rmask,                                &
 #  endif
-     &                 FILTER(ng) % filsig12(:,:,tFILindx(ng)))
+     &                 FILTER(ng) % filsig12(:,:,FIL(10,ng)%Rindex))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idSig12)), tFILindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idSig12)), FIL(10,ng)%Rindex
             PRINT *, trim(nf90_strerror(status))
           END IF
           exit_flag=3
@@ -1007,16 +1048,17 @@
       IF (Aout(idSig22,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncFILid(10,ng), filVid(idSig22,ng),&
-     &                 tFILindx(ng), gtype,                             &
+        status=nf_fwrite2d(ng, iNLM, FIL(10,ng)%ncid,                   &
+     &                 FIL(10,ng)%Vid(idSig22),                         &
+     &                 FIL(10,ng)%Rindex, gtype,                        &
      &                 LBi, UBi, LBj, UBj, scale,                       &
 #  ifdef MASKING
      &                 GRID(ng) % rmask,                                &
 #  endif
-     &                 FILTER(ng) % filsig22(:,:,tFILindx(ng)))
+     &                 FILTER(ng) % filsig22(:,:,FIL(10,ng)%Rindex))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idSig22)), tFILindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idSig22)), FIL(10,ng)%Rindex
             PRINT *, trim(nf90_strerror(status))
           END IF
           exit_flag=3
@@ -1030,17 +1072,17 @@
       IF (Aout(idIomflx,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncFILid(10,ng),                    &
-     &                 filVid(idIomflx,ng),                             &
-     &                 tFILindx(ng), gtype,                             &
+        status=nf_fwrite2d(ng, iNLM, FIL(10,ng)%ncid,                   &
+     &                 FIL(10,ng)%Vid(idIomflx),                        &
+     &                 FIL(10,ng)%Rindex, gtype,                        &
      &                 LBi, UBi, LBj, UBj, scale,                       &
 #  ifdef MASKING
      &                 GRID(ng) % rmask,                                &
 #  endif
-     &                 FILTER(ng) % filio_mflux(:,:,tFILindx(ng)))
+     &                 FILTER(ng) % filio_mflux(:,:,FIL(10,ng)%Rindex))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idIomflx)), tFILindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idIomflx)), FIL(10,ng)%Rindex
             PRINT *, trim(nf90_strerror(status))
           END IF
           exit_flag=3
@@ -1054,16 +1096,17 @@
       IF (Aout(idTauiw,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncFILid(10,ng), filVid(idTauiw,ng),&
-     &                 tFILindx(ng), gtype,                             &
+        status=nf_fwrite2d(ng, iNLM, FIL(10,ng)%ncid,                   &
+     &                 FIL(10,ng)%Vid(idTauiw),                         &
+     &                 FIL(10,ng)%Rindex, gtype,                        &
      &                 LBi, UBi, LBj, UBj, scale,                       &
 #  ifdef MASKING
      &                 GRID(ng) % rmask,                                &
 #  endif
-     &                 FILTER(ng) % filutau_iw(:,:,tFILindx(ng)))
+     &                 FILTER(ng) % filutau_iw(:,:,FIL(10,ng)%Rindex))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idTauiw)), tFILindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idTauiw)), FIL(10,ng)%Rindex
             PRINT *, trim(nf90_strerror(status))
           END IF
           exit_flag=3
@@ -1077,16 +1120,17 @@
       IF (Aout(idChuiw,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, ncFILid(10,ng), filVid(idChuiw,ng),&
-     &                 tFILindx(ng), gtype,                             &
+        status=nf_fwrite2d(ng, iNLM, FIL(10,ng)%ncid,                   &
+     &                 FIL(10,ng)%Vid(idChuiw),                         &
+     &                 FIL(10,ng)%Rindex, gtype,                        &
      &                 LBi, UBi, LBj, UBj, scale,                       &
 #  ifdef MASKING
      &                 GRID(ng) % rmask,                                &
 #  endif
-     &                 FILTER(ng) % filchu_iw(:,:,tFILindx(ng)))
+     &                 FILTER(ng) % filchu_iw(:,:,FIL(10,ng)%Rindex))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idChuiw)), tFILindx(ng)
+            WRITE (stdout,10) TRIM(Vname(1,idChuiw)), FIL(10,ng)%Rindex
             PRINT *, trim(nf90_strerror(status))
           END IF
           exit_flag=3
@@ -1099,10 +1143,11 @@
 !  Synchronize history NetCDF file to disk.
 !
       DO ifile=1,nfile
-        CALL netcdf_sync(ng, iNLM, FILname(ifile,ng), ncFILid(ifile,ng))
+        CALL netcdf_sync(ng, iNLM, FIL(ifile,ng)%name,                  &
+     &                   FIL(ifile,ng)%ncid)
         IF (exit_flag.ne.NoError) RETURN
       END DO
-      IF (Master) WRITE (stdout,20) tFILindx(ng)
+      IF (Master) WRITE (stdout,20) FIL(10,ng)%Rindex
 !
   10  FORMAT (/,' WRT_FILT  - error while writing variable: ',a,/,11x,  &
      &        'into filter NetCDF file for time record: ',i4)
