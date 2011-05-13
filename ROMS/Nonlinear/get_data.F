@@ -128,7 +128,7 @@
 !  Surface wind stress components.
 !
       CALL get_2dfld (ng, iNLM, idUnms, ncFRCid(idUnms,ng),             &
-     &                nFfiles(ng), FRC(1,ng), update(1)                 &
+     &                nFfiles(ng), FRC(1,ng), update(1),                &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &
 # ifdef MASKING
      &                GRID(ng) % rmask(LBi,LBj),                        &
@@ -136,7 +136,7 @@
      &                FORCES(ng) % nustrG(LBi,LBj,1))
       IF (exit_flag.ne.NoError) RETURN
       CALL get_2dfld (ng, iNLM, idVnms, ncFRCid(idVnms,ng),             &
-     &                nFfiles(ng), FRC(1,ng), update(1)                 &
+     &                nFfiles(ng), FRC(1,ng), update(1),                &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &
 # ifdef MASKING
      &                GRID(ng) % rmask(LBi,LBj),                        &
