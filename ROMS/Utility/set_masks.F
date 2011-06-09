@@ -234,6 +234,9 @@
 #  endif
 # endif
       integer :: i, j
+# ifdef OUTFLOW_MASK
+      real(r8) :: cff
+# endif
 # ifdef UV_PSOURCE
       integer :: is
 # endif
@@ -276,28 +279,29 @@
         END DO
       END DO
 #  ifdef CHUKCHI
+      cff = 0.7_r8
       IF (DOMAIN(ng)%Western_Edge(tile)) THEN
         DO j=JstrR,JendR
-          mask_outflow(0,j) = 0.0
-          mask_outflow(1,j) = 0.0
+          mask_outflow(0,j) = cff
+          mask_outflow(1,j) = cff
         END DO
       END IF
       IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
         DO j=JstrR,JendR
-          mask_outflow(Lm(ng),j) = 0.0
-          mask_outflow(Lm(ng)+1,j) = 0.0
+          mask_outflow(Lm(ng),j) = cff
+          mask_outflow(Lm(ng)+1,j) = cff
         END DO
       END IF
       IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
         DO i=IstrR,IendR
-          mask_outflow(i,0) = 0.0
-          mask_outflow(i,1) = 0.0
+          mask_outflow(i,0) = cff
+          mask_outflow(i,1) = cff
         END DO
       END IF
       IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
         DO i=IstrR,IendR
-          mask_outflow(i,Mm(ng)) = 0.0
-          mask_outflow(i,Mm(ng)+1) = 0.0
+          mask_outflow(i,Mm(ng)) = cff
+          mask_outflow(i,Mm(ng)+1) = cff
         END DO
       END IF
 #  else

@@ -95,7 +95,7 @@
 #define VISC_3DCOEF
 #define MIX_S_UV
 #define VISC_GRID
-#define SPONGE
+#undef SPONGE
 
 #ifdef SOLVE3D
 # define TS_DIF2
@@ -164,9 +164,11 @@
 /* Using Runoff instead now */
 #ifdef SOLVE3D
 # define RUNOFF
-# define UV_PSOURCE
-# define ANA_PSOURCE
-# undef TS_PSOURCE
+# ifdef EASTERN_WALL
+#  define UV_PSOURCE
+#  define ANA_PSOURCE
+#  undef TS_PSOURCE
+# endif
 #endif
 
 /* tides */
@@ -193,7 +195,7 @@
 
 /* Boundary conditions...careful with grid orientation */
 
-#define EASTERN_WALL
+#undef EASTERN_WALL
 #define NORTHERN_WALL
 #undef WESTERN_WALL
 #undef SOUTHERN_WALL

@@ -12,7 +12,7 @@
 **  Options for Northeast Pacific (NEP5) simulation
 */
 
-#undef NO_HIS
+#define NO_HIS
 #undef NETCDF4
 #undef PARALLEL_IO
 #undef OFFLINE_FLOATS
@@ -95,7 +95,7 @@
 #define VISC_3DCOEF
 #define MIX_S_UV
 #define VISC_GRID
-#define SPONGE
+#undef SPONGE
 
 #ifdef SOLVE3D
 # define TS_DIF2
@@ -260,7 +260,7 @@
 /*
 **  Biological model options.
 */
-#define NEMURO
+#undef NEMURO
 #undef BIO_GOANPZ        /* Sarah Hinckley's 11 box model */
 #undef BEST_NPZ         /* Georgina Gibsons BEST NPZ model  */
 
