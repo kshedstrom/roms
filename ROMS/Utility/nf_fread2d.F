@@ -110,7 +110,7 @@
 
       integer :: nf_fread2d
 
-      real(r8) :: Afactor, Aoffset, Aspval
+      real(r8) :: Afactor, Aoffset, Aspval, cff
 
       real(r8), parameter :: IniVal = 0.0_r8
 
@@ -275,7 +275,7 @@
         IF (interpolate) THEN
           IF (.not.allocated(Awrk)) THEN
 #ifdef GLOBAL_PERIODIC
-            allocate ( Awrk(0:Ilen+1,Jlen) )
+            allocate ( Awrk(0:Ilen+1,Jlen+1) )
 #else
             allocate ( Awrk(Ilen,Jlen) )
 #endif
@@ -356,7 +356,15 @@
               Awrk(0,j) = Awrk(Iend,j)
               Awrk(Iend+1,j) = Awrk(1,j)
             END DO
-            Npts=(Ilen+2)*Jlen
+	    cff = 0
+            DO i=Istr,Iend
+	      cff = cff + Awrk(i,Jend)
+            END DO
+	    cff = cff/Jend
+            DO i=0,Iend+1
+              Awrk(i,Jend+1) = cff
+            END DO
+            Npts=(Ilen+2)*(Jlen+1)
 #endif
             CALL mp_collect (ng, model, Npts, IniVal, Awrk)
           ELSE
@@ -900,6 +908,7 @@
       IF (interpolate) THEN
 #ifdef GLOBAL_PERIODIC
         Ilen = Ilen+2
+        Jlen = Jlen+1
 #endif
         SELECT CASE (ABS(MyType))
           CASE (p2dvar, p3dvar)
