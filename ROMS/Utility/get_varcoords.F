@@ -132,13 +132,13 @@
 #ifdef GLOBAL_PERIODIC
 ! KLUDGE: Assume degrees longitude!
         DO j=1,Ny
-          DO i=1,Nx
+          DO i=1,Nx-2
             X(i+1,j)=Xwrk(i)
           END DO
         END DO
         DO j=1,Ny
-          X(1,j) = X(Nx+1,j) - 360.0
-          X(Nx+2,j) = X(2,j) + 360.0
+          X(1,j) = X(Nx-1,j) - 360.0
+          X(Nx,j) = X(2,j) + 360.0
         END DO
 #else
         DO j=1,Ny
@@ -176,16 +176,23 @@
      &                        Ywrk,                                     &
      &                        ncid = ncid,                              &
      &                        start = (/1/),                            &
+#ifdef GLOBAL_PERIODIC
+     &                        total = (/Ny-1/))
+#else
      &                        total = (/Ny/))
+#endif
         IF (exit_flag.ne.NoError) RETURN
 
         rectangular=.TRUE.
         ic=0
 #ifdef GLOBAL_PERIODIC
-        DO j=1,Ny
-          DO i=1,Nx+2
+        DO j=1,Ny-1
+          DO i=1,Nx
             Y(i,j)=Ywrk(j)
           END DO
+        END DO
+        DO i=1,Nx
+          Y(i,Ny)=MAX(180.-Y(i,Ny-1),Y(i,Ny-1))
         END DO
 #else
         DO j=1,Ny
