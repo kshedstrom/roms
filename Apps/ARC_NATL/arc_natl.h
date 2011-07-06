@@ -13,6 +13,7 @@
 */
 
 #define NO_HIS
+#define GLOBAL_PERIODIC
 #undef NETCDF4
 #undef PARALLEL_IO
 #undef OFFLINE_FLOATS
@@ -27,8 +28,8 @@
 #ifdef SOLVE3D
 # define SPLINES
 #endif
-#define FLOATS
-#define STATIONS
+#undef FLOATS
+#undef STATIONS
 #undef WET_DRY
 
 #undef T_PASSIVE
@@ -92,7 +93,7 @@
 
 #define UV_VIS2
 #undef UV_SMAGORINSKY
-#define VISC_3DCOEF
+#undef VISC_3DCOEF
 #define MIX_S_UV
 #define VISC_GRID
 #undef SPONGE
@@ -109,7 +110,7 @@
 # define SOLAR_SOURCE
 # define WTYPE_GRID
 
-# define LMD_MIXING
+# undef LMD_MIXING
 # ifdef LMD_MIXING
 #  define LMD_RIMIX
 #  define LMD_CONVEC
@@ -120,7 +121,7 @@
 #  undef LMD_DDMIX
 # endif
 
-# undef GLS_MIXING
+# define GLS_MIXING
 # undef MY25_MIXING
 
 # if defined GLS_MIXING || defined MY25_MIXING
@@ -161,14 +162,11 @@
 
 /* point sources (rivers, line sources) */
 
-/* Using Runoff instead now */
+/* Using Runoff now */
 #ifdef SOLVE3D
 # define RUNOFF
-# ifdef EASTERN_WALL
-#  define UV_PSOURCE
-#  define ANA_PSOURCE
-#  undef TS_PSOURCE
-# endif
+# define UV_PSOURCE
+# define TS_PSOURCE
 #endif
 
 /* tides */
@@ -195,9 +193,9 @@
 
 /* Boundary conditions...careful with grid orientation */
 
-#undef EASTERN_WALL
+#define EASTERN_WALL
 #define NORTHERN_WALL
-#undef WESTERN_WALL
+#define WESTERN_WALL
 #undef SOUTHERN_WALL
 
 #define RADIATION_2D
@@ -250,20 +248,6 @@
 # endif
 #endif
 
-/* Monthly average SODA is used to nudge solution in boundary bufferzone
-   These data enter through the climatology arrays 
-   Bufferzone characteristics must be set with mods to
-   set_nudgcof.F */
-#define  NUDGING_COFF                  /* use ana_nudgcoef.h */
-#define  M3CLIMATOLOGY
-#define  M3CLM_NUDGING
-#define  TCLIMATOLOGY
-#define  TCLM_NUDGING
-#undef  M2CLIMATOLOGY
-#undef  M2CLM_NUDGING
-#undef  ZCLIMATOLOGY
-#undef  ZCLM_NUDGING
-
 /* roms quirks */
 
 #ifdef SOLVE3D
@@ -276,20 +260,7 @@
 /*
 **  Biological model options.
 */
-#define NEMURO
-#undef BIO_GOANPZ        /* Sarah Hinckley's 11 box model */
-#undef BEST_NPZ         /* Georgina Gibsons BEST NPZ model  */
-
-#if defined BEST_NPZ || defined BIO_GOANPZ
-# undef  BIOFLUX           /* sum Nitrogen fluxes between boxes */
-# define ANA_BIOLOGY       /* analytical biology initial conditions */
-# define ANA_BPFLUX        /* analytical bottom passive tracers fluxes */
-# define ANA_SPFLUX        /* analytical surface passive tracers fluxes */
-# define DIAPAUSE          /* Enable Neocalanus seasonal vertical migration */
-# undef FLOAT_VWALK
-# define IRON_LIMIT        /* Add iron as passive 11th tracer */
-# undef TCLM_NUDGING      /* Nudging of tracer climatology for iron */
-#endif
+#undef NEMURO
 
 #if defined NEMURO
 # define BIO_SEDIMENT
@@ -305,36 +276,3 @@
 # undef  ANA_BIOSWRAD
 # undef  DIAGNOSTICS_BIO
 #endif
-
-#ifdef BEST_NPZ
-# define        NEWSHADE    /* Use Craig''s formulation for self shading in PAR calc+                       Else use Sarah''s self-shading from original NPZ code */
-# undef        KODIAK_IRAD /* Generate irradiance with curve matching Kodiak data
-                       Else use shortwave radiation (srflx) as irradiance   */
-# define JELLY
-# define STATIONARY
-# define STATIONARY2
-# define PROD3
-# define PROD2
-# define BENTHIC /*FENNEL or BENTHIC or TRAP*/
-# define ICE_BIO
-# undef CLIM_ICE_1D
-
-# undef SINKVAR      /* for variable sinking rate*/
-# undef DENMAN
-
-# undef OFFLINE_BIOLOGY   /* define if offline simulation of bio tracers */
-#   if defined OFFLINE_BIOLOGY
-#    define AKSCLIMATOLOGY   /* Processing of AKS climatology */
-#    undef ANA_AKSCLIMA      /* Processing of AKS climatology */
-#   endif
-#  undef DIAPAUSE          /* Enable Neocalanus seasonal vertical migration */
-#  define  IRON_LIMIT        /* Add iron as passive 13th tracer */
-#    if defined IRON_LIMIT || defined CLIM_ICE_1D
-#      if !defined OFFLINE_BIOLOGY
-#       define TCLM_NUDGING    /* Nudging of tracer climatology for iron */
-#       undef  ANA_TCLIMA     /* analytical tracers climatology for iron */
-#       define TCLIMATOLOGY   /* Processing of tracer climatology for iron */
-#      endif
-#    endif
-#endif
-

@@ -44,6 +44,7 @@
 #ifdef SOLVE3D
 # define  ICE_MODEL
 # ifdef ICE_MODEL
+#  define OUTFLOW_MASK
 #  define  FASTICE_CLIMATOLOGY
 #  define  ICE_THERMO
 #  define  ICE_MK
@@ -193,8 +194,6 @@
 #endif
 
 /* Boundary conditions...careful with grid orientation */
-
-#define OUTFLOW_MASK
 
 #undef EASTERN_WALL
 #undef NORTHERN_WALL

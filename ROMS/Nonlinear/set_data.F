@@ -1855,11 +1855,11 @@
 #   endif
 
 #   if defined IRON_LIMIT
-        CALL set_3dfld_tile (ng, tile, iNLM, idTclm(iFe),               &
-     &                       LBi, UBi, LBj, UBj, 1, N(ng),              &
-     &                       CLIMA(ng)%tclmG(:,:,:,:,iFe),              &
-     &                       CLIMA(ng)%tclm (:,:,:,iFe),                &
-     &                       update)
+!        CALL set_3dfld_tile (ng, tile, iNLM, idTclm(iFe),               &
+!     &                       LBi, UBi, LBj, UBj, 1, N(ng),              &
+!     &                       CLIMA(ng)%tclmG(:,:,:,:,iFe),              &
+!     &                       CLIMA(ng)%tclm (:,:,:,iFe),                &
+!     &                       update)
 #   endif
 
 #   if defined BIO_GOANPZ && defined IRON_LIMIT

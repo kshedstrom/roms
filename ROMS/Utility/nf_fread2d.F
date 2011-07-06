@@ -110,7 +110,7 @@
 
       integer :: nf_fread2d
 
-      real(r8) :: Afactor, Aoffset, Aspval
+      real(r8) :: Afactor, Aoffset, Aspval, cff
 
       real(r8), parameter :: IniVal = 0.0_r8
 
@@ -275,7 +275,7 @@
         IF (interpolate) THEN
           IF (.not.allocated(Awrk)) THEN
 #ifdef GLOBAL_PERIODIC
-            allocate ( Awrk(0:Ilen+1,Jlen) )
+            allocate ( Awrk(0:Ilen+1,Jlen+1) )
 #else
             allocate ( Awrk(Ilen,Jlen) )
 #endif
@@ -356,7 +356,15 @@
               Awrk(0,j) = Awrk(Iend,j)
               Awrk(Iend+1,j) = Awrk(1,j)
             END DO
-            Npts=(Ilen+2)*Jlen
+              cff = 0
+            DO i=Istr,Iend
+              cff = cff + Awrk(i,Jend)
+            END DO
+              cff = cff/Jend
+            DO i=0,Iend+1
+              Awrk(i,Jend+1) = cff
+            END DO
+            Npts=(Ilen+2)*(Jlen+1)
 #endif
             CALL mp_collect (ng, model, Npts, IniVal, Awrk)
           ELSE
@@ -607,6 +615,7 @@
       character (len=*), intent(in) :: ncname
       character (len=*), intent(in) :: ncvname
 
+      real(r8), allocatable :: Awrk(:,:)
 # ifdef ASSUMED_SHAPE
 #  ifdef MASKING
       real(r8), intent(in) :: Amask(LBi:,LBj:)
@@ -635,7 +644,7 @@
 
       integer :: nf_fread2d
 
-      real(r8) :: Afactor, Aoffset, Aspval
+      real(r8) :: Afactor, Aoffset, Aspval, cff
 
       real(r8), dimension(3) :: AttValue
 
@@ -811,6 +820,14 @@
 !
       IF (.not.allocated(wrk)) THEN
         IF (interpolate) THEN
+          IF (.not.allocated(Awrk)) THEN
+#ifdef GLOBAL_PERIODIC
+            allocate ( Awrk(0:Ilen+1,Jlen+1) )
+#else
+            allocate ( Awrk(Ilen,Jlen) )
+#endif
+            Awrk=0.0_r8
+          END IF
           allocate ( wrk(Npts) )
         ELSE
           allocate ( wrk(Npts+2) )
@@ -898,14 +915,36 @@
 !-----------------------------------------------------------------------
 !
       IF (interpolate) THEN
+        ic=0
+        DO j=1,Jlen
+          DO i=1,Ilen
+            ic=ic+1
+            Awrk(i,j)=wrk(ic)
+          END DO
+        END DO
 #ifdef GLOBAL_PERIODIC
+        DO j=1,Jlen
+          Awrk(0,j) = Awrk(Ilen,j)
+          Awrk(Ilen+1,j) = Awrk(1,j)
+        END DO
+        cff = 0
+        DO i=1,Ilen
+          cff = cff + Awrk(i,Jlen)
+        END DO
+        cff = cff/Ilen
+        DO i=0,Ilen+1
+          Awrk(i,Jlen+1) = cff
+        END DO
         Ilen = Ilen+2
+        Jlen = Jlen+1
+        Npts=Ilen*Jlen
 #endif
+!       CALL mp_collect (ng, model, Npts, 0.0_r8, Awrk)
         SELECT CASE (ABS(MyType))
           CASE (p2dvar, p3dvar)
             CALL regrid (ng, model, ncname, ncid, ncvname, ncvarid,     &
      &                   MyType, InterpFlag,                            &
-     &                   Ilen, Jlen, wrk, Amin, Amax,                   &
+     &                   Ilen, Jlen, Awrk, Amin, Amax,                  &
      &                   LBi, UBi, LBj, UBj,                            &
      &                   Imin, Imax, Jmin, Jmax,                        &
      &                   GRID(ng) % lonp,                               &
@@ -914,7 +953,7 @@
           CASE (r2dvar, r3dvar)
             CALL regrid (ng, model, ncname, ncid, ncvname, ncvarid,     &
      &                   MyType, InterpFlag,                            &
-     &                   Ilen, Jlen, wrk, Amin, Amax,                   &
+     &                   Ilen, Jlen, Awrk, Amin, Amax,                  &
      &                   LBi, UBi, LBj, UBj,                            &
      &                   Imin, Imax, Jmin, Jmax,                        &
      &                   GRID(ng) % lonr,                               &
@@ -923,7 +962,7 @@
           CASE (u2dvar, u3dvar)
             CALL regrid (ng, model, ncname, ncid, ncvname, ncvarid,     &
      &                   MyType, InterpFlag,                            &
-     &                   Ilen, Jlen, wrk, Amin, Amax,                   &
+     &                   Ilen, Jlen, Awrk, Amin, Amax,                  &
      &                   LBi, UBi, LBj, UBj,                            &
      &                   Imin, Imax, Jmin, Jmax,                        &
      &                   GRID(ng) % lonu,                               &
@@ -932,7 +971,7 @@
           CASE (v2dvar, v3dvar)
             CALL regrid (ng, model, ncname, ncid, ncvname, ncvarid,     &
      &                   MyType, InterpFlag,                            &
-     &                   Ilen, Jlen, wrk, Amin, Amax,                   &
+     &                   Ilen, Jlen, Awrk, Amin, Amax,                  &
      &                   LBi, UBi, LBj, UBj,                            &
      &                   Imin, Imax, Jmin, Jmax,                        &
      &                   GRID(ng) % lonv,                               &
@@ -942,7 +981,7 @@
           CASE DEFAULT
             CALL regrid (ng, model, ncname, ncid, ncvname, ncvarid,     &
      &                   MyType, InterpFlag,                            &
-     &                   Ilen, Jlen, wrk, Amin, Amax,                   &
+     &                   Ilen, Jlen, Awrk, Amin, Amax,                  &
      &                   LBi, UBi, LBj, UBj,                            &
      &                   Imin, Imax, Jmin, Jmax,                        &
      &                   GRID(ng) % lonr,                               &
@@ -957,6 +996,11 @@
 !
       IF (allocated(wrk)) THEN
         deallocate (wrk)
+      END IF
+      IF (interpolate) THEN
+        IF (allocated(Awrk)) THEN
+          deallocate (Awrk)
+        END IF
       END IF
 
       nf_fread2d=status
