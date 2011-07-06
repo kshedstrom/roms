@@ -158,74 +158,6 @@
       END DO
 #  endif
 # endif
-#elif defined ADRIA02
-!
-!  Set tracer nudging coefficients in the southern edges from a three
-!  days time scale at the boundary point to decrease linearly to 30 days
-!  six grids points away from the boundary.
-!
-      cff1=1.0_r8/(3.0_r8*86400.0_r8)
-      cff2=1.0_r8/(30.0_r8*86400.0_r8)
-      DO j=JstrR,MIN(6,JendR)
-        DO i=IstrR,IendR
-          wrk(i,j)=cff2+REAL(6-j,r8)*(cff1-cff2)/6.0_r8
-        END DO
-      END DO
-# ifdef ZCLM_NUDGING
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
-          CLIMA(ng)%Znudgcof(i,j)=wrk(i,j)
-        END DO
-      END DO
-# endif
-# ifdef TCLM_NUDGING
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
-          CLIMA(ng)%Tnudgcof(i,j,itemp)=wrk(i,j)
-          CLIMA(ng)%Tnudgcof(i,j,isalt)=wrk(i,j)
-        END DO
-      END DO
-# endif
-#elif defined DAMEE_4
-!
-!  Set tracer nudging coefficients in the southern and northern edges
-!  from a five days time scale at the boundary point to decrease
-!  linearly to 60 days seven grids points away from the boundary.
-!
-      cff1=1.0_r8/(5.0_r8*86400.0_r8)
-      cff2=1.0_r8/(60.0_r8*86400.0_r8)
-      cff3=(7.0_r8*cff1-cff2)/6.0_r8
-      DO j=JstrR,MIN(8,JendR)
-        DO i=IstrR,IendR
-          wrk(i,j)=cff2+REAL(8-j,r8)*(cff1-cff2)/7.0_r8
-        END DO
-      END DO
-      DO j=MAX(JstrR,Mm(ng)-7),JendR
-        DO i=IstrR,IendR
-          wrk(i,j)=cff1+REAL(Mm(ng)-j,r8)*(cff2-cff1)/7.0_r8
-        END DO
-      END DO
-# ifdef ZCLM_NUDGING
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
-          CLIMA(ng)%Znudgcof(i,j)=wrk(i,j)
-        END DO
-      END DO
-# endif
-      DO j=MAX(JstrR,74),MIN(80,JendR)
-        DO i=MAX(IstrR,102),MIN(108,IendR)
-          cff1=SQRT(REAL((i-109)*(i-109)+(j-77)*(j-77),r8))
-          wrk(i,j)=MAX(0.0_r8,(cff3+cff1*(cff2-cff3)/6.0_r8))
-        END DO
-      END DO
-# ifdef TCLM_NUDGING
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
-          CLIMA(ng)%Tnudgcof(i,j,itemp)=wrk(i,j)
-          CLIMA(ng)%Tnudgcof(i,j,isalt)=wrk(i,j)
-        END DO
-      END DO
-# endif
 #else
 !
 !  Default nudging coefficients.  Set nudging coefficients uniformly to
@@ -280,518 +212,409 @@
 !!
 !  Free-surface nudging coefficients.
 !
-# if defined NEP6
-#  ifdef WEST_FSNUDGING
-      IF (SOUTH_WEST_TEST) THEN
-        FSobc_out(ng,iwest)=Znudg(ng)
-        FSobc_in (ng,iwest)=obcfac(ng)*Znudg(ng)
-      END IF
-#  endif
-#  ifdef EAST_FSNUDGING
-      IF (NORTH_EAST_TEST) THEN
-        FSobc_out(ng,ieast)=Znudg(ng)
-        FSobc_in (ng,ieast)=obcfac(ng)*Znudg(ng)
-      END IF
-#  endif
-#  ifdef SOUTH_FSNUDGING
-      IF (SOUTH_WEST_TEST) THEN
-        FSobc_out(ng,isouth)=Znudg(ng)
-        FSobc_in (ng,isouth)=obcfac(ng)*Znudg(ng)
-      END IF
-#  endif
-!
-!  2D momentum nudging coefficients.
-!
-#  ifdef WEST_M2NUDGING
-      IF (SOUTH_WEST_TEST) THEN
-        M2obc_out(ng,iwest)=M2nudg(ng)
-        M2obc_in (ng,iwest)=obcfac(ng)*M2nudg(ng)
-      END IF
-#  endif
-#  ifdef EAST_M2NUDGING
-      IF (NORTH_EAST_TEST) THEN
-        M2obc_out(ng,ieast)=M2nudg(ng)
-        M2obc_in (ng,ieast)=obcfac(ng)*M2nudg(ng)
-      END IF
-#  endif
-#  ifdef SOUTH_M2NUDGING
-      IF (SOUTH_WEST_TEST) THEN
-        M2obc_out(ng,isouth)=M2nudg(ng)
-        M2obc_in (ng,isouth)=obcfac(ng)*M2nudg(ng)
-      END IF
-#  endif
-#  ifdef SOLVE3D
-!
-!  Tracers nudging coefficients.
-!
-#   ifdef WEST_TNUDGING
-      DO itrc=1,NT(ng)
-        IF (SOUTH_WEST_TEST) THEN
-          Tobc_out(itrc,ng,iwest)=Tnudg(itrc,ng)
-          Tobc_in (itrc,ng,iwest)=obcfac(ng)*Tnudg(itrc,ng)
-        END IF
-      END DO
-#   endif
-#   ifdef EAST_TNUDGING
-      DO itrc=1,NT(ng)
-        IF (NORTH_EAST_TEST) THEN
-          Tobc_out(itrc,ng,ieast)=Tnudg(itrc,ng)
-          Tobc_in (itrc,ng,ieast)=obcfac(ng)*Tnudg(itrc,ng)
-        END IF
-      END DO
-#   endif
-#   ifdef SOUTH_TNUDGING
-      DO itrc=1,NT(ng)
-        IF (SOUTH_WEST_TEST) THEN
-          Tobc_out(itrc,ng,isouth)=Tnudg(itrc,ng)
-          Tobc_in (itrc,ng,isouth)=obcfac(ng)*Tnudg(itrc,ng)
-        END IF
-      END DO
-#   endif
-!
-!  3D momentum nudging coefficients.
-!
-#   ifdef WEST_M3NUDGING
-      IF (SOUTH_WEST_TEST) THEN
-        M3obc_out(ng,iwest)=M3nudg(ng)
-        M3obc_in (ng,iwest)=obcfac(ng)*M3nudg(ng)
-      END IF
-#   endif
-#   ifdef EAST_M3NUDGING
-      IF (NORTH_EAST_TEST) THEN
-        M3obc_out(ng,ieast)=M3nudg(ng)
-        M3obc_in (ng,ieast)=obcfac(ng)*M3nudg(ng)
-      END IF
-#   endif
-#   ifdef SOUTH_M3NUDGING
-      IF (SOUTH_WEST_TEST) THEN
-        M3obc_out(ng,isouth)=M3nudg(ng)
-        M3obc_in (ng,isouth)=obcfac(ng)*M3nudg(ng)
-      END IF
-#   endif
-#  endif
-# else
-#  ifdef WEST_FSNUDGING
-#   ifdef ZCLM_NUDGING
-      IF (SOUTH_WEST_CORNER) THEN
-        FSobc_out(ng,iwest)=CLIMA(ng)%Znudgcof(0,1)
+# ifdef WEST_FSNUDGING
+#  ifdef ZCLM_NUDGING
+      IF (DOMAIN(ng)%SouthWest_Corner(tile)) THEN
+        FSobc_out(ng,iwest)=Znudgcof(ng)
         FSobc_in (ng,iwest)=obcfac(ng)*FSobc_out(ng,iwest)
       END IF
-      IF (WESTERN_EDGE) THEN
+      IF (DOMAIN(ng)%Western_Edge(tile)) THEN
         DO j=JstrR,JendR
           CLIMA(ng)%Znudgcof(0,j)=0.0_r8
         END DO
       END IF
-#    ifdef DISTRIBUTE
+#   ifdef DISTRIBUTE
       IF (ng.eq.Ngrids) THEN
         CALL mp_collect (ng, model, Ngrids, IniVal, FSobc_out(:,iwest))
         CALL mp_collect (ng, model, Ngrids, IniVal, FSobc_in (:,iwest))
       END IF
-#    endif
-#   else
-      IF (SOUTH_WEST_TEST) THEN
+#   endif
+#  else
+      IF (DOMAIN(ng)%SouthWest_Test(tile)) THEN
         FSobc_out(ng,iwest)=Znudg(ng)
         FSobc_in (ng,iwest)=obcfac(ng)*Znudg(ng)
       END IF
-#   endif
 #  endif
-#  ifdef EAST_FSNUDGING
-#   ifdef ZCLM_NUDGING
-      IF (NORTH_EAST_CORNER) THEN
-        FSobc_out(ng,ieast)=CLIMA(ng)%Znudgcof(Lm(ng)+1,Mm(ng))
+# endif
+# ifdef EAST_FSNUDGING
+#  ifdef ZCLM_NUDGING
+      IF (DOMAIN(ng)%NorthEast_Corner(tile)) THEN
+        FSobc_out(ng,ieast)=Znudg(ng)
         FSobc_in (ng,ieast)=obcfac(ng)*FSobc_out(ng,ieast)
       END IF
-      IF (EASTERN_EDGE) THEN
+      IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
         DO j=JstrR,JendR
           CLIMA(ng)%Znudgcof(Lm(ng)+1,j)=0.0_r8
         END DO
       END IF
-#    ifdef DISTRIBUTE
+#   ifdef DISTRIBUTE
       IF (ng.eq.Ngrids) THEN
         CALL mp_collect (ng, model, Ngrids, IniVal, FSobc_out(:,ieast))
         CALL mp_collect (ng, model, Ngrids, IniVal, FSobc_in (:,ieast))
       END IF
-#    endif
-#   else
-      IF (NORTH_EAST_TEST) THEN
+#   endif
+#  else
+      IF (DOMAIN(ng)%NorthEast_Test(tile)) THEN
         FSobc_out(ng,ieast)=Znudg(ng)
         FSobc_in (ng,ieast)=obcfac(ng)*Znudg(ng)
       END IF
-#   endif
 #  endif
-#  ifdef SOUTH_FSNUDGING
-#   ifdef ZCLM_NUDGING
-      IF (SOUTH_WEST_CORNER) THEN
-        FSobc_out(ng,isouth)=CLIMA(ng)%Znudgcof(1,0)
+# endif
+# ifdef SOUTH_FSNUDGING
+#  ifdef ZCLM_NUDGING
+      IF (DOMAIN(ng)%SouthWest_Corner(tile)) THEN
+        FSobc_out(ng,isouth)=Znudgcof(ng)
         FSobc_in (ng,isouth)=obcfac(ng)*FSobc_out(ng,isouth)
       END IF
-      IF (SOUTHERN_EDGE) THEN
+      IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
         DO i=IstrR,IendR
           CLIMA(ng)%Znudgcof(i,0)=0.0_r8
         END DO
       END IF
-#    ifdef DISTRIBUTE
+#   ifdef DISTRIBUTE
       IF (ng.eq.Ngrids) THEN
         CALL mp_collect (ng, model, Ngrids, IniVal, FSobc_out(:,isouth))
         CALL mp_collect (ng, model, Ngrids, IniVal, FSobc_in (:,isouth))
       END IF
-#    endif
-#   else
-      IF (SOUTH_WEST_TEST) THEN
+#   endif
+#  else
+      IF (DOMAIN(ng)%SouthWest_Test(tile)) THEN
         FSobc_out(ng,isouth)=Znudg(ng)
         FSobc_in (ng,isouth)=obcfac(ng)*Znudg(ng)
       END IF
-#   endif
 #  endif
-#  ifdef NORTH_FSNUDGING
-#   ifdef ZCLM_NUDGING
-      IF (NORTH_EAST_CORNER) THEN
-        FSobc_out(ng,inorth)=CLIMA(ng)%Znudgcof(Lm(ng),Mm(ng)+1)
+# endif
+# ifdef NORTH_FSNUDGING
+#  ifdef ZCLM_NUDGING
+      IF (DOMAIN(ng)%NorthEast_Corner(tile)) THEN
+        FSobc_out(ng,inorth)=Znudg(ng)
         FSobc_in (ng,inorth)=obcfac(ng)*FSobc_out(ng,inorth)
       END IF
-      IF (NORTHERN_EDGE) THEN
+      IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
         DO i=IstrR,IendR
           CLIMA(ng)%Znudgcof(i,Mm(ng)+1)=0.0_r8
         END DO
       END IF
-#    ifdef DISTRIBUTE
+#   ifdef DISTRIBUTE
       IF (ng.eq.Ngrids) THEN
         CALL mp_collect (ng, model, Ngrids, IniVal, FSobc_out(:,inorth))
         CALL mp_collect (ng, model, Ngrids, IniVal, FSobc_in (:,inorth))
       END IF
-#    endif
-#   else
-      IF (NORTH_EAST_TEST) THEN
+#   endif
+#  else
+      IF (DOMAIN(ng)%NorthEast_Test(tile)) THEN
         FSobc_out(ng,inorth)=Znudg(ng)
         FSobc_in (ng,inorth)=obcfac(ng)*Znudg(ng)
       END IF
-#   endif
 #  endif
+# endif
 !
 !  2D momentum nudging coefficients.
 !
-#  ifdef WEST_M2NUDGING
-#   ifdef M2CLM_NUDGING
-      IF (SOUTH_WEST_CORNER) THEN
-        M2obc_out(ng,iwest)=0.5_r8*(CLIMA(ng)%M2nudgcof(0,1)+           &
-     &                              CLIMA(ng)%M2nudgcof(1,1))
+# ifdef WEST_M2NUDGING
+#  ifdef M2CLM_NUDGING
+      IF (DOMAIN(ng)%SouthWest_Corner(tile)) THEN
+        M2obc_out(ng,iwest)=M2nudg(ng)
         M2obc_in (ng,iwest)=obcfac(ng)*M2obc_out(ng,iwest)
       END IF
-      IF (WESTERN_EDGE) THEN
+      IF (DOMAIN(ng)%Western_Edge(tile)) THEN
         DO j=JstrR,JendR
           CLIMA(ng)%M2nudgcof(0,j)=-CLIMA(ng)%M2nudgcof(1,j)
         END DO
       END IF
-#    ifdef DISTRIBUTE
+#   ifdef DISTRIBUTE
       IF (ng.eq.Ngrids) THEN
         CALL mp_collect (ng, model, Ngrids, IniVal, M2obc_out(:,iwest))
         CALL mp_collect (ng, model, Ngrids, IniVal, M2obc_in (:,iwest))
       END IF
-#    endif
-#   else
-      IF (SOUTH_WEST_TEST) THEN
+#   endif
+#  else
+      IF (DOMAIN(ng)%SouthWest_Test(tile)) THEN
         M2obc_out(ng,iwest)=M2nudg(ng)
         M2obc_in (ng,iwest)=obcfac(ng)*M2nudg(ng)
       END IF
-#   endif
 #  endif
-#  ifdef EAST_M2NUDGING
-#   ifdef M2CLM_NUDGING
-      IF (NORTH_EAST_CORNER) THEN
-        M2obc_out(ng,ieast)=0.5_r8*                                     &
-     &                      (CLIMA(ng)%M2nudgcof(Lm(ng)  ,Mm(ng))+      &
-     &                       CLIMA(ng)%M2nudgcof(Lm(ng)+1,Mm(ng)))
+# endif
+# ifdef EAST_M2NUDGING
+#  ifdef M2CLM_NUDGING
+      IF (DOMAIN(ng)%NorthEast_Corner(tile)) THEN
+        M2obc_out(ng,ieast)=M2nudg(ng)
         M2obc_in (ng,ieast)=obcfac(ng)*M2obc_out(ng,ieast)
       END IF
-      IF (EASTERN_EDGE) THEN
+      IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
         DO j=JstrR,JendR
           CLIMA(ng)%M2nudgcof(Lm(ng)+1,j)=-CLIMA(ng)%M2nudgcof(Lm(ng),j)
         END DO
       END IF
-#    ifdef DISTRIBUTE
+#   ifdef DISTRIBUTE
       IF (ng.eq.Ngrids) THEN
         CALL mp_collect (ng, model, Ngrids, IniVal, M2obc_out(:,ieast))
         CALL mp_collect (ng, model, Ngrids, IniVal, M2obc_in (:,ieast))
       END IF
-#    endif
-#   else
-      IF (NORTH_EAST_TEST) THEN
+#   endif
+#  else
+      IF (DOMAIN(ng)%NorthEast_Test(tile)) THEN
         M2obc_out(ng,ieast)=M2nudg(ng)
         M2obc_in (ng,ieast)=obcfac(ng)*M2nudg(ng)
       END IF
-#   endif
 #  endif
-#  ifdef SOUTH_M2NUDGING
-#   ifdef M2CLM_NUDGING
-      IF (SOUTH_WEST_CORNER) THEN
-        M2obc_out(ng,isouth)=0.5_r8*(CLIMA(ng)%M2nudgcof(1,0)+          &
-     &                               CLIMA(ng)%M2nudgcof(1,1))
+# endif
+# ifdef SOUTH_M2NUDGING
+#  ifdef M2CLM_NUDGING
+      IF (DOMAIN(ng)%SouthWest_Corner(tile)) THEN
+        M2obc_out(ng,isouth)=M2nudg(ng)
         M2obc_in (ng,isouth)=obcfac(ng)*M2obc_out(ng,isouth)
       END IF
-      IF (SOUTHERN_EDGE) THEN
+      IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
         DO i=IstrR,IendR
           CLIMA(ng)%M2nudgcof(i,0)=-CLIMA(ng)%M2nudgcof(i,1)
         END DO
       END IF
-#    ifdef DISTRIBUTE
+#   ifdef DISTRIBUTE
       IF (ng.eq.Ngrids) THEN
         CALL mp_collect (ng, model, Ngrids, IniVal, M2obc_out(:,isouth))
         CALL mp_collect (ng, model, Ngrids, IniVal, M2obc_in (:,isouth))
       END IF
-#    endif
-#   else
-      IF (SOUTH_WEST_TEST) THEN
+#   endif
+#  else
+      IF (DOMAIN(ng)%SouthWest_Test(tile)) THEN
         M2obc_out(ng,isouth)=M2nudg(ng)
         M2obc_in (ng,isouth)=obcfac(ng)*M2nudg(ng)
       END IF
-#   endif
 #  endif
-#  ifdef NORTH_M2NUDGING
-#   ifdef M2CLM_NUDGING
-      IF (NORTH_EAST_CORNER) THEN
-        M2obc_out(ng,inorth)=0.5_r8*                                    &
-     &                       (CLIMA(ng)%M2nudgcof(Lm(ng),Mm(ng)  )+     &
-     &                        CLIMA(ng)%M2nudgcof(Lm(ng),Mm(ng)+1))
+# endif
+# ifdef NORTH_M2NUDGING
+#  ifdef M2CLM_NUDGING
+      IF (DOMAIN(ng)%NorthEast_Corner(tile)) THEN
+        M2obc_out(ng,inorth)=M2nudg(ng)
         M2obc_in (ng,inorth)=obcfac(ng)*M2obc_out(ng,inorth)
       END IF
-      IF (NORTHERN_EDGE) THEN
+      IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
         DO i=IstrR,IendR
           CLIMA(ng)%M2nudgcof(i,Mm(ng)+1)=-CLIMA(ng)%M2nudgcof(i,Mm(ng))
         END DO
       END IF
-#    ifdef DISTRIBUTE
+#   ifdef DISTRIBUTE
       IF (ng.eq.Ngrids) THEN
         CALL mp_collect (ng, model, Ngrids, IniVal, M2obc_out(:,inorth))
         CALL mp_collect (ng, model, Ngrids, IniVal, M2obc_in (:,inorth))
       END IF
-#    endif
-#   else
-      IF (NORTH_EAST_TEST) THEN
+#   endif
+#  else
+      IF (DOMAIN(ng)%NorthEast_Test(tile)) THEN
         M2obc_out(ng,inorth)=M2nudg(ng)
         M2obc_in (ng,inorth)=obcfac(ng)*M2nudg(ng)
       END IF
-#   endif
 #  endif
-#  ifdef SOLVE3D
+# endif
+# ifdef SOLVE3D
 !
 !  Tracers nudging coefficients.
 !
-#   ifdef WEST_TNUDGING
-#    ifdef TCLM_NUDGING
+#  ifdef WEST_TNUDGING
+#   ifdef TCLM_NUDGING
       DO itrc=1,NT(ng)
-        IF (SOUTH_WEST_CORNER) THEN
-          Tobc_out(itrc,ng,iwest)=CLIMA(ng)%Tnudgcof(0,1,itrc)
+        IF (DOMAIN(ng)%SouthWest_Corner(tile)) THEN
+          Tobc_out(itrc,ng,iwest)=Tnudg(itrc,ng)
           Tobc_in (itrc,ng,iwest)=obcfac(ng)*Tobc_out(itrc,ng,iwest)
         END IF
-        IF (WESTERN_EDGE) THEN
+        IF (DOMAIN(ng)%Western_Edge(tile)) THEN
           DO j=JstrR,JendR
             CLIMA(ng)%Tnudgcof(0,j,itrc)=0.0_r8
           END DO
         END IF
       END DO
-#     ifdef DISTRIBUTE
+#    ifdef DISTRIBUTE
       CALL mp_collect (ng, model, MT, IniVal, Tobc_out(:,ng,iwest))
       CALL mp_collect (ng, model, MT, IniVal, Tobc_in (:,ng,iwest))
-#     endif
-#    else
+#    endif
+#   else
       DO itrc=1,NT(ng)
-        IF (SOUTH_WEST_TEST) THEN
+        IF (DOMAIN(ng)%SouthWest_Test(tile)) THEN
           Tobc_out(itrc,ng,iwest)=Tnudg(itrc,ng)
           Tobc_in (itrc,ng,iwest)=obcfac(ng)*Tnudg(itrc,ng)
         END IF
       END DO
-#    endif
 #   endif
-#   ifdef EAST_TNUDGING
-#    ifdef TCLM_NUDGING
+#  endif
+#  ifdef EAST_TNUDGING
+#   ifdef TCLM_NUDGING
       DO itrc=1,NT(ng)
-        IF (NORTH_EAST_CORNER) THEN
-          Tobc_out(itrc,ng,ieast)=                                      &
-     &             CLIMA(ng)%Tnudgcof(Lm(ng)+1,Mm(ng),itrc)
+        IF (DOMAIN(ng)%NorthEast_Corner(tile)) THEN
+          Tobc_out(itrc,ng,ieast)=Tnudg(itrc,ng)
           Tobc_in (itrc,ng,ieast)=obcfac(ng)*Tobc_out(itrc,ng,ieast)
         END IF
-        IF (EASTERN_EDGE) THEN
+        IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
           DO j=JstrR,JendR
             CLIMA(ng)%Tnudgcof(Lm(ng)+1,j,itrc)=0.0_r8
           END DO
         END IF
       END DO
-#     ifdef DISTRIBUTE
+#    ifdef DISTRIBUTE
       CALL mp_collect (ng, model, MT, IniVal, Tobc_out(:,ng,ieast))
       CALL mp_collect (ng, model, MT, IniVal, Tobc_in (:,ng,ieast))
-#     endif
-#    else
+#    endif
+#   else
       DO itrc=1,NT(ng)
-        IF (NORTH_EAST_TEST) THEN
+        IF (DOMAIN(ng)%NorthEast_Test(tile)) THEN
           Tobc_out(itrc,ng,ieast)=Tnudg(itrc,ng)
           Tobc_in (itrc,ng,ieast)=obcfac(ng)*Tnudg(itrc,ng)
         END IF
       END DO
-#    endif
 #   endif
-#   ifdef SOUTH_TNUDGING
-#    ifdef TCLM_NUDGING
+#  endif
+#  ifdef SOUTH_TNUDGING
+#   ifdef TCLM_NUDGING
       DO itrc=1,NT(ng)
-        IF (SOUTH_WEST_CORNER) THEN
-          Tobc_out(itrc,ng,isouth)=CLIMA(ng)%Tnudgcof(1,0,itrc)
+        IF (DOMAIN(ng)%SouthWest_Corner(tile)) THEN
+          Tobc_out(itrc,ng,isouth)=Tnudg(itrc,ng)
           Tobc_in (itrc,ng,isouth)=obcfac(ng)*Tobc_out(itrc,ng,isouth)
         END IF
-        IF (SOUTHERN_EDGE) THEN
+        IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
           DO i=IstrR,IendR
             CLIMA(ng)%Tnudgcof(i,0,itrc)=0.0_r8
           END DO
         END IF
       END DO
-#     ifdef DISTRIBUTE
+#    ifdef DISTRIBUTE
       CALL mp_collect (ng, model, MT, IniVal, Tobc_out(:,ng,isouth))
       CALL mp_collect (ng, model, MT, IniVal, Tobc_in (:,ng,isouth))
-#     endif
-#    else
+#    endif
+#   else
       DO itrc=1,NT(ng)
-        IF (SOUTH_WEST_TEST) THEN
+        IF (DOMAIN(ng)%SouthWest_Test(tile)) THEN
           Tobc_out(itrc,ng,isouth)=Tnudg(itrc,ng)
           Tobc_in (itrc,ng,isouth)=obcfac(ng)*Tnudg(itrc,ng)
         END IF
       END DO
-#    endif
 #   endif
-#   ifdef NORTH_TNUDGING
-#    ifdef TCLM_NUDGING
+#  endif
+#  ifdef NORTH_TNUDGING
+#   ifdef TCLM_NUDGING
       DO itrc=1,NT(ng)
-        IF (NORTH_EAST_CORNER) THEN
-          Tobc_out(itrc,ng,inorth)=                                     &
-     &             CLIMA(ng)%Tnudgcof(Lm(ng),Mm(ng)+1,itrc)
+        IF (DOMAIN(ng)%NorthEast_Corner(tile)) THEN
+          Tobc_out(itrc,ng,inorth)=Tnudg(itrc,ng)
           Tobc_in (itrc,ng,inorth)=obcfac(ng)*Tobc_out(itrc,ng,inorth)
         END IF
-        IF (NORTHERN_EDGE) THEN
+        IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
           DO i=IstrR,IendR
             CLIMA(ng)%Tnudgcof(i,Mm(ng)+1,itrc)=0.0_r8
           END DO
         END IF
       END DO
-#     ifdef DISTRIBUTE
+#    ifdef DISTRIBUTE
       CALL mp_collect (ng, model, MT, IniVal, Tobc_out(:,ng,inorth))
       CALL mp_collect (ng, model, MT, IniVal, Tobc_in (:,ng,inorth))
-#     endif
-#    else
+#    endif
+#   else
       DO itrc=1,NT(ng)
-        IF (NORTH_EAST_TEST) THEN
+        IF (DOMAIN(ng)%NorthEast_Test(tile)) THEN
           Tobc_out(itrc,ng,inorth)=Tnudg(itrc,ng)
           Tobc_in (itrc,ng,inorth)=obcfac(ng)*Tnudg(itrc,ng)
         END IF
       END DO
-#    endif
 #   endif
+#  endif
 !
 !  3D momentum nudging coefficients.
 !
-#   ifdef WEST_M3NUDGING
-#    ifdef M3CLM_NUDGING
-      IF (SOUTH_WEST_CORNER) THEN
-        M3obc_out(ng,iwest)=0.5_r8*                                     &
-     &                      (CLIMA(ng)%M3nudgcof(0,1)+                  &
-     &                       CLIMA(ng)%M3nudgcof(1,1))
+#  ifdef WEST_M3NUDGING
+#   ifdef M3CLM_NUDGING
+      IF (DOMAIN(ng)%SouthWest_Corner(tile)) THEN
+        M3obc_out(ng,iwest)=M3nudg(ng)
         M3obc_in (ng,iwest)=obcfac(ng)*M3obc_out(ng,iwest)
       END IF
-      IF (WESTERN_EDGE) THEN
+      IF (DOMAIN(ng)%Western_Edge(tile)) THEN
         DO j=JstrR,JendR
           CLIMA(ng)%M3nudgcof(0,j)=-CLIMA(ng)%M3nudgcof(1,j)
         END DO
       END IF
-#     ifdef DISTRIBUTE
+#    ifdef DISTRIBUTE
       IF (ng.eq.Ngrids) THEN
         CALL mp_collect (ng, model, Ngrids, IniVal, M3obc_out(:,iwest))
         CALL mp_collect (ng, model, Ngrids, IniVal, M3obc_in (:,iwest))
       END IF
-#     endif
-#    else
-      IF (SOUTH_WEST_TEST) THEN
+#    endif
+#   else
+      IF (DOMAIN(ng)%SouthWest_Test(tile)) THEN
         M3obc_out(ng,iwest)=M3nudg(ng)
         M3obc_in (ng,iwest)=obcfac(ng)*M3nudg(ng)
       END IF
-#    endif
 #   endif
-#   ifdef EAST_M3NUDGING
-#    ifdef M3CLM_NUDGING
-      IF (NORTH_EAST_CORNER) THEN
-        M3obc_out(ng,ieast)=0.5_r8*                                     &
-     &                      (CLIMA(ng)%M3nudgcof(Lm(ng)  ,Mm(ng))+      &
-     &                       CLIMA(ng)%M3nudgcof(Lm(ng)+1,Mm(ng)))
+#  endif
+#  ifdef EAST_M3NUDGING
+#   ifdef M3CLM_NUDGING
+      IF (DOMAIN(ng)%NorthEast_Corner(tile)) THEN
+        M3obc_out(ng,ieast)=M3nudg(ng)
         M3obc_in (ng,ieast)=obcfac(ng)*M3obc_out(ng,ieast)
       END IF
-      IF (EASTERN_EDGE) THEN
+      IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
         DO j=JstrR,JendR
           CLIMA(ng)%M3nudgcof(Lm(ng)+1,j)=-CLIMA(ng)%M3nudgcof(Lm(ng),j)
         END DO
       END IF
-#     ifdef DISTRIBUTE
+#    ifdef DISTRIBUTE
       IF (ng.eq.Ngrids) THEN
         CALL mp_collect (ng, model, Ngrids, IniVal, M3obc_out(:,ieast))
         CALL mp_collect (ng, model, Ngrids, IniVal, M3obc_in (:,ieast))
       END IF
-#     endif
-#    else
-      IF (NORTH_EAST_TEST) THEN
+#    endif
+#   else
+      IF (DOMAIN(ng)%NorthEast_Test(tile)) THEN
         M3obc_out(ng,ieast)=M3nudg(ng)
         M3obc_in (ng,ieast)=obcfac(ng)*M3nudg(ng)
       END IF
-#    endif
 #   endif
-#   ifdef SOUTH_M3NUDGING
-#    ifdef M3CLM_NUDGING
-      IF (SOUTH_WEST_CORNER) THEN
-        M3obc_out(ng,isouth)=0.5_r8*                                    &
-     &                       (CLIMA(ng)%M3nudgcof(1,0)+                 &
-     &                        CLIMA(ng)%M3nudgcof(1,1))
+#  endif
+#  ifdef SOUTH_M3NUDGING
+#   ifdef M3CLM_NUDGING
+      IF (DOMAIN(ng)%SouthWest_Corner(tile)) THEN
+        M3obc_out(ng,isouth)=M3nudg(ng)
         M3obc_in (ng,isouth)=obcfac(ng)*M3obc_out(ng,isouth)
       END IF
-      IF (SOUTHERN_EDGE) THEN
+      IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
         DO i=IstrR,IendR
           CLIMA(ng)%M3nudgcof(i,0)=-CLIMA(ng)%M3nudgcof(i,1)
         END DO
       END IF
-#     ifdef DISTRIBUTE
+#    ifdef DISTRIBUTE
       IF (ng.eq.Ngrids) THEN
         CALL mp_collect (ng, model, Ngrids, IniVal, M3obc_out(:,isouth))
         CALL mp_collect (ng, model, Ngrids, IniVal, M3obc_in (:,isouth))
       END IF
-#     endif
-#    else
-      IF (SOUTH_WEST_TEST) THEN
+#    endif
+#   else
+      IF (DOMAIN(ng)%SouthWest_Test(tile)) THEN
         M3obc_out(ng,isouth)=M3nudg(ng)
         M3obc_in (ng,isouth)=obcfac(ng)*M3nudg(ng)
       END IF
-#    endif
 #   endif
-#   ifdef NORTH_M3NUDGING
-#    ifdef M3CLM_NUDGING
-      IF (NORTH_EAST_CORNER) THEN
-        M3obc_out(ng,inorth)=0.5_r8*                                    &
-     &                       (CLIMA(ng)%M3nudgcof(Lm(ng),Mm(ng)  )+     &
-     &                        CLIMA(ng)%M3nudgcof(Lm(ng),Mm(ng)+1))
+#  endif
+#  ifdef NORTH_M3NUDGING
+#   ifdef M3CLM_NUDGING
+      IF (DOMAIN(ng)%NorthEast_Corner(tile)) THEN
+        M3obc_out(ng,inorth)=M3nudg(ng)
         M3obc_in (ng,inorth)=obcfac(ng)*M3obc_out(ng,inorth)
       END IF
-      IF (NORTHERN_EDGE) THEN
+      IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
         DO i=IstrR,IendR
           CLIMA(ng)%M3nudgcof(i,Mm(ng)+1)=-CLIMA(ng)%M3nudgcof(i,Mm(ng))
         END DO
       END IF
-#     ifdef DISTRIBUTE
+#    ifdef DISTRIBUTE
       IF (ng.eq.Ngrids) THEN
         CALL mp_collect (ng, model, Ngrids, IniVal, M3obc_out(:,inorth))
         CALL mp_collect (ng, model, Ngrids, IniVal, M3obc_in (:,inorth))
       END IF
-#     endif
-#    else
-      IF (NORTH_EAST_TEST) THEN
+#    endif
+#   else
+      IF (DOMAIN(ng)%NorthEast_Test(tile)) THEN
         M3obc_out(ng,inorth)=M3nudg(ng)
         M3obc_in (ng,inorth)=obcfac(ng)*M3nudg(ng)
       END IF
-#    endif
 #   endif
 #  endif
 # endif
 #endif
       RETURN
       END SUBROUTINE ana_nudgcoef_tile
-
