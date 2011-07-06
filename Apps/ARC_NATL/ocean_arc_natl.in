@@ -76,7 +76,7 @@
 ! ORDER MATTERS HERE!
 !      NtileJ == 8                              ! J-direction partition
 !      NtileJ == 10                              ! J-direction partition
-       NtileJ == 16                              ! J-direction partition
+       NtileJ == 12                              ! J-direction partition
 
 ! Time-Stepping parameters.
 
@@ -676,7 +676,7 @@ Dout(iTvdif) == T T                        ! vertical diffusion
 ! Input NetCDF file names, [1:Ngrids].
 
      GRDNAME == /wrkdir/kate/ARC_NATL/Files/ARC_NATL_40_grd.nc
-     ININAME == /wrkdir/kate/ARC_NATL/Files/SODA_2.1.6_19580101-19580106_ic_ARC_NATL.nc
+     ININAME == /wrkdir/kate/ARC_NATL/Files/ARC_NATL_ini.nc
 !     ININAME == arc_natl_rst.nc
      ITLNAME == ocean_itl.nc
      IRPNAME == ocean_irp.nc
@@ -697,18 +697,19 @@ Dout(iTvdif) == T T                        ! vertical diffusion
 ! at the each entry, except the last one.
 
 
-    NFFILES == 11                          ! number of forcing files
+    NFFILES == 12                          ! number of forcing files
 
-    FRCNAME == /wrkdir/kate/ARC_NATL/Files/Pair.1948-2006.nc   \
-               /wrkdir/kate/ARC_NATL/Files/lwrad.1948-2006.nc  \
-               /wrkdir/kate/ARC_NATL/Files/Qair.1948-2006.nc   \
-               /wrkdir/kate/ARC_NATL/Files/swrad.1948-2006.nc  \
-               /wrkdir/kate/ARC_NATL/Files/Tair.1948-2006.nc   \
-               /wrkdir/kate/ARC_NATL/Files/Uwind.1948-2006.nc  \
-               /wrkdir/kate/ARC_NATL/Files/Vwind.1948-2006.nc  \
-               /wrkdir/kate/ARC_NATL/Files/rain.1948-2006.nc  \
-               /wrkdir/kate/ARC_NATL/Files/sss_fill_2004.nc  \
+    FRCNAME == /wrkdir/kate/Bering/Files/Pair.1948-2006.nc   \
+               /wrkdir/kate/Bering/Files/lwrad.1948-2006.nc  \
+               /wrkdir/kate/Bering/Files/Qair.1948-2006.nc   \
+               /wrkdir/kate/Bering/Files/swrad.1948-2006.nc  \
+               /wrkdir/kate/Bering/Files/Tair.1948-2006.nc   \
+               /wrkdir/kate/Bering/Files/Uwind.1948-2006.nc  \
+               /wrkdir/kate/Bering/Files/Vwind.1948-2006.nc  \
+               /wrkdir/kate/Bering/Files/rain.1948-2006.nc  \
+               /wrkdir/kate/Bering/Files/sss_fill_2004.nc  \
                /wrkdir/kate/ARC_NATL/Files/runoff_ARC_NATL_daitren_inter_annual_1948-2007.nc \
+               /wrkdir/kate/ARC_NATL/Files/ARC_NATL_rivers.nc \
                /wrkdir/kate/ARC_NATL/Files/ARC_NATL_tides_otps.nc
 
 ! Output NetCDF file names, [1:Ngrids].

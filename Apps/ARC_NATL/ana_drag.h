@@ -163,7 +163,7 @@
           IF (GRID(ng)%h(i,j) >= h0) THEN
             rdrag(i,j)=cff
           ELSE
-            rdrag(i,j)=cff + (h0-GRID(ng)%h(i,j))*77.0d-4/h0
+            rdrag(i,j)=cff + (h0-GRID(ng)%h(i,j))*97.0d-4/h0
           END IF
         END DO
       END DO

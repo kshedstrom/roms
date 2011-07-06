@@ -110,7 +110,7 @@
 # define SOLAR_SOURCE
 # define WTYPE_GRID
 
-# define LMD_MIXING
+# undef LMD_MIXING
 # ifdef LMD_MIXING
 #  define LMD_RIMIX
 #  define LMD_CONVEC
@@ -121,7 +121,7 @@
 #  undef LMD_DDMIX
 # endif
 
-# undef GLS_MIXING
+# define GLS_MIXING
 # undef MY25_MIXING
 
 # if defined GLS_MIXING || defined MY25_MIXING
