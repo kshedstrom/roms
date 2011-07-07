@@ -2385,7 +2385,7 @@
   'sea surface height climatology'
   'meter'                                          ! [m]
   'zeta, scalar, series'
-  'zeta_time'
+  'ocean_time'
   'idSSHc'
   'r2dvar'
   1.0d0
@@ -2394,7 +2394,7 @@
   'vertically integrated u-momentum climatology'
   'meter second-1'                                 ! [m/s]
   'ubar-velocity, scalar, series'
-  'v2d_time'
+  'ocean_time'
   'idUbcl'
   'u2dvar'
   1.0d0
@@ -2403,7 +2403,7 @@
   'vertically integrated v-momentum climatology'
   'meter second-1'                                 ! [m/s]
   'vbar-velocity, scalar, series'
-  'v2d_time'
+  'ocean_time'
   'idVbcl'
   'v2dvar'
   1.0d0
@@ -2412,7 +2412,7 @@
   'u-momentum component climatology'
   'meter second-1'                                 ! [m/s]
   'u-velocity, scalar, series'
-  'v3d_time'
+  'ocean_time'
   'idUclm'
   'u3dvar'
   1.0d0
@@ -2421,7 +2421,7 @@
   'v-momentum component climatology'
   'meter second-1'                                 ! [m/s]
   'v-velocity, scalar, series'
-  'v3d_time'
+  'ocean_time'
   'idVclm'
   'v3dvar'
   1.0d0
@@ -2457,7 +2457,7 @@
   'potential temperature climatology'
   'Celsius'                                        ! [Celsius]
   'temp, scalar, series'
-  'temp_time'
+  'ocean_time'
   'idTclm(itemp)'
   'r3dvar'
   1.0d0
@@ -2466,7 +2466,7 @@
   'salinity climatology'
   'nondimensional'                                 ! [PSU]
   'salt, scalar, series'
-  'salt_time'
+  'ocean_time'
   'idTclm(isalt)'
   'r3dvar'
   1.0d0

@@ -118,7 +118,7 @@
 #ifndef EASTERN_WALL
 ! cff3-point wide linearly tapered nudging zone
       DO i=MAX(IstrR,Lm(ng)+1-INT(cff3)),IendR       ! EAST boundary
-        DO j=400,JendR
+        DO j=MAX(400,JstrR),JendR
           wrk(i,j)=MAX(wrk(i,j),                                        &
      &             cff1+REAL(Lm(ng)+1-i,r8)*(cff2-cff1)/cff3)
         END DO
