@@ -70,19 +70,17 @@
 ! indices (Istr,Iend) and (Jstr,Jend), [1:Ngrids].
 
 !      NtileI == 1                               ! I-direction partition
+!      NtileI == 2                               ! I-direction partition
+       NtileI == 4                               ! I-direction partition
 !      NtileJ == 8                              ! J-direction partition
-!      NtileI == 6                               ! I-direction partition
-!      NtileJ == 8                              ! J-direction partition
-!      NtileI == 4                               ! I-direction partition
-       NtileI == 6                               ! I-direction partition
 !      NtileJ == 10                              ! J-direction partition
-       NtileJ == 16                              ! J-direction partition
+       NtileJ == 32                              ! J-direction partition
 
 ! Time-Stepping parameters.
 
-       NTIMES == 86400
-!          DT == 180.0d0
-          DT == 600.0d0
+       NTIMES == 69120
+          DT == 225.0d0
+!          DT == 360.0d0
      NDTFAST == 20
 
 ! Model iteration loops parameters.
@@ -104,26 +102,28 @@
 
        NRREC = 0
    LcycleRST == T
-      NRST == 144
-      NSTA == 6
-      NFLT == 6
-!       NRST == 480
-!       NSTA == 20
-!       NFLT == 20
+!       NRST == 240
+!       NSTA == 10
+!       NFLT == 10
+       NRST == 384
+       NSTA == 16
+       NFLT == 16
        NINFO == 1
 
 ! Output history, average, diagnostic files parameters.
 
      LDEFOUT == T
+!       NHIS == 4
+!    NDEFHIS == 4
 !       NHIS == 8640
 !    NDEFHIS == 86400
 !       NHIS == 4320
 !    NDEFHIS == 43200
       NTSAVG == 1
-      NAVG == 144
-   NDEFAVG == 144
-!       NAVG == 480
-!    NDEFAVG == 480
+!       NAVG == 240
+!    NDEFAVG == 240
+       NAVG == 384
+    NDEFAVG == 384
      NTSAVG2 == 1
        NAVG2 == 27
     NDEFAVG2 == 1920
@@ -249,7 +249,8 @@
 ! origin for tidal forcing, and model reference time for output
 ! NetCDF units attribute.
 
-      DSTART =  36526.5d0                  ! days
+      DSTART =  21186.5d0                  ! days
+!      DSTART =  36526.5d0                  ! days
   TIDE_START =  -693962.0d0                ! days
     TIME_REF =  19000101.0d0               ! yyyymmdd.dd
 
@@ -676,14 +677,15 @@ Dout(iTvdif) == T T                        ! vertical diffusion
 ! Input NetCDF file names, [1:Ngrids].
 
      GRDNAME == /wrkdir/kate/NEP/Files/NEP6_grd_depth_min_15m.nc
-!     GRDNAME == /wrkdir/kate/NEP/Files/NEP6_grd_python.nc
-     ININAME == /wrkdir/kate/NEP/Files/SODA_2.1.6_20000101-20000106_ic_NEP6_bio_ice.nc
+     ININAME == /wrkdir/kate/NEP/Files/SODA_2.1.6_19580101_ic_NEP6_bio_ice.nc
+!     ININAME == /wrkdir/kate/NEP/Files/SODA_2.1.6_20000101-20000106_ic_NEP6_bio_ice.nc
 !     ININAME == nep6_rst.nc
      ITLNAME == ocean_itl.nc
      IRPNAME == ocean_irp.nc
      IADNAME == ocean_iad.nc
-     CLMNAME == ocean_clm.nc
-     BRYNAME == /wrkdir/kate/NEP/Files/SODA_2.1.6_bdry_NEP6_bio_passive_1970_2007.nc
+     CLMNAME == /wrkdir/kate/NEP/Files/SODA_2.1.6_clim_NEP6_1958.nc |
+                /wrkdir/kate/NEP/Files/SODA_2.1.6_clim_NEP6_1959.nc
+     BRYNAME == /wrkdir/kate/NEP/Files/SODA_2.1.6_bdry_NEP6_1958-2008.nc
      FWDNAME == ocean_fwd.nc
      ADSNAME == ocean_ads.nc
 
@@ -700,15 +702,15 @@ Dout(iTvdif) == T T                        ! vertical diffusion
 
     NFFILES == 11                          ! number of forcing files
 
-    FRCNAME == /wrkdir/kate/Bering/Files/Pair.1948-2006.nc   \
-               /wrkdir/kate/Bering/Files/lwrad.1948-2006.nc  \
-               /wrkdir/kate/Bering/Files/Qair.1948-2006.nc   \
-               /wrkdir/kate/Bering/Files/swrad.1948-2006.nc  \
-               /wrkdir/kate/Bering/Files/Tair.1948-2006.nc   \
-               /wrkdir/kate/Bering/Files/Uwind.1948-2006.nc  \
-               /wrkdir/kate/Bering/Files/Vwind.1948-2006.nc  \
+    FRCNAME == /wrkdir/kate/Bering/Files/Pair.1948-2007.nc   \
+               /wrkdir/kate/Bering/Files/lwrad.1948-2007.nc  \
+               /wrkdir/kate/Bering/Files/Qair.1948-2007.nc   \
+               /wrkdir/kate/Bering/Files/swrad.1948-2007.nc  \
+               /wrkdir/kate/Bering/Files/Tair.1948-2007.nc   \
+               /wrkdir/kate/Bering/Files/Uwind.1948-2007.nc  \
+               /wrkdir/kate/Bering/Files/Vwind.1948-2007.nc  \
                /wrkdir/kate/NEP/Files/runoff_NEP6_daitren_inter_annual_1948-2007.nc   \
-               /wrkdir/kate/Bering/Files/rain.1948-2006.nc  \
+               /wrkdir/kate/Bering/Files/rain.1948-2007.nc  \
                /wrkdir/kate/Bering/Files/sss_fill_2004.nc  \
                /wrkdir/kate/NEP/Files/NEP4_tides_otps.nc
 
