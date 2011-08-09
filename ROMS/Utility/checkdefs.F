@@ -2554,6 +2554,12 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+13)=' TL_AVERAGES,'
 #endif
+#if defined TL_AVERAGES && defined TANGENT
+      IF (Master) WRITE (stdout,20) 'TL_AVERAGES',                      &
+     &   'Writing out time-averaged tangent linear model fields.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+13)=' TL_AVERAGES,'
+#endif
 #ifdef TLM_DRIVER
       IF (Master) WRITE (stdout,20) 'TLM_DRIVER',                       &
      &   'Generic tangent linear model driver.'

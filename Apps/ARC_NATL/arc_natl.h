@@ -9,10 +9,11 @@
 **
 *******************************************************************************
 **
-**  Options for Northeast Pacific (NEP5) simulation
+**  Options for Northeast Pacific (NEP6) simulation
 */
 
 #define NO_HIS
+#define GLOBAL_PERIODIC
 #undef NETCDF4
 #undef PARALLEL_IO
 #undef OFFLINE_FLOATS
@@ -44,8 +45,6 @@
 #ifdef SOLVE3D
 # define  ICE_MODEL
 # ifdef ICE_MODEL
-#  define OUTFLOW_MASK
-#  define  FASTICE_CLIMATOLOGY
 #  define  ICE_THERMO
 #  define  ICE_MK
 #  undef   ICE_ALB_EC92
@@ -57,9 +56,9 @@
 #  define  ICE_SMOLAR
 #  define  ICE_UPWIND
 #  define  ICE_BULK_FLUXES
-#  undef  ANA_AIOBC
-#  undef  ANA_HIOBC
-#  undef  ANA_HSNOBC
+#  define  ANA_AIOBC
+#  define  ANA_HIOBC
+#  define  ANA_HSNOBC
 # endif
 #endif
 
@@ -97,7 +96,7 @@
 #undef VISC_3DCOEF
 #define MIX_S_UV
 #define VISC_GRID
-#define SPONGE
+#undef SPONGE
 
 #ifdef SOLVE3D
 # define TS_DIF2
@@ -111,7 +110,7 @@
 # define SOLAR_SOURCE
 # define WTYPE_GRID
 
-# define LMD_MIXING
+# undef LMD_MIXING
 # ifdef LMD_MIXING
 #  define LMD_RIMIX
 #  define LMD_CONVEC
@@ -122,7 +121,7 @@
 #  undef LMD_DDMIX
 # endif
 
-# undef GLS_MIXING
+# define GLS_MIXING
 # undef MY25_MIXING
 
 # if defined GLS_MIXING || defined MY25_MIXING
@@ -163,12 +162,11 @@
 
 /* point sources (rivers, line sources) */
 
-/* Using Runoff instead now */
+/* Using Runoff now */
 #ifdef SOLVE3D
 # define RUNOFF
-# undef UV_PSOURCE
-# undef ANA_PSOURCE
-# undef TS_PSOURCE
+# define UV_PSOURCE
+# define TS_PSOURCE
 #endif
 
 /* tides */
@@ -182,7 +180,7 @@
 # define ADD_M2OBC
 # undef RAMP_TIDES
 # define TIDES_ASTRO
-# undef POT_TIDES
+# define POT_TIDES
 
 # define UV_LDRAG
 # define UV_DRAG_GRID
@@ -195,9 +193,9 @@
 
 /* Boundary conditions...careful with grid orientation */
 
-#undef EASTERN_WALL
-#undef NORTHERN_WALL
-#undef WESTERN_WALL
+#define EASTERN_WALL
+#define NORTHERN_WALL
+#define WESTERN_WALL
 #undef SOUTHERN_WALL
 
 #define RADIATION_2D
@@ -210,11 +208,7 @@
 #  define NORTH_M3NUDGING
 #  define NORTH_TRADIATION
 #  define NORTH_TNUDGING
-#  define NORTH_MICLAMPED
-#  define NORTH_AICLAMPED
-#  define NORTH_HICLAMPED
-#  define NORTH_HSNCLAMPED
-#  undef NORTH_TICLAMPED
+#  define NORTH_MIGRADIENT
 # endif
 #endif
 
@@ -226,11 +220,7 @@
 #  define WEST_M3NUDGING
 #  define WEST_TRADIATION
 #  define WEST_TNUDGING
-#  define WEST_MICLAMPED
-#  define WEST_AICLAMPED
-#  define WEST_HICLAMPED
-#  define WEST_HSNCLAMPED
-#  undef WEST_TICLAMPED
+#  define WEST_MIGRADIENT
 # endif
 #endif
 
@@ -242,11 +232,7 @@
 #  define SOUTH_M3NUDGING
 #  define SOUTH_TRADIATION
 #  define SOUTH_TNUDGING
-#  define SOUTH_MICLAMPED
-#  define SOUTH_AICLAMPED
-#  define SOUTH_HICLAMPED
-#  define SOUTH_HSNCLAMPED
-#  undef SOUTH_TICLAMPED
+#  define SOUTH_MIGRADIENT
 # endif
 #endif
 
@@ -258,11 +244,7 @@
 #  define EAST_M3NUDGING
 #  define EAST_TRADIATION
 #  define EAST_TNUDGING
-#  define EAST_MICLAMPED
-#  define EAST_AICLAMPED
-#  define EAST_HICLAMPED
-#  define EAST_HSNCLAMPED
-#  undef EAST_TICLAMPED
+#  define EAST_MIGRADIENT
 # endif
 #endif
 
@@ -279,19 +261,6 @@
 **  Biological model options.
 */
 #undef NEMURO
-#undef BIO_GOANPZ        /* Sarah Hinckley's 11 box model */
-#undef BEST_NPZ         /* Georgina Gibsons BEST NPZ model  */
-
-#if defined BEST_NPZ || defined BIO_GOANPZ
-# undef  BIOFLUX           /* sum Nitrogen fluxes between boxes */
-# define ANA_BIOLOGY       /* analytical biology initial conditions */
-# define ANA_BPFLUX        /* analytical bottom passive tracers fluxes */
-# define ANA_SPFLUX        /* analytical surface passive tracers fluxes */
-# define DIAPAUSE          /* Enable Neocalanus seasonal vertical migration */
-# undef FLOAT_VWALK
-# define IRON_LIMIT        /* Add iron as passive 11th tracer */
-# undef TCLM_NUDGING      /* Nudging of tracer climatology for iron */
-#endif
 
 #if defined NEMURO
 # define BIO_SEDIMENT
@@ -307,36 +276,3 @@
 # undef  ANA_BIOSWRAD
 # undef  DIAGNOSTICS_BIO
 #endif
-
-#ifdef BEST_NPZ
-# define        NEWSHADE    /* Use Craig''s formulation for self shading in PAR calc+                       Else use Sarah''s self-shading from original NPZ code */
-# undef        KODIAK_IRAD /* Generate irradiance with curve matching Kodiak data
-                       Else use shortwave radiation (srflx) as irradiance   */
-# define JELLY
-# define STATIONARY
-# define STATIONARY2
-# define PROD3
-# define PROD2
-# define BENTHIC /*FENNEL or BENTHIC or TRAP*/
-# define ICE_BIO
-# undef CLIM_ICE_1D
-
-# undef SINKVAR      /* for variable sinking rate*/
-# undef DENMAN
-
-# undef OFFLINE_BIOLOGY   /* define if offline simulation of bio tracers */
-#   if defined OFFLINE_BIOLOGY
-#    define AKSCLIMATOLOGY   /* Processing of AKS climatology */
-#    undef ANA_AKSCLIMA      /* Processing of AKS climatology */
-#   endif
-#  undef DIAPAUSE          /* Enable Neocalanus seasonal vertical migration */
-#  define  IRON_LIMIT        /* Add iron as passive 13th tracer */
-#    if defined IRON_LIMIT || defined CLIM_ICE_1D
-#      if !defined OFFLINE_BIOLOGY
-#       define TCLM_NUDGING    /* Nudging of tracer climatology for iron */
-#       undef  ANA_TCLIMA     /* analytical tracers climatology for iron */
-#       define TCLIMATOLOGY   /* Processing of tracer climatology for iron */
-#      endif
-#    endif
-#endif
-

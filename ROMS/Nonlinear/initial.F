@@ -462,7 +462,7 @@
 !
 !  Analytical initial conditions for sea ice.
 !
-      IF (nrrec.eq.0) THEN
+      IF (nrrec(ng).eq.0) THEN
 !$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(ng,numthreads)
         DO thread=0,numthreads-1
           subs=NtileX(ng)*NtileE(ng)/numthreads

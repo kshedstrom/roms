@@ -59,7 +59,6 @@ $(if $(filter $(MAKE_VERSION),$(NEED_VERSION)),,        \
 #  the .h extension. For example, the upwelling application includes the
 #  "upwelling.h" header file.
 
-#ROMS_APPLICATION := WC13
 ROMS_APPLICATION := CCS30
 
 #  If application header files is not located in "ROMS/Include",

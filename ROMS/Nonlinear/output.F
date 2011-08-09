@@ -121,7 +121,7 @@
             IF (Master) THEN
               WRITE (HIS(ng)%name,10) TRIM(HIS(ng)%base), ifile
 #if defined NEP5 || defined NEP6 || defined CASPIAN || defined CHUKCHI \
-           || defined CORAL || defined NWA
+           || defined CORAL || defined NWA || defined ARC_NATL
   10          FORMAT (a,'_',i5.5,'.nc')
 #else
   10          FORMAT (a,'_',i4.4,'.nc')
@@ -221,7 +221,7 @@
             IF (Master) THEN
               WRITE (AVG(ng)%name,20) TRIM(AVG(ng)%base), ifile
 #if defined NEP5 || defined NEP6 || defined CASPIAN || defined CHUKCHI \
-            || defined CORAL || defined NWA
+           || defined CORAL || defined NWA || defined ARC_NATL
   20          FORMAT (a,'_',i5.5,'.nc')
 #else
   20          FORMAT (a,'_',i4.4,'.nc')
@@ -391,7 +391,7 @@
             IF (Master) THEN
               WRITE (DIA(ng)%name,30) TRIM(DIA(ng)%base), ifile
 #if defined NEP5 || defined NEP6 || defined CASPIAN || defined CHUKCHI \
-            || defined CORAL || defined NWA
+           || defined CORAL || defined NWA || defined ARC_NATL
   30          FORMAT (a,'_',i5.5,'.nc')
 #else
   30          FORMAT (a,'_',i4.4,'.nc')
@@ -442,7 +442,7 @@
 !
         IF (LdefSTA(ng).and.(iic(ng).eq.ntstart(ng))) THEN
 #if defined NEP5 || defined NEP6 || defined CASPIAN || defined CHUKCHI \
-            || defined CORAL || defined NWA
+           || defined CORAL || defined NWA || defined ARC_NATL
           CALL def_station (ng, .true.)
 #else
           CALL def_station (ng, ldefout(ng))
