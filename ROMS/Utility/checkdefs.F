@@ -389,7 +389,7 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+12)=' ANA_SMFLUX,'
 #endif
-#ifdef ANA_SPAWN_DIST && defined NEMURO_SAN
+#if defined ANA_SPAWN_DIST && defined NEMURO_SAN
       IF (Master) WRITE (stdout,20) 'ANA_SPAWN_DIST',                   &
      &   'Analytic spawning distance.'
       is=LEN_TRIM(Coptions)+1
@@ -2548,6 +2548,7 @@
      &   'Compute astronomical (long-period tide) corrections.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+13)=' TIDES_ASTRO,'
+#endif
 #if defined TL_AVERAGES && defined TANGENT
       IF (Master) WRITE (stdout,20) 'TL_AVERAGES',                      &
      &   'Writing out time-averaged tangent linear model fields.'
