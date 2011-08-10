@@ -8882,7 +8882,13 @@
                   ELSE
                     string=Vstring(is:ie)
                     LenS=LEN_TRIM(string)
-                    READ (string(1:LenS),*) Rval(Nval)
+!                   READ (string(1:LenS),*) Rval(Nval)
+                    READ (string(1:LenS),*,IOSTAT=ierr) Rval(Nval)
+                    if (ierr.ne.0) then
+	              write(*,*)                                        &
+     &     ### ERROR :: Cannot interpret string ''', string(1:LenS),    &
+	''' as a REAL number.'
+                    end if
                   END IF
                 ELSE
 !
