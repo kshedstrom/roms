@@ -31,7 +31,7 @@
 #define STATIONS
 #undef WET_DRY
 
-#undef T_PASSIVE
+#define T_PASSIVE
 #ifdef T_PASSIVE
 # define ANA_PASSIVE
 # define TRC_PSOURCE
@@ -159,18 +159,6 @@
 # undef TCLM_NUDGING
 #endif
 
-/* point sources (rivers, line sources) */
-
-/* Using Runoff instead now */
-#ifdef SOLVE3D
-# define RUNOFF
-# ifdef EASTERN_WALL
-#  define UV_PSOURCE
-#  define ANA_PSOURCE
-#  undef TS_PSOURCE
-# endif
-#endif
-
 /* tides */
 
 #define LTIDES
@@ -199,6 +187,18 @@
 #define NORTHERN_WALL
 #undef WESTERN_WALL
 #undef SOUTHERN_WALL
+
+/* point sources (rivers, line sources) */
+
+/* Using Runoff instead now */
+#ifdef SOLVE3D
+# define RUNOFF
+# ifdef EASTERN_WALL
+#  define UV_PSOURCE
+#  define ANA_PSOURCE
+#  undef TS_PSOURCE
+# endif
+#endif
 
 #define RADIATION_2D
 
