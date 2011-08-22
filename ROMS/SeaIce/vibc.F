@@ -308,7 +308,7 @@
 !
       IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
 
-# if defined SOUTH_M2RADIATION
+# if defined SOUTH_MIRADIATION
 !
 !  Southern edge, implicit upstream radiation condition.
 !
@@ -405,7 +405,7 @@ THEN
 !
       IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
 
-# if defined NORTH_M2RADIATION
+# if defined NORTH_MIRADIATION
 !
 !  Northern edge, implicit upstream radiation condition.
 !
