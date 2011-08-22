@@ -164,22 +164,22 @@
 !
 #ifdef _OPENMP
       IF (DOMAIN(ng)%Western_Edge(tile)) THEN
-        Imin=LBi
+        Imin=BOUNDS(ng)%LBi(tile)
       ELSE
         Imin=Istr
       END IF
       IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
-        Imax=UBi
+        Imax=BOUNDS(ng)%UBi(tile)
       ELSE
         Imax=Iend
       END IF
       IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
-        Jmin=LBj
+        Jmin=BOUNDS(ng)%LBj(tile)
       ELSE
-        Imin=Jstr
+        Jmin=Jstr
       END IF
       IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
-        Jmax=UBj
+        Jmax=BOUNDS(ng)%UBj(tile)
       ELSE
         Jmax=Jend
       END IF
