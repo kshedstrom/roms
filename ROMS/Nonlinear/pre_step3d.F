@@ -1171,7 +1171,7 @@
 #  else
       DO itrc=1,NT(ng)
 #  endif
-       IF (itrc.le.NAT) THEN
+       IF (itrc.lt.inert(1) .or. itrc.gt.inert(NPT)) THEN
         CALL t3dbc_tile (ng, tile, itrc,                                &
      &                   LBi, UBi, LBj, UBj, N(ng), NT(ng),             &
      &                   IminS, ImaxS, JminS, JmaxS,                    &
