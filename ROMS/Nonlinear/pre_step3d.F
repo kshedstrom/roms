@@ -1171,7 +1171,9 @@
 #  else
       DO itrc=1,NT(ng)
 #  endif
+#  ifdef T_PASSIVE
        IF (itrc.lt.inert(1) .or. itrc.gt.inert(NPT)) THEN
+#  endif
         CALL t3dbc_tile (ng, tile, itrc,                                &
      &                   LBi, UBi, LBj, UBj, N(ng), NT(ng),             &
      &                   IminS, ImaxS, JminS, JmaxS,                    &
@@ -1195,9 +1197,9 @@
      &                    IminS, ImaxS, JminS, JmaxS,                   &
      &                    nstp, 3,                                      &
      &                    t)
-#  endif
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
        END IF
+#  endif
       END DO
 #  ifdef DISTRIBUTE
 #   ifdef TS_MPDATA
