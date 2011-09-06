@@ -122,6 +122,9 @@
             IF (label(1:3).eq.'FRC') THEN
               FRCids(ifile,ng)=-1
             END IF
+            IF (label(1:3).eq.'BRY') THEN
+              BRYids(ifile,ng)=-1
+            END IF
             EXIT
           END IF
         END DO
@@ -322,6 +325,20 @@
         RETURN
       END IF
 !
+!  If processing model boundaries (multiple files allowed), check if file
+!  for requested field (based on ncid) has been already opened and get
+!  its ID from the association table (BRYids).
+!
+      IF (label(1:3).eq.'BRY') THEN
+        DO ifile=1,nfiles
+          IF ((TRIM(ncfile).eq.TRIM(S(ifile)%name)).and.                &
+     &        ((ncid.eq.-1).and.(BRYids(ifile,ng).ne.-1))) THEN
+            ncid=BRYids(ifile,ng)
+            EXIT
+          END IF
+        END DO
+      END IF
+!
 !  If processing model forcing (multiple files allowed), check if file
 !  for requested field (based on ncid) has been already opened and get
 !  its ID from the association table (FRCids).
@@ -343,6 +360,20 @@
         IF (exit_flag.ne.NoError) THEN
           WRITE (stdout,50) TRIM(ncfile)
           RETURN
+        END IF
+!
+!  If processing model boundaries, load ID into association table (BRYids).
+!
+        IF (label(1:3).eq.'BRY') THEN
+          DO ifile=1,nfiles
+            IF (TRIM(ncfile).eq.TRIM(S(ifile)%name)) THEN
+              BRYids(ifile,ng)=ncid
+              S(ifile)%ncid=ncid
+              EXIT
+            END IF
+          END DO
+        ELSE
+          S(1)%ncid=ncid
         END IF
 !
 !  If processing model forcing, load ID into association table (FRCids).
