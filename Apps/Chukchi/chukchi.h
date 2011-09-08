@@ -215,6 +215,9 @@
 #  define NORTH_HICLAMPED
 #  define NORTH_HSNCLAMPED
 #  undef NORTH_TICLAMPED
+#  define NORTH_SIG11CLAMPED
+#  define NORTH_SIG12CLAMPED
+#  define NORTH_SIG22CLAMPED
 # endif
 #endif
 
@@ -231,6 +234,9 @@
 #  define WEST_HICLAMPED
 #  define WEST_HSNCLAMPED
 #  undef WEST_TICLAMPED
+#  define WEST_SIG11CLAMPED
+#  define WEST_SIG12CLAMPED
+#  define WEST_SIG22CLAMPED
 # endif
 #endif
 
@@ -247,6 +253,9 @@
 #  define SOUTH_HICLAMPED
 #  define SOUTH_HSNCLAMPED
 #  undef SOUTH_TICLAMPED
+#  define SOUTH_SIG11CLAMPED
+#  define SOUTH_SIG12CLAMPED
+#  define SOUTH_SIG22CLAMPED
 # endif
 #endif
 
@@ -263,6 +272,9 @@
 #  define EAST_HICLAMPED
 #  define EAST_HSNCLAMPED
 #  undef EAST_TICLAMPED
+#  define EAST_SIG11CLAMPED
+#  define EAST_SIG12CLAMPED
+#  define EAST_SIG22CLAMPED
 # endif
 #endif
 

@@ -640,9 +640,21 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
      IRPNAME == cneck_irp.nc
      IADNAME == ../Data/cneck_ad_ini.nc
      CLMNAME == cneck_clm.nc
-     BRYNAME == cneck_bry.nc
      FWDNAME == ../Data/cneck_fwd.nc
      ADSNAME == ../Data/cneck_ad_frc.nc
+
+! Input boundary NetCDF file name(s).  The USER has the option to enter
+! several files names per each nested grid.  For example, the USER may
+! have a different files for velocity, ice, etc.
+! The model will scan the file list and will read the needed data
+! from the first file in the list containing the boundary field. Therefore,
+! the order of the file names is very important.  If multiple boundary
+! files per grid, enter first all the file names for grid 1, then grid 2,
+! and so on.  Use a single line per entry with a continuation (\) symbol
+! at the each entry, except the last one.
+
+     NBCFILES == 1                          ! number of boundary files
+     BRYNAME == cneck_bry.nc
 
 ! Input forcing NetCDF file name(s).  The USER has the option to enter
 ! several file names for each nested grid.  For example, the USER may

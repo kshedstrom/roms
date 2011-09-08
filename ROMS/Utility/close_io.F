@@ -76,26 +76,28 @@
 !
 !  If appropriate, close boundary files.
 !
-      IF ((BRY(ng)%Nfiles.gt.1).and.(BRY(ng)%ncid.ge.0)) THEN
-        IF (model.eq.iADM) THEN
-          DO i=1,BRY(ng)%Nfiles
-            IF ((BRY(ng)%time_min(i).le.tdays(ng)).and.                 &
-     &          (tdays(ng).le.BRY(ng)%time_max(i))) THEN
-              Fcount=i
-              EXIT
-            END IF
-          END DO
-        ELSE
-          Fcount=1
+      DO i=1,nBCfiles(ng)
+        IF ((BRY(i,ng)%Nfiles.gt.1).and.(BRY(i,ng)%ncid.ge.0)) THEN
+          IF (model.eq.iADM) THEN
+            DO j=1,BRY(i,ng)%Nfiles
+              IF ((BRY(i,ng)%time_min(j).le.tdays(ng)).and.             &
+     &            (tdays(ng).le.BRY(i,ng)%time_max(j))) THEN
+                Fcount=j
+                EXIT
+              END IF
+            END DO
+          ELSE
+            Fcount=1
+          END IF
+          BRY(i,ng)%Fcount=Fcount
+          BRY(i,ng)%name=TRIM(BRY(i,ng)%files(Fcount))
+          lstr=LEN_TRIM(BRY(i,ng)%name)
+          BRY(i,ng)%base=BRY(i,ng)%name(1:lstr-3)
+          CALL netcdf_close (ng, model, BRY(i,ng)%ncid,                 &
+     &                     BRY(i,ng)%files(i),  .FALSE.)
+          IF (exit_flag.ne.NoError) RETURN
         END IF
-        BRY(ng)%Fcount=Fcount
-        BRY(ng)%name=TRIM(BRY(ng)%files(Fcount))
-        lstr=LEN_TRIM(BRY(ng)%name)
-        BRY(ng)%base=BRY(ng)%name(1:lstr-3)
-        CALL netcdf_close (ng, model, BRY(ng)%ncid,                     &
-     &                     BRY(ng)%files(i),  .FALSE.)
-        IF (exit_flag.ne.NoError) RETURN
-      END IF
+      END DO
 #endif
 
 #ifdef CLM_FILE

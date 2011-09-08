@@ -110,6 +110,7 @@
 
       real(r8) :: Aval(6)
 
+      character (len=11 ) :: bryatt
       character (len=11 ) :: frcatt
 #ifdef OFFLINE
       character (len=11 ) :: clmatt
@@ -580,14 +581,18 @@
 
 #ifdef OBC_DATA
         IF (exit_flag.eq.NoError) THEN
-          CALL join_string (BRY(ng)%files, BRY(ng)%Nfiles, string, lstr)
-          status=nf90_put_att(ncid, nf90_global, 'bry_file',            &
+          DO i=1,nBCfiles(ng)
+            CALL join_string (BRY(i,ng)%files, BRY(i,ng)%Nfiles,        &
+     &                        string, lstr)
+            WRITE (bryatt,50) i
+            status=nf90_put_att(ncid, nf90_global, bryatt,              &
      &                        string(1:lstr))
-          IF (status.ne.nf90_noerr) THEN
-            IF (Master) WRITE (stdout,20) 'bry_file', TRIM(ncname)
-            exit_flag=3
-            ioerror=status
-          END IF
+            IF (status.ne.nf90_noerr) THEN
+              IF (Master) WRITE (stdout,20) TRIM(bryatt), TRIM(ncname)
+              exit_flag=3
+              ioerror=status
+            END IF
+          END DO
         END IF
 #endif
 
@@ -3130,6 +3135,7 @@
 #ifdef OFFLINE
   40  FORMAT ('clm_file_',i2.2)
 #endif
+  50  FORMAT ('bry_file_',i2.2)
 
       RETURN
       END SUBROUTINE def_info
