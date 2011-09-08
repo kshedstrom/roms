@@ -535,6 +535,10 @@
         integer, allocatable :: idSvar(:)     ! state vector indices
         integer, allocatable :: idSbry(:)     ! state boundaries indices
 !
+!  Input boundary NetCDF files IDs.
+!
+        integer, allocatable :: ncBRYid(:,:)
+!
 !  Input forcing NetCDF files IDs.
 !
         integer, allocatable :: ncFRCid(:,:)
@@ -694,6 +698,7 @@
       allocate ( idSvar(MAXVAL(NSV)+1) )
       allocate ( idSbry(MAXVAL(NSV)+1) )
 
+      allocate ( ncBRYid(NV,Ngrids) )
       allocate ( ncFRCid(NV,Ngrids) )
 
       allocate ( idefADJ(Ngrids) )
@@ -1097,6 +1102,7 @@
           Tintrp(2,i,ng)=0.0_r8
           Vtime(1,i,ng)=0.0_r8
           Vtime(2,i,ng)=0.0_r8
+          ncBRYid(i,ng)=-1
           ncFRCid(i,ng)=-1
         END DO
       END DO
