@@ -219,6 +219,7 @@
 !  Allocate variables.
 !-----------------------------------------------------------------------
 !
+      allocate ( nBCfiles(Ngrids) )
       allocate ( nFfiles(Ngrids) )
 
       RETURN

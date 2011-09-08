@@ -497,6 +497,7 @@
 !  Read in ice model input parameters.
 !-----------------------------------------------------------------------
 !
+      print *, MyRank, TRIM(iparnam)
       OPEN (inp, FILE=TRIM(iparnam), FORM='formatted', STATUS='old')
 
       CALL read_IcePar (inp, out, Lwrite)
@@ -1074,7 +1075,7 @@
       logical :: LreadNNS = .FALSE.
 #endif
       integer :: Lstr, Npts, Nval, i, itrc, k, ng, status
-      integer :: ifile, igrid, mFfiles
+      integer :: ifile, ibcfile, igrid, mFfiles
 
       integer :: decode_line, load_i, load_l, load_r
       integer :: load_s1d, load_s2d
@@ -1114,6 +1115,7 @@
 !-----------------------------------------------------------------------
 !
       ifile=1
+      ibcfile=1
       igrid=1
       DO i=1,LEN(label)
         label(i:i)=blank
@@ -3776,7 +3778,7 @@
           ELSE IF (TRIM(KeyWord).eq.'FRCNAME') THEN
             label='FRC - forcing fields'
             Npts=load_s2d(Nval, Cval, line, label, ifile, igrid,        &
-     &                    Ncount, mFfiles, FRC)
+     &                    Ncount, mFfiles, nFfiles, FRC)
           ELSE IF (TRIM(KeyWord).eq.'CLMNAME') THEN
             label='CLM - climatology fields'
             Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles, CLM)
@@ -3798,8 +3800,8 @@
             Ncount(1:mFfiles,1:Ngrids)=0
           ELSE IF (TRIM(KeyWord).eq.'BRYNAME') THEN
             label='BRY - lateral open boundary conditions'
-            Npts=load_s2d(Nval, Cval, line, label, ifile, igrid,        &
-     &                    Ncount, mFfiles, BRY)
+            Npts=load_s2d(Nval, Cval, line, label, ibcfile, igrid,      &
+     &                    Ncount, mFfiles, nBCfiles, BRY)
           ELSE IF (TRIM(KeyWord).eq.'FWDNAME') THEN
             label='FWD - basic state forward trajectory'
             Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles, FWD)
@@ -6210,8 +6212,8 @@
               fname=BRY(i,ng)%files(ifile)
               IF (.not.find_file(ng, fname)) GO TO 30
               IF (ifile.eq.1) THEN
-                WRITE (out,230) '           Input Boundary File:  ',    &
-     &                        TRIM(fname)
+                WRITE (out,310) '        Input Boundary File ', i,      &
+     &                          ':  ', TRIM(fname)
               ELSE
                 WRITE (out,'(35x,a)') TRIM(fname)
               END IF
@@ -6245,7 +6247,7 @@
 #ifdef ICE_MODEL
           fname=iparnam
           IF (.not.find_file(ng, fname)) GO TO 30
-          WRITE (out,230) '       Ice Model Parameters File:  ',        &
+          WRITE (out,230) '     Ice Model Parameters File:  ',          &
      &                    TRIM(fname)
 #endif
           fname=varname
@@ -9383,7 +9385,7 @@
       END FUNCTION load_s1d
 
       FUNCTION load_s2d (Nval, Fname, line, label, ifile, igrid,        &
-     &                   Nfiles, idim, S)
+     &                   Nfiles, idim, nFF, S)
 !
 !=======================================================================
 !                                                                      !
@@ -9424,6 +9426,7 @@
       integer, intent(in)    :: Nval, idim
       integer, intent(inout) :: ifile, igrid
       integer, intent(inout) :: Nfiles(idim,Ngrids)
+      integer, intent(inout) :: NFF(Ngrids)
 
       character (len=*),   intent(in) :: line
       character (len=256), intent(in) :: Fname(100)
@@ -9466,7 +9469,7 @@
 !  symbol in the input "line" is used to advance the counters.
 !
       IF (.not.load) THEN
-        IF (ifile.le.nFfiles(igrid)) THEN
+        IF (ifile.le.NFF(igrid)) THEN
           ifile=ifile+MIN(1,Icont)
         ELSE
           ifile=1

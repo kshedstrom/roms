@@ -1424,13 +1424,12 @@
         END DO
       END DO
 !
-      DO itrc=inert(4),NT(ng)
-        DO k=1,N(ng)
-          DO j=Jstr,Jend
-            DO i=Istr,Iend
-              t(i,j,k,nnew,itrc)=t(i,j,k,nnew,itrc)-fac*                &
+      itrc=inert(4)
+      DO k=1,N(ng)
+        DO j=Jstr,Jend
+          DO i=Istr,Iend
+            t(i,j,k,nnew,itrc)=t(i,j,k,nnew,itrc)-fac*                &
      &                         (t(i,j,k,nnew,itrc)-t(i,j,k,nnew,itrc-1))
-            END DO
           END DO
         END DO
       END DO

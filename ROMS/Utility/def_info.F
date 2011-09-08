@@ -581,7 +581,7 @@
 
 #ifdef OBC_DATA
         IF (exit_flag.eq.NoError) THEN
-          DO i=1,nFfiles(ng)
+          DO i=1,nBCfiles(ng)
             CALL join_string (BRY(i,ng)%files, BRY(i,ng)%Nfiles,        &
      &                        string, lstr)
             WRITE (bryatt,50) i
