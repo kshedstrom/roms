@@ -163,7 +163,7 @@
 # ifdef SOGLOBEC
       USE mod_clima
 # endif
-# ifdef BEST_NPZ
+# if defined OFFLINE_BIOLOGY || defined BEST_NPZ
       USE mod_biology
 # endif
 !
