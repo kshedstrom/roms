@@ -613,27 +613,7 @@
         END IF
 #endif
 
-#ifdef OFFLINE
-# if (defined  ZCLIMATOLOGY && !defined ANA_SSH)     || \
-    (defined M2CLIMATOLOGY && !defined ANA_M2CLIMA) || \
-    (defined  TCLIMATOLOGY && !defined ANA_TCLIMA)  || \
-    (defined M3CLIMATOLOGY && !defined ANA_M3CLIMA)
-        IF (exit_flag.eq.NoError) THEN
-          DO i=1,nCfiles(ng)
-            WRITE (clmatt,40) i
-            status=nf90_put_att(ncid, nf90_global, clmatt, &
-     &                          TRIM(CLMname(i,ng)))
-            IF (status.ne.nf90_noerr) THEN
-              IF (Master) WRITE (stdout,20) TRIM(clmatt), TRIM(ncname)
-              exit_flag=3
-              ioerror=status
-              EXIT
-            END IF
-          END DO
-        END IF
-# endif
-#else
-# if (defined  ZCLIMATOLOGY && !defined ANA_SSH)     || \
+#if (defined  ZCLIMATOLOGY && !defined ANA_SSH)     || \
     (defined M2CLIMATOLOGY && !defined ANA_M2CLIMA) || \
     (defined  TCLIMATOLOGY && !defined ANA_TCLIMA)  || \
     (defined M3CLIMATOLOGY && !defined ANA_M3CLIMA)
@@ -647,7 +627,6 @@
             ioerror=status
           END IF
         END IF
-# endif
 #endif
 
 #ifdef FORWARD_READ
