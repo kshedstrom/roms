@@ -112,6 +112,9 @@
 !
       USE mod_param
       USE mod_scalars
+#ifdef OFFLINE_BIOLOGY
+      USE mod_biology
+#endif
 !
 !  Imported variable declarations.
 !
