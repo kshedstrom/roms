@@ -1427,8 +1427,8 @@
       END DO
 
 #   if !defined ANA_AKTCLIMA && defined AKTCLIMATOLOGY
-      CALL get_3dfld (ng, iNLM, idAclm, ncCLMid(idAclm,ng),             &
-     &                  nCfiles(ng), CLM(1,ng), update(1),              &
+      CALL get_3dfld (ng, iNLM, idAclm, CLM(ng)%ncid,                   &
+     &                  1, CLM(ng), update(1),                          &
      &                  LBi, UBi, LBj, UBj, 0, N(ng), 2, 1,             &
 #    ifdef MASKING
      &                  GRID(ng) % rmask(LBi,LBj),                      &
@@ -1438,8 +1438,8 @@
 #   endif
 
 #   if (defined BEST_NPZ || defined BIO_GOANPZ) && defined IRON_LIMIT
-      CALL get_3dfld (ng, iNLM, idTclm(iFe), ncCLMid(ng), nCfiles(ng),  &
-     &                CLM(1,ng), update(1),                             &
+      CALL get_3dfld (ng, iNLM, idTclm(iFe), CLM(ng)%ncid, 1,           &
+     &                CLM(ng), update(1),                               &
      &                LBi, UBi, LBj, UBj, 1, N(ng), 2, 1,               &
 #    ifdef MASKING
      &                GRID(ng) % rmask(LBi,LBj),                        &
@@ -1448,8 +1448,8 @@
       IF (exit_flag.ne.NoError) RETURN
 #   endif
 #    if defined ICE_BIO && defined CLIM_ICE_1D
-       CALL get_3dfld (ng, iNLM, idTclm(i1CI), ncCLMid(ng),             &
-     &                nCfiles(ng), CLM(1,ng), update(1),                &
+       CALL get_3dfld (ng, iNLM, idTclm(i1CI), CLM(ng)%ncid,            &
+     &                1, CLM(ng), update(1),                            &
      &                LBi, UBi, LBj, UBj, 1, N(ng), 2, 1,               &
 #    ifdef MASKING
      &                GRID(ng) % rmask(LBi,LBj),                        &
@@ -1459,8 +1459,8 @@
 #   endif
 #  endif
 #  if !defined ANA_OCLIMA && defined OCLIMATOLOGY
-      CALL get_3dfld (ng, iNLM, idOclm, ncCLMid(idOclm,ng),             &
-     &                nCfiles(ng), CLM(1,ng), update(1),                &
+      CALL get_3dfld (ng, iNLM, idOclm, CLM(ng)%ncid,                   &
+     &                1, CLM(ng), update(1),                            &
      &                LBi, UBi, LBj, UBj, 1, N(ng), 2, 1,               &
 #    ifdef MASKING
      &                GRID(ng) % rmask(LBi,LBj),                        &
