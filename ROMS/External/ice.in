@@ -130,6 +130,11 @@
 
      max_a == 1.0d0
 
+! Maximum melt pond fraction
+! (nondimensional)
+
+     sfwat_max == 0.1d0
+
 ! Ice-water turning angle [degrees]
 
      stressang = 0.d0

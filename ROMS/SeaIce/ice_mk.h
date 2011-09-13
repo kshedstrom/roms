@@ -420,7 +420,6 @@
       real(r8), parameter :: hfus = 3.347E+5_r8         ! [J kg-1]
       real(r8), parameter :: cpi = 2093.0_r8            ! [J kg-1 K-1]
       real(r8), parameter :: cpw = 3990.0_r8            ! [J kg-1 K-1]
-      real(r8), parameter :: sfwatmx = 0.1_r8           ! [m]
       real(r8), parameter :: rhocpr = 0.2442754E-6_r8   ! [m s2 K kg-1]
 
       real(r8) :: sice
@@ -689,9 +688,9 @@
      &                        (wai(i,j)+wsm(i,j))*dtice(ng)
             sfwat(i,j,linew) = max(0.0_r8,sfwat(i,j,linew))
 !
-            IF (sfwat(i,j,linew) .gt. sfwatmx) THEN
-              wro(i,j) = (sfwat(i,j,linew)-sfwatmx)/dtice(ng)
-              sfwat(i,j,linew) = sfwatmx
+            IF (sfwat(i,j,linew) .gt. sfwat_max(ng)) THEN
+              wro(i,j) = (sfwat(i,j,linew)-sfwat_max(ng))/dtice(ng)
+              sfwat(i,j,linew) = sfwat_max(ng)
             END IF
           END IF
         END DO
