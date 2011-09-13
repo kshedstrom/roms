@@ -932,6 +932,48 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+14)=' EAST_VOLCONS,'
 #endif
+#ifdef EAST_AICLAMPED
+      IF (Master) WRITE (stdout,20) 'EAST_AICLAMPED',                   &
+     &   'Eastern edge, clamp ice area.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+16)=' EAST_AICLAMPED,'
+#endif
+#ifdef EAST_HICLAMPED
+      IF (Master) WRITE (stdout,20) 'EAST_HICLAMPED',                   &
+     &   'Eastern edge, clamp ice thickness.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+16)=' EAST_HICLAMPED,'
+#endif
+#ifdef EAST_HSNCLAMPED
+      IF (Master) WRITE (stdout,20) 'EAST_HSNCLAMPED',                  &
+     &   'Eastern edge, clamp snow thickness.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+17)=' EAST_HSNCLAMPED,'
+#endif
+#ifdef EAST_MICLAMPED
+      IF (Master) WRITE (stdout,20) 'EAST_MICLAMPED',                   &
+     &   'Eastern edge, clamp ice momentum.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+16)=' EAST_MICLAMPED,'
+#endif
+#ifdef EAST_SIG11CLAMPED
+      IF (Master) WRITE (stdout,20) 'EAST_SIG11CLAMPED',                &
+     &   'Eastern edge, clamp sig11.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+19)=' EAST_SIG11CLAMPED,'
+#endif
+#ifdef EAST_SIG12CLAMPED
+      IF (Master) WRITE (stdout,20) 'EAST_SIG12CLAMPED',                &
+     &   'Eastern edge, clamp sig12.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+19)=' EAST_SIG12CLAMPED,'
+#endif
+#ifdef EAST_SIG22CLAMPED
+      IF (Master) WRITE (stdout,20) 'EAST_SIG22CLAMPED',                &
+     &   'Eastern edge, clamp sig22.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+19)=' EAST_SIG22CLAMPED,'
+#endif
 #ifdef EASTERN_WALL
       IF (Master) WRITE (stdout,20) 'EASTERN_WALL',                     &
      &   'Wall boundary at Eastern edge.'
@@ -1707,6 +1749,48 @@
       Coptions(is:is+19)=' NORTH_PTRADIATION,'
       PT_north=PT_north+1
 #endif
+#ifdef NORTH_AICLAMPED
+      IF (Master) WRITE (stdout,20) 'NORTH_AICLAMPED',                  &
+     &   'Northern edge, clamp ice area.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+17)=' NORTH_AICLAMPED,'
+#endif
+#ifdef NORTH_HICLAMPED
+      IF (Master) WRITE (stdout,20) 'NORTH_HICLAMPED',                  &
+     &   'Northern edge, clamp ice thickness.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+17)=' NORTH_HICLAMPED,'
+#endif
+#ifdef NORTH_HSNCLAMPED
+      IF (Master) WRITE (stdout,20) 'NORTH_HSNCLAMPED',                 &
+     &   'Northern edge, clamp snow thickness.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+18)=' NORTH_HSNCLAMPED,'
+#endif
+#ifdef NORTH_MICLAMPED
+      IF (Master) WRITE (stdout,20) 'NORTH_MICLAMPED',                  &
+     &   'Northern edge, clamp ice momentum.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+17)=' NORTH_MICLAMPED,'
+#endif
+#ifdef NORTH_SIG11CLAMPED
+      IF (Master) WRITE (stdout,20) 'NORTH_SIG11CLAMPED',               &
+     &   'Northern edge, clamp sig11.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+20)=' NORTH_SIG11CLAMPED,'
+#endif
+#ifdef NORTH_SIG12CLAMPED
+      IF (Master) WRITE (stdout,20) 'NORTH_SIG12CLAMPED',               &
+     &   'Northern edge, clamp sig12.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+20)=' NORTH_SIG12CLAMPED,'
+#endif
+#ifdef NORTH_SIG22CLAMPED
+      IF (Master) WRITE (stdout,20) 'NORTH_SIG22CLAMPED',               &
+     &   'Northern edge, clamp sig22.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+20)=' NORTH_SIG22CLAMPED,'
+#endif
 
 #if defined NO_READ_GHOST && defined DISTRIBUTE
       IF (Master) WRITE (stdout,20) 'NO_READ_GRID',                     &
@@ -2333,6 +2417,48 @@
      &   'Southern edge, enforce mass conservation.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+15)=' SOUTH_VOLCONS,'
+#endif
+#ifdef SOUTH_AICLAMPED
+      IF (Master) WRITE (stdout,20) 'SOUTH_AICLAMPED',                  &
+     &   'Southern edge, clamp ice area.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+17)=' SOUTH_AICLAMPED,'
+#endif
+#ifdef SOUTH_HICLAMPED
+      IF (Master) WRITE (stdout,20) 'SOUTH_HICLAMPED',                  &
+     &   'Southern edge, clamp ice thickness.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+17)=' SOUTH_HICLAMPED,'
+#endif
+#ifdef SOUTH_HSNCLAMPED
+      IF (Master) WRITE (stdout,20) 'SOUTH_HSNCLAMPED',                 &
+     &   'Southern edge, clamp snow thickness.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+18)=' SOUTH_HSNCLAMPED,'
+#endif
+#ifdef SOUTH_MICLAMPED
+      IF (Master) WRITE (stdout,20) 'SOUTH_MICLAMPED',                  &
+     &   'Southern edge, clamp ice momentum.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+17)=' SOUTH_MICLAMPED,'
+#endif
+#ifdef SOUTH_SIG11CLAMPED
+      IF (Master) WRITE (stdout,20) 'SOUTH_SIG11CLAMPED',               &
+     &   'Southern edge, clamp sig11.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+20)=' SOUTH_SIG11CLAMPED,'
+#endif
+#ifdef SOUTH_SIG12CLAMPED
+      IF (Master) WRITE (stdout,20) 'SOUTH_SIG12CLAMPED',               &
+     &   'Southern edge, clamp sig12.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+20)=' SOUTH_SIG12CLAMPED,'
+#endif
+#ifdef SOUTH_SIG22CLAMPED
+      IF (Master) WRITE (stdout,20) 'SOUTH_SIG22CLAMPED',               &
+     &   'Southern edge, clamp sig22.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+20)=' SOUTH_SIG22CLAMPED,'
 #endif
 #ifdef SOUTHERN_WALL
       IF (Master) WRITE (stdout,20) 'SOUTHERN_WALL',                    &
@@ -3125,6 +3251,48 @@
      &   'Western edge, enforce mass conservation.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+14)=' WEST_VOLCONS,'
+#endif
+#ifdef WEST_AICLAMPED
+      IF (Master) WRITE (stdout,20) 'WEST_AICLAMPED',                   &
+     &   'Western edge, clamp ice area.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+16)=' WEST_AICLAMPED,'
+#endif
+#ifdef WEST_HICLAMPED
+      IF (Master) WRITE (stdout,20) 'WEST_HICLAMPED',                   &
+     &   'Western edge, clamp ice thickness.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+16)=' WEST_HICLAMPED,'
+#endif
+#ifdef WEST_HSNCLAMPED
+      IF (Master) WRITE (stdout,20) 'WEST_HSNCLAMPED',                  &
+     &   'Western edge, clamp snow thickness.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+17)=' WEST_HSNCLAMPED,'
+#endif
+#ifdef WEST_MICLAMPED
+      IF (Master) WRITE (stdout,20) 'WEST_MICLAMPED',                   &
+     &   'Western edge, clamp ice momentum.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+16)=' WEST_MICLAMPED,'
+#endif
+#ifdef WEST_SIG11CLAMPED
+      IF (Master) WRITE (stdout,20) 'WEST_SIG11CLAMPED',                &
+     &   'Western edge, clamp sig11.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+19)=' WEST_SIG11CLAMPED,'
+#endif
+#ifdef WEST_SIG12CLAMPED
+      IF (Master) WRITE (stdout,20) 'WEST_SIG12CLAMPED',                &
+     &   'Western edge, clamp sig12.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+19)=' WEST_SIG12CLAMPED,'
+#endif
+#ifdef WEST_SIG22CLAMPED
+      IF (Master) WRITE (stdout,20) 'WEST_SIG22CLAMPED',                &
+     &   'Western edge, clamp sig22.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+19)=' WEST_SIG22CLAMPED,'
 #endif
 #ifdef WESTERN_WALL
       IF (Master) WRITE (stdout,20) 'WESTERN_WALL',                     &
