@@ -688,9 +688,9 @@
      &                        (wai(i,j)+wsm(i,j))*dtice(ng)
             sfwat(i,j,linew) = max(0.0_r8,sfwat(i,j,linew))
 !
-            IF (sfwat(i,j,linew) .gt. sfwat_max) THEN
-              wro(i,j) = (sfwat(i,j,linew)-sfwat_max)/dtice(ng)
-              sfwat(i,j,linew) = sfwat_max
+            IF (sfwat(i,j,linew) .gt. sfwat_max(ng)) THEN
+              wro(i,j) = (sfwat(i,j,linew)-sfwat_max(ng))/dtice(ng)
+              sfwat(i,j,linew) = sfwat_max(ng)
             END IF
           END IF
         END DO

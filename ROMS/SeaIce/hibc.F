@@ -111,7 +111,7 @@
         DO j=Jstr,Jend
           dTdt=hi(Istr,j,know)-hi(Istr  ,j,linew)
           dTdx=hi(Istr,j,linew)-hi(Istr+1,j,linew)
-#   ifdef WEST_AINUDGING
+#   ifdef WEST_HINUDGING
           tau=Tobc_out(1,ng,iwest)
           IF ((dTdt*dTdx).lt.0.0_r8) tau=Tobc_in(1,ng,iwest)
           tau=tau*dt(ng)
@@ -134,7 +134,7 @@
      &                        MAX(Ce,0.0_r8)*grad(Istr-1,j  )-          &
      &                        MIN(Ce,0.0_r8)*grad(Istr-1,j+1))/         &
      &                              (cff+Cx)
-#   ifdef WEST_AINUDGING
+#   ifdef WEST_HINUDGING
           hi(Istr-1,j,linew)=hi(Istr-1,j,linew)+                        &
      &                       tau*(BOUNDARY(ng)%hi_west(j)-              &
      &                                   hi(Istr-1,j,know))
@@ -216,20 +216,6 @@
 #  ifdef WET_DRY
           hi(0,j,linew)=hi(0,j,linew)*                                  &
      &                   GRID(ng)%rmask_wet(0,j)
-#  endif
-        END DO
-# endif
-
-# ifdef CHUKCHI
-        DO j=Jstr,Jend
-          hi(1,j,linew)=BOUNDARY(ng)%hi_west(j)
-#  ifdef MASKING
-          hi(1,j,linew)=hi(1,j,linew)*                                  &
-     &                   GRID(ng)%rmask(1,j)
-#  endif
-#  ifdef WET_DRY
-          hi(1,j,linew)=hi(1,j,linew)*                                  &
-     &                   GRID(ng)%rmask_wet(1,j)
 #  endif
         END DO
 # endif
@@ -365,20 +351,6 @@
 #  endif
         END DO
 # endif
-
-# ifdef CHUKCHI
-        DO j=Jstr,Jend
-          hi(Lm(ng),j,linew)=BOUNDARY(ng)%hi_east(j)
-#  ifdef MASKING
-          hi(Lm(ng),j,linew)=hi(Lm(ng),j,linew)*                        &
-     &                          GRID(ng)%rmask(Lm(ng),j)
-#  endif
-#  ifdef WET_DRY
-          hi(Lm(ng),j,linew)=hi(Lm(ng),j,linew)*                        &
-     &                          GRID(ng)%rmask_wet(Lm(ng),j)
-#  endif
-        END DO
-# endif
       END IF
 #endif
 #ifndef NS_PERIODIC
@@ -429,7 +401,7 @@
      &                        MAX(Cx,0.0_r8)*grad(i  ,Jstr-1)-          &
      &                        MIN(Cx,0.0_r8)*grad(i+1,Jstr-1))/         &
      &                              (cff+Ce)
-#   ifdef SOUTH_AINUDGING
+#   ifdef SOUTH_HINUDGING
           hi(i,Jstr-1,linew)=hi(i,Jstr-1,linew)+                        &
      &           tau*(BOUNDARY(ng)%hi_south(i)-hi(i,Jstr-1,know))
 #   endif
@@ -510,20 +482,6 @@
 #  ifdef WET_DRY
           hi(i,0,linew)=hi(i,0,linew)*                                  &
      &                   GRID(ng)%rmask_wet(i,0)
-#  endif
-        END DO
-# endif
-
-# ifdef CHUKCHI
-        DO i=Istr,Iend
-          hi(i,1,linew)=BOUNDARY(ng)%hi_south(i)
-#  ifdef MASKING
-          hi(i,1,linew)=hi(i,1,linew)*                                  &
-     &                   GRID(ng)%rmask(i,1)
-#  endif
-#  ifdef WET_DRY
-          hi(i,1,linew)=hi(i,1,linew)*                                  &
-     &                   GRID(ng)%rmask_wet(i,1)
 #  endif
         END DO
 # endif
@@ -634,6 +592,10 @@
 !
         DO i=Istr,Iend
           hi(i,Mm(ng)+1,linew)=hi(i,Mm(ng),linew)
+#  ifdef MASKING
+          hi(i,Mm(ng)+1,linew)=hi(i,Mm(ng)+1,linew)*                    &
+     &                          GRID(ng)%rmask(i,Mm(ng)+1)
+#  endif
 #  ifdef WET_DRY
           hi(i,Mm(ng)+1,linew)=hi(i,Mm(ng)+1,linew)*                    &
      &                          GRID(ng)%rmask_wet(i,Mm(ng)+1)
@@ -652,20 +614,6 @@
 #  ifdef WET_DRY
           hi(i,Mm(ng)+1,linew)=hi(i,Mm(ng)+1,linew)*                    &
      &                          GRID(ng)%rmask_wet(i,Mm(ng)+1)
-#  endif
-        END DO
-# endif
-
-# ifdef CHUKCHI
-        DO i=Istr,Iend
-          hi(i,Mm(ng),linew)=BOUNDARY(ng)%hi_north(i)
-#  ifdef MASKING
-          hi(i,Mm(ng),linew)=hi(i,Mm(ng),linew)*                        &
-     &                          GRID(ng)%rmask(i,Mm(ng))
-#  endif
-#  ifdef WET_DRY
-          hi(i,Mm(ng),linew)=hi(i,Mm(ng),linew)*                        &
-     &                          GRID(ng)%rmask_wet(i,Mm(ng))
 #  endif
         END DO
 # endif

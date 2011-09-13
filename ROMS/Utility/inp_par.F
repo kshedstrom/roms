@@ -1096,6 +1096,7 @@
 #endif
       integer, allocatable :: Nfiles(:)
       integer, allocatable :: Ncount(:,:)
+      integer, allocatable :: NBCcount(:,:)
 
       real(r8), allocatable :: Rtracer(:,:)
       real(r8), allocatable :: tracer(:,:)
@@ -3832,13 +3833,13 @@
             mFfiles=MAXVAL(nBCfiles)
             allocate ( BRY(mFfiles,Ngrids) )
             allocate ( BRYids(mFfiles,Ngrids) )
-            allocate ( Ncount(mFfiles,Ngrids) )
+            allocate ( NBCcount(mFfiles,Ngrids) )
             BRYids(1:mFfiles,1:Ngrids)=-1
-            Ncount(1:mFfiles,1:Ngrids)=0
+            NBCcount(1:mFfiles,1:Ngrids)=0
           ELSE IF (TRIM(KeyWord).eq.'BRYNAME') THEN
             label='BRY - lateral open boundary conditions'
             Npts=load_s2d(Nval, Cval, line, label, ibcfile, igrid,      &
-     &                    Ncount, mFfiles, nBCfiles, BRY)
+     &                    NBCcount, mFfiles, nBCfiles, BRY)
           ELSE IF (TRIM(KeyWord).eq.'FWDNAME') THEN
             label='FWD - basic state forward trajectory'
             Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles, FWD)

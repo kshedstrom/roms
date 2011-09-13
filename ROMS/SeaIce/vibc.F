@@ -124,7 +124,7 @@
      &                         MAX(Ce,0.0_r8)*grad(Istr-1,j-1)-         &
      &                         MIN(Ce,0.0_r8)*grad(Istr-1,j  ))/        &
      &                        (cff+Cx)
-#  ifdef WEST_M2NUDGING
+#  ifdef WEST_MINUDGING
           vi(Istr-1,j,liunw)=vi(Istr-1,j,liunw)+                        &
      &                        tau*(BOUNDARY(ng)%vi_west(j)-             &
      &                             vi(Istr-1,j,know))
@@ -321,7 +321,7 @@
         DO i=Istr,Iend
           dVdt=vi(i,Jstr+1,know)-vi(i,Jstr+1,liunw)
           dVde=vi(i,Jstr+1,liunw)-vi(i,Jstr+2,liunw)
-#  ifdef SOUTH_M2NUDGING
+#  ifdef SOUTH_MINUDGING
           IF ((dVdt*dVde).lt.0.0_r8) THEN
             tau=M2obc_in(ng,isouth)
           ELSE
@@ -348,7 +348,7 @@ THEN
      &                       MAX(Cx,0.0_r8)*grad(i  ,Jstr)-             &
      &                       MIN(Cx,0.0_r8)*grad(i+1,Jstr))/            &
      &                      (cff+Ce)
-#  ifdef SOUTH_M2NUDGING 
+#  ifdef SOUTH_MINUDGING 
           vi(i,Jstr,liunw)=vi(i,Jstr,liunw)+                            &
      &                      tau*(BOUNDARY(ng)%vi_south(i)-              &
      &                           vi(i,Jstr,know))
@@ -418,7 +418,7 @@ THEN
         DO i=Istr,Iend
           dVdt=vi(i,Jend,know)-vi(i,Jend  ,liunw)
           dVde=vi(i,Jend,liunw)-vi(i,Jend-1,liunw)
-#  ifdef NORTH_M2NUDGING
+#  ifdef NORTH_MINUDGING
           IF ((dVdt*dVde).lt.0.0_r8) THEN
             tau=M2obc_in(ng,inorth)
           ELSE
@@ -444,7 +444,7 @@ THEN
      &                         MAX(Cx,0.0_r8)*grad(i  ,Jend+1)-         &
      &                         MIN(Cx,0.0_r8)*grad(i+1,Jend+1))/        &
      &                        (cff+Ce)
-#  ifdef NORTH_M2NUDGING 
+#  ifdef NORTH_MINUDGING 
           vi(i,Jend+1,liunw)=vi(i,Jend+1,liunw)+                        &
      &                         tau*(BOUNDARY(ng)%vi_north(i)-           &
      &                              vi(i,Jend+1,know))
