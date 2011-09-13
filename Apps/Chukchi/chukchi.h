@@ -44,7 +44,7 @@
 #ifdef SOLVE3D
 # define  ICE_MODEL
 # ifdef ICE_MODEL
-#  define OUTFLOW_MASK
+#  undef OUTFLOW_MASK
 #  define  FASTICE_CLIMATOLOGY
 #  define  ICE_THERMO
 #  define  ICE_MK
