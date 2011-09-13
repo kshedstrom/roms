@@ -219,20 +219,6 @@
 #  endif
         END DO
 # endif
-
-# ifdef CHUKCHI
-        DO j=Jstr,Jend
-          ai(1,j,linew)=BOUNDARY(ng)%ai_west(j)
-#  ifdef MASKING
-          ai(1,j,linew)=ai(1,j,linew)*                                  &
-     &                 GRID(ng)%rmask(1,j)
-#  endif
-#  ifdef WET_DRY
-          ai(1,j,linew)=ai(1,j,linew)*                                  &
-     &                 GRID(ng)%rmask_wet(1,j)
-#  endif
-        END DO
-# endif
       END IF
 !
 !-----------------------------------------------------------------------
@@ -362,20 +348,6 @@
 #  ifdef WET_DRY
           ai(Lm(ng)+1,j,linew)=ai(Lm(ng)+1,j,linew)*                    &
      &                          GRID(ng)%rmask_wet(Lm(ng)+1,j)
-#  endif
-        END DO
-# endif
-
-# ifdef CHUKCHI
-        DO j=Jstr,Jend
-          ai(Lm(ng),j,linew)=BOUNDARY(ng)%ai_east(j)
-#  ifdef MASKING
-          ai(Lm(ng),j,linew)=ai(Lm(ng),j,linew)*                        &
-     &                        GRID(ng)%rmask(Lm(ng),j)
-#  endif
-#  ifdef WET_DRY
-          ai(Lm(ng),j,linew)=ai(Lm(ng),j,linew)*                        &
-     &                        GRID(ng)%rmask_wet(Lm(ng),j)
 #  endif
         END DO
 # endif
@@ -513,20 +485,6 @@
 #  endif
         END DO
 # endif
-
-# ifdef CHUKCHI
-        DO i=Istr,Iend
-          ai(i,1,linew)=BOUNDARY(ng)%ai_south(i)
-#  ifdef MASKING
-          ai(i,1,linew)=ai(i,1,linew)*                                  &
-     &                   GRID(ng)%rmask(i,1)
-#  endif
-#  ifdef WET_DRY
-          ai(i,1,linew)=ai(i,1,linew)*                                  &
-     &                   GRID(ng)%rmask_wet(i,1)
-#  endif
-        END DO
-# endif
       END IF
 !
 !-----------------------------------------------------------------------
@@ -656,20 +614,6 @@
 #  ifdef WET_DRY
           ai(i,Mm(ng)+1,linew)=ai(i,Mm(ng)+1,linew)*                    &
      &                          GRID(ng)%rmask_wet(i,Mm(ng)+1)
-#  endif
-        END DO
-# endif
-
-# ifdef CHUKCHI
-        DO i=Istr,Iend
-          ai(i,Mm(ng),linew)=BOUNDARY(ng)%ai_north(i)
-#  ifdef MASKING
-          ai(i,Mm(ng),linew)=ai(i,Mm(ng),linew)*                        &
-     &                          GRID(ng)%rmask(i,Mm(ng))
-#  endif
-#  ifdef WET_DRY
-          ai(i,Mm(ng),linew)=ai(i,Mm(ng),linew)*                        &
-     &                          GRID(ng)%rmask_wet(i,Mm(ng))
 #  endif
         END DO
 # endif

@@ -219,20 +219,6 @@
 #  endif
         END DO
 # endif
-
-# ifdef CHUKCHI
-        DO j=Jstr,Jend
-          hsn(1,j,linew)=BOUNDARY(ng)%hsn_west(j)
-#  ifdef MASKING
-          hsn(1,j,linew)=hsn(1,j,linew)*                                &
-     &                   GRID(ng)%rmask(1,j)
-#  endif
-#  ifdef WET_DRY
-          hsn(1,j,linew)=hsn(1,j,linew)*                                &
-     &                   GRID(ng)%rmask_wet(1,j)
-#  endif
-        END DO
-# endif
       END IF
 !
 !-----------------------------------------------------------------------
@@ -362,20 +348,6 @@
 #  ifdef WET_DRY
           hsn(Lm(ng)+1,j,linew)=hsn(Lm(ng)+1,j,linew)*                  &
      &                          GRID(ng)%rmask_wet(Lm(ng)+1,j)
-#  endif
-        END DO
-# endif
-
-# ifdef CHUKCHI
-        DO j=Jstr,Jend
-          hsn(Lm(ng),j,linew)=BOUNDARY(ng)%hsn_east(j)
-#  ifdef MASKING
-          hsn(Lm(ng),j,linew)=hsn(Lm(ng),j,linew)*                      &
-     &                          GRID(ng)%rmask(Lm(ng),j)
-#  endif
-#  ifdef WET_DRY
-          hsn(Lm(ng),j,linew)=hsn(Lm(ng),j,linew)*                      &
-     &                          GRID(ng)%rmask_wet(Lm(ng),j)
 #  endif
         END DO
 # endif
@@ -513,20 +485,6 @@
 #  endif
         END DO
 # endif
-
-# ifdef CHUKCHI
-        DO i=Istr,Iend
-          hsn(i,1,linew)=BOUNDARY(ng)%hsn_south(i)
-#  ifdef MASKING
-          hsn(i,1,linew)=hsn(i,1,linew)*                                &
-     &                   GRID(ng)%rmask(i,1)
-#  endif
-#  ifdef WET_DRY
-          hsn(i,1,linew)=hsn(i,1,linew)*                                &
-     &                   GRID(ng)%rmask_wet(i,1)
-#  endif
-        END DO
-# endif
       END IF
 !
 !-----------------------------------------------------------------------
@@ -656,20 +614,6 @@
 #  ifdef WET_DRY
           hsn(i,Mm(ng)+1,linew)=hsn(i,Mm(ng)+1,linew)*                  &
      &                          GRID(ng)%rmask_wet(i,Mm(ng)+1)
-#  endif
-        END DO
-# endif
-
-# ifdef CHUKCHI
-        DO i=Istr,Iend
-          hsn(i,Mm(ng),linew)=BOUNDARY(ng)%hsn_north(i)
-#  ifdef MASKING
-          hsn(i,Mm(ng),linew)=hsn(i,Mm(ng),linew)*                      &
-     &                          GRID(ng)%rmask(i,Mm(ng))
-#  endif
-#  ifdef WET_DRY
-          hsn(i,Mm(ng),linew)=hsn(i,Mm(ng),linew)*                      &
-     &                          GRID(ng)%rmask_wet(i,Mm(ng))
 #  endif
         END DO
 # endif

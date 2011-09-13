@@ -99,7 +99,7 @@
         DO j=Jstr,Jend
           dUdt=ui(Istr+1,j,know)-ui(Istr+1,j,liunw)
           dUdx=ui(Istr+1,j,liunw)-ui(Istr+2,j,liunw)
-#  ifdef WEST_M2NUDGING
+#  ifdef WEST_MINUDGING
           IF ((dUdt*dUdx).lt.0.0_r8) THEN
             tau=M2obc_in(ng,iwest)
           ELSE
@@ -108,8 +108,7 @@
           tau=tau*dt(ng)
 #  endif
           IF ((dUdt*dUdx).lt.0.0_r8) dUdt=0.0_r8
-          IF ((dUdt*(grad(Istr+1,j)+grad(Istr+1,j+1))).gt.0.0_r8)
-THEN
+          IF ((dUdt*(grad(Istr+1,j)+grad(Istr+1,j+1))).gt.0.0_r8) THEN
             dUde=grad(Istr+1,j  )
           ELSE
             dUde=grad(Istr+1,j+1)
@@ -126,7 +125,7 @@ THEN
      &                       MAX(Ce,0.0_r8)*grad(Istr,j  )-             &
      &                       MIN(Ce,0.0_r8)*grad(Istr,j+1))/            &
      &                      (cff+Cx)
-#  ifdef WEST_M2NUDGING
+#  ifdef WEST_MINUDGING
          ui(Istr,j,liunw)=ui(Istr,j,liunw)+                             &
      &                     tau*(BOUNDARY(ng)%ui_west(j)-                &
      &                          ui(Istr,j,know))
@@ -196,7 +195,7 @@ THEN
         DO j=Jstr,Jend
           dUdt=ui(Iend,j,know)-ui(Iend  ,j,liunw)
           dUdx=ui(Iend,j,liunw)-ui(Iend-1,j,liunw)
-#  ifdef EAST_M2NUDGING
+#  ifdef EAST_MINUDGING
           IF ((dUdt*dUdx).lt.0.0_r8) THEN
             tau=M2obc_in(ng,ieast)
           ELSE
@@ -222,7 +221,7 @@ THEN
      &                         MAX(Ce,0.0_r8)*grad(Iend+1,j  )-         &
      &                         MIN(Ce,0.0_r8)*grad(Iend+1,j+1))/        &
      &                        (cff+Cx)
-#  ifdef EAST_M2NUDGING
+#  ifdef EAST_MINUDGING
           ui(Iend+1,j,liunw)=ui(Iend+1,j,liunw)+ &
      &                        tau*(BOUNDARY(ng)%ui_east(j)-             &
      &                             ui(Iend+1,j,know))
@@ -294,7 +293,7 @@ THEN
         DO i=IstrU,Iend
           dUdt=ui(i,Jstr,know)-ui(i,Jstr  ,liunw)
           dUde=ui(i,Jstr,liunw)-ui(i,Jstr+1,liunw)
-#  ifdef SOUTH_M2NUDGING
+#  ifdef SOUTH_MINUDGING
           IF ((dUdt*dUde).lt.0.0_r8) THEN
             tau=M2obc_in(ng,isouth)
           ELSE
@@ -320,7 +319,7 @@ THEN
      &                         MAX(Cx,0.0_r8)*grad(i-1,Jstr-1)-         &
      &                         MIN(Cx,0.0_r8)*grad(i  ,Jstr-1))/        &
      &                        (cff+Ce)
-#  ifdef SOUTH_M2NUDGING
+#  ifdef SOUTH_MINUDGING
           ui(i,Jstr-1,liunw)=ui(i,Jstr-1,liunw)+                        &
      &                        tau*(BOUNDARY(ng)%ui_south(i)-            &
      &                             ui(i,Jstr-1,know))
@@ -405,7 +404,7 @@ THEN
         DO i=IstrU,Iend
           dUdt=ui(i,Jend,know)-ui(i,Jend  ,liunw)
           dUde=ui(i,Jend,liunw)-ui(i,Jend-1,liunw)
-#  ifdef NORTH_M2NUDGING
+#  ifdef NORTH_MINUDGING
           IF ((dUdt*dUde).lt.0.0_r8) THEN
             tau=M2obc_in(ng,inorth)
           ELSE
@@ -431,7 +430,7 @@ THEN
      &                         MAX(Cx,0.0_r8)*grad(i-1,Jend+1)-         &
      &                         MIN(Cx,0.0_r8)*grad(i  ,Jend+1))/        &
      &                        (cff+Ce)
-#  ifdef NORTH_M2NUDGING
+#  ifdef NORTH_MINUDGING
           ui(i,Jend+1,liunw)=ui(i,Jend+1,liunw)+                        &
      &                        tau*(BOUNDARY(ng)%ui_north(i)-            &
      &                             ui(i,Jend+1,know))

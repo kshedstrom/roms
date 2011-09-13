@@ -938,17 +938,71 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+16)=' EAST_AICLAMPED,'
 #endif
+#ifdef EAST_AIMIXED
+      IF (Master) WRITE (stdout,20) 'EAST_AIMIXED',                     &
+     &   'Eastern edge, ice area clamped on inflow, grad on outflow.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+14)=' EAST_AIMIXED,'
+#endif
+#ifdef EAST_AIRADIATION
+      IF (Master) WRITE (stdout,20) 'EAST_AIRADIATION',                 &
+     &   'Eastern edge, radiation of ice area.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+18)=' EAST_AIRADIATION,'
+# ifdef EAST_AINUDGING
+      IF (Master) WRITE (stdout,20) 'EAST_AINUDGING',                   &
+     &   'Eastern edge, nudging of ice area.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+16)=' EAST_AINUDGING,'
+# endif
+#endif
 #ifdef EAST_HICLAMPED
       IF (Master) WRITE (stdout,20) 'EAST_HICLAMPED',                   &
      &   'Eastern edge, clamp ice thickness.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+16)=' EAST_HICLAMPED,'
 #endif
+#ifdef EAST_HIMIXED
+      IF (Master) WRITE (stdout,20) 'EAST_HIMIXED',                     &
+     &   'Eastern edge, ice thickness clamped on inflow, grad on outflow.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+14)=' EAST_HIMIXED,'
+#endif
+#ifdef EAST_HIRADIATION
+      IF (Master) WRITE (stdout,20) 'EAST_HIRADIATION',                 &
+     &   'Eastern edge, radiation of ice thickness.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+18)=' EAST_HIRADIATION,'
+# ifdef EAST_HINUDGING
+      IF (Master) WRITE (stdout,20) 'EAST_HINUDGING',                   &
+     &   'Eastern edge, nudging of ice thickness.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+16)=' EAST_HINUDGING,'
+# endif
+#endif
 #ifdef EAST_HSNCLAMPED
       IF (Master) WRITE (stdout,20) 'EAST_HSNCLAMPED',                  &
      &   'Eastern edge, clamp snow thickness.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+17)=' EAST_HSNCLAMPED,'
+#endif
+#ifdef EAST_HSNMIXED
+      IF (Master) WRITE (stdout,20) 'EAST_HSNMIXED',                    &
+     &   'Eastern edge, snow thickness clamped on inflow, grad on outflow.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+15)=' EAST_HSNMIXED,'
+#endif
+#ifdef EAST_HSNRADIATION
+      IF (Master) WRITE (stdout,20) 'EAST_HSNRADIATION',                &
+     &   'Eastern edge, radiation of snow thickness.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+19)=' EAST_HSNRADIATION,'
+# ifdef EAST_HSNNUDGING
+      IF (Master) WRITE (stdout,20) 'EAST_HSNNUDGING',                  &
+     &   'Eastern edge, nudging of snow thickness.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+17)=' EAST_HSNNUDGING,'
+# endif
 #endif
 #ifdef EAST_MICLAMPED
       IF (Master) WRITE (stdout,20) 'EAST_MICLAMPED',                   &
@@ -1755,17 +1809,71 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+17)=' NORTH_AICLAMPED,'
 #endif
+#ifdef NORTH_AIMIXED
+      IF (Master) WRITE (stdout,20) 'NORTH_AIMIXED',                     &
+     &   'Northern edge, ice area clamped on inflow, grad on outflow.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+15)=' NORTH_AIMIXED,'
+#endif
+#ifdef NORTH_AIRADIATION
+      IF (Master) WRITE (stdout,20) 'NORTH_AIRADIATION',                 &
+     &   'Northern edge, radiation of ice area.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+19)=' NORTH_AIRADIATION,'
+# ifdef NORTH_AINUDGING
+      IF (Master) WRITE (stdout,20) 'NORTH_AINUDGING',                   &
+     &   'Northern edge, nudging of ice area.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+17)=' NORTH_AINUDGING,'
+# endif
+#endif
 #ifdef NORTH_HICLAMPED
       IF (Master) WRITE (stdout,20) 'NORTH_HICLAMPED',                  &
      &   'Northern edge, clamp ice thickness.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+17)=' NORTH_HICLAMPED,'
 #endif
+#ifdef NORTH_HIMIXED
+      IF (Master) WRITE (stdout,20) 'NORTH_HIMIXED',                     &
+     &   'Northern edge, ice thickness clamped on inflow, grad on outflow.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+15)=' NORTH_HIMIXED,'
+#endif
+#ifdef NORTH_HIRADIATION
+      IF (Master) WRITE (stdout,20) 'NORTH_HIRADIATION',                 &
+     &   'Northern edge, radiation of ice thickness.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+19)=' NORTH_HIRADIATION,'
+# ifdef NORTH_HINUDGING
+      IF (Master) WRITE (stdout,20) 'NORTH_HINUDGING',                   &
+     &   'Northern edge, nudging of ice thickness.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+17)=' NORTH_HINUDGING,'
+# endif
+#endif
 #ifdef NORTH_HSNCLAMPED
       IF (Master) WRITE (stdout,20) 'NORTH_HSNCLAMPED',                 &
      &   'Northern edge, clamp snow thickness.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+18)=' NORTH_HSNCLAMPED,'
+#endif
+#ifdef NORTH_HSNMIXED
+      IF (Master) WRITE (stdout,20) 'NORTH_HSNMIXED',                    &
+     &   'Northern edge, snow thickness clamped on inflow, grad on outflow.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+16)=' NORTH_HSNMIXED,'
+#endif
+#ifdef NORTH_HSNRADIATION
+      IF (Master) WRITE (stdout,20) 'NORTH_HSNRADIATION',                &
+     &   'Northern edge, radiation of snow thickness.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+20)=' NORTH_HSNRADIATION,'
+# ifdef NORTH_HSNNUDGING
+      IF (Master) WRITE (stdout,20) 'NORTH_HSNNUDGING',                  &
+     &   'Northern edge, nudging of snow thickness.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+18)=' NORTH_HSNNUDGING,'
+# endif
 #endif
 #ifdef NORTH_MICLAMPED
       IF (Master) WRITE (stdout,20) 'NORTH_MICLAMPED',                  &
@@ -2424,17 +2532,71 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+17)=' SOUTH_AICLAMPED,'
 #endif
+#ifdef SOUTH_AIMIXED
+      IF (Master) WRITE (stdout,20) 'SOUTH_AIMIXED',                    &
+     &   'Southern edge, ice area clamped on inflow, grad on outflow.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+15)=' SOUTH_AIMIXED,'
+#endif
+#ifdef SOUTH_AIRADIATION
+      IF (Master) WRITE (stdout,20) 'SOUTH_AIRADIATION',                &
+     &   'Southern edge, radiation of ice area.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+19)=' SOUTH_AIRADIATION,'
+# ifdef SOUTH_AINUDGING
+      IF (Master) WRITE (stdout,20) 'SOUTH_AINUDGING',                  &
+     &   'Southern edge, nudging of ice area.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+17)=' SOUTH_AINUDGING,'
+# endif
+#endif
 #ifdef SOUTH_HICLAMPED
       IF (Master) WRITE (stdout,20) 'SOUTH_HICLAMPED',                  &
      &   'Southern edge, clamp ice thickness.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+17)=' SOUTH_HICLAMPED,'
 #endif
+#ifdef SOUTH_HIMIXED
+      IF (Master) WRITE (stdout,20) 'SOUTH_HIMIXED',                    &
+     &   'Southern edge, ice thickness clamped on inflow, grad on outflow.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+15)=' SOUTH_HIMIXED,'
+#endif
+#ifdef SOUTH_HIRADIATION
+      IF (Master) WRITE (stdout,20) 'SOUTH_HIRADIATION',                &
+     &   'Southern edge, radiation of ice thickness.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+19)=' SOUTH_HIRADIATION,'
+# ifdef SOUTH_HINUDGING
+      IF (Master) WRITE (stdout,20) 'SOUTH_HINUDGING',                  &
+     &   'Southern edge, nudging of ice thickness.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+17)=' SOUTH_HINUDGING,'
+# endif
+#endif
 #ifdef SOUTH_HSNCLAMPED
       IF (Master) WRITE (stdout,20) 'SOUTH_HSNCLAMPED',                 &
      &   'Southern edge, clamp snow thickness.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+18)=' SOUTH_HSNCLAMPED,'
+#endif
+#ifdef SOUTH_HSNMIXED
+      IF (Master) WRITE (stdout,20) 'SOUTH_HSNMIXED',                   &
+     &   'Southern edge, snow thickness clamped on inflow, grad on outflow.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+16)=' SOUTH_HSNMIXED,'
+#endif
+#ifdef SOUTH_HSNRADIATION
+      IF (Master) WRITE (stdout,20) 'SOUTH_HSNRADIATION',               &
+     &   'Southern edge, radiation of snow thickness.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+20)=' SOUTH_HSNRADIATION,'
+# ifdef SOUTH_HSNNUDGING
+      IF (Master) WRITE (stdout,20) 'SOUTH_HSNNUDGING',                 &
+     &   'Southern edge, nudging of snow thickness.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+18)=' SOUTH_HSNNUDGING,'
+# endif
 #endif
 #ifdef SOUTH_MICLAMPED
       IF (Master) WRITE (stdout,20) 'SOUTH_MICLAMPED',                  &
@@ -3258,17 +3420,71 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+16)=' WEST_AICLAMPED,'
 #endif
+#ifdef WEST_AIMIXED
+      IF (Master) WRITE (stdout,20) 'WEST_AIMIXED',                     &
+     &   'Western edge, ice area clamped on inflow, grad on outflow.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+14)=' WEST_AIMIXED,'
+#endif
+#ifdef WEST_AIRADIATION
+      IF (Master) WRITE (stdout,20) 'WEST_AIRADIATION',                 &
+     &   'Western edge, radiation of ice area.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+18)=' WEST_AIRADIATION,'
+# ifdef WEST_AINUDGING
+      IF (Master) WRITE (stdout,20) 'WEST_AINUDGING',                   &
+     &   'Western edge, nudging of ice area.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+16)=' WEST_AINUDGING,'
+# endif
+#endif
 #ifdef WEST_HICLAMPED
       IF (Master) WRITE (stdout,20) 'WEST_HICLAMPED',                   &
      &   'Western edge, clamp ice thickness.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+16)=' WEST_HICLAMPED,'
 #endif
+#ifdef WEST_HIMIXED
+      IF (Master) WRITE (stdout,20) 'WEST_HIMIXED',                     &
+     &   'Western edge, ice thickness clamped on inflow, grad on outflow.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+14)=' WEST_HIMIXED,'
+#endif
+#ifdef WEST_HIRADIATION
+      IF (Master) WRITE (stdout,20) 'WEST_HIRADIATION',                 &
+     &   'Western edge, radiation of ice thickness.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+18)=' WEST_HIRADIATION,'
+# ifdef WEST_HINUDGING
+      IF (Master) WRITE (stdout,20) 'WEST_HINUDGING',                   &
+     &   'Western edge, nudging of ice thickness.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+16)=' WEST_HINUDGING,'
+# endif
+#endif
 #ifdef WEST_HSNCLAMPED
       IF (Master) WRITE (stdout,20) 'WEST_HSNCLAMPED',                  &
      &   'Western edge, clamp snow thickness.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+17)=' WEST_HSNCLAMPED,'
+#endif
+#ifdef WEST_HSNMIXED
+      IF (Master) WRITE (stdout,20) 'WEST_HSNMIXED',                    &
+     &   'Western edge, snow thickness clamped on inflow, grad on outflow.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+15)=' WEST_HSNMIXED,'
+#endif
+#ifdef WEST_HSNRADIATION
+      IF (Master) WRITE (stdout,20) 'WEST_HSNRADIATION',                &
+     &   'Western edge, radiation of snow thickness.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+19)=' WEST_HSNRADIATION,'
+# ifdef WEST_HSNNUDGING
+      IF (Master) WRITE (stdout,20) 'WEST_HSNNUDGING',                  &
+     &   'Western edge, nudging of snow thickness.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+17)=' EAST_HSNNUDGING,'
+# endif
 #endif
 #ifdef WEST_MICLAMPED
       IF (Master) WRITE (stdout,20) 'WEST_MICLAMPED',                   &
