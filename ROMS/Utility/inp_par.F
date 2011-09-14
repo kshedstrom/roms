@@ -3218,6 +3218,41 @@
               RETURN
             END IF
             Npts=load_l(Nval, Cval, Ngrids, Aout(idS0mk,:))
+          ELSE IF (TRIM(KeyWord).eq.'Aout(idWfr)') THEN
+            IF (idWfr.eq.0) THEN
+              IF (Master) WRITE (out,280) 'idWfr'
+              exit_flag=5
+              RETURN
+            END IF
+            Npts=load_l(Nval, Cval, Ngrids, Aout(idWfr,:))
+          ELSE IF (TRIM(KeyWord).eq.'Aout(idWai)') THEN
+            IF (idWai.eq.0) THEN
+              IF (Master) WRITE (out,280) 'idWai'
+              exit_flag=5
+              RETURN
+            END IF
+            Npts=load_l(Nval, Cval, Ngrids, Aout(idWai,:))
+          ELSE IF (TRIM(KeyWord).eq.'Aout(idWao)') THEN
+            IF (idWao.eq.0) THEN
+              IF (Master) WRITE (out,280) 'idWao'
+              exit_flag=5
+              RETURN
+            END IF
+            Npts=load_l(Nval, Cval, Ngrids, Aout(idWao,:))
+          ELSE IF (TRIM(KeyWord).eq.'Aout(idWio)') THEN
+            IF (idWio.eq.0) THEN
+              IF (Master) WRITE (out,280) 'idWio'
+              exit_flag=5
+              RETURN
+            END IF
+            Npts=load_l(Nval, Cval, Ngrids, Aout(idWio,:))
+          ELSE IF (TRIM(KeyWord).eq.'Aout(idWro)') THEN
+            IF (idWro.eq.0) THEN
+              IF (Master) WRITE (out,280) 'idWro'
+              exit_flag=5
+              RETURN
+            END IF
+            Npts=load_l(Nval, Cval, Ngrids, Aout(idWro,:))
 #  endif
 # endif
 # if defined SOLVE3D && defined T_PASSIVE
