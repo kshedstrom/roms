@@ -573,6 +573,8 @@
     (defined M2CLIMATOLOGY && !defined ANA_M2CLIMA) || \
     (defined  TCLIMATOLOGY && !defined ANA_TCLIMA)  || \
     (defined M3CLIMATOLOGY && !defined ANA_M3CLIMA) || \
+    (defined AICLIMATOLOGY && !defined ANA_AICLIMA) || \
+    (defined MICLIMATOLOGY && !defined ANA_MICLIMA) || \
     (defined CLIMA_TS_MIX  && defined SOLVE3D       && \
      (defined TS_DIF2      || defined TS_DIF4))
 # define CLM_FILE
@@ -582,6 +584,8 @@
     defined M3CLIMATOLOGY || defined M3CLM_NUDGING || \
     defined TCLIMATOLOGY  || defined TCLM_NUDGING  || \
     defined ZCLIMATOLOGY  || \
+    defined AICLIMATOLOGY || defined AICLM_NUDGING || \
+    defined MICLIMATOLOGY || defined MICLM_NUDGING || \
     (defined CLIMA_TS_MIX && defined SOLVE3D       && \
      (defined TS_DIF2     || defined TS_DIF4))
 # define CLIMATOLOGY
@@ -624,6 +628,7 @@
 
 #if defined M2CLM_NUDGING   || defined M3CLM_NUDGING   || \
     defined TCLM_NUDGING    || \
+    defined AICLM_NUDGING   || defined MICLM_NUDGING   || \
     defined WEST_FSNUDGING  || defined EAST_FSNUDGING  || \
     defined SOUTH_FSNUDGING || defined NORTH_FSNUDGING || \
     defined WEST_M2NUDGING  || defined EAST_M2NUDGING  || \
