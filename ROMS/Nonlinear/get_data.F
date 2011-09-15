@@ -1496,7 +1496,7 @@
 #    ifdef MASKING
      &                GRID(ng) % rmask(LBi,LBj),                        &
 #    endif
-     &                CLIMA(ng) % aiclmG(LBi,LBj,1,1))
+     &                CLIMA(ng) % aiclmG(LBi,LBj,1))
       IF (exit_flag.ne.NoError) RETURN
       CALL get_2dfld (ng, iNLM, idHIclm, CLM(ng)%ncid,                  &
      &                1, CLM(ng), update(1),                            &
@@ -1504,7 +1504,7 @@
 #    ifdef MASKING
      &                GRID(ng) % rmask(LBi,LBj),                        &
 #    endif
-     &                CLIMA(ng) % hiclmG(LBi,LBj,1,1))
+     &                CLIMA(ng) % hiclmG(LBi,LBj,1))
       IF (exit_flag.ne.NoError) RETURN
 #  endif
 
@@ -1515,7 +1515,7 @@
 #    ifdef MASKING
      &                GRID(ng) % rmask(LBi,LBj),                        &
 #    endif
-     &                CLIMA(ng) % uiclmG(LBi,LBj,1,1))
+     &                CLIMA(ng) % uiclmG(LBi,LBj,1))
       IF (exit_flag.ne.NoError) RETURN
       CALL get_2dfld (ng, iNLM, idVIclm, CLM(ng)%ncid,                  &
      &                1, CLM(ng), update(1),                            &
@@ -1523,7 +1523,7 @@
 #    ifdef MASKING
      &                GRID(ng) % rmask(LBi,LBj),                        &
 #    endif
-     &                CLIMA(ng) % viclmG(LBi,LBj,1,1))
+     &                CLIMA(ng) % viclmG(LBi,LBj,1))
       IF (exit_flag.ne.NoError) RETURN
 #  endif
 # endif

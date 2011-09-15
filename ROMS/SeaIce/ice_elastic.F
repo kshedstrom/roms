@@ -287,6 +287,7 @@
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: eps22
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: eps12
 
+      real(r8) :: cff
       real(r8) :: f1
       real(r8) :: f2
       real(r8) :: s1

@@ -166,7 +166,6 @@
 # define  MICLIMATOLOGY
 # define  MICLM_NUDGING
 #endif
-#endif
 
 /* point sources (rivers, line sources) */
 
