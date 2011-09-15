@@ -307,26 +307,26 @@
 #   endif
 #  endif
 #  ifdef AICLIMATOLOGY
-      allocate ( CLIMA(ng) % aiclm(LBi:UBi,LBj:UBj)
-      allocate ( CLIMA(ng) % hiclm(LBi:UBi,LBj:UBj)
+      allocate ( CLIMA(ng) % aiclm(LBi:UBi,LBj:UBj) )
+      allocate ( CLIMA(ng) % hiclm(LBi:UBi,LBj:UBj) )
 #   ifndef ANA_AICLIMA
-      allocate ( CLIMA(ng) % aiclmG(LBi:UBi,LBj:UBj,2)
-      allocate ( CLIMA(ng) % hiclmG(LBi:UBi,LBj:UBj,2)
+      allocate ( CLIMA(ng) % aiclmG(LBi:UBi,LBj:UBj,2) )
+      allocate ( CLIMA(ng) % hiclmG(LBi:UBi,LBj:UBj,2) )
 #   endif
 #  endif
 #  ifdef AICLM_NUDGING
-      allocate ( CLIMA(ng) % AInudgcof(LBi:UBi,LBj:UBj)
+      allocate ( CLIMA(ng) % AInudgcof(LBi:UBi,LBj:UBj) )
 #  endif
 #  ifdef MICLIMATOLOGY
-      allocate ( CLIMA(ng) % uiclm(LBi:UBi,LBj:UBj)
-      allocate ( CLIMA(ng) % viclm(LBi:UBi,LBj:UBj)
+      allocate ( CLIMA(ng) % uiclm(LBi:UBi,LBj:UBj) )
+      allocate ( CLIMA(ng) % viclm(LBi:UBi,LBj:UBj) )
 #   ifndef ANA_MICLIMA
-      allocate ( CLIMA(ng) % uiclmG(LBi:UBi,LBj:UBj,2)
-      allocate ( CLIMA(ng) % viclmG(LBi:UBi,LBj:UBj,2)
+      allocate ( CLIMA(ng) % uiclmG(LBi:UBi,LBj:UBj,2) )
+      allocate ( CLIMA(ng) % viclmG(LBi:UBi,LBj:UBj,2) )
 #   endif
 #  endif
 #  ifdef MICLM_NUDGING
-      allocate ( CLIMA(ng) % MInudgcof(LBi:UBi,LBj:UBj)
+      allocate ( CLIMA(ng) % MInudgcof(LBi:UBi,LBj:UBj) )
 #  endif
 # endif
 
@@ -543,6 +543,7 @@
           CLIMA(ng) % viclmG(i,j,1) = IniVal
           CLIMA(ng) % viclmG(i,j,2) = IniVal
 #   endif
+        END DO
 #  endif
 #  ifdef MICLM_NUDGING
         DO i=Imin,Imax

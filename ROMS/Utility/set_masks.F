@@ -279,7 +279,7 @@
         END DO
       END DO
 #  ifdef CHUKCHI
-      cff = 0.7_r8
+      cff = 0.95_r8
       IF (DOMAIN(ng)%Western_Edge(tile)) THEN
         DO j=JstrR,JendR
           mask_outflow(0,j) = cff

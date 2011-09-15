@@ -420,7 +420,7 @@
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: cht
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: chs
 
-
+      real(r8) :: cff
       real(r8) :: tfrz
       real(r8) :: cot
       real(r8) :: xmelt

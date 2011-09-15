@@ -391,6 +391,10 @@
         integer  :: idSig11        ! internal ice stress component 11
         integer  :: idSig22        ! internal ice stress component 22
         integer  :: idSig12        ! internal ice stress component 12
+        integer  :: idAIclm        ! ice concentration climatology
+        integer  :: idHIclm        ! ice thickness climatology
+        integer  :: idUIclm        ! ice u-velocity climatology
+        integer  :: idVIclm        ! ice v-velocity climatology
 
 ! NEMURO_SAN variables
         integer  :: idFwwt         ! fish wet weight
@@ -2042,6 +2046,14 @@
                 idSig22=varid
               CASE ('idSig12')
                 idSig12=varid
+              CASE ('idAIclm')
+                idAIclm=varid
+              CASE ('idHIclm')
+                idHIclm=varid
+              CASE ('idUIclm')
+                idUIclm=varid
+              CASE ('idVIclm')
+                idVIclm=varid
 #endif
 
 #ifdef BIOLOGY
