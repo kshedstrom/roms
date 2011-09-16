@@ -151,15 +151,37 @@
           real(r8), pointer :: v_adsG(:,:,:,:)
 #  endif
 
-# ifdef AKTCLIMATOLOGY
+#  ifdef AKTCLIMATOLOGY
           real(r8), pointer :: Aclm(:,:,:)
           real(r8), pointer :: AclmG(:,:,:,:)
-# endif
+#  endif
 #  ifdef OCLIMATOLOGY
           real(r8), pointer :: oclm(:,:,:)
 #   ifndef ANA_OCLIMA
           real(r8), pointer :: oclmG(:,:,:,:)
 #   endif
+#  endif
+#  ifdef AICLIMATOLOGY
+          real(r8), pointer :: aiclm(:,:)
+          real(r8), pointer :: hiclm(:,:)
+#   ifndef ANA_AICLIMA
+          real(r8), pointer :: aiclmG(:,:,:)
+          real(r8), pointer :: hiclmG(:,:,:)
+#   endif
+#  endif
+#  ifdef AICLM_NUDGING
+          real(r8), pointer :: AInudgcof(:,:)
+#  endif
+#  ifdef MICLIMATOLOGY
+          real(r8), pointer :: uiclm(:,:)
+          real(r8), pointer :: viclm(:,:)
+#   ifndef ANA_MICLIMA
+          real(r8), pointer :: uiclmG(:,:,:)
+          real(r8), pointer :: viclmG(:,:,:)
+#   endif
+#  endif
+#  ifdef MICLM_NUDGING
+          real(r8), pointer :: MInudgcof(:,:)
 #  endif
 # endif
 
@@ -283,6 +305,28 @@
 #   ifndef ANA_OCLIMA
       allocate ( CLIMA(ng) % oclmG(LBi:UBi,LBj:UBj,0:N(ng),2) )
 #   endif
+#  endif
+#  ifdef AICLIMATOLOGY
+      allocate ( CLIMA(ng) % aiclm(LBi:UBi,LBj:UBj) )
+      allocate ( CLIMA(ng) % hiclm(LBi:UBi,LBj:UBj) )
+#   ifndef ANA_AICLIMA
+      allocate ( CLIMA(ng) % aiclmG(LBi:UBi,LBj:UBj,2) )
+      allocate ( CLIMA(ng) % hiclmG(LBi:UBi,LBj:UBj,2) )
+#   endif
+#  endif
+#  ifdef AICLM_NUDGING
+      allocate ( CLIMA(ng) % AInudgcof(LBi:UBi,LBj:UBj) )
+#  endif
+#  ifdef MICLIMATOLOGY
+      allocate ( CLIMA(ng) % uiclm(LBi:UBi,LBj:UBj) )
+      allocate ( CLIMA(ng) % viclm(LBi:UBi,LBj:UBj) )
+#   ifndef ANA_MICLIMA
+      allocate ( CLIMA(ng) % uiclmG(LBi:UBi,LBj:UBj,2) )
+      allocate ( CLIMA(ng) % viclmG(LBi:UBi,LBj:UBj,2) )
+#   endif
+#  endif
+#  ifdef MICLM_NUDGING
+      allocate ( CLIMA(ng) % MInudgcof(LBi:UBi,LBj:UBj) )
 #  endif
 # endif
 
@@ -470,6 +514,40 @@
             CLIMA(ng) % oclmG(i,j,k,2) = IniVal
 #   endif
           END DO
+        END DO
+#  endif
+#  ifdef AICLIMATOLOGY
+        DO i=Imin,Imax
+          CLIMA(ng) % aiclm(i,j) = IniVal
+          CLIMA(ng) % hiclm(i,j) = IniVal
+#   ifndef ANA_AICLIMA
+          CLIMA(ng) % aiclmG(i,j,1) = IniVal
+          CLIMA(ng) % aiclmG(i,j,2) = IniVal
+          CLIMA(ng) % hiclmG(i,j,1) = IniVal
+          CLIMA(ng) % hiclmG(i,j,2) = IniVal
+#   endif
+        END DO
+#  endif
+#  ifdef AICLM_NUDGING
+        DO i=Imin,Imax
+          CLIMA(ng) % AInudgcof(i,j) = IniVal
+        END DO
+#  endif
+#  ifdef MICLIMATOLOGY
+        DO i=Imin,Imax
+          CLIMA(ng) % uiclm(i,j) = IniVal
+          CLIMA(ng) % viclm(i,j) = IniVal
+#   ifndef ANA_MICLIMA
+          CLIMA(ng) % uiclmG(i,j,1) = IniVal
+          CLIMA(ng) % uiclmG(i,j,2) = IniVal
+          CLIMA(ng) % viclmG(i,j,1) = IniVal
+          CLIMA(ng) % viclmG(i,j,2) = IniVal
+#   endif
+        END DO
+#  endif
+#  ifdef MICLM_NUDGING
+        DO i=Imin,Imax
+          CLIMA(ng) % MInudgcof(i,j) = IniVal
         END DO
 #  endif
 # endif

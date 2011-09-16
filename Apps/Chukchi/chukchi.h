@@ -159,6 +159,12 @@
 #ifdef SOLVE3D
 # undef TCLIMATOLOGY
 # undef TCLM_NUDGING
+# undef  M3CLIMATOLOGY
+# undef  M3CLM_NUDGING
+# define  AICLIMATOLOGY
+# define  AICLM_NUDGING
+# define  MICLIMATOLOGY
+# define  MICLM_NUDGING
 #endif
 
 /* point sources (rivers, line sources) */
