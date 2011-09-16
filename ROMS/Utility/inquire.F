@@ -66,7 +66,7 @@
       logical :: foundit, got_var, got_time, special
 
       integer :: Fcount, Nrec, Tid, Tindex, Trec, Vid, Vtype
-      integer :: i, ifile, lstr, nvatt, nvdim
+      integer :: i, ifile, lstr, nvatt, nvdim, Tlen2
       integer :: Vsize(4)
 
       real(r8) :: Clength, Tend, Tmax, Tmin, Tmono, Tscale, Tstr, Tval
@@ -74,6 +74,7 @@
 
       character (len=3  ) :: label
       character (len=256) :: Fname
+      character (len=256) :: Tname2
 !
       SourceFile='inquire.F'
 !
@@ -126,6 +127,8 @@
               BRYids(ifile,ng)=-1
             END IF
             EXIT
+          ELSE                           !Fred
+            Fcount=S(ifile)%Fcount       !Fred
           END IF
         END DO
       ELSE
@@ -219,6 +222,8 @@
             DO i=1,nvatt
               IF (TRIM(var_Aname(i)).eq.'time') THEN
                 Tname(ifield)=TRIM(var_Achar(i))
+                Tlen2=LEN_TRIM(var_Achar(i))-1
+                Tname2 = Tname(ifield)(1:Tlen2)
                 got_time=.TRUE.
               END IF
             END DO
@@ -226,6 +231,10 @@
               DO i=1,n_dim
                 IF (TRIM(dim_name(i)).eq.TRIM(Tname(ifield))) THEN
                   Nrec=dim_size(i)
+                ELSE IF (TRIM(dim_name(i)).eq.TRIM(Tname2)) THEN
+                  Nrec=dim_size(i)
+                  Tname(ifield)=TRIM(Tname2)
+!                  print *, 'INQUIRE tossing', int(var_Achar(i)(Tlen2+1))
                 END IF
               END DO
             END IF
