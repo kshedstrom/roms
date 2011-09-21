@@ -2137,11 +2137,11 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+12)=' PJ_GRADPQ4,'
 #endif
-#ifdef POT_TIDES
-      IF (Master) WRITE (stdout,20) 'POT_TIDES',                        &
-     &   'Add tidal potential terms to the forcing.'
+#ifdef POSITIVE_ZERO
+      IF (Master) WRITE (stdout,20) 'POSITIVE_ZERO',                    &
+     &   'Impose positive zero in output data.'
       is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+11)=' POT_TIDES,'
+      Coptions(is:is+15)=' POSITIVE_ZERO,'
 #endif
 #if defined POSTERIOR_EOFS && defined WEAK_CONSTRAINT
       IF (Master) WRITE (stdout,20) 'POSTERIOR_EOFS',                   &
@@ -2160,6 +2160,12 @@
      &   'Estimating initial posterior analysis error covariace matrix.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+16)=' POSTERIOR_ERROR_F,'
+#endif
+#ifdef POT_TIDES
+      IF (Master) WRITE (stdout,20) 'POT_TIDES',                        &
+     &   'Add tidal potential terms to the forcing.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+11)=' POT_TIDES,'
 #endif
 #if defined POWER_LAW && defined SOLVE3D
       IF (Master) WRITE (stdout,20) 'POWER_LAW',                        &
