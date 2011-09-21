@@ -66,7 +66,7 @@
       logical :: foundit, got_var, got_time, special
 
       integer :: Fcount, Nrec, Tid, Tindex, Trec, Vid, Vtype
-      integer :: i, ifile, lstr, nvatt, nvdim, Tlen2
+      integer :: i, ifile, lstr, nvatt, nvdim
       integer :: Vsize(4)
 
       real(r8) :: Clength, Tend, Tmax, Tmin, Tmono, Tscale, Tstr, Tval
@@ -74,7 +74,6 @@
 
       character (len=3  ) :: label
       character (len=256) :: Fname
-      character (len=256) :: Tname2
 !
       SourceFile='inquire.F'
 !
@@ -127,12 +126,18 @@
               BRYids(ifile,ng)=-1
             END IF
             EXIT
-          ELSE                           !Fred
-            Fcount=S(ifile)%Fcount       !Fred
-          END IF
+          ELSE                       ! S(ifile)%name and Fcount already
+            Fcount=S(ifile)%Fcount   ! updated in first field processed
+          END IF                     ! for current new file
         END DO
       ELSE
         Fcount=S(1)%Fcount
+      END IF
+      IF (Fcount.eq.0) THEN
+        IF (Master) THEN
+          WRITE (stdout,20) Fcount, label, TRIM(Vname(1,ifield))
+        END IF
+        exit_flag=4
       END IF
 !
 !  If several input NetCDF files (nfiles>1), scan files until the
@@ -216,26 +221,27 @@
 !
 !  If the associated time variable is different to that specified in
 !  "varinfo.dat" (Nrec still zero), reset associated time-variable name
-!  to that specified in the "time" attribute.
+!  to that specified in the "time" attribute.  If founded, also check
+!  for a C-language null termination character in the time variable
+!  string, which is possible in NetCDF files generated from C-programs.
 !
           IF (Nrec.eq.0) THEN
             DO i=1,nvatt
               IF (TRIM(var_Aname(i)).eq.'time') THEN
                 Tname(ifield)=TRIM(var_Achar(i))
-                Tlen2=LEN_TRIM(var_Achar(i))-1
-                Tname2 = Tname(ifield)(1:Tlen2)
                 got_time=.TRUE.
               END IF
             END DO
             IF (got_time) THEN
+              lstr=LEN_TRIM(Tname(ifield))
               DO i=1,n_dim
-                IF (TRIM(dim_name(i)).eq.TRIM(Tname(ifield))) THEN
+                IF (TRIM(dim_name(i)).eq.Tname(ifield)(1:lstr)) THEN
                   Nrec=dim_size(i)
-                ELSE IF (TRIM(dim_name(i)).eq.TRIM(Tname2)) THEN
-                  Nrec=dim_size(i)
-                  Tname(ifield)=TRIM(Tname2)
-!                  print *, 'INQUIRE tossing', int(var_Achar(i)(Tlen2+1))
-                END IF
+                ELSE IF (TRIM(dim_name(i)).eq.                         &
+     &                   Tname(ifield)(1:lstr-1)) THEN  ! There is a C
+                  Nrec=dim_size(i)                      ! language null
+                  Tname(ifield)=Tname(ifield)(1:lstr-1) ! termination
+                END IF                                  ! character
               END DO
             END IF
           END IF
@@ -251,7 +257,7 @@
             END DO
           END IF
           IF (got_time.and.(Nrec.eq.0)) THEN
-            IF (Master) WRITE (stdout,20) TRIM(Tname(ifield)),          &
+            IF (Master) WRITE (stdout,30) TRIM(Tname(ifield)),          &
      &                                    TRIM(Vname(1,ifield)),        &
      &                                    TRIM(Fname)
             exit_flag=4
@@ -260,7 +266,7 @@
         END IF
         IF (ABS(job).eq.1) THEN
           IF ((Iout.eq.1).and.(Nrec.gt.Mrec)) THEN
-            IF (Master) WRITE (stdout,30) TRIM(Vname(1,ifield)),        &
+            IF (Master) WRITE (stdout,40) TRIM(Vname(1,ifield)),        &
      &                                    Mrec, Nrec
             exit_flag=4
             RETURN
@@ -309,12 +315,12 @@
 !
       IF (.not.got_var) THEN
         IF ((nfiles.gt.1).and.(label(1:3).eq.'FRC')) THEN
-          WRITE (stdout,40) TRIM(Vname(1,ifield)), 'files:'
+          WRITE (stdout,50) TRIM(Vname(1,ifield)), 'files:'
           DO i=1,nfiles
             WRITE (stdout,'(15x,a)') TRIM(S(i)%name)
           END DO
         ELSE
-          WRITE (stdout,40) TRIM(Vname(1,ifield)), 'file:'
+          WRITE (stdout,50) TRIM(Vname(1,ifield)), 'file:'
           WRITE (stdout,'(15x,a)') TRIM(ncfile)
         END IF
         exit_flag=2
@@ -322,12 +328,12 @@
       END IF
       IF (.not.got_time) THEN
         IF ((nfiles.gt.1).and.(label(1:3).eq.'FRC')) THEN
-          WRITE (stdout,40) TRIM(Tname(ifield)), 'files:'
+          WRITE (stdout,50) TRIM(Tname(ifield)), 'files:'
           DO i=1,nfiles
             WRITE (stdout,'(15x,a)') TRIM(S(i)%name)
           END DO
         ELSE
-          WRITE (stdout,40) TRIM(Tname(ifield)), 'file:'
+          WRITE (stdout,50) TRIM(Tname(ifield)), 'file:'
           WRITE (stdout,'(15x,a)') TRIM(ncfile)
         END IF
         exit_flag=2
@@ -367,7 +373,7 @@
       IF (ncid.eq.-1) THEN
         CALL netcdf_open (ng, model, ncfile, 0, ncid)
         IF (exit_flag.ne.NoError) THEN
-          WRITE (stdout,50) TRIM(ncfile)
+          WRITE (stdout,60) TRIM(ncfile)
           RETURN
         END IF
 !
@@ -439,7 +445,7 @@
      &                            start = (/Trec-1/),                   &
      &                            total = (/1/))
             IF (exit_flag.ne.NoError) THEN
-              IF (Master) WRITE (stdout,60) TRIM(Tname(ifield)), Trec
+              IF (Master) WRITE (stdout,70) TRIM(Tname(ifield)), Trec
               RETURN
             END IF
             Tval=Tval*Tscale
@@ -500,15 +506,18 @@
   10  FORMAT (/,' INQUIRE     - out of range multi-files counter for ', &
      &        'variable; ',a,/,15x,'Fcount = ',i2.2,                    &
      &        ',   Expected range: 1 - ',i2.2)
-  20  FORMAT (/,' INQUIRE     - unable to find dimension ',a,           &
+  20  FORMAT (/,' INQUIRE     - unable to assign file counter, ',       &
+     &        'Fcount = ',i4,/,15x,'while processing structure: ',a,    &
+     &        /,15x,'and variable; ',a)
+  30  FORMAT (/,' INQUIRE     - unable to find dimension ',a,           &
      &        /,15x,'for variable: ',a,/,15x,'in file: ',a,             &
      &        /,15x,'file is not CF compliant...')
-  30  FORMAT (/,' INQUIRE     - too small dimension for variable ',a,   &
+  40  FORMAT (/,' INQUIRE     - too small dimension for variable ',a,   &
      &        ': ',2i5)
-  40  FORMAT (/,' INQUIRE     - unable to find requested variable: ',a, &
+  50  FORMAT (/,' INQUIRE     - unable to find requested variable: ',a, &
      &        /,15x,'in ',a)
-  50  FORMAT (/,' INQUIRE     - unable to open input NetCDF file: ',a)
-  60  FORMAT (/,' INQUIRE     - error while reading variable: ',a,2x,   &
+  60  FORMAT (/,' INQUIRE     - unable to open input NetCDF file: ',a)
+  70  FORMAT (/,' INQUIRE     - error while reading variable: ',a,2x,   &
      &        ' at TIME index = ',i4)
 
       RETURN

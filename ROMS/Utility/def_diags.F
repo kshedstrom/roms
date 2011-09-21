@@ -499,7 +499,7 @@
         END DO
 # endif
 
-# ifdef BIO_FENNEL
+# if defined DIAGNOSTICS_BIO && defined BIO_FENNEL
 !
 !  Define 2D biological diagnostic fields.
 !
