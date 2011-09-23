@@ -9354,7 +9354,7 @@
           allocate ( S(ng)%time_min(Nfiles(ng)) )
           allocate ( S(ng)%time_max(Nfiles(ng)) )
           IF (label(1:3).eq.'FLT') THEN
-            allocate ( S(ng)%Vid(-6:NV) )
+            allocate ( S(ng)%Vid(-10:NV) )
           ELSE
             allocate ( S(ng)%Vid(NV) )
           END IF
