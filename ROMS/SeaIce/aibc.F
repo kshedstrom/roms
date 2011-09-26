@@ -220,7 +220,7 @@
         END DO
 # endif
 
-# if defined CHUKCHI && defined OUTFLOW_MASK
+# if defined CHUKCHI
         DO j=Jstr,Jend
           ai(1,j,linew)=BOUNDARY(ng)%ai_west(j)
 #  ifdef MASKING
@@ -366,7 +366,7 @@
         END DO
 # endif
 
-# if defined CHUKCHI && defined OUTFLOW_MASK
+# if defined CHUKCHI
         DO j=Jstr,Jend
           ai(Lm(ng),j,linew)=BOUNDARY(ng)%ai_east(j)
 #  ifdef MASKING
@@ -514,7 +514,7 @@
         END DO
 # endif
 
-# if defined CHUKCHI && defined OUTFLOW_MASK
+# if defined CHUKCHI
         DO i=Istr,Iend
           ai(i,1,linew)=BOUNDARY(ng)%ai_south(i)
 #  ifdef MASKING
@@ -660,7 +660,7 @@
         END DO
 # endif
 
-# if defined CHUKCHI && defined OUTFLOW_MASK
+# if defined CHUKCHI
         DO i=Istr,Iend
           ai(i,Mm(ng),linew)=BOUNDARY(ng)%ai_north(i)
 #  ifdef MASKING
