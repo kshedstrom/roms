@@ -68,6 +68,7 @@
      &                      GRID(ng) % rmask_wet,                       &
      &                      GRID(ng) % umask_wet,                       &
      &                      GRID(ng) % vmask_wet,                       &
+     &                      GRID(ng) % h,                               &
 # endif
 # if defined PERFECT_RESTART && \
     (defined EW_PERIODIC || defined NS_PERIODIC)
@@ -125,6 +126,7 @@
 # endif
 # ifdef WET_DRY
      &                            rmask_wet, umask_wet, vmask_wet,      &
+     &                            h,                                    &
 # endif
 # if defined PERFECT_RESTART && \
     (defined EW_PERIODIC || defined NS_PERIODIC)
@@ -212,6 +214,7 @@
       real(r8), intent(inout) :: rmask_wet(LBi:,LBj:)
       real(r8), intent(inout) :: umask_wet(LBi:,LBj:)
       real(r8), intent(inout) :: vmask_wet(LBi:,LBj:)
+      real(r8), intent(inout) :: h(LBi:,LBj:)
 #  endif
 #  ifdef SOLVE3D
       real(r8), intent(in) :: Hz(LBi:,LBj:,:)
@@ -266,6 +269,7 @@
       real(r8), intent(inout) :: rmask_wet(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: umask_wet(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: vmask_wet(LBi:UBi,LBj:UBj)
+      real(r8), intent(inout) :: h(LBi:UBi,LBj:UBj)
 #  endif
 #  ifdef SOLVE3D
       real(r8), intent(in) :: Hz(LBi:UBi,LBj:UBj,N(ng))
