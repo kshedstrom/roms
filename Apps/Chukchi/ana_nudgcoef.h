@@ -161,16 +161,17 @@
       END DO
 #  endif
 #  ifdef AICLM_NUDGING
+! Set these ice timescales to a day at the edge, not 30.
       DO j=JstrR,JendR
         DO i=IstrR,IendR
-          CLIMA(ng)%AInudgcof(i,j)=wrk(i,j)
+          CLIMA(ng)%AInudgcof(i,j)=wrk(i,j) * 30.
         END DO
       END DO
 #  endif
 #  ifdef MICLM_NUDGING
       DO j=JstrR,JendR
         DO i=IstrR,IendR
-          CLIMA(ng)%MInudgcof(i,j)=wrk(i,j)
+          CLIMA(ng)%MInudgcof(i,j)=wrk(i,j) * 30.
         END DO
       END DO
 #  endif
