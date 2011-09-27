@@ -72,8 +72,8 @@
 !
 !  Local dimension parameters.
 !
-      integer, parameter :: Mdims = 50  ! maximun number of dimensions
-      integer, parameter :: Mvars = 700 ! maximun number of variables
+      integer, parameter :: Mdims = 50  ! maximum number of dimensions
+      integer, parameter :: Mvars = 800 ! maximum number of variables
       integer, parameter :: NvarD = 5   ! number of variable dimensions
       integer, parameter :: NvarA = 50  ! number of variable attributes
 !
@@ -130,12 +130,16 @@
       integer, parameter :: NF_TYPE = nf90_real
 #endif
 !
-!  Netcdf file creation mode flag.
+!  Netcdf file basic creation mode flag. Its value is further modified
+!  in "netcdf_create" using the IOR function to include additional
+!  flags, like "nf90_clobber" to overwrite existing file.
 !
 #if defined HDF5
-      integer :: CMODE = nf90_hdf5         ! NetCDF-4/HDF5 format file
+!     integer :: CMODE = nf90_hdf5         ! NetCDF-4/HDF5 format file
+      integer :: CMODE = nf90_netcdf4      ! NetCDF-4/HDF5 format file
 #else
-      integer :: CMODE = nf90_clobber      ! NetCDF classic format file
+      integer :: CMODE = nf90_64bit_offset ! NetCDF 64-bit offset format
+!                                            (large file support)
 #endif
 !
 !  Set NetCDF-4/HDF5 deflate (file compression) parameters.
@@ -1467,7 +1471,7 @@
      &        /,18x,'call from:',2x,a)
   20  FORMAT (/,' NETCDF_INQ_VAR - error while inquiring variable ID:', &
      &        2x,i3,/,18x,'in input file:',2x,a,/,18x,'call from:',2x,a)
-  30  FORMAT (/,' NETCDF_INQ_VAR - too small dimension parameter,',a,   &
+  30  FORMAT (/,' NETCDF_INQ_VAR - too small dimension parameter, ',a,  &
      &        2i5,/,18x,'change file  mod_netcdf.F  and recompile')
   40  FORMAT (/,' NETCDF_INQ_VAR - unable to inquire about contents',   &
      &          ' of input NetCDF file:',2x,a,/,18x,'call from:',2x,a)
@@ -1863,7 +1867,7 @@
       END IF
 #endif
 !
-!  Compute minimum and maximun values of read variable. Notice that
+!  Compute minimum and maximum values of read variable. Notice that
 !  the same read value is assigned since a scalar variable was
 !  processed.
 !
@@ -2077,7 +2081,7 @@
         END DO
       END IF
 !
-!  Compute minimum and maximun values of read variable.
+!  Compute minimum and maximum values of read variable.
 !
       IF (PRESENT(min_val)) THEN
         min_val=MINVAL(A)
@@ -2291,7 +2295,7 @@
         END DO
       END IF
 !
-!  Compute minimum and maximun values of read variable.
+!  Compute minimum and maximum values of read variable.
 !
       IF (PRESENT(min_val)) THEN
         min_val=MINVAL(A)
@@ -2507,7 +2511,7 @@
         END DO
       END IF
 !
-!  Compute minimum and maximun values of read variable.
+!  Compute minimum and maximum values of read variable.
 !
       IF (PRESENT(min_val)) THEN
         min_val=MINVAL(A)
@@ -2727,7 +2731,7 @@
         END DO
       END IF
 !
-!  Compute minimum and maximun values of read variable.
+!  Compute minimum and maximum values of read variable.
 !
       IF (PRESENT(min_val)) THEN
         min_val=MINVAL(A)
@@ -5744,7 +5748,7 @@
 !
 !  Local variable declarations.
 !
-      integer :: status
+      integer :: my_cmode, status
 #if !defined PARALLEL_IO && defined DISTRIBUTE
       integer :: ibuffer(3)
 #endif
@@ -5760,10 +5764,10 @@
 !  is to overwrite an existing file on disk with the same file name.
 !  This is what we usually do anyway.
 !
-!!    status=nf90_create_par(TRIM(ncname), nf90_netcdf4,                &
-!!   &                       OCN_COMM_WORLD, MP_INFO, ncid)
+      my_cmode=IOR(nf90_mpiio, nf90_clobber)
+      my_cmode=IOR(my_cmode, CMODE)
       status=nf90_create(path = TRIM(ncname),                           &
-     &                   cmode = nf90_hdf5,                             &
+     &                   cmode = my_cmode,                              &
      &                   ncid = ncid,                                   &
      &                   comm = OCN_COMM_WORLD,                         &
      &                   info = MP_INFO)
@@ -5774,8 +5778,9 @@
         ioerror=status
       END IF
 #else
+      my_cmode=IOR(nf90_clobber, CMODE)
       IF (OutThread) THEN
-        status=nf90_create(TRIM(ncname), CMODE, ncid)
+        status=nf90_create(TRIM(ncname), my_cmode, ncid)
         IF (status.ne.nf90_noerr) THEN
           WRITE (stdout,10) TRIM(ncname), TRIM(SourceFile)
           PRINT *, trim(nf90_strerror(status))
