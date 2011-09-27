@@ -739,6 +739,7 @@
           END IF
         END IF
       END DO
+# endif
 
 # ifdef BEST_NPZ
 #  ifdef STATIONARY
@@ -2302,7 +2303,6 @@
         END IF
       END IF
 # endif
-#endif
 #endif
 !
 !  Write out surface U-momentum stress.
