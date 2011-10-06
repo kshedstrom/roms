@@ -330,8 +330,7 @@
           tau=tau*dt(ng)
 #  endif
           IF ((dVdt*dVde).lt.0.0_r8) dVdt=0.0_r8
-          IF ((dVdt*(grad(i,Jstr+1)+grad(i+1,Jstr+1))).gt.0.0_r8)
-THEN
+          IF ((dVdt*(grad(i,Jstr+1)+grad(i+1,Jstr+1))).gt.0.0_r8) THEN
             dVdx=grad(i  ,Jstr+1)
           ELSE
             dVdx=grad(i+1,Jstr+1)
