@@ -161,10 +161,10 @@
 # undef TCLM_NUDGING
 # undef  M3CLIMATOLOGY
 # undef  M3CLM_NUDGING
-# define  AICLIMATOLOGY
-# define  AICLM_NUDGING
-# define  MICLIMATOLOGY
-# define  MICLM_NUDGING
+# undef  AICLIMATOLOGY
+# undef  AICLM_NUDGING
+# undef  MICLIMATOLOGY
+# undef  MICLM_NUDGING
 #endif
 
 /* point sources (rivers, line sources) */
