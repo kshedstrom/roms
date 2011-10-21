@@ -8371,6 +8371,7 @@
             Npts=load_l(Nval, Cval, Ngrids, Sout(idHsbl,:))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idHbbl)') THEN
             Npts=load_l(Nval, Cval, Ngrids, Sout(idHbbl,:))
+#  ifdef NEMURO_SED1
           ELSE IF (TRIM(KeyWord).eq.'Sout(idPONsed)') THEN
             Npts=load_l(Nval, Cval, Ngrids, Sout(idPONsed,:))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idOPALsed)') THEN
@@ -8381,6 +8382,7 @@
             Npts=load_l(Nval, Cval, Ngrids, Sout(idPONbur,:))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idOPALbur)') THEN
             Npts=load_l(Nval, Cval, Ngrids, Sout(idOPALbur,:))
+#  endif
           ELSE IF (TRIM(KeyWord).eq.'Sout(idMtke)') THEN
             Npts=load_l(Nval, Cval, Ngrids, Sout(idMtke,:))
           ELSE IF (TRIM(KeyWord).eq.'Sout(idMtls)') THEN
