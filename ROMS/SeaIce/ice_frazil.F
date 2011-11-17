@@ -171,6 +171,11 @@
                 gamma_k = (t_fr - t(i,j,k,nnew,itemp)) /                &
      &                     (Lhat + t(i,j,k,nnew,itemp)*(1.0_r8 - r)     &
      &                         + 0.0543_r8 * t(i,j,k,nnew,isalt))
+                IF (gamma_k .lt. 0.0_r8) THEN
+                  print *, 'trouble in ice_frazil', i, j, k,            &
+     &             t(i,j,k,nnew,itemp), t(i,j,k,nnew,isalt),            &
+     &             t_fr, wfr(i,j), gamma_k, Hz(i,j,k)
+                END IF
                 wfr(i,j) = wfr(i,j) + gamma_k * Hz(i,j,k) *             &
      &                    (1000.0_r8 + rho(i,j,k) ) / rhoice(ng)
                 t(i,j,k,nnew,itemp) = t(i,j,k,nnew,itemp) + gamma_k *   &
