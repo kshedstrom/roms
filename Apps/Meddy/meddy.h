@@ -32,8 +32,6 @@
 #define ANA_BTFLUX
 #define ANA_VMIX
 #undef MY25_MIXING
-#define EW_PERIODIC
-#define NS_PERIODIC
 #define  UV_LDRAG
 #define  DIAGNOSTICS_UV
 #define  DIAGNOSTICS_TS

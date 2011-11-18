@@ -25,30 +25,6 @@
 !
 !  Local variable declarations.
 !
-      integer :: FS_east = 0
-      integer :: FS_west = 0
-      integer :: FS_north = 0
-      integer :: FS_south = 0
-      integer :: M2_east = 0
-      integer :: M2_west = 0
-      integer :: M2_north = 0
-      integer :: M2_south = 0
-      integer :: M3_east = 0
-      integer :: M3_west = 0
-      integer :: M3_north = 0
-      integer :: M3_south = 0
-      integer :: K_east = 0
-      integer :: K_west = 0
-      integer :: K_north = 0
-      integer :: K_south = 0
-      integer :: T_east = 0
-      integer :: T_west = 0
-      integer :: T_north = 0
-      integer :: T_south = 0
-      integer :: PT_east = 0
-      integer :: PT_west = 0
-      integer :: PT_north = 0
-      integer :: PT_south = 0
       integer :: ibbl = 0
       integer :: ibiology = 0
       integer :: idriver = 0
@@ -766,286 +742,6 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+14)=' DRAG_LIMITER,'
 #endif
-#ifdef EAST_FSCLAMPED
-      IF (Master) WRITE (stdout,20) 'EAST_FSCLAMPED',                   &
-     &   'Eastern edge, free-surface, Clamped condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+16)=' EAST_FSCLAMPED,'
-      FS_east=FS_east+1
-#endif
-#ifdef EAST_FSCHAPMAN
-      IF (Master) WRITE (stdout,20) 'EAST_FSCHAPMAN',                   &
-     &   'Eastern edge, free-surface, Chapman condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+16)=' EAST_FSCHAPMAN,'
-      FS_east=FS_east+1
-#endif
-#ifdef EAST_FSGRADIENT
-      IF (Master) WRITE (stdout,20) 'EAST_FSGRADIENT',                  &
-     &   'Eastern edge, free-surface, gradient condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+17)=' EAST_FSGRADIENT,'
-      FS_east=FS_east+1
-#endif
-#ifdef EAST_FSRADIATION
-# ifdef EAST_FSNUDGING
-      IF (Master) WRITE (stdout,20) 'EAST_FSNUDGING',                   &
-     &   'Eastern edge, free-surface, passive/active outflow/inflow.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+16)=' EAST_FSNUDGING,'
-# endif
-      IF (Master) WRITE (stdout,20) 'EAST_FSRADIATION',                 &
-     &   'Eastern edge, free-surface, radiation condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+18)=' EAST_FSRADIATION,'
-      FS_east=FS_east+1
-#endif
-#ifdef EAST_M2CLAMPED
-      IF (Master) WRITE (stdout,20) 'EAST_M2CLAMPED',                   &
-     &   'Eastern edge, 2D momentum, Clamped condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+16)=' EAST_M2CLAMPED,'
-      M2_east=M2_east+1
-#endif
-#ifdef EAST_M2FLATHER
-      IF (Master) WRITE (stdout,20) 'EAST_M2FLATHER',                   &
-     &   'Eastern edge, 2D momentum, Flather condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+16)=' EAST_M2FLATHER,'
-      M2_east=M2_east+1
-#endif
-#ifdef EAST_M2GRADIENT
-      IF (Master) WRITE (stdout,20) 'EAST_M2GRADIENT',                  &
-     &   'Eastern edge, 2D momentum, gradient condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+17)=' EAST_M2GRADIENT,'
-      M2_east=M2_east+1
-#endif
-#ifdef EAST_M2RADIATION
-# ifdef EAST_M2NUDGING
-      IF (Master) WRITE (stdout,20) 'EAST_M2NUDGING',                   &
-     &   'Eastern edge, 2D momentum, passive/active outflow/inflow.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+16)=' EAST_M2NUDGING,'
-# endif
-      IF (Master) WRITE (stdout,20) 'EAST_M2RADIATION',                 &
-     &   'Eastern edge, 2D momentum, radiation condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+18)=' EAST_M2RADIATION,'
-      M2_east=M2_east+1
-#endif
-#ifdef EAST_M2REDUCED
-      IF (Master) WRITE (stdout,20) 'EAST_M2REDUCED',                   &
-     &   'Eastern edge, 2D momentum, reduced-physics condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+16)=' EAST_M2REDUCED,'
-      M2_east=M2_east+1
-#endif
-#ifdef EAST_M3CLAMPED
-      IF (Master) WRITE (stdout,20) 'EAST_M3CLAMPED',                   &
-     &   'Eastern edge, 3D momentum, Clamped condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+16)=' EAST_M3CLAMPED,'
-      M3_east=M3_east+1
-#endif
-#ifdef EAST_M3GRADIENT
-      IF (Master) WRITE (stdout,20) 'EAST_M3GRADIENT',                  &
-     &   'Eastern edge, 3D momentum, gradient condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+17)=' EAST_M3GRADIENT,'
-      M3_east=M3_east+1
-#endif
-#ifdef EAST_M3RADIATION
-# ifdef EAST_M3NUDGING
-      IF (Master) WRITE (stdout,20) 'EAST_M3NUDGING',                   &
-     &   'Eastern edge, 3D momentum, passive/active outflow/inflow.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+16)=' EAST_M3NUDGING,'
-# endif
-      IF (Master) WRITE (stdout,20) 'EAST_M3RADIATION',                 &
-     &   'Eastern edge, 3D momentum, radiation condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+18)=' EAST_M3RADIATION,'
-      M3_east=M3_east+1
-#endif
-#if defined GLS_MIXING || defined MY25_MIXING
-# ifdef EAST_KGRADIENT
-      IF (Master) WRITE (stdout,20) 'EAST_KGRADIENT',                   &
-     &   'Eastern edge, TKE fields, gradient condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+16)=' EAST_KGRADIENT,'
-      K_east=K_east+1
-# endif
-# ifdef EAST_KRADIATION
-      IF (Master) WRITE (stdout,20) 'EAST_KRADIATION',                  &
-     &   'Eastern edge, TKE fields, radiation condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+17)=' EAST_KRADIATION,'
-      K_east=K_east+1
-# endif
-#endif
-#ifdef EAST_TCLAMPED
-      IF (Master) WRITE (stdout,20) 'EAST_TCLAMPED',                    &
-     &   'Eastern edge, tracers, Clamped condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+15)=' EAST_TCLAMPED,'
-      T_east=T_east+1
-#endif
-#ifdef EAST_TGRADIENT
-      IF (Master) WRITE (stdout,20) 'EAST_TGRADIENT',                   &
-     &   'Eastern edge, tracers, gradient condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+16)=' EAST_TGRADIENT,'
-      T_east=T_east+1
-#endif
-#ifdef EAST_TRADIATION
-# ifdef EAST_TNUDGING
-      IF (Master) WRITE (stdout,20) 'EAST_TNUDGING',                    &
-     &   'Eastern edge, tracers, passive/active outflow/inflow.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+15)=' EAST_TNUDGING,'
-# endif
-      IF (Master) WRITE (stdout,20) 'EAST_TRADIATION',                  &
-     &   'Eastern edge, tracers, radiation condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+17)=' EAST_TRADIATION,'
-      T_east=T_east+1
-#endif
-#ifdef EAST_PTCLAMPED
-      IF (Master) WRITE (stdout,20) 'EAST_PTCLAMPED',                   &
-     &   'Eastern edge, passive tracers, Clamped condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+16)=' EAST_PTCLAMPED,'
-      PT_east=PT_east+1
-#endif
-#ifdef EAST_PTGRADIENT
-      IF (Master) WRITE (stdout,20) 'EAST_PTGRADIENT',                  &
-     &   'Eastern edge, passive tracers, gradient condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+17)=' EAST_PTGRADIENT,'
-      PT_east=PT_east+1
-#endif
-#ifdef EAST_PTRADIATION
-# ifdef EAST_PTNUDGING
-      IF (Master) WRITE (stdout,20) 'EAST_PTNUDGING',                   &
-     &  'Eastern edge, passive tracers, passive/active outflow/inflow.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+16)=' EAST_PTNUDGING,'
-# endif
-      IF (Master) WRITE (stdout,20) 'EAST_PTRADIATION',                 &
-     &   'Eastern edge, passive tracers, radiation condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+18)=' EAST_PTRADIATION,'
-      PT_east=PT_east+1
-#endif
-#ifdef EAST_VOLCONS
-      IF (Master) WRITE (stdout,20) 'EAST_VOLCONS',                     &
-     &   'Eastern edge, enforce mass conservation.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+14)=' EAST_VOLCONS,'
-#endif
-#ifdef EAST_AICLAMPED
-      IF (Master) WRITE (stdout,20) 'EAST_AICLAMPED',                   &
-     &   'Eastern edge, clamp ice area.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+16)=' EAST_AICLAMPED,'
-#endif
-#ifdef EAST_AIMIXED
-      IF (Master) WRITE (stdout,20) 'EAST_AIMIXED',                     &
-     &   'Eastern edge, ice area clamped on inflow, grad on outflow.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+14)=' EAST_AIMIXED,'
-#endif
-#ifdef EAST_AIRADIATION
-      IF (Master) WRITE (stdout,20) 'EAST_AIRADIATION',                 &
-     &   'Eastern edge, radiation of ice area.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+18)=' EAST_AIRADIATION,'
-# ifdef EAST_AINUDGING
-      IF (Master) WRITE (stdout,20) 'EAST_AINUDGING',                   &
-     &   'Eastern edge, nudging of ice area.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+16)=' EAST_AINUDGING,'
-# endif
-#endif
-#ifdef EAST_HICLAMPED
-      IF (Master) WRITE (stdout,20) 'EAST_HICLAMPED',                   &
-     &   'Eastern edge, clamp ice thickness.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+16)=' EAST_HICLAMPED,'
-#endif
-#ifdef EAST_HIMIXED
-      IF (Master) WRITE (stdout,20) 'EAST_HIMIXED',                     &
-     &   'Eastern edge, ice thickness clamped on inflow, grad on outflow.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+14)=' EAST_HIMIXED,'
-#endif
-#ifdef EAST_HIRADIATION
-      IF (Master) WRITE (stdout,20) 'EAST_HIRADIATION',                 &
-     &   'Eastern edge, radiation of ice thickness.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+18)=' EAST_HIRADIATION,'
-# ifdef EAST_HINUDGING
-      IF (Master) WRITE (stdout,20) 'EAST_HINUDGING',                   &
-     &   'Eastern edge, nudging of ice thickness.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+16)=' EAST_HINUDGING,'
-# endif
-#endif
-#ifdef EAST_HSNCLAMPED
-      IF (Master) WRITE (stdout,20) 'EAST_HSNCLAMPED',                  &
-     &   'Eastern edge, clamp snow thickness.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+17)=' EAST_HSNCLAMPED,'
-#endif
-#ifdef EAST_HSNMIXED
-      IF (Master) WRITE (stdout,20) 'EAST_HSNMIXED',                    &
-     &   'Eastern edge, snow thickness clamped on inflow, grad on outflow.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+15)=' EAST_HSNMIXED,'
-#endif
-#ifdef EAST_HSNRADIATION
-      IF (Master) WRITE (stdout,20) 'EAST_HSNRADIATION',                &
-     &   'Eastern edge, radiation of snow thickness.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+19)=' EAST_HSNRADIATION,'
-# ifdef EAST_HSNNUDGING
-      IF (Master) WRITE (stdout,20) 'EAST_HSNNUDGING',                  &
-     &   'Eastern edge, nudging of snow thickness.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+17)=' EAST_HSNNUDGING,'
-# endif
-#endif
-#ifdef EAST_MICLAMPED
-      IF (Master) WRITE (stdout,20) 'EAST_MICLAMPED',                   &
-     &   'Eastern edge, clamp ice momentum.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+16)=' EAST_MICLAMPED,'
-#endif
-#ifdef EAST_SIG11CLAMPED
-      IF (Master) WRITE (stdout,20) 'EAST_SIG11CLAMPED',                &
-     &   'Eastern edge, clamp sig11.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+19)=' EAST_SIG11CLAMPED,'
-#endif
-#ifdef EAST_SIG12CLAMPED
-      IF (Master) WRITE (stdout,20) 'EAST_SIG12CLAMPED',                &
-     &   'Eastern edge, clamp sig12.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+19)=' EAST_SIG12CLAMPED,'
-#endif
-#ifdef EAST_SIG22CLAMPED
-      IF (Master) WRITE (stdout,20) 'EAST_SIG22CLAMPED',                &
-     &   'Eastern edge, clamp sig22.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+19)=' EAST_SIG22CLAMPED,'
-#endif
-#ifdef EASTERN_WALL
-      IF (Master) WRITE (stdout,20) 'EASTERN_WALL',                     &
-     &   'Wall boundary at Eastern edge.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+14)=' EASTERN_WALL,'
-#endif
 #ifdef ECOSIM
       IF (Master) WRITE (stdout,20) 'ECOSIM',                           &
      &   'Bio-Optical EcoSim model.'
@@ -1070,22 +766,6 @@
      &   'Ensemble Forecasting Propagator.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+10)=' ENSEMBLE,'
-#endif
-#ifdef EW_PERIODIC
-      IF (Master) WRITE (stdout,20) 'EW_PERIODIC',                      &
-     &   'East-West periodic boundaries.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+13)=' EW_PERIODIC,'
-      FS_east=FS_east+1
-      FS_west=FS_west+1
-      M2_east=M2_east+1
-      M2_west=M2_west+1
-      M3_east=M3_east+1
-      M3_west=M3_west+1
-      K_east=K_east+1
-      K_west=K_west+1
-      T_east=T_east+1
-      T_west=T_west+1
 #endif
 #ifdef FASTICE_CLIMATOLOGY
       IF (Master) WRITE(stdout,20) 'FASTICE_CLIMATOLOGY',               &
@@ -1643,287 +1323,6 @@
       Coptions(is:is+13)=' !NONLIN_EOS,'
 # endif
 #endif
-#ifdef NORTH_VOLCONS
-      IF (Master) WRITE (stdout,20) 'NORTH_VOLCONS',                    &
-     &   'Northern edge, enforce mass conservation.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+15)=' NORTH_VOLCONS,'
-#endif
-#ifdef NORTHERN_WALL
-      IF (Master) WRITE (stdout,20) 'NORTHERN_WALL',                    &
-     &   'Wall boundary at Northern edge.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+15)=' NORTHERN_WALL,'
-#endif
-#ifdef NORTH_FSCLAMPED
-      IF (Master) WRITE (stdout,20) 'NORTH_FSCLAMPED',                  &
-     &   'Northern edge, free-surface, Clamped condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+17)=' NORTH_FSCLAMPED,'
-      FS_north=FS_north+1
-#endif
-#ifdef NORTH_FSCHAPMAN
-      IF (Master) WRITE (stdout,20) 'NORTH_FSCHAPMAN',                  &
-     &   'Northern edge, free-surface, Chapman condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+17)=' NORTH_FSCHAPMAN,'
-      FS_north=FS_north+1
-#endif
-#ifdef NORTH_FSGRADIENT
-      IF (Master) WRITE (stdout,20) 'NORTH_FSGRADIENT',                 &
-     &   'Northern edge, free-surface, gradient condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+18)=' NORTH_FSGRADIENT,'
-      FS_north=FS_north+1
-#endif
-#ifdef NORTH_FSRADIATION
-# ifdef NORTH_FSNUDGING
-      IF (Master) WRITE (stdout,20) 'NORTH_FSNUDGING',                  &
-     &   'Northern edge, free-surface, passive/active outflow/inflow.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+17)=' NORTH_FSNUDGING,'
-# endif
-      IF (Master) WRITE (stdout,20) 'NORTH_FSRADIATION',                &
-     &   'Northern edge, free-surface, radiation condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+19)=' NORTH_FSRADIATION,'
-      FS_north=FS_north+1
-#endif
-#ifdef NORTH_M2CLAMPED
-      IF (Master) WRITE (stdout,20) 'NORTH_M2CLAMPED',                  &
-     &   'Northern edge, 2D momentum, Clamped condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+17)=' NORTH_M2CLAMPED,'
-      M2_north=M2_north+1
-#endif
-#ifdef NORTH_M2FLATHER
-      IF (Master) WRITE (stdout,20) 'NORTH_M2FLATHER',                  &
-     &   'Northern edge, 2D momentum, Flather condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+17)=' NORTH_M2FLATHER,'
-      M2_north=M2_north+1
-#endif
-#ifdef NORTH_M2GRADIENT
-      IF (Master) WRITE (stdout,20) 'NORTH_M2GRADIENT',                 &
-     &   'Northern edge, 2D momentum, gradient condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+18)=' NORTH_M2GRADIENT,'
-      M2_north=M2_north+1
-#endif
-#ifdef NORTH_M2RADIATION
-# ifdef NORTH_M2NUDGING
-      IF (Master) WRITE (stdout,20) 'NORTH_M2NUDGING',                  &
-     &   'Northern edge, 2D momentum, passive/active outflow/inflow.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+17)=' NORTH_M2NUDGING,'
-# endif
-      IF (Master) WRITE (stdout,20) 'NORTH_M2RADIATION',                &
-     &   'Northern edge, 2D momentum, radiation condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+19)=' NORTH_M2RADIATION,'
-      M2_north=M2_north+1
-#endif
-#ifdef NORTH_M2REDUCED
-      IF (Master) WRITE (stdout,20) 'NORTH_M2REDUCED',                  &
-     &   'Northern edge, 2D momentum, reduced-physics condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+17)=' NORTH_M2REDUCED,'
-      M2_north=M2_north+1
-#endif
-#ifdef NORTH_M3CLAMPED
-      IF (Master) WRITE (stdout,20) 'NORTH_M3CLAMPED',                  &
-     &   'Northern edge, 3D momentum, Clamped condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+17)=' NORTH_M3CLAMPED,'
-      M3_north=M3_north+1
-#endif
-#ifdef NORTH_M3GRADIENT
-      IF (Master) WRITE (stdout,20) 'NORTH_M3GRADIENT',                 &
-     &   'Northern edge, 3D momentum, gradient condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+18)=' NORTH_M3GRADIENT,'
-      M3_north=M3_north+1
-#endif
-#ifdef NORTH_M3RADIATION
-# ifdef NORTH_M3NUDGING
-      IF (Master) WRITE (stdout,20) 'NORTH_M3NUDGING',                  &
-     &   'Northern edge, 3D momentum, passive/active outflow/inflow.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+17)=' NORTH_M3NUDGING,'
-# endif
-      IF (Master) WRITE (stdout,20) 'NORTH_M3RADIATION',                &
-     &   'Northern edge, 3D momentum, radiation condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+19)=' NORTH_M3RADIATION,'
-      M3_north=M3_north+1
-#endif
-#if defined GLS_MIXING || defined MY25_MIXING
-# ifdef NORTH_KGRADIENT
-      IF (Master) WRITE (stdout,20) 'NORTH_KGRADIENT',                  &
-     &   'Northern edge, TKE fields, gradient condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+17)=' NORTH_KGRADIENT,'
-      K_north=K_north+1
-# endif
-# ifdef NORTH_KRADIATION
-      IF (Master) WRITE (stdout,20) 'NORTH_KRADIATION',                 &
-     &   'Northern edge, TKE fields, radiation condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+17)=' NORTH_KRADIATION,'
-      K_north=K_north+1
-# endif
-#endif
-#ifdef NORTH_TCLAMPED
-      IF (Master) WRITE (stdout,20) 'NORTH_TCLAMPED',                   &
-     &   'Northern edge, tracers, Clamped condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+16)=' NORTH_TCLAMPED,'
-      T_north=T_north+1
-#endif
-#ifdef NORTH_TGRADIENT
-      IF (Master) WRITE (stdout,20) 'NORTH_TGRADIENT',                  &
-     &   'Northern edge, tracers, gradient condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+17)=' NORTH_TGRADIENT,'
-      T_north=T_north+1
-#endif
-#ifdef NORTH_TRADIATION
-# ifdef NORTH_TNUDGING
-      IF (Master) WRITE (stdout,20) 'NORTH_TNUDGING',                   &
-     &   'Northern edge, tracers, passive/active outflow/inflow.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+16)=' NORTH_TNUDGING,'
-# endif
-      IF (Master) WRITE (stdout,20) 'NORTH_TRADIATION',                 &
-     &   'Northern edge, tracers, radiation condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+18)=' NORTH_TRADIATION,'
-      T_north=T_north+1
-#endif
-#ifdef NORTH_PTCLAMPED
-      IF (Master) WRITE (stdout,20) 'NORTH_PTCLAMPED',                  &
-     &   'Northern edge, passive tracers, Clamped condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+17)=' NORTH_PTCLAMPED,'
-      PT_north=PT_north+1
-#endif
-#ifdef NORTH_PTGRADIENT
-      IF (Master) WRITE (stdout,20) 'NORTH_PTGRADIENT',                 &
-     &   'Northern edge, passive tracers, gradient condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+18)=' NORTH_PTGRADIENT,'
-      PT_north=PT_north+1
-#endif
-#ifdef NORTH_PTRADIATION
-# ifdef NORTH_PTNUDGING
-      IF (Master) WRITE (stdout,20) 'NORTH_PTNUDGING',                  &
-     &  'Northern edge, passive tracers, passive/active outflow/inflow.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+17)=' NORTH_PTNUDGING,'
-# endif
-      IF (Master) WRITE (stdout,20) 'NORTH_PTRADIATION',                &
-     &   'Northern edge, passive tracers, radiation condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+19)=' NORTH_PTRADIATION,'
-      PT_north=PT_north+1
-#endif
-#ifdef NORTH_AICLAMPED
-      IF (Master) WRITE (stdout,20) 'NORTH_AICLAMPED',                  &
-     &   'Northern edge, clamp ice area.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+17)=' NORTH_AICLAMPED,'
-#endif
-#ifdef NORTH_AIMIXED
-      IF (Master) WRITE (stdout,20) 'NORTH_AIMIXED',                     &
-     &   'Northern edge, ice area clamped on inflow, grad on outflow.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+15)=' NORTH_AIMIXED,'
-#endif
-#ifdef NORTH_AIRADIATION
-      IF (Master) WRITE (stdout,20) 'NORTH_AIRADIATION',                 &
-     &   'Northern edge, radiation of ice area.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+19)=' NORTH_AIRADIATION,'
-# ifdef NORTH_AINUDGING
-      IF (Master) WRITE (stdout,20) 'NORTH_AINUDGING',                   &
-     &   'Northern edge, nudging of ice area.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+17)=' NORTH_AINUDGING,'
-# endif
-#endif
-#ifdef NORTH_HICLAMPED
-      IF (Master) WRITE (stdout,20) 'NORTH_HICLAMPED',                  &
-     &   'Northern edge, clamp ice thickness.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+17)=' NORTH_HICLAMPED,'
-#endif
-#ifdef NORTH_HIMIXED
-      IF (Master) WRITE (stdout,20) 'NORTH_HIMIXED',                     &
-     &   'Northern edge, ice thickness clamped on inflow, grad on outflow.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+15)=' NORTH_HIMIXED,'
-#endif
-#ifdef NORTH_HIRADIATION
-      IF (Master) WRITE (stdout,20) 'NORTH_HIRADIATION',                 &
-     &   'Northern edge, radiation of ice thickness.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+19)=' NORTH_HIRADIATION,'
-# ifdef NORTH_HINUDGING
-      IF (Master) WRITE (stdout,20) 'NORTH_HINUDGING',                   &
-     &   'Northern edge, nudging of ice thickness.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+17)=' NORTH_HINUDGING,'
-# endif
-#endif
-#ifdef NORTH_HSNCLAMPED
-      IF (Master) WRITE (stdout,20) 'NORTH_HSNCLAMPED',                 &
-     &   'Northern edge, clamp snow thickness.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+18)=' NORTH_HSNCLAMPED,'
-#endif
-#ifdef NORTH_HSNMIXED
-      IF (Master) WRITE (stdout,20) 'NORTH_HSNMIXED',                    &
-     &   'Northern edge, snow thickness clamped on inflow, grad on outflow.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+16)=' NORTH_HSNMIXED,'
-#endif
-#ifdef NORTH_HSNRADIATION
-      IF (Master) WRITE (stdout,20) 'NORTH_HSNRADIATION',                &
-     &   'Northern edge, radiation of snow thickness.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+20)=' NORTH_HSNRADIATION,'
-# ifdef NORTH_HSNNUDGING
-      IF (Master) WRITE (stdout,20) 'NORTH_HSNNUDGING',                  &
-     &   'Northern edge, nudging of snow thickness.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+18)=' NORTH_HSNNUDGING,'
-# endif
-#endif
-#ifdef NORTH_MICLAMPED
-      IF (Master) WRITE (stdout,20) 'NORTH_MICLAMPED',                  &
-     &   'Northern edge, clamp ice momentum.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+17)=' NORTH_MICLAMPED,'
-#endif
-#ifdef NORTH_SIG11CLAMPED
-      IF (Master) WRITE (stdout,20) 'NORTH_SIG11CLAMPED',               &
-     &   'Northern edge, clamp sig11.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+20)=' NORTH_SIG11CLAMPED,'
-#endif
-#ifdef NORTH_SIG12CLAMPED
-      IF (Master) WRITE (stdout,20) 'NORTH_SIG12CLAMPED',               &
-     &   'Northern edge, clamp sig12.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+20)=' NORTH_SIG12CLAMPED,'
-#endif
-#ifdef NORTH_SIG22CLAMPED
-      IF (Master) WRITE (stdout,20) 'NORTH_SIG22CLAMPED',               &
-     &   'Northern edge, clamp sig22.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+20)=' NORTH_SIG22CLAMPED,'
-#endif
-
 #if defined NO_READ_GHOST && defined DISTRIBUTE
       IF (Master) WRITE (stdout,20) 'NO_READ_GRID',                     &
      &   'Not including ghost points during scattering read data.'
@@ -1956,22 +1355,6 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+13)=' NPZD_POWELL,'
       ibiology=ibiology+1
-#endif
-#ifdef NS_PERIODIC
-      IF (Master) WRITE (stdout,20) 'NS_PERIODIC',                      &
-     &   'North-South periodic boundaries.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+13)=' NS_PERIODIC,'
-      FS_north=FS_north+1
-      FS_south=FS_south+1
-      M2_north=M2_north+1
-      M2_south=M2_south+1
-      M3_north=M3_north+1
-      M3_south=M3_south+1
-      K_north=K_north+1
-      K_south=K_south+1
-      T_north=T_north+1
-      T_south=T_south+1
 #endif
 #if defined N2S2_HORAVG && (defined GLS_MIXING || defined MY25_MIXING)
       IF (Master) WRITE (stdout,20) 'N2S2_HORAVG',                      &
@@ -2378,286 +1761,6 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+9)=' SOLVE3D,'
 #endif
-#ifdef SOUTH_FSCLAMPED
-      IF (Master) WRITE (stdout,20) 'SOUTH_FSCLAMPED',                  &
-     &   'Southern edge, free-surface, Clamped condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+17)=' SOUTH_FSCLAMPED,'
-      FS_south=FS_south+1
-#endif
-#ifdef SOUTH_FSCHAPMAN
-      IF (Master) WRITE (stdout,20) 'SOUTH_FSCHAPMAN',                  &
-     &   'Southern edge, free-surface, Chapman condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+17)=' SOUTH_FSCHAPMAN,'
-      FS_south=FS_south+1
-#endif
-#ifdef SOUTH_FSGRADIENT
-      IF (Master) WRITE (stdout,20) 'SOUTH_FSGRADIENT',                 &
-     &   'Southern edge, free-surface, gradient condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+18)=' SOUTH_FSGRADIENT,'
-      FS_south=FS_south+1
-#endif
-#ifdef SOUTH_FSRADIATION
-# ifdef SOUTH_FSNUDGING
-      IF (Master) WRITE (stdout,20) 'SOUTH_FSNUDGING',                  &
-     &   'Southern edge, free-surface, passive/active outflow/inflow.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+17)=' SOUTH_FSNUDGING,'
-# endif
-      IF (Master) WRITE (stdout,20) 'SOUTH_FSRADIATION',                &
-     &   'Southern edge, free-surface, radiation condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+19)=' SOUTH_FSRADIATION,'
-      FS_south=FS_south+1
-#endif
-#ifdef SOUTH_M2CLAMPED
-      IF (Master) WRITE (stdout,20) 'SOUTH_M2CLAMPED',                  &
-     &   'Southern edge, 2D momentum, Clamped condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+17)=' SOUTH_M2CLAMPED,'
-      M2_south=M2_south+1
-#endif
-#ifdef SOUTH_M2FLATHER
-      IF (Master) WRITE (stdout,20) 'SOUTH_M2FLATHER',                  &
-     &   'Southern edge, 2D momentum, Flather condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+17)=' SOUTH_M2FLATHER,'
-      M2_south=M2_south+1
-#endif
-#ifdef SOUTH_M2GRADIENT
-      IF (Master) WRITE (stdout,20) 'SOUTH_M2GRADIENT',                 &
-     &   'Southern edge, 2D momentum, gradient condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+18)=' SOUTH_M2GRADIENT,'
-      M2_south=M2_south+1
-#endif
-#ifdef SOUTH_M2RADIATION
-# ifdef SOUTH_M2NUDGING
-      IF (Master) WRITE (stdout,20) 'SOUTH_M2NUDGING',                  &
-     &   'Southern edge, 2D momentum, passive/active outflow/inflow.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+17)=' SOUTH_M2NUDGING,'
-# endif
-      IF (Master) WRITE (stdout,20) 'SOUTH_M2RADIATION',                &
-     &   'Southern edge, 2D momentum, radiation condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+19)=' SOUTH_M2RADIATION,'
-      M2_south=M2_south+1
-#endif
-#ifdef SOUTH_M2REDUCED
-      IF (Master) WRITE (stdout,20) 'SOUTH_M2REDUCED',                  &
-     &   'Southern edge, 2D momentum, reduced-physics condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+17)=' SOUTH_M2REDUCED,'
-      M2_south=M2_south+1
-#endif
-#ifdef SOUTH_M3CLAMPED
-      IF (Master) WRITE (stdout,20) 'SOUTH_M3CLAMPED',                  &
-     &   'Southern edge, 3D momentum, Clamped condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+17)=' SOUTH_M3CLAMPED,'
-      M3_south=M3_south+1
-#endif
-#ifdef SOUTH_M3GRADIENT
-      IF (Master) WRITE (stdout,20) 'SOUTH_M3GRADIENT',                 &
-     &   'Southern edge, 3D momentum, gradient condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+18)=' SOUTH_M3GRADIENT,'
-      M3_south=M3_south+1
-#endif
-#ifdef SOUTH_M3RADIATION
-# ifdef SOUTH_M3NUDGING
-      IF (Master) WRITE (stdout,20) 'SOUTH_M3NUDGING',                  &
-     &   'Southern edge, 3D momentum, passive/active outflow/inflow.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+17)=' SOUTH_M3NUDGING,'
-# endif
-      IF (Master) WRITE (stdout,20) 'SOUTH_M3RADIATION',                &
-     &   'Southern edge, 3D momentum, radiation condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+19)=' SOUTH_M3RADIATION,'
-      M3_south=M3_south+1
-#endif
-#if defined GLS_MIXING || defined MY25_MIXING
-# ifdef SOUTH_KGRADIENT
-      IF (Master) WRITE (stdout,20) 'SOUTH_KGRADIENT',                  &
-     &   'Southern edge, TKE fields, gradient condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+17)=' SOUTH_KGRADIENT,'
-      K_south=K_south+1
-# endif
-# ifdef SOUTH_KRADIATION
-      IF (Master) WRITE (stdout,20) 'SOUTH_KRADIATION',                 &
-     &   'Southern edge, TKE fields, radiation condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+17)=' SOUTH_KRADIATION,'
-      K_south=K_south+1
-# endif
-#endif
-#ifdef SOUTH_TCLAMPED
-      IF (Master) WRITE (stdout,20) 'SOUTH_TCLAMPED',                   &
-     &   'Southern edge, tracers, Clamped condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+17)=' SOUTH_TCLAMPED,'
-      T_south=T_south+1
-#endif
-#ifdef SOUTH_TGRADIENT
-      IF (Master) WRITE (stdout,20) 'SOUTH_TGRADIENT',                  &
-     &   'Southern edge, tracers, gradient condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+17)=' SOUTH_TGRADIENT,'
-      T_south=T_south+1
-#endif
-#ifdef SOUTH_TRADIATION
-# ifdef SOUTH_TNUDGING
-      IF (Master) WRITE (stdout,20) 'SOUTH_TNUDGING',                   &
-     &   'Southern edge, tracers, passive/active outflow/inflow.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+16)=' SOUTH_TNUDGING,'
-# endif
-      IF (Master) WRITE (stdout,20) 'SOUTH_TRADIATION',                 &
-     &   'Southern edge, tracers, radiation condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+18)=' SOUTH_TRADIATION,'
-      T_south=T_south+1
-#endif
-#ifdef SOUTH_PTCLAMPED
-      IF (Master) WRITE (stdout,20) 'SOUTH_PTCLAMPED',                  &
-     &   'Southern edge, passive tracers, Clamped condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+17)=' SOUTH_PTCLAMPED,'
-      PT_south=PT_south+1
-#endif
-#ifdef SOUTH_PTGRADIENT
-      IF (Master) WRITE (stdout,20) 'SOUTH_PTGRADIENT',                 &
-     &   'Southern edge, passive tracers, gradient condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+18)=' SOUTH_PTGRADIENT,'
-      PT_south=PT_south+1
-#endif
-#ifdef SOUTH_PTRADIATION
-# ifdef SOUTH_PTNUDGING
-      IF (Master) WRITE (stdout,20) 'SOUTH_PTNUDGING',                  &
-     &  'Southern edge, passive tracers, passive/active outflow/inflow.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+17)=' SOUTH_PTNUDGING,'
-# endif
-      IF (Master) WRITE (stdout,20) 'SOUTH_PTRADIATION',                &
-     &   'Southern edge, passive tracers, radiation condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+19)=' SOUTH_PTRADIATION,'
-      PT_south=PT_south+1
-#endif
-#ifdef SOUTH_VOLCONS
-      IF (Master) WRITE (stdout,20) 'SOUTH_VOLCONS',                    &
-     &   'Southern edge, enforce mass conservation.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+15)=' SOUTH_VOLCONS,'
-#endif
-#ifdef SOUTH_AICLAMPED
-      IF (Master) WRITE (stdout,20) 'SOUTH_AICLAMPED',                  &
-     &   'Southern edge, clamp ice area.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+17)=' SOUTH_AICLAMPED,'
-#endif
-#ifdef SOUTH_AIMIXED
-      IF (Master) WRITE (stdout,20) 'SOUTH_AIMIXED',                    &
-     &   'Southern edge, ice area clamped on inflow, grad on outflow.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+15)=' SOUTH_AIMIXED,'
-#endif
-#ifdef SOUTH_AIRADIATION
-      IF (Master) WRITE (stdout,20) 'SOUTH_AIRADIATION',                &
-     &   'Southern edge, radiation of ice area.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+19)=' SOUTH_AIRADIATION,'
-# ifdef SOUTH_AINUDGING
-      IF (Master) WRITE (stdout,20) 'SOUTH_AINUDGING',                  &
-     &   'Southern edge, nudging of ice area.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+17)=' SOUTH_AINUDGING,'
-# endif
-#endif
-#ifdef SOUTH_HICLAMPED
-      IF (Master) WRITE (stdout,20) 'SOUTH_HICLAMPED',                  &
-     &   'Southern edge, clamp ice thickness.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+17)=' SOUTH_HICLAMPED,'
-#endif
-#ifdef SOUTH_HIMIXED
-      IF (Master) WRITE (stdout,20) 'SOUTH_HIMIXED',                    &
-     &   'Southern edge, ice thickness clamped on inflow, grad on outflow.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+15)=' SOUTH_HIMIXED,'
-#endif
-#ifdef SOUTH_HIRADIATION
-      IF (Master) WRITE (stdout,20) 'SOUTH_HIRADIATION',                &
-     &   'Southern edge, radiation of ice thickness.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+19)=' SOUTH_HIRADIATION,'
-# ifdef SOUTH_HINUDGING
-      IF (Master) WRITE (stdout,20) 'SOUTH_HINUDGING',                  &
-     &   'Southern edge, nudging of ice thickness.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+17)=' SOUTH_HINUDGING,'
-# endif
-#endif
-#ifdef SOUTH_HSNCLAMPED
-      IF (Master) WRITE (stdout,20) 'SOUTH_HSNCLAMPED',                 &
-     &   'Southern edge, clamp snow thickness.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+18)=' SOUTH_HSNCLAMPED,'
-#endif
-#ifdef SOUTH_HSNMIXED
-      IF (Master) WRITE (stdout,20) 'SOUTH_HSNMIXED',                   &
-     &   'Southern edge, snow thickness clamped on inflow, grad on outflow.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+16)=' SOUTH_HSNMIXED,'
-#endif
-#ifdef SOUTH_HSNRADIATION
-      IF (Master) WRITE (stdout,20) 'SOUTH_HSNRADIATION',               &
-     &   'Southern edge, radiation of snow thickness.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+20)=' SOUTH_HSNRADIATION,'
-# ifdef SOUTH_HSNNUDGING
-      IF (Master) WRITE (stdout,20) 'SOUTH_HSNNUDGING',                 &
-     &   'Southern edge, nudging of snow thickness.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+18)=' SOUTH_HSNNUDGING,'
-# endif
-#endif
-#ifdef SOUTH_MICLAMPED
-      IF (Master) WRITE (stdout,20) 'SOUTH_MICLAMPED',                  &
-     &   'Southern edge, clamp ice momentum.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+17)=' SOUTH_MICLAMPED,'
-#endif
-#ifdef SOUTH_SIG11CLAMPED
-      IF (Master) WRITE (stdout,20) 'SOUTH_SIG11CLAMPED',               &
-     &   'Southern edge, clamp sig11.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+20)=' SOUTH_SIG11CLAMPED,'
-#endif
-#ifdef SOUTH_SIG12CLAMPED
-      IF (Master) WRITE (stdout,20) 'SOUTH_SIG12CLAMPED',               &
-     &   'Southern edge, clamp sig12.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+20)=' SOUTH_SIG12CLAMPED,'
-#endif
-#ifdef SOUTH_SIG22CLAMPED
-      IF (Master) WRITE (stdout,20) 'SOUTH_SIG22CLAMPED',               &
-     &   'Southern edge, clamp sig22.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+20)=' SOUTH_SIG22CLAMPED,'
-#endif
-#ifdef SOUTHERN_WALL
-      IF (Master) WRITE (stdout,20) 'SOUTHERN_WALL',                    &
-     &   'Wall boundary at Southern edge.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+15)=' SOUTHERN_WALL,'
-#endif
 #ifdef SO_SEMI
       IF (Master) WRITE (stdout,20) 'SO_SEMI',                          &
      &   'Stochastic Optimals, Semi-norm Estimation.'
@@ -2837,12 +1940,6 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+12)=' TLM_DRIVER,'
       idriver=idriver+1
-#endif
-#ifdef THREE_GHOST
-      IF (Master) WRITE (stdout,20) 'THREE_GHOST',                      &
-     &   'Using three Ghost Points in halo regions.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+15)=' THREE_GHOST,'
 #endif
 #if defined GLS_MIXING && defined TKE_WAVEDISS
       IF (Master) WRITE (stdout,20) 'TKE_WAVEDISS',                     &
@@ -3266,286 +2363,6 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+13)=' WRITE_WATER,'
 #endif
-#ifdef WEST_FSCLAMPED
-      IF (Master) WRITE (stdout,20) 'WEST_FSCLAMPED',                   &
-     &   'Western edge, free-surface, Clamped condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+16)=' WEST_FSCLAMPED,'
-      FS_west=FS_west+1
-#endif
-#ifdef WEST_FSCHAPMAN
-      IF (Master) WRITE (stdout,20) 'WEST_FSCHAPMAN',                   &
-     &   'Western edge, free-surface, Chapman condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+16)=' WEST_FSCHAPMAN,'
-      FS_west=FS_west+1
-#endif
-#ifdef WEST_FSGRADIENT
-      IF (Master) WRITE (stdout,20) 'WEST_FSGRADIENT',                  &
-     &   'Western edge, free-surface, gradient condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+17)=' WEST_FSGRADIENT,'
-      FS_west=FS_west+1
-#endif
-#ifdef WEST_FSRADIATION
-# ifdef WEST_FSNUDGING
-      IF (Master) WRITE (stdout,20) 'WEST_FSNUDGING',                   &
-     &   'Western edge, free-surface, passive/active outflow/inflow.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+16)=' WEST_FSNUDGING,'
-# endif
-      IF (Master) WRITE (stdout,20) 'WEST_FSRADIATION',                 &
-     &   'Western edge, free-sruface, radiation condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+18)=' WEST_FSRADIATION,'
-      FS_west=FS_west+1
-#endif
-#ifdef WEST_M2CLAMPED
-      IF (Master) WRITE (stdout,20) 'WEST_M2CLAMPED',                   &
-     &   'Western edge, 2D momentum, Clamped condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+16)=' WEST_M2CLAMPED,'
-      M2_west=M2_west+1
-#endif
-#ifdef WEST_M2FLATHER
-      IF (Master) WRITE (stdout,20) 'WEST_M2FLATHER',                   &
-     &   'Western edge, 2D momentum, Flather condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+16)=' WEST_M2FLATHER,'
-      M2_west=M2_west+1
-#endif
-#ifdef WEST_M2GRADIENT
-      IF (Master) WRITE (stdout,20) 'WEST_M2GRADIENT',                  &
-     &   'Western edge, 2D momentum, gradient condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+17)=' WEST_M2GRADIENT,'
-      M2_west=M2_west+1
-#endif
-#ifdef WEST_M2RADIATION
-# ifdef WEST_M2NUDGING
-      IF (Master) WRITE (stdout,20) 'WEST_M2NUDGING',                   &
-     &   'Western edge, 2D momentum, passive/active outflow/inflow.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+16)=' WEST_M2NUDGING,'
-# endif
-      IF (Master) WRITE (stdout,20) 'WEST_M2RADIATION',                 &
-     &   'Western edge, 2D momentum, radiation condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+18)=' WEST_M2RADIATION,'
-      M2_west=M2_west+1
-#endif
-#ifdef WEST_M2REDUCED
-      IF (Master) WRITE (stdout,20) 'WEST_M2REDUCED',                   &
-     &   'Western edge, 2D momentum, reduced-physics condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+16)=' WEST_M2REDUCED,'
-      M2_west=M2_west+1
-#endif
-#ifdef WEST_M3CLAMPED
-      IF (Master) WRITE (stdout,20) 'WEST_M3CLAMPED',                   &
-     &   'Western edge, 3D momentum, Clamped condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+16)=' WEST_M3CLAMPED,'
-      M3_west=M3_west+1
-#endif
-#ifdef WEST_M3GRADIENT
-      IF (Master) WRITE (stdout,20) 'WEST_M3GRADIENT',                  &
-     &   'Western edge, 3D momentum, gradient condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+17)=' WEST_M3GRADIENT,'
-      M3_west=M3_west+1
-#endif
-#ifdef WEST_M3RADIATION
-# ifdef WEST_M3NUDGING
-      IF (Master) WRITE (stdout,20) 'WEST_M3NUDGING',                   &
-     &   'Western edge, 3D momentum, passive/active outflow/inflow.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+16)=' WEST_M3NUDGING,'
-# endif
-      IF (Master) WRITE (stdout,20) 'WEST_M3RADIATION',                 &
-     &   'Western edge, 3D momentum, radiation condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+18)=' WEST_M3RADIATION,'
-      M3_west=M3_west+1
-#endif
-#if defined GLS_MIXING || defined MY25_MIXING
-# ifdef WEST_KGRADIENT
-      IF (Master) WRITE (stdout,20) 'WEST_KGRADIENT',                   &
-     &   'Western edge, TKE fields, gradient condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+16)=' WEST_KGRADIENT,'
-      K_west=K_west+1
-# endif
-# ifdef WEST_KRADIATION
-      IF (Master) WRITE (stdout,20) 'WEST_KRADIATION',                  &
-     &   'Western edge, TKE fields, radiation condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+17)=' WEST_KRADIATION,'
-      K_west=K_west+1
-# endif
-#endif
-#ifdef WEST_TCLAMPED
-      IF (Master) WRITE (stdout,20) 'WEST_TCLAMPED',                    &
-     &   'Western edge, tracers, Clamped condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+16)=' WEST_TCLAMPED,'
-      T_west=T_west+1
-#endif
-#ifdef WEST_TGRADIENT
-      IF (Master) WRITE (stdout,20) 'WEST_TGRADIENT',                   &
-     &   'Western edge, tracers, gradient condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+16)=' WEST_TGRADIENT,'
-      T_west=T_west+1
-#endif
-#ifdef WEST_TRADIATION
-# ifdef WEST_TNUDGING
-      IF (Master) WRITE (stdout,20) 'WEST_TNUDGING',                    &
-     &   'Western edge, tracers, passive/active outflow/inflow.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+15)=' WEST_TNUDGING,'
-# endif
-      IF (Master) WRITE (stdout,20) 'WEST_TRADIATION',                  &
-     &   'Western edge, tracers, radiation condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+17)=' WEST_TRADIATION,'
-      T_west=T_west+1
-#endif
-#ifdef WEST_PTCLAMPED
-      IF (Master) WRITE (stdout,20) 'WEST_PTCLAMPED',                   &
-     &   'Western edge, passive tracers, Clamped condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+16)=' WEST_PTCLAMPED,'
-      PT_west=PT_west+1
-#endif
-#ifdef WEST_PTGRADIENT
-      IF (Master) WRITE (stdout,20) 'WEST_PTGRADIENT',                  &
-     &   'Western edge, passive tracers, gradient condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+17)=' WEST_PTGRADIENT,'
-      PT_west=PT_west+1
-#endif
-#ifdef WEST_PTRADIATION
-# ifdef WEST_PTNUDGING
-      IF (Master) WRITE (stdout,20) 'WEST_PTNUDGING',                   &
-     &  'Western edge, passive tracers, passive/active outflow/inflow.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+16)=' WEST_PTNUDGING,'
-# endif
-      IF (Master) WRITE (stdout,20) 'WEST_PTRADIATION',                 &
-     &   'Western edge, passive tracers, radiation condition.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+18)=' WEST_PTRADIATION,'
-      PT_west=PT_west+1
-#endif
-#ifdef WEST_VOLCONS
-      IF (Master) WRITE (stdout,20) 'WEST_VOLCONS',                     &
-     &   'Western edge, enforce mass conservation.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+14)=' WEST_VOLCONS,'
-#endif
-#ifdef WEST_AICLAMPED
-      IF (Master) WRITE (stdout,20) 'WEST_AICLAMPED',                   &
-     &   'Western edge, clamp ice area.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+16)=' WEST_AICLAMPED,'
-#endif
-#ifdef WEST_AIMIXED
-      IF (Master) WRITE (stdout,20) 'WEST_AIMIXED',                     &
-     &   'Western edge, ice area clamped on inflow, grad on outflow.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+14)=' WEST_AIMIXED,'
-#endif
-#ifdef WEST_AIRADIATION
-      IF (Master) WRITE (stdout,20) 'WEST_AIRADIATION',                 &
-     &   'Western edge, radiation of ice area.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+18)=' WEST_AIRADIATION,'
-# ifdef WEST_AINUDGING
-      IF (Master) WRITE (stdout,20) 'WEST_AINUDGING',                   &
-     &   'Western edge, nudging of ice area.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+16)=' WEST_AINUDGING,'
-# endif
-#endif
-#ifdef WEST_HICLAMPED
-      IF (Master) WRITE (stdout,20) 'WEST_HICLAMPED',                   &
-     &   'Western edge, clamp ice thickness.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+16)=' WEST_HICLAMPED,'
-#endif
-#ifdef WEST_HIMIXED
-      IF (Master) WRITE (stdout,20) 'WEST_HIMIXED',                     &
-     &   'Western edge, ice thickness clamped on inflow, grad on outflow.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+14)=' WEST_HIMIXED,'
-#endif
-#ifdef WEST_HIRADIATION
-      IF (Master) WRITE (stdout,20) 'WEST_HIRADIATION',                 &
-     &   'Western edge, radiation of ice thickness.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+18)=' WEST_HIRADIATION,'
-# ifdef WEST_HINUDGING
-      IF (Master) WRITE (stdout,20) 'WEST_HINUDGING',                   &
-     &   'Western edge, nudging of ice thickness.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+16)=' WEST_HINUDGING,'
-# endif
-#endif
-#ifdef WEST_HSNCLAMPED
-      IF (Master) WRITE (stdout,20) 'WEST_HSNCLAMPED',                  &
-     &   'Western edge, clamp snow thickness.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+17)=' WEST_HSNCLAMPED,'
-#endif
-#ifdef WEST_HSNMIXED
-      IF (Master) WRITE (stdout,20) 'WEST_HSNMIXED',                    &
-     &   'Western edge, snow thickness clamped on inflow, grad on outflow.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+15)=' WEST_HSNMIXED,'
-#endif
-#ifdef WEST_HSNRADIATION
-      IF (Master) WRITE (stdout,20) 'WEST_HSNRADIATION',                &
-     &   'Western edge, radiation of snow thickness.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+19)=' WEST_HSNRADIATION,'
-# ifdef WEST_HSNNUDGING
-      IF (Master) WRITE (stdout,20) 'WEST_HSNNUDGING',                  &
-     &   'Western edge, nudging of snow thickness.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+17)=' EAST_HSNNUDGING,'
-# endif
-#endif
-#ifdef WEST_MICLAMPED
-      IF (Master) WRITE (stdout,20) 'WEST_MICLAMPED',                   &
-     &   'Western edge, clamp ice momentum.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+16)=' WEST_MICLAMPED,'
-#endif
-#ifdef WEST_SIG11CLAMPED
-      IF (Master) WRITE (stdout,20) 'WEST_SIG11CLAMPED',                &
-     &   'Western edge, clamp sig11.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+19)=' WEST_SIG11CLAMPED,'
-#endif
-#ifdef WEST_SIG12CLAMPED
-      IF (Master) WRITE (stdout,20) 'WEST_SIG12CLAMPED',                &
-     &   'Western edge, clamp sig12.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+19)=' WEST_SIG12CLAMPED,'
-#endif
-#ifdef WEST_SIG22CLAMPED
-      IF (Master) WRITE (stdout,20) 'WEST_SIG22CLAMPED',                &
-     &   'Western edge, clamp sig22.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+19)=' WEST_SIG22CLAMPED,'
-#endif
-#ifdef WESTERN_WALL
-      IF (Master) WRITE (stdout,20) 'WESTERN_WALL',                     &
-     &   'Wall boundary at Western edge.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+14)=' WESTERN_WALL,'
-#endif
 #ifdef WET_DRY
       IF (Master) WRITE (stdout,20) 'WET_DRY',                          &
      &   'Wetting and drying activated.'
@@ -3650,136 +2467,15 @@
   70    FORMAT (/,' CHECKDEFS - only one model example is allowed.')
         exit_flag=5
       END IF
-!
-!  Stop if more than one boundary conditions option for free-surface
-!  is selected at each boundary edge.
-!
-      IF (Master.and.(FS_east.gt.1)) THEN
-        WRITE (stdout,80) 'free-surface','eastern edge'
-        exit_flag=5
-      END IF
-      IF (Master.and.(FS_west.gt.1)) THEN
-        WRITE (stdout,80) 'free-surface','western edge'
-        exit_flag=5
-      END IF
-      IF (Master.and.(FS_north.gt.1)) THEN
-        WRITE (stdout,80) 'free-surface','northern edge'
-        exit_flag=5
-      END IF
-      IF (Master.and.(FS_south.gt.1)) THEN
-        WRITE (stdout,80) 'free-surface','southern edge'
-        exit_flag=5
-      END IF
-  80  FORMAT (/,' CHECKDEFS - only one boundary condition option for',  &
-     &        1x,a,/,13x,'is allowed at the',1x,a,'.')
-!
-!  Stop if more than one boundary conditions option for 2D momentum
-!  is selected at each boundary edge.
-!
-      IF (Master.and.(M2_east.gt.1)) THEN
-        WRITE (stdout,80) '2D momentum','eastern edge'
-        exit_flag=5
-      END IF
-      IF (Master.and.(M2_west.gt.1)) THEN
-        WRITE (stdout,80) '2D momentum','western edge'
-        exit_flag=5
-      END IF
-      IF (Master.and.(M2_north.gt.1)) THEN
-        WRITE (stdout,80) '2D momentum','northern edge'
-        exit_flag=5
-      END IF
-      IF (Master.and.(M2_south.gt.1)) THEN
-        WRITE (stdout,80) '2D momentum','southern edge'
-        exit_flag=5
-      END IF
-#ifdef SOLVE3D
-!
-!  Stop if more than one boundary conditions option for 3D momentum
-!  is selected at each boundary edge.
-!
-      IF (Master.and.(M3_east.gt.1)) THEN
-        WRITE (stdout,80) '3D momentum','eastern edge'
-        exit_flag=5
-      END IF
-      IF (Master.and.(M3_west.gt.1)) THEN
-        WRITE (stdout,80) '3D momentum','western edge'
-        exit_flag=5
-      END IF
-      IF (Master.and.(M3_north.gt.1)) THEN
-        WRITE (stdout,80) '3D momentum','northern edge'
-        exit_flag=5
-      END IF
-      IF (Master.and.(M3_south.gt.1)) THEN
-        WRITE (stdout,80) '3D momentum','southern edge'
-        exit_flag=5
-      END IF
-!
-!  Stop if more than one boundary conditions option for tracers is
-!  selected at each boundary edge.
-!
-      IF (Master.and.(T_east.gt.1)) THEN
-        WRITE (stdout,80) 'tracers','eastern edge'
-        exit_flag=5
-      END IF
-      IF (Master.and.(T_west.gt.1)) THEN
-        WRITE (stdout,80) 'tracers','western edge'
-        exit_flag=5
-      END IF
-      IF (Master.and.(T_north.gt.1)) THEN
-        WRITE (stdout,80) 'tracers','northern edge'
-        exit_flag=5
-      END IF
-      IF (Master.and.(T_south.gt.1)) THEN
-        WRITE (stdout,80) 'tracers','southern edge'
-        exit_flag=5
-      END IF
-      IF (Master.and.(PT_east.gt.1)) THEN
-        WRITE (stdout,80) 'passive tracers','eastern edge'
-        exit_flag=5
-      END IF
-      IF (Master.and.(PT_west.gt.1)) THEN
-        WRITE (stdout,80) 'passive tracers','western edge'
-        exit_flag=5
-      END IF
-      IF (Master.and.(PT_north.gt.1)) THEN
-        WRITE (stdout,80) 'passive tracers','northern edge'
-        exit_flag=5
-      END IF
-      IF (Master.and.(PT_south.gt.1)) THEN
-        WRITE (stdout,80) 'passive tracers','southern edge'
-        exit_flag=5
-      END IF
-# if defined GLS_MIXING || defined MY25_MIXING
-!
-!  Stop if more than one boundary conditions option for tracers is
-!  selected at each boundary edge.
-!
-      IF (Master.and.(K_east.gt.1)) THEN
-        WRITE (stdout,80) 'TKE fields','eastern edge'
-        exit_flag=5
-      END IF
-      IF (Master.and.(K_west.gt.1)) THEN
-        WRITE (stdout,80) 'TKE fields','western edge'
-        exit_flag=5
-      END IF
-      IF (Master.and.(K_north.gt.1)) THEN
-        WRITE (stdout,80) 'TKE fields','northern edge'
-        exit_flag=5
-      END IF
-      IF (Master.and.(K_south.gt.1)) THEN
-        WRITE (stdout,80) 'TKE fields','southern edge'
-        exit_flag=5
-      END IF
-# endif
-#endif
+
 #ifndef SOLVE3D
 !
 !  Stop it explicit time-step splitting on shallow water set-up.
 !
       DO ng=1,Ngrids
         IF (Master.and.(ndtfast(ng).gt.1)) THEN
-          WRITE (stdout,90)
- 90       FORMAT (/,' CHECKDEFS - explicit time-step splitting is ',    &
+          WRITE (stdout,80)
+  80      FORMAT (/,' CHECKDEFS - explicit time-step splitting is ',    &
      &              ' inconsistent.',                                   &
      &            /,13x,'Change parameter NDTFAST to unity.')
           exit_flag=5
@@ -3788,8 +2484,8 @@
 #endif
 #if defined ADJOINT && defined _OPENMP
       IF (Master) THEN
-        WRITE (stdout,100)
- 100    FORMAT (/,' CHECKDEFS - cannot run the adjoint model in',       &
+        WRITE (stdout,90)
+  90    FORMAT (/,' CHECKDEFS - cannot run the adjoint model in',       &
      &            ' shared-memory mode.')
         exit_flag=5
       END IF
@@ -3799,8 +2495,8 @@
 !  Stop if using more than one grazing algorithm.
 !
       IF (Master) THEN
-        WRITE (stdout,110)
- 110    FORMAT (/,' CHECKDEFS - More than one grazing algorithm',       &
+        WRITE (stdout,100)
+ 100    FORMAT (/,' CHECKDEFS - More than one grazing algorithm',       &
      &            ' selected for Nemuro model.')
         exit_flag=5
       END IF
@@ -3811,8 +2507,8 @@
 !  Stop if using more than vertical convolution algorithm.
 !
       IF (Master) THEN
-        WRITE (stdout,120)
- 120    FORMAT (/,' CHECKDEFS - More than one vertical convolution',    &
+        WRITE (stdout,110)
+ 110    FORMAT (/,' CHECKDEFS - More than one vertical convolution',    &
      &            ' algorithm selected.')
         exit_flag=5
       END IF
@@ -3820,8 +2516,8 @@
 #endif
 #if defined MODEL_COUPLING && (defined ESMF_LIB && defined MCT_LIB)
       IF (Master) THEN
-        WRITE (stdout,130)
- 130    FORMAT (/,' CHECKDEFS - More than one coupling library',        &
+        WRITE (stdout,120)
+ 120    FORMAT (/,' CHECKDEFS - More than one coupling library',        &
      &            ' selected.')
         exit_flag=5
       END IF
@@ -3829,8 +2525,8 @@
 #if defined POSTERIOR_ERROR_F && defined POSTERIOR_ERROR_I && \
     defined WEAK_CONSTRAINT
       IF (Master) THEN
-        WRITE (stdout,140)
- 140    FORMAT (/,' CHECKDEFS - Both initial and final posterior',      &
+        WRITE (stdout,130)
+ 130    FORMAT (/,' CHECKDEFS - Both initial and final posterior',      &
      &            ' error covariance analysis selected, choose one.')
         exit_flag=5
       END IF
@@ -3840,46 +2536,46 @@
 !  Stop if more than one advection scheme has been activated.
 !
       IF (Master.and.(ivelHadv.gt.1)) THEN
-        WRITE (stdout,150) 'horizontal','momentum','ivelHadv =',ivelHadv
+        WRITE (stdout,140) 'horizontal','momentum','ivelHadv =',ivelHadv
         exit_flag=5
       END IF
 # ifdef SOLVE3D
       IF (Master.and.(ivelVadv.gt.1)) THEN
-        WRITE (stdout,150) 'vertical','momentum','ivelVadv =',ivelVadv
+        WRITE (stdout,140) 'vertical','momentum','ivelVadv =',ivelVadv
         exit_flag=5
       END IF
 # endif
 #endif
 #ifdef SOLVE3D
       IF (Master.and.(itrcHadv.gt.1)) THEN
-        WRITE (stdout,150) 'horizontal','tracers','itrcHadv =',itrcHadv
+        WRITE (stdout,140) 'horizontal','tracers','itrcHadv =',itrcHadv
         exit_flag=5
       END IF
       IF (Master.and.(itrcVadv.gt.1)) THEN
-        WRITE (stdout,150) 'vertical','tracers','itrcVadv =',itrcVadv
+        WRITE (stdout,140) 'vertical','tracers','itrcVadv =',itrcVadv
         exit_flag=5
       END IF
 # if defined TANGENT || defined TL_IOMS || defined ADJOINT
       IF (Master.and.(itrcHadvtl.gt.1)) THEN
-        WRITE (stdout,150) 'TL/AD horizontal','tracers','itrcHadvtl =', &
+        WRITE (stdout,140) 'TL/AD horizontal','tracers','itrcHadvtl =', &
      &                     itrcHadvtl
         exit_flag=5
       END IF
       IF (Master.and.(itrcVadvtl.gt.1)) THEN
-        WRITE (stdout,150) 'TL/AD vertical','tracers','itrcVadvtl =',   &
+        WRITE (stdout,140) 'TL/AD vertical','tracers','itrcVadvtl =',   &
      &                     itrcVadvtl
         exit_flag=5
       END IF
 # endif
 #endif
- 150  FORMAT (/,' CHECKDEFS - only one ',a,' advection scheme',         &
+ 140  FORMAT (/,' CHECKDEFS - only one ',a,' advection scheme',         &
      &        /,13x,'is allowed for ',a,', ',a,1x,i1)
 #if defined SOLVE3D && defined NEMURO
 # if !(defined IVLEV_EXPLICIT || defined HOLLING_GRAZING)
       IF (Master) THEN
-        WRITE (stdout,160) uppercase('ivlev_explicit'),                 &
+        WRITE (stdout,150) uppercase('ivlev_explicit'),                 &
      &                     uppercase('holling_grazing')
- 160    FORMAT (/,' CHECKDEFS - Need to choose a zooplankton grazing',  &
+ 150    FORMAT (/,' CHECKDEFS - Need to choose a zooplankton grazing',  &
      &            ' option;',/,13x,'use either ',a,' or implicit ',a,   &
      &            '.',/,13x,'The default implicit IVLEV algorithm',     &
      &            ' does not work well yet.')
@@ -3912,8 +2608,8 @@
 !  Stop if more that one radiation stress formulation is activated.
 !
       IF (Master.and.(nearshore.gt.1)) THEN
-        WRITE (stdout,170)
- 170    FORMAT (/,' CHECKDEFS - only one radiation stress formulation'  &
+        WRITE (stdout,160)
+ 160    FORMAT (/,' CHECKDEFS - only one radiation stress formulation'  &
      &            ' is allowed.')
         exit_flag=5
       END IF
@@ -3921,18 +2617,18 @@
 #ifdef PARALLEL_IO
 # if !(defined HDF5 || defined PNETCDF)
       IF (Master) THEN
-        WRITE (stdout,180) uppercase('hdf5'),                           &
+        WRITE (stdout,170) uppercase('hdf5'),                           &
      &                     uppercase('pnetcdf')
- 180    FORMAT (/,' CHECKDEFS - Need to activate either ',a,' or ',a,   &
+ 170    FORMAT (/,' CHECKDEFS - Need to activate either ',a,' or ',a,   &
      &            ' options',/,13x,'for parallel I/O processing.')
         exit_flag=5
       END IF
 # endif
 # if defined HDF5 && defined PNETCDF
       IF (Master) THEN
-        WRITE (stdout,190) uppercase('hdf5'),                           &
+        WRITE (stdout,180) uppercase('hdf5'),                           &
      &                     uppercase('pnetcdf')
- 190    FORMAT (/,' CHECKDEFS - Both ',a,' and ',a,' options',          &
+ 180    FORMAT (/,' CHECKDEFS - Both ',a,' and ',a,' options',          &
      &            ' selected',/,13x,'for parallel I/O processing.',     &
      &          /,13x,'Choose only one.')
         exit_flag=5
@@ -3946,9 +2642,9 @@
 !  time dependent.
 !
       IF (Master) THEN
-        WRITE (stdout,200) uppercase('write_water'),                    &
+        WRITE (stdout,190) uppercase('write_water'),                    &
      &                     uppercase('wet_dry')
- 200    FORMAT (/,' CHECKDEFS - cannot activate ',a,' and ',a,          &
+ 190    FORMAT (/,' CHECKDEFS - cannot activate ',a,' and ',a,          &
      &            ' together',/,13x,'because of time dependent ',       &
      &            ' Land/Sea masking.')
         exit_flag=5
@@ -3966,11 +2662,11 @@
 !  are used to store the cummulative sums.
 !
       IF (Master) THEN
-        WRITE (stdout,210) uppercase('averages'),                       &
+        WRITE (stdout,200) uppercase('averages'),                       &
      &                     uppercase('ad_averages'),                    &
      &                     uppercase('rp_averages'),                    &
      &                     uppercase('tl_averages')
- 210    FORMAT (/,' CHECKDEFS - cannot activate ',a,' ',a,' ',a,        &
+ 200    FORMAT (/,' CHECKDEFS - cannot activate ',a,' ',a,' ',a,        &
      &            ' or',a,/,13x,'at the same time. Choose one!')
         exit_flag=5
       END IF

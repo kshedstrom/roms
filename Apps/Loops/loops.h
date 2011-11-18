@@ -31,8 +31,5 @@
 #define ANA_STFLUX
 #define ANA_BTFLUX
 #define ANA_VMIX
-#define EASTERN_WALL
-#define WESTERN_WALL
-#define NS_PERIODIC
 #define  UV_LDRAG
 

@@ -83,27 +83,6 @@
 # define KANTHA_CLAYSON
 #endif
 
-/*
-** Boundary Condition Specifications
-*/
-
-#define EASTERN_WALL        /* Eastern edge, closed wall condition */
-
-#define WEST_FSCHAPMAN
-#define WEST_M2FLATHER
-#define WEST_M3CLAMPED
-#define WEST_TCLAMPED
-
-#define NORTH_FSCHAPMAN
-#define NORTH_M2FLATHER
-#define NORTH_M3CLAMPED
-#define NORTH_TCLAMPED
-
-#define SOUTH_FSCHAPMAN
-#define SOUTH_M2FLATHER
-#define SOUTH_M3CLAMPED
-#define SOUTH_TCLAMPED
-
 /* If you define SPONGE or allow for a nudging layer at the boundaries,
 ** you need to provide the appropriate "ana_hmixcoef.h" and "ana_nudgcoef.h"
 ** for your application. See examples in ROMS/Func

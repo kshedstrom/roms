@@ -91,10 +91,6 @@
 #undef  ANA_SLP
 #undef  ANA_WINDS
 
-#define EASTERN_WALL
-#define WESTERN_WALL
-#define NS_PERIODIC
-
 #define SCORRECTION
 
 

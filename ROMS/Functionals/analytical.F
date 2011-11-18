@@ -1,6 +1,5 @@
 #include "cppdefs.h"
       MODULE analytical_mod
-#ifdef ANALYTICAL
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
@@ -79,9 +78,10 @@
 !=======================================================================
 !
       implicit none
-
+!
       CONTAINS
 
+#ifdef ANALYTICAL
 # if defined ANA_AIOBC && defined ICE_MODEL
 #  include <ana_aiobc.h>
 # endif
@@ -271,7 +271,8 @@
 # if defined ANA_WWAVE
 #  include <ana_wwave.h>
 # endif
-
 #endif
+
+#include <ana_nudgcoef.h>
 
       END MODULE analytical_mod

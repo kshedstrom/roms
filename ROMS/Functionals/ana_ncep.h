@@ -63,9 +63,7 @@
       USE mod_param
       USE mod_scalars
 !
-#if defined EW_PERIODIC || defined NS_PERIODIC
       USE exchange_2d_mod, ONLY : exchange_r2d_tile
-#endif
 #if defined DISTRIBUTE
       USE USE mp_exchange_mod
 #endif
@@ -130,7 +128,7 @@
         ENDDO
       ENDDO
 
-#if defined EW_PERIODIC || defined NS_PERIODIC
+      IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
         CALL exchange_r2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj, nustr)
         CALL exchange_r2d_tile (ng, tile,                               &
@@ -155,7 +153,7 @@
      &                          LBi, UBi, LBj, UBj, skt)
         CALL exchange_r2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj, icec)
-#endif
+      END IF
 #ifdef DISTRIBUTE
       CALL mp_exchange2d (ng, tile, model, 4,                           &
      &                    LBi, UBi, LBj, UBj,                           &

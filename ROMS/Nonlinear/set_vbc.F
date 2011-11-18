@@ -15,10 +15,10 @@
 !=======================================================================
 !
       implicit none
-
+!
       PRIVATE
       PUBLIC  :: set_vbc
-
+!
       CONTAINS
 
 # ifdef SOLVE3D
@@ -106,6 +106,7 @@
 #  ifdef PROFILE
       CALL wclock_off (ng, iNLM, 6)
 #  endif
+
       RETURN
       END SUBROUTINE set_vbc
 !
@@ -296,18 +297,6 @@
 !
 !  Local variable declarations.
 !
-# ifdef DISTRIBUTE
-#  ifdef EW_PERIODIC
-      logical :: EWperiodic=.TRUE.
-#  else
-      logical :: EWperiodic=.FALSE.
-#  endif
-#  ifdef NS_PERIODIC
-      logical :: NSperiodic=.TRUE.
-#  else
-      logical :: NSperiodic=.FALSE.
-#  endif
-# endif
       integer :: i, j, itrc
 
 # ifdef ICESHELF
@@ -581,7 +570,8 @@
 #   ifdef DISTRIBUTE
       CALL mp_exchange2d (ng, tile, iNLM, 2,                            &
      &                    LBi, UBi, LBj, UBj,                           &
-     &                    NghostPoints, EWperiodic, NSperiodic,         &
+     &                    NghostPoints,                                 &
+     &                    EWperiodic(ng), NSperiodic(ng),               &
      &                    sustr, svstr)
 #   endif
 !
@@ -903,10 +893,12 @@
 #   ifdef DISTRIBUTE
       CALL mp_exchange2d (ng, tile, iNLM, 2,                            &
      &                    LBi, UBi, LBj, UBj,                           &
-     &                    NghostPoints, EWperiodic, NSperiodic,         &
+     &                    NghostPoints,                                 &
+     &                    EWperiodic(ng), NSperiodic(ng),               &
      &                    bustr, bvstr)
 #   endif
 #  endif
+
       RETURN
       END SUBROUTINE set_vbc_tile
 
@@ -950,6 +942,7 @@
 #  ifdef PROFILE
       CALL wclock_off (ng, iNLM, 6)
 #  endif
+
       RETURN
       END SUBROUTINE set_vbc
 !
@@ -1007,18 +1000,6 @@
 !
 !  Local variable declarations.
 !
-#  ifdef DISTRIBUTE
-#   ifdef EW_PERIODIC
-      logical :: EWperiodic=.TRUE.
-#   else
-      logical :: EWperiodic=.FALSE.
-#   endif
-#   ifdef NS_PERIODIC
-      logical :: NSperiodic=.TRUE.
-#   else
-      logical :: NSperiodic=.FALSE.
-#   endif
-#  endif
       integer :: i, j
 
       real(r8) :: cff1, cff2
@@ -1081,12 +1062,15 @@
       CALL bc_v2d_tile (ng, tile,                                       &
      &                  LBi, UBi, LBj, UBj,                             &
      &                  bvstr)
+
 #  ifdef DISTRIBUTE
       CALL mp_exchange2d (ng, tile, iNLM, 2,                            &
      &                    LBi, UBi, LBj, UBj,                           &
-     &                    NghostPoints, EWperiodic, NSperiodic,         &
+     &                    NghostPoints,                                 &
+     &                    EWperiodic(ng), NSperiodic(ng),               &
      &                    bustr, bvstr)
 #  endif
+
       RETURN
       END SUBROUTINE set_vbc_tile
 # endif

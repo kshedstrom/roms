@@ -191,62 +191,7 @@
 # define UV_QDRAG
 #endif
 
-/* Boundary conditions...careful with grid orientation */
-
-#undef EASTERN_WALL
-#define NORTHERN_WALL
-#undef WESTERN_WALL
-#undef SOUTHERN_WALL
-
 #define RADIATION_2D
-
-#ifndef NORTHERN_WALL
-# define NORTH_FSCHAPMAN
-# define NORTH_M2FLATHER
-# ifdef SOLVE3D
-#  define NORTH_M3RADIATION
-#  define NORTH_M3NUDGING
-#  define NORTH_TRADIATION
-#  define NORTH_TNUDGING
-#  define NORTH_MIGRADIENT
-# endif
-#endif
-
-#ifndef WESTERN_WALL
-# define WEST_FSCHAPMAN
-# define WEST_M2FLATHER
-# ifdef SOLVE3D
-#  define WEST_M3RADIATION
-#  define WEST_M3NUDGING
-#  define WEST_TRADIATION
-#  define WEST_TNUDGING
-#  define WEST_MIGRADIENT
-# endif
-#endif
-
-#ifndef SOUTHERN_WALL
-# define SOUTH_FSCHAPMAN
-# define SOUTH_M2FLATHER
-# ifdef SOLVE3D
-#  define SOUTH_M3RADIATION
-#  define SOUTH_M3NUDGING
-#  define SOUTH_TRADIATION
-#  define SOUTH_TNUDGING
-#  define SOUTH_MIGRADIENT
-# endif
-#endif
-
-#ifndef EASTERN_WALL
-# define EAST_FSCHAPMAN
-# define EAST_M2FLATHER
-# ifdef SOLVE3D
-#  define EAST_M3RADIATION
-#  define EAST_M3NUDGING
-#  define EAST_TRADIATION
-#  define EAST_TNUDGING
-#  define EAST_MIGRADIENT
-# endif
-#endif
 
 /* roms quirks */
 

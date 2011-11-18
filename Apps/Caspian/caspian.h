@@ -93,11 +93,6 @@
 #undef  ANA_SLP
 #undef  ANA_WINDS
 
-#define EASTERN_WALL
-#define WESTERN_WALL
-#define SOUTHERN_WALL
-#define NORTHERN_WALL
-
 #undef  SCORRECTION
 
 

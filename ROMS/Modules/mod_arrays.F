@@ -28,9 +28,7 @@
 #ifdef FILTERED
       USE mod_filter, ONLY : allocate_filter, initialize_filter
 #endif
-#ifdef OBC
       USE mod_boundary, ONLY : allocate_boundary, initialize_boundary
-#endif
 #if defined AD_SENSITIVITY      || defined CLIMATOLOGY      || \
     defined IS4DVAR_SENSITIVITY || defined OPT_OBSERVATIONS || \
     defined SENSITIVITY_4DVAR   || defined SO_SEMI
@@ -122,9 +120,7 @@
 #ifdef FILTERED
           CALL allocate_filter (ng, LBi, UBi, LBj, UBj)
 #endif
-#ifdef OBC
           CALL allocate_boundary (ng)
-#endif
 #ifdef BBL_MODEL
           CALL allocate_bbl (ng, LBi, UBi, LBj, UBj)
 #endif
@@ -195,9 +191,7 @@
 #ifdef ICE_MODEL
             CALL initialize_ice (ng, TILE)
 #endif
-#ifdef OBC
             CALL initialize_boundary (ng, TILE, model)
-#endif
 #if defined AD_SENSITIVITY      || defined CLIMATOLOGY      || \
     defined IS4DVAR_SENSITIVITY || defined OPT_OBSERVATIONS || \
     defined SENSITIVITY_4DVAR   || defined SO_SEMI
