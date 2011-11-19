@@ -140,18 +140,6 @@
 # endif
 ! Local variable definitions
 !
-# ifdef DISTRIBUTE
-#  ifdef EW_PERIODIC
-      logical :: EWperiodic=.TRUE.
-#  else
-      logical :: EWperiodic=.FALSE.
-#  endif
-#  ifdef NS_PERIODIC
-      logical :: NSperiodic=.TRUE.
-#  else
-      logical :: NSperiodic=.FALSE.
-#  endif
-# endif
       integer :: i, j
 
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: eps11
@@ -213,7 +201,7 @@
 #ifdef DISTRIBUTE
       CALL mp_exchange2d (ng, tile, iNLM, 3,                            &
      &                    LBi, UBi, LBj, UBj,                           &
-     &                    NghostPoints, EWperiodic, NSperiodic,         &
+     &                    NghostPoints, EWperiodic(ng), NSperiodic(ng), &
      &                    pice, zetai, eta)
 #endif
 

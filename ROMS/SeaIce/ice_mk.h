@@ -241,9 +241,7 @@
       USE IceNH4bc_mod, ONLY : IceNH4bc_tile
 #endif
 !
-#if defined EW_PERIODIC || defined NS_PERIODIC
       USE exchange_2d_mod, ONLY : exchange_r2d_tile
-#endif
 #ifdef DISTRIBUTE
       USE mp_exchange_mod, ONLY : mp_exchange2d
 #endif
@@ -375,18 +373,6 @@
 
 ! Local variable definitions
 !
-#ifdef DISTRIBUTE
-# ifdef EW_PERIODIC
-      logical :: EWperiodic=.TRUE.
-# else
-      logical :: EWperiodic=.FALSE.
-# endif
-# ifdef NS_PERIODIC
-      logical :: NSperiodic=.TRUE.
-# else
-      logical :: NSperiodic=.FALSE.
-# endif
-#endif
 
       integer :: i, j, it
 
@@ -1016,58 +1002,58 @@
      &                ui, vi, IceNH4)
 #endif
 
-#if defined EW_PERIODIC || defined NS_PERIODIC
-      CALL exchange_r2d_tile (ng, tile,                                 &
+      IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
+        CALL exchange_r2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          ai(:,:,linew))
-      CALL exchange_r2d_tile (ng, tile,                                 &
+        CALL exchange_r2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          hi(:,:,linew))
-      CALL exchange_r2d_tile (ng, tile,                                 &
+        CALL exchange_r2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          hsn(:,:,linew))
-      CALL exchange_r2d_tile (ng, tile,                                 &
+        CALL exchange_r2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          ti(:,:,linew))
-      (ng, tile,                               &
+        CALL exchange_r2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          enthalpi(:,:,linew))
-      CALL exchange_r2d_tile (ng, tile,                                 &
+        CALL exchange_r2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          sfwat(:,:,linew))
-      CALL exchange_r2d_tile (ng, tile,                                 &
+        CALL exchange_r2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          ageice(:,:,linew))
-      CALL exchange_r2d_tile (ng, tile,                                 &
+        CALL exchange_r2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          hage(:,:,linew))
 # if defined ICE_BIO && defined BERING_10K
-      CALL exchange_r2d_tile (ng, tile,                                 &
+        CALL exchange_r2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          IcePhL(:,:,linew))
-      CALL exchange_r2d_tile (ng, tile,                                 &
+        CALL exchange_r2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          IceNO3(:,:,linew))
-      CALL exchange_r2d_tile (ng, tile,                                 &
+        CALL exchange_r2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          IceNH4(:,:,linew))
 # endif
-#endif
+      END IF
 #ifdef DISTRIBUTE
       CALL mp_exchange2d (ng, tile, iNLM, 4,                            &
-     &                      LBi, UBi, LBj, UBj,                         &
-     &                      NghostPoints, EWperiodic, NSperiodic,       &
-     &                      ai(:,:,linew), hi(:,:,linew),               &
-     &                      hsn(:,:,linew), ti(:,:,linew))
+     &                    LBi, UBi, LBj, UBj,                           &
+     &                    NghostPoints, EWperiodic(ng), NSperiodic(ng), &
+     &                    ai(:,:,linew), hi(:,:,linew),                 &
+     &                    hsn(:,:,linew), ti(:,:,linew))
       CALL mp_exchange2d (ng, tile, iNLM, 4,                            &
-     &                      LBi, UBi, LBj, UBj,                         &
-     &                      NghostPoints, EWperiodic, NSperiodic,       &
-     &                      enthalpi(:,:,linew), sfwat(:,:,linew),      &
-     &                      ageice(:,:,linew), hage(:,:,linew))
+     &                    LBi, UBi, LBj, UBj,                           &
+     &                    NghostPoints, EWperiodic(ng), NSperiodic(ng), &
+     &                    enthalpi(:,:,linew), sfwat(:,:,linew),        &
+     &                    ageice(:,:,linew), hage(:,:,linew))
 # if defined ICE_BIO && defined BERING_10K
       CALL mp_exchange2d (ng, tile, iNLM, 3,                            &
      &                    LBi, UBi, LBj, UBj,                           &
-     &                    NghostPoints, EWperiodic, NSperiodic,         &
+     &                    NghostPoints, EWperiodic(ng), NSperiodic(ng), &
      &                    IcePhL(:,:,linew), IceNO3(:,:,linew),         &
      &                    IceNH4(:,:,linew))
    

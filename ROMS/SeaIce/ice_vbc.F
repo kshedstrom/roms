@@ -197,18 +197,6 @@
 !
 !  Local variable declarations.
 !
-# ifdef DISTRIBUTE
-#  ifdef EW_PERIODIC
-      logical :: EWperiodic=.TRUE.
-#  else
-      logical :: EWperiodic=.FALSE.
-#  endif
-#  ifdef NS_PERIODIC
-      logical :: NSperiodic=.TRUE.
-#  else
-      logical :: NSperiodic=.FALSE.
-#  endif
-# endif
 # ifdef ICE_SHOREFAST
       real(r8) :: clear
       real(r8) :: hh
@@ -452,11 +440,11 @@
 #ifdef DISTRIBUTE
       CALL mp_exchange2d (ng, tile, iNLM, 4,                            &
      &                    LBi, UBi, LBj, UBj,                           &
-     &                    NghostPoints, EWperiodic, NSperiodic,         &
+     &                    NghostPoints, EWperiodic(ng), NSperiodic(ng), &
      &                    sealev, utau_iw, chu_iw, sustr)
       CALL mp_exchange2d (ng, tile, iNLM, 3,                            &
      &                    LBi, UBi, LBj, UBj,                           &
-     &                    NghostPoints, EWperiodic, NSperiodic,         &
+     &                    NghostPoints, EWperiodic(ng), NSperiodic(ng), &
      &                    svstr, tauaiu, tauaiv)
 #endif
 

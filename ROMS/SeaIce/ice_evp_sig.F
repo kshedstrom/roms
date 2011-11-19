@@ -83,16 +83,12 @@
       USE mod_param
       USE mod_scalars
 !
-#if defined EW_PERIODIC || defined NS_PERIODIC
       USE exchange_2d_mod, ONLY : exchange_r2d_tile
-#endif
 #ifdef DISTRIBUTE
       USE mp_exchange_mod, ONLY : mp_exchange2d
 #endif
 !
-      USE sig11bc_mod, ONLY : sig11bc_tile
-      USE sig22bc_mod, ONLY : sig22bc_tile
-      USE sig12bc_mod, ONLY : sig12bc_tile
+      USE i2d_bc_mod, ONLY : i2d_bc_tile
 !
       implicit none
 !
@@ -143,18 +139,6 @@
 
 ! Local variable definitions
 !
-# ifdef DISTRIBUTE
-#  ifdef EW_PERIODIC
-      logical :: EWperiodic=.TRUE.
-#  else
-      logical :: EWperiodic=.FALSE.
-#  endif
-#  ifdef NS_PERIODIC
-      logical :: NSperiodic=.TRUE.
-#  else
-      logical :: NSperiodic=.FALSE.
-#  endif
-# endif
       integer :: i, j
 
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: eps11
@@ -240,30 +224,48 @@
         END DO 
       END DO
 
-      CALL sig11bc_tile (ng, tile,                                      &
-     &                   LBi, UBi, LBj, UBj,                            &
-     &                   lieol, lienw, sig11)
-      CALL sig22bc_tile (ng, tile,                                      &
-     &                   LBi, UBi, LBj, UBj,                            &
-     &                   lieol, lienw, sig22)
-      CALL sig12bc_tile (ng, tile,                                      &
-     &                   LBi, UBi, LBj, UBj,                            &
-     &                   lieol, lienw, sig12)
-#if defined EW_PERIODIC || defined NS_PERIODIC
-      CALL exchange_r2d_tile (ng, tile,                                 &
-     &                        LBi, UBi, LBj, UBj,                       &
-     &                        sig11(:,:,lienw))
-      CALL exchange_r2d_tile (ng, tile,                                 &
-     &                        LBi, UBi, LBj, UBj,                       &
-     &                        sig22(:,:,lienw))
-      CALL exchange_r2d_tile (ng, tile,                                 &
-     &                        LBi, UBi, LBj, UBj,                       &
-     &                        sig12(:,:,lienw))
-#endif
+      CALL i2d_bc_tile (ng, tile,                                       &
+     &                  LBi, UBi, LBj, UBj,                             &
+     &                  IminS, ImaxS, JminS, JmaxS,                     &
+     &                  lieol, lienw,                                   &
+     &                  BOUNDARY(ng)%sig11_west,                        &
+     &                  BOUNDARY(ng)%sig11_east,                        &
+     &                  BOUNDARY(ng)%sig11_north,                       &
+     &                  BOUNDARY(ng)%sig11_south,                       &
+     &                  uie, vie, sig11, LBC(:,isSig11,ng))
+      CALL i2d_bc_tile (ng, tile,                                       &
+     &                  LBi, UBi, LBj, UBj,                             &
+     &                  IminS, ImaxS, JminS, JmaxS,                     &
+     &                  lieol, lienw,                                   &
+     &                  BOUNDARY(ng)%sig22_west,                        &
+     &                  BOUNDARY(ng)%sig22_east,                        &
+     &                  BOUNDARY(ng)%sig22_north,                       &
+     &                  BOUNDARY(ng)%sig22_south,                       &
+     &                  uie, vie, sig22, LBC(:,isSig22,ng))
+      CALL i2d_bc_tile (ng, tile,                                       &
+     &                  LBi, UBi, LBj, UBj,                             &
+     &                  IminS, ImaxS, JminS, JmaxS,                     &
+     &                  lieol, lienw,                                   &
+     &                  BOUNDARY(ng)%sig12_west,                        &
+     &                  BOUNDARY(ng)%sig12_east,                        &
+     &                  BOUNDARY(ng)%sig12_north,                       &
+     &                  BOUNDARY(ng)%sig12_south,                       &
+     &                  uie, vie, sig12, LBC(:,isSig12,ng))
+      IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
+        CALL exchange_r2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          sig11(:,:,lienw))
+        CALL exchange_r2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          sig22(:,:,lienw))
+        CALL exchange_r2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          sig12(:,:,lienw))
+      END IF
 # ifdef DISTRIBUTE
       CALL mp_exchange2d (ng, tile, iNLM, 3,                            &
      &                    LBi, UBi, LBj, UBj,                           &
-     &                    NghostPoints, EWperiodic, NSperiodic,         &
+     &                    NghostPoints, EWperiodic(ng), NSperiodic(ng), &
      &                    sig11(:,:,lienw), sig22(:,:,lienw),           &
      &                    sig12(:,:,lienw))
 # endif

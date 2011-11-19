@@ -76,9 +76,7 @@
       USE mod_scalars
 !
       USE bc_2d_mod, ONLY : bc_r2d_tile
-#if defined EW_PERIODIC || defined NS_PERIODIC
       USE exchange_3d_mod, ONLY : exchange_r3d_tile
-#endif
 # ifdef DISTRIBUTE
       USE mp_exchange_mod
 # endif
@@ -120,18 +118,6 @@
 !
 ! Local variable definitions
 !
-# ifdef DISTRIBUTE
-#  ifdef EW_PERIODIC
-      logical :: EWperiodic=.TRUE.
-#  else
-      logical :: EWperiodic=.FALSE.
-#  endif
-#  ifdef NS_PERIODIC
-      logical :: NSperiodic=.TRUE.
-#  else
-      logical :: NSperiodic=.FALSE.
-#  endif
-# endif
       integer :: i, j, k, itrc
 
       real(r8), parameter :: Lhat = 79.2_r8
@@ -199,24 +185,25 @@
 #ifdef DISTRIBUTE
       CALL mp_exchange2d (ng, tile, iNLM, 1,                            &
      &                    LBi, UBi, LBj, UBj,                           &
-     &                    NghostPoints, EWperiodic, NSperiodic,         &
+     &                    NghostPoints, EWperiodic(ng), NSperiodic(ng), &
      &                    wfr)
 #endif
-# if defined EW_PERIODIC || defined NS_PERIODIC
 !
 !  Apply periodic boundary conditions.
 !
-      DO itrc=1,NT(ng)
-        CALL exchange_r3d_tile (ng, tile,                               &
-     &                          LBi, UBi, LBj, UBj, 1, N(ng),           &
-     &                          t(:,:,:,nnew,itrc))
-      END DO
+      IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
+        DO itrc=1,NT(ng)
+          CALL exchange_r3d_tile (ng, tile,                             &
+     &                            LBi, UBi, LBj, UBj, 1, N(ng),         &
+     &                            t(:,:,:,nnew,itrc))
+        END DO
+      END IF
 # endif
 # ifdef DISTRIBUTE
       DO itrc=1,NT(ng)
         CALL mp_exchange3d (ng, tile, iNLM, 1,                          &
      &                    LBi, UBi, LBj, UBj, 1, N(ng),                 &
-     &                    NghostPoints, EWperiodic, NSperiodic,         &
+     &                    NghostPoints, EWperiodic(ng), NSperiodic(ng), &
      &                    t(:,:,:,nnew,itrc))
       END DO
 # endif
