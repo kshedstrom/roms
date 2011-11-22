@@ -4462,8 +4462,8 @@
 #endif
 !
           IF (ObcData(ng)) THEN
-            DO ifile=1,BRY(ng)%Nfiles
-              fname=BRY(ng)%files(ifile)
+            DO ifile=1,BRY(1,ng)%Nfiles
+              fname=BRY(1,ng)%files(ifile)
               IF (.not.find_file(ng, fname)) GO TO 30
               IF (ifile.eq.1) THEN
                 WRITE (out,230) '           Input Boundary File:  ',    &

@@ -832,6 +832,7 @@
           CALL exchange_r2d_tile (ng, tile,                             &
      &                            LBi, UBi, LBj, UBj,                   &
      &                            ageice(:,:,i))
+        END DO
       END IF
 #  ifdef DISTRIBUTE
         CALL mp_exchange3d (ng, tile, model, 4,                         &

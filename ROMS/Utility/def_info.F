@@ -581,7 +581,7 @@
 
         IF (ObcData(ng)) THEN
           IF (exit_flag.eq.NoError) THEN
-            CALL join_string (BRY(ng)%files, BRY(ng)%Nfiles,            &
+            CALL join_string (BRY(i,ng)%files, BRY(i,ng)%Nfiles,        &
      &                        string, lstr)
             status=nf90_put_att(ncid, nf90_global, 'bry_file',          &
      &                          string(1:lstr))

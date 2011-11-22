@@ -44,6 +44,7 @@
 !***********************************************************************
 !
       USE mod_param
+      USE mod_ncparam
       USE mod_boundary
       USE mod_grid
       USE mod_scalars

@@ -64,6 +64,7 @@
 !***********************************************************************
 !
       USE mod_param
+      USE mod_ncparam
       USE mod_scalars
       USE mod_boundary
 !
@@ -169,7 +170,7 @@
      &                  BOUNDARY(ng)%ai_east,                           &
      &                  BOUNDARY(ng)%ai_north,                          &
      &                  BOUNDARY(ng)%ai_south,                          &
-     &                  ui, vi, ai, LBC(:,isAice,ng)
+     &                  ui, vi, ai, LBC(:,isAice,ng))
       CALL i2d_bc_tile (ng, tile,                                       &
      &                  LBi, UBi, LBj, UBj,                             &
      &                  IminS, ImaxS, JminS, JmaxS,                     &
@@ -178,7 +179,7 @@
      &                  BOUNDARY(ng)%hi_east,                           &
      &                  BOUNDARY(ng)%hi_north,                          &
      &                  BOUNDARY(ng)%hi_south,                          &
-     &                  ui, vi, hi, LBC(:,isHice,ng)
+     &                  ui, vi, hi, LBC(:,isHice,ng))
       CALL i2d_bc_tile (ng, tile,                                       &
      &                  LBi, UBi, LBj, UBj,                             &
      &                  IminS, ImaxS, JminS, JmaxS,                     &
@@ -187,10 +188,10 @@
      &                  BOUNDARY(ng)%hsn_east,                          &
      &                  BOUNDARY(ng)%hsn_north,                         &
      &                  BOUNDARY(ng)%hsn_south,                         &
-     &                  ui, vi, hsn, LBC(:,isHsno,ng)
+     &                  ui, vi, hsn, LBC(:,isHsno,ng))
       CALL tibc_tile (ng, tile,                                         &
      &                LBi, UBi, LBj, UBj,                               &
-     &                liold, linew, min_h(ng),                          &
+     &                liold, linew,                                     &
      &                ui, vi, hi, ti, enthalpi)
       CALL i2d_bc_tile (ng, tile,                                       &
      &                  LBi, UBi, LBj, UBj,                             &
@@ -200,8 +201,10 @@
      &                  BOUNDARY(ng)%sfwat_east,                          &
      &                  BOUNDARY(ng)%sfwat_north,                         &
      &                  BOUNDARY(ng)%sfwat_south,                         &
-     &                  ui, vi, sfwat, LBC(:,isSfwat,ng)
+     &                  ui, vi, sfwat, LBC(:,isSfwat,ng))
 # if defined ICE_BIO && defined BERING_10K
+FOOO
+! Need to change these over to i2d_bc_tile calls
       CALL IcePhLbc_tile (ng, tile,                                     &
      &                LBi, UBi, LBj, UBj,                               &
      &                liold, linew,                                     &

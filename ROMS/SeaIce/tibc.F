@@ -28,7 +28,7 @@
 !
       CALL tibc_tile (ng, tile,                                         &
      &                LBi, UBi, LBj, UBj,                               &
-     &                liold(ng), linew(ng), min_h(ng),                  &
+     &                liold(ng), linew(ng),                             &
      &                ICE(ng) % ui,                                     &
      &                ICE(ng) % vi,                                     &
      &                ICE(ng) % hi,                                     &
@@ -41,11 +41,13 @@
 !***********************************************************************
       SUBROUTINE tibc_tile (ng, tile,                                   &
      &                           LBi, UBi, LBj, UBj,                    &
-     &                           liold, linew, min_h,                   &
+     &                           liold, linew,                          &
      &                           ui, vi, hi, ti, enthalpi)
 !***********************************************************************
 !
       USE mod_param
+      USE mod_ncparam
+      USE mod_scalars
       USE mod_boundary
       USE mod_grid
 
@@ -57,7 +59,6 @@
       integer, intent(in) :: ng, tile
       integer, intent(in) :: LBi, UBi, LBj, UBj
       integer, intent(in) :: liold, linew
-      real(r8), intent(in) :: min_h
 
 # ifdef ASSUMED_SHAPE
       real(r8), intent(in)    :: ui(LBi:,LBj:,:)
@@ -94,7 +95,7 @@
 !
 !  Western edge, clamped boundary condition.
 !
-        IF (LBC(iwest,isTice,ng)%clamped)) THEN
+        IF (LBC(iwest,isTice,ng)%clamped) THEN
           DO j=Jstr,Jend
             enthalpi(0,j,linew)=BOUNDARY(ng)%hi_west(j)*                &
      &                           BOUNDARY(ng)%ti_west(j)
@@ -111,7 +112,7 @@
 !
 !  Western edge, clamped on inflow, gradient on outflow.
 !
-        ELSE IF (LBC(iwest,isTice,ng)%mixed)) THEN
+        ELSE IF (LBC(iwest,isTice,ng)%mixed) THEN
           DO j=Jstr,Jend
             IF (ui(1,j,linew).ge.0._r8) THEN
               enthalpi(0,j,linew)=BOUNDARY(ng)%hi_west(j)*              &
@@ -137,7 +138,7 @@
             END IF
             ti(0,j,linew) = enthalpi(0,j,linew)/                        &
      &                       MAX(hi(0,j,linew),1.0E-6_r8)
-            IF (hi(0,j,linew).LE.min_h) THEN
+            IF (hi(0,j,linew).LE.min_h(ng)) THEN
               enthalpi(0,j,linew) = 0.0_r8
               ti(0,j,linew) = 0.0_r8
             END IF
@@ -145,7 +146,7 @@
 !
 !  Western edge, gradient boundary condition.
 !
-        ELSE IF (LBC(iwest,isTice,ng)%gradient)) THEN
+        ELSE IF (LBC(iwest,isTice,ng)%gradient) THEN
           DO j=Jstr,Jend
             enthalpi(0,j,linew)=hi(1,j,linew)*ti(1,j,linew)
 # ifdef MASKING
@@ -163,7 +164,7 @@
             ti(0,j,linew) = enthalpi(0,j,linew)/                        &
      &                       MAX(hi(0,j,linew),1.0E-6_r8)
 # endif
-            IF (hi(0,j,linew).LE.min_h) THEN
+            IF (hi(0,j,linew).LE.min_h(ng)) THEN
               enthalpi(0,j,linew) = 0.0_r8
               ti(0,j,linew) = 0.0_r8
             END IF
@@ -171,7 +172,7 @@
 !
 !  Western edge, closed boundary condition.
 !
-        ELSE
+        ELSE IF (LBC(iwest,isTice,ng)%closed) THEN
           DO j=Jstr,Jend
             enthalpi(0,j,linew)=hi(1,j,linew)*ti(1,j,linew)
 # ifdef MASKING
@@ -184,7 +185,7 @@
 # endif
             ti(0,j,linew) = enthalpi(0,j,linew)/                        &
      &                       MAX(hi(0,j,linew),1.0E-6_r8)
-            IF (hi(0,j,linew).LE.min_h) THEN
+            IF (hi(0,j,linew).LE.min_h(ng)) THEN
               enthalpi(0,j,linew) = 0.0_r8
               ti(0,j,linew) = 0.0_r8
             END IF
@@ -197,7 +198,7 @@
 !-----------------------------------------------------------------------
 !
       IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
-        IF (LBC(ieast,isTice,ng)%clamped)) THEN
+        IF (LBC(ieast,isTice,ng)%clamped) THEN
 !
 !  Eastern edge, clamped boundary condition.
 !
@@ -217,7 +218,7 @@
 !
 !  Eastern edge, clamped on inflow, gradient on outflow.
 !
-        ELSE IF (LBC(ieast,isTice,ng)%mixed)) THEN
+        ELSE IF (LBC(ieast,isTice,ng)%mixed) THEN
           DO j=Jstr,Jend
             IF (ui(Lm(ng)+1,j,linew).le.0._r8) THEN
               enthalpi(Lm(ng)+1,j,linew)=BOUNDARY(ng)%hi_east(j)*       &
@@ -243,7 +244,7 @@
 # endif
               ti(Lm(ng)+1,j,linew) = enthalpi(Lm(ng)+1,j,linew)/        &
      &                       MAX(hi(Lm(ng)+1,j,linew),1.0E-6_r8)
-              IF (hi(Lm(ng)+1,j,linew).LE.min_h) THEN
+              IF (hi(Lm(ng)+1,j,linew).LE.min_h(ng)) THEN
                 enthalpi(Lm(ng)+1,j,linew) = 0.0_r8
                 ti(Lm(ng)+1,j,linew) = 0.0_r8
               END IF
@@ -252,7 +253,7 @@
 !
 !  Eastern edge, gradient boundary condition.
 !
-        ELSE IF (LBC(ieast,isTice,ng)%gradient)) THEN
+        ELSE IF (LBC(ieast,isTice,ng)%gradient) THEN
           DO j=Jstr,Jend
             enthalpi(Lm(ng)+1,j,linew)=hi(Lm(ng),j,linew)*              &
      &                               ti(Lm(ng),j,linew)
@@ -271,7 +272,7 @@
             ti(Lm(ng)+1,j,linew) = enthalpi(Lm(ng)+1,j,linew)/          &
      &                       MAX(hi(Lm(ng)+1,j,linew),1.0E-6_r8)
 # endif
-            IF (hi(Lm(ng)+1,j,linew).LE.min_h) THEN
+            IF (hi(Lm(ng)+1,j,linew).LE.min_h(ng)) THEN
               enthalpi(Lm(ng)+1,j,linew) = 0.0_r8
               ti(Lm(ng)+1,j,linew) = 0.0_r8
             END IF
@@ -279,7 +280,7 @@
 !
 !  Eastern edge, closed boundary condition.
 !
-        ELSE
+        ELSE IF (LBC(ieast,isTice,ng)%closed) THEN
           DO j=Jstr,Jend
             enthalpi(Lm(ng)+1,j,linew)=hi(Lm(ng),j,linew)*              &
      &                               ti(Lm(ng),j,linew)
@@ -293,7 +294,7 @@
 # endif
             ti(Lm(ng)+1,j,linew) = enthalpi(Lm(ng)+1,j,linew)/          &
      &                       MAX(hi(Lm(ng)+1,j,linew),1.0E-6_r8)
-            IF (hi(Lm(ng)+1,j,linew).LE.min_h) THEN
+            IF (hi(Lm(ng)+1,j,linew).LE.min_h(ng)) THEN
               enthalpi(Lm(ng)+1,j,linew) = 0.0_r8
               ti(Lm(ng)+1,j,linew) = 0.0_r8
             END IF
@@ -306,7 +307,7 @@
 !-----------------------------------------------------------------------
 !
       IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
-        IF (LBC(isouth,isTice,ng)%clamped)) THEN
+        IF (LBC(isouth,isTice,ng)%clamped) THEN
 !
 !  Southern edge, clamped boundary condition.
 !
@@ -326,7 +327,7 @@
 !
 !  Southern edge, clamped boundary condition.
 !
-        ELSE IF (LBC(isouth,isTice,ng)%mixed)) THEN
+        ELSE IF (LBC(isouth,isTice,ng)%mixed) THEN
           DO i=Istr,Iend
             IF (vi(i,1,linew).ge.0._r8) THEN
               enthalpi(i,0,linew)=BOUNDARY(ng)%hi_south(i)*             &
@@ -351,7 +352,7 @@
 # endif
               ti(i,0,linew) = enthalpi(i,0,linew)/                      &
      &                       MAX(hi(i,0,linew),1.0E-6_r8)
-              IF (hi(i,0,linew).LE.min_h) THEN
+              IF (hi(i,0,linew).LE.min_h(ng)) THEN
                 enthalpi(i,0,linew) = 0.0_r8
                 ti(i,0,linew) = 0.0_r8
               END IF
@@ -360,7 +361,7 @@
 !
 !  Southern edge, gradient boundary condition.
 !
-        ELSE IF (LBC(isouth,isTice,ng)%gradient)) THEN
+        ELSE IF (LBC(isouth,isTice,ng)%gradient) THEN
           DO i=Istr,Iend
             enthalpi(i,0,linew)=hi(i,1,linew)*ti(i,1,linew)
 # ifdef MASKING
@@ -378,7 +379,7 @@
             ti(i,0,linew) = enthalpi(i,0,linew)/                        &
      &                       MAX(hi(i,0,linew),1.0E-6_r8)
 # endif
-            IF (hi(i,0,linew).LE.min_h) THEN
+            IF (hi(i,0,linew).LE.min_h(ng)) THEN
               enthalpi(i,0,linew) = 0.0_r8
               ti(i,0,linew) = 0.0_r8
             END IF
@@ -386,7 +387,7 @@
 !
 !  Southern edge, closed boundary condition.
 !
-        ELSE
+        ELSE IF (LBC(isouth,isTice,ng)%closed) THEN
           DO i=Istr,Iend
             enthalpi(i,0,linew)=enthalpi(i,1,linew)
 # ifdef MASKING
@@ -399,7 +400,7 @@
 # endif
             ti(i,0,linew) = enthalpi(i,0,linew)/                        &
      &                    MAX(hi(i,0,linew),1.0E-6_r8)
-            IF (hi(i,0,linew).LE.min_h) THEN
+            IF (hi(i,0,linew).LE.min_h(ng)) THEN
               enthalpi(i,0,linew) = 0.0_r8
               ti(i,0,linew) = 0.0_r8
             END IF
@@ -412,7 +413,7 @@
 !-----------------------------------------------------------------------
 !
       IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
-        IF (LBC(inorth,isTice,ng)%clamped)) THEN
+        IF (LBC(inorth,isTice,ng)%clamped) THEN
 !
 !  Northern edge, clamped boundary condition.
 !
@@ -432,7 +433,7 @@
 !
 !  Northern edge, clamped on inflow, gradient on outflow.
 !
-        ELSE IF (LBC(inorth,isTice,ng)%mixed)) THEN
+        ELSE IF (LBC(inorth,isTice,ng)%mixed) THEN
           DO i=Istr,Iend
             IF (vi(i,Mm(ng)+1,linew).le.0._r8) THEN
               enthalpi(i,Mm(ng)+1,linew)=BOUNDARY(ng)%hi_north(i)*      &
@@ -458,7 +459,7 @@
           ENDIF
             ti(i,Mm(ng)+1,linew) = enthalpi(i,Mm(ng)+1,linew)/          &
      &                       MAX(hi(i,Mm(ng)+1,linew),1.0E-6_r8)
-            IF (hi(i,Mm(ng)+1,linew).LE.min_h) THEN
+            IF (hi(i,Mm(ng)+1,linew).LE.min_h(ng)) THEN
               enthalpi(i,Mm(ng)+1,linew) = 0.0_r8
               ti(i,Mm(ng)+1,linew) = 0.0_r8
             END IF
@@ -466,7 +467,7 @@
 !
 !  Northern edge, gradient boundary condition.
 !
-        ELSE IF (LBC(inorth,isTice,ng)%gradient)) THEN
+        ELSE IF (LBC(inorth,isTice,ng)%gradient) THEN
           DO i=Istr,Iend
             enthalpi(i,Mm(ng)+1,linew)=hi(i,Mm(ng),linew)*              &
      &                               ti(i,Mm(ng),linew)
@@ -485,7 +486,7 @@
             ti(i,Mm(ng)+1,linew) = enthalpi(i,Mm(ng)+1,linew)/          &
      &                       MAX(hi(i,Mm(ng)+1,linew),1.0E-6_r8)
 # endif
-            IF (hi(i,Mm(ng)+1,linew).LE.min_h) THEN
+            IF (hi(i,Mm(ng)+1,linew).LE.min_h(ng)) THEN
               enthalpi(i,Mm(ng)+1,linew) = 0.0_r8
               ti(i,Mm(ng)+1,linew) = 0.0_r8
             END IF
@@ -493,7 +494,7 @@
 !
 !  Northern edge, closed boundary condition.
 !
-        ELSE
+        ELSE IF (LBC(inorth,isTice,ng)%closed) THEN
           DO i=Istr,Iend
             enthalpi(i,Mm(ng)+1,linew)=hi(i,Mm(ng),linew)*              &
      &                               ti(i,Mm(ng),linew)
@@ -507,7 +508,7 @@
 # endif
             ti(i,Mm(ng)+1,linew) = enthalpi(i,Mm(ng)+1,linew)/          &
      &                       MAX(hi(i,Mm(ng)+1,linew),1.0E-6_r8)
-            IF (hi(i,Mm(ng)+1,linew).LE.min_h) THEN
+            IF (hi(i,Mm(ng)+1,linew).LE.min_h(ng)) THEN
               enthalpi(i,Mm(ng)+1,linew) = 0.0_r8
               ti(i,Mm(ng)+1,linew) = 0.0_r8
             END IF
@@ -533,7 +534,7 @@
 # endif
           ti(0,0,linew) = enthalpi(0,0,linew)/                          &
      &                       MAX(hi(0,0,linew),1.0E-6_r8)
-          IF (hi(0,0,linew).LE.min_h) THEN
+          IF (hi(0,0,linew).LE.min_h(ng)) THEN
             enthalpi(0,0,linew) = 0.0_r8
               ti(0,0,linew) = 0.0_r8
           END IF
@@ -551,7 +552,7 @@
 # endif
           ti(Lm(ng)+1,0,linew) = enthalpi(Lm(ng)+1,0,linew)/            &
      &                       MAX(hi(Lm(ng)+1,0,linew),1.0E-6_r8)
-          IF (hi(Lm(ng)+1,0,linew).LE.min_h) THEN
+          IF (hi(Lm(ng)+1,0,linew).LE.min_h(ng)) THEN
             enthalpi(Lm(ng)+1,0,linew) = 0.0_r8
             ti(Lm(ng)+1,0,linew) = 0.0_r8
           END IF
@@ -569,7 +570,7 @@
 # endif
           ti(0,Mm(ng)+1,linew) = enthalpi(0,Mm(ng)+1,linew)/            &
      &                       MAX(hi(0,Mm(ng)+1,linew),1.0E-6_r8)
-          IF (hi(0,Mm(ng)+1,linew).LE.min_h) THEN
+          IF (hi(0,Mm(ng)+1,linew).LE.min_h(ng)) THEN
             enthalpi(0,Mm(ng)+1,linew) = 0.0_r8
             ti(0,Mm(ng)+1,linew) = 0.0_r8
           END IF
@@ -591,7 +592,7 @@
           ti(Lm(ng)+1,Mm(ng)+1,linew) =                                 &
      &         enthalpi(Lm(ng)+1,Mm(ng)+1,linew)/                       &
      &         MAX(hi(Lm(ng)+1,Mm(ng)+1,linew),1.0E-6_r8)
-          IF (hi(Lm(ng)+1,Mm(ng)+1,linew).LE.min_h) THEN
+          IF (hi(Lm(ng)+1,Mm(ng)+1,linew).LE.min_h(ng)) THEN
             enthalpi(Lm(ng)+1,Mm(ng)+1,linew) = 0.0_r8
             ti(Lm(ng)+1,Mm(ng)+1,linew) = 0.0_r8
           END IF

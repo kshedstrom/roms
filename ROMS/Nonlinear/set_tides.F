@@ -734,6 +734,7 @@
               END DO
             END IF
           END DO
+          DO j=Jstr,JendR
 #  ifdef ADD_M2OBC
             BOUNDARY(ng)%ubar_west(j)=BOUNDARY(ng)%ubar_west(j)+        &
      &                                Utide(Istr,j)

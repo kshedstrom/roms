@@ -81,7 +81,9 @@
 !
 
       USE mod_param
+      USE mod_ncparam
       USE mod_scalars
+      USE mod_boundary
 !
       USE exchange_2d_mod, ONLY : exchange_r2d_tile
 #ifdef DISTRIBUTE

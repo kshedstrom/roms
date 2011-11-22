@@ -76,11 +76,11 @@
 !
       IF (ObcData(ng)) THEN
         DO i=1,nBCfiles(ng)
-          IF ((BRY(ng)%Nfiles.gt.1).and.(BRY(ng)%ncid.ge.0)) THEN
+          IF ((BRY(i,ng)%Nfiles.gt.1).and.(BRY(i,ng)%ncid.ge.0)) THEN
             IF (model.eq.iADM) THEN
-              DO j=1,BRY(ng)%Nfiles
-                IF ((BRY(ng)%time_min(j).le.tdays(ng)).and.             &
-     &              (tdays(ng).le.BRY(ng)%time_max(j))) THEN
+              DO j=1,BRY(i,ng)%Nfiles
+                IF ((BRY(i,ng)%time_min(j).le.tdays(ng)).and.           &
+     &              (tdays(ng).le.BRY(i,ng)%time_max(j))) THEN
                   Fcount=j
                   EXIT
                 END IF
@@ -95,7 +95,6 @@
             CALL netcdf_close (ng, model, BRY(i,ng)%ncid,               &
      &                         BRY(i,ng)%files(i),  .FALSE.)
             IF (exit_flag.ne.NoError) RETURN
-          END IF
           END IF
         END DO
       END IF
