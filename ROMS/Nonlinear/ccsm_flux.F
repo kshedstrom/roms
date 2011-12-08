@@ -650,7 +650,7 @@ contains
       qsat(Tk)   = 640380.0 / exp(5107.4/Tk)
       cdn(Umps)  = 0.0027 / Umps + 0.000142 + 0.0000764 * Umps
       psimhu(xd) = log((1.0+xd*(2.0+xd))*(1.0+xd*xd)/8.0) -             &
-     &             2.0*atan(xd) + 1.571
+     &               2.0*atan(xd) + 1.571
       psixhu(xd) = 2.0 * log((1.0 + xd*xd)/2.0)
 
 #include "set_bounds.h"
@@ -684,7 +684,7 @@ contains
           vmag   = max(umin, sqrt( (Uwind(i,j)-u(i,j,N(ng),nrhs))**2 +  &
      &                             (Vwind(i,j)-v(i,j,N(ng),nrhs))**2) )
           TairK(i) = Tair(i,j) + 273.16_r8
-	  TseaK = t(i,j,N(ng),nrhs,itemp) + 273.16_r8
+          TseaK = t(i,j,N(ng),nrhs,itemp) + 273.16_r8
           thvbot = TairK(i) * (1.0 + shr_const_zvir * Hair(i,j)) ! virtual temp (K)
           rhoAir(i) = Pair(i,j)*100.0_r8/(blk_Rgas*TairK(i)*            &
      &                    (1.0_r8+0.61_r8*Hair(i,j))) !  Moist air density (kg/m3).

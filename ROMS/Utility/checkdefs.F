@@ -1022,6 +1022,12 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+16)=' EAST_MICLAMPED,'
 #endif
+#ifdef EAST_MIGRADIENT
+      IF (Master) WRITE (stdout,20) 'EAST_MIGRADIENT',                  &
+     &   'Eastern edge, gradient ice momentum.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+17)=' EAST_MIGRADIENT,'
+#endif
 #ifdef EAST_SIG11CLAMPED
       IF (Master) WRITE (stdout,20) 'EAST_SIG11CLAMPED',                &
      &   'Eastern edge, clamp sig11.'
@@ -1905,6 +1911,12 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+17)=' NORTH_MICLAMPED,'
 #endif
+#ifdef NORTH_MIGRADIENT
+      IF (Master) WRITE (stdout,20) 'NORTH_MIGRADIENT',                 &
+     &   'Northern edge, gradient ice momentum.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+18)=' NORTH_MIGRADIENT,'
+#endif
 #ifdef NORTH_SIG11CLAMPED
       IF (Master) WRITE (stdout,20) 'NORTH_SIG11CLAMPED',               &
      &   'Northern edge, clamp sig11.'
@@ -2630,9 +2642,15 @@
 #endif
 #ifdef SOUTH_MICLAMPED
       IF (Master) WRITE (stdout,20) 'SOUTH_MICLAMPED',                  &
-     &   'Southern edge, clamp ice momentum.'
+     &   'Southern edge, clamped ice momentum.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+17)=' SOUTH_MICLAMPED,'
+#endif
+#ifdef SOUTH_MIGRADIENT
+      IF (Master) WRITE (stdout,20) 'SOUTH_MIGRADIENT',                 &
+     &   'Southern edge, gradient ice momentum.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+18)=' SOUTH_MIGRADIENT,'
 #endif
 #ifdef SOUTH_SIG11CLAMPED
       IF (Master) WRITE (stdout,20) 'SOUTH_SIG11CLAMPED',               &
@@ -3521,6 +3539,12 @@
      &   'Western edge, clamp ice momentum.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+16)=' WEST_MICLAMPED,'
+#endif
+#ifdef WEST_MIGRADIENT
+      IF (Master) WRITE (stdout,20) 'WEST_MIGRADIENT',                  &
+     &   'Western edge, gradient ice momentum.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+17)=' WEST_MIGRADIENT,'
 #endif
 #ifdef WEST_SIG11CLAMPED
       IF (Master) WRITE (stdout,20) 'WEST_SIG11CLAMPED',                &

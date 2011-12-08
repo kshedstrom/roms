@@ -167,7 +167,7 @@
 /* Using Runoff now */
 #ifdef SOLVE3D
 # define RUNOFF
-# undef UV_PSOURCE
+# define UV_PSOURCE
 # undef TS_PSOURCE
 #endif
 
@@ -215,11 +215,12 @@
 #endif
 
 #ifndef WESTERN_WALL
-# define WEST_FSCHAPMAN
-# define WEST_M2FLATHER
+/* trying for sources providing flux, so cuts out tides :/ */
+# undef WEST_FSCHAPMAN
+# undef WEST_M2FLATHER
 # ifdef SOLVE3D
-#  define WEST_M3RADIATION
-#  define WEST_M3NUDGING
+#  undef WEST_M3RADIATION
+#  undef WEST_M3NUDGING
 #  define WEST_TRADIATION
 #  define WEST_TNUDGING
 #  define WEST_MIGRADIENT
