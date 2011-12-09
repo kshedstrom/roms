@@ -18,7 +18,7 @@
 
 #undef UV_ADV
 #define UV_COR
-#undef UV_VIS2
+#define UV_VIS2
 #undef MIX_S_UV
 #define  UV_LDRAG
 
