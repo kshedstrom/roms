@@ -453,13 +453,14 @@
       DO j=JstrR,JendR
         DO i=IstrR,IendR
           x2 = Esize-yr(i,j)
-          IF (x2 .lt. 4.e5) THEN
-            h(i,j) = 40 + 4.e-4*x2
-          ELSE IF (x2 .lt. 4.8e5) THEN
-            h(i,j) = 200 + 0.035*(x2-4.e5)
-          ELSE
-            h(i,j) = depth
-          END IF
+          h(i,j) = 40 + 4.e-4*x2 + 1400.*(1.+tanh((x2-4.4e5)/2.e4))
+!         IF (x2 .lt. 4.e5) THEN
+!           h(i,j) = 40 + 4.e-4*x2
+!         ELSE IF (x2 .lt. 4.8e5) THEN
+!           h(i,j) = 200 + 0.035*(x2-4.e5)
+!         ELSE
+!           h(i,j) = depth
+!         END IF
         END DO
       END DO
 #endif
