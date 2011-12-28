@@ -9,10 +9,11 @@
 **
 *******************************************************************************
 **
-**  Options for Northeast Pacific (NEP5) simulation
+**  Options for ARCTIC simulation
 */
 
 #define NO_HIS
+#define GLOBAL_PERIODIC
 #undef NETCDF4
 #undef PARALLEL_IO
 #undef OFFLINE_FLOATS
@@ -27,8 +28,8 @@
 #ifdef SOLVE3D
 # define SPLINES
 #endif
-#undef FLOATS
-#undef STATIONS
+#define FLOATS
+#define STATIONS
 #undef WET_DRY
 
 #undef T_PASSIVE
@@ -44,7 +45,7 @@
 #ifdef SOLVE3D
 # define  ICE_MODEL
 # ifdef ICE_MODEL
-#  undef OUTFLOW_MASK
+#  define  OUTFLOW_MASK
 #  define  FASTICE_CLIMATOLOGY
 #  define  ICE_THERMO
 #  define  ICE_MK
@@ -57,9 +58,9 @@
 #  define  ICE_SMOLAR
 #  define  ICE_UPWIND
 #  define  ICE_BULK_FLUXES
-#  undef  ANA_AIOBC
-#  undef  ANA_HIOBC
-#  undef  ANA_HSNOBC
+#  define  ANA_AIOBC
+#  define  ANA_HIOBC
+#  define  ANA_HSNOBC
 # endif
 #endif
 
@@ -69,7 +70,7 @@
 #undef OUT_DOUBLE
 #define RST_SINGLE
 #define AVERAGES
-#undef AVERAGES2
+#define AVERAGES2
 #ifdef SOLVE3D
 # undef AVERAGES_DETIDE
 # undef DIAGNOSTICS_TS
@@ -97,7 +98,7 @@
 #undef VISC_3DCOEF
 #define MIX_S_UV
 #define VISC_GRID
-#define SPONGE
+#undef SPONGE
 
 #ifdef SOLVE3D
 # define TS_DIF2
@@ -111,7 +112,7 @@
 # define SOLAR_SOURCE
 # define WTYPE_GRID
 
-# define LMD_MIXING
+# undef LMD_MIXING
 # ifdef LMD_MIXING
 #  define LMD_RIMIX
 #  define LMD_CONVEC
@@ -122,7 +123,7 @@
 #  undef LMD_DDMIX
 # endif
 
-# undef GLS_MIXING
+# define GLS_MIXING
 # undef MY25_MIXING
 
 # if defined GLS_MIXING || defined MY25_MIXING
@@ -159,21 +160,14 @@
 #ifdef SOLVE3D
 # undef TCLIMATOLOGY
 # undef TCLM_NUDGING
-# undef  M3CLIMATOLOGY
-# undef  M3CLM_NUDGING
-# undef  AICLIMATOLOGY
-# undef  AICLM_NUDGING
-# undef  MICLIMATOLOGY
-# undef  MICLM_NUDGING
 #endif
 
 /* point sources (rivers, line sources) */
 
-/* Using Runoff instead now */
+/* Using Runoff now */
 #ifdef SOLVE3D
 # define RUNOFF
-# undef UV_PSOURCE
-# undef ANA_PSOURCE
+# define UV_PSOURCE
 # undef TS_PSOURCE
 #endif
 
@@ -188,7 +182,7 @@
 # define ADD_M2OBC
 # undef RAMP_TIDES
 # define TIDES_ASTRO
-# undef POT_TIDES
+# define POT_TIDES
 
 # define UV_LDRAG
 # define UV_DRAG_GRID
@@ -204,7 +198,7 @@
 #undef EASTERN_WALL
 #undef NORTHERN_WALL
 #undef WESTERN_WALL
-#undef SOUTHERN_WALL
+#define SOUTHERN_WALL
 
 #define RADIATION_2D
 
@@ -216,39 +210,20 @@
 #  define NORTH_M3NUDGING
 #  define NORTH_TRADIATION
 #  define NORTH_TNUDGING
-#  undef NORTH_MICLAMPED
-#  undef NORTH_MIRADIATION
-#  undef NORTH_MINUDGING
 #  define NORTH_MIGRADIENT
-#  define NORTH_AICLAMPED
-#  define NORTH_HICLAMPED
-#  define NORTH_HSNCLAMPED
-#  undef NORTH_TICLAMPED
-#  define NORTH_SIG11CLAMPED
-#  define NORTH_SIG12CLAMPED
-#  define NORTH_SIG22CLAMPED
 # endif
 #endif
 
 #ifndef WESTERN_WALL
-# define WEST_FSCHAPMAN
-# define WEST_M2FLATHER
+/* trying for sources providing flux, so cuts out tides :/ */
+# undef WEST_FSCHAPMAN
+# undef WEST_M2FLATHER
 # ifdef SOLVE3D
-#  define WEST_M3RADIATION
-#  define WEST_M3NUDGING
+#  undef WEST_M3RADIATION
+#  undef WEST_M3NUDGING
 #  define WEST_TRADIATION
 #  define WEST_TNUDGING
-#  undef WEST_MICLAMPED
-#  undef WEST_MIRADIATION
-#  undef WEST_MINUDGING
 #  define WEST_MIGRADIENT
-#  define WEST_AICLAMPED
-#  define WEST_HICLAMPED
-#  define WEST_HSNCLAMPED
-#  undef WEST_TICLAMPED
-#  define WEST_SIG11CLAMPED
-#  define WEST_SIG12CLAMPED
-#  define WEST_SIG22CLAMPED
 # endif
 #endif
 
@@ -260,17 +235,7 @@
 #  define SOUTH_M3NUDGING
 #  define SOUTH_TRADIATION
 #  define SOUTH_TNUDGING
-#  undef SOUTH_MICLAMPED
-#  undef SOUTH_MIRADIATION
-#  undef SOUTH_MINUDGING
 #  define SOUTH_MIGRADIENT
-#  define SOUTH_AICLAMPED
-#  define SOUTH_HICLAMPED
-#  define SOUTH_HSNCLAMPED
-#  undef SOUTH_TICLAMPED
-#  define SOUTH_SIG11CLAMPED
-#  define SOUTH_SIG12CLAMPED
-#  define SOUTH_SIG22CLAMPED
 # endif
 #endif
 
@@ -282,17 +247,7 @@
 #  define EAST_M3NUDGING
 #  define EAST_TRADIATION
 #  define EAST_TNUDGING
-#  undef EAST_MICLAMPED
-#  undef EAST_MIRADIATION
-#  undef EAST_MINUDGING
 #  define EAST_MIGRADIENT
-#  define EAST_AICLAMPED
-#  define EAST_HICLAMPED
-#  define EAST_HSNCLAMPED
-#  undef EAST_TICLAMPED
-#  define EAST_SIG11CLAMPED
-#  define EAST_SIG12CLAMPED
-#  define EAST_SIG22CLAMPED
 # endif
 #endif
 
@@ -309,19 +264,6 @@
 **  Biological model options.
 */
 #undef NEMURO
-#undef BIO_GOANPZ        /* Sarah Hinckley's 11 box model */
-#undef BEST_NPZ         /* Georgina Gibsons BEST NPZ model  */
-
-#if defined BEST_NPZ || defined BIO_GOANPZ
-# undef  BIOFLUX           /* sum Nitrogen fluxes between boxes */
-# define ANA_BIOLOGY       /* analytical biology initial conditions */
-# define ANA_BPFLUX        /* analytical bottom passive tracers fluxes */
-# define ANA_SPFLUX        /* analytical surface passive tracers fluxes */
-# define DIAPAUSE          /* Enable Neocalanus seasonal vertical migration */
-# undef FLOAT_VWALK
-# define IRON_LIMIT        /* Add iron as passive 11th tracer */
-# undef TCLM_NUDGING      /* Nudging of tracer climatology for iron */
-#endif
 
 #if defined NEMURO
 # define BIO_SEDIMENT
@@ -337,36 +279,3 @@
 # undef  ANA_BIOSWRAD
 # undef  DIAGNOSTICS_BIO
 #endif
-
-#ifdef BEST_NPZ
-# define        NEWSHADE    /* Use Craig''s formulation for self shading in PAR calc+                       Else use Sarah''s self-shading from original NPZ code */
-# undef        KODIAK_IRAD /* Generate irradiance with curve matching Kodiak data
-                       Else use shortwave radiation (srflx) as irradiance   */
-# define JELLY
-# define STATIONARY
-# define STATIONARY2
-# define PROD3
-# define PROD2
-# define BENTHIC /*FENNEL or BENTHIC or TRAP*/
-# define ICE_BIO
-# undef CLIM_ICE_1D
-
-# undef SINKVAR      /* for variable sinking rate*/
-# undef DENMAN
-
-# undef OFFLINE_BIOLOGY   /* define if offline simulation of bio tracers */
-#   if defined OFFLINE_BIOLOGY
-#    define AKSCLIMATOLOGY   /* Processing of AKS climatology */
-#    undef ANA_AKSCLIMA      /* Processing of AKS climatology */
-#   endif
-#  undef DIAPAUSE          /* Enable Neocalanus seasonal vertical migration */
-#  define  IRON_LIMIT        /* Add iron as passive 13th tracer */
-#    if defined IRON_LIMIT || defined CLIM_ICE_1D
-#      if !defined OFFLINE_BIOLOGY
-#       define TCLM_NUDGING    /* Nudging of tracer climatology for iron */
-#       undef  ANA_TCLIMA     /* analytical tracers climatology for iron */
-#       define TCLIMATOLOGY   /* Processing of tracer climatology for iron */
-#      endif
-#    endif
-#endif
-

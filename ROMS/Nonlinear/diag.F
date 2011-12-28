@@ -601,7 +601,6 @@
             IF (uv_max.gt.max_speed) THEN
               print *, 'DIAG speed ij ', uv_max, ii_max, jj_max
             END IF
->>>>>>> feedme/kate_svn
 #endif
           END IF
 #ifdef SOLVE3D

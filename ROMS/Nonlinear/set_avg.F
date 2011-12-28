@@ -1880,6 +1880,9 @@
           DO j=JstrR,JendR
             DO i=IstrR,IendR
               AVERAGE(ng)%avgPONsed(i,j)=AVERAGE(ng)%avgPONsed(i,j)+    &
+# ifdef WET_DRY
+     &                                 GRID(ng)%rmask_io(i,j)*          &
+# endif
      &                                 OCEAN(ng)%PONsed(i,j)
             END DO
           END DO
@@ -1888,6 +1891,9 @@
           DO j=JstrR,JendR
             DO i=IstrR,IendR
               AVERAGE(ng)%avgOPALsed(i,j)=AVERAGE(ng)%avgOPALsed(i,j)+  &
+# ifdef WET_DRY
+     &                                 GRID(ng)%rmask_io(i,j)*          &
+# endif
      &                                 OCEAN(ng)%OPALsed(i,j)
             END DO
           END DO
@@ -1896,6 +1902,9 @@
           DO j=JstrR,JendR
             DO i=IstrR,IendR
               AVERAGE(ng)%avgDENITsed(i,j)=AVERAGE(ng)%avgDENITsed(i,j)+&
+# ifdef WET_DRY
+     &                                 GRID(ng)%rmask_io(i,j)*          &
+# endif
      &                                 OCEAN(ng)%DENITsed(i,j)
             END DO
           END DO
@@ -1904,6 +1913,9 @@
           DO j=JstrR,JendR
             DO i=IstrR,IendR
               AVERAGE(ng)%avgPONbur(i,j)=AVERAGE(ng)%avgPONbur(i,j)+    &
+# ifdef WET_DRY
+     &                                 GRID(ng)%rmask_io(i,j)*          &
+# endif
      &                                 OCEAN(ng)%PON_burial(i,j)
             END DO
           END DO
@@ -1912,6 +1924,9 @@
           DO j=JstrR,JendR
             DO i=IstrR,IendR
               AVERAGE(ng)%avgOPALbur(i,j)=AVERAGE(ng)%avgOPALbur(i,j)+  &
+# ifdef WET_DRY
+     &                                 GRID(ng)%rmask_io(i,j)*          &
+# endif
      &                                 OCEAN(ng)%OPAL_burial(i,j)
             END DO
           END DO
@@ -4136,7 +4151,7 @@
         END IF
         IF (Aout(idAice,ng)) THEN
           DO j=JstrR,JendR
-            DO i=Istr,IendR
+            DO i=IstrR,IendR
               AVERAGE(ng)%avgaice(i,j)=fac*AVERAGE(ng)%avgaice(i,j)
             END DO
           END DO
@@ -4155,7 +4170,7 @@
         END IF
         IF (Aout(idHice,ng)) THEN
           DO j=JstrR,JendR
-            DO i=Istr,IendR
+            DO i=IstrR,IendR
               AVERAGE(ng)%avghice(i,j)=fac*AVERAGE(ng)%avghice(i,j)
             END DO
           END DO
@@ -4174,7 +4189,7 @@
         END IF
         IF (Aout(idHsno,ng)) THEN
           DO j=JstrR,JendR
-            DO i=Istr,IendR
+            DO i=IstrR,IendR
               AVERAGE(ng)%avghsno(i,j)=fac*AVERAGE(ng)%avghsno(i,j)
             END DO
           END DO
@@ -4193,7 +4208,7 @@
         END IF
         IF (Aout(idTice,ng)) THEN
           DO j=JstrR,JendR
-            DO i=Istr,IendR
+            DO i=IstrR,IendR
               AVERAGE(ng)%avgtice(i,j)=fac*AVERAGE(ng)%avgtice(i,j)
             END DO
           END DO
@@ -4212,7 +4227,7 @@
         END IF
         IF (Aout(idTimid,ng)) THEN
           DO j=JstrR,JendR
-            DO i=Istr,IendR
+            DO i=IstrR,IendR
               AVERAGE(ng)%avgtimid(i,j)=fac*AVERAGE(ng)%avgtimid(i,j)
             END DO
           END DO
@@ -4231,7 +4246,7 @@
         END IF
         IF (Aout(idSfwat,ng)) THEN
           DO j=JstrR,JendR
-            DO i=Istr,IendR
+            DO i=IstrR,IendR
               AVERAGE(ng)%avgsfwat(i,j)=fac*AVERAGE(ng)%avgsfwat(i,j)
             END DO
           END DO
@@ -4250,7 +4265,7 @@
         END IF
         IF (Aout(idAgeice,ng)) THEN
           DO j=JstrR,JendR
-            DO i=Istr,IendR
+            DO i=IstrR,IendR
               AVERAGE(ng)%avgageice(i,j)=fac*AVERAGE(ng)%avgageice(i,j)
             END DO
           END DO
@@ -4269,7 +4284,7 @@
         END IF
         IF (Aout(idIomflx,ng)) THEN
           DO j=JstrR,JendR
-            DO i=Istr,IendR
+            DO i=IstrR,IendR
               AVERAGE(ng)%avgiomflx(i,j)=fac*AVERAGE(ng)%avgiomflx(i,j)
             END DO
           END DO
@@ -4288,7 +4303,7 @@
         END IF
         IF (Aout(idSig11,ng)) THEN
           DO j=JstrR,JendR
-            DO i=Istr,IendR
+            DO i=IstrR,IendR
               AVERAGE(ng)%avgsig11(i,j)=fac*AVERAGE(ng)%avgsig11(i,j)
             END DO
           END DO
@@ -4307,7 +4322,7 @@
         END IF
         IF (Aout(idSig12,ng)) THEN
           DO j=JstrR,JendR
-            DO i=Istr,IendR
+            DO i=IstrR,IendR
               AVERAGE(ng)%avgsig12(i,j)=fac*AVERAGE(ng)%avgsig12(i,j)
             END DO
           END DO
@@ -4326,7 +4341,7 @@
         END IF
         IF (Aout(idSig22,ng)) THEN
           DO j=JstrR,JendR
-            DO i=Istr,IendR
+            DO i=IstrR,IendR
               AVERAGE(ng)%avgsig22(i,j)=fac*AVERAGE(ng)%avgsig22(i,j)
             END DO
           END DO
@@ -4345,7 +4360,7 @@
         END IF
         IF (Aout(idT0mk,ng)) THEN
           DO j=JstrR,JendR
-            DO i=Istr,IendR
+            DO i=IstrR,IendR
               AVERAGE(ng)%avgT0mk(i,j)=fac*AVERAGE(ng)%avgT0mk(i,j)
             END DO
           END DO
@@ -4364,7 +4379,7 @@
         END IF
         IF (Aout(idS0mk,ng)) THEN
           DO j=JstrR,JendR
-            DO i=Istr,IendR
+            DO i=IstrR,IendR
               AVERAGE(ng)%avgS0mk(i,j)=fac*AVERAGE(ng)%avgS0mk(i,j)
             END DO
           END DO
@@ -4383,7 +4398,7 @@
         END IF
         IF (Aout(idWfr,ng)) THEN
           DO j=JstrR,JendR
-            DO i=Istr,IendR
+            DO i=IstrR,IendR
               AVERAGE(ng)%avgWfr(i,j)=fac*AVERAGE(ng)%avgWfr(i,j)
             END DO
           END DO
@@ -4402,7 +4417,7 @@
         END IF
         IF (Aout(idWai,ng)) THEN
           DO j=JstrR,JendR
-            DO i=Istr,IendR
+            DO i=IstrR,IendR
               AVERAGE(ng)%avgWai(i,j)=fac*AVERAGE(ng)%avgWai(i,j)
             END DO
           END DO
@@ -4421,7 +4436,7 @@
         END IF
         IF (Aout(idWao,ng)) THEN
           DO j=JstrR,JendR
-            DO i=Istr,IendR
+            DO i=IstrR,IendR
               AVERAGE(ng)%avgWao(i,j)=fac*AVERAGE(ng)%avgWao(i,j)
             END DO
           END DO
@@ -4440,7 +4455,7 @@
         END IF
         IF (Aout(idWio,ng)) THEN
           DO j=JstrR,JendR
-            DO i=Istr,IendR
+            DO i=IstrR,IendR
               AVERAGE(ng)%avgWio(i,j)=fac*AVERAGE(ng)%avgWio(i,j)
             END DO
           END DO
@@ -4459,7 +4474,7 @@
         END IF
         IF (Aout(idWro,ng)) THEN
           DO j=JstrR,JendR
-            DO i=Istr,IendR
+            DO i=IstrR,IendR
               AVERAGE(ng)%avgWro(i,j)=fac*AVERAGE(ng)%avgWro(i,j)
             END DO
           END DO
@@ -4478,7 +4493,7 @@
         END IF
         IF (Aout(idTauiw,ng)) THEN
           DO j=JstrR,JendR
-            DO i=Istr,IendR
+            DO i=IstrR,IendR
               AVERAGE(ng)%avgutau_iw(i,j)=                              &
      &                      fac*AVERAGE(ng)%avgutau_iw(i,j)
             END DO
@@ -4498,7 +4513,7 @@
         END IF
         IF (Aout(idChuiw,ng)) THEN
           DO j=JstrR,JendR
-            DO i=Istr,IendR
+            DO i=IstrR,IendR
               AVERAGE(ng)%avgchu_iw(i,j)=fac*AVERAGE(ng)%avgchu_iw(i,j)
             END DO
           END DO
@@ -4520,7 +4535,7 @@
 #  ifdef BERING_10K
         IF (Aout(idIcePhL,ng)) THEN
           DO j=JstrR,JendR
-            DO i=Istr,IendR
+            DO i=IstrR,IendR
               AVERAGE(ng)%avgIPhL(i,j)=fac*AVERAGE(ng)%avgIPhL(i,j)
             END DO
           END DO
@@ -4539,7 +4554,7 @@
         END IF
         IF (Aout(idIceNO3,ng)) THEN
           DO j=JstrR,JendR
-            DO i=Istr,IendR
+            DO i=IstrR,IendR
               AVERAGE(ng)%avgINO3(i,j)=fac*AVERAGE(ng)%avgINO3(i,j)
             END DO
           END DO
@@ -4558,7 +4573,7 @@
         END IF
         IF (Aout(idIceNH4,ng)) THEN
           DO j=JstrR,JendR
-            DO i=Istr,IendR
+            DO i=IstrR,IendR
               AVERAGE(ng)%avgINH4(i,j)=fac*AVERAGE(ng)%avgINH4(i,j)
             END DO
           END DO
@@ -4577,7 +4592,7 @@
         END IF
         IF (Aout(idIceLog,ng)) THEN
           DO j=JstrR,JendR
-            DO i=Istr,IendR
+            DO i=IstrR,IendR
               AVERAGE(ng)%avgILog(i,j)=fac*AVERAGE(ng)%avgILog(i,j)
             END DO
           END DO

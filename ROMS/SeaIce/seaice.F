@@ -179,6 +179,7 @@
 # ifdef ICE_SMOOTH
             CALL ice_smoother(ng, TILE)
 # endif
+!            CALL ice_limit(ng, TILE)
           END DO
         END DO
 !$OMP END PARALLEL DO

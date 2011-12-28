@@ -55,6 +55,7 @@
       USE mod_ncparam
       USE mod_scalars
 #ifdef DISTRIBUTE
+!
       USE distribute_mod, ONLY : mp_collect
 #endif
 !
@@ -90,8 +91,9 @@
         END DO
       END DO
 
-#if defined CHUKCHI
+#if defined NEP6
 !
+!  Set nudging boundaries coefficients zone for NEP 
 !  nudging coefficients vary from a thirty
 !  days time scale at the boundary point to decrease linearly to 0 days
 !  (i.e no nudging) 15 grids points away from the boundary.
@@ -107,19 +109,13 @@
         END DO
       END DO
 ! cff3-point wide linearly tapered nudging zone
-      DO j=MAX(JstrR,Mm(ng)+1-INT(cff3)),JendR      ! NORTH boundary
-        DO i=IstrR,IendR
-          wrk(i,j)=MAX(wrk(i,j),                                        &
-     &             cff1+REAL(Mm(ng)+1-j,r8)*(cff2-cff1)/cff3)
-        END DO
-      END DO
-! cff3-point wide linearly tapered nudging zone
       DO i=IstrR,MIN(INT(cff3),IendR)                ! WEST boundary
         DO j=JstrR,JendR
           wrk(i,j)=MAX(wrk(i,j),                                        &
      &             cff2+(cff3-REAL(i,r8))*(cff1-cff2)/cff3)
         END DO
       END DO
+#ifndef EASTERN_WALL
 ! cff3-point wide linearly tapered nudging zone
       DO i=MAX(IstrR,Lm(ng)+1-INT(cff3)),IendR       ! EAST boundary
         DO j=MAX(400,JstrR),JendR
@@ -127,6 +123,7 @@
      &             cff1+REAL(Lm(ng)+1-i,r8)*(cff2-cff1)/cff3)
         END DO
       END DO
+#endif
 !
 ! Set the relevant nudging coefficients using the entries in wrk
 !
@@ -157,21 +154,6 @@
       DO j=JstrR,JendR
         DO i=IstrR,IendR
           CLIMA(ng)%M3nudgcof(i,j)=wrk(i,j)
-        END DO
-      END DO
-#  endif
-#  ifdef AICLM_NUDGING
-! Set these ice timescales to a day at the edge, not 30.
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
-          CLIMA(ng)%AInudgcof(i,j)=wrk(i,j) * 30.
-        END DO
-      END DO
-#  endif
-#  ifdef MICLM_NUDGING
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
-          CLIMA(ng)%MInudgcof(i,j)=wrk(i,j) * 30.
         END DO
       END DO
 #  endif

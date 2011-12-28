@@ -220,7 +220,7 @@
         END DO
 # endif
 
-# if defined CHUKCHI && defined OUTFLOW_MASK
+# if defined CHUKCHI && defined OUTFLOW_CELLS
         DO j=Jstr,Jend
           hsn(1,j,linew)=BOUNDARY(ng)%hsn_west(j)
 #  ifdef MASKING
@@ -366,7 +366,7 @@
         END DO
 # endif
 
-# if defined CHUKCHI && defined OUTFLOW_MASK
+# if defined CHUKCHI && defined OUTFLOW_CELLS
         DO j=Jstr,Jend
           hsn(Lm(ng),j,linew)=BOUNDARY(ng)%hsn_east(j)
 #  ifdef MASKING
@@ -514,7 +514,7 @@
         END DO
 # endif
 
-# if defined CHUKCHI && defined OUTFLOW_MASK
+# if defined CHUKCHI && defined OUTFLOW_CELLS
         DO i=Istr,Iend
           hsn(i,1,linew)=BOUNDARY(ng)%hsn_south(i)
 #  ifdef MASKING
@@ -660,7 +660,7 @@
         END DO
 # endif
 
-# if defined CHUKCHI && defined OUTFLOW_MASK
+# if defined CHUKCHI && defined OUTFLOW_CELLS
         DO i=Istr,Iend
           hsn(i,Mm(ng),linew)=BOUNDARY(ng)%hsn_north(i)
 #  ifdef MASKING

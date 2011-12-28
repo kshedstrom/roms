@@ -558,6 +558,7 @@ contains
       real(r8)    :: vmag   ! surface wind magnitude   (m/s)
       real(r8)    :: thvbot ! virtual temperature      (K)
       real(r8)    :: ssq    ! sea surface humidity     (kg/kg)
+      real(r8)    :: Tseak  ! SST in Kelvins           (K)
       real(r8)    :: delt   ! potential T difference   (K)
       real(r8)    :: delq   ! humidity difference      (kg/kg)
       real(r8)    :: stable ! stability factor
@@ -640,7 +641,7 @@ contains
 ! specific heat of water vap ~ J/kg/K
       real(r8),parameter :: shr_const_cpwv    = 1.810e3_R8
 ! CPWV/CPDAIR - 1.0
-      real(r8),parameter :: shr_const_cpvir   =                          &
+      real(r8),parameter :: shr_const_cpvir   =                         &
      &         (shr_const_cpwv/shr_const_cpdair)-1.0_r8
 ! latent heat of evaporation ~ J/kg
       real(r8),parameter :: shr_const_latvap  = 2.501e6_r8
@@ -648,7 +649,8 @@ contains
 
       qsat(Tk)   = 640380.0 / exp(5107.4/Tk)
       cdn(Umps)  = 0.0027 / Umps + 0.000142 + 0.0000764 * Umps
-      psimhu(xd) = log((1.0+xd*(2.0+xd))*(1.0+xd*xd)/8.0) - 2.0*atan(xd) + 1.571
+      psimhu(xd) = log((1.0+xd*(2.0+xd))*(1.0+xd*xd)/8.0) -             &
+     &               2.0*atan(xd) + 1.571
       psixhu(xd) = 2.0 * log((1.0 + xd*xd)/2.0)
 
 #include "set_bounds.h"
@@ -682,10 +684,11 @@ contains
           vmag   = max(umin, sqrt( (Uwind(i,j)-u(i,j,N(ng),nrhs))**2 +  &
      &                             (Vwind(i,j)-v(i,j,N(ng),nrhs))**2) )
           TairK(i) = Tair(i,j) + 273.16_r8
+          TseaK = t(i,j,N(ng),nrhs,itemp) + 273.16_r8
           thvbot = TairK(i) * (1.0 + shr_const_zvir * Hair(i,j)) ! virtual temp (K)
-          rhoAir(i) = Pair(i,j)*100.0_r8/(blk_Rgas*TairK(i)*                  &
+          rhoAir(i) = Pair(i,j)*100.0_r8/(blk_Rgas*TairK(i)*            &
      &                    (1.0_r8+0.61_r8*Hair(i,j))) !  Moist air density (kg/m3).
-          ssq    = 0.98_r8 * qsat(TairK(i)) / rhoAir(i)    ! sea surf hum (kg/kg)
+          ssq    = 0.98_r8 * qsat(TseaK) / rhoAir(i)    ! sea surf hum (kg/kg)
           delt   = Tair(i,j) - t(i,j,N(ng),nrhs,itemp)                  ! pot temp diff (K)
           delq   = Hair(i,j) - ssq                     ! spec hum dif (kg/kg)
           alz    = log(blk_ZW(ng)/zref)
@@ -930,8 +933,7 @@ contains
           cawdif = 1._r8-albw_d
           srflx(i,j) = srflx(i,j)*(cawdir(i,j)*                         &
      &                 (1._r8-cloud(i,j))+cawdif*cloud(i,j))
-# endif
-# if defined SHORTWAVE && defined ALBEDO_CURVE
+# elif defined SHORTWAVE && defined ALBEDO_CURVE
 #  ifdef BIO_1D
 !using lat for M2 for whole domain
           caw_curve = 1._r8-(0.069_r8 - 0.011_r8*                       &
@@ -943,7 +945,9 @@ contains
           srflx(i,j) = srflx(i,j)*caw_curve
 #  endif
 # endif
+# if defined LONGWAVE_OUT || defined LONGWAVE
           lrflx(i,j) = lwup*Hscale2 + lrflx(i,j)
+# endif
           lhflx(i,j) = lhflx(i,j)*Hscale2
           shflx(i,j) = shflx(i,j)*Hscale2
           stflx(i,j,itemp) = (srflx(i,j)+lrflx(i,j)+                    &
