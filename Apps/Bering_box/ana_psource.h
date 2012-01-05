@@ -255,7 +255,7 @@
 !$OMP BARRIER
 
 # if defined BERING_BOX
-      cff = 1.e6_r8/Nsrc
+      cff = -1.e6_r8/Nsrc
       DO is=1,Nsrc
         Qbar(is)=cff
       END DO
