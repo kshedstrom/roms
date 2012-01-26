@@ -882,7 +882,6 @@
      &       'Sout(idWro)',                                             &
      &       'Write out ice melt runoff rate.'
 #endif
-          END IF
         END DO
       END IF
 

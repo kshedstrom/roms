@@ -737,8 +737,8 @@
 # ifdef MASKING
      &                      GRID(ng)%rmask_io,                          &
 # endif
-     &                      FORCES(ng) % Uwind(:,:,Kout),               &
-     &                      FORCES(ng) % Vwind(:,:,Kout),               &
+     &                      FORCES(ng) % Uwind,                         &
+     &                      FORCES(ng) % Vwind,                         &
      &                      AVERAGE(ng)%avgUwindE,                      &
      &                      AVERAGE(ng)%avgVwindN)
         END IF
@@ -2239,8 +2239,8 @@
 # ifdef MASKING
      &                      GRID(ng)%rmask_io,                          &
 # endif
-     &                      FORCES(ng) % Uwind(:,:,Kout),               &
-     &                      FORCES(ng) % Vwind(:,:,Kout),               &
+     &                      FORCES(ng) % Uwind,                         &
+     &                      FORCES(ng) % Vwind,                         &
      &                      AVERAGE(ng)%avgUwindE,                      &
      &                      AVERAGE(ng)%avgVwindN)
         END IF
