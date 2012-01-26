@@ -3156,6 +3156,33 @@
   'r2dvar'
   1.0d0
 
+'rdrag'                                            ! Input/Output
+  'linear bottom drag coefficient'
+  'meter second-1'                                 ! [m/s]
+  'rdrag, scalar, series'
+  'ocean_time'
+  'idragL'
+  'r2dvar'
+  1.0d0
+
+'rdrag2'                                           ! Input/Output
+  'quadratic bottom drag coefficient'
+  'nondimensional'                                 ! [nondimensional]
+  'rdrag2, scalar, series'
+  'ocean_time'
+  'idragQ'
+  'r2dvar'
+  1.0d0
+
+'ZoBot'                                            ! Input/Output
+  'time invariant, bottom roughness length'
+  'meter'                                          ! [m]
+  'ZoBot, scalar, series'
+  'ocean_time'
+  'idZoBL'
+  'r2dvar'
+  1.0d0
+
 'Zo_def'                                           ! Input/Output
   'default bottom roughness'
   'meter'                                          ! [m]

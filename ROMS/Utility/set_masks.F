@@ -290,6 +290,15 @@
           mask_outflow(i,Mm(ng)+1) = cff
         END DO
       END IF
+#  elif defined ARCTIC
+! Just off Greenland
+      cff = 0.5_r8
+      IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
+        DO j=MAX(JstrR,Mm(ng)/2),JendR
+          mask_outflow(Lm(ng),j) = cff
+          mask_outflow(Lm(ng)+1,j) = cff
+        END DO
+      END IF
 #  else
       Need to set outflow mask in set_masks.F for your application.
 #  endif
