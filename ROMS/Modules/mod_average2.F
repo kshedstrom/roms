@@ -18,11 +18,15 @@
 !                                                                      !
 !  avgu2d     2D velocity component (m/s) in the XI-direction.         !
 !  avgv2d     2D velocity component (m/s) in the ETA-direction.        !
+!  avgu2dE    2D Eastward component (m/s) at RHO-points.               !
+!  avgv2dN    2D Northward component (m/s) at RHO-points.              !
 !  avgzeta    Free surface (m).                                        !
 
 # ifdef SOLVE3D
 !  avguwind   2D wind velocity component (m/s) in the XI-direction.    !
 !  avgvwind   2D wind velocity component (m/s) in the ETA-direction.   !
+!  avguwindE  2D wind velocity component (m/s) to the East.            !
+!  avgvwindN  2D wind velocity component (m/s) to the North.           !
 !  avgu3d     3D velocity component (m/s) in the XI-direction.         !
 !  avgv3d     3D velocity component (m/s) in the ETA-direction.        !
 !  avgrho     Density anomaly (kg/m3).                                 !
@@ -66,9 +70,13 @@
 
         TYPE T_AVERAGE2
 
+          real(r8), pointer :: avgzeta(:,:)
+
           real(r8), pointer :: avgu2d(:,:)
           real(r8), pointer :: avgv2d(:,:)
-          real(r8), pointer :: avgzeta(:,:)
+
+          real(r8), pointer :: avgu2dE(:,:)
+          real(r8), pointer :: avgv2dN(:,:)
 # ifdef SOLVE3D
           real(r8), pointer :: avgrho(:,:)
           real(r8), pointer :: avgt(:,:,:)
@@ -77,6 +85,9 @@
 #  endif
           real(r8), pointer :: avgu3d(:,:)
           real(r8), pointer :: avgv3d(:,:)
+          real(r8), pointer :: avgu3dE(:,:)
+          real(r8), pointer :: avgv3dN(:,:)
+
           real(r8), pointer :: avgstf(:,:)
           real(r8), pointer :: avgswf(:,:)
 #  ifdef BULK_FLUXES
@@ -85,6 +96,8 @@
           real(r8), pointer :: avgshf(:,:)
           real(r8), pointer :: avguwind(:,:)
           real(r8), pointer :: avgvwind(:,:)
+          real(r8), pointer :: avguwindE(:,:)
+          real(r8), pointer :: avgvwindN(:,:)
           real(r8), pointer :: avgsssflx(:,:)
 #   ifdef EMINUSP
           real(r8), pointer :: avgevap(:,:)
@@ -103,6 +116,9 @@
 #  ifdef ICE_MODEL
           real(r8), pointer :: avguice(:,:)
           real(r8), pointer :: avgvice(:,:)
+          real(r8), pointer :: avguiceE(:,:)
+          real(r8), pointer :: avgviceN(:,:)
+
           real(r8), pointer :: avgaice(:,:)
           real(r8), pointer :: avghice(:,:)
           real(r8), pointer :: avgtice(:,:)
@@ -162,13 +178,21 @@
 !  Time-averaged state variables.
 !
       IF (Aout2(idFsur,ng)) THEN
-        allocate ( AVERAGE2(ng) % avgu2d(LBi:UBi,LBj:UBj) )
+        allocate ( AVERAGE2(ng) % avgzeta(LBi:UBi,LBj:UBj) )
       ENDIF
+
       IF (Aout2(idUbar,ng)) THEN
-        allocate ( AVERAGE2(ng) % avgv2d(LBi:UBi,LBj:UBj) )
+        allocate ( AVERAGE2(ng) % avgu2d(LBi:UBi,LBj:UBj) )
       END IF
       IF (Aout2(idVbar,ng)) THEN
-        allocate ( AVERAGE2(ng) % avgzeta(LBi:UBi,LBj:UBj) )
+        allocate ( AVERAGE2(ng) % avgv2d(LBi:UBi,LBj:UBj) )
+      END IF
+
+      IF (Aout2(idu2dE,ng)) THEN
+        allocate ( AVERAGE2(ng) % avgu2dE(LBi:UBi,LBj:UBj) )
+      END IF
+      IF (Aout2(idv2dN,ng)) THEN
+        allocate ( AVERAGE2(ng) % avgv2dN(LBi:UBi,LBj:UBj) )
       END IF
 # ifdef SOLVE3D
       IF (Aout2(idUvel,ng)) THEN
@@ -176,6 +200,13 @@
       END IF
       IF (Aout2(idVvel,ng)) THEN
         allocate ( AVERAGE2(ng) % avgv3d(LBi:UBi,LBj:UBj) )
+      END IF
+
+      IF (Aout2(idu3dE,ng)) THEN
+        allocate ( AVERAGE2(ng) % avgu3dE(LBi:UBi,LBj:UBj) )
+      END IF
+      IF (Aout2(idv3dN,ng)) THEN
+        allocate ( AVERAGE2(ng) % avgv3dN(LBi:UBi,LBj:UBj) )
       END IF
 
       IF (Aout2(idDano,ng)) THEN
@@ -237,12 +268,20 @@
       IF (Aout2(idShea,ng)) THEN
         allocate ( AVERAGE2(ng) % avgshf(LBi:UBi,LBj:UBj) )
       END IF
+
       IF (Aout2(idUair,ng)) THEN
         allocate ( AVERAGE2(ng) % avguwind(LBi:UBi,LBj:UBj) )
       END IF
       IF (Aout2(idVair,ng)) THEN
         allocate ( AVERAGE2(ng) % avgvwind(LBi:UBi,LBj:UBj) )
       END IF
+      IF (Aout2(idUairE,ng)) THEN
+        allocate ( AVERAGE2(ng) % avguwindE(LBi:UBi,LBj:UBj) )
+      END IF
+      IF (Aout2(idVairN,ng)) THEN
+        allocate ( AVERAGE2(ng) % avgvwindN(LBi:UBi,LBj:UBj) )
+      END IF
+
       IF (Aout2(idSSSf,ng)) THEN
         allocate ( AVERAGE2(ng) % avgsssflx(LBi:UBi,LBj:UBj) )
       END IF
@@ -262,6 +301,12 @@
       END IF
       IF (Aout2(idVice,ng)) THEN
         allocate ( AVERAGE2(ng) % avgvice(LBi:UBi,LBj:UBj) )
+      END IF
+      IF (Aout2(idUiceE,ng)) THEN
+        allocate ( AVERAGE2(ng) % avguiceE(LBi:UBi,LBj:UBj) )
+      END IF
+      IF (Aout2(idViceN,ng)) THEN
+        allocate ( AVERAGE2(ng) % avgviceN(LBi:UBi,LBj:UBj) )
       END IF
       IF (Aout2(idAice,ng)) THEN
         allocate ( AVERAGE2(ng) % avgaice(LBi:UBi,LBj:UBj) )
@@ -402,6 +447,7 @@
           END DO
         END DO
       END IF
+
       IF (Aout2(idUbar,ng)) THEN
         DO j=Jmin,Jmax
           DO i=Imin,Imax
@@ -413,6 +459,21 @@
         DO j=Jmin,Jmax
           DO i=Imin,Imax
             AVERAGE2(ng) % avgv2d(i,j) = IniVal
+          END DO
+        END DO
+      END IF
+
+      IF (Aout2(idu2dE,ng)) THEN
+        DO j=Jmin,Jmax
+          DO i=Imin,Imax
+            AVERAGE2(ng) % avgu2dE(i,j) = IniVal
+          END DO
+        END DO
+      END IF
+      IF (Aout2(idv2dN,ng)) THEN
+        DO j=Jmin,Jmax
+          DO i=Imin,Imax
+            AVERAGE2(ng) % avgv2dN(i,j) = IniVal
           END DO
         END DO
       END IF
@@ -431,6 +492,22 @@
           END DO
         END DO
       END IF
+
+      IF (Aout2(idu3dE,ng)) THEN
+        DO j=Jmin,Jmax
+          DO i=Imin,Imax
+            AVERAGE2(ng) % avgu3dE(i,j) = IniVal
+          END DO
+        END DO
+      END IF
+      IF (Aout2(idV3dN,ng)) THEN
+        DO j=Jmin,Jmax
+          DO i=Imin,Imax
+            AVERAGE2(ng) % avgV3dN(i,j) = IniVal
+          END DO
+        END DO
+      END IF
+
       IF (Aout2(idDano,ng)) THEN
         DO j=Jmin,Jmax
           DO i=Imin,Imax
@@ -541,6 +618,7 @@
           END DO
         END DO
       END IF
+
       IF (Aout2(idUair,ng)) THEN
         DO j=Jmin,Jmax
           DO i=Imin,Imax
@@ -555,6 +633,22 @@
           END DO
         END DO
       END IF
+
+      IF (Aout2(idUairE,ng)) THEN
+        DO j=Jmin,Jmax
+          DO i=Imin,Imax
+            AVERAGE2(ng) % avguwindE(i,j) = IniVal
+          END DO
+        END DO
+      END IF
+      IF (Aout2(idVairN,ng)) THEN
+        DO j=Jmin,Jmax
+          DO i=Imin,Imax
+            AVERAGE2(ng) % avgvwindN(i,j) = IniVal
+          END DO
+        END DO
+      END IF
+
       IF (Aout2(idSSSf,ng)) THEN
         DO j=Jmin,Jmax
           DO i=Imin,Imax
