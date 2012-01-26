@@ -22,14 +22,14 @@
 #define CURVGRID
 #define MASKING
 #define NONLIN_EOS
-#define SOLVE3D
-#define SALINITY
+#undef SOLVE3D
 #ifdef SOLVE3D
+# define SALINITY
 # undef SPLINES
 #endif
-#define FLOATS
+#undef FLOATS
 #undef DIAPAUSE
-#define STATIONS
+#undef STATIONS
 #undef WET_DRY
 
 #undef T_PASSIVE
@@ -63,7 +63,7 @@
 
 #define NO_WRITE_GRID
 #undef OUT_DOUBLE
-#define RST_SINGLE
+#undef RST_SINGLE
 #define AVERAGES
 #undef AVERAGES2
 #ifdef SOLVE3D
@@ -81,19 +81,19 @@
 #define UV_ADV
 #define UV_COR
 #define UV_SADVECTION
+#define UV_VIS2
 
 #ifdef SOLVE3D
+# define UV_SMAGORINSKY
+# define VISC_3DCOEF
+# define MIX_S_UV
+# define VISC_GRID
+# define SPONGE
 # define TS_U3HADVECTION
 # define TS_C4VADVECTION
 # undef TS_MPDATA
 #endif
 
-#define UV_VIS2
-#define UV_SMAGORINSKY
-#define VISC_3DCOEF
-#define MIX_S_UV
-#define VISC_GRID
-#define SPONGE
 
 #ifdef SOLVE3D
 # define TS_DIF2
@@ -168,7 +168,7 @@
 
 /* tides */
 
-#define LTIDES
+#undef LTIDES
 #ifdef LTIDES
 # define FILTERED
 # define SSH_TIDES
@@ -189,7 +189,7 @@
 
 /* Boundary conditions...careful with grid orientation */
 
-#undef EASTERN_WALL
+#define EASTERN_WALL
 #define NORTHERN_WALL
 #undef WESTERN_WALL
 #undef SOUTHERN_WALL
@@ -251,6 +251,9 @@
 # define ANA_BTFLUX
 #else
 # define ANA_SMFLUX
+# define ANA_INITIAL
+# define ANA_FSOBC
+# define ANA_M2OBC
 #endif
 
 /*

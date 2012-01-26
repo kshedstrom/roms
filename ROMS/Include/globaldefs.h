@@ -746,53 +746,53 @@
 
 #ifdef ICE_MODEL
 #if (defined WEST_AIRADIATION   && defined WEST_AINUDGING)   || \
-     defined WEST_AICLAMPED
+     defined WEST_AICLAMPED || defined WEST_AIMIXED
 # define WEST_AIOBC
 #endif
 #if (defined EAST_AIRADIATION   && defined EAST_AINUDGING)   || \
-     defined EAST_AICLAMPED
+     defined EAST_AICLAMPED || defined EAST_AIMIXED
 # define EAST_AIOBC
 #endif
 #if (defined SOUTH_AIRADIATION  && defined SOUTH_AINUDGING)  || \
-     defined SOUTH_AICLAMPED
+     defined SOUTH_AICLAMPED || defined SOUTH_AIMIXED
 # define SOUTH_AIOBC
 #endif
 #if (defined NORTH_AIRADIATION  && defined NORTH_AINUDGING)  || \
-     defined NORTH_AICLAMPED
+     defined NORTH_AICLAMPED || defined NORTH_AIMIXED
 # define NORTH_AIOBC
 #endif
 
 #if (defined WEST_HIRADIATION   && defined WEST_HINUDGING)   || \
-     defined WEST_HICLAMPED
+     defined WEST_HICLAMPED || defined WEST_HIMIXED
 # define WEST_HIOBC
 #endif
 #if (defined EAST_HIRADIATION   && defined EAST_HINUDGING)   || \
-     defined EAST_HICLAMPED
+     defined EAST_HICLAMPED || defined EAST_HIMIXED
 # define EAST_HIOBC
 #endif
 #if (defined SOUTH_HIRADIATION  && defined SOUTH_HINUDGING)  || \
-     defined SOUTH_HICLAMPED
+     defined SOUTH_HICLAMPED || defined SOUTH_HIMIXED
 # define SOUTH_HIOBC
 #endif
 #if (defined NORTH_HIRADIATION  && defined NORTH_HINUDGING)  || \
-     defined NORTH_HICLAMPED
+     defined NORTH_HICLAMPED || defined NORTH_HIMIXED
 # define NORTH_HIOBC
 #endif
 
 #if (defined WEST_HSNRADIATION   && defined WEST_HSNNUDGING)   || \
-     defined WEST_HSNCLAMPED
+     defined WEST_HSNCLAMPED || defined WEST_HSNMIXED
 # define WEST_HSNOBC
 #endif
 #if (defined EAST_HSNRADIATION   && defined EAST_HSNNUDGING)   || \
-     defined EAST_HSNCLAMPED
+     defined EAST_HSNCLAMPED || defined EAST_HSNMIXED
 # define EAST_HSNOBC
 #endif
 #if (defined SOUTH_HSNRADIATION  && defined SOUTH_HSNNUDGING)  || \
-     defined SOUTH_HSNCLAMPED
+     defined SOUTH_HSNCLAMPED || defined SOUTH_HSNMIXED
 # define SOUTH_HSNOBC
 #endif
 #if (defined NORTH_HSNRADIATION  && defined NORTH_HSNNUDGING)  || \
-     defined NORTH_HSNCLAMPED
+     defined NORTH_HSNCLAMPED || defined NORTH_HSNMIXED
 # define NORTH_HSNOBC
 #endif
 

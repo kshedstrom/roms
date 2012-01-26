@@ -96,6 +96,9 @@
         IF (Lfloats(ng)) THEN
           mc=DRIFTER(ng)%Findex(0)
           IF (DRIFTER(ng)%Findex(0).gt.0) THEN
+#ifdef ARCTIC
+            IF (Jend .lt. 301) THEN
+#endif
             CALL hindices (ng, LBi, UBi, LBj, UBj,                      &
      &                     IstrR, Iend+1, JstrR, Jend+1,                &
      &                     GRID(ng)%angler,                             &
@@ -106,6 +109,12 @@
      &                     DRIFTER(ng)%Flon,                            &
      &                     DRIFTER(ng)%Flat,                            &
      &                     Iflt, Jflt, spv, .FALSE.)
+#ifdef ARCTIC
+            ELSE
+              Iflt = 0
+              Jflt = 0
+            END IF
+#endif
 #  ifdef DISTRIBUTE
             CALL mp_collect (ng, model, mc, spv, Iflt)
             CALL mp_collect (ng, model, mc, spv, Jflt)
@@ -266,6 +275,9 @@
           END IF
         END DO
         IF (mc.gt.0) THEN
+#ifdef ARCTIC
+          IF (Jend .lt. 301) THEN
+#endif
           CALL hindices (ng, LBi, UBi, LBj, UBj,                        &
      &                   IstrR, Iend+1, JstrR, Jend+1,                  &
      &                   GRID(ng)%angler,                               &
@@ -276,6 +288,12 @@
      &                   Slon, Slat,                                    &
      &                   Ista, Jsta,                                    &
      &                   spv, .FALSE.)
+#ifdef ARCTIC
+          ELSE
+            Ista = 0
+            Jsta = 0
+          END IF
+#endif
 #  ifdef DISTRIBUTE
           CALL mp_collect (ng, model, mc, spv, Ista)
           CALL mp_collect (ng, model, mc, spv, Jsta)
