@@ -3,7 +3,7 @@
       SUBROUTINE def_filt (ng)
 !
 !=======================================================================
-!  Copyright (c) 2002-2011 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
 !================================================== Hernan G. Arango ===
 !                                                                      !
 !  This routine creates filter NetCDF file, it defines its             !
