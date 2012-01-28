@@ -36,7 +36,7 @@
 
 ! Application title.
 
-       TITLE = Arctic
+       TITLE = Arctic Run #5
 
 ! C-preprocessing Flag.
 
@@ -330,7 +330,7 @@ ad_VolCons(north) ==  F                            ! northern boundary
 ! NetCDF units attribute.
 
 !     DSTART =  21186.5d0                  ! days
-      DSTART =  31051.5d0                  ! days
+      DSTART =  31046.5d0                  ! days
   TIDE_START =  -693962.0d0                ! days
     TIME_REF =  19000101.0d0               ! yyyymmdd.dd
 
@@ -359,6 +359,12 @@ ad_VolCons(north) ==  F                            ! northern boundary
 ! Slipperiness parameter: 1.0 (free slip) or -1.0 (no slip)
 
       GAMMA2 == 1.0d0
+
+! Logical switches (TRUE/FALSE) to specify which variables to consider on
+! tracers point Sources/Sinks (like river runoff): [1:NAT+NPT,Ngrids].
+! See glossary below for details.
+
+  LtracerSrc == F F                        ! temperature, salinity, inert
 
 ! Starting (DstrS) and ending (DendS) day for adjoint sensitivity forcing.
 ! DstrS must be less or equal to DendS. If both values are zero, their
@@ -537,14 +543,20 @@ Hout(idBott) == T T T T T T T T T F F F F F F F
 
 Aout2(idUvel) == T                          ! 3D U-velocity
 Aout2(idVvel) == T                          ! 3D V-velocity
+Aout2(idu3dE) == T       ! u_eastward         3D U-eastward  at RHO-points
+Aout2(idv3dN) == T       ! v_northward        3D V-northward at RHO-points
 Aout2(idUbar) == T                          ! 2D U-velocity
 Aout2(idVbar) == T                          ! 2D V-velocity
+Aout2(idu2dE) == T       ! ubar_eastward      2D U-eastward  at RHO-points
+Aout2(idv2dN) == T       ! vbar_northward     2D V-northward at RHO-points
 Aout2(idFsur) == T                          ! free-surface
 
 Aout2(idTvar) == T T                        ! temperature and salinity
 
 Aout2(idUair) == T                          ! surface U-wind
 Aout2(idVair) == T                          ! surface V-wind
+Aout2(idUairE) == T      ! Uwind_eastward     surface U-wind
+Aout2(idVairN) == T      ! Vwind_northward    surface V-wind
 Aout2(idUsms) == T                          ! surface U-stress
 Aout2(idVsms) == T                          ! surface V-stress
 
@@ -744,8 +756,10 @@ Dout(iTvdif) == T T                        ! vertical diffusion
 ! and so on.  Use a single line per entry with a continuation (\) symbol
 ! at the each entry, except the last one.
 
-     NBCFILES == 1                          ! number of boundary files
-     BRYNAME == /wrkdir/kate/Arctic/Files/SODA_bdry_1985.nc
+     NBCFILES == 3                          ! number of boundary files
+     BRYNAME == /wrkdir/kate/Arctic/Files/SODA_bdry_1985.nc \
+                /wrkdir/kate/Arctic/Files/Arctic_icebc.nc \
+                /wrkdir/kate/Arctic/Files/Arctic_snowbc.nc
 
 ! Input forcing NetCDF file name(s).  The USER has the option to enter
 ! several files names per each nested grid.  For example, the USER may
@@ -758,7 +772,7 @@ Dout(iTvdif) == T T                        ! vertical diffusion
 ! at the each entry, except the last one.
 
 
-    NFFILES == 12                          ! number of forcing files
+    NFFILES == 13                          ! number of forcing files
 
     FRCNAME == /wrkdir/kate/Bering/Files/Pair.1948-2007.nc   \
                /wrkdir/kate/Bering/Files/lwrad.1948-2007.nc  \
@@ -771,6 +785,7 @@ Dout(iTvdif) == T T                        ! vertical diffusion
                /wrkdir/kate/Bering/Files/sss_fill_2004.nc \
                /wrkdir/kate/Arctic/Files/runoff_ARCTIC_daitren_inter_annual_1948-2007.nc \
                /wrkdir/kate/Arctic/Files/fastice_Arctic.nc \
+	       /wrkdir/kate/Arctic/Files/arctic_river.nc \
                /wrkdir/kate/Arctic/Files/Arctic_tides_otps.nc
 
 ! Output NetCDF file names, [1:Ngrids].
@@ -790,8 +805,8 @@ Dout(iTvdif) == T T                        ! vertical diffusion
 ! Input ASCII parameter filenames.
 
      APARNAM =  External/assimilation.in
-     SPOSNAM =  /wrkdir/kate/Arctic/External/stations_Arctic.in
-     FPOSNAM =  /wrkdir/kate/Arctic/External/floats_Arctic.in
+     SPOSNAM =  /wrkdir/kate/Arctic/External/stations_arctic.in
+     FPOSNAM =  /wrkdir/kate/Arctic/External/floats_arctic.in
      IPARNAM =  /wrkdir/kate/NEP/External/ice.in
      BPARNAM =  /wrkdir/kate/Arctic/External/nemuro_iron.in
      SPARNAM =  External/sediment.in
@@ -1567,6 +1582,55 @@ Dout(iTvdif) == T T                        ! vertical diffusion
 !------------------------------------------------------------------------------
 !
 !  GAMMA2      Slipperiness variable, either 1.0 (free slip) or -1.0 (no slip).
+!
+!------------------------------------------------------------------------------
+!  Tracer point Sources/Sink sources switches.
+!------------------------------------------------------------------------------
+!
+!  LtracerSrc  Logical switches (T/F) to specify which tracer variables
+!              to consider when the option TS_PSOURCE is activated. Only
+!              NAT active tracers (temperature, salinity) and NPT inert
+!              tracers need to be specified here:
+!
+!                LtracerSrc(itemp,ng)     for temperature (itemp=1)
+!                LtracerSrc(isalt,ng)     for salinity (isalt=2)
+!                LtracerSrc(NAT+1,ng)     for inert tracer 1
+!                ...                      ...
+!                LtracerSrc(NAT+NPT,ng)   for inert tracer NPT
+!
+!              Other biological and sediment tracers switches are specified in
+!              their respective input scripts.
+!
+!              Recall that TS_PSOURCE is usually activated to add river runoff
+!              as a point source. At minimum, it is necessary to specify both
+!              temperature and salinity for all rivers.  The other tracers are
+!              optional.
+!
+!              This logical switch REPLACES and ELIMINATES the need to have
+!              or read the variable "river_flag(river)" in the input rivers
+!              forcing NetCDF file:
+!
+!                double river_flag(river)
+!                        river_flag:long_name = "river runoff tracer flag"
+!                        river_flag:option_0 = "all tracers are off"
+!                        river_flag:option_1 = "only temperature"
+!                        river_flag:option_2 = "only salinity"
+!                        river_flag:option_3 = "both temperature and salinity"
+!                        river_flag:units = "nondimensional"
+!
+!              This logic was too cumbersome and complicated when additional
+!              tracers are considered. However, this change is backward
+!              compatible.
+!
+!              The LtracerSrc switch will be used to activate the reading of
+!              respective tracer variable from input river forcing NetCDF
+!              file. If you want to add other tracer variables (other than
+!              temperature and salinity) as a source for a particular river(s),
+!              you just need to specify such values on those river(s). Then,
+!              set the values to ZERO on the other river(s) that do NOT
+!              require such river forcing for that tracer. Recall that you
+!              need to specify the tracer values for all rivers, even if
+!              their values are zero.
 !
 !------------------------------------------------------------------------------
 !  Adjoint sensitivity parameters.

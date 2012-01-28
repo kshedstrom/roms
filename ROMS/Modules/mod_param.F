@@ -947,6 +947,9 @@
 # if defined GLS_MIXING || defined MY25_MIXING
       nLBCvar=nLBCvar+1
 # endif
+# ifdef ICE_MODEL
+      nLBCvar=nLBCvar+10
+# endif
 #else
       nLBCvar=3
 #endif
