@@ -597,17 +597,19 @@
 #endif
 
         IF (ObcData(ng)) THEN
-          IF (exit_flag.eq.NoError) THEN
-            CALL join_string (BRY(i,ng)%files, BRY(i,ng)%Nfiles,        &
-     &                        string, lstr)
-            status=nf90_put_att(ncid, nf90_global, 'bry_file',          &
-     &                          string(1:lstr))
-            IF (status.ne.nf90_noerr) THEN
-              IF (Master) WRITE (stdout,20) 'bry_file', TRIM(ncname)
-              exit_flag=3
-              ioerror=status
+          DO i=1,nBCfiles(ng)
+            IF (exit_flag.eq.NoError) THEN
+              CALL join_string (BRY(i,ng)%files, BRY(i,ng)%Nfiles,      &
+     &                          string, lstr)
+              status=nf90_put_att(ncid, nf90_global, 'bry_file',        &
+     &                            string(1:lstr))
+              IF (status.ne.nf90_noerr) THEN
+                IF (Master) WRITE (stdout,20) 'bry_file', TRIM(ncname)
+                exit_flag=3
+                ioerror=status
+              END IF
             END IF
-          END IF
+          END DO
         END IF
 
 #if (defined  ZCLIMATOLOGY && !defined ANA_SSH)     || \

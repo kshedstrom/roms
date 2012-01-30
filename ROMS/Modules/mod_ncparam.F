@@ -2650,6 +2650,28 @@
       ic=ic+1
       idBvar(ic)=idMtke
 # endif
+#ifdef ICE_MODEL
+      ic=ic+1
+      idBvar(ic)=idUice
+      ic=ic+1
+      idBvar(ic)=idVice
+      ic=ic+1
+      idBvar(ic)=idAice
+      ic=ic+1
+      idBvar(ic)=idHice
+      ic=ic+1
+      idBvar(ic)=idTice
+      ic=ic+1
+      idBvar(ic)=idHsno
+      ic=ic+1
+      idBvar(ic)=idSfwat
+      ic=ic+1
+      idBvar(ic)=idSig11
+      ic=ic+1
+      idBvar(ic)=idSig12
+      ic=ic+1
+      idBvar(ic)=idSig22
+#endif
 #endif
 !
 !-----------------------------------------------------------------------
