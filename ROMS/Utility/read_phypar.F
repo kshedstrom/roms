@@ -537,6 +537,12 @@
               Npts=load_i(Nval, Rval, Ngrids, nAVG)
             CASE ('NDEFAVG')
               Npts=load_i(Nval, Rval, Ngrids, ndefAVG)
+            CASE ('NTSAVG2')
+              Npts=load_i(Nval, Rval, Ngrids, ntsAVG2)
+            CASE ('NAVG2')
+              Npts=load_i(Nval, Rval, Ngrids, nAVG2)
+            CASE ('NDEFAVG2')
+              Npts=load_i(Nval, Rval, Ngrids, ndefAVG2)
             CASE ('NTSDIA')
               Npts=load_i(Nval, Rval, Ngrids, ntsDIA)
             CASE ('NDIA')
@@ -2469,6 +2475,10 @@
             CASE ('AVGNAME')
               label='AVG - time-averaged history fields'
               Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles, AVG)
+            CASE ('AVG2NAME')
+              label='AVG2 - time-averaged history fields'
+              Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles,     &
+     &                     AVG2)
             CASE ('DIANAME')
               label='DIA - time-averaged diagnostics fields'
               Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles, DIA)
@@ -2814,6 +2824,10 @@
      &      (nAVG(ng).eq.0)) THEN
           LdefAVG(ng)=.FALSE.
         END IF
+        IF (((nrrec(ng).eq.0).and.(nAVG2(ng).gt.ntimes(ng))).or.        &
+     &      (nAVG2(ng).eq.0)) THEN
+          LdefAVG2(ng)=.FALSE.
+        END IF
         IF (((nrrec(ng).eq.0).and.(nDIA(ng).gt.ntimes(ng))).or.         &
      &      (nDIA(ng).eq.0)) THEN
           LdefDIA(ng)=.FALSE.
@@ -2958,6 +2972,19 @@
      &          'time-averaged data into averages file.'
           IF (ndefAVG(ng).gt.0) THEN
             WRITE (out,130) ndefAVG(ng), 'ndefAVG',                     &
+     &            'Number of timesteps between creation of new',        &
+     &            'time-averaged file.'
+          END IF
+#endif
+#if defined AVERAGES2
+          WRITE (out,130) ntsAVG2(ng), 'ntsAVG2',                       &
+     &          'Starting timestep for the accumulation of output',     &
+     &          'time-averaged data.'
+          WRITE (out,130) nAVG2(ng), 'nAVG2',                           &
+     &          'Number of timesteps between the writing of',           &
+     &          'time-averaged data into averages file.'
+          IF (ndefAVG2(ng).gt.0) THEN
+            WRITE (out,130) ndefAVG2(ng), 'ndefAVG2',                   &
      &            'Number of timesteps between creation of new',        &
      &            'time-averaged file.'
           END IF
@@ -4481,6 +4508,15 @@
           ELSE
             WRITE (out,230) '     Prefix for Averages Files:  ',        &
      &                      TRIM(AVG(ng)%base)
+          END IF
+#endif
+#if defined AVERAGES2
+          IF (ndefAVG2(ng).eq.0) THEN
+            WRITE (out,230) '          Output Averages File:  ',        &
+     &                      TRIM(AVG2(ng)%name)
+          ELSE
+            WRITE (out,230) '     Prefix for Averages Files:  ',        &
+     &                      TRIM(AVG2(ng)%base)
           END IF
 #endif
 #ifdef DIAGNOSTICS
