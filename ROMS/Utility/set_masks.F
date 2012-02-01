@@ -87,6 +87,12 @@
      &                     GRID(ng) % umask_avg,                        &
      &                     GRID(ng) % vmask_avg,                        &
 # endif
+# if defined AVERAGES2
+     &                     GRID(ng) % pmask_avg2,                       &
+     &                     GRID(ng) % rmask_avg2,                       &
+     &                     GRID(ng) % umask_avg2,                       &
+     &                     GRID(ng) % vmask_avg2,                       &
+# endif
 # ifdef DIAGNOSTICS
      &                     GRID(ng) % pmask_dia,                        &
      &                     GRID(ng) % rmask_dia,                        &
@@ -123,6 +129,10 @@
     (defined TL_AVERAGES && defined TANGENT)
      &                           pmask_avg, rmask_avg,                  &
      &                           umask_avg, vmask_avg,                  &
+# endif
+# if defined AVERAGES2
+     &                           pmask_avg2, rmask_avg2,                &
+     &                           umask_avg2, vmask_avg2,                &
 # endif
 # ifdef DIAGNOSTICS
      &                           pmask_dia, rmask_dia,                  &
@@ -172,6 +182,12 @@
       real(r8), intent(inout) :: umask_avg(LBi:,LBj:)
       real(r8), intent(inout) :: vmask_avg(LBi:,LBj:)
 #  endif
+#  if defined AVERAGES2
+      real(r8), intent(inout) :: pmask_avg2(LBi:,LBj:)
+      real(r8), intent(inout) :: rmask_avg2(LBi:,LBj:)
+      real(r8), intent(inout) :: umask_avg2(LBi:,LBj:)
+      real(r8), intent(inout) :: vmask_avg2(LBi:,LBj:)
+#  endif
 #  ifdef DIAGNOSTICS
       real(r8), intent(inout) :: pmask_dia(LBi:,LBj:)
       real(r8), intent(inout) :: rmask_dia(LBi:,LBj:)
@@ -204,6 +220,12 @@
       real(r8), intent(inout) :: rmask_avg(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: umask_avg(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: vmask_avg(LBi:UBi,LBj:UBj)
+#  endif
+#  if defined AVERAGES2
+      real(r8), intent(inout) :: pmask_avg2(LBi:UBi,LBj:UBj)
+      real(r8), intent(inout) :: rmask_avg2(LBi:UBi,LBj:UBj)
+      real(r8), intent(inout) :: umask_avg2(LBi:UBi,LBj:UBj)
+      real(r8), intent(inout) :: vmask_avg2(LBi:UBi,LBj:UBj)
 #  endif
 #  ifdef DIAGNOSTICS
       real(r8), intent(inout) :: pmask_dia(LBi:UBi,LBj:UBj)
@@ -416,6 +438,77 @@
      &                    NghostPoints,                                 &
      &                    EWperiodic(ng), NSperiodic(ng),               &
      &                    pmask_avg, rmask_avg, umask_avg, vmask_avg)
+#  endif
+# endif
+
+# if defined AVERAGES2
+!
+!-----------------------------------------------------------------------
+!  Initialize average2 file Land/Sea masks for time-averaged fields.
+!-----------------------------------------------------------------------
+!
+      DO j=Jstr,JendR
+        DO i=Istr,IendR
+#  ifdef WET_DRY
+          pmask_avg2(i,j)=0.0_r8
+#  else
+          pmask_avg2(i,j)=pmask_io(i,j)
+#  endif
+        END DO
+      END DO
+
+      DO j=JstrR,JendR
+        DO i=IstrR,IendR
+#  ifdef WET_DRY
+          rmask_avg2(i,j)=0.0_r8
+#  else
+          rmask_avg2(i,j)=rmask_io(i,j)
+#  endif
+        END DO
+      END DO
+
+      DO j=JstrR,JendR
+        DO i=Istr,IendR
+#  ifdef WET_DRY
+          umask_avg2(i,j)=0.0_r8
+#  else
+          umask_avg2(i,j)=umask_io(i,j)
+#  endif
+        END DO
+      END DO
+
+      DO j=Jstr,JendR
+        DO i=IstrR,IendR
+#  ifdef WET_DRY
+          vmask_avg2(i,j)=0.0_r8
+#  else
+          vmask_avg2(i,j)=vmask_io(i,j)
+#  endif
+        END DO
+      END DO
+!
+      IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
+        CALL exchange_p2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          pmask_avg2)
+        CALL exchange_r2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          rmask_avg2)
+        CALL exchange_u2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          umask_avg2)
+        CALL exchange_v2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          vmask_avg2)
+      END IF
+
+#  ifdef DISTRIBUTE
+      CALL mp_exchange2d (ng, tile, model, 4,                           &
+     &                    LBi, UBi, LBj, UBj,                           &
+     &                    NghostPoints,                                 &
+     &                    EWperiodic(ng), NSperiodic(ng),               &
+     &                    pmask_avg2, rmask_avg2,                       &
+     &                    umask_avg2, vmask_avg2)
 #  endif
 # endif
 

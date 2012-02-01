@@ -230,28 +230,28 @@
      &                  LBi, UBi, LBj, UBj,                             &
      &                  IminS, ImaxS, JminS, JmaxS,                     &
      &                  lieol, lienw,                                   &
-     &                  BOUNDARY(ng)%sig11_west,                        &
-     &                  BOUNDARY(ng)%sig11_east,                        &
-     &                  BOUNDARY(ng)%sig11_north,                       &
-     &                  BOUNDARY(ng)%sig11_south,                       &
+     &                  BOUNDARY(ng)%sig11_west(LBj:UBj),               &
+     &                  BOUNDARY(ng)%sig11_east(LBj:UBj),               &
+     &                  BOUNDARY(ng)%sig11_north(LBi:UBi),              &
+     &                  BOUNDARY(ng)%sig11_south(LBi:UBi),              &
      &                  uie, vie, sig11, LBC(:,isSig11,ng))
       CALL i2d_bc_tile (ng, tile,                                       &
      &                  LBi, UBi, LBj, UBj,                             &
      &                  IminS, ImaxS, JminS, JmaxS,                     &
      &                  lieol, lienw,                                   &
-     &                  BOUNDARY(ng)%sig22_west,                        &
-     &                  BOUNDARY(ng)%sig22_east,                        &
-     &                  BOUNDARY(ng)%sig22_north,                       &
-     &                  BOUNDARY(ng)%sig22_south,                       &
+     &                  BOUNDARY(ng)%sig22_west(LBj:UBj),               &
+     &                  BOUNDARY(ng)%sig22_east(LBj:UBj),               &
+     &                  BOUNDARY(ng)%sig22_north(LBi:UBi),              &
+     &                  BOUNDARY(ng)%sig22_south(LBi:UBi),              &
      &                  uie, vie, sig22, LBC(:,isSig22,ng))
       CALL i2d_bc_tile (ng, tile,                                       &
      &                  LBi, UBi, LBj, UBj,                             &
      &                  IminS, ImaxS, JminS, JmaxS,                     &
      &                  lieol, lienw,                                   &
-     &                  BOUNDARY(ng)%sig12_west,                        &
-     &                  BOUNDARY(ng)%sig12_east,                        &
-     &                  BOUNDARY(ng)%sig12_north,                       &
-     &                  BOUNDARY(ng)%sig12_south,                       &
+     &                  BOUNDARY(ng)%sig12_west(LBj:UBj),               &
+     &                  BOUNDARY(ng)%sig12_east(LBj:UBj),               &
+     &                  BOUNDARY(ng)%sig12_north(LBi:UBi),              &
+     &                  BOUNDARY(ng)%sig12_south(LBi:UBi),              &
      &                  uie, vie, sig12, LBC(:,isSig12,ng))
       IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
         CALL exchange_r2d_tile (ng, tile,                               &

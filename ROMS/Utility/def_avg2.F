@@ -465,18 +465,18 @@
 !
 !  Define 3D Eastward momentum component at RHO-points.
 !
-        IF (Aout2(idu2dE,ng)) THEN
-          Vinfo( 1)=Vname(1,idu2dE)
-          WRITE (Vinfo( 2),'(a,1x,a)') Prefix, TRIM(Vname(2,idu2dE))
-          Vinfo( 3)=Vname(3,idu2dE)
-          Vinfo(14)=Vname(4,idu2dE)
+        IF (Aout2(idu3dE,ng)) THEN
+          Vinfo( 1)=Vname(1,idu3dE)
+          WRITE (Vinfo( 2),'(a,1x,a)') Prefix, TRIM(Vname(2,idu3dE))
+          Vinfo( 3)=Vname(3,idu3dE)
+          Vinfo(14)=Vname(4,idu3dE)
           Vinfo(16)=Vname(1,idtime)
 # if defined WRITE_WATER && defined MASKING
           Vinfo(20)='mask_rho'
 # endif
           Vinfo(22)='coordinates'
-          Aval(5)=REAL(Iinfo(1,idu2dE,ng),r8)
-          status=def_var(ng, iNLM, AVG2(ng)%ncid, AVG2(ng)%Vid(idu2dE),   &
+          Aval(5)=REAL(Iinfo(1,idu3dE,ng),r8)
+          status=def_var(ng, iNLM, AVG2(ng)%ncid, AVG2(ng)%Vid(idu3dE), &
      &                   NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -494,7 +494,7 @@
 # endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idv3dN,ng),r8)
-          status=def_var(ng, iNLM, AVG2(ng)%ncid, AVG2(ng)%Vid(idv3dN),   &
+          status=def_var(ng, iNLM, AVG2(ng)%ncid, AVG2(ng)%Vid(idv3dN), &
      &                   NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -1053,7 +1053,7 @@
           Aval(5)=REAL(Iinfo(1,idUiceE,ng),r8)
           status=def_var(ng, model, AVG2(ng)%ncid,                      &
      &                   AVG2(ng)%Vid(idUiceE), NF_FOUT,                &
-     &                   nvd3, u2dgrd, Aval, Vinfo, ncname)
+     &                   nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
 !
@@ -1072,7 +1072,7 @@
           Aval(5)=REAL(Iinfo(1,idViceN,ng),r8)
           status=def_var(ng, model, AVG2(ng)%ncid,                      &
      &                   AVG2(ng)%Vid(idViceN), NF_FOUT,                &
-     &                   nvd3, v2dgrd, Aval, Vinfo, ncname)
+     &                   nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
 ! 

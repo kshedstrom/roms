@@ -2076,7 +2076,7 @@
           Aval(5)=REAL(Iinfo(1,idUiceE,ng),r8)
           status=def_var(ng, model, AVG(ng)%ncid,                       &
      &                   AVG(ng)%Vid(idUiceE), NF_FOUT,                  &
-     &                   nvd3, u2dgrd, Aval, Vinfo, ncname)
+     &                   nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
 !
@@ -2095,7 +2095,7 @@
           Aval(5)=REAL(Iinfo(1,idViceN,ng),r8)
           status=def_var(ng, model, AVG(ng)%ncid,                       &
      &                   AVG(ng)%Vid(idViceN), NF_FOUT,                 &
-     &                   nvd3, v2dgrd, Aval, Vinfo, ncname)
+     &                   nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
 !

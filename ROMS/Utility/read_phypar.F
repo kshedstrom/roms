@@ -2003,6 +2003,341 @@
               END DO
 # endif
 #endif
+#if defined AVERAGES2
+            CASE ('Aout2(idUvel)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idUvel,:))
+            CASE ('Aout2(idVvel)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idVvel,:))
+            CASE ('Aout2(idWvel)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idWvel,:))
+            CASE ('Aout2(idOvel)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idOvel,:))
+            CASE ('Aout2(idUbar)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idUbar,:))
+            CASE ('Aout2(idVbar)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idVbar,:))
+            CASE ('Aout2(idFsur)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idFsur,:))
+            CASE ('Aout2(idu2dE)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idu2dE,:))
+            CASE ('Aout2(idv2dN)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idv2dN,:))
+            CASE ('Aout2(idu3dE)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idu3dE,:))
+            CASE ('Aout2(idv3dN)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idv3dN,:))
+            CASE ('Aout2(idTvar)')
+              Npts=load_l(Nval, Cval, NAT*Ngrids, Ltracer)
+              DO ng=1,Ngrids
+                DO itrc=1,NAT
+                  i=idTvar(itrc)
+                  Aout2(i,ng)=Ltracer(itrc,ng)
+                END DO
+              END DO
+            CASE ('Aout2(idUsms)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idUsms,:))
+            CASE ('Aout2(idVsms)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idVsms,:))
+            CASE ('Aout2(idUbms)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idUbms,:))
+            CASE ('Aout2(idVbms)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idVbms,:))
+            CASE ('Aout2(idW2xx)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idW2xx,:))
+            CASE ('Aout2(idW2xy)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idW2xy,:))
+            CASE ('Aout2(idW2yy)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idW2yy,:))
+            CASE ('Aout2(idU2rs)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idU2rs,:))
+            CASE ('Aout2(idV2rs)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idV2rs,:))
+            CASE ('Aout2(idU2Sd)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idU2Sd,:))
+            CASE ('Aout2(idV2Sd)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idV2Sd,:))
+            CASE ('Aout2(idW3xx)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idW3xx,:))
+            CASE ('Aout2(idW3xy)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idW3xy,:))
+            CASE ('Aout2(idW3yy)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idW3yy,:))
+            CASE ('Aout2(idW3zx)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idW3zx,:))
+            CASE ('Aout2(idW3zy)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idW3zy,:))
+            CASE ('Aout2(idU3rs)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idU3rs,:))
+            CASE ('Aout2(idV3rs)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idV3rs,:))
+            CASE ('Aout2(idU3Sd)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idU3Sd,:))
+            CASE ('Aout2(idV3Sd)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idV3Sd,:))
+# ifdef SOLVE3D
+#  if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS
+            CASE ('Aout2(idPair)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idPair,:))
+#  endif
+#  if defined BULK_FLUXES || defined ECOSIM
+            CASE ('Aout2(idUair)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idUair,:))
+            CASE ('Aout2(idVair)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idVair,:))
+            CASE ('Aout2(idUairE)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idUairE,:))
+            CASE ('Aout2(idVairN)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idVairN,:))
+#  endif
+# endif
+            CASE ('Aout2(idTsur)')
+              Npts=load_l(Nval, Cval, NAT*Ngrids, Ltracer)
+              DO ng=1,Ngrids
+                DO itrc=1,NAT
+                  i=idTsur(itrc)
+                  Aout2(i,ng)=Ltracer(itrc,ng)
+                END DO
+              END DO
+            CASE ('Aout2(idLhea)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idLhea,:))
+            CASE ('Aout2(idShea)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idShea,:))
+            CASE ('Aout2(idLrad)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idLrad,:))
+            CASE ('Aout2(idSrad)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idSrad,:))
+            CASE ('Aout2(idevap)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idevap,:))
+            CASE ('Aout2(idrain)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idrain,:))
+            CASE ('Aout2(idDano)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idDano,:))
+            CASE ('Aout2(idVvis)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idVvis,:))
+            CASE ('Aout2(idTdif)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idTdif,:))
+            CASE ('Aout2(idSdif)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idSdif,:))
+            CASE ('Aout2(idHsbl)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idHsbl,:))
+            CASE ('Aout2(idHbbl)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idHbbl,:))
+            CASE ('Aout2(id2dRV)')
+              IF (id2dRV.eq.0) THEN
+                IF (Master) WRITE (out,280) 'id2dRV'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(id2dRV,:))
+            CASE ('Aout2(id3dRV)')
+              IF (id3dRV.eq.0) THEN
+                IF (Master) WRITE (out,280) 'id3dRV'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(id3dRV,:))
+            CASE ('Aout2(id2dPV)')
+              IF (id2dPV.eq.0) THEN
+                IF (Master) WRITE (out,280) 'id2dPV'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(id2dPV,:))
+            CASE ('Aout2(id3dPV)')
+              IF (id3dPV.eq.0) THEN
+                IF (Master) WRITE (out,280) 'id3dPV'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(id3dPV,:))
+# if defined AVERAGES_DETIDE && (defined SSH_TIDES || defined UV_TIDES)
+            CASE ('Aout2(idFsuD)')
+              IF (idFsuD.eq.0) THEN
+                IF (Master) WRITE (out,280) 'idFsuD'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idFsuD,:))
+            CASE ('Aout2(idu2dD)')
+              IF (idu2dD.eq.0) THEN
+                IF (Master) WRITE (out,280) 'idu2dD'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idu2dD,:))
+            CASE ('Aout2(idv2dD)')
+              IF (idv2dD.eq.0) THEN
+                IF (Master) WRITE (out,280) 'idv2dD'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idv2dD,:))
+#  ifdef SOLVE3D
+            CASE ('Aout2(idu3dD)')
+              IF (idu3dD.eq.0) THEN
+                IF (Master) WRITE (out,280) 'idu3dD'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idu3dD,:))
+            CASE ('Aout2(idv3dD)')
+              IF (idv3dD.eq.0) THEN
+                IF (Master) WRITE (out,280) 'idv3dD'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idv3dD,:))
+            CASE ('Aout2(idTrcD)')
+              IF (MAXVAL(idTrcD).eq.0) THEN
+                IF (Master) WRITE (out,280) 'idTrcD'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, NAT*Ngrids, Ltracer)
+              DO ng=1,Ngrids
+                DO itrc=1,NAT
+                  i=idTrcD(itrc)
+                  Aout2(i,ng)=Ltracer(itrc,ng)
+                END DO
+              END DO
+#  endif
+# endif
+# ifdef SOLVE3D
+            CASE ('Aout2(idHUav)')
+              IF (idHUav.eq.0) THEN
+                IF (Master) WRITE (out,280) 'idHUav'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idHUav,:))
+            CASE ('Aout2(idHVav)')
+              IF (idHVav.eq.0) THEN
+                IF (Master) WRITE (out,280) 'idHVav'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idHVav,:))
+            CASE ('Aout2(idUUav)')
+              IF (idUUav.eq.0) THEN
+                IF (Master) WRITE (out,280) 'idUUav'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idUUav,:))
+            CASE ('Aout2(idUVav)')
+              IF (idUVav.eq.0) THEN
+                IF (Master) WRITE (out,280) 'idUVav'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idUVav,:))
+            CASE ('Aout2(idVVav)')
+              IF (idVVav.eq.0) THEN
+                IF (Master) WRITE (out,280) 'idVVav'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idVVav,:))
+# endif
+            CASE ('Aout2(idU2av)')
+              IF (idU2av.eq.0) THEN
+                IF (Master) WRITE (out,280) 'idU2av'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idU2av,:))
+            CASE ('Aout2(idV2av)')
+              IF (idV2av.eq.0) THEN
+                IF (Master) WRITE (out,280) 'idV2av'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idV2av,:))
+            CASE ('Aout2(idZZav)')
+              IF (idZZav.eq.0) THEN
+                IF (Master) WRITE (out,280) 'idZZav'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idZZav,:))
+# ifdef SOLVE3D
+            CASE ('Aout2(idTTav)')
+              IF (MAXVAL(idTTav).eq.0) THEN
+                IF (Master) WRITE (out,280) 'idTTav'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, NAT*Ngrids, Ltracer)
+              DO ng=1,Ngrids
+                DO itrc=1,NAT
+                  i=idTTav(itrc)
+                  Aout2(i,ng)=Ltracer(itrc,ng)
+                END DO
+              END DO
+            CASE ('Aout2(idUTav)')
+              IF (MAXVAL(idUTav).eq.0) THEN
+                IF (Master) WRITE (out,280) 'idUTav'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, NAT*Ngrids, Ltracer)
+              DO ng=1,Ngrids
+                DO itrc=1,NAT
+                  i=idUTav(itrc)
+                  Aout2(i,ng)=Ltracer(itrc,ng)
+                END DO
+              END DO
+            CASE ('Aout2(idVTav)')
+              IF (MAXVAL(idVTav).eq.0) THEN
+                IF (Master) WRITE (out,280) 'idVTav'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, NAT*Ngrids, Ltracer)
+              DO ng=1,Ngrids
+                DO itrc=1,NAT
+                  i=idVTav(itrc)
+                  Aout2(i,ng)=Ltracer(itrc,ng)
+                END DO
+              END DO
+            CASE ('Aout2(iHUTav)')
+              IF (MAXVAL(iHUTav).eq.0) THEN
+                IF (Master) WRITE (out,280) 'iHUTav'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, NAT*Ngrids, Ltracer)
+              DO ng=1,Ngrids
+                DO itrc=1,NAT
+                  i=iHUTav(itrc)
+                  Aout2(i,ng)=Ltracer(itrc,ng)
+                END DO
+              END DO
+            CASE ('Aout2(iHVTav)')
+              IF (MAXVAL(iHVTav).eq.0) THEN
+                IF (Master) WRITE (out,280) 'iHVTav'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, NAT*Ngrids, Ltracer)
+              DO ng=1,Ngrids
+                DO itrc=1,NAT
+                  i=iHVTav(itrc)
+                  Aout2(i,ng)=Ltracer(itrc,ng)
+                END DO
+              END DO
+# endif
+# if defined SOLVE3D && defined T_PASSIVE
+            CASE ('Aout2(inert)')
+              Npts=load_l(Nval, Cval, NPT*Ngrids, Linert)
+              DO ng=1,Ngrids
+                DO i=1,NPT
+                  itrc=idTvar(inert(i))
+                  Aout2(itrc,ng)=Linert(i,ng)
+                END DO
+              END DO
+# endif
+#endif
 #ifdef DIAGNOSTICS_UV
             CASE ('Dout(M2rate)')
               IF (M2rate.le.0) THEN
@@ -2552,7 +2887,6 @@
                 END IF
               END DO
               mFfiles=MAXVAL(nFfiles)
-              IF (Master) print *, 'NFFILES ', nFfiles, mFfiles
               allocate ( FRC(mFfiles,Ngrids) )
               allocate ( FRCids(mFfiles,Ngrids) )
               allocate ( Ncount(mFfiles,Ngrids) )
@@ -3066,14 +3400,14 @@
 #if defined AVERAGES2
           WRITE (out,130) ntsAVG2(ng), 'ntsAVG2',                       &
      &          'Starting timestep for the accumulation of output',     &
-     &          'time-averaged data.'
+     &          'secondary time-averaged data.'
           WRITE (out,130) nAVG2(ng), 'nAVG2',                           &
      &          'Number of timesteps between the writing of',           &
-     &          'time-averaged data into averages file.'
+     &          'secondary time-averaged data into averages file.'
           IF (ndefAVG2(ng).gt.0) THEN
             WRITE (out,130) ndefAVG2(ng), 'ndefAVG2',                   &
      &            'Number of timesteps between creation of new',        &
-     &            'time-averaged file.'
+     &            'secondary time-averaged file.'
           END IF
 #endif
 #ifdef DIAGNOSTICS
@@ -4274,6 +4608,267 @@
      &          TRIM(Vname(1,idTvar(itrc)))
           END DO
 #  endif
+# endif
+#endif
+#if defined AVERAGES2
+          WRITE (out,'(1x)')
+          IF (Aout2(idFsur,ng)) WRITE (out,170) Aout2(idFsur,ng),       &
+     &       'Aout2(idFsur)',                                           &
+     &       'Write out averaged free-surface.'
+          IF (Aout2(idUbar,ng)) WRITE (out,170) Aout2(idUbar,ng),       &
+     &       'Aout2(idUbar)',                                           &
+     &       'Write out averaged 2D U-momentum component.'
+          IF (Aout2(idVbar,ng)) WRITE (out,170) Aout2(idVbar,ng),       &
+     &       'Aout2(idVbar)',                                           &
+     &       'Write out averaged 2D V-momentum component.'
+          IF (Aout2(idu2dE,ng)) WRITE (out,170) Aout2(idu2dE,ng),       &
+     &       'Aout2(idu2dE)',                                           &
+     &       'Write out averaged 2D U-eastward  at RHO-points.'
+          IF (Aout2(idv2dN,ng)) WRITE (out,170) Aout2(idv2dN,ng),       &
+     &       'Aout2(idv2dN)',                                           &
+     &       'Write out averaged 2D V-northward at RHO-points.'
+# ifdef SOLVE3D
+          IF (Aout2(idUvel,ng)) WRITE (out,170) Aout2(idUvel,ng),       &
+     &       'Aout2(idUvel)',                                           &
+     &       'Write out averaged 3D U-momentum component.'
+          IF (Aout2(idVvel,ng)) WRITE (out,170) Aout2(idVvel,ng),       &
+     &       'Aout2(idVvel)',                                           &
+     &       'Write out averaged 3D V-momentum component.'
+          IF (Aout2(idu3dE,ng)) WRITE (out,170) Aout2(idu3dE,ng),       &
+     &       'Aout2(idu3dE)',                                           &
+     &       'Write out averaged 3D U-eastward  at RHO-points.'
+          IF (Aout2(idv3dN,ng)) WRITE (out,170) Aout2(idv3dN,ng),       &
+     &       'Aout2(idv3dN)',                                           &
+     &       'Write out averaged 3D V-northward at RHO-points.'
+          IF (Aout2(idWvel,ng)) WRITE (out,170) Aout2(idWvel,ng),       &
+     &       'Aout2(idWvel)',                                           &
+     &       'Write out averaged W-momentum component.'
+          IF (Aout2(idOvel,ng)) WRITE (out,170) Aout2(idOvel,ng),       &
+     &       'Aout2(idOvel)',                                           &
+     &       'Write out averaged omega vertical velocity.'
+          DO itrc=1,NAT
+            IF (Aout2(idTvar(itrc),ng)) WRITE (out,180)                 &
+     &          Aout2(idTvar(itrc),ng), 'Aout2(idTvar)',                &
+     &          'Write out averaged tracer ', itrc,                     &
+     &          TRIM(Vname(1,idTvar(itrc)))
+          END DO
+# endif
+          IF (Aout2(idUsms,ng)) WRITE (out,170) Aout2(idUsms,ng),       &
+     &       'Aout2(idUsms)',                                           &
+     &       'Write out averaged surface U-momentum stress.'
+          IF (Aout2(idVsms,ng)) WRITE (out,170) Aout2(idVsms,ng),       &
+     &       'Aout2(idVsms)',                                           &
+     &       'Write out averaged surface V-momentum stress.'
+          IF (Aout2(idUbms,ng)) WRITE (out,170) Aout2(idUbms,ng),       &
+     &       'Aout2(idUbms)',                                           &
+     &       'Write out averaged bottom U-momentum stress.'
+          IF (Aout2(idVbms,ng)) WRITE (out,170) Aout2(idVbms,ng),       &
+     &       'Aout2(idVbms)',                                           &
+     &       'Write out averaged bottom V-momentum stress.'
+# if defined NEARSHORE_MELLOR
+          IF (Aout2(idW2xx,ng)) WRITE (out,170) Aout2(idW2xx,ng),       &
+     &       'Aout2(idW2xx)',                                           &
+     &       'Write out averaged 2D radiation stress, Sxx.'
+          IF (Aout2(idW2xy,ng)) WRITE (out,170) Aout2(idW2xy,ng),       &
+     &       'Aout2(idW2xy)',                                           &
+     &       'Write out averaged 2D radiation stress, Sxy.'
+          IF (Aout2(idW2yy,ng)) WRITE (out,170) Aout2(idW2yy,ng),       &
+     &       'Aout2(idW2yy)',                                           &
+     &       'Write out averaged 2D radiation stress, Syy.'
+          IF (Aout2(idU2rs,ng)) WRITE (out,170) Aout2(idU2rs,ng),       &
+     &       'Aout2(idU2rs)',                                           &
+     &       'Write out averaged total 2D u-radiation stress.'
+          IF (Aout2(idV2rs,ng)) WRITE (out,170) Aout2(idV2rs,ng),       &
+     &       'Aout2(idV2rs)',                                           &
+     &       'Write out averaged total 2D v-radiation stress.'
+          IF (Aout2(idU2Sd,ng)) WRITE (out,170) Aout2(idU2Sd,ng),       &
+     &       'Aout2(idU2Sd)',                                           &
+     &       'Write out averaged 2D u-momentum stokes velocity.'
+          IF (Aout2(idV2Sd,ng)) WRITE (out,170) Aout2(idV2Sd,ng),       &
+     &       'Aout2(idV2Sd)',                                           &
+     &       'Write out averaged 2D v-momentum stokes velocity.'
+#  ifdef SOLVE3D
+          IF (Aout2(idW3xx,ng)) WRITE (out,170) Aout2(idW3xx,ng),       &
+     &       'Aout2(idW3xx)',                                           &
+     &       'Write out averaged 3D radiation stress, Sxx.'
+          IF (Aout2(idW3xy,ng)) WRITE (out,170) Aout2(idW3xy,ng),       &
+     &       'Aout2(idW3xy)',                                           &
+     &       'Write out averaged 3D radiation stress, Sxy.'
+          IF (Aout2(idW3yy,ng)) WRITE (out,170) Aout2(idW3yy,ng),       &
+     &       'Aout2(idW3yy)',                                           &
+     &       'Write out averaged 3D radiation stress, Syy.'
+          IF (Aout2(idW3zx,ng)) WRITE (out,170) Aout2(idW3zx,ng),       &
+     &       'Aout2(idW3zx)',                                           &
+     &       'Write out averaged 3D radiation stress, Szx.'
+          IF (Aout2(idW3zy,ng)) WRITE (out,170) Aout2(idW3zy,ng),       &
+     &       'Aout2(idW3zy)',                                           &
+     &       'Write out averaged 3D radiation stress, Szy.'
+          IF (Aout2(idU3rs,ng)) WRITE (out,170) Aout2(idU3rs,ng),       &
+     &       'Aout2(idU3rs)',                                           &
+     &       'Write out averaged total 3D u-radiation stress.'
+          IF (Aout2(idV3rs,ng)) WRITE (out,170) Aout2(idV3rs,ng),       &
+     &       'Aout2(idV3rs)',                                           &
+     &       'Write out averaged total 3D v-radiation stress.'
+          IF (Aout2(idU3Sd,ng)) WRITE (out,170) Aout2(idU3Sd,ng),       &
+     &       'Aout2(idU3Sd)',                                           &
+     &       'Write out averaged 3D u-momentum stokes velocity.'
+          IF (Aout2(idV3Sd,ng)) WRITE (out,170) Aout2(idV3Sd,ng),       &
+     &       'Aout2(idV3Sd)',                                           &
+     &       'Write out averaged 3D v-momentum stokes velocity.'
+#  endif
+# endif
+# if defined SOLVE3D && defined T_PASSIVE
+          DO itrc=1,NPT
+            IF (Aout2(idTvar(inert(itrc)),ng)) WRITE (out,180)          &
+     &          Aout2(idTvar(inert(itrc)),ng), 'Aout2(inert)',          &
+     &          'Write out  averaged inert passive tracer ', itrc,      &
+     &          TRIM(Vname(1,idTvar(inert(itrc))))
+          END DO
+# endif
+# ifdef SOLVE3D
+#  if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS
+          IF (Aout2(idPair,ng)) WRITE (out,170) Aout2(idPair,ng),       &
+     &       'Aout2(idPair)',                                           &
+     &       'Write out averaged surface air pressure.'
+#  endif
+#  if defined BULK_FLUXES || defined ECOSIM
+          IF (Aout2(idUair,ng)) WRITE (out,170) Aout2(idUair,ng),       &
+     &       'Aout2(idUair)',                                           &
+     &       'Write out averaged surface U-wind component.'
+          IF (Aout2(idVair,ng)) WRITE (out,170) Aout2(idVair,ng),       &
+     &       'Aout2(idVair)',                                           &
+     &       'Write out averaged surface V-wind component.'
+          IF (Aout2(idUairE,ng)) WRITE (out,170) Aout2(idUairE,ng),     &
+     &       'Aout2(idUairE)',                                          &
+     &       'Write out averaged Eastward surface U-wind component.'
+          IF (Aout2(idVairN,ng)) WRITE (out,170) Aout2(idVairN,ng),     &
+     &       'Aout2(idVairN)',                                          &
+     &       'Write out averaged Northward surface V-wind component.'
+#  endif
+          IF (Aout2(idTsur(itemp),ng)) WRITE (out,170)                  &
+     &        Aout2(idTsur(itemp),ng), 'Aout2(idTsur)',                 &
+     &       'Write out averaged surface net heat flux.'
+          IF (Aout2(idTsur(isalt),ng)) WRITE (out,170)                  &
+     &        Aout2(idTsur(isalt),ng), 'Aout2(idTsur)',                 &
+     &       'Write out averaged surface net salt flux.'
+#  ifdef SHORTWAVE
+          IF (Aout2(idSrad,ng)) WRITE (out,170) Aout2(idSrad,ng),       &
+     &       'Aout2(idSrad)',                                           &
+     &       'Write out averaged shortwave radiation flux.'
+#  endif
+#  ifdef BULK_FLUXES
+          IF (Aout2(idLrad,ng)) WRITE (out,170) Aout2(idLrad,ng),       &
+     &       'Aout2(idLrad)',                                           &
+     &       'Write out averaged longwave radiation flux.'
+          IF (Aout2(idLhea,ng)) WRITE (out,170) Aout2(idLhea,ng),       &
+     &       'Aout2(idLhea)',                                           &
+     &       'Write out averaged latent heat flux.'
+          IF (Aout2(idShea,ng)) WRITE (out,170) Aout2(idShea,ng),       &
+     &       'Aout2(idShea)',                                           &
+     &       'Write out averaged sensible heat flux.'
+#   ifdef EMINUSP
+          IF (Aout2(idevap,ng)) WRITE (out,170) Aout2(idevap,ng),       &
+     &       'Aout2(idevap)',                                           &
+     &       'Write out averaged evaporation rate.'
+          IF (Aout2(idrain,ng)) WRITE (out,170) Aout2(idrain,ng),       &
+     &       'Aout2(idrain)',                                           &
+     &       'Write out averaged rain rate.'
+#   endif
+#  endif
+          IF (Aout2(idDano,ng)) WRITE (out,170) Aout2(idDano,ng),       &
+     &       'Aout2(idDano)',                                           &
+     &       'Write out averaged density anomaly.'
+#  if defined LMD_MIXING || defined MY25_MIXING || defined GLS_MIXING
+          IF (Aout2(idVvis,ng)) WRITE (out,170) Aout2(idVvis,ng),       &
+     &       'Aout2(idVvis)',                                           &
+     &       'Write out averaged vertical viscosity: AKv.'
+          IF (Aout2(idTdif,ng)) WRITE (out,170) Aout2(idTdif,ng),       &
+     &       'Aout2(idTdif)',                                           &
+     &       'Write out averaged vertical diffusion: AKt(itemp).'
+          IF (Aout2(idSdif,ng)) WRITE (out,170) Aout2(idSdif,ng),       &
+     &       'Aout2(idSdif)',                                           &
+     &       'Write out averaged vertical diffusion: AKt(isalt).'
+#  endif
+#  ifdef LMD_SKPP
+          IF (Aout2(idHsbl,ng)) WRITE (out,170) Aout2(idHsbl,ng),       &
+     &       'Aout2(idHsbl)',                                           &
+     &       'Write out averaged depth of surface boundary layer.'
+#  endif
+#  ifdef LMD_BKPP
+          IF (Aout2(idHbbl,ng)) WRITE (out,170) Aout2(idHbbl,ng),       &
+     &       'Aout2(idHbbl)',                                           &
+     &       'Write out averaged depth of bottom boundary layer.'
+#  endif
+# endif
+          IF (Aout2(id2dRV,ng)) WRITE (out,170) Aout2(id2dRV,ng),       &
+     &       'Aout2(id2dRV)',                                           &
+     &       'Write out averaged 2D relative vorticity.'
+          IF (Aout2(id2dPV,ng)) WRITE (out,170) Aout2(id2dPV,ng),       &
+     &       'Aout2(id2dPV)',                                           &
+     &       'Write out averaged 2D potential vorticity.'
+# ifdef SOLVE3D
+          IF (Aout2(id3dRV,ng)) WRITE (out,170) Aout2(id3dRV,ng),       &
+     &       'Aout2(id3dRV)',                                           &
+     &       'Write out averaged 3D relative vorticity.'
+          IF (Aout2(id3dPV,ng)) WRITE (out,170) Aout2(id3dPV,ng),       &
+     &       'Aout2(id3dPV)',                                           &
+     &       'Write out averaged 3D potential vorticity.'
+# endif
+          IF (Aout2(idZZav,ng)) WRITE (out,170) Aout2(idZZav,ng),       &
+     &       'Aout2(idZZav)',                                           &
+     &       'Write out averaged quadratic <zeta*zeta> term.'
+          IF (Aout2(idU2av,ng)) WRITE (out,170) Aout2(idU2av,ng),       &
+     &       'Aout2(idU2av)',                                           &
+     &       'Write out averaged quadratic <ubar*ubar> term.'
+          IF (Aout2(idV2av,ng)) WRITE (out,170) Aout2(idV2av,ng),       &
+     &       'Aout2(idV2av)',                                           &
+     &       'Write out averaged quadratic <vbar*vbar> term.'
+# ifdef SOLVE3D
+          IF (Aout2(idHUav,ng)) WRITE (out,170) Aout2(idHUav,ng),       &
+     &       'Aout2(idHUav)',                                           &
+     &       'Write out averaged u-volume flux, Huon.'
+          IF (Aout2(idHVav,ng)) WRITE (out,170) Aout2(idHVav,ng),       &
+     &       'Aout2(idHVav)',                                           &
+     &       'Write out averaged v-volume flux, Hvom.'
+          IF (Aout2(idUUav,ng)) WRITE (out,170) Aout2(idUUav,ng),       &
+     &       'Aout2(idUUav)',                                           &
+     &       'Write out averaged quadratic <u*u> term.'
+          IF (Aout2(idUVav,ng)) WRITE (out,170) Aout2(idUVav,ng),       &
+     &       'Aout2(idUVav)',                                           &
+     &       'Write out averaged quadratic <u*v> term.'
+          IF (Aout2(idVVav,ng)) WRITE (out,170) Aout2(idVVav,ng),       &
+     &       'Aout2(idVVav)',                                           &
+     &       'Write out averaged quadratic <v*v> term.'
+          DO itrc=1,NAT
+            IF (Aout2(idTTav(itrc),ng)) WRITE (out,180)                 &
+     &          Aout2(idTTav(itrc),ng), 'Aout2(idTTav)',                &
+     &          'Write out averaged <t*t> for tracer ', itrc,           &
+     &          TRIM(Vname(1,idTvar(itrc)))
+          END DO
+          DO itrc=1,NAT
+            IF (Aout2(idUTav(itrc),ng)) WRITE (out,180)                 &
+     &          Aout2(idUTav(itrc),ng), 'Aout2(idUTav)',                &
+     &          'Write out averaged <u*t> for tracer ', itrc,           &
+     &          TRIM(Vname(1,idTvar(itrc)))
+          END DO
+          DO itrc=1,NAT
+            IF (Aout2(idVTav(itrc),ng)) WRITE (out,180)                 &
+     &          Aout2(idVTav(itrc),ng), 'Aout2(idVTav)',                &
+     &          'Write out averaged <v*t> for tracer ', itrc,           &
+     &          TRIM(Vname(1,idTvar(itrc)))
+          END DO
+          DO itrc=1,NAT
+            IF (Aout2(iHUTav(itrc),ng)) WRITE (out,180)                 &
+     &          Aout2(iHUTav(itrc),ng), 'Aout2(iHUTav)',                &
+     &          'Write out averaged <Huon*t> for tracer ', itrc,        &
+     &          TRIM(Vname(1,idTvar(itrc)))
+          END DO
+          DO itrc=1,NAT
+            IF (Aout2(iHVTav(itrc),ng)) WRITE (out,180)                 &
+     &          Aout2(iHVTav(itrc),ng), 'Aout2(iHVTav)',                &
+     &          'Write out averaged <Hvom*t> for tracer ', itrc,        &
+     &          TRIM(Vname(1,idTvar(itrc)))
+          END DO
 # endif
 #endif
 #ifdef DIAGNOSTICS_UV

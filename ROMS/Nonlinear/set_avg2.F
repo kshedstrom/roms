@@ -60,6 +60,16 @@
 # endif
      &                   NOUT)
 
+# ifdef WET_DRY
+      CALL set_avg_masks (ng, tile, iNLM,                               &
+     &                    LBi, UBi, LBj, UBj,                           &
+     &                    IminS, ImaxS, JminS, JmaxS,                   &
+     &                    GRID(ng) % pmask_avg2,                        &
+     &                    GRID(ng) % rmask_avg2,                        &
+     &                    GRID(ng) % umask_avg2,                        &
+     &                    GRID(ng) % vmask_avg2)
+# endif
+
 # ifdef PROFILE
       CALL wclock_off (ng, iNLM, 5)
 # endif
@@ -147,28 +157,28 @@
 !
         DO j=Jstr,JendR
           DO i=Istr,IendR
-            GRID(ng)%pmask_avg(i,j)=MAX(0.0_r8,                         &
+            GRID(ng)%pmask_avg2(i,j)=MAX(0.0_r8,                        &
      &                                  MIN(GRID(ng)%pmask_io(i,j),     &
      &                                      1.0_r8))
           END DO
         END DO
         DO j=JstrR,JendR
           DO i=IstrR,IendR
-            GRID(ng)%rmask_avg(i,j)=MAX(0.0_r8,                         &
+            GRID(ng)%rmask_avg2(i,j)=MAX(0.0_r8,                        &
      &                                  MIN(GRID(ng)%rmask_io(i,j),     &
      &                                      1.0_r8))
           END DO
         END DO
         DO j=JstrR,JendR
           DO i=Istr,IendR
-            GRID(ng)%umask_avg(i,j)=MAX(0.0_r8,                         &
+            GRID(ng)%umask_avg2(i,j)=MAX(0.0_r8,                        &
      &                                  MIN(GRID(ng)%umask_io(i,j),     &
      &                                      1.0_r8))
           END DO
         END DO
         DO j=Jstr,JendR
           DO i=IstrR,IendR
-            GRID(ng)%vmask_avg(i,j)=MAX(0.0_r8,                         &
+            GRID(ng)%vmask_avg2(i,j)=MAX(0.0_r8,                        &
      &                                  MIN(GRID(ng)%vmask_io(i,j),     &
      &                                      1.0_r8))
           END DO
@@ -793,7 +803,7 @@
 !
         DO j=Jstr,JendR
           DO i=Istr,IendR
-            GRID(ng)%pmask_avg(i,j)=GRID(ng)%pmask_avg(i,j)+            &
+            GRID(ng)%pmask_avg2(i,j)=GRID(ng)%pmask_avg2(i,j)+          &
      &                              MAX(0.0_r8,                         &
      &                                  MIN(GRID(ng)%pmask_io(i,j),     &
      &                                      1.0_r8))
@@ -801,7 +811,7 @@
         END DO
         DO j=JstrR,JendR
           DO i=IstrR,IendR
-            GRID(ng)%rmask_avg(i,j)=GRID(ng)%rmask_avg(i,j)+            &
+            GRID(ng)%rmask_avg2(i,j)=GRID(ng)%rmask_avg2(i,j)+          &
      &                              MAX(0.0_r8,                         &
      &                                  MIN(GRID(ng)%rmask_io(i,j),     &
      &                                      1.0_r8))
@@ -809,7 +819,7 @@
         END DO
         DO j=JstrR,JendR
           DO i=Istr,IendR
-            GRID(ng)%umask_avg(i,j)=GRID(ng)%umask_avg(i,j)+            &
+            GRID(ng)%umask_avg2(i,j)=GRID(ng)%umask_avg2(i,j)+          &
      &                              MAX(0.0_r8,                         &
      &                                  MIN(GRID(ng)%umask_io(i,j),     &
      &                                      1.0_r8))
@@ -817,7 +827,7 @@
         END DO
         DO j=Jstr,JendR
           DO i=IstrR,IendR
-            GRID(ng)%vmask_avg(i,j)=GRID(ng)%vmask_avg(i,j)+            &
+            GRID(ng)%vmask_avg2(i,j)=GRID(ng)%vmask_avg2(i,j)+          &
      &                              MAX(0.0_r8,                         &
      &                                  MIN(GRID(ng)%vmask_io(i,j),     &
      &                                      1.0_r8))
@@ -1453,14 +1463,14 @@
 # ifdef WET_DRY
         DO j=JstrR,JendR
           DO i=IstrR,IendR
-            pfac(i,j)=1.0_r8/MAX(1.0_r8, GRID(ng)%pmask_avg(i,j))
-            rfac(i,j)=1.0_r8/MAX(1.0_r8, GRID(ng)%rmask_avg(i,j))
-            ufac(i,j)=1.0_r8/MAX(1.0_r8, GRID(ng)%umask_avg(i,j))
-            vfac(i,j)=1.0_r8/MAX(1.0_r8, GRID(ng)%vmask_avg(i,j))
+            pfac(i,j)=1.0_r8/MAX(1.0_r8, GRID(ng)%pmask_avg2(i,j))
+            rfac(i,j)=1.0_r8/MAX(1.0_r8, GRID(ng)%rmask_avg2(i,j))
+            ufac(i,j)=1.0_r8/MAX(1.0_r8, GRID(ng)%umask_avg2(i,j))
+            vfac(i,j)=1.0_r8/MAX(1.0_r8, GRID(ng)%vmask_avg2(i,j))
           END DO
         END DO
 # else
-        fac=1.0_r8/REAL(nAVG(ng),r8)
+        fac=1.0_r8/REAL(nAVG2(ng),r8)
         DO j=JstrR,JendR
           DO i=IstrR,IendR
             pfac(i,j)=fac
