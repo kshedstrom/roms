@@ -95,7 +95,7 @@
           DO j=Jstr,Jend
             dTdt=ai(Istr,j,know)-ai(Istr  ,j,linew)
             dTdx=ai(Istr,j,linew)-ai(Istr+1,j,linew)
-	    IF (S(iwest)%nudging) THEN
+            IF (S(iwest)%nudging) THEN
               tau=Tobc_out(1,ng,iwest)
               IF ((dTdt*dTdx).lt.0.0_r8) tau=Tobc_in(1,ng,iwest)
               tau=tau*dt(ng)
@@ -118,7 +118,7 @@
      &                          MAX(Ce,0.0_r8)*grad(Istr-1,j  )-        &
      &                          MIN(Ce,0.0_r8)*grad(Istr-1,j+1))/       &
      &                              (cff+Cx)
-	    IF (S(iwest)%nudging) THEN
+            IF (S(iwest)%nudging) THEN
               ai(Istr-1,j,linew)=ai(Istr-1,j,linew)+                    &
      &                       tau*(ai_west(j)-ai(Istr-1,j,know))
             END IF
@@ -223,7 +223,7 @@
           DO j=Jstr,Jend
             dTdt=ai(Iend,j,know)-ai(Iend  ,j,linew)
             dTdx=ai(Iend,j,linew)-ai(Iend-1,j,linew)
-	    IF (S(ieast)%nudging) THEN
+            IF (S(ieast)%nudging) THEN
               tau=Tobc_out(1,ng,ieast)
               IF ((dTdt*dTdx).lt.0.0_r8) tau=Tobc_in(1,ng,ieast)
               tau=tau*dt(ng)
@@ -246,7 +246,7 @@
      &                          MAX(Ce,0.0_r8)*grad(Iend+1,j  )-        &
      &                          MIN(Ce,0.0_r8)*grad(Iend+1,j+1))/       &
      &                              (cff+Cx)
-	    IF (S(ieast)%nudging) THEN
+            IF (S(ieast)%nudging) THEN
               ai(Iend+1,j,linew)=ai(Iend+1,j,linew)+                    &
      &             tau*(ai_east(j)-ai(Iend+1,j,know))
             END IF
@@ -351,7 +351,7 @@
           DO i=Istr,Iend
             dTdt=ai(i,Jstr,know)-ai(i,Jstr  ,linew)
             dTde=ai(i,Jstr,linew)-ai(i,Jstr+1,linew)
-	    IF (S(isouth)%nudging) THEN
+            IF (S(isouth)%nudging) THEN
               tau=Tobc_out(1,ng,isouth)
               IF ((dTdt*dTde).lt.0.0_r8) tau=Tobc_in(1,ng,isouth)
               tau=tau*dt(ng)
@@ -374,7 +374,7 @@
      &                          MAX(Cx,0.0_r8)*grad(i  ,Jstr-1)-        &
      &                          MIN(Cx,0.0_r8)*grad(i+1,Jstr-1))/       &
      &                              (cff+Ce)
-	    IF (S(isouth)%nudging) THEN
+            IF (S(isouth)%nudging) THEN
               ai(i,Jstr-1,linew)=ai(i,Jstr-1,linew)+                    &
      &           tau*(ai_south(i)-ai(i,Jstr-1,know))
             END IF
@@ -479,7 +479,7 @@
           DO i=Istr,Iend
             dTdt=ai(i,Jend,know)-ai(i,Jend  ,linew)
             dTde=ai(i,Jend,linew)-ai(i,Jend-1,linew)
-	    IF (S(inorth)%nudging) THEN
+            IF (S(inorth)%nudging) THEN
               tau=Tobc_out(1,ng,inorth)
               IF ((dTdt*dTde).lt.0.0_r8) tau=Tobc_in(1,ng,inorth)
               tau=tau*dt(ng)
@@ -502,7 +502,7 @@
      &                          MAX(Cx,0.0_r8)*grad(i  ,Jend+1)-        &
      &                          MIN(Cx,0.0_r8)*grad(i+1,Jend+1))/       &
      &                              (cff+Ce)
-	    IF (S(inorth)%nudging) THEN
+            IF (S(inorth)%nudging) THEN
               ai(i,Jend+1,linew)=ai(i,Jend+1,linew)+                    &
      &              tau*(ai_north(i)-ai(i,Jend+1,know))
             END IF

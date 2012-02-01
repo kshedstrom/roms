@@ -84,6 +84,12 @@
 !  rmask_avg  Time-average FillValue mask at   U-points (0=dry, 1=wet) !
 !  rmask_avg  Time-average FillValue mask at   V-points (0=dry, 1=wet) !
 # endif
+# if defined AVERAGES2
+!  pmask_avg2 Time-average FillValue mask at PSI-points (0=dry, 1=wet) !
+!  rmask_avg2 Time-average FillValue mask at RHO-points (0=dry, 1=wet) !
+!  rmask_avg2 Time-average FillValue mask at   U-points (0=dry, 1=wet) !
+!  rmask_avg2 Time-average FillValue mask at   V-points (0=dry, 1=wet) !
+# endif
 # ifdef DIAGNOSTICS
 !
 !  pmask_dia  Diagnostics FillValue mask at PSI-points (0=dry, 1=wet)  !
@@ -234,6 +240,12 @@
           real(r8), pointer :: rmask_avg(:,:)
           real(r8), pointer :: umask_avg(:,:)
           real(r8), pointer :: vmask_avg(:,:)
+# endif
+# if defined AVERAGES2
+          real(r8), pointer :: pmask_avg2(:,:)
+          real(r8), pointer :: rmask_avg2(:,:)
+          real(r8), pointer :: umask_avg2(:,:)
+          real(r8), pointer :: vmask_avg2(:,:)
 # endif
 # ifdef DIAGNOSTICS
           real(r8), pointer :: pmask_dia(:,:)
@@ -425,6 +437,12 @@
       allocate ( GRID(ng) % rmask_avg(LBi:UBi,LBj:UBj) )
       allocate ( GRID(ng) % umask_avg(LBi:UBi,LBj:UBj) )
       allocate ( GRID(ng) % vmask_avg(LBi:UBi,LBj:UBj) )
+# endif
+# if defined AVERAGES2
+      allocate ( GRID(ng) % pmask_avg2(LBi:UBi,LBj:UBj) )
+      allocate ( GRID(ng) % rmask_avg2(LBi:UBi,LBj:UBj) )
+      allocate ( GRID(ng) % umask_avg2(LBi:UBi,LBj:UBj) )
+      allocate ( GRID(ng) % vmask_avg2(LBi:UBi,LBj:UBj) )
 # endif
 # ifdef DIAGNOSTICS
       allocate ( GRID(ng) % pmask_dia(LBi:UBi,LBj:UBj) )
@@ -653,6 +671,12 @@
             GRID(ng) % rmask_avg(i,j) = IniVal
             GRID(ng) % umask_avg(i,j) = IniVal
             GRID(ng) % vmask_avg(i,j) = IniVal
+# endif
+# if defined AVERAGES2
+            GRID(ng) % pmask_avg2(i,j) = IniVal
+            GRID(ng) % rmask_avg2(i,j) = IniVal
+            GRID(ng) % umask_avg2(i,j) = IniVal
+            GRID(ng) % vmask_avg2(i,j) = IniVal
 # endif
 # ifdef DIAGNOSTICS
             GRID(ng) % pmask_dia(i,j) = IniVal

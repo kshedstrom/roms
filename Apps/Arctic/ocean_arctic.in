@@ -70,8 +70,9 @@
 ! indices (Istr,Iend) and (Jstr,Jend), [1:Ngrids].
 
 !      NtileI == 1                               ! I-direction partition
-       NtileI == 8                               ! I-direction partition
+!      NtileI == 2                               ! I-direction partition
 !      NtileI == 6                               ! I-direction partition
+       NtileI == 8                               ! I-direction partition
 ! ORDER MATTERS HERE!
 !      NtileJ == 8                              ! J-direction partition
        NtileJ == 12                              ! J-direction partition
@@ -111,10 +112,10 @@
 !                   1       2       3       4
 
    LBC(isFsur) ==   Cha     Clo     Cha     Cha         ! free-surface
-   LBC(isUbar) ==   Fla     Clo     Fla     Fla         ! 2D U-momentum
-   LBC(isVbar) ==   Fla     Clo     Fla     Fla         ! 2D V-momentum
-   LBC(isUvel) ==   RadNud  Clo     RadNud  RadNud      ! 3D U-momentum
-   LBC(isVvel) ==   RadNud  Clo     RadNud  RadNud      ! 3D V-momentum
+   LBC(isUbar) ==   Clo     Clo     Fla     Fla         ! 2D U-momentum
+   LBC(isVbar) ==   Clo     Clo     Fla     Fla         ! 2D V-momentum
+   LBC(isUvel) ==   Clo     Clo     RadNud  RadNud      ! 3D U-momentum
+   LBC(isVvel) ==   Clo     Clo     RadNud  RadNud      ! 3D V-momentum
    LBC(isMtke) ==   Gra     Clo     Gra     Gra         ! mixing TKE
 
    LBC(isTvar) ==   RadNud  Clo     RadNud  RadNud \    ! temperature
@@ -163,7 +164,7 @@ ad_VolCons(north) ==  F                            ! northern boundary
 
 ! Time-Stepping parameters.
 
-       NTIMES == 86400
+       NTIMES == 129600
 !          DT == 100.0d0
           DT == 200.0d0
      NDTFAST == 20
@@ -566,8 +567,8 @@ Aout2(idShea) == T                          ! sensible heat flux
 Aout2(idLrad) == T                          ! longwave radiation flux
 Aout2(idSrad) == T                          ! shortwave radiation flux
 Aout2(idEmPf) == F                          ! E-P flux
-Aout2(idevap) == T                          ! evaporation rate
-Aout2(idrain) == T                          ! precipitation rate
+Aout2(idevap) == F                          ! evaporation rate
+Aout2(idrain) == F                          ! precipitation rate
 
 ! Logical switches (TRUE/FALSE) to activate writing of extra inert passive
 ! tracers other than biological and sediment tracers. An inert passive tracer
@@ -583,14 +584,14 @@ Aout2(idrain) == T                          ! precipitation rate
 
 Aout(idUvel) == T       ! u                  3D U-velocity
 Aout(idVvel) == T       ! v                  3D V-velocity
-Aout(idu3dE) == F       ! u_eastward         3D U-eastward  at RHO-points
-Aout(idv3dN) == F       ! v_northward        3D V-northward at RHO-points
+Aout(idu3dE) == T       ! u_eastward         3D U-eastward  at RHO-points
+Aout(idv3dN) == T       ! v_northward        3D V-northward at RHO-points
 Aout(idWvel) == T       ! w                  3D W-velocity
 Aout(idOvel) == T       ! omega              omega vertical velocity
 Aout(idUbar) == T       ! ubar               2D U-velocity
 Aout(idVbar) == T       ! vbar               2D V-velocity
-Aout(idu2dE) == F       ! ubar_eastward      2D U-eastward  at RHO-points
-Aout(idv2dN) == F       ! vbar_northward     2D V-northward at RHO-points
+Aout(idu2dE) == T       ! ubar_eastward      2D U-eastward  at RHO-points
+Aout(idv2dN) == T       ! vbar_northward     2D V-northward at RHO-points
 Aout(idFsur) == T       ! zeta               free-surface
 Aout(idBath) == F       ! bath               time-dependent bathymetry
 
@@ -598,12 +599,12 @@ Aout(idTvar) == T T     ! temp, salt         temperature and salinity
 
 Aout(idUair) == T       ! Uwind              surface U-wind
 Aout(idVair) == T       ! Vwind              surface V-wind
-Aout(idUairE) == F      ! Uwind_eastward     surface U-wind
-Aout(idVairN) == F      ! Vwind_northward    surface V-wind
-Aout(idUsms) == F       ! sustr              surface U-stress
-Aout(idVsms) == F       ! svstr              surface V-stress
-Aout(idUbms) == F       ! bustr              bottom U-stress
-Aout(idVbms) == F       ! bvstr              bottom V-stress
+Aout(idUairE) == T      ! Uwind_eastward     surface U-wind
+Aout(idVairN) == T      ! Vwind_northward    surface V-wind
+Aout(idUsms) == T       ! sustr              surface U-stress
+Aout(idVsms) == T       ! svstr              surface V-stress
+Aout(idUbms) == T       ! bustr              bottom U-stress
+Aout(idVbms) == T       ! bvstr              bottom V-stress
 
 Aout(idW2xx) == F       ! Sxx_bar            2D radiation stress, Sxx component
 Aout(idW2xy) == F       ! Sxy_bar            2D radiation stress, Sxy component
@@ -757,7 +758,7 @@ Dout(iTvdif) == T T                        ! vertical diffusion
 ! at the each entry, except the last one.
 
      NBCFILES == 3                          ! number of boundary files
-     BRYNAME == /wrkdir/kate/Arctic/Files/SODA_bdry_1985.nc \
+     BRYNAME == /wrkdir/kate/Arctic/Files/SODA_bdry_ARCTIC.nc \
                 /wrkdir/kate/Arctic/Files/Arctic_icebc.nc \
                 /wrkdir/kate/Arctic/Files/Arctic_snowbc.nc
 
@@ -785,7 +786,7 @@ Dout(iTvdif) == T T                        ! vertical diffusion
                /wrkdir/kate/Bering/Files/sss_fill_2004.nc \
                /wrkdir/kate/Arctic/Files/runoff_ARCTIC_daitren_inter_annual_1948-2007.nc \
                /wrkdir/kate/Arctic/Files/fastice_Arctic.nc \
-	       /wrkdir/kate/Arctic/Files/arctic_river.nc \
+               /wrkdir/kate/Arctic/Files/arctic_river.nc \
                /wrkdir/kate/Arctic/Files/Arctic_tides_otps.nc
 
 ! Output NetCDF file names, [1:Ngrids].
@@ -807,7 +808,7 @@ Dout(iTvdif) == T T                        ! vertical diffusion
      APARNAM =  External/assimilation.in
      SPOSNAM =  /wrkdir/kate/Arctic/External/stations_arctic.in
      FPOSNAM =  /wrkdir/kate/Arctic/External/floats_arctic.in
-     IPARNAM =  /wrkdir/kate/NEP/External/ice.in
+     IPARNAM =  /wrkdir/kate/Arctic/External/ice.in
      BPARNAM =  /wrkdir/kate/Arctic/External/nemuro_iron.in
      SPARNAM =  External/sediment.in
      USRNAME =  External/MyFile.dat

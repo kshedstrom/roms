@@ -98,10 +98,10 @@
      &                    LBi, UBi, LBj, UBj,                           &
      &                    IminS, ImaxS, JminS, JmaxS,                   &
      &                    liold(ng), linew(ng),                         &
-     &                    BOUNDARY(ng)%ai_west,                         &
-     &                    BOUNDARY(ng)%ai_east,                         &
-     &                    BOUNDARY(ng)%ai_north,                        &
-     &                    BOUNDARY(ng)%ai_south,                        &
+     &                    BOUNDARY(ng)%ai_west(LBj:UBj),                &
+     &                    BOUNDARY(ng)%ai_east(LBj:UBj),                &
+     &                    BOUNDARY(ng)%ai_north(LBi:UBi),               &
+     &                    BOUNDARY(ng)%ai_south(LBi:UBi),               &
      &                    ICE(ng)%ui,                                   &
      &                    ICE(ng)%vi,                                   &
      &                    ICE(ng)%ai, LBC(:,isAice,ng))
@@ -138,10 +138,10 @@
      &                    LBi, UBi, LBj, UBj,                           &
      &                    IminS, ImaxS, JminS, JmaxS,                   &
      &                    liold(ng), linew(ng),                         &
-     &                    BOUNDARY(ng)%hi_west,                         &
-     &                    BOUNDARY(ng)%hi_east,                         &
-     &                    BOUNDARY(ng)%hi_north,                        &
-     &                    BOUNDARY(ng)%hi_south,                        &
+     &                    BOUNDARY(ng)%hi_west(LBj:UBj),                &
+     &                    BOUNDARY(ng)%hi_east(LBj:UBj),                &
+     &                    BOUNDARY(ng)%hi_north(LBi:UBi),               &
+     &                    BOUNDARY(ng)%hi_south(LBi:UBi),               &
      &                    ICE(ng)%ui,                                   &
      &                    ICE(ng)%vi,                                   &
      &                    ICE(ng)%hi, LBC(:,isHice,ng))
@@ -179,10 +179,10 @@
      &                    LBi, UBi, LBj, UBj,                           &
      &                    IminS, ImaxS, JminS, JmaxS,                   &
      &                    liold(ng), linew(ng),                         &
-     &                    BOUNDARY(ng)%hsn_west,                         &
-     &                    BOUNDARY(ng)%hsn_east,                         &
-     &                    BOUNDARY(ng)%hsn_north,                        &
-     &                    BOUNDARY(ng)%hsn_south,                        &
+     &                    BOUNDARY(ng)%hsn_west(LBj:UBj),               &
+     &                    BOUNDARY(ng)%hsn_east(LBj:UBj),               &
+     &                    BOUNDARY(ng)%hsn_north(LBi:UBi),              &
+     &                    BOUNDARY(ng)%hsn_south(LBi:UBi),              &
      &                    ICE(ng)%ui,                                   &
      &                    ICE(ng)%vi,                                   &
      &                    ICE(ng)%hsn, LBC(:,isHsno,ng))
@@ -333,10 +333,10 @@ FOOOO
      &                    LBi, UBi, LBj, UBj,                           &
      &                    IminS, ImaxS, JminS, JmaxS,                   &
      &                    liold(ng), linew(ng),                         &
-     &                    BOUNDARY(ng)%sfwat_west,                      &
-     &                    BOUNDARY(ng)%sfwat_east,                      &
-     &                    BOUNDARY(ng)%sfwat_north,                     &
-     &                    BOUNDARY(ng)%sfwat_south,                     &
+     &                    BOUNDARY(ng)%sfwat_west(LBj:UBj),             &
+     &                    BOUNDARY(ng)%sfwat_east(LBj:UBj),             &
+     &                    BOUNDARY(ng)%sfwat_north(LBi:UBi),            &
+     &                    BOUNDARY(ng)%sfwat_south(LBi:UBi),            &
      &                    ICE(ng)%ui,                                   &
      &                    ICE(ng)%vi,                                   &
      &                    ICE(ng)%sfwat, LBC(:,isSfwat,ng))
@@ -446,10 +446,10 @@ FOOOO
 !     &                    LBi, UBi, LBj, UBj,                           &
 !     &                    IminS, ImaxS, JminS, JmaxS,                   &
 !     &                    liold(ng), linew(ng),                         &
-!     &                    BOUNDARY(ng)%ageice_west,                     &
-!     &                    BOUNDARY(ng)%ageice_east,                     &
-!     &                    BOUNDARY(ng)%ageice_north,                    &
-!     &                    BOUNDARY(ng)%ageice_south,                    &
+!     &                    BOUNDARY(ng)%ageice_west(LBj:UBj),            &
+!     &                    BOUNDARY(ng)%ageice_east(LBj:UBj),            &
+!     &                    BOUNDARY(ng)%ageice_north(LBi:UBi),           &
+!     &                    BOUNDARY(ng)%ageice_south(LBi:UBi),           &
 !     &                    ICE(ng)%ui,                                   &
 !     &                    ICE(ng)%vi,                                   &
 !     &                    ICE(ng)%ageice, LBC(:,isHice,ng))
