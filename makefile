@@ -441,6 +441,7 @@ ifdef USE_SEAICE
  modules  +=	ROMS/SeaIce
 endif
  modules  +=	ROMS/Utility \
+		ROMS/Nonlinear \
 		ROMS/Modules
 
  includes :=	ROMS/Include
