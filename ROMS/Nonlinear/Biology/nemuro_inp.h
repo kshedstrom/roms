@@ -370,35 +370,35 @@
                 END DO
               END DO
 #ifdef NEMURO_SED1
-            CASE ('Hout(idPONsed)') THEN
+            CASE ('Hout(idPONsed)')
               IF (idPONsed.eq.0) THEN
                 IF (Master) WRITE (out,280) 'idPONsed'
                 exit_flag=5
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Hout(idPONsed,:))
-            CASE ('Hout(idOPALsed)') THEN
+            CASE ('Hout(idOPALsed)')
               IF (idOPALsed.eq.0) THEN
                 IF (Master) WRITE (out,280) 'idOPALsed'
                 exit_flag=5
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Hout(idOPALsed,:))
-            CASE ('Hout(idDENITsed)') THEN
+            CASE ('Hout(idDENITsed)')
               IF (idDENITsed.eq.0) THEN
                 IF (Master) WRITE (out,280) 'idDENITsed'
                 exit_flag=5
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Hout(idDENITsed,:))
-            CASE ('Hout(idPONbur)') THEN
+            CASE ('Hout(idPONbur)')
               IF (idPONbur.eq.0) THEN
                 IF (Master) WRITE (out,280) 'idPONbur'
                 exit_flag=5
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Hout(idPONbur,:))
-            CASE ('Hout(idOPALbur)') THEN
+            CASE ('Hout(idOPALbur)')
               IF (idOPALbur.eq.0) THEN
                 IF (Master) WRITE (out,280) 'idOPALbur'
                 exit_flag=5
@@ -419,15 +419,15 @@
                 END DO
               END DO
 #ifdef NEMURO_SED1
-            CASE ('Aout(idPONsed)') THEN
+            CASE ('Aout(idPONsed)')
               Npts=load_l(Nval, Cval, Ngrids, Aout(idPONsed,:))
-            CASE ('Aout(idOPALsed)') THEN
+            CASE ('Aout(idOPALsed)')
               Npts=load_l(Nval, Cval, Ngrids, Aout(idOPALsed,:))
-            CASE ('Aout(idDENITsed)') THEN
+            CASE ('Aout(idDENITsed)')
               Npts=load_l(Nval, Cval, Ngrids, Aout(idDENITsed,:))
-            CASE ('Aout(idPONbur)') THEN
+            CASE ('Aout(idPONbur)')
               Npts=load_l(Nval, Cval, Ngrids, Aout(idPONbur,:))
-            CASE ('Aout(idOPALbur)') THEN
+            CASE ('Aout(idOPALbur)')
               Npts=load_l(Nval, Cval, Ngrids, Aout(idOPALbur,:))
 #endif
 #endif
