@@ -273,6 +273,4 @@
 # endif
 #endif
 
-#include <ana_nudgcoef.h>
-
       END MODULE analytical_mod

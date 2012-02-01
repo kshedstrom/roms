@@ -71,10 +71,11 @@
 
 !      NtileI == 1                               ! I-direction partition
 !      NtileI == 2                               ! I-direction partition
-       NtileI == 4                               ! I-direction partition
-!      NtileJ == 8                              ! J-direction partition
+!      NtileI == 4                               ! I-direction partition
+       NtileI == 8                               ! I-direction partition
 !      NtileJ == 10                              ! J-direction partition
-       NtileJ == 32                              ! J-direction partition
+       NtileJ == 16                              ! J-direction partition
+!      NtileJ == 32                              ! J-direction partition
 
 ! Set lateral boundary conditions keyword. Notice that a value is expected
 ! for each boundary segment per nested grid for each state variable.
