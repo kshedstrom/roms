@@ -2,7 +2,7 @@
 !
 !! svn $Id$
 !!================================================= Hernan G. Arango ===
-!! Copyright (c) 2002-2011 The ROMS/TOMS Group                         !
+!! Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
 !!   Licensed under a MIT/X style license                              !
 !!   See License_ROMS.txt                                              !
 !!======================================================================
@@ -94,9 +94,7 @@
       USE mod_param
       USE mod_scalars
 !
-#if defined EW_PERIODIC || defined NS_PERIODIC
       USE exchange_2d_mod
-#endif
 #ifdef DISTRIBUTE
       USE mp_exchange_mod, ONLY : mp_exchange2d
 # ifdef SOLVE3D
@@ -154,18 +152,6 @@
 !
 !  Local variable declarations.
 !
-# ifdef DISTRIBUTE
-#  ifdef EW_PERIODIC
-      logical :: EWperiodic=.TRUE.
-#  else
-      logical :: EWperiodic=.FALSE.
-#  endif
-#  ifdef NS_PERIODIC
-      logical :: NSperiodic=.TRUE.
-#  else
-      logical :: NSperiodic=.FALSE.
-#  endif
-# endif
       integer :: Iwrk, i, ifoo, itwo, j, itrc
       real(r8) :: cff, cff1, cff2, fac
 
@@ -255,7 +241,7 @@
 ! Northeast Pacific sponge areas
 !
       Iwrk = 10
-#  if defined UV_VIS2
+# if defined UV_VIS2
       DO i=IstrR,IendR
         DO j=JstrR,MIN(Iwrk,JendR)
           cff = 250.*0.5_r8*(1.0_r8+COS(pi*REAL(j,r8)/REAL(Iwrk,r8)))
@@ -270,7 +256,7 @@
           visc2_p(i,j) = max(cff, visc2_p(i,j))
         END DO
       END DO
-#ifndef EASTERN_WALL
+#  ifndef EASTERN_WALL
       DO i=MAX(Lm(ng)+1-Iwrk,IstrR),IendR
         ifoo = Lm(ng)+1-i
         DO j=MAX(JstrR,ifoo),JendR
@@ -279,8 +265,8 @@
           visc2_p(i+1,j) = max(cff, visc2_p(i+1,j))
         END DO
       END DO
-#endif
-#ifndef NORTHERN_WALL
+#  endif
+#  ifndef NORTHERN_WALL
       DO j=MAX(Mm(ng)+1-Iwrk,JstrR),JendR
         ifoo = Mm(ng)+1-j
         itwo = Lm(ng)-Mm(ng)+j
@@ -290,10 +276,10 @@
           visc2_p(i+1,j) = max(cff, visc2_p(i+1,j))
         END DO
       END DO
-#endif
 #  endif
-#  ifdef SOLVE3D
-#   if defined TS_DIF2
+# endif
+# ifdef SOLVE3D
+#  if defined TS_DIF2
       DO itrc=1,NT(ng)
         DO j=JstrR,MIN(Iwrk,JendR)
           cff = 100. * (1.0_r8+COS(pi*REAL(j,r8)/REAL(Iwrk,r8)))
@@ -307,7 +293,7 @@
             diff2(i,j,itrc) = max(cff, diff2(i,j,itrc))
           END DO
         END DO
-#ifndef EASTERN_WALL
+#   ifndef EASTERN_WALL
         DO i=MAX(Lm(ng)+1-Iwrk,IstrR),IendR
           ifoo = Lm(ng)+1-i
           DO j=MAX(JstrR,ifoo),JendR
@@ -315,8 +301,8 @@
             diff2(i,j,itrc) = max(cff, diff2(i,j,itrc))
           END DO
         END DO
-#endif
-#ifndef NORTHERN_WALL
+#   endif
+#   ifndef NORTHERN_WALL
         DO j=MAX(Mm(ng)+1-Iwrk,JstrR),JendR
           ifoo = Mm(ng)+1-j
           itwo = Lm(ng)-Mm(ng)+j
@@ -325,13 +311,11 @@
             diff2(i,j,itrc) = max(cff, diff2(i,j,itrc))
           END DO
         END DO
-#endif
-      END DO
 #   endif
+      END DO
 #  endif
-
+# endif
 #endif
-#if defined EW_PERIODIC || defined NS_PERIODIC || defined DISTRIBUTE
 !
 !-----------------------------------------------------------------------
 !  Exchange boundary data.
@@ -340,69 +324,74 @@
 !! WARNING:  This section is generic for all applications. Please do not
 !!           change the code below.
 !!            
-# if defined EW_PERIODIC || defined NS_PERIODIC
-#  ifdef UV_VIS2
-      CALL exchange_r2d_tile (ng, tile,                                 &
+!
+!  Exchange boundary data.
+!
+      IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
+#ifdef UV_VIS2
+        CALL exchange_r2d_tile (ng, tile,                               &
      &                        LBi, UBi, LBj, UBj,                       &
      &                        visc2_r)
-      CALL exchange_p2d_tile (ng, tile,                                 &
+        CALL exchange_p2d_tile (ng, tile,                               &
      &                        LBi, UBi, LBj, UBj,                       &
      &                        visc2_p)
-#  endif
-#  ifdef UV_VIS4
-      CALL exchange_r2d_tile (ng, tile,                                 &
+#endif
+#ifdef UV_VIS4
+        CALL exchange_r2d_tile (ng, tile,                               &
      &                        LBi, UBi, LBj, UBj,                       &
      &                        visc4_r)
-      CALL exchange_p2d_tile (ng, tile,                                 &
+        CALL exchange_p2d_tile (ng, tile,                               &
      &                        LBi, UBi, LBj, UBj,                       &
      &                        visc4_p)
-#  endif
-#  ifdef SOLVE3D
-#   ifdef TS_DIF2
-      DO itrc=1,NT(ng)
-        CALL exchange_r2d_tile (ng, tile,                               &
+#endif
+#ifdef SOLVE3D
+# ifdef TS_DIF2
+        DO itrc=1,NT(ng)
+          CALL exchange_r2d_tile (ng, tile,                             &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          diff2(:,:,itrc))
-      END DO
-#   endif
-#   ifdef TS_DIF4
-      DO itrc=1,NT(ng)
-        CALL exchange_r2d_tile (ng, tile,                               &
+        END DO
+# endif
+# ifdef TS_DIF4
+        DO itrc=1,NT(ng)
+          CALL exchange_r2d_tile (ng, tile,                             &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          diff4(:,:,itrc))
-      END DO
-#   endif
-#  endif
+        END DO
 # endif
-# ifdef DISTRIBUTE
-#  ifdef UV_VIS2
+#endif
+      END IF
+#ifdef DISTRIBUTE
+# ifdef UV_VIS2
       CALL mp_exchange2d (ng, tile, model, 2,                           &
      &                    LBi, UBi, LBj, UBj,                           &
-     &                    NghostPoints, EWperiodic, NSperiodic,         &
+     &                    NghostPoints,                                 &
+     &                    EWperiodic(ng), NSperiodic(ng),               &
      &                    visc2_r, visc2_p)
-#  endif
-#  ifdef UV_VIS4
+# endif
+# ifdef UV_VIS4
       CALL mp_exchange2d (ng, tile, model, 2,                           &
      &                    LBi, UBi, LBj, UBj,                           &
-     &                    NghostPoints, EWperiodic, NSperiodic,         &
+     &                    NghostPoints,                                 &
+     &                    EWperiodic(ng), NSperiodic(ng),               &
      &                    visc4_r, visc4_p)
-#  endif
-#  ifdef SOLVE3D
-#   ifdef TS_DIF2
+# endif
+# ifdef SOLVE3D
+#  ifdef TS_DIF2
       CALL mp_exchange3d (ng, tile, model, 1,                           &
      &                    LBi, UBi, LBj, UBj, 1, NT(ng),                &
-     &                    NghostPoints, EWperiodic, NSperiodic,         &
+     &                    NghostPoints,                                 &
+     &                    EWperiodic(ng), NSperiodic(ng),               &
      &                    diff2)
-#   endif
-#   ifdef TS_DIF4
+#  endif
+#  ifdef TS_DIF4
       CALL mp_exchange3d (ng, tile, model, 1,                           &
      &                    LBi, UBi, LBj, UBj, 1, NT(ng),                &
-     &                    NghostPoints, EWperiodic, NSperiodic,         &
+     &                    NghostPoints,                                 &
+     &                    EWperiodic(ng), NSperiodic(ng),               &
      &                    diff4)
-#   endif
 #  endif
 # endif
-
 #endif
       RETURN
       END SUBROUTINE ana_hmixcoef_tile

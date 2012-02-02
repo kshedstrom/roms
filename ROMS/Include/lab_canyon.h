@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2011 The ROMS/TOMS Group                               **
+** Copyright (c) 2002-2012 The ROMS/TOMS Group                               **
 **   Licensed under a MIT/X style license                                    **
 **   See License_ROMS.txt                                                    **
 *******************************************************************************
@@ -26,9 +26,6 @@
 #define CURVGRID
 #define AVERAGES
 #define SPLINES
-#define NS_PERIODIC
-#define EASTERN_WALL
-#define WESTERN_WALL
 #define ANA_GRID
 #define ANA_INITIAL
 #define ANA_SMFLUX

@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2011 The ROMS/TOMS Group                               **
+** Copyright (c) 2002-2012 The ROMS/TOMS Group                               **
 **   Licensed under a MIT/X style license                                    **
 **   See License_ROMS.txt                                                    **
 *******************************************************************************
@@ -29,18 +29,7 @@
 #define SPLINES
 #define ICESHELF
 #define AVERAGES
-#define NS_PERIODIC
-#define EAST_VOLCONS
-#define WEST_VOLCONS
 #define RADIATION_2D
-#define EAST_FSCHAPMAN
-#define EAST_M2FLATHER
-#define EAST_M3RADIATION
-#define EAST_TRADIATION
-#define WEST_FSCHAPMAN
-#define WEST_M2FLATHER
-#define WEST_M3RADIATION
-#define WEST_TRADIATION
 #define ZCLIMATOLOGY
 #define M2CLIMATOLOGY
 #define ANA_GRID

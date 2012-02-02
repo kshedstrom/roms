@@ -7,7 +7,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2011 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -18,15 +18,21 @@
 !                                                                      !
 !  Time-averaged state variables for output purposes.                  !
 !                                                                      !
-!  avgu2d     2D velocity component (m/s) in the XI-direction.         !
-!  avgv2d     2D velocity component (m/s) in the ETA-direction.        !
+!  avgu2d     2D velocity  component (m/s) in the XI-direction.        !
+!  avgv2d     2D velocity  component (m/s) in the ETA-direction.       !
+!  avgu2dE    2D Eastward  component (m/s) at RHO-points.              !
+!  avgv2dN    2D Northward component (m/s) at RHO-points.              !
 !  avgzeta    Free surface (m).                                        !
 
 # ifdef SOLVE3D
 !  avgUwind   2D wind velocity component (m/s) in the XI-direction.    !
 !  avgVwind   2D wind velocity component (m/s) in the ETA-direction.   !
-!  avgu3d     3D velocity component (m/s) in the XI-direction.         !
-!  avgv3d     3D velocity component (m/s) in the ETA-direction.        !
+!  avgUwindE  2D wind velocity component (m/s) to the east.            !
+!  avgVwindN  2D wind velocity component (m/s) to the north.           !
+!  avgu3d     3D velocity  component (m/s) in the XI-direction.        !
+!  avgv3d     3D velocity  component (m/s) in the ETA-direction.       !
+!  avgu3dE    3D Eastward  component (m/s) at RHO-points.              !
+!  avgv3dN    3D Northward component (m/s) at RHO-points.              !
 !  avgw3d     S-coordinate [omega*Hz/mn] vertical velocity (m3/s).     !
 !  avgwvel    3D "true" vertical velocity (m/s).                       !
 !  avgrho     Density anomaly (kg/m3).                                 !
@@ -142,9 +148,13 @@
 !
 !  Time-averaged state variables.
 !
+          real(r8), pointer :: avgzeta(:,:)
+
           real(r8), pointer :: avgu2d(:,:)
           real(r8), pointer :: avgv2d(:,:)
-          real(r8), pointer :: avgzeta(:,:)
+
+          real(r8), pointer :: avgu2dE(:,:)
+          real(r8), pointer :: avgv2dN(:,:)
 
 # ifdef SOLVE3D
 
@@ -184,6 +194,9 @@
 #  endif
           real(r8), pointer :: avgu3d(:,:,:)
           real(r8), pointer :: avgv3d(:,:,:)
+
+          real(r8), pointer :: avgu3dE(:,:,:)
+          real(r8), pointer :: avgv3dN(:,:,:)
 
           real(r8), pointer :: avgw3d(:,:,:)
           real(r8), pointer :: avgwvel(:,:,:)
@@ -237,6 +250,8 @@
 #  if defined BULK_FLUXES || defined ECOSIM
           real(r8), pointer :: avgUwind(:,:)
           real(r8), pointer :: avgVwind(:,:)
+          real(r8), pointer :: avgUwindE(:,:)
+          real(r8), pointer :: avgVwindN(:,:)
 #  endif
           real(r8), pointer :: avgstf(:,:)
           real(r8), pointer :: avgswf(:,:)
@@ -308,6 +323,8 @@
 #  ifdef ICE_MODEL
           real(r8), pointer :: avguice(:,:)
           real(r8), pointer :: avgvice(:,:)
+          real(r8), pointer :: avguiceE(:,:)
+          real(r8), pointer :: avgviceN(:,:)
           real(r8), pointer :: avgaice(:,:)
           real(r8), pointer :: avghice(:,:)
           real(r8), pointer :: avgtice(:,:)
@@ -377,11 +394,19 @@
       IF (Aout(idFsur,ng)) THEN
         allocate ( AVERAGE(ng) % avgzeta(LBi:UBi,LBj:UBj) )
       END IF
+
       IF (Aout(idUbar,ng)) THEN
         allocate ( AVERAGE(ng) % avgu2d(LBi:UBi,LBj:UBj) )
       END IF
       IF (Aout(idVbar,ng)) THEN
         allocate ( AVERAGE(ng) % avgv2d(LBi:UBi,LBj:UBj) )
+      END IF
+
+      IF (Aout(idu2dE,ng)) THEN
+        allocate ( AVERAGE(ng) % avgu2dE(LBi:UBi,LBj:UBj) )
+      END IF
+      IF (Aout(idv2dN,ng)) THEN
+        allocate ( AVERAGE(ng) % avgv2dN(LBi:UBi,LBj:UBj) )
       END IF
 
 # ifdef SOLVE3D
@@ -434,6 +459,13 @@
       END IF
       IF (Aout(idVvel,ng)) THEN
         allocate ( AVERAGE(ng) % avgv3d(LBi:UBi,LBj:UBj,N(ng)) )
+      END IF
+
+      IF (Aout(idu3dE,ng)) THEN
+        allocate ( AVERAGE(ng) % avgu3dE(LBi:UBi,LBj:UBj,N(ng)) )
+      END IF
+      IF (Aout(idv3dN,ng)) THEN
+        allocate ( AVERAGE(ng) % avgv3dN(LBi:UBi,LBj:UBj,N(ng)) )
       END IF
 
       IF (Aout(idOvel,ng)) THEN
@@ -538,6 +570,13 @@
       END IF
       IF (Aout(idVair,ng)) THEN
         allocate ( AVERAGE(ng) % avgVwind(LBi:UBi,LBj:UBj) )
+      END IF
+
+      IF (Aout(idUairE,ng)) THEN
+        allocate ( AVERAGE(ng) % avgUwindE(LBi:UBi,LBj:UBj) )
+      END IF
+      IF (Aout(idVairN,ng)) THEN
+        allocate ( AVERAGE(ng) % avgVwindN(LBi:UBi,LBj:UBj) )
       END IF
 #  endif
       IF (Aout(idTsur(itemp),ng)) THEN
@@ -644,6 +683,14 @@
       IF (Aout(idVice,ng)) THEN
         allocate ( AVERAGE(ng) % avgvice(LBi:UBi,LBj:UBj) )
       END IF
+
+      IF (Aout(idUiceE,ng)) THEN
+        allocate ( AVERAGE(ng) % avguiceE(LBi:UBi,LBj:UBj) )
+      END IF
+      IF (Aout(idViceN,ng)) THEN
+        allocate ( AVERAGE(ng) % avgviceN(LBi:UBi,LBj:UBj) )
+      END IF
+
       IF (Aout(idAice,ng)) THEN
         allocate ( AVERAGE(ng) % avgaice(LBi:UBi,LBj:UBj) )
       END IF
@@ -852,6 +899,7 @@
           END DO
         END DO
       END IF
+
       IF (Aout(idUbar,ng)) THEN
         DO j=Jmin,Jmax
           DO i=Imin,Imax
@@ -863,6 +911,21 @@
         DO j=Jmin,Jmax
           DO i=Imin,Imax
             AVERAGE(ng) % avgv2d(i,j) = IniVal
+          END DO
+        END DO
+      END IF
+
+      IF (Aout(idu2dE,ng)) THEN
+        DO j=Jmin,Jmax
+          DO i=Imin,Imax
+            AVERAGE(ng) % avgu2dE(i,j) = IniVal
+          END DO
+        END DO
+      END IF
+      IF (Aout(idv2dN,ng)) THEN
+        DO j=Jmin,Jmax
+          DO i=Imin,Imax
+            AVERAGE(ng) % avgv2dN(i,j) = IniVal
           END DO
         END DO
       END IF
@@ -882,6 +945,25 @@
           DO j=Jmin,Jmax
             DO i=Imin,Imax
               AVERAGE(ng) % avgv3d(i,j,k) = IniVal
+            END DO
+          END DO
+        END DO
+      END IF
+
+      IF (Aout(idu3dE,ng)) THEN
+        DO k=1,N(ng)
+          DO j=Jmin,Jmax
+            DO i=Imin,Imax
+              AVERAGE(ng) % avgu3dE(i,j,k) = IniVal
+            END DO
+          END DO
+        END DO
+      END IF
+      IF (Aout(idv3dN,ng)) THEN
+        DO k=1,N(ng)
+          DO j=Jmin,Jmax
+            DO i=Imin,Imax
+              AVERAGE(ng) % avgv3dN(i,j,k) = IniVal
             END DO
           END DO
         END DO
@@ -1105,6 +1187,21 @@
         DO j=Jmin,Jmax
           DO i=Imin,Imax
             AVERAGE(ng) % avgVwind(i,j) = IniVal
+          END DO
+        END DO
+      END IF
+
+      IF (Aout(idUairE,ng)) THEN
+        DO j=Jmin,Jmax
+          DO i=Imin,Imax
+            AVERAGE(ng) % avgUwindE(i,j) = IniVal
+          END DO
+        END DO
+      END IF
+      IF (Aout(idVairN,ng)) THEN
+        DO j=Jmin,Jmax
+          DO i=Imin,Imax
+            AVERAGE(ng) % avgVwindN(i,j) = IniVal
           END DO
         END DO
       END IF
@@ -1609,6 +1706,22 @@
           END DO
         END DO
       END IF
+
+      IF (Aout(idUiceE,ng)) THEN
+        DO j=Jmin,Jmax
+          DO i=Imin,Imax
+            AVERAGE(ng) % avguiceE(i,j) = IniVal
+          END DO
+        END DO
+      END IF
+      IF (Aout(idViceN,ng)) THEN
+        DO j=Jmin,Jmax
+          DO i=Imin,Imax
+            AVERAGE(ng) % avgviceN(i,j) = IniVal
+          END DO
+        END DO
+      END IF
+
       IF (Aout(idAice,ng)) THEN
         DO j=Jmin,Jmax
           DO i=Imin,Imax

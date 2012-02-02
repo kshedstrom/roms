@@ -40,29 +40,20 @@
      &                      )
 
       USE mod_param
+      USE mod_ncparam
       USE mod_grid
       USE mod_ocean
       USE mod_ice
       USE mod_forces
       USE mod_scalars
       USE mod_stepping
-#if defined EW_PERIODIC || defined NS_PERIODIC
+      USE mod_boundary
       USE exchange_2d_mod, ONLY : exchange_r2d_tile
-#endif
 #ifdef DISTRIBUTE
       USE mp_exchange_mod, ONLY : mp_exchange2d
 #endif
-      USE aibc_mod, ONLY : aibc_tile
-      USE hibc_mod, ONLY : hibc_tile
-      USE hsnbc_mod, ONLY : hsnbc_tile
+      USE i2d_bc_mod
       USE tibc_mod, ONLY : tibc_tile
-      USE sfwatbc_mod, ONLY : sfwatbc_tile
-      USE ageicebc_mod, ONLY : ageicebc_tile
-# if defined ICE_BIO && defined BERING_10K
-      USE IcePhLbc_mod, ONLY : IcePhLbc_tile
-      USE IceNO3bc_mod, ONLY : IceNO3bc_tile
-      USE IceNH4bc_mod, ONLY : IceNH4bc_tile
-#endif
 !
       implicit none
 !
@@ -74,18 +65,6 @@
 !
 !  Local variables
 !
-# ifdef DISTRIBUTE
-#  ifdef EW_PERIODIC
-      logical :: EWperiodic=.TRUE.
-#  else
-      logical :: EWperiodic=.FALSE.
-#  endif
-#  ifdef NS_PERIODIC
-      logical :: NSperiodic=.TRUE.
-#  else
-      logical :: NSperiodic=.FALSE.
-#  endif
-# endif
       integer :: i, j
 
 #include "set_bounds.h"
@@ -115,13 +94,17 @@
      &                      ICE(ng) % ai                                &
      &                      )
 !
-        CALL aibc_tile (ng, tile,                                       &
-     &                          LBi, UBi, LBj, UBj,                     &
-     &                          IminS, ImaxS, JminS, JmaxS,             &
-     &                          liold(ng), linew(ng),                   &
-     &                          ICE(ng)%ui,                             &
-     &                          ICE(ng)%vi,                             &
-     &                          ICE(ng)%ai)
+        CALL i2d_bc_tile (ng, tile,                                     &
+     &                    LBi, UBi, LBj, UBj,                           &
+     &                    IminS, ImaxS, JminS, JmaxS,                   &
+     &                    liold(ng), linew(ng),                         &
+     &                    BOUNDARY(ng)%ai_west(LBj:UBj),                &
+     &                    BOUNDARY(ng)%ai_east(LBj:UBj),                &
+     &                    BOUNDARY(ng)%ai_north(LBi:UBi),               &
+     &                    BOUNDARY(ng)%ai_south(LBi:UBi),               &
+     &                    ICE(ng)%ui,                                   &
+     &                    ICE(ng)%vi,                                   &
+     &                    ICE(ng)%ai, LBC(:,isAice,ng))
 !
 ! ---------------------------------------------------------------------
 !  Advect the ice thickness.
@@ -151,13 +134,17 @@
      &                      ICE(ng) % hi                                &
      &                      )
 !
-        CALL hibc_tile (ng, tile,                                       &
-     &                          LBi, UBi, LBj, UBj,                     &
-     &                          IminS, ImaxS, JminS, JmaxS,             &
-     &                          liold(ng), linew(ng),                   &
-     &                          ICE(ng)%ui,                             &
-     &                          ICE(ng)%vi,                             &
-     &                          ICE(ng)%hi)
+        CALL i2d_bc_tile (ng, tile,                                     &
+     &                    LBi, UBi, LBj, UBj,                           &
+     &                    IminS, ImaxS, JminS, JmaxS,                   &
+     &                    liold(ng), linew(ng),                         &
+     &                    BOUNDARY(ng)%hi_west(LBj:UBj),                &
+     &                    BOUNDARY(ng)%hi_east(LBj:UBj),                &
+     &                    BOUNDARY(ng)%hi_north(LBi:UBi),               &
+     &                    BOUNDARY(ng)%hi_south(LBi:UBi),               &
+     &                    ICE(ng)%ui,                                   &
+     &                    ICE(ng)%vi,                                   &
+     &                    ICE(ng)%hi, LBC(:,isHice,ng))
 !
 ! ---------------------------------------------------------------------
 !  Advect the snow thickness.
@@ -188,13 +175,17 @@
      &                      ICE(ng) % hsn                               &
      &                      )
 !
-        CALL hsnbc_tile (ng, tile,                                      &
-     &                          LBi, UBi, LBj, UBj,                     &
-     &                          IminS, ImaxS, JminS, JmaxS,             &
-     &                          liold(ng), linew(ng),                   &
-     &                          ICE(ng)%ui,                             &
-     &                          ICE(ng)%vi,                             &
-     &                          ICE(ng)%hsn)
+        CALL i2d_bc_tile (ng, tile,                                     &
+     &                    LBi, UBi, LBj, UBj,                           &
+     &                    IminS, ImaxS, JminS, JmaxS,                   &
+     &                    liold(ng), linew(ng),                         &
+     &                    BOUNDARY(ng)%hsn_west(LBj:UBj),               &
+     &                    BOUNDARY(ng)%hsn_east(LBj:UBj),               &
+     &                    BOUNDARY(ng)%hsn_north(LBi:UBi),              &
+     &                    BOUNDARY(ng)%hsn_south(LBi:UBi),              &
+     &                    ICE(ng)%ui,                                   &
+     &                    ICE(ng)%vi,                                   &
+     &                    ICE(ng)%hsn, LBC(:,isHsno,ng))
 # if defined ICE_BIO && defined BERING_10K
 !  ---------------------------------------------------------------------
 !  Advect the icePhL
@@ -225,6 +216,8 @@
      &                      ICE(ng) % IcePhL                            &
      &                      )
 !
+FOOOO 
+! Need to change this to i2d_bc_tile calls
         CALL IcePhLbc_tile (ng, tile,                                   &
     &                          LBi, UBi, LBj, UBj,                      &
      &                          liold(ng), linew(ng),                   &
@@ -336,12 +329,17 @@
      &                      ICE(ng) % sfwat                             &
      &                      )
 !
-        CALL sfwatbc_tile (ng, tile,                                    &
-     &                     LBi, UBi, LBj, UBj,                          &
-     &                     liold(ng), linew(ng),                        &
-     &                     ICE(ng)%ui,                                  &
-     &                     ICE(ng)%vi,                                  &
-     &                     ICE(ng)%sfwat)
+        CALL i2d_bc_tile (ng, tile,                                     &
+     &                    LBi, UBi, LBj, UBj,                           &
+     &                    IminS, ImaxS, JminS, JmaxS,                   &
+     &                    liold(ng), linew(ng),                         &
+     &                    BOUNDARY(ng)%sfwat_west(LBj:UBj),             &
+     &                    BOUNDARY(ng)%sfwat_east(LBj:UBj),             &
+     &                    BOUNDARY(ng)%sfwat_north(LBi:UBi),            &
+     &                    BOUNDARY(ng)%sfwat_south(LBi:UBi),            &
+     &                    ICE(ng)%ui,                                   &
+     &                    ICE(ng)%vi,                                   &
+     &                    ICE(ng)%sfwat, LBC(:,isSfwat,ng))
 !
 ! ---------------------------------------------------------------------
 !  Advect the interior ice temperature.
@@ -385,7 +383,7 @@
 !
         CALL tibc_tile (ng, tile,                                       &
      &                          LBi, UBi, LBj, UBj,                     &
-     &                          liold(ng), linew(ng), min_h(ng),        &
+     &                          liold(ng), linew(ng),                   &
      &                          ICE(ng)%ui,                             &
      &                          ICE(ng)%vi,                             &
      &                          ICE(ng)%hi,                             &
@@ -444,74 +442,85 @@
         ENDDO
       ENDDO
 !
-      CALL ageicebc_tile (ng, tile,                                     &
-     &                          LBi, UBi, LBj, UBj,                     &
-     &                          liold(ng), linew(ng), min_h(ng),        &
-     &                          ICE(ng)%ui,                             &
-     &                          ICE(ng)%vi,                             &
-     &                          ICE(ng)%hi,                             &
-     &                          ICE(ng)%ageice,                         &
-     &                          ICE(ng)%hage)
-!
-# if defined EW_PERIODIC || defined NS_PERIODIC
-      CALL exchange_r2d_tile (ng, tile,                                 &
+!        CALL i2d_bc_tile (ng, tile,                                     &
+!     &                    LBi, UBi, LBj, UBj,                           &
+!     &                    IminS, ImaxS, JminS, JmaxS,                   &
+!     &                    liold(ng), linew(ng),                         &
+!     &                    BOUNDARY(ng)%ageice_west(LBj:UBj),            &
+!     &                    BOUNDARY(ng)%ageice_east(LBj:UBj),            &
+!     &                    BOUNDARY(ng)%ageice_north(LBi:UBi),           &
+!     &                    BOUNDARY(ng)%ageice_south(LBi:UBi),           &
+!     &                    ICE(ng)%ui,                                   &
+!     &                    ICE(ng)%vi,                                   &
+!     &                    ICE(ng)%ageice, LBC(:,isHice,ng))
+!      CALL ageicebc_tile (ng, tile,                                     &
+!     &                          LBi, UBi, LBj, UBj,                     &
+!     &                          liold(ng), linew(ng),                   &
+!     &                          ICE(ng)%ui,                             &
+!     &                          ICE(ng)%vi,                             &
+!     &                          ICE(ng)%hi,                             &
+!     &                          ICE(ng)%ageice,                         &
+!     &                          ICE(ng)%hage)
+!!
+      IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
+        CALL exchange_r2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          ICE(ng)%ai(:,:,linew(ng)))
-      CALL exchange_r2d_tile (ng, tile,                                 &
+        CALL exchange_r2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          ICE(ng)%hi(:,:,linew(ng)))
-      CALL exchange_r2d_tile (ng, tile,                                 &
+        CALL exchange_r2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          ICE(ng)%hsn(:,:,linew(ng)))
-      CALL exchange_r2d_tile (ng, tile,                                 &
+        CALL exchange_r2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          ICE(ng)%sfwat(:,:,linew(ng)))
-      CALL exchange_r2d_tile (ng, tile,                                 &
+        CALL exchange_r2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          ICE(ng)%ti(:,:,linew(ng)))
-      CALL exchange_r2d_tile (ng, tile,                                 &
+        CALL exchange_r2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          ICE(ng)%enthalpi(:,:,linew(ng)))
-      CALL exchange_r2d_tile (ng, tile,                                 &
+        CALL exchange_r2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          ICE(ng)%ageice(:,:,linew(ng)))
-      CALL exchange_r2d_tile (ng, tile,                                 &
+        CALL exchange_r2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          ICE(ng)%hage(:,:,linew(ng)))
 #  if defined ICE_BIO && defined BERING_10K
-      CALL exchange_r2d_tile (ng, tile,                                 &
+        CALL exchange_r2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          ICE(ng)%IcePhL(:,:,linew(ng)))
-      CALL exchange_r2d_tile (ng, tile,                                 &
+        CALL exchange_r2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          ICE(ng)%IceNO3(:,:,linew(ng)))
-      CALL exchange_r2d_tile (ng, tile,                                 &
+        CALL exchange_r2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          ICE(ng)%IceNH4(:,:,linew(ng)))
 #  endif
-# endif
+      END IF
 # ifdef DISTRIBUTE
       CALL mp_exchange2d (ng, tile, iNLM, 4,                            &
-     &                      LBi, UBi, LBj, UBj,                         &
-     &                      NghostPoints, EWperiodic, NSperiodic,       &
-     &                      ICE(ng)%ai(:,:,linew(ng)),                  &
-     &                      ICE(ng)%hi(:,:,linew(ng)),                  &
-     &                      ICE(ng)%hsn(:,:,linew(ng)),                 &
-     &                      ICE(ng)%sfwat(:,:,linew(ng)))
+     &                    LBi, UBi, LBj, UBj,                           &
+     &                    NghostPoints, EWperiodic(ng), NSperiodic(ng), &
+     &                    ICE(ng)%ai(:,:,linew(ng)),                    &
+     &                    ICE(ng)%hi(:,:,linew(ng)),                    &
+     &                    ICE(ng)%hsn(:,:,linew(ng)),                   &
+     &                    ICE(ng)%sfwat(:,:,linew(ng)))
       CALL mp_exchange2d (ng, tile, iNLM, 4,                            &
-     &                      LBi, UBi, LBj, UBj,                         &
-     &                      NghostPoints, EWperiodic, NSperiodic,       &
-     &                      ICE(ng)%ti(:,:,linew(ng)),                  &
-     &                      ICE(ng)%enthalpi(:,:,linew(ng)),            &
-     &                      ICE(ng)%ageice(:,:,linew(ng)),              &
-     &                      ICE(ng)%hage(:,:,linew(ng)))
+     &                    LBi, UBi, LBj, UBj,                           &
+     &                    NghostPoints, EWperiodic(ng), NSperiodic(ng), &
+     &                    ICE(ng)%ti(:,:,linew(ng)),                    &
+     &                    ICE(ng)%enthalpi(:,:,linew(ng)),              &
+     &                    ICE(ng)%ageice(:,:,linew(ng)),                &
+     &                    ICE(ng)%hage(:,:,linew(ng)))
 #  if defined ICE_BIO && defined BERING_10K
-        CALL mp_exchange2d (ng, tile, iNLM, 3,                          &
-     &                      LBi, UBi, LBj, UBj,                         &
-     &                      NghostPoints, EWperiodic, NSperiodic,       &
-     &                      ICE(ng)%IcePhL(:,:,linew(ng)),              &
-     &                      ICE(ng)%IceNO3(:,:,linew(ng)),              &
-     &                      ICE(ng)%IceNH4(:,:,linew(ng)))
+      CALL mp_exchange2d (ng, tile, iNLM, 3,                            &
+     &                    LBi, UBi, LBj, UBj,                           &
+     &                    NghostPoints, EWperiodic(ng), NSperiodic(ng), &
+     &                    ICE(ng)%IcePhL(:,:,linew(ng)),                &
+     &                    ICE(ng)%IceNO3(:,:,linew(ng)),                &
+     &                    ICE(ng)%IceNH4(:,:,linew(ng)))
 #  endif
 # endif
 #endif
@@ -638,36 +647,20 @@
 #include "set_bounds.h"
 
 # ifndef ICE_UPWIND
-#  ifndef EW_PERIODIC
-      IF (DOMAIN(ng)%Western_Edge(tile)) THEN
-        Imin=Istr
-      ELSE
+      IF (EWperiodic(ng)) THEN
         Imin=Istr-1
-      END IF
-      IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
-        Imax=Iend
-      ELSE
         Imax=Iend+1
-      END IF
-#  else
-      Imin=Istr-1
-      Imax=Iend+1
-#  endif
-#  ifndef NS_PERIODIC
-      IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
-        Jmin=Jstr
       ELSE
+        Imin=MAX(Istr-1,1)
+        Imax=MIN(Iend+1,Lm(ng))
+      END IF
+      IF (NSperiodic(ng)) THEN
         Jmin=Jstr-1
-      END IF
-      IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
-        Jmax=Jend
-      ELSE
         Jmax=Jend+1
+      ELSE
+        Jmin=MAX(Jstr-1,1)
+        Jmax=MIN(Jend+1,Mm(ng))
       END IF
-#  else
-      Jmin=Jstr-1
-      Jmax=Jend+1
-#  endif
 # else
       Imin=Istr
       Imax=Iend
@@ -715,44 +708,44 @@
 !
 ! set values at the open boundaries
 !
-# ifndef EW_PERIODIC
-      IF (DOMAIN(ng)%Western_Edge(tile)) THEN
-        DO j=Jmin,Jmax
-          aif(Istr-1,j)=aif(Istr,j)   !? scr(Istr-1,j,liold)
-        END DO
+      IF (.not.EWperiodic(ng)) THEN
+        IF (DOMAIN(ng)%Western_Edge(tile)) THEN
+          DO j=Jmin,Jmax
+            aif(Istr-1,j)=aif(Istr,j)   !? scr(Istr-1,j,liold)
+          END DO
+        END IF
+        IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
+          DO j=Jmin,Jmax
+            aif(Iend+1,j)=aif(Iend,j)  !? scr(Iend+1,j,liold)
+          END DO
+        END IF
       END IF
-      IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
-        DO j=Jmin,Jmax
-          aif(Iend+1,j)=aif(Iend,j)  !? scr(Iend+1,j,liold)
-        END DO
-      END IF
-# endif
-# ifndef NS_PERIODIC
-      IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
-        DO i=Imin,Imax
+      IF (.not.NSperiodic(ng)) THEN
+        IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
+          DO i=Imin,Imax
              aif(i,Jstr-1)=aif(i,Jstr)  !??? scr(i,Jstr-1,liold)
-        END DO
-      END IF
-      IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
-        DO i=Imin,Imax
+          END DO
+        END IF
+        IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
+          DO i=Imin,Imax
              aif(i,Jend+1)=aif(i,Jend)  !??? scr(i,Jend+1,liold)
-        END DO
+          END DO
+        END IF
+        IF (.not.EWperiodic(ng)) THEN
+          IF (DOMAIN(ng)%SouthWest_Corner(tile)) THEN
+            aif(Istr-1,Jstr-1)=aif(Istr,Jstr)
+          END IF
+          IF (DOMAIN(ng)%NorthWest_Corner(tile)) THEN
+            aif(Istr-1,Jend+1)=aif(Istr,Jend)
+          END IF
+          IF (DOMAIN(ng)%SouthEast_Corner(tile)) THEN
+            aif(Iend+1,Jstr-1)=aif(Iend,Jstr)
+          END IF
+          IF (DOMAIN(ng)%NorthEast_Corner(tile)) THEN
+            aif(Iend+1,Jend+1)=aif(Iend,Jend)
+          END IF
+        END IF
       END IF
-#  ifndef EW_PERIODIC
-      IF (DOMAIN(ng)%SouthWest_Corner(tile)) THEN
-        aif(Istr-1,Jstr-1)=aif(Istr,Jstr)
-      END IF
-      IF (DOMAIN(ng)%NorthWest_Corner(tile)) THEN
-        aif(Istr-1,Jend+1)=aif(Istr,Jend)
-      END IF
-      IF (DOMAIN(ng)%SouthEast_Corner(tile)) THEN
-        aif(Iend+1,Jstr-1)=aif(Iend,Jstr)
-      END IF
-      IF (DOMAIN(ng)%NorthEast_Corner(tile)) THEN
-        aif(Iend+1,Jend+1)=aif(Iend,Jend)
-      END IF
-#  endif
-# endif
 !
 ! mask ???
 !

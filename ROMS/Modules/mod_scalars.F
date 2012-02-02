@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2011 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -336,6 +336,19 @@
 !  Control switches.
 !-----------------------------------------------------------------------
 !
+!  Composed grid a refined grids switches. They are .FALSE. by default.
+!
+        logical, allocatable :: ComposedGrid(:)
+        logical, allocatable :: RefinedGrid(:)
+!
+!  Switch to proccess nudging coefficients.
+!
+        logical, allocatable :: NudgingCoeff(:)
+!
+!  Switch to proccess input boundary data.
+!
+        logical, allocatable :: ObcData(:)
+!
 !  These switches are designed to control computational options within
 !  nested and/or multiple connected grids.  They are .TRUE. by default.
 !  They can turned off for a particular grind in input scripts.
@@ -398,6 +411,19 @@
 !  Switch to compute the grid stiffness.
 !
         logical :: Lstiffness = .TRUE.
+!
+!  Periodic boundary swiches for distributed-memory exchanges.
+!
+        logical, allocatable :: EWperiodic(:)
+        logical, allocatable :: NSperiodic(:)
+!
+!  Lateral open boundary edges volume conservation switches.
+!
+        logical, allocatable :: VolCons(:,:)
+#if defined ADJONT || defined TANGENT || defined TL_IOMS
+        logical, allocatable :: ad_VolCons(:,:)
+        logical, allocatable :: tl_VolCons(:,:)
+#endif
 !
 !  Switch indicating which tracer field need to be processed for
 !  Sources/Sinks terms.
@@ -1738,6 +1764,13 @@
       allocate ( FrcRec(Ngrids) )
       allocate ( NrecFrc(Ngrids) )
 
+      allocate ( ComposedGrid(Ngrids) )
+      allocate ( RefinedGrid(Ngrids) )
+
+      allocate ( NudgingCoeff(Ngrids) )
+
+      allocate ( ObcData(Ngrids) )
+
       allocate ( Lbiology(Ngrids) )
       allocate ( Lfloats(Ngrids) )
 #ifdef ICE_MODEL
@@ -1745,6 +1778,15 @@
 #endif
       allocate ( Lsediment(Ngrids) )
       allocate ( Lstations(Ngrids) )
+
+      allocate ( EWperiodic(Ngrids) )
+      allocate ( NSperiodic(Ngrids) )
+
+      allocate ( VolCons(4,Ngrids) )
+#if defined ADJONT || defined TANGENT || defined TL_IOMS
+      allocate ( ad_VolCons(4,Ngrids) )
+      allocate ( tl_VolCons(4,Ngrids) )
+#endif
 
       allocate ( LtracerSrc(MT,Ngrids) )
 
@@ -2229,6 +2271,8 @@
 !
       DO ng=1,Ngrids
         LastRec(ng)=.FALSE.
+        ComposedGrid(ng)=.FALSE.
+        RefinedGrid(ng)=.FALSE.
         Lbiology(ng)=.TRUE.
         LcycleADJ(ng)=.FALSE.
         LcycleRST(ng)=.FALSE.
@@ -2288,6 +2332,10 @@
 #endif
       gorho0=g/rho0
       DO ng=1,Ngrids
+        EWperiodic(ng)=.FALSE.
+        NSperiodic(ng)=.FALSE.
+        NudgingCoeff(ng)=.FALSE.
+        ObcData(ng)=.FALSE.
         ntfirst(ng)=1
         ntstart(ng)=1
         ntend(ng)=0
@@ -2338,6 +2386,11 @@
         blk_ZW(ng)=10.0_r8
 #endif
         DO i=1,4
+          VolCons(i,ng)=.FALSE.
+#if defined ADJONT || defined TANGENT || defined TL_IOMS
+          ad_VolCons(i,ng)=.FALSE.
+          tl_VolCons(i,ng)=.FALSE.
+#endif
           FSobc_in (ng,i)=IniVal
           FSobc_out(ng,i)=IniVal
           M2obc_in (ng,i)=IniVal

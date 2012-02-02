@@ -2,7 +2,7 @@
 !  ROMS/TOMS IO NetCDF variables.
 !
 !========================================================= Hernan G. Arango ===
-!  Copyright (c) 2002-2011 The ROMS/TOMS Group                                !
+!  Copyright (c) 2002-2012 The ROMS/TOMS Group                                !
 !    Licensed under a MIT/X style license                                     !
 !    See License_ROMS.txt                                                     !
 !==============================================================================
@@ -114,6 +114,24 @@
   'v2dvar'
   1.0d0
 
+'ubar_eastward'                                    ! Ouput
+  'eastward vertically integrated momentum component at RHO-points'
+  'meter second-1'                                 ! [m/s]
+  'ubar_eastward, scalar, series'
+  'ocean_time'
+  'idu2dE'
+  'r2dvar'
+  1.0d0
+
+'vbar_northward'                                   ! Output
+  'northward vertically integrated momentum component at RHO-points'
+  'meter second-1'                                 ! [m/s]
+  'vbar_northward, scalar, series'
+  'ocean_time'
+  'idv2dN'
+  'r2dvar'
+  1.0d0
+
 'u'                                                ! Input/Output
   'u-momentum component'
   'meter second-1'                                 ! [m/s]
@@ -130,6 +148,24 @@
   'ocean_time'
   'idVvel'
   'v3dvar'
+  1.0d0
+
+'u_eastward'                                       ! Output
+  'eastward momentum component at RHO-points'
+  'meter second-1'                                 ! [m/s]
+  'u_eastward, scalar, series'
+  'ocean_time'
+  'idu3dE'
+  'r3dvar'
+  1.0d0
+
+'v_northward'                                      ! Output
+  'northward momentum component at RHO-points'
+  'meter second-1'                                 ! [m/s]
+  'v_northward, scalar, series'
+  'ocean_time'
+  'idv3dN'
+  'r3dvar'
   1.0d0
 
 'w'                                                ! Output
@@ -681,6 +717,24 @@
   'ocean_time'
   'idVice'
   'v2dvar'
+  1.0d0
+
+'uice_eastward'                                    ! Output
+  'ice eastward momentum component at RHO-points'
+  'meter second-1'                                 ! [m/s]
+  'uice_eastward, scalar, series'
+  'ocean_time'
+  'idUiceE'
+  'r2dvar'
+  1.0d0
+
+'vice_northward'                                   ! Output
+  'ice northward momentum component at RHO-points'
+  'meter second-1'                                 ! [m/s]
+  'vice_northward, scalar, series'
+  'ocean_time'
+  'idViceN'
+  'r2dvar'
   1.0d0
 
 'aice'
@@ -1787,6 +1841,24 @@
   'v-wind, scalar, series'
   'wind_time'
   'idVair'
+  'r2dvar'
+  1.0d0
+
+'Uwind_eastward'                                   ! Output
+  'eastward surface wind component at RHO-points'
+  'meter second-1'                                 ! [m/s]
+  'Uwind_eastward, scalar, series'
+  'ocean_time'
+  'idUairE'
+  'r2dvar'
+  1.0d0
+
+'Vwind_northward'                                  ! Output
+  'northward surface wind component at RHO-points'
+  'meter second-1'                                 ! [m/s]
+  'Vwind_northward, scalar, series'
+  'ocean_time'
+  'idVairN'
   'r2dvar'
   1.0d0
 

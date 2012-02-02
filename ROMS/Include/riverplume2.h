@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2011 The ROMS/TOMS Group                               **
+** Copyright (c) 2002-2012 The ROMS/TOMS Group                               **
 **   Licensed under a MIT/X style license                                    **
 **   See License_ROMS.txt                                                    **
 *******************************************************************************
@@ -29,17 +29,6 @@
 #define SOLVE3D
 #define SPLINES
 #define AVERAGES
-
-#define SOUTH_FSCHAPMAN
-#define SOUTH_M2GRADIENT
-#define SOUTH_M3GRADIENT
-#define SOUTH_TGRADIENT
-#define NORTH_FSCHAPMAN
-#define NORTH_M2GRADIENT
-#define NORTH_M3GRADIENT
-#define NORTH_TGRADIENT
-#define WESTERN_WALL
-#define EASTERN_WALL
 
 #define LMD_MIXING
 #ifdef LMD_MIXING

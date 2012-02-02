@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2011 The ROMS/TOMS Group
+** Copyright (c) 2002-2012 The ROMS/TOMS Group
 **
 **   Licensed under a MIT/X style license
 **
@@ -89,56 +89,6 @@
 #undef  OBC_VOLCONS
 #undef  ANA_M2OBC
 #undef  ANA_M3OBC
-
-#define WESTERN_WALL
-
-#define EAST_FSCHAPMAN
-#define EAST_M2FLATHER
-#define EAST_TRADIATION
-#define EAST_TNUDGING
-#define EAST_M3RADIATION
-#define EAST_M3NUDGING
-#define EAST_AICLAMPED
-#define EAST_HICLAMPED
-#define EAST_HSNCLAMPED
-#define EAST_TICLAMPED
-#define EAST_SFWATCLAMPED
-#define EAST_SIG11CLAMPED
-#define EAST_SIG22CLAMPED
-#define EAST_SIG12CLAMPED
-#define EAST_MIGRADIENT
-
-#define SOUTH_FSCHAPMAN
-#define SOUTH_M2FLATHER
-#define SOUTH_TRADIATION
-#define SOUTH_TNUDGING
-#define SOUTH_M3RADIATION
-#define SOUTH_M3NUDGING
-#define SOUTH_AICLAMPED
-#define SOUTH_HICLAMPED
-#define SOUTH_HSNCLAMPED
-#define SOUTH_TICLAMPED
-#define SOUTH_SFWATCLAMPED
-#define SOUTH_SIG11CLAMPED
-#define SOUTH_SIG22CLAMPED
-#define SOUTH_SIG12CLAMPED
-#define SOUTH_MIGRADIENT
-
-#define NORTH_FSCHAPMAN
-#define NORTH_M2FLATHER
-#define NORTH_TRADIATION
-#define NORTH_TNUDGING
-#define NORTH_M3RADIATION
-#define NORTH_M3NUDGING
-#define NORTH_AICLAMPED
-#define NORTH_HICLAMPED
-#define NORTH_HSNCLAMPED
-#define NORTH_TICLAMPED
-#define NORTH_SFWATCLAMPED
-#define NORTH_SIG11CLAMPED
-#define NORTH_SIG22CLAMPED
-#define NORTH_SIG12CLAMPED
-#define NORTH_MIGRADIENT
 
 #define TCLIMATOLOGY
 #define M3CLIMATOLOGY

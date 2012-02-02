@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2011 The ROMS/TOMS Group                               **
+** Copyright (c) 2002-2012 The ROMS/TOMS Group                               **
 **   Licensed under a MIT/X style license                                    **
 **   See License_ROMS.txt                                                    **
 *******************************************************************************
@@ -29,16 +29,6 @@
 # define SUSPLOAD
 #endif
 #define  SPLINES
-#define NORTHERN_WALL
-#define SOUTHERN_WALL
-#define WEST_FSRADIATION
-#define WEST_M2RADIATION
-#define WEST_M3RADIATION
-#define WEST_TGRADIENT
-#define EAST_FSCLAMPED
-#define EAST_M2RADIATION
-#define EAST_M3RADIATION
-#define EAST_TCLAMPED
 #define MY25_MIXING
 #ifdef MY25_MIXING
 # define KANTHA_CLAYSON

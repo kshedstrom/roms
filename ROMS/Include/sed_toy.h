@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2011 The ROMS/TOMS Group                               **
+** Copyright (c) 2002-2012 The ROMS/TOMS Group                               **
 **   Licensed under a MIT/X style license                                    **
 **   See License_ROMS.txt                                                    **
 *******************************************************************************
@@ -22,8 +22,6 @@
 #undef  SALINITY
 #define SPLINES
 #define OUT_DOUBLE
-#define EW_PERIODIC
-#define NS_PERIODIC
 #define ANA_GRID
 #define ANA_INITIAL
 #define ANA_SMFLUX

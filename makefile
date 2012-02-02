@@ -1,6 +1,6 @@
-# $Id$
+# svn $Id$
 #::::::::::::::::::::::::::::::::::::::::::::::::::::: Hernan G. Arango :::
-# Copyright (c) 2002-2011 The ROMS/TOMS Group             Kate Hedstrom :::
+# Copyright (c) 2002-2012 The ROMS/TOMS Group             Kate Hedstrom :::
 #   Licensed under a MIT/X style license                                :::
 #   See License_ROMS.txt                                                :::
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -441,6 +441,7 @@ ifdef USE_SEAICE
  modules  +=	ROMS/SeaIce
 endif
  modules  +=	ROMS/Utility \
+		ROMS/Nonlinear \
 		ROMS/Modules
 
  includes :=	ROMS/Include

@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2011 The ROMS/TOMS Group                               **
+** Copyright (c) 2002-2012 The ROMS/TOMS Group                               **
 **   Licensed under a MIT/X style license                                    **
 **   See License_ROMS.txt                                                    **
 *******************************************************************************
@@ -90,25 +90,14 @@
 # undef COOL_SKIN
 #endif
 
-#define WESTERN_WALL
-#define NORTHERN_WALL
-#define SOUTHERN_WALL
 #define RADIATION_2D
-#define EAST_M3RADIATION
-#define EAST_TRADIATION
 
 #define RAMP_TIDES
 #define SSH_TIDES
 #ifdef SSH_TIDES
-# define EAST_FSCHAPMAN
 # define ANA_FSOBC
-#else
-# define EAST_FSGRADIENT
 #endif
 #define UV_TIDES
 #ifdef UV_TIDES
-# define EAST_M2FLATHER
 # define ANA_M2OBC
-#else
-# define EAST_M2RADIATION
 #endif

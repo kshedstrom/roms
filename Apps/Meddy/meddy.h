@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2011 The ROMS/TOMS Group
+** Copyright (c) 2002-2012 The ROMS/TOMS Group
 **
 **   Licensed under a MIT/X style license
 **
@@ -32,8 +32,6 @@
 #define ANA_BTFLUX
 #define ANA_VMIX
 #undef MY25_MIXING
-#define EW_PERIODIC
-#define NS_PERIODIC
 #define  UV_LDRAG
 #define  DIAGNOSTICS_UV
 #define  DIAGNOSTICS_TS

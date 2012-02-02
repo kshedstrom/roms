@@ -2,7 +2,7 @@
 !
 !! svn $Id: ana_cloud.h 75 2007-03-13 13:10:14Z arango $
 !!======================================================================
-!! Copyright (c) 2002-2011 The ROMS/TOMS Group                         !
+!! Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
 !!   Licensed under a MIT/X style license                              !
 !!   See License_ROMS.txt                                              !
 !!                                                                     !
@@ -99,9 +99,7 @@
       USE mod_param
       USE mod_scalars
 !
-#if defined EW_PERIODIC || defined NS_PERIODIC
       USE exchange_2d_mod, ONLY : exchange_r2d_tile
-#endif
 #ifdef DISTRIBUTE
       USE mp_exchange_mod
 #endif
@@ -191,18 +189,6 @@
 !
 !  Local variable declarations.
 !
-#ifdef DISTRIBUTE
-# ifdef EW_PERIODIC
-      logical :: EWperiodic=.TRUE.
-# else
-      logical :: EWperiodic=.FALSE.
-# endif
-# ifdef NS_PERIODIC
-      logical :: NSperiodic=.TRUE.
-# else
-      logical :: NSperiodic=.FALSE.
-# endif
-#endif
       integer :: i, j, model
 
       real(r8) :: r2
@@ -329,152 +315,165 @@
 #endif
         ENDDO
       ENDDO
-#if defined EW_PERIODIC || defined NS_PERIODIC
-      DO i=1,2
-        CALL exchange_u2d_tile (ng, tile,                               &
+!
+!  Exchange boundary data.
+!
+      IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
+        DO i=1,2
+          CALL exchange_u2d_tile (ng, tile,                             &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          ui(:,:,i))
-        CALL exchange_u2d_tile (ng, tile,                               &
+          CALL exchange_u2d_tile (ng, tile,                             &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          uie(:,:,i))
-        CALL exchange_v2d_tile (ng, tile,                               &
+          CALL exchange_v2d_tile (ng, tile,                             &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          vi(:,:,i))
-        CALL exchange_v2d_tile (ng, tile,                               &
+          CALL exchange_v2d_tile (ng, tile,                             &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          vie(:,:,i))
-        CALL exchange_r2d_tile (ng, tile,                               &
+          CALL exchange_r2d_tile (ng, tile,                             &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          ai(:,:,i))
-        CALL exchange_r2d_tile (ng, tile,                               &
+          CALL exchange_r2d_tile (ng, tile,                             &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          hi(:,:,i))
-        CALL exchange_r2d_tile (ng, tile,                               &
+          CALL exchange_r2d_tile (ng, tile,                             &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          hsn(:,:,i))
-        CALL exchange_r2d_tile (ng, tile,                               &
+          CALL exchange_r2d_tile (ng, tile,                             &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          ti(:,:,i))
-        CALL exchange_r2d_tile (ng, tile,                               &
+          CALL exchange_r2d_tile (ng, tile,                             &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          sfwat(:,:,i))
-        CALL exchange_r2d_tile (ng, tile,                               &
+          CALL exchange_r2d_tile (ng, tile,                             &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          ageice(:,:,i))
-        CALL exchange_r2d_tile (ng, tile,                               &
+          CALL exchange_r2d_tile (ng, tile,                             &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          sig11(:,:,i))
-        CALL exchange_r2d_tile (ng, tile,                               &
+          CALL exchange_r2d_tile (ng, tile,                             &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          sig22(:,:,i))
-        CALL exchange_r2d_tile (ng, tile,                               &
+          CALL exchange_r2d_tile (ng, tile,                             &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          sig12(:,:,i))
 # if defined BERING_10K && defined ICE_BIO
-        CALL exchange_r2d_tile (ng, tile,                               &
+          CALL exchange_r2d_tile (ng, tile,                             &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          IcePhL(:,:,i))
-        CALL exchange_r2d_tile (ng, tile,                               &
+          CALL exchange_r2d_tile (ng, tile,                             &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          IceNO3(:,:,i))
-        CALL exchange_r2d_tile (ng, tile,                               &
+          CALL exchange_r2d_tile (ng, tile,                             &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          IceNH4(:,:,i))
-        CALL exchange_r2d_tile (ng, tile,                               &
+          CALL exchange_r2d_tile (ng, tile,                             &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          IceLog(:,:,i))
 # endif
-      END DO
+        END DO
 #ifdef NCEP_FLUXES
-      CALL exchange_r2d_tile (ng, tile,                                 &
+        CALL exchange_r2d_tile (ng, tile,                               &
      &                        LBi, UBi, LBj, UBj,                       &
      &                        wg2_d)
-      CALL exchange_r2d_tile (ng, tile,                                 &
+        CALL exchange_r2d_tile (ng, tile,                               &
      &                        LBi, UBi, LBj, UBj,                       &
      &                        cd_d)
-      CALL exchange_r2d_tile (ng, tile,                                 &
+        CALL exchange_r2d_tile (ng, tile,                               &
      &                        LBi, UBi, LBj, UBj,                       &
      &                        ch_d)
-      CALL exchange_r2d_tile (ng, tile,                                 &
+        CALL exchange_r2d_tile (ng, tile,                               &
      &                        LBi, UBi, LBj, UBj,                       &
      &                        ce_d)
-      CALL exchange_r2d_tile (ng, tile,                                 &
+        CALL exchange_r2d_tile (ng, tile,                               &
      &                        LBi, UBi, LBj, UBj,                       &
      &                        wg2_m)
-      CALL exchange_r2d_tile (ng, tile,                                 &
+        CALL exchange_r2d_tile (ng, tile,                               &
      &                        LBi, UBi, LBj, UBj,                       &
      &                        cd_m)
-      CALL exchange_r2d_tile (ng, tile,                                 &
+        CALL exchange_r2d_tile (ng, tile,                               &
      &                        LBi, UBi, LBj, UBj,                       &
      &                        ch_m)
-      CALL exchange_r2d_tile (ng, tile,                                 &
+        CALL exchange_r2d_tile (ng, tile,                               &
      &                        LBi, UBi, LBj, UBj,                       &
      &                        ce_m)
-      CALL exchange_r2d_tile (ng, tile,                                 &
+        CALL exchange_r2d_tile (ng, tile,                               &
      &                        LBi, UBi, LBj, UBj,                       &
      &                        rhoa_n)
 #endif
-      CALL exchange_r2d_tile (ng, tile,                                 &
+        CALL exchange_r2d_tile (ng, tile,                               &
      &                        LBi, UBi, LBj, UBj,                       &
      &                        tis)
-      CALL exchange_r2d_tile (ng, tile,                                 &
+        CALL exchange_r2d_tile (ng, tile,                               &
      &                        LBi, UBi, LBj, UBj,                       &
      &                        s0mk)
-      CALL exchange_r2d_tile (ng, tile,                                 &
+        CALL exchange_r2d_tile (ng, tile,                               &
      &                        LBi, UBi, LBj, UBj,                       &
      &                        t0mk)
-      CALL exchange_r2d_tile (ng, tile,                                 &
+        CALL exchange_r2d_tile (ng, tile,                               &
      &                        LBi, UBi, LBj, UBj,                       &
      &                        utau_iw)
-      CALL exchange_r2d_tile (ng, tile,                                 &
+        CALL exchange_r2d_tile (ng, tile,                               &
      &                        LBi, UBi, LBj, UBj,                       &
      &                        chu_iw)
-#endif
+      END IF
 
 #ifdef DISTRIBUTE
       CALL mp_exchange3d (ng, tile, model, 4,                           &
      &                    LBi, UBi, LBj, UBj, 1, 2,                     &
-     &                    NghostPoints, EWperiodic, NSperiodic,         &
+     &                    NghostPoints,                                 &
+     &                    EWperiodic(ng), NSperiodic(ng),               &
      &                    ui, uie, vi, vie)
       CALL mp_exchange3d (ng, tile, model, 4,                           &
      &                    LBi, UBi, LBj, UBj, 1, 2,                     &
-     &                    NghostPoints, EWperiodic, NSperiodic,         &
+     &                    NghostPoints,                                 &
+     &                    EWperiodic(ng), NSperiodic(ng),               &
      &                    ai, hi, hsn, ti)
       CALL mp_exchange3d (ng, tile, model, 4,                           &
      &                    LBi, UBi, LBj, UBj, 1, 2,                     &
-     &                    NghostPoints, EWperiodic, NSperiodic,         &
+     &                    NghostPoints,                                 &
+     &                    EWperiodic(ng), NSperiodic(ng),               &
      &                    sfwat, sig11, sig12, sig22)
 # if defined BERING_10K && defined ICE_BIO
       CALL mp_exchange3d (ng, tile, model, 3,                           &
      &                    LBi, UBi, LBj, UBj, 1, 2,                     &
-     &                    NghostPoints, EWperiodic, NSperiodic,         &
+     &                    NghostPoints,                                 &
+     &                    EWperiodic(ng), NSperiodic(ng),               &
      &                    IcePhL, IceNO3, IceNH4)
       CALL mp_exchange3d (ng, tile, model, 1,                           &
      &                    LBi, UBi, LBj, UBj, 1, 2,                     &
-     &                    NghostPoints, EWperiodic, NSperiodic,         &
+     &                    NghostPoints,                                 &
+     &                    EWperiodic(ng), NSperiodic(ng),               &
      &                    IceLog)
 # endif
 # ifdef NCEP_FLUXES
       CALL mp_exchange2d (ng, tile, model, 4,                           &
      &                    LBi, UBi, LBj, UBj,                           &
-     &                    NghostPoints, EWperiodic, NSperiodic,         &
+     &                    NghostPoints,                                 &
+     &                    EWperiodic(ng), NSperiodic(ng),               &
      &                    wg2_d, cd_d, ch_d, ce_d)
       CALL mp_exchange2d (ng, tile, model, 4,                           &
      &                    LBi, UBi, LBj, UBj,                           &
-     &                    NghostPoints, EWperiodic, NSperiodic,         &
+     &                    NghostPoints,                                 &
+     &                    EWperiodic(ng), NSperiodic(ng),               &
      &                    wg2_m, cd_m, ch_m, ce_m)
       CALL mp_exchange2d (ng, tile, model, 1,                           &
      &                    LBi, UBi, LBj, UBj,                           &
-     &                    NghostPoints, EWperiodic, NSperiodic,         &
+     &                    NghostPoints,                                 &
+     &                    EWperiodic(ng), NSperiodic(ng),               &
      &                    rhoa_n)
 # endif
       CALL mp_exchange2d (ng, tile, model, 4,                           &
      &                    LBi, UBi, LBj, UBj,                           &
-     &                    NghostPoints, EWperiodic, NSperiodic,         &
+     &                    NghostPoints,                                 &
+     &                    EWperiodic(ng), NSperiodic(ng),               &
      &                    tis, s0mk, t0mk, utau_iw)
       CALL mp_exchange2d (ng, tile, model, 1,                           &
      &                    LBi, UBi, LBj, UBj,                           &
-     &                    NghostPoints, EWperiodic, NSperiodic,         &
+     &                    NghostPoints,                                 &
+     &                    EWperiodic(ng), NSperiodic(ng),               &
      &                    chu_iw)
 #endif
 
