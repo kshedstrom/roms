@@ -5,7 +5,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2011 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -258,7 +258,7 @@
       OPEN (inp, FILE=TRIM(CPLname), FORM='formatted', STATUS='old',    &
      &      ERR=10)
       GO TO 20
-  10  IF (Master) WRITE(stdout,50) TRIM(CPLname)
+  10  IF (MyRank.eq.0) WRITE(stdout,50) TRIM(CPLname)
       STOP
   20  CONTINUE
 !

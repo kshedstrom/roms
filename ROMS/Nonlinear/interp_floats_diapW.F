@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2011 The ROMS/TOMS Group         Mark Hadfield   !
+!  Copyright (c) 2002-2012 The ROMS/TOMS Group         Mark Hadfield   !
 !    Licensed under a MIT/X style license             John M. Klinck   !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -300,36 +300,36 @@
               IF (Lmask) THEN
                 Irn=NINT(track(ixgrd,itime,l))
                 Jrn=NINT(track(iygrd,itime,l))
-#  ifdef EW_PERIODIC
-                IF (Irn.ge.Lm(ng)) THEN
-                  Irnp1=Irn+1-Lm(ng)
-                ELSE
-                  Irnp1=Irn+1
-                END IF
-                IF (Irn.le.1) THEN
-                  Irnm1=Irn-1+Lm(ng)
+                IF (EWperiodic(ng)) THEN
+                  IF (Irn.ge.Lm(ng)) THEN
+                    Irnp1=Irn+1-Lm(ng)
+                  ELSE
+                    Irnp1=Irn+1
+                  END IF
+                  IF (Irn.le.1) THEN
+                    Irnm1=Irn-1+Lm(ng)
+                  ELSE
+                    Irnm1=Irn-1
+                  END IF
                 ELSE
                   Irnm1=Irn-1
+                  Irnp1=Irn+1
                 END IF
-#  else
-                Irnm1=Irn-1
-                Irnp1=Irn+1
-#  endif
-#  ifdef NS_PERIODIC
-                IF (Jrn.ge.Mm(ng)) THEN
-                  Jrnp1=Jrn+1-Mm(ng)
-                ELSE
-                  Jrnp1=Jrn+1
-                END IF
-                IF (Jrn.le.1) THEN
-                  Jrnm1=Jrn-1+Mm(ng)
+                IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
+                  IF (Jrn.ge.Mm(ng)) THEN
+                    Jrnp1=Jrn+1-Mm(ng)
+                  ELSE
+                    Jrnp1=Jrn+1
+                  END IF
+                  IF (Jrn.le.1) THEN
+                    Jrnm1=Jrn-1+Mm(ng)
+                  ELSE
+                    Jrnm1=Jrn-1
+                  END IF
                 ELSE
                   Jrnm1=Jrn-1
+                  Jrnp1=Jrn+1
                 END IF
-#  else
-                Jrnm1=Jrn-1
-                Jrnp1=Jrn+1
-#  endif
                 IF (Amask(Irn,Jrn).lt.0.5_r8) THEN
                   halo=.TRUE.
                 ELSE IF ((Ir.lt.Irn).and.                               &

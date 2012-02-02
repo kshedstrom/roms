@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2011 The ROMS/TOMS Group                               **
+** Copyright (c) 2002-2012 The ROMS/TOMS Group                               **
 **   Licensed under a MIT/X style license                                    **
 **   See License_ROMS.txt                                                    **
 *******************************************************************************
@@ -69,10 +69,6 @@
 #  define SALINITY
 #  define AVERAGES
 #  define SPLINES
-#  define WESTERN_WALL
-#  define EASTERN_WALL
-#  define NORTHERN_WALL
-#  define SOUTHERN_WALL
 #  define TCLIMATOLOGY
 #  define TCLM_NUDGING
 #  define ANA_GRID

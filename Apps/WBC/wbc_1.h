@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2011 The ROMS/TOMS Group
+** Copyright (c) 2002-2012 The ROMS/TOMS Group
 **
 **   Licensed under a MIT/X style license
 **
@@ -47,7 +47,6 @@
 #define ANA_M2OBC
 #define ANA_M3OBC
 
-#define EW_PERIODIC
 #undef  RADIATION_2D
 #define NORTH_FSCHAPMAN
 #define NORTH_M2FLATHER

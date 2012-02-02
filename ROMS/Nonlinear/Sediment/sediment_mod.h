@@ -1,7 +1,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2011 The ROMS/TOMS Group        John C. Warner   !
+!  Copyright (c) 2002-2012 The ROMS/TOMS Group        John C. Warner   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -250,11 +250,11 @@
 #endif
 
 #if defined MIXED_BED
-      IF (.not.allocated(tcr_tim)) THEN
+      IF (.not.allocated(transC)) THEN
         allocate ( transC(Ngrids) )
         transC = IniVal
       END IF
-      IF (.not.allocated(tcr_tim)) THEN
+      IF (.not.allocated(transN)) THEN
         allocate ( transN(Ngrids) )
         transN = IniVal
       END IF

@@ -2,7 +2,7 @@
 !
 !svn $Id$
 !************************************************** Hernan G. Arango ***
-!  Copyright (c) 2002-2011 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !***********************************************************************
@@ -317,6 +317,9 @@
             IF (h(i,j).le.h_max) THEN
               Bio(i,k,iFeD_)=Bio(i,k,iFeD_)+                            &
      &                       dt(ng)*Fndgcf*(Fe_max-Bio(i,k,iFeD_))
+            ELSE IF (h(i,j).gt.h_max .and. Bio(i,k,iFeD_).lt.0.1_r8) THEN
+                    Bio(i,k,iFeD_)=Bio(i,k,iFeD_)+                            &
+     &                       dt(ng)*Fndgcf*(0.1_r8-Bio(i,k,iFeD_))
             END IF
           END DO
         END DO

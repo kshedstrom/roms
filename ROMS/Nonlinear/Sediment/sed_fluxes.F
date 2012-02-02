@@ -6,7 +6,7 @@
 !
 !svn $Id$
 !==================================================== John C. Warner ===
-!  Copyright (c) 2002-2011 The ROMS/TOMS Group      Hernan G. Arango   !
+!  Copyright (c) 2002-2012 The ROMS/TOMS Group      Hernan G. Arango   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -177,18 +177,6 @@
 !
 !  Local variable declarations.
 !
-# ifdef DISTRIBUTE
-#  ifdef EW_PERIODIC
-      logical :: EWperiodic=.TRUE.
-#  else
-      logical :: EWperiodic=.FALSE.
-#  endif
-#  ifdef NS_PERIODIC
-      logical :: NSperiodic=.TRUE.
-#  else
-      logical :: NSperiodic=.FALSE.
-#  endif
-# endif
       integer :: Ksed, i, indx, ised, j, k, ks
       integer :: bnew
 

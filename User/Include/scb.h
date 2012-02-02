@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2011 The ROMS/TOMS Group                               **
+** Copyright (c) 2002-2012 The ROMS/TOMS Group                               **
 **   Licensed under a MIT/X style license                                    **
 **   See License_ROMS.txt                                                    **
 *******************************************************************************
@@ -68,27 +68,6 @@
 #  define LMD_SKPP
 # endif
 
-# undef CLOSED_OBC
-# ifdef CLOSED_OBC
-#  define NORTHERN_WALL
-#  define SOUTHERN_WALL
-#  define EASTERN_WALL
-#  define WESTERN_WALL
-# else
-#  define EASTERN_WALL
-#  define WEST_FSCHAPMAN
-#  define WEST_M2FLATHER
-#  define WEST_M3CLAMPED
-#  define WEST_TCLAMPED
-#  define SOUTH_FSCHAPMAN
-#  define SOUTH_M2FLATHER
-#  define SOUTH_M3CLAMPED
-#  define SOUTH_TCLAMPED
-#  define NORTH_FSCHAPMAN
-#  define NORTH_M2FLATHER
-#  define NORTH_M3CLAMPED
-#  define NORTH_TCLAMPED
-# endif
 # define ANA_BSFLUX
 # define ANA_BTFLUX
 

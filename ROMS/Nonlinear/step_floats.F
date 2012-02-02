@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2011 The ROMS/TOMS Group        John M. Klinck   !
+!  Copyright (c) 2002-2012 The ROMS/TOMS Group        John M. Klinck   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -357,7 +357,7 @@
 !
 # ifdef SOLVE3D
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, N(ng),             &
-     &                    Lstr, Lend, nfp1, ixrhs,                      &
+     &                    Lstr, Lend, nfp1, ixrhs, isUvel,              &
      &                    -u3dvar, Lmask, spval, nudg,                  &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
@@ -369,7 +369,7 @@
      &                    MyThread, bounded, track)
 
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, N(ng),             &
-     &                    Lstr, Lend, nfp1, iyrhs,                      &
+     &                    Lstr, Lend, nfp1, iyrhs, isVvel,              &
      &                    -v3dvar, Lmask, spval, nudg,                  &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
@@ -439,7 +439,7 @@
 #   else
 
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 0, N(ng),             &
-     &                    Lstr, Lend, nfp1, izrhs,                      &
+     &                    Lstr, Lend, nfp1, izrhs, isBw3d,              &
      &                    -w3dvar, Lmask, spval, nudg,                  &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
@@ -454,7 +454,7 @@
 
 # else
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,                 &
-     &                    Lstr, Lend, nfp1, ixrhs,                      &
+     &                    Lstr, Lend, nfp1, ixrhs, isUbar,              &
      &                    -u2dvar, Lmask, spval, nudg,                  &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
@@ -465,7 +465,7 @@
      &                    MyThread, bounded, track)
 
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,                 &
-     &                    Lstr, Lend, nfp1, iyrhs,                      &
+     &                    Lstr, Lend, nfp1, iyrhs, isVbar,              &
      &                    -v2dvar, Lmask, spval, nudg,                  &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
@@ -604,112 +604,113 @@
 !  Determine floats status.
 !-----------------------------------------------------------------------
 !
-# ifdef EW_PERIODIC
-      cff1=REAL(Lm(ng),r8)
-      DO l=Lstr,Lend
-        IF (MyThread(l).and.bounded(l)) THEN
-          IF (track(ixgrd,nfp1,l).ge.REAL(Lm(ng)+1,r8)-0.5_r8) THEN
-            track(ixgrd,nfp1,l)=track(ixgrd,nfp1,l)-cff1
-            track(ixgrd,nf  ,l)=track(ixgrd,nf  ,l)-cff1
-            track(ixgrd,nfm1,l)=track(ixgrd,nfm1,l)-cff1
-            track(ixgrd,nfm2,l)=track(ixgrd,nfm2,l)-cff1
-            track(ixgrd,nfm3,l)=track(ixgrd,nfm3,l)-cff1
-          ELSE IF (track(ixgrd,nfp1,l).lt.0.5_r8) THEN
-            track(ixgrd,nfp1,l)=cff1+track(ixgrd,nfp1,l)
-            track(ixgrd,nf  ,l)=cff1+track(ixgrd,nf  ,l)
-            track(ixgrd,nfm1,l)=cff1+track(ixgrd,nfm1,l)
-            track(ixgrd,nfm2,l)=cff1+track(ixgrd,nfm2,l)
-            track(ixgrd,nfm3,l)=cff1+track(ixgrd,nfm3,l)
-          END IF
-        END IF
-      END DO
-#  ifdef DISTRIBUTE
-      IF (NtileI(ng).gt.1) THEN
-        Fwrk=RESHAPE(track,(/Npts/))
-        CALL mp_collect (ng, iNLM, Npts, Fspv, Fwrk)
-        track=RESHAPE(Fwrk,(/NFV(ng),NFT+1,Nfloats(ng)/))
+      IF (EWperiodic(ng)) THEN
+        cff1=REAL(Lm(ng),r8)
         DO l=Lstr,Lend
-          IF ((Xstr.le.track(ixgrd,nfp1,l)).and.                        &
-     &        (track(ixgrd,nfp1,l).lt.Xend).and.                        &
-     &        (Ystr.le.track(iygrd,nfp1,l)).and.                        &
-     &        (track(iygrd,nfp1,l).lt.Yend)) THEN
-            MyThread(l)=.TRUE.
-          ELSE IF (Master.and.(.not.bounded(l))) THEN
-            MyThread(l)=.TRUE.
-          ELSE
-            MyThread(l)=.FALSE.
-            DO j=0,NFT
-              DO i=1,NFV(ng)
-                track(i,j,l)=Fspv
+          IF (MyThread(l).and.bounded(l)) THEN
+            IF (track(ixgrd,nfp1,l).ge.REAL(Lm(ng)+1,r8)-0.5_r8) THEN
+              track(ixgrd,nfp1,l)=track(ixgrd,nfp1,l)-cff1
+              track(ixgrd,nf  ,l)=track(ixgrd,nf  ,l)-cff1
+              track(ixgrd,nfm1,l)=track(ixgrd,nfm1,l)-cff1
+              track(ixgrd,nfm2,l)=track(ixgrd,nfm2,l)-cff1
+              track(ixgrd,nfm3,l)=track(ixgrd,nfm3,l)-cff1
+            ELSE IF (track(ixgrd,nfp1,l).lt.0.5_r8) THEN
+              track(ixgrd,nfp1,l)=cff1+track(ixgrd,nfp1,l)
+              track(ixgrd,nf  ,l)=cff1+track(ixgrd,nf  ,l)
+              track(ixgrd,nfm1,l)=cff1+track(ixgrd,nfm1,l)
+              track(ixgrd,nfm2,l)=cff1+track(ixgrd,nfm2,l)
+              track(ixgrd,nfm3,l)=cff1+track(ixgrd,nfm3,l)
+            END IF
+          END IF
+        END DO
+# ifdef DISTRIBUTE
+        IF (NtileI(ng).gt.1) THEN
+          Fwrk=RESHAPE(track,(/Npts/))
+          CALL mp_collect (ng, iNLM, Npts, Fspv, Fwrk)
+          track=RESHAPE(Fwrk,(/NFV(ng),NFT+1,Nfloats(ng)/))
+          DO l=Lstr,Lend
+            IF ((Xstr.le.track(ixgrd,nfp1,l)).and.                      &
+     &          (track(ixgrd,nfp1,l).lt.Xend).and.                      &
+     &          (Ystr.le.track(iygrd,nfp1,l)).and.                      &
+     &          (track(iygrd,nfp1,l).lt.Yend)) THEN
+              MyThread(l)=.TRUE.
+            ELSE IF (Master.and.(.not.bounded(l))) THEN
+              MyThread(l)=.TRUE.
+            ELSE
+              MyThread(l)=.FALSE.
+              DO j=0,NFT
+                DO i=1,NFV(ng)
+                  track(i,j,l)=Fspv
+                END DO
               END DO
-            END DO
+            END IF
+          END DO
+        END IF
+# endif
+      ELSE
+        DO l=Lstr,Lend
+          IF (MyThread(l).and.bounded(l)) THEN
+            IF ((track(ixgrd,nfp1,l).ge.REAL(Lm(ng)+1,r8)-0.5_r8).or.   &
+     &          (track(ixgrd,nfp1,l).lt.0.5_r8)) THEN
+              bounded(l)=.FALSE.
+            END IF
           END IF
         END DO
       END IF
-#  endif
-# else
-      DO l=Lstr,Lend
-        IF (MyThread(l).and.bounded(l)) THEN
-          IF ((track(ixgrd,nfp1,l).ge.REAL(Lm(ng)+1,r8)-0.5_r8).or.     &
-     &        (track(ixgrd,nfp1,l).lt.0.5_r8)) THEN
-            bounded(l)=.FALSE.
-          END IF
-        END IF
-      END DO
-# endif
-# ifdef NS_PERIODIC
-      cff1=REAL(Mm(ng),r8)
-      DO l=Lstr,Lend
-        IF (MyThread(l).and.bounded(l)) THEN
-          IF (track(iygrd,nfp1,l).ge.REAL(Mm(ng)+1,r8)-0.5_r8) THEN
-            track(iygrd,nfp1,l)=track(iygrd,nfp1,l)-cff1
-            track(iygrd,nf  ,l)=track(iygrd,nf  ,l)-cff1
-            track(iygrd,nfm1,l)=track(iygrd,nfm1,l)-cff1
-            track(iygrd,nfm2,l)=track(iygrd,nfm2,l)-cff1
-            track(iygrd,nfm3,l)=track(iygrd,nfm3,l)-cff1
-          ELSE IF (track(iygrd,nfp1,l).lt.0.5_r8) THEN
-            track(iygrd,nfp1,l)=cff1+track(iygrd,nfp1,l)
-            track(iygrd,nf  ,l)=cff1+track(iygrd,nf  ,l)
-            track(iygrd,nfm1,l)=cff1+track(iygrd,nfm1,l)
-            track(iygrd,nfm2,l)=cff1+track(iygrd,nfm2,l)
-            track(iygrd,nfm3,l)=cff1+track(iygrd,nfm3,l)
-          END IF
-        END IF
-      END DO
-#  ifdef DISTRIBUTE
-      IF (NtileJ(ng).gt.1) THEN
-        Fwrk=RESHAPE(track,(/Npts/))
-        CALL mp_collect (ng, iNLM, Npts, Fspv, Fwrk)
-        track=RESHAPE(Fwrk,(/NFV(ng),NFT+1,Nfloats(ng)/))
+!
+      IF (NSperiodic(ng)) THEN
+        cff1=REAL(Mm(ng),r8)
         DO l=Lstr,Lend
-          IF ((Xstr.le.track(ixgrd,nfp1,l)).and.                        &
-     &        (track(ixgrd,nfp1,l).lt.Xend).and.                        &
-     &        (Ystr.le.track(iygrd,nfp1,l)).and.                        &
-     &        (track(iygrd,nfp1,l).lt.Yend)) THEN
-            MyThread(l)=.TRUE.
-          ELSE IF (Master.and.(.not.bounded(l))) THEN
-            MyThread(l)=.TRUE.
-          ELSE
-            MyThread(l)=.FALSE.
-            DO j=0,NFT
-              DO i=1,NFV(ng)
-                track(i,j,l)=Fspv
+          IF (MyThread(l).and.bounded(l)) THEN
+            IF (track(iygrd,nfp1,l).ge.REAL(Mm(ng)+1,r8)-0.5_r8) THEN
+              track(iygrd,nfp1,l)=track(iygrd,nfp1,l)-cff1
+              track(iygrd,nf  ,l)=track(iygrd,nf  ,l)-cff1
+              track(iygrd,nfm1,l)=track(iygrd,nfm1,l)-cff1
+              track(iygrd,nfm2,l)=track(iygrd,nfm2,l)-cff1
+              track(iygrd,nfm3,l)=track(iygrd,nfm3,l)-cff1
+            ELSE IF (track(iygrd,nfp1,l).lt.0.5_r8) THEN
+              track(iygrd,nfp1,l)=cff1+track(iygrd,nfp1,l)
+              track(iygrd,nf  ,l)=cff1+track(iygrd,nf  ,l)
+              track(iygrd,nfm1,l)=cff1+track(iygrd,nfm1,l)
+              track(iygrd,nfm2,l)=cff1+track(iygrd,nfm2,l)
+              track(iygrd,nfm3,l)=cff1+track(iygrd,nfm3,l)
+            END IF
+          END IF
+        END DO
+# ifdef DISTRIBUTE
+        IF (NtileJ(ng).gt.1) THEN
+          Fwrk=RESHAPE(track,(/Npts/))
+          CALL mp_collect (ng, iNLM, Npts, Fspv, Fwrk)
+          track=RESHAPE(Fwrk,(/NFV(ng),NFT+1,Nfloats(ng)/))
+          DO l=Lstr,Lend
+            IF ((Xstr.le.track(ixgrd,nfp1,l)).and.                      &
+     &          (track(ixgrd,nfp1,l).lt.Xend).and.                      &
+     &          (Ystr.le.track(iygrd,nfp1,l)).and.                      &
+     &          (track(iygrd,nfp1,l).lt.Yend)) THEN
+              MyThread(l)=.TRUE.
+            ELSE IF (Master.and.(.not.bounded(l))) THEN
+              MyThread(l)=.TRUE.
+            ELSE
+              MyThread(l)=.FALSE.
+              DO j=0,NFT
+                DO i=1,NFV(ng)
+                  track(i,j,l)=Fspv
+                END DO
               END DO
-            END DO
+            END IF
+          END DO
+        END IF
+# endif
+      ELSE
+        DO l=Lstr,Lend
+          IF (MyThread(l).and.bounded(l)) THEN
+            IF ((track(iygrd,nfp1,l).ge.REAL(Mm(ng)+1,r8)-0.5_r8).or.   &
+     &          (track(iygrd,nfp1,l).lt.0.5_r8)) THEN
+              bounded(l)=.FALSE.
+            END IF
           END IF
         END DO
       END IF
-#  endif
-# else
-      DO l=Lstr,Lend
-        IF (MyThread(l).and.bounded(l)) THEN
-          IF ((track(iygrd,nfp1,l).ge.REAL(Mm(ng)+1,r8)-0.5_r8).or.     &
-     &        (track(iygrd,nfp1,l).lt.0.5_r8)) THEN
-            bounded(l)=.FALSE.
-          END IF
-        END IF
-      END DO
-# endif
 !
 !-----------------------------------------------------------------------
 !  If appropriate, activate the release of new floats and set initial
@@ -796,7 +797,7 @@
 !
 # ifdef SOLVE3D
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, N(ng),             &
-     &                    Lstr, Lend, nfp1, ixrhs,                      &
+     &                    Lstr, Lend, nfp1, ixrhs, isUvel,              &
      &                    -u3dvar, Lmask, spval, nudg,                  &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
@@ -808,7 +809,7 @@
      &                    MyThread, bounded, track)
 
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, N(ng),             &
-     &                    Lstr, Lend, nfp1, iyrhs,                      &
+     &                    Lstr, Lend, nfp1, iyrhs, isVvel,              &
      &                    -v3dvar, Lmask, spval, nudg,                  &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
@@ -821,7 +822,7 @@
 
 #  if !defined FLOAT_VWALK
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 0, N(ng),             &
-     &                    Lstr, Lend, nfp1, izrhs,                      &
+     &                    Lstr, Lend, nfp1, izrhs, isBw3d,              &
      &                    -w3dvar, Lmask, spval, nudg,                  &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
@@ -834,7 +835,7 @@
 #  endif
 # else
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,                 &
-     &                    Lstr, Lend, nfp1, ixrhs,                      &
+     &                    Lstr, Lend, nfp1, ixrhs, isUbar,              &
      &                    -u2dvar, Lmask, spval, nudg,                  &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
@@ -845,7 +846,7 @@
      &                    MyThread, bounded, track)
 
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,                 &
-     &                    Lstr, Lend, nfp1, iyrhs,                      &
+     &                    Lstr, Lend, nfp1, iyrhs, isVbar,              &
      &                    -v2dvar, Lmask, spval, nudg,                  &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
@@ -883,7 +884,7 @@
 !
       IF (spherical) THEN
         CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,               &
-     &                      Lstr, Lend, nfp1, iflon,                    &
+     &                      Lstr, Lend, nfp1, iflon, isBr2d,            &
      &                      r2dvar, Gmask, spval, nudg,                 &
      &                      GRID(ng) % pm,                              &
      &                      GRID(ng) % pn,                              &
@@ -897,7 +898,7 @@
      &                      MyThread, bounded, track)
 
         CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,               &
-     &                      Lstr, Lend, nfp1, iflat,                    &
+     &                      Lstr, Lend, nfp1, iflat, isBr2d,            &
      &                      r2dvar, Gmask, spval, nudg,                 &
      &                      GRID(ng) % pm,                              &
      &                      GRID(ng) % pn,                              &
@@ -911,7 +912,7 @@
      &                      MyThread, bounded, track)
       ELSE
         CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,               &
-     &                      Lstr, Lend, nfp1, iflon,                    &
+     &                      Lstr, Lend, nfp1, iflon, isBr2d,            &
      &                      r2dvar, Gmask, spval, nudg,                 &
      &                      GRID(ng) % pm,                              &
      &                      GRID(ng) % pn,                              &
@@ -925,7 +926,7 @@
      &                      MyThread, bounded, track)
 
         CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,               &
-     &                      Lstr, Lend, nfp1, iflat,                    &
+     &                      Lstr, Lend, nfp1, iflat, isBr2d,            &
      &                      r2dvar, Gmask, spval, nudg,                 &
      &                      GRID(ng) % pm,                              &
      &                      GRID(ng) % pn,                              &
@@ -940,7 +941,7 @@
       END IF
 # ifdef SOLVE3D
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 0, N(ng),             &
-     &                    Lstr, Lend, nfp1, idpth,                      &
+     &                    Lstr, Lend, nfp1, idpth, isBw3d,              &
      &                    w3dvar, Lmask, spval, nudg,                   &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
@@ -952,7 +953,7 @@
      &                    MyThread, bounded, track)
 
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, N(ng),             &
-     &                    Lstr, Lend, nfp1, ifden,                      &
+     &                    Lstr, Lend, nfp1, ifden,  isBr3d,             &
      &                    r3dvar, Lmask, spval, nudg,                   &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
@@ -966,7 +967,7 @@
       DO itrc=1,NT(ng)
         CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, N(ng),           &
      &                      Lstr, Lend, nfp1, ifTvar(itrc),             &
-     &                      r3dvar, Lmask, spval, nudg,                 &
+     &                      isTvar(itrc), r3dvar, Lmask, spval, nudg,   &
      &                      GRID(ng) % pm,                              &
      &                      GRID(ng) % pn,                              &
      &                      GRID(ng) % Hz,                              &

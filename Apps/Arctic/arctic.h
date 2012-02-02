@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2011 The ROMS/TOMS Group
+** Copyright (c) 2002-2012 The ROMS/TOMS Group
 **
 **   Licensed under a MIT/X style license
 **
@@ -58,9 +58,9 @@
 #  define  ICE_SMOLAR
 #  define  ICE_UPWIND
 #  define  ICE_BULK_FLUXES
-#  define  ANA_AIOBC
-#  define  ANA_HIOBC
-#  define  ANA_HSNOBC
+#  undef  ANA_AIOBC
+#  undef  ANA_HIOBC
+#  undef  ANA_HSNOBC
 # endif
 #endif
 

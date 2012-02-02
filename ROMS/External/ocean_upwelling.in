@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !========================================================= Hernan G. Arango ===
-!  Copyright (c) 2002-2011 The ROMS/TOMS Group                                !
+!  Copyright (c) 2002-2012 The ROMS/TOMS Group                                !
 !    Licensed under a MIT/X style license                                     !
 !    See License_ROMS.txt                                                     !
 !==============================================================================
@@ -100,6 +100,91 @@
 
       NtileI == 1                               ! I-direction partition
       NtileJ == 1                               ! J-direction partition
+
+! Set lateral boundary conditions keyword. Notice that a value is expected
+! for each boundary segment per nested grid for each state variable.
+!
+! Each tracer variable requires [1:4,1:NAT+NPT,Ngrids] values. Otherwise,
+! [1:4,1:Ngrids] values are expected for other variables. The boundary
+! order is: 1=west, 2=south, 3=east, and 4=north. That is, anticlockwise
+! starting at the western boundary.
+!
+! The keyword is case insensitive and usually has three characters. However,
+! it is possible to have compound keywords, if applicable. For example, the
+! keyword "RadNud" implies radiation boundary condition with nudging. This
+! combination is usually used in active/passive radiation conditions.
+!
+!   Keyword    Lateral Boundary Condition Type
+!
+!   Cha        Chapman
+!   Cla        Clamped
+!   Clo        Closed
+!   Fla        Flather                                _____N_____     j=Mm
+!   Gra        Gradient                              |     4     |
+!   Nes        Nested                                |           |
+!   Nud        Nudging                             1 W           E 3
+!   Per        Periodic                              |           |
+!   Rad        Radiation                             |_____S_____|
+!   Red        Reduced Physics                             2          j=1
+!                                                   i=1         i=Lm
+!                   W       S       E       N
+!                   e       o       a       o
+!                   s       u       s       r
+!                   t       t       t       t
+!                           h               h
+!
+!                   1       2       3       4
+
+   LBC(isFsur) ==   Per     Clo     Per     Clo         ! free-surface
+   LBC(isUbar) ==   Per     Clo     Per     Clo         ! 2D U-momentum
+   LBC(isVbar) ==   Per     Clo     Per     Clo         ! 2D V-momentum
+   LBC(isUvel) ==   Per     Clo     Per     Clo         ! 3D U-momentum
+   LBC(isVvel) ==   Per     Clo     Per     Clo         ! 3D V-momentum
+   LBC(isMtke) ==   Per     Clo     Per     Clo         ! mixing TKE
+
+   LBC(isTvar) ==   Per     Clo     Per     Clo \       ! temperature
+                    Per     Clo     Per     Clo         ! salinity
+
+! Ice boundary conditions
+
+   LBC(isAice) ==   Per     Clo     Per     Clo         ! ice concentration
+   LBC(isHice) ==   Per     Clo     Per     Clo         ! ice thickness
+   LBC(isHsno) ==   Per     Clo     Per     Clo         ! snow thickness
+   LBC(isTice) ==   Per     Clo     Per     Clo         ! ice temperature
+   LBC(isSfwat)==   Per     Clo     Per     Clo         ! surface water
+   LBC(isSig11)==   Per     Clo     Per     Clo         ! sigma-11
+   LBC(isSig12)==   Per     Clo     Per     Clo         ! sigma-12
+   LBC(isSig22)==   Per     Clo     Per     Clo         ! sigma-22
+   LBC(isUice) ==   Per     Clo     Per     Clo         ! ice U-momentum
+   LBC(isVice) ==   Per     Clo     Per     Clo         ! ice V-momentum
+
+! Adjoint-based algorithms can have different lateral boundary
+! conditions keywords.
+
+ad_LBC(isFsur) ==   Per     Clo     Per     Clo         ! free-surface
+ad_LBC(isUbar) ==   Per     Clo     Per     Clo         ! 2D U-momentum
+ad_LBC(isVbar) ==   Per     Clo     Per     Clo         ! 2D U-momentum
+ad_LBC(isUvel) ==   Per     Clo     Per     Clo         ! 3D U-momentum
+ad_LBC(isVvel) ==   Per     Clo     Per     Clo         ! 3D V-momentum
+ad_LBC(isMtke) ==   Per     Clo     Per     Clo         ! mixing TKE
+
+ad_LBC(isTvar) ==   Per     Clo     Per     Clo \       ! temperature
+                    Per     Clo     Per     Clo         ! salinity
+
+! Set lateral open boundary edge volume conservation switch for
+! nonlinear model and adjoint-based algorithms. Usually activated
+! with radiation boundary conditions to enforce global mass
+! conservation, except if tidal forcing enabled. [1:Ngrids].
+
+   VolCons(west)  ==  F                            ! western  boundary
+   VolCons(east)  ==  F                            ! eastern  boundary
+   VolCons(south) ==  F                            ! southern boundary
+   VolCons(north) ==  F                            ! northern boundary
+
+ad_VolCons(west)  ==  F                            ! western  boundary
+ad_VolCons(east)  ==  F                            ! eastern  boundary
+ad_VolCons(south) ==  F                            ! southern boundary
+ad_VolCons(north) ==  F                            ! northern boundary
 
 ! Time-Stepping parameters.
 
@@ -369,10 +454,14 @@ SO_sdev(isTsur) == 1.0d0 1.0d0             ! NT surface tracers flux
 
 Hout(idUvel) == T       ! u                  3D U-velocity
 Hout(idVvel) == T       ! v                  3D V-velocity
+Hout(idu3dE) == F       ! u_eastward         3D U-eastward  at RHO-points
+Hout(idv3dN) == F       ! v_northward        3D V-northward at RHO-points
 Hout(idWvel) == T       ! w                  3D W-velocity
 Hout(idOvel) == T       ! omega              omega vertical velocity
 Hout(idUbar) == T       ! ubar               2D U-velocity
 Hout(idVbar) == T       ! vbar               2D V-velocity
+Hout(idu2dE) == F       ! ubar_eastward      2D U-eastward  at RHO-points
+Hout(idv2dN) == F       ! vbar_northward     2D V-northward at RHO-points
 Hout(idFsur) == T       ! zeta               free-surface
 Hout(idBath) == T       ! bath               time-dependent bathymetry
 
@@ -483,10 +572,14 @@ Hout(idBott) == T T T T T T T T T F F F F F F F
 
 Aout(idUvel) == T       ! u                  3D U-velocity
 Aout(idVvel) == T       ! v                  3D V-velocity
+Aout(idu3dE) == F       ! u_eastward         3D U-eastward  at RHO-points
+Aout(idv3dN) == F       ! v_northward        3D V-northward at RHO-points
 Aout(idWvel) == T       ! w                  3D W-velocity
 Aout(idOvel) == T       ! omega              omega vertical velocity
 Aout(idUbar) == T       ! ubar               2D U-velocity
 Aout(idVbar) == T       ! vbar               2D V-velocity
+Aout(idu2dE) == F       ! ubar_eastward      2D U-eastward  at RHO-points
+Aout(idv2dN) == F       ! vbar_northward     2D V-northward at RHO-points
 Aout(idFsur) == T       ! zeta               free-surface
 
 Aout(idTvar) == T T     ! temp, salt         temperature and salinity
@@ -632,9 +725,16 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
      ITLNAME == ocean_itl.nc
      IRPNAME == ocean_irp.nc
      IADNAME == ocean_iad.nc
-     CLMNAME == ocean_clm.nc
      FWDNAME == ocean_fwd.nc
      ADSNAME == ocean_ads.nc
+
+! Input lateral boundary conditions and climatology file names.  The
+! USER has the option to split input data time records into several
+! NetCDF files (see prologue instructions above). If so, use a single
+! line per entry with a vertical bar (|) symbol after each entry,
+! except the last one.
+
+     CLMNAME == ocean_clm.nc
 
 ! Input boundary NetCDF file name(s).  The USER has the option to enter
 ! several files names per each nested grid.  For example, the USER may
@@ -657,8 +757,8 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
 ! the order of the file names is very important. If using multiple forcing
 ! files per grid, first enter all the file names for grid 1, then grid 2,
 ! and so on.  It is also possible to split input data time records into
-! several NetCDF file (see prologue instructions above). Use a single line
-! per entry with a continuation (\) or vertical bar (|) symbol at the each
+! several NetCDF files (see prologue instructions above). Use a single line
+! per entry with a continuation (\) or vertical bar (|) symbol after each
 ! entry, except the last one.
 
      NFFILES == 1                          ! number of unique forcing files
@@ -804,6 +904,93 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
 !              In distributed-memory (MPI), the product of NtileI and NtileJ
 !              must be EQUAL to the number of parallel nodes specified during
 !              execution with the "mprun" or "mpirun" command.
+!
+!------------------------------------------------------------------------------
+! Lateral boundary conditions parameters.
+!------------------------------------------------------------------------------
+!
+! The lateral boundary conditions are now specified with logical switches
+! instead of CPP flags to allow nested grid configurations. Their values are
+! loaded into structured array:
+!
+!    LBC(1:4, nLBCvar, Ngrids)
+!
+! where 1:4 are the number of boundary edges, nLBCvar are the number LBC state
+! variables, and Ngrids is the number of nested grids. For Example, to apply
+! gradient boundary conditions we use:
+!
+!    LBC(iwest,  isFsur, ng) % gradient
+!    LBC(ieast,  ...   , ng) % gradient
+!    LBC(isouth, ...   , ng) % gradient
+!    LBC(inorth, ...   , ng) % gradient
+!
+! The lateral boundary conditions are entered with a keyword. This keyword
+! is case insensitive and usually has three characters. However, it is
+! possible to have compound keywords, if applicable. For example, the
+! keyword "RadNud" implies radiation boundary condition with nudging. This
+! combination is usually used in active/passive radiation conditions.
+!
+!   Keyword    Lateral Boundary Condition Type
+!
+!   Cha        Chapman
+!   Cla        Clamped
+!   Clo        Closed
+!   Fla        Flather                                _____N_____     j=Mm
+!   Gra        Gradient                              |     4     |
+!   Nes        Nested                                |           |
+!   Nud        Nudging                             1 W           E 3
+!   Per        Periodic                              |           |
+!   Rad        Radiation                             |_____S_____|
+!   Red        Reduced Physics                             2          j=1
+!                                                   i=1         i=Lm
+!
+!  LBC(isFsur) Free-surface,  [1:4, Ngrids] values are expected.
+!  LBC(isUbar) 2D U-momentum, [1:4, Ngrids] values are expected.
+!  LBC(isVbar) 2D V-momentum, [1:4, Ngrids] values are expected.
+!  LBC(isUvel) 3D U-momentum, [1:4, Ngrids] values are expected.
+!  LBC(isVvel) 3D V-momentum, [1:4, Ngrids] values are expected.
+!  LBC(isMtke) Mixing TKE,    [1:4, Ngrids] values are expected.
+!  LBC(isTvar) Tracers,       [1:4, 1:NAT+NPT, Ngrids] values are expected.
+!
+! Ice boundary conditions
+!
+!  LBC(isAice) Ice concentration, [1:4, Ngrids] values are expected.
+!  LBC(isHice) Ice thickness,     [1:4, Ngrids] values are expected.
+!  LBC(isHsno) Snow thickness,    [1:4, Ngrids] values are expected.
+!  LBC(isTice) Ice temperature,   [1:4, Ngrids] values are expected.
+!  LBC(isSfwat)Surface water,     [1:4, Ngrids] values are expected.
+!  LBC(isSig11)Sigma-11,          [1:4, Ngrids] values are expected.
+!  LBC(isSig12)Sigma-12,          [1:4, Ngrids] values are expected.
+!  LBC(isSig22)Sigma-22,          [1:4, Ngrids] values are expected.
+!  LBC(isUice) Ice U-momentum,    [1:4, Ngrids] values are expected.
+!  LBC(isVice) Ice V-momentum,    [1:4, Ngrids] values are expected.
+!
+! Similarly, the adjoint-based algorithms (ADM, TLM, RPM) can have different
+! lateral boundary conditions keywords:
+!
+!  ad_LBC(isFsur) Free-surface,  [1:4, Ngrids] values are expected.
+!  ad_LBC(isUbar) 2D U-momentum, [1:4, Ngrids] values are expected.
+!  ad_LBC(isVbar) 2D V-momentum, [1:4, Ngrids] values are expected.
+!  ad_LBC(isUvel) 3D U-momentum, [1:4, Ngrids] values are expected.
+!  ad_LBC(isVvel) 3D V-momentum, [1:4, Ngrids] values are expected.
+!  ad_LBC(isMtke) Mixing TKE,    [1:4, Ngrids] values are expected.
+!  ad_LBC(isTvar) Tracers,       [1:4, 1:NAT+NPT, Ngrids] values are expected.
+!
+! Lateral open boundary edge volume conservation switch for nonlinear model
+! and adjoint-based algorithm. Usually activated with radiation boundary
+! conditions to enforce global mass conservation. Notice that these switches
+! should not be activated if tidal forcing enabled, [1:Ngrids] values are
+! expected.
+!
+!  VolCons(west)       Western  boundary volume conservation switch.
+!  VolCons(east)       Eastern  boundary volume conservation switch.
+!  VolCons(south)      Southern boundary volume conservation switch.
+!  VolCons(north)      Northern boundary volume conservation switch.
+!
+!  ad_VolCons(west)    Western  boundary volume conservation switch.
+!  ad_VolCons(east)    Eastern  boundary volume conservation switch.
+!  ad_VolCons(south)   Southern boundary volume conservation switch.
+!  ad_VolCons(north)   Northern boundary volume conservation switch.
 !
 !------------------------------------------------------------------------------
 ! Time-Stepping parameters.
@@ -1612,10 +1799,14 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
 !
 !  Hout(idUvel)  Write out 3D U-velocity component.
 !  Hout(idVvel)  Write out 3D V-velocity component.
+!  Hout(idu3dE)  Write out 3D Eastward  velocity component at RHO-points.
+!  Hout(idv3dN)  Write out 3D Northward velocity component at RHO-points.
 !  Hout(idWvel)  Write out 3D W-velocity component.
 !  Hout(idOvel)  Write out 3D omega vertical velocity.
 !  Hout(idUbar)  Write out 2D U-velocity component.
 !  Hout(idVbar)  Write out 2D V-velocity component.
+!  Hout(idu2dE)  Write out 2D Eastward  velocity component at RHO-points.
+!  Hout(idv2dN)  Write out 2D Northward velocity component at RHO-points.
 !  Hout(idFsur)  Write out free-surface.
 !  Hout(idBath)  Write out time-dependent bathymetry.
 !
@@ -1697,10 +1888,14 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
 !
 !  Aout(idUvel)  Write out 3D U-velocity component.
 !  Aout(idVvel)  Write out 3D V-velocity component.
+!  Aout(idu3dE)  Write out 3D Eastward  velocity component at RHO-points.
+!  Aout(idv3dN)  Write out 3D Northward velocity component at RHO-points.
 !  Aout(idWvel)  Write out 3D W-velocity component.
 !  Aout(idOvel)  Write out 3D omega vertical velocity.
 !  Aout(idUbar)  Write out 2D U-velocity component.
 !  Aout(idVbar)  Write out 2D V-velocity component.
+!  Aout(idu2dE)  Write out 2D Eastward  velocity component at RHO-points.
+!  Aout(idv2dN)  Write out 2D Northward velocity component at RHO-points.
 !  Aout(idFsur)  Write out free-surface.
 !
 !  Aout(idTvar)  Write out active (NAT) tracers: temperature and salinity.
@@ -1888,17 +2083,68 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
 ! Input/output NetCDF file names (string with a maximum of 256 characters).
 !------------------------------------------------------------------------------
 !
+! Input file names:
+!
 !  GRDNAME     Input grid file name.
+!
 !  ININAME     Input nonlinear initial conditions file name. It can be a
 !                re-start file.
-!  IRPNAME     Input representer model initial conditions file name.
 !  ITLNAME     Input tangent linear model initial conditions file name.
+!  IRPNAME     Input representer model initial conditions file name.
 !  IADNAME     Input adjoint model initial conditions file name.
-!  FRCNAME     Input forcing fields file name.
-!  CLMNAME     Input climatology fields file name.
-!  BRYNAME     Input open boundary data file name.
+!
 !  FWDNAME     Input forward solution fields file name.
 !  ADSNAME     Input adjoint sensitivity functional file name.
+!
+! Input lateral boundary conditions and climatology file names:
+!
+!  BRYNAME     Input open boundary data file name(s) per nested grid.
+!  CLMNAME     Input climatology fields file name(s) per nested grid
+!
+!  The USER has the option to split input data time records into several
+!  NetCDF files, as many as required. If so, use a single line per entry
+!  with a vertical bar (|) symbol after each entry, except the last one:
+!
+!    BRYNAME == my_bry_year1.nc |
+!               my_bry_year2.nc
+!
+!    CLMNAME == my_clm_year1.nc |
+!               my_clm_year2.nc
+!
+! Input forcing file(s) name:
+!
+!  NFFILES     Number of unique forcing files per nested grid.
+!  FRCNAME     Input forcing fields file name per nested grid.
+!
+!  The USER has the option to enter several file names for forcing fields
+!  and/or split input data time records for each nested grid. For example,
+!  the USER may have different files for wind products, heat fluxes, rivers,
+!  tides, etc.  The model will scan the file list and will read the needed
+!  data from the first file in the list containing the forcing field.
+!  Therefore, the order of the file names is very important. It is also
+!  possible to split input data time records into several NetCDF files.
+!
+!  Use a single line per entry with a continuation (\) or vertical bar (|)
+!  symbol after each entry, except the last one:
+!
+!    NFFILES == 8                          ! number of unique forcing files
+!
+!    FRCNAME == my_rivers.nc      \        ! river forcing
+!               my_tides.nc       \        ! tidal forcing
+!               my_lwrad_year1.nc |        ! net longwave radiation flux
+!               my_lwrad_year2.nc \
+!               my_swrad_year1.nc |        ! solar shortwave radiation flux
+!               my_swrad_year2.nc \
+!               my_winds_year1.nc |        ! surface winds
+!               my_winds_year2.nc \
+!               my_Pair_year1.nc  |        ! surface air pressure
+!               my_Pair_year2.nc  \
+!               my_Qair_year1.nc  |        ! surface air relative humidity
+!               my_Qair_year2.nc  \
+!               my_Tair_year1.nc  |        ! surface air temperature
+!               my_Tair_year2.nc
+!
+! Output file names:
 !
 !  GSTNAME     Output GST analysis re-start file name.
 !  RSTNAME     Output re-start file name.

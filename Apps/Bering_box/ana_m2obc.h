@@ -2,7 +2,7 @@
 !
 !! svn $Id$
 !!======================================================================
-!! Copyright (c) 2002-2011 The ROMS/TOMS Group                         !
+!! Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
 !!   Licensed under a MIT/X style license                              !
 !!   See License_ROMS.txt                                              !
 !=======================================================================
@@ -141,7 +141,7 @@
      &                           om_v(i,Jstr)
           my_width=my_width+om_v(i,Jstr)
         END DO
-        fac=1.0d6
+        fac=-1.0d6
         DO i=Istr,IendR
           BOUNDARY(ng)%ubar_south(i)=0.0_r8
         END DO

@@ -2,7 +2,7 @@
 !
 !! svn $Id$
 !!======================================================================
-!! Copyright (c) 2002-2011 The ROMS/TOMS Group                         !
+!! Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
 !!   Licensed under a MIT/X style license                              !
 !!   See License_ROMS.txt                                              !
 !=======================================================================
@@ -255,7 +255,7 @@
 !$OMP BARRIER
 
 # if defined BERING_BOX
-      cff = 1.e6_r8/Nsrc
+      cff = -1.e6_r8/Nsrc
       DO is=1,Nsrc
         Qbar(is)=cff
       END DO
