@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !=======================================================================
-!  Copyright (c) 2002-2011 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                           Hernan G. Arango   !
 !========================================== Alexander F. Shchepetkin ===
@@ -77,17 +77,18 @@
 # ifdef FLOATS
       integer :: Lend, Lstr, chunk_size
 # endif
-      real(r8) :: my_StepTime
+      real(r8) :: MaxDT, my_StepTime
 !
 !=======================================================================
 !  Time-step vertically integrated equations.
 !=======================================================================
 !
       my_StepTime=0.0_r8
+      MaxDT=MAXVAL(dt)
 
-      STEP_LOOP : DO WHILE (my_StepTime.le.RunInterval)
+      STEP_LOOP : DO WHILE (my_StepTime.le.(RunInterval+0.5_r8*MaxDT))
 
-        my_StepTime=my_StepTime+MAXVAL(dt)
+        my_StepTime=my_StepTime+MaxDT
 !
 !  Set time clock.
 !

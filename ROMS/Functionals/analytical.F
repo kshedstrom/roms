@@ -1,10 +1,9 @@
 #include "cppdefs.h"
       MODULE analytical_mod
-#ifdef ANALYTICAL
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2011 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -79,9 +78,10 @@
 !=======================================================================
 !
       implicit none
-
+!
       CONTAINS
 
+#ifdef ANALYTICAL
 # if defined ANA_AIOBC && defined ICE_MODEL
 #  include <ana_aiobc.h>
 # endif
@@ -271,7 +271,6 @@
 # if defined ANA_WWAVE
 #  include <ana_wwave.h>
 # endif
-
 #endif
 
       END MODULE analytical_mod

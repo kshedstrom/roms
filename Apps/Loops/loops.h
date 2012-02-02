@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2011 The ROMS/TOMS Group
+** Copyright (c) 2002-2012 The ROMS/TOMS Group
 **
 **   Licensed under a MIT/X style license
 **
@@ -31,8 +31,5 @@
 #define ANA_STFLUX
 #define ANA_BTFLUX
 #define ANA_VMIX
-#define EASTERN_WALL
-#define WESTERN_WALL
-#define NS_PERIODIC
 #define  UV_LDRAG
 

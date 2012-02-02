@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !=======================================================================
-!  Copyright (c) 2002-2011 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                           Hernan G. Arango   !
 !========================================== Alexander F. Shchepetkin ===
@@ -15,10 +15,10 @@
 !=======================================================================
 !
       implicit none
-
+!
       PRIVATE
       PUBLIC  :: rhs3d
-
+!
       CONTAINS
 !
 !***********************************************************************
@@ -173,7 +173,7 @@
 !
       CALL uv3dmix4 (ng, tile)
 # endif
-#endif
+# endif /* !OFFLINE */
       RETURN
       END SUBROUTINE rhs3d
 !
@@ -313,18 +313,6 @@
 !
 !  Local variable declarations.
 !
-# ifdef DISTRIBUTE
-#  ifdef EW_PERIODIC
-      logical :: EWperiodic=.TRUE.
-#  else
-      logical :: EWperiodic=.FALSE.
-#  endif
-#  ifdef NS_PERIODIC
-      logical :: NSperiodic=.TRUE.
-#  else
-      logical :: NSperiodic=.FALSE.
-#  endif
-# endif
       integer :: i, j, k
 
       real(r8), parameter :: Gadv = -0.25_r8
@@ -692,20 +680,22 @@
             Huxx(i,j)=Huon(i-1,j,k)-2.0_r8*Huon(i,j,k)+Huon(i+1,j,k)
           END DO
         END DO
-#   if !defined EW_PERIODIC && !defined COMPOSED_GRID
-        IF (DOMAIN(ng)%Western_Edge(tile)) THEN
-          DO j=Jstr,Jend
-            uxx (Istr,j)=uxx (Istr+1,j)
-            Huxx(Istr,j)=Huxx(Istr+1,j)
-          END DO
+        IF (.not.ComposedGrid(ng)) THEN
+          IF (.not.EWperiodic(ng)) THEN
+            IF (DOMAIN(ng)%Western_Edge(tile)) THEN
+              DO j=Jstr,Jend
+                uxx (Istr,j)=uxx (Istr+1,j)
+                Huxx(Istr,j)=Huxx(Istr+1,j)
+              END DO
+            END IF
+            IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
+              DO j=Jstr,Jend
+                uxx (Iend+1,j)=uxx (Iend,j)
+                Huxx(Iend+1,j)=Huxx(Iend,j)
+              END DO
+            END IF
+          END IF
         END IF
-        IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
-          DO j=Jstr,Jend
-            uxx (Iend+1,j)=uxx (Iend,j)
-            Huxx(Iend+1,j)=Huxx(Iend,j)
-          END DO
-        END IF
-#   endif
 #   ifdef UV_C4ADVECTION
 !
 !  Fourth-order, centered differences u-momentum horizontal advection.
@@ -763,18 +753,20 @@
      &               u(i,j+1,k,nrhs)
           END DO
         END DO
-#   if !defined NS_PERIODIC && !defined COMPOSED_GRID
-        IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
-          DO i=IstrU,Iend
-            uee(i,Jstr-1)=uee(i,Jstr)
-          END DO
+        IF (.not.ComposedGrid(ng)) THEN
+          IF (.not.NSperiodic(ng)) THEN
+            IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
+              DO i=IstrU,Iend
+                uee(i,Jstr-1)=uee(i,Jstr)
+              END DO
+            END IF
+            IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
+              DO i=IstrU,Iend
+                uee(i,Jend+1)=uee(i,Jend)
+              END DO
+            END IF
+          END IF
         END IF
-        IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
-          DO i=IstrU,Iend
-            uee(i,Jend+1)=uee(i,Jend)
-          END DO
-        END IF
-#   endif
         DO j=Jstr,Jend+1
           DO i=IstrU-1,Iend
            Hvxx(i,j)=Hvom(i-1,j,k)-2.0_r8*Hvom(i,j,k)+Hvom(i+1,j,k)
@@ -829,18 +821,20 @@
      &               v(i+1,j,k,nrhs)
           END DO
         END DO
-#   if !defined EW_PERIODIC && !defined COMPOSED_GRID
-        IF (DOMAIN(ng)%Western_Edge(tile)) THEN
-          DO j=JstrV,Jend
-            vxx(Istr-1,j)=vxx(Istr,j)
-          END DO
+        IF (.not.ComposedGrid(ng)) THEN
+          IF (.not.EWperiodic(ng)) THEN
+            IF (DOMAIN(ng)%Western_Edge(tile)) THEN
+              DO j=JstrV,Jend
+                vxx(Istr-1,j)=vxx(Istr,j)
+              END DO
+            END IF
+            IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
+              DO j=JstrV,Jend
+                vxx(Iend+1,j)=vxx(Iend,j)
+              END DO
+            END IF
+          END IF
         END IF
-        IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
-          DO j=JstrV,Jend
-            vxx(Iend+1,j)=vxx(Iend,j)
-          END DO
-        END IF
-#   endif
         DO j=JstrV-1,Jend
           DO i=Istr,Iend+1
            Huee(i,j)=Huon(i,j-1,k)-2.0_r8*Huon(i,j,k)+Huon(i,j+1,k)
@@ -903,20 +897,22 @@
             Hvee(i,j)=Hvom(i,j-1,k)-2.0_r8*Hvom(i,j,k)+Hvom(i,j+1,k)
           END DO
         END DO
-#   if !defined NS_PERIODIC && !defined COMPOSED_GRID
-        IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
-          DO i=Istr,Iend
-            vee (i,Jstr)=vee (i,Jstr+1)
-            Hvee(i,Jstr)=Hvee(i,Jstr+1)
-          END DO
+        IF (.not.ComposedGrid(ng)) THEN
+          IF (.not.NSperiodic(ng)) THEN
+            IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
+              DO i=Istr,Iend
+                vee (i,Jstr)=vee (i,Jstr+1)
+                Hvee(i,Jstr)=Hvee(i,Jstr+1)
+              END DO
+            END IF
+            IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
+              DO i=Istr,Iend
+                vee (i,Jend+1)=vee (i,Jend)
+                Hvee(i,Jend+1)=Hvee(i,Jend)
+              END DO
+            END IF
+          END IF
         END IF
-        IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
-          DO i=Istr,Iend
-            vee (i,Jend+1)=vee (i,Jend)
-            Hvee(i,Jend+1)=Hvee(i,Jend)
-          END DO
-        END IF
-#   endif
 #   ifdef UV_C4ADVECTION
         cff=1.0_r8/6.0_r8
         DO j=JstrV-1,Jend

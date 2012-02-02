@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2011 The ROMS/TOMS Group
+** Copyright (c) 2002-2012 The ROMS/TOMS Group
 **
 **   Licensed under a MIT/X style license
 **
@@ -25,7 +25,5 @@
 #define ANA_INITIAL
 #define ANA_SMFLUX
 
-#define EAST_FSCHAPMAN
-#define EAST_M2FLATHER
 #define ANA_FSOBC
 #define ANA_M2OBC

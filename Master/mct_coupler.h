@@ -2,7 +2,7 @@
 !
 !svn $Id: mct_coupler.h 86 2011-04-13 19:54:26Z arango $
 !=======================================================================
-!  Copyright (c) 2002-2011 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                           Hernan G. Arango   !
 !==================================================== John C. Warner ===
@@ -159,7 +159,7 @@
 !  Terminates all the mpi-processing and coupling.
 !-----------------------------------------------------------------------
 !
-      CALL mpi_barrier (MPI_COMM_WORLD)
+      CALL mpi_barrier (MPI_COMM_WORLD, MyError)
       CALL MCTWorld_clean ()
       CALL mpi_finalize (MyError)
 

@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2011 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -84,6 +84,12 @@
 !  rmask_avg  Time-average FillValue mask at   U-points (0=dry, 1=wet) !
 !  rmask_avg  Time-average FillValue mask at   V-points (0=dry, 1=wet) !
 # endif
+# if defined AVERAGES2
+!  pmask_avg2 Time-average FillValue mask at PSI-points (0=dry, 1=wet) !
+!  rmask_avg2 Time-average FillValue mask at RHO-points (0=dry, 1=wet) !
+!  rmask_avg2 Time-average FillValue mask at   U-points (0=dry, 1=wet) !
+!  rmask_avg2 Time-average FillValue mask at   V-points (0=dry, 1=wet) !
+# endif
 # ifdef DIAGNOSTICS
 !
 !  pmask_dia  Diagnostics FillValue mask at PSI-points (0=dry, 1=wet)  !
@@ -147,10 +153,9 @@
 #endif
 
           real(r8), pointer :: angler(:,:)
-#ifdef CURVGRID
           real(r8), pointer :: CosAngler(:,:)
           real(r8), pointer :: SinAngler(:,:)
-#endif
+
 #if defined CURVGRID && defined UV_ADV
           real(r8), pointer :: dmde(:,:)
           real(r8), pointer :: dndx(:,:)
@@ -235,6 +240,12 @@
           real(r8), pointer :: rmask_avg(:,:)
           real(r8), pointer :: umask_avg(:,:)
           real(r8), pointer :: vmask_avg(:,:)
+# endif
+# if defined AVERAGES2
+          real(r8), pointer :: pmask_avg2(:,:)
+          real(r8), pointer :: rmask_avg2(:,:)
+          real(r8), pointer :: umask_avg2(:,:)
+          real(r8), pointer :: vmask_avg2(:,:)
 # endif
 # ifdef DIAGNOSTICS
           real(r8), pointer :: pmask_dia(:,:)
@@ -335,10 +346,9 @@
 #endif
 
       allocate ( GRID(ng) % angler(LBi:UBi,LBj:UBj) )
-#ifdef CURVGRID
       allocate ( GRID(ng) % CosAngler(LBi:UBi,LBj:UBj) )
       allocate ( GRID(ng) % SinAngler(LBi:UBi,LBj:UBj) )
-#endif
+
 #if defined CURVGRID && defined UV_ADV
       allocate ( GRID(ng) % dmde(LBi:UBi,LBj:UBj) )
       allocate ( GRID(ng) % dndx(LBi:UBi,LBj:UBj) )
@@ -427,6 +437,12 @@
       allocate ( GRID(ng) % rmask_avg(LBi:UBi,LBj:UBj) )
       allocate ( GRID(ng) % umask_avg(LBi:UBi,LBj:UBj) )
       allocate ( GRID(ng) % vmask_avg(LBi:UBi,LBj:UBj) )
+# endif
+# if defined AVERAGES2
+      allocate ( GRID(ng) % pmask_avg2(LBi:UBi,LBj:UBj) )
+      allocate ( GRID(ng) % rmask_avg2(LBi:UBi,LBj:UBj) )
+      allocate ( GRID(ng) % umask_avg2(LBi:UBi,LBj:UBj) )
+      allocate ( GRID(ng) % vmask_avg2(LBi:UBi,LBj:UBj) )
 # endif
 # ifdef DIAGNOSTICS
       allocate ( GRID(ng) % pmask_dia(LBi:UBi,LBj:UBj) )
@@ -574,10 +590,9 @@
             GRID(ng) % IJwaterV(i,j) = 0
 #endif
             GRID(ng) % angler(i,j) = IniVal
-#ifdef CURVGRID
             GRID(ng) % CosAngler(i,j) = IniVal
             GRID(ng) % SinAngler(i,j) = IniVal
-#endif
+
 #if defined CURVGRID && defined UV_ADV
             GRID(ng) % dmde(i,j) = IniVal
             GRID(ng) % dndx(i,j) = IniVal
@@ -656,6 +671,12 @@
             GRID(ng) % rmask_avg(i,j) = IniVal
             GRID(ng) % umask_avg(i,j) = IniVal
             GRID(ng) % vmask_avg(i,j) = IniVal
+# endif
+# if defined AVERAGES2
+            GRID(ng) % pmask_avg2(i,j) = IniVal
+            GRID(ng) % rmask_avg2(i,j) = IniVal
+            GRID(ng) % umask_avg2(i,j) = IniVal
+            GRID(ng) % vmask_avg2(i,j) = IniVal
 # endif
 # ifdef DIAGNOSTICS
             GRID(ng) % pmask_dia(i,j) = IniVal

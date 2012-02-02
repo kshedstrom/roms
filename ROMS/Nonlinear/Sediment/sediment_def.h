@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *************************************************** Hernan G. Arango ***
-** Copyright (c) 2002-2011 The ROMS/TOMS Group                        **
+** Copyright (c) 2002-2012 The ROMS/TOMS Group                        **
 **   Licensed under a MIT/X style license                             **
 **   See License_ROMS.txt                                             **
 ************************************************************************
@@ -45,7 +45,7 @@
       Vinfo( 1)='Sd50'
       Vinfo( 2)='median sediment grain diameter used in '//             &
      &          'uniform initial conditions'
-      Vinfo( 3)='millimeter'
+      Vinfo( 3)='meter'
       status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
      &               1, (/seddim/), Aval, Vinfo, ncname,                &
      &               SetParAccess = .FALSE.)
@@ -72,7 +72,7 @@
 
       Vinfo( 1)='Wsed'
       Vinfo( 2)='sediment particle settling velocity'
-      Vinfo( 3)='millimeter second-1'
+      Vinfo( 3)='meter second-1'
       status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
      &               1, (/seddim/), Aval, Vinfo, ncname,                &
      &               SetParAccess = .FALSE.)
@@ -88,7 +88,7 @@
 
       Vinfo( 1)='tau_ce'
       Vinfo( 2)='sediment critical shear for erosion'
-      Vinfo( 3)='Newton meter-2'
+      Vinfo( 3)='meter-2 second-2'
       status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
      &               1, (/seddim/), Aval, Vinfo, ncname,                &
      &               SetParAccess = .FALSE.)
@@ -96,7 +96,7 @@
 
       Vinfo( 1)='tau_cd'
       Vinfo( 2)='sediment critical shear for deposition'
-      Vinfo( 3)='Newton meter-2'
+      Vinfo( 3)='meter-2 second-2'
       status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
      &               1, (/seddim/), Aval, Vinfo, ncname,                &
      &               SetParAccess = .FALSE.)

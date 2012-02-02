@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2011 The ROMS/TOMS Group                               **
+** Copyright (c) 2002-2012 The ROMS/TOMS Group                               **
 **   Licensed under a MIT/X style license                                    **
 **   See License_ROMS.txt                                                    **
 *******************************************************************************
@@ -24,10 +24,6 @@
 #define MASKING
 #define AVERAGES
 #define FLOATS
-#define NORTHERN_WALL
-#define SOUTHERN_WALL
-#define EASTERN_WALL
-#define WESTERN_WALL
 
 /* define only one of the four following */
 

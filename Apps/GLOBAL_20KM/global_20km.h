@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2011 The ROMS/TOMS Group
+** Copyright (c) 2002-2012 The ROMS/TOMS Group
 **
 **   Licensed under a MIT/X style license
 **
@@ -90,10 +90,6 @@
 #undef  ANA_DEWT
 #undef  ANA_SLP
 #undef  ANA_WINDS
-
-#define EASTERN_WALL
-#define WESTERN_WALL
-#define NS_PERIODIC
 
 #define SCORRECTION
 

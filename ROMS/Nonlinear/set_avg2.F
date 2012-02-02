@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2011 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -60,6 +60,16 @@
 # endif
      &                   NOUT)
 
+# ifdef WET_DRY
+      CALL set_avg_masks (ng, tile, iNLM,                               &
+     &                    LBi, UBi, LBj, UBj,                           &
+     &                    IminS, ImaxS, JminS, JmaxS,                   &
+     &                    GRID(ng) % pmask_avg2,                        &
+     &                    GRID(ng) % rmask_avg2,                        &
+     &                    GRID(ng) % umask_avg2,                        &
+     &                    GRID(ng) % vmask_avg2)
+# endif
+
 # ifdef PROFILE
       CALL wclock_off (ng, iNLM, 5)
 # endif
@@ -90,17 +100,9 @@
       USE mod_ice
 # endif
       USE mod_ocean
-# if defined EW_PERIODIC || defined NS_PERIODIC
-      USE exchange_2d_mod
-#  ifdef SOLVE3D
-      USE exchange_3d_mod
-#  endif
-#  ifdef DISTRIBUTE
-      USE mp_exchange_mod, ONLY : mp_exchange2d
-#   ifdef SOLVE3D
-      USE mp_exchange_mod, ONLY : mp_exchange3d
-#   endif
-#  endif
+      USE uv_rotate_mod, ONLY : uv_rotate2d
+# ifdef SOLVE3D
+      USE uv_rotate_mod, ONLY : uv_rotate3d
 # endif
 !
       implicit none
@@ -121,18 +123,6 @@
 !  Local variable declarations.
 !
       integer :: i, itrc, j
-# ifdef DISTRIBUTE
-#  ifdef EW_PERIODIC
-      logical :: EWperiodic=.TRUE.
-#  else
-      logical :: EWperiodic=.FALSE.
-#  endif
-#  ifdef NS_PERIODIC
-      logical :: NSperiodic=.TRUE.
-#  else
-      logical :: NSperiodic=.FALSE.
-#  endif
-# endif
 
       real(r8) :: fac
 
@@ -167,28 +157,28 @@
 !
         DO j=Jstr,JendR
           DO i=Istr,IendR
-            GRID(ng)%pmask_avg(i,j)=MAX(0.0_r8,                         &
+            GRID(ng)%pmask_avg2(i,j)=MAX(0.0_r8,                        &
      &                                  MIN(GRID(ng)%pmask_io(i,j),     &
      &                                      1.0_r8))
           END DO
         END DO
         DO j=JstrR,JendR
           DO i=IstrR,IendR
-            GRID(ng)%rmask_avg(i,j)=MAX(0.0_r8,                         &
+            GRID(ng)%rmask_avg2(i,j)=MAX(0.0_r8,                        &
      &                                  MIN(GRID(ng)%rmask_io(i,j),     &
      &                                      1.0_r8))
           END DO
         END DO
         DO j=JstrR,JendR
           DO i=Istr,IendR
-            GRID(ng)%umask_avg(i,j)=MAX(0.0_r8,                         &
+            GRID(ng)%umask_avg2(i,j)=MAX(0.0_r8,                        &
      &                                  MIN(GRID(ng)%umask_io(i,j),     &
      &                                      1.0_r8))
           END DO
         END DO
         DO j=Jstr,JendR
           DO i=IstrR,IendR
-            GRID(ng)%vmask_avg(i,j)=MAX(0.0_r8,                         &
+            GRID(ng)%vmask_avg2(i,j)=MAX(0.0_r8,                        &
      &                                  MIN(GRID(ng)%vmask_io(i,j),     &
      &                                      1.0_r8))
           END DO
@@ -208,6 +198,7 @@
             END DO
           END DO
         END IF
+
         IF (Aout2(idUbar,ng)) THEN
           DO j=JstrR,JendR
             DO i=Istr,IendR
@@ -229,6 +220,20 @@
 # endif
             END DO
           END DO
+        END IF
+
+        IF (Aout2(idu2dE,ng).and.Aout2(idv2dN,ng)) THEN
+          CALL uv_rotate2d (ng, tile, .FALSE., .FALSE.,                 &
+     &                      LBi, UBi, LBj, UBj,                         &
+     &                      GRID(ng) % CosAngler,                       &
+     &                      GRID(ng) % SinAngler,                       &
+# ifdef MASKING
+     &                      GRID(ng)%rmask_io,                          &
+# endif
+     &                      OCEAN(ng) % ubar(:,:,Kout),                 &
+     &                      OCEAN(ng) % vbar(:,:,Kout),                 &
+     &                      AVERAGE2(ng)%avgu2dE,                       &
+     &                      AVERAGE2(ng)%avgv2dN)
         END IF
 
 # ifdef SOLVE3D
@@ -254,6 +259,21 @@
             END DO
           END DO
         END IF
+
+        IF (Aout2(idu3dE,ng).and.Aout2(idv3dN,ng)) THEN
+          CALL uv_rotate2d (ng, tile, .FALSE., .FALSE.,                 &
+     &                      LBi, UBi, LBj, UBj,                         &
+     &                      GRID(ng) % CosAngler,                       &
+     &                      GRID(ng) % SinAngler,                       &
+# ifdef MASKING
+     &                      GRID(ng)%rmask_io,                          &
+# endif
+     &                      OCEAN(ng) % u(:,:,N(ng),Nout),              &
+     &                      OCEAN(ng) % v(:,:,N(ng),Nout),              &
+     &                      AVERAGE2(ng)%avgu3dE,                       &
+     &                      AVERAGE2(ng)%avgv3dN)
+        END IF
+
 
         IF (Aout2(idDano,ng)) THEN
           DO j=JstrR,JendR 
@@ -425,6 +445,7 @@
             END DO
           END DO
         END IF
+
         IF (Aout2(idUair,ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR
@@ -447,6 +468,21 @@
             END DO
           END DO
         END IF
+
+        IF (Aout2(idUairE,ng).and.Aout2(idVairN,ng)) THEN
+          CALL uv_rotate2d (ng, tile, .FALSE., .FALSE.,                 &
+     &                      LBi, UBi, LBj, UBj,                         &
+     &                      GRID(ng) % CosAngler,                       &
+     &                      GRID(ng) % SinAngler,                       &
+# ifdef MASKING
+     &                      GRID(ng)%rmask_io,                          &
+# endif
+     &                      FORCES(ng) % Uwind(:,:),                    &
+     &                      FORCES(ng) % Vwind(:,:),                    &
+     &                      AVERAGE2(ng)%avguwindE,                       &
+     &                      AVERAGE2(ng)%avgvwindN)
+        END IF
+
 #   ifdef EMINUSP
         IF (Aout2(idevap,ng)) THEN
           DO j=JstrR,JendR
@@ -495,6 +531,22 @@
             END DO
           END DO
         END IF
+
+        IF (Aout2(idUiceE,ng).and.Aout2(idViceN,ng)) THEN
+          CALL uv_rotate2d (ng, tile, .FALSE., .FALSE.,                 &
+     &                      LBi, UBi, LBj, UBj,                         &
+     &                      GRID(ng) % CosAngler,                       &
+     &                      GRID(ng) % SinAngler,                       &
+# ifdef MASKING
+     &                      GRID(ng)%rmask_io,                          &
+# endif
+     &                      ICE(ng) % ui(:,:,Iuout),                    &
+     &                      ICE(ng) % vi(:,:,Iuout),                    &
+     &                      AVERAGE2(ng)%avguiceE,                      &
+     &                      AVERAGE2(ng)%avgviceN)
+        END IF
+
+
         IF (Aout2(idAice,ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR
@@ -751,7 +803,7 @@
 !
         DO j=Jstr,JendR
           DO i=Istr,IendR
-            GRID(ng)%pmask_avg(i,j)=GRID(ng)%pmask_avg(i,j)+            &
+            GRID(ng)%pmask_avg2(i,j)=GRID(ng)%pmask_avg2(i,j)+          &
      &                              MAX(0.0_r8,                         &
      &                                  MIN(GRID(ng)%pmask_io(i,j),     &
      &                                      1.0_r8))
@@ -759,7 +811,7 @@
         END DO
         DO j=JstrR,JendR
           DO i=IstrR,IendR
-            GRID(ng)%rmask_avg(i,j)=GRID(ng)%rmask_avg(i,j)+            &
+            GRID(ng)%rmask_avg2(i,j)=GRID(ng)%rmask_avg2(i,j)+          &
      &                              MAX(0.0_r8,                         &
      &                                  MIN(GRID(ng)%rmask_io(i,j),     &
      &                                      1.0_r8))
@@ -767,7 +819,7 @@
         END DO
         DO j=JstrR,JendR
           DO i=Istr,IendR
-            GRID(ng)%umask_avg(i,j)=GRID(ng)%umask_avg(i,j)+            &
+            GRID(ng)%umask_avg2(i,j)=GRID(ng)%umask_avg2(i,j)+          &
      &                              MAX(0.0_r8,                         &
      &                                  MIN(GRID(ng)%umask_io(i,j),     &
      &                                      1.0_r8))
@@ -775,7 +827,7 @@
         END DO
         DO j=Jstr,JendR
           DO i=IstrR,IendR
-            GRID(ng)%vmask_avg(i,j)=GRID(ng)%vmask_avg(i,j)+            &
+            GRID(ng)%vmask_avg2(i,j)=GRID(ng)%vmask_avg2(i,j)+          &
      &                              MAX(0.0_r8,                         &
      &                                  MIN(GRID(ng)%vmask_io(i,j),     &
      &                                      1.0_r8))
@@ -796,6 +848,7 @@
             END DO
           END DO
         END IF
+
         IF (Aout2(idUbar,ng)) THEN
           DO j=JstrR,JendR
             DO i=Istr,IendR
@@ -818,6 +871,22 @@
             END DO
           END DO
         END IF
+
+        IF (Aout2(idu2dE,ng).and.Aout2(idv2dN,ng)) THEN
+          CALL uv_rotate2d (ng, tile, .TRUE., .FALSE.,                  &
+     &                      LBi, UBi, LBj, UBj,                         &
+     &                      GRID(ng) % CosAngler,                       &
+     &                      GRID(ng) % SinAngler,                       &
+# ifdef MASKING
+     &                      GRID(ng)%rmask_io,                          &
+# endif
+     &                      OCEAN(ng) % ubar(:,:,Kout),                 &
+     &                      OCEAN(ng) % vbar(:,:,Kout),                 &
+     &                      AVERAGE2(ng)%avgu2dE,                       &
+     &                      AVERAGE2(ng)%avgv2dN)
+        END IF
+
+
 # ifdef SOLVE3D
         IF (Aout2(idUvel,ng)) THEN
           DO j=JstrR,JendR
@@ -841,6 +910,21 @@
             END DO
           END DO
         END IF
+
+        IF (Aout2(idu3dE,ng).and.Aout2(idv3dN,ng)) THEN
+          CALL uv_rotate2d (ng, tile, .TRUE., .FALSE.,                  &
+     &                      LBi, UBi, LBj, UBj,                         &
+     &                      GRID(ng) % CosAngler,                       &
+     &                      GRID(ng) % SinAngler,                       &
+# ifdef MASKING
+     &                      GRID(ng)%rmask_io,                          &
+# endif
+     &                      OCEAN(ng) % u(:,:,N(ng),Nout),              &
+     &                      OCEAN(ng) % v(:,:,N(ng),Nout),                 &
+     &                      AVERAGE2(ng)%avgu3dE,                       &
+     &                      AVERAGE2(ng)%avgv3dN)
+        END IF
+
 
         IF (Aout2(idDano,ng)) THEN
           DO j=JstrR,JendR
@@ -1011,6 +1095,7 @@
             END DO
           END DO
         END IF
+
         IF (Aout2(idUair,ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR
@@ -1033,6 +1118,21 @@
             END DO
           END DO
         END IF
+
+        IF (Aout2(idUairE,ng).and.Aout2(idVairN,ng)) THEN
+          CALL uv_rotate2d (ng, tile, .TRUE., .FALSE.,                  &
+     &                      LBi, UBi, LBj, UBj,                         &
+     &                      GRID(ng) % CosAngler,                       &
+     &                      GRID(ng) % SinAngler,                       &
+# ifdef MASKING
+     &                      GRID(ng)%rmask_io,                          &
+# endif
+     &                      FORCES(ng) % Uwind(:,:),                    &
+     &                      FORCES(ng) % Vwind(:,:),                    &
+     &                      AVERAGE2(ng)%avguwindE,                     &
+     &                      AVERAGE2(ng)%avgvwindN)
+        END IF
+
 #   ifdef EMINUSP
         IF (Aout2(idevap,ng)) THEN
           DO j=JstrR,JendR
@@ -1081,6 +1181,22 @@
             END DO
           END DO
         END IF
+
+        IF (Aout2(idUiceE,ng).and.Aout2(idViceN,ng)) THEN
+          CALL uv_rotate2d (ng, tile, .TRUE., .FALSE.,                  &
+     &                      LBi, UBi, LBj, UBj,                         &
+     &                      GRID(ng) % CosAngler,                       &
+     &                      GRID(ng) % SinAngler,                       &
+# ifdef MASKING
+     &                      GRID(ng)%rmask_io,                          &
+# endif
+     &                      ICE(ng) % ui(:,:,Iuout),                    &
+     &                      ICE(ng) % vi(:,:,Iuout),                    &
+     &                      AVERAGE2(ng)%avguiceE,                      &
+     &                      AVERAGE2(ng)%avgviceN)
+        END IF
+
+
         IF (Aout2(idAice,ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR
@@ -1347,14 +1463,14 @@
 # ifdef WET_DRY
         DO j=JstrR,JendR
           DO i=IstrR,IendR
-            pfac(i,j)=1.0_r8/MAX(1.0_r8, GRID(ng)%pmask_avg(i,j))
-            rfac(i,j)=1.0_r8/MAX(1.0_r8, GRID(ng)%rmask_avg(i,j))
-            ufac(i,j)=1.0_r8/MAX(1.0_r8, GRID(ng)%umask_avg(i,j))
-            vfac(i,j)=1.0_r8/MAX(1.0_r8, GRID(ng)%vmask_avg(i,j))
+            pfac(i,j)=1.0_r8/MAX(1.0_r8, GRID(ng)%pmask_avg2(i,j))
+            rfac(i,j)=1.0_r8/MAX(1.0_r8, GRID(ng)%rmask_avg2(i,j))
+            ufac(i,j)=1.0_r8/MAX(1.0_r8, GRID(ng)%umask_avg2(i,j))
+            vfac(i,j)=1.0_r8/MAX(1.0_r8, GRID(ng)%vmask_avg2(i,j))
           END DO
         END DO
 # else
-        fac=1.0_r8/REAL(nAVG(ng),r8)
+        fac=1.0_r8/REAL(nAVG2(ng),r8)
         DO j=JstrR,JendR
           DO i=IstrR,IendR
             pfac(i,j)=fac
@@ -1375,6 +1491,7 @@
             END DO
           END DO
         END IF
+
         IF (Aout2(idUbar,ng)) THEN
           DO j=JstrR,JendR
             DO i=Istr,IendR
@@ -1391,6 +1508,18 @@
             END DO
           END DO
         END IF
+
+        IF (Aout2(idu2dE,ng).and.Aout2(idv2dN,ng)) THEN
+          DO j=Jstr,Jend
+            DO i=Istr,Iend
+              AVERAGE2(ng)%avgu2dE(i,j)=rfac(i,j)*                      &
+     &                                 AVERAGE2(ng)%avgu2dE(i,j)
+              AVERAGE2(ng)%avgv2dN(i,j)=rfac(i,j)*                      &
+     &                                 AVERAGE2(ng)%avgv2dN(i,j)
+            END DO
+          END DO
+        END IF
+
 # ifdef SOLVE3D
         IF (Aout2(idUvel,ng)) THEN
           DO j=JstrR,JendR
@@ -1405,6 +1534,17 @@
             DO i=IstrR,IendR
               AVERAGE2(ng)%avgv3d(i,j)=vfac(i,j)*                       &
      &                                 AVERAGE2(ng)%avgv3d(i,j)
+            END DO
+          END DO
+        END IF
+
+        IF (Aout2(idu3dE,ng).and.Aout2(idv3dN,ng)) THEN
+          DO j=Jstr,Jend
+            DO i=Istr,Iend
+              AVERAGE2(ng)%avgu3dE(i,j)=rfac(i,j)*                      &
+     &                                 AVERAGE2(ng)%avgu3dE(i,j)
+              AVERAGE2(ng)%avgv3dN(i,j)=rfac(i,j)*                      &
+     &                                 AVERAGE2(ng)%avgv3dN(i,j)
             END DO
           END DO
         END IF
@@ -1537,6 +1677,7 @@
             END DO
           END DO
         END IF
+
         IF (Aout2(idUair,ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR
@@ -1553,6 +1694,19 @@
             END DO
           END DO
         END IF
+
+        IF (Aout2(idUairE,ng).and.Aout2(idVairN,ng)) THEN
+          DO j=Jstr,Jend
+            DO i=Istr,Iend
+              AVERAGE2(ng)%avguwindE(i,j)=rfac(i,j)*                    &
+     &                                 AVERAGE2(ng)%avguwindE(i,j)
+              AVERAGE2(ng)%avgvwindN(i,j)=rfac(i,j)*                    &
+     &                                 AVERAGE2(ng)%avgvwindN(i,j)
+            END DO
+          END DO
+        END IF
+
+
 #   ifdef EMINUSP
         IF (Aout2(idevap,ng)) THEN
           DO j=JstrR,JendR
@@ -1590,6 +1744,19 @@
             END DO
           END DO
         END IF
+
+        IF (Aout2(idUiceE,ng).and.Aout2(idViceN,ng)) THEN
+          DO j=Jstr,Jend
+            DO i=Istr,Iend
+              AVERAGE2(ng)%avguiceE(i,j)=rfac(i,j)*                      &
+     &                                 AVERAGE2(ng)%avguiceE(i,j)
+              AVERAGE2(ng)%avgviceN(i,j)=rfac(i,j)*                      &
+     &                                 AVERAGE2(ng)%avgviceN(i,j)
+            END DO
+          END DO
+        END IF
+
+
         IF (Aout2(idAice,ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR

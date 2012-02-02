@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2011 The ROMS/TOMS Group
+** Copyright (c) 2002-2012 The ROMS/TOMS Group
 **
 **   Licensed under a MIT/X style license
 **
@@ -199,102 +199,7 @@
 # define UV_QDRAG
 #endif
 
-/* Boundary conditions...careful with grid orientation */
-
-#undef EASTERN_WALL
-#undef NORTHERN_WALL
-#undef WESTERN_WALL
-#undef SOUTHERN_WALL
-
 #define RADIATION_2D
-
-#ifndef NORTHERN_WALL
-# define NORTH_FSCHAPMAN
-# define NORTH_M2FLATHER
-# ifdef SOLVE3D
-#  define NORTH_M3RADIATION
-#  define NORTH_M3NUDGING
-#  define NORTH_TRADIATION
-#  define NORTH_TNUDGING
-#  undef NORTH_MICLAMPED
-#  undef NORTH_MIRADIATION
-#  undef NORTH_MINUDGING
-#  define NORTH_MIGRADIENT
-#  define NORTH_AICLAMPED
-#  define NORTH_HICLAMPED
-#  define NORTH_HSNCLAMPED
-#  undef NORTH_TICLAMPED
-#  define NORTH_SIG11CLAMPED
-#  define NORTH_SIG12CLAMPED
-#  define NORTH_SIG22CLAMPED
-# endif
-#endif
-
-#ifndef WESTERN_WALL
-# define WEST_FSCHAPMAN
-# define WEST_M2FLATHER
-# ifdef SOLVE3D
-#  define WEST_M3RADIATION
-#  define WEST_M3NUDGING
-#  define WEST_TRADIATION
-#  define WEST_TNUDGING
-#  undef WEST_MICLAMPED
-#  undef WEST_MIRADIATION
-#  undef WEST_MINUDGING
-#  define WEST_MIGRADIENT
-#  define WEST_AICLAMPED
-#  define WEST_HICLAMPED
-#  define WEST_HSNCLAMPED
-#  undef WEST_TICLAMPED
-#  define WEST_SIG11CLAMPED
-#  define WEST_SIG12CLAMPED
-#  define WEST_SIG22CLAMPED
-# endif
-#endif
-
-#ifndef SOUTHERN_WALL
-# define SOUTH_FSCHAPMAN
-# define SOUTH_M2FLATHER
-# ifdef SOLVE3D
-#  define SOUTH_M3RADIATION
-#  define SOUTH_M3NUDGING
-#  define SOUTH_TRADIATION
-#  define SOUTH_TNUDGING
-#  undef SOUTH_MICLAMPED
-#  undef SOUTH_MIRADIATION
-#  undef SOUTH_MINUDGING
-#  define SOUTH_MIGRADIENT
-#  define SOUTH_AICLAMPED
-#  define SOUTH_HICLAMPED
-#  define SOUTH_HSNCLAMPED
-#  undef SOUTH_TICLAMPED
-#  define SOUTH_SIG11CLAMPED
-#  define SOUTH_SIG12CLAMPED
-#  define SOUTH_SIG22CLAMPED
-# endif
-#endif
-
-#ifndef EASTERN_WALL
-# define EAST_FSCHAPMAN
-# define EAST_M2FLATHER
-# ifdef SOLVE3D
-#  define EAST_M3RADIATION
-#  define EAST_M3NUDGING
-#  define EAST_TRADIATION
-#  define EAST_TNUDGING
-#  undef EAST_MICLAMPED
-#  undef EAST_MIRADIATION
-#  undef EAST_MINUDGING
-#  define EAST_MIGRADIENT
-#  define EAST_AICLAMPED
-#  define EAST_HICLAMPED
-#  define EAST_HSNCLAMPED
-#  undef EAST_TICLAMPED
-#  define EAST_SIG11CLAMPED
-#  define EAST_SIG12CLAMPED
-#  define EAST_SIG22CLAMPED
-# endif
-#endif
 
 /* roms quirks */
 

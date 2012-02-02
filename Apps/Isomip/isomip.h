@@ -23,11 +23,6 @@
 #define ICESHELF
 #undef  AVERAGES
 
-#define EASTERN_WALL
-#define WESTERN_WALL
-#define SOUTHERN_WALL
-#define NORTHERN_WALL
-
 #define ANA_GRID
 #define ANA_INITIAL
 #define ANA_SMFLUX

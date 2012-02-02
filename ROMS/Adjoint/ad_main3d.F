@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2011 The ROMS/TOMS Group       Andrew M. Moore   !
+!  Copyright (c) 2002-2012 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -147,17 +147,18 @@
 # endif
       integer :: ks, kt
 
-      real(r8) :: HalfDT, my_StepTime
+      real(r8) :: HalfDT, MaxDT, my_StepTime
 !
 !=======================================================================
 !  Time-step adjoint 3D primitive equations backwards.
 !=======================================================================
 !
       my_StepTime=0.0_r8
+      MaxDT=MAXVAL(dt)
 
-      STEP_LOOP : DO WHILE (my_StepTime.le.RunInterval)
+      STEP_LOOP : DO WHILE (my_StepTime.le.(RunInterval+0.5_r8*MaxDT))
 
-        my_StepTime=my_StepTime+MAXVAL(dt)
+        my_StepTime=my_StepTime+MaxDT
 !
 !  Set time clock.
 !
