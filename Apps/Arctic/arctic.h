@@ -211,6 +211,9 @@
 #  define NORTH_TRADIATION
 #  define NORTH_TNUDGING
 #  define NORTH_MIGRADIENT
+#  define NORTH_AIMIXED
+#  define NORTH_HIMIXED
+#  define NORTH_HSNMIXED
 # endif
 #endif
 
@@ -224,6 +227,9 @@
 #  define WEST_TRADIATION
 #  define WEST_TNUDGING
 #  define WEST_MIGRADIENT
+#  define WEST_AIMIXED
+#  define WEST_HIMIXED
+#  define WEST_HSNMIXED
 # endif
 #endif
 
@@ -236,6 +242,9 @@
 #  define SOUTH_TRADIATION
 #  define SOUTH_TNUDGING
 #  define SOUTH_MIGRADIENT
+#  define SOUTH_AIMIXED
+#  define SOUTH_HIMIXED
+#  define SOUTH_HSNMIXED
 # endif
 #endif
 
@@ -248,6 +257,9 @@
 #  define EAST_TRADIATION
 #  define EAST_TNUDGING
 #  define EAST_MIGRADIENT
+#  define EAST_AIMIXED
+#  define EAST_HIMIXED
+#  define EAST_HSNMIXED
 # endif
 #endif
 
