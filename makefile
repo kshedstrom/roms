@@ -446,7 +446,6 @@ ifdef USE_FISH
  modules  +=    ROMS/Fish
 endif
  modules  +=	ROMS/Utility \
-		ROMS/Nonlinear \
 		ROMS/Modules
 
  includes :=	ROMS/Include
