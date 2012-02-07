@@ -239,10 +239,10 @@
 !
 !  Broadcast point sources/sinks information to all nodes.
 !
-!       CALL mp_bcasti (ng, iNLM, Nsrc)
-!       CALL mp_bcasti (ng, iNLM, Isrc)
-!       CALL mp_bcasti (ng, iNLM, Jsrc)
-!       CALL mp_bcastf (ng, iNLM, Dsrc)
+        CALL mp_bcasti (ng, iNLM, Nsrc)
+        CALL mp_bcasti (ng, iNLM, Isrc)
+        CALL mp_bcasti (ng, iNLM, Jsrc)
+        CALL mp_bcastf (ng, iNLM, Dsrc)
 #endif
       END IF
 

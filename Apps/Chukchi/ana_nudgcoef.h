@@ -214,7 +214,6 @@
 #  endif
 # endif
 #endif
-#ifdef NUDGING_COFF
 !
 !-----------------------------------------------------------------------
 !  Set nudging coefficients (1/s) for passive/active (outflow/inflow)
@@ -633,6 +632,5 @@
 #   endif
 #  endif
 # endif
-#endif
       RETURN
       END SUBROUTINE ana_nudgcoef_tile
