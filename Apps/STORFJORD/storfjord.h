@@ -98,7 +98,6 @@
 #define M3CLIMATOLOGY
 #define TCLM_NUDGING
 #define M3CLM_NUDGING
-#define NUDGING_COFF
 
 #undef  SCORRECTION
 

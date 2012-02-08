@@ -65,6 +65,7 @@
 !***********************************************************************
 !
       USE mod_param
+      USE mod_ncparam
       USE mod_boundary
       USE mod_grid
       USE mod_scalars
@@ -115,8 +116,9 @@
 !  2D momentum open boundary conditions.
 !-----------------------------------------------------------------------
 !
-# ifdef EAST_M2OBC
-      IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
+      IF (LBC(ieast,isUbar,ng)%acquire.and.                             &
+     &    LBC(ieast,isVbar,ng)%acquire.and.                             &
+     &    DOMAIN(ng)%Eastern_Edge(tile)) THEN
         DO j=JstrR,JendR
           BOUNDARY(ng)%ubar_east(j)=0.0_r8
         END DO
@@ -124,9 +126,9 @@
           BOUNDARY(ng)%vbar_east(j)=0.0_r8
         END DO
       END IF
-# endif
-# ifdef WEST_M2OBC
-      IF (DOMAIN(ng)%Western_Edge(tile)) THEN
+      IF (LBC(ieast,isUbar,ng)%acquire.and.                             &
+     &    LBC(ieast,isVbar,ng)%acquire.and.                             &
+     &    DOMAIN(ng)%Western_Edge(tile)) THEN
         my_area =0.0_r8
         my_width=0.0_r8
         DO j=Jstr,Jend
@@ -142,9 +144,9 @@
           BOUNDARY(ng)%vbar_west(j)=0.0_r8
         END DO
       END IF
-# endif
-# ifdef SOUTH_M2OBC
-      IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
+      IF (LBC(ieast,isUbar,ng)%acquire.and.                             &
+     &    LBC(ieast,isVbar,ng)%acquire.and.                             &
+     &    DOMAIN(ng)%Southern_Edge(tile)) THEN
         my_area =0.0_r8
         my_width=0.0_r8
         DO i=Istr,Iend
@@ -160,9 +162,9 @@
           BOUNDARY(ng)%vbar_south(i)=fac/my_area
         END DO
       END IF
-# endif
-# ifdef NORTH_M2OBC
-      IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
+      IF (LBC(ieast,isUbar,ng)%acquire.and.                             &
+     &    LBC(ieast,isVbar,ng)%acquire.and.                             &
+     &    DOMAIN(ng)%Northern_Edge(tile)) THEN
         DO i=Istr,IendR
           BOUNDARY(ng)%ubar_north(i)=0.0_r8
         END DO
@@ -170,6 +172,5 @@
           BOUNDARY(ng)%vbar_north(i)=0.0_r8
         END DO
       END IF
-# endif
       RETURN
       END SUBROUTINE ana_m2obc_tile

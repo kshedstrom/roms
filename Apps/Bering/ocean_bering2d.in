@@ -59,7 +59,7 @@
 
           Lm == 540           ! Number of I-direction INTERIOR RHO-points
           Mm == 768           ! Number of J-direction INTERIOR RHO-points
-           N == 42            ! Number of vertical levels
+           N == 1             ! Number of vertical levels
 
         Nbed =  0             ! Number of sediment bed layers
 
@@ -74,7 +74,7 @@
 
 !     NtileI == 1                               ! I-direction partition
 !     NtileJ == 1                               ! J-direction partition
-      NtileI == 3                               ! I-direction partition
+      NtileI == 6                               ! I-direction partition
       NtileJ == 16                              ! J-direction partition
 
 ! Set lateral boundary conditions keyword. Notice that a value is expected
@@ -111,15 +111,15 @@
 !
 !                   1       2       3       4
 
-   LBC(isFsur) ==   Cha     Cha     Cha     Clo         ! free-surface
-   LBC(isUbar) ==   Fla     Fla     Fla     Clo         ! 2D U-momentum
-   LBC(isVbar) ==   Fla     Fla     Fla     Clo         ! 2D V-momentum
-   LBC(isUvel) ==   RadNud  RadNud  RadNud  Clo         ! 3D U-momentum
-   LBC(isVvel) ==   RadNud  RadNud  RadNud  Clo         ! 3D V-momentum
-   LBC(isMtke) ==   Per     Clo     Per     Clo         ! mixing TKE
+   LBC(isFsur) ==   Cha     Cha     Clo     Clo         ! free-surface
+   LBC(isUbar) ==   Fla     Fla     Clo     Clo         ! 2D U-momentum
+   LBC(isVbar) ==   Fla     Fla     Clo     Clo         ! 2D V-momentum
+   LBC(isUvel) ==   RadNud  RadNud  Clo     Clo         ! 3D U-momentum
+   LBC(isVvel) ==   RadNud  RadNud  Clo     Clo         ! 3D V-momentum
+   LBC(isMtke) ==   Clo     Clo     Clo     Clo         ! mixing TKE
 
-   LBC(isTvar) ==   RadNud  RadNud  RadNud  Clo \       ! temperature
-                    RadNud  RadNud  RadNud  Clo         ! salinity
+   LBC(isTvar) ==   RadNud  RadNud  Clo     Clo \       ! temperature
+                    RadNud  RadNud  Clo     Clo         ! salinity
 
 ! Ice boundary conditions
 
@@ -164,7 +164,7 @@ ad_VolCons(north) ==  F                            ! northern boundary
 
 ! Time-Stepping parameters.
 
-      NTIMES == 1209600
+      NTIMES == 518400
           DT == 10.0
      NDTFAST == 1
 
@@ -189,7 +189,7 @@ ad_VolCons(north) ==  F                            ! northern boundary
    LcycleRST == T
         NRST == 8640
         NSTA == 360
-        NFLT == 1
+        NFLT == 360
        NINFO == 1
 
 ! Output history, average, diagnostic files parameters.
@@ -198,8 +198,8 @@ ad_VolCons(north) ==  F                            ! northern boundary
         NHIS == 360
      NDEFHIS == 43200
       NTSAVG == 1
-        NAVG == 50000
-     NDEFAVG == 5000000
+        NAVG == 8640
+     NDEFAVG == 86400
       NTSDIA == 1
         NDIA == 10
      NDEFDIA == 0
@@ -230,8 +230,8 @@ ad_VolCons(north) ==  F                            ! northern boundary
 
 ! Harmononic/biharmonic, horizontal viscosity coefficient: [Ngrids].
 
-!      VISC2 == 10.0d0                           ! m2/s
-       VISC2 == 5000.0d0                           ! m2/s
+       VISC2 == 100.0d0                         ! m2/s
+!       VISC2 == 5000.0d0                        ! m2/s
        VISC4 == 0.0d0                           ! m4/s
 
 ! Vertical mixing coefficients for active tracers: [1:NAT+NPT,Ngrids]
@@ -267,8 +267,8 @@ ad_VolCons(north) ==  F                            ! northern boundary
 
 ! Constants used in momentum stress computation.
 
-        RDRG == 0.0d-04                    ! m/s
-       RDRG2 == 2.60d-03                    ! nondimensional
+        RDRG == 3.0d-04                    ! m/s
+       RDRG2 == 3.0d-03                    ! nondimensional
          Zob == 0.02d0                     ! m
          Zos == 0.02d0                     ! m
 
@@ -280,7 +280,7 @@ ad_VolCons(north) ==  F                            ! northern boundary
 
 ! Minimum depth for wetting and drying.
 
-       DCRIT == 0.200d0                     !m
+       DCRIT == 0.100d0                     !m
 
 ! Various parameters.
 
@@ -288,11 +288,17 @@ ad_VolCons(north) ==  F                            ! northern boundary
      LEVSFRC == 15
      LEVBFRC == 1
 
+! Set vertical, terrain-following coordinates transformation equation and
+! stretching function (see below for details), [1:Ngrids].
+
+  Vtransform == 1                          ! transformation equation
+ Vstretching == 1                          ! stretching function
+
 ! Vertical S-coordinates parameters (see below for details), [1:Ngrids].
 
      THETA_S == 5.0d0                      ! 0 < THETA_S < 20
      THETA_B == 0.4d0                      ! 0 < THETA_B < 1
-      TCLINE == 50.0d0                     ! m
+      TCLINE == 10.0d0                     ! m
 
 ! Mean Density and Brunt-Vaisala frequency.
 
@@ -303,7 +309,7 @@ ad_VolCons(north) ==  F                            ! northern boundary
 ! origin for tidal forcing, and model reference time for output
 ! NetCDF units attribute.
 
-      DSTART =  36160.0d0                  ! days
+      DSTART =  0.0d0                  ! days
   TIDE_START =  -693962.0d0                ! days
     TIME_REF =  19000101.0d0               ! yyyymmdd.dd
 
@@ -311,8 +317,8 @@ ad_VolCons(north) ==  F                            ! northern boundary
 ! internally, [1:Ngrids].
 
        TNUDG == 2*360.0d0                    ! days
-       ZNUDG == 0.0d0                      ! days
-      M2NUDG == 0.0d0                      ! days
+       ZNUDG == 360.0d0                      ! days
+      M2NUDG == 360.0d0                      ! days
       M3NUDG == 360.0d0                      ! days
 
 ! Factor between passive (outflow) and active (inflow) open boundary
@@ -469,21 +475,6 @@ Hout(idHsbl) == F       ! Hsbl               depth of surface boundary layer
 Hout(idHbbl) == F       ! Hbbl               depth of bottom boundary layer
 Hout(idMtke) == F       ! tke                turbulent kinetic energy
 Hout(idMtls) == F       ! gls                turbulent length scale
-
-! Logical switches (TRUE/FALSE) to activate writing of ice prognostic
-! variables into HISTORY output file.
-Hout(idUice) == T
-Hout(idVice) == T
-Hout(idUiceE) == T
-Hout(idViceN) == T
-Hout(idAice) == T
-Hout(idHice) == T
-Hout(idTice) == T
-Hout(idHsno) == T
-Hout(idTimid) == T
-Hout(idSfwat) == T
-Hout(idTauiw) == F
-Hout(idChuiw) == F
 
 ! Logical switches (TRUE/FALSE) to activate writing of extra inert passive
 ! tracers other than biological and sediment tracers. An inert passive tracer
@@ -678,13 +669,13 @@ Dout(iTvdif) == T T                        ! vertical diffusion
 
 ! Input NetCDF file names, [1:Ngrids].
 
-     GRDNAME == /wrkdir/kate/Bering/Files/Bering_grid_2.nc
+     GRDNAME == /wrkdir/kate/Bering/Files/Bering_grid_4.nc
 !     ININAME == bering_rst.nc
      ININAME == /wrkdir/kate/Bering/Files/Bering_init.nc
-     ITLNAME == /ptmp/enrique/ROMS/NEP4/Inputs/ocean_itl.nc
+     ITLNAME == ocean_itl.nc
      IRPNAME == ocean_irp.nc
      IADNAME == ocean_iad.nc
-     FWDNAME == /ptmp/enrique/ROMS/NEP4/Inputs/ocean_fwd.nc
+     FWDNAME == ocean_fwd.nc
      ADSNAME == ocean_ads.nc
 
 ! Input lateral boundary conditions and climatology file names.  The
@@ -693,7 +684,7 @@ Dout(iTvdif) == T T                        ! vertical diffusion
 ! line per entry with a vertical bar (|) symbol after each entry,
 ! except the last one.
 
-     CLMNAME == /ptmp/enrique/ROMS/NEP4/Inputs/ocean_clm.nc
+     CLMNAME == ocean_clm.nc
 
 ! Input boundary NetCDF file name(s).  The USER has the option to enter
 ! several files names per each nested grid.  For example, the USER may
@@ -705,8 +696,8 @@ Dout(iTvdif) == T T                        ! vertical diffusion
 ! and so on.  Use a single line per entry with a continuation (\) symbol
 ! at the each entry, except the last one.
 
-     NBCFILES == 1                          ! number of boundary files
-     BRYNAME == /wrkdir/kate/Bering/Files/NEP4_bry_CCSM_1990-2000.nc
+!    NBCFILES == 1                          ! number of boundary files
+!    BRYNAME == /wrkdir/kate/Bering/Files/NEP4_bry_CCSM_1990-2000.nc
 
 ! Input forcing NetCDF file name(s).  The USER has the option to enter
 ! several files names per each nested grid.  For example, the USER may
@@ -750,7 +741,7 @@ Dout(iTvdif) == T T                        ! vertical diffusion
      SPOSNAM =  External/stations_bering.in
      FPOSNAM =  External/floats.in
      IPARNAM =  External/ice.in
-     BPARNAM =  External/bioFasham.in
+     BPARNAM =  External/bio_Fennel.in
      SPARNAM =  External/sediment.in
      USRNAME =  External/MyFile.dat
 
