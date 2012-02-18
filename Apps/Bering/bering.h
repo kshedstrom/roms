@@ -159,10 +159,10 @@
 /* point sources (rivers, line sources) */
 
 /* Using Runoff instead now */
+#define UV_PSOURCE
+#define ANA_PSOURCE
 #ifdef SOLVE3D
 # define RUNOFF
-# define UV_PSOURCE
-# define ANA_PSOURCE
 # undef TS_PSOURCE
 #endif
 
