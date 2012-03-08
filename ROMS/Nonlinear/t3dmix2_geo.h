@@ -185,16 +185,16 @@
 !          FS,dTdz(:,:,k1) k-1/2   W-points
 !          FS,dTdz(:,:,k2) k+1/2   W-points
 !
-#ifdef OFFLINE_BIOLOGY
-      T_LOOP : DO ibt=1,NBT
-        itrc=idbio(ibt)
-#else
 # ifdef MIX_STABILITY
 !  In order to increase stability, the biharmonic operator is applied
 !  as: 3/4 t(:,:,:,nrhs,:) + 1/4 t(:,:,:,nstp,:).
 !
 # endif
 
+#ifdef OFFLINE_BIOLOGY
+      T_LOOP : DO ibt=1,NBT
+        itrc=idbio(ibt)
+#else
       T_LOOP : DO itrc=1,NT(ng)
 #endif
         k2=1

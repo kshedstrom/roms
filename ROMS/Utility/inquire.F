@@ -125,6 +125,9 @@
             IF (label(1:3).eq.'BRY') THEN
               BRYids(ifile,ng)=-1
             END IF
+            IF (label(1:3).eq.'CLM') THEN
+              CLMids(ifile,ng)=-1
+            END IF
             EXIT
           ELSE                       ! S(ifile)%name and Fcount already
             Fcount=S(ifile)%Fcount   ! updated in first field processed
@@ -354,6 +357,20 @@
         END DO
       END IF
 !
+!  If processing model climatology (multiple files allowed), check if file
+!  for requested field (based on ncid) has been already opened and get
+!  its ID from the association table (CLMids).
+!
+      IF (label(1:3).eq.'CLM') THEN
+        DO ifile=1,nfiles
+          IF ((TRIM(ncfile).eq.TRIM(S(ifile)%name)).and.                &
+     &        ((ncid.eq.-1).and.(CLMids(ifile,ng).ne.-1))) THEN
+            ncid=CLMids(ifile,ng)
+            EXIT
+          END IF
+        END DO
+      END IF
+!
 !  If processing model forcing (multiple files allowed), check if file
 !  for requested field (based on ncid) has been already opened and get
 !  its ID from the association table (FRCids).
@@ -387,13 +404,21 @@
               EXIT
             END IF
           END DO
-        ELSE
-          S(1)%ncid=ncid
-        END IF
+!
+!  If processing model climatology, load ID into association table (CLMids).
+!
+        ELSE IF (label(1:3).eq.'CLM') THEN
+          DO ifile=1,nfiles
+            IF (TRIM(ncfile).eq.TRIM(S(ifile)%name)) THEN
+              CLMids(ifile,ng)=ncid
+              S(ifile)%ncid=ncid
+              EXIT
+            END IF
+          END DO
 !
 !  If processing model forcing, load ID into association table (FRCids).
 !
-        IF (label(1:3).eq.'FRC') THEN
+        ELSE IF (label(1:3).eq.'FRC') THEN
           DO ifile=1,nfiles
             IF (TRIM(ncfile).eq.TRIM(S(ifile)%name)) THEN
               FRCids(ifile,ng)=ncid

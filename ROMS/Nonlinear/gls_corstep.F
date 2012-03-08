@@ -15,8 +15,14 @@
 !                                                                      !
 !  References:                                                         !
 !                                                                      !
-!  Umlauf, L. and H. Burchard, 2001:  A generic length-scale           !
-!    Equation for geophysical turbulence models.                       !
+!  Umlauf, L. and H. Burchard, 2003:  A generic length-scale           !
+!    Equation for geophysical turbulence models, J. Marine Res.,       !
+!    61, 235-265.                                                      !
+!                                                                      !
+!  Warner, J. C., C. R. Sherwood, H. G. Arango and R. P. Signell,      !
+!    2005:  Performance of four turbulence closure models              !
+!    implemented using a generic length scale method, Ocean            !
+!    Modelling, 8, 81-113.                                             !
 !                                                                      !
 !=======================================================================
 !
