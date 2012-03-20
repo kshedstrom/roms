@@ -1520,7 +1520,7 @@
           END IF
         END DO
 #  endif
-#  ifdef ICE_MODEL
+#  if defined ICE_MODEL && !defined ANA_ICE
 !
 !  Read in 2D ice momentum component (m/s) in the XI-direction.
 !

@@ -26,6 +26,9 @@
 #ifdef CLIMATOLOGY
       USE mod_clima
 #endif
+#ifdef BCLIMATOLOGY
+      USE mod_biology
+#endif
       USE mod_forces
       USE mod_grid
       USE mod_iounits

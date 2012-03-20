@@ -134,7 +134,7 @@ $(SCRATCH_DIR)/def_var.o: FFLAGS += -fno-bounds-check
 # Gfortran versions >= 4.2.
 #
 
-FC_TEST := $(findstring $(shell ${FC} --version | head -1 | cut -d " " -f 5 | \
+FC_TEST := $(findstring $(shell ${FC} --version | head -1 | cut -d " " -f 4 | \
                               cut -d "." -f 1-2),4.0 4.1)
 
 #ifeq "${FC_TEST}" ""
