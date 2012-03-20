@@ -782,7 +782,7 @@
         END IF
       END DO
 # endif
-# ifdef ICE_MODEL
+# if defined ICE_MODEL && !defined ANA_ICE
       IF (.not.have_var(idUice)) THEN
         IF (Master) WRITE (stdout,10) string,                           &
      &                                TRIM(Vname(1,idUice)),            &

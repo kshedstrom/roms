@@ -388,6 +388,7 @@
 ** OCLIMATOLOGY        use if processing 3D vertical momentum climatology    **
 ** AKTCLIMATOLOGY      use if processing 3D vertical salinity diffustion     **
 ** TCLIMATOLOGY        use if processing tracers climatology                 **
+** BTCLIMATOLOGY       use if processing biological tracers climatology      **
 ** ZCLIMATOLOGY        use if processing SSH climatology                     **
 **                                                                           **
 ** OPTIONS to nudge climatology data (primarily in sponge areas):            **
@@ -395,6 +396,7 @@
 ** M2CLM_NUDGING       use if nudging 2D momentum climatology                **
 ** M3CLM_NUDGING       use if nudging 3D momentum climatology                **
 ** TCLM_NUDGING        use if nudging tracers climatology                    **
+** BCLM_NUDGING        use if nudging biological tracers climatology         **
 **                                                                           **
 ** ROMS/TOMS driver OPTIONS:                                                 **
 **                                                                           **
@@ -543,6 +545,7 @@
 **                                                                           **
 ** DEFLATE             use to set compression NetCDF-4/HDF5 format files     **
 ** HDF5                use to create NetCDF-4/HDF5 format files              **
+** NO_LBC_ATT          use to not check NLM_LBC global attribute on restart  **
 ** PARALLEL_IO         use to create NetCDF-4/HDF5 format files with MPI-I/O ** 
 ** NO_READ_GHOST       use to not include ghost points during read/scatter   **
 ** NO_WRITE_GRID       use if not writing grid arrays                        **

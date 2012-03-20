@@ -50,6 +50,9 @@
       USE mod_boundary
 #ifdef CLIMATOLOGY
       USE mod_clima
+#ifdef BCLIMATOLOGY
+      USE mod_biology
+#endif
 #endif
       USE mod_grid
       USE mod_ncparam
@@ -115,7 +118,6 @@
      &             cff2+(cff3-REAL(i,r8))*(cff1-cff2)/cff3)
         END DO
       END DO
-#ifndef EASTERN_WALL
 ! cff3-point wide linearly tapered nudging zone
       DO i=MAX(IstrR,Lm(ng)+1-INT(cff3)),IendR       ! EAST boundary
         DO j=MAX(400,JstrR),JendR
@@ -123,7 +125,6 @@
      &             cff1+REAL(Lm(ng)+1-i,r8)*(cff2-cff1)/cff3)
         END DO
       END DO
-#endif
 !
 ! Set the relevant nudging coefficients using the entries in wrk
 !
@@ -147,6 +148,11 @@
         DO i=IstrR,IendR
           CLIMA(ng)%Tnudgcof(i,j,itemp)=wrk(i,j)
           CLIMA(ng)%Tnudgcof(i,j,isalt)=wrk(i,j)
+#   ifdef BCLM_NUDGING
+          CLIMA(ng)%Tnudgcof(i,j,iFeD_)=wrk(i,j)
+          CLIMA(ng)%Tnudgcof(i,j,iNO3_)=wrk(i,j)
+          CLIMA(ng)%Tnudgcof(i,j,iSiOH)=wrk(i,j)
+#   endif
         END DO
       END DO
 #  endif
