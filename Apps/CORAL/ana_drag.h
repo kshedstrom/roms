@@ -144,7 +144,7 @@
 #if defined CORAL
 # if defined UV_LDRAG
       cff =  3.0d-04
-      h0 = 1000.
+      h0 = 2500.
       DO j=JstrR,JendR
         DO i=IstrR,IendR
           IF (GRID(ng)%h(i,j) >= h0) THEN

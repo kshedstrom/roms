@@ -498,6 +498,7 @@
 !  Input boundary NetCDF files IDs.
 !
         integer, allocatable :: ncBRYid(:,:)
+!
 !  Generic state variables lateral boundary indices.
 !
         integer  :: isBp2d                    ! 2D PSI-variables
@@ -509,6 +510,10 @@
         integer  :: isBu3d                    ! 3D U-variables
         integer  :: isBv3d                    ! 3D V-variables
         integer  :: isBw3d                    ! 3D W-variables
+!
+!  Input climate NetCDF files IDs.
+!
+        integer, allocatable :: ncCLMid(:,:)
 !
 !  Input forcing NetCDF files IDs.
 !
@@ -670,6 +675,7 @@
       allocate ( idSbry(MAXVAL(NSV)+1) )
 
       allocate ( ncBRYid(NV,Ngrids) )
+      allocate ( ncCLMid(NV,Ngrids) )
       allocate ( ncFRCid(NV,Ngrids) )
 
       allocate ( idefADJ(Ngrids) )
@@ -906,6 +912,7 @@
           Vtime(1,i,ng)=0.0_r8
           Vtime(2,i,ng)=0.0_r8
           ncBRYid(i,ng)=-1
+          ncCLMid(i,ng)=-1
           ncFRCid(i,ng)=-1
         END DO
       END DO

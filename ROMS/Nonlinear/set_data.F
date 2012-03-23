@@ -51,6 +51,9 @@
 # ifdef CLIMATOLOGY
       USE mod_clima
 # endif
+# ifdef BCLIMATOLOGY
+      USE mod_biology
+# endif
       USE mod_forces
       USE mod_grid
       USE mod_mixing
@@ -1809,6 +1812,19 @@
      &                       CLIMA(ng)%tclm (:,:,:,itrc),               &
      &                       update)
         IF (exit_flag.ne.NoError) RETURN
+      END DO
+#   endif
+#   if defined BCLIMATOLOGY
+! FC & GH BIO TRACER
+      DO itrc=NAT+1,NT(ng)
+        IF (itrc==iFeD_ .OR. itrc==iNO3_ .OR. itrc==iSiOH) THEN
+          CALL set_3dfld_tile (ng, tile, iNLM, idTclm(itrc),            &
+     &                         LBi, UBi, LBj, UBj, 1, N(ng),            &
+     &                         CLIMA(ng)%tclmG(:,:,:,:,itrc),           &
+     &                         CLIMA(ng)%tclm (:,:,:,itrc),             &
+     &                         update)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
       END DO
 #   endif
 

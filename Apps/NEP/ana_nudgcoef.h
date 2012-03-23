@@ -50,6 +50,9 @@
       USE mod_boundary
 #ifdef CLIMATOLOGY
       USE mod_clima
+#ifdef BCLIMATOLOGY
+      USE mod_biology
+#endif
 #endif
       USE mod_grid
       USE mod_ncparam
@@ -145,6 +148,11 @@
         DO i=IstrR,IendR
           CLIMA(ng)%Tnudgcof(i,j,itemp)=wrk(i,j)
           CLIMA(ng)%Tnudgcof(i,j,isalt)=wrk(i,j)
+#   ifdef BCLM_NUDGING
+          CLIMA(ng)%Tnudgcof(i,j,iFeD_)=wrk(i,j)
+          CLIMA(ng)%Tnudgcof(i,j,iNO3_)=wrk(i,j)
+          CLIMA(ng)%Tnudgcof(i,j,iSiOH)=wrk(i,j)
+#   endif
         END DO
       END DO
 #  endif
