@@ -195,73 +195,7 @@
 
 /* Boundary conditions...careful with grid orientation */
 
-#undef EASTERN_WALL
-#undef NORTHERN_WALL
-#undef WESTERN_WALL
-#define SOUTHERN_WALL
-
 #define RADIATION_2D
-
-#ifndef NORTHERN_WALL
-# define NORTH_FSCHAPMAN
-# define NORTH_M2FLATHER
-# ifdef SOLVE3D
-#  define NORTH_M3RADIATION
-#  define NORTH_M3NUDGING
-#  define NORTH_TRADIATION
-#  define NORTH_TNUDGING
-#  define NORTH_MIGRADIENT
-#  define NORTH_AIMIXED
-#  define NORTH_HIMIXED
-#  define NORTH_HSNMIXED
-# endif
-#endif
-
-#ifndef WESTERN_WALL
-/* trying for sources providing flux, so cuts out tides :/ */
-# undef WEST_FSCHAPMAN
-# undef WEST_M2FLATHER
-# ifdef SOLVE3D
-#  undef WEST_M3RADIATION
-#  undef WEST_M3NUDGING
-#  define WEST_TRADIATION
-#  define WEST_TNUDGING
-#  define WEST_MIGRADIENT
-#  define WEST_AIMIXED
-#  define WEST_HIMIXED
-#  define WEST_HSNMIXED
-# endif
-#endif
-
-#ifndef SOUTHERN_WALL
-# define SOUTH_FSCHAPMAN
-# define SOUTH_M2FLATHER
-# ifdef SOLVE3D
-#  define SOUTH_M3RADIATION
-#  define SOUTH_M3NUDGING
-#  define SOUTH_TRADIATION
-#  define SOUTH_TNUDGING
-#  define SOUTH_MIGRADIENT
-#  define SOUTH_AIMIXED
-#  define SOUTH_HIMIXED
-#  define SOUTH_HSNMIXED
-# endif
-#endif
-
-#ifndef EASTERN_WALL
-# define EAST_FSCHAPMAN
-# define EAST_M2FLATHER
-# ifdef SOLVE3D
-#  define EAST_M3RADIATION
-#  define EAST_M3NUDGING
-#  define EAST_TRADIATION
-#  define EAST_TNUDGING
-#  define EAST_MIGRADIENT
-#  define EAST_AIMIXED
-#  define EAST_HIMIXED
-#  define EAST_HSNMIXED
-# endif
-#endif
 
 /* roms quirks */
 
