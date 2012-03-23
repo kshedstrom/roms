@@ -141,16 +141,16 @@
 #endif
 !-----------------------------------------------------------------------
 !
-#if defined NEP5 || defined NEP6 || defined CORAL
+#if defined CORAL
 # if defined UV_LDRAG
       cff =  3.0d-04
-      h0 = 1000.
+      h0 = 2500.
       DO j=JstrR,JendR
         DO i=IstrR,IendR
           IF (GRID(ng)%h(i,j) >= h0) THEN
             rdrag(i,j)=cff
           ELSE
-            rdrag(i,j)=cff + (h0-GRID(ng)%h(i,j))*57.0d-4/h0
+            rdrag(i,j)=cff + (h0-GRID(ng)%h(i,j))*77.0d-4/h0
           END IF
         END DO
       END DO

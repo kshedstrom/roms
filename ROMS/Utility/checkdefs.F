@@ -1323,6 +1323,12 @@
       Coptions(is:is+13)=' !NONLIN_EOS,'
 # endif
 #endif
+#ifdef NO_LBC_ATT
+      IF (Master) WRITE (stdout,20) 'NO_LBC_ATT',                       &
+     &   'Not checking NetCDF global attribute NLM_LBC during restart.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+12)=' NO_LBC_ATT,'
+#endif
 #if defined NO_READ_GHOST && defined DISTRIBUTE
       IF (Master) WRITE (stdout,20) 'NO_READ_GRID',                     &
      &   'Not including ghost points during scattering read data.'
@@ -1922,8 +1928,20 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+14)=' TCLM_NUDGING,'
 #endif
+#if defined BCLIMATOLOGY
+      IF (Master) WRITE (stdout,20) 'BCLIMATOLOGY',                     &
+     &   'Processing biological tracer climatology data.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+14)=' BCLIMATOLOGY,'
+#endif
+#if defined BCLM_NUDGING
+      IF (Master) WRITE (stdout,20) 'BCLM_NUDGING',                     &
+     &   'Nudging toward biological tracer climatology.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+14)=' BCLM_NUDGING,'
+#endif
 #if defined TIDES_ASTRO
-      IF (Master) WRITE (stdout,20) 'TIDES_ASTRO',                        &
+      IF (Master) WRITE (stdout,20) 'TIDES_ASTRO',                      &
      &   'Compute astronomical (long-period tide) corrections.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+13)=' TIDES_ASTRO,'
