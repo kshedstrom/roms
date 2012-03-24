@@ -494,6 +494,19 @@
           END DO
         END IF
 #  endif
+#  ifdef NEMURO_PROD
+        IF (Aout(idNPP,ng)) THEN
+          DO j=JstrR,JendR
+            DO i=IstrR,IendR
+              AVERAGE(ng)%avgNPP(i,j)=OCEAN(ng)%Nemuro_NPP(i,j)
+# ifdef WET_DRY
+              AVERAGE(ng)%avgNPP(i,j)=AVERAGE(ng)%avgNPP(i,j)*  &
+     &                                GRID(ng)%rmask_io(i,j)
+# endif
+            END DO
+          END DO
+        END IF
+#  endif
 #  if defined SEDIMENT && defined BEDLOAD
         DO it=1,NST
           IF (Aout(idUbld(it),ng)) THEN
@@ -2004,6 +2017,19 @@
      &                                 GRID(ng)%rmask_io(i,j)*          &
 # endif
      &                                 OCEAN(ng)%OPAL_burial(i,j)
+            END DO
+          END DO
+        END IF
+#  endif
+#  ifdef NEMURO_PROD
+        IF (Aout(idNPP,ng)) THEN
+          DO j=JstrR,JendR
+            DO i=IstrR,IendR
+              AVERAGE(ng)%avgNPP(i,j)=AVERAGE(ng)%avgNPP(i,j)+          &
+# ifdef WET_DRY
+     &                                 GRID(ng)%rmask_io(i,j)*          &
+# endif
+     &                                 OCEAN(ng)%Nemuro_NPP(i,j)
             END DO
           END DO
         END IF
@@ -3721,6 +3747,28 @@
      &                        NghostPoints,                             &
      &                        EWperiodic(ng), NSperiodic(ng),           &
      &                        AVERAGE(ng)%avgOPALbur)
+#  endif
+          END IF
+        END IF
+#  endif
+#  ifdef NEMURO_PROD
+        IF (Aout(idNPP,ng)) THEN
+          DO j=JstrR,JendR
+            DO i=IstrR,IendR
+              AVERAGE(ng)%avgNPP(i,j)=fac*                              &
+     &                                    AVERAGE(ng)%avgNPP(i,j)
+            END DO
+          END DO
+          IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
+            CALL exchange_r2d_tile (ng, tile,                           &
+     &                            LBi, UBi, LBj, UBj,                   &
+     &                            AVERAGE(ng)%avgNPP)
+#  ifdef DISTRIBUTE
+            CALL mp_exchange2d (ng, tile, iNLM, 1,                      &
+     &                        LBi, UBi, LBj, UBj,                       &
+     &                        NghostPoints,                             &
+     &                        EWperiodic(ng), NSperiodic(ng),           &
+     &                        AVERAGE(ng)%avgNPP)
 #  endif
           END IF
         END IF

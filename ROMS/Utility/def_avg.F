@@ -1215,6 +1215,27 @@
           IF (exit_flag.ne.NoError) RETURN
         END IF
 #  endif
+#  ifdef NEMURO_PROD
+!
+!  Define Net primary production.
+!
+        IF (Aout(idNPP,ng)) THEN
+          Vinfo( 1)=Vname(1,idNPP)
+          WRITE (Vinfo( 2),'(a,1x,a)') Prefix, TRIM(Vname(2,idNPP))
+          Vinfo( 3)=Vname(3,idNPP)
+          Vinfo(14)=Vname(4,idNPP)
+          Vinfo(16)=Vname(1,idtime)
+#   if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_rho'
+#   endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idNPP,ng),r8)
+          status=def_var(ng, model, AVG(ng)%ncid,                       &
+     &                   AVG(ng)%Vid(idNPP),                        &
+     &                   NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+#  endif
 #  ifdef LMD_SKPP
 !
 !  Define depth of surface boundary layer.
@@ -2916,6 +2937,11 @@
             got_var(idOPALbur)=.TRUE.
             AVG(ng)%Vid(idOPALbur)=var_id(i)
 #  endif
+#  ifdef NEMURO_PROD
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idNPP))) THEN
+            got_var(idNPP)=.TRUE.
+            AVG(ng)%Vid(idNPP)=var_id(i)
+#  endif
 #  ifdef LMD_SKPP
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idHsbl))) THEN
             got_var(idHsbl)=.TRUE.
@@ -3396,6 +3422,14 @@
         END IF
         IF (.not.got_var(idOPALbur).and.Aout(idOPALbur,ng)) THEN
           IF (Master) WRITE (stdout,60) TRIM(Vname(1,idOPALbur)),       &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+#  endif
+#  ifdef NEMURO_PROD
+        IF (.not.got_var(idNPP).and.Aout(idNPP,ng)) THEN
+          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idNPP)),       &
      &                                  TRIM(ncname)
           exit_flag=3
           RETURN

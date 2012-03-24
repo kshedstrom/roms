@@ -104,13 +104,16 @@
 #   endif
 # endif
 
-#   ifdef NEMURO_SED1
+# ifdef NEMURO_SED1
           real(r8), pointer :: PONsed(:,:)
           real(r8), pointer :: OPALsed(:,:)
           real(r8), pointer :: DENITsed(:,:)
           real(r8), pointer :: PON_burial(:,:)
           real(r8), pointer :: OPAL_burial(:,:)
-#   endif
+# endif
+# ifdef NEMURO_PROD
+          real(r8), pointer :: Nemuro_NPP(:,:)
+# endif
 
 # ifdef BIO_GOANPZ
           real(r8), pointer :: st(:,:,:,:,:)
@@ -372,7 +375,10 @@
       allocate ( OCEAN(ng) % DENITsed(LBi:UBi,LBj:UBj) )
       allocate ( OCEAN(ng) % PON_burial(LBi:UBi,LBj:UBj) )
       allocate ( OCEAN(ng) % OPAL_burial(LBi:UBi,LBj:UBj) )
-#    endif
+# endif
+# ifdef NEMURO_PROD
+      allocate ( OCEAN(ng) % Nemuro_NPP(LBi:UBi,LBj:UBj) )
+# endif
 
 # ifdef BIO_GOANPZ
       !--------------------------------------------
@@ -657,23 +663,26 @@
             OCEAN(ng) % zeta(i,j,1) = IniVal
             OCEAN(ng) % zeta(i,j,2) = IniVal
             OCEAN(ng) % zeta(i,j,3) = IniVal
-# if defined NEARSHORE_MELLOR
+#if defined NEARSHORE_MELLOR
             OCEAN(ng) % rulag2d(i,j) = IniVal
             OCEAN(ng) % rvlag2d(i,j) = IniVal
             OCEAN(ng) % ubar_stokes(i,j) = IniVal
             OCEAN(ng) % vbar_stokes(i,j) = IniVal
-# endif
-# if (defined BIO_FENNEL || defined BIO_UMAINE) && \
+#endif
+#if (defined BIO_FENNEL || defined BIO_UMAINE) && \
       defined CARBON && defined SOLVED3D
             OCEAN(ng) % pH(i,j) = 8.0_r8
-# endif
+#endif
 
-# if defined NEMURO_SED1
+#if defined NEMURO_SED1
             OCEAN(ng) % PONsed(i,j) = IniVal
             OCEAN(ng) % OPALsed(i,j) = IniVal
             OCEAN(ng) % DENITsed(i,j) = IniVal
             OCEAN(ng) % PON_burial(i,j) = IniVal
             OCEAN(ng) % OPAL_burial(i,j) = IniVal
+#endif
+#ifdef NEMURO_PROD
+            OCEAN(ng) % Nemuro_NPP(i,j) = IniVal
 #endif
           END DO
 #ifdef SOLVE3D

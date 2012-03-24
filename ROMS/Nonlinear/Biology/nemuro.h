@@ -83,6 +83,9 @@
      &                   OCEAN(ng) % PON_burial,                        &
      &                   OCEAN(ng) % OPAL_burial,                       &
 #endif
+#ifdef NEMURO_PROD
+     &                   OCEAN(ng) % Nemuro_NPP,                        &
+#endif
      &                   OCEAN(ng) % t)
 
 #ifdef PROFILE
@@ -107,6 +110,9 @@
 #ifdef NEMURO_SED1
      &                         PONsed, OPALsed, DENITsed,               &
      &                         PON_burial, OPAL_burial,                 &
+#endif
+#ifdef NEMURO_PROD
+     &                         Nemuro_NPP,                              &
 #endif
      &                         t)
 !-----------------------------------------------------------------------
@@ -141,6 +147,9 @@
       real(r8), intent(inout) :: PON_burial(LBi:,LBj:)
       real(r8), intent(inout) :: OPAL_burial(LBi:,LBj:)
 # endif
+# ifdef NEMURO_PROD
+      real(r8), intent(out) :: Nemuro_NPP(LBi:,LBj:)
+# endif
       real(r8), intent(inout) :: t(LBi:,LBj:,:,:,:)
 #else
 # ifdef MASKING
@@ -160,6 +169,9 @@
       real(r8), intent(inout) :: PON_burial(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: OPAL_burial(LBi:UBi,LBj:UBj)
 # endif
+#  ifdef NEMURO_PROD
+      real(r8), intent(out) :: Nemuro_NPP(LBi:UBi,LBj:UBj)
+#  endif
       real(r8), intent(inout) :: t(LBi:UBi,LBj:UBj,UBk,3,UBt)
 #endif
 !
@@ -219,6 +231,9 @@
       real(r8), dimension(IminS:ImaxS,N(ng)) :: bR
       real(r8), dimension(IminS:ImaxS,N(ng)) :: qc
       real(r8), dimension(IminS:ImaxS,N(ng)) :: LPSiN
+#ifdef NEMURO_PROD
+      real(r8), dimension(IminS:ImaxS,N(ng)) :: NPP_slice
+#endif
       real(r8), dimension(IminS:ImaxS) :: frac_buried
 
 #include "set_bounds.h"
@@ -261,6 +276,14 @@
             Hz_inv3(i,k)=1.0_r8/(Hz(i,j,k-1)+Hz(i,j,k)+Hz(i,j,k+1))
           END DO
         END DO
+!
+#ifdef NEMURO_PROD
+        DO k=1,N(ng)
+          DO i=Istr,Iend
+            NPP_slice(i,k)=0.0_r8
+          END DO
+        END DO
+#endif
 !
 !  Extract biological variables from tracer arrays, place them into
 !  scratch arrays, and restrict their values to be positive definite.
@@ -497,6 +520,9 @@
               GppAPS=Bio(i,k,iNH4_)*cff5
               GppPS=GppNPS+GppAPS
               Bio(i,k,iSphy)=Bio(i,k,iSphy)+GppPS
+#ifdef NEMURO_PROD
+              NPP_slice(i,k)=NPP_slice(i,k)+GppPS
+#endif
 !
 #ifdef IRON_LIMIT
 ! Iron uptake proportional to growth
@@ -531,6 +557,9 @@
               ResPS=Bio(i,k,iSphy)*cff4
               Bio(i,k,iNO3_)=Bio(i,k,iNO3_)+ResPS*RnewS
               Bio(i,k,iNH4_)=Bio(i,k,iNH4_)+ResPS*(1.0_r8-RnewS)
+#ifdef NEMURO_PROD
+              NPP_slice(i,k)=NPP_slice(i,k)-ResPS
+#endif
 !
 #ifdef IRON_LIMIT
 ! Small phytoplankton respiration Fe terms
@@ -608,6 +637,9 @@
               GppPL=GppNPL+GppAPL
               Bio(i,k,iLphy)=Bio(i,k,iLphy)+GppPL
               Bio(i,k,iSiOH)=Bio(i,k,iSiOH)-GppPL*LPSiN(i,k)
+#ifdef NEMURO_PROD
+              NPP_slice(i,k)=NPP_slice(i,k)+GppPL
+#endif
 !
 #ifdef IRON_LIMIT
 ! Iron Uptake proportional to growth
@@ -644,6 +676,9 @@
               Bio(i,k,iNO3_)=Bio(i,k,iNO3_)+ResPL*RnewL
               Bio(i,k,iNH4_)=Bio(i,k,iNH4_)+ResPL*(1.0_r8-RnewL)
               Bio(i,k,iSiOH)=Bio(i,k,iSiOH)+ResPL*LPSiN(i,k)
+#ifdef NEMURO_PROD
+              NPP_slice(i,k)=NPP_slice(i,k)-ResPL
+#endif
 !
 #ifdef IRON_LIMIT
 ! Large Phytoplankton respiration Fe terms
@@ -1352,6 +1387,17 @@
             END DO
           END DO
         END DO
+
+#  ifdef NEMURO_PROD
+        DO i=Istr,Iend
+	  Nemuro_NPP(i,j) = 0.0_r8
+        END DO
+        DO k=1,N(ng)
+          DO i=Istr,Iend
+	    Nemuro_NPP(i,j) = Nemuro_NPP(i,j) + Hz(i,j,k)*NPP_slice(i,k)
+          END DO
+        END DO
+#  endif
 
       END DO J_LOOP
 

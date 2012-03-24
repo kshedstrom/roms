@@ -521,6 +521,22 @@
           IF (exit_flag.ne.NoError) RETURN
         END IF
 #  endif
+#  ifdef NEMURO_PROD
+!
+!  Define Net primary productivity.
+!
+        IF (Sout(idNPP,ng)) THEN
+          Vinfo( 1)=Vname(1,idNPP)
+          Vinfo( 2)=Vname(2,idNPP)
+          Vinfo( 3)=Vname(3,idNPP)
+          Vinfo(14)=Vname(4,idNPP)
+          Vinfo(16)=Vname(1,idtime)
+          status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idNPP),    &
+     &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
+     &                   SetParAccess = .FALSE.)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+#  endif
 #  ifdef LMD_SKPP
 !
 !  Define depth of surface boundary layer.
@@ -1919,6 +1935,11 @@
             got_var(idOPALbur)=.TRUE.
             STA(ng)%Vid(idOPALbur)=var_id(i)
 #  endif
+#  ifdef NEMURO_PROD
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idNPP))) THEN
+            got_var(idNPP)=.TRUE.
+            STA(ng)%Vid(idNPP)=var_id(i)
+#  endif
 #  ifdef LMD_SKPP
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idHsbl))) THEN
             got_var(idHsbl)=.TRUE.
@@ -2442,6 +2463,14 @@
         END IF
         IF (.not.got_var(idOPALbur).and.Sout(idOPALbur,ng)) THEN
           IF (Master) WRITE (stdout,60) TRIM(Vname(1,idOPALbur)),       &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+#  endif
+#  ifdef NEMURO_PROD
+        IF (.not.got_var(idNPP).and.Sout(idNPP,ng)) THEN
+          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idNPP)),           &
      &                                  TRIM(ncname)
           exit_flag=3
           RETURN

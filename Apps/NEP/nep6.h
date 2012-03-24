@@ -233,6 +233,7 @@
 #if defined NEMURO
 # define BIO_SEDIMENT
 # define NEMURO_SED1
+# define NEMURO_PROD
 # undef ANA_BIOLOGY       /* analytical biology initial conditions */
 # define ANA_BPFLUX        /* analytical bottom passive tracers fluxes */
 # define ANA_SPFLUX        /* analytical surface passive tracers fluxes */

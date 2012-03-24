@@ -510,6 +510,24 @@
         IF (exit_flag.ne.NoError) RETURN
       END IF
 #  endif
+#  ifdef NEMURO_PROD
+!
+!  Write out buried OPAL in sediment.
+!
+      IF (Sout(idNPP,ng)) THEN
+        scale=1.0_r8
+        CALL extract_sta2d (ng, iNLM, Cgrid, idNPP, r2dvar,             &
+     &                      LBi, UBi, LBj, UBj,                         &
+     &                      scale, OCEAN(ng)%Nemuro_NPP,                &
+     &                      Nstation(ng), Xpos, Ypos, psta)
+        CALL netcdf_put_fvar (ng, iNLM, STA(ng)%name,                   &
+     &                        TRIM(Vname(1,idNPP)), psta,               &
+     &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
+     &                        ncid = STA(ng)%ncid,                      &
+     &                        varid = STA(ng)%Vid(idNPP))
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
+#  endif
 #  ifdef LMD_SKPP
 !
 !  Write out depth of surface boundary layer.
