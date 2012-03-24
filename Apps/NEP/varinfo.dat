@@ -3838,6 +3838,15 @@
   'r2dvar'
   1.0d0
 
+'primary_prod'                                    ! Input/Output
+  'Net primary production'
+  'millimole_nitrate meter-3'                      ! [millimole/m3]
+  'primary_prod, scalar, series'
+  'ocean_time'
+  'idNPP'
+  'r2dvar'
+  1.0d0
+
 'TIC'                                              ! Input/Output
   'total inorganic carbon'
   'millimole_carbon meter-3'                       ! [millimole/m3]

@@ -1280,6 +1280,12 @@
       Coptions(is:is+8)=' NEMURO,'
       ibiology=ibiology+1
 #endif
+#ifdef NEMURO_PROD
+      IF (Master) WRITE (stdout,20) 'NEMURO_PROD',                      &
+     &   'Nemuro Net primary production.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+13)=' NEMURO_PROD,'
+#endif
 #ifdef NEMURO_SED1
       IF (Master) WRITE (stdout,20) 'NEMURO_SED1',                      &
      &   'Nemuro with sediment remineralization type 1.'

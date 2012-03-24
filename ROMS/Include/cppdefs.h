@@ -507,7 +507,8 @@
 **    work yet.                                                              **
 **                                                                           **
 ** NEMURO              use if Nemuro ecosystem model.                        **
-** NEMURO_SED1         use if Nemuro sediment remineralization version1      **
+** NEMURO_SED1         use if Nemuro sediment remineralization               **
+** NEMURO_PROD         use if Nemuro productivity output                     **
 ** BIO_SEDIMENT        use to restore fallen material to the nutrient pool   **
 ** HOLLING_GRAZING     use Holling-type s-shaped curve grazing (implicit)    **
 ** IVLEV_EXPLICIT      use Ivlev explicit grazing algorithm                  **

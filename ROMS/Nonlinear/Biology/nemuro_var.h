@@ -62,6 +62,10 @@
               CASE ('idOPALbur')
                 idOPALbur=varid
 # endif
+# ifdef NEMURO_PROD
+              CASE ('idNPP')
+                idNPP=varid
+# endif
 
 ! All over again for climatatology
               CASE ('idTclm(iLphy)')
