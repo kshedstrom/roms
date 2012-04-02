@@ -193,24 +193,6 @@
      &                    NghostPoints, EWperiodic(ng), NSperiodic(ng), &
      &                    wfr)
 # endif
-!
-!  Apply periodic boundary conditions.
-!
-      IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
-        DO itrc=1,NT(ng)
-          CALL exchange_r3d_tile (ng, tile,                             &
-     &                            LBi, UBi, LBj, UBj, 1, N(ng),         &
-     &                            t(:,:,:,nnew,itrc))
-        END DO
-      END IF
-# ifdef DISTRIBUTE
-      DO itrc=1,NT(ng)
-        CALL mp_exchange3d (ng, tile, iNLM, 1,                          &
-     &                    LBi, UBi, LBj, UBj, 1, N(ng),                 &
-     &                    NghostPoints, EWperiodic(ng), NSperiodic(ng), &
-     &                    t(:,:,:,nnew,itrc))
-      END DO
-# endif
       RETURN
       END SUBROUTINE ice_frazil_tile
 
