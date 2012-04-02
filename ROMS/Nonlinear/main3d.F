@@ -105,9 +105,6 @@
 # if defined AVERAGES2 && !defined ADJOINT
       USE set_avg2_mod, ONLY : set_avg2
 # endif
-# if defined ICE_MODEL && defined ICE_THERMO
-      USE ice_frazil_mod, ONLY : ice_frazil
-# endif
       USE set_depth_mod, ONLY : set_depth
       USE set_massflux_mod, ONLY : set_massflux
 # if defined SSH_TIDES || defined UV_TIDES || defined POT_TIDES
@@ -693,9 +690,6 @@
             subs=NtileX(ng)*NtileE(ng)/numthreads
             DO tile=subs*(thread+1)-1,subs*thread,-1
               CALL step3d_t (ng, TILE)
-#  if defined ICE_MODEL && defined ICE_THERMO
-              CALL ice_frazil(ng, TILE)
-#  endif
             END DO
           END DO
 !$OMP END PARALLEL DO
