@@ -9459,7 +9459,7 @@
           allocate ( S(ng)%time_max(Nfiles(ng)) )
           IF (label(1:3).eq.'FLT' .or. label(1:4).eq.'FISH' .or.        &
      &        label(1:4).eq.'PRED' .or. label(1:5).eq.'FLEET') THEN
-            allocate ( S(ng)%Vid(-6:NV) )
+            allocate ( S(ng)%Vid(-10:NV) )
           ELSE
             allocate ( S(ng)%Vid(NV) )
           END IF
