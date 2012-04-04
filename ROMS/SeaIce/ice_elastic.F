@@ -29,6 +29,9 @@
 #ifdef ICE_SHOREFAST
       USE mod_coupling
 #endif
+#ifdef MICLM_NUDGING
+      USE mod_clima
+#endif
 
       integer, intent(in) :: ng, tile
 !
@@ -68,7 +71,12 @@
      &                      COUPLING(ng) % Zt_avg1,                     &
 # endif
 # ifdef FASTICE_CLIMATOLOGY
-     &                      FORCES(ng) % fastice_clm,                  &
+     &                      FORCES(ng) % fastice_clm,                   &
+# endif
+# ifdef MICLM_NUDGING
+     &                      CLIMA(ng) % uiclm,                          &
+     &                      CLIMA(ng) % viclm,                          &
+     &                      CLIMA(ng) % MInudgcof,                      &
 # endif
      &                      ICE(ng) % ui,                               &
      &                      ICE(ng) % vi,                               &
@@ -117,6 +125,9 @@
 # endif
 # ifdef FASTICE_CLIMATOLOGY
      &                        fastice_clm,                              &
+# endif
+# ifdef MICLM_NUDGING
+     &                        uiclm, viclm, MInudgcof,                  &
 # endif
      &                        ui, vi, uwater, vwater, sealev,           &
      &                        uie, vie,                                 &
@@ -176,6 +187,11 @@
 # ifdef FASTICE_CLIMATOLOGY
       real(r8), intent(in) :: fastice_clm(LBi:,LBj:)
 # endif
+# ifdef MICLM_NUDGING
+      real(r8), intent(in) :: uiclm(LBi:,LBj:)
+      real(r8), intent(in) :: viclm(LBi:,LBj:)
+      real(r8), intent(in) :: MInudgcof(LBi:,LBj:)
+# endif
       real(r8), intent(out) :: ui(LBi:,LBj:,:)
       real(r8), intent(out) :: vi(LBi:,LBj:,:)
       real(r8), intent(in) :: uwater(LBi:,LBj:)
@@ -221,6 +237,11 @@
 # endif
 # ifdef FASTICE_CLIMATOLOGY
       real(r8), intent(in) :: fastice_clm(LBi:UBi,LBj:UBj)
+# endif
+# ifdef MICLM_NUDGING
+      real(r8), intent(in) :: uiclm(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: viclm(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: MInudgcof(LBi:UBi,LBj:UBj)
 # endif
       real(r8), intent(out) :: ui(LBi:UBi,LBj:UBj,2)
       real(r8), intent(out) :: vi(LBi:UBi,LBj:UBj,2)
@@ -592,6 +613,11 @@
           uie(i,j,lienw) = (masu*uie(i,j,lieol) +                       &
      &                       dte(ng)*uforce)/alfa 
 !
+# ifdef MICLM_NUDGING
+          cff = 0.5*(MInudgcof(i,j)+MInudgcof(i-1,j))
+          uie(i,j,lienw)=uie(i,j,lienw)+                                &
+     &                  dte(ng)*cff*(uiclm(i,j)-uie(i,j,lienw))
+# endif
 # ifdef ICE_SHOREFAST
           hu = 0.5_r8*(h(i-1,j)+MIN(Zt_avg1(i-1,j),0.0_r8) +            &
      &         h(i,j)+MIN(Zt_avg1(i,j),0.0_r8))
@@ -654,41 +680,41 @@
      &                 THEN
              f1 = 0.5_r8*(sig12(i,j,lienw)+sig12(i,j-1,lienw))
 # ifdef ICESHELF
-          ELSE IF (zice(i,j-1).eq.0.0_r8.and.zice(i,j).eq.0.0_r8.and. &
+          ELSE IF (zice(i,j-1).eq.0.0_r8.and.zice(i,j).eq.0.0_r8.and.   &
      &             zice(i+1,j-1)+zice(i+1,j).ne.0.0_r8) then
             f1 = 0.5_r8*(sig12(i,j,lienw)+sig12(i,j-1,lienw))
 # endif
           ELSE
-          f1 = 0.25_r8*(sig12(i,j,lienw)+sig12(i+1,j,lienw)         &
+          f1 = 0.25_r8*(sig12(i,j,lienw)+sig12(i+1,j,lienw)             &
      &           + sig12(i+1,j-1,lienw)+sig12(i,j-1,lienw))
           END IF
 #else
-          f1 = 0.25_r8*(sig12(i,j,lienw)+sig12(i+1,j,lienw)           &
+          f1 = 0.25_r8*(sig12(i,j,lienw)+sig12(i+1,j,lienw)             &
      &           + sig12(i+1,j-1,lienw)+sig12(i,j-1,lienw))
 #endif
 #ifdef MASKING
           IF (vmask(i,j).gt.0.0_r8.and.vmask(i-1,j).lt.1.0_r8 ) THEN
               f2 = 0.5_r8*(sig12(i,j,lienw)+sig12(i,j-1,lienw))
 # ifdef WET_DRY
-          ELSE IF (vmask_wet(i,j).gt.0.0_r8.and.                      &
+          ELSE IF (vmask_wet(i,j).gt.0.0_r8.and.                        &
      &             vmask_wet(i-1,j).lt.1.0_r8 ) THEN
             f2 = 0.5_r8*(sig12(i,j,lienw)+sig12(i,j-1,lienw))
 # endif
 # ifdef ICESHELF
-          ELSE IF (zice(i,j-1).eq.0.0_r8.and.zice(i,j).eq.0.0_r8.and. &
+          ELSE IF (zice(i,j-1).eq.0.0_r8.and.zice(i,j).eq.0.0_r8.and.   &
      &          zice(i-1,j-1)+zice(i-1,j).ne.0.0_r8) then
             f2 = 0.5_r8*(sig12(i,j,lienw)+sig12(i,j-1,lienw))
 # endif
           ELSE
-            f2 = 0.25_r8*(sig12(i,j,lienw)+sig12(i-1,j,lienw)         &
+            f2 = 0.25_r8*(sig12(i,j,lienw)+sig12(i-1,j,lienw)           &
      &           + sig12(i-1,j-1,lienw)+sig12(i,j-1,lienw))
           END IF
 #elif defined WET_DRY
-          IF (vmask_wet(i,j).gt.0.0_r8.and.                           &
+          IF (vmask_wet(i,j).gt.0.0_r8.and.                             &
      &          vmask_wet(i-1,j).lt.1.0_r8 ) THEN
             f2 = 0.5_r8*(sig12(i,j,lienw)+sig12(i,j-1,lienw))
 # ifdef ICESHELF
-          ELSE IF (zice(i,j-1).eq.0.0_r8.and.zice(i,j).eq.0.0_r8.and. &
+          ELSE IF (zice(i,j-1).eq.0.0_r8.and.zice(i,j).eq.0.0_r8.and.   &
      &             zice(i-1,j-1)+zice(i-1,j).ne.0.0_r8) then
             f2 = 0.5_r8*(sig12(i,j,lienw)+sig12(i,j-1,lienw))
 # endif
@@ -697,7 +723,7 @@
      &           + sig12(i-1,j-1,lienw)+sig12(i,j-1,lienw))
           END IF
 #else
-          f2 = 0.25_r8*(sig12(i,j,lienw)+sig12(i-1,j,lienw)           &
+          f2 = 0.25_r8*(sig12(i,j,lienw)+sig12(i-1,j,lienw)             &
      &           + sig12(i-1,j-1,lienw)+sig12(i,j-1,lienw))
 #endif
 !
@@ -710,7 +736,7 @@
           vforce = vforce + rhoice(ng)*tauaiv(i,j)*om_v(i,j)*on_v(i,j)
 
 ! *** pressure from tilting ocean surface 
-          vforce = vforce - g*(masv)*om_v(i,j)                        &
+          vforce = vforce - g*(masv)*om_v(i,j)                          &
      &            *(sealev(i,j)-sealev(i,j-1))
 !
           fakt = 0.0_r8
@@ -782,21 +808,26 @@
 #endif
 
 ! *** coriolis force v
-          vforce = vforce - fakt*rhoice(ng)*om_v(i,j)*on_v(i,j)*       &
+          vforce = vforce - fakt*rhoice(ng)*om_v(i,j)*on_v(i,j)*        &
      &                            (mfu11 + mfu21 + mfu12 + mfu22)
 !
 ! *** stress from ocean current 
-          vforce = vforce/(om_v(i,j)*on_v(i,j)) +                      &
+          vforce = vforce/(om_v(i,j)*on_v(i,j)) +                       &
      &                         avf*chuy*rho0*vwater(i,j)
 !
           alfa = masv + dte(ng)*avf*rho0*chuy
 
 !  solving the momentum equation for v
-          vie(i,j,lienw) = (masv*vie(i,j,lieol) +                      &
+          vie(i,j,lienw) = (masv*vie(i,j,lieol) +                       &
      &                       dte(ng)*vforce)/alfa 
 !
+# ifdef MICLM_NUDGING
+          cff = 0.5*(MInudgcof(i,j)+MInudgcof(i,j-1))
+          vie(i,j,lienw)=vie(i,j,lienw)+                                &
+     &                  dte(ng)*cff*(viclm(i,j)-vie(i,j,lienw))
+# endif
 # ifdef ICE_SHOREFAST
-          hv = 0.5_r8*(h(i,j-1)+MIN(Zt_avg1(i,j-1),0.0_r8) +           &
+          hv = 0.5_r8*(h(i,j-1)+MIN(Zt_avg1(i,j-1),0.0_r8) +            &
      &          h(i,j)+MIN(Zt_avg1(i,j),0.0_r8))
           masv = 0.5_r8*(hi(i,j,liold)+hi(i,j-1,liold))
           clear = hv-0.9_r8*masv

@@ -20,6 +20,9 @@
 #ifdef ICE_SHOREFAST
       USE mod_coupling
 #endif
+#ifdef AICLM_NUDGING
+      USE mod_clima
+#endif
 
       implicit none
 
@@ -47,6 +50,11 @@
 #ifdef ICE_SHOREFAST
      &                      GRID(ng) % h,                               &
      &                      COUPLING(ng) % Zt_avg1,                     &
+#endif
+#ifdef AICLM_NUDGING
+     &                      CLIMA(ng) % aiclm,                          &
+     &                      CLIMA(ng) % hiclm,                          &
+     &                      CLIMA(ng) % AInudgcof,                      &
 #endif
      &                      GRID(ng) % z_r,                             &
      &                      GRID(ng) % z_w,                             &
@@ -109,6 +117,9 @@
 #endif
 #ifdef ICE_SHOREFAST
      &                        h, Zt_avg1,                               &
+#endif
+#ifdef AICLM_NUDGING
+     &                        aiclm, hiclm, AInudgcof,                  &
 #endif
      &                        z_r, z_w, pm, pn, t,                      &
      &                        wfr, wai, wao, wio, wro,                  &
@@ -258,6 +269,11 @@
       real(r8), intent(in) :: h(LBi:,LBj:)
       real(r8), intent(in) :: Zt_avg1(LBi:,LBj:)
 # endif
+# ifdef AICLM_NUDGING
+      real(r8), intent(in) :: aiclm(LBi:,LBj:)
+      real(r8), intent(in) :: hiclm(LBi:,LBj:)
+      real(r8), intent(in) :: AInudgcof(LBi:,LBj:)
+# endif
       real(r8), intent(in) :: z_r(LBi:,LBj:,:)
       real(r8), intent(in) :: z_w(LBi:,LBj:,0:)
       real(r8), intent(in) :: pm(LBi:,LBj:)
@@ -310,6 +326,11 @@
 # ifdef ICE_SHOREFAST
       real(r8), intent(in) :: h(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: Zt_avg1(LBi:UBi,LBj:UBj)
+# endif
+# ifdef AICLM_NUDGING
+      real(r8), intent(in) :: aiclm(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: hiclm(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: AInudgcof(LBi:UBi,LBj:UBj)
 # endif
       real(r8), intent(in) :: z_r(LBi:UBi,LBj:UBj,N(ng))
       real(r8), intent(in) :: z_w(LBi:UBi,LBj:UBj,0:N(ng))
@@ -869,12 +890,19 @@
 !  by converting some snow to ice (N.B. hstar is also weighted by ai
 !  like hsn and hi)
 !
-	  hstar = hsn(i,j,linew) - (rhosw - rhoice(ng)) *              &
+	  hstar = hsn(i,j,linew) - (rhosw - rhoice(ng)) *               &
      &             hi(i,j,linew) / rhosnow_dry(ng)
 	  IF (hstar .gt. 0.0_r8) THEN
 	    hsn(i,j,linew) = hsn(i,j,linew) - rhoice(ng)*hstar/rhosw
 	    hi(i,j,linew) = hi(i,j,linew) + rhosnow_dry(ng)*hstar/rhosw
           ENDIF
+#endif
+#ifdef AICLM_NUDGING
+          cff = AInudgcof(i,j)
+          ai(i,j,linew)=ai(i,j,linew)+                                  &
+     &                  dtice(ng)*cff*(aiclm(i,j)-ai(i,j,linew))
+          hi(i,j,linew)=hi(i,j,linew)+                                  &
+     &                  dtice(ng)*cff*(hiclm(i,j)-hi(i,j,linew))
 #endif
 
 ! determine age of the sea ice

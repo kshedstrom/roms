@@ -171,6 +171,18 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+13)=' AGE_PASSIVE,'
 #endif
+#ifdef AICLIMATOLOGY
+      IF (Master) WRITE (stdout,20) 'AICLIMATOLOGY',                    &
+     &   'Ice concentration climatology.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+15)=' AICLIMATOLOGY,'
+#endif
+#ifdef AICLM_NUDGING
+      IF (Master) WRITE (stdout,20) 'AICLM_NUDGING',                    &
+     &   'Nudging to ice concentration climatology.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+15)=' AICLM_NUDGING,'
+#endif
 #if defined ALBEDO && defined ANA_SRFLUX
       IF (Master) WRITE (stdout,20) 'ALBEDO',                           &
      &   'Shortwave radiation from albedo equation.'
@@ -1525,6 +1537,18 @@
      &   'Using Model Coupling Toolkit library.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+9)=' MCT_LIB,'
+#endif
+#ifdef MICLIMATOLOGY
+      IF (Master) WRITE (stdout,20) 'MICLIMATOLOGY',                    &
+     &   'Ice momentum climatology.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+15)=' MICLIMATOLOGY,'
+#endif
+#ifdef MICLM_NUDGING
+      IF (Master) WRITE (stdout,20) 'MICLM_NUDGING',                    &
+     &   'Nudging to ice momentum climatology.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+15)=' MICLM_NUDGING,'
 #endif
 #if defined MINRES && defined FOUR_DVAR
       IF (Master) WRITE (stdout,20) 'MINRES',                           &
