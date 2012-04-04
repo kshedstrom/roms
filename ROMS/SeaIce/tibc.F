@@ -85,116 +85,113 @@
 !-----------------------------------------------------------------------
 !
         know=liold
-
-#ifndef EW_PERIODIC
 !
 !-----------------------------------------------------------------------
 !  Lateral boundary conditions at the western edge.
 !-----------------------------------------------------------------------
 !
       IF (DOMAIN(ng)%Western_Edge(tile)) THEN
-
-# ifdef WEST_TICLAMPED
 !
 !  Western edge, clamped boundary condition.
 !
-        DO j=Jstr,Jend
-          enthalpi(0,j,linew)=BOUNDARY(ng)%hi_west(j)*                  &
+        IF (LBC(iwest,isTice,ng)%clamped)) THEN
+          DO j=Jstr,Jend
+            enthalpi(0,j,linew)=BOUNDARY(ng)%hi_west(j)*                  &
      &                           BOUNDARY(ng)%ti_west(j)
 #  ifdef MASKING
-          enthalpi(0,j,linew)=enthalpi(0,j,linew)*                      &
+            enthalpi(0,j,linew)=enthalpi(0,j,linew)*                      &
      &                   GRID(ng)%rmask(0,j)
 #  endif
 #  ifdef WET_DRY
-          enthalpi(0,j,linew)=enthalpi(0,j,linew)*                      &
+            enthalpi(0,j,linew)=enthalpi(0,j,linew)*                      &
      &                   GRID(ng)%rmask_wet(0,j)
 #  endif
-        END DO
+          END DO
 
 # elif defined WEST_TIMIXED
 !
 !  Western edge, clamped on inflow, gradient on outflow.
 !
-        DO j=Jstr,Jend
-          IF (ui(1,j,linew).ge.0._r8) THEN
-            enthalpi(0,j,linew)=BOUNDARY(ng)%hi_west(j)*                &
+          DO j=Jstr,Jend
+            IF (ui(1,j,linew).ge.0._r8) THEN
+              enthalpi(0,j,linew)=BOUNDARY(ng)%hi_west(j)*                &
      &                           BOUNDARY(ng)%ti_west(j)
-#  ifdef MASKING
-            enthalpi(0,j,linew)=enthalpi(0,j,linew)*                    &
+#ifdef MASKING
+              enthalpi(0,j,linew)=enthalpi(0,j,linew)*                    &
      &                   GRID(ng)%rmask(0,j)
-#  endif
-#  ifdef WET_DRY
-            enthalpi(0,j,linew)=enthalpi(0,j,linew)*                    &
+#endif
+#ifdef WET_DRY
+              enthalpi(0,j,linew)=enthalpi(0,j,linew)*                    &
      &                   GRID(ng)%rmask_wet(0,j)
-#  endif
-          ELSE
-            enthalpi(0,j,linew)=enthalpi(1,j,liold)
-#  ifdef MASKING
-            enthalpi(0,j,linew)=enthalpi(0,j,linew)*                    &
+#endif
+            ELSE
+              enthalpi(0,j,linew)=enthalpi(1,j,liold)
+#ifdef MASKING
+              enthalpi(0,j,linew)=enthalpi(0,j,linew)*                    &
      &                   GRID(ng)%rmask(0,j)
-#  endif
-#  ifdef WET_DRY
-            enthalpi(0,j,linew)=enthalpi(0,j,linew)*                    &
+#endif
+#ifdef WET_DRY
+              enthalpi(0,j,linew)=enthalpi(0,j,linew)*                    &
      &                   GRID(ng)%rmask_wet(0,j)
-#  endif
-          ENDIF
-          ti(0,j,linew) = enthalpi(0,j,linew)/                          &
+#endif
+            ENDIF
+            ti(0,j,linew) = enthalpi(0,j,linew)/                          &
      &                       MAX(hi(0,j,linew),1.0E-6_r8)
-          IF (hi(0,j,linew).LE.min_h) THEN
-            enthalpi(0,j,linew) = 0.0_r8
-            ti(0,j,linew) = 0.0_r8
-          END IF
-        END DO
-# elif defined WEST_TIGRADIENT
+            IF (hi(0,j,linew).LE.min_h) THEN
+              enthalpi(0,j,linew) = 0.0_r8
+              ti(0,j,linew) = 0.0_r8
+            END IF
+          END DO
 !
 !  Western edge, gradient boundary condition.
 !
-        DO j=Jstr,Jend
-          enthalpi(0,j,linew)=hi(1,j,linew)*ti(1,j,linew)
-#  ifdef MASKING
-          enthalpi(0,j,linew)=enthalpi(0,j,linew)*                      &
+        ELSE IF (LBC(iwest,isTice,ng)%gradient)) THEN
+          DO j=Jstr,Jend
+            enthalpi(0,j,linew)=hi(1,j,linew)*ti(1,j,linew)
+#ifdef MASKING
+            enthalpi(0,j,linew)=enthalpi(0,j,linew)*                      &
      &                   GRID(ng)%rmask(0,j)
-#  endif
-#  ifdef WET_DRY
-          enthalpi(0,j,linew)=enthalpi(0,j,linew)*                      &
+#endif
+#ifdef WET_DRY
+            enthalpi(0,j,linew)=enthalpi(0,j,linew)*                      &
      &                   GRID(ng)%rmask_wet(0,j)
-#  endif
-#  ifdef SOGLOBEC
-          ti(0,j,linew) = enthalpi(0,j,linew)/                          &
+#endif
+#ifdef SOGLOBEC
+            ti(0,j,linew) = enthalpi(0,j,linew)/                          &
      &                       MAX(hi(1,j,linew),1.0E-6_r8)
-#  else
-          ti(0,j,linew) = enthalpi(0,j,linew)/                          &
+#else
+            ti(0,j,linew) = enthalpi(0,j,linew)/                          &
      &                       MAX(hi(0,j,linew),1.0E-6_r8)
-#  endif
-          IF (hi(0,j,linew).LE.min_h) THEN
-            enthalpi(0,j,linew) = 0.0_r8
-            ti(0,j,linew) = 0.0_r8
-          END IF
-        END DO
-# else
+#endif
+            IF (hi(0,j,linew).LE.min_h) THEN
+              enthalpi(0,j,linew) = 0.0_r8
+              ti(0,j,linew) = 0.0_r8
+            END IF
+          END DO
 !
 !  Western edge, closed boundary condition.
 !
-        DO j=Jstr,Jend
-          enthalpi(0,j,linew)=hi(1,j,linew)*ti(1,j,linew)
-          ti(0,j,linew) = enthalpi(0,j,linew)/                          &
+        ELSE
+          DO j=Jstr,Jend
+            enthalpi(0,j,linew)=hi(1,j,linew)*ti(1,j,linew)
+            ti(0,j,linew) = enthalpi(0,j,linew)/                          &
      &         MAX(hi(0,j,linew),1.0E-6_r8)
-#  ifdef MASKING
-          enthalpi(0,j,linew)=enthalpi(0,j,linew)*                      &
+#ifdef MASKING
+            enthalpi(0,j,linew)=enthalpi(0,j,linew)*                      &
      &                   GRID(ng)%rmask(0,j)
-#  endif
-#  ifdef WET_DRY
-          enthalpi(0,j,linew)=enthalpi(0,j,linew)*                      &
+#endif
+#ifdef WET_DRY
+            enthalpi(0,j,linew)=enthalpi(0,j,linew)*                      &
      &                   GRID(ng)%rmask_wet(0,j)
-#  endif
-          ti(0,j,linew) = enthalpi(0,j,linew)/                          &
+#endif
+            ti(0,j,linew) = enthalpi(0,j,linew)/                          &
      &                       MAX(hi(0,j,linew),1.0E-6_r8)
-          IF (hi(0,j,linew).LE.min_h) THEN
-            enthalpi(0,j,linew) = 0.0_r8
-            ti(0,j,linew) = 0.0_r8
-          END IF
-        END DO
-# endif
+            IF (hi(0,j,linew).LE.min_h) THEN
+              enthalpi(0,j,linew) = 0.0_r8
+              ti(0,j,linew) = 0.0_r8
+            END IF
+          END DO
+        END IF
       END IF
 !
 !-----------------------------------------------------------------------

@@ -22,10 +22,10 @@
 !=======================================================================
 !
       implicit none
-
+!
       PRIVATE
       PUBLIC  :: vwalk_floats
-
+!
       CONTAINS
 !
 !***********************************************************************
@@ -180,8 +180,8 @@
       END DO
 
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 0, N(ng),             &
-     &                    Lstr, Lend, nfindx, ifakt,                    &
-     &                    w3dvar, Lmask, spval, nudg,                   &
+     &                    Lstr, Lend, nfindx, ifakt, Nfloats(ng),       &
+     &                    isBw3d, w3dvar, Lmask, spval, nudg,           &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
      &                    GRID(ng) % Hz,                                &
@@ -192,8 +192,8 @@
      &                    MyThread, bounded, track)
 
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, N(ng),             &
-     &                    Lstr, Lend, nfindx, ifdak,                    &
-     &                    r3dvar, Lmask, spval, nudg,                   &
+     &                    Lstr, Lend, nfindx, ifdak, Nfloats(ng),       &
+     &                    isBr3d, r3dvar, Lmask, spval, nudg,           &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
      &                    GRID(ng) % Hz,                                &
@@ -273,8 +273,8 @@
 !  Interpolate vertical slopes using nudging velocity coefficients.
 !
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 0, N(ng),             &
-     &                    Lstr, Lend, nfindx, izrhs,                    &
-     &                    -w3dvar, Lmask, spval, nudg,                  &
+     &                    Lstr, Lend, nfindx, izrhs, Nfloats(ng),       &
+     &                    isBw3d, -w3dvar, Lmask, spval, nudg,          &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
      &                    GRID(ng) % Hz,                                &

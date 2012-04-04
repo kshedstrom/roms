@@ -1,13 +1,3 @@
-#ifdef EW_PERIODIC
-# define I_RANGE Istr-1,Iend+1
-#else
-# define I_RANGE MAX(Istr-1,1),MIN(Iend+1,Lm(ng))
-#endif
-#ifdef NS_PERIODIC
-# define J_RANGE Jstr-1,Jend+1
-#else
-# define J_RANGE MAX(Jstr-1,1),MIN(Jend+1,Mm(ng))
-#endif
 #define MIX_STABILITY
 
       SUBROUTINE t3dmix4 (ng, tile)
@@ -80,6 +70,7 @@
 #ifdef PROFILE
       CALL wclock_off (ng, iNLM, 27)
 #endif
+
       RETURN
       END SUBROUTINE t3dmix4
 !
@@ -111,6 +102,7 @@
 !***********************************************************************
 !
       USE mod_param
+      USE mod_ncparam
       USE mod_scalars
 #ifdef OFFLINE_BIOLOGY
       USE mod_biology
@@ -182,6 +174,7 @@
 !
 !  Local variable declarations.
 !
+      integer :: Imin, Imax, Jmin, Jmax
       integer :: i, ibt, itrc, j, k
 
       real(r8) :: cff, cff1, cff2, cff3, cff4
@@ -191,14 +184,6 @@
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: LapT
 
 #include "set_bounds.h"
-!
-#ifdef OFFLINE_BIOLOGY
-      DO ibt=1,NBT
-        itrc=idbio(ibt)
-#else
-      DO itrc=1,NT(ng)
-#endif
-        DO k=1,N(ng)
 !
 !-----------------------------------------------------------------------
 !  Compute horizontal biharmonic diffusion along constant S-surfaces.
@@ -210,10 +195,34 @@
 #endif
 !-----------------------------------------------------------------------
 !
+!  Set local I- and J-ranges.
+!
+      IF (EWperiodic(ng)) THEN
+        Imin=Istr-1
+        Imax=Iend+1
+      ELSE
+        Imin=MAX(Istr-1,1)
+        Imax=MIN(Iend+1,Lm(ng))
+      END IF
+      IF (NSperiodic(ng)) THEN
+        Jmin=Jstr-1
+        Jmax=Jend+1
+      ELSE
+        Jmin=MAX(Jstr-1,1)
+        Jmax=MIN(Jend+1,Mm(ng))
+      END IF
+!
 !  Compute horizontal tracer flux in the XI- and ETA-directions.
 !
-          DO j=J_RANGE
-            DO i=I_RANGE+1
+#ifdef OFFLINE_BIOLOGY
+      DO ibt=1,NBT
+        itrc=idbio(ibt)
+#else
+      DO itrc=1,NT(ng)
+#endif
+        DO k=1,N(ng)
+          DO j=Jmin,Jmax
+            DO i=Imin,Imax+1
 #ifdef DIFF_3DCOEF
 # ifdef TS_U3ADV_SPLIT
               cff=0.5_r8*diff3d_u(i,j,k)*pmon_u(i,j)
@@ -243,8 +252,8 @@
 #endif
             END DO
           END DO
-          DO j=J_RANGE+1
-            DO i=I_RANGE
+          DO j=Jmin,Jmax+1
+            DO i=Imin,Imax
 #ifdef DIFF_3DCOEF
 # ifdef TS_U3ADV_SPLIT
               cff=0.5_r8*diff3d_v(i,j,k)*pnom_v(i,j)
@@ -278,8 +287,8 @@
 !  Compute first harmonic operator and multiply by the metrics of the
 !  second harmonic operator.
 !
-          DO j=J_RANGE
-            DO i=I_RANGE
+          DO j=Jmin,Jmax
+            DO i=Imin,Imax
               cff=1.0_r8/Hz(i,j,k)
               LapT(i,j)=pm(i,j)*pn(i,j)*cff*                            &
      &                  (FX(i+1,j)-FX(i,j)+                             &
@@ -290,46 +299,57 @@
 !  Apply boundary conditions (except periodic; closed or gradient)
 !  to the first harmonic operator.
 !
-#ifndef EW_PERIODIC
-          IF (DOMAIN(ng)%Western_Edge(tile)) THEN
-            DO j=J_RANGE
-# ifdef WESTERN_WALL
-              LapT(Istr-1,j)=0.0_r8
-# else
-              LapT(Istr-1,j)=LapT(Istr,j)
-# endif
-            END DO
+          IF (.not.ComposedGrid(ng)) THEN
+            IF (.not.EWperiodic(ng)) THEN
+              IF (DOMAIN(ng)%Western_Edge(tile)) THEN
+                IF (LBC(iwest,isTvar(itrc),ng)%closed) THEN
+                  DO j=Jmin,Jmax
+                    LapT(Istr-1,j)=0.0_r8
+                  END DO
+                ELSE
+                  DO j=Jmin,Jmax
+                    LapT(Istr-1,j)=LapT(Istr,j)
+                  END DO
+                END IF
+              END IF
+              IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
+                IF (LBC(ieast,isTvar(itrc),ng)%closed) THEN
+                  DO j=Jmin,Jmax
+                    LapT(Iend+1,j)=0.0_r8
+                  END DO
+                ELSE
+                  DO j=Jmin,Jmax
+                    LapT(Iend+1,j)=LapT(Iend,j)
+                  END DO
+                END IF
+              END IF
+            END IF
+
+            IF (.not.NSperiodic(ng)) THEN
+              IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
+                IF (LBC(isouth,isTvar(itrc),ng)%closed) THEN
+                  DO i=Imin,Imax
+                    LapT(i,Jstr-1)=0.0_r8
+                  END DO
+                ELSE
+                  DO i=Imin,Imax
+                    LapT(i,Jstr-1)=LapT(i,Jstr)
+                  END DO
+                END IF
+              END IF
+              IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
+                IF (LBC(inorth,isTvar(itrc),ng)%closed) THEN
+                  DO i=Imin,Imax
+                    LapT(i,Jend+1)=0.0_r8
+                  END DO
+                ELSE
+                  DO i=Imin,Imax
+                    LapT(i,Jend+1)=LapT(i,Jend)
+                  END DO
+                END IF
+              END IF
+            END IF
           END IF
-          IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
-            DO j=J_RANGE
-# ifdef EASTERN_WALL
-              LapT(Iend+1,j)=0.0_r8
-# else
-              LapT(Iend+1,j)=LapT(Iend,j)
-# endif
-            END DO
-          END IF
-#endif
-#ifndef NS_PERIODIC
-          IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
-            DO i=I_RANGE
-# ifdef SOUTHERN_WALL
-              LapT(i,Jstr-1)=0.0_r8
-# else
-              LapT(i,Jstr-1)=LapT(i,Jstr)
-# endif
-            END DO
-          END IF
-          IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
-            DO i=I_RANGE
-# ifdef NORTHERN_WALL
-              LapT(i,Jend+1)=0.0_r8
-# else
-              LapT(i,Jend+1)=LapT(i,Jend)
-# endif
-            END DO
-          END IF
-#endif
 !
 !  Compute FX=d(LapT)/d(xi) and FE=d(LapT)/d(eta) terms.
 !
@@ -398,7 +418,6 @@
           END DO
         END DO
       END DO
-#undef I_RANGE
-#undef J_RANGE
+
       RETURN
       END SUBROUTINE t3dmix4_tile

@@ -55,9 +55,7 @@
       USE mod_scalars
       USE mod_grid
 !
-#ifdef DISTRIBUTE
-      USE distribute_mod, ONLY : mp_reduce
-#endif
+      USE exchange_2d_mod, ONLY : exchange_r2d_tile
 #ifdef DISTRIBUTE
       USE mp_exchange_mod, ONLY : mp_exchange2d
 #endif
@@ -123,11 +121,21 @@
         END DO
       END DO
 #endif
+!
+!  Exchange boundary data.
+!
+      IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
+        CALL exchange_r2d_tile (ng, tile,                               &
+     &                        LBi, UBi, LBj, UBj,                       &
+     &                        spawn_dist)
+      END IF
 #ifdef DISTRIBUTE
       CALL mp_exchange2d (ng, tile, model, 1,                           &
      &                    LBi, UBi, LBj, UBj,                           &
-     &                    NghostPoints, .FALSE., .FALSE.,               &
+     &                    NghostPoints,                                 &
+     &                    .FALSE., .FALSE.,                             &
      &                    spawn_dist)
 #endif
+
       RETURN
       END SUBROUTINE ana_spawn_dist_tile

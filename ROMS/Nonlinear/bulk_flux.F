@@ -53,10 +53,10 @@
 !=======================================================================
 !
       implicit none
-
+!
       PRIVATE
-      PUBLIC  :: bulk_flux
-
+      PUBLIC  :: bulk_flux, bulk_psiu, bulk_psit
+!
       CONTAINS
 !
 !***********************************************************************
@@ -183,6 +183,7 @@
 # ifdef PROFILE
       CALL wclock_off (ng, iNLM, 17)
 # endif
+
       RETURN
       END SUBROUTINE bulk_flux
 !
@@ -262,9 +263,7 @@
       USE mod_clima
 # endif
 !
-# if defined EW_PERIODIC || defined NS_PERIODIC
       USE exchange_2d_mod
-# endif
 # ifdef DISTRIBUTE
       USE mp_exchange_mod, ONLY : mp_exchange2d
 # endif
@@ -454,18 +453,6 @@
 !
 !  Local variable declarations.
 !
-# ifdef DISTRIBUTE
-#  ifdef EW_PERIODIC
-      logical :: EWperiodic=.TRUE.
-#  else
-      logical :: EWperiodic=.FALSE.
-#  endif
-#  ifdef NS_PERIODIC
-      logical :: NSperiodic=.TRUE.
-#  else
-      logical :: NSperiodic=.FALSE.
-#  endif
-# endif
       integer :: Iter, i, j, k
       integer, parameter :: IterMax = 3
 
@@ -639,7 +626,7 @@
 !  The equation for saturation vapor pressure is from Gill (Atmosphere-
 !  Ocean Dynamics, pp 606). Here the coefficient in the cloud term
 !  is assumed constant, but it is a function of latitude varying from
-!  1.0 at poles to 0.5 at the equator).
+!  1.0 at poles to 0.5 at the Equator).
 !
 #  ifdef SPECIFIC_HUMIDITY
 !  specific humidity in units of kg/kg
@@ -1352,33 +1339,32 @@
 # endif
         END DO
       END DO
-# if defined EW_PERIODIC || defined NS_PERIODIC || defined DISTRIBUTE
 !
 !-----------------------------------------------------------------------
 !  Exchange boundary data.
 !-----------------------------------------------------------------------
 !
-#  if defined EW_PERIODIC || defined NS_PERIODIC
-      CALL exchange_r2d_tile (ng, tile,                                 &
-     &                        LBi, UBi, LBj, UBj,                       &
-     &                        lrflx)
-      CALL exchange_r2d_tile (ng, tile,                                 &
-     &                        LBi, UBi, LBj, UBj,                       &
-     &                        lhflx)
-      CALL exchange_r2d_tile (ng, tile,                                 &
-     &                        LBi, UBi, LBj, UBj,                       &
-     &                        shflx)
-      CALL exchange_r2d_tile (ng, tile,                                 &
-     &                        LBi, UBi, LBj, UBj,                       &
-     &                        stflx(:,:,itemp))
-#   ifdef ICE_MODEL
-      CALL exchange_r2d_tile (ng, tile,                                 &
+      IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
+        CALL exchange_r2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          lrflx)
+        CALL exchange_r2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          lhflx)
+        CALL exchange_r2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          shflx)
+        CALL exchange_r2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          stflx(:,:,itemp))
+# ifdef ICE_MODEL
+        CALL exchange_r2d_tile (ng, tile,                               &
      &                        LBi, UBi, LBj, UBj,                       &
      &                        srflx)
-      CALL exchange_r2d_tile (ng, tile,                                 &
+        CALL exchange_r2d_tile (ng, tile,                               &
      &                        LBi, UBi, LBj, UBj,                       &
      &                        qao_n)
-#    ifdef ICE_THERMO
+#  ifdef ICE_THERMO
         CALL exchange_r2d_tile (ng, tile,                               &
      &                    LBi, UBi, LBj, UBj,                           &
      &                    qai_n)
@@ -1391,75 +1377,81 @@
         CALL exchange_r2d_tile (ng, tile,                               &
      &                    LBi, UBi, LBj, UBj,                           &
      &                    snow_n)
-#    endif
+#  endif
         CALL exchange_r2d_tile (ng, tile,                               &
      &                    LBi, UBi, LBj, UBj,                           &
      &                    tau_aix_n)
         CALL exchange_r2d_tile (ng, tile,                               &
      &                    LBi, UBi, LBj, UBj,                           &
      &                    tau_aiy_n)
-#   endif
-#   if defined EMINUSP || (defined ICE_MODEL && defined ICE_THERMO)
-      CALL exchange_r2d_tile (ng, tile,                                 &
-     &                        LBi, UBi, LBj, UBj,                       &
-     &                        evap)
-      CALL exchange_r2d_tile (ng, tile,                                 &
-     &                        LBi, UBi, LBj, UBj,                       &
-     &                        EminusP)
-      CALL exchange_r2d_tile (ng, tile,                                 &
-     &                        LBi, UBi, LBj, UBj,                       &
-     &                        stflx(:,:,isalt))
-#   endif
-      CALL exchange_u2d_tile (ng, tile,                                 &
-     &                        LBi, UBi, LBj, UBj,                       &
-     &                        sustr)
-      CALL exchange_v2d_tile (ng, tile,                                 &
-     &                        LBi, UBi, LBj, UBj,                       &
-     &                        svstr)
-#   ifdef ICE_MODEL
-      CALL exchange_u2d_tile (ng, tile,                                 &
+# endif
+# if defined EMINUSP || (defined ICE_MODEL && defined ICE_THERMO)
+        CALL exchange_r2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          evap)
+        CALL exchange_r2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          EminusP)
+        CALL exchange_r2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          stflx(:,:,isalt))
+# endif
+        CALL exchange_u2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          sustr)
+        CALL exchange_v2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          svstr)
+# ifdef ICE_MODEL
+        CALL exchange_u2d_tile (ng, tile,                               &
      &                        LBi, UBi, LBj, UBj,                       &
      &                        sustr_aw)
-      CALL exchange_v2d_tile (ng, tile,                                 &
+        CALL exchange_v2d_tile (ng, tile,                               &
      &                        LBi, UBi, LBj, UBj,                       &
      &                        svstr_aw)
-#   endif
-#  endif
-#  ifdef DISTRIBUTE
+# endif
+      END IF
+
+# ifdef DISTRIBUTE
       CALL mp_exchange2d (ng, tile, iNLM, 4,                            &
      &                    LBi, UBi, LBj, UBj,                           &
-     &                    NghostPoints, EWperiodic, NSperiodic,         &
+     &                    NghostPoints,                                 &
+     &                    EWperiodic(ng), NSperiodic(ng),               &
      &                    lrflx, lhflx, shflx,                          &
      &                    stflx(:,:,itemp))
-#   ifdef ICE_MODEL
+#  ifdef ICE_MODEL
       CALL mp_exchange2d (ng, tile, iNLM, 4,                            &
      &                    LBi, UBi, LBj, UBj,                           &
-     &                    NghostPoints, EWperiodic, NSperiodic,         &
+     &                    NghostPoints,                                 &
+     &                    EWperiodic(ng), NSperiodic(ng),               &
      &                    srflx, qao_n, tau_aix_n, tau_aiy_n )
-#    ifdef ICE_THERMO
+#   ifdef ICE_THERMO
       CALL mp_exchange2d (ng, tile, iNLM, 4,                            &
      &                    LBi, UBi, LBj, UBj,                           &
-     &                    NghostPoints, EWperiodic, NSperiodic,         &
+     &                    NghostPoints,                                 &
+     &                    EWperiodic(ng), NSperiodic(ng),               &
      &                    qai_n, coef_ice_heat, rhs_ice_heat, snow_n )
-#    endif
 #   endif
-#   if defined EMINUSP || (defined ICE_MODEL && defined ICE_THERMO)
+#  endif
+#  if defined EMINUSP || (defined ICE_MODEL && defined ICE_THERMO)
       CALL mp_exchange2d (ng, tile, iNLM, 3,                            &
      &                    LBi, UBi, LBj, UBj,                           &
-     &                    NghostPoints, EWperiodic, NSperiodic,         &
+     &                    NghostPoints,                                 &
+     &                    EWperiodic(ng), NSperiodic(ng),               &
      &                    evap, EminusP,                                &
      &                    stflx(:,:,isalt))
-#   endif
+#  endif
       CALL mp_exchange2d (ng, tile, iNLM, 2,                            &
      &                    LBi, UBi, LBj, UBj,                           &
-     &                    NghostPoints, EWperiodic, NSperiodic,         &
+     &                    NghostPoints,                                 &
+     &                    EWperiodic(ng), NSperiodic(ng),               &
      &                    sustr, svstr)
-#   ifdef ICE_MODEL
+#  ifdef ICE_MODEL
       CALL mp_exchange2d (ng, tile, iNLM, 2,                            &
      &                    LBi, UBi, LBj, UBj,                           &
-     &                    NghostPoints, EWperiodic, NSperiodic,         &
+     &                    NghostPoints,                                 &
+     &                    EWperiodic(ng), NSperiodic(ng),               &
      &                    sustr_aw, svstr_aw)
-#   endif
 #  endif
 # endif
 # ifdef KATE_FOO
@@ -1596,6 +1588,7 @@
         bulk_psit=-((1.0_r8+2.0_r8*ZoL)**1.5_r8+                        &
      &            0.6667_r8*(ZoL-14.28_r8)/EXP(cff)+8.525_r8)
       END IF
+
       RETURN
       END FUNCTION bulk_psit
 #endif

@@ -51,21 +51,17 @@
       logical, dimension(3) :: update =                                 &
      &         (/ .FALSE., .FALSE., .FALSE. /)
 
-#ifdef OBC
       integer :: ILB, IUB, JLB, JUB
-#endif
       integer :: LBi, UBi, LBj, UBj
-      integer :: i
-
-#ifdef OBC
+      integer :: i, my_tile
 !
-!  Lower and upper bounds for nontiled boundary arrays.
+!  Lower and upper bounds for nontiled (global values) boundary arrays.
 !
-      ILB=LOWER_BOUND_I
-      IUB=UPPER_BOUND_I
-      JLB=LOWER_BOUND_J
-      JUB=UPPER_BOUND_J
-#endif
+      my_tile=-1                           ! for global values
+      ILB=BOUNDS(ng)%LBi(my_tile)
+      IUB=BOUNDS(ng)%UBi(my_tile)
+      JLB=BOUNDS(ng)%LBj(my_tile)
+      JUB=BOUNDS(ng)%UBj(my_tile)
 !
 !  Lower and upper bounds for tiled arrays.
 !
@@ -816,562 +812,563 @@
 #  endif
 # endif
 #endif
-
-#ifdef OBC_DATA
 !
 !=======================================================================
 !  Read in open boundary conditions from BOUNDARY NetCDF file.
 !=======================================================================
+#ifndef ANA_FSOBC
 !
-# ifndef ANA_FSOBC
-#  ifdef WEST_FSOBC
-      CALL get_ngfld (ng, iNLM, idZbry(iwest),                          &
-     &                ncBRYid(idZbry(iwest),ng),                        &
-     &                nBCfiles(ng), BRY(1,ng), update(1),               &
-     &                JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                   &
-     &                BOUNDARY(ng) % zetaG_west(JLB,1))
-      IF (exit_flag.ne.NoError) RETURN
-#  endif
+      IF (LBC(iwest,isFsur,ng)%acquire) THEN
+        CALL get_ngfld (ng, iNLM, idZbry(iwest), BRY(ng)%ncid,          &
+     &                  1, BRY(ng), update(1),                          &
+     &                  JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                 &
+     &                  BOUNDARY(ng) % zetaG_west(JLB,1))
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
 
-#  ifdef EAST_FSOBC
-      CALL get_ngfld (ng, iNLM, idZbry(ieast),                          &
-     &                ncBRYid(idZbry(ieast),ng),                        &
-     &                nBCfiles(ng), BRY(1,ng), update(1),               &
-     &                JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                   &
-     &                BOUNDARY(ng) % zetaG_east(JLB,1))
-      IF (exit_flag.ne.NoError) RETURN
-#  endif
+      IF (LBC(ieast,isFsur,ng)%acquire) THEN
+        CALL get_ngfld (ng, iNLM, idZbry(ieast), BRY(ng)%ncid,          &
+     &                  1, BRY(ng), update(1),                          &
+     &                  JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                 &
+     &                  BOUNDARY(ng) % zetaG_east(JLB,1))
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
 
-#  ifdef SOUTH_FSOBC
-      CALL get_ngfld (ng, iNLM, idZbry(isouth),                         &
-     &                ncBRYid(idZbry(isouth),ng),                       &
-     &                nBCfiles(ng), BRY(1,ng), update(1),               &
-     &                ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                   &
-     &                BOUNDARY(ng) % zetaG_south(ILB,1))
-      IF (exit_flag.ne.NoError) RETURN
-#  endif
+      IF (LBC(isouth,isFsur,ng)%acquire) THEN
+        CALL get_ngfld (ng, iNLM, idZbry(isouth), BRY(ng)%ncid,         &
+     &                  1, BRY(ng), update(1),                          &
+     &                  ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                 &
+     &                  BOUNDARY(ng) % zetaG_south(ILB,1))
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
 
-#  ifdef NORTH_FSOBC
-      CALL get_ngfld (ng, iNLM, idZbry(inorth),                          &
-     &                ncBRYid(idZbry(inorth),ng),                        &
-     &                nBCfiles(ng), BRY(1,ng), update(1),               &
-     &                ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                   &
-     &                BOUNDARY(ng) % zetaG_north(ILB,1))
-      IF (exit_flag.ne.NoError) RETURN
-#  endif
-# endif
+      IF (LBC(inorth,isFsur,ng)%acquire) THEN
+        CALL get_ngfld (ng, iNLM, idZbry(inorth), BRY(ng)%ncid,         &
+     &                  1, BRY(ng), update(1),                          &
+     &                  ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                 &
+     &                  BOUNDARY(ng) % zetaG_north(ILB,1))
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
+#endif
 
-# ifndef ANA_M2OBC
-#  ifdef WEST_M2OBC
-      CALL get_ngfld (ng, iNLM, idU2bc(iwest),                          &
-     &                ncBRYid(idU2bc(iwest),ng),                        &
-     &                nBCfiles(ng), BRY(1,ng), update(1),               &
-     &                JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                   &
-     &                BOUNDARY(ng) % ubarG_west(JLB,1))
-      IF (exit_flag.ne.NoError) RETURN
+#ifndef ANA_M2OBC
+!
+      IF (LBC(iwest,isUbar,ng)%acquire) THEN
+        CALL get_ngfld (ng, iNLM, idU2bc(iwest), BRY(ng)%ncid,          &
+     &                  1, BRY(ng), update(1),                          &
+     &                  JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                 &
+     &                  BOUNDARY(ng) % ubarG_west(JLB,1))
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
 
-      CALL get_ngfld (ng, iNLM, idV2bc(iwest),                          &
-     &                ncBRYid(idV2bc(iwest),ng),                        &
-     &                nBCfiles(ng), BRY(1,ng), update(1),               &
-     &                JLB, JUB, 1, 2, 1, Mm(ng)+1, 1,                   &
-     &                BOUNDARY(ng) % vbarG_west(JLB,1))
-      IF (exit_flag.ne.NoError) RETURN
-#  endif
+      IF (LBC(iwest,isVbar,ng)%acquire) THEN
+        CALL get_ngfld (ng, iNLM, idV2bc(iwest), BRY(ng)%ncid,          &
+     &                  1, BRY(ng), update(1),                          &
+     &                  JLB, JUB, 1, 2, 1, Mm(ng)+1, 1,                 &
+     &                  BOUNDARY(ng) % vbarG_west(JLB,1))
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
 
-#  ifdef EAST_M2OBC
-      CALL get_ngfld (ng, iNLM, idU2bc(ieast),                          &
-     &                ncBRYid(idU2bc(ieast),ng),                        &
-     &                nBCfiles(ng), BRY(1,ng), update(1),               &
-     &                JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                   &
-     &                BOUNDARY(ng) % ubarG_east(JLB,1))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (LBC(ieast,isUbar,ng)%acquire) THEN
+        CALL get_ngfld (ng, iNLM, idU2bc(ieast), BRY(ng)%ncid,          &
+     &                  1, BRY(ng), update(1),                          &
+     &                  JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                 &
+     &                  BOUNDARY(ng) % ubarG_east(JLB,1))
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
 
-      CALL get_ngfld (ng, iNLM, idV2bc(ieast),                          &
-     &                ncBRYid(idV2bc(ieast),ng),                        &
-     &                nBCfiles(ng), BRY(1,ng), update(1),               &
-     &                JLB, JUB, 1, 2, 1, Mm(ng)+1, 1,                   &
-     &                BOUNDARY(ng) % vbarG_east(JLB,1))
-      IF (exit_flag.ne.NoError) RETURN
-#  endif
+      IF (LBC(ieast,isVbar,ng)%acquire) THEN
+        CALL get_ngfld (ng, iNLM, idV2bc(ieast), BRY(ng)%ncid,          &
+     &                  1, BRY(ng), update(1),                          &
+     &                  JLB, JUB, 1, 2, 1, Mm(ng)+1, 1,                 &
+     &                  BOUNDARY(ng) % vbarG_east(JLB,1))
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
 
-#  ifdef SOUTH_M2OBC
-      CALL get_ngfld (ng, iNLM, idU2bc(isouth),                         &
-     &                ncBRYid(idU2bc(isouth),ng),                       &
-     &                nBCfiles(ng), BRY(1,ng), update(1),               &
-     &                ILB, IUB, 1, 2, 1, Lm(ng)+1, 1,                   &
-     &                BOUNDARY(ng) % ubarG_south(ILB,1))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (LBC(isouth,isUbar,ng)%acquire) THEN
+        CALL get_ngfld (ng, iNLM, idU2bc(isouth), BRY(ng)%ncid,         &
+     &                  1, BRY(ng), update(1),                          &
+     &                  ILB, IUB, 1, 2, 1, Lm(ng)+1, 1,                 &
+     &                  BOUNDARY(ng) % ubarG_south(ILB,1))
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
 
-      CALL get_ngfld (ng, iNLM, idV2bc(isouth),                         &
-     &                ncBRYid(idV2bc(isouth),ng),                       &
-     &                nBCfiles(ng), BRY(1,ng), update(1),               &
-     &                ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                   &
-     &                BOUNDARY(ng) % vbarG_south(ILB,1))
-      IF (exit_flag.ne.NoError) RETURN
-#  endif
+      IF (LBC(isouth,isVbar,ng)%acquire) THEN
+        CALL get_ngfld (ng, iNLM, idV2bc(isouth), BRY(ng)%ncid,         &
+     &                  1, BRY(ng), update(1),                          &
+     &                  ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                 &
+     &                  BOUNDARY(ng) % vbarG_south(ILB,1))
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
 
-#  ifdef NORTH_M2OBC
-      CALL get_ngfld (ng, iNLM, idU2bc(inorth),                         &
-     &                ncBRYid(idU2bc(inorth),ng),                       &
-     &                nBCfiles(ng), BRY(1,ng), update(1),               &
-     &                ILB, IUB, 1, 2, 1, Lm(ng)+1, 1,                   &
-     &                BOUNDARY(ng) % ubarG_north(ILB,1))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (LBC(inorth,isUbar,ng)%acquire) THEN
+        CALL get_ngfld (ng, iNLM, idU2bc(inorth), BRY(ng)%ncid,         &
+     &                  1, BRY(ng), update(1),                          &
+     &                  ILB, IUB, 1, 2, 1, Lm(ng)+1, 1,                 &
+     &                  BOUNDARY(ng) % ubarG_north(ILB,1))
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
 
-      CALL get_ngfld (ng, iNLM, idV2bc(inorth),                         &
-     &                ncBRYid(idV2bc(inorth),ng),                       &
-     &                nBCfiles(ng), BRY(1,ng), update(1),               &
-     &                ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                   &
-     &                BOUNDARY(ng) % vbarG_north(ILB,1))
-      IF (exit_flag.ne.NoError) RETURN
-#  endif
-# endif
+      IF (LBC(inorth,isVbar,ng)%acquire) THEN
+        CALL get_ngfld (ng, iNLM, idV2bc(inorth), BRY(ng)%ncid,         &
+     &                  1, BRY(ng), update(1),                          &
+     &                  ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                 &
+     &                  BOUNDARY(ng) % vbarG_north(ILB,1))
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
+#endif
+
 #ifdef ICE_MODEL
 # ifndef ANA_MIOBC
-#  ifdef WEST_MIOBC
-      CALL get_ngfld (ng, iNLM, idUibc(iwest),                          &
+      IF (LBC(iwest,isUice,ng)%acquire) THEN
+        CALL get_ngfld (ng, iNLM, idUibc(iwest),                        &
      &                ncBRYid(idUibc(iwest),ng),                        &
      &                nBCfiles(ng), BRY(1,ng), update(1),               &
      &                JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % uiG_west(JLB,1))
-      IF (exit_flag.ne.NoError) RETURN
-      CALL get_ngfld (ng, iNLM, idVibc(iwest),                          &
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
+      IF (LBC(iwest,isVice,ng)%acquire) THEN
+        CALL get_ngfld (ng, iNLM, idVibc(iwest),                        &
      &                ncBRYid(idVibc(iwest),ng),                        &
      &                nBCfiles(ng), BRY(1,ng), update(1),               &
      &                JLB, JUB, 1, 2, 1, Mm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % viG_west(JLB,1))
-      IF (exit_flag.ne.NoError) RETURN
-#  endif
-#  ifdef EAST_MIOBC
-      CALL get_ngfld (ng, iNLM, idUibc(ieast),                          &
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
+      IF (LBC(ieast,isUice,ng)%acquire) THEN
+        CALL get_ngfld (ng, iNLM, idUibc(ieast),                        &
      &                ncBRYid(idUibc(ieast),ng),                        &
      &                nBCfiles(ng), BRY(1,ng), update(1),               &
      &                JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % uiG_east(JLB,1))
-      IF (exit_flag.ne.NoError) RETURN
-      CALL get_ngfld (ng, iNLM, idVibc(ieast),                          &
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
+      IF (LBC(ieast,isVice,ng)%acquire) THEN
+        CALL get_ngfld (ng, iNLM, idVibc(ieast),                        &
      &                ncBRYid(idVibc(ieast),ng),                        &
      &                nBCfiles(ng), BRY(1,ng), update(1),               &
      &                JLB, JUB, 1, 2, 1, Mm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % viG_east(JLB,1))
-      IF (exit_flag.ne.NoError) RETURN
-#  endif
-#  ifdef SOUTH_MIOBC
-      CALL get_ngfld (ng, iNLM, idUibc(isouth),                         &
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
+      IF (LBC(isouth,isUice,ng)%acquire) THEN
+        CALL get_ngfld (ng, iNLM, idUibc(isouth),                       &
      &                ncBRYid(idUibc(isouth),ng),                       &
      &                nBCfiles(ng), BRY(1,ng), update(1),               &
      &                ILB, IUB, 1, 2, 1, Lm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % uiG_south(ILB,1))
-      IF (exit_flag.ne.NoError) RETURN
-      CALL get_ngfld (ng, iNLM, idVibc(isouth),                         &
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
+      IF (LBC(isouth,isVice,ng)%acquire) THEN
+        CALL get_ngfld (ng, iNLM, idVibc(isouth),                       &
      &                ncBRYid(idVibc(isouth),ng),                       &
      &                nBCfiles(ng), BRY(1,ng), update(1),               &
      &                ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % viG_south(ILB,1))
-      IF (exit_flag.ne.NoError) RETURN
-#  endif
-#  ifdef NORTH_MIOBC
-      CALL get_ngfld (ng, iNLM, idUibc(inorth),                         &
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
+      IF (LBC(inorth,isUice,ng)%acquire) THEN
+        CALL get_ngfld (ng, iNLM, idUibc(inorth),                       &
      &                ncBRYid(idUibc(inorth),ng),                       &
      &                nBCfiles(ng), BRY(1,ng), update(1),               &
      &                ILB, IUB, 1, 2, 1, Lm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % uiG_north(ILB,1))
-      IF (exit_flag.ne.NoError) RETURN
-      CALL get_ngfld (ng, iNLM, idVibc(inorth),                         &
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
+      IF (LBC(inorth,isVice,ng)%acquire) THEN
+        CALL get_ngfld (ng, iNLM, idVibc(inorth),                       &
      &                ncBRYid(idVibc(inorth),ng),                       &
      &                nBCfiles(ng), BRY(1,ng), update(1),               &
      &                ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % viG_north(ILB,1))
-      IF (exit_flag.ne.NoError) RETURN
-#  endif
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
 # endif
 # ifndef ANA_AIOBC
-#  ifdef WEST_AIOBC
-      CALL get_ngfld (ng, iNLM, idAibc(iwest),                          &
+      IF (LBC(iwest,isAice,ng)%acquire) THEN
+        CALL get_ngfld (ng, iNLM, idAibc(iwest),                        &
      &                ncBRYid(idAibc(iwest),ng),                        &
      &                nBCfiles(ng), BRY(1,ng), update(1),               &
      &                JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % aiG_west(JLB,1))
-      IF (exit_flag.ne.NoError) RETURN
-#  endif
-#  ifdef EAST_AIOBC
-      CALL get_ngfld (ng, iNLM, idAibc(ieast),                          &
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
+      IF (LBC(ieast,isAice,ng)%acquire) THEN
+        CALL get_ngfld (ng, iNLM, idAibc(ieast),                        &
      &                ncBRYid(idAibc(ieast),ng),                        &
      &                nBCfiles(ng), BRY(1,ng), update(1),               &
      &                JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % aiG_east(JLB,1))
-      IF (exit_flag.ne.NoError) RETURN
-#  endif
-#  ifdef SOUTH_AIOBC
-      CALL get_ngfld (ng, iNLM, idAibc(isouth),                         &
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
+      IF (LBC(isouth,isAice,ng)%acquire) THEN
+        CALL get_ngfld (ng, iNLM, idAibc(isouth),                       &
      &                ncBRYid(idAibc(isouth),ng),                       &
      &                nBCfiles(ng), BRY(1,ng), update(1),               &
      &                ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % aiG_south(ILB,1))
-      IF (exit_flag.ne.NoError) RETURN
-#  endif
-#  ifdef NORTH_AIOBC
-      CALL get_ngfld (ng, iNLM, idAibc(inorth),                         &
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
+      IF (LBC(inorth,isAice,ng)%acquire) THEN
+        CALL get_ngfld (ng, iNLM, idAibc(inorth),                       &
      &                ncBRYid(idAibc(inorth),ng),                       &
      &                nBCfiles(ng), BRY(1,ng), update(1),               &
      &                ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % aiG_north(ILB,1))
-      IF (exit_flag.ne.NoError) RETURN
-#  endif
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
 # endif
 
 # ifndef ANA_HIOBC
-#  ifdef WEST_HIOBC
-      CALL get_ngfld (ng, iNLM, idHibc(iwest),                          &
+      IF (LBC(iwest,isHice,ng)%acquire) THEN
+        CALL get_ngfld (ng, iNLM, idHibc(iwest),                        &
      &                ncBRYid(idHibc(iwest),ng),                        &
      &                nBCfiles(ng), BRY(1,ng), update(1),               &
      &                JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % hiG_west(JLB,1))
-      IF (exit_flag.ne.NoError) RETURN
-#  endif
-#  ifdef EAST_HIOBC
-      CALL get_ngfld (ng, iNLM, idHibc(ieast),                          &
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
+      IF (LBC(ieast,isHice,ng)%acquire) THEN
+        CALL get_ngfld (ng, iNLM, idHibc(ieast),                        &
      &                ncBRYid(idHibc(ieast),ng),                        &
      &                nBCfiles(ng), BRY(1,ng), update(1),               &
      &                JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % hiG_east(JLB,1))
-      IF (exit_flag.ne.NoError) RETURN
-#  endif
-#  ifdef SOUTH_HIOBC
-      CALL get_ngfld (ng, iNLM, idHibc(isouth),                         &
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
+      IF (LBC(isouth,isHice,ng)%acquire) THEN
+        CALL get_ngfld (ng, iNLM, idHibc(isouth),                       &
      &                ncBRYid(idHibc(isouth),ng),                       &
      &                nBCfiles(ng), BRY(1,ng), update(1),               &
      &                ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % hiG_south(ILB,1))
-      IF (exit_flag.ne.NoError) RETURN
-#  endif
-#  ifdef NORTH_HIOBC
-      CALL get_ngfld (ng, iNLM, idHibc(inorth),                         &
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
+      IF (LBC(inorth,isHice,ng)%acquire) THEN
+        CALL get_ngfld (ng, iNLM, idHibc(inorth),                       &
      &                ncBRYid(idHibc(inorth),ng),                       &
      &                nBCfiles(ng), BRY(1,ng), update(1),               &
      &                ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % hiG_north(ILB,1))
-      IF (exit_flag.ne.NoError) RETURN
-#  endif
+        IF (exit_flag.ne.NoError) RETURN
 # endif
 # ifndef ANA_HSNOBC
-#  ifdef WEST_HSNOBC
-      CALL get_ngfld (ng, iNLM, idHsnbc(iwest),                         &
+      IF (LBC(iwest,isHsno,ng)%acquire) THEN
+        CALL get_ngfld (ng, iNLM, idHsnbc(iwest),                       &
      &                ncBRYid(idHsnbc(iwest),ng),                       &
      &                nBCfiles(ng), BRY(1,ng), update(1),               &
      &                JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % hsnG_west(JLB,1))
-      IF (exit_flag.ne.NoError) RETURN
-#  endif
-#  ifdef EAST_HSNOBC
-      CALL get_ngfld (ng, iNLM, idHsnbc(ieast),                         &
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
+      IF (LBC(ieast,isHsno,ng)%acquire) THEN
+        CALL get_ngfld (ng, iNLM, idHsnbc(ieast),                       &
      &                ncBRYid(idHsnbc(ieast),ng),                       &
      &                nBCfiles(ng), BRY(1,ng), update(1),               &
      &                JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % hsnG_east(JLB,1))
-      IF (exit_flag.ne.NoError) RETURN
-#  endif
-#  ifdef SOUTH_HSNOBC
-      CALL get_ngfld (ng, iNLM, idHsnbc(isouth),                        &
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
+      IF (LBC(isouth,isHsno,ng)%acquire) THEN
+        CALL get_ngfld (ng, iNLM, idHsnbc(isouth),                      &
      &                ncBRYid(idHsnbc(isouth),ng),                      &
      &                nBCfiles(ng), BRY(1,ng), update(1),               &
      &                ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % hsnG_south(ILB,1))
-      IF (exit_flag.ne.NoError) RETURN
-#  endif
-#  ifdef NORTH_HSNOBC
-      CALL get_ngfld (ng, iNLM, idHsnbc(inorth),                        &
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
+      IF (LBC(inorth,isHsno,ng)%acquire) THEN
+        CALL get_ngfld (ng, iNLM, idHsnbc(inorth),                      &
      &                ncBRYid(idHsnbc(inorth),ng),                      &
      &                nBCfiles(ng), BRY(1,ng), update(1),               &
      &                ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % hsnG_north(ILB,1))
-      IF (exit_flag.ne.NoError) RETURN
-#  endif
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
 # endif
 # ifndef ANA_TIOBC
-#  ifdef WEST_TIOBC
-      CALL get_ngfld (ng, iNLM, idTibc(iwest),                          &
+      IF (LBC(iwest,isTice,ng)%acquire) THEN
+        CALL get_ngfld (ng, iNLM, idTibc(iwest),                        &
      &                ncBRYid(idTibc(iwest),ng),                        &
      &                nBCfiles(ng), BRY(1,ng), update(1),               &
      &                JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % tiG_west(JLB,1))
-      IF (exit_flag.ne.NoError) RETURN
-#  endif
-#  ifdef EAST_TIOBC
-      CALL get_ngfld (ng, iNLM, idTibc(ieast),                          &
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
+      IF (LBC(ieast,isTice,ng)%acquire) THEN
+        CALL get_ngfld (ng, iNLM, idTibc(ieast),                        &
      &                ncBRYid(idTibc(ieast),ng),                        &
      &                nBCfiles(ng), BRY(1,ng), update(1),               &
      &                JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % tiG_east(JLB,1))
-      IF (exit_flag.ne.NoError) RETURN
-#  endif
-#  ifdef SOUTH_TIOBC
-      CALL get_ngfld (ng, iNLM, idTibc(isouth),                         &
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
+      IF (LBC(isouth,isTice,ng)%acquire) THEN
+        CALL get_ngfld (ng, iNLM, idTibc(isouth),                       &
      &                ncBRYid(idTibc(isouth),ng),                       &
      &                nBCfiles(ng), BRY(1,ng), update(1),               &
      &                ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % tiG_south(ILB,1))
-      IF (exit_flag.ne.NoError) RETURN
-#  endif
-#  ifdef NORTH_TIOBC
-      CALL get_ngfld (ng, iNLM, idTibc(noruth),                         &
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
+      IF (LBC(inorth,isTice,ng)%acquire) THEN
+        CALL get_ngfld (ng, iNLM, idTibc(inorth),                       &
      &                ncBRYid(idTibc(inorth),ng),                       &
      &                nBCfiles(ng), BRY(1,ng), update(1),               &
      &                ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % tiG_north(ILB,1))
-      IF (exit_flag.ne.NoError) RETURN
-#  endif
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
 # endif
 # ifndef ANA_SFWATOBC
-#  ifdef WEST_SFWATOBC
-      CALL get_ngfld (ng, iNLM, idSfwbc(iwest),                         &
+      IF (LBC(iwest,isSfwat,ng)%acquire) THEN
+        CALL get_ngfld (ng, iNLM, idSfwbc(iwest),                       &
      &                ncBRYid(idSfwbc(iwest),ng),                       &
      &                nBCfiles(ng), BRY(1,ng), update(1),               &
      &                JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % sfwatG_west(JLB,1))
-      IF (exit_flag.ne.NoError) RETURN
-#  endif
-#  ifdef EAST_SFWATOBC
-      CALL get_ngfld (ng, iNLM, idSfwbc(ieast),                         &
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
+      IF (LBC(ieast,isSfwat,ng)%acquire) THEN
+        CALL get_ngfld (ng, iNLM, idSfwbc(ieast),                       &
      &                ncBRYid(idSfwbc(ieast),ng),                       &
      &                nBCfiles(ng), BRY(1,ng), update(1),               &
      &                JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % sfwatG_east(JLB,1))
-      IF (exit_flag.ne.NoError) RETURN
-#  endif
-#  ifdef SOUTH_SFWATOBC
-      CALL get_ngfld (ng, iNLM, idSfwbc(isouth),                         &
-     &                ncBRYid(idSfwbc(isouth),ng),                       &
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
+      IF (LBC(isouth,isSfwat,ng)%acquire) THEN
+        CALL get_ngfld (ng, iNLM, idSfwbc(isouth),                      &
+     &                ncBRYid(idSfwbc(isouth),ng),                      &
      &                nBCfiles(ng), BRY(1,ng), update(1),               &
      &               ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                    &
      &                BOUNDARY(ng) % sfwatG_south(ILB,1))
-      IF (exit_flag.ne.NoError) RETURN
-#  endif
-#  ifdef NORTH_SFWATOBC
-      CALL get_ngfld (ng, iNLM, idSfwbc(inorth),                         &
-     &                ncBRYid(idSfwbc(inorth),ng),                       &
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
+      IF (LBC(inorth,isSfwat,ng)%acquire) THEN
+        CALL get_ngfld (ng, iNLM, idSfwbc(inorth),                      &
+     &                ncBRYid(idSfwbc(inorth),ng),                      &
      &                nBCfiles(ng), BRY(1,ng), update(1),               &
      &                ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % sfwatG_north(ILB,1))
-      IF (exit_flag.ne.NoError) RETURN
-#  endif
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
 # endif
 # ifndef ANA_SIG11OBC
-#  ifdef WEST_SIG11OBC
-      CALL get_ngfld (ng, iNLM, idS11bc(iwest),                         &
+      IF (LBC(iwest,isSig11,ng)%acquire) THEN
+        CALL get_ngfld (ng, iNLM, idS11bc(iwest),                       &
      &                ncBRYid(idS11bc(iwest),ng),                       &
      &                nBCfiles(ng), BRY(1,ng), update(1),               &
      &                JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % sig11G_west(JLB,1))
-      IF (exit_flag.ne.NoError) RETURN
-#  endif
-#  ifdef EAST_SIG11OBC
-      CALL get_ngfld (ng, iNLM, idS11bc(ieast),                         &
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
+      IF (LBC(ieast,isSig11,ng)%acquire) THEN
+        CALL get_ngfld (ng, iNLM, idS11bc(ieast),                       &
      &                ncBRYid(idS11bc(ieast),ng),                       &
      &                nBCfiles(ng), BRY(1,ng), update(1),               &
      &                JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % sig11G_east(JLB,1))
-      IF (exit_flag.ne.NoError) RETURN
-#  endif
-#  ifdef SOUTH_SIG11OBC
-      CALL get_ngfld (ng, iNLM, idS11bc(isouth),                        &
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
+      IF (LBC(isouth,isSig11,ng)%acquire) THEN
+        CALL get_ngfld (ng, iNLM, idS11bc(isouth),                      &
      &                ncBRYid(idS11bc(isouth),ng),                      &
      &                nBCfiles(ng), BRY(1,ng), update(1),               &
      &                ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % sig11G_south(ILB,1))
-      IF (exit_flag.ne.NoError) RETURN
-#  endif
-#  ifdef NORTH_SIG11OBC
-      CALL get_ngfld (ng, iNLM, idS11bc(inorth),                        &
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
+      IF (LBC(inorth,isSig11,ng)%acquire) THEN
+        CALL get_ngfld (ng, iNLM, idS11bc(inorth),                      &
      &                ncBRYid(idS11bc(inorth),ng),                      &
      &                nBCfiles(ng), BRY(1,ng), update(1),               &
      &                ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % sig11G_north(ILB,1))
-      IF (exit_flag.ne.NoError) RETURN
-#  endif
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
 # endif
 # ifndef ANA_SIG22OBC
-#  ifdef WEST_SIG22OBC
-      CALL get_ngfld (ng, iNLM, idS22bc(iwest),                         &
+      IF (LBC(iwest,isSig22,ng)%acquire) THEN
+        CALL get_ngfld (ng, iNLM, idS22bc(iwest),                       &
      &                ncBRYid(idS22bc(iwest),ng),                       &
      &                nBCfiles(ng), BRY(1,ng), update(1),               &
      &                JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % sig22G_west(JLB,1))
-      IF (exit_flag.ne.NoError) RETURN
-#  endif
-#  ifdef EAST_SIG22OBC
-      CALL get_ngfld (ng, iNLM, idS22bc(ieast),                         &
+        IF (exit_flag.ne.NoError) RETURN
+      IF (LBC(ieast,isSig22,ng)%acquire) THEN
+      END IF
+        CALL get_ngfld (ng, iNLM, idS22bc(ieast),                       &
      &                ncBRYid(idS22bc(ieast),ng),                       &
      &                nBCfiles(ng), BRY(1,ng), update(1),               &
      &                JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % sig22G_east(JLB,1))
-      IF (exit_flag.ne.NoError) RETURN
-#  endif
-#  ifdef SOUTH_SIG22OBC
-      CALL get_ngfld (ng, iNLM, idS22bc(isouth),                        &
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
+      IF (LBC(isouth,isSig22,ng)%acquire) THEN
+        CALL get_ngfld (ng, iNLM, idS22bc(isouth),                      &
      &                ncBRYid(idS22bc(isouth),ng),                      &
      &                nBCfiles(ng), BRY(1,ng), update(1),               &
      &                ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % sig22G_south(ILB,1))
-      IF (exit_flag.ne.NoError) RETURN
-#  endif
-#  ifdef NORTH_SIG22OBC
-      CALL get_ngfld (ng, iNLM, idS22bc(inorth),                        &
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
+      IF (LBC(inorth,isSig22,ng)%acquire) THEN
+        CALL get_ngfld (ng, iNLM, idS22bc(inorth),                      &
      &                ncBRYid(idS22bc(inorth),ng),                      &
      &                nBCfiles(ng), BRY(1,ng), update(1),               &
      &                ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % sig22G_north(ILB,1))
-      IF (exit_flag.ne.NoError) RETURN
-#  endif
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
 # endif
 # ifndef ANA_SIG12OBC
-#  ifdef WEST_SIG12OBC
-      CALL get_ngfld (ng, iNLM, idS12bc(iwest),                         &
+      IF (LBC(iwest,isSig12,ng)%acquire) THEN
+        CALL get_ngfld (ng, iNLM, idS12bc(iwest),                       &
      &                ncBRYid(idS12bc(iwest),ng),                       &
      &                nBCfiles(ng), BRY(1,ng), update(1),               &
      &                JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % sig12G_west(JLB,1))
-      IF (exit_flag.ne.NoError) RETURN
-#  endif
-#  ifdef EAST_SIG12OBC
-      CALL get_ngfld (ng, iNLM, idS12bc(ieast),                         &
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
+      IF (LBC(ieast,isSig12,ng)%acquire) THEN
+        CALL get_ngfld (ng, iNLM, idS12bc(ieast),                       &
      &                ncBRYid(idS12bc(ieast),ng),                       &
      &                nBCfiles(ng), BRY(1,ng), update(1),               &
      &                JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % sig12G_east(JLB,1))
-      IF (exit_flag.ne.NoError) RETURN
-#  endif
-#  ifdef SOUTH_SIG12OBC
-      CALL get_ngfld (ng, iNLM, idS12bc(isouth),                        &
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
+      IF (LBC(isouth,isSig12,ng)%acquire) THEN
+        CALL get_ngfld (ng, iNLM, idS12bc(isouth),                      &
      &                ncBRYid(idS12bc(isouth),ng),                      &
      &                nBCfiles(ng), BRY(1,ng), update(1),               &
      &                ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % sig12G_south(ILB,1))
-      IF (exit_flag.ne.NoError) RETURN
-#  endif
-#  ifdef NORTH_SIG12OBC
-      CALL get_ngfld (ng, iNLM, idS12bc(inorth),                        &
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
+      IF (LBC(inorth,isSig12,ng)%acquire) THEN
+        CALL get_ngfld (ng, iNLM, idS12bc(inorth),                      &
      &                ncBRYid(idS12bc(inorth),ng),                      &
      &                nBCfiles(ng), BRY(1,ng), update(1),               &
      &                ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                   &
      &                BOUNDARY(ng) % sig12G_north(ILB,1))
-      IF (exit_flag.ne.NoError) RETURN
-#  endif
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
 # endif
 #endif
 
-# ifdef SOLVE3D
-#  ifndef ANA_M3OBC
-#   ifdef WEST_M3OBC
-      CALL get_ngfld (ng, iNLM, idU3bc(iwest),                          &
-     &                ncBRYid(idU3bc(iwest),ng),                        &
-     &                nBCfiles(ng), BRY(1,ng), update(1),               &
-     &                JLB, JUB, N(ng), 2, 0, Mm(ng)+1, N(ng),           &
-     &                BOUNDARY(ng) % uG_west(JLB,1,1))
-      IF (exit_flag.ne.NoError) RETURN
-
-      CALL get_ngfld (ng, iNLM, idV3bc(iwest),                          &
-     &                ncBRYid(idV3bc(iwest),ng),                        &
-     &                nBCfiles(ng), BRY(1,ng), update(1),               &
-     &                JLB, JUB, N(ng), 2, 1, Mm(ng)+1, N(ng),           &
-     &                BOUNDARY(ng) % vG_west(JLB,1,1))
-      IF (exit_flag.ne.NoError) RETURN
-#   endif
-
-#   ifdef EAST_M3OBC
-      CALL get_ngfld (ng, iNLM, idU3bc(ieast),                          &
-     &                ncBRYid(idU3bc(ieast),ng),                        &
-     &                nBCfiles(ng), BRY(1,ng), update(1),               &
-     &                JLB, JUB, N(ng), 2, 0, Mm(ng)+1, N(ng),           &
-     &                BOUNDARY(ng) % uG_east(JLB,1,1))
-      IF (exit_flag.ne.NoError) RETURN
-
-      CALL get_ngfld (ng, iNLM, idV3bc(ieast),                          &
-     &                ncBRYid(idV3bc(ieast),ng),                        &
-     &                nBCfiles(ng), BRY(1,ng), update(1),               &
-     &                JLB, JUB, N(ng), 2, 1, Mm(ng)+1, N(ng),           &
-     &                BOUNDARY(ng) % vG_east(JLB,1,1))
-      IF (exit_flag.ne.NoError) RETURN
-#   endif
-
-#   ifdef SOUTH_M3OBC
-      CALL get_ngfld (ng, iNLM, idU3bc(isouth),                         &
-     &                ncBRYid(idU3bc(isouth),ng),                       &
-     &                nBCfiles(ng), BRY(1,ng), update(1),               &
-     &                ILB, IUB, N(ng), 2, 1, Lm(ng)+1, N(ng),           &
-     &                BOUNDARY(ng) % uG_south(ILB,1,1))
-      IF (exit_flag.ne.NoError) RETURN
-
-      CALL get_ngfld (ng, iNLM, idV3bc(isouth),                         &
-     &                ncBRYid(idV3bc(isouth),ng),                       &
-     &                nBCfiles(ng), BRY(1,ng), update(1),               &
-     &                ILB, IUB, N(ng), 2, 0, Lm(ng)+1, N(ng),           &
-     &                BOUNDARY(ng) % vG_south(ILB,1,1))
-      IF (exit_flag.ne.NoError) RETURN
-#   endif
-
-#   ifdef NORTH_M3OBC
-      CALL get_ngfld (ng, iNLM, idU3bc(inorth),                         &
-     &                ncBRYid(idU3bc(inorth),ng),                       &
-     &                nBCfiles(ng), BRY(1,ng), update(1),               &
-     &                ILB, IUB, N(ng), 2, 1, Lm(ng)+1, N(ng),           &
-     &                BOUNDARY(ng) % uG_north(ILB,1,1))
-      IF (exit_flag.ne.NoError) RETURN
-
-      CALL get_ngfld (ng, iNLM, idV3bc(inorth),                         &
-     &                ncBRYid(idV3bc(inorth),ng),                       &
-     &                nBCfiles(ng), BRY(1,ng), update(1),               &
-     &                ILB, IUB, N(ng), 2, 0, Lm(ng)+1, N(ng),           &
-     &                BOUNDARY(ng) % vG_north(ILB,1,1))
-      IF (exit_flag.ne.NoError) RETURN
-#   endif
-#  endif
-
-#  ifndef ANA_TOBC
-#   ifdef WEST_TOBC
-      DO i=1,NT(ng)
-        CALL get_ngfld (ng, iNLM, idTbry(iwest,i),                      &
-     &                  ncBRYid(idTbry(iwest,i),ng),                    &
-     &                  nBCfiles(ng), BRY(1,ng), update(1),             &
+#ifdef SOLVE3D
+# ifndef ANA_M3OBC
+!
+      IF (LBC(iwest,isUvel,ng)%acquire) THEN
+        CALL get_ngfld (ng, iNLM, idU3bc(iwest), BRY(ng)%ncid,          &
+     &                  1, BRY(ng), update(1),                          &
      &                  JLB, JUB, N(ng), 2, 0, Mm(ng)+1, N(ng),         &
-     &                  BOUNDARY(ng) % tG_west(JLB,1,1,i))
+     &                  BOUNDARY(ng) % uG_west(JLB,1,1))
         IF (exit_flag.ne.NoError) RETURN
-      END DO
-#   endif
+      END IF
 
-#   ifdef EAST_TOBC
-      DO i=1,NT(ng)
-        CALL get_ngfld (ng, iNLM, idTbry(ieast,i),                      &
-     &                  ncBRYid(idTbry(ieast,i),ng),                    &
-     &                  nBCfiles(ng), BRY(1,ng), update(1),             &
+      IF (LBC(iwest,isVvel,ng)%acquire) THEN
+        CALL get_ngfld (ng, iNLM, idV3bc(iwest), BRY(ng)%ncid,          &
+     &                  1, BRY(ng), update(1),                          &
+     &                  JLB, JUB, N(ng), 2, 1, Mm(ng)+1, N(ng),         &
+     &                  BOUNDARY(ng) % vG_west(JLB,1,1))
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
+
+      IF (LBC(ieast,isUvel,ng)%acquire) THEN
+        CALL get_ngfld (ng, iNLM, idU3bc(ieast), BRY(ng)%ncid,          &
+     &                  1, BRY(ng), update(1),                          &
      &                  JLB, JUB, N(ng), 2, 0, Mm(ng)+1, N(ng),         &
-     &                  BOUNDARY(ng) % tG_east(JLB,1,1,i))
+     &                  BOUNDARY(ng) % uG_east(JLB,1,1))
         IF (exit_flag.ne.NoError) RETURN
-      END DO
-#   endif
+      END IF
 
-#   ifdef SOUTH_TOBC
-      DO i=1,NT(ng)
-        CALL get_ngfld (ng, iNLM, idTbry(isouth,i),                     &
-     &                  ncBRYid(idTbry(isouth,i),ng),                   &
-     &                  nBCfiles(ng), BRY(1,ng), update(1),             &
-     &                  ILB, IUB, N(ng), 2, 0, Lm(ng)+1, N(ng),         &
-     &                  BOUNDARY(ng) % tG_south(ILB,1,1,i))
+      IF (LBC(ieast,isVvel,ng)%acquire) THEN
+        CALL get_ngfld (ng, iNLM, idV3bc(ieast), BRY(ng)%ncid,          &
+     &                  1, BRY(ng), update(1),                          &
+     &                  JLB, JUB, N(ng), 2, 1, Mm(ng)+1, N(ng),         &
+     &                  BOUNDARY(ng) % vG_east(JLB,1,1))
         IF (exit_flag.ne.NoError) RETURN
-      END DO
-#   endif
+      END IF
 
-#   ifdef NORTH_TOBC
-      DO i=1,NT(ng)
-        CALL get_ngfld (ng, iNLM, idTbry(inorth,i),                     &
-     &                  ncBRYid(idTbry(inorth,i),ng),                   &
-     &                  nBCfiles(ng), BRY(1,ng), update(1),             &
-     &                  ILB, IUB, N(ng), 2, 0, Lm(ng)+1, N(ng),         &
-     &                  BOUNDARY(ng) % tG_north(ILB,1,1,i))
+      IF (LBC(isouth,isUvel,ng)%acquire) THEN
+        CALL get_ngfld (ng, iNLM, idU3bc(isouth), BRY(ng)%ncid,         &
+     &                  1, BRY(ng), update(1),                          &
+     &                  ILB, IUB, N(ng), 2, 1, Lm(ng)+1, N(ng),         &
+     &                  BOUNDARY(ng) % uG_south(ILB,1,1))
         IF (exit_flag.ne.NoError) RETURN
+      END IF
+
+      IF (LBC(isouth,isVvel,ng)%acquire) THEN
+        CALL get_ngfld (ng, iNLM, idV3bc(isouth), BRY(ng)%ncid,         &
+     &                  1, BRY(ng), update(1),                          &
+     &                  ILB, IUB, N(ng), 2, 0, Lm(ng)+1, N(ng),         &
+     &                  BOUNDARY(ng) % vG_south(ILB,1,1))
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
+
+      IF (LBC(inorth,isUvel,ng)%acquire) THEN
+        CALL get_ngfld (ng, iNLM, idU3bc(inorth), BRY(ng)%ncid,         &
+     &                  1, BRY(ng), update(1),                          &
+     &                  ILB, IUB, N(ng), 2, 1, Lm(ng)+1, N(ng),         &
+     &                  BOUNDARY(ng) % uG_north(ILB,1,1))
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
+
+      IF (LBC(inorth,isVvel,ng)%acquire) THEN
+        CALL get_ngfld (ng, iNLM, idV3bc(inorth), BRY(ng)%ncid,         &
+     &                  1, BRY(ng), update(1),                          &
+     &                  ILB, IUB, N(ng), 2, 0, Lm(ng)+1, N(ng),         &
+     &                  BOUNDARY(ng) % vG_north(ILB,1,1))
+>>>>>>> f14c723... src:ticket:519
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
+# endif
+
+# ifndef ANA_TOBC
+!
+      DO i=1,NT(ng)
+        IF (LBC(iwest,isTvar(i),ng)%acquire) THEN
+          CALL get_ngfld (ng, iNLM, idTbry(iwest,i), BRY(ng)%ncid,      &
+     &                    1, BRY(ng), update(1),                        &
+     &                    JLB, JUB, N(ng), 2, 0, Mm(ng)+1, N(ng),       &
+     &                    BOUNDARY(ng) % tG_west(JLB,1,1,i))
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
       END DO
-#   endif
-#  endif
+
+      DO i=1,NT(ng)
+        IF (LBC(ieast,isTvar(i),ng)%acquire) THEN
+          CALL get_ngfld (ng, iNLM, idTbry(ieast,i), BRY(ng)%ncid,      &
+     &                    1, BRY(ng), update(1),                        &
+     &                    JLB, JUB, N(ng), 2, 0, Mm(ng)+1, N(ng),       &
+     &                    BOUNDARY(ng) % tG_east(JLB,1,1,i))
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+      END DO
+
+      DO i=1,NT(ng)
+        IF (LBC(isouth,isTvar(i),ng)%acquire) THEN
+          CALL get_ngfld (ng, iNLM, idTbry(isouth,i), BRY(ng)%ncid,     &
+     &                    1, BRY(ng), update(1),                        &
+     &                    ILB, IUB, N(ng), 2, 0, Lm(ng)+1, N(ng),       &
+     &                    BOUNDARY(ng) % tG_south(ILB,1,1,i))
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+      END DO
+
+      DO i=1,NT(ng)
+        IF (LBC(inorth,isTvar(i),ng)%acquire) THEN
+          CALL get_ngfld (ng, iNLM, idTbry(inorth,i), BRY(ng)%ncid,       &
+     &                    1, BRY(ng), update(1),                          &
+     &                    ILB, IUB, N(ng), 2, 0, Lm(ng)+1, N(ng),         &
+     &                    BOUNDARY(ng) % tG_north(ILB,1,1,i))
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+      END DO
 # endif
 #endif
 
@@ -1696,5 +1693,6 @@
 !
       CALL wclock_off (ng, iNLM, 3)
 #endif
+
       RETURN
       END SUBROUTINE get_data
