@@ -497,7 +497,6 @@
 !  Read in ice model input parameters.
 !-----------------------------------------------------------------------
 !
-      print *, MyRank, TRIM(iparnam)
       OPEN (inp, FILE=TRIM(iparnam), FORM='formatted', STATUS='old')
 
       CALL read_IcePar (inp, out, Lwrite)
