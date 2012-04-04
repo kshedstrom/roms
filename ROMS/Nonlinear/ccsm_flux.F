@@ -650,7 +650,7 @@ contains
       qsat(Tk)   = 640380.0 / exp(5107.4/Tk)
       cdn(Umps)  = 0.0027 / Umps + 0.000142 + 0.0000764 * Umps
       psimhu(xd) = log((1.0+xd*(2.0+xd))*(1.0+xd*xd)/8.0) -             &
-     &               2.0*atan(xd) + 1.571
+     &             2.0*atan(xd) + 1.571
       psixhu(xd) = 2.0 * log((1.0 + xd*xd)/2.0)
 
 #include "set_bounds.h"
@@ -933,8 +933,7 @@ contains
           cawdif = 1._r8-albw_d
           srflx(i,j) = srflx(i,j)*(cawdir(i,j)*                         &
      &                 (1._r8-cloud(i,j))+cawdif*cloud(i,j))
-# endif
-# if defined SHORTWAVE && defined ALBEDO_CURVE
+# elif defined SHORTWAVE && defined ALBEDO_CURVE
 #  ifdef BIO_1D
 !using lat for M2 for whole domain
           caw_curve = 1._r8-(0.069_r8 - 0.011_r8*                       &
