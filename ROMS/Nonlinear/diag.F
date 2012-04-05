@@ -219,7 +219,7 @@
 # endif
       IF (.not. allocated(buffer))    allocate (buffer(Nreduce))
       IF (.not. allocated(op_handle)) allocate (op_handle(Nreduce))
-      IF (.not. allocated(C_handle)) allocate (C_handle(Nreduce))
+      IF (.not. allocated(C_handle))  allocate (C_handle(Nreduce))
 #endif
 
       IF (MOD(iic(ng)-1,ninfo(ng)).eq.0) THEN
@@ -404,11 +404,11 @@
           avgpe=avgpe+my_avgpe
           maxspeed(ng)=MAX(maxspeed(ng),my_maxspeed)
 #ifdef SOLVE3D
-        maxrho(ng)=MAX(maxrho(ng),my_maxrho)
+          maxrho(ng)=MAX(maxrho(ng),my_maxrho)
 # ifdef BIOLOGY
-        DO ibt=1,NBT
-          maxbio(ibt,ng)=MAX(maxbio(ibt,ng),my_maxbio(ibt))
-        END DO
+          DO ibt=1,NBT
+            maxbio(ibt,ng)=MAX(maxbio(ibt,ng),my_maxbio(ibt))
+          END DO
 # endif
 #endif
           IF (my_max_C.eq.max_C) THEN
