@@ -242,7 +242,7 @@
 !
       Iwrk = 10
 #  if defined UV_VIS2
-#ifndef SOUTHERN_WALL
+#ifndef ARCTIC
       DO i=IstrR,IendR
         DO j=JstrR,MIN(Iwrk,JendR)
           cff = 250.*0.5_r8*(1.0_r8+COS(pi*REAL(j,r8)/REAL(Iwrk,r8)))
@@ -250,8 +250,6 @@
           visc2_p(i,j) = max(cff, visc2_p(i,j))
         END DO
       END DO
-#endif
-#ifndef WESTERN_WALL
       DO i=IstrR,MIN(Iwrk,IendR)
         DO j=JstrR,JendR
           cff = 250.*0.5_r8*(1.0_r8+COS(pi*REAL(i,r8)/REAL(Iwrk,r8)))
@@ -260,7 +258,6 @@
         END DO
       END DO
 #endif
-#ifndef EASTERN_WALL
       DO i=MAX(Lm(ng)+1-Iwrk,IstrR),IendR
         ifoo = Lm(ng)+1-i
         DO j=MAX(JstrR,ifoo),JendR
@@ -269,8 +266,6 @@
           visc2_p(i+1,j) = max(cff, visc2_p(i+1,j))
         END DO
       END DO
-#endif
-#ifndef NORTHERN_WALL
       DO j=MAX(Mm(ng)+1-Iwrk,JstrR),JendR
         ifoo = Mm(ng)+1-j
         itwo = Lm(ng)-Mm(ng)+j
@@ -280,11 +275,11 @@
           visc2_p(i+1,j) = max(cff, visc2_p(i+1,j))
         END DO
       END DO
-#endif
 #  endif
 #  ifdef SOLVE3D
 #   if defined TS_DIF2
       DO itrc=1,NT(ng)
+#ifndef ARCTIC
         DO j=JstrR,MIN(Iwrk,JendR)
           cff = 100. * (1.0_r8+COS(pi*REAL(j,r8)/REAL(Iwrk,r8)))
           DO i=IstrR,IendR
@@ -297,7 +292,7 @@
             diff2(i,j,itrc) = max(cff, diff2(i,j,itrc))
           END DO
         END DO
-#ifndef EASTERN_WALL
+#endif
         DO i=MAX(Lm(ng)+1-Iwrk,IstrR),IendR
           ifoo = Lm(ng)+1-i
           DO j=MAX(JstrR,ifoo),JendR
@@ -305,8 +300,6 @@
             diff2(i,j,itrc) = max(cff, diff2(i,j,itrc))
           END DO
         END DO
-#endif
-#ifndef NORTHERN_WALL
         DO j=MAX(Mm(ng)+1-Iwrk,JstrR),JendR
           ifoo = Mm(ng)+1-j
           itwo = Lm(ng)-Mm(ng)+j
@@ -315,7 +308,6 @@
             diff2(i,j,itrc) = max(cff, diff2(i,j,itrc))
           END DO
         END DO
-#endif
       END DO
 #   endif
 #  endif

@@ -172,9 +172,7 @@
 #  include "ana_ncep.h"
 # endif
 
-# if defined NUDGING_COFF
-#  include <ana_nudgcoef.h>
-# endif
+# include <ana_nudgcoef.h>
 
 # if defined ANA_PAIR && (defined BULK_FLUXES || defined ECOSIM || \
                          defined ATM_PRESS)

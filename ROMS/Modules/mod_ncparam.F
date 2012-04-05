@@ -934,7 +934,7 @@
       isBv3d=isVvel                           ! 3D V-variables
       isBw3d=isTvar(1)                        ! 3D W-variables
 #if defined SOLVE3D && (defined GLS_MIXING || defined MY25_MIXING)
-      isMtke=isTvar(MT)+1                     ! turbulent variables
+      isMtke=ic+1                             ! turbulent variables
 #endif
 !
 !  Initialize IO information variables.
