@@ -78,7 +78,7 @@
 !  Set time record index.
 !
       AVG2(ng)%Rindex=AVG2(ng)%Rindex+1
-      Fcount=AVG(ng)%Fcount
+      Fcount=AVG2(ng)%Fcount
       AVG2(ng)%Nrec(Fcount)=AVG2(ng)%Nrec(Fcount)+1
 !
 !  Write out averaged time.
@@ -229,6 +229,53 @@
         RETURN
       END IF
 # endif
+!
+!  Write out 2D Eastward momentum component (m/s) at RHO-points.
+!
+      IF (Aout2(idu2dE,ng)) THEN
+        scale=1.0_r8
+        gtype=gfactor*r2dvar
+        status=nf_fwrite2d(ng, iNLM, AVG2(ng)%ncid,                     &
+     &                     AVG2(ng)%Vid(idu2dE),                        &
+     &                     AVG2(ng)%Rindex, gtype,                      &
+     &                     LBi, UBi, LBj, UBj, scale,                   &
+# ifdef MASKING
+     &                     GRID(ng) % rmask_avg,                        &
+# endif
+     &                     AVERAGE2(ng) % avgu2dE)
+        IF (status.ne.nf90_noerr) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,idu2dE)), AVG2(ng)%Rindex
+          END IF
+          exit_flag=3
+          ioerror=status
+          RETURN
+        END IF
+      END IF
+!
+!  Write out 2D Northward momentum component (m/s) at RHO-points.
+!
+      IF (Aout2(idv2dN,ng)) THEN
+        scale=1.0_r8
+        gtype=gfactor*r2dvar
+        status=nf_fwrite2d(ng, iNLM, AVG2(ng)%ncid,                     &
+     &                     AVG2(ng)%Vid(idv2dN),                        &
+     &                     AVG2(ng)%Rindex, gtype,                      &
+     &                     LBi, UBi, LBj, UBj, scale,                   &
+# ifdef MASKING
+     &                     GRID(ng) % rmask_avg,                        &
+# endif
+     &                     AVERAGE2(ng) % avgv2dN)
+        IF (status.ne.nf90_noerr) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,idv2dN)), AVG2(ng)%Rindex
+          END IF
+          exit_flag=3
+          ioerror=status
+          RETURN
+        END IF
+      END IF
+
 # if defined FORWARD_WRITE && defined SOLVE3D
 !
 !  Write out time-averaged mass fluxes for 3D momentum coupling.
@@ -536,6 +583,53 @@
         END IF
       END IF
 !
+!  Write out 3D Eastward momentum component (m/s) at RHO-points.
+!
+      IF (Aout2(idu3dE,ng)) THEN
+        scale=1.0_r8
+        gtype=gfactor*r2dvar
+        status=nf_fwrite2d(ng, iNLM, AVG2(ng)%ncid,                     &
+     &                     AVG2(ng)%Vid(idu3dE),                        &
+     &                     AVG2(ng)%Rindex, gtype,                      &
+     &                     LBi, UBi, LBj, UBj, scale,                   &
+# ifdef MASKING
+     &                     GRID(ng) % rmask_avg,                        &
+# endif
+     &                     AVERAGE2(ng) % avgu3dE)
+        IF (status.ne.nf90_noerr) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,idu3dE)), AVG2(ng)%Rindex
+          END IF
+          exit_flag=3
+          ioerror=status
+          RETURN
+        END IF
+      END IF
+!
+!  Write out 3D Northward momentum component (m/s) at RHO-points.
+!
+      IF (Aout2(idv3dN,ng)) THEN
+        scale=1.0_r8
+        gtype=gfactor*r2dvar
+        status=nf_fwrite2d(ng, iNLM, AVG2(ng)%ncid,                     &
+     &                     AVG2(ng)%Vid(idv3dN),                        &
+     &                     AVG2(ng)%Rindex, gtype,                      &
+     &                     LBi, UBi, LBj, UBj, scale,                   &
+# ifdef MASKING
+     &                     GRID(ng) % rmask_avg,                        &
+# endif
+     &                     AVERAGE2(ng) % avgv3dN)
+        IF (status.ne.nf90_noerr) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,idv3dN)), AVG2(ng)%Rindex
+          END IF
+          exit_flag=3
+          ioerror=status
+          RETURN
+        END IF
+      END IF
+
+!
 !  Write out tracer type variables.
 !
       DO itrc=1,NT(ng)
@@ -710,6 +804,53 @@
           RETURN
         END IF
       END IF
+!
+!  Write out 2D Eastward ice momentum component (m/s) at RHO-points.
+!
+      IF (Aout2(idUiceE,ng)) THEN
+        scale=1.0_r8
+        gtype=gfactor*r2dvar
+        status=nf_fwrite2d(ng, iNLM, AVG2(ng)%ncid,                     &
+     &                     AVG2(ng)%Vid(idUiceE),                       &
+     &                     AVG2(ng)%Rindex, gtype,                      &
+     &                     LBi, UBi, LBj, UBj, scale,                   &
+# ifdef MASKING
+     &                     GRID(ng) % rmask_avg,                        &
+# endif
+     &                     AVERAGE2(ng) % avguiceE)
+        IF (status.ne.nf90_noerr) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,idUiceE)), AVG2(ng)%Rindex
+          END IF
+          exit_flag=3
+          ioerror=status
+          RETURN
+        END IF
+      END IF
+!
+!  Write out 2D Northward ice momentum component (m/s) at RHO-points.
+!
+      IF (Aout2(idViceN,ng)) THEN
+        scale=1.0_r8
+        gtype=gfactor*r2dvar
+        status=nf_fwrite2d(ng, iNLM, AVG2(ng)%ncid,                     &
+     &                     AVG2(ng)%Vid(idViceN),                       &
+     &                     AVG2(ng)%Rindex, gtype,                      &
+     &                     LBi, UBi, LBj, UBj, scale,                   &
+# ifdef MASKING
+     &                     GRID(ng) % rmask_avg,                        &
+# endif
+     &                     AVERAGE2(ng) % avgviceN)
+        IF (status.ne.nf90_noerr) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,idViceN)), AVG2(ng)%Rindex
+          END IF
+          exit_flag=3
+          ioerror=status
+          RETURN
+        END IF
+      END IF
+
 !
 ! Write out ice concentration.
 !
@@ -1228,6 +1369,53 @@
           RETURN
         END IF
       END IF
+!
+!  Write out 2D Eastward surface wind (m/s) at RHO-points.
+!
+      IF (Aout2(idUairE,ng)) THEN
+        scale=1.0_r8
+        gtype=gfactor*r2dvar
+        status=nf_fwrite2d(ng, iNLM, AVG2(ng)%ncid,                     &
+     &                     AVG2(ng)%Vid(idUairE),                       &
+     &                     AVG2(ng)%Rindex, gtype,                      &
+     &                     LBi, UBi, LBj, UBj, scale,                   &
+# ifdef MASKING
+     &                     GRID(ng) % rmask_avg,                        &
+# endif
+     &                     AVERAGE2(ng) % avguwindE)
+        IF (status.ne.nf90_noerr) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,idUairE)), AVG2(ng)%Rindex
+          END IF
+          exit_flag=3
+          ioerror=status
+          RETURN
+        END IF
+      END IF
+!
+!  Write out 2D Northward surface wind (m/s) at RHO-points.
+!
+      IF (Aout2(idVairN,ng)) THEN
+        scale=1.0_r8
+        gtype=gfactor*r2dvar
+        status=nf_fwrite2d(ng, iNLM, AVG2(ng)%ncid,                     &
+     &                     AVG2(ng)%Vid(idVairN),                       &
+     &                     AVG2(ng)%Rindex, gtype,                      &
+     &                     LBi, UBi, LBj, UBj, scale,                   &
+# ifdef MASKING
+     &                     GRID(ng) % rmask_avg,                        &
+# endif
+     &                     AVERAGE2(ng) % avgvwindN)
+        IF (status.ne.nf90_noerr) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,idVairN)), AVG2(ng)%Rindex
+          END IF
+          exit_flag=3
+          ioerror=status
+          RETURN
+        END IF
+      END IF
+
 #   ifdef EMINUSP
 !
 !  Write out evaportaion rate (kg/m2/s).

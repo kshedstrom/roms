@@ -1165,6 +1165,34 @@
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Hout(idBath,:))
 #endif
+            CASE ('Hout(idu2dE)')
+              IF (idu2dE.eq.0) THEN
+                IF (Master) WRITE (out,280) 'idu2dE'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Hout(idu2dE,:))
+            CASE ('Hout(idv2dN)')
+              IF (idv2dN.eq.0) THEN
+                IF (Master) WRITE (out,280) 'idv2dN'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Hout(idv2dN,:))
+            CASE ('Hout(idu3dE)')
+              IF (idu3dE.eq.0) THEN
+                IF (Master) WRITE (out,280) 'idu3dE'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Hout(idu3dE,:))
+            CASE ('Hout(idv3dN)')
+              IF (idv3dN.eq.0) THEN
+                IF (Master) WRITE (out,280) 'idv3dN'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Hout(idv3dN,:))
             CASE ('Hout(idTvar)')
               IF (MAXVAL(idTvar).eq.0) THEN
                 IF (Master) WRITE (out,280) 'idTvar'
@@ -1464,12 +1492,26 @@
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Hout(idUair,:))
             CASE ('Hout(idVair)')
-              IF (idPair.eq.0) THEN
+              IF (idVair.eq.0) THEN
                 IF (Master) WRITE (out,280) 'idVair'
                 exit_flag=5
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Hout(idVair,:))
+            CASE ('Hout(idUairE)')
+              IF (idUairE.eq.0) THEN
+                IF (Master) WRITE (out,280) 'idUairE'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Hout(idUairE,:))
+            CASE ('Hout(idVairN)')
+              IF (idVairN.eq.0) THEN
+                IF (Master) WRITE (out,280) 'idVairN'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Hout(idVairN,:))
 # endif
 #endif
             CASE ('Hout(idTsur)')
@@ -1633,6 +1675,14 @@
               Npts=load_l(Nval, Cval, Ngrids, Aout(idVbar,:))
             CASE ('Aout(idFsur)')
               Npts=load_l(Nval, Cval, Ngrids, Aout(idFsur,:))
+            CASE ('Aout(idu2dE)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout(idu2dE,:))
+            CASE ('Aout(idv2dN)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout(idv2dN,:))
+            CASE ('Aout(idu3dE)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout(idu3dE,:))
+            CASE ('Aout(idv3dN)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout(idv3dN,:))
             CASE ('Aout(idTvar)')
               Npts=load_l(Nval, Cval, NAT*Ngrids, Ltracer)
               DO ng=1,Ngrids
@@ -1691,6 +1741,10 @@
               Npts=load_l(Nval, Cval, Ngrids, Aout(idUair,:))
             CASE ('Aout(idVair)')
               Npts=load_l(Nval, Cval, Ngrids, Aout(idVair,:))
+            CASE ('Aout(idUairE)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout(idUairE,:))
+            CASE ('Aout(idVairN)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout(idVairN,:))
 #  endif
 # endif
             CASE ('Aout(idTsur)')
@@ -2566,6 +2620,10 @@
       exit_flag=4
       RETURN
   20  CLOSE (inp)
+!
+!-----------------------------------------------------------------------
+!  Process input parameters.
+!-----------------------------------------------------------------------
 
 #if defined BULK_FLUXES && defined NL_BULK_FLUXES
 !
@@ -2634,6 +2692,42 @@
         IF (SCALARS(ng)%Fstate(isVstr)) Hout(idVsms,ng)=.TRUE.
       END DO
 #endif
+!
+!  Make sure that both component switches are activated when processing
+!  (Eastward,Northward) momentum components at RHO-points.
+!
+      DO ng=1,Ngrids
+        IF (.not.Hout(idu2dE,ng).and.Hout(idv2dN,ng)) THEN
+          Hout(idu2dE,ng)=.TRUE.
+        END IF
+        IF (.not.Hout(idv2dN,ng).and.Hout(idu2dE,ng)) THEN
+          Hout(idv2dN,ng)=.TRUE.
+        END IF
+#ifdef SOLVE3D
+        IF (.not.Hout(idu3dE,ng).and.Hout(idv3dN,ng)) THEN
+          Hout(idu3dE,ng)=.TRUE.
+        END IF
+        IF (.not.Hout(idv3dN,ng).and.Hout(idu3dE,ng)) THEN
+          Hout(idv3dN,ng)=.TRUE.
+        END IF
+#endif
+#ifdef AVERAGES
+        IF (.not.Aout(idu2dE,ng).and.Aout(idv2dN,ng)) THEN
+          Aout(idu2dE,ng)=.TRUE.
+        END IF
+        IF (.not.Aout(idv2dN,ng).and.Aout(idu2dE,ng)) THEN
+          Aout(idv2dN,ng)=.TRUE.
+        END IF
+# ifdef SOLVE3D
+        IF (.not.Aout(idu3dE,ng).and.Aout(idv3dN,ng)) THEN
+          Aout(idu3dE,ng)=.TRUE.
+        END IF
+        IF (.not.Aout(idv3dN,ng).and.Aout(idu3dE,ng)) THEN
+          Aout(idv3dN,ng)=.TRUE.
+        END IF
+# endif
+#endif
+      END DO
 !
 !  Set switch to create NetCDF file.
 !
@@ -3576,6 +3670,12 @@
           IF (Hout(idVbar,ng)) WRITE (out,170) Hout(idVbar,ng),         &
      &       'Hout(idVbar)',                                            &
      &       'Write out 2D V-momentum component.'
+          IF (Hout(idu2dE,ng)) WRITE (out,170) Hout(idu2dE,ng),         &
+     &       'Hout(idu2dE)',                                            &
+     &       'Write out 2D U-eastward  at RHO-points.'
+          IF (Hout(idv2dN,ng)) WRITE (out,170) Hout(idv2dN,ng),         &
+     &       'Hout(idv2dN)',                                            &
+     &       'Write out 2D V-northward at RHO-points.'
 #ifdef SOLVE3D
           IF (Hout(idUvel,ng)) WRITE (out,170) Hout(idUvel,ng),         &
      &       'Hout(idUvel)',                                            &
@@ -3583,6 +3683,12 @@
           IF (Hout(idVvel,ng)) WRITE (out,170) Hout(idVvel,ng),         &
      &       'Hout(idVvel)',                                            &
      &       'Write out 3D V-momentum component.'
+          IF (Hout(idu3dE,ng)) WRITE (out,170) Hout(idu3dE,ng),         &
+     &       'Hout(idu3dE)',                                            &
+     &       'Write out 3D U-wastward  component at RHO-points.'
+          IF (Hout(idv3dN,ng)) WRITE (out,170) Hout(idv3dN,ng),         &
+     &       'Hout(idv3dN)',                                            &
+     &       'Write out 3D V-northward component at RHO-points.'
           IF (Hout(idWvel,ng)) WRITE (out,170) Hout(idWvel,ng),         &
      &       'Hout(idWvel)',                                            &
      &       'Write out W-momentum component.'
@@ -3757,6 +3863,12 @@
           IF (Hout(idVair,ng)) WRITE (out,170) Hout(idVair,ng),         &
      &       'Hout(idVair)',                                            &
      &       'Write out surface V-wind component.'
+          IF (Hout(idUairE,ng)) WRITE (out,170) Hout(idUairE,ng),        &
+     &       'Hout(idUairE)',                                            &
+     &       'Write out surface Eastward U-wind component.'
+          IF (Hout(idVairN,ng)) WRITE (out,170) Hout(idVairN,ng),        &
+     &       'Hout(idVairN)',                                            &
+     &       'Write out surface Northward V-wind component.'
 # endif
           IF (Hout(idTsur(itemp),ng)) WRITE (out,170)                   &
      &        Hout(idTsur(itemp),ng), 'Hout(idTsur)',                   &
@@ -3836,6 +3948,12 @@
           IF (Aout(idVbar,ng)) WRITE (out,170) Aout(idVbar,ng),         &
      &       'Aout(idVbar)',                                            &
      &       'Write out averaged 2D V-momentum component.'
+          IF (Aout(idu2dE,ng)) WRITE (out,170) Aout(idu2dE,ng),         &
+     &       'Aout(idu2dE)',                                            &
+     &       'Write out averaged 2D U-eastward  at RHO-points.'
+          IF (Aout(idv2dN,ng)) WRITE (out,170) Aout(idv2dN,ng),         &
+     &       'Aout(idv2dN)',                                            &
+     &       'Write out averaged 2D V-northward at RHO-points.'
 # ifdef SOLVE3D
           IF (Aout(idUvel,ng)) WRITE (out,170) Aout(idUvel,ng),         &
      &       'Aout(idUvel)',                                            &
@@ -3843,6 +3961,12 @@
           IF (Aout(idVvel,ng)) WRITE (out,170) Aout(idVvel,ng),         &
      &       'Aout(idVvel)',                                            &
      &       'Write out averaged 3D V-momentum component.'
+          IF (Aout(idu3dE,ng)) WRITE (out,170) Aout(idu3dE,ng),         &
+     &       'Aout(idu3dE)',                                            &
+     &       'Write out averaged 3D U-eastward  at RHO-points.'
+          IF (Aout(idv3dN,ng)) WRITE (out,170) Aout(idv3dN,ng),         &
+     &       'Aout(idv3dN)',                                            &
+     &       'Write out averaged 3D V-northward at RHO-points.'
           IF (Aout(idWvel,ng)) WRITE (out,170) Aout(idWvel,ng),         &
      &       'Aout(idWvel)',                                            &
      &       'Write out averaged W-momentum component.'
@@ -3941,6 +4065,12 @@
           IF (Aout(idVair,ng)) WRITE (out,170) Aout(idVair,ng),         &
      &       'Aout(idVair)',                                            &
      &       'Write out averaged surface V-wind component.'
+          IF (Aout(idUairE,ng)) WRITE (out,170) Aout(idUairE,ng),        &
+     &       'Aout(idUairE)',                                            &
+     &       'Write out averaged Eastward surface U-wind component.'
+          IF (Aout(idVairN,ng)) WRITE (out,170) Aout(idVairN,ng),        &
+     &       'Aout(idVairN)',                                            &
+     &       'Write out averaged Northward surface V-wind component.'
 #  endif
           IF (Aout(idTsur(itemp),ng)) WRITE (out,170)                   &
      &        Aout(idTsur(itemp),ng), 'Aout(idTsur)',                   &

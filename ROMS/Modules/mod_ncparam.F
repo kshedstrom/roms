@@ -270,6 +270,7 @@
         integer  :: idU3Sd        ! 3D U-Stokes drift velocity
         integer  :: idUads        ! 3D U-velocity adjoint sensitivity
         integer  :: idUair        ! surface U-wind
+        integer  :: idUairE       ! surface U-wind
         integer  :: idUbar        ! 2D U-velocity
         integer  :: idUbas        ! 2D U-velocity adjoint sensitivity
         integer  :: idUbcl        ! 2D U-velocity climatology
@@ -285,6 +286,7 @@
         integer  :: idUfx1        ! time averaged U-flux for 2D
         integer  :: idUfx2        ! time averaged U-flux for 3D
         integer  :: idUice        ! ice U-velocity
+        integer  :: idUiceE       ! ice U-velocity
         integer  :: idUobs        ! 3D U-velocity observations
         integer  :: idUsms        ! surface U-momentum stress
         integer  :: idUsur        ! surface U-velocity observations
@@ -295,14 +297,17 @@
         integer  :: idUwet        ! wet/dry mask on U-points
         integer  :: idu2dD        ! detided 2D U-velocity
         integer  :: idu2dH        ! 2D U-velocity tide harmonics
+        integer  :: idu2dE        ! 2D eastward velocity at RHO-points
         integer  :: idu3dD        ! detided 3D U-velocity
         integer  :: idu3dH        ! 3D U-velocity tide harmonics
+        integer  :: idu3dE        ! 3D eastward velocity at RHO-points
         integer  :: idV2rs        ! 2D total V-radiation stress
         integer  :: idV3rs        ! 3D total V-radiation stress
         integer  :: idV2Sd        ! 2D U-Stokes drift velocity
         integer  :: idV3Sd        ! 3D U-Stokes drift velocity
         integer  :: idVads        ! 3D V-velocity adjoint sensitivity
         integer  :: idVair        ! surface V-wind
+        integer  :: idVairN       ! surface V-wind
         integer  :: idVbar        ! 2D V-velocity
         integer  :: idVbas        ! 2D V-velocity adjoint sensitivity
         integer  :: idVbcl        ! 2D V-velocity climatology
@@ -318,6 +323,7 @@
         integer  :: idVfx1        ! 2D momentum time-averaged V-flux
         integer  :: idVfx2        ! 3D momentum time-averaged V-flux
         integer  :: idVice        ! ice V-velocity
+        integer  :: idViceN       ! ice V-velocity
         integer  :: idVmLS        ! vertical mixing length scale
         integer  :: idVmKK        ! Kinetic energy vertical mixing
         integer  :: idVmKP        ! Length scale vertical mixing
@@ -330,8 +336,10 @@
         integer  :: idVwet        ! wet/dry mask on V-points
         integer  :: idv2dD        ! detided 2D U-velocity
         integer  :: idv2dH        ! 2D U-velocity tide harmonics
+        integer  :: idv2dN        ! 2D northward velocity at RHO-points
         integer  :: idv3dD        ! detided 3D U-velocity
         integer  :: idv3dH        ! 3D U-velocity tide harmonics
+        integer  :: idv3dN        ! 3D northward velocity at RHO-points
         integer  :: idW2xx        ! 2D radiation stress, Sxx-component
         integer  :: idW2xy        ! 2D radiation stress, Sxy-component
         integer  :: idW2yy        ! 2D radiation stress, Syy-component
@@ -1075,18 +1083,26 @@
               idRzet=varid
             CASE ('idUbar')
               idUbar=varid
+            CASE ('idu2dE')
+              idu2dE=varid
             CASE ('idRu2d')
               idRu2d=varid
             CASE ('idVbar')
               idVbar=varid
+            CASE ('idv2dN')
+              idv2dN=varid
             CASE ('idRv2d')
               idRv2d=varid
             CASE ('idUvel')
               idUvel=varid
+            CASE ('idu3dE')
+              idu3dE=varid
             CASE ('idRu3d')
               idRu3d=varid
             CASE ('idVvel')
               idVvel=varid
+            CASE ('idv3dN')
+              idv3dN=varid
             CASE ('idRv3d')
               idRv3d=varid
             CASE ('idWvel')
@@ -1245,6 +1261,10 @@
               idUair=varid
             CASE ('idVair')
               idVair=varid
+            CASE ('idUairE')
+              idUairE=varid
+            CASE ('idVairN')
+              idVairN=varid
             CASE ('idWamp')
               idWamp=varid
             CASE ('idWbrk')
@@ -1866,6 +1886,10 @@
                 idUice=varid
               CASE ('idVice')
                 idVice=varid
+              CASE ('idUiceE')
+                idUiceE=varid
+              CASE ('idViceN')
+                idViceN=varid
               CASE ('idAice')
                 idAice=varid
               CASE ('idHice')

@@ -388,6 +388,43 @@
      &                   NF_FOUT, nvd3, v2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
+!
+!  Define 2D Eastward momentum component at RHO-points.
+!
+        IF (Aout2(idu2dE,ng)) THEN
+          Vinfo( 1)=Vname(1,idu2dE)
+          WRITE (Vinfo( 2),'(a,1x,a)') Prefix, TRIM(Vname(2,idu2dE))
+          Vinfo( 3)=Vname(3,idu2dE)
+          Vinfo(14)=Vname(4,idu2dE)
+          Vinfo(16)=Vname(1,idtime)
+# if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_rho'
+# endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idu2dE,ng),r8)
+          status=def_var(ng, iNLM, AVG2(ng)%ncid, AVG2(ng)%Vid(idu2dE), &
+     &                   NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+!
+!  Define 2D Northward momentum component at RHO-points.
+!
+        IF (Aout2(idv2dN,ng)) THEN
+          Vinfo( 1)=Vname(1,idv2dN)
+          WRITE (Vinfo( 2),'(a,1x,a)') Prefix, TRIM(Vname(2,idv2dN))
+          Vinfo( 3)=Vname(3,idv2dN)
+          Vinfo(14)=Vname(4,idv2dN)
+          Vinfo(16)=Vname(1,idtime)
+# if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_rho'
+# endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idv2dN,ng),r8)
+          status=def_var(ng, iNLM, AVG2(ng)%ncid, AVG2(ng)%Vid(idv2dN), &
+     &                   NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+
 # ifdef SOLVE3D
 !
 !  Define 3D momentum component in the XI-direction.
@@ -423,6 +460,42 @@
           Aval(5)=REAL(Iinfo(1,idVvel,ng),r8)
           status=def_var(ng, model, AVG2(ng)%ncid, AVG2(ng)%Vid(idVvel),&
      &                   NF_FOUT, nvd4, v2dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+!
+!  Define 3D Eastward momentum component at RHO-points.
+!
+        IF (Aout2(idu2dE,ng)) THEN
+          Vinfo( 1)=Vname(1,idu2dE)
+          WRITE (Vinfo( 2),'(a,1x,a)') Prefix, TRIM(Vname(2,idu2dE))
+          Vinfo( 3)=Vname(3,idu2dE)
+          Vinfo(14)=Vname(4,idu2dE)
+          Vinfo(16)=Vname(1,idtime)
+# if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_rho'
+# endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idu2dE,ng),r8)
+          status=def_var(ng, iNLM, AVG2(ng)%ncid, AVG2(ng)%Vid(idu2dE),   &
+     &                   NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+!
+!  Define 3D Northward momentum component at RHO-points.
+!
+        IF (Aout2(idv3dN,ng)) THEN
+          Vinfo( 1)=Vname(1,idv3dN)
+          WRITE (Vinfo( 2),'(a,1x,a)') Prefix, TRIM(Vname(2,idv3dN))
+          Vinfo( 3)=Vname(3,idv3dN)
+          Vinfo(14)=Vname(4,idv3dN)
+          Vinfo(16)=Vname(1,idtime)
+# if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_rho'
+# endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idv3dN,ng),r8)
+          status=def_var(ng, iNLM, AVG2(ng)%ncid, AVG2(ng)%Vid(idv3dN),   &
+     &                   NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
 !
@@ -713,6 +786,43 @@
      &                   NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
+!
+!  Define 2D Eastward surface wind at RHO-points.
+!
+        IF (Aout2(idUairE,ng)) THEN
+          Vinfo( 1)=Vname(1,idUairE)
+          WRITE (Vinfo( 2),'(a,1x,a)') Prefix, TRIM(Vname(2,idUairE))
+          Vinfo( 3)=Vname(3,idUairE)
+          Vinfo(14)=Vname(4,idUairE)
+          Vinfo(16)=Vname(1,idtime)
+# if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_rho'
+# endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idUairE,ng),r8)
+          status=def_var(ng, iNLM, AVG2(ng)%ncid, AVG2(ng)%Vid(idUairE),&
+     &                   NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+!
+!  Define 2D Northward surface wind at RHO-points.
+!
+        IF (Aout2(idVairN,ng)) THEN
+          Vinfo( 1)=Vname(1,idVairN)
+          WRITE (Vinfo( 2),'(a,1x,a)') Prefix, TRIM(Vname(2,idVairN))
+          Vinfo( 3)=Vname(3,idVairN)
+          Vinfo(14)=Vname(4,idVairN)
+          Vinfo(16)=Vname(1,idtime)
+# if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_rho'
+# endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idVairN,ng),r8)
+          status=def_var(ng, iNLM, AVG2(ng)%ncid, AVG2(ng)%Vid(idVairN),&
+     &                   NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+
 #   ifdef EMINUSP
 !
 !  Define evaporation rate.
@@ -927,6 +1037,44 @@
      &                   nvd3, v2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF  
+!
+!  Define 2D ice momentum to the East.
+!
+        IF (Aout2(idUiceE,ng)) THEN
+          Vinfo( 1)=Vname(1,idUiceE)
+          WRITE (Vinfo( 2),'(a,1x,a)') Prefix, TRIM(Vname(2,idUiceE))
+          Vinfo( 3)=Vname(3,idUiceE)
+          Vinfo(14)=Vname(4,idUiceE)
+          Vinfo(16)=Vname(1,idtime)
+#  if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_u'
+#  endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idUiceE,ng),r8)
+          status=def_var(ng, model, AVG2(ng)%ncid,                      &
+     &                   AVG2(ng)%Vid(idUiceE), NF_FOUT,                &
+     &                   nvd3, u2dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+!
+!  Define 2D ice momentum to the North.
+!
+        IF (Aout2(idViceN,ng)) THEN
+          Vinfo( 1)=Vname(1,idViceN)
+          WRITE (Vinfo( 2),'(a,1x,a)') Prefix, TRIM(Vname(2,idViceN))
+          Vinfo( 3)=Vname(3,idViceN)
+          Vinfo(14)=Vname(4,idViceN)
+          Vinfo(16)=Vname(1,idtime)
+#  if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_v'
+#  endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idViceN,ng),r8)
+          status=def_var(ng, model, AVG2(ng)%ncid,                      &
+     &                   AVG2(ng)%Vid(idViceN), NF_FOUT,                &
+     &                   nvd3, v2dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
 ! 
 !  Define ice concentration.
 !  
@@ -1664,6 +1812,12 @@
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idVbar))) THEN
             got_var(idVbar)=.TRUE.
             AVG2(ng)%Vid(idVbar)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idu2dE))) THEN
+            got_var(idu2dE)=.TRUE.
+            AVG2(ng)%Vid(idu2dE)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idv2dN))) THEN
+            got_var(idv2dN)=.TRUE.
+            AVG2(ng)%Vid(idv2dN)=var_id(i)
 # ifdef SOLVE3D
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idUvel))) THEN
             got_var(idUvel)=.TRUE.
@@ -1671,6 +1825,12 @@
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idVvel))) THEN
             got_var(idVvel)=.TRUE.
             AVG2(ng)%Vid(idVvel)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idu3dE))) THEN
+            got_var(idu3dE)=.TRUE.
+            AVG2(ng)%Vid(idu3dE)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idv3dN))) THEN
+            got_var(idv3dN)=.TRUE.
+            AVG2(ng)%Vid(idv3dN)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idDano))) THEN
             got_var(idDano)=.TRUE.
             AVG2(ng)%Vid(idDano)=var_id(i)
@@ -1696,6 +1856,12 @@
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idVice))) THEN
             got_var(idVice)=.true.
             AVG2(ng)%Vid(idVice)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idUiceE))) THEN
+            got_var(idUiceE)=.true.
+            AVG2(ng)%Vid(idUiceE)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idViceN))) THEN
+            got_var(idViceN)=.true.
+            AVG2(ng)%Vid(idViceN)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idAice))) THEN
             got_var(idAice)=.true.
             AVG2(ng)%Vid(idAice)=var_id(i)
@@ -1790,6 +1956,12 @@
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idVair))) THEN
             got_var(idVair)=.TRUE.
             AVG2(ng)%Vid(idVair)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idUairE))) THEN
+            got_var(idUairE)=.TRUE.
+            AVG2(ng)%Vid(idUairE)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idVairN))) THEN
+            got_var(idVairN)=.TRUE.
+            AVG2(ng)%Vid(idVairN)=var_id(i)
 #   ifdef EMINUSP
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idevap))) THEN
             got_var(idevap)=.TRUE.
@@ -1913,6 +2085,18 @@
           exit_flag=3
           RETURN
         END IF
+        IF (.not.got_var(idu2dE).and.Aout2(idu2dE,ng)) THEN
+          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idu2dE)),          &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idv2dN).and.Aout2(idv2dN,ng)) THEN
+          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idv2dN)),          &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
 # ifdef SOLVE3D
         IF (.not.got_var(idUvel).and.Aout2(idUvel,ng)) THEN
           IF (Master) WRITE (stdout,60) TRIM(Vname(1,idUvel)),          &
@@ -1922,6 +2106,18 @@
         END IF
         IF (.not.got_var(idVvel).and.Aout2(idVvel,ng)) THEN
           IF (Master) WRITE (stdout,60) TRIM(Vname(1,idVvel)),          &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idu3dE).and.Aout2(idu3dE,ng)) THEN
+          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idu3dE)),          &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idv3dN).and.Aout2(idv3dN,ng)) THEN
+          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idv3dN)),          &
      &                                  TRIM(ncname)
           exit_flag=3
           RETURN
@@ -1965,6 +2161,18 @@
         END IF
         IF (.not.got_var(idVice).and.Aout2(idVice,ng)) THEN
           IF (Master) WRITE (stdout,60) TRIM(Vname(1,idVice)),          &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idUiceE).and.Aout2(idUiceE,ng)) THEN
+          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idUiceE)),         &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idViceN).and.Aout2(idViceN,ng)) THEN
+          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idViceN)),         &
      &                                  TRIM(ncname)
           exit_flag=3
           RETURN
@@ -2143,6 +2351,18 @@
         END IF
         IF (.not.got_var(idVair).and.Aout2(idVair,ng)) THEN
           WRITE (stdout,60) TRIM(Vname(1,idVair)), TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idUairE).and.Aout2(idUairE,ng)) THEN
+          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idUairE)),         &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idVairN).and.Aout2(idVairN,ng)) THEN
+          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idVairN)),         &
+     &                                  TRIM(ncname)
           exit_flag=3
           RETURN
         END IF
