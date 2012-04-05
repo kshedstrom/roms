@@ -282,6 +282,9 @@
 #ifdef BIOLOGY
               CALL initialize_biology
 #endif
+#ifdef NEMURO_SAN
+!           CALL initialize_fish
+#endif
 #if defined SEDIMENT || defined BBL_MODEL
               CALL initialize_sediment
 #endif
@@ -508,6 +511,18 @@
                   LastRec(ng)=.FALSE.
                 END IF
               END DO
+#ifdef NEMURO_SAN
+          ELSE IF (TRIM(KeyWord).eq.'FISHRREC') THEN 
+            Npts=load_i(Nval, Rval, Ngrids, fishrrec)
+# ifdef PREDATOR
+          ELSE IF (TRIM(KeyWord).eq.'FLEETRREC') THEN 
+            Npts=load_i(Nval, Rval, Ngrids, fleetrrec)
+# endif
+# ifdef FISHING_FLEET
+          ELSE IF (TRIM(KeyWord).eq.'PREDRREC') THEN 
+            Npts=load_i(Nval, Rval, Ngrids, predrrec)
+# endif
+#endif
             CASE ('LcycleRST')
               Npts=load_l(Nval, Cval, Ngrids, LcycleRST)
             CASE ('NRST')
@@ -516,6 +531,20 @@
               Npts=load_i(Nval, Rval, Ngrids, nSTA)
             CASE ('NFLT')
               Npts=load_i(Nval, Rval, Ngrids, nFLT)
+#ifdef NEMURO_SAN
+          ELSE IF (TRIM(KeyWord).eq.'NDEFFISH') THEN
+            Npts=load_i(Nval, Rval, Ngrids, ndefFISH)
+          ELSE IF (TRIM(KeyWord).eq.'NFSH') THEN
+            Npts=load_i(Nval, Rval, Ngrids, nFSH)
+# ifdef PREDATOR
+          ELSE IF (TRIM(KeyWord).eq.'NPRD') THEN
+            Npts=load_i(Nval, Rval, Ngrids, nPRE)
+# endif
+# ifdef FISHING_FLEET
+          ELSE IF (TRIM(KeyWord).eq.'NFLE') THEN
+            Npts=load_i(Nval, Rval, Ngrids, nFLE)
+# endif
+#endif
             CASE ('NINFO')
               Npts=load_i(Nval, Rval, Ngrids, ninfo)
             CASE ('LDEFOUT')
@@ -2422,6 +2451,15 @@
             CASE ('FLTNAME')
               label='FLT - Lagragian particles trajectories'
               Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles, FLT)
+            CASE ('FISHNAME')
+              label='FISH - particles trajectories'
+              Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles, FISH)
+            CASE ('PREDNAME')
+              label='PRED - particles trajectories'
+              Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles, PRED)
+            CASE ('FLEETNAME')
+              label='FLEET - ship trajectories'
+              Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles, FLEET)
             CASE ('GRDNAME')
               label='GRD - application grid'
               Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles, GRD)
@@ -2484,6 +2522,27 @@
                 fposnam(i:i)=blank
               END DO
               fposnam=TRIM(ADJUSTL(Cval(Nval)))
+#ifdef NEMURO_SAN
+            CASE ('FISHPOSNAM')
+              DO i=1,LEN(fishposnam)
+                fishposnam(i:i)=blank
+              END DO
+              fishposnam=TRIM(ADJUSTL(Cval(Nval)))
+# ifdef PREDATOR
+            CASE ('PREDPOSNAM')
+              DO i=1,LEN(predposnam)
+                predposnam(i:i)=blank
+              END DO
+              predposnam=TRIM(ADJUSTL(Cval(Nval)))
+# endif
+# ifdef FISHING_FLEET
+            CASE ('FLEETPOSNAM')
+              DO i=1,LEN(fleetposnam)
+                fleetposnam(i:i)=blank
+              END DO
+              fleetposnam=TRIM(ADJUSTL(Cval(Nval)))
+# endif
+#endif
             CASE ('BPARNAM')
               DO i=1,LEN(bparnam)
                 bparnam(i:i)=blank
@@ -2703,6 +2762,14 @@
      &      (nFLT(ng).eq.0)) THEN
           LdefFLT(ng)=.FALSE.
         END IF
+        IF (((nrrec(ng).eq.0).and.(nFSH(ng).gt.ntimes(ng))).or.         &
+     &      (nFSH(ng).eq.0)) THEN
+          LdefFISH(ng)=.FALSE.
+        END IF
+        IF (((nrrec(ng).eq.0).and.(nPRE(ng).gt.ntimes(ng))).or.         &
+     &      (nPRE(ng).eq.0)) THEN
+          LdefPRED(ng)=.FALSE.
+        END IF
         IF (((nrrec(ng).eq.0).and.(nHIS(ng).gt.ntimes(ng))).or.         &
      &      (nHIS(ng).eq.0)) THEN
           LdefHIS(ng)=.FALSE.
@@ -2816,6 +2883,26 @@
           WRITE (out,130) nFLT(ng), 'nFLT',                             &
      &          'Number of timesteps between the writing of data',      &
      &          'into floats file.'
+#endif
+#ifdef NEMURO_SAN
+          WRITE (out,130) nFSH(ng), 'nFSH',                             &
+     &          'Number of timesteps between the writing of data',      &
+     &          'into fish file.'
+          IF (ndefFISh(ng).gt.0) THEN
+            WRITE (out,130) ndefFISh(ng), 'ndefFISh',                   &
+     &            'Number of timesteps between creation of new',        &
+     &            'fish files.'
+          END IF
+# ifdef PREDATOR
+          WRITE (out,130) nPRE(ng), 'nPRE',                             &
+     &          'Number of timesteps between the writing of data',      &
+     &          'into predator file.'
+# endif
+# ifdef FISHING_FLEET
+          WRITE (out,130) nFLE(ng), 'nFLE',                             &
+     &          'Number of timesteps between the writing of data',      &
+     &          'into fleet file.'
+# endif
 #endif
           WRITE (out,170) ldefout(ng), 'ldefout',                       &
      &          'Switch to create a new output NetCDF file(s).'
@@ -4344,6 +4431,23 @@
 #ifdef FLOATS
           WRITE (out,230) '            Output Floats File:  ',          &
      &                    TRIM(FLT(ng)%name)
+#endif
+#ifdef NEMURO_SAN
+          IF (ndefFISh(ng).eq.0) THEN
+            WRITE (out,230) '            Output Fish File:  ',          &
+     &                    TRIM(FISH(ng)%name)
+          ELSE
+            WRITE (out,230) '  Prefix for Fish Files:  ',               &
+     &                    TRIM(FISH(ng)%base)
+          END IF
+# ifdef PREDATOR
+          WRITE (out,230) '            Output Predator File:  ',        &
+     &                    TRIM(PRED(ng)%name)
+# endif
+# ifdef FISHING_FLEET
+          WRITE (out,230) '            Output Fleet File:  ',           &
+     &                    TRIM(FLEET(ng)%name)
+# endif
 #endif
 #ifdef MODEL_COUPLING
           WRITE (out,230) '      Physical parameters File:  ',          &
