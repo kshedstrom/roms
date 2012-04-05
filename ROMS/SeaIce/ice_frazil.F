@@ -187,12 +187,12 @@
       CALL bc_r2d_tile (ng, tile,                                       &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          wfr)
-#ifdef DISTRIBUTE
+# ifdef DISTRIBUTE
       CALL mp_exchange2d (ng, tile, iNLM, 1,                            &
      &                    LBi, UBi, LBj, UBj,                           &
      &                    NghostPoints, EWperiodic(ng), NSperiodic(ng), &
      &                    wfr)
-#endif
+# endif
 !
 !  Apply periodic boundary conditions.
 !
@@ -203,7 +203,6 @@
      &                            t(:,:,:,nnew,itrc))
         END DO
       END IF
-# endif
 # ifdef DISTRIBUTE
       DO itrc=1,NT(ng)
         CALL mp_exchange3d (ng, tile, iNLM, 1,                          &

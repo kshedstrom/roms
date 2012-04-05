@@ -568,9 +568,10 @@
      &                                  (BOUNDARY(ng)%t_north(i,k,itrc)-&
      &                                   t(i,Jend+1,k,nstp,itrc))
               END IF
-# ifdef MASKING
+#  ifdef MASKING
               t(i,Jend+1,k,nout,itrc)=t(i,Jend+1,k,nout,itrc)*          &
      &                                GRID(ng)%rmask(i,Jend+1)
+#  endif
 # endif
             END DO
           END DO

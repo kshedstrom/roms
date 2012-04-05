@@ -819,32 +819,32 @@
 #ifndef ANA_FSOBC
 !
       IF (LBC(iwest,isFsur,ng)%acquire) THEN
-        CALL get_ngfld (ng, iNLM, idZbry(iwest), BRY(ng)%ncid,          &
-     &                  1, BRY(ng), update(1),                          &
+        CALL get_ngfld (ng, iNLM, idZbry(iwest), BRY(1,ng)%ncid,        &
+     &                  1, BRY(1,ng), update(1),                        &
      &                  JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                 &
      &                  BOUNDARY(ng) % zetaG_west(JLB,1))
         IF (exit_flag.ne.NoError) RETURN
       END IF
 
       IF (LBC(ieast,isFsur,ng)%acquire) THEN
-        CALL get_ngfld (ng, iNLM, idZbry(ieast), BRY(ng)%ncid,          &
-     &                  1, BRY(ng), update(1),                          &
+        CALL get_ngfld (ng, iNLM, idZbry(ieast), BRY(1,ng)%ncid,        &
+     &                  1, BRY(1,ng), update(1),                        &
      &                  JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                 &
      &                  BOUNDARY(ng) % zetaG_east(JLB,1))
         IF (exit_flag.ne.NoError) RETURN
       END IF
 
       IF (LBC(isouth,isFsur,ng)%acquire) THEN
-        CALL get_ngfld (ng, iNLM, idZbry(isouth), BRY(ng)%ncid,         &
-     &                  1, BRY(ng), update(1),                          &
+        CALL get_ngfld (ng, iNLM, idZbry(isouth), BRY(1,ng)%ncid,       &
+     &                  1, BRY(1,ng), update(1),                        &
      &                  ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                 &
      &                  BOUNDARY(ng) % zetaG_south(ILB,1))
         IF (exit_flag.ne.NoError) RETURN
       END IF
 
       IF (LBC(inorth,isFsur,ng)%acquire) THEN
-        CALL get_ngfld (ng, iNLM, idZbry(inorth), BRY(ng)%ncid,         &
-     &                  1, BRY(ng), update(1),                          &
+        CALL get_ngfld (ng, iNLM, idZbry(inorth), BRY(1,ng)%ncid,       &
+     &                  1, BRY(1,ng), update(1),                        &
      &                  ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                 &
      &                  BOUNDARY(ng) % zetaG_north(ILB,1))
         IF (exit_flag.ne.NoError) RETURN
@@ -854,64 +854,64 @@
 #ifndef ANA_M2OBC
 !
       IF (LBC(iwest,isUbar,ng)%acquire) THEN
-        CALL get_ngfld (ng, iNLM, idU2bc(iwest), BRY(ng)%ncid,          &
-     &                  1, BRY(ng), update(1),                          &
+        CALL get_ngfld (ng, iNLM, idU2bc(iwest), BRY(1,ng)%ncid,        &
+     &                  1, BRY(1,ng), update(1),                        &
      &                  JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                 &
      &                  BOUNDARY(ng) % ubarG_west(JLB,1))
         IF (exit_flag.ne.NoError) RETURN
       END IF
 
       IF (LBC(iwest,isVbar,ng)%acquire) THEN
-        CALL get_ngfld (ng, iNLM, idV2bc(iwest), BRY(ng)%ncid,          &
-     &                  1, BRY(ng), update(1),                          &
+        CALL get_ngfld (ng, iNLM, idV2bc(iwest), BRY(1,ng)%ncid,        &
+     &                  1, BRY(1,ng), update(1),                        &
      &                  JLB, JUB, 1, 2, 1, Mm(ng)+1, 1,                 &
      &                  BOUNDARY(ng) % vbarG_west(JLB,1))
         IF (exit_flag.ne.NoError) RETURN
       END IF
 
       IF (LBC(ieast,isUbar,ng)%acquire) THEN
-        CALL get_ngfld (ng, iNLM, idU2bc(ieast), BRY(ng)%ncid,          &
-     &                  1, BRY(ng), update(1),                          &
+        CALL get_ngfld (ng, iNLM, idU2bc(ieast), BRY(1,ng)%ncid,        &
+     &                  1, BRY(1,ng), update(1),                        &
      &                  JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                 &
      &                  BOUNDARY(ng) % ubarG_east(JLB,1))
         IF (exit_flag.ne.NoError) RETURN
       END IF
 
       IF (LBC(ieast,isVbar,ng)%acquire) THEN
-        CALL get_ngfld (ng, iNLM, idV2bc(ieast), BRY(ng)%ncid,          &
-     &                  1, BRY(ng), update(1),                          &
+        CALL get_ngfld (ng, iNLM, idV2bc(ieast), BRY(1,ng)%ncid,        &
+     &                  1, BRY(1,ng), update(1),                        &
      &                  JLB, JUB, 1, 2, 1, Mm(ng)+1, 1,                 &
      &                  BOUNDARY(ng) % vbarG_east(JLB,1))
         IF (exit_flag.ne.NoError) RETURN
       END IF
 
       IF (LBC(isouth,isUbar,ng)%acquire) THEN
-        CALL get_ngfld (ng, iNLM, idU2bc(isouth), BRY(ng)%ncid,         &
-     &                  1, BRY(ng), update(1),                          &
+        CALL get_ngfld (ng, iNLM, idU2bc(isouth), BRY(1,ng)%ncid,       &
+     &                  1, BRY(1,ng), update(1),                        &
      &                  ILB, IUB, 1, 2, 1, Lm(ng)+1, 1,                 &
      &                  BOUNDARY(ng) % ubarG_south(ILB,1))
         IF (exit_flag.ne.NoError) RETURN
       END IF
 
       IF (LBC(isouth,isVbar,ng)%acquire) THEN
-        CALL get_ngfld (ng, iNLM, idV2bc(isouth), BRY(ng)%ncid,         &
-     &                  1, BRY(ng), update(1),                          &
+        CALL get_ngfld (ng, iNLM, idV2bc(isouth), BRY(1,ng)%ncid,       &
+     &                  1, BRY(1,ng), update(1),                        &
      &                  ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                 &
      &                  BOUNDARY(ng) % vbarG_south(ILB,1))
         IF (exit_flag.ne.NoError) RETURN
       END IF
 
       IF (LBC(inorth,isUbar,ng)%acquire) THEN
-        CALL get_ngfld (ng, iNLM, idU2bc(inorth), BRY(ng)%ncid,         &
-     &                  1, BRY(ng), update(1),                          &
+        CALL get_ngfld (ng, iNLM, idU2bc(inorth), BRY(1,ng)%ncid,       &
+     &                  1, BRY(1,ng), update(1),                        &
      &                  ILB, IUB, 1, 2, 1, Lm(ng)+1, 1,                 &
      &                  BOUNDARY(ng) % ubarG_north(ILB,1))
         IF (exit_flag.ne.NoError) RETURN
       END IF
 
       IF (LBC(inorth,isVbar,ng)%acquire) THEN
-        CALL get_ngfld (ng, iNLM, idV2bc(inorth), BRY(ng)%ncid,         &
-     &                  1, BRY(ng), update(1),                          &
+        CALL get_ngfld (ng, iNLM, idV2bc(inorth), BRY(1,ng)%ncid,       &
+     &                  1, BRY(1,ng), update(1),                        &
      &                  ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                 &
      &                  BOUNDARY(ng) % vbarG_north(ILB,1))
         IF (exit_flag.ne.NoError) RETURN
@@ -1263,67 +1263,66 @@
 # ifndef ANA_M3OBC
 !
       IF (LBC(iwest,isUvel,ng)%acquire) THEN
-        CALL get_ngfld (ng, iNLM, idU3bc(iwest), BRY(ng)%ncid,          &
-     &                  1, BRY(ng), update(1),                          &
+        CALL get_ngfld (ng, iNLM, idU3bc(iwest), BRY(1,ng)%ncid,        &
+     &                  1, BRY(1,ng), update(1),                        &
      &                  JLB, JUB, N(ng), 2, 0, Mm(ng)+1, N(ng),         &
      &                  BOUNDARY(ng) % uG_west(JLB,1,1))
         IF (exit_flag.ne.NoError) RETURN
       END IF
 
       IF (LBC(iwest,isVvel,ng)%acquire) THEN
-        CALL get_ngfld (ng, iNLM, idV3bc(iwest), BRY(ng)%ncid,          &
-     &                  1, BRY(ng), update(1),                          &
+        CALL get_ngfld (ng, iNLM, idV3bc(iwest), BRY(1,ng)%ncid,        &
+     &                  1, BRY(1,ng), update(1),                        &
      &                  JLB, JUB, N(ng), 2, 1, Mm(ng)+1, N(ng),         &
      &                  BOUNDARY(ng) % vG_west(JLB,1,1))
         IF (exit_flag.ne.NoError) RETURN
       END IF
 
       IF (LBC(ieast,isUvel,ng)%acquire) THEN
-        CALL get_ngfld (ng, iNLM, idU3bc(ieast), BRY(ng)%ncid,          &
-     &                  1, BRY(ng), update(1),                          &
+        CALL get_ngfld (ng, iNLM, idU3bc(ieast), BRY(1,ng)%ncid,        &
+     &                  1, BRY(1,ng), update(1),                        &
      &                  JLB, JUB, N(ng), 2, 0, Mm(ng)+1, N(ng),         &
      &                  BOUNDARY(ng) % uG_east(JLB,1,1))
         IF (exit_flag.ne.NoError) RETURN
       END IF
 
       IF (LBC(ieast,isVvel,ng)%acquire) THEN
-        CALL get_ngfld (ng, iNLM, idV3bc(ieast), BRY(ng)%ncid,          &
-     &                  1, BRY(ng), update(1),                          &
+        CALL get_ngfld (ng, iNLM, idV3bc(ieast), BRY(1,ng)%ncid,        &
+     &                  1, BRY(1,ng), update(1),                        &
      &                  JLB, JUB, N(ng), 2, 1, Mm(ng)+1, N(ng),         &
      &                  BOUNDARY(ng) % vG_east(JLB,1,1))
         IF (exit_flag.ne.NoError) RETURN
       END IF
 
       IF (LBC(isouth,isUvel,ng)%acquire) THEN
-        CALL get_ngfld (ng, iNLM, idU3bc(isouth), BRY(ng)%ncid,         &
-     &                  1, BRY(ng), update(1),                          &
+        CALL get_ngfld (ng, iNLM, idU3bc(isouth), BRY(1,ng)%ncid,       &
+     &                  1, BRY(1,ng), update(1),                        &
      &                  ILB, IUB, N(ng), 2, 1, Lm(ng)+1, N(ng),         &
      &                  BOUNDARY(ng) % uG_south(ILB,1,1))
         IF (exit_flag.ne.NoError) RETURN
       END IF
 
       IF (LBC(isouth,isVvel,ng)%acquire) THEN
-        CALL get_ngfld (ng, iNLM, idV3bc(isouth), BRY(ng)%ncid,         &
-     &                  1, BRY(ng), update(1),                          &
+        CALL get_ngfld (ng, iNLM, idV3bc(isouth), BRY(1,ng)%ncid,       &
+     &                  1, BRY(1,ng), update(1),                        &
      &                  ILB, IUB, N(ng), 2, 0, Lm(ng)+1, N(ng),         &
      &                  BOUNDARY(ng) % vG_south(ILB,1,1))
         IF (exit_flag.ne.NoError) RETURN
       END IF
 
       IF (LBC(inorth,isUvel,ng)%acquire) THEN
-        CALL get_ngfld (ng, iNLM, idU3bc(inorth), BRY(ng)%ncid,         &
-     &                  1, BRY(ng), update(1),                          &
+        CALL get_ngfld (ng, iNLM, idU3bc(inorth), BRY(1,ng)%ncid,       &
+     &                  1, BRY(1,ng), update(1),                        &
      &                  ILB, IUB, N(ng), 2, 1, Lm(ng)+1, N(ng),         &
      &                  BOUNDARY(ng) % uG_north(ILB,1,1))
         IF (exit_flag.ne.NoError) RETURN
       END IF
 
       IF (LBC(inorth,isVvel,ng)%acquire) THEN
-        CALL get_ngfld (ng, iNLM, idV3bc(inorth), BRY(ng)%ncid,         &
-     &                  1, BRY(ng), update(1),                          &
+        CALL get_ngfld (ng, iNLM, idV3bc(inorth), BRY(1,ng)%ncid,       &
+     &                  1, BRY(1,ng), update(1),                        &
      &                  ILB, IUB, N(ng), 2, 0, Lm(ng)+1, N(ng),         &
      &                  BOUNDARY(ng) % vG_north(ILB,1,1))
->>>>>>> f14c723... src:ticket:519
         IF (exit_flag.ne.NoError) RETURN
       END IF
 # endif
@@ -1332,8 +1331,8 @@
 !
       DO i=1,NT(ng)
         IF (LBC(iwest,isTvar(i),ng)%acquire) THEN
-          CALL get_ngfld (ng, iNLM, idTbry(iwest,i), BRY(ng)%ncid,      &
-     &                    1, BRY(ng), update(1),                        &
+          CALL get_ngfld (ng, iNLM, idTbry(iwest,i), BRY(1,ng)%ncid,    &
+     &                    1, BRY(1,ng), update(1),                      &
      &                    JLB, JUB, N(ng), 2, 0, Mm(ng)+1, N(ng),       &
      &                    BOUNDARY(ng) % tG_west(JLB,1,1,i))
           IF (exit_flag.ne.NoError) RETURN
@@ -1342,8 +1341,8 @@
 
       DO i=1,NT(ng)
         IF (LBC(ieast,isTvar(i),ng)%acquire) THEN
-          CALL get_ngfld (ng, iNLM, idTbry(ieast,i), BRY(ng)%ncid,      &
-     &                    1, BRY(ng), update(1),                        &
+          CALL get_ngfld (ng, iNLM, idTbry(ieast,i), BRY(1,ng)%ncid,    &
+     &                    1, BRY(1,ng), update(1),                      &
      &                    JLB, JUB, N(ng), 2, 0, Mm(ng)+1, N(ng),       &
      &                    BOUNDARY(ng) % tG_east(JLB,1,1,i))
           IF (exit_flag.ne.NoError) RETURN
@@ -1352,8 +1351,8 @@
 
       DO i=1,NT(ng)
         IF (LBC(isouth,isTvar(i),ng)%acquire) THEN
-          CALL get_ngfld (ng, iNLM, idTbry(isouth,i), BRY(ng)%ncid,     &
-     &                    1, BRY(ng), update(1),                        &
+          CALL get_ngfld (ng, iNLM, idTbry(isouth,i), BRY(1,ng)%ncid,   &
+     &                    1, BRY(1,ng), update(1),                      &
      &                    ILB, IUB, N(ng), 2, 0, Lm(ng)+1, N(ng),       &
      &                    BOUNDARY(ng) % tG_south(ILB,1,1,i))
           IF (exit_flag.ne.NoError) RETURN
@@ -1362,8 +1361,8 @@
 
       DO i=1,NT(ng)
         IF (LBC(inorth,isTvar(i),ng)%acquire) THEN
-          CALL get_ngfld (ng, iNLM, idTbry(inorth,i), BRY(ng)%ncid,       &
-     &                    1, BRY(ng), update(1),                          &
+          CALL get_ngfld (ng, iNLM, idTbry(inorth,i), BRY(1,ng)%ncid,     &
+     &                    1, BRY(1,ng), update(1),                        &
      &                    ILB, IUB, N(ng), 2, 0, Lm(ng)+1, N(ng),         &
      &                    BOUNDARY(ng) % tG_north(ILB,1,1,i))
           IF (exit_flag.ne.NoError) RETURN

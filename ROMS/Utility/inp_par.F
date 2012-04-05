@@ -980,7 +980,7 @@
       logical :: IsString, Kextract, decode, nested
       integer :: Iblank, Icomm, Icont, Ipipe, Kstr, Kend, Linp
       integer :: Lend, LenS, Lstr, Lval, Nmul, Schar
-      integer :: copies, i, ic, ie, is, j, status
+      integer :: copies, i, ic, ie, ierr, is, j, status
 
       integer, dimension(20) :: Imul
 

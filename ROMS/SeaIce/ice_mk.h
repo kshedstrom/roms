@@ -225,21 +225,14 @@
 !***********************************************************************
 
       USE mod_param
+      USE mod_ncparam
       USE mod_scalars
 !
       USE bc_2d_mod, ONLY : bc_r2d_tile
+      USE mod_boundary
 !
-      USE aibc_mod, ONLY : aibc_tile
-      USE hibc_mod, ONLY : hibc_tile
-      USE hsnbc_mod, ONLY : hsnbc_tile
+      USE i2d_bc_mod
       USE tibc_mod, ONLY : tibc_tile
-      USE sfwatbc_mod, ONLY : sfwatbc_tile
-      USE ageicebc_mod, ONLY : ageicebc_tile
-#if defined ICE_BIO && defined BERING_10K
-      USE IcePhLbc_mod, ONLY : IcePhLbc_tile
-      USE IceNO3bc_mod, ONLY : IceNO3bc_tile
-      USE IceNH4bc_mod, ONLY : IceNH4bc_tile
-#endif
 !
       USE exchange_2d_mod, ONLY : exchange_r2d_tile
 #ifdef DISTRIBUTE
@@ -966,28 +959,60 @@
      &                  LBi, UBi, LBj, UBj,                             &
      &                  stflx(:,:,itemp))
 
-      CALL aibc_tile (ng, tile,                                         &
-     &                LBi, UBi, LBj, UBj,                               &
-     &                IminS, ImaxS, JminS, JmaxS,                       &
-     &                liold, linew, ui, vi, ai)
-      CALL hibc_tile (ng, tile,                                         &
-     &                LBi, UBi, LBj, UBj,                               &
-     &                IminS, ImaxS, JminS, JmaxS,                       &
-     &                liold, linew, ui, vi, hi)
-      CALL hsnbc_tile (ng, tile,                                        &
-     &                 LBi, UBi, LBj, UBj,                              &
-     &                 IminS, ImaxS, JminS, JmaxS,                      &
-     &                 liold, linew, ui, vi, hsn)
+      CALL i2d_bc_tile (ng, tile,                                       &
+     &                  LBi, UBi, LBj, UBj,                             &
+     &                  IminS, ImaxS, JminS, JmaxS,                     &
+     &                  liold, linew,                                   &
+     &                  BOUNDARY(ng)%ai_west,                           &
+     &                  BOUNDARY(ng)%ai_east,                           &
+     &                  BOUNDARY(ng)%ai_north,                          &
+     &                  BOUNDARY(ng)%ai_south,                          &
+     &                  ui, vi, ai, LBC(:,isAice,ng))
+      CALL i2d_bc_tile (ng, tile,                                       &
+     &                  LBi, UBi, LBj, UBj,                             &
+     &                  IminS, ImaxS, JminS, JmaxS,                     &
+     &                  liold, linew,                                   &
+     &                  BOUNDARY(ng)%hi_west,                           &
+     &                  BOUNDARY(ng)%hi_east,                           &
+     &                  BOUNDARY(ng)%hi_north,                          &
+     &                  BOUNDARY(ng)%hi_south,                          &
+     &                  ui, vi, hi, LBC(:,isHice,ng))
+      CALL i2d_bc_tile (ng, tile,                                       &
+     &                  LBi, UBi, LBj, UBj,                             &
+     &                  IminS, ImaxS, JminS, JmaxS,                     &
+     &                  liold, linew,                                   &
+     &                  BOUNDARY(ng)%hsn_west,                          &
+     &                  BOUNDARY(ng)%hsn_east,                          &
+     &                  BOUNDARY(ng)%hsn_north,                         &
+     &                  BOUNDARY(ng)%hsn_south,                         &
+     &                  ui, vi, hsn, LBC(:,isHsno,ng))
       CALL tibc_tile (ng, tile,                                         &
      &                          LBi, UBi, LBj, UBj, liold, linew,       &
-     &                          min_h(ng), ui, vi, hi, ti, enthalpi)
-      CALL sfwatbc_tile (ng, tile,                                      &
-     &                        LBi, UBi, LBj, UBj, liold, linew,         &
-     &                        ui, vi, sfwat)
-      CALL ageicebc_tile (ng, tile,                                     &
-     &                          LBi, UBi, LBj, UBj, liold, linew,       &
-     &                          min_h(ng), ui, vi, hi, ageice, hage)
+     &                          ui, vi, hi, ti, enthalpi)
+      CALL i2d_bc_tile (ng, tile,                                       &
+     &                  LBi, UBi, LBj, UBj,                             &
+     &                  IminS, ImaxS, JminS, JmaxS,                     &
+     &                  liold, linew,                                   &
+     &                  BOUNDARY(ng)%sfwat_west,                        &
+     &                  BOUNDARY(ng)%sfwat_east,                        &
+     &                  BOUNDARY(ng)%sfwat_north,                       &
+     &                  BOUNDARY(ng)%sfwat_south,                       &
+     &                  ui, vi, sfwat, LBC(:,isSfwat,ng))
+!      CALL i2d_bc_tile (ng, tile,                                       &
+!     &                  LBi, UBi, LBj, UBj,                             &
+!     &                  IminS, ImaxS, JminS, JmaxS,                     &
+!     &                  liold, linew,                                   &
+!     &                  BOUNDARY(ng)%ageice_west,                       &
+!     &                  BOUNDARY(ng)%ageice_east,                       &
+!     &                  BOUNDARY(ng)%ageice_north,                      &
+!     &                  BOUNDARY(ng)%ageice_south,                      &
+!     &                  ui, vi, ageice, LBC(:,isAgeice,ng))
+!     CALL ageicebc_tile (ng, tile,                                     &
+!    &                          LBi, UBi, LBj, UBj, liold, linew,       &
+!    &                          min_h(ng), ui, vi, hi, ageice, hage)
 #if defined ICE_BIO && defined BERING_10K
+FOOO
+! Convert these too.
       CALL IcePhLbc_tile (ng, tile,                                     &
      &                LBi, UBi, LBj, UBj,                               &
      &                liold, linew,                                     &
