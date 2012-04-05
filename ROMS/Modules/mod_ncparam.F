@@ -592,7 +592,7 @@
         integer, allocatable :: idefAVG(:)    ! averages file
         integer, allocatable :: idefAVG2(:)   ! averages2 file
         integer, allocatable :: idefDIA(:)    ! diagnostics file
-        integer, allocatable :: idefFISH(:)    ! diagnostics file
+        integer, allocatable :: idefFISH(:)   ! fish file
         integer, allocatable :: idefHIS(:)    ! history file
         integer, allocatable :: idefTLM(:)    ! tangent file
 !

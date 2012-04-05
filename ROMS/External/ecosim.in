@@ -624,26 +624,6 @@ ad_LBC(isTvar) ==   Per     Clo     Per     Clo      ! idbio(:), compact
   Dout(iTsdif) == 61*T   ! DIC_sdiff, ...          horizontal S-diffusion
   Dout(iTvdif) == 61*T   ! DIC_vdiff, ...          vertical diffusion
 
-! Logical switches (TRUE/FALSE) to activate writing of time-averaged fields
-! into AVERAGE output file, [NBT,Ngrids] values are expected.
-
-  Aout(idTvar) == 61*T                           ! biological tracer
-
-! Logical switches (TRUE/FALSE) to activate writing of time-averaged,
-! biological tracer diagnostic terms into DIAGNOSTIC output file:
-! [1:NBT,Ngrids].
-
-  Dout(iTrate) == 61*T                           ! time rate of change
-  Dout(iThadv) == 61*T                           ! horizontal total advection
-  Dout(iTxadv) == 61*T                           ! horizontal XI-advection
-  Dout(iTyadv) == 61*T                           ! horizontal ETA-advection
-  Dout(iTvadv) == 61*T                           ! vertical advection
-  Dout(iThdif) == 61*T                           ! horizontal total diffusion
-  Dout(iTxdif) == 61*T                           ! horizontal XI-diffusion
-  Dout(iTydif) == 61*T                           ! horizontal ETA-diffusion
-  Dout(iTsdif) == 61*T                           ! horizontal S-diffusion
-  Dout(iTvdif) == 61*T                           ! vertical diffusion
-
 !
 !  GLOSSARY:
 !  =========

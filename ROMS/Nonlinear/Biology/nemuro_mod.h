@@ -333,7 +333,7 @@
 #ifdef NEMURO_SAN
       integer, allocatable  :: Nbatch(:,:)        !  nondimensional
       real(r8), allocatable :: Fwwt0(:,:)         !  grams
-      real(r8), allocatable :: Fwth0(:,:)         !  millions of fish 
+      real(r8), allocatable :: Fwth0(:,:)         !  millions of fish
       real(r8), allocatable :: Fage0(:,:)         !  years
       real(r8), allocatable :: Fspstr(:,:)        !  yearday
       real(r8), allocatable :: Fspend(:,:)        !  yearday
@@ -342,7 +342,7 @@
       real(r8), allocatable :: ZLpref(:,:)        !  nondimensional
       real(r8), allocatable :: ZPpref(:,:)        !  nondimensional
       real(r8), allocatable :: CAL_ZF(:,:)        !
-      real(r8), allocatable :: K_ZS(:,:)          !   
+      real(r8), allocatable :: K_ZS(:,:)          !
       real(r8), allocatable :: K_ZL(:,:)          !
       real(r8), allocatable :: K_ZP(:,:)          !
       real(r8), allocatable :: a_C(:,:)           !

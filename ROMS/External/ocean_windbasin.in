@@ -706,7 +706,6 @@ Dout(iTxdif) == T T     ! temp_xdiff, ...    horizontal XI-diffusion
 Dout(iTydif) == T T     ! temp_ydiff, ...    horizontal ETA-diffusion
 Dout(iTsdif) == T T     ! temp_sdiff, ...    horizontal S-diffusion
 Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
->>>>>>> kate_svn
 
 ! Generic User parameters, [1:NUSER].
 

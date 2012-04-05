@@ -39,7 +39,9 @@
       USE mod_ncparam
       USE mod_ocean
       USE mod_stepping
+#ifdef NEMURO_SAN
       USE mod_fish
+#endif
 !
 !  Imported variable declarations.
 !
@@ -66,7 +68,7 @@
       CALL biology_tile (ng, tile,                                      &
      &                   LBi, UBi, LBj, UBj, N(ng), NT(ng),             &
      &                   IminS, ImaxS, JminS, JmaxS,                    &
-     &                   nstp(ng), nnew(ng), nfm1(ng),                  &
+     &                   nstp(ng), nnew(ng),                            &
 #ifdef MASKING
      &                   GRID(ng) % rmask,                              &
 #endif
@@ -78,6 +80,7 @@
      &                   GRID(ng) % z_w,                                &
      &                   FORCES(ng) % srflx,                            &
 #if defined NEMURO_SAN && defined FISH_FEEDBACK
+     &                   nfm1(ng),                                      &
      &                   OCEAN(ng) % fish_count,                        &
      &                   OCEAN(ng) % fish_list,                         &
      &                   FISHES(ng) % fishnodes,                        &
@@ -105,7 +108,7 @@
       SUBROUTINE biology_tile (ng, tile,                                &
      &                         LBi, UBi, LBj, UBj, UBk, UBt,            &
      &                         IminS, ImaxS, JminS, JmaxS,              &
-     &                         nstp, nnew, nfm1,                        &
+     &                         nstp, nnew,                              &
 #ifdef MASKING
      &                         rmask,                                   &
 #endif
@@ -115,6 +118,7 @@
      &                         Hz, z_r, z_w,                            &
      &                         srflx,                                   &
 #if defined NEMURO_SAN && defined FISH_FEEDBACK
+     &                         nfm1,                                    &
      &                         fish_count,                              &
      &                         fish_list,                               &
      &                         fishnodes,                               &
@@ -145,8 +149,9 @@
       integer, intent(in) :: ng, tile
       integer, intent(in) :: LBi, UBi, LBj, UBj, UBk, UBt
       integer, intent(in) :: IminS, ImaxS, JminS, JmaxS
-      integer, intent(in) :: nstp, nnew, nfm1
+      integer, intent(in) :: nstp, nnew
 #if defined NEMURO_SAN && defined FISH_FEEDBACK
+      integer, intent(in) :: nfm1
       type(fishnode), target, intent(in) :: fishnodes(Nfish(ng))
       real(r8), intent(in) :: feedback(NT(ng),Nfish(ng))
 #endif

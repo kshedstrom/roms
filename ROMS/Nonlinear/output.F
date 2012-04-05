@@ -527,7 +527,7 @@
 !
             IF ((nrrec(ng).ne.0).and.(iic(ng).eq.ntstart(ng))) THEN
               NewFile=.FALSE.
-              Ldefine=.TRUE.                  
+              Ldefine=.TRUE.
               IF ((iic(ng)-1).eq.idefFISH(ng)) THEN
                 ifile=(iic(ng)-1)/ndefFISH(ng)
               END IF
