@@ -512,14 +512,14 @@
                 END IF
               END DO
 #ifdef NEMURO_SAN
-          ELSE IF (TRIM(KeyWord).eq.'FISHRREC') THEN 
+          ELSE IF (TRIM(KeyWord).eq.'FISHRREC') THEN
             Npts=load_i(Nval, Rval, Ngrids, fishrrec)
 # ifdef PREDATOR
-          ELSE IF (TRIM(KeyWord).eq.'FLEETRREC') THEN 
+          ELSE IF (TRIM(KeyWord).eq.'FLEETRREC') THEN
             Npts=load_i(Nval, Rval, Ngrids, fleetrrec)
 # endif
 # ifdef FISHING_FLEET
-          ELSE IF (TRIM(KeyWord).eq.'PREDRREC') THEN 
+          ELSE IF (TRIM(KeyWord).eq.'PREDRREC') THEN
             Npts=load_i(Nval, Rval, Ngrids, predrrec)
 # endif
 #endif
