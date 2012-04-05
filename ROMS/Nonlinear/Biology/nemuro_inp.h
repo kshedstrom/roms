@@ -406,6 +406,15 @@
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Hout(idOPALbur,:))
 #endif
+#ifdef NEMURO_PROD
+            CASE ('Hout(idNPP)')
+              IF (idNPP.eq.0) THEN
+                IF (Master) WRITE (out,280) 'idNPP'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Hout(idNPP,:))
+#endif
 #if defined AVERAGES    || \
    (defined AD_AVERAGES && defined ADJOINT) || \
    (defined RP_AVERAGES && defined TL_IOMS) || \
@@ -430,6 +439,10 @@
             CASE ('Aout(idOPALbur)')
               Npts=load_l(Nval, Cval, Ngrids, Aout(idOPALbur,:))
 #endif
+#  ifdef NEMURO_PROD
+            CASE ('Aout(idNPP)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout(idNPP,:))
+#  endif
 #endif
 #ifdef DIAGNOSTICS_TS
             CASE ('Dout(iTrate)')

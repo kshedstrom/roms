@@ -197,6 +197,7 @@
         integer  :: idNLmi        ! initial NLM at observation locations
         integer  :: idNLmo        ! NLM at observations locations
         integer  :: idNobs        ! number of observations
+        integer  :: idNPP         ! Nemuro net primary production
         integer  :: idObsD        ! observations depth
         integer  :: idObsS        ! observations screening scale
         integer  :: idObsT        ! observations time

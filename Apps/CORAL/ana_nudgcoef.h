@@ -165,6 +165,87 @@
       END DO
 #  endif
 # endif
+
+#elif defined CORAL
+!
+!  Set nudging boundaries coefficients zone for CORAL
+!  nudging coefficients vary from a thirty
+!  days time scale at the boundary point to decrease linearly to 0 days
+!  (i.e no nudging) 30 grids points away from the boundary.
+!
+      cff1=1.0_r8/(30_r8*86400.0_r8)          ! 30-day outer limit
+      cff2=0.0_r8                             ! Inf days (no nudge) inner limit
+      cff3=30.0_r8                            ! width of layer in grid points
+
+! cff3-point wide linearly tapered nudging zone
+      DO j=JstrR,MIN(INT(cff3),JendR)                ! SOUTH boundary
+        DO i=IstrR,MIN(700,IendR)
+          wrk(i,j)=cff2+(cff3-REAL(j,r8))*(cff1-cff2)/cff3
+        END DO
+        DO i=MAX(1000,IstrR),IendR
+          wrk(i,j)=cff2+(cff3-REAL(j,r8))*(cff1-cff2)/cff3
+        END DO
+      END DO
+! cff3-point wide linearly tapered nudging zone
+      DO j=MAX(JstrR,Mm(ng)+1-INT(cff3)),JendR       ! NORTH boundary
+        DO i=IstrR,IendR
+          wrk(i,j)=cff1+REAL(Mm(ng)+1-j,r8)*(cff2-cff1)/cff3
+        END DO
+      END DO
+! cff3-point wide linearly tapered nudging zone
+      DO i=IstrR,MIN(INT(cff3),IendR)                ! WEST boundary
+        DO j=JstrR,MIN(285,JendR)
+          wrk(i,j)=MAX(wrk(i,j),                                        &
+     &             cff2+(cff3-REAL(i,r8))*(cff1-cff2)/cff3)
+        END DO
+      END DO
+! cff3-point wide linearly tapered nudging zone
+      DO i=MAX(IstrR,Lm(ng)+1-INT(cff3)),IendR       ! EAST boundary
+        DO j=JstrR,JendR
+          wrk(i,j)=MAX(wrk(i,j),                                        &
+     &             cff1+REAL(Lm(ng)+1-i,r8)*(cff2-cff1)/cff3)
+        END DO
+      END DO
+!
+! Set the relevant nudging coefficients using the entries in wrk
+!
+# ifdef ZCLM_NUDGING
+      DO j=JstrR,JendR
+        DO i=IstrR,IendR
+          CLIMA(ng)%Znudgcof(i,j)=wrk(i,j)
+        END DO
+      END DO
+# endif
+# ifdef M2CLM_NUDGING
+      DO j=JstrR,JendR
+        DO i=IstrR,IendR
+          CLIMA(ng)%M2nudgcof(i,j)=wrk(i,j)
+        END DO
+      END DO
+# endif
+# ifdef SOLVE3D
+#  ifdef TCLM_NUDGING
+      DO j=JstrR,JendR
+        DO i=IstrR,IendR
+          CLIMA(ng)%Tnudgcof(i,j,itemp)=wrk(i,j)
+          CLIMA(ng)%Tnudgcof(i,j,isalt)=wrk(i,j)
+#   ifdef BCLM_NUDGING
+          CLIMA(ng)%Tnudgcof(i,j,iFeD_)=wrk(i,j)
+          CLIMA(ng)%Tnudgcof(i,j,iNO3_)=wrk(i,j)
+          CLIMA(ng)%Tnudgcof(i,j,iSiOH)=wrk(i,j)
+#   endif
+        END DO
+      END DO
+#  endif
+#  ifdef M3CLM_NUDGING
+      DO j=JstrR,JendR
+        DO i=IstrR,IendR
+          CLIMA(ng)%M3nudgcof(i,j)=wrk(i,j)
+        END DO
+      END DO
+#  endif
+# endif
+
 #else
 !
 !  Default nudging coefficients.  Set nudging coefficients uniformly to
@@ -223,7 +304,7 @@
         IF (LBC(iwest,isFsur,ng)%nudging) THEN
 #ifdef ZCLM_NUDGING
           IF (DOMAIN(ng)%SouthWest_Corner(tile)) THEN
-            FSobc_out(ng,iwest)=Znudgcof(ng)
+            FSobc_out(ng,iwest)=CLIMA(ng)%Znudgcof(0,1)
             FSobc_in (ng,iwest)=obcfac(ng)*FSobc_out(ng,iwest)
           END IF
           IF (DOMAIN(ng)%Western_Edge(tile)) THEN
@@ -246,10 +327,11 @@
           END IF
 #endif
         END IF
+!
         IF (LBC(ieast,isFsur,ng)%nudging) THEN
 #ifdef ZCLM_NUDGING
           IF (DOMAIN(ng)%NorthEast_Corner(tile)) THEN
-            FSobc_out(ng,ieast)=Znudg(ng)
+            FSobc_out(ng,ieast)=CLIMA(ng)%Znudgcof(Lm(ng)+1,Mm(ng))
             FSobc_in (ng,ieast)=obcfac(ng)*FSobc_out(ng,ieast)
           END IF
           IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
@@ -272,10 +354,11 @@
           END IF
 #endif
         END IF
+!
         IF (LBC(isouth,isFsur,ng)%nudging) THEN
 #ifdef ZCLM_NUDGING
           IF (DOMAIN(ng)%SouthWest_Corner(tile)) THEN
-            FSobc_out(ng,isouth)=Znudgcof(ng)
+            FSobc_out(ng,isouth)=CLIMA(ng)%Znudgcof(1,0)
             FSobc_in (ng,isouth)=obcfac(ng)*FSobc_out(ng,isouth)
           END IF
           IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
@@ -298,10 +381,11 @@
           END IF
 #endif
         END IF
+!
         IF (LBC(inorth,isFsur,ng)%nudging) THEN
 #ifdef ZCLM_NUDGING
           IF (DOMAIN(ng)%NorthEast_Corner(tile)) THEN
-            FSobc_out(ng,inorth)=Znudg(ng)
+            FSobc_out(ng,inorth)=CLIMA(ng)%Znudgcof(Lm(ng),Mm(ng)+1)
             FSobc_in (ng,inorth)=obcfac(ng)*FSobc_out(ng,inorth)
           END IF
           IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
@@ -331,7 +415,8 @@
      &      LBC(iwest,isVbar,ng)%nudging) THEN
 #ifdef M2CLM_NUDGING
           IF (DOMAIN(ng)%SouthWest_Corner(tile)) THEN
-            M2obc_out(ng,iwest)=M2nudg(ng)
+            M2obc_out(ng,iwest)=0.5_r8*(CLIMA(ng)%M2nudgcof(0,1)+       &
+     &                                  CLIMA(ng)%M2nudgcof(1,1))
             M2obc_in (ng,iwest)=obcfac(ng)*M2obc_out(ng,iwest)
           END IF
           IF (DOMAIN(ng)%Western_Edge(tile)) THEN
@@ -354,11 +439,14 @@
           END IF
 #endif
         END IF
+!
         IF (LBC(ieast,isUbar,ng)%nudging.or.                            &
      &      LBC(ieast,isVbar,ng)%nudging) THEN
 #ifdef M2CLM_NUDGING
           IF (DOMAIN(ng)%NorthEast_Corner(tile)) THEN
-            M2obc_out(ng,ieast)=M2nudg(ng)
+            M2obc_out(ng,ieast)=0.5_r8*                                 &
+     &                          (CLIMA(ng)%M2nudgcof(Lm(ng)  ,Mm(ng))+  &
+     &                           CLIMA(ng)%M2nudgcof(Lm(ng)+1,Mm(ng)))
             M2obc_in (ng,ieast)=obcfac(ng)*M2obc_out(ng,ieast)
           END IF
           IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
@@ -387,7 +475,8 @@
      &      LBC(isouth,isVbar,ng)%nudging) THEN
 #ifdef M2CLM_NUDGING
           IF (DOMAIN(ng)%SouthWest_Corner(tile)) THEN
-            M2obc_out(ng,isouth)=M2nudg(ng)
+            M2obc_out(ng,isouth)=0.5_r8*(CLIMA(ng)%M2nudgcof(1,0)+      &
+     &                                   CLIMA(ng)%M2nudgcof(1,1))
             M2obc_in (ng,isouth)=obcfac(ng)*M2obc_out(ng,isouth)
           END IF
           IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
@@ -410,11 +499,14 @@
           END IF
 #endif
         END IF
+!
         IF (LBC(inorth,isUbar,ng)%nudging.or.                           &
      &      LBC(inorth,isVbar,ng)%nudging) THEN
 #ifdef M2CLM_NUDGING
           IF (DOMAIN(ng)%NorthEast_Corner(tile)) THEN
-            M2obc_out(ng,inorth)=M2nudg(ng)
+            M2obc_out(ng,inorth)=0.5_r8*                                &
+     &                           (CLIMA(ng)%M2nudgcof(Lm(ng),Mm(ng)  )+ &
+     &                            CLIMA(ng)%M2nudgcof(Lm(ng),Mm(ng)+1))
             M2obc_in (ng,inorth)=obcfac(ng)*M2obc_out(ng,inorth)
           END IF
           IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
@@ -447,7 +539,7 @@
           IF (LBC(iwest,isTvar(itrc),ng)%nudging) THEN
 # ifdef TCLM_NUDGING
             IF (DOMAIN(ng)%SouthWest_Corner(tile)) THEN
-              Tobc_out(itrc,ng,iwest)=Tnudg(itrc,ng)
+              Tobc_out(itrc,ng,iwest)=CLIMA(ng)%Tnudgcof(0,1,itrc)
               Tobc_in (itrc,ng,iwest)=obcfac(ng)*                       &
      &                                Tobc_out(itrc,ng,iwest)
             END IF
@@ -472,11 +564,13 @@
      &                     Tobc_in (:,ng,iwest))
         END IF
 # endif
+!
         DO itrc=1,NT(ng)
           IF (LBC(ieast,isTvar(itrc),ng)%nudging) THEN
 # ifdef TCLM_NUDGING
             IF (DOMAIN(ng)%NorthEast_Corner(tile)) THEN
-              Tobc_out(itrc,ng,ieast)=Tnudg(itrc,ng)
+              Tobc_out(itrc,ng,ieast)=                                  &
+     &                 CLIMA(ng)%Tnudgcof(Lm(ng)+1,Mm(ng),itrc)
               Tobc_in (itrc,ng,ieast)=obcfac(ng)*                       &
      &                                Tobc_out(itrc,ng,ieast)
             END IF
@@ -501,11 +595,12 @@
      &                     Tobc_in (:,ng,ieast))
         END IF
 # endif
+!
         DO itrc=1,NT(ng)
           IF (LBC(isouth,isTvar(itrc),ng)%nudging) THEN
 # ifdef TCLM_NUDGING
             IF (DOMAIN(ng)%SouthWest_Corner(tile)) THEN
-              Tobc_out(itrc,ng,isouth)=Tnudg(itrc,ng)
+              Tobc_out(itrc,ng,isouth)=CLIMA(ng)%Tnudgcof(1,0,itrc)
               Tobc_in (itrc,ng,isouth)=obcfac(ng)*                      &
      &                                 Tobc_out(itrc,ng,isouth)
             END IF
@@ -530,11 +625,13 @@
      &                     Tobc_in (:,ng,isouth))
         END IF
 # endif
+!
         DO itrc=1,NT(ng)
           IF (LBC(inorth,isTvar(itrc),ng)%nudging) THEN
 # ifdef TCLM_NUDGING
             IF (DOMAIN(ng)%NorthEast_Corner(tile)) THEN
-              Tobc_out(itrc,ng,inorth)=Tnudg(itrc,ng)
+              Tobc_out(itrc,ng,inorth)=                                 &
+     &                 CLIMA(ng)%Tnudgcof(Lm(ng),Mm(ng)+1,itrc)
               Tobc_in (itrc,ng,inorth)=obcfac(ng)*                      &
      &                                 Tobc_out(itrc,ng,inorth)
             END IF
@@ -566,7 +663,9 @@
      &      LBC(iwest,isVvel,ng)%nudging) THEN
 # ifdef M3CLM_NUDGING
           IF (DOMAIN(ng)%SouthWest_Corner(tile)) THEN
-            M3obc_out(ng,iwest)=M3nudg(ng)
+            M3obc_out(ng,iwest)=0.5_r8*                                 &
+     &                          (CLIMA(ng)%M3nudgcof(0,1)+              &
+     &                           CLIMA(ng)%M3nudgcof(1,1))
             M3obc_in (ng,iwest)=obcfac(ng)*M3obc_out(ng,iwest)
           END IF
           IF (DOMAIN(ng)%Western_Edge(tile)) THEN
@@ -594,7 +693,9 @@
      &      LBC(ieast,isVvel,ng)%nudging) THEN
 # ifdef M3CLM_NUDGING
           IF (DOMAIN(ng)%NorthEast_Corner(tile)) THEN
-            M3obc_out(ng,ieast)=M3nudg(ng)
+            M3obc_out(ng,ieast)=0.5_r8*                                 &
+     &                          (CLIMA(ng)%M3nudgcof(Lm(ng)  ,Mm(ng))+  &
+     &                           CLIMA(ng)%M3nudgcof(Lm(ng)+1,Mm(ng)))
             M3obc_in (ng,ieast)=obcfac(ng)*M3obc_out(ng,ieast)
           END IF
           IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
@@ -623,7 +724,9 @@
      &      LBC(isouth,isVvel,ng)%nudging) THEN
 # ifdef M3CLM_NUDGING
           IF (DOMAIN(ng)%SouthWest_Corner(tile)) THEN
-            M3obc_out(ng,isouth)=M3nudg(ng)
+            M3obc_out(ng,isouth)=0.5_r8*                                &
+     &                           (CLIMA(ng)%M3nudgcof(1,0)+             &
+     &                            CLIMA(ng)%M3nudgcof(1,1))
             M3obc_in (ng,isouth)=obcfac(ng)*M3obc_out(ng,isouth)
           END IF
           IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
@@ -651,7 +754,9 @@
      &      LBC(inorth,isVvel,ng)%nudging) THEN
 # ifdef M3CLM_NUDGING
           IF (DOMAIN(ng)%NorthEast_Corner(tile)) THEN
-            M3obc_out(ng,inorth)=M3nudg(ng)
+            M3obc_out(ng,inorth)=0.5_r8*                                &
+     &                           (CLIMA(ng)%M3nudgcof(Lm(ng),Mm(ng)  )+ &
+     &                            CLIMA(ng)%M3nudgcof(Lm(ng),Mm(ng)+1))
             M3obc_in (ng,inorth)=obcfac(ng)*M3obc_out(ng,inorth)
           END IF
           IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
