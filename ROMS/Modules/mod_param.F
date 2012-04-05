@@ -341,6 +341,7 @@
         logical :: closed
         logical :: Flather
         logical :: gradient
+        logical :: mixed
         logical :: nested
         logical :: nudging
         logical :: periodic
@@ -988,6 +989,7 @@
               LBC(ibry,ivar,ng)%closed   =.FALSE.
               LBC(ibry,ivar,ng)%Flather  =.FALSE.
               LBC(ibry,ivar,ng)%gradient =.FALSE.
+              LBC(ibry,ivar,ng)%mixed    =.FALSE.
               LBC(ibry,ivar,ng)%nested   =.FALSE.
               LBC(ibry,ivar,ng)%nudging  =.FALSE.
               LBC(ibry,ivar,ng)%periodic =.FALSE.
