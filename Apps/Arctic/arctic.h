@@ -193,6 +193,8 @@
 # define UV_QDRAG
 #endif
 
+/* Boundary conditions...careful with grid orientation */
+
 #define RADIATION_2D
 
 /* roms quirks */

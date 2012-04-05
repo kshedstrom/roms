@@ -167,11 +167,11 @@
 # define TIDES_ASTRO
 # define POT_TIDES
 
-# define UV_LDRAG
+# undef UV_LDRAG
 # define UV_DRAG_GRID
 # define ANA_DRAG
 # define DRAG_LIMITER
-# undef UV_QDRAG
+# define UV_QDRAG
 #else
 # define UV_QDRAG
 #endif
@@ -181,11 +181,9 @@
 /* Using Runoff instead now */
 #ifdef SOLVE3D
 # define RUNOFF
-# ifdef EASTERN_WALL
-#  define UV_PSOURCE
-#  define ANA_PSOURCE
-#  undef TS_PSOURCE
-# endif
+# undef UV_PSOURCE
+# undef ANA_PSOURCE
+# undef TS_PSOURCE
 #endif
 
 #define RADIATION_2D

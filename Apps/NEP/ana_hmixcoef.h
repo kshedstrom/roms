@@ -264,16 +264,16 @@
           visc2_p(i+1,j) = max(cff, visc2_p(i+1,j))
         END DO
       END DO
-! Northern wall case
-!     DO j=MAX(Mm(ng)+1-Iwrk,JstrR),JendR
-!       ifoo = Mm(ng)+1-j
-!       itwo = Lm(ng)-Mm(ng)+j
-!       DO i=MAX(IstrR,ifoo),MIN(IendR,itwo)
-!         cff = 250.*0.5_r8*(1.0_r8+COS(pi*REAL(ifoo,r8)/REAL(Iwrk,r8)))
-!         visc2_r(i,j) = max(cff, visc2_r(i,j))
-!         visc2_p(i+1,j) = max(cff, visc2_p(i+1,j))
-!       END DO
-!     END DO
+! Northern side not needed in NEP
+!      DO j=MAX(Mm(ng)+1-Iwrk,JstrR),JendR
+!        ifoo = Mm(ng)+1-j
+!        itwo = Lm(ng)-Mm(ng)+j
+!        DO i=MAX(IstrR,ifoo),MIN(IendR,itwo)
+!          cff = 250.*0.5_r8*(1.0_r8+COS(pi*REAL(ifoo,r8)/REAL(Iwrk,r8)))
+!          visc2_r(i,j) = max(cff, visc2_r(i,j))
+!          visc2_p(i+1,j) = max(cff, visc2_p(i+1,j))
+!        END DO
+!      END DO
 #  endif
 #  ifdef SOLVE3D
 #   if defined TS_DIF2
@@ -297,7 +297,7 @@
             diff2(i,j,itrc) = max(cff, diff2(i,j,itrc))
           END DO
         END DO
-! Northern Wall case
+! Not needed for NEP
 !        DO j=MAX(Mm(ng)+1-Iwrk,JstrR),JendR
 !          ifoo = Mm(ng)+1-j
 !          itwo = Lm(ng)-Mm(ng)+j
@@ -306,7 +306,7 @@
 !            diff2(i,j,itrc) = max(cff, diff2(i,j,itrc))
 !          END DO
 !        END DO
-!      END DO
+      END DO
 #   endif
 #  endif
 

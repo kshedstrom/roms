@@ -91,7 +91,7 @@ MY_CPP_FLAGS ?=
 
 #  Activate debugging compiler options:
 
-   USE_DEBUG ?=
+   USE_DEBUG ?= on
 
 #  If parallel applications, use at most one of these definitions
 #  (leave both definitions blank in serial applications):
@@ -141,7 +141,7 @@ MY_CPP_FLAGS ?=
 #  NetCDF and so on.
 #--------------------------------------------------------------------------
 
-        FORT ?= gfortran
+        FORT ?= pgi
 
 #--------------------------------------------------------------------------
 #  Set directory for executable.
