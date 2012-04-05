@@ -645,7 +645,7 @@
   'landfast ice extent'
   '1'                                              ! 
   'FastIce, scalar, series'                        ! 
-  'fastice_time'                                   !
+  'ocean_time'                                     !
   'idFastIce'                                      !
   'r2dvar'
   1.0d0

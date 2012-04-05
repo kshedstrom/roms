@@ -1476,6 +1476,8 @@
               S(ibry,isFsur,igrid)%acquire   = .TRUE.
             CASE ('GRA')
               S(ibry,ifield,igrid)%gradient  = .TRUE.
+            CASE ('MIX')
+              S(ibry,ifield,igrid)%mixed     = .TRUE.
             CASE ('NES')
               S(ibry,ifield,igrid)%nested    = .TRUE.
             CASE ('PER')
@@ -1551,9 +1553,9 @@
       END IF
       load_lbc=ic
 
- 10   FORMAT (/,' INP_PAR - illegal lateral boundary condition ',       &
+ 10   FORMAT (/,' LOAD_LBC - illegal lateral boundary condition ',      &
      &        'keyword: ',a,/,11x,a)
- 20   FORMAT (/,' INP_PAR - incorrect continuation symbol in line:',/,  &
+ 20   FORMAT (/,' LOAD_LBC - incorrect continuation symbol in line:',/, &
      &        11x,a,/,11x,'number of nested grid values exceeded.')
 
       RETURN
@@ -1792,7 +1794,7 @@
       END FUNCTION load_s1d
 
       FUNCTION load_s2d (Nval, Fname, line, label, ifile, igrid,        &
-     &                   Nfiles, idim, nFF, S)
+     &                   Nfiles, idim, NFF, S)
 !
 !=======================================================================
 !                                                                      !
@@ -1835,7 +1837,7 @@
       integer, intent(inout) :: Nfiles(idim,Ngrids)
       integer, intent(inout) :: NFF(Ngrids)
 
-      character (len=*),   intent(in) :: line
+      character (len=256), intent(in) :: line
       character (len=256), intent(in) :: Fname(100)
       character (len=*),   intent(inout) :: label
 
@@ -1860,6 +1862,12 @@
 !  to separate multi-string values for split input files. User may
 !  split the records for a particular input field into several files.
 !
+!     IF (Master) THEN
+!       print *, 'In load_s2d'
+!       print *, line
+!       print *, label
+!       print *, 'Numbers:', idim, NFF, igrid
+!     END IF
       Icont=INDEX(TRIM(line),CHAR(92) ,BACK=.FALSE.)
       Ipipe=INDEX(TRIM(line),CHAR(124),BACK=.FALSE.)
       IF ((Icont.eq.0).and.(Ipipe.eq.0)) THEN
@@ -1975,9 +1983,9 @@
       END IF
       load_s2d=Nval
 
- 10   FORMAT (/,' INP_PAR - incorrect continuation symbol in line:',/,  &
+ 10   FORMAT (/,' LOAD_S2D - incorrect continuation symbol in line:',/, &
      &        11x,a,/,11x,'inner dimension of structure exceeded.')
- 20   FORMAT (/,' INP_PAR - incorrect continuation symbol in line:',/,  &
+ 20   FORMAT (/,' LOAD_S2D - incorrect continuation symbol in line:',/, &
      &        11x,a,/,11x,'number of nested grid values exceeded.')
 
       RETURN

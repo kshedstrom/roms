@@ -67,13 +67,14 @@
 #endif
 
       integer :: Lstr, Npts, Nval, i, itrc, ivar, k, ng, status
-      integer :: ifield, ifile, igrid, itracer, nline, mFfiles
+      integer :: ifield, ifile, ibcfile, igrid, itracer, nline, mFfiles
 
       integer :: decode_line, load_i, load_l, load_lbc, load_r
       integer :: load_s1d, load_s2d
 
       integer, allocatable :: Nfiles(:)
       integer, allocatable :: Ncount(:,:)
+      integer, allocatable :: NBCcount(:,:)
 
       real(r8), allocatable :: Rtracer(:,:)
       real(r8), allocatable :: tracer(:,:)
@@ -92,6 +93,7 @@
 !-----------------------------------------------------------------------
 !
       ifile=1                            ! multiple file counter
+      ibcfile=1                          ! multiple BC file counter
       igrid=1                            ! nested grid counter
       itracer=0                          ! LBC tracer counter
       nline=0                            ! LBC multi-line counter
@@ -2540,6 +2542,7 @@
                 END IF
               END DO
               mFfiles=MAXVAL(nFfiles)
+              IF (Master) print *, 'NFFILES ', nFfiles, mFfiles
               allocate ( FRC(mFfiles,Ngrids) )
               allocate ( FRCids(mFfiles,Ngrids) )
               allocate ( Ncount(mFfiles,Ngrids) )
@@ -2548,13 +2551,30 @@
             CASE ('FRCNAME')
               label='FRC - forcing fields'
               Npts=load_s2d(Nval, Cval, line, label, ifile, igrid,      &
-     &                      Ncount, mFfiles, FRC)
+     &                      Ncount, mFfiles, nFfiles, FRC)
             CASE ('CLMNAME')
               label='CLM - climatology fields'
               Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles, CLM)
+            CASE ('NBCFILES')
+              Npts=load_i(Nval, Rval, Ngrids, nBCfiles)
+              DO ng=1,Ngrids
+                IF (nBCfiles(ng).le.0) THEN 
+                  IF (Master) WRITE (out,260) 'NBCFILES', nBCfiles(ng), &
+     &                            'Must be equal or greater than one.'
+                  exit_flag=4
+                  RETURN
+                END IF
+              END DO
+              mFfiles=MAXVAL(nBCfiles)
+              allocate ( BRY(mFfiles,Ngrids) )
+              allocate ( BRYids(mFfiles,Ngrids) )
+              allocate ( NBCcount(mFfiles,Ngrids) )
+              BRYids(1:mFfiles,1:Ngrids)=-1
+              NBCcount(1:mFfiles,1:Ngrids)=0
             CASE ('BRYNAME')
               label='BRY - lateral open boundary conditions'
-              Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles, BRY)
+              Npts=load_s2d(Nval, Cval, line, label, ibcfile, igrid,    &
+     &                      NBCcount, mFfiles, nBCfiles, BRY)
             CASE ('FWDNAME')
               label='FWD - basic state forward trajectory'
               Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles, FWD)
@@ -2602,6 +2622,11 @@
                 bparnam(i:i)=blank
               END DO
               bparnam=TRIM(ADJUSTL(Cval(Nval)))
+            CASE ('IPARNAM')
+              DO i=1,LEN(iparnam)
+                iparnam(i:i)=blank
+              END DO
+              iparnam=TRIM(ADJUSTL(Cval(Nval)))
             CASE ('SPARNAM')
               DO i=1,LEN(sparnam)
                 sparnam(i:i)=blank
@@ -4696,15 +4721,17 @@
 #endif
 !
           IF (ObcData(ng)) THEN
-            DO ifile=1,BRY(1,ng)%Nfiles
-              fname=BRY(1,ng)%files(ifile)
-              IF (.not.find_file(ng, fname)) GO TO 30
-              IF (ifile.eq.1) THEN
-                WRITE (out,230) '           Input Boundary File:  ',    &
-     &                          TRIM(fname)
-              ELSE
-                WRITE (out,'(35x,a)') TRIM(fname)
-              END IF
+            DO i=1,nBCfiles(ng)
+              DO ifile=1,BRY(i,ng)%Nfiles
+                fname=BRY(i,ng)%files(ifile)
+                IF (.not.find_file(ng, fname)) GO TO 30
+                IF (ifile.eq.1) THEN
+                  WRITE (out,310) '       Input Boundary File ', i,   &
+     &                            ':  ', TRIM(fname)
+                ELSE
+                  WRITE (out,'(35x,a)') TRIM(fname)
+                END IF
+              END DO
             END DO
           END IF
 #ifdef STATIONS
@@ -4729,6 +4756,12 @@
           fname=bparnam
           IF (.not.find_file(ng, fname)) GO TO 30
           WRITE (out,230) '       Biology Parameters File:  ',          &
+     &                    TRIM(fname)
+#endif
+#ifdef ICE_MODEL
+          fname=iparnam
+          IF (.not.find_file(ng, fname)) GO TO 30
+          WRITE (out,230) '     Ice Model Parameters File:  ',          &
      &                    TRIM(fname)
 #endif
           fname=varname
