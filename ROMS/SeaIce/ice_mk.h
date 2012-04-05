@@ -205,7 +205,7 @@
 !            tis(i,j)        -  temperature at snow/atmos. interface
 !                               (t3 in Mellor..)
 !            brnfr(i,j)      -  brine fraction
-!            wsm(i,j)        -  melting rate
+!            wsm(i,j)        -  snow melting rate
 !            wai(i,j)        -  production rate at atmos./ice
 !            sfwat(i,j,linew)-  melt water
 !            ageice(i,j,linew)- ice age
@@ -422,6 +422,7 @@
       real(r8), parameter :: cpi = 2093.0_r8            ! [J kg-1 K-1]
       real(r8), parameter :: cpw = 3990.0_r8            ! [J kg-1 K-1]
       real(r8), parameter :: rhocpr = 0.2442754E-6_r8   ! [m s2 K kg-1]
+      real(r8), parameter :: ykf = 3.14
 
       real(r8) :: corfac
       real(r8) :: hicehinv  ! 1./(0.5*ice_thick)
@@ -434,7 +435,6 @@
       real(r8) :: xwai
       real(r8) :: xtot
       real(r8) :: phi
-      real(r8) :: ykf
       real(r8) :: d1
       real(r8) :: d2i
       real(r8) :: d3
@@ -467,7 +467,6 @@
         END DO
       END DO
 
-      ykf = 3.14_r8
       d1 = rho_air(ng) * spec_heat_air * trans_coeff
       d2i = rho_air(ng) * sublim_latent_heat * trans_coeff
       d3 = StefBo * ice_emiss
