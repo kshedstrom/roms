@@ -225,6 +225,18 @@
               Npts=load_l(Nval, Cval, Ngrids, Sout(idHsbl,:))
             CASE ('Sout(idHbbl)')
               Npts=load_l(Nval, Cval, Ngrids, Sout(idHbbl,:))
+#  ifdef NEMURO_SED1
+            CASE ('Sout(idPONsed)')
+              Npts=load_l(Nval, Cval, Ngrids, Sout(idPONsed,:))
+            CASE ('Sout(idOPALsed)')
+              Npts=load_l(Nval, Cval, Ngrids, Sout(idOPALsed,:))
+            CASE ('Sout(idDENITsed)')
+              Npts=load_l(Nval, Cval, Ngrids, Sout(idDENITsed,:))
+            CASE ('Sout(idPONbur)')
+              Npts=load_l(Nval, Cval, Ngrids, Sout(idPONbur,:))
+            CASE ('Sout(idOPALbur)')
+              Npts=load_l(Nval, Cval, Ngrids, Sout(idOPALbur,:))
+#  endif
             CASE ('Sout(idMtke)')
               Npts=load_l(Nval, Cval, Ngrids, Sout(idMtke,:))
             CASE ('Sout(idMtls)')

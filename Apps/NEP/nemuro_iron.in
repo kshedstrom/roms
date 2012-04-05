@@ -363,8 +363,8 @@ Hout(idOPALbur) == T
 ! Logical switches (TRUE/FALSE) to activate writing of time-averaged fields
 ! into AVERAGE output file: [1;NBT,Ngrids].
 
-Aout(idTvar) == 14*T                       ! biological tracer
-Aout(idTsur) == 14*F                       ! surface tracer flux
+Aout(idTvar) == 14*T    ! ..., NO3, ...          biological tracer
+Aout(idTsur) == 14*F    ! ..., NO3, ...          surface tracer flux
 
 ! Logical switches for bio sediment variables.
 Aout(idPONsed) == T
@@ -377,16 +377,16 @@ Aout(idOPALbur) == T
 ! biological tracer diagnostic terms into DIAGNOSTIC output file:
 ! [1:NBT,Ngrids].
 
-Dout(iTrate) == 14*T                       ! time rate of change
-Dout(iThadv) == 14*T                       ! horizontal total advection
-Dout(iTxadv) == 14*T                       ! horizontal XI-advection
-Dout(iTyadv) == 14*T                       ! horizontal ETA-advection
-Dout(iTvadv) == 14*T                       ! vertical advection
-Dout(iThdif) == 14*T                       ! horizontal total diffusion
-Dout(iTxdif) == 14*T                       ! horizontal XI-diffusion
-Dout(iTydif) == 14*T                       ! horizontal ETA-diffusion
-Dout(iTsdif) == 14*T                       ! horizontal S-diffusion
-Dout(iTvdif) == 14*T                       ! vertical diffusion
+Dout(iTrate) == 14*T    ! ..., NO3_rate, ...     time rate of change
+Dout(iThadv) == 14*T    ! ..., NO3_hadv, ...     horizontal total advection
+Dout(iTxadv) == 14*T    ! ..., NO3_xadv, ...     horizontal XI-advection
+Dout(iTyadv) == 14*T    ! ..., NO3_yadv, ...     horizontal ETA-advection
+Dout(iTvadv) == 14*T    ! ..., NO3_vadv, ...     vertical advection
+Dout(iThdif) == 14*T    ! ..., NO3_hdiff, ...    horizontal total diffusion
+Dout(iTxdif) == 14*T    ! ..., NO3_xdiff, ...    horizontal XI-diffusion
+Dout(iTydif) == 14*T    ! ..., NO3_ydiff, ...    horizontal ETA-diffusion
+Dout(iTsdif) == 14*T    ! ..., NO3_sdiff, ...    horizontal S-diffusion
+Dout(iTvdif) == 14*T    ! ..., NO3_vdiff, ...    vertical diffusion
 !
 !  GLOSSARY:
 !  =========

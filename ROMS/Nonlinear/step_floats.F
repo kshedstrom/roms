@@ -85,7 +85,6 @@
 # ifdef DISTRIBUTE
       USE distribute_mod, ONLY : mp_collect
 # endif
-      USE interp_floats_mod
 # if defined SOLVE3D && defined FLOAT_VWALK
       USE vwalk_floats_mod, ONLY : vwalk_floats
 # endif
