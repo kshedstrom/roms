@@ -212,6 +212,15 @@
         IF (Master) WRITE (stdout,20) TRIM(ncname)
         RETURN
       END IF
+
+#ifdef NO_LBC_ATT
+!
+!  Lateral boundary conditions attributed not checked in restart file.
+!
+      IF (((model.eq.0).or.(model.eq.iNLM)).and.(nrrec(ng).ne.0)) THEN
+        IF (Master) WRITE (stdout,20) string, 'NLM_LBC', TRIM(ncname)
+      END IF
+#else
 !
 !  If restart, read in lateral boundary conditions global attribute
 !  from restart file and check keyword strings with structure vlues
@@ -221,6 +230,7 @@
         CALL lbc_getatt (ng, model, ncINPid, ncname, 'NLM_LBC', LBC)
         IF (exit_flag.ne.NoError) RETURN
       END IF
+#endif
 !
 !  Inquire about the input time variable.
 !
