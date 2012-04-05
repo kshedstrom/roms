@@ -1885,7 +1885,7 @@
 !  symbol in the input "line" is used to advance the counters.
 !
       IF (.not.load) THEN
-        IF (ifile.le.NFF(igrid)) THEN
+        IF (ifile.lt.NFF(igrid)) THEN
           ifile=ifile+MIN(1,Icont)
         ELSE
           ifile=1

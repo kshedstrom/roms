@@ -77,6 +77,7 @@
 !  Miscellaneous variables:                                            !
 !                                                                      !
 !  BRYids      NetCDF file ID associated with each boundary field.     !
+!  CLMids      NetCDF file ID associated with each climatology field.  !
 !  FRCids      NetCDF file ID associated with each forcing field.      !
 !  Rerror      Running error messages.                                 !
 !  SourceFile  Current executed file name. It is used for IO error     !
@@ -104,7 +105,6 @@
       TYPE(T_IO), allocatable :: AVG(:)     ! time-averaged fields
       TYPE(T_IO), allocatable :: AVG2(:)    ! secondary averaged fields
       TYPE(T_IO), allocatable :: BLK(:)     ! bulk fluxes fields
-      TYPE(T_IO), allocatable :: CLM(:)     ! climatology fields
       TYPE(T_IO), allocatable :: DAV(:)     ! 4D-Var variables
       TYPE(T_IO), allocatable :: DIA(:)     ! diagnostics fields
       TYPE(T_IO), allocatable :: ERR(:)     ! 4D-Var posterior error
@@ -138,6 +138,13 @@
       integer, allocatable :: BRYids(:,:)
 
       TYPE(T_IO), allocatable :: BRY(:,:)
+!
+!  Input climatology data.
+!
+      integer, allocatable :: nCLMfiles(:)
+      integer, allocatable :: CLMids(:,:)
+
+      TYPE(T_IO), allocatable :: CLM(:,:)   ! climatology fields
 !
 !  Input forcing data.
 !
@@ -202,7 +209,6 @@
       allocate ( AVG(Ngrids) )
       allocate ( AVG2(Ngrids) )
       allocate ( BLK(Ngrids) )
-      allocate ( CLM(Ngrids) )
       allocate ( DAV(Ngrids) )
       allocate ( DIA(Ngrids) )
       allocate ( ERR(Ngrids) )
@@ -239,6 +245,7 @@
 !-----------------------------------------------------------------------
 !
       allocate ( nBCfiles(Ngrids) )
+      allocate ( nCLMfiles(Ngrids) )
       allocate ( nFfiles(Ngrids) )
 
       RETURN

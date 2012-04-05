@@ -601,10 +601,11 @@
             IF (exit_flag.eq.NoError) THEN
               CALL join_string (BRY(i,ng)%files, BRY(i,ng)%Nfiles,      &
      &                          string, lstr)
-              status=nf90_put_att(ncid, nf90_global, 'bry_file',        &
+              WRITE (frcatt,50) i
+              status=nf90_put_att(ncid, nf90_global, frcatt,            &
      &                            string(1:lstr))
               IF (status.ne.nf90_noerr) THEN
-                IF (Master) WRITE (stdout,20) 'bry_file', TRIM(ncname)
+                IF (Master) WRITE (stdout,20) TRIM(frcatt), TRIM(ncname)
                 exit_flag=3
                 ioerror=status
               END IF
@@ -616,16 +617,20 @@
     (defined M2CLIMATOLOGY && !defined ANA_M2CLIMA) || \
     (defined  TCLIMATOLOGY && !defined ANA_TCLIMA)  || \
     (defined M3CLIMATOLOGY && !defined ANA_M3CLIMA)
-        IF (exit_flag.eq.NoError) THEN
-          CALL join_string (CLM(ng)%files, CLM(ng)%Nfiles, string, lstr)
-          status=nf90_put_att(ncid, nf90_global, 'clm_file',            &
-     &                        TRIM(CLM(ng)%name))
-          IF (status.ne.nf90_noerr) THEN
-            IF (Master) WRITE (stdout,20) 'clm_file', TRIM(ncname)
-            exit_flag=3
-            ioerror=status
+        DO i=1,nCLMfiles(ng)
+          IF (exit_flag.eq.NoError) THEN
+            CALL join_string (CLM(i,ng)%files, CLM(i,ng)%Nfiles,        &
+     &                        string, lstr)
+            WRITE (frcatt,40) i
+            status=nf90_put_att(ncid, nf90_global, frcatt,              &
+     &                          string(1:lstr))
+            IF (status.ne.nf90_noerr) THEN
+              IF (Master) WRITE (stdout,20) TRIM(frcatt), TRIM(ncname)
+              exit_flag=3
+              ioerror=status
+            END IF
           END IF
-        END IF
+        END DO
 #endif
 
 #ifdef FORWARD_READ
@@ -3182,9 +3187,7 @@
   20  FORMAT (/,' DEF_INFO - error while creating global attribute: ',  &
      &        a,/,12x,a)
   30  FORMAT ('frc_file_',i2.2)
-#ifdef OFFLINE
   40  FORMAT ('clm_file_',i2.2)
-#endif
   50  FORMAT ('bry_file_',i2.2)
 
       RETURN

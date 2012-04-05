@@ -68,6 +68,7 @@
 
       integer :: Lstr, Npts, Nval, i, itrc, ivar, k, ng, status
       integer :: ifield, ifile, ibcfile, igrid, itracer, nline, mFfiles
+      integer :: iclmfile
 
       integer :: decode_line, load_i, load_l, load_lbc, load_r
       integer :: load_s1d, load_s2d
@@ -75,6 +76,7 @@
       integer, allocatable :: Nfiles(:)
       integer, allocatable :: Ncount(:,:)
       integer, allocatable :: NBCcount(:,:)
+      integer, allocatable :: NCLMcount(:,:)
 
       real(r8), allocatable :: Rtracer(:,:)
       real(r8), allocatable :: tracer(:,:)
@@ -94,6 +96,7 @@
 !
       ifile=1                            ! multiple file counter
       ibcfile=1                          ! multiple BC file counter
+      iclmfile=1                          ! multiple BC file counter
       igrid=1                            ! nested grid counter
       itracer=0                          ! LBC tracer counter
       nline=0                            ! LBC multi-line counter
@@ -2896,9 +2899,27 @@
               label='FRC - forcing fields'
               Npts=load_s2d(Nval, Cval, line, label, ifile, igrid,      &
      &                      Ncount, mFfiles, nFfiles, FRC)
+            CASE ('NCLMFILES')
+              Npts=load_i(Nval, Rval, Ngrids, nCLMfiles)
+              DO ng=1,Ngrids
+                IF (nCLMfiles(ng).le.0) THEN
+                  IF (Master) WRITE (out,260) 'NCLMFILES',              &
+     &               nCLMfiles(ng),                                     &
+     &              'Must be equal or greater than one.'
+                  exit_flag=4
+                  RETURN
+                END IF
+              END DO
+              mFfiles=MAXVAL(nCLMfiles)
+              allocate ( CLM(mFfiles,Ngrids) )
+              allocate ( CLMids(mFfiles,Ngrids) )
+              allocate ( NCLMcount(mFfiles,Ngrids) )
+              CLMids(1:mFfiles,1:Ngrids)=-1
+              NCLMcount(1:mFfiles,1:Ngrids)=0
             CASE ('CLMNAME')
               label='CLM - climatology fields'
-              Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles, CLM)
+              Npts=load_s2d(Nval, Cval, line, label, iclmfile, igrid,   &
+     &                      NCLMcount, mFfiles, nCLMfiles, CLM)
             CASE ('NBCFILES')
               Npts=load_i(Nval, Rval, Ngrids, nBCfiles)
               DO ng=1,Ngrids
@@ -5295,15 +5316,17 @@
           END DO
 #endif
 #ifdef CLM_FILE
-          DO ifile=1,CLM(ng)%Nfiles
-            fname=CLM(ng)%files(ifile)
-            IF (.not.find_file(ng, fname)) GO TO 30
-            IF (ifile.eq.1) THEN
-              WRITE (out,230) '        Input Climatology File:  ',      &
+          DO i=1,nCLMfiles(ng)
+            DO ifile=1,CLM(i,ng)%Nfiles
+              fname=CLM(i,ng)%files(ifile)
+              IF (.not.find_file(ng, fname)) GO TO 30
+              IF (ifile.eq.1) THEN
+                WRITE (out,230) '        Input Climatology File:  ',      &
      &                        TRIM(fname)
-            ELSE
-              WRITE (out,'(35x,a)') TRIM(fname)
-            END IF
+              ELSE
+                WRITE (out,'(35x,a)') TRIM(fname)
+              END IF
+            END DO
           END DO
 #endif
 #if defined FORWARD_READ && !(defined FOUR_DVAR || defined PICARD_TEST)
