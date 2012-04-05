@@ -2,7 +2,7 @@
 !
 !! svn $Id$
 !!======================================================================
-!! Copyright (c) 2002-2011 The ROMS/TOMS Group                         !
+!! Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
 !!   Licensed under a MIT/X style license                              !
 !!   See License_ROMS.txt                                              !
 !=======================================================================
@@ -210,13 +210,13 @@
 !
       IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
         CALL exchange_r2d_tile (ng, tile,                               &
-     &                        LBi, UBi, LBj, UBj,                       &
+     &                          LBi, UBi, LBj, UBj,                     &
 #if defined UV_LOGDRAG
-     &                        ZoBot)
+     &                          ZoBot)
 #elif defined UV_LDRAG
-     &                        rdrag)
+     &                          rdrag)
 #elif defined UV_QDRAG
-     &                        rdrag2)
+     &                          rdrag2)
 #endif
       END IF
 

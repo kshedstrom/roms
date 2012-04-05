@@ -2,7 +2,7 @@
 !
 !! svn $Id$
 !!================================================= Hernan G. Arango ===
-!! Copyright (c) 2002-2011 The ROMS/TOMS Group                         !
+!! Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
 !!   Licensed under a MIT/X style license                              !
 !!   See License_ROMS.txt                                              !
 !!======================================================================
@@ -335,33 +335,33 @@
       IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
 #ifdef UV_VIS2
         CALL exchange_r2d_tile (ng, tile,                               &
-     &                        LBi, UBi, LBj, UBj,                       &
-     &                        visc2_r)
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          visc2_r)
         CALL exchange_p2d_tile (ng, tile,                               &
-     &                        LBi, UBi, LBj, UBj,                       &
-     &                        visc2_p)
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          visc2_p)
 #endif
 #ifdef UV_VIS4
         CALL exchange_r2d_tile (ng, tile,                               &
-     &                        LBi, UBi, LBj, UBj,                       &
-     &                        visc4_r)
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          visc4_r)
         CALL exchange_p2d_tile (ng, tile,                               &
-     &                        LBi, UBi, LBj, UBj,                       &
-     &                        visc4_p)
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          visc4_p)
 #endif
 #ifdef SOLVE3D
 # ifdef TS_DIF2
         DO itrc=1,NT(ng)
           CALL exchange_r2d_tile (ng, tile,                             &
-     &                          LBi, UBi, LBj, UBj,                     &
-     &                          diff2(:,:,itrc))
+     &                            LBi, UBi, LBj, UBj,                   &
+     &                            diff2(:,:,itrc))
         END DO
 # endif
 # ifdef TS_DIF4
         DO itrc=1,NT(ng)
           CALL exchange_r2d_tile (ng, tile,                             &
-     &                          LBi, UBi, LBj, UBj,                     &
-     &                          diff4(:,:,itrc))
+     &                            LBi, UBi, LBj, UBj,                   &
+     &                            diff4(:,:,itrc))
         END DO
 # endif
 #endif
@@ -398,5 +398,6 @@
 #  endif
 # endif
 #endif
+
       RETURN
       END SUBROUTINE ana_hmixcoef_tile
