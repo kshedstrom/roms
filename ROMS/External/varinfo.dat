@@ -624,6 +624,15 @@
   'r2dvar'
   1.0d0
 
+'SSSf'                                             ! Input/Output
+  'surface net freswater flux from salinity nudging'
+  'meter second-1'                                 ! computed by NLM ROMS
+  'SSSf, scalar, series'                           ! bulk_flux.F and
+  'ocean_time'                                     ! needed in adjoint-based
+  'idSSSf'                                         ! applications
+  'r2dvar'
+  1.0d0
+
 'bhflux'                                           ! Input
   'bottom net heat flux'
   'watt meter-2'                                   ! Input:  [Watt/m2]

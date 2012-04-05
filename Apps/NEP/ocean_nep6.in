@@ -767,7 +767,6 @@ Dout(iTvdif) == T T                        ! vertical diffusion
      NBCFILES == 1                          ! number of boundary files
      BRYNAME == /wrkdir/kate/NEP/Files/SODA_2.1.6_bdry_NEP6_1958-2008.nc
 
-
 ! Input forcing NetCDF file name(s).  The USER has the option to enter
 ! several files names per each nested grid.  For example, the USER may
 ! have a different files for wind products, heat fluxes, rivers, tides,
