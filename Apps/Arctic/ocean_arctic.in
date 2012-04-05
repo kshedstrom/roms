@@ -110,12 +110,12 @@
 !
 !                   1       2       3       4
 
-   LBC(isFsur) ==   Cha     Cha     Cha     Clo         ! free-surface
-   LBC(isUbar) ==   Fla     Fla     Fla     Clo         ! 2D U-momentum
-   LBC(isVbar) ==   Fla     Fla     Fla     Clo         ! 2D V-momentum
-   LBC(isUvel) ==   RadNud  RadNud  RadNud  Clo         ! 3D U-momentum
-   LBC(isVvel) ==   RadNud  RadNud  RadNud  Clo         ! 3D V-momentum
-   LBC(isMtke) ==   Per     Clo     Per     Clo         ! mixing TKE
+   LBC(isFsur) ==   Cha     Clo     Cha     Cha         ! free-surface
+   LBC(isUbar) ==   Fla     Clo     Fla     Fla         ! 2D U-momentum
+   LBC(isVbar) ==   Fla     Clo     Fla     Fla         ! 2D V-momentum
+   LBC(isUvel) ==   RadNud  Clo     RadNud  RadNud      ! 3D U-momentum
+   LBC(isVvel) ==   RadNud  Clo     RadNud  RadNud      ! 3D V-momentum
+   LBC(isMtke) ==   Gra     Clo     Gra     Gra         ! mixing TKE
 
    LBC(isTvar) ==   RadNud  RadNud  RadNud  Clo \       ! temperature
                     RadNud  RadNud  RadNud  Clo         ! salinity
