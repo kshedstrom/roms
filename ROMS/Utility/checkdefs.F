@@ -222,7 +222,7 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+13)=' ANA_BIOLOGY,'
 #endif
-#if defined SEDIMENT || defined BIOLOGY
+#if defined BIOLOGY || defined SEDIMENT || defined T_PASSIVE
 # ifdef ANA_BPFLUX
       IF (Master) WRITE (stdout,20) 'ANA_BPFLUX',                       &
      &   'Analytical bottom passive tracers fluxes.'
@@ -383,7 +383,7 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+16)=' ANA_SPAWN_DIST,'
 #endif
-#if defined SEDIMENT || defined BIOLOGY
+#if defined BIOLOGY || defined SEDIMENT || defined T_PASSIVE
 # ifdef ANA_SPFLUX
       IF (Master) WRITE (stdout,20) 'ANA_SPFLUX',                       &
      &   'Analytical surface passive tracer fluxes.'
