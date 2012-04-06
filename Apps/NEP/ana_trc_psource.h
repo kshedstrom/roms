@@ -46,11 +46,11 @@
       END SUBROUTINE ana_trc_psource
 !
 !***********************************************************************
-      SUBROUTINE ana_trc_psource_tile (ng, tile, model, 	        &
-     &                             LBi, UBi, LBj, UBj,		        &
-     &                             IminS, ImaxS, JminS, JmaxS,	        &
-     &                             Msrcpt,Nsrcpt,		        &
-     &                             Isrcpt, Jsrcpt, Lsrcpt,	        &
+      SUBROUTINE ana_trc_psource_tile (ng, tile, model,                 &
+     &                             LBi, UBi, LBj, UBj,                  &
+     &                             IminS, ImaxS, JminS, JmaxS,          &
+     &                             Msrcpt,Nsrcpt,                       &
+     &                             Isrcpt, Jsrcpt, Lsrcpt,              &
      &                             Tsrcpt  )
 !***********************************************************************
 !
@@ -160,7 +160,7 @@
      &  138, 138, 138, 138, 138, 137, 137, 137, 136, 136, 135, 135, 134, &
      &  134, 133, 133, 132, 132, 131, 131, 130, 130, 129, 129, 128, 128, &
      &  127, 127, 126, 126, 125, 125, 125, 125, 124, 124, 123, 123, 123, &
-     &  122, 121, 121, 120, 120, 119, 119, 118, 118, 117 /) 
+     &  122, 121, 121, 120, 120, 119, 119, 118, 118, 117 /)
           DO is=6,Nsrcpt
             Lsrcpt(is,inert(2))=.TRUE.
           END DO
@@ -191,4 +191,5 @@
           END DO
         END DO
       END IF
-      RETURN END SUBROUTINE ana_trc_psource_tile
+      RETURN
+      END SUBROUTINE ana_trc_psource_tile

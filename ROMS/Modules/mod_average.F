@@ -506,7 +506,6 @@
       IF (Aout(idNPP,ng)) THEN
         allocate ( AVERAGE(ng) % avgNPP(LBi:UBi,LBj:UBj) )
       END IF
-          real(r8), pointer :: avgNPP(:,:)
 #  endif
 
 #  if defined LMD_MIXING || defined MY25_MIXING || defined GLS_MIXING
