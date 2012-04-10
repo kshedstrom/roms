@@ -165,6 +165,7 @@
 !
         integer  :: idAclm        ! 3D Aks (salinity) climatology
         integer  :: idAice        ! fraction of cell covered by ice
+        integer  :: idAlbe        ! shortwave albedo
         integer  :: idbath        ! bathymetry
         integer  :: idCfra        ! cloud fraction
         integer  :: idCosW        ! COS(omega(k)*t)
@@ -1160,6 +1161,8 @@
               idTbry(isouth,isalt)=varid
             CASE ('idTbry(inorth,isalt)')
               idTbry(inorth,isalt)=varid
+            CASE ('idAlbe')
+              idAlbe=varid
             CASE ('idRwet')
               idRwet=varid
             CASE ('idUwet')

@@ -139,6 +139,9 @@
      &                     FORCES(ng) % shflx,                          &
      &                     FORCES(ng) % srflx,                          &
      &                     FORCES(ng) % stflx,                          &
+# if defined ALBEDO_FILE && defined SHORTWAVE
+     &                     FORCES(ng) % albedo,                         &
+# endif
 # if defined ALBEDO && defined SHORTWAVE && !defined BENCHMARK
      &                     FORCES(ng) % cawdir,                         &
 # endif
@@ -221,6 +224,9 @@
 # endif
      &                           rain, lhflx, lrflx, shflx,             &
      &                           srflx, stflx,                          &
+# if defined ALBEDO_FILE && defined SHORTWAVE
+     &                           albedo,                                &
+# endif
 # if defined ALBEDO && defined SHORTWAVE && !defined BENCHMARK
      &                           cawdir,                                &
 # endif
@@ -321,6 +327,9 @@
       real(r8), intent(inout) :: shflx(LBi:,LBj:)
       real(r8), intent(inout) :: srflx(LBi:,LBj:)
       real(r8), intent(inout) :: stflx(LBi:,LBj:,:)
+# if defined ALBEDO_FILE && defined SHORTWAVE
+      real(r8), intent(in) :: albedo(LBi:,LBj:)
+# endif
 # if defined ALBEDO && defined SHORTWAVE && !defined BENCHMARK
       real(r8), intent(inout) :: cawdir(LBi:,LBj:)
 #  endif
@@ -406,6 +415,9 @@
       real(r8), intent(inout) :: shflx(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: srflx(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: stflx(LBi:UBi,LBj:UBj,NT(ng))
+# if defined ALBEDO_FILE && defined SHORTWAVE
+      real(r8), intent(in) :: albedo(LBi:UBi,LBj:UBj)
+# endif
 # if defined ALBEDO && defined SHORTWAVE && !defined BENCHMARK
       real(r8), intent(inout) :: cawdir(LBi:UBi,LBj:UBj)
 #  endif
@@ -589,6 +601,9 @@
           rhoSea(i)=rho(i,j,N(ng))+1000.0_r8
           RH=Hair(i,j)
           SRad(i,j)=srflx(i,j)*Hscale
+# if defined ALBEDO_FILE && defined SHORTWAVE
+          SRad(i,j) = SRad(i,j)*albedo(i,j)
+# endif
 # if defined ALBEDO && defined SHORTWAVE && !defined BENCHMARK
           SRad(i,j) = SRad(i,j)*cawdir(i,j)
 # endif
@@ -1203,6 +1218,9 @@
       cff=1.0_r8/rhow
       DO j=JstrR,JendR
         DO i=IstrR,IendR
+# if defined ALBEDO_FILE && defined SHORTWAVE
+          srflx(i,j) = srflx(i,j)*albedo(i,j)
+# endif
 # if defined ALBEDO && defined SHORTWAVE && !defined BENCHMARK
           cawdif = 1._r8-albw_d
           srflx(i,j) = srflx(i,j)*(cawdir(i,j)*                         &

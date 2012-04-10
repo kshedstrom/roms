@@ -128,8 +128,8 @@
    LBC(isSig11)==   Clo     Clo     Clo     Clo         ! sigma-11
    LBC(isSig12)==   Clo     Clo     Clo     Clo         ! sigma-12
    LBC(isSig22)==   Clo     Clo     Clo     Clo         ! sigma-22
-   LBC(isUice) ==   Clo     Clo     Clo     Clo         ! ice U-momentum
-   LBC(isVice) ==   Clo     Clo     Clo     Clo         ! ice V-momentum
+   LBC(isUice) ==   Gra     Gra     Clo     Clo         ! ice U-momentum
+   LBC(isVice) ==   Gra     Gra     Clo     Clo         ! ice V-momentum
 
 ! Adjoint-based algorithms can have different lateral boundary
 ! conditions keywords.

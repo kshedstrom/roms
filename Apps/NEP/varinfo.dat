@@ -1808,6 +1808,15 @@
   'r2dvar'
   1.0d0
 
+'albedo'                                           ! Input/Output
+  'albedo'
+  'fraction'                                       ! Input: [fraction]
+  'albedo, scalar, series'                         ! [Celsius m/s]
+  'albedo_time'                                    ! Output: [fraction]
+  'idAlbe'
+  'r2dvar'
+  1.0d0
+
 'lwrad_down'                                       ! Input
   'downwelling longwave radiation flux'
   'watt meter-2'                                   ! Input:  [Watt/m2]

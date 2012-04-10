@@ -294,6 +294,10 @@
 #  if defined ALBEDO
           real(r8), pointer :: cawdir(:,:)
 #  endif
+#  ifdef ALBEDO_FILE
+          real(r8), pointer :: albedo(:,:)
+          real(r8), pointer :: albedoG(:,:,:)
+#  endif
 # endif
 
 # if defined ICE_BULK_FLUXES && !defined NCEP_FLUXES
@@ -680,6 +684,10 @@
 #  endif
 #  if defined ALBEDO
       allocate ( FORCES(ng) % cawdir(LBi:UBi,LBj:UBj) )
+#  endif
+#  ifdef ALBEDO_FILE
+      allocate ( FORCES(ng) % albedo(LBi:UBi,LBj:UBj) )
+      allocate ( FORCES(ng) % albedoG(LBi:UBi,LBj:UBj,2) )
 #  endif
 # endif
 
@@ -1162,6 +1170,11 @@
 #  endif
 #  if defined ALBEDO
             FORCES(ng) % cawdir(i,j) = IniVal
+#  endif
+#  ifdef ALBEDO_FILE
+            FORCES(ng) % albedo(i,j) = IniVal
+            FORCES(ng) % albedoG(i,j,1) = IniVal
+            FORCES(ng) % albedoG(i,j,2) = IniVal
 #  endif
 # endif
 # if defined ICE_BULK_FLUXES && !defined NCEP_FLUXES

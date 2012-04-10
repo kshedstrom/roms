@@ -218,16 +218,6 @@
         END IF
       END DO
 
-!          iic(ng)=my_iic
-!          time(ng)=time(ng)+dt(ng)
-!          tdays(ng)=time(ng)*sec2day
-!!
-!!-----------------------------------------------------------------------
-!!  Read in required data, if any, from input NetCDF files.
-!!-----------------------------------------------------------------------
-!!
-!          CALL get_data (ng)
-!          IF (exit_flag.ne.NoError) RETURN
 #ifdef SOLVE3D
 # if defined OFFLINE_BIOLOGY || defined OFFLINE_FLOATS
       CALL main3d_offline (RunInterval)
