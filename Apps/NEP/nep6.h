@@ -12,7 +12,7 @@
 **  Options for Northeast Pacific (NEP6) simulation
 */
 
-#define NO_HIS
+#undef NO_HIS
 #undef NETCDF4
 #undef PARALLEL_IO
 #undef OFFLINE_FLOATS
@@ -31,8 +31,10 @@
 #define STATIONS
 #undef WET_DRY
 
-#define T_PASSIVE
+#undef T_PASSIVE
 #ifdef T_PASSIVE
+# define ANA_BPFLUX        /* analytical bottom passive tracers fluxes */
+# define ANA_SPFLUX        /* analytical surface passive tracers fluxes */
 # define ANA_PASSIVE
 # define TRC_PSOURCE
 # define ANA_TRC_PSOURCE
@@ -215,7 +217,7 @@
 /*
 **  Biological model options.
 */
-#define NEMURO
+#undef NEMURO
 #undef BIO_GOANPZ        /* Sarah Hinckley's 11 box model */
 #undef BEST_NPZ         /* Georgina Gibsons BEST NPZ model  */
 
