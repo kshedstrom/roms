@@ -259,6 +259,15 @@
 
 # ifdef SOLVE3D
 
+#  if defined ALBEDO_FILE && defined SHORTWAVE
+      CALL set_2dfld_tile (ng, tile, iNLM, idAlbe,                      &
+     &                     LBi, UBi, LBj, UBj,                          &
+     &                     FORCES(ng)%albedoG,                          &
+     &                     FORCES(ng)%albedo,                           &
+     &                     update)
+      IF (exit_flag.ne.NoError) RETURN
+#  endif
+
 #  ifdef CLOUDS
 !
 !-----------------------------------------------------------------------

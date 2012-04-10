@@ -111,6 +111,9 @@ contains
      &                     FORCES(ng) % shflx,                          &
      &                     FORCES(ng) % srflx,                          &
      &                     FORCES(ng) % stflx,                          &
+# if defined ALBEDO_FILE && defined SHORTWAVE
+     &                     FORCES(ng) % albedo,                         &
+# endif
 # if defined SHORTWAVE && defined ALBEDO
      &                     FORCES(ng) % cawdir,                         &
 # endif
@@ -194,6 +197,9 @@ contains
 # endif
      &                           rain, lhflx, lrflx, shflx,             &
      &                           srflx, stflx,                          &
+# if defined ALBEDO_FILE && defined SHORTWAVE
+     &                           albedo,                                &
+# endif
 # if defined SHORTWAVE && defined ALBEDO
      &                           cawdir,                                &
 # endif
@@ -302,6 +308,9 @@ contains
       real(r8), intent(inout) :: shflx(LBi:,LBj:)
       real(r8), intent(inout) :: srflx(LBi:,LBj:)
       real(r8), intent(inout) :: stflx(LBi:,LBj:,:)
+# if defined ALBEDO_FILE && defined SHORTWAVE
+      real(r8), intent(inout) :: albedo(LBi:,LBj:)
+# endif
 #  if defined SHORTWAVE && defined ALBEDO
       real(r8), intent(inout) :: cawdir(LBi:,LBj:)
 #  endif
@@ -389,6 +398,9 @@ contains
       real(r8), intent(inout) :: shflx(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: srflx(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: stflx(LBi:UBi,LBj:UBj,NT(ng))
+# if defined ALBEDO_FILE && defined SHORTWAVE
+      real(r8), intent(inout) :: albedo(LBi:UBi,LBj:UBj)
+# endif
 # if defined SHORTWAVE && defined ALBEDO
       real(r8), intent(inout) :: cawdir(LBi:UBi,LBj:UBj)
 #  endif
@@ -915,7 +927,9 @@ contains
           tsk = t(i,j,N(ng),nrhs,itemp) + 273.16_r8
           lwup = -shr_const_stebol * tsk**4
 
-# if defined SHORTWAVE && defined ALBEDO
+# if defined ALBEDO_FILE && defined SHORTWAVE
+          srflx(i,j) = srflx(i,j)*albedo(i,j)
+# elif defined SHORTWAVE && defined ALBEDO
           cawdif = 1._r8-albw_d
           srflx(i,j) = srflx(i,j)*(cawdir(i,j)*                         &
      &                 (1._r8-cloud(i,j))+cawdif*cloud(i,j))

@@ -479,6 +479,22 @@
 
 #ifdef SOLVE3D
 
+# if defined ALBEDO_FILE && defined SHORTWAVE
+!
+!-----------------------------------------------------------------------
+!  Albedo.
+!-----------------------------------------------------------------------
+!
+      CALL get_2dfld (ng, iNLM, idAlbe, ncFRCid(idAlbe,ng),             &
+     &                nFfiles(ng), FRC(1,ng), update(1),                &
+     &                LBi, UBi, LBj, UBj, 2, 1,                         &
+#  ifdef MASKING
+     &                GRID(ng) % rmask(LBi,LBj),                        &
+#  endif
+     &                FORCES(ng) % albedoG(LBi,LBj,1))
+      IF (exit_flag.ne.NoError) RETURN
+# endif
+
 # if !defined ANA_CLOUD && defined CLOUDS
 !
 !-----------------------------------------------------------------------

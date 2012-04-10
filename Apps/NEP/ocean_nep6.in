@@ -131,8 +131,8 @@
    LBC(isSig11)==   Clo     Clo     Clo     Clo         ! sigma-11
    LBC(isSig12)==   Clo     Clo     Clo     Clo         ! sigma-12
    LBC(isSig22)==   Clo     Clo     Clo     Clo         ! sigma-22
-   LBC(isUice) ==   Clo     Clo     Clo     Clo         ! ice U-momentum
-   LBC(isVice) ==   Clo     Clo     Clo     Clo         ! ice V-momentum
+   LBC(isUice) ==   Gra     Gra     Gra     Clo         ! ice U-momentum
+   LBC(isVice) ==   Gra     Gra     Gra     Clo         ! ice V-momentum
 
 ! Adjoint-based algorithms can have different lateral boundary
 ! conditions keywords.
@@ -336,8 +336,8 @@ ad_VolCons(north) ==  F                            ! northern boundary
 ! NetCDF units attribute.
 
       DSTART =  21186.5d0                  ! days
-!      DSTART =  36526.5d0                  ! days
-  TIDE_START =  -693962.0d0                ! days
+!      DSTART =  36526.5d0                 ! days
+  TIDE_START =  -1.0d0                     ! days
     TIME_REF =  19000101.0d0               ! yyyymmdd.dd
 
 ! Nudging/relaxation time scales, inverse scales will be computed

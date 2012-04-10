@@ -332,7 +332,7 @@ ad_VolCons(north) ==  F                            ! northern boundary
 
 !     DSTART =  21186.5d0                  ! days
       DSTART =  31046.5d0                  ! days
-  TIDE_START =  -693962.0d0                ! days
+  TIDE_START =  -1.0d0                     ! days
     TIME_REF =  19000101.0d0               ! yyyymmdd.dd
 
 ! Nudging/relaxation time scales, inverse scales will be computed
