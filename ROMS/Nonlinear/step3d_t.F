@@ -1578,7 +1578,7 @@
 # endif
 #  if defined ICE_MODEL && defined ICE_THERMO
         IF (itrc == isalt) THEN
-          CALL ice_frazil(ng, TILE)
+          CALL ice_frazil(ng, tile)
         END IF
 #  endif
 !
