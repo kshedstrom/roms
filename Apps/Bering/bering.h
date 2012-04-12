@@ -21,11 +21,11 @@
 
 #define CURVGRID
 #define MASKING
-#define NONLIN_EOS
 #undef SOLVE3D
 #ifdef SOLVE3D
+# define NONLIN_EOS
 # define SALINITY
-# undef SPLINES
+# define SPLINES
 #endif
 #undef FLOATS
 #undef DIAPAUSE
@@ -173,14 +173,17 @@
 # undef FILTERED
 # define SSH_TIDES
 # define UV_TIDES
-# define ADD_FSOBC
-# define ADD_M2OBC
+# ifdef SOLVE3D
+#  define ADD_FSOBC
+#  define ADD_M2OBC
+# endif
 # undef RAMP_TIDES
 # define TIDES_ASTRO
 # undef POT_TIDES
 
 # define UV_LDRAG
 # define UV_DRAG_GRID
+# define ANA_DRAG
 # define DRAG_LIMITER
 # undef UV_QDRAG
 #else

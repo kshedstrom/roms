@@ -94,17 +94,17 @@
      &                      ICE(ng) % ai                                &
      &                      )
 !
-        CALL i2d_bc_tile (ng, tile,                                     &
-     &                    LBi, UBi, LBj, UBj,                           &
-     &                    IminS, ImaxS, JminS, JmaxS,                   &
-     &                    liold(ng), linew(ng),                         &
-     &                    BOUNDARY(ng)%ai_west(LBj:UBj),                &
-     &                    BOUNDARY(ng)%ai_east(LBj:UBj),                &
-     &                    BOUNDARY(ng)%ai_north(LBi:UBi),               &
-     &                    BOUNDARY(ng)%ai_south(LBi:UBi),               &
-     &                    ICE(ng)%ui,                                   &
-     &                    ICE(ng)%vi,                                   &
-     &                    ICE(ng)%ai, LBC(:,isAice,ng))
+      CALL i2d_bc_tile (ng, tile,                                       &
+     &                  LBi, UBi, LBj, UBj,                             &
+     &                  IminS, ImaxS, JminS, JmaxS,                     &
+     &                  liold(ng), linew(ng),                           &
+     &                  BOUNDARY(ng)%ai_west(LBj:UBj),                  &
+     &                  BOUNDARY(ng)%ai_east(LBj:UBj),                  &
+     &                  BOUNDARY(ng)%ai_north(LBi:UBi),                 &
+     &                  BOUNDARY(ng)%ai_south(LBi:UBi),                 &
+     &                  ICE(ng)%ui,                                     &
+     &                  ICE(ng)%vi,                                     &
+     &                  ICE(ng)%ai, LBC(:,isAice,ng))
 !
 ! ---------------------------------------------------------------------
 !  Advect the ice thickness.
@@ -134,17 +134,17 @@
      &                      ICE(ng) % hi                                &
      &                      )
 !
-        CALL i2d_bc_tile (ng, tile,                                     &
-     &                    LBi, UBi, LBj, UBj,                           &
-     &                    IminS, ImaxS, JminS, JmaxS,                   &
-     &                    liold(ng), linew(ng),                         &
-     &                    BOUNDARY(ng)%hi_west(LBj:UBj),                &
-     &                    BOUNDARY(ng)%hi_east(LBj:UBj),                &
-     &                    BOUNDARY(ng)%hi_north(LBi:UBi),               &
-     &                    BOUNDARY(ng)%hi_south(LBi:UBi),               &
-     &                    ICE(ng)%ui,                                   &
-     &                    ICE(ng)%vi,                                   &
-     &                    ICE(ng)%hi, LBC(:,isHice,ng))
+      CALL i2d_bc_tile (ng, tile,                                       &
+     &                  LBi, UBi, LBj, UBj,                             &
+     &                  IminS, ImaxS, JminS, JmaxS,                     &
+     &                  liold(ng), linew(ng),                           &
+     &                  BOUNDARY(ng)%hi_west(LBj:UBj),                  &
+     &                  BOUNDARY(ng)%hi_east(LBj:UBj),                  &
+     &                  BOUNDARY(ng)%hi_north(LBi:UBi),                 &
+     &                  BOUNDARY(ng)%hi_south(LBi:UBi),                 &
+     &                  ICE(ng)%ui,                                     &
+     &                  ICE(ng)%vi,                                     &
+     &                  ICE(ng)%hi, LBC(:,isHice,ng))
 !
 ! ---------------------------------------------------------------------
 !  Advect the snow thickness.
@@ -175,17 +175,17 @@
      &                      ICE(ng) % hsn                               &
      &                      )
 !
-        CALL i2d_bc_tile (ng, tile,                                     &
-     &                    LBi, UBi, LBj, UBj,                           &
-     &                    IminS, ImaxS, JminS, JmaxS,                   &
-     &                    liold(ng), linew(ng),                         &
-     &                    BOUNDARY(ng)%hsn_west(LBj:UBj),               &
-     &                    BOUNDARY(ng)%hsn_east(LBj:UBj),               &
-     &                    BOUNDARY(ng)%hsn_north(LBi:UBi),              &
-     &                    BOUNDARY(ng)%hsn_south(LBi:UBi),              &
-     &                    ICE(ng)%ui,                                   &
-     &                    ICE(ng)%vi,                                   &
-     &                    ICE(ng)%hsn, LBC(:,isHsno,ng))
+      CALL i2d_bc_tile (ng, tile,                                       &
+     &                  LBi, UBi, LBj, UBj,                             &
+     &                  IminS, ImaxS, JminS, JmaxS,                     &
+     &                  liold(ng), linew(ng),                           &
+     &                  BOUNDARY(ng)%hsn_west(LBj:UBj),                 &
+     &                  BOUNDARY(ng)%hsn_east(LBj:UBj),                 &
+     &                  BOUNDARY(ng)%hsn_north(LBi:UBi),                &
+     &                  BOUNDARY(ng)%hsn_south(LBi:UBi),                &
+     &                  ICE(ng)%ui,                                     &
+     &                  ICE(ng)%vi,                                     &
+     &                  ICE(ng)%hsn, LBC(:,isHsno,ng))
 # if defined ICE_BIO && defined BERING_10K
 !  ---------------------------------------------------------------------
 !  Advect the icePhL
@@ -218,8 +218,8 @@
 !
 FOOOO 
 ! Need to change this to i2d_bc_tile calls
-        CALL IcePhLbc_tile (ng, tile,                                   &
-    &                          LBi, UBi, LBj, UBj,                      &
+      CALL IcePhLbc_tile (ng, tile,                                   &
+     &                          LBi, UBi, LBj, UBj,                      &
      &                          liold(ng), linew(ng),                   &
      &                          ICE(ng)%ui,                             &
      &                          ICE(ng)%vi,                             &
@@ -329,17 +329,17 @@ FOOOO
      &                      ICE(ng) % sfwat                             &
      &                      )
 !
-        CALL i2d_bc_tile (ng, tile,                                     &
-     &                    LBi, UBi, LBj, UBj,                           &
-     &                    IminS, ImaxS, JminS, JmaxS,                   &
-     &                    liold(ng), linew(ng),                         &
-     &                    BOUNDARY(ng)%sfwat_west(LBj:UBj),             &
-     &                    BOUNDARY(ng)%sfwat_east(LBj:UBj),             &
-     &                    BOUNDARY(ng)%sfwat_north(LBi:UBi),            &
-     &                    BOUNDARY(ng)%sfwat_south(LBi:UBi),            &
-     &                    ICE(ng)%ui,                                   &
-     &                    ICE(ng)%vi,                                   &
-     &                    ICE(ng)%sfwat, LBC(:,isSfwat,ng))
+      CALL i2d_bc_tile (ng, tile,                                       &
+     &                  LBi, UBi, LBj, UBj,                             &
+     &                  IminS, ImaxS, JminS, JmaxS,                     &
+     &                  liold(ng), linew(ng),                           &
+     &                  BOUNDARY(ng)%sfwat_west(LBj:UBj),               &
+     &                  BOUNDARY(ng)%sfwat_east(LBj:UBj),               &
+     &                  BOUNDARY(ng)%sfwat_north(LBi:UBi),              &
+     &                  BOUNDARY(ng)%sfwat_south(LBi:UBi),              &
+     &                  ICE(ng)%ui,                                     &
+     &                  ICE(ng)%vi,                                     &
+     &                  ICE(ng)%sfwat, LBC(:,isSfwat,ng))
 !
 ! ---------------------------------------------------------------------
 !  Advect the interior ice temperature.
@@ -381,14 +381,14 @@ FOOOO
         ENDDO
       ENDDO
 !
-        CALL tibc_tile (ng, tile,                                       &
-     &                          LBi, UBi, LBj, UBj,                     &
-     &                          liold(ng), linew(ng),                   &
-     &                          ICE(ng)%ui,                             &
-     &                          ICE(ng)%vi,                             &
-     &                          ICE(ng)%hi,                             &
-     &                          ICE(ng)%ti,                             &
-     &                          ICE(ng)%enthalpi)
+      CALL tibc_tile (ng, tile,                                         &
+     &                LBi, UBi, LBj, UBj,                               &
+     &                liold(ng), linew(ng),                             &
+     &                ICE(ng)%ui,                                       &
+     &                ICE(ng)%vi,                                       &
+     &                ICE(ng)%hi,                                       &
+     &                ICE(ng)%ti,                                       &
+     &                ICE(ng)%enthalpi)
 !
 ! ---------------------------------------------------------------------
 !  Advect the ice age.

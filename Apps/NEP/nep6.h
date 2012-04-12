@@ -108,7 +108,6 @@
 /* vertical mixing */
 
 #ifdef SOLVE3D
-# define SOLAR_SOURCE
 # define WTYPE_GRID
 
 # define LMD_MIXING
@@ -143,7 +142,9 @@
 #  define EMINUSP
 #  undef ANA_SRFLUX
 #  undef ALBEDO
+# define SOLAR_SOURCE
 #  define ALBEDO_CURVE
+#  undef ALBEDO_FILE
 #  undef LONGWAVE
 # endif
 #endif

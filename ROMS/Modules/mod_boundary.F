@@ -1431,18 +1431,10 @@
 #endif
 
 #ifdef ICE_MODEL
-      IF (LBC(iwest,isAice,ng)%acquire) THEN
-        allocate ( BOUNDARY(ng) % ai_west(LBj:UBj) )
-      END IF
-      IF (LBC(ieast,isAice,ng)%acquire) THEN
-        allocate ( BOUNDARY(ng) % ai_east(LBj:UBj) )
-      END IF
-      IF (LBC(isouth,isAice,ng)%acquire) THEN
-        allocate ( BOUNDARY(ng) % ai_south(LBi:UBi) )
-      END IF
-      IF (LBC(inorth,isAice,ng)%acquire) THEN
-        allocate ( BOUNDARY(ng) % ai_north(LBi:UBi) )
-      END IF
+      allocate ( BOUNDARY(ng) % ai_west(LBj:UBj) )
+      allocate ( BOUNDARY(ng) % ai_east(LBj:UBj) )
+      allocate ( BOUNDARY(ng) % ai_south(LBi:UBi) )
+      allocate ( BOUNDARY(ng) % ai_north(LBi:UBi) )
 
 # ifndef ANA_AIOBC
       IF (LBC(iwest,isAice,ng)%acquire) THEN
@@ -1459,18 +1451,10 @@
       END IF
 # endif
 
-      IF (LBC(iwest,isHice,ng)%acquire) THEN
-        allocate ( BOUNDARY(ng) % hi_west(LBj:UBj) )
-      END IF
-      IF (LBC(ieast,isHice,ng)%acquire) THEN
-        allocate ( BOUNDARY(ng) % hi_east(LBj:UBj) )
-      END IF
-      IF (LBC(isouth,isHice,ng)%acquire) THEN
-        allocate ( BOUNDARY(ng) % hi_south(LBi:UBi) )
-      END IF
-      IF (LBC(inorth,isHice,ng)%acquire) THEN
-        allocate ( BOUNDARY(ng) % hi_north(LBi:UBi) )
-      END IF
+      allocate ( BOUNDARY(ng) % hi_west(LBj:UBj) )
+      allocate ( BOUNDARY(ng) % hi_east(LBj:UBj) )
+      allocate ( BOUNDARY(ng) % hi_south(LBi:UBi) )
+      allocate ( BOUNDARY(ng) % hi_north(LBi:UBi) )
 
 # ifndef ANA_HIOBC
       IF (LBC(iwest,isHice,ng)%acquire) THEN
@@ -1487,18 +1471,10 @@
       END IF
 # endif
 
-      IF (LBC(iwest,isHsno,ng)%acquire) THEN
-        allocate ( BOUNDARY(ng) % hsn_west(LBj:UBj) )
-      END IF
-      IF (LBC(ieast,isHsno,ng)%acquire) THEN
-        allocate ( BOUNDARY(ng) % hsn_east(LBj:UBj) )
-      END IF
-      IF (LBC(isouth,isHsno,ng)%acquire) THEN
-        allocate ( BOUNDARY(ng) % hsn_south(LBi:UBi) )
-      END IF
-      IF (LBC(inorth,isHsno,ng)%acquire) THEN
-        allocate ( BOUNDARY(ng) % hsn_north(LBi:UBi) )
-      END IF
+      allocate ( BOUNDARY(ng) % hsn_west(LBj:UBj) )
+      allocate ( BOUNDARY(ng) % hsn_east(LBj:UBj) )
+      allocate ( BOUNDARY(ng) % hsn_south(LBi:UBi) )
+      allocate ( BOUNDARY(ng) % hsn_north(LBi:UBi) )
 
 # ifndef ANA_HSNOBC
       IF (LBC(iwest,isHsno,ng)%acquire) THEN
@@ -1543,18 +1519,10 @@
       END IF
 # endif
 
-      IF (LBC(iwest,isSfwat,ng)%acquire) THEN
-        allocate ( BOUNDARY(ng) % sfwat_west(LBj:UBj) )
-      END IF
-      IF (LBC(ieast,isSfwat,ng)%acquire) THEN
-        allocate ( BOUNDARY(ng) % sfwat_east(LBj:UBj) )
-      END IF
-      IF (LBC(isouth,isSfwat,ng)%acquire) THEN
-        allocate ( BOUNDARY(ng) % sfwat_south(LBi:UBi) )
-      END IF
-      IF (LBC(inorth,isSfwat,ng)%acquire) THEN
-        allocate ( BOUNDARY(ng) % sfwat_north(LBi:UBi) )
-      END IF
+      allocate ( BOUNDARY(ng) % sfwat_west(LBj:UBj) )
+      allocate ( BOUNDARY(ng) % sfwat_east(LBj:UBj) )
+      allocate ( BOUNDARY(ng) % sfwat_south(LBi:UBi) )
+      allocate ( BOUNDARY(ng) % sfwat_north(LBi:UBi) )
 
 # ifndef ANA_SFWATOBC
       IF (LBC(iwest,isSfwat,ng)%acquire) THEN
@@ -1571,18 +1539,10 @@
       END IF
 # endif
 
-      IF (LBC(iwest,isSig11,ng)%acquire) THEN
-        allocate ( BOUNDARY(ng) % sig11_west(LBj:UBj) )
-      END IF
-      IF (LBC(ieast,isSig11,ng)%acquire) THEN
-        allocate ( BOUNDARY(ng) % sig11_east(LBj:UBj) )
-      END IF
-      IF (LBC(isouth,isSig11,ng)%acquire) THEN
-        allocate ( BOUNDARY(ng) % sig11_south(LBi:UBi) )
-      END IF
-      IF (LBC(inorth,isSig11,ng)%acquire) THEN
-        allocate ( BOUNDARY(ng) % sig11_north(LBi:UBi) )
-      END IF
+      allocate ( BOUNDARY(ng) % sig11_west(LBj:UBj) )
+      allocate ( BOUNDARY(ng) % sig11_east(LBj:UBj) )
+      allocate ( BOUNDARY(ng) % sig11_south(LBi:UBi) )
+      allocate ( BOUNDARY(ng) % sig11_north(LBi:UBi) )
 
 # ifndef ANA_SIG11OBC
       IF (LBC(iwest,isSig11,ng)%acquire) THEN
@@ -1599,18 +1559,10 @@
       END IF
 # endif
 
-      IF (LBC(iwest,isSig22,ng)%acquire) THEN
-        allocate ( BOUNDARY(ng) % sig22_west(LBj:UBj) )
-      END IF
-      IF (LBC(ieast,isSig22,ng)%acquire) THEN
-        allocate ( BOUNDARY(ng) % sig22_east(LBj:UBj) )
-      END IF
-      IF (LBC(isouth,isSig22,ng)%acquire) THEN
-        allocate ( BOUNDARY(ng) % sig22_south(LBi:UBi) )
-      END IF
-      IF (LBC(inorth,isSig22,ng)%acquire) THEN
-        allocate ( BOUNDARY(ng) % sig22_north(LBi:UBi) )
-      END IF
+      allocate ( BOUNDARY(ng) % sig22_west(LBj:UBj) )
+      allocate ( BOUNDARY(ng) % sig22_east(LBj:UBj) )
+      allocate ( BOUNDARY(ng) % sig22_south(LBi:UBi) )
+      allocate ( BOUNDARY(ng) % sig22_north(LBi:UBi) )
 
 # ifndef ANA_SIG22OBC
       IF (LBC(iwest,isSig22,ng)%acquire) THEN
@@ -1627,18 +1579,10 @@
       END IF
 # endif
 
-      IF (LBC(iwest,isSig12,ng)%acquire) THEN
-        allocate ( BOUNDARY(ng) % sig12_west(LBj:UBj) )
-      END IF
-      IF (LBC(ieast,isSig12,ng)%acquire) THEN
-        allocate ( BOUNDARY(ng) % sig12_east(LBj:UBj) )
-      END IF
-      IF (LBC(isouth,isSig12,ng)%acquire) THEN
-        allocate ( BOUNDARY(ng) % sig12_south(LBi:UBi) )
-      END IF
-      IF (LBC(inorth,isSig12,ng)%acquire) THEN
-        allocate ( BOUNDARY(ng) % sig12_north(LBi:UBi) )
-      END IF
+      allocate ( BOUNDARY(ng) % sig12_west(LBj:UBj) )
+      allocate ( BOUNDARY(ng) % sig12_east(LBj:UBj) )
+      allocate ( BOUNDARY(ng) % sig12_south(LBi:UBi) )
+      allocate ( BOUNDARY(ng) % sig12_north(LBi:UBi) )
 
 # ifndef ANA_SIG12OBC
       IF (LBC(iwest,isSig12,ng)%acquire) THEN

@@ -73,6 +73,8 @@
 #  ifdef ICE_MODEL
           real(r8), pointer :: filui(:,:,:)
           real(r8), pointer :: filvi(:,:,:)
+          real(r8), pointer :: filuiE(:,:,:)
+          real(r8), pointer :: filviN(:,:,:)
           real(r8), pointer :: filai(:,:,:)
           real(r8), pointer :: filhi(:,:,:)
           real(r8), pointer :: filhsn(:,:,:)
