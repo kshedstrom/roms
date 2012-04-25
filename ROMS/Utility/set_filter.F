@@ -27,10 +27,11 @@
       CALL wclock_on (ng, iNLM, 5)
 # endif
       CALL set_filter_tile (ng, tile,                                   &
+     &                      LBi, UBi, LBj, UBj,                         &
 # ifdef ICE_MODEL
-     &                   IOUT, IUOUT, IEOUT,                            &
+     &                      IOUT, IUOUT, IEOUT,                         &
 # endif
-     &                   KOUT, NOUT)
+     &                      KOUT, NOUT)
 # ifdef PROFILE
       CALL wclock_off (ng, iNLM, 5)
 # endif
@@ -39,10 +40,11 @@
 !
 !***********************************************************************
       SUBROUTINE set_filter_tile (ng, tile,                             &
+     &                            LBi, UBi, LBj, UBj,                   &
 # ifdef ICE_MODEL
-     &                         Iout, Iuout, Ieout,                      &
+     &                            Iout, Iuout, Ieout,                   &
 # endif
-     &                         Kout, Nout)
+     &                            Kout, Nout)
 !***********************************************************************
 !
       USE mod_param
@@ -58,12 +60,17 @@
       USE mod_ocean
       USE mod_scalars
       USE mod_parallel
+      USE uv_rotate_mod, ONLY : uv_rotate2d
+# ifdef SOLVE3D
+      USE uv_rotate_mod, ONLY : uv_rotate3d
+# endif
 !
       implicit none
 !
 !  Imported variable declarations.
 !
       integer, intent(in) :: ng, tile
+      integer, intent(in) :: LBi, UBi, LBj, UBj
       integer, intent(in) :: Kout, Nout
 # ifdef ICE_MODEL
       integer, intent(in) :: Iout, Iuout, Ieout
@@ -290,16 +297,16 @@
                 END DO
               END DO
             END IF
-            IF (Aout(idUbar,ng)) THEN
+            IF (Aout(idUbar,ng) .or. Aout(idu2dE,ng)) THEN
               DO j=JstrR,JendR
-                DO i=Istr,IendR
+                DO i=Istr,Iend+1
                   FILTER(ng)%filu2d (i,j,f)=                            &
      &                                   OCEAN(ng)%ubar(i,j,Kout)*fw(iw)
                 END DO
               END DO
             END IF
-            IF (Aout(idVbar,ng)) THEN
-              DO j=Jstr,JendR
+            IF (Aout(idVbar,ng) .or. Aout(idv2dN,ng)) THEN
+              DO j=Jstr,Jend+1
                 DO i=IstrR,IendR
                   FILTER(ng)%filv2d (i,j,f)=                            &
      &                                   OCEAN(ng)%vbar(i,j,Kout)*fw(iw)
@@ -307,19 +314,19 @@
               END DO
             END IF
 # ifdef SOLVE3D
-            IF (Aout(idUbar,ng)) THEN
+            IF (Aout(idUvel,ng) .or. Aout(idu3dE,ng)) THEN
               DO k=1,N(ng)
                 DO j=JstrR,JendR
-                  DO i=Istr,IendR
+                  DO i=Istr,Iend+1
                     FILTER(ng)%filu3d(i,j,k,f)=                         &
      &                                   OCEAN(ng)%u(i,j,k,Nout)*fw(iw)
                   END DO
                 END DO
               END DO
             END IF
-            IF (Aout(idVbar,ng)) THEN
+            IF (Aout(idVvel,ng) .or. Aout(idv3dN,ng)) THEN
               DO k=1,N(ng)
-                DO j=Jstr,JendR
+                DO j=Jstr,Jend+1
                   DO i=IstrR,IendR
                     FILTER(ng)%filv3d(i,j,k,f)=                         &
      &                                   OCEAN(ng)%v(i,j,k,Nout)*fw(iw)
@@ -474,15 +481,15 @@
               END DO
             END IF
 # ifdef ICE_MODEL
-            IF (Aout(idUice,ng)) THEN
+            IF (Aout(idUice,ng) .or. Aout(idUiceE,ng)) THEN
               DO j=JstrR,JendR
-                DO i=Istr,IendR
+                DO i=Istr,Iend+1
                   FILTER(ng)%filui(i,j,f) = ICE(ng)%ui(i,j,Iuout)*fw(iw)
                 END DO
               END DO
             END IF
-            IF (Aout(idVice,ng)) THEN
-              DO j=Jstr,JendR
+            IF (Aout(idVice,ng) .or. Aout(idViceN,ng)) THEN
+              DO j=Jstr,Jend+1
                 DO i=IstrR,IendR
                   FILTER(ng)%filvi(i,j,f) = ICE(ng)%vi(i,j,Iuout)*fw(iw)
                 END DO
@@ -658,16 +665,16 @@
                   END DO
                 END DO
               END IF
-              IF (Aout(idUbar,ng)) THEN
+              IF (Aout(idUbar,ng) .or. Aout(idu2dE,ng)) THEN
                 DO j=JstrR,JendR
-                  DO i=Istr,IendR
+                  DO i=Istr,Iend+1
                     FILTER(ng)%filu2d (i,j,f)=FILTER(ng)%filu2d (i,j,f)+&
      &                               OCEAN(ng)%ubar(i,j,Kout)*fw(iw)
                   END DO
                 END DO
               END IF
-              IF (Aout(idVbar,ng)) THEN
-                DO j=Jstr,JendR
+              IF (Aout(idVbar,ng) .or. Aout(idv2dN,ng)) THEN
+                DO j=Jstr,Jend+1
                   DO i=IstrR,IendR
                     FILTER(ng)%filv2d (i,j,f)=FILTER(ng)%filv2d (i,j,f)+&
      &                               OCEAN(ng)%vbar(i,j,Kout)*fw(iw)
@@ -675,10 +682,10 @@
                 END DO
               END IF
 # ifdef SOLVE3D
-              IF (Aout(idUvel,ng)) THEN
+              IF (Aout(idUvel,ng) .or. Aout(idu3dE,ng)) THEN
                 DO k=1,N(ng)
                   DO j=JstrR,JendR
-                    DO i=Istr,IendR
+                    DO i=Istr,Iend+1
                       FILTER(ng)%filu3d(i,j,k,f)=                       &
      &                                    FILTER(ng)%filu3d(i,j,k,f)+   &
      &                                    OCEAN(ng)%u(i,j,k,Nout)*fw(iw)
@@ -686,9 +693,9 @@
                   END DO
                 END DO
               END IF
-              IF (Aout(idVvel,ng)) THEN
+              IF (Aout(idVvel,ng) .or. Aout(idv3dN,ng)) THEN
                 DO k=1,N(ng)
-                  DO j=Jstr,JendR
+                  DO j=Jstr,Jend+1
                     DO i=IstrR,IendR
                       FILTER(ng)%filv3d(i,j,k,f)=                       &
      &                                    FILTER(ng)%filv3d(i,j,k,f)+   &
@@ -857,16 +864,16 @@
                 END DO
               END IF
 # ifdef ICE_MODEL
-              IF (Aout(idUice,ng)) THEN
+              IF (Aout(idUice,ng) .or. Aout(idUiceE,ng)) THEN
                 DO j=JstrR,JendR
-                  DO i=IstrR,IendR
+                  DO i=Istr,Iend+1
                     FILTER(ng)%filui(i,j,f)=FILTER(ng)%filui(i,j,f)+    &
      &                                    ICE(ng)%ui(i,j,Iuout)*fw(iw)
                   END DO
                 END DO
               END IF
-              IF (Aout(idVice,ng)) THEN
-                DO j=JstrR,JendR
+              IF (Aout(idVice,ng) .or. Aout(idViceN,ng)) THEN
+                DO j=Jstr,Jend+1
                   DO i=IstrR,IendR
                     FILTER(ng)%filvi(i,j,f)=FILTER(ng)%filvi(i,j,f)+    &
      &                                    ICE(ng)%vi(i,j,Iuout)*fw(iw)
@@ -1072,23 +1079,36 @@
             END IF
             IF (Aout(idUbar,ng)) THEN
               DO j=JstrR,JendR
-                DO i=Istr,IendR
+                DO i=Istr,Iend+1
                   AVERAGE(ng)%avgu2d (i,j)=FILTER(ng)%filu2d (i,j,f)
                 END DO
               END DO
             END IF
             IF (Aout(idVbar,ng)) THEN
-              DO j=Jstr,JendR
+              DO j=Jstr,Jend+1
                 DO i=IstrR,IendR
                   AVERAGE(ng)%avgv2d (i,j)=FILTER(ng)%filv2d (i,j,f)
                 END DO
               END DO
             END IF
+            IF (Aout(idu2dE,ng).and.Aout(idv2dN,ng)) THEN
+              CALL uv_rotate2d (ng, tile, .FALSE., .FALSE.,             &
+     &                      LBi, UBi, LBj, UBj,                         &
+     &                      GRID(ng) % CosAngler,                       &
+     &                      GRID(ng) % SinAngler,                       &
+# ifdef MASKING
+     &                      GRID(ng)%rmask_io,                          &
+# endif
+     &                      FILTER(ng) % filu2d(:,:,f),                 &
+     &                      FILTER(ng) % filv2d(:,:,f),                 &
+     &                      AVERAGE(ng)%avgu2dE,                        &
+     &                      AVERAGE(ng)%avgv2dN)
+            END IF
 # ifdef SOLVE3D
             IF (Aout(idUvel,ng)) THEN
               DO k=1,N(ng)
                 DO j=JstrR,JendR
-                  DO i=Istr,IendR
+                  DO i=Istr,Iend+1
                     AVERAGE(ng)%avgu3d(i,j,k)=FILTER(ng)%filu3d(i,j,k,f)
                   END DO
                 END DO
@@ -1096,12 +1116,25 @@
             END IF
             IF (Aout(idVvel,ng)) THEN
               DO k=1,N(ng)
-                DO j=Jstr,JendR
+                DO j=Jstr,Jend+1
                   DO i=IstrR,IendR
                     AVERAGE(ng)%avgv3d(i,j,k)=FILTER(ng)%filv3d(i,j,k,f)
                   END DO
                 END DO
               END DO
+            END IF
+            IF (Aout(idu3dE,ng).and.Aout(idv3dN,ng)) THEN
+              CALL uv_rotate3d (ng, tile, .FALSE., .FALSE.,             &
+     &                      LBi, UBi, LBj, UBj, 1, N(ng),               &
+     &                      GRID(ng) % CosAngler,                       &
+     &                      GRID(ng) % SinAngler,                       &
+#  ifdef MASKING
+     &                      GRID(ng)%rmask_io,                          &
+#  endif
+     &                      FILTER(ng) % filu3d(:,:,:,f),               &
+     &                      FILTER(ng) % filv3d(:,:,:,f),               &
+     &                      AVERAGE(ng)%avgu3dE,                        &
+     &                      AVERAGE(ng)%avgv3dN)
             END IF
             IF (Aout(idDano,ng)) THEN
               DO k=1,N(ng)
@@ -1242,17 +1275,30 @@
 # ifdef ICE_MODEL
             IF (Aout(idUice,ng)) THEN
               DO j=JstrR,JendR
-                DO i=Istr,IendR
+                DO i=Istr,Iend+1
                   AVERAGE(ng)%avguice(i,j)=FILTER(ng)%filui(i,j,f)
                 END DO
               END DO
             END IF
             IF (Aout(idVice,ng)) THEN
-              DO j=Jstr,JendR
+              DO j=Jstr,Jend+1
                 DO i=IstrR,IendR
                   AVERAGE(ng)%avgvice(i,j)=FILTER(ng)%filvi(i,j,f)
                 END DO
               END DO
+            END IF
+            IF (Aout(idUiceE,ng).and.Aout(idViceN,ng)) THEN
+              CALL uv_rotate2d (ng, tile, .FALSE., .FALSE.,             &
+     &                      LBi, UBi, LBj, UBj,                         &
+     &                      GRID(ng) % CosAngler,                       &
+     &                      GRID(ng) % SinAngler,                       &
+# ifdef MASKING
+     &                      GRID(ng)%rmask_io,                          &
+# endif
+     &                      FILTER(ng) % filui(:,:,f),                  &
+     &                      FILTER(ng) % filvi(:,:,f),                  &
+     &                      AVERAGE(ng)%avguiceE,                       &
+     &                      AVERAGE(ng)%avgviceN)
             END IF
             IF (Aout(idAice,ng)) THEN
               DO j=JstrR,JendR

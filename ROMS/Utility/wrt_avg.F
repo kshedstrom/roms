@@ -1588,6 +1588,50 @@
         END IF
       END IF
 !
+!  Write out 2D Eastward ice momentum component (m/s) at RHO-points.
+!
+      IF (Aout(idUiceE,ng)) THEN
+        scale=1.0_r8
+        gtype=gfactor*u2dvar
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid,                      &
+     &                     AVG(ng)%Vid(idUiceE),                        &
+     &                     AVG(ng)%Rindex, gtype,                       &
+     &                     LBi, UBi, LBj, UBj, scale,                   &
+#   ifdef MASKING
+     &                     GRID(ng) % umask_avg,                        &
+#   endif
+     &                     AVERAGE(ng) % avguiceE)
+        IF (status.ne.nf90_noerr) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,idUiceE)), AVG(ng)%Rindex
+          END IF
+          exit_flag=3
+          RETURN
+        END IF
+      END IF
+!
+!  Write out 2D Northward ice momentum component (m/s) at RHO-points.
+!
+      IF (Aout(idViceN,ng)) THEN
+        scale=1.0_r8
+        gtype=gfactor*v2dvar
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid,                      &
+     &                     AVG(ng)%Vid(idViceN),                        &
+     &                     AVG(ng)%Rindex, gtype,                       &
+     &                     LBi, UBi, LBj, UBj, scale,                   &
+#   ifdef MASKING
+     &                     GRID(ng) % vmask_avg,                        &
+#   endif
+     &                     AVERAGE(ng) % avgviceN)
+       IF (status.ne.nf90_noerr) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,idViceN)), AVG(ng)%Rindex
+          END IF
+          exit_flag=3
+          RETURN
+        END IF
+      END IF
+!
 ! Write out ice concentration.
 !
       IF (Aout(idAice,ng)) THEN

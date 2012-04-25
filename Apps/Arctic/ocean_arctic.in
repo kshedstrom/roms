@@ -760,10 +760,10 @@ Dout(iTvdif) == T T                        ! vertical diffusion
 ! line per entry with a vertical bar (|) symbol after each entry,
 ! except the last one.
 
-     NCLMFILES == 1                         ! number of climate files
+   NCLMFILES == 1                         ! number of climate files
      CLMNAME == ocean_clm.nc
 
-     NBCFILES == 3                          ! number of boundary files
+    NBCFILES == 3                          ! number of boundary files
      BRYNAME == /wrkdir/kate/Arctic/Files/SODA_bdry_ARCTIC.nc \
                 /wrkdir/kate/Arctic/Files/Arctic_icebc.nc \
                 /wrkdir/kate/Arctic/Files/Arctic_snowbc.nc

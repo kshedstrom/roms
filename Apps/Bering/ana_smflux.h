@@ -128,7 +128,8 @@
 !  XI-direction (m2/s2) at horizontal U-points.
 !-----------------------------------------------------------------------
 !
-      windamp = 1.0e-4_r8
+      windamp = 0.0_r8
+!     windamp = 1.0e-4_r8
 ! This is now in degrees clockwise from north
       winddir = 135*pi/180._r8
 ! This was in some i,j space

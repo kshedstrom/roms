@@ -128,7 +128,7 @@
 !
 !  Read in 2D momentum component (m/s) in the XI-direction.
 !
-      IF (Aout(idUbar,ng)) THEN
+      IF (Aout(idUbar,ng) .or. Aout(idu2dE)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idUbar),       &
      &                       FIL(1,ng)%ncid, varid)
         IF (exit_flag.ne.NoError) RETURN
@@ -157,7 +157,7 @@
 !
 !  Read in 2D momentum component (m/s) in the ETA-direction.
 !
-      IF (Aout(idVbar,ng)) THEN
+      IF (Aout(idVbar,ng) .or. Aout(idv2dN)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idVbar),       &
      &                       FIL(1,ng)%ncid, varid)
         IF (exit_flag.ne.NoError) RETURN
@@ -188,7 +188,7 @@
 !  Read in 3D momentum component (m/s) in the XI-direction.
 !
       ncname=FIL(2,ng)%name
-      IF (Aout(idUvel,ng)) THEN
+      IF (Aout(idUvel,ng) .or. Aout(idu3dE)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idUvel),       &
      &                       FIL(2,ng)%ncid, varid)
         IF (exit_flag.ne.NoError) RETURN
@@ -218,7 +218,7 @@
 !  Read in 3D momentum component (m/s) in the ETA-direction.
 !
       ncname=FIL(3,ng)%name
-      IF (Aout(idVvel,ng)) THEN
+      IF (Aout(idVvel,ng) .or. Aout(idv3dN)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idVvel),       &
      &                       FIL(3,ng)%ncid, varid)
         IF (exit_flag.ne.NoError) RETURN
@@ -741,7 +741,7 @@
 !  Read in ice u-velocity
 !
       ncname=FIL(10,ng)%name
-      IF (Aout(idUice,ng)) THEN
+      IF (Aout(idUice,ng) .or. Aout(idUiceE)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idUice),       &
      &                       FIL(10,ng)%ncid, varid)
         IF (exit_flag.ne.NoError) RETURN
@@ -770,7 +770,7 @@
 !
 !  Read in ice v-velocity
 !
-      IF (Aout(idVice,ng)) THEN
+      IF (Aout(idVice,ng) .or. Aout(idViceN)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idVice),       &
      &                       FIL(10,ng)%ncid, varid)
         gtype=v2dvar
