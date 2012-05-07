@@ -18,9 +18,9 @@
 !    iNH4_              ! Ammonium concentration
 !    iSiOH              ! Silicate concentration
 !    iPO4_              ! Phosphate concentration
-!    iS1_N              ! Samll phytoplankton N
-!    iS1_C              ! Samll phytoplankton C
-!    iS1CH              ! Samll phytoplankton CHL
+!    iS1_N              ! Small phytoplankton N
+!    iS1_C              ! Small phytoplankton C
+!    iS1CH              ! Small phytoplankton CHL
 !    iS2_N              ! Diatom concentration N
 !    iS2_C              ! Diatom concentration C
 !    iS2CH              ! Diatom concentration CHL
@@ -778,7 +778,7 @@
       gtczz2=gddczz2+gzzc1zz2+gc2zz2+gc3zz2
 
 !     -------------------------------------------------------
-!     CALAULATING THE mortality and excretion of zoo
+!     CALCULATING THE mortality and excretion of zoo
 !     -------------------------------------------------------
 
 
@@ -806,7 +806,7 @@
       remvzc2 =bgamma(ng)*Bio(i,k,iZ2_C)*Bio(i,k,iZ2_C)
 
 !     -------------------------------------------------------
-!     CALAULATING THE nitrification and reminalization
+!     CALCULATING THE nitrification and reminalization
 !     -------------------------------------------------------
 
       nitrif = bgamma7(ng)*Bio(i,k,iNH4_)

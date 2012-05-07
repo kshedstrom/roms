@@ -159,7 +159,7 @@
 
 /* tides */
 
-#define LTIDES
+#undef LTIDES
 #ifdef LTIDES
 # define FILTERED
 # define SSH_TIDES
@@ -177,6 +177,7 @@
 # define UV_QDRAG
 #else
 # define UV_QDRAG
+# define M2TIDE_DIFF
 #endif
 
 /* point sources (rivers, line sources) */
@@ -218,6 +219,7 @@
 /*
 **  Biological model options.
 */
+#define BIO_UMAINE
 #undef NEMURO
 #undef BIO_GOANPZ        /* Sarah Hinckley's 11 box model */
 #undef BEST_NPZ         /* Georgina Gibsons BEST NPZ model  */

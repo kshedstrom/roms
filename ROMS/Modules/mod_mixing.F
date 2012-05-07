@@ -221,6 +221,9 @@
 # ifdef BV_FREQUENCY
           real(r8), pointer :: bvf(:,:,:)
 # endif
+# ifdef M2TIDE_DIFF
+          real(r8), pointer :: m2_amp(:,:)
+# endif
 # if defined MIX_ISO_TS || defined GENT_McWILLIAMS
           real(r8), pointer :: neutral(:,:,:)
 # endif
@@ -477,6 +480,10 @@
 
 # ifdef BV_FREQUENCY
       allocate ( MIXING(ng) % bvf(LBi:UBi,LBj:UBj,0:N(ng)) )
+# endif
+
+# ifdef M2TIDE_DIFF
+      allocate ( MIXING(ng) % m2_amp(LBi:UBi,LBj:UBj) )
 # endif
 
 # if defined MIX_ISO_TS || defined GENT_McWILLIAMS
@@ -850,6 +857,11 @@
             DO i=Imin,Imax
               MIXING(ng) % bvf(i,j,k) = IniVal
             END DO
+          END DO
+# endif
+# ifdef M2TIDE_DIFF
+          DO i=Imin,Imax
+            MIXING(ng) % m2_amp(i,j) = IniVal
           END DO
 # endif
 # if defined MIX_ISO_TS || defined GENT_McWILLIAMS

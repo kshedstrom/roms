@@ -187,6 +187,15 @@
   'w3dvar'
   1.0d0
 
+'omega'                                            ! Output
+  'S-coordinate vertical momentum component'
+  'meter3 second-1'                                ! [m3/s]
+  'omega, scalar, series'
+  'ocean_time'
+  'idOclm'
+  'w3dvar'
+  1.0d0
+
 'rho'                                              ! Output
   'density anomaly'
   'kilogram meter-3'                               ! [kg/m3]
@@ -633,6 +642,15 @@
   'r2dvar'
   1.0d0
 
+'fastice'                                          ! Input/Output
+  'landfast ice extent'
+  '1'                                              ! 
+  'FastIce, scalar, series'                        ! 
+  'ocean_time'                                     !
+  'idFastIce'                                      !
+  'r2dvar'
+  1.0d0
+
 'bhflux'                                           ! Input
   'bottom net heat flux'
   'watt meter-2'                                   ! Input:  [Watt/m2]
@@ -693,12 +711,30 @@
   'u2dvar'
   1.0d0
 
+'uice'
+  'u-component of ice velocity'
+  'meter second-1'
+  'u-component of ice velocity, scalar, series'
+  'ocean_time'
+  'idUIclm'
+  'u2dvar'
+  1.0d0
+
 'vice'
   'v-component of ice velocity'
   'meter second-1'
   'v-component of ice velocity, scalar, series'
   'ocean_time'
   'idVice'
+  'v2dvar'
+  1.0d0
+
+'vice'
+  'v-component of ice velocity'
+  'meter second-1'
+  'v-component of ice velocity, scalar, series'
+  'ocean_time'
+  'idVIclm'
   'v2dvar'
   1.0d0
 
@@ -729,12 +765,30 @@
   'r2dvar'
   1.0d0
 
+'aice'
+  'fraction of cell covered by ice'
+  'nondimensional'
+  'ice concentration, scalar, series'
+  'ocean_time'
+  'idAIclm'
+  'r2dvar'
+  1.0d0
+
 'hice'
   'average ice thickness in cell'
   'meter'
   'ice thickness, scalar, series'
   'ocean_time'
   'idHice'
+  'r2dvar'
+  1.0d0
+
+'hice'
+  'average ice thickness in cell'
+  'meter'
+  'ice thickness, scalar, series'
+  'ocean_time'
+  'idHIclm'
   'r2dvar'
   1.0d0
 
@@ -776,7 +830,7 @@
 
 'chu_iw'
   'ice-water momentum transfer coefficient'
-  'metre second-1'
+  'meter second-1'
   'transfer coefficient, scalar, series'
   'ocean_time'
   'idChuiw'
@@ -857,7 +911,7 @@
 
 'iomflx'
   'ice-ocean mass flux'
-  'metre/sec'
+  'meter second-1'
   'ice-ocean mass flux, scalar, series'
   'ocean_time'
   'idIomflx'
@@ -2157,6 +2211,15 @@
   'r2dvar'
   0.017453292519943295                             ! pi/180
 
+'tide_m2amp'                                       ! Input
+  'velocity amplitude of M2 tidal constituent'
+  'meter second-1'                                 ! m/s
+  'tide_m2amp, scalar'
+  'tide_period'
+  'idM2am'
+  'r2dvar'
+  1.0
+
 !
 !------------------------------------------------------------------------------
 !  River forcing variables.
@@ -2423,7 +2486,6 @@
   'idRtrc(iOxyg)'
   'nulvar'
   1.0d0
-
 
 !--------------------------UMAINE variables
 'river_NO3_'                                        ! Input
@@ -2706,7 +2768,6 @@
   1.0d0
 
 !--------------------UMAINE variables
-
 
 !
 !------------------------------------------------------------------------------
@@ -3739,6 +3800,15 @@
   'r3dvar'
   1.0d0
 
+'NO3'                                              ! Input/Output
+  'nitrate concentration'
+  'millimole_nitrogen meter-3'                     ! [millimole/m3]
+  'NO3, scalar, series'
+  'ocean_time'
+  'idTclm(iNO3_)'
+  'r3dvar'
+  1.0d0
+
 'NO3'                                              ! Input
   'nitrate concentration functional'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
@@ -3754,6 +3824,15 @@
   'NH4, scalar, series'
   'ocean_time'
   'idTvar(iNH4_)'
+  'r3dvar'
+  1.0d0
+
+'NH4'                                              ! Input/Output
+  'ammonium concentration'
+  'millimole_nitrogen meter-3'                     ! [millimole/m3]
+  'NH4, scalar, series'
+  'ocean_time'
+  'idTclm(iNH4_)'
   'r3dvar'
   1.0d0
 
@@ -3775,12 +3854,30 @@
   'r3dvar'
   1.0d0
 
+'PON'                                              ! Input/Output
+  'particulate organic nitrogen concentration'
+  'millimole_nitrogen meter-3'                     ! [millimole/m3]
+  'PON, scalar, series'
+  'ocean_time'
+  'idTclm(iPON_)'
+  'r3dvar'
+  1.0d0
+
 'DON'                                              ! Input/Output
   'dissolved organic nitrogen concentration'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'DON, scalar, series'
   'ocean_time'
   'idTvar(iDON_)'
+  'r3dvar'
+  1.0d0
+
+'DON'                                              ! Input/Output
+  'dissolved organic nitrogen concentration'
+  'millimole_nitrogen meter-3'                     ! [millimole/m3]
+  'DON, scalar, series'
+  'ocean_time'
+  'idTclm(iDON_)'
   'r3dvar'
   1.0d0
 
@@ -3793,12 +3890,30 @@
   'r3dvar'
   1.0d0
 
+'SiOH4'                                            ! Input/Output
+  'silicate concentration'
+  'millimole_silica meter-3'                       ! [millimole/m3]
+  'SiOH4, scalar, series'
+  'ocean_time'
+  'idTclm(iSiOH)'
+  'r3dvar'
+  1.0d0
+
 'opal'                                             ! Input/Output
   'particulate organic silica concentration'
   'millimole_silica meter-3'                       ! [millimole/m3]
   'silica, scalar, series'
   'ocean_time'
   'idTvar(iopal)'
+  'r3dvar'
+  1.0d0
+
+'opal'                                             ! Input/Output
+  'particulate organic silica concentration'
+  'millimole_silica meter-3'                       ! [millimole/m3]
+  'silica, scalar, series'
+  'ocean_time'
+  'idTclm(iopal)'
   'r3dvar'
   1.0d0
 
@@ -3883,6 +3998,15 @@
   'r3dvar'
   1.0d0
 
+'diatom'                                           ! Input/Output
+  'diatom biomass'
+  'millimole_nitrogen meter-3'                     ! [millimole/m3]
+  'diatom, scalar, series'
+  'ocean_time'
+  'idTclm(iLphy)'
+  'r3dvar'
+  1.0d0
+
 'zooplankton'                                      ! Input/Output
   'zooplankton concentration'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
@@ -3910,6 +4034,15 @@
   'r3dvar'
   1.0d0
 
+'microzooplankton'                                 ! Input/Output
+  'microzooplankton biomass'
+  'millimole_nitrogen meter-3'                     ! [millimole/m3]
+  'microzooplankton, scalar, series'
+  'ocean_time'
+  'idTclm(iSzoo)'
+  'r3dvar'
+  1.0d0
+
 'mesozooplankton'                                  ! Input/Output
   'mesozooplankton biomass'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
@@ -3919,12 +4052,30 @@
   'r3dvar'
   1.0d0
 
+'mesozooplankton'                                  ! Input/Output
+  'mesozooplankton biomass'
+  'millimole_nitrogen meter-3'                     ! [millimole/m3]
+  'mesozooplankton, scalar, series'
+  'ocean_time'
+  'idTclm(iLzoo)'
+  'r3dvar'
+  1.0d0
+
 'Pzooplankton'                                     ! Input/Output
   'predator-zooplankton biomass'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'Pzooplankton, scalar, series'
   'ocean_time'
   'idTvar(iPzoo)'
+  'r3dvar'
+  1.0d0
+
+'Pzooplankton'                                     ! Input/Output
+  'predator-zooplankton biomass'
+  'millimole_nitrogen meter-3'                     ! [millimole/m3]
+  'Pzooplankton, scalar, series'
+  'ocean_time'
+  'idTclm(iPzoo)'
   'r3dvar'
   1.0d0
 
@@ -4025,6 +4176,60 @@
   'ocean_time'
   'idTvar(iFeD_)'
   'r3dvar'
+  1.0d0
+
+'PONsed'                                          ! Input/Output
+  'Sediment PON'
+  'millimole_nitrogen meter-3'                     ! [millimole/m3]
+  'PONsed, scalar, series'
+  'ocean_time'
+  'idPONsed'
+  'r2dvar'
+  1.0d0
+
+'OPALsed'                                         ! Input/Output
+  'Sediment OPAL'
+  'millimole_silica meter-3'                      ! [millimole/m3]
+  'OPALsed, scalar, series'
+  'ocean_time'
+  'idOPALsed'
+  'r2dvar'
+  1.0d0
+
+'DENITsed'                                        ! Input/Output
+  'Sediment DENIT'
+  'millimole_nitrogen meter-3'                    ! [millimole/m3]
+  'DENITsed, scalar, series'
+  'ocean_time'
+  'idDENITsed'
+  'r2dvar'
+  1.0d0
+
+'PON_burial'                                       ! Input/Output
+  'Buried PON'
+  'millimole_nitrogen meter-3'                      ! [millimole/m3]
+  'PON_burial, scalar, series'
+  'ocean_time'
+  'idPONbur'
+  'r2dvar'
+  1.0d0
+
+'OPAL_burial'                                     ! Input/Output
+  'Buried OPAL'
+  'millimole_silica meter-3'                      ! [millimole/m3]
+  'OPAL_burial, scalar, series'
+  'ocean_time'
+  'idOPALbur'
+  'r2dvar'
+  1.0d0
+
+'primary_prod'                                    ! Input/Output
+  'Net primary production'
+  'millimole_nitrate meter-3'                      ! [millimole/m3]
+  'primary_prod, scalar, series'
+  'ocean_time'
+  'idNPP'
+  'r2dvar'
   1.0d0
 
 'TIC'                                              ! Input/Output

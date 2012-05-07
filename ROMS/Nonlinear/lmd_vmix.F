@@ -465,6 +465,10 @@
 # ifndef SPLINES
      &                      GRID(ng) % z_r,                             &
 # endif
+# ifdef M2TIDE_DIFF
+     &                      GRID(ng) % z_w,                             &
+     &                      MIXING(ng) % m2_amp,                        &
+# endif
      &                      MIXING(ng) % bvf,                           &
      &                      MIXING(ng) % Akt,                           &
      &                      MIXING(ng) % Akv)
@@ -478,6 +482,10 @@
      &                            Hz,                                   &
 # ifndef SPLINES
      &                            z_r,                                  &
+# endif
+# ifdef M2TIDE_DIFF
+     &                            z_w,                                  &
+     &                            m2_amp,                               &
 # endif
      &                            bvf, Akt, Akv)
 !***********************************************************************
@@ -501,6 +509,10 @@
 #  ifndef SPLINES
       real(r8), intent(in) :: z_r(LBi:,LBj:,:)
 #  endif
+# ifdef M2TIDE_DIFF
+      real(r8), intent(in) :: z_w(LBi:,LBj:,:)
+      real(r8), intent(in) :: m2_amp(LBi:,LBj:)
+# endif
       real(r8), intent(in) :: bvf(LBi:,LBj:,0:)
 
       real(r8), intent(inout) :: Akt(LBi:,LBj:,0:,:)
@@ -510,6 +522,10 @@
 #  ifndef SPLINES
       real(r8), intent(in) :: z_r(LBi:UBi,LBj:UBj,N(ng))
 #  endif
+# ifdef M2TIDE_DIFF
+      real(r8), intent(in) :: z_w(LBi:UBi,LBj:UBj,0:N(ng))
+      real(r8), intent(in) :: m2_amp(LBi:UBi,LBj:UBj)
+# endif
       real(r8), intent(in) :: bvf(LBi:UBi,LBj:UBj,0:N(ng))
 
       real(r8), intent(inout) :: Akt(LBi:UBi,LBj:UBj,0:N(ng),NAT)
@@ -523,6 +539,13 @@
       real(r8), parameter :: eps = 1.0E-14_r8
 
       real(r8) :: cff, lmd_iwm, lmd_iws, nu_sx, nu_sxc, shear2
+# ifdef M2TIDE_DIFF
+      real(r8), parameter :: lmd_k0 = 5.0e-3_r8  ! m2 s-1
+      real(r8), parameter :: lmd_sigma = 3.0_r8
+      real(r8), parameter :: lmd_p = 0.25_r8
+      real(r8), parameter :: lmd_drag = 2.4e-3_r8
+      real(r8) :: lmd_kz, lmd_ri
+# endif
 
 # include "set_bounds.h"
 !
@@ -531,6 +554,10 @@
 !  the superposition of three processes: local Richardson number
 !  instability due to resolved vertical shear, internal wave
 !  breaking, and double diffusion.
+# ifdef M2TIDE_DIFF
+!  Add in contribution of simulated tidal mixing.
+!   Lee, H.-C. et al., 2006 Ocean Modelling, 11, 464-477.
+# endif
 !-----------------------------------------------------------------------
 !
       DO k=1,N(ng)-1
@@ -562,6 +589,25 @@
           END DO
         END DO
       END DO
+!
+# ifdef M2TIDE_DIFF
+!  Add in contribution of simulated tidal mixing.
+!
+      DO k=1,N(ng)-1
+        DO j=Jstr,Jend
+          DO i=Istr,Iend
+            shear2 = 0.5 * lmd_drag *                                   &
+     &               (m2_amp(i,j)/(vonKar*(z_w(i,j,0)-z_w(i,j,k)) ))**2
+            lmd_ri = bvf(i,j,k) / shear2
+            lmd_kz = lmd_k0 * (1 + lmd_sigma*lmd_ri)**(-lmd_p)
+            Akt(i,j,k,itemp)=Akt(i,j,k,itemp)+lmd_kz
+#  ifdef SALINITY
+            Akt(i,j,k,isalt)=Akt(i,j,k,isalt)+lmd_kz
+#  endif
+          END DO
+        END DO
+      END DO
+# endif
 !
 !  Apply boundary conditions.
 !
