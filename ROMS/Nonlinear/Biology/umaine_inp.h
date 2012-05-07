@@ -21,9 +21,11 @@
 !
 !  Local variable declarations.
 !
-      integer :: Npts, Nval, i, itrc, ng, status
+      integer :: Npts, Nval, i, itrc, ng, status,ifield
 
-      integer :: decode_line, load_i, load_l, load_r
+      integer :: decode_line, load_i, load_l, load_r,load_lbc
+
+      integer ::  igrid, itracer,iTrcStr, iTrcEnd,nline
 
       logical, dimension(NBT,Ngrids) :: Ltrc
 
@@ -36,12 +38,22 @@
       character (len=256), dimension(100) :: Cval
 !
 !-----------------------------------------------------------------------
+!  Initialize.
+!-----------------------------------------------------------------------
+!
+      igrid=1                            ! nested grid counter
+      itracer=0                          ! LBC tracer counter
+      iTrcStr=isTvar(idbio(1))           ! first LBC tracer to process
+      iTrcEnd=isTvar(idbio(NBT))         ! last  LBC tracer to process
+      nline=0                            ! LBC multi-line counter
+!-----------------------------------------------------------------------
 !  Read in UMaine CoSiNE biological model parameters.
 !-----------------------------------------------------------------------
 !
       DO WHILE (.TRUE.)
         READ (inp,'(a)',ERR=10,END=20) line
         status=decode_line(line, KeyWord, Nval, Cval, Rval)
+
         IF (status.gt.0) THEN
           IF (TRIM(KeyWord).eq.'Lbiology') THEN
             Npts=load_l(Nval, Cval, Ngrids, Lbiology)
@@ -55,6 +67,8 @@
             Npts=load_r(Nval, Rval, Ngrids, gmaxs1)
           ELSE IF (TRIM(KeyWord).eq.'gmaxs2') THEN
             Npts=load_r(Nval, Rval, Ngrids, gmaxs2)
+          ELSE IF (TRIM(KeyWord).eq.'gmaxs3') THEN
+            Npts=load_r(Nval, Rval, Ngrids, gmaxs3)
           ELSE IF (TRIM(KeyWord).eq.'beta1') THEN
             Npts=load_r(Nval, Rval, Ngrids, beta1)
           ELSE IF (TRIM(KeyWord).eq.'beta2') THEN
@@ -65,78 +79,177 @@
             Npts=load_r(Nval, Rval, Ngrids, akz2)
           ELSE IF (TRIM(KeyWord).eq.'PARfrac') THEN
             Npts=load_r(Nval, Rval, Ngrids, PARfrac)
-          ELSE IF (TRIM(KeyWord).eq.'amaxs2') THEN
-            Npts=load_r(Nval, Rval, Ngrids, amaxs2)
-          ELSE IF (TRIM(KeyWord).eq.'parsats1') THEN
-            Npts=load_r(Nval, Rval, Ngrids, parsats1)
-          ELSE IF (TRIM(KeyWord).eq.'parsats2') THEN
-            Npts=load_r(Nval, Rval, Ngrids, parsats2)
+          ELSE IF (TRIM(KeyWord).eq.'alphachl_s1') THEN
+            Npts=load_r(Nval, Rval, Ngrids, alphachl_s1)
+          ELSE IF (TRIM(KeyWord).eq.'alphachl_s2') THEN
+            Npts=load_r(Nval, Rval, Ngrids, alphachl_s2)
+          ELSE IF (TRIM(KeyWord).eq.'alphachl_s3') THEN
+            Npts=load_r(Nval, Rval, Ngrids, alphachl_s3)
           ELSE IF (TRIM(KeyWord).eq.'pis1') THEN
             Npts=load_r(Nval, Rval, Ngrids, pis1)
           ELSE IF (TRIM(KeyWord).eq.'pis2') THEN
             Npts=load_r(Nval, Rval, Ngrids, pis2)
+          ELSE IF (TRIM(KeyWord).eq.'pis3') THEN
+            Npts=load_r(Nval, Rval, Ngrids, pis3)
           ELSE IF (TRIM(KeyWord).eq.'akno3s1') THEN
             Npts=load_r(Nval, Rval, Ngrids, akno3s1)
           ELSE IF (TRIM(KeyWord).eq.'akno3s2') THEN
             Npts=load_r(Nval, Rval, Ngrids, akno3s2)
+          ELSE IF (TRIM(KeyWord).eq.'akno3s3') THEN
+            Npts=load_r(Nval, Rval, Ngrids, akno3s3)
           ELSE IF (TRIM(KeyWord).eq.'aknh4s1') THEN
             Npts=load_r(Nval, Rval, Ngrids, aknh4s1)
           ELSE IF (TRIM(KeyWord).eq.'aknh4s2') THEN
             Npts=load_r(Nval, Rval, Ngrids, aknh4s2)
+          ELSE IF (TRIM(KeyWord).eq.'aknh4s3') THEN
+            Npts=load_r(Nval, Rval, Ngrids, aknh4s3)
           ELSE IF (TRIM(KeyWord).eq.'akpo4s1') THEN
             Npts=load_r(Nval, Rval, Ngrids, akpo4s1)
           ELSE IF (TRIM(KeyWord).eq.'akpo4s2') THEN
             Npts=load_r(Nval, Rval, Ngrids, akpo4s2)
+          ELSE IF (TRIM(KeyWord).eq.'akpo4s3') THEN
+            Npts=load_r(Nval, Rval, Ngrids, akpo4s3)
           ELSE IF (TRIM(KeyWord).eq.'akco2s1') THEN
             Npts=load_r(Nval, Rval, Ngrids, akco2s1)
           ELSE IF (TRIM(KeyWord).eq.'akco2s2') THEN
             Npts=load_r(Nval, Rval, Ngrids, akco2s2)
+          ELSE IF (TRIM(KeyWord).eq.'akco2s3') THEN
+            Npts=load_r(Nval, Rval, Ngrids, akco2s3)
           ELSE IF (TRIM(KeyWord).eq.'aksio4s2') THEN
             Npts=load_r(Nval, Rval, Ngrids, aksio4s2)
+          ELSE IF (TRIM(KeyWord).eq.'ES1') THEN
+            Npts=load_r(Nval, Rval, Ngrids, ES1)
+          ELSE IF (TRIM(KeyWord).eq.'ES2') THEN
+            Npts=load_r(Nval, Rval, Ngrids, ES2)
+          ELSE IF (TRIM(KeyWord).eq.'ES3') THEN
+            Npts=load_r(Nval, Rval, Ngrids, ES3)
           ELSE IF (TRIM(KeyWord).eq.'ak1') THEN
             Npts=load_r(Nval, Rval, Ngrids, ak1)
           ELSE IF (TRIM(KeyWord).eq.'ak2') THEN
             Npts=load_r(Nval, Rval, Ngrids, ak2)
-          ELSE IF (TRIM(KeyWord).eq.'bgamma0') THEN
-            Npts=load_r(Nval, Rval, Ngrids, bgamma0)
+          ELSE IF (TRIM(KeyWord).eq.'Qmax') THEN
+            Npts=load_r(Nval, Rval, Ngrids, Qmax)
+          ELSE IF (TRIM(KeyWord).eq.'Qmin') THEN
+            Npts=load_r(Nval, Rval, Ngrids, Qmin)
+          ELSE IF (TRIM(KeyWord).eq.'lambdano3_s1') THEN
+            Npts=load_r(Nval, Rval, Ngrids, lambdano3_s1)
+          ELSE IF (TRIM(KeyWord).eq.'lambdano3_s2') THEN
+            Npts=load_r(Nval, Rval, Ngrids, lambdano3_s2)
+          ELSE IF (TRIM(KeyWord).eq.'lambdano3_s3') THEN
+            Npts=load_r(Nval, Rval, Ngrids, lambdano3_s3)
+          ELSE IF (TRIM(KeyWord).eq.'thetaNmax_s1') THEN
+            Npts=load_r(Nval, Rval, Ngrids, thetaNmax_s1)
+          ELSE IF (TRIM(KeyWord).eq.'thetaNmax_s2') THEN
+            Npts=load_r(Nval, Rval, Ngrids, thetaNmax_s2)
+          ELSE IF (TRIM(KeyWord).eq.'thetaNmax_s3') THEN
+            Npts=load_r(Nval, Rval, Ngrids, thetaNmax_s3)
+          ELSE IF (TRIM(KeyWord).eq.'bgamma') THEN
+            Npts=load_r(Nval, Rval, Ngrids, bgamma)
           ELSE IF (TRIM(KeyWord).eq.'bgamma1') THEN
             Npts=load_r(Nval, Rval, Ngrids, bgamma1)
           ELSE IF (TRIM(KeyWord).eq.'bgamma2') THEN
             Npts=load_r(Nval, Rval, Ngrids, bgamma2)
+          ELSE IF (TRIM(KeyWord).eq.'bgamma22') THEN
+            Npts=load_r(Nval, Rval, Ngrids, bgamma22)
           ELSE IF (TRIM(KeyWord).eq.'bgamma3') THEN
             Npts=load_r(Nval, Rval, Ngrids, bgamma3)
           ELSE IF (TRIM(KeyWord).eq.'bgamma4') THEN
             Npts=load_r(Nval, Rval, Ngrids, bgamma4)
+          ELSE IF (TRIM(KeyWord).eq.'bgamma10') THEN
+            Npts=load_r(Nval, Rval, Ngrids, bgamma10)
+          ELSE IF (TRIM(KeyWord).eq.'bgamma12') THEN
+            Npts=load_r(Nval, Rval, Ngrids, bgamma12)
           ELSE IF (TRIM(KeyWord).eq.'bgamma5') THEN
             Npts=load_r(Nval, Rval, Ngrids, bgamma5)
-          ELSE IF (TRIM(KeyWord).eq.'bgamma6') THEN
-            Npts=load_r(Nval, Rval, Ngrids, bgamma6)
           ELSE IF (TRIM(KeyWord).eq.'bgamma7') THEN
             Npts=load_r(Nval, Rval, Ngrids, bgamma7)
-          ELSE IF (TRIM(KeyWord).eq.'wsd') THEN
-            Npts=load_r(Nval, Rval, Ngrids, wsd)
+          ELSE IF (TRIM(KeyWord).eq.'bgamma11') THEN
+            Npts=load_r(Nval, Rval, Ngrids, bgamma11)
+          ELSE IF (TRIM(KeyWord).eq.'bgamma13') THEN
+            Npts=load_r(Nval, Rval, Ngrids, bgamma13)
+          ELSE IF (TRIM(KeyWord).eq.'mtos1') THEN
+            Npts=load_r(Nval, Rval, Ngrids, mtos1)
+          ELSE IF (TRIM(KeyWord).eq.'mtos2') THEN
+            Npts=load_r(Nval, Rval, Ngrids, mtos2)
+          ELSE IF (TRIM(KeyWord).eq.'mtos3') THEN
+            Npts=load_r(Nval, Rval, Ngrids, mtos3)
+          ELSE IF (TRIM(KeyWord).eq.'flz1') THEN
+            Npts=load_r(Nval, Rval, Ngrids, flz1)
+          ELSE IF (TRIM(KeyWord).eq.'flz2') THEN
+            Npts=load_r(Nval, Rval, Ngrids, flz2)
+          ELSE IF (TRIM(KeyWord).eq.'lk1') THEN
+            Npts=load_r(Nval, Rval, Ngrids, lk1)
+          ELSE IF (TRIM(KeyWord).eq.'lk2') THEN
+            Npts=load_r(Nval, Rval, Ngrids, lk2)
+          ELSE IF (TRIM(KeyWord).eq.'lk3') THEN
+            Npts=load_r(Nval, Rval, Ngrids, lk3)
+          ELSE IF (TRIM(KeyWord).eq.'ratiol1') THEN
+            Npts=load_r(Nval, Rval, Ngrids, ratiol1)
+          ELSE IF (TRIM(KeyWord).eq.'ratiol2') THEN
+            Npts=load_r(Nval, Rval, Ngrids, ratiol2)
+          ELSE IF (TRIM(KeyWord).eq.'wsdn') THEN
+            Npts=load_r(Nval, Rval, Ngrids, wsdn)
+          ELSE IF (TRIM(KeyWord).eq.'wsdc') THEN
+            Npts=load_r(Nval, Rval, Ngrids, wsdc)
           ELSE IF (TRIM(KeyWord).eq.'wsdsi') THEN
             Npts=load_r(Nval, Rval, Ngrids, wsdsi)
-          ELSE IF (TRIM(KeyWord).eq.'wsp') THEN
-            Npts=load_r(Nval, Rval, Ngrids, wsp)
+          ELSE IF (TRIM(KeyWord).eq.'wsdca') THEN
+            Npts=load_r(Nval, Rval, Ngrids, wsdca)
+          ELSE IF (TRIM(KeyWord).eq.'wsp1') THEN
+            Npts=load_r(Nval, Rval, Ngrids, wsp1)
+          ELSE IF (TRIM(KeyWord).eq.'wsp2') THEN
+            Npts=load_r(Nval, Rval, Ngrids, wsp2)
+          ELSE IF (TRIM(KeyWord).eq.'wsp3') THEN
+            Npts=load_r(Nval, Rval, Ngrids, wsp3)
           ELSE IF (TRIM(KeyWord).eq.'pco2a') THEN
             Npts=load_r(Nval, Rval, Ngrids, pco2a)
-          ELSE IF (TRIM(KeyWord).eq.'si2n') THEN
-            Npts=load_r(Nval, Rval, Ngrids, si2n)
           ELSE IF (TRIM(KeyWord).eq.'p2n') THEN
             Npts=load_r(Nval, Rval, Ngrids, p2n)
           ELSE IF (TRIM(KeyWord).eq.'o2no') THEN
             Npts=load_r(Nval, Rval, Ngrids, o2no)
           ELSE IF (TRIM(KeyWord).eq.'o2nh') THEN
             Npts=load_r(Nval, Rval, Ngrids, o2nh)
-          ELSE IF (TRIM(KeyWord).eq.'c2n') THEN
-            Npts=load_r(Nval, Rval, Ngrids, c2n)
+          ELSE IF (TRIM(KeyWord).eq.'cnb') THEN
+            Npts=load_r(Nval, Rval, Ngrids, cnb)
+          ELSE IF (TRIM(KeyWord).eq.'apsilon') THEN
+            Npts=load_r(Nval, Rval, Ngrids, apsilon)
           ELSE IF (TRIM(KeyWord).eq.'ro5') THEN
             Npts=load_r(Nval, Rval, Ngrids, ro5)
           ELSE IF (TRIM(KeyWord).eq.'ro6') THEN
             Npts=load_r(Nval, Rval, Ngrids, ro6)
           ELSE IF (TRIM(KeyWord).eq.'ro7') THEN
             Npts=load_r(Nval, Rval, Ngrids, ro7)
+          ELSE IF (TRIM(KeyWord).eq.'ro10') THEN
+            Npts=load_r(Nval, Rval, Ngrids, ro10)
+          ELSE IF (TRIM(KeyWord).eq.'rop') THEN
+            Npts=load_r(Nval, Rval, Ngrids, rop)
+          ELSE IF (TRIM(KeyWord).eq.'rob') THEN
+            Npts=load_r(Nval, Rval, Ngrids, rob)
+          ELSE IF (TRIM(KeyWord).eq.'kabac') THEN
+            Npts=load_r(Nval, Rval, Ngrids, kabac)
+          ELSE IF (TRIM(KeyWord).eq.'klbac') THEN
+            Npts=load_r(Nval, Rval, Ngrids, klbac)
+          ELSE IF (TRIM(KeyWord).eq.'ksdoc') THEN
+            Npts=load_r(Nval, Rval, Ngrids, ksdoc)
+          ELSE IF (TRIM(KeyWord).eq.'ksdon') THEN
+            Npts=load_r(Nval, Rval, Ngrids, ksdon)
+          ELSE IF (TRIM(KeyWord).eq.'ratiob') THEN
+            Npts=load_r(Nval, Rval, Ngrids, ratiob)
+          ELSE IF (TRIM(KeyWord).eq.'ratiobc') THEN
+            Npts=load_r(Nval, Rval, Ngrids, ratiobc)
+          ELSE IF (TRIM(KeyWord).eq.'RtUVLDOC') THEN
+            Npts=load_r(Nval, Rval, Ngrids, RtUVLDOC)
+          ELSE IF (TRIM(KeyWord).eq.'RtUVSDOC') THEN
+            Npts=load_r(Nval, Rval, Ngrids, RtUVSDOC)
+          ELSE IF (TRIM(KeyWord).eq.'RtUVLDIC') THEN
+            Npts=load_r(Nval, Rval, Ngrids, RtUVLDIC)
+          ELSE IF (TRIM(KeyWord).eq.'RtUVSDIC') THEN
+            Npts=load_r(Nval, Rval, Ngrids, RtUVSDIC)
+          ELSE IF (TRIM(KeyWord).eq.'colorFR1') THEN
+            Npts=load_r(Nval, Rval, Ngrids, colorFR1)
+          ELSE IF (TRIM(KeyWord).eq.'colorFR2') THEN
+            Npts=load_r(Nval, Rval, Ngrids, colorFR2)
+
           ELSE IF (TRIM(KeyWord).eq.'TNU2') THEN
             Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
             DO ng=1,Ngrids
@@ -169,6 +282,16 @@
                 Tnudg(i,ng)=Rbio(itrc,ng)
               END DO
             END DO
+          ELSE IF (TRIM(KeyWord).eq. 'LBC(isTvar)') THEN
+              IF (itracer.lt.NBT) THEN
+                itracer=itracer+1
+              ELSE
+                itracer=1                      ! next nested grid
+              END IF
+              ifield=isTvar(idbio(itracer))
+              Npts=load_lbc(Nval, Cval, line, nline, ifield, igrid,     &
+     &                        iTrcStr, iTrcEnd, LBC)
+
           ELSE IF (TRIM(KeyWord).eq.'Hout(idTvar)') THEN
             Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
             DO ng=1,Ngrids
@@ -179,7 +302,7 @@
      &                      'idTvar(idbio(', itrc, '))'
                   exit_flag=5
                   RETURN
-                END IF                  
+                END IF
                 Hout(i,ng)=Ltrc(itrc,ng)
               END DO
             END DO
@@ -193,7 +316,7 @@
      &                      'idTsur(idbio(', itrc, '))'
                   exit_flag=5
                   RETURN
-                END IF                  
+                END IF
                 Hout(i,ng)=Ltrc(itrc,ng)
               END DO
             END DO
@@ -235,6 +358,8 @@
      &            '[1/day].'
             WRITE (out,100) gmaxs2(ng), 'gmaxs2',                       &
      &            'Maximum specific growth rate of diatom [1/day].'
+            WRITE (out,100) gmaxs3(ng), 'gmaxs3',                       &
+     &            'Maximum specific growth rate of coccolith [1/day].'
             WRITE (out,100) beta1(ng), 'beta1',                         &
      &            'Microzooplankton maximum grazing rate [1/day].'
             WRITE (out,100) beta2(ng), 'beta2',                         &
@@ -248,89 +373,175 @@
             WRITE (out,110) PARfrac(ng), 'PARfrac',                     &
      &            'Fraction of shortwave radiation that is',            &
      &            'photosynthetically active (nondimensional).'
-            WRITE (out,110) amaxs2(ng), 'amaxs2',                       &
-     &            'Initial slope of P-I curve of small',                &
-     &            'phytoplankton [1/(Watts/m2)/day].'
-            WRITE (out,110) parsats1(ng), 'parsats1',                   &
-     &            'PAR saturation onset parameter of',                  &
-     &            'small phytoplankton [Watts/m2].'
-            WRITE (out,110) parsats2(ng), 'parsats2',                   &
-     &            'PAR saturation onset parameter of diatom',           &
-     &            '[Watts/m2].'
+            WRITE (out,110) alphachl_s1(ng), 'alphachl_s1',             &
+     &            'Initial chl-specific slope of P-I curve of small',   &
+     &            'phytoplankton [molC m2/(gChl Watts day)].'
+            WRITE (out,110) alphachl_s2(ng), 'alphachl_s2',             &
+     &            'Initial chl-specific slope of P-I curve of diatom',  &
+     &            '[molC m2/(gChl Watts day)].'
+            WRITE (out,110) alphachl_s3(ng), 'alphachl_s3',             &
+     &            'Initial chl-specific slope of P-I curve of ',        &
+     &            'coccolithophores [molC m2/(gChl Watts day)].'
             WRITE (out,110) pis1(ng), 'pis1',                           &
      &            'Ammonium inhibition parameter for small',            &
      &            'phytoplankton [mmol_N/m3].'
             WRITE (out,110) pis2(ng), 'pis2',                           &
      &            'Ammonium inhibition parameter for diatom',           &
      &            '[mmol_N/m3].'
+            WRITE (out,110) pis3(ng), 'pis3',                           &
+     &            'Ammonium inhibition parameter for ',                 &
+     &            'coccolithophores [mmol_N/m3].'
             WRITE (out,110) akno3s1(ng), 'akno3s1',                     &
      &            'Half saturation concentration for nitrate',          &
      &            'uptake by small phytoplankton [mmol_N/m3].'
             WRITE (out,110) akno3s2(ng), 'akno3s2',                     &
      &            'Half saturation concentration for nitrate',          &
      &            'uptake by diatom [mmol_N/m3].'
+            WRITE (out,110) akno3s3(ng), 'akno3s3',                     &
+     &            'Half saturation concentration for nitrate',          &
+     &            'uptake by coccolithophores [mmol_N/m3].'
             WRITE (out,110) aknh4s1(ng), 'aknh4s1',                     &
      &            'Half saturation concentration for ammonium',         &
      &            'uptake by small phytoplankton [mmol_N/m3].'
             WRITE (out,110) aknh4s2(ng), 'aknh4s2',                     &
      &            'Half saturation concentration for ammonium',         &
      &            'uptake by diatom [mmol_N/m3].'
+            WRITE (out,110) aknh4s3(ng), 'aknh4s3',                     &
+     &            'Half saturation concentration for ammonium',         &
+     &            'uptake by coccolithophores [mmol_N/m3].'
             WRITE (out,110) akpo4s1(ng), 'akpo4s1',                     &
      &            'Half saturation concentration for phosphate',        &
      &            'uptake by small phytoplankton [mmol_P/m3].'
             WRITE (out,110) akpo4s2(ng), 'akpo4s2',                     &
      &            'Half saturation concentration for phosphate',        &
      &            'uptake by diatom [mmol_P/m3].'
+            WRITE (out,110) akpo4s3(ng), 'akpo4s3',                     &
+     &            'Half saturation concentration for phosphate',        &
+     &            'uptake by coccolithophores [mmol_P/m3].'
             WRITE (out,110) akco2s1(ng), 'akco2s1',                     &
      &            'Half saturation concentration for co2',              &
      &            'uptake by small phytoplankton [mmol_C/m3].'
             WRITE (out,110) akco2s2(ng), 'akco2s2',                     &
      &            'Half saturation concentration for co2',              &
      &            'uptake by diatom [mmol_C/m3].'
+            WRITE (out,110) akco2s3(ng), 'akco2s3',                     &
+     &            'Half saturation concentration for co2',              &
+     &            'uptake by coccolithophores [mmol_C/m3].'
             WRITE (out,110) aksio4s2(ng), 'aksio4s2',                   &
      &            'Half saturation constant for silicate',              &
      &            'uptake by diatom [mmol_N/m3].'
+            WRITE (out,110) ES1(ng), 'ES1',                             &
+     &            'Phytoplankton exudation parameter for',              &
+     &            'small phytoplankton [nondimensional].'
+            WRITE (out,110) ES2(ng), 'ES2',                             &
+     &            'Phytoplankton exudation parameter for',              &
+     &            'diatom [nondimensional].'
+            WRITE (out,110) ES3(ng), 'ES3',                             &
+     &            'Phytoplankton exudation parameter for',              &
+     &            'coccolithophores [nondimensional].'
             WRITE (out,100) ak1(ng), 'ak1',                             &
      &            'Light attenuation coefficient of water [1/m].'
             WRITE (out,110) ak2(ng), 'ak2',                             &
      &            'Specific light attenuation coefficient for',         &
      &            'phytoplankton [1/m/(mmol_N/m3)].'
-            WRITE (out,100) bgamma0(ng), 'bgamma0',                     &
+            WRITE (out,100) Qmax(ng), 'Qmax',                           &
+     &            'Maximum phytoplankton N:C ratio [molN/molC].'
+            WRITE (out,100) Qmin(ng), 'Qmin',                           &
+     &            'Minimum phytoplankton N:C ratio [molN/molC].'
+            WRITE (out,110) lambdano3_s1(ng), 'lambdano3_s1',           &
+     &            'Cost of biosynthesis for',                           &
+     &            'small phytoplankton [molC/molN].'
+            WRITE (out,110) lambdano3_s2(ng), 'lambdano3_s2',           &
+     &            'Cost of biosynthesis for',                           &
+     &            'diatom [molC/molN].'
+            WRITE (out,110) lambdano3_s3(ng), 'lambdano3_s3',           &
+     &            'Cost of biosynthesis for',                           &
+     &            'coccolithophores [molC/molN].'
+            WRITE (out,100) thetaNmax_s1(ng), 'thetaNmax_s1',           &
+     &            'Maximum Chl:N for small phytoplankton [gChl/molN].'
+            WRITE (out,100) thetaNmax_s2(ng), 'thetaNmax_s2',           &
+     &            'Maximum Chl:N for diatom [gChl/molN].'
+            WRITE (out,100) thetaNmax_s3(ng), 'thetaNmax_s3',           &
+     &            'Maximum Chl:N for coccolithophores [gChl/molN].'
+            WRITE (out,100) bgamma(ng), 'bgamma',                       &
      &            'Mesozooplankton specific mortality rate [1/day].'
             WRITE (out,110) bgamma1(ng), 'bgamma1',                     &
      &            'Grazing efficiency of microzooplankton',             &
      &            '[nondimensional].'
             WRITE (out,110) bgamma2(ng), 'bgamma2',                     &
-     &            ' Grazing efficiency of mesozooplankton',             &
+     &            ' Grazing efficiency of mesozooplankton for N',       &
+     &            '[nondimensional].'
+            WRITE (out,110) bgamma22(ng), 'bgamma22',                   &
+     &            ' Grazing efficiency of mesozooplankton for C',       &
      &            '[nondimensional].'
             WRITE (out,100) bgamma3(ng), 'bgamma3',                     &
      &            'Death rate of small phytoplankton [1/day].'
             WRITE (out,100) bgamma4(ng), 'bgamma4',                     &
      &            'Death rate of large phytoplankton [1/day].'
+            WRITE (out,100) bgamma10(ng), 'bgamma10',                   &
+     &            'Death rate of coccolithophores [1/day].'
+            WRITE (out,100) bgamma12(ng), 'bgamma12',                   &
+     &            'Death rate of bacteria [1/day].'
             WRITE (out,100) bgamma5(ng), 'bgamma5',                     &
      &            'Decay rate of detritus [1/day].'
-            WRITE (out,100) bgamma6(ng), 'bgamma6',                     &
-     &            ' '
             WRITE (out,100) bgamma7(ng), 'bgamma7',                     &
      &            'Nitrafication rate [1/day].'
-            WRITE (out,100) wsd(ng), 'wsd',                             &
-     &            'Sinking velocity of detritus [m/day].'
+            WRITE (out,100) bgamma11(ng), 'bgamma11',                   &
+     &            'Maximum ammonium uptake rate by bacteria [1/day].'
+            WRITE (out,100) bgamma13(ng), 'bgamma13',                   &
+     &            'Maximum semi-labile hydrolysis [1/day].'
+            WRITE (out,110) mtos1(ng), 'mtos1',                         &
+     &            'Ratio of mortality to dissolved pool of',            &
+     &            'small phytoplankton [nondimensional].'
+            WRITE (out,110) mtos2(ng), 'mtos2',                         &
+     &            'Ratio of mortality to dissolved pool of',            &
+     &            'diatom [nondimensional].'
+            WRITE (out,110) mtos3(ng), 'mtos3',                         &
+     &            'Ratio of mortality to dissolved pool of',            &
+     &            'coccolithophores [nondimensional].'
+            WRITE (out,100) flz1(ng), 'flz1',                           &
+     &            'Feeding loss by small zooplankton [nondimensional].'
+            WRITE (out,100) flz2(ng), 'flz2',                           &
+     &            'Feeding loss by large zooplankton [nondimensional].'
+            WRITE (out,110) lk1(ng), 'lk1',                             &
+     &            'Phytoplankton leakage fraction of',                  &
+     &            ' small phytoplankton [nondimensional].'
+            WRITE (out,110) lk2(ng), 'lk2',                             &
+     &            'Phytoplankton leakage fraction of',                  &
+     &            ' diatom [nondimensional].'
+            WRITE (out,110) lk3(ng), 'lk3',                             &
+     &            'Phytoplankton leakage fraction of',                  &
+     &            ' coccolithophores [nondimensional].'
+            WRITE (out,100) ratiol1(ng), 'ratiol1',                     &
+     &            'Labile fraction [nondimensional].'
+            WRITE (out,100) ratiol2(ng), 'ratiol2',                     &
+     &            'Labile fraction for phytoplankton [nondimensional].'
+            WRITE (out,100) wsdn(ng), 'wsdn',                           &
+     &            'Sinking velocity of detritus N [m/day].'
+            WRITE (out,100) wsdc(ng), 'wsdc',                           &
+     &            'Sinking velocity of detritus C [m/day].'
             WRITE (out,100) wsdsi(ng), 'wsdsi',                         &
      &            'Sinking velocity of detritus silicate [m/day].'
-            WRITE (out,100) wsp(ng), 'wsp',                             &
-     &            'Sinking velocity of large phytoplankton [m/day].'
+            WRITE (out,100) wsdca(ng), 'wsdca',                         &
+     &            'Sinking velocity of PIC [m/day].'
+            WRITE (out,100) wsp1(ng), 'wsp1',                           &
+     &            'Sinking velocity of small phytoplankton [m/day].'
+            WRITE (out,100) wsp2(ng), 'wsp2',                           &
+     &            'Sinking velocity of diatom [m/day].'
+            WRITE (out,100) wsp3(ng), 'wsp3',                           &
+     &            'Sinking velocity of coccolithophores [m/day].'
             WRITE (out,100) pco2a(ng), 'pco2a',                         &
      &            'Air pCO2 [ppmv].'
-            WRITE (out,100) si2n(ng), 'si2n',                           &
-     &            'Silicate to nitrogen ratio [mol_Si/mol_N].'
             WRITE (out,100) p2n(ng), 'p2n',                             &
      &            'Phosphorus to nitrogen ratio [mol_P/mol_N].'
             WRITE (out,100) o2no(ng), 'o2no',                           &
      &            'Oxygen to nitrate ratio [mol_O2/mol_NO3].'
             WRITE (out,100) o2nh(ng), 'o2nh',                           &
      &            'Oxygen to ammonium ratio [mol_O2/mol_NH4].'
-            WRITE (out,100) c2n(ng), 'c2n',                             &
-     &            'Carbon to nitrogen ratio [mol_C/mol_N].'
+            WRITE (out,100) cnb(ng), 'cnb',                             &
+     &            'C:N in bacteria [molC/molN].'
+            WRITE (out,100) apsilon(ng), 'apsilon',                     &
+     & 'Ratio of PIC to organic carbon in coccolithophores [molC/molN].'
             WRITE (out,100) ro5(ng), 'ro5',                             &
      &            'Grazing preference for diatom [nondimensional].'
             WRITE (out,110) ro6(ng), 'ro6',                             &
@@ -338,6 +549,40 @@
      &            '[nondimensional].'
             WRITE (out,100) ro7(ng), 'ro7',                             &
      &            'Grazing preference for detritus [nondimensional].'
+            WRITE (out,100) ro10(ng), 'ro10',                           &
+     &       'Grazing preference for coccolithophores [nondimensional].'
+            WRITE (out,100) rop(ng), 'rop',                             &
+     &    'Grazing preference for small phytoplankton [nondimensional].'
+            WRITE (out,100) rob(ng), 'rob',                             &
+     &    'Grazing preference for bacteria [nondimensional].'
+            WRITE (out,100) kabac(ng), 'kabac',                         &
+     &    'Half saturation for ammonium uptake by bacteria [mmolN/m3].'
+            WRITE (out,100) klbac(ng), 'klbac',                         &
+     &               'Half saturation for labile DOC uptake [mmolC/m3].'
+            WRITE (out,100) ksdoc(ng), 'ksdoc',                         &
+     &          'Half saturation for semi-labile DOC uptake [mmolC/m3].'
+            WRITE (out,100) ksdon(ng), 'ksdon',                         &
+     &          'Half saturation for semi-labile DON uptake [mmolN/m3].'
+            WRITE (out,100) ratiob(ng), 'ratiob',                       &
+     &          'Bacteria growth loss fraction [nondimensional].'
+            WRITE (out,100) ratiobc(ng), 'ratiobc',                     &
+     &          'Color fraction of Bacteria loss [nondimensional].'
+            WRITE (out,110) RtUVLDOC(ng), 'RtUVLDOC',                   &
+     &        'Rate of conversion of colored labile DOC to labile DOC', &
+     &        ' [mmolC/m2/d].'
+            WRITE (out,110) RtUVSDOC(ng), 'RtUVSDOC',                   &
+     &        'Rate of conversion of colored semi-labile DOC to',       &
+     &        ' labile DOC [mmolC/m2/d].'
+            WRITE (out,110) RtUVLDIC(ng), 'RtUVLDIC',                   &
+     &        'Rate of conversion of colored labile DOC to DIC',        &
+     &        ' [mmolC/m2/d].'
+            WRITE (out,110) RtUVSDIC(ng), 'RtUVSDIC',                   &
+     &        'Rate of conversion of colored semi-labile DOC to DIC',   &
+     &        ' [mmolC/m2/d].'
+            WRITE (out,100) colorFR1(ng), 'colorFR1',                   &
+     &            'Color fraction for labile DOC [nondimensional].'
+            WRITE (out,100) colorFR2(ng), 'colorFR2',                   &
+     &           'Color fraction for semi-labile DOC [nondimensional].'
 #ifdef TS_DIF2
             DO itrc=1,NBT
               i=idbio(itrc)
@@ -416,7 +661,7 @@
 
   30  FORMAT (/,' read_BioPar - Error while processing line: ',/,a)
   40  FORMAT (/,/,' UMaine CoSiNE Model Parameters, Grid: ',i2.2,       &
-     &        /,  ' =================================',/)  
+     &        /,  ' =================================',/)
   50  FORMAT (1x,i10,2x,a,t30,a)
   60  FORMAT (10x,l1,2x,a,t30,a,i2.2,':',1x,a)
   70  FORMAT (f11.3,2x,a,t30,a)

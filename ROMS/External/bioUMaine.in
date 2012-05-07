@@ -35,7 +35,7 @@
 !                                                                             !
 !==============================================================================
 !
-! NOTICE: Input parameter units are specified within brackets and default 
+! NOTICE: Input parameter units are specified within brackets and default
 ! ******  values are specified within braces.
 !
 ! Switch to control the computation of biology within nested and/or multiple
@@ -48,224 +48,455 @@
 
      BioIter == 1
 
-! Microzooplankton excretion rate to ammonium [1/day].   
+! Microzooplankton excretion rate to ammonium [1/day].
 
    reg1 == 0.2d0
 
-! Mesozooplankton excretion rate to ammonium [1/day].   
- 
-   reg2 == 0.2d0
+! Mesozooplankton excretion rate to ammonium [1/day].
 
-! Maximum specific growth rate of small phytoplankton    
-!              [1/day] 
+   reg2 == 0.1d0
 
-   gmaxs1 == 2.0d0
+! Maximum specific growth rate of small phytoplankton
+!              [1/day]
 
-! Maximum specific growth rate of diatom [1/day]  
+   gmaxs1 == 1.5d0
+
+! Maximum specific growth rate of diatom [1/day]
 
    gmaxs2 == 2.5d0
 
-! Microzooplankton maximum grazing rate [1/day]   
+! Maximum specific growth rate of coccolithophores [1/day]
 
-   beta1 == 1.2d0
+   gmaxs3 == 1.0d0
 
-! Mesozooplankton maximum grazing rate [1/day]  
-  
-   beta2 == 0.65d0
+! Microzooplankton maximum grazing rate [1/day]
 
-! Half saturation constant for microzooplankton grazing  
+   beta1 == 1.55d0
+
+! Mesozooplankton maximum grazing rate [1/day]
+
+   beta2 == 0.56d0
+
+! Half saturation constant for microzooplankton grazing
 !              [mmol_N/m3]
 
    akz1 == 0.5d0
 
-! Half saturation constant for mesozooplankton grazing   
+! Half saturation constant for mesozooplankton grazing
 !              [mmol_N/m3]
 
    akz2 == 0.25d0
 
-! Fraction of shortwave radiation that is available for  
-!              photosyntesis [nondimensional]. 
+! Fraction of shortwave radiation that is available for
+!              photosyntesis [nondimensional].
 
    PARfrac == 0.46d0
 
-! Initial slope of P-I curve of small phytoplankton
-!              [1/(Watts/m2)/day]
+! Initial chlorophyll-specific slope of P-I curve of small phytoplankton
+!              [mol_C m2/(g_Chl W day)]
 
-   amaxs2 == 0.025d0
+   alphachl_s1 == 0.25d0
 
-! PAR saturation onset parameter of small phytoplankton  
-!              [Watts/m2]                                    
+! Initial chlorophyll-specific slope of P-I curve of diatom
+!              [mol_C m2/(g_Chl W day)]
 
-   parsats1 == 40.0d0
+   alphachl_s2 == 0.25d0
 
-! PAR saturation onset parameter of diatom [Watts/m2]    
+! Initial chlorophyll-specific slope of P-I curve of coccolithophores
+!              [mol_C m2/(g_Chl W day)]
 
-   parsats2 == 50.0d0
+   alphachl_s3 == 0.25d0
 
-! Ammonium inhibition parameter for small phytoplankton  
+
+! Ammonium inhibition parameter for small phytoplankton
 !              [mmol_N/m3]
 
    pis1 == 5.59d0
 
-! Ammonium inhibition parameter for diatom [mmol_N/m3]   
+! Ammonium inhibition parameter for diatom [mmol_N/m3]
 
-   pis2 == 4.00d0
+   pis2 == 1.5d0
 
-! Half saturation concentration for nitrate uptake by    
+! Ammonium inhibition parameter for coccolithophores [mmol_N/m3]
+
+   pis3 == 5.59d0
+
+! Half saturation concentration for nitrate uptake by
 !              small phytoplankton [mmol_N/m3].
 
    akno3s1 == 1.0d0
 
-! Half saturation concentration for nitrate uptake by    
-!              diatom [mmol_N/m3].                           
+! Half saturation concentration for nitrate uptake by
+!              diatom [mmol_N/m3].
 
    akno3s2 == 3.0d0
 
-! Half saturation concentration for ammonium uptake by   
-!              small phytoplankton [mmol_N/m3].              
+! Half saturation concentration for nitrate uptake by
+!              coccolithophores [mmol_N/m3].
+
+   akno3s3 == 1.0d0
+
+! Half saturation concentration for ammonium uptake by
+!              small phytoplankton [mmol_N/m3].
 
    aknh4s1 == 0.1d0
 
-! Half saturation concentration for ammonium uptake by   
-!              diatom [mmol_N/m3].                           
+! Half saturation concentration for ammonium uptake by
+!              diatom [mmol_N/m3].
 
-   aknh4s2 == 0.3d0
+   aknh4s2 == 0.1d0
 
-! Half saturation concentration for phosphate uptake by  
-!              small phytoplankton [mmol_P/m3]. 
+! Half saturation concentration for ammonium uptake by
+!              coccolithophores [mmol_N/m3].
+
+   aknh4s3 == 1.0d0
+
+! Half saturation concentration for phosphate uptake by
+!              small phytoplankton [mmol_P/m3].
 
    akpo4s1 == 0.1d0
 
-! Half saturation concentration for phosphate uptake by  
+! Half saturation concentration for phosphate uptake by
 !              diatom [mmol_P/m3].
 
-   akpo4s2 == 0.3d0
+   akpo4s2 == 0.2d0
 
-! Half saturation concentration for co2 uptake by 
-!              small phytoplankton [mmol_C/m3].              
+! Half saturation concentration for phosphate uptake by
+!              coccolithophores [mmol_P/m3].
 
-   akco2s1 == 100.0d0
+   akpo4s3 == 0.2d0
 
-! Half saturation concentration for co2 uptake by 
+! Half saturation concentration for co2 uptake by
+!              small phytoplankton [mmol_C/m3].
+
+   akco2s1 == 200.0d0
+
+! Half saturation concentration for co2 uptake by
 !              diatom [mmol_C/m3].
 
-   akco2s2 == 100.0d0
+   akco2s2 == 200.0d0
 
-! Half saturation constant for silicate uptake by 
-!              diatom [mmol_N/m3].                           
+! Half saturation concentration for co2 uptake by
+!              coccolithophores [mmol_C/m3].
 
-   aksio4s2 == 3.0d0
+   akco2s3 == 200.0d0
 
-! Light attenuation coefficient of water [1/m]    
+! Half saturation constant for silicate uptake by
+!              diatom [mmol_N/m3].
+
+   aksio4s2 == 4.5d0
+
+! Phytoplankton exudation parameter for small phytoplankton
+! [nondimensional]
+
+    ES1 == 0.2d0
+
+! Phytoplankton exudation parameter for diatom
+! [nondimensional]
+
+    ES2 == 0.2d0
+
+! Phytoplankton exudation parameter for coccolithophores
+! [nondimensional]
+
+    ES3 == 0.2d0
+
+! Light attenuation coefficient of water [1/m]
 
    ak1 == 0.046d0
 
-! Specific light attenuation coefficient for      
-!              phytoplankton [1/m/(mmol_N/m3)].              
+! Specific light attenuation coefficient for
+!              phytoplankton [1/m/(mmol_N/m3)].
 
    ak2 == 0.030d0
 
-! Mesozooplankton specific mortality rate [1/day].      
+! Maximum phytoplankton N:C ratio [mol_N/mol_C]
 
-   bgamma0 == 0.10d0
+   Qmax == 0.17d0
+
+! Minimum phytoplankton N:C ratio [mol_N/mol_C]
+
+   Qmin == 0.06d0
+
+! Cost of biosynthesis for small phytoplankton [mol_C/mol_N]
+
+   lambdano3_s1 == 2.33
+
+! Cost of biosynthesis for diatom [mol_C/mol_N]
+
+   lambdano3_s2 == 2.33
+
+! Cost of biosynthesis for coccolithophores [mol_C/mol_N]
+
+   lambdano3_s3 == 2.33
+
+! Maximum Chl:N for small phytoplankton [g_Chl/mol_N]
+
+   thetaNmax_s1 == 1.5d0
+
+! Maximum Chl:N for diatom [g_Chl/mol_N]
+
+   thetaNmax_s2 == 1.5d0
+
+! Maximum Chl:N for coccolithophores [g_Chl/mol_N]
+
+   thetaNmax_s3 == 1.5d0
+
+! Mesozooplankton specific mortality rate [1/day].
+
+   bgamma == 0.05d0
 
 ! Grazing efficiency of microzooplankton [nondimensional].
 
-   bgamma1 == 0.75d0
+   bgamma1 == 0.90d0
 
-! Grazing efficiency of mesozooplankton [nondimensional].
+! Grazing efficiency of mesozooplankton for N [nondimensional].
 
-   bgamma2 == 0.75d0
+   bgamma2 == 0.70d0
 
-! Death rate of small phytoplankton [1/day].     
+! Grazing efficiency of mesozooplankton for C [nondimensional].
 
-   bgamma3 == 0.2d0
+   bgamma22 == 0.65d0
 
-! Death rate of large phytoplankton [1/day].     
+! Death rate of small phytoplankton [1/day].
+
+   bgamma3 == 0.02d0
+
+! Death rate of diatom [1/day].
 
    bgamma4 == 0.05d0
 
-! Decay rate of detritus [1/day].                
+! Death rate of coccolithophores [1/day].
+
+   bgamma10 == 0.05d0
+
+! Death rate of bacteria [1/day].
+
+   bgamma12 == 0.05d0
+
+! Decay rate of detritus [1/day].
 
    bgamma5 == 0.20d0
 
-!                                                
+! Nitrafication rate [1/day].
 
-   bgamma6 == 2.0d0
+   bgamma7 == 0.05d0
 
-! Nitrafication rate [1/day].                    
+! Maximum ammonium uptake rate by bacteria [1/day].
 
-   bgamma7 == 0.25d0
+   bgamma11 == 0.8d0
 
-! Sinking velocity of detritus [m/day].           
+! Maximum semi-labile hydrolysis [1/day].
 
-   wsd == 3.0d0
+   bgamma13 == 0.21d0
 
-! Sinking velocity of detritus silicate [m/day].  
+! Ratio of mortality to dissolved pool of small phytoplankton
+! [nondimensional].
 
-   wsdsi == 5.0d0
+   mtos1 == 0.5d0
 
-! Sinking velocity of large phytoplankton [m/day].
+! Ratio of mortality to dissolved pool of diatom
+! [nondimensional].
 
-   wsp == 1.0d0
+   mtos2 == 0.5d0
 
-! Air pCO2 [ppmv].                                
+! Ratio of mortality to dissolved pool of coccolithophores
+! [nondimensional].
 
-   pco2a == 280.00
+   mtos3 == 0.5d0
 
-! Silicate to nitrogen ratio [mol_Si/mol_N].      
+! Feeding loss by small zooplankton [nondimensional].
 
-   si2n == 1.0d0
+   flz1 == 0.1d0
 
-! Phosphorus to nitrogen ratio [mol_P/mol_N].     
+! Feeding loss by large zooplankton [nondimensional].
+
+   flz2 == 0.2d0
+
+! Phytoplankton leakage fraction of small phytoplankton
+! [nondimensional].
+
+   lk1 == 0.3d0
+
+! Phytoplankton leakage fraction of diatom
+! [nondimensional].
+
+   lk2 == 0.3d0
+
+! Phytoplankton leakage fraction of coccolithophores
+! [nondimensional].
+
+   lk3 == 0.3d0
+
+! Labile fraction [nondimensional].
+
+   ratiol1 == 0.90d0
+
+! Labile fraction for phytoplankton [nondimensional].
+
+   ratiol2 == 0.65d0
+
+! Sinking velocity of detritus N [m/day].
+
+   wsdn == 10.0d0
+
+! Sinking velocity of detritus C [m/day].
+
+   wsdc == 15.0d0
+
+! Sinking velocity of detritus silicate [m/day].
+
+   wsdsi == 20.0d0
+
+! Sinking velocity of particulate inorganic carbon [m/day].
+
+   wsdca == 15.0d0
+
+! Sinking velocity of small phytoplankton [m/day].
+
+   wsp1 == 0.0d0
+
+! Sinking velocity of diatom [m/day].
+
+   wsp2 == 1.0d0
+
+! Sinking velocity of coccolithophores [m/day].
+
+   wsp3 == 1.0d0
+
+! Air pCO2 [ppmv].
+
+   pco2a == 380.00
+
+! Phosphorus to nitrogen ratio [mol_P/mol_N].
 
    p2n == 0.0625d0
 
-! Oxygen to nitrate ratio [mol_O2/mol_NO3].       
+! Oxygen to nitrate ratio [mol_O2/mol_NO3].
 
    o2no == 8.625d0
 
-! Oxygen to ammonium ratio [mol_O2/mol_NH4].      
+! Oxygen to ammonium ratio [mol_O2/mol_NH4].
 
    o2nh == 6.625d0
 
-! Carbon to nitrogen ratio [mol_C/mol_N].         
+! C:N in bacteria [mol_C/mol_N].
 
-   c2n == 7.300d0
+   cnb == 5.1
 
-! Grazing preference for diatom [nondimensional]. 
+! Ratio of PIC to organic carbon in coccolithophores
+! [mol_C/mol_N]
 
-   ro5 == 0.70d0
+   apsilon == 1.0d0
 
-! Grazing preference for microzooplankton [nondimensional 
+! Grazing preference for diatom [nondimensional].
 
-   ro6 == 0.20d0
+   ro5 == 0.60d0
 
-! Grazing preference for detritus [nondimensional].      
+! Grazing preference for microzooplankton [nondimensional].
 
-   ro7 == 0.10d0
+   ro6 == 0.10d0
+
+! Grazing preference for detritus [nondimensional].
+
+   ro7 == 0.20d0
+
+! Grazing preference for coccolithophores [nondimensional].
+
+   ro10 == 0.10d0
+
+! Grazing preference for small phytoplankton [nondimensional].
+
+   rop == 0.90d0
+
+! Grazing preference for bacteria [nondimensional].
+
+   rob == 0.10d0
+
+! Half saturation for ammonium uptake by bacteria [mmol_N/m3].
+
+   kabac == 0.5d0
+
+! Half saturation for labile DOC uptake [mmol_C/m3].
+
+   klbac == 25.0d0
+
+! Half saturation for semi-labile DOC uptake [mmol_C/m3].
+
+   ksdoc == 417.0d0
+
+! Half saturation for semi-labile DON uptake [mmol_N/m3].
+
+   ksdon == 35.3d0
+
+! Bacteria growth loss fraction [nondimensional].
+
+   ratiob == 0.5d0
+
+! Color fraction of Bacteria loss [nondimensional].
+
+   ratiobc == 0.96d0
+
+! Rate of conversion of colored labile DOC to labile DOC
+! [mmol_C/m2/d]
+
+   RtUVLDOC == 1.0d0
+
+! Rate of conversion of colored semi-labile DOC to labile DOC
+! [mmol_C/m2/d]
+
+   RtUVSDOC == 1.0d0
+
+! Rate of conversion of colored labile DOC to DIC
+! [mmol_C/m2/d]
+
+   RtUVLDIC == 2.0d0
+
+! Rate of conversion of colored semi-labile DOC to DIC
+! [mmol_C/m2/d]
+
+   RtUVSDIC == 2.0d0
+
+! Color fraction for labile DOC [nondimensional].
+
+   colorFR1 == 0.1d0
+
+! Color fraction for semi-labile DOC [nondimensional].
+
+   colorFR2 == 0.2d0
 
 ! Lateral, constant, harmonic/biharmonic horizontal diffusion of biological
 ! tracer: [1:NBT,Ngrids].
 
-        TNU2 == 13*0.0d0                        ! m2/s
-        TNU4 == 13*0.0d0                        ! m4/s
+        TNU2 == 31*0.0d0                        ! m2/s
+        TNU4 == 31*0.0d0                        ! m4/s
 
 ! Vertical mixing coefficients for biological tracers: [1:NBT,Ngrids].
 
-     AKT_BAK == 13*1.0d-6                       ! m2/s
+     AKT_BAK == 31*1.0d-6                       ! m2/s
 
 ! Nudging/relaxation time scales, inverse scales will be computed
 ! internally: [1:NBT,Ngrids].
 
-       TNUDG == 13*0.0d0                        ! days
+       TNUDG == 31*0.0d0                        ! days
 
 ! Logical switches (TRUE/FALSE) to activate writing of biological tracers
 ! into HISTORY output file: [1:NBT,Ngrids].
 
-Hout(idTvar) == 13*T                  ! biological tracer
-Hout(idTsur) == 13*F                  ! surface tracer flux
+Hout(idTvar) == 31*T                  ! biological tracer
+Hout(idTsur) == 31*F                  ! surface tracer flux
 
+Aout(idTvar) == 31*T
+
+   LBC(isTvar) ==   Per     Clo     Per     Clo \
+                    Per     Clo     Per     Clo \
+                    Per     Clo     Per     Clo \
+                    Per     Clo     Per     Clo \
+                    Per     Clo     Per     Clo \
+                    Per     Clo     Per     Clo \
+                    Per     Clo     Per     Clo \
+                    Per     Clo     Per     Clo \
+                    Per     Clo     Per     Clo
 !
 !  GLOSSARY:
 !  =========
@@ -286,113 +517,224 @@ Hout(idTsur) == 13*F                  ! surface tracer flux
 !  BioIter   Maximum number of iterations to achieve convergence of
 !              the nonlinear solution.
 !
-!   reg1     Microzooplankton excretion rate to ammonium [1/day].      
+!   reg1     Microzooplankton excretion rate to ammonium [1/day].
 !
-!   reg2     Mesozooplankton excretion rate to ammonium [1/day].       
+!   reg2     Mesozooplankton excretion rate to ammonium [1/day].
 !
-!   gmaxs1   Maximum specific growth rate of small phytoplankton       
-!              [1/day]                                                 
+!   gmaxs1   Maximum specific growth rate of small phytoplankton
+!              [1/day]
 !
-!   gmaxs2   Maximum specific growth rate of diatom [1/day]            
+!   gmaxs2   Maximum specific growth rate of diatom [1/day]
 !
-!   beta1    Microzooplankton maximum grazing rate [1/day]             
+!   gmaxs3   Maximum specific growth rate of coccolithophores [1/day]
 !
-!   beta2    Mesozooplankton maximum grazing rate [1/day]              
+!   beta1    Microzooplankton maximum grazing rate [1/day]
 !
-!   akz1     Half saturation constant for microzooplankton grazing     
-!              [mmol_N/m3]                                             
+!   beta2    Mesozooplankton maximum grazing rate [1/day]
 !
-!   akz2     Half saturation constant for mesozooplankton grazing      
-!              [mmol_N/m3]                                             
+!   akz1     Half saturation constant for microzooplankton grazing
+!              [mmol_N/m3]
 !
-!   PARfrac  Fraction of shortwave radiation that is available for     
-!              photosyntesis [nondimensional].                         
+!   akz2     Half saturation constant for mesozooplankton grazing
+!              [mmol_N/m3]
 !
-!   amaxs2   Initial slope of P-I curve of small phytoplankton         
-!              [1/(Watts/m2)/day]                                      
+!   PARfrac  Fraction of shortwave radiation that is available for
+!              photosyntesis [nondimensional].
 !
-!   parsats1 PAR saturation onset parameter of small phytoplankton     
-!              [Watts/m2]                                              
+!   alphachl_s1   Initial chlorophyll-specific slope of P-I curve of
+!                   small phytoplankton [1/(Watts/m2)/day]
 !
-!   parsats2 PAR saturation onset parameter of diatom [Watts/m2]       
+!   alphachl_s2   Initial chlorophyll-specific slope of P-I curve of
+!                   diatom [1/(Watts/m2)/day]
 !
-!   pis1     Ammonium inhibition parameter for small phytoplankton     
-!              [mmol_N/m3]                                             
+!   alphachl_s3   Initial chlorophyll-specific slope of P-I curve of
+!                   coccolithophores [1/(Watts/m2)/day]
 !
-!   pis2     Ammonium inhibition parameter for diatom [mmol_N/m3]      
+!   pis1     Ammonium inhibition parameter for small phytoplankton
+!              [mmol_N/m3]
 !
-!   akno3s1  Half saturation concentration for nitrate uptake by       
-!              small phytoplankton [mmol_N/m3].                        
+!   pis2     Ammonium inhibition parameter for diatom [mmol_N/m3]
 !
-!   akno3s2  Half saturation concentration for nitrate uptake by       
-!              diatom [mmol_N/m3].                                     
+!   pis3     Ammonium inhibition parameter for coccolithophores [mmol_N/m3]
 !
-!   aknh4s1  Half saturation concentration for ammonium uptake by      
-!              small phytoplankton [mmol_N/m3].                        
+!   akno3s1  Half saturation concentration for nitrate uptake by
+!              small phytoplankton [mmol_N/m3].
 !
-!   aknh4s2  Half saturation concentration for ammonium uptake by      
+!   akno3s2  Half saturation concentration for nitrate uptake by
+!              diatom [mmol_N/m3].
 !
-!              diatom [mmol_N/m3].                                     
+!   akno3s3  Half saturation concentration for nitrate uptake by
+!              coccolithophores [mmol_N/m3].
 !
-!   akpo4s1  Half saturation concentration for phosphate uptake by     
-!              small phytoplankton [mmol_P/m3].                        
+!   aknh4s1  Half saturation concentration for ammonium uptake by
+!              small phytoplankton [mmol_N/m3].
 !
-!   akpo4s2  Half saturation concentration for phosphate uptake by    
-!              diatom [mmol_P/m3].                                     
+!   aknh4s2  Half saturation concentration for ammonium uptake by
+!              diatom [mmol_N/m3].
 !
-!   akco2s1  Half saturation concentration for co2 uptake by     
-!              small phytoplankton [mmol_C/m3].                        
+!   aknh4s3  Half saturation concentration for ammonium uptake by
+!              coccolithophores [mmol_N/m3].
 !
-!   akco2s2  Half saturation concentration for co2 uptake by      
-!              diatom [mmol_C/m3].                                     
+!   akpo4s1  Half saturation concentration for phosphate uptake by
+!              small phytoplankton [mmol_P/m3].
 !
-!   aksio4s2 Half saturation constant for silicate uptake by       
-!              diatom [mmol_N/m3].                                     
+!   akpo4s2  Half saturation concentration for phosphate uptake by
+!              diatom [mmol_P/m3].
 !
-!   ak1      Light attenuation coefficient of water [1/m]              
+!   akpo4s3  Half saturation concentration for phosphate uptake by
+!              coccolithophores [mmol_P/m3].
 !
-!   ak2      Specific light attenuation coefficient for      
-!              phytoplankton [1/m/(mmol_N/m3)].                        
+!   akco2s1  Half saturation concentration for co2 uptake by
+!              small phytoplankton [mmol_C/m3].
 !
-!   bgamma0   Mesozooplankton specific mortality rate [1/day].         
+!   akco2s2  Half saturation concentration for co2 uptake by
+!              diatom [mmol_C/m3].
 !
-!   bgamma1   Grazing efficiency of microzooplankton [nondimensional]. 
+!   akco2s3  Half saturation concentration for co2 uptake by
+!              coccolithophores [mmol_C/m3].
 !
-!   bgamma2   Grazing efficiency of mesozooplankton [nondimensional].  
+!   aksio4s2 Half saturation constant for silicate uptake by
+!              diatom [mmol_N/m3].
 !
-!   bgamma3   Death rate of small phytoplankton [1/day].               
+!   ES1      Phytoplankton exudation parameter for
+!               small phytoplankton [nondimensional]
 !
-!   bgamma4   Death rate of large phytoplankton [1/day].               
+!   ES2      Phytoplankton exudation parameter for
+!               diatom [nondimensional]
+!   ES3      Phytoplankton exudation parameter for
+!               coccolithophores [nondimensional]
 !
-!   bgamma5   Decay rate of detritus [1/day].                          
+!   ak1      Light attenuation coefficient of water [1/m]
 !
-!   bgamma6                                                            
+!   ak2      Specific light attenuation coefficient for
+!              phytoplankton [1/m/(mmol_N/m3)].
 !
-!   bgamma7   Nitrafication rate [1/day].                              
+!   Qmax     Maximum phytoplankton N:C ratio [mol_N/mol_C]
 !
-!   wsd      Sinking velocity of detritus [m/day].                     
+!   Qmin     Minimum phytoplankton N:C ratio [mol_N/mol_C]
 !
-!   wsdsi    Sinking velocity of detritus silicate [m/day].            
+!   lambdano3_s1  Cost of biosynthesis for small phytoplankton [mol_C/mol_N]
 !
-!   wsp      Sinking velocity of large phytoplankton [m/day].          
+!   lambdano3_s2  Cost of biosynthesis for diatom [mol_C/mol_N]
 !
-!   pco2a    Air pCO2 [ppmv].                                          
+!   lambdano3_s3  Cost of biosynthesis for coccolithophores [mol_C/mol_N]
 !
-!   si2n     Silicate to nitrogen ratio [mol_Si/mol_N].                
+!   thetaNmax_s1  Maximum Chl:N for small phytoplankton [g_Chl/mol_N]
 !
-!   p2n      Phosphorus to nitrogen ratio [mol_P/mol_N].               
+!   thetaNmax_s2  Maximum Chl:N for diatom [g_Chl/mol_N]
 !
-!   o2no     Oxygen to nitrate ratio [mol_O2/mol_NO3].                 
+!   thetaNmax_s3  Maximum Chl:N for coccolithophores [g_Chl/mol_N]
 !
-!   o2nh     Oxygen to ammonium ratio [mol_O2/mol_NH4].                
+!   bgamma    Mesozooplankton specific mortality rate [1/day].
 !
-!   c2n      Carbon to nitrogen ratio [mol_C/mol_N].                   
+!   bgamma1   Grazing efficiency of microzooplankton [nondimensional].
 !
-!   ro5      Grazing preference for diatom [nondimensional].           
+!   bgamma2   Grazing efficiency of mesozooplankton for N [nondimensional].
+!
+!   bgamma22  Grazing efficiency of mesozooplankton for C [nondimensional].
+!
+!   bgamma3   Death rate of small phytoplankton [1/day].
+!
+!   bgamma4   Death rate of diatom [1/day].
+!
+!   bgamma10  Death rate of coccolithophores [1/day].
+!
+!   bgamma12  Death rate of bacteria [1/day].
+!
+!   bgamma5   Decay rate of detritus [1/day].
+!
+!   bgamma7   Nitrafication rate [1/day].
+!
+!   bgamma11  Maximum ammonium uptake rate by bacteria [1/day].
+!
+!   bgamma13  Maximum semi-labile hydrolysis [1/day].
+!
+!   mtos1     Ratio of mortality to dissolved pool of small phytoplankton
+!              [nondimensional]
+!
+!   mtos2     Ratio of mortality to dissolved pool of diatom
+!              [nondimensional]
+!
+!   mtos3     Ratio of mortality to dissolved pool of coccolithophores
+!              [nondimensional]
+!
+!   flz1     Feeding loss by small zooplankton [nondimensional].
+!
+!   flz2     Feeding loss by large zooplankton [nondimensional].
+!
+!   lk1      Phytoplankton leakage fraction of small phytoplankton
+!               [nondimensional].
+!
+!   lk2      Phytoplankton leakage fraction of diatom
+!               [nondimensional].
+!
+!   lk3      Phytoplankton leakage fraction of coccolithophores
+!               [nondimensional].
+!
+!   ratiol1   Labile fraction [nondimensional].
+!
+!   ratiol2   Labile fraction for phytoplankton [nondimensional].
+!
+!   wsdn      Sinking velocity of detritus N [m/day].
+!
+!   wsdc      Sinking velocity of detritus C [m/day].
+!
+!   wsdsi    Sinking velocity of detritus silicate [m/day].
+!
+!   wsp1      Sinking velocity of small phytoplankton [m/day].
+!
+!   wsp2      Sinking velocity of diatom [m/day].
+!
+!   wsp3      Sinking velocity of coccolithophores [m/day].
+!
+!   pco2a    Air pCO2 [ppmv].
+!
+!   p2n      Phosphorus to nitrogen ratio [mol_P/mol_N].
+!
+!   o2no     Oxygen to nitrate ratio [mol_O2/mol_NO3].
+!
+!   o2nh     Oxygen to ammonium ratio [mol_O2/mol_NH4].
+!
+!   cnb      C:N in bacteria [mol_C/mol_N].
+!
+!   apsilon  Ratio of PIC to organic carbon in coccolithophores
+!               [mol_C/mol_N]
+!
+!   ro5      Grazing preference for diatom [nondimensional].
 !
 !   ro6      Grazing preference for microzooplankton [nondimensional]
 !
-!   ro7      Grazing preference for detritus [nondimensional].  
+!   ro7      Grazing preference for detritus [nondimensional].
+!
+!   ro10     Grazing preference for coccolithophores [nondimensional].
+!
+!   rop      Grazing preference for small phytoplankton [nondimensional].
+!
+!   rob      Grazing preference for bacteria [nondimensional].
+!
+!   kabac    Half saturation for ammonium uptake by bacteria [mmol_N/m3].
+!
+!   klbac    Half saturation for labile DOC uptake [mmol_C/m3].
+!
+!   ksdoc    Half saturation for semi-labile DOC uptake [mmol_C/m3].
+!
+!   ksdon    Half saturation for semi-labile DON uptake [mmol_N/m3].
+!
+!   ratiob   Bacteria growth loss fraction [nondimensional].
+!
+!   ratiobc  Color fraction of Bacteria loss [nondimensional].
+!
+!   RtUVLDOC Rate of conversion of colored labile DOC to labile DOC
+!               [mmol_C/m2/d]
+!   RtUVSDOC Rate of conversion of colored semi-labile DOC to labile DOC
+!               [mmol_C/m2/d]
+!   RtUVLDIC Rate of conversion of colored labile DOC to DIC
+!               [mmol_C/m2/d]
+!   RtUVSDIC Rate of conversion of colored semi-labile DOC to DIC
+!               [mmol_C/m2/d]
+!   colorFR1  Color fraction for labile DOC [nondimensional].
+!
+!   colorFR2  Color fraction for semi-labile DOC [nondimensional].
 !
 !  TNU2      Lateral, Laplacian, constant, mixing coefficient (m2/s) for
 !            biological tracer variables; [1:NBT,1:Ngrids] values are
