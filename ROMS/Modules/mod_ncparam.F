@@ -190,6 +190,7 @@
         integer  :: idLdwn        ! downwelling longwave radiation flux
         integer  :: idLhea        ! net latent heat flux
         integer  :: idLrad        ! net longwave radiation flux
+        integer  :: idM2am        ! M2 tidal amplitude
         integer  :: idMadH        ! ADM interpolation weights
         integer  :: idMOMi        ! Initial model-observation misfit
         integer  :: idMOMf        ! final model-observation misfit
@@ -1207,6 +1208,8 @@
               idUairE=varid
             CASE ('idVairN')
               idVairN=varid
+            CASE ('idM2am')
+              idM2am=varid
             CASE ('idWamp')
               idWamp=varid
             CASE ('idWbrk')

@@ -198,6 +198,22 @@
       END IF
 # endif
 
+# ifdef M2TIDE_DIFF
+!
+!  Tidal amplitude, M2 only.
+!
+      IF (iic(ng).eq.0) THEN
+        CALL get_2dfld (ng, iNLM, idM2am, ncFRCid(idM2am,ng),           &
+     &                  nFfiles(ng), FRC(1,ng), update(1),              &
+     &                  LBi, UBi, LBj, UBj, 1, 1,                       &
+#  ifdef MASKING
+     &                  GRID(ng) % rmask(LBi,LBj),                      &
+#  endif
+     &                  MIXING(ng) % m2_amp(LBi,LBj))
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
+# endif
+
 # if defined AVERAGES_DETIDE && (defined SSH_TIDES || defined UV_TIDES)
 !
 !-----------------------------------------------------------------------
