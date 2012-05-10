@@ -32,6 +32,9 @@
 # if defined SSH_TIDES || defined UV_TIDES || defined POT_TIDES
       USE mod_tides
 # endif
+# if defined M2TIDE_DIFF
+      USE mod_mixing
+# endif
 !
 # if defined ANA_PSOURCE && \
     (defined UV_PSOURCE  || defined TS_PSOURCE || defined Q_PSOURCE)
@@ -200,7 +203,7 @@
 
 # ifdef M2TIDE_DIFF
 !
-!  Tidal amplitude, M2 only.
+!  Tidal velocity amplitude, M2 only.
 !
       IF (iic(ng).eq.0) THEN
         CALL get_2dfld (ng, iNLM, idM2am, ncFRCid(idM2am,ng),           &

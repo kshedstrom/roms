@@ -1127,6 +1127,12 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+15)=' M2CLM_NUDGING,'
 #endif
+#ifdef M2TIDE_DIFF
+      IF (Master) WRITE (stdout,20) 'M2TIDE_DIFF',                      &
+     &   'Add barotropic tidal mixing parameterization.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+13)=' M2TIDE_DIFF,'
+#endif
 #if defined M3CLIMATOLOGY && defined SOLVE3D
       IF (Master) WRITE (stdout,20) 'M3CLIMATOLOGY',                    &
      &   'Processing 3D momentum climatology data.'
