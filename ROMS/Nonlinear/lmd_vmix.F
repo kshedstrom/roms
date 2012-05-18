@@ -510,7 +510,7 @@
       real(r8), intent(in) :: z_r(LBi:,LBj:,:)
 #  endif
 # ifdef M2TIDE_DIFF
-      real(r8), intent(in) :: z_w(LBi:,LBj:,:)
+      real(r8), intent(in) :: z_w(LBi:,LBj:,0:)
       real(r8), intent(in) :: m2_amp(LBi:,LBj:)
 # endif
       real(r8), intent(in) :: bvf(LBi:,LBj:,0:)
@@ -544,6 +544,7 @@
       real(r8), parameter :: lmd_sigma = 3.0_r8
       real(r8), parameter :: lmd_p = 0.25_r8
       real(r8), parameter :: lmd_drag = 2.4e-3_r8
+      real(r8), parameter :: eps = 1.e-20_r8
       real(r8) :: lmd_kz, lmd_ri
 # endif
 
@@ -598,7 +599,7 @@
           DO i=Istr,Iend
             shear2 = 0.5 * lmd_drag *                                   &
      &               (m2_amp(i,j)/(vonKar*(z_w(i,j,0)-z_w(i,j,k)) ))**2
-            lmd_ri = bvf(i,j,k) / shear2
+            lmd_ri = max(0.0,bvf(i,j,k)) / (shear2 + eps)
             lmd_kz = lmd_k0 * (1 + lmd_sigma*lmd_ri)**(-lmd_p)
             Akt(i,j,k,itemp)=Akt(i,j,k,itemp)+lmd_kz
 #  ifdef SALINITY
