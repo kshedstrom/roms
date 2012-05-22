@@ -12,7 +12,7 @@
 **  Options for ARCTIC simulation
 */
 
-#define NO_HIS
+#undef NO_HIS
 #define GLOBAL_PERIODIC
 #undef NETCDF4
 #undef PARALLEL_IO
@@ -109,7 +109,6 @@
 /* vertical mixing */
 
 #ifdef SOLVE3D
-# define SOLAR_SOURCE
 # define WTYPE_GRID
 
 # undef LMD_MIXING
@@ -140,11 +139,13 @@
 # define CCSM_FLUXES
 # if defined BULK_FLUXES || defined CCSM_FLUXES
 #  define LONGWAVE_OUT
-#  define DIURNAL_SRFLUX
+#  undef DIURNAL_SRFLUX
+#  define SOLAR_SOURCE
 #  define EMINUSP
 #  undef ANA_SRFLUX
 #  undef ALBEDO
-#  define ALBEDO_CURVE
+#  undef ALBEDO_CURVE
+#  define ALBEDO_FILE
 #  undef LONGWAVE
 # endif
 #endif
@@ -167,7 +168,7 @@
 /* Using Runoff now */
 #ifdef SOLVE3D
 # define RUNOFF
-# define UV_PSOURCE
+# undef UV_PSOURCE
 # undef TS_PSOURCE
 #endif
 
