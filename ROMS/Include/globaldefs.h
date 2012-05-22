@@ -734,7 +734,8 @@
 
 #if (defined UV_PSOURCE || defined TS_PSOURCE || \
      defined Q_PSOURCE) || \
-    (defined  SSH_TIDES || defined UV_TIDES)
+    (defined  SSH_TIDES || defined UV_TIDES) || \
+     defined M2TIDE_DIFF
 # define TIMELESS_DATA
 #endif
 

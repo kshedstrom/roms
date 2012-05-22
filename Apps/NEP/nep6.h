@@ -219,7 +219,7 @@
 /*
 **  Biological model options.
 */
-#define BIO_UMAINE
+#undef BIO_UMAINE
 #undef NEMURO
 #undef BIO_GOANPZ        /* Sarah Hinckley's 11 box model */
 #undef BEST_NPZ         /* Georgina Gibsons BEST NPZ model  */

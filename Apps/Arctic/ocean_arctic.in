@@ -112,11 +112,11 @@
 !                   1       2       3       4
 
    LBC(isFsur) ==   Cha     Clo     Cha     Cha         ! free-surface
-   LBC(isUbar) ==   Clo     Clo     Fla     Fla         ! 2D U-momentum
-   LBC(isVbar) ==   Clo     Clo     Fla     Fla         ! 2D V-momentum
-   LBC(isUvel) ==   Clo     Clo     RadNud  RadNud      ! 3D U-momentum
-   LBC(isVvel) ==   Clo     Clo     RadNud  RadNud      ! 3D V-momentum
-   LBC(isMtke) ==   Gra     Clo     Gra     Gra         ! mixing TKE
+   LBC(isUbar) ==   Fla     Clo     Fla     Fla         ! 2D U-momentum
+   LBC(isVbar) ==   Fla     Clo     Fla     Fla         ! 2D V-momentum
+   LBC(isUvel) ==   RadNud  Clo     RadNud  RadNud      ! 3D U-momentum
+   LBC(isVvel) ==   RadNud  Clo     RadNud  RadNud      ! 3D V-momentum
+   LBC(isMtke) ==   Clo     Clo     Clo     Clo         ! mixing TKE
 
    LBC(isTvar) ==   RadNud  Clo     RadNud  RadNud \    ! temperature
                     RadNud  Clo     RadNud  RadNud      ! salinity
@@ -164,7 +164,8 @@ ad_VolCons(north) ==  F                            ! northern boundary
 
 ! Time-Stepping parameters.
 
-       NTIMES == 129600
+       NTIMES == 12960
+!      NTIMES == 129600
 !          DT == 100.0d0
           DT == 200.0d0
      NDTFAST == 20
@@ -207,7 +208,7 @@ ad_VolCons(north) ==  F                            ! northern boundary
 !   NDEFAVG == 864
      NTSAVG2 == 1
        NAVG2 == 54
-    NDEFAVG2 == 1920
+    NDEFAVG2 == 1944
       NTSDIA == 1
         NDIA == 10
      NDEFDIA == 0
@@ -294,10 +295,11 @@ ad_VolCons(north) ==  F                            ! northern boundary
          Zos == 0.02d0                     ! m
 
 ! Height (m) of atmospheric measurements for Bulk fluxes parameterization.
+! 2 for MERRA
 
-      BLK_ZQ == 10.0d0                     ! air humidity
-      BLK_ZT == 10.0d0                     ! air temperature
-      BLK_ZW == 10.0d0                     ! winds
+      BLK_ZQ == 2.0d0                     ! air humidity
+      BLK_ZT == 2.0d0                     ! air temperature
+      BLK_ZW == 2.0d0                     ! winds
 
 ! Minimum depth for wetting and drying.
 
@@ -331,7 +333,8 @@ ad_VolCons(north) ==  F                            ! northern boundary
 ! NetCDF units attribute.
 
 !     DSTART =  21186.5d0                  ! days
-      DSTART =  31046.5d0                  ! days
+!     DSTART =  31046.5d0                  ! days
+      DSTART =  31780.0d0                  ! days
   TIDE_START =  -1.0d0                     ! days
     TIME_REF =  19000101.0d0               ! yyyymmdd.dd
 
@@ -738,7 +741,7 @@ Dout(iTvdif) == T T                        ! vertical diffusion
 ! Input NetCDF file names, [1:Ngrids].
 
      GRDNAME == /wrkdir/kate/Arctic/Files/grid_Arctic_1.nc
-     ININAME == /wrkdir/kate/Arctic/Files/SODA_2.1.6_19841230-19850104_ic_ARCTIC.nc
+     ININAME == /wrkdir/kate/Arctic/Files/SODA_2.1.6_19870104-19870109_ic_ARCTIC.nc
 !     ININAME == arc_natl_rst.nc
      ITLNAME == ocean_itl.nc
      IRPNAME == ocean_irp.nc
@@ -763,8 +766,9 @@ Dout(iTvdif) == T T                        ! vertical diffusion
    NCLMFILES == 1                         ! number of climate files
      CLMNAME == ocean_clm.nc
 
-    NBCFILES == 3                          ! number of boundary files
-     BRYNAME == /wrkdir/kate/Arctic/Files/SODA_bdry_ARCTIC.nc \
+    NBCFILES == 4                          ! number of boundary files
+     BRYNAME == /wrkdir/kate/Arctic/Files/NEP6_west_bry.nc \
+                /wrkdir/kate/Arctic/Files/SODA_bdry_ARCTIC.nc \
                 /wrkdir/kate/Arctic/Files/Arctic_icebc.nc \
                 /wrkdir/kate/Arctic/Files/Arctic_snowbc.nc
 
@@ -781,18 +785,18 @@ Dout(iTvdif) == T T                        ! vertical diffusion
 
     NFFILES == 13                          ! number of forcing files
 
-    FRCNAME == /wrkdir/kate/Bering/Files/Pair.1948-2007.nc   \
-               /wrkdir/kate/Bering/Files/lwrad.1948-2007.nc  \
-               /wrkdir/kate/Bering/Files/Qair.1948-2007.nc   \
-               /wrkdir/kate/Bering/Files/swrad.1948-2007.nc  \
-               /wrkdir/kate/Bering/Files/Tair.1948-2007.nc   \
-               /wrkdir/kate/Bering/Files/Uwind.1948-2007.nc  \
-               /wrkdir/kate/Bering/Files/Vwind.1948-2007.nc  \
-               /wrkdir/kate/Bering/Files/rain.1948-2007.nc  \
+    FRCNAME == /wrkdir/kate/MERRA/MERRA_Pair_3hours_1987.nc   \
+               /wrkdir/kate/MERRA/MERRA_Qair_3hours_1987.nc   \
+               /wrkdir/kate/MERRA/MERRA_Tair_3hours_1987.nc   \
+               /wrkdir/kate/MERRA/MERRA_lwrad_down_3hours_1987.nc  \
+               /wrkdir/kate/MERRA/MERRA_swrad_3hours_1987.nc  \
+               /wrkdir/kate/MERRA/MERRA_Uwind_3hours_1987.nc  \
+               /wrkdir/kate/MERRA/MERRA_Vwind_3hours_1987.nc  \
+               /wrkdir/kate/MERRA/MERRA_rain_3hours_1987.nc  \
+               /wrkdir/kate/MERRA/MERRA_albedo_daily_1987.nc  \
                /wrkdir/kate/Bering/Files/sss_fill_2004.nc \
                /wrkdir/kate/Arctic/Files/runoff_ARCTIC_daitren_inter_annual_1948-2007.nc \
                /wrkdir/kate/Arctic/Files/fastice_Arctic.nc \
-               /wrkdir/kate/Arctic/Files/arctic_river.nc \
                /wrkdir/kate/Arctic/Files/Arctic_tides_otps.nc
 
 ! Output NetCDF file names, [1:Ngrids].

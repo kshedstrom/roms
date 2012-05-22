@@ -2211,7 +2211,7 @@
   0.017453292519943295                             ! pi/180
 
 'tide_m2amp'                                       ! Input
-  'velocity amplitude of M2 tidal constituent'
+  'tidal velocity amplitude'
   'meter second-1'                                 ! m/s
   'tide_m2amp, scalar'
   'tide_period'

@@ -2746,7 +2746,7 @@
 !
 !  Ice shelf thickness.
 !
-        IF (ncid.ne.ncSTAid(ng)) THEN
+        IF (ncid.ne.STA(ng)%ncid) THEN
           Vinfo( 1)='zice'
           Vinfo( 2)='Ice shelf thickness at RHO-points'
           Vinfo( 3)='meter'
