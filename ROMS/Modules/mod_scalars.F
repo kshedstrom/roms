@@ -224,10 +224,13 @@
 
         logical, allocatable :: PerfectRST(:)
         logical, allocatable :: PREDICTOR_2D_STEP(:)
+!$OMP THREADPRIVATE (PREDICTOR_2D_STEP)
 
         integer, allocatable :: indx1(:)
         integer, allocatable :: iic(:)
         integer, allocatable :: iif(:)
+!$OMP THREADPRIVATE (indx1, iic, iif)
+
         integer, allocatable :: ndtfast(:)
         integer, allocatable :: nfast(:)
 
@@ -294,7 +297,7 @@
         real(r8) :: Falpha = 2.0_r8
         real(r8) :: Fbeta  = 4.0_r8
         real(r8) :: Fgamma = 0.284_r8
-# endif
+#endif
 !
 !  Total number timesteps in current run. In 3D configurations, "ntimes"
 !  is the total of baroclinic timesteps. In 2D configuration, "ntimes"
@@ -316,9 +319,9 @@
         integer :: Nrun = 1                     ! Current counter
         integer :: inner = 0                    ! inner loop counter
         integer :: outer = 0                    ! outer loop counter
-# ifdef SENSITIVITY_4DVAR
+#ifdef SENSITIVITY_4DVAR
         integer :: NrunSAVE = 0                 ! Loop counter
-# endif
+#endif
 !
 !  First, starting, and ending timestepping parameters
 !
@@ -330,16 +333,13 @@
 !  counter and number of records available.
 !
         integer, allocatable :: FrcRec(:)
+!$OMP THREADPRIVATE (FrcRec)
+
         integer, allocatable :: NrecFrc(:)
 !
 !-----------------------------------------------------------------------
 !  Control switches.
 !-----------------------------------------------------------------------
-!
-!  Composed grid a refined grids switches. They are .FALSE. by default.
-!
-        logical, allocatable :: ComposedGrid(:)
-        logical, allocatable :: RefinedGrid(:)
 !
 !  Switch to proccess nudging coefficients.
 !
@@ -411,6 +411,12 @@
 !  Switch to compute the grid stiffness.
 !
         logical :: Lstiffness = .TRUE.
+!$OMP THREADPRIVATE (Lstiffness)
+!
+!  Composite grid a refined grids switches. They are .FALSE. by default.
+!
+        logical, allocatable :: ComposedGrid(:)
+        logical, allocatable :: RefinedGrid(:)
 !
 !  Periodic boundary swiches for distributed-memory exchanges.
 !
@@ -420,7 +426,7 @@
 !  Lateral open boundary edges volume conservation switches.
 !
         logical, allocatable :: VolCons(:,:)
-#if defined ADJONT || defined TANGENT || defined TL_IOMS
+#if defined ADJOINT || defined TANGENT || defined TL_IOMS
         logical, allocatable :: ad_VolCons(:,:)
         logical, allocatable :: tl_VolCons(:,:)
 #endif
@@ -854,6 +860,14 @@
 !  files.  Used only for history, average and station files.
 !
         logical, allocatable :: ldefout(:)       ! New output files
+
+#ifdef FLOATS
+!
+! Switch to control the printing of floats positions to standard output
+! file.
+!
+        logical, allocatable :: Fprint(:)
+#endif
 !
 !  Number of timesteps between creation of new output files.
 !
@@ -1017,6 +1031,7 @@
 !  Stochastic optimals forcing records counter.
 !
         integer, allocatable :: SOrec(:)
+!$OMP THREADPRIVATE (SOrec)
 !
 !  Trace of stochastic optimals matrix.
 !
@@ -1704,6 +1719,20 @@
 
       END DO
 !
+!  Allocate variables that require special treatment in shared-memory.
+!  These variables are private for each thread to avoid collisions.
+!
+!$OMP PARALLEL
+      allocate ( PREDICTOR_2D_STEP(Ngrids) )
+
+      allocate ( indx1(Ngrids) )
+      allocate ( iic(Ngrids) )
+      allocate ( iif(Ngrids) )
+
+      allocate ( FrcRec(Ngrids) )
+      allocate ( SOrec(Ngrids) )
+!$OMP END PARALLEL
+!
 !-----------------------------------------------------------------------
 !  Allocate variables.
 !-----------------------------------------------------------------------
@@ -1728,11 +1757,7 @@
 #endif
 
       allocate ( PerfectRST(Ngrids) )
-      allocate ( PREDICTOR_2D_STEP(Ngrids) )
 
-      allocate ( indx1(Ngrids) )
-      allocate ( iic(Ngrids) )
-      allocate ( iif(Ngrids) )
       allocate ( ndtfast(Ngrids) )
       allocate ( nfast(Ngrids) )
 
@@ -1761,11 +1786,7 @@
       allocate ( ntstart(Ngrids) )
       allocate ( ntend(Ngrids) )
 
-      allocate ( FrcRec(Ngrids) )
       allocate ( NrecFrc(Ngrids) )
-
-      allocate ( ComposedGrid(Ngrids) )
-      allocate ( RefinedGrid(Ngrids) )
 
       allocate ( NudgingCoeff(Ngrids) )
 
@@ -1779,11 +1800,14 @@
       allocate ( Lsediment(Ngrids) )
       allocate ( Lstations(Ngrids) )
 
+      allocate ( ComposedGrid(Ngrids) )
+      allocate ( RefinedGrid(Ngrids) )
+
       allocate ( EWperiodic(Ngrids) )
       allocate ( NSperiodic(Ngrids) )
 
       allocate ( VolCons(4,Ngrids) )
-#if defined ADJONT || defined TANGENT || defined TL_IOMS
+#if defined ADJOINT || defined TANGENT || defined TL_IOMS
       allocate ( ad_VolCons(4,Ngrids) )
       allocate ( tl_VolCons(4,Ngrids) )
 #endif
@@ -1990,6 +2014,7 @@
       allocate ( nrrec(Ngrids) )
 
 #ifdef FLOATS
+      allocate ( Fprint(Ngrids) )
       allocate ( frrec(Ngrids) )
 #endif
 
@@ -2012,7 +2037,6 @@
 
       allocate ( TRnorm(Ngrids) )
 
-      allocate ( SOrec(Ngrids) )
       allocate ( SO_decay(Ngrids) )
 #ifdef SOLVE3D
       allocate ( SO_sdev(7+2*MT,Ngrids) )
@@ -2286,6 +2310,9 @@
 #ifdef TIDES_ASTRO
         FIRST_TIDES_ASTRO(ng) = .TRUE.
 #endif
+#ifdef FLOATS
+        Fprint(ng)=.TRUE.
+#endif
 #if defined FOUR_DVAR || defined VERIFICATION
         FrequentImpulse(ng)=.FALSE.
         SporadicImpulse(ng)=.FALSE.
@@ -2387,7 +2414,7 @@
 #endif
         DO i=1,4
           VolCons(i,ng)=.FALSE.
-#if defined ADJONT || defined TANGENT || defined TL_IOMS
+#if defined ADJOINT || defined TANGENT || defined TL_IOMS
           ad_VolCons(i,ng)=.FALSE.
           tl_VolCons(i,ng)=.FALSE.
 #endif
