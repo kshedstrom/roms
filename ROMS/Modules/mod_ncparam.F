@@ -160,6 +160,16 @@
         integer  :: idyspc = -8   ! y-space
         integer  :: idwdph = -9   ! water depth
 #endif
+
+#ifdef FLOAT_OYSTER
+!
+!  Biological floats identification indices.
+!
+        integer  :: idsize = -7   ! biological float size (length)
+        integer  :: idswim = -8   ! biological float swimming time
+        integer  :: idwbio = -9   ! biological float w-velocity
+        integer  :: idwsin = -10  ! biological float sinking velocity
+#endif
 !
 !  Input/output identification indices.
 !

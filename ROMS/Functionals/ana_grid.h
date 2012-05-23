@@ -199,7 +199,7 @@
 !  Local variable declarations.
 !
       integer :: Imin, Imax, Jmin, Jmax
-      integer :: NSUB, i, j, k
+      integer :: NSUB, i, ival, j, k
 
       real(r8), parameter :: twopi = 2.0_r8*pi
 
@@ -245,6 +245,12 @@
       Esize=5.0E+03_r8
       depth=47.5_r8
       f0=9.25E-04_r8
+      beta=0.0_r8
+#elif defined CHANNEL
+      Xsize=600.0E+03_r8
+      Esize=360.0E+03_r8
+      depth=500.0_r8
+      f0=1.0E-04_r8
       beta=0.0_r8
 #elif defined CANYON
       Xsize=128.0E+03_r8
@@ -914,16 +920,13 @@
       END DO
 #elif defined WINDBASIN
       DO i=IstrR,IendR
-        val1=1;
-        IF ((i-IstrR).lt.(INT(0.03_r8*REAL(IendR-IstrR,r8)))) THEN
-          val1=1.0_r8-(REAL((i-IstrR+1)-                                &
-     &                      INT(0.03_r8*REAL(IendR-IstrR,r8)),r8)/      &
-     &                 (0.03_r8*REAL(IendR-IstrR,r8)))**2
-        END IF
-        IF ((IendR-i).lt.(INT(0.03_r8*REAL(IendR-IstrR,r8)))) THEN
-          val1=1.0_r8-(REAL((IendR-i+1)-                                &
-     &                      INT(0.03_r8*REAL(IendR-IstrR,r8)),r8)/      &
-     &                 (0.03_r8*REAL(IendR-IstrR,r8)))**2
+        ival=INT(0.03_r8*REAL(Lm(ng)+1,r8))
+        IF (i.lt.ival) THEN
+          val1=1.0_r8-(REAL((i+1)-ival,r8)/REAL(ival,r8))**2
+        ELSE IF ((Lm(ng)+1-i).lt.ival) THEN
+          val1=1.0_r8-(REAL((Lm(ng)+1-i)-ival,r8)/REAL(ival,r8))**2
+        ELSE
+          val1=1.0_r8
         END IF
         DO j=JstrR,JendR
          val2=2.0_r8*REAL(j-(Mm(ng)+1)/2,r8)/REAL(Mm(ng)+1,r8)
@@ -966,12 +969,16 @@
           my_max=MAX(my_max,h(i,j))
         END DO
       END DO
+#ifdef DISTRIBUTE
+      NSUB=1                             ! distributed-memory
+#else
       IF (DOMAIN(ng)%SouthWest_Corner(tile).and.                        &
      &    DOMAIN(ng)%NorthEast_Corner(tile)) THEN
         NSUB=1                           ! non-tiled application
       ELSE
         NSUB=NtileX(ng)*NtileE(ng)       ! tiled application
       END IF
+#endif
 !$OMP CRITICAL (H_RANGE)
       IF (tile_count.eq.0) THEN
         hmin(ng)=my_min

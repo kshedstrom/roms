@@ -131,13 +131,13 @@
 #endif
 
 /*
-** Set tile variable for distributed- or shared-memory configurations.
+** Set tile range for distributed- or shared-memory configurations.
 */
 
 #ifdef DISTRIBUTE
-# define TILE MyRank
+# define THREAD_RANGE MyRank,MyRank
 #else
-# define TILE tile
+# define THREAD_RANGE 0,numthreads-1
 #endif
 
 /*
@@ -589,6 +589,12 @@
 # define AVERAGES
 # undef  FILTRIM            /* define for fewer time-filtered fields */
 # define FILTERED_RST       /* define if use restart files for time-filtering */
+#endif
+** Activate internal option for biological float behavior.
+*/
+
+#if defined FLOATS && defined FLOAT_OYSTER
+# define FLOAT_BIOLOGY
 #endif
 
 /*

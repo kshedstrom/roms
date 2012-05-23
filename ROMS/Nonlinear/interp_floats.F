@@ -36,7 +36,7 @@
 !     Hz         Vertical thicknesses (m).                             !
 !     Amask      Field Land/Sea mask.                                  !
 !     A          Field to interpolate from.                            !
-!     MyThread   Float parallel thread bounded switch.                 !
+!     my_thread  Float parallel thread bounded switch.                 !
 !     bounded    Float grid bounded status switch.                     !
 !                                                                      !
 !  On Output:                                                          !
@@ -63,11 +63,12 @@
 # ifdef MASKING
      &                          Amask,                                  &
 # endif
-     &                          A, MyThread, bounded, track)
+     &                          A, my_thread, bounded, track)
 !***********************************************************************
 !
       USE mod_param
       USE mod_ncparam
+      USE mod_floats
       USE mod_scalars
 !
       implicit none
@@ -78,7 +79,7 @@
       integer, intent(in) :: Lstr, Lend, itime, ifield, isBval, gtype
 
       logical, intent(in) :: maskit
-      logical, intent(in) :: MyThread(Lstr:Lend)
+      logical, intent(in) :: my_thread(Lstr:Lend)
 # ifdef OFFLINE_FLOATS
       logical, intent(inout) :: bounded(Nfloats(ng))
 # else
@@ -172,7 +173,7 @@
 !-----------------------------------------------------------------------
 !
       DO l=Lstr,Lend
-        IF (MyThread(l)) THEN
+        IF (my_thread(l)) THEN
           IF (.not.bounded(l)) THEN
             track(ifield,itime,l)=Fspval
           ELSE

@@ -785,7 +785,19 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+8)=' FLOATS,'
 #endif
-#if defined FLOATS && defined FLOAT_STICKY && defined SOLVE3D
+#if defined FLOAT_BIOLOGY && defined FLOATS
+      IF (Master) WRITE (stdout,20) 'FLOAT_BIOLOGY',                   &
+     &   'Biological behavior on Lagrangian drifters.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+15)=' FLOAT_BIOLOGY,'
+#endif
+#if defined FLOAT_OYSTER && defined FLOATS
+      IF (Master) WRITE (stdout,20) 'FLOAT_OYSTER',                     &
+     &   'Oyster model behavior on Lagrangian drifters.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+14)=' FLOAT_OYSTER,'
+#endif
+#if defined FLOAT_STICKY && defined FLOATS && defined SOLVE3D
       IF (Master) WRITE (stdout,20) 'FLOAT_STICKY',                     &
      &   'Reflect (stick) floats that hit the surface (bottom).'
       is=LEN_TRIM(Coptions)+1
@@ -2699,6 +2711,24 @@
  200    FORMAT (/,' CHECKDEFS - cannot activate ',a,' ',a,' ',a,        &
      &            ' or',a,/,13x,'at the same time. Choose one!')
         exit_flag=5
+      END IF
+#endif
+#if !defined DISTRIBUTE && defined TS_MPDATA
+!
+!  Stop if activating MPDATA in serial with partitions or shared-
+!  memory.
+!
+      IF (Master) THEN
+        DO ng=1,Ngrids
+          IF (NtileX(ng)*NtileE(ng).gt.1) THEN
+            WRITE (stdout,210) uppercase('ts_mpdata')
+            exit_flag=5
+            EXIT
+          END IF
+        END DO
+ 210    FORMAT (/,' CHECKDEFS - cannot activate option: ',a,           &
+     &          /,13x,'in serial with partitions or shared-memory...', &
+     &          /,13x,'Use distributed-memory (MPI) in parallel runs.')
       END IF
 #endif
 

@@ -332,6 +332,7 @@
       real(r8), parameter :: sss_mismatch_threshold = 0.1_r8
 #   endif
 #  endif
+      real(r8), parameter :: eps = 1.e-20_r8
 
 #  include "set_bounds.h"
 
@@ -830,8 +831,8 @@
           cff2=SQRT(u(i,j,1,nrhs)*u(i,j,1,nrhs)+cff1*cff1)
           cff1=0.5_r8*(rdrag2(i,j)+rdrag2(i-1,j))
 #ifdef DRAG_LIMITER
-          cff1 = min((cff3*0.5*(Hz(i,j,1)+Hz(i-1,j,1))/(cff2*dt(ng))),  &
-     &               cff1)
+          cff1 = min((cff3*0.5*(Hz(i,j,1)+Hz(i-1,j,1))/                 &
+     &               ((cff2+eps)*dt(ng))), cff1)
 #endif
           bustr(i,j)=cff1*u(i,j,1,nrhs)*cff2
         END DO
@@ -845,8 +846,8 @@
           cff2=SQRT(cff1*cff1+v(i,j,1,nrhs)*v(i,j,1,nrhs))
           cff1=0.5_r8*(rdrag2(i,j)+rdrag2(i,j-1))
 #ifdef DRAG_LIMITER
-          cff1 = min((cff3*0.5*(Hz(i,j,1)+Hz(i,j-1,1))/(cff2*dt(ng))),  &
-     &               cff1)
+          cff1 = min((cff3*0.5*(Hz(i,j,1)+Hz(i,j-1,1))/                 &
+     &               ((cff2+eps)*dt(ng))), cff1)
 #endif
           bvstr(i,j)=cff1*v(i,j,1,nrhs)*cff2
         END DO

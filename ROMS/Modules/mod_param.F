@@ -93,10 +93,6 @@
 !  Number of nested and/or connected grids to solve.
 !-----------------------------------------------------------------------
 !
-!  Because of ROMS design, the Ngrids parameter is assigned during
-!  C-preprocessing before compilation in the "makefile" or "build"
-!  script. This is the only way that can be done.
-!
       integer :: Ngrids
 !
 !-----------------------------------------------------------------------
@@ -351,10 +347,8 @@
 
       TYPE (T_LBC), allocatable :: LBC(:,:,:)
 
-#ifdef ADJOINT
+#if defined ADJOINT || defined TANGENT || defined TL_IOMS
       TYPE (T_LBC), allocatable :: ad_LBC(:,:,:)
-#endif
-#if defined TANGENT || defined TL_IOMS
       TYPE (T_LBC), allocatable :: tl_LBC(:,:,:)
 #endif
 
@@ -915,10 +909,18 @@
         Jm(ng)=Mm(ng)+J_padd
         NT(ng)=NAT+NBT+NST+NPT
 #ifdef FLOATS
-# ifdef FLOAT_VWALK
-        NFV(ng)=NT(ng)+12
+# ifdef FLOAT_OYSTER
+#  ifdef FLOAT_VWALK
+        NFV(ng)=NT(ng)+18
+#  else
+        NFV(ng)=NT(ng)+16
+#  endif
 # else
+#  ifdef FLOAT_VWALK
+        NFV(ng)=NT(ng)+12
+#  else
         NFV(ng)=NT(ng)+10
+#  endif
 # endif
 #ifdef OFFLINE_FLOATS_LATLON
 ! add 4 variables: x-space, y-space, water depth and Hz 
@@ -975,7 +977,7 @@
           END DO
         END DO
       END IF
-#ifdef ADJOINT
+#if defined ADJOINT || defined TANGENT || defined TL_IOMS
       IF (.not.allocated(ad_LBC)) THEN
         allocate ( ad_LBC(4,nLBCvar,Ngrids) )
         DO ng=1,Ngrids

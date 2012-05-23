@@ -248,6 +248,7 @@
 !
       IF (((iic(ng).gt.ntsAVG(ng)).and.                                 &
      &     (MOD(iic(ng)-1,nAVG(ng)).eq.1)).or.                          &
+     &    ((iic(ng).ge.ntsAVG(ng)).and.(nAVG(ng).eq.1)).or.             &
      &    ((nrrec(ng).gt.0).and.(iic(ng).eq.ntstart(ng)))) THEN
 
 # ifdef WET_DRY
@@ -3887,6 +3888,26 @@
      &                          EWperiodic(ng), NSperiodic(ng),         &
      &                          AVERAGE(ng)%avghbbl)
 #   endif
+          END IF
+        END DO
+# endif
+      END IF
+!
+!-----------------------------------------------------------------------
+!  Convert accumulated sums into time-averages, if appropriate.
+!  Notice that we need to apply periodic conditions, if any, since
+!  the full I- and J-ranges are different.
+!-----------------------------------------------------------------------
+!
+      IF (((iic(ng).gt.ntsAVG(ng)).and.                                 &
+     &     (MOD(iic(ng)-1,nAVG(ng)).eq.0).and.                          &
+     &     ((iic(ng).ne.ntstart(ng)).or.(nrrec(ng).eq.0))).or.          &
+     &    ((iic(ng).ge.ntsAVG(ng)).and.(nAVG(ng).eq.1))) THEN
+        IF (DOMAIN(ng)%SouthWest_Test(tile)) THEN
+          IF (nAVG(ng).eq.1) THEN
+            AVGtime(ng)=time(ng)
+          ELSE
+            AVGtime(ng)=AVGtime(ng)+REAL(nAVG(ng),r8)*dt(ng)
           END IF
         END IF
 #  endif

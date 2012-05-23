@@ -200,6 +200,7 @@
 ** OPTIONS for Lagrangian drifters:                                          **
 **                                                                           **
 ** FLOATS              use to activate simulated Lagrangian drifters         **
+** FLOAT_OYSTER        use to activate oyster model behavior in floats       **
 ** FLOAT_STICKY        use to reflect/stick floats that hit surface/bottom   **
 ** FLOAT_VWALK         use if vertical random walk                           **
 ** VWALK_FORWARD       use if forward time stepping vertical random walk     **
@@ -597,6 +598,7 @@
 ** BENCHMARK           Benchmark Tests (small, Medium, big grids)            **
 ** BIO_TOY             One-dimension (vertical) Biology Toy                  **
 ** BL_TEST             Boundary Layers Test                                  **
+** CHANNEL             Periodic channel, Optimal Perturbations Test          **
 ** CANYON              Coastal form stress Canyon Test                       **
 ** CHANNEL_NECK        Channel with a Constriction                           **
 ** COUPLING_TEST       Two-way Atmosphere-Ocean Coupling Test                **
