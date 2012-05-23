@@ -125,61 +125,6 @@
 #  endif
 # endif
 #endif
-#if defined FLOATS
-!
-!-----------------------------------------------------------------------
-!  Floats fields identification indices.
-!-----------------------------------------------------------------------
-!
-        integer, parameter :: itstr = 0          ! release time
-        integer, parameter :: ixgrd = 1          ! x-grid location
-        integer, parameter :: iygrd = 2          ! y-grid location
-        integer, parameter :: izgrd = 3          ! z-grid location
-        integer, parameter :: iflon = 4          ! longitude location
-        integer, parameter :: iflat = 5          ! latitude location
-        integer, parameter :: idpth = 6          ! depth
-        integer, parameter :: ixrhs = 7          ! x-slope
-        integer, parameter :: iyrhs = 8          ! y-slope
-        integer, parameter :: izrhs = 9          ! z-slope
-        integer, parameter :: ifden = 10         ! density anomaly
-# ifdef FLOAT_VWALK
-        integer, parameter :: ifakt = 11         ! diffusivity, Akt
-        integer, parameter :: ifdak = 12         ! d(Akt)/d(s)
-# endif
-# ifdef OFFLINE_FLOATS
-        integer, parameter :: ixspc = 11         ! x-space location
-        integer, parameter :: iyspc = 12         ! y-space location
-        integer, parameter :: iwdph = 13         ! water depth
-        integer, parameter :: ifHzz = 14         ! Hz
-#  ifdef FLOAT_VWALK
-        integer, parameter :: ifakt = 15         ! diffusivity, Akt
-        integer, parameter :: ifdak = 16         ! d(Akt)/d(s)
-#  endif
-# endif
-# ifdef SOLVE3D
-!
-!  Tracer variables indices in the track array.
-!
-        integer, allocatable :: ifTvar(:)
-# endif
-!
-!  Set float tracjectory types:
-!
-!     flt_Lagran:  3D Lagrangian floats
-!     flt_Isobar:  Isobaric floats, p=g*(z+zeta)=constant
-!     flt_Geopot:  Geopotential floats, constant depth
-!
-      integer, parameter :: flt_Lagran = 1
-      integer, parameter :: flt_Isobar = 2
-      integer, parameter :: flt_Geopot = 3
-
-# ifdef FLOAT_VWALK
-!
-!  Vertical random walk, initial seed state.
-!
-      integer :: flt_iseed
-# endif
-#endif
 !
 !-----------------------------------------------------------------------
 !  Time stepping indices, variables, and clocks.
@@ -860,14 +805,6 @@
 !  files.  Used only for history, average and station files.
 !
         logical, allocatable :: ldefout(:)       ! New output files
-
-#ifdef FLOATS
-!
-! Switch to control the printing of floats positions to standard output
-! file.
-!
-        logical, allocatable :: Fprint(:)
-#endif
 !
 !  Number of timesteps between creation of new output files.
 !
@@ -968,12 +905,6 @@
 !  internally.
 !
         integer, allocatable :: nrrec(:)
-#ifdef FLOATS
-!
-!  Floats restart switch.
-!
-        integer, allocatable :: frrec(:)
-#endif
 !
 !  Switch to activate processing of input data.  This switch becomes
 !  very useful when reading input data serially in parallel
@@ -1751,11 +1682,6 @@
 #ifdef T_PASSIVE
       allocate ( inert(NPT) )
 #endif
-
-#if defined FLOATS && defined SOLVE3D
-      allocate ( ifTvar(MT) )
-#endif
-
       allocate ( PerfectRST(Ngrids) )
 
       allocate ( ndtfast(Ngrids) )
@@ -2013,11 +1939,6 @@
 
       allocate ( nrrec(Ngrids) )
 
-#ifdef FLOATS
-      allocate ( Fprint(Ngrids) )
-      allocate ( frrec(Ngrids) )
-#endif
-
       allocate ( synchro_flag(Ngrids) )
       allocate ( LastRec(Ngrids) )
 
@@ -2176,21 +2097,6 @@
       END DO
 #endif
 
-#if defined FLOATS && defined SOLVE3D
-!
-!  Indices for tracer variables in the floats array track.
-!
-# ifdef FLOAT_VWALK
-      ic=12
-# else
-      ic=10
-# endif
-      DO i=1,MT
-        ic=ic+1
-        ifTvar(i)=ic
-      END DO
-#endif
-
 #ifdef DIAGNOSTICS
 !
 !---------------------------------------------------------------------
@@ -2310,9 +2216,6 @@
 #ifdef TIDES_ASTRO
         FIRST_TIDES_ASTRO(ng) = .TRUE.
 #endif
-#ifdef FLOATS
-        Fprint(ng)=.TRUE.
-#endif
 #if defined FOUR_DVAR || defined VERIFICATION
         FrequentImpulse(ng)=.FALSE.
         SporadicImpulse(ng)=.FALSE.
@@ -2431,9 +2334,6 @@
 #ifdef SOLVE3D
       Tobc_in = IniVal
       Tobc_out = IniVal
-#endif
-#if defined FLOATS && defined FLOAT_VWALK
-      flt_iseed=149876
 #endif
 #if defined LMD_SKPP || defined LMD_BKPP
 !

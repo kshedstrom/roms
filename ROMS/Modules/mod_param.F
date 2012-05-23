@@ -909,10 +909,18 @@
         Jm(ng)=Mm(ng)+J_padd
         NT(ng)=NAT+NBT+NST+NPT
 #ifdef FLOATS
-# ifdef FLOAT_VWALK
-        NFV(ng)=NT(ng)+12
+# ifdef FLOAT_OYSTER
+#  ifdef FLOAT_VWALK
+        NFV(ng)=NT(ng)+18
+#  else
+        NFV(ng)=NT(ng)+16
+#  endif
 # else
+#  ifdef FLOAT_VWALK
+        NFV(ng)=NT(ng)+12
+#  else
         NFV(ng)=NT(ng)+10
+#  endif
 # endif
 #ifdef OFFLINE_FLOATS_LATLON
 ! add 4 variables: x-space, y-space, water depth and Hz 

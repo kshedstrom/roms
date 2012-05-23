@@ -762,6 +762,16 @@
 
       CALL read_FltPar (model, 45, out, Lwrite)
 #endif
+#if defined FLOATS && defined FLOAT_BIOLOGY
+!
+!-----------------------------------------------------------------------
+!  Read in biological float behavior model input parameters.
+!-----------------------------------------------------------------------
+!
+      OPEN (50, FILE=TRIM(fbionam), FORM='formatted', STATUS='old')
+
+      CALL read_FltBioPar (model, 50, out, Lwrite)
+#endif
 #ifdef STATIONS
 !
 !-----------------------------------------------------------------------

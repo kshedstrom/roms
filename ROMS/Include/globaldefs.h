@@ -590,6 +590,12 @@
 # undef  FILTRIM            /* define for fewer time-filtered fields */
 # define FILTERED_RST       /* define if use restart files for time-filtering */
 #endif
+** Activate internal option for biological float behavior.
+*/
+
+#if defined FLOATS && defined FLOAT_OYSTER
+# define FLOAT_BIOLOGY
+#endif
 
 /*
 ** Define internal option to couple to other models.
