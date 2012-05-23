@@ -224,6 +224,11 @@
         my_thread(l)=.TRUE.
       END DO
 # endif
+# if !(defined SOLVE3D && defined FLOAT_VWALK)
+      DO l=Lstr,Lend
+        nudg(l)=0.0_r8
+      END DO
+# endif
 
 # ifdef DIAPAUSE
 
@@ -245,7 +250,7 @@
 !  step.
 !-----------------------------------------------------------------------
 !
-      CALL vwalk_floats (ng, Lstr, Lend, .TRUE., MyThread, nudg)
+      CALL vwalk_floats (ng, Lstr, Lend, .TRUE., my_thread, nudg)
 # else
       DO l=Lstr,Lend
         nudg(l)=0.0_r8
@@ -459,7 +464,7 @@
 # endif
      &                    diapW,                                        &
      &                    OCEAN(ng) % W,                                &
-     &                    MyThread, bounded, track,                     &
+     &                    my_thread, bounded, track,                     &
      &                    FloatPhase      )
           ENDIF
 
@@ -471,11 +476,12 @@
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
      &                    GRID(ng) % Hz,                                &
-#   ifdef MASKING
+#    ifdef MASKING
      &                    GRID(ng) % rmask,                             &
-#   endif
+#    endif
      &                    OCEAN(ng) % W,                                &
      &                    my_thread, bounded, track)
+#   endif
 #  endif
 #  if defined FLOAT_BIOLOGY
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, N(ng),             &

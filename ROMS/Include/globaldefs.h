@@ -590,6 +590,8 @@
 # undef  FILTRIM            /* define for fewer time-filtered fields */
 # define FILTERED_RST       /* define if use restart files for time-filtering */
 #endif
+
+/*
 ** Activate internal option for biological float behavior.
 */
 

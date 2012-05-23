@@ -737,7 +737,6 @@
      &                    FORCES(ng) % Uwind,                           &
      &                    FORCES(ng) % Vwind,                           &
      &                    Ur2d, Vr2d)
-        END DO
 
         scale=1.0_r8
         CALL extract_sta2d (ng, iNLM, Cgrid, idUairE, r2dvar,           &
@@ -1691,7 +1690,6 @@
      &                    ICE(ng) % ui(:,:,IUOUT),                      &
      &                    ICE(ng) % vi(:,:,IUOUT),                      &
      &                    Ur2d, Vr2d)
-        END DO
 
         scale=1.0_r8
         CALL extract_sta2d (ng, iNLM, Cgrid, idUiceE, r2dvar,           &
