@@ -488,15 +488,37 @@ Hout(idTsur) == 31*F                  ! surface tracer flux
 
 Aout(idTvar) == 31*T
 
-   LBC(isTvar) ==   Per     Clo     Per     Clo \
-                    Per     Clo     Per     Clo \
-                    Per     Clo     Per     Clo \
-                    Per     Clo     Per     Clo \
-                    Per     Clo     Per     Clo \
-                    Per     Clo     Per     Clo \
-                    Per     Clo     Per     Clo \
-                    Per     Clo     Per     Clo \
-                    Per     Clo     Per     Clo
+   LBC(isTvar) ==   Per     Clo     Per     Clo \ ! iNO3_ Nitrate concentration
+                    Per     Clo     Per     Clo \ ! iNH4_ Ammonium concentration
+                    Per     Clo     Per     Clo \ ! iSiOH Silicate concentration
+                    Per     Clo     Per     Clo \ ! iPO4_ Phosphate concentration
+                    Per     Clo     Per     Clo \ ! iS1_N Small phytoplankton N
+                    Per     Clo     Per     Clo \ ! iS1_C Small phytoplankton C
+                    Per     Clo     Per     Clo \ ! iS1CH Small phytoplankton CHL
+                    Per     Clo     Per     Clo \ ! iS2_N Diatom concentration N
+                    Per     Clo     Per     Clo \ ! iS2_C Diatom concentration C
+                    Per     Clo     Per     Clo \ ! iS2CH Diatom concentration CHL
+                    Per     Clo     Per     Clo \ ! iS3_N Coccolithophores N
+                    Per     Clo     Per     Clo \ ! iS3_C Coccolithophores C
+                    Per     Clo     Per     Clo \ ! iS3CH Coccolithophores CHL
+                    Per     Clo     Per     Clo \ ! iZ1_N Small zooplankton N
+                    Per     Clo     Per     Clo \ ! iZ1_C Small zooplankton C
+                    Per     Clo     Per     Clo \ ! iZ2_N Mesozooplankton N
+                    Per     Clo     Per     Clo \ ! iZ2_C Mesozooplankton C
+                    Per     Clo     Per     Clo \ ! iBAC_ Bacteria concentration N
+                    Per     Clo     Per     Clo \ ! iDD_N Detritus concentration N
+                    Per     Clo     Per     Clo \ ! iDD_C Detritus concentration C
+                    Per     Clo     Per     Clo \ ! iDDSi Biogenic silicate concentration
+                    Per     Clo     Per     Clo \ ! iLDON Labile dissolved organic N
+                    Per     Clo     Per     Clo \ ! iLDOC Labile dissolved organic C
+                    Per     Clo     Per     Clo \ ! iSDON Semi-labile dissolved organic N
+                    Per     Clo     Per     Clo \ ! iSDOC Semi-labile dissolved organic C
+                    Per     Clo     Per     Clo \ ! iCLDC Colored labile dissolved organic C
+                    Per     Clo     Per     Clo \ ! iCSDC Colored semi-labile dissolved organic C
+                    Per     Clo     Per     Clo \ ! iDDCA Particulate inorganic C
+                    Per     Clo     Per     Clo \ ! iOxyg Dissolved oxygen
+                    Per     Clo     Per     Clo \ ! iTAlk Total alkalinity
+                    Per     Clo     Per     Clo   ! iTIC_ Total CO2
 !
 !  GLOSSARY:
 !  =========

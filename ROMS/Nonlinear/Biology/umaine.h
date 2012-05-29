@@ -27,10 +27,10 @@
 !    iS3_N              ! Coccolithophores N
 !    iS3_C              ! Coccolithophores C
 !    iS3CH              ! Coccolithophores CHL
-!    iZ1_N              ! Small zooplankotn N
-!    iZ1_C              ! Small zooplankotn C
-!    iZ2_N              ! Mesozooplankotn N
-!    iZ2_C              ! Mesozooplankotn C
+!    iZ1_N              ! Small zooplankton N
+!    iZ1_C              ! Small zooplankton C
+!    iZ2_N              ! Mesozooplankton N
+!    iZ2_C              ! Mesozooplankton C
 !    iBAC_              ! Bacteria concentration N
 !    iDD_N              ! Detritus concentration N
 !    iDD_C              ! Detritus concentration C
