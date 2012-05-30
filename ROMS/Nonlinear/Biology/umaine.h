@@ -1470,14 +1470,10 @@
           indx=idbio(ibio)
           DO k=1,N(ng)
             DO i=Istr,Iend
-!              t(i,j,k,nnew,indx)=MAX(t(i,j,k,nnew,indx)+                &
-!     &                               (Bio(i,k,indx)-Bio_bak(i,k,indx))* &
-!     &                               Hz(i,j,k),                         &
-!     &                               0.0_r8)
-              t(i,j,k,nnew,indx)=Bio(i,k,indx)*Hz(i,j,k)
-#ifdef TS_MPDATA
-              t(i,j,k,3,indx)=t(i,j,k,nnew,indx)*Hz_inv(i,k)
-#endif
+              t(i,j,k,nnew,indx)=MAX(t(i,j,k,nnew,indx)+                &
+     &                               (Bio(i,k,indx)-Bio_bak(i,k,indx))* &
+     &                               Hz(i,j,k),                         &
+     &                               0.0_r8)
             END DO
           END DO
         END DO
