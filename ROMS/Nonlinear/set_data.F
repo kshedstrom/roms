@@ -1810,7 +1810,7 @@
 ! in 3D want nudge only Fe not T and S
 #   if !defined BERING_10K
 
-#    if defined SOGLOBEC
+#    if defined SOGLOBEC || defined NEP6
       DO itrc=1,NT(ng)
 #    else
       DO itrc=1,NAT

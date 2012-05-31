@@ -12,7 +12,7 @@
 **  Options for Northeast Pacific (NEP6) simulation
 */
 
-#undef NO_HIS
+#define NO_HIS
 #undef NETCDF4
 #undef PARALLEL_IO
 #undef OFFLINE_FLOATS
@@ -197,10 +197,10 @@
    These data enter through the climatology arrays 
    Bufferzone characteristics must be set with mods to
    set_nudgcof.F */
-# define  M3CLIMATOLOGY
-# define  M3CLM_NUDGING
-# define  TCLIMATOLOGY
-# define  TCLM_NUDGING
+# undef  M3CLIMATOLOGY
+# undef  M3CLM_NUDGING
+# undef  TCLIMATOLOGY
+# undef  TCLM_NUDGING
 #endif
 #undef  M2CLIMATOLOGY
 #undef  M2CLM_NUDGING
