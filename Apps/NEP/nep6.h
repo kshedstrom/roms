@@ -138,13 +138,13 @@
 # define CCSM_FLUXES
 # if defined BULK_FLUXES || defined CCSM_FLUXES
 #  define LONGWAVE_OUT
-#  define DIURNAL_SRFLUX
+#  undef DIURNAL_SRFLUX
 #  define EMINUSP
 #  undef ANA_SRFLUX
 #  undef ALBEDO
-# define SOLAR_SOURCE
-#  define ALBEDO_CURVE
-#  undef ALBEDO_FILE
+#  define SOLAR_SOURCE
+#  undef ALBEDO_CURVE
+#  define ALBEDO_FILE
 #  undef LONGWAVE
 # endif
 #endif
@@ -159,7 +159,7 @@
 
 /* tides */
 
-#undef LTIDES
+#define LTIDES
 #ifdef LTIDES
 # define FILTERED
 # define SSH_TIDES
@@ -219,10 +219,18 @@
 /*
 **  Biological model options.
 */
-#undef BIO_UMAINE
+#define BIO_UMAINE
 #undef NEMURO
 #undef BIO_GOANPZ        /* Sarah Hinckley's 11 box model */
 #undef BEST_NPZ         /* Georgina Gibsons BEST NPZ model  */
+
+#ifdef BIO_UMAINE
+# define CARBON
+# define OXYGEN
+# undef OPTIC_UMaine
+# define ANA_BPFLUX        /* analytical bottom passive tracers fluxes */
+# define ANA_SPFLUX        /* analytical surface passive tracers fluxes */
+#endif
 
 #if defined BEST_NPZ || defined BIO_GOANPZ
 # undef  BIOFLUX           /* sum Nitrogen fluxes between boxes */

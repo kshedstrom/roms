@@ -2766,8 +2766,6 @@
   'nulvar'
   1.0d0
 
-!--------------------UMAINE variables
-
 !
 !------------------------------------------------------------------------------
 !  Boundary layer variables.
@@ -4398,21 +4396,39 @@
   1.0d0
 
 !--------------UMAINE variables
-'NO3_'                                              ! Input
+'NO3'                                              ! Input
   'nitrate concentration'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'NO3, scalar, series'
   'ocean_time'
-  'idTads(iNO3_)'
+  'idTvar(iNO3_)'
   'r3dvar'
   1.0d0
 
-'NH4_'                                              ! Input/Output
+'NO3'                                              ! Input
+  'nitrate concentration'
+  'millimole_nitrogen meter-3'                     ! [millimole/m3]
+  'NO3, scalar, series'
+  'ocean_time'
+  'idTclm(iNO3_)'
+  'r3dvar'
+  1.0d0
+
+'NH4'                                              ! Input/Output
   'ammonium concentration'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'NH4, scalar, series'
   'ocean_time'
   'idTvar(iNH4_)'
+  'r3dvar'
+  1.0d0
+
+'NH4'                                              ! Input/Output
+  'ammonium concentration'
+  'millimole_nitrogen meter-3'                     ! [millimole/m3]
+  'NH4, scalar, series'
+  'ocean_time'
+  'idTclm(iNH4_)'
   'r3dvar'
   1.0d0
 
@@ -4425,12 +4441,30 @@
   'r3dvar'
   1.0d0
 
-'PO4_'                                              ! Input/Output
+'SiOH'                                             ! Input/Output
+  'silicate concentration'
+  'millimole_silica meter-3'                       ! [millimole/m3]
+  'SiOH, scalar, series'
+  'ocean_time'
+  'idTclm(iSiOH)'
+  'r3dvar'
+  1.0d0
+
+'PO4'                                              ! Input/Output
   'phosphate concentration'
   'millimole_PO4 meter-3'                          ! [millimole/m3]
   'PO4, scalar, series'
   'ocean_time'
   'idTvar(iPO4_)'
+  'r3dvar'
+  1.0d0
+
+'PO4'                                              ! Input/Output
+  'phosphate concentration'
+  'millimole_PO4 meter-3'                          ! [millimole/m3]
+  'PO4, scalar, series'
+  'ocean_time'
+  'idTclm(iPO4_)'
   'r3dvar'
   1.0d0
 
@@ -4443,6 +4477,15 @@
   'r3dvar'
   1.0d0
 
+'NH4'                                              ! Input/Output
+  'S1_N'
+  'millimole meter-3'                     ! [millimole/m3]
+  'S1_N, scalar, series'
+  'ocean_time'
+  'idTclm(iS1_N)'
+  'r3dvar'
+  1.0d0
+
 'S1_C'                                              ! Input/Output
   'S1_C'
   'millimole meter-3'                     ! [millimole/m3]
@@ -4451,6 +4494,15 @@
   'idTvar(iS1_C)'
   'r3dvar'
   1.0d0
+
+'NH4'                                              ! Input/Output
+  'S1_C'
+  'millimole meter-3'                     ! [millimole/m3]
+  'S1_C, scalar, series'
+  'ocean_time'
+  'idTclm(iS1_C)'
+  'r3dvar'
+  5.6d0
 
 'S1CH'                                              ! Input/Output
   'S1CH'
@@ -4461,12 +4513,30 @@
   'r3dvar'
   1.0d0
 
+'NH4'                                              ! Input/Output
+  'S1CH'
+  'milligram meter-3'                     ! [millimole/m3]
+  'S1CH, scalar, series'
+  'ocean_time'
+  'idTclm(iS1CH)'
+  'r3dvar'
+  3.4d0
+
 'S2_N'                                              ! Input/Output
   'S2_N'
   'millimole meter-3'                     ! [millimole/m3]
   'S2_N, scalar, series'
   'ocean_time'
   'idTvar(iS2_N)'
+  'r3dvar'
+  1.0d0
+
+'NH4'                                              ! Input/Output
+  'S2_N'
+  'millimole meter-3'                     ! [millimole/m3]
+  'S2_N, scalar, series'
+  'ocean_time'
+  'idTclm(iS2_N)'
   'r3dvar'
   1.0d0
 
@@ -4479,6 +4549,15 @@
   'r3dvar'
   1.0d0
 
+'NH4'                                              ! Input/Output
+  'S2_C'
+  'millimole meter-3'                     ! [millimole/m3]
+  'S2_C, scalar, series'
+  'ocean_time'
+  'idTclm(iS2_C)'
+  'r3dvar'
+  5.6d0
+
 'S2CH'                                              ! Input/Output
   'S2CH'
   'milligram meter-3'                     ! [millimole/m3]
@@ -4487,6 +4566,15 @@
   'idTvar(iS2CH)'
   'r3dvar'
   1.0d0
+
+'NH4'                                              ! Input/Output
+  'S2CH'
+  'milligram meter-3'                     ! [millimole/m3]
+  'S2CH, scalar, series'
+  'ocean_time'
+  'idTclm(iS2CH)'
+  'r3dvar'
+  3.4d0
 
 'S3_C'                                              ! Input/Output
   'S3_C'
@@ -4497,12 +4585,30 @@
   'r3dvar'
   1.0d0
 
+'NH4'                                              ! Input/Output
+  'S3_C'
+  'millimole meter-3'                     ! [millimole/m3]
+  'S3_C, scalar, series'
+  'ocean_time'
+  'idTclm(iS3_C)'
+  'r3dvar'
+  5.6d0
+
 'S3_N'                                              ! Input/Output
   'S3_N'
   'millimole meter-3'                     ! [millimole/m3]
   'S3_N, scalar, series'
   'ocean_time'
   'idTvar(iS3_N)'
+  'r3dvar'
+  1.0d0
+
+'NH4'                                              ! Input/Output
+  'S3_N'
+  'millimole meter-3'                     ! [millimole/m3]
+  'S3_N, scalar, series'
+  'ocean_time'
+  'idTclm(iS3_N)'
   'r3dvar'
   1.0d0
 
@@ -4515,12 +4621,30 @@
   'r3dvar'
   1.0d0
 
+'NH4'                                              ! Input/Output
+  'S3CH'
+  'milligram meter-3'                     ! [millimole/m3]
+  'S3CH, scalar, series'
+  'ocean_time'
+  'idTclm(iS3CH)'
+  'r3dvar'
+  3.4d0
+
 'Z1_N'                                              ! Input/Output
   'Z1_N'
   'millimole meter-3'                     ! [millimole/m3]
   'Z1_N, scalar, series'
   'ocean_time'
   'idTvar(iZ1_N)'
+  'r3dvar'
+  1.0d0
+
+'NH4'                                              ! Input/Output
+  'Z1_N'
+  'millimole meter-3'                     ! [millimole/m3]
+  'Z1_N, scalar, series'
+  'ocean_time'
+  'idTclm(iZ1_N)'
   'r3dvar'
   1.0d0
 
@@ -4533,12 +4657,30 @@
   'r3dvar'
   1.0d0
 
+'NH4'                                              ! Input/Output
+  'Z1_C'
+  'millimole meter-3'                     ! [millimole/m3]
+  'Z1_C, scalar, series'
+  'ocean_time'
+  'idTclm(iZ1_C)'
+  'r3dvar'
+  5.6d0
+
 'Z2_N'                                              ! Input/Output
   'Z2_N'
   'millimole meter-3'                     ! [millimole/m3]
   'Z2_N, scalar, series'
   'ocean_time'
   'idTvar(iZ2_N)'
+  'r3dvar'
+  1.0d0
+
+'NH4'                                              ! Input/Output
+  'Z2_N'
+  'millimole meter-3'                     ! [millimole/m3]
+  'Z2_N, scalar, series'
+  'ocean_time'
+  'idTclm(iZ2_N)'
   'r3dvar'
   1.0d0
 
@@ -4551,12 +4693,30 @@
   'r3dvar'
   1.0d0
 
+'NH4'                                              ! Input/Output
+  'Z2_C'
+  'millimole meter-3'                     ! [millimole/m3]
+  'Z2_C, scalar, series'
+  'ocean_time'
+  'idTclm(iZ2_C)'
+  'r3dvar'
+  5.6d0
+
 'BAC_'                                              ! Input/Output
   'BAC'
   'millimole meter-3'                     ! [millimole/m3]
   'BAC, scalar, series'
   'ocean_time'
   'idTvar(iBAC_)'
+  'r3dvar'
+  1.0d0
+
+'BAC_'                                              ! Input/Output
+  'BAC'
+  'millimole meter-3'                     ! [millimole/m3]
+  'BAC, scalar, series'
+  'ocean_time'
+  'idTclm(iBAC_)'
   'r3dvar'
   1.0d0
 
@@ -4569,6 +4729,15 @@
   'r3dvar'
   1.0d0
 
+'NH4'                                              ! Input/Output
+  'DD_N'
+  'millimole meter-3'                     ! [millimole/m3]
+  'DD_N, scalar, series'
+  'ocean_time'
+  'idTclm(iDD_N)'
+  'r3dvar'
+  1.0d0
+
 'DD_C'                                              ! Input/Output
   'DD_C'
   'millimole meter-3'                     ! [millimole/m3]
@@ -4578,12 +4747,30 @@
   'r3dvar'
   1.0d0
 
+'DD_C'                                              ! Input/Output
+  'DD_C'
+  'millimole meter-3'                     ! [millimole/m3]
+  'DD_C, scalar, series'
+  'ocean_time'
+  'idTclm(iDD_C)'
+  'r3dvar'
+  5.6d0
+
 'DDSi'                                              ! Input/Output
   'DDSi'
   'millimole meter-3'                     ! [millimole/m3]
   'DDSi, scalar, series'
   'ocean_time'
   'idTvar(iDDSi)'
+  'r3dvar'
+  1.0d0
+
+'NH4'                                              ! Input/Output
+  'DDSi'
+  'millimole meter-3'                     ! [millimole/m3]
+  'DDSi, scalar, series'
+  'ocean_time'
+  'idTclm(iDDSi)'
   'r3dvar'
   1.0d0
 
@@ -4597,11 +4784,29 @@
   1.0d0
 
 'LDOC'                                              ! Input/Output
+  'LDON'
+  'millimole meter-3'                     ! [millimole/m3]
+  'LDON, scalar, series'
+  'ocean_time'
+  'idTclm(iLDON)'
+  'r3dvar'
+  0.1d0
+
+'LDOC'                                              ! Input/Output
   'LDOC'
   'millimole meter-3'                     ! [millimole/m3]
   'LDOC, scalar, series'
   'ocean_time'
   'idTvar(iLDOC)'
+  'r3dvar'
+  1.0d0
+
+'LDOC'                                              ! Input/Output
+  'LDOC'
+  'millimole meter-3'                     ! [millimole/m3]
+  'LDOC, scalar, series'
+  'ocean_time'
+  'idTclm(iLDOC)'
   'r3dvar'
   1.0d0
 
@@ -4615,11 +4820,29 @@
   1.0d0
 
 'SDOC'                                              ! Input/Output
+  'SDON'
+  'millimole meter-3'                     ! [millimole/m3]
+  'SDON, scalar, series'
+  'ocean_time'
+  'idTclm(iSDON)'
+  'r3dvar'
+  0.065d0
+
+'SDOC'                                              ! Input/Output
   'SDOC'
   'millimole meter-3'                     ! [millimole/m3]
   'SDOC, scalar, series'
   'ocean_time'
   'idTvar(iSDOC)'
+  'r3dvar'
+  1.0d0
+
+'SDOC'                                              ! Input/Output
+  'SDOC'
+  'millimole meter-3'                     ! [millimole/m3]
+  'SDOC, scalar, series'
+  'ocean_time'
+  'idTclm(iSDOC)'
   'r3dvar'
   1.0d0
 
@@ -4632,6 +4855,15 @@
   'r3dvar'
   1.0d0
 
+'NH4'                                              ! Input/Output
+  'DDCA'
+  'millimole meter-3'                     ! [millimole/m3]
+  'DDCA, scalar, series'
+  'ocean_time'
+  'idTclm(iDDCA)'
+  'r3dvar'
+  5.6d0
+
 'CLDC'                                              ! Input/Output
   'CLDC'
   'millimole meter-3'                     ! [millimole/m3]
@@ -4640,6 +4872,15 @@
   'idTvar(iCLDC)'
   'r3dvar'
   1.0d0
+
+'LDOC'                                              ! Input/Output
+  'CLDC'
+  'millimole meter-3'                     ! [millimole/m3]
+  'CLDC, scalar, series'
+  'ocean_time'
+  'idTclm(iCLDC)'
+  'r3dvar'
+  1.4d0
 
 'CSDC'                                              ! Input/Output
   'CSDC'
@@ -4650,6 +4891,15 @@
   'r3dvar'
   1.0d0
 
+'SDOC'                                              ! Input/Output
+  'CSDC'
+  'millimole meter-3'                     ! [millimole/m3]
+  'CSDC, scalar, series'
+  'ocean_time'
+  'idTclm(iCSDC)'
+  'r3dvar'
+  0.0088d0
+
 'oxyg'                                           ! Input/Output
   'dissolved oxygen concentration'
   'millimole_O2 meter-3'                       ! [millimole/m3]
@@ -4659,12 +4909,30 @@
   'r3dvar'
   1.0d0
 
-'TIC_'                                              ! Input
+'oxyg'                                           ! Input/Output
+  'dissolved oxygen concentration'
+  'millimole_O2 meter-3'                       ! [millimole/m3]
+  'Oxygen, scalar, series'
+  'ocean_time'
+  'idTclm(iOxyg)'
+  'r3dvar'
+  1.0d0
+
+'TIC'                                              ! Input
   'total inorganic carbon'
   'millimole_carbon meter-3'                       ! [millimole/m3]
   'TIC, scalar, series'
   'ocean_time'
-  'idTads(iTIC_)'
+  'idTvar(iTIC_)'
+  'r3dvar'
+  1.0d0
+
+'TIC'                                              ! Input
+  'total inorganic carbon'
+  'millimole_carbon meter-3'                       ! [millimole/m3]
+  'TIC, scalar, series'
+  'ocean_time'
+  'idTclm(iTIC_)'
   'r3dvar'
   1.0d0
 
@@ -4674,6 +4942,15 @@
   'alkalinity, scalar, series'
   'ocean_time'
   'idTvar(iTAlk)'
+  'r3dvar'
+  1.0d0
+
+'Talk'                                       ! Input/Output
+  'total alkalinity'
+  'millimole meter-3'                       ! [millimole/m3]
+  'alkalinity, scalar, series'
+  'ocean_time'
+  'idTclm(iTAlk)'
   'r3dvar'
   1.0d0
 
@@ -6735,7 +7012,7 @@
   'idTbry(inorth,iSiOH)'
   'nulvar'
   1.0d0
-!----------UMAINE variables
+!---------- end UMAINE variables
 !
 !-----------------------------------------------------------------------
 !  Define names of variables associated with EcoSim bio-optical module.

@@ -280,10 +280,10 @@
       END IF
 #  endif
 #  ifdef ICE_MODEL
-      IF (Aout(idUice,ng) .or. Aout(idUiceE)) THEN
+      IF (Aout(idUice,ng) .or. Aout(idUiceE,ng)) THEN
         allocate ( FILTER(NG) % filui(LBi:UBi,LBj:UBj,FILN) )
       END IF
-      IF (Aout(idVice,ng) .or. Aout(idViceN)) THEN
+      IF (Aout(idVice,ng) .or. Aout(idViceN,ng)) THEN
         allocate ( FILTER(NG) % filvi(LBi:UBi,LBj:UBj,FILN) )
       END IF
       IF (Aout(idAice,ng)) THEN
@@ -423,7 +423,7 @@
           END DO
         END DO
       END IF
-      IF (Aout(idUbar,ng) .or. Aout(idu2dE)) THEN
+      IF (Aout(idUbar,ng) .or. Aout(idu2dE,ng)) THEN
         DO if=1,FILN
           DO j=Jmin,Jmax
             DO i=Imin,Imax
@@ -432,7 +432,7 @@
           END DO
         END DO
       END IF
-      IF (Aout(idVbar,ng) .or. Aout(idv2dN)) THEN
+      IF (Aout(idVbar,ng) .or. Aout(idv2dN,ng)) THEN
         DO if=1,FILN
           DO j=Jmin,Jmax
             DO i=Imin,Imax
@@ -442,7 +442,7 @@
         END DO
       END IF
 # ifdef SOLVE3D
-      IF (Aout(idUvel,ng) .or. Aout(idu3dE)) THEN
+      IF (Aout(idUvel,ng) .or. Aout(idu3dE,ng)) THEN
         DO if=1,FILN
           DO k=1,N(ng)
             DO j=Jmin,Jmax
@@ -453,7 +453,7 @@
           END DO
         END DO
       END IF
-      IF (Aout(idVvel,ng) .or. Aout(idv3dN)) THEN
+      IF (Aout(idVvel,ng) .or. Aout(idv3dN,ng)) THEN
         DO if=1,FILN
           DO k=1,N(ng)
             DO j=Jmin,Jmax
