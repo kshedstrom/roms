@@ -1456,9 +1456,9 @@
 #  if !defined ANA_TCLIMA && defined TCLIMATOLOGY
 !  KLUDGE - how many tracers to read? It depends...
 #    if defined SOGLOBEC || defined NEP6
-      DO itrc=1,NT(ng)
+      DO i=1,NT(ng)
 #    else
-      DO itrc=1,NAT
+      DO i=1,NAT
 #    endif
         CALL get_3dfld (ng, iNLM, idTclm(i), ncCLMid(idTclm(i),ng),     &
      &                  nCLMfiles(ng), CLM(1,ng), update(1),            &

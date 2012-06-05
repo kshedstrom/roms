@@ -197,10 +197,10 @@
    These data enter through the climatology arrays 
    Bufferzone characteristics must be set with mods to
    set_nudgcof.F */
-# undef  M3CLIMATOLOGY
-# undef  M3CLM_NUDGING
-# undef  TCLIMATOLOGY
-# undef  TCLM_NUDGING
+# define  M3CLIMATOLOGY
+# define  M3CLM_NUDGING
+# define  TCLIMATOLOGY
+# define  TCLM_NUDGING
 #endif
 #undef  M2CLIMATOLOGY
 #undef  M2CLM_NUDGING
