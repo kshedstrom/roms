@@ -45,7 +45,8 @@
 !
 !  Local variable declarations.
 !
-     logical :: find_file, got_Ngrids, obc_data
+      logical :: find_file, got_Ngrids, obc_data
+      logical :: Lvalue(1)
 #if defined SOLVE3D && defined SEDIMENT
       logical :: LreadNCS = .FALSE.
       logical :: LreadNNS = .FALSE.
@@ -67,8 +68,9 @@
 #endif
 
       integer :: Lstr, Npts, Nval, i, itrc, ivar, k, ng, status
-      integer :: ifield, ifile, ibcfile, igrid, itracer, nline, mFfiles
-      integer :: iclmfile
+      integer :: ifield, ifile, igrid, itracer, nline, mFfiles
+      integer :: ibcfile, iclmfile
+      integer :: Ivalue(1)
 
       integer :: decode_line, load_i, load_l, load_lbc, load_r
       integer :: load_s1d, load_s2d
@@ -80,6 +82,8 @@
 
       real(r8), allocatable :: Rtracer(:,:)
       real(r8), allocatable :: tracer(:,:)
+
+      real(r8) :: Rvalue(1)
 
       real(r8), dimension(100) :: Rval
 
@@ -133,7 +137,8 @@
               END DO
               varname=TRIM(ADJUSTL(Cval(Nval)))
             CASE ('Ngrids')
-              Npts=load_i(Nval, Rval, 1, Ngrids)
+              Npts=load_i(Nval, Rval, 1, Ivalue)
+              Ngrids=Ivalue(1)
               IF (Ngrids.le.0) THEN
                 IF (Master) WRITE (out,290) 'Ngrids', Ngrids,           &
      &            'must be greater than zero.'
@@ -200,7 +205,8 @@
               END DO
 #if defined SEDIMENT && defined SOLVE3D
             CASE ('Nbed')
-              Npts=load_i(Nval, Rval, 1, Nbed)
+              Npts=load_i(Nval, Rval, 1, Ivalue)
+              Nbed=Ivalue(1)
               IF (Nbed.le.0) THEN
                 IF (Master) WRITE (out,290) 'Nbed = ', Nbed,            &
      &            'must be greater than zero.'
@@ -210,7 +216,8 @@
 #endif
 #ifdef SOLVE3D
             CASE ('NAT')
-              Npts=load_i(Nval, Rval, 1, NAT)
+              Npts=load_i(Nval, Rval, 1, Ivalue)
+              NAT=Ivalue(1)
               IF ((NAT.lt.1).or.(NAT.gt.2)) THEN
                 IF (Master) WRITE (out,290) 'NAT = ', NAT,              &
      &            'make sure that NAT is either 1 or 2.'
@@ -228,7 +235,8 @@
 #endif
 #if defined T_PASSIVE && defined SOLVE3D
             CASE ('NPT')
-              Npts=load_i(Nval, Rval, 1, NPT)
+              Npts=load_i(Nval, Rval, 1, Ivalue)
+              NPT=Ivalue(1)
               IF (NPT.le.0) THEN
                 IF (Master) WRITE (out,290) 'NPT = ', NPT,              &
      &            'must be greater than zero.'
@@ -238,7 +246,8 @@
 #endif
 #if defined SEDIMENT && defined SOLVE3D
             CASE ('NCS')
-              Npts=load_i(Nval, Rval, 1, NCS)
+              Npts=load_i(Nval, Rval, 1, Ivalue)
+              NCS=Ivalue(1)
               IF (NCS.lt.0) THEN
                 IF (Master) WRITE (out,290) 'NCS = ', NCS,              &
      &            'must be greater than zero.'
@@ -254,7 +263,8 @@
               END IF
               NST=NST+NCS
             CASE ('NNS')
-              Npts=load_i(Nval, Rval, 1, NNS)
+              Npts=load_i(Nval, Rval, 1, Ivalue)
+              NNS=Ivalue(1)
               IF (NNS.lt.0) THEN
                 IF (Master) WRITE (out,290) 'NNS = ',                   &
      &            'must be greater than zero.'
@@ -459,20 +469,27 @@
             CASE ('NDTFAST')
               Npts=load_i(Nval, Rval, Ngrids, ndtfast)
             CASE ('ERstr')
-              Npts=load_i(Nval, Rval, 1, ERstr)
+              Npts=load_i(Nval, Rval, 1, Ivalue)
+              ERstr=Ivalue(1)
             CASE ('ERend')
-              Npts=load_i(Nval, Rval, 1, ERend)
+              Npts=load_i(Nval, Rval, 1, Ivalue)
+              ERend=Ivalue(1)
             CASE ('Nouter')
-              Npts=load_i(Nval, Rval, 1, Nouter)
+              Npts=load_i(Nval, Rval, 1, Ivalue)
+              Nouter=Ivalue(1)
             CASE ('Ninner')
-              Npts=load_i(Nval, Rval, 1, Ninner)
+              Npts=load_i(Nval, Rval, 1, Ivalue)
+              Ninner=Ivalue(1)
             CASE ('Nintervals')
-              Npts=load_i(Nval, Rval, 1, Nintervals)
+              Npts=load_i(Nval, Rval, 1, Ivalue)
+              Nintervals=Ivalue(1)
 #ifdef PROPAGATOR
             CASE ('NEV')
-              Npts=load_i(Nval, Rval, 1, NEV)
+              Npts=load_i(Nval, Rval, 1, Ivalue)
+              NEV=Ivalue(1)
             CASE ('NCV')
-              Npts=load_i(Nval, Rval, 1, NCV)
+              Npts=load_i(Nval, Rval, 1, Ivalue)
+              NCV=Ivalue(1)
 # if defined FT_EIGENMMODES || defined AFT_EIGENMODES
               IF (NCV.lt.(2*NEV+1)) THEN
                 IF (Master) WRITE (out,260) 'NCV = ', NCV,              &
@@ -573,16 +590,21 @@
               allocate ( SF_time(MAXVAL(Nfrec),Ngrids) )
 #endif
             CASE ('LmultiGST')
-              Npts=load_l(Nval, Cval, 1, LmultiGST)
+              Npts=load_l(Nval, Cval, 1, Lvalue)
+              LmultiGST=Lvalue(1)
             CASE ('LrstGST')
-              Npts=load_l(Nval, Cval, 1, LrstGST)
+              Npts=load_l(Nval, Cval, 1, Lvalue)
+              LrstGST=Lvalue(1)
             CASE ('MaxIterGST')
-              Npts=load_i(Nval, Rval, 1, MaxIterGST)
+              Npts=load_i(Nval, Rval, 1, Ivalue)
+              MaxIterGST=Ivalue(1)
             CASE ('NGST')
-              Npts=load_i(Nval, Rval, 1, nGST)
+              Npts=load_i(Nval, Rval, 1, Ivalue)
+              nGST=Ivalue(1)
 #ifdef PROPAGATOR
             CASE ('Ritz_tol')
-              Npts=load_r(Nval, Rval, 1, Ritz_tol)
+              Npts=load_r(Nval, Rval, 1, Rvalue)
+              Ritz_tol=Rvalue(1)
 #endif
             CASE ('TNU2')
               Npts=load_r(Nval, Rval, (NAT+NPT)*Ngrids, Rtracer)
@@ -787,15 +809,20 @@
                 hc(ng)=Tcline(ng)
               END DO
             CASE ('RHO0')
-              Npts=load_r(Nval, Rval, 1, rho0)
+              Npts=load_r(Nval, Rval, 1, Rvalue)
+              rho0=Rvalue(1)
             CASE ('BVF_BAK')
-              Npts=load_r(Nval, Rval, 1, bvf_bak)
+              Npts=load_r(Nval, Rval, 1, Rvalue)
+              bvf_bak=Rvalue(1)
             CASE ('DSTART')
-              Npts=load_r(Nval, Rval, 1, dstart)
+              Npts=load_r(Nval, Rval, 1, Rvalue)
+              dstart=Rvalue(1)
             CASE ('TIDE_START')
-              Npts=load_r(Nval, Rval, 1, tide_start)
+              Npts=load_r(Nval, Rval, 1, Rvalue)
+              tide_start=Rvalue(1)
             CASE ('TIME_REF')
-              Npts=load_r(Nval, Rval, 1, time_ref)
+              Npts=load_r(Nval, Rval, 1, Rvalue)
+              time_ref=Rvalue(1)
               r_text=ref_att(time_ref,r_date)
             CASE ('TNUDG')
               Npts=load_r(Nval, Rval, (NAT+NPT)*Ngrids, Rtracer)
@@ -2775,15 +2802,19 @@
               END DO
 #endif
             CASE ('NUSER')
-              Npts=load_i(Nval, Rval, 1, Nuser)
+              Npts=load_i(Nval, Rval, 1, Ivalue)
+              Nuser=Ivalue(1)
             CASE ('USER')
               Npts=load_r(Nval, Rval, MAX(1,Nuser), user)
             CASE ('NC_SHUFFLE')
-              Npts=load_i(Nval, Rval, 1, shuffle)
+              Npts=load_i(Nval, Rval, 1, Ivalue)
+              shuffle=Ivalue(1)
             CASE ('NC_DEFLATE')
-              Npts=load_i(Nval, Rval, 1, deflate)
+              Npts=load_i(Nval, Rval, 1, Ivalue)
+              deflate=Ivalue(1)
             CASE ('NC_DLEVEL')
-              Npts=load_i(Nval, Rval, 1, deflate_level)
+              Npts=load_i(Nval, Rval, 1, Ivalue)
+              deflate_level=Ivalue(1)
             CASE ('GSTNAME')
               label='GST - generalized stability theory analysis'
               Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles, GST)

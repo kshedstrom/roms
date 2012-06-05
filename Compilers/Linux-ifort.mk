@@ -85,6 +85,7 @@ endif
 
 ifdef USE_DEBUG
 #          FFLAGS += -g -check bounds -traceback
+#          FFLAGS += -g -check bounds -traceback -check uninit -warn interfaces,nouncalled -gen-interfaces
            FFLAGS += -g -check uninit -ftrapuv -traceback
            CFLAGS += -g
          CXXFLAGS += -g
