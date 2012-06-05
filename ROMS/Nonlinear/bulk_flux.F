@@ -602,7 +602,7 @@
           RH=Hair(i,j)
           SRad(i,j)=srflx(i,j)*Hscale
 # if defined ALBEDO_FILE && defined SHORTWAVE
-          SRad(i,j) = SRad(i,j)*albedo(i,j)
+          SRad(i,j) = SRad(i,j)*(1.0-albedo(i,j))
 # endif
 # if defined ALBEDO && defined SHORTWAVE && !defined BENCHMARK
           SRad(i,j) = SRad(i,j)*cawdir(i,j)
@@ -1095,6 +1095,8 @@
           ELSE
             albs=alb_w
           ENDIF
+#   elif ALBEDO_FILE
+          albs = albedo(i,j)
 #   else
           cff1 = alb_s_wet - alb_s_dry
           cff2 = alb_i_wet - alb_i_dry
