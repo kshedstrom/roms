@@ -458,10 +458,18 @@ contains
       real(r8) :: PairM,  RH, Taur, cff1, cff2
       real(r8) :: Wspeed, ZQoL, ZToL, cff
 # ifdef ICE_BULK_FLUXES
+#  ifdef ALBEDO_CSIM
+      real(r8), parameter :: alb_i_thick=0.54_r8
+      real(r8) :: alb_i_dry
+      real(r8) :: alb_ice, alb_snow, fh, fsn
+      real(r8), parameter :: alb_s_dry=0.83_r8
+      real(r8), parameter :: alb_s_wet=0.70_r8
+#  else
       real(r8), parameter :: alb_i_dry=0.65_r8
       real(r8), parameter :: alb_i_wet=0.60_r8
       real(r8), parameter :: alb_s_dry=0.85_r8
       real(r8), parameter :: alb_s_wet=0.72_r8
+#  endif
       real(r8), parameter :: alb_w=0.1_r8
       real(r8) :: albs, qswi, qlwi, qlh_i, qsh_i
       real(r8) :: le_i, dq_i,fqlat1, sfc_temp, slp, Qsati
@@ -679,6 +687,10 @@ contains
       DO j=Jstr-1,JendR
         DO i=Istr-1,IendR
           !--- compute some needed quantities ---
+#if defined ICE_MODEL
+          ice_thick(i,j) = hi(i,j,linew)/(ai(i,j,linew)+0.001)
+          snow_thick(i,j) = hsn(i,j,linew)/(ai(i,j,linew)+0.001)
+#endif
           vmag   = max(umin, sqrt( (Uwind(i,j)-u(i,j,N(ng),nrhs))**2 +  &
      &                             (Vwind(i,j)-v(i,j,N(ng),nrhs))**2) )
           TairK(i) = Tair(i,j) + 273.16_r8
@@ -854,6 +866,29 @@ contains
           ELSE
             albs=alb_w
           ENDIF
+#   elif defined ALBEDO_CSIM
+          fh = min(atan(4.0*ice_thick(i,j))/atan(2.0), 1.0)
+          fsn = snow_thick(i,j) / (snow_thick(i,j) + 0.02)
+          alb_i_dry = alb_w*(1-fh) + alb_i_thick*fh
+          cff1 = alb_s_wet - alb_s_dry
+          cff2 = -0.075      ! alb_i_wet - alb_i_dry
+          IF (ai(i,j,liold) .gt. min_a(ng)) THEN
+            IF (sfc_temp-273.16_r8.gt. -1._r8) THEN
+              alb_snow = cff1*(sfc_temp-272.16_r8)+alb_s_dry
+            ELSE
+              alb_snow = alb_s_dry
+            ENDIF
+            IF (sfc_temp-273.16_r8.gt. -1._r8) THEN
+              alb_ice = cff2*(sfc_temp-272.16_r8)+alb_i_dry
+            ELSE
+              alb_ice = alb_i_dry
+            ENDIF
+            albs = fsn*alb_snow + (1-fsn)*alb_ice
+          ELSE
+            albs=alb_w
+          ENDIF
+#   elif defined ALBEDO_FILE
+          albs = albedo(i,j)
 #   else
           cff1 = alb_s_wet - alb_s_dry
           cff2 = alb_i_wet - alb_i_dry
@@ -928,7 +963,7 @@ contains
           lwup = -shr_const_stebol * tsk**4
 
 # if defined ALBEDO_FILE && defined SHORTWAVE
-          srflx(i,j) = srflx(i,j)*albedo(i,j)
+          srflx(i,j) = srflx(i,j)*(1.0-albedo(i,j))
 # elif defined SHORTWAVE && defined ALBEDO
           cawdif = 1._r8-albw_d
           srflx(i,j) = srflx(i,j)*(cawdir(i,j)*                         &

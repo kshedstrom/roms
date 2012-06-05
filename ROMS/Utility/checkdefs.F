@@ -159,17 +159,29 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+15)=' AICLM_NUDGING,'
 #endif
-#if defined ALBEDO && defined ANA_SRFLUX
+#if defined ALBEDO
       IF (Master) WRITE (stdout,20) 'ALBEDO',                           &
      &   'Shortwave radiation from albedo equation.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+8)=' ALBEDO,'
 #endif
-#if defined ALBEDO_CURVE && defined ANA_SRFLUX
-      IF (Master) WRITE (stdout,20) 'ALBEDO_CURVE',                           &
+#if defined ALBEDO_CSIM
+      IF (Master) WRITE (stdout,20) 'ALBEDO_CSIM',                      &
+     &   'Albedo computed according to CSIM3.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+13)=' ALBEDO_CSIM,'
+#endif
+#if defined ALBEDO_CURVE
+      IF (Master) WRITE (stdout,20) 'ALBEDO_CURVE',                     &
      &   'Shortwave radiation adjusted by albedo curve.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+14)=' ALBEDO_CURVE,'
+#endif
+#if defined ALBEDO_FILE
+      IF (Master) WRITE (stdout,20) 'ALBEDO_FILE',                      &
+     &   'Albedo read from a forcing file.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+13)=' ALBEDO_FILE,'
 #endif
 #ifdef ARRAY_MODES
       IF (Master) WRITE (stdout,20) 'ARRAY_MODES',                      &
