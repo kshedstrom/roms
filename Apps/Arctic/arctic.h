@@ -144,8 +144,9 @@
 #  define EMINUSP
 #  undef ANA_SRFLUX
 #  undef ALBEDO
-#  undef ALBEDO_CURVE
-#  define ALBEDO_FILE
+#  define ALBEDO_CURVE
+#  define ALBEDO_CSIM
+#  undef ALBEDO_FILE
 #  undef LONGWAVE
 # endif
 #endif

@@ -643,7 +643,7 @@
       END IF
 #  endif
 #  ifdef ICE_MODEL
-      IF (Aout(idUice,ng) .or. Aout(idUiceE)) THEN
+      IF (Aout(idUice,ng) .or. Aout(idUiceE,ng)) THEN
         DO if=1,FILN
           DO j=Jmin,Jmax
             DO i=Imin,Imax
@@ -652,7 +652,7 @@
           END DO
         END DO
       END IF
-      IF (Aout(idVice,ng) .or. Aout(idViceN)) THEN
+      IF (Aout(idVice,ng) .or. Aout(idViceN,ng)) THEN
         DO if=1,FILN
           DO j=Jmin,Jmax
             DO i=Imin,Imax

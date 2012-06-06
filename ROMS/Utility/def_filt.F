@@ -351,7 +351,7 @@
 !
 !  Define 2D momentum in the XI-direction.
 !
-        IF (Aout(idUbar,ng) .or. Aout(idu2dE)) THEN
+        IF (Aout(idUbar,ng) .or. Aout(idu2dE,ng)) THEN
           Vinfo( 1)=Vname(1,idUbar)
           Vinfo( 2)=Vname(2,idUbar)
           Vinfo( 3)=Vname(3,idUbar)
@@ -370,7 +370,7 @@
 !
 !  Define 2D momentum in the ETA-direction.
 !
-        IF (Aout(idVbar,ng) .or. Aout(idv2dN)) THEN
+        IF (Aout(idVbar,ng) .or. Aout(idv2dN,ng)) THEN
           Vinfo( 1)=Vname(1,idVbar)
           Vinfo( 2)=Vname(2,idVbar)
           Vinfo( 3)=Vname(3,idVbar)
@@ -390,7 +390,7 @@
 !
 !  Define 3D momentum component in the XI-direction.
 !
-        IF (Aout(idUvel,ng) .or. Aout(idu3dE)) THEN
+        IF (Aout(idUvel,ng) .or. Aout(idu3dE,ng)) THEN
           ncname=FIL(2,ng)%name
           Vinfo( 1)=Vname(1,idUvel)
           Vinfo( 2)=Vname(2,idUvel)
@@ -410,7 +410,7 @@
 !
 !  Define 3D momentum component in the ETA-direction.
 !
-        IF (Aout(idVvel,ng) .or. Aout(idv3dN)) THEN
+        IF (Aout(idVvel,ng) .or. Aout(idv3dN,ng)) THEN
           ncname=FIL(3,ng)%name
           Vinfo( 1)=Vname(1,idVvel)
           Vinfo( 2)=Vname(2,idVvel)
@@ -771,7 +771,7 @@
 !  Define 2D ice momentum in the XI-direction.
 !
         ncname=FIL(10,ng)%name
-        IF (Aout(idUice,ng) .or. Aout(idUiceE)) THEN
+        IF (Aout(idUice,ng) .or. Aout(idUiceE,ng)) THEN
           Vinfo( 1)=Vname(1,idUice)
           Vinfo( 2)=Vname(2,idUice)
           Vinfo( 3)=Vname(3,idUice)
@@ -790,7 +790,7 @@
 !
 !  Define 2D ice momentum in the ETA-direction.
 !
-        IF (Aout(idVice,ng) .or. Aout(idViceN)) THEN
+        IF (Aout(idVice,ng) .or. Aout(idViceN,ng)) THEN
           Vinfo( 1)=Vname(1,idVice)
           Vinfo( 2)=Vname(2,idVice)
           Vinfo( 3)=Vname(3,idVice)
