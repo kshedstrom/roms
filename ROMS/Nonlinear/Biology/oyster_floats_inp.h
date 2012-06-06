@@ -35,12 +35,12 @@
 
       real(r8) :: Rvalue(1)
 
-      real(r8), dimension(100) :: Rval
+      real(r8), dimension(200) :: Rval
 
       character (len=35) :: frmt
       character (len=40) :: KeyWord
       character (len=256) :: line
-      character (len=256), dimension(100) :: Cval
+      character (len=256), dimension(200) :: Cval
 
       character (len=1 ), parameter :: blank = ' '
 !

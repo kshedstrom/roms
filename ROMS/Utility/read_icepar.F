@@ -31,11 +31,11 @@
 
       integer :: decode_line, lenstr, load_i, load_l, load_r
 
-      real(r8), dimension(100) :: Rval
+      real(r8), dimension(200) :: Rval
 
       character (len=40) :: KeyWord
       character (len=80) :: line
-      character (len=80), dimension(100) :: Cval
+      character (len=80), dimension(200) :: Cval
 
 !
 !-----------------------------------------------------------------------

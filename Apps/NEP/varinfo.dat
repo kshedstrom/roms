@@ -4711,7 +4711,7 @@
   'r3dvar'
   1.0d0
 
-'BAC_'                                              ! Input/Output
+'BAC'                                              ! Input/Output
   'BAC'
   'millimole meter-3'                     ! [millimole/m3]
   'BAC, scalar, series'
@@ -4747,7 +4747,7 @@
   'r3dvar'
   1.0d0
 
-'DD_C'                                              ! Input/Output
+'NH4'                                              ! Input/Output
   'DD_C'
   'millimole meter-3'                     ! [millimole/m3]
   'DD_C, scalar, series'
@@ -4909,7 +4909,7 @@
   'r3dvar'
   1.0d0
 
-'oxyg'                                           ! Input/Output
+'Oxyg'                                           ! Input/Output
   'dissolved oxygen concentration'
   'millimole_O2 meter-3'                       ! [millimole/m3]
   'Oxygen, scalar, series'

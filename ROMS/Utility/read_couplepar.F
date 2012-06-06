@@ -44,14 +44,14 @@
 
       integer :: decode_line, load_i, load_l, load_r
 
-      real(r8), dimension(100) :: Rval
+      real(r8), dimension(200) :: Rval
 
       real(r8), allocatable :: MyRval(:)
 
       character (len=40) :: KeyWord
       character (len=256) :: line
       character (len=256) :: Cname
-      character (len=256), dimension(100) :: Cval
+      character (len=256), dimension(200) :: Cval
 !
 !-----------------------------------------------------------------------
 !  Determine coupling standard input file name.  In distributed-memory,

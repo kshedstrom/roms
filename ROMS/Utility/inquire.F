@@ -350,7 +350,7 @@
       IF (label(1:3).eq.'BRY') THEN
         DO ifile=1,nfiles
           IF ((TRIM(ncfile).eq.TRIM(S(ifile)%name)).and.                &
-     &        ((ncid.eq.-1).and.(BRYids(ifile,ng).ne.-1))) THEN
+     &        (ncid.ne.BRYids(ifile,ng))) THEN
             ncid=BRYids(ifile,ng)
             EXIT
           END IF
@@ -364,7 +364,7 @@
       IF (label(1:3).eq.'CLM') THEN
         DO ifile=1,nfiles
           IF ((TRIM(ncfile).eq.TRIM(S(ifile)%name)).and.                &
-     &        ((ncid.eq.-1).and.(CLMids(ifile,ng).ne.-1))) THEN
+     &        (ncid.ne.CLMids(ifile,ng))) THEN
             ncid=CLMids(ifile,ng)
             EXIT
           END IF
@@ -378,7 +378,7 @@
       IF (label(1:3).eq.'FRC') THEN
         DO ifile=1,nfiles
           IF ((TRIM(ncfile).eq.TRIM(S(ifile)%name)).and.                &
-     &        ((ncid.eq.-1).and.(FRCids(ifile,ng).ne.-1))) THEN
+     &        (ncid.ne.FRCids(ifile,ng))) THEN
             ncid=FRCids(ifile,ng)
             EXIT
           END IF

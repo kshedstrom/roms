@@ -56,7 +56,7 @@
 #  endif
       real(r8), dimension(MT,Ngrids) :: Rtracer
 # endif
-      real(r8), dimension(100) :: Rval
+      real(r8), dimension(200) :: Rval
       real(r8) :: Rvalue(1)
 
       character (len=1 ), parameter :: blank = ' '
@@ -66,7 +66,7 @@
       character (len=40 ) :: KeyWord
       character (len=50 ) :: label
       character (len=256) :: fname, line
-      character (len=256), dimension(100) :: Cval
+      character (len=256), dimension(200) :: Cval
 !
 !-----------------------------------------------------------------------
 !  Initialize.

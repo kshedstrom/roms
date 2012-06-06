@@ -32,11 +32,11 @@
 #endif
       real(r8), dimension(NBT,Ngrids) :: Rbio
 
-      real(r8), dimension(100) :: Rval
+      real(r8), dimension(200) :: Rval
 
       character (len=40 ) :: KeyWord
       character (len=256) :: line
-      character (len=256), dimension(100) :: Cval
+      character (len=256), dimension(200) :: Cval
 
 ! ==================================================================== !
 ! READ Bering Sea BEST_NPZ PARAMS

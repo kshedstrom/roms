@@ -42,7 +42,7 @@
 
       real(r8) :: xfloat, yfloat, zfloat
 
-      real(r8), dimension(100) :: Rval
+      real(r8), dimension(200) :: Rval
 
       real(r8), allocatable :: Ft0(:,:), Fx0(:,:), Fy0(:,:), Fz0(:,:)
       real(r8), allocatable :: Fdt(:,:), Fdx(:,:), Fdy(:,:), Fdz(:,:)
@@ -52,7 +52,7 @@
       character (len=35 ) :: frmt
       character (len=40 ) :: KeyWord
       character (len=256) :: fname, line
-      character (len=256), dimension(100) :: Cval
+      character (len=256), dimension(200) :: Cval
 !
 !-----------------------------------------------------------------------
 !  Read in initial float locations.
