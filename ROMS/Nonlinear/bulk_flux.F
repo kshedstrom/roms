@@ -1221,7 +1221,7 @@
       DO j=JstrR,JendR
         DO i=IstrR,IendR
 # if defined ALBEDO_FILE && defined SHORTWAVE
-          srflx(i,j) = srflx(i,j)*albedo(i,j)
+          srflx(i,j) = srflx(i,j)*(1._r8-albedo(i,j))
 # endif
 # if defined ALBEDO && defined SHORTWAVE && !defined BENCHMARK
           cawdif = 1._r8-albw_d

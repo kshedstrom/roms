@@ -178,7 +178,7 @@ Sout(idT0mk) == T
 ! essential because the station arrays are dynamically allocated using
 ! these values, [1:Ngrids].
 
-    NSTATION ==  267
+    NSTATION ==  270
 
 ! Station locations for all grids in any desired order.  The horizontal
 ! location for a particular station may be specified in terms of fractional
@@ -457,6 +457,9 @@ POS =  GRID  FLAG      X-POS       Y-POS     COMMENT
 	1    0  193            358
 	1    0  161            371
 	1    0  188            376
+        1    1  215.           50.              ! Ocean Station Papa
+        1    1  237.61         36.7             ! M2 in Monterey Bay
+        1    1  238.           31.              ! Calcofi station
 
 ! #7   1    1  210.11          61.23833333     ! Anchorage 9455920
 ! #63  1    1  223.6566667     58.19333333     ! Elfin Cove 9452634
