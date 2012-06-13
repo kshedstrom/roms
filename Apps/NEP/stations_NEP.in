@@ -119,7 +119,7 @@ Sout(idHsbl) == T       ! Hsbl               depth of surface boundary layer
 Sout(idHbbl) == F       ! Hbbl               depth of bottom boundary layer
 Sout(idMtke) == F       ! tke                turbulent kinetic energy
 Sout(idMtls) == F       ! gls                turbulent length scale
-Sout(idNPP)  == F       ! Bio_NPP            net primary productivity
+Sout(idNPP)  == T       ! Bio_NPP            net primary productivity
 
 ! Logical switches (TRUE/FALSE) to activate writing of exposed sediment
 ! layer properties into STATIONS output file.  Currently, MBOTP properties

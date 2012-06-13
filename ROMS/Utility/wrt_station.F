@@ -518,7 +518,7 @@
 #  endif
 #  ifdef PRIMARY_PROD
 !
-!  Write out buried OPAL in sediment.
+!  Write out Net primary productivity.
 !
       IF (Sout(idNPP,ng)) THEN
         scale=1.0_r8

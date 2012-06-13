@@ -147,6 +147,19 @@
             END DO
           END IF
 #  endif
+#  ifdef PRIMARY_PROD
+          IF (Aout(idNPP,ng)) THEN
+            DO j=JstrR,JendR
+              DO i=IstrR,IendR
+                AVERAGE(ng)%avgNPP(i,j)=OCEAN(ng)%Bio_NPP(i,j)
+# ifdef WET_DRY
+                AVERAGE(ng)%avgNPP(i,j)=AVERAGE(ng)%avgNPP(i,j)*        &
+     &                                  GRID(ng)%rmask_io(i,j)
+# endif
+              END DO
+            END DO
+          END IF
+#  endif
 !-----------------------------------------------------------------------
 !  Accumulate time-averaged fields.
 !-----------------------------------------------------------------------
@@ -203,6 +216,19 @@
               DO i=IstrR,IendR
                 AVERAGE(ng)%avgOPALsed(i,j)=AVERAGE(ng)%avgOPALbur(i,j)+&
      &                                 OCEAN(ng)%OPAL_burial(i,j)
+              END DO
+            END DO
+          END IF
+#  endif
+#  ifdef PRIMARY_PROD
+          IF (Aout(idNPP,ng)) THEN
+            DO j=JstrR,JendR
+              DO i=IstrR,IendR
+                AVERAGE(ng)%avgNPP(i,j)=AVERAGE(ng)%avgNPP(i,j)+        &
+# ifdef WET_DRY
+     &                                 GRID(ng)%rmask_io(i,j)*          &
+# endif
+     &                                 OCEAN(ng)%Bio_NPP(i,j)
               END DO
             END DO
           END IF
@@ -267,6 +293,16 @@
               DO i=IstrR,IendR
                 AVERAGE(ng)%avgOPALbur(i,j)=fac*                        &
      &                          AVERAGE(ng)%avgOPALbur(i,j)
+              END DO
+            END DO
+          END IF
+#  endif
+#  ifdef PRIMARY_PROD
+          IF (Aout(idNPP,ng)) THEN
+            DO j=JstrR,JendR
+              DO i=IstrR,IendR
+                AVERAGE(ng)%avgNPP(i,j)=fac*                            &
+     &                                    AVERAGE(ng)%avgNPP(i,j)
               END DO
             END DO
           END IF
