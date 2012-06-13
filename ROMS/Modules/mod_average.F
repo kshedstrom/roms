@@ -211,7 +211,7 @@
           real(r8), pointer :: avgPONbur(:,:)
           real(r8), pointer :: avgOPALbur(:,:)
 #  endif
-#  ifdef NEMURO_PROD
+#  ifdef PRIMARY_PROD
           real(r8), pointer :: avgNPP(:,:)
 #  endif
 #  if defined LMD_MIXING || defined MY25_MIXING || defined GLS_MIXING
@@ -502,7 +502,7 @@
         allocate ( AVERAGE(ng) % avgOPALbur(LBi:UBi,LBj:UBj) )
       END IF
 #  endif
-#  ifdef NEMURO_PROD
+#  ifdef PRIMARY_PROD
       IF (Aout(idNPP,ng)) THEN
         allocate ( AVERAGE(ng) % avgNPP(LBi:UBi,LBj:UBj) )
       END IF
@@ -1054,7 +1054,7 @@
         END DO
       END IF
 #  endif
-#  ifdef NEMURO_PROD
+#  ifdef PRIMARY_PROD
       IF (Aout(idNPP,ng)) THEN
         DO j=Jmin,Jmax
           DO i=Imin,Imax

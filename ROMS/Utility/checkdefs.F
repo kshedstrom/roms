@@ -1310,12 +1310,6 @@
       Coptions(is:is+8)=' NEMURO,'
       ibiology=ibiology+1
 #endif
-#ifdef NEMURO_PROD
-      IF (Master) WRITE (stdout,20) 'NEMURO_PROD',                      &
-     &   'Nemuro Net primary production.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+13)=' NEMURO_PROD,'
-#endif
 #ifdef NEMURO_SED1
       IF (Master) WRITE (stdout,20) 'NEMURO_SED1',                      &
      &   'Nemuro with sediment remineralization type 1.'
@@ -1568,6 +1562,12 @@
      &   'Standard density Jacobian formulation (Song, 1998).'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+10)=' PRSGRD31,'
+#endif
+#ifdef PRIMARY_PROD
+      IF (Master) WRITE (stdout,20) 'PRIMARY_PROD',                      &
+     &   'Nemuro or CoSiNE Net primary production.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+14)=' PRIMARY_PROD,'
 #endif
 #ifdef PROFILE
       IF (Master) WRITE (stdout,20) 'PROFILE',                          &

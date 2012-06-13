@@ -1447,7 +1447,7 @@
         END IF
       END IF
 #  endif
-#  ifdef NEMURO_PROD
+#  ifdef PRIMARY_PROD
 !
 !  Write out Net primary production.
 !

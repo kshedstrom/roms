@@ -111,8 +111,8 @@
           real(r8), pointer :: PON_burial(:,:)
           real(r8), pointer :: OPAL_burial(:,:)
 # endif
-# ifdef NEMURO_PROD
-          real(r8), pointer :: Nemuro_NPP(:,:)
+# ifdef PRIMARY_PROD
+          real(r8), pointer :: Bio_NPP(:,:)
 # endif
 
 # ifdef BIO_GOANPZ
@@ -376,8 +376,8 @@
       allocate ( OCEAN(ng) % PON_burial(LBi:UBi,LBj:UBj) )
       allocate ( OCEAN(ng) % OPAL_burial(LBi:UBi,LBj:UBj) )
 # endif
-# ifdef NEMURO_PROD
-      allocate ( OCEAN(ng) % Nemuro_NPP(LBi:UBi,LBj:UBj) )
+# ifdef PRIMARY_PROD
+      allocate ( OCEAN(ng) % Bio_NPP(LBi:UBi,LBj:UBj) )
 # endif
 
 # ifdef BIO_GOANPZ
@@ -681,8 +681,8 @@
             OCEAN(ng) % PON_burial(i,j) = IniVal
             OCEAN(ng) % OPAL_burial(i,j) = IniVal
 #endif
-#ifdef NEMURO_PROD
-            OCEAN(ng) % Nemuro_NPP(i,j) = IniVal
+#ifdef PRIMARY_PROD
+            OCEAN(ng) % Bio_NPP(i,j) = IniVal
 #endif
           END DO
 #ifdef SOLVE3D

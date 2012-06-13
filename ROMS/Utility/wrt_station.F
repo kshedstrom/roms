@@ -516,7 +516,7 @@
         IF (exit_flag.ne.NoError) RETURN
       END IF
 #  endif
-#  ifdef NEMURO_PROD
+#  ifdef PRIMARY_PROD
 !
 !  Write out buried OPAL in sediment.
 !
@@ -524,7 +524,7 @@
         scale=1.0_r8
         CALL extract_sta2d (ng, iNLM, Cgrid, idNPP, r2dvar,             &
      &                      LBi, UBi, LBj, UBj,                         &
-     &                      scale, OCEAN(ng)%Nemuro_NPP,                &
+     &                      scale, OCEAN(ng)%Bio_NPP,                   &
      &                      Nstation(ng), Xpos, Ypos, psta)
         CALL netcdf_put_fvar (ng, iNLM, STA(ng)%name,                   &
      &                        TRIM(Vname(1,idNPP)), psta,               &

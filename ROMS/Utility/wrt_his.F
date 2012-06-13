@@ -1376,7 +1376,7 @@
         END IF
       END IF
 # endif
-# ifdef NEMURO_PROD
+# ifdef PRIMARY_PROD
 !
 !  Write out Net primary production.
 !
@@ -1390,7 +1390,7 @@
 #  ifdef MASKING
      &                     GRID(ng) % rmask_io,                         &
 #  endif
-     &                     OCEAN(ng) % Nemuro_NPP)
+     &                     OCEAN(ng) % Bio_NPP)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
             WRITE (stdout,10) TRIM(Vname(1,idNPP)), HIS(ng)%Rindex

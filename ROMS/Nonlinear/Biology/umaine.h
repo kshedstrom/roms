@@ -102,6 +102,9 @@
      &                   FORCES(ng) % svstr,                            &
 # endif
 #endif
+#ifdef PRIMARY_PROD
+     &                   OCEAN(ng) % Bio_NPP,                           &
+#endif
      &                   OCEAN(ng) % t)
 
 #ifdef PROFILE
@@ -125,6 +128,9 @@
 # else
      &                         sustr, svstr,                            &
 # endif
+#endif
+#ifdef PRIMARY_PROD
+     &                         Bio_NPP,                                 &
 #endif
      &                         t)
 !
@@ -158,6 +164,9 @@
       real(r8), intent(in) :: svstr(LBi:,LBj:)
 #  endif
 # endif
+# ifdef PRIMARY_PROD
+      real(r8), intent(out) :: Bio_NPP(LBi:,LBj:)
+# endif
       real(r8), intent(inout) :: t(LBi:,LBj:,:,:,:)
 #else
 # ifdef MASKING
@@ -176,6 +185,9 @@
       real(r8), intent(in) :: svstr(LBi:UBi,LBj:UBj)
 #  endif
 # endif
+#ifdef PRIMARY_PROD
+      real(r8), dimension(IminS:ImaxS,N(ng)) :: NPP_slice
+#endif
       real(r8), intent(inout) :: t(LBi:UBi,LBj:UBj,UBk,3,UBt)
 #endif
 !
@@ -255,6 +267,9 @@
       real(r8), dimension(IminS:ImaxS,N(ng),mmax) :: bb
       real(r8), dimension(IminS:ImaxS,N(ng),mmax) :: bts
       real(r8), dimension(IminS:ImaxS,N(ng)) :: kdpar
+#ifdef PRIMARY_PROD
+      real(r8), dimension(IminS:ImaxS,N(ng)) :: NPP_slice
+#endif
       real(r8) :: uQS1, uQS2, uQS3, fnitS1, fnitS2, fnitS3
       real(r8) :: thetaCS1, thetaCS2, thetaCS3
       real(r8) :: pnh4s1,uno3s1,unh4s1,UPO4S1,UCO2S1,GNUTS1
@@ -310,7 +325,6 @@
       real(r8) :: sms26,sms27,sms28,sms29,sms30
       real(r8) :: sms31,sms32,sms33,sms34,sms35
 
-
 #include "set_bounds.h"
 !
 #ifdef DISTRIBUTE
@@ -361,17 +375,32 @@
 !  Compute inverse thickness to avoid repeated divisions.
 !
       J_LOOP : DO j=Jstr,Jend
-      	DO i=Istr,Iend
-          DO k=1,N(ng)
+#ifdef PRIMARY_PROD
+        DO i=Istr,Iend
+	  Bio_NPP(i,j) = 0.0_r8
+        END DO
+        DO k=1,N(ng)
+          DO i=Istr,Iend
+            NPP_slice(i,k)=0.0_r8
+          END DO
+        END DO
+#endif
+        DO k=1,N(ng)
+      	  DO i=Istr,Iend
             hzl(i,k)=Hz(i,j,k)
             Hz_inv(i,k)=1.0_r8/Hz(i,j,k)
           END DO
-          DO k=1,N(ng)-1
+        END DO
+        DO k=1,N(ng)-1
+      	  DO i=Istr,Iend
             Hz_inv2(i,k)=1.0_r8/(Hz(i,j,k)+Hz(i,j,k+1))
           END DO
-          DO k=2,N(ng)-1
+        END DO
+        DO k=2,N(ng)-1
+      	  DO i=Istr,Iend
             Hz_inv3(i,k)=1.0_r8/(Hz(i,j,k-1)+Hz(i,j,k)+Hz(i,j,k+1))
           END DO
+        END DO
 !
 !  Extract biological variables from tracer arrays, place them into
 !  scratch arrays, and restrict their values to be positive definite.
@@ -383,6 +412,7 @@
         DO ibio=1,NBT
           indx=idbio(ibio)
           DO k=1,N(ng)
+      	    DO i=Istr,Iend
               Bio_bak(i,k,indx)=MAX(t(i,j,k,nstp,indx),0.0001_r8)
 
 !keep minimum phytoplankton ratios
@@ -393,36 +423,43 @@
               Bio_bak(i,k,iS2CH)=MAX(t(i,j,k,nstp,iS2CH),0.000336_r8)
               Bio_bak(i,k,iS3CH)=MAX(t(i,j,k,nstp,iS3CH),0.000336_r8)
               Bio(i,k,indx)=Bio_bak(i,k,indx)
+            END DO
           END DO
         END DO
 #ifdef CARBON
         DO k=1,N(ng)
+      	  DO i=Istr,Iend
             Bio(i,k,iTIC_)=MIN(Bio(i,k,iTIC_),3000.0_r8)
             Bio(i,k,iTIC_)=MAX(Bio(i,k,iTIC_),400.0_r8)
             Bio_bak(i,k,iTIC_)=Bio(i,k,iTIC_)
+          END DO
         END DO
 #endif
 #ifdef OXYGEN
         DO k=1,N(ng)
+      	  DO i=Istr,Iend
             Bio(i,k,iOxyg)=MIN(Bio(i,k,iOxyg),800.0_r8)
             Bio_bak(i,k,iOxyg)=Bio(i,k,iOxyg)
-         END DO
+          END DO
+        END DO
 #endif
 !
 !  Extract potential temperature and salinity.
 !
         DO k=1,N(ng)
+      	  DO i=Istr,Iend
             Bio(i,k,itemp)=MIN(t(i,j,k,nstp,itemp),35.0_r8)
             Bio(i,k,isalt)=MAX(t(i,j,k,nstp,isalt), 0.0_r8)
+          END DO
         END DO
 
 !  Calculate surface Photosynthetically Available Radiation (PAR).  The
 !  net shortwave radiation is scaled back to Watts/m2 and multiplied by
 !  the fraction that is photosynthetically available, PARfrac.
 !
-           PARsur(i)=PARfrac(ng)*srflx(i,j)*rho0*Cp
-
-        END DO  !i
+      	DO i=Istr,Iend
+          PARsur(i)=PARfrac(ng)*srflx(i,j)*rho0*Cp
+        END DO
 !
         ITER_LOOP: DO Iter=1,BioIter(ng)
 
@@ -436,26 +473,32 @@
 
 !call optics to derive in-water light
 
-      DO i=Istr,Iend
-         do k=1,N(ng)
-           acldoc410(i,k)=acldoc410s*Bio(i,k,iCLDC)
-           acsdoc410(i,k)=acsdoc410s*Bio(i,k,iCSDC)
-           acdoc410(i,k)=acldoc410(i,k)+acsdoc410(i,k)
-         end do
+        do k=1,N(ng)
+          DO i=Istr,Iend
+            acldoc410(i,k)=acldoc410s*Bio(i,k,iCLDC)
+            acsdoc410(i,k)=acsdoc410s*Bio(i,k,iCSDC)
+            acdoc410(i,k)=acldoc410(i,k)+acsdoc410(i,k)
+          end do
+        end do
 
-         do k=1,N(ng)
-             kd300(i,k)=(1.0_r8+0.005_r8*10.0_r8)                       &
+        do k=1,N(ng)
+          DO i=Istr,Iend
+            kd300(i,k)=(1.0_r8+0.005_r8*10.0_r8)                        &
      &       *(acdoc410(i,k)*exp(-0.0145_r8*(300.0_r8-410.0_r8)))       &
      &           +0.154_r8
 !0.154 is kw_seawater
           end do
+        end do
 
-        atten(i,N(ng))=1.0_r8
-         do k=N(ng)-1,1,-1
+        DO i=Istr,Iend
+          atten(i,N(ng))=1.0_r8
+        end do
+        do k=N(ng)-1,1,-1
+          DO i=Istr,Iend
             cff1=-kd300(i,k)*hzl(i,k)
             atten(i,k)=atten(i,k+1)*EXP(cff1)
-         end do
-      END DO
+          end do
+        end do
 
 #ifdef OPTIC_UMaine
       call optic_property(Istr, Iend, ng,                               &
@@ -473,19 +516,21 @@
      &                       a_abs, bbp, bb, bts, kdpar)
 #else
 
-      DO i=Istr,Iend
         do k=1,N(ng)
-           kdpar(i,k)=100.0_r8
-        end do
-      END DO
+          DO i=Istr,Iend
+             kdpar(i,k)=100.0_r8
+          end do
+        END DO
 #endif
 
 ! calculate PAR
-          DO i=Istr,Iend
-            PIO(i,N(ng)+1)=PARsur(i)
-            IF (PIO(i,N(ng)+1).lt.0) PIO(i,N(ng)+1)=0.0_r8
+        DO i=Istr,Iend
+          PIO(i,N(ng)+1)=PARsur(i)
+        END DO
+        IF (PIO(i,N(ng)+1).lt.0) PIO(i,N(ng)+1)=0.0_r8
 
-            DO k=N(ng),1,-1
+        DO k=N(ng),1,-1
+          DO i=Istr,Iend
              if(kdpar(i,k).ge.0.001_r8.and.kdpar(i,k).le.10.0_r8) then
                     cff1=kdpar(i,k)*HZ(i,j,k)
               else
@@ -496,8 +541,10 @@
              PAR(i,K)=(PIO(i,K+1)-PIO(i,K))/cff1
 
             END DO
+          END DO
 
           DO k=1,N(ng)
+            DO i=Istr,Iend
 
 !-----------------------------------------------------------------------
 !     CALCULATING the temperature dependence of biology processes
@@ -646,7 +693,7 @@
 
 !      Production rate
 
-       cff6=max(PAR(i,K),Minval)
+       cff6=max(PAR(i,k),Minval)
 
          n_nps1 =  gno3s1 * Bio(i,k,iS1_C)*(1.0_r8-ES1(ng))             &
      &  * (1.0_r8-exp((-1.0_r8*alphachl_s1(ng)*thetaCS1*cff6)           &
@@ -678,10 +725,12 @@
      &  * (1.0_r8-exp((-1.0_r8*alphachl_s1(ng)*thetaCS1*cff6)           &
      &  / PCmaxS1))
 
-
       n_pps1 =  n_nps1+n_rps1
       n_pps2 =  n_nps2+n_rps2
       n_pps3 =  n_nps3+n_rps3
+#ifdef PRIMARY_PROD
+              NPP_slice(i,k)=NPP_slice(i,k)+n_pps1+n_pps2+n_pps3
+#endif
 
 !----------------------------------------------------------------------
 !     rate for c1,c2,c3
@@ -1148,9 +1197,16 @@
 	bio(i,k,iTIC_)=bio(i,k,iTIC_)+dtdays*sms12
 	bio(i,k,iTAlk)=bio(i,k,iTAlk)+dtdays*sms13
 #endif
+          END DO  !i loop
+        END DO  !k loop
 
-          END DO  !k loop
-        END DO  !i loop
+#ifdef PRIMARY_PROD
+        DO k=1,N(ng)
+          DO i=Istr,Iend
+	    Bio_NPP(i,j) = Bio_NPP(i,j) + Hz(i,j,k)*NPP_slice(i,k)
+          END DO
+        END DO
+#endif
 
 !other flux
 

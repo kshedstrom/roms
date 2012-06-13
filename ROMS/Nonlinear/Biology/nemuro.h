@@ -83,8 +83,8 @@
      &                   OCEAN(ng) % PON_burial,                        &
      &                   OCEAN(ng) % OPAL_burial,                       &
 #endif
-#ifdef NEMURO_PROD
-     &                   OCEAN(ng) % Nemuro_NPP,                        &
+#ifdef PRIMARY_PROD
+     &                   OCEAN(ng) % Bio_NPP,                           &
 #endif
      &                   OCEAN(ng) % t)
 
@@ -111,8 +111,8 @@
      &                         PONsed, OPALsed, DENITsed,               &
      &                         PON_burial, OPAL_burial,                 &
 #endif
-#ifdef NEMURO_PROD
-     &                         Nemuro_NPP,                              &
+#ifdef PRIMARY_PROD
+     &                         Bio_NPP,                                 &
 #endif
      &                         t)
 !-----------------------------------------------------------------------
@@ -147,8 +147,8 @@
       real(r8), intent(inout) :: PON_burial(LBi:,LBj:)
       real(r8), intent(inout) :: OPAL_burial(LBi:,LBj:)
 # endif
-# ifdef NEMURO_PROD
-      real(r8), intent(out) :: Nemuro_NPP(LBi:,LBj:)
+# ifdef PRIMARY_PROD
+      real(r8), intent(out) :: Bio_NPP(LBi:,LBj:)
 # endif
       real(r8), intent(inout) :: t(LBi:,LBj:,:,:,:)
 #else
@@ -169,9 +169,9 @@
       real(r8), intent(inout) :: PON_burial(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: OPAL_burial(LBi:UBi,LBj:UBj)
 # endif
-#  ifdef NEMURO_PROD
-      real(r8), intent(out) :: Nemuro_NPP(LBi:UBi,LBj:UBj)
-#  endif
+# ifdef PRIMARY_PROD
+      real(r8), intent(out) :: Bio_NPP(LBi:UBi,LBj:UBj)
+# endif
       real(r8), intent(inout) :: t(LBi:UBi,LBj:UBj,UBk,3,UBt)
 #endif
 !
@@ -231,7 +231,7 @@
       real(r8), dimension(IminS:ImaxS,N(ng)) :: bR
       real(r8), dimension(IminS:ImaxS,N(ng)) :: qc
       real(r8), dimension(IminS:ImaxS,N(ng)) :: LPSiN
-#ifdef NEMURO_PROD
+#ifdef PRIMARY_PROD
       real(r8), dimension(IminS:ImaxS,N(ng)) :: NPP_slice
 #endif
       real(r8), dimension(IminS:ImaxS) :: frac_buried
@@ -281,7 +281,7 @@
           END DO
         END DO
 !
-#ifdef NEMURO_PROD
+#ifdef PRIMARY_PROD
         DO k=1,N(ng)
           DO i=Istr,Iend
             NPP_slice(i,k)=0.0_r8
@@ -524,7 +524,7 @@
               GppAPS=Bio(i,k,iNH4_)*cff5
               GppPS=GppNPS+GppAPS
               Bio(i,k,iSphy)=Bio(i,k,iSphy)+GppPS
-#ifdef NEMURO_PROD
+#ifdef PRIMARY_PROD
               NPP_slice(i,k)=NPP_slice(i,k)+GppPS
 #endif
 !
@@ -561,7 +561,7 @@
               ResPS=Bio(i,k,iSphy)*cff4
               Bio(i,k,iNO3_)=Bio(i,k,iNO3_)+ResPS*RnewS
               Bio(i,k,iNH4_)=Bio(i,k,iNH4_)+ResPS*(1.0_r8-RnewS)
-#ifdef NEMURO_PROD
+#ifdef PRIMARY_PROD
               NPP_slice(i,k)=NPP_slice(i,k)-ResPS
 #endif
 !
@@ -641,7 +641,7 @@
               GppPL=GppNPL+GppAPL
               Bio(i,k,iLphy)=Bio(i,k,iLphy)+GppPL
               Bio(i,k,iSiOH)=Bio(i,k,iSiOH)-GppPL*LPSiN(i,k)
-#ifdef NEMURO_PROD
+#ifdef PRIMARY_PROD
               NPP_slice(i,k)=NPP_slice(i,k)+GppPL
 #endif
 !
@@ -680,7 +680,7 @@
               Bio(i,k,iNO3_)=Bio(i,k,iNO3_)+ResPL*RnewL
               Bio(i,k,iNH4_)=Bio(i,k,iNH4_)+ResPL*(1.0_r8-RnewL)
               Bio(i,k,iSiOH)=Bio(i,k,iSiOH)+ResPL*LPSiN(i,k)
-#ifdef NEMURO_PROD
+#ifdef PRIMARY_PROD
               NPP_slice(i,k)=NPP_slice(i,k)-ResPL
 #endif
 !
@@ -1398,16 +1398,16 @@
           END DO
         END DO
 
-#  ifdef NEMURO_PROD
+#ifdef PRIMARY_PROD
         DO i=Istr,Iend
-	  Nemuro_NPP(i,j) = 0.0_r8
+	  Bio_NPP(i,j) = 0.0_r8
         END DO
         DO k=1,N(ng)
           DO i=Istr,Iend
-	    Nemuro_NPP(i,j) = Nemuro_NPP(i,j) + Hz(i,j,k)*NPP_slice(i,k)
+	    Bio_NPP(i,j) = Bio_NPP(i,j) + Hz(i,j,k)*NPP_slice(i,k)
           END DO
         END DO
-#  endif
+#endif
 
       END DO J_LOOP
 

@@ -62,7 +62,7 @@
               CASE ('idOPALbur')
                 idOPALbur=varid
 # endif
-# ifdef NEMURO_PROD
+# ifdef PRIMARY_PROD
               CASE ('idNPP')
                 idNPP=varid
 # endif

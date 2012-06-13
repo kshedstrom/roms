@@ -55,234 +55,235 @@
         status=decode_line(line, KeyWord, Nval, Cval, Rval)
 
         IF (status.gt.0) THEN
-          IF (TRIM(KeyWord).eq.'Lbiology') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Lbiology)
-          ELSE IF (TRIM(KeyWord).eq.'BioIter') THEN
-            Npts=load_i(Nval, Rval, Ngrids, BioIter)
-          ELSE IF (TRIM(KeyWord).eq.'reg1') THEN
-            Npts=load_r(Nval, Rval, Ngrids, reg1)
-          ELSE IF (TRIM(KeyWord).eq.'reg2') THEN
-            Npts=load_r(Nval, Rval, Ngrids, reg2)
-          ELSE IF (TRIM(KeyWord).eq.'gmaxs1') THEN
-            Npts=load_r(Nval, Rval, Ngrids, gmaxs1)
-          ELSE IF (TRIM(KeyWord).eq.'gmaxs2') THEN
-            Npts=load_r(Nval, Rval, Ngrids, gmaxs2)
-          ELSE IF (TRIM(KeyWord).eq.'gmaxs3') THEN
-            Npts=load_r(Nval, Rval, Ngrids, gmaxs3)
-          ELSE IF (TRIM(KeyWord).eq.'beta1') THEN
-            Npts=load_r(Nval, Rval, Ngrids, beta1)
-          ELSE IF (TRIM(KeyWord).eq.'beta2') THEN
-            Npts=load_r(Nval, Rval, Ngrids, beta2)
-          ELSE IF (TRIM(KeyWord).eq.'akz1') THEN
-            Npts=load_r(Nval, Rval, Ngrids, akz1)
-          ELSE IF (TRIM(KeyWord).eq.'akz2') THEN
-            Npts=load_r(Nval, Rval, Ngrids, akz2)
-          ELSE IF (TRIM(KeyWord).eq.'PARfrac') THEN
-            Npts=load_r(Nval, Rval, Ngrids, PARfrac)
-          ELSE IF (TRIM(KeyWord).eq.'alphachl_s1') THEN
-            Npts=load_r(Nval, Rval, Ngrids, alphachl_s1)
-          ELSE IF (TRIM(KeyWord).eq.'alphachl_s2') THEN
-            Npts=load_r(Nval, Rval, Ngrids, alphachl_s2)
-          ELSE IF (TRIM(KeyWord).eq.'alphachl_s3') THEN
-            Npts=load_r(Nval, Rval, Ngrids, alphachl_s3)
-          ELSE IF (TRIM(KeyWord).eq.'pis1') THEN
-            Npts=load_r(Nval, Rval, Ngrids, pis1)
-          ELSE IF (TRIM(KeyWord).eq.'pis2') THEN
-            Npts=load_r(Nval, Rval, Ngrids, pis2)
-          ELSE IF (TRIM(KeyWord).eq.'pis3') THEN
-            Npts=load_r(Nval, Rval, Ngrids, pis3)
-          ELSE IF (TRIM(KeyWord).eq.'akno3s1') THEN
-            Npts=load_r(Nval, Rval, Ngrids, akno3s1)
-          ELSE IF (TRIM(KeyWord).eq.'akno3s2') THEN
-            Npts=load_r(Nval, Rval, Ngrids, akno3s2)
-          ELSE IF (TRIM(KeyWord).eq.'akno3s3') THEN
-            Npts=load_r(Nval, Rval, Ngrids, akno3s3)
-          ELSE IF (TRIM(KeyWord).eq.'aknh4s1') THEN
-            Npts=load_r(Nval, Rval, Ngrids, aknh4s1)
-          ELSE IF (TRIM(KeyWord).eq.'aknh4s2') THEN
-            Npts=load_r(Nval, Rval, Ngrids, aknh4s2)
-          ELSE IF (TRIM(KeyWord).eq.'aknh4s3') THEN
-            Npts=load_r(Nval, Rval, Ngrids, aknh4s3)
-          ELSE IF (TRIM(KeyWord).eq.'akpo4s1') THEN
-            Npts=load_r(Nval, Rval, Ngrids, akpo4s1)
-          ELSE IF (TRIM(KeyWord).eq.'akpo4s2') THEN
-            Npts=load_r(Nval, Rval, Ngrids, akpo4s2)
-          ELSE IF (TRIM(KeyWord).eq.'akpo4s3') THEN
-            Npts=load_r(Nval, Rval, Ngrids, akpo4s3)
-          ELSE IF (TRIM(KeyWord).eq.'akco2s1') THEN
-            Npts=load_r(Nval, Rval, Ngrids, akco2s1)
-          ELSE IF (TRIM(KeyWord).eq.'akco2s2') THEN
-            Npts=load_r(Nval, Rval, Ngrids, akco2s2)
-          ELSE IF (TRIM(KeyWord).eq.'akco2s3') THEN
-            Npts=load_r(Nval, Rval, Ngrids, akco2s3)
-          ELSE IF (TRIM(KeyWord).eq.'aksio4s2') THEN
-            Npts=load_r(Nval, Rval, Ngrids, aksio4s2)
-          ELSE IF (TRIM(KeyWord).eq.'ES1') THEN
-            Npts=load_r(Nval, Rval, Ngrids, ES1)
-          ELSE IF (TRIM(KeyWord).eq.'ES2') THEN
-            Npts=load_r(Nval, Rval, Ngrids, ES2)
-          ELSE IF (TRIM(KeyWord).eq.'ES3') THEN
-            Npts=load_r(Nval, Rval, Ngrids, ES3)
-          ELSE IF (TRIM(KeyWord).eq.'ak1') THEN
-            Npts=load_r(Nval, Rval, Ngrids, ak1)
-          ELSE IF (TRIM(KeyWord).eq.'ak2') THEN
-            Npts=load_r(Nval, Rval, Ngrids, ak2)
-          ELSE IF (TRIM(KeyWord).eq.'Qmax') THEN
-            Npts=load_r(Nval, Rval, Ngrids, Qmax)
-          ELSE IF (TRIM(KeyWord).eq.'Qmin') THEN
-            Npts=load_r(Nval, Rval, Ngrids, Qmin)
-          ELSE IF (TRIM(KeyWord).eq.'lambdano3_s1') THEN
-            Npts=load_r(Nval, Rval, Ngrids, lambdano3_s1)
-          ELSE IF (TRIM(KeyWord).eq.'lambdano3_s2') THEN
-            Npts=load_r(Nval, Rval, Ngrids, lambdano3_s2)
-          ELSE IF (TRIM(KeyWord).eq.'lambdano3_s3') THEN
-            Npts=load_r(Nval, Rval, Ngrids, lambdano3_s3)
-          ELSE IF (TRIM(KeyWord).eq.'thetaNmax_s1') THEN
-            Npts=load_r(Nval, Rval, Ngrids, thetaNmax_s1)
-          ELSE IF (TRIM(KeyWord).eq.'thetaNmax_s2') THEN
-            Npts=load_r(Nval, Rval, Ngrids, thetaNmax_s2)
-          ELSE IF (TRIM(KeyWord).eq.'thetaNmax_s3') THEN
-            Npts=load_r(Nval, Rval, Ngrids, thetaNmax_s3)
-          ELSE IF (TRIM(KeyWord).eq.'bgamma') THEN
-            Npts=load_r(Nval, Rval, Ngrids, bgamma)
-          ELSE IF (TRIM(KeyWord).eq.'bgamma1') THEN
-            Npts=load_r(Nval, Rval, Ngrids, bgamma1)
-          ELSE IF (TRIM(KeyWord).eq.'bgamma2') THEN
-            Npts=load_r(Nval, Rval, Ngrids, bgamma2)
-          ELSE IF (TRIM(KeyWord).eq.'bgamma22') THEN
-            Npts=load_r(Nval, Rval, Ngrids, bgamma22)
-          ELSE IF (TRIM(KeyWord).eq.'bgamma3') THEN
-            Npts=load_r(Nval, Rval, Ngrids, bgamma3)
-          ELSE IF (TRIM(KeyWord).eq.'bgamma4') THEN
-            Npts=load_r(Nval, Rval, Ngrids, bgamma4)
-          ELSE IF (TRIM(KeyWord).eq.'bgamma10') THEN
-            Npts=load_r(Nval, Rval, Ngrids, bgamma10)
-          ELSE IF (TRIM(KeyWord).eq.'bgamma12') THEN
-            Npts=load_r(Nval, Rval, Ngrids, bgamma12)
-          ELSE IF (TRIM(KeyWord).eq.'bgamma5') THEN
-            Npts=load_r(Nval, Rval, Ngrids, bgamma5)
-          ELSE IF (TRIM(KeyWord).eq.'bgamma7') THEN
-            Npts=load_r(Nval, Rval, Ngrids, bgamma7)
-          ELSE IF (TRIM(KeyWord).eq.'bgamma11') THEN
-            Npts=load_r(Nval, Rval, Ngrids, bgamma11)
-          ELSE IF (TRIM(KeyWord).eq.'bgamma13') THEN
-            Npts=load_r(Nval, Rval, Ngrids, bgamma13)
-          ELSE IF (TRIM(KeyWord).eq.'mtos1') THEN
-            Npts=load_r(Nval, Rval, Ngrids, mtos1)
-          ELSE IF (TRIM(KeyWord).eq.'mtos2') THEN
-            Npts=load_r(Nval, Rval, Ngrids, mtos2)
-          ELSE IF (TRIM(KeyWord).eq.'mtos3') THEN
-            Npts=load_r(Nval, Rval, Ngrids, mtos3)
-          ELSE IF (TRIM(KeyWord).eq.'flz1') THEN
-            Npts=load_r(Nval, Rval, Ngrids, flz1)
-          ELSE IF (TRIM(KeyWord).eq.'flz2') THEN
-            Npts=load_r(Nval, Rval, Ngrids, flz2)
-          ELSE IF (TRIM(KeyWord).eq.'lk1') THEN
-            Npts=load_r(Nval, Rval, Ngrids, lk1)
-          ELSE IF (TRIM(KeyWord).eq.'lk2') THEN
-            Npts=load_r(Nval, Rval, Ngrids, lk2)
-          ELSE IF (TRIM(KeyWord).eq.'lk3') THEN
-            Npts=load_r(Nval, Rval, Ngrids, lk3)
-          ELSE IF (TRIM(KeyWord).eq.'ratiol1') THEN
-            Npts=load_r(Nval, Rval, Ngrids, ratiol1)
-          ELSE IF (TRIM(KeyWord).eq.'ratiol2') THEN
-            Npts=load_r(Nval, Rval, Ngrids, ratiol2)
-          ELSE IF (TRIM(KeyWord).eq.'wsdn') THEN
-            Npts=load_r(Nval, Rval, Ngrids, wsdn)
-          ELSE IF (TRIM(KeyWord).eq.'wsdc') THEN
-            Npts=load_r(Nval, Rval, Ngrids, wsdc)
-          ELSE IF (TRIM(KeyWord).eq.'wsdsi') THEN
-            Npts=load_r(Nval, Rval, Ngrids, wsdsi)
-          ELSE IF (TRIM(KeyWord).eq.'wsdca') THEN
-            Npts=load_r(Nval, Rval, Ngrids, wsdca)
-          ELSE IF (TRIM(KeyWord).eq.'wsp1') THEN
-            Npts=load_r(Nval, Rval, Ngrids, wsp1)
-          ELSE IF (TRIM(KeyWord).eq.'wsp2') THEN
-            Npts=load_r(Nval, Rval, Ngrids, wsp2)
-          ELSE IF (TRIM(KeyWord).eq.'wsp3') THEN
-            Npts=load_r(Nval, Rval, Ngrids, wsp3)
-          ELSE IF (TRIM(KeyWord).eq.'pco2a') THEN
-            Npts=load_r(Nval, Rval, Ngrids, pco2a)
-          ELSE IF (TRIM(KeyWord).eq.'p2n') THEN
-            Npts=load_r(Nval, Rval, Ngrids, p2n)
-          ELSE IF (TRIM(KeyWord).eq.'o2no') THEN
-            Npts=load_r(Nval, Rval, Ngrids, o2no)
-          ELSE IF (TRIM(KeyWord).eq.'o2nh') THEN
-            Npts=load_r(Nval, Rval, Ngrids, o2nh)
-          ELSE IF (TRIM(KeyWord).eq.'cnb') THEN
-            Npts=load_r(Nval, Rval, Ngrids, cnb)
-          ELSE IF (TRIM(KeyWord).eq.'apsilon') THEN
-            Npts=load_r(Nval, Rval, Ngrids, apsilon)
-          ELSE IF (TRIM(KeyWord).eq.'ro5') THEN
-            Npts=load_r(Nval, Rval, Ngrids, ro5)
-          ELSE IF (TRIM(KeyWord).eq.'ro6') THEN
-            Npts=load_r(Nval, Rval, Ngrids, ro6)
-          ELSE IF (TRIM(KeyWord).eq.'ro7') THEN
-            Npts=load_r(Nval, Rval, Ngrids, ro7)
-          ELSE IF (TRIM(KeyWord).eq.'ro10') THEN
-            Npts=load_r(Nval, Rval, Ngrids, ro10)
-          ELSE IF (TRIM(KeyWord).eq.'rop') THEN
-            Npts=load_r(Nval, Rval, Ngrids, rop)
-          ELSE IF (TRIM(KeyWord).eq.'rob') THEN
-            Npts=load_r(Nval, Rval, Ngrids, rob)
-          ELSE IF (TRIM(KeyWord).eq.'kabac') THEN
-            Npts=load_r(Nval, Rval, Ngrids, kabac)
-          ELSE IF (TRIM(KeyWord).eq.'klbac') THEN
-            Npts=load_r(Nval, Rval, Ngrids, klbac)
-          ELSE IF (TRIM(KeyWord).eq.'ksdoc') THEN
-            Npts=load_r(Nval, Rval, Ngrids, ksdoc)
-          ELSE IF (TRIM(KeyWord).eq.'ksdon') THEN
-            Npts=load_r(Nval, Rval, Ngrids, ksdon)
-          ELSE IF (TRIM(KeyWord).eq.'ratiob') THEN
-            Npts=load_r(Nval, Rval, Ngrids, ratiob)
-          ELSE IF (TRIM(KeyWord).eq.'ratiobc') THEN
-            Npts=load_r(Nval, Rval, Ngrids, ratiobc)
-          ELSE IF (TRIM(KeyWord).eq.'RtUVLDOC') THEN
-            Npts=load_r(Nval, Rval, Ngrids, RtUVLDOC)
-          ELSE IF (TRIM(KeyWord).eq.'RtUVSDOC') THEN
-            Npts=load_r(Nval, Rval, Ngrids, RtUVSDOC)
-          ELSE IF (TRIM(KeyWord).eq.'RtUVLDIC') THEN
-            Npts=load_r(Nval, Rval, Ngrids, RtUVLDIC)
-          ELSE IF (TRIM(KeyWord).eq.'RtUVSDIC') THEN
-            Npts=load_r(Nval, Rval, Ngrids, RtUVSDIC)
-          ELSE IF (TRIM(KeyWord).eq.'colorFR1') THEN
-            Npts=load_r(Nval, Rval, Ngrids, colorFR1)
-          ELSE IF (TRIM(KeyWord).eq.'colorFR2') THEN
-            Npts=load_r(Nval, Rval, Ngrids, colorFR2)
-
-          ELSE IF (TRIM(KeyWord).eq.'TNU2') THEN
-            Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idbio(itrc)
-                tnu2(i,ng)=Rbio(itrc,ng)
+          SELECT CASE (TRIM(KeyWord))
+            CASE ('Lbiology')
+              Npts=load_l(Nval, Cval, Ngrids, Lbiology)
+            CASE ('BioIter')
+              Npts=load_i(Nval, Rval, Ngrids, BioIter)
+            CASE ('reg1')
+              Npts=load_r(Nval, Rval, Ngrids, reg1)
+            CASE ('reg2')
+              Npts=load_r(Nval, Rval, Ngrids, reg2)
+            CASE ('gmaxs1')
+              Npts=load_r(Nval, Rval, Ngrids, gmaxs1)
+            CASE ('gmaxs2')
+              Npts=load_r(Nval, Rval, Ngrids, gmaxs2)
+            CASE ('gmaxs3')
+              Npts=load_r(Nval, Rval, Ngrids, gmaxs3)
+            CASE ('beta1')
+              Npts=load_r(Nval, Rval, Ngrids, beta1)
+            CASE ('beta2')
+              Npts=load_r(Nval, Rval, Ngrids, beta2)
+            CASE ('akz1')
+              Npts=load_r(Nval, Rval, Ngrids, akz1)
+            CASE ('akz2')
+              Npts=load_r(Nval, Rval, Ngrids, akz2)
+            CASE ('PARfrac')
+              Npts=load_r(Nval, Rval, Ngrids, PARfrac)
+            CASE ('alphachl_s1')
+              Npts=load_r(Nval, Rval, Ngrids, alphachl_s1)
+            CASE ('alphachl_s2')
+              Npts=load_r(Nval, Rval, Ngrids, alphachl_s2)
+            CASE ('alphachl_s3')
+              Npts=load_r(Nval, Rval, Ngrids, alphachl_s3)
+            CASE ('pis1')
+              Npts=load_r(Nval, Rval, Ngrids, pis1)
+            CASE ('pis2')
+              Npts=load_r(Nval, Rval, Ngrids, pis2)
+            CASE ('pis3')
+              Npts=load_r(Nval, Rval, Ngrids, pis3)
+            CASE ('akno3s1')
+              Npts=load_r(Nval, Rval, Ngrids, akno3s1)
+            CASE ('akno3s2')
+              Npts=load_r(Nval, Rval, Ngrids, akno3s2)
+            CASE ('akno3s3')
+              Npts=load_r(Nval, Rval, Ngrids, akno3s3)
+            CASE ('aknh4s1')
+              Npts=load_r(Nval, Rval, Ngrids, aknh4s1)
+            CASE ('aknh4s2')
+              Npts=load_r(Nval, Rval, Ngrids, aknh4s2)
+            CASE ('aknh4s3')
+              Npts=load_r(Nval, Rval, Ngrids, aknh4s3)
+            CASE ('akpo4s1')
+              Npts=load_r(Nval, Rval, Ngrids, akpo4s1)
+            CASE ('akpo4s2')
+              Npts=load_r(Nval, Rval, Ngrids, akpo4s2)
+            CASE ('akpo4s3')
+              Npts=load_r(Nval, Rval, Ngrids, akpo4s3)
+            CASE ('akco2s1')
+              Npts=load_r(Nval, Rval, Ngrids, akco2s1)
+            CASE ('akco2s2')
+              Npts=load_r(Nval, Rval, Ngrids, akco2s2)
+            CASE ('akco2s3')
+              Npts=load_r(Nval, Rval, Ngrids, akco2s3)
+            CASE ('aksio4s2')
+              Npts=load_r(Nval, Rval, Ngrids, aksio4s2)
+            CASE ('ES1')
+              Npts=load_r(Nval, Rval, Ngrids, ES1)
+            CASE ('ES2')
+              Npts=load_r(Nval, Rval, Ngrids, ES2)
+            CASE ('ES3')
+              Npts=load_r(Nval, Rval, Ngrids, ES3)
+            CASE ('ak1')
+              Npts=load_r(Nval, Rval, Ngrids, ak1)
+            CASE ('ak2')
+              Npts=load_r(Nval, Rval, Ngrids, ak2)
+            CASE ('Qmax')
+              Npts=load_r(Nval, Rval, Ngrids, Qmax)
+            CASE ('Qmin')
+              Npts=load_r(Nval, Rval, Ngrids, Qmin)
+            CASE ('lambdano3_s1')
+              Npts=load_r(Nval, Rval, Ngrids, lambdano3_s1)
+            CASE ('lambdano3_s2')
+              Npts=load_r(Nval, Rval, Ngrids, lambdano3_s2)
+            CASE ('lambdano3_s3')
+              Npts=load_r(Nval, Rval, Ngrids, lambdano3_s3)
+            CASE ('thetaNmax_s1')
+              Npts=load_r(Nval, Rval, Ngrids, thetaNmax_s1)
+            CASE ('thetaNmax_s2')
+              Npts=load_r(Nval, Rval, Ngrids, thetaNmax_s2)
+            CASE ('thetaNmax_s3')
+              Npts=load_r(Nval, Rval, Ngrids, thetaNmax_s3)
+            CASE ('bgamma')
+              Npts=load_r(Nval, Rval, Ngrids, bgamma)
+            CASE ('bgamma1')
+              Npts=load_r(Nval, Rval, Ngrids, bgamma1)
+            CASE ('bgamma2')
+              Npts=load_r(Nval, Rval, Ngrids, bgamma2)
+            CASE ('bgamma22')
+              Npts=load_r(Nval, Rval, Ngrids, bgamma22)
+            CASE ('bgamma3')
+              Npts=load_r(Nval, Rval, Ngrids, bgamma3)
+            CASE ('bgamma4')
+              Npts=load_r(Nval, Rval, Ngrids, bgamma4)
+            CASE ('bgamma10')
+              Npts=load_r(Nval, Rval, Ngrids, bgamma10)
+            CASE ('bgamma12')
+              Npts=load_r(Nval, Rval, Ngrids, bgamma12)
+            CASE ('bgamma5')
+              Npts=load_r(Nval, Rval, Ngrids, bgamma5)
+            CASE ('bgamma7')
+              Npts=load_r(Nval, Rval, Ngrids, bgamma7)
+            CASE ('bgamma11')
+              Npts=load_r(Nval, Rval, Ngrids, bgamma11)
+            CASE ('bgamma13')
+              Npts=load_r(Nval, Rval, Ngrids, bgamma13)
+            CASE ('mtos1')
+              Npts=load_r(Nval, Rval, Ngrids, mtos1)
+            CASE ('mtos2')
+              Npts=load_r(Nval, Rval, Ngrids, mtos2)
+            CASE ('mtos3')
+              Npts=load_r(Nval, Rval, Ngrids, mtos3)
+            CASE ('flz1')
+              Npts=load_r(Nval, Rval, Ngrids, flz1)
+            CASE ('flz2')
+              Npts=load_r(Nval, Rval, Ngrids, flz2)
+            CASE ('lk1')
+              Npts=load_r(Nval, Rval, Ngrids, lk1)
+            CASE ('lk2')
+              Npts=load_r(Nval, Rval, Ngrids, lk2)
+            CASE ('lk3')
+              Npts=load_r(Nval, Rval, Ngrids, lk3)
+            CASE ('ratiol1')
+              Npts=load_r(Nval, Rval, Ngrids, ratiol1)
+            CASE ('ratiol2')
+              Npts=load_r(Nval, Rval, Ngrids, ratiol2)
+            CASE ('wsdn')
+              Npts=load_r(Nval, Rval, Ngrids, wsdn)
+            CASE ('wsdc')
+              Npts=load_r(Nval, Rval, Ngrids, wsdc)
+            CASE ('wsdsi')
+              Npts=load_r(Nval, Rval, Ngrids, wsdsi)
+            CASE ('wsdca')
+              Npts=load_r(Nval, Rval, Ngrids, wsdca)
+            CASE ('wsp1')
+              Npts=load_r(Nval, Rval, Ngrids, wsp1)
+            CASE ('wsp2')
+              Npts=load_r(Nval, Rval, Ngrids, wsp2)
+            CASE ('wsp3')
+              Npts=load_r(Nval, Rval, Ngrids, wsp3)
+            CASE ('pco2a')
+              Npts=load_r(Nval, Rval, Ngrids, pco2a)
+            CASE ('p2n')
+              Npts=load_r(Nval, Rval, Ngrids, p2n)
+            CASE ('o2no')
+              Npts=load_r(Nval, Rval, Ngrids, o2no)
+            CASE ('o2nh')
+              Npts=load_r(Nval, Rval, Ngrids, o2nh)
+            CASE ('cnb')
+              Npts=load_r(Nval, Rval, Ngrids, cnb)
+            CASE ('apsilon')
+              Npts=load_r(Nval, Rval, Ngrids, apsilon)
+            CASE ('ro5')
+              Npts=load_r(Nval, Rval, Ngrids, ro5)
+            CASE ('ro6')
+              Npts=load_r(Nval, Rval, Ngrids, ro6)
+            CASE ('ro7')
+              Npts=load_r(Nval, Rval, Ngrids, ro7)
+            CASE ('ro10')
+              Npts=load_r(Nval, Rval, Ngrids, ro10)
+            CASE ('rop')
+              Npts=load_r(Nval, Rval, Ngrids, rop)
+            CASE ('rob')
+              Npts=load_r(Nval, Rval, Ngrids, rob)
+            CASE ('kabac')
+              Npts=load_r(Nval, Rval, Ngrids, kabac)
+            CASE ('klbac')
+              Npts=load_r(Nval, Rval, Ngrids, klbac)
+            CASE ('ksdoc')
+              Npts=load_r(Nval, Rval, Ngrids, ksdoc)
+            CASE ('ksdon')
+              Npts=load_r(Nval, Rval, Ngrids, ksdon)
+            CASE ('ratiob')
+              Npts=load_r(Nval, Rval, Ngrids, ratiob)
+            CASE ('ratiobc')
+              Npts=load_r(Nval, Rval, Ngrids, ratiobc)
+            CASE ('RtUVLDOC')
+              Npts=load_r(Nval, Rval, Ngrids, RtUVLDOC)
+            CASE ('RtUVSDOC')
+              Npts=load_r(Nval, Rval, Ngrids, RtUVSDOC)
+            CASE ('RtUVLDIC')
+              Npts=load_r(Nval, Rval, Ngrids, RtUVLDIC)
+            CASE ('RtUVSDIC')
+              Npts=load_r(Nval, Rval, Ngrids, RtUVSDIC)
+            CASE ('colorFR1')
+              Npts=load_r(Nval, Rval, Ngrids, colorFR1)
+            CASE ('colorFR2')
+              Npts=load_r(Nval, Rval, Ngrids, colorFR2)
+  
+            CASE ('TNU2')
+              Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
+              DO ng=1,Ngrids
+                DO itrc=1,NBT
+                  i=idbio(itrc)
+                  tnu2(i,ng)=Rbio(itrc,ng)
+                END DO
               END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'TNU4') THEN
-            Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idbio(itrc)
-                tnu4(i,ng)=Rbio(itrc,ng)
+            CASE ('TNU4')
+              Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
+              DO ng=1,Ngrids
+                DO itrc=1,NBT
+                  i=idbio(itrc)
+                  tnu4(i,ng)=Rbio(itrc,ng)
+                END DO
               END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'AKT_BAK') THEN
-            Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idbio(itrc)
-                Akt_bak(i,ng)=Rbio(itrc,ng)
+            CASE ('AKT_BAK')
+              Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
+              DO ng=1,Ngrids
+                DO itrc=1,NBT
+                  i=idbio(itrc)
+                  Akt_bak(i,ng)=Rbio(itrc,ng)
+                END DO
               END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'TNUDG') THEN
-            Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idbio(itrc)
-                Tnudg(i,ng)=Rbio(itrc,ng)
+            CASE ('TNUDG')
+              Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
+              DO ng=1,Ngrids
+                DO itrc=1,NBT
+                  i=idbio(itrc)
+                  Tnudg(i,ng)=Rbio(itrc,ng)
+                END DO
               END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq. 'LBC(isTvar)') THEN
+            CASE ( 'LBC(isTvar)')
               IF (itracer.lt.NBT) THEN
                 itracer=itracer+1
               ELSE
@@ -290,47 +291,60 @@
               END IF
               ifield=isTvar(idbio(itracer))
               Npts=load_lbc(Nval, Cval, line, nline, ifield, igrid,     &
-     &                        iTrcStr, iTrcEnd, LBC)
-
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idTvar)') THEN
-            Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idTvar(idbio(itrc))
-                IF (i.eq.0) THEN
-                  IF (Master) WRITE (out,120)                           &
-     &                      'idTvar(idbio(', itrc, '))'
-                  exit_flag=5
-                  RETURN
-                END IF
-                Hout(i,ng)=Ltrc(itrc,ng)
+       &                    iTrcStr, iTrcEnd, LBC)
+  
+            CASE ('Hout(idTvar)')
+              Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
+              DO ng=1,Ngrids
+                DO itrc=1,NBT
+                  i=idTvar(idbio(itrc))
+                  IF (i.eq.0) THEN
+                    IF (Master) WRITE (out,120)                           &
+       &                      'idTvar(idbio(', itrc, '))'
+                    exit_flag=5
+                    RETURN
+                  END IF
+                  Hout(i,ng)=Ltrc(itrc,ng)
+                END DO
               END DO
-            END DO
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idTsur)') THEN
-            Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idTsur(idbio(itrc))
-                IF (i.eq.0) THEN
-                  IF (Master) WRITE (out,120)                           &
-     &                      'idTsur(idbio(', itrc, '))'
-                  exit_flag=5
-                  RETURN
-                END IF
-                Hout(i,ng)=Ltrc(itrc,ng)
+            CASE ('Hout(idTsur)')
+              Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
+              DO ng=1,Ngrids
+                DO itrc=1,NBT
+                  i=idTsur(idbio(itrc))
+                  IF (i.eq.0) THEN
+                    IF (Master) WRITE (out,120)                           &
+       &                      'idTsur(idbio(', itrc, '))'
+                    exit_flag=5
+                    RETURN
+                  END IF
+                  Hout(i,ng)=Ltrc(itrc,ng)
+                END DO
               END DO
-            END DO
-#ifdef AVERAGES
-          ELSE IF (TRIM(KeyWord).eq.'Aout(idTvar)') THEN
-            Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
-            DO ng=1,Ngrids
-              DO itrc=1,NBT
-                i=idTvar(idbio(itrc))
-                Aout(i,ng)=Ltrc(itrc,ng)
-              END DO
-            END DO
+#ifdef PRIMARY_PROD
+            CASE ('Hout(idNPP)')
+              IF (idNPP.eq.0) THEN
+                IF (Master) WRITE (out,120) 'idNPP'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Hout(idNPP,:))
 #endif
-          END IF
+#ifdef AVERAGES
+            CASE ('Aout(idTvar)')
+              Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
+              DO ng=1,Ngrids
+                DO itrc=1,NBT
+                  i=idTvar(idbio(itrc))
+                  Aout(i,ng)=Ltrc(itrc,ng)
+                END DO
+              END DO
+#endif
+# ifdef PRIMARY_PROD
+            CASE ('Aout(idNPP)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout(idNPP,:))
+# endif
+          END SELECT
         END IF
       END DO
   10  IF (Master) WRITE (out,30) line
@@ -623,6 +637,12 @@
      &            Hout(idTsur(i),ng), 'Hout(idTsur)',                   &
      &            'Write out tracer flux ', i, TRIM(Vname(1,idTvar(i)))
             END DO
+#ifdef PRIMARY_PROD
+            IF (Hout(idNPP,ng)) WRITE (out,60)                          &
+     &          Hout(idNPP,ng), 'Hout(idNPP)',                          &
+     &          'Write out primary productivity', 0,                    &
+     &          TRIM(Vname(1,idNPP))
+#endif
 #ifdef AVERAGES
             WRITE (out,'(1x)')
             DO itrc=1,NBT
@@ -632,6 +652,12 @@
      &            'Write out averaged tracer ', i,                      &
      &            TRIM(Vname(1,idTvar(i)))
             END DO
+# ifdef PRIMARY_PROD
+            IF (Aout(idNPP,ng)) WRITE (out,60)                          &
+     &          Aout(idNPP,ng), 'Aout(idNPP)',                          &
+     &          'Write out primary productivity', 0,                    &
+     &          TRIM(Vname(1,idNPP))
+# endif
 #endif
           END IF
         END DO

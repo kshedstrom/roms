@@ -1215,7 +1215,7 @@
           IF (exit_flag.ne.NoError) RETURN
         END IF
 #  endif
-#  ifdef NEMURO_PROD
+#  ifdef PRIMARY_PROD
 !
 !  Define Net primary production.
 !
@@ -2937,7 +2937,7 @@
             got_var(idOPALbur)=.TRUE.
             AVG(ng)%Vid(idOPALbur)=var_id(i)
 #  endif
-#  ifdef NEMURO_PROD
+#  ifdef PRIMARY_PROD
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idNPP))) THEN
             got_var(idNPP)=.TRUE.
             AVG(ng)%Vid(idNPP)=var_id(i)
@@ -3427,7 +3427,7 @@
           RETURN
         END IF
 #  endif
-#  ifdef NEMURO_PROD
+#  ifdef PRIMARY_PROD
         IF (.not.got_var(idNPP).and.Aout(idNPP,ng)) THEN
           IF (Master) WRITE (stdout,60) TRIM(Vname(1,idNPP)),       &
      &                                  TRIM(ncname)

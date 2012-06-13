@@ -164,7 +164,7 @@ ad_VolCons(north) ==  F                            ! northern boundary
 
 ! Time-Stepping parameters.
 
-       NTIMES == 38400
+       NTIMES == 138240
           DT == 225.0d0
 !          DT == 360.0d0
      NDTFAST == 20
@@ -666,6 +666,7 @@ Aout(idUTav) == F F     ! utemp, usalt       quadratic <u*t> T/S terms
 Aout(idVTav) == F F     ! vtemp, vsalt       quadratic <v*t> T/S terms
 Aout(iHUTav) == F F     ! Huontemp, ...      T/S volume flux, <Huon*t>
 Aout(iHVTav) == F F     ! Hvomtemp, ...      T/S volume flux, <Hvom*t>
+Aout(idNPP) == T        ! Net Primary Production
 
 ! Logical switches (TRUE/FALSE) to activate writing of extra inert passive
 ! tracers other than biological and sediment tracers into the AVERAGE file.
@@ -734,7 +735,6 @@ Dout(iTvdif) == T T                        ! vertical diffusion
 ! Input NetCDF file names, [1:Ngrids].
 
      GRDNAME == /wrkdir/kate/NEP/Files/NEP6_grd_depth_min_15m.nc
-!     ININAME == /wrkdir/kate/NEP/Files/SODA_2.1.6_19580101_ic_NEP6_bio_ice.nc
      ININAME == /wrkdir/kate/NEP/Files/SODA_2.1.6_19790101_ic_NEP6_bio_ice.nc
 !     ININAME == nep6_rst.nc
      ITLNAME == ocean_itl.nc

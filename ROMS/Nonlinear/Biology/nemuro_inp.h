@@ -406,7 +406,7 @@
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Hout(idOPALbur,:))
 #endif
-#ifdef NEMURO_PROD
+#ifdef PRIMARY_PROD
             CASE ('Hout(idNPP)')
               IF (idNPP.eq.0) THEN
                 IF (Master) WRITE (out,280) 'idNPP'
@@ -427,7 +427,7 @@
                   Aout(i,ng)=Ltrc(itrc,ng)
                 END DO
               END DO
-#ifdef NEMURO_SED1
+# ifdef NEMURO_SED1
             CASE ('Aout(idPONsed)')
               Npts=load_l(Nval, Cval, Ngrids, Aout(idPONsed,:))
             CASE ('Aout(idOPALsed)')
@@ -438,11 +438,11 @@
               Npts=load_l(Nval, Cval, Ngrids, Aout(idPONbur,:))
             CASE ('Aout(idOPALbur)')
               Npts=load_l(Nval, Cval, Ngrids, Aout(idOPALbur,:))
-#endif
-#  ifdef NEMURO_PROD
+# endif
+# ifdef PRIMARY_PROD
             CASE ('Aout(idNPP)')
               Npts=load_l(Nval, Cval, Ngrids, Aout(idNPP,:))
-#  endif
+# endif
 #endif
 #ifdef DIAGNOSTICS_TS
             CASE ('Dout(iTrate)')
@@ -892,6 +892,12 @@
      &            Hout(idTsur(i),ng), 'Hout(idTsur)',                   &
      &            'Write out tracer flux ', i, TRIM(Vname(1,idTvar(i)))
             END DO
+#ifdef PRIMARY_PROD
+            IF (Hout(idNPP,ng)) WRITE (out,110)                         &
+     &          Hout(idNPP,ng), 'Hout(idNPP)',                          &
+     &          'Write out primary productivity', 0,                    &
+     &          TRIM(Vname(1,idNPP))
+#endif
 #if defined AVERAGES    || \
    (defined AD_AVERAGES && defined ADJOINT) || \
    (defined RP_AVERAGES && defined TL_IOMS) || \
@@ -904,6 +910,12 @@
      &            'Write out averaged tracer ', i,                      &
      &            TRIM(Vname(1,idTvar(i)))
             END DO
+# ifdef PRIMARY_PROD
+            IF (Aout(idNPP,ng)) WRITE (out,110)                         &
+     &          Aout(idNPP,ng), 'Aout(idNPP)',                          &
+     &          'Write out primary productivity', 0,                    &
+     &          TRIM(Vname(1,idNPP))
+# endif
 #endif
 #ifdef DIAGNOSTICS_TS
             WRITE (out,'(1x)')

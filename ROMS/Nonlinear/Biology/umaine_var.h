@@ -87,6 +87,10 @@
               CASE ('idTvar(iTAlk)')
                 idTvar(iTAlk)=varid
 #endif
+# ifdef PRIMARY_PROD
+              CASE ('idNPP')
+                idNPP=varid
+# endif
 
 ! Do it again for climatologies
               CASE ('idTclm(iNO3_)')

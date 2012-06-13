@@ -1336,7 +1336,7 @@
           IF (exit_flag.ne.NoError) RETURN
         END IF
 # endif
-# ifdef NEMURO_PROD
+# ifdef PRIMARY_PROD
 !
 !  Define Net primary productivity.
 !
@@ -3319,11 +3319,11 @@
             got_var(idOPALbur)=.TRUE.
             HIS(ng)%Vid(idOPALbur)=var_id(i)
 # endif
-#  ifdef NEMURO_PROD
+# ifdef PRIMARY_PROD
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idNPP))) THEN
             got_var(idNPP)=.TRUE.
             HIS(ng)%Vid(idNPP)=var_id(i)
-#  endif
+# endif
 # ifdef LMD_SKPP
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idHsbl))) THEN
             got_var(idHsbl)=.TRUE.
@@ -3868,14 +3868,14 @@
           RETURN
         END IF
 # endif
-#  ifdef NEMURO_PROD
+# ifdef PRIMARY_PROD
         IF (.not.got_var(idNPP).and.Hout(idNPP,ng)) THEN
           IF (Master) WRITE (stdout,60) TRIM(Vname(1,idNPP)),           &
      &                                  TRIM(ncname)
           exit_flag=3
           RETURN
         END IF
-#  endif
+# endif
 # ifdef LMD_SKPP
         IF (.not.got_var(idHsbl).and.Hout(idHsbl,ng)) THEN
           IF (Master) WRITE (stdout,60) TRIM(Vname(1,idHsbl)),          &

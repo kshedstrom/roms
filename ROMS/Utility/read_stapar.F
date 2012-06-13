@@ -88,6 +88,10 @@
             CASE ('Sout(idBath)')
               Npts=load_l(Nval, Cval, Ngrids, Sout(idBath,:))
 # endif
+# ifdef PRIMARY_PROD
+            CASE ('Sout(idNPP)')
+              Npts=load_l(Nval, Cval, Ngrids, Sout(idNPP,:))
+# endif
             CASE ('Sout(idTvar)')
               Npts=load_l(Nval, Cval, MT*Ngrids, Lsta)
               DO ng=1,Ngrids
@@ -329,10 +333,15 @@
             WRITE (out,70) Nstation(ng), 'Nstation',                    &
      &            'Number of stations to write out into stations file.'
 #if defined SEDIMENT && defined SED_MORPH
-            IF (Sout(idbath,ng)) WRITE (out,80) Sout(idbath,ng),        &
+            IF (Sout(idBath,ng)) WRITE (out,80) Sout(idBath,ng),        &
      &          'Sout(idbath)',                                         &
      &          'Write out free-surface.'
 #endif
+# ifdef PRIMARY_PROD
+            IF (Sout(idNPP,ng)) WRITE (out,80) Sout(idNPP,ng),          &
+     &          'Sout(idNPP)',                                          &
+     &          'Write out net primary productivity.'
+# endif
             IF (Sout(idFsur,ng)) WRITE (out,80) Sout(idFsur,ng),        &
      &          'Sout(idFsur)',                                         &
      &          'Write out free-surface.'

@@ -495,11 +495,11 @@
           END DO
         END IF
 #  endif
-#  ifdef NEMURO_PROD
+#  ifdef PRIMARY_PROD
         IF (Aout(idNPP,ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR
-              AVERAGE(ng)%avgNPP(i,j)=OCEAN(ng)%Nemuro_NPP(i,j)
+              AVERAGE(ng)%avgNPP(i,j)=OCEAN(ng)%Bio_NPP(i,j)
 # ifdef WET_DRY
               AVERAGE(ng)%avgNPP(i,j)=AVERAGE(ng)%avgNPP(i,j)*  &
      &                                GRID(ng)%rmask_io(i,j)
@@ -2022,7 +2022,7 @@
           END DO
         END IF
 #  endif
-#  ifdef NEMURO_PROD
+#  ifdef PRIMARY_PROD
         IF (Aout(idNPP,ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR
@@ -2030,7 +2030,7 @@
 # ifdef WET_DRY
      &                                 GRID(ng)%rmask_io(i,j)*          &
 # endif
-     &                                 OCEAN(ng)%Nemuro_NPP(i,j)
+     &                                 OCEAN(ng)%Bio_NPP(i,j)
             END DO
           END DO
         END IF
@@ -3752,7 +3752,7 @@
           END IF
         END IF
 #  endif
-#  ifdef NEMURO_PROD
+#  ifdef PRIMARY_PROD
         IF (Aout(idNPP,ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR
