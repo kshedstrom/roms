@@ -43,7 +43,7 @@
 ! Flag indicating re-start from previous solution. If FRREC = 0, a new
 ! NetCDF output file is created.
 
-       FRREC == -1
+       FRREC == 0
 
 ! Number of floats to release in each nested grid.  These values are
 ! essential because the FLOATS structure in "mod_floats" is dynamically
