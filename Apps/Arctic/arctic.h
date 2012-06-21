@@ -144,9 +144,9 @@
 #  define EMINUSP
 #  undef ANA_SRFLUX
 #  undef ALBEDO
-#  define ALBEDO_CURVE
-#  define ALBEDO_CSIM
-#  undef ALBEDO_FILE
+#  undef ALBEDO_CURVE  /* for water */
+#  undef ALBEDO_CSIM   /* for ice */
+#  define ALBEDO_FILE  /* for both */
 #  undef LONGWAVE
 # endif
 #endif

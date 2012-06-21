@@ -34,7 +34,7 @@
 # include "tile.h"
 !
 # ifdef PROFILE
-      CALL wclock_on (ng, iNLM, 44)
+      CALL wclock_on (ng, iNLM, 51)
 # endif
 !
       CALL ice_frazil_tile (ng, tile,                                   &
@@ -53,7 +53,7 @@
      &                      OCEAN(ng) % t,                              &
      &                      ICE(ng) % wfr)
 # ifdef PROFILE
-      CALL wclock_off (ng, iNLM, 44)
+      CALL wclock_off (ng, iNLM, 51)
 # endif
       RETURN
       END SUBROUTINE ice_frazil
