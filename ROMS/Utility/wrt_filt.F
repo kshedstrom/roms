@@ -117,7 +117,7 @@
 !
 !  Write out 2D momentum component (m/s) in the XI-direction.
 !
-      IF (Aout(idUbar,ng) .or. Aout(idu2dE)) THEN
+      IF (Aout(idUbar,ng) .or. Aout(idu2dE,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*u2dvar
         status=nf_fwrite2d(ng, iNLM, FIL(1,ng)%ncid,                    &
@@ -141,7 +141,7 @@
 !
 !  Write out 2D momentum component (m/s) in the ETA-direction.
 !
-      IF (Aout(idVbar,ng) .or. Aout(idv2dN)) THEN
+      IF (Aout(idVbar,ng) .or. Aout(idv2dN,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*v2dvar
         status=nf_fwrite2d(ng, iNLM, FIL(1,ng)%ncid,                    &
@@ -166,7 +166,7 @@
 !
 !  Write out 3D momentum component (m/s) in the XI-direction.
 !
-      IF (Aout(idUvel,ng) .or. Aout(idu3dE)) THEN
+      IF (Aout(idUvel,ng) .or. Aout(idu3dE,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*u3dvar
         status=nf_fwrite3d(ng, iNLM, FIL(2,ng)%ncid,                    &
@@ -190,7 +190,7 @@
 !
 !  Write out 3D momentum component (m/s) in the ETA-direction.
 !
-      IF (Aout(idVvel,ng) .or. Aout(idv3dN)) THEN
+      IF (Aout(idVvel,ng) .or. Aout(idv3dN,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*v3dvar
         status=nf_fwrite3d(ng, iNLM, FIL(3,ng)%ncid,                    &
@@ -613,7 +613,7 @@
 !
 !  Write out ice u-velocity
 !
-      IF (Aout(idUice,ng) .or. Aout(idUiceE)) THEN
+      IF (Aout(idUice,ng) .or. Aout(idUiceE,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*u2dvar
         status=nf_fwrite2d(ng, iNLM, FIL(10,ng)%ncid,                   &
@@ -637,7 +637,7 @@
 !
 !  Write out ice v-velocity
 !
-      IF (Aout(idVice,ng) .or. Aout(idViceN)) THEN
+      IF (Aout(idVice,ng) .or. Aout(idViceN,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*v2dvar
         status=nf_fwrite2d(ng, iNLM, FIL(10,ng)%ncid,                   &
