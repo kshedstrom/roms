@@ -147,6 +147,7 @@
 !
       IF (((iic(ng).gt.ntsAVG2(ng)).and.                                &
      &     (MOD(iic(ng)-1,nAVG2(ng)).eq.1)).or.                         &
+     &    ((iic(ng).ge.ntsAVG2(ng)).and.(nAVG2(ng).eq.1)).or.           &
      &    ((nrrec(ng).gt.0).and.(iic(ng).eq.ntstart(ng)))) THEN
 
 # ifdef WET_DRY
@@ -276,7 +277,7 @@
 
 
         IF (Aout2(idDano,ng)) THEN
-          DO j=JstrR,JendR 
+          DO j=JstrR,JendR
             DO i=IstrR,IendR
               AVERAGE2(ng)%avgrho(i,j)=OCEAN(ng)%rho(i,j,N(ng))
 #  ifdef WET_DRY
@@ -422,7 +423,7 @@
 #   endif
             END DO
           END DO
-        END IF 
+        END IF
         IF (Aout2(idLrad,ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR
@@ -1207,7 +1208,7 @@
      &                                  ICE(ng)%ai(i,j,Iout)
             END DO
           END DO
-        END IF 
+        END IF
         IF (Aout2(idHice,ng)) THEN
           DO j=JstrR,JendR
             DO i=Istr,IendR
@@ -1218,7 +1219,7 @@
      &                                  ICE(ng)%hi(i,j,Iout)
             END DO
           END DO
-        END IF 
+        END IF
         IF (Aout2(idHsno,ng)) THEN
           DO j=JstrR,JendR
             DO i=Istr,IendR
@@ -1251,7 +1252,7 @@
      &                                  ICE(ng)%ti(i,j,Iout)
             END DO
           END DO
-        END IF 
+        END IF
         IF (Aout2(idSfwat,ng)) THEN
           DO j=JstrR,JendR
             DO i=Istr,IendR
@@ -1262,7 +1263,7 @@
      &                                  ICE(ng)%sfwat(i,j,Iout)
             END DO
           END DO
-        END IF 
+        END IF
         IF (Aout2(idAgeice,ng)) THEN
           DO j=JstrR,JendR
             DO i=Istr,IendR
@@ -1328,7 +1329,7 @@
      &                                  ICE(ng)%t0mk(i,j)
             END DO
           END DO
-        END IF 
+        END IF
         IF (Aout2(idS0mk,ng)) THEN
           DO j=JstrR,JendR
             DO i=Istr,IendR
@@ -1339,7 +1340,7 @@
      &                                  ICE(ng)%s0mk(i,j)
             END DO
           END DO
-        END IF 
+        END IF
         IF (Aout2(idWfr,ng)) THEN
           DO j=JstrR,JendR
             DO i=Istr,IendR
@@ -1394,7 +1395,7 @@
      &                                 ICE(ng)%wro(i,j)
             END DO
           END DO
-        END IF 
+        END IF
         IF (Aout2(idTauiw,ng)) THEN
           DO j=JstrR,JendR
             DO i=Istr,IendR
@@ -1405,7 +1406,7 @@
      &                                  ICE(ng)%utau_iw(i,j)
             END DO
           END DO
-        END IF 
+        END IF
         IF (Aout2(idChuiw,ng)) THEN
           DO j=JstrR,JendR
             DO i=Istr,IendR
@@ -1445,12 +1446,16 @@
 !  the full I- and J-ranges are different.
 !-----------------------------------------------------------------------
 !
-      IF ((iic(ng).gt.ntsAVG2(ng)).and.                                 &
-     &    (MOD(iic(ng)-1,nAVG2(ng)).eq.0).and.                          &
-     &    ((iic(ng).ne.ntstart(ng)).or.(nrrec(ng).eq.0))) THEN
-        fac=1.0_r8/REAL(nAVG2(ng),r8)
+      IF (((iic(ng).gt.ntsAVG2(ng)).and.                                &
+     &     (MOD(iic(ng)-1,nAVG2(ng)).eq.0).and.                         &
+     &     ((iic(ng).ne.ntstart(ng)).or.(nrrec(ng).eq.0))).or.          &
+     &    ((iic(ng).ge.ntsAVG2(ng)).and.(nAVG2(ng).eq.1))) THEN
         IF (DOMAIN(ng)%SouthWest_Test(tile)) THEN
-          AVG2time(ng)=AVG2time(ng)+REAL(nAVG2(ng),r8)*dt(ng)
+          IF (nAVG2(ng).eq.1) THEN
+            AVG2time(ng)=time(ng)
+          ELSE
+            AVG2time(ng)=AVG2time(ng)+REAL(nAVG2(ng),r8)*dt(ng)
+          END IF
         END IF
 !
 !  Set time-averaged factors for each C-grid variable type. Notice that
@@ -1660,7 +1665,7 @@
      &                                 AVERAGE2(ng)%avglhf(i,j)
             END DO
           END DO
-        END IF 
+        END IF
         IF (Aout2(idShea,ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR
