@@ -3308,11 +3308,16 @@
 !  the full I- and J-ranges are different.
 !-----------------------------------------------------------------------
 !
-      IF ((iic(ng).gt.ntsAVG(ng)).and.                                  &
-     &    (MOD(iic(ng)-1,nAVG(ng)).eq.0).and.                           &
-     &    ((iic(ng).ne.ntstart(ng)).or.(nrrec(ng).eq.0))) THEN
+      IF (((iic(ng).gt.ntsAVG(ng)).and.                                 &
+     &     (MOD(iic(ng)-1,nAVG(ng)).eq.0).and.                          &
+     &     ((iic(ng).ne.ntstart(ng)).or.(nrrec(ng).eq.0))).or.          &
+     &    ((iic(ng).ge.ntsAVG(ng)).and.(nAVG(ng).eq.1))) THEN
         IF (DOMAIN(ng)%SouthWest_Test(tile)) THEN
-          AVGtime(ng)=AVGtime(ng)+REAL(nAVG(ng),r8)*dt(ng)
+          IF (nAVG(ng).eq.1) THEN
+            AVGtime(ng)=time(ng)
+          ELSE
+            AVGtime(ng)=AVGtime(ng)+REAL(nAVG(ng),r8)*dt(ng)
+          END IF
         END IF
 !
 !  Set time-averaged factors for each C-grid variable type. Notice that
@@ -3656,7 +3661,8 @@
         IF (Aout(idPONsed,ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR
-              AVERAGE(ng)%avgPONsed(i,j)=fac*AVERAGE(ng)%avgPONsed(i,j)
+              AVERAGE(ng)%avgPONsed(i,j)=rfac(i,j)*                     &
+     &               AVERAGE(ng)%avgPONsed(i,j)
             END DO
           END DO
           IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
@@ -3675,7 +3681,7 @@
         IF (Aout(idOPALsed,ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR
-              AVERAGE(ng)%avgOPALsed(i,j)=fac*                          &
+              AVERAGE(ng)%avgOPALsed(i,j)=rfac(i,j)*                    &
      &                                    AVERAGE(ng)%avgOPALsed(i,j)
             END DO
           END DO
@@ -3695,7 +3701,7 @@
         IF (Aout(idDENITsed,ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR
-              AVERAGE(ng)%avgDENITsed(i,j)=fac*                         &
+              AVERAGE(ng)%avgDENITsed(i,j)=rfac(i,j)*                   &
      &                                    AVERAGE(ng)%avgDENITsed(i,j)
             END DO
           END DO
@@ -3715,7 +3721,8 @@
         IF (Aout(idPONbur,ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR
-              AVERAGE(ng)%avgPONbur(i,j)=fac*AVERAGE(ng)%avgPONbur(i,j)
+              AVERAGE(ng)%avgPONbur(i,j)=rfac(i,j)*                     &
+     &               AVERAGE(ng)%avgPONbur(i,j)
             END DO
           END DO
           IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
@@ -3734,7 +3741,7 @@
         IF (Aout(idOPALbur,ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR
-              AVERAGE(ng)%avgOPALbur(i,j)=fac*                          &
+              AVERAGE(ng)%avgOPALbur(i,j)=rfac(i,j)*                    &
      &                                    AVERAGE(ng)%avgOPALbur(i,j)
             END DO
           END DO
@@ -3756,7 +3763,7 @@
         IF (Aout(idNPP,ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR
-              AVERAGE(ng)%avgNPP(i,j)=fac*                              &
+              AVERAGE(ng)%avgNPP(i,j)=rfac(i,j)*                        &
      &                                    AVERAGE(ng)%avgNPP(i,j)
             END DO
           END DO
@@ -3888,26 +3895,6 @@
      &                          EWperiodic(ng), NSperiodic(ng),         &
      &                          AVERAGE(ng)%avghbbl)
 #   endif
-          END IF
-        END DO
-# endif
-      END IF
-!
-!-----------------------------------------------------------------------
-!  Convert accumulated sums into time-averages, if appropriate.
-!  Notice that we need to apply periodic conditions, if any, since
-!  the full I- and J-ranges are different.
-!-----------------------------------------------------------------------
-!
-      IF (((iic(ng).gt.ntsAVG(ng)).and.                                 &
-     &     (MOD(iic(ng)-1,nAVG(ng)).eq.0).and.                          &
-     &     ((iic(ng).ne.ntstart(ng)).or.(nrrec(ng).eq.0))).or.          &
-     &    ((iic(ng).ge.ntsAVG(ng)).and.(nAVG(ng).eq.1))) THEN
-        IF (DOMAIN(ng)%SouthWest_Test(tile)) THEN
-          IF (nAVG(ng).eq.1) THEN
-            AVGtime(ng)=time(ng)
-          ELSE
-            AVGtime(ng)=AVGtime(ng)+REAL(nAVG(ng),r8)*dt(ng)
           END IF
         END IF
 #  endif
@@ -4228,7 +4215,8 @@
         IF (Aout(idSSSf,ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR
-              AVERAGE(ng)%avgsssflx(i,j)=fac*AVERAGE(ng)%avgsssflx(i,j)
+              AVERAGE(ng)%avgsssflx(i,j)=rfac(i,j)*                     &
+     &                  AVERAGE(ng)%avgsssflx(i,j)
             END DO
           END DO
         END IF
@@ -4243,11 +4231,11 @@
             END DO
           END DO
           IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
-            CALL exchange_r2d_tile (ng, tile,                             &
+            CALL exchange_r2d_tile (ng, tile,                           &
      &                            LBi, UBi, LBj, UBj,                   &
      &                            AVERAGE(ng)%avgsrf)
 #   ifdef DISTRIBUTE
-            CALL mp_exchange2d (ng, tile, iNLM, 1,                        &
+            CALL mp_exchange2d (ng, tile, iNLM, 1,                      &
      &                        LBi, UBi, LBj, UBj,                       &
      &                        NghostPoints,                             &
      &                        EWperiodic(ng), NSperiodic(ng),           &
@@ -4370,7 +4358,8 @@
         IF (Aout(idUice,ng)) THEN
           DO j=JstrR,JendR
             DO i=Istr,IendR
-              AVERAGE(ng)%avguice(i,j)=fac*AVERAGE(ng)%avguice(i,j)
+              AVERAGE(ng)%avguice(i,j)=ufac(i,j)*                       &
+     &                AVERAGE(ng)%avguice(i,j)
             END DO
           END DO
           IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
@@ -4389,7 +4378,8 @@
         IF (Aout(idVice,ng)) THEN
           DO j=Jstr,JendR
             DO i=IstrR,IendR
-              AVERAGE(ng)%avgvice(i,j)=fac*AVERAGE(ng)%avgvice(i,j)
+              AVERAGE(ng)%avgvice(i,j)=vfac(i,j)*                       &
+     &                    AVERAGE(ng)%avgvice(i,j)
             END DO
           END DO
           IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
@@ -4436,7 +4426,8 @@
         IF (Aout(idAice,ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR
-              AVERAGE(ng)%avgaice(i,j)=fac*AVERAGE(ng)%avgaice(i,j)
+              AVERAGE(ng)%avgaice(i,j)=rfac(i,j)*                       &
+     &                       AVERAGE(ng)%avgaice(i,j)
             END DO
           END DO
           IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
@@ -4455,7 +4446,8 @@
         IF (Aout(idHice,ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR
-              AVERAGE(ng)%avghice(i,j)=fac*AVERAGE(ng)%avghice(i,j)
+              AVERAGE(ng)%avghice(i,j)=rfac(i,j)*                       &
+     &                          AVERAGE(ng)%avghice(i,j)
             END DO
           END DO
           IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
@@ -4474,7 +4466,8 @@
         IF (Aout(idHsno,ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR
-              AVERAGE(ng)%avghsno(i,j)=fac*AVERAGE(ng)%avghsno(i,j)
+              AVERAGE(ng)%avghsno(i,j)=rfac(i,j)*                       &
+     &                        AVERAGE(ng)%avghsno(i,j)
             END DO
           END DO
           IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
@@ -4493,7 +4486,8 @@
         IF (Aout(idTice,ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR
-              AVERAGE(ng)%avgtice(i,j)=fac*AVERAGE(ng)%avgtice(i,j)
+              AVERAGE(ng)%avgtice(i,j)=rfac(i,j)*                       &
+     &                       AVERAGE(ng)%avgtice(i,j)
             END DO
           END DO
           IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
@@ -4512,7 +4506,8 @@
         IF (Aout(idTimid,ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR
-              AVERAGE(ng)%avgtimid(i,j)=fac*AVERAGE(ng)%avgtimid(i,j)
+              AVERAGE(ng)%avgtimid(i,j)=rfac(i,j)*                      &
+     &                    AVERAGE(ng)%avgtimid(i,j)
             END DO
           END DO
           IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
@@ -4531,7 +4526,8 @@
         IF (Aout(idSfwat,ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR
-              AVERAGE(ng)%avgsfwat(i,j)=fac*AVERAGE(ng)%avgsfwat(i,j)
+              AVERAGE(ng)%avgsfwat(i,j)=rfac(i,j)*                      &
+     &                   AVERAGE(ng)%avgsfwat(i,j)
             END DO
           END DO
           IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
@@ -4550,7 +4546,8 @@
         IF (Aout(idAgeice,ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR
-              AVERAGE(ng)%avgageice(i,j)=fac*AVERAGE(ng)%avgageice(i,j)
+              AVERAGE(ng)%avgageice(i,j)=rfac(i,j)*                     &
+     &                     AVERAGE(ng)%avgageice(i,j)
             END DO
           END DO
           IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
@@ -4569,7 +4566,8 @@
         IF (Aout(idIomflx,ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR
-              AVERAGE(ng)%avgiomflx(i,j)=fac*AVERAGE(ng)%avgiomflx(i,j)
+              AVERAGE(ng)%avgiomflx(i,j)=rfac(i,j)*                     &
+     &                     AVERAGE(ng)%avgiomflx(i,j)
             END DO
           END DO
           IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
@@ -4588,7 +4586,8 @@
         IF (Aout(idSig11,ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR
-              AVERAGE(ng)%avgsig11(i,j)=fac*AVERAGE(ng)%avgsig11(i,j)
+              AVERAGE(ng)%avgsig11(i,j)=rfac(i,j)*                      &
+     &                    AVERAGE(ng)%avgsig11(i,j)
             END DO
           END DO
           IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
@@ -4607,7 +4606,8 @@
         IF (Aout(idSig12,ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR
-              AVERAGE(ng)%avgsig12(i,j)=fac*AVERAGE(ng)%avgsig12(i,j)
+              AVERAGE(ng)%avgsig12(i,j)=rfac(i,j)*                      &
+     &                   AVERAGE(ng)%avgsig12(i,j)
             END DO
           END DO
           IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
@@ -4626,7 +4626,8 @@
         IF (Aout(idSig22,ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR
-              AVERAGE(ng)%avgsig22(i,j)=fac*AVERAGE(ng)%avgsig22(i,j)
+              AVERAGE(ng)%avgsig22(i,j)=rfac(i,j)*                      &
+     &                   AVERAGE(ng)%avgsig22(i,j)
             END DO
           END DO
           IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
@@ -4645,7 +4646,8 @@
         IF (Aout(idT0mk,ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR
-              AVERAGE(ng)%avgT0mk(i,j)=fac*AVERAGE(ng)%avgT0mk(i,j)
+              AVERAGE(ng)%avgT0mk(i,j)=rfac(i,j)*                       &
+     &                   AVERAGE(ng)%avgT0mk(i,j)
             END DO
           END DO
           IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
@@ -4664,7 +4666,8 @@
         IF (Aout(idS0mk,ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR
-              AVERAGE(ng)%avgS0mk(i,j)=fac*AVERAGE(ng)%avgS0mk(i,j)
+              AVERAGE(ng)%avgS0mk(i,j)=rfac(i,j)*                       &
+     &                   AVERAGE(ng)%avgS0mk(i,j)
             END DO
           END DO
           IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
@@ -4683,7 +4686,8 @@
         IF (Aout(idWfr,ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR
-              AVERAGE(ng)%avgWfr(i,j)=fac*AVERAGE(ng)%avgWfr(i,j)
+              AVERAGE(ng)%avgWfr(i,j)=rfac(i,j)*                        &
+     &                   AVERAGE(ng)%avgWfr(i,j)
             END DO
           END DO
           IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
@@ -4702,7 +4706,8 @@
         IF (Aout(idWai,ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR
-              AVERAGE(ng)%avgWai(i,j)=fac*AVERAGE(ng)%avgWai(i,j)
+              AVERAGE(ng)%avgWai(i,j)=rfac(i,j)*                        &
+     &                   AVERAGE(ng)%avgWai(i,j)
             END DO
           END DO
           IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
@@ -4721,7 +4726,8 @@
         IF (Aout(idWao,ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR
-              AVERAGE(ng)%avgWao(i,j)=fac*AVERAGE(ng)%avgWao(i,j)
+              AVERAGE(ng)%avgWao(i,j)=rfac(i,j)*                        &
+     &                   AVERAGE(ng)%avgWao(i,j)
             END DO
           END DO
           IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
@@ -4740,7 +4746,8 @@
         IF (Aout(idWio,ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR
-              AVERAGE(ng)%avgWio(i,j)=fac*AVERAGE(ng)%avgWio(i,j)
+              AVERAGE(ng)%avgWio(i,j)=rfac(i,j)*                        &
+     &                   AVERAGE(ng)%avgWio(i,j)
             END DO
           END DO
           IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
@@ -4759,7 +4766,8 @@
         IF (Aout(idWro,ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR
-              AVERAGE(ng)%avgWro(i,j)=fac*AVERAGE(ng)%avgWro(i,j)
+              AVERAGE(ng)%avgWro(i,j)=rfac(i,j)*                        &
+     &                   AVERAGE(ng)%avgWro(i,j)
             END DO
           END DO
           IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
@@ -4767,9 +4775,9 @@
      &                              LBi, UBi, LBj, UBj,                 &
      &                              AVERAGE(ng)%avgWro)
 #  ifdef DISTRIBUTE
-            CALL mp_exchange2d (ng, tile, iNLM, 1,                        &
-     &                          LBi, UBi, LBj, UBj,                       &
-     &                          NghostPoints,                             &
+            CALL mp_exchange2d (ng, tile, iNLM, 1,                      &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          NghostPoints,                           &
      &                          EWperiodic(ng), NSperiodic(ng),         &
      &                          AVERAGE(ng)%avgWro)
 #  endif
@@ -4787,9 +4795,9 @@
      &                              LBi, UBi, LBj, UBj,                 &
      &                              AVERAGE(ng)%avgutau_iw)
 #  ifdef DISTRIBUTE
-            CALL mp_exchange2d (ng, tile, iNLM, 1,                        &
-     &                          LBi, UBi, LBj, UBj,                       &
-     &                          NghostPoints,                             &
+            CALL mp_exchange2d (ng, tile, iNLM, 1,                      &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          NghostPoints,                           &
      &                          EWperiodic(ng), NSperiodic(ng),         &
      &                          AVERAGE(ng)%avgutau_iw)
 #  endif
@@ -4798,29 +4806,30 @@
         IF (Aout(idChuiw,ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR
-              AVERAGE(ng)%avgchu_iw(i,j)=fac*AVERAGE(ng)%avgchu_iw(i,j)
+              AVERAGE(ng)%avgchu_iw(i,j)=rfac(i,j)*                     &
+     &                   AVERAGE(ng)%avgchu_iw(i,j)
             END DO
           END DO
           IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
             CALL exchange_r2d_tile (ng, tile,                           &
      &                              LBi, UBi, LBj, UBj,                 &
      &                              AVERAGE(ng)%avgchu_iw)
-# ifdef DISTRIBUTE
+#   ifdef DISTRIBUTE
             CALL mp_exchange2d (ng, tile, iNLM, 1,                      &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          NghostPoints,                           &
      &                          EWperiodic(ng), NSperiodic(ng),         &
      &                          AVERAGE(ng)%avgchu_iw)
-# endif
+#   endif
           END IF
         END IF
-# endif
-# ifdef ICE_BIO
-#  ifdef BERING_10K
+#  endif
+#  ifdef ICE_BIO
         IF (Aout(idIcePhL,ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR
-              AVERAGE(ng)%avgIPhL(i,j)=fac*AVERAGE(ng)%avgIPhL(i,j)
+              AVERAGE(ng)%avgIPhL(i,j)=rfac(i,j)*                       &
+     &                   AVERAGE(ng)%avgIPhL(i,j)
             END DO
           END DO
           IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
@@ -4839,7 +4848,8 @@
         IF (Aout(idIceNO3,ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR
-              AVERAGE(ng)%avgINO3(i,j)=fac*AVERAGE(ng)%avgINO3(i,j)
+              AVERAGE(ng)%avgINO3(i,j)=rfac(i,j)*                       &
+     &                   AVERAGE(ng)%avgINO3(i,j)
             END DO
           END DO
           IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
@@ -4858,7 +4868,8 @@
         IF (Aout(idIceNH4,ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR
-              AVERAGE(ng)%avgINH4(i,j)=fac*AVERAGE(ng)%avgINH4(i,j)
+              AVERAGE(ng)%avgINH4(i,j)=rfac(i,j)*                       &
+     &                   AVERAGE(ng)%avgINH4(i,j)
             END DO
           END DO
           IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
@@ -4877,33 +4888,32 @@
         IF (Aout(idIceLog,ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR
-              AVERAGE(ng)%avgILog(i,j)=fac*AVERAGE(ng)%avgILog(i,j)
+              AVERAGE(ng)%avgILog(i,j)=rfac(i,j)*AVERAGE(ng)%avgILog(i,j)
             END DO
           END DO
           IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
             CALL exchange_r2d_tile (ng, tile,                           &
-     &                              LBi, UBi, LBj, UBj,                   &
+     &                              LBi, UBi, LBj, UBj,                 &
      &                              AVERAGE(ng)%avgILog)
-#  ifdef DISTRIBUTE
-            CALL mp_exchange2d (ng, tile, iNLM, 1,                        &
-     &                          LBi, UBi, LBj, UBj,                       &
-     &                          NghostPoints,                             &
+#   ifdef DISTRIBUTE
+            CALL mp_exchange2d (ng, tile, iNLM, 1,                      &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          NghostPoints,                           &
      &                          EWperiodic(ng), NSperiodic(ng),         &
      &                          AVERAGE(ng)%avgILog)
-#  endif
+#   endif
           END IF
         END IF
 #  endif
-# endif
 
-# ifdef BEST_NPZ
-#  ifdef BENTHIC
+#  ifdef BEST_NPZ
+#   ifdef BENTHIC
         DO itrc=1,NBeT(ng)
           DO k=1,NBL(ng)
             DO j=JstrR,JendR
               DO i=IstrR,IendR
                 AVERAGE(ng)%avgbt(i,j,k,itrc)=                          &
-     &                     fac*AVERAGE(ng)%avgbt(i,j,k,itrc)
+     &                     rfac(i,j)*AVERAGE(ng)%avgbt(i,j,k,itrc)
               END DO
             END DO
           END DO
@@ -4911,22 +4921,22 @@
             CALL exchange_r2d_tile (ng, tile,                           &
      &                              LBi, UBi, LBj, UBj, 1, NBL(ng),     &
      &                              AVERAGE(ng)%avgbt(:,:,:,itrc))
-#   ifdef DISTRIBUTE
+#    ifdef DISTRIBUTE
             CALL mp_exchange3d (ng, tile, iNLM, 1,                      &
      &                          LBi, UBi, LBj, UBj, 1, N(ng),           &
      &                          NghostPoints,                           &
      &                          EWperiodic(ng), NSperiodic(ng),         &
      &                          AVERAGE(ng)%avgbt(:,:,:,itrc))
-#   endif
+#    endif
           END IF
         END DO
-#  endif
-#  ifdef CLIM_ICE_1D
+#   endif
+#   ifdef CLIM_ICE_1D
         DO itrc=1,NIceT(ng)
           DO j=JstrR,JendR
             DO i=IstrR,IendR
               AVERAGE(ng)%avgit(i,j,itrc)=                              &
-     &                     fac*AVERAGE(ng)%avgit(i,j,itrc)
+     &                     rfac(i,j)*AVERAGE(ng)%avgit(i,j,itrc)
             END DO
           END DO
         END DO
@@ -4934,22 +4944,22 @@
           CALL exchange_r2d_tile (ng, tile,                             &
      &                            LBi, UBi, LBj, UBj, 1, NIceT(ng),     &
      &                            AVERAGE(ng)%avgit)
-#   ifdef DISTRIBUTE
+#    ifdef DISTRIBUTE
           CALL mp_exchange3d (ng, tile, iNLM, 1,                        &
      &                          LBi, UBi, LBj, UBj, 1, NIceT(ng),       &
      &                          NghostPoints,                           &
      &                          EWperiodic(ng), NSperiodic(ng),         &
      &                          AVERAGE(ng)%avgit)
-#   endif
+#    endif
           END IF
-#  endif
-#  ifdef STATIONARY
+#   endif
+#   ifdef STATIONARY
         DO itrc=1,NTS(ng)
           DO k=1,N(ng)
             DO j=JstrR,JendR
               DO i=IstrR,IendR
                 AVERAGE(ng)%avgst(i,j,k,itrc)=                          &
-     &                     fac*AVERAGE(ng)%avgst(i,j,k,itrc)
+     &                     rfac(i,j)*AVERAGE(ng)%avgst(i,j,k,itrc)
               END DO
             END DO
           END DO
@@ -4957,22 +4967,22 @@
             CALL exchange_r2d_tile (ng, tile,                           &
      &                              LBi, UBi, LBj, UBj, 1, N(ng),       &
      &                              AVERAGE(ng)%avgst(:,:,:,itrc))
-#   ifdef DISTRIBUTE
+#    ifdef DISTRIBUTE
             CALL mp_exchange3d (ng, tile, iNLM, 1,                      &
      &                          LBi, UBi, LBj, UBj, 1, N(ng),           &
      &                          NghostPoints,                           &
      &                          EWperiodic(ng), NSperiodic(ng),         &
      &                          AVERAGE(ng)%avgst(:,:,:,itrc))
-#   endif
+#    endif
           END IF
         END DO
-#  endif
-#  ifdef STATIONARY2
+#   endif
+#   ifdef STATIONARY2
         DO itrc=1,NTS2(ng)
           DO j=JstrR,JendR
             DO i=IstrR,IendR
               AVERAGE(ng)%avgst2(i,j,itrc)=                             &
-     &                     fac*AVERAGE(ng)%avgst2(i,j,itrc)
+     &                     rfac(i,j)*AVERAGE(ng)%avgst2(i,j,itrc)
             END DO
           END DO
         END DO
@@ -4980,14 +4990,15 @@
           CALL exchange_r2d_tile (ng, tile,                             &
      &                            LBi, UBi, LBj, UBj, 1, NTS2(ng),      &
      &                            AVERAGE(ng)%avgst2)
-#   ifdef DISTRIBUTE
+#    ifdef DISTRIBUTE
           CALL mp_exchange3d (ng, tile, iNLM, 1,                        &
      &                        LBi, UBi, LBj, UBj, 1, NTS2(ng),          &
      &                        NghostPoints,                             &
      &                        EWperiodic(ng), NSperiodic(ng),           &
      &                        AVERAGE(ng)%avgst2)
-#   endif
+#    endif
         END IF
+#   endif
 #  endif
 # endif
 
