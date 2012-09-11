@@ -104,6 +104,7 @@
 !***********************************************************************
 !
       USE mod_param
+      USE mod_ncparam
       USE mod_scalars
 #ifdef OFFLINE_BIOLOGY
       USE mod_biology
@@ -392,11 +393,11 @@
                   cff2=MAX(dRdx(i+1,j,k2),0.0_r8)
                   cff3=MIN(dRdx(i  ,j,k2),0.0_r8)
                   cff4=MIN(dRdx(i+1,j,k1),0.0_r8)
-                  cff=fac*                                              &
+                  cff=fac* (                                            &
      &                cff1*(cff1*dTdr(i,j,k2)-dTdx(i  ,j,k1))+          &
      &                cff2*(cff2*dTdr(i,j,k2)-dTdx(i+1,j,k2))+          &
      &                cff3*(cff3*dTdr(i,j,k2)-dTdx(i  ,j,k2))+          &
-     &                cff4*(cff4*dTdr(i,j,k2)-dTdx(i+1,j,k1))
+     &                cff4*(cff4*dTdr(i,j,k2)-dTdx(i+1,j,k1)) )
                   cff1=MAX(dRde(i,j  ,k1),0.0_r8)
                   cff2=MAX(dRde(i,j+1,k2),0.0_r8)
                   cff3=MIN(dRde(i,j  ,k2),0.0_r8)
@@ -412,11 +413,11 @@
                   fac=0.5_r8*diff4(i,j,itrc)
 #endif
                   cff=cff+                                              &
-     &                fac*                                              &
+     &                fac* (                                            &
      &                cff1*(cff1*dTdr(i,j,k2)-dTde(i,j  ,k1))+          &
      &                cff2*(cff2*dTdr(i,j,k2)-dTde(i,j+1,k2))+          &
      &                cff3*(cff3*dTdr(i,j,k2)-dTde(i,j  ,k2))+          &
-     &                cff4*(cff4*dTdr(i,j,k2)-dTde(i,j+1,k1))
+     &                cff4*(cff4*dTdr(i,j,k2)-dTde(i,j+1,k1)) )
                   FS(i,j,k2)=cff*FS(i,j,k2)
                 END DO
               END DO
@@ -679,11 +680,11 @@
                   cff2=MAX(dRdx(i+1,j,k2),0.0_r8)
                   cff3=MIN(dRdx(i  ,j,k2),0.0_r8)
                   cff4=MIN(dRdx(i+1,j,k1),0.0_r8)
-                  cff=fac*                                              &
+                  cff=fac* (                                            &
      &                cff1*(cff1*dTdr(i,j,k2)-dTdx(i  ,j,k1))+          &
      &                cff2*(cff2*dTdr(i,j,k2)-dTdx(i+1,j,k2))+          &
      &                cff3*(cff3*dTdr(i,j,k2)-dTdx(i  ,j,k2))+          &
-     &                cff4*(cff4*dTdr(i,j,k2)-dTdx(i+1,j,k1))
+     &                cff4*(cff4*dTdr(i,j,k2)-dTdx(i+1,j,k1)) )
 #ifdef DIFF_3DCOEF
 # ifdef TS_U3ADV_SPLIT
                   fac=0.125_r8*(diff3d_v(i,j,k  )+diff3d_v(i,j+1,k  )+  &
@@ -699,11 +700,11 @@
                   cff3=MIN(dRde(i,j  ,k2),0.0_r8)
                   cff4=MIN(dRde(i,j+1,k1),0.0_r8)
                   cff=cff+                                              &
-     &                fac*                                              &
+     &                fac* (                                            &
      &                cff1*(cff1*dTdr(i,j,k2)-dTde(i,j  ,k1))+          &
      &                cff2*(cff2*dTdr(i,j,k2)-dTde(i,j+1,k2))+          &
      &                cff3*(cff3*dTdr(i,j,k2)-dTde(i,j  ,k2))+          &
-     &                cff4*(cff4*dTdr(i,j,k2)-dTde(i,j+1,k1))
+     &                cff4*(cff4*dTdr(i,j,k2)-dTde(i,j+1,k1)) )
                   FS(i,j,k2)=cff*FS(i,j,k2)
                 END DO
               END DO
