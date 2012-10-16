@@ -2,7 +2,7 @@
 #ifdef NONLINEAR
       SUBROUTINE output (ng)
 !
-!svn $Id: output.F 1274 2010-07-09 23:28:38Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
