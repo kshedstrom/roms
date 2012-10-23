@@ -572,6 +572,49 @@
      &                 1, (/recdim/), Aval, Vinfo, ncname,              &
      &                 SetParAccess = .FALSE.)
         IF (exit_flag.ne.NoError) RETURN
+# ifdef ICE_MODEL
+        Vinfo( 1)='linew'
+        Vinfo( 2)='ice equations time level index, linew'
+        status=def_var(ng, iNLM, RST(ng)%ncid, varid, nf90_int,         &
+     &                 1, (/recdim/), Aval, Vinfo, ncname,              &
+     &                 SetParAccess = .FALSE.)
+        IF (exit_flag.ne.NoError) RETURN
+
+        Vinfo( 1)='liold'
+        Vinfo( 2)='ice equations time level index, liold'
+        status=def_var(ng, iNLM, RST(ng)%ncid, varid, nf90_int,         &
+     &                 1, (/recdim/), Aval, Vinfo, ncname,              &
+     &                 SetParAccess = .FALSE.)
+        IF (exit_flag.ne.NoError) RETURN
+
+        Vinfo( 1)='liunw'
+        Vinfo( 2)='ice equations time level index, liunw'
+        status=def_var(ng, iNLM, RST(ng)%ncid, varid, nf90_int,         &
+     &                 1, (/recdim/), Aval, Vinfo, ncname,              &
+     &                 SetParAccess = .FALSE.)
+        IF (exit_flag.ne.NoError) RETURN
+
+        Vinfo( 1)='liuol'
+        Vinfo( 2)='ice equations time level index, liuol'
+        status=def_var(ng, iNLM, RST(ng)%ncid, varid, nf90_int,         &
+     &                 1, (/recdim/), Aval, Vinfo, ncname,              &
+     &                 SetParAccess = .FALSE.)
+        IF (exit_flag.ne.NoError) RETURN
+
+        Vinfo( 1)='lienw'
+        Vinfo( 2)='ice equations time level index, lienw'
+        status=def_var(ng, iNLM, RST(ng)%ncid, varid, nf90_int,         &
+     &                 1, (/recdim/), Aval, Vinfo, ncname,              &
+     &                 SetParAccess = .FALSE.)
+        IF (exit_flag.ne.NoError) RETURN
+
+        Vinfo( 1)='lieol'
+        Vinfo( 2)='ice equations time level index, lieol'
+        status=def_var(ng, iNLM, RST(ng)%ncid, varid, nf90_int,         &
+     &                 1, (/recdim/), Aval, Vinfo, ncname,              &
+     &                 SetParAccess = .FALSE.)
+        IF (exit_flag.ne.NoError) RETURN
+# endif
 #endif
 !
 !  Define model time.
@@ -1221,7 +1264,7 @@
         Vinfo(22)='coordinates'
         Aval(5)=REAL(Iinfo(1,idHsbl,ng),r8)
         status=def_var(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idHsbl),     &
-     &                 NF_FRST, nvd3, t2dgrd, Aval, Vinfo, ncname)
+     &                 NF_FRST, nvd3, sr2dgrd, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 # endif
 
@@ -1245,7 +1288,7 @@
         Vinfo(22)='coordinates'
         Aval(5)=REAL(Iinfo(1,idHbbl,ng),r8)
         status=def_var(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idHbbl),     &
-     &                 NF_FRST, nvd3, t2dgrd, Aval, Vinfo, ncname)
+     &                 NF_FRST, nvd3, sr2dgrd, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 # endif
 # if defined BVF_MIXING || defined LMD_MIXING || \
@@ -1563,8 +1606,13 @@
 #endif
         Vinfo(22)='coordinates'
         Aval(5)=REAL(Iinfo(1,idUice,ng),r8)
+# ifdef PERFECT_RESTART
+        status=def_var(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idUice),     &
+     &                 NF_FRST, nvd4, ru2dgrd, Aval, Vinfo, ncname)
+# else
         status=def_var(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idUice),     &
      &                 NF_FRST, nvd3, u2dgrd, Aval, Vinfo, ncname)
+# endif
         IF (exit_flag.ne.NoError) RETURN
 !
 !  Define 2D ice momentum in the ETA-direction.
@@ -1579,8 +1627,13 @@
 #endif
         Vinfo(22)='coordinates'
         Aval(5)=REAL(Iinfo(1,idVice,ng),r8)
+# ifdef PERFECT_RESTART
+        status=def_var(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idVice),     &
+     &                 NF_FRST, nvd4, rv2dgrd, Aval, Vinfo, ncname)
+# else
         status=def_var(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idVice),     &
      &                 NF_FRST, nvd3, v2dgrd, Aval, Vinfo, ncname)
+# endif
         IF (exit_flag.ne.NoError) RETURN
 !
 !  Define ice concentration.
@@ -1595,11 +1648,16 @@
 #endif
         Vinfo(22)='coordinates'
         Aval(5)=REAL(Iinfo(1,idAice,ng),r8)
+# ifdef PERFECT_RESTART
+        status=def_var(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idAice),     &
+     &                 NF_FRST, nvd4, r2dgrd, Aval, Vinfo, ncname)
+# else
         status=def_var(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idAice),     &
      &                 NF_FRST, nvd3, t2dgrd, Aval, Vinfo, ncname)
+# endif
         IF (exit_flag.ne.NoError) RETURN
 !
-!  Define ice average thicknessn.
+!  Define ice average thickness.
 !
         Vinfo( 1)=Vname(1,idHice)
         Vinfo( 2)=Vname(2,idHice)
@@ -1611,8 +1669,13 @@
 #endif
         Vinfo(22)='coordinates'
         Aval(5)=REAL(Iinfo(1,idHice,ng),r8)
+# ifdef PERFECT_RESTART
+        status=def_var(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idHice),     &
+     &                 NF_FRST, nvd4, r2dgrd, Aval, Vinfo, ncname)
+# else
         status=def_var(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idHice),     &
      &                 NF_FRST, nvd3, t2dgrd, Aval, Vinfo, ncname)
+# endif
         IF (exit_flag.ne.NoError) RETURN
 !
 !  Define ice/snow surface temperature.
@@ -1628,7 +1691,7 @@
         Vinfo(22)='coordinates'
         Aval(5)=REAL(Iinfo(1,idTice,ng),r8)
         status=def_var(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idTice),     &
-     &                 NF_FRST, nvd3, t2dgrd, Aval, Vinfo, ncname)
+     &                 NF_FRST, nvd3, sr2dgrd, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 !
 !  Define snow thickness.
@@ -1643,8 +1706,13 @@
 #endif
         Vinfo(22)='coordinates'
         Aval(5)=REAL(Iinfo(1,idHsno,ng),r8)
+# ifdef PERFECT_RESTART
+        status=def_var(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idHsno),     &
+     &                 NF_FRST, nvd4, r2dgrd, Aval, Vinfo, ncname)
+# else
         status=def_var(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idHsno),     &
      &                 NF_FRST, nvd3, t2dgrd, Aval, Vinfo, ncname)
+# endif
         IF (exit_flag.ne.NoError) RETURN
 !
 !  Define surface water thickness (on ice).
@@ -1659,8 +1727,13 @@
 #endif
         Vinfo(22)='coordinates'
         Aval(5)=REAL(Iinfo(1,idSfwat,ng),r8)
+# ifdef PERFECT_RESTART
+        status=def_var(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idSfwat),    &
+     &                 NF_FRST, nvd4, r2dgrd, Aval, Vinfo, ncname)
+# else
         status=def_var(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idSfwat),    &
      &                 NF_FRST, nvd3, t2dgrd, Aval, Vinfo, ncname)
+# endif
         IF (exit_flag.ne.NoError) RETURN
 !
 !  Define ice age.
@@ -1675,8 +1748,13 @@
 #endif
         Vinfo(22)='coordinates'
         Aval(5)=REAL(Iinfo(1,idAgeice,ng),r8)
+# ifdef PERFECT_RESTART
+        status=def_var(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idAgeice),   &
+     &                 NF_FRST, nvd4, r2dgrd, Aval, Vinfo, ncname)
+# else
         status=def_var(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idAgeice),   &
      &                 NF_FRST, nvd3, t2dgrd, Aval, Vinfo, ncname)
+# endif
         IF (exit_flag.ne.NoError) RETURN
 !
 !  Define ice internal temperature.
@@ -1691,8 +1769,13 @@
 #endif
         Vinfo(22)='coordinates'
         Aval(5)=REAL(Iinfo(1,idTimid,ng),r8)
+# ifdef PERFECT_RESTART
+        status=def_var(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idTimid),    &
+     &                 NF_FRST, nvd4, r2dgrd, Aval, Vinfo, ncname)
+# else
         status=def_var(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idTimid),    &
      &                 NF_FRST, nvd3, t2dgrd, Aval, Vinfo, ncname)
+# endif
         IF (exit_flag.ne.NoError) RETURN
 !
 !  Define internal ice stress component 11.
@@ -1707,8 +1790,13 @@
 #endif
         Vinfo(22)='coordinates'
         Aval(5)=REAL(Iinfo(1,idSig11,ng),r8)
+# ifdef PERFECT_RESTART
+        status=def_var(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idSig11),    &
+     &                 NF_FRST, nvd4, r2dgrd, Aval, Vinfo, ncname)
+# else
         status=def_var(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idSig11),    &
      &                 NF_FRST, nvd3, t2dgrd, Aval, Vinfo, ncname)
+# endif
         IF (exit_flag.ne.NoError) RETURN
 !
 !  Define internal ice stress component 22.
@@ -1723,8 +1811,13 @@
 #endif
         Vinfo(22)='coordinates'
         Aval(5)=REAL(Iinfo(1,idSig22,ng),r8)
+# ifdef PERFECT_RESTART
+        status=def_var(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idSig22),    &
+     &                 NF_FRST, nvd4, r2dgrd, Aval, Vinfo, ncname)
+# else
         status=def_var(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idSig22),    &
      &                 NF_FRST, nvd3, t2dgrd, Aval, Vinfo, ncname)
+# endif
         IF (exit_flag.ne.NoError) RETURN
 !
 !  Define internal ice stress component 12.
@@ -1739,8 +1832,13 @@
 #endif
         Vinfo(22)='coordinates'
         Aval(5)=REAL(Iinfo(1,idSig12,ng),r8)
+# ifdef PERFECT_RESTART
+        status=def_var(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idSig12),    &
+     &                 NF_FRST, nvd4, r2dgrd, Aval, Vinfo, ncname)
+# else
         status=def_var(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idSig12),    &
      &                 NF_FRST, nvd3, t2dgrd, Aval, Vinfo, ncname)
+# endif
         IF (exit_flag.ne.NoError) RETURN
 !
 !  Define ice-water friction velocity.
@@ -1756,7 +1854,7 @@
         Vinfo(22)='coordinates'
         Aval(5)=REAL(Iinfo(1,idTauiw,ng),r8)
         status=def_var(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idTauiw),    &
-     &                 NF_FRST, nvd3, t2dgrd, Aval, Vinfo, ncname)
+     &                 NF_FRST, nvd3, sr2dgrd, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 !
 !  Define ice-water momentum transfer coefficient.
@@ -1772,7 +1870,7 @@
         Vinfo(22)='coordinates'
         Aval(5)=REAL(Iinfo(1,idChuiw,ng),r8)
         status=def_var(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idChuiw),    &
-     &                 NF_FRST, nvd3, t2dgrd, Aval, Vinfo, ncname)
+     &                 NF_FRST, nvd3, sr2dgrd, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 !
 !  Define salinity of molecular sub-layer under ice.
@@ -1788,7 +1886,7 @@
         Vinfo(22)='coordinates'
         Aval(5)=REAL(Iinfo(1,idS0mk,ng),r8)
         status=def_var(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idS0mk),     &
-     &                 NF_FRST, nvd3, t2dgrd, Aval, Vinfo, ncname)
+     &                 NF_FRST, nvd3, sr2dgrd, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 !
 !  Define temperature of molecular sub-layer under ice.
@@ -1804,7 +1902,7 @@
         Vinfo(22)='coordinates'
         Aval(5)=REAL(Iinfo(1,idT0mk,ng),r8)
         status=def_var(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idT0mk),     &
-     &                 NF_FRST, nvd3, t2dgrd, Aval, Vinfo, ncname)
+     &                 NF_FRST, nvd3, sr2dgrd, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 #endif
 #ifdef NCEP_FLUXES

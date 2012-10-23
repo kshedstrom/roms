@@ -181,7 +181,7 @@
         Perfect3D=.TRUE.
       END IF
 #endif
-      PerfectRST(ng)=Perfect2d.or.Perfect3d
+      PerfectRST(ng)=Perfect2D.or.Perfect3D
 !
 !  Determine variables to read.
 !
@@ -416,6 +416,49 @@
      &                          start = (/InpRec/),                     &
      &                          total = (/1/))
           IF (exit_flag.ne.NoError) RETURN
+# ifdef ICE_MODEL
+          CALL netcdf_get_ivar (ng, IDmod, ncname, 'linew',             &
+     &                          linew(ng:),                             &
+     &                          ncid = ncINPid,                         &
+     &                          start = (/InpRec/),                     &
+     &                          total = (/1/))
+          IF (exit_flag.ne.NoError) RETURN
+
+          CALL netcdf_get_ivar (ng, IDmod, ncname, 'liold',             &
+     &                          liold(ng:),                             &
+     &                          ncid = ncINPid,                         &
+     &                          start = (/InpRec/),                     &
+     &                          total = (/1/))
+          IF (exit_flag.ne.NoError) RETURN
+
+          CALL netcdf_get_ivar (ng, IDmod, ncname, 'liunw',             &
+     &                          liunw(ng:),                             &
+     &                          ncid = ncINPid,                         &
+     &                          start = (/InpRec/),                     &
+     &                          total = (/1/))
+          IF (exit_flag.ne.NoError) RETURN
+
+          CALL netcdf_get_ivar (ng, IDmod, ncname, 'liuol',             &
+     &                          liuol(ng:),                             &
+     &                          ncid = ncINPid,                         &
+     &                          start = (/InpRec/),                     &
+     &                          total = (/1/))
+          IF (exit_flag.ne.NoError) RETURN
+
+          CALL netcdf_get_ivar (ng, IDmod, ncname, 'lienw',             &
+     &                          lienw(ng:),                             &
+     &                          ncid = ncINPid,                         &
+     &                          start = (/InpRec/),                     &
+     &                          total = (/1/))
+          IF (exit_flag.ne.NoError) RETURN
+
+          CALL netcdf_get_ivar (ng, IDmod, ncname, 'lieol',             &
+     &                          lieol(ng:),                             &
+     &                          ncid = ncINPid,                         &
+     &                          start = (/InpRec/),                     &
+     &                          total = (/1/))
+          IF (exit_flag.ne.NoError) RETURN
+# endif
         END IF
 # endif
 # if defined SEDIMENT && defined SED_MORPH
@@ -456,12 +499,12 @@
         IF (get_var(idFsur)) THEN
           foundit=find_string(var_name, n_var, TRIM(Vname(1,idFsur)),   &
      &                        varid)
-          IF (Perfect2d) THEN
+          IF (Perfect2D) THEN
             gtype=var_flag(varid)*r3dvar
           ELSE
             gtype=var_flag(varid)*r2dvar
           END IF
-          IF (Perfect2d) THEN
+          IF (Perfect2D) THEN
             status=nf_fread3d(ng, IDmod, ncname, ncINPid,               &
      &                        Vname(1,idFsur), varid,                   &
      &                        InpRec, gtype, Vsize,                     &
@@ -1536,7 +1579,22 @@
 !
         foundit=find_string(var_name, n_var, TRIM(Vname(1,idUice)),     &
      &                        varid)
-        gtype=var_flag(varid)*u2dvar
+          IF (Perfect2D) THEN
+            gtype=var_flag(varid)*u3dvar
+          ELSE
+            gtype=var_flag(varid)*u2dvar
+          END IF
+          IF (Perfect2D) THEN
+            status=nf_fread3d(ng, IDmod, ncname, ncINPid,               &
+     &                        Vname(1,idUice), varid,                   &
+     &                        InpRec, gtype, Vsize,                     &
+     &                        LBi, UBi, LBj, UBj, 1, 2,                 &
+     &                        Fscl, Fmin, Fmax,                         &
+# ifdef MASKING
+     &                        GRID(ng) % umask,                         &
+# endif
+     &                        ICE(ng) % ui)
+          ELSE
         status=nf_fread2d(ng, IDmod, ncname, ncINPid,                   &
      &                Vname(1,idUice), varid, InpRec, gtype,            &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
@@ -1544,7 +1602,8 @@
 #   ifdef MASKING
      &                GRID(ng) % umask,                                 &
 #   endif
-     &                ICE(ng) % ui(:,:,1))
+     &                ICE(ng) % ui(:,:,Tindex))
+          END IF
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
             WRITE (stdout,30) string, TRIM(Vname(1,idUice)),            &
@@ -1563,6 +1622,22 @@
 !
         foundit=find_string(var_name, n_var, TRIM(Vname(1,idVice)),     &
      &                        varid)
+          IF (Perfect2D) THEN
+            gtype=var_flag(varid)*v3dvar
+          ELSE
+            gtype=var_flag(varid)*v2dvar
+          END IF
+          IF (Perfect2D) THEN
+            status=nf_fread3d(ng, IDmod, ncname, ncINPid,               &
+     &                        Vname(1,idVice), varid,                   &
+     &                        InpRec, gtype, Vsize,                     &
+     &                        LBi, UBi, LBj, UBj, 1, 2,                 &
+     &                        Fscl, Fmin, Fmax,                         &
+# ifdef MASKING
+     &                        GRID(ng) % rmask,                         &
+# endif
+     &                        ICE(ng) % vi)
+          ELSE
         gtype=var_flag(varid)*v2dvar
         status=nf_fread2d(ng, IDmod, ncname, ncINPid,                   &
      &                Vname(1,idVice), varid, InpRec, gtype,            &
@@ -1571,7 +1646,8 @@
 #   ifdef MASKING
      &                GRID(ng) % vmask,                                 &
 #   endif
-     &                ICE(ng) % vi(:,:,1))
+     &                ICE(ng) % vi(:,:,Tindex))
+          END IF
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
             WRITE (stdout,30) string, TRIM(Vname(1,idVice)),            &
@@ -1590,7 +1666,22 @@
 !
         foundit=find_string(var_name, n_var, TRIM(Vname(1,idAice)),     &
      &                        varid)
-        gtype=var_flag(varid)*r2dvar
+          IF (Perfect2D) THEN
+            gtype=var_flag(varid)*r3dvar
+          ELSE
+            gtype=var_flag(varid)*r2dvar
+          END IF
+          IF (Perfect2D) THEN
+            status=nf_fread3d(ng, IDmod, ncname, ncINPid,               &
+     &                        Vname(1,idAice), varid,                   &
+     &                        InpRec, gtype, Vsize,                     &
+     &                        LBi, UBi, LBj, UBj, 1, 2,                 &
+     &                        Fscl, Fmin, Fmax,                         &
+# ifdef MASKING
+     &                        GRID(ng) % rmask,                         &
+# endif
+     &                        ICE(ng) % ai)
+          ELSE
         status=nf_fread2d(ng, IDmod, ncname, ncINPid,                   &
      &                Vname(1,idAice), varid, InpRec, gtype,            &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
@@ -1598,7 +1689,8 @@
 #   ifdef MASKING
      &                GRID(ng) % rmask,                                 &
 #   endif
-     &                ICE(ng) % ai(:,:,1))
+     &                ICE(ng) % ai(:,:,Tindex))
+          END IF
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
             WRITE (stdout,30) string, TRIM(Vname(1,idAice)),            &
@@ -1617,7 +1709,22 @@
 !
         foundit=find_string(var_name, n_var, TRIM(Vname(1,idHice)),     &
      &                        varid)
-        gtype=var_flag(varid)*r2dvar
+          IF (Perfect2D) THEN
+            gtype=var_flag(varid)*r3dvar
+          ELSE
+            gtype=var_flag(varid)*r2dvar
+          END IF
+          IF (Perfect2D) THEN
+            status=nf_fread3d(ng, IDmod, ncname, ncINPid,               &
+     &                        Vname(1,idHice), varid,                   &
+     &                        InpRec, gtype, Vsize,                     &
+     &                        LBi, UBi, LBj, UBj, 1, 2,                 &
+     &                        Fscl, Fmin, Fmax,                         &
+# ifdef MASKING
+     &                        GRID(ng) % rmask,                         &
+# endif
+     &                        ICE(ng) % hi)
+          ELSE
         status=nf_fread2d(ng, IDmod, ncname, ncINPid,                   &
      &                Vname(1,idHice), varid, InpRec, gtype,            &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
@@ -1625,7 +1732,8 @@
 #   ifdef MASKING
      &                GRID(ng) % rmask,                                 &
 #   endif
-     &                ICE(ng) % hi(:,:,1))
+     &                ICE(ng) % hi(:,:,Tindex))
+          END IF
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
             WRITE (stdout,30) string, TRIM(Vname(1,idHice)),            &
@@ -1644,7 +1752,22 @@
 !
         foundit=find_string(var_name, n_var, TRIM(Vname(1,idHsno)),     &
      &                        varid)
-        gtype=var_flag(varid)*r2dvar
+          IF (Perfect2D) THEN
+            gtype=var_flag(varid)*r3dvar
+          ELSE
+            gtype=var_flag(varid)*r2dvar
+          END IF
+          IF (Perfect2D) THEN
+            status=nf_fread3d(ng, IDmod, ncname, ncINPid,               &
+     &                        Vname(1,idHsno), varid,                   &
+     &                        InpRec, gtype, Vsize,                     &
+     &                        LBi, UBi, LBj, UBj, 1, 2,                 &
+     &                        Fscl, Fmin, Fmax,                         &
+# ifdef MASKING
+     &                        GRID(ng) % rmask,                         &
+# endif
+     &                        ICE(ng) % hsn)
+          ELSE
         status=nf_fread2d(ng, IDmod, ncname, ncINPid,                   &
      &                Vname(1,idHsno), varid, InpRec, gtype,            &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
@@ -1652,7 +1775,8 @@
 #   ifdef MASKING
      &                GRID(ng) % rmask,                                 &
 #   endif
-     &                ICE(ng) % hsn(:,:,1))
+     &                ICE(ng) % hsn(:,:,Tindex))
+          END IF
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
             WRITE (stdout,30) string, TRIM(Vname(1,idHsno)),            &
@@ -1698,7 +1822,22 @@
 !
         foundit=find_string(var_name, n_var, TRIM(Vname(1,idSfwat)),    &
      &                        varid)
-        gtype=var_flag(varid)*r2dvar
+          IF (Perfect2D) THEN
+            gtype=var_flag(varid)*r3dvar
+          ELSE
+            gtype=var_flag(varid)*r2dvar
+          END IF
+          IF (Perfect2D) THEN
+            status=nf_fread3d(ng, IDmod, ncname, ncINPid,               &
+     &                        Vname(1,idSfwat), varid,                  &
+     &                        InpRec, gtype, Vsize,                     &
+     &                        LBi, UBi, LBj, UBj, 1, 2,                 &
+     &                        Fscl, Fmin, Fmax,                         &
+# ifdef MASKING
+     &                        GRID(ng) % rmask,                         &
+# endif
+     &                        ICE(ng) % sfwat)
+          ELSE
         status=nf_fread2d(ng, IDmod, ncname, ncINPid,                   &
      &                Vname(1,idSfwat), varid, InpRec, gtype,           &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
@@ -1706,7 +1845,8 @@
 #   ifdef MASKING
      &                GRID(ng) % rmask,                                 &
 #   endif
-     &                ICE(ng) % sfwat(:,:,1))
+     &                ICE(ng) % sfwat(:,:,Tindex))
+          END IF
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
             WRITE (stdout,30) string, TRIM(Vname(1,idSfwat)),           &
@@ -1725,7 +1865,22 @@
 !
         foundit=find_string(var_name, n_var, TRIM(Vname(1,idAgeice)),   &
      &                        varid)
-        gtype=var_flag(varid)*r2dvar
+          IF (Perfect2D) THEN
+            gtype=var_flag(varid)*r3dvar
+          ELSE
+            gtype=var_flag(varid)*r2dvar
+          END IF
+          IF (Perfect2D) THEN
+            status=nf_fread3d(ng, IDmod, ncname, ncINPid,               &
+     &                        Vname(1,idAgeice), varid,                 &
+     &                        InpRec, gtype, Vsize,                     &
+     &                        LBi, UBi, LBj, UBj, 1, 2,                 &
+     &                        Fscl, Fmin, Fmax,                         &
+# ifdef MASKING
+     &                        GRID(ng) % rmask,                         &
+# endif
+     &                        ICE(ng) % ageice)
+          ELSE
         status=nf_fread2d(ng, IDmod, ncname, ncINPid,                   &
      &                Vname(1,idAgeice), varid, InpRec, gtype,          &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
@@ -1733,7 +1888,8 @@
 #   ifdef MASKING
      &                GRID(ng) % rmask,                                 &
 #   endif
-     &                ICE(ng) % ageice(:,:,1))
+     &                ICE(ng) % ageice(:,:,Tindex))
+          END IF
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
             WRITE (stdout,30) string, TRIM(Vname(1,idAgeice)),          &
@@ -1752,7 +1908,22 @@
 !
         foundit=find_string(var_name, n_var, TRIM(Vname(1,idTimid)),    &
      &                        varid)
-        gtype=var_flag(varid)*r2dvar
+          IF (Perfect2D) THEN
+            gtype=var_flag(varid)*r3dvar
+          ELSE
+            gtype=var_flag(varid)*r2dvar
+          END IF
+          IF (Perfect2D) THEN
+            status=nf_fread3d(ng, IDmod, ncname, ncINPid,               &
+     &                        Vname(1,idTimid), varid,                  &
+     &                        InpRec, gtype, Vsize,                     &
+     &                        LBi, UBi, LBj, UBj, 1, 2,                 &
+     &                        Fscl, Fmin, Fmax,                         &
+# ifdef MASKING
+     &                        GRID(ng) % rmask,                         &
+# endif
+     &                        ICE(ng) % ti)
+          ELSE
         status=nf_fread2d(ng, IDmod, ncname, ncINPid,                   &
      &                Vname(1,idTimid), varid, InpRec, gtype,           &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
@@ -1760,7 +1931,8 @@
 #   ifdef MASKING
      &                GRID(ng) % rmask,                                 &
 #   endif
-     &                ICE(ng) % ti(:,:,1))
+     &                ICE(ng) % ti(:,:,Tindex))
+          END IF
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
             WRITE (stdout,30) string, TRIM(Vname(1,idTimid)),            &
@@ -1779,7 +1951,22 @@
 !
         foundit=find_string(var_name, n_var, TRIM(Vname(1,idSig11)),    &
      &                        varid)
-        gtype=var_flag(varid)*r2dvar
+          IF (Perfect2D) THEN
+            gtype=var_flag(varid)*r3dvar
+          ELSE
+            gtype=var_flag(varid)*r2dvar
+          END IF
+          IF (Perfect2D) THEN
+            status=nf_fread3d(ng, IDmod, ncname, ncINPid,               &
+     &                        Vname(1,idSig11), varid,                   &
+     &                        InpRec, gtype, Vsize,                     &
+     &                        LBi, UBi, LBj, UBj, 1, 2,                 &
+     &                        Fscl, Fmin, Fmax,                         &
+# ifdef MASKING
+     &                        GRID(ng) % rmask,                         &
+# endif
+     &                        ICE(ng) % sig11)
+          ELSE
         status=nf_fread2d(ng, IDmod, ncname, ncINPid,                   &
      &                Vname(1,idSig11), varid, InpRec, gtype,           &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
@@ -1787,7 +1974,8 @@
 #   ifdef MASKING
      &                GRID(ng) % rmask,                                 &
 #   endif
-     &                ICE(ng) % sig11(:,:,1))
+     &                ICE(ng) % sig11(:,:,Tindex))
+          END IF
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
             WRITE (stdout,30) string, TRIM(Vname(1,idSig11)),            &
@@ -1806,7 +1994,22 @@
 !
         foundit=find_string(var_name, n_var, TRIM(Vname(1,idSig22)),    &
      &                        varid)
-        gtype=var_flag(varid)*r2dvar
+          IF (Perfect2D) THEN
+            gtype=var_flag(varid)*r3dvar
+          ELSE
+            gtype=var_flag(varid)*r2dvar
+          END IF
+          IF (Perfect2D) THEN
+            status=nf_fread3d(ng, IDmod, ncname, ncINPid,               &
+     &                        Vname(1,idSig22), varid,                  &
+     &                        InpRec, gtype, Vsize,                     &
+     &                        LBi, UBi, LBj, UBj, 1, 2,                 &
+     &                        Fscl, Fmin, Fmax,                         &
+# ifdef MASKING
+     &                        GRID(ng) % rmask,                         &
+# endif
+     &                        ICE(ng) % sig22)
+          ELSE
         status=nf_fread2d(ng, IDmod, ncname, ncINPid,                   &
      &                Vname(1,idSig22), varid, InpRec, gtype,           &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
@@ -1814,7 +2017,8 @@
 #   ifdef MASKING
      &                GRID(ng) % rmask,                                 &
 #   endif
-     &                ICE(ng) % sig22(:,:,1))
+     &                ICE(ng) % sig22(:,:,Tindex))
+          END IF
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
             WRITE (stdout,30) string, TRIM(Vname(1,idSig22)),            &
@@ -1833,7 +2037,22 @@
 !
         foundit=find_string(var_name, n_var, TRIM(Vname(1,idSig12)),    &
      &                        varid)
-        gtype=var_flag(varid)*r2dvar
+          IF (Perfect2D) THEN
+            gtype=var_flag(varid)*r3dvar
+          ELSE
+            gtype=var_flag(varid)*r2dvar
+          END IF
+          IF (Perfect2D) THEN
+            status=nf_fread3d(ng, IDmod, ncname, ncINPid,               &
+     &                        Vname(1,idSig12), varid,                  &
+     &                        InpRec, gtype, Vsize,                     &
+     &                        LBi, UBi, LBj, UBj, 1, 2,                 &
+     &                        Fscl, Fmin, Fmax,                         &
+# ifdef MASKING
+     &                        GRID(ng) % rmask,                         &
+# endif
+     &                        ICE(ng) % sig12)
+          ELSE
         status=nf_fread2d(ng, IDmod, ncname, ncINPid,                   &
      &                Vname(1,idSig12), varid, InpRec, gtype,           &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
@@ -1841,7 +2060,8 @@
 #   ifdef MASKING
      &                GRID(ng) % rmask,                                 &
 #   endif
-     &                ICE(ng) % sig12(:,:,1))
+     &                ICE(ng) % sig12(:,:,Tindex))
+          END IF
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
             WRITE (stdout,30) string, TRIM(Vname(1,idSig12)),            &
