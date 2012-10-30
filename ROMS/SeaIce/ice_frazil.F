@@ -79,6 +79,7 @@
       USE exchange_3d_mod, ONLY : exchange_r3d_tile
 # ifdef DISTRIBUTE
       USE mp_exchange_mod
+      USE distribute_mod, ONLY : mp_bcasti
 # endif
 !
       implicit none
@@ -161,6 +162,7 @@
                   print *, 'trouble in ice_frazil', i, j, k,            &
      &             t(i,j,k,nnew,itemp), t(i,j,k,nnew,isalt),            &
      &             t_fr, wfr(i,j), gamma_k, Hz(i,j,k)
+                  exit_flag = 9
                 END IF
                 wfr(i,j) = wfr(i,j) + gamma_k * Hz(i,j,k) *             &
      &                    (1000.0_r8 + rho(i,j,k) ) / rhoice(ng)
@@ -181,6 +183,7 @@
             print *, 'trouble in ice_frazil', i, j,                     &
      &         t(i,j,N(ng),nnew,itemp), t(i,j,N(ng),nnew,isalt),        &
      &         wfr(i,j), gamma_k, Hz(i,j,N(ng))
+            exit_flag = 9
           END IF
         END DO
       END DO
@@ -188,6 +191,7 @@
      &                          LBi, UBi, LBj, UBj,                     &
      &                          wfr)
 # ifdef DISTRIBUTE
+      CALL mp_bcasti (ng, iNLM, exit_flag)
       CALL mp_exchange2d (ng, tile, iNLM, 1,                            &
      &                    LBi, UBi, LBj, UBj,                           &
      &                    NghostPoints, EWperiodic(ng), NSperiodic(ng), &
