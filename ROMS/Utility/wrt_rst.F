@@ -28,7 +28,7 @@
       USE mod_sedbed
       USE mod_sediment
 #endif
-#ifdef NCEP_FLUXES
+#if (defined PERFECT_RESTART && defined ICE_MODEL) || defined NCEP_FLUXES
       USE mod_forces
 #endif
       USE mod_stepping
@@ -566,6 +566,70 @@
           RETURN
         END IF
       END DO
+# if defined PERFECT_RESTART && defined ICE_MODEL
+!
+!  Write out surface active traces fluxes.
+!
+      DO itrc=1,NAT
+        scale=1.0_r8
+        gtype=gfactor*r2dvar
+        status=nf_fwrite2d(ng, iNLM, RST(ng)%ncid,                      &
+     &                     RST(ng)%Vid(idTsur(itrc)),                   &
+     &                     RST(ng)%Rindex, gtype,                       &
+     &                     LBi, UBi, LBj, UBj, scale,                   &
+# ifdef MASKING
+     &                     GRID(ng) % rmask_io,                         &
+# endif
+     &                     FORCES(ng) % stflx(:,:,itrc))
+        IF (status.ne.nf90_noerr) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,idTsur(itrc))),              &
+     &                        RST(ng)%Rindex
+          END IF
+          exit_flag=3
+          ioerror=status
+          RETURN
+        END IF
+      END DO
+!
+!  Write out surface U-momentum stress.
+!
+      gtype=gfactor*u2dvar
+      status=nf_fwrite2d(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idUsms),   &
+     &                     RST(ng)%Rindex, gtype,                       &
+     &                     LBi, UBi, LBj, UBj, scale,                   &
+#ifdef MASKING
+     &                     GRID(ng) % umask_io,                         &
+#endif
+     &                     FORCES(ng) % sustr)
+      IF (status.ne.nf90_noerr) THEN
+        IF (Master) THEN
+          WRITE (stdout,10) TRIM(Vname(1,idUsms)), RST(ng)%Rindex
+        END IF
+        exit_flag=3
+        ioerror=status
+        RETURN
+      END IF
+!
+!  Write out surface V-momentum stress.
+!
+      gtype=gfactor*v2dvar
+      status=nf_fwrite2d(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idVsms),   &
+     &                     RST(ng)%Rindex, gtype,                       &
+     &                     LBi, UBi, LBj, UBj, scale,                   &
+#ifdef MASKING
+     &                     GRID(ng) % vmask_io,                         &
+#endif
+     &                     FORCES(ng) % svstr)
+      IF (status.ne.nf90_noerr) THEN
+        IF (Master) THEN
+          WRITE (stdout,10) TRIM(Vname(1,idVsms)), RST(ng)%Rindex
+        END IF
+        exit_flag=3
+        ioerror=status
+        RETURN
+      END IF
+# endif
 !
 !  Write out density anomaly.
 !
@@ -732,6 +796,31 @@
         ioerror=status
         RETURN
       END IF
+# endif
+# if defined PERFECT_RESTART && defined LMD_NONLOCAL
+!
+!  Write out KPP nonlocal transport.
+!
+      DO i=1,NAT
+        scale=1.0_r8
+        gtype=gfactor*w3dvar
+        status=nf_fwrite3d(ng, iNLM, RST(ng)%ncid,                      &
+     &                       RST(ng)%Vid(idGhat(i)),                    &
+     &                       RST(ng)%Rindex, gtype,                     &
+     &                       LBi, UBi, LBj, UBj, 0, N(ng), scale,       &
+#  ifdef MASKING
+     &                       GRID(ng) % rmask_io,                       &
+#  endif
+     &                       MIXING(ng) % ghats(:,:,:,i))
+        IF (status.ne.nf90_noerr) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,idGhat(i))), RST(ng)%Rindex
+          END IF
+          exit_flag=3
+          ioerror=status
+          RETURN
+        END IF
+      END DO
 # endif
 # if defined BVF_MIXING  || defined GLS_MIXING || \
      defined MY25_MIXING || defined LMD_MIXING

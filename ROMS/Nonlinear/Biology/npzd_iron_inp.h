@@ -30,7 +30,7 @@
 !
       integer :: Npts, Nval
       integer :: iTrcStr, iTrcEnd
-      integer :: i, ifield, igrid, itrcer, itrc, ng, nline, status
+      integer :: i, ifield, igrid, itracer, itrc, ng, nline, status
 
       integer :: decode_line, load_i, load_l, load_lbc, load_r
 
@@ -623,7 +623,7 @@
      &            TRIM(Vname(1,idTvar(itrc)))
             END DO
 #endif
-          END SELECT
+          END IF
         END DO
       END IF
 !

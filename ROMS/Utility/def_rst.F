@@ -1009,6 +1009,66 @@
           IF (exit_flag.ne.NoError) RETURN
         END DO
 
+# if defined PERFECT_RESTART && defined ICE_MODEL
+!
+!  Define surface active tracer fluxes.
+!
+        DO itrc=1,NAT
+          Vinfo( 1)=Vname(1,idTsur(itrc))
+          Vinfo( 2)=Vname(2,idTsur(itrc))
+          Vinfo( 3)=Vname(3,idTsur(itrc))
+          IF (itrc.eq.itemp) THEN
+            Vinfo(11)='upward flux, cooling'
+            Vinfo(12)='downward flux, heating'
+          ELSE IF (itrc.eq.isalt) THEN
+            Vinfo(11)='upward flux, freshening (net precipitation)'
+            Vinfo(12)='downward flux, salting (net evaporation)'
+          END IF
+          Vinfo(14)=Vname(4,idTsur(itrc))
+          Vinfo(16)=Vname(1,idtime)
+# if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_rho'
+# endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idTsur(itrc),ng),r8)
+          status=def_var(ng, iNLM, RST(ng)%ncid,                        &
+     &                   RST(ng)%Vid(idTsur(itrc)), NF_FRST,            &
+     &                   nvd3, sr2dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END DO
+!
+!  Define surface U-momentum stress.
+!
+        Vinfo( 1)=Vname(1,idUsms)
+        Vinfo( 2)=Vname(2,idUsms)
+        Vinfo( 3)=Vname(3,idUsms)
+        Vinfo(14)=Vname(4,idUsms)
+        Vinfo(16)=Vname(1,idtime)
+#if defined WRITE_WATER && defined MASKING
+        Vinfo(20)='mask_u'
+#endif
+        Vinfo(22)='coordinates'
+        Aval(5)=REAL(Iinfo(1,idUsms,ng),r8)
+        status=def_var(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idUsms),     &
+     &                   NF_FRST, nvd3, su2dgrd, Aval, Vinfo, ncname)
+        IF (exit_flag.ne.NoError) RETURN
+!
+!  Define surface V-momentum stress.
+!
+        Vinfo( 1)=Vname(1,idVsms)
+        Vinfo( 2)=Vname(2,idVsms)
+        Vinfo( 3)=Vname(3,idVsms)
+        Vinfo(14)=Vname(4,idVsms)
+        Vinfo(16)=Vname(1,idtime)
+#if defined WRITE_WATER && defined MASKING
+        Vinfo(20)='mask_v'
+#endif
+        Vinfo(22)='coordinates'
+        Aval(5)=REAL(Iinfo(1,idVsms,ng),r8)
+        status=def_var(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idVsms),     &
+     &                   NF_FRST, nvd3, sv2dgrd, Aval, Vinfo, ncname)
+        IF (exit_flag.ne.NoError) RETURN
+# endif
 #  if defined BENTHIC
 !------------------------------------------
 !  Define benthic tracer type variables.
@@ -1028,7 +1088,7 @@
      &                     nvd3,t2dgrd,Aval,Vinfo,ncname)
 
 !Will need to switch this if have more than one depth level for benthos 
-!         status=def_var(ncHISid(ng),hisBid(itrc,ng),NF_FOUT, &
+!         status=def_var(ncRSTid(ng),hisBid(itrc,ng),NF_FOUT, &
 !    &                     nvd4,t3dgrd,Aval,Vinfo,ncname)
           END IF
         END DO
@@ -1290,6 +1350,27 @@
         status=def_var(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idHbbl),     &
      &                 NF_FRST, nvd3, sr2dgrd, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
+# endif
+# if defined PERFECT_RESTART && defined LMD_NONLOCAL
+!
+!  Define out KPP nonlocal transport.
+!
+        DO itrc=1,NAT
+          Vinfo( 1)=Vname(1,idGhat(itrc))
+          Vinfo( 2)=Vname(2,idGhat(itrc))
+          Vinfo( 3)=Vname(3,idGhat(itrc))
+          Vinfo(14)=Vname(4,idGhat(itrc))
+          Vinfo(16)=Vname(1,idtime)
+#  if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_rho'
+#  endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idGhat(itrc),ng),r8)
+          status=def_var(ng, iNLM, RST(ng)%ncid,                        &
+     &                     RST(ng)%Vid(idGhat(itrc)), NF_FRST,          &
+     &                     nvd4, w3dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END DO
 # endif
 # if defined BVF_MIXING || defined LMD_MIXING || \
      defined GLS_MIXING || defined MY25_MIXING
@@ -2257,6 +2338,16 @@
             got_var(idHbbl)=.TRUE.
             RST(ng)%Vid(idHbbl)=var_id(i)
 # endif
+# if defined PERFECT_RESTART && defined LMD_NONLOCAL
+          ELSE IF (TRIM(var_name(i)).eq.                                &
+     &             TRIM(Vname(1,idGhat(itemp)))) THEN
+            got_var(idGhat(itemp))=.TRUE.
+            RST(ng)%Vid(idGhat(itemp))=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.                                &
+     &             TRIM(Vname(1,idGhat(isalt)))) THEN
+            got_var(idGhat(isalt))=.TRUE.
+            RST(ng)%Vid(idGhat(isalt))=var_id(i)
+# endif
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idVvis))) THEN
             got_var(idVvis)=.TRUE.
             RST(ng)%Vid(idVvis)=var_id(i)
@@ -2320,6 +2411,14 @@
             got_var(idOPALbur)=.TRUE.
             RST(ng)%Vid(idOPALbur)=var_id(i)
 #endif
+# if defined PERFECT_RESTART && defined ICE_MODEL
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idUsms))) THEN
+            got_var(idUsms)=.TRUE.
+            HIS(ng)%Vid(idUsms)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idVsms))) THEN
+            got_var(idVsms)=.TRUE.
+            HIS(ng)%Vid(idVsms)=var_id(i)
+# endif
           END IF
 #ifdef SOLVE3D
           DO itrc=1,NT(ng)
@@ -2328,6 +2427,14 @@
               RST(ng)%Tid(itrc)=var_id(i)
             END IF
           END DO
+# if defined PERFECT_RESTART && defined ICE_MODEL
+          DO itrc=1,NAT
+            IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idTsur(itrc)))) THEN
+              got_var(idTsur(itrc))=.TRUE.
+              RST(ng)%Vid(idTsur(itrc))=var_id(i)
+            END IF
+          END DO
+# endif
 # ifdef BENTHIC
           DO itrc=1,NBeT(ng)
             IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idBvar(itrc)))) THEN

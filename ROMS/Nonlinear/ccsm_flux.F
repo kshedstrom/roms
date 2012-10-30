@@ -448,7 +448,7 @@ contains
 !
 !  Local variable declarations.
 !
-      integer :: Iter, i, j, k
+      integer :: Iter, i, j, k, listp
       integer :: IterMax
 
       real(r8), parameter :: eps = 1.0E-20_r8
@@ -679,6 +679,14 @@ contains
 !-------------------------------------------------------------------------------
 
       al2 = log(zref/ztref)
+#if defined ICE_MODEL
+      IF (PerfectRST(ng) .and. iic(ng).eq.ntstart(ng)) THEN
+        listp = liold
+      ELSE
+        listp = linew
+      END IF
+#endif
+
 
       Hscale=rho0*Cp
       Hscale2=1.0_r8/(rho0*Cp)
@@ -688,8 +696,8 @@ contains
         DO i=Istr-1,IendR
           !--- compute some needed quantities ---
 #if defined ICE_MODEL
-          ice_thick(i,j) = hi(i,j,linew)/(ai(i,j,linew)+0.001)
-          snow_thick(i,j) = hsn(i,j,linew)/(ai(i,j,linew)+0.001)
+          ice_thick(i,j) = hi(i,j,listp)/(ai(i,j,listp)+0.001)
+          snow_thick(i,j) = hsn(i,j,listp)/(ai(i,j,listp)+0.001)
 #endif
           vmag   = max(umin, sqrt( (Uwind(i,j)-u(i,j,N(ng),nrhs))**2 +  &
      &                             (Vwind(i,j)-v(i,j,N(ng),nrhs))**2) )
@@ -809,7 +817,7 @@ contains
 
 ! Sensible heat flux over ice
 
-          IF (ai(i,j,liold).gt.min_a(ng)) THEN
+          IF (ai(i,j,listp).gt.min_a(ng)) THEN
             sfc_temp = tis(i,j) + 273.16_r8
           ELSE
             sfc_temp = t(i,j,N(ng),nrhs,itemp) + 273.16_r8
@@ -841,15 +849,15 @@ contains
 ! Ice and snow albedo is calculated from Ebert and Curry,1992b
           albi=0._r8
           albsn=0._r8
-          IF (ai(i,j,liold) .gt. min_a(ng)) THEN
-            thki_n = hi(i,j,liold)/(ai(i,j,liold)+0.01_r8)
-            thksn_n = hsn(i,j,liold)/(ai(i,j,liold)+0.01_r8)
+          IF (ai(i,j,listp) .gt. min_a(ng)) THEN
+            thki_n = ice_thick(i,j)
+            thksn_n = snow_thick(i,j)
             albi=0.082409_r8*LOG(thki_n)+0.485472_r8
             IF (thki_n.GE.1._r8) albi=0.07616_r8*thki_n+0.414492_r8
             IF (thki_n.GE.2._r8) albi=0.561632_r8
 !approximated values for albsn(depends on COSZ, but small variation)
             albsn=0.83_r8
-            IF (sfwat(i,j,liold).GT.0._r8) THEN
+            IF (sfwat(i,j,listp).GT.0._r8) THEN
               IF (thksn_n.GE.0.1_r8) THEN
                 albsn=0.701009_r8
               ELSE
@@ -857,11 +865,11 @@ contains
               ENDIF
             ENDIF
             albs=albi
-            IF (hsn(i,j,liold).GT.0._r8) albs=albsn
-!            IF (sfwat(i,j,liold).GT.0._r8) albs=0.10737_r8              &
-!     &         +0.518_r8*EXP(-8.1_r8 *sfwat(i,j,liold)-0.47_r8)         &
-!     &         +0.341_r8*EXP(-31.8_r8*sfwat(i,j,liold)-0.94_r8)         &
-!     &         +0.131_r8*EXP(-2.6_r8 *sfwat(i,j,liold)-3.82_r8)
+            IF (hsn(i,j,listp).GT.0._r8) albs=albsn
+!            IF (sfwat(i,j,listp).GT.0._r8) albs=0.10737_r8              &
+!     &         +0.518_r8*EXP(-8.1_r8 *sfwat(i,j,listp)-0.47_r8)         &
+!     &         +0.341_r8*EXP(-31.8_r8*sfwat(i,j,listp)-0.94_r8)         &
+!     &         +0.131_r8*EXP(-2.6_r8 *sfwat(i,j,listp)-3.82_r8)
 !            ENDIF
           ELSE
             albs=alb_w
@@ -872,7 +880,7 @@ contains
           alb_i_dry = alb_w*(1-fh) + alb_i_thick*fh
           cff1 = alb_s_wet - alb_s_dry
           cff2 = -0.075      ! alb_i_wet - alb_i_dry
-          IF (ai(i,j,liold) .gt. min_a(ng)) THEN
+          IF (ai(i,j,listp) .gt. min_a(ng)) THEN
             IF (sfc_temp-273.16_r8.gt. -1._r8) THEN
               alb_snow = cff1*(sfc_temp-272.16_r8)+alb_s_dry
             ELSE
@@ -892,8 +900,8 @@ contains
 #   else
           cff1 = alb_s_wet - alb_s_dry
           cff2 = alb_i_wet - alb_i_dry
-          IF (ai(i,j,liold) .gt. min_a(ng)) THEN
-            IF (hsn(i,j,liold).gt.0._r8) THEN
+          IF (ai(i,j,listp) .gt. min_a(ng)) THEN
+            IF (hsn(i,j,listp).gt.0._r8) THEN
               IF (sfc_temp-273.16_r8.gt. -1._r8) THEN
                 albs = cff1*(sfc_temp-272.16_r8)+alb_s_dry
               ELSE
@@ -993,8 +1001,8 @@ contains
           evap(i,j) = -LHeat(i,j)/Hlv
           stflx(i,j,isalt) = cff*(evap(i,j)-rain(i,j))
 #  ifdef ICE_MODEL
-          evap(i,j) = (1.0_r8-ai(i,j,linew))*evap(i,j)
-          stflx(i,j,isalt) = (1.0_r8-ai(i,j,linew))*stflx(i,j,isalt)
+          evap(i,j) = (1.0_r8-ai(i,j,listp))*evap(i,j)
+          stflx(i,j,isalt) = (1.0_r8-ai(i,j,listp))*stflx(i,j,isalt)
 #  endif
 #  ifdef EVAP_SHALLOW
           cffe = 1._r8/(h(i,j)+Zt_avg1(i,j))
@@ -1024,20 +1032,20 @@ contains
 ! radiation by presence of ice and biology
 
 #  if defined BEST_NPZ && defined ICE_BIO
-        IF (IceLog(i,j,liold).gt.0) THEN
+        IF (IceLog(i,j,listp).gt.0) THEN
 !only attenuate light by ice when have more than thin smear of ice
-          IF (hi(i,j,liold).le.0.1_r8) THEN
-            cff1=hi(i,j,liold)*5._r8
+          IF (hi(i,j,listp).le.0.1_r8) THEN
+            cff1=hi(i,j,listp)*5._r8
           ELSE
-            cff1=0.1_r8*5._r8+(hi(i,j,liold)-0.1_r8)*1._r8
+            cff1=0.1_r8*5._r8+(hi(i,j,listp)-0.1_r8)*1._r8
           ENDIF
-          cff1= cff1+hsn(i,j,liold)*20._r8
+          cff1= cff1+hsn(i,j,listp)*20._r8
         ELSE
           cff1 = 0
         ENDIF
 #  else
-          ice_thick(i,j) = hi(i,j,linew)/(ai(i,j,linew)+eps)
-          snow_thick(i,j) = hsn(i,j,linew)/(ai(i,j,linew)+eps)
+          ice_thick(i,j) = hi(i,j,listp)/(ai(i,j,listp)+eps)
+          snow_thick(i,j) = hsn(i,j,listp)/(ai(i,j,listp)+eps)
 
           IF (ice_thick(i,j).le.0.1_r8) THEN
             cff1=ice_thick(i,j)*5._r8
@@ -1050,11 +1058,11 @@ contains
 
 #  if defined ICE_BIO
           cff2=0.5*0.02_r8*0.005*it(i,j,nstp,iIcePhL)
-          srflx(i,j)=(1-ai(i,j,linew))*srflx(i,j)                       &
-     &            +ai(i,j,linew)*srflx(i,j)*exp(-cff1-cff2)
+          srflx(i,j)=(1-ai(i,j,listp))*srflx(i,j)                       &
+     &            +ai(i,j,listp)*srflx(i,j)*exp(-cff1-cff2)
 #  else
-          srflx(i,j)=(1-ai(i,j,linew))*srflx(i,j)                       &
-     &            +ai(i,j,linew)*srflx(i,j)*exp(-cff1)
+          srflx(i,j)=(1-ai(i,j,listp))*srflx(i,j)                       &
+     &            +ai(i,j,listp)*srflx(i,j)*exp(-cff1)
 #  endif
           qao_n(i,j) = -stflx(i,j,itemp)*Hscale
 

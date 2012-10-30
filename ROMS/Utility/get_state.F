@@ -35,6 +35,9 @@
 #if defined ADJUST_WSTRESS || defined ADJUST_STFLUX
       USE mod_forces
 #endif
+# if defined PERFECT_RESTART && defined ICE_MODEL
+      USE mod_forces
+# endif
 #ifdef FOUR_DVAR
       USE mod_fourdvar
 #endif
@@ -1178,6 +1181,111 @@
         END IF
 #   endif
 #  endif
+#  if defined LMD_SKPP
+!
+!  Read in Hsbl
+!
+        IF (have_var(idHsbl).and.Perfect3D) THEN
+          foundit=find_string(var_name, n_var, TRIM(Vname(1,idHsbl)),   &
+     &                        varid)
+          gtype=var_flag(varid)*r2dvar
+          status=nf_fread2d(ng, IDmod, ncname, ncINPid,                 &
+     &                      Vname(1,idHsbl), varid,                     &
+     &                      InpRec, gtype, Vsize,                       &
+     &                      LBi, UBi, LBj, UBj,                         &
+     &                      Fscl, Fmin, Fmax,                           &
+# ifdef MASKING
+     &                      GRID(ng) % rmask,                           &
+# endif
+     &                      MIXING(ng) % Hsbl)
+          IF (status.ne.nf90_noerr) THEN
+            IF (Master) THEN
+              WRITE (stdout,30) string, TRIM(Vname(1,idHsbl)), InpRec,  &
+     &                          TRIM(ncname)
+            END IF
+            exit_flag=2
+            ioerror=status
+            RETURN
+          ELSE
+            IF (Master) THEN
+              WRITE (stdout,100) TRIM(Vname(2,idHsbl)), Fmin, Fmax
+            END IF
+          END IF
+        END IF
+#  endif
+#  if defined LMD_BKPP
+!
+!  Read in Hbbl
+!
+        IF (have_var(idHbbl).and.Perfect3D) THEN
+          foundit=find_string(var_name, n_var, TRIM(Vname(1,idHbbl)),   &
+     &                        varid)
+          gtype=var_flag(varid)*r2dvar
+          status=nf_fread2d(ng, IDmod, ncname, ncINPid,                 &
+     &                      Vname(1,idHbbl), varid,                     &
+     &                      InpRec, gtype, Vsize,                       &
+     &                      LBi, UBi, LBj, UBj,                         &
+     &                      Fscl, Fmin, Fmax,                           &
+# ifdef MASKING
+     &                      GRID(ng) % rmask,                           &
+# endif
+     &                      MIXING(ng) % Hbbl)
+          IF (status.ne.nf90_noerr) THEN
+            IF (Master) THEN
+              WRITE (stdout,30) string, TRIM(Vname(1,idHbbl)), InpRec,  &
+     &                          TRIM(ncname)
+            END IF
+            exit_flag=2
+            ioerror=status
+            RETURN
+          ELSE
+            IF (Master) THEN
+              WRITE (stdout,100) TRIM(Vname(2,idHbbl)), Fmin, Fmax
+            END IF
+          END IF
+        END IF
+#  endif
+#  if defined LMD_NONLOCAL && defined PERFECT_RESTART
+!
+!  Read in Ghats
+!
+      DO itrc=1,NAT
+        IF (have_var(idGhat(itrc))) THEN
+          foundit=find_string(var_name, n_var,                          &
+     &                        TRIM(Vname(1,idGhat(itrc))), varid)
+          gtype=var_flag(varid)*w3dvar
+          status=nf_fread3d(ng, IDmod, ncname, ncINPid,                 &
+     &                      Vname(1,idGhat(itrc)), varid,                     &
+     &                      InpRec, gtype, Vsize,                       &
+     &                      LBi, UBi, LBj, UBj, 0, N(ng),               &
+     &                      Fscl, Fmin,Fmax,                            &
+#   ifdef MASKING
+     &                      GRID(ng) % rmask,                           &
+#   endif
+     &                      MIXING(ng) % Ghats(:,:,:,itrc))
+          IF (status.ne.nf90_noerr) THEN
+            IF (Master) THEN
+              WRITE (stdout,30) string, TRIM(Vname(1,idGhat(itrc))),    &
+     &                          InpRec, TRIM(ncname)
+            END IF
+            exit_flag=2
+            ioerror=status
+            RETURN
+          ELSE
+            IF (Master) THEN
+              WRITE (stdout,100) TRIM(Vname(2,idGhat(itrc))), Fmin, Fmax
+            END IF
+          END IF
+#   ifdef DISTRIBUTE
+          CALL mp_exchange3d (ng, MyRank, IDmod, 1,                     &
+     &                        LBi, UBi, LBj, UBj, 0, N(ng),             &
+     &                        NghostPoints,                             &
+     &                        EWperiodic(ng), NSperiodic(ng),           &
+     &                        MIXING(ng) % Ghats(:,:,:,itrc))
+#   endif
+        END IF
+      END DO
+#  endif
 #  if defined GLS_MIXING || defined MY25_MIXING
 !
 !  Read in turbulent kinetic energy.
@@ -2075,6 +2183,7 @@
             WRITE (stdout,100) TRIM(Vname(2,idSig12)), Fmin, Fmax
           END IF
         END IF
+#ifdef FOOO
 !
 !  Read in ice-water friction velocity.
 !
@@ -2129,6 +2238,7 @@
             WRITE (stdout,100) TRIM(Vname(2,idChuiw)), Fmin, Fmax
           END IF
         END IF
+#endif
 !
 !  Read in salinity of molecular sub-layer under ice
 !
@@ -2183,6 +2293,106 @@
             WRITE (stdout,100) TRIM(Vname(2,idT0mk)), Fmin, Fmax
           END IF
         END IF
+#   if defined PERFECT_RESTART && defined ICE_MODEL
+!
+!  Read in surface tracers flux.
+!
+        DO itrc=1,NAT
+          IF (get_var(idTsur(itrc))) THEN
+            foundit=find_string(var_name, n_var,                        &
+     &                          TRIM(Vname(1,idTsur(itrc))), varid)
+            gtype=var_flag(varid)*r2dvar
+            scale=1.0_r8
+            status=nf_fread2d(ng, IDmod, ncname, ncINPid,               &
+     &                        Vname(1,idTsur(itrc)), varid,             &
+     &                        InpRec, gtype, Vsize,                     &
+     &                        LBi, UBi, LBj, UBj,                       &
+     &                        scale, Fmin, Fmax,                        &
+#   ifdef MASKING
+     &                        GRID(ng) % rmask,                         &
+#   endif
+     &                        FORCES(ng)% stflx_save(:,:,itrc))
+            IF (status.ne.nf90_noerr) THEN
+              IF (Master) THEN
+                WRITE (stdout,30) string, TRIM(Vname(1,idTsur(itrc))),  &
+     &                            InpRec, TRIM(ncname)
+              END IF
+              exit_flag=2
+              ioerror=status
+              RETURN
+            ELSE
+              IF (Master) THEN
+                WRITE (stdout,100) TRIM(Vname(2,idTsur(itrc)))//        &
+     &                             ', saved stflx', Fmin, Fmax
+              END IF
+            END IF
+          END IF
+        END DO
+!
+!  Read in surface U-momentum stress.
+!
+        IF (get_var(idUsms)) THEN
+          foundit=find_string(var_name, n_var, TRIM(Vname(1,idUsms)),   &
+     &                        varid)
+          gtype=var_flag(varid)*u2dvar
+          scale=1.0_r8
+          status=nf_fread2d(ng, IDmod, ncname, ncINPid,                 &
+     &                      Vname(1,idUsms), varid,                     &
+     &                      InpRec, gtype, Vsize,                       &
+     &                      LBi, UBi, LBj, UBj,                         &
+     &                      scale, Fmin, Fmax,                          &
+#  ifdef MASKING
+     &                      GRID(ng) % umask,                           &
+#  endif
+     &                      FORCES(ng) % sustr_save)
+          IF (status.ne.nf90_noerr) THEN
+            IF (Master) THEN
+              WRITE (stdout,30) string, TRIM(Vname(1,idUsms)),          &
+     &                          InpRec, TRIM(ncname)
+            END IF
+            exit_flag=2
+            ioerror=status
+            RETURN
+          ELSE
+            IF (Master) THEN
+              WRITE (stdout,100) TRIM(Vname(2,idUsms))//                &
+     &                           ', saved sustr', Fmin, Fmax
+            END IF
+          END IF
+        END IF
+!
+!  Read in surface V-momentum stress.
+!
+        IF (get_var(idVsms)) THEN
+          foundit=find_string(var_name, n_var, TRIM(Vname(1,idVsms)),   &
+     &                        varid)
+          gtype=var_flag(varid)*v2dvar
+          scale=1.0_r8
+          status=nf_fread2d(ng, IDmod, ncname, ncINPid,                 &
+     &                      Vname(1,idVsms), varid,                     &
+     &                      InpRec, gtype, Vsize,                       &
+     &                      LBi, UBi, LBj, UBj,                         &
+     &                      scale, Fmin, Fmax,                          &
+#  ifdef MASKING
+     &                      GRID(ng) % vmask,                           &
+#  endif
+     &                      FORCES(ng) % svstr_save)
+          IF (status.ne.nf90_noerr) THEN
+            IF (Master) THEN
+              WRITE (stdout,30) string, TRIM(Vname(1,idVsms)),          &
+     &                          InpRec, TRIM(ncname)
+            END IF
+            exit_flag=2
+            ioerror=status
+            RETURN
+          ELSE
+            IF (Master) THEN
+              WRITE (stdout,100) TRIM(Vname(2,idVsms))//                &
+     &                           ', saved svstr', Fmin, Fmax
+            END IF
+          END IF
+        END IF
+#   endif
 !
 #  endif
 #  ifdef NCEP_FLUXES
