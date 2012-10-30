@@ -375,7 +375,8 @@
 !
 !  Read in time-stepping indices.
 !
-        IF ((model.eq.0).and.(nrrec(ng).ne.0)) THEN
+!        IF ((model.eq.0).and.(nrrec(ng).ne.0)) THEN
+        IF (nrrec(ng).ne.0) THEN
 #  ifdef SOLVE3D
           CALL netcdf_get_ivar (ng, IDmod, ncname, 'nstp',              &
      &                          nstp(ng:),                              &

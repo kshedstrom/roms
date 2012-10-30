@@ -594,6 +594,7 @@
 !
 !  Write out surface U-momentum stress.
 !
+      scale=1.0_r8
       gtype=gfactor*u2dvar
       status=nf_fwrite2d(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idUsms),   &
      &                     RST(ng)%Rindex, gtype,                       &
@@ -613,6 +614,7 @@
 !
 !  Write out surface V-momentum stress.
 !
+      scale=1.0_r8
       gtype=gfactor*v2dvar
       status=nf_fwrite2d(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idVsms),   &
      &                     RST(ng)%Rindex, gtype,                       &

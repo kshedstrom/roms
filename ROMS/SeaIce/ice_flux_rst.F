@@ -82,13 +82,14 @@
 
 #include "set_bounds.h"
 
-      DO itrc=1,NAT
-        DO j=Jstr-1,Jend+1
-          DO i=Istr-1,Iend+1
-            sustr(i,j,itrc) = sustr_save(i,j,itrc)
-            svstr(i,j,itrc) = svstr_save(i,j,itrc)
-            stflx(i,j,itrc) = stflx_save(i,j,itrc)
-          END DO
+      DO j=Jstr-1,Jend+1
+        DO i=Istr-1,Iend+1
+          sustr(i,j) = sustr_save(i,j)
+          svstr(i,j) = svstr_save(i,j)
+          stflx(i,j,1) = stflx_save(i,j,1)
+#ifdef SALINITY
+          stflx(i,j,2) = stflx_save(i,j,2)
+#endif
         END DO
       END DO
 

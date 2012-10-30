@@ -2414,10 +2414,10 @@
 # if defined PERFECT_RESTART && defined ICE_MODEL
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idUsms))) THEN
             got_var(idUsms)=.TRUE.
-            HIS(ng)%Vid(idUsms)=var_id(i)
+            RST(ng)%Vid(idUsms)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idVsms))) THEN
             got_var(idVsms)=.TRUE.
-            HIS(ng)%Vid(idVsms)=var_id(i)
+            RST(ng)%Vid(idVsms)=var_id(i)
 # endif
           END IF
 #ifdef SOLVE3D
