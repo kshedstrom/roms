@@ -122,7 +122,7 @@
 # endif
       USE wvelocity_mod, ONLY : wvelocity
 # if defined PERFECT_RESTART && defined ICE_MODEL
-      USE ice_vbc_mod
+      USE ice_flux_mod
 # endif
 !
       implicit none
