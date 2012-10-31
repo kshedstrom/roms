@@ -121,6 +121,9 @@
       USE step_floats_mod, ONLY : step_floats
 # endif
       USE wvelocity_mod, ONLY : wvelocity
+# if defined PERFECT_RESTART && defined ICE_MODEL
+      USE ice_flux_mod
+# endif
 !
       implicit none
 !
@@ -352,7 +355,15 @@
 !  Run ice model for one step
 !-----------------------------------------------------------------------
 !
+        IF (PerfectRST(1).and.iic(1).eq.ntstart(1)) THEN
+          DO ng=1,Ngrids
+            DO tile=first_tile(ng),last_tile(ng),+1
+              CALL ice_flux_rst(ng, tile)
+            END DO
+          END DO
+        ELSE
           CALL seaice
+        END IF
 # endif
 # ifdef ADJUST_BOUNDARY
 !

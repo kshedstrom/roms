@@ -38,7 +38,7 @@
       CALL ice_evp_tile (ng, tile,                                      &
      &                   LBi, UBi, LBj, UBj,                            &
      &                   IminS, ImaxS, JminS, JmaxS,                    &
-     &                   liold(ng), lieol(ng),                          &
+     &                   liold(ng), lieol(ng), liuol(ng),               &
 # ifdef MASKING
      &                   GRID(ng) % rmask,                              &
 # endif
@@ -50,6 +50,8 @@
 # endif
      &                   GRID(ng) % pm,                                 &
      &                   GRID(ng) % pn,                                 &
+     &                   ICE(ng) % ui,                                  &
+     &                   ICE(ng) % vi,                                  &
      &                   ICE(ng) % uie,                                 &
      &                   ICE(ng) % vie,                                 &
      &                   ICE(ng) % ai,                                  &
@@ -68,7 +70,7 @@
       SUBROUTINE ice_evp_tile (ng, tile,                                &
      &                        LBi, UBi, LBj, UBj,                       &
      &                        IminS, ImaxS, JminS, JmaxS,               &
-     &                        liold, lieol,                             &
+     &                        liold, lieol, liuol,                      &
 # ifdef MASKING
      &                        rmask,                                    &
 # endif
@@ -78,7 +80,7 @@
 # ifdef WET_DRY
      &                        rmask_wet,                                &
 # endif
-     &                        pm, pn, uie, vie,                         &
+     &                        pm, pn, ui, vi, uie, vie,                 &
      &                        ai, hi, pice, zetai, eta)
 !***********************************************************************
 !
@@ -98,7 +100,7 @@
       integer, intent(in) :: ng, tile
       integer, intent(in) :: LBi, UBi, LBj, UBj
       integer, intent(in) :: IminS, ImaxS, JminS, JmaxS
-      integer, intent(in) :: liold, lieol
+      integer, intent(in) :: liold, lieol, liuol
 # ifdef ASSUMED_SHAPE
 #  ifdef MASKING
       real(r8), intent(in) :: rmask(LBi:,LBj:)
@@ -111,8 +113,10 @@
 #  endif
       real(r8), intent(in) :: pm(LBi:,LBj:)
       real(r8), intent(in) :: pn(LBi:,LBj:)
-      real(r8), intent(in) :: uie(LBi:,LBj:,:)
-      real(r8), intent(in) :: vie(LBi:,LBj:,:)
+      real(r8), intent(in) :: ui(LBi:,LBj:,:)
+      real(r8), intent(in) :: vi(LBi:,LBj:,:)
+      real(r8), intent(inout) :: uie(LBi:,LBj:,:)
+      real(r8), intent(inout) :: vie(LBi:,LBj:,:)
       real(r8), intent(in) :: ai(LBi:,LBj:,:)
       real(r8), intent(in) :: hi(LBi:,LBj:,:)
       real(r8), intent(out) :: pice(LBi:,LBj:)
@@ -130,8 +134,10 @@
 #  endif
       real(r8), intent(in) :: pm(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: pn(LBi:UBi,LBj:UBj)
-      real(r8), intent(in) :: uie(LBi:UBi,LBj:UBj,2)
-      real(r8), intent(in) :: vie(LBi:UBi,LBj:UBj,2)
+      real(r8), intent(in) :: ui(LBi:UBi,LBj:UBj,2)
+      real(r8), intent(in) :: vi(LBi:UBi,LBj:UBj,2)
+      real(r8), intent(inout) :: uie(LBi:UBi,LBj:UBj,2)
+      real(r8), intent(inout) :: vie(LBi:UBi,LBj:UBj,2)
       real(r8), intent(in) :: ai(LBi:UBi,LBj:UBj,2)
       real(r8), intent(in) :: hi(LBi:UBi,LBj:UBj,2)
       real(r8), intent(out) :: pice(LBi:UBi,LBj:UBj)
@@ -158,6 +164,96 @@
 # include "set_bounds.h"
 ! ------------------------------------------------------------
 !
+! Update ice velocity
+!
+      IF (ievp(ng).eq.1) THEN
+        DO j=Jstr,Jend
+          DO i=IstrU,Iend
+            uie(i,j,1) = ui(i,j,liuol)
+            uie(i,j,2) = ui(i,j,liuol)
+          END DO
+        END DO
+        DO j=JstrV,Jend
+          DO i=Istr,Iend
+             vie(i,j,1) = vi(i,j,liuol)
+             vie(i,j,2) = vi(i,j,liuol)
+          END DO
+        END DO
+        IF (DOMAIN(ng)%Western_Edge(tile)) THEN
+          DO j=Jstr,Jend
+             uie(1,j,1) = ui(1,j,liuol)
+             uie(1,j,2) = ui(1,j,liuol)
+          END DO
+          DO j=JstrV,Jend
+             vie(0,j,1) = vi(0,j,liuol)
+             vie(0,j,2) = vi(0,j,liuol)
+          END DO
+        ENDIF
+        IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
+          DO j=Jstr,Jend
+             uie(Lm(ng)+1,j,1) = ui(Lm(ng)+1,j,liuol)
+             uie(Lm(ng)+1,j,2) = ui(Lm(ng)+1,j,liuol)
+          END DO
+          DO j=JstrV,Jend
+             vie(Lm(ng)+1,j,1) = vi(Lm(ng)+1,j,liuol)
+             vie(Lm(ng)+1,j,2) = vi(Lm(ng)+1,j,liuol)
+          END DO
+        ENDIF
+        IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
+          DO i=IstrU,Iend
+             uie(i,0,1) = ui(i,0,liuol)
+             uie(i,0,2) = ui(i,0,liuol)
+          END DO
+          DO i=Istr,Iend
+             vie(i,1,1) = vi(i,1,liuol)
+             vie(i,1,2) = vi(i,1,liuol)
+          END DO
+        ENDIF
+        IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
+          DO i=IstrU,Iend
+             uie(i,Mm(ng)+1,1) = ui(i,Mm(ng)+1,liuol)
+             uie(i,Mm(ng)+1,2) = ui(i,Mm(ng)+1,liuol)
+          END DO
+          DO i=Istr,Iend
+             vie(i,Mm(ng)+1,1) = vi(i,Mm(ng)+1,liuol)
+             vie(i,Mm(ng)+1,2) = vi(i,Mm(ng)+1,liuol)
+          END DO
+        END IF
+        IF (DOMAIN(ng)%SouthWest_Corner(tile)) THEN
+          uie(1,0,1) = ui(1,0,liuol)
+          uie(1,0,2) = ui(1,0,liuol)
+          vie(0,1,1) = vi(0,1,liuol)
+          vie(0,1,2) = vi(0,1,liuol)
+        END IF
+        IF (DOMAIN(ng)%SouthEast_Corner(tile)) THEN
+          uie(Lm(ng)+1,0,1) = ui(Lm(ng)+1,0,liuol)
+          uie(Lm(ng)+1,0,2) = ui(Lm(ng)+1,0,liuol)
+          vie(Lm(ng)+1,1,1) = vi(Lm(ng)+1,1,liuol)
+          vie(Lm(ng)+1,1,2) = vi(Lm(ng)+1,1,liuol)
+        END IF
+        IF (DOMAIN(ng)%NorthWest_Corner(tile)) THEN
+          uie(1,Mm(ng)+1,1) = ui(1,Mm(ng)+1,liuol)
+          uie(1,Mm(ng)+1,2) = ui(1,Mm(ng)+1,liuol)
+          vie(0,Mm(ng)+1,1) = vi(0,Mm(ng)+1,liuol)
+          vie(0,Mm(ng)+1,2) = vi(0,Mm(ng)+1,liuol)
+        END IF
+        IF (DOMAIN(ng)%NorthEast_Corner(tile)) THEN
+          uie(Lm(ng)+1,Mm(ng)+1,1) = ui(Lm(ng)+1,Mm(ng)+1,liuol)
+          uie(Lm(ng)+1,Mm(ng)+1,2) = ui(Lm(ng)+1,Mm(ng)+1,liuol)
+          vie(Lm(ng)+1,Mm(ng)+1,1) = vi(Lm(ng)+1,Mm(ng)+1,liuol)
+          vie(Lm(ng)+1,Mm(ng)+1,2) = vi(Lm(ng)+1,Mm(ng)+1,liuol)
+        END IF
+# ifdef DISTRIBUTE
+      CALL mp_exchange2d (ng, tile, iNLM, 2,                            &
+     &                    LBi, UBi, LBj, UBj,                           &
+     &                    NghostPoints, EWperiodic(ng), NSperiodic(ng), &
+     &                    uie(:,:,1), vie(:,:,1))
+      CALL mp_exchange2d (ng, tile, iNLM, 2,                            &
+     &                    LBi, UBi, LBj, UBj,                           &
+     &                    NghostPoints, EWperiodic(ng), NSperiodic(ng), &
+     &                    uie(:,:,2), vie(:,:,2))
+# endif
+      ENDIF
 
       e2r = 1.0_r8/(ellip_sq(ng))
 !

@@ -37,6 +37,7 @@
       USE mod_grid
       USE mod_mixing
       USE mod_ocean
+      USE mod_scalars
       USE mod_stepping
 !
 # ifdef LMD_SKPP
@@ -57,7 +58,8 @@
 # ifdef PROFILE
       CALL wclock_on (ng, iNLM, 18)
 # endif
-      CALL lmd_vmix_tile (ng, tile,                                     &
+      IF (.not.PerfectRST(ng).or.iic(ng).ne.ntstart(ng)) THEN
+        CALL lmd_vmix_tile (ng, tile,                                   &
      &                    LBi, UBi, LBj, UBj,                           &
      &                    IminS, ImaxS, JminS, JmaxS,                   &
      &                    nstp(ng),                                     &
@@ -76,12 +78,13 @@
      &                    MIXING(ng) % Akt,                             &
      &                    MIXING(ng) % Akv)
 # ifdef LMD_SKPP
-      CALL lmd_skpp (ng, tile)
+        CALL lmd_skpp (ng, tile)
 # endif
 # ifdef LMD_BKPP
-      CALL lmd_bkpp (ng, tile)
+        CALL lmd_bkpp (ng, tile)
 # endif
-      CALL lmd_finish (ng, tile)
+        CALL lmd_finish (ng, tile)
+      END IF
 # ifdef PROFILE
       CALL wclock_off (ng, iNLM, 18)
 # endif

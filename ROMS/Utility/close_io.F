@@ -440,6 +440,8 @@
         IF (Master) WRITE (stdout,120)
       ELSE IF (exit_flag.eq.8) THEN
         IF (Master) WRITE (stdout,130)
+      ELSE IF (exit_flag.eq.9) THEN
+        IF (Master) WRITE (stdout,140)
       END IF
 !
  10   FORMAT (/,' ROMS/TOMS - Output NetCDF summary for Grid ',         &
@@ -459,6 +461,7 @@
 110   FORMAT (/,' ERROR: Illegal domain partition.')
 120   FORMAT (/,' ERROR: Illegal input parameter.')
 130   FORMAT (/,' ERROR: Fatal algorithm result.')
+140   FORMAT (/,' ERROR: Fatal frazil ice check.')
 
       RETURN
       END SUBROUTINE close_out

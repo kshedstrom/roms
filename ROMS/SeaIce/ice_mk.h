@@ -1,7 +1,7 @@
      SUBROUTINE ice_thermo (ng, tile)
 !
 !*************************************************** W. Paul Budgell ***
-!  Copyright (c) 2002-2010 ROMS/TOMS Group                             !
+!  Copyright (c) 2002-2012 ROMS/TOMS Group                             !
 !************************************************** Hernan G. Arango ***
 !                                                                      !
 !  This subroutine evaluates the ice thermodynamic growth and decay    !
@@ -396,7 +396,6 @@
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: snow
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: coa
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: t2
-      real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: w0
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: cht
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: chs
 
@@ -745,7 +744,6 @@
 
           END IF
 
-          w0(i,j) = xtot-ai(i,j,linew)*wai(i,j)
 #ifdef CASPIAN_XXX
           hh = h(i,j)+Zt_avg1(i,j)
           IF (hh.LT.1.0_r8) THEN

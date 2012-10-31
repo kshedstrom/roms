@@ -322,6 +322,7 @@
 ! 
 ! Initialize fast-step velocities if beginning of cycle
 
+#ifdef FOOO
 !
 ! Update ice velocity
 !
@@ -387,8 +388,8 @@
         IF (DOMAIN(ng)%SouthEast_Corner(tile)) THEN
           uie(Lm(ng)+1,0,1) = ui(Lm(ng)+1,0,liuol)
           uie(Lm(ng)+1,0,2) = ui(Lm(ng)+1,0,liuol)
-          vi(Lm(ng)+1,1,1) = vie(Lm(ng)+1,1,lienw)
-          vi(Lm(ng)+1,1,2) = vie(Lm(ng)+1,1,lienw)
+          vie(Lm(ng)+1,1,1) = vi(Lm(ng)+1,1,liuol)
+          vie(Lm(ng)+1,1,2) = vi(Lm(ng)+1,1,liuol)
         END IF
         IF (DOMAIN(ng)%NorthWest_Corner(tile)) THEN
           uie(1,Mm(ng)+1,1) = ui(1,Mm(ng)+1,liuol)
@@ -413,6 +414,7 @@
      &                    uie(:,:,2), vie(:,:,2))
 # endif
       ENDIF
+#endif
 ! ...................................
 !
 ! *** momentum equation 

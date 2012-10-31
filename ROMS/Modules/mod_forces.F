@@ -369,6 +369,11 @@
 # endif
 
           real(r8), pointer :: stflx(:,:,:)
+# if defined PERFECT_RESTART && defined ICE_MODEL
+          real(r8), pointer :: stflx_save(:,:,:)
+          real(r8), pointer :: sustr_save(:,:)
+          real(r8), pointer :: svstr_save(:,:)
+# endif
 # if !defined ANA_STFLUX || !defined ANA_SSFLUX || \
      !defined ANA_SPFLUX
           real(r8), pointer :: stflxG(:,:,:,:)
@@ -771,6 +776,11 @@
 # endif
 
       allocate ( FORCES(ng) % stflx(LBi:UBi,LBj:UBj,NT(ng)) )
+# if defined PERFECT_RESTART && defined ICE_MODEL
+      allocate ( FORCES(ng) % stflx_save(LBi:UBi,LBj:UBj,NAT) )
+      allocate ( FORCES(ng) % sustr_save(LBi:UBi,LBj:UBj) )
+      allocate ( FORCES(ng) % svstr_save(LBi:UBi,LBj:UBj) )
+# endif
 
 # if !defined ANA_STFLUX || !defined ANA_SSFLUX || \
      !defined ANA_SPFLUX
@@ -1289,6 +1299,12 @@
             FORCES(ng) % fastice_clmG(i,j,1) = IniVal
             FORCES(ng) % fastice_clmG(i,j,2) = IniVal
 #  endif
+# endif
+# if defined PERFECT_RESTART && defined ICE_MODEL
+            FORCES(ng) % stflx_save(i,j,1) = IniVal
+            FORCES(ng) % stflx_save(i,j,2) = IniVal
+            FORCES(ng) % sustr_save(i,j) = IniVal
+            FORCES(ng) % svstr_save(i,j) = IniVal
 # endif
             DO itrc=1,NT(ng)
 # ifdef ADJUST_STFLUX
