@@ -169,7 +169,7 @@ MY_CPP_FLAGS ?=
 #  Set directory for temporary objects.
 #--------------------------------------------------------------------------
 
-SCRATCH_DIR ?= /wrkdir/kate/Build_NEP
+SCRATCH_DIR ?= /center/w/kate/Build_NEP
  clean_list := core *.ipo $(SCRATCH_DIR)
 
 ifeq "$(strip $(SCRATCH_DIR))" "."

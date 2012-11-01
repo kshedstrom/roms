@@ -67,7 +67,10 @@
 
 #define NO_WRITE_GRID
 #undef OUT_DOUBLE
-#define RST_SINGLE
+#define PERFECT_RESTART
+#ifndef PERFECT_RESTART
+# define RST_SINGLE
+#endif
 #define AVERAGES
 #undef AVERAGES2
 #ifdef SOLVE3D
