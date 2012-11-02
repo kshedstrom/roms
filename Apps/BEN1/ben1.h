@@ -31,7 +31,7 @@
 #define NO_WRITE_GRID
 #undef OUT_DOUBLE
 #undef RST_SINGLE
-#define PERFECT_RESTART
+#undef PERFECT_RESTART
 #define AVERAGES
 #ifdef SOLVE3D
 # undef FILTERED
