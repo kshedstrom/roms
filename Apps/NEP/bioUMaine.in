@@ -519,6 +519,14 @@ Aout(idTvar) == 31*T
                     RadNud  RadNud  RadNud  Clo \ ! iOxyg Dissolved oxygen
                     RadNud  RadNud  RadNud  Clo \ ! iTAlk Total alkalinity
                     RadNud  RadNud  RadNud  Clo   ! iTIC_ Total CO2
+
+! Logical switches (TRUE/FALSE) to specify which variables to process for
+! tracers climatology: [NBT,Ngrids] values are expected. See glossary below
+! for details.
+
+  LtracerCLM == 31*F
+  LtracerSrc == 31*F
+
 !
 !  GLOSSARY:
 !  =========
@@ -781,3 +789,19 @@ Aout(idTvar) == 31*T
 !
 !              Hout(idTvar)     biological tracers
 !              Hout(idTsur)     biological tracers surface flux
+!------------------------------------------------------------------------------
+!  Tracer climatology processing switches.
+!------------------------------------------------------------------------------
+!
+!  LtracerCLM     Logical switches (T/F) to specify which tracer climatology
+!                   variables to consider when the option TCLIMATOLOGY is
+!                   activated; [1:NBT,1:Ngrids] values are expected.
+!
+!                     LtracerCLM(idbio(1:31),ng)    
+!
+!                 Recall that TCLIMATOLOGY is usually activated to nudge to
+!                 tracer climatology (TLCM_NUDGING).  The purpose of these
+!                 switches is to control which climatology tracer fields
+!                 (specially passive tracers) needs to be processed.  So we
+!                 may reduce the memory allocation for such array.
+!

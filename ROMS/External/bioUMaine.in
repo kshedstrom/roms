@@ -519,6 +519,19 @@ Aout(idTvar) == 31*T
                     Per     Clo     Per     Clo \ ! iOxyg Dissolved oxygen
                     Per     Clo     Per     Clo \ ! iTAlk Total alkalinity
                     Per     Clo     Per     Clo   ! iTIC_ Total CO2
+
+! Logical switches (TRUE/FALSE) to specify which variables to process for
+! tracers climatology: [NBT,Ngrids] values are expected. See glossary below
+! for details.
+
+  LtracerCLM == 31*F
+
+! Logical switches (TRUE/FALSE) to specify which variables to consider on
+! tracers point Sources/Sinks (like river runoff): [NBT,Ngrids] values are
+! expected. See glossary below for details.
+
+  LtracerSrc == 31*F
+
 !
 !  GLOSSARY:
 !  =========
@@ -781,3 +794,63 @@ Aout(idTvar) == 31*T
 !
 !              Hout(idTvar)     biological tracers
 !              Hout(idTsur)     biological tracers surface flux
+!
+!------------------------------------------------------------------------------
+!  Tracer climatology processing switches.
+!------------------------------------------------------------------------------
+!
+!  LtracerCLM     Logical switches (T/F) to specify which tracer climatology
+!                   variables to consider when the option TCLIMATOLOGY is
+!                   activated; [1:NBT,1:Ngrids] values are expected.
+!
+!                     LtracerCLM(idbio(1:31),ng)    
+!
+!                 Recall that TCLIMATOLOGY is usually activated to nudge to
+!                 tracer climatology (TLCM_NUDGING).  The purpose of these
+!                 switches is to control which climatology tracer fields
+!                 (specially passive tracers) needs to be processed.  So we
+!                 may reduce the memory allocation for such array.
+!
+!------------------------------------------------------------------------------
+!  Tracer point Sources/Sink sources switches.
+!------------------------------------------------------------------------------
+!
+!  LtracerSrc     Logical switches (T/F) to specify which tracer variables
+!                   to consider when the option TS_PSOURCE is activated;
+!                   [1:NBT,1:Ngrids] values are expected.
+!
+!                     LtracerSrc(idbio(1:31),ng)
+!
+!                   Recall that TS_PSOURCE is usually activated to add river
+!                   runoff as a point source. At minimum, it is necessary to
+!                   specify both temperature and salinity for all rivers. The
+!                   other tracers are optional. The user needs to know the
+!                   correspondence between biological variables and indices
+!                   idbio(1:NBT) when activating one or more of these switches.
+!
+!                   This logical switch REPLACES and ELIMINATES the need to
+!                   have or read the variable "river_flag(river)" in the input
+!                   rivers forcing NetCDF file:
+!
+!                     double river_flag(river)
+!                        river_flag:long_name = "river runoff tracer flag"
+!                        river_flag:option_0 = "all tracers are off"
+!                        river_flag:option_1 = "only temperature"
+!                        river_flag:option_2 = "only salinity"
+!                        river_flag:option_3 = "both temperature and salinity"
+!                        river_flag:units = "nondimensional"
+!
+!                   This logic was too cumbersome and complicated when
+!                   additional tracers are considered. However, this change
+!                   is backward compatible.
+!
+!                   The LtracerSrc switch will be used to activate the reading
+!                   of respective tracer variable from input river forcing
+!                   NetCDF file. If you want to add other tracer variables
+!                   (other than temperature and salinity) as a source for a
+!                   particular river(s), you just need to specify such values
+!                   on those river(s). Then, set the values to ZERO on the
+!                   other river(s) that do NOT require such river forcing for
+!                   that tracer. Recall that you need to specify the tracer
+!                   values for all rivers, even if their values are zero.
+!

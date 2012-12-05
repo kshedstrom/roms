@@ -1499,7 +1499,7 @@
 !
 !  Define quadratic <t*t> terms.
 !
-        DO itrc=1,NAT
+        DO itrc=1,NT(ng)
           IF (Aout(idTTav(itrc),ng)) THEN
             Vinfo( 1)=Vname(1,idTTav(itrc))
             Vinfo( 2)=TRIM(Vname(2,idTTav(itrc)))
@@ -1520,7 +1520,7 @@
 !
 !  Define active tracers volume fluxes.
 !
-        DO itrc=1,NAT
+        DO itrc=1,NT(ng)
           IF (Aout(iHUTav(itrc),ng)) THEN
             Vinfo( 1)=Vname(1,iHUTav(itrc))
             Vinfo( 2)=TRIM(Vname(2,iHUTav(itrc)))
@@ -1558,7 +1558,7 @@
 !
 !  Define quadratic <u*t> and <v*t> terms.
 !
-        DO itrc=1,NAT
+        DO itrc=1,NT(ng)
           IF (Aout(idUTav(itrc),ng)) THEN
             Vinfo( 1)=Vname(1,idUTav(itrc))
             Vinfo( 2)=TRIM(Vname(2,idUTav(itrc)))

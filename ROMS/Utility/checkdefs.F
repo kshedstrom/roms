@@ -748,12 +748,6 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+18)=' DOUBLE_PRECISION,'
 #endif
-#ifdef DRAG_LIMITER
-      IF (Master) WRITE (stdout,20) 'DRAG_LIMITER',                     &
-     &   'Limiter on bottom drag for stability.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+14)=' DRAG_LIMITER,'
-#endif
 #ifdef ECOSIM
       IF (Master) WRITE (stdout,20) 'ECOSIM',                           &
      &   'Bio-Optical EcoSim model.'
@@ -1000,6 +994,12 @@
      &   'Implicit Vertical Convolution Algorithm.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+16)=' IMPLICIT_VCONV,'
+#endif
+#if defined LIMIT_BSTRESS && defined SOLVE3D  && !defined BBL_MODEL
+      IF (Master) WRITE (stdout,20) 'LIMIT_BSTRESS',                    &
+     &   'Limit bottom stress to maintain bottom velocity direction.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+15)=' LIMIT_BSTRESS,'
 #endif
 #if defined NPZD_IRON && defined IRON_LIMIT
       IF (Master) WRITE (stdout,20) 'IRON_LIMIT',                       &

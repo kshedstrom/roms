@@ -2325,7 +2325,7 @@
 !
 !  Write out quadratic <t*t> term.
 !
-      DO i=1,NAT
+      DO i=1,NT(ng)
         IF (Aout(idTTav(i),ng)) THEN
           scale=1.0_r8
           gtype=gfactor*r3dvar
@@ -2350,7 +2350,7 @@
 !
 !  Write out active tracer volume fluxes.
 !
-      DO i=1,NAT
+      DO i=1,NT(ng)
         IF (Aout(iHUTav(i),ng)) THEN
           scale=1.0_r8
           gtype=gfactor*u3dvar
@@ -2396,7 +2396,7 @@
 !
 !  Write out quadratic <u*t> and <v*t> terms.
 !
-      DO i=1,NAT
+      DO i=1,NT(ng)
         IF (Aout(idUTav(i),ng)) THEN
           scale=1.0_r8
           gtype=gfactor*u3dvar

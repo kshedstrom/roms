@@ -276,6 +276,12 @@
 
        TNUDG == 14*0.0d0                   ! days
 
+! Logical switches (TRUE/FALSE) to specify which variables to process for
+! tracers climatology: [NBT,Ngrids] values are expected. See glossary below
+! for details.
+
+  LtracerCLM == 14*F
+
 ! Logical switches (TRUE/FALSE) to specify which variables to consider on
 ! tracers point Sources/Sinks (like river runoff): [NBT,Ngrids] values are
 ! expected. See glossary below for details.
@@ -654,6 +660,35 @@ Dout(iTvdif) == 14*T                       ! vertical diffusion
 !  TNUDG          Nudging time scale (days), [1:NBT,1:Ngrids]. Inverse scale
 !                   will be computed internally.
 !
+!
+!------------------------------------------------------------------------------
+!  Tracer climatology processing switches.
+!------------------------------------------------------------------------------
+!
+!  LtracerCLM     Logical switches (T/F) to specify which tracer climatology
+!                   variables to consider when the option TCLIMATOLOGY is
+!                   activated; [1:NBT,1:Ngrids] values are expected.
+!
+!                     LtracerCLM(idbio( 1),ng)    Nanophytoplankton biomass
+!                     LtracerCLM(idbio( 2),ng)    Diatom biomass
+!                     LtracerCLM(idbio( 3),ng)    Microzooplankton biomass
+!                     LtracerCLM(idbio( 4),ng)    Mesozooplankton biomass
+!                     LtracerCLM(idbio( 5),ng)    Predactor zooplankton biomass
+!                     LtracerCLM(idbio( 6),ng)    Nitrate concentration
+!                     LtracerCLM(idbio( 7),ng)    Ammonium concentration
+!                     LtracerCLM(idbio( 8),ng)    Particulate Organic Nitrogen
+!                     LtracerCLM(idbio( 9),ng)    Dissolved Organic Nitrogen
+!                     LtracerCLM(idbio(10),ng)    Silicate concentration
+!                     LtracerCLM(idbio(11),ng)    Particulate organic silica
+!                     LtracerCLM(idbio(12),ng)    
+!                     LtracerCLM(idbio(13),ng)    
+!                     LtracerCLM(idbio(14),ng)    
+!
+!                 Recall that TCLIMATOLOGY is usually activated to nudge to
+!                 tracer climatology (TLCM_NUDGING).  The purpose of these
+!                 switches is to control which climatology tracer fields
+!                 (specially passive tracers) needs to be processed.  So we
+!                 may reduce the memory allocation for such array.
 !
 !------------------------------------------------------------------------------
 !  Tracer point Sources/Sink sources switches.

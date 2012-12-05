@@ -142,7 +142,7 @@
 # define POT_TIDES
 # define UV_LDRAG
 # define RDRG_GRID
-# define DRAG_LIMITER
+# define LIMIT_BSTRESS
 # undef UV_QDRAG
 #else
 # define UV_QDRAG

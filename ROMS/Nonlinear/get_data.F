@@ -56,7 +56,7 @@
 
       integer :: ILB, IUB, JLB, JUB
       integer :: LBi, UBi, LBj, UBj
-      integer :: i, my_tile
+      integer :: i, ic, my_tile
 !
 !  Lower and upper bounds for nontiled (global values) boundary arrays.
 !
@@ -1454,20 +1454,19 @@
 
 # ifdef SOLVE3D
 #  if !defined ANA_TCLIMA && defined TCLIMATOLOGY
-!  KLUDGE - how many tracers to read? It depends...
-#    if defined SOGLOBEC || defined NEP6
+      ic=0
       DO i=1,NT(ng)
-#    else
-      DO i=1,NAT
-#    endif
-        CALL get_3dfld (ng, iNLM, idTclm(i), ncCLMid(idTclm(i),ng),     &
-     &                  nCLMfiles(ng), CLM(1,ng), update(1),            &
-     &                  LBi, UBi, LBj, UBj, 1, N(ng), 2, 1,             &
+        IF (LtracerCLM(i,ng)) THEN
+          ic=ic+1
+          CALL get_3dfld (ng, iNLM, idTclm(i), CLM(ng)%ncid,            &
+     &                    1, CLM(ng), update(1),                        &
+     &                    LBi, UBi, LBj, UBj, 1, N(ng), 2, 1,           &
 #   ifdef MASKING
-     &                  GRID(ng) % rmask,                               &
+     &                    GRID(ng) % rmask,                             &
 #   endif
-     &                  CLIMA(ng) % tclmG(:,:,:,:,i))
-        IF (exit_flag.ne.NoError) RETURN
+     &                    CLIMA(ng) % tclmG(:,:,:,:,ic))
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
       END DO
 
 #   if defined BCLIMATOLOGY
