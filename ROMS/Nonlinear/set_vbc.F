@@ -1,4 +1,5 @@
 #include "cppdefs.h"
+#define KATE_KLUDGE
       MODULE set_vbc_mod
 #ifdef NONLINEAR
 !
@@ -318,7 +319,7 @@
 # endif
 
 #  if !defined BBL_MODEL || defined ICESHELF
-      real(r8) :: cff1, cff2, cff3
+      real(r8) :: cff, cff1, cff2, cff3
 #  endif
 
 #  if (!defined BBL_MODEL || defined ICESHELF) && defined UV_LOGDRAG
@@ -778,6 +779,15 @@
 !  Set kinematic bottom momentum flux (m2/s2).
 !-----------------------------------------------------------------------
 
+#   ifdef LIMIT_BSTRESS
+!
+!  Set limiting factor for bottom stress. The bottom stress is adjusted
+!  to not change the direction of momentum.  It only should slow down
+!  to zero.  The value of 0.75 is arbitrary limitation assigment.
+!
+      cff=0.75_r8/dt(ng)
+#   endif
+
 #   if defined UV_LOGDRAG
 !
 !  Set logarithmic bottom stress.
@@ -798,6 +808,12 @@
           cff2=SQRT(u(i,j,1,nrhs)*u(i,j,1,nrhs)+cff1*cff1)
           bustr(i,j)=0.5_r8*(wrk(i-1,j)+wrk(i,j))*                      &
      &               u(i,j,1,nrhs)*cff2
+#    ifdef LIMIT_BSTRESS
+          cff3=cff*0.5_r8*(Hz(i-1,j,1)+Hz(i,j,1))
+          bustr(i,j)=SIGN(1.0_r8, bustr(i,j))*                          &
+     &               MIN(ABS(bustr(i,j)),                               &
+     &                   ABS(u(i,j,1,nrhs))*cff3)
+#    endif
         END DO
       END DO
       DO j=JstrV,Jend
@@ -809,19 +825,18 @@
           cff2=SQRT(cff1*cff1+v(i,j,1,nrhs)*v(i,j,1,nrhs))
           bvstr(i,j)=0.5_r8*(wrk(i,j-1)+wrk(i,j))*                      &
      &               v(i,j,1,nrhs)*cff2
+#    ifdef LIMIT_BSTRESS
+          cff3=cff*0.5_r8*(Hz(i,j-1,1)+Hz(i,j,1))
+          bvstr(i,j)=SIGN(1.0_r8, bvstr(i,j))*                          &
+     &               MIN(ABS(bvstr(i,j)),                               &
+     &                   ABS(v(i,j,1,nrhs))*cff3)
+#    endif
         END DO
       END DO
 #   elif defined UV_QDRAG
 !
 !  Set quadratic bottom stress.
 !
-#ifdef DRAG_LIMITER
-!
-! Here, 0.6 is a limiting nondimensional number for how
-! much of the bottom velocity can be taken out in one timestep
-!
-      cff3 = 0.6
-#endif
       DO j=Jstr,Jend
         DO i=IstrU,Iend
           cff1=0.25_r8*(v(i  ,j  ,1,nrhs)+                              &
@@ -829,12 +844,24 @@
      &                  v(i-1,j  ,1,nrhs)+                              &
      &                  v(i-1,j+1,1,nrhs))
           cff2=SQRT(u(i,j,1,nrhs)*u(i,j,1,nrhs)+cff1*cff1)
+#ifdef KATE_KLUDGE
           cff1=0.5_r8*(rdrag2(i,j)+rdrag2(i-1,j))
-#ifdef DRAG_LIMITER
-          cff1 = min((cff3*0.5*(Hz(i,j,1)+Hz(i-1,j,1))/                 &
-     &               ((cff2+eps)*dt(ng))), cff1)
-#endif
+# ifdef LIMIT_BSTRESS
+          cff1 = min((cff*0.5*(Hz(i,j,1)+Hz(i-1,j,1))/                 &
+     &               ((cff2+eps))), cff1)
+# endif
           bustr(i,j)=cff1*u(i,j,1,nrhs)*cff2
+#else
+! Hernan's version
+          bustr(i,j)=0.5_r8*(rdrag2(i-1,j)+rdrag2(i,j))*                &
+     &               u(i,j,1,nrhs)*cff2
+#    ifdef LIMIT_BSTRESS
+          cff3=cff*0.5_r8*(Hz(i-1,j,1)+Hz(i,j,1))
+          bustr(i,j)=SIGN(1.0_r8, bustr(i,j))*                          &
+     &               MIN(ABS(bustr(i,j)),                               &
+     &                   ABS(u(i,j,1,nrhs))*cff3)
+#    endif
+#endif
         END DO
       END DO
       DO j=JstrV,Jend
@@ -844,44 +871,55 @@
      &                  u(i  ,j-1,1,nrhs)+                              &
      &                  u(i+1,j-1,1,nrhs))
           cff2=SQRT(cff1*cff1+v(i,j,1,nrhs)*v(i,j,1,nrhs))
+#ifdef KATE_KLUDGE
           cff1=0.5_r8*(rdrag2(i,j)+rdrag2(i,j-1))
 #ifdef DRAG_LIMITER
-          cff1 = min((cff3*0.5*(Hz(i,j,1)+Hz(i,j-1,1))/                 &
-     &               ((cff2+eps)*dt(ng))), cff1)
+          cff1 = min((cff*0.5*(Hz(i,j,1)+Hz(i,j-1,1))/                 &
+     &               ((cff2+eps))), cff1)
 #endif
           bvstr(i,j)=cff1*v(i,j,1,nrhs)*cff2
+#else
+! Hernan's version
+          bvstr(i,j)=0.5_r8*(rdrag2(i,j-1)+rdrag2(i,j))*                &
+     &               v(i,j,1,nrhs)*cff2
+#    ifdef LIMIT_BSTRESS
+          cff3=cff*0.5_r8*(Hz(i,j-1,1)+Hz(i,j,1))
+          bvstr(i,j)=SIGN(1.0_r8, bvstr(i,j))*                          &
+     &               MIN(ABS(bvstr(i,j)),                               &
+     &                   ABS(v(i,j,1,nrhs))*cff3)
+#    endif
+#endif
         END DO
       END DO
 #    elif defined UV_LDRAG
 !
 !  Set linear bottom stress.
 !
-#ifdef DRAG_LIMITER
-!
-! Here, 0.6 is a limiting nondimensional number for how
-! much of the bottom velocity can be taken out in one timestep
-!
-      cff2 = 0.6
-#endif
       DO j=Jstr,Jend
         DO i=IstrU,Iend
-          cff1=0.5_r8*(rdrag(i,j)+rdrag(i-1,j))
-#ifdef DRAG_LIMITER
-          cff1 = min((cff2*0.5*(Hz(i,j,1)+Hz(i-1,j,1))/dt(ng)),cff1)
-#endif
-          bustr(i,j)=cff1*u(i,j,1,nrhs)
+          bustr(i,j)=0.5_r8*(rdrag(i-1,j)+rdrag(i,j))*                  &
+     &               u(i,j,1,nrhs)
+#    ifdef LIMIT_BSTRESS
+          cff1=cff*0.5_r8*(Hz(i-1,j,1)+Hz(i,j,1))
+          bustr(i,j)=SIGN(1.0_r8, bustr(i,j))*                          &
+     &               MIN(ABS(bustr(i,j)),                               &
+     &                   ABS(u(i,j,1,nrhs))*cff1)
+#    endif
         END DO
       END DO
       DO j=JstrV,Jend
         DO i=Istr,Iend
-          cff1=0.5_r8*(rdrag(i,j)+rdrag(i,j-1))
-#ifdef DRAG_LIMITER
-          cff1 = min((cff2*0.5*(Hz(i,j,1)+Hz(i,j-1,1))/dt(ng)),cff1)
-#endif
-          bvstr(i,j)=cff1*v(i,j,1,nrhs)
+          bvstr(i,j)=0.5_r8*(rdrag(i,j-1)+rdrag(i,j))*                  &
+     &               v(i,j,1,nrhs)
+#    ifdef LIMIT_BSTRESS
+          cff1=cff*0.5_r8*(Hz(i,j-1,1)+Hz(i,j,1))
+          bvstr(i,j)=SIGN(1.0_r8, bvstr(i,j))*                          &
+     &               MIN(ABS(bvstr(i,j)),                               &
+     &                   ABS(v(i,j,1,nrhs))*cff1)
+#    endif
         END DO
       END DO
-#    endif
+#   endif
 !
 !  Apply boundary conditions.
 !

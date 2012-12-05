@@ -18,8 +18,15 @@
 !       float my_var(time, lat, lon) ;                                 !
 !               my_var:long_name = "my variable long name" ;           !
 !               my_var:units = "my variable units" ;                   !
+!               my_var:coordinates = "lon lat time" ;                  !
+!               my_var:time = "time" ;                                 !
+!                                                                      !
+!  The following "coordinates" attribute is also allowed:              !
+!                                                                      !
 !               my_var:coordinates = "lon lat" ;                       !
-!               my_var:time = "my_var_time" ;                          !
+!                                                                      !
+!  That is, the time variable "time" is missing in the "coordinates"   !
+!  attribute.                                                          !
 !                                                                      !
 !  Notice that the associated coordinate names "lon" and "lat" are     !
 !  separated by a single blank space.  Both "lon" and "lat" can be     !
@@ -60,7 +67,7 @@
       logical :: foundit
 
       integer :: i, ic, j, jc
-      integer :: alen, blank, varid
+      integer :: alen, blank1, blank2, varid
 
       real(r8), dimension(Nx) :: Xwrk
       real(r8), dimension(Ny) :: Ywrk
@@ -89,14 +96,16 @@
         IF (TRIM(var_Aname(i)).eq.'coordinates') THEN
           alen=LEN_TRIM(var_Achar(i))
           IF (INDEX(var_Achar(i),CHAR(0)).ne.0) THEN
-!           IF (Master) THEN
-!             PRINT *, 'Inside IF Aname = ', TRIM(var_Achar(i)), alen
-!           END IF
             alen=alen-1
           END IF
-          blank=INDEX(var_Achar(i)(1:alen),' ')
-          Xname=var_Achar(i)(1:blank-1)
-          Yname=var_Achar(i)(blank+1:alen)
+          blank1=INDEX(var_Achar(i)(1:alen),' ')
+          blank2=INDEX(var_Achar(i)(blank1+1:alen),' ')
+          Xname=var_Achar(i)(1:blank1-1)
+          IF (blank2.gt.0) THEN
+            Yname=var_Achar(i)(blank1+1:blank1+blank2-1)
+          ELSE
+            Yname=var_Achar(i)(blank1+1:alen)
+          END IF
           foundit=.TRUE.
           EXIT
         END IF

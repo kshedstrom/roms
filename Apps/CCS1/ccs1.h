@@ -87,7 +87,7 @@
 #endif
  
 #define UV_QDRAG
-#define DRAG_LIMITER
+#define LIMIT_BSTRESS
  
 /* vertical mixing */
  

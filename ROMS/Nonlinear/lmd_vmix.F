@@ -60,23 +60,23 @@
 # endif
       IF (.not.PerfectRST(ng).or.iic(ng).ne.ntstart(ng)) THEN
         CALL lmd_vmix_tile (ng, tile,                                   &
-     &                    LBi, UBi, LBj, UBj,                           &
-     &                    IminS, ImaxS, JminS, JmaxS,                   &
-     &                    nstp(ng),                                     &
-     &                    GRID(ng) % Hz,                                &
+     &                      LBi, UBi, LBj, UBj,                         &
+     &                      IminS, ImaxS, JminS, JmaxS,                 &
+     &                      nstp(ng),                                   &
+     &                      GRID(ng) % Hz,                              &
 # ifndef SPLINES
-     &                    GRID(ng) % z_r,                               &
+     &                      GRID(ng) % z_r,                             &
 # endif
-     &                    OCEAN(ng) % rho,                              &
-     &                    OCEAN(ng) % u,                                &
-     &                    OCEAN(ng) % v,                                &
+     &                      OCEAN(ng) % rho,                            &
+     &                      OCEAN(ng) % u,                              &
+     &                      OCEAN(ng) % v,                              &
 # ifdef LMD_DDMIX
-     &                    OCEAN(ng) % t,                                &
-     &                    MIXING(ng) % alfaobeta,                       &
+     &                      OCEAN(ng) % t,                              &
+     &                      MIXING(ng) % alfaobeta,                     &
 # endif
-     &                    MIXING(ng) % bvf,                             &
-     &                    MIXING(ng) % Akt,                             &
-     &                    MIXING(ng) % Akv)
+     &                      MIXING(ng) % bvf,                           &
+     &                      MIXING(ng) % Akt,                           &
+     &                      MIXING(ng) % Akv)
 # ifdef LMD_SKPP
         CALL lmd_skpp (ng, tile)
 # endif

@@ -376,7 +376,12 @@
         logical, allocatable :: tl_VolCons(:,:)
 #endif
 !
-!  Switch indicating which tracer field need to be processed for
+!  Switch indicating which tracer field needs to be processed for
+!  climatology.
+!
+        logical, allocatable :: LtracerCLM(:,:)
+!
+!  Switch indicating which tracer field needs to be processed for
 !  Sources/Sinks terms.
 !
         logical, allocatable :: LtracerSrc(:,:)
@@ -1738,6 +1743,8 @@
       allocate ( tl_VolCons(4,Ngrids) )
 #endif
 
+      allocate ( LtracerCLM(MT,Ngrids) )
+
       allocate ( LtracerSrc(MT,Ngrids) )
 
       allocate ( maxspeed(Ngrids) )
@@ -2288,6 +2295,7 @@
         Kdigits(ng)=INT(LOG10(REAL(N (ng),r8)))+1
 #endif
         DO itrc=1,MT
+          LtracerCLM(itrc,ng)=.FALSE.
           LtracerSrc(itrc,ng)=.FALSE.
           ad_Akt_fac(itrc,ng)=1.0_r8
           tl_Akt_fac(itrc,ng)=1.0_r8
