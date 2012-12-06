@@ -121,7 +121,7 @@
       USE step_floats_mod, ONLY : step_floats
 # endif
       USE wvelocity_mod, ONLY : wvelocity
-# if defined PERFECT_RESTART && defined ICE_MODEL
+# if defined ICE_MODEL
       USE ice_flux_mod
 # endif
 !

@@ -185,7 +185,7 @@
 # define UV_LDRAG
 # define UV_DRAG_GRID
 # define ANA_DRAG
-# define DRAG_LIMITER
+# define LIMIT_BSTRESS
 # undef UV_QDRAG
 #else
 # define UV_QDRAG

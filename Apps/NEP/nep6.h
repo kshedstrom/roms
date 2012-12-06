@@ -67,7 +67,10 @@
 
 #define NO_WRITE_GRID
 #undef OUT_DOUBLE
-#define RST_SINGLE
+#define PERFECT_RESTART
+#ifndef PERFECT_RESTART
+# define RST_SINGLE
+#endif
 #define AVERAGES
 #undef AVERAGES2
 #ifdef SOLVE3D
@@ -173,7 +176,7 @@
 # undef UV_LDRAG
 # define UV_DRAG_GRID
 # define ANA_DRAG
-# define DRAG_LIMITER
+# define LIMIT_BSTRESS
 # define UV_QDRAG
 #else
 # define UV_QDRAG
@@ -219,7 +222,7 @@
 /*
 **  Biological model options.
 */
-#define BIO_UMAINE
+#undef BIO_UMAINE
 #undef NEMURO
 #undef BIO_GOANPZ        /* Sarah Hinckley's 11 box model */
 #undef BEST_NPZ         /* Georgina Gibsons BEST NPZ model  */

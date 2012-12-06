@@ -10,7 +10,7 @@
 !                                                                      !
 !***********************************************************************
 !
-#if defined ICE_MODEL && defined PERFECT_RESTART
+#if defined ICE_MODEL
       implicit none
 !
       PRIVATE
@@ -18,6 +18,7 @@
 !
       CONTAINS
 
+# ifdef PERFECT_RESTART
       SUBROUTINE ice_flux_rst (ng, tile)
       USE mod_param
       USE mod_ice
@@ -97,5 +98,15 @@
 
       RETURN
       END SUBROUTINE ice_flux_rst_tile
+# else
+      SUBROUTINE ice_flux_rst (ng, tile)
+      USE mod_param
+      USE mod_ice
+      USE mod_forces
+
+      integer, intent(in) :: ng, tile
+      END SUBROUTINE ice_flux_rst
+# endif
+
 #endif
       END MODULE ice_flux_mod

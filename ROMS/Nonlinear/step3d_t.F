@@ -357,11 +357,7 @@
       real(r8), intent(in) :: pn(LBi:UBi,LBj:UBj)
 #  if defined TCLM_NUDGING && defined TCLIMATOLOGY
       real(r8), intent(in) :: Tnudgcof(LBi:UBi,LBj:UBj,NT(ng))
-# if defined  CLIM_ICE_1D && defined ICE_BIO
-      real(r8), intent(in) :: tclm(LBi:UBi,LBj:UBj,N(ng),iCI) !was iFe
-#   else
-      real(r8), intent(in) :: tclm(LBi:UBi,LBj:UBj,N(ng),NT(ng))
-#   endif
+      real(r8), intent(in) :: tclm(LBi:UBi,LBj:UBj,N(ng),NTCLM(ng))
 #  endif
       real(r8), intent(in) :: Hz(LBi:UBi,LBj:UBj,N(ng))
       real(r8), intent(in) :: Huon(LBi:UBi,LBj:UBj,N(ng))
@@ -394,7 +390,7 @@
 !
 !  Local variable declarations.
 !
-      integer :: i, ibt, is, itrc, j, k, ltrc
+      integer :: i, ibt, ic, is, itrc, j, k, ltrc
 # ifdef DIAGNOSTICS_TS
       integer :: idiag
 # endif
@@ -1448,6 +1444,9 @@
       DO ibt=1,NBT
         itrc=idbio(ibt)
 #else
+# if defined TCLM_NUDGING && defined TCLIMATOLOGY
+      ic=0
+# endif
       DO itrc=1,NT(ng)
 #endif
 !
@@ -1483,63 +1482,18 @@
 !
 !  Nudge towards tracer climatology.
 !
-        DO k=1,N(ng)
-          DO j=JstrR,JendR
-            DO i=IstrR,IendR
-#  ifdef LARGE_AREA
-#   undef FULL_NUDGE
-#   ifdef FULL_NUDGE
-              IF (itrc.eq.itemp) THEN
-                 IF (tclm(i,j,k,itrc).lt.1.0_r8) THEN
-                     cff = 0._r8
-                 ELSEIF (tclm(i,j,k,itrc).ge.2.0_r8) THEN
-                     cff = Tnudgcof(i,j,itrc)
-                 ELSE
-                     cff = Tnudgcof(i,j,itrc)*(tclm(i,j,k,itrc)-1._r8)
-                 ENDIF
-              ELSE
-                 cff = Tnudgcof(i,j,itrc)
-              ENDIF
-#    else
-              IF(itrc.eq.isalt.and.k.eq.N(ng).and.                      &
-     & Tnudgcof(i,j,itrc).le.1.0_r8/(60.0_r8*86400.0_r8)) THEN
-                 cff = 1.0_r8/(60.0_r8*86400.0_r8)
-              ELSEIF(itrc.eq.itemp.and.k.eq.N(ng).and.                  &
-     & Tnudgcof(i,j,itrc).le.1.0_r8/(60.0_r8*86400.0_r8)) THEN
-                 IF (tclm(i,j,k,itrc).lt.1.0_r8) THEN
-                     cff = 0._r8
-                 ELSEIF (tclm(i,j,k,itrc).ge.2.0_r8) THEN
-                     cff = 1.0_r8/(60.0_r8*86400.0_r8)
-                 ELSE
-                     cff = 1.0_r8/(60.0_r8*86400.0_r8)*                 &
-     &                            (tclm(i,j,k,itrc)-1._r8)
-                 ENDIF
-              ELSE
-                 cff = Tnudgcof(i,j,itrc)
-              ENDIF
-
-#    endif
-              t(i,j,k,nnew,itrc)=t(i,j,k,nnew,itrc)+                    &
-     &                           dt(ng)*cff*                            &
-     & (tclm(i,j,k,itrc)-t(i,j,k,nnew,itrc))
-#  else
-#   ifdef SOGLOBEC2
-              IF (i.eq.401 .and. j.eq.9 .and. k.eq.14) THEN
-                print*,'New T: ',t(i,j,k,nnew,itrc),Tnudgcof(i,j,itrc), &
-     &                           tclm(i,j,k,itrc),tdays(ng),j
-              END IF
-              IF (i.eq.401 .and. j.eq.3 .and. k.eq.14) THEN
-                print*,'New T: ',t(i,j,k,nnew,itrc),Tnudgcof(i,j,itrc), &
-     &                           tclm(i,j,k,itrc),tdays(ng),j
-              END IF
-#   endif
-              t(i,j,k,nnew,itrc)=t(i,j,k,nnew,itrc)+                    &
-     &                           dt(ng)*Tnudgcof(i,j,itrc)*             &
-     &                           (tclm(i,j,k,itrc)-t(i,j,k,nnew,itrc))
-#  endif
+        IF (LtracerCLM(itrc,ng)) THEN
+          ic=ic+1
+          DO k=1,N(ng)
+            DO j=JstrR,JendR
+              DO i=IstrR,IendR
+                t(i,j,k,nnew,itrc)=t(i,j,k,nnew,itrc)+                  &
+     &                             dt(ng)*Tnudgcof(i,j,itrc)*           &
+     &                             (tclm(i,j,k,ic)-t(i,j,k,nnew,itrc))
+              END DO
             END DO
           END DO
-        END DO
+        END IF
 # endif
 # ifdef MASKING
 !
