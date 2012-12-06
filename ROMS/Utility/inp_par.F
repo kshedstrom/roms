@@ -958,6 +958,7 @@
         Fscale(idLhea,ng)=cff*Fscale(idLhea,ng)
         Fscale(idShea,ng)=cff*Fscale(idShea,ng)
         Fscale(iddQdT,ng)=cff*Fscale(iddQdT,ng)
+#endif
 
 #if defined SOLVE3D && defined TCLIMATOLOGY
 !
@@ -969,7 +970,7 @@
             ic=ic+1
           END IF
         END DO
-        NTC(ng)=ic
+        NTCLM(ng)=ic
 #endif
       END DO
 !

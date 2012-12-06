@@ -1821,17 +1821,18 @@
       END DO
 #   endif
 #   if defined BCLIMATOLOGY
-! FC & GH BIO TRACER
-      DO itrc=NAT+1,NT(ng)
-        IF (itrc==iFeD_ .OR. itrc==iNO3_ .OR. itrc==iSiOH) THEN
-          CALL set_3dfld_tile (ng, tile, iNLM, idTclm(itrc),            &
-     &                         LBi, UBi, LBj, UBj, 1, N(ng),            &
-     &                         CLIMA(ng)%tclmG(:,:,:,:,itrc),           &
-     &                         CLIMA(ng)%tclm (:,:,:,itrc),             &
-     &                         update)
-          IF (exit_flag.ne.NoError) RETURN
-        END IF
-      END DO
+! This is all redundant with new code
+!! FC & GH BIO TRACER
+!      DO itrc=NAT+1,NT(ng)
+!        IF (itrc==iFeD_ .OR. itrc==iNO3_ .OR. itrc==iSiOH) THEN
+!          CALL set_3dfld_tile (ng, tile, iNLM, idTclm(itrc),            &
+!     &                         LBi, UBi, LBj, UBj, 1, N(ng),            &
+!     &                         CLIMA(ng)%tclmG(:,:,:,:,itrc),           &
+!     &                         CLIMA(ng)%tclm (:,:,:,itrc),             &
+!     &                         update)
+!          IF (exit_flag.ne.NoError) RETURN
+!        END IF
+!      END DO
 #   endif
 
 #   ifdef AKT_3D /* use 3dAkt for 1D SEBS model  index was iFe+2 */
@@ -1859,23 +1860,6 @@
 #    endif
 #   endif
 
-#   if defined IRON_LIMIT
-!        CALL set_3dfld_tile (ng, tile, iNLM, idTclm(iFe),               &
-!     &                       LBi, UBi, LBj, UBj, 1, N(ng),              &
-!     &                       CLIMA(ng)%tclmG(:,:,:,:,iFe),              &
-!     &                       CLIMA(ng)%tclm (:,:,:,iFe),                &
-!     &                       update)
-#   endif
-
-#   if defined BIO_GOANPZ && defined IRON_LIMIT
-        CALL set_3dfld_tile (ng, tile, iNLM, idTclm(iFe),               &
-     &                       LBi, UBi, LBj, UBj, 1, N(ng),              &
-     &                       CLIMA(ng)%tclmG(:,:,:,:,iFe),              &
-     &                       CLIMA(ng)%tclm (:,:,:,iFe),                &
-     &                       update)
-#   endif
-
-#  endif  /* ! BERING_10K */
 #  if defined OFFLINE
       DO itrc=1,NAT
         DO k=1,N(ng)
