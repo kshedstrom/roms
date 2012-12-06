@@ -830,9 +830,9 @@
 !
 !  Check various parameters for writing time-filtered output
 !
-        IF (ntsavg(ng).ne.1) THEN
-          ntsavg(ng) = 1
-          IF (Master) print *, 'Resetting ntsavg to 1'
+        IF (ntsAVG(ng).ne.1) THEN
+          ntsAVG(ng) = 1
+          IF (Master) print *, 'Resetting ntsAVG to 1'
         END IF
         IF (MOD(dt(ng),1.0_r8).ne.0) THEN
           IF (Master) print *, 'Model timestep must be a whole number'

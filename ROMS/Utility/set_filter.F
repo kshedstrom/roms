@@ -315,7 +315,7 @@
 !       print *, 'SET_FILTER  iic-1:',iic-1
 !       print *, 'SET_FILTER  ntstart:',ntstart,'nrrec',nrrec
 !     END IF
-      IF ((iic(ng).gt.ntsavg(ng)).and.                                  &
+      IF ((iic(ng).gt.ntsAVG(ng)).and.                                  &
      &     (MOD(iic(ng)-ntstart(ng),nfil/nw).eq.0).and.                 &
      &    ((iic(ng).ne.ntstart(ng)))) THEN
 !    &    ((iic(ng).ne.ntstart(ng)).or.(nrrec(ng).eq.0))) THEN
