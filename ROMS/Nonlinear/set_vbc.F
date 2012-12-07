@@ -1,5 +1,4 @@
 #include "cppdefs.h"
-#define KATE_KLUDGE
       MODULE set_vbc_mod
 #ifdef NONLINEAR
 !
@@ -844,15 +843,6 @@
      &                  v(i-1,j  ,1,nrhs)+                              &
      &                  v(i-1,j+1,1,nrhs))
           cff2=SQRT(u(i,j,1,nrhs)*u(i,j,1,nrhs)+cff1*cff1)
-#ifdef KATE_KLUDGE
-          cff1=0.5_r8*(rdrag2(i,j)+rdrag2(i-1,j))
-# ifdef LIMIT_BSTRESS
-          cff1 = min((cff*0.5*(Hz(i,j,1)+Hz(i-1,j,1))/                 &
-     &               ((cff2+eps))), cff1)
-# endif
-          bustr(i,j)=cff1*u(i,j,1,nrhs)*cff2
-#else
-! Hernan's version
           bustr(i,j)=0.5_r8*(rdrag2(i-1,j)+rdrag2(i,j))*                &
      &               u(i,j,1,nrhs)*cff2
 #    ifdef LIMIT_BSTRESS
@@ -861,7 +851,6 @@
      &               MIN(ABS(bustr(i,j)),                               &
      &                   ABS(u(i,j,1,nrhs))*cff3)
 #    endif
-#endif
         END DO
       END DO
       DO j=JstrV,Jend
@@ -871,15 +860,6 @@
      &                  u(i  ,j-1,1,nrhs)+                              &
      &                  u(i+1,j-1,1,nrhs))
           cff2=SQRT(cff1*cff1+v(i,j,1,nrhs)*v(i,j,1,nrhs))
-#ifdef KATE_KLUDGE
-          cff1=0.5_r8*(rdrag2(i,j)+rdrag2(i,j-1))
-#ifdef DRAG_LIMITER
-          cff1 = min((cff*0.5*(Hz(i,j,1)+Hz(i,j-1,1))/                 &
-     &               ((cff2+eps))), cff1)
-#endif
-          bvstr(i,j)=cff1*v(i,j,1,nrhs)*cff2
-#else
-! Hernan's version
           bvstr(i,j)=0.5_r8*(rdrag2(i,j-1)+rdrag2(i,j))*                &
      &               v(i,j,1,nrhs)*cff2
 #    ifdef LIMIT_BSTRESS
@@ -888,7 +868,6 @@
      &               MIN(ABS(bvstr(i,j)),                               &
      &                   ABS(v(i,j,1,nrhs))*cff3)
 #    endif
-#endif
         END DO
       END DO
 #    elif defined UV_LDRAG
