@@ -258,7 +258,8 @@
       IF (NTCLM(ng).gt.0) THEN
         allocate ( CLIMA(ng) % tclm(LBi:UBi,LBj:UBj,N(ng),NTCLM(ng)) )
 #   ifndef ANA_TCLIMA
-        allocate ( CLIMA(ng) % tclmG(LBi:UBi,LBj:UBj,N(ng),2,NTCLM(ng)) )
+        allocate ( CLIMA(ng) % tclmG(LBi:UBi,LBj:UBj,N(ng),2,          &
+     &                               NTCLM(ng)) )
 #   endif
       END IF
 #  endif
