@@ -29,7 +29,7 @@
 #
                FC := pgf90
            FFLAGS :=
-              CPP := /usr/bin/cpp-4.0
+              CPP := /usr/bin/cpp
          CPPFLAGS := -P -traditional-cpp
                CC := gcc
               CXX := g++
