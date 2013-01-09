@@ -870,7 +870,9 @@
         FIL(7,ng)%name=TRIM(ADJUSTL('ocean_filr_'//ngnumber//'.nc'))
         FIL(8,ng)%name=TRIM(ADJUSTL('ocean_filt_'//ngnumber//'.nc'))
         FIL(9,ng)%name=TRIM(ADJUSTL('ocean_filw_'//ngnumber//'.nc'))
+#ifdef ICE_MODEL
         FIL(10,ng)%name=TRIM(ADJUSTL('ocean_filice_'//ngnumber//'.nc'))
+#endif
 !              allocate ( TIDE(ng)%Nrec(Nfiles) )
 !              allocate ( TIDE(ng)%time_min(Nfiles) )
 !              allocate ( TIDE(ng)%time_max(Nfiles) )
