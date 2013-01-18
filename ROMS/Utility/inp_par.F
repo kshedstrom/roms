@@ -871,25 +871,24 @@
         FIL(8,ng)%name=TRIM(ADJUSTL('ocean_filt_'//ngnumber//'.nc'))
         FIL(9,ng)%name=TRIM(ADJUSTL('ocean_filw_'//ngnumber//'.nc'))
         FIL(10,ng)%name=TRIM(ADJUSTL('ocean_filice_'//ngnumber//'.nc'))
-!              allocate ( TIDE(ng)%Nrec(Nfiles) )
-!              allocate ( TIDE(ng)%time_min(Nfiles) )
-!              allocate ( TIDE(ng)%time_max(Nfiles) )
         DO ifile=1,nfile
+          allocate ( FIL(ifile,ng)%Nrec(1) )
           allocate ( FIL(ifile,ng)%Vid(NV) )
           allocate ( FIL(ifile,ng)%Tid(MT) )
+          allocate ( FIL(ifile,ng)%time_min(1) )
+          allocate ( FIL(ifile,ng)%time_max(1) )
+          allocate ( FIL(ifile,ng)%files(1) )
+          FIL(ifile,ng)%Nfiles=1
+          FIL(ifile,ng)%Rindex=0
+          FIL(ifile,ng)%Fcount=1
+          FIL(ifile,ng)%Nrec=0
+          FIL(ifile,ng)%ncid=-1
+          FIL(ifile,ng)%Vid=-1
+          FIL(ifile,ng)%Tid=-1
+          FIL(ifile,ng)%time_min=0.0_r8
+          FIL(ifile,ng)%time_max=0.0_r8
+          FIL(ifile,ng)%label='FILTER - tidal filtering'
         END DO
-!              allocate ( TIDE(ng)%files(Nfiles) )
-!              TIDE(ng)%Nfiles=Nfiles
-!              TIDE(ng)%Fcount=1
-!              TIDE(ng)%Rindex=0
-!              TIDE(ng)%ncid=-1
-!              TIDE(ng)%Vid=-1
-!              TIDE(ng)%Tid=-1
-!              TIDE(ng)%Nrec(1:Nfiles)=0
-!              TIDE(ng)%time_min(1:Nfiles)=0.0_r8
-!              TIDE(ng)%time_max(1:Nfiles)=0.0_r8
-!              TIDE(ng)%name=TRIM(FRC(ifile,mg)%name)
-!              TIDE(ng)%label='TIDE - tidal forcing'
 # endif
 #endif
 !

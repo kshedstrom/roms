@@ -36,7 +36,7 @@
 !
       integer :: LBi, UBi, LBj, UBj
       integer :: gfactor, gtype, i, itrc, status, ifile, varid
-      integer :: start(10), total(10)
+      integer :: Fount, start(10), total(10)
       real(r8) :: scale
 
       character (len=256) :: ncname
@@ -65,7 +65,8 @@
 !  Set time record index.
 !
         FIL(ifile,ng)%Rindex=filterLevel
-        FIL(ifile,ng)%Nrec=FIL(ifile,ng)%Nrec+1
+        Fount = FIL(ifile,ng)%Fcount
+        FIL(ifile,ng)%Nrec(Fount)=FIL(ifile,ng)%Nrec(Fount)+1
 !
 !  Write out model time (s).
 !
