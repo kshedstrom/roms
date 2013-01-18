@@ -248,10 +248,6 @@
 #  endif
 # endif
 !
-!  Initialize unlimited time record dimension.
-!
-          FIL(ifile,ng)%Rindex=0
-!
 !  Initialize local information variable arrays.
 !
           DO i=1,Natt
