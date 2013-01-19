@@ -618,29 +618,11 @@ FOOOO
       real(r8), parameter :: epsil = 1.0E-15_r8
       real(r8), parameter :: add = 3.0E+3_r8
 
-      real(r8) :: fakt1
-      real(r8) :: fakt2
-
-      real(r8) :: aim1
-      real(r8) :: ajm1
-      real(r8) :: aim1jm1u
-      real(r8) :: aim1jm1v
-      real(r8) :: ajp1
-      real(r8) :: aim1jp1
-      real(r8) :: aip1
-      real(r8) :: aip1jm1
-
       real(r8) :: Cu_crss, Cu
       real(r8) :: rateu
       real(r8) :: ratev
       real(r8) :: rateyiu
       real(r8) :: ratexiv
-      real(r8) :: ratiou
-      real(r8) :: ratiov
-      real(r8) :: ratioyiu
-      real(r8) :: ratioxiv
-      real(r8) :: uiv
-      real(r8) :: viu
       real(r8) :: uspeed
       real(r8) :: vspeed
 

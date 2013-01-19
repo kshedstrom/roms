@@ -45,7 +45,6 @@
       CALL ice_vbc_tile (ng, tile,                                      &
      &                   LBi, UBi, LBj, UBj,                            &
      &                   IminS, ImaxS, JminS, JmaxS,                    &
-     &                   nrhs(ng),                                      &
      &                   liold(ng), liuol(ng),                          &
      &                   GRID(ng) % z_r,                                &
      &                   GRID(ng) % z_w,                                &
@@ -90,7 +89,6 @@
       SUBROUTINE ice_vbc_tile (ng, tile,                                &
      &                         LBi, UBi, LBj, UBj,                      &
      &                         IminS, ImaxS, JminS, JmaxS,              &
-     &                         nrhs,                                    &
      &                         liold, liuol,                            &
      &                         z_r, z_w,                                &
 # ifdef ICESHELF
@@ -124,7 +122,6 @@
       integer, intent(in) :: ng, tile
       integer, intent(in) :: LBi, UBi, LBj, UBj
       integer, intent(in) :: IminS, ImaxS, JminS, JmaxS
-      integer, intent(in) :: nrhs
       integer, intent(in) :: liold, liuol
 
 # ifdef ASSUMED_SHAPE
@@ -203,7 +200,6 @@
 # endif
       integer :: i, j
 
-      integer :: k
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: spdiw
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: chuiw
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: utauiw
@@ -216,8 +212,6 @@
 # endif
       real(r8) :: tauiwu
       real(r8) :: tauiwv
-      real(r8) :: tauawu
-      real(r8) :: tauawv
       real(r8) :: aix
       real(r8) :: aiy
       real(r8) :: spd
@@ -225,8 +219,6 @@
       real(r8) :: hiy
       real(r8) :: chux
       real(r8) :: chuy
-      real(r8) :: spdu
-      real(r8) :: spdv
 
       real(r8) :: rhoO
       real(r8) :: dztop

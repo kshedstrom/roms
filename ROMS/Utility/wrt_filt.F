@@ -35,8 +35,8 @@
 !  Local variable declarations.
 !
       integer :: LBi, UBi, LBj, UBj
-      integer :: gfactor, gtype, i, itrc, status, ifile, varid
-      integer :: Fount, start(10), total(10)
+      integer :: gfactor, gtype, itrc, status, ifile
+      integer :: Fount
       real(r8) :: scale
 
       character (len=256) :: ncname

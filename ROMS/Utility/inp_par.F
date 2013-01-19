@@ -40,7 +40,7 @@
 !
       logical :: Lwrite
 
-      integer :: Itile, Jtile, Nghost, Ntiles, tile
+      integer :: Itile, Jtile, Nghost, tile
       integer :: Imin, Imax, Jmin, Jmax
       integer :: Uoff, Voff
 #ifdef DISTRIBUTE
@@ -1162,7 +1162,7 @@
                     if (ierr.ne.0) then
                       write(*,*)                                        &
      &     '#### ERROR :: Cannot interpret string ', string(1:LenS),    &
-	' as a REAL number.'
+     &' as a REAL number.'
                     end if
                   END IF
                 ELSE

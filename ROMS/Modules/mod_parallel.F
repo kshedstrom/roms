@@ -197,7 +197,6 @@
 !
 !  Local variable declarations.
 !
-      integer :: i
 #ifdef DISTRIBUTE
       integer :: MyError
 #else

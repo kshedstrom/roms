@@ -35,17 +35,15 @@
 
       logical :: Ldefine, got_var(NV)
 
-      integer :: i, j, ifield, nrec, nvd3, nvd4
+      integer :: i, j, ifield, nvd3, nvd4
       integer :: recdim, status, ifile, varid
 
       integer :: DimIDs(32), t2dgrd(3), u2dgrd(3), v2dgrd(3)
 
-      integer :: def_info, wrt_info
-
 # ifdef SOLVE3D
       integer :: itrc
 
-      integer :: b3dgrd(4), t3dgrd(4), u3dgrd(4), v3dgrd(4), w3dgrd(4)
+      integer :: t3dgrd(4), u3dgrd(4), v3dgrd(4), w3dgrd(4)
 # endif
 
       integer :: def_dim
