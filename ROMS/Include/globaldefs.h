@@ -207,12 +207,14 @@
 
 #if defined ARRAY_MODES         || defined CLIPPING            || \
     defined CORRELATION         || defined FT_EIGENMODES       || \
-    defined FORCING_SV          || defined INNER_PRODUCT       || \
-    defined IS4DVAR             || defined IS4DVAR_SENSITIVITY || \
-    defined OPT_PERTURBATION    || defined OPT_OBSERVATIONS    || \
-    defined PICARD_TEST         || defined R_SYMMETRY          || \
-    defined RPM_DRIVER          || defined SANITY_CHECK        || \
-    defined SENSITIVITY_4DVAR   || defined TLM_CHECK           || \
+    defined FORCING_SV          || defined HESSIAN_FSV         || \
+    defined HESSIAN_SO          || defined HESSIAN_SV          || \
+    defined INNER_PRODUCT       || defined IS4DVAR             || \
+    defined IS4DVAR_SENSITIVITY || defined OPT_PERTURBATION    || \
+    defined OPT_OBSERVATIONS    || defined PICARD_TEST         || \
+    defined R_SYMMETRY          || defined RPM_DRIVER          || \
+    defined SANITY_CHECK        || defined SENSITIVITY_4DVAR   || \
+    defined STOCHASTIC_OPT      || defined TLM_CHECK           || \
     defined TLM_DRIVER          || defined TL_W4DPSAS          || \
     defined TL_W4DVAR           || defined W4DPSAS             || \
     defined W4DVAR
@@ -221,11 +223,13 @@
 #if defined AD_SENSITIVITY      || defined ADM_DRIVER          || \
     defined AFT_EIGENMODES      || defined ARRAY_MODES         || \
     defined CLIPPING            || defined CORRELATION         || \
-    defined FORCING_SV          || defined INNER_PRODUCT       || \
-    defined IS4DVAR             || defined IS4DVAR_SENSITIVITY || \
-    defined OPT_PERTURBATION    || defined OPT_OBSERVATIONS    || \
-    defined R_SYMMETRY          || defined SANITY_CHECK        || \
-    defined SENSITIVITY_4DVAR   || defined SO_SEMI             || \
+    defined FORCING_SV          || defined HESSIAN_SO          || \
+    defined HESSIAN_FSV         || defined HESSIAN_SV          || \
+    defined INNER_PRODUCT       || defined IS4DVAR             || \
+    defined IS4DVAR_SENSITIVITY || defined OPT_PERTURBATION    || \
+    defined OPT_OBSERVATIONS    || defined R_SYMMETRY          || \
+    defined SANITY_CHECK        || defined SENSITIVITY_4DVAR   || \
+    defined SO_SEMI             || defined STOCHASTIC_OPT      || \
     defined TLM_CHECK           || defined TL_W4DPSAS          || \
     defined TL_W4DVAR           || defined W4DPSAS             || \
     defined W4DVAR
@@ -309,10 +313,12 @@
 #define NONLINEAR
 #if defined AD_SENSITIVITY   || defined ADM_DRIVER       || \
     defined AFT_EIGENMODES   || defined FORCING_SV       || \
-    defined FT_EIGENMODES    || defined INNER_PRODUCT    || \
-    defined OPT_OBSERVATIONS || defined OPT_PERTURBATION || \
-    defined PICARD_TEST      || defined RPM_DRIVER       || \
-    defined SANITY_CHECK     || defined SO_SEMI          || \
+    defined FT_EIGENMODES    || defined HESSIAN_FSV      || \
+    defined HESSIAN_SO       || defined HESSIAN_SV       || \
+    defined INNER_PRODUCT    || defined OPT_OBSERVATIONS || \
+    defined OPT_PERTURBATION || defined PICARD_TEST      || \
+    defined RPM_DRIVER       || defined SANITY_CHECK     || \
+    defined SO_SEMI          || defined STOCHASTIC_OPT   || \
     defined TLM_DRIVER
 # undef NONLINEAR
 #endif
@@ -359,11 +365,12 @@
 ** Set internal switch for the need of a propagator driver.
 */
 
-#if defined AFT_EIGENMODES   || defined ENSEMBLE       || \
-    defined FORCING_SV       || defined FT_EIGENMODES  || \
-    defined OPT_PERTURBATION || defined PSEUDOSPECTRA  || \
-    defined SO_SEMI          || defined SO_TRACE       || \
-    defined STOCHASTIC_OPT
+#if defined AFT_EIGENMODES   || defined ENSEMBLE         || \
+    defined FORCING_SV       || defined FT_EIGENMODES    || \
+    defined HESSIAN_FSV      || defined HESSIAN_SO       || \
+    defined HESSIAN_SV       || defined OPT_PERTURBATION || \
+    defined PSEUDOSPECTRA    || defined SO_SEMI          || \
+    defined SO_TRACE         || defined STOCHASTIC_OPT
 # define PROPAGATOR
 #endif
 
@@ -395,9 +402,11 @@
 #if !defined WEAK_CONSTRAINT     && defined RPM_RELAXATION
 # undef RPM_RELAXATION
 #endif
-#if defined CORRELATION          || defined IS4DVAR             || \
-    defined IS4DVAR_SENSITIVITY  || defined OPT_OBSERVATIONS    || \
-    defined TLM_CHECK            || defined WEAK_CONSTRAINT
+#if defined CORRELATION          || defined HESSIAN_FSV         || \
+    defined HESSIAN_SO           || defined HESSIAN_SV          || \
+    defined IS4DVAR              || defined IS4DVAR_SENSITIVITY || \
+    defined OPT_OBSERVATIONS     || defined TLM_CHECK           || \
+    defined WEAK_CONSTRAINT
 # define FOUR_DVAR
 #endif
 #if defined IS4DVAR
@@ -444,19 +453,19 @@
 */
 
 #if !defined FORWARD_READ      && \
-    (defined IS4DVAR           || defined IS4DVAR_SENSITIVITY || \
-     defined SENSITIVITY_4DVAR || defined TL_W4DPSAS          || \
-     defined TL_W4DVAR         || defined W4DPSAS             || \
-     defined W4DVAR            || defined ARRAY_MODES         || \
-     defined CLIPPING)
+    (defined ARRAY_MODES       || defined CLIPPING            || \
+     defined IS4DVAR           || defined IS4DVAR_SENSITIVITY || \
+     defined PROPAGATOR        || defined SENSITIVITY_4DVAR   || \
+     defined TL_W4DPSAS        || defined TL_W4DVAR           || \
+     defined W4DPSAS           || defined W4DVAR)
 # define FORWARD_READ
 #endif
 #if !defined FORWARD_WRITE     && \
-    (defined IS4DVAR           || defined IS4DVAR_SENSITIVITY || \
+    (defined ARRAY_MODES       || defined CLIPPING            || \
+     defined IS4DVAR           || defined IS4DVAR_SENSITIVITY || \
      defined SENSITIVITY_4DVAR || defined TL_W4DPSAS          || \
      defined TL_W4DVAR         || defined W4DPSAS             || \
-     defined W4DVAR            || defined ARRAY_MODES         || \
-     defined CLIPPING)
+     defined W4DVAR)
 # define FORWARD_WRITE
 #endif
 
