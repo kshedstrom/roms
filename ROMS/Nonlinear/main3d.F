@@ -632,6 +632,7 @@
             CALL step3d_t (ng, tile)
           END DO
 !$OMP BARRIER
+          IF (exit_flag.ne.NoError) RETURN
         END DO
 #  ifdef NESTING
         CALL nesting (18)

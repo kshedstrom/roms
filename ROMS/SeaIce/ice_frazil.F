@@ -79,7 +79,7 @@
       USE exchange_3d_mod, ONLY : exchange_r3d_tile
 # ifdef DISTRIBUTE
       USE mp_exchange_mod
-      USE distribute_mod, ONLY : mp_bcasti
+      USE distribute_mod, ONLY : mp_reduce
 # endif
 !
       implicit none
@@ -130,6 +130,11 @@
       real(r8) :: gamma_k
       real(r8) :: t_fr
 
+# ifdef DISTRIBUTE
+      real(r8), allocatable           :: buffer(:)
+      character (len=3), allocatable  :: op_handle(:)
+# endif
+
 !  Inline functions
 !  Freezing temperature (Gill, 1982)
 !     t_freeze(s1,z1) = -0.0575*s1 + 1.710523d-3*sqrt(s1)**3
@@ -139,6 +144,10 @@
 
 # include "set_bounds.h"
 
+# ifdef DISTRIBUTE
+      IF (.not. allocated(buffer))    allocate (buffer(1))
+      IF (.not. allocated(op_handle)) allocate (op_handle(1))
+# endif
       DO j=Jstr,Jend
         DO i=Istr,Iend
           wfr(i,j) = 0.0_r8
@@ -191,7 +200,10 @@
      &                          LBi, UBi, LBj, UBj,                     &
      &                          wfr)
 # ifdef DISTRIBUTE
-      CALL mp_bcasti (ng, iNLM, exit_flag)
+      buffer(1) = exit_flag
+      op_handle(1) = 'MAX'
+      CALL mp_reduce (ng, iNLM, 1, buffer, op_handle)
+      exit_flag = int(buffer(1))
       CALL mp_exchange2d (ng, tile, iNLM, 1,                            &
      &                    LBi, UBi, LBj, UBj,                           &
      &                    NghostPoints, EWperiodic(ng), NSperiodic(ng), &
