@@ -732,11 +732,4 @@
       RETURN
       END SUBROUTINE state_addition
 
-#undef IstrT
-#undef IstrP
-#undef IendT
-#undef JstrT
-#undef JendT
-#undef JstrP
-
       END MODULE state_addition_mod

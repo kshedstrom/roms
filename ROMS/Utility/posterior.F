@@ -5608,12 +5608,4 @@
       END SUBROUTINE posterior_eofs
 #endif
 
-#undef IstrT
-#undef IstrP
-#undef IendT
-
-#undef JstrT
-#undef JendT
-#undef JstrP
-
       END MODULE posterior_mod
