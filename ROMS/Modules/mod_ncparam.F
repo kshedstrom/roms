@@ -747,7 +747,7 @@
 
       integer, parameter :: inp = 10
       integer :: Lvar, i, ic, ie, is, j, ng
-      integer :: gtype, tile, varid
+      integer :: gtype, varid
 
       real(r8), parameter :: spv = 0.0_r8
       real(r8) :: offset, scale

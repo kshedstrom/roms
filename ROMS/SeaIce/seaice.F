@@ -42,7 +42,7 @@
       implicit none
 
       integer :: tile
-      integer :: ng, my_ievp, nelas, iter
+      integer :: ng, my_ievp, nelas
       real(r8), parameter :: dt_large = 1.0E+23_r8
 
       DO ng=1,Ngrids

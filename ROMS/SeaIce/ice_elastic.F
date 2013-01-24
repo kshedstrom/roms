@@ -87,7 +87,6 @@
      &                      ICE(ng) % vie,                              &
      &                      ICE(ng) % ai,                               &
      &                      ICE(ng) % hi,                               &
-     &                      ICE(ng) % eta,                              &
      &                      ICE(ng) % sig11,                            &
      &                      ICE(ng) % sig22,                            &
      &                      ICE(ng) % sig12,                            &
@@ -129,7 +128,7 @@
 # endif
      &                        ui, vi, uwater, vwater, sealev,           &
      &                        uie, vie,                                 &
-     &                        ai, hi, eta,                              &
+     &                        ai, hi,                                   &
      &                        sig11, sig22, sig12,                      &
      &                        tauaiu, tauaiv,                           &
      &                        chu_iw) 
@@ -197,7 +196,6 @@
       real(r8), intent(inout) :: vie(LBi:,LBj:,:)
       real(r8), intent(in) :: ai(LBi:,LBj:,:)
       real(r8), intent(in) :: hi(LBi:,LBj:,:)
-      real(r8), intent(in) :: eta(LBi:,LBj:)
       real(r8), intent(in) :: sig11(LBi:,LBj:,:)
       real(r8), intent(in) :: sig22(LBi:,LBj:,:)
       real(r8), intent(in) :: sig12(LBi:,LBj:,:)
@@ -246,7 +244,6 @@
       real(r8), intent(inout) :: vie(LBi:UBi,LBj:UBj,2)
       real(r8), intent(in) :: ai(LBi:UBi,LBj:UBj,2)
       real(r8), intent(in) :: hi(LBi:UBi,LBj:UBj,2)
-      real(r8), intent(in) :: eta(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: sig11(LBi:UBi,LBj:UBj,2)
       real(r8), intent(in) :: sig22(LBi:UBi,LBj:UBj,2)
       real(r8), intent(in) :: sig12(LBi:UBi,LBj:UBj,2)
