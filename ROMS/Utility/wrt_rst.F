@@ -50,7 +50,7 @@
 !  Local variable declarations.
 !
       integer :: LBi, UBi, LBj, UBj
-      integer :: Fcount, gfactor, gtype, i, itrc, status, varid
+      integer :: Fcount, gfactor, gtype, i, itrc, status
 # if defined PERFECT_RESTART || defined SOLVE3D
       integer :: ntmp(1)
 # endif

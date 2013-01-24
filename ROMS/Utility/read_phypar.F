@@ -67,7 +67,7 @@
       logical, allocatable :: Ldiag(:)
 #endif
 
-      integer :: Lstr, Npts, Nval, i, itrc, ivar, k, ng, status
+      integer :: Npts, Nval, i, itrc, ivar, k, ng, status
       integer :: ifield, ifile, igrid, itracer, nline, mFfiles
       integer :: ibcfile, iclmfile
       integer :: Ivalue(1)

@@ -74,7 +74,7 @@
 !
 !  Local variable declarations.
 !
-      integer :: ic, ng, thread, tile
+      integer :: ng, thread, tile
       integer :: LBi, UBi, LBj, UBj, LBij, UBij
 
       integer, parameter :: model = 0

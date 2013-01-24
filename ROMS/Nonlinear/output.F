@@ -19,7 +19,7 @@
       USE mod_param
       USE mod_parallel
 # ifdef FILTERED
-      USE mod_filter, ONLY: nfil, FILN
+      USE mod_filter, ONLY: FILN
 # endif
 # ifdef FLOATS
       USE mod_floats
@@ -47,7 +47,7 @@
 !
       logical :: Ldefine, NewFile
 
-      integer :: Fcount, ifile, status, tile
+      integer :: Fcount, ifile, tile
 # ifdef FILTERED_RST
       integer :: i
 # endif

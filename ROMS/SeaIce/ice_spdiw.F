@@ -51,7 +51,6 @@
 # ifdef ICE_MODEL
      &                     liuol(ng),                                   &
 # endif
-     &                     GRID(ng) % Hz,                               &
      &                     GRID(ng) % z_r,                              &
      &                     GRID(ng) % z_w,                              &
      &                     OCEAN(ng) % u,                               &
@@ -79,7 +78,7 @@
 # ifdef ICE_MODEL
      &                           liuol,                                 &
 # endif
-     &                           Hz, z_r, z_w,                          &
+     &                           z_r, z_w,                              &
      &                           u, v,                                  &
 # ifdef LMD_SKPP
      &                           hsbl,                                  &
@@ -106,7 +105,6 @@
       integer, intent(in) :: liuol
 
 # ifdef ASSUMED_SHAPE
-      real(r8), intent(in) :: Hz(LBi:,LBj:,:)
       real(r8), intent(in) :: z_r(LBi:,LBj:,:)
       real(r8), intent(in) :: z_w(LBi:,LBj:,0:)
       real(r8), intent(in) :: u(LBi:,LBj:,:,:)
@@ -120,7 +118,6 @@
       real(r8), intent(out) :: vwater(LBi:,LBj:)
       real(r8), intent(out) :: spd_iw(LBi:,LBj:)
 # else
-      real(r8), intent(in) :: Hz(LBi:UBi,LBj:UBj,N(ng))
       real(r8), intent(in) :: z_r(LBi:UBi,LBj:UBj,N(ng))
       real(r8), intent(in) :: z_w(LBi:UBi,LBj:UBj,0:N(ng))
       real(r8), intent(in) :: u(LBi:UBi,LBj:UBj,N(ng),2)

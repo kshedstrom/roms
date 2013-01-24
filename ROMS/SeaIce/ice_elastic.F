@@ -87,8 +87,6 @@
      &                      ICE(ng) % vie,                              &
      &                      ICE(ng) % ai,                               &
      &                      ICE(ng) % hi,                               &
-     &                      ICE(ng) % pice,                             &
-     &                      ICE(ng) % zetai,                            &
      &                      ICE(ng) % eta,                              &
      &                      ICE(ng) % sig11,                            &
      &                      ICE(ng) % sig22,                            &
@@ -131,7 +129,7 @@
 # endif
      &                        ui, vi, uwater, vwater, sealev,           &
      &                        uie, vie,                                 &
-     &                        ai, hi, pice, zetai, eta,                 &
+     &                        ai, hi, eta,                              &
      &                        sig11, sig22, sig12,                      &
      &                        tauaiu, tauaiv,                           &
      &                        chu_iw) 
@@ -199,8 +197,6 @@
       real(r8), intent(inout) :: vie(LBi:,LBj:,:)
       real(r8), intent(in) :: ai(LBi:,LBj:,:)
       real(r8), intent(in) :: hi(LBi:,LBj:,:)
-      real(r8), intent(in) :: pice(LBi:,LBj:)
-      real(r8), intent(in) :: zetai(LBi:,LBj:)
       real(r8), intent(in) :: eta(LBi:,LBj:)
       real(r8), intent(in) :: sig11(LBi:,LBj:,:)
       real(r8), intent(in) :: sig22(LBi:,LBj:,:)
@@ -250,8 +246,6 @@
       real(r8), intent(inout) :: vie(LBi:UBi,LBj:UBj,2)
       real(r8), intent(in) :: ai(LBi:UBi,LBj:UBj,2)
       real(r8), intent(in) :: hi(LBi:UBi,LBj:UBj,2)
-      real(r8), intent(in) :: pice(LBi:UBi,LBj:UBj)
-      real(r8), intent(in) :: zetai(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: eta(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: sig11(LBi:UBi,LBj:UBj,2)
       real(r8), intent(in) :: sig22(LBi:UBi,LBj:UBj,2)
@@ -267,26 +261,18 @@
       real(r8) :: clear
 # endif
       integer :: i, j
-      integer :: i1, j1, iterin
 
-      real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: eps11
-      real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: eps22
-      real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: eps12
-
+# ifdef MICLM_NUDGING
       real(r8) :: cff
+# endif
       real(r8) :: f1
       real(r8) :: f2
       real(r8) :: s1
       real(r8) :: s2
-      real(r8) :: ua
-      real(r8) :: va
       real(r8) :: fakt
       real(r8) :: uforce
       real(r8) :: vforce
       real(r8) :: alfa
-      real(r8) :: beta
-      real(r8) :: flx
-      real(r8) :: dimax 
       real(r8) :: masu
       real(r8) :: masv 
       real(r8) :: chux

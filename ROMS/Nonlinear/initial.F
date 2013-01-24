@@ -63,7 +63,6 @@
 !  Local variable declarations.
 !
       logical, save :: First = .TRUE.
-      logical :: update = .FALSE.
 
       integer :: LBi, UBi, LBj, UBj
       integer :: Fcount, IniRec, Tindex

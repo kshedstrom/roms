@@ -37,12 +37,6 @@
      &                      LBi, UBi, LBj, UBj,                         &
      &                      IminS, ImaxS, JminS, JmaxS,                 &
      &                      liold(ng), lieol(ng), lienw(ng),            &
-# ifdef MASKING
-     &                      GRID(ng) % rmask,                           &
-# endif
-# ifdef WET_DRY
-     &                      GRID(ng) % rmask_wet,                       &
-# endif
      &                      GRID(ng) % pm,                              &
      &                      GRID(ng) % pn,                              &
      &                      ICE(ng) % uie,                              &
@@ -66,12 +60,6 @@
      &                        LBi, UBi, LBj, UBj,                       &
      &                        IminS, ImaxS, JminS, JmaxS,               &
      &                        liold, lieol, lienw,                      &
-# ifdef MASKING
-     &                        rmask,                                    &
-# endif
-# ifdef WET_DRY
-     &                        rmask_wet,                                &
-# endif
      &                        pm, pn,                                   &
      &                        uie, vie,                                 &
      &                        hi, pice, zetai, eta,                     &
@@ -102,12 +90,6 @@
       integer, intent(in) :: liold, lieol, lienw
 
 # ifdef ASSUMED_SHAPE
-#  ifdef MASKING
-      real(r8), intent(in) :: rmask(LBi:,LBj:)
-#  endif
-#  ifdef WET_DRY
-      real(r8), intent(in) :: rmask_wet(LBi:,LBj:)
-#  endif
       real(r8), intent(in) :: pm(LBi:,LBj:)
       real(r8), intent(in) :: pn(LBi:,LBj:)
       real(r8), intent(in) :: uie(LBi:,LBj:,:)
@@ -120,12 +102,6 @@
       real(r8), intent(inout) :: sig22(LBi:,LBj:,:)
       real(r8), intent(inout) :: sig12(LBi:,LBj:,:)
 # else
-#  ifdef MASKING
-      real(r8), intent(in) :: rmask(LBi:UBi,LBj:UBj)
-#  endif
-#  ifdef WET_DRY
-      real(r8), intent(in) :: rmask_wet(LBi:UBi,LBj:UBj)
-#  endif
       real(r8), intent(in) :: pm(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: pn(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: uie(LBi:UBi,LBj:UBj,2)
@@ -156,14 +132,8 @@
       real(r8) :: f1
       real(r8) :: f2
       real(r8) :: f3 
-      real(r8) :: s1
-      real(r8) :: s2
       real(r8) :: alfa
       real(r8) :: beta
-      real(r8) :: pmu
-      real(r8) :: pnu
-      real(r8) :: pmv
-      real(r8) :: pnv
       real(r8) :: epx
       real(r8) :: epy
 

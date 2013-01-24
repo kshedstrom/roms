@@ -154,7 +154,7 @@
 !
       logical :: First
 
-      integer :: Fcount, MyError, i, ng
+      integer :: Fcount, i, ng
 #if defined FILTERED_RST
       integer :: ifile
 #endif
