@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !=======================================================================
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                           Hernan G. Arango   !
 !========================================== Alexander F. Shchepetkin ===
@@ -632,6 +632,7 @@
             CALL step3d_t (ng, tile)
           END DO
 !$OMP BARRIER
+          IF (exit_flag.ne.NoError) RETURN
         END DO
 #  ifdef NESTING
         CALL nesting (18)

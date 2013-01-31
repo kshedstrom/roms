@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -108,7 +108,7 @@
 #endif
       integer :: IDmod, InpRec, gtype, i, ifield, itrc, lstr, lend
       integer :: Nrec, mySize, ncINPid, nvatts, nvdim, status, varid
-      integer :: Vsize(4), start(4), total(4)
+      integer :: Vsize(4)
 
       real(r8), parameter :: Fscl = 1.0_r8
 
@@ -118,8 +118,7 @@
 
       character (len=6 ) :: string
       character (len=14) :: t_code
-      character (len=15) :: attnam, tvarnam
-      character (len=40) :: tunits
+      character (len=15) :: tvarnam
 !
       SourceFile='get_state.F'
 
@@ -5623,8 +5622,6 @@
      &        ', Index=',i1,')')
   50  FORMAT (/,a,'GET_STATE - ',a,t62,'t = ',a,                        &
      &        /,19x,'(File: ',a,', Rec=',i4.4,', Index=',i1,')')
-  60  FORMAT (/,a,'GET_STATE - error while reading variable: ',a,2x,    &
-     &        'at time record = ',i3,/,18x,'in input NetCDF file: ',a)
   70  FORMAT (16x,'- ',a,/,19x,'(Min = ',1p,e15.8,                      &
      &        ' Max = ',1p,e15.8,')')
       RETURN

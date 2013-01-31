@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -1458,8 +1458,9 @@
       DO i=1,NT(ng)
         IF (LtracerCLM(i,ng)) THEN
           ic=ic+1
-          CALL get_3dfld (ng, iNLM, idTclm(i), CLM(ng)%ncid,            &
-     &                    1, CLM(ng), update(1),                        &
+          CALL get_3dfld (ng, iNLM, idTclm(i),                          &
+     &                    ncCLMid(idTclm(i),ng)%ncid,                   &
+     &                    nCLMfiles(ng), CLM(1,ng), update(1),          &
      &                    LBi, UBi, LBj, UBj, 1, N(ng), 2, 1,           &
 #   ifdef MASKING
      &                    GRID(ng) % rmask,                             &
@@ -1658,7 +1659,7 @@
      &                    1, FWD(ng), update(1),                        &
      &                    LBi, UBi, LBj, UBj, 1, N(ng), 2, 1,           &
 #  ifdef MASKING
-     &                    GRID(ng) % vmask,                             &
+     &                    GRID(ng) % rmask,                             &
 #  endif
      &                    OCEAN(ng) % tG(:,:,:,:,i))
           IF (exit_flag.ne.NoError) RETURN

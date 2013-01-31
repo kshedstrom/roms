@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2012 The ROMS/TOMS Group
+** Copyright (c) 2002-2013 The ROMS/TOMS Group
 **
 **   Licensed under a MIT/X style license
 **
@@ -28,8 +28,8 @@
 #ifdef SOLVE3D
 # define SPLINES
 #endif
-#define FLOATS
-#define STATIONS
+#undef FLOATS
+#undef STATIONS
 #undef WET_DRY
 
 #undef T_PASSIVE
@@ -70,7 +70,7 @@
 #undef OUT_DOUBLE
 #define RST_SINGLE
 #define AVERAGES
-#define AVERAGES2
+#undef AVERAGES2
 #ifdef SOLVE3D
 # undef AVERAGES_DETIDE
 # undef DIAGNOSTICS_TS
@@ -145,6 +145,7 @@
 #  undef ANA_SRFLUX
 #  undef ALBEDO
 #  define ALBEDO_CURVE  /* for water */
+#  define ICE_ALB_EC92  /* for ice */
 #  undef ALBEDO_CSIM   /* for ice */
 #  undef ALBEDO_FILE  /* for both */
 #  undef LONGWAVE

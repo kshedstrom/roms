@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -131,7 +131,7 @@
       synchro_flag(ng)=.TRUE.
       first_time(ng)=0
       ad_ubar_xs=0.0_r8
-      tdays(ng)=dstart+dt(ng)*FLOAT(ntimes(ng)-ntfirst(ng)+1)*sec2day
+      tdays(ng)=dstart+dt(ng)*REAL(ntimes(ng)-ntfirst(ng)+1,r8)*sec2day
       time(ng)=tdays(ng)*day2sec
       ntstart(ng)=ntimes(ng)+1
       ntend(ng)=ntfirst(ng)

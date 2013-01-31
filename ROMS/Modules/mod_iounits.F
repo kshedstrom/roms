@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -145,7 +145,7 @@
 !
 !  Error messages.
 !
-      character (len=50), dimension(8) :: Rerror =                      &
+      character (len=50), dimension(9) :: Rerror =                      &
      &       (/ ' ROMS/TOMS - Blows up ................ exit_flag: ',   &
      &          ' ROMS/TOMS - Input error ............. exit_flag: ',   &
      &          ' ROMS/TOMS - Output error ............ exit_flag: ',   &
@@ -153,7 +153,8 @@
      &          ' ROMS/TOMS - Configuration error ..... exit_flag: ',   &
      &          ' ROMS/TOMS - Partition error ......... exit_flag: ',   &
      &          ' ROMS/TOMS - Illegal input parameter . exit_flag: ',   &
-     &          ' ROMS/TOMS - Fatal algorithm result .. exit_flag: ' /)
+     &          ' ROMS/TOMS - Fatal algorithm result .. exit_flag: ',   &
+     &          ' ROMS/TOMS - Frazil ice problem ...... exit_flag: ' /)
 !
 !  Standard input scripts file names.
 !

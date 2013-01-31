@@ -3,7 +3,7 @@
       SUBROUTINE wrt_filt (ng, filterLevel)
 !
 !=======================================================================
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
 !================================================== Hernan G. Arango ===
 !                                                                      !
 !  This routine writes fields into filter restart NetCDF files.        !
@@ -35,8 +35,8 @@
 !  Local variable declarations.
 !
       integer :: LBi, UBi, LBj, UBj
-      integer :: gfactor, gtype, i, itrc, status, ifile, varid
-      integer :: start(10), total(10)
+      integer :: gfactor, gtype, itrc, status, ifile
+      integer :: Fount
       real(r8) :: scale
 
       character (len=256) :: ncname
@@ -65,7 +65,8 @@
 !  Set time record index.
 !
         FIL(ifile,ng)%Rindex=filterLevel
-        FIL(ifile,ng)%Nrec=FIL(ifile,ng)%Nrec+1
+        Fount = FIL(ifile,ng)%Fcount
+        FIL(ifile,ng)%Nrec(Fount)=FIL(ifile,ng)%Nrec(Fount)+1
 !
 !  Write out model time (s).
 !

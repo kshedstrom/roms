@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group       Andrew M. Moore   !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -177,6 +177,9 @@
 # endif
       USE u2dbc_mod, ONLY : u2dbc_tile
       USE v2dbc_mod, ONLY : v2dbc_tile
+# ifdef ICE_MODEL
+      USE ice_limit_mod, ONLY : ice_limit
+# endif
 !
 !  Imported variable declarations.
 !
@@ -757,6 +760,7 @@
 
 # ifdef ICE_MODEL
       IF (.not.PerfectRST(ng)) THEN
+        CALL ice_limit(ng, TILE)
         DO j=Jstr,Jend
           DO i=IstrU,Iend
             cff1=ui(i,j,nstp)

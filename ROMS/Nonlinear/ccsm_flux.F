@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -74,9 +74,6 @@ contains
      &                     GRID(ng) % umask,                            &
      &                     GRID(ng) % vmask,                            &
 # endif
-     &                     MIXING(ng) % alpha,                          &
-     &                     MIXING(ng) % beta,                           &
-     &                     OCEAN(ng) % rho,                             &
      &                     OCEAN(ng) % t,                               &
      &                     OCEAN(ng) % u,                               &
      &                     OCEAN(ng) % v,                               &
@@ -174,7 +171,7 @@ contains
 # ifdef MASKING
      &                           rmask, umask, vmask,                   &
 # endif
-     &                           alpha, beta, rho, t, u, v,             &
+     &                           t, u, v,                               &
      &                           Hair, Pair, Tair, Uwind, Vwind,        &
 # if defined CLOUDS
      &                           cloud,                                 &
@@ -270,9 +267,6 @@ contains
       real(r8), intent(in) :: umask(LBi:,LBj:)
       real(r8), intent(in) :: vmask(LBi:,LBj:)
 #  endif
-      real(r8), intent(in) :: alpha(LBi:,LBj:)
-      real(r8), intent(in) :: beta(LBi:,LBj:)
-      real(r8), intent(in) :: rho(LBi:,LBj:,:)
       real(r8), intent(in) :: t(LBi:,LBj:,:,:,:)
       real(r8), intent(in) :: u(LBi:,LBj:,:,:)
       real(r8), intent(in) :: v(LBi:,LBj:,:,:)
@@ -360,9 +354,6 @@ contains
       real(r8), intent(in) :: umask(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: vmask(LBi:UBi,LBj:UBj)
 #  endif
-      real(r8), intent(in) :: alpha(LBi:UBi,LBj:UBj)
-      real(r8), intent(in) :: beta(LBi:UBi,LBj:UBj)
-      real(r8), intent(in) :: rho(LBi:UBi,LBj:UBj,N(ng))
       real(r8), intent(in) :: t(LBi:UBi,LBj:UBj,N(ng),3,NT(ng))
       real(r8), intent(in) :: u(LBi:UBi,LBj:UBj,N(ng),3)
       real(r8), intent(in) :: v(LBi:UBi,LBj:UBj,N(ng),3)
@@ -448,15 +439,14 @@ contains
 !
 !  Local variable declarations.
 !
-      integer :: Iter, i, j, k, listp
-      integer :: IterMax
+      integer :: i, j, listp
 
       real(r8), parameter :: eps = 1.0E-20_r8
       real(r8), parameter :: r3 = 1.0_r8/3.0_r8
 
-      real(r8) :: Bf, Ce, Ch, Hl, Hlw, Hscale, Hscale2, Hs, Hsr, IER
-      real(r8) :: PairM,  RH, Taur, cff1, cff2
-      real(r8) :: Wspeed, ZQoL, ZToL, cff
+      real(r8) :: Ce, Ch, Hscale, Hscale2
+      real(r8) :: RH, cff1, cff2
+      real(r8) :: cff
 # ifdef ICE_BULK_FLUXES
 #  ifdef ALBEDO_CSIM
       real(r8), parameter :: alb_i_thick=0.54_r8
@@ -587,14 +577,11 @@ contains
       real(r8)    :: u10n   ! 10m neutral wind
       real(r8)    :: tau    ! stress at blk_ZX
       real(r8)    :: cpair     ! specific heat of moist air
-      real(r8)    :: bn     ! exchange coef funct for interpolation
-      real(r8)    :: bh     ! exchange coef funct for interpolation
       real(r8)    :: fac    ! vertical interpolation factor
       real(r8)    :: Hlv    ! Latent heat of vaporization at sea surface
       real(r8), dimension(IminS:ImaxS) :: rhoAir
       real(r8), dimension(IminS:ImaxS) :: TairK
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: LHeat
-      real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: LRad
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: SHeat
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: SRad
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: Taux

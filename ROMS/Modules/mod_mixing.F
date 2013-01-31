@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -691,7 +691,9 @@
 #endif
 
       real(r8), parameter :: IniVal = 0.0_r8
+#  if defined GLS_MIXING || defined MY25_MIXING
       real(r8) :: cff1, cff2, cff3, cff4
+#endif
 
 #include "set_bounds.h"
 !

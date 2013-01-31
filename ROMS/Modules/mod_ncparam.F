@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -746,11 +746,8 @@
       logical :: load
 
       integer, parameter :: inp = 10
-#ifdef DISTRIBUTE
-      integer :: Itile, Jtile
-#endif
-      integer :: Lvar, Ntiles, i, ic, ie, is, j, ng
-      integer :: gtype, tile, varid
+      integer :: Lvar, i, ic, ie, is, j, ng
+      integer :: gtype, varid
 
       real(r8), parameter :: spv = 0.0_r8
       real(r8) :: offset, scale
@@ -839,12 +836,16 @@
         ic=ic+1
         isTvar(i)=ic
       END DO
-#if defined ADJUST_WSTRESS || defined FORCING_SV || defined SO_SEMI
+#if defined ADJUST_WSTRESS || defined FORCING_SV     || \
+    defined HESSIAN_FSV    || defined SO_SEMI        || \
+    defined STOCHASTIC_OPT
       isUstr=ic+1
       isVstr=ic+2
       ic=ic+2
 #endif
-#if defined ADJUST_STFLUX  || defined FORCING_SV || defined SO_SEMI
+#if defined ADJUST_STFLUX  || defined FORCING_SV     || \
+    defined HESSIAN_FSV    || defined SO_SEMI        || \
+    defined STOCHASTIC_OPT
       DO i=1,MT
         ic=ic+1
         isTsur(i)=ic
@@ -2827,10 +2828,6 @@
      &        'variable: ',a,/,15x,'Need CASE construct for: ',a)
   80  FORMAT (/,' MOD_NCPARM - Error while reading information ',       &
      &        'for variable: ',a)
-  90  FORMAT (a,i2.2)
- 100  FORMAT (a,a,i2.2)
- 110  FORMAT (a)
- 120  FORMAT (a,a)
 
       RETURN
       END SUBROUTINE initialize_ncparam

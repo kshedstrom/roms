@@ -2,7 +2,7 @@
 !
 !svn $Id$
 !************************************************** Hernan G. Arango ***
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group       Andrew M. Moore   !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !***********************************************************************
@@ -37,6 +37,7 @@
       USE dotproduct_mod, ONLY : tl_statenorm
       USE ini_adjust_mod, ONLY : ad_ini_perturb
       USE packing_mod, ONLY : tl_unpack, ad_pack
+      USE mod_forces, ONLY : initialize_forces
 #ifdef SOLVE3D
       USE set_depth_mod, ONLY: set_depth
 #endif
@@ -273,7 +274,7 @@
 !
 !$OMP MASTER
         synchro_flag(ng)=.TRUE.
-        tdays(ng)=dstart+dt(ng)*FLOAT(ntimes(ng))*sec2day
+        tdays(ng)=dstart+dt(ng)*REAL(ntimes(ng),r8)*sec2day
         time(ng)=tdays(ng)*day2sec
         ntstart(ng)=ntimes(ng)+1
         ntend(ng)=1
@@ -381,6 +382,22 @@
         END DO
 !$OMP BARRIER
       END DO
+!
+!$OMP BARRIER
+      IF (exit_flag.ne.NoError) RETURN
+!
+!-----------------------------------------------------------------------
+!  Clear forcing variables for next iteration.
+!-----------------------------------------------------------------------
+!
+      DO ng=1,Ngrids
+        DO tile=first_tile(ng),last_tile(ng),+1
+          CALL initialize_forces (ng, tile, iTLM)
+          CALL initialize_forces (ng, tile, iADM)
+        END DO
+!$OMP BARRIER
+      END DO
+
 !
  10   FORMAT (/,a,i2.2,a,i3.3,a,i3.3/)
  20   FORMAT (/,a,i2.2,a,1p,e15.6,/)

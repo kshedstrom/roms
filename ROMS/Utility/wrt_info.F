@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -73,7 +73,7 @@
       logical :: Cgrid = .TRUE.
 
       integer :: LBi, UBi, LBj, UBj
-      integer :: i, j, k, ibry, ilev, itrc, status, varid
+      integer :: i, j, k, ibry, itrc, status, varid
 
 #ifdef DISTRIBUTE
       integer, dimension(2) :: ibuffer
@@ -1045,9 +1045,9 @@
 # endif
 #endif
 
-#if defined FORCING_SV || defined SO_SEMI
+#if defined FORCING_SV || defined SO_SEMI || defined STOCHASTIC_OPT
 !
-!  Singulat=r Forcing Vectors or Stochastic Optimals state switches.
+!  Singular Forcing Vectors or Stochastic Optimals state switches.
 !
       CALL netcdf_put_lvar (ng, model, ncname, 'Fzeta',                 &
      &                      SCALARS(ng)%Fstate(isFsur),                 &
@@ -2258,8 +2258,6 @@
      &        12x,'into file: ',a)
   20  FORMAT (/,' WRT_INFO - error while inquiring ID for variable: ',  &
      &        a,/,12x,'in file: ',a)
-  30  FORMAT (/,' WRT_INFO - unable to synchronize to disk file: ',     &
-     &        /,12x,a)
 
       RETURN
       END SUBROUTINE wrt_info

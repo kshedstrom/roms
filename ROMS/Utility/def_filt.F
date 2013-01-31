@@ -3,7 +3,7 @@
       SUBROUTINE def_filt (ng)
 !
 !=======================================================================
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
 !================================================== Hernan G. Arango ===
 !                                                                      !
 !  This routine creates filter NetCDF file, it defines its             !
@@ -35,17 +35,15 @@
 
       logical :: Ldefine, got_var(NV)
 
-      integer :: i, j, ifield, nrec, nvd3, nvd4
+      integer :: i, j, ifield, nvd3, nvd4
       integer :: recdim, status, ifile, varid
 
       integer :: DimIDs(32), t2dgrd(3), u2dgrd(3), v2dgrd(3)
 
-      integer :: def_info, wrt_info
-
 # ifdef SOLVE3D
       integer :: itrc
 
-      integer :: b3dgrd(4), t3dgrd(4), u3dgrd(4), v3dgrd(4), w3dgrd(4)
+      integer :: t3dgrd(4), u3dgrd(4), v3dgrd(4), w3dgrd(4)
 # endif
 
       integer :: def_dim
@@ -247,10 +245,6 @@
           w3dgrd(4)=DimIDs(32)
 #  endif
 # endif
-!
-!  Initialize unlimited time record dimension.
-!
-          FIL(ifile,ng)%Rindex=0
 !
 !  Initialize local information variable arrays.
 !

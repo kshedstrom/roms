@@ -41,10 +41,9 @@
 
       implicit none
 
-      integer :: thread, subs, tile
-      integer :: i, nforc, ng, my_ievp, nelas, iter
+      integer :: tile
+      integer :: ng, my_ievp, nelas
       real(r8), parameter :: dt_large = 1.0E+23_r8
-      real(r8) :: dtice_sav
 
       DO ng=1,Ngrids
         liold(ng) = linew(ng)
