@@ -890,6 +890,7 @@
           FIL(ifile,ng)%time_max=0.0_r8
           FIL(ifile,ng)%label='FILTER - tidal filtering'
         END DO
+#endif
 # endif
 #endif
 !

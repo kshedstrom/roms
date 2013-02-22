@@ -28,8 +28,8 @@
 #ifdef SOLVE3D
 # define SPLINES
 #endif
-#undef FLOATS
-#undef STATIONS
+#define FLOATS
+#define STATIONS
 #undef WET_DRY
 
 #undef T_PASSIVE

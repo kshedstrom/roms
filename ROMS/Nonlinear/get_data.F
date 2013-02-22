@@ -1459,7 +1459,7 @@
         IF (LtracerCLM(i,ng)) THEN
           ic=ic+1
           CALL get_3dfld (ng, iNLM, idTclm(i),                          &
-     &                    ncCLMid(idTclm(i),ng)%ncid,                   &
+     &                    ncCLMid(idTclm(i),ng),                        &
      &                    nCLMfiles(ng), CLM(1,ng), update(1),          &
      &                    LBi, UBi, LBj, UBj, 1, N(ng), 2, 1,           &
 #   ifdef MASKING

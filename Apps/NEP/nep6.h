@@ -146,8 +146,8 @@
 #  undef ANA_SRFLUX
 #  undef ALBEDO
 #  define SOLAR_SOURCE
-#  undef ALBEDO_CURVE
-#  define ALBEDO_FILE
+#  define ALBEDO_CURVE
+#  undef ALBEDO_FILE
 #  undef LONGWAVE
 # endif
 #endif
