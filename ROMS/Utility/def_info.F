@@ -2760,8 +2760,12 @@
 #ifdef NO_WRITE_GRID
       IF (ncid.eq.STA(ng)%ncid) THEN
 #else
+# ifdef NEMURO_SAN
       IF (ncid.ne.FLT(ng)%ncid .and. ncid.ne.FISH(ng)%ncid .and.        &
      &    ncid.ne.PRED(ng)%ncid .and. ncid.ne.FLEET(ng)%ncid) THEN
+# else
+      IF (ncid.ne.FLT(ng)%ncid) THEN
+# endif
 #endif
 #if !(defined SED_MORPH && defined SEDIMENT)
 !
