@@ -525,8 +525,8 @@
 !  Once a year, we clean out the oldest fish.
 !  Must do this before calling output.
 !
-        DO ng=1,Ngrids
 # ifdef NEMURO_SAN
+        DO ng=1,Ngrids
 !$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(ng,numthreads)
           DO thread=0,numthreads-1
             IF (iyesterday(ng) .ne. idays(ng)) THEN

@@ -1,6 +1,6 @@
 # $Id$
 #::::::::::::::::::::::::::::::::::::::::::::::::::::: Hernan G. Arango :::
-# Copyright (c) 2002-2010 The ROMS/TOMS Group             Kate Hedstrom :::
+# Copyright (c) 2002-2013 The ROMS/TOMS Group             Kate Hedstrom :::
 #   Licensed under a MIT/X style license                                :::
 #   See License_ROMS.txt                                                :::
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -28,7 +28,7 @@
 #                                                                       :::
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-NEED_VERSION := 3.80 3.81
+NEED_VERSION := 3.80 3.81 3.82
 $(if $(filter $(MAKE_VERSION),$(NEED_VERSION)),,        \
  $(error This makefile requires one of GNU make version $(NEED_VERSION).))
 
@@ -88,12 +88,6 @@ MY_ANALYTICAL_DIR ?=
 
 MY_CPP_FLAGS ?=
 
-#  Set number of ROMS nested and/or composed grid.  Currently, only
-#  one grid is supported.  This option will be available in the near
-#  future.
-
- NestedGrids ?= 1
-
 #  Activate debugging compiler options:
 
    USE_DEBUG ?=
@@ -121,7 +115,7 @@ MY_CPP_FLAGS ?=
 #  If applicable, link with NetCDF-4 library. Notice that the NetCDF-4
 #  library needs both the HDF5 and MPI libraries.
 
- USE_NETCDF4 ?=
+ USE_NETCDF4 ?= on
 
 #--------------------------------------------------------------------------
 #  We are going to include a file with all the settings that depend on
@@ -146,7 +140,7 @@ MY_CPP_FLAGS ?=
 #  NetCDF and so on.
 #--------------------------------------------------------------------------
 
-        FORT ?= pgi
+        FORT ?= ifort
 
 #--------------------------------------------------------------------------
 #  Set directory for executable.
@@ -424,7 +418,9 @@ endif
 ifdef USE_SEAICE
  modules  +=	ROMS/SeaIce
 endif
- modules  +=	ROMS/Utility
+ modules  +=	ROMS/Utility \
+		ROMS/Modules
+
 
  includes :=	ROMS/Include
 ifdef MY_ANALYTICAL
