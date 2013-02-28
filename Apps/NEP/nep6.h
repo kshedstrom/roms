@@ -141,6 +141,7 @@
 #  define EMINUSP
 #  undef ANA_SRFLUX
 #  undef ALBEDO
+#  define ICE_ALB_EC92
 #  define ALBEDO_CURVE
 #  undef LONGWAVE
 # endif
