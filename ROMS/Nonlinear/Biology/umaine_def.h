@@ -40,6 +40,14 @@
      &               SetParAccess = .FALSE.)
       IF (exit_flag.ne.NoError) RETURN
 
+      Vinfo( 1)='gmaxs3'
+      Vinfo( 2)='maximum specific growth rate of coccolithophores'
+      Vinfo( 3)='day-1'
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
       Vinfo( 1)='beta1'
       Vinfo( 2)='microzooplankton maximum grazing rate'
       Vinfo( 3)='day-1'
@@ -79,32 +87,32 @@
      &               SetParAccess = .FALSE.)
       IF (exit_flag.ne.NoError) RETURN
 
-      Vinfo( 1)='amaxs2'
-      Vinfo( 2)='initial slope of P-I curve of small phytoplankton'
+      Vinfo( 1)='alphachl_s1'
+      Vinfo( 2)='slope chl-specific P-I curve of small phytoplankton'
       Vinfo( 3)='meter2 watts-1 day-1'
       status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
      &               1, (/0/), Aval, Vinfo, ncname,                     &
      &               SetParAccess = .FALSE.)
       IF (exit_flag.ne.NoError) RETURN
 
-      Vinfo( 1)='parsats1'
-      Vinfo( 2)='PAR saturation onset parameter for iSphy'
-      Vinfo( 3)='watts m-2'
+      Vinfo( 1)='alphachl_s2'
+      Vinfo( 2)='slope chl-specific P-I curve of diatom'
+      Vinfo( 3)='meter2 watts-1 day-1'
       status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
      &               1, (/0/), Aval, Vinfo, ncname,                     &
      &               SetParAccess = .FALSE.)
       IF (exit_flag.ne.NoError) RETURN
 
-      Vinfo( 1)='parsats2'
-      Vinfo( 2)='PAR saturation onset parameter for iLphy'
-      Vinfo( 3)='watts m-2'
+      Vinfo( 1)='alphachl_s3'
+      Vinfo( 2)='slope chl-specific P-I curve of coccolithophores'
+      Vinfo( 3)='meter2 watts-1 day-1'
       status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
      &               1, (/0/), Aval, Vinfo, ncname,                     &
      &               SetParAccess = .FALSE.)
       IF (exit_flag.ne.NoError) RETURN
 
       Vinfo( 1)='pis1'
-      Vinfo( 2)='ammonium inhibition parameter for iSphy'
+      Vinfo( 2)='ammonium inhibition parameter for small phytoplankton'
       Vinfo( 3)='millimole_N meter-3'
       status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
      &               1, (/0/), Aval, Vinfo, ncname,                     &
@@ -112,7 +120,15 @@
       IF (exit_flag.ne.NoError) RETURN
 
       Vinfo( 1)='pis2'
-      Vinfo( 2)='ammonium inhibition parameter for iLphy'
+      Vinfo( 2)='ammonium inhibition parameter for diatom'
+      Vinfo( 3)='millimole_N meter-3'
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='pis3'
+      Vinfo( 2)='ammonium inhibition parameter for coccolithophores'
       Vinfo( 3)='millimole_N meter-3'
       status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
      &               1, (/0/), Aval, Vinfo, ncname,                     &
@@ -128,7 +144,15 @@
       IF (exit_flag.ne.NoError) RETURN
 
       Vinfo( 1)='akno3s2'
-      Vinfo( 2)='half saturation of nitrate uptake by iLphy'
+      Vinfo( 2)='half saturation of nitrate uptake by diatom'
+      Vinfo( 3)='millimole_N meter-3'
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='akno3s3'
+      Vinfo( 2)='half saturation of nitrate uptake by coccolithophores'
       Vinfo( 3)='millimole_N meter-3'
       status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
      &               1, (/0/), Aval, Vinfo, ncname,                     &
@@ -151,6 +175,14 @@
      &               SetParAccess = .FALSE.)
       IF (exit_flag.ne.NoError) RETURN
 
+      Vinfo( 1)='aknh4s3'
+      Vinfo( 2)='half saturation of ammonium uptake by coccolithophores'
+      Vinfo( 3)='millimole_N meter-3'
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
       Vinfo( 1)='akpo4s1'
       Vinfo( 2)='half saturation of phosphate uptake by iSphy'
       Vinfo( 3)='millimole_P meter-3'
@@ -161,6 +193,14 @@
 
       Vinfo( 1)='akpo4s2'
       Vinfo( 2)='half saturation of phosphate uptake by iLphy'
+      Vinfo( 3)='millimole_P meter-3'
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='akpo4s3'
+      Vinfo( 2)='half saturation of phosphate uptake by coccolithophores'
       Vinfo( 3)='millimole_P meter-3'
       status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
      &               1, (/0/), Aval, Vinfo, ncname,                     &
@@ -183,9 +223,41 @@
      &               SetParAccess = .FALSE.)
       IF (exit_flag.ne.NoError) RETURN
 
+      Vinfo( 1)='akco2s3'
+      Vinfo( 2)='half saturation of co2 uptake by coccolithophores'
+      Vinfo( 3)='millimole_C meter-3'
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
       Vinfo( 1)='aksio4s2'
       Vinfo( 2)='half saturation of silicate uptake by iLphy'
       Vinfo( 3)='millimole_Si meter-3'
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='ES1'
+      Vinfo( 2)='Phytoplankton exudation parameter for small phytoplankton'
+      Vinfo( 3)='nondimensional'
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='ES2'
+      Vinfo( 2)='Phytoplankton exudation parameter for diatom'
+      Vinfo( 3)='nondimensional'
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='ES3'
+      Vinfo( 2)='Phytoplankton exudation parameter for coccolithophores'
+      Vinfo( 3)='nondimensional'
       status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
      &               1, (/0/), Aval, Vinfo, ncname,                     &
      &               SetParAccess = .FALSE.)
@@ -207,7 +279,71 @@
      &               SetParAccess = .FALSE.)
       IF (exit_flag.ne.NoError) RETURN
 
-      Vinfo( 1)='bgamma0'
+      Vinfo( 1)='Qmax'
+      Vinfo( 2)='Maximum phytoplankton N:C ratio'
+      Vinfo( 3)='mol_N mol_C-1'
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='Qmin'
+      Vinfo( 2)='Minimum phytoplankton N:C ratio'
+      Vinfo( 3)='mol_N mol_C-1'
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='lambdano3_s1'
+      Vinfo( 2)='Cost of biosynthesis for small phytoplankton'
+      Vinfo( 3)='mol_C mol_N-1'
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='lambdano3_s2'
+      Vinfo( 2)='Cost of biosynthesis for diatom'
+      Vinfo( 3)='mol_C mol_N-1'
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='lambdano3_s3'
+      Vinfo( 2)='Cost of biosynthesis for coccolithophores'
+      Vinfo( 3)='mol_C mol_N-1'
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='thetaNmax_s1'
+      Vinfo( 2)='Maximum Chl:N for small phytoplankton'
+      Vinfo( 3)='g_Chl mol_N-1'
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='thetaNmax_s2'
+      Vinfo( 2)='Maximum Chl:N for small phytoplankton'
+      Vinfo( 3)='g_Chl mol_N-1'
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='thetaNmax_s3'
+      Vinfo( 2)='Maximum Chl:N for small phytoplankton'
+      Vinfo( 3)='g_Chl mol_N-1'
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='bgamma'
       Vinfo( 2)='mesozooplankton specific mortality rate'
       Vinfo( 3)='day-1'
       status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
@@ -224,7 +360,15 @@
       IF (exit_flag.ne.NoError) RETURN
 
       Vinfo( 1)='bgamma2'
-      Vinfo( 2)='grazing efficiency of mesozooplankton'
+      Vinfo( 2)='grazing efficiency of mesozooplankton for N'
+      Vinfo( 3)='nondimensional'
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='bgamma22'
+      Vinfo( 2)='grazing efficiency of mesozooplankton for C'
       Vinfo( 3)='nondimensional'
       status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
      &               1, (/0/), Aval, Vinfo, ncname,                     &
@@ -247,17 +391,25 @@
      &               SetParAccess = .FALSE.)
       IF (exit_flag.ne.NoError) RETURN
 
-      Vinfo( 1)='bgamma5'
-      Vinfo( 2)='decay rate of detritus'
+      Vinfo( 1)='bgamma10'
+      Vinfo( 2)='death rate of coccolithophores'
       Vinfo( 3)='day-1'
       status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
      &               1, (/0/), Aval, Vinfo, ncname,                     &
      &               SetParAccess = .FALSE.)
       IF (exit_flag.ne.NoError) RETURN
 
-      Vinfo( 1)='bgamma6'
-      Vinfo( 2)=' '
-      Vinfo( 3)=' '
+      Vinfo( 1)='bgamma12'
+      Vinfo( 2)='death rate of bacteria'
+      Vinfo( 3)='day-1'
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='bgamma5'
+      Vinfo( 2)='decay rate of detritus'
+      Vinfo( 3)='day-1'
       status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
      &               1, (/0/), Aval, Vinfo, ncname,                     &
      &               SetParAccess = .FALSE.)
@@ -271,8 +423,112 @@
      &               SetParAccess = .FALSE.)
       IF (exit_flag.ne.NoError) RETURN
 
-      Vinfo( 1)='wsd'
-      Vinfo( 2)='sinking velocity of detritus'
+      Vinfo( 1)='bgamma11'
+      Vinfo( 2)='Maximum ammonium uptake rate by bacteria'
+      Vinfo( 3)='day-1'
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='bgamma13'
+      Vinfo( 2)='Maximum semi-labile hydrolysis'
+      Vinfo( 3)='day-1'
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='mtos1'
+      Vinfo( 2)='Mortality to dissolved pool of small phytoplankton'
+      Vinfo( 3)='nondimensional'
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='mtos2'
+      Vinfo( 2)='Mortality to dissolved pool of diatom'
+      Vinfo( 3)='nondimensional'
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='mtos3'
+      Vinfo( 2)='Mortality to dissolved pool of coccolithophores'
+      Vinfo( 3)='nondimensional'
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='flz1'
+      Vinfo( 2)='Feeding loss by small zooplankton'
+      Vinfo( 3)='nondimensional'
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='flz2'
+      Vinfo( 2)='Feeding loss by large zooplankton'
+      Vinfo( 3)='nondimensional'
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='lk1'
+      Vinfo( 2)='Phytoplankton leakage fraction of small phytoplankton'
+      Vinfo( 3)='nondimensional'
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='lk2'
+      Vinfo( 2)='Phytoplankton leakage fraction of diatom'
+      Vinfo( 3)='nondimensional'
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='lk3'
+      Vinfo( 2)='Phytoplankton leakage fraction of coccolithophores'
+      Vinfo( 3)='nondimensional'
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='ratiol1'
+      Vinfo( 2)='Labile fraction'
+      Vinfo( 3)='nondimensional'
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='ratiol2'
+      Vinfo( 2)='Labile fraction for phytoplankton'
+      Vinfo( 3)='nondimensional'
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='wsdn'
+      Vinfo( 2)='sinking velocity of detritus N'
+      Vinfo( 3)='meter day-1'
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='wsdc'
+      Vinfo( 2)='sinking velocity of detritus C'
       Vinfo( 3)='meter day-1'
       status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
      &               1, (/0/), Aval, Vinfo, ncname,                     &
@@ -287,8 +543,32 @@
      &               SetParAccess = .FALSE.)
       IF (exit_flag.ne.NoError) RETURN
 
-      Vinfo( 1)='wsp'
-      Vinfo( 2)='sinking velocity of large phytoplankton'
+      Vinfo( 1)='wsdca'
+      Vinfo( 2)='sinking velocity of particulate inorganic carbon'
+      Vinfo( 3)='meter day-1'
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='wsp1'
+      Vinfo( 2)='sinking velocity of small phytoplankton'
+      Vinfo( 3)='meter day-1'
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='wsp2'
+      Vinfo( 2)='sinking velocity of diatom'
+      Vinfo( 3)='meter day-1'
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='wsp3'
+      Vinfo( 2)='sinking velocity of coccolithophores'
       Vinfo( 3)='meter day-1'
       status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
      &               1, (/0/), Aval, Vinfo, ncname,                     &
@@ -298,14 +578,6 @@
       Vinfo( 1)='pco2a'
       Vinfo( 2)='air CO2 partial pressure'
       Vinfo( 3)='parts per million by volume'
-      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
-     &               1, (/0/), Aval, Vinfo, ncname,                     &
-     &               SetParAccess = .FALSE.)
-      IF (exit_flag.ne.NoError) RETURN
-
-      Vinfo( 1)='si2n'
-      Vinfo( 2)='silicate to nitrogen ratio'
-      Vinfo( 3)='mole_Si mole_N-1'
       status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
      &               1, (/0/), Aval, Vinfo, ncname,                     &
      &               SetParAccess = .FALSE.)
@@ -335,8 +607,16 @@
      &               SetParAccess = .FALSE.)
       IF (exit_flag.ne.NoError) RETURN
 
-      Vinfo( 1)='c2n'
-      Vinfo( 2)='carbon to nitrogen ratio'
+      Vinfo( 1)='cnb'
+      Vinfo( 2)='C:N in bacteria'
+      Vinfo( 3)='mole_C mole_N-1'
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='apsilon'
+      Vinfo( 2)='Ratio of PIC to organic carbon in coccolithophores'
       Vinfo( 3)='mole_C mole_N-1'
       status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
      &               1, (/0/), Aval, Vinfo, ncname,                     &
@@ -367,3 +647,122 @@
      &               SetParAccess = .FALSE.)
       IF (exit_flag.ne.NoError) RETURN
 
+      Vinfo( 1)='ro10'
+      Vinfo( 2)='grazing preference for coccolithophores'
+      Vinfo( 3)='nondimensional'
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='rop'
+      Vinfo( 2)='grazing preference for small phytoplankton'
+      Vinfo( 3)='nondimensional'
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='rob'
+      Vinfo( 2)='grazing preference for bacteria'
+      Vinfo( 3)='nondimensional'
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='kabac'
+      Vinfo( 2)='Half saturation for ammonium uptake by bacteria'
+      Vinfo( 3)='mmol_N m-3'
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='klbac'
+      Vinfo( 2)='Half saturation for labile DOC uptake'
+      Vinfo( 3)='mmol_C m-3'
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='ksdoc'
+      Vinfo( 2)='Half saturation for semi-labile DOC uptake'
+      Vinfo( 3)='mmol_C m-3'
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='ksdon'
+      Vinfo( 2)='Half saturation for semi-labile DON uptake'
+      Vinfo( 3)='mmol_N m-3'
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='ratiob'
+      Vinfo( 2)='Bacteria growth loss fraction'
+      Vinfo( 3)='nondimensional'
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='ratiobc'
+      Vinfo( 2)='Color fraction of Bacteria loss'
+      Vinfo( 3)='nondimensional'
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='RtUVLDOC'
+      Vinfo( 2)='Rate of conversion of colored labile DOC to labile DOC'
+      Vinfo( 3)='mmol_C m-2 d-1'
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='RtUVSDOC'
+      Vinfo( 2)='Conversion of colored semi-labile DOC to labile DOC'
+      Vinfo( 3)='mmol_C m-2 d-1'
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='RtUVLDIC'
+      Vinfo( 2)='Rate of conversion of colored labile DOC to DIC'
+      Vinfo( 3)='mmol_C m-2 d-1'
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='RtUVSDIC'
+      Vinfo( 2)='Rate of conversion of colored semi-labile DOC to DIC'
+      Vinfo( 3)='mmol_C m-2 d-1'
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='colorFR1'
+      Vinfo( 2)='Color fraction for labile DOC'
+      Vinfo( 3)='nondimensional'
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='colorFR2'
+      Vinfo( 2)='Color fraction for semi-labile DOC'
+      Vinfo( 3)='nondimensional'
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN

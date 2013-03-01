@@ -3,7 +3,7 @@
       SUBROUTINE def_filt (ng)
 !
 !=======================================================================
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
 !================================================== Hernan G. Arango ===
 !                                                                      !
 !  This routine creates filter NetCDF file, it defines its             !
@@ -35,17 +35,15 @@
 
       logical :: Ldefine, got_var(NV)
 
-      integer :: i, j, ifield, nrec, nvd3, nvd4
+      integer :: i, j, ifield, nvd3, nvd4
       integer :: recdim, status, ifile, varid
 
       integer :: DimIDs(32), t2dgrd(3), u2dgrd(3), v2dgrd(3)
 
-      integer :: def_info, wrt_info
-
 # ifdef SOLVE3D
       integer :: itrc
 
-      integer :: b3dgrd(4), t3dgrd(4), u3dgrd(4), v3dgrd(4), w3dgrd(4)
+      integer :: t3dgrd(4), u3dgrd(4), v3dgrd(4), w3dgrd(4)
 # endif
 
       integer :: def_dim
@@ -248,10 +246,6 @@
 #  endif
 # endif
 !
-!  Initialize unlimited time record dimension.
-!
-          FIL(ifile,ng)%Rindex=0
-!
 !  Initialize local information variable arrays.
 !
           DO i=1,Natt
@@ -351,7 +345,7 @@
 !
 !  Define 2D momentum in the XI-direction.
 !
-        IF (Aout(idUbar,ng)) THEN
+        IF (Aout(idUbar,ng) .or. Aout(idu2dE,ng)) THEN
           Vinfo( 1)=Vname(1,idUbar)
           Vinfo( 2)=Vname(2,idUbar)
           Vinfo( 3)=Vname(3,idUbar)
@@ -370,7 +364,7 @@
 !
 !  Define 2D momentum in the ETA-direction.
 !
-        IF (Aout(idVbar,ng)) THEN
+        IF (Aout(idVbar,ng) .or. Aout(idv2dN,ng)) THEN
           Vinfo( 1)=Vname(1,idVbar)
           Vinfo( 2)=Vname(2,idVbar)
           Vinfo( 3)=Vname(3,idVbar)
@@ -390,7 +384,7 @@
 !
 !  Define 3D momentum component in the XI-direction.
 !
-        IF (Aout(idUvel,ng)) THEN
+        IF (Aout(idUvel,ng) .or. Aout(idu3dE,ng)) THEN
           ncname=FIL(2,ng)%name
           Vinfo( 1)=Vname(1,idUvel)
           Vinfo( 2)=Vname(2,idUvel)
@@ -410,7 +404,7 @@
 !
 !  Define 3D momentum component in the ETA-direction.
 !
-        IF (Aout(idVvel,ng)) THEN
+        IF (Aout(idVvel,ng) .or. Aout(idv3dN,ng)) THEN
           ncname=FIL(3,ng)%name
           Vinfo( 1)=Vname(1,idVvel)
           Vinfo( 2)=Vname(2,idVvel)
@@ -771,7 +765,7 @@
 !  Define 2D ice momentum in the XI-direction.
 !
         ncname=FIL(10,ng)%name
-        IF (Aout(idUice,ng)) THEN
+        IF (Aout(idUice,ng) .or. Aout(idUiceE,ng)) THEN
           Vinfo( 1)=Vname(1,idUice)
           Vinfo( 2)=Vname(2,idUice)
           Vinfo( 3)=Vname(3,idUice)
@@ -790,7 +784,7 @@
 !
 !  Define 2D ice momentum in the ETA-direction.
 !
-        IF (Aout(idVice,ng)) THEN
+        IF (Aout(idVice,ng) .or. Aout(idViceN,ng)) THEN
           Vinfo( 1)=Vname(1,idVice)
           Vinfo( 2)=Vname(2,idVice)
           Vinfo( 3)=Vname(3,idVice)

@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -361,6 +361,20 @@
           have_var(idTdif)=.TRUE.
         ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idSdif))) THEN
           have_var(idSdif)=.TRUE.
+#  ifdef LMD_SKPP
+        ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idHsbl))) THEN
+          have_var(idHsbl)=.TRUE.
+#  endif
+#  ifdef LMD_BKPP
+        ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idHbbl))) THEN
+          have_var(idHbbl)=.TRUE.
+#  endif
+#  ifdef LMD_NONLOCAL
+        ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idGhat(itemp)))) THEN
+          have_var(idGhat(itemp))=.TRUE.
+        ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idGhat(isalt)))) THEN
+          have_var(idGhat(isalt))=.TRUE.
+#  endif
 # endif
 # if defined GLS_MIXING || defined MY25_MIXING
         ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idMtke))) THEN
@@ -446,39 +460,51 @@
         END DO
 # endif
 # ifdef ICE_MODEL
-          IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idUice))) THEN
-            have_var(idUice)=.true.
-          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idVice))) THEN
-            have_var(idVice)=.true.
-          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idAice))) THEN
-            have_var(idAice)=.true.
-          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idHice))) THEN
-            have_var(idHice)=.true.
-          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idTice))) THEN
-            have_var(idTice)=.true.
-          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idHsno))) THEN
-            have_var(idHsno)=.true.
-          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idSfwat))) THEN
-            have_var(idSfwat)=.true.
-          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idAgeice))) THEN
-            have_var(idAgeice)=.true.
-          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idTimid))) THEN
-            have_var(idTimid)=.true.
-          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idSig11))) THEN
-            have_var(idSig11)=.true.
-          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idSig22))) THEN
-            have_var(idSig22)=.true.
-          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idSig12))) THEN
-            have_var(idSig12)=.true.
-          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idTauiw))) THEN
-            have_var(idTauiw)=.true.
-          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idChuiw))) THEN
-            have_var(idChuiw)=.true.
-          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idS0mk))) THEN
-            have_var(idS0mk)=.true.
-          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idT0mk))) THEN
-            have_var(idT0mk)=.true.
+        IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idUice))) THEN
+          have_var(idUice)=.true.
+        ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idVice))) THEN
+          have_var(idVice)=.true.
+        ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idAice))) THEN
+          have_var(idAice)=.true.
+        ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idHice))) THEN
+          have_var(idHice)=.true.
+        ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idTice))) THEN
+          have_var(idTice)=.true.
+        ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idHsno))) THEN
+          have_var(idHsno)=.true.
+        ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idSfwat))) THEN
+          have_var(idSfwat)=.true.
+        ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idAgeice))) THEN
+          have_var(idAgeice)=.true.
+        ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idTimid))) THEN
+          have_var(idTimid)=.true.
+        ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idSig11))) THEN
+          have_var(idSig11)=.true.
+        ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idSig22))) THEN
+          have_var(idSig22)=.true.
+        ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idSig12))) THEN
+          have_var(idSig12)=.true.
+        ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idTauiw))) THEN
+          have_var(idTauiw)=.true.
+        ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idChuiw))) THEN
+          have_var(idChuiw)=.true.
+        ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idS0mk))) THEN
+          have_var(idS0mk)=.true.
+        ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idT0mk))) THEN
+          have_var(idT0mk)=.true.
+        END IF
+#  if defined PERFECT_RESTART
+        IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idUsms))) THEN
+          get_var(idUsms)=.true.
+        ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idVsms))) THEN
+          get_var(idVsms)=.true.
+        END IF
+        DO itrc=1,NT(ng)
+          IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idTsur(itrc)))) THEN
+            get_var(idTsur(itrc))=.TRUE.
           END IF
+        END DO
+#  endif
 # endif
 # ifdef NCEP_FLUXES
         IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idWg2d))) THEN

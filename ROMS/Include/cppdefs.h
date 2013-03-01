@@ -3,7 +3,7 @@
 **
 ** svn $Id$
 ********************************************************** Hernan G. Arango ***
-** Copyright (c) 2002-2012 The ROMS/TOMS Group                               **
+** Copyright (c) 2002-2013 The ROMS/TOMS Group                               **
 **   Licensed under a MIT/X style license                                    **
 **   See License_ROMS.txt                                                    **
 *******************************************************************************
@@ -46,6 +46,11 @@
 ** DRAG_LIMITIER       use to turn ON or OFF bottom drag limiter             **
 ** UV_PSOURCE          use to turn ON or OFF point Sources/Sinks             **
 ** Q_PSOURCE           use to turn ON or OFF mass point Sources              **
+**                                                                           **
+** OPTION to not allow the bottom stress components to change the direction  **
+** of bottom momentum (change sign of velocity components.                   **
+**                                                                           **
+** LIMIT_BSTRESS       use to limit the magnitude of bottom stress           **
 **                                                                           **
 ** OPTIONS associated with tracers equations:                                **
 **                                                                           **
@@ -200,6 +205,7 @@
 ** OPTIONS for Lagrangian drifters:                                          **
 **                                                                           **
 ** FLOATS              use to activate simulated Lagrangian drifters         **
+** FLOAT_OYSTER        use to activate oyster model behavior in floats       **
 ** FLOAT_STICKY        use to reflect/stick floats that hit surface/bottom   **
 ** FLOAT_VWALK         use if vertical random walk                           **
 ** VWALK_FORWARD       use if forward time stepping vertical random walk     **
@@ -313,6 +319,7 @@
 ** LMD_RIMIX           use to add diffusivity due to shear instability       **
 ** LMD_SHAPIRO         use if Shapiro filtering boundary layer depth         **
 ** LMD_SKPP            use if surface boundary layer KPP mixing              **
+** M2TIDE_DIFF         use to add simulated tidal diffusion                  **
 ** WTYPE_GRID          use if spatial variation on Jerlov water type         **
 **                                                                           **
 ** OPTIONS to activate smoothing of Richardson number, if SPLINES is not     **
@@ -412,6 +419,9 @@
 ** INNER_PRODUCT       use if tangent linear and adjoint inner product check **
 ** IS4DVAR             use if incremental 4DVar data assimilation            **
 ** IS4DVAR_SENSITIVITY use if I4DVar observations sensitivity driver         **
+** HESSIAN_FSV         use if Hessian forcing singular vectors               **
+** HESSIAN_SO          use if Hessian stochastic optimals                    **
+** HESSIAN_SV          use if Hessian singular vectors                       **
 ** OPT_OBSERVATIONS    use if optimal observations driver                    **
 ** OPT_PERTURBATION    use if optimal perturbations driver, singular vectors **
 ** PICARD_TEST         use if representer tangent linear model test          **
@@ -455,7 +465,8 @@
 ** POSTERIOR_ERROR_I   use if initial posterior analysis error covariance    **
 ** RECOMPUTE_4DVAR     use if recomputing 4DVar in analysis algorithms       **
 ** RPM_RELAXATION      use if Picard iterations, Diffusive Relaxation of RPM **
-** SO_SEMI_WHITE       use to activate white/red noise processes             **
+** SO_SEMI_WHITE       use to activate SO semi norm white/red noise processes**
+** STOCH_OPT_WHITE     use to activate SO white/red noise processes          **
 ** SPLINES_VCONV       use to activate implicit splines vertical convolution **
 ** VCONVOLUTION        use to add vertical correlation to 3D convolution     **
 ** VERIFICATION        use if writing out solution at observation locations  **
@@ -508,18 +519,10 @@
 **                                                                           **
 ** NEMURO              use if Nemuro ecosystem model.                        **
 ** NEMURO_SED1         use if Nemuro sediment remineralization               **
-** NEMURO_PROD         use if Nemuro productivity output                     **
+** PRIMARY_PROD        use if primary productivity output                    **
 ** BIO_SEDIMENT        use to restore fallen material to the nutrient pool   **
 ** HOLLING_GRAZING     use Holling-type s-shaped curve grazing (implicit)    **
 ** IVLEV_EXPLICIT      use Ivlev explicit grazing algorithm                  **
-**                                                                           **
-** NEMURO_SAN          use for Rose et al. fish model                        **
-** FISHING_FLEET       use for fishing fleet with fish model                 **
-** PREDATOR            use for predatory fish with fish model                **
-** FISH_FEEDBACK       use for fish feedback to the NEMURO NPZ model         **
-** EGGS_BISECTION      use for bisection method of egg distribution          **
-** EGGS_TREE_FORT      use for binary tree method of egg distribution        **
-** ANA_SPAWN_DIST      use for analytic field in binary tree method          **
 **                                                                           **
 ** Sediment transport model OPTIONS:                                         **
 **                                                                           **
@@ -604,6 +607,7 @@
 ** BENCHMARK           Benchmark Tests (small, Medium, big grids)            **
 ** BIO_TOY             One-dimension (vertical) Biology Toy                  **
 ** BL_TEST             Boundary Layers Test                                  **
+** CHANNEL             Periodic channel, Optimal Perturbations Test          **
 ** CANYON              Coastal form stress Canyon Test                       **
 ** CHANNEL_NECK        Channel with a Constriction                           **
 ** COUPLING_TEST       Two-way Atmosphere-Ocean Coupling Test                **

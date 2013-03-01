@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -220,6 +220,9 @@
 # endif
 # ifdef BV_FREQUENCY
           real(r8), pointer :: bvf(:,:,:)
+# endif
+# ifdef M2TIDE_DIFF
+          real(r8), pointer :: m2_amp(:,:)
 # endif
 # if defined MIX_ISO_TS || defined GENT_McWILLIAMS
           real(r8), pointer :: neutral(:,:,:)
@@ -479,6 +482,10 @@
       allocate ( MIXING(ng) % bvf(LBi:UBi,LBj:UBj,0:N(ng)) )
 # endif
 
+# ifdef M2TIDE_DIFF
+      allocate ( MIXING(ng) % m2_amp(LBi:UBi,LBj:UBj) )
+# endif
+
 # if defined MIX_ISO_TS || defined GENT_McWILLIAMS
       allocate ( MIXING(ng) % neutral(LBi:UBi,LBj:UBj,0:N(ng)) )
 # endif
@@ -684,13 +691,20 @@
 #endif
 
       real(r8), parameter :: IniVal = 0.0_r8
+#  if defined GLS_MIXING || defined MY25_MIXING
       real(r8) :: cff1, cff2, cff3, cff4
+#endif
 
 #include "set_bounds.h"
 !
 !  Set array initialization range.
 !
-#ifdef _OPENMP
+#ifdef DISTRIBUTE
+      Imin=BOUNDS(ng)%LBi(tile)
+      Imax=BOUNDS(ng)%UBi(tile)
+      Jmin=BOUNDS(ng)%LBj(tile)
+      Jmax=BOUNDS(ng)%UBj(tile)
+#else
       IF (DOMAIN(ng)%Western_Edge(tile)) THEN
         Imin=BOUNDS(ng)%LBi(tile)
       ELSE
@@ -711,11 +725,6 @@
       ELSE
         Jmax=Jend
       END IF
-#else
-      Imin=BOUNDS(ng)%LBi(tile)
-      Imax=BOUNDS(ng)%UBi(tile)
-      Jmin=BOUNDS(ng)%LBj(tile)
-      Jmax=BOUNDS(ng)%UBj(tile)
 #endif
 !
 !-----------------------------------------------------------------------
@@ -850,6 +859,11 @@
             DO i=Imin,Imax
               MIXING(ng) % bvf(i,j,k) = IniVal
             END DO
+          END DO
+# endif
+# ifdef M2TIDE_DIFF
+          DO i=Imin,Imax
+            MIXING(ng) % m2_amp(i,j) = IniVal
           END DO
 # endif
 # if defined MIX_ISO_TS || defined GENT_McWILLIAMS

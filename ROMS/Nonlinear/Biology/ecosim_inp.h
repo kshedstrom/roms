@@ -2,7 +2,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -39,11 +39,21 @@
 
       real(r8), dimension(NBT,Ngrids) :: Rbio
 
-      real(r8), dimension(100) :: Rval
+      real(r8), dimension(200) :: Rval
 
       character (len=40 ) :: KeyWord
       character (len=256) :: line
-      character (len=256), dimension(100) :: Cval
+      character (len=256), dimension(200) :: Cval
+!
+!-----------------------------------------------------------------------
+!  Initialize.
+!-----------------------------------------------------------------------
+!
+      igrid=1                            ! nested grid counter
+      itracer=0                          ! LBC tracer counter
+      iTrcStr=isTvar(idbio(1))           ! first LBC tracer to process
+      iTrcEnd=isTvar(idbio(NBT))         ! last  LBC tracer to process
+      nline=0                            ! LBC multi-line counter
 !
 !-----------------------------------------------------------------------
 !  Initialize.
@@ -320,6 +330,16 @@
               ifield=isTvar(idbio(itracer))
               Npts=load_lbc(Nval, Cval, line, nline, ifield, igrid,     &
      &                      iTrcStr, iTrcEnd, ad_LBC)
+#endif
+#ifdef TCLIMATOLOGY
+            CASE ('LtracerCLM')
+              Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
+              DO ng=1,Ngrids
+                DO itrc=1,NBT
+                  i=idbio(itrc)
+                  LtracerCLM(i,ng)=Ltrc(itrc,ng)
+                END DO
+              END DO
 #endif
 #ifdef TS_PSOURCE
             CASE ('LtracerSrc')
@@ -1118,6 +1138,14 @@
      &              'Nudging/relaxation time scale (days)',             &
      &              'for tracer ', i, TRIM(Vname(1,idTvar(i)))
             END DO
+#ifdef TCLIMATOLOGY
+            DO itrc=1,NBT
+              i=idbio(itrc)
+              WRITE (out,110) LtracerCLM(i,ng), 'LtracerCLM',           &
+     &              i, 'Processing climatology on tracer ', i,          &
+     &              TRIM(Vname(1,idTvar(i)))
+            END DO
+#endif
 #ifdef TS_PSOURCE
             DO itrc=1,NBT
               i=idbio(itrc)

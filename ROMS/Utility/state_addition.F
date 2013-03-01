@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -731,12 +731,5 @@
 
       RETURN
       END SUBROUTINE state_addition
-
-#undef IstrT,IendT
-#undef IstrP,IendT
-#undef IstrT,IendT
-#undef JstrT,JendT
-#undef JstrT,JendT
-#undef JstrP,JendT
 
       END MODULE state_addition_mod

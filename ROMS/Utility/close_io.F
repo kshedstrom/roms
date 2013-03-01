@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -154,7 +154,7 @@
 !
       logical :: First
 
-      integer :: Fcount, MyError, i, ng
+      integer :: Fcount, i, ng
 #if defined FILTERED_RST
       integer :: ifile
 #endif
@@ -455,6 +455,8 @@
         IF (Master) WRITE (stdout,120)
       ELSE IF (exit_flag.eq.8) THEN
         IF (Master) WRITE (stdout,130)
+      ELSE IF (exit_flag.eq.9) THEN
+        IF (Master) WRITE (stdout,140)
       END IF
 !
  10   FORMAT (/,' ROMS/TOMS - Output NetCDF summary for Grid ',         &
@@ -474,6 +476,7 @@
 110   FORMAT (/,' ERROR: Illegal domain partition.')
 120   FORMAT (/,' ERROR: Illegal input parameter.')
 130   FORMAT (/,' ERROR: Fatal algorithm result.')
+140   FORMAT (/,' ERROR: Fatal frazil ice check.')
 
       RETURN
       END SUBROUTINE close_out

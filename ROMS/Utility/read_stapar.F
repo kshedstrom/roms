@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -45,11 +45,11 @@
 
       integer, dimension(Ngrids) :: is
 
-      real(r8), dimension(100) :: Rval
+      real(r8), dimension(200) :: Rval
 
       character (len=40 ) :: KeyWord
       character (len=256) :: line
-      character (len=256), dimension(100) :: Cval
+      character (len=256), dimension(200) :: Cval
 !
 !-----------------------------------------------------------------------
 !  Read in stations parameters.
@@ -87,6 +87,10 @@
 # if defined SEDIMENT && defined SED_MORPH
             CASE ('Sout(idBath)')
               Npts=load_l(Nval, Cval, Ngrids, Sout(idBath,:))
+# endif
+# ifdef PRIMARY_PROD
+            CASE ('Sout(idNPP)')
+              Npts=load_l(Nval, Cval, Ngrids, Sout(idNPP,:))
 # endif
             CASE ('Sout(idTvar)')
               Npts=load_l(Nval, Cval, MT*Ngrids, Lsta)
@@ -329,10 +333,15 @@
             WRITE (out,70) Nstation(ng), 'Nstation',                    &
      &            'Number of stations to write out into stations file.'
 #if defined SEDIMENT && defined SED_MORPH
-            IF (Sout(idbath,ng)) WRITE (out,80) Sout(idbath,ng),        &
+            IF (Sout(idBath,ng)) WRITE (out,80) Sout(idBath,ng),        &
      &          'Sout(idbath)',                                         &
      &          'Write out free-surface.'
 #endif
+# ifdef PRIMARY_PROD
+            IF (Sout(idNPP,ng)) WRITE (out,80) Sout(idNPP,ng),          &
+     &          'Sout(idNPP)',                                          &
+     &          'Write out net primary productivity.'
+# endif
             IF (Sout(idFsur,ng)) WRITE (out,80) Sout(idFsur,ng),        &
      &          'Sout(idFsur)',                                         &
      &          'Write out free-surface.'

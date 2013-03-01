@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !***********************************************************************
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                           Hernan G. Arango   !
 !****************************************** Alexander F. Shchepetkin ***
@@ -177,7 +177,7 @@
       integer :: Imin, Imax, Jmin, Jmax
       integer :: i, ibt, itrc, j, k
 
-      real(r8) :: cff, cff1, cff2, cff3, cff4
+      real(r8) :: cff, cff1, cff2, cff3
 
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: FE
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: FX
@@ -405,10 +405,6 @@
               cff2=cff*(FE(i  ,j+1)-FE(i,j))
               cff3=cff1+cff2
               t(i,j,k,nnew,itrc)=t(i,j,k,nnew,itrc)-cff3
-#ifdef TS_MPDATA
-              cff4=1.0_r8/Hz(i,j,k)
-              t(i,j,k,3,itrc)=cff4*t(i,j,k,nnew,itrc)
-#endif
 #ifdef DIAGNOSTICS_TS
               DiaTwrk(i,j,k,itrc,iTxdif)=-cff1
               DiaTwrk(i,j,k,itrc,iTydif)=-cff2

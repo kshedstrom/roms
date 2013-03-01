@@ -4,13 +4,24 @@
 !
 !svn $Id$
 !=======================================================================
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                           Hernan G. Arango   !
 !========================================== Alexander F. Shchepetkin ===
 !                                                                      !
-!  This routine time-steps tracer equations. Notice that advective     !
-!  and diffusive terms are time-stepped differently.                   !
+!  This routine time-steps tracer equations.  Notice that advective    !
+!  and diffusive terms are time-stepped differently. It applies the    !
+!  corrector time-step for horizontal/vertical advection,  vertical    !
+!  diffusion, nudging if necessary, and lateral boundary conditions.   !
+!                                                                      !
+!  Notice that at input the tracer arrays have:                        !
+!                                                                      !
+!    t(:,:,:,nnew,:)   m Tunits  n+1     horizontal/vertical diffusion !
+!                                        terms plus source/sink terms  !
+!                                        (biology, sediment), if any   !
+!                                                                      !
+!    t(:,:,:,3   ,:)   Tunits    n+1/2   advective terms and vertical  !
+!                                        diffusion predictor step      !
 !                                                                      !
 !=======================================================================
 !
@@ -105,10 +116,6 @@
      &                    CLIMA(ng) % tclm,                             &
 # endif
      &                    MIXING(ng) % Akt,                             &
-# ifdef TS_MPDATA
-     &                    OCEAN(ng) % u,                                &
-     &                    OCEAN(ng) % v,                                &
-# endif
      &                    OCEAN(ng) % W,                                &
 # if defined FLOATS && defined FLOAT_VWALK
      &                    MIXING(ng) % dAktdz,                          &
@@ -171,9 +178,6 @@
      &                          Tnudgcof, tclm,                         &
 # endif
      &                          Akt,                                    &
-# ifdef TS_MPDATA
-     &                          u, v,                                   &
-# endif
      &                          W,                                      &
 # if defined FLOATS && defined FLOAT_VWALK
      &                          dAktdz,                                 &
@@ -287,10 +291,6 @@
 #  else
       real(r8), intent(in) :: Akt(LBi:,LBj:,0:,:)
 #  endif
-#  ifdef TS_MPDATA
-      real(r8), intent(in) :: u(LBi:,LBj:,:,:)
-      real(r8), intent(in) :: v(LBi:,LBj:,:,:)
-#  endif
       real(r8), intent(in) :: W(LBi:,LBj:,0:)
 #  ifdef DIAGNOSTICS_TS
       real(r8), intent(inout) :: DiaTwrk(LBi:,LBj:,:,:,:)
@@ -357,21 +357,13 @@
       real(r8), intent(in) :: pn(LBi:UBi,LBj:UBj)
 #  if defined TCLM_NUDGING && defined TCLIMATOLOGY
       real(r8), intent(in) :: Tnudgcof(LBi:UBi,LBj:UBj,NT(ng))
-# if defined  CLIM_ICE_1D && defined ICE_BIO
-      real(r8), intent(in) :: tclm(LBi:UBi,LBj:UBj,N(ng),iCI) !was iFe
-#   else
-      real(r8), intent(in) :: tclm(LBi:UBi,LBj:UBj,N(ng),NT(ng))
-#   endif
+      real(r8), intent(in) :: tclm(LBi:UBi,LBj:UBj,N(ng),NTCLM(ng))
 #  endif
       real(r8), intent(in) :: Hz(LBi:UBi,LBj:UBj,N(ng))
       real(r8), intent(in) :: Huon(LBi:UBi,LBj:UBj,N(ng))
       real(r8), intent(in) :: Hvom(LBi:UBi,LBj:UBj,N(ng))
       real(r8), intent(in) :: z_r(LBi:UBi,LBj:UBj,N(ng))
       real(r8), intent(in) :: Akt(LBi:UBi,LBj:UBj,0:N(ng),NAT)
-#  ifdef TS_MPDATA
-      real(r8), intent(in) :: u(LBi:UBi,LBj:UBj,N(ng),2)
-      real(r8), intent(in) :: v(LBi:UBi,LBj:UBj,N(ng),2)
-#  endif
       real(r8), intent(in) :: W(LBi:UBi,LBj:UBj,0:N(ng))
 #  ifdef DIAGNOSTICS_TS
       real(r8), intent(inout) :: DiaTwrk(LBi:UBi,LBj:UBj,N(ng),NT(ng),  &
@@ -398,13 +390,13 @@
 !
 !  Local variable declarations.
 !
-      integer :: i, ibt, is, itrc, j, k, ltrc
+      integer :: i, ibt, ic, is, itrc, j, k, ltrc
 # ifdef DIAGNOSTICS_TS
       integer :: idiag
 # endif
       real(r8), parameter :: eps = 1.0E-16_r8
 
-      real(r8) :: cff, cff1, cff2, cff3, cff4
+      real(r8) :: cff, cff1, cff2, cff3
 
       real(r8), dimension(IminS:ImaxS,0:N(ng)) :: CF
       real(r8), dimension(IminS:ImaxS,0:N(ng)) :: BC
@@ -463,7 +455,7 @@
 # ifdef TS_MPDATA
 !
 !  The MPDATA algorithm requires a three-point footprint, so exchange
-!  boundary data on t(:,:,:,3,:) so other processes computed earlier
+!  boundary data on t(:,:,:,nnew,:) so other processes computed earlier
 !  (horizontal diffusion, biology, or sediment) are accounted.
 !
       IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
@@ -475,7 +467,7 @@
 #endif
           CALL exchange_r3d_tile (ng, tile,                             &
      &                            LBi, UBi, LBj, UBj, 1, N(ng),         &
-     &                            t(:,:,:,3,itrc))
+     &                            t(:,:,:,nnew,itrc))
         END DO
       END IF
 
@@ -484,7 +476,7 @@
      &                    LBi, UBi, LBj, UBj, 1, N(ng), 1, NT(ng),      &
      &                    NghostPoints,                                 &
      &                    EWperiodic(ng), NSperiodic(ng),               &
-     &                    t(:,:,:,3,:))
+     &                    t(:,:,:,nnew,:))
 #  endif
 # endif
 
@@ -517,6 +509,7 @@
      &                        t(i,j  ,k,3,itrc))
             END DO
           END DO
+
 # elif defined TS_MPDATA
 !
 !  First-order, upstream differences horizontal advective fluxes.
@@ -725,7 +718,14 @@
           END DO
 # endif
 !
-!  Time-step horizontal advection term.
+# ifdef TS_MPDATA
+!  Time-step horizontal advection for intermediate diffusive tracer, Ta.
+!  Advective fluxes have units of Tunits m3/s.  The new tracer has
+!  units of m Tunits.
+# else
+!  Time-step horizontal advection term.  Advective fluxes have units
+!  of Tunits m3/s.  The new tracer has units of m Tunits.
+# endif
 !
 # ifdef TS_MPDATA
 #  define I_RANGE IstrUm2,Iendp2i
@@ -741,11 +741,7 @@
               cff2=cff*(FE(i,j+1)-FE(i,j))
               cff3=cff1+cff2
 # ifdef TS_MPDATA
-              cff4=Hz(i,j,k)+                                           &
-     &             cff*(Huon(i+1,j,k)-Huon(i,j,k)+                      &
-     &                  Hvom(i,j+1,k)-Hvom(i,j,k)+                      &
-     &                  (W(i,j,k)-W(i,j,k-1)))                 ! Hz_old
-              Ta(i,j,k,itrc)=t(i,j,k,3,itrc)*cff4-cff3
+              Ta(i,j,k,itrc)=t(i,j,k,nnew,itrc)-cff3
 # else
               t(i,j,k,nnew,itrc)=t(i,j,k,nnew,itrc)-cff3
 #  if defined BERING_10K && defined BEST_NPZ
@@ -974,7 +970,16 @@
           END DO
 # endif
 !
-!  Time-step vertical advection term.
+# ifdef TS_MPDATA
+!  Time-step vertical advection for intermediate diffusive tracer, Ta
+!  (Tunits).
+# else
+#  ifdef SPLINES
+!  Time-step vertical advection term (Tunits).
+#  else
+!  Time-step vertical advection term (m Tunits).
+#  endif
+# endif
 # ifdef DIAGNOSTICS_TS
 !  Convert units of tracer diagnostic terms to Tunits.
 # endif
@@ -987,20 +992,22 @@
 !  Apply mass point sources - Volume influx.
 !
           DO is=1,Nsrc
-            i=Isrc(is)
+            IF (LtracerSrc(itrc,ng)) THEN
+              i=Isrc(is)
 #  ifdef TS_MPDATA
-            IF (((IstrUm2.le.i).and.(i.le.Iendp2i)).and.                &
-     &          ((JstrVm2.le.j).and.(j.le.Jendp2i))) THEN
+              IF (((IstrUm2.le.i).and.(i.le.Iendp2i)).and.              &
+     &            ((JstrVm2.le.j).and.(j.le.Jendp2i))) THEN
 #  else
-            IF (((IstrR.le.i).and.(i.le.IendR)).and.                    &
-     &          ((JstrR.le.j).and.(j.le.JendR))) THEN
+              IF (((IstrR.le.i).and.(i.le.IendR)).and.                  &
+     &            ((JstrR.le.j).and.(j.le.JendR))) THEN
 #  endif
-              IF (j.eq.Jsrc(is)) THEN
-                DO k=1,N(ng)
-                  FC(i,k)=FC(i,k)+0.5_r8*                               &
-     &                    (Qsrc(is,k  )*Tsrc(is,k  ,itrc)+              &
-     &                     Qsrc(is,k+1)*Tsrc(is,k+1,itrc))
-                END DO
+                IF (j.eq.Jsrc(is)) THEN
+                  DO k=1,N(ng)-1
+                    FC(i,k)=FC(i,k)+0.5_r8*                             &
+     &                      (Qsrc(is,k  )*Tsrc(is,k  ,itrc)+            &
+     &                       Qsrc(is,k+1)*Tsrc(is,k+1,itrc))
+                  END DO
+                END IF
               END IF
             END IF
           END DO
@@ -1437,6 +1444,9 @@
       DO ibt=1,NBT
         itrc=idbio(ibt)
 #else
+# if defined TCLM_NUDGING && defined TCLIMATOLOGY
+      ic=0
+# endif
       DO itrc=1,NT(ng)
 #endif
 !
@@ -1472,63 +1482,18 @@
 !
 !  Nudge towards tracer climatology.
 !
-        DO k=1,N(ng)
-          DO j=JstrR,JendR
-            DO i=IstrR,IendR
-#  ifdef LARGE_AREA
-#   undef FULL_NUDGE
-#   ifdef FULL_NUDGE
-              IF (itrc.eq.itemp) THEN
-                 IF (tclm(i,j,k,itrc).lt.1.0_r8) THEN
-                     cff = 0._r8
-                 ELSEIF (tclm(i,j,k,itrc).ge.2.0_r8) THEN
-                     cff = Tnudgcof(i,j,itrc)
-                 ELSE
-                     cff = Tnudgcof(i,j,itrc)*(tclm(i,j,k,itrc)-1._r8)
-                 ENDIF
-              ELSE
-                 cff = Tnudgcof(i,j,itrc)
-              ENDIF
-#    else
-              IF(itrc.eq.isalt.and.k.eq.N(ng).and.                      &
-     & Tnudgcof(i,j,itrc).le.1.0_r8/(60.0_r8*86400.0_r8)) THEN
-                 cff = 1.0_r8/(60.0_r8*86400.0_r8)
-              ELSEIF(itrc.eq.itemp.and.k.eq.N(ng).and.                  &
-     & Tnudgcof(i,j,itrc).le.1.0_r8/(60.0_r8*86400.0_r8)) THEN
-                 IF (tclm(i,j,k,itrc).lt.1.0_r8) THEN
-                     cff = 0._r8
-                 ELSEIF (tclm(i,j,k,itrc).ge.2.0_r8) THEN
-                     cff = 1.0_r8/(60.0_r8*86400.0_r8)
-                 ELSE
-                     cff = 1.0_r8/(60.0_r8*86400.0_r8)*                 &
-     &                            (tclm(i,j,k,itrc)-1._r8)
-                 ENDIF
-              ELSE
-                 cff = Tnudgcof(i,j,itrc)
-              ENDIF
-
-#    endif
-              t(i,j,k,nnew,itrc)=t(i,j,k,nnew,itrc)+                    &
-     &                           dt(ng)*cff*                            &
-     & (tclm(i,j,k,itrc)-t(i,j,k,nnew,itrc))
-#  else
-#   ifdef SOGLOBEC2
-              IF (i.eq.401 .and. j.eq.9 .and. k.eq.14) THEN
-                print*,'New T: ',t(i,j,k,nnew,itrc),Tnudgcof(i,j,itrc), &
-     &                           tclm(i,j,k,itrc),tdays(ng),j
-              END IF
-              IF (i.eq.401 .and. j.eq.3 .and. k.eq.14) THEN
-                print*,'New T: ',t(i,j,k,nnew,itrc),Tnudgcof(i,j,itrc), &
-     &                           tclm(i,j,k,itrc),tdays(ng),j
-              END IF
-#   endif
-              t(i,j,k,nnew,itrc)=t(i,j,k,nnew,itrc)+                    &
-     &                           dt(ng)*Tnudgcof(i,j,itrc)*             &
-     &                           (tclm(i,j,k,itrc)-t(i,j,k,nnew,itrc))
-#  endif
+        IF (LtracerCLM(itrc,ng)) THEN
+          ic=ic+1
+          DO k=1,N(ng)
+            DO j=JstrR,JendR
+              DO i=IstrR,IendR
+                t(i,j,k,nnew,itrc)=t(i,j,k,nnew,itrc)+                  &
+     &                             dt(ng)*Tnudgcof(i,j,itrc)*           &
+     &                             (tclm(i,j,k,ic)-t(i,j,k,nnew,itrc))
+              END DO
             END DO
           END DO
-        END DO
+        END IF
 # endif
 # ifdef MASKING
 !
@@ -1578,7 +1543,7 @@
 # endif
 #  if defined ICE_MODEL && defined ICE_THERMO
         IF (itrc == isalt) THEN
-          CALL ice_frazil(ng, TILE)
+          CALL ice_frazil(ng, tile)
         END IF
 #  endif
 !

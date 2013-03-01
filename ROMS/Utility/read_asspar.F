@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -32,9 +32,11 @@
 !  Local variable declarations.
 !
       logical :: find_file
+      logical :: Lvalue(1)
 
       integer :: Npts, Nval
       integer :: i, ib, igrid, itrc, k, ng, status
+      integer :: Ivalue(1)
 
       integer :: decode_line, load_i, load_l, load_r, load_s1d
 
@@ -54,7 +56,8 @@
 #  endif
       real(r8), dimension(MT,Ngrids) :: Rtracer
 # endif
-      real(r8), dimension(100) :: Rval
+      real(r8), dimension(200) :: Rval
+      real(r8) :: Rvalue(1)
 
       character (len=1 ), parameter :: blank = ' '
 # ifdef ADJUST_BOUNDARY
@@ -63,7 +66,7 @@
       character (len=40 ) :: KeyWord
       character (len=50 ) :: label
       character (len=256) :: fname, line
-      character (len=256), dimension(100) :: Cval
+      character (len=256), dimension(200) :: Cval
 !
 !-----------------------------------------------------------------------
 !  Initialize.
@@ -104,33 +107,43 @@
                 LNM_depth(ng)=ABS(LNM_depth(ng))
               END DO
             CASE ('LNM_flag')
-              Npts=load_i(Nval, Rval, 1, LNM_flag)
+              Npts=load_i(Nval, Rval, 1, Ivalue)
+              LNM_flag=Ivalue(1)
 #  if defined WEAK_CONSTRAINT && \
      (defined ARRAY_MODES     || defined CLIPPING)
             CASE ('Nvct')
-              Npts=load_i(Nval, Rval, 1, Nvct)
+              Npts=load_i(Nval, Rval, 1, Ivalue)
+              Nvct=Ivalue(1)
 #  endif
             CASE ('GradErr')
-              Npts=load_r(Nval, Rval, 1, GradErr)
+              Npts=load_r(Nval, Rval, 1, Rvalue)
+              GradErr=Rvalue(1)
             CASE ('HevecErr')
-              Npts=load_r(Nval, Rval, 1, HevecErr)
+              Npts=load_r(Nval, Rval, 1, Rvalue)
+              HevecErr=Rvalue(1)
             CASE ('LhessianEV')
-              Npts=load_l(Nval, Cval, 1, LhessianEV)
+              Npts=load_l(Nval, Cval, 1, Lvalue)
+              LhessianEV=Lvalue(1)
             CASE ('LhotStart')
-              Npts=load_l(Nval, Cval, 1, LhotStart)
+              Npts=load_l(Nval, Cval, 1, Lvalue)
+              LhotStart=Lvalue(1)
             CASE ('Lprecond')
-              Npts=load_l(Nval, Cval, 1, Lprecond)
+              Npts=load_l(Nval, Cval, 1, Lvalue)
+              Lprecond=Lvalue(1)
 #  if defined WEAK_CONSTRAINT
               IF ( LhessianEV.and.Lprecond ) THEN
                 LhessianEV=.FALSE.
               END IF
 #  endif
             CASE ('Lritz')
-              Npts=load_l(Nval, Cval, 1, Lritz)
+              Npts=load_l(Nval, Cval, 1, Lvalue)
+              Lritz=Lvalue(1)
             CASE ('NritzEV')
-              Npts=load_i(Nval, Rval, 1, NritzEV)
+              Npts=load_i(Nval, Rval, 1, Ivalue)
+              NritzEV=Ivalue(1)
             CASE ('NpostI')
-              Npts=load_i(Nval, Rval, 1, NpostI)
+              Npts=load_i(Nval, Rval, 1, Ivalue)
+              NpostI=Ivalue(1)
             CASE ('tl_M2diff')
               Npts=load_r(Nval, Rval, Ngrids, tl_M2diff)
             CASE ('tl_M3diff')
@@ -276,7 +289,8 @@
             CASE ('Rscheme')
               Npts=load_i(Nval, Rval, Ngrids, Rscheme)
             CASE ('Nrandom')
-              Npts=load_i(Nval, Rval, 1, Nrandom)
+              Npts=load_i(Nval, Rval, 1, Ivalue)
+              Nrandom=Ivalue(1)
             CASE ('Hgamma')
               Npts=load_r(Nval, Rval, 4, Hgamma)
 #  ifdef SOLVE3D

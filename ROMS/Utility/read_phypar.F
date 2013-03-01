@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -45,7 +45,8 @@
 !
 !  Local variable declarations.
 !
-     logical :: find_file, got_Ngrids, obc_data
+      logical :: find_file, got_Ngrids, obc_data
+      logical :: Lvalue(1)
 #if defined SOLVE3D && defined SEDIMENT
       logical :: LreadNCS = .FALSE.
       logical :: LreadNNS = .FALSE.
@@ -59,16 +60,18 @@
       logical, allocatable :: Ltracer(:,:)
 #if defined AD_SENSITIVITY    || defined IS4DVAR_SENSITIVITY || \
     defined FORCING_SV        || defined OPT_OBSERVATIONS    || \
-    defined SENSITIVITY_4DVAR || defined SO_SEMI
+    defined SENSITIVITY_4DVAR || defined SO_SEMI             || \
+    defined STOCHASTIC_OPT
       logical, allocatable :: Ladsen(:)
 #endif
 #if defined DIAGNOSTICS_UV
       logical, allocatable :: Ldiag(:)
 #endif
 
-      integer :: Lstr, Npts, Nval, i, itrc, ivar, k, ng, status
-      integer :: ifield, ifile, ibcfile, igrid, itracer, nline, mFfiles
-      integer :: iclmfile
+      integer :: Npts, Nval, i, itrc, ivar, k, ng, status
+      integer :: ifield, ifile, igrid, itracer, nline, mFfiles
+      integer :: ibcfile, iclmfile
+      integer :: Ivalue(1)
 
       integer :: decode_line, load_i, load_l, load_lbc, load_r
       integer :: load_s1d, load_s2d
@@ -81,14 +84,16 @@
       real(r8), allocatable :: Rtracer(:,:)
       real(r8), allocatable :: tracer(:,:)
 
-      real(r8), dimension(100) :: Rval
+      real(r8) :: Rvalue(1)
+
+      real(r8), dimension(200) :: Rval
 
       character (len=1  ), parameter :: blank = ' '
       character (len=19 ) :: ref_att
       character (len=40 ) :: KeyWord
       character (len=50 ) :: label
       character (len=256) :: fname, line
-      character (len=256), dimension(100) :: Cval
+      character (len=256), dimension(200) :: Cval
 !
 !-----------------------------------------------------------------------
 !  Initialize.
@@ -133,7 +138,8 @@
               END DO
               varname=TRIM(ADJUSTL(Cval(Nval)))
             CASE ('Ngrids')
-              Npts=load_i(Nval, Rval, 1, Ngrids)
+              Npts=load_i(Nval, Rval, 1, Ivalue)
+              Ngrids=Ivalue(1)
               IF (Ngrids.le.0) THEN
                 IF (Master) WRITE (out,290) 'Ngrids', Ngrids,           &
      &            'must be greater than zero.'
@@ -200,7 +206,8 @@
               END DO
 #if defined SEDIMENT && defined SOLVE3D
             CASE ('Nbed')
-              Npts=load_i(Nval, Rval, 1, Nbed)
+              Npts=load_i(Nval, Rval, 1, Ivalue)
+              Nbed=Ivalue(1)
               IF (Nbed.le.0) THEN
                 IF (Master) WRITE (out,290) 'Nbed = ', Nbed,            &
      &            'must be greater than zero.'
@@ -210,7 +217,8 @@
 #endif
 #ifdef SOLVE3D
             CASE ('NAT')
-              Npts=load_i(Nval, Rval, 1, NAT)
+              Npts=load_i(Nval, Rval, 1, Ivalue)
+              NAT=Ivalue(1)
               IF ((NAT.lt.1).or.(NAT.gt.2)) THEN
                 IF (Master) WRITE (out,290) 'NAT = ', NAT,              &
      &            'make sure that NAT is either 1 or 2.'
@@ -228,7 +236,8 @@
 #endif
 #if defined T_PASSIVE && defined SOLVE3D
             CASE ('NPT')
-              Npts=load_i(Nval, Rval, 1, NPT)
+              Npts=load_i(Nval, Rval, 1, Ivalue)
+              NPT=Ivalue(1)
               IF (NPT.le.0) THEN
                 IF (Master) WRITE (out,290) 'NPT = ', NPT,              &
      &            'must be greater than zero.'
@@ -238,7 +247,8 @@
 #endif
 #if defined SEDIMENT && defined SOLVE3D
             CASE ('NCS')
-              Npts=load_i(Nval, Rval, 1, NCS)
+              Npts=load_i(Nval, Rval, 1, Ivalue)
+              NCS=Ivalue(1)
               IF (NCS.lt.0) THEN
                 IF (Master) WRITE (out,290) 'NCS = ', NCS,              &
      &            'must be greater than zero.'
@@ -254,7 +264,8 @@
               END IF
               NST=NST+NCS
             CASE ('NNS')
-              Npts=load_i(Nval, Rval, 1, NNS)
+              Npts=load_i(Nval, Rval, 1, Ivalue)
+              NNS=Ivalue(1)
               IF (NNS.lt.0) THEN
                 IF (Master) WRITE (out,290) 'NNS = ',                   &
      &            'must be greater than zero.'
@@ -272,23 +283,15 @@
 #endif
             CASE ('NtileI')
               Npts=load_i(Nval, Rval, Ngrids, NtileI)
-#ifdef DISTRIBUTE
-              NtileX(1:Ngrids)=1
-#else
-              NtileX(1:Ngrids)=NtileI(1:Ngrids)
-#endif
-            CASE ('NtileJ')
-              Npts=load_i(Nval, Rval, Ngrids, NtileJ)
-#ifdef DISTRIBUTE
-              NtileE(1:Ngrids)=1
-#else
-              NtileE(1:Ngrids)=NtileJ(1:Ngrids)
-#endif
-#ifdef BIOLOGY
-              CALL initialize_biology
-#endif
 #ifdef NEMURO_SAN
 !           CALL initialize_fish
+#endif
+              NtileX(1:Ngrids)=NtileI(1:Ngrids)
+            CASE ('NtileJ')
+              Npts=load_i(Nval, Rval, Ngrids, NtileJ)
+              NtileE(1:Ngrids)=NtileJ(1:Ngrids)
+#ifdef BIOLOGY
+              CALL initialize_biology
 #endif
 #if defined SEDIMENT || defined BBL_MODEL
               CALL initialize_sediment
@@ -300,7 +303,8 @@
               CALL initialize_ncparam
 #if defined AD_SENSITIVITY    || defined IS4DVAR_SENSITIVITY || \
     defined FORCING_SV        || defined OPT_OBSERVATIONS    || \
-    defined SENSITIVITY_4DVAR || defined SO_SEMI
+    defined SENSITIVITY_4DVAR || defined SO_SEMI             || \
+    defined STOCHASTIC_OPT
               IF (.not.allocated(Ladsen)) THEN
                 allocate (Ladsen(MT*Ngrids))
               END IF
@@ -428,7 +432,7 @@
               Npts=load_l(Nval, Cval, Ngrids, VolCons(isouth,:))
             CASE ('VolCons(north)')
               Npts=load_l(Nval, Cval, Ngrids, VolCons(inorth,:))
-#if defined ADJONT || defined TANGENT || defined TL_IOMS
+#if defined ADJOINT || defined TANGENT || defined TL_IOMS
             CASE ('ad_VolCons(west)')
               Npts=load_l(Nval, Cval, Ngrids, ad_VolCons(iwest,:))
               DO ng=1,Ngrids
@@ -470,20 +474,27 @@
             CASE ('NDTFAST')
               Npts=load_i(Nval, Rval, Ngrids, ndtfast)
             CASE ('ERstr')
-              Npts=load_i(Nval, Rval, 1, ERstr)
+              Npts=load_i(Nval, Rval, 1, Ivalue)
+              ERstr=Ivalue(1)
             CASE ('ERend')
-              Npts=load_i(Nval, Rval, 1, ERend)
+              Npts=load_i(Nval, Rval, 1, Ivalue)
+              ERend=Ivalue(1)
             CASE ('Nouter')
-              Npts=load_i(Nval, Rval, 1, Nouter)
+              Npts=load_i(Nval, Rval, 1, Ivalue)
+              Nouter=Ivalue(1)
             CASE ('Ninner')
-              Npts=load_i(Nval, Rval, 1, Ninner)
+              Npts=load_i(Nval, Rval, 1, Ivalue)
+              Ninner=Ivalue(1)
             CASE ('Nintervals')
-              Npts=load_i(Nval, Rval, 1, Nintervals)
+              Npts=load_i(Nval, Rval, 1, Ivalue)
+              Nintervals=Ivalue(1)
 #ifdef PROPAGATOR
             CASE ('NEV')
-              Npts=load_i(Nval, Rval, 1, NEV)
+              Npts=load_i(Nval, Rval, 1, Ivalue)
+              NEV=Ivalue(1)
             CASE ('NCV')
-              Npts=load_i(Nval, Rval, 1, NCV)
+              Npts=load_i(Nval, Rval, 1, Ivalue)
+              NCV=Ivalue(1)
 # if defined FT_EIGENMMODES || defined AFT_EIGENMODES
               IF (NCV.lt.(2*NEV+1)) THEN
                 IF (Master) WRITE (out,260) 'NCV = ', NCV,              &
@@ -491,15 +502,8 @@
                 exit_flag=5
                 RETURN
               END IF
-# elif defined OPT_PERTURBATION
-              IF (NCV.lt.(2*NEV)) THEN
-                IF (Master) WRITE (out,260) 'NCV = ', NCV,              &
-     &            'Must be greater than or equal to 2*NEV'
-                exit_flag=5
-                RETURN
-              END IF
 # else
-              IF (NCV.lt.(2*NEV)) THEN
+              IF (NCV.lt.NEV) THEN
                 IF (Master) WRITE (out,260) 'NCV = ', NCV,              &
      &            'Must be greater than NEV'
                 exit_flag=5
@@ -610,16 +614,21 @@
               allocate ( SF_time(MAXVAL(Nfrec),Ngrids) )
 #endif
             CASE ('LmultiGST')
-              Npts=load_l(Nval, Cval, 1, LmultiGST)
+              Npts=load_l(Nval, Cval, 1, Lvalue)
+              LmultiGST=Lvalue(1)
             CASE ('LrstGST')
-              Npts=load_l(Nval, Cval, 1, LrstGST)
+              Npts=load_l(Nval, Cval, 1, Lvalue)
+              LrstGST=Lvalue(1)
             CASE ('MaxIterGST')
-              Npts=load_i(Nval, Rval, 1, MaxIterGST)
+              Npts=load_i(Nval, Rval, 1, Ivalue)
+              MaxIterGST=Ivalue(1)
             CASE ('NGST')
-              Npts=load_i(Nval, Rval, 1, nGST)
+              Npts=load_i(Nval, Rval, 1, Ivalue)
+              nGST=Ivalue(1)
 #ifdef PROPAGATOR
             CASE ('Ritz_tol')
-              Npts=load_r(Nval, Rval, 1, Ritz_tol)
+              Npts=load_r(Nval, Rval, 1, Rvalue)
+              Ritz_tol=Rvalue(1)
 #endif
             CASE ('TNU2')
               Npts=load_r(Nval, Rval, (NAT+NPT)*Ngrids, Rtracer)
@@ -824,15 +833,20 @@
                 hc(ng)=Tcline(ng)
               END DO
             CASE ('RHO0')
-              Npts=load_r(Nval, Rval, 1, rho0)
+              Npts=load_r(Nval, Rval, 1, Rvalue)
+              rho0=Rvalue(1)
             CASE ('BVF_BAK')
-              Npts=load_r(Nval, Rval, 1, bvf_bak)
+              Npts=load_r(Nval, Rval, 1, Rvalue)
+              bvf_bak=Rvalue(1)
             CASE ('DSTART')
-              Npts=load_r(Nval, Rval, 1, dstart)
+              Npts=load_r(Nval, Rval, 1, Rvalue)
+              dstart=Rvalue(1)
             CASE ('TIDE_START')
-              Npts=load_r(Nval, Rval, 1, tide_start)
+              Npts=load_r(Nval, Rval, 1, Rvalue)
+              tide_start=Rvalue(1)
             CASE ('TIME_REF')
-              Npts=load_r(Nval, Rval, 1, time_ref)
+              Npts=load_r(Nval, Rval, 1, Rvalue)
+              time_ref=Rvalue(1)
               r_text=ref_att(time_ref,r_date)
             CASE ('TNUDG')
               Npts=load_r(Nval, Rval, (NAT+NPT)*Ngrids, Rtracer)
@@ -876,6 +890,36 @@
               END DO
             CASE ('GAMMA2')
               Npts=load_r(Nval, Rval, Ngrids, gamma2)
+#if defined SOLVE3D && defined TCLIMATOLOGY
+            CASE ('LtracerCLM')
+              Npts=load_l(Nval, Cval, (NAT+NPT)*Ngrids, Ltracer)
+              DO ng=1,Ngrids
+                DO itrc=1,NAT
+                  LtracerCLM(itrc,ng)=Ltracer(itrc,ng)
+                END DO
+# ifdef T_PASSIVE
+                DO i=1,NPT
+                  itrc=inert(i)
+                  LtracerCLM(itrc,ng)=Ltracer(NAT+i,ng)
+                END DO
+# endif
+              END DO
+#endif
+#if defined SOLVE3D && defined TS_PSOURCE
+            CASE ('LtracerSrc')
+              Npts=load_l(Nval, Cval, (NAT+NPT)*Ngrids, Ltracer)
+              DO ng=1,Ngrids
+                DO itrc=1,NAT
+                  LtracerSrc(itrc,ng)=Ltracer(itrc,ng)
+                END DO
+# ifdef T_PASSIVE
+                DO i=1,NPT
+                  itrc=inert(i)
+                  LtracerSrc(itrc,ng)=Ltracer(NAT+i,ng)
+                END DO
+# endif
+              END DO
+#endif
 #if defined AD_SENSITIVITY   || defined IS4DVAR_SENSITIVITY || \
     defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR   || \
     defined SO_SEMI
@@ -955,7 +999,8 @@
               END DO
 # endif
 #endif
-#if defined FORCING_SV || defined SO_SEMI
+#if defined FORCING_SV     || defined SO_SEMI || \
+    defined STOCHASTIC_OPT
             CASE ('Fstate(isFsur)')
               IF (isFsur.eq.0) THEN
                 IF (Master) WRITE (out,280) 'isFsur'
@@ -1061,7 +1106,8 @@
               END DO
 # endif
 #endif
-#ifdef SO_SEMI
+#if defined SO_SEMI        || \
+   (defined STOCHASTIC_OPT && !defined STOCH_OPT_WHITE)
             CASE ('SO_decay')
               Npts=load_r(Nval, Rval, Ngrids, SO_decay)
             CASE ('SO_sdev(isFsur)')
@@ -1102,21 +1148,6 @@
                 END DO
               END DO
 # endif
-#endif
-#if defined SOLVE3D && defined TS_PSOURCE
-            CASE ('LtracerSrc')
-              Npts=load_l(Nval, Cval, (NAT+NPT)*Ngrids, Ltracer)
-              DO ng=1,Ngrids
-                DO itrc=1,NAT
-                  LtracerSrc(itrc,ng)=Ltracer(itrc,ng)
-                END DO
-# ifdef T_PASSIVE
-                DO i=1,NPT
-                  itrc=inert(i)
-                  LtracerSrc(itrc,ng)=Ltracer(NAT+i,ng)
-                END DO
-# endif
-              END DO
 #endif
             CASE ('Hout(idUvel)')
               IF (idUvel.eq.0) THEN
@@ -1935,9 +1966,9 @@
                 exit_flag=5
                 RETURN
               END IF
-              Npts=load_l(Nval, Cval, NAT*Ngrids, Ltracer)
+              Npts=load_l(Nval, Cval, (NAT+NPT)*Ngrids, Ltracer)
               DO ng=1,Ngrids
-                DO itrc=1,NAT
+                DO itrc=1,NAT+NPT
                   i=idTTav(itrc)
                   Aout(i,ng)=Ltracer(itrc,ng)
                 END DO
@@ -1948,9 +1979,9 @@
                 exit_flag=5
                 RETURN
               END IF
-              Npts=load_l(Nval, Cval, NAT*Ngrids, Ltracer)
+              Npts=load_l(Nval, Cval, (NAT+NPT)*Ngrids, Ltracer)
               DO ng=1,Ngrids
-                DO itrc=1,NAT
+                DO itrc=1,NAT+NPT
                   i=idUTav(itrc)
                   Aout(i,ng)=Ltracer(itrc,ng)
                 END DO
@@ -1961,9 +1992,9 @@
                 exit_flag=5
                 RETURN
               END IF
-              Npts=load_l(Nval, Cval, NAT*Ngrids, Ltracer)
+              Npts=load_l(Nval, Cval, (NAT+NPT)*Ngrids, Ltracer)
               DO ng=1,Ngrids
-                DO itrc=1,NAT
+                DO itrc=1,NAT+NPT
                   i=idVTav(itrc)
                   Aout(i,ng)=Ltracer(itrc,ng)
                 END DO
@@ -1974,9 +2005,9 @@
                 exit_flag=5
                 RETURN
               END IF
-              Npts=load_l(Nval, Cval, NAT*Ngrids, Ltracer)
+              Npts=load_l(Nval, Cval, (NAT+NPT)*Ngrids, Ltracer)
               DO ng=1,Ngrids
-                DO itrc=1,NAT
+                DO itrc=1,NAT+NPT
                   i=iHUTav(itrc)
                   Aout(i,ng)=Ltracer(itrc,ng)
                 END DO
@@ -1987,9 +2018,9 @@
                 exit_flag=5
                 RETURN
               END IF
-              Npts=load_l(Nval, Cval, NAT*Ngrids, Ltracer)
+              Npts=load_l(Nval, Cval, (NAT+NPT)*Ngrids, Ltracer)
               DO ng=1,Ngrids
-                DO itrc=1,NAT
+                DO itrc=1,NAT+NPT
                   i=iHVTav(itrc)
                   Aout(i,ng)=Ltracer(itrc,ng)
                 END DO
@@ -2812,15 +2843,19 @@
               END DO
 #endif
             CASE ('NUSER')
-              Npts=load_i(Nval, Rval, 1, Nuser)
+              Npts=load_i(Nval, Rval, 1, Ivalue)
+              Nuser=Ivalue(1)
             CASE ('USER')
               Npts=load_r(Nval, Rval, MAX(1,Nuser), user)
             CASE ('NC_SHUFFLE')
-              Npts=load_i(Nval, Rval, 1, shuffle)
+              Npts=load_i(Nval, Rval, 1, Ivalue)
+              shuffle=Ivalue(1)
             CASE ('NC_DEFLATE')
-              Npts=load_i(Nval, Rval, 1, deflate)
+              Npts=load_i(Nval, Rval, 1, Ivalue)
+              deflate=Ivalue(1)
             CASE ('NC_DLEVEL')
-              Npts=load_i(Nval, Rval, 1, deflate_level)
+              Npts=load_i(Nval, Rval, 1, Ivalue)
+              deflate_level=Ivalue(1)
             CASE ('GSTNAME')
               label='GST - generalized stability theory analysis'
               Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles, GST)
@@ -3056,7 +3091,8 @@
       END DO
 #endif
 
-#if defined FORCING_SV || defined SO_SEMI
+#if defined FORCING_SV     || defined SO_SEMI || \
+    defined STOCHASTIC_OPT
 !
 !  Make sure that logical output switches are activated for the
 !  Forcing Singular Vectors or Stochastic Optimals variables.
@@ -3131,7 +3167,7 @@
           LdefHIS(ng)=.TRUE.
         END IF
 #endif
-#if defined ADJOINT || defined TANGENT || defined TL_IOMS
+#if defined TANGENT || defined TL_IOMS
 !
 !  Set lateral boundary condition switches for the tangent linear
 !  models (TLM and RPM) to the same values as the adjoint model.
@@ -3199,6 +3235,13 @@
 !  the next assimilation cycle.
 !
         nRST(ng)=ntimes(ng)
+#endif
+#if defined STOCHASTIC_OPT && !defined STOCH_OPT_WHITE
+!
+!  For red noise stochastic optimals, nADJ must equal the number of
+!  trapezoidal intervals.
+!
+        nADJ(ng)=ntimes(ng)/Nintervals
 #endif
 #if defined FOUR_DVAR || defined IMPULSE
 !
@@ -3295,9 +3338,9 @@
 !  decomposition.
 !
 #ifdef DISTRIBUTE
-          WRITE (out,70) ng, Lm(ng), Mm(ng), N(ng), numnodes,           &
+          WRITE (out,70) ng, Lm(ng), Mm(ng), N(ng), numthreads,         &
      &                   NtileI(ng), NtileJ(ng)
-          IF ((NtileI(ng)*NtileJ(ng)).ne.numnodes) THEN
+          IF ((NtileI(ng)*NtileJ(ng)).ne.numthreads) THEN
             WRITE (out,80) ng
             exit_flag=6
             RETURN
@@ -3338,7 +3381,9 @@
 #if defined IS4DVAR           || defined IS4DVAR_SENSITIVITY || \
     defined SENSITIVITY_4DVAR || \
     defined TL_W4DPSAS        || defined TL_W4DVAR           || \
-    defined W4DPSAS           || defined W4DVAR
+    defined W4DPSAS           || defined W4DVAR              || \
+    defined HESSIAN_SV        || defined HESSIAN_SO          || \
+    defined HESSIAN_FSV
           WRITE (out,120) Ninner, 'Ninner',                             &
      &          'Maximun number of 4DVAR inner loop iterations.'
 #endif
@@ -3862,6 +3907,36 @@
           WRITE (out,160) gamma2(ng), 'gamma2',                         &
      &          'Slipperiness variable: free-slip (1.0) or ',           &
      &          '                     no-slip (-1.0).'
+#if defined SOLVE3D && defined TCLIMATOLOGY
+          DO itrc=1,NAT
+            WRITE (out,185) LtracerCLM(itrc,ng), 'LtracerCLM', itrc,    &
+     &            'Processing climatology on tracer ', itrc,            &
+     &            TRIM(Vname(1,idTvar(itrc)))
+          END DO
+# ifdef T_PASSIVE
+          DO i=1,NPT
+            itrc=inert(i)
+            WRITE (out,185) LtracerCLM(itrc,ng), 'LtracerCLM', itrc,    &
+     &            'Processing climatology on tracer ', itrc,            &
+     &            TRIM(Vname(1,idTvar(itrc)))
+          END DO
+# endif
+#endif
+#if defined SOLVE3D && defined TS_PSOURCE
+          DO itrc=1,NAT
+            WRITE (out,185) LtracerSrc(itrc,ng), 'LtracerSrc', itrc,    &
+     &            'Processing point sources/Sink on tracer ', itrc,     &
+     &            TRIM(Vname(1,idTvar(itrc)))
+          END DO
+# ifdef T_PASSIVE
+          DO i=1,NPT
+            itrc=inert(i)
+            WRITE (out,185) LtracerSrc(itrc,ng), 'LtracerSrc', itrc,    &
+     &            'Processing point sources/Sink on tracer ', itrc,     &
+     &            TRIM(Vname(1,idTvar(itrc)))
+          END DO
+# endif
+#endif
 #if defined AD_SENSITIVITY   || defined IS4DVAR_SENSITIVITY || \
     defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR   || \
     defined SO_SEMI
@@ -3917,7 +3992,7 @@
           END DO
 # endif
 #endif
-#if defined FORCING_SV || defined SO_SEMI
+#if defined FORCING_SV || defined SO_SEMI || defined STOCHASTIC_OPT
           IF (SCALARS(ng)%Fstate(isFsur))                               &
      &       WRITE (out,170) SCALARS(ng)%Fstate(isFsur),                &
      &       'Fstate(isFsur)',                                          &
@@ -4045,21 +4120,6 @@
      &         'SO_sdev(idTsur)',                                       &
      &         'Stochastic Optimals scale, surface flux of tracer',     &
      &         itrc, TRIM(Vname(1,idTvar(itrc)))
-          END DO
-# endif
-#endif
-#if defined SOLVE3D && defined TS_PSOURCE
-          DO itrc=1,NAT
-            WRITE (out,185) LtracerSrc(itrc,ng), 'LtracerSrc', itrc,    &
-     &            'Processing point sources/Sink on tracer ', itrc,     &
-     &            TRIM(Vname(1,idTvar(itrc)))
-          END DO
-# ifdef T_PASSIVE
-          DO i=1,NPT
-            itrc=inert(i)
-            WRITE (out,185) LtracerSrc(i,ng), 'LtracerSrc', itrc,       &
-     &            'Processing point sources/Sink on tracer ', itrc,     &
-     &            TRIM(Vname(1,idTvar(itrc)))
           END DO
 # endif
 #endif
@@ -4573,31 +4633,31 @@
           IF (Aout(idVVav,ng)) WRITE (out,170) Aout(idVVav,ng),         &
      &       'Aout(idVVav)',                                            &
      &       'Write out averaged quadratic <v*v> term.'
-          DO itrc=1,NAT
+          DO itrc=1,NAT+NPT
             IF (Aout(idTTav(itrc),ng)) WRITE (out,180)                  &
      &          Aout(idTTav(itrc),ng), 'Aout(idTTav)',                  &
      &          'Write out averaged <t*t> for tracer ', itrc,           &
      &          TRIM(Vname(1,idTvar(itrc)))
           END DO
-          DO itrc=1,NAT
+          DO itrc=1,NAT+NPT
             IF (Aout(idUTav(itrc),ng)) WRITE (out,180)                  &
      &          Aout(idUTav(itrc),ng), 'Aout(idUTav)',                  &
      &          'Write out averaged <u*t> for tracer ', itrc,           &
      &          TRIM(Vname(1,idTvar(itrc)))
           END DO
-          DO itrc=1,NAT
+          DO itrc=1,NAT+NPT
             IF (Aout(idVTav(itrc),ng)) WRITE (out,180)                  &
      &          Aout(idVTav(itrc),ng), 'Aout(idVTav)',                  &
      &          'Write out averaged <v*t> for tracer ', itrc,           &
      &          TRIM(Vname(1,idTvar(itrc)))
           END DO
-          DO itrc=1,NAT
+          DO itrc=1,NAT+NPT
             IF (Aout(iHUTav(itrc),ng)) WRITE (out,180)                  &
      &          Aout(iHUTav(itrc),ng), 'Aout(iHUTav)',                  &
      &          'Write out averaged <Huon*t> for tracer ', itrc,        &
      &          TRIM(Vname(1,idTvar(itrc)))
           END DO
-          DO itrc=1,NAT
+          DO itrc=1,NAT+NPT
             IF (Aout(iHVTav(itrc),ng)) WRITE (out,180)                  &
      &          Aout(iHVTav(itrc),ng), 'Aout(iHVTav)',                  &
      &          'Write out averaged <Hvom*t> for tracer ', itrc,        &
@@ -5294,7 +5354,9 @@
       defined IS4DVAR_SENSITIVITY || defined FORCING_SV        || \
       defined OPT_OBSERVATIONS    || defined OPT_PERTURBATION  || \
       defined SANITY_CHECK        || defined SENSITIVITY_4DVAR || \
-      defined SO_SEMI)
+      defined SO_SEMI             || defined STOCHASTIC_OPT    || \
+      defined HESSIAN_SV          || defined HESSIAN_SO        || \
+      defined HESSIAN_FSV)
           fname=IAD(ng)%name
           IF (.not.find_file(ng, fname)) GO TO 30
           WRITE (out,230) '    Input Adjoint Initial File:  ',          &

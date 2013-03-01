@@ -7,7 +7,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -58,8 +58,8 @@
       logical, intent(out) :: update
 
       integer, intent(in) :: ng, model, ifield, nfiles
-      integer, intent(in) :: LBi, UBi, UBj, UBk, Istr, Jrec
-      integer, intent(inout) :: ncid, Iend
+      integer, intent(in) :: LBi, UBi, UBj, UBk, Istr, Iend, Jrec
+      integer, intent(inout) :: ncid
 
       TYPE(T_IO), intent(inout) :: S(nfiles)
 

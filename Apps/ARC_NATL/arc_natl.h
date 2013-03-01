@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2012 The ROMS/TOMS Group
+** Copyright (c) 2002-2013 The ROMS/TOMS Group
 **
 **   Licensed under a MIT/X style license
 **
@@ -185,7 +185,7 @@
 # define UV_LDRAG
 # define UV_DRAG_GRID
 # define ANA_DRAG
-# define DRAG_LIMITER
+# define LIMIT_BSTRESS
 # undef UV_QDRAG
 #else
 # define UV_QDRAG

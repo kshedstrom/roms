@@ -2,7 +2,7 @@
 !
 !svn $Id$
 !========================================================= Hernan G. Arango ===
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group                                !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group                                !
 !    Licensed under a MIT/X style license                                     !
 !    See License_ROMS.txt                                                     !
 !==============================================================================
@@ -341,6 +341,12 @@ ad_LBC(isTvar) ==   Per     Clo     Per     Clo \    ! idbio( 1), nanophyto
                     Per     Clo     Per     Clo \    ! idbio(10), SiOH4
                     Per     Clo     Per     Clo      ! idbio(11), opal
 
+! Logical switches (TRUE/FALSE) to specify which variables to process for
+! tracers climatology: [NBT,Ngrids] values are expected. See glossary below
+! for details.
+
+  LtracerCLM == 14*F
+
 ! Logical switches (TRUE/FALSE) to specify which variables to consider on
 ! tracers point Sources/Sinks (like river runoff): [NBT,Ngrids] values are
 ! expected. See glossary below for details.
@@ -363,8 +369,8 @@ Hout(idOPALbur) == T
 ! Logical switches (TRUE/FALSE) to activate writing of time-averaged fields
 ! into AVERAGE output file: [1;NBT,Ngrids].
 
-Aout(idTvar) == 14*T                       ! biological tracer
-Aout(idTsur) == 14*F                       ! surface tracer flux
+Aout(idTvar) == 14*T    ! ..., NO3, ...          biological tracer
+Aout(idTsur) == 14*F    ! ..., NO3, ...          surface tracer flux
 
 ! Logical switches for bio sediment variables.
 Aout(idPONsed) == T
@@ -377,16 +383,16 @@ Aout(idOPALbur) == T
 ! biological tracer diagnostic terms into DIAGNOSTIC output file:
 ! [1:NBT,Ngrids].
 
-Dout(iTrate) == 14*T                       ! time rate of change
-Dout(iThadv) == 14*T                       ! horizontal total advection
-Dout(iTxadv) == 14*T                       ! horizontal XI-advection
-Dout(iTyadv) == 14*T                       ! horizontal ETA-advection
-Dout(iTvadv) == 14*T                       ! vertical advection
-Dout(iThdif) == 14*T                       ! horizontal total diffusion
-Dout(iTxdif) == 14*T                       ! horizontal XI-diffusion
-Dout(iTydif) == 14*T                       ! horizontal ETA-diffusion
-Dout(iTsdif) == 14*T                       ! horizontal S-diffusion
-Dout(iTvdif) == 14*T                       ! vertical diffusion
+Dout(iTrate) == 14*T    ! ..., NO3_rate, ...     time rate of change
+Dout(iThadv) == 14*T    ! ..., NO3_hadv, ...     horizontal total advection
+Dout(iTxadv) == 14*T    ! ..., NO3_xadv, ...     horizontal XI-advection
+Dout(iTyadv) == 14*T    ! ..., NO3_yadv, ...     horizontal ETA-advection
+Dout(iTvadv) == 14*T    ! ..., NO3_vadv, ...     vertical advection
+Dout(iThdif) == 14*T    ! ..., NO3_hdiff, ...    horizontal total diffusion
+Dout(iTxdif) == 14*T    ! ..., NO3_xdiff, ...    horizontal XI-diffusion
+Dout(iTydif) == 14*T    ! ..., NO3_ydiff, ...    horizontal ETA-diffusion
+Dout(iTsdif) == 14*T    ! ..., NO3_sdiff, ...    horizontal S-diffusion
+Dout(iTvdif) == 14*T    ! ..., NO3_vdiff, ...    vertical diffusion
 !
 !  GLOSSARY:
 !  =========
@@ -790,6 +796,35 @@ Dout(iTvdif) == 14*T                       ! vertical diffusion
 !
 !  ad_LBC(isTvar) Biological Tracers, [1:4, 1:NBT, Ngrids] values are expected.
 
+!------------------------------------------------------------------------------
+!  Tracer climatology processing switches.
+!------------------------------------------------------------------------------
+!
+!  LtracerCLM     Logical switches (T/F) to specify which tracer climatology
+!                   variables to consider when the option TCLIMATOLOGY is
+!                   activated; [1:NBT,1:Ngrids] values are expected.
+!
+!                     LtracerCLM(idbio( 1),ng)    Nanophytoplankton biomass
+!                     LtracerCLM(idbio( 2),ng)    Diatom biomass
+!                     LtracerCLM(idbio( 3),ng)    Microzooplankton biomass
+!                     LtracerCLM(idbio( 4),ng)    Mesozooplankton biomass
+!                     LtracerCLM(idbio( 5),ng)    Predactor zooplankton biomass
+!                     LtracerCLM(idbio( 6),ng)    Nitrate concentration
+!                     LtracerCLM(idbio( 7),ng)    Ammonium concentration
+!                     LtracerCLM(idbio( 8),ng)    Particulate Organic Nitrogen
+!                     LtracerCLM(idbio( 9),ng)    Dissolved Organic Nitrogen
+!                     LtracerCLM(idbio(10),ng)    Silicate concentration
+!                     LtracerCLM(idbio(11),ng)    Particulate organic silica
+!                     LtracerCLM(idbio(12),ng)    
+!                     LtracerCLM(idbio(13),ng)    
+!                     LtracerCLM(idbio(14),ng)    
+!
+!                 Recall that TCLIMATOLOGY is usually activated to nudge to
+!                 tracer climatology (TLCM_NUDGING).  The purpose of these
+!                 switches is to control which climatology tracer fields
+!                 (specially passive tracers) needs to be processed.  So we
+!                 may reduce the memory allocation for such array.
+!
 !------------------------------------------------------------------------------
 !  Tracer point Sources/Sink sources switches.
 !------------------------------------------------------------------------------

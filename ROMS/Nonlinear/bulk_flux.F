@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -139,6 +139,9 @@
      &                     FORCES(ng) % shflx,                          &
      &                     FORCES(ng) % srflx,                          &
      &                     FORCES(ng) % stflx,                          &
+# if defined ALBEDO_FILE && defined SHORTWAVE
+     &                     FORCES(ng) % albedo,                         &
+# endif
 # if defined ALBEDO && defined SHORTWAVE && !defined BENCHMARK
      &                     FORCES(ng) % cawdir,                         &
 # endif
@@ -221,6 +224,9 @@
 # endif
      &                           rain, lhflx, lrflx, shflx,             &
      &                           srflx, stflx,                          &
+# if defined ALBEDO_FILE && defined SHORTWAVE
+     &                           albedo,                                &
+# endif
 # if defined ALBEDO && defined SHORTWAVE && !defined BENCHMARK
      &                           cawdir,                                &
 # endif
@@ -321,6 +327,9 @@
       real(r8), intent(inout) :: shflx(LBi:,LBj:)
       real(r8), intent(inout) :: srflx(LBi:,LBj:)
       real(r8), intent(inout) :: stflx(LBi:,LBj:,:)
+# if defined ALBEDO_FILE && defined SHORTWAVE
+      real(r8), intent(in) :: albedo(LBi:,LBj:)
+# endif
 # if defined ALBEDO && defined SHORTWAVE && !defined BENCHMARK
       real(r8), intent(inout) :: cawdir(LBi:,LBj:)
 #  endif
@@ -406,6 +415,9 @@
       real(r8), intent(inout) :: shflx(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: srflx(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: stflx(LBi:UBi,LBj:UBj,NT(ng))
+# if defined ALBEDO_FILE && defined SHORTWAVE
+      real(r8), intent(in) :: albedo(LBi:UBi,LBj:UBj)
+# endif
 # if defined ALBEDO && defined SHORTWAVE && !defined BENCHMARK
       real(r8), intent(inout) :: cawdir(LBi:UBi,LBj:UBj)
 #  endif
@@ -453,7 +465,7 @@
 !
 !  Local variable declarations.
 !
-      integer :: Iter, i, j, k
+      integer :: Iter, i, j, k, listp
       integer, parameter :: IterMax = 3
 
       real(r8), parameter :: eps = 1.0E-20_r8
@@ -575,6 +587,13 @@
       Hscale=rho0*Cp
       Hscale2=1.0_r8/(rho0*Cp)
       twopi_inv=0.5_r8/pi
+#if defined ICE_MODEL
+      IF (PerfectRST(ng) .and. iic(ng).eq.ntstart(ng)) THEN
+        listp = liold
+      ELSE
+        listp = linew
+      END IF
+#endif
       DO j=Jstr-1,JendR
         DO i=Istr-1,IendR
 !
@@ -589,6 +608,9 @@
           rhoSea(i)=rho(i,j,N(ng))+1000.0_r8
           RH=Hair(i,j)
           SRad(i,j)=srflx(i,j)*Hscale
+# if defined ALBEDO_FILE && defined SHORTWAVE
+          SRad(i,j) = SRad(i,j)*(1.0-albedo(i,j))
+# endif
 # if defined ALBEDO && defined SHORTWAVE && !defined BENCHMARK
           SRad(i,j) = SRad(i,j)*cawdir(i,j)
 # endif
@@ -1021,7 +1043,7 @@
 
 ! Sensible heat flux over ice
 
-          IF (ai(i,j,liold).gt.min_a(ng)) THEN
+          IF (ai(i,j,listp).gt.min_a(ng)) THEN
             sfc_temp = tis(i,j) + 273.16_r8
           ELSE
             sfc_temp = t(i,j,N(ng),nrhs,itemp) + 273.16_r8
@@ -1055,13 +1077,13 @@
           albi=0._r8
           albsn=0._r8
 #if defined ICE_MODEL && defined ICE_THERMO
-          sfwat_n = sfwat(i,j,liold)
+          sfwat_n = sfwat(i,j,listp)
 #else
           sfwat_n = 0._r8
 #endif
-          IF (ai(i,j,liold) .gt. min_a(ng)) THEN
-            thki_n = hi(i,j,liold)/(ai(i,j,liold)+0.01_r8)
-            thksn_n = hsn(i,j,liold)/(ai(i,j,liold)+0.01_r8)
+          IF (ai(i,j,listp) .gt. min_a(ng)) THEN
+            thki_n = hi(i,j,listp)/(ai(i,j,listp)+0.01_r8)
+            thksn_n = hsn(i,j,listp)/(ai(i,j,listp)+0.01_r8)
             albi=0.082409_r8*LOG(thki_n)+0.485472_r8
             IF (thki_n.GE.1._r8) albi=0.07616_r8*thki_n+0.414492_r8
             IF (thki_n.GE.2._r8) albi=0.561632_r8
@@ -1075,7 +1097,7 @@
               ENDIF
             ENDIF
             albs=albi
-            IF (hsn(i,j,liold).GT.0._r8) albs=albsn
+            IF (hsn(i,j,listp).GT.0._r8) albs=albsn
 !            IF (sfwat_n.GT.0._r8) albs=0.100737_r8                      &
 !     &         +0.518_r8*EXP(-8.1_r8 *sfwat_n-0.47_r8)                  &
 !     &         +0.341_r8*EXP(-31.8_r8*sfwat_n-0.94_r8)                  &
@@ -1085,11 +1107,13 @@
           ELSE
             albs=alb_w
           ENDIF
+#   elif ALBEDO_FILE
+          albs = albedo(i,j)
 #   else
           cff1 = alb_s_wet - alb_s_dry
           cff2 = alb_i_wet - alb_i_dry
-          IF (ai(i,j,liold) .gt. min_a(ng)) THEN
-            IF (hsn(i,j,liold).gt.0._r8) THEN
+          IF (ai(i,j,listp) .gt. min_a(ng)) THEN
+            IF (hsn(i,j,listp).gt.0._r8) THEN
               IF (sfc_temp-273.16_r8.gt. -1._r8) THEN
                 albs = cff1*(sfc_temp-272.16_r8)+alb_s_dry
               ELSE
@@ -1208,6 +1232,9 @@
       cff=1.0_r8/rhow
       DO j=JstrR,JendR
         DO i=IstrR,IendR
+# if defined ALBEDO_FILE && defined SHORTWAVE
+          srflx(i,j) = srflx(i,j)*(1._r8-albedo(i,j))
+# endif
 # if defined ALBEDO && defined SHORTWAVE && !defined BENCHMARK
           cawdif = 1._r8-albw_d
           srflx(i,j) = srflx(i,j)*(cawdir(i,j)*                         &
@@ -1227,8 +1254,8 @@
           evap(i,j)=LHeat(i,j)/Hlv(i,j)
           stflx(i,j,isalt)=cff*(evap(i,j)-rain(i,j))
 #  ifdef ICE_MODEL
-          evap(i,j) = (1.0_r8-ai(i,j,linew))*evap(i,j)
-          stflx(i,j,isalt) = (1.0_r8-ai(i,j,linew))*stflx(i,j,isalt)
+          evap(i,j) = (1.0_r8-ai(i,j,listp))*evap(i,j)
+          stflx(i,j,isalt) = (1.0_r8-ai(i,j,listp))*stflx(i,j,isalt)
 #  endif
 #  ifdef EVAP_SHALLOW
           cffe = 1._r8/(h(i,j)+Zt_avg1(i,j))
@@ -1262,18 +1289,18 @@
 
 #  if defined BEST_NPZ && defined ICE_BIO
           IF (IceLog(i,j,nstp).lt.0) THEN
-            IF (hi(i,j,liold).le.0.1_r8) THEN
-              cff1=hi(i,j,liold)*5._r8
+            IF (hi(i,j,listp).le.0.1_r8) THEN
+              cff1=hi(i,j,listp)*5._r8
             ELSE
-              cff1=0.1_r8*5._r8+(hi(i,j,liold)-0.1_r8)*1._r8
+              cff1=0.1_r8*5._r8+(hi(i,j,listp)-0.1_r8)*1._r8
             ENDIF
-            cff1= cff1+hsn(i,j,liold)*20._r8
+            cff1= cff1+hsn(i,j,listp)*20._r8
           ELSE
             cff1= 0._r8
           END IF
 #  else
-          ice_thick(i,j) = hi(i,j,1)/(ai(i,j,1)+eps)
-          snow_thick(i,j) = hsn(i,j,linew)/(ai(i,j,linew)+eps)
+          ice_thick(i,j) = hi(i,j,listp)/(ai(i,j,listp)+eps)
+          snow_thick(i,j) = hsn(i,j,listp)/(ai(i,j,listp)+eps)
 
           IF (ice_thick(i,j).le.0.1_r8) THEN
             cff1=ice_thick(i,j)*5._r8
@@ -1285,12 +1312,12 @@
 #  endif
 
 #  ifdef ICE_BIO
-          cff2=0.5*0.02_r8*0.005*IcePhL(i,j,liold)
-          srflx(i,j)=(1.0_r8-ai(i,j,linew))*srflx(i,j)                  &
-     &            +ai(i,j,linew)*srflx(i,j)*exp(-cff1-cff2)
+          cff2=0.5*0.02_r8*0.005*IcePhL(i,j,listp)
+          srflx(i,j)=(1.0_r8-ai(i,j,listp))*srflx(i,j)                  &
+     &            +ai(i,j,listp)*srflx(i,j)*exp(-cff1-cff2)
 #  else
-          srflx(i,j)=(1.0_r8-ai(i,j,linew))*srflx(i,j)                  &
-     &            +ai(i,j,linew)*srflx(i,j)*exp(-cff1)
+          srflx(i,j)=(1.0_r8-ai(i,j,listp))*srflx(i,j)                  &
+     &            +ai(i,j,listp)*srflx(i,j)*exp(-cff1)
 #  endif
           qao_n(i,j) = -stflx(i,j,itemp)*Hscale
 

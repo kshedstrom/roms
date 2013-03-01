@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -294,6 +294,10 @@
 #  if defined ALBEDO
           real(r8), pointer :: cawdir(:,:)
 #  endif
+#  ifdef ALBEDO_FILE
+          real(r8), pointer :: albedo(:,:)
+          real(r8), pointer :: albedoG(:,:,:)
+#  endif
 # endif
 
 # if defined ICE_BULK_FLUXES && !defined NCEP_FLUXES
@@ -365,6 +369,11 @@
 # endif
 
           real(r8), pointer :: stflx(:,:,:)
+# if defined PERFECT_RESTART && defined ICE_MODEL
+          real(r8), pointer :: stflx_save(:,:,:)
+          real(r8), pointer :: sustr_save(:,:)
+          real(r8), pointer :: svstr_save(:,:)
+# endif
 # if !defined ANA_STFLUX || !defined ANA_SSFLUX || \
      !defined ANA_SPFLUX
           real(r8), pointer :: stflxG(:,:,:,:)
@@ -681,6 +690,10 @@
 #  if defined ALBEDO
       allocate ( FORCES(ng) % cawdir(LBi:UBi,LBj:UBj) )
 #  endif
+#  ifdef ALBEDO_FILE
+      allocate ( FORCES(ng) % albedo(LBi:UBi,LBj:UBj) )
+      allocate ( FORCES(ng) % albedoG(LBi:UBi,LBj:UBj,2) )
+#  endif
 # endif
 
 # if defined ICE_BULK_FLUXES && !defined NCEP_FLUXES
@@ -763,6 +776,11 @@
 # endif
 
       allocate ( FORCES(ng) % stflx(LBi:UBi,LBj:UBj,NT(ng)) )
+# if defined PERFECT_RESTART && defined ICE_MODEL
+      allocate ( FORCES(ng) % stflx_save(LBi:UBi,LBj:UBj,NAT) )
+      allocate ( FORCES(ng) % sustr_save(LBi:UBi,LBj:UBj) )
+      allocate ( FORCES(ng) % svstr_save(LBi:UBi,LBj:UBj) )
+# endif
 
 # if !defined ANA_STFLUX || !defined ANA_SSFLUX || \
      !defined ANA_SPFLUX
@@ -959,7 +977,12 @@
 !
 !  Set array initialization range.
 !
-#ifdef _OPENMP
+#ifdef DISTRIBUTE
+      Imin=BOUNDS(ng)%LBi(tile)
+      Imax=BOUNDS(ng)%UBi(tile)
+      Jmin=BOUNDS(ng)%LBj(tile)
+      Jmax=BOUNDS(ng)%UBj(tile)
+#else
       IF (DOMAIN(ng)%Western_Edge(tile)) THEN
         Imin=BOUNDS(ng)%LBi(tile)
       ELSE
@@ -980,11 +1003,6 @@
       ELSE
         Jmax=Jend
       END IF
-#else
-      Imin=BOUNDS(ng)%LBi(tile)
-      Imax=BOUNDS(ng)%UBi(tile)
-      Jmin=BOUNDS(ng)%LBj(tile)
-      Jmax=BOUNDS(ng)%UBj(tile)
 #endif
 !
 !-----------------------------------------------------------------------
@@ -1163,6 +1181,11 @@
 #  if defined ALBEDO
             FORCES(ng) % cawdir(i,j) = IniVal
 #  endif
+#  ifdef ALBEDO_FILE
+            FORCES(ng) % albedo(i,j) = IniVal
+            FORCES(ng) % albedoG(i,j,1) = IniVal
+            FORCES(ng) % albedoG(i,j,2) = IniVal
+#  endif
 # endif
 # if defined ICE_BULK_FLUXES && !defined NCEP_FLUXES
             FORCES(ng) % sustr_aw(i,j) = IniVal
@@ -1276,6 +1299,12 @@
             FORCES(ng) % fastice_clmG(i,j,1) = IniVal
             FORCES(ng) % fastice_clmG(i,j,2) = IniVal
 #  endif
+# endif
+# if defined PERFECT_RESTART && defined ICE_MODEL
+            FORCES(ng) % stflx_save(i,j,1) = IniVal
+            FORCES(ng) % stflx_save(i,j,2) = IniVal
+            FORCES(ng) % sustr_save(i,j) = IniVal
+            FORCES(ng) % svstr_save(i,j) = IniVal
 # endif
             DO itrc=1,NT(ng)
 # ifdef ADJUST_STFLUX

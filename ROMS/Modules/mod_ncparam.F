@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -160,11 +160,22 @@
         integer  :: idyspc = -8   ! y-space
         integer  :: idwdph = -9   ! water depth
 #endif
+
+#ifdef FLOAT_OYSTER
+!
+!  Biological floats identification indices.
+!
+        integer  :: idsize = -7   ! biological float size (length)
+        integer  :: idswim = -8   ! biological float swimming time
+        integer  :: idwbio = -9   ! biological float w-velocity
+        integer  :: idwsin = -10  ! biological float sinking velocity
+#endif
 !
 !  Input/output identification indices.
 !
         integer  :: idAclm        ! 3D Aks (salinity) climatology
         integer  :: idAice        ! fraction of cell covered by ice
+        integer  :: idAlbe        ! shortwave albedo
         integer  :: idbath        ! bathymetry
         integer  :: idCfra        ! cloud fraction
         integer  :: idCosW        ! COS(omega(k)*t)
@@ -189,6 +200,7 @@
         integer  :: idLdwn        ! downwelling longwave radiation flux
         integer  :: idLhea        ! net latent heat flux
         integer  :: idLrad        ! net longwave radiation flux
+        integer  :: idM2am        ! M2 tidal amplitude
         integer  :: idMadH        ! ADM interpolation weights
         integer  :: idMOMi        ! Initial model-observation misfit
         integer  :: idMOMf        ! final model-observation misfit
@@ -722,11 +734,11 @@
       allocate ( idTsur(MT) )
       allocate ( idTtlf(MT) )
 
-      allocate ( iHUTav(NAT) )
-      allocate ( iHVTav(NAT) )
-      allocate ( idTTav(NAT) )
-      allocate ( idUTav(NAT) )
-      allocate ( idVTav(NAT) )
+      allocate ( iHUTav(MT) )
+      allocate ( iHVTav(MT) )
+      allocate ( idTTav(MT) )
+      allocate ( idUTav(MT) )
+      allocate ( idVTav(MT) )
 
 #ifdef DIAGNOSTICS
       allocate ( idDtrc(MT,NDT) )
@@ -802,11 +814,8 @@
       logical :: load
 
       integer, parameter :: inp = 10
-#ifdef DISTRIBUTE
-      integer :: Itile, Jtile
-#endif
-      integer :: Lvar, Ntiles, i, ic, ie, is, j, ng
-      integer :: gtype, tile, varid
+      integer :: Lvar, i, ic, ie, is, j, ng
+      integer :: gtype, varid
 
       real(r8), parameter :: spv = 0.0_r8
       real(r8) :: offset, scale
@@ -896,17 +905,16 @@
         ic=ic+1
         isTvar(i)=ic
       END DO
-      ic=5
-      DO i=1,MT
-        ic=ic+1
-        isTvar(i)=ic
-      END DO
-#if defined ADJUST_WSTRESS || defined FORCING_SV || defined SO_SEMI
+#if defined ADJUST_WSTRESS || defined FORCING_SV     || \
+    defined HESSIAN_FSV    || defined SO_SEMI        || \
+    defined STOCHASTIC_OPT
       isUstr=ic+1
       isVstr=ic+2
       ic=ic+2
 #endif
-#if defined ADJUST_STFLUX  || defined FORCING_SV || defined SO_SEMI
+#if defined ADJUST_STFLUX  || defined FORCING_SV     || \
+    defined HESSIAN_FSV    || defined SO_SEMI        || \
+    defined STOCHASTIC_OPT
       DO i=1,MT
         ic=ic+1
         isTsur(i)=ic
@@ -1229,6 +1237,8 @@
               idTbry(isouth,isalt)=varid
             CASE ('idTbry(inorth,isalt)')
               idTbry(inorth,isalt)=varid
+            CASE ('idAlbe')
+              idAlbe=varid
             CASE ('idRwet')
               idRwet=varid
             CASE ('idUwet')
@@ -1273,6 +1283,8 @@
               idUairE=varid
             CASE ('idVairN')
               idVairN=varid
+            CASE ('idM2am')
+              idM2am=varid
             CASE ('idWamp')
               idWamp=varid
             CASE ('idWbrk')
@@ -1600,16 +1612,16 @@
             CASE ('idZZav')
               idZZav=varid
 #ifdef SOLVE3D
-            CASE ('idTTav(itemp)')
-              idTTav(itemp)=varid
-            CASE ('iHUTav(itemp)')
-              iHUTav(itemp)=varid
-            CASE ('iHVTav(itemp)')
-              iHVTav(itemp)=varid
-            CASE ('idUTav(itemp)')
-              idUTav(itemp)=varid
-            CASE ('idVTav(itemp)')
-              idVTav(itemp)=varid
+            CASE ('idTTav(itrc)')
+              load=.TRUE.
+            CASE ('iHUTav(itrc)')
+              load=.TRUE.
+            CASE ('iHVTav(itrc)')
+              load=.TRUE.
+            CASE ('idUTav(itrc)')
+              load=.TRUE.
+            CASE ('idVTav(itrc)')
+              load=.TRUE.
             CASE ('idHUav')
               idHUav=varid
             CASE ('idHVav')
@@ -2563,6 +2575,154 @@
                 END DO
             END SELECT
 #endif
+#if defined SOLVE3D && defined AVERAGES
+!
+!  Determine metadata for quadratic tracer averages.
+!
+            SELECT CASE (Vinfo(1))
+              CASE ('tracer2')
+                varid=varid-1
+                DO i=1,MT
+                  varid=varid+1
+                  idTTav(i)=varid
+                  DO ng=1,Ngrids
+                    Fscale(varid,ng)=scale
+                    Iinfo(1,varid,ng)=gtype
+                  END DO
+                  WRITE (Vname(1,varid),'(a,a)')                        &
+     &                  TRIM(ADJUSTL(Vname(1,idTvar(i)))), '2'
+                  WRITE (Vname(2,varid),'(a,1x,a)')                     &
+     &                  'time-averaged squared',                        &
+     &                  TRIM(ADJUSTL(Vname(2,idTvar(i))))
+                  IF (TRIM(ADJUSTL(Vname(3,idTvar(i)))).eq.             &
+     &                'nondimensional') THEN
+                    WRITE (Vname(3,varid),'(a)')                        &
+     &                    TRIM(ADJUSTL(Vname(3,idTvar(i))))
+                  ELSE
+                    WRITE (Vname(3,varid),'(a,a)')                      &
+     &                    TRIM(ADJUSTL(Vname(3,idTvar(i)))), '2'
+                  END IF
+                  WRITE (Vname(4,varid),'(a,a)')                        &
+     &                  TRIM(Vname(1,varid)), ', scalar, series'
+                  WRITE (Vname(5,varid),'(a)')                          &
+     &                  TRIM(ADJUSTL(Vinfo(5)))
+                END DO
+              CASE ('Huontracer')
+                varid=varid-1
+                DO i=1,MT
+                  varid=varid+1
+                  iHUTav(i)=varid
+                  DO ng=1,Ngrids
+                    Fscale(varid,ng)=scale
+                    Iinfo(1,varid,ng)=gtype
+                  END DO
+                  WRITE (Vname(1,varid),'(a,a)')                        &
+     &                  'Huon', TRIM(ADJUSTL(Vname(1,idTvar(i))))
+                  WRITE (Vname(2,varid),'(a,1x,a,1x,a)')                &
+     &                  'time-averaged',                                &
+     &                  TRIM(ADJUSTL(Vname(2,idTvar(i)))),              &
+     &                  'u-volume flux'
+                  IF (TRIM(ADJUSTL(Vname(3,idTvar(i)))).eq.             &
+     &                'nondimensional') THEN
+                    WRITE (Vname(3,varid),'(a)')                        &
+     &                    'meter3 second-1'
+                  ELSE
+                    WRITE (Vname(3,varid),'(a,1x,a)')                   &
+     &                    'meter3 second-1',                            &
+     &                    TRIM(ADJUSTL(Vname(3,idTvar(i))))
+                  END IF
+                  WRITE (Vname(4,varid),'(a,a)')                        &
+     &                  TRIM(Vname(1,varid)), ', scalar, series'
+                  WRITE (Vname(5,varid),'(a)')                          &
+     &                  TRIM(ADJUSTL(Vinfo(5)))
+                END DO
+              CASE ('utracer')
+                varid=varid-1
+                DO i=1,MT
+                  varid=varid+1
+                  idUTav(i)=varid
+                  DO ng=1,Ngrids
+                    Fscale(varid,ng)=scale
+                    Iinfo(1,varid,ng)=gtype
+                  END DO
+                  WRITE (Vname(1,varid),'(a,a)')                        &
+     &                  'u', TRIM(ADJUSTL(Vname(1,idTvar(i))))
+                  WRITE (Vname(2,varid),'(a,1x,a)')                     &
+     &                  'time-averaged u-momentum times',               &
+     &                  TRIM(ADJUSTL(Vname(2,idTvar(i))))
+                  IF (TRIM(ADJUSTL(Vname(3,idTvar(i)))).eq.             &
+     &                'nondimensional') THEN
+                    WRITE (Vname(3,varid),'(a)')                        &
+     &                    'meter second-1'
+                  ELSE
+                    WRITE (Vname(3,varid),'(a,1x,a)')                   &
+     &                    'meter second-1',                             &
+     &                    TRIM(ADJUSTL(Vname(3,idTvar(i))))
+                  END IF
+                  WRITE (Vname(4,varid),'(a,a)')                        &
+     &                  TRIM(Vname(1,varid)), ', scalar, series'
+                  WRITE (Vname(5,varid),'(a)')                          &
+     &                  TRIM(ADJUSTL(Vinfo(5)))
+                END DO
+              CASE ('Hvomtracer')
+                varid=varid-1
+                DO i=1,MT
+                  varid=varid+1
+                  iHVTav(i)=varid
+                  DO ng=1,Ngrids
+                    Fscale(varid,ng)=scale
+                    Iinfo(1,varid,ng)=gtype
+                  END DO
+                  WRITE (Vname(1,varid),'(a,a)')                        &
+     &                  'Hvom', TRIM(ADJUSTL(Vname(1,idTvar(i))))
+                  WRITE (Vname(2,varid),'(a,1x,a,1x,a)')                &
+     &                  'time-averaged',                                &
+     &                  TRIM(ADJUSTL(Vname(2,idTvar(i)))),              &
+     &                  'v-volume flux'
+                  IF (TRIM(ADJUSTL(Vname(3,idTvar(i)))).eq.             &
+     &                'nondimensional') THEN
+                    WRITE (Vname(3,varid),'(a)')                        &
+     &                    'meter3 second-1'
+                  ELSE
+                    WRITE (Vname(3,varid),'(a,1x,a)')                   &
+     &                    'meter3 second-1',                            &
+     &                    TRIM(ADJUSTL(Vname(3,idTvar(i))))
+                  END IF
+                  WRITE (Vname(4,varid),'(a,a)')                        &
+     &                  TRIM(Vname(1,varid)), ', scalar, series'
+                  WRITE (Vname(5,varid),'(a)')                          &
+     &                  TRIM(ADJUSTL(Vinfo(5)))
+                END DO
+              CASE ('vtracer')
+                varid=varid-1
+                DO i=1,MT
+                  varid=varid+1
+                  idVTav(i)=varid
+                  DO ng=1,Ngrids
+                    Fscale(varid,ng)=scale
+                    Iinfo(1,varid,ng)=gtype
+                  END DO
+                  WRITE (Vname(1,varid),'(a,a)')                        &
+     &                  'v', TRIM(ADJUSTL(Vname(1,idTvar(i))))
+                  WRITE (Vname(2,varid),'(a,1x,a)')                     &
+     &                  'time-averaged v-momentum times',               &
+     &                  TRIM(ADJUSTL(Vname(2,idTvar(i))))
+                  IF (TRIM(ADJUSTL(Vname(3,idTvar(i)))).eq.             &
+     &                'nondimensional') THEN
+                    WRITE (Vname(3,varid),'(a)')                        &
+     &                    'meter second-1'
+                  ELSE
+                    WRITE (Vname(3,varid),'(a,1x,a)')                   &
+     &                    'meter second-1',                             &
+     &                    TRIM(ADJUSTL(Vname(3,idTvar(i))))
+                  END IF
+                  WRITE (Vname(4,varid),'(a,a)')                        &
+     &                  TRIM(Vname(1,varid)), ', scalar, series'
+                  WRITE (Vname(5,varid),'(a)')                          &
+     &                  TRIM(ADJUSTL(Vinfo(5)))
+                END DO
+            END SELECT
+#endif
           ELSE
             varid=varid-1
 !!          WRITE (stdout,70) TRIM(ADJUSTL(Vinfo(1))),                  &
@@ -2740,10 +2900,6 @@
      &        'variable: ',a,/,15x,'Need CASE construct for: ',a)
   80  FORMAT (/,' MOD_NCPARM - Error while reading information ',       &
      &        'for variable: ',a)
-  90  FORMAT (a,i2.2)
- 100  FORMAT (a,a,i2.2)
- 110  FORMAT (a)
- 120  FORMAT (a,a)
 
       RETURN
       END SUBROUTINE initialize_ncparam

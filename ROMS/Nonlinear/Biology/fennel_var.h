@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *************************************************** Hernan G. Arango ***
-** Copyright (c) 2002-2012 The ROMS/TOMS Group                        **
+** Copyright (c) 2002-2013 The ROMS/TOMS Group                        **
 **   Licensed under a MIT/X style license                             **
 **   See License_ROMS.txt                                             **
 ************************************************************************
@@ -273,9 +273,10 @@
 /*
 **  Biological tracers term diagnostics.
 */
-
+# ifdef DENITRIFICATION
               CASE ('iDbio2(iDNIT)')
                 iDbio2(iDNIT)=varid
+# endif
 # ifdef CARBON
               CASE ('iDbio2(iCOfx)')
                 iDbio2(iCOfx)=varid

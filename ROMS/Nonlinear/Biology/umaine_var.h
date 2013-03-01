@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *************************************************** Hernan G. Arango ***
-** Copyright (c) 2002-2012 The ROMS/TOMS Group                        **
+** Copyright (c) 2002-2013 The ROMS/TOMS Group                        **
 **   Licensed under a MIT/X style license                             **
 **   See License_ROMS.txt                                             **
 ************************************************************************
@@ -26,20 +26,57 @@
                 idTvar(iNH4_)=varid
               CASE ('idTvar(iSiOH)')
                 idTvar(iSiOH)=varid
-              CASE ('idTvar(iSphy)')
-                idTvar(iSphy)=varid
-              CASE ('idTvar(iLphy)')
-                idTvar(iLphy)=varid
-              CASE ('idTvar(iSzoo)')
-                idTvar(iSzoo)=varid
-              CASE ('idTvar(iLzoo)')
-                idTvar(iLzoo)=varid
-              CASE ('idTvar(iSDet)')
-                idTvar(iSDet)=varid
-              CASE ('idTvar(iopal)')
-                idTvar(iopal)=varid
               CASE ('idTvar(iPO4_)')
                 idTvar(iPO4_)=varid
+              CASE ('idTvar(iS1_N)')
+                idTvar(iS1_N)=varid
+              CASE ('idTvar(iS1_C)')
+                idTvar(iS1_C)=varid
+              CASE ('idTvar(iS1CH)')
+                idTvar(iS1CH)=varid
+              CASE ('idTvar(iS2_N)')
+                idTvar(iS2_N)=varid
+              CASE ('idTvar(iS2_C)')
+                idTvar(iS2_C)=varid
+              CASE ('idTvar(iS2CH)')
+                idTvar(iS2CH)=varid
+              CASE ('idTvar(iS3_N)')
+                idTvar(iS3_N)=varid
+              CASE ('idTvar(iS3_C)')
+                idTvar(iS3_C)=varid
+              CASE ('idTvar(iS3CH)')
+                idTvar(iS3CH)=varid
+              CASE ('idTvar(iZ1_N)')
+                idTvar(iZ1_N)=varid
+              CASE ('idTvar(iZ1_C)')
+                idTvar(iZ1_C)=varid
+              CASE ('idTvar(iZ2_N)')
+                idTvar(iZ2_N)=varid
+              CASE ('idTvar(iZ2_C)')
+                idTvar(iZ2_C)=varid
+              CASE ('idTvar(iBAC_)')
+                idTvar(iBAC_)=varid
+              CASE ('idTvar(iDD_N)')
+                idTvar(iDD_N)=varid
+              CASE ('idTvar(iDD_C)')
+                idTvar(iDD_C)=varid
+              CASE ('idTvar(iDDSi)')
+                idTvar(iDDSi)=varid
+              CASE ('idTvar(iLDON)')
+                idTvar(iLDON)=varid
+              CASE ('idTvar(iLDOC)')
+                idTvar(iLDOC)=varid
+              CASE ('idTvar(iSDON)')
+                idTvar(iSDON)=varid
+              CASE ('idTvar(iSDOC)')
+                idTvar(iSDOC)=varid
+              CASE ('idTvar(iCLDC)')
+                idTvar(iCLDC)=varid
+              CASE ('idTvar(iCSDC)')
+                idTvar(iCSDC)=varid
+              CASE ('idTvar(iDDCA)')
+                idTvar(iDDCA)=varid
+
 #ifdef OXYGEN
               CASE ('idTvar(iOxyg)')
                 idTvar(iOxyg)=varid
@@ -50,6 +87,10 @@
               CASE ('idTvar(iTAlk)')
                 idTvar(iTAlk)=varid
 #endif
+# ifdef PRIMARY_PROD
+              CASE ('idNPP')
+                idNPP=varid
+# endif
 
 ! Do it again for climatologies
               CASE ('idTclm(iNO3_)')
@@ -58,20 +99,57 @@
                 idTclm(iNH4_)=varid
               CASE ('idTclm(iSiOH)')
                 idTclm(iSiOH)=varid
-              CASE ('idTclm(iSphy)')
-                idTclm(iSphy)=varid
-              CASE ('idTclm(iLphy)')
-                idTclm(iLphy)=varid
-              CASE ('idTclm(iSzoo)')
-                idTclm(iSzoo)=varid
-              CASE ('idTclm(iLzoo)')
-                idTclm(iLzoo)=varid
-              CASE ('idTclm(iSDet)')
-                idTclm(iSDet)=varid
-              CASE ('idTclm(iopal)')
-                idTclm(iopal)=varid
               CASE ('idTclm(iPO4_)')
                 idTclm(iPO4_)=varid
+              CASE ('idTclm(iS1_N)')
+                idTclm(iS1_N)=varid
+              CASE ('idTclm(iS1_C)')
+                idTclm(iS1_C)=varid
+              CASE ('idTclm(iS1CH)')
+                idTclm(iS1CH)=varid
+              CASE ('idTclm(iS2_N)')
+                idTclm(iS2_N)=varid
+              CASE ('idTclm(iS2_C)')
+                idTclm(iS2_C)=varid
+              CASE ('idTclm(iS2CH)')
+                idTclm(iS2CH)=varid
+              CASE ('idTclm(iS3_N)')
+                idTclm(iS3_N)=varid
+              CASE ('idTclm(iS3_C)')
+                idTclm(iS3_C)=varid
+              CASE ('idTclm(iS3CH)')
+                idTclm(iS3CH)=varid
+              CASE ('idTclm(iZ1_N)')
+                idTclm(iZ1_N)=varid
+              CASE ('idTclm(iZ1_C)')
+                idTclm(iZ1_C)=varid
+              CASE ('idTclm(iZ2_N)')
+                idTclm(iZ2_N)=varid
+              CASE ('idTclm(iZ2_C)')
+                idTclm(iZ2_C)=varid
+              CASE ('idTclm(iBAC_)')
+                idTclm(iBAC_)=varid
+              CASE ('idTclm(iDD_N)')
+                idTclm(iDD_N)=varid
+              CASE ('idTclm(iDD_C)')
+                idTclm(iDD_C)=varid
+              CASE ('idTclm(iDDSi)')
+                idTclm(iDDSi)=varid
+              CASE ('idTclm(iLDON)')
+                idTclm(iLDON)=varid
+              CASE ('idTclm(iLDOC)')
+                idTclm(iLDOC)=varid
+              CASE ('idTclm(iSDON)')
+                idTclm(iSDON)=varid
+              CASE ('idTclm(iSDOC)')
+                idTclm(iSDOC)=varid
+              CASE ('idTclm(iCLDC)')
+                idTclm(iCLDC)=varid
+              CASE ('idTclm(iCSDC)')
+                idTclm(iCSDC)=varid
+              CASE ('idTclm(iDDCA)')
+                idTclm(iDDCA)=varid
+
 #ifdef OXYGEN
               CASE ('idTclm(iOxyg)')
                 idTclm(iOxyg)=varid
@@ -111,54 +189,6 @@
                 idTbry(isouth,iSiOH)=varid
               CASE ('idTbry(inorth,iSiOH)')
                 idTbry(inorth,iSiOH)=varid
-              CASE ('idTbry(iwest,iSphy)')
-                idTbry(iwest,iSphy)=varid
-              CASE ('idTbry(ieast,iSphy)')
-                idTbry(ieast,iSphy)=varid
-              CASE ('idTbry(isouth,iSphy)')
-                idTbry(isouth,iSphy)=varid
-              CASE ('idTbry(inorth,iSphy)')
-                idTbry(inorth,iSphy)=varid
-              CASE ('idTbry(iwest,iLphy)')
-                idTbry(iwest,iLphy)=varid
-              CASE ('idTbry(ieast,iLphy)')
-                idTbry(ieast,iLphy)=varid
-              CASE ('idTbry(isouth,iLphy)')
-                idTbry(isouth,iLphy)=varid
-              CASE ('idTbry(inorth,iLphy)')
-                idTbry(inorth,iLphy)=varid
-              CASE ('idTbry(iwest,iSzoo)')
-                idTbry(iwest,iSzoo)=varid
-              CASE ('idTbry(ieast,iSzoo)')
-                idTbry(ieast,iSzoo)=varid
-              CASE ('idTbry(isouth,iSzoo)')
-                idTbry(isouth,iSzoo)=varid
-              CASE ('idTbry(inorth,iSzoo)')
-                idTbry(inorth,iSzoo)=varid
-              CASE ('idTbry(iwest,iLzoo)')
-                idTbry(iwest,iLzoo)=varid
-              CASE ('idTbry(ieast,iLzoo)')
-                idTbry(ieast,iLzoo)=varid
-              CASE ('idTbry(isouth,iLzoo)')
-                idTbry(isouth,iLzoo)=varid
-              CASE ('idTbry(inorth,iLzoo)')
-                idTbry(inorth,iLzoo)=varid
-              CASE ('idTbry(iwest,iSDet)')
-                idTbry(iwest,iSDet)=varid
-              CASE ('idTbry(ieast,iSDet)')
-                idTbry(ieast,iSDet)=varid
-              CASE ('idTbry(isouth,iSDet)')
-                idTbry(isouth,iSDet)=varid
-              CASE ('idTbry(inorth,iSDet)')
-                idTbry(inorth,iSDet)=varid
-              CASE ('idTbry(iwest,iopal)')
-                idTbry(iwest,iopal)=varid
-              CASE ('idTbry(ieast,iopal)')
-                idTbry(ieast,iopal)=varid
-              CASE ('idTbry(isouth,iopal)')
-                idTbry(isouth,iopal)=varid
-              CASE ('idTbry(inorth,iopal)')
-                idTbry(inorth,iopal)=varid
               CASE ('idTbry(iwest,iPO4_)')
                 idTbry(iwest,iPO4_)=varid
               CASE ('idTbry(ieast,iPO4_)')
@@ -167,6 +197,199 @@
                 idTbry(isouth,iPO4_)=varid
               CASE ('idTbry(inorth,iPO4_)')
                 idTbry(inorth,iPO4_)=varid
+              CASE ('idTbry(iwest,iS1_N)')
+                idTbry(iwest,iS1_N)=varid
+              CASE ('idTbry(ieast,iS1_N)')
+                idTbry(ieast,iS1_N)=varid
+              CASE ('idTbry(isouth,iS1_N)')
+                idTbry(isouth,iS1_N)=varid
+              CASE ('idTbry(inorth,iS1_N)')
+                idTbry(inorth,iS1_N)=varid
+              CASE ('idTbry(iwest,iS1_C)')
+                idTbry(iwest,iS1_C)=varid
+              CASE ('idTbry(ieast,iS1_C)')
+                idTbry(ieast,iS1_C)=varid
+              CASE ('idTbry(isouth,iS1_C)')
+                idTbry(isouth,iS1_C)=varid
+              CASE ('idTbry(inorth,iS1_C)')
+                idTbry(inorth,iS1_C)=varid
+              CASE ('idTbry(iwest,iS1CH)')
+                idTbry(iwest,iS1CH)=varid
+              CASE ('idTbry(ieast,iS1CH)')
+                idTbry(ieast,iS1CH)=varid
+              CASE ('idTbry(isouth,iS1CH)')
+                idTbry(isouth,iS1CH)=varid
+              CASE ('idTbry(inorth,iS1CH)')
+                idTbry(inorth,iS1CH)=varid
+              CASE ('idTbry(iwest,iS2_N)')
+                idTbry(iwest,iS2_N)=varid
+              CASE ('idTbry(ieast,iS2_N)')
+                idTbry(ieast,iS2_N)=varid
+              CASE ('idTbry(isouth,iS2_N)')
+                idTbry(isouth,iS2_N)=varid
+              CASE ('idTbry(inorth,iS2_N)')
+                idTbry(inorth,iS2_N)=varid
+              CASE ('idTbry(iwest,iS2_C)')
+                idTbry(iwest,iS2_C)=varid
+              CASE ('idTbry(ieast,iS2_C)')
+                idTbry(ieast,iS2_C)=varid
+              CASE ('idTbry(isouth,iS2_C)')
+                idTbry(isouth,iS2_C)=varid
+              CASE ('idTbry(inorth,iS2_C)')
+                idTbry(inorth,iS2_C)=varid
+              CASE ('idTbry(iwest,iS2CH)')
+                idTbry(iwest,iS2CH)=varid
+              CASE ('idTbry(ieast,iS2CH)')
+                idTbry(ieast,iS2CH)=varid
+              CASE ('idTbry(isouth,iS2CH)')
+                idTbry(isouth,iS2CH)=varid
+              CASE ('idTbry(inorth,iS2CH)')
+                idTbry(inorth,iS2CH)=varid
+              CASE ('idTbry(iwest,iS3_N)')
+                idTbry(iwest,iS3_N)=varid
+              CASE ('idTbry(ieast,iS3_N)')
+                idTbry(ieast,iS3_N)=varid
+              CASE ('idTbry(isouth,iS3_N)')
+                idTbry(isouth,iS3_N)=varid
+              CASE ('idTbry(inorth,iS3_N)')
+                idTbry(inorth,iS3_N)=varid
+              CASE ('idTbry(iwest,iS3_C)')
+                idTbry(iwest,iS3_C)=varid
+              CASE ('idTbry(ieast,iS3_C)')
+                idTbry(ieast,iS3_C)=varid
+              CASE ('idTbry(isouth,iS3_C)')
+                idTbry(isouth,iS3_C)=varid
+              CASE ('idTbry(inorth,iS3_C)')
+                idTbry(inorth,iS3_C)=varid
+              CASE ('idTbry(iwest,iS3CH)')
+                idTbry(iwest,iS3CH)=varid
+              CASE ('idTbry(ieast,iS3CH)')
+                idTbry(ieast,iS3CH)=varid
+              CASE ('idTbry(isouth,iS3CH)')
+                idTbry(isouth,iS3CH)=varid
+              CASE ('idTbry(inorth,iS3CH)')
+                idTbry(inorth,iS3CH)=varid
+              CASE ('idTbry(iwest,iZ1_N)')
+                idTbry(iwest,iZ1_N)=varid
+              CASE ('idTbry(ieast,iZ1_N)')
+                idTbry(ieast,iZ1_N)=varid
+              CASE ('idTbry(isouth,iZ1_N)')
+                idTbry(isouth,iZ1_N)=varid
+              CASE ('idTbry(inorth,iZ1_N)')
+                idTbry(inorth,iZ1_N)=varid
+              CASE ('idTbry(iwest,iZ1_C)')
+                idTbry(iwest,iZ1_C)=varid
+              CASE ('idTbry(ieast,iZ1_C)')
+                idTbry(ieast,iZ1_C)=varid
+              CASE ('idTbry(isouth,iZ1_C)')
+                idTbry(isouth,iZ1_C)=varid
+              CASE ('idTbry(inorth,iZ1_C)')
+                idTbry(inorth,iZ1_C)=varid
+              CASE ('idTbry(iwest,iZ2_N)')
+                idTbry(iwest,iZ2_N)=varid
+              CASE ('idTbry(ieast,iZ2_N)')
+                idTbry(ieast,iZ2_N)=varid
+              CASE ('idTbry(isouth,iZ2_N)')
+                idTbry(isouth,iZ2_N)=varid
+              CASE ('idTbry(inorth,iZ2_N)')
+                idTbry(inorth,iZ2_N)=varid
+              CASE ('idTbry(iwest,iZ2_C)')
+                idTbry(iwest,iZ2_C)=varid
+              CASE ('idTbry(ieast,iZ2_C)')
+                idTbry(ieast,iZ2_C)=varid
+              CASE ('idTbry(isouth,iZ2_C)')
+                idTbry(isouth,iZ2_C)=varid
+              CASE ('idTbry(inorth,iZ2_C)')
+                idTbry(inorth,iZ2_C)=varid
+              CASE ('idTbry(iwest,iBAC_)')
+                idTbry(iwest,iBAC_)=varid
+              CASE ('idTbry(ieast,iBAC_)')
+                idTbry(ieast,iBAC_)=varid
+              CASE ('idTbry(isouth,iBAC_)')
+                idTbry(isouth,iBAC_)=varid
+              CASE ('idTbry(inorth,iBAC_)')
+                idTbry(inorth,iBAC_)=varid
+              CASE ('idTbry(iwest,iDD_N)')
+                idTbry(iwest,iDD_N)=varid
+              CASE ('idTbry(ieast,iDD_N)')
+                idTbry(ieast,iDD_N)=varid
+              CASE ('idTbry(isouth,iDD_N)')
+                idTbry(isouth,iDD_N)=varid
+              CASE ('idTbry(inorth,iDD_N)')
+                idTbry(inorth,iDD_N)=varid
+              CASE ('idTbry(iwest,iDD_C)')
+                idTbry(iwest,iDD_C)=varid
+              CASE ('idTbry(ieast,iDD_C)')
+                idTbry(ieast,iDD_C)=varid
+              CASE ('idTbry(isouth,iDD_C)')
+                idTbry(isouth,iDD_C)=varid
+              CASE ('idTbry(inorth,iDD_C)')
+                idTbry(inorth,iDD_C)=varid
+              CASE ('idTbry(iwest,iDDSi)')
+                idTbry(iwest,iDDSi)=varid
+              CASE ('idTbry(ieast,iDDSi)')
+                idTbry(ieast,iDDSi)=varid
+              CASE ('idTbry(isouth,iDDSi)')
+                idTbry(isouth,iDDSi)=varid
+              CASE ('idTbry(inorth,iDDSi)')
+                idTbry(inorth,iDDSi)=varid
+              CASE ('idTbry(iwest,iLDON)')
+                idTbry(iwest,iLDON)=varid
+              CASE ('idTbry(ieast,iLDON)')
+                idTbry(ieast,iLDON)=varid
+              CASE ('idTbry(isouth,iLDON)')
+                idTbry(isouth,iLDON)=varid
+              CASE ('idTbry(inorth,iLDON)')
+                idTbry(inorth,iLDON)=varid
+              CASE ('idTbry(iwest,iLDOC)')
+                idTbry(iwest,iLDOC)=varid
+              CASE ('idTbry(ieast,iLDOC)')
+                idTbry(ieast,iLDOC)=varid
+              CASE ('idTbry(isouth,iLDOC)')
+                idTbry(isouth,iLDOC)=varid
+              CASE ('idTbry(inorth,iLDOC)')
+                idTbry(inorth,iLDOC)=varid
+              CASE ('idTbry(iwest,iSDON)')
+                idTbry(iwest,iSDON)=varid
+              CASE ('idTbry(ieast,iSDON)')
+                idTbry(ieast,iSDON)=varid
+              CASE ('idTbry(isouth,iSDON)')
+                idTbry(isouth,iSDON)=varid
+              CASE ('idTbry(inorth,iSDON)')
+                idTbry(inorth,iSDON)=varid
+              CASE ('idTbry(iwest,iSDOC)')
+                idTbry(iwest,iSDOC)=varid
+              CASE ('idTbry(ieast,iSDOC)')
+                idTbry(ieast,iSDOC)=varid
+              CASE ('idTbry(isouth,iSDOC)')
+                idTbry(isouth,iSDOC)=varid
+              CASE ('idTbry(inorth,iSDOC)')
+                idTbry(inorth,iSDOC)=varid
+              CASE ('idTbry(iwest,iCLDC)')
+                idTbry(iwest,iCLDC)=varid
+              CASE ('idTbry(ieast,iCLDC)')
+                idTbry(ieast,iCLDC)=varid
+              CASE ('idTbry(isouth,iCLDC)')
+                idTbry(isouth,iCLDC)=varid
+              CASE ('idTbry(inorth,iCLDC)')
+                idTbry(inorth,iCLDC)=varid
+              CASE ('idTbry(iwest,iCSDC)')
+                idTbry(iwest,iCSDC)=varid
+              CASE ('idTbry(ieast,iCSDC)')
+                idTbry(ieast,iCSDC)=varid
+              CASE ('idTbry(isouth,iCSDC)')
+                idTbry(isouth,iCSDC)=varid
+              CASE ('idTbry(inorth,iCSDC)')
+                idTbry(inorth,iCSDC)=varid
+              CASE ('idTbry(iwest,iDDCA)')
+                idTbry(iwest,iDDCA)=varid
+              CASE ('idTbry(ieast,iDDCA)')
+                idTbry(ieast,iDDCA)=varid
+              CASE ('idTbry(isouth,iDDCA)')
+                idTbry(isouth,iDDCA)=varid
+              CASE ('idTbry(inorth,iDDCA)')
+                idTbry(inorth,iDDCA)=varid
+
 #ifdef OXYGEN
               CASE ('idTbry(iwest,iOxyg)')
                 idTbry(iwest,iOxyg)=varid
@@ -208,20 +431,57 @@
                 idRtrc(iNH4_)=varid
               CASE ('idRtrc(iSiOH)')
                 idRtrc(iSiOH)=varid
-              CASE ('idRtrc(iSphy)')
-                idRtrc(iSphy)=varid
-              CASE ('idRtrc(iLphy)')
-                idRtrc(iLphy)=varid
-              CASE ('idRtrc(iSzoo)')
-                idRtrc(iSzoo)=varid
-              CASE ('idRtrc(iLzoo)')
-                idRtrc(iLzoo)=varid
-              CASE ('idRtrc(iSDet)')
-                idRtrc(iSDet)=varid
-              CASE ('idRtrc(iopal)')
-                idRtrc(iopal)=varid
               CASE ('idRtrc(iPO4_)')
                 idRtrc(iPO4_)=varid
+              CASE ('idRtrc(iS1_N)')
+                idRtrc(iS1_N)=varid
+              CASE ('idRtrc(iS1_C)')
+                idRtrc(iS1_C)=varid
+              CASE ('idRtrc(iS1CH)')
+                idRtrc(iS1CH)=varid
+              CASE ('idRtrc(iS2_N)')
+                idRtrc(iS2_N)=varid
+              CASE ('idRtrc(iS2_C)')
+                idRtrc(iS2_C)=varid
+              CASE ('idRtrc(iS2CH)')
+                idRtrc(iS2CH)=varid
+              CASE ('idRtrc(iS3_N)')
+                idRtrc(iS3_N)=varid
+              CASE ('idRtrc(iS3_C)')
+                idRtrc(iS3_C)=varid
+              CASE ('idRtrc(iS3CH)')
+                idRtrc(iS3CH)=varid
+              CASE ('idRtrc(iZ1_N)')
+                idRtrc(iZ1_N)=varid
+              CASE ('idRtrc(iZ1_C)')
+                idRtrc(iZ1_C)=varid
+              CASE ('idRtrc(iZ2_N)')
+                idRtrc(iZ2_N)=varid
+              CASE ('idRtrc(iZ2_C)')
+                idRtrc(iZ2_C)=varid
+              CASE ('idRtrc(iBAC_)')
+                idRtrc(iBAC_)=varid
+              CASE ('idRtrc(iDD_N)')
+                idRtrc(iDD_N)=varid
+              CASE ('idRtrc(iDD_C)')
+                idRtrc(iDD_C)=varid
+              CASE ('idRtrc(iDDSi)')
+                idRtrc(iDDSi)=varid
+              CASE ('idRtrc(iLDON)')
+                idRtrc(iLDON)=varid
+              CASE ('idRtrc(iLDOC)')
+                idRtrc(iLDOC)=varid
+              CASE ('idRtrc(iSDON)')
+                idRtrc(iSDON)=varid
+              CASE ('idRtrc(iSDOC)')
+                idRtrc(iSDOC)=varid
+              CASE ('idRtrc(iCLDC)')
+                idRtrc(iCLDC)=varid
+              CASE ('idRtrc(iCSDC)')
+                idRtrc(iCSDC)=varid
+              CASE ('idRtrc(iDDCA)')
+                idRtrc(iDDCA)=varid
+
 # ifdef OXYGEN
               CASE ('idRtrc(iOxyg)')
                 idRtrc(iOxyg)=varid

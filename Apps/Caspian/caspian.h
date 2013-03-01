@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2012 The ROMS/TOMS Group
+** Copyright (c) 2002-2013 The ROMS/TOMS Group
 **
 **   Licensed under a MIT/X style license
 **
@@ -61,7 +61,7 @@
 #define AVERAGES
 !#define AVERAGES_DETIDE
 #define UV_QDRAG        /* turn ON or OFF quadratic bottom friction */
-#define DRAG_LIMITER
+#define LIMIT_BSTRESS
 #undef  MY25_MIXING
 #define  GLS_MIXING
 #ifdef GLS_MIXING

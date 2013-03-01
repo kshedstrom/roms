@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !=======================================================================
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                           Hernan G. Arango   !
 !========================================== Alexander F. Shchepetkin ===
@@ -249,12 +249,16 @@
 !  Compute global values.
 !-----------------------------------------------------------------------
 !
+#ifdef DISTRIBUTE
+      NSUB=1                             ! distributed-memory
+#else
       IF (DOMAIN(ng)%SouthWest_Corner(tile).and.                        &
      &    DOMAIN(ng)%NorthEast_Corner(tile)) THEN
         NSUB=1                           ! non-tiled application
       ELSE
         NSUB=NtileX(ng)*NtileE(ng)       ! tiled application
       END IF
+#endif
 !$OMP CRITICAL (R_FACTOR)
       IF (tile_count.eq.0) THEN
         rx0=my_rx0

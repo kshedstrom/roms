@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -56,7 +56,7 @@
 
       integer :: ILB, IUB, JLB, JUB
       integer :: LBi, UBi, LBj, UBj
-      integer :: i, my_tile
+      integer :: i, ic, my_tile
 !
 !  Lower and upper bounds for nontiled (global values) boundary arrays.
 !
@@ -102,7 +102,7 @@
       CALL get_ngfld (ng, iNLM, idRtra, ncFRCid(idRtra,ng),             &
      &                nFfiles(ng), FRC(1,ng), update(1),                &
      &                1, Nsrc(ng), 1, 2, 1, Nsrc(ng), 1,                &
-     &                SOURCES(ng) % QbarG(1,1))
+     &                SOURCES(ng) % QbarG(:,1))
       IF (exit_flag.ne.NoError) RETURN
 # endif
 
@@ -115,7 +115,7 @@
           CALL get_ngfld (ng, iNLM, idRtrc(i), ncFRCid(idRtrc(i),ng),   &
      &                    nFfiles(ng), FRC(1,ng), update(1),            &
      &                    1, Nsrc(ng), N(ng), 2, 1, Nsrc(ng), N(ng),    &
-     &                    SOURCES(ng) % TsrcG(1,1,1,i))
+     &                    SOURCES(ng) % TsrcG(:,:,:,i))
           IF (exit_flag.ne.NoError) RETURN
         END IF
       END DO
@@ -130,17 +130,17 @@
      &                nFfiles(ng), FRC(1,ng), update(1),                &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &
 # ifdef MASKING
-     &                GRID(ng) % rmask(LBi,LBj),                        &
+     &                GRID(ng) % rmask,                                 &
 # endif
-     &                FORCES(ng) % nustrG(LBi,LBj,1))
+     &                FORCES(ng) % nustrG)
       IF (exit_flag.ne.NoError) RETURN
       CALL get_2dfld (ng, iNLM, idVnms, ncFRCid(idVnms,ng),             &
      &                nFfiles(ng), FRC(1,ng), update(1),                &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &
 # ifdef MASKING
-     &                GRID(ng) % rmask(LBi,LBj),                        &
+     &                GRID(ng) % rmask,                                 &
 # endif
-     &                FORCES(ng) % nvstrG(LBi,LBj,1))
+     &                FORCES(ng) % nvstrG)
       IF (exit_flag.ne.NoError) RETURN
 !
 !  Cloud fraction.
@@ -149,9 +149,9 @@
      &                nFfiles(ng), FRC(1,ng), update(1),                &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &
 # ifdef MASKING
-     &                GRID(ng) % rmask(LBi,LBj),                        &
+     &                GRID(ng) % rmask,                                 &
 # endif
-     &                FORCES(ng) % cloudG(LBi,LBj,1))
+     &                FORCES(ng) % cloudG)
       IF (exit_flag.ne.NoError) RETURN
 !
 !  Surface solar shortwave radiation.
@@ -160,9 +160,9 @@
      &                nFfiles(ng), FRC(1,ng), update(1),                &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &
 # ifdef MASKING
-     &                GRID(ng) % rmask(LBi,LBj),                        &
+     &                GRID(ng) % rmask,                                 &
 # endif
-     &                FORCES(ng) % srflxG(LBi,LBj,1))
+     &                FORCES(ng) % srflxG)
       IF (exit_flag.ne.NoError) RETURN
 !
 !  Surface net longwave radiation.
@@ -171,9 +171,9 @@
      &                nFfiles(ng), FRC(1,ng), update(1),                &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &
 # ifdef MASKING
-     &                GRID(ng) % rmask(LBi,LBj),                        &
+     &                GRID(ng) % rmask,                                 &
 # endif
-     &                FORCES(ng) % lrflxG(LBi,LBj,1))
+     &                FORCES(ng) % lrflxG)
       IF (exit_flag.ne.NoError) RETURN
 !
 !  Net sensible heat flux
@@ -182,9 +182,9 @@
      &                nFfiles(ng), FRC(1,ng), update(1),                &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &
 # ifdef MASKING
-     &                GRID(ng) % rmask(LBi,LBj),                        &
+     &                GRID(ng) % rmask,                                 &
 # endif
-     &                FORCES(ng) % shflxG(LBi,LBj,1))
+     &                FORCES(ng) % shflxG)
       IF (exit_flag.ne.NoError) RETURN
 !
 !  Net latent heat flux
@@ -193,9 +193,9 @@
      &                nFfiles(ng), FRC(1,ng), update(1),                &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &
 # ifdef MASKING
-     &                GRID(ng) % rmask(LBi,LBj),                        &
+     &                GRID(ng) % rmask,                                 &
 # endif
-     &                FORCES(ng) % lhflxG(LBi,LBj,1))
+     &                FORCES(ng) % lhflxG)
       IF (exit_flag.ne.NoError) RETURN
 !
 !  Surface air pressure.
@@ -204,9 +204,9 @@
      &                nFfiles(ng), FRC(1,ng), update(1),                &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &
 # ifdef MASKING
-     &                GRID(ng) % rmask(LBi,LBj),                        &
+     &                GRID(ng) % rmask,                                 &
 # endif
-     &                FORCES(ng) % PairG(LBi,LBj,1))
+     &                FORCES(ng) % PairG)
       IF (exit_flag.ne.NoError) RETURN
 !
 !  Rainfall
@@ -215,9 +215,9 @@
      &                nFfiles(ng), FRC(1,ng), update(1),                &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &
 # ifdef MASKING
-     &                GRID(ng) % rmask(LBi,LBj),                        &
+     &                GRID(ng) % rmask,                                 &
 # endif
-     &                FORCES(ng) % rainG(LBi,LBj,1))
+     &                FORCES(ng) % rainG)
       IF (exit_flag.ne.NoError) RETURN
 !
 !  Skin temperature
@@ -226,9 +226,9 @@
      &                nFfiles(ng), FRC(1,ng), update(1),                &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &
 # ifdef MASKING
-     &                GRID(ng) % rmask(LBi,LBj),                        &
+     &                GRID(ng) % rmask,                                 &
 # endif
-     &                FORCES(ng) % sktG(LBi,LBj,1))
+     &                FORCES(ng) % sktG)
       IF (exit_flag.ne.NoError) RETURN
 !
 !  Observed (NCEP) ice concentration
@@ -237,9 +237,9 @@
      &                nFfiles(ng), FRC(1,ng), update(1),                &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &
 # ifdef MASKING
-     &                GRID(ng) % rmask(LBi,LBj),                        &
+     &                GRID(ng) % rmask,                                 &
 # endif
-     &                FORCES(ng) % icecG(LBi,LBj,1))
+     &                FORCES(ng) % icecG)
       IF (exit_flag.ne.NoError) RETURN
 !
 # if !defined ANA_RUNOFF && defined RUNOFF
@@ -252,9 +252,9 @@
      &                nFfiles(ng), FRC(1,ng), update(1),                &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &
 #  ifdef MASKING
-     &                GRID(ng) % rmask(LBi,LBj),                        &
+     &                GRID(ng) % rmask,                                 &
 #  endif
-     &                FORCES(ng) % runoffG(LBi,LBj,1))
+     &                FORCES(ng) % runoffG)
       IF (exit_flag.ne.NoError) RETURN
 # endif
 
@@ -270,18 +270,18 @@
      &                nFfiles(ng), FRC(1,ng), update(1),                &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &
 # ifdef MASKING
-     &                GRID(ng) % rmask(LBi,LBj),                        &
+     &                GRID(ng) % rmask,                                 &
 # endif
-     &                FORCES(ng) % UwindG(LBi,LBj,1))
+     &                FORCES(ng) % UwindG)
       IF (exit_flag.ne.NoError) RETURN
 
       CALL get_2dfld (ng , iNLM, idVair, ncFRCid(idVair,ng),            &
      &                nFfiles(ng), FRC(1,ng), update(1),                &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &
 # ifdef MASKING
-     &                GRID(ng) % rmask(LBi,LBj),                        &
+     &                GRID(ng) % rmask,                                 &
 # endif
-     &                FORCES(ng) % VwindG(LBi,LBj,1))
+     &                FORCES(ng) % VwindG)
       IF (exit_flag.ne.NoError) RETURN
 #endif
 
@@ -296,18 +296,18 @@
      &                nFfiles(ng), FRC(1,ng), update(1),                &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &
 #  ifdef MASKING
-     &                GRID(ng) % umask(LBi,LBj),                        &
+     &                GRID(ng) % umask,                                 &
 #  endif
-     &                FORCES(ng) % sustrG(LBi,LBj,1))
+     &                FORCES(ng) % sustrG)
       IF (exit_flag.ne.NoError) RETURN
 
       CALL get_2dfld (ng, iNLM, idVsms, ncFRCid(idVsms,ng),             &
      &                nFfiles(ng), FRC(1,ng), update(1),                &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &
 #  ifdef MASKING
-     &                GRID(ng) % vmask(LBi,LBj),                        &
+     &                GRID(ng) % vmask,                                 &
 #  endif
-     &                FORCES(ng) % svstrG(LBi,LBj,1))
+     &                FORCES(ng) % svstrG)
       IF (exit_flag.ne.NoError) RETURN
 # endif
 
@@ -323,18 +323,18 @@
      &                  1, BLK(ng), update(1),                          &
      &                  LBi, UBi, LBj, UBj, 2, 1,                       &
 #  ifdef MASKING
-     &                  GRID(ng) % umask(LBi,LBj),                      &
+     &                  GRID(ng) % umask,                               &
 #  endif
-     &                  FORCES(ng) % sustrG(LBi,LBj,1))
+     &                  FORCES(ng) % sustrG)
         IF (exit_flag.ne.NoError) RETURN
 
         CALL get_2dfld (ng, iNLM, idVsms, BLK(ng)%ncid,                 &
      &                  1, BLK(ng), update(1),                          &
      &                  LBi, UBi, LBj, UBj, 2, 1,                       &
 #  ifdef MASKING
-     &                  GRID(ng) % vmask(LBi,LBj),                      &
+     &                  GRID(ng) % vmask,                               &
 #  endif
-     &                  FORCES(ng) % svstrG(LBi,LBj,1))
+     &                  FORCES(ng) % svstrG)
         IF (exit_flag.ne.NoError) RETURN
       END IF
 # endif
@@ -344,23 +344,23 @@
 
 # if !defined ANA_SSSFLX && defined SSSFLX
       CALL get_2dfld (ng, iNLM, idSSSf, ncFRCid(idSSSf,ng),             &
-     &                nFfiles(ng), FRC(1,ng), update(1),            &
+     &                nFfiles(ng), FRC(1,ng), update(1),                &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &
 #   ifdef MASKING
-     &                GRID(ng) % rmask(LBi,LBj),                        &
+     &                GRID(ng) % rmask,                                 &
 #   endif
-     &                FORCES(ng) % sssflxG(LBi,LBj,1))
+     &                FORCES(ng) % sssflxG)
       IF (exit_flag.ne.NoError) RETURN
 # endif
 
 # if !defined ANA_FASTICE && defined FASTICE_CLIMATOLOGY
       CALL get_2dfld (ng, iNLM, idFastIce, ncFRCid(idFastIce,ng),       &
-     &                nFfiles(ng), FRC(1,ng), update(1),            &
+     &                nFfiles(ng), FRC(1,ng), update(1),                &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &
 #   ifdef MASKING
-     &                GRID(ng) % rmask(LBi,LBj),                        &
+     &                GRID(ng) % rmask,                                 &
 #   endif
-     &                FORCES(ng) % fastice_clmG(LBi,LBj,1))
+     &                FORCES(ng) % fastice_clmG)
       IF (exit_flag.ne.NoError) RETURN
 # endif
 #endif
@@ -376,9 +376,9 @@
      &                nFfiles(ng), FRC(1,ng), update(1),                &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &
 # ifdef MASKING
-     &                GRID(ng) % rmask(LBi,LBj),                        &
+     &                GRID(ng) % rmask,                                 &
 # endif
-     &                FORCES(ng) % PairG(LBi,LBj,1))
+     &                FORCES(ng) % PairG)
       IF (exit_flag.ne.NoError) RETURN
 #endif
 
@@ -393,9 +393,9 @@
      &                nFfiles(ng), FRC(1,ng), update(1),                &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &
 #  ifdef MASKING
-     &                GRID(ng) % rmask(LBi,LBj),                        &
+     &                GRID(ng) % rmask,                                 &
 #  endif
-     &                FORCES(ng) % DwaveG(LBi,LBj,1))
+     &                FORCES(ng) % DwaveG)
       IF (exit_flag.ne.NoError) RETURN
 # endif
 
@@ -404,9 +404,9 @@
      &                nFfiles(ng), FRC(1,ng), update(1),                &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &
 #  ifdef MASKING
-     &                GRID(ng) % rmask(LBi,LBj),                        &
+     &                GRID(ng) % rmask,                                 &
 #  endif
-     &                FORCES(ng) % HwaveG(LBi,LBj,1))
+     &                FORCES(ng) % HwaveG)
       IF (exit_flag.ne.NoError) RETURN
 # endif
 
@@ -415,9 +415,9 @@
      &                nFfiles(ng), FRC(1,ng), update(1),                &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &
 #  ifdef MASKING
-     &                GRID(ng) % rmask(LBi,LBj),                        &
+     &                GRID(ng) % rmask,                                 &
 #  endif
-     &                FORCES(ng) % LwaveG(LBi,LBj,1))
+     &                FORCES(ng) % LwaveG)
       IF (exit_flag.ne.NoError) RETURN
 # endif
 
@@ -426,9 +426,9 @@
      &                nFfiles(ng), FRC(1,ng), update(1),                &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &
 #  ifdef MASKING
-     &                GRID(ng) % rmask(LBi,LBj),                        &
+     &                GRID(ng) % rmask,                                 &
 #  endif
-     &                FORCES(ng) % Pwave_topG(LBi,LBj,1))
+     &                FORCES(ng) % Pwave_topG)
       IF (exit_flag.ne.NoError) RETURN
 # endif
 
@@ -437,9 +437,9 @@
      &                nFfiles(ng), FRC(1,ng), update(1),                &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &
 #  ifdef MASKING
-     &                GRID(ng) % rmask(LBi,LBj),                        &
+     &                GRID(ng) % rmask,                                 &
 #  endif
-     &                FORCES(ng) % Pwave_botG(LBi,LBj,1))
+     &                FORCES(ng) % Pwave_botG(:,:,1))
       IF (exit_flag.ne.NoError) RETURN
 # endif
 
@@ -448,9 +448,9 @@
      &                nFfiles(ng), FRC(1,ng), update(1),                &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &
 #  ifdef MASKING
-     &                GRID(ng) % rmask(LBi,LBj),                        &
+     &                GRID(ng) % rmask,                                 &
 #  endif
-     &                FORCES(ng) % Ub_swanG(LBi,LBj,1))
+     &                FORCES(ng) % Ub_swanG)
       IF (exit_flag.ne.NoError) RETURN
 # endif
 
@@ -459,9 +459,9 @@
      &                nFfiles(ng), FRC(1,ng), update(1),                &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &
 #  ifdef MASKING
-     &                GRID(ng) % rmask(LBi,LBj),                        &
+     &                GRID(ng) % rmask,                                 &
 #  endif
-     &                FORCES(ng) % Wave_dissipG(LBi,LBj,1))
+     &                FORCES(ng) % Wave_dissipG(:,:,1))
       IF (exit_flag.ne.NoError) RETURN
 # endif
 
@@ -470,14 +470,30 @@
      &                nFfiles(ng), FRC(1,ng), update(1),                &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &
 #  ifdef MASKING
-     &                GRID(ng) % rmask(LBi,LBj),                        &
+     &                GRID(ng) % rmask,                                 &
 #  endif
-     &                FORCES(ng) % Wave_breakG(LBi,LBj,1))
+     &                FORCES(ng) % Wave_breakG)
       IF (exit_flag.ne.NoError) RETURN
 # endif
 #endif
 
 #ifdef SOLVE3D
+
+# if defined ALBEDO_FILE && defined SHORTWAVE
+!
+!-----------------------------------------------------------------------
+!  Albedo.
+!-----------------------------------------------------------------------
+!
+      CALL get_2dfld (ng, iNLM, idAlbe, ncFRCid(idAlbe,ng),             &
+     &                nFfiles(ng), FRC(1,ng), update(1),                &
+     &                LBi, UBi, LBj, UBj, 2, 1,                         &
+#  ifdef MASKING
+     &                GRID(ng) % rmask,                                 &
+#  endif
+     &                FORCES(ng) % albedoG)
+      IF (exit_flag.ne.NoError) RETURN
+# endif
 
 # if !defined ANA_CLOUD && defined CLOUDS
 !
@@ -489,9 +505,9 @@
      &                nFfiles(ng), FRC(1,ng), update(1),                &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &
 #  ifdef MASKING
-     &                GRID(ng) % rmask(LBi,LBj),                        &
+     &                GRID(ng) % rmask,                                 &
 #  endif
-     &                FORCES(ng) % cloudG(LBi,LBj,1))
+     &                FORCES(ng) % cloudG)
       IF (exit_flag.ne.NoError) RETURN
 # endif
 
@@ -505,9 +521,9 @@
      &                nFfiles(ng), FRC(1,ng), update(1),                &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &
 #  ifdef MASKING
-     &                GRID(ng) % rmask(LBi,LBj),                        &
+     &                GRID(ng) % rmask,                                 &
 #  endif
-     &                FORCES(ng) % srflxG(LBi,LBj,1))
+     &                FORCES(ng) % srflxG)
       IF (exit_flag.ne.NoError) RETURN
 # endif
 
@@ -521,9 +537,9 @@
      &                nFfiles(ng), FRC(1,ng), update(1),                &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &
 #  ifdef MASKING
-     &                GRID(ng) % rmask(LBi,LBj),                        &
+     &                GRID(ng) % rmask,                      &
 #  endif
-     &                FORCES(ng) % lrflxG(LBi,LBj,1))
+     &                FORCES(ng) % lrflxG)
       IF (exit_flag.ne.NoError) RETURN
 # endif
 
@@ -537,9 +553,9 @@
      &                nFfiles(ng), FRC(1,ng), update(1),                &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &
 #  ifdef MASKING
-     &                GRID(ng) % rmask(LBi,LBj),                        &
+     &                GRID(ng) % rmask,                                 &
 #  endif
-     &                FORCES(ng) % lrflxG(LBi,LBj,1))
+     &                FORCES(ng) % lrflxG)
       IF (exit_flag.ne.NoError) RETURN
 # endif
 
@@ -555,9 +571,9 @@
      &                nFfiles(ng), FRC(1,ng), update(1),                &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &
 #  ifdef MASKING
-     &                GRID(ng) % rmask(LBi,LBj),                        &
+     &                GRID(ng) % rmask,                                 &
 #  endif
-     &                FORCES(ng) % TairG(LBi,LBj,1))
+     &                FORCES(ng) % TairG)
       IF (exit_flag.ne.NoError) RETURN
 # endif
 
@@ -574,9 +590,9 @@
      &                nFfiles(ng), FRC(1,ng), update(1),                &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &
 #  ifdef MASKING
-     &                GRID(ng) % rmask(LBi,LBj),                        &
+     &                GRID(ng) % rmask,                                 &
 #  endif
-     &                FORCES(ng) % HairG(LBi,LBj,1))
+     &                FORCES(ng) % HairG)
       IF (exit_flag.ne.NoError) RETURN
 # endif
 
@@ -590,9 +606,9 @@
      &                nFfiles(ng), FRC(1,ng), update(1),                &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &
 #  ifdef MASKING
-     &                GRID(ng) % rmask(LBi,LBj),                        &
+     &                GRID(ng) % rmask,                                 &
 #  endif
-     &                FORCES(ng) % rainG(LBi,LBj,1))
+     &                FORCES(ng) % rainG)
       IF (exit_flag.ne.NoError) RETURN
 # endif
 
@@ -606,9 +622,9 @@
      &                nFfiles(ng), FRC(1,ng), update(1),                &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &
 #  ifdef MASKING
-     &                GRID(ng) % rmask(LBi,LBj),                        &
+     &                GRID(ng) % rmask,                                 &
 #  endif
-     &                FORCES(ng) % runoffG(LBi,LBj,1))
+     &                FORCES(ng) % runoffG)
       IF (exit_flag.ne.NoError) RETURN
 # endif
 
@@ -623,9 +639,9 @@
      &                nFfiles(ng), FRC(1,ng), update(1),                &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &
 #  ifdef MASKING
-     &                GRID(ng) % rmask(LBi,LBj),                        &
+     &                GRID(ng) % rmask,                                 &
 #  endif
-     &                FORCES(ng) % stflxG(LBi,LBj,1,itemp))
+     &                FORCES(ng) % stflxG(:,:,:,itemp))
       IF (exit_flag.ne.NoError) RETURN
 # endif
 
@@ -641,9 +657,9 @@
      &                  1, BLK(ng), update(1),                          &
      &                  LBi, UBi, LBj, UBj, 2, 1,                       &
 #  ifdef MASKING
-     &                  GRID(ng) % rmask(LBi,LBj),                      &
+     &                  GRID(ng) % rmask,                               &
 #  endif
-     &                  FORCES(ng) % stflxG(LBi,LBj,1,itemp))
+     &                  FORCES(ng) % stflxG(:,:,:,itemp))
         IF (exit_flag.ne.NoError) RETURN
       END IF
 # endif
@@ -659,18 +675,18 @@
      &                nFfiles(ng), FRC(1,ng), update(1),                &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &
 #  ifdef MASKING
-     &                GRID(ng) % rmask(LBi,LBj),                        &
+     &                GRID(ng) % rmask,                                 &
 #  endif
-     &                FORCES(ng) % sstG(LBi,LBj,1))
+     &                FORCES(ng) % sstG)
       IF (exit_flag.ne.NoError) RETURN
 
       CALL get_2dfld (ng, iNLM, iddQdT, ncFRCid(iddQdT,ng),             &
      &                nFfiles(ng), FRC(1,ng), update(1),                &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &
 #  ifdef MASKING
-     &                GRID(ng) % rmask(LBi,LBj),                        &
+     &                GRID(ng) % rmask,                                 &
 #  endif
-     &                FORCES(ng) % dqdtG(LBi,LBj,1))
+     &                FORCES(ng) % dqdtG)
       IF (exit_flag.ne.NoError) RETURN
 # endif
 
@@ -685,9 +701,9 @@
      &                nFfiles(ng), FRC(1,ng), update(1),                &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &
 #  ifdef MASKING
-     &                GRID(ng) % rmask(LBi,LBj),                        &
+     &                GRID(ng) % rmask,                                 &
 #  endif
-     &                FORCES(ng) % btflxG(LBi,LBj,1,itemp))
+     &                FORCES(ng) % btflxG(:,:,:,itemp))
       IF (exit_flag.ne.NoError) RETURN
 # endif
 
@@ -702,9 +718,9 @@
      &                nFfiles(ng), FRC(1,ng), update(1),                &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &
 #   ifdef MASKING
-     &                GRID(ng) % rmask(LBi,LBj),                        &
+     &                GRID(ng) % rmask,                                 &
 #   endif
-     &                FORCES(ng) % stflxG(LBi,LBj,1,isalt))
+     &                FORCES(ng) % stflxG(:,:,:,isalt))
       IF (exit_flag.ne.NoError) RETURN
 
 #  elif !(defined ANA_SSFLUX || defined EMINUSP || defined SRELAXATION)
@@ -717,9 +733,9 @@
      &                nFfiles(ng), FRC(1,ng), update(1),                &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &
 #   ifdef MASKING
-     &                GRID(ng) % rmask(LBi,LBj),                        &
+     &                GRID(ng) % rmask,                                 &
 #   endif
-     &                FORCES(ng) % stflxG(LBi,LBj,1,isalt))
+     &                FORCES(ng) % stflxG(:,:,:,isalt))
       IF (exit_flag.ne.NoError) RETURN
 #  endif
 
@@ -736,9 +752,9 @@
      &                  1, BLK(ng), update(1),                          &
      &                  LBi, UBi, LBj, UBj, 2, 1,                       &
 #   ifdef MASKING
-     &                  GRID(ng) % rmask(LBi,LBj),                      &
+     &                  GRID(ng) % rmask,                               &
 #   endif
-     &                  FORCES(ng) % stflxG(LBi,LBj,1,isalt))
+     &                  FORCES(ng) % stflxG(:,:,:,isalt))
         IF (exit_flag.ne.NoError) RETURN
       END IF
 #  endif
@@ -753,9 +769,9 @@
      &                nFfiles(ng), FRC(1,ng), update(1),                &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &
 #   ifdef MASKING
-     &                GRID(ng) % rmask(LBi,LBj),                        &
+     &                GRID(ng) % rmask,                                 &
 #   endif
-     &                FORCES(ng) % sssG(LBi,LBj,1))
+     &                FORCES(ng) % sssG)
       IF (exit_flag.ne.NoError) RETURN
 #  endif
 
@@ -770,9 +786,9 @@
      &                nFfiles(ng), FRC(1,ng), update(1),                &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &
 #   ifdef MASKING
-     &                GRID(ng) % rmask(LBi,LBj),                        &
+     &                GRID(ng) % rmask,                                 &
 #   endif
-     &                FORCES(ng) % btflxG(LBi,LBj,1,isalt))
+     &                FORCES(ng) % btflxG(:,:,:,isalt))
       IF (exit_flag.ne.NoError) RETURN
 #  endif
 # endif
@@ -789,9 +805,9 @@
      &                  nFfiles(ng), FRC(1,ng), update(1),              &
      &                  LBi, UBi, LBj, UBj, 2, 1,                       &
 #   ifdef MASKING
-     &                  GRID(ng) % rmask(LBi,LBj),                      &
+     &                  GRID(ng) % rmask,                               &
 #   endif
-     &                  FORCES(ng) % stflxG(LBi,LBj,1,i))
+     &                  FORCES(ng) % stflxG(:,:,:,i))
         IF (exit_flag.ne.NoError) RETURN
       END DO
 #  endif
@@ -807,9 +823,9 @@
      &                  nFfiles(ng), FRC(1,ng), update(1),              &
      &                  LBi, UBi, LBj, UBj, 2, 1,                       &
 #   ifdef MASKING
-     &                  GRID(ng) % rmask(LBi,LBj),                      &
+     &                  GRID(ng) % rmask,                               &
 #   endif
-     &                  FORCES(ng) % btflxG(LBi,LBj,1,i))
+     &                  FORCES(ng) % btflxG(:,:,:,i))
         IF (exit_flag.ne.NoError) RETURN
       END DO
 #  endif
@@ -826,7 +842,7 @@
      &                  ncBRYid(idZbry(iwest),ng),                      &
      &                  nBCfiles(ng), BRY(1,ng), update(1),             &
      &                  JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                 &
-     &                  BOUNDARY(ng) % zetaG_west(JLB,1))
+     &                  BOUNDARY(ng) % zetaG_west)
         IF (exit_flag.ne.NoError) RETURN
       END IF
 
@@ -835,7 +851,7 @@
      &                  ncBRYid(idZbry(ieast),ng),                      &
      &                  nBCfiles(ng), BRY(1,ng), update(1),             &
      &                  JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                 &
-     &                  BOUNDARY(ng) % zetaG_east(JLB,1))
+     &                  BOUNDARY(ng) % zetaG_east)
         IF (exit_flag.ne.NoError) RETURN
       END IF
 
@@ -844,7 +860,7 @@
      &                  ncBRYid(idZbry(isouth),ng),                     &
      &                  nBCfiles(ng), BRY(1,ng), update(1),             &
      &                  ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                 &
-     &                  BOUNDARY(ng) % zetaG_south(ILB,1))
+     &                  BOUNDARY(ng) % zetaG_south)
         IF (exit_flag.ne.NoError) RETURN
       END IF
 
@@ -853,7 +869,7 @@
      &                  ncBRYid(idZbry(inorth),ng),                     &
      &                  nBCfiles(ng), BRY(1,ng), update(1),             &
      &                  ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                 &
-     &                  BOUNDARY(ng) % zetaG_north(ILB,1))
+     &                  BOUNDARY(ng) % zetaG_north)
         IF (exit_flag.ne.NoError) RETURN
       END IF
 #endif
@@ -865,7 +881,7 @@
      &                  ncBRYid(idU2bc(iwest),ng),                      &
      &                  nBCfiles(ng), BRY(1,ng), update(1),             &
      &                  JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                 &
-     &                  BOUNDARY(ng) % ubarG_west(JLB,1))
+     &                  BOUNDARY(ng) % ubarG_west)
         IF (exit_flag.ne.NoError) RETURN
       END IF
 
@@ -874,7 +890,7 @@
      &                  ncBRYid(idV2bc(iwest),ng),                      &
      &                  nBCfiles(ng), BRY(1,ng), update(1),             &
      &                  JLB, JUB, 1, 2, 1, Mm(ng)+1, 1,                 &
-     &                  BOUNDARY(ng) % vbarG_west(JLB,1))
+     &                  BOUNDARY(ng) % vbarG_west)
         IF (exit_flag.ne.NoError) RETURN
       END IF
 
@@ -883,7 +899,7 @@
      &                  ncBRYid(idU2bc(ieast),ng),                      &
      &                  nBCfiles(ng), BRY(1,ng), update(1),             &
      &                  JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                 &
-     &                  BOUNDARY(ng) % ubarG_east(JLB,1))
+     &                  BOUNDARY(ng) % ubarG_east)
         IF (exit_flag.ne.NoError) RETURN
       END IF
 
@@ -892,7 +908,7 @@
      &                  ncBRYid(idV2bc(ieast),ng),                      &
      &                  nBCfiles(ng), BRY(1,ng), update(1),             &
      &                  JLB, JUB, 1, 2, 1, Mm(ng)+1, 1,                 &
-     &                  BOUNDARY(ng) % vbarG_east(JLB,1))
+     &                  BOUNDARY(ng) % vbarG_east)
         IF (exit_flag.ne.NoError) RETURN
       END IF
 
@@ -901,7 +917,7 @@
      &                  ncBRYid(idU2bc(isouth),ng),                     &
      &                  nBCfiles(ng), BRY(1,ng), update(1),             &
      &                  ILB, IUB, 1, 2, 1, Lm(ng)+1, 1,                 &
-     &                  BOUNDARY(ng) % ubarG_south(ILB,1))
+     &                  BOUNDARY(ng) % ubarG_south)
         IF (exit_flag.ne.NoError) RETURN
       END IF
 
@@ -910,7 +926,7 @@
      &                  ncBRYid(idV2bc(isouth),ng),                     &
      &                  nBCfiles(ng), BRY(1,ng), update(1),             &
      &                  ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                 &
-     &                  BOUNDARY(ng) % vbarG_south(ILB,1))
+     &                  BOUNDARY(ng) % vbarG_south)
         IF (exit_flag.ne.NoError) RETURN
       END IF
 
@@ -919,7 +935,7 @@
      &                  ncBRYid(idU2bc(inorth),ng),                     &
      &                  nBCfiles(ng), BRY(1,ng), update(1),             &
      &                  ILB, IUB, 1, 2, 1, Lm(ng)+1, 1,                 &
-     &                  BOUNDARY(ng) % ubarG_north(ILB,1))
+     &                  BOUNDARY(ng) % ubarG_north)
         IF (exit_flag.ne.NoError) RETURN
       END IF
 
@@ -928,7 +944,7 @@
      &                  ncBRYid(idV2bc(inorth),ng),                     &
      &                  nBCfiles(ng), BRY(1,ng), update(1),             &
      &                  ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                 &
-     &                  BOUNDARY(ng) % vbarG_north(ILB,1))
+     &                  BOUNDARY(ng) % vbarG_north)
         IF (exit_flag.ne.NoError) RETURN
       END IF
 #endif
@@ -941,7 +957,7 @@
      &                  ncBRYid(idU3bc(iwest),ng),                      &
      &                  nBCfiles(ng), BRY(1,ng), update(1),             &
      &                  JLB, JUB, N(ng), 2, 0, Mm(ng)+1, N(ng),         &
-     &                  BOUNDARY(ng) % uG_west(JLB,1,1))
+     &                  BOUNDARY(ng) % uG_west)
         IF (exit_flag.ne.NoError) RETURN
       END IF
 
@@ -950,7 +966,7 @@
      &                  ncBRYid(idV3bc(iwest),ng),                      &
      &                  nBCfiles(ng), BRY(1,ng), update(1),             &
      &                  JLB, JUB, N(ng), 2, 1, Mm(ng)+1, N(ng),         &
-     &                  BOUNDARY(ng) % vG_west(JLB,1,1))
+     &                  BOUNDARY(ng) % vG_west)
         IF (exit_flag.ne.NoError) RETURN
       END IF
 
@@ -959,7 +975,7 @@
      &                  ncBRYid(idU3bc(ieast),ng),                      &
      &                  nBCfiles(ng), BRY(1,ng), update(1),             &
      &                  JLB, JUB, N(ng), 2, 0, Mm(ng)+1, N(ng),         &
-     &                  BOUNDARY(ng) % uG_east(JLB,1,1))
+     &                  BOUNDARY(ng) % uG_east)
         IF (exit_flag.ne.NoError) RETURN
       END IF
 
@@ -968,7 +984,7 @@
      &                  ncBRYid(idV3bc(ieast),ng),                      &
      &                  nBCfiles(ng), BRY(1,ng), update(1),             &
      &                  JLB, JUB, N(ng), 2, 1, Mm(ng)+1, N(ng),         &
-     &                  BOUNDARY(ng) % vG_east(JLB,1,1))
+     &                  BOUNDARY(ng) % vG_east)
         IF (exit_flag.ne.NoError) RETURN
       END IF
 
@@ -977,7 +993,7 @@
      &                  ncBRYid(idU3bc(isouth),ng),                     &
      &                  nBCfiles(ng), BRY(1,ng), update(1),             &
      &                  ILB, IUB, N(ng), 2, 1, Lm(ng)+1, N(ng),         &
-     &                  BOUNDARY(ng) % uG_south(ILB,1,1))
+     &                  BOUNDARY(ng) % uG_south)
         IF (exit_flag.ne.NoError) RETURN
       END IF
 
@@ -986,7 +1002,7 @@
      &                  ncBRYid(idV3bc(isouth),ng),                     &
      &                  nBCfiles(ng), BRY(1,ng), update(1),             &
      &                  ILB, IUB, N(ng), 2, 0, Lm(ng)+1, N(ng),         &
-     &                  BOUNDARY(ng) % vG_south(ILB,1,1))
+     &                  BOUNDARY(ng) % vG_south)
         IF (exit_flag.ne.NoError) RETURN
       END IF
 
@@ -995,7 +1011,7 @@
      &                  ncBRYid(idU3bc(inorth),ng),                     &
      &                  nBCfiles(ng), BRY(1,ng), update(1),             &
      &                  ILB, IUB, N(ng), 2, 1, Lm(ng)+1, N(ng),         &
-     &                  BOUNDARY(ng) % uG_north(ILB,1,1))
+     &                  BOUNDARY(ng) % uG_north)
         IF (exit_flag.ne.NoError) RETURN
       END IF
 
@@ -1004,7 +1020,7 @@
      &                  ncBRYid(idV3bc(inorth),ng),                     &
      &                  nBCfiles(ng), BRY(1,ng), update(1),             &
      &                  ILB, IUB, N(ng), 2, 0, Lm(ng)+1, N(ng),         &
-     &                  BOUNDARY(ng) % vG_north(ILB,1,1))
+     &                  BOUNDARY(ng) % vG_north)
         IF (exit_flag.ne.NoError) RETURN
       END IF
 # endif
@@ -1017,7 +1033,7 @@
      &                    ncBRYid(idTbry(iwest,i),ng),                  &
      &                    nBCfiles(ng), BRY(1,ng), update(1),           &
      &                    JLB, JUB, N(ng), 2, 0, Mm(ng)+1, N(ng),       &
-     &                    BOUNDARY(ng) % tG_west(JLB,1,1,i))
+     &                    BOUNDARY(ng) % tG_west(:,:,:,i))
           IF (exit_flag.ne.NoError) RETURN
         END IF
       END DO
@@ -1028,7 +1044,7 @@
      &                    ncBRYid(idTbry(ieast,i),ng),                  &
      &                    nBCfiles(ng), BRY(1,ng), update(1),           &
      &                    JLB, JUB, N(ng), 2, 0, Mm(ng)+1, N(ng),       &
-     &                    BOUNDARY(ng) % tG_east(JLB,1,1,i))
+     &                    BOUNDARY(ng) % tG_east(:,:,:,i))
           IF (exit_flag.ne.NoError) RETURN
         END IF
       END DO
@@ -1039,7 +1055,7 @@
      &                    ncBRYid(idTbry(isouth,i),ng),                 &
      &                    nBCfiles(ng), BRY(1,ng), update(1),           &
      &                    ILB, IUB, N(ng), 2, 0, Lm(ng)+1, N(ng),       &
-     &                    BOUNDARY(ng) % tG_south(ILB,1,1,i))
+     &                    BOUNDARY(ng) % tG_south(:,:,:,i))
           IF (exit_flag.ne.NoError) RETURN
         END IF
       END DO
@@ -1050,7 +1066,7 @@
      &                    ncBRYid(idTbry(inorth,i),ng),                 &
      &                    nBCfiles(ng), BRY(1,ng), update(1),           &
      &                    ILB, IUB, N(ng), 2, 0, Lm(ng)+1, N(ng),       &
-     &                    BOUNDARY(ng) % tG_north(ILB,1,1,i))
+     &                    BOUNDARY(ng) % tG_north(:,:,:,i))
           IF (exit_flag.ne.NoError) RETURN
         END IF
       END DO
@@ -1063,7 +1079,7 @@
      &                  ncBRYid(idUibc(iwest),ng),                      &
      &                  nBCfiles(ng), BRY(1,ng), update(1),             &
      &                  JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                 &
-     &                  BOUNDARY(ng) % uiG_west(JLB,1))
+     &                  BOUNDARY(ng) % uiG_west)
         IF (exit_flag.ne.NoError) RETURN
       END IF
       IF (LBC(iwest,isVice,ng)%acquire) THEN
@@ -1071,7 +1087,7 @@
      &                  ncBRYid(idVibc(iwest),ng),                      &
      &                  nBCfiles(ng), BRY(1,ng), update(1),             &
      &                  JLB, JUB, 1, 2, 1, Mm(ng)+1, 1,                 &
-     &                  BOUNDARY(ng) % viG_west(JLB,1))
+     &                  BOUNDARY(ng) % viG_west)
         IF (exit_flag.ne.NoError) RETURN
       END IF
       IF (LBC(ieast,isUice,ng)%acquire) THEN
@@ -1079,7 +1095,7 @@
      &                  ncBRYid(idUibc(ieast),ng),                      &
      &                  nBCfiles(ng), BRY(1,ng), update(1),             &
      &                  JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                 &
-     &                  BOUNDARY(ng) % uiG_east(JLB,1))
+     &                  BOUNDARY(ng) % uiG_east)
         IF (exit_flag.ne.NoError) RETURN
       END IF
       IF (LBC(ieast,isVice,ng)%acquire) THEN
@@ -1087,7 +1103,7 @@
      &                  ncBRYid(idVibc(ieast),ng),                      &
      &                  nBCfiles(ng), BRY(1,ng), update(1),             &
      &                  JLB, JUB, 1, 2, 1, Mm(ng)+1, 1,                 &
-     &                  BOUNDARY(ng) % viG_east(JLB,1))
+     &                  BOUNDARY(ng) % viG_east)
         IF (exit_flag.ne.NoError) RETURN
       END IF
       IF (LBC(isouth,isUice,ng)%acquire) THEN
@@ -1095,7 +1111,7 @@
      &                  ncBRYid(idUibc(isouth),ng),                     &
      &                  nBCfiles(ng), BRY(1,ng), update(1),             &
      &                  ILB, IUB, 1, 2, 1, Lm(ng)+1, 1,                 &
-     &                  BOUNDARY(ng) % uiG_south(ILB,1))
+     &                  BOUNDARY(ng) % uiG_south)
         IF (exit_flag.ne.NoError) RETURN
       END IF
       IF (LBC(isouth,isVice,ng)%acquire) THEN
@@ -1103,7 +1119,7 @@
      &                  ncBRYid(idVibc(isouth),ng),                     &
      &                  nBCfiles(ng), BRY(1,ng), update(1),             &
      &                  ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                 &
-     &                  BOUNDARY(ng) % viG_south(ILB,1))
+     &                  BOUNDARY(ng) % viG_south)
         IF (exit_flag.ne.NoError) RETURN
       END IF
       IF (LBC(inorth,isUice,ng)%acquire) THEN
@@ -1111,7 +1127,7 @@
      &                  ncBRYid(idUibc(inorth),ng),                     &
      &                  nBCfiles(ng), BRY(1,ng), update(1),             &
      &                  ILB, IUB, 1, 2, 1, Lm(ng)+1, 1,                 &
-     &                  BOUNDARY(ng) % uiG_north(ILB,1))
+     &                  BOUNDARY(ng) % uiG_north)
         IF (exit_flag.ne.NoError) RETURN
       END IF
       IF (LBC(inorth,isVice,ng)%acquire) THEN
@@ -1119,7 +1135,7 @@
      &                  ncBRYid(idVibc(inorth),ng),                     &
      &                  nBCfiles(ng), BRY(1,ng), update(1),             &
      &                  ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                 &
-     &                  BOUNDARY(ng) % viG_north(ILB,1))
+     &                  BOUNDARY(ng) % viG_north)
         IF (exit_flag.ne.NoError) RETURN
       END IF
 #  endif
@@ -1129,7 +1145,7 @@
      &                  ncBRYid(idAibc(iwest),ng),                      &
      &                  nBCfiles(ng), BRY(1,ng), update(1),             &
      &                  JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                 &
-     &                  BOUNDARY(ng) % aiG_west(JLB,1))
+     &                  BOUNDARY(ng) % aiG_west)
         IF (exit_flag.ne.NoError) RETURN
       END IF
       IF (LBC(ieast,isAice,ng)%acquire) THEN
@@ -1137,7 +1153,7 @@
      &                  ncBRYid(idAibc(ieast),ng),                      &
      &                  nBCfiles(ng), BRY(1,ng), update(1),             &
      &                  JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                 &
-     &                  BOUNDARY(ng) % aiG_east(JLB,1))
+     &                  BOUNDARY(ng) % aiG_east)
         IF (exit_flag.ne.NoError) RETURN
       END IF
       IF (LBC(isouth,isAice,ng)%acquire) THEN
@@ -1145,7 +1161,7 @@
      &                  ncBRYid(idAibc(isouth),ng),                     &
      &                  nBCfiles(ng), BRY(1,ng), update(1),             &
      &                  ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                 &
-     &                  BOUNDARY(ng) % aiG_south(ILB,1))
+     &                  BOUNDARY(ng) % aiG_south)
         IF (exit_flag.ne.NoError) RETURN
       END IF
       IF (LBC(inorth,isAice,ng)%acquire) THEN
@@ -1153,7 +1169,7 @@
      &                  ncBRYid(idAibc(inorth),ng),                     &
      &                  nBCfiles(ng), BRY(1,ng), update(1),             &
      &                  ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                 &
-     &                  BOUNDARY(ng) % aiG_north(ILB,1))
+     &                  BOUNDARY(ng) % aiG_north)
         IF (exit_flag.ne.NoError) RETURN
       END IF
 #  endif
@@ -1164,7 +1180,7 @@
      &                  ncBRYid(idHibc(iwest),ng),                      &
      &                  nBCfiles(ng), BRY(1,ng), update(1),             &
      &                  JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                 &
-     &                  BOUNDARY(ng) % hiG_west(JLB,1))
+     &                  BOUNDARY(ng) % hiG_west)
         IF (exit_flag.ne.NoError) RETURN
       END IF
       IF (LBC(ieast,isHice,ng)%acquire) THEN
@@ -1172,7 +1188,7 @@
      &                  ncBRYid(idHibc(ieast),ng),                      &
      &                  nBCfiles(ng), BRY(1,ng), update(1),             &
      &                  JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                 &
-     &                  BOUNDARY(ng) % hiG_east(JLB,1))
+     &                  BOUNDARY(ng) % hiG_east)
         IF (exit_flag.ne.NoError) RETURN
       END IF
       IF (LBC(isouth,isHice,ng)%acquire) THEN
@@ -1180,7 +1196,7 @@
      &                  ncBRYid(idHibc(isouth),ng),                     &
      &                  nBCfiles(ng), BRY(1,ng), update(1),             &
      &                  ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                 &
-     &                  BOUNDARY(ng) % hiG_south(ILB,1))
+     &                  BOUNDARY(ng) % hiG_south)
         IF (exit_flag.ne.NoError) RETURN
       END IF
       IF (LBC(inorth,isHice,ng)%acquire) THEN
@@ -1188,7 +1204,7 @@
      &                  ncBRYid(idHibc(inorth),ng),                     &
      &                  nBCfiles(ng), BRY(1,ng), update(1),             &
      &                  ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                 &
-     &                  BOUNDARY(ng) % hiG_north(ILB,1))
+     &                  BOUNDARY(ng) % hiG_north)
         IF (exit_flag.ne.NoError) RETURN
       END IF
 #  endif
@@ -1198,7 +1214,7 @@
      &                  ncBRYid(idHsnbc(iwest),ng),                     &
      &                  nBCfiles(ng), BRY(1,ng), update(1),             &
      &                  JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                 &
-     &                  BOUNDARY(ng) % hsnG_west(JLB,1))
+     &                  BOUNDARY(ng) % hsnG_west)
         IF (exit_flag.ne.NoError) RETURN
       END IF
       IF (LBC(ieast,isHsno,ng)%acquire) THEN
@@ -1206,7 +1222,7 @@
      &                  ncBRYid(idHsnbc(ieast),ng),                     &
      &                  nBCfiles(ng), BRY(1,ng), update(1),             &
      &                  JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                 &
-     &                  BOUNDARY(ng) % hsnG_east(JLB,1))
+     &                  BOUNDARY(ng) % hsnG_east)
         IF (exit_flag.ne.NoError) RETURN
       END IF
       IF (LBC(isouth,isHsno,ng)%acquire) THEN
@@ -1214,7 +1230,7 @@
      &                  ncBRYid(idHsnbc(isouth),ng),                    &
      &                  nBCfiles(ng), BRY(1,ng), update(1),             &
      &                  ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                 &
-     &                  BOUNDARY(ng) % hsnG_south(ILB,1))
+     &                  BOUNDARY(ng) % hsnG_south)
         IF (exit_flag.ne.NoError) RETURN
       END IF
       IF (LBC(inorth,isHsno,ng)%acquire) THEN
@@ -1222,7 +1238,7 @@
      &                  ncBRYid(idHsnbc(inorth),ng),                    &
      &                  nBCfiles(ng), BRY(1,ng), update(1),             &
      &                  ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                 &
-     &                  BOUNDARY(ng) % hsnG_north(ILB,1))
+     &                  BOUNDARY(ng) % hsnG_north)
         IF (exit_flag.ne.NoError) RETURN
       END IF
 #  endif
@@ -1232,7 +1248,7 @@
      &                  ncBRYid(idTibc(iwest),ng),                      &
      &                  nBCfiles(ng), BRY(1,ng), update(1),             &
      &                  JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                 &
-     &                  BOUNDARY(ng) % tiG_west(JLB,1))
+     &                  BOUNDARY(ng) % tiG_west)
         IF (exit_flag.ne.NoError) RETURN
       END IF
       IF (LBC(ieast,isTice,ng)%acquire) THEN
@@ -1240,7 +1256,7 @@
      &                  ncBRYid(idTibc(ieast),ng),                      &
      &                  nBCfiles(ng), BRY(1,ng), update(1),             &
      &                  JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                 &
-     &                  BOUNDARY(ng) % tiG_east(JLB,1))
+     &                  BOUNDARY(ng) % tiG_east)
         IF (exit_flag.ne.NoError) RETURN
       END IF
       IF (LBC(isouth,isTice,ng)%acquire) THEN
@@ -1248,7 +1264,7 @@
      &                  ncBRYid(idTibc(isouth),ng),                     &
      &                  nBCfiles(ng), BRY(1,ng), update(1),             &
      &                  ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                 &
-     &                  BOUNDARY(ng) % tiG_south(ILB,1))
+     &                  BOUNDARY(ng) % tiG_south)
         IF (exit_flag.ne.NoError) RETURN
       END IF
       IF (LBC(inorth,isTice,ng)%acquire) THEN
@@ -1256,7 +1272,7 @@
      &                  ncBRYid(idTibc(inorth),ng),                     &
      &                  nBCfiles(ng), BRY(1,ng), update(1),             &
      &                  ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                 &
-     &                  BOUNDARY(ng) % tiG_north(ILB,1))
+     &                  BOUNDARY(ng) % tiG_north)
         IF (exit_flag.ne.NoError) RETURN
       END IF
 #  endif
@@ -1266,7 +1282,7 @@
      &                  ncBRYid(idSfwbc(iwest),ng),                     &
      &                  nBCfiles(ng), BRY(1,ng), update(1),             &
      &                  JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                 &
-     &                  BOUNDARY(ng) % sfwatG_west(JLB,1))
+     &                  BOUNDARY(ng) % sfwatG_west)
         IF (exit_flag.ne.NoError) RETURN
       END IF
       IF (LBC(ieast,isSfwat,ng)%acquire) THEN
@@ -1274,7 +1290,7 @@
      &                  ncBRYid(idSfwbc(ieast),ng),                     &
      &                  nBCfiles(ng), BRY(1,ng), update(1),             &
      &                  JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                 &
-     &                  BOUNDARY(ng) % sfwatG_east(JLB,1))
+     &                  BOUNDARY(ng) % sfwatG_east)
         IF (exit_flag.ne.NoError) RETURN
       END IF
       IF (LBC(isouth,isSfwat,ng)%acquire) THEN
@@ -1282,7 +1298,7 @@
      &                  ncBRYid(idSfwbc(isouth),ng),                    &
      &                  nBCfiles(ng), BRY(1,ng), update(1),             &
      &                  ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                 &
-     &                  BOUNDARY(ng) % sfwatG_south(ILB,1))
+     &                  BOUNDARY(ng) % sfwatG_south)
         IF (exit_flag.ne.NoError) RETURN
       END IF
       IF (LBC(inorth,isSfwat,ng)%acquire) THEN
@@ -1290,7 +1306,7 @@
      &                  ncBRYid(idSfwbc(inorth),ng),                    &
      &                  nBCfiles(ng), BRY(1,ng), update(1),             &
      &                  ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                 &
-     &                  BOUNDARY(ng) % sfwatG_north(ILB,1))
+     &                  BOUNDARY(ng) % sfwatG_north)
         IF (exit_flag.ne.NoError) RETURN
       END IF
 #  endif
@@ -1300,7 +1316,7 @@
      &                  ncBRYid(idS11bc(iwest),ng),                     &
      &                  nBCfiles(ng), BRY(1,ng), update(1),             &
      &                  JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                 &
-     &                  BOUNDARY(ng) % sig11G_west(JLB,1))
+     &                  BOUNDARY(ng) % sig11G_west)
         IF (exit_flag.ne.NoError) RETURN
       END IF
       IF (LBC(ieast,isSig11,ng)%acquire) THEN
@@ -1308,7 +1324,7 @@
      &                  ncBRYid(idS11bc(ieast),ng),                     &
      &                  nBCfiles(ng), BRY(1,ng), update(1),             &
      &                  JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                 &
-     &                  BOUNDARY(ng) % sig11G_east(JLB,1))
+     &                  BOUNDARY(ng) % sig11G_east)
         IF (exit_flag.ne.NoError) RETURN
       END IF
       IF (LBC(isouth,isSig11,ng)%acquire) THEN
@@ -1316,7 +1332,7 @@
      &                  ncBRYid(idS11bc(isouth),ng),                    &
      &                  nBCfiles(ng), BRY(1,ng), update(1),             &
      &                  ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                 &
-     &                  BOUNDARY(ng) % sig11G_south(ILB,1))
+     &                  BOUNDARY(ng) % sig11G_south)
         IF (exit_flag.ne.NoError) RETURN
       END IF
       IF (LBC(inorth,isSig11,ng)%acquire) THEN
@@ -1324,7 +1340,7 @@
      &                  ncBRYid(idS11bc(inorth),ng),                    &
      &                  nBCfiles(ng), BRY(1,ng), update(1),             &
      &                  ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                 &
-     &                  BOUNDARY(ng) % sig11G_north(ILB,1))
+     &                  BOUNDARY(ng) % sig11G_north)
         IF (exit_flag.ne.NoError) RETURN
       END IF
 #  endif
@@ -1334,7 +1350,7 @@
      &                  ncBRYid(idS22bc(iwest),ng),                     &
      &                  nBCfiles(ng), BRY(1,ng), update(1),             &
      &                  JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                 &
-     &                  BOUNDARY(ng) % sig22G_west(JLB,1))
+     &                  BOUNDARY(ng) % sig22G_west)
         IF (exit_flag.ne.NoError) RETURN
       IF (LBC(ieast,isSig22,ng)%acquire) THEN
       END IF
@@ -1342,7 +1358,7 @@
      &                  ncBRYid(idS22bc(ieast),ng),                     &
      &                  nBCfiles(ng), BRY(1,ng), update(1),             &
      &                  JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                 &
-     &                  BOUNDARY(ng) % sig22G_east(JLB,1))
+     &                  BOUNDARY(ng) % sig22G_east)
         IF (exit_flag.ne.NoError) RETURN
       END IF
       IF (LBC(isouth,isSig22,ng)%acquire) THEN
@@ -1350,7 +1366,7 @@
      &                  ncBRYid(idS22bc(isouth),ng),                    &
      &                  nBCfiles(ng), BRY(1,ng), update(1),             &
      &                  ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                 &
-     &                  BOUNDARY(ng) % sig22G_south(ILB,1))
+     &                  BOUNDARY(ng) % sig22G_south)
         IF (exit_flag.ne.NoError) RETURN
       END IF
       IF (LBC(inorth,isSig22,ng)%acquire) THEN
@@ -1358,7 +1374,7 @@
      &                  ncBRYid(idS22bc(inorth),ng),                    &
      &                  nBCfiles(ng), BRY(1,ng), update(1),             &
      &                  ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                 &
-     &                  BOUNDARY(ng) % sig22G_north(ILB,1))
+     &                  BOUNDARY(ng) % sig22G_north)
         IF (exit_flag.ne.NoError) RETURN
       END IF
 #  endif
@@ -1368,7 +1384,7 @@
      &                  ncBRYid(idS12bc(iwest),ng),                     &
      &                  nBCfiles(ng), BRY(1,ng), update(1),             &
      &                  JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                 &
-     &                  BOUNDARY(ng) % sig12G_west(JLB,1))
+     &                  BOUNDARY(ng) % sig12G_west)
         IF (exit_flag.ne.NoError) RETURN
       END IF
       IF (LBC(ieast,isSig12,ng)%acquire) THEN
@@ -1376,7 +1392,7 @@
      &                  ncBRYid(idS12bc(ieast),ng),                     &
      &                  nBCfiles(ng), BRY(1,ng), update(1),             &
      &                  JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,                 &
-     &                  BOUNDARY(ng) % sig12G_east(JLB,1))
+     &                  BOUNDARY(ng) % sig12G_east)
         IF (exit_flag.ne.NoError) RETURN
       END IF
       IF (LBC(isouth,isSig12,ng)%acquire) THEN
@@ -1384,7 +1400,7 @@
      &                  ncBRYid(idS12bc(isouth),ng),                    &
      &                  nBCfiles(ng), BRY(1,ng), update(1),             &
      &                  ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                 &
-     &                  BOUNDARY(ng) % sig12G_south(ILB,1))
+     &                  BOUNDARY(ng) % sig12G_south)
         IF (exit_flag.ne.NoError) RETURN
       END IF
       IF (LBC(inorth,isSig12,ng)%acquire) THEN
@@ -1392,7 +1408,7 @@
      &                  ncBRYid(idS12bc(inorth),ng),                    &
      &                  nBCfiles(ng), BRY(1,ng), update(1),             &
      &                  ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,                 &
-     &                  BOUNDARY(ng) % sig12G_north(ILB,1))
+     &                  BOUNDARY(ng) % sig12G_north)
         IF (exit_flag.ne.NoError) RETURN
       END IF
 #  endif
@@ -1410,9 +1426,9 @@
      &                nCLMfiles(ng), CLM(1,ng), update(1),              &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &
 #  ifdef MASKING
-     &                GRID(ng) % rmask(LBi,LBj),                        &
+     &                GRID(ng) % rmask,                                 &
 #  endif
-     &                CLIMA(ng) % sshG(LBi,LBj,1))
+     &                CLIMA(ng) % sshG)
       IF (exit_flag.ne.NoError) RETURN
 # endif
 
@@ -1421,33 +1437,37 @@
      &                nCLMfiles(ng), CLM(1,ng), update(1),              &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &
 #  ifdef MASKING
-     &                GRID(ng) % umask(LBi,LBj),                        &
+     &                GRID(ng) % umask,                                 &
 #  endif
-     &                CLIMA(ng) % ubarclmG(LBi,LBj,1))
+     &                CLIMA(ng) % ubarclmG)
       IF (exit_flag.ne.NoError) RETURN
 
       CALL get_2dfld (ng, iNLM, idVbcl, ncCLMid(idVbcl,ng),             &
      &                nCLMfiles(ng), CLM(1,ng), update(1),              &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &
 #  ifdef MASKING
-     &                GRID(ng) % vmask(LBi,LBj),                        &
+     &                GRID(ng) % vmask,                                 &
 #  endif
-     &                CLIMA(ng) % vbarclmG(LBi,LBj,1))
+     &                CLIMA(ng) % vbarclmG)
       IF (exit_flag.ne.NoError) RETURN
 # endif
 
 # ifdef SOLVE3D
 #  if !defined ANA_TCLIMA && defined TCLIMATOLOGY
-!  KLUDGE - how many tracers to read? It depends...
-      DO i=1,NAT
-        CALL get_3dfld (ng, iNLM, idTclm(i), ncCLMid(idTclm(i),ng),     &
-     &                  nCLMfiles(ng), CLM(1,ng), update(1),            &
-     &                  LBi, UBi, LBj, UBj, 1, N(ng), 2, 1,             &
+      ic=0
+      DO i=1,NT(ng)
+        IF (LtracerCLM(i,ng)) THEN
+          ic=ic+1
+          CALL get_3dfld (ng, iNLM, idTclm(i),                          &
+     &                    ncCLMid(idTclm(i),ng),                        &
+     &                    nCLMfiles(ng), CLM(1,ng), update(1),          &
+     &                    LBi, UBi, LBj, UBj, 1, N(ng), 2, 1,           &
 #   ifdef MASKING
-     &                  GRID(ng) % rmask(LBi,LBj),                      &
+     &                    GRID(ng) % rmask,                             &
 #   endif
-     &                  CLIMA(ng) % tclmG(LBi,LBj,1,1,i))
-        IF (exit_flag.ne.NoError) RETURN
+     &                    CLIMA(ng) % tclmG(:,:,:,:,ic))
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
       END DO
 
 #   if defined BCLIMATOLOGY
@@ -1458,9 +1478,9 @@
      &                    nCLMfiles(ng), CLM(1,ng), update(1),          &
      &                    LBi, UBi, LBj, UBj, 1, N(ng), 2, 1,           &
 #    ifdef MASKING
-     &                    GRID(ng) % rmask(LBi,LBj),                    &
+     &                    GRID(ng) % rmask,                             &
 #    endif
-     &                    CLIMA(ng) % tclmG(LBi,LBj,1,1,i))
+     &                    CLIMA(ng) % tclmG(:,:,:,:,i))
           IF (exit_flag.ne.NoError) RETURN
         END IF
       END DO
@@ -1471,9 +1491,9 @@
      &                nCLMfiles(ng), CLM(1,ng), update(1),              &
      &                LBi, UBi, LBj, UBj, 0, N(ng), 2, 1,               &
 #    ifdef MASKING
-     &                GRID(ng) % rmask(LBi,LBj),                        &
+     &                GRID(ng) % rmask,                                 &
 #    endif
-     &                CLIMA(ng) % AclmG(LBi,LBj,0,1))
+     &                CLIMA(ng) % AclmG)
       IF (exit_flag.ne.NoError) RETURN
 #   endif
 
@@ -1482,9 +1502,9 @@
      &                nCLMfiles(ng), CLM(1,ng), update(1),              &
      &                LBi, UBi, LBj, UBj, 1, N(ng), 2, 1,               &
 #    ifdef MASKING
-     &                GRID(ng) % rmask(LBi,LBj),                        &
+     &                GRID(ng) % rmask,                                 &
 #    endif
-     &                CLIMA(ng) % tclmG(LBi,LBj,1,1,iFe))
+     &                CLIMA(ng) % tclmG(:,:,:,:,iFe))
       IF (exit_flag.ne.NoError) RETURN
 #   endif
 #    if defined ICE_BIO && defined CLIM_ICE_1D
@@ -1492,9 +1512,9 @@
      &                nCLMfiles(ng), CLM(1,ng), update(1),              &
      &                LBi, UBi, LBj, UBj, 1, N(ng), 2, 1,               &
 #    ifdef MASKING
-     &                GRID(ng) % rmask(LBi,LBj),                        &
+     &                GRID(ng) % rmask,                                 &
 #    endif
-     &                CLIMA(ng) % tclmG(LBi,LBj,1,1,i1CI))
+     &                CLIMA(ng) % tclmG(:,:,:,:,i1CI))
       IF (exit_flag.ne.NoError) RETURN
 #   endif
 #  endif
@@ -1503,9 +1523,9 @@
      &                nCLMfiles(ng), CLM(1,ng), update(1),              &
      &                LBi, UBi, LBj, UBj, 1, N(ng), 2, 1,               &
 #    ifdef MASKING
-     &                GRID(ng) % rmask(LBi,LBj),                        &
+     &                GRID(ng) % rmask,                                 &
 #    endif
-     &                CLIMA(ng) % oclmG(LBi,LBj,1,1))
+     &                CLIMA(ng) % oclmG)
       IF (exit_flag.ne.NoError) RETURN
 #  endif
 
@@ -1514,18 +1534,56 @@
      &                nCLMfiles(ng), CLM(1,ng), update(1),              &
      &                LBi, UBi, LBj, UBj, 1, N(ng), 2, 1,               &
 #   ifdef MASKING
-     &                GRID(ng) % umask(LBi,LBj),                        &
+     &                GRID(ng) % umask,                                 &
 #   endif
-     &                CLIMA(ng) % uclmG(LBi,LBj,1,1))
+     &                CLIMA(ng) % uclmG)
       IF (exit_flag.ne.NoError) RETURN
 
       CALL get_3dfld (ng, iNLM, idVclm, ncCLMid(idVclm,ng),             &
      &                nCLMfiles(ng), CLM(1,ng), update(1),              &
      &                LBi, UBi, LBj, UBj, 1, N(ng), 2, 1,               &
 #   ifdef MASKING
-     &                GRID(ng) % vmask(LBi,LBj),                        &
+     &                GRID(ng) % vmask,                                 &
 #   endif
-     &                CLIMA(ng) % vclmG(LBi,LBj,1,1))
+     &                CLIMA(ng) % vclmG)
+      IF (exit_flag.ne.NoError) RETURN
+#  endif
+
+#  if !defined ANA_AICLIMA && defined AICLIMATOLOGY
+      CALL get_2dfld (ng, iNLM, idAIclm, ncCLMid(idAIclm,ng),           &
+     &                nCLMfiles(ng), CLM(1,ng), update(1),              &
+     &                LBi, UBi, LBj, UBj, 2, 1,                         &
+#    ifdef MASKING
+     &                GRID(ng) % rmask,                                 &
+#    endif
+     &                CLIMA(ng) % aiclmG)
+      IF (exit_flag.ne.NoError) RETURN
+      CALL get_2dfld (ng, iNLM, idHIclm, ncCLMid(idHIclm,ng),           &
+     &                nCLMfiles(ng), CLM(1,ng), update(1),              &
+     &                LBi, UBi, LBj, UBj, 2, 1,                         &
+#    ifdef MASKING
+     &                GRID(ng) % rmask,                                 &
+#    endif
+     &                CLIMA(ng) % hiclmG)
+      IF (exit_flag.ne.NoError) RETURN
+#  endif
+
+#  if !defined ANA_MICLIMA && defined MICLIMATOLOGY
+      CALL get_2dfld (ng, iNLM, idUIclm, ncCLMid(idUIclm,ng),           &
+     &                nCLMfiles(ng), CLM(1,ng), update(1),              &
+     &                LBi, UBi, LBj, UBj, 2, 1,                         &
+#    ifdef MASKING
+     &                GRID(ng) % rmask,                                 &
+#    endif
+     &                CLIMA(ng) % uiclmG)
+      IF (exit_flag.ne.NoError) RETURN
+      CALL get_2dfld (ng, iNLM, idVIclm, ncCLMid(idVIclm,ng),           &
+     &                nCLMfiles(ng), CLM(1,ng), update(1),              &
+     &                LBi, UBi, LBj, UBj, 2, 1,                         &
+#    ifdef MASKING
+     &                GRID(ng) % rmask,                                 &
+#    endif
+     &                CLIMA(ng) % viclmG)
       IF (exit_flag.ne.NoError) RETURN
 #  endif
 
@@ -1586,9 +1644,9 @@
      &                  1, FWD(ng), update(1),                          &
      &                  LBi, UBi, LBj, UBj, 2, 1,                       &
 # ifdef MASKING
-     &                  GRID(ng) % rmask(LBi,LBj),                      &
+     &                  GRID(ng) % rmask,                               &
 # endif
-     &                  OCEAN(ng) % zetaG(LBi,LBj,1))
+     &                  OCEAN(ng) % zetaG)
         IF (exit_flag.ne.NoError) RETURN
 !
 !  Read 2D momentum.
@@ -1597,18 +1655,18 @@
      &                  1, FWD(ng), update(1),                          &
      &                  LBi, UBi, LBj, UBj, 2, 1,                       &
 # ifdef MASKING
-     &                  GRID(ng) % umask(LBi,LBj),                      &
+     &                  GRID(ng) % umask,                               &
 # endif
-     &                  OCEAN(ng) % ubarG(LBi,LBj,1))
+     &                  OCEAN(ng) % ubarG)
         IF (exit_flag.ne.NoError) RETURN
 
         CALL get_2dfld (ng, iNLM, idVbar, FWD(ng)%ncid,                 &
      &                  1, FWD(ng), update(1),                          &
      &                  LBi, UBi, LBj, UBj, 2, 1,                       &
 # ifdef MASKING
-     &                  GRID(ng) % vmask(LBi,LBj),                      &
+     &                  GRID(ng) % vmask,                               &
 # endif
-     &                  OCEAN(ng) % vbarG(LBi,LBj,1))
+     &                  OCEAN(ng) % vbarG)
         IF (exit_flag.ne.NoError) RETURN
 # ifdef SOLVE3D
 !
@@ -1618,18 +1676,18 @@
      &                  1, FWD(ng), update(1),                          &
      &                  LBi, UBi, LBj, UBj, 1, N(ng), 2, 1,             &
 #  ifdef MASKING
-     &                  GRID(ng) % umask(LBi,LBj),                      &
+     &                  GRID(ng) % umask,                               &
 #  endif
-     &                  OCEAN(ng) % uG(LBi,LBj,1,1))
+     &                  OCEAN(ng) % uG)
         IF (exit_flag.ne.NoError) RETURN
 
         CALL get_3dfld (ng, iNLM, idVvel, FWD(ng)%ncid,                 &
      &                  1, FWD(ng), update(1),                          &
      &                  LBi, UBi, LBj, UBj, 1, N(ng), 2, 1,             &
 #  ifdef MASKING
-     &                  GRID(ng) % vmask(LBi,LBj),                      &
+     &                  GRID(ng) % vmask,                               &
 #  endif
-     &                  OCEAN(ng) % vG(LBi,LBj,1,1))
+     &                  OCEAN(ng) % vG)
         IF (exit_flag.ne.NoError) RETURN
 !
 !  Read in 3D tracers.
@@ -1639,9 +1697,9 @@
      &                    1, FWD(ng), update(1),                        &
      &                    LBi, UBi, LBj, UBj, 1, N(ng), 2, 1,           &
 #  ifdef MASKING
-     &                    GRID(ng) % vmask(LBi,LBj),                    &
+     &                    GRID(ng) % rmask,                             &
 #  endif
-     &                    OCEAN(ng) % tG(LBi,LBj,1,1,i))
+     &                    OCEAN(ng) % tG(:,:,:,:,i))
           IF (exit_flag.ne.NoError) RETURN
         END DO
 # endif
@@ -1664,9 +1722,9 @@
      &                  1, TLF(ng), update(1),                          &
      &                  LBi, UBi, LBj, UBj, 2, 1,                       &
 # ifdef MASKING
-     &                  GRID(ng) % rmask(LBi,LBj),                      &
+     &                  GRID(ng) % rmask,                               &
 # endif
-     &                  OCEAN(ng) % zetaG(LBi,LBj,1))
+     &                  OCEAN(ng) % zetaG)
         IF (exit_flag.ne.NoError) RETURN
 # ifndef SOLVE3D
 !
@@ -1676,18 +1734,18 @@
      &                  1, TLF(ng), update(1),                          &
      &                  LBi, UBi, LBj, UBj, 2, 1,                       &
 #  ifdef MASKING
-     &                  GRID(ng) % umask(LBi,LBj),                      &
+     &                  GRID(ng) % umask,                               &
 #  endif
-     &                  OCEAN(ng) % ubarG(LBi,LBj,1))
+     &                  OCEAN(ng) % ubarG)
         IF (exit_flag.ne.NoError) RETURN
 
         CALL get_2dfld (ng, iNLM, idVbar, TLF(ng)%ncid,                 &
      &                  1, TLF(ng), update(1),                          &
      &                  LBi, UBi, LBj, UBj, 2, 1,                       &
 #  ifdef MASKING
-     &                  GRID(ng) % vmask(LBi,LBj),                      &
+     &                  GRID(ng) % vmask,                               &
 #  endif
-     &                  OCEAN(ng) % vbarG(LBi,LBj,1))
+     &                  OCEAN(ng) % vbarG)
         IF (exit_flag.ne.NoError) RETURN
 # endif
 # ifdef SOLVE3D
@@ -1698,18 +1756,18 @@
      &                  1, TLF(ng), update(1),                          &
      &                  LBi, UBi, LBj, UBj, 1, N(ng), 2, 1,             &
 #  ifdef MASKING
-     &                  GRID(ng) % umask(LBi,LBj),                      &
+     &                  GRID(ng) % umask,                               &
 #  endif
-     &                  OCEAN(ng) % uG(LBi,LBj,1,1))
+     &                  OCEAN(ng) % uG)
         IF (exit_flag.ne.NoError) RETURN
 
         CALL get_3dfld (ng, iNLM, idVvel, TLF(ng)%ncid,                 &
      &                  1, TLF(ng), update(1),                          &
      &                  LBi, UBi, LBj, UBj, 1, N(ng), 2, 1,             &
 #  ifdef MASKING
-     &                  GRID(ng) % vmask(LBi,LBj),                      &
+     &                  GRID(ng) % vmask,                               &
 #  endif
-     &                  OCEAN(ng) % vG(LBi,LBj,1,1))
+     &                  OCEAN(ng) % vG)
         IF (exit_flag.ne.NoError) RETURN
 !
 !  Read in 3D tracers.
@@ -1719,9 +1777,9 @@
      &                    1, TLF(ng), update(1),                        &
      &                    LBi, UBi, LBj, UBj, 1, N(ng), 2, 1,           &
 #  ifdef MASKING
-     &                    GRID(ng) % rmask(LBi,LBj),                    &
+     &                    GRID(ng) % rmask,                             &
 #  endif
-     &                    OCEAN(ng) % tG(LBi,LBj,1,1,i))
+     &                    OCEAN(ng) % tG(:,:,:,:,i))
           IF (exit_flag.ne.NoError) RETURN
         END DO
 # endif

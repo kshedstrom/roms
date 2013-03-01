@@ -2,7 +2,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group       Andrew M. Moore   !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -108,6 +108,25 @@
         CALL inp_par (iNLM)
         IF (exit_flag.ne.NoError) RETURN
 !
+!  Set domain decomposition tile partition range.  This range is
+!  computed only once since the "first_tile" and "last_tile" values
+!  are private for each parallel thread/node.
+!
+!$OMP PARALLEL
+#if defined _OPENMP
+      MyThread=my_threadnum()
+#elif defined DISTRIBUTE
+      MyThread=MyRank
+#else
+      MyThread=0
+#endif
+      DO ng=1,Ngrids
+        chunk_size=(NtileX(ng)*NtileE(ng)+numthreads-1)/numthreads
+        first_tile(ng)=MyThread*chunk_size
+        last_tile (ng)=first_tile(ng)+chunk_size-1
+      END DO
+!$OMP END PARALLEL
+!
 !  Initialize internal wall clocks. Notice that the timings does not
 !  includes processing standard input because several parameters are
 !  needed to allocate clock variables.
@@ -118,16 +137,18 @@
         END IF
 !
         DO ng=1,Ngrids
-!$OMP PARALLEL DO PRIVATE(thread) SHARED(numthreads)
-          DO thread=0,numthreads-1
+!$OMP PARALLEL
+          DO thread=THREAD_RANGE
             CALL wclock_on (ng, iNLM, 0)
           END DO
-!$OMP END PARALLEL DO
+!$OMP END PARALLEL
         END DO
 !
 !  Allocate and initialize modules variables.
 !
+!$OMP PARALLEL
         CALL mod_arrays (allocate_vars)
+!$OMP END PARALLEL
 !
 !  Allocate and initialize observation arrays.
 !
@@ -181,7 +202,7 @@
 !  Local variable declarations.
 !
       integer :: IniRec, i, ng, status
-      integer :: subs, tile, thread
+      integer :: tile
 
       real(r8) :: gp, hp, p
 !
@@ -217,7 +238,9 @@
 !  Initialize nonlinear model with first guess initial conditions.
 !
       DO ng=1,Ngrids
+!$OMP PARALLEL
         CALL initial (ng)
+!$OMP END PARALLEL
         IF (exit_flag.ne.NoError) RETURN
       END DO
 !
@@ -232,11 +255,13 @@
         wrtTLmod(ng)=.FALSE.
       END DO
 
+!$OMP PARALLEL
 #ifdef SOLVE3D
       CALL main3d (RunInterval)
 #else
       CALL main2d (RunInterval)
 #endif
+!$OMP END PARALLEL
       IF (exit_flag.ne.NoError) RETURN
 !
 !  Close current nonlinear model history file.
@@ -275,7 +300,9 @@
 !  Initialize the adjoint model from rest.
 !
       DO ng=1,Ngrids
+!$OMP PARALLEL
         CALL ad_initial (ng, .TRUE.)
+!$OMP END PARALLEL
         IF (exit_flag.ne.NoError) RETURN
       END DO
 !
@@ -289,11 +316,13 @@
         END IF
       END DO
 
+!$OMP PARALLEL
 #ifdef SOLVE3D
       CALL ad_main3d (RunInterval)
 #else
       CALL ad_main2d (RunInterval)
 #endif
+!$OMP END PARALLEL
       IF (exit_flag.ne.NoError) RETURN
 !
 !-----------------------------------------------------------------------
@@ -313,14 +342,11 @@
 !  Compute adjoint solution dot product for scaling purposes.
 !
       DO ng=1,Ngrids
-!$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(numthreads)
-        DO thread=0,numthreads-1
-          subs=NtileX(ng)*NtileE(ng)/numthreads
-          DO tile=subs*thread,subs*(thread+1)-1
-            CALL ad_dotproduct (ng, TILE, Lnew(ng))
-          END DO
+!$OMP PARALLEL
+        DO tile=first_tile(ng),last_tile(ng),+1
+          CALL ad_dotproduct (ng, tile, Lnew(ng))
         END DO
-!$OMP END PARALLEL DO
+!$OMP END PARALLEL
       END DO
 
 #ifdef SOLVE3D
@@ -345,7 +371,7 @@
 !
 !  INNER LOOP: scale perturbation amplitude by selecting "p" scalar,
 !  ==========  such that:
-!                              p = 10 ** FLOAT(-inner)
+!                              p = 10 ** REAL(-inner,r8)
 !
         INNER_LOOP : DO inner=1,Ninner
 !
@@ -355,7 +381,9 @@
 !  by grad(J) times the perturbation amplitude "p".
 !
           DO ng=1,Ngrids
+!$OMP PARALLEL
             CALL initial (ng, .FALSE.)
+!$OMP END PARALLEL
             IF (exit_flag.ne.NoError) RETURN
 
             WRITE (HIS(ng)%name,70) TRIM(HIS(ng)%base), Nrun
@@ -378,11 +406,13 @@
             END IF
           END DO
 
+!$OMP PARALLEL
 #ifdef SOLVE3D
           CALL main3d (RunInterval)
 #else
           CALL main2d (RunInterval)
 #endif
+!$OMP END PARALLEL
           IF (exit_flag.ne.NoError) RETURN
 !
 !  Get current nonlinear model trajectory.
@@ -397,7 +427,9 @@
 !  (adjoint state, GRAD(J)) times the perturbation amplitude "p".
 !
           DO ng=1,Ngrids
+!$OMP PARALLEL
             CALL tl_initial (ng, .FALSE.)
+!$OMP END PARALLEL
             IF (exit_flag.ne.NoError) RETURN
 
             WRITE (TLM(ng)%name,70) TRIM(TLM(ng)%base), Nrun
@@ -419,11 +451,13 @@
             END IF
           END DO
 
+!$OMP PARALLEL
 #ifdef SOLVE3D
           CALL tl_main3d (RunInterval)
 #else
           CALL tl_main2d (RunInterval)
 #endif
+!$OMP END PARALLEL
           IF (exit_flag.ne.NoError) RETURN
 !
 !  Close current tangent linear model history file.
@@ -450,7 +484,7 @@
      &      'TLM Test - Dot Products Summary: p, g1, g2, (g1-g2)/g1'
           inner=1
           DO i=1,MIN(ig1count,ig2count)
-            p=10.0_r8**FLOAT(-inner)
+            p=10.0_r8**REAL(-inner,r8)
             IF (MOD(i,1+ntimes(ng)/nTLM(ng)).eq.0) inner=inner+1
             WRITE (stdout,90) i, p, g1(i), g2(i), (g1(i)-g2(i))/g1(i)
             IF ((MOD(i,1+ntimes(ng)/nTLM(ng)).eq.0).and.                &
@@ -534,11 +568,11 @@
       END IF
 
       DO ng=1,Ngrids
-!$OMP PARALLEL DO PRIVATE(thread) SHARED(numthreads)
-        DO thread=0,numthreads-1
+!$OMP PARALLEL
+        DO thread=THREAD_RANGE
           CALL wclock_off (ng, iNLM, 0)
         END DO
-!$OMP END PARALLEL DO
+!$OMP END PARALLEL
       END DO
 !
 !  Close IO files.

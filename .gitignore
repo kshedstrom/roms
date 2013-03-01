@@ -1,4 +1,5 @@
 .svn
-Build
+Build*
 Ocean?
 .*.swp
+makefile.*

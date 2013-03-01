@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group       Andrew M. Moore   !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -36,13 +36,16 @@
       USE adsen_force_mod, ONLY : adsen_force
 # endif
       USE ad_diag_mod, ONLY : ad_diag
-# ifdef WEAK_CONSTRAINT
+# if defined WEAK_CONSTRAINT || defined FORCING_SV
       USE ad_forcing_mod, ONLY : ad_forcing
 # endif
 # ifdef ADJUST_WSTRESS
       USE ad_frc_adjust_mod, ONLY : ad_frc_adjust
 # endif
       USE ad_ini_fields_mod, ONLY : ad_ini_fields, ad_ini_zeta
+# if defined STOCHASTIC_OPT && !defined STOCH_OPT_WHITE
+      USE ad_ini_fields_mod, ONLY : ad_out_fields, ad_out_zeta
+# endif
 # if defined FOUR_DVAR && defined OBSERVATIONS
 #  ifdef WEAK_CONSTRAINT
       USE ad_htobs_mod, ONLY : ad_htobs
@@ -90,7 +93,8 @@
 !
       logical:: backward = .TRUE.
 
-      integer :: next_indx1, ng, subs, tile, thread
+      integer :: ng, tile
+      integer :: next_indx1
 # ifdef FLOATS_NOT_YET
       integer :: Lend, Lstr, chunk_size
 # endif
@@ -112,17 +116,23 @@
 !
         DO ng=1,Ngrids
           iic(ng)=iic(ng)-1
+!$OMP MASTER
           time(ng)=time(ng)-dt(ng)
           tdays(ng)=time(ng)*sec2day
           CALL time_string (time(ng), time_code(ng))
+!$OMP END MASTER
         END DO
+!$OMP BARRIER
 !
 !-----------------------------------------------------------------------
 !  Read in required data, if any, from input NetCDF files.
 !-----------------------------------------------------------------------
 !
         DO ng=1,Ngrids
+!$OMP MASTER
           CALL ad_get_data (ng)
+!$OMP END MASTER
+!$OMP BARRIER
           IF (exit_flag.ne.NoError) RETURN
         END DO
 !
@@ -132,21 +142,17 @@
 !-----------------------------------------------------------------------
 !
         DO ng=1,Ngrids
-!$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(numthreads)
-          DO thread=0,numthreads-1
-            subs=NtileX(ng)*NtileE(ng)/numthreads
-            DO tile=subs*thread,subs*(thread+1)-1,+1      ! irreversible
-              CALL ad_set_data (ng, TILE)
+          DO tile=first_tile(ng),last_tile(ng),+1         ! irreversible
+            CALL ad_set_data (ng, tile)
 # ifdef AD_AVERAGES
-              CALL ad_set_avg (ng, TILE)
+            CALL ad_set_avg (ng, tile)
 # endif
 # ifdef DIAGNOSTICS
-!!            CALL ad_set_diags (ng, TILE)
+!!          CALL ad_set_diags (ng, tile)
 # endif
-              CALL ad_diag (ng, TILE)
-            END DO
+            CALL ad_diag (ng, tile)
           END DO
-!$OMP END PARALLEL DO
+!$OMP BARRIER
         END DO
         IF (exit_flag.ne.NoError) RETURN
 
@@ -162,6 +168,7 @@
 #  ifdef SENSITIVITY_4DVAR
           IF (.not.LsenPSAS(ng)) THEN
 #  endif
+!$OMP MASTER
             HalfDT=0.5_r8*dt(ng)
             IF (((time(ng)-HalfDT).le.ObsTime(ng)).and.                 &
      &          (ObsTime(ng).lt.(time(ng)+HalfDT))) THEN
@@ -171,19 +178,17 @@
             ELSE
               ProcessObs(ng)=.FALSE.
             END IF
+!$OMP END MASTER
+!$OMP BARRIER
 !
-!$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(numthreads)
-            DO thread=0,numthreads-1
-              subs=NtileX(ng)*NtileE(ng)/numthreads
-              DO tile=subs*thread,subs*(thread+1)-1,+1
+            DO tile=first_tile(ng),last_tile(ng),+1
 #  ifdef WEAK_CONSTRAINT
-                CALL ad_htobs (ng, TILE, iADM)
+              CALL ad_htobs (ng, tile, iADM)
 #  else
-                CALL ad_misfit (ng, TILE, iADM)
+              CALL ad_misfit (ng, tile, iADM)
 #  endif
-              END DO
             END DO
-!$OMP END PARALLEL DO
+!$OMP BARRIER
             IF (exit_flag.ne.NoError) RETURN
 #  ifdef SENSITIVITY_4DVAR
           END IF
@@ -200,14 +205,10 @@
 !
         DO ng=1,Ngrids
           IF (ProcessObs(ng)) THEN
-!$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(numthreads)
-            DO thread=0,numthreads-1
-              subs=NtileX(ng)*NtileE(ng)/numthreads
-              DO tile=subs*thread,subs*(thread+1)-1,+1
-                CALL ad_forcing (ng, TILE, knew(ng), nnew(ng))
-              END DO
+            DO tile=first_tile(ng),last_tile(ng),+1
+              CALL ad_forcing (ng, tile, knew(ng), nnew(ng))
             END DO
-!$OMP END PARALLEL DO
+!$OMP BARRIER
           END IF
         END DO
 # endif
@@ -232,15 +233,16 @@
               nfm2(ng)=MOD(nfm2(ng)+1,NFT+1)
               nfm3(ng)=MOD(nfm3(ng)+1,NFT+1)
 !
-!$OMP PARALLEL DO PRIVATE(thread,chunk_size,Lstr,Lend)                  &
-!$OMP&            SHARED(numthreads,Nfloats)
-              DO thread=0,numthreads-1
-                chunk_size=(Nfloats(ng)+numthreads-1)/numthreads
-                Lstr=1+thread*chunk_size
-                Lend=MIN(Nfloats(ng),Lstr+chunk_size-1)
-                CALL ad_step_floats (ng, Lstr, Lend)
-              END DO
-!$OMP END PARALLEL DO
+#  ifdef _OPENMP
+              chunk_size=(Nfloats(ng)+numthreads-1)/numthreads
+              Lstr=1+MyThread*chunk_size
+              Lend=MIN(Nfloats(ng),Lstr+chunk_size-1)
+#  else
+              Lstr=1
+              Lend=Nfloats(ng)
+#  endif
+              CALL ad_step_floats (ng, Lstr, Lend)
+!$OMP BARRIER
             END IF
           END DO
 # endif
@@ -258,14 +260,10 @@
             iif(ng)=1
             nfast(ng)=1
             IF (iif(ng).lt.(nfast(ng)+1)) THEN
-!$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(numthreads)
-              DO thread=0,numthreads-1
-                subs=NtileX(ng)*NtileE(ng)/numthreads
-                DO tile=subs*thread,subs*(thread+1)-1,+1
-                  CALL ad_step2d (ng, TILE)
-                END DO
+              DO tile=first_tile(ng),last_tile(ng),+1
+                CALL ad_step2d (ng, tile)
               END DO
-!$OMP END PARALLEL DO
+!$OMP BARRIER
             END IF
 !
 !  Set time indices for corrector step.
@@ -285,14 +283,10 @@
 !  ==============   predictor scheme.
 !
           DO ng=1,Ngrids
-!$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(numthreads)
-            DO thread=0,numthreads-1
-              subs=NtileX(ng)*NtileE(ng)/numthreads
-              DO tile=subs*(thread+1)-1,subs*thread,-1
-                CALL ad_step2d (ng, TILE)
-              END DO
+            DO tile=last_tile(ng),first_tile(ng),-1
+              CALL ad_step2d (ng, tile)
             END DO
-!$OMP END PARALLEL DO
+!$OMP BARRIER
 !
 !  Set time indices for predictor step. The PREDICTOR_2D_STEP switch
 !  it is assumed to be false before the first time-step.
@@ -319,16 +313,11 @@
         DO ng=1,Ngrids
           IF (MOD(iic(ng)-1,nADJ(ng)).eq.0) THEN
             SOrec(ng)=SOrec(ng)+1
-!$OMP PARALLEL DO PRIVATE(thread,subs,tile,SOrec)                       &
-!$OMP&            SHARED(numthreads,Nstr,Nend)
-            DO thread=0,numthreads-1
-              subs=NtileX(ng)*NtileE(ng)/numthreads
-              DO tile=subs*thread,subs*(thread+1)-1,+1
-                CALL ad_pack (ng, TILE, Nstr(ng), Nend(ng),             &
-     &                        STORAGE(ng)%so_state(:,SOrec(ng)))
-              END DO
+            DO tile=first_tile(ng),last_tile(ng),+1
+              CALL ad_pack (ng, tile, Nstr(ng), Nend(ng),               &
+     &                      STORAGE(ng)%so_state(:,SOrec(ng)))
             END DO
-!$OMP END PARALLEL DO
+!$OMP BARRIER
           END IF
         END DO
 # endif
@@ -338,17 +327,13 @@
 !-----------------------------------------------------------------------
 !
         DO ng=1,Ngrids
-!$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(numthreads)
-          DO thread=0,numthreads-1
-            subs=NtileX(ng)*NtileE(ng)/numthreads
-            DO tile=subs*thread,subs*(thread+1)-1,+1
+          DO tile=first_tile(ng),last_tile(ng),+1
 # if defined SSH_TIDES_NOT_YET || defined UV_TIDES_NOT_YET
-              CALL ad_set_tides (ng, TILE)
+            CALL ad_set_tides (ng, tile)
 # endif
-              CALL ad_set_vbc (ng, TILE)
-            END DO
+            CALL ad_set_vbc (ng, tile)
           END DO
-!$OMP END PARALLEL DO
+!$OMP BARRIER
         END DO
 
 # ifdef NEARSHORE_MELLOR_NOT_YET
@@ -358,14 +343,10 @@
 !-----------------------------------------------------------------------
 !
         DO ng=1,Ngrids
-!$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(numthreads)
-          DO thread=0,numthreads-1
-            subs=NtileX(ng)*NtileE(ng)/numthreads
-            DO tile=subs*(thread+1)-1,subs*thread,-1
-              CALL ad_radiation_stress (ng, TILE)
-            END DO
+          DO tile=last_tile(ng),first_tile(ng),-1
+            CALL ad_radiation_stress (ng, tile)
           END DO
-!$OMP END PARALLEL DO
+!$OMP BARRIER
         END DO
 # endif
 
@@ -379,14 +360,10 @@
         DO ng=1,Ngrids
           IF ((iic(ng).ne.ntstart(ng)).and.                             &
      &        MOD(iic(ng)-1,CoupleSteps(Iwaves,ng)).eq.0) THEN
-!$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(numthreads)
-            DO thread=0,numthreads-1
-              subs=NtileX(ng)*NtileE(ng)/numthreads
-              DO tile=subs*thread,subs*(thread+1)-1,+1
-                CALL waves_coupling (ng, TILE)
-              END DO
+            DO tile=first_tile(ng),last_tile(ng),+1
+              CALL waves_coupling (ng, tile)
             END DO
-!$OMP END PARALLEL DO
+!$OMP BARRIER
           END IF
         END DO
 # endif
@@ -401,14 +378,30 @@
         DO ng=1,Ngrids
           IF ((iic(ng).ne.ntstart(ng)).and.                             &
      &        MOD(iic(ng)-1,CoupleSteps(Iatmos,ng)).eq.0) THEN
-!$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(numthreads)
-            DO thread=0,numthreads-1
-              subs=NtileX(ng)*NtileE(ng)/numthreads
-              DO tile=subs*(thread+1)-1,subs*thread,-1
-                CALL atmos_coupling (ng, TILE)
-              END DO
+            DO tile=last_tile(ng),first_tile(ng),-1
+              CALL atmos_coupling (ng, tile)
             END DO
-!$OMP END PARALLEL DO
+!$OMP BARRIER
+          END IF
+        END DO
+# endif
+# if defined STOCHASTIC_OPT && !defined STOCH_OPT_WHITE
+!
+!-----------------------------------------------------------------------
+!  Define adjoint output arrays.
+!-----------------------------------------------------------------------
+!
+        DO ng=1,Ngrids
+          IF (iic(ng).ne.ntend(ng)) THEN
+            DO tile=last_tile(ng),first_tile(ng),-1
+                CALL ad_out_fields (ng, tile, iADM)
+            END DO
+!$OMP BARRIER
+            DO tile=first_tile(ng),last_tile(ng),+1
+                CALL ad_set_depth (ng, tile)
+                CALL ad_out_zeta (ng, tile, iADM)
+            END DO
+!$OMP BARRIER
           END IF
         END DO
 # endif
@@ -423,27 +416,41 @@
 !
 !  Initialize other state variables.
 !
-!$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(numthreads)
-            DO thread=0,numthreads-1
-              subs=NtileX(ng)*NtileE(ng)/numthreads
-              DO tile=subs*(thread+1)-1,subs*thread,-1
-                CALL ad_ini_fields (ng, TILE, iADM)
-              END DO
+            DO tile=last_tile(ng),first_tile(ng),-1
+              CALL ad_ini_fields (ng, tile, iADM)
             END DO
-!$OMP END PARALLEL DO
+!$OMP BARRIER
 !
 !  Initialize free-surface.
 !
-!$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(numthreads)
-            DO thread=0,numthreads-1
-              subs=NtileX(ng)*NtileE(ng)/numthreads
-              DO tile=subs*thread,subs*(thread+1)-1,+1
-                CALL ad_ini_zeta (ng, TILE, iADM)
-              END DO
+            DO tile=first_tile(ng),last_tile(ng),+1
+              CALL ad_ini_zeta (ng, tile, iADM)
             END DO
-!$OMP END PARALLEL DO
+!$OMP BARRIER
           END IF
         END DO
+# ifdef FORCING_SV
+!
+!-----------------------------------------------------------------------
+!  Compute adjoint forcing for forcing singular vectors.
+!-----------------------------------------------------------------------
+!
+        IF (iic(ng).ne.ntend(ng)) THEN
+          DO ng=1,Ngrids
+            DO tile=first_tile(ng),last_tile(ng),+1
+              CALL ad_forcing (ng, tile, kstp(ng), knew(ng), nstp(ng))
+            END DO
+!$OMP BARRIER
+          END DO
+        ELSE
+          DO ng=1,Ngrids
+            DO tile=first_tile(ng),last_tile(ng),+1
+              CALL ad_forcing (ng, tile, kstp(ng), krhs(ng), nstp(ng))
+            END DO
+!$OMP BARRIER
+          END DO
+        END IF
+# endif
 
 # ifdef ADJUST_WSTRESS
 !
@@ -454,14 +461,10 @@
 !
         DO ng=1,Ngrids
           IF (iic(ng).ne.ntstart(ng)) THEN
-!$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(numthreads)
-            DO thread=0,numthreads-1
-              subs=NtileX(ng)*NtileE(ng)/numthreads
-              DO tile=subs*thread,subs*(thread+1)-1,+1
-                CALL ad_frc_adjust (ng, TILE, Lfout(ng))
-              END DO
+            DO tile=first_tile(ng),last_tile(ng),+1
+              CALL ad_frc_adjust (ng, tile, Lfout(ng))
             END DO
-!$OMP END PARALLEL DO
+!$OMP BARRIER
           END IF
         END DO
 # endif
@@ -475,14 +478,10 @@
 !
         DO ng=1,Ngrids
           IF (iic(ng).ne.ntstart(ng)) THEN
-!$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(numthreads)
-            DO thread=0,numthreads-1
-              subs=NtileX(ng)*NtileE(ng)/numthreads
-              DO tile=subs*thread,subs*(thread+1)-1,+1
-                CALL ad_obc_adjust (ng, TILE, Lbout(ng))
-              END DO
+            DO tile=first_tile(ng),last_tile(ng),+1
+              CALL ad_obc_adjust (ng, tile, Lbout(ng))
             END DO
-!$OMP END PARALLEL DO
+!$OMP BARRIER
           END IF
         END DO
 # endif
@@ -495,14 +494,10 @@
 !
         DO ng=1,Ngrids
           IF (iic(ng).ne.ntstart(ng)) THEN
-!$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(numthreads)
-            DO thread=0,numthreads-1
-              subs=NtileX(ng)*NtileE(ng)/numthreads
-              DO tile=subs*thread,subs*(thread+1)-1,+1
-                CALL frc_ADgather (ng, TILE)
-              END DO
+            DO tile=first_tile(ng),last_tile(ng),+1
+              CALL frc_ADgather (ng, tile)
             END DO
-!$OMP END PARALLEL DO
+!$OMP BARRIER
           END IF
         END DO
 # endif
@@ -512,7 +507,10 @@
 !-----------------------------------------------------------------------
 !
         DO ng=1,Ngrids
+!$OMP MASTER
           CALL ad_output (ng)
+!$OMP END MASTER
+!$OMP BARRIER
           IF (exit_flag.ne.NoError) RETURN
         END DO
 
@@ -524,14 +522,10 @@
 !
         DO ng=1,Ngrids
           IF (MOD(iic(ng)-1,nADJ(ng)).eq.0) THEN
-!$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(numthreads)
-            DO thread=0,numthreads-1
-              subs=NtileX(ng)*NtileE(ng)/numthreads
-              DO tile=subs*thread,subs*(thread+1)-1,+1
-                CALL frc_clear (ng, TILE)
-              END DO
+            DO tile=first_tile(ng),last_tile(ng),+1
+              CALL frc_clear (ng, tile)
             END DO
-!$OMP END PARALLEL DO
+!$OMP BARRIER
           END IF
         END DO
 # endif
@@ -552,14 +546,10 @@
             IF ((DendS(ng).ge.tdays(ng)).and.                           &
      &          (tdays(ng).ge.DstrS(ng))) THEN
 #  endif
-!$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(numthreads)
-              DO thread=0,numthreads-1
-                subs=NtileX(ng)*NtileE(ng)/numthreads
-                DO tile=subs*thread,subs*(thread+1)-1,+1
-                  CALL adsen_force (ng, TILE)
-                END DO
+              DO tile=first_tile(ng),last_tile(ng),+1
+                CALL adsen_force (ng, tile)
               END DO
-!$OMP END PARALLEL DO
+!$OMP BARRIER
 #  if !defined AD_IMPULSE
             END IF
 #  endif

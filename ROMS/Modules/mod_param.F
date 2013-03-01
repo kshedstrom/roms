@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -67,8 +67,10 @@
 !  NST        Number of sediment tracer type variables (NCS+NNS).      !
 !  NPT        Number of extra passive tracer type variables to         !
 !               advect and diffuse only (dyes, etc).                   !
-!  NT         Total number of tracer type variables.                   !
 !  MT         Maximum number of tracer type variables.                 !
+!  NT         Total number of tracer type variables.                   !
+!  NTCLM      Total number of climatology tracer type variables to     !
+!               process.                                               !
 !                                                                      !
 !  Nbed       Number of sediment bed layers.                           !
 !  NCS        Number of cohesive (mud) sediment tracers.               !
@@ -92,10 +94,6 @@
 !-----------------------------------------------------------------------
 !  Number of nested and/or connected grids to solve.
 !-----------------------------------------------------------------------
-!
-!  Because of ROMS design, the Ngrids parameter is assigned during
-!  C-preprocessing before compilation in the "makefile" or "build"
-!  script. This is the only way that can be done.
 !
       integer :: Ngrids
 !
@@ -351,10 +349,8 @@
 
       TYPE (T_LBC), allocatable :: LBC(:,:,:)
 
-#ifdef ADJOINT
+#if defined ADJOINT || defined TANGENT || defined TL_IOMS
       TYPE (T_LBC), allocatable :: ad_LBC(:,:,:)
-#endif
-#if defined TANGENT || defined TL_IOMS
       TYPE (T_LBC), allocatable :: tl_LBC(:,:,:)
 #endif
 
@@ -418,6 +414,10 @@
 !
       integer, allocatable :: NT(:)
       integer :: MT
+!
+!  Total number of climatology tracer type variables to process.
+!
+      integer, allocatable :: NTCLM(:)
 !
 !  Number of active tracers. Usually, NAT=2 for potential temperature
 !  and salinity.
@@ -664,6 +664,8 @@
 #endif
 
       allocate ( NT(Ngrids) )
+
+      allocate ( NTCLM(Ngrids) )
 
       allocate ( NSV(Ngrids) )
 
@@ -933,10 +935,18 @@
         Jm(ng)=Mm(ng)+J_padd
         NT(ng)=NAT+NBT+NST+NPT
 #if defined FLOATS || defined NEMURO_SAN
-# ifdef FLOAT_VWALK
-        NFV(ng)=NT(ng)+12
+# ifdef FLOAT_OYSTER
+#  ifdef FLOAT_VWALK
+        NFV(ng)=NT(ng)+18
+#  else
+        NFV(ng)=NT(ng)+16
+#  endif
 # else
+#  ifdef FLOAT_VWALK
+        NFV(ng)=NT(ng)+12
+#  else
         NFV(ng)=NT(ng)+10
+#  endif
 # endif
 # ifdef OFFLINE_FLOATS_LATLON
 ! add 4 variables: x-space, y-space, water depth and Hz 
@@ -963,7 +973,11 @@
 !
 !  Set maximum number of tracer between all nested grids.
 !
+#if defined IS4DVAR || defined W4DVAR || defined W4DPSAS
+      MT=MAX(NAT,MAXVAL(NT))
+#else
       MT=MAX(2,MAXVAL(NT))
+#endif
 !
 !-----------------------------------------------------------------------
 !  Allocate Lateral Boundary Conditions switches structure.
@@ -1002,7 +1016,7 @@
           END DO
         END DO
       END IF
-#ifdef ADJOINT
+#if defined ADJOINT || defined TANGENT || defined TL_IOMS
       IF (.not.allocated(ad_LBC)) THEN
         allocate ( ad_LBC(4,nLBCvar,Ngrids) )
         DO ng=1,Ngrids

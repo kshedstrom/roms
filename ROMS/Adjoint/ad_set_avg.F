@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group       Andrew M. Moore   !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -115,6 +115,7 @@
 !
       IF (((iic(ng).lt.ntsAVG(ng)).and.                                 &
      &     (MOD(iic(ng),nAVG(ng)).eq.0)).or.                            &
+     &    ((iic(ng).le.ntsAVG(ng)).and.(nAVG(ng).eq.1)).or.             &
      &    ((nrrec(ng).gt.0).and.(iic(ng).eq.ntstart(ng)))) THEN
 
 # ifdef WET_DRY
@@ -525,7 +526,7 @@
           END DO
         END IF
 
-        DO it=1,NAT
+        DO it=1,NT(ng)
           IF (Aout(idTTav(it),ng)) THEN
             DO k=1,N(ng)
               DO j=JstrR,JendR
@@ -1004,7 +1005,7 @@
           END DO
         END IF
 
-        DO it=1,NAT
+        DO it=1,NT(ng)
           IF (Aout(idTTav(it),ng)) THEN
             DO k=1,N(ng)
               DO j=JstrR,JendR
@@ -1070,11 +1071,16 @@
 !  Convert accumulated sums into time-averages, if appropriate.
 !-----------------------------------------------------------------------
 !
-      IF ((iic(ng).lt.ntsAVG(ng)).and.                                  &
-     &    (MOD(iic(ng)-1,nAVG(ng)).eq.0).and.                           &
-     &    ((iic(ng).ne.ntstart(ng)).or.(nrrec(ng).eq.0))) THEN
+      IF (((iic(ng).lt.ntsAVG(ng)).and.                                 &
+     &     (MOD(iic(ng)-1,nAVG(ng)).eq.0).and.                          &
+     &     ((iic(ng).ne.ntstart(ng)).or.(nrrec(ng).eq.0))).or.          &
+     &    ((iic(ng).le.ntsAVG(ng)).and.(nAVG(ng).eq.1))) THEN
         IF (DOMAIN(ng)%SouthWest_Test(tile)) THEN
-          AVGtime(ng)=AVGtime(ng)-REAL(nAVG(ng),r8)*dt(ng)
+          IF (nAVG(ng).eq.1) THEN
+            AVGtime(ng)=time(ng)
+          ELSE
+            AVGtime(ng)=AVGtime(ng)-REAL(nAVG(ng),r8)*dt(ng)
+          END IF
         END IF
 !
 !  Set time-averaged factors for each C-grid variable type. Notice that
@@ -1388,7 +1394,7 @@
           END DO
         END IF
 
-        DO it=1,NAT
+        DO it=1,NT(ng)
           IF (Aout(idTTav(it),ng)) THEN
             DO k=1,N(ng)
               DO j=JstrR,JendR

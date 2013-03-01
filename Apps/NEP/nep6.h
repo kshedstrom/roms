@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2012 The ROMS/TOMS Group
+** Copyright (c) 2002-2013 The ROMS/TOMS Group
 **
 **   Licensed under a MIT/X style license
 **
@@ -31,8 +31,10 @@
 #define STATIONS
 #undef WET_DRY
 
-#define T_PASSIVE
+#undef T_PASSIVE
 #ifdef T_PASSIVE
+# define ANA_BPFLUX        /* analytical bottom passive tracers fluxes */
+# define ANA_SPFLUX        /* analytical surface passive tracers fluxes */
 # define ANA_PASSIVE
 # define TRC_PSOURCE
 # define ANA_TRC_PSOURCE
@@ -65,7 +67,10 @@
 
 #define NO_WRITE_GRID
 #undef OUT_DOUBLE
-#define RST_SINGLE
+#define PERFECT_RESTART
+#ifndef PERFECT_RESTART
+# define RST_SINGLE
+#endif
 #define AVERAGES
 #undef AVERAGES2
 #ifdef SOLVE3D
@@ -106,7 +111,6 @@
 /* vertical mixing */
 
 #ifdef SOLVE3D
-# define SOLAR_SOURCE
 # define WTYPE_GRID
 
 # define LMD_MIXING
@@ -137,12 +141,14 @@
 # define CCSM_FLUXES
 # if defined BULK_FLUXES || defined CCSM_FLUXES
 #  define LONGWAVE_OUT
-#  define DIURNAL_SRFLUX
+#  undef DIURNAL_SRFLUX
 #  define EMINUSP
 #  undef ANA_SRFLUX
 #  undef ALBEDO
 #  define ICE_ALB_EC92
+#  define SOLAR_SOURCE
 #  define ALBEDO_CURVE
+#  undef ALBEDO_FILE
 #  undef LONGWAVE
 # endif
 #endif
@@ -171,10 +177,11 @@
 # undef UV_LDRAG
 # define UV_DRAG_GRID
 # define ANA_DRAG
-# define DRAG_LIMITER
+# define LIMIT_BSTRESS
 # define UV_QDRAG
 #else
 # define UV_QDRAG
+# define M2TIDE_DIFF
 #endif
 
 /* point sources (rivers, line sources) */
@@ -216,9 +223,19 @@
 /*
 **  Biological model options.
 */
-#define NEMURO
+#undef BIO_UMAINE
+#undef NEMURO
 #undef BIO_GOANPZ        /* Sarah Hinckley's 11 box model */
 #undef BEST_NPZ         /* Georgina Gibsons BEST NPZ model  */
+
+#ifdef BIO_UMAINE
+# define CARBON
+# define OXYGEN
+# define PRIMARY_PROD
+# undef OPTIC_UMaine
+# define ANA_BPFLUX        /* analytical bottom passive tracers fluxes */
+# define ANA_SPFLUX        /* analytical surface passive tracers fluxes */
+#endif
 
 #if defined BEST_NPZ || defined BIO_GOANPZ
 # undef  BIOFLUX           /* sum Nitrogen fluxes between boxes */
@@ -234,7 +251,7 @@
 #if defined NEMURO
 # define BIO_SEDIMENT
 # define NEMURO_SED1
-# define NEMURO_PROD
+# define PRIMARY_PROD
 # undef ANA_BIOLOGY       /* analytical biology initial conditions */
 # define ANA_BPFLUX        /* analytical bottom passive tracers fluxes */
 # define ANA_SPFLUX        /* analytical surface passive tracers fluxes */

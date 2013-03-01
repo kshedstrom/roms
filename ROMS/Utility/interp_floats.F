@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group         Mark Hadfield   !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group         Mark Hadfield   !
 !    Licensed under a MIT/X style license             John M. Klinck   !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -36,7 +36,7 @@
 !     Hz         Vertical thicknesses (m).                             !
 !     Amask      Field Land/Sea mask.                                  !
 !     A          Field to interpolate from.                            !
-!     MyThread   Float parallel thread bounded switch.                 !
+!     my_thread  Float parallel thread bounded switch.                 !
 !     bounded    Float grid bounded status switch.                     !
 !                                                                      !
 !  On Output:                                                          !
@@ -63,11 +63,12 @@
 # ifdef MASKING
      &                          Amask,                                  &
 # endif
-     &                          A, MyThread, bounded, track)
+     &                          A, my_thread, bounded, track)
 !***********************************************************************
 !
       USE mod_param
       USE mod_ncparam
+      USE mod_floats
       USE mod_scalars
 !
       implicit none
@@ -79,7 +80,7 @@
       integer, intent(in) :: isBval
 
       logical, intent(in) :: maskit
-      logical, intent(in) :: MyThread(Lstr:Lend)
+      logical, intent(in) :: my_thread(Lstr:Lend)
 # ifdef OFFLINE_FLOATS
       logical, intent(inout) :: bounded(numflt)
 # else
@@ -173,7 +174,7 @@
 !-----------------------------------------------------------------------
 !
       DO l=Lstr,Lend
-        IF (MyThread(l)) THEN
+        IF (my_thread(l)) THEN
           IF (.not.bounded(l)) THEN
             track(ifield,itime,l)=Fspval
           ELSE

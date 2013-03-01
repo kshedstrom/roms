@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -159,17 +159,29 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+15)=' AICLM_NUDGING,'
 #endif
-#if defined ALBEDO && defined ANA_SRFLUX
+#if defined ALBEDO
       IF (Master) WRITE (stdout,20) 'ALBEDO',                           &
      &   'Shortwave radiation from albedo equation.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+8)=' ALBEDO,'
 #endif
-#if defined ALBEDO_CURVE && defined ANA_SRFLUX
-      IF (Master) WRITE (stdout,20) 'ALBEDO_CURVE',                           &
+#if defined ALBEDO_CSIM
+      IF (Master) WRITE (stdout,20) 'ALBEDO_CSIM',                      &
+     &   'Albedo computed according to CSIM3.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+13)=' ALBEDO_CSIM,'
+#endif
+#if defined ALBEDO_CURVE
+      IF (Master) WRITE (stdout,20) 'ALBEDO_CURVE',                     &
      &   'Shortwave radiation adjusted by albedo curve.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+14)=' ALBEDO_CURVE,'
+#endif
+#if defined ALBEDO_FILE
+      IF (Master) WRITE (stdout,20) 'ALBEDO_FILE',                      &
+     &   'Albedo read from a forcing file.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+13)=' ALBEDO_FILE,'
 #endif
 #ifdef ARRAY_MODES
       IF (Master) WRITE (stdout,20) 'ARRAY_MODES',                      &
@@ -742,12 +754,6 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+18)=' DOUBLE_PRECISION,'
 #endif
-#ifdef DRAG_LIMITER
-      IF (Master) WRITE (stdout,20) 'DRAG_LIMITER',                     &
-     &   'Limiter on bottom drag for stability.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+14)=' DRAG_LIMITER,'
-#endif
 #ifdef ECOSIM
       IF (Master) WRITE (stdout,20) 'ECOSIM',                           &
      &   'Bio-Optical EcoSim model.'
@@ -815,7 +821,19 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+8)=' FLOATS,'
 #endif
-#if defined FLOATS && defined FLOAT_STICKY && defined SOLVE3D
+#if defined FLOAT_BIOLOGY && defined FLOATS
+      IF (Master) WRITE (stdout,20) 'FLOAT_BIOLOGY',                   &
+     &   'Biological behavior on Lagrangian drifters.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+15)=' FLOAT_BIOLOGY,'
+#endif
+#if defined FLOAT_OYSTER && defined FLOATS
+      IF (Master) WRITE (stdout,20) 'FLOAT_OYSTER',                     &
+     &   'Oyster model behavior on Lagrangian drifters.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+14)=' FLOAT_OYSTER,'
+#endif
+#if defined FLOAT_STICKY && defined FLOATS && defined SOLVE3D
       IF (Master) WRITE (stdout,20) 'FLOAT_STICKY',                     &
      &   'Reflect (stick) floats that hit the surface (bottom).'
       is=LEN_TRIM(Coptions)+1
@@ -910,6 +928,24 @@
      &   'Creating NetCDF-4/HDF5 format files.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+6)=' HDF5,'
+#endif
+#ifdef HESSIAN_FSV
+      IF (Master) WRITE (stdout,20) 'HESSIAN_FSV',                      &
+     &   'Hessian (4D-Var) Forcing Singular Vectors Propagator.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+13)=' HESSIAN_FSV,'
+#endif
+#ifdef HESSIAN_SO
+      IF (Master) WRITE (stdout,20) 'HESSIAN_SO',                       &
+     &   'Hessian (4D-Var) Stochastic Optimals Propagator.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+12)=' HESSIAN_SO,'
+#endif
+#ifdef HESSIAN_SV
+      IF (Master) WRITE (stdout,20) 'HESSIAN_SV',                       &
+     &   'Hessian (4D-Var) Singular Vectors Propagator.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+12)=' HESSIAN_SV,'
 #endif
 #if defined HOLLING_GRAZING && defined NEMURO
       IF (Master) WRITE (stdout,20) 'HOLLING_GRAZING',                  &
@@ -1006,6 +1042,12 @@
      &   'Implicit Vertical Convolution Algorithm.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+16)=' IMPLICIT_VCONV,'
+#endif
+#if defined LIMIT_BSTRESS && defined SOLVE3D  && !defined BBL_MODEL
+      IF (Master) WRITE (stdout,20) 'LIMIT_BSTRESS',                    &
+     &   'Limit bottom stress to maintain bottom velocity direction.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+15)=' LIMIT_BSTRESS,'
 #endif
 #if defined NPZD_IRON && defined IRON_LIMIT
       IF (Master) WRITE (stdout,20) 'IRON_LIMIT',                       &
@@ -1156,6 +1198,12 @@
      &   'Nudging toward 2D momentum climatology.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+15)=' M2CLM_NUDGING,'
+#endif
+#ifdef M2TIDE_DIFF
+      IF (Master) WRITE (stdout,20) 'M2TIDE_DIFF',                      &
+     &   'Add barotropic tidal mixing parameterization.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+13)=' M2TIDE_DIFF,'
 #endif
 #if defined M3CLIMATOLOGY && defined SOLVE3D
       IF (Master) WRITE (stdout,20) 'M3CLIMATOLOGY',                    &
@@ -1581,6 +1629,12 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+10)=' PREDATOR,'
 #endif
+#ifdef PRIMARY_PROD
+      IF (Master) WRITE (stdout,20) 'PRIMARY_PROD',                      &
+     &   'Nemuro or CoSiNE Net primary production.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+14)=' PRIMARY_PROD,'
+#endif
 #ifdef PROFILE
       IF (Master) WRITE (stdout,20) 'PROFILE',                          &
      &   'Time profiling activated .'
@@ -1817,14 +1871,14 @@
 #endif
 #ifdef SO_SEMI
       IF (Master) WRITE (stdout,20) 'SO_SEMI',                          &
-     &   'Stochastic Optimals, Semi-norm Estimation.'
+     &   'Stochastic Optimals Propagator, Semi-norm Estimation.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+9)=' SO_SEMI,'
       idriver=idriver+1
 #endif
 #ifdef SO_TRACE
       IF (Master) WRITE (stdout,20) 'SO_TRACE',                         &
-     &   'Stochastic Optimals, Randomized Trace Estimation.'
+     &   'Stochastic Optimals Propagator, Randomized Trace Estimation.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+10)=' SO_TRACE,'
       idriver=idriver+1
@@ -1938,6 +1992,18 @@
      &   'Stochastic Optimals Propagator.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+16)=' STOCHASTIC_OPT,'
+      idriver=idriver+1
+#endif
+#ifdef STOCH_OPT_WHITE
+      IF (Master) WRITE (stdout,20) 'STOCH_OPT_WHITE',                  &
+     &   'Stochastic Optimals, white noise processes.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+17)=' STOCH_OPT_WHITE,'
+#else
+      IF (Master) WRITE (stdout,20) '!STOCH_OPT_WHITE',                 &
+     &   'Stochastic Optimals, red noise processes.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+18)=' !STOCH_OPT_WHITE,'
 #endif
 #ifdef SWAN_COUPLING
       IF (Master) WRITE (stdout,20) 'SWAN_COUPLING',                    &
@@ -2766,6 +2832,24 @@
  200    FORMAT (/,' CHECKDEFS - cannot activate ',a,' ',a,' ',a,        &
      &            ' or',a,/,13x,'at the same time. Choose one!')
         exit_flag=5
+      END IF
+#endif
+#if !defined DISTRIBUTE && defined TS_MPDATA
+!
+!  Stop if activating MPDATA in serial with partitions or shared-
+!  memory.
+!
+      IF (Master) THEN
+        DO ng=1,Ngrids
+          IF (NtileX(ng)*NtileE(ng).gt.1) THEN
+            WRITE (stdout,210) uppercase('ts_mpdata')
+            exit_flag=5
+            EXIT
+          END IF
+        END DO
+ 210    FORMAT (/,' CHECKDEFS - cannot activate option: ',a,           &
+     &          /,13x,'in serial with partitions or shared-memory...', &
+     &          /,13x,'Use distributed-memory (MPI) in parallel runs.')
       END IF
 #endif
 

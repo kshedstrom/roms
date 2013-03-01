@@ -5,7 +5,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group       Andrew M. Moore   !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
 !=======================================================================
 !                                                                      !
@@ -75,7 +75,8 @@
 !  Local variable declarations.
 !
       logical :: Lweak, add
-      integer :: ng, subs, tile, thread
+      integer :: IniRec
+      integer :: ng, tile
 !
 !-----------------------------------------------------------------------
 !  Specify spatial error covariance on the TLM control vector, at time
@@ -88,8 +89,9 @@
 !
 !  Read NLM initial condition in readiness for the balance operator.
 !
+      IniRec=Rini
       DO ng=1,Ngrids
-        CALL get_state (ng, iNLM, 2, INI(ng)%name, Rini, Rini)
+        CALL get_state (ng, iNLM, 2, INI(ng)%name, IniRec, IniRec)
         IF (exit_flag.ne.NoError) RETURN
         nrhs(ng)=Rini
       END DO
@@ -105,20 +107,16 @@
       Lweak=.FALSE.
       add=.FALSE.
       DO ng=1,Ngrids
-!$OMP PARALLEL DO PRIVATE(thread,subs,tile)                             &
-!$OMP&            SHARED(Lweak,add,numthreads)
-        DO thread=0,numthreads-1
-          subs=NtileX(ng)*NtileE(ng)/numthreads
-          DO tile=subs*thread,subs*(thread+1)-1
-            CALL load_TLtoAD (ng, TILE, Rold(ng), Rold(ng), add)
+!$OMP PARALLEL
+        DO tile=first_tile(ng),last_tile(ng),+1
+          CALL load_TLtoAD (ng, tile, Rold(ng), Rold(ng), add)
 # ifdef BALANCE_OPERATOR
-            CALL ad_balance (ng, TILE, Rini, Rold(ng))
+          CALL ad_balance (ng, tile, Rini, Rold(ng))
 # endif
-            CALL ad_variability (ng, TILE, Rold(ng), Lweak)
-            CALL ad_convolution (ng, TILE, Rold(ng), Lweak, 2)
-          END DO
+          CALL ad_variability (ng, tile, Rold(ng), Lweak)
+          CALL ad_convolution (ng, tile, Rold(ng), Lweak, 2)
         END DO
-!$OMP END PARALLEL DO
+!$OMP END PARALLEL
       END DO
 !
 !  Since we wish to preserve what is in tl_var(Rold), load resulting
@@ -130,20 +128,16 @@
 !
       add=.FALSE.
       DO ng=1,Ngrids
-!$OMP PARALLEL DO PRIVATE(thread,subs,tile)                             &
-!$OMP&            SHARED(Lweak,add,numthreads)
-        DO thread=0,numthreads-1
-          subs=NtileX(ng)*NtileE(ng)/numthreads
-          DO tile=subs*thread,subs*(thread+1)-1,+1
-            CALL load_ADtoTL (ng, TILE, Rold(ng), Rnew(ng), add)
-            CALL tl_convolution (ng, TILE, Rnew(ng), Lweak, 2)
-            CALL tl_variability (ng, TILE, Rnew(ng), Lweak)
+!$OMP PARALLEL
+        DO tile=first_tile(ng),last_tile(ng),+1
+          CALL load_ADtoTL (ng, tile, Rold(ng), Rnew(ng), add)
+          CALL tl_convolution (ng, tile, Rnew(ng), Lweak, 2)
+          CALL tl_variability (ng, tile, Rnew(ng), Lweak)
 # ifdef BALANCE_OPERATOR
-            CALL tl_balance (ng, TILE, Rini, Rnew(ng))
+          CALL tl_balance (ng, tile, Rini, Rnew(ng))
 # endif
-          END DO
         END DO
-!$OMP END PARALLEL DO
+!$OMP END PARALLEL
       END DO
 
       RETURN
@@ -196,8 +190,8 @@
 !  Local variable declarations.
 !
       logical :: Lweak, add
-      integer :: ADrec, Fcount
-      integer :: i, irec, ng, subs, tile, thread
+      integer :: ADrec, BckRec, Fcount, IniRec
+      integer :: i, irec, ng, tile
 
       integer, dimension(Ngrids) :: Nrec
 !
@@ -219,14 +213,11 @@
 !  Clear adjoint state arrays.
 !
       DO ng=1,Ngrids
-!$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(numthreads)
-        DO thread=0,numthreads-1
-          subs=NtileX(ng)*NtileE(ng)/numthreads
-          DO tile=subs*thread,subs*(thread+1)-1
-            CALL initialize_ocean (ng, TILE, iADM)
-          END DO
+!$OMP PARALLEL
+        DO tile=first_tile(ng),last_tile(ng),+1
+          CALL initialize_ocean (ng, tile, iADM)
         END DO
-!$OMF END PARALLEL DO
+!$OMP END PARALLEL
       END DO
 !
 !  Get number of records in adjoint NetCDF and initialize indices.
@@ -263,8 +254,9 @@
 !  Read NLM initial condition in readiness for the balance
 !  operator.
 !
+      IniRec=Rini
       DO ng=1,Ngrids
-        CALL get_state (ng, iNLM, 2, INI(ng)%name, Rini, Rini)
+        CALL get_state (ng, iNLM, 2, INI(ng)%name, IniRec, IniRec)
         IF (exit_flag.ne.NoError) RETURN
         nrhs(ng)=Rini
       END DO
@@ -281,22 +273,18 @@
       Lweak=.FALSE.
       add=.FALSE.
       DO ng=1,Ngrids
-!$OMP PARALLEL DO PRIVATE(thread,subs,tile)                             &
-!$OMP&            SHARED(Lweak,add,numthreads)
-        DO thread=0,numthreads-1
-          subs=NtileX(ng)*NtileE(ng)/numthreads
-          DO tile=subs*thread,subs*(thread+1)-1
-            CALL load_TLtoAD (ng, TILE, Rold(ng), Rold(ng), add)
+!$OMP PARALLEL
+        DO tile=first_tile(ng),last_tile(ng),+1
+          CALL load_TLtoAD (ng, tile, Rold(ng), Rold(ng), add)
 # ifdef BALANCE_OPERATOR
-            CALL ad_balance (ng, TILE, Rini, Rold(ng))
+          CALL ad_balance (ng, tile, Rini, Rold(ng))
 # endif
-            CALL ad_variability (ng, TILE, Rold(ng), Lweak)
-            CALL ad_convolution (ng, TILE, Rold(ng), Lweak, 2)
-            CALL initialize_ocean (ng, TILE, iTLM)
-            CALL initialize_forces (ng, TILE, iTLM)
-          END DO
+          CALL ad_variability (ng, tile, Rold(ng), Lweak)
+          CALL ad_convolution (ng, tile, Rold(ng), Lweak, 2)
+          CALL initialize_ocean (ng, tile, iTLM)
+          CALL initialize_forces (ng, tile, iTLM)
         END DO
-!$OMP END PARALLEL DO
+!$OMP END PARALLEL
       END DO
 !
 !  To insure symmetry, convolve resulting filtered adjoint solution
@@ -309,20 +297,16 @@
       Lweak=.FALSE.
       add=.FALSE.
       DO ng=1,Ngrids
-!$OMP PARALLEL DO PRIVATE(thread,subs,tile)                             &
-!$OMP&            SHARED(Lweak,add,numthreads)
-        DO thread=0,numthreads-1
-          subs=NtileX(ng)*NtileE(ng)/numthreads
-          DO tile=subs*thread,subs*(thread+1)-1,+1
-            CALL load_ADtoTL (ng, TILE, Rold(ng), Rold(ng), add)
-            CALL tl_convolution (ng, TILE, Rold(ng), Lweak, 2)
-            CALL tl_variability (ng, TILE, Rold(ng), Lweak)
+!$OMP PARALLEL
+        DO tile=first_tile(ng),last_tile(ng),+1
+          CALL load_ADtoTL (ng, tile, Rold(ng), Rold(ng), add)
+          CALL tl_convolution (ng, tile, Rold(ng), Lweak, 2)
+          CALL tl_variability (ng, tile, Rold(ng), Lweak)
 # ifdef BALANCE_OPERATOR
-            CALL tl_balance (ng, TILE, Rini, Rold(ng))
+          CALL tl_balance (ng, tile, Rini, Rold(ng))
 # endif
-          END DO
         END DO
-!$OMP END PARALLEL DO
+!$OMP END PARALLEL
 
 # ifdef POSTERIOR_ERROR_I
 !
@@ -330,15 +314,11 @@
 !  into ADM so that it can be written to Hessian NetCDF file.
 !
         IF (Lposterior) THEN
-!$OMP PARALLEL DO PRIVATE(thread,subs,tile)                             &
-!$OMP&            SHARED(add,numthreads)
-          DO thread=0,numthreads-1
-            subs=NtileX(ng)*NtileE(ng)/numthreads
-            DO tile=subs*thread,subs*(thread+1)-1
-              CALL load_TLtoAD (ng, TILE, Rold(ng), Rold(ng), add)
-            END DO
+!$OMP PARALLEL
+          DO tile=first_tile(ng),last_tile(ng),+1
+            CALL load_TLtoAD (ng, tile, Rold(ng), Rold(ng), add)
           END DO
-!$OMP END PARALLEL DO
+!$OMP END PARALLEL
         END IF
 # endif
       END DO
@@ -353,23 +333,20 @@
 !
       IF ((model.eq.iRPM).and.                                          &
      &    (INDEX(driver,'w4dvar').ne.0)) THEN
+        BckRec=Rbck
         DO ng=1,Ngrids
-          CALL get_state (ng, iNLM, 9, INI(ng)%name, Rbck, Rnew(ng))
+          CALL get_state (ng, iNLM, 9, INI(ng)%name, BckRec, Rnew(ng))
           IF (exit_flag.ne.NoError) RETURN
         END DO
 !
         add=.FALSE.
         DO ng=1,Ngrids
-!$OMP PARALLEL DO PRIVATE(thread,subs,tile)                             &
-!$OMP&            SHARED(add,numthreads)
-          DO thread=0,numthreads-1
-            subs=NtileX(ng)*NtileE(ng)/numthreads
-            DO tile=subs*thread,subs*(thread+1)-1,+1
-              CALL load_TLtoAD (ng, TILE, Rold(ng), Rold(ng), add)
-              CALL rp_ini_adjust (ng, TILE, Rnew(ng), Rold(ng))
-            END DO
+!$OMP PARALLEL
+          DO tile=first_tile(ng),last_tile(ng),+1
+            CALL load_TLtoAD (ng, tile, Rold(ng), Rold(ng), add)
+            CALL rp_ini_adjust (ng, tile, Rnew(ng), Rold(ng))
           END DO
-!$OMP END PARALLEL DO
+!$OMP END PARALLEL
         END DO
       END IF
 
@@ -389,16 +366,12 @@
 !
         add=.FALSE.
         DO ng=1,Ngrids
-!$OMP PARALLEL DO PRIVATE(thread,subs,tile)                             &
-!$OMP&            SHARED(add,numthreads)
-          DO thread=0,numthreads-1
-            subs=NtileX(ng)*NtileE(ng)/numthreads
-            DO tile=subs*thread,subs*(thread+1)-1,+1
-              CALL load_TLtoAD (ng, TILE, Rold(ng), Rold(ng), add)
-              CALL ini_adjust (ng, TILE, Rold(ng), Rnew(ng))
-            END DO
+!$OMP PARALLEL
+          DO tile=first_tile(ng),last_tile(ng),+1
+            CALL load_TLtoAD (ng, tile, Rold(ng), Rold(ng), add)
+            CALL ini_adjust (ng, tile, Rold(ng), Rnew(ng))
           END DO
-!$OMP END PARALLEL DO
+!$OMP END PARALLEL
         END DO
       END IF
 # endif
@@ -477,22 +450,18 @@
 !
             Lweak=.TRUE.
             add=.FALSE.
-!$OMP PARALLEL DO PRIVATE(thread,subs,tile)                             &
-!$OMP&            SHARED(Lweak,add,numthreads)
-            DO thread=0,numthreads-1
-              subs=NtileX(ng)*NtileE(ng)/numthreads
-              DO tile=subs*thread,subs*(thread+1)-1
-                CALL load_TLtoAD (ng, TILE, Rold(ng), Rold(ng), add)
+!$OMP PARALLEL
+            DO tile=first_tile(ng),last_tile(ng),+1
+              CALL load_TLtoAD (ng, tile, Rold(ng), Rold(ng), add)
 # ifdef BALANCE_OPERATOR
-                CALL ad_balance (ng, TILE, Rini, Rold(ng))
+              CALL ad_balance (ng, tile, Rini, Rold(ng))
 # endif
-                CALL ad_variability (ng, TILE, Rold(ng), Lweak)
-                CALL ad_convolution (ng, TILE, Rold(ng), Lweak, 2)
-                CALL initialize_ocean (ng, TILE, iTLM)
-                CALL initialize_forces (ng, TILE, iTLM)
-              END DO
+              CALL ad_variability (ng, tile, Rold(ng), Lweak)
+              CALL ad_convolution (ng, tile, Rold(ng), Lweak, 2)
+              CALL initialize_ocean (ng, tile, iTLM)
+              CALL initialize_forces (ng, tile, iTLM)
             END DO
-!$OMP END PARALLEL DO
+!$OMP END PARALLEL
 !
 !  To insure symmetry, convolve resulting filtered adjoint solution
 !  from above with the squared-root (half of steps) tangent linear
@@ -504,21 +473,17 @@
 !
             Lweak=.TRUE.
             add=.FALSE.
-!$OMP PARALLEL DO PRIVATE(thread,subs,tile)                             &
-!$OMP&            SHARED(Lweak,add,numthreads)
-            DO thread=0,numthreads-1
-              subs=NtileX(ng)*NtileE(ng)/numthreads
-              DO tile=subs*thread,subs*(thread+1)-1,+1
-                CALL load_ADtoTL (ng, TILE, Rold(ng), Rold(ng), add)
-                CALL tl_convolution (ng, TILE, Rold(ng), Lweak, 2)
-                CALL tl_variability (ng, TILE, Rold(ng), Lweak)
+!$OMP PARALLEL
+            DO tile=first_tile(ng),last_tile(ng),+1
+              CALL load_ADtoTL (ng, tile, Rold(ng), Rold(ng), add)
+              CALL tl_convolution (ng, tile, Rold(ng), Lweak, 2)
+              CALL tl_variability (ng, tile, Rold(ng), Lweak)
 # ifdef BALANCE_OPERATOR
-                CALL tl_balance (ng, TILE, Rini, Rold(ng))
+              CALL tl_balance (ng, tile, Rini, Rold(ng))
 # endif
-                CALL load_TLtoAD (ng, TILE, Rold(ng), Rold(ng), add)
-              END DO
+              CALL load_TLtoAD (ng, tile, Rold(ng), Rold(ng), add)
             END DO
-!$OMP END PARALLEL DO
+!$OMP END PARALLEL
 !
 !  Overwrite ADM(ng)%name history NetCDF file with convolved adjoint
 !  solution.

@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -227,18 +227,21 @@
           allocate (Vr2d(LBi:UBi,LBj:UBj))
             Vr2d(LBi:UBi,LBj:UBj)=0.0_r8
         END IF
-        DO tile=0,NtileX(ng)*NtileE(ng)-1
-          CALL uv_rotate2d (ng, TILE, .FALSE., .TRUE.,                  &
-     &                      LBi, UBi, LBj, UBj,                         &
-     &                      GRID(ng) % CosAngler,                       &
-     &                      GRID(ng) % SinAngler,                       &
-# ifdef MASKING
-     &                      GRID(ng) % rmask_io,                        &
+# ifdef DISTRIBUTE
+        tile=MyRank
+# else
+        tile=-1
 # endif
-     &                      OCEAN(ng) % ubar(:,:,KOUT),                 &
-     &                      OCEAN(ng) % vbar(:,:,KOUT),                 &
-     &                      Ur2d, Vr2d)
-        END DO
+        CALL uv_rotate2d (ng, tile, .FALSE., .TRUE.,                    &
+     &                    LBi, UBi, LBj, UBj,                           &
+     &                    GRID(ng) % CosAngler,                         &
+     &                    GRID(ng) % SinAngler,                         &
+# ifdef MASKING
+     &                    GRID(ng) % rmask_io,                          &
+# endif
+     &                    OCEAN(ng) % ubar(:,:,KOUT),                   &
+     &                    OCEAN(ng) % vbar(:,:,KOUT),                   &
+     &                    Ur2d, Vr2d)
 
         scale=1.0_r8
         CALL extract_sta2d (ng, iNLM, Cgrid, idu2dE, r2dvar,            &
@@ -315,18 +318,21 @@
           allocate (Vr3d(LBi:UBi,LBj:UBj,N(ng)))
           Vr3d(LBi:UBi,LBj:UBj,1:N(ng))=0.0_r8
         END IF
-        DO tile=0,NtileX(ng)*NtileE(ng)-1
-          CALL uv_rotate3d (ng, TILE, .FALSE., .TRUE.,                  &
-     &                      LBi, UBi, LBj, UBj, 1, N(ng),               &
-     &                      GRID(ng) % CosAngler,                       &
-     &                      GRID(ng) % SinAngler,                       &
-#  ifdef MASKING
-     &                      GRID(ng) % rmask_io,                        &
+#  ifdef DISTRIBUTE
+        tile=MyRank
+#  else
+        tile=-1
 #  endif
-     &                      OCEAN(ng) % u(:,:,:,NOUT),                  &
-     &                      OCEAN(ng) % v(:,:,:,NOUT),                  &
-     &                      Ur3d, Vr3d)
-        END DO
+        CALL uv_rotate3d (ng, tile, .FALSE., .TRUE.,                    &
+     &                    LBi, UBi, LBj, UBj, 1, N(ng),                 &
+     &                    GRID(ng) % CosAngler,                         &
+     &                    GRID(ng) % SinAngler,                         &
+#  ifdef MASKING
+     &                    GRID(ng) % rmask_io,                          &
+#  endif
+     &                    OCEAN(ng) % u(:,:,:,NOUT),                    &
+     &                    OCEAN(ng) % v(:,:,:,NOUT),                    &
+     &                    Ur3d, Vr3d)
 
         scale=1.0_r8
         CALL extract_sta3d (ng, iNLM, Cgrid, idu3dE, r3dvar,            &
@@ -510,15 +516,15 @@
         IF (exit_flag.ne.NoError) RETURN
       END IF
 #  endif
-#  ifdef NEMURO_PROD
+#  ifdef PRIMARY_PROD
 !
-!  Write out buried OPAL in sediment.
+!  Write out Net primary productivity.
 !
       IF (Sout(idNPP,ng)) THEN
         scale=1.0_r8
         CALL extract_sta2d (ng, iNLM, Cgrid, idNPP, r2dvar,             &
      &                      LBi, UBi, LBj, UBj,                         &
-     &                      scale, OCEAN(ng)%Nemuro_NPP,                &
+     &                      scale, OCEAN(ng)%Bio_NPP,                   &
      &                      Nstation(ng), Xpos, Ypos, psta)
         CALL netcdf_put_fvar (ng, iNLM, STA(ng)%name,                   &
      &                        TRIM(Vname(1,idNPP)), psta,               &
@@ -716,18 +722,21 @@
           allocate (Vr2d(LBi:UBi,LBj:UBj))
             Vr2d(LBi:UBi,LBj:UBj)=0.0_r8
         END IF
-        DO tile=0,NtileX(ng)*NtileE(ng)-1
-          CALL uv_rotate2d (ng, TILE, .FALSE., .TRUE.,                  &
-     &                      LBi, UBi, LBj, UBj,                         &
-     &                      GRID(ng) % CosAngler,                       &
-     &                      GRID(ng) % SinAngler,                       &
-# ifdef MASKING
-     &                      GRID(ng) % rmask_io,                        &
+# ifdef DISTRIBUTE
+        tile=MyRank
+# else
+        tile=-1
 # endif
-     &                      FORCES(ng) % Uwind,                         &
-     &                      FORCES(ng) % Vwind,                         &
-     &                      Ur2d, Vr2d)
-        END DO
+        CALL uv_rotate2d (ng, TILE, .FALSE., .TRUE.,                    &
+     &                    LBi, UBi, LBj, UBj,                           &
+     &                    GRID(ng) % CosAngler,                         &
+     &                    GRID(ng) % SinAngler,                         &
+# ifdef MASKING
+     &                    GRID(ng) % rmask_io,                          &
+# endif
+     &                    FORCES(ng) % Uwind,                           &
+     &                    FORCES(ng) % Vwind,                           &
+     &                    Ur2d, Vr2d)
 
         scale=1.0_r8
         CALL extract_sta2d (ng, iNLM, Cgrid, idUairE, r2dvar,           &
@@ -1666,18 +1675,21 @@
           allocate (Vr2d(LBi:UBi,LBj:UBj))
             Vr2d(LBi:UBi,LBj:UBj)=0.0_r8
         END IF
-        DO tile=0,NtileX(ng)*NtileE(ng)-1
-          CALL uv_rotate2d (ng, TILE, .FALSE., .TRUE.,                  &
-     &                      LBi, UBi, LBj, UBj,                         &
-     &                      GRID(ng) % CosAngler,                       &
-     &                      GRID(ng) % SinAngler,                       &
-# ifdef MASKING
-     &                      GRID(ng) % rmask_io,                        &
+# ifdef DISTRIBUTE
+        tile=MyRank
+# else
+        tile=-1
 # endif
-     &                      ICE(ng) % ui(:,:,IUOUT),                    &
-     &                      ICE(ng) % vi(:,:,IUOUT),                    &
-     &                      Ur2d, Vr2d)
-        END DO
+        CALL uv_rotate2d (ng, TILE, .FALSE., .TRUE.,                    &
+     &                    LBi, UBi, LBj, UBj,                           &
+     &                    GRID(ng) % CosAngler,                         &
+     &                    GRID(ng) % SinAngler,                         &
+# ifdef MASKING
+     &                    GRID(ng) % rmask_io,                          &
+# endif
+     &                    ICE(ng) % ui(:,:,IUOUT),                      &
+     &                    ICE(ng) % vi(:,:,IUOUT),                      &
+     &                    Ur2d, Vr2d)
 
         scale=1.0_r8
         CALL extract_sta2d (ng, iNLM, Cgrid, idUiceE, r2dvar,           &
