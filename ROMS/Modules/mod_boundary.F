@@ -1312,23 +1312,7 @@
 
 #ifdef ADJOINT
 !
-      IF (ad_LBC(iwest,isVbar,ng)%acquire) THEN
-        allocate ( BOUNDARY(ng) % ad_vbar_west(LBj:UBj) )
-      END IF
-
-      IF (ad_LBC(ieast,isVbar,ng)%acquire) THEN
-        allocate ( BOUNDARY(ng) % ad_vbar_east(LBj:UBj) )
-      END IF
-
-      IF (ad_LBC(isouth,isVbar,ng)%acquire) THEN
-        allocate ( BOUNDARY(ng) % ad_vbar_south(LBi:UBi) )
-      END IF
-
-      IF (ad_LBC(inorth,isVbar,ng)%acquire) THEN
-        allocate ( BOUNDARY(ng) % ad_vbar_north(LBi:UBi) )
-      END IF
-
-# ifdef SOLVE3D
+!  Adjoint model state.
 !
       IF (ad_LBC(iwest,isFsur,ng)%acquire) THEN
         allocate ( BOUNDARY(ng) % ad_zeta_west(LBj:UBj) )
