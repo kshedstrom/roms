@@ -7,7 +7,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -1215,7 +1215,7 @@
           IF (exit_flag.ne.NoError) RETURN
         END IF
 #  endif
-#  ifdef NEMURO_PROD
+#  ifdef PRIMARY_PROD
 !
 !  Define Net primary production.
 !
@@ -1499,7 +1499,7 @@
 !
 !  Define quadratic <t*t> terms.
 !
-        DO itrc=1,NAT
+        DO itrc=1,NT(ng)
           IF (Aout(idTTav(itrc),ng)) THEN
             Vinfo( 1)=Vname(1,idTTav(itrc))
             Vinfo( 2)=TRIM(Vname(2,idTTav(itrc)))
@@ -1520,7 +1520,7 @@
 !
 !  Define active tracers volume fluxes.
 !
-        DO itrc=1,NAT
+        DO itrc=1,NT(ng)
           IF (Aout(iHUTav(itrc),ng)) THEN
             Vinfo( 1)=Vname(1,iHUTav(itrc))
             Vinfo( 2)=TRIM(Vname(2,iHUTav(itrc)))
@@ -1558,7 +1558,7 @@
 !
 !  Define quadratic <u*t> and <v*t> terms.
 !
-        DO itrc=1,NAT
+        DO itrc=1,NT(ng)
           IF (Aout(idUTav(itrc),ng)) THEN
             Vinfo( 1)=Vname(1,idUTav(itrc))
             Vinfo( 2)=TRIM(Vname(2,idUTav(itrc)))
@@ -2937,7 +2937,7 @@
             got_var(idOPALbur)=.TRUE.
             AVG(ng)%Vid(idOPALbur)=var_id(i)
 #  endif
-#  ifdef NEMURO_PROD
+#  ifdef PRIMARY_PROD
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idNPP))) THEN
             got_var(idNPP)=.TRUE.
             AVG(ng)%Vid(idNPP)=var_id(i)
@@ -3427,7 +3427,7 @@
           RETURN
         END IF
 #  endif
-#  ifdef NEMURO_PROD
+#  ifdef PRIMARY_PROD
         IF (.not.got_var(idNPP).and.Aout(idNPP,ng)) THEN
           IF (Master) WRITE (stdout,60) TRIM(Vname(1,idNPP)),       &
      &                                  TRIM(ncname)

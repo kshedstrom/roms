@@ -5,7 +5,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -169,9 +169,6 @@
      &                                dt(ng)*pm(i,j)*pn(i,j)*           &
      &                                (FX(i+1,j)-FX(i,j)+               &
      &                                 FE(i,j+1)-FE(i,j))
-# ifdef TS_MPDATA_NOT_YET
-                tl_t(i,j,k,3,itrc)=tl_t(i,j,k,nnew,itrc)
-# endif
               END DO
             END DO
           END DO

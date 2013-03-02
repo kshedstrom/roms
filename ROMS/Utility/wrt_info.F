@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -27,6 +27,9 @@
 !
       USE mod_param
       USE mod_parallel
+#if defined FLOATS && defined FLOAT_BIOLOGY
+      USE mod_behavior
+#endif
 #ifdef BIOLOGY
       USE mod_biology
 #endif
@@ -70,7 +73,7 @@
       logical :: Cgrid = .TRUE.
 
       integer :: LBi, UBi, LBj, UBj
-      integer :: i, j, k, ibry, ilev, itrc, status, varid
+      integer :: i, j, k, ibry, itrc, status, varid
 
 #ifdef DISTRIBUTE
       integer, dimension(2) :: ibuffer
@@ -1042,9 +1045,9 @@
 # endif
 #endif
 
-#if defined FORCING_SV || defined SO_SEMI
+#if defined FORCING_SV || defined SO_SEMI || defined STOCHASTIC_OPT
 !
-!  Singulat=r Forcing Vectors or Stochastic Optimals state switches.
+!  Singular Forcing Vectors or Stochastic Optimals state switches.
 !
       CALL netcdf_put_lvar (ng, model, ncname, 'Fzeta',                 &
      &                      SCALARS(ng)%Fstate(isFsur),                 &
@@ -1197,6 +1200,12 @@
 # endif
 #endif
 
+#if defined FLOATS && defined FLOAT_BIOLOGY
+# if defined FLOAT_OYSTER
+#  include <oyster_floats_wrt.h>
+# endif
+#endif
+
 #ifdef SEDIMENT
 # include <sediment_wrt.h>
 #endif
@@ -1314,9 +1323,13 @@
 #ifdef NO_WRITE_GRID
       GRID_VARS : IF (ncid.eq.STA(ng)%ncid) THEN
 #else
+# ifdef NEMURO_SAN
       GRID_VARS : IF (ncid.ne.FLT(ng)%ncid .and. ncid.ne.FISH(ng)%ncid  &
      &                .and. ncid.ne.PRED(ng)%ncid                       &
      &                .and. ncid.ne.FLEET(ng)%ncid) THEN
+# else
+      GRID_VARS : IF (ncid.ne.FLT(ng)%ncid) THEN
+# endif
 #endif
 #if !(defined SED_MORPH && defined SEDIMENT)
 !
@@ -1341,7 +1354,7 @@
             ELSE
               IF (Master) WRITE (stdout,20) 'h', TRIM(ncname)
               exit_flag=3
-              ioerror=status
+              ioerror=nf90_enotvar
             END IF
 # ifdef STATIONS
           ELSE
@@ -1408,7 +1421,7 @@
             ELSE
               IF (Master) WRITE (stdout,20) 'f', TRIM(ncname)
               exit_flag=3
-              ioerror=status
+              ioerror=nf90_enotvar
             END IF
           END IF
         END IF
@@ -1434,7 +1447,7 @@
             ELSE
               IF (Master) WRITE (stdout,20) 'pm', TRIM(ncname)
               exit_flag=3
-              ioerror=status
+              ioerror=nf90_enotvar
             END IF
           END IF
         END IF
@@ -1458,7 +1471,7 @@
             ELSE
               IF (Master) WRITE (stdout,20) 'pn', TRIM(ncname)
               exit_flag=3
-              ioerror=status
+              ioerror=nf90_enotvar
             END IF
           END IF
         END IF
@@ -1485,7 +1498,7 @@
               ELSE
                 IF (Master) WRITE (stdout,20) 'lon_rho', TRIM(ncname)
                 exit_flag=3
-                ioerror=status
+                ioerror=nf90_enotvar
               END IF
 #ifdef STATIONS
             ELSE
@@ -1521,7 +1534,7 @@
               ELSE
                 IF (Master) WRITE (stdout,20) 'lat_rho', TRIM(ncname)
                 exit_flag=3
-                ioerror=status
+                ioerror=nf90_enotvar
               END IF
 #ifdef STATIONS
             ELSE
@@ -1559,7 +1572,7 @@
               ELSE
                 IF (Master) WRITE (stdout,20) 'x_rho', TRIM(ncname)
                 exit_flag=3
-                ioerror=status
+                ioerror=nf90_enotvar
               END IF
 #ifdef STATIONS
             ELSE
@@ -1595,7 +1608,7 @@
               ELSE
                 IF (Master) WRITE (stdout,20) 'y_rho', TRIM(ncname)
                 exit_flag=3
-                ioerror=status
+                ioerror=nf90_enotvar
               END IF
 #ifdef STATIONS
             ELSE
@@ -1635,7 +1648,7 @@
               ELSE
                 IF (Master) WRITE (stdout,20) 'lon_u', TRIM(ncname)
                 exit_flag=3
-                ioerror=status
+                ioerror=nf90_enotvar
               END IF
             END IF
           END IF
@@ -1659,7 +1672,7 @@
               ELSE
                 IF (Master) WRITE (stdout,20) 'lat_u', TRIM(ncname)
                 exit_flag=3
-                ioerror=status
+                ioerror=nf90_enotvar
               END IF
             END IF
           END IF
@@ -1685,7 +1698,7 @@
               ELSE
                 IF (Master) WRITE (stdout,20) 'x_u', TRIM(ncname)
                 exit_flag=3
-                ioerror=status
+                ioerror=nf90_enotvar
               END IF
             END IF
           END IF
@@ -1709,7 +1722,7 @@
               ELSE
                 IF (Master) WRITE (stdout,20) 'y_u', TRIM(ncname)
                 exit_flag=3
-                ioerror=status
+                ioerror=nf90_enotvar
               END IF
             END IF
           END IF
@@ -1737,7 +1750,7 @@
               ELSE
                 IF (Master) WRITE (stdout,10) 'lon_v', TRIM(ncname)
                 exit_flag=3
-                ioerror=status
+                ioerror=nf90_enotvar
               END IF
             END IF
           END IF
@@ -1761,7 +1774,7 @@
               ELSE
                 IF (Master) WRITE (stdout,20) 'lat_v', TRIM(ncname)
                 exit_flag=3
-                ioerror=status
+                ioerror=nf90_enotvar
               END IF
             END IF
           END IF
@@ -1787,7 +1800,7 @@
               ELSE
                 IF (Master) WRITE (stdout,10) 'x_v', TRIM(ncname)
                 exit_flag=3
-                ioerror=status
+                ioerror=nf90_enotvar
               END IF
             END IF
           END IF
@@ -1811,7 +1824,7 @@
               ELSE
                 IF (Master) WRITE (stdout,20) 'y_v', TRIM(ncname)
                 exit_flag=3
-                ioerror=status
+                ioerror=nf90_enotvar
               END IF
             END IF
           END IF
@@ -1839,7 +1852,7 @@
               ELSE
                 IF (Master) WRITE (stdout,20) 'lon_p', TRIM(ncname)
                 exit_flag=3
-                ioerror=status
+                ioerror=nf90_enotvar
               END IF
             END IF
           END IF
@@ -1863,7 +1876,7 @@
               ELSE
                 IF (Master) WRITE (stdout,20) 'lat_p', TRIM(ncname)
                 exit_flag=3
-                ioerror=status
+                ioerror=nf90_enotvar
               END IF
             END IF
           END IF
@@ -1889,7 +1902,7 @@
               ELSE
                 IF (Master) WRITE (stdout,20) 'x_p', TRIM(ncname)
                 exit_flag=3
-                ioerror=status
+                ioerror=nf90_enotvar
               END IF
             END IF
           END IF
@@ -1913,7 +1926,7 @@
               ELSE
                 IF (Master) WRITE (stdout,20) 'y_p', TRIM(ncname)
                 exit_flag=3
-                ioerror=status
+                ioerror=nf90_enotvar
               END IF
             END IF
           END IF
@@ -1942,7 +1955,7 @@
             ELSE
               IF (Master) WRITE (stdout,20) 'angle', TRIM(ncname)
               exit_flag=3
-              ioerror=status
+              ioerror=nf90_enotvar
             END IF
 # ifdef STATIONS
           ELSE
@@ -1985,7 +1998,7 @@
             ELSE
               IF (Master) WRITE (stdout,20) 'mask_rho', TRIM(ncname)
               exit_flag=3
-              ioerror=status
+              ioerror=nf90_enotvar
             END IF
           END IF
         END IF
@@ -2011,7 +2024,7 @@
             ELSE
               IF (Master) WRITE (stdout,20) 'mask_u', TRIM(ncname)
               exit_flag=3
-              ioerror=status
+              ioerror=nf90_enotvar
             END IF
           END IF
         END IF
@@ -2037,7 +2050,7 @@
             ELSE
               IF (Master) WRITE (stdout,20) 'mask_v', TRIM(ncname)
               exit_flag=3
-              ioerror=status
+              ioerror=nf90_enotvar
             END IF
           END IF
         END IF
@@ -2063,7 +2076,7 @@
             ELSE
               IF (Master) WRITE (stdout,20) 'mask_psi', TRIM(ncname)
               exit_flag=3
-              ioerror=status
+              ioerror=nf90_enotvar
             END IF
           END IF
         END IF
@@ -2094,7 +2107,7 @@
             ELSE
               IF (Master) WRITE (stdout,20) 'scope_rho', TRIM(ncname)
               exit_flag=3
-              ioerror=status
+              ioerror=nf90_enotvar
             END IF
           END IF
         END IF
@@ -2118,7 +2131,7 @@
             ELSE
               IF (Master) WRITE (stdout,20) 'scope_u', TRIM(ncname)
               exit_flag=3
-              ioerror=status
+              ioerror=nf90_enotvar
             END IF
           END IF
         END IF
@@ -2142,7 +2155,7 @@
             ELSE
               IF (Master) WRITE (stdout,20) 'scope_v', TRIM(ncname)
               exit_flag=3
-              ioerror=status
+              ioerror=nf90_enotvar
             END IF
           END IF
         END IF
@@ -2174,7 +2187,7 @@
               IF (Master) WRITE (stdout,20) TRIM(Vname(1,idZoBL)),      &
      &                                      TRIM(ncname)
               exit_flag=3
-              ioerror=status
+              ioerror=nf90_enotvar
             END IF
 # endif
 # ifdef UV_LDRAG
@@ -2197,7 +2210,7 @@
               IF (Master) WRITE (stdout,20) TRIM(Vname(1,idragL)),      &
      &                                      TRIM(ncname)
               exit_flag=3
-              ioerror=status
+              ioerror=nf90_enotvar
             END IF
 # endif
 # ifdef UV_QDRAG
@@ -2220,7 +2233,7 @@
               IF (Master) WRITE (stdout,20) TRIM(Vname(1,idragQ)),      &
      &                                      TRIM(ncname)
               exit_flag=3
-              ioerror=status
+              ioerror=nf90_enotvar
             END IF
 # endif
           END IF
@@ -2251,8 +2264,6 @@
      &        12x,'into file: ',a)
   20  FORMAT (/,' WRT_INFO - error while inquiring ID for variable: ',  &
      &        a,/,12x,'in file: ',a)
-  30  FORMAT (/,' WRT_INFO - unable to synchronize to disk file: ',     &
-     &        /,12x,a)
 
       RETURN
       END SUBROUTINE wrt_info

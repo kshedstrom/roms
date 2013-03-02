@@ -3,7 +3,7 @@
 #if defined ICE_MOMENTUM && defined ICE_EVP
 !
 !=======================================================================
-!  Copyright (c) 2002 ROMS/TOMS Group                                  !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group                        **
 !================================================== Hernan G. Arango ===
 !                                                                      !
 !  This routine timesteps the ice momentum equations.
@@ -38,7 +38,7 @@
 # include "tile.h"
 !
 # ifdef PROFILE
-      CALL wclock_on (ng, iNLM, 48)
+      CALL wclock_on (ng, iNLM, 55)
 # endif
 !
       CALL ice_elastic_tile (ng, tile,                                  &
@@ -87,9 +87,6 @@
      &                      ICE(ng) % vie,                              &
      &                      ICE(ng) % ai,                               &
      &                      ICE(ng) % hi,                               &
-     &                      ICE(ng) % pice,                             &
-     &                      ICE(ng) % zetai,                            &
-     &                      ICE(ng) % eta,                              &
      &                      ICE(ng) % sig11,                            &
      &                      ICE(ng) % sig22,                            &
      &                      ICE(ng) % sig12,                            &
@@ -98,7 +95,7 @@
      &                      ICE(ng) % chu_iw                            &
      &                      )
 # ifdef PROFILE
-      CALL wclock_off (ng, iNLM, 48)
+      CALL wclock_off (ng, iNLM, 55)
 # endif
       RETURN
       END SUBROUTINE ice_elastic
@@ -131,7 +128,7 @@
 # endif
      &                        ui, vi, uwater, vwater, sealev,           &
      &                        uie, vie,                                 &
-     &                        ai, hi, pice, zetai, eta,                 &
+     &                        ai, hi,                                   &
      &                        sig11, sig22, sig12,                      &
      &                        tauaiu, tauaiv,                           &
      &                        chu_iw) 
@@ -199,9 +196,6 @@
       real(r8), intent(inout) :: vie(LBi:,LBj:,:)
       real(r8), intent(in) :: ai(LBi:,LBj:,:)
       real(r8), intent(in) :: hi(LBi:,LBj:,:)
-      real(r8), intent(in) :: pice(LBi:,LBj:)
-      real(r8), intent(in) :: zetai(LBi:,LBj:)
-      real(r8), intent(in) :: eta(LBi:,LBj:)
       real(r8), intent(in) :: sig11(LBi:,LBj:,:)
       real(r8), intent(in) :: sig22(LBi:,LBj:,:)
       real(r8), intent(in) :: sig12(LBi:,LBj:,:)
@@ -250,9 +244,6 @@
       real(r8), intent(inout) :: vie(LBi:UBi,LBj:UBj,2)
       real(r8), intent(in) :: ai(LBi:UBi,LBj:UBj,2)
       real(r8), intent(in) :: hi(LBi:UBi,LBj:UBj,2)
-      real(r8), intent(in) :: pice(LBi:UBi,LBj:UBj)
-      real(r8), intent(in) :: zetai(LBi:UBi,LBj:UBj)
-      real(r8), intent(in) :: eta(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: sig11(LBi:UBi,LBj:UBj,2)
       real(r8), intent(in) :: sig22(LBi:UBi,LBj:UBj,2)
       real(r8), intent(in) :: sig12(LBi:UBi,LBj:UBj,2)
@@ -267,26 +258,18 @@
       real(r8) :: clear
 # endif
       integer :: i, j
-      integer :: i1, j1, iterin
 
-      real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: eps11
-      real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: eps22
-      real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: eps12
-
+# ifdef MICLM_NUDGING
       real(r8) :: cff
+# endif
       real(r8) :: f1
       real(r8) :: f2
       real(r8) :: s1
       real(r8) :: s2
-      real(r8) :: ua
-      real(r8) :: va
       real(r8) :: fakt
       real(r8) :: uforce
       real(r8) :: vforce
       real(r8) :: alfa
-      real(r8) :: beta
-      real(r8) :: flx
-      real(r8) :: dimax 
       real(r8) :: masu
       real(r8) :: masv 
       real(r8) :: chux
@@ -322,6 +305,7 @@
 ! 
 ! Initialize fast-step velocities if beginning of cycle
 
+#ifdef FOOO
 !
 ! Update ice velocity
 !
@@ -387,8 +371,8 @@
         IF (DOMAIN(ng)%SouthEast_Corner(tile)) THEN
           uie(Lm(ng)+1,0,1) = ui(Lm(ng)+1,0,liuol)
           uie(Lm(ng)+1,0,2) = ui(Lm(ng)+1,0,liuol)
-          vi(Lm(ng)+1,1,1) = vie(Lm(ng)+1,1,lienw)
-          vi(Lm(ng)+1,1,2) = vie(Lm(ng)+1,1,lienw)
+          vie(Lm(ng)+1,1,1) = vi(Lm(ng)+1,1,liuol)
+          vie(Lm(ng)+1,1,2) = vi(Lm(ng)+1,1,liuol)
         END IF
         IF (DOMAIN(ng)%NorthWest_Corner(tile)) THEN
           uie(1,Mm(ng)+1,1) = ui(1,Mm(ng)+1,liuol)
@@ -413,6 +397,7 @@
      &                    uie(:,:,2), vie(:,:,2))
 # endif
       ENDIF
+#endif
 ! ...................................
 !
 ! *** momentum equation 

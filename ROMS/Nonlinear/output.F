@@ -2,9 +2,9 @@
 #ifdef NONLINEAR
       SUBROUTINE output (ng)
 !
-!svn $Id: output.F 1274 2010-07-09 23:28:38Z kate $
+!svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -19,7 +19,7 @@
       USE mod_param
       USE mod_parallel
 # ifdef FILTERED
-      USE mod_filter, ONLY: nfil, FILN
+      USE mod_filter, ONLY: FILN
 # endif
 # ifdef FLOATS
       USE mod_floats
@@ -57,7 +57,7 @@
 !
       logical :: Ldefine, NewFile
 
-      integer :: Fcount, ifile, status, tile
+      integer :: Fcount, ifile, tile
 # ifdef FILTERED_RST
       integer :: i
 # endif
@@ -250,8 +250,9 @@
 !  Write out data into time-averaged NetCDF file.
 !
       IF (LwrtAVG(ng)) THEN
-        IF ((iic(ng).gt.ntstart(ng)).and.                               &
-     &      (MOD(iic(ng)-1,nAVG(ng)).eq.0)) THEN
+        IF (((iic(ng).gt.ntstart(ng)).and.                              &
+     &       (MOD(iic(ng)-1,nAVG(ng)).eq.0)).or.                        &
+     &      ((iic(ng).ge.ntsAVG(ng)).and.(nAVG(ng).eq.1))) THEN
           CALL wrt_avg (ng)
           IF (exit_flag.ne.NoError) RETURN
 #  if defined AVERAGES_DETIDE && (defined SSH_TIDES || defined UV_TIDES)
@@ -420,8 +421,9 @@
 !  Write out data into time-averaged diagnostics NetCDF file.
 !
       IF (LwrtDIA(ng)) THEN
-        IF ((iic(ng).gt.ntstart(ng)).and.                               &
-     &      (MOD(iic(ng)-1,nDIA(ng)).eq.0)) THEN
+        IF (((iic(ng).gt.ntstart(ng)).and.                              &
+     &       (MOD(iic(ng)-1,nDIA(ng)).eq.0)).or.                        &
+     &      ((iic(ng).ge.ntsDIA(ng)).and.(nDIA(ng).eq.1))) THEN
           CALL wrt_diags (ng)
           IF (exit_flag.ne.NoError) RETURN
         END IF

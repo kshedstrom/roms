@@ -6,7 +6,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -56,8 +56,8 @@
       logical, intent(out) :: update
 
       integer, intent(in) :: ng, model, ifield, nfiles
-      integer, intent(in) :: LBi, UBi, UBj, UBk, Istr, Jrec
-      integer, intent(inout) :: ncid, Iend
+      integer, intent(in) :: LBi, UBi, UBj, UBk, Istr, Iend, Jrec
+      integer :: ncid
 
       TYPE(T_IO), intent(inout) :: S(nfiles)
 
@@ -68,10 +68,10 @@
       logical :: Linquire, Liocycle, Lmulti, Lonerec
 
       integer :: Nrec, Tid, Tindex, Trec, Vid, Vtype
-      integer :: i, ic, j, job, lend, lstr, npts, status
+      integer :: i, ic, j, job, lend, lstr, npts
 
-      real(r8) :: Aval, Clength, Fmax, Fmin, Tdelta, Tend
-      real(r8) :: Tmax, Tmin, Tmono, Tscale, Tstr
+      real(r8) :: Aval, Clength, Fmax, Fmin, Tdelta
+      real(r8) :: Tmax, Tmin, Tmono, Tscale
       real(r8) :: Tval
 
       real(r8), dimension((UBi-LBi+1)*UBj) :: A
@@ -249,14 +249,6 @@
         END IF
       END IF
 !
-  10  FORMAT (/,' GET_NGFLD   - unable to find dimension ',a,           &
-     &        /,15x,'for variable: ',a,/,15x,'in file: ',a,             &
-     &        /,15x,'file is not CF compliant...')
-  20  FORMAT (/,' GET_NGFLD   - too small dimension for variable ',a,   &
-     &        ': ',2i5)
-  30  FORMAT (/,' GET_NGFLD   - unable to find requested variable: ',a, &
-     &       /,15x,'in file: ',a)
-  40  FORMAT (/,' GET_NGFLD   - unable to open input NetCDF file: ',a)
   50  FORMAT (/,' GET_NGFLD   - error while reading variable: ',a,2x,   &
      &          ' at TIME index = ',i4)
   60  FORMAT (3x,' GET_NGFLD   - ',a,/,19x,'(Min = ',1pe15.8,' Max = ', &

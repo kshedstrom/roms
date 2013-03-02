@@ -1,6 +1,6 @@
 # svn $Id$
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-# Copyright (c) 2002-2012 The ROMS/TOMS Group                           :::
+# Copyright (c) 2002-2013 The ROMS/TOMS Group                           :::
 #   Licensed under a MIT/X style license                                :::
 #   See License_ROMS.txt                                                :::
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -84,6 +84,8 @@ ifdef USE_OpenMP
 endif
 
 ifdef USE_DEBUG
+#          FFLAGS += -g -traceback -check all -fp-stack-check
+#          FFLAGS += -g -check bounds -traceback -check uninit -warn interfaces,nouncalled -gen-interfaces
            FFLAGS += -g -check bounds
            CFLAGS += -g
          CXXFLAGS += -g

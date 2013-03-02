@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -61,6 +61,7 @@
 !  Wname       Wave model stadard input file name.                     !
 !  aparnam     Input assimilation parameters file name.                !
 !  bparnam     Input biology parameters file name.                     !
+!  fbionam     Input floats biological behavior parameters file name.  !
 !  fposnam     Input initial floats positions file name.               !
 !  fishposnam  Input initial fish positions file name.                 !
 !  fleetposnam Input initial fleet parameters file name.               !
@@ -155,7 +156,7 @@
 !
 !  Error messages.
 !
-      character (len=50), dimension(8) :: Rerror =                      &
+      character (len=50), dimension(9) :: Rerror =                      &
      &       (/ ' ROMS/TOMS - Blows up ................ exit_flag: ',   &
      &          ' ROMS/TOMS - Input error ............. exit_flag: ',   &
      &          ' ROMS/TOMS - Output error ............ exit_flag: ',   &
@@ -163,7 +164,8 @@
      &          ' ROMS/TOMS - Configuration error ..... exit_flag: ',   &
      &          ' ROMS/TOMS - Partition error ......... exit_flag: ',   &
      &          ' ROMS/TOMS - Illegal input parameter . exit_flag: ',   &
-     &          ' ROMS/TOMS - Fatal algorithm result .. exit_flag: ' /)
+     &          ' ROMS/TOMS - Fatal algorithm result .. exit_flag: ',   &
+     &          ' ROMS/TOMS - Frazil ice problem ...... exit_flag: ' /)
 !
 !  Standard input scripts file names.
 !
@@ -172,6 +174,7 @@
       character (len=256) :: USRname        ! use generic file name
       character (len=256) :: aparnam        ! assimilation parameters
       character (len=256) :: bparnam        ! biology model parameters
+      character (len=256) :: fbionam        ! floats behavior parameters
       character (len=256) :: fposnam        ! floats positions
       character (len=256) :: fishposnam     ! fish positions
       character (len=256) :: fleetposnam    ! fleet catch

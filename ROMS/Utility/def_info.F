@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -528,7 +528,8 @@
 # if defined ADJOINT && \
     !(defined AD_SENSITIVITY      || defined FOUR_DVAR        || \
       defined IS4DVAR_SENSITIVITY || defined OPT_OBSERVATIONS || \
-      defined SENSITIVITY_4DVAR   || defined SO_SEMI)
+      defined SENSITIVITY_4DVAR   || defined SO_SEMI          || \
+      defined STOCHASTIC_OPT )
         IF (exit_flag.eq.NoError) THEN
           status=nf90_put_att(ncid, nf90_global, 'iad_file',            &
      &                        TRIM(IAD(ng)%name))
@@ -2323,7 +2324,7 @@
 # endif
 #endif
 
-#if defined FORCING_SV || defined SO_SEMI
+#if defined FORCING_SV || defined SO_SEMI || defined STOCHASTIC_OPT
 !
 !  Singular Forcing Vectors or Stochastic Optimals state switches.
 !
@@ -2560,6 +2561,12 @@
 # endif
 #endif
 
+#if defined FLOATS && defined FLOAT_BIOLOGY
+# if defined FLOAT_OYSTER
+#  include <oyster_floats_def.h>
+# endif
+#endif
+
 #ifdef SEDIMENT
 # include <sediment_def.h>
 #endif
@@ -2760,8 +2767,12 @@
 #ifdef NO_WRITE_GRID
       IF (ncid.eq.STA(ng)%ncid) THEN
 #else
+# ifdef NEMURO_SAN
       IF (ncid.ne.FLT(ng)%ncid .and. ncid.ne.FISH(ng)%ncid .and.        &
      &    ncid.ne.PRED(ng)%ncid .and. ncid.ne.FLEET(ng)%ncid) THEN
+# else
+      IF (ncid.ne.FLT(ng)%ncid) THEN
+# endif
 #endif
 #if !(defined SED_MORPH && defined SEDIMENT)
 !
@@ -2787,7 +2798,7 @@
 !
 !  Ice shelf thickness.
 !
-        IF (ncid.ne.ncSTAid(ng)) THEN
+        IF (ncid.ne.STA(ng)%ncid) THEN
           Vinfo( 1)='zice'
           Vinfo( 2)='Ice shelf thickness at RHO-points'
           Vinfo( 3)='meter'

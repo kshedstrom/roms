@@ -1,6 +1,6 @@
 # svn $Id$
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-# Copyright (c) 2002-2012 The ROMS/TOMS Group                           :::
+# Copyright (c) 2002-2013 The ROMS/TOMS Group                           :::
 #   Licensed under a MIT/X style license                                :::
 #   See License_ROMS.txt                                                :::
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -107,7 +107,7 @@ ifdef USE_DEBUG
          CXXFLAGS += -g
 else
 #          FFLAGS += -Bstatic -fastsse -Mipa=fast
-           FFLAGS += -O3
+           FFLAGS += -O2
            CFLAGS += -O3
          CXXFLAGS += -O3
 endif

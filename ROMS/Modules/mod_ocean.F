@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -133,8 +133,8 @@
           real(r8), pointer :: PON_burial(:,:)
           real(r8), pointer :: OPAL_burial(:,:)
 # endif
-# ifdef NEMURO_PROD
-          real(r8), pointer :: Nemuro_NPP(:,:)
+# ifdef PRIMARY_PROD
+          real(r8), pointer :: Bio_NPP(:,:)
 # endif
 
 # ifdef BIO_GOANPZ
@@ -234,6 +234,9 @@
           real(r8), pointer :: ad_u(:,:,:,:)
           real(r8), pointer :: ad_v(:,:,:,:)
           real(r8), pointer :: ad_W(:,:,:)
+          real(r8), pointer :: ad_t_sol(:,:,:,:)
+          real(r8), pointer :: ad_u_sol(:,:,:)
+          real(r8), pointer :: ad_v_sol(:,:,:)
 #  if defined NEARSHORE_MELLOR
           real(r8), pointer :: ad_rulag3d(:,:,:)
           real(r8), pointer :: ad_rvlag3d(:,:,:)
@@ -283,6 +286,16 @@
           real(r8), pointer :: f_u(:,:,:)
           real(r8), pointer :: f_v(:,:,:)
 #  endif
+# endif
+#endif
+#ifdef FORCING_SV
+          real(r8), pointer :: f_ubar(:,:)
+          real(r8), pointer :: f_vbar(:,:)
+          real(r8), pointer :: f_zeta(:,:)
+# ifdef SOLVE3D
+          real(r8), pointer :: f_t(:,:,:,:)
+          real(r8), pointer :: f_u(:,:,:)
+          real(r8), pointer :: f_v(:,:,:)
 # endif
 #endif
 
@@ -425,8 +438,8 @@
       allocate ( OCEAN(ng) % PON_burial(LBi:UBi,LBj:UBj) )
       allocate ( OCEAN(ng) % OPAL_burial(LBi:UBi,LBj:UBj) )
 # endif
-# ifdef NEMURO_PROD
-      allocate ( OCEAN(ng) % Nemuro_NPP(LBi:UBi,LBj:UBj) )
+# ifdef PRIMARY_PROD
+      allocate ( OCEAN(ng) % Bio_NPP(LBi:UBi,LBj:UBj) )
 # endif
 
 # ifdef BIO_GOANPZ
@@ -544,6 +557,10 @@
       allocate ( OCEAN(ng) % ad_v(LBi:UBi,LBj:UBj,N(ng),2) )
       allocate ( OCEAN(ng) % ad_W(LBi:UBi,LBj:UBj,0:N(ng)) )
 
+      allocate ( OCEAN(ng) % ad_t_sol(LBi:UBi,LBj:UBj,N(ng),NT(ng)) )
+      allocate ( OCEAN(ng) % ad_u_sol(LBi:UBi,LBj:UBj,N(ng)) )
+      allocate ( OCEAN(ng) % ad_v_sol(LBi:UBi,LBj:UBj,N(ng)) )
+
 #  if defined NEARSHORE_MELLOR
       allocate ( OCEAN(ng) % ad_rulag3d(LBi:UBi,LBj:UBj,N(ng)) )
       allocate ( OCEAN(ng) % ad_rvlag3d(LBi:UBi,LBj:UBj,N(ng)) )
@@ -601,6 +618,17 @@
       allocate ( OCEAN(ng) % f_v(LBi:UBi,LBj:UBj,N(ng)) )
 #   endif
 #  endif
+# endif
+#endif
+#ifdef FORCING_SV
+      allocate ( OCEAN(ng) % f_ubar(LBi:UBi,LBj:UBj) )
+      allocate ( OCEAN(ng) % f_vbar(LBi:UBi,LBj:UBj) )
+      allocate ( OCEAN(ng) % f_zeta(LBi:UBi,LBj:UBj) )
+
+# ifdef SOLVE3D
+      allocate ( OCEAN(ng) % f_t(LBi:UBi,LBj:UBj,N(ng),NT(ng)) )
+      allocate ( OCEAN(ng) % f_u(LBi:UBi,LBj:UBj,N(ng)) )
+      allocate ( OCEAN(ng) % f_v(LBi:UBi,LBj:UBj,N(ng)) )
 # endif
 #endif
 
@@ -685,7 +713,12 @@
 !
 !  Set array initialization range.
 !
-#ifdef _OPENMP
+#ifdef DISTRIBUTE
+      Imin=BOUNDS(ng)%LBi(tile)
+      Imax=BOUNDS(ng)%UBi(tile)
+      Jmin=BOUNDS(ng)%LBj(tile)
+      Jmax=BOUNDS(ng)%UBj(tile)
+#else
       IF (DOMAIN(ng)%Western_Edge(tile)) THEN
         Imin=BOUNDS(ng)%LBi(tile)
       ELSE
@@ -706,11 +739,6 @@
       ELSE
         Jmax=Jend
       END IF
-#else
-      Imin=BOUNDS(ng)%LBi(tile)
-      Imax=BOUNDS(ng)%UBi(tile)
-      Jmin=BOUNDS(ng)%LBj(tile)
-      Jmax=BOUNDS(ng)%UBj(tile)
 #endif
 !
 !-----------------------------------------------------------------------
@@ -756,8 +784,8 @@
             OCEAN(ng) % PON_burial(i,j) = IniVal
             OCEAN(ng) % OPAL_burial(i,j) = IniVal
 #endif
-#ifdef NEMURO_PROD
-            OCEAN(ng) % Nemuro_NPP(i,j) = IniVal
+#ifdef PRIMARY_PROD
+            OCEAN(ng) % Bio_NPP(i,j) = IniVal
 #endif
           END DO
 #ifdef SOLVE3D
@@ -942,6 +970,11 @@
             OCEAN(ng) % tl_zeta(i,j,1) = IniVal
             OCEAN(ng) % tl_zeta(i,j,2) = IniVal
             OCEAN(ng) % tl_zeta(i,j,3) = IniVal
+# ifdef FORCING_SV
+            OCEAN(ng) % f_ubar(i,j) = IniVal
+            OCEAN(ng) % f_vbar(i,j) = IniVal
+            OCEAN(ng) % f_zeta(i,j) = IniVal
+# endif
 # if defined NEARSHORE_MELLOR
             OCEAN(ng) % tl_rulag2d(i,j) = IniVal
             OCEAN(ng) % tl_rvlag2d(i,j) = IniVal
@@ -959,6 +992,10 @@
               OCEAN(ng) % tl_u(i,j,k,2) = IniVal
               OCEAN(ng) % tl_v(i,j,k,1) = IniVal
               OCEAN(ng) % tl_v(i,j,k,2) = IniVal
+#  ifdef FORCING_SV
+              OCEAN(ng) % f_u(i,j,k) = IniVal
+              OCEAN(ng) % f_v(i,j,k) = IniVal
+#  endif
 #  if defined NEARSHORE_MELLOR
               OCEAN(ng) % tl_rulag3d(i,j,k) = IniVal
               OCEAN(ng) % tl_rvlag3d(i,j,k) = IniVal
@@ -983,6 +1020,9 @@
                 OCEAN(ng) % tl_t(i,j,k,1,itrc) = IniVal
                 OCEAN(ng) % tl_t(i,j,k,2,itrc) = IniVal
                 OCEAN(ng) % tl_t(i,j,k,3,itrc) = IniVal
+#  ifdef FORCING_SV
+                OCEAN(ng) % f_t(i,j,k,itrc) = IniVal
+#  endif
               END DO
             END DO
           END DO
@@ -1014,6 +1054,11 @@
             OCEAN(ng) % ad_zeta(i,j,1) = IniVal
             OCEAN(ng) % ad_zeta(i,j,2) = IniVal
             OCEAN(ng) % ad_zeta(i,j,3) = IniVal
+# ifdef FORCING_SV
+            OCEAN(ng) % f_ubar(i,j) = IniVal
+            OCEAN(ng) % f_vbar(i,j) = IniVal
+            OCEAN(ng) % f_zeta(i,j) = IniVal
+# endif
 
             OCEAN(ng) % ad_ubar_sol(i,j) = IniVal
             OCEAN(ng) % ad_vbar_sol(i,j) = IniVal
@@ -1035,6 +1080,12 @@
               OCEAN(ng) % ad_u(i,j,k,2) = IniVal
               OCEAN(ng) % ad_v(i,j,k,1) = IniVal
               OCEAN(ng) % ad_v(i,j,k,2) = IniVal
+              OCEAN(ng) % ad_u_sol(i,j,k) = IniVal
+              OCEAN(ng) % ad_v_sol(i,j,k) = IniVal
+#  ifdef FORCING_SV
+              OCEAN(ng) % f_u(i,j,k) = IniVal
+              OCEAN(ng) % f_v(i,j,k) = IniVal
+#  endif
 #  if defined NEARSHORE_MELLOR
               OCEAN(ng) % ad_rulag3d(i,j,k) = IniVal
               OCEAN(ng) % ad_rvlag3d(i,j,k) = IniVal
@@ -1059,6 +1110,10 @@
                 OCEAN(ng) % ad_t(i,j,k,1,itrc) = IniVal
                 OCEAN(ng) % ad_t(i,j,k,2,itrc) = IniVal
                 OCEAN(ng) % ad_t(i,j,k,3,itrc) = IniVal
+                OCEAN(ng) % ad_t_sol(i,j,k,itrc) = IniVal
+#  ifdef FORCING_SV
+                OCEAN(ng) % f_t(i,j,k,itrc) = IniVal
+#  endif
               END DO
             END DO
           END DO

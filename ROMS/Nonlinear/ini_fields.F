@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group       Andrew M. Moore   !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -177,6 +177,9 @@
 # endif
       USE u2dbc_mod, ONLY : u2dbc_tile
       USE v2dbc_mod, ONLY : v2dbc_tile
+# ifdef ICE_MODEL
+      USE ice_limit_mod, ONLY : ice_limit
+# endif
 !
 !  Imported variable declarations.
 !
@@ -756,56 +759,59 @@
 # endif
 
 # ifdef ICE_MODEL
-      DO j=Jstr,Jend
-        DO i=IstrU,Iend
-          cff1=ui(i,j,nstp)
+      IF (.not.PerfectRST(ng)) THEN
+        CALL ice_limit(ng, TILE)
+        DO j=Jstr,Jend
+          DO i=IstrU,Iend
+            cff1=ui(i,j,nstp)
 #  ifdef MASKING
-          cff1=cff1*umask(i,j)
+            cff1=cff1*umask(i,j)
 #  endif
-          ui(i,j,nstp)=cff1
-          ui(i,j,nnew)=cff1
+            ui(i,j,nstp)=cff1
+            ui(i,j,nnew)=cff1
+          END DO
         END DO
-      END DO
-      DO j=JstrV,Jend
-        DO i=Istr,Iend
-          cff1=vi(i,j,nstp)
+        DO j=JstrV,Jend
+          DO i=Istr,Iend
+            cff1=vi(i,j,nstp)
 #  ifdef MASKING
-          cff1=cff1*vmask(i,j)
+            cff1=cff1*vmask(i,j)
 #  endif
-          vi(i,j,nstp)=cff1
-          vi(i,j,nnew)=cff1
+            vi(i,j,nstp)=cff1
+            vi(i,j,nnew)=cff1
+          END DO
         END DO
-      END DO
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
-          cff1=ai(i,j,nstp)
-          cff2=hi(i,j,nstp)
-          cff3=hsn(i,j,nstp)
-          cff4=ti(i,j,nstp)
-          cff5=sfwat(i,j,nstp)
-          cff6=ageice(i,j,nstp)
+        DO j=JstrR,JendR
+          DO i=IstrR,IendR
+            cff1=ai(i,j,nstp)
+            cff2=hi(i,j,nstp)
+            cff3=hsn(i,j,nstp)
+            cff4=ti(i,j,nstp)
+            cff5=sfwat(i,j,nstp)
+            cff6=ageice(i,j,nstp)
 #  ifdef MASKING
-          cff1=cff1*rmask(i,j)
-          cff2=cff2*rmask(i,j)
-          cff3=cff3*rmask(i,j)
-          cff4=cff4*rmask(i,j)
-          cff5=cff5*rmask(i,j)
-          cff6=cff6*rmask(i,j)
+            cff1=cff1*rmask(i,j)
+            cff2=cff2*rmask(i,j)
+            cff3=cff3*rmask(i,j)
+            cff4=cff4*rmask(i,j)
+            cff5=cff5*rmask(i,j)
+            cff6=cff6*rmask(i,j)
 #  endif
-          ai(i,j,nstp)=cff1
-          ai(i,j,nnew)=cff1
-          hi(i,j,nstp)=cff2
-          hi(i,j,nnew)=cff2
-          hsn(i,j,nstp)=cff3
-          hsn(i,j,nnew)=cff3
-          ti(i,j,nstp)=cff4
-          ti(i,j,nnew)=cff4
-          sfwat(i,j,nstp)=cff5
-          sfwat(i,j,nnew)=cff5
-          ageice(i,j,nstp)=cff6
-          ageice(i,j,nnew)=cff6
+            ai(i,j,nstp)=cff1
+            ai(i,j,nnew)=cff1
+            hi(i,j,nstp)=cff2
+            hi(i,j,nnew)=cff2
+            hsn(i,j,nstp)=cff3
+            hsn(i,j,nnew)=cff3
+            ti(i,j,nstp)=cff4
+            ti(i,j,nnew)=cff4
+            sfwat(i,j,nstp)=cff5
+            sfwat(i,j,nnew)=cff5
+            ageice(i,j,nstp)=cff6
+            ageice(i,j,nnew)=cff6
+          END DO
         END DO
-      END DO
+      END IF
       IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
         DO i=1,2
           CALL exchange_u2d_tile (ng, tile,                             &

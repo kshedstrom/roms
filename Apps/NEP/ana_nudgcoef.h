@@ -2,7 +2,7 @@
 !
 !! svn $Id$
 !!================================================= Hernan G. Arango ===
-!! Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
+!! Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
 !!   Licensed under a MIT/X style license                              !
 !!   See License_ROMS.txt                                              !
 !=======================================================================
@@ -145,15 +145,11 @@
 # endif
 # ifdef SOLVE3D
 #  ifdef TCLM_NUDGING
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
-          CLIMA(ng)%Tnudgcof(i,j,itemp)=wrk(i,j)
-          CLIMA(ng)%Tnudgcof(i,j,isalt)=wrk(i,j)
-#   ifdef BCLM_NUDGING
-          CLIMA(ng)%Tnudgcof(i,j,iFeD_)=wrk(i,j)
-          CLIMA(ng)%Tnudgcof(i,j,iNO3_)=wrk(i,j)
-          CLIMA(ng)%Tnudgcof(i,j,iSiOH)=wrk(i,j)
-#   endif
+      DO itrc=1,NT(ng)
+        DO j=JstrR,JendR
+          DO i=IstrR,IendR
+            CLIMA(ng)%Tnudgcof(i,j,itrc)=wrk(i,j)
+          END DO
         END DO
       END DO
 #  endif

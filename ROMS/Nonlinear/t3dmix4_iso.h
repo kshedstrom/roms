@@ -2,7 +2,7 @@
 !
 !svn $Id$
 !***********************************************************************
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                           Hernan G. Arango   !
 !****************************************** Alexander F. Shchepetkin ***
@@ -21,6 +21,7 @@
 #endif
       USE mod_grid
       USE mod_mixing
+      USE mod_ncparam
       USE mod_ocean
       USE mod_stepping
 !
@@ -104,6 +105,7 @@
 !***********************************************************************
 !
       USE mod_param
+      USE mod_ncparam
       USE mod_scalars
 #ifdef OFFLINE_BIOLOGY
       USE mod_biology
@@ -187,7 +189,7 @@
       real(r8), parameter :: slope_max = 0.0001_r8
       real(r8), parameter :: strat_min = 0.1_r8
 
-      real(r8) :: cff, cff1, cff2, cff3, cff4, cff5, fac
+      real(r8) :: cff, cff1, cff2, cff3, cff4, fac
 
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS,N(ng)) :: LapT
 
@@ -393,10 +395,10 @@
                   cff3=MIN(dRdx(i  ,j,k2),0.0_r8)
                   cff4=MIN(dRdx(i+1,j,k1),0.0_r8)
                   cff=fac*                                              &
-     &                cff1*(cff1*dTdr(i,j,k2)-dTdx(i  ,j,k1))+          &
-     &                cff2*(cff2*dTdr(i,j,k2)-dTdx(i+1,j,k2))+          &
-     &                cff3*(cff3*dTdr(i,j,k2)-dTdx(i  ,j,k2))+          &
-     &                cff4*(cff4*dTdr(i,j,k2)-dTdx(i+1,j,k1))
+     &                (cff1*(cff1*dTdr(i,j,k2)-dTdx(i  ,j,k1))+         &
+     &                 cff2*(cff2*dTdr(i,j,k2)-dTdx(i+1,j,k2))+         &
+     &                 cff3*(cff3*dTdr(i,j,k2)-dTdx(i  ,j,k2))+         &
+     &                 cff4*(cff4*dTdr(i,j,k2)-dTdx(i+1,j,k1)))
                   cff1=MAX(dRde(i,j  ,k1),0.0_r8)
                   cff2=MAX(dRde(i,j+1,k2),0.0_r8)
                   cff3=MIN(dRde(i,j  ,k2),0.0_r8)
@@ -413,10 +415,10 @@
 #endif
                   cff=cff+                                              &
      &                fac*                                              &
-     &                cff1*(cff1*dTdr(i,j,k2)-dTde(i,j  ,k1))+          &
-     &                cff2*(cff2*dTdr(i,j,k2)-dTde(i,j+1,k2))+          &
-     &                cff3*(cff3*dTdr(i,j,k2)-dTde(i,j  ,k2))+          &
-     &                cff4*(cff4*dTdr(i,j,k2)-dTde(i,j+1,k1))
+     &                ((cff1*(cff1*dTdr(i,j,k2)-dTde(i,j  ,k1))+        &
+     &                  cff2*(cff2*dTdr(i,j,k2)-dTde(i,j+1,k2))+        &
+     &                  cff3*(cff3*dTdr(i,j,k2)-dTde(i,j  ,k2))+        &
+     &                  cff4*(cff4*dTdr(i,j,k2)-dTde(i,j+1,k1))))
                   FS(i,j,k2)=cff*FS(i,j,k2)
                 END DO
               END DO
@@ -680,10 +682,10 @@
                   cff3=MIN(dRdx(i  ,j,k2),0.0_r8)
                   cff4=MIN(dRdx(i+1,j,k1),0.0_r8)
                   cff=fac*                                              &
-     &                cff1*(cff1*dTdr(i,j,k2)-dTdx(i  ,j,k1))+          &
-     &                cff2*(cff2*dTdr(i,j,k2)-dTdx(i+1,j,k2))+          &
-     &                cff3*(cff3*dTdr(i,j,k2)-dTdx(i  ,j,k2))+          &
-     &                cff4*(cff4*dTdr(i,j,k2)-dTdx(i+1,j,k1))
+     &                ((cff1*(cff1*dTdr(i,j,k2)-dTdx(i  ,j,k1))+        &
+     &                  cff2*(cff2*dTdr(i,j,k2)-dTdx(i+1,j,k2))+        &
+     &                  cff3*(cff3*dTdr(i,j,k2)-dTdx(i  ,j,k2))+        &
+     &                  cff4*(cff4*dTdr(i,j,k2)-dTdx(i+1,j,k1))))
 #ifdef DIFF_3DCOEF
 # ifdef TS_U3ADV_SPLIT
                   fac=0.125_r8*(diff3d_v(i,j,k  )+diff3d_v(i,j+1,k  )+  &
@@ -700,10 +702,10 @@
                   cff4=MIN(dRde(i,j+1,k1),0.0_r8)
                   cff=cff+                                              &
      &                fac*                                              &
-     &                cff1*(cff1*dTdr(i,j,k2)-dTde(i,j  ,k1))+          &
-     &                cff2*(cff2*dTdr(i,j,k2)-dTde(i,j+1,k2))+          &
-     &                cff3*(cff3*dTdr(i,j,k2)-dTde(i,j  ,k2))+          &
-     &                cff4*(cff4*dTdr(i,j,k2)-dTde(i,j+1,k1))
+     &                (cff1*(cff1*dTdr(i,j,k2)-dTde(i,j  ,k1))+         &
+     &                 cff2*(cff2*dTdr(i,j,k2)-dTde(i,j+1,k2))+         &
+     &                 cff3*(cff3*dTdr(i,j,k2)-dTde(i,j  ,k2))+         &
+     &                 cff4*(cff4*dTdr(i,j,k2)-dTde(i,j+1,k1)))
                   FS(i,j,k2)=cff*FS(i,j,k2)
                 END DO
               END DO
@@ -719,10 +721,6 @@
                 cff3=dt(ng)*(FS(i,j,k2)-FS(i,j,k1))
                 cff4=cff1+cff2+cff3
                 t(i,j,k,nnew,itrc)=t(i,j,k,nnew,itrc)-cff4
-#ifdef TS_MPDATA
-                cff5=1.0_r8/Hz(i,j,k)
-                t(i,j,k,3,itrc)=cff5*t(i,j,k,nnew,itrc)
-#endif
 #ifdef DIAGNOSTICS_TS
                 DiaTwrk(i,j,k,itrc,iTxdif)=-cff1
                 DiaTwrk(i,j,k,itrc,iTydif)=-cff2

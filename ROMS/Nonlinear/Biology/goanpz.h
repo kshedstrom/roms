@@ -2,7 +2,7 @@
       SUBROUTINE biology (ng,tile)
 !
 !========================================== Alexander F. Shchepetkin ===
-!  Copyright (c) 2002 ROMS/TOMS Group                                  !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group                        **
 !================================================== Hernan G. Arango ===
 !                                                                      !
 !  This routine computes the biological sources and sinks and adds     !
@@ -1190,9 +1190,6 @@
      &                               (Bio(i,k,ibio)-Bio_bak(i,k,ibio))* &
      &                               Hz(i,j,k),                         &
      &                               0.0_r8)
-#ifdef TS_MPDATA
-              t(i,j,k,3,ibio)=t(i,j,k,nnew,ibio)*Hz_inv(i,k)
-#endif
             END DO
           END DO
         END DO

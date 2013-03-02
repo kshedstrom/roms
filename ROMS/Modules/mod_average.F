@@ -7,7 +7,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -211,7 +211,7 @@
           real(r8), pointer :: avgPONbur(:,:)
           real(r8), pointer :: avgOPALbur(:,:)
 #  endif
-#  ifdef NEMURO_PROD
+#  ifdef PRIMARY_PROD
           real(r8), pointer :: avgNPP(:,:)
 #  endif
 #  if defined LMD_MIXING || defined MY25_MIXING || defined GLS_MIXING
@@ -502,11 +502,10 @@
         allocate ( AVERAGE(ng) % avgOPALbur(LBi:UBi,LBj:UBj) )
       END IF
 #  endif
-#  ifdef NEMURO_PROD
+#  ifdef PRIMARY_PROD
       IF (Aout(idNPP,ng)) THEN
         allocate ( AVERAGE(ng) % avgNPP(LBi:UBi,LBj:UBj) )
       END IF
-          real(r8), pointer :: avgNPP(:,:)
 #  endif
 
 #  if defined LMD_MIXING || defined MY25_MIXING || defined GLS_MIXING
@@ -867,7 +866,12 @@
 !
 !  Set array initialization range.
 !
-# ifdef _OPENMP
+# ifdef DISTRIBUTE
+      Imin=BOUNDS(ng)%LBi(tile)
+      Imax=BOUNDS(ng)%UBi(tile)
+      Jmin=BOUNDS(ng)%LBj(tile)
+      Jmax=BOUNDS(ng)%UBj(tile)
+# else
       IF (DOMAIN(ng)%Western_Edge(tile)) THEN
         Imin=BOUNDS(ng)%LBi(tile)
       ELSE
@@ -888,11 +892,6 @@
       ELSE
         Jmax=Jend
       END IF
-# else
-      Imin=BOUNDS(ng)%LBi(tile)
-      Imax=BOUNDS(ng)%UBi(tile)
-      Jmin=BOUNDS(ng)%LBj(tile)
-      Jmax=BOUNDS(ng)%UBj(tile)
 # endif
 !
 !-----------------------------------------------------------------------
@@ -1055,7 +1054,7 @@
         END DO
       END IF
 #  endif
-#  ifdef NEMURO_PROD
+#  ifdef PRIMARY_PROD
       IF (Aout(idNPP,ng)) THEN
         DO j=Jmin,Jmax
           DO i=Imin,Imax

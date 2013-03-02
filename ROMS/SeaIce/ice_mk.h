@@ -1,7 +1,7 @@
      SUBROUTINE ice_thermo (ng, tile)
 !
 !*************************************************** W. Paul Budgell ***
-!  Copyright (c) 2002-2010 ROMS/TOMS Group                             !
+!  Copyright (c) 2002-2013 ROMS/TOMS Group                             !
 !************************************************** Hernan G. Arango ***
 !                                                                      !
 !  This subroutine evaluates the ice thermodynamic growth and decay    !
@@ -31,7 +31,7 @@
 #include "tile.h"
 
 #ifdef PROFILE
-      CALL wclock_on (ng, iNLM, 44)
+      CALL wclock_on (ng, iNLM, 51)
 #endif
 
       CALL ice_thermo_tile (ng, tile,                                   &
@@ -58,8 +58,6 @@
 #endif
      &                      GRID(ng) % z_r,                             &
      &                      GRID(ng) % z_w,                             &
-     &                      GRID(ng) % pm,                              &
-     &                      GRID(ng) % pn,                              &
      &                      OCEAN(ng) % t,                              &
      &                      ICE(ng) % wfr,                              &
      &                      ICE(ng) % wai,                              &
@@ -91,12 +89,11 @@
      &                      FORCES(ng) % svstr,                         &
      &                      FORCES(ng) % qai_n,                         &
      &                      FORCES(ng) % qao_n,                         &
-     &                      FORCES(ng) % p_e_n,                         &
      &                      FORCES(ng) % snow_n,                        &
      &                      FORCES(ng) % rain,                          &
      &                      FORCES(ng) % stflx)
 #ifdef PROFILE
-      CALL wclock_off (ng, iNLM, 44)
+      CALL wclock_off (ng, iNLM, 51)
 #endif
       RETURN
       END SUBROUTINE ice_thermo
@@ -121,7 +118,7 @@
 #ifdef AICLM_NUDGING
      &                        aiclm, hiclm, AInudgcof,                  &
 #endif
-     &                        z_r, z_w, pm, pn, t,                      &
+     &                        z_r, z_w, t,                              &
      &                        wfr, wai, wao, wio, wro,                  &
      &                        ai, hi, hsn, sfwat, ageice, tis, ti,      &
      &                        enthalpi, hage,                           &
@@ -132,7 +129,6 @@
 #endif
      &                        sustr, svstr,                             &
      &                        qai_n, qao_n,                             &
-     &                        p_e_n,                                    &
      &                        snow_n,                                   &
      &                        rain,                                     &
      &                        stflx)
@@ -267,8 +263,6 @@
 # endif
       real(r8), intent(in) :: z_r(LBi:,LBj:,:)
       real(r8), intent(in) :: z_w(LBi:,LBj:,0:)
-      real(r8), intent(in) :: pm(LBi:,LBj:)
-      real(r8), intent(in) :: pn(LBi:,LBj:)
       real(r8), intent(in) :: t(LBi:,LBj:,:,:,:)
       real(r8), intent(in) :: wfr(LBi:,LBj:)
       real(r8), intent(inout) :: wai(LBi:,LBj:)
@@ -300,7 +294,6 @@
       real(r8), intent(in) :: svstr(LBi:,LBj:)
       real(r8), intent(in) :: qai_n(LBi:,LBj:)
       real(r8), intent(in) :: qao_n(LBi:,LBj:)
-      real(r8), intent(in) :: p_e_n(LBi:,LBj:)
       real(r8), intent(in) :: snow_n(LBi:,LBj:)
       real(r8), intent(in) :: rain(LBi:,LBj:)
       real(r8), intent(out) :: stflx(LBi:,LBj:,:)
@@ -325,8 +318,6 @@
 # endif
       real(r8), intent(in) :: z_r(LBi:UBi,LBj:UBj,N(ng))
       real(r8), intent(in) :: z_w(LBi:UBi,LBj:UBj,0:N(ng))
-      real(r8), intent(in) :: pm(LBi:UBi,LBj:UBj)
-      real(r8), intent(in) :: pn(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: t(LBi:UBi,LBj:UBj,N(ng),3,NT(ng))
       real(r8), intent(in) :: wfr(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: wai(LBi:UBi,LBj:UBj)
@@ -358,7 +349,6 @@
       real(r8), intent(in) :: svstr(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: qai_n(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: qao_n(LBi:UBi,LBj:UBj)
-      real(r8), intent(in) :: p_e_n(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: snow_n(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: rain(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: stflx(LBi:UBi,LBj:UBj,NT(ng))
@@ -367,18 +357,12 @@
 ! Local variable definitions
 !
 
-      integer :: i, j, it
+      integer :: i, j
 
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: b2d
-      real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: c2d
-      real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: f2d
-      real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: g2d
-      real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: h2d
 
-      real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: lathi
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: alph
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: ws
-      real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: qa
 
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: temp_top
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: salt_top
@@ -396,11 +380,12 @@
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: snow
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: coa
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: t2
-      real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: w0
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: cht
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: chs
 
+#ifdef AICLM_NUDGING
       real(r8) :: cff
+#endif
       real(r8) :: tfrz
       real(r8) :: cot
       real(r8) :: xmelt
@@ -439,7 +424,6 @@
       real(r8) :: d2i
       real(r8) :: d3
 
-      real(r8) :: tt0
       real(r8) :: fac_shflx
 
 #ifdef ICE_SHOREFAST
@@ -745,7 +729,6 @@
 
           END IF
 
-          w0(i,j) = xtot-ai(i,j,linew)*wai(i,j)
 #ifdef CASPIAN_XXX
           hh = h(i,j)+Zt_avg1(i,j)
           IF (hh.LT.1.0_r8) THEN

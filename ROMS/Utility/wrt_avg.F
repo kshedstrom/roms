@@ -7,7 +7,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -1445,7 +1445,7 @@
         END IF
       END IF
 #  endif
-#  ifdef NEMURO_PROD
+#  ifdef PRIMARY_PROD
 !
 !  Write out Net primary production.
 !
@@ -1580,6 +1580,50 @@
        IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
             WRITE (stdout,10) TRIM(Vname(1,idVice)), AVG(ng)%Rindex
+          END IF
+          exit_flag=3
+          RETURN
+        END IF
+      END IF
+!
+!  Write out 2D Eastward ice momentum component (m/s) at RHO-points.
+!
+      IF (Aout(idUiceE,ng)) THEN
+        scale=1.0_r8
+        gtype=gfactor*u2dvar
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid,                      &
+     &                     AVG(ng)%Vid(idUiceE),                        &
+     &                     AVG(ng)%Rindex, gtype,                       &
+     &                     LBi, UBi, LBj, UBj, scale,                   &
+#   ifdef MASKING
+     &                     GRID(ng) % umask_avg,                        &
+#   endif
+     &                     AVERAGE(ng) % avguiceE)
+        IF (status.ne.nf90_noerr) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,idUiceE)), AVG(ng)%Rindex
+          END IF
+          exit_flag=3
+          RETURN
+        END IF
+      END IF
+!
+!  Write out 2D Northward ice momentum component (m/s) at RHO-points.
+!
+      IF (Aout(idViceN,ng)) THEN
+        scale=1.0_r8
+        gtype=gfactor*v2dvar
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid,                      &
+     &                     AVG(ng)%Vid(idViceN),                        &
+     &                     AVG(ng)%Rindex, gtype,                       &
+     &                     LBi, UBi, LBj, UBj, scale,                   &
+#   ifdef MASKING
+     &                     GRID(ng) % vmask_avg,                        &
+#   endif
+     &                     AVERAGE(ng) % avgviceN)
+       IF (status.ne.nf90_noerr) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,idViceN)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           RETURN
@@ -2279,7 +2323,7 @@
 !
 !  Write out quadratic <t*t> term.
 !
-      DO i=1,NAT
+      DO i=1,NT(ng)
         IF (Aout(idTTav(i),ng)) THEN
           scale=1.0_r8
           gtype=gfactor*r3dvar
@@ -2304,7 +2348,7 @@
 !
 !  Write out active tracer volume fluxes.
 !
-      DO i=1,NAT
+      DO i=1,NT(ng)
         IF (Aout(iHUTav(i),ng)) THEN
           scale=1.0_r8
           gtype=gfactor*u3dvar
@@ -2350,7 +2394,7 @@
 !
 !  Write out quadratic <u*t> and <v*t> terms.
 !
-      DO i=1,NAT
+      DO i=1,NT(ng)
         IF (Aout(idUTav(i),ng)) THEN
           scale=1.0_r8
           gtype=gfactor*u3dvar

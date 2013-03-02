@@ -1,6 +1,6 @@
 # svn $Id$
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-# Copyright (c) 2002-2012 The ROMS/TOMS Group                           :::
+# Copyright (c) 2002-2013 The ROMS/TOMS Group                           :::
 #   Licensed under a MIT/X style license                                :::
 #   See License_ROMS.txt                                                :::
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -86,7 +86,6 @@ ifdef USE_DEBUG
            FFLAGS += -g -fbounds-check
            CFLAGS += -g
          CXXFLAGS += -g
-$(SCRATCH_DIR)/interp_floats.o:FFLAGS = -frepack-arrays -g
 else
            FFLAGS += -O3 -ffast-math
            CFLAGS += -O3

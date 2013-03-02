@@ -5,7 +5,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -545,20 +545,31 @@
         real(r8), allocatable :: zLanczos_err(:,:)     ! error, identity
 #  endif
 # endif
-# if defined IS4DVAR_SENSITIVITY
+# if defined HESSIAN_FSV || defined HESSIAN_SO          || \
+     defined HESSIAN_SV  || defined IS4DVAR_SENSITIVITY
 !
 !-----------------------------------------------------------------------
 !  Lanczos algorithm coefficients.
 !-----------------------------------------------------------------------
 !
-!  These coefficients are computed in the IS4DVAR Lanczos data
+!  These coefficients are computed in the 4DVAR Lanczos data
 !  assimilation algorithm and are used here to tangent linear
 !  model initial conditions as weighted sum of the Lanczos
 !  vectors.
 !
         real(r8), allocatable :: cg_beta(:,:)
         real(r8), allocatable :: cg_delta(:,:)
+#  if defined IS4DVAR_SENSITIVITY
         real(r8), allocatable :: cg_zu(:,:)
+#  endif
+# endif
+# if defined HESSIAN_FSV || defined HESSIAN_SO || defined HESSIAN_SV
+!
+!  Lanczos diagonal and off-diagonal coefficients for the Hessian
+!  propagator.
+!
+        real(r8), allocatable :: zLanczos_diag(:)
+        real(r8), allocatable :: zLanczos_offdiag(:)
 # endif
 !
 !-----------------------------------------------------------------------
@@ -762,8 +773,7 @@
       integer :: my_NstateVar, i, ng
 # if defined BALANCE_OPERATOR && defined ZETA_ELLIPTIC
       integer :: LBi, UBi, LBj, UBj
-
-      integer, parameter :: tile = 0
+      integer :: tile
 # endif
       real(r8), parameter :: IniVal = 0.0_r8
 !
@@ -810,13 +820,21 @@
 !  Allocate module variables.
 !-----------------------------------------------------------------------
 !
+#  if defined BALANCE_OPERATOR && defined ZETA_ELLIPTIC
+#   ifdef DISTRIBUTE
+      tile=MyRank
+#   else
+      tile=0
+#   endif
+#  endif
+
       DO ng=1,Ngrids
 
 #  if defined BALANCE_OPERATOR && defined ZETA_ELLIPTIC
-        LBi=BOUNDS(ng)%LBi(TILE)
-        UBi=BOUNDS(ng)%UBi(TILE)
-        LBj=BOUNDS(ng)%LBj(TILE)
-        UBj=BOUNDS(ng)%UBj(TILE)
+        LBi=BOUNDS(ng)%LBi(tile)
+        UBi=BOUNDS(ng)%UBi(tile)
+        LBj=BOUNDS(ng)%LBj(tile)
+        UBj=BOUNDS(ng)%UBj(tile)
 #  endif
 #  ifdef SOLVE3D
         NstateVar(ng)=5+NT(ng)
@@ -1267,7 +1285,8 @@
       cg_zu = IniVal
 
 # endif
-# if defined IS4DVAR_SENSITIVITY
+# if defined HESSIAN_FSV || defined HESSIAN_SO          || \
+     defined HESSIAN_SV  || defined IS4DVAR_SENSITIVITY
 !
 !  Allocate Lanczos algorithm coefficients.
 !
@@ -1277,8 +1296,17 @@
       allocate ( cg_delta(Ninner,Nouter) )
       cg_delta = IniVal
 
+#  if defined IS4DVAR_SENSITIVITY
       allocate ( cg_zu(Ninner,Nouter) )
       cg_zu = IniVal
+#  endif
+# endif
+# if defined HESSIAN_FSV || defined HESSIAN_SO || defined HESSIAN_SV
+      allocate ( zLanczos_diag(Ninner) )
+      zLanczos_diag = IniVal
+
+      allocate ( zLanczos_offdiag(Ninner) )
+      zLanczos_offdiag = IniVal
 # endif
 !
 !-----------------------------------------------------------------------

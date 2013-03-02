@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -40,12 +40,13 @@
 !
       logical :: Lwrite
 
-      integer :: Itile, Jtile, Nghost, Ntiles, tile
+      integer :: Itile, Jtile, Nghost, tile
       integer :: Imin, Imax, Jmin, Jmax
+      integer :: Uoff, Voff
 #ifdef DISTRIBUTE
       integer :: MaxHaloLenI, MaxHaloLenJ
 #endif
-      integer :: ifield, ifile, inp, out, itrc, ng, npts, sequence
+      integer :: inp, out, ic, ifield, ifile, itrc, ng, npts, sequence
 
       real(r8) :: cff
       real(r8), parameter :: epsilon = 1.0E-8_r8
@@ -346,10 +347,10 @@
 !  Set RHO-points domain lower and upper bounds (integer).
 !
       DO ng=1,Ngrids
-# ifdef DISTRIBUTE
+#ifdef DISTRIBUTE
         CALL get_bounds (ng, MyRank, r2dvar, 0, Itile, Jtile,           &
      &                   rILB(ng), rIUB(ng), rJLB(ng), rJUB(ng))
-#  ifndef FULL_GRID
+# ifndef FULL_GRID
         IF (Itile.eq.0) THEN
           rILB(ng)=rILB(ng)+1
         END IF
@@ -362,57 +363,62 @@
         IF (Jtile.eq.(NtileJ(ng)-1)) THEN
           rJUB(ng)=rJUB(ng)-1
         END IF
-#  endif
-# else
-#  ifdef FULL_GRID
+# endif
+#else
+# ifdef FULL_GRID
         rILB(ng)=0
         rIUB(ng)=Lm(ng)+1
         rJLB(ng)=0
         rJUB(ng)=Mm(ng)+1
-#  else
+# else
         rILB(ng)=1
         rIUB(ng)=Lm(ng)
         rJLB(ng)=1
         rJUB(ng)=Mm(ng)
-#  endif
 # endif
+#endif
 !
 !  Minimum and maximum fractional coordinates for RHO-points.
 !
         DO tile=0,NtileI(ng)*NtileJ(ng)-1
           CALL get_domain (ng, tile, r2dvar, 0, epsilon,                &
-# ifdef FULL_GRID
+#ifdef FULL_GRID
      &                     .TRUE.,                                      &
-# else
+#else
      &                     .FALSE.,                                     &
-# endif
+#endif
      &                     DOMAIN(ng) % Xmin_rho(tile),                 &
      &                     DOMAIN(ng) % Xmax_rho(tile),                 &
      &                     DOMAIN(ng) % Ymin_rho(tile),                 &
      &                     DOMAIN(ng) % Ymax_rho(tile))
         END DO
-# ifdef DISTRIBUTE
+#ifdef DISTRIBUTE
         rXmin(ng)=DOMAIN(ng)%Xmin_rho(MyRank)
         rXmax(ng)=DOMAIN(ng)%Xmax_rho(MyRank)
         rYmin(ng)=DOMAIN(ng)%Ymin_rho(MyRank)
         rYmax(ng)=DOMAIN(ng)%Ymax_rho(MyRank)
-# else
+#else
         rXmin(ng)=DOMAIN(ng)%Xmin_rho(0)
         rXmax(ng)=DOMAIN(ng)%Xmax_rho(0)
         rYmin(ng)=DOMAIN(ng)%Ymin_rho(0)
         rYmax(ng)=DOMAIN(ng)%Ymax_rho(0)
-# endif
+#endif
       END DO
 !
 !  Set U-points domain lower and upper bounds (integer).
 !
       DO ng=1,Ngrids
-# ifdef DISTRIBUTE
+        IF (EWperiodic(ng)) THEN
+          Uoff=0
+        ELSE
+          Uoff=1
+        END IF
+#ifdef DISTRIBUTE
         CALL get_bounds (ng, MyRank, u2dvar, 0, Itile, Jtile,           &
      &                   uILB(ng), uIUB(ng), uJLB(ng), uJUB(ng))
-#  ifndef FULL_GRID
+# ifndef FULL_GRID
         IF (Itile.eq.0) THEN
-          uILB(ng)=uILB(ng)+1
+          uILB(ng)=uILB(ng)+Uoff
         END IF
         IF (Itile.eq.(NtileI(ng)-1)) THEN
           uIUB(ng)=uIUB(ng)-1
@@ -423,55 +429,60 @@
         IF (Jtile.eq.(NtileJ(ng)-1)) THEN
           uJUB(ng)=uJUB(ng)-1
         END IF
-#  endif
-# else
-#  ifdef FULL_GRID
+# endif
+#else
+# ifdef FULL_GRID
         uILB(ng)=1
         uIUB(ng)=Lm(ng)+1
         uJLB(ng)=0
         uJUB(ng)=Mm(ng)+1
-#  else
-        uILB(ng)=2
+# else
+        uILB(ng)=1+Uoff
         uIUB(ng)=Lm(ng)
         uJLB(ng)=1
         uJUB(ng)=Mm(ng)
-#  endif
 # endif
+#endif
 !
 !  Minimum and maximum fractional coordinates for U-points.
 !
         DO tile=0,NtileI(ng)*NtileJ(ng)-1
           CALL get_domain (ng, tile, u2dvar, 0, epsilon,                &
-# ifdef FULL_GRID
+#ifdef FULL_GRID
      &                     .TRUE.,                                      &
-# else
+#else
      &                     .FALSE.,                                     &
-# endif
+#endif
      &                     DOMAIN(ng) % Xmin_u(tile),                   &
      &                     DOMAIN(ng) % Xmax_u(tile),                   &
      &                     DOMAIN(ng) % Ymin_u(tile),                   &
      &                     DOMAIN(ng) % Ymax_u(tile))
         END DO
-# ifdef DISTRIBUTE
+#ifdef DISTRIBUTE
         uXmin(ng)=DOMAIN(ng)%Xmin_u(MyRank)
         uXmax(ng)=DOMAIN(ng)%Xmax_u(MyRank)
         uYmin(ng)=DOMAIN(ng)%Ymin_u(MyRank)
         uYmax(ng)=DOMAIN(ng)%Ymax_u(MyRank)
-# else
+#else
         uXmin(ng)=DOMAIN(ng)%Xmin_u(0)
         uXmax(ng)=DOMAIN(ng)%Xmax_u(0)
         uYmin(ng)=DOMAIN(ng)%Ymin_u(0)
         uYmax(ng)=DOMAIN(ng)%Ymax_u(0)
-# endif
+#endif
       END DO
 !
 !  Set V-points domain lower and upper bounds (integer).
 !
       DO ng=1,Ngrids
-# ifdef DISTRIBUTE
+        IF (NSperiodic(ng)) THEN
+          Voff=0
+        ELSE
+          Voff=1
+        END IF
+#ifdef DISTRIBUTE
         CALL get_bounds (ng, MyRank, v2dvar, 0, Itile, Jtile,           &
      &                   vILB(ng), vIUB(ng), vJLB(ng), vJUB(ng))
-#  ifndef FULL_GRID
+# ifndef FULL_GRID
         IF (Itile.eq.0) THEN
           vILB(ng)=vILB(ng)+1
         END IF
@@ -479,51 +490,51 @@
           vIUB(ng)=vIUB(ng)-1
         END IF
         IF (Jtile.eq.0) THEN
-          vJLB(ng)=vJLB(ng)+1
+          vJLB(ng)=vJLB(ng)+Voff
         END IF
         IF (Jtile.eq.(NtileJ(ng)-1)) THEN
           vJUB(ng)=vJUB(ng)-1
         END IF
-#  endif
-# else
+# endif
+#else
 #  ifdef FULL_GRID
         vILB(ng)=0
         vIUB(ng)=Lm(ng)+1
         vJLB(ng)=1
         vJUB(ng)=Mm(ng)+1
-#  else
+# else
         vILB(ng)=1
         vIUB(ng)=Lm(ng)
-        vJLB(ng)=2
+        vJLB(ng)=1+Voff
         vJUB(ng)=Mm(ng)
-#  endif
 # endif
+#endif
 !
 !  Minimum and maximum fractional coordinates for V-points.
 !
         DO tile=0,NtileI(ng)*NtileJ(ng)-1
           CALL get_domain (ng, tile, v2dvar, 0, epsilon,                &
-# ifdef FULL_GRID
+#ifdef FULL_GRID
      &                     .TRUE.,                                      &
-# else
+#else
      &                     .FALSE.,                                     &
-# endif
+#endif
      &                     DOMAIN(ng) % Xmin_v(tile),                   &
      &                     DOMAIN(ng) % Xmax_v(tile),                   &
      &                     DOMAIN(ng) % Ymin_v(tile),                   &
      &                     DOMAIN(ng) % Ymax_v(tile))
         END DO
-# ifdef DISTRIBUTE
+#ifdef DISTRIBUTE
         vXmin(ng)=DOMAIN(ng)%Xmin_v(MyRank)
         vXmax(ng)=DOMAIN(ng)%Xmax_v(MyRank)
         vYmin(ng)=DOMAIN(ng)%Ymin_v(MyRank)
         vYmax(ng)=DOMAIN(ng)%Ymax_v(MyRank)
-# else
+#else
         vXmin(ng)=DOMAIN(ng)%Xmin_v(0)
         vXmax(ng)=DOMAIN(ng)%Xmax_v(0)
         vYmin(ng)=DOMAIN(ng)%Ymin_v(0)
         vYmax(ng)=DOMAIN(ng)%Ymax_v(0)
-# endif
+#endif
       END DO
 !
 !-----------------------------------------------------------------------
@@ -751,6 +762,16 @@
 
       CALL read_FltPar (model, 45, out, Lwrite)
 #endif
+#if defined FLOATS && defined FLOAT_BIOLOGY
+!
+!-----------------------------------------------------------------------
+!  Read in biological float behavior model input parameters.
+!-----------------------------------------------------------------------
+!
+      OPEN (50, FILE=TRIM(fbionam), FORM='formatted', STATUS='old')
+
+      CALL read_FltBioPar (model, 50, out, Lwrite)
+#endif
 #ifdef STATIONS
 !
 !-----------------------------------------------------------------------
@@ -809,9 +830,9 @@
 !
 !  Check various parameters for writing time-filtered output
 !
-        IF (ntsavg(ng).ne.1) THEN
-          ntsavg(ng) = 1
-          IF (Master) print *, 'Resetting ntsavg to 1'
+        IF (ntsAVG(ng).ne.1) THEN
+          ntsAVG(ng) = 1
+          IF (Master) print *, 'Resetting ntsAVG to 1'
         END IF
         IF (MOD(dt(ng),1.0_r8).ne.0) THEN
           IF (Master) print *, 'Model timestep must be a whole number'
@@ -849,26 +870,27 @@
         FIL(7,ng)%name=TRIM(ADJUSTL('ocean_filr_'//ngnumber//'.nc'))
         FIL(8,ng)%name=TRIM(ADJUSTL('ocean_filt_'//ngnumber//'.nc'))
         FIL(9,ng)%name=TRIM(ADJUSTL('ocean_filw_'//ngnumber//'.nc'))
+#ifdef ICE_MODEL
         FIL(10,ng)%name=TRIM(ADJUSTL('ocean_filice_'//ngnumber//'.nc'))
-!              allocate ( TIDE(ng)%Nrec(Nfiles) )
-!              allocate ( TIDE(ng)%time_min(Nfiles) )
-!              allocate ( TIDE(ng)%time_max(Nfiles) )
         DO ifile=1,nfile
+          allocate ( FIL(ifile,ng)%Nrec(1) )
           allocate ( FIL(ifile,ng)%Vid(NV) )
           allocate ( FIL(ifile,ng)%Tid(MT) )
+          allocate ( FIL(ifile,ng)%time_min(1) )
+          allocate ( FIL(ifile,ng)%time_max(1) )
+          allocate ( FIL(ifile,ng)%files(1) )
+          FIL(ifile,ng)%Nfiles=1
+          FIL(ifile,ng)%Rindex=0
+          FIL(ifile,ng)%Fcount=1
+          FIL(ifile,ng)%Nrec=0
+          FIL(ifile,ng)%ncid=-1
+          FIL(ifile,ng)%Vid=-1
+          FIL(ifile,ng)%Tid=-1
+          FIL(ifile,ng)%time_min=0.0_r8
+          FIL(ifile,ng)%time_max=0.0_r8
+          FIL(ifile,ng)%label='FILTER - tidal filtering'
         END DO
-!              allocate ( TIDE(ng)%files(Nfiles) )
-!              TIDE(ng)%Nfiles=Nfiles
-!              TIDE(ng)%Fcount=1
-!              TIDE(ng)%Rindex=0
-!              TIDE(ng)%ncid=-1
-!              TIDE(ng)%Vid=-1
-!              TIDE(ng)%Tid=-1
-!              TIDE(ng)%Nrec(1:Nfiles)=0
-!              TIDE(ng)%time_min(1:Nfiles)=0.0_r8
-!              TIDE(ng)%time_max(1:Nfiles)=0.0_r8
-!              TIDE(ng)%name=TRIM(FRC(ifile,mg)%name)
-!              TIDE(ng)%label='TIDE - tidal forcing'
+#endif
 # endif
 #endif
 !
@@ -903,7 +925,8 @@
           M3nudg(ng)=0.0_r8
         END IF
 #endif
-#ifdef SO_SEMI
+#if defined SO_SEMI        || \
+   (defined STOCHASTIC_OPT && !defined STOCH_OPT_WHITE)
        SO_decay(ng)=SO_decay(ng)*86400.0_r8
 #endif
 !
@@ -938,6 +961,19 @@
         Fscale(idShea,ng)=cff*Fscale(idShea,ng)
         Fscale(iddQdT,ng)=cff*Fscale(iddQdT,ng)
 #endif
+
+#if defined SOLVE3D && defined TCLIMATOLOGY
+!
+!  Determine the number of climatology tracers to process.
+!
+        ic=0
+        DO itrc=1,NT(ng)
+          IF (LtracerCLM(itrc,ng)) THEN
+            ic=ic+1
+          END IF
+        END DO
+        NTCLM(ng)=ic
+#endif
       END DO
 !
 !-----------------------------------------------------------------------
@@ -971,9 +1007,9 @@
 
       integer, intent(inout) :: Nval
 
-      character (len=256), dimension(100), intent(inout) :: Cval
+      character (len=256), dimension(200), intent(inout) :: Cval
 
-      real(r8), dimension(100), intent(inout) :: Rval
+      real(r8), dimension(200), intent(inout) :: Rval
 !
 ! Local variable declarations
 !
@@ -1129,7 +1165,7 @@
                     if (ierr.ne.0) then
                       write(*,*)                                        &
      &     '#### ERROR :: Cannot interpret string ', string(1:LenS),    &
-	' as a REAL number.'
+     &' as a REAL number.'
                     end if
                   END IF
                 ELSE

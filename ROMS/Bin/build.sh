@@ -2,7 +2,7 @@
 #
 # svn $Id$
 #:::::::::::::::::::::::::::::::::::::::::::::::::::::::::: John Wilkin :::
-# Copyright (c) 2002-2012 The ROMS/TOMS Group                           :::
+# Copyright (c) 2002-2013 The ROMS/TOMS Group                           :::
 #   Licensed under a MIT/X style license                                :::
 #   See License_ROMS.txt                                                :::
 #::::::::::::::::::::::::::::::::::::::::::::::::::::: Hernan G. Arango :::
@@ -51,7 +51,7 @@ while ( ($#argv) > 0 )
     case "-j"
       shift
       set parallel = 1
-      if (`echo $1 | grep -P '^\d+$'` != "" ) then
+      if (`echo $1 | grep '^[0-9]\+$'` != "" ) then
         set NCPUS = "-j $1"
         shift
       else

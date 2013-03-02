@@ -3,7 +3,7 @@
       SUBROUTINE get_filter (ng, filterLevel)
 !
 !=======================================================================
-!  Copyright (c) 2002-2010 ROMS/TOMS Group                             !
+!  Copyright (c) 2002-2013 ROMS/TOMS Group                             !
 !================================================== Hernan G. Arango ===
 !                                                                      !
 !  This subroutine reads in primitive variables initial conditions     !
@@ -31,21 +31,15 @@
 !
 !  Local variable declarations.
 !
-      logical, dimension(NV) :: got_var
-
       integer :: LBi, UBi, LBj, UBj
-      integer :: gtype, i, ifield, itrc, ifile, ifil
-      integer :: nvatts, nrec, status, tindx, varid, vartype
+      integer :: gtype, i, itrc, ifile
+      integer :: status, tindx, varid
       integer :: Vsize(4)
-
-      integer :: start(4), total(4)
 
       real(r8), parameter :: Fscl = 1.0_r8
 
-      real(r8) :: Fmax, Fmin, Tmax, time_scale, tmptime(Ngrids)
+      real(r8) :: Fmax, Fmin, tmptime(Ngrids)
 
-      character (len=15 ) attnam, tvarnam
-      character (len=40 ) tunits
       character (len=256) ncname
 !
 !-----------------------------------------------------------------------
@@ -121,14 +115,14 @@
           RETURN
         ELSE
           IF (Master) THEN
-            WRITE (stdout,100) TRIM(Vname(2,idFsur)), Fmin, Fmax
+            WRITE (stdout,40) TRIM(Vname(2,idFsur)), Fmin, Fmax
           END IF
         END IF
       END IF
 !
 !  Read in 2D momentum component (m/s) in the XI-direction.
 !
-      IF (Aout(idUbar,ng)) THEN
+      IF (Aout(idUbar,ng) .or. Aout(idu2dE,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idUbar),       &
      &                       FIL(1,ng)%ncid, varid)
         IF (exit_flag.ne.NoError) RETURN
@@ -150,14 +144,14 @@
           RETURN
         ELSE
           IF (Master) THEN
-            WRITE (stdout,100) TRIM(Vname(2,idUbar)), Fmin, Fmax
+            WRITE (stdout,40) TRIM(Vname(2,idUbar)), Fmin, Fmax
           END IF
         END IF
       END IF
 !
 !  Read in 2D momentum component (m/s) in the ETA-direction.
 !
-      IF (Aout(idVbar,ng)) THEN
+      IF (Aout(idVbar,ng) .or. Aout(idv2dN,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idVbar),       &
      &                       FIL(1,ng)%ncid, varid)
         IF (exit_flag.ne.NoError) RETURN
@@ -179,7 +173,7 @@
           RETURN
         ELSE
           IF (Master) THEN
-            WRITE (stdout,100) TRIM(Vname(2,idVbar)), Fmin, Fmax
+            WRITE (stdout,40) TRIM(Vname(2,idVbar)), Fmin, Fmax
           END IF
         END IF
       END IF
@@ -188,7 +182,7 @@
 !  Read in 3D momentum component (m/s) in the XI-direction.
 !
       ncname=FIL(2,ng)%name
-      IF (Aout(idUvel,ng)) THEN
+      IF (Aout(idUvel,ng) .or. Aout(idu3dE,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idUvel),       &
      &                       FIL(2,ng)%ncid, varid)
         IF (exit_flag.ne.NoError) RETURN
@@ -210,7 +204,7 @@
           RETURN
         ELSE
           IF (Master) THEN
-            WRITE (stdout,100) TRIM(Vname(2,idUvel)), Fmin, Fmax
+            WRITE (stdout,40) TRIM(Vname(2,idUvel)), Fmin, Fmax
           END IF
         END IF
       END IF
@@ -218,7 +212,7 @@
 !  Read in 3D momentum component (m/s) in the ETA-direction.
 !
       ncname=FIL(3,ng)%name
-      IF (Aout(idVvel,ng)) THEN
+      IF (Aout(idVvel,ng) .or. Aout(idv3dN,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idVvel),       &
      &                       FIL(3,ng)%ncid, varid)
         IF (exit_flag.ne.NoError) RETURN
@@ -240,7 +234,7 @@
           RETURN
         ELSE
           IF (Master) THEN
-            WRITE (stdout,100) TRIM(Vname(2,idVvel)), Fmin, Fmax
+            WRITE (stdout,40) TRIM(Vname(2,idVvel)), Fmin, Fmax
           END IF
         END IF
       END IF
@@ -271,7 +265,7 @@
           RETURN
         ELSE
           IF (Master) THEN
-            WRITE (stdout,100) TRIM(Vname(2,idDano)), Fmin, Fmax
+            WRITE (stdout,40) TRIM(Vname(2,idDano)), Fmin, Fmax
           END IF
         END IF
       END IF
@@ -295,7 +289,7 @@
      &                  FILTER(ng) % filt(:,:,:,itrc,tindx))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) TRIM(Vname(1,idTvar(itrc))), tindx,       &
+              WRITE (stdout,30) TRIM(Vname(1,idTvar(itrc))), tindx,     &
      &                        TRIM(ncname)
             END IF
             exit_flag=2
@@ -303,7 +297,7 @@
             RETURN
           ELSE
             IF (Master) THEN
-              WRITE (stdout,100) TRIM(Vname(2,idTvar(itrc))), Fmin, Fmax
+              WRITE (stdout,40) TRIM(Vname(2,idTvar(itrc))), Fmin, Fmax
             END IF
           END IF
         END IF
@@ -334,7 +328,7 @@
           RETURN
         ELSE
           IF (Master) THEN
-            WRITE (stdout,100) TRIM(Vname(2,idOvel)), Fmin, Fmax
+            WRITE (stdout,40) TRIM(Vname(2,idOvel)), Fmin, Fmax
           END IF
         END IF
       END IF
@@ -366,7 +360,7 @@
           RETURN
         ELSE
           IF (Master) THEN
-            WRITE (stdout,100) TRIM(Vname(2,idHsbl)), Fmin, Fmax
+            WRITE (stdout,40) TRIM(Vname(2,idHsbl)), Fmin, Fmax
           END IF
         END IF
       END IF
@@ -398,7 +392,7 @@
           RETURN
         ELSE
           IF (Master) THEN
-            WRITE (stdout,100) TRIM(Vname(2,idHbbl)), Fmin, Fmax
+            WRITE (stdout,40) TRIM(Vname(2,idHbbl)), Fmin, Fmax
           END IF
         END IF
       END IF
@@ -429,7 +423,7 @@
           RETURN
         ELSE
           IF (Master) THEN
-            WRITE (stdout,100) TRIM(Vname(2,idVvis)), Fmin, Fmax
+            WRITE (stdout,40) TRIM(Vname(2,idVvis)), Fmin, Fmax
           END IF
         END IF
       END IF
@@ -459,7 +453,7 @@
           RETURN
         ELSE
           IF (Master) THEN
-            WRITE (stdout,100) TRIM(Vname(2,idTdif)), Fmin, Fmax
+            WRITE (stdout,40) TRIM(Vname(2,idTdif)), Fmin, Fmax
           END IF
         END IF
       END IF
@@ -489,7 +483,7 @@
           RETURN
         ELSE
           IF (Master) THEN
-            WRITE (stdout,100) TRIM(Vname(2,idSdif)), Fmin, Fmax
+            WRITE (stdout,40) TRIM(Vname(2,idSdif)), Fmin, Fmax
           END IF
         END IF
       END IF
@@ -520,7 +514,7 @@
           RETURN
         ELSE
           IF (Master) THEN
-            WRITE (stdout,100) TRIM(Vname(2,idTsur(itemp))), Fmin, Fmax
+            WRITE (stdout,40) TRIM(Vname(2,idTsur(itemp))), Fmin, Fmax
           END IF
         END IF
       END IF
@@ -551,7 +545,7 @@
           RETURN
         ELSE
           IF (Master) THEN
-            WRITE (stdout,100) TRIM(Vname(2,idTsur(isalt))), Fmin, Fmax
+            WRITE (stdout,40) TRIM(Vname(2,idTsur(isalt))), Fmin, Fmax
           END IF
         END IF
       END IF
@@ -582,7 +576,7 @@
           RETURN
         ELSE
           IF (Master) THEN
-            WRITE (stdout,100) TRIM(Vname(2,idLhea)), Fmin, Fmax
+            WRITE (stdout,40) TRIM(Vname(2,idLhea)), Fmin, Fmax
           END IF
         END IF
       END IF
@@ -611,7 +605,7 @@
           RETURN
         ELSE
           IF (Master) THEN
-            WRITE (stdout,100) TRIM(Vname(2,idShea)), Fmin, Fmax
+            WRITE (stdout,40) TRIM(Vname(2,idShea)), Fmin, Fmax
           END IF
         END IF
       END IF
@@ -640,7 +634,7 @@
           RETURN
         ELSE
           IF (Master) THEN
-            WRITE (stdout,100) TRIM(Vname(2,idLrad)), Fmin, Fmax
+            WRITE (stdout,40) TRIM(Vname(2,idLrad)), Fmin, Fmax
           END IF
         END IF
       END IF
@@ -671,7 +665,7 @@
           RETURN
         ELSE
           IF (Master) THEN
-            WRITE (stdout,100) TRIM(Vname(2,idSrad)), Fmin, Fmax
+            WRITE (stdout,40) TRIM(Vname(2,idSrad)), Fmin, Fmax
           END IF
         END IF
       END IF
@@ -703,7 +697,7 @@
           RETURN
         ELSE
           IF (Master) THEN
-            WRITE (stdout,100) TRIM(Vname(2,idUsms)), Fmin, Fmax
+            WRITE (stdout,40) TRIM(Vname(2,idUsms)), Fmin, Fmax
           END IF
         END IF
       END IF
@@ -732,7 +726,7 @@
           RETURN
         ELSE
           IF (Master) THEN
-            WRITE (stdout,100) TRIM(Vname(2,idVsms)), Fmin, Fmax
+            WRITE (stdout,40) TRIM(Vname(2,idVsms)), Fmin, Fmax
           END IF
         END IF
       END IF
@@ -741,7 +735,7 @@
 !  Read in ice u-velocity
 !
       ncname=FIL(10,ng)%name
-      IF (Aout(idUice,ng)) THEN
+      IF (Aout(idUice,ng) .or. Aout(idUiceE,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idUice),       &
      &                       FIL(10,ng)%ncid, varid)
         IF (exit_flag.ne.NoError) RETURN
@@ -763,14 +757,14 @@
           RETURN
         ELSE
           IF (Master) THEN
-            WRITE (stdout,100) TRIM(Vname(2,idUice)), Fmin, Fmax
+            WRITE (stdout,40) TRIM(Vname(2,idUice)), Fmin, Fmax
           END IF
         END IF
       END IF
 !
 !  Read in ice v-velocity
 !
-      IF (Aout(idVice,ng)) THEN
+      IF (Aout(idVice,ng) .or. Aout(idViceN,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idVice),       &
      &                       FIL(10,ng)%ncid, varid)
         gtype=v2dvar
@@ -791,7 +785,7 @@
           RETURN
         ELSE
           IF (Master) THEN
-            WRITE (stdout,100) TRIM(Vname(2,idVice)), Fmin, Fmax
+            WRITE (stdout,40) TRIM(Vname(2,idVice)), Fmin, Fmax
           END IF
         END IF
       END IF
@@ -819,7 +813,7 @@
           RETURN
         ELSE
           IF (Master) THEN
-            WRITE (stdout,100) TRIM(Vname(2,idAice)), Fmin, Fmax
+            WRITE (stdout,40) TRIM(Vname(2,idAice)), Fmin, Fmax
           END IF
         END IF
       END IF
@@ -847,7 +841,7 @@
           RETURN
         ELSE
           IF (Master) THEN
-            WRITE (stdout,100) TRIM(Vname(2,idHice)), Fmin, Fmax
+            WRITE (stdout,40) TRIM(Vname(2,idHice)), Fmin, Fmax
           END IF
         END IF
       END IF
@@ -875,7 +869,7 @@
           RETURN
         ELSE
           IF (Master) THEN
-            WRITE (stdout,100) TRIM(Vname(2,idHsno)), Fmin, Fmax
+            WRITE (stdout,40) TRIM(Vname(2,idHsno)), Fmin, Fmax
           END IF
         END IF
       END IF
@@ -903,7 +897,7 @@
           RETURN
         ELSE
           IF (Master) THEN
-            WRITE (stdout,100) TRIM(Vname(2,idSfwat)), Fmin, Fmax
+            WRITE (stdout,40) TRIM(Vname(2,idSfwat)), Fmin, Fmax
           END IF
         END IF
       END IF
@@ -931,7 +925,7 @@
           RETURN
         ELSE
           IF (Master) THEN
-            WRITE (stdout,100) TRIM(Vname(2,idTice)), Fmin, Fmax
+            WRITE (stdout,40) TRIM(Vname(2,idTice)), Fmin, Fmax
           END IF
         END IF
       END IF
@@ -959,7 +953,7 @@
           RETURN
         ELSE
           IF (Master) THEN
-            WRITE (stdout,100) TRIM(Vname(2,idTimid)), Fmin, Fmax
+            WRITE (stdout,40) TRIM(Vname(2,idTimid)), Fmin, Fmax
           END IF
         END IF
       END IF
@@ -987,7 +981,7 @@
           RETURN
         ELSE
           IF (Master) THEN
-            WRITE (stdout,100) TRIM(Vname(2,idAgeice)), Fmin, Fmax
+            WRITE (stdout,40) TRIM(Vname(2,idAgeice)), Fmin, Fmax
           END IF
         END IF
       END IF
@@ -1015,7 +1009,7 @@
           RETURN
         ELSE
           IF (Master) THEN
-            WRITE (stdout,100) TRIM(Vname(2,idS0mk)), Fmin, Fmax
+            WRITE (stdout,40) TRIM(Vname(2,idS0mk)), Fmin, Fmax
           END IF
         END IF
       END IF
@@ -1043,7 +1037,7 @@
           RETURN
         ELSE
           IF (Master) THEN
-            WRITE (stdout,100) TRIM(Vname(2,idT0mk)), Fmin, Fmax
+            WRITE (stdout,40) TRIM(Vname(2,idT0mk)), Fmin, Fmax
           END IF
         END IF
       END IF
@@ -1071,7 +1065,7 @@
           RETURN
         ELSE
           IF (Master) THEN
-            WRITE (stdout,100) TRIM(Vname(2,idWfr)), Fmin, Fmax
+            WRITE (stdout,40) TRIM(Vname(2,idWfr)), Fmin, Fmax
           END IF
         END IF
       END IF
@@ -1099,7 +1093,7 @@
           RETURN
         ELSE
           IF (Master) THEN
-            WRITE (stdout,100) TRIM(Vname(2,idWai)), Fmin, Fmax
+            WRITE (stdout,40) TRIM(Vname(2,idWai)), Fmin, Fmax
           END IF
         END IF
       END IF
@@ -1127,7 +1121,7 @@
           RETURN
         ELSE
           IF (Master) THEN
-            WRITE (stdout,100) TRIM(Vname(2,idWao)), Fmin, Fmax
+            WRITE (stdout,40) TRIM(Vname(2,idWao)), Fmin, Fmax
           END IF
         END IF
       END IF
@@ -1155,7 +1149,7 @@
           RETURN
         ELSE
           IF (Master) THEN
-            WRITE (stdout,100) TRIM(Vname(2,idWio)), Fmin, Fmax
+            WRITE (stdout,40) TRIM(Vname(2,idWio)), Fmin, Fmax
           END IF
         END IF
       END IF
@@ -1183,7 +1177,7 @@
           RETURN
         ELSE
           IF (Master) THEN
-            WRITE (stdout,100) TRIM(Vname(2,idWro)), Fmin, Fmax
+            WRITE (stdout,40) TRIM(Vname(2,idWro)), Fmin, Fmax
           END IF
         END IF
       END IF
@@ -1211,7 +1205,7 @@
           RETURN
         ELSE
           IF (Master) THEN
-            WRITE (stdout,100) TRIM(Vname(2,idSig11)), Fmin, Fmax
+            WRITE (stdout,40) TRIM(Vname(2,idSig11)), Fmin, Fmax
           END IF
         END IF
       END IF
@@ -1239,7 +1233,7 @@
           RETURN
         ELSE
           IF (Master) THEN
-            WRITE (stdout,100) TRIM(Vname(2,idSig12)), Fmin, Fmax
+            WRITE (stdout,40) TRIM(Vname(2,idSig12)), Fmin, Fmax
           END IF
         END IF
       END IF
@@ -1267,7 +1261,7 @@
           RETURN
         ELSE
           IF (Master) THEN
-            WRITE (stdout,100) TRIM(Vname(2,idSig22)), Fmin, Fmax
+            WRITE (stdout,40) TRIM(Vname(2,idSig22)), Fmin, Fmax
           END IF
         END IF
       END IF
@@ -1295,7 +1289,7 @@
           RETURN
         ELSE
           IF (Master) THEN
-            WRITE (stdout,100) TRIM(Vname(2,idIomflx)), Fmin, Fmax
+            WRITE (stdout,40) TRIM(Vname(2,idIomflx)), Fmin, Fmax
           END IF
         END IF
       END IF
@@ -1323,7 +1317,7 @@
           RETURN
         ELSE
           IF (Master) THEN
-            WRITE (stdout,100) TRIM(Vname(2,idTauiw)), Fmin, Fmax
+            WRITE (stdout,40) TRIM(Vname(2,idTauiw)), Fmin, Fmax
           END IF
         END IF
       END IF
@@ -1351,7 +1345,7 @@
           RETURN
         ELSE
           IF (Master) THEN
-            WRITE (stdout,100) TRIM(Vname(2,idChuiw)), Fmin, Fmax
+            WRITE (stdout,40) TRIM(Vname(2,idChuiw)), Fmin, Fmax
           END IF
         END IF
       END IF
@@ -1365,23 +1359,13 @@
       END DO
       IF (Master) WRITE (stdout,80) tindx
 !
-  10  FORMAT (/,' GET_FILTER - unable to find model variable: ',a,      &
-     &        /,15x,'in filter NetCDF file: ',a)
   20  FORMAT (/,' GET_FILTER - unable to open filter NetCDF file: ',a)
   30  FORMAT (/,' GET_FILTER - error while reading variable: ',a,2x,    &
      &        'at time record = ',i3,/,15x,'in filter NetCDF file: ',a)
-  40  FORMAT (/,' GET_FILTER - requested filter time record = ',i3,/,   &
-     &        15x,'not found in input NetCDF: ',a,/,                    &
-     &        15x,'number of available records = ',i3)
-  50  FORMAT (/,' GET_FILTER - error while reading attribute: ',a)
-  60  FORMAT (/,' GET_FILTER - error while inquiring attributes for',   &
-     &          ' variable: ',a)
-  70  FORMAT (/,' GET_FILTER - cannot inquire about time variable in',  &
-     &          ' filter NetCDF file: ',a)
   80  FORMAT (' GET_FILTER - Processed filter fields,',                 &
      &        t48,'filterLevel = ',i3)
   90  FORMAT (6x,'GET_FILTER - ',a,t64,'t = ',i12)
- 100  FORMAT (16x,'- ',a,/,19x,'(Min = ',1p,e15.8,                      &
+  40  FORMAT (16x,'- ',a,/,19x,'(Min = ',1p,e15.8,                      &
      &        ' Max = ',1p,e15.8,')')
       RETURN
       END SUBROUTINE get_filter

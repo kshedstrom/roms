@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -228,12 +228,16 @@
 !  critical region, finalizes the computation of diagnostics and prints
 !  them out.
 !
+# ifdef DISTRIBUTE
+        NSUB=1                           ! distributed-memory
+# else
         IF (DOMAIN(ng)%SouthWest_Corner(tile).and.                      &
      &      DOMAIN(ng)%NorthEast_Corner(tile)) THEN
           NSUB=1                         ! non-tiled application
         ELSE
           NSUB=NtileX(ng)*NtileE(ng)     ! tiled application
         END IF
+# endif
 !$OMP CRITICAL (RP_DIAGNOSTICS)
         IF (tile_count.eq.0) THEN
           volume=0.0_r8

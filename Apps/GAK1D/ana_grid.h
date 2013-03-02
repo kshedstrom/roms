@@ -2,7 +2,7 @@
 !
 !! svn $Id$
 !!======================================================================
-!! Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
+!! Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
 !!   Licensed under a MIT/X style license                              !
 !!   See License_ROMS.txt                                              !
 !=======================================================================
@@ -1060,8 +1060,8 @@
 #endif
 !
 ! Determine minimum depth: first, determine minimum values of depth
-! within each subdomain (stored as private variable cff), then
-! determine global minimum by comparing these  subdomain minima.
+! within each subdomain, then determine global minimum by comparing
+! these  subdomain minima.
 !
       my_min=h(IstrR,JstrR)
       my_max=h(IstrR,JstrR)

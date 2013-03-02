@@ -2,7 +2,7 @@
 !
 !svn $Id$
 !************************************************** Hernan G. Arango ***
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !***********************************************************************
@@ -93,8 +93,8 @@
      &                   OCEAN(ng) % PON_burial,                        &
      &                   OCEAN(ng) % OPAL_burial,                       &
 #endif
-#ifdef NEMURO_PROD
-     &                   OCEAN(ng) % Nemuro_NPP,                        &
+#ifdef PRIMARY_PROD
+     &                   OCEAN(ng) % Bio_NPP,                           &
 #endif
      &                   OCEAN(ng) % t)
 
@@ -128,8 +128,8 @@
      &                         PONsed, OPALsed, DENITsed,               &
      &                         PON_burial, OPAL_burial,                 &
 #endif
-#ifdef NEMURO_PROD
-     &                         Nemuro_NPP,                              &
+#ifdef PRIMARY_PROD
+     &                         Bio_NPP,                                 &
 #endif
      &                         t)
 !-----------------------------------------------------------------------
@@ -178,8 +178,8 @@
       real(r8), intent(inout) :: PON_burial(LBi:,LBj:)
       real(r8), intent(inout) :: OPAL_burial(LBi:,LBj:)
 # endif
-# ifdef NEMURO_PROD
-      real(r8), intent(out) :: Nemuro_NPP(LBi:,LBj:)
+# ifdef PRIMARY_PROD
+      real(r8), intent(out) :: Bio_NPP(LBi:,LBj:)
 # endif
       real(r8), intent(inout) :: t(LBi:,LBj:,:,:,:)
 #else
@@ -204,9 +204,9 @@
       real(r8), intent(inout) :: PON_burial(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: OPAL_burial(LBi:UBi,LBj:UBj)
 # endif
-#  ifdef NEMURO_PROD
-      real(r8), intent(out) :: Nemuro_NPP(LBi:UBi,LBj:UBj)
-#  endif
+# ifdef PRIMARY_PROD
+      real(r8), intent(out) :: Bio_NPP(LBi:UBi,LBj:UBj)
+# endif
       real(r8), intent(inout) :: t(LBi:UBi,LBj:UBj,UBk,3,UBt)
 #endif
 !
@@ -258,7 +258,7 @@
 
       real(r8), dimension(NT(ng),2) :: BioTrc
       real(r8), dimension(IminS:ImaxS,N(ng),NT(ng)) :: Bio
-      real(r8), dimension(IminS:ImaxS,N(ng),NT(ng)) :: Bio_bak
+      real(r8), dimension(IminS:ImaxS,N(ng),NT(ng)) :: Bio_old
 
       real(r8), dimension(IminS:ImaxS,0:N(ng)) :: FC
 
@@ -273,7 +273,7 @@
       real(r8), dimension(IminS:ImaxS,N(ng)) :: bR
       real(r8), dimension(IminS:ImaxS,N(ng)) :: qc
       real(r8), dimension(IminS:ImaxS,N(ng)) :: LPSiN
-#ifdef NEMURO_PROD
+#ifdef PRIMARY_PROD
       real(r8), dimension(IminS:ImaxS,N(ng)) :: NPP_slice
 #endif
       real(r8), dimension(IminS:ImaxS) :: frac_buried
@@ -284,6 +284,10 @@
 !-----------------------------------------------------------------------
 !  Add biological Source/Sink terms.
 !-----------------------------------------------------------------------
+!
+!  Avoid computing source/sink terms if no biological iterations.
+!
+      IF (BioIter(ng).le.0) RETURN
 !
 !  Set time-stepping size (days) according to the number of iterations.
 !
@@ -386,7 +390,7 @@
           END DO
         END DO
 !
-#ifdef NEMURO_PROD
+#ifdef PRIMARY_PROD
         DO k=1,N(ng)
           DO i=Istr,Iend
             NPP_slice(i,k)=0.0_r8
@@ -405,8 +409,8 @@
           ibio=idbio(itrc)
           DO k=1,N(ng)
             DO i=Istr,Iend
-              Bio_bak(i,k,ibio)=MAX(0.0_r8,t(i,j,k,nstp,ibio))
-              Bio(i,k,ibio)=Bio_bak(i,k,ibio)
+              Bio_old(i,k,ibio)=MAX(0.0_r8,t(i,j,k,nstp,ibio))
+              Bio(i,k,ibio)=Bio_old(i,k,ibio)
             END DO
           END DO
         END DO
@@ -629,7 +633,7 @@
               GppAPS=Bio(i,k,iNH4_)*cff5
               GppPS=GppNPS+GppAPS
               Bio(i,k,iSphy)=Bio(i,k,iSphy)+GppPS
-#ifdef NEMURO_PROD
+#ifdef PRIMARY_PROD
               NPP_slice(i,k)=NPP_slice(i,k)+GppPS
 #endif
 !
@@ -666,7 +670,7 @@
               ResPS=Bio(i,k,iSphy)*cff4
               Bio(i,k,iNO3_)=Bio(i,k,iNO3_)+ResPS*RnewS
               Bio(i,k,iNH4_)=Bio(i,k,iNH4_)+ResPS*(1.0_r8-RnewS)
-#ifdef NEMURO_PROD
+#ifdef PRIMARY_PROD
               NPP_slice(i,k)=NPP_slice(i,k)-ResPS
 #endif
 !
@@ -746,7 +750,7 @@
               GppPL=GppNPL+GppAPL
               Bio(i,k,iLphy)=Bio(i,k,iLphy)+GppPL
               Bio(i,k,iSiOH)=Bio(i,k,iSiOH)-GppPL*LPSiN(i,k)
-#ifdef NEMURO_PROD
+#ifdef PRIMARY_PROD
               NPP_slice(i,k)=NPP_slice(i,k)+GppPL
 #endif
 !
@@ -785,7 +789,7 @@
               Bio(i,k,iNO3_)=Bio(i,k,iNO3_)+ResPL*RnewL
               Bio(i,k,iNH4_)=Bio(i,k,iNH4_)+ResPL*(1.0_r8-RnewL)
               Bio(i,k,iSiOH)=Bio(i,k,iSiOH)+ResPL*LPSiN(i,k)
-#ifdef NEMURO_PROD
+#ifdef PRIMARY_PROD
               NPP_slice(i,k)=NPP_slice(i,k)-ResPL
 #endif
 !
@@ -1103,7 +1107,7 @@
 # ifdef HOLLING_GRAZING
               cff4=1.0_r8/(KZS2ZP(ng)+Bio(i,k,iSzoo)*Bio(i,k,iSzoo))
               cff5=EXP(-PusaiZS(ng)*Bio(i,k,iLzoo))
-              cff=fac7*cff3**cff4*cff5*Bio(i,k,iPzoo)*Bio(i,k,iSzoo)
+              cff=fac7*cff3*cff4*cff5*Bio(i,k,iPzoo)*Bio(i,k,iSzoo)
 # elif defined IVLEV_IMPLICIT
               cff4=1.0_r8-EXP(LamP(ng)*(ZS2ZPstar(ng)-Bio(i,k,iSzoo)))
               cff5=EXP(-PusaiZS(ng)*Bio(i,k,iLzoo))
@@ -1526,34 +1530,40 @@
         END DO ITER_LOOP
 !
 !-----------------------------------------------------------------------
-!  Update global tracer variables (m Tunits).
+!  Update global tracer variables: Add increment due to BGC processes
+!  to tracer array in time index "nnew". Index "nnew" is solution after
+!  advection and mixing and has transport units (m Tunits) hence the
+!  increment is multiplied by Hz.  Notice that we need to subtract
+!  original values "Bio_old" at the top of the routine to just account
+!  for the concentractions affected by BGC processes. This also takes
+!  into account any constraints (non-negative concentrations, carbon
+!  concentration range) specified before entering BGC kernel. If "Bio"
+!  were unchanged by BGC processes, the increment would be exactly
+!  zero. Notice that final tracer values, t(:,:,:,nnew,:) are not
+!  bounded >=0 so that we can preserve total inventory of nutrients
+!  when advection causes tracer concentration to go negative.
 !-----------------------------------------------------------------------
 !
         DO itrc=1,NBT
           ibio=idbio(itrc)
           DO k=1,N(ng)
             DO i=Istr,Iend
-              t(i,j,k,nnew,ibio)=MAX(t(i,j,k,nnew,ibio)+                &
-     &                               (Bio(i,k,ibio)-Bio_bak(i,k,ibio))* &
-     &                               Hz(i,j,k),                         &
-     &                               0.0_r8)
-#ifdef TS_MPDATA
-              t(i,j,k,3,ibio)=t(i,j,k,nnew,ibio)*Hz_inv(i,k)
-#endif
+              cff=Bio(i,k,ibio)-Bio_old(i,k,ibio)
+              t(i,j,k,nnew,ibio)=t(i,j,k,nnew,ibio)+cff*Hz(i,j,k)
             END DO
           END DO
         END DO
 
-#  ifdef NEMURO_PROD
+#ifdef PRIMARY_PROD
         DO i=Istr,Iend
-	  Nemuro_NPP(i,j) = 0.0_r8
+	  Bio_NPP(i,j) = 0.0_r8
         END DO
         DO k=1,N(ng)
           DO i=Istr,Iend
-	    Nemuro_NPP(i,j) = Nemuro_NPP(i,j) + Hz(i,j,k)*NPP_slice(i,k)
+	    Bio_NPP(i,j) = Bio_NPP(i,j) + Hz(i,j,k)*NPP_slice(i,k)
           END DO
         END DO
-#  endif
+#endif
 
       END DO J_LOOP
 

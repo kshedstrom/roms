@@ -2,7 +2,7 @@
 #
 # svn $Id$
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-# Copyright (c) 2002-2012 The ROMS/TOMS Group                           :::
+# Copyright (c) 2002-2013 The ROMS/TOMS Group                           :::
 #   Licensed under a MIT/X style license                                :::
 #   See License_ROMS.txt                                                :::
 #::::::::::::::::::::::::::::::::::::::::::::::::::::: Hernan G. Arango :::
@@ -47,7 +47,7 @@ do
     -j )
       shift
       parallel=1
-      test=`echo $1 | grep -P '^\d+$'`
+      test=`echo $1 | grep '^[0-9]\+$'`
       if [ "$test" != "" ]; then
         NCPUS="-j $1"
         shift

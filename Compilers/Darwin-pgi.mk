@@ -1,6 +1,6 @@
 # svn $Id$
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-# Copyright (c) 2002-2012 The ROMS/TOMS Group                           :::
+# Copyright (c) 2002-2013 The ROMS/TOMS Group                           :::
 #   Licensed under a MIT/X style license                                :::
 #   See License_ROMS.txt                                                :::
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -29,7 +29,7 @@
 #
                FC := pgf90
            FFLAGS :=
-              CPP := /usr/bin/cpp-4.0
+              CPP := /usr/bin/cpp
          CPPFLAGS := -P -traditional-cpp
                CC := gcc
               CXX := g++

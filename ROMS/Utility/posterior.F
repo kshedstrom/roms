@@ -7,7 +7,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group       Andrew M. Moore   !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -5607,13 +5607,5 @@
       RETURN
       END SUBROUTINE posterior_eofs
 #endif
-
-#undef IstrT,IendT
-#undef IstrP,IendT
-#undef IstrT,IendT
-
-#undef JstrT,JendT
-#undef JstrT,JendT
-#undef JstrP,JendT
 
       END MODULE posterior_mod

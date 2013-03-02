@@ -3,7 +3,7 @@
 #if defined ICE_MODEL && defined ICE_THERMO
 !
 !=======================================================================
-!  Copyright (c) 2002 ROMS/TOMS Group                                  !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group                        **
 !================================================== Hernan G. Arango ===
 !                                                                      !
 !  This routine computes the frazil ice growth in the water when the
@@ -34,7 +34,7 @@
 # include "tile.h"
 !
 # ifdef PROFILE
-      CALL wclock_on (ng, iNLM, 44)
+      CALL wclock_on (ng, iNLM, 51)
 # endif
 !
       CALL ice_frazil_tile (ng, tile,                                   &
@@ -53,7 +53,7 @@
      &                      OCEAN(ng) % t,                              &
      &                      ICE(ng) % wfr)
 # ifdef PROFILE
-      CALL wclock_off (ng, iNLM, 44)
+      CALL wclock_off (ng, iNLM, 51)
 # endif
       RETURN
       END SUBROUTINE ice_frazil
@@ -79,6 +79,7 @@
       USE exchange_3d_mod, ONLY : exchange_r3d_tile
 # ifdef DISTRIBUTE
       USE mp_exchange_mod
+      USE distribute_mod, ONLY : mp_reduce
 # endif
 !
       implicit none
@@ -129,6 +130,11 @@
       real(r8) :: gamma_k
       real(r8) :: t_fr
 
+# ifdef DISTRIBUTE
+      real(r8), allocatable           :: buffer(:)
+      character (len=3), allocatable  :: op_handle(:)
+# endif
+
 !  Inline functions
 !  Freezing temperature (Gill, 1982)
 !     t_freeze(s1,z1) = -0.0575*s1 + 1.710523d-3*sqrt(s1)**3
@@ -138,6 +144,10 @@
 
 # include "set_bounds.h"
 
+# ifdef DISTRIBUTE
+      IF (.not. allocated(buffer))    allocate (buffer(1))
+      IF (.not. allocated(op_handle)) allocate (op_handle(1))
+# endif
       DO j=Jstr,Jend
         DO i=Istr,Iend
           wfr(i,j) = 0.0_r8
@@ -161,6 +171,7 @@
                   print *, 'trouble in ice_frazil', i, j, k,            &
      &             t(i,j,k,nnew,itemp), t(i,j,k,nnew,isalt),            &
      &             t_fr, wfr(i,j), gamma_k, Hz(i,j,k)
+                  exit_flag = 9
                 END IF
                 wfr(i,j) = wfr(i,j) + gamma_k * Hz(i,j,k) *             &
      &                    (1000.0_r8 + rho(i,j,k) ) / rhoice(ng)
@@ -181,6 +192,7 @@
             print *, 'trouble in ice_frazil', i, j,                     &
      &         t(i,j,N(ng),nnew,itemp), t(i,j,N(ng),nnew,isalt),        &
      &         wfr(i,j), gamma_k, Hz(i,j,N(ng))
+            exit_flag = 9
           END IF
         END DO
       END DO
@@ -188,6 +200,10 @@
      &                          LBi, UBi, LBj, UBj,                     &
      &                          wfr)
 # ifdef DISTRIBUTE
+      buffer(1) = exit_flag
+      op_handle(1) = 'MAX'
+      CALL mp_reduce (ng, iNLM, 1, buffer, op_handle)
+      exit_flag = int(buffer(1))
       CALL mp_exchange2d (ng, tile, iNLM, 1,                            &
      &                    LBi, UBi, LBj, UBj,                           &
      &                    NghostPoints, EWperiodic(ng), NSperiodic(ng), &
