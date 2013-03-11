@@ -4299,13 +4299,13 @@
             CALL exchange_r2d_tile (ng, tile,                           &
      &                              LBi, UBi, LBj, UBj,                 &
      &                              AVERAGE(ng)%avglrf)
-#  ifdef DISTRIBUTE
+#   ifdef DISTRIBUTE
             CALL mp_exchange2d (ng, tile, iNLM, 1,                      &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          NghostPoints,                           &
      &                          EWperiodic(ng), NSperiodic(ng),         &
      &                          AVERAGE(ng)%avglrf)
-#  endif
+#   endif
           END IF
         END IF
 
@@ -4321,16 +4321,15 @@
             CALL exchange_r2d_tile (ng, tile,                           &
      &                            LBi, UBi, LBj, UBj,                   &
      &                            AVERAGE(ng)%avgevap)
-#   ifdef DISTRIBUTE
+#    ifdef DISTRIBUTE
             CALL mp_exchange2d (ng, tile, iNLM, 1,                      &
      &                        LBi, UBi, LBj, UBj,                       &
      &                        NghostPoints,                             &
      &                        EWperiodic(ng), NSperiodic(ng),           &
      &                        AVERAGE(ng)%avgevap)
-#   endif
+#    endif
           END IF
         END IF
-#  endif
 
         IF (Aout(idrain,ng)) THEN
           DO j=JstrR,JendR
@@ -4352,6 +4351,7 @@
 #    endif
           END IF
         END IF
+#   endif
 #  endif
 
 #  ifdef ICE_MODEL
