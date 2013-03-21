@@ -1761,15 +1761,6 @@
 # endif
 #endif
 
-      allocate ( EWperiodic(Ngrids) )
-      allocate ( NSperiodic(Ngrids) )
-
-      allocate ( VolCons(4,Ngrids) )
-#if defined ADJONT || defined TANGENT || defined TL_IOMS
-      allocate ( ad_VolCons(4,Ngrids) )
-      allocate ( tl_VolCons(4,Ngrids) )
-#endif
-
       allocate ( ComposedGrid(Ngrids) )
       allocate ( RefinedGrid(Ngrids) )
 
