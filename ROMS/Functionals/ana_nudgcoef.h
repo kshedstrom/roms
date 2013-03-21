@@ -722,13 +722,7 @@
      &                    NghostPoints, .FALSE., .FALSE.,               &
      &                    CLIMA(ng)%Tnudgcof)
 #  endif
-# else
-          IF (DOMAIN(ng)%NorthEast_Test(tile)) THEN
-            M3obc_out(ng,inorth)=M3nudg(ng)
-            M3obc_in (ng,inorth)=obcfac(ng)*M3nudg(ng)
-          END IF
 # endif
-        END IF
 #endif
 
       RETURN
