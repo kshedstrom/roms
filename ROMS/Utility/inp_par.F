@@ -873,6 +873,7 @@
         FIL(9,ng)%name=TRIM(ADJUSTL('ocean_filw_'//ngnumber//'.nc'))
 #ifdef ICE_MODEL
         FIL(10,ng)%name=TRIM(ADJUSTL('ocean_filice_'//ngnumber//'.nc'))
+#endif
         DO ifile=1,nfile
           allocate ( FIL(ifile,ng)%Nrec(1) )
           allocate ( FIL(ifile,ng)%Vid(NV) )
@@ -891,7 +892,6 @@
           FIL(ifile,ng)%time_max=0.0_r8
           FIL(ifile,ng)%label='FILTER - tidal filtering'
         END DO
-#endif
 # endif
 #endif
 !
