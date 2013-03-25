@@ -70,12 +70,12 @@
 ! indices (Istr,Iend) and (Jstr,Jend), [1:Ngrids].
 
 !      NtileI == 1                               ! I-direction partition
-!      NtileI == 2                               ! I-direction partition
-!      NtileI == 4                               ! I-direction partition
-       NtileI == 8                               ! I-direction partition
+!      NtileI == 1                               ! I-direction partition
+       NtileI == 4                               ! I-direction partition
+!      NtileI == 8                               ! I-direction partition
 !      NtileJ == 10                              ! J-direction partition
-       NtileJ == 16                              ! J-direction partition
-!      NtileJ == 32                              ! J-direction partition
+!      NtileJ == 16                              ! J-direction partition
+       NtileJ == 32                              ! J-direction partition
 
 ! Set lateral boundary conditions keyword. Notice that a value is expected
 ! for each boundary segment per nested grid for each state variable.
@@ -116,7 +116,7 @@
    LBC(isVbar) ==   Fla     Fla     Fla     Clo         ! 2D V-momentum
    LBC(isUvel) ==   RadNud  RadNud  RadNud  Clo         ! 3D U-momentum
    LBC(isVvel) ==   RadNud  RadNud  RadNud  Clo         ! 3D V-momentum
-   LBC(isMtke) ==   Per     Clo     Per     Clo         ! mixing TKE
+   LBC(isMtke) ==   Clo     Clo     Clo     Clo         ! mixing TKE
 
    LBC(isTvar) ==   RadNud  RadNud  RadNud  Clo \       ! temperature
                     RadNud  RadNud  RadNud  Clo         ! salinity
@@ -164,10 +164,11 @@ ad_VolCons(north) ==  F                            ! northern boundary
 
 ! Time-Stepping parameters.
 
-       NTIMES == 138240
-          DT == 225.0d0
-!          DT == 360.0d0
-     NDTFAST == 20
+       NTIMES == 86400
+!       NTIMES == 10
+          DT == 360.0d0
+!          DT == 225.0d0
+     NDTFAST == 30
 
 ! Model iteration loops parameters.
 
@@ -188,12 +189,11 @@ ad_VolCons(north) ==  F                            ! northern boundary
 
        NRREC = 0
    LcycleRST == T
-!       NRST == 240
-!       NSTA == 10
-!       NFLT == 10
-       NRST == 384
-       NSTA == 16
-       NFLT == 16
+       NRST == 240
+       NSTA == 10
+       NFLT == 10
+!      NRST == 384
+!      NFLT == 16
        NINFO == 1
 
 ! Output history, average, diagnostic files parameters.
@@ -202,10 +202,10 @@ ad_VolCons(north) ==  F                            ! northern boundary
         NHIS == 384
      NDEFHIS == 384
       NTSAVG == 1
-!       NAVG == 240
-!    NDEFAVG == 240
-       NAVG == 384
-    NDEFAVG == 384
+       NAVG == 240
+    NDEFAVG == 240
+!       NAVG == 384
+!    NDEFAVG == 384
      NTSAVG2 == 1
        NAVG2 == 27
     NDEFAVG2 == 1920
@@ -235,12 +235,12 @@ ad_VolCons(north) ==  F                            ! northern boundary
 ! Harmonic/biharmonic horizontal diffusion of tracer: [1:NAT+NPT,Ngrids].
 
         TNU2 == 5.0d0  5.0d0                    ! m2/s
-        TNU4 == 2*0.0d0                         ! m4/s
+        TNU4 == 2*0.0d+3                        ! m4/s
 
 ! Harmononic/biharmonic, horizontal viscosity coefficient: [Ngrids].
 
        VISC2 == 25.0d0                          ! m2/s
-       VISC4 == 0.0d0                           ! m4/s
+       VISC4 == 1.0d+8                          ! m4/s
 
 ! Vertical mixing coefficients for active tracers: [1:NAT+NPT,Ngrids]
 
@@ -333,7 +333,8 @@ ad_VolCons(north) ==  F                            ! northern boundary
 
 !      DSTART =  21186.5d0                  ! days
 !      DSTART =  36526.5d0                  ! days
-      DSTART =  28854.5d0                  ! days
+!      DSTART =  34680.0d0                  ! days
+      DSTART =  36506.5d0                  ! days
   TIDE_START =  -1.0d0                     ! days
     TIME_REF =  19000101.0d0               ! yyyymmdd.dd
 
@@ -365,6 +366,7 @@ ad_VolCons(north) ==  F                            ! northern boundary
 
 ! Logical switches (TRUE/FALSE) to specify which variables to process for
 ! tracers climatology: [1:NAT+NPT,Ngrids]. See glossary below for details.
+
 
   LtracerCLM == T T                        ! temperature, salinity, inert
 
@@ -448,8 +450,8 @@ Hout(idUairE) == F      ! Uwind_eastward     surface U-wind
 Hout(idVairN) == F      ! Vwind_northward    surface V-wind
 Hout(idUsms) == F       ! sustr              surface U-stress
 Hout(idVsms) == F       ! svstr              surface V-stress
-Hout(idUbms) == F       ! bustr              bottom U-stress
-Hout(idVbms) == F       ! bvstr              bottom V-stress
+Hout(idUbms) == T       ! bustr              bottom U-stress
+Hout(idVbms) == T       ! bvstr              bottom V-stress
 
 Hout(idUbrs) == F       ! bustrc             bottom U-current stress
 Hout(idVbrs) == F       ! bvstrc             bottom V-current stress
@@ -502,7 +504,7 @@ Hout(idEmPf) == F       ! EminusP            E-P flux
 Hout(idevap) == F       ! evaporation        evaporation rate
 Hout(idrain) == F       ! rain               precipitation rate
 
-Hout(idDano) == F       ! rho                density anomaly
+Hout(idDano) == T       ! rho                density anomaly
 Hout(idVvis) == F       ! AKv                vertical viscosity
 Hout(idTdif) == F       ! AKt                vertical T-diffusion
 Hout(idSdif) == F       ! AKs                vertical Salinity diffusion
@@ -610,8 +612,8 @@ Aout(idUairE) == F      ! Uwind_eastward     surface U-wind
 Aout(idVairN) == F      ! Vwind_northward    surface V-wind
 Aout(idUsms) == F       ! sustr              surface U-stress
 Aout(idVsms) == F       ! svstr              surface V-stress
-Aout(idUbms) == F       ! bustr              bottom U-stress
-Aout(idVbms) == F       ! bvstr              bottom V-stress
+Aout(idUbms) == T       ! bustr              bottom U-stress
+Aout(idVbms) == T       ! bvstr              bottom V-stress
 
 Aout(idW2xx) == F       ! Sxx_bar            2D radiation stress, Sxx component
 Aout(idW2xy) == F       ! Sxy_bar            2D radiation stress, Sxy component
@@ -644,8 +646,8 @@ Aout(idevap) == T       ! evaporation        evaporation rate
 Aout(idrain) == T       ! rain               precipitation rate
 
 Aout(idDano) == T       ! rho                density anomaly
-Aout(idVvis) == F       ! AKv                vertical viscosity
-Aout(idTdif) == F       ! AKt                vertical T-diffusion
+Aout(idVvis) == T       ! AKv                vertical viscosity
+Aout(idTdif) == T       ! AKt                vertical T-diffusion
 Aout(idSdif) == F       ! AKs                vertical Salinity diffusion
 Aout(idHsbl) == T       ! Hsbl               depth of surface boundary layer
 Aout(idHbbl) == F       ! Hbbl               depth of bottom boundary layer
@@ -672,7 +674,6 @@ Aout(idU2av) == F       ! ubar2              quadratic <ubar*ubar> term
 Aout(idV2av) == F       ! vbar2              quadratic <vbar*vbar> term
 Aout(idZZav) == F       ! zeta2              quadratic <zeta*zeta> term
 
-  
 Aout(idTTav) == F F     ! temp2, ...         quadratic <t*t> tracer terms
 Aout(idUTav) == F F     ! utemp, ...         quadratic <u*t> tracer terms
 Aout(idVTav) == F F     ! vtemp, ...         quadratic <v*t> tracer terms
@@ -747,8 +748,9 @@ Dout(iTvdif) == T T                        ! vertical diffusion
 
 ! Input NetCDF file names, [1:Ngrids].
 
-     GRDNAME == /wrkdir/kate/NEP/Files/NEP6_grd_depth_min_15m.nc
-     ININAME == /wrkdir/kate/NEP/Files/SODA_2.1.6_19790101_ic_NEP6_bio_ice.nc
+     GRDNAME == /center/w/kate/NEP/Files/NEP6_grd_depth_min_15m.nc
+!     ININAME == /center/w/kate/NEP/Files/nep6_monthly_avg_1994_12.nc
+     ININAME == /center/w/kate/NEP/Files/SODA_2.1.6_19991212-19991217_ic_NEP6.nc
 !     ININAME == nep6_rst.nc
      ITLNAME == ocean_itl.nc
      IRPNAME == ocean_irp.nc
@@ -762,11 +764,12 @@ Dout(iTvdif) == T T                        ! vertical diffusion
 ! line per entry with a vertical bar (|) symbol after each entry,
 ! except the last one.
 
-   NCLMFILES == 3
-     CLMNAME == /wrkdir/kate/NEP/Files/SODA_2.1.6_clim_NEP6_1978.nc |
-                /wrkdir/kate/NEP/Files/SODA_2.1.6_clim_NEP6_1979.nc \
-                /wrkdir/kate/NEP/Files/NEP6_clm_bio1_umaine_WOA.nc \
-                /wrkdir/kate/NEP/Files/NEP6_clm_bio2_umaine_WOA.nc 
+   NCLMFILES == 1
+     CLMNAME == /center/w/kate/NEP/Files/SODA_2.1.6_clim_NEP6_1990-2000.nc
+!     CLMNAME == /center/w/kate/NEP/Files/SODA_2.1.6_clim_NEP6_1978.nc |
+!                /center/w/kate/NEP/Files/SODA_2.1.6_clim_NEP6_1979.nc \
+!                /center/w/kate/NEP/Files/NEP6_clm_bio1_umaine_WOA.nc \
+!                /center/w/kate/NEP/Files/NEP6_clm_bio2_umaine_WOA.nc 
 
 ! Input boundary NetCDF file name(s).  The USER has the option to enter
 ! several files names per each nested grid.  For example, the USER may
@@ -778,9 +781,10 @@ Dout(iTvdif) == T T                        ! vertical diffusion
 ! and so on.  Use a single line per entry with a continuation (\) symbol
 ! at the each entry, except the last one.
 
-     NBCFILES == 2                          ! number of boundary files
-     BRYNAME == /wrkdir/kate/NEP/Files/SODA_2.1.6_bdry_NEP6_1958-2008.nc \
-                /wrkdir/kate/NEP/Files/NEP6_bdry_bio_umaine_WOA.nc
+     NBCFILES == 1                          ! number of boundary files
+     BRYNAME == /center/w/kate/NEP/Files/SODA_2.1.6_bdry_NEP6_1958-2008.nc
+!     BRYNAME == /center/w/kate/NEP/Files/SODA_2.1.6_bdry_NEP6_1958-2008.nc \
+!                /center/w/kate/NEP/Files/NEP6_bdry_bio_umaine_WOA.nc
 
 
 ! Input forcing NetCDF file name(s).  The USER has the option to enter
@@ -793,29 +797,38 @@ Dout(iTvdif) == T T                        ! vertical diffusion
 ! and so on.  Use a single line per entry with a continuation (\) symbol
 ! at the each entry, except the last one.
 
-!   FRCNAME == /wrkdir/kate/Bering/Files/Pair.1948-2007.nc   \
-!              /wrkdir/kate/Bering/Files/lwrad.1948-2007.nc  \
-!              /wrkdir/kate/Bering/Files/Qair.1948-2007.nc   \
-!              /wrkdir/kate/Bering/Files/swrad.1948-2007.nc  \
-!              /wrkdir/kate/Bering/Files/Tair.1948-2007.nc   \
-!              /wrkdir/kate/Bering/Files/Uwind.1948-2007.nc  \
-!              /wrkdir/kate/Bering/Files/Vwind.1948-2007.nc  \
-!              /wrkdir/kate/Bering/Files/rain.1948-2007.nc  \
+!   FRCNAME == /center/w/kate/Bering/Files/Pair.1948-2007.nc   \
+!              /center/w/kate/Bering/Files/lwrad.1948-2007.nc  \
+!              /center/w/kate/Bering/Files/Qair.1948-2007.nc   \
+!              /center/w/kate/Bering/Files/swrad.1948-2007.nc  \
+!              /center/w/kate/Bering/Files/Tair.1948-2007.nc   \
+!              /center/w/kate/Bering/Files/Uwind.1948-2007.nc  \
+!              /center/w/kate/Bering/Files/Vwind.1948-2007.nc  \
+!              /center/w/kate/Bering/Files/rain.1948-2007.nc  \
 
     NFFILES == 12                          ! number of forcing files
 
-    FRCNAME == /wrkdir/kate/MERRA/MERRA_Pair_3hours_1979.nc   \
-               /wrkdir/kate/MERRA/MERRA_Qair_3hours_1979.nc   \
-               /wrkdir/kate/MERRA/MERRA_Tair_3hours_1979.nc   \
-               /wrkdir/kate/MERRA/MERRA_lwrad_down_3hours_1979.nc  \
-               /wrkdir/kate/MERRA/MERRA_swrad_3hours_1979.nc  \
-               /wrkdir/kate/MERRA/MERRA_Uwind_3hours_1979.nc  \
-               /wrkdir/kate/MERRA/MERRA_Vwind_3hours_1979.nc  \
-               /wrkdir/kate/MERRA/MERRA_rain_3hours_1979.nc  \
-               /wrkdir/kate/MERRA/MERRA_albedo_daily_1979.nc  \
-               /wrkdir/kate/NEP/Files/runoff_NEP6_daitren_inter_annual_1948-2007.nc   \
-               /wrkdir/kate/Bering/Files/sss_fill_2004.nc  \
-               /wrkdir/kate/NEP/Files/NEP4_tides_otps.nc
+    FRCNAME == /center/w/kate/MERRA/MERRA_Pair_3hours_1999.nc   |
+               /center/w/kate/MERRA/MERRA_Pair_3hours_2000.nc   \
+               /center/w/kate/MERRA/MERRA_Qair_3hours_1999.nc   |
+               /center/w/kate/MERRA/MERRA_Qair_3hours_2000.nc   \
+               /center/w/kate/MERRA/MERRA_Tair_3hours_1999.nc   |
+               /center/w/kate/MERRA/MERRA_Tair_3hours_2000.nc   \
+               /center/w/kate/MERRA/MERRA_rain_3hours_1999.nc   |
+               /center/w/kate/MERRA/MERRA_rain_3hours_2000.nc   \
+               /center/w/kate/MERRA/MERRA_swrad_3hours_1999.nc  |
+               /center/w/kate/MERRA/MERRA_swrad_3hours_2000.nc  \
+               /center/w/kate/MERRA/MERRA_Uwind_3hours_1999.nc  |
+               /center/w/kate/MERRA/MERRA_Uwind_3hours_2000.nc  \
+               /center/w/kate/MERRA/MERRA_Vwind_3hours_1999.nc  |
+               /center/w/kate/MERRA/MERRA_Vwind_3hours_2000.nc  \
+               /center/w/kate/MERRA/MERRA_albedo_daily_1999.nc  |
+               /center/w/kate/MERRA/MERRA_albedo_daily_2000.nc  \
+               /center/w/kate/MERRA/MERRA_lwrad_down_3hours_1999.nc  |
+               /center/w/kate/MERRA/MERRA_lwrad_down_3hours_2000.nc  \
+               /center/w/kate/NEP/Files/runoff_NEP6_daitren_inter_annual_1948-2007.nc   \
+               /center/w/kate/NEP/Files/sss_fill_2004.nc  \
+               /center/w/kate/NEP/Files/NEP4_tides_otps.nc
 
 ! Output NetCDF file names, [1:Ngrids].
 
@@ -834,10 +847,10 @@ Dout(iTvdif) == T T                        ! vertical diffusion
 ! Input ASCII parameter filenames.
 
      APARNAM =  External/assimilation.in
-     SPOSNAM =  /wrkdir/kate/NEP/External/stations_NEP.in
-     FPOSNAM =  /wrkdir/kate/NEP/External/floats_NEP.in
-     IPARNAM =  /wrkdir/kate/NEP/External/ice.in
-     BPARNAM =  /wrkdir/kate/NEP/External/bioUMaine.in
+     SPOSNAM =  /center/w/kate/NEP2/External/stations_NEP.in
+     FPOSNAM =  /center/w/kate/NEP/External/floats_NEP.in
+     IPARNAM =  /center/w/kate/NEP/External/ice.in
+     BPARNAM =  /center/w/kate/NEP/External/bioUMaine.in
      SPARNAM =  External/sediment.in
      USRNAME =  External/MyFile.dat
 
@@ -1641,7 +1654,7 @@ Dout(iTvdif) == T T                        ! vertical diffusion
 !------------------------------------------------------------------------------
 !
 !  LtracerSrc  Logical switches (T/F) to specify which tracer variables
-!              to consider when the option TS_PSOURCE is activated. Only
+!              to consider when the option TS_PSOURCE is activated.  Only
 !              NAT active tracers (temperature, salinity) and NPT inert
 !              tracers need to be specified here:
 !
@@ -1662,6 +1675,29 @@ Dout(iTvdif) == T T                        ! vertical diffusion
 !              This logical switch REPLACES and ELIMINATES the need to have
 !              or read the variable "river_flag(river)" in the input rivers
 !              forcing NetCDF file:
+!
+!                double river_flag(river)
+!                        river_flag:long_name = "river runoff tracer flag"
+!                        river_flag:option_0 = "all tracers are off"
+!                        river_flag:option_1 = "only temperature"
+!                        river_flag:option_2 = "only salinity"
+!                        river_flag:option_3 = "both temperature and salinity"
+!                        river_flag:units = "nondimensional"
+!
+!              This logic was too cumbersome and complicated when additional
+!              tracers are considered. However, this change is backward
+!              compatible.
+!
+!              The LtracerSrc switch will be used to activate the reading of
+!              respective tracer variable from input river forcing NetCDF
+!              file. If you want to add other tracer variables (other than
+!              temperature and salinity) as a source for a particular river(s),
+!              you just need to specify such values on those river(s). Then,
+!              set the values to ZERO on the other river(s) that do NOT
+!              require such river forcing for that tracer. Recall that you
+!              need to specify the tracer values for all rivers, even if
+!              their values are zero.
+!
 !------------------------------------------------------------------------------
 !  Adjoint sensitivity parameters.
 !------------------------------------------------------------------------------
