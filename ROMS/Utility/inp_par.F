@@ -873,6 +873,7 @@
         FIL(9,ng)%name=TRIM(ADJUSTL('ocean_filw_'//ngnumber//'.nc'))
 #ifdef ICE_MODEL
         FIL(10,ng)%name=TRIM(ADJUSTL('ocean_filice_'//ngnumber//'.nc'))
+#endif
         DO ifile=1,nfile
           allocate ( FIL(ifile,ng)%Nrec(1) )
           allocate ( FIL(ifile,ng)%Vid(NV) )
