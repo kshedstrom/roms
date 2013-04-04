@@ -131,8 +131,8 @@
 
      max_a == 1.0d0
 
-! Maximum melt pond depth
-! (meters)
+! Maximum melt pond fraction
+! (nondimensional)
 
      sfwat_max == 0.1d0
 
