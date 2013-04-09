@@ -692,7 +692,7 @@
 !  Initialize time-stepping counter and clock.
 !-----------------------------------------------------------------------
 !
-!  Subsract one time unit to avoid special case due to initialization
+!  Subtract one time unit to avoid special case due to initialization
 !  in the main time-stepping routine.
 !
       iic(ng)=ntstart(ng)-1
