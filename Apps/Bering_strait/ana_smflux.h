@@ -27,6 +27,7 @@
      &                      LBi, UBi, LBj, UBj,                         &
      &                      IminS, ImaxS, JminS, JmaxS,                 &
      &                      GRID(ng) % angler,                          &
+     &                      GRID(ng) % mask2,                           &
 #ifdef SPHERICAL
      &                      GRID(ng) % lonr,                            &
      &                      GRID(ng) % latr,                            &
@@ -59,6 +60,7 @@
      &                            LBi, UBi, LBj, UBj,                   &
      &                            IminS, ImaxS, JminS, JmaxS,           &
      &                            angler,                               &
+     &                            mask2,                                &
 #ifdef SPHERICAL
      &                            lonr, latr,                           &
 #else
@@ -86,6 +88,7 @@
 !
 #ifdef ASSUMED_SHAPE
       real(r8), intent(in) :: angler(LBi:,LBj:)
+      real(r8), intent(in) :: mask2(LBi:,LBj:)
 # ifdef SPHERICAL
       real(r8), intent(in) :: lonr(LBi:,LBj:)
       real(r8), intent(in) :: latr(LBi:,LBj:)
@@ -101,6 +104,7 @@
 # endif
 #else
       real(r8), intent(in) :: angler(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: mask2(LBi:UBi,LBj:UBj)
 # ifdef SPHERICAL
       real(r8), intent(in) :: lonr(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: latr(LBi:UBi,LBj:UBj)
@@ -118,7 +122,7 @@
 !
 !  Local variable declarations.
 !
-      integer :: i, j
+      integer :: i, j, i0, j0
       real(r8) :: Ewind, Nwind, windamp, winddir
 
 #include "set_bounds.h"
@@ -128,18 +132,17 @@
 !  XI-direction (m2/s2) at horizontal U-points.
 !-----------------------------------------------------------------------
 !
-!     windamp = 0.0_r8
-      windamp = 1.0e-4_r8
-! This is now in degrees clockwise from north
-      winddir = 90*pi/180._r8
-! This was in some i,j space
-!      winddir = 13*pi/12.0_r8
-!      Ewind=windamp * cos(winddir)
-!      Nwind=windamp * sin(winddir)
+! Something that ramps up, then down.
+      windamp = 1.0e-4_r8*0.5*(tanh((time(ng) - 86400._r8)/43200._r8)   &
+     &                      - tanh((time(ng) - 4*86400._r8)/43200._r8) )
+! This is in degrees clockwise from north
+      winddir = 135*pi/180._r8
       DO j=JstrR,JendR
         DO i=IstrR,IendR
 !          sustr(i,j)=Ewind
-          sustr(i,j)= windamp*sin(winddir + angler(i,j))
+	  i0 = max(i-1,IstrR)
+          sustr(i,j)= windamp*sin(winddir + angler(i,j)) *              &
+     &                max(mask2(i,j),mask2(i0,j))
 #ifdef TL_IOMS
           tl_sustr(i,j)=Ewind
 #endif
@@ -148,7 +151,9 @@
       DO j=JstrR,JendR
         DO i=IstrR,IendR
 !          svstr(i,j)=Nwind
-          svstr(i,j)= windamp*cos(winddir + angler(i,j))
+	  j0 = max(j-1,JstrR)
+          svstr(i,j)= windamp*cos(winddir + angler(i,j)) *              &
+     &                max(mask2(i,j),mask2(i,j0))
 #ifdef TL_IOMS
           tl_svstr(i,j)=Nwind
 #endif
