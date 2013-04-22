@@ -283,15 +283,15 @@
 #endif
             CASE ('NtileI')
               Npts=load_i(Nval, Rval, Ngrids, NtileI)
-#ifdef NEMURO_SAN
-!           CALL initialize_fish
-#endif
               NtileX(1:Ngrids)=NtileI(1:Ngrids)
             CASE ('NtileJ')
               Npts=load_i(Nval, Rval, Ngrids, NtileJ)
               NtileE(1:Ngrids)=NtileJ(1:Ngrids)
 #ifdef BIOLOGY
               CALL initialize_biology
+#endif
+#ifdef NEMURO_SAN
+!             CALL initialize_fish
 #endif
 #if defined SEDIMENT || defined BBL_MODEL
               CALL initialize_sediment
