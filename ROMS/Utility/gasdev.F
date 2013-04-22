@@ -182,6 +182,7 @@
         IF (ABS(harvest) .le. clamp) RETURN
       END DO
       END SUBROUTINE gasdev_clamp_s
+
       SUBROUTINE gasdev_clamp_v (harvest, clamp)
 !=======================================================================
 !  This is for the fish code, which wants a limiter on the range of
@@ -194,6 +195,12 @@
 !
       real(r8), dimension(:), intent(out) :: harvest
       real(r8), intent(in)                :: clamp
+      interface
+        SUBROUTINE gasdev_v (harvest)
+          USE mod_kinds
+          real(r8), dimension(:), intent(out) :: harvest
+	end subroutine gasdev_v
+      end interface
 !
 !  Local variable declarations.
 !
