@@ -162,7 +162,7 @@
         END DO
       END DO
 # endif
-#elif defined NEP6
+#elif defined NEP6 || defined BERING
 # if defined UV_LDRAG
       cff =  3.0d-04
       h0 = 1000.
@@ -178,8 +178,7 @@
 # elif defined UV_QDRAG
       DO j=JstrR,JendR          ! based on Chezy coefficient (g/c^2)
         DO i=IstrR,IendR
-          cff=1.6_r8*GRID(ng)%h(i,j)*LOG(GRID(ng)%h(i,j))
-!          cff=1.8_r8*GRID(ng)%h(i,j)*LOG(GRID(ng)%h(i,j))
+          cff=1.8_r8*GRID(ng)%h(i,j)*LOG(GRID(ng)%h(i,j))
           rdrag2(i,j)=g/(cff*cff)
         END DO
       END DO

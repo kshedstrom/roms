@@ -12,7 +12,7 @@
 **  Options for Northeast Pacific (NEP5) simulation
 */
 
-#define NO_HIS
+#undef NO_HIS
 #undef NETCDF4
 #undef PARALLEL_IO
 #undef OFFLINE_FLOATS
@@ -28,7 +28,6 @@
 # define SPLINES
 #endif
 #undef FLOATS
-#undef DIAPAUSE
 #undef STATIONS
 #undef WET_DRY
 
@@ -80,11 +79,11 @@
 
 #define UV_ADV
 #define UV_COR
-#define UV_SADVECTION
+#undef UV_SADVECTION
 #define UV_VIS2
 
 #ifdef SOLVE3D
-# define UV_SMAGORINSKY
+# undef UV_SMAGORINSKY
 # define VISC_3DCOEF
 # define MIX_S_UV
 # define VISC_GRID
@@ -159,8 +158,8 @@
 /* point sources (rivers, line sources) */
 
 /* Using Runoff instead now */
-#define UV_PSOURCE
-#define ANA_PSOURCE
+#undef UV_PSOURCE
+#undef ANA_PSOURCE
 #ifdef SOLVE3D
 # define RUNOFF
 # undef TS_PSOURCE
@@ -181,11 +180,12 @@
 # define TIDES_ASTRO
 # undef POT_TIDES
 
-# define UV_LDRAG
+# undef UV_LDRAG
 # define UV_DRAG_GRID
 # define ANA_DRAG
+# define ANA_DRAG
 # define LIMIT_BSTRESS
-# undef UV_QDRAG
+# define UV_QDRAG
 #else
 # define UV_QDRAG
 #endif

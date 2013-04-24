@@ -45,6 +45,7 @@
       DO WHILE (.true.)
         READ (inp,'(a)',ERR=10,END=20) line
         status=decode_line(line, KeyWord, Nval, Cval, Rval)
+        IF (status.gt.0) THEN
           SELECT CASE (TRIM(KeyWord))
             CASE ('Lice')
               Npts=load_l(Nval, Cval, Ngrids, Lfloats)
@@ -487,56 +488,6 @@
             CASE ('Aout2(idS0mk)')
               Npts=load_l(Nval, Cval, Ngrids, Aout2(idS0mk,:))
 #endif
-#ifdef STATIONS
-            CASE ('Sout(idUice)')
-              Npts=load_l(Nval, Cval, Ngrids, Sout(idUice,1))
-            CASE ('Sout(idVice)')
-              Npts=load_l(Nval, Cval, Ngrids, Sout(idVice,1))
-            CASE ('Sout(idUiceE)')
-              Npts=load_l(Nval, Cval, Ngrids, Sout(idUiceE,1))
-            CASE ('Sout(idViceN)')
-              Npts=load_l(Nval, Cval, Ngrids, Sout(idViceN,1))
-            CASE ('Sout(idAice)')
-              Npts=load_l(Nval, Cval, Ngrids, Sout(idAice,1))
-            CASE ('Sout(idHice)')
-              Npts=load_l(Nval, Cval, Ngrids, Sout(idHice,1))
-            CASE ('Sout(idTice)')
-              Npts=load_l(Nval, Cval, Ngrids, Sout(idTice,1))
-            CASE ('Sout(idTimid)')
-              Npts=load_l(Nval, Cval, Ngrids, Sout(idTimid,1))
-            CASE ('Sout(idSfwat)')
-              Npts=load_l(Nval, Cval, Ngrids, Sout(idSfwat,1))
-            CASE ('Sout(idAgeice)')
-              Npts=load_l(Nval, Cval, Ngrids, Sout(idAgeice,1))
-            CASE ('Sout(idIomflx)')
-              Npts=load_l(Nval, Cval, Ngrids, Sout(idIomflx,1))
-            CASE ('Sout(idSig11)')
-              Npts=load_l(Nval, Cval, Ngrids, Sout(idSig11,1))
-            CASE ('Sout(idSig12)')
-              Npts=load_l(Nval, Cval, Ngrids, Sout(idSig12,1))
-            CASE ('Sout(idSig22)')
-              Npts=load_l(Nval, Cval, Ngrids, Sout(idSig22,1))
-            CASE ('Sout(idWfr)')
-              Npts=load_l(Nval, Cval, Ngrids, Sout(idWfr,1))
-            CASE ('Sout(idTauiw)')
-              Npts=load_l(Nval, Cval, Ngrids, Sout(idTauiw,1))
-            CASE ('Sout(idChuiw)')
-              Npts=load_l(Nval, Cval, Ngrids, Sout(idChuiw,1))
-            CASE ('Sout(idT0mk)')
-              Npts=load_l(Nval, Cval, Ngrids, Sout(idT0mk,1))
-            CASE ('Sout(idS0mk)')
-              Npts=load_l(Nval, Cval, Ngrids, Sout(idS0mk,1))
-            CASE ('Sout(idWfr)')
-              Npts=load_l(Nval, Cval, Ngrids, Sout(idWfr,1))
-            CASE ('Sout(idWai)')
-              Npts=load_l(Nval, Cval, Ngrids, Sout(idWai,1))
-            CASE ('Sout(idWao)')
-              Npts=load_l(Nval, Cval, Ngrids, Sout(idWao,1))
-            CASE ('Sout(idWio)')
-              Npts=load_l(Nval, Cval, Ngrids, Sout(idWio,1))
-            CASE ('Sout(idWro)')
-              Npts=load_l(Nval, Cval, Ngrids, Sout(idWro,1))
-#endif
           END SELECT
         END IF
       END DO
@@ -808,80 +759,6 @@
           IF (Aout2(idS0mk,ng)) WRITE (out,70) Aout2(idS0mk,ng),        &
      &       'Aout2(idS0mk)',                                           &
      &       'Write out salinity of molecular sublayer under ice.'
-#endif
-#ifdef STATIONS
-          IF (Sout(idUice,ng)) WRITE (out,70) Sout(idUice,ng),          &
-     &       'Sout(idUice)',                                            &
-     &       'Write out U-component ice velocity.'
-          IF (Sout(idVice,ng)) WRITE (out,70) Sout(idVice,ng),          &
-     &       'Sout(idVice)',                                            &
-     &       'Write out V-component ice velocity.'
-          IF (Sout(idUiceE,ng)) WRITE (out,70) Sout(idUiceE,ng),        &
-     &       'Sout(idUiceE)',                                           &
-     &       'Write out East-component ice velocity.'
-          IF (Sout(idViceN,ng)) WRITE (out,70) Sout(idViceN,ng),        &
-     &       'Sout(idViceN)',                                           &
-     &       'Write out North-component ice velocity.'
-          IF (Sout(idAice,ng)) WRITE (out,70) Sout(idAice,ng),          &
-     &       'Sout(idAice)',                                            &
-     &       'Write out ice concentration.'
-          IF (Sout(idHice,ng)) WRITE (out,70) Sout(idHice,ng),          &
-     &       'Sout(idHice)',                                            &
-     &       'Write out average ice thickness.'
-          IF (Sout(idHsno,ng)) WRITE (out,70) Sout(idHsno,ng),          &
-     &       'Sout(idHsno)',                                            &
-     &       'Write out snow thickness.'
-          IF (Sout(idTice,ng)) WRITE (out,70) Sout(idTice,ng),          &
-     &       'Sout(idTice)',                                            &
-     &       'Write out ice/snow surface temperature.'
-          IF (Sout(idTimid,ng)) WRITE (out,70) Sout(idTimid,ng),        &
-     &       'Sout(idTimid)',                                           &
-     &       'Write out interior ice temperature.'
-          IF (Sout(idSfwat,ng)) WRITE (out,70) Sout(idSfwat,ng),        &
-     &       'Sout(idSfwat)',                                           &
-     &       'Write out surface water (on ice) thickness.'
-          IF (Sout(idAgeice,ng)) WRITE (out,70) Sout(idAgeice,ng),      &
-     &       'Sout(idAgeice)',                                          &
-     &       'Write out surface water (on ice) thickness.'
-          IF (Sout(idIomflx,ng)) WRITE (out,70) Sout(idIomflx,ng),      &
-     &       'Sout(idIomflx)',                                          &
-     &       'Write out ice-ocean mass flux.'
-          IF (Sout(idSig11,ng)) WRITE (out,70) Sout(idSig11,ng),        &
-     &       'Sout(idSig11)',                                           &
-     &       'Write out internal ice stress component 11.'
-          IF (Sout(idSig12,ng)) WRITE (out,70) Sout(idSig12,ng),        &
-     &       'Sout(idSig12)',                                           &
-     &       'Write out internal ice stress component 12.'
-          IF (Sout(idSig22,ng)) WRITE (out,70) Sout(idSig22,ng),        &
-     &       'Sout(idSig22)',                                           &
-     &       'Write out internal ice stress component 22.'
-          IF (Sout(idTauiw,ng)) WRITE (out,70) Sout(idTauiw,ng),        &
-     &       'Sout(idTauiw)',                                           &
-     &       'Write out ice-water friction velocity.'
-          IF (Sout(idChuiw,ng)) WRITE (out,70) Sout(idChuiw,ng),        &
-     &       'Hout(idChuiw)',                                           &
-     &       'Write out ice-water momentum transfer coefficient.'
-          IF (Sout(idT0mk,ng)) WRITE (out,70) Sout(idT0mk,ng),          &
-     &       'Sout(idT0mk)',                                            &
-     &       'Write out temperature of molecular sublayer under ice.'
-          IF (Sout(idS0mk,ng)) WRITE (out,70) Sout(idS0mk,ng),          &
-     &       'Sout(idS0mk)',                                            &
-     &       'Write out salinity of molecular sublayer under ice.'
-          IF (Sout(idWfr,ng)) WRITE (out,70) Sout(idWfr,ng),            &
-     &       'Sout(idWfr)',                                             &
-     &       'Write out frazil ice growth rate.'
-          IF (Sout(idWai,ng)) WRITE (out,70) Sout(idWai,ng),            &
-     &       'Sout(idWai)',                                             &
-     &       'Write out ice growth/melt rate.'
-          IF (Sout(idWao,ng)) WRITE (out,70) Sout(idWao,ng),            &
-     &       'Sout(idWao)',                                             &
-     &       'Write out ice growth/melt rate.'
-          IF (Sout(idWio,ng)) WRITE (out,70) Sout(idWio,ng),            &
-     &       'Sout(idWio)',                                             &
-     &       'Write out ice growth/melt rate.'
-          IF (Sout(idWro,ng)) WRITE (out,70) Sout(idWro,ng),            &
-     &       'Sout(idWro)',                                             &
-     &       'Write out ice melt runoff rate.'
 #endif
         END DO
       END IF
