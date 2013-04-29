@@ -136,7 +136,7 @@
       windamp = 1.0e-4_r8*0.5*(tanh((time(ng) - 86400._r8)/43200._r8)   &
      &                      - tanh((time(ng) - 4*86400._r8)/43200._r8) )
 ! This is in degrees clockwise from north
-      winddir = 135*pi/180._r8
+      winddir = 315*pi/180._r8
       DO j=JstrR,JendR
         DO i=IstrR,IendR
 !          sustr(i,j)=Ewind
