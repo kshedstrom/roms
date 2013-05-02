@@ -487,7 +487,7 @@
 #ifdef TCLIMATOLOGY
             DO itrc=1,NBT
               i=idbio(itrc)
-              WRITE (out,110) LtracerCLM(i,ng), 'LtracerCLM',           &
+              WRITE (out,100) LtracerCLM(i,ng), 'LtracerCLM',           &
      &              i, 'Processing climatology on tracer ', i,          &
      &              TRIM(Vname(1,idTvar(i)))
             END DO
@@ -539,11 +539,8 @@
      &        /,  ' ============================',/)
   50  FORMAT (1x,i10,2x,a,t28,a)
   60  FORMAT (10x,l1,2x,a,t28,a,i2.2,':',1x,a)
-!  70  FORMAT (f11.3,2x,a,t28,a)
-!  80  FORMAT (f11.3,2x,a,t28,a,/,t30,a)
   90  FORMAT (1p,e11.4,2x,a,'(',i2.2,')',t28,a,/,t30,a,i2.2,':',1x,a)
-! 100  FORMAT (1p,e11.4,2x,a,t28,a)
-! 110  FORMAT (1p,e11.4,2x,a,t28,a,/,t30,a)
+ 100  FORMAT (10x,l1,2x,a,'(',i2.2,')',t30,a,i2.2,':',1x,a)
 
       RETURN
       END SUBROUTINE read_BioPar

@@ -648,7 +648,7 @@
 #ifdef TCLIMATOLOGY
             DO itrc=1,NBT
               i=idbio(itrc)
-              WRITE (out,110) LtracerCLM(i,ng), 'LtracerCLM',           &
+              WRITE (out,150) LtracerCLM(i,ng), 'LtracerCLM',           &
      &              i, 'Processing climatology on tracer ', i,          &
      &              TRIM(Vname(1,idTvar(i)))
             END DO
@@ -656,7 +656,7 @@
 #ifdef TS_PSOURCE
             DO itrc=1,NBT
               i=idbio(itrc)
-              WRITE (out,100) LtracerSrc(i,ng), 'LtracerSrc',           &
+              WRITE (out,150) LtracerSrc(i,ng), 'LtracerSrc',           &
      &              i, 'Processing point sources/Sink on tracer ', i,   &
      &              TRIM(Vname(1,idTvar(i)))
             END DO
@@ -735,6 +735,7 @@
      &        a,i2.2,a)
  130  FORMAT (/,' read_BioPar - variable info not yet loaded, ',a)
  140  FORMAT (10x,l1,2x,a,t30,a,1x,a)
+ 150  FORMAT (10x,l1,2x,a,'(',i2.2,')',t30,a,i2.2,':',1x,a)
 
       RETURN
       END SUBROUTINE read_BioPar
