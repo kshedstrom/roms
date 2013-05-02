@@ -564,6 +564,12 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+13)=' BULK_FLUXES,'
 #endif
+#ifdef BULK_FLUXES2D
+      IF (Master) WRITE (stdout,20) 'BULK_FLUXES2D',                    &
+     &   'Surface bulk fluxes parameterization.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+15)=' BULK_FLUXES2D,'
+#endif
 #ifdef BVF_MIXING
       IF (Master) WRITE (stdout,20) 'BVF_MIXING',                       &
      &   'Brunt-Vaisala frequency based vertical mixing.'

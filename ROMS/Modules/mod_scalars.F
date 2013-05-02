@@ -1142,7 +1142,7 @@
         real(r8) :: ad_ubar_xs = 0.0_r8
 #endif
 
-#ifdef BULK_FLUXES
+#if defined BULK_FLUXES || defined BULK_FLUXES2D
 !
 !-----------------------------------------------------------------------
 ! Constants used in surface fluxes bulk parameterization.
@@ -2020,7 +2020,7 @@
       allocate ( M3nudg(Ngrids) )
       allocate ( Tnudg(MT,Ngrids) )
 
-#ifdef BULK_FLUXES
+#if defined BULK_FLUXES || defined BULK_FLUXES2D
       allocate ( blk_ZQ(Ngrids) )
       allocate ( blk_ZT(Ngrids) )
       allocate ( blk_ZW(Ngrids) )
@@ -2327,7 +2327,7 @@
         nl_visc4(ng)=IniVal
         tl_visc4(ng)=IniVal
         visc4(ng)=IniVal
-#ifdef BULK_FLUXES
+#if defined BULK_FLUXES || defined BULK_FLUXES2D
         blk_ZQ(ng)=10.0_r8
         blk_ZT(ng)=10.0_r8
         blk_ZW(ng)=10.0_r8

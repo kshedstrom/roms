@@ -260,7 +260,8 @@
 
 #endif
 
-#if !defined ANA_WINDS && (defined BULK_FLUXES || defined ECOSIM)
+#if !defined ANA_WINDS && (defined BULK_FLUXES || defined   \
+         BULK_FLUXES2D || defined ECOSIM)
 !
 !-----------------------------------------------------------------------
 !  Surface wind components.
@@ -286,7 +287,8 @@
 #endif
 
 #if !defined AIR_OCEAN && !defined NCEP_FLUXES
-# if !defined ANA_SMFLUX && !defined BULK_FLUXES && !defined ANA_NCEP
+# if !defined ANA_SMFLUX && !defined BULK_FLUXES && !defined ANA_NCEP \
+          && !defined BULK_FLUXES2D
 !
 !-----------------------------------------------------------------------
 !  Surface wind stress components.

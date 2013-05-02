@@ -171,8 +171,8 @@
         RETURN
       END IF
 #ifdef BERING_STRAIT
-      IF (.not.find_string(var_name,n_var,'mask2',vindex)) THEN
-        IF (Master) WRITE (stdout,10) 'mask2', TRIM(ncname)
+      IF (.not.find_string(var_name,n_var,'mask3',vindex)) THEN
+        IF (Master) WRITE (stdout,10) 'mask3', TRIM(ncname)
         exit_flag=2
         RETURN
       END IF
@@ -433,7 +433,7 @@
 !
 !  Read in Land/Sea masking at PSI-points.
 !
-          CASE ('mask2')
+          CASE ('mask3')
             gtype=p2dvar
             status=nf_fread2d(ng, model, ncname, GRD(ng)%ncid,          &
      &                        var_name(it), var_id(it),                 &
