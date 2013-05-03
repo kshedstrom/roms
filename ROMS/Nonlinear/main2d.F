@@ -55,7 +55,6 @@
 # endif
 # ifdef BULK_FLUXES2D
       USE bulk_flux_mod, ONLY : bulk_flux
-#  endif
 # endif
 # ifdef AVERAGES
       USE set_avg_mod, ONLY : set_avg
@@ -385,6 +384,7 @@
         END DO
 # ifdef NESTING
         CALL nesting (100)
+# endif
 # endif
 
 # ifdef FLOATS

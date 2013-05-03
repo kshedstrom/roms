@@ -151,13 +151,24 @@
 !  Initial conditions for free-surface (m).
 !-----------------------------------------------------------------------
 !
-#undef BUMP
+#define BUMP2
 #if defined BUMP
       DO j=JstrR,JendR
         DO i=IstrR,IendR
 	  if (i < 600) then
             zeta(i,j,1)=0.25_r8 * (1._r8 + tanh((i-511)/20._r8)) *       &
      &        (tanh((j-270)/10._r8) - tanh((j-323)/10._r8))
+          else
+            zeta(i,j,1)=0._r8
+          endif
+        END DO
+      END DO
+#elif defined BUMP2
+      DO j=JstrR,JendR
+        DO i=IstrR,IendR
+	  if (j > 560) then
+            zeta(i,j,1)=0.25_r8 * (1._r8 - tanh((j-700)/20._r8)) *       &
+     &        (1. - tanh((i-40)/10._r8))
           else
             zeta(i,j,1)=0._r8
           endif

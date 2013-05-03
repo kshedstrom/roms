@@ -112,168 +112,168 @@
               Npts=load_r(Nval, Rval, 1, t0deg)
             CASE ('Hout(idUice)')
               IF (idUice.eq.0) THEN
-                IF (Master) WRITE (out,280) 'idUice'
+                IF (Master) WRITE (out,80) 'idUice'
                 exit_flag=5
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Hout(idUice,:))
             CASE ('Hout(idVice)')
               IF (idVice.eq.0) THEN
-                IF (Master) WRITE (out,280) 'idVice'
+                IF (Master) WRITE (out,80) 'idVice'
                 exit_flag=5
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Hout(idVice,:))
             CASE ('Hout(idUiceE)')
               IF (idUiceE.eq.0) THEN
-                IF (Master) WRITE (out,280) 'idUiceE'
+                IF (Master) WRITE (out,80) 'idUiceE'
                 exit_flag=5
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Hout(idUiceE,:))
             CASE ('Hout(idViceN)')
               IF (idViceN.eq.0) THEN
-                IF (Master) WRITE (out,280) 'idViceN'
+                IF (Master) WRITE (out,80) 'idViceN'
                 exit_flag=5
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Hout(idViceN,:))
             CASE ('Hout(idAice)')
               IF (idAice.eq.0) THEN
-                IF (Master) WRITE (out,280) 'idAice'
+                IF (Master) WRITE (out,80) 'idAice'
                 exit_flag=5
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Hout(idAice,:))
             CASE ('Hout(idHice)')
               IF (idHice.eq.0) THEN
-                IF (Master) WRITE (out,280) 'idHice'
+                IF (Master) WRITE (out,80) 'idHice'
                 exit_flag=5
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Hout(idHice,:))
             CASE ('Hout(idHsno)')
               IF (idHsno.eq.0) THEN
-                IF (Master) WRITE (out,280) 'idHsno'
+                IF (Master) WRITE (out,80) 'idHsno'
                 exit_flag=5
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Hout(idHsno,:))
             CASE ('Hout(idTice)')
               IF (idTice.eq.0) THEN
-                IF (Master) WRITE (out,280) 'idTice'
+                IF (Master) WRITE (out,80) 'idTice'
                 exit_flag=5
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Hout(idTice,:))
             CASE ('Hout(idTimid)')
               IF (idTimid.eq.0) THEN
-                IF (Master) WRITE (out,280) 'idTimid'
+                IF (Master) WRITE (out,80) 'idTimid'
                 exit_flag=5
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Hout(idTimid,:))
             CASE ('Hout(idTauiw)')
               IF (idTauiw.eq.0) THEN
-                IF (Master) WRITE (out,280) 'idTauiw'
+                IF (Master) WRITE (out,80) 'idTauiw'
                 exit_flag=5
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Hout(idTauiw,:))
             CASE ('Hout(idChuiw)')
               IF (idChuiw.eq.0) THEN
-                IF (Master) WRITE (out,280) 'idChuiw'
+                IF (Master) WRITE (out,80) 'idChuiw'
                 exit_flag=5
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Hout(idChuiw,:))
             CASE ('Hout(idSfwat)')
               IF (idSfwat.eq.0) THEN
-                IF (Master) WRITE (out,280) 'idSfwat'
+                IF (Master) WRITE (out,80) 'idSfwat'
                 exit_flag=5
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Hout(idSfwat,:))
             CASE ('Hout(idAgeice)')
               IF (idAgeice.eq.0) THEN
-                IF (Master) WRITE (out,280) 'idAgeice'
+                IF (Master) WRITE (out,80) 'idAgeice'
                 exit_flag=5
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Hout(idAgeice,:))
             CASE ('Hout(idIomflx)')
               IF (idIomflx.eq.0) THEN
-                IF (Master) WRITE (out,280) 'idIomflx'
+                IF (Master) WRITE (out,80) 'idIomflx'
                 exit_flag=5
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Hout(idIomflx,:))
             CASE ('Hout(idSig11)')
               IF (idSig11.eq.0) THEN
-                IF (Master) WRITE (out,280) 'idSig11'
+                IF (Master) WRITE (out,80) 'idSig11'
                 exit_flag=5
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Hout(idSig11,:))
             CASE ('Hout(idSig12)')
               IF (idSig12.eq.0) THEN
-                IF (Master) WRITE (out,280) 'idSig12'
+                IF (Master) WRITE (out,80) 'idSig12'
                 exit_flag=5
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Hout(idSig12,:))
             CASE ('Hout(idSig22)')
               IF (idSig22.eq.0) THEN
-                IF (Master) WRITE (out,280) 'idSig22'
+                IF (Master) WRITE (out,80) 'idSig22'
                 exit_flag=5
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Hout(idSig22,:))
             CASE ('Hout(idT0mk)')
               IF (idT0mk.eq.0) THEN
-                IF (Master) WRITE (out,280) 'idT0mk'
+                IF (Master) WRITE (out,80) 'idT0mk'
                 exit_flag=5
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Hout(idT0mk,:))
             CASE ('Hout(idS0mk)')
               IF (idS0mk.eq.0) THEN
-                IF (Master) WRITE (out,280) 'idS0mk'
+                IF (Master) WRITE (out,80) 'idS0mk'
                 exit_flag=5
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Hout(idS0mk,:))
             CASE ('Hout(idWfr)')
               IF (idWfr.eq.0) THEN
-                IF (Master) WRITE (out,280) 'idWfr'
+                IF (Master) WRITE (out,80) 'idWfr'
                 exit_flag=5
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Hout(idWfr,:))
             CASE ('Hout(idWai)')
               IF (idWai.eq.0) THEN
-                IF (Master) WRITE (out,280) 'idWai'
+                IF (Master) WRITE (out,80) 'idWai'
                 exit_flag=5
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Hout(idWai,:))
             CASE ('Hout(idWao)')
               IF (idWao.eq.0) THEN
-                IF (Master) WRITE (out,280) 'idWao'
+                IF (Master) WRITE (out,80) 'idWao'
                 exit_flag=5
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Hout(idWao,:))
             CASE ('Hout(idWio)')
               IF (idWio.eq.0) THEN
-                IF (Master) WRITE (out,280) 'idWio'
+                IF (Master) WRITE (out,80) 'idWio'
                 exit_flag=5
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Hout(idWio,:))
             CASE ('Hout(idWro)')
               IF (idWro.eq.0) THEN
-                IF (Master) WRITE (out,280) 'idWro'
+                IF (Master) WRITE (out,80) 'idWro'
                 exit_flag=5
                 RETURN
               END IF
@@ -281,168 +281,168 @@
 #ifdef AVERAGES
             CASE ('Aout(idUice)')
               IF (idUice.eq.0) THEN
-                IF (Master) WRITE (out,280) 'idUice'
+                IF (Master) WRITE (out,80) 'idUice'
                 exit_flag=5
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Aout(idUice,:))
             CASE ('Aout(idVice)')
               IF (idVice.eq.0) THEN
-                IF (Master) WRITE (out,280) 'idVice'
+                IF (Master) WRITE (out,80) 'idVice'
                 exit_flag=5
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Aout(idVice,:))
             CASE ('Aout(idUiceE)')
               IF (idUiceE.eq.0) THEN
-                IF (Master) WRITE (out,280) 'idUiceE'
+                IF (Master) WRITE (out,80) 'idUiceE'
                 exit_flag=5
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Aout(idUiceE,:))
             CASE ('Aout(idViceN)')
               IF (idViceN.eq.0) THEN
-                IF (Master) WRITE (out,280) 'idViceN'
+                IF (Master) WRITE (out,80) 'idViceN'
                 exit_flag=5
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Aout(idViceN,:))
             CASE ('Aout(idAice)')
               IF (idAice.eq.0) THEN
-                IF (Master) WRITE (out,280) 'idAice'
+                IF (Master) WRITE (out,80) 'idAice'
                 exit_flag=5
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Aout(idAice,:))
             CASE ('Aout(idHice)')
               IF (idHice.eq.0) THEN
-                IF (Master) WRITE (out,280) 'idHice'
+                IF (Master) WRITE (out,80) 'idHice'
                 exit_flag=5
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Aout(idHice,:))
             CASE ('Aout(idHsno)')
               IF (idHsno.eq.0) THEN
-                IF (Master) WRITE (out,280) 'idHsno'
+                IF (Master) WRITE (out,80) 'idHsno'
                 exit_flag=5
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Aout(idHsno,:))
             CASE ('Aout(idTice)')
               IF (idTice.eq.0) THEN
-                IF (Master) WRITE (out,280) 'idTice'
+                IF (Master) WRITE (out,80) 'idTice'
                 exit_flag=5
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Aout(idTice,:))
             CASE ('Aout(idTimid)')
               IF (idTimid.eq.0) THEN
-                IF (Master) WRITE (out,280) 'idTimid'
+                IF (Master) WRITE (out,80) 'idTimid'
                 exit_flag=5
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Aout(idTimid,:))
             CASE ('Aout(idTauiw)')
               IF (idTauiw.eq.0) THEN
-                IF (Master) WRITE (out,280) 'idTauiw'
+                IF (Master) WRITE (out,80) 'idTauiw'
                 exit_flag=5
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Aout(idTauiw,:))
             CASE ('Aout(idChuiw)')
               IF (idChuiw.eq.0) THEN
-                IF (Master) WRITE (out,280) 'idChuiw'
+                IF (Master) WRITE (out,80) 'idChuiw'
                 exit_flag=5
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Aout(idChuiw,:))
             CASE ('Aout(idSfwat)')
               IF (idSfwat.eq.0) THEN
-                IF (Master) WRITE (out,280) 'idSfwat'
+                IF (Master) WRITE (out,80) 'idSfwat'
                 exit_flag=5
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Aout(idSfwat,:))
             CASE ('Aout(idAgeice)')
               IF (idAgeice.eq.0) THEN
-                IF (Master) WRITE (out,280) 'idAgeice'
+                IF (Master) WRITE (out,80) 'idAgeice'
                 exit_flag=5
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Aout(idAgeice,:))
             CASE ('Aout(idIomflx)')
               IF (idIomflx.eq.0) THEN
-                IF (Master) WRITE (out,280) 'idIomflx'
+                IF (Master) WRITE (out,80) 'idIomflx'
                 exit_flag=5
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Aout(idIomflx,:))
             CASE ('Aout(idSig11)')
               IF (idSig11.eq.0) THEN
-                IF (Master) WRITE (out,280) 'idSig11'
+                IF (Master) WRITE (out,80) 'idSig11'
                 exit_flag=5
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Aout(idSig11,:))
             CASE ('Aout(idSig12)')
               IF (idSig12.eq.0) THEN
-                IF (Master) WRITE (out,280) 'idSig12'
+                IF (Master) WRITE (out,80) 'idSig12'
                 exit_flag=5
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Aout(idSig12,:))
             CASE ('Aout(idSig22)')
               IF (idSig22.eq.0) THEN
-                IF (Master) WRITE (out,280) 'idSig22'
+                IF (Master) WRITE (out,80) 'idSig22'
                 exit_flag=5
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Aout(idSig22,:))
             CASE ('Aout(idT0mk)')
               IF (idT0mk.eq.0) THEN
-                IF (Master) WRITE (out,280) 'idT0mk'
+                IF (Master) WRITE (out,80) 'idT0mk'
                 exit_flag=5
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Aout(idT0mk,:))
             CASE ('Aout(idS0mk)')
               IF (idS0mk.eq.0) THEN
-                IF (Master) WRITE (out,280) 'idS0mk'
+                IF (Master) WRITE (out,80) 'idS0mk'
                 exit_flag=5
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Aout(idS0mk,:))
             CASE ('Aout(idWfr)')
               IF (idWfr.eq.0) THEN
-                IF (Master) WRITE (out,280) 'idWfr'
+                IF (Master) WRITE (out,80) 'idWfr'
                 exit_flag=5
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Aout(idWfr,:))
             CASE ('Aout(idWai)')
               IF (idWai.eq.0) THEN
-                IF (Master) WRITE (out,280) 'idWai'
+                IF (Master) WRITE (out,80) 'idWai'
                 exit_flag=5
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Aout(idWai,:))
             CASE ('Aout(idWao)')
               IF (idWao.eq.0) THEN
-                IF (Master) WRITE (out,280) 'idWao'
+                IF (Master) WRITE (out,80) 'idWao'
                 exit_flag=5
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Aout(idWao,:))
             CASE ('Aout(idWio)')
               IF (idWio.eq.0) THEN
-                IF (Master) WRITE (out,280) 'idWio'
+                IF (Master) WRITE (out,80) 'idWio'
                 exit_flag=5
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Aout(idWio,:))
             CASE ('Aout(idWro)')
               IF (idWro.eq.0) THEN
-                IF (Master) WRITE (out,280) 'idWro'
+                IF (Master) WRITE (out,80) 'idWro'
                 exit_flag=5
                 RETURN
               END IF
