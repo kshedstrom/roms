@@ -86,8 +86,8 @@
 !
 #if defined BEST_NPZ && defined IRON_LIMIT
 ! Iron - linear from surface value to value at 100m and increase onshore
-      DO i=IstrR,IendR
-        DO j=JstrR,JendR
+      DO i=IstrT,IendT
+        DO j=JstrT,JendT
           val3 = MAX(0._r8,MIN(1._r8,(GRID(ng)%h(i,j)-Feinh)/           &
      &                 (Feoffh-Feinh)))
           val1 = Feinlo + val3*(Feofflo-Feinlo)

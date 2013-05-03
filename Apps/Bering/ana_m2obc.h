@@ -119,10 +119,10 @@
       IF (LBC(ieast,isUbar,ng)%acquire.and.                             &
      &    LBC(ieast,isVbar,ng)%acquire.and.                             &
      &    DOMAIN(ng)%Eastern_Edge(tile)) THEN
-        DO j=JstrR,JendR
+        DO j=JstrT,JendT
           BOUNDARY(ng)%ubar_east(j)=0.0_r8
         END DO
-        DO j=Jstr,JendR
+        DO j=JstrP,JendT
           BOUNDARY(ng)%vbar_east(j)=0.0_r8
         END DO
       END IF
@@ -131,16 +131,16 @@
      &    DOMAIN(ng)%Western_Edge(tile)) THEN
         my_area =0.0_r8
         my_width=0.0_r8
-        DO j=Jstr,Jend
+        DO j=JstrP,JendP
           my_area=my_area+0.5_r8*(h(Istr-1,j)+h(Istr,j))*               &
      &                           on_u(Istr,j)
           my_width=my_width+on_u(Istr,j)
         END DO
         fac=0.4d6
-        DO j=JstrR,JendR
+        DO j=JstrT,JendT
           BOUNDARY(ng)%ubar_west(j)=fac/my_area
         END DO
-        DO j=Jstr,JendR
+        DO j=JstrP,JendT
           BOUNDARY(ng)%vbar_west(j)=0.0_r8
         END DO
       END IF
@@ -149,26 +149,26 @@
      &    DOMAIN(ng)%Southern_Edge(tile)) THEN
         my_area =0.0_r8
         my_width=0.0_r8
-        DO i=Istr,Iend
+        DO i=IstrP,IendP
           my_area=my_area+0.5_r8*(h(i,Jstr-1)+h(i,Jstr))*               &
      &                           om_v(i,Jstr)
           my_width=my_width+om_v(i,Jstr)
         END DO
         fac=0.4d6
-        DO i=Istr,IendR
+        DO i=IstrP,IendT
           BOUNDARY(ng)%ubar_south(i)=0.0_r8
         END DO
-        DO i=IstrR,IendR
+        DO i=IstrT,IendT
           BOUNDARY(ng)%vbar_south(i)=fac/my_area
         END DO
       END IF
       IF (LBC(ieast,isUbar,ng)%acquire.and.                             &
      &    LBC(ieast,isVbar,ng)%acquire.and.                             &
      &    DOMAIN(ng)%Northern_Edge(tile)) THEN
-        DO i=Istr,IendR
+        DO i=IstrP,IendT
           BOUNDARY(ng)%ubar_north(i)=0.0_r8
         END DO
-        DO i=IstrR,IendR
+        DO i=IstrT,IendT
           BOUNDARY(ng)%vbar_north(i)=0.0_r8
         END DO
       END IF

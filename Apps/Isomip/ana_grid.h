@@ -276,9 +276,9 @@
 !  Spherical coordinates set-up.
 !
       spherical=.TRUE.
-      DO j=JstrR,JendR
+      DO j=JstrT,JendT
         cff=-80.0_r8+0.1_r8*REAL(j-1,r8)
-        DO i=IstrR,IendR
+        DO i=IstrT,IendT
           lonr(i,j)=0.3_r8*REAL(i-1,r8)
           latr(i,j)=cff
           lonu(i,j)=0.3_r8*REAL(i-1,r8)+0.15_r8
@@ -308,8 +308,8 @@
 ! ETA, respectively.
 !-----------------------------------------------------------------------
 !
-#define J_RANGE MIN(JstrR,Jstr-1),MAX(Jend+1,JendR)
-#define I_RANGE MIN(IstrR,Istr-1),MAX(Iend+1,IendR)
+#define J_RANGE MIN(JstrT,Jstr-1),MAX(Jend+1,JendT)
+#define I_RANGE MIN(IstrT,Istr-1),MAX(Iend+1,IendT)
 
 # if defined ISOMIP
 !  Spherical coordinates set-up.
@@ -327,8 +327,8 @@
 
 #undef J_RANGE
 #undef I_RANGE
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           pm(i,j)=wrkX(i,j)
           pn(i,j)=wrkY(i,j)
         END DO
@@ -359,8 +359,8 @@
 !  Compute d(1/n)/d(xi) and d(1/m)/d(eta) at RHO-points.
 !-----------------------------------------------------------------------
 !
-      DO j=Jstr,Jend
-        DO i=Istr,Iend
+      DO j=JstrP,JendP
+        DO i=IstrP,IendP
           dndx(i,j)=0.5_r8*((1.0_r8/wrkY(i+1,j  ))-                     &
      &                      (1.0_r8/wrkY(i-1,j  )))
           dmde(i,j)=0.5_r8*((1.0_r8/wrkX(i  ,j+1))-                     &
@@ -392,14 +392,14 @@
 !-----------------------------------------------------------------------
 !
 #if defined MY_APPLICATION
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           angler(i,j)=???
         END DO
       END DO
 #else
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           angler(i,j)=0.0_r8
         END DO
       END DO
@@ -425,8 +425,8 @@
 !-----------------------------------------------------------------------
 !
 #if defined ISOMIP
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           f(i,j)=(4.0_r8*pi/86164.1_r8)*                                &
      &           SIN(latr(i,j)*deg2rad)
         END DO
@@ -434,8 +434,8 @@
 
 #else
       val1=0.5_r8*Esize
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           f(i,j)=f0+beta*(yr(i,j)-val1)
         END DO
       END DO
@@ -461,14 +461,14 @@
 !-----------------------------------------------------------------------
 !
 #if defined MY_APPLICATION
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           h(i,j)=???
         END DO
       END DO
 #else
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           h(i,j)=depth
         END DO
       END DO
@@ -493,10 +493,10 @@
 ! within each subdomain, then determine global minimum by comparing
 ! these subdomain minima.
 !
-      my_min=h(IstrR,JstrR)
-      my_max=h(IstrR,JstrR)
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      my_min=h(IstrT,JstrT)
+      my_max=h(IstrT,JstrT)
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           my_min=MIN(my_min,h(i,j))
           my_max=MAX(my_max,h(i,j))
         END DO
@@ -536,8 +536,8 @@
 !-----------------------------------------------------------------------
 !
 # ifdef ISOMIP
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           IF (j.eq.0) THEN
             zice(i,j)=-700.0_r8
           ELSE IF (j.le.41) THEN

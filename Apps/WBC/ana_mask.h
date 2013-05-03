@@ -92,8 +92,8 @@
 !  computation within a parallel loop.
 !
 #if defined WBC_2 || defined WBC_3
-      DO j=Jstr-2,Jend+2
-        DO i=Istr-2,Iend+2
+      DO j=Jstrm2,Jend+2
+        DO i=Istrm2,Iend+2
           mask(i,j)=1.0_r8
           if (xr(i,j) .lt. 0.0 .or. xr(i,j) .gt. 1000.0e+3_r8)          &
      &                     mask(i,j)=0.0_r8
@@ -105,8 +105,8 @@
       ana_mask_user.h: No values provided for mask.
 #endif
 !
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           rmask(i,j)=mask(i,j)
         END DO
       END DO
@@ -115,13 +115,13 @@
 !  Compute Land/Sea mask of U- and V-points.
 !-----------------------------------------------------------------------
 !
-      DO j=JstrR,JendR
-        DO i=Istr,IendR
+      DO j=JstrT,JendT
+        DO i=IstrP,IendT
           umask(i,j)=mask(i-1,j)*mask(i,j)
         END DO
       END DO
-      DO j=Jstr,JendR
-        DO i=IstrR,IendR
+      DO j=JstrP,JendT
+        DO i=IstrT,IendT
           vmask(i,j)=mask(i,j-1)*mask(i,j)
         END DO
       END DO
@@ -130,8 +130,8 @@
 !  Compute Land/Sea mask of PSI-points.
 !-----------------------------------------------------------------------
 !
-      DO j=Jstr,JendR
-        DO i=Istr,IendR
+      DO j=JstrP,JendT
+        DO i=IstrP,IendT
           pmask(i,j)=mask(i-1,j-1)*mask(i,j-1)*                         &
      &               mask(i-1,j  )*mask(i,j  )
         END DO

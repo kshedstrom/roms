@@ -168,14 +168,14 @@
 !!            
 # ifdef UV_VIS2
       cff=visc2(ng)/grdmax(ng)
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           visc2_r(i,j)=cff*grdscl(i,j)
         END DO
       END DO
       cff=0.25_r8*cff
-      DO j=Jstr,JendR
-        DO i=Istr,IendR
+      DO j=JstrP,JendT
+        DO i=IstrP,IendT
           visc2_p(i,j)=cff*(grdscl(i,j  )+grdscl(i-1,j  )+              &
      &                      grdscl(i,j-1)+grdscl(i-1,j-1))
         END DO
@@ -183,14 +183,14 @@
 # endif
 # ifdef UV_VIS4
       cff=visc4(ng)/(grdmax(ng)**3)
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           visc4_r(i,j)=cff*grdscl(i,j)**3
         END DO
       END DO
       cff=0.25_r8*cff
-      DO j=Jstr,JendR
-        DO i=Istr,IendR
+      DO j=JstrP,JendT
+        DO i=IstrP,IendT
           visc4_p(i,j)=cff*(grdscl(i,j  )**3+grdscl(i-1,j  )**3+        &
      &                      grdscl(i,j-1)**3+grdscl(i-1,j-1)**3)
         END DO
@@ -209,8 +209,8 @@
 # ifdef TS_DIF2
       DO itrc=1,NT(ng)
         cff=tnu2(itrc,ng)/grdmax(ng)
-        DO j=JstrR,JendR
-          DO i=IstrR,IendR
+        DO j=JstrT,JendT
+          DO i=IstrT,IendT
             diff2(i,j,itrc)=cff*grdscl(i,j)
           END DO
         END DO
@@ -219,8 +219,8 @@
 # ifdef TS_DIF4
       DO itrc=1,NT(ng)
         cff=tnu4(itrc,ng)/(grdmax(ng)**3)
-        DO j=JstrR,JendR
-          DO i=IstrR,IendR
+        DO j=JstrT,JendT
+          DO i=IstrT,IendT
             diff4(i,j,itrc)=cff*grdscl(i,j)**3
           END DO
         END DO
@@ -243,34 +243,34 @@
       Iwrk = 10
 #  if defined UV_VIS2
 ! SOUTH
-      DO i=IstrR,IendR
-        DO j=JstrR,MIN(Iwrk,JendR)
+      DO i=IstrT,IendT
+        DO j=JstrT,MIN(Iwrk,JendT)
           cff = 250.*0.5_r8*(1.0_r8+COS(pi*REAL(j,r8)/REAL(Iwrk,r8)))
           visc2_r(i,j) = max(cff, visc2_r(i,j))
           visc2_p(i,j) = max(cff, visc2_p(i,j))
         END DO
       END DO
 ! WEST
-!     DO i=IstrR,MIN(Iwrk,IendR)
-!       DO j=JstrR,JendR
+!     DO i=IstrT,MIN(Iwrk,IendT)
+!       DO j=JstrT,JendT
 !         cff = 250.*0.5_r8*(1.0_r8+COS(pi*REAL(i,r8)/REAL(Iwrk,r8)))
 !         visc2_r(i,j) = max(cff, visc2_r(i,j))
 !         visc2_p(i,j) = max(cff, visc2_p(i,j))
 !       END DO
 !     END DO
 ! EAST
-      DO i=MAX(Lm(ng)+1-Iwrk,IstrR),IendR
+      DO i=MAX(Lm(ng)+1-Iwrk,IstrT),IendT
         ifoo = Lm(ng)+1-i
-        DO j=JstrR,JendR
+        DO j=JstrT,JendT
           cff = 250.*0.5_r8*(1.0_r8+COS(pi*REAL(ifoo,r8)/REAL(Iwrk,r8)))
           visc2_r(i,j) = max(cff, visc2_r(i,j))
           visc2_p(i+1,j) = max(cff, visc2_p(i+1,j))
         END DO
       END DO
 ! NORTH
-!     DO j=MAX(Mm(ng)+1-Iwrk,JstrR),JendR
+!     DO j=MAX(Mm(ng)+1-Iwrk,JstrT),JendT
 !       ifoo = Mm(ng)+1-j
-!       DO i=IstrR,IendR
+!       DO i=IstrT,IendT
 !         cff = 250.*0.5_r8*(1.0_r8+COS(pi*REAL(ifoo,r8)/REAL(Iwrk,r8)))
 !         visc2_r(i,j) = max(cff, visc2_r(i,j))
 !         visc2_p(i+1,j) = max(cff, visc2_p(i+1,j))
@@ -281,31 +281,31 @@
 #   if defined TS_DIF2
       DO itrc=1,NT(ng)
 ! SOUTH
-        DO j=JstrR,MIN(Iwrk,JendR)
+        DO j=JstrT,MIN(Iwrk,JendT)
           cff = 100. * (1.0_r8+COS(pi*REAL(j,r8)/REAL(Iwrk,r8)))
-          DO i=IstrR,IendR
+          DO i=IstrT,IendT
             diff2(i,j,itrc)=max(cff, diff2(i,j,itrc))
           END DO
         END DO
 ! WEST
-!       DO i=IstrR,MIN(Iwrk,IendR)
-!         DO j=JstrR,JendR
+!       DO i=IstrT,MIN(Iwrk,IendT)
+!         DO j=JstrT,JendT
 !           cff = 100. * (1.0_r8+COS(pi*REAL(i,r8)/REAL(Iwrk,r8)))
 !           diff2(i,j,itrc) = max(cff, diff2(i,j,itrc))
 !         END DO
 !       END DO
 ! EAST
-        DO i=MAX(Lm(ng)+1-Iwrk,IstrR),IendR
+        DO i=MAX(Lm(ng)+1-Iwrk,IstrT),IendT
           ifoo = Lm(ng)+1-i
-          DO j=JstrR,JendR
+          DO j=JstrT,JendT
             cff = 100. * (1.0_r8+COS(pi*REAL(ifoo,r8)/REAL(Iwrk,r8)))
             diff2(i,j,itrc) = max(cff, diff2(i,j,itrc))
           END DO
         END DO
 ! NORTH
-!       DO j=MAX(Mm(ng)+1-Iwrk,JstrR),JendR
+!       DO j=MAX(Mm(ng)+1-Iwrk,JstrT),JendT
 !         ifoo = Mm(ng)+1-j
-!         DO i=IstrR,IendR
+!         DO i=IstrT,IendT
 !           cff = 100. * (1.0_r8+COS(pi*REAL(ifoo,r8)/REAL(Iwrk,r8)))
 !           diff2(i,j,itrc) = max(cff, diff2(i,j,itrc))
 !         END DO

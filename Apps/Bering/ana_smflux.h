@@ -136,8 +136,8 @@
 !      winddir = 13*pi/12.0_r8
 !      Ewind=windamp * cos(winddir)
 !      Nwind=windamp * sin(winddir)
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
 !          sustr(i,j)=Ewind
           sustr(i,j)= windamp*sin(winddir + angler(i,j))
 #ifdef TL_IOMS
@@ -145,8 +145,8 @@
 #endif
         END DO
       END DO
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
 !          svstr(i,j)=Nwind
           svstr(i,j)= windamp*cos(winddir + angler(i,j))
 #ifdef TL_IOMS

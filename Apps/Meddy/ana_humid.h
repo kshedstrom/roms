@@ -85,8 +85,8 @@
 !-----------------------------------------------------------------------
 !
 #if defined MEDDY
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           Hair(i,j)=0.8_r8
         END DO
       END DO

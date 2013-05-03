@@ -136,13 +136,13 @@
 !  Initial conditions for 2D momentum (m/s) components.
 !-----------------------------------------------------------------------
 !
-      DO j=JstrR,JendR
-        DO i=Istr,IendR
+      DO j=JstrT,JendT
+        DO i=IstrP,IendT
           ubar(i,j,1)=0.0_r8
         END DO
       END DO
-      DO j=Jstr,JendR
-        DO i=IstrR,IendR
+      DO j=JstrP,JendT
+        DO i=IstrT,IendT
           vbar(i,j,1)=0.0_r8
         END DO
       END DO
@@ -153,8 +153,8 @@
 !
 #define BUMP2
 #if defined BUMP
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
 	  if (i < 600) then
             zeta(i,j,1)=0.25_r8 * (1._r8 + tanh((i-511)/20._r8)) *       &
      &        (tanh((j-270)/10._r8) - tanh((j-323)/10._r8))
@@ -164,8 +164,8 @@
         END DO
       END DO
 #elif defined BUMP2
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
 	  if (j > 560) then
             zeta(i,j,1)=0.25_r8 * (1._r8 - tanh((j-700)/20._r8)) *       &
      &        (1. - tanh((i-40)/10._r8))
@@ -175,8 +175,8 @@
         END DO
       END DO
 #else
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           zeta(i,j,1)=0.0_r8
         END DO
       END DO

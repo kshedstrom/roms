@@ -556,6 +556,15 @@
 !  Compute total depth (m) and vertically integrated mass fluxes.
 !-----------------------------------------------------------------------
 !
+# if defined DISTRIBUTE && !defined NESTING
+
+!  In distributed-memory, the I- and J-ranges are different and a
+!  special exchange is done to avoid having three ghost points for
+!  high order numerical stencils. Notice that a private array is
+!  passed below to the exchange routine. It also applies periodic
+!  boundary conditions, if appropriate and no partitions in I- or
+!  J-directions.
+!
       DO j=JstrVm-2,Jendp2
         DO i=IstrUm-2,Iendp2
 #  ifdef ICESHELF
@@ -566,15 +575,51 @@
 #  endif
         END DO
       END DO
+      DO j=JstrV-2,Jendp2
+        DO i=IstrU-1,Iendp2
+          cff=0.5_r8*on_u(i,j)
+          cff1=cff*(Drhs(i,j)+Drhs(i-1,j))
+          DUon(i,j)=ubar(i,j,krhs)*cff1
+#  ifdef NEARSHORE_MELLOR
+          DUSon(i,j)=ubar_stokes(i,j)*cff1
+          DUon(i,j)=DUon(i,j)+DUSon(i,j)
+#  endif
+        END DO
+      END DO
+      DO j=JstrV-1,Jendp2
+        DO i=IstrU-2,Iendp2
+          cff=0.5_r8*om_v(i,j)
+          cff1=cff*(Drhs(i,j)+Drhs(i,j-1))
+          DVom(i,j)=vbar(i,j,krhs)*cff1
+#  ifdef NEARSHORE_MELLOR
+          DVSom(i,j)=vbar_stokes(i,j)*cff1
+          DVom(i,j)=DVom(i,j)+DVSom(i,j)
+#  endif
+        END DO
+      END DO
+
+# else
+
+      DO j=JstrVm2-1,Jendp2
+        DO i=IstrUm2-1,Iendp2
+#   ifdef ICESHELF
+          hw(i,j)=h(i,j)-ABS(zice(i,j))
+          Drhs(i,j)=zeta(i,j,krhs)+hw(i,j)
+#   else
+          Drhs(i,j)=zeta(i,j,krhs)+h(i,j)
+#   endif
+#  endif
+        END DO
+      END DO
       DO j=JstrVm2-1,Jendp2
         DO i=IstrUm2,Iendp2
           cff=0.5_r8*on_u(i,j)
           cff1=cff*(Drhs(i,j)+Drhs(i-1,j))
           DUon(i,j)=ubar(i,j,krhs)*cff1
-# ifdef NEARSHORE_MELLOR
+#  ifdef NEARSHORE_MELLOR
           DUSon(i,j)=ubar_stokes(i,j)*cff1
           DUon(i,j)=DUon(i,j)+DUSon(i,j)
-# endif
+#  endif
         END DO
       END DO
       DO j=JstrVm2,Jendp2
@@ -582,21 +627,14 @@
           cff=0.5_r8*om_v(i,j)
           cff1=cff*(Drhs(i,j)+Drhs(i,j-1))
           DVom(i,j)=vbar(i,j,krhs)*cff1
-# ifdef NEARSHORE_MELLOR
+#  ifdef NEARSHORE_MELLOR
           DVSom(i,j)=vbar_stokes(i,j)*cff1
           DVom(i,j)=DVom(i,j)+DVSom(i,j)
-# endif
+#  endif
         END DO
       END DO
-
+# endif
 # ifdef DISTRIBUTE
-!
-!  In distributed-memory, the I- and J-ranges are different and a
-!  special exchange is done to avoid having three ghost points for
-!  high order numerical stencils. Notice that a private array is
-!  passed below to the exchange routine. It also applies periodic
-!  boundary conditions, if appropriate and no partitions in I- or
-!  J-directions.
 !
       IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
         CALL exchange_u2d_tile (ng, tile,                               &

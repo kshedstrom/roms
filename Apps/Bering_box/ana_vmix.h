@@ -100,8 +100,8 @@
 !
 #if defined LOOPS
       DO k=1,N(ng)-1
-        DO j=JstrR,JendR
-          DO i=IstrR,IendR
+        DO j=JstrT,JendT
+          DO i=IstrT,IendT
             Akv(i,j,k)=Akv_bak(ng)
           END DO
         END DO
@@ -128,8 +128,8 @@
 !
 #if defined LOOPS
       DO k=1,N(ng)-1
-        DO j=JstrR,JendR
-          DO i=IstrR,IendR
+        DO j=JstrT,JendT
+          DO i=IstrT,IendT
             Akt(i,j,k,itemp)=Akt_bak(itemp,ng)
           END DO
         END DO

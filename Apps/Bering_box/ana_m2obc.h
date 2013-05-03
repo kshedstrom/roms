@@ -114,20 +114,20 @@
 !
 # ifdef EAST_M2OBC
       IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
-        DO j=JstrR,JendR
+        DO j=JstrT,JendT
           BOUNDARY(ng)%ubar_east(j)=0.0_r8
         END DO
-        DO j=Jstr,JendR
+        DO j=JstrP,JendT
           BOUNDARY(ng)%vbar_east(j)=0.0_r8
         END DO
       END IF
 # endif
 # ifdef WEST_M2OBC
       IF (DOMAIN(ng)%Western_Edge(tile)) THEN
-        DO j=JstrR,JendR
+        DO j=JstrT,JendT
           BOUNDARY(ng)%ubar_west(j)=0.0_r8
         END DO
-        DO j=Jstr,JendR
+        DO j=JstrP,JendT
           BOUNDARY(ng)%vbar_west(j)=0.0_r8
         END DO
       END IF
@@ -136,26 +136,26 @@
       IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
         my_area =0.0_r8
         my_width=0.0_r8
-        DO i=Istr,Iend
+        DO i=IstrP,IendP
           my_area=my_area+0.5_r8*(h(i,Jstr-1)+h(i,Jstr))*               &
      &                           om_v(i,Jstr)
           my_width=my_width+om_v(i,Jstr)
         END DO
         fac=-1.0d6
-        DO i=Istr,IendR
+        DO i=IstrP,IendT
           BOUNDARY(ng)%ubar_south(i)=0.0_r8
         END DO
-        DO i=IstrR,IendR
+        DO i=IstrT,IendT
           BOUNDARY(ng)%vbar_south(i)=fac/my_area
         END DO
       END IF
 # endif
 # ifdef NORTH_M2OBC
       IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
-        DO i=Istr,IendR
+        DO i=IstrP,IendT
           BOUNDARY(ng)%ubar_north(i)=0.0_r8
         END DO
-        DO i=IstrR,IendR
+        DO i=IstrT,IendT
           BOUNDARY(ng)%vbar_north(i)=0.0_r8
         END DO
       END IF

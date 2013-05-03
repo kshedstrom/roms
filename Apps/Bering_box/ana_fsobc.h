@@ -68,7 +68,7 @@
 !
 # ifdef SOUTH_FSOBC
       IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
-        DO i=IstrR,IendR
+        DO i=IstrT,IendT
           BOUNDARY(ng)%zeta_south(i)=0.0_r8
         END DO
       END IF

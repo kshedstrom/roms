@@ -79,24 +79,24 @@
 !-----------------------------------------------------------------------
 !
 #ifdef GAK1D
-      DO j=JstrR,JendR
-        DO i=Istr,IendR
+      DO j=JstrT,JendT
+        DO i=IstrP,IendT
           ubarclm(i,j)=0.0_r8
         END DO
       END DO
-      DO j=Jstr,JendR
-        DO i=IstrR,IendR
+      DO j=JstrP,JendT
+        DO i=IstrT,IendT
           vbarclm(i,j)=0.0_r8
         END DO
       END DO
 #else
-      DO j=JstrR,JendR
-        DO i=Istr,IendR
+      DO j=JstrT,JendT
+        DO i=IstrP,IendT
           ubarclm(i,j)=???
         END DO
       END DO
-      DO j=Jstr,JendR
-        DO i=IstrR,IendR
+      DO j=JstrP,JendT
+        DO i=IstrT,IendT
           vbarclm(i,j)=???
         END DO
       END DO
