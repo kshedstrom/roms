@@ -56,6 +56,9 @@
 # ifdef NEARSHORE_MELLOR
       USE radiation_stress_mod, ONLY : radiation_stress
 # endif
+# ifdef BULK_FLUXES2D
+      USE bulk_flux_mod, ONLY : bulk_flux
+# endif
 # ifdef AVERAGES
       USE set_avg_mod, ONLY : set_avg
 # endif
@@ -358,6 +361,9 @@
             DO ig=1,GridsInLayer(nl)
               ng=GridNumber(ig,nl)
               DO tile=first_tile(ng),last_tile(ng),+1
+# ifdef BULK_FLUXES2D
+                CALL bulk_flux (ng, tile)
+# endif
                 CALL set_vbc (ng, tile)
 # if defined SSH_TIDES || defined UV_TIDES
                 CALL set_tides (ng, tile)

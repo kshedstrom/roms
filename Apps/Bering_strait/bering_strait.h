@@ -199,6 +199,7 @@
 # define ANA_BTFLUX
 #else
 # define ANA_SMFLUX
+# undef BULK_FLUXES2D
 # define ANA_INITIAL
 # define ANA_FSOBC
 # define ANA_M2OBC

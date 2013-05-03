@@ -380,16 +380,17 @@
      &                     update)
       IF (exit_flag.ne.NoError) RETURN
 #  endif
+# endif
 
-#  if defined BULK_FLUXES || defined ECOSIM
+# if defined BULK_FLUXES || defined BULK_FLUXES2D || defined ECOSIM
 !
 !-----------------------------------------------------------------------
 !  Set surface winds (m/s).
 !-----------------------------------------------------------------------
 !
-#   ifdef ANA_WINDS
+#  ifdef ANA_WINDS
       CALL ana_winds (ng, tile, iNLM)
-#   else
+#  else
       CALL set_2dfld_tile (ng, tile, iNLM, idUair,                      &
      &                     LBi, UBi, LBj, UBj,                          &
      &                     FORCES(ng)%UwindG,                           &
@@ -404,7 +405,7 @@
      &                     update)
       IF (exit_flag.ne.NoError) RETURN
 
-#    ifdef CURVGRID
+#   ifdef CURVGRID
 !
 !  If input point surface winds or interpolated from coarse data, rotate
 !  to curvilinear grid.
@@ -432,19 +433,20 @@
      &                            FORCES(ng)%VWind)
         END IF
 
-#     ifdef DISTRIBUTE
+#    ifdef DISTRIBUTE
         CALL mp_exchange2d (ng, tile, iNLM, 2,                          &
      &                      LBi, UBi, LBj, UBj,                         &
      &                      NghostPoints,                               &
      &                      EWperiodic(ng), NSperiodic(ng),             &
      &                      FORCES(ng)%UWind,                           &
      &                      FORCES(ng)%VWind)
-#     endif
-      END IF
 #    endif
+      END IF
 #   endif
 #  endif
+# endif
 
+# ifdef SOLVE3D
 #  ifdef BULK_FLUXES
 !
 !-----------------------------------------------------------------------
@@ -667,7 +669,7 @@
 # endif
 
 # ifndef AIR_OCEAN
-#  ifndef BULK_FLUXES
+#  if !defined BULK_FLUXES && !defined BULK_FLUXES2D
 !
 !-----------------------------------------------------------------------
 !  Set kinematic surface momentum flux (m2/s2).
