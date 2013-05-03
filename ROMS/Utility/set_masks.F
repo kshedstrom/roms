@@ -256,23 +256,23 @@
 !  application grid mask.
 !-----------------------------------------------------------------------
 !
-      DO j=Jstr,JendR
-        DO i=Istr,IendR
+      DO j=JstrP,JendP
+        DO i=IstrP,IendP
           pmask_io(i,j)=pmask(i,j)
         END DO
       END DO
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           rmask_io(i,j)=rmask(i,j)
         END DO
       END DO
-      DO j=JstrR,JendR
-        DO i=Istr,IendR
+      DO j=JstrT,JendT
+        DO i=IstrP,IendT
           umask_io(i,j)=umask(i,j)
         END DO
       END DO
-      DO j=Jstr,JendR
-        DO i=IstrR,IendR
+      DO j=JstrP,JendT
+        DO i=IstrT,IendT
           vmask_io(i,j)=vmask(i,j)
         END DO
       END DO
@@ -334,8 +334,8 @@
       DO is=1,Nsrc
         i=Isrc(is)
         j=Jsrc(is)
-        IF (((IstrR.le.i).and.(i.le.IendR)).and.                        &
-     &      ((JstrR.le.j).and.(j.le.JendR))) THEN
+        IF (((IstrT.le.i).and.(i.le.IendT)).and.                        &
+     &      ((JstrT.le.j).and.(j.le.JendT))) THEN
           IF (INT(Dsrc(is)).eq.0) THEN
             umask_io(i,j)=1.0_r8
           ELSE
@@ -377,8 +377,8 @@
 !  Initialize average file Land/Sea masks for time-averaged fields.
 !-----------------------------------------------------------------------
 !
-      DO j=Jstr,JendR
-        DO i=Istr,IendR
+      DO j=JstrP,JendP
+        DO i=IstrP,IendP
 #  ifdef WET_DRY
           pmask_avg(i,j)=0.0_r8
 #  else
@@ -387,8 +387,8 @@
         END DO
       END DO
 
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
 #  ifdef WET_DRY
           rmask_avg(i,j)=0.0_r8
 #  else
@@ -397,8 +397,8 @@
         END DO
       END DO
 
-      DO j=JstrR,JendR
-        DO i=Istr,IendR
+      DO j=JstrT,JendT
+        DO i=IstrP,IendT
 #  ifdef WET_DRY
           umask_avg(i,j)=0.0_r8
 #  else
@@ -407,8 +407,8 @@
         END DO
       END DO
 
-      DO j=Jstr,JendR
-        DO i=IstrR,IendR
+      DO j=JstrP,JendT
+        DO i=IstrT,IendT
 #  ifdef WET_DRY
           vmask_avg(i,j)=0.0_r8
 #  else
@@ -518,8 +518,8 @@
 !  Initialize diagnostic file Land/Sea masks for time-averaged fields.
 !-----------------------------------------------------------------------
 !
-      DO j=Jstr,JendR
-        DO i=Istr,IendR
+      DO j=JstrP,JendP
+        DO i=IstrP,IendP
 #  ifdef WET_DRY
           pmask_dia(i,j)=0.0_r8
 #  else
@@ -528,8 +528,8 @@
         END DO
       END DO
 
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
 #  ifdef WET_DRY
           rmask_dia(i,j)=0.0_r8
 #  else
@@ -538,8 +538,8 @@
         END DO
       END DO
 
-      DO j=JstrR,JendR
-        DO i=Istr,IendR
+      DO j=JstrT,JendT
+        DO i=IstrP,IendT
 #  ifdef WET_DRY
           umask_dia(i,j)=0.0_r8
 #  else
@@ -548,8 +548,8 @@
         END DO
       END DO
 
-      DO j=Jstr,JendR
-        DO i=IstrR,IendR
+      DO j=JstrP,JendT
+        DO i=IstrT,IendT
 #  ifdef WET_DRY
           vmask_dia(i,j)=0.0_r8
 #  else
@@ -651,23 +651,23 @@
      &    (MOD(iic(ng)-1,nAVG(ng)).eq.0).and.                           &
      &    ((iic(ng).ne.ntstart(ng)).or.(nrrec(ng).eq.0))) THEN
 
-        DO j=Jstr,JendR
-          DO i=Istr,IendR
+        DO j=JstrP,JendP
+          DO i=IstrP,IendP
             pmask_avg(i,j)=MIN(1.0_r8, pmask_avg(i,j))
           END DO
         END DO
-        DO j=JstrR,JendR
-          DO i=IstrR,IendR
+        DO j=JstrT,JendT
+          DO i=IstrT,IendT
             rmask_avg(i,j)=MIN(1.0_r8, rmask_avg(i,j))
           END DO
         END DO
-        DO j=JstrR,JendR
-          DO i=Istr,IendR
+        DO j=JstrT,JendT
+          DO i=IstrP,IendT
             umask_avg(i,j)=MIN(1.0_r8, umask_avg(i,j))
           END DO
         END DO
-        DO j=Jstr,JendR
-          DO i=IstrR,IendR
+        DO j=JstrP,JendT
+          DO i=IstrT,IendT
             vmask_avg(i,j)=MIN(1.0_r8, vmask_avg(i,j))
           END DO
         END DO

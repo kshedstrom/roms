@@ -179,10 +179,12 @@
         integer, allocatable :: ndtfast(:)
         integer, allocatable :: nfast(:)
 
-        real(r8), allocatable :: dt(:)                   ! seconds
-        real(r8), allocatable :: dtfast(:)               ! seconds
         real(r8), allocatable :: tdays(:)                ! days
         real(r8), allocatable :: time(:)                 ! seconds
+!$OMP THREADPRIVATE (tdays, time)
+
+        real(r8), allocatable :: dt(:)                   ! seconds
+        real(r8), allocatable :: dtfast(:)               ! seconds
         real(r8), allocatable :: TimeEnd(:)              ! seconds
         real(r8), allocatable :: AVGtime(:)              ! seconds
         real(r8), allocatable :: AVG2time(:)             ! seconds
@@ -205,6 +207,8 @@
         real(r8) :: days_year = 365.25_r8                 ! days per year
 
         character (len=14), allocatable :: time_code(:)  ! DD HH:MM:SS
+!$OMP THREADPRIVATE (time_code)
+
         character (len=19) :: r_text
 
 #if defined POWER_LAW && defined SOLVE3D
@@ -250,6 +254,12 @@
 !
         integer, allocatable :: ntimes(:)
 !
+!  Step counter for current execution time-window.
+!
+        integer, allocatable :: step_counter(:)
+
+!$OMP THREADPRIVATE (step_counter)
+!
 !  Number of time interval divisions for Stochastic Optimals.  It must
 !  a multiple of "ntimes".
 !
@@ -273,6 +283,7 @@
         integer, allocatable :: ntfirst(:)      ! Forward-Euler step
         integer, allocatable :: ntstart(:)      ! Start step
         integer, allocatable :: ntend(:)        ! End step
+!$OMP THREADPRIVATE (ntfirst, ntstart, ntend)
 !
 !  Adjoint model or tangent linear model impulse forcing time record
 !  counter and number of records available.
@@ -360,8 +371,20 @@
 !
 !  Composite grid a refined grids switches. They are .FALSE. by default.
 !
-        logical, allocatable :: ComposedGrid(:)
+        logical, allocatable :: CompositeGrid(:,:)
         logical, allocatable :: RefinedGrid(:)
+!
+!  Refinement grid scale factor from donor grid.
+!
+      integer, allocatable :: RefineScale(:)
+!
+!  Switch to extract donor grid (coarse) data at the refinement grid
+!  contact point locations. The coarse data is extracted at the first
+!  sub-refined time step.  Recall that the finer grid time-step is
+!  smaller than the coarser grid by a factor of RefineScale(:). This
+!  switch is only relevant during refinement nesting.
+!
+      logical, allocatable :: GetDonorData(:)
 !
 !  Periodic boundary swiches for distributed-memory exchanges.
 !
@@ -495,6 +518,7 @@
 !  Diagnostic volume averaged variables.
 !
         integer, allocatable :: first_time(:)
+!$OMP THREADPRIVATE (first_time)
 
         real(r8) :: avgke = 0.0_r8              ! Kinetic energy
         real(r8) :: avgpe = 0.0_r8              ! Potential energy
@@ -920,6 +944,7 @@
 !  applications.
 !
         logical, allocatable :: synchro_flag(:)
+!$OMP THREADPRIVATE (synchro_flag)
 !
 !  Switch to inialize model with latest time record from initial
 !  (restart/history) NetCDF file.
@@ -1698,8 +1723,6 @@
 
       allocate ( dt(Ngrids) )
       allocate ( dtfast(Ngrids) )
-      allocate ( tdays(Ngrids) )
-      allocate ( time(Ngrids) )
       allocate ( TimeEnd(Ngrids) )
       allocate ( AVGtime(Ngrids) )
       allocate ( AVG2time(Ngrids) )
@@ -1714,12 +1737,19 @@
       allocate ( dtau(Ngrids) )
 #endif
 
-      allocate ( time_code(Ngrids) )
-
       allocate ( ntimes(Ngrids) )
+
+!$OMP PARALLEL
+      allocate ( synchro_flag(Ngrids) )
+      allocate ( first_time(Ngrids) )
       allocate ( ntfirst(Ngrids) )
       allocate ( ntstart(Ngrids) )
       allocate ( ntend(Ngrids) )
+      allocate ( step_counter(Ngrids) )
+      allocate ( tdays(Ngrids) )
+      allocate ( time(Ngrids) )
+      allocate ( time_code(Ngrids) )
+!$OMP END PARALLEL
 
       allocate ( NrecFrc(Ngrids) )
 
@@ -1735,8 +1765,10 @@
       allocate ( Lsediment(Ngrids) )
       allocate ( Lstations(Ngrids) )
 
-      allocate ( ComposedGrid(Ngrids) )
+      allocate ( CompositeGrid(4,Ngrids) )
       allocate ( RefinedGrid(Ngrids) )
+      allocate ( RefineScale(Ngrids) )
+      allocate ( GetDonorData(Ngrids) )
 
       allocate ( EWperiodic(Ngrids) )
       allocate ( NSperiodic(Ngrids) )
@@ -1781,8 +1813,6 @@
 #ifdef SOLVE3D
       allocate ( Kdigits(Ngrids) )
 #endif
-
-      allocate ( first_time(Ngrids) )
 
       allocate ( DXmin(Ngrids) )
       allocate ( DXmax(Ngrids) )
@@ -1955,7 +1985,6 @@
 
       allocate ( nrrec(Ngrids) )
 
-      allocate ( synchro_flag(Ngrids) )
       allocate ( LastRec(Ngrids) )
 
       allocate ( LcycleADJ(Ngrids) )
@@ -2217,8 +2246,9 @@
 !
       DO ng=1,Ngrids
         LastRec(ng)=.FALSE.
-        ComposedGrid(ng)=.FALSE.
+        CompositeGrid(1:4,ng)=.FALSE.
         RefinedGrid(ng)=.FALSE.
+        GetDonorData(ng)=.FALSE.
         Lbiology(ng)=.TRUE.
         LcycleADJ(ng)=.FALSE.
         LcycleRST(ng)=.FALSE.
@@ -2282,9 +2312,11 @@
         NSperiodic(ng)=.FALSE.
         NudgingCoeff(ng)=.FALSE.
         ObcData(ng)=.FALSE.
+        RefineScale(ng)=0
         ntfirst(ng)=1
         ntstart(ng)=1
         ntend(ng)=0
+        step_counter(ng)=0
         gamma2(ng)=-1.0_r8
         Vtransform(ng)=1
         Vstretching(ng)=1

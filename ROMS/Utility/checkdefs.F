@@ -1334,6 +1334,12 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+13)=' NEMURO_SED1,'
 #endif
+#ifdef NESTING
+      IF (Master) WRITE (stdout,20) 'NESTING',                          &
+     &   'Nesting grids: Composite and Refinement.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+9)=' NESTING,'
+#endif
 #if defined NL_BULK_FLUXES
       IF (Master) WRITE (stdout,20) 'NL_BULK_FLUXES',                   &
      &   'Using bulk fluxes computed by nonlinear model.'

@@ -758,6 +758,12 @@ Dout(iTvdif) == T T                        ! vertical diffusion
      FWDNAME == ocean_fwd.nc
      ADSNAME == ocean_ads.nc
 
+! Nesting grids connectivity data: contact points information. This
+! NetCDF file is special and complex. It is currently generated using
+! script "matlab/grid/contact.m" from the Matlab repository.
+
+     NGCNAME =  ocean_ngc.nc
+
 ! Input lateral boundary conditions and climatology file names.  The
 ! USER has the option to split input data time records into several
 ! NetCDF files (see prologue instructions above). If so, use a single
