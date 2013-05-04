@@ -433,15 +433,16 @@
 !  Run ice model for one step
 !-----------------------------------------------------------------------
 !
-        IF (PerfectRST(1).and.iic(1).eq.ntstart(1)) THEN
-          DO ng=1,Ngrids
-            DO tile=first_tile(ng),last_tile(ng),+1
-              CALL ice_flux_rst(ng, tile)
-            END DO
-          END DO
-        ELSE
-          CALL seaice
-        END IF
+            IF (PerfectRST(1).and.iic(1).eq.ntstart(1)) THEN
+              DO ig=1,GridsInLayer(nl)
+                ng=GridNumber(ig,nl)
+                DO tile=first_tile(ng),last_tile(ng),+1
+                  CALL ice_flux_rst(ng, tile)
+                END DO
+              END DO
+            ELSE
+              CALL seaice
+            END IF
 # endif
 # ifdef ADJUST_BOUNDARY
 !
