@@ -1487,6 +1487,15 @@
               Npts=load_l(Nval, Cval, Ngrids, Hout(idWdis,:))
 #endif
 #ifdef SOLVE3D
+# if defined RUNOFF
+            CASE ('Hout(idRunoff)')
+              IF (idRunoff.eq.0) THEN
+                IF (Master) WRITE (out,280) 'idRunoff'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Hout(idRunoff,:))
+# endif
 # if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS
             CASE ('Hout(idPair)')
               IF (idPair.eq.0) THEN
@@ -1745,6 +1754,10 @@
             CASE ('Aout(idV3Sd)')
               Npts=load_l(Nval, Cval, Ngrids, Aout(idV3Sd,:))
 # ifdef SOLVE3D
+#  if defined RUNOFF
+            CASE ('Aout(idRunoff)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout(idRunoff,:))
+#  endif
 #  if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS
             CASE ('Aout(idPair)')
               Npts=load_l(Nval, Cval, Ngrids, Aout(idPair,:))
@@ -4210,6 +4223,11 @@
           END DO
 #endif
 #ifdef SOLVE3D
+# if defined RUNOFF
+          IF (Hout(idRunoff,ng)) WRITE (out,170) Hout(idRunoff,ng),     &
+     &       'Hout(idRunoff)',                                          &
+     &       'Write out surface fresh water input via runoff.'
+# endif
 # if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS
           IF (Hout(idPair,ng)) WRITE (out,170) Hout(idPair,ng),         &
      &       'Hout(idPair)',                                            &
@@ -4412,6 +4430,11 @@
           END DO
 # endif
 # ifdef SOLVE3D
+#  if defined RUNOFF
+          IF (Aout(idRunoff,ng)) WRITE (out,170) Aout(idRunoff,ng),     &
+     &       'Aout(idRunoff)',                                          &
+     &       'Write out averaged surface fresh water input via runoff.'
+#  endif
 #  if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS
           IF (Aout(idPair,ng)) WRITE (out,170) Aout(idPair,ng),         &
      &       'Aout(idPair)',                                            &
