@@ -123,7 +123,8 @@
 !  Local variable declarations.
 !
       integer :: i, j, i0, j0
-      real(r8) :: Ewind, Nwind, windamp, winddir
+      real(r8) :: Ewind, Nwind, windamp, winddir, radius, rad0
+      real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: speed
 
 #include "set_bounds.h"
 !
@@ -132,33 +133,64 @@
 !  XI-direction (m2/s2) at horizontal U-points.
 !-----------------------------------------------------------------------
 !
+#define GYRE
+#ifdef GYRE
+      i0 = 293
+      j0 = 97
+      rad0 = 100._r8
+      windamp = 0.0001_r8
+      DO j=JstrR,JendR
+        DO i=IstrR,IendR
+! Weighting j variations more
+          radius = sqrt((i-i0)**2 + 1._r8*(j-j0)**2)
+          speed(i,j) = windamp*0.5*radius / rad0 *                      &
+     &                  (tanh((radius-rad0)/rad0) - 1.0)
+        END DO
+      END DO
+      DO j=JstrR,JendR
+        DO i=IstrR,IendR
+	  winddir = atan2(1._r8*(j-j0),1._r8*(i-i0))
+          sustr(i,j)= speed(i,j)*sin(winddir)
+        END DO
+      END DO
+      DO j=JstrR,JendR
+        DO i=IstrR,IendR
+	  winddir = atan2(1._r8*(j-j0),1._r8*(i-i0))
+          svstr(i,j)= -speed(i,j)*cos(winddir)
+        END DO
+      END DO
+#elif defined UP_DOWN
 ! Something that ramps up, then down.
-!      windamp = 1.0e-4_r8*0.5*(tanh((time(ng) - 86400._r8)/43200._r8)   &
-!     &                      - tanh((time(ng) - 4*86400._r8)/43200._r8) )
+      windamp = 1.0e-4_r8*0.5*(tanh((time(ng) - 86400._r8)/43200._r8)   &
+     &                      - tanh((time(ng) - 4*86400._r8)/43200._r8) )
 !! This is in degrees clockwise from north
-!      winddir = 120*pi/180._r8
+      winddir = 120*pi/180._r8
+      DO j=JstrR,JendR
+        DO i=IstrR,IendR
+          i0 = max(i-1,IstrR)
+          sustr(i,j)= windamp*sin(winddir + angler(i,j)) *              &
+     &                max(mask2(i,j),mask2(i0,j))
+        END DO
+      END DO
+      DO j=JstrR,JendR
+        DO i=IstrR,IendR
+          j0 = max(j-1,JstrR)
+          svstr(i,j)= windamp*cos(winddir + angler(i,j)) *              &
+     &                max(mask2(i,j),mask2(i,j0))
+        END DO
+      END DO
+#else
       DO j=JstrR,JendR
         DO i=IstrR,IendR
           sustr(i,j)=0.0
-!          i0 = max(i-1,IstrR)
-!          sustr(i,j)= windamp*sin(winddir + angler(i,j)) *              &
-!     &                max(mask2(i,j),mask2(i0,j))
-#ifdef TL_IOMS
-          tl_sustr(i,j)=Ewind
-#endif
         END DO
       END DO
       DO j=JstrR,JendR
         DO i=IstrR,IendR
           svstr(i,j)=0.0
-!          j0 = max(j-1,JstrR)
-!          svstr(i,j)= windamp*cos(winddir + angler(i,j)) *              &
-!     &                max(mask2(i,j),mask2(i,j0))
-#ifdef TL_IOMS
-          tl_svstr(i,j)=Nwind
-#endif
         END DO
       END DO
+#endif
 !
 !  Exchange boundary data.
 !
