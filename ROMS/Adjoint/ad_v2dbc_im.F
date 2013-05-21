@@ -1118,7 +1118,7 @@
 !>   &                     zeta(i,Jend+1,know))
 !>
               ad_zeta(i,Jend  ,know)=ad_zeta(i,Jend  ,know)+            &
-     &                               (0.5_r8+Ce)*ad_Ze      
+     &                               (0.5_r8+Ce)*ad_Ze
               ad_zeta(i,Jend+1,know)=ad_zeta(i,Jend+1,know)+            &
      &                               (0.5_r8-Ce)*ad_Ze
               ad_Ce=ad_Ce+                                              &
