@@ -544,7 +544,7 @@
      &                          maxspeed(ng)
 #endif
             CALL my_flush (stdout)
- 30         FORMAT (i7,1x,a,4(1pe14.6))
+ 30         FORMAT (i8,1x,a,4(1pe14.6))
  40         FORMAT ('(',i2.2,'x,',a,',i',i1,'.',i1,',',                 &
      &                            a,',i',i1,'.',i1,',',                 &
 #ifdef SOLVE3D
