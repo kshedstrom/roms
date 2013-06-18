@@ -1613,7 +1613,7 @@
 
       RETURN
       END FUNCTION bulk_psit
-#elif defined BULK_FLUXES2D
+#elif defined BULK_FLUXES2D && !defined CCSM_FLUXES2D
       implicit none
 !
       PRIVATE

@@ -480,6 +480,7 @@ Hout(idWpbt) == F       ! Pwave_bot          wave bottom period
 Hout(idWorb) == F       ! Ub_swan            wave bottom orbital velocity
 Hout(idWdis) == F       ! Wave_dissip        wave dissipation
 
+Hout(idRunoff) == F     ! Runoff             surface runoff from land
 Hout(idPair) == F       ! Pair               surface air pressure
 Hout(idUair) == F       ! Uair               surface U-wind component
 Hout(idVair) == F       ! Vair               surface V-wind component
@@ -603,6 +604,7 @@ Aout(idV3rs) == F       ! v_Rstress          3D V-radiation stress
 Aout(idU3Sd) == F       ! u_stokes           3D U-Stokes velocity
 Aout(idV3Sd) == F       ! v_stokes           3D V-Stokes velocity
 
+Aout(idRunoff) == F     ! Runoff             surface runoff from land
 Aout(idPair) == F       ! Pair               surface air pressure
 Aout(idUair) == F       ! Uair               surface U-wind component
 Aout(idVair) == F       ! Vair               surface V-wind component

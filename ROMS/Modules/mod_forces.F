@@ -284,12 +284,33 @@
 # endif
 #endif
 
-#if defined BULK_FLUXES || defined BULK_FLUXES2D || defined ECOSIM
+#if defined BULK_FLUXES || defined BULK_FLUXES2D || defined ECOSIM \
+    || defined CCSM_FLUXES2D
           real(r8), pointer :: Uwind(:,:)
           real(r8), pointer :: Vwind(:,:)
 # ifndef ANA_WINDS
           real(r8), pointer :: UwindG(:,:,:)
           real(r8), pointer :: VwindG(:,:,:)
+# endif
+#endif
+
+#if defined BULK_FLUXES || defined ECOSIM || defined CCSM_FLUXES2D || \
+    (defined SHORTWAVE && defined ANA_SRFLUX)
+          real(r8), pointer :: Hair(:,:)
+# ifndef ANA_HUMIDITY
+          real(r8), pointer :: HairG(:,:,:)
+# endif
+          real(r8), pointer :: Tair(:,:)
+# ifndef ANA_TAIR
+          real(r8), pointer :: TairG(:,:,:)
+# endif
+#endif
+
+#if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS \
+     || defined CCSM_FLUXES2D
+          real(r8), pointer :: Pair(:,:)
+# ifndef ANA_PAIR
+          real(r8), pointer :: PairG(:,:,:)
 # endif
 #endif
 
@@ -333,25 +354,6 @@
           real(r8), pointer :: lrflxG(:,:,:)
 #  endif
           real(r8), pointer :: shflx(:,:)
-# endif
-
-# if defined BULK_FLUXES || defined ECOSIM || \
-    (defined SHORTWAVE && defined ANA_SRFLUX)
-          real(r8), pointer :: Hair(:,:)
-#  ifndef ANA_HUMIDITY
-          real(r8), pointer :: HairG(:,:,:)
-#  endif
-          real(r8), pointer :: Tair(:,:)
-#  ifndef ANA_TAIR
-          real(r8), pointer :: TairG(:,:,:)
-#  endif
-# endif
-
-# if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS
-          real(r8), pointer :: Pair(:,:)
-#  ifndef ANA_PAIR
-          real(r8), pointer :: PairG(:,:,:)
-#  endif
 # endif
 
 # ifdef BULK_FLUXES
@@ -689,6 +691,30 @@
 # endif
 #endif
 
+#if defined BULK_FLUXES || defined ECOSIM || defined CCSM_FLUXES2D ||  \
+    (defined SHORTWAVE && defined ANA_SRFLUX)
+      allocate ( FORCES(ng) % Hair(LBi:UBi,LBj:UBj) )
+
+# ifndef ANA_HUMIDITY
+      allocate ( FORCES(ng) % HairG(LBi:UBi,LBj:UBj,2) )
+# endif
+
+      allocate ( FORCES(ng) % Tair(LBi:UBi,LBj:UBj) )
+
+# ifndef ANA_TAIR
+      allocate ( FORCES(ng) % TairG(LBi:UBi,LBj:UBj,2) )
+# endif
+#endif
+
+#if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS \
+    || defined CCSM_FLUXES2D
+      allocate ( FORCES(ng) % Pair(LBi:UBi,LBj:UBj) )
+
+# ifndef ANA_PAIR
+      allocate ( FORCES(ng) % PairG(LBi:UBi,LBj:UBj,2) )
+# endif
+#endif
+
 #ifdef SOLVE3D
 
 # ifdef SHORTWAVE
@@ -734,29 +760,6 @@
 #  endif
 
       allocate ( FORCES(ng) % shflx(LBi:UBi,LBj:UBj) )
-# endif
-
-# if defined BULK_FLUXES || defined ECOSIM || \
-    (defined SHORTWAVE && defined ANA_SRFLUX)
-      allocate ( FORCES(ng) % Hair(LBi:UBi,LBj:UBj) )
-
-#  ifndef ANA_HUMIDITY
-      allocate ( FORCES(ng) % HairG(LBi:UBi,LBj:UBj,2) )
-#  endif
-
-      allocate ( FORCES(ng) % Tair(LBi:UBi,LBj:UBj) )
-
-#  ifndef ANA_TAIR
-      allocate ( FORCES(ng) % TairG(LBi:UBi,LBj:UBj,2) )
-#  endif
-# endif
-
-# if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS
-      allocate ( FORCES(ng) % Pair(LBi:UBi,LBj:UBj) )
-
-#  ifndef ANA_PAIR
-      allocate ( FORCES(ng) % PairG(LBi:UBi,LBj:UBj,2) )
-#  endif
 # endif
 
 # ifdef BULK_FLUXES
@@ -1181,6 +1184,27 @@
             FORCES(ng) % VwindG(i,j,2) = IniVal
 # endif
 #endif
+#if defined BULK_FLUXES || defined ECOSIM || defined CCSM_FLUXES2D || \
+    (defined SHORTWAVE && defined ANA_SRFLUX)
+            FORCES(ng) % Hair(i,j) = IniVal
+            FORCES(ng) % Tair(i,j) = IniVal
+# ifndef ANA_HUMIDITY
+            FORCES(ng) % HairG(i,j,1) = IniVal
+            FORCES(ng) % HairG(i,j,2) = IniVal
+# endif
+# ifndef ANA_TAIR
+            FORCES(ng) % TairG(i,j,1) = IniVal
+            FORCES(ng) % TairG(i,j,2) = IniVal
+# endif
+#endif
+#if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS || \
+     defined CCSM_FLUXES2D
+            FORCES(ng) % Pair(i,j) = IniVal
+# ifndef ANA_PAIR
+            FORCES(ng) % PairG(i,j,1) = IniVal
+            FORCES(ng) % PairG(i,j,2) = IniVal
+# endif
+#endif
 
 #ifdef SOLVE3D
 # ifdef SHORTWAVE
@@ -1220,14 +1244,6 @@
             FORCES(ng) % lrflx(i,j) = IniVal
             FORCES(ng) % shflx(i,j) = IniVal
 # endif
-# if defined BULK_FLUXES || defined ECOSIM || \
-    (defined SHORTWAVE && defined ANA_SRFLUX)
-            FORCES(ng) % Hair(i,j) = IniVal
-            FORCES(ng) % Tair(i,j) = IniVal
-# endif
-# if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS
-            FORCES(ng) % Pair(i,j) = IniVal
-# endif
 # ifdef BULK_FLUXES
             FORCES(ng) % rain(i,j) = IniVal
 #  ifndef ANA_RAIN
@@ -1247,24 +1263,6 @@
 # if !defined LONGWAVE && defined BULK_FLUXES
             FORCES(ng) % lrflxG(i,j,1) = IniVal
             FORCES(ng) % lrflxG(i,j,2) = IniVal
-# endif
-# if defined BULK_FLUXES || defined ECOSIM
-#  ifndef ANA_HUMIDITY
-            FORCES(ng) % HairG(i,j,1) = IniVal
-            FORCES(ng) % HairG(i,j,2) = IniVal
-#  endif
-# endif
-# if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS
-#  ifndef ANA_PAIR
-            FORCES(ng) % PairG(i,j,1) = IniVal
-            FORCES(ng) % PairG(i,j,2) = IniVal
-#  endif
-# endif
-# if defined BULK_FLUXES || defined ECOSIM
-#  ifndef ANA_TAIR
-            FORCES(ng) % TairG(i,j,1) = IniVal
-            FORCES(ng) % TairG(i,j,2) = IniVal
-#  endif
 # endif
 # if !defined ANA_RAIN && defined BULK_FLUXES
             FORCES(ng) % rainG(i,j,1) = IniVal
