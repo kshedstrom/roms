@@ -1654,7 +1654,7 @@
      &                     GRID(ng) % rmask,                            &
      &                     GRID(ng) % umask,                            &
      &                     GRID(ng) % vmask,                            &
-!     &                     GRID(ng) % mask2,                            &
+     &                     GRID(ng) % mask2,                            &
 # endif
      &                     FORCES(ng) % Uwind,                          &
      &                     FORCES(ng) % Vwind,                          &
@@ -1677,7 +1677,7 @@
 # endif
 # ifdef MASKING
      &                           rmask, umask, vmask,                   &
-!     &                           mask2,                                 &
+     &                           mask2,                                 &
 # endif
      &                           Uwind, Vwind, sustr, svstr)
 !***********************************************************************
@@ -1706,7 +1706,7 @@
       real(r8), intent(in) :: rmask(LBi:,LBj:)
       real(r8), intent(in) :: umask(LBi:,LBj:)
       real(r8), intent(in) :: vmask(LBi:,LBj:)
-!      real(r8), intent(in) :: mask2(LBi:,LBj:)
+      real(r8), intent(in) :: mask2(LBi:,LBj:)
 #  endif
       real(r8), intent(out) :: Uwind(LBi:,LBj:)
       real(r8), intent(out) :: Vwind(LBi:,LBj:)
@@ -1717,7 +1717,7 @@
       real(r8), intent(in) :: rmask(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: umask(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: vmask(LBi:UBi,LBj:UBj)
-!      real(r8), intent(in) :: mask2(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: mask2(LBi:UBi,LBj:UBj)
 #  endif
       real(r8), intent(out) :: Uwind(LBi:,LBj:)
       real(r8), intent(out) :: Vwind(LBi:,LBj:)
@@ -1776,11 +1776,14 @@
       DO j=JstrR,JendR
         DO i=Istr,IendR
           sustr(i,j)=cff*(Taux(i-1,j)+Taux(i,j))
+#undef MASK_HACK
 # ifdef MASKING
           sustr(i,j)=sustr(i,j)*umask(i,j)
+#  ifdef MASK_HACK
 ! HACK for Bering strait test
-!          i0 = max(i-1,IstrR)
-!          sustr(i,j)= sustr(i,j) * max(mask2(i,j),mask2(i0,j))
+          i0 = max(i-1,IstrR)
+          sustr(i,j)= sustr(i,j) * max(mask2(i,j),mask2(i0,j))
+#  endif
 # endif
         END DO
       END DO
@@ -1789,9 +1792,11 @@
           svstr(i,j)=cff*(Tauy(i,j-1)+Tauy(i,j))
 # ifdef MASKING
           svstr(i,j)=svstr(i,j)*vmask(i,j)
+#  ifdef MASK_HACK
 ! HACK for Bering strait test
-!          j0 = max(j-1,JstrR)
-!          svstr(i,j)= svstr(i,j) * max(mask2(i,j),mask2(i,j0))
+          j0 = max(j-1,JstrR)
+          svstr(i,j)= svstr(i,j) * max(mask2(i,j),mask2(i,j0))
+#  endif
 # endif
         END DO
       END DO
