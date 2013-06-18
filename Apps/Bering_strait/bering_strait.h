@@ -183,7 +183,6 @@
 # undef UV_LDRAG
 # define UV_DRAG_GRID
 # define ANA_DRAG
-# define ANA_DRAG
 # define LIMIT_BSTRESS
 # define UV_QDRAG
 #else
@@ -198,8 +197,8 @@
 # define ANA_BSFLUX
 # define ANA_BTFLUX
 #else
-# define ANA_SMFLUX
-# undef BULK_FLUXES2D
+# undef ANA_SMFLUX
+# define BULK_FLUXES2D
 # define ANA_INITIAL
 # define ANA_FSOBC
 # define ANA_M2OBC
