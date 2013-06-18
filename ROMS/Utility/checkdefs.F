@@ -601,6 +601,12 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+13)=' CCSM_FLUXES,'
 #endif
+#ifdef CCSM_FLUXES2D
+      IF (Master) WRITE (stdout,20) 'CCSM_FLUXES2D',                    &
+     &   'Surface bulk fluxes parametererization.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+15)=' CCSM_FLUXES2D,'
+#endif
 #if defined CELERITY_READ && defined FORWARD_READ
       IF (Master) WRITE (stdout,20) 'CELERITY_READ',                    &
      &   'Read in radiation celerity from forward file.'
