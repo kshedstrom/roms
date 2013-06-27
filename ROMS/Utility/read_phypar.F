@@ -349,34 +349,34 @@
 # ifdef ICE_MODEL
             CASE ('LBC(isUice)')
               Npts=load_lbc(Nval, Cval, line, nline, isUice, igrid,     &
-     &                      0, 0, LBC)
+     &                      0, 0, Vname(1,idUice), LBC)
             CASE ('LBC(isVice)')
               Npts=load_lbc(Nval, Cval, line, nline, isVice, igrid,     &
-     &                      0, 0, LBC)
+     &                      0, 0, Vname(1,idVice), LBC)
             CASE ('LBC(isAice)')
               Npts=load_lbc(Nval, Cval, line, nline, isAice, igrid,     &
-     &                      0, 0, LBC)
+     &                      0, 0, Vname(1,idAice), LBC)
             CASE ('LBC(isHice)')
               Npts=load_lbc(Nval, Cval, line, nline, isHice, igrid,     &
-     &                      0, 0, LBC)
+     &                      0, 0, Vname(1,idHice), LBC)
             CASE ('LBC(isTice)')
               Npts=load_lbc(Nval, Cval, line, nline, isTice, igrid,     &
-     &                      0, 0, LBC)
+     &                      0, 0, Vname(1,idTice), LBC)
             CASE ('LBC(isHsno)')
               Npts=load_lbc(Nval, Cval, line, nline, isHsno, igrid,     &
-     &                      0, 0, LBC)
+     &                      0, 0, Vname(1,idHsno), LBC)
             CASE ('LBC(isSfwat)')
               Npts=load_lbc(Nval, Cval, line, nline, isSfwat, igrid,    &
-     &                      0, 0, LBC)
+     &                      0, 0, Vname(1,idSfwat), LBC)
             CASE ('LBC(isSig11)')
               Npts=load_lbc(Nval, Cval, line, nline, isSig11, igrid,    &
-     &                      0, 0, LBC)
+     &                      0, 0, Vname(1,idSig11), LBC)
             CASE ('LBC(isSig12)')
               Npts=load_lbc(Nval, Cval, line, nline, isSig12, igrid,    &
-     &                      0, 0, LBC)
+     &                      0, 0, Vname(1,idSig12), LBC)
             CASE ('LBC(isSig22)')
               Npts=load_lbc(Nval, Cval, line, nline, isSig22, igrid,    &
-     &                      0, 0, LBC)
+     &                      0, 0, Vname(1,idSig22), LBC)
 # endif
             CASE ('LBC(isTvar)')
               IF (itracer.lt.(NAT+NPT)) THEN
