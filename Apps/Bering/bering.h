@@ -12,7 +12,7 @@
 **  Options for Northeast Pacific (NEP5) simulation
 */
 
-#undef NO_HIS
+#define NO_HIS
 #undef NETCDF4
 #undef PARALLEL_IO
 #undef OFFLINE_FLOATS
@@ -159,8 +159,8 @@
 /* point sources (rivers, line sources) */
 
 /* Using Runoff instead now */
-#undef UV_PSOURCE
-#undef ANA_PSOURCE
+#define UV_PSOURCE
+#define ANA_PSOURCE
 #ifdef SOLVE3D
 # define RUNOFF
 # undef TS_PSOURCE
@@ -168,7 +168,7 @@
 
 /* tides */
 
-#define LTIDES
+#undef LTIDES
 #ifdef LTIDES
 # undef FILTERED
 # define SSH_TIDES

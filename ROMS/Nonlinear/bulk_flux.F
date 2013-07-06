@@ -1613,5 +1613,206 @@
 
       RETURN
       END FUNCTION bulk_psit
+#elif defined BULK_FLUXES2D && !defined CCSM_FLUXES2D
+      implicit none
+!
+      PRIVATE
+      PUBLIC  :: bulk_flux
+!
+      CONTAINS
+!***********************************************************************
+      SUBROUTINE bulk_flux (ng, tile)
+!***********************************************************************
+!
+      USE mod_param
+      USE mod_forces
+      USE mod_grid
+      USE mod_mixing
+      USE mod_ocean
+      USE mod_stepping
+!
+!  Imported variable declarations.
+!
+      integer, intent(in) :: ng, tile
+!
+!  Local variable declarations.
+!
+# include "tile.h"
+!
+# ifdef PROFILE
+      CALL wclock_on (ng, iNLM, 17)
+# endif
+      CALL bulk_flux_tile (ng, tile,                                    &
+     &                     LBi, UBi, LBj, UBj,                          &
+     &                     IminS, ImaxS, JminS, JmaxS,                  &
+     &                     nrhs(ng),                                    &
+# ifdef ICE_MODEL
+     &                     liold(ng),                                   &
+     &                     linew(ng),                                   &
+# endif
+# ifdef MASKING
+     &                     GRID(ng) % rmask,                            &
+     &                     GRID(ng) % umask,                            &
+     &                     GRID(ng) % vmask,                            &
+     &                     GRID(ng) % mask2,                            &
+# endif
+     &                     FORCES(ng) % Uwind,                          &
+     &                     FORCES(ng) % Vwind,                          &
+     &                     FORCES(ng) % sustr,                          &
+     &                     FORCES(ng) % svstr)
+# ifdef PROFILE
+      CALL wclock_off (ng, iNLM, 17)
+# endif
+
+      RETURN
+      END SUBROUTINE bulk_flux
+!
+!***********************************************************************
+      SUBROUTINE bulk_flux_tile (ng, tile,                              &
+     &                           LBi, UBi, LBj, UBj,                    &
+     &                           IminS, ImaxS, JminS, JmaxS,            &
+     &                           nrhs,                                  &
+# ifdef ICE_MODEL
+     &                           liold, linew,                          &
+# endif
+# ifdef MASKING
+     &                           rmask, umask, vmask,                   &
+     &                           mask2,                                 &
+# endif
+     &                           Uwind, Vwind, sustr, svstr)
+!***********************************************************************
+!
+      USE mod_param
+      USE mod_scalars
+!
+      USE exchange_2d_mod
+# ifdef DISTRIBUTE
+      USE mp_exchange_mod, ONLY : mp_exchange2d
+# endif
+!
+!  Imported variable declarations.
+!
+      integer, intent(in) :: ng, tile
+      integer, intent(in) :: LBi, UBi, LBj, UBj
+      integer, intent(in) :: IminS, ImaxS, JminS, JmaxS
+      integer, intent(in) :: nrhs
+# ifdef ICE_MODEL
+      integer, intent(in) :: liold
+      integer, intent(in) :: linew
+# endif
+!
+# ifdef ASSUMED_SHAPE
+#  ifdef MASKING
+      real(r8), intent(in) :: rmask(LBi:,LBj:)
+      real(r8), intent(in) :: umask(LBi:,LBj:)
+      real(r8), intent(in) :: vmask(LBi:,LBj:)
+      real(r8), intent(in) :: mask2(LBi:,LBj:)
+#  endif
+      real(r8), intent(out) :: Uwind(LBi:,LBj:)
+      real(r8), intent(out) :: Vwind(LBi:,LBj:)
+      real(r8), intent(out) :: sustr(LBi:,LBj:)
+      real(r8), intent(out) :: svstr(LBi:,LBj:)
+# else
+#  ifdef MASKING
+      real(r8), intent(in) :: rmask(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: umask(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: vmask(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: mask2(LBi:UBi,LBj:UBj)
+#  endif
+      real(r8), intent(out) :: Uwind(LBi:,LBj:)
+      real(r8), intent(out) :: Vwind(LBi:,LBj:)
+      real(r8), intent(out) :: sustr(LBi:UBi,LBj:UBj)
+      real(r8), intent(out) :: svstr(LBi:UBi,LBj:UBj)
+# endif
+!
+!  Local variable declarations.
+!
+      integer :: Iter, i, j, it, listp
+      integer :: i0, j0
+      integer, parameter :: IterMax = 3
+      real(r8) :: cff
+      real(r8), parameter :: tol = 0.001_r8
+      real(r8), dimension(IminS:ImaxS) :: Wspeed
+      real(r8), dimension(IminS:ImaxS) :: Cd
+      real(r8), dimension(IminS:ImaxS) :: U10
+      real(r8), dimension(IminS:ImaxS) :: U10o
+      real(r8), dimension(IminS:ImaxS) :: diff
+      real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: Taux
+      real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: Tauy
+      real(r8), parameter :: rho_air = 1.22         ! air density [kg/m^2]
+
+# include "set_bounds.h"
+!
+!  Compute kinematic, surface wind stress (m2/s2).
+!
+      cff = log(blk_ZW(ng)/10._r8)/vonKar
+      DO j=Jstr-1,JendR
+        DO i=Istr-1,IendR
+          Wspeed(i)=SQRT(Uwind(i,j)*Uwind(i,j)+Vwind(i,j)*Vwind(i,j))
+          U10(i) = Wspeed(i)/(1 + cff*sqrt(1.15e-3_r8))
+          U10o(i)=0.0_r8
+          diff(i) = abs(U10(i)-U10o(i))
+          Cd(i)=0.0_r8
+        END DO
+        DO while (maxval(diff(Istr-1:IendR)) > tol)
+          DO i=Istr-1,IendR
+            U10o(i) = u10(i)
+            IF (U10o(i) .lt. 10.15) THEN
+              Cd(i) = 1.15e-3_r8
+            ELSE
+              Cd(i) = 4.9e-4_r8 + 6.5e-5*U10o(i)
+            END IF
+            U10(i) = Wspeed(i)/(1+cff*sqrt(Cd(i)))
+            diff(i) = abs(U10(i)-U10o(i))
+          END DO
+        END DO
+        DO i=Istr-1,IendR
+          Taux(i,j) = rho_air*Cd(i)*U10(i)*Uwind(i,j)
+          Tauy(i,j) = rho_air*Cd(i)*U10(i)*Vwind(i,j)
+        END DO
+      END DO
+
+      cff=0.5_r8/rho0
+      DO j=JstrR,JendR
+        DO i=Istr,IendR
+          sustr(i,j)=cff*(Taux(i-1,j)+Taux(i,j))
+#undef MASK_HACK
+# ifdef MASKING
+          sustr(i,j)=sustr(i,j)*umask(i,j)
+#  ifdef MASK_HACK
+! HACK for Bering strait test
+          i0 = max(i-1,IstrR)
+          sustr(i,j)= sustr(i,j) * max(mask2(i,j),mask2(i0,j))
+#  endif
+# endif
+        END DO
+      END DO
+      DO j=Jstr,JendR
+        DO i=IstrR,IendR
+          svstr(i,j)=cff*(Tauy(i,j-1)+Tauy(i,j))
+# ifdef MASKING
+          svstr(i,j)=svstr(i,j)*vmask(i,j)
+#  ifdef MASK_HACK
+! HACK for Bering strait test
+          j0 = max(j-1,JstrR)
+          svstr(i,j)= svstr(i,j) * max(mask2(i,j),mask2(i,j0))
+#  endif
+# endif
+        END DO
+      END DO
+      IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
+        CALL exchange_u2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          sustr)
+        CALL exchange_v2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          svstr)
+      END IF
+      CALL mp_exchange2d (ng, tile, iNLM, 2,                            &
+     &                    LBi, UBi, LBj, UBj,                           &
+     &                    NghostPoints,                                 &
+     &                    EWperiodic(ng), NSperiodic(ng),               &
+     &                    sustr, svstr)
+      END SUBROUTINE bulk_flux_tile
 #endif
       END MODULE bulk_flux_mod

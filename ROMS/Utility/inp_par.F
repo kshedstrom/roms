@@ -46,7 +46,8 @@
 #ifdef DISTRIBUTE
       integer :: MaxHaloLenI, MaxHaloLenJ
 #endif
-      integer :: inp, out, ic, ifield, ifile, itrc, ng, npts, sequence
+      integer :: inp, out, i, ic, ifield, itrc, j, ng, npts
+      integer :: ifile, sequence
 
       real(r8) :: cff
       real(r8), parameter :: epsilon = 1.0E-8_r8
@@ -790,9 +791,9 @@
       IF (Master) THEN
         WRITE (out,120) 'NLM'
  120    FORMAT (/,1x,'Lateral Boundary Conditions: ',a,/,1x,28('='),/,  &
-     &          /,1x,'Variable',t25,'Grid',t33,'West Edge',             &
-     &          t45,'South Edge', t57,'East Edge',t69,'North Edge',     &
-     &          /,1x,'---------',t25,'----',t33,4('----------',2x))
+     &          /,1x,'Variable',t25,'Grid',t31,'West Edge',             &
+     &          t44,'South Edge', t57,'East Edge',t70,'North Edge',     &
+     &          /,1x,'---------',t25,'----',t31,4('----------',3x))
         DO ifield=1,nLBCvar
           CALL lbc_report (out, ifield, LBC)
         END DO
@@ -872,6 +873,7 @@
         FIL(9,ng)%name=TRIM(ADJUSTL('ocean_filw_'//ngnumber//'.nc'))
 #ifdef ICE_MODEL
         FIL(10,ng)%name=TRIM(ADJUSTL('ocean_filice_'//ngnumber//'.nc'))
+#endif
         DO ifile=1,nfile
           allocate ( FIL(ifile,ng)%Nrec(1) )
           allocate ( FIL(ifile,ng)%Vid(NV) )
@@ -973,6 +975,33 @@
         END DO
         NTCLM(ng)=ic
 #endif
+
+#if defined TANGENT || defined TL_IOMS
+!
+!  Set lateral boundary condition switches for the tangent linear
+!  models (TLM and RPM) to the same values as the adjoint model.
+!
+        DO j=1,nLBCvar
+          DO i=1,4
+            tl_LBC(i,j,ng)%acquire     = ad_LBC(i,j,ng)%acquire
+            tl_LBC(i,j,ng)%Chapman_explicit =                           &
+     &                                   ad_LBC(i,j,ng)%Chapman_explicit
+            tl_LBC(i,j,ng)%Chapman_implicit =                           &
+     &                                   ad_LBC(i,j,ng)%Chapman_implicit
+            tl_LBC(i,j,ng)%clamped     = ad_LBC(i,j,ng)%clamped
+            tl_LBC(i,j,ng)%closed      = ad_LBC(i,j,ng)%closed
+            tl_LBC(i,j,ng)%Flather     = ad_LBC(i,j,ng)%Flather
+            tl_LBC(i,j,ng)%gradient    = ad_LBC(i,j,ng)%gradient
+            tl_LBC(i,j,ng)%nested      = ad_LBC(i,j,ng)%nested
+            tl_LBC(i,j,ng)%nudging     = ad_LBC(i,j,ng)%nudging
+            tl_LBC(i,j,ng)%periodic    = ad_LBC(i,j,ng)%periodic
+            tl_LBC(i,j,ng)%radiation   = ad_LBC(i,j,ng)%radiation
+            tl_LBC(i,j,ng)%reduced     = ad_LBC(i,j,ng)%reduced
+            tl_LBC(i,j,ng)%Shchepetkin = ad_LBC(i,j,ng)%Shchepetkin
+          END DO
+        END DO
+#endif
+
       END DO
 !
 !-----------------------------------------------------------------------
@@ -1410,7 +1439,7 @@
       END FUNCTION load_l
 
       FUNCTION load_lbc (Ninp, Vinp, line, nline, ifield, igrid,        &
-     &                   iTrcStr, iTrcEnd, S)
+     &                   iTrcStr, iTrcEnd, svname, S)
 !
 !=======================================================================
 !                                                                      !
@@ -1427,6 +1456,7 @@
 !     igrid      Nested grid counter (integer)                         !
 !     iTrcStr    Starting tracer index to process (integer)            !
 !     iTrcEnd    Ending   tracer index to process (integer)            !
+!     svname     State variable name (string)                          !
 !     S          Derived type structure, TYPE(T_LBC)                   !
 !                                                                      !
 !  On Output:                                                          !
@@ -1455,6 +1485,7 @@
 
       character (len=256), intent(in) :: line
       character (len=256), intent(in) :: Vinp(Ninp)
+      character (len=*  ), intent(in) :: svname
 
       TYPE(T_LBC), intent(inout) :: S(4,nLBCvar,Ngrids)
 !
@@ -1499,25 +1530,27 @@
           string=uppercase(Bstring(ibry))
           SELECT CASE (TRIM(string))
             CASE ('CHA')
-              S(ibry,ifield,igrid)%Chapman   = .TRUE.
+              S(ibry,ifield,igrid)%Chapman_implicit = .TRUE.
+            CASE ('CHE')
+              S(ibry,ifield,igrid)%Chapman_explicit = .TRUE.
             CASE ('CLA')
-              S(ibry,ifield,igrid)%clamped   = .TRUE.
-              S(ibry,ifield,igrid)%acquire   = .TRUE.
+              S(ibry,ifield,igrid)%clamped = .TRUE.
+              S(ibry,ifield,igrid)%acquire = .TRUE.
             CASE ('CLO')
-              S(ibry,ifield,igrid)%closed    = .TRUE.
+              S(ibry,ifield,igrid)%closed = .TRUE.
             CASE ('FLA')
-              S(ibry,ifield,igrid)%Flather   = .TRUE.
-              S(ibry,ifield,igrid)%acquire   = .TRUE.
-              S(ibry,isFsur,igrid)%acquire   = .TRUE.
+              S(ibry,ifield,igrid)%Flather = .TRUE.
+              S(ibry,ifield,igrid)%acquire = .TRUE.
+              S(ibry,isFsur,igrid)%acquire = .TRUE.
             CASE ('GRA')
               S(ibry,ifield,igrid)%gradient  = .TRUE.
             CASE ('MIX')
               S(ibry,ifield,igrid)%mixed     = .TRUE.
               S(ibry,ifield,igrid)%acquire   = .TRUE.
             CASE ('NES')
-              S(ibry,ifield,igrid)%nested    = .TRUE.
+              S(ibry,ifield,igrid)%nested = .TRUE.
             CASE ('PER')
-              S(ibry,ifield,igrid)%periodic  = .TRUE.
+              S(ibry,ifield,igrid)%periodic = .TRUE.
               IF ((ibry.eq.ieast).or.(ibry.eq.iwest)) THEN
                 EWperiodic(igrid)=.TRUE.
               ELSE IF ((ibry.eq.inorth).or.(ibry.eq.isouth)) THEN
@@ -1527,13 +1560,17 @@
               S(ibry,ifield,igrid)%radiation = .TRUE.
             CASE ('RADNUD')
               S(ibry,ifield,igrid)%radiation = .TRUE.
-              S(ibry,ifield,igrid)%nudging   = .TRUE.
-              S(ibry,ifield,igrid)%acquire   = .TRUE.
+              S(ibry,ifield,igrid)%nudging = .TRUE.
+              S(ibry,ifield,igrid)%acquire = .TRUE.
             CASE ('RED')
-              S(ibry,ifield,igrid)%reduced   = .TRUE.
+              S(ibry,ifield,igrid)%reduced = .TRUE.
 #if defined FSOBC_REDUCED
-              S(ibry,isFsur,igrid)%acquire   = .TRUE.
+              S(ibry,isFsur,igrid)%acquire = .TRUE.
 #endif
+            CASE ('SHC')
+              S(ibry,ifield,igrid)%Shchepetkin = .TRUE.
+              S(ibry,ifield,igrid)%acquire = .TRUE.
+              S(ibry,isFsur,igrid)%acquire = .TRUE.
             CASE DEFAULT
               IF (Master) THEN
                 WRITE (stdout,10) TRIM(Vinp(ibry)), TRIM(line)
@@ -1919,7 +1956,7 @@
 !  symbol in the input "line" is used to advance the counters.
 !
       IF (.not.load) THEN
-        IF (ifile.lt.NFF(igrid)) THEN
+        IF ((ifile.lt.NFF(igrid)).or.(Ipipe.ne.0)) THEN
           ifile=ifile+MIN(1,Icont)
         ELSE
           ifile=1

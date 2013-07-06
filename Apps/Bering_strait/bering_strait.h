@@ -9,11 +9,10 @@
 **
 *******************************************************************************
 **
-**  Options for ARCTIC simulation
+**  Options for Northeast Pacific (NEP5) simulation
 */
 
-#define NO_HIS
-#define GLOBAL_PERIODIC
+#undef NO_HIS
 #undef NETCDF4
 #undef PARALLEL_IO
 #undef OFFLINE_FLOATS
@@ -22,22 +21,19 @@
 
 #define CURVGRID
 #define MASKING
-#define NONLIN_EOS
-#define SOLVE3D
-#define SALINITY
+#undef SOLVE3D
 #ifdef SOLVE3D
+# define NONLIN_EOS
+# define SALINITY
 # define SPLINES
 #endif
-#define FLOATS
+#undef FLOATS
 #define STATIONS
 #undef WET_DRY
 
 #undef T_PASSIVE
 #ifdef T_PASSIVE
 # define ANA_PASSIVE
-# define TRC_PSOURCE
-# define ANA_TRC_PSOURCE
-# define AGE_PASSIVE
 #endif
 
 /* ice */
@@ -45,10 +41,9 @@
 #ifdef SOLVE3D
 # define  ICE_MODEL
 # ifdef ICE_MODEL
-#  define  OUTFLOW_MASK
-#  define  FASTICE_CLIMATOLOGY
 #  define  ICE_THERMO
 #  define  ICE_MK
+#  undef   ICE_ALB_EC92
 #  undef   ICE_SMOOTH
 #  define  ICE_MOMENTUM
 #  define  ICE_MOM_BULK
@@ -57,9 +52,9 @@
 #  define  ICE_SMOLAR
 #  define  ICE_UPWIND
 #  define  ICE_BULK_FLUXES
-#  undef  ANA_AIOBC
-#  undef  ANA_HIOBC
-#  undef  ANA_HSNOBC
+#  define  ANA_AIOBC
+#  define  ANA_HIOBC
+#  define  ANA_HSNOBC
 # endif
 #endif
 
@@ -67,7 +62,7 @@
 
 #define NO_WRITE_GRID
 #undef OUT_DOUBLE
-#define RST_SINGLE
+#undef RST_SINGLE
 #define AVERAGES
 #undef AVERAGES2
 #ifdef SOLVE3D
@@ -85,19 +80,19 @@
 #define UV_ADV
 #define UV_COR
 #undef UV_SADVECTION
+#define UV_VIS2
 
 #ifdef SOLVE3D
+# undef UV_SMAGORINSKY
+# define VISC_3DCOEF
+# define MIX_S_UV
+# define VISC_GRID
+# define SPONGE
 # define TS_U3HADVECTION
 # define TS_C4VADVECTION
 # undef TS_MPDATA
 #endif
 
-#define UV_VIS2
-#undef UV_SMAGORINSKY
-#undef VISC_3DCOEF
-#define MIX_S_UV
-#define VISC_GRID
-#undef SPONGE
 
 #ifdef SOLVE3D
 # define TS_DIF2
@@ -105,12 +100,13 @@
 # define DIFF_GRID
 #endif
 
+
 /* vertical mixing */
 
 #ifdef SOLVE3D
-# define WTYPE_GRID
+# define SOLAR_SOURCE
 
-# undef LMD_MIXING
+# define LMD_MIXING
 # ifdef LMD_MIXING
 #  define LMD_RIMIX
 #  define LMD_CONVEC
@@ -121,7 +117,7 @@
 #  undef LMD_DDMIX
 # endif
 
-# define GLS_MIXING
+# undef GLS_MIXING
 # undef MY25_MIXING
 
 # if defined GLS_MIXING || defined MY25_MIXING
@@ -138,15 +134,11 @@
 # define CCSM_FLUXES
 # if defined BULK_FLUXES || defined CCSM_FLUXES
 #  define LONGWAVE_OUT
-#  undef DIURNAL_SRFLUX
-#  define SOLAR_SOURCE
+#  define DIURNAL_SRFLUX
 #  define EMINUSP
 #  undef ANA_SRFLUX
 #  undef ALBEDO
-#  define ALBEDO_CURVE  /* for water */
-#  define ICE_ALB_EC92  /* for ice */
-#  undef ALBEDO_CSIM   /* for ice */
-#  undef ALBEDO_FILE  /* for both */
+#  define ALBEDO_CURVE
 #  undef LONGWAVE
 # endif
 #endif
@@ -154,8 +146,7 @@
 /* surface and side corrections */
 
 #ifdef SOLVE3D
-# define SCORRECTION
-# undef SRELAXATION
+# define SRELAXATION
 # undef QCORRECTION
 #endif
 
@@ -166,36 +157,37 @@
 
 /* point sources (rivers, line sources) */
 
-/* Using Runoff now */
+/* Using Runoff instead now */
+#undef UV_PSOURCE
+#undef ANA_PSOURCE
 #ifdef SOLVE3D
 # define RUNOFF
-# undef UV_PSOURCE
 # undef TS_PSOURCE
 #endif
 
 /* tides */
 
-#define LTIDES
+#undef LTIDES
 #ifdef LTIDES
-# define FILTERED
+# undef FILTERED
 # define SSH_TIDES
 # define UV_TIDES
-# define ADD_FSOBC
-# define ADD_M2OBC
+# ifdef SOLVE3D
+#  define ADD_FSOBC
+#  define ADD_M2OBC
+# endif
 # undef RAMP_TIDES
 # define TIDES_ASTRO
-# define POT_TIDES
+# undef POT_TIDES
 
-# define UV_LDRAG
+# undef UV_LDRAG
 # define UV_DRAG_GRID
 # define ANA_DRAG
 # define LIMIT_BSTRESS
-# undef UV_QDRAG
+# define UV_QDRAG
 #else
 # define UV_QDRAG
 #endif
-
-/* Boundary conditions...careful with grid orientation */
 
 #define RADIATION_2D
 
@@ -205,25 +197,10 @@
 # define ANA_BSFLUX
 # define ANA_BTFLUX
 #else
-# define ANA_SMFLUX
-#endif
-
-/*
-**  Biological model options.
-*/
-#undef NEMURO
-
-#if defined NEMURO
-# define BIO_SEDIMENT
-# define NEMURO_SED1
-# undef ANA_BIOLOGY       /* analytical biology initial conditions */
-# define ANA_BPFLUX        /* analytical bottom passive tracers fluxes */
-# define ANA_SPFLUX        /* analytical surface passive tracers fluxes */
-# define IRON_LIMIT        /* Add iron as passive 11th tracer */
-# define IRON_RELAX
-# undef  IRON_RSIN
-# define HOLLING_GRAZING
-# undef  IVLEV_EXPLICIT
-# undef  ANA_BIOSWRAD
-# undef  DIAGNOSTICS_BIO
+# undef ANA_SMFLUX
+# define BULK_FLUXES2D
+# define CCSM_FLUXES2D
+# define ANA_INITIAL
+# define ANA_FSOBC
+# define ANA_M2OBC
 #endif

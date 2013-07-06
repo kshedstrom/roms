@@ -46,497 +46,449 @@
         READ (inp,'(a)',ERR=10,END=20) line
         status=decode_line(line, KeyWord, Nval, Cval, Rval)
         IF (status.gt.0) THEN
-          IF (TRIM(KeyWord).eq.'Lice') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Lice)
-          ELSE IF (TRIM(KeyWord).eq.'DTICE') THEN
-            Npts=load_r(Nval, Rval, Ngrids, dtice)
-          ELSE IF (TRIM(KeyWord).eq.'DTICE_EQ') THEN
-            Npts=load_r(Nval, Rval, Ngrids, dtice_eq)
-          ELSE IF (TRIM(KeyWord).eq.'nstrs') THEN
-            Npts=load_i(Nval, Rval, Ngrids, nstrs)
-          ELSE IF (TRIM(KeyWord).eq.'nevp') THEN
-            Npts=load_i(Nval, Rval, Ngrids, nevp)
-          ELSE IF (TRIM(KeyWord).eq.'rhoice') THEN
-            Npts=load_r(Nval, Rval, Ngrids, rhoice)
-          ELSE IF (TRIM(KeyWord).eq.'cdiw') THEN
-            Npts=load_r(Nval, Rval, Ngrids, cdiw)
-          ELSE IF (TRIM(KeyWord).eq.'cdai') THEN
-            Npts=load_r(Nval, Rval, Ngrids, cdai)
-          ELSE IF (TRIM(KeyWord).eq.'rho_air') THEN
-            Npts=load_r(Nval, Rval, Ngrids, rho_air)
-          ELSE IF (TRIM(KeyWord).eq.'rhosnow_dry') THEN
-            Npts=load_r(Nval, Rval, Ngrids, rhosnow_dry)
-          ELSE IF (TRIM(KeyWord).eq.'rhosnow_wet') THEN
-            Npts=load_r(Nval, Rval, Ngrids, rhosnow_wet)
-          ELSE IF (TRIM(KeyWord).eq.'pstar') THEN
-            Npts=load_r(Nval, Rval, Ngrids, pstar)
-          ELSE IF (TRIM(KeyWord).eq.'astren') THEN
-            Npts=load_r(Nval, Rval, Ngrids, astren)
-          ELSE IF (TRIM(KeyWord).eq.'zetamax') THEN
-            Npts=load_r(Nval, Rval, Ngrids, zetamax)
-          ELSE IF (TRIM(KeyWord).eq.'zetamin') THEN
-            Npts=load_r(Nval, Rval, Ngrids, zetamin)
-          ELSE IF (TRIM(KeyWord).eq.'ellip_sq') THEN
-            Npts=load_r(Nval, Rval, Ngrids, ellip_sq)
-          ELSE IF (TRIM(KeyWord).eq.'alphai') THEN
-            Npts=load_r(Nval, Rval, Ngrids, alphai)
-            do ng=1,Ngrids
-               alphai(ng) = alphai(ng)*deg2rad
-            enddo
-          ELSE IF (TRIM(KeyWord).eq.'tol') THEN
-            Npts=load_r(Nval, Rval, 1, tol)
-          ELSE IF (TRIM(KeyWord).eq.'min_h') THEN
-            Npts=load_r(Nval, Rval, Ngrids, min_h)
-          ELSE IF (TRIM(KeyWord).eq.'min_a') THEN
-            Npts=load_r(Nval, Rval, Ngrids, min_a)
-          ELSE IF (TRIM(KeyWord).eq.'max_a') THEN
-            Npts=load_r(Nval, Rval, Ngrids, max_a)
-          ELSE IF (TRIM(KeyWord).eq.'sfwat_max') THEN
-            Npts=load_r(Nval, Rval, Ngrids, sfwat_max)
-          ELSE IF (TRIM(KeyWord).eq.'stressang') THEN
-            Npts=load_r(Nval, Rval, Ngrids, stressang)
-            do ng=1,Ngrids
-               stressang(ng) = stressang(ng)*deg2rad
-            enddo
-          ELSE IF (TRIM(KeyWord).eq.'ice_emiss') THEN
-            Npts=load_r(Nval, Rval, 1, ice_emiss)
-          ELSE IF (TRIM(KeyWord).eq.'spec_heat_air') THEN
-            Npts=load_r(Nval, Rval, 1, spec_heat_air)
-          ELSE IF (TRIM(KeyWord).eq.'trans_coeff') THEN
-            Npts=load_r(Nval, Rval, 1, trans_coeff)
-          ELSE IF (TRIM(KeyWord).eq.'sublim_latent_heat') THEN
-            Npts=load_r(Nval, Rval, 1, sublim_latent_heat)
-          ELSE IF (TRIM(KeyWord).eq.'t0deg') THEN
-            Npts=load_r(Nval, Rval, 1, t0deg)
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idUice)') THEN
-            IF (idUice.eq.0) THEN
-              IF (Master) WRITE (out,80) 'idUice'
-              exit_flag=5
-              RETURN
-            END IF
-            Npts=load_l(Nval, Cval, Ngrids, Hout(idUice,:))
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idVice)') THEN
-            IF (idVice.eq.0) THEN
-              IF (Master) WRITE (out,80) 'idVice'
-              exit_flag=5
-              RETURN
-            END IF
-            Npts=load_l(Nval, Cval, Ngrids, Hout(idVice,:))
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idUiceE)') THEN
-            IF (idUiceE.eq.0) THEN
-              IF (Master) WRITE (out,80) 'idUiceE'
-              exit_flag=5
-              RETURN
-            END IF
-            Npts=load_l(Nval, Cval, Ngrids, Hout(idUiceE,:))
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idViceN)') THEN
-            IF (idViceN.eq.0) THEN
-              IF (Master) WRITE (out,80) 'idViceN'
-              exit_flag=5
-              RETURN
-            END IF
-            Npts=load_l(Nval, Cval, Ngrids, Hout(idViceN,:))
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idAice)') THEN
-            IF (idAice.eq.0) THEN
-              IF (Master) WRITE (out,80) 'idAice'
-              exit_flag=5
-              RETURN
-            END IF
-            Npts=load_l(Nval, Cval, Ngrids, Hout(idAice,:))
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idHice)') THEN
-            IF (idHice.eq.0) THEN
-              IF (Master) WRITE (out,80) 'idHice'
-              exit_flag=5
-              RETURN
-            END IF
-            Npts=load_l(Nval, Cval, Ngrids, Hout(idHice,:))
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idHsno)') THEN
-            IF (idHsno.eq.0) THEN
-              IF (Master) WRITE (out,80) 'idHsno'
-              exit_flag=5
-              RETURN
-            END IF
-            Npts=load_l(Nval, Cval, Ngrids, Hout(idHsno,:))
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idTice)') THEN
-            IF (idTice.eq.0) THEN
-              IF (Master) WRITE (out,80) 'idTice'
-              exit_flag=5
-              RETURN
-            END IF
-            Npts=load_l(Nval, Cval, Ngrids, Hout(idTice,:))
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idTimid)') THEN
-            IF (idTimid.eq.0) THEN
-              IF (Master) WRITE (out,80) 'idTimid'
-              exit_flag=5
-              RETURN
-            END IF
-            Npts=load_l(Nval, Cval, Ngrids, Hout(idTimid,:))
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idTauiw)') THEN
-            IF (idTauiw.eq.0) THEN
-              IF (Master) WRITE (out,80) 'idTauiw'
-              exit_flag=5
-              RETURN
-            END IF
-            Npts=load_l(Nval, Cval, Ngrids, Hout(idTauiw,:))
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idChuiw)') THEN
-            IF (idChuiw.eq.0) THEN
-              IF (Master) WRITE (out,80) 'idChuiw'
-              exit_flag=5
-              RETURN
-            END IF
-            Npts=load_l(Nval, Cval, Ngrids, Hout(idChuiw,:))
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idSfwat)') THEN
-            IF (idSfwat.eq.0) THEN
-              IF (Master) WRITE (out,80) 'idSfwat'
-              exit_flag=5
-              RETURN
-            END IF
-            Npts=load_l(Nval, Cval, Ngrids, Hout(idSfwat,:))
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idAgeice)') THEN
-            IF (idAgeice.eq.0) THEN
-              IF (Master) WRITE (out,80) 'idAgeice'
-              exit_flag=5
-              RETURN
-            END IF
-            Npts=load_l(Nval, Cval, Ngrids, Hout(idAgeice,:))
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idIomflx)') THEN
-            IF (idIomflx.eq.0) THEN
-              IF (Master) WRITE (out,80) 'idIomflx'
-              exit_flag=5
-              RETURN
-            END IF
-            Npts=load_l(Nval, Cval, Ngrids, Hout(idIomflx,:))
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idSig11)') THEN
-            IF (idSig11.eq.0) THEN
-              IF (Master) WRITE (out,80) 'idSig11'
-              exit_flag=5
-              RETURN
-            END IF
-            Npts=load_l(Nval, Cval, Ngrids, Hout(idSig11,:))
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idSig12)') THEN
-            IF (idSig12.eq.0) THEN
-              IF (Master) WRITE (out,80) 'idSig12'
-              exit_flag=5
-              RETURN
-            END IF
-            Npts=load_l(Nval, Cval, Ngrids, Hout(idSig12,:))
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idSig22)') THEN
-            IF (idSig22.eq.0) THEN
-              IF (Master) WRITE (out,80) 'idSig22'
-              exit_flag=5
-              RETURN
-            END IF
-            Npts=load_l(Nval, Cval, Ngrids, Hout(idSig22,:))
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idT0mk)') THEN
-            IF (idT0mk.eq.0) THEN
-              IF (Master) WRITE (out,80) 'idT0mk'
-              exit_flag=5
-              RETURN
-            END IF
-            Npts=load_l(Nval, Cval, Ngrids, Hout(idT0mk,:))
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idS0mk)') THEN
-            IF (idS0mk.eq.0) THEN
-              IF (Master) WRITE (out,80) 'idS0mk'
-              exit_flag=5
-              RETURN
-            END IF
-            Npts=load_l(Nval, Cval, Ngrids, Hout(idS0mk,:))
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idWfr)') THEN
-            IF (idWfr.eq.0) THEN
-              IF (Master) WRITE (out,80) 'idWfr'
-              exit_flag=5
-              RETURN
-            END IF
-            Npts=load_l(Nval, Cval, Ngrids, Hout(idWfr,:))
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idWai)') THEN
-            IF (idWai.eq.0) THEN
-              IF (Master) WRITE (out,80) 'idWai'
-              exit_flag=5
-              RETURN
-            END IF
-            Npts=load_l(Nval, Cval, Ngrids, Hout(idWai,:))
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idWao)') THEN
-            IF (idWao.eq.0) THEN
-              IF (Master) WRITE (out,80) 'idWao'
-              exit_flag=5
-              RETURN
-            END IF
-            Npts=load_l(Nval, Cval, Ngrids, Hout(idWao,:))
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idWio)') THEN
-            IF (idWio.eq.0) THEN
-              IF (Master) WRITE (out,80) 'idWio'
-              exit_flag=5
-              RETURN
-            END IF
-            Npts=load_l(Nval, Cval, Ngrids, Hout(idWio,:))
-          ELSE IF (TRIM(KeyWord).eq.'Hout(idWro)') THEN
-            IF (idWro.eq.0) THEN
-              IF (Master) WRITE (out,80) 'idWro'
-              exit_flag=5
-              RETURN
-            END IF
-            Npts=load_l(Nval, Cval, Ngrids, Hout(idWro,:))
+          SELECT CASE (TRIM(KeyWord))
+            CASE ('Lice')
+              Npts=load_l(Nval, Cval, Ngrids, Lfloats)
+              Npts=load_l(Nval, Cval, Ngrids, Lice)
+            CASE ('DTICE')
+              Npts=load_r(Nval, Rval, Ngrids, dtice)
+            CASE ('DTICE_EQ')
+              Npts=load_r(Nval, Rval, Ngrids, dtice_eq)
+            CASE ('nstrs')
+              Npts=load_i(Nval, Rval, Ngrids, nstrs)
+            CASE ('nevp')
+              Npts=load_i(Nval, Rval, Ngrids, nevp)
+            CASE ('rhoice')
+              Npts=load_r(Nval, Rval, Ngrids, rhoice)
+            CASE ('cdiw')
+              Npts=load_r(Nval, Rval, Ngrids, cdiw)
+            CASE ('cdai')
+              Npts=load_r(Nval, Rval, Ngrids, cdai)
+            CASE ('rho_air')
+              Npts=load_r(Nval, Rval, Ngrids, rho_air)
+            CASE ('rhosnow_dry')
+              Npts=load_r(Nval, Rval, Ngrids, rhosnow_dry)
+            CASE ('rhosnow_wet')
+              Npts=load_r(Nval, Rval, Ngrids, rhosnow_wet)
+            CASE ('pstar')
+              Npts=load_r(Nval, Rval, Ngrids, pstar)
+            CASE ('astren')
+              Npts=load_r(Nval, Rval, Ngrids, astren)
+            CASE ('zetamax')
+              Npts=load_r(Nval, Rval, Ngrids, zetamax)
+            CASE ('zetamin')
+              Npts=load_r(Nval, Rval, Ngrids, zetamin)
+            CASE ('ellip_sq')
+              Npts=load_r(Nval, Rval, Ngrids, ellip_sq)
+            CASE ('alphai')
+              Npts=load_r(Nval, Rval, Ngrids, alphai)
+              do ng=1,Ngrids
+                 alphai(ng) = alphai(ng)*deg2rad
+              enddo
+            CASE ('tol')
+              Npts=load_r(Nval, Rval, 1, tol)
+            CASE ('min_h')
+              Npts=load_r(Nval, Rval, Ngrids, min_h)
+            CASE ('min_a')
+              Npts=load_r(Nval, Rval, Ngrids, min_a)
+            CASE ('max_a')
+              Npts=load_r(Nval, Rval, Ngrids, max_a)
+            CASE ('sfwat_max')
+              Npts=load_r(Nval, Rval, Ngrids, sfwat_max)
+            CASE ('stressang')
+              Npts=load_r(Nval, Rval, Ngrids, stressang)
+              do ng=1,Ngrids
+                 stressang(ng) = stressang(ng)*deg2rad
+              enddo
+            CASE ('ice_emiss')
+              Npts=load_r(Nval, Rval, 1, ice_emiss)
+            CASE ('spec_heat_air')
+              Npts=load_r(Nval, Rval, 1, spec_heat_air)
+            CASE ('trans_coeff')
+              Npts=load_r(Nval, Rval, 1, trans_coeff)
+            CASE ('sublim_latent_heat')
+              Npts=load_r(Nval, Rval, 1, sublim_latent_heat)
+            CASE ('t0deg')
+              Npts=load_r(Nval, Rval, 1, t0deg)
+            CASE ('Hout(idUice)')
+              IF (idUice.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idUice'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Hout(idUice,:))
+            CASE ('Hout(idVice)')
+              IF (idVice.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idVice'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Hout(idVice,:))
+            CASE ('Hout(idUiceE)')
+              IF (idUiceE.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idUiceE'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Hout(idUiceE,:))
+            CASE ('Hout(idViceN)')
+              IF (idViceN.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idViceN'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Hout(idViceN,:))
+            CASE ('Hout(idAice)')
+              IF (idAice.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idAice'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Hout(idAice,:))
+            CASE ('Hout(idHice)')
+              IF (idHice.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idHice'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Hout(idHice,:))
+            CASE ('Hout(idHsno)')
+              IF (idHsno.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idHsno'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Hout(idHsno,:))
+            CASE ('Hout(idTice)')
+              IF (idTice.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idTice'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Hout(idTice,:))
+            CASE ('Hout(idTimid)')
+              IF (idTimid.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idTimid'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Hout(idTimid,:))
+            CASE ('Hout(idTauiw)')
+              IF (idTauiw.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idTauiw'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Hout(idTauiw,:))
+            CASE ('Hout(idChuiw)')
+              IF (idChuiw.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idChuiw'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Hout(idChuiw,:))
+            CASE ('Hout(idSfwat)')
+              IF (idSfwat.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idSfwat'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Hout(idSfwat,:))
+            CASE ('Hout(idAgeice)')
+              IF (idAgeice.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idAgeice'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Hout(idAgeice,:))
+            CASE ('Hout(idIomflx)')
+              IF (idIomflx.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idIomflx'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Hout(idIomflx,:))
+            CASE ('Hout(idSig11)')
+              IF (idSig11.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idSig11'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Hout(idSig11,:))
+            CASE ('Hout(idSig12)')
+              IF (idSig12.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idSig12'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Hout(idSig12,:))
+            CASE ('Hout(idSig22)')
+              IF (idSig22.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idSig22'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Hout(idSig22,:))
+            CASE ('Hout(idT0mk)')
+              IF (idT0mk.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idT0mk'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Hout(idT0mk,:))
+            CASE ('Hout(idS0mk)')
+              IF (idS0mk.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idS0mk'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Hout(idS0mk,:))
+            CASE ('Hout(idWfr)')
+              IF (idWfr.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idWfr'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Hout(idWfr,:))
+            CASE ('Hout(idWai)')
+              IF (idWai.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idWai'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Hout(idWai,:))
+            CASE ('Hout(idWao)')
+              IF (idWao.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idWao'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Hout(idWao,:))
+            CASE ('Hout(idWio)')
+              IF (idWio.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idWio'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Hout(idWio,:))
+            CASE ('Hout(idWro)')
+              IF (idWro.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idWro'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Hout(idWro,:))
 #ifdef AVERAGES
-          ELSE IF (TRIM(KeyWord).eq.'Aout(idUice)') THEN
-            IF (idUice.eq.0) THEN
-              IF (Master) WRITE (out,80) 'idUice'
-              exit_flag=5
-              RETURN
-            END IF
-            Npts=load_l(Nval, Cval, Ngrids, Aout(idUice,:))
-          ELSE IF (TRIM(KeyWord).eq.'Aout(idVice)') THEN
-            IF (idVice.eq.0) THEN
-              IF (Master) WRITE (out,80) 'idVice'
-              exit_flag=5
-              RETURN
-            END IF
-            Npts=load_l(Nval, Cval, Ngrids, Aout(idVice,:))
-          ELSE IF (TRIM(KeyWord).eq.'Aout(idUiceE)') THEN
-            IF (idUiceE.eq.0) THEN
-              IF (Master) WRITE (out,80) 'idUiceE'
-              exit_flag=5
-              RETURN
-            END IF
-            Npts=load_l(Nval, Cval, Ngrids, Aout(idUiceE,:))
-          ELSE IF (TRIM(KeyWord).eq.'Aout(idViceN)') THEN
-            IF (idViceN.eq.0) THEN
-              IF (Master) WRITE (out,80) 'idViceN'
-              exit_flag=5
-              RETURN
-            END IF
-            Npts=load_l(Nval, Cval, Ngrids, Aout(idViceN,:))
-          ELSE IF (TRIM(KeyWord).eq.'Aout(idAice)') THEN
-            IF (idAice.eq.0) THEN
-              IF (Master) WRITE (out,80) 'idAice'
-              exit_flag=5
-              RETURN
-            END IF
-            Npts=load_l(Nval, Cval, Ngrids, Aout(idAice,:))
-          ELSE IF (TRIM(KeyWord).eq.'Aout(idHice)') THEN
-            IF (idHice.eq.0) THEN
-              IF (Master) WRITE (out,80) 'idHice'
-              exit_flag=5
-              RETURN
-            END IF
-            Npts=load_l(Nval, Cval, Ngrids, Aout(idHice,:))
-          ELSE IF (TRIM(KeyWord).eq.'Aout(idHsno)') THEN
-            IF (idHsno.eq.0) THEN
-              IF (Master) WRITE (out,80) 'idHsno'
-              exit_flag=5
-              RETURN
-            END IF
-            Npts=load_l(Nval, Cval, Ngrids, Aout(idHsno,:))
-          ELSE IF (TRIM(KeyWord).eq.'Aout(idTice)') THEN
-            IF (idTice.eq.0) THEN
-              IF (Master) WRITE (out,80) 'idTice'
-              exit_flag=5
-              RETURN
-            END IF
-            Npts=load_l(Nval, Cval, Ngrids, Aout(idTice,:))
-          ELSE IF (TRIM(KeyWord).eq.'Aout(idTimid)') THEN
-            IF (idTimid.eq.0) THEN
-              IF (Master) WRITE (out,80) 'idTimid'
-              exit_flag=5
-              RETURN
-            END IF
-            Npts=load_l(Nval, Cval, Ngrids, Aout(idTimid,:))
-          ELSE IF (TRIM(KeyWord).eq.'Aout(idTauiw)') THEN
-            IF (idTauiw.eq.0) THEN
-              IF (Master) WRITE (out,80) 'idTauiw'
-              exit_flag=5
-              RETURN
-            END IF
-            Npts=load_l(Nval, Cval, Ngrids, Aout(idTauiw,:))
-          ELSE IF (TRIM(KeyWord).eq.'Aout(idChuiw)') THEN
-            IF (idChuiw.eq.0) THEN
-              IF (Master) WRITE (out,80) 'idChuiw'
-              exit_flag=5
-              RETURN
-            END IF
-            Npts=load_l(Nval, Cval, Ngrids, Aout(idChuiw,:))
-          ELSE IF (TRIM(KeyWord).eq.'Aout(idSfwat)') THEN
-            IF (idSfwat.eq.0) THEN
-              IF (Master) WRITE (out,80) 'idSfwat'
-              exit_flag=5
-              RETURN
-            END IF
-            Npts=load_l(Nval, Cval, Ngrids, Aout(idSfwat,:))
-          ELSE IF (TRIM(KeyWord).eq.'Aout(idAgeice)') THEN
-            IF (idAgeice.eq.0) THEN
-              IF (Master) WRITE (out,80) 'idAgeice'
-              exit_flag=5
-              RETURN
-            END IF
-            Npts=load_l(Nval, Cval, Ngrids, Aout(idAgeice,:))
-          ELSE IF (TRIM(KeyWord).eq.'Aout(idIomflx)') THEN
-            IF (idIomflx.eq.0) THEN
-              IF (Master) WRITE (out,80) 'idIomflx'
-              exit_flag=5
-              RETURN
-            END IF
-            Npts=load_l(Nval, Cval, Ngrids, Aout(idIomflx,:))
-          ELSE IF (TRIM(KeyWord).eq.'Aout(idSig11)') THEN
-            IF (idSig11.eq.0) THEN
-              IF (Master) WRITE (out,80) 'idSig11'
-              exit_flag=5
-              RETURN
-            END IF
-            Npts=load_l(Nval, Cval, Ngrids, Aout(idSig11,:))
-          ELSE IF (TRIM(KeyWord).eq.'Aout(idSig12)') THEN
-            IF (idSig12.eq.0) THEN
-              IF (Master) WRITE (out,80) 'idSig12'
-              exit_flag=5
-              RETURN
-            END IF
-            Npts=load_l(Nval, Cval, Ngrids, Aout(idSig12,:))
-          ELSE IF (TRIM(KeyWord).eq.'Aout(idSig22)') THEN
-            IF (idSig22.eq.0) THEN
-              IF (Master) WRITE (out,80) 'idSig22'
-              exit_flag=5
-              RETURN
-            END IF
-            Npts=load_l(Nval, Cval, Ngrids, Aout(idSig22,:))
-          ELSE IF (TRIM(KeyWord).eq.'Aout(idT0mk)') THEN
-            IF (idT0mk.eq.0) THEN
-              IF (Master) WRITE (out,80) 'idT0mk'
-              exit_flag=5
-              RETURN
-            END IF
-            Npts=load_l(Nval, Cval, Ngrids, Aout(idT0mk,:))
-          ELSE IF (TRIM(KeyWord).eq.'Aout(idS0mk)') THEN
-            IF (idS0mk.eq.0) THEN
-              IF (Master) WRITE (out,80) 'idS0mk'
-              exit_flag=5
-              RETURN
-            END IF
-            Npts=load_l(Nval, Cval, Ngrids, Aout(idS0mk,:))
-          ELSE IF (TRIM(KeyWord).eq.'Aout(idWfr)') THEN
-            IF (idWfr.eq.0) THEN
-              IF (Master) WRITE (out,80) 'idWfr'
-              exit_flag=5
-              RETURN
-            END IF
-            Npts=load_l(Nval, Cval, Ngrids, Aout(idWfr,:))
-          ELSE IF (TRIM(KeyWord).eq.'Aout(idWai)') THEN
-            IF (idWai.eq.0) THEN
-              IF (Master) WRITE (out,80) 'idWai'
-              exit_flag=5
-              RETURN
-            END IF
-            Npts=load_l(Nval, Cval, Ngrids, Aout(idWai,:))
-          ELSE IF (TRIM(KeyWord).eq.'Aout(idWao)') THEN
-            IF (idWao.eq.0) THEN
-              IF (Master) WRITE (out,80) 'idWao'
-              exit_flag=5
-              RETURN
-            END IF
-            Npts=load_l(Nval, Cval, Ngrids, Aout(idWao,:))
-          ELSE IF (TRIM(KeyWord).eq.'Aout(idWio)') THEN
-            IF (idWio.eq.0) THEN
-              IF (Master) WRITE (out,80) 'idWio'
-              exit_flag=5
-              RETURN
-            END IF
-            Npts=load_l(Nval, Cval, Ngrids, Aout(idWio,:))
-          ELSE IF (TRIM(KeyWord).eq.'Aout(idWro)') THEN
-            IF (idWro.eq.0) THEN
-              IF (Master) WRITE (out,80) 'idWro'
-              exit_flag=5
-              RETURN
-            END IF
-            Npts=load_l(Nval, Cval, Ngrids, Aout(idWro,:))
+            CASE ('Aout(idUice)')
+              IF (idUice.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idUice'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Aout(idUice,:))
+            CASE ('Aout(idVice)')
+              IF (idVice.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idVice'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Aout(idVice,:))
+            CASE ('Aout(idUiceE)')
+              IF (idUiceE.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idUiceE'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Aout(idUiceE,:))
+            CASE ('Aout(idViceN)')
+              IF (idViceN.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idViceN'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Aout(idViceN,:))
+            CASE ('Aout(idAice)')
+              IF (idAice.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idAice'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Aout(idAice,:))
+            CASE ('Aout(idHice)')
+              IF (idHice.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idHice'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Aout(idHice,:))
+            CASE ('Aout(idHsno)')
+              IF (idHsno.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idHsno'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Aout(idHsno,:))
+            CASE ('Aout(idTice)')
+              IF (idTice.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idTice'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Aout(idTice,:))
+            CASE ('Aout(idTimid)')
+              IF (idTimid.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idTimid'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Aout(idTimid,:))
+            CASE ('Aout(idTauiw)')
+              IF (idTauiw.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idTauiw'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Aout(idTauiw,:))
+            CASE ('Aout(idChuiw)')
+              IF (idChuiw.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idChuiw'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Aout(idChuiw,:))
+            CASE ('Aout(idSfwat)')
+              IF (idSfwat.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idSfwat'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Aout(idSfwat,:))
+            CASE ('Aout(idAgeice)')
+              IF (idAgeice.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idAgeice'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Aout(idAgeice,:))
+            CASE ('Aout(idIomflx)')
+              IF (idIomflx.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idIomflx'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Aout(idIomflx,:))
+            CASE ('Aout(idSig11)')
+              IF (idSig11.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idSig11'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Aout(idSig11,:))
+            CASE ('Aout(idSig12)')
+              IF (idSig12.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idSig12'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Aout(idSig12,:))
+            CASE ('Aout(idSig22)')
+              IF (idSig22.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idSig22'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Aout(idSig22,:))
+            CASE ('Aout(idT0mk)')
+              IF (idT0mk.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idT0mk'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Aout(idT0mk,:))
+            CASE ('Aout(idS0mk)')
+              IF (idS0mk.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idS0mk'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Aout(idS0mk,:))
+            CASE ('Aout(idWfr)')
+              IF (idWfr.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idWfr'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Aout(idWfr,:))
+            CASE ('Aout(idWai)')
+              IF (idWai.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idWai'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Aout(idWai,:))
+            CASE ('Aout(idWao)')
+              IF (idWao.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idWao'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Aout(idWao,:))
+            CASE ('Aout(idWio)')
+              IF (idWio.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idWio'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Aout(idWio,:))
+            CASE ('Aout(idWro)')
+              IF (idWro.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idWro'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Aout(idWro,:))
 #endif
 #ifdef AVERAGES2
-          ELSE IF (TRIM(KeyWord).eq.'Aout2(idUice)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Aout2(idUice,:))
-          ELSE IF (TRIM(KeyWord).eq.'Aout2(idVice)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Aout2(idVice,:))
-          ELSE IF (TRIM(KeyWord).eq.'Aout2(idUiceE)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Aout2(idUiceE,:))
-          ELSE IF (TRIM(KeyWord).eq.'Aout2(idViceN)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Aout2(idViceN,:))
-          ELSE IF (TRIM(KeyWord).eq.'Aout2(idAice)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Aout2(idAice,:))
-          ELSE IF (TRIM(KeyWord).eq.'Aout2(idHice)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Aout2(idHice,:))
-          ELSE IF (TRIM(KeyWord).eq.'Aout2(idHsno)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Aout2(idHsno,:))
-          ELSE IF (TRIM(KeyWord).eq.'Aout2(idTice)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Aout2(idTice,:))
-          ELSE IF (TRIM(KeyWord).eq.'Aout2(idTimid)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Aout2(idTimid,:))
-          ELSE IF (TRIM(KeyWord).eq.'Aout2(idTauiw)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Aout2(idTauiw,:))
-          ELSE IF (TRIM(KeyWord).eq.'Aout2(idChuiw)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Aout2(idChuiw,:))
-          ELSE IF (TRIM(KeyWord).eq.'Aout2(idSfwat)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Aout2(idSfwat,:))
-          ELSE IF (TRIM(KeyWord).eq.'Aout2(idAgeice)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Aout2(idAgeice,:))
-          ELSE IF (TRIM(KeyWord).eq.'Aout2(idIomflx)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Aout2(idIomflx,:))
-          ELSE IF (TRIM(KeyWord).eq.'Aout2(idSig11)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Aout2(idSig11,:))
-          ELSE IF (TRIM(KeyWord).eq.'Aout2(idSig12)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Aout2(idSig12,:))
-          ELSE IF (TRIM(KeyWord).eq.'Aout2(idSig22)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Aout2(idSig22,:))
-          ELSE IF (TRIM(KeyWord).eq.'Aout2(idT0mk)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Aout2(idT0mk,:))
-          ELSE IF (TRIM(KeyWord).eq.'Aout2(idS0mk)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Aout2(idS0mk,:))
+            CASE ('Aout2(idUice)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idUice,:))
+            CASE ('Aout2(idVice)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idVice,:))
+            CASE ('Aout2(idUiceE)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idUiceE,:))
+            CASE ('Aout2(idViceN)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idViceN,:))
+            CASE ('Aout2(idAice)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idAice,:))
+            CASE ('Aout2(idHice)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idHice,:))
+            CASE ('Aout2(idHsno)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idHsno,:))
+            CASE ('Aout2(idTice)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idTice,:))
+            CASE ('Aout2(idTimid)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idTimid,:))
+            CASE ('Aout2(idTauiw)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idTauiw,:))
+            CASE ('Aout2(idChuiw)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idChuiw,:))
+            CASE ('Aout2(idSfwat)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idSfwat,:))
+            CASE ('Aout2(idAgeice)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idAgeice,:))
+            CASE ('Aout2(idIomflx)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idIomflx,:))
+            CASE ('Aout2(idSig11)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idSig11,:))
+            CASE ('Aout2(idSig12)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idSig12,:))
+            CASE ('Aout2(idSig22)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idSig22,:))
+            CASE ('Aout2(idT0mk)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idT0mk,:))
+            CASE ('Aout2(idS0mk)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idS0mk,:))
 #endif
-#ifdef STATIONS
-          ELSE IF (TRIM(KeyWord).eq.'Sout(idUice)') THEN 
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idUice,1))
-          ELSE IF (TRIM(KeyWord).eq.'Sout(idVice)') THEN 
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idVice,1))
-          ELSE IF (TRIM(KeyWord).eq.'Sout(idUiceE)') THEN 
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idUiceE,1))
-          ELSE IF (TRIM(KeyWord).eq.'Sout(idViceN)') THEN 
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idViceN,1))
-          ELSE IF (TRIM(KeyWord).eq.'Sout(idAice)') THEN 
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idAice,1))
-          ELSE IF (TRIM(KeyWord).eq.'Sout(idHice)') THEN 
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idHice,1))
-          ELSE IF (TRIM(KeyWord).eq.'Sout(idTice)') THEN 
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idTice,1))
-          ELSE IF (TRIM(KeyWord).eq.'Sout(idTimid)') THEN 
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idTimid,1))
-          ELSE IF (TRIM(KeyWord).eq.'Sout(idSfwat)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idSfwat,1))
-          ELSE IF (TRIM(KeyWord).eq.'Sout(idAgeice)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idAgeice,1))
-          ELSE IF (TRIM(KeyWord).eq.'Sout(idIomflx)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idIomflx,1))
-          ELSE IF (TRIM(KeyWord).eq.'Sout(idSig11)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idSig11,1))
-          ELSE IF (TRIM(KeyWord).eq.'Sout(idSig12)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idSig12,1))
-          ELSE IF (TRIM(KeyWord).eq.'Sout(idSig22)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idSig22,1))
-          ELSE IF (TRIM(KeyWord).eq.'Sout(idWfr)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idWfr,1))
-          ELSE IF (TRIM(KeyWord).eq.'Sout(idTauiw)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idTauiw,1))
-          ELSE IF (TRIM(KeyWord).eq.'Sout(idChuiw)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idChuiw,1))
-          ELSE IF (TRIM(KeyWord).eq.'Sout(idT0mk)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idT0mk,1))
-          ELSE IF (TRIM(KeyWord).eq.'Sout(idS0mk)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idS0mk,1))
-          ELSE IF (TRIM(KeyWord).eq.'Sout(idWfr)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idWfr,1))
-          ELSE IF (TRIM(KeyWord).eq.'Sout(idWai)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idWai,1))
-          ELSE IF (TRIM(KeyWord).eq.'Sout(idWao)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idWao,1))
-          ELSE IF (TRIM(KeyWord).eq.'Sout(idWio)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idWio,1))
-          ELSE IF (TRIM(KeyWord).eq.'Sout(idWro)') THEN
-            Npts=load_l(Nval, Cval, Ngrids, Sout(idWro,1))
-#endif
-          END IF
+          END SELECT
         END IF
       END DO
   10  IF (Master) WRITE (out,30) line
@@ -807,80 +759,6 @@
           IF (Aout2(idS0mk,ng)) WRITE (out,70) Aout2(idS0mk,ng),        &
      &       'Aout2(idS0mk)',                                           &
      &       'Write out salinity of molecular sublayer under ice.'
-#endif
-#ifdef STATIONS
-          IF (Sout(idUice,ng)) WRITE (out,70) Sout(idUice,ng),          &
-     &       'Sout(idUice)',                                            &
-     &       'Write out U-component ice velocity.'
-          IF (Sout(idVice,ng)) WRITE (out,70) Sout(idVice,ng),          &
-     &       'Sout(idVice)',                                            &
-     &       'Write out V-component ice velocity.'
-          IF (Sout(idUiceE,ng)) WRITE (out,70) Sout(idUiceE,ng),        &
-     &       'Sout(idUiceE)',                                           &
-     &       'Write out East-component ice velocity.'
-          IF (Sout(idViceN,ng)) WRITE (out,70) Sout(idViceN,ng),        &
-     &       'Sout(idViceN)',                                           &
-     &       'Write out North-component ice velocity.'
-          IF (Sout(idAice,ng)) WRITE (out,70) Sout(idAice,ng),          &
-     &       'Sout(idAice)',                                            &
-     &       'Write out ice concentration.'
-          IF (Sout(idHice,ng)) WRITE (out,70) Sout(idHice,ng),          &
-     &       'Sout(idHice)',                                            &
-     &       'Write out average ice thickness.'
-          IF (Sout(idHsno,ng)) WRITE (out,70) Sout(idHsno,ng),          &
-     &       'Sout(idHsno)',                                            &
-     &       'Write out snow thickness.'
-          IF (Sout(idTice,ng)) WRITE (out,70) Sout(idTice,ng),          &
-     &       'Sout(idTice)',                                            &
-     &       'Write out ice/snow surface temperature.'
-          IF (Sout(idTimid,ng)) WRITE (out,70) Sout(idTimid,ng),        &
-     &       'Sout(idTimid)',                                           &
-     &       'Write out interior ice temperature.'
-          IF (Sout(idSfwat,ng)) WRITE (out,70) Sout(idSfwat,ng),        &
-     &       'Sout(idSfwat)',                                           &
-     &       'Write out surface water (on ice) thickness.'
-          IF (Sout(idAgeice,ng)) WRITE (out,70) Sout(idAgeice,ng),      &
-     &       'Sout(idAgeice)',                                          &
-     &       'Write out surface water (on ice) thickness.'
-          IF (Sout(idIomflx,ng)) WRITE (out,70) Sout(idIomflx,ng),      &
-     &       'Sout(idIomflx)',                                          &
-     &       'Write out ice-ocean mass flux.'
-          IF (Sout(idSig11,ng)) WRITE (out,70) Sout(idSig11,ng),        &
-     &       'Sout(idSig11)',                                           &
-     &       'Write out internal ice stress component 11.'
-          IF (Sout(idSig12,ng)) WRITE (out,70) Sout(idSig12,ng),        &
-     &       'Sout(idSig12)',                                           &
-     &       'Write out internal ice stress component 12.'
-          IF (Sout(idSig22,ng)) WRITE (out,70) Sout(idSig22,ng),        &
-     &       'Sout(idSig22)',                                           &
-     &       'Write out internal ice stress component 22.'
-          IF (Sout(idTauiw,ng)) WRITE (out,70) Sout(idTauiw,ng),        &
-     &       'Sout(idTauiw)',                                           &
-     &       'Write out ice-water friction velocity.'
-          IF (Sout(idChuiw,ng)) WRITE (out,70) Sout(idChuiw,ng),        &
-     &       'Hout(idChuiw)',                                           &
-     &       'Write out ice-water momentum transfer coefficient.'
-          IF (Sout(idT0mk,ng)) WRITE (out,70) Sout(idT0mk,ng),          &
-     &       'Sout(idT0mk)',                                            &
-     &       'Write out temperature of molecular sublayer under ice.'
-          IF (Sout(idS0mk,ng)) WRITE (out,70) Sout(idS0mk,ng),          &
-     &       'Sout(idS0mk)',                                            &
-     &       'Write out salinity of molecular sublayer under ice.'
-          IF (Sout(idWfr,ng)) WRITE (out,70) Sout(idWfr,ng),            &
-     &       'Sout(idWfr)',                                             &
-     &       'Write out frazil ice growth rate.'
-          IF (Sout(idWai,ng)) WRITE (out,70) Sout(idWai,ng),            &
-     &       'Sout(idWai)',                                             &
-     &       'Write out ice growth/melt rate.'
-          IF (Sout(idWao,ng)) WRITE (out,70) Sout(idWao,ng),            &
-     &       'Sout(idWao)',                                             &
-     &       'Write out ice growth/melt rate.'
-          IF (Sout(idWio,ng)) WRITE (out,70) Sout(idWio,ng),            &
-     &       'Sout(idWio)',                                             &
-     &       'Write out ice growth/melt rate.'
-          IF (Sout(idWro,ng)) WRITE (out,70) Sout(idWro,ng),            &
-     &       'Sout(idWro)',                                             &
-     &       'Write out ice melt runoff rate.'
 #endif
         END DO
       END IF

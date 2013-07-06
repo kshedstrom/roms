@@ -136,19 +136,6 @@
 !  Initial conditions for 2D momentum (m/s) components.
 !-----------------------------------------------------------------------
 !
-#if defined LOOPS
-      v0 = 0.01_r8
-      DO j=JstrR,JendR
-        DO i=Istr,IendR
-          ubar(i,j,1)=0.0_r8
-        END DO
-      END DO
-      DO j=Jstr,JendR
-        DO i=IstrR,IendR
-          vbar(i,j,1)=v0
-        END DO
-      END DO
-#else
       DO j=JstrR,JendR
         DO i=Istr,IendR
           ubar(i,j,1)=0.0_r8
@@ -159,16 +146,32 @@
           vbar(i,j,1)=0.0_r8
         END DO
       END DO
-#endif
 !
 !-----------------------------------------------------------------------
 !  Initial conditions for free-surface (m).
 !-----------------------------------------------------------------------
 !
-#if defined LOOPS
+#undef BUMP2
+#if defined BUMP
       DO j=JstrR,JendR
         DO i=IstrR,IendR
-          zeta(i,j,1)=0.0_r8
+	  if (i < 600) then
+            zeta(i,j,1)=0.25_r8 * (1._r8 + tanh((i-511)/20._r8)) *       &
+     &        (tanh((j-270)/10._r8) - tanh((j-323)/10._r8))
+          else
+            zeta(i,j,1)=0._r8
+          endif
+        END DO
+      END DO
+#elif defined BUMP2
+      DO j=JstrR,JendR
+        DO i=IstrR,IendR
+	  if (j > 560) then
+            zeta(i,j,1)=0.25_r8 * (1._r8 - tanh((j-700)/20._r8)) *       &
+     &        (1. - tanh((i-40)/10._r8))
+          else
+            zeta(i,j,1)=0._r8
+          endif
         END DO
       END DO
 #else
@@ -177,75 +180,6 @@
           zeta(i,j,1)=0.0_r8
         END DO
       END DO
-#endif
-
-#ifdef SOLVE3D
-!
-!-----------------------------------------------------------------------
-!  Initial conditions for tracer type variables.
-!-----------------------------------------------------------------------
-!
-!  Set initial conditions for potential temperature (Celsius) and
-!  salinity (PSU).
-!
-# if defined LOOPS
-      DO k=1,N(ng)
-        DO j=JstrR,JendR
-          DO i=IstrR,IendR
-            t(i,j,k,1,itemp)=0.0
-#  ifdef SALINITY
-            t(i,j,k,1,isalt)=0.0
-#  endif
-          END DO
-        END DO
-      END DO
-# else
-      DO k=1,N(ng)
-        DO j=JstrR,JendR
-          DO i=IstrR,IendR
-            t(i,j,k,1,itemp)=T0(ng)
-#  ifdef SALINITY
-            t(i,j,k,1,isalt)=S0(ng)
-#  endif
-          END DO
-        END DO
-      END DO
-# endif
-!
-!-----------------------------------------------------------------------
-!  Initial conditions for 3D momentum components (m/s).
-!-----------------------------------------------------------------------
-!
-# if defined LOOPS
-      u0 = 0.1_r8
-      v0 = 0.01_r8
-      depth = h(1,1)
-      DO k=1,N(ng)
-        DO j=JstrR,JendR
-          DO i=Istr,IendR
-            u(i,j,k,1)=u0*sin(pi*(i-1)/Lm(ng))*cos(z_r(i,j,k)/depth*pi)
-          END DO
-        END DO
-        DO j=Jstr,JendR
-          DO i=IstrR,IendR
-            v(i,j,k,1)=v0
-          END DO
-        END DO
-      END DO
-# else
-      DO k=1,N(ng)
-       DO j=JstrR,JendR
-         DO i=Istr,IendR
-            u(i,j,k,1)=0.0_r8
-          END DO
-        END DO
-        DO j=Jstr,JendR
-          DO i=IstrR,IendR
-            v(i,j,k,1)=0.0_r8
-          END DO
-        END DO
-      END DO
-# endif
 #endif
 
       RETURN

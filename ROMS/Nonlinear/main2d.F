@@ -53,6 +53,13 @@
 # ifdef NEARSHORE_MELLOR
       USE radiation_stress_mod, ONLY : radiation_stress
 # endif
+# ifdef BULK_FLUXES2D
+#  ifdef CCSM_FLUXES2D
+      USE ccsm_flux_mod, ONLY : ccsm_flux
+#  else
+      USE bulk_flux_mod, ONLY : bulk_flux
+#  endif
+# endif
 # ifdef AVERAGES
       USE set_avg_mod, ONLY : set_avg
 # endif
@@ -292,6 +299,13 @@
 !
         DO ng=1,Ngrids
           DO tile=first_tile(ng),last_tile(ng),+1
+# ifdef BULK_FLUXES2D
+#  ifdef CCSM_FLUXES2D
+            CALL ccsm_flux (ng, tile)
+#  else
+            CALL bulk_flux (ng, tile)
+#  endif
+# endif
             CALL set_vbc (ng, tile)
 # if defined SSH_TIDES || defined UV_TIDES
             CALL set_tides (ng, tile)

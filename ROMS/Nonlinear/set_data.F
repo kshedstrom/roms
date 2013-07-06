@@ -258,6 +258,44 @@
 #  endif
 # else
 
+# if defined BULK_FLUXES || defined ECOSIM || defined CCSM_FLUXES2D || \
+    (defined SHORTWAVE && defined ANA_SRFLUX && defined ALBEDO)
+!
+!-----------------------------------------------------------------------
+!  Set surface air temperature (degC).
+!-----------------------------------------------------------------------
+!
+#  ifdef ANA_TAIR
+      CALL ana_tair (ng, tile, iNLM)
+#  else
+      CALL set_2dfld_tile (ng, tile, iNLM, idTair,                      &
+     &                     LBi, UBi, LBj, UBj,                          &
+     &                     FORCES(ng)%TairG,                            &
+     &                     FORCES(ng)%Tair,                             &
+     &                     update)
+      IF (exit_flag.ne.NoError) RETURN
+#  endif
+# endif
+
+# if defined BULK_FLUXES || defined ECOSIM || defined CCSM_FLUXES2D || \
+     (defined SHORTWAVE && defined ANA_SRFLUX && defined ALBEDO)
+!
+!-----------------------------------------------------------------------
+!  Set surface air relative or specific humidity.
+!-----------------------------------------------------------------------
+!
+#  ifdef ANA_HUMIDITY
+      CALL ana_humid (ng, tile, iNLM)
+#  else
+      CALL set_2dfld_tile (ng, tile, iNLM, idQair,                      &
+     &                     LBi, UBi, LBj, UBj,                          &
+     &                     FORCES(ng)%HairG,                            &
+     &                     FORCES(ng)%Hair,                             &
+     &                     update)
+      IF (exit_flag.ne.NoError) RETURN
+#  endif
+# endif
+
 # ifdef SOLVE3D
 
 #  if defined ALBEDO_FILE && defined SHORTWAVE
@@ -284,44 +322,6 @@
      &                     LBi, UBi, LBj, UBj,                          &
      &                     FORCES(ng)%cloudG,                           &
      &                     FORCES(ng)%cloud,                            &
-     &                     update)
-      IF (exit_flag.ne.NoError) RETURN
-#   endif
-#  endif
-
-#  if defined BULK_FLUXES || defined ECOSIM || \
-    (defined SHORTWAVE && defined ANA_SRFLUX && defined ALBEDO)
-!
-!-----------------------------------------------------------------------
-!  Set surface air temperature (degC).
-!-----------------------------------------------------------------------
-!
-#   ifdef ANA_TAIR
-      CALL ana_tair (ng, tile, iNLM)
-#   else
-      CALL set_2dfld_tile (ng, tile, iNLM, idTair,                      &
-     &                     LBi, UBi, LBj, UBj,                          &
-     &                     FORCES(ng)%TairG,                            &
-     &                     FORCES(ng)%Tair,                             &
-     &                     update)
-      IF (exit_flag.ne.NoError) RETURN
-#   endif
-#  endif
-
-#  if defined BULK_FLUXES || defined ECOSIM || \
-     (defined SHORTWAVE && defined ANA_SRFLUX && defined ALBEDO)
-!
-!-----------------------------------------------------------------------
-!  Set surface air relative or specific humidity.
-!-----------------------------------------------------------------------
-!
-#   ifdef ANA_HUMIDITY
-      CALL ana_humid (ng, tile, iNLM)
-#   else
-      CALL set_2dfld_tile (ng, tile, iNLM, idQair,                      &
-     &                     LBi, UBi, LBj, UBj,                          &
-     &                     FORCES(ng)%HairG,                            &
-     &                     FORCES(ng)%Hair,                             &
      &                     update)
       IF (exit_flag.ne.NoError) RETURN
 #   endif
@@ -380,16 +380,17 @@
      &                     update)
       IF (exit_flag.ne.NoError) RETURN
 #  endif
+# endif
 
-#  if defined BULK_FLUXES || defined ECOSIM
+# if defined BULK_FLUXES || defined BULK_FLUXES2D || defined ECOSIM
 !
 !-----------------------------------------------------------------------
 !  Set surface winds (m/s).
 !-----------------------------------------------------------------------
 !
-#   ifdef ANA_WINDS
+#  ifdef ANA_WINDS
       CALL ana_winds (ng, tile, iNLM)
-#   else
+#  else
       CALL set_2dfld_tile (ng, tile, iNLM, idUair,                      &
      &                     LBi, UBi, LBj, UBj,                          &
      &                     FORCES(ng)%UwindG,                           &
@@ -404,7 +405,7 @@
      &                     update)
       IF (exit_flag.ne.NoError) RETURN
 
-#    ifdef CURVGRID
+#   ifdef CURVGRID
 !
 !  If input point surface winds or interpolated from coarse data, rotate
 !  to curvilinear grid.
@@ -432,19 +433,20 @@
      &                            FORCES(ng)%VWind)
         END IF
 
-#     ifdef DISTRIBUTE
+#    ifdef DISTRIBUTE
         CALL mp_exchange2d (ng, tile, iNLM, 2,                          &
      &                      LBi, UBi, LBj, UBj,                         &
      &                      NghostPoints,                               &
      &                      EWperiodic(ng), NSperiodic(ng),             &
      &                      FORCES(ng)%UWind,                           &
      &                      FORCES(ng)%VWind)
-#     endif
-      END IF
 #    endif
+      END IF
 #   endif
 #  endif
+# endif
 
+# ifdef SOLVE3D
 #  ifdef BULK_FLUXES
 !
 !-----------------------------------------------------------------------
@@ -667,7 +669,7 @@
 # endif
 
 # ifndef AIR_OCEAN
-#  ifndef BULK_FLUXES
+#  if !defined BULK_FLUXES && !defined BULK_FLUXES2D
 !
 !-----------------------------------------------------------------------
 !  Set kinematic surface momentum flux (m2/s2).

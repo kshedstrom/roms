@@ -1,6 +1,7 @@
 #include "cppdefs.h"
       MODULE ccsm_flux_mod
-#if defined CCSM_FLUXES && defined BULK_FLUXES
+#if defined BULK_FLUXES || defined BULK_FLUXES2D
+#if defined CCSM_FLUXES
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
@@ -1252,6 +1253,413 @@ contains
 
       RETURN
       END SUBROUTINE ccsm_flux_tile
+#elif defined CCSM_FLUXES2D
+!
+!  This routine computes the bulk parameterization of surface wind     !
+!  stress for 2D applications.                                         !
+!                                                                      !
+!  References:                                                         !
+!                                                                      !
+!       CCSM's flux_mod.F90 by B. Kauffman                             !
+!                                                                      !
+!=======================================================================
+!
+      implicit none
+
+      PRIVATE
+! !PUBLIC MEMBER FUNCTIONS:
+
+      PUBLIC  :: ccsm_flux
+
+contains
+!
+!***********************************************************************
+      SUBROUTINE ccsm_flux (ng, tile)
+!***********************************************************************
+!
+      USE mod_param
+      USE mod_forces
+      USE mod_grid
+      USE mod_mixing
+      USE mod_ocean
+# ifdef EVAP_SHALLOW
+      USE mod_coupling
+# endif
+      USE mod_stepping
+!
+!  Imported variable declarations.
+!
+      integer, intent(in) :: ng, tile
+!
+!  Local variable declarations.
+!
+# include "tile.h"
+!
+# ifdef PROFILE
+      CALL wclock_on (ng, iNLM, 17)
+# endif
+      CALL ccsm_flux_tile (ng, tile,                                    &
+     &                     LBi, UBi, LBj, UBj,                          &
+     &                     IminS, ImaxS, JminS, JmaxS,                  &
+     &                     knew(ng),                                    &
+# ifdef MASKING
+     &                     GRID(ng) % rmask,                            &
+     &                     GRID(ng) % umask,                            &
+     &                     GRID(ng) % vmask,                            &
+# endif
+     &                     OCEAN(ng) % ubar,                            &
+     &                     OCEAN(ng) % vbar,                            &
+     &                     FORCES(ng) % Hair,                           &
+     &                     FORCES(ng) % Pair,                           &
+     &                     FORCES(ng) % Tair,                           &
+     &                     FORCES(ng) % Uwind,                          &
+     &                     FORCES(ng) % Vwind,                          &
+     &                     FORCES(ng) % sustr,                          &
+     &                     FORCES(ng) % svstr)
+# ifdef PROFILE
+      CALL wclock_off (ng, iNLM, 17)
+# endif
+      RETURN
+      END SUBROUTINE ccsm_flux
+!
+!***********************************************************************
+      SUBROUTINE ccsm_flux_tile (ng, tile,                              &
+     &                           LBi, UBi, LBj, UBj,                    &
+     &                           IminS, ImaxS, JminS, JmaxS,            &
+     &                           knew,                                  &
+# ifdef ICE_MODEL
+     &                           liold, linew,                          &
+# endif
+# ifdef MASKING
+     &                           rmask, umask, vmask,                   &
+# endif
+     &                           ubar, vbar,                            &
+     &                           Hair, Pair, Tair, Uwind, Vwind,        &
+     &                           sustr, svstr)
+!
+      USE mod_param
+      USE mod_scalars
+!
+      USE exchange_2d_mod
+# ifdef DISTRIBUTE
+      USE mp_exchange_mod, ONLY : mp_exchange2d
+# endif
+!
+!  Imported variable declarations.
+!
+      integer, intent(in) :: ng, tile
+      integer, intent(in) :: LBi, UBi, LBj, UBj
+      integer, intent(in) :: IminS, ImaxS, JminS, JmaxS
+      integer, intent(in) :: knew
+!
+# ifdef ASSUMED_SHAPE
+#  ifdef MASKING
+      real(r8), intent(in) :: rmask(LBi:,LBj:)
+      real(r8), intent(in) :: umask(LBi:,LBj:)
+      real(r8), intent(in) :: vmask(LBi:,LBj:)
+#  endif
+      real(r8), intent(in) :: ubar(LBi:,LBj:,:)
+      real(r8), intent(in) :: vbar(LBi:,LBj:,:)
+      real(r8), intent(in) :: Hair(LBi:,LBj:)
+      real(r8), intent(in) :: Pair(LBi:,LBj:)
+      real(r8), intent(in) :: Tair(LBi:,LBj:)
+      real(r8), intent(in) :: Uwind(LBi:,LBj:)
+      real(r8), intent(in) :: Vwind(LBi:,LBj:)
+      real(r8), intent(out) :: sustr(LBi:,LBj:)
+      real(r8), intent(out) :: svstr(LBi:,LBj:)
+
+# else
+#  ifdef MASKING
+      real(r8), intent(in) :: rmask(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: umask(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: vmask(LBi:UBi,LBj:UBj)
+#  endif
+      real(r8), intent(in) :: ubar(LBi:UBi,LBj:UBj,3)
+      real(r8), intent(in) :: vbar(LBi:UBi,LBj:UBj,3)
+      real(r8), intent(in) :: Hair(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: Pair(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: Tair(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: Uwind(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: Vwind(LBi:UBi,LBj:UBj)
+      real(r8), intent(out) :: sustr(LBi:UBi,LBj:UBj)
+      real(r8), intent(out) :: svstr(LBi:UBi,LBj:UBj)
+
+# endif
+!
+!  Local variable declarations.
+!
+      integer :: i, j, listp
+
+      real(r8), parameter :: eps = 1.0E-20_r8
+      real(r8), parameter :: r3 = 1.0_r8/3.0_r8
+
+      real(r8) :: Ce, Ch, Hscale, Hscale2
+      real(r8) :: RH, cff1, cff2
+      real(r8) :: cff
+
+   !--- local constants --------------------------------
+      real(R8),parameter :: umin  =  0.5    ! minimum wind speed       (m/s)
+      real(R8),parameter :: zref  = 10.0    ! reference height           (m)
+      real(R8),parameter :: ztref =  2.0    ! reference height for air T (m)
+
+   !--- local variables --------------------------------
+      real(r8)    :: lwup   ! upward longwave radiation
+      real(r8)    :: vmag   ! surface wind magnitude   (m/s)
+      real(r8)    :: thvbot ! virtual temperature      (K)
+      real(r8)    :: ssq    ! sea surface humidity     (kg/kg)
+      real(r8)    :: delt   ! potential T difference   (K)
+      real(r8)    :: delq   ! humidity difference      (kg/kg)
+      real(r8)    :: stable ! stability factor
+      real(r8)    :: rdn    ! sqrt of neutral exchange coeff (momentum)
+      real(r8)    :: rhn    ! sqrt of neutral exchange coeff (heat)
+      real(r8)    :: ren    ! sqrt of neutral exchange coeff (water)
+      real(r8)    :: rd     ! sqrt of exchange coefficient (momentum)
+      real(r8)    :: re     ! sqrt of exchange coefficient (water)
+      real(r8)    :: ustar  ! ustar
+      real(r8)    :: qstar  ! qstar
+      real(r8)    :: tstar  ! tstar
+      real(r8)    :: hol    ! H (at blk_ZX) over L
+      real(r8)    :: xsq    ! ?
+      real(r8)    :: xqq    ! ?
+      real(r8)    :: psimh  ! stability function at blk_ZX (momentum)
+      real(r8)    :: psixh  ! stability function at blk_ZX (heat and water)
+      real(r8)    :: psix2  ! stability function at ztref reference height
+      real(r8)    :: alz    ! ln(blk_ZX/zref)
+      real(r8)    :: al2    ! ln(zref/ztref)
+      real(r8)    :: u10n   ! 10m neutral wind
+      real(r8)    :: tau    ! stress at blk_ZX
+      real(r8)    :: cpair     ! specific heat of moist air
+      real(r8)    :: fac    ! vertical interpolation factor
+      real(r8)    :: Hlv    ! Latent heat of vaporization at sea surface
+      real(r8), dimension(IminS:ImaxS) :: rhoAir
+      real(r8), dimension(IminS:ImaxS) :: TairK
+      real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: Taux
+      real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: Tauy
+
+   !--- local functions --------------------------------
+      real(r8)    :: qsat   ! function: the saturation humididty of air (kg/m^3)
+      real(r8)    :: cdn    ! function: neutral drag coeff at 10m
+      real(r8)    :: psimhu ! function: unstable part of psimh
+      real(r8)    :: psixhu ! function: unstable part of psimx
+      real(r8)    :: tsk    ! water temperature (K)
+      real(r8)    :: Tk     ! dummy arg ~ air temperature (K)
+      real(r8)    :: Umps   ! dummy arg ~ wind velocity (m/s)
+      real(r8)    :: xd     ! dummy arg ~ ?
+
+!  Stefan-Boltzmann constant ~ W/m^2/K^4
+      real(r8),parameter :: shr_const_stebol  = 5.67e-8_r8
+! Boltzmann's constant ~ J/K/molecule
+      real(r8),parameter :: shr_const_boltz   = 1.38065e-23_r8
+! Avogadro's number ~ molecules/kmole
+      real(r8),parameter :: shr_const_avogad  = 6.02214e26_r8
+! Universal gas constant ~ J/K/kmole
+      real(r8),parameter :: shr_const_rgas =                            &
+     &         shr_const_avogad*shr_const_boltz
+! molecular weight dry air ~ kg/kmole
+      real(r8),parameter :: shr_const_mwdair  = 28.966_r8
+! molecular weight water vapor
+      real(r8),parameter :: shr_const_mwwv = 18.016_r8
+! Water vapor gas constant ~ J/K/kg
+      real(r8),parameter :: shr_const_rwv =                             &
+     &         shr_const_rgas/shr_const_mwwv
+! Dry air gas constant     ~ J/K/kg
+      real(r8),parameter :: shr_const_rdair   =                         &
+     &         shr_const_rgas/shr_const_mwdair
+      real(r8),parameter :: shr_const_zvir    =                         &
+     &         (shr_const_rwv/shr_const_rdair)-1.0_r8
+! Von Karman constant
+      real(r8),parameter :: shr_const_karman  = 0.4_r8
+! specific heat of dry air   ~ J/kg/K
+      real(r8),parameter :: shr_const_cpdair  = 1.00464e3_r8
+! specific heat of water vap ~ J/kg/K
+      real(r8),parameter :: shr_const_cpwv    = 1.810e3_R8
+! CPWV/CPDAIR - 1.0
+      real(r8),parameter :: shr_const_cpvir   =                         &
+     &         (shr_const_cpwv/shr_const_cpdair)-1.0_r8
+! latent heat of evaporation ~ J/kg
+      real(r8),parameter :: shr_const_latvap  = 2.501e6_r8
+
+
+      qsat(Tk)   = 640380.0 / exp(5107.4/Tk)
+      cdn(Umps)  = 0.0027 / Umps + 0.000142 + 0.0000764 * Umps
+      psimhu(xd) = log((1.0+xd*(2.0+xd))*(1.0+xd*xd)/8.0) -             &
+     &               2.0*atan(xd) + 1.571
+      psixhu(xd) = 2.0 * log((1.0 + xd*xd)/2.0)
+
+#include "set_bounds.h"
+!-------------------------------------------------------------------------------
+! PURPOSE:
+!   computes atm/ocn surface fluxes
+!
+! NOTES:
+!   o all fluxes are positive downward
+!   o net heat flux = net sw + lw up + lw down + shflx + lhflx
+!   o here, tstar = <WT>/U*, and qstar = <WQ>/U*.
+!   o wind speeds should all be above a minimum speed (eg. 1.0 m/s)
+!
+! ASSUMPTIONS:
+!   o Neutral 10m drag coeff: cdn = .0027/U10 + .000142 + .0000764 U10
+!   o Neutral 10m stanton number: ctn = .0327 sqrt(cdn), unstable
+!                                 ctn = .0180 sqrt(cdn), stable
+!   o Neutral 10m dalton number:  cen = .0346 sqrt(cdn)
+!   o The saturation humidity of air at T(K): qsat(T)  (kg/m^3)
+!-------------------------------------------------------------------------------
+
+      al2 = log(zref/ztref)
+
+      Hscale=rho0*Cp
+      Hscale2=1.0_r8/(rho0*Cp)
+! Note that this loop needs to be cleaned of all global arrays for
+! OpenMP.
+      DO j=Jstr-1,JendR
+        DO i=Istr-1,IendR
+          !--- compute some needed quantities ---
+          vmag   = max(umin, sqrt( (Uwind(i,j)-ubar(i,j,knew))**2 +  &
+     &                             (Vwind(i,j)-vbar(i,j,knew))**2) )
+          TairK(i) = Tair(i,j) + 273.16_r8
+          thvbot = TairK(i) * (1.0 + shr_const_zvir * Hair(i,j)) ! virtual temp (K)
+          rhoAir(i) = Pair(i,j)*100.0_r8/(blk_Rgas*TairK(i)*            &
+     &                    (1.0_r8+0.61_r8*Hair(i,j))) !  Moist air density (kg/m3).
+          ssq    = 0.98_r8 * qsat(TairK(i)) / rhoAir(i)  ! sea surf hum (kg/kg)
+!          ssq    = 0.98_r8 * qsat(TseaK) / rhoAir(i)    ! sea surf hum (kg/kg)
+          delq   = Hair(i,j) - ssq                     ! spec hum dif (kg/kg)
+          alz    = log(blk_ZW(ng)/zref)
+          cpair     = shr_const_cpdair*(1.0 + shr_const_cpvir*ssq)
+
+          !------------------------------------------------------------
+          ! first estimate of Z/L and ustar, tstar and qstar
+          !------------------------------------------------------------
+
+          !--- neutral coefficients, z/L = 0.0 ---
+          stable = 0.5_r8 + sign(0.5_r8 , delt)
+          rdn    = sqrt(cdn(vmag))
+          rhn    = (1.0_r8-stable) * 0.0327_r8 + stable * 0.018_r8
+          ren    = 0.0346_r8
+
+          !--- ustar, tstar, qstar ---
+          ustar = rdn * vmag
+          tstar = rhn * delt
+          qstar = ren * delq
+
+          !--- compute stability & evaluate all stability functions ---
+          hol  = shr_const_karman*g*blk_ZT(ng)*                         &
+     &          (tstar/thvbot+qstar/(1.0_r8/shr_const_zvir+Hair(i,j)))/ &
+     &                     ustar**2
+          hol  = sign( min(abs(hol),10.0_r8), hol )
+          stable = 0.5_r8 + sign(0.5_r8 , hol)
+          xsq    = max(sqrt(abs(1.0_r8 - 16.0_r8*hol)) , 1.0_r8)
+          xqq    = sqrt(xsq)
+          psimh  = -5.0_r8*hol*stable + (1.0_r8-stable)*psimhu(xqq)
+          psixh  = -5.0_r8*hol*stable + (1.0_r8-stable)*psixhu(xqq)
+
+          !--- shift wind speed using old coefficient ---
+          rd   = rdn / (1.0_r8 + rdn/shr_const_karman*(alz-psimh))
+          u10n = vmag * rd / rdn
+
+          !--- update transfer coeffs at 10m and neutral stability ---
+          rdn = sqrt(cdn(u10n))
+          ren = 0.0346_r8
+          rhn = (1.0_r8-stable)*0.0327_r8 + stable * 0.018_r8
+
+          !--- shift all coeffs to measurement height and stability ---
+          rd = rdn / (1.0_r8 + rdn/shr_const_karman*(alz-psimh))
+          rh = rhn / (1.0_r8 + rhn/shr_const_karman*(alz-psixh))
+          re = ren / (1.0_r8 + ren/shr_const_karman*(alz-psixh))
+
+          !--- update ustar, tstar, qstar using updated, shifted coeffs --
+          ustar = rd * vmag
+          tstar = rh * delt
+          qstar = re * delq
+
+          !------------------------------------------------------------
+          ! iterate to converge on Z/L, ustar, tstar and qstar
+          !------------------------------------------------------------
+
+          !--- compute stability & evaluate all stability functions ---
+          hol  = shr_const_karman*g*blk_ZQ(ng)*                         &
+     &            (tstar/thvbot+qstar/(1.0/shr_const_zvir+Hair(i,j)))/  &
+     &                         ustar**2
+          hol  = sign( min(abs(hol),10.0_r8), hol )
+          stable = 0.5_r8 + sign(0.5_r8 , hol)
+          xsq    = max(sqrt(abs(1.0_r8 - 16.0_r8*hol)) , 1.0_r8)
+          xqq    = sqrt(xsq)
+          psimh  = -5.0_r8*hol*stable + (1.0_r8-stable)*psimhu(xqq)
+          psixh  = -5.0_r8*hol*stable + (1.0_r8-stable)*psixhu(xqq)
+
+          !--- shift wind speed using old coeffs ---
+          rd   = rdn / (1.0_r8 + rdn/shr_const_karman*(alz-psimh))
+          u10n = vmag * rd/rdn
+
+          !--- update transfer coeffs at 10m and neutral stability ---
+          rdn = sqrt(cdn(u10n))
+          ren = 0.0346_r8
+          rhn = (1.0_r8 - stable)*0.0327_r8 + stable * 0.018_r8
+
+          !--- shift all coeffs to measurement height and stability ---
+          rd = rdn / (1.0_r8 + rdn/shr_const_karman*(alz-psimh))
+          rh = rhn / (1.0_r8 + rhn/shr_const_karman*(alz-psixh))
+          re = ren / (1.0_r8 + ren/shr_const_karman*(alz-psixh))
+
+          !--- update ustar, tstar, qstar using updated, shifted coeffs ---
+          ustar = rd * vmag
+          tstar = rh * delt
+          qstar = re * delq
+
+          !------------------------------------------------------------
+          ! compute the fluxes
+          !------------------------------------------------------------
+
+          tau = rhoAir(i) * ustar * ustar
+
+          !--- momentum flux ---
+          Taux(i,j) = tau * (Uwind(i,j)-ubar(i,j,knew)) / vmag
+          Tauy(i,j) = tau * (Vwind(i,j)-vbar(i,j,knew)) / vmag
+        END DO
+      END DO
+!
+!  Compute kinematic, surface wind stress (m2/s2).
+!
+      Hscale = 1./rho0
+      DO j=JstrR,JendR
+        DO i=Istr,IendR
+          sustr(i,j)=Taux(i,j)*Hscale
+# ifdef MASKING
+          sustr(i,j)=sustr(i,j)*umask(i,j)
+# endif
+        END DO
+      END DO
+      DO j=Jstr,JendR
+        DO i=IstrR,IendR
+          svstr(i,j)=Tauy(i,j)*Hscale
+# ifdef MASKING
+          svstr(i,j)=svstr(i,j)*vmask(i,j)
+# endif
+        END DO
+      END DO
+!
+!-----------------------------------------------------------------------
+!  Exchange boundary data.
+!-----------------------------------------------------------------------
+!
+      IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
+        CALL exchange_u2d_tile (ng, tile,                               &
+     &                        LBi, UBi, LBj, UBj,                       &
+     &                        sustr)
+        CALL exchange_v2d_tile (ng, tile,                               &
+     &                        LBi, UBi, LBj, UBj,                       &
+     &                        svstr)
+      END IF
+# ifdef DISTRIBUTE
+      CALL mp_exchange2d (ng, tile, iNLM, 2,                            &
+     &                    LBi, UBi, LBj, UBj,                           &
+     &                    NghostPoints,                                 &
+     &                    EWperiodic(ng), NSperiodic(ng),               &
+     &                    sustr, svstr)
+# endif
+
+      RETURN
+      END SUBROUTINE ccsm_flux_tile
+#endif
 #endif
 
       END module ccsm_flux_mod

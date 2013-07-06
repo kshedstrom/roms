@@ -48,7 +48,7 @@
 # ifdef ICE_MODEL
 #  define  ICE_THERMO
 #  define  ICE_MK
-#  undef   ICE_ALB_EC92
+#  define  ICE_ALB_EC92
 #  undef   ICE_SMOOTH
 #  define  ICE_MOMENTUM
 #  define  ICE_MOM_BULK
@@ -146,8 +146,8 @@
 #  undef ANA_SRFLUX
 #  undef ALBEDO
 #  define SOLAR_SOURCE
-#  undef ALBEDO_CURVE
-#  define ALBEDO_FILE
+#  define ALBEDO_CURVE
+#  undef ALBEDO_FILE
 #  undef LONGWAVE
 # endif
 #endif

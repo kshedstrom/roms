@@ -564,6 +564,12 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+13)=' BULK_FLUXES,'
 #endif
+#ifdef BULK_FLUXES2D
+      IF (Master) WRITE (stdout,20) 'BULK_FLUXES2D',                    &
+     &   'Surface bulk fluxes parameterization.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+15)=' BULK_FLUXES2D,'
+#endif
 #ifdef BVF_MIXING
       IF (Master) WRITE (stdout,20) 'BVF_MIXING',                       &
      &   'Brunt-Vaisala frequency based vertical mixing.'
@@ -594,6 +600,12 @@
      &   'Surface bulk fluxes parametererization.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+13)=' CCSM_FLUXES,'
+#endif
+#ifdef CCSM_FLUXES2D
+      IF (Master) WRITE (stdout,20) 'CCSM_FLUXES2D',                    &
+     &   'Surface bulk fluxes parametererization.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+15)=' CCSM_FLUXES2D,'
 #endif
 #if defined CELERITY_READ && defined FORWARD_READ
       IF (Master) WRITE (stdout,20) 'CELERITY_READ',                    &
@@ -1945,17 +1957,17 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+16)=' STOCHASTIC_OPT,'
       idriver=idriver+1
-#endif
-#ifdef STOCH_OPT_WHITE
+# ifdef STOCH_OPT_WHITE
       IF (Master) WRITE (stdout,20) 'STOCH_OPT_WHITE',                  &
      &   'Stochastic Optimals, white noise processes.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+17)=' STOCH_OPT_WHITE,'
-#else
+# else
       IF (Master) WRITE (stdout,20) '!STOCH_OPT_WHITE',                 &
      &   'Stochastic Optimals, red noise processes.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+18)=' !STOCH_OPT_WHITE,'
+# endif
 #endif
 #ifdef SWAN_COUPLING
       IF (Master) WRITE (stdout,20) 'SWAN_COUPLING',                    &

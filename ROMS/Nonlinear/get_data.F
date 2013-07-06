@@ -260,7 +260,8 @@
 
 #endif
 
-#if !defined ANA_WINDS && (defined BULK_FLUXES || defined ECOSIM)
+#if !defined ANA_WINDS && (defined BULK_FLUXES || defined   \
+         BULK_FLUXES2D || defined ECOSIM)
 !
 !-----------------------------------------------------------------------
 !  Surface wind components.
@@ -286,7 +287,8 @@
 #endif
 
 #if !defined AIR_OCEAN && !defined NCEP_FLUXES
-# if !defined ANA_SMFLUX && !defined BULK_FLUXES && !defined ANA_NCEP
+# if !defined ANA_SMFLUX && !defined BULK_FLUXES && !defined ANA_NCEP \
+          && !defined BULK_FLUXES2D
 !
 !-----------------------------------------------------------------------
 !  Surface wind stress components.
@@ -366,7 +368,7 @@
 #endif
 
 #if !defined ANA_PAIR && (defined BULK_FLUXES || defined ECOSIM || \
-                          defined ATM_PRESS)
+        defined CCSM_FLUXES2D || defined ATM_PRESS)
 !
 !-----------------------------------------------------------------------
 !  Surface air pressure.
@@ -477,6 +479,43 @@
 # endif
 #endif
 
+#if !defined ANA_TAIR && \
+    ( defined BULK_FLUXES || defined ECOSIM || defined CCSM_FLUXES2D || \
+     (defined SHORTWAVE && defined ANA_SRFLUX && defined ALBEDO) )
+!
+!-----------------------------------------------------------------------
+!  Surface air temperature.
+!-----------------------------------------------------------------------
+!
+      CALL get_2dfld (ng, iNLM, idTair, ncFRCid(idTair,ng),             &
+     &                nFfiles(ng), FRC(1,ng), update(1),                &
+     &                LBi, UBi, LBj, UBj, 2, 1,                         &
+# ifdef MASKING
+     &                GRID(ng) % rmask,                                 &
+# endif
+     &                FORCES(ng) % TairG)
+      IF (exit_flag.ne.NoError) RETURN
+#endif
+
+#if !defined ANA_HUMIDITY && \
+    ( defined BULK_FLUXES || defined ECOSIM || defined CCSM_FLUXES2D || \
+     (defined SHORTWAVE && defined ANA_SRFLUX && defined ALBEDO) )
+
+!
+!-----------------------------------------------------------------------
+!  Surface air humidity.
+!-----------------------------------------------------------------------
+!
+      CALL get_2dfld (ng, iNLM, idQair, ncFRCid(idQair,ng),             &
+     &                nFfiles(ng), FRC(1,ng), update(1),                &
+     &                LBi, UBi, LBj, UBj, 2, 1,                         &
+# ifdef MASKING
+     &                GRID(ng) % rmask,                                 &
+# endif
+     &                FORCES(ng) % HairG)
+      IF (exit_flag.ne.NoError) RETURN
+#endif
+
 #ifdef SOLVE3D
 
 # if defined ALBEDO_FILE && defined SHORTWAVE
@@ -556,43 +595,6 @@
      &                GRID(ng) % rmask,                                 &
 #  endif
      &                FORCES(ng) % lrflxG)
-      IF (exit_flag.ne.NoError) RETURN
-# endif
-
-# if !defined ANA_TAIR && \
-    ( defined BULK_FLUXES || defined ECOSIM || \
-     (defined SHORTWAVE && defined ANA_SRFLUX && defined ALBEDO) )
-!
-!-----------------------------------------------------------------------
-!  Surface air temperature.
-!-----------------------------------------------------------------------
-!
-      CALL get_2dfld (ng, iNLM, idTair, ncFRCid(idTair,ng),             &
-     &                nFfiles(ng), FRC(1,ng), update(1),                &
-     &                LBi, UBi, LBj, UBj, 2, 1,                         &
-#  ifdef MASKING
-     &                GRID(ng) % rmask,                                 &
-#  endif
-     &                FORCES(ng) % TairG)
-      IF (exit_flag.ne.NoError) RETURN
-# endif
-
-# if !defined ANA_HUMIDITY && \
-     (defined BULK_FLUXES || defined ECOSIM || \
-     (defined SHORTWAVE && defined ANA_SRFLUX && defined ALBEDO) )
-
-!
-!-----------------------------------------------------------------------
-!  Surface air humidity.
-!-----------------------------------------------------------------------
-!
-      CALL get_2dfld (ng, iNLM, idQair, ncFRCid(idQair,ng),             &
-     &                nFfiles(ng), FRC(1,ng), update(1),                &
-     &                LBi, UBi, LBj, UBj, 2, 1,                         &
-#  ifdef MASKING
-     &                GRID(ng) % rmask,                                 &
-#  endif
-     &                FORCES(ng) % HairG)
       IF (exit_flag.ne.NoError) RETURN
 # endif
 
@@ -1459,7 +1461,7 @@
         IF (LtracerCLM(i,ng)) THEN
           ic=ic+1
           CALL get_3dfld (ng, iNLM, idTclm(i),                          &
-     &                    ncCLMid(idTclm(i),ng)%ncid,                   &
+     &                    ncCLMid(idTclm(i),ng),                        &
      &                    nCLMfiles(ng), CLM(1,ng), update(1),          &
      &                    LBi, UBi, LBj, UBj, 1, N(ng), 2, 1,           &
 #   ifdef MASKING
