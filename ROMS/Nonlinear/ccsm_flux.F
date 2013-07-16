@@ -1,6 +1,6 @@
 #include "cppdefs.h"
       MODULE ccsm_flux_mod
-#ifdef BULK_FLUXES
+#if defined BULK_FLUXES || defined BULK_FLUXES2D
 #if defined CCSM_FLUXES
 !
 !svn $Id$
@@ -1520,7 +1520,8 @@ contains
           thvbot = TairK(i) * (1.0 + shr_const_zvir * Hair(i,j)) ! virtual temp (K)
           rhoAir(i) = Pair(i,j)*100.0_r8/(blk_Rgas*TairK(i)*            &
      &                    (1.0_r8+0.61_r8*Hair(i,j))) !  Moist air density (kg/m3).
-          ssq    = 0.98_r8 * qsat(TseaK) / rhoAir(i)    ! sea surf hum (kg/kg)
+          ssq    = 0.98_r8 * qsat(TairK(i)) / rhoAir(i)  ! sea surf hum (kg/kg)
+!          ssq    = 0.98_r8 * qsat(TseaK) / rhoAir(i)    ! sea surf hum (kg/kg)
           delq   = Hair(i,j) - ssq                     ! spec hum dif (kg/kg)
           alz    = log(blk_ZW(ng)/zref)
           cpair     = shr_const_cpdair*(1.0 + shr_const_cpvir*ssq)

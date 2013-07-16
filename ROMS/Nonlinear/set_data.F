@@ -258,7 +258,7 @@
 #  endif
 # else
 
-# if defined BULK_FLUXES || defined ECOSIM || defined CCSM_FLUXES2D # || \
+# if defined BULK_FLUXES || defined ECOSIM || defined CCSM_FLUXES2D || \
     (defined SHORTWAVE && defined ANA_SRFLUX && defined ALBEDO)
 !
 !-----------------------------------------------------------------------
@@ -277,7 +277,7 @@
 #  endif
 # endif
 
-# if defined BULK_FLUXES || defined ECOSIM || defined CCSM_FLUXES2D # || \
+# if defined BULK_FLUXES || defined ECOSIM || defined CCSM_FLUXES2D || \
      (defined SHORTWAVE && defined ANA_SRFLUX && defined ALBEDO)
 !
 !-----------------------------------------------------------------------

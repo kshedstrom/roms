@@ -1370,7 +1370,7 @@
 !  Ice shelf thickness.
 !
         IF (exit_flag.eq.NoError) THEN
-          IF (ncid.ne.ncSTAid(ng)) THEN
+          IF (ncid.ne.STA(ng)%ncid) THEN
             scale=1.0_r8
             IF (find_string(var_name, n_var, 'zice', varid)) THEN
               status=nf_fwrite2d(ng, model, ncid, varid, 0, r2dvar,     &
