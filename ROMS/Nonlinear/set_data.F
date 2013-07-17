@@ -760,7 +760,8 @@
       END IF
 # endif
 
-# if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS
+# if defined BULK_FLUXES || defined ECOSIM || defined CCSM_FLUXES2D || \
+     defined ATM_PRESS
 !
 !-----------------------------------------------------------------------
 !  Set surface air pressure (mb).
