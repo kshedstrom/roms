@@ -101,8 +101,10 @@
      &                   FORCES(ng) % bustr,                            &
      &                   FORCES(ng) % bvstr,                            &
 #  endif
-     &                   FORCES(ng) % stflx,                            &
+#  ifdef ICE_MODEL
      &                   FORCES(ng) % qao_n,                            &
+#  endif
+     &                   FORCES(ng) % stflx,                            &
      &                   FORCES(ng) % btflx)
 #  ifdef PROFILE
       CALL wclock_off (ng, iNLM, 6)
@@ -164,7 +166,10 @@
 #  ifndef BBL_MODEL
      &                         bustr, bvstr,                            &
 #  endif
-     &                         stflx, qao_n, btflx)
+#  ifdef ICE_MODEL
+     &                         qao_n,                                   &
+#  endif
+     &                         stflx, btflx)
 !***********************************************************************
 !
       USE mod_param
@@ -236,8 +241,10 @@
       real(r8), intent(inout) :: bustr(LBi:,LBj:)
       real(r8), intent(inout) :: bvstr(LBi:,LBj:)
 #   endif
-      real(r8), intent(inout) :: stflx(LBi:,LBj:,:)
+#   ifdef ICE_MODEL
       real(r8), intent(inout) :: qao_n(LBi:,LBj:)
+#   endif
+      real(r8), intent(inout) :: stflx(LBi:,LBj:,:)
       real(r8), intent(inout) :: btflx(LBi:,LBj:,:)
 #  else
       real(r8), intent(in) :: Hz(LBi:UBi,LBj:UBj,N(ng))
@@ -293,8 +300,10 @@
       real(r8), intent(inout) :: bustr(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: bvstr(LBi:UBi,LBj:UBj)
 #   endif
-      real(r8), intent(inout) :: stflx(LBi:UBi,LBj:UBj,NT(ng))
+#   ifdef ICE_MODEL
       real(r8), intent(inout) :: qao_n(LBi:UBi,LBj:UBj)
+#   endif
+      real(r8), intent(inout) :: stflx(LBi:UBi,LBj:UBj,NT(ng))
       real(r8), intent(inout) :: btflx(LBi:UBi,LBj:UBj,NT(ng))
 #  endif
 !
@@ -351,7 +360,9 @@
         DO i=IstrR,IendR
           stflx(i,j,itemp)=stflx(i,j,itemp)+                            &
      &                     dqdt(i,j)*(t(i,j,N(ng),nrhs,itemp)-sst(i,j))
+#  ifdef ICE_MODEL
           qao_n(i,j) = -stflx(i,j,itemp) * rho0 * Cp
+#  endif
         END DO
       END DO
 #  endif
