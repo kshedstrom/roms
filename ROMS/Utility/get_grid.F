@@ -170,6 +170,13 @@
         exit_flag=2
         RETURN
       END IF
+#ifdef BERING_STRAIT
+      IF (.not.find_string(var_name,n_var,'mask2',vindex)) THEN
+        IF (Master) WRITE (stdout,10) 'mask2', TRIM(ncname)
+        exit_flag=2
+        RETURN
+      END IF
+#endif
 # endif
 # if defined UV_DRAG_GRID && !defined ANA_DRAG
 #  ifdef UV_LOGDRAG
@@ -422,6 +429,32 @@
      &                          EWperiodic(ng), NSperiodic(ng),         &
      &                          GRID(ng) % pmask)
 #  endif
+#ifdef BERING_STRAIT
+!
+!  Read in Land/Sea masking at PSI-points.
+!
+          CASE ('mask2')
+            gtype=p2dvar
+            status=nf_fread2d(ng, model, ncname, GRD(ng)%ncid,          &
+     &                        var_name(it), var_id(it),                 &
+     &                        0, gtype, Vsize,                          &
+     &                        LBi, UBi, LBj, UBj,                       &
+     &                        Fscl, Fmin, Fmax,                         &
+     &                        GRID(ng) % mask2,                         &
+     &                        GRID(ng) % mask2)
+            IF (status.ne.nf90_noerr) THEN
+              exit_flag=2
+              ioerror=status
+              EXIT
+            END IF
+#  ifdef DISTRIBUTE
+            CALL mp_exchange2d (ng, tile, model, 1,                     &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          NghostPoints,                           &
+     &                          EWperiodic(ng), NSperiodic(ng),         &
+     &                          GRID(ng) % mask2)
+#  endif
+#endif
 # endif
 # ifdef ICESHELF
 !

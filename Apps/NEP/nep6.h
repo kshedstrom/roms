@@ -48,7 +48,7 @@
 # ifdef ICE_MODEL
 #  define  ICE_THERMO
 #  define  ICE_MK
-#  undef   ICE_ALB_EC92
+#  define  ICE_ALB_EC92
 #  undef   ICE_SMOOTH
 #  define  ICE_MOMENTUM
 #  define  ICE_MOM_BULK
@@ -75,9 +75,9 @@
 #undef AVERAGES2
 #ifdef SOLVE3D
 # undef AVERAGES_DETIDE
-# undef DIAGNOSTICS_TS
+# define DIAGNOSTICS_TS
 #endif
-#undef DIAGNOSTICS_UV
+#define DIAGNOSTICS_UV
 
 /* advection, dissipation, pressure grad, etc. */
 

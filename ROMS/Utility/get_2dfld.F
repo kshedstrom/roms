@@ -272,7 +272,7 @@
      &        /,15x,'in ',a)
   30  FORMAT (/,' GET_2DFLD   - unable to open input NetCDF file: ',a)
   40  FORMAT (/,' GET_2DFLD   - error while reading variable: ',a,2x,   &
-     &        ' at TIME index = ',i4)
+     &        ' at TIME index = ',i7)
   50  FORMAT (3x,' GET_2DFLD   - ',a,/,19x,'(Min = ',1p,e15.8,0p,       &
      &        ' Max = ',1p,e15.8,0p,')')
   60  FORMAT (3x,' GET_2DFLD   - ',a,',',t62,'t = ',a,/,19x,            &

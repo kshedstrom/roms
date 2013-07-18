@@ -329,7 +329,8 @@
               END IF
               ifield=isTvar(idbio(itracer))
               Npts=load_lbc(Nval, Cval, line, nline, ifield, igrid,     &
-     &                        iTrcStr, iTrcEnd, LBC)
+     &                      iTrcStr, iTrcEnd,                           &
+     &                      Vname(1,idTvar(idbio(itracer))), LBC)
 #if defined ADJOINT || defined TANGENT || defined TL_IOMS
             CASE ('ad_LBC(isTvar)')
               IF (itracer.lt.NBT) THEN
@@ -339,7 +340,8 @@
               END IF
               ifield=isTvar(idbio(itracer))
               Npts=load_lbc(Nval, Cval, line, nline, ifield, igrid,     &
-     &                      iTrcStr, iTrcEnd, ad_LBC)
+     &                      iTrcStr, iTrcEnd,                           &
+     &                      Vname(1,idTvar(idbio(itracer))), ad_LBC)
 #endif
 #ifdef TCLIMATOLOGY
             CASE ('LtracerCLM')
@@ -643,7 +645,7 @@
             WRITE (out,80) MorPS0(ng), 'MorPS0',                        &
      &            'Small phytoplankton mortality rate',                 &
      &            '(m3/mmole_N/day).'
-            WRITE (out,80) MorPS0(ng), 'MorPL0',                        &
+            WRITE (out,80) MorPL0(ng), 'MorPL0',                        &
      &            'Large phytoplankton mortality rate',                 &
      &            '(m3/mmole_N/day).'
             WRITE (out,80) KMorPS(ng), 'KMorPS',                        &

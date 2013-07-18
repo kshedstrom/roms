@@ -2272,6 +2272,31 @@
         END IF
       END IF
 # endif
+# if defined RUNOFF
+!
+!  Write out surface air pressure.
+!
+      IF (Hout(idRunoff,ng)) THEN
+        scale=1.0_r8
+        gtype=gfactor*r2dvar
+        status=nf_fwrite2d(ng, iNLM, HIS(ng)%ncid,                      &
+     &                     HIS(ng)%Vid(idRunoff),                       &
+     &                     HIS(ng)%Rindex, gtype,                       &
+     &                     LBi, UBi, LBj, UBj, scale,                   &
+#  ifdef MASKING
+     &                     GRID(ng) % rmask_io,                         &
+#  endif
+     &                     FORCES(ng) % Runoff)
+        IF (status.ne.nf90_noerr) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,idRunoff)), HIS(ng)%Rindex
+          END IF
+          exit_flag=3
+          ioerror=status
+          RETURN
+        END IF
+      END IF
+# endif
 # if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS
 !
 !  Write out surface air pressure.

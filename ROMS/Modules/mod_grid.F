@@ -231,6 +231,9 @@
           real(r8), pointer :: rmask(:,:)
           real(r8), pointer :: umask(:,:)
           real(r8), pointer :: vmask(:,:)
+#ifdef BERING_STRAIT
+          real(r8), pointer :: mask2(:,:)
+#endif
 
 # if defined AVERAGES    || \
     (defined AD_AVERAGES && defined ADJOINT) || \
@@ -432,6 +435,9 @@
       allocate ( GRID(ng) % rmask(LBi:UBi,LBj:UBj) )
       allocate ( GRID(ng) % umask(LBi:UBi,LBj:UBj) )
       allocate ( GRID(ng) % vmask(LBi:UBi,LBj:UBj) )
+#ifdef BERING_STRAIT
+      allocate ( GRID(ng) % mask2(LBi:UBi,LBj:UBj) )
+#endif
 # if defined AVERAGES    || \
     (defined AD_AVERAGES && defined ADJOINT) || \
     (defined RP_AVERAGES && defined TL_IOMS) || \
@@ -670,6 +676,9 @@
             GRID(ng) % rmask(i,j) = IniVal
             GRID(ng) % umask(i,j) = IniVal
             GRID(ng) % vmask(i,j) = IniVal
+#ifdef BERING_STRAIT
+            GRID(ng) % mask2(i,j) = IniVal
+#endif
 # if defined AVERAGES    || \
     (defined AD_AVERAGES && defined ADJOINT) || \
     (defined RP_AVERAGES && defined TL_IOMS) || \

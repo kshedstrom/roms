@@ -372,6 +372,18 @@
         logical, allocatable :: ComposedGrid(:)
         logical, allocatable :: RefinedGrid(:)
 !
+!  Refinement grid scale factor from donor grid.
+!
+        integer, allocatable :: RefineScale(:)
+!
+!  Switch to extract donor grid (coarse) data at the refinement grid
+!  contact point locations. The coarse data is extracted at the first
+!  sub-refined time step.  Recall that the finer grid time-step is
+!  smaller than the coarser grid by a factor of RefineScale(:). This
+!  switch is only relevant during refinement nesting.
+!
+        logical, allocatable :: GetDonorData(:)
+!
 !  Periodic boundary swiches for distributed-memory exchanges.
 !
         logical, allocatable :: EWperiodic(:)
@@ -492,6 +504,11 @@
         real(r8), allocatable :: LonMax(:)      ! degrees east
         real(r8), allocatable :: LatMin(:)      ! degrees north
         real(r8), allocatable :: LatMax(:)      ! degrees north
+!
+!  Constant used in the Shchepetkin boundary conditions for 2D momentum,
+!  Co = 1.0_r8/(2.0_r8+SQRT(2.0_r8)).
+!
+        real(r8) :: Co
 !
 !  Number of digits in grid size for format statements.
 !
@@ -1159,7 +1176,7 @@
         real(r8) :: ad_ubar_xs = 0.0_r8
 #endif
 
-#ifdef BULK_FLUXES
+#if defined BULK_FLUXES || defined BULK_FLUXES2D
 !
 !-----------------------------------------------------------------------
 ! Constants used in surface fluxes bulk parameterization.
@@ -2054,7 +2071,7 @@
       allocate ( M3nudg(Ngrids) )
       allocate ( Tnudg(MT,Ngrids) )
 
-#ifdef BULK_FLUXES
+#if defined BULK_FLUXES || defined BULK_FLUXES2D
       allocate ( blk_ZQ(Ngrids) )
       allocate ( blk_ZT(Ngrids) )
       allocate ( blk_ZW(Ngrids) )
@@ -2319,6 +2336,7 @@
 #ifdef SWAN_COUPLING
       Infinity=one/zero
 #endif
+      Co=1.0_r8/(2.0_r8+SQRT(2.0_r8))
       gorho0=g/rho0
       DO ng=1,Ngrids
         EWperiodic(ng)=.FALSE.
@@ -2370,7 +2388,7 @@
         nl_visc4(ng)=IniVal
         tl_visc4(ng)=IniVal
         visc4(ng)=IniVal
-#ifdef BULK_FLUXES
+#if defined BULK_FLUXES || defined BULK_FLUXES2D
         blk_ZQ(ng)=10.0_r8
         blk_ZT(ng)=10.0_r8
         blk_ZW(ng)=10.0_r8

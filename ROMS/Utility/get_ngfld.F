@@ -250,7 +250,7 @@
       END IF
 !
   50  FORMAT (/,' GET_NGFLD   - error while reading variable: ',a,2x,   &
-     &          ' at TIME index = ',i4)
+     &          ' at TIME index = ',i7)
   60  FORMAT (3x,' GET_NGFLD   - ',a,/,19x,'(Min = ',1pe15.8,' Max = ', &
      &        1pe15.8,')')
   70  FORMAT (3x,' GET_NGFLD   - ',a,',',t62,'t = ',a,/,19x,            &

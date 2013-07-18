@@ -1,9 +1,12 @@
 !
 !  ROMS/TOMS Standard Input parameters.
 !
-!==============================================================================
-!  Copyright (c) 2002-2010 The ROMS/TOMS Group                              ===
+! svn $Id$
 !========================================================= Hernan G. Arango ===
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group                                !
+!    Licensed under a MIT/X style license                                     !
+!    See License_ROMS.txt                                                     !
+!==============================================================================
 !                                                                             !
 ! Input parameters can be entered in ANY order, provided that the parameter   !
 ! KEYWORD (usually, upper case) is typed correctly followed by "="  or "=="   !
@@ -36,17 +39,16 @@
 
 ! Application title.
 
-       TITLE = California Current System 7km Grid
+       TITLE = Bering Strait
 
 ! C-preprocessing Flag.
 
-    MyAppCPP = CCS1
+    MyAppCPP = BERING_STRAIT
 
 ! Input variable information file name.  This file needs to be processed
 ! first so all information arrays can be initialized properly.
 
-!     VARNAME = /wrkdir/kate/NEP5/External/varinfo.dat
-     VARNAME = varinfo.dat
+     VARNAME = /center/w/kate/NEP/External/varinfo.dat
 
 ! Number of nested grids.
 
@@ -55,30 +57,121 @@
 ! Grid dimension parameters. See notes below in the Glossary for how to set
 ! these parameters correctly.
 
-          Lm == 180           ! Number of I-direction INTERIOR RHO-points
-          Mm == 480           ! Number of J-direction INTERIOR RHO-points
-           N == 50            ! Number of vertical levels
+          Lm == 1199          ! Number of I-direction INTERIOR RHO-points
+          Mm == 799           ! Number of J-direction INTERIOR RHO-points
+           N == 1             ! Number of vertical levels
 
         Nbed =  0             ! Number of sediment bed layers
 
          NAT =  2             ! Number of active tracers (usually, 2)
-         NPT =  1             ! Number of inactive passive tracers
+         NPT =  0             ! Number of inactive passive tracers
          NCS =  0             ! Number of cohesive (mud) sediment tracers
          NNS =  0             ! Number of non-cohesive (sand) sediment tracers
 
 ! Domain decomposition parameters for serial, distributed-memory or
 ! shared-memory configurations used to determine tile horizontal range
 ! indices (Istr,Iend) and (Jstr,Jend), [1:Ngrids].
-! NtileI & J are clobbered/set in CESM ocean coupler - kauff
 
-       NtileI == 2                               ! I-direction partition
-       NtileJ == 16                              ! J-direction partition
+!     NtileI == 1                               ! I-direction partition
+!     NtileJ == 1                               ! J-direction partition
+      NtileI == 6                               ! I-direction partition
+      NtileJ == 16                              ! J-direction partition
+
+! Set lateral boundary conditions keyword. Notice that a value is expected
+! for each boundary segment per nested grid for each state variable.
+!
+! Each tracer variable requires [1:4,1:NAT+NPT,Ngrids] values. Otherwise,
+! [1:4,1:Ngrids] values are expected for other variables. The boundary
+! order is: 1=west, 2=south, 3=east, and 4=north. That is, anticlockwise
+! starting at the western boundary.
+!
+! The keyword is case insensitive and usually has three characters. However,
+! it is possible to have compound keywords, if applicable. For example, the
+! keyword "RadNud" implies radiation boundary condition with nudging. This
+! combination is usually used in active/passive radiation conditions.
+!
+!   Keyword    Lateral Boundary Condition Type
+!
+!   Cha        Chapman_implicit (free-surface)
+!   Che        Chapman_explicit (free-surface)
+!   Cla        Clamped
+!   Clo        Closed
+!   Fla        Flather (2D momentum)                  _____N_____     j=Mm
+!   Gra        Gradient                              |     4     |
+!   Nes        Nested (refinement)                   |           |
+!   Nud        Nudging                             1 W           E 3
+!   Per        Periodic                              |           |
+!   Rad        Radiation                             |_____S_____|
+!   Red        Reduced Physics (2D momentum)               2          j=1
+!   Shc        Shchepetkin (2D momentum)            i=1         i=Lm
+!
+!                   W       S       E       N
+!                   e       o       a       o
+!                   s       u       s       r
+!                   t       t       t       t
+!                           h               h
+!
+!                   1       2       3       4
+
+!   LBC(isFsur) ==   Clo     Rad     Rad     Rad         ! free-surface
+!   LBC(isUbar) ==   Clo     Rad     Rad     Rad         ! 2D U-momentum
+!   LBC(isVbar) ==   Clo     Rad     Rad     Rad         ! 2D V-momentum
+   LBC(isFsur) ==   Cha     Cha     Cha     Cha         ! free-surface
+   LBC(isUbar) ==   Fla     Fla     Fla     Fla         ! 2D U-momentum
+   LBC(isVbar) ==   Fla     Fla     Fla     Fla         ! 2D V-momentum
+   LBC(isUvel) ==   RadNud  RadNud  RadNud  RadNud      ! 3D U-momentum
+   LBC(isVvel) ==   RadNud  RadNud  RadNud  RadNud      ! 3D V-momentum
+   LBC(isMtke) ==   Clo     Clo     Clo     Clo         ! mixing TKE
+
+   LBC(isTvar) ==   RadNud  RadNud  RadNud  RadNud \    ! temperature
+                    RadNud  RadNud  RadNud  RadNud      ! salinity
+
+! Ice boundary conditions
+
+   LBC(isAice) ==   Clo     Clo     Clo     Clo         ! ice concentration
+   LBC(isHice) ==   Clo     Clo     Clo     Clo         ! ice thickness
+   LBC(isHsno) ==   Clo     Clo     Clo     Clo         ! snow thickness
+   LBC(isTice) ==   Clo     Clo     Clo     Clo         ! ice temperature
+   LBC(isSfwat)==   Clo     Clo     Clo     Clo         ! surface water
+   LBC(isSig11)==   Clo     Clo     Clo     Clo         ! sigma-11
+   LBC(isSig12)==   Clo     Clo     Clo     Clo         ! sigma-12
+   LBC(isSig22)==   Clo     Clo     Clo     Clo         ! sigma-22
+   LBC(isUice) ==   Clo     Clo     Clo     Clo         ! ice U-momentum
+   LBC(isVice) ==   Clo     Clo     Clo     Clo         ! ice V-momentum
+
+! Adjoint-based algorithms can have different lateral boundary
+! conditions keywords.
+
+ad_LBC(isFsur) ==   Per     Clo     Per     Clo         ! free-surface
+ad_LBC(isUbar) ==   Per     Clo     Per     Clo         ! 2D U-momentum
+ad_LBC(isVbar) ==   Per     Clo     Per     Clo         ! 2D U-momentum
+ad_LBC(isUvel) ==   Per     Clo     Per     Clo         ! 3D U-momentum
+ad_LBC(isVvel) ==   Per     Clo     Per     Clo         ! 3D V-momentum
+ad_LBC(isMtke) ==   Per     Clo     Per     Clo         ! mixing TKE
+
+ad_LBC(isTvar) ==   Per     Clo     Per     Clo \       ! temperature
+                    Per     Clo     Per     Clo         ! salinity
+
+! Set lateral open boundary edge volume conservation switch for
+! nonlinear model and adjoint-based algorithms. Usually activated
+! with radiation boundary conditions to enforce global mass
+! conservation, except if tidal forcing enabled. [1:Ngrids].
+
+   VolCons(west)  ==  F                            ! western  boundary
+   VolCons(east)  ==  F                            ! eastern  boundary
+   VolCons(south) ==  F                            ! southern boundary
+   VolCons(north) ==  F                            ! northern boundary
+
+ad_VolCons(west)  ==  F                            ! western  boundary
+ad_VolCons(east)  ==  F                            ! eastern  boundary
+ad_VolCons(south) ==  F                            ! southern boundary
+ad_VolCons(north) ==  F                            ! northern boundary
 
 ! Time-Stepping parameters.
 
-        NTIMES == 2880
-        DT == 240.0d0
-        NDTFAST == 20
+      NTIMES == 26467200
+          DT == 6.0
+     NDTFAST == 1
 
 ! Model iteration loops parameters.
 
@@ -97,27 +190,21 @@
 
 ! Input/Output parameters.
 
-       NRREC =  1
+       NRREC =  -1
    LcycleRST == T
-!       NRST == 432
-!       NSTA == 18
-!       NFLT == 18
-        NRST == 360
-        NSTA == 8
-        NFLT == 8
+        NRST == 14400
+        NSTA == 600
+        NFLT == 600
        NINFO == 1
 
 ! Output history, average, diagnostic files parameters.
 
-     LDEFOUT == T
-        NHIS == 360 
-     NDEFHIS == 3600
+     LDEFOUT == F
+        NHIS == 600
+     NDEFHIS == 43200
       NTSAVG == 1
-        NAVG == 360
-     NDEFAVG == 3600
-     NTSAVG2 == 1
-       NAVG2 == 27
-    NDEFAVG2 == 1920
+        NAVG == 14400
+     NDEFAVG == 144000
       NTSDIA == 1
         NDIA == 10
      NDEFDIA == 0
@@ -143,12 +230,13 @@
 
 ! Harmonic/biharmonic horizontal diffusion of tracer: [1:NAT+NPT,Ngrids].
 
-        TNU2 == 5.0d0  5.0d0                    ! m2/s
+        TNU2 == 1.0d0  1.0d0                    ! m2/s
         TNU4 == 2*0.0d0                         ! m4/s
 
 ! Harmononic/biharmonic, horizontal viscosity coefficient: [Ngrids].
 
-       VISC2 == 25.0d0                          ! m2/s
+       VISC2 == 100.0d0                         ! m2/s
+!       VISC2 == 5000.0d0                        ! m2/s
        VISC4 == 0.0d0                           ! m4/s
 
 ! Vertical mixing coefficients for active tracers: [1:NAT+NPT,Ngrids]
@@ -168,33 +256,19 @@
 
 ! Generic length-scale turbulence closure parameters.
 
-!      GLS_P == 3.0d0                           ! K-epsilon
-!      GLS_M == 1.5d0
-!      GLS_N == -1.0d0
-!   GLS_Kmin == 7.6d-6
-!   GLS_Pmin == 1.0d-12
-
-!   GLS_CMU0 == 0.5477d0
-!     GLS_C1 == 1.44d0
-!     GLS_C2 == 1.92d0
-!    GLS_C3M == -0.4d0
-!    GLS_C3P == 1.0d0
-!   GLS_SIGK == 1.0d0
-!   GLS_SIGP == 1.30d0
-
-       GLS_P == -1.0d0                           ! K-omega
-       GLS_M == 0.5d0
+       GLS_P == 3.0d0                           ! K-epsilon
+       GLS_M == 1.5d0
        GLS_N == -1.0d0
     GLS_Kmin == 7.6d-6
     GLS_Pmin == 1.0d-12
 
     GLS_CMU0 == 0.5477d0
-      GLS_C1 == 0.555d0
-      GLS_C2 == 0.833d0
-     GLS_C3M == -0.6d0
+      GLS_C1 == 1.44d0
+      GLS_C2 == 1.92d0
+     GLS_C3M == -0.4d0
      GLS_C3P == 1.0d0
-    GLS_SIGK == 2.0d0
-    GLS_SIGP == 2.0d0
+    GLS_SIGK == 1.0d0
+    GLS_SIGP == 1.30d0
 
 ! Constants used in momentum stress computation.
 
@@ -205,13 +279,13 @@
 
 ! Height (m) of atmospheric measurements for Bulk fluxes parameterization.
 
-      BLK_ZQ == 62.0d0                     ! air humidity    - cam z surface is about 62m
-      BLK_ZT == 62.0d0                     ! air temperature - cam z surface is about 62m
-      BLK_ZW == 62.0d0                     ! winds           - cam z surface is about 62m
+      BLK_ZQ == 10.0d0                     ! air humidity
+      BLK_ZT == 10.0d0                     ! air temperature
+      BLK_ZW == 10.0d0                     ! winds
 
 ! Minimum depth for wetting and drying.
 
-       DCRIT == 0.50d0                     ! m
+       DCRIT == 0.100d0                     !m
 
 ! Various parameters.
 
@@ -229,7 +303,7 @@
 
      THETA_S == 7.0d0                      ! surface stretching parameter
      THETA_B == 2.0d0                      ! bottom  stretching parameter
-     TCLINE == 250.0d0                     ! critical depth (m)
+      TCLINE == 250.0d0                    ! critical depth (m)
 
 ! Mean Density and Brunt-Vaisala frequency.
 
@@ -240,8 +314,7 @@
 ! origin for tidal forcing, and model reference time for output
 ! NetCDF units attribute.
 
-!     DSTART =  21185.0d0                  ! days
-      DSTART =  31049.0d0                  ! days
+      DSTART =  39434.0d0                  ! days
   TIDE_START =  -693962.0d0                ! days
     TIME_REF =  19000101.0d0               ! yyyymmdd.dd
 
@@ -270,6 +343,11 @@
 ! Slipperiness parameter: 1.0 (free slip) or -1.0 (no slip)
 
       GAMMA2 == 1.0d0
+
+! Logical switches (TRUE/FALSE) to specify which variables to process for
+! tracers climatology: [1:NAT+NPT,Ngrids]. See glossary below for details.
+
+  LtracerCLM == T T                        ! temperature, salinity, inert
 
 ! Logical switches (TRUE/FALSE) to specify which variables to consider on
 ! tracers point Sources/Sinks (like river runoff): [1:NAT+NPT,Ngrids].
@@ -330,80 +408,90 @@ SO_sdev(isTsur) == 1.0d0 1.0d0             ! NT surface tracer flux
 ! Logical switches (TRUE/FALSE) to activate writing of fields into
 ! HISTORY output file.
 
-Hout(idUvel) == T                          ! 3D U-velocity
-Hout(idVvel) == T                          ! 3D V-velocity
-Hout(idWvel) == T                          ! 3D W-velocity
-Hout(idOvel) == T                          ! omega vertical velocity
-Hout(idUbar) == T                          ! 2D U-velocity
-Hout(idVbar) == T                          ! 2D V-velocity
-Hout(idFsur) == T                          ! free-surface
+Hout(idUvel) == T       ! u                  3D U-velocity
+Hout(idVvel) == T       ! v                  3D V-velocity
+Hout(idu3dE) == F       ! u_eastward         3D U-eastward  at RHO-points
+Hout(idv3dN) == F       ! v_northward        3D V-northward at RHO-points
+Hout(idWvel) == T       ! w                  3D W-velocity
+Hout(idOvel) == T       ! omega              omega vertical velocity
+Hout(idUbar) == T       ! ubar               2D U-velocity
+Hout(idVbar) == T       ! vbar               2D V-velocity
+Hout(idu2dE) == F       ! ubar_eastward      2D U-eastward  at RHO-points
+Hout(idv2dN) == F       ! vbar_northward     2D V-northward at RHO-points
+Hout(idFsur) == T       ! zeta               free-surface
+Hout(idBath) == T       ! bath               time-dependent bathymetry
 
-Hout(idTvar) == T T                        ! temperature and salinity
+Hout(idTvar) == T T     ! temp, salt         temperature and salinity
 
-Hout(idUair) == F                          ! surface U-wind
-Hout(idVair) == F                          ! surface V-wind
-Hout(idUsms) == T                          ! surface U-stress
-Hout(idVsms) == T                          ! surface V-stress
-Hout(idUbms) == T                          ! bottom U-stress
-Hout(idVbms) == T                          ! bottom V-stress
+Hout(idUair) == F       ! Uwind              surface U-wind
+Hout(idVair) == F       ! Vwind              surface V-wind
+Hout(idUairE) == F      ! Uwind_eastward     surface U-wind
+Hout(idVairN) == F      ! Vwind_northward    surface V-wind
+Hout(idUsms) == T       ! sustr              surface U-stress
+Hout(idVsms) == T       ! svstr              surface V-stress
+Hout(idUbms) == F       ! bustr              bottom U-stress
+Hout(idVbms) == F       ! bvstr              bottom V-stress
 
-Hout(idUbrs) == F                          ! bottom U-current stress
-Hout(idVbrs) == F                          ! bottom V-current stress
-Hout(idUbws) == F                          ! bottom U-wave stress
-Hout(idVbws) == F                          ! bottom V-wave stress
-Hout(idUbcs) == F                          ! bottom max wave-current U-stress
-Hout(idVbcs) == F                          ! bottom max wave-current V-stress
+Hout(idUbrs) == F       ! bustrc             bottom U-current stress
+Hout(idVbrs) == F       ! bvstrc             bottom V-current stress
+Hout(idUbws) == F       ! bustrw             bottom U-wave stress
+Hout(idVbws) == F       ! bvstrw             bottom V-wave stress
+Hout(idUbcs) == F       ! bustrcwmax         bottom max wave-current U-stress
+Hout(idVbcs) == F       ! bvstrcwmax         bottom max wave-current V-stress
 
-Hout(idUbot) == F                          ! bed wave orbital U-velocity
-Hout(idVbot) == F                          ! bed wave orbital V-velocity
-Hout(idUbur) == F                          ! bottom U-velocity above bed
-Hout(idVbvr) == F                          ! bottom V-velocity above bed
+Hout(idUbot) == F       ! Ubot               bed wave orbital U-velocity
+Hout(idVbot) == F       ! Vbot               bed wave orbital V-velocity
+Hout(idUbur) == F       ! Ur                 bottom U-velocity above bed
+Hout(idVbvr) == F       ! Vr                 bottom V-velocity above bed
 
-Hout(idTsur) == T T                        ! surface net heat and salt flux
-Hout(idLhea) == T                          ! latent heat flux
-Hout(idShea) == T                          ! sensible heat flux
-Hout(idLrad) == T                          ! longwave radiation flux
-Hout(idSrad) == T                          ! shortwave radiation flux
-Hout(idEmPf) == F                          ! E-P flux
-Hout(idevap) == F                          ! evaporation rate
-Hout(idrain) == F                          ! precipitation rate
+Hout(idW2xx) == F       ! Sxx_bar            2D radiation stress, Sxx component
+Hout(idW2xy) == F       ! Sxy_bar            2D radiation stress, Sxy component
+Hout(idW2yy) == F       ! Syy_bar            2D radiation stress, Syy component
+Hout(idU2rs) == F       ! Ubar_Rstress       2D radiation U-stress
+Hout(idV2rs) == F       ! Vbar_Rstress       2D radiation V-stress
+Hout(idU2Sd) == F       ! ubar_stokes        2D U-Stokes velocity
+Hout(idV2Sd) == F       ! vbar_stokes        2D V-Stokes velocity
 
-Hout(idDano) == F                          ! density anomaly
-Hout(idVvis) == T                          ! vertical viscosity
-Hout(idTdif) == T                          ! vertical T-diffusion
-Hout(idSdif) == F                          ! vertical Salinity diffusion
-Hout(idHsbl) == T                          ! depth of surface boundary layer
-Hout(idHbbl) == T                          ! depth of bottom boundary layer
-Hout(idMtke) == F                          ! turbulent kinetic energy
-Hout(idMtls) == F                          ! turbulent length scale
+Hout(idW3xx) == F       ! Sxx                3D radiation stress, Sxx component
+Hout(idW3xy) == F       ! Sxy                3D radiation stress, Sxy component
+Hout(idW3yy) == F       ! Syy                3D radiation stress, Syy component
+Hout(idW3zx) == F       ! Szx                3D radiation stress, Szx component
+Hout(idW3zy) == F       ! Szy                3D radiation stress, Szy component
+Hout(idU3rs) == F       ! u_Rstress          3D U-radiation stress
+Hout(idV3rs) == F       ! v_Rstress          3D V-radiation stress
+Hout(idU3Sd) == F       ! u_stokes           3D U-Stokes velocity
+Hout(idV3Sd) == F       ! v_stokes           3D V-Stokes velocity
 
-! Logical switches for bio sediment variables.
-Hout(idPONsed) == T
-Hout(idOPALsed) == T
+Hout(idWamp) == F       ! Hwave              wave height
+Hout(idWlen) == F       ! Lwave              wave length
+Hout(idWdir) == F       ! Dwave              wave direction
+Hout(idWptp) == F       ! Pwave_top          wave surface period
+Hout(idWpbt) == F       ! Pwave_bot          wave bottom period
+Hout(idWorb) == F       ! Ub_swan            wave bottom orbital velocity
+Hout(idWdis) == F       ! Wave_dissip        wave dissipation
 
-! Logical switches (TRUE/FALSE) to activate writing of ice prognostic
-! variables into HISTORY output file.
-Hout(idUice) == T
-Hout(idVice) == T
-Hout(idAice) == T
-Hout(idHice) == T
-Hout(idTice) == T
-Hout(idHsno) == T
-Hout(idTimid) == T
-Hout(idSfwat) == T
-Hout(idTauiw) == F
-Hout(idChuiw) == F
-Hout(idAgeice) == T
-Hout(idSig11) == T
-Hout(idSig12) == T
-Hout(idSig22) == T
-Hout(idS0mk) == T
-Hout(idT0mk) == T
-Hout(idWfr) == T
-Hout(idWai) == T
-Hout(idWao) == T
-Hout(idWio) == T
-Hout(idWro) == T
+Hout(idPair) == F       ! Pair               surface air pressure
+Hout(idRunoff) == F     ! Runoff             surface runoff from land
+Hout(idUair) == F       ! Uair               surface U-wind component
+Hout(idVair) == F       ! Vair               surface V-wind component
+
+Hout(idTsur) == F F     ! shflux, ssflux     surface net heat and salt flux
+Hout(idLhea) == F       ! latent             latent heat flux
+Hout(idShea) == F       ! sensible           sensible heat flux
+Hout(idLrad) == F       ! lwrad              longwave radiation flux
+Hout(idSrad) == F       ! swrad              shortwave radiation flux
+Hout(idEmPf) == F       ! EminusP            E-P flux
+Hout(idevap) == F       ! evaporation        evaporation rate
+Hout(idrain) == F       ! rain               precipitation rate
+
+Hout(idDano) == F       ! rho                density anomaly
+Hout(idVvis) == F       ! AKv                vertical viscosity
+Hout(idTdif) == F       ! AKt                vertical T-diffusion
+Hout(idSdif) == F       ! AKs                vertical Salinity diffusion
+Hout(idHsbl) == F       ! Hsbl               depth of surface boundary layer
+Hout(idHbbl) == F       ! Hbbl               depth of bottom boundary layer
+Hout(idMtke) == F       ! tke                turbulent kinetic energy
+Hout(idMtls) == F       ! gls                turbulent length scale
 
 ! Logical switches (TRUE/FALSE) to activate writing of extra inert passive
 ! tracers other than biological and sediment tracers. An inert passive tracer
@@ -440,166 +528,98 @@ Hout(idWro) == T
 
 Hout(idBott) == T T T T T T T T T F F F F F F F
 
-! Logical switches (TRUE/FALSE) to activate writing of fields into
-! secondary Averages History output file.
-
-Aout2(idUvel) == T                          ! 3D U-velocity
-Aout2(idVvel) == T                          ! 3D V-velocity
-Aout2(idUbar) == T                          ! 2D U-velocity
-Aout2(idVbar) == T                          ! 2D V-velocity
-Aout2(idFsur) == T                          ! free-surface
-
-Aout2(idTvar) == T T                        ! temperature and salinity
-
-Aout2(idUair) == T                          ! surface U-wind
-Aout2(idVair) == T                          ! surface V-wind
-Aout2(idUsms) == T                          ! surface U-stress
-Aout2(idVsms) == T                          ! surface V-stress
-
-Aout2(idTsur) == T T                        ! surface net heat and salt flux
-Aout2(idLhea) == T                          ! latent heat flux
-Aout2(idShea) == T                          ! sensible heat flux
-Aout2(idLrad) == T                          ! longwave radiation flux
-Aout2(idSrad) == T                          ! shortwave radiation flux
-Aout2(idEmPf) == F                          ! E-P flux
-Aout2(idevap) == T                          ! evaporation rate
-Aout2(idrain) == T                          ! precipitation rate
-
-! Logical switches (TRUE/FALSE) to activate writing of ice prognostic
-! variables into HISTORY output file.
-Aout2(idUice) == T
-Aout2(idVice) == T
-Aout2(idAice) == T
-Aout2(idHice) == T
-Aout2(idTice) == T
-Aout2(idHsno) == T
-Aout2(idTimid) == T
-Aout2(idSfwat) == T
-Aout2(idTauiw) == F
-Aout2(idChuiw) == F
-Aout2(idAgeice) == T
-Aout2(idSig11) == F
-Aout2(idSig12) == F
-Aout2(idSig22) == F
-Aout2(idS0mk) == F
-Aout2(idT0mk) == F
-
-! Logical switches (TRUE/FALSE) to activate writing of extra inert passive
-! tracers other than biological and sediment tracers. An inert passive tracer
-! is one that it is only advected and diffused. Other processes are ignored.
-! These tracers include, for example, dyes, pollutants, oil spills, etc.
-! NPT values are expected. However, these switches can be activated using
-! compact parameter specification.
-
- Aout2(inert) == F                          ! inert passive tracers
-
 ! Logical switches (TRUE/FALSE) to activate writing of time-averaged
 ! fields into AVERAGE output file.
 
-Aout(idUvel) == T                          ! 3D U-velocity
-Aout(idVvel) == T                          ! 3D V-velocity
-Aout(idWvel) == T                          ! 3D W-velocity
-Aout(idOvel) == T                          ! omega vertical velocity
-Aout(idUbar) == T                          ! 2D U-velocity
-Aout(idVbar) == T                          ! 2D V-velocity
-Aout(idFsur) == T                          ! free-surface
+Aout(idUvel) == T       ! u                  3D U-velocity
+Aout(idVvel) == T       ! v                  3D V-velocity
+Aout(idu3dE) == F       ! u_eastward         3D U-eastward  at RHO-points
+Aout(idv3dN) == F       ! v_northward        3D V-northward at RHO-points
+Aout(idWvel) == T       ! w                  3D W-velocity
+Aout(idOvel) == T       ! omega              omega vertical velocity
+Aout(idUbar) == T       ! ubar               2D U-velocity
+Aout(idVbar) == T       ! vbar               2D V-velocity
+Aout(idu2dE) == F       ! ubar_eastward      2D U-eastward  at RHO-points
+Aout(idv2dN) == F       ! vbar_northward     2D V-northward at RHO-points
+Aout(idFsur) == T       ! zeta               free-surface
+Aout(idBath) == F       ! bath               time-dependent bathymetry
 
-Aout(idTvar) == T T                        ! temperature and salinity
+Aout(idTvar) == T T     ! temp, salt         temperature and salinity
 
-Aout(idUsms) == T                          ! surface U-stress
-Aout(idVsms) == T                          ! surface V-stress
-Aout(idUbms) == T                          ! bottom U-stress
-Aout(idVbms) == T                          ! bottom V-stress
+Aout(idUair) == F       ! Uwind              surface U-wind
+Aout(idVair) == F       ! Vwind              surface V-wind
+Aout(idUairE) == F      ! Uwind_eastward     surface U-wind
+Aout(idVairN) == F      ! Vwind_northward    surface V-wind
+Aout(idUsms) == T       ! sustr              surface U-stress
+Aout(idVsms) == T       ! svstr              surface V-stress
+Aout(idUbms) == T       ! bustr              bottom U-stress
+Aout(idVbms) == T       ! bvstr              bottom V-stress
 
-Aout(idW2xx) == F                          ! 2D radiation stress, Sxx component
-Aout(idW2xy) == F                          ! 2D radiation stress, Sxy component
-Aout(idW2yy) == F                          ! 2D radiation stress, Syy component
-Aout(idU2rs) == F                          ! 2D radiation U-stress
-Aout(idV2rs) == F                          ! 2D radiation V-stress
-Aout(idU2Sd) == F                          ! 2D U-Stokes velocity
-Aout(idV2Sd) == F                          ! 2D V-Stokes velocity
+Aout(idW2xx) == F       ! Sxx_bar            2D radiation stress, Sxx component
+Aout(idW2xy) == F       ! Sxy_bar            2D radiation stress, Sxy component
+Aout(idW2yy) == F       ! Syy_bar            2D radiation stress, Syy component
+Aout(idU2rs) == F       ! Ubar_Rstress       2D radiation U-stress
+Aout(idV2rs) == F       ! Vbar_Rstress       2D radiation V-stress
+Aout(idU2Sd) == F       ! ubar_stokes        2D U-Stokes velocity
+Aout(idV2Sd) == F       ! vbar_stokes        2D V-Stokes velocity
 
-Aout(idW3xx) == F                          ! 3D radiation stress, Sxx component
-Aout(idW3xy) == F                          ! 3D radiation stress, Sxy component
-Aout(idW3yy) == F                          ! 3D radiation stress, Syy component
-Aout(idW3zx) == F                          ! 3D radiation stress, Szx component
-Aout(idW3zy) == F                          ! 3D radiation stress, Szy component
-Aout(idU3rs) == F                          ! 3D U-radiation stress
-Aout(idV3rs) == F                          ! 3D V-radiation stress
-Aout(idU3Sd) == F                          ! 3D U-Stokes velocity
-Aout(idV3Sd) == F                          ! 3D V-Stokes velocity
+Aout(idW3xx) == F       ! Sxx                3D radiation stress, Sxx component
+Aout(idW3xy) == F       ! Sxy                3D radiation stress, Sxy component
+Aout(idW3yy) == F       ! Syy                3D radiation stress, Syy component
+Aout(idW3zx) == F       ! Szx                3D radiation stress, Szx component
+Aout(idW3zy) == F       ! Szy                3D radiation stress, Szy component
+Aout(idU3rs) == F       ! u_Rstress          3D U-radiation stress
+Aout(idV3rs) == F       ! v_Rstress          3D V-radiation stress
+Aout(idU3Sd) == F       ! u_stokes           3D U-Stokes velocity
+Aout(idV3Sd) == F       ! v_stokes           3D V-Stokes velocity
 
-Aout(idTsur) == T T                        ! surface net heat and salt flux
-Aout(idLhea) == T                          ! latent heat flux
-Aout(idShea) == T                          ! sensible heat flux
-Aout(idLrad) == T                          ! longwave radiation flux
-Aout(idSrad) == T                          ! shortwave radiation flux
-Aout(idEmPf) == F                          ! E-P flux
-Aout(idevap) == F                          ! evaporation rate
-Aout(idrain) == F                          ! precipitation rate
+Aout(idRunoff) == F     ! Runoff             surface runoff from land
+Aout(idPair) == F       ! Pair               surface air pressure
+Aout(idUair) == F       ! Uair               surface U-wind component
+Aout(idVair) == F       ! Vair               surface V-wind component
 
-Aout(idDano) == F                          ! density anomaly
-Aout(idVvis) == T                          ! vertical viscosity
-Aout(idTdif) == F                          ! vertical T-diffusion
-Aout(idSdif) == F                          ! vertical Salinity diffusion
-Aout(idHsbl) == F                          ! depth of surface boundary layer
-Aout(idHbbl) == F                          ! depth of bottom boundary layer
+Aout(idTsur) == T T     ! shflux, ssflux     surface net heat and salt flux
+Aout(idLhea) == T       ! latent             latent heat flux
+Aout(idShea) == T       ! sensible           sensible heat flux
+Aout(idLrad) == T       ! lwrad              longwave radiation flux
+Aout(idSrad) == T       ! swrad              shortwave radiation flux
+Aout(idevap) == T       ! evaporation        evaporation rate
+Aout(idrain) == T       ! rain               precipitation rate
 
-Aout(id2dRV) == F                          ! 2D relative vorticity
-Aout(id3dRV) == F                          ! 3D relative vorticity
-Aout(id2dPV) == F                          ! 2D potential vorticity
-Aout(id3dPV) == F                          ! 3D potential vorticity
+Aout(idDano) == T       ! rho                density anomaly
+Aout(idVvis) == F       ! AKv                vertical viscosity
+Aout(idTdif) == F       ! AKt                vertical T-diffusion
+Aout(idSdif) == F       ! AKs                vertical Salinity diffusion
+Aout(idHsbl) == T       ! Hsbl               depth of surface boundary layer
+Aout(idHbbl) == F       ! Hbbl               depth of bottom boundary layer
 
-Aout(idu3dD) == F                          ! detided 3D U-velocity
-Aout(idv3dD) == F                          ! detided 3D V-velocity
-Aout(idu2dD) == F                          ! detided 2D U-velocity
-Aout(idv2dD) == F                          ! detided 2D V-velocity
-Aout(idFsuD) == F                          ! detided free-surface
+Aout(id2dRV) == F       ! pvorticity_bar     2D relative vorticity
+Aout(id3dRV) == F       ! pvorticity         3D relative vorticity
+Aout(id2dPV) == F       ! rvorticity_bar     2D potential vorticity
+Aout(id3dPV) == F       ! rvorticity         3D potential vorticity
 
-Aout(idTrcD) == F F                        ! detided temperature and salinity
+Aout(idu3dD) == F       ! u_detided          detided 3D U-velocity
+Aout(idv3dD) == F       ! v_detided          detided 3D V-velocity
+Aout(idu2dD) == F       ! ubar_detided       detided 2D U-velocity
+Aout(idv2dD) == F       ! vbar_detided       detided 2D V-velocity
+Aout(idFsuD) == F       ! zeta_detided       detided free-surface
 
-Aout(idHUav) == F                          ! u-volume flux, Huon
-Aout(idHVav) == F                          ! v-volume flux, Hvom
-Aout(idUUav) == F                          ! quadratic <u*u> term
-Aout(idUVav) == F                          ! quadratic <u*v> term
-Aout(idVVav) == F                          ! quadratic <v*v> term
-Aout(idU2av) == F                          ! quadratic <ubar*ubar> term
-Aout(idV2av) == F                          ! quadratic <vbar*vbar> term
-Aout(idZZav) == F                          ! quadratic <zeta*zeta> term
+Aout(idTrcD) == F F     ! temp_detided, ...  detided temperature and salinity
 
-Aout(idTTav) == F F                        ! quadratic <t*t> T/S terms
-Aout(idUTav) == F F                        ! quadratic <u*t> T/S terms
-Aout(idVTav) == F F                        ! quadratic <v*t> T/S terms
-Aout(iHUTav) == F F                        ! T/S volume flux, <Huon*t>
-Aout(iHVTav) == F F                        ! T/S volume flux, <Hvom*t>
+Aout(idHUav) == F       ! Huon               u-volume flux, Huon
+Aout(idHVav) == F       ! Hvom               v-volume flux, Hvom
+Aout(idUUav) == F       ! uu                 quadratic <u*u> term
+Aout(idUVav) == F       ! uv                 quadratic <u*v> term
+Aout(idVVav) == F       ! vv                 quadratic <v*v> term
+Aout(idU2av) == F       ! ubar2              quadratic <ubar*ubar> term
+Aout(idV2av) == F       ! vbar2              quadratic <vbar*vbar> term
+Aout(idZZav) == F       ! zeta2              quadratic <zeta*zeta> term
 
-! Logical switches for bio sediment variables.
-Aout(idPONsed) == T
-Aout(idOPALsed) == T
-
-! Logical switches (TRUE/FALSE) to activate writing of ice prognostic
-! variables into AVERAGES output file.
-Aout(idUice) == T
-Aout(idVice) == T
-Aout(idAice) == T
-Aout(idHice) == T
-Aout(idTice) == T
-Aout(idHsno) == T
-Aout(idTimid) == T
-Aout(idSfwat) == T
-Aout(idTauiw) == F
-Aout(idChuiw) == F
-Aout(idAgeice) == T
-Aout(idSig11) == T
-Aout(idSig12) == T
-Aout(idSig22) == T
-Aout(idS0mk) == T
-Aout(idT0mk) == T
-Aout(idWfr) == T
-Aout(idWai) == T
-Aout(idWao) == T
-Aout(idWio) == T
-Aout(idWro) == T
+Aout(idTTav) == F F     ! temp2, ...         quadratic <t*t> tracer terms
+Aout(idUTav) == F F     ! utemp, ...         quadratic <u*t> tracer terms
+Aout(idVTav) == F F     ! vtemp, ...         quadratic <v*t> tracer terms
+Aout(iHUTav) == F F     ! Huontemp, ...      tracer volume flux, <Huon*t>
+Aout(iHVTav) == F F     ! Hvomtemp, ...      tracer volume flux, <Hvom*t>
 
 ! Logical switches (TRUE/FALSE) to activate writing of extra inert passive
 ! tracers other than biological and sediment tracers into the AVERAGE file.
@@ -654,21 +674,6 @@ Dout(iTydif) == T T                        ! horizontal ETA-diffusion
 Dout(iTsdif) == T T                        ! horizontal S-diffusion
 Dout(iTvdif) == T T                        ! vertical diffusion
 
-!
-! Logicals determining whether CCSM is expected to be passing the fields.
-!
-lccsm_fields(idUair) == T
-lccsm_fields(idVair) == T
-lccsm_fields(idPair) == T
-lccsm_fields(idTair) == T
-lccsm_fields(idQair) == T
-lccsm_fields(idLdwn) == T
-lccsm_fields(idLrad) == T
-lccsm_fields(idSrad) == T
-lccsm_fields(idrain) == T
-lccsm_fields(idRunoff) == F
-
-
 ! Generic User parameters, [1:NUSER].
 
        NUSER =  0
@@ -682,18 +687,34 @@ lccsm_fields(idRunoff) == F
 
 ! Input NetCDF file names, [1:Ngrids].
 
-!    GRDNAME == /wrkdir/kate/NEP5/Files/NEP_grid_5a.nc
-     GRDNAME == /CESM/cseg/inputdata/ocn/roms/CCS1/grid_ccs1_7k_120604.nc
-!    ININAME == nep4_rst.nc
-!    ININAME == /CESM/cseg/inputdata/ocn/roms/NEP4/NEP4_ini_CCSM.nc
-     ININAME == /CESM/cseg/inputdata/ocn/roms/CCS1/CCS1_ini_cesm1_new_fill.120521.nc
-     ITLNAME == /ptmp_error/enrique/ROMS/NEP4/Inputs/ocean_itl.nc
+     GRDNAME == /center/w/kate/Bering_strait/Files/bering_strait.nc
+     ININAME == bering_rst.nc
+!     ININAME == /wrkdir/kate/Bering/Files/Bering_init.nc
+     ITLNAME == ocean_itl.nc
      IRPNAME == ocean_irp.nc
      IADNAME == ocean_iad.nc
-     CLMNAME == /ptmp_error/enrique/ROMS/NEP4/Inputs/ocean_clm.nc
-     BRYNAME == /CESM/cseg/inputdata/ocn/roms/NEP4/NEP4_bry_1958-1960.nc
-     FWDNAME == /ptmp_error/enrique/ROMS/NEP4/Inputs/ocean_fwd.nc
+     FWDNAME == ocean_fwd.nc
      ADSNAME == ocean_ads.nc
+
+! Input lateral boundary and climatology file names.  The USER has the
+! option to enter several files names per each nested grid.  For example,
+! the USER may have a different files for velocity, ice, etc.
+! The model will scan the file list and will read the needed data
+! from the first file in the list containing the boundary field. Therefore,
+! the order of the file names is very important.  If multiple boundary
+! files per grid, enter first all the file names for grid 1, then grid 2,
+! and so on.  Use a single line per entry with a continuation (\) symbol
+! at the each entry, except the last one.
+! The USER has the option to split input data time records into several
+! NetCDF files (see prologue instructions above). If so, use a single
+! line per entry with a vertical bar (|) symbol after each entry,
+! except the last one.
+
+     NBCFILES == 1                          ! number of boundary files
+     BRYNAME == ocean_bry.nc
+
+     NCLMFILES == 1                         ! number of climate files
+     CLMNAME == ocean_clm.nc
 
 ! Input forcing NetCDF file name(s).  The USER has the option to enter
 ! several files names per each nested grid.  For example, the USER may
@@ -705,45 +726,35 @@ lccsm_fields(idRunoff) == F
 ! and so on.  Use a single line per entry with a continuation (\) symbol
 ! at the each entry, except the last one.
 
+     NFFILES == 2                          ! number of forcing files
 
-    NFFILES == 8                           ! number of forcing files
-
-    FRCNAME == /CESM/cseg/inputdata/ocn/roms/NEP4/CCSM_1958_Pair.nc   \
-               /CESM/cseg/inputdata/ocn/roms/NEP4/CCSM_1958_lwrad_down.nc  \
-               /CESM/cseg/inputdata/ocn/roms/NEP4/CCSM_1958_Qair.nc   \
-               /CESM/cseg/inputdata/ocn/roms/NEP4/CCSM_1958_swrad.nc  \
-               /CESM/cseg/inputdata/ocn/roms/NEP4/CCSM_1958_Tair.nc   \
-               /CESM/cseg/inputdata/ocn/roms/NEP4/CCSM_1958_Uwind.nc  \
-               /CESM/cseg/inputdata/ocn/roms/NEP4/CCSM_1958_Vwind.nc  \
-               /CESM/cseg/inputdata/ocn/roms/NEP4/CCSM_rain.nc        
-
-!              /CESM/cseg/inputdata/ocn/roms/NEP4/NEP4_just_rivers.nc
-!              /CESM/cseg/inputdata/ocn/roms/NEP4/NEP4_tides_otps.nc  \
-!              /CESM/cseg/inputdata/ocn/roms/NEP4/Files/sss_fill_2004.nc  \
+    FRCNAME == /center/w/kate/MERRA/MERRA_Uwind_3hours_2011.nc |
+               /center/w/kate/MERRA/MERRA_Uwind_3hours_2012.nc \
+               /center/w/kate/MERRA/MERRA_Vwind_3hours_2011.nc |
+               /center/w/kate/MERRA/MERRA_Vwind_3hours_2012.nc
 
 ! Output NetCDF file names, [1:Ngrids].
 
      GSTNAME == ocean_gst.nc
-     RSTNAME == ccs1_rst.nc
-     HISNAME == ccs1_his.nc
-     TLMNAME == ccs1_tlm.nc
-     TLFNAME == ccs1_tlf.nc
-     ADJNAME == ccs1_tlm.nc
-     AVGNAME == ccs1_avg.nc
-    AVG2NAME == ccs1_avg2.nc
-     DIANAME == ccs1_dia.nc
-     STANAME == ccs1_sta.nc
-     FLTNAME == ccs1_flt.nc
+     RSTNAME == bering_rst.nc
+     HISNAME == bering_his.nc
+     TLMNAME == bering_tlm.nc
+     TLFNAME == ocean_tlf.nc
+     ADJNAME == bering_tlm.nc
+     AVGNAME == bering_avg.nc
+     DIANAME == bering_dia.nc
+     STANAME == bering_sta.nc
+     FLTNAME == bering_flt.nc
 
 ! Input ASCII parameter filenames.
 
-     APARNAM =  assimilation.in
-     SPOSNAM =  stations_CCS1.in
-     FPOSNAM =  floats_CCS1.in
-     IPARNAM =  ice.in
-     BPARNAM =  nemuro_iron.in
-     SPARNAM =  sediment.in
-     USRNAME =  MyFile.dat
+     APARNAM =  External/assimilation.in
+     SPOSNAM =  External/stations_bering.in
+     FPOSNAM =  External/floats.in
+     IPARNAM =  External/ice.in
+     BPARNAM =  External/bio_Fennel.in
+     SPARNAM =  External/sediment.in
+     USRNAME =  External/MyFile.dat
 
 !
 !  GLOSSARY:
@@ -861,6 +872,94 @@ lccsm_fields(idRunoff) == F
 !              In distributed-memory (MPI), the product of NtileI and NtileJ
 !              must be EQUAL to the number of parallel nodes specified during
 !              execution with the "mprun" or "mpirun" command.
+!
+!------------------------------------------------------------------------------
+! Lateral boundary conditions parameters.
+!------------------------------------------------------------------------------
+!
+! The lateral boundary conditions are now specified with logical switches
+! instead of CPP flags to allow nested grid configurations. Their values are
+! loaded into structured array:
+!
+!    LBC(1:4, nLBCvar, Ngrids)
+!
+! where 1:4 are the number of boundary edges, nLBCvar are the number LBC state
+! variables, and Ngrids is the number of nested grids. For Example, to apply
+! gradient boundary conditions we use:
+!
+!    LBC(iwest,  isFsur, ng) % gradient
+!    LBC(ieast,  ...   , ng) % gradient
+!    LBC(isouth, ...   , ng) % gradient
+!    LBC(inorth, ...   , ng) % gradient
+!
+! The lateral boundary conditions are entered with a keyword. This keyword
+! is case insensitive and usually has three characters. However, it is
+! possible to have compound keywords, if applicable. For example, the
+! keyword "RadNud" implies radiation boundary condition with nudging. This
+! combination is usually used in active/passive radiation conditions.
+!
+!   Keyword    Lateral Boundary Condition Type
+!
+!   Cha        Chapman_implicit (free-surface)
+!   Che        Chapman_explicit (free-surface)
+!   Cla        Clamped
+!   Clo        Closed
+!   Fla        Flather (2D momentum)                  _____N_____     j=Mm
+!   Gra        Gradient                              |     4     |
+!   Nes        Nested (refinement)                   |           |
+!   Nud        Nudging                             1 W           E 3
+!   Per        Periodic                              |           |
+!   Rad        Radiation                             |_____S_____|
+!   Red        Reduced Physics (2D momentum)               2          j=1
+!   Shc        Shchepetkin (2D momentum)            i=1         i=Lm
+!
+!  LBC(isFsur) Free-surface,  [1:4, Ngrids] values are expected.
+!  LBC(isUbar) 2D U-momentum, [1:4, Ngrids] values are expected.
+!  LBC(isVbar) 2D V-momentum, [1:4, Ngrids] values are expected.
+!  LBC(isUvel) 3D U-momentum, [1:4, Ngrids] values are expected.
+!  LBC(isVvel) 3D V-momentum, [1:4, Ngrids] values are expected.
+!  LBC(isMtke) Mixing TKE,    [1:4, Ngrids] values are expected.
+!  LBC(isTvar) Tracers,       [1:4, 1:NAT+NPT, Ngrids] values are expected.
+!
+! Ice boundary conditions
+!
+!  LBC(isAice) Ice concentration, [1:4, Ngrids] values are expected.
+!  LBC(isHice) Ice thickness,     [1:4, Ngrids] values are expected.
+!  LBC(isHsno) Snow thickness,    [1:4, Ngrids] values are expected.
+!  LBC(isTice) Ice temperature,   [1:4, Ngrids] values are expected.
+!  LBC(isSfwat)Surface water,     [1:4, Ngrids] values are expected.
+!  LBC(isSig11)Sigma-11,          [1:4, Ngrids] values are expected.
+!  LBC(isSig12)Sigma-12,          [1:4, Ngrids] values are expected.
+!  LBC(isSig22)Sigma-22,          [1:4, Ngrids] values are expected.
+!  LBC(isUice) Ice U-momentum,    [1:4, Ngrids] values are expected.
+!  LBC(isVice) Ice V-momentum,    [1:4, Ngrids] values are expected.
+!
+! Similarly, the adjoint-based algorithms (ADM, TLM, RPM) can have different
+! lateral boundary conditions keywords:
+!
+!  ad_LBC(isFsur) Free-surface,  [1:4, Ngrids] values are expected.
+!  ad_LBC(isUbar) 2D U-momentum, [1:4, Ngrids] values are expected.
+!  ad_LBC(isVbar) 2D V-momentum, [1:4, Ngrids] values are expected.
+!  ad_LBC(isUvel) 3D U-momentum, [1:4, Ngrids] values are expected.
+!  ad_LBC(isVvel) 3D V-momentum, [1:4, Ngrids] values are expected.
+!  ad_LBC(isMtke) Mixing TKE,    [1:4, Ngrids] values are expected.
+!  ad_LBC(isTvar) Tracers,       [1:4, 1:NAT+NPT, Ngrids] values are expected.
+!
+! Lateral open boundary edge volume conservation switch for nonlinear model
+! and adjoint-based algorithm. Usually activated with radiation boundary
+! conditions to enforce global mass conservation. Notice that these switches
+! should not be activated if tidal forcing enabled, [1:Ngrids] values are
+! expected.
+!
+!  VolCons(west)       Western  boundary volume conservation switch.
+!  VolCons(east)       Eastern  boundary volume conservation switch.
+!  VolCons(south)      Southern boundary volume conservation switch.
+!  VolCons(north)      Northern boundary volume conservation switch.
+!
+!  ad_VolCons(west)    Western  boundary volume conservation switch.
+!  ad_VolCons(east)    Eastern  boundary volume conservation switch.
+!  ad_VolCons(south)   Southern boundary volume conservation switch.
+!  ad_VolCons(north)   Northern boundary volume conservation switch.
 !
 !------------------------------------------------------------------------------
 ! Time-Stepping parameters.
@@ -1186,7 +1285,6 @@ lccsm_fields(idRunoff) == F
 !
 !  Zos         Surface roughness (m).
 !
-!------------------------------------------------------------------------------
 ! Height of atmospheric measurements for bulk fluxes parameterization.
 !------------------------------------------------------------------------------
 !
@@ -1258,7 +1356,7 @@ lccsm_fields(idRunoff) == F
 !                (1) Original function (Song and Haidvogel, 1994),
 !                    Vstretching=1
 !
-!                      C(s)=(1-theta_b)*[SINH(s*theta_s)/SINH(theta_s)]+
+!                    C(s)=(1-theta_b)*[SINH(s*theta_s)/SINH(theta_s)]+
 !                         theta_b*[-0.5+0.5*TANH(theta_s*(s+0.5))/
 !                                           TANH(0.5*theta_s)]
 !
@@ -1362,12 +1460,12 @@ lccsm_fields(idRunoff) == F
 !              with 360 days in every year (30 days each month).  The "units"
 !              attribute is:
 !
-!                      'time-units since 0000-01-01 00:00:00'
+!                      'time-units since 0001-01-01 00:00:00'
 !
 !              If TIME_REF = 0, model time and DSTART are in a common year
 !              calendar with 365.25 days.  The "units" attribute is:
 !
-!                      'time-units since 0000-01-01 00:00:00'
+!                      'time-units since 0001-01-01 00:00:00'
 !
 !              If TIME_REF > 0, model time and DSTART are the elapsed time
 !              units since specified reference time.  For example,
@@ -1430,6 +1528,30 @@ lccsm_fields(idRunoff) == F
 !  GAMMA2      Slipperiness variable, either 1.0 (free slip) or -1.0 (no slip).
 !
 !------------------------------------------------------------------------------
+!  Tracer climatology processing switches.
+!------------------------------------------------------------------------------
+!
+!  LtracerCLM  Logical switches (T/F) to specify which tracer variables
+!              to consider when the option TCLIMATOLOGY is activated. Only
+!              NAT active tracers (temperature, salinity) and NPT inert
+!              tracers need to be specified here:
+!
+!                LtracerCLM(itemp,ng)     for temperature (itemp=1)
+!                LtracerCLM(isalt,ng)     for salinity    (isalt=2)
+!                LtracerCLM(NAT+1,ng)     for inert tracer 1
+!                ...                      ...
+!                LtracerCLM(NAT+NPT,ng)   for inert tracer NPT
+!
+!              Other biological and sediment tracers switches are specified in
+!              their respective input scripts.
+!
+!              Recall that TCLIMATOLOGY is usually activated to nudge to
+!              tracer climatology (TLCM_NUDGING).  The purpose of these
+!              switches is to control which climatology tracer fields
+!              (specially passive tracers) needs to be processed.  So we
+!              may reduce the memory allocation for such array.
+!
+!------------------------------------------------------------------------------
 !  Tracer point Sources/Sink sources switches.
 !------------------------------------------------------------------------------
 !
@@ -1488,7 +1610,7 @@ lccsm_fields(idRunoff) == F
 !
 !              The adjoint forcing is applied at every time step according to
 !              desired state functional stored in the adjoint sensitivity
-!              NetCDF file. DstrS must be less or equal to DendS. If both
+!              NetCDF file. DstrS must be less than or equal to DendS. If both
 !              values are zero, their values are reset internally to the full
 !              range of the adjoint integration.
 !
@@ -1517,15 +1639,15 @@ lccsm_fields(idRunoff) == F
 !  SOstate     Logical switches (TRUE/FALSE) to specify the state surface
 !                forcing variable whose stochastic optimals is required.
 !
-!                SOstate(isustr):  surface u-stress
-!                SOstate(isvstr):  surface v-stress
+!                SOstate(isUstr):  surface u-stress
+!                SOstate(isVstr):  surface v-stress
 !                SOstate(isTsur):  surface tracer flux (NT values expected)
 !
 !  SO_sdev     Stochastic optimals surface forcing standard deviation for
 !                dimensionalization.
 !
-!                SO_sdev(isustr):  surface u-stress
-!                SO_sdev(isvstr):  surface v-stress
+!                SO_sdev(isUstr):  surface u-stress
+!                SO_sdev(isVstr):  surface v-stress
 !                SO_sdev(isTsur):  surface tracer flux (NT values expected)
 !
 !------------------------------------------------------------------------------
@@ -1540,6 +1662,7 @@ lccsm_fields(idRunoff) == F
 !  Hout(idUbar)  Write out 2D U-velocity component.
 !  Hout(idVbar)  Write out 2D V-velocity component.
 !  Hout(idFsur)  Write out free-surface.
+!  Hout(idBath)  Write out time-dependent bathymetry.
 !
 !  Hout(idTvar)  Write out active (NAT) tracers: temperature and salinity.
 !
@@ -1559,6 +1682,32 @@ lccsm_fields(idRunoff) == F
 !  Hout(idVbot)  Write out wind-induced, bed wave orbital V-velocity.
 !  Hout(idUbur)  Write out bottom U-velocity above bed.
 !  Hout(idVbvr)  Write out bottom V-velocity above bed.
+!
+!  Hout(idW2xx)  Write out 2D radiation stress, Sxx component.
+!  Hout(idW2xy)  Write out 2D radiation stress, Sxy component.
+!  Hout(idW2yy)  Write out 2D radiation stress, Syy component.
+!  Hout(idU2rs)  Write out 2D U-radiation stress.
+!  Hout(idV2rs)  Write out 2D V-radiation stress.
+!  Hout(idU2Sd)  Write out 2D U-Stokes velocity.
+!  Hout(idV2Sd)  Write out 2D V-Stokes velocity.
+!
+!  Hout(idW3xx)  Write out 3D radiation stress, Sxx component.
+!  Hout(idW3xy)  Write out 3D radiation stress, Sxy component.
+!  Hout(idW3yy)  Write out 3D radiation stress, Syy component.
+!  Hout(idW3zx)  Write out 3D radiation stress, Szx component.
+!  Hout(idW3zy)  Write out 3D radiation stress, Szy component.
+!  Hout(idU3rs)  Write out 3D U-radiation stress.
+!  Hout(idV3rs)  Write out 3D V-radiation stress.
+!  Hout(idU3Sd)  Write out 3D U-Stokes velocity.
+!  Hout(idV3Sd)  Write out 3D V-Stokes velocity.
+!
+!  Hout(idWamp)  Write out wave height.
+!  Hout(idWlen)  Write out wave length.
+!  Hout(idWdir)  Write out wave direction.
+!  Hout(idWptp)  Write out wave surface period.
+!  Hout(idWpbt)  Write out wave bottom period.
+!  Hout(idWorb)  Write out wave bottom orbital velocity.
+!  Hout(idWdis)  Write out wave dissipation.
 !
 !  Hout(idTsur)  Write out surface net heat and salt flux
 !  Hout(idLhea)  Write out latent heat flux.
@@ -1657,11 +1806,11 @@ lccsm_fields(idRunoff) == F
 !  Aout(idV2av)  Write out quadratic <vbar*vbar> term.
 !  Aout(idZZav)  Write out quadratic <zeta*zeta> term.
 !
-!  Aout(idTTav)  Write out quadratic <t*t> temperature and salinity terms.
-!  Aout(idUTav)  Write out quadratic <u*t> temperature and salinity terms.
-!  Aout(idVTav)  Write out quadratic <v*t> temperature and salinity terms.
-!  Aout(iHUTav)  Write out temperature and salinity volume flux, <Huon*t>.
-!  Aout(iHVTav)  Write out temperature and salinity volume flux, <Hvom*t>.
+!  Aout(idTTav)  Write out quadratic <t*t> active and inert tracers terms.
+!  Aout(idUTav)  Write out quadratic <u*t> active and inert tracers terms.
+!  Aout(idVTav)  Write out quadratic <v*t> active and inert tracers terms.
+!  Aout(iHUTav)  Write out active and inert tracer u-volume flux, <Huon*t>.
+!  Aout(iHVTav)  Write out active and inert tracer v-volume flux, <Hvom*t>.
 !
 !  Aout(inert)   Write out extra inert passive tracers.
 !
@@ -1736,7 +1885,7 @@ lccsm_fields(idRunoff) == F
 !                               [isVbar=3] 2D V-momentum
 !                               [isUvel=4] 3D U-momentum
 !                               [isVvel=5] 3D V-momentum
-!                               [isTvar=6] Firt tracer (temperature)
+!                               [isTvar=6] First tracer (temperature)
 !                               [   ...  ]
 !                               [isTvar=?] Last tracer
 !
@@ -1769,7 +1918,7 @@ lccsm_fields(idRunoff) == F
 !                 filter at the level specified by the NC_DLEVEL parameter.
 !
 ! NC_DLEVEL     Deflate filter level parameter (integer). If NC_DEFLATE is
-!                 non-zero, set the deflate level to this value.  Must be
+!                 non-zero, set the deflate level to this value. Must be
 !                 between 0 and 9.
 !
 !------------------------------------------------------------------------------

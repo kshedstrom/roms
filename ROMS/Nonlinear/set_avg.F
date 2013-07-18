@@ -705,6 +705,19 @@
         END IF
 
 # ifdef SOLVE3D
+#  if defined RUNOFF
+        IF (Aout(idRunoff,ng)) THEN
+          DO j=JstrR,JendR
+            DO i=IstrR,IendR
+              AVERAGE(ng)%avgRunoff(i,j)=FORCES(ng)%Runoff(i,j)
+#   ifdef WET_DRY
+              AVERAGE(ng)%avgRunoff(i,j)=AVERAGE(ng)%avgRunoff(i,j)*    &
+     &                                 GRID(ng)%rmask_io(i,j)
+#   endif
+            END DO
+          END DO
+        END IF
+#  endif
 #  if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS
         IF (Aout(idPair,ng)) THEN
           DO j=JstrR,JendR
@@ -2235,6 +2248,19 @@
 
 # ifdef SOLVE3D
 
+#  if defined RUNOFF
+        IF (Aout(idRunoff,ng)) THEN
+          DO j=JstrR,JendR
+            DO i=IstrR,IendR
+              AVERAGE(ng)%avgRunoff(i,j)=AVERAGE(ng)%avgRunoff(i,j)+    &
+#   ifdef WET_DRY
+     &                                 GRID(ng)%rmask_io(i,j)*          &
+#   endif
+     &                                 FORCES(ng)%Runoff(i,j)
+            END DO
+          END DO
+        END IF
+#  endif
 #  if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS
         IF (Aout(idPair,ng)) THEN
           DO j=JstrR,JendR
@@ -4076,6 +4102,28 @@
         END IF
 
 # ifdef SOLVE3D
+#  if defined RUNOFF
+        IF (Aout(idRunoff,ng)) THEN
+          DO j=JstrR,JendR
+            DO i=IstrR,IendR
+              AVERAGE(ng)%avgRunoff(i,j)=rfac(i,j)*                     &
+     &                                 AVERAGE(ng)%avgRunoff(i,j)
+            END DO
+          END DO
+          IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
+            CALL exchange_r2d_tile (ng, tile,                           &
+     &                              LBi, UBi, LBj, UBj,                 &
+     &                              AVERAGE(ng)%avgRunoff)
+#   ifdef DISTRIBUTE
+            CALL mp_exchange2d (ng, tile, iNLM, 1,                      &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          NghostPoints,                           &
+     &                          EWperiodic(ng), NSperiodic(ng),         &
+     &                          AVERAGE(ng)%avgRunoff)
+#   endif
+          END IF
+        END IF
+#  endif
 #  if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS
         IF (Aout(idPair,ng)) THEN
           DO j=JstrR,JendR
@@ -4299,13 +4347,13 @@
             CALL exchange_r2d_tile (ng, tile,                           &
      &                              LBi, UBi, LBj, UBj,                 &
      &                              AVERAGE(ng)%avglrf)
-#  ifdef DISTRIBUTE
+#   ifdef DISTRIBUTE
             CALL mp_exchange2d (ng, tile, iNLM, 1,                      &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          NghostPoints,                           &
      &                          EWperiodic(ng), NSperiodic(ng),         &
      &                          AVERAGE(ng)%avglrf)
-#  endif
+#   endif
           END IF
         END IF
 
@@ -4321,16 +4369,15 @@
             CALL exchange_r2d_tile (ng, tile,                           &
      &                            LBi, UBi, LBj, UBj,                   &
      &                            AVERAGE(ng)%avgevap)
-#   ifdef DISTRIBUTE
+#    ifdef DISTRIBUTE
             CALL mp_exchange2d (ng, tile, iNLM, 1,                      &
      &                        LBi, UBi, LBj, UBj,                       &
      &                        NghostPoints,                             &
      &                        EWperiodic(ng), NSperiodic(ng),           &
      &                        AVERAGE(ng)%avgevap)
-#   endif
+#    endif
           END IF
         END IF
-#  endif
 
         IF (Aout(idrain,ng)) THEN
           DO j=JstrR,JendR
@@ -4352,6 +4399,7 @@
 #    endif
           END IF
         END IF
+#   endif
 #  endif
 
 #  ifdef ICE_MODEL
@@ -4786,8 +4834,8 @@
         IF (Aout(idTauiw,ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR
-              AVERAGE(ng)%avgutau_iw(i,j)=                              &
-     &                      fac*AVERAGE(ng)%avgutau_iw(i,j)
+              AVERAGE(ng)%avgutau_iw(i,j)=rfac(i,j)*                    &
+     &                      AVERAGE(ng)%avgutau_iw(i,j)
             END DO
           END DO
           IF (EWperiodic(ng).or.NSperiodic(ng)) THEN

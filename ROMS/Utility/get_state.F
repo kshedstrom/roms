@@ -542,6 +542,92 @@
             END IF
           END IF
         END IF
+# if defined WET_DRY   && defined PERFECT_RESTART
+!
+!  Read in wet/dry mask in RHO-points.
+!
+        IF (get_var(idRwet)) THEN
+          foundit=find_string(var_name, n_var, TRIM(Vname(1,idRwet)),   &
+     &                        varid)
+          gtype=var_flag(varid)*r2dvar
+          status=nf_fread2d(ng, IDmod, ncname, ncINPid,                 &
+     &                        Vname(1,idRwet), varid,                   &
+     &                        InpRec, gtype, Vsize,                     &
+     &                        LBi, UBi, LBj, UBj,                       &
+     &                        Fscl, Fmin, Fmax,                         &
+     &                        GRID(ng) % rmask,                         &
+     &                        GRID(ng) % rmask_wet)
+          IF (status.ne.nf90_noerr) THEN
+            IF (Master) THEN
+              WRITE (stdout,30) string, TRIM(Vname(1,idRwet)), InpRec,  &
+     &                          TRIM(ncname)
+            END IF
+            exit_flag=2
+            ioerror=status
+            RETURN
+          ELSE
+            IF (Master) THEN
+              WRITE (stdout,70) TRIM(Vname(2,idRwet)), Fmin, Fmax
+            END IF
+          END IF
+        END IF
+!
+!  Read in wet/dry mask in U-points.
+!
+        IF (get_var(idUwet)) THEN
+          foundit=find_string(var_name, n_var, TRIM(Vname(1,idUwet)),   &
+     &                        varid)
+          gtype=var_flag(varid)*u2dvar
+          status=nf_fread2d(ng, IDmod, ncname, ncINPid,                 &
+     &                        Vname(1,idUwet), varid,                   &
+     &                        InpRec, gtype, Vsize,                     &
+     &                        LBi, UBi, LBj, UBj,                       &
+     &                        Fscl, Fmin, Fmax,                         &
+     &                        GRID(ng) % umask,                         &
+     &                        GRID(ng) % umask_wet)
+          IF (status.ne.nf90_noerr) THEN
+            IF (Master) THEN
+              WRITE (stdout,30) string, TRIM(Vname(1,idUwet)), InpRec,  &
+     &                          TRIM(ncname)
+            END IF
+            exit_flag=2
+            ioerror=status
+            RETURN
+          ELSE
+            IF (Master) THEN
+              WRITE (stdout,70) TRIM(Vname(2,idUwet)), Fmin, Fmax
+            END IF
+          END IF
+        END IF
+!
+!  Read in wet/dry mask in V-points.
+!
+        IF (get_var(idVwet)) THEN
+          foundit=find_string(var_name, n_var, TRIM(Vname(1,idVwet)),   &
+     &                        varid)
+          gtype=var_flag(varid)*v2dvar
+          status=nf_fread2d(ng, IDmod, ncname, ncINPid,                 &
+     &                        Vname(1,idVwet), varid,                   &
+     &                        InpRec, gtype, Vsize,                     &
+     &                        LBi, UBi, LBj, UBj,                       &
+     &                        Fscl, Fmin, Fmax,                         &
+     &                        GRID(ng) % vmask,                         &
+     &                        GRID(ng) % vmask_wet)
+          IF (status.ne.nf90_noerr) THEN
+            IF (Master) THEN
+              WRITE (stdout,30) string, TRIM(Vname(1,idVwet)), InpRec,  &
+     &                          TRIM(ncname)
+            END IF
+            exit_flag=2
+            ioerror=status
+            RETURN
+          ELSE
+            IF (Master) THEN
+              WRITE (stdout,70) TRIM(Vname(2,idVwet)), Fmin, Fmax
+            END IF
+          END IF
+        END IF
+# endif
 !
 !  Read in nonlinear RHS of free-surface.
 !
@@ -2660,20 +2746,23 @@
 # ifdef DISTRIBUTE
           CALL mp_exchange2d (ng, MyRank, IDmod, 4,                     &
      &                        LBi, UBi, LBj, UBj,                       &
-     &                        NghostPoints, EWperiodic, NSperiodic,     &
+     &                        NghostPoints,                             &
+     &                        EWperiodic(ng), NSperiodic(ng),           &
      &                        FORCES(ng) % rhoa_n,                      &
      &                        FORCES(ng) % cd_d,                        &
      &                        FORCES(ng) % ch_d,                        &
      &                        FORCES(ng) % ce_d)
           CALL mp_exchange2d (ng, MyRank, IDmod, 3,                     &
      &                        LBi, UBi, LBj, UBj,                       &
-     &                        NghostPoints, EWperiodic, NSperiodic,         &
+     &                        NghostPoints,                             &
+     &                        EWperiodic(ng), NSperiodic(ng),           &
      &                        FORCES(ng) % cd_m,                        &
      &                        FORCES(ng) % ch_m,                        &
      &                        FORCES(ng) % ce_m)
           CALL mp_exchange2d (ng, MyRank, IDmod, 2,                     &
      &                        LBi, UBi, LBj, UBj,                       &
-     &                        NghostPoints, EWperiodic, NSperiodic,     &
+     &                        NghostPoints,                             &
+     &                        EWperiodic(ng), NSperiodic(ng),           &
      &                        FORCES(ng) % wg2_d,                       &
      &                        FORCES(ng) % wg2_m)
 # endif

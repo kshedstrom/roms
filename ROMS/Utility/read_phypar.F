@@ -330,56 +330,56 @@
               END IF
             CASE ('LBC(isFsur)')
               Npts=load_lbc(Nval, Cval, line, nline, isFsur, igrid,     &
-     &                      0, 0, LBC)
+     &                      0, 0, Vname(1,idFsur), LBC)
             CASE ('LBC(isUbar)')
               Npts=load_lbc(Nval, Cval, line, nline, isUbar, igrid,     &
-     &                      0, 0, LBC)
+     &                      0, 0, Vname(1,idUbar), LBC)
             CASE ('LBC(isVbar)')
               Npts=load_lbc(Nval, Cval, line, nline, isVbar, igrid,     &
-     &                      0, 0, LBC)
+     &                      0, 0, Vname(1,idVbar), LBC)
 #ifdef SOLVE3D
             CASE ('LBC(isUvel)')
               Npts=load_lbc(Nval, Cval, line, nline, isUvel, igrid,     &
-     &                      0, 0, LBC)
+     &                      0, 0, Vname(1,idUvel), LBC)
             CASE ('LBC(isVvel)')
               Npts=load_lbc(Nval, Cval, line, nline, isVvel, igrid,     &
-     &                      0, 0, LBC)
+     &                      0, 0, Vname(1,idVvel), LBC)
 # if defined GLS_MIXING || defined MY25_MIXING
             CASE ('LBC(isMtke)')
               Npts=load_lbc(Nval, Cval, line, nline, isMtke, igrid,     &
-     &                      0, 0, LBC)
+     &                      0, 0, Vname(1,idMtke), LBC)
 # endif
 # ifdef ICE_MODEL
             CASE ('LBC(isUice)')
               Npts=load_lbc(Nval, Cval, line, nline, isUice, igrid,     &
-     &                      0, 0, LBC)
+     &                      0, 0, Vname(1,idUice), LBC)
             CASE ('LBC(isVice)')
               Npts=load_lbc(Nval, Cval, line, nline, isVice, igrid,     &
-     &                      0, 0, LBC)
+     &                      0, 0, Vname(1,idVice), LBC)
             CASE ('LBC(isAice)')
               Npts=load_lbc(Nval, Cval, line, nline, isAice, igrid,     &
-     &                      0, 0, LBC)
+     &                      0, 0, Vname(1,idAice), LBC)
             CASE ('LBC(isHice)')
               Npts=load_lbc(Nval, Cval, line, nline, isHice, igrid,     &
-     &                      0, 0, LBC)
+     &                      0, 0, Vname(1,idHice), LBC)
             CASE ('LBC(isTice)')
               Npts=load_lbc(Nval, Cval, line, nline, isTice, igrid,     &
-     &                      0, 0, LBC)
+     &                      0, 0, Vname(1,idTice), LBC)
             CASE ('LBC(isHsno)')
               Npts=load_lbc(Nval, Cval, line, nline, isHsno, igrid,     &
-     &                      0, 0, LBC)
+     &                      0, 0, Vname(1,idHsno), LBC)
             CASE ('LBC(isSfwat)')
               Npts=load_lbc(Nval, Cval, line, nline, isSfwat, igrid,    &
-     &                      0, 0, LBC)
+     &                      0, 0, Vname(1,idSfwat), LBC)
             CASE ('LBC(isSig11)')
               Npts=load_lbc(Nval, Cval, line, nline, isSig11, igrid,    &
-     &                      0, 0, LBC)
+     &                      0, 0, Vname(1,idSig11), LBC)
             CASE ('LBC(isSig12)')
               Npts=load_lbc(Nval, Cval, line, nline, isSig12, igrid,    &
-     &                      0, 0, LBC)
+     &                      0, 0, Vname(1,idSig12), LBC)
             CASE ('LBC(isSig22)')
               Npts=load_lbc(Nval, Cval, line, nline, isSig22, igrid,    &
-     &                      0, 0, LBC)
+     &                      0, 0, Vname(1,idSig22), LBC)
 # endif
             CASE ('LBC(isTvar)')
               IF (itracer.lt.(NAT+NPT)) THEN
@@ -389,29 +389,29 @@
               END IF
               ifield=isTvar(itracer)
               Npts=load_lbc(Nval, Cval, line, nline, ifield, igrid,     &
-     &                      1, NAT+NPT, LBC)
+     &                      1, NAT+NPT, Vname(1,idTvar(itracer)), LBC)
 #endif
 #if defined ADJOINT || defined TANGENT || defined TL_IOMS
             CASE ('ad_LBC(isFsur)')
               Npts=load_lbc(Nval, Cval, line, nline, isFsur, igrid,     &
-     &                      0, 0, ad_LBC)
+     &                      0, 0, Vname(1,idFsur), ad_LBC)
             CASE ('ad_LBC(isUbar)')
               Npts=load_lbc(Nval, Cval, line, nline, isUbar, igrid,     &
-     &                      0, 0, ad_LBC)
+     &                      0, 0, Vname(1,idUbar), ad_LBC)
             CASE ('ad_LBC(isVbar)')
               Npts=load_lbc(Nval, Cval, line, nline, isVbar, igrid,     &
-     &                      0, 0, ad_LBC)
+     &                      0, 0, Vname(1,idVbar), ad_LBC)
 # ifdef SOLVE3D
             CASE ('ad_LBC(isUvel)')
               Npts=load_lbc(Nval, Cval, line, nline, isUvel, igrid,     &
-     &                      0, 0, ad_LBC)
+     &                      0, 0, Vname(1,idUvel), ad_LBC)
             CASE ('ad_LBC(isVvel)')
               Npts=load_lbc(Nval, Cval, line, nline, isVvel, igrid,     &
-     &                      0, 0, ad_LBC)
+     &                      0, 0, Vname(1,idVvel), ad_LBC)
 #  if defined GLS_MIXING || defined MY25_MIXING
             CASE ('ad_LBC(isMtke)')
               Npts=load_lbc(Nval, Cval, line, nline, isMtke, igrid,     &
-     &                      0, 0, ad_LBC)
+     &                      0, 0, Vname(1,idMtke), ad_LBC)
 #  endif
             CASE ('ad_LBC(isTvar)')
               IF (itracer.lt.(NAT+NPT)) THEN
@@ -421,7 +421,8 @@
               END IF
               ifield=isTvar(itracer)
               Npts=load_lbc(Nval, Cval, line, nline, ifield, igrid,     &
-     &                      1, NAT+NPT, ad_LBC)
+     &                      1, NAT+NPT, Vname(1,idTvar(itracer)),       &
+     &                      ad_LBC)
 # endif
 #endif
             CASE ('VolCons(west)')
@@ -1516,6 +1517,15 @@
               Npts=load_l(Nval, Cval, Ngrids, Hout(idWdis,:))
 #endif
 #ifdef SOLVE3D
+# if defined RUNOFF
+            CASE ('Hout(idRunoff)')
+              IF (idRunoff.eq.0) THEN
+                IF (Master) WRITE (out,280) 'idRunoff'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Hout(idRunoff,:))
+# endif
 # if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS
             CASE ('Hout(idPair)')
               IF (idPair.eq.0) THEN
@@ -1774,6 +1784,10 @@
             CASE ('Aout(idV3Sd)')
               Npts=load_l(Nval, Cval, Ngrids, Aout(idV3Sd,:))
 # ifdef SOLVE3D
+#  if defined RUNOFF
+            CASE ('Aout(idRunoff)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout(idRunoff,:))
+#  endif
 #  if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS
             CASE ('Aout(idPair)')
               Npts=load_l(Nval, Cval, Ngrids, Aout(idPair,:))
@@ -3167,27 +3181,6 @@
           LdefHIS(ng)=.TRUE.
         END IF
 #endif
-#if defined TANGENT || defined TL_IOMS
-!
-!  Set lateral boundary condition switches for the tangent linear
-!  models (TLM and RPM) to the same values as the adjoint model.
-!
-        DO ivar=1,nLBCvar
-          DO i=1,4
-            tl_LBC(i,ivar,ng)%acquire  =ad_LBC(i,ivar,ng)%acquire
-            tl_LBC(i,ivar,ng)%Chapman  =ad_LBC(i,ivar,ng)%Chapman
-            tl_LBC(i,ivar,ng)%clamped  =ad_LBC(i,ivar,ng)%clamped
-            tl_LBC(i,ivar,ng)%closed   =ad_LBC(i,ivar,ng)%closed
-            tl_LBC(i,ivar,ng)%Flather  =ad_LBC(i,ivar,ng)%Flather
-            tl_LBC(i,ivar,ng)%gradient =ad_LBC(i,ivar,ng)%gradient
-            tl_LBC(i,ivar,ng)%nested   =ad_LBC(i,ivar,ng)%nested
-            tl_LBC(i,ivar,ng)%nudging  =ad_LBC(i,ivar,ng)%nudging
-            tl_LBC(i,ivar,ng)%periodic =ad_LBC(i,ivar,ng)%periodic
-            tl_LBC(i,ivar,ng)%radiation=ad_LBC(i,ivar,ng)%radiation
-            tl_LBC(i,ivar,ng)%reduced  =ad_LBC(i,ivar,ng)%reduced
-          END DO
-        END DO
-#endif
 #if defined IS4DVAR || defined WEAK_CONSTRAINT
 !
 !  If weak constraint, disallow recycling of the adjoint model.
@@ -4318,6 +4311,11 @@
           END DO
 #endif
 #ifdef SOLVE3D
+# if defined RUNOFF
+          IF (Hout(idRunoff,ng)) WRITE (out,170) Hout(idRunoff,ng),     &
+     &       'Hout(idRunoff)',                                          &
+     &       'Write out surface fresh water input via runoff.'
+# endif
 # if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS
           IF (Hout(idPair,ng)) WRITE (out,170) Hout(idPair,ng),         &
      &       'Hout(idPair)',                                            &
@@ -4520,6 +4518,11 @@
           END DO
 # endif
 # ifdef SOLVE3D
+#  if defined RUNOFF
+          IF (Aout(idRunoff,ng)) WRITE (out,170) Aout(idRunoff,ng),     &
+     &       'Aout(idRunoff)',                                          &
+     &       'Write out averaged surface fresh water input via runoff.'
+#  endif
 #  if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS
           IF (Aout(idPair,ng)) WRITE (out,170) Aout(idPair,ng),         &
      &       'Aout(idPair)',                                            &

@@ -178,7 +178,8 @@
 # elif defined UV_QDRAG
       DO j=JstrR,JendR          ! based on Chezy coefficient (g/c^2)
         DO i=IstrR,IendR
-          cff=1.8_r8*GRID(ng)%h(i,j)*LOG(GRID(ng)%h(i,j))
+          cff=1.6_r8*GRID(ng)%h(i,j)*LOG(GRID(ng)%h(i,j))
+!          cff=1.8_r8*GRID(ng)%h(i,j)*LOG(GRID(ng)%h(i,j))
           rdrag2(i,j)=g/(cff*cff)
         END DO
       END DO
