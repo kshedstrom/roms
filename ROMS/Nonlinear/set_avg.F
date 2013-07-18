@@ -4834,8 +4834,8 @@
         IF (Aout(idTauiw,ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR
-              AVERAGE(ng)%avgutau_iw(i,j)=                              &
-     &                      rfac*AVERAGE(ng)%avgutau_iw(i,j)
+              AVERAGE(ng)%avgutau_iw(i,j)=rfac(i,j)*                    &
+     &                      AVERAGE(ng)%avgutau_iw(i,j)
             END DO
           END DO
           IF (EWperiodic(ng).or.NSperiodic(ng)) THEN

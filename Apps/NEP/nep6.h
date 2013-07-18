@@ -75,9 +75,9 @@
 #undef AVERAGES2
 #ifdef SOLVE3D
 # undef AVERAGES_DETIDE
-# undef DIAGNOSTICS_TS
+# define DIAGNOSTICS_TS
 #endif
-#undef DIAGNOSTICS_UV
+#define DIAGNOSTICS_UV
 
 /* advection, dissipation, pressure grad, etc. */
 
