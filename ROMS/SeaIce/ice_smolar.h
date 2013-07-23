@@ -840,8 +840,8 @@ FOOOO
 
       DO j=Jstr,Jend
         DO i=Istr,Iend
-          aif(i,j)=aif(i,j) -dtice*iAr(i,j)*( aflxu(i+1,j)-aflxu(i,j)   &
-     &                                       +aflxv(i,j+1)-aflxv(i,j))
+          aif(i,j)=aif(i,j) -dtice*pm(i,j)*pn(i,j)*                     &
+     &             (aflxu(i+1,j)-aflxu(i,j) + aflxv(i,j+1)-aflxv(i,j))
 #  ifdef MASKING
           aif(i,j)=aif(i,j)*rmask(i,j)
 #  endif
