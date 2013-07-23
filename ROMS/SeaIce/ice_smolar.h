@@ -1,7 +1,7 @@
        SUBROUTINE ice_advect (ng, tile)
 !
 !*************************************************** W. Paul Budgell ***
-!  Copyright (c) 2002 ROMS/TOMS Group                                  !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group                        **
 !************************************************** Hernan G. Arango ***
 !                                                                      !
 !  This subroutine performs advection of ice scalars using the         !
@@ -840,8 +840,8 @@ FOOOO
 
       DO j=Jstr,Jend
         DO i=Istr,Iend
-          aif(i,j)=aif(i,j) -dtice*iAr(i,j)*( aflxu(i+1,j)-aflxu(i,j)   &
-     &                                       +aflxv(i,j+1)-aflxv(i,j))
+          aif(i,j)=aif(i,j) -dtice*pm(i,j)*pn(i,j)*                     &
+     &             (aflxu(i+1,j)-aflxu(i,j) + aflxv(i,j+1)-aflxv(i,j))
 #  ifdef MASKING
           aif(i,j)=aif(i,j)*rmask(i,j)
 #  endif
