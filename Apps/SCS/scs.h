@@ -12,7 +12,7 @@
 **  Options for Northeast Pacific (NEP6) simulation
 */
 
-#define NO_HIS
+#undef NO_HIS
 #undef NETCDF4
 #undef PARALLEL_IO
 #undef OFFLINE_FLOATS
@@ -25,7 +25,7 @@
 #define SOLVE3D
 #define SALINITY
 #ifdef SOLVE3D
-# define SPLINES
+# undef SPLINES
 #endif
 #undef FLOATS
 #undef STATIONS
@@ -80,18 +80,18 @@
 #ifdef SOLVE3D
 # define WTYPE_GRID
 
-# define LMD_MIXING
+# undef LMD_MIXING
 # ifdef LMD_MIXING
 #  define LMD_RIMIX
 #  define LMD_CONVEC
 #  define LMD_SKPP
-#  undef LMD_BKPP
+#  define LMD_BKPP
 #  define LMD_NONLOCAL
 #  define LMD_SHAPIRO
 #  undef LMD_DDMIX
 # endif
 
-# undef GLS_MIXING
+# define GLS_MIXING
 # undef MY25_MIXING
 
 # if defined GLS_MIXING || defined MY25_MIXING
@@ -113,8 +113,8 @@
 #  undef ANA_SRFLUX
 #  undef ALBEDO
 #  define SOLAR_SOURCE
-#  define ALBEDO_CURVE
-#  undef ALBEDO_FILE
+#  undef ALBEDO_CURVE
+#  define ALBEDO_FILE
 #  undef LONGWAVE
 # endif
 #endif
@@ -136,8 +136,8 @@
 # define ADD_FSOBC
 # define ADD_M2OBC
 # undef RAMP_TIDES
-# define TIDES_ASTRO
-# define POT_TIDES
+# undef TIDES_ASTRO
+# undef POT_TIDES
 
 # undef UV_LDRAG
 # define UV_DRAG_GRID
