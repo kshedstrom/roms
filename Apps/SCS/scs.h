@@ -25,7 +25,7 @@
 #define SOLVE3D
 #define SALINITY
 #ifdef SOLVE3D
-# undef SPLINES
+# define SPLINES
 #endif
 #undef FLOATS
 #undef STATIONS
@@ -39,7 +39,7 @@
 #ifndef PERFECT_RESTART
 # define RST_SINGLE
 #endif
-#define AVERAGES
+#undef AVERAGES
 #ifdef SOLVE3D
 # undef AVERAGES_DETIDE
 # undef DIAGNOSTICS_TS
@@ -55,6 +55,7 @@
 #define UV_ADV
 #define UV_COR
 #undef UV_SADVECTION
+#define UV_C4ADVECTION
 
 #ifdef SOLVE3D
 # define TS_U3HADVECTION
@@ -80,7 +81,7 @@
 #ifdef SOLVE3D
 # define WTYPE_GRID
 
-# undef LMD_MIXING
+# define LMD_MIXING
 # ifdef LMD_MIXING
 #  define LMD_RIMIX
 #  define LMD_CONVEC
@@ -91,7 +92,7 @@
 #  undef LMD_DDMIX
 # endif
 
-# define GLS_MIXING
+# undef GLS_MIXING
 # undef MY25_MIXING
 
 # if defined GLS_MIXING || defined MY25_MIXING
@@ -130,7 +131,7 @@
 
 #define LTIDES
 #ifdef LTIDES
-# define FILTERED
+# undef FILTERED
 # define SSH_TIDES
 # define UV_TIDES
 # define ADD_FSOBC
