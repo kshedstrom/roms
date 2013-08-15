@@ -75,7 +75,7 @@
      &                     GRID(ng) % rmask,                            &
      &                     GRID(ng) % umask,                            &
      &                     GRID(ng) % vmask,                            &
-# if defined PERFECT_RESTART && WET_DRY
+# if defined PERFECT_RESTART && defined WET_DRY
      &                     GRID(ng) % rmask_wet,                        &
      &                     GRID(ng) % umask_wet,                        &
      &                     GRID(ng) % vmask_wet,                        &
@@ -125,7 +125,7 @@
 # endif
      &                           pmask, rmask,                          &
      &                           umask, vmask,                          &
-# if defined PERFECT_RESTART && WET_DRY
+# if defined PERFECT_RESTART && defined WET_DRY
      &                           rmask_wet,                             &
      &                           umask_wet, vmask_wet,                  &
 # endif
@@ -179,7 +179,7 @@
       real(r8), intent(in) :: rmask(LBi:,LBj:)
       real(r8), intent(in) :: umask(LBi:,LBj:)
       real(r8), intent(in) :: vmask(LBi:,LBj:)
-#  if defined PERFECT_RESTART && WET_DRY
+#  if defined PERFECT_RESTART && defined WET_DRY
       real(r8), intent(in) :: rmask_wet(LBi:,LBj:)
       real(r8), intent(in) :: umask_wet(LBi:,LBj:)
       real(r8), intent(in) :: vmask_wet(LBi:,LBj:)
@@ -223,7 +223,7 @@
       real(r8), intent(in) :: rmask(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: umask(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: vmask(LBi:UBi,LBj:UBj)
-#  if defined PERFECT_RESTART && WET_DRY
+#  if defined PERFECT_RESTART && defined WET_DRY
       real(r8), intent(in) :: rmask_wet(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: umask_wet(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: vmask_wet(LBi:UBi,LBj:UBj)
@@ -275,7 +275,7 @@
 !  application grid mask.
 !-----------------------------------------------------------------------
 !
-# if defined PERFECT_RESTART && WET_DRY
+# if defined PERFECT_RESTART && defined WET_DRY
       rmask_io(LBi:UBi,LBj:UBj) = 0
       umask_io(LBi:UBi,LBj:UBj) = 0
       vmask_io(LBi:UBi,LBj:UBj) = 0
