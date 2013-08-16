@@ -186,7 +186,8 @@
 # define LIMIT_BSTRESS
 # define UV_QDRAG
 #else
-# define UV_QDRAG
+# undef UV_QDRAG
+# define UV_LDRAG
 #endif
 
 #define RADIATION_2D

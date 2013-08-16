@@ -28,7 +28,7 @@
 # define SPLINES
 #endif
 #undef FLOATS
-#undef STATIONS
+#define STATIONS
 #undef WET_DRY
 
 /* output stuff */
@@ -55,7 +55,7 @@
 #define UV_ADV
 #define UV_COR
 #undef UV_SADVECTION
-#define UV_C4ADVECTION
+#undef UV_C4ADVECTION
 
 #ifdef SOLVE3D
 # define TS_U3HADVECTION
@@ -129,7 +129,7 @@
 
 /* tides */
 
-#define LTIDES
+#undef LTIDES
 #ifdef LTIDES
 # undef FILTERED
 # define SSH_TIDES
@@ -147,7 +147,7 @@
 # define UV_QDRAG
 #else
 # define UV_QDRAG
-# define M2TIDE_DIFF
+# undef M2TIDE_DIFF
 #endif
 
 /* point sources (rivers, line sources) */
