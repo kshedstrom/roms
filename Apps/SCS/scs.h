@@ -39,7 +39,7 @@
 #ifndef PERFECT_RESTART
 # define RST_SINGLE
 #endif
-#undef AVERAGES
+#define AVERAGES
 #ifdef SOLVE3D
 # undef AVERAGES_DETIDE
 # undef DIAGNOSTICS_TS
@@ -129,9 +129,9 @@
 
 /* tides */
 
-#undef LTIDES
+#define LTIDES
 #ifdef LTIDES
-# undef FILTERED
+# define FILTERED
 # define SSH_TIDES
 # define UV_TIDES
 # define ADD_FSOBC

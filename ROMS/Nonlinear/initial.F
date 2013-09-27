@@ -439,14 +439,11 @@
 !  Analytical initial conditions for sea ice.
 !
       IF (nrrec(ng).eq.0) THEN
-!$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(ng,numthreads)
-        DO thread=0,numthreads-1
-          subs=NtileX(ng)*NtileE(ng)/numthreads
-          DO tile=subs*thread,subs*(thread+1)-1
-            CALL ana_ice (ng, TILE)
-          END DO
+        DO tile=first_tile(ng),last_tile(ng),+1
+          CALL ana_ice (ng, tile)
         END DO
-!$OMP END PARALLEL DO
+!$OMP BARRIER
+      END IF
 #endif
 
 #if (defined W4DPSAS || defined TL_W4DPSAS || \

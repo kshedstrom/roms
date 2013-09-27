@@ -77,6 +77,9 @@
      &                     GRID(ng) % Hz,                               &
      &                     GRID(ng) % z_r,                              &
      &                     GRID(ng) % z_w,                              &
+# ifdef UV_WAVEDRAG
+     &                     GRID(ng) % wavedrag,                         &
+# endif
      &                     MIXING(ng) % Akv,                            &
      &                     COUPLING(ng) % DU_avg1,                      &
      &                     COUPLING(ng) % DV_avg1,                      &
@@ -130,6 +133,9 @@
 # endif
      &                           om_v, on_u, pm, pn,                    &
      &                           Hz, z_r, z_w,                          &
+# ifdef UV_WAVEDRAG
+     &                           wavedrag,                              &
+# endif
      &                           Akv,                                   &
      &                           DU_avg1, DV_avg1,                      &
      &                           DU_avg2, DV_avg2,                      &
@@ -160,6 +166,9 @@
 # endif
       USE u3dbc_mod, ONLY : u3dbc_tile
       USE v3dbc_mod, ONLY : v3dbc_tile
+# ifdef UV_WAVEDRAG
+      USE mod_tides
+# endif
 !
 !  Imported variable declarations.
 !
@@ -194,6 +203,9 @@
       real(r8), intent(in) :: Hz(LBi:,LBj:,:)
       real(r8), intent(in) :: z_r(LBi:,LBj:,:)
       real(r8), intent(in) :: z_w(LBi:,LBj:,0:)
+#  ifdef UV_WAVEDRAG
+      real(r8), intent(in) :: wavedrag(LBi:,LBj:)
+#  endif
       real(r8), intent(in) :: Akv(LBi:,LBj:,0:)
       real(r8), intent(in) :: DU_avg1(LBi:,LBj:)
       real(r8), intent(in) :: DV_avg1(LBi:,LBj:)
@@ -250,6 +262,9 @@
       real(r8), intent(in) :: Hz(LBi:UBi,LBj:UBj,N(ng))
       real(r8), intent(in) :: z_r(LBi:UBi,LBj:UBj,N(ng))
       real(r8), intent(in) :: z_w(LBi:UBi,LBj:UBj,0:N(ng))
+#  ifdef UV_WAVEDRAG
+      real(r8), intent(in) :: wavedrag(LBi:UBi,LBj:UBj)
+#  endif
       real(r8), intent(in) :: Akv(LBi:UBi,LBj:UBj,0:N(ng))
       real(r8), intent(in) :: DU_avg1(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: DV_avg1(LBi:UBi,LBj:UBj)
@@ -972,6 +987,39 @@
 # endif
         END IF
       END DO
+# ifdef UV_WAVEDRAG
+! Apply wave drag on tidal velocities only. filt_ubot is an estimate of
+! the detided velocity. Apply only in the bottom 500 m. See Arbic et
+! al., 2010.
+      DO j=Jstr,Jend
+        DO i=IstrU,Iend
+          cff = 0.5*drag_scale*(wavedrag(i,j)+wavedrag(i-1,j))
+          IF (cff > 0.0) THEN
+            DO k=1,N(ng)
+              IF (0.5*(z_r(i,j,k)+z_r(i-1,j,k)) <=                      &
+     &             (0.5*(z_w(i,j,0)+z_w(i-1,j,0))+500.)) THEN
+                u(i,j,k,nnew)=u(i,j,k,nstp)-dt(ng)*cff*                 &
+     &                (u(i,j,k,nnew)-TIDES(ng)%filt_ubot(i,j))
+              END IF
+            END DO
+          END IF
+        END DO
+      END DO
+      DO j=JstrV,Jend
+        DO i=Istr,Iend
+          cff = 0.5*drag_scale*(wavedrag(i,j)+wavedrag(i,j-1))
+          IF (cff > 0.0) THEN
+            DO k=1,N(ng)
+              IF (0.5*(z_r(i,j,k)+z_r(i,j-1,k)) <=                      &
+     &             (0.5*(z_w(i,j,0)+z_w(i,j-1,0))+500.)) THEN
+                v(i,j,k,nnew)=v(i,j,k,nstp)-dt(ng)*cff*                 &
+     &                (v(i,j,k,nnew)-TIDES(ng)%filt_vbot(i,j))
+              END IF
+            END DO
+          END IF
+        END DO
+      END DO
+# endif
 !
 !-----------------------------------------------------------------------
 !  Set lateral boundary conditions.

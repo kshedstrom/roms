@@ -43,8 +43,8 @@
 ** UV_LOGDRAG          use to turn ON or OFF logarithmic bottom friction     **
 ** UV_LDRAG            use to turn ON or OFF linear bottom friction          **
 ** UV_QDRAG            use to turn ON or OFF quadratic bottom friction       **
-** DRAG_LIMITIER       use to turn ON or OFF bottom drag limiter             **
 ** UV_PSOURCE          use to turn ON or OFF point Sources/Sinks             **
+** UV_WAVEDRAG         use to turn ON or OFF extra linear bottom wave drag   **
 ** Q_PSOURCE           use to turn ON or OFF mass point Sources              **
 **                                                                           **
 ** OPTION to not allow the bottom stress components to change the direction  **

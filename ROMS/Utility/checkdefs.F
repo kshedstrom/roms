@@ -2368,6 +2368,12 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+16)=' UV_SMAGORINSKY,'
 #endif
+#ifdef UV_WAVEDRAG
+      IF (Master) WRITE (stdout,20) 'UV_WAVEDRAG',                      &
+     &   'Linear bottom stress from internal tidal wave drag.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+13)=' UV_WAVEDRAG,'
+#endif
 #if defined VAR_RHO_2D && defined SOLVE3D
       IF (Master) WRITE (stdout,20) 'VAR_RHO_2D',                       &
      &   'Variable density barotropic mode.'

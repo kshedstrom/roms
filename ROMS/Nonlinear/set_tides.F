@@ -86,6 +86,12 @@
      &                     CLIMA(ng) % ubarclm,                         &
      &                     CLIMA(ng) % vbarclm,                         &
 # endif
+# ifdef UV_WAVEDRAG
+     &                     TIDES(ng) % sum_ubot,                        &
+     &                     TIDES(ng) % sum_vbot,                        &
+     &                     TIDES(ng) % filt_ubot,                       &
+     &                     TIDES(ng) % filt_vbot,                       &
+# endif
      &                     TIDES(ng) % Tperiod)
 # ifdef PROFILE
       CALL wclock_off (ng, iNLM, 11)
@@ -125,6 +131,10 @@
 # ifdef M2CLIMATOLOGY
      &                           ubarclm, vbarclm,                      &
 # endif
+# ifdef UV_WAVEDRAG
+     &                           sum_ubot, sum_vbot,                    &
+     &                           filt_ubot, filt_vbot,                  &
+# endif
      &                           Tperiod)
 !***********************************************************************
 !
@@ -134,6 +144,11 @@
       USE mod_scalars
 # ifdef TIDES_ASTRO
       USE mod_tides, ONLY : tide_astro
+# endif
+# ifdef UV_WAVEDRAG
+      USE mod_tides, ONLY : nstep_hour, hour_steps
+      USE mod_ocean
+      USE mod_stepping
 # endif
 !
 # ifdef DISTRIBUTE
@@ -190,6 +205,12 @@
       real(r8), intent(inout) :: ubarclm(LBi:,LBj:)
       real(r8), intent(inout) :: vbarclm(LBi:,LBj:)
 #  endif
+# ifdef UV_WAVEDRAG
+      real(r8), intent(inout) :: sum_ubot(LBi:,LBj:)
+      real(r8), intent(inout) :: sum_vbot(LBi:,LBj:)
+      real(r8), intent(inout) :: filt_ubot(LBi:,LBj:)
+      real(r8), intent(inout) :: filt_vbot(LBi:,LBj:)
+# endif
 # else
       real(r8), intent(in) :: angler(LBi:UBi,LBj:UBj)
 #  ifdef TIDES_ASTRO
@@ -229,6 +250,12 @@
       real(r8), intent(inout) :: ubarclm(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: vbarclm(LBi:UBi,LBj:UBj)
 #  endif
+# ifdef UV_WAVEDRAG
+      real(r8), intent(inout) :: sum_ubot(LBi:UBi,LBj:UBj)
+      real(r8), intent(inout) :: sum_vbot(LBi:UBi,LBj:UBj)
+      real(r8), intent(inout) :: filt_ubot(LBi:UBi,LBj:UBj)
+      real(r8), intent(inout) :: filt_vbot(LBi:UBi,LBj:UBj)
+# endif
 # endif
 !
 !  Local variables declarations.
@@ -982,6 +1009,43 @@
      &                    ILB, IUB, 1, 1, update,                       &
      &                    BOUNDARY(ng)%vbar_north)
 #  endif
+      END IF
+# endif
+# ifdef UV_WAVEDRAG
+      IF ((MOD(iic(ng)-ntstart(ng),nstep_hour).eq.0).and.               &
+     &    (iic(ng).ne.ntstart(ng))) THEN 
+!        IF (MOD(iic(ng)-ntstart(ng),nstep_hour*24).eq.0) THEN
+        IF (hour_steps == 24 .or. hour_steps == 0) THEN
+! At end of day, add in the 25th value, then compute new filt_ubot value,
+! and finally add in the first value for the next day.
+          hour_steps = 1
+          DO j=JstrR,JendR
+            DO i=Istr,Iend+1
+              sum_ubot(i,j)=sum_ubot(i,j)+OCEAN(ng)%u(i,j,1,nrhs(ng))
+              filt_ubot(i,j)=0.04_r8*sum_ubot(i,j)
+              sum_ubot(i,j)=OCEAN(ng)%u(i,j,1,nrhs(ng))
+            END DO
+          END DO
+          DO j=Jstr,Jend+1
+            DO i=IstrR,IendR
+              sum_vbot(i,j)=sum_vbot(i,j)+OCEAN(ng)%v(i,j,1,nrhs(ng))
+              filt_vbot(i,j)=0.04_r8*sum_vbot(i,j)
+              sum_vbot(i,j)=OCEAN(ng)%v(i,j,1,nrhs(ng))
+            END DO
+          END DO
+        ELSE
+          hour_steps = hour_steps + 1
+          DO j=JstrR,JendR
+            DO i=Istr,Iend+1
+              sum_ubot(i,j)=sum_ubot(i,j)+OCEAN(ng)%u(i,j,1,nrhs(ng))
+            END DO
+          END DO
+          DO j=Jstr,Jend+1
+            DO i=IstrR,IendR
+              sum_vbot(i,j)=sum_vbot(i,j)+OCEAN(ng)%v(i,j,1,nrhs(ng))
+            END DO
+          END DO
+        END IF
       END IF
 # endif
 

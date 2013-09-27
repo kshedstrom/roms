@@ -19,9 +19,6 @@
       USE mod_coupler
       USE mod_iounits
       USE mod_scalars
-#ifdef FILTERED
-      USE mod_filter, ONLY: nfil,fcount,nw,dtfil,FILN
-#endif
 
 # ifdef DISTRIBUTE
 !

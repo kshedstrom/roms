@@ -155,7 +155,6 @@
 
 #ifdef SOLVE3D
 # define SCORRECTION
-# undef SRELAXATION
 # undef QCORRECTION
 #endif
 

@@ -96,6 +96,7 @@
 #endif
 
 #define UV_VIS2
+#define UV_WAVEDRAG
 #undef UV_SMAGORINSKY
 #define VISC_3DCOEF
 #define MIX_S_UV

@@ -247,6 +247,7 @@
         integer  :: idrain        ! rainfall rate
         integer  :: idragL        ! bottom linear drag coefficient
         integer  :: idragQ        ! bottom quadratic drag coefficient
+        integer  :: idragW        ! bottom drag coefficient for internal tide
         integer  :: idSdif        ! vertical S-diffusion coefficient
         integer  :: idSinW        ! SIN(omega(k)*t)
         integer  :: idSin2        ! SIN(omega(k)*t)*SIN(omega(l)*t)
@@ -1400,6 +1401,10 @@
             CASE ('idZoBL')
               idZoBL=varid
 #endif
+# ifdef UV_WAVEDRAG
+            CASE ('idragW')
+              idragW=varid
+# endif
             CASE ('idUbot')
               idUbot=varid
             CASE ('idVbot')

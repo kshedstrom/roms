@@ -24,6 +24,9 @@
 #ifdef DISTRIBUTE
       USE mod_strings
 #endif
+# ifdef UV_WAVEDRAG
+      USE mod_tides, ONLY : nstep_hour
+# endif
 !
 #ifdef DISTRIBUTE
       USE distribute_mod, ONLY : mp_bcasti, mp_bcasts
@@ -893,6 +896,14 @@
           FIL(ifile,ng)%label='FILTER - tidal filtering'
         END DO
 # endif
+#endif
+#ifdef UV_WAVEDRAG
+        IF (MOD(3600,INT(dt(ng))).ne.0) THEN
+          IF (Master) print *,                                          &
+     &                'Model timesteps must fall on hour interval'
+          exit_flag=2
+        END IF
+        nstep_hour = nw*3600/INT(dt(ng))
 #endif
 !
 !  Take the square root of the biharmonic coefficients so it can
