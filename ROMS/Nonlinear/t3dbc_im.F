@@ -135,6 +135,7 @@
                   ELSE
                     tau=Tobc_out(itrc,ng,iwest)
                   END IF
+                  tau=tau*dt(ng)
                 END IF
                 tau=tau*dt(ng)
 
@@ -277,6 +278,7 @@
                   ELSE
                     tau=Tobc_out(itrc,ng,ieast)
                   END IF
+                  tau=tau*dt(ng)
                 END IF
                 tau=tau*dt(ng)
 
@@ -419,6 +421,7 @@
                   ELSE
                     tau=Tobc_out(itrc,ng,isouth)
                   END IF
+                  tau=tau*dt(ng)
                 END IF
                 tau=tau*dt(ng)
 
@@ -562,6 +565,7 @@
                   ELSE
                     tau=Tobc_out(itrc,ng,inorth)
                   END IF
+                  tau=tau*dt(ng)
                 END IF
                 tau=tau*dt(ng)
 
