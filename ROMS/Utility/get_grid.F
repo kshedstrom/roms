@@ -1246,18 +1246,24 @@
      &                          GRID(ng) % Vscope)
 #  endif
 # endif
-        END SELECT
-      END DO
-      IF (exit_flag.ne.NoError) THEN
-        IF (Master) WRITE (stdout,30) TRIM(var_name(i)), TRIM(ncname)
-        RETURN
-      END IF
 
 # if defined UV_DRAG_GRID && !defined ANA_DRAG
 #  ifdef UV_LOGDRAG
 !
 !  Read in spacially varying bottom roughness length (m).
 !
+          CASE ('lon_rho')
+            IF (spherical) THEN
+              gtype=r2dvar
+              status=nf_fread2d(ng, model, ncname, GRD(ng)%ncid,        &
+     &                          var_name(it), var_id(it),               &
+     &                          0, gtype, Vsize,                        &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          Fscl, LonMin(ng), LonMax(ng),           &
+# ifdef MASKING
+     &                          GRID(ng) % rmask,                       &
+# endif
+     &                          GRID(ng) % lonr)
       gtype=r2dvar
       status=nf_fread2d(ng, model, ncname, GRD(ng)%ncid,                &
      &                  Vname(1,idZoBL), varid_ZoBL,                    &
@@ -1292,64 +1298,65 @@
 !
 !  Read in spacially varying linear drag coefficients (m/s).
 !
-      gtype=r2dvar
-      status=nf_fread2d(ng, model, ncname, GRD(ng)%ncid,                &
-     &                  Vname(1,idragL), varid_dragL,                   &
-     &                  0, gtype, Vsize,                                &
-     &                  LBi, UBi, LBj, UBj,                             &
-     &                  Fscl, Fmin, Fmax,                               &
-#   ifdef MASKING
-     &                  GRID(ng) % rmask,                               &
-#   endif
-     &                  GRID(ng) % rdrag)
-      IF (status.ne.nf90_noerr) THEN
-        IF (Master) WRITE (stdout,30) TRIM(Vname(1,idragL)),            &
+          CASE ('rdrag')
+            gtype=r2dvar
+            status=nf_fread2d(ng, model, ncname, GRD(ng)%ncid,          &
+     &                        var_name(it), var_id(it),                 &
+     &                        0, gtype, Vsize,                          &
+     &                        LBi, UBi, LBj, UBj,                       &
+     &                        Fscl, Fmin, Fmax,                         &
+# ifdef MASKING
+     &                        GRID(ng) % rmask,                         &
+# endif
+     &                        GRID(ng) % rdrag)
+          IF (status.ne.nf90_noerr) THEN
+            IF (Master) WRITE (stdout,30) TRIM(Vname(1,idragL)),        &
      &                                TRIM(ncname)
-        exit_flag=2
-        ioerror=status
-        RETURN
-      END IF
-      IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
-        CALL exchange_r2d_tile (ng, tile,                               &
+            exit_flag=2
+            ioerror=status
+            RETURN
+          END IF
+          IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
+            CALL exchange_r2d_tile (ng, tile,                           &
      &                          LBi, UBi, LBj, UBj,                     &
-     &                          GRID(ng) % rdrag)
-      END IF
+          END IF
 #   ifdef DISTRIBUTE
-      CALL mp_exchange2d (ng, tile, model, 1,                           &
-     &                    LBi, UBi, LBj, UBj,                           &
-     &                    NghostPoints,                                 &
-     &                    EWperiodic(ng), NSperiodic(ng),               &
-     &                    GRID(ng) % rdrag)
+          CALL mp_exchange2d (ng, tile, model, 1,                       &
+     &                        LBi, UBi, LBj, UBj,                       &
+     &                        NghostPoints,                             &
+     &                        EWperiodic(ng), NSperiodic(ng),           &
+     &                        GRID(ng) % rdrag)
 #   endif
 #  endif
 #  ifdef UV_QDRAG
 !
 !  Read in spacially varying quadratic drag coefficients.
 !
-      gtype=r2dvar
-      status=nf_fread2d(ng, model, ncname, GRD(ng)%ncid,                &
-     &                  Vname(1,idragQ), varid_dragQ,                   &
-     &                  0, gtype, Vsize,                                &
-     &                  LBi, UBi, LBj, UBj,                             &
-     &                  Fscl, Fmin, Fmax,                               &
-#   ifdef MASKING
-     &                  GRID(ng) % rmask,                               &
-#   endif
-     &                  GRID(ng) % rdrag2)
-      IF (status.ne.nf90_noerr) THEN
-        IF (Master) WRITE (stdout,30) TRIM(Vname(1,idragQ)),            &
+          CASE ('rdrag2')
+            gtype=r2dvar
+            status=nf_fread2d(ng, model, ncname, GRD(ng)%ncid,          &
+     &                        var_name(it), var_id(it),                 &
+     &                        0, gtype, Vsize,                          &
+     &                        LBi, UBi, LBj, UBj,                       &
+     &                        Fscl, Fmin, Fmax,                         &
+# ifdef MASKING
+     &                        GRID(ng) % rmask,                         &
+# endif
+     &                        GRID(ng) % rdrag2)
+          IF (status.ne.nf90_noerr) THEN
+            IF (Master) WRITE (stdout,30) TRIM(Vname(1,idragQ)),        &
      &                                TRIM(ncname)
-        exit_flag=2
-        ioerror=status
-        RETURN
-      END IF
-      IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
-        CALL exchange_r2d_tile (ng, tile,                               &
+            exit_flag=2
+            ioerror=status
+            RETURN
+          END IF
+          IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
+            CALL exchange_r2d_tile (ng, tile,                           &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          GRID(ng) % rdrag2)
-      END IF
+          END IF
 #   ifdef DISTRIBUTE
-      CALL mp_exchange2d (ng, tile, model, 1,                           &
+          CALL mp_exchange2d (ng, tile, model, 1,                       &
      &                    LBi, UBi, LBj, UBj,                           &
      &                    NghostPoints,                                 &
      &                    EWperiodic(ng), NSperiodic(ng),               &
@@ -1361,36 +1368,43 @@
 !
 !  Read in spacially varying linear drag coefficients (m/s).
 !
-      gtype=r2dvar
-      status=nf_fread2d(ng, model, ncname, GRD(ng)%ncid,                &
-     &                  Vname(1,idragW), varid_dragW,                   &
-     &                  0, gtype, Vsize,                                &
-     &                  LBi, UBi, LBj, UBj,                             &
-     &                  Fscl, Fmin, Fmax,                               &
-#  ifdef MASKING
-     &                  GRID(ng) % rmask,                               &
-#  endif
-     &                  GRID(ng) % wavedrag)
-      IF (status.ne.nf90_noerr) THEN
-        IF (Master) WRITE (stdout,30) TRIM(Vname(1,idragW)),            &
+          CASE ('wavedrag')
+            gtype=r2dvar
+            status=nf_fread2d(ng, model, ncname, GRD(ng)%ncid,          &
+     &                        var_name(it), var_id(it),                 &
+     &                        0, gtype, Vsize,                          &
+     &                        LBi, UBi, LBj, UBj,                       &
+     &                        Fscl, Fmin, Fmax,                         &
+# ifdef MASKING
+     &                        GRID(ng) % rmask,                         &
+# endif
+     &                        GRID(ng) % wavedrag)
+          IF (status.ne.nf90_noerr) THEN
+            IF (Master) WRITE (stdout,30) TRIM(Vname(1,idragW)),        &
      &                                TRIM(ncname)
-        exit_flag=2
-        ioerror=status
-        RETURN
-      END IF
-      IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
-        CALL exchange_r2d_tile (ng, tile,                               &
+            exit_flag=2
+            ioerror=status
+            RETURN
+          END IF
+          IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
+            CALL exchange_r2d_tile (ng, tile,                           &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          GRID(ng) % wavedrag)
-      END IF
+          END IF
 #  ifdef DISTRIBUTE
-      CALL mp_exchange2d (ng, tile, model, 1,                           &
+          CALL mp_exchange2d (ng, tile, model, 1,                       &
      &                    LBi, UBi, LBj, UBj,                           &
      &                    NghostPoints,                                 &
      &                    EWperiodic(ng), NSperiodic(ng),               &
      &                    GRID(ng) % wavedrag)
 #  endif
 # endif
+        END SELECT
+      END DO
+      IF (exit_flag.ne.NoError) THEN
+        IF (Master) WRITE (stdout,30) TRIM(var_name(i)), TRIM(ncname)
+        RETURN
+      END IF
 !
 ! Close GRID NetCDF file.
 !
