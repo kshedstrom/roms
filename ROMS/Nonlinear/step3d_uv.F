@@ -991,34 +991,36 @@
 ! Apply wave drag on tidal velocities only. filt_ubot is an estimate of
 ! the detided velocity. Apply only in the bottom 500 m. See Arbic et
 ! al., 2010.
-      DO j=Jstr,Jend
-        DO i=IstrU,Iend
-          cff = 0.5*drag_scale*(wavedrag(i,j)+wavedrag(i-1,j))
-          IF (cff > 0.0) THEN
-            DO k=1,N(ng)
-              IF (0.5*(z_r(i,j,k)+z_r(i-1,j,k)) <=                      &
+      IF (iic(ng)-ntstart(ng) >= 86400) THEN
+        DO j=Jstr,Jend
+          DO i=IstrU,Iend
+            cff = 0.5*drag_scale*(wavedrag(i,j)+wavedrag(i-1,j))
+            IF (cff > 0.0) THEN
+              DO k=1,N(ng)
+                IF (0.5*(z_r(i,j,k)+z_r(i-1,j,k)) <=                    &
      &             (0.5*(z_w(i,j,0)+z_w(i-1,j,0))+500.)) THEN
-                u(i,j,k,nnew)=u(i,j,k,nstp)-dt(ng)*cff*                 &
+                  u(i,j,k,nnew)=u(i,j,k,nstp)-dt(ng)*cff*               &
      &                (u(i,j,k,nnew)-TIDES(ng)%filt_ubot(i,j))
-              END IF
-            END DO
-          END IF
+                END IF
+              END DO
+            END IF
+          END DO
         END DO
-      END DO
-      DO j=JstrV,Jend
-        DO i=Istr,Iend
-          cff = 0.5*drag_scale*(wavedrag(i,j)+wavedrag(i,j-1))
-          IF (cff > 0.0) THEN
-            DO k=1,N(ng)
-              IF (0.5*(z_r(i,j,k)+z_r(i,j-1,k)) <=                      &
+        DO j=JstrV,Jend
+          DO i=Istr,Iend
+            cff = 0.5*drag_scale*(wavedrag(i,j)+wavedrag(i,j-1))
+            IF (cff > 0.0) THEN
+              DO k=1,N(ng)
+                IF (0.5*(z_r(i,j,k)+z_r(i,j-1,k)) <=                    &
      &             (0.5*(z_w(i,j,0)+z_w(i,j-1,0))+500.)) THEN
-                v(i,j,k,nnew)=v(i,j,k,nstp)-dt(ng)*cff*                 &
-     &                (v(i,j,k,nnew)-TIDES(ng)%filt_vbot(i,j))
-              END IF
-            END DO
-          END IF
+                  v(i,j,k,nnew)=v(i,j,k,nstp)-dt(ng)*cff*               &
+     &                  (v(i,j,k,nnew)-TIDES(ng)%filt_vbot(i,j))
+                END IF
+              END DO
+            END IF
+          END DO
         END DO
-      END DO
+      END IF
 # endif
 !
 !-----------------------------------------------------------------------
