@@ -610,7 +610,8 @@
               END IF
               ifield=isTvar(idbio(itracer))
               Npts=load_lbc(Nval, Cval, line, nline, ifield, igrid,     &
-     &                        iTrcStr, iTrcEnd, LBC)
+     &                      iTrcStr, iTrcEnd,                           &
+     &                      Vname(1,idTvar(idbio(itracer))), LBC)
 #ifdef TCLIMATOLOGY
             CASE ('LtracerCLM')
               Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
