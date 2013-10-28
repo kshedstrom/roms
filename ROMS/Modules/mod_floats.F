@@ -71,51 +71,7 @@
 !  file.
 !
         logical, allocatable :: Fprint(:)
-!
-!  Identification indices.
-!
-        integer, parameter :: itstr = 0          ! release time
-        integer, parameter :: ixgrd = 1          ! x-grid location
-        integer, parameter :: iygrd = 2          ! y-grid location
-        integer, parameter :: izgrd = 3          ! z-grid location
-        integer, parameter :: iflon = 4          ! longitude location
-        integer, parameter :: iflat = 5          ! latitude location
-        integer, parameter :: idpth = 6          ! depth
-        integer, parameter :: ixrhs = 7          ! x-slope
-        integer, parameter :: iyrhs = 8          ! y-slope
-        integer, parameter :: izrhs = 9          ! z-slope
-        integer, parameter :: ifden = 10         ! density anomaly
-# ifdef FLOAT_VWALK
-        integer, parameter :: ifakt = 11         ! diffusivity, Akt
-        integer, parameter :: ifdak = 12         ! d(Akt)/d(s)
-# endif
-# ifdef OFFLINE_FLOATS
-        integer, parameter :: ixspc = 11         ! x-space location
-        integer, parameter :: iyspc = 12         ! y-space location
-        integer, parameter :: iwdph = 13         ! water depth
-        integer, parameter :: ifHzz = 14         ! Hz
-#  ifdef FLOAT_VWALK
-        integer, parameter :: ifakt = 15         ! diffusivity, Akt
-        integer, parameter :: ifdak = 16         ! d(Akt)/d(s)
-#  endif
-# endif
-# ifdef FLOAT_OYSTER
-#  ifdef FLOAT_VWALK
-        integer, parameter :: i1oHz = 13         ! 1/Hz
-        integer, parameter :: isizf = 14         ! larvae size (length)
-        integer, parameter :: ibrhs = 15         ! behavior RHS
-        integer, parameter :: iswim = 16         ! swimming time
-        integer, parameter :: iwbio = 17         ! biological w-velocity
-        integer, parameter :: iwsin = 18         ! sinking velocity
-#  else
-        integer, parameter :: i1oHz = 11         ! 1/Hz
-        integer, parameter :: isizf = 12         ! larvae size (length)
-        integer, parameter :: ibrhs = 13         ! behavior RHS
-        integer, parameter :: iswim = 14         ! swimming time
-        integer, parameter :: iwbio = 15         ! biological w-velocity
-        integer, parameter :: iwsin = 16         ! sinking velocity
-#  endif
-# endif
+
 # ifdef SOLVE3D
 !
 !  Tracer variables indices in the track array.
@@ -143,14 +99,6 @@
 !  Floats restart switch.
 !
         integer, allocatable :: frrec(:)
-#ifdef NEMURO_SAN
-!
-!  Fish restart switch.
-!
-        integer, allocatable :: fishrrec(:)
-        integer, allocatable :: predrrec(:)
-        integer, allocatable :: fleetrrec(:)
-#endif
 !
       CONTAINS
 !
@@ -220,11 +168,6 @@
       IF (.not.Ldrifter) THEN
         allocate ( Fprint(Ngrids) )
         allocate ( frrec(Ngrids) )
-#ifdef NEMURO_SAN
-        allocate ( fishrrec(Ngrids) )
-        allocate ( predrrec(Ngrids) )
-        allocate ( fleetrrec(Ngrids) )
-#endif
 
 # ifdef SOLVE3D
         allocate ( ifTvar(MT) )

@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Kate Hedstrom ======
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -52,7 +52,7 @@
      &                 GRID(ng)%xr, GRID(ng)%yr, OCEAN(ng)%fish_count,  &
      &                 OCEAN(ng)%distport, OCEAN(ng)%nearport,          &
      &                 OCEAN(ng)%cpue, OCEAN(ng)%avgcpue,               &
-                       OCEAN(ng)%percpue, OCEAN(ng)%yearcpue,           &
+                       OCEAN(ng)%percpue, OCEAN(ng)%new_climcpue,       &
                        OCEAN(ng)%climcpue)
 !
       IF (Master) THEN
@@ -78,7 +78,7 @@
       CALL scatter_array(ng, iNLM, LBi, UBi, LBj, UBj,                  &
      &                   OCEAN(ng)%distport, OCEAN(ng)%nearport,        &
      &                   OCEAN(ng)%cpue, OCEAN(ng)%avgcpue,             &
-     &                   OCEAN(ng)%percpue, OCEAN(ng)%yearcpue,         &
+     &                   OCEAN(ng)%percpue, OCEAN(ng)%new_climcpue,     &
      &                   OCEAN(ng)%climcpue)
 !
 # ifdef PROFILE

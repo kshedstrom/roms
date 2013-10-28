@@ -18,7 +18,7 @@
 !               Ftype(:) = 2,  isobaric (constant depth) float.        !
 !  Tinfo      Float trajectory initial information.                    !
 !  bounded    Float bounded status switch.                             !
-!  rwalk      Normally distributed random deviates used in 3-D         !
+!  rwalk      Normally distributed random deviates used in 3-D         !    
 !               random walk.                                           !
 !  r2walk     Vector of random values for random walk.                 !
 !  track      Multivariate float trajectory data at several time       !
@@ -40,11 +40,11 @@
 
           real(r8), pointer :: Flon(:)
           real(r8), pointer :: Flat(:)
-          real(r8), pointer :: Fz0(:)
           real(r8), pointer :: Tinfo(:,:)
           real(r8), pointer :: rwalk(:)
           real(r8), pointer :: r2walk(:)
           real(r8), pointer :: track(:,:,:)
+          real(r8), pointer :: Fz0(:)
 
 ! Fish fields
           real(r8), pointer :: bioenergy(:,:)
@@ -52,7 +52,7 @@
           integer, pointer  :: species(:)
           integer, pointer  :: lifestage(:)
           integer, pointer  :: deathby(:)
-          integer, pointer  :: swimtype(:)
+          integer, pointer  :: swimtype(:,:)
           logical, pointer  :: alive(:)
           type(fishnode), pointer :: fishnodes(:)
           real(r8), pointer :: egg_dur(:)
@@ -64,12 +64,11 @@
           real(r8), pointer :: juv_dur(:)
           real(r8), pointer :: juv_num(:)
           real(r8), pointer :: suba_num(:)
-          real(r8), pointer :: sp_start(:)
-          real(r8), pointer :: sp_end(:)
           real(r8), pointer :: fmortN(:)
           real(r8), pointer :: fmortS(:)
           real(r8), pointer :: fmortF(:)
           real(r8), pointer :: fmortP(:)
+          real(r8), pointer :: fmortPsum(:)
           integer, pointer  :: num_free(:)
           integer, pointer  :: next_free(:)
           integer, pointer  :: num_super(:)
@@ -83,6 +82,7 @@
         TYPE (T_FISHES), allocatable :: FISHES(:)
 !
 !  Set biological tracer identification indices.
+! NOTE: When adding variables, must update NFishV in mod_param.F
 !
       integer, parameter :: ifwwt = 1          ! fish wet weight
       integer, parameter :: ifworth = 2        ! fish worth
@@ -100,6 +100,18 @@
       integer, parameter :: ifcsmZP = 14       ! ZP consumption
       integer, parameter :: ifresp = 15        ! Respiration
       integer, parameter :: ifiniwth = 16      ! worth at creation (for split)
+      integer, parameter :: ifripe = 17        ! spawning: ripe
+      integer, parameter :: ifrest = 18        ! spawning: rest
+      integer, parameter :: ifdevl = 19        ! spawning: develop
+      integer, parameter :: ifatre = 20        ! spawning: atresia
+      integer, parameter :: ifgonj = 21        ! spawning: gonadJ
+      integer, parameter :: ifrcvr = 22        ! spawning: rcvr
+      integer, parameter :: ifdegg = 23        ! spawning: developing eggs
+      integer, parameter :: ifedjt = 24        ! spawning: developing eggs
+      integer, parameter :: ifecst = 25        ! spawning: developing eggs
+      integer, parameter :: ifcsmp = 26        ! fish comsumption
+      integer, parameter :: iflngth = 27       ! fish length
+      integer, parameter :: ifteggs = 28       ! fish length
 ! Lifestage and gender
       integer, parameter :: if_egg = 1
       integer, parameter :: if_yolksac = 2
@@ -162,6 +174,7 @@
 !
       USE mod_scalars
       USE mod_biology
+      USE mod_floats
 !
 !  Imported variable declarations.
 !
@@ -189,8 +202,6 @@
 
       allocate ( FISHES(ng) % Flat(Nfish(ng)) )
 
-      allocate ( FISHES(ng) % Fz0(Nfish(ng)) )
-
       allocate ( FISHES(ng) % Tinfo(0:izrhs,Nfish(ng)) )
 
       allocate ( FISHES(ng) % rwalk(Nfish(ng)*3) )
@@ -198,6 +209,8 @@
       allocate ( FISHES(ng) % r2walk(Nfish(ng)*6) )
 
       allocate ( FISHES(ng) % track(NFV(ng),0:NFT,Nfish(ng)) )
+
+      allocate ( FISHES(ng) % Fz0(Nfish(ng)) )
 
       allocate ( FISHES(ng) % bioenergy(NFishV(ng),Nfish(ng)) )
 
@@ -209,7 +222,7 @@
 
       allocate ( FISHES(ng) % deathby(Nfish(ng)) )
 
-      allocate ( FISHES(ng) % swimtype(Nfish(ng)) )
+      allocate ( FISHES(ng) % swimtype(2,Nfish(ng)) )
 
       allocate ( FISHES(ng) % alive(Nfish(ng)) )
 
@@ -233,10 +246,6 @@
 
       allocate ( FISHES(ng) % suba_num(Nfish(ng)) )
 
-      allocate ( FISHES(ng) % sp_start(Nspecies(ng)) )
-
-      allocate ( FISHES(ng) % sp_end(Nspecies(ng)) )
-
       allocate ( FISHES(ng) % fmortN(Nfish(ng)) )
 
       allocate ( FISHES(ng) % fmortS(Nfish(ng)) )
@@ -244,6 +253,8 @@
       allocate ( FISHES(ng) % fmortF(Nfish(ng)) )
 
       allocate ( FISHES(ng) % fmortP(Nfish(ng)) )
+
+      allocate ( FISHES(ng) % fmortPsum(Nfish(ng)) )
 
       allocate ( FISHES(ng) % cellid(Nfish(ng)) )
 
@@ -302,13 +313,15 @@
         FISHES(ng) % species(iflt) = if_none
         FISHES(ng) % lifestage(iflt) = if_none
         FISHES(ng) % deathby(iflt) = 0
-        FISHES(ng) % swimtype(iflt) = 0
+        FISHES(ng) % swimtype(1,iflt) = 0
+        FISHES(ng) % swimtype(2,iflt) = 0
         FISHES(ng) % alive(iflt) = .FALSE.
         FISHES(ng) % fishnodes(iflt) % fish = iflt
         FISHES(ng) % fmortN(iflt) = IniVal
         FISHES(ng) % fmortS(iflt) = IniVal
         FISHES(ng) % fmortF(iflt) = IniVal
         FISHES(ng) % fmortP(iflt) = IniVal
+        FISHES(ng) % fmortPsum(iflt) = IniVal
         FISHES(ng) % cellid(iflt) = 0
       END DO
 

@@ -3,7 +3,7 @@
       SUBROUTINE ini_fish
 !
 !================================================== Kate Hedstrom ======
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -44,9 +44,10 @@
       integer :: MaxHaloLenI, MaxHaloLenJ
 # endif
       integer :: inp, out, itrc, ng, npts, sequence
-      integer :: i, isp, l, fid, j
+      integer :: i, isp, ils, l, fid, j
 
-      real(r8) :: cff, Fwwght0, Fworth0
+      real(r8) :: cff, Fwwght0, Fworth0, snudg
+      real(r8) :: LfromW, matchk
       real(r8) :: xini, yini, zini
       real(r8), parameter :: spv = 0.0_r8
 !
@@ -76,6 +77,166 @@
 
 !  Don't have these things for each grid... yet.
       ng = 1
+!
+!  Fill in parameters that are lifestage dependent.
+      DO isp=1,Nspecies(ng)
+        DO ils=if_egg,if_adult
+          IF (ils.eq.if_larva) THEN
+            ZSpref(ils,isp,ng)=ZSpref_L(isp,ng)
+            ZLpref(ils,isp,ng)=ZLpref_L(isp,ng)
+            ZPpref(ils,isp,ng)=ZPpref_L(isp,ng)
+            K_ZS(ils,isp,ng)=K_ZS_L(isp,ng)
+            K_ZL(ils,isp,ng)=K_ZL_L(isp,ng)
+            K_ZP(ils,isp,ng)=K_ZP_L(isp,ng)
+            a_C(ils,isp,ng)=a_C_L(isp,ng)
+            b_C(ils,isp,ng)=b_C_L(isp,ng)
+            pvalmax(ils,isp,ng)=pvalmax_L(isp,ng)
+            a_R(ils,isp,ng)=a_R_L(isp,ng)
+            b_R(ils,isp,ng)=b_R_L(isp,ng)
+            activity(ils,isp,ng)=activity_L(isp,ng)
+            d_R(ils,isp,ng)=d_R_L(isp,ng)
+            Fswim(ils,isp,ng)=Fswim_L(isp,ng)
+            a_AE(ils,isp,ng)=a_AE_L(isp,ng)
+            b_AE(ils,isp,ng)=b_AE_L(isp,ng)
+            AEmax(ils,isp,ng)=AEmax_L(isp,ng)
+            te1(ils,isp,ng)=te1_L(isp,ng)
+            te2(ils,isp,ng)=te2_L(isp,ng)
+            te3(ils,isp,ng)=te3_L(isp,ng)
+            te4(ils,isp,ng)=te4_L(isp,ng)
+            xk1(ils,isp,ng)=xk1_L(isp,ng)
+            xk2(ils,isp,ng)=xk2_L(isp,ng)
+            xk3(ils,isp,ng)=xk3_L(isp,ng)
+            xk4(ils,isp,ng)=xk4_L(isp,ng)
+            cr(ils,isp,ng)=cr_L(isp,ng)
+            tr(ils,isp,ng)=tr_L(isp,ng)
+            aw2l(ils,isp,ng)=aw2l_L(isp,ng)
+            bw2l(ils,isp,ng)=bw2l_L(isp,ng)
+            dSLk(ils,isp,ng)=dSLk_L(isp,ng)
+            dSLinf(ils,isp,ng)=dSLinf_L(isp,ng)
+            al2w(ils,isp,ng)=al2w_L(isp,ng)
+            bl2w(ils,isp,ng)=bl2w_L(isp,ng)
+          ELSE IF (ils.eq.if_juvenile) THEN
+            ZSpref(ils,isp,ng)=ZSpref_J(isp,ng)
+            ZLpref(ils,isp,ng)=ZLpref_J(isp,ng)
+            ZPpref(ils,isp,ng)=ZPpref_J(isp,ng)
+            K_ZS(ils,isp,ng)=K_ZS_J(isp,ng)
+            K_ZL(ils,isp,ng)=K_ZL_J(isp,ng)
+            K_ZP(ils,isp,ng)=K_ZP_J(isp,ng)
+            a_C(ils,isp,ng)=a_C_J(isp,ng)
+            b_C(ils,isp,ng)=b_C_J(isp,ng)
+            pvalmax(ils,isp,ng)=pvalmax_J(isp,ng)
+            a_R(ils,isp,ng)=a_R_J(isp,ng)
+            b_R(ils,isp,ng)=b_R_J(isp,ng)
+            activity(ils,isp,ng)=activity_J(isp,ng)
+            d_R(ils,isp,ng)=d_R_J(isp,ng)
+            Fswim(ils,isp,ng)=Fswim_J(isp,ng)
+            a_AE(ils,isp,ng)=a_AE_J(isp,ng)
+            b_AE(ils,isp,ng)=b_AE_J(isp,ng)
+            AEmax(ils,isp,ng)=AEmax_J(isp,ng)
+            te1(ils,isp,ng)=te1_J(isp,ng)
+            te2(ils,isp,ng)=te2_J(isp,ng)
+            te3(ils,isp,ng)=te3_J(isp,ng)
+            te4(ils,isp,ng)=te4_J(isp,ng)
+            xk1(ils,isp,ng)=xk1_J(isp,ng)
+            xk2(ils,isp,ng)=xk2_J(isp,ng)
+            xk3(ils,isp,ng)=xk3_J(isp,ng)
+            xk4(ils,isp,ng)=xk4_J(isp,ng)
+            cr(ils,isp,ng)=cr_J(isp,ng)
+            tr(ils,isp,ng)=tr_J(isp,ng)
+            aw2l(ils,isp,ng)=aw2l_J(isp,ng)
+            bw2l(ils,isp,ng)=bw2l_J(isp,ng)
+            dSLk(ils,isp,ng)=dSLk_J(isp,ng)
+            dSLinf(ils,isp,ng)=dSLinf_J(isp,ng)
+            al2w(ils,isp,ng)=al2w_J(isp,ng)
+            bl2w(ils,isp,ng)=bl2w_J(isp,ng)
+          ELSE IF ((ils.eq.if_subadult).or.(ils.eq.if_adult)) THEN
+            ZSpref(ils,isp,ng)=ZSpref_A(isp,ng)
+            ZLpref(ils,isp,ng)=ZLpref_A(isp,ng)
+            ZPpref(ils,isp,ng)=ZPpref_A(isp,ng)
+            K_ZS(ils,isp,ng)=K_ZS_A(isp,ng)
+            K_ZL(ils,isp,ng)=K_ZL_A(isp,ng)
+            K_ZP(ils,isp,ng)=K_ZP_A(isp,ng)
+            a_C(ils,isp,ng)=a_C_A(isp,ng)
+            b_C(ils,isp,ng)=b_C_A(isp,ng)
+            pvalmax(ils,isp,ng)=pvalmax_A(isp,ng)
+            a_R(ils,isp,ng)=a_R_A(isp,ng)
+            b_R(ils,isp,ng)=b_R_A(isp,ng)
+            activity(ils,isp,ng)=activity_A(isp,ng)
+            d_R(ils,isp,ng)=d_R_A(isp,ng)
+            Fswim(ils,isp,ng)=Fswim_A(isp,ng)
+            a_AE(ils,isp,ng)=a_AE_A(isp,ng)
+            b_AE(ils,isp,ng)=b_AE_A(isp,ng)
+            AEmax(ils,isp,ng)=AEmax_A(isp,ng)
+            te1(ils,isp,ng)=te1_A(isp,ng)
+            te2(ils,isp,ng)=te2_A(isp,ng)
+            te3(ils,isp,ng)=te3_A(isp,ng)
+            te4(ils,isp,ng)=te4_A(isp,ng)
+            xk1(ils,isp,ng)=xk1_A(isp,ng)
+            xk2(ils,isp,ng)=xk2_A(isp,ng)
+            xk3(ils,isp,ng)=xk3_A(isp,ng)
+            xk4(ils,isp,ng)=xk4_A(isp,ng)
+            cr(ils,isp,ng)=cr_A(isp,ng)
+            tr(ils,isp,ng)=tr_A(isp,ng)
+            aw2l(ils,isp,ng)=aw2l_A(isp,ng)
+            bw2l(ils,isp,ng)=bw2l_A(isp,ng)
+            dSLk(ils,isp,ng)=dSLk_A(isp,ng)
+            dSLinf(ils,isp,ng)=dSLinf_A(isp,ng)
+            al2w(ils,isp,ng)=al2w_A(isp,ng)
+            bl2w(ils,isp,ng)=bl2w_A(isp,ng)
+          ELSE
+            ZSpref(ils,isp,ng)=0.0_r8
+            ZLpref(ils,isp,ng)=0.0_r8
+            ZPpref(ils,isp,ng)=0.0_r8
+            K_ZS(ils,isp,ng)=0.0_r8
+            K_ZL(ils,isp,ng)=0.0_r8
+            K_ZP(ils,isp,ng)=0.0_r8
+            a_C(ils,isp,ng)=0.0_r8
+            b_C(ils,isp,ng)=0.0_r8
+            pvalmax(ils,isp,ng)=0.0_r8
+            a_R(ils,isp,ng)=0.0_r8
+            b_R(ils,isp,ng)=0.0_r8
+            activity(ils,isp,ng)=0.0_r8
+            d_R(ils,isp,ng)=0.0_r8
+            Fswim(ils,isp,ng)=0.0_r8
+            a_AE(ils,isp,ng)=0.0_r8
+            b_AE(ils,isp,ng)=0.0_r8
+            AEmax(ils,isp,ng)=0.0_r8
+            te1(ils,isp,ng)=0.0_r8
+            te2(ils,isp,ng)=0.0_r8
+            te3(ils,isp,ng)=0.0_r8
+            te4(ils,isp,ng)=0.0_r8
+            xk1(ils,isp,ng)=0.0_r8
+            xk2(ils,isp,ng)=0.0_r8
+            xk3(ils,isp,ng)=0.0_r8
+            xk4(ils,isp,ng)=0.0_r8
+            cr(ils,isp,ng)=0.0_r8
+            tr(ils,isp,ng)=0.0_r8
+            aw2l(ils,isp,ng)=0.0_r8
+            bw2l(ils,isp,ng)=0.0_r8
+            dSLk(ils,isp,ng)=0.0_r8
+            dSLinf(ils,isp,ng)=0.0_r8
+            al2w(ils,isp,ng)=0.0_r8
+            bl2w(ils,isp,ng)=0.0_r8
+          END IF
+        END DO
+      END DO
+!
+! Fill out stage dependent natural mortality
+      DO isp=1,Nspecies(ng)
+        DO ils=if_egg,if_adult
+          IF (ils.eq.if_egg) THEN
+            Nmort(ils,isp,ng)=Nmort_E(isp,ng)
+          ELSE IF (ils.eq.if_yolksac) THEN
+            Nmort(ils,isp,ng)=Nmort_Y(isp,ng)
+          ELSE IF (ils.eq.if_larva) THEN
+            Nmort(ils,isp,ng)=Nmort_L(isp,ng)
+          ELSE IF (ils.eq.if_juvenile) THEN
+            Nmort(ils,isp,ng)=Nmort_J(isp,ng)
+          ELSE IF ((ils.eq.if_subadult).or.(ils.eq.if_adult)) THEN
+            Nmort(ils,isp,ng)=Nmort_A(isp,ng)
+          END IF
+        END DO
+      END DO
 
 # ifdef DISTRIBUTE
       IF (Master) THEN
@@ -107,14 +268,9 @@
       END DO
 
       DO isp=1,Nspecies(ng)
-!  KLUDGE FOO WARNING! This will need to be updated.
-!        FISHES(ng) % sp_start(isp) = 1.0_r8
-!        FISHES(ng) % sp_end(isp) = 210.0_r8
-        FISHES(ng)%sp_start(isp)=Fspstr(isp,ng)
-        FISHES(ng)%sp_end(isp)=Fspend(isp,ng)
         FISHES(ng)%num_free(isp)=Nfishperyear(ng)
         FISHES(ng)%num_super(isp) = FISHES(ng)%num_free(isp) /          &
-     &        (FISHES(ng)%sp_end(isp)-FISHES(ng)%sp_start(isp) + 1)
+     &        (Fspend(isp,ng)-Fspstr(isp,ng) + 1)
         FISHES(ng)%next_free(isp)=1+FISHES(ng)%age_base(isp)
       END DO
       IF (Master) THEN
@@ -138,14 +294,15 @@
      &                  (1.0_r8+0.6_r8*REAL(Nyearclass(ng)-i-1,r8)))
           END IF
           Fworth0=Fwth0(isp,ng)*1.0e6_r8/REAL(Nfishperyear(ng),r8)*    &
-     &              EXP(-Nymort(isp,ng)*REAL(Nyearclass(ng)-i-1,r8))
+     &              EXP(-Nmort_A(isp,ng)*REAL(Nyearclass(ng)-i-1,r8))
           DO l=1,Nfishperyear(ng)
             fid=FISHES(ng)%species_base(isp)+i*Nfishperyear(ng)+l
 # ifdef CCS30
 ! ---- FOR CCS CONFIGURATION ----
-            IF (FISHES(ng)%r2walk(fid).lt.0.5_r8) THEN
+            CALL ran1 (snudg)
+            IF (snudg.lt.0.5_r8) THEN
 ! southern domain
-              yini=20.0_r8+2.0_r8*FISHES(ng)%r2walk(fid)*25_r8
+              yini=20.0_r8+2.0_r8*snudg*25_r8
               IF (isp.eq.if_anchovy) THEN
 ! for anchovy (inshore)
                 xini=31.0_r8
@@ -154,7 +311,7 @@
                 xini=30.0_r8
               END IF
             ELSE
-              yini=55.0_r8+2.0_r8*(FISHES(ng)%r2walk(fid)-0.5_r8)*25_r8
+              yini=55.0_r8+2.0_r8*(snudg-0.5_r8)*25_r8
               IF (isp.eq.if_anchovy) THEN
 ! for anchovy (inshore)
                 xini=27.0_r8
@@ -163,37 +320,77 @@
                 xini=26.0_r8
               END IF
             END IF
-            xini=xini+2.0_r8*(FISHES(ng)%r2walk(fid+Nfish(ng))-0.5_r8)
+            CALL ran1 (snudg)
+            xini=xini+2.0_r8*(snudg-0.5_r8)
             zini=REAL(N(ng),r8)
 # endif
 # ifdef WC13
 ! ---- FOR WC CONFIGURATION ----
-            yini=MAX(5.0_r8,FISHES(ng)%r2walk(fid))*REAL(Mm(ng)-4,r8))
-            IF (yini.lt.33.0_r8) THEN
+            CALL ran1 (snudg)
+! old            yini=MAX(5.0_r8,snudg*REAL(Mm(ng)-4,r8))
+! old            IF (yini.lt.33.0_r8) THEN
+            yini=10.0_r8+snudg*REAL(Mm(ng)-20,r8)
+            IF (yini.lt.29.0_r8) THEN
               IF (isp.eq.if_anchovy) THEN
 ! for anchovy (inshore)
-                xini=47.0_r8-(yini-3.0_r8)*25.0_r8/30.0_r8
+! old                xini=47.0_r8-(yini-3.0_r8)*25.0_r8/30.0_r8
+                xini=40.0_r8-(yini-10.0_r8)*15.0_r8/19.0_r8
               ELSE IF (isp.eq.if_sardine) THEN
 ! for sardine (offshore)
-                xini=44.0_r8-(yini-3.0_r8)*25.0_r8/30.0_r8
+! old                xini=44.0_r8-(yini-3.0_r8)*25.0_r8/30.0_r8
+                xini=37.0_r8-(yini-10.0_r8)*15.0_r8/19.0_r8
               END IF
             ELSE
               IF (isp.eq.if_anchovy) THEN
 ! for anchovy (inshore)
-                xini=22.0_r8
+! old                xini=22.0_r8
+                xini=25.0_r8
               ELSE IF (isp.eq.if_sardine) THEN
 ! for sardine (offshore)
-                xini=19.0_r8
+! old                xini=19.0_r8
+                xini=22.0_r8
               END IF
             END IF
-            xini=xini+2.0_r8*(FISHES(ng)%r2walk(fid+Nfish(ng))-0.5_r8)
+            CALL ran1 (snudg)
+            xini=xini+2.0_r8*(snudg-0.5_r8)
             zini=REAL(N(ng),r8)
 # endif
-# ifdef NEMSAN_TEST
+# ifdef WC12
+! ---- FOR WC CONFIGURATION ----
+            CALL ran1 (snudg)
+            yini=40.0_r8+snudg*REAL(Mm(ng)-70,r8)
+            IF (yini.lt.100.0_r8) THEN
+              IF (isp.eq.if_anchovy) THEN
+! for anchovy (inshore)
+                xini=92.0_r8+(100-yini)*0.7_r8
+              ELSE IF (isp.eq.if_sardine) THEN
+! for sardine (offshore)
+                xini=85.0_r8+(100-yini)*0.7_r8
+              END IF
+            ELSE
+              IF (isp.eq.if_anchovy) THEN
+! for anchovy (inshore)
+                xini=92.0_r8
+              ELSE IF (isp.eq.if_sardine) THEN
+! for sardine (offshore)
+! old                xini=19.0_r8
+                xini=85.0_r8
+              END IF
+            END IF
+            CALL ran1 (snudg)
+            xini=xini-4.0_r8*snudg
+            zini=REAL(N(ng),r8)
+# endif
+# ifdef DOUBLE_GYRE
 ! ---- FOR TEST CONFIGURATION ----
-            xini=REAL(i+7,r8)+0.1_r8*(FISHES(ng)%r2walk(fid)-0.5_r8)
-            yini=REAL(i+7,r8)+0.1_r8*(FISHES(ng)%r2walk(fid+Nfish(ng))  &
-     &                     -0.5_r8)
+            CALL ran1 (snudg)
+!            xini=4.0_r8+(snudg-0.5_r8)
+!            CALL ran1 (snudg)
+!            yini=7.0_r8+(snudg-0.5_r8)
+!            xini=REAL(i+7,r8)+0.1_r8*(snudg-0.5_r8)
+!            yini=REAL(i+7,r8)+0.1_r8*(snudg-0.5_r8)
+            xini=13.0_r8
+            yini=27.0_r8
             zini=REAL(N(ng),r8)
 # endif
             FISHES(ng)%Tinfo(ixgrd,fid)=xini
@@ -209,23 +406,44 @@
               FISHES(ng)%track(izrhs,j,fid)=0.0_r8
 #  endif
             END DO
-            FISHES(ng)%bioenergy(ifwwt,fid)=Fwwght0*(FISHES(ng)%        &
-     &               r2walk(fid+2*Nfish(ng))+0.5_r8)
+!            FISHES(ng)%bioenergy(ifwwt,fid)=Fwwght0*(FISHES(ng)%        &
+!     &               r2walk(fid+2*Nfish(ng))+0.5_r8)
+            CALL ran1 (snudg)
+            cff=1.0_r8+0.2_r8*(snudg-0.5_r8)
+            FISHES(ng)%bioenergy(ifwwt,fid)=cff*Fwwght0
             FISHES(ng)%bioenergy(ifworth,fid)=Fworth0
             FISHES(ng)%bioenergy(ifage,fid)=REAL(Nyearclass(ng)-i,r8)
             FISHES(ng)%bioenergy(ifbday,fid)=REAL(Nyearclass(ng)-i,r8)
+            FISHES(ng)%bioenergy(ifripe,fid)=0.0_r8
+            FISHES(ng)%bioenergy(ifrest,fid)=0.0_r8
+            FISHES(ng)%bioenergy(ifdevl,fid)=0.0_r8
+            FISHES(ng)%bioenergy(ifatre,fid)=0.0_r8
+            FISHES(ng)%bioenergy(ifgonj,fid)=0.0_r8
+            FISHES(ng)%bioenergy(ifrcvr,fid)=0.0_r8
             FISHES(ng)%species(fid)=idfish_inv(isp)
             FISHES(ng)%alive(fid)=.TRUE.
-            IF (REAL(Nyearclass(ng)-i,r8).ge.Fage0(isp,ng)) THEN
-              FISHES(ng)%lifestage(fid)=if_adult
-            ELSE
-              FISHES(ng)%lifestage(fid)=if_subadult
-            ENDIF 
-            FISHES(ng)%swimtype(fid)=Fbehave(isp,ng)
+            FISHES(ng)%swimtype(1,fid)=Hbehave(isp,ng)
+            FISHES(ng)%swimtype(2,fid)=Vbehave(isp,ng)
             FISHES(ng)%species(fid)=idfish_inv(isp)
             FISHES(ng)%bounded(fid)=.TRUE.
             FISHES(ng)%cellid(fid)=nint(xini)+(Lm(ng)+2)*nint(yini)
             FISHES(ng)%deathby(fid)=0
+! Set lifestage and fish length
+            LfromW=(1.0_r8/aw2l(if_adult,isp,ng)*                       &
+     &                     FISHES(ng)%bioenergy(ifwwt,fid))**           &
+     &                         (1.0_r8/bw2l(if_adult,isp,ng))
+            FISHES(ng)%bioenergy(iflngth,fid)=MIN(LfromW,               &
+     &                           dSLinf(if_adult,isp,ng))
+! Option 1: let spanwing routine decide if mature
+!            FISHES(ng)%lifestage(fid)=if_subadult
+! Option 2: calculate maturity from length
+            matchk=1.0_r8/(1.0_r8+exp(-(amature(isp,ng)+                &
+     &                            bmature(isp,ng)*LfromW)))
+            IF (matchk.ge.0.5_r8) THEN
+              FISHES(ng)%lifestage(fid)=if_adult
+            ELSE
+              FISHES(ng)%lifestage(fid)=if_subadult
+            ENDIF 
           END DO
         END DO
       END DO
@@ -299,56 +517,276 @@
             Npts=load_i(Nval, Rval, Ngrids, Nyearclass)
           ELSE IF (TRIM(KeyWord).eq.'Nfishperyear') THEN
             Npts=load_i(Nval, Rval, Ngrids, Nfishperyear)
-          ELSE IF (TRIM(KeyWord).eq.'Nbatch') THEN
-            Npts=load_i(Nval, Rval, max_species*Ngrids, Nbatch)
           ELSE IF (TRIM(KeyWord).eq.'Fwwt0') THEN
             Npts=load_r(Nval, Rval, max_species*Ngrids, Fwwt0)
           ELSE IF (TRIM(KeyWord).eq.'Fwth0') THEN
             Npts=load_r(Nval, Rval, max_species*Ngrids, Fwth0)
-          ELSE IF (TRIM(KeyWord).eq.'Fage0') THEN
-            Npts=load_r(Nval, Rval, max_species*Ngrids, Fage0)
           ELSE IF (TRIM(KeyWord).eq.'Fspstr') THEN
             Npts=load_r(Nval, Rval, max_species*Ngrids, Fspstr)
           ELSE IF (TRIM(KeyWord).eq.'Fspend') THEN
             Npts=load_r(Nval, Rval, max_species*Ngrids, Fspend)
-          ELSE IF (TRIM(KeyWord).eq.'Fbehave') THEN
-            Npts=load_i(Nval, Rval, max_species*Ngrids, Fbehave)
-          ELSE IF (TRIM(KeyWord).eq.'ZSpref') THEN
-            Npts=load_r(Nval, Rval, max_species*Ngrids, ZSpref)
-          ELSE IF (TRIM(KeyWord).eq.'ZLpref') THEN
-            Npts=load_r(Nval, Rval, max_species*Ngrids, ZLpref)
-          ELSE IF (TRIM(KeyWord).eq.'ZPpref') THEN
-            Npts=load_r(Nval, Rval, max_species*Ngrids, ZPpref)
-          ELSE IF (TRIM(KeyWord).eq.'K_ZS') THEN
-            Npts=load_r(Nval, Rval, max_species*Ngrids, K_ZS)
-          ELSE IF (TRIM(KeyWord).eq.'K_ZL') THEN
-            Npts=load_r(Nval, Rval, max_species*Ngrids, K_ZL)
-          ELSE IF (TRIM(KeyWord).eq.'K_ZP') THEN
-            Npts=load_r(Nval, Rval, max_species*Ngrids, K_ZP)
-          ELSE IF (TRIM(KeyWord).eq.'CAL_ZF') THEN
-            Npts=load_r(Nval, Rval, max_species*Ngrids, CAL_ZF)
-          ELSE IF (TRIM(KeyWord).eq.'a_C') THEN
-            Npts=load_r(Nval, Rval, max_species*Ngrids, a_C)
-          ELSE IF (TRIM(KeyWord).eq.'b_C') THEN
-            Npts=load_r(Nval, Rval, max_species*Ngrids, b_C)
-          ELSE IF (TRIM(KeyWord).eq.'a_F') THEN
-            Npts=load_r(Nval, Rval, max_species*Ngrids, a_F)
-          ELSE IF (TRIM(KeyWord).eq.'a_E') THEN
-            Npts=load_r(Nval, Rval, max_species*Ngrids, a_E)
-          ELSE IF (TRIM(KeyWord).eq.'a_R') THEN
-            Npts=load_r(Nval, Rval, max_species*Ngrids, a_R)
-          ELSE IF (TRIM(KeyWord).eq.'b_R') THEN
-            Npts=load_r(Nval, Rval, max_species*Ngrids, b_R)
-          ELSE IF (TRIM(KeyWord).eq.'d_R') THEN
-            Npts=load_r(Nval, Rval, max_species*Ngrids, d_R)
-          ELSE IF (TRIM(KeyWord).eq.'a_A') THEN
-            Npts=load_r(Nval, Rval, max_species*Ngrids, a_A)
-          ELSE IF (TRIM(KeyWord).eq.'b_A') THEN
-            Npts=load_r(Nval, Rval, max_species*Ngrids, b_A)
-          ELSE IF (TRIM(KeyWord).eq.'a_S') THEN
-            Npts=load_r(Nval, Rval, max_species*Ngrids, a_S)
-          ELSE IF (TRIM(KeyWord).eq.'Nymort') THEN
-            Npts=load_r(Nval, Rval, max_species*Ngrids, Nymort)
+          ELSE IF (TRIM(KeyWord).eq.'FspTmin') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, FspTmin)
+          ELSE IF (TRIM(KeyWord).eq.'FspTmax') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, FspTmax)
+          ELSE IF (TRIM(KeyWord).eq.'Hbehave') THEN
+            Npts=load_i(Nval, Rval, max_species*Ngrids, Hbehave)
+          ELSE IF (TRIM(KeyWord).eq.'Vbehave') THEN
+            Npts=load_i(Nval, Rval, max_species*Ngrids, Vbehave)
+          ELSE IF (TRIM(KeyWord).eq.'ZSpref_L') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, ZSpref_L)
+          ELSE IF (TRIM(KeyWord).eq.'ZSpref_J') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, ZSpref_J)
+          ELSE IF (TRIM(KeyWord).eq.'ZSpref_A') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, ZSpref_A)
+          ELSE IF (TRIM(KeyWord).eq.'ZLpref_L') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, ZLpref_L)
+          ELSE IF (TRIM(KeyWord).eq.'ZLpref_J') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, ZLpref_J)
+          ELSE IF (TRIM(KeyWord).eq.'ZLpref_A') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, ZLpref_A)
+          ELSE IF (TRIM(KeyWord).eq.'ZPpref_L') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, ZPpref_L)
+          ELSE IF (TRIM(KeyWord).eq.'ZPpref_J') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, ZPpref_J)
+          ELSE IF (TRIM(KeyWord).eq.'ZPpref_A') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, ZPpref_A)
+          ELSE IF (TRIM(KeyWord).eq.'K_ZS_L') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, K_ZS_L)
+          ELSE IF (TRIM(KeyWord).eq.'K_ZS_J') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, K_ZS_J)
+          ELSE IF (TRIM(KeyWord).eq.'K_ZS_A') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, K_ZS_A)
+          ELSE IF (TRIM(KeyWord).eq.'K_ZL_L') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, K_ZL_L)
+          ELSE IF (TRIM(KeyWord).eq.'K_ZL_J') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, K_ZL_J)
+          ELSE IF (TRIM(KeyWord).eq.'K_ZL_A') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, K_ZL_A)
+          ELSE IF (TRIM(KeyWord).eq.'K_ZP_L') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, K_ZP_L)
+          ELSE IF (TRIM(KeyWord).eq.'K_ZP_J') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, K_ZP_J)
+          ELSE IF (TRIM(KeyWord).eq.'K_ZP_A') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, K_ZP_A)
+          ELSE IF (TRIM(KeyWord).eq.'Cal_Z') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, Cal_Z)
+          ELSE IF (TRIM(KeyWord).eq.'Cal_F') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, Cal_F)
+          ELSE IF (TRIM(KeyWord).eq.'a_C_L') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, a_C_L)
+          ELSE IF (TRIM(KeyWord).eq.'a_C_J') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, a_C_J)
+          ELSE IF (TRIM(KeyWord).eq.'a_C_A') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, a_C_A)
+          ELSE IF (TRIM(KeyWord).eq.'b_C_L') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, b_C_L)
+          ELSE IF (TRIM(KeyWord).eq.'b_C_J') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, b_C_J)
+          ELSE IF (TRIM(KeyWord).eq.'b_C_A') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, b_C_A)
+          ELSE IF (TRIM(KeyWord).eq.'pvalmax_L') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, pvalmax_L)
+          ELSE IF (TRIM(KeyWord).eq.'pvalmax_J') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, pvalmax_J)
+          ELSE IF (TRIM(KeyWord).eq.'pvalmax_A') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, pvalmax_A)
+          ELSE IF (TRIM(KeyWord).eq.'a_R_L') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, a_R_L)
+          ELSE IF (TRIM(KeyWord).eq.'a_R_J') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, a_R_J)
+          ELSE IF (TRIM(KeyWord).eq.'a_R_A') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, a_R_A)
+          ELSE IF (TRIM(KeyWord).eq.'b_R_L') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, b_R_L)
+          ELSE IF (TRIM(KeyWord).eq.'b_R_J') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, b_R_J)
+          ELSE IF (TRIM(KeyWord).eq.'b_R_A') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, b_R_A)
+          ELSE IF (TRIM(KeyWord).eq.'activity_L') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, activity_L)
+          ELSE IF (TRIM(KeyWord).eq.'activity_J') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, activity_J)
+          ELSE IF (TRIM(KeyWord).eq.'activity_A') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, activity_A)
+          ELSE IF (TRIM(KeyWord).eq.'d_R_L') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, d_R_L)
+          ELSE IF (TRIM(KeyWord).eq.'d_R_J') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, d_R_J)
+          ELSE IF (TRIM(KeyWord).eq.'d_R_A') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, d_R_A)
+          ELSE IF (TRIM(KeyWord).eq.'Fswim_L') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, Fswim_L)
+          ELSE IF (TRIM(KeyWord).eq.'Fswim_J') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, Fswim_J)
+          ELSE IF (TRIM(KeyWord).eq.'Fswim_A') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, Fswim_A)
+          ELSE IF (TRIM(KeyWord).eq.'a_AE_L') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, a_AE_L)
+          ELSE IF (TRIM(KeyWord).eq.'a_AE_J') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, a_AE_J)
+          ELSE IF (TRIM(KeyWord).eq.'a_AE_A') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, a_AE_A)
+          ELSE IF (TRIM(KeyWord).eq.'b_AE_L') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, b_AE_L)
+          ELSE IF (TRIM(KeyWord).eq.'b_AE_J') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, b_AE_J)
+          ELSE IF (TRIM(KeyWord).eq.'b_AE_A') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, b_AE_A)
+          ELSE IF (TRIM(KeyWord).eq.'AEmax_L') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, AEmax_L)
+          ELSE IF (TRIM(KeyWord).eq.'AEmax_J') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, AEmax_J)
+          ELSE IF (TRIM(KeyWord).eq.'AEmax_A') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, AEmax_A)
+          ELSE IF (TRIM(KeyWord).eq.'te1_L') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, te1_L)
+          ELSE IF (TRIM(KeyWord).eq.'te1_J') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, te1_J)
+          ELSE IF (TRIM(KeyWord).eq.'te1_A') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, te1_A)
+          ELSE IF (TRIM(KeyWord).eq.'te2_L') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, te2_L)
+          ELSE IF (TRIM(KeyWord).eq.'te2_J') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, te2_J)
+          ELSE IF (TRIM(KeyWord).eq.'te2_A') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, te2_A)
+          ELSE IF (TRIM(KeyWord).eq.'te3_L') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, te3_L)
+          ELSE IF (TRIM(KeyWord).eq.'te3_J') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, te3_J)
+          ELSE IF (TRIM(KeyWord).eq.'te3_A') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, te3_A)
+          ELSE IF (TRIM(KeyWord).eq.'te4_L') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, te4_L)
+          ELSE IF (TRIM(KeyWord).eq.'te4_J') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, te4_J)
+          ELSE IF (TRIM(KeyWord).eq.'te4_A') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, te4_A)
+          ELSE IF (TRIM(KeyWord).eq.'xk1_L') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, xk1_L)
+          ELSE IF (TRIM(KeyWord).eq.'xk1_J') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, xk1_J)
+          ELSE IF (TRIM(KeyWord).eq.'xk1_A') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, xk1_A)
+          ELSE IF (TRIM(KeyWord).eq.'xk2_L') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, xk2_L)
+          ELSE IF (TRIM(KeyWord).eq.'xk2_J') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, xk2_J)
+          ELSE IF (TRIM(KeyWord).eq.'xk2_A') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, xk2_A)
+          ELSE IF (TRIM(KeyWord).eq.'xk3_L') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, xk3_L)
+          ELSE IF (TRIM(KeyWord).eq.'xk3_J') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, xk3_J)
+          ELSE IF (TRIM(KeyWord).eq.'xk3_A') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, xk3_A)
+          ELSE IF (TRIM(KeyWord).eq.'xk4_L') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, xk4_L)
+          ELSE IF (TRIM(KeyWord).eq.'xk4_J') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, xk4_J)
+          ELSE IF (TRIM(KeyWord).eq.'xk4_A') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, xk4_A)
+          ELSE IF (TRIM(KeyWord).eq.'cr_L') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, cr_L)
+          ELSE IF (TRIM(KeyWord).eq.'cr_J') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, cr_J)
+          ELSE IF (TRIM(KeyWord).eq.'cr_A') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, cr_A)
+          ELSE IF (TRIM(KeyWord).eq.'tr_L') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, tr_L)
+          ELSE IF (TRIM(KeyWord).eq.'tr_J') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, tr_J)
+          ELSE IF (TRIM(KeyWord).eq.'tr_A') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, tr_A)
+          ELSE IF (TRIM(KeyWord).eq.'Wffeed') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, Wffeed)
+          ELSE IF (TRIM(KeyWord).eq.'Lffeed') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, Lffeed)
+          ELSE IF (TRIM(KeyWord).eq.'WeightLJ') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, WeightLJ)
+          ELSE IF (TRIM(KeyWord).eq.'LengthLJ') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, LengthLJ)
+          ELSE IF (TRIM(KeyWord).eq.'WeightJA') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, WeightJA)
+          ELSE IF (TRIM(KeyWord).eq.'LengthJA') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, LengthJA)
+          ELSE IF (TRIM(KeyWord).eq.'aw2l_L') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, aw2l_L)
+          ELSE IF (TRIM(KeyWord).eq.'aw2l_J') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, aw2l_J)
+          ELSE IF (TRIM(KeyWord).eq.'aw2l_A') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, aw2l_A)
+          ELSE IF (TRIM(KeyWord).eq.'bw2l_L') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, bw2l_L)
+          ELSE IF (TRIM(KeyWord).eq.'bw2l_J') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, bw2l_J)
+          ELSE IF (TRIM(KeyWord).eq.'bw2l_A') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, bw2l_A)
+          ELSE IF (TRIM(KeyWord).eq.'dSLk_L') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, dSLk_L)
+          ELSE IF (TRIM(KeyWord).eq.'dSLk_J') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, dSLk_J)
+          ELSE IF (TRIM(KeyWord).eq.'dSLk_A') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, dSLk_A)
+          ELSE IF (TRIM(KeyWord).eq.'dSLinf_L') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, dSLinf_L)
+          ELSE IF (TRIM(KeyWord).eq.'dSLinf_J') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, dSLinf_J)
+          ELSE IF (TRIM(KeyWord).eq.'dSLinf_A') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, dSLinf_A)
+          ELSE IF (TRIM(KeyWord).eq.'al2w_L') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, al2w_L)
+          ELSE IF (TRIM(KeyWord).eq.'al2w_J') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, al2w_J)
+          ELSE IF (TRIM(KeyWord).eq.'al2w_A') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, al2w_A)
+          ELSE IF (TRIM(KeyWord).eq.'bl2w_L') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, bl2w_L)
+          ELSE IF (TRIM(KeyWord).eq.'bl2w_J') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, bl2w_J)
+          ELSE IF (TRIM(KeyWord).eq.'bl2w_A') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, bl2w_A)
+          ELSE IF (TRIM(KeyWord).eq.'abatch') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, abatch)
+          ELSE IF (TRIM(KeyWord).eq.'bbatch') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, bbatch)
+          ELSE IF (TRIM(KeyWord).eq.'T0batch') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, T0batch)
+          ELSE IF (TRIM(KeyWord).eq.'apof') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, apof)
+          ELSE IF (TRIM(KeyWord).eq.'bpof') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, bpof)
+          ELSE IF (TRIM(KeyWord).eq.'T0pof') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, T0pof)
+          ELSE IF (TRIM(KeyWord).eq.'epg') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, epg)
+          ELSE IF (TRIM(KeyWord).eq.'eegg') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, eegg)
+          ELSE IF (TRIM(KeyWord).eq.'megg') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, megg)
+          ELSE IF (TRIM(KeyWord).eq.'breed') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, breed)
+          ELSE IF (TRIM(KeyWord).eq.'amature') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, amature)
+          ELSE IF (TRIM(KeyWord).eq.'bmature') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, bmature)
+          ELSE IF (TRIM(KeyWord).eq.'pctxwt') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, pctxwt)
+          ELSE IF (TRIM(KeyWord).eq.'pctgain') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, pctgain)
+          ELSE IF (TRIM(KeyWord).eq.'Nmort_E') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, Nmort_E)
+          ELSE IF (TRIM(KeyWord).eq.'Nmort_Y') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, Nmort_Y)
+          ELSE IF (TRIM(KeyWord).eq.'Nmort_L') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, Nmort_L)
+          ELSE IF (TRIM(KeyWord).eq.'Nmort_J') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, Nmort_J)
+          ELSE IF (TRIM(KeyWord).eq.'Nmort_A') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, Nmort_A)
+!          ELSE IF (TRIM(KeyWord).eq.'Nymort') THEN
+!            Npts=load_r(Nval, Rval, max_species*Ngrids, Nymort)
           ELSE IF (TRIM(KeyWord).eq.'Fymort') THEN
             Npts=load_r(Nval, Rval, max_species*Ngrids, Fymort)
           END IF
@@ -388,13 +826,13 @@
       DO i=1,Npts
         igrid=1
         Fcoor (nentry(igrid)+1,igrid)=0
-!        Ftype (nentry(igrid)+1,igrid)=1         ! 3-D Largrangian fish
-        Ftype (nentry(igrid)+1,igrid)=3          ! 3-D Geopotential fish
+        Ftype (nentry(igrid)+1,igrid)=1         ! 3-D Largrangian fish (neutrally buoyant)
+!        Ftype (nentry(igrid)+1,igrid)=3        ! 3-D Geopotential fish (fixed depth)
         Fcount(nentry(igrid)+1,igrid)=1
         Ft0(nentry(igrid)+1,igrid)=0.0_r8
         Fx0(nentry(igrid)+1,igrid)=0.0_r8
         Fy0(nentry(igrid)+1,igrid)=0.0_r8
-        Fz0(nentry(igrid)+1,igrid)=-50.0_r8
+        Fz0(nentry(igrid)+1,igrid)=-5.0_r8
         Fdt(nentry(igrid)+1,igrid)=0.0_r8
         Fdx(nentry(igrid)+1,igrid)=0.0_r8
         Fdy(nentry(igrid)+1,igrid)=0.0_r8
@@ -446,60 +884,280 @@
               WRITE (out,*)
               WRITE (out,*) 'PARAMETERS FOR SPECIES ',isp
               WRITE (out,*) '--------------------------------------'
-              WRITE (out,80) Nbatch(isp,ng),                            &
-     &              'Nbatch',                                           &
-     &              'Number of egg batches per fish per year.'
               WRITE (out,110) Fwwt0(isp,ng), 'Fwwt0',                   &
      &                'Fish initial wet weight (g).'
               WRITE (out,110) Fwth0(isp,ng), 'Fwth0',                   &
      &                'Fish initial worth (millions of fishes).'
-              WRITE (out,110) Fage0(isp,ng), 'Fage0',                   &
-     &              'Fish spawning maturity (years).'
               WRITE (out,110) Fspstr(isp,ng), 'Fspstr',                 &
      &              'Fish start of spawning season (yearday).'
               WRITE (out,110) Fspend(isp,ng), 'Fspend',                 &
      &              'Fish end of spawning season (yearday).'
-              WRITE (out,80) Fbehave(isp,ng),                           &
-     &              'Fbehave',                                          &
-     &              'Fish behavior (1=Fitness, 2=Kinesis)'
-              WRITE (out,110) ZSpref(isp,ng), 'ZSpref',                 &
-     &              'Fish preference for ZS (-).'
-              WRITE (out,110) ZLpref(isp,ng), 'ZLpref',                 &
-     &              'Fish preference for ZL (-).'
-              WRITE (out,110) ZPpref(isp,ng), 'ZPpref',                 &
-     &              'Fish preference for ZP (-).'
-              WRITE (out,110) K_ZS(isp,ng), 'K_ZS',                     &
-     &              'Fish half-saturation constant for ZS.'
-              WRITE (out,110) K_ZL(isp,ng), 'K_ZL',                     &
-     &              'Fish half-saturation constant for ZL.'
-              WRITE (out,110) K_ZP(isp,ng), 'K_ZP',                     &
-     &              'Fish half-saturation constant for ZP.'
-              WRITE (out,110) CAL_ZF(isp,ng), 'CAL_ZF',                 &
-     &              'Energy conversion from Z to Fish.'
-              WRITE (out,110) a_C(isp,ng), 'a_C',                       &
-     &              'Fish comsumption coefficient.'
-              WRITE (out,110) b_C(isp,ng), 'b_C',                       &
-     &              'Fish comsumption exponent.'
-              WRITE (out,110) a_F(isp,ng), 'a_F',                       &
-     &              'Fish egestion coefficient.'
-              WRITE (out,110) a_E(isp,ng), 'a_E',                       &
-     &              'Fish excretion coefficient.'
-              WRITE (out,110) a_R(isp,ng), 'a_R',                       &
-     &              'Fish respiration coefficient.'
-              WRITE (out,110) b_R(isp,ng), 'b_R',                       &
-     &              'Fish respiration exponent.'
-              WRITE (out,110) d_R(isp,ng), 'd_R',                       &
-     &              'Fish swimming coefficient.'
-              WRITE (out,110) a_A(isp,ng), 'a_A',                       &
-     &              'Fish activity coefficient.'
-              WRITE (out,110) b_A(isp,ng), 'b_A',                       &
-     &              'Fish activity exponent.'
-              WRITE (out,110) a_S(isp,ng), 'a_S',                       &
-     &              'Fish SDA coefficient.'
-              WRITE (out,110) Nymort(isp,ng), 'Nymort',                 &
-     &              'Yearly natural mortality.'
+              WRITE (out,110) FspTmin(isp,ng), 'FspTmin',               &
+     &              'Min temperature for pawning season (C).'
+              WRITE (out,110) FspTmax(isp,ng), 'FspTmax',               &
+     &              'Max temperature for pawning season (C).'
+              WRITE (out,80) Hbehave(isp,ng),                           &
+     &              'Hbehave',                                          &
+     &              'Fish horizontal behavior'
+              WRITE (out,80) Vbehave(isp,ng),                           &
+     &              'Vbehave',                                          &
+     &              'Fish vertical behavior'
+              WRITE (out,110) ZSpref_L(isp,ng), 'ZSpref_L',             &
+     &              'Larva ZSpref'
+              WRITE (out,110) ZSpref_J(isp,ng), 'ZSpref_J',             &
+     &              'Juven ZSpref'
+              WRITE (out,110) ZSpref_A(isp,ng), 'ZSpref_A',             &
+     &              'Adult ZSpref'
+              WRITE (out,110) ZLpref_L(isp,ng), 'ZLpref_L',             &
+     &              'Larva ZLpref'
+              WRITE (out,110) ZLpref_J(isp,ng), 'ZLpref_J',             &
+     &              'Juven ZLpref'
+              WRITE (out,110) ZLpref_A(isp,ng), 'ZLpref_A',             &
+     &              'Adult ZLpref'
+              WRITE (out,110) ZPpref_L(isp,ng), 'ZPpref_L',             &
+     &              'Larva ZPpref'
+              WRITE (out,110) ZPpref_J(isp,ng), 'ZPpref_J',             &
+     &              'Juven ZPpref'
+              WRITE (out,110) ZPpref_A(isp,ng), 'ZPpref_A',             &
+     &              'Adult ZPpref'
+              WRITE (out,110) K_ZS_L(isp,ng), 'K_ZS_L',                 &
+     &              'Larva K_ZS'
+              WRITE (out,110) K_ZS_J(isp,ng), 'K_ZS_J',                 &
+     &              'Juven K_ZS'
+              WRITE (out,110) K_ZS_A(isp,ng), 'K_ZS_A',                 &
+     &              'Adult K_ZS'
+              WRITE (out,110) K_ZL_L(isp,ng), 'K_ZL_L',                 &
+     &              'Larva K_ZL'
+              WRITE (out,110) K_ZL_J(isp,ng), 'K_ZL_J',                 &
+     &              'Juven K_ZL'
+              WRITE (out,110) K_ZL_A(isp,ng), 'K_ZL_A',                 &
+     &              'Adult K_ZL'
+              WRITE (out,110) K_ZP_L(isp,ng), 'K_ZP_L',                 &
+     &              'Larva K_ZP'
+              WRITE (out,110) K_ZP_J(isp,ng), 'K_ZP_J',                 &
+     &              'Juven K_ZP'
+              WRITE (out,110) K_ZP_A(isp,ng), 'K_ZP_A',                 &
+     &              'Adult K_ZP'
+              WRITE (out,110) Cal_Z(isp,ng), 'Cal_Z',                   &
+     &              'Zoop energy content'
+              WRITE (out,110) Cal_F(isp,ng), 'Cal_F',                   &
+     &              'Fish energy content'
+              WRITE (out,110) a_C_L(isp,ng), 'a_C_L',                   &
+     &              'Larva consumption'
+              WRITE (out,110) a_C_J(isp,ng), 'a_C_J',                   &
+     &              'Juven consumption'
+              WRITE (out,110) a_C_A(isp,ng), 'a_C_A',                   &
+     &              'Adult consumption'
+              WRITE (out,110) b_C_L(isp,ng), 'b_C_L',                   &
+     &              'Larva consumption'
+              WRITE (out,110) b_C_J(isp,ng), 'b_C_J',                   &
+     &              'Juven consumption'
+              WRITE (out,110) b_C_A(isp,ng), 'b_C_A',                   &
+     &              'Adult consumption'
+              WRITE (out,110) pvalmax_L(isp,ng), 'pvalmax_L',           &
+     &              'Larva Max Pvalue'
+              WRITE (out,110) pvalmax_J(isp,ng), 'pvalmax_J',           &
+     &              'Juven Max Pvalue'
+              WRITE (out,110) pvalmax_A(isp,ng), 'pvalmax_A',           &
+     &              'Adult Max Pvalue'
+              WRITE (out,110) a_R_L(isp,ng), 'a_R_L',                   &
+     &              'Larva respiration'
+              WRITE (out,110) a_R_J(isp,ng), 'a_R_J',                   &
+     &              'Juven respiration'
+              WRITE (out,110) a_R_A(isp,ng), 'a_R_A',                   &
+     &              'Adult respiration'
+              WRITE (out,110) b_R_L(isp,ng), 'b_R_L',                   &
+     &              'Larva respiration'
+              WRITE (out,110) b_R_J(isp,ng), 'b_R_J',                   &
+     &              'Juven respiration'
+              WRITE (out,110) b_R_A(isp,ng), 'b_R_A',                   &
+     &              'Adult respiration'
+              WRITE (out,110) activity_L(isp,ng), 'activity_L',         &
+     &              'Larva activity'
+              WRITE (out,110) activity_J(isp,ng), 'activity_J',         &
+     &              'Juven activity'
+              WRITE (out,110) activity_A(isp,ng), 'activity_A',         &
+     &              'Adult activity'
+              WRITE (out,110) d_R_L(isp,ng), 'd_R_L',                   &
+     &              'Larva swimming'
+              WRITE (out,110) d_R_J(isp,ng), 'd_R_J',                   &
+     &              'Juven swimming'
+              WRITE (out,110) d_R_A(isp,ng), 'd_R_A',                   &
+     &              'Adult swimming'
+              WRITE (out,110) Fswim_L(isp,ng), 'Fswim_L',               &
+     &              'Larva swimming'
+              WRITE (out,110) Fswim_J(isp,ng), 'Fswim_J',               &
+     &              'Juven swimming'
+              WRITE (out,110) Fswim_A(isp,ng), 'Fswim_A',               &
+     &              'Adult swimming'
+              WRITE (out,110) a_AE_L(isp,ng), 'a_AE_L',                 &
+     &              'Larva assimilation'
+              WRITE (out,110) a_AE_J(isp,ng), 'a_AE_J',                 &
+     &              'Juven assimilation'
+              WRITE (out,110) a_AE_A(isp,ng), 'a_AE_A',                 &
+     &              'Adult assimilation'
+              WRITE (out,110) b_AE_L(isp,ng), 'b_AE_L',                 &
+     &              'Larva assimilation'
+              WRITE (out,110) b_AE_J(isp,ng), 'b_AE_J',                 &
+     &              'Juven assimilation'
+              WRITE (out,110) b_AE_A(isp,ng), 'b_AE_A',                 &
+     &              'Adult assimilation'
+              WRITE (out,110) AEmax_L(isp,ng), 'AEmax_L',               &
+     &              'Larva assimilation'
+              WRITE (out,110) AEmax_J(isp,ng), 'AEmax_J',               &
+     &              'Juven assimilation'
+              WRITE (out,110) AEmax_A(isp,ng), 'AEmax_A',               &
+     &              'Adult assimilation'
+              WRITE (out,110) te1_L(isp,ng), 'te1_L',                   &
+     &              'Larva temperature dependence'
+              WRITE (out,110) te1_J(isp,ng), 'te1_J',                   &
+     &              'Juven temperature dependence'
+              WRITE (out,110) te1_A(isp,ng), 'te1_A',                   &
+     &              'Adult temperature dependence'
+              WRITE (out,110) te2_L(isp,ng), 'te2_L',                   &
+     &              'Larva temperature dependence'
+              WRITE (out,110) te2_J(isp,ng), 'te2_J',                   &
+     &              'Juven temperature dependence'
+              WRITE (out,110) te2_A(isp,ng), 'te2_A',                   &
+     &              'Adult temperature dependence'
+              WRITE (out,110) te3_L(isp,ng), 'te3_L',                   &
+     &              'Larva temperature dependence'
+              WRITE (out,110) te3_J(isp,ng), 'te3_J',                   &
+     &              'Juven temperature dependence'
+              WRITE (out,110) te3_A(isp,ng), 'te3_A',                   &
+     &              'Adult temperature dependence'
+              WRITE (out,110) te4_L(isp,ng), 'te4_L',                   &
+     &              'Larva temperature dependence'
+              WRITE (out,110) te4_J(isp,ng), 'te4_J',                   &
+     &              'Juven temperature dependence'
+              WRITE (out,110) te4_A(isp,ng), 'te4_A',                   &
+     &              'Adult temperature dependence'
+              WRITE (out,110) xk1_L(isp,ng), 'xk1_L',                   &
+     &              'Larva temperature dependence'
+              WRITE (out,110) xk1_J(isp,ng), 'xk1_J',                   &
+     &              'Juven temperature dependence'
+              WRITE (out,110) xk1_A(isp,ng), 'xk1_A',                   &
+     &              'Adult temperature dependence'
+              WRITE (out,110) xk2_L(isp,ng), 'xk2_L',                   &
+     &              'Larva temperature dependence'
+              WRITE (out,110) xk2_J(isp,ng), 'xk2_J',                   &
+     &              'Juven temperature dependence'
+              WRITE (out,110) xk2_A(isp,ng), 'xk2_A',                   &
+     &              'Adult temperature dependence'
+              WRITE (out,110) xk3_L(isp,ng), 'xk3_L',                   &
+     &              'Larva temperature dependence'
+              WRITE (out,110) xk3_J(isp,ng), 'xk3_J',                   &
+     &              'Juven temperature dependence'
+              WRITE (out,110) xk3_A(isp,ng), 'xk3_A',                   &
+     &              'Adult temperature dependence'
+              WRITE (out,110) xk4_L(isp,ng), 'xk4_L',                   &
+     &              'Larva temperature dependence'
+              WRITE (out,110) xk4_J(isp,ng), 'xk4_J',                   &
+     &              'Juven temperature dependence'
+              WRITE (out,110) xk4_A(isp,ng), 'xk4_A',                   &
+     &              'Adult temperature dependence'
+              WRITE (out,110) cr_L(isp,ng), 'cr_L',                     &
+     &              'Adult temperature dependence'
+              WRITE (out,110) cr_J(isp,ng), 'cr_J',                     &
+     &              'Adult temperature dependence'
+              WRITE (out,110) cr_A(isp,ng), 'cr_A',                     &
+     &              'Adult temperature dependence'
+              WRITE (out,110) tr_L(isp,ng), 'tr_L',                     &
+     &              'Adult temperature dependence'
+              WRITE (out,110) tr_J(isp,ng), 'tr_J',                     &
+     &              'Adult temperature dependence'
+              WRITE (out,110) tr_A(isp,ng), 'tr_A',                     &
+     &              'Adult temperature dependence'
+              WRITE (out,110) Wffeed(isp,ng), 'Wffeed',                 &
+     &              'Weight at first feeding'
+              WRITE (out,110) Lffeed(isp,ng), 'Lffeed',                 &
+     &              'Length at first feeding'
+              WRITE (out,110) WeightLJ(isp,ng), 'WeightLJ',             &
+     &              'Weight for L to J transition' 
+              WRITE (out,110) LengthLJ(isp,ng), 'LengthLJ',             &
+     &              'Length for L to J transition' 
+              WRITE (out,110) WeightJA(isp,ng), 'WeightJA',             &
+     &              'Weight for J to A transition' 
+              WRITE (out,110) LengthJA(isp,ng), 'LengthJA',             &
+     &              'Length for J to A transition' 
+              WRITE (out,110) aw2l_L(isp,ng), 'aw2l_L',                 &
+     &              'Larva weight-length conversion'
+              WRITE (out,110) aw2l_J(isp,ng), 'aw2l_J',                 &
+     &              'Juven weight-length conversion'
+              WRITE (out,110) aw2l_A(isp,ng), 'aw2l_A',                 &
+     &              'Adult weight-length conversion'
+              WRITE (out,110) bw2l_L(isp,ng), 'bw2l_L',                 &
+     &              'Larva weight-length conversion'
+              WRITE (out,110) bw2l_J(isp,ng), 'bw2l_J',                 &
+     &              'Juven weight-length conversion'
+              WRITE (out,110) bw2l_A(isp,ng), 'bw2l_A',                 &
+     &              'Adult weight-length conversion'
+              WRITE (out,110) dSLk_L(isp,ng), 'dSLk_L',                 &
+     &              'Larva weight-length conversion'
+              WRITE (out,110) dSLk_J(isp,ng), 'dSLk_J',                 &
+     &              'Juven weight-length conversion'
+              WRITE (out,110) dSLk_A(isp,ng), 'dSLk_A',                 &
+     &              'Adult weight-length conversion'
+              WRITE (out,110) dSLinf_L(isp,ng), 'dSLinf_L',             &
+     &              'Larva weight-length conversion'
+              WRITE (out,110) dSLinf_J(isp,ng), 'dSLinf_J',             &
+     &              'Juven weight-length conversion'
+              WRITE (out,110) dSLinf_A(isp,ng), 'dSLinf_A',             &
+     &              'Adult weight-length conversion'
+              WRITE (out,110) al2w_L(isp,ng), 'al2w_L',                 &
+     &              'Larva weight-length conversion'
+              WRITE (out,110) al2w_J(isp,ng), 'al2w_J',                 &
+     &              'Juven weight-length conversion'
+              WRITE (out,110) al2w_A(isp,ng), 'al2w_A',                 &
+     &              'Adult weight-length conversion'
+              WRITE (out,110) bl2w_L(isp,ng), 'bl2w_L',                 &
+     &              'Larva weight-length conversion'
+              WRITE (out,110) bl2w_J(isp,ng), 'bl2w_J',                 &
+     &              'Juven weight-length conversion'
+              WRITE (out,110) bl2w_A(isp,ng), 'bl2w_A',                 &
+     &              'Adult weight-length conversion'
+              WRITE (out,110) abatch(isp,ng), 'abatch',                 &
+     &              'Batch duration'
+              WRITE (out,110) bbatch(isp,ng), 'bbatch',                 &
+     &              'Batch duration'
+              WRITE (out,110) T0batch(isp,ng), 'T0batch',               &
+     &              'Batch duration'
+              WRITE (out,110) apof(isp,ng), 'apof',                     &
+     &              'Batch duration'
+              WRITE (out,110) bpof(isp,ng), 'bpof',                     &
+     &              'Batch duration'
+              WRITE (out,110) T0pof(isp,ng), 'T0pof',                   &
+     &              'Batch duration'
+              WRITE (out,110) epg(isp,ng), 'epg',                       &
+     &              'Batch size'
+              WRITE (out,110) eegg(isp,ng), 'eegg',                     &
+     &              'Batch size'
+              WRITE (out,110) megg(isp,ng), 'megg',                     &
+     &              'Batch size'
+              WRITE (out,110) breed(isp,ng), 'breed',                   &
+     &              'Breeding strategy'
+              WRITE (out,110) amature(isp,ng), 'amature',               &
+     &              'Maturity'
+              WRITE (out,110) bmature(isp,ng), 'bmature',               &
+     &              'Maturity'
+              WRITE (out,110) pctxwt(isp,ng), 'pctxwt',                 &
+     &              'Weight percentage'
+              WRITE (out,110) pctgain(isp,ng), 'pctgain',               &
+     &              'Gain percentage'
+              WRITE (out,110) Nmort_E(isp,ng), 'Nmort_E',               &
+     &              'Egg daily natural mortality'
+              WRITE (out,110) Nmort_Y(isp,ng), 'Nmort_Y',               &
+     &              'Yolksac daily natural mortality'
+              WRITE (out,110) Nmort_L(isp,ng), 'Nmort_L',               &
+     &              'Larva daily natural mortality'
+              WRITE (out,110) Nmort_J(isp,ng), 'Nmort_J',               &
+     &              'Juven daily natural mortality'
+              WRITE (out,110) Nmort_A(isp,ng), 'Nmort_A',               &
+     &              'Adult yearly natural mortality'
+!              WRITE (out,110) Nymort(isp,ng), 'Nymort',                 &
+!     &              'Natural mortality'
               WRITE (out,110) Fymort(isp,ng), 'Fymort',                 &
-     &              'Yearly fishing mortality.'
+     &              'Fishing mortality'
             END DO
           END IF
         END DO

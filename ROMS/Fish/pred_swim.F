@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group         Mark Hadfield   !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group         Mark Hadfield   !
 !    Licensed under a MIT/X style license             John M. Klinck   !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -71,6 +71,7 @@
       USE mod_biology
       USE mod_fish
       USE mod_grid
+      USE mod_parallel
       USE mod_types
       USE mod_parallel
       USE nrutil
@@ -117,9 +118,9 @@
       type(prednode), pointer :: thispred
       type(fishnode), pointer :: thisfish
 
-      real(r8) :: Pweight, score, scoreMax, Uswim
-      real(r8) :: Fweight, Fworth
-      real(r8) :: d_i, d_j, d_ij, theta_ij, fac
+      real(r8) :: Fweight, Fworth, score, scoreMax
+      real(r8) :: d_i, d_j, d_ij, theta_ij, fac, snudg
+      real(r8) :: mg_time, xini, yini, zini, dtpred
 
 # include "set_bounds.h"
 !
@@ -139,8 +140,16 @@
 # endif
 !
 !-----------------------------------------------------------------------
-!  Compute swimming velocity based on Railsback or Humston behavior
+!  Compute swimming velocity based on fitness behavior (Railsback)
 !-----------------------------------------------------------------------
+!
+!      dtpred=dt(ng)
+      dtpred=3600.0_r8  ! hourly
+!
+! mg_time: time in days, modulo days_year
+! KLUDGE: Depends on time origin being at the start of a year
+      mg_time=REAL(INT(time(ng)/86400.0_r8/days_year))
+      mg_time=time(ng)/86400.0_r8-days_year*mg_time
 !
 !      DO i=LBi+1,UBi-1
 !        DO j=LBj+1,UBj-1
@@ -153,116 +162,123 @@
               ipsp = idpred(species(ipid))
               IF (MyThread(ipid).and.bounded(ipid)                      &
      &            .and.alive(ipid)) THEN
+                IF ((mg_time.ge.Pmgstr(ipsp,ng)).and.                   &
+     &              (mg_time.le.Pmgend(ipsp,ng))) THEN
 !
-                Ir=NINT(track(ixgrd,itime,ipid))
-                Ir=MIN(MAX(Ir,1),Lm(ng))
-                Jr=NINT(track(iygrd,itime,ipid))
-                Jr=MIN(MAX(Jr,1),Mm(ng))
+                  Ir=NINT(track(ixgrd,itime,ipid))
+                  Ir=MIN(MAX(Ir,1),Lm(ng))
+                  Jr=NINT(track(iygrd,itime,ipid))
+                  Jr=MIN(MAX(Jr,1),Mm(ng))
 
-! Swimming velocity based on fish weight (in cm/s)
-                Pweight=bioenergy(ipwwt,ipid)
-                Uswim=a_Swim(ipsp,ng)*b_Swim(ipsp,ng)
-!
-! -------- FITNESS-BASED SWIMMING BEHAVIOR (RAILSBACK) --------
-!
-                scoreMax=-99.0_r8
-                IrMax=Ir
-                JrMax=Jr
+                  scoreMax=-99.0_r8
+                  IrMax=Ir
+                  JrMax=Jr
 !
 ! Randomization of i indices
-                iopt=INT(6.0_r8*rwalk(ipid))+1
-                IF (iopt.eq.1) THEN
-                  iind(1)=MAX(Ir-1,1)
-                  iind(2)=Ir
-                  iind(3)=MIN(Ir+1,Lm(ng))
-                ELSE IF (iopt.eq.2) THEN
-                  iind(1)=MAX(Ir-1,1)
-                  iind(3)=Ir
-                  iind(2)=MIN(Ir+1,Lm(ng))
-                ELSE IF (iopt.eq.3) THEN
-                  iind(2)=MAX(Ir-1,1)
-                  iind(1)=Ir
-                  iind(3)=MIN(Ir+1,Lm(ng))
-                ELSE IF (iopt.eq.4) THEN
-                  iind(2)=MAX(Ir-1,1)
-                  iind(3)=Ir
-                  iind(1)=MIN(Ir+1,Lm(ng))
-                ELSE IF (iopt.eq.5) THEN
-                  iind(3)=MAX(Ir-1,1)
-                  iind(1)=Ir
-                  iind(2)=MIN(Ir+1,Lm(ng))
-                ELSE IF (iopt.eq.6) THEN
-                  iind(3)=MAX(Ir-1,1)
-                  iind(2)=Ir
-                  iind(1)=MIN(Ir+1,Lm(ng))
-                END IF
+!                 iopt=INT(6.0_r8*rwalk(ipid))+1
+                  CALL ran1 (snudg)
+                  iopt=INT(6.0_r8*snudg)+1
+                  IF (iopt.eq.1) THEN
+                    iind(1)=MAX(Ir-1,1)
+                    iind(2)=Ir
+                    iind(3)=MIN(Ir+1,Lm(ng))
+                  ELSE IF (iopt.eq.2) THEN
+                    iind(1)=MAX(Ir-1,1)
+                    iind(3)=Ir
+                    iind(2)=MIN(Ir+1,Lm(ng))
+                  ELSE IF (iopt.eq.3) THEN
+                    iind(2)=MAX(Ir-1,1)
+                    iind(1)=Ir
+                    iind(3)=MIN(Ir+1,Lm(ng))
+                  ELSE IF (iopt.eq.4) THEN
+                    iind(2)=MAX(Ir-1,1)
+                    iind(3)=Ir
+                    iind(1)=MIN(Ir+1,Lm(ng))
+                  ELSE IF (iopt.eq.5) THEN
+                    iind(3)=MAX(Ir-1,1)
+                    iind(1)=Ir
+                    iind(2)=MIN(Ir+1,Lm(ng))
+                  ELSE IF (iopt.eq.6) THEN
+                    iind(3)=MAX(Ir-1,1)
+                    iind(2)=Ir
+                    iind(1)=MIN(Ir+1,Lm(ng))
+                  END IF
 ! Randomization of j indices
-                iopt=INT(6.0_r8*rwalk(ipid+Npred(ng)))+1
-                IF (iopt.eq.1) THEN
-                  jind(1)=MAX(Jr-1,1)
-                  jind(2)=Jr
-                  jind(3)=MIN(Jr+1,Mm(ng))
-                ELSE IF (iopt.eq.2) THEN
-                  jind(1)=MAX(Jr-1,1)
-                  jind(3)=Jr
-                  jind(2)=MIN(Jr+1,Mm(ng))
-                ELSE IF (iopt.eq.3) THEN
-                  jind(2)=MAX(Jr-1,1)
-                  jind(1)=Jr
-                  jind(3)=MIN(Jr+1,Mm(ng))
-                ELSE IF (iopt.eq.4) THEN
-                  jind(2)=MAX(Jr-1,1)
-                  jind(3)=Jr
-                  jind(1)=MIN(Jr+1,Mm(ng))
-                ELSE IF (iopt.eq.5) THEN
-                  jind(3)=MAX(Jr-1,1)
-                  jind(1)=Jr
-                  jind(2)=MIN(Jr+1,Mm(ng))
-                ELSE IF (iopt.eq.6) THEN
-                  jind(3)=MAX(Jr-1,1)
-                  jind(2)=Jr
-                  jind(1)=MIN(Jr+1,Mm(ng))
-                END IF
+!                 iopt=INT(6.0_r8*rwalk(ipid+Npred(ng)))+1
+                  CALL ran1 (snudg)
+                  iopt=INT(6.0_r8*snudg)+1
+                  IF (iopt.eq.1) THEN
+                    jind(1)=MAX(Jr-1,1)
+                    jind(2)=Jr
+                    jind(3)=MIN(Jr+1,Mm(ng))
+                  ELSE IF (iopt.eq.2) THEN
+                    jind(1)=MAX(Jr-1,1)
+                    jind(3)=Jr
+                    jind(2)=MIN(Jr+1,Mm(ng))
+                  ELSE IF (iopt.eq.3) THEN
+                    jind(2)=MAX(Jr-1,1)
+                    jind(1)=Jr
+                    jind(3)=MIN(Jr+1,Mm(ng))
+                  ELSE IF (iopt.eq.4) THEN
+                    jind(2)=MAX(Jr-1,1)
+                    jind(3)=Jr
+                    jind(1)=MIN(Jr+1,Mm(ng))
+                  ELSE IF (iopt.eq.5) THEN
+                    jind(3)=MAX(Jr-1,1)
+                    jind(1)=Jr
+                    jind(2)=MIN(Jr+1,Mm(ng))
+                  ELSE IF (iopt.eq.6) THEN
+                    jind(3)=MAX(Jr-1,1)
+                    jind(2)=Jr
+                    jind(1)=MIN(Jr+1,Mm(ng))
+                  END IF
 !
-                DO nind=1,3
-                  ii=iind(nind)
-                  jj=jind(nind)
-                  score=0.0_r8
-                  IF (fish_count(ii,jj).gt.0) THEN
-                    thisfish => fish_list(ii,jj) % next
-                    DO ifish=1,fish_count(ii,jj)
-                      ifid = thisfish % fish
-                      ifsp = idfish(fish_species(ifid))
-                      IF (fish_lifestage(ifid).ge.if_subadult) THEN
-                        Fweight=fish_bioenergy(ifwwt,ifid)
-                        Fworth=fish_bioenergy(ifworth,ifid)
-                        score=score+Fweight*Fworth*                     &
-     &                              Fpref(ifsp,ng)/K_Fish(ifsp,ng)
-                      END IF
-                      thisfish => thisfish % next
-                    END DO
-                  END IF
-                  IF (score.gt.scoreMax) THEN
-                    scoreMax=score
-                    IrMax=ii
-                    JrMax=jj
-                  END IF
-                END DO
-                fac=2.0_r8*(rwalk(ipid+2*Npred(ng))-0.5_r8)
-                d_i=REAL(IrMax,r8)-track(ixgrd,itime,ipid)
-                d_j=REAL(JrMax,r8)-track(iygrd,itime,ipid)
+                  DO nind=1,3
+                    ii=iind(nind)
+                    jj=jind(nind)
+                    score=0.0_r8
+                    IF (fish_count(ii,jj).gt.0) THEN
+                      thisfish => fish_list(ii,jj) % next
+                      DO ifish=1,fish_count(ii,jj)
+                        ifid = thisfish % fish
+                        ifsp = idfish(fish_species(ifid))
+                        IF (fish_lifestage(ifid).ge.if_subadult) THEN
+                          Fweight=fish_bioenergy(ifwwt,ifid)
+                          Fworth=fish_bioenergy(ifworth,ifid)
+                          score=score+Fweight*Fworth*                   &
+     &                                Fpref(ifsp,ng)/K_Fish(ifsp,ng)
+                        END IF
+                        thisfish => thisfish % next
+                      END DO
+                    END IF
+                    IF (score.gt.scoreMax) THEN
+                      scoreMax=score
+                      IrMax=ii
+                      JrMax=jj
+                    END IF
+                  END DO
+!                fac=2.0_r8*(rwalk(ipid+2*Npred(ng))-0.5_r8)
+                  CALL ran1 (snudg)
+                  fac=2.0_r8*(snudg-0.5_r8)
+                  d_i=REAL(IrMax,r8)-track(ixgrd,itime,ipid)
+                  d_j=REAL(JrMax,r8)-track(iygrd,itime,ipid)
 ! Angle with +-0.5 radians randomness
-                theta_ij=atan2(d_j,d_i)+0.5_r8*fac
+                  theta_ij=atan2(d_j,d_i)+0.5_r8*fac
 ! Distance with 30% randomness
-                d_ij=((d_i/pm(Ir,Jr))**2+(d_j/pn(Ir,Jr))**2)**0.5_r8
-! Uswim is in cm/s, so multiply by 0.01 for m/s)
-                d_ij=MIN(0.01_r8*Uswim*dt(ng),d_ij)
-                d_ij=d_ij+0.3_r8*fac*d_ij
+                  d_ij=((d_i/pm(Ir,Jr))**2+(d_j/pn(Ir,Jr))**2)**0.5_r8
+! Pswim is in cm/s, so multiply by 0.01 for m/s)
+                  d_ij=MIN(0.01_r8*Pswim(ipsp,ng)*dtpred,d_ij)
+                  d_ij=d_ij+0.3_r8*fac*d_ij
 ! Swim towards best location
-                track(ixgrd,itimep1,ipid)=track(ixgrd,itime,ipid)+      &
-     &                                   d_ij*cos(theta_ij)*pm(Ir,Jr)
-                track(iygrd,itimep1,ipid)=track(iygrd,itime,ipid)+      &
-     &                                   d_ij*sin(theta_ij)*pn(Ir,Jr)
+                  track(ixgrd,itimep1,ipid)=track(ixgrd,itime,ipid)+    &
+     &                                     d_ij*cos(theta_ij)*pm(Ir,Jr)
+                  track(iygrd,itimep1,ipid)=track(iygrd,itime,ipid)+    &
+     &                                     d_ij*sin(theta_ij)*pn(Ir,Jr)
+                ELSE
+! Freeze location (outside of migration season)
+                  track(ixgrd,itimep1,ipid)=track(ixgrd,itime,ipid)
+                  track(iygrd,itimep1,ipid)=track(iygrd,itime,ipid)
+                END IF
 !
               END IF
               thispred => thispred % next

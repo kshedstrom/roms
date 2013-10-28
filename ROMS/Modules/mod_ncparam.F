@@ -420,6 +420,7 @@
 ! NEMURO_SAN variables
         integer  :: idFwwt         ! fish wet weight
         integer  :: idFworth       ! fish worth
+        integer  :: idFlngth       ! fish length
         integer  :: idFpval        ! fish P-value
         integer  :: idFage         ! fish age
         integer  :: idFbday        ! fish birthday
@@ -438,10 +439,12 @@
         integer  :: idSpwnloc      ! fish batch number
         integer  :: idFspwn        ! spawning distribution
         integer  :: idFbatch       ! fish batch
+        integer  :: idFeggs        ! fish number of eggs
         integer  :: idFspc         ! fish species
         integer  :: idFlfsg        ! fish lifestage
         integer  :: idFdeath       ! fish cause of death
-        integer  :: idFswmt        ! fish swim type
+        integer  :: idFhbhv        ! fish swim type
+        integer  :: idFvbhv        ! fish swim type
         integer  :: idFalv         ! fish is alive
         integer  :: idFTspwn       ! time since last spawn
         integer  :: idFiniw        ! initial worth
@@ -458,6 +461,7 @@
         integer  :: idFmortS       ! starvation mortality
         integer  :: idFmortF       ! fishing mortality
         integer  :: idFmortP       ! predation mortality
+        integer  :: idFmrtPs       ! summed predation mortality
         integer  :: idPwwt         ! Pred wet weight
         integer  :: idPworth       ! Pred worth
         integer  :: idPpval        ! Pred P-value

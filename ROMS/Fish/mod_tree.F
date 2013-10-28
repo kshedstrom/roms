@@ -3,7 +3,7 @@
 !================================================== Kate Hedstrom ======
 !    Fixes and improvements by David Car (david.car7@gmail.com)        !
 !=======================================================================
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================

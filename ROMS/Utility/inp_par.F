@@ -827,6 +827,15 @@
       gorho0=g/rho0
       DO ng=1,Ngrids
         dtfast(ng)=dt(ng)/REAL(ndtfast(ng),r8)
+#ifdef NEMURO_SAN
+        IF (MOD(3600,INT(dt(ng))).ne.0) THEN
+          IF (Master) print *,                                          &
+     &         'Model timesteps must fall on hour interval for fish'
+          exit_flag=2
+        END IF
+        steps_per_hour(ng) = 3600/INT(dt(ng))
+        print *, 'steps_per_hour for grid ', ng, steps_per_hour(ng)
+#endif
 #ifdef FILTERED
 !
 !  Check various parameters for writing time-filtered output

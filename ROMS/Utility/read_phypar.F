@@ -522,15 +522,15 @@
                 END IF
               END DO
 #ifdef NEMURO_SAN
-          ELSE IF (TRIM(KeyWord).eq.'FISHRREC') THEN
-            Npts=load_i(Nval, Rval, Ngrids, fishrrec)
+            CASE ('FISHRREC')
+              Npts=load_i(Nval, Rval, Ngrids, fishrrec)
 # ifdef PREDATOR
-          ELSE IF (TRIM(KeyWord).eq.'FLEETRREC') THEN
-            Npts=load_i(Nval, Rval, Ngrids, fleetrrec)
+            CASE ('PREDRREC')
+              Npts=load_i(Nval, Rval, Ngrids, predrrec)
 # endif
 # ifdef FISHING_FLEET
-          ELSE IF (TRIM(KeyWord).eq.'PREDRREC') THEN
-            Npts=load_i(Nval, Rval, Ngrids, predrrec)
+            CASE ('FLEETRREC')
+              Npts=load_i(Nval, Rval, Ngrids, fleetrrec)
 # endif
 #endif
             CASE ('LcycleRST')
@@ -542,17 +542,17 @@
             CASE ('NFLT')
               Npts=load_i(Nval, Rval, Ngrids, nFLT)
 #ifdef NEMURO_SAN
-          ELSE IF (TRIM(KeyWord).eq.'NDEFFISH') THEN
-            Npts=load_i(Nval, Rval, Ngrids, ndefFISH)
-          ELSE IF (TRIM(KeyWord).eq.'NFSH') THEN
-            Npts=load_i(Nval, Rval, Ngrids, nFSH)
+            CASE ('NDEFFISH')
+              Npts=load_i(Nval, Rval, Ngrids, ndefFISH)
+            CASE ('NFSH')
+              Npts=load_i(Nval, Rval, Ngrids, nFSH)
 # ifdef PREDATOR
-          ELSE IF (TRIM(KeyWord).eq.'NPRD') THEN
-            Npts=load_i(Nval, Rval, Ngrids, nPRE)
+            CASE ('NPRE')
+              Npts=load_i(Nval, Rval, Ngrids, nPRE)
 # endif
 # ifdef FISHING_FLEET
-          ELSE IF (TRIM(KeyWord).eq.'NFLE') THEN
-            Npts=load_i(Nval, Rval, Ngrids, nFLE)
+            CASE ('NFLE')
+              Npts=load_i(Nval, Rval, Ngrids, nFLE)
 # endif
 #endif
             CASE ('NINFO')

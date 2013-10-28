@@ -186,7 +186,7 @@
 #  endif
 # endif
 #ifdef PRIMARY_PROD
-      real(r8), dimension(IminS:ImaxS,N(ng)) :: NPP_slice
+      real(r8), dimension(IminS:ImaxS,UBk) :: NPP_slice
 #endif
       real(r8), intent(inout) :: t(LBi:UBi,LBj:UBj,UBk,3,UBt)
 #endif

@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group        John M. Klinck   !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group        John M. Klinck   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -94,6 +94,7 @@
 # ifdef DISTRIBUTE
       USE distribute_mod
 # endif
+      USE utility_mod, ONLY : nrng
 !
 !  Imported variable declarations.
 !
@@ -132,11 +133,12 @@
 # else
       logical, parameter :: Lmask = .FALSE.
 # endif
-      logical, dimension(Lstr:Lend) :: MyThread
+      logical, dimension(Lstr:Lend) :: MyPredThread
 
       integer :: LBi, UBi, LBj, UBj
-      integer :: Ir, Jr, Npts, i, i1, i2, j, j1, j2, itrc, l, k, isp
+      integer :: Ir, Jr, Npts, i, i1, i2, j, j1, j2, itrc, l, k
       integer :: NptsF, NptsL, NptsM
+      integer :: ipsp, ipid
 
       real(r8), parameter :: Fspv = 0.0_r8
       integer, parameter :: iFspv = 0
@@ -144,7 +146,7 @@
 
       real(r8) :: cff1, cff2, cff3, cff4, cff5, cff6, cff7, cff8, cff9
       real(r8) :: p1, p2, q1, q2, xrhs, yrhs, zrhs, zfloat
-      real(r8) :: tspawn, Fworth0
+      real(r8) :: tspawn, Fworth0, mg_time, xini, yini, zini
 !      real(r8) :: Nymort
 
 # ifdef FLOAT_VWALK
@@ -195,14 +197,14 @@
       Ystr=REAL(BOUNDS(ng)%Jstr(MyRank),r8)-0.5_r8
       Yend=REAL(BOUNDS(ng)%Jend(MyRank),r8)+0.5_r8
       DO l=Lstr,Lend
-        MyThread(l)=.FALSE.
+        MyPredThread(l)=.FALSE.
         IF ((Xstr.le.track(ixgrd,nf,l)).and.                            &
      &      (track(ixgrd,nf,l).lt.Xend).and.                            &
      &      (Ystr.le.track(iygrd,nf,l)).and.                            &
      &      (track(iygrd,nf,l).lt.Yend)) THEN
-          MyThread(l)=.TRUE.
+          MyPredThread(l)=.TRUE.
         ELSE IF (Master.and.(.not.bounded(l))) THEN
-          MyThread(l)=.TRUE.
+          MyPredThread(l)=.TRUE.
         ELSE
           DO j=0,NFT
             DO i=1,NFV(ng)
@@ -217,9 +219,13 @@
       END DO
 # else
       DO l=Lstr,Lend
-        MyThread(l)=.TRUE.
+        MyPredThread(l)=.TRUE.
       END DO
 # endif
+!
+      DO l=Lstr,Lend
+        nudg(l)=0.0_r8
+      END DO
 !
 !-----------------------------------------------------------------------
 !  Calculate slopes at new time-step.
@@ -236,7 +242,7 @@
      &                    GRID(ng) % rmask,                             &
 # endif
      &                    OCEAN(ng) % u(:,:,:,nnew),                    &
-     &                    MyThread, bounded, track)
+     &                    MyPredThread, bounded, track)
 
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, N(ng),             &
      &                    Lstr, Lend, nfp1, iyrhs, Npred(ng),           &
@@ -248,7 +254,7 @@
      &                    GRID(ng) % rmask,                             &
 # endif
      &                    OCEAN(ng) % v(:,:,:,nnew),                    &
-     &                    MyThread, bounded, track)
+     &                    MyPredThread, bounded, track)
 
 #  if !defined FLOAT_VWALK
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 0, N(ng),             &
@@ -261,7 +267,7 @@
      &                    GRID(ng) % rmask,                             &
 # endif
      &                    OCEAN(ng) % W,                                &
-     &                    MyThread, bounded, track)
+     &                    MyPredThread, bounded, track)
 #  endif
 # else
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,                 &
@@ -273,7 +279,7 @@
      &                    GRID(ng) % rmask,                             &
 # endif
      &                    OCEAN(ng) % ubar(:,:,knew),                   &
-     &                    MyThread, bounded, track)
+     &                    MyPredThread, bounded, track)
 
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,                 &
      &                    Lstr, Lend, nfp1, iyrhs, Npred(ng),           &
@@ -285,12 +291,34 @@
      &                    GRID(ng) % rmask,                             &
 # endif
      &                    OCEAN(ng) % vbar(:,:,knew),                   &
-     &                    MyThread, bounded, track)
+     &                    MyPredThread, bounded, track)
 # endif
 !
 !-----------------------------------------------------------------------
 !  Predator swimming behavior
 !-----------------------------------------------------------------------
+!
+! If beginning of predator season, randomly initialize position
+!      mg_time=REAL(INT(time(ng)/86400.0_r8/days_year))
+!      mg_time=time(ng)/86400.0_r8-days_year*mg_time
+!      DO l=Lstr,Lend
+!        IF (MyPredThread(l).and.bounded(l)) THEN
+!          ipsp=idpred(species(l))
+!          IF ((mg_time.gt.(Pmgstr(ipsp,ng)-0.5_r8*dt(ng))).and.         &
+!     &        (mg_time.lt.(Pmgstr(ipsp,ng)+0.5_r8*dt(ng)))) THEN
+!            DO j=0,NFT
+!              track(ixgrd,j,l)=Tinfo(ixgrd,l)
+!              track(iygrd,j,l)=Tinfo(iygrd,l)
+!              track(ixrhs,j,l)=0.0_r8
+!              track(iyrhs,j,l)=0.0_r8
+!# ifdef SOLVE3D
+!              track(izgrd,j,l)=Tinfo(izgrd,l)
+!              track(izrhs,j,l)=0.0_r8
+!# endif
+!            END DO
+!          END IF
+!        END IF
+!      END DO
 !
       CALL pred_swim (ng, tile, LBi, UBi, LBj, UBj, 1, N(ng),           &
      &                    nfm1, nf, nfp1, nnew,                         &
@@ -299,7 +327,7 @@
 # ifdef SOLVE3D
      &                    GRID(ng) % Hz,                                &
 # endif
-     &                    MyThread, bounded, rwalk, track,              &
+     &                    MyPredThread, bounded, rwalk, track,          &
      &                    bioenergy, alive, species,                    &
      &                    OCEAN(ng) % pred_count,                       &
      &                    OCEAN(ng) % pred_list,                        &
@@ -318,7 +346,7 @@
 # ifdef EW_PERIODIC
       cff1=REAL(Lm(ng),r8)
       DO l=Lstr,Lend
-        IF (MyThread(l).and.bounded(l)) THEN
+        IF (MyPredThread(l).and.bounded(l)) THEN
           IF (track(ixgrd,nfp1,l).ge.REAL(Lm(ng)+1,r8)-0.5_r8) THEN
             track(ixgrd,nfp1,l)=track(ixgrd,nfp1,l)-cff1
             track(ixgrd,nf  ,l)=track(ixgrd,nf  ,l)-cff1
@@ -344,11 +372,11 @@
      &        (track(ixgrd,nfp1,l).lt.Xend).and.                        &
      &        (Ystr.le.track(iygrd,nfp1,l)).and.                        &
      &        (track(iygrd,nfp1,l).lt.Yend)) THEN
-            MyThread(l)=.TRUE.
+            MyPredThread(l)=.TRUE.
           ELSE IF (Master.and.(.not.bounded(l))) THEN
-            MyThread(l)=.TRUE.
+            MyPredThread(l)=.TRUE.
           ELSE
-            MyThread(l)=.FALSE.
+            MyPredThread(l)=.FALSE.
             DO j=0,NFT
               DO i=1,NFV(ng)
                 track(i,j,l)=Fspv
@@ -364,7 +392,7 @@
 #  endif
 # else
       DO l=Lstr,Lend
-        IF (MyThread(l).and.bounded(l)) THEN
+        IF (MyPredThread(l).and.bounded(l)) THEN
 ! JF: Relocation at starting position for non-periodic case
 !          IF ((track(ixgrd,nfp1,l).ge.REAL(Lm(ng)+1,r8)-0.5_r8).or.     &
 !     &        (track(ixgrd,nfp1,l).lt.0.5_r8)) THEN
@@ -401,7 +429,7 @@
 # ifdef NS_PERIODIC
       cff1=REAL(Mm(ng),r8)
       DO l=Lstr,Lend
-        IF (MyThread(l).and.bounded(l)) THEN
+        IF (MyPredThread(l).and.bounded(l)) THEN
           IF (track(iygrd,nfp1,l).ge.REAL(Mm(ng)+1,r8)-0.5_r8) THEN
             track(iygrd,nfp1,l)=track(iygrd,nfp1,l)-cff1
             track(iygrd,nf  ,l)=track(iygrd,nf  ,l)-cff1
@@ -427,11 +455,11 @@
      &        (track(ixgrd,nfp1,l).lt.Xend).and.                        &
      &        (Ystr.le.track(iygrd,nfp1,l)).and.                        &
      &        (track(iygrd,nfp1,l).lt.Yend)) THEN
-            MyThread(l)=.TRUE.
+            MyPredThread(l)=.TRUE.
           ELSE IF (Master.and.(.not.bounded(l))) THEN
-            MyThread(l)=.TRUE.
+            MyPredThread(l)=.TRUE.
           ELSE
-            MyThread(l)=.FALSE.
+            MyPredThread(l)=.FALSE.
             DO j=0,NFT
               DO i=1,NFV(ng)
                 track(i,j,l)=Fspv
@@ -447,7 +475,7 @@
 #  endif
 # else
       DO l=Lstr,Lend
-        IF (MyThread(l).and.bounded(l)) THEN
+        IF (MyPredThread(l).and.bounded(l)) THEN
 ! JF: Relocation at starting position for non-periodic case
 !          IF ((track(iygrd,nfp1,l).ge.REAL(Mm(ng)+1,r8)-0.5_r8).or.     &
 !     &        (track(iygrd,nfp1,l).lt.0.5_r8)) THEN
@@ -486,7 +514,7 @@
 !  Reflect pred at surface or bottom.
 !
       DO l=Lstr,Lend
-        IF (MyThread(l).and.bounded(l)) THEN
+        IF (MyPredThread(l).and.bounded(l)) THEN
           IF (track(izgrd,nfp1,l).gt.REAL(N(ng),r8))                    &
      &      track(izgrd,nfp1,l)=2.0_r8*REAL(N(ng),r8)-                  &
      &                          track(izgrd,nfp1,l)
@@ -511,7 +539,7 @@
      &                    GRID(ng) % rmask,                             &
 # endif
      &                    OCEAN(ng) % u(:,:,:,nnew),                    &
-     &                    MyThread, bounded, track)
+     &                    MyPredThread, bounded, track)
 
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, N(ng),             &
      &                    Lstr, Lend, nfp1, iyrhs, Npred(ng),           &
@@ -523,7 +551,7 @@
      &                    GRID(ng) % rmask,                             &
 # endif
      &                    OCEAN(ng) % v(:,:,:,nnew),                    &
-     &                    MyThread, bounded, track)
+     &                    MyPredThread, bounded, track)
 
 #  if !defined FLOAT_VWALK
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 0, N(ng),             &
@@ -536,7 +564,7 @@
      &                    GRID(ng) % rmask,                             &
 # endif
      &                    OCEAN(ng) % W,                                &
-     &                    MyThread, bounded, track)
+     &                    MyPredThread, bounded, track)
 #  endif
 # else
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,                 &
@@ -548,7 +576,7 @@
      &                    GRID(ng) % rmask,                             &
 # endif
      &                    OCEAN(ng) % ubar(:,:,knew),                   &
-     &                    MyThread, bounded, track)
+     &                    MyPredThread, bounded, track)
 
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,                 &
      &                    Lstr, Lend, nfp1, iyrhs, Npred(ng),           &
@@ -559,13 +587,13 @@
      &                    GRID(ng) % rmask,                             &
 # endif
      &                    OCEAN(ng) % vbar(:,:,knew),                   &
-     &                    MyThread, bounded, track)
+     &                    MyPredThread, bounded, track)
 # endif
 !
 !  If newly released pred, initialize slopes at all time levels.
 !
 !      DO l=Lstr,Lend
-!        IF (MyThread(l).and.bounded(l).and.                             &
+!        IF (MyPredThread(l).and.bounded(l).and.                             &
 !     &      (time(ng)-dt(ng).le.Tinfo(itstr,l).and.                     &
 !     &       time(ng)+dt(ng).gt.Tinfo(itstr,l))) THEN
 !          xrhs=track(ixrhs,nfp1,l)
@@ -600,7 +628,7 @@
      &                      GRID(ng) % rmask,                           &
 # endif
      &                      GRID(ng) % lonr,                            &
-     &                      MyThread, bounded, track)
+     &                      MyPredThread, bounded, track)
 
         CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,               &
      &                      Lstr, Lend, nfp1, iflat, Npred(ng),         &
@@ -614,7 +642,7 @@
      &                      GRID(ng) % rmask,                           &
 # endif
      &                      GRID(ng) % latr,                            &
-     &                      MyThread, bounded, track)
+     &                      MyPredThread, bounded, track)
       ELSE
         CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,               &
      &                      Lstr, Lend, nfp1, iflon, Npred(ng),         &
@@ -628,7 +656,7 @@
      &                      GRID(ng) % rmask,                           &
 # endif
      &                      GRID(ng) % xr,                              &
-     &                      MyThread, bounded, track)
+     &                      MyPredThread, bounded, track)
 
         CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, 1,               &
      &                      Lstr, Lend, nfp1, iflat, Npred(ng),         &
@@ -642,7 +670,7 @@
      &                      GRID(ng) % rmask,                           &
 # endif
      &                      GRID(ng) % yr,                              &
-     &                      MyThread, bounded, track)
+     &                      MyPredThread, bounded, track)
       END IF
 # ifdef SOLVE3D
 
@@ -656,7 +684,7 @@
      &                    GRID(ng) % rmask,                             &
 # endif
      &                    GRID(ng) % z_w,                               &
-     &                    MyThread, bounded, track)
+     &                    MyPredThread, bounded, track)
 
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, N(ng),             &
      &                    Lstr, Lend, nfp1, ifden, Npred(ng),           &
@@ -668,7 +696,7 @@
      &                    GRID(ng) % rmask,                             &
 # endif
      &                    OCEAN(ng) % rho,                              &
-     &                    MyThread, bounded, track)
+     &                    MyPredThread, bounded, track)
 
       DO itrc=1,NT(ng)
         CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, N(ng),           &
@@ -682,7 +710,7 @@
      &                      GRID(ng) % rmask,                           &
 # endif
      &                      OCEAN(ng) % t(:,:,:,nnew,itrc),             &
-     &                      MyThread, bounded, track)
+     &                      MyPredThread, bounded, track)
       END DO
 !
 # endif
@@ -698,7 +726,7 @@
       FwrkF=RESHAPE(bioenergy,(/NptsF/))
       CALL mp_collect (ng, iNLM, NptsF, Fspv, FwrkF)
       bioenergy=RESHAPE(FwrkF,(/NPredV(ng),Npred(ng)/))
-      CALL mp_collectl (ng, iNLM, Npred(ng), alive)
+      CALL mp_collect_l (ng, iNLM, Npred(ng), alive)
 !
 #ifdef FOO
 !  Collect the alive status.

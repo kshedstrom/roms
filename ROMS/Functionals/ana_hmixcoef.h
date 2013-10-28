@@ -23,6 +23,7 @@
       USE mod_mixing
       USE mod_ncparam
       USE mod_scalars
+      USE mod_biology
 !
 !  Imported variable declarations.
 !
@@ -154,6 +155,7 @@
 !  Local variable declarations.
 !
       integer :: Iwrk, i, j, itrc
+      integer :: nc_w, nc_e, nc_s, nc_n
       real(r8) :: cff, cff1, cff2, fac
 #ifdef WC13
       real(r8) :: cff_t, cff_s, cff1_t, cff2_t, cff1_s, cff2_s

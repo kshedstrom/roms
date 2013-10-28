@@ -121,8 +121,15 @@
 #  endif
             DO i=1,mc
               l=DRIFTER(ng)%Findex(i)
+#  ifdef CLAMP_FLOATS
+              DRIFTER(ng)%Tinfo(ixgrd,l)=MIN(MAX(0.5_r8,Iflt(i)),       &
+     &                               REAL(Lm(ng),r8)+0.5_r8)
+              DRIFTER(ng)%Tinfo(iygrd,l)=MIN(MAX(0.5_r8,Jflt(i)),       &
+     &                               REAL(Mm(ng),r8)+0.5_r8)
+#  else
               DRIFTER(ng)%Tinfo(ixgrd,l)=Iflt(i)
               DRIFTER(ng)%Tinfo(iygrd,l)=Jflt(i)
+#  endif
             END DO
           END IF
         END IF

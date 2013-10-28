@@ -1,11 +1,11 @@
 #include "cppdefs.h"
 #if defined NONLINEAR && defined NEMURO_SAN
-      SUBROUTINE fish_growth_ijk (ng, Ipos, Jpos, Kpos, nnew,           &
-     &                                isp, Fweight, Uswim, Fgrowth)
+      SUBROUTINE fish_growth_ijk (ng, Ipos, Jpos, Kpos, nnew, isp, ils, &
+     &                         Fweight, Ftemp, Flength, Uswim, Fgrowth)
 !
 !svn $Id$
 !=================================================== Jerome Fiechter ===
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -55,18 +55,17 @@
 !
 !  Imported variable declarations.
 !
-      integer, intent(in) :: ng, Ipos, Jpos, Kpos, nnew, isp
-      real(r8), intent(in) :: Uswim, Fweight
+      integer, intent(in) :: ng, Ipos, Jpos, Kpos, nnew, isp, ils
+      real(r8), intent(in) :: Uswim, Fweight, Flength, Ftemp
       real(r8), intent(inout) :: Fgrowth
 !
 !  Local variable declarations.
 !
-      real(r8) :: SZooC, LZooC, PZooC, TZooC
-      real(r8) :: FSZoo, FLZoo, FPZoo, FTZoo
-      real(r8) :: dtdays, Csmp, Egst, Excr, Resp, Actv, SDA
-      real(r8) :: mmol2gww, gww2mmol, C_max
-!      real(r8) :: K_ZS, K_ZL, K_ZP, CAL_ZF
-!      real(r8) :: a_C, b_C, a_F, a_E, a_R, b_R, d_R, a_S
+      real(r8) :: Bsz, Blz, Bpz, Csz, Clz, Cpz, Csum
+      real(r8) :: dtdays, Csmp, Resp, Actv
+      real(r8) :: mmol2gww, gww2mmol, Cmax
+      real(r8) :: tt5, t5, t4, tt7, t7, t6, gcta, gctb
+      real(r8) :: fofT4C, fofT4R, pvalue, Aeff
 !
 !
 !-----------------------------------------------------------------------
@@ -76,35 +75,60 @@
       mmol2gww=1.0_r8
       gww2mmol=1.0_r8/mmol2gww
 !
-! Comsumption
-      C_max=a_C(isp,ng)*Fweight**(-b_C(isp,ng))
+! Max. Consumption
+      tt5=1.0_r8/(te2(ils,isp,ng)-te1(ils,isp,ng))
+      t5=tt5*log((xk2(ils,isp,ng)*(1.0_r8-xk1(ils,isp,ng)))/            &
+     &           (xk4(ils,isp,ng)*(1.0_r8-xk3(ils,isp,ng))))
+      t4=exp(t5*(Ftemp-te1(ils,isp,ng)))
+      tt7=1.0_r8/(te4(ils,isp,ng)-te3(ils,isp,ng))
+      t7=tt7*log((xk3(ils,isp,ng)*(1.0_r8-xk4(ils,isp,ng)))/            &
+     &           (xk4(ils,isp,ng)*(1.0_r8-xk3(ils,isp,ng))))
+      t6=exp(t7*(te4(ils,isp,ng)-Ftemp))
+      gcta=xk1(ils,isp,ng)*t4/(1.0_r8+xk1(ils,isp,ng)*                  &
+     &                                    (t4-1.0_r8))
+      gctb=xk4(ils,isp,ng)*t6/(1.0_r8+xk4(ils,isp,ng)*                  &
+     &                                    (t6-1.0_r8))
+      fofT4C=gcta*gctb
+
+      Cmax=fofT4C*a_C(ils,isp,ng)*Fweight**(-b_C(ils,isp,ng))
+
+! Zoo concentrations
 # ifdef MASKING
-      SZooC=mmol2gww*GRID(ng)%rmask(Ipos,Jpos)*                         &
-     &             OCEAN(ng)%t(Ipos,Jpos,Kpos,nnew,iSzoo)
-      LZooC=mmol2gww*GRID(ng)%rmask(Ipos,Jpos)*                         &
-     &             OCEAN(ng)%t(Ipos,Jpos,Kpos,nnew,iLzoo)
-      PZooC=mmol2gww*GRID(ng)%rmask(Ipos,Jpos)*                         &
-     &             OCEAN(ng)%t(Ipos,Jpos,Kpos,nnew,iPzoo)
+      Bsz=MAX(0.0_r8,OCEAN(ng)%t(Ipos,Jpos,Kpos,nnew,iSzoo)*            &
+     &                            GRID(ng)%rmask(Ipos,Jpos))
+      Blz=MAX(0.0_r8,OCEAN(ng)%t(Ipos,Jpos,Kpos,nnew,iLzoo)*            &
+     &                            GRID(ng)%rmask(Ipos,Jpos))
+      Bpz=MAX(0.0_r8,OCEAN(ng)%t(Ipos,Jpos,Kpos,nnew,iPzoo)*            &
+     &                            GRID(ng)%rmask(Ipos,Jpos))
 # else
-      SZooC=mmol2gww*OCEAN(ng)%t(Ipos,Jpos,Kpos,nnew,iSzoo)
-      LZooC=mmol2gww*OCEAN(ng)%t(Ipos,Jpos,Kpos,nnew,iLzoo)
-      PZooC=mmol2gww*OCEAN(ng)%t(Ipos,Jpos,Kpos,nnew,iPzoo)
+      Bsz=MAX(0.0_r8,OCEAN(ng)%t(Ipos,Jpos,Kpos,nnew,iSzoo))
+      Blz=MAX(0.0_r8,OCEAN(ng)%t(Ipos,Jpos,Kpos,nnew,iLzoo))
+      Bpz=MAX(0.0_r8,OCEAN(ng)%t(Ipos,Jpos,Kpos,nnew,iPzoo))
 # endif
-      FSZoo=SZooC*ZSpref(isp,ng)/K_ZS(isp,ng)
-      FLZoo=LZooC*ZLpref(isp,ng)/K_ZL(isp,ng)
-      FPZoo=PZooC*ZPpref(isp,ng)/K_ZP(isp,ng)
-      FTZoo=1.0_r8/(1.0_r8+FSZoo+FLZoo+FPZoo)
-      Csmp=C_max*(FSZoo+FLZoo+FPZoo)*FTZoo*CAL_ZF(isp,ng)
-! Egestion and Excretion
-      Egst=a_F(isp,ng)*Csmp
-      Excr=a_E(isp,ng)*(Csmp-Egst)
-! Respiration (Uswim in cm/s)
-      Actv=exp(d_R(isp,ng)*Uswim)
-      Resp=a_R(isp,ng)*Fweight**(-b_R(isp,ng))*Actv*5.258
-! Specific Dynamic Action
-      SDA=a_S(isp,ng)*(Csmp-Egst)
-! Growth Potential at Ipos,Jpos,Kpos
-      Fgrowth=Csmp-Egst-Excr-Resp-SDA
+! Prey vulnerability
+      Csz=mmol2gww*Bsz*ZSpref(ils,isp,ng)/K_ZS(ils,isp,ng)
+      Clz=mmol2gww*Blz*ZLpref(ils,isp,ng)/K_ZL(ils,isp,ng)
+      Cpz=mmol2gww*Bpz*ZPpref(ils,isp,ng)/K_ZP(ils,isp,ng)
+      Csum=Csz+Clz+Cpz
+! Fish P-value
+      pvalue=(Csz+Clz+Csz)/(1.0_r8+Csum)
+      pvalue=MIN(pvalue,pvalmax(ils,isp,ng))
+! Assimilation efficiency
+      Aeff=MIN(a_AE(ils,isp,ng)*Fweight**b_AE(ils,isp,ng),              &
+     &                                  AEmax(ils,isp,ng))
+! Realized comsumption
+      Csmp=Cmax*pvalue*Aeff
+! Swimming velocity based on fish weight (in cm/s)
+      IF (activity(ils,isp,ng).gt.0.0_r8) THEN
+        Actv=activity(ils,isp,ng)
+      ELSE
+        Actv=exp(d_R(ils,isp,ng)*Fswim(ils,isp,ng)*                     &
+     &                              0.1_r8*Flength)
+        fofT4R=exp(cr(ils,isp,ng)*(Ftemp-tr(ils,isp,ng)))
+        Resp=a_R(ils,isp,ng)*Fweight**(-b_R(ils,isp,ng))*               &
+     &                               foft4R*Actv*5.285_r8
+      END IF
+      Fgrowth=Csmp-Resp
 !
 #else
       SUBROUTINE fish_growth_ijk

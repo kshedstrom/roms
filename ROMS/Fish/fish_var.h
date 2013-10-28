@@ -2,6 +2,8 @@
                 idFwwt=varid
               CASE ('idFworth')
                 idFworth=varid
+              CASE ('idFlngth')
+                idFlngth=varid
               CASE ('idFpval')
                 idFpval=varid
               CASE ('idFage')
@@ -58,8 +60,12 @@
                 idFmortF=varid
               CASE ('idFmortP')
                 idFmortP=varid
+              CASE ('idFmrtPs')
+                idFmrtPs=varid
               CASE ('idFbatch')
                 idFbatch=varid
+              CASE ('idFeggs')
+                idFeggs=varid
               CASE ('idSpwnloc')
                 idSpwnloc=varid
               CASE ('idFspc')
@@ -68,10 +74,10 @@
                 idFlfsg=varid
               CASE ('idFdeath')
                 idFdeath=varid
-              CASE ('idFswmt')
-                idFswmt=varid
-!              CASE ('idFdeath')
-!                idFdeath=varid
+              CASE ('idFhbhv')
+                idFhbhv=varid
+              CASE ('idFvbhv')
+                idFvbhv=varid
               CASE ('idFalv')
                 idFalv=varid
               CASE ('idFTspwn')

@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !=======================================================================
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                           Hernan G. Arango   !
 !===================================================== Kate Hedstrom ===
@@ -133,8 +133,8 @@
 !
       DO l=1,Npred(ng)
         IF (bounded(l) .and. alive(l)) THEN
-          i = nint(track(ixgrd,nf(ng),l))
-          j = nint(track(iygrd,nf(ng),l))
+          i = nint(track(ixgrd,nfp1(ng),l))
+          j = nint(track(iygrd,nfp1(ng),l))
 ! bounded has been collected and no longer reflects whether the float is
 ! on this tile
           IF (i .ge. Imin .and. i .le. Imax .and.                       &

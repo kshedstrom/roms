@@ -140,6 +140,7 @@
 #  endif
 #  ifdef FISHING_FLEET
       USE step_fleet_mod, ONLY : step_fleet
+      USE new_year_fleet_mod, ONLY : new_year_fleet
 #  endif
 # endif
 # if defined PROPAGATOR || \
@@ -491,25 +492,27 @@
 !
 # ifdef NEMURO_SAN
         DO ng=1,Ngrids
-!$OMP PARALLEL DO PRIVATE(thread,subs,tile) SHARED(ng,numthreads)
-          DO thread=0,numthreads-1
-            IF (iyesterday(ng) .ne. idays(ng)) THEN
-              IF (iyesteryear(ng) .ne. iyears(ng)) THEN
-                chunk_size=(Nfish(ng)+numthreads-1)/numthreads
-                Lstr=1+thread*chunk_size
-                Lend=MIN(Nfish(ng),Lstr+chunk_size-1)
-                CALL new_year (ng, Lstr, Lend)
-#  ifdef FISHING_FLEET
-                subs=NtileX(ng)*NtileE(ng)/numthreads
-                DO tile=subs*thread,subs*(thread+1)-1,+1     ! irreversible loop
-                  CALL new_year_fleet (ng, TILE)
-                END DO
+          IF (iyesterday(ng) .ne. idays(ng)) THEN
+            IF (iyesteryear(ng) .ne. iyears(ng)) THEN
+#  ifdef _OPENMP
+              chunk_size=(Nfish(ng)+numthreads-1)/numthreads
+              Lstr=1+MyThread*chunk_size
+              Lend=MIN(Nfish(ng),Lstr+chunk_size-1)
+#  else
+              Lstr=1
+              Lend=Nfloats(ng)
 #  endif
-                iyesteryear(ng) = iyears(ng)
-              END IF
+              CALL new_year (ng, Lstr, Lend)
+!$OMP BARRIER
+#  ifdef FISHING_FLEET
+              DO tile=first_tile(ng),last_tile(ng),+1         ! irreversible
+                CALL new_year_fleet (ng, tile)
+              END DO
+#  endif
+              iyesteryear(ng) = iyears(ng)
+!$OMP BARRIER
             END IF
-          END DO
-!$OMP END PARALLEL DO
+          END IF
         END DO
 # endif
 !-----------------------------------------------------------------------
@@ -724,36 +727,48 @@
 !
         DO ng=1,Ngrids
           IF (Lfish(Ng)) THEN
+            IF (MOD(iic(ng)-1,steps_per_hour(ng)).eq.0) THEN
+              DO tile=last_tile(ng),first_tile(ng),-1
 #  ifdef _OPENMP
-            chunk_size=(Nfish(ng)+numthreads-1)/numthreads
-            Lstr=1+thread*chunk_size
-            Lend=MIN(Nfish(ng),Lstr+chunk_size-1)
+                chunk_size=(Nfish(ng)+numthreads-1)/numthreads
+                Lstr=1+thread*chunk_size
+                Lend=MIN(Nfish(ng),Lstr+chunk_size-1)
 #  else
-            Lstr=1
-            Lend=Nfish(ng)
+                Lstr=1
+                Lend=Nfish(ng)
 #  endif
-            CALL step_fish (ng, Lstr, Lend)
+                CALL step_fish (ng, tile, Lstr, Lend)
+              END DO
+            END IF
 !$OMP BARRIER
 #  ifdef PREDATOR
+            IF (MOD(iic(ng)-1,steps_per_hour(ng)).eq.0) THEN
+              DO tile=last_tile(ng),first_tile(ng),-1
 #   ifdef _OPENMP
-            chunk_size=(Npred(ng)+numthreads-1)/numthreads
-            Lstr=1+thread*chunk_size
-            Lend=MIN(Npred(ng),Lstr+chunk_size-1)
+                chunk_size=(Npred(ng)+numthreads-1)/numthreads
+                Lstr=1+thread*chunk_size
+                Lend=MIN(Npred(ng),Lstr+chunk_size-1)
 #   else
-            Lstr=1
-            Lend=Npred(ng)
+                Lstr=1
+                Lend=Npred(ng)
 #   endif
-            CALL step_pred (ng, Lstr, Lend)
+                CALL step_pred (ng, tile, Lstr, Lend)
+              END DO
+            END IF
 !$OMP BARRIER
 #  endif
 !
 !  Find out how many and which fish in each cell
 !
             DO tile=last_tile(ng),first_tile(ng),-1
-              CALL fish_by_cell (ng, tile)
+              IF (MOD(iic(ng)-1,steps_per_hour(ng)).eq.0) THEN
+                if (Master) print *, 'fish_cell'
+                CALL fish_by_cell (ng, tile)
 #  ifdef PREDATOR
-              CALL pred_by_cell (ng, tile)
+                if (Master) print *, 'pred_cell'
+                CALL pred_by_cell (ng, tile)
 #  endif
+              END IF
 !  Make new fish once a day
               IF (iyesterday(ng) .ne. idays(ng)) THEN
                 IF (Master) print *, 'MAIN3D idays ', idays(ng), iyears(ng)
@@ -762,7 +777,7 @@
 #  ifdef EGGS_BISECTION
                 CALL eggs_by_cell (ng, tile)
 #  endif
-                CALL new_fish(ng)
+                CALL new_fish(ng, tile)
 #  ifdef FISHING_FLEET
                 CALL step_fleet (ng, tile)
 #  endif
@@ -775,6 +790,9 @@
 # endif
 !
 # if defined FLOATS || defined NEMURO_SAN
+#  ifdef NEMURO_SAN
+        IF (MOD(iic(ng)-1,steps_per_hour(ng)).eq.0) THEN
+#  endif
         DO ng=1,Ngrids
           IF (Lfloats(Ng)) THEN
             nfp1(ng)=MOD(nfp1(ng)+1,NFT+1)
@@ -784,6 +802,9 @@
             nfm3(ng)=MOD(nfm3(ng)+1,NFT+1)
           END IF
         END DO
+#  ifdef NEMURO_SAN
+        END IF
+#  endif
 # endif
       END DO STEP_LOOP
 

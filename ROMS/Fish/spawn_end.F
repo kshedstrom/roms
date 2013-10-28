@@ -3,7 +3,7 @@
 #if defined NEMURO_SAN
 !
 !================================================== Kate Hedstrom ======
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -134,6 +134,7 @@
         USE mod_fish
         USE mod_scalars
         USE nrutil
+        USE ran_state, ONLY: ran_seed
 
         integer, intent(in) :: ng, fish1, fish2
 
@@ -166,18 +167,19 @@
             FISHES(ng) % bioenergy(i,fish2) =                           &
      &              FISHES(ng) % bioenergy(i,fish1)
           END DO
-          FISHES(ng) % egg_dur(fish2)  = FISHES(ng) % egg_dur(fish1)
-          FISHES(ng) % egg_num(fish2)  = FISHES(ng) % egg_num(fish1)
-          FISHES(ng) % ysac_dur(fish2) = FISHES(ng) % ysac_dur(fish1)
-          FISHES(ng) % ysac_num(fish2) = FISHES(ng) % ysac_num(fish1)
-          FISHES(ng) % larv_dur(fish2) = FISHES(ng) % larv_dur(fish1)
-          FISHES(ng) % larv_num(fish2) = FISHES(ng) % larv_num(fish1)
-          FISHES(ng) % juv_dur(fish2)  = FISHES(ng) % juv_dur(fish1)
-          FISHES(ng) % juv_num(fish2)  = FISHES(ng) % juv_num(fish1)
-          FISHES(ng) % lifestage(fish2)= FISHES(ng) % lifestage(fish1)
-          FISHES(ng) % swimtype(fish2) = FISHES(ng) % swimtype(fish1)
-          FISHES(ng) % species(fish2)  = FISHES(ng) % species(fish1)
-          FISHES(ng) % alive(fish2)    = FISHES(ng) % alive(fish1)
+          FISHES(ng)%egg_dur(fish2) = FISHES(ng)%egg_dur(fish1)
+          FISHES(ng)%egg_num(fish2) = FISHES(ng)%egg_num(fish1)
+          FISHES(ng)%ysac_dur(fish2)= FISHES(ng)%ysac_dur(fish1)
+          FISHES(ng)%ysac_num(fish2)= FISHES(ng)%ysac_num(fish1)
+          FISHES(ng)%larv_dur(fish2)= FISHES(ng)%larv_dur(fish1)
+          FISHES(ng)%larv_num(fish2)= FISHES(ng)%larv_num(fish1)
+          FISHES(ng)%juv_dur(fish2) = FISHES(ng)%juv_dur(fish1)
+          FISHES(ng)%juv_num(fish2) = FISHES(ng)%juv_num(fish1)
+          FISHES(ng)%lifestage(fish2) = FISHES(ng)%lifestage(fish1)
+          FISHES(ng)%swimtype(1,fish2) = FISHES(ng)%swimtype(1,fish1)
+          FISHES(ng)%swimtype(2,fish2) = FISHES(ng)%swimtype(2,fish1)
+          FISHES(ng)%species(fish2) = FISHES(ng)%species(fish1)
+          FISHES(ng)%alive(fish2) = FISHES(ng)%alive(fish1)
 
 !  Randomize the location just a little
           CALL ran1 (xnudg)

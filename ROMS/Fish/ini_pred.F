@@ -3,7 +3,7 @@
       SUBROUTINE ini_pred
 !
 !================================================== Kate Hedstrom ======
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -47,7 +47,7 @@
       integer :: inp, out, itrc, ng, npts, sequence
       integer :: i, isp, l, pid, j
 
-      real(r8) :: cff, Pwwght0, Pworth0
+      real(r8) :: cff, Pwwght0, Pworth0, snudg
       real(r8) :: xini, yini, zini
       real(r8), parameter :: spv = 0.0_r8
 !
@@ -106,41 +106,79 @@
           Pworth0=Pwth0(isp,ng)
 # ifdef CCS30
 ! ---- FOR CCS CONFIGURATION ----
-          IF (PREDS(ng)%rwalk(pid).lt.0.5_r8) THEN
+!          IF (PREDS(ng)%rwalk(pid).lt.0.5_r8) THEN
+          CALL ran1 (snudg)
+          IF (snudg.lt.0.5_r8) THEN
 ! southern domain
-            yini=20.0_r8+2.0_r8*PREDS(ng)%rwalk(pid)*25_r8
+            yini=20.0_r8+2.0_r8*snudg*25_r8
             IF (isp.eq.ip_albacore) THEN
               xini=29.0_r8
             END IF
           ELSE
 ! northern domain
-            yini=55.0_r8+2.0_r8*(PREDS(ng)%rwalk(pid)-0.5_r8)*25_r8
+!           yini=55.0_r8+2.0_r8*(PREDS(ng)%rwalk(pid)-0.5_r8)*25_r8
+            yini=55.0_r8+2.0_r8*(snudg-0.5_r8)*25_r8
             IF (isp.eq.ip_albacore) THEN
               xini=25.0_r8
             END IF
           END IF
-          xini=xini+2.0_r8*(PREDS(ng)%rwalk(pid+Npred(ng))-0.5_r8)
+!          xini=xini+2.0_r8*(PREDS(ng)%rwalk(pid+Npred(ng))-0.5_r8)
+          CALL ran1 (snudg)
+          xini=xini+2.0_r8*(snudg-0.5_r8)
           zini=REAL(N(ng),r8)
 # endif
 # ifdef WC13
 ! ---- FOR WC CONFIGURATION ----
-          yini=MAX(5.0_r8,PREDS(ng)%rwalk(pid)*REAL(Mm(ng)-4,r8))
+!          yini=MAX(5.0_r8,PREDS(ng)%rwalk(pid)*REAL(Mm(ng)-4,r8))
+          CALL ran1 (snudg)
+          yini=10.0_r8+snudg*REAL(Mm(ng)-20,r8)
           IF (yini.lt.33.0_r8) THEN
             IF (isp.eq.ip_albacore) THEN
-              xini=44.0_r8-(yini-3.0_r8)*25.0_r8/30.0_r8
+! old              xini=44.0_r8-(yini-3.0_r8)*25.0_r8/30.0_r8
+              xini=36.0_r8-(yini-10.0_r8)*15.0_r8/19.0_r8
             END IF
           ELSE
-            ELSE IF (isp.eq.ip_albacore) THEN
-              xini=18.0_r8
+            IF (isp.eq.ip_albacore) THEN
+! old              xini=18.0_r8
+              xini=21.0_r8
             END IF
           END IF
-          xini=xini+2.0_r8*(PREDS(ng)%rwalk(pid+Npred(ng))-0.5_r8)
+!          xini=xini+2.0_r8*(PREDS(ng)%rwalk(pid+Npred(ng))-0.5_r8)
+          CALL ran1 (snudg)
+          xini=xini+2.0_r8*(snudg-0.5_r8)
+          zini=REAL(N(ng),r8)
+# endif
+# ifdef WC12
+! ---- FOR WC CONFIGURATION ----
+!          yini=MAX(5.0_r8,PREDS(ng)%rwalk(pid)*REAL(Mm(ng)-4,r8))
+          CALL ran1 (snudg)
+          yini=30.0_r8+snudg*REAL(Mm(ng)-60,r8)
+          IF (yini.lt.99.0_r8) THEN
+            IF (isp.eq.ip_albacore) THEN
+! old              xini=44.0_r8-(yini-3.0_r8)*25.0_r8/30.0_r8
+              xini=108.0_r8-(yini-30.0_r8)*15.0_r8/19.0_r8
+            END IF
+          ELSE
+            IF (isp.eq.ip_albacore) THEN
+! old              xini=18.0_r8
+              xini=63.0_r8
+            END IF
+          END IF
+!          xini=xini+2.0_r8*(PREDS(ng)%rwalk(pid+Npred(ng))-0.5_r8)
+          CALL ran1 (snudg)
+          xini=xini+6.0_r8*(snudg-0.5_r8)
           zini=REAL(N(ng),r8)
 # endif
 # ifdef NEMSAN_TEST
 ! ---- FOR TEST CONFIGURATION ----
-          xini=REAL(12,r8)+10.0_r8*(PREDS(ng)%rwalk(pid)-0.5_r8)
-          yini=REAL(12,r8)+10.0_r8*(PREDS(ng)%rwalk(pid)-0.5_r8)
+!          xini=REAL(12,r8)+10.0_r8*(PREDS(ng)%rwalk(pid)-0.5_r8)
+!          yini=REAL(12,r8)+10.0_r8*(PREDS(ng)%rwalk(pid)-0.5_r8)
+          CALL ran1 (snudg)
+!          xini=4.0_r8+(snudg-0.5_r8)
+!          CALL ran1 (snudg)
+!          yini=7.0_r8+(snudg-0.5_r8)
+          xini=REAL(12,r8)+10.0_r8*(snudg-0.5_r8)
+          yini=REAL(12,r8)+10.0_r8*(snudg-0.5_r8)
           zini=REAL(N(ng),r8)
 # endif
           PREDS(ng)%Tinfo(ixgrd,pid)=xini
@@ -149,15 +187,18 @@
           DO j=0,NFT
             PREDS(ng)%track(ixgrd,j,pid)=xini
             PREDS(ng)%track(iygrd,j,pid)=yini
-#  ifdef SOLVE3D
-            PREDS(ng)%track(izgrd,j,pid)=zini
             PREDS(ng)%track(ixrhs,j,pid)=0.0_r8
             PREDS(ng)%track(iyrhs,j,pid)=0.0_r8
+#  ifdef SOLVE3D
+            PREDS(ng)%track(izgrd,j,pid)=zini
             PREDS(ng)%track(izrhs,j,pid)=0.0_r8
 #  endif
           END DO
-          PREDS(ng)%bioenergy(ipwwt,pid)=Pwwght0*                       &
-     &              (PREDS(ng)%rwalk(pid+2*Npred(ng))+0.5_r8)
+!          PREDS(ng)%bioenergy(ipwwt,pid)=Pwwght0* &
+!     &              (PREDS(ng)%rwalk(pid+2*Npred(ng))+0.5_r8)
+          CALL ran1 (snudg)
+          cff=1.0_r8+0.2_r8*(snudg-0.5_r8)
+          PREDS(ng)%bioenergy(ipwwt,pid)=cff*Pwwght0
           PREDS(ng)%bioenergy(ipworth,pid)=Pworth0
           PREDS(ng)%species(pid)=idpred_inv(isp)
           PREDS(ng)%alive(pid)=.TRUE.
@@ -237,21 +278,18 @@
             Npts=load_r(Nval, Rval, max_predspecies*Ngrids, Pwwt0)
           ELSE IF (TRIM(KeyWord).eq.'Pwth0') THEN
             Npts=load_r(Nval, Rval, max_predspecies*Ngrids, Pwth0)
+          ELSE IF (TRIM(KeyWord).eq.'Pmgstr') THEN
+            Npts=load_r(Nval, Rval, max_predspecies*Ngrids, Pmgstr)
+          ELSE IF (TRIM(KeyWord).eq.'Pmgend') THEN
+            Npts=load_r(Nval, Rval, max_predspecies*Ngrids, Pmgend)
           ELSE IF (TRIM(KeyWord).eq.'Fpref') THEN
             Npts=load_r(Nval, Rval, max_species*Ngrids, Fpref)
           ELSE IF (TRIM(KeyWord).eq.'K_Fish') THEN
             Npts=load_r(Nval, Rval, max_species*Ngrids, K_Fish)
-          ELSE IF (TRIM(KeyWord).eq.'a_Cmax') THEN
-            Npts=load_r(Nval, Rval, max_predspecies*Ngrids, a_Cmax)
-          ELSE IF (TRIM(KeyWord).eq.'b_Cmax') THEN
-            Npts=load_r(Nval, Rval, max_predspecies*Ngrids, b_Cmax)
-          ELSE IF (TRIM(KeyWord).eq.'a_Swim') THEN
-            Npts=load_r(Nval, Rval, max_predspecies*Ngrids, a_Swim)
-          ELSE IF (TRIM(KeyWord).eq.'b_Swim') THEN
-            Npts=load_r(Nval, Rval, max_predspecies*Ngrids, b_Swim)
-          ELSE IF (TRIM(KeyWord).eq.'POS') THEN
-! This is a hack for now, until we actually read the positions
-	    GOTO 30
+          ELSE IF (TRIM(KeyWord).eq.'Pcmax') THEN
+            Npts=load_r(Nval, Rval, max_predspecies*Ngrids, Pcmax)
+          ELSE IF (TRIM(KeyWord).eq.'Pswim') THEN
+            Npts=load_r(Nval, Rval, max_predspecies*Ngrids, Pswim)
           END IF
         END IF
       END DO
@@ -347,6 +385,10 @@
      &                'Pred initial wet weight (g).'
               WRITE (out,110) Pwth0(isp,ng), 'Pwth0',                   &
      &                'Pred initial worth.'
+              WRITE (out,110) Pmgstr(isp,ng), 'Pmgstr',                 &
+     &                'Pred migration start.'
+              WRITE (out,110) Pmgend(isp,ng), 'Pmgend',                 &
+     &                'Pred migration end.'
               DO ifsp=1,Nspecies(ng)
                 WRITE (out,110) Fpref(ifsp,ng), 'Fpref',                &
      &                'Pred preference for Fish.'
@@ -355,14 +397,10 @@
                 WRITE (out,110) K_Fish(ifsp,ng), 'K_Fish',              &
      &                'Pred half-saturation constant for Fish.'
               END DO
-              WRITE (out,110) a_Cmax(isp,ng), 'a_Cmax',                 &
-     &              'Pred comsumption coefficient.'
-              WRITE (out,110) b_Cmax(isp,ng), 'b_Cmax',                 &
-     &              'Pred comsumption exponent.'
-              WRITE (out,110) a_Swim(isp,ng), 'a_Swim',                 &
-     &              'Pred activity coefficient.'
-              WRITE (out,110) b_Swim(isp,ng), 'b_Swim',                 &
-     &              'Pred activity exponent.'
+              WRITE (out,110) Pcmax(isp,ng), 'Pcmax',                   &
+     &              'Pred maxmimum comsumption rate.'
+              WRITE (out,110) Pswim(isp,ng), 'Pswim',                   &
+     &              'Pred swimming speed.'
             END DO
           END IF
         END DO

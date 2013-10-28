@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !=======================================================================
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                           Hernan G. Arango   !
 !===================================================== Kate Hedstrom ===
@@ -49,6 +49,7 @@
      &                       FISHES(ng) % fishnodes,                    &
      &                       FISHES(ng) % bounded,                      &
      &                       FISHES(ng) % alive,                        &
+     &                       FISHES(ng) % lifestage,                    &
      &                       FISHES(ng) % track)
 
       END SUBROUTINE fish_by_cell
@@ -61,7 +62,7 @@
      &                        rmask,                                    &
 # endif
      &                        fish_count, fish_list, fishnodes,         &
-     &                        bounded, alive,                           &
+     &                        bounded, alive, lifestage,                &
      &                        track)
 !***********************************************************************
 !
@@ -86,6 +87,7 @@
       type(fishnode), target, intent(inout) :: fishnodes(:)
       logical, intent(in) :: bounded(:)
       logical, intent(in) :: alive(:)
+      integer, intent(in) :: lifestage(:)
       real(r8), intent(in) :: track(:,0:,:)
 # else
 #  ifdef MASKING
@@ -96,6 +98,7 @@
       type(fishnode), target, intent(inout) :: fishnodes(Nfish(ng))
       logical, intent(in) :: bounded(Nfish(ng))
       logical, intent(in) :: alive(Nfish(ng))
+      integer, intent(in) :: lifestage(Nfish(ng))
       real(r8), intent(in) :: track(NFV(ng),0:NFT,Nfish(ng))
 # endif
 !
@@ -135,8 +138,8 @@
 !
       DO l=1,Nfish(ng)
         IF (bounded(l) .and. alive(l)) THEN
-          i = nint(track(ixgrd,nf(ng),l))
-          j = nint(track(iygrd,nf(ng),l))
+          i = nint(track(ixgrd,nfp1(ng),l))
+          j = nint(track(iygrd,nfp1(ng),l))
 ! bounded has been collected and no longer reflects whether the float is
 ! on this tile
           IF (i .ge. Imin .and. i .le. Imax .and.                       &

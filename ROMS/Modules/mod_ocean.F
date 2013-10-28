@@ -58,7 +58,7 @@
 !  cpue         Catch per unit effort in each box for 10 days.         !
 !  avgcpue      10-day average CPUE in each box.                       !
 !  percpue      "Perceived" average CPUE (replacement of zero values). !
-!  yearcpue     Daily CPUE in each box during year for climatology.    !
+!  new_climcpue New CPUE climatology in each box during year.          !
 !  climcpue     CPUE climatology in each box based on ndays average.   !
 !  nearport     Nearest port from given i,j location.                  !
 !  distport     Distance to nearest port in km from i,j location.      !
@@ -162,7 +162,7 @@
           real(r8), pointer :: cpue(:,:,:)
           real(r8), pointer :: avgcpue(:,:)
           real(r8), pointer :: percpue(:,:)
-          real(r8), pointer :: yearcpue(:,:,:)
+          real(r8), pointer :: new_climcpue(:,:,:)
           real(r8), pointer :: climcpue(:,:,:)
           real(r8), pointer :: distport(:,:)
 #  endif
@@ -471,8 +471,8 @@
       allocate ( OCEAN(ng) % cpue(LBi:UBi,LBj:UBj,10) )
       allocate ( OCEAN(ng) % avgcpue(LBi:UBi,LBj:UBj) )
       allocate ( OCEAN(ng) % percpue(LBi:UBi,LBj:UBj) )
-      allocate ( OCEAN(ng) % yearcpue(LBi:UBi,LBj:UBj,366) )
-      allocate ( OCEAN(ng) % climcpue(LBi:UBi,LBj:UBj,366) )
+      allocate ( OCEAN(ng) % new_climcpue(LBi:UBi,LBj:UBj,12) )
+      allocate ( OCEAN(ng) % climcpue(LBi:UBi,LBj:UBj,12) )
       allocate ( OCEAN(ng) % nearport(LBi:UBi,LBj:UBj) )
       allocate ( OCEAN(ng) % distport(LBi:UBi,LBj:UBj) )
 #  endif
@@ -934,8 +934,8 @@
           END DO
           OCEAN(ng) % avgcpue(i,j) = iniVal
           OCEAN(ng) % percpue(i,j) = iniVal
-          DO itrc=1,366
-            OCEAN(ng) % yearcpue(i,j,itrc) = iniVal
+          DO itrc=1,12
+            OCEAN(ng) % new_climcpue(i,j,itrc) = iniVal
             OCEAN(ng) % climcpue(i,j,itrc) = iniVal
           END DO
           OCEAN(ng) % nearport(i,j) = 0

@@ -68,6 +68,7 @@
       USE mod_scalars
       USE mod_biology
       USE mod_fish
+      USE mod_floats
 !
 !  Imported variable declarations.
 !

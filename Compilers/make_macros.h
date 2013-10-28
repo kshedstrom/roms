@@ -56,6 +56,16 @@
 #endif
 
 /*
+** Process Fish model.
+*/
+
+#ifdef NEMURO_SAN
+  USE_FISH := on
+#else
+  USE_FISH :=
+#endif
+
+/*
 ** Process WRF Atmospheric model.
 */
 

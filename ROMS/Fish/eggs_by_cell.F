@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !=======================================================================
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                           Hernan G. Arango   !
 !===================================================== Kate Hedstrom ===
@@ -124,7 +124,7 @@
       DO isp=1,Nspecies(ng)
         DO j=Jmin,Jmax
           DO i=Imin,Imax
-            egg_count(i,j,isp) = 0._r8
+            egg_count(i,j,isp) = 0.0_r8
           END DO
         END DO
       END DO
@@ -135,8 +135,8 @@
 !
       DO l=1,Nfish(ng)
         IF (bounded(l) .and. alive(l)) THEN
-          i = nint(track(ixgrd,nf(ng),l))
-          j = nint(track(iygrd,nf(ng),l))
+          i = nint(track(ixgrd,nfp1(ng),l))
+          j = nint(track(iygrd,nfp1(ng),l))
           isp = idfish(species(l))
 ! bounded has been collected and no longer reflects whether the float is
 ! on this tile

@@ -34,6 +34,7 @@
 !
       integer :: itrc, l, status
 
+      integer, dimension(Nfish(ng)) :: ToutI
       real(r8), dimension(Nfish(ng)) :: Tout
 !
       SourceFile='wrt_fish.F'
@@ -88,14 +89,35 @@
      &                      varid = FISH(ng)%Vid(idFdeath))
       IF (exit_flag.ne.NoError) RETURN
 !
-!  Write out fish swimtype.
+!  Write out fish behavior.
 !
+      DO l=1,Nfish(ng)
+        IF (FISHES(ng)%bounded(l)) THEN
+          ToutI(l)=FISHES(ng)%swimtype(1,l)
+        ELSE
+          ToutI(l)=0
+        END IF
+      END DO
       CALL netcdf_put_ivar (ng, iNLM, FISH(ng)%name,                    &
-     &                      TRIM(Vname(1,idFswmt)),                     &
-     &                      FISHES(ng) % swimtype,                      &
-     &                      (/1/), (/Nfish(ng)/),                       &
+     &                      TRIM(Vname(1,idFhbhv)),                     &
+     &                      ToutI,                                      &
+     &                      (/1,FISH(ng)%Rindex/), (/Nfish(ng),1/),     &
      &                      ncid = FISH(ng)%ncid,                       &
-     &                      varid = FISH(ng)%Vid(idFswmt))
+     &                      varid = FISH(ng)%Vid(idFhbhv))
+      IF (exit_flag.ne.NoError) RETURN
+      DO l=1,Nfish(ng)
+        IF (FISHES(ng)%bounded(l)) THEN
+          ToutI(l)=FISHES(ng)%swimtype(2,l)
+        ELSE
+          ToutI(l)=0
+        END IF
+      END DO
+      CALL netcdf_put_ivar (ng, iNLM, FISH(ng)%name,                    &
+     &                      TRIM(Vname(1,idFvbhv)),                     &
+     &                      ToutI,                                      &
+     &                      (/1,FISH(ng)%Rindex/), (/Nfish(ng),1/),     &
+     &                      ncid = FISH(ng)%ncid,                       &
+     &                      varid = FISH(ng)%Vid(idFvbhv))
       IF (exit_flag.ne.NoError) RETURN
 !
 !  Write out fish aliveness.
@@ -353,6 +375,21 @@
      &                      (/1,FISH(ng)%Rindex/), (/Nfish(ng),1/),     &
      &                      ncid = FISH(ng)%ncid,                       &
      &                      varid = FISH(ng)%Vid(idFworth))
+      IF (exit_flag.ne.NoError) RETURN
+!  Write fish length
+      DO l=1,Nfish(ng)
+        IF (FISHES(ng)%bounded(l)) THEN
+          Tout(l)=FISHES(ng)%bioenergy(iflngth,l)
+        ELSE
+          Tout(l)=spval
+        END IF
+      END DO
+      CALL netcdf_put_fvar (ng, iNLM, FISH(ng)%name,                    &
+     &                      TRIM(Vname(1,idFlngth)),                    &
+     &                      Tout,                                       &
+     &                      (/1,FISH(ng)%Rindex/), (/Nfish(ng),1/),     &
+     &                      ncid = FISH(ng)%ncid,                       &
+     &                      varid = FISH(ng)%Vid(idFlngth))
       IF (exit_flag.ne.NoError) RETURN
 !  Write fish P-value.
       DO l=1,Nfish(ng)
@@ -732,6 +769,21 @@
      &                      ncid = FISH(ng)%ncid,                       &
      &                      varid = FISH(ng)%Vid(idFmortP))
       IF (exit_flag.ne.NoError) RETURN
+!  Write summed predation mortality
+      DO l=1,Nfish(ng)
+        IF (FISHES(ng)%bounded(l)) THEN
+          Tout(l)=FISHES(ng)%fmortPsum(l)
+        ELSE
+          Tout(l)=spval
+        END IF
+      END DO
+      CALL netcdf_put_fvar (ng, iNLM, FISH(ng)%name,                    &
+     &                      TRIM(Vname(1,idFmrtPs)),                    &
+     &                      Tout,                                       &
+     &                      (/1,FISH(ng)%Rindex/), (/Nfish(ng),1/),     &
+     &                      ncid = FISH(ng)%ncid,                       &
+     &                      varid = FISH(ng)%Vid(idFmrtPs))
+      IF (exit_flag.ne.NoError) RETURN
 !  Write fish batch.
       DO l=1,Nfish(ng)
         IF (FISHES(ng)%bounded(l)) THEN
@@ -745,6 +797,21 @@
      &                      (/1,FISH(ng)%Rindex/), (/Nfish(ng),1/),     &
      &                      ncid = FISH(ng)%ncid,                       &
      &                      varid = FISH(ng)%Vid(idFbatch))
+      IF (exit_flag.ne.NoError) RETURN
+!  Write total fish eggs.
+      DO l=1,Nfish(ng)
+        IF (FISHES(ng)%bounded(l)) THEN
+          Tout(l)=FISHES(ng)%bioenergy(ifteggs,l)
+        ELSE
+          Tout(l)=spval
+        END IF
+      END DO
+      CALL netcdf_put_fvar (ng, iNLM, FISH(ng)%name,                    &
+     &                      TRIM(Vname(1,idFeggs)),                     &
+     &                      Tout,                                       &
+     &                      (/1,FISH(ng)%Rindex/), (/Nfish(ng),1/),     &
+     &                      ncid = FISH(ng)%ncid,                       &
+     &                      varid = FISH(ng)%Vid(idFeggs))
       IF (exit_flag.ne.NoError) RETURN
 #  endif
 # endif

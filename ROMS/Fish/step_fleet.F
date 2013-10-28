@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Kate Hedstrom ======
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -55,7 +55,7 @@
      &                 GRID(ng)%xr, GRID(ng)%yr, OCEAN(ng)%fish_count,  &
      &                 OCEAN(ng)%distport, OCEAN(ng)%nearport,          &
      &                 OCEAN(ng)%cpue, OCEAN(ng)%avgcpue,               &
-                       OCEAN(ng)%percpue, OCEAN(ng)%yearcpue,           &
+                       OCEAN(ng)%percpue, OCEAN(ng)%new_climcpue,       &
                        OCEAN(ng)%climcpue)
 !
       IF (Master) THEN
@@ -72,6 +72,11 @@
          BOATS(ng)%initcpue=.FALSE.
        END IF
 !
+!----  Reset fish mortality ----
+        DO ifid=1,Nfish(ng)
+          FISHES(ng)%fmortF(ifid)=0.0_r8
+        END DO
+
 !----  Compute daily catch for each boat ----
         DO ib=1,Nboats(ng)
 ! Reset time counter to 24h
@@ -162,7 +167,7 @@
       CALL scatter_array(ng, iNLM, LBi, UBi, LBj, UBj,                  &
      &                   OCEAN(ng)%distport, OCEAN(ng)%nearport,        &
      &                   OCEAN(ng)%cpue, OCEAN(ng)%avgcpue,             &
-     &                   OCEAN(ng)%percpue, OCEAN(ng)%yearcpue,         &
+     &                   OCEAN(ng)%percpue, OCEAN(ng)%new_climcpue,     &
      &                   OCEAN(ng)%climcpue)
 !
 # ifdef PROFILE

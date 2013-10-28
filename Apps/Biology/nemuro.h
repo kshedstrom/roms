@@ -2,7 +2,7 @@
 !
 !svn $Id$
 !************************************************** Hernan G. Arango ***
-!  Copyright (c) 2002-2010 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !***********************************************************************
@@ -85,6 +85,16 @@
      &                   FISHES(ng) % fishnodes,                        &
      &                   FISHES(ng) % feedback,                         &
 #endif
+#ifdef NEMURO_SED1
+     &                   OCEAN(ng) % PONsed,                            &
+     &                   OCEAN(ng) % OPALsed,                           &
+     &                   OCEAN(ng) % DENITsed,                          &
+     &                   OCEAN(ng) % PON_burial,                        &
+     &                   OCEAN(ng) % OPAL_burial,                       &
+#endif
+#ifdef PRIMARY_PROD
+     &                   OCEAN(ng) % Bio_NPP,                           &
+#endif
      &                   OCEAN(ng) % t)
 
 #ifdef PROFILE
@@ -112,6 +122,13 @@
      &                         fishnodes,                               &
      &                         feedback,                                &
 #endif
+#ifdef NEMURO_SED1
+     &                         PONsed, OPALsed, DENITsed,               &
+     &                         PON_burial, OPAL_burial,                 &
+#endif
+#ifdef PRIMARY_PROD
+     &                         Bio_NPP,                                 &
+#endif
      &                         t)
 !-----------------------------------------------------------------------
 !
@@ -123,6 +140,7 @@
       USE mod_fish
       USE mod_grid
       USE mod_stepping
+      USE mod_floats
 #endif
 !
 !  Imported variable declarations.
@@ -151,6 +169,16 @@
       integer, intent(in) :: fish_count(LBi:,LBj:)
       type(fishnode), intent(in) :: fish_list(LBi:,LBj:)
 # endif
+# ifdef NEMURO_SED1
+      real(r8), intent(inout) :: PONsed(LBi:,LBj:)
+      real(r8), intent(inout) :: OPALsed(LBi:,LBj:)
+      real(r8), intent(inout) :: DENITsed(LBi:,LBj:)
+      real(r8), intent(inout) :: PON_burial(LBi:,LBj:)
+      real(r8), intent(inout) :: OPAL_burial(LBi:,LBj:)
+# endif
+# ifdef PRIMARY_PROD
+      real(r8), intent(out) :: Bio_NPP(LBi:,LBj:)
+# endif
       real(r8), intent(inout) :: t(LBi:,LBj:,:,:,:)
 #else
 # ifdef MASKING
@@ -166,6 +194,16 @@
 # if defined NEMURO_SAN && defined FISH_FEEDBACK
       integer, intent(in) :: fish_count(LBi:UBi,LBj:UBj)
       type(fishnode), intent(in) :: fish_list(LBi:UBi,LBj:UBj)
+# endif
+# ifdef NEMURO_SED1
+      real(r8), intent(inout) :: PONsed(LBi:UBi,LBj:UBj)
+      real(r8), intent(inout) :: OPALsed(LBi:UBi,LBj:UBj)
+      real(r8), intent(inout) :: DENITsed(LBi:UBi,LBj:UBj)
+      real(r8), intent(inout) :: PON_burial(LBi:UBi,LBj:UBj)
+      real(r8), intent(inout) :: OPAL_burial(LBi:UBi,LBj:UBj)
+# endif
+# ifdef PRIMARY_PROD
+      real(r8), intent(out) :: Bio_NPP(LBi:UBi,LBj:UBj)
 # endif
       real(r8), intent(inout) :: t(LBi:UBi,LBj:UBj,UBk,3,UBt)
 #endif
@@ -219,7 +257,7 @@
 
       real(r8), dimension(NT(ng),2) :: BioTrc
       real(r8), dimension(IminS:ImaxS,N(ng),NT(ng)) :: Bio
-      real(r8), dimension(IminS:ImaxS,N(ng),NT(ng)) :: Bio_bak
+      real(r8), dimension(IminS:ImaxS,N(ng),NT(ng)) :: Bio_old
 #if defined NEMURO_SAN && defined FISH_FEEDBACK
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS,N(ng),NT(ng)) :: pfish
 #endif
@@ -237,6 +275,10 @@
       real(r8), dimension(IminS:ImaxS,N(ng)) :: bR
       real(r8), dimension(IminS:ImaxS,N(ng)) :: qc
       real(r8), dimension(IminS:ImaxS,N(ng)) :: LPSiN
+#ifdef PRIMARY_PROD
+      real(r8), dimension(IminS:ImaxS,N(ng)) :: NPP_slice
+#endif
+      real(r8), dimension(IminS:ImaxS) :: frac_buried
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: mortfac
 
 #include "set_bounds.h"
@@ -245,6 +287,10 @@
 !-----------------------------------------------------------------------
 !  Add biological Source/Sink terms.
 !-----------------------------------------------------------------------
+!
+!  Avoid computing source/sink terms if no biological iterations.
+!
+      IF (BioIter(ng).le.0) RETURN
 !
 !  Set time-stepping size (days) according to the number of iterations.
 !
@@ -384,6 +430,14 @@
           END DO
         END DO
 !
+#ifdef PRIMARY_PROD
+        DO k=1,N(ng)
+          DO i=Istr,Iend
+            NPP_slice(i,k)=0.0_r8
+          END DO
+        END DO
+#endif
+!
 !  Extract biological variables from tracer arrays, place them into
 !  scratch arrays, and restrict their values to be positive definite.
 !  At input, all tracers (index nnew) from predictor step have
@@ -395,8 +449,8 @@
           ibio=idbio(itrc)
           DO k=1,N(ng)
             DO i=Istr,Iend
-              Bio_bak(i,k,ibio)=MAX(0.0_r8,t(i,j,k,nstp,ibio))
-              Bio(i,k,ibio)=Bio_bak(i,k,ibio)
+              Bio_old(i,k,ibio)=MAX(0.0_r8,t(i,j,k,nstp,ibio))
+              Bio(i,k,ibio)=Bio_old(i,k,ibio)
             END DO
           END DO
         END DO
@@ -616,6 +670,9 @@
               GppAPS=Bio(i,k,iNH4_)*cff5
               GppPS=GppNPS+GppAPS
               Bio(i,k,iSphy)=Bio(i,k,iSphy)+GppPS
+#ifdef PRIMARY_PROD
+              NPP_slice(i,k)=NPP_slice(i,k)+GppPS
+#endif
 !
 #ifdef IRON_LIMIT
 ! Iron uptake proportional to growth
@@ -650,6 +707,9 @@
               ResPS=Bio(i,k,iSphy)*cff4
               Bio(i,k,iNO3_)=Bio(i,k,iNO3_)+ResPS*RnewS
               Bio(i,k,iNH4_)=Bio(i,k,iNH4_)+ResPS*(1.0_r8-RnewS)
+#ifdef PRIMARY_PROD
+              NPP_slice(i,k)=NPP_slice(i,k)-ResPS
+#endif
 !
 #ifdef IRON_LIMIT
 ! Small phytoplankton respiration Fe terms
@@ -727,6 +787,9 @@
               GppPL=GppNPL+GppAPL
               Bio(i,k,iLphy)=Bio(i,k,iLphy)+GppPL
               Bio(i,k,iSiOH)=Bio(i,k,iSiOH)-GppPL*LPSiN(i,k)
+#ifdef PRIMARY_PROD
+              NPP_slice(i,k)=NPP_slice(i,k)+GppPL
+#endif
 !
 #ifdef IRON_LIMIT
 ! Iron Uptake proportional to growth
@@ -763,6 +826,9 @@
               Bio(i,k,iNO3_)=Bio(i,k,iNO3_)+ResPL*RnewL
               Bio(i,k,iNH4_)=Bio(i,k,iNH4_)+ResPL*(1.0_r8-RnewL)
               Bio(i,k,iSiOH)=Bio(i,k,iSiOH)+ResPL*LPSiN(i,k)
+#ifdef PRIMARY_PROD
+              NPP_slice(i,k)=NPP_slice(i,k)-ResPL
+#endif
 !
 #ifdef IRON_LIMIT
 ! Large Phytoplankton respiration Fe terms
@@ -1236,6 +1302,37 @@
      &                       Bio(i,k,iopal)*cff5
             END DO
           END DO
+#ifdef NEMURO_SED1
+!ENC:  using sediment pools
+
+          DO i=Istr,Iend
+!
+!  Decomposition: Sediment Opal to SiOH4.
+!
+            cff6=fac5*EXP(KO2S(ng)*Bio(i,1,itemp))
+            OPALsed(i,j)=OPALsed(i,j)/(1.0_r8+cff6)
+            Bio(i,1,iSiOH)=Bio(i,1,iSiOH)+                              &
+      &                       OPALsed(i,j)*cff6*Hz_inv(i,1)
+!
+!  Decomposition: Sediment PON to NH4.
+!
+            cff7=fac2*EXP(KP2N(ng)*Bio(i,1,itemp))
+            PONsed(i,j)=PONsed(i,j)/(1.0_r8+cff7)
+            Bio(i,1,iNH4_)=Bio(i,1,iNH4_)+                              &
+      &                       PONsed(i,j)*cff7*Hz_inv(i,1)
+!
+!  ENC+CAS:  Our attempt at denitrification
+!  This is the NO3 that is lost to N2 due to denitrification
+!  in the sediments.  We assume 12% of PONsed remineralization is
+!  from denitrification (blame Katja, 2009)
+!
+            cff8= 0.12_r8*PONsed(i,j)*cff7*5.3_r8
+            DENITsed(i,j)=MIN( Bio(i,1,iNO3_)*Hz(i,j,1),cff8)*          &
+     &                     (1.0_r8/dtdays)
+            Bio(i,1,iNO3_)=MAX(Bio(i,1,iNO3_)-cff8*Hz_inv(i,1),0.0_r8)
+
+          END DO
+#endif
 !
 !-----------------------------------------------------------------------
 !  Vertical sinking terms: PON and Opal.
@@ -1430,13 +1527,34 @@
 !
             IF (ibio.eq.iPON_) THEN
               DO i=Istr,Iend
+# ifdef NEMURO_SED1
+                cff1=FC(i,0)*6.625_r8*(1.0_r8/dtdays)
+                frac_buried(i) = 0.013_r8 + 0.53_r8*cff1**2/            &
+     &                     (7.0_r8+cff1)**2
+                cff1=FC(i,0)
+                PON_burial(i,j)=frac_buried(i)*FC(i,0)*                 &
+     &                           (1.0_r8/dtdays)
+                PONsed(i,j)=PONsed(i,j)+(1.0_r8-frac_buried(i))*cff1
+# else
                 cff1=FC(i,0)*Hz_inv(i,1)
-                Bio(i,1,iNH4_)=Bio(i,1,iNH4_)+cff1
+                Bio(i,1,iNO3_)=Bio(i,1,iNO3_)+cff1
+!ENC: put the sinking PON into the ammonia pool. Do not need this if using
+!     the sediment pools
+!               Bio(i,1,iNH4_)=Bio(i,1,iNH4_)+cff1
+!
+# endif
               END DO
             ELSE IF (ibio.eq.iopal) THEN
               DO i=Istr,Iend
+# ifdef NEMURO_SED1
+                cff1=FC(i,0)
+                OPAL_burial(i,j)=frac_buried(i)*FC(i,0)*                &
+     &                               (1.0_r8/dtdays)
+                OPALsed(i,j)=OPALsed(i,j)+(1.0_r8-frac_buried(i))*cff1
+# else
                 cff1=FC(i,0)*Hz_inv(i,1)
                 Bio(i,1,iSiOH)=Bio(i,1,iSiOH)+cff1
+# endif
               END DO
             END IF
 #endif
@@ -1445,23 +1563,40 @@
         END DO ITER_LOOP
 !
 !-----------------------------------------------------------------------
-!  Update global tracer variables (m Tunits).
+!  Update global tracer variables: Add increment due to BGC processes
+!  to tracer array in time index "nnew". Index "nnew" is solution after
+!  advection and mixing and has transport units (m Tunits) hence the
+!  increment is multiplied by Hz.  Notice that we need to subtract
+!  original values "Bio_old" at the top of the routine to just account
+!  for the concentractions affected by BGC processes. This also takes
+!  into account any constraints (non-negative concentrations, carbon
+!  concentration range) specified before entering BGC kernel. If "Bio"
+!  were unchanged by BGC processes, the increment would be exactly
+!  zero. Notice that final tracer values, t(:,:,:,nnew,:) are not
+!  bounded >=0 so that we can preserve total inventory of nutrients
+!  when advection causes tracer concentration to go negative.
 !-----------------------------------------------------------------------
 !
         DO itrc=1,NBT
           ibio=idbio(itrc)
           DO k=1,N(ng)
             DO i=Istr,Iend
-              t(i,j,k,nnew,ibio)=MAX(t(i,j,k,nnew,ibio)+                &
-     &                               (Bio(i,k,ibio)-Bio_bak(i,k,ibio))* &
-     &                               Hz(i,j,k),                         &
-     &                               0.0_r8)
-#ifdef TS_MPDATA
-              t(i,j,k,3,ibio)=t(i,j,k,nnew,ibio)*Hz_inv(i,k)
-#endif
+              cff=Bio(i,k,ibio)-Bio_old(i,k,ibio)
+              t(i,j,k,nnew,ibio)=t(i,j,k,nnew,ibio)+cff*Hz(i,j,k)
             END DO
           END DO
         END DO
+
+#ifdef PRIMARY_PROD
+        DO i=Istr,Iend
+          Bio_NPP(i,j) = 0.0_r8
+        END DO
+        DO k=1,N(ng)
+          DO i=Istr,Iend
+            Bio_NPP(i,j) = Bio_NPP(i,j) + Hz(i,j,k)*NPP_slice(i,k)
+          END DO
+        END DO
+#endif
 
       END DO J_LOOP
 

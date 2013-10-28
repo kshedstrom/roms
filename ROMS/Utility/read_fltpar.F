@@ -226,8 +226,15 @@
               DRIFTER(ng)%Tinfo(izgrd,nc)=Fz0(i,ng)
               DRIFTER(ng)%Ftype(nc)=Ftype(i,ng)
               IF (Fcoor(i,ng).eq.0) THEN
+#  ifdef CLAMP_FLOATS
+                DRIFTER(ng)%Tinfo(ixgrd,nc)=MIN(MAX(0.5_r8,Fx0(i,ng)),  &
+     &                               REAL(Lm(ng),r8)+0.5_r8)
+                DRIFTER(ng)%Tinfo(iygrd,nc)=MIN(MAX(0.5_r8,Fy0(i,ng)),  &
+     &                               REAL(Mm(ng),r8)+0.5_r8)
+#  else
                 DRIFTER(ng)%Tinfo(ixgrd,nc)=Fx0(i,ng)
                 DRIFTER(ng)%Tinfo(iygrd,nc)=Fy0(i,ng)
+#  endif
               ELSE
                 mc=mc+1
                 DRIFTER(ng)%Flon(mc)=Fx0(i,ng)
@@ -244,8 +251,15 @@
                   DRIFTER(ng)%Tinfo(izgrd,nc)=Fz0(i,ng)
                   DRIFTER(ng)%Ftype(nc)=Ftype(i,ng)
                   IF (Fcoor(i,ng).eq.0) THEN
+#  ifdef CLAMP_FLOATS
+                DRIFTER(ng)%Tinfo(ixgrd,nc)=MIN(MAX(0.5_r8,Fx0(i,ng)),  &
+     &                               REAL(Lm(ng),r8)+0.5_r8)
+                DRIFTER(ng)%Tinfo(iygrd,nc)=MIN(MAX(0.5_r8,Fy0(i,ng)),  &
+     &                               REAL(Mm(ng),r8)+0.5_r8)
+#  else
                     DRIFTER(ng)%Tinfo(ixgrd,nc)=Fx0(i,ng)
                     DRIFTER(ng)%Tinfo(iygrd,nc)=Fy0(i,ng)
+#  endif
                   ELSE
                     mc=mc+1
                     DRIFTER(ng)%Flon(mc)=Fx0(i,ng)
@@ -271,8 +285,15 @@
                   IF (Fcoor(i,ng).eq.0) THEN
                     xfloat=Fx0(i,ng)+REAL(j-1,r8)*Fdx(i,ng)
                     yfloat=Fy0(i,ng)+REAL(j-1,r8)*Fdy(i,ng)
+#  ifdef CLAMP_FLOATS
+                    DRIFTER(ng)%Tinfo(ixgrd,nc)=MIN(MAX(0.5_r8,xfloat), &
+     &                               REAL(Lm(ng),r8)+0.5_r8)
+                    DRIFTER(ng)%Tinfo(iygrd,nc)=MIN(MAX(0.5_r8,yfloat), &
+     &                               REAL(Mm(ng),r8)+0.5_r8)
+#  else
                     DRIFTER(ng)%Tinfo(ixgrd,nc)=xfloat
                     DRIFTER(ng)%Tinfo(iygrd,nc)=yfloat
+#  endif
                   ELSE
                     mc=mc+1
                     DRIFTER(ng)%Flon(mc)=Fx0(i,ng)+                     &

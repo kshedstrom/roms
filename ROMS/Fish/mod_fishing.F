@@ -3,20 +3,12 @@
 #if defined NEMURO_SAN && defined FISHING_FLEET
 !
 !================================================== Kate Hedstrom ======
-!  Copyright (c) 2002-2009 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
-!  Set up tree structure and functions.                                !
+!  Module for fishing fleet.                                           !
 !=======================================================================
-!
-! This is Chris Edward's "bisection" idea. Start by knowing the locations
-! of all the eggs. The routine eggs_by_cell finds the eggs for each cell,
-! but only for that tile. We start by collecting them into one big array
-! on the master.
-!
-! Because we create and destroy this thing each day, we need an
-! efficient way to deallocate everything; hence the need for the gc_list.
 !
         USE mod_kinds
         USE mod_param
@@ -46,7 +38,7 @@
         real(r8), allocatable :: cpue_all(:,:,:)
         real(r8), allocatable :: avgcpue_all(:,:)
         real(r8), allocatable :: percpue_all(:,:)
-        real(r8), allocatable :: yearcpue_all(:,:,:)
+        real(r8), allocatable :: new_climcpue_all(:,:,:)
         real(r8), allocatable :: climcpue_all(:,:,:)
         real(r8), allocatable :: distport_all(:,:)
 
@@ -56,7 +48,7 @@
 
         SUBROUTINE gather_array(ng, model, LBi, UBi, LBj, UBj,          &
      &                          xr, yr, fish_count, distport, nearport, &
-     &                          cpue, avgcpue, percpue, yearcpue,       &
+     &                          cpue, avgcpue, percpue, new_climcpue,   &
      &                          climcpue)
           USE mod_kinds
 # ifdef DISTRIBUTE
@@ -73,7 +65,7 @@
           real(r8), intent(in) :: cpue(LBi:,LBj:,:)
           real(r8), intent(in) :: avgcpue(LBi:,LBj:)
           real(r8), intent(in) :: percpue(LBi:,LBj:)
-          real(r8), intent(in) :: yearcpue(LBi:,LBj:,:)
+          real(r8), intent(in) :: new_climcpue(LBi:,LBj:,:)
           real(r8), intent(in) :: climcpue(LBi:,LBj:,:)
 # else
           integer, intent(in) :: fish_count((LBi:UBi,LBj:UBj)
@@ -84,8 +76,8 @@
           real(r8), intent(in) :: cpue((LBi:UBi,LBj:UBj,1:10)
           real(r8), intent(in) :: avgcpue((LBi:UBi,LBj:UBj)
           real(r8), intent(in) :: percpue((LBi:UBi,LBj:UBj)
-          real(r8), intent(in) :: yearcpue((LBi:UBi,LBj:UBj,1:366)
-          real(r8), intent(in) :: climcpue((LBi:UBi,LBj:UBj,1:366)
+          real(r8), intent(in) :: new_climcpue((LBi:UBi,LBj:UBj,1:12)
+          real(r8), intent(in) :: climcpue((LBi:UBi,LBj:UBj,1:12)
 # endif
           integer :: i, j, l
 # ifdef DISTRIBUTE
@@ -96,13 +88,13 @@
           real(r8), dimension(0:(Lm(ng)+1),0:(Mm(ng)+1)) :: r_nrport_all
           real(r8), dimension((Lm(ng)+2)*(Mm(ng)+2)) :: line2d
           real(r8), dimension((Lm(ng)+2)*(Mm(ng)+2)*10) :: line3d_10
-          real(r8), dimension((Lm(ng)+2)*(Mm(ng)+2)*366) :: line3d_366
+          real(r8), dimension((Lm(ng)+2)*(Mm(ng)+2)*12) :: line3d_12
 # endif
 !
 # ifdef DISTRIBUTE
           line2d = 0.0_r8
           line3d_10 = 0.0_r8
-          line3d_366 = 0.0_r8
+          line3d_12 = 0.0_r8
 # endif
           IF (.not. ALLOCATED(fish_count_all)) THEN
             allocate(fish_count_all(0:(Lm(ng)+1),0:(Mm(ng)+1)))
@@ -131,11 +123,11 @@
           IF (.not. ALLOCATED(percpue_all)) THEN
             allocate(percpue_all(0:(Lm(ng)+1),0:(Mm(ng)+1)))
           END IF
-          IF (.not. ALLOCATED(yearcpue_all)) THEN
-            allocate(yearcpue_all(0:(Lm(ng)+1),0:(Mm(ng)+1),1:366))
+          IF (.not. ALLOCATED(new_climcpue_all)) THEN
+            allocate(new_climcpue_all(0:(Lm(ng)+1),0:(Mm(ng)+1),1:12))
           END IF
           IF (.not. ALLOCATED(climcpue_all)) THEN
-            allocate(climcpue_all(0:(Lm(ng)+1),0:(Mm(ng)+1),1:366))
+            allocate(climcpue_all(0:(Lm(ng)+1),0:(Mm(ng)+1),1:12))
           END IF
 ! Gather 2D integer variables
 # ifdef DISTRIBUTE
@@ -213,23 +205,23 @@
 #  endif
      &                      cpue, Npts, line3d_10, .false.)
           cpue_all = reshape(line3d_10,(/ Lm(ng)+2, Mm(ng)+2, 10 /))
-          Npts=IOBOUNDS(ng)%xi_rho*IOBOUNDS(ng)%eta_rho*366
+          Npts=IOBOUNDS(ng)%xi_rho*IOBOUNDS(ng)%eta_rho*12
           CALL mp_gather3d (ng, model, LBi, UBi, LBj, UBj,              &
-     &                      1, 366, 1, r3dvar, 1.0_r8,                  &
+     &                      1, 12, 1, r3dvar, 1.0_r8,                   &
 #  ifdef MASKING
      &                      GRID(ng) % rmask,                           &
 #  endif
-     &                      yearcpue, Npts, line3d_366, .false.)
-          yearcpue_all = reshape(line3d_366,                            &
-     &                           (/ Lm(ng)+2, Mm(ng)+2, 366 /))
+     &                      new_climcpue, Npts, line3d_12, .false.)
+          new_climcpue_all = reshape(line3d_12,                         &
+     &                           (/ Lm(ng)+2, Mm(ng)+2, 12 /))
           CALL mp_gather3d (ng, model, LBi, UBi, LBj, UBj,              &
-     &                      1, 366, 1, r3dvar, 1.0_r8,                  &
+     &                      1, 12, 1, r3dvar, 1.0_r8,                   &
 #  ifdef MASKING
      &                      GRID(ng) % rmask,                           &
 #  endif
-     &                      climcpue, Npts, line3d_366, .false.)
-          climcpue_all = reshape(line3d_366,                            &
-     &                           (/ Lm(ng)+2, Mm(ng)+2, 366 /))
+     &                      climcpue, Npts, line3d_12, .false.)
+          climcpue_all = reshape(line3d_12,                             &
+     &                           (/ Lm(ng)+2, Mm(ng)+2, 12 /))
 # else
           DO i=0,Lm(ng)+1
             DO j=0,Mm(ng)+1
@@ -244,8 +236,8 @@
               DO l=1,10
                 cpue_all(i,j,l)=cpue(i,j,l)
               END DO
-              DO l=1,366
-                yearcpue_all(i,j,l)=yearcpue(i,j,l)
+              DO l=1,12
+                new_climcpue_all(i,j,l)=new_climcpue(i,j,l)
                 climcpue_all(i,j,l)=climcpue(i,j,l)
               END DO
             END DO
@@ -256,7 +248,7 @@
 !
         SUBROUTINE scatter_array(ng, model, LBi, UBi, LBj, UBj,         &
      &                          distport, nearport,                     &
-     &                          cpue, avgcpue, percpue, yearcpue,       &
+     &                          cpue, avgcpue, percpue, new_climcpue,   &
      &                          climcpue)
 # ifdef DISTRIBUTE
           USE distribute_mod, ONLY : mp_scatter2d, mp_scatter3d
@@ -269,7 +261,7 @@
           real(r8), intent(out) :: cpue(LBi:,LBj:,:)
           real(r8), intent(out) :: avgcpue(LBi:,LBj:)
           real(r8), intent(out) :: percpue(LBi:,LBj:)
-          real(r8), intent(out) :: yearcpue(LBi:,LBj:,:)
+          real(r8), intent(out) :: new_climcpue(LBi:,LBj:,:)
           real(r8), intent(out) :: climcpue(LBi:,LBj:,:)
 # else
           integer, intent(out) :: nearport((LBi:UBi,LBj:UBj)
@@ -277,8 +269,8 @@
           real(r8), intent(out) :: cpue((LBi:UBi,LBj:UBj,1:10)
           real(r8), intent(out) :: avgcpue((LBi:UBi,LBj:UBj)
           real(r8), intent(out) :: percpue((LBi:UBi,LBj:UBj)
-          real(r8), intent(out) :: yearcpue((LBi:UBi,LBj:UBj,1:366)
-          real(r8), intent(out) :: climcpue((LBi:UBi,LBj:UBj,1:366)
+          real(r8), intent(out) :: new_climcpue((LBi:UBi,LBj:UBj,1:12)
+          real(r8), intent(out) :: climcpue((LBi:UBi,LBj:UBj,1:12)
 # endif
           integer :: i, j, l, np
 # ifdef DISTRIBUTE
@@ -288,7 +280,7 @@
           real(r8), dimension(0:(Lm(ng)+1),0:(Mm(ng)+1)) :: r_nrport_all
           real(r8), dimension((Lm(ng)+2)*(Mm(ng)+2)+2) :: line2d
           real(r8), dimension((Lm(ng)+2)*(Mm(ng)+2)*10+2) :: line3d_10
-          real(r8), dimension((Lm(ng)+2)*(Mm(ng)+2)*366+2) :: line3d_366
+          real(r8), dimension((Lm(ng)+2)*(Mm(ng)+2)*12+2) :: line3d_12
 # endif
 !
 # ifdef DISTRIBUTE
@@ -409,51 +401,51 @@
           CALL mp_scatter3d (ng, model, LBi, UBi, LBj, UBj, 1, 10,      &
      &                       NghostPoints, r3dvar, Vmin, Vmax,          &
      &                       Npts, line3d_10, cpue)
-          Npts=(Lm(ng)+2)*(Mm(ng)+2)*366+2
-          line3d_366 = 0.0_r8
+          Npts=(Lm(ng)+2)*(Mm(ng)+2)*12+2
+          line3d_12 = 0.0_r8
           np=0
-          DO l=1,366
+          DO l=1,12
             DO j=0,Mm(ng)+1
               DO i=0,Lm(ng)+1
                 np=np+1
-                line3d_366(np)=yearcpue_all(i,j,l)
+                line3d_12(np)=new_climcpue_all(i,j,l)
               END DO
             END DO
           END DO
           IF (Master) THEN
-            Vmin=line3d_366(1)
-            Vmax=line3d_366(1)
+            Vmin=line3d_12(1)
+            Vmax=line3d_12(1)
             DO np=1,Npts-2
-              Vmin=MIN(Vmin,line3d_366(np))
-              Vmax=MAX(Vmax,line3d_366(np))
+              Vmin=MIN(Vmin,line3d_12(np))
+              Vmax=MAX(Vmax,line3d_12(np))
             END DO
 !            print*, 'SCAT,YCPUE', Vmin,Vmax
           END IF
-          CALL mp_scatter3d (ng, model, LBi, UBi, LBj, UBj, 1, 366,     &
+          CALL mp_scatter3d (ng, model, LBi, UBi, LBj, UBj, 1, 12,      &
      &                       NghostPoints, r3dvar, Vmin, Vmax,          &
-     &                       Npts, line3d_366, yearcpue)
-          line3d_366 = 0.0_r8
+     &                       Npts, line3d_12, new_climcpue)
+          line3d_12 = 0.0_r8
           np=0
-          DO l=1,366
+          DO l=1,12
             DO j=0,Mm(ng)+1
               DO i=0,Lm(ng)+1
                 np=np+1
-                line3d_366(np)=climcpue_all(i,j,l)
+                line3d_12(np)=climcpue_all(i,j,l)
               END DO
             END DO
           END DO
           IF (Master) THEN
-            Vmin=line3d_366(1)
-            Vmax=line3d_366(1)
+            Vmin=line3d_12(1)
+            Vmax=line3d_12(1)
             DO np=1,Npts-2
-              Vmin=MIN(Vmin,line3d_366(np))
-              Vmax=MAX(Vmax,line3d_366(np))
+              Vmin=MIN(Vmin,line3d_12(np))
+              Vmax=MAX(Vmax,line3d_12(np))
             END DO
 !            print*, 'SCAT,CCPUE', Vmin,Vmax
           END IF
-          CALL mp_scatter3d (ng, model, LBi, UBi, LBj, UBj, 1, 366,     &
+          CALL mp_scatter3d (ng, model, LBi, UBi, LBj, UBj, 1, 12,      &
      &                       NghostPoints, r3dvar, Vmin, Vmax,          &
-     &                       Npts, line3d_366, climcpue)
+     &                       Npts, line3d_12, climcpue)
 # else
           DO i=0,Lm(ng)+1
             DO j=0,Mm(ng)+1
@@ -466,8 +458,8 @@
               DO l=1,10
                 cpue(i,j,l)=cpue_all(i,j,l)
               END DO
-              DO l=1,366
-                yearcpue(i,j,l)=yearcpue_all(i,j,l)
+              DO l=1,12
+                new_climcpue(i,j,l)=new_climcpue_all(i,j,l)
                 climcpue(i,j,l)=climcpue_all(i,j,l)
               END DO
             END DO
@@ -501,8 +493,8 @@
             IF (ALLOCATED(percpue_all)) THEN
               deallocate(percpue_all)
             END IF
-            IF (ALLOCATED(yearcpue_all)) THEN
-              deallocate(yearcpue_all)
+            IF (ALLOCATED(new_climcpue_all)) THEN
+              deallocate(new_climcpue_all)
             END IF
             IF (ALLOCATED(climcpue_all)) THEN
               deallocate(climcpue_all)
@@ -540,12 +532,11 @@
 !
         SUBROUTINE initcpue(ng)
           integer, intent(in) :: ng
-          integer :: i, j, l, ijcell, ifid, ndclm, nav
+          integer :: i, j, l, ijcell, ifid, mo, l1, l2
           logical :: foundsard
-          real(r8) :: sumcpue
+          real(r8) :: sumcpue, daymo
 !
 ! initialize CPUE values based on fish_by_cell information
-          ndclm=30
           DO i=0,Lm(ng)+1
             DO j=0,Mm(ng)+1
               sumcpue=0.0_r8
@@ -575,18 +566,16 @@
 ! 10-day average CPUE (actual and perceived)
               avgcpue_all(i,j)=sumcpue/10.0_r8
               percpue_all(i,j)=avgcpue_all(i,j)
-! daily CPUE for entire year to compute CPUE climatology
-              sumcpue=0.0_r8
-              nav=0
-              DO l=1,INT(days_year)
-                yearcpue_all(i,j,l)=avgcpue_all(i,j)
-                sumcpue=sumcpue+yearcpue_all(i,j,l)
 ! CPUE climatology based on averaging period of Ndays
-                IF (MOD(l,ndclm).eq.0) THEN
-                  nav=nav+1
-                  climcpue_all(i,j,nav)=sumcpue/REAL(ndclm,r8)
-                  sumcpue=0.0_r8
-                END IF
+              daymo=days_year/12.0_r8
+              DO mo=1,12
+                l1=INT(REAL(mo-1,r8)*daymo)+1
+                l2=INT(REAL(mo,r8)*daymo)
+                sumcpue=0.0_r8
+                DO l=l1,l2
+                  sumcpue=sumcpue+avgcpue_all(i,j)
+                END DO
+                climcpue_all(i,j,mo)=sumcpue/REAL(l2-l1+1,r8)
               END DO
 !              IF (avgcpue_all(i,j).gt.0.0_r8) THEN
 !                print*, 'INIC', i, j, avgcpue_all(i,j)
@@ -660,23 +649,13 @@
 !
         SUBROUTINE catch(ng, ib)
           integer, intent(in) :: ng, ib
-          integer :: ibc, jbc, ifid, isp, ienc, ind, ifish, ijcell
+          integer :: ibc, jbc, ifid, ienc, isMax, ijcell
           integer :: nsard, nsardenc
-          integer :: numcaught, nsardcaught
-          integer :: idsard(EncMax(ng))
           type(fishnode), pointer :: thisfish
           logical :: fishing
-          real(r8) :: snudg, time2fish, overcatch, sbio
-          real(r8) :: biosard(EncMax(ng))
-          real(r8) :: totsardenc(Nboats(ng),Lm(ng)+2,Mm(ng)+2)
-          real(r8) :: totsardcaught(Nboats(ng),Lm(ng)+2,Mm(ng)+2)
+          real(r8) :: snudg, time2fish, overcatch
+          real(r8) :: sbio, sbioMax, Fworth, fac, Fmort
 !
-          nsard=0
-          nsardenc=0
-          DO ienc=1,EncMax(ng)
-            idsard(ienc)=0
-            biosard(ienc)=0.0_r8
-          END DO
           BOATS(ng)%bfishflag(ib)=0
           BOATS(ng)%tAvail(ib)=BOATS(ng)%tAvail(ib)-                    &
      &                  BOATS(ng)%t2LocOpt(ib)-BOATS(ng)%t2PortOpt(ib)
@@ -684,109 +663,97 @@
           jbc=BOATS(ng)%boat(ibjloc,ib)
           ijcell=ibc+(Lm(ng)+2)*jbc
 !          print*, 'CATCH', ibc, jbc, BOATS(ng)%tAvail(ib)
-          IF (fish_count_all(ibc,jbc).eq.0) THEN
-            BOATS(ng)%bfishflag(ib)=0
-          ELSE
-            DO ifid=1,Nfish(ng)
-              IF (nsardenc.lt.EncMax(ng)) THEN
-                IF ((FISHES(ng)%species(ifid).eq.if_sardine).and.       &
-     &              (FISHES(ng)%alive(ifid)).and.                       &
-     &              (FISHES(ng)%lifestage(ifid).ge.if_subadult)) THEN
-                  IF (FISHES(ng)%cellid(ifid).eq.ijcell) THEN
+          IF (fish_count_all(ibc,jbc).gt.0) THEN
+            fishing=.TRUE.
+            nsard=0
+            nsardenc=0
+            DO ienc=1,EncMax(ng)
+              IF (fishing) THEN
+! Find sardine with largest biomass
+                sbioMax=0.0_r8
+                isMax=0.0_r8
+                DO ifid=1,Nfish(ng)
+                  IF ((FISHES(ng)%species(ifid).eq.if_sardine).and.     &
+     &                (FISHES(ng)%alive(ifid)).and.                     &
+     &                (FISHES(ng)%lifestage(ifid).ge.if_subadult).and.  &
+                      (FISHES(ng)%cellid(ifid).eq.ijcell)) THEN
+! Impose encounter rate
                     nsard=nsard+1
                     CALL ran1 (snudg)
                     IF (snudg.lt.EncRate(ng)) THEN
                       nsardenc=nsardenc+1
-! Order sardines from largest to smallest biomass
                       sbio=0.001_r8*FISHES(ng)%bioenergy(ifwwt,ifid)*   &
-     &                             FISHES(ng)%bioenergy(ifworth,ifid)
-                      IF (nsardenc.eq.1) THEN
-                        idsard(nsardenc)=ifid
-                        biosard(nsardenc)=sbio
-                      ELSE
-                        DO ienc=1,nsardenc-1
-                          IF ((sbio.gt.biosard(ienc)).and.              &
-     &                              (sbio.gt.0.0_r8)) THEN
-                            DO ind=nsardenc-1,ienc,-1
-                              idsard(ind+1)=idsard(ind)
-                              biosard(ind+1)=biosard(ind)
-                            END DO
-                            idsard(ienc)=ifid
-                            biosard(ienc)=sbio
-                            sbio=-99.0_r8
-                          END IF
-                          IF (sbio.gt.0.0_r8) THEN
-                            idsard(nsardenc)=ifid
-                            biosard(nsardenc)=sbio
-                          END IF
-                        END DO
+     &                              FISHES(ng)%bioenergy(ifworth,ifid)
+                      IF (sbio.gt.sbioMax) THEN
+                        sbioMax=sbio
+                        isMax=ifid
                       END IF
                     END IF
                   END IF
-                END IF
-              END IF
-            END DO
-            totsardenc(ib,ibc,jbc)=nsardenc
-            IF (nsardenc.eq.0) THEN
-              BOATS(ng)%bfishflag(ib)=1
-            ELSE
-              numcaught=0
-              nsardcaught=0
-              fishing=.TRUE.
-              DO ienc=1,nsardenc
-                IF (fishing) THEN
-                  ifid=idsard(ienc)
-                  isp = idfish(FISHES(ng)%species(ifid))
+                END DO
+                IF (sbioMax.gt.0.0_r8) THEN
+                  Fworth=FISHES(ng)%bioenergy(ifworth,isMax)
+! Found at least one sardine, so adjust fishing time (only once)
+                  IF (nsardenc.eq.1) BOATS(ng)%tAvail(ib)=              &
+                          BOATS(ng)%tAvail(ib)-FishTime(ng)
+! Fish sardine with largest biomass
                   BOATS(ng)%catch(ib)=BOATS(ng)%catch(ib)+              &
-     &                                       Qcatch(ng)*biosard(ienc)
-                  numcaught=numcaught+1
-                  FISHES(ng)%bioenergy(ifworth,ifid)=                   &
-     &                             (1.0_r8-Qcatch(ng))*                 &
-                                   FISHES(ng)%bioenergy(ifworth,ifid)
-                  IF (FISHES(ng)%bioenergy(ifworth,ifid).lt.1.0_r8) THEN
-                    FISHES(ng)%alive(ifid)=.FALSE.
-                    IF (FISHES(ng)%deathby(ifid).eq.0)                  &
-     &                      FISHES(ng)%deathby(ifid)=4
-                    BOATS(ng)%catch(ib)=BOATS(ng)%catch(ib)+            &
-     &                               FISHES(ng)%bioenergy(ifworth,ifid)
+     &                                  Qcatch(ng)*sbioMax
+                  FISHES(ng)%bioenergy(ifworth,isMax)=                  &
+     &                                         (1.0_r8-Qcatch(ng))*     &
+     &                          FISHES(ng)%bioenergy(ifworth,isMax)
+                  IF (FISHES(ng)%bioenergy(ifworth,isMax).lt.           &
+     &                                           1.0_r8) THEN
+                    FISHES(ng)%alive(isMax)=.FALSE.
+                    IF (FISHES(ng)%deathby(isMax).eq.0)                 &
+     &                             FISHES(ng)%deathby(isMax)=4
                   END IF
-                  nsardcaught=nsardcaught+1
-! Should tAvail be decreased just once per cell or for every encounter????
-! If so, max encounter per cell can only be 24/FishTime=12
-                  BOATS(ng)%tAvail(ib)=BOATS(ng)%tAvail(ib)-FishTime(ng)
+! Stop fishing if full or out of time
                   IF ((BOATS(ng)%catch(ib).gt.CatchMax(ng)).or.         &
      &                (BOATS(ng)%tAvail(ib).le.0.0_r8)) THEN
                     fishing=.FALSE.
                     BOATS(ng)%bfishflag(ib)=2
+! Put overcatch back into fish
                     overcatch=BOATS(ng)%catch(ib)-CatchMax(ng)
                     IF (overcatch.gt.0.0_r8) THEN
                       BOATS(ng)%catch(ib)=CatchMax(ng)
-                      IF (FISHES(ng)%bioenergy(ifwwt,ifid).gt.          &
-     &                             0.01_r8*Fwwt0(isp,ng)) THEN
-                        FISHES(ng)%bioenergy(ifworth,ifid)=             &
-     &                  FISHES(ng)%bioenergy(ifworth,ifid)+overcatch*   &
-     &                     1000.0_r8/FISHES(ng)%bioenergy(ifwwt,ifid)
+                      IF (FISHES(ng)%bioenergy(ifwwt,isMax).gt.         &
+     &                       0.01_r8*Fwwt0(if_sardine,ng)) THEN
+                        FISHES(ng)%bioenergy(ifworth,isMax)= &
+     &                  FISHES(ng)%bioenergy(ifworth,isMax)+overcatch*  &
+     &                     1000.0_r8/FISHES(ng)%bioenergy(ifwwt,isMax)
                       END IF
-                      IF (FISHES(ng)%bioenergy(ifworth,ifid).ge.1.0_r8) &
-     &                  FISHES(ng)%alive(ifid)=.TRUE.
-                        FISHES(ng)%deathby(ifid)=0
+                      IF (FISHES(ng)%bioenergy(ifworth,isMax).ge.       &
+     &                                               1.0_r8) THEN
+                        FISHES(ng)%alive(isMax)=.TRUE.
+                        FISHES(ng)%deathby(isMax)=0
+                      END IF
                     END IF
                   END IF
+                  fac=FISHES(ng)%bioenergy(ifworth,isMax)/Fworth
+                  Fmort=-LOG(MAX(fac,0.01_r8))
+                  FISHES(ng)%fmortF(isMax)=FISHES(ng)%fmortF(isMax)+    &
+     &                                                         Fmort
                 END IF
-              END DO
-              totsardcaught(ib,ibc,jbc)=nsardcaught
-              IF (nsardcaught.gt.nsardenc) BOATS(ng)%bfishflag(ib)=3
-            END IF
-            cpuecount_all(ibc,jbc)=cpuecount_all(ibc,jbc)+1
-            cpue_all(ibc,jbc,1)=cpue_all(ibc,jbc,1)+BOATS(ng)%catch(ib)
+              END IF
+            END DO
           END IF
+! Set boat flags
+          IF (fishing) BOATS(ng)%bfishflag(ib)=3
+          IF (nsard.eq.0) THEN
+            BOATS(ng)%bfishflag(ib)=0
+          ELSE
+            IF (nsardenc.eq.0) BOATS(ng)%bfishflag(ib)=1
+          END IF
+          cpuecount_all(ibc,jbc)=cpuecount_all(ibc,jbc)+1
+          cpue_all(ibc,jbc,1)=cpue_all(ibc,jbc,1)+BOATS(ng)%catch(ib)
 !        print*, 'END catch'
         END SUBROUTINE catch
 !
         SUBROUTINE updatecpue(ng)
           integer, intent(in) :: ng
-          integer :: i, j, l, iday, imonth, ndclm, nav
-          real(r8) :: nyears, sumcpue, percpue1
+          integer :: i, j, l, iday, imo, mo, l1, l2
+          real(r8) :: nyears, sumcpue, percpue1, daymo
 !
 ! Shift CPUE
           DO i=0,Lm(ng)+1
@@ -801,9 +768,13 @@
 ! Update CPUE based on today's catch
           nyears=REAL(INT(time(ng)/86400.0_r8/days_year),r8)
           iday=INT(time(ng)/86400.0_r8-days_year*nyears)+1
-          iday=MIN(MAX(iday,1),366)
-          ndclm=30
-          imonth=iday/ndclm+1
+          iday=MIN(MAX(iday,1),INT(days_year))
+          daymo=days_year/12.0_r8
+          DO mo=1,12
+            l1=INT(REAL(mo-1,r8)*daymo)+1
+            l2=INT(REAL(mo,r8)*daymo)
+            IF ((iday.ge.l1).and.(iday.le.l2)) imo=mo
+          END DO
           DO i=0,Lm(ng)+1
             DO j=0,Mm(ng)+1
               IF (cpuecount_all(i,j).ge.1) THEN
@@ -815,7 +786,7 @@
                 percpue_all(i,j)=sumcpue/10.0_r8
               ELSE
                 cpue_all(i,j,1)=0.0_r8
-                percpue1=climcpue_all(i,j,imonth)
+                percpue1=climcpue_all(i,j,imo)
                 DO l=2,10
                   IF (cpue_all(i,j,l).gt.percpue1)                      &
      &              percpue1=cpue_all(i,j,l)
@@ -830,12 +801,13 @@
                 END DO
                 percpue_all(i,j)=sumcpue/10.0_r8
               END IF
-              yearcpue_all(i,j,iday)=cpue_all(i,j,1)
               sumcpue=0.0_r8
               DO l=1,10
                 sumcpue=sumcpue+cpue_all(i,j,l)
               END DO
               avgcpue_all(i,j)=sumcpue/10.0_r8
+              new_climcpue_all(i,j,imo)=new_climcpue_all(i,j,imo)+      &
+     &                                             cpue_all(i,j,1)
             END DO
           END DO
 !        print*, 'END updcpue'
@@ -843,26 +815,19 @@
 !
         SUBROUTINE updatecpue_clim(ng)
           integer, intent(in) :: ng
-          integer :: i, j, l, ndclm, nav
-          real(r8) :: sumcpue
+          integer :: i, j, mo, l1, l2
+          real(r8) :: sumcpue, daymo
 !
 ! Yearly update of climatological CPUE
-          ndclm=30
+          daymo=days_year/12.0_r8
           DO i=0,Lm(ng)+1
             DO j=0,Mm(ng)+1
-              sumcpue=0.0_r8
-              nav=0
-              DO l=1,INT(days_year)
-                sumcpue=sumcpue+yearcpue_all(i,j,l)
-! CPUE climatology based on averaging period of ndclm
-                IF (MOD(l,ndclm).eq.0) THEN
-                  nav=nav+1
-                  climcpue_all(i,j,nav)=sumcpue/REAL(ndclm,r8)
-                  sumcpue=0.0_r8
-                END IF
-              END DO
-              DO l=1,INT(days_year)
-                yearcpue_all(i,j,l)=0.0_r8
+              DO mo=1,12
+                l1=INT(REAL(mo-1,r8)*daymo)+1
+                l2=INT(REAL(mo,r8)*daymo)
+                climcpue_all(i,j,mo)=new_climcpue_all(i,j,mo)/          &
+     &                                        REAL(l2-l1+1,r8)
+                new_climcpue_all(i,j,mo)=0.0_r8
               END DO
             END DO
           END DO

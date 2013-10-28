@@ -3,7 +3,7 @@
       SUBROUTINE ini_fleet
 !
 !================================================== Kate Hedstrom ======
-!  Copyright (c) 2002-2012 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -29,6 +29,7 @@
 # ifdef DISTRIBUTE
       USE distribute_mod, ONLY : mp_bcasti, mp_bcastf, mp_bcasts
 # endif
+      USE ran_state, ONLY: ran_seed
 !
       implicit none
 !
@@ -46,6 +47,7 @@
       integer :: inp, out, itrc, ng, npts, sequence
       integer :: i, ib, ip, icell, jcell
 
+      real(r8) :: snudg
       real(r8), parameter :: spv = 0.0_r8
 !
 !-----------------------------------------------------------------------
@@ -93,7 +95,9 @@
 !
 !  Put the new boats in here
       DO ib=1,Nboats(ng)
-        ip=INT(REAL(Nports(ng),r8)*BOATS(ng)%rwalk(ib))+1
+!        ip=INT(REAL(Nports(ng),r8)*BOATS(ng)%rwalk(ib))+1
+        CALL ran1 (snudg)
+        ip=INT(REAL(Nports(ng),r8)*snudg)+1
         BOATS(ng)%boat(ibport,ib)=ip
         BOATS(ng)%boat(ibiloc,ib)=iPort(ip,ng)
         BOATS(ng)%boat(ibjloc,ib)=jPort(ip,ng)
