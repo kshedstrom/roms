@@ -108,6 +108,18 @@
 !
         CALL inp_par (iNLM)
         IF (exit_flag.ne.NoError) RETURN
+#ifdef NEMURO_SAN
+        CALL ini_fish (iNLM)
+        IF (exit_flag.ne.NoError) RETURN
+# ifdef PREDATOR
+        CALL ini_pred (iNLM)
+        IF (exit_flag.ne.NoError) RETURN
+# endif
+# ifdef FLEET
+        CALL ini_fleet (iNLM)
+        IF (exit_flag.ne.NoError) RETURN
+# endif
+#endif
 !
 !  Set domain decomposition tile partition range.  This range is
 !  computed only once since the "first_tile" and "last_tile" values

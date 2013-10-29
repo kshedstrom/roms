@@ -548,7 +548,7 @@
               Fcount=FISH(ng)%Fcount
               FISH(ng)%Nrec(Fcount)=0
               IF (Master) THEN
-                WRITE (FISH(ng)%name,60) FISH(ng)%base, ifile
+                WRITE (FISH(ng)%name,60) TRIM(FISH(ng)%base), ifile
 #if defined NEP5 || defined CASPIAN
   60            FORMAT (a,'_',i5.5,'.nc')
 #else

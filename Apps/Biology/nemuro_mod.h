@@ -1021,7 +1021,7 @@
         allocate( pvalmax_A(max_species, Ngrids))
       END IF
       IF (.not.allocated(a_R)) THEN
-        allocate( a_C(max_lstages, max_species, Ngrids))
+        allocate( a_R(max_lstages, max_species, Ngrids))
       END IF
       IF (.not.allocated(a_R_L)) THEN
         allocate( a_R_L(max_species, Ngrids))

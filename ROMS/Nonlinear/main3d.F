@@ -790,10 +790,10 @@
 # endif
 !
 # if defined FLOATS || defined NEMURO_SAN
-#  ifdef NEMURO_SAN
-        IF (MOD(iic(ng)-1,steps_per_hour(ng)).eq.0) THEN
-#  endif
         DO ng=1,Ngrids
+#  ifdef NEMURO_SAN
+         IF (MOD(iic(ng)-1,steps_per_hour(ng)).eq.0) THEN
+#  endif
           IF (Lfloats(Ng)) THEN
             nfp1(ng)=MOD(nfp1(ng)+1,NFT+1)
             nf  (ng)=MOD(nf  (ng)+1,NFT+1)
@@ -801,10 +801,10 @@
             nfm2(ng)=MOD(nfm2(ng)+1,NFT+1)
             nfm3(ng)=MOD(nfm3(ng)+1,NFT+1)
           END IF
-        END DO
 #  ifdef NEMURO_SAN
-        END IF
+         END IF
 #  endif
+        END DO
 # endif
       END DO STEP_LOOP
 
