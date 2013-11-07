@@ -32,7 +32,7 @@
 # endif
       USE mod_grid
       USE mod_tides
-      USE mod_stepping
+      USE mod_stepping, ONLY : nrhs
 !
 !  Imported variable declarations.
 !
