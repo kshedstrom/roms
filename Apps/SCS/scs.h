@@ -21,9 +21,9 @@
 
 #define CURVGRID
 #define MASKING
-#undef NONLIN_EOS
+#define NONLIN_EOS
 #define SOLVE3D
-#undef SALINITY
+#define SALINITY
 #ifdef SOLVE3D
 # define SPLINES
 #endif
@@ -40,6 +40,7 @@
 # define RST_SINGLE
 #endif
 #define AVERAGES
+#define AVERAGES2
 #ifdef SOLVE3D
 # undef AVERAGES_DETIDE
 # undef DIAGNOSTICS_TS
@@ -104,9 +105,9 @@
 /* surface forcing */
 
 #ifdef SOLVE3D
-# undef CORE_FORCING
-# undef BULK_FLUXES
-# undef CCSM_FLUXES
+# define CORE_FORCING
+# define BULK_FLUXES
+# define CCSM_FLUXES
 # if defined BULK_FLUXES || defined CCSM_FLUXES
 #  define LONGWAVE_OUT
 #  undef DIURNAL_SRFLUX
@@ -131,6 +132,8 @@
 #  define ANA_FSOBC
 #  define ANA_M2OBC
 #  define ANA_M3OBC
+#  define ANA_SMFLUX
+#  define ANA_STFLUX
 # endif
 # undef QCORRECTION
 #endif
@@ -161,7 +164,7 @@
 
 /* Using Runoff instead now */
 #ifdef SOLVE3D
-# undef RUNOFF
+# define RUNOFF
 # undef UV_PSOURCE
 # undef ANA_PSOURCE
 # undef TS_PSOURCE
@@ -192,5 +195,3 @@
 #else
 # define ANA_SMFLUX
 #endif
-#define ANA_SMFLUX
-#define ANA_STFLUX
