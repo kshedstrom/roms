@@ -167,6 +167,8 @@
      LDEFOUT == T
         NHIS == 360 
      NDEFHIS == 3600
+       NHIS2 == 4320
+    NDEFHIS2 == 43200
       NTSAVG == 1
         NAVG == 360
      NDEFAVG == 3600
@@ -531,6 +533,67 @@ Hout(idWro) == T
 
 Hout(idBott) == T T T T T T T T T F F F F F F F
 
+! Logical switches (TRUE/FALSE) to activate writing of fields into
+! surface output file.
+
+Hout2(idUvel) == T       ! u                  3D U-velocity
+Hout2(idVvel) == T       ! v                  3D V-velocity
+Hout2(idu3dE) == T       ! u_eastward         3D U-eastward  at RHO-points
+Hout2(idv3dN) == T       ! v_northward        3D V-northward at RHO-points
+Hout2(idUbar) == T       ! ubar               2D U-velocity
+Hout2(idVbar) == T       ! vbar               2D V-velocity
+Hout2(idu2dE) == T       ! ubar_eastward      2D U-eastward  at RHO-points
+Hout2(idv2dN) == T       ! vbar_northward     2D V-northward at RHO-points
+Hout2(idFsur) == T       ! zeta               free-surface
+
+Hout2(idTvar) == T T                        ! temperature and salinity
+
+Hout2(idUair) == T                          ! surface U-wind
+Hout2(idVair) == T                          ! surface V-wind
+Hout2(idUairE) == T                          ! surface U-wind
+Hout2(idVairN) == T                          ! surface V-wind
+Hout2(idUsms) == T                          ! surface U-stress
+Hout2(idVsms) == T                          ! surface V-stress
+
+Hout2(idTsur) == T T                        ! surface net heat and salt flux
+Hout2(idLhea) == T                          ! latent heat flux
+Hout2(idShea) == T                          ! sensible heat flux
+Hout2(idLrad) == T                          ! longwave radiation flux
+Hout2(idSrad) == T                          ! shortwave radiation flux
+Hout2(idEmPf) == F                          ! E-P flux
+Hout2(idevap) == T                          ! evaporation rate
+Hout2(idrain) == T                          ! precipitation rate
+
+! Logical switches (TRUE/FALSE) to activate writing of ice prognostic
+! variables into HISTORY output file.
+Hout2(idUice) == T
+Hout2(idVice) == T
+Hout2(idUiceE) == T
+Hout2(idViceN) == T
+Hout2(idAice) == T
+Hout2(idHice) == T
+Hout2(idTice) == T
+Hout2(idHsno) == T
+Hout2(idTimid) == T
+Hout2(idSfwat) == T
+Hout2(idTauiw) == F
+Hout2(idChuiw) == F
+Hout2(idAgeice) == T
+Hout2(idSig11) == F
+Hout2(idSig12) == F
+Hout2(idSig22) == F
+Hout2(idS0mk) == F
+Hout2(idT0mk) == F
+
+! Logical switches (TRUE/FALSE) to activate writing of extra inert passive
+! tracers other than biological and sediment tracers. An inert passive tracer
+! is one that it is only advected and diffused. Other processes are ignored.
+! These tracers include, for example, dyes, pollutants, oil spills, etc.
+! NPT values are expected. However, these switches can be activated using
+! compact parameter specification.
+
+ Hout2(inert) == F                          ! inert passive tracers
+
 ! Logical switches (TRUE/FALSE) to activate writing of time-averaged
 ! fields into AVERAGE output file.
 
@@ -799,6 +862,7 @@ lccsm_fields(idRunoff) == F
      GSTNAME == ocean_gst.nc
      RSTNAME == ben1_rst.nc
      HISNAME == ben1_his.nc
+    HIS2NAME == ben1_his2.nc
      TLMNAME == ben1_tlm.nc
      TLFNAME == ben1_tlf.nc
      ADJNAME == ben1_tlm.nc

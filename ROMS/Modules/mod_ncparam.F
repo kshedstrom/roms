@@ -540,6 +540,7 @@
         integer, allocatable :: idefAVG2(:)   ! averages2 file
         integer, allocatable :: idefDIA(:)    ! diagnostics file
         integer, allocatable :: idefHIS(:)    ! history file
+        integer, allocatable :: idefHIS2(:)   ! history2 file
         integer, allocatable :: idefTLM(:)    ! tangent file
 !
 !  Output NetCDF variables IDs.
@@ -697,6 +698,7 @@
       allocate ( idefAVG2(Ngrids) )
       allocate ( idefDIA(Ngrids) )
       allocate ( idefHIS(Ngrids) )
+      allocate ( idefHIS2(Ngrids) )
       allocate ( idefTLM(Ngrids) )
 
       allocate ( idTvar(MT) )
@@ -806,6 +808,7 @@
         idefAVG2(ng)=-1
         idefDIA(ng)=-1
         idefHIS(ng)=-1
+        idefHIS2(ng)=-1
         idefTLM(ng)=-1
       END DO
 !

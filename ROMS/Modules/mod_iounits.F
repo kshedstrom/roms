@@ -107,6 +107,7 @@
       TYPE(T_IO), allocatable :: GRD(:)     ! grid data
       TYPE(T_IO), allocatable :: GST(:)     ! generalized stability
       TYPE(T_IO), allocatable :: HIS(:)     ! NLM history fields
+      TYPE(T_IO), allocatable :: HIS2(:)    ! surface history fields
       TYPE(T_IO), allocatable :: HSS(:)     ! Hessian eigenvectors
       TYPE(T_IO), allocatable :: IAD(:)     ! ADM initial conditions
       TYPE(T_IO), allocatable :: INI(:)     ! NLM initial conditions
@@ -209,6 +210,7 @@
       allocate ( GRD(Ngrids) )
       allocate ( GST(Ngrids) )
       allocate ( HIS(Ngrids) )
+      allocate ( HIS2(Ngrids) )
       allocate ( HSS(Ngrids) )
       allocate ( IAD(Ngrids) )
       allocate ( INI(Ngrids) )
