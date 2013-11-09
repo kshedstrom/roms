@@ -32,7 +32,7 @@
 # endif
       USE mod_grid
       USE mod_tides
-      USE mod_stepping
+      USE mod_stepping, ONLY : nrhs
 !
 !  Imported variable declarations.
 !
@@ -205,12 +205,12 @@
       real(r8), intent(inout) :: ubarclm(LBi:,LBj:)
       real(r8), intent(inout) :: vbarclm(LBi:,LBj:)
 #  endif
-# ifdef UV_WAVEDRAG
+#  ifdef UV_WAVEDRAG
       real(r8), intent(inout) :: sum_ubot(LBi:,LBj:)
       real(r8), intent(inout) :: sum_vbot(LBi:,LBj:)
       real(r8), intent(inout) :: filt_ubot(LBi:,LBj:)
       real(r8), intent(inout) :: filt_vbot(LBi:,LBj:)
-# endif
+#  endif
 # else
       real(r8), intent(in) :: angler(LBi:UBi,LBj:UBj)
 #  ifdef TIDES_ASTRO
@@ -250,12 +250,12 @@
       real(r8), intent(inout) :: ubarclm(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: vbarclm(LBi:UBi,LBj:UBj)
 #  endif
-# ifdef UV_WAVEDRAG
+#  ifdef UV_WAVEDRAG
       real(r8), intent(inout) :: sum_ubot(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: sum_vbot(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: filt_ubot(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: filt_vbot(LBi:UBi,LBj:UBj)
-# endif
+#  endif
 # endif
 !
 !  Local variables declarations.
