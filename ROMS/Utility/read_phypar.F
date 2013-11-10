@@ -3189,7 +3189,7 @@
             CASE ('HISNAME')
               label='HIS - nonlinear model history fields'
               Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles, HIS)
-            CASE ('HISNAME2')
+            CASE ('HIS2NAME')
               label='HIS2 - nonlinear model surface fields'
               Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles, HIS2)
             CASE ('TLMNAME')

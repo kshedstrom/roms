@@ -217,13 +217,13 @@
             IF (HIS2(ng)%ncid.ne.-1) THEN
               CALL netcdf_close(ng, iNLM, HIS2(ng)%ncid)
             END IF
-            CALL def_avg2 (ng, Newfile)
+            CALL def_his2 (ng, Newfile)
             IF (exit_flag.ne.NoError) RETURN
             LwrtHIS2(ng)=.TRUE.
           END IF
         ELSE
           IF (iic(ng).eq.ntstart(ng)) THEN
-            CALL def_avg2 (ng, ldefout(ng))
+            CALL def_his2 (ng, ldefout(ng))
             IF (exit_flag.ne.NoError) RETURN
             LwrtHIS2(ng)=.TRUE.
             LdefHIS2(ng)=.FALSE.
@@ -236,7 +236,7 @@
       IF (LwrtHIS2(ng)) THEN
         IF ((iic(ng).gt.ntstart(ng)).and.                               &
      &      (MOD(iic(ng)-1,nHIS2(ng)).eq.0)) THEN
-          CALL wrt_avg2 (ng)
+          CALL wrt_his2 (ng)
           IF (exit_flag.ne.NoError) RETURN
         END IF
       END IF

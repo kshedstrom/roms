@@ -38,6 +38,7 @@
 # ifdef SOLVE3D
       USE nf_fwrite3d_mod, ONLY : nf_fwrite3d
 # endif
+      USE uv_rotate_mod, ONLY : uv_rotate2d
 !
       implicit none
 !
@@ -457,7 +458,7 @@
         tile=-1
 # endif
         CALL uv_rotate2d (ng, tile, .FALSE., .TRUE.,                    &
-     &                    LBi, UBi, LBj, UBj, 1, N(ng),                 &
+     &                    LBi, UBi, LBj, UBj,                           &
      &                    GRID(ng) % CosAngler,                         &
      &                    GRID(ng) % SinAngler,                         &
 # ifdef MASKING
