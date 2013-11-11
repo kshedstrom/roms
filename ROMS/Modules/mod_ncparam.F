@@ -191,6 +191,7 @@
         integer  :: idFsuD        ! detided free-surface
         integer  :: idFsuH        ! free-surface tide harmonics
         integer  :: idGhat(2)     ! KPP nonlocal transport
+        integer  :: idJWTy        ! Jerlov water type
         integer  :: idHbbl        ! depth of bottom boundary layer
         integer  :: idHice        ! depth of ice cover
         integer  :: idHsbl        ! depth of surface boundary layer
@@ -581,7 +582,7 @@
 !
         logical :: Lanafile
 
-        character (len=256), dimension(49) :: ANANAME
+        character (len=256), dimension(51) :: ANANAME
 
 #ifdef BIOLOGY
 !
@@ -811,7 +812,7 @@
 !  Analytical files switch and names.
 !
       Lanafile=.TRUE.
-      DO i=1,49
+      DO i=1,51
         DO j=1,LEN(ANANAME(1))
           ANANAME(i)(j:j)=' '
         END DO

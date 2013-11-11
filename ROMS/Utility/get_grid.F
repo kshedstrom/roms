@@ -197,6 +197,15 @@
       END IF
 #endif
 # endif
+# if defined WTYPE_GRID && \
+    (defined LMD_SKPP   || defined SOLAR_SOURCE) && \
+    !defined ANA_WTYPE
+      IF (.not.find_string(var_name,n_var,'wtype_grid',vindex)) THEN
+        IF (Master) WRITE (stdout,10) 'wtype_grid', TRIM(ncname)
+        exit_flag=2
+        RETURN
+      END IF
+# endif
 # if defined UV_DRAG_GRID && !defined ANA_DRAG
 #  ifdef UV_LOGDRAG
       IF (.not.find_string(var_name,n_var,TRIM(Vname(1,idZoBL)),        &
@@ -544,7 +553,9 @@
      &                          GRID(ng) % zice)
 #  endif
 # endif
-# if defined WTYPE_GRID && ! defined ANA_WTYPE
+# if defined WTYPE_GRID && \
+    (defined LMD_SKPP   || defined SOLAR_SOURCE) && \
+    !defined ANA_WTYPE
 !
 !  Read in Jerlov water type.
 !

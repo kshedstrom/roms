@@ -381,7 +381,7 @@
 !
       IF (Master) THEN
         First=.TRUE.
-        DO i=1,49
+        DO i=1,51
           IF ((LEN_TRIM(ANANAME(i)).gt.0).and.(exit_flag.ne.5)) THEN
             IF (First) THEN
               First=.FALSE.

@@ -876,7 +876,7 @@
 !  Analytical header files used.
 !
         IF (exit_flag.eq.NoError) THEN
-          CALL join_string (ANANAME, 49, string, lstr)
+          CALL join_string (ANANAME, 51, string, lstr)
           IF (lstr.gt.0) THEN
             status=nf90_put_att(ncid, nf90_global, 'ana_file',          &
      &                          string(1:lstr))

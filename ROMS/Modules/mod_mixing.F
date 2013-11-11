@@ -135,18 +135,14 @@
 !  Nonlinear model state.
 !
 #ifdef SOLVE3D
-# if defined LMD_SKPP || defined SOLAR_SOURCE
-#   if defined WTYPE_GRID
-          real(r8), pointer :: Jwtype(:,:)
-#   else
-          integer,  pointer :: Jwtype(:,:)
-#   endif
-# endif
 # if defined LMD_SKPP || defined LMD_BKPP
           integer,  pointer :: ksbl(:,:)
 #  ifdef LMD_BKPP
           integer,  pointer :: kbbl(:,:)
 #  endif
+# endif
+# if defined LMD_SKPP || defined SOLAR_SOURCE
+          real(r8),  pointer :: Jwtype(:,:)
 # endif
 #endif
 #if defined DIFF_3DCOEF && defined SOLVE3D
@@ -916,7 +912,7 @@
           END DO
 #   else
           DO i=Imin,Imax
-            MIXING(ng) % Jwtype(i,j) = lmd_Jwt(ng)
+            MIXING(ng) % Jwtype(i,j) = REAL(lmd_Jwt(ng),r8)
           END DO
 #   endif
 # endif
