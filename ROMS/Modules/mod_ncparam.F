@@ -192,6 +192,7 @@
         integer  :: idFsuD        ! detided free-surface
         integer  :: idFsuH        ! free-surface tide harmonics
         integer  :: idGhat(2)     ! KPP nonlocal transport
+        integer  :: idJWTy        ! Jerlov water type
         integer  :: idHbbl        ! depth of bottom boundary layer
         integer  :: idHice        ! depth of ice cover
         integer  :: idHsbl        ! depth of surface boundary layer

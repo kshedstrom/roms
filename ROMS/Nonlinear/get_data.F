@@ -670,7 +670,7 @@
 !
 !-----------------------------------------------------------------------
 !  Surface net heat flux correction fields: sea surface temperature
-!  (SST) and heat flux sensitivity to SST (dQdSST).
+!  (SST).
 !-----------------------------------------------------------------------
 !
       CALL get_2dfld (ng, iNLM, idSSTc, ncFRCid(idSSTc,ng),             &
@@ -681,7 +681,15 @@
 #  endif
      &                FORCES(ng) % sstG)
       IF (exit_flag.ne.NoError) RETURN
+# endif
 
+# if !defined ANA_DQDSST && defined QCORRECTION
+!
+!-----------------------------------------------------------------------
+!  Surface net heat flux correction fields: heat flux sensitivity to
+!  SST (dQdSST).
+!-----------------------------------------------------------------------
+!
       CALL get_2dfld (ng, iNLM, iddQdT, ncFRCid(iddQdT,ng),             &
      &                nFfiles(ng), FRC(1,ng), update(1),                &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &

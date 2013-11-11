@@ -226,6 +226,7 @@
 ** ANA_BTFLUX          use if analytical bottom temperature flux             **
 ** ANA_CLOUD           use if analytical cloud fraction                      **
 ** ANA_DIAG            use if customized diagnostics                         **
+** ANA_DQDSST          use if analytical surface heat flux sensitivity to SST**
 ** ANA_DRAG            use if analytical spatially varying drag parameters   **
 ** ANA_FSOBC           use if analytical free-surface boundary conditions    **
 ** ANA_GRID            use if analytical model grid set-up                   **
@@ -251,7 +252,7 @@
 ** ANA_SSFLUX          use if analytical surface salinity flux               **
 ** ANA_SSH             use if analytical sea surface height                  **
 ** ANA_SSS             use if analytical sea surface salinity                **
-** ANA_SST             use if analytical SST and dQdSST                      **
+** ANA_SST             use if analytical sea surface temperature, SST        **
 ** ANA_STFLUX          use if analytical surface net heat flux               **
 ** ANA_TAIR            use if analytical surface air temperature             **
 ** ANA_TCLIMA          use if analytical tracers climatology                 **
@@ -320,7 +321,6 @@
 ** LMD_SHAPIRO         use if Shapiro filtering boundary layer depth         **
 ** LMD_SKPP            use if surface boundary layer KPP mixing              **
 ** M2TIDE_DIFF         use to add simulated tidal diffusion                  **
-** WTYPE_GRID          use if spatial variation on Jerlov water type         **
 **                                                                           **
 ** OPTIONS to activate smoothing of Richardson number, if SPLINES is not     **
 ** activated:                                                                **
