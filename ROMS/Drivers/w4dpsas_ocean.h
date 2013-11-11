@@ -1021,6 +1021,8 @@
         DO ng=1,Ngrids
           indxSave=INI(ng)%Rindex
           INI(ng)%Rindex=outer+2
+        END DO
+
 !$OMP PARALLEL
           CALL initial (ng)
 !$OMP END PARALLEL
