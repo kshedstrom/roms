@@ -262,12 +262,22 @@
       JUB=BOUNDS(ng)%UBj(-1)
 # endif
 !
+!=======================================================================
+!  Process tidal forcing used at the lateral boundaries.
+!=======================================================================
+!
+!  In refinement nesting applications, tidal forcing is only necessary
+!  in the coarser large scale grid.
+!
+      PROCESS : IF (.not.(RefinedGrid(ng).and.                          &
+     &                    RefineScale(ng).gt.0)) THEN
+!
 !  Set time-ramping parameter.
 !
 # ifdef RAMP_TIDES
-      ramp=TANH((tdays(ng)-dstart)/1.0_r8)
+        ramp=TANH((tdays(ng)-dstart)/1.0_r8)
 # else
-      ramp=1.0_r8
+        ramp=1.0_r8
 # endif
 # ifdef TIDES_ASTRO
           tide_time = time(ng)-tide_start*day2sec
@@ -280,17 +290,17 @@
 !  Compute harmonic used to detide output fields.
 !-----------------------------------------------------------------------
 !
-      cff=2.0_r8*pi*(time(ng)-tide_start*day2sec)
-      DO itide=1,NTC
-        IF (Tperiod(itide).gt.0.0_r8) THEN
-          omega=cff/Tperiod(itide)
-          SinOmega(itide)=SIN(omega)
-          CosOmega(itide)=COS(omega)
-        ELSE
-          SinOmega(itide)=0.0_r8
-          CosOmega(itide)=0.0_r8
-        END IF
-      END DO
+        cff=2.0_r8*pi*(time(ng)-tide_start*day2sec)
+        DO itide=1,NTC
+          IF (Tperiod(itide).gt.0.0_r8) THEN
+            omega=cff/Tperiod(itide)
+            SinOmega(itide)=SIN(omega)
+            CosOmega(itide)=COS(omega)
+          ELSE
+            SinOmega(itide)=0.0_r8
+            CosOmega(itide)=0.0_r8
+          END IF
+        END DO
 # endif
 # ifdef SSH_TIDES
 !
@@ -332,11 +342,11 @@
      &                          ssh)
       END IF
 #   ifdef DISTRIBUTE
-      CALL mp_exchange2d (ng, tile, iNLM, 1,                            &
-     &                    LBi, UBi, LBj, UBj,                           &
-     &                    NghostPoints,                                 &
-     &                    EWperiodic(ng), NSperiodic(ng),               &
-     &                    ssh)
+        CALL mp_exchange2d (ng, tile, iNLM, 1,                          &
+     &                      LBi, UBi, LBj, UBj,                         &
+     &                      NghostPoints,                               &
+     &                      EWperiodic(ng), NSperiodic(ng),             &
+     &                      ssh)
 #   endif
 #  endif
 !
@@ -381,22 +391,22 @@
           END DO
           DO j=JstrR,JendR
 #  ifdef ADD_FSOBC
-            BOUNDARY(ng)%zeta_west(j)=BOUNDARY(ng)%zeta_west(j)+        &
-     &                                0.5_r8*(Etide(Istr-1,j)+          &
-     &                                        Etide(Istr  ,j))
+              BOUNDARY(ng)%zeta_west(j)=BOUNDARY(ng)%zeta_west(j)+      &
+     &                                  0.5_r8*(Etide(Istr-1,j)+        &
+     &                                          Etide(Istr  ,j))
 #  else
-            BOUNDARY(ng)%zeta_west(j)=0.5_r8*(Etide(Istr-1,j)+          &
-     &                                        Etide(Istr  ,j))
+              BOUNDARY(ng)%zeta_west(j)=0.5_r8*(Etide(Istr-1,j)+        &
+     &                                          Etide(Istr  ,j))
 #  endif
-          END DO
-          update=.TRUE.
-        END IF
+            END DO
+            update=.TRUE.
+          END IF
 #  ifdef DISTRIBUTE
-        CALL mp_boundary (ng, iNLM, JstrR, JendR,                       &
-     &                    JLB, JUB, 1, 1, update,                       &
-     &                    BOUNDARY(ng)%zeta_west)
+          CALL mp_boundary (ng, iNLM, JstrR, JendR,                     &
+     &                      JLB, JUB, 1, 1, update,                     &
+     &                      BOUNDARY(ng)%zeta_west)
 #  endif
-      END IF
+        END IF
 !
       IF (LBC(ieast,isFsur,ng)%acquire.or.                              &
      &    LBC(ieast,isUbar,ng)%acquire.or.                              &
@@ -429,22 +439,22 @@
           END DO
           DO j=JstrR,JendR
 #  ifdef ADD_FSOBC
-            BOUNDARY(ng)%zeta_east(j)=BOUNDARY(ng)%zeta_east(j)+        &
-     &                                0.5_r8*(Etide(Iend  ,j)+          &
-     &                                        Etide(Iend+1,j))
+              BOUNDARY(ng)%zeta_east(j)=BOUNDARY(ng)%zeta_east(j)+      &
+     &                                  0.5_r8*(Etide(Iend  ,j)+        &
+     &                                          Etide(Iend+1,j))
 #  else
-            BOUNDARY(ng)%zeta_east(j)=0.5_r8*(Etide(Iend  ,j)+          &
-     &                                        Etide(Iend+1,j))
+              BOUNDARY(ng)%zeta_east(j)=0.5_r8*(Etide(Iend  ,j)+        &
+     &                                          Etide(Iend+1,j))
 #  endif
-          END DO
-          update=.TRUE.
-        END IF
+            END DO
+            update=.TRUE.
+          END IF
 #  ifdef DISTRIBUTE
-        CALL mp_boundary (ng, iNLM, JstrR, JendR,                       &
-     &                    JLB, JUB, 1, 1, update,                       &
-     &                    BOUNDARY(ng)%zeta_east)
+          CALL mp_boundary (ng, iNLM, JstrR, JendR,                     &
+     &                      JLB, JUB, 1, 1, update,                     &
+     &                      BOUNDARY(ng)%zeta_east)
 #  endif
-      END IF
+        END IF
 !
       IF (LBC(isouth,isFsur,ng)%acquire.or.                             &
      &    LBC(isouth,isUbar,ng)%acquire.or.                             &
@@ -477,23 +487,22 @@
           END DO
           DO i=IstrR,IendR
 #  ifdef ADD_FSOBC
-            BOUNDARY(ng)%zeta_south(i)=BOUNDARY(ng)%zeta_south(i)+      &
-     &                                 0.5_r8*(Etide(i,Jstr-1)+         &
-     &                                         Etide(i,Jstr  ))
+              BOUNDARY(ng)%zeta_south(i)=BOUNDARY(ng)%zeta_south(i)+    &
+     &                                   0.5_r8*(Etide(i,Jstr-1)+       &
+     &                                           Etide(i,Jstr  ))
 #  else
-            BOUNDARY(ng)%zeta_south(i)=0.5_r8*(Etide(i,Jstr-1)+         &
-     &                                         Etide(i,Jstr  ))
+              BOUNDARY(ng)%zeta_south(i)=0.5_r8*(Etide(i,Jstr-1)+       &
+     &                                           Etide(i,Jstr  ))
 #  endif
-          END DO
-          update=.TRUE.
-        END IF
-!
+            END DO
+            update=.TRUE.
+          END IF
 #  ifdef DISTRIBUTE
-        CALL mp_boundary (ng, iNLM, IstrR, IendR,                       &
-     &                    ILB, IUB, 1, 1, update,                       &
-     &                    BOUNDARY(ng)%zeta_south)
+          CALL mp_boundary (ng, iNLM, IstrR, IendR,                     &
+     &                      ILB, IUB, 1, 1, update,                     &
+     &                      BOUNDARY(ng)%zeta_south)
 #  endif
-      END IF
+        END IF
 !
       IF (LBC(inorth,isFsur,ng)%acquire.or.                             &
      &    LBC(inorth,isUbar,ng)%acquire.or.                             &
@@ -526,21 +535,20 @@
           END DO
           DO i=IstrR,IendR
 #  ifdef ADD_FSOBC
-            BOUNDARY(ng)%zeta_north(i)=BOUNDARY(ng)%zeta_north(i)+      &
-     &                                 0.5_r8*(Etide(i,Jend  )+         &
-     &                                         Etide(i,Jend+1))
+              BOUNDARY(ng)%zeta_north(i)=BOUNDARY(ng)%zeta_north(i)+    &
+     &                                   0.5_r8*(Etide(i,Jend  )+       &
+     &                                           Etide(i,Jend+1))
 #  else
-            BOUNDARY(ng)%zeta_north(i)=0.5_r8*(Etide(i,Jend  )+         &
-     &                                         Etide(i,Jend+1))
+              BOUNDARY(ng)%zeta_north(i)=0.5_r8*(Etide(i,Jend  )+       &
+     &                                           Etide(i,Jend+1))
 #  endif
-          END DO
-          update=.TRUE.
-        END IF
-!
+            END DO
+            update=.TRUE.
+          END IF
 #  ifdef DISTRIBUTE
-        CALL mp_boundary (ng, iNLM, IstrR, IendR,                       &
-     &                    ILB, IUB, 1, 1, update,                       &
-     &                    BOUNDARY(ng)%zeta_north)
+          CALL mp_boundary (ng, iNLM, IstrR, IendR,                     &
+     &                      ILB, IUB, 1, 1, update,                     &
+     &                      BOUNDARY(ng)%zeta_north)
 #  endif
       END IF
 # endif
@@ -663,26 +671,25 @@
         DO i=Istr,IendR
           ubarclm(i,j)=ubarclm(i,j)+Utide(i,j)
         END DO
-      END DO
-      DO j=Jstr,JendR
-        DO i=IstrR,IendR
-          vbarclm(i,j)=vbarclm(i,j)+Vtide(i,j)
+        DO j=Jstr,JendR
+          DO i=IstrR,IendR
+            vbarclm(i,j)=vbarclm(i,j)+Vtide(i,j)
+          END DO
         END DO
-      END DO
-      IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
-        CALL exchange_u2d_tile (ng, tile,                               &
-     &                          LBi, UBi, LBj, UBj,                     &
-     &                          ubarclm)
-        CALL exchange_v2d_tile (ng, tile,                               &
-     &                          LBi, UBi, LBj, UBj,                     &
-     &                          vbarclm)
-      END IF
+        IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
+          CALL exchange_u2d_tile (ng, tile,                             &
+     &                            LBi, UBi, LBj, UBj,                   &
+     &                            ubarclm)
+          CALL exchange_v2d_tile (ng, tile,                             &
+     &                            LBi, UBi, LBj, UBj,                   &
+     &                            vbarclm)
+        END IF
 #   ifdef DISTRIBUTE
-      CALL mp_exchange2d (ng, tile, iNLM, 2,                            &
-     &                    LBi, UBi, LBj, UBj,                           &
-     &                    NghostPoints,                                 &
-     &                    EWperiodic(ng), NSperiodic(ng),               &
-     &                    ubarclm, vbarclm)
+        CALL mp_exchange2d (ng, tile, iNLM, 2,                          &
+     &                      LBi, UBi, LBj, UBj,                         &
+     &                      NghostPoints,                               &
+     &                      EWperiodic(ng), NSperiodic(ng),             &
+     &                      ubarclm, vbarclm)
 #   endif
 #  endif
 !
@@ -736,29 +743,29 @@
           END DO
           DO j=Jstr,JendR
 #  ifdef ADD_M2OBC
-            BOUNDARY(ng)%ubar_west(j)=BOUNDARY(ng)%ubar_west(j)+        &
-     &                                Utide(Istr,j)
+              BOUNDARY(ng)%ubar_west(j)=BOUNDARY(ng)%ubar_west(j)+      &
+     &                                  Utide(Istr,j)
 #  else
-            BOUNDARY(ng)%ubar_west(j)=Utide(Istr,j)
+              BOUNDARY(ng)%ubar_west(j)=Utide(Istr,j)
 #  endif
-          END DO
-          DO j=Jstr,JendR
+            END DO
+            DO j=Jstr,JendR
 #  ifdef ADD_M2OBC
-            BOUNDARY(ng)%vbar_west(j)=BOUNDARY(ng)%vbar_west(j)+        &
-     &                                Vtide(Istr-1,j)
+              BOUNDARY(ng)%vbar_west(j)=BOUNDARY(ng)%vbar_west(j)+      &
+     &                                  Vtide(Istr-1,j)
 #  else
-            BOUNDARY(ng)%vbar_west(j)=Vtide(Istr-1,j)
+              BOUNDARY(ng)%vbar_west(j)=Vtide(Istr-1,j)
 #  endif
-          END DO
-          update=.TRUE.
-        END IF
+            END DO
+            update=.TRUE.
+          END IF
 #  ifdef DISTRIBUTE
-        CALL mp_boundary (ng, iNLM, JstrR, JendR,                       &
-     &                    JLB, JUB, 1, 1, update,                       &
-     &                    BOUNDARY(ng)%ubar_west)
-        CALL mp_boundary (ng, iNLM, Jstr,  JendR,                       &
-     &                    JLB, JUB, 1, 1, update,                       &
-     &                    BOUNDARY(ng)%vbar_west)
+          CALL mp_boundary (ng, iNLM, JstrR, JendR,                     &
+     &                      JLB, JUB, 1, 1, update,                     &
+     &                      BOUNDARY(ng)%ubar_west)
+          CALL mp_boundary (ng, iNLM, Jstr,  JendR,                     &
+     &                      JLB, JUB, 1, 1, update,                     &
+     &                      BOUNDARY(ng)%vbar_west)
 #  endif
       END IF
       IF (LBC(ieast,isUbar,ng)%acquire.and.                             &
@@ -809,30 +816,29 @@
           END DO
           DO j=JstrR,JendR
 #  ifdef ADD_M2OBC
-            BOUNDARY(ng)%ubar_east(j)=BOUNDARY(ng)%ubar_east(j)+        &
-     &                                Utide(Iend+1,j)
+              BOUNDARY(ng)%ubar_east(j)=BOUNDARY(ng)%ubar_east(j)+      &
+     &                                  Utide(Iend+1,j)
 #  else
-            BOUNDARY(ng)%ubar_east(j)=Utide(Iend+1,j)
+              BOUNDARY(ng)%ubar_east(j)=Utide(Iend+1,j)
 #  endif
-          END DO
-          DO j=Jstr,JendR
+            END DO
+            DO j=Jstr,JendR
 #  ifdef ADD_M2OBC
-            BOUNDARY(ng)%vbar_east(j)=BOUNDARY(ng)%vbar_east(j)+        &
-     &                                Vtide(Iend+1,j)
+              BOUNDARY(ng)%vbar_east(j)=BOUNDARY(ng)%vbar_east(j)+      &
+     &                                  Vtide(Iend+1,j)
 #  else
-            BOUNDARY(ng)%vbar_east(j)=Vtide(Iend+1,j)
+              BOUNDARY(ng)%vbar_east(j)=Vtide(Iend+1,j)
 #  endif
-          END DO
-          update=.TRUE.
-!
-        END IF
+            END DO
+            update=.TRUE.
+          END IF
 #  ifdef DISTRIBUTE
-        CALL mp_boundary (ng, iNLM, JstrR, JendR,                       &
-     &                    JLB, JUB, 1, 1, update,                       &
-     &                    BOUNDARY(ng)%ubar_east)
-        CALL mp_boundary (ng, iNLM, Jstr,  JendR,                       &
-     &                    JLB, JUB, 1, 1, update,                       &
-     &                    BOUNDARY(ng)%vbar_east)
+          CALL mp_boundary (ng, iNLM, JstrR, JendR,                     &
+     &                      JLB, JUB, 1, 1, update,                     &
+     &                      BOUNDARY(ng)%ubar_east)
+          CALL mp_boundary (ng, iNLM, Jstr,  JendR,                     &
+     &                      JLB, JUB, 1, 1, update,                     &
+     &                      BOUNDARY(ng)%vbar_east)
 #  endif
       END IF
 
@@ -884,29 +890,29 @@
           END DO
           DO i=IstrR,IendR
 #  ifdef ADD_M2OBC
-            BOUNDARY(ng)%ubar_south(i)=BOUNDARY(ng)%ubar_south(i)+      &
-     &                                 Utide(i,Jstr-1)
+              BOUNDARY(ng)%ubar_south(i)=BOUNDARY(ng)%ubar_south(i)+    &
+     &                                   Utide(i,Jstr-1)
 #  else
-            BOUNDARY(ng)%ubar_south(i)=Utide(i,Jstr-1)
+              BOUNDARY(ng)%ubar_south(i)=Utide(i,Jstr-1)
 #  endif
-          END DO
-          DO i=IstrR,IendR
+            END DO
+            DO i=IstrR,IendR
 #  ifdef ADD_M2OBC
-            BOUNDARY(ng)%vbar_south(i)=BOUNDARY(ng)%vbar_south(i)+      &
-     &                                 Vtide(i,Jstr)
+              BOUNDARY(ng)%vbar_south(i)=BOUNDARY(ng)%vbar_south(i)+    &
+     &                                   Vtide(i,Jstr)
 #  else
-            BOUNDARY(ng)%vbar_south(i)=Vtide(i,Jstr)
+              BOUNDARY(ng)%vbar_south(i)=Vtide(i,Jstr)
 #  endif
-          END DO
-          update=.TRUE.
-        END IF
+            END DO
+            update=.TRUE.
+          END IF
 #  ifdef DISTRIBUTE
-        CALL mp_boundary (ng, iNLM, Istr,  IendR,                       &
-     &                    ILB, IUB, 1, 1, update,                       &
-     &                    BOUNDARY(ng)%ubar_south)
-        CALL mp_boundary (ng, iNLM, IstrR, IendR,                       &
-     &                    ILB, IUB, 1, 1, update,                       &
-     &                    BOUNDARY(ng)%vbar_south)
+          CALL mp_boundary (ng, iNLM, Istr,  IendR,                     &
+     &                      ILB, IUB, 1, 1, update,                     &
+     &                      BOUNDARY(ng)%ubar_south)
+          CALL mp_boundary (ng, iNLM, IstrR, IendR,                     &
+     &                      ILB, IUB, 1, 1, update,                     &
+     &                      BOUNDARY(ng)%vbar_south)
 #  endif
       END IF
       IF (LBC(inorth,isUbar,ng)%acquire.and.                            &
@@ -958,32 +964,33 @@
 
           DO i=Istr,IendR
 #  ifdef ADD_M2OBC
-            BOUNDARY(ng)%ubar_north(i)=BOUNDARY(ng)%ubar_north(i)+      &
-     &                                 Utide(i,Jend+1)
+              BOUNDARY(ng)%ubar_north(i)=BOUNDARY(ng)%ubar_north(i)+    &
+     &                                   Utide(i,Jend+1)
 #  else
-            BOUNDARY(ng)%ubar_north(i)=Utide(i,Jend+1)
+              BOUNDARY(ng)%ubar_north(i)=Utide(i,Jend+1)
 #  endif
-          END DO
-          DO i=IstrR,IendR
+            END DO
+            DO i=IstrR,IendR
 #  ifdef ADD_M2OBC
-            BOUNDARY(ng)%vbar_north(i)=BOUNDARY(ng)%vbar_north(i)+      &
-     &                                 Vtide(i,Jend+1)
+              BOUNDARY(ng)%vbar_north(i)=BOUNDARY(ng)%vbar_north(i)+    &
+     &                                   Vtide(i,Jend+1)
 #  else
-            BOUNDARY(ng)%vbar_north(i)=Vtide(i,Jend+1)
+              BOUNDARY(ng)%vbar_north(i)=Vtide(i,Jend+1)
 #  endif
-          END DO
-          update=.TRUE.
-        END IF
+            END DO
+            update=.TRUE.
+          END IF
 #  ifdef DISTRIBUTE
-        CALL mp_boundary (ng, iNLM, Istr,  IendR,                       &
-     &                    ILB, IUB, 1, 1, update,                       &
-     &                    BOUNDARY(ng)%ubar_north)
-        CALL mp_boundary (ng, iNLM, IstrR, IendR,                       &
-     &                    ILB, IUB, 1, 1, update,                       &
-     &                    BOUNDARY(ng)%vbar_north)
+          CALL mp_boundary (ng, iNLM, Istr,  IendR,                     &
+     &                      ILB, IUB, 1, 1, update,                     &
+     &                      BOUNDARY(ng)%ubar_north)
+          CALL mp_boundary (ng, iNLM, IstrR, IendR,                     &
+     &                      ILB, IUB, 1, 1, update,                     &
+     &                      BOUNDARY(ng)%vbar_north)
 #  endif
-      END IF
+        END IF
 # endif
+      END IF PROCESS
 
       RETURN
       END SUBROUTINE set_tides_tile
