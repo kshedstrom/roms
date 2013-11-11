@@ -32,7 +32,7 @@
       logical :: foundit
       logical :: check_file
 
-      integer :: Fcode, i, ifile
+      integer :: Fcount, i, ifile
 
       real(r8) :: Tmax, Tmin, Tscale
 
@@ -98,7 +98,6 @@
 !
       DO i=1,nFfiles(ng)
         IF (FRC(i,ng)%Nfiles.gt.1) THEN
-          updated=.FALSE.
           DO ifile=1,FRC(i,ng)%Nfiles
             ncname=FRC(i,ng)%files(ifile)
             foundit=check_file(ng, model, ncname, Tmin, Tmax, Tscale)
@@ -144,7 +143,6 @@
 !
       DO i=1,nCLMfiles(ng)
         IF (CLM(i,ng)%Nfiles.gt.1) THEN
-          updated=.FALSE.
           DO ifile=1,CLM(i,ng)%Nfiles
             ncname=CLM(i,ng)%files(ifile)
             foundit=check_file(ng, model, ncname, Tmin, Tmax, Tscale)
@@ -179,7 +177,6 @@
      &                            TRIM(CLM(i,ng)%files(ifile))
               END DO
             END IF
-            exit_flag=4
           END IF
 	END DO
       END IF
