@@ -137,7 +137,6 @@
                   END IF
                   tau=tau*dt(ng)
                 END IF
-                tau=tau*dt(ng)
 
                 IF ((dTdt*dTdx).lt.0.0_r8) dTdt=0.0_r8
                 IF ((dTdt*(grad(Istr,j  )+                              &
@@ -280,7 +279,6 @@
                   END IF
                   tau=tau*dt(ng)
                 END IF
-                tau=tau*dt(ng)
 
                 IF ((dTdt*dTdx).lt.0.0_r8) dTdt=0.0_r8
                 IF ((dTdt*(grad(Iend,j  )+                              &
@@ -423,7 +421,6 @@
                   END IF
                   tau=tau*dt(ng)
                 END IF
-                tau=tau*dt(ng)
 
                 IF ((dTdt*dTde).lt.0.0_r8) dTdt=0.0_r8
                 IF ((dTdt*(grad(i  ,Jstr)+                              &
@@ -567,7 +564,6 @@
                   END IF
                   tau=tau*dt(ng)
                 END IF
-                tau=tau*dt(ng)
 
                 IF ((dTdt*dTde).lt.0.0_r8) dTdt=0.0_r8
                 IF ((dTdt*(grad(i  ,Jend)+                              &
