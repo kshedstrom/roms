@@ -620,17 +620,19 @@
 !  application time.
 !-----------------------------------------------------------------------
 !
-      IF (SporadicImpulse(ng)) THEN
-        FrcRec(ng)=1
+      DO ng=1,Ngrids
+        IF (SporadicImpulse(ng)) THEN
+          FrcRec(ng)=1
 !$OMP MASTER
-        CALL get_state (ng, 7, 7, TLF(ng)%name, FrcRec(ng), 1)
+          CALL get_state (ng, 7, 7, TLF(ng)%name, FrcRec(ng), 1)
 !$OMP END MASTER
 !$OMP BARRIER
 # ifdef DISTRIBUTE
-        CALL mp_bcasti (ng, iTLM, exit_flag)
+          CALL mp_bcasti (ng, iTLM, exit_flag)
 # endif
-        IF (exit_flag.ne.NoError) RETURN
-      END IF
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+      END DO
 #endif
 
 #if defined ANA_DRAG && defined UV_DRAG_GRID
