@@ -178,8 +178,8 @@
               END DO
             END IF
           END IF
-	END DO
-      END IF
+        END IF
+      END DO
 #endif
 
  10   FORMAT (/,' CHECK_MULTIFILE - Error while processing ', a,        &

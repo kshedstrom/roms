@@ -3272,7 +3272,7 @@
             CASE ('CLMNAME')
               label='CLM - climatology fields'
               Npts=load_s2d(Nval, Cval, line, label, iclmfile, igrid,   &
-     &                      max_Ffiles, NCLMcont, nCLMfiles, CLM)
+     &                      max_Ffiles, NCLMcount, nCLMfiles, CLM)
             CASE ('NBCFILES')
               Npts=load_i(Nval, Rval, Ngrids, nBCfiles)
               DO ng=1,Ngrids
