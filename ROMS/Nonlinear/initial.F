@@ -289,6 +289,18 @@
           CALL metrics (ng, tile, iNLM)
         END DO
 
+#ifdef NESTING
+!
+!-----------------------------------------------------------------------
+!  If nesting, initialize grid spacing (on_u and om_v) in REFINED(:)
+!  structure.  They are used to impose mass flux at the finer grid
+!  physical boundaries.
+!-----------------------------------------------------------------------
+!
+        DO ng=1,Ngrids
+          CALL nesting (ng, iNLM, ndxdy)
+        END DO
+#endif
 #if defined WTYPE_GRID && defined ANA_WTYPE     && \
    (defined LMD_SKPP   || defined SOLAR_SOURCE)
 !

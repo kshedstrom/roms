@@ -641,7 +641,7 @@
 !  Compute transfer coefficients
 
             IF (uStar .gt. 1.0E-4_r8 .and. ABS(f(i,j)) .gt. 1.0E-8) THEN
-              gturb = 2.5*LOG10(5300.0_r8*uStar*uStar/ABS(f(i,j))) +    &
+              gturb = 2.5*LOG(5300.0_r8*uStar*uStar/ABS(f(i,j))) +      &
      &                7.12
             ELSE
               gturb = 0.0_r8
