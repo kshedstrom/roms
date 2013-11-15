@@ -45,6 +45,7 @@
 #ifdef SOLVE3D
 # define  ICE_MODEL
 # ifdef ICE_MODEL
+#  define ANA_ICE
 #  define  OUTFLOW_MASK
 #  define  FASTICE_CLIMATOLOGY
 #  define  ICE_THERMO
@@ -183,13 +184,13 @@
 # define ADD_M2OBC
 # undef RAMP_TIDES
 # define TIDES_ASTRO
-# define POT_TIDES
+# undef POT_TIDES
 
-# define UV_LDRAG
+# undef UV_LDRAG
 # define UV_DRAG_GRID
 # define ANA_DRAG
 # define LIMIT_BSTRESS
-# undef UV_QDRAG
+# define UV_QDRAG
 #else
 # define UV_QDRAG
 #endif
