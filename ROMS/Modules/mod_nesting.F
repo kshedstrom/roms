@@ -13,9 +13,78 @@
 !                                                                      !
 !=======================================================================
 !
-        USE mod_kinds
-
-        implicit none
+      USE mod_kinds
+!
+      implicit none
+!
+!-----------------------------------------------------------------------
+!  Nesting identification index of variables to process.
+!-----------------------------------------------------------------------
+!
+!  The following identification indices are used in "initial" or
+!  "main2d/main3d" to specify the variables that are processed in
+!  each sub-timestep section.  Negative indices are used in grid
+!  refinement whereas positive indices are used in composite grids.
+!
+      integer, parameter :: ndxdy = -4    ! extract on_u and om_v
+      integer, parameter :: ngetD = -3    ! extract donor grid data
+      integer, parameter :: nputD = -2    ! fill contact points
+      integer, parameter :: n2way = -1    ! fine to course coupling
+!
+      integer, parameter :: nFSIC =  1    ! free surface initialization
+      integer, parameter :: n2dIC =  2    ! 2D momentum initialization
+      integer, parameter :: n3dIC =  3    ! 3D momentum initialization
+      integer, parameter :: nTVIC =  4    ! tracers initialization
+      integer, parameter :: nbstr =  5    ! bottom stress (bustr,bvstr)
+      integer, parameter :: nrhst =  6    ! RHS terms (tracers)
+      integer, parameter :: nzeta =  7    ! 3D kernel free-surface
+      integer, parameter :: nzwgt =  8    ! 3D vertical weights
+      integer, parameter :: n2dPS =  9    ! 2D engine Predictor Step
+      integer, parameter :: n2dCS = 10    ! 2D engine Corrector Step
+      integer, parameter :: n2dfx = 11    ! time-averaged 2D fluxes
+      integer, parameter :: n3duv = 12    ! 3D momentum and fluxes
+      integer, parameter :: n3dTV = 13    ! 3D tracer variables
+!
+!-----------------------------------------------------------------------
+!  Nesting parameters.
+!-----------------------------------------------------------------------
+!
+!  Nested grid connectivity switches. It is used to determine the
+!  dimensions of the numerical kernel allocatable arrays. The arrays
+!  have extra points due to the contact regions in any of sides
+!  of the physical grid (1=iwest, 2=isouth, 3=ieast, 4=inorth).
+!
+      logical, allocatable :: ContactRegion(:,:)    ! [4,Ngrids]
+!
+!  Data donor REFINED structure index associated with refinement grid.
+!  Recall that both refinement and composite grids are allow and this
+!  mapping is for efficient memory usage.
+!
+      integer, allocatable :: RefineDonor(:)        ! [Ngrids]
+!
+!  Donor and reciver grids for each contact region. These paremeters
+!  are aslo duplicated in the T_NGC structure.
+!
+      integer, allocatable :: donor_grid(:)         ! [Ncontact]
+      integer, allocatable :: receiver_grid(:)      ! [Ncontact]
+!
+!  Compact arrays used to unpack data from nested grids contact points
+!  NetCDF file. They are allocated to the size "datum" dimension in
+!  routine "set_contact".  The start and end indices for each C-type
+!  variable are used to unpack from compact vector.
+!
+      integer :: NCdatum
+      integer, allocatable :: NCpoints(:)           ! [Ncontact]
+      integer, allocatable :: NstrR(:), NendR(:)    ! [Ncontact]
+      integer, allocatable :: NstrU(:), NendU(:)    ! [Ncontact]
+      integer, allocatable :: NstrV(:), NendV(:)    ! [Ncontact]
+!
+      integer, allocatable :: contact_region(:)     ! [NCdatum]
+      integer, allocatable :: on_boundary(:)        ! [NCdatum]
+      integer, allocatable :: Idg_cp(:)             ! [NCdatum]
+      integer, allocatable :: Jdg_cp(:)             ! [NCdatum]
+      integer, allocatable :: Irg_cp(:)             ! [NCdatum]
+      integer, allocatable :: Jrg_cp(:)             ! [NCdatum]
 !
 ! Generic structure for 2D state fields.
 !
@@ -266,6 +335,9 @@
       RETURN
       END SUBROUTINE allocate_nesting2d
 
+        real(r8), pointer :: on_u(:)          ! [Npoints]
+        real(r8), pointer :: om_v(:)          ! [Npoints]
+
 # ifdef SOLVE3D
 
       SUBROUTINE allocate_nesting3d (field3d, id, gtype, Tindex)
@@ -286,16 +358,46 @@
 !
 !  Imported variable declarations.
 !
-      integer, target :: id, gtype
-
-      integer, intent(in), optional :: Tindex
+      integer :: LBi, UBi, LBj, UBj
+      integer :: Imin, Imax, Jmin, Jmax
+      integer :: cr, dg, ng, rg
+      integer :: i, ibry, ic, j, m, my_tile
+      integer :: ispval
 
       TYPE (T_NEST3D), pointer :: field3d(:)
 !
 !  Local variable declarations.
 !
-      integer :: ng
-      integer, target :: LBk, UBk, Kstr, Kend
+!  Allocate boundary connectivity (type T_BCP) structure.
+!
+      allocate ( BRY_CONTACT(4,Ncontact) )
+!
+!  Allocate arrays in boundary connectivity structure.
+!
+      my_tile=-1                           ! for global values
+      DO cr=1,Ncontact
+        dg=receiver_grid(cr)
+        LBi=BOUNDS(dg)%LBi(my_tile)
+        UBi=BOUNDS(dg)%UBi(my_tile)
+        LBj=BOUNDS(dg)%LBj(my_tile)
+        UBj=BOUNDS(dg)%UBj(my_tile)
+        DO ibry=1,4
+          SELECT CASE (ibry)
+            CASE (iwest, ieast)
+              allocate ( BRY_CONTACT(ibry,cr) % Ib(LBj:UBj) )
+              allocate ( BRY_CONTACT(ibry,cr) % Jb(LBj:UBj) )
+              allocate ( BRY_CONTACT(ibry,cr) % C2Bindex(LBj:UBj) )
+              allocate ( BRY_CONTACT(ibry,cr) % Tflux(LBj:UBj,          &
+     &                                                N(dg),NT(dg)) )
+            CASE (isouth, inorth)
+              allocate ( BRY_CONTACT(ibry,cr) % Ib(LBi:UBi) )
+              allocate ( BRY_CONTACT(ibry,cr) % Jb(LBi:UBi) )
+              allocate ( BRY_CONTACT(ibry,cr) % C2Bindex(LBi:UBi) )
+              allocate ( BRY_CONTACT(ibry,cr) % Tflux(LBi:UBi,          &
+     &                                                N(dg),NT(dg)) )
+          END SELECT
+        END DO
+      END DO
 !
 !-----------------------------------------------------------------------
 !  Generic 3D structure.
@@ -306,54 +408,66 @@
       IF (ASSOCIATED(field3d)) THEN
         deallocate ( field3d )
       END IF
-      allocate ( field3d(Ngrids) )
+      IF (.not.allocated(Jbmax)) THEN
+        allocate ( Jbmax(4,Ncontact) )
+        Jbmax = ispval
+      END IF
 !
-!  Load field descriptors.
+      DO cr=1,Ncontact
+        DO ibry=1,4
+          BRY_CONTACT(ibry,cr) % spv = ispval
+          BRY_CONTACT(ibry,cr) % Ib = ispval
+          BRY_CONTACT(ibry,cr) % Jb = ispval
+          BRY_CONTACT(ibry,cr) % C2Bindex = ispval
+        END DO
+      END DO
 !
-      DO ng=1,Ngrids
+!  Identify contact points located on the grid boundary.  Notice that
+!  all the contact points are looped "Ncontact" times to determine the
+!  cell containing the finer grid physical boundary for both donor and
+!  receiver grids. In refinement grids, the contact regions are flipped
+!  for consistency with the coding logic elsewhere.
 !
-!  Load id, grid type, tile, array bounds, and starting/ending
-!  computational indices.
-!
-        field3d(ng) % id    => id
-        field3d(ng) % gtype => gtype
-        field3d(ng) % tile  => BOUNDS(ng) % tile
-        field3d(ng) % LBi   => BOUNDS(ng) % LBi
-        field3d(ng) % UBi   => BOUNDS(ng) % UBi
-        field3d(ng) % LBj   => BOUNDS(ng) % LBj
-        field3d(ng) % UBj   => BOUNDS(ng) % UBj
-        field3d(ng) % Istr  => BOUNDS(ng) % Istr
-        field3d(ng) % Iend  => BOUNDS(ng) % Iend
-        field3d(ng) % Jstr  => BOUNDS(ng) % Jstr
-        field3d(ng) % Jend  => BOUNDS(ng) % Jend
-        field3d(ng) % IstrR => BOUNDS(ng) % IstrR
-        field3d(ng) % IstrU => BOUNDS(ng) % IstrU
-        field3d(ng) % IendR => BOUNDS(ng) % IendR
-        field3d(ng) % JstrR => BOUNDS(ng) % JstrR
-        field3d(ng) % JstrV => BOUNDS(ng) % JstrV
-        field3d(ng) % JendR => BOUNDS(ng) % JendR
-!
-!  Load third-dimension bounds.
-!
-        IF (gtype.eq.w3dvar) THEN
-          LBk=0
-          UBk=N(ng)
-          Kstr=0
-          Kend=N(ng)
-          field3d(ng) % LBk   => LBk
-          field3d(ng) % UBk   => UBk
-          field3d(ng) % Kstr  => Kstr
-          field3d(ng) % Kend  => Kend
-        ELSE
-          LBk=1
-          UBk=N(ng)
-          Kstr=1
-          Kend=N(ng)
-          field3d(ng) % LBk   => LBk
-          field3d(ng) % UBk   => UBk
-          field3d(ng) % Kstr  => Kstr
-          field3d(ng) % Kend  => Kend
-        END IF
+      DO cr=1,Ncontact
+        dg=donor_grid(cr)
+        rg=receiver_grid(cr)
+        ic=1
+        DO m=1,NCdatum
+          ibry=on_boundary(m)
+          IF ((m.gt.NCpoints(ic)).and.(ic.lt.Ncontact)) THEN
+            ic=ic+1
+          END IF
+          IF (RefinedGrid(dg).and.RefinedGrid(rg)) THEN
+            IF (rg.lt.dg) THEN
+              i=Idg_cp(m)        ! coarser donor grid cell containing
+              j=Jdg_cp(m)        ! finer grid physical boundary points
+            ELSE
+              i=Irg_cp(m)        ! finer receiver grid cell physical
+              j=Jrg_cp(m)        ! boundary points
+            END IF
+          ELSE
+            i=Irg_cp(m)          ! composite grids
+            j=Jrg_cp(m)
+          END IF
+          IF ((ibry.eq.iwest ).or.(ibry.eq.ieast )) THEN
+            Ibmin(ibry,cr)=MIN(i,Ibmin(ibry,cr))
+            Ibmax(ibry,cr)=MAX(i,Ibmax(ibry,cr))
+            Jbmin(ibry,cr)=MIN(j,Jbmin(ibry,cr))
+            Jbmax(ibry,cr)=MAX(j,Jbmax(ibry,cr))
+            BRY_CONTACT(ibry,cr) % Ib(j) = i
+            BRY_CONTACT(ibry,cr) % Jb(j) = j
+            BRY_CONTACT(ibry,cr) % C2Bindex(j) = m-NstrU(ic)+1
+          ELSE IF ((ibry.eq.isouth).or.(ibry.eq.inorth)) THEN
+            Ibmin(ibry,cr)=MIN(i,Ibmin(ibry,cr))
+            Ibmax(ibry,cr)=MAX(i,Ibmax(ibry,cr))
+            Jbmin(ibry,cr)=MIN(j,Jbmin(ibry,cr))
+            Jbmax(ibry,cr)=MAX(j,Jbmax(ibry,cr))
+            BRY_CONTACT(ibry,cr) % Ib(i) = i
+            BRY_CONTACT(ibry,cr) % Jb(i) = j
+            BRY_CONTACT(ibry,cr) % C2Bindex(i) = m-NstrV(ic)+1
+          END IF
+        END DO
+      END DO
 !
 !  Associate the appropriate grid arrays.
 !
@@ -565,7 +679,12 @@
           field4d(ng) % s     => OCEAN(ng) % t(:,:,:,Tindex,:)
         END IF
 
-      END DO
+          REFINED(cr) % on_u = IniVal
+          REFINED(cr) % om_v = IniVal
+
+# ifdef SOLVE3D
+          REFINED(cr) % u = IniVal
+          REFINED(cr) % v = IniVal
 
       RETURN
       END SUBROUTINE allocate_nesting4d
