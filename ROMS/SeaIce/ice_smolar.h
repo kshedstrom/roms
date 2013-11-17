@@ -94,7 +94,7 @@
      &                      ICE(ng) % ai                                &
      &                      )
 !
-      CALL i2d_bc_tile (ng, tile,                                       &
+      CALL i2d_bc_tile (ng, tile, iNLM,                                 &
      &                  LBi, UBi, LBj, UBj,                             &
      &                  IminS, ImaxS, JminS, JmaxS,                     &
      &                  liold(ng), linew(ng),                           &
@@ -134,7 +134,7 @@
      &                      ICE(ng) % hi                                &
      &                      )
 !
-      CALL i2d_bc_tile (ng, tile,                                       &
+      CALL i2d_bc_tile (ng, tile, iNLM,                                 &
      &                  LBi, UBi, LBj, UBj,                             &
      &                  IminS, ImaxS, JminS, JmaxS,                     &
      &                  liold(ng), linew(ng),                           &
@@ -175,7 +175,7 @@
      &                      ICE(ng) % hsn                               &
      &                      )
 !
-      CALL i2d_bc_tile (ng, tile,                                       &
+      CALL i2d_bc_tile (ng, tile, iNLM,                                 &
      &                  LBi, UBi, LBj, UBj,                             &
      &                  IminS, ImaxS, JminS, JmaxS,                     &
      &                  liold(ng), linew(ng),                           &
@@ -329,7 +329,7 @@ FOOOO
      &                      ICE(ng) % sfwat                             &
      &                      )
 !
-      CALL i2d_bc_tile (ng, tile,                                       &
+      CALL i2d_bc_tile (ng, tile, iNLM,                                 &
      &                  LBi, UBi, LBj, UBj,                             &
      &                  IminS, ImaxS, JminS, JmaxS,                     &
      &                  liold(ng), linew(ng),                           &
@@ -381,7 +381,7 @@ FOOOO
         ENDDO
       ENDDO
 !
-      CALL tibc_tile (ng, tile,                                         &
+      CALL tibc_tile (ng, tile, iNLM,                                   &
      &                LBi, UBi, LBj, UBj,                               &
      &                liold(ng), linew(ng),                             &
      &                ICE(ng)%ui,                                       &
@@ -442,7 +442,7 @@ FOOOO
         ENDDO
       ENDDO
 !
-!        CALL i2d_bc_tile (ng, tile,                                     &
+!        CALL i2d_bc_tile (ng, tile, iNLM,                               &
 !     &                    LBi, UBi, LBj, UBj,                           &
 !     &                    IminS, ImaxS, JminS, JmaxS,                   &
 !     &                    liold(ng), linew(ng),                         &

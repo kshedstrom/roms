@@ -936,7 +936,7 @@
      &                  LBi, UBi, LBj, UBj,                             &
      &                  stflx(:,:,itemp))
 
-      CALL i2d_bc_tile (ng, tile,                                       &
+      CALL i2d_bc_tile (ng, tile, iNLM,                                 &
      &                  LBi, UBi, LBj, UBj,                             &
      &                  IminS, ImaxS, JminS, JmaxS,                     &
      &                  liold, linew,                                   &
@@ -945,7 +945,7 @@
      &                  BOUNDARY(ng)%ai_north(LBi:UBi),                 &
      &                  BOUNDARY(ng)%ai_south(LBi:UBi),                 &
      &                  ui, vi, ai, LBC(:,isAice,ng))
-      CALL i2d_bc_tile (ng, tile,                                       &
+      CALL i2d_bc_tile (ng, tile, iNLM,                                 &
      &                  LBi, UBi, LBj, UBj,                             &
      &                  IminS, ImaxS, JminS, JmaxS,                     &
      &                  liold, linew,                                   &
@@ -954,7 +954,7 @@
      &                  BOUNDARY(ng)%hi_north(LBi:UBi),                 &
      &                  BOUNDARY(ng)%hi_south(LBi:UBi),                 &
      &                  ui, vi, hi, LBC(:,isHice,ng))
-      CALL i2d_bc_tile (ng, tile,                                       &
+      CALL i2d_bc_tile (ng, tile, iNLM,                                 &
      &                  LBi, UBi, LBj, UBj,                             &
      &                  IminS, ImaxS, JminS, JmaxS,                     &
      &                  liold, linew,                                   &
@@ -963,10 +963,10 @@
      &                  BOUNDARY(ng)%hsn_north(LBi:UBi),                &
      &                  BOUNDARY(ng)%hsn_south(LBi:UBi),                &
      &                  ui, vi, hsn, LBC(:,isHsno,ng))
-      CALL tibc_tile (ng, tile,                                         &
+      CALL tibc_tile (ng, tile, iNLM,                                   &
      &                          LBi, UBi, LBj, UBj, liold, linew,       &
      &                          ui, vi, hi, ti, enthalpi)
-      CALL i2d_bc_tile (ng, tile,                                       &
+      CALL i2d_bc_tile (ng, tile, iNLM,                                 &
      &                  LBi, UBi, LBj, UBj,                             &
      &                  IminS, ImaxS, JminS, JmaxS,                     &
      &                  liold, linew,                                   &
@@ -975,7 +975,7 @@
      &                  BOUNDARY(ng)%sfwat_north(LBi:UBi),              &
      &                  BOUNDARY(ng)%sfwat_south(LBi:UBi),              &
      &                  ui, vi, sfwat, LBC(:,isSfwat,ng))
-!      CALL i2d_bc_tile (ng, tile,                                       &
+!      CALL i2d_bc_tile (ng, tile, iNLM,                                 &
 !     &                  LBi, UBi, LBj, UBj,                             &
 !     &                  IminS, ImaxS, JminS, JmaxS,                     &
 !     &                  liold, linew,                                   &

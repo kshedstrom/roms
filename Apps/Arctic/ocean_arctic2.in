@@ -72,10 +72,9 @@
 !      NtileI == 1                               ! I-direction partition
 !      NtileI == 2                               ! I-direction partition
 !      NtileI == 6                               ! I-direction partition
-       NtileI == 8                               ! I-direction partition
+       NtileI == 4                               ! I-direction partition
 ! ORDER MATTERS HERE!
-       NtileJ == 32                              ! J-direction partition
-!      NtileJ == 12                              ! J-direction partition
+       NtileJ == 16                              ! J-direction partition
 
 ! Set lateral boundary conditions keyword. Notice that a value is expected
 ! for each boundary segment per nested grid for each state variable.
@@ -123,9 +122,9 @@
 
 ! Ice boundary conditions
 
-   LBC(isAice) ==   Mix     Mix     Mix     Mix         ! ice concentration
-   LBC(isHice) ==   Mix     Mix     Mix     Mix         ! ice thickness
-   LBC(isHsno) ==   Mix     Mix     Mix     Mix         ! snow thickness
+   LBC(isAice) ==   Clo     Clo     Clo     Clo         ! ice concentration
+   LBC(isHice) ==   Clo     Clo     Clo     Clo         ! ice thickness
+   LBC(isHsno) ==   Clo     Clo     Clo     Clo         ! snow thickness
    LBC(isTice) ==   Clo     Clo     Clo     Clo         ! ice temperature
    LBC(isSfwat)==   Clo     Clo     Clo     Clo         ! surface water
    LBC(isSig11)==   Clo     Clo     Clo     Clo         ! sigma-11

@@ -466,7 +466,7 @@
 !
       IF (nrrec(ng).eq.0) THEN
         DO tile=first_tile(ng),last_tile(ng),+1
-          CALL ana_ice (ng, tile)
+          CALL ana_ice (ng, tile, iNLM)
         END DO
 !$OMP BARRIER
       END IF
@@ -602,7 +602,7 @@
 !  several parameters in the file structure so the appropriate input
 !  file is selected during initialization/restart.
 !
-      DO ng=1,Ngrids
+!      DO ng=1,Ngrids
 !$OMP MASTER
         CALL check_multifile (ng, iNLM)
 !$OMP END MASTER
@@ -611,7 +611,7 @@
 # endif
 !$OMP BARRIER
         IF (exit_flag.ne.NoError) RETURN
-      END DO
+!      END DO
 !
 !  If applicable, read in input data.
 !

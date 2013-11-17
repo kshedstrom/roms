@@ -125,7 +125,7 @@
 
 # ifdef NCEP_FLUXES
 #  ifdef ANA_NCEP
-      CALL ana_ncep_tile (ng, tile, model,                              &
+      CALL ana_ncep_tile (ng, tile, iNLM,                               &
      &                       LBi, UBi, LBj, UBj,                        &
      &                       FORCES(ng) % nustr,                        &
      &                       FORCES(ng) % nvstr,                        &
@@ -1201,7 +1201,7 @@
 
 #ifdef ICE_MODEL
 # ifdef ANA_AIOBC
-      CALL ana_aiobc (ng, tile)
+      CALL ana_aiobc (ng, tile, iNLM)
 # else
       IF (DOMAIN(ng)%SouthWest_Test(tile)) THEN
         IF (LBC(iwest,isAice,ng)%acquire) THEN
@@ -1240,7 +1240,7 @@
 # endif
 
 # ifdef ANA_HIOBC
-      CALL ana_hiobc (ng, tile)
+      CALL ana_hiobc (ng, tile, iNLM)
 # else
       IF (DOMAIN(ng)%SouthWest_Test(tile)) THEN
         IF (LBC(iwest,isHice,ng)%acquire) THEN
@@ -1280,14 +1280,14 @@
 
 # if defined ICE_BIO
 #  ifdef BERING_10K
-      CALL ana_IcePhLbc (ng, tile)
-      CALL ana_IceNO3bc (ng, tile)
-      CALL ana_IceNH4bc (ng, tile)
+      CALL ana_IcePhLbc (ng, tile, iNLM)
+      CALL ana_IceNO3bc (ng, tile, iNLM)
+      CALL ana_IceNH4bc (ng, tile, iNLM)
 #  endif
 # endif
 
 # ifdef ANA_HSNOBC
-      CALL ana_hsnobc (ng, tile)
+      CALL ana_hsnobc (ng, tile, iNLM)
 # else
       IF (DOMAIN(ng)%SouthWest_Test(tile)) THEN
         IF (LBC(iwest,isHsno,ng)%acquire) THEN
@@ -1365,7 +1365,7 @@
 # endif
 
 # ifdef ANA_SFWATOBC
-      CALL ana_sfwatobc (ng, tile)
+      CALL ana_sfwatobc (ng, tile, iNLM)
 # else
       IF (DOMAIN(ng)%SouthWest_Test(tile)) THEN
         IF (LBC(iwest,isSfwat,ng)%acquire) THEN
@@ -1910,7 +1910,7 @@
 !-----------------------------------------------------------------------
 !
 #  ifdef ANA_OCLIMA
-      CALL ana_oclima (ng, tile)
+      CALL ana_oclima (ng, tile, iNLM)
 #  else
       CALL set_3dfld_tile (ng, tile, iNLM, idOclm,                      &
      &                       LBi, UBi, LBj, UBj, 0, N(ng),              &
@@ -1948,7 +1948,7 @@
 !-----------------------------------------------------------------------
 !
 #  ifdef ANA_AKTCLIMA
-      CALL ana_aktclima (ng, tile)
+      CALL ana_aktclima (ng, tile, iNLM)
 #  else
       CALL set_3dfld_tile (ng, tile, iNLM, idAclm,                      &
      &                       LBi, UBi, LBj, UBj, 0, N(ng),              &

@@ -1,4 +1,4 @@
-      SUBROUTINE ana_IcePhLbc (ng, tile)
+      SUBROUTINE ana_IcePhLbc (ng, tile, model)
 !
 !! svn $Id$
 !!======================================================================
@@ -18,11 +18,11 @@
 !
 ! Imported variable declarations.
 !
-      integer, intent(in) :: ng, tile
+      integer, intent(in) :: ng, tile, model
 
 #include "tile.h"
 !
-      CALL ana_IcePhLbc_tile (ng, tile,                                   &
+      CALL ana_IcePhLbc_tile (ng, tile, model,                            &
      &                     LBi, UBi, LBj, UBj)
 !
 ! Set analytical header file name used.
@@ -39,7 +39,7 @@
       END SUBROUTINE ana_IcePhLbc
 !
 !***********************************************************************
-      SUBROUTINE ana_IcePhLbc_tile (ng, tile,                             &
+      SUBROUTINE ana_IcePhLbc_tile (ng, tile, model,                      &
      &                           LBi, UBi, LBj, UBj)
 !***********************************************************************
 !
@@ -50,7 +50,7 @@
 !
 !  Imported variable declarations.
 !
-      integer, intent(in) :: ng, tile
+      integer, intent(in) :: ng, tile, model
       integer, intent(in) :: LBi, UBi, LBj, UBj
 !
 !  Local variable declarations.
