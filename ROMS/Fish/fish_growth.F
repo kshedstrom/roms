@@ -34,7 +34,7 @@
 !     Hz         Vertical thicknesses (m).                             !
 !     Amask      Field Land/Sea mask.                                  !
 !     A          Field to interpolate from.                            !
-!     MyThread   Float parallel thread bounded switch.                 !
+!     fishthread   Float parallel thread bounded switch.               !
 !     bounded    Float grid bounded status switch.                     !
 !                                                                      !
 !  On Output:                                                          !
@@ -58,7 +58,7 @@
 # ifdef SOLVE3D
      &                            Hz,                                   &
 # endif
-     &                            MyThread, bounded, track, feedback,   &
+     &                            fishthread, bounded, track, feedback, &
      &                            bioenergy, alive, species,            &
      &                            lifestage,                            &
      &                            fish_count, fish_list, fishnodes)
@@ -84,7 +84,7 @@
       type(fishnode), intent(in) :: fish_list(LBi:UBi,LBj:UBj)
       type(fishnode), target, intent(in) :: fishnodes(Nfish(ng))
 
-      logical, intent(in) :: MyThread(Nfish(ng))
+      logical, intent(in) :: fishthread(Nfish(ng))
       logical, intent(inout) :: bounded(Nfish(ng))
       logical, intent(inout) :: alive(Nfish(ng))
 
@@ -166,7 +166,8 @@
             DO ifish=1,fish_count(i,j)
               ifid = thisfish % fish
               isp = idfish(species(ifid))
-              IF (MyThread(ifid).and.bounded(ifid).and.alive(ifid).and. &
+              IF (fishthread(ifid).and.bounded(ifid).and.               &
+     &            alive(ifid).and. &
      &            (lifestage(ifid).ge.if_larva)) THEN
                 Fweight=MAX(0.0_r8,bioenergy(ifwwt,ifid))
                 Fworth=bioenergy(ifworth,ifid)
@@ -246,7 +247,8 @@
             DO ifish=1,fish_count(i,j)
               ifid = thisfish % fish
               isp = idfish(species(ifid))
-              IF (MyThread(ifid).and.bounded(ifid).and.alive(ifid).and. &
+              IF (fishthread(ifid).and.bounded(ifid).and.               &
+     &            alive(ifid).and.                                      &
      &            (lifestage(ifid).ge.if_larva)) THEN
                 Fweight=MAX(0.0_r8,bioenergy(ifwwt,ifid))
                 Fworth=bioenergy(ifworth,ifid)

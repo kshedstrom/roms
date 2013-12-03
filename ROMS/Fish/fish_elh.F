@@ -23,7 +23,7 @@
 !***********************************************************************
       SUBROUTINE fish_elh (ng, tile, LBi, UBi, LBj, UBj, LBk, UBk,      &
      &                         itime, nnew,                             &
-     &                         MyThread, bounded, track,                &
+     &                         fishthread, bounded, track,                &
      &                         bioenergy, alive, species,               &
      &                         lifestage, deathby, fmortN,              &
      &                         egg_dur, egg_num,                        &
@@ -54,7 +54,7 @@
       type(fishnode), intent(in) :: fish_list(LBi:UBi,LBj:UBj)
       type(fishnode), target, intent(in) :: fishnodes(Nfish(ng))
 
-      logical, intent(in) :: MyThread(Nfish(ng))
+      logical, intent(in) :: fishthread(Nfish(ng))
       logical, intent(inout) :: bounded(Nfish(ng))
       logical, intent(inout) :: alive(Nfish(ng))
 

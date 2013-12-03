@@ -32,7 +32,7 @@
 !     pn         Inverse grid spacing (1/m) in the ETA-direction.      !
 !     Amask      Field Land/Sea mask.                                  !
 !     A          Field to interpolate from.                            !
-!     MyThread   Float parallel thread bounded switch.                 !
+!     fishthread   Float parallel thread bounded switch.                 !
 !     bounded    Float grid bounded status switch.                     !
 !                                                                      !
 !  On Output:                                                          !
@@ -56,7 +56,7 @@
 # ifdef MASKING
      &                          Amask,                                  &
 # endif
-     &                          A, MyThread, bounded, track, bioenergy)
+     &                          A, fishthread, bounded, track, bioenergy)
 !***********************************************************************
       USE mod_param
       USE mod_ncparam
@@ -70,7 +70,7 @@
       integer, intent(in) :: Lstr, Lend, itime, ifield, gtype, numflt
 
       logical, intent(in) :: maskit
-      logical, intent(in) :: MyThread(Lstr:Lend)
+      logical, intent(in) :: fishthread(Lstr:Lend)
       logical, intent(in) :: bounded(numflt)
 
       real(r8), intent(in) :: pm(LBi:UBi,LBj:UBj)
@@ -145,7 +145,7 @@
 !-----------------------------------------------------------------------
 !
       DO l=Lstr,Lend
-        IF (MyThread(l)) THEN
+        IF (fishthread(l)) THEN
           IF (.not.bounded(l)) THEN
             bioenergy(ifield,l)=spval
           ELSE
