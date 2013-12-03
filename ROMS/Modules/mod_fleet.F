@@ -151,6 +151,10 @@
         BOATS(ng) % PortCatch(iflt) = IniVal
       END DO
 
+!RD: add this
+      LdefFLEET(ng)=.TRUE.
+
+
       RETURN
       END SUBROUTINE allocate_fleet
 #endif

@@ -148,6 +148,8 @@
         PREDS(ng) % prednodes(iflt) % pred = iflt
       END DO
 
+      LdefPRED(ng)=.TRUE.
+
       RETURN
       END SUBROUTINE allocate_pred
 #endif

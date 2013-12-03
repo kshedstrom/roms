@@ -167,7 +167,7 @@
 !
 !  Initialize unlimited time record dimension.
 !
-        PRED(ng)%rindex=0
+        PRED(ng)%Rindex=0
 !
 !  Initialize local information variable arrays.
 !

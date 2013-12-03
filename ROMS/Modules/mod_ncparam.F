@@ -609,6 +609,8 @@
         integer, allocatable :: idefAVG2(:)   ! averages2 file
         integer, allocatable :: idefDIA(:)    ! diagnostics file
         integer, allocatable :: idefFISH(:)   ! fish file
+        integer, allocatable :: idefPRED(:)   ! preadator file
+        integer, allocatable :: idefFLEET(:)  ! fishing fleet file
         integer, allocatable :: idefHIS(:)    ! history file
         integer, allocatable :: idefTLM(:)    ! tangent file
 !
@@ -766,7 +768,11 @@
       allocate ( idefAVG(Ngrids) )
       allocate ( idefAVG2(Ngrids) )
       allocate ( idefDIA(Ngrids) )
+
       allocate ( idefFISH(Ngrids) )
+      allocate ( idefPRED(Ngrids) )
+      allocate ( idefFLEET(Ngrids) )
+
       allocate ( idefHIS(Ngrids) )
       allocate ( idefTLM(Ngrids) )
 
@@ -877,6 +883,8 @@
         idefAVG2(ng)=-1
         idefDIA(ng)=-1
         idefFISH(ng)=-1
+        idefPRED(ng)=-1
+        idefFLEET(ng)=-1
         idefHIS(ng)=-1
         idefTLM(ng)=-1
       END DO
