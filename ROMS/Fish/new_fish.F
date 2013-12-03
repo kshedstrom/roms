@@ -187,7 +187,7 @@
 # else
       DO i=0,Lm(ng)+1
         DO j=0,Mm(ng)+1
-          h_all(i,j)=h(i,j)
+          h_all(i,j)=GRID(ng) % h(i,j)
         END DO
       END DO
 # endif
