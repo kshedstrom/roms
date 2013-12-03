@@ -149,6 +149,7 @@ FC_TEST := $(findstring $(shell ${FC} --version | head -1 | cut -d " " -f 4 | \
 #$(SCRATCH_DIR)/mod_ncparam.o: FFLAGS += -ffree-form -ffree-line-length-none
 #$(SCRATCH_DIR)/mod_strings.o: FFLAGS += -ffree-form -ffree-line-length-none
 #$(SCRATCH_DIR)/analytical.o: FFLAGS += -ffree-form -ffree-line-length-none
+$(SCRATCH_DIR)/ran_state.o: FFLAGS += -fno-strict-overflow
 $(SCRATCH_DIR)/mod_ncparam.o: FFLAGS += -ffree-form
 $(SCRATCH_DIR)/mod_strings.o: FFLAGS += -ffree-form
 $(SCRATCH_DIR)/analytical.o: FFLAGS += -ffree-form
