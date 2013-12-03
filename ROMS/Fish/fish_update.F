@@ -23,7 +23,7 @@
 !***********************************************************************
       SUBROUTINE fish_update (ng, tile, LBi, UBi, LBj, UBj, LBk, UBk,   &
      &                            itime, nnew,                          &
-     &                            MyThread, bounded, track,             &
+     &                            fishthread, bounded, track,             &
      &                            bioenergy, alive, species,            &
      &                            lifestage, deathby,                   &
      &                            egg_dur, egg_num,                     &
@@ -54,7 +54,7 @@
       type(fishnode), intent(in) :: fish_list(LBi:UBi,LBj:UBj)
       type(fishnode), target, intent(in) :: fishnodes(Nfish(ng))
 
-      logical, intent(in) :: MyThread(Nfish(ng))
+      logical, intent(in) :: fishthread(Nfish(ng))
       logical, intent(inout) :: bounded(Nfish(ng))
       logical, intent(inout) :: alive(Nfish(ng))
 
@@ -103,7 +103,7 @@
             DO ifish=1,fish_count(i,j)
               ifid = thisfish % fish
               isp = idfish(species(ifid))
-              IF (MyThread(ifid).and.bounded(ifid)) THEN
+              IF (fishthread(ifid).and.bounded(ifid)) THEN
 ! From Kenny's code:
                 IF (bioenergy(ifworth,ifid).lt.1.0_r8) THEN
                   alive(ifid)=.FALSE.

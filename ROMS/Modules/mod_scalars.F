@@ -860,6 +860,8 @@
         logical, allocatable :: LwrtAVG2(:)      ! Write average2 file
         logical, allocatable :: LwrtDIA(:)       ! Write diagnostic file
         logical, allocatable :: LwrtFISH(:)      ! Write fish file
+        logical, allocatable :: LwrtPRED(:)      ! Write predator file
+        logical, allocatable :: LwrtFLEET(:)     ! Write fishing fleet file
         logical, allocatable :: LwrtHIS(:)       ! Write history file
         logical, allocatable :: LwrtPER(:)       ! Write during ensemble
         logical, allocatable :: LwrtRST(:)       ! Write restart file
@@ -902,6 +904,8 @@
         integer, allocatable :: ndefAVG2(:)      ! Average2 file
         integer, allocatable :: ndefDIA(:)       ! Diagnostics file
         integer, allocatable :: ndefFISH(:)      ! Fish file
+        integer, allocatable :: ndefPRED(:)      ! Predator file
+        integer, allocatable :: ndefFLEET(:)     ! Fishing fleet file
         integer, allocatable :: ndefHIS(:)       ! History file
         integer, allocatable :: ndefTLM(:)       ! Tangent linear file
 !
@@ -1997,6 +2001,8 @@
       allocate ( LwrtAVG2(Ngrids) )
       allocate ( LwrtDIA(Ngrids) )
       allocate ( LwrtFISH(Ngrids) )
+      allocate ( LwrtPRED(Ngrids) )
+      allocate ( LwrtFLEET(Ngrids) )
       allocate ( LwrtHIS(Ngrids) )
       allocate ( LwrtPER(Ngrids) )
       allocate ( LwrtRST(Ngrids) )
@@ -2025,6 +2031,8 @@
       allocate ( ndefAVG2(Ngrids) )
       allocate ( ndefDIA(Ngrids) )
       allocate ( ndefFISH(Ngrids) )
+      allocate ( ndefPRED(Ngrids) )
+      allocate ( ndefFLEET(Ngrids) )
       allocate ( ndefHIS(Ngrids) )
       allocate ( ndefTLM(Ngrids) )
 
@@ -2548,6 +2556,12 @@
 #ifdef NEMURO_SAN
         LwrtFISH(ng)=.FALSE.
 #endif
+# ifdef PREDATOR
+        LwrtPRED(ng)=.FALSE.
+# endif
+# ifdef FISHING_FLEET
+        LwrtFLEET(ng)=.FALSE.
+# endif
         LwrtHIS(ng)=.FALSE.
         LwrtPER(ng)=.FALSE.
         LwrtRST(ng)=.FALSE.

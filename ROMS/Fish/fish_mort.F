@@ -23,7 +23,7 @@
 !***********************************************************************
       SUBROUTINE fish_mort (ng, tile, LBi, UBi, LBj, UBj, LBk, UBk,     &
      &                          itime, nnew, pm, pn,                    &
-     &                          MyThread, bounded, track,               &
+     &                          fishthread, bounded, track,             &
      &                          bioenergy, alive, species,              &
      &                          lifestage, deathby,                     &
      &                          fmortN, fmortS, fmortP, fmortPsum,      &
@@ -66,7 +66,7 @@
       type(prednode), target, intent(in) :: prednodes(Npred(ng))
 # endif
 
-      logical, intent(in) :: MyThread(Nfish(ng))
+      logical, intent(in) :: fishthread(Nfish(ng))
       logical, intent(inout) :: bounded(Nfish(ng))
       logical, intent(inout) :: alive(Nfish(ng))
 
@@ -132,7 +132,8 @@
             DO ifish=1,fish_count(i,j)
               ifid = thisfish % fish
               isp = idfish(species(ifid))
-              IF (MyThread(ifid).and.bounded(ifid).and.alive(ifid).and. &
+              IF (fishthread(ifid).and.bounded(ifid).and.               &
+     &            alive(ifid).and.                                      &
      &            (lifestage(ifid).ge.if_larva)) THEN
                 Fweight=MAX(0.0_r8,bioenergy(ifwwt,ifid))
                 Fworth=bioenergy(ifworth,ifid)
@@ -169,7 +170,8 @@
             thisfish => fish_list(i,j) % next
             DO ifish=1,fish_count(i,j)
               ifid = thisfish % fish
-              IF (MyThread(ifid).and.bounded(ifid).and.alive(ifid).and. &
+              IF (fishthread(ifid).and.bounded(ifid).and.               &
+     &            alive(ifid).and.                                      &
      &            (lifestage(ifid).ge.if_subadult)) THEN
                 fmortP(ifid)=0.0_r8
                 IF (MOD(iic(ng)-1,nFSH(ng)).eq.0) THEN
@@ -214,7 +216,7 @@
                       DO ifish=1,fish_count(ii,jj)
                         ifid = thisfish % fish
                         ifsp = idfish(species(ifid))
-                        IF (MyThread(ifid).and.bounded(ifid).and.       &
+                        IF (fishthread(ifid).and.bounded(ifid).and.     &
      &                      alive(ifid).and.                            &
      &                      (lifestage(ifid).ge.if_subadult)) THEN
                           Fweight=bioenergy(ifwwt,ifid)
@@ -266,7 +268,7 @@
                       DO ifish=1,fish_count(ii,jj)
                         ifid = thisfish % fish
                         ifsp = idfish(species(ifid))
-                        IF (MyThread(ifid).and.bounded(ifid).and.       &
+                        IF (fishthread(ifid).and.bounded(ifid).and.     &
      &                      alive(ifid).and.                            &
      &                      (lifestage(ifid).ge.if_subadult)) THEN
                           Fweight=bioenergy(ifwwt,ifid)
@@ -313,7 +315,8 @@
               ifid = thisfish % fish
               isp = idfish(species(ifid))
               ils = lifestage(ifid)
-              IF (MyThread(ifid).and.bounded(ifid).and.alive(ifid).and. &
+              IF (fishthread(ifid).and.bounded(ifid).and.               &
+     &            alive(ifid).and.                                      &
      &            (lifestage(ifid).ge.if_subadult)) THEN
                 Fworth=bioenergy(ifworth,ifid)
 ! Natural mortality rate per day

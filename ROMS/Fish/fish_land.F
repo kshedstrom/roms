@@ -26,7 +26,7 @@
 # ifdef MASKING
      &                          rmask,                                  &
 # endif
-     &                          MyThread, bounded, track, alive,        &
+     &                          fishthread, bounded, track, alive,      &
      &                          fish_count, fish_list, fishnodes)
 !***********************************************************************
 !
@@ -48,7 +48,7 @@
       type(fishnode), intent(in) :: fish_list(LBi:UBi,LBj:UBj)
       type(fishnode), target, intent(in) :: fishnodes(Nfish(ng))
 
-      logical, intent(in) :: MyThread(Nfish(ng))
+      logical, intent(in) :: fishthread(Nfish(ng))
       logical, intent(in) :: bounded(Nfish(ng))
       logical, intent(in) :: alive(Nfish(ng))
 
@@ -76,7 +76,8 @@
             thisfish => fish_list(i,j) % next
             DO ifish=1,fish_count(i,j)
               fid = thisfish % fish
-              IF (MyThread(fid).and.bounded(fid).and.alive(fid)) THEN
+              IF (fishthread(fid).and.bounded(fid).and.                 &
+     &            alive(fid)) THEN
 ! Approach 1: turn around
                 Ir=NINT(track(ixgrd,itimep1,fid))
                 Jr=NINT(track(iygrd,itimep1,fid))

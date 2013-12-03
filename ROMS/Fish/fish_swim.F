@@ -34,7 +34,7 @@
 !     Hz         Vertical thicknesses (m).                             !
 !     Amask      Field Land/Sea mask.                                  !
 !     A          Field to interpolate from.                            !
-!     MyThread   Float parallel thread bounded switch.                 !
+!     fishthread   Float parallel thread bounded switch.                 !
 !     bounded    Float grid bounded status switch.                     !
 !                                                                      !
 !  On Output:                                                          !
@@ -60,7 +60,7 @@
 # ifdef SOLVE3D
      &                          Hz,                                     &
 # endif
-     &                          MyThread, bounded, rwalk, r2walk,       &
+     &                          fishthread, bounded, rwalk, r2walk,       &
      &                          track, bioenergy, alive,                &
      &                          species, lifestage, swimtype,           &
      &                          fish_count, fish_list, fishnodes)
@@ -92,7 +92,7 @@
       type(fishnode), intent(in) :: fish_list(LBi:UBi,LBj:UBj)
       type(fishnode), target, intent(in) :: fishnodes(Nfish(ng))
 
-      logical, intent(in) :: MyThread(Nfish(ng))
+      logical, intent(in) :: fishthread(Nfish(ng))
       logical, intent(in) :: bounded(Nfish(ng))
       logical, intent(in) :: alive(Nfish(ng))
 
@@ -207,7 +207,7 @@
               fid = thisfish % fish
               isp = idfish(species(fid))
               ils = lifestage(fid)
-              IF (MyThread(fid).and.bounded(fid).and.                   &
+              IF (fishthread(fid).and.bounded(fid).and.                   &
      &            alive(fid).and.(lifestage(fid).ge.if_larva)) THEN
 !
                 Ir=NINT(track(ixgrd,itime,fid))

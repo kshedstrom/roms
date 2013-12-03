@@ -98,8 +98,36 @@
      &                 IOBOUNDS(ng)%xi_rho, DimIDs( 1))
         IF (exit_flag.ne.NoError) RETURN
 
+        status=def_dim(ng, iNLM, FLEET(ng)%ncid, ncname, 'xi_u',        &
+     &                 IOBOUNDS(ng)%xi_u, DimIDs( 2))
+        IF (exit_flag.ne.NoError) RETURN
+
+        status=def_dim(ng, iNLM, FLEET(ng)%ncid, ncname, 'xi_v',        &
+     &                 IOBOUNDS(ng)%xi_v, DimIDs( 3))
+        IF (exit_flag.ne.NoError) RETURN
+
+        status=def_dim(ng, iNLM, FLEET(ng)%ncid, ncname, 'xi_psi',      &
+     &                 IOBOUNDS(ng)%xi_psi, DimIDs( 4))
+        IF (exit_flag.ne.NoError) RETURN
+
         status=def_dim(ng, iNLM, FLEET(ng)%ncid, ncname, 'eta_rho',     &
      &                 IOBOUNDS(ng)%eta_rho, DimIDs( 5))
+        IF (exit_flag.ne.NoError) RETURN
+
+        status=def_dim(ng, iNLM, FLEET(ng)%ncid, ncname, 'eta_u',       &
+     &                 IOBOUNDS(ng)%eta_u, DimIDs( 6))
+        IF (exit_flag.ne.NoError) RETURN
+
+        status=def_dim(ng, iNLM, FLEET(ng)%ncid, ncname, 'eta_v',       &
+     &                 IOBOUNDS(ng)%eta_v, DimIDs( 7))
+        IF (exit_flag.ne.NoError) RETURN
+
+        status=def_dim(ng, iNLM, FLEET(ng)%ncid, ncname, 'eta_psi',     &
+     &                 IOBOUNDS(ng)%eta_psi, DimIDs( 8))
+        IF (exit_flag.ne.NoError) RETURN
+
+        status=def_dim(ng, iNLM, FLEET(ng)%ncid, ncname, 'tracer',      &
+     &                 NT(ng), DimIDs(11))
         IF (exit_flag.ne.NoError) RETURN
 
         status=def_dim(ng, iNLM, FLEET(ng)%ncid, ncname, 'drifter' ,    &

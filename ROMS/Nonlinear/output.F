@@ -501,142 +501,259 @@
 !  If appropriate, process fish NetCDF file.
 !-----------------------------------------------------------------------
 !
+
       IF (Nfish(ng).gt.0.and.(nFSH(ng).gt.0)) THEN
-!
-!  Create output fish NetCDF file or prepare existing file
-!  to append new data to it. Also, notice that it is possible to
-!  create several files during a single model run.
-!
-        IF (LdefFISH(ng)) THEN
-          IF (ndefFISH(ng).gt.0) THEN
-            IF (idefFISH(ng).lt.0) THEN
-              idefFISH(ng)=((ntstart(ng)-1)/ndefFISH(ng))*ndefFISH(ng)
-              IF ((ndefFISH(ng).eq.nFSH(ng)).and.                       &
-     &                      (idefFISH(ng).le.0)) THEN
-                idefFISH(ng)=ndefFISH(ng)         ! one file per record
-              ELSE IF (idefFISH(ng).lt.iic(ng)-1) THEN
-                idefFISH(ng)=idefFISH(ng)+ndefFISH(ng)
-              END IF
-            END IF
-            IF (ndefFISH(ng).eq.nFSH(ng)) THEN
-              ifile=(iic(ng)-1)/ndefFISH(ng)
-            ELSE
-              ifile=(iic(ng)-1)/ndefFISH(ng)+1
-            END IF
-!
-!  Restart case
-!  First, let's check if we need to read from the old file.
-!
-            IF ((nrrec(ng).ne.0).and.(iic(ng).eq.ntstart(ng))) THEN
-              NewFile=.FALSE.
-              Ldefine=.TRUE.
-              IF ((iic(ng)-1).eq.idefFISH(ng)) THEN
-                ifile=(iic(ng)-1)/ndefFISH(ng)
-              END IF
-              idefFISH(ng)=idefFISH(ng)+nFSH(ng)  ! restart offset
-            ELSE IF ((iic(ng)-1).eq.idefFISH(ng)) THEN
+
+      IF (LdefFISH(ng)) THEN
+        IF (ndefFISH(ng).gt.0) THEN
+          IF (idefFISH(ng).lt.0) THEN
+            idefFISH(ng)=((ntstart(ng)-1)/ndefFISH(ng))*ndefFISH(ng)
+            IF (idefFISH(ng).lt.iic(ng)-1) THEN
               idefFISH(ng)=idefFISH(ng)+ndefFISH(ng)
-              IF (nFSH(ng).ne.ndefFISH(ng).and.iic(ng).eq.ntstart(ng)) THEN
-                idefFISH(ng)=idefFISH(ng)+nFSH(ng)
-              END IF
-              Ldefine=.TRUE.
-              Newfile=.TRUE.
-            ELSE
-              Ldefine=.FALSE.
-            END IF
-            IF (Ldefine) THEN
-              Fcount=FISH(ng)%Fcount
-              FISH(ng)%Nrec(Fcount)=0
-              IF (Master) THEN
-                WRITE (FISH(ng)%name,60) TRIM(FISH(ng)%base), ifile
-#if defined NEP5 || defined CASPIAN
-  60            FORMAT (a,'_',i5.5,'.nc')
-#else
-  60            FORMAT (a,'_',i4.4,'.nc')
-#endif
-              END IF
-# ifdef DISTRIBUTE
-              CALL mp_bcasts (ng, iNLM, FISH(ng)%name)
-# endif
-              IF (FISH(ng)%ncid.ne.-1) THEN
-                CALL netcdf_close (ng, iNLM, FISH(ng)%ncid)
-              END IF
-              CALL def_fish (ng, Newfile)
-              IF (exit_flag.ne.NoError) RETURN
-              LwrtFISH(ng)=.TRUE.
-            END IF
-          ELSE
-            IF (iic(ng).eq.ntstart(ng)) THEN
-              CALL def_fish (ng, ldefout(ng))
-              IF (exit_flag.ne.NoError) RETURN
-              LwrtFISh(ng)=.TRUE.
-              LdefFISh(ng)=.FALSE.
             END IF
           END IF
+          ! RD: nrrec -> nrrecfish ?
+          IF ((nrrec(ng).ne.0).and.(iic(ng).eq.ntstart(ng))) THEN
+            IF ((iic(ng)-1).eq.idefFISH(ng)) THEN
+              Ldefine=.FALSE.                 ! finished file, delay
+            ELSE                              ! creation of next file
+              Ldefine=.TRUE.
+              NewFile=.FALSE.                 ! unfinished file, inquire
+            END IF                            ! content for appending
+            idefFISH(ng)=idefFISH(ng)+nFSH(ng)  ! restart offset
+          ELSE IF ((iic(ng)-1).eq.idefFISH(ng)) THEN
+            idefFISH(ng)=idefFISH(ng)+ndefFISH(ng)
+            IF (nFSH(ng).ne.ndefFISH(ng).and.iic(ng).eq.ntstart(ng)) THEN
+              idefFISH(ng)=idefFISH(ng)+nFSH(ng)  ! multiple record offset
+            END IF
+            Ldefine=.TRUE.
+            NewFile=.TRUE.
+          ELSE
+            Ldefine=.FALSE.
+          END IF
+          IF (Ldefine) THEN                     ! create new file or
+            Fcount=FISH(ng)%Fcount               ! inquire existing file
+            FISH(ng)%Nrec(Fcount)=0
+            ifile=(iic(ng)-1)/ndefFISH(ng)+1
+            IF (Master) THEN
+              WRITE (FISH(ng)%name,60) TRIM(FISH(ng)%base), ifile
+#if defined NEP5 || defined NEP6 || defined CASPIAN || defined CHUKCHI \
+           || defined CORAL || defined NWA || defined ARC_NATL
+  60          FORMAT (a,'_',i5.5,'.nc')
+#else
+  60          FORMAT (a,'_',i4.4,'.nc')
+#endif
+            END IF
+# ifdef DISTRIBUTE
+            CALL mp_bcasts (ng, iNLM, FISH(ng)%name)
+# endif
+            IF (FISH(ng)%ncid.ne.-1) THEN
+              CALL netcdf_close (ng, iNLM, FISH(ng)%ncid)
+            END IF
+            CALL def_fish (ng, NewFile)
+            IF (exit_flag.ne.NoError) RETURN
+          END IF
+          IF ((iic(ng).eq.ntstart(ng)).and.(nrrec(ng).ne.0)) THEN
+            LwrtFISH(ng)=.FALSE.                 ! avoid writing initial
+          ELSE                                  ! fields during restart
+            LwrtFISH(ng)=.TRUE.
+          END IF
+        ELSE
+          IF (iic(ng).eq.ntstart(ng)) THEN
+            CALL def_fish (ng, ldefout(ng))
+            IF (exit_flag.ne.NoError) RETURN
+            LwrtFISH(ng)=.TRUE.
+            LdefFISH(ng)=.FALSE.
+          END IF
         END IF
+      END IF
 !
-!  Write out data into fish NetCDF file.
+!  Write out data into history NetCDF file.  Avoid writing initial
+!  conditions in perturbation mode computations.
 !
-        IF ((MOD(iic(ng)-1,nFSH(ng)).eq.0).and.                      &
-     &      ((fishrrec(ng).eq.0).or.(iic(ng).ne.ntstart(ng)))) THEN
-          CALL wrt_fish (ng)
-          IF (exit_flag.ne.NoError) RETURN
+      IF (LwrtFISH(ng)) THEN
+          IF (MOD(iic(ng)-1,nFSH(ng)).eq.0) THEN
+            CALL wrt_fish (ng)
+            IF (exit_flag.ne.NoError) RETURN
+          END IF
+      END IF
+
+      END IF !# FISH
+
+#  ifdef PREDATOR
+!
+!-----------------------------------------------------------------------
+!  If appropriate, process fish predator NetCDF file.
+!-----------------------------------------------------------------------
+!
+
+      IF (Npred(ng).gt.0.and.(nPRE(ng).gt.0)) THEN
+
+      IF (LdefPRED(ng)) THEN
+        IF (ndefPRED(ng).gt.0) THEN
+          IF (idefPRED(ng).lt.0) THEN
+            idefPRED(ng)=((ntstart(ng)-1)/ndefPRED(ng))*ndefPRED(ng)
+            IF (idefPRED(ng).lt.iic(ng)-1) THEN
+              idefPRED(ng)=idefPRED(ng)+ndefPRED(ng)
+            END IF
+          END IF
+          ! RD: nrrec -> nrrecpred ?
+          IF ((nrrec(ng).ne.0).and.(iic(ng).eq.ntstart(ng))) THEN
+            IF ((iic(ng)-1).eq.idefPRED(ng)) THEN
+              Ldefine=.FALSE.                 ! finished file, delay
+            ELSE                              ! creation of next file
+              Ldefine=.TRUE.
+              NewFile=.FALSE.                 ! unfinished file, inquire
+            END IF                            ! content for appending
+            idefPRED(ng)=idefPRED(ng)+nPRE(ng)  ! restart offset
+          ELSE IF ((iic(ng)-1).eq.idefPRED(ng)) THEN
+            idefPRED(ng)=idefPRED(ng)+ndefPRED(ng)
+            IF (nPRE(ng).ne.ndefPRED(ng).and.iic(ng).eq.ntstart(ng)) THEN
+              idefPRED(ng)=idefPRED(ng)+nPRE(ng)  ! multiple record offset
+            END IF
+            Ldefine=.TRUE.
+            NewFile=.TRUE.
+          ELSE
+            Ldefine=.FALSE.
+          END IF
+          IF (Ldefine) THEN                     ! create new file or
+            Fcount=PRED(ng)%Fcount               ! inquire existing file
+            PRED(ng)%Nrec(Fcount)=0
+            ifile=(iic(ng)-1)/ndefPRED(ng)+1
+            IF (Master) THEN
+              WRITE (PRED(ng)%name,70) TRIM(PRED(ng)%base), ifile
+#if defined NEP5 || defined NEP6 || defined CASPIAN || defined CHUKCHI \
+           || defined CORAL || defined NWA || defined ARC_NATL
+  70          FORMAT (a,'_',i5.5,'.nc')
+#else
+  70          FORMAT (a,'_',i4.4,'.nc')
+#endif
+            END IF
+# ifdef DISTRIBUTE
+            CALL mp_bcasts (ng, iNLM, PRED(ng)%name)
+# endif
+            IF (PRED(ng)%ncid.ne.-1) THEN
+              CALL netcdf_close (ng, iNLM, PRED(ng)%ncid)
+            END IF
+            CALL def_pred (ng, NewFile)
+            IF (exit_flag.ne.NoError) RETURN
+          END IF
+          IF ((iic(ng).eq.ntstart(ng)).and.(nrrec(ng).ne.0)) THEN
+            LwrtPRED(ng)=.FALSE.                 ! avoid writing initial
+          ELSE                                  ! fields during restart
+            LwrtPRED(ng)=.TRUE.
+          END IF
+        ELSE
+          IF (iic(ng).eq.ntstart(ng)) THEN
+            CALL def_pred (ng, ldefout(ng))
+            IF (exit_flag.ne.NoError) RETURN
+            LwrtPRED(ng)=.TRUE.
+            LdefPRED(ng)=.FALSE.
+          END IF
         END IF
       END IF
 
-#  ifdef PREDATOR
-      IF (Npred(ng).gt.0.and.(nPRE(ng).gt.0)) THEN
 !
-!  Create output pred NetCDF file or prepare existing file to
-!  append new data to it.
+!  Write out data into history NetCDF file.  Avoid writing initial
+!  conditions in perturbation mode computations.
 !
-        IF (LdefPRED(ng)) THEN
-          IF (predrrec(ng).eq.0) THEN
-            NewFile=.TRUE.
-          ELSE
-            NewFile=.FALSE.
+      IF (LwrtPRED(ng)) THEN
+          IF (MOD(iic(ng)-1,nPRE(ng)).eq.0) THEN
+            CALL wrt_pred (ng)
+            IF (exit_flag.ne.NoError) RETURN
           END IF
-          CALL def_pred (ng, NewFile)
-          IF (exit_flag.ne.NoError) RETURN
-          LdefPRED(ng)=.FALSE.
-        END IF
-!
-!  Write out data into pred NetCDF file.
-!
-        IF ((MOD(iic(ng)-1,nPRE(ng)).eq.0).and.                      &
-     &      ((predrrec(ng).eq.0).or.(iic(ng).ne.ntstart(ng)))) THEN
-          CALL wrt_pred (ng)
-          IF (exit_flag.ne.NoError) RETURN
-        END IF
       END IF
+
+      END IF !# PREDATOR
+
 #  endif
 
 #  ifdef FISHING_FLEET
+!
+!-----------------------------------------------------------------------
+!  If appropriate, process fishing fleet NetCDF file.
+!-----------------------------------------------------------------------
+!
       IF (Nboats(ng).gt.0.and.(nFLE(ng).gt.0)) THEN
-!
-!  Create output pred NetCDF file or prepare existing file to
-!  append new data to it.
-!
-        IF (LdefFLEET(ng)) THEN
-          IF (fleetrrec(ng).eq.0) THEN
+
+      IF (LdefFLEET(ng)) THEN
+        IF (ndefFLEET(ng).gt.0) THEN
+          IF (idefFLEET(ng).lt.0) THEN
+            idefFLEET(ng)=((ntstart(ng)-1)/ndefFLEET(ng))*ndefFLEET(ng)
+            IF (idefFLEET(ng).lt.iic(ng)-1) THEN
+              idefFLEET(ng)=idefFLEET(ng)+ndefFLEET(ng)
+            END IF
+          END IF
+          ! RD: nrrec -> nrrecfleet ?
+          IF ((nrrec(ng).ne.0).and.(iic(ng).eq.ntstart(ng))) THEN
+            IF ((iic(ng)-1).eq.idefFLEET(ng)) THEN
+              Ldefine=.FALSE.                 ! finished file, delay
+            ELSE                              ! creation of next file
+              Ldefine=.TRUE.
+              NewFile=.FALSE.                 ! unfinished file, inquire
+            END IF                            ! content for appending
+            idefFLEET(ng)=idefFLEET(ng)+nFLE(ng)  ! restart offset
+          ELSE IF ((iic(ng)-1).eq.idefFLEET(ng)) THEN
+            idefFLEET(ng)=idefFLEET(ng)+ndefFLEET(ng)
+            IF (nFLE(ng).ne.ndefFLEET(ng).and.iic(ng).eq.ntstart(ng)) THEN
+              idefFLEET(ng)=idefFLEET(ng)+nFLE(ng)  ! multiple record offset
+            END IF
+            Ldefine=.TRUE.
             NewFile=.TRUE.
           ELSE
-            NewFile=.FALSE.
+            Ldefine=.FALSE.
           END IF
-          CALL def_fleet (ng, NewFile)
-          IF (exit_flag.ne.NoError) RETURN
-          LdefFLEET(ng)=.FALSE.
-        END IF
-!
-!  Write out data into fish NetCDF file.
-!
-        IF ((MOD(iic(ng)-1,nFLE(ng)).eq.0).and.                         &
-     &      ((fleetrrec(ng).eq.0).or.(iic(ng).ne.ntstart(ng)))) THEN
-          CALL wrt_fleet (ng)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (Ldefine) THEN                     ! create new file or
+            Fcount=FLEET(ng)%Fcount               ! inquire existing file
+            FLEET(ng)%Nrec(Fcount)=0
+            ifile=(iic(ng)-1)/ndefFLEET(ng)+1
+            IF (Master) THEN
+              WRITE (FLEET(ng)%name,80) TRIM(FLEET(ng)%base), ifile
+#if defined NEP5 || defined NEP6 || defined CASPIAN || defined CHUKCHI \
+           || defined CORAL || defined NWA || defined ARC_NATL
+  80          FORMAT (a,'_',i5.5,'.nc')
+#else
+  80          FORMAT (a,'_',i4.4,'.nc')
+#endif
+            END IF
+# ifdef DISTRIBUTE
+            CALL mp_bcasts (ng, iNLM, FLEET(ng)%name)
+# endif
+            IF (FLEET(ng)%ncid.ne.-1) THEN
+              CALL netcdf_close (ng, iNLM, FLEET(ng)%ncid)
+            END IF
+            CALL def_fleet (ng, NewFile)
+            IF (exit_flag.ne.NoError) RETURN
+          END IF
+          IF ((iic(ng).eq.ntstart(ng)).and.(nrrec(ng).ne.0)) THEN
+            LwrtFLEET(ng)=.FALSE.                 ! avoid writing initial
+          ELSE                                  ! fields during restart
+            LwrtFLEET(ng)=.TRUE.
+          END IF
+        ELSE
+          IF (iic(ng).eq.ntstart(ng)) THEN
+            CALL def_fleet (ng, ldefout(ng))
+            IF (exit_flag.ne.NoError) RETURN
+            LwrtFLEET(ng)=.TRUE.
+            LdefFLEET(ng)=.FALSE.
+          END IF
         END IF
       END IF
+!
+!  Write out data into history NetCDF file.  Avoid writing initial
+!  conditions in perturbation mode computations.
+!
+      IF (LwrtFLEET(ng)) THEN
+          IF (MOD(iic(ng)-1,nFLE(ng)).eq.0) THEN
+            CALL wrt_fleet (ng)
+            IF (exit_flag.ne.NoError) RETURN
+          END IF
+      END IF
+
+      END IF !# FLEET
+
 #  endif
+
 # endif
 !
 !-----------------------------------------------------------------------

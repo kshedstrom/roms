@@ -35,7 +35,7 @@
 !     Hz         Vertical thicknesses (m).                             !
 !     Amask      Field Land/Sea mask.                                  !
 !     A          Field to interpolate from.                            !
-!     MyThread   Float parallel thread bounded switch.                 !
+!     fishthread   Float parallel thread bounded switch.                 !
 !     bounded    Float grid bounded status switch.                     !
 !                                                                      !
 !  On Output:                                                          !

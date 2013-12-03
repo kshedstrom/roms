@@ -547,10 +547,14 @@
             CASE ('NFSH')
               Npts=load_i(Nval, Rval, Ngrids, nFSH)
 # ifdef PREDATOR
+            CASE ('NDEFPRED')
+              Npts=load_i(Nval, Rval, Ngrids, ndefPRED)
             CASE ('NPRE')
               Npts=load_i(Nval, Rval, Ngrids, nPRE)
 # endif
 # ifdef FISHING_FLEET
+            CASE ('NDEFFLEET')
+              Npts=load_i(Nval, Rval, Ngrids, ndefFLEET)
             CASE ('NFLE')
               Npts=load_i(Nval, Rval, Ngrids, nFLE)
 # endif
@@ -3290,6 +3294,10 @@
      &      (nFSH(ng).eq.0)) THEN
           LdefFISH(ng)=.FALSE.
         END IF
+        IF (((nrrec(ng).eq.0).and.(nFLE(ng).gt.ntimes(ng))).or.         &
+     &      (nFLE(ng).eq.0)) THEN
+          LdefFLEET(ng)=.FALSE.
+        END IF
         IF (((nrrec(ng).eq.0).and.(nPRE(ng).gt.ntimes(ng))).or.         &
      &      (nPRE(ng).eq.0)) THEN
           LdefPRED(ng)=.FALSE.
@@ -5311,12 +5319,22 @@
      &                    TRIM(FISH(ng)%base)
           END IF
 # ifdef PREDATOR
-          WRITE (out,230) '            Output Predator File:  ',        &
+          IF (ndefPRED(ng).eq.0) THEN
+            WRITE (out,230) '            Output Predator File:  ',      &
      &                    TRIM(PRED(ng)%name)
+          ELSE
+            WRITE (out,230) '  Prefix for Predator Files:  ',           &
+     &                    TRIM(PRED(ng)%base)
+          END IF
 # endif
 # ifdef FISHING_FLEET
-          WRITE (out,230) '            Output Fleet File:  ',           &
+          IF (ndefFLEET(ng).eq.0) THEN
+            WRITE (out,230) '            Output Fleet File:  ',         &
      &                    TRIM(FLEET(ng)%name)
+          ELSE
+            WRITE (out,230) '  Prefix for Fleet Files:  ',              &
+     &                    TRIM(FLEET(ng)%base)
+          END IF
 # endif
 #endif
 #ifdef MODEL_COUPLING
