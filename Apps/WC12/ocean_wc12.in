@@ -706,9 +706,9 @@ Dout(iTvdif) == T T                        ! vertical diffusion
      FWDNAME == /dev/null
      ADSNAME == /dev/null
 
-+! Input lateral boundary conditions and climatology file names.  The
-+! USER has the option to split input data time records into several
-+! NetCDF files (see prologue instructions above). If so, use a single
+! Input lateral boundary conditions and climatology file names.  The
+! USER has the option to split input data time records into several
+! NetCDF files (see prologue instructions above). If so, use a single
 ! line per entry with a vertical bar (|) symbol after each entry,
 ! except the last one.
 
