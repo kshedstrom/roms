@@ -107,7 +107,7 @@
       SUBROUTINE biology_tile (ng, tile,                                &
      &                         LBi, UBi, LBj, UBj, UBk, UBt,            &
      &                         IminS, ImaxS, JminS, JmaxS,              &
-     &                         nstp, nnew,                              &
+     &                         zstp, znew,                              &
 #ifdef MASKING
      &                         rmask,                                   &
 #endif
@@ -148,7 +148,7 @@
       integer, intent(in) :: ng, tile
       integer, intent(in) :: LBi, UBi, LBj, UBj, UBk, UBt
       integer, intent(in) :: IminS, ImaxS, JminS, JmaxS
-      integer, intent(in) :: nstp, nnew
+      integer, intent(in) :: zstp, znew
 #if defined NEMURO_SAN && defined FISH_FEEDBACK
       type(fishnode), target, intent(in) :: fishnodes(Nfish(ng))
       real(r8), intent(in) :: feedback(NT(ng),Nfish(ng))
@@ -449,7 +449,7 @@
           ibio=idbio(itrc)
           DO k=1,N(ng)
             DO i=Istr,Iend
-              Bio_old(i,k,ibio)=MAX(0.0_r8,t(i,j,k,nstp,ibio))
+              Bio_old(i,k,ibio)=MAX(0.0_r8,t(i,j,k,zstp,ibio))
               Bio(i,k,ibio)=Bio_old(i,k,ibio)
             END DO
           END DO
@@ -459,7 +459,7 @@
 !
         DO k=1,N(ng)
           DO i=Istr,Iend
-            Bio(i,k,itemp)=t(i,j,k,nstp,itemp)
+            Bio(i,k,itemp)=t(i,j,k,zstp,itemp)
           END DO
         END DO
 !
@@ -1582,7 +1582,7 @@
           DO k=1,N(ng)
             DO i=Istr,Iend
               cff=Bio(i,k,ibio)-Bio_old(i,k,ibio)
-              t(i,j,k,nnew,ibio)=t(i,j,k,nnew,ibio)+cff*Hz(i,j,k)
+              t(i,j,k,znew,ibio)=t(i,j,k,znew,ibio)+cff*Hz(i,j,k)
             END DO
           END DO
         END DO
