@@ -6765,7 +6765,7 @@
   'nitrate eastern boundary condition'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'NO3_east, scalar, series'
-  'NO3_time'
+  'bio_time'
   'idTbry(ieast,iNO3_)'
   'nulvar'
   1.0d0
@@ -6774,7 +6774,7 @@
   'nitrate western boundary condition'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'NO3_west, scalar, series'
-  'NO3_time'
+  'bio_time'
   'idTbry(iwest,iNO3_)'
   'nulvar'
   1.0d0
@@ -6783,7 +6783,7 @@
   'nitrate southern boundary condition'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'NO3_south, scalar, series'
-  'NO3_time'
+  'bio_time'
   'idTbry(isouth,iNO3_)'
   'nulvar'
   1.0d0
@@ -6792,7 +6792,7 @@
   'nitrate northern boundary condition'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'NO3_north, scalar, series'
-  'NO3_time'
+  'bio_time'
   'idTbry(inorth,iNO3_)'
   'nulvar'
   1.0d0
@@ -6801,7 +6801,7 @@
   'phosphate eastern boundary condition'
   'millimole_P meter-3'                     ! [millimole/m3]
   'PO4_east, scalar, series'
-  'PO4_time'
+  'bio_time'
   'idTbry(ieast,iPO4_)'
   'nulvar'
   1.0d0
@@ -6810,7 +6810,7 @@
   'phosphate western boundary condition'
   'millimole_P meter-3'                     ! [millimole/m3]
   'PO4_west, scalar, series'
-  'PO4_time'
+  'bio_time'
   'idTbry(iwest,iPO4_)'
   'nulvar'
   1.0d0
@@ -6819,7 +6819,7 @@
   'phosphate southern boundary condition'
   'millimole_P meter-3'                     ! [millimole/m3]
   'PO4_south, scalar, series'
-  'PO4_time'
+  'bio_time'
   'idTbry(isouth,iPO4_)'
   'nulvar'
   1.0d0
@@ -6828,7 +6828,7 @@
   'phosphate northern boundary condition'
   'millimole_P meter-3'                     ! [millimole/m3]
   'PO4_north, scalar, series'
-  'PO4_time'
+  'bio_time'
   'idTbry(inorth,iPO4_)'
   'nulvar'
   1.0d0
@@ -6945,7 +6945,7 @@
   'ammonium eastern boundary condition'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'NH4_east, scalar, series'
-  'NH4_time'
+  'bio_time'
   'idTbry(ieast,iNH4_)'
   'nulvar'
   1.0d0
@@ -6954,7 +6954,7 @@
   'ammonium western boundary condition'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'NH4_west, scalar, series'
-  'NH4_time'
+  'bio_time'
   'idTbry(iwest,iNH4_)'
   'nulvar'
   1.0d0
@@ -6963,7 +6963,7 @@
   'ammonium southern boundary condition'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'NH4_south, scalar, series'
-  'NH4_time'
+  'bio_time'
   'idTbry(isouth,iNH4_)'
   'nulvar'
   1.0d0
@@ -6972,43 +6972,43 @@
   'ammonium northern boundary condition'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'NH4_north, scalar, series'
-  'NH4_time'
+  'bio_time'
   'idTbry(inorth,iNH4_)'
   'nulvar'
   1.0d0
 
-  'SiOH_east'                                       ! Input
+'SiOH4_east'                                        ! Input
   'silicate eastern boundary condition'
   'millimole_silica meter-3'                       ! [millimole/m3]
-  'SiOH_east, scalar, series'
-  'SiOH_time'
+  'SiOH4_east, scalar, series'
+  'bio_time'
   'idTbry(ieast,iSiOH)'
   'nulvar'
   1.0d0
 
-'SiOH_west'                                       ! Input
+'SiOH4_west'                                       ! Input
   'silicate western boundary condition'
   'millimole_silica meter-3'                       ! [millimole/m3]
-  'SiOH_west, scalar, series'
-  'SiOH_time'
+  'SiOH4_west, scalar, series'
+  'bio_time'
   'idTbry(iwest,iSiOH)'
   'nulvar'
   1.0d0
 
-'SiOH_south'                                      ! Input
+'SiOH4_south'                                      ! Input
   'silicate southern boundary condition'
   'millimole_silica meter-3'                       ! [millimole/m3]
-  'SiOH_south, scalar, series'
-  'SiOH_time'
+  'SiOH4_south, scalar, series'
+  'bio_time'
   'idTbry(isouth,iSiOH)'
   'nulvar'
   1.0d0
 
-'SiOH_north'                                      ! Input
+'SiOH4_north'                                      ! Input
   'silicate northern boundary condition'
   'millimole_silica meter-3'                       ! [millimole/m3]
-  'SiOH_north, scalar, series'
-  'SiOH_time'
+  'SiOH4_north, scalar, series'
+  'bio_time'
   'idTbry(inorth,iSiOH)'
   'nulvar'
   1.0d0
