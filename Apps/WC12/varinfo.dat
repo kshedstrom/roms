@@ -6801,7 +6801,7 @@
   'phosphate eastern boundary condition'
   'millimole_P meter-3'                     ! [millimole/m3]
   'PO4_east, scalar, series'
-  'PO4_time'
+  'bio_time'
   'idTbry(ieast,iPO4_)'
   'nulvar'
   1.0d0
@@ -6810,7 +6810,7 @@
   'phosphate western boundary condition'
   'millimole_P meter-3'                     ! [millimole/m3]
   'PO4_west, scalar, series'
-  'PO4_time'
+  'bio_time'
   'idTbry(iwest,iPO4_)'
   'nulvar'
   1.0d0
@@ -6819,7 +6819,7 @@
   'phosphate southern boundary condition'
   'millimole_P meter-3'                     ! [millimole/m3]
   'PO4_south, scalar, series'
-  'PO4_time'
+  'bio_time'
   'idTbry(isouth,iPO4_)'
   'nulvar'
   1.0d0
@@ -6828,7 +6828,7 @@
   'phosphate northern boundary condition'
   'millimole_P meter-3'                     ! [millimole/m3]
   'PO4_north, scalar, series'
-  'PO4_time'
+  'bio_time'
   'idTbry(inorth,iPO4_)'
   'nulvar'
   1.0d0
@@ -6980,7 +6980,7 @@
 'SiOH4_east'                                        ! Input
   'silicate eastern boundary condition'
   'millimole_silica meter-3'                       ! [millimole/m3]
-  'SiOH_east, scalar, series'
+  'SiOH4_east, scalar, series'
   'bio_time'
   'idTbry(ieast,iSiOH)'
   'nulvar'
@@ -6989,7 +6989,7 @@
 'SiOH4_west'                                       ! Input
   'silicate western boundary condition'
   'millimole_silica meter-3'                       ! [millimole/m3]
-  'SiOH_west, scalar, series'
+  'SiOH4_west, scalar, series'
   'bio_time'
   'idTbry(iwest,iSiOH)'
   'nulvar'
@@ -6998,7 +6998,7 @@
 'SiOH4_south'                                      ! Input
   'silicate southern boundary condition'
   'millimole_silica meter-3'                       ! [millimole/m3]
-  'SiOH_south, scalar, series'
+  'SiOH4_south, scalar, series'
   'bio_time'
   'idTbry(isouth,iSiOH)'
   'nulvar'
@@ -7007,7 +7007,7 @@
 'SiOH4_north'                                      ! Input
   'silicate northern boundary condition'
   'millimole_silica meter-3'                       ! [millimole/m3]
-  'SiOH_north, scalar, series'
+  'SiOH4_north, scalar, series'
   'bio_time'
   'idTbry(inorth,iSiOH)'
   'nulvar'
