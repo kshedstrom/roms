@@ -32,7 +32,7 @@
 # endif
       USE mod_grid
       USE mod_tides
-      USE mod_stepping, ONLY : nrhs
+      USE mod_stepping
 !
 !  Imported variable declarations.
 !
@@ -148,7 +148,7 @@
 # ifdef UV_WAVEDRAG
       USE mod_tides, ONLY : nstep_hour, hour_steps
       USE mod_ocean
-      USE mod_stepping
+      USE mod_stepping, ONLY : nrhs
 # endif
 !
 # ifdef DISTRIBUTE

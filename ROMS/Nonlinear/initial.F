@@ -318,19 +318,6 @@
 !$OMP BARRIER
         END DO
 
-#if defined WTYPE_GRID && defined ANA_WTYPE     && \
-   (defined LMD_SKPP   || defined SOLAR_SOURCE)
-!
-!-----------------------------------------------------------------------
-!  Set spatially varying Jerlov water type.
-!-----------------------------------------------------------------------
-!
-        DO ng=1,Ngrids
-          DO tile=first_tile(ng),last_tile(ng),+1
-            CALL ana_wtype (ng, tile, iNLM)
-          END DO
-        END DO
-
 #ifdef NESTING
 !
 !-----------------------------------------------------------------------

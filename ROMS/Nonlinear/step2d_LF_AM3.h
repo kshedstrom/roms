@@ -602,12 +602,11 @@
 
       DO j=JstrVm2-1,Jendp2
         DO i=IstrUm2-1,Iendp2
-#   ifdef ICESHELF
+#  ifdef ICESHELF
           hw(i,j)=h(i,j)-ABS(zice(i,j))
           Drhs(i,j)=zeta(i,j,krhs)+hw(i,j)
-#   else
+#  else
           Drhs(i,j)=zeta(i,j,krhs)+h(i,j)
-#   endif
 #  endif
         END DO
       END DO

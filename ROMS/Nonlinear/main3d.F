@@ -529,10 +529,9 @@
 #   else
                 CALL set_avg (ng, tile)
 #   endif
-#  endif
-#  if defined AVERAGES2 && !defined ADJOINT
+# endif
+# if defined AVERAGES2 && !defined ADJOINT
                 CALL set_avg2 (ng, tile)
-#  endif
 # endif
               END DO
 !$OMP BARRIER
