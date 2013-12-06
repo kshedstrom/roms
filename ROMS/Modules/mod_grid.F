@@ -120,6 +120,9 @@
 #elif defined UV_QDRAG
 !  rdrag2     Quadratic drag coefficient (nondimensional).             !
 #endif
+#if defined UV_WAVEDRAG
+!  wavedrag   Linear drag coefficient from internal tides (m/s).       !
+#endif
 !  xp         XI-coordinates (m) at PSI-points.                        !
 !  xr         XI-coordinates (m) at RHO-points.                        !
 !  xu         XI-coordinates (m) at U-points.                          !
@@ -198,6 +201,9 @@
           real(r8), pointer :: rdrag(:,:)
 #elif defined UV_QDRAG
           real(r8), pointer :: rdrag2(:,:)
+#endif
+#if defined UV_WAVEDRAG
+          real(r8), pointer :: wavedrag(:,:)
 #endif
           real(r8), pointer :: xp(:,:)
           real(r8), pointer :: xr(:,:)
@@ -394,6 +400,9 @@
       allocate ( GRID(ng) % rdrag(LBi:UBi,LBj:UBj) )
 #elif defined UV_QDRAG
       allocate ( GRID(ng) % rdrag2(LBi:UBi,LBj:UBj) )
+#endif
+#if defined UV_WAVEDRAG
+      allocate ( GRID(ng) % wavedrag(LBi:UBi,LBj:UBj) )
 #endif
       allocate ( GRID(ng) % xp(LBi:UBi,LBj:UBj) )
       allocate ( GRID(ng) % xr(LBi:UBi,LBj:UBj) )
@@ -658,6 +667,9 @@
             GRID(ng) % rdrag(i,j) = rdrg(ng)
 #elif defined UV_QDRAG
             GRID(ng) % rdrag2(i,j) = rdrg2(ng)
+#endif
+#if defined UV_WAVEDRAG
+            GRID(ng) % wavedrag(i,j) = Inival
 #endif
 
             GRID(ng) % xp(i,j) = IniVal

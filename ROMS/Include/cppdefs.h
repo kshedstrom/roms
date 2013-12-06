@@ -43,8 +43,8 @@
 ** UV_LOGDRAG          use to turn ON or OFF logarithmic bottom friction     **
 ** UV_LDRAG            use to turn ON or OFF linear bottom friction          **
 ** UV_QDRAG            use to turn ON or OFF quadratic bottom friction       **
-** DRAG_LIMITIER       use to turn ON or OFF bottom drag limiter             **
 ** UV_PSOURCE          use to turn ON or OFF point Sources/Sinks             **
+** UV_WAVEDRAG         use to turn ON or OFF extra linear bottom wave drag   **
 ** Q_PSOURCE           use to turn ON or OFF mass point Sources              **
 **                                                                           **
 ** OPTION to not allow the bottom stress components to change the direction  **
@@ -533,6 +533,11 @@
 ** SED_DENS            use to activate sediment to affect equation of state  **
 ** SED_MORPH           use to allow bottom model elevation to evolve         **
 ** SUSPLOAD            use to activate suspended load transport              **
+**                                                                           **
+** OPTIONS for grid nesting:                                                 **
+**                                                                           **
+** NESTING             use to activate grid nesting: composite/refinement    **
+** ONE_WAY             use if one-way nesting in refinement grids            **
 **                                                                           **
 ** OPTIONS for two-way coupling to other models:                             **
 **                                                                           **

@@ -202,6 +202,17 @@
      &                      ncid = ncid)
       IF (exit_flag.ne.NoError) RETURN
 #endif
+#ifdef HISTORY2
+      CALL netcdf_put_ivar (ng, model, ncname, 'nHIS2',                 &
+     &                      nHIS2(ng), (/0/), (/0/),                    &
+     &                      ncid = ncid)
+      IF (exit_flag.ne.NoError) RETURN
+
+      CALL netcdf_put_ivar (ng, model, ncname, 'ndefHIS2',              &
+     &                      ndefHIS2(ng), (/0/), (/0/),                 &
+     &                      ncid = ncid)
+      IF (exit_flag.ne.NoError) RETURN
+#endif
 
 #ifdef ADJOINT
       CALL netcdf_put_ivar (ng, model, ncname, 'nADJ',                  &
@@ -1370,7 +1381,7 @@
 !  Ice shelf thickness.
 !
         IF (exit_flag.eq.NoError) THEN
-          IF (ncid.ne.ncSTAid(ng)) THEN
+          IF (ncid.ne.STA(ng)%ncid) THEN
             scale=1.0_r8
             IF (find_string(var_name, n_var, 'zice', varid)) THEN
               status=nf_fwrite2d(ng, model, ncid, varid, 0, r2dvar,     &

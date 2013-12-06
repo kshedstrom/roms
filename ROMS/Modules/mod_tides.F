@@ -69,10 +69,21 @@
 #  endif
 !                                                                      !
 # endif
+# ifdef UV_WAVEDRAG
+!  We need to accumulate a detided estimate of the bottom velocities   !
+!  which is the subtracted from the bottom velocity before the         !
+!  wave drag due to conversion of tidal energy into internal tides     !
+!  is applied.                                                         !
+!  sum_ubot      Time-accumulated bottom u-momentum.                   !
+!  sum_vbot      Time-accumulated bottom v-momentum.                   !
+!  filt_ubot     Time-mean bottom u-momentum.                          !
+!  filt_vbot     Time-mean bottom v-momentum.                          !
+# endif
 !=======================================================================
 !
         USE mod_kinds
         USE mod_param
+        USE mod_stepping
 
         implicit none
 
@@ -129,6 +140,12 @@
           real(r8), pointer :: v_tide(:,:,:,:)
 #  endif
 # endif
+# ifdef UV_WAVEDRAG
+          real(r8), pointer :: sum_ubot(:,:)
+          real(r8), pointer :: sum_vbot(:,:)
+          real(r8), pointer :: filt_ubot(:,:)
+          real(r8), pointer :: filt_vbot(:,:)
+# endif
 
         END TYPE T_TIDES
 
@@ -143,6 +160,11 @@
         real(r8), allocatable :: sat_phase_corr(:,:)
         real(r8), allocatable :: sat_amp(:,:)
         real(r8), allocatable :: sat_flag(:,:)
+# endif
+# ifdef UV_WAVEDRAG
+        integer :: nstep_hour
+        integer :: hour_steps = 0
+        real(r8), parameter :: drag_scale = 0.375
 # endif
 
       CONTAINS
@@ -328,6 +350,12 @@
      &                                0:2*MTC,NAT) )
       END IF
 #  endif
+# endif
+# ifdef UV_WAVEDRAG
+      allocate ( TIDES(ng) % sum_ubot(LBi:UBi,LBj:UBj) )
+      allocate ( TIDES(ng) % sum_vbot(LBi:UBi,LBj:UBj) )
+      allocate ( TIDES(ng) % filt_ubot(LBi:UBi,LBj:UBj) )
+      allocate ( TIDES(ng) % filt_vbot(LBi:UBi,LBj:UBj) )
 # endif
 
       RETURN
@@ -689,6 +717,16 @@
         END DO
       END IF
 #  endif
+# endif
+# ifdef UV_WAVEDRAG
+      DO j=Jmin,Jmax
+        DO i=Imin,Imax
+          TIDES(ng) % sum_ubot(i,j) = IniVal
+          TIDES(ng) % sum_vbot(i,j) = IniVal
+          TIDES(ng) % filt_ubot(i,j) = IniVal
+          TIDES(ng) % filt_vbot(i,j) = IniVal
+        END DO
+      END DO
 # endif
 
       RETURN

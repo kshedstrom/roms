@@ -1644,6 +1644,26 @@
           IF (exit_flag.ne.NoError) RETURN
         END IF
 #  endif
+#  if defined RUNOFF
+!
+!  Define surface air pressure.
+!
+        IF (Aout(idRunoff,ng)) THEN
+          Vinfo( 1)=Vname(1,idRunoff)
+          WRITE (Vinfo( 2),'(a,1x,a)') Prefix, TRIM(Vname(2,idRunoff))
+          Vinfo( 3)=Vname(3,idRunoff)
+          Vinfo(14)=Vname(4,idRunoff)
+          Vinfo(16)=Vname(1,idtime)
+#   if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_rho'
+#   endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idRunoff,ng),r8)
+          status=def_var(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idRunoff), &
+     &                   NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+#  endif
 #  if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS
 !
 !  Define surface air pressure.
@@ -3080,6 +3100,11 @@
             got_var(idWro)=.true.
             AVG(ng)%Vid(idWro)=var_id(i)
 #  endif
+#  if defined RUNOFF
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idRunoff))) THEN
+            got_var(idRunoff)=.TRUE.
+            AVG(ng)%Vid(idRunoff)=var_id(i)
+#  endif
 #  if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idPair))) THEN
             got_var(idPair)=.TRUE.
@@ -3553,6 +3578,14 @@
           exit_flag=3
           RETURN
         END IF
+#  if defined RUNOFF
+        IF (.not.got_var(idRunoff).and.Aout(idRunoff,ng)) THEN
+          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idRunoff)),        &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+#  endif
 #  if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS
         IF (.not.got_var(idPair).and.Aout(idPair,ng)) THEN
           IF (Master) WRITE (stdout,60) TRIM(Vname(1,idPair)),          &

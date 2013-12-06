@@ -176,7 +176,7 @@ endif
 #  step (beggining and almost the end of ROMS library list).
 #--------------------------------------------------------------------------
 
-  libraries  := $(SCRATCH_DIR)/libUTIL.a
+  libraries  := $(SCRATCH_DIR)/libMODS.a
 
 #--------------------------------------------------------------------------
 #  Set Pattern rules.
@@ -388,7 +388,6 @@ CPPFLAGS += -D$(shell echo ${FORT} | tr "-" "_" | tr [a-z] [A-Z])
 CPPFLAGS += -D'ROOT_DIR="$(ROOTDIR)"'
 ifdef ROMS_APPLICATION
   CPPFLAGS  += $(ROMS_CPPFLAGS)
-  CPPFLAGS  += -DNestedGrids=$(NestedGrids)
   MDEPFLAGS += -DROMS_HEADER="$(HEADER)"
 endif
 
@@ -435,8 +434,7 @@ endif
  modules  +=	ROMS/Nonlinear \
 		ROMS/Nonlinear/Biology \
 		ROMS/Nonlinear/Sediment \
-		ROMS/Functionals \
-		ROMS/Modules
+		ROMS/Functionals
 ifdef USE_SEAICE
  modules  +=	ROMS/SeaIce
 endif

@@ -1,4 +1,4 @@
-      SUBROUTINE ana_ice (ng, tile)
+      SUBROUTINE ana_ice (ng, tile, model)
 !
 !! svn $Id: ana_cloud.h 75 2007-03-13 13:10:14Z arango $
 !!======================================================================
@@ -21,11 +21,11 @@
 !
       implicit none
 
-      integer, intent(in) :: ng, tile
+      integer, intent(in) :: ng, tile, model
 
 #include "tile.h"
 !
-      CALL ana_ice_tile (ng, tile,                                      &
+      CALL ana_ice_tile (ng, tile, model,                               &
      &                       LBi, UBi, LBj, UBj,                        &
      &                       ICE(ng) % ui,                              &
      &                       ICE(ng) % vi,                              &
@@ -78,7 +78,7 @@
       END SUBROUTINE ana_ice
 !
 !***********************************************************************
-      SUBROUTINE ana_ice_tile (ng, tile,                                &
+      SUBROUTINE ana_ice_tile (ng, tile, model,                         &
      &                             LBi, UBi, LBj, UBj,                  &
      &                             ui, vi, uie, vie, ai, hi, hsn,       &
      &                             ti, sfwat, ageice,                   &
@@ -108,7 +108,7 @@
 !
 !  Imported variable declarations.
 !
-      integer, intent(in) :: ng, tile
+      integer, intent(in) :: ng, tile, model
       integer, intent(in) :: LBi, UBi, LBj, UBj
 
 #ifdef ASSUMED_SHAPE
@@ -189,7 +189,7 @@
 !
 !  Local variable declarations.
 !
-      integer :: i, j, model
+      integer :: i, j
 
       real(r8) :: r2
 

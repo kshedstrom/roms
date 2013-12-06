@@ -14,7 +14,7 @@
       CONTAINS
 !
 !***********************************************************************
-      SUBROUTINE i2d_bc_tile (ng, tile,                                 &
+      SUBROUTINE i2d_bc_tile (ng, tile, model,                          &
      &                        LBi, UBi, LBj, UBj,                       &
      &                        IminS, ImaxS, JminS, JmaxS,               &
      &                        liold, linew,                             &
@@ -32,7 +32,7 @@
 !
 !  Imported variable declarations.
 !
-      integer, intent(in) :: ng, tile
+      integer, intent(in) :: ng, tile, model
       integer, intent(in) :: LBi, UBi, LBj, UBj
       integer, intent(in) :: IminS, ImaxS, JminS, JmaxS
       integer, intent(in) :: liold, linew

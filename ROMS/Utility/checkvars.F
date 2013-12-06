@@ -241,6 +241,11 @@
           get_var(idRu3d)=.TRUE.
           get_var(idRv3d)=.TRUE.
 # endif
+# ifdef WET_DRY
+          get_var(idRwet)=.TRUE.
+          get_var(idUwet)=.TRUE.
+          get_var(idVwet)=.TRUE.
+# endif
           get_var(idRzet)=.TRUE.
           get_var(idRu2d)=.TRUE.
           get_var(idRv2d)=.TRUE.
@@ -342,6 +347,14 @@
      &            TRIM(Vname(1,idSbry(isVvel))))) THEN
           have_var(idSbry(isVvel))=.TRUE.
 # endif
+#endif
+#if defined WET_DRY && defined PERFECT_RESTART
+        ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idRwet))) THEN
+          have_var(idRwet)=.TRUE.
+        ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idUwet))) THEN
+          have_var(idUwet)=.TRUE.
+        ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idVwet))) THEN
+          have_var(idVwet)=.TRUE.
 #endif
 #ifdef SOLVE3D
         ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idKver))) THEN
@@ -642,6 +655,26 @@
           exit_flag=2
           RETURN
         END IF
+      END IF
+#endif
+#if defined WET_DRY && defined PERFECT_RESTART
+      IF (.not.have_var(idRwet).and.get_var(idRwet)) THEN
+        IF (Master) WRITE (stdout,10) string, TRIM(Vname(1,idRwet)),    &
+     &                                TRIM(ncname)
+        exit_flag=2
+        RETURN
+      END IF
+      IF (.not.have_var(idUwet).and.get_var(idUwet)) THEN
+        IF (Master) WRITE (stdout,10) string, TRIM(Vname(1,idUwet)),    &
+     &                                TRIM(ncname)
+        exit_flag=2
+        RETURN
+      END IF
+      IF (.not.have_var(idVwet).and.get_var(idVwet)) THEN
+        IF (Master) WRITE (stdout,10) string, TRIM(Vname(1,idVwet)),    &
+     &                                TRIM(ncname)
+        exit_flag=2
+        RETURN
       END IF
 #endif
 #ifdef SOLVE3D

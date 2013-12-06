@@ -1,7 +1,7 @@
        SUBROUTINE ice_advect (ng, tile)
 !
 !*************************************************** W. Paul Budgell ***
-!  Copyright (c) 2002 ROMS/TOMS Group                                  !
+!  Copyright (c) 2002-2013 The ROMS/TOMS Group                        **
 !************************************************** Hernan G. Arango ***
 !                                                                      !
 !  This subroutine performs advection of ice scalars using the         !
@@ -94,7 +94,7 @@
      &                      ICE(ng) % ai                                &
      &                      )
 !
-      CALL i2d_bc_tile (ng, tile,                                       &
+      CALL i2d_bc_tile (ng, tile, iNLM,                                 &
      &                  LBi, UBi, LBj, UBj,                             &
      &                  IminS, ImaxS, JminS, JmaxS,                     &
      &                  liold(ng), linew(ng),                           &
@@ -134,7 +134,7 @@
      &                      ICE(ng) % hi                                &
      &                      )
 !
-      CALL i2d_bc_tile (ng, tile,                                       &
+      CALL i2d_bc_tile (ng, tile, iNLM,                                 &
      &                  LBi, UBi, LBj, UBj,                             &
      &                  IminS, ImaxS, JminS, JmaxS,                     &
      &                  liold(ng), linew(ng),                           &
@@ -175,7 +175,7 @@
      &                      ICE(ng) % hsn                               &
      &                      )
 !
-      CALL i2d_bc_tile (ng, tile,                                       &
+      CALL i2d_bc_tile (ng, tile, iNLM,                                 &
      &                  LBi, UBi, LBj, UBj,                             &
      &                  IminS, ImaxS, JminS, JmaxS,                     &
      &                  liold(ng), linew(ng),                           &
@@ -329,7 +329,7 @@ FOOOO
      &                      ICE(ng) % sfwat                             &
      &                      )
 !
-      CALL i2d_bc_tile (ng, tile,                                       &
+      CALL i2d_bc_tile (ng, tile, iNLM,                                 &
      &                  LBi, UBi, LBj, UBj,                             &
      &                  IminS, ImaxS, JminS, JmaxS,                     &
      &                  liold(ng), linew(ng),                           &
@@ -381,7 +381,7 @@ FOOOO
         ENDDO
       ENDDO
 !
-      CALL tibc_tile (ng, tile,                                         &
+      CALL tibc_tile (ng, tile, iNLM,                                   &
      &                LBi, UBi, LBj, UBj,                               &
      &                liold(ng), linew(ng),                             &
      &                ICE(ng)%ui,                                       &
@@ -442,7 +442,7 @@ FOOOO
         ENDDO
       ENDDO
 !
-!        CALL i2d_bc_tile (ng, tile,                                     &
+!        CALL i2d_bc_tile (ng, tile, iNLM,                               &
 !     &                    LBi, UBi, LBj, UBj,                           &
 !     &                    IminS, ImaxS, JminS, JmaxS,                   &
 !     &                    liold(ng), linew(ng),                         &
@@ -840,8 +840,8 @@ FOOOO
 
       DO j=Jstr,Jend
         DO i=Istr,Iend
-          aif(i,j)=aif(i,j) -dtice*iAr(i,j)*( aflxu(i+1,j)-aflxu(i,j)   &
-     &                                       +aflxv(i,j+1)-aflxv(i,j))
+          aif(i,j)=aif(i,j) -dtice*pm(i,j)*pn(i,j)*                     &
+     &             (aflxu(i+1,j)-aflxu(i,j) + aflxv(i,j+1)-aflxv(i,j))
 #  ifdef MASKING
           aif(i,j)=aif(i,j)*rmask(i,j)
 #  endif

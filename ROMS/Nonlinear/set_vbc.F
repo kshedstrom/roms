@@ -101,6 +101,9 @@
      &                   FORCES(ng) % bustr,                            &
      &                   FORCES(ng) % bvstr,                            &
 #  endif
+#  ifdef ICE_MODEL
+     &                   FORCES(ng) % qao_n,                            &
+#  endif
      &                   FORCES(ng) % stflx,                            &
      &                   FORCES(ng) % btflx)
 #  ifdef PROFILE
@@ -162,6 +165,9 @@
 #  endif
 #  ifndef BBL_MODEL
      &                         bustr, bvstr,                            &
+#  endif
+#  ifdef ICE_MODEL
+     &                         qao_n,                                   &
 #  endif
      &                         stflx, btflx)
 !***********************************************************************
@@ -235,6 +241,9 @@
       real(r8), intent(inout) :: bustr(LBi:,LBj:)
       real(r8), intent(inout) :: bvstr(LBi:,LBj:)
 #   endif
+#   ifdef ICE_MODEL
+      real(r8), intent(inout) :: qao_n(LBi:,LBj:)
+#   endif
       real(r8), intent(inout) :: stflx(LBi:,LBj:,:)
       real(r8), intent(inout) :: btflx(LBi:,LBj:,:)
 #  else
@@ -290,6 +299,9 @@
 #   ifndef BBL_MODEL
       real(r8), intent(inout) :: bustr(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: bvstr(LBi:UBi,LBj:UBj)
+#   endif
+#   ifdef ICE_MODEL
+      real(r8), intent(inout) :: qao_n(LBi:UBi,LBj:UBj)
 #   endif
       real(r8), intent(inout) :: stflx(LBi:UBi,LBj:UBj,NT(ng))
       real(r8), intent(inout) :: btflx(LBi:UBi,LBj:UBj,NT(ng))
@@ -348,6 +360,9 @@
         DO i=IstrR,IendR
           stflx(i,j,itemp)=stflx(i,j,itemp)+                            &
      &                     dqdt(i,j)*(t(i,j,N(ng),nrhs,itemp)-sst(i,j))
+#  ifdef ICE_MODEL
+          qao_n(i,j) = -stflx(i,j,itemp) * rho0 * Cp
+#  endif
         END DO
       END DO
 #  endif
@@ -626,7 +641,7 @@
 !  Compute transfer coefficients
 
             IF (uStar .gt. 1.0E-4_r8 .and. ABS(f(i,j)) .gt. 1.0E-8) THEN
-              gturb = 2.5*LOG10(5300.0_r8*uStar*uStar/ABS(f(i,j))) +    &
+              gturb = 2.5*LOG(5300.0_r8*uStar*uStar/ABS(f(i,j))) +      &
      &                7.12
             ELSE
               gturb = 0.0_r8

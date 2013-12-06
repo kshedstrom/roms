@@ -23,6 +23,8 @@
       USE mod_iounits
       USE mod_scalars
 !
+      implicit none
+!
 !  Imported variable declarations.
 !
       integer, intent(in) :: ng, model
@@ -32,7 +34,7 @@
       logical :: foundit
       logical :: check_file
 
-      integer :: Fcount, i, ifile
+      integer :: Fcount, i, ifile, lstr
 
       real(r8) :: Tmax, Tmin, Tscale
 
@@ -50,44 +52,46 @@
 !  Input lateral boundary conditions data.
 !
       IF (ObcData(ng)) THEN
-        IF (BRY(ng)%Nfiles.gt.1) THEN
-          DO ifile=1,BRY(ng)%Nfiles
-            ncname=BRY(ng)%files(ifile)
-            foundit=check_file(ng, model, ncname, Tmin, Tmax, Tscale)
-            IF (exit_flag.ne.NoError) RETURN
-            BRY(ng)%time_min(ifile)=Tmin
-            BRY(ng)%time_max(ifile)=Tmax
-          END DO
+        DO i=1,nBCfiles(ng)
+          IF (BRY(i,ng)%Nfiles.gt.1) THEN
+            DO ifile=1,BRY(i,ng)%Nfiles
+              ncname=BRY(i,ng)%files(ifile)
+              foundit=check_file(ng, model, ncname, Tmin, Tmax, Tscale)
+              IF (exit_flag.ne.NoError) RETURN
+              BRY(i,ng)%time_min(ifile)=Tmin
+              BRY(i,ng)%time_max(ifile)=Tmax
+            END DO
 !
-          Fcount=0
-          DO ifile=1,BRY(ng)%Nfiles
-            Tmin=Tscale*BRY(ng)%time_min(ifile)
-            IF (time(ng).ge.Tmin) THEN
-              Fcount=ifile
-            END IF
-          END DO
+            Fcount=0
+            DO ifile=1,BRY(i,ng)%Nfiles
+              Tmin=Tscale*BRY(i,ng)%time_min(ifile)
+              IF (time(ng).ge.Tmin) THEN
+                Fcount=ifile
+              END IF
+            END DO
 !
-          IF (Fcount.gt.0) THEN
-            BRY(ng)%Fcount=Fcount
-            ncname=BRY(ng)%files(Fcount)
-            lstr=LEN_TRIM(ncname)
-            BRY(ng)%name=TRIM(ncname)
-            BRY(ng)%base=ncname(1:lstr-3)
-          ELSE
-            IF (Master) THEN
-              WRITE (stdout,10) 'Lateral Boundary', t_code
-              DO ifile=1,BRY(ng)%Nfiles
-                Tmin=Tscale*BRY(ng)%time_min(ifile)
-                Tmax=Tscale*BRY(ng)%time_max(ifile)
-                CALL time_string(Tmin, Tmin_code)
-                CALL time_string(Tmax, Tmax_code)
-                WRITE (stdout,20) Tmin_code, Tmax_code,                 &
-     &                            TRIM(BRY(ng)%files(ifile))
-              END DO
+            IF (Fcount.gt.0) THEN
+              BRY(i,ng)%Fcount=Fcount
+              ncname=BRY(i,ng)%files(Fcount)
+              lstr=LEN_TRIM(ncname)
+              BRY(i,ng)%name=TRIM(ncname)
+              BRY(i,ng)%base=ncname(1:lstr-3)
+            ELSE
+              IF (Master) THEN
+                WRITE (stdout,10) 'Lateral Boundary', t_code
+                DO ifile=1,BRY(i,ng)%Nfiles
+                  Tmin=Tscale*BRY(i,ng)%time_min(ifile)
+                  Tmax=Tscale*BRY(i,ng)%time_max(ifile)
+                  CALL time_string(Tmin, Tmin_code)
+                  CALL time_string(Tmax, Tmax_code)
+                  WRITE (stdout,20) Tmin_code, Tmax_code,               &
+     &                              TRIM(BRY(i,ng)%files(ifile))
+                END DO
+              END IF
+              exit_flag=4
             END IF
-            exit_flag=4
           END IF
-        END IF
+	END DO
       END IF
 
 #ifdef FRC_FILE
@@ -139,44 +143,45 @@
 !
 !  Input climatology data.
 !
-      IF (CLM(ng)%Nfiles.gt.1) THEN
-        DO ifile=1,CLM(ng)%Nfiles
-          ncname=CLM(ng)%files(ifile)
-          foundit=check_file(ng, model, ncname, Tmin, Tmax, Tscale)
-          IF (exit_flag.ne.NoError) RETURN
-          CLM(ng)%time_min(ifile)=Tmin
-          CLM(ng)%time_max(ifile)=Tmax
-        END DO
+      DO i=1,nCLMfiles(ng)
+        IF (CLM(i,ng)%Nfiles.gt.1) THEN
+          DO ifile=1,CLM(i,ng)%Nfiles
+            ncname=CLM(i,ng)%files(ifile)
+            foundit=check_file(ng, model, ncname, Tmin, Tmax, Tscale)
+            IF (exit_flag.ne.NoError) RETURN
+            CLM(i,ng)%time_min(ifile)=Tmin
+            CLM(i,ng)%time_max(ifile)=Tmax
+          END DO
 !
-        Fcount=0
-        DO ifile=1,CLM(ng)%Nfiles
-          Tmin=Tscale*CLM(ng)%time_min(ifile)
-          IF (time(ng).ge.Tmin) THEN
-            Fcount=ifile
-          END IF
-        END DO
+          Fcount=0
+          DO ifile=1,CLM(i,ng)%Nfiles
+            Tmin=Tscale*CLM(i,ng)%time_min(ifile)
+            IF (time(ng).ge.Tmin) THEN
+              Fcount=ifile
+            END IF
+          END DO
 !
-        IF (Fcount.gt.0) THEN
-          CLM(ng)%Fcount=Fcount
-          ncname=CLM(ng)%files(Fcount)
-          lstr=LEN_TRIM(ncname)
-          CLM(ng)%name=TRIM(ncname)
-          CLM(ng)%base=ncname(1:lstr-3)
-        ELSE
-          IF (Master) THEN
-            WRITE (stdout,10) 'Climatology', t_code
-            DO ifile=1,CLM(ng)%Nfiles
-              Tmin=Tscale*CLM(ng)%time_min(ifile)
-              Tmax=Tscale*CLM(ng)%time_max(ifile)
-              CALL time_string(Tmin, Tmin_code)
-              CALL time_string(Tmax, Tmax_code)
-              WRITE (stdout,20) Tmin_code, Tmax_code,                   &
-     &                          TRIM(CLM(ng)%files(ifile))
-            END DO
+          IF (Fcount.gt.0) THEN
+            CLM(i,ng)%Fcount=Fcount
+            ncname=CLM(i,ng)%files(Fcount)
+            lstr=LEN_TRIM(ncname)
+            CLM(i,ng)%name=TRIM(ncname)
+            CLM(i,ng)%base=ncname(1:lstr-3)
+          ELSE
+            IF (Master) THEN
+              WRITE (stdout,10) 'Climatology', t_code
+              DO ifile=1,CLM(i,ng)%Nfiles
+                Tmin=Tscale*CLM(i,ng)%time_min(ifile)
+                Tmax=Tscale*CLM(i,ng)%time_max(ifile)
+                CALL time_string(Tmin, Tmin_code)
+                CALL time_string(Tmax, Tmax_code)
+                WRITE (stdout,20) Tmin_code, Tmax_code,                 &
+     &                            TRIM(CLM(i,ng)%files(ifile))
+              END DO
+            END IF
           END IF
-          exit_flag=4
         END IF
-      END IF
+      END DO
 #endif
 
  10   FORMAT (/,' CHECK_MULTIFILE - Error while processing ', a,        &
@@ -218,6 +223,8 @@
       USE mod_iounits
       USE mod_netcdf
       USE mod_scalars
+!
+      implicit none
 !
 !  Imported variable declarations.
 !

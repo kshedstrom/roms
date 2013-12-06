@@ -247,6 +247,9 @@
           real(r8), pointer :: avgbvs(:,:)
 
 # ifdef SOLVE3D
+#  if defined RUNOFF
+          real(r8), pointer :: avgRunoff(:,:)
+#  endif
 #  if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS
           real(r8), pointer :: avgPair(:,:)
 #  endif
@@ -567,6 +570,11 @@
       END IF
 
 # ifdef SOLVE3D
+#  if defined RUNOFF
+      IF (Aout(idRunoff,ng)) THEN
+        allocate ( AVERAGE(ng) % avgRunoff(LBi:UBi,LBj:UBj) )
+      END IF
+#  endif
 #  if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS
       IF (Aout(idPair,ng)) THEN
         allocate ( AVERAGE(ng) % avgPair(LBi:UBi,LBj:UBj) )
@@ -1183,6 +1191,15 @@
       END IF
 
 # ifdef SOLVE3D
+#  if defined RUNOFF
+      IF (Aout(idRunoff,ng)) THEN
+        DO j=Jmin,Jmax
+          DO i=Imin,Imax
+            AVERAGE(ng) % avgRunoff(i,j) = IniVal
+          END DO
+        END DO
+      END IF
+#  endif
 #  if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS
       IF (Aout(idPair,ng)) THEN
         DO j=Jmin,Jmax

@@ -587,6 +587,12 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+13)=' CCSM_FLUXES,'
 #endif
+#ifdef CCSM_FLUXES2D
+      IF (Master) WRITE (stdout,20) 'CCSM_FLUXES2D',                    &
+     &   'Surface bulk fluxes parametererization.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+15)=' CCSM_FLUXES2D,'
+#endif
 #if defined CELERITY_READ && defined FORWARD_READ
       IF (Master) WRITE (stdout,20) 'CELERITY_READ',                    &
      &   'Read in radiation celerity from forward file.'
@@ -929,6 +935,12 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+12)=' HESSIAN_SV,'
 #endif
+# ifdef HISTORY2
+      IF (Master) WRITE (stdout,20) 'HISTORY2',                        &
+     &   'Writing out secondary surface fields.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+10)=' HISTORY2,'
+# endif
 #if defined HOLLING_GRAZING && defined NEMURO
       IF (Master) WRITE (stdout,20) 'HOLLING_GRAZING',                  &
      &   'Holling-type s-shaped grazing algorithm, Implicit.'
@@ -1469,6 +1481,12 @@
      &   'Offline run (use model fields from history files).'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+17)=' OFFLINE_BIOLOGY,'
+#endif
+#if defined NESTING && defined ONE_WAY
+      IF (Master) WRITE (stdout,20) 'ONE_WAY',                          &
+     &   'One-way nesting in refinement grids.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+9)=' ONE_WAY,'
 #endif
 #ifdef OUT_DOUBLE
       IF (Master) WRITE (stdout,20) 'OUT_DOUBLE',                       &
@@ -2373,6 +2391,12 @@
      &   'Smagorinksy-like time-dependent viscosity coefficients.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+16)=' UV_SMAGORINSKY,'
+#endif
+#ifdef UV_WAVEDRAG
+      IF (Master) WRITE (stdout,20) 'UV_WAVEDRAG',                      &
+     &   'Linear bottom stress from internal tidal wave drag.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+13)=' UV_WAVEDRAG,'
 #endif
 #if defined VAR_RHO_2D && defined SOLVE3D
       IF (Master) WRITE (stdout,20) 'VAR_RHO_2D',                       &

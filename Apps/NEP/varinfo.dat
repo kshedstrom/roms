@@ -3564,6 +3564,15 @@
   'r2dvar'
   1.0d0
 
+'wavedrag'                                         ! Input/Output
+  'linear bottom drag coefficient'
+  'meter second-1'                                 ! [m/s]
+  'wavedrag, scalar, series'
+  'ocean_time'
+  'idragW'
+  'r2dvar'
+  1.0d0
+
 'ZoBot'                                            ! Input/Output
   'time invariant, bottom roughness length'
   'meter'                                          ! [m]

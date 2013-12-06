@@ -24,6 +24,9 @@
 #ifdef DISTRIBUTE
       USE mod_strings
 #endif
+# ifdef UV_WAVEDRAG
+      USE mod_tides, ONLY : nstep_hour
+# endif
 !
 #ifdef DISTRIBUTE
       USE distribute_mod, ONLY : mp_bcasti, mp_bcasts
@@ -902,6 +905,14 @@
           FIL(ifile,ng)%label='FILTER - tidal filtering'
         END DO
 # endif
+#endif
+#ifdef UV_WAVEDRAG
+        IF (MOD(3600,INT(dt(ng))).ne.0) THEN
+          IF (Master) print *,                                          &
+     &                'Model timesteps must fall on hour interval'
+          exit_flag=2
+        END IF
+        nstep_hour = nw*3600/INT(dt(ng))
 #endif
 !
 !  Take the square root of the biharmonic coefficients so it can
@@ -1920,7 +1931,7 @@
       END IF
       load_s1d=Nval
 
- 10   FORMAT (/,' INP_PAR - incorrect continuation symbol in line:',/,  &
+ 10   FORMAT (/,' LOAD_S1D - incorrect continuation symbol in line:',/, &
      &        11x,a,/,11x,'number of nested grid values exceeded.')
 
       RETURN
@@ -1971,7 +1982,7 @@
       integer, intent(inout) :: ifile, igrid
       integer, intent(inout) :: Ncount(idim,Ngrids)
 
-      character (len=256), intent(in) :: line
+      character (len=*),   intent(in) :: line
       character (len=256), intent(in) :: Fname(100)
       character (len=*),   intent(inout) :: label
 
@@ -2000,7 +2011,7 @@
 !       print *, 'In load_s2d'
 !       print *, line
 !       print *, label
-!       print *, 'Numbers:', idim, NFF, igrid
+!       print *, 'Numbers:', idim, Nfiles, igrid
 !     END IF
       Icont=INDEX(TRIM(line),CHAR(92) ,BACK=.FALSE.)
       Ipipe=INDEX(TRIM(line),CHAR(124),BACK=.FALSE.)
@@ -2018,7 +2029,7 @@
 !  symbol in the input "line" is used to advance the counters.
 !
       IF (.not.load) THEN
-        IF ((ifile.lt.NFF(igrid)).or.(Ipipe.ne.0)) THEN
+        IF ((ifile.lt.Nfiles(igrid)).or.(Ipipe.ne.0)) THEN
           ifile=ifile+MIN(1,Icont)
         ELSE
           ifile=1

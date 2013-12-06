@@ -75,6 +75,11 @@
      &                     GRID(ng) % rmask,                            &
      &                     GRID(ng) % umask,                            &
      &                     GRID(ng) % vmask,                            &
+# if defined PERFECT_RESTART && defined WET_DRY
+     &                     GRID(ng) % rmask_wet,                        &
+     &                     GRID(ng) % umask_wet,                        &
+     &                     GRID(ng) % vmask_wet,                        &
+# endif
 # ifdef OUTFLOW_MASK
      &                     GRID(ng) % mask_outflow,                     &
 # endif
@@ -120,6 +125,10 @@
 # endif
      &                           pmask, rmask,                          &
      &                           umask, vmask,                          &
+# if defined PERFECT_RESTART && defined WET_DRY
+     &                           rmask_wet,                             &
+     &                           umask_wet, vmask_wet,                  &
+# endif
 # ifdef OUTFLOW_MASK
      &                           mask_outflow,                          &
 # endif
@@ -170,6 +179,11 @@
       real(r8), intent(in) :: rmask(LBi:,LBj:)
       real(r8), intent(in) :: umask(LBi:,LBj:)
       real(r8), intent(in) :: vmask(LBi:,LBj:)
+#  if defined PERFECT_RESTART && defined WET_DRY
+      real(r8), intent(in) :: rmask_wet(LBi:,LBj:)
+      real(r8), intent(in) :: umask_wet(LBi:,LBj:)
+      real(r8), intent(in) :: vmask_wet(LBi:,LBj:)
+#  endif
 #  ifdef OUTFLOW_MASK
       real(r8), intent(out) :: mask_outflow(LBi:,LBj:)
 #  endif
@@ -209,6 +223,11 @@
       real(r8), intent(in) :: rmask(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: umask(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: vmask(LBi:UBi,LBj:UBj)
+#  if defined PERFECT_RESTART && defined WET_DRY
+      real(r8), intent(in) :: rmask_wet(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: umask_wet(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: vmask_wet(LBi:UBi,LBj:UBj)
+#  endif
 #  ifdef OUTFLOW_MASK
       real(r8), intent(out) :: mask_outflow(LBi:UBi,LBj:UBj)
 #  endif
@@ -256,6 +275,32 @@
 !  application grid mask.
 !-----------------------------------------------------------------------
 !
+# if defined PERFECT_RESTART && defined WET_DRY
+      rmask_io(LBi:UBi,LBj:UBj) = 0
+      umask_io(LBi:UBi,LBj:UBj) = 0
+      vmask_io(LBi:UBi,LBj:UBj) = 0
+
+      DO j=JstrP,JendP
+        DO i=IstrP,IendP
+          pmask_io(i,j)=pmask(i,j)
+        END DO
+      END DO
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
+          rmask_io(i,j)=rmask(i,j) * rmask_wet(i,j)
+        END DO
+      END DO
+      DO j=JstrT,JendT
+        DO i=IstrP,IendT
+          umask_io(i,j)=umask(i,j) * umask_wet(i,j)
+        END DO
+      END DO
+      DO j=JstrP,JendT
+        DO i=IstrT,IendT
+          vmask_io(i,j)=vmask(i,j) * vmask_wet(i,j)
+        END DO
+      END DO
+# else
       DO j=JstrP,JendP
         DO i=IstrP,IendP
           pmask_io(i,j)=pmask(i,j)
@@ -276,6 +321,7 @@
           vmask_io(i,j)=vmask(i,j)
         END DO
       END DO
+# endif
 
 # ifdef OUTFLOW_MASK
 !

@@ -151,7 +151,7 @@
 !  Initial conditions for free-surface (m).
 !-----------------------------------------------------------------------
 !
-#define BUMP2
+#undef BUMP2
 #if defined BUMP
       DO j=JstrT,JendT
         DO i=IstrT,IendT

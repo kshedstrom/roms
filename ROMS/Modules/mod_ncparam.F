@@ -145,6 +145,7 @@
         logical, allocatable :: Aout2(:,:)    ! average2 file switches
         logical, allocatable :: Dout(:,:)     ! diagnostic file switches
         logical, allocatable :: Hout(:,:)     ! history file switches
+        logical, allocatable :: Hout2(:,:)    ! surface file switches
         logical, allocatable :: Sout(:,:)     ! station file switches
 !
 !  Grid identification indices.
@@ -248,6 +249,7 @@
         integer  :: idrain        ! rainfall rate
         integer  :: idragL        ! bottom linear drag coefficient
         integer  :: idragQ        ! bottom quadratic drag coefficient
+        integer  :: idragW        ! bottom drag coefficient for internal tide
         integer  :: idSdif        ! vertical S-diffusion coefficient
         integer  :: idSinW        ! SIN(omega(k)*t)
         integer  :: idSin2        ! SIN(omega(k)*t)*SIN(omega(l)*t)
@@ -540,6 +542,7 @@
         integer, allocatable :: idefAVG2(:)   ! averages2 file
         integer, allocatable :: idefDIA(:)    ! diagnostics file
         integer, allocatable :: idefHIS(:)    ! history file
+        integer, allocatable :: idefHIS2(:)   ! history2 file
         integer, allocatable :: idefTLM(:)    ! tangent file
 !
 !  Output NetCDF variables IDs.
@@ -656,6 +659,7 @@
       allocate ( Aout2(NV,Ngrids) )
       allocate ( Dout(NV,Ngrids) )
       allocate ( Hout(NV,Ngrids) )
+      allocate ( Hout2(NV,Ngrids) )
       allocate ( Sout(NV,Ngrids) )
 
       allocate ( idRtrc(MT) )
@@ -697,6 +701,7 @@
       allocate ( idefAVG2(Ngrids) )
       allocate ( idefDIA(Ngrids) )
       allocate ( idefHIS(Ngrids) )
+      allocate ( idefHIS2(Ngrids) )
       allocate ( idefTLM(Ngrids) )
 
       allocate ( idTvar(MT) )
@@ -806,6 +811,7 @@
         idefAVG2(ng)=-1
         idefDIA(ng)=-1
         idefHIS(ng)=-1
+        idefHIS2(ng)=-1
         idefTLM(ng)=-1
       END DO
 !
@@ -896,6 +902,7 @@
           Aout2(i,ng)=.FALSE.
           Dout(i,ng)=.FALSE.
           Hout(i,ng)=.FALSE.
+          Hout2(i,ng)=.FALSE.
           Sout(i,ng)=.FALSE.
           Iinfo(1,i,ng)=0
           Iinfo(2,i,ng)=-1
@@ -1401,6 +1408,10 @@
             CASE ('idZoBL')
               idZoBL=varid
 #endif
+# ifdef UV_WAVEDRAG
+            CASE ('idragW')
+              idragW=varid
+# endif
             CASE ('idUbot')
               idUbot=varid
             CASE ('idVbot')

@@ -101,17 +101,19 @@ GridsInLayer =  1
 !
 !   Keyword    Lateral Boundary Condition Type
 !
-!   Cha        Chapman
+!   Cha        Chapman_implicit (free-surface)
+!   Che        Chapman_explicit (free-surface)
 !   Cla        Clamped
 !   Clo        Closed
-!   Fla        Flather                                _____N_____     j=Mm
+!   Fla        Flather (2D momentum)                  _____N_____     j=Mm
 !   Gra        Gradient                              |     4     |
-!   Nes        Nested                                |           |
+!   Nes        Nested (refinement)                   |           |
 !   Nud        Nudging                             1 W           E 3
 !   Per        Periodic                              |           |
 !   Rad        Radiation                             |_____S_____|
-!   Red        Reduced Physics                             2          j=1
-!                                                   i=1         i=Lm
+!   Red        Reduced Physics (2D momentum)               2          j=1
+!   Shc        Shchepetkin (2D momentum)            i=1         i=Lm
+!
 !                   W       S       E       N
 !                   e       o       a       o
 !                   s       u       s       r
@@ -214,6 +216,8 @@ ad_VolCons(north) ==  F                            ! northern boundary
 !    NDEFHIS == 86400
 !       NHIS == 4320
 !    NDEFHIS == 43200
+       NHIS2 == 4320
+    NDEFHIS2 == 43200
       NTSAVG == 1
 !       NAVG == 240
 !    NDEFAVG == 240
@@ -559,6 +563,67 @@ Hout(idMtls) == F       ! gls                turbulent length scale
 Hout(idBott) == T T T T T T T T T F F F F F F F
 
 ! Logical switches (TRUE/FALSE) to activate writing of fields into
+! surface output file.
+
+Hout2(idUvel) == T       ! u                  3D U-velocity
+Hout2(idVvel) == T       ! v                  3D V-velocity
+Hout2(idu3dE) == T       ! u_eastward         3D U-eastward  at RHO-points
+Hout2(idv3dN) == T       ! v_northward        3D V-northward at RHO-points
+Hout2(idUbar) == T       ! ubar               2D U-velocity
+Hout2(idVbar) == T       ! vbar               2D V-velocity
+Hout2(idu2dE) == T       ! ubar_eastward      2D U-eastward  at RHO-points
+Hout2(idv2dN) == T       ! vbar_northward     2D V-northward at RHO-points
+Hout2(idFsur) == T       ! zeta               free-surface
+
+Hout2(idTvar) == T T                        ! temperature and salinity
+
+Hout2(idUair) == T                          ! surface U-wind
+Hout2(idVair) == T                          ! surface V-wind
+Hout2(idUairE) == T                          ! surface U-wind
+Hout2(idVairN) == T                          ! surface V-wind
+Hout2(idUsms) == T                          ! surface U-stress
+Hout2(idVsms) == T                          ! surface V-stress
+
+Hout2(idTsur) == T T                        ! surface net heat and salt flux
+Hout2(idLhea) == T                          ! latent heat flux
+Hout2(idShea) == T                          ! sensible heat flux
+Hout2(idLrad) == T                          ! longwave radiation flux
+Hout2(idSrad) == T                          ! shortwave radiation flux
+Hout2(idEmPf) == F                          ! E-P flux
+Hout2(idevap) == T                          ! evaporation rate
+Hout2(idrain) == T                          ! precipitation rate
+
+! Logical switches (TRUE/FALSE) to activate writing of ice prognostic
+! variables into HISTORY output file.
+Hout2(idUice) == T
+Hout2(idVice) == T
+Hout2(idUiceE) == T
+Hout2(idViceN) == T
+Hout2(idAice) == T
+Hout2(idHice) == T
+Hout2(idTice) == T
+Hout2(idHsno) == T
+Hout2(idTimid) == T
+Hout2(idSfwat) == T
+Hout2(idTauiw) == F
+Hout2(idChuiw) == F
+Hout2(idAgeice) == T
+Hout2(idSig11) == F
+Hout2(idSig12) == F
+Hout2(idSig22) == F
+Hout2(idS0mk) == F
+Hout2(idT0mk) == F
+
+! Logical switches (TRUE/FALSE) to activate writing of extra inert passive
+! tracers other than biological and sediment tracers. An inert passive tracer
+! is one that it is only advected and diffused. Other processes are ignored.
+! These tracers include, for example, dyes, pollutants, oil spills, etc.
+! NPT values are expected. However, these switches can be activated using
+! compact parameter specification.
+
+ Hout2(inert) == F                          ! inert passive tracers
+
+! Logical switches (TRUE/FALSE) to activate writing of fields into
 ! secondary Averages History output file.
 
 Aout2(idUvel) == T       ! u                  3D U-velocity
@@ -815,6 +880,7 @@ Dout(iTvdif) == T T                        ! vertical diffusion
      GSTNAME == ocean_gst.nc
      RSTNAME == nep6_rst.nc
      HISNAME == nep6_his.nc
+    HIS2NAME == nep6_his2.nc
      TLMNAME == nep6_tlm.nc
      TLFNAME == nep6_tlf.nc
      ADJNAME == nep6_tlm.nc
@@ -1030,17 +1096,18 @@ Dout(iTvdif) == T T                        ! vertical diffusion
 !
 !   Keyword    Lateral Boundary Condition Type
 !
-!   Cha        Chapman
+!   Cha        Chapman_implicit (free-surface)
+!   Che        Chapman_explicit (free-surface)
 !   Cla        Clamped
 !   Clo        Closed
-!   Fla        Flather                                _____N_____     j=Mm
+!   Fla        Flather (2D momentum)                  _____N_____     j=Mm
 !   Gra        Gradient                              |     4     |
-!   Nes        Nested                                |           |
+!   Nes        Nested (refinement)                   |           |
 !   Nud        Nudging                             1 W           E 3
 !   Per        Periodic                              |           |
 !   Rad        Radiation                             |_____S_____|
-!   Red        Reduced Physics                             2          j=1
-!                                                   i=1         i=Lm
+!   Red        Reduced Physics (2D momentum)               2          j=1
+!   Shc        Shchepetkin (2D momentum)            i=1         i=Lm
 !
 !  LBC(isFsur) Free-surface,  [1:4, Ngrids] values are expected.
 !  LBC(isUbar) 2D U-momentum, [1:4, Ngrids] values are expected.
@@ -1434,10 +1501,27 @@ Dout(iTvdif) == T T                        ! vertical diffusion
 !  DCRIT       Minimum depth (m) for wetting and drying.
 !
 !------------------------------------------------------------------------------
-! Jerlow Water type.
+! Jerlov Water type.
 !------------------------------------------------------------------------------
 !
-!  WTYPE       Jerlov water type: an integer value from 1 to 5.
+!  WTYPE       Jerlov water type array index used to model the light absorption
+!                 with a double exponential function (Paulson and Simpson,
+!                 1977).  The classification ranges from clear open ocean
+!                 waters (type I) to dark turbulent coastal waters (type 7).
+!
+!              Array     Jerlov
+!              Index   Water Type   Examples
+!              -----   ----------   --------
+!
+!                1         I        Open Pacific
+!                2         IA       Eastern Mediterranean, Indian Ocean
+!                3         IB       Western Mediterranean, Open Atlantic
+!                4         II       Coastal waters, Azores
+!                5         III      Coastal waters, North Sea
+!                6         1        Skagerrak Strait
+!                7         3        Baltic
+!                8         5        Black Sea
+!                9         7        Dark coastal water
 !
 !------------------------------------------------------------------------------
 ! Body-force parameters. Used when CPP option BODYFORCE is activated.

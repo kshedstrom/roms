@@ -1,4 +1,4 @@
-      SUBROUTINE ana_hsnobc (ng, tile)
+      SUBROUTINE ana_hsnobc (ng, tile, model)
 !
 !! svn $Id$
 !!======================================================================
@@ -18,11 +18,11 @@
 !
 ! Imported variable declarations.
 !
-      integer, intent(in) :: ng, tile
+      integer, intent(in) :: ng, tile, model
 
 #include "tile.h"
 !
-      CALL ana_hsnobc_tile (ng, tile,                                   &
+      CALL ana_hsnobc_tile (ng, tile, model,                            &
      &                     LBi, UBi, LBj, UBj)
 !
 ! Set analytical header file name used.
@@ -39,7 +39,7 @@
       END SUBROUTINE ana_hsnobc
 !
 !***********************************************************************
-      SUBROUTINE ana_hsnobc_tile (ng, tile,                             &
+      SUBROUTINE ana_hsnobc_tile (ng, tile, model,                      &
      &                           LBi, UBi, LBj, UBj)
 !***********************************************************************
 !
@@ -51,7 +51,7 @@
 !
 !  Imported variable declarations.
 !
-      integer, intent(in) :: ng, tile
+      integer, intent(in) :: ng, tile, model
       integer, intent(in) :: LBi, UBi, LBj, UBj
 !
 !  Local variable declarations.

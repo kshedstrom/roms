@@ -13,6 +13,7 @@
 */
 
 #define NO_HIS
+#define HISTORY2
 #undef NETCDF4
 #undef PARALLEL_IO
 #undef OFFLINE_FLOATS
@@ -96,6 +97,7 @@
 #endif
 
 #define UV_VIS2
+#define UV_WAVEDRAG
 #undef UV_SMAGORINSKY
 #define VISC_3DCOEF
 #define MIX_S_UV

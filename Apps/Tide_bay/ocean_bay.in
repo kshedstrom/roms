@@ -98,17 +98,19 @@ GridsInLayer =  1
 !
 !   Keyword    Lateral Boundary Condition Type
 !
-!   Cha        Chapman
+!   Cha        Chapman_implicit (free-surface)
+!   Che        Chapman_explicit (free-surface)
 !   Cla        Clamped
 !   Clo        Closed
-!   Fla        Flather                                _____N_____     j=Mm
+!   Fla        Flather (2D momentum)                  _____N_____     j=Mm
 !   Gra        Gradient                              |     4     |
-!   Nes        Nested                                |           |
+!   Nes        Nested (refinement)                   |           |
 !   Nud        Nudging                             1 W           E 3
 !   Per        Periodic                              |           |
 !   Rad        Radiation                             |_____S_____|
-!   Red        Reduced Physics                             2          j=1
-!                                                   i=1         i=Lm
+!   Red        Reduced Physics (2D momentum)               2          j=1
+!   Shc        Shchepetkin (2D momentum)            i=1         i=Lm
+!
 !                   W       S       E       N
 !                   e       o       a       o
 !                   s       u       s       r
@@ -944,17 +946,18 @@ Dout(iTvdif) == T T                        ! vertical diffusion
 !
 !   Keyword    Lateral Boundary Condition Type
 !
-!   Cha        Chapman
+!   Cha        Chapman_implicit (free-surface)
+!   Che        Chapman_explicit (free-surface)
 !   Cla        Clamped
 !   Clo        Closed
-!   Fla        Flather                                _____N_____     j=Mm
+!   Fla        Flather (2D momentum)                  _____N_____     j=Mm
 !   Gra        Gradient                              |     4     |
-!   Nes        Nested                                |           |
+!   Nes        Nested (refinement)                   |           |
 !   Nud        Nudging                             1 W           E 3
 !   Per        Periodic                              |           |
 !   Rad        Radiation                             |_____S_____|
-!   Red        Reduced Physics                             2          j=1
-!                                                   i=1         i=Lm
+!   Red        Reduced Physics (2D momentum)               2          j=1
+!   Shc        Shchepetkin (2D momentum)            i=1         i=Lm
 !
 !  LBC(isFsur) Free-surface,  [1:4, Ngrids] values are expected.
 !  LBC(isUbar) 2D U-momentum, [1:4, Ngrids] values are expected.
@@ -1348,10 +1351,27 @@ Dout(iTvdif) == T T                        ! vertical diffusion
 !  DCRIT       Minimum depth (m) for wetting and drying.
 !
 !------------------------------------------------------------------------------
-! Jerlow Water type.
+! Jerlov Water type.
 !------------------------------------------------------------------------------
 !
-!  WTYPE       Jerlov water type: an integer value from 1 to 5.
+!  WTYPE       Jerlov water type array index used to model the light absorption
+!                 with a double exponential function (Paulson and Simpson,
+!                 1977).  The classification ranges from clear open ocean
+!                 waters (type I) to dark turbulent coastal waters (type 7).
+!
+!              Array     Jerlov
+!              Index   Water Type   Examples
+!              -----   ----------   --------
+!
+!                1         I        Open Pacific
+!                2         IA       Eastern Mediterranean, Indian Ocean
+!                3         IB       Western Mediterranean, Open Atlantic
+!                4         II       Coastal waters, Azores
+!                5         III      Coastal waters, North Sea
+!                6         1        Skagerrak Strait
+!                7         3        Baltic
+!                8         5        Black Sea
+!                9         7        Dark coastal water
 !
 !------------------------------------------------------------------------------
 ! Body-force parameters. Used when CPP option BODYFORCE is activated.

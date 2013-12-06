@@ -77,7 +77,7 @@
 !  append new data to it.  Also,  notice that it is possible to
 !  create several files during a single model run.
 !
-#ifndef NO_HIS
+# ifndef NO_HIS
       IF (LdefHIS(ng)) THEN
         IF (ndefHIS(ng).gt.0) THEN
           IF (idefHIS(ng).lt.0) THEN
@@ -160,7 +160,87 @@
           END IF
         END IF
       END IF
-#endif
+# endif
+# if defined HISTORY2
+!
+!-----------------------------------------------------------------------
+!  If appropriate, process secondary surface NetCDF file.
+!-----------------------------------------------------------------------
+!
+!  Create output time-averaged NetCDF file or prepare existing file
+!  to append new data to it. Also, notice that it is possible to
+!  create several files during a single model run.
+!
+      IF (LdefHIS2(ng)) THEN
+        IF (ndefHIS2(ng).gt.0) THEN
+          IF (idefHIS2(ng).lt.0) THEN
+            idefHIS2(ng)=((ntstart(ng)-1)/ndefHIS2(ng))*ndefHIS2(ng)
+            IF ((ndefHIS2(ng).eq.nHIS2(ng)).and.(idefHIS2(ng).le.0)) THEN
+              idefHIS2(ng)=ndefHIS2(ng)         ! one file per record
+            ELSE IF (idefHIS2(ng).lt.iic(ng)-1) THEN
+              idefHIS2(ng)=idefHIS2(ng)+ndefHIS2(ng)
+            END IF
+          END IF
+          IF ((nrrec(ng).ne.0).and.(iic(ng).eq.ntstart(ng))) THEN
+            IF ((iic(ng)-1).eq.idefHIS2(ng)) THEN
+              Ldefine=.FALSE.                    ! finished file, delay
+            ELSE                                 ! creation of next file
+              NewFile=.FALSE.
+              Ldefine=.TRUE.                     ! unfinished file, inquire
+            END IF                               ! content for appending
+            idefHIS2(ng)=idefHIS2(ng)+nHIS2(ng)  ! restart offset
+          ELSE IF ((iic(ng)-1).eq.idefHIS2(ng)) THEN
+            idefHIS2(ng)=idefHIS2(ng)+ndefHIS2(ng)
+            IF (nHIS2(ng).ne.ndefHIS2(ng).and.iic(ng).eq.ntstart(ng))   &
+     &              THEN
+              idefHIS2(ng)=idefHIS2(ng)+nHIS2(ng)
+            END IF
+            Ldefine=.TRUE.
+            NewFile=.TRUE.
+          ELSE
+            Ldefine=.FALSE.
+          END IF
+          IF (Ldefine) THEN
+            Fcount=HIS2(ng)%Fcount
+            HIS2(ng)%Nrec(Fcount)=0
+            IF (nHIS2(ng).eq.ndefHIS2(ng)) THEN
+              ifile=(iic(ng)-1)/ndefHIS2(ng)
+            ELSE
+              ifile=(iic(ng)-1)/ndefHIS2(ng)+1
+            END IF
+            IF (Master) THEN
+              WRITE (HIS2(ng)%name,20) TRIM(HIS2(ng)%base), ifile
+            END IF
+# ifdef DISTRIBUTE
+            CALL mp_bcasts (ng, iNLM, HIS2(ng)%name)
+# endif
+            IF (HIS2(ng)%ncid.ne.-1) THEN
+              CALL netcdf_close(ng, iNLM, HIS2(ng)%ncid)
+            END IF
+            CALL def_his2 (ng, Newfile)
+            IF (exit_flag.ne.NoError) RETURN
+            LwrtHIS2(ng)=.TRUE.
+          END IF
+        ELSE
+          IF (iic(ng).eq.ntstart(ng)) THEN
+            CALL def_his2 (ng, ldefout(ng))
+            IF (exit_flag.ne.NoError) RETURN
+            LwrtHIS2(ng)=.TRUE.
+            LdefHIS2(ng)=.FALSE.
+          END IF
+        END IF
+      END IF
+!
+!  Write out data into time-averaged NetCDF file.
+!
+      IF (LwrtHIS2(ng)) THEN
+        IF ((iic(ng).gt.ntstart(ng)).and.                               &
+     &      (MOD(iic(ng)-1,nHIS2(ng)).eq.0)) THEN
+          CALL wrt_his2 (ng)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+      END IF
+# endif
 
 # ifdef AVERAGES
 !

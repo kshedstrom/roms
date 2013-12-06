@@ -28,7 +28,7 @@
 # define SPLINES
 #endif
 #undef FLOATS
-#undef STATIONS
+#define STATIONS
 #undef WET_DRY
 
 #undef T_PASSIVE
@@ -183,11 +183,11 @@
 # undef UV_LDRAG
 # define UV_DRAG_GRID
 # define ANA_DRAG
-# define ANA_DRAG
 # define LIMIT_BSTRESS
 # define UV_QDRAG
 #else
-# define UV_QDRAG
+# undef UV_QDRAG
+# define UV_LDRAG
 #endif
 
 #define RADIATION_2D
@@ -198,8 +198,9 @@
 # define ANA_BSFLUX
 # define ANA_BTFLUX
 #else
-# define ANA_SMFLUX
-# undef BULK_FLUXES2D
+# undef ANA_SMFLUX
+# define BULK_FLUXES2D
+# define CCSM_FLUXES2D
 # define ANA_INITIAL
 # define ANA_FSOBC
 # define ANA_M2OBC

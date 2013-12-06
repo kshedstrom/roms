@@ -793,6 +793,7 @@
         logical, allocatable :: LdefERR(:)       ! 4DVar error file
         logical, allocatable :: LdefFLT(:)       ! Floats file
         logical, allocatable :: LdefHIS(:)       ! History file
+        logical, allocatable :: LdefHIS2(:)      ! History2 file
         logical, allocatable :: LdefHSS(:)       ! Hessian file
         logical, allocatable :: LdefINI(:)       ! Initial file
         logical, allocatable :: LdefIRP(:)       ! Initial RPM file
@@ -810,6 +811,7 @@
         logical, allocatable :: LwrtAVG2(:)      ! Write average2 file
         logical, allocatable :: LwrtDIA(:)       ! Write diagnostic file
         logical, allocatable :: LwrtHIS(:)       ! Write history file
+        logical, allocatable :: LwrtHIS2(:)      ! Write history2 file
         logical, allocatable :: LwrtPER(:)       ! Write during ensemble
         logical, allocatable :: LwrtRST(:)       ! Write restart file
         logical, allocatable :: LwrtTLM(:)       ! Write tangent file
@@ -851,6 +853,7 @@
         integer, allocatable :: ndefAVG2(:)      ! Average2 file
         integer, allocatable :: ndefDIA(:)       ! Diagnostics file
         integer, allocatable :: ndefHIS(:)       ! History file
+        integer, allocatable :: ndefHIS2(:)      ! History2 file
         integer, allocatable :: ndefTLM(:)       ! Tangent linear file
 !
 !  Starting timestep for accumulation of output.
@@ -867,6 +870,7 @@
         integer, allocatable :: nDIA(:)          ! Diagnostics file
         integer, allocatable :: nFLT(:)          ! Floats file
         integer, allocatable :: nHIS(:)          ! History file
+        integer, allocatable :: nHIS2(:)         ! History2 file
         integer, allocatable :: nRST(:)          ! Restart file
         integer, allocatable :: nSTA(:)          ! Stations file
         integer, allocatable :: nTLM(:)          ! Tangent linear file
@@ -1930,6 +1934,7 @@
       allocate ( LdefERR(Ngrids) )
       allocate ( LdefFLT(Ngrids) )
       allocate ( LdefHIS(Ngrids) )
+      allocate ( LdefHIS2(Ngrids) )
       allocate ( LdefHSS(Ngrids) )
       allocate ( LdefINI(Ngrids) )
       allocate ( LdefIRP(Ngrids) )
@@ -1947,6 +1952,7 @@
       allocate ( LwrtAVG2(Ngrids) )
       allocate ( LwrtDIA(Ngrids) )
       allocate ( LwrtHIS(Ngrids) )
+      allocate ( LwrtHIS2(Ngrids) )
       allocate ( LwrtPER(Ngrids) )
       allocate ( LwrtRST(Ngrids) )
       allocate ( LwrtTLM(Ngrids) )
@@ -1974,6 +1980,7 @@
       allocate ( ndefAVG2(Ngrids) )
       allocate ( ndefDIA(Ngrids) )
       allocate ( ndefHIS(Ngrids) )
+      allocate ( ndefHIS2(Ngrids) )
       allocate ( ndefTLM(Ngrids) )
 
       allocate ( ntsAVG(Ngrids) )
@@ -1986,6 +1993,7 @@
       allocate ( nDIA(Ngrids) )
       allocate ( nFLT(Ngrids) )
       allocate ( nHIS(Ngrids) )
+      allocate ( nHIS2(Ngrids) )
       allocate ( nRST(Ngrids) )
       allocate ( nSTA(Ngrids) )
       allocate ( nTLM(Ngrids) )
@@ -2454,6 +2462,7 @@
         LdefFLT(ng)=.TRUE.
 #endif
         LdefHIS(ng)=.TRUE.
+        LdefHIS2(ng)=.TRUE.
         LdefINI(ng)=.FALSE.
         LdefIRP(ng)=.FALSE.
         LdefITL(ng)=.FALSE.
@@ -2469,6 +2478,7 @@
         LwrtAVG2(ng)=.FALSE.
         LwrtDIA(ng)=.FALSE.
         LwrtHIS(ng)=.FALSE.
+        LwrtHIS2(ng)=.FALSE.
         LwrtPER(ng)=.FALSE.
         LwrtRST(ng)=.FALSE.
         LwrtTLM(ng)=.FALSE.
