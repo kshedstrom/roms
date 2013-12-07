@@ -521,7 +521,7 @@
       DO ng=1,Ngrids
         IF (nrrec(ng).eq.0) THEN
           DO tile=first_tile(ng),last_tile(ng),+1
-            CALL ana_ice (ng, TILE)
+            CALL ana_ice (ng, TILE, iNLM)
           END DO
 !$OMP BARRIER
         END IF
