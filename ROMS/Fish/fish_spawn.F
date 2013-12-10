@@ -310,7 +310,7 @@
             END IF
             eggcostWT=dJ/fishJ
             IF (ripe.ge.1.0_r8) THEN
-              bioenergy(ifeggs,ifid)=ANINT(eggs)*MAX(0.0_r8,Fworth)
+              bioenergy(ifeggs,ifid)=0.5*ANINT(eggs)*MAX(0.0_r8,Fworth)
               bioenergy(ifteggs,ifid)=bioenergy(ifteggs,ifid)+          &
      &                                  bioenergy(ifeggs,ifid)
               bioenergy(ifbatch,ifid)=bioenergy(ifbatch,ifid)+1.0_r8
