@@ -1225,7 +1225,7 @@
                 END IF
               ELSE
                 FISHES(ng)%Tinfo(itstr,nc)=(dstart+Ft0(i,ng))*day2sec
-                IF (Fdz(i,ng).eq.0.0_r8) THEN
+                IF (Fdz(i,ng).le.0.1_r8) THEN
                   FISHES(ng)%Tinfo(izgrd,nc)=Fz0(i,ng)
                 ELSE
                   IF (Fz0(i,ng).gt.0.0_r8) THEN

@@ -229,20 +229,19 @@
             END IF
             duration=abatch(isp,ng)*EXP(-bbatch(isp,ng)*                &
      &                          (Ftemp-T0batch(isp,ng)))
-            IF ((develop.eq.0.0_r8).and.(atresia.eq.0.0_r8)) THEN
+            IF ((develop.le.0.1_r8).and.(atresia.le.0.1_r8)) THEN
               rest=rest-dt1day/duration
               batchJ0=epg(isp,ng)*Fweight*eegg(isp,ng)*megg(isp,ng)
               delCsmp=Csmp*(preyJ/fishJ)*Fweight*duration
-              IF (INT(breed(isp,ng)).eq.1) THEN
+              IF (INT(breed(isp,ng)+0.1).eq.1) THEN
 ! Capital breeder
                 extraJ=MAX(0.0_r8,(Fweight-WfromL)*fishJ)
-              ELSE IF (INT(breed(isp,ng)).eq.2) THEN
+              ELSE IF (INT(breed(isp,ng)+0.1).eq.2) THEN
 ! Income breeder
-
                 extraJ=MAX(0.0_r8,delCsmp*duration*fishJ)
-              ELSE IF (INT(breed(isp,ng)).eq.3) THEN
+              ELSE IF (INT(breed(isp,ng)+0.1).eq.3) THEN
 ! Intermediate breeder
-                extraJ=MAX(0.0_r8,(Fweight-WfromL)*fishJ)+               &
+                extraJ=MAX(0.0_r8,(Fweight-WfromL)*fishJ)+              &
      &                 MAX(0.0_r8,delCsmp*duration*fishJ)
               END IF
               IF ((sp_time.ge.Fspstr(isp,ng)).and.                      &
@@ -250,14 +249,13 @@
      &            (Ftemp.ge.FspTmin(isp,ng)).and.                       &
      &            (Ftemp.le.FspTmax(isp,ng))) THEN
                 IF ((rest.lt.0.0_r8).and.(extraJ.gt.batchJ0)) THEN
-                  IF (INT(breed(isp,ng)).eq.1) THEN
+                  IF (INT(breed(isp,ng)+0.1).eq.1) THEN
 ! Capital breeder
                     eggs=epg(isp,ng)*Fweight
-                  ELSE IF (INT(breed(isp,ng)).eq.2) THEN
+                  ELSE IF (INT(breed(isp,ng)+0.1).eq.2) THEN
 ! Income breeder
                     eggs=epg(isp,ng)*delCsmp
-
-                  ELSE IF (INT(breed(isp,ng)).eq.3) THEN
+                  ELSE IF (INT(breed(isp,ng)+0.1).eq.3) THEN
 ! Intermediate breeder
                     eggs=epg(isp,ng)*Fweight+epg(isp,ng)*delCsmp
                   END IF
@@ -274,7 +272,7 @@
                 END IF
               END IF
             END IF
-            IF (develop.eq.1.0_r8) THEN
+            IF (develop.ge.0.9_r8) THEN
               IF (Fweight.gt.(WfromL*pctxwt(isp,ng))) THEN
                 eggcostJ=eggcostJ-dJ
                 dJ=eggcostJ*dt1day/duration
@@ -289,7 +287,7 @@
                 eggcostJ=0.0_r8
               END IF
             END IF
-            IF (atresia.eq.1.0_r8) THEN
+            IF (atresia.ge.0.9_r8) THEN
               duration=apof(isp,ng)*EXP(-bpof(isp,ng)*                  &
      &                          (Ftemp-T0pof(isp,ng)))
               rcvr=rcvr-dt1day/duration
@@ -310,7 +308,9 @@
             END IF
             eggcostWT=dJ/fishJ
             IF (ripe.ge.1.0_r8) THEN
-              bioenergy(ifeggs,ifid)=0.5*ANINT(eggs)*MAX(0.0_r8,Fworth)
+              !bioenergy(ifeggs,ifid)=0.5*ANINT(eggs)*MAX(0.0_r8,Fworth)
+              ! RD : 0.5 or 1 depends on namelist params
+              bioenergy(ifeggs,ifid)=ANINT(eggs)*MAX(0.0_r8,Fworth)
               bioenergy(ifteggs,ifid)=bioenergy(ifteggs,ifid)+          &
      &                                  bioenergy(ifeggs,ifid)
               bioenergy(ifbatch,ifid)=bioenergy(ifbatch,ifid)+1.0_r8
