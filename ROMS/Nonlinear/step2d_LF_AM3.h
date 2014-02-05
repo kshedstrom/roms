@@ -565,8 +565,8 @@
 !  boundary conditions, if appropriate and no partitions in I- or
 !  J-directions.
 !
-      DO j=JstrVm-2,Jendp2
-        DO i=IstrUm-2,Iendp2
+      DO j=JstrV-2,Jendp2
+        DO i=IstrU-2,Iendp2
 #  ifdef ICESHELF
           hw(i,j)=h(i,j)-ABS(zice(i,j))
           Drhs(i,j)=zeta(i,j,krhs)+hw(i,j)
