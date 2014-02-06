@@ -61,12 +61,11 @@
       USE mod_ocean
       USE mod_stepping
       USE mod_scalars
-# if defined TS_PSOURCE || defined UV_PSOURCE || defined Q_PSOURCE
       USE mod_sources
-# endif
 # if defined TRC_PSOURCE
       USE mod_trc_sources
 # endif
+!
 # ifdef ANALYTICAL
       USE analytical_mod
 # endif
@@ -943,42 +942,42 @@
 # endif
 
 
-# if defined UV_PSOURCE || defined TS_PSOURCE || defined Q_PSOURCE
 !
 !-----------------------------------------------------------------------
 !  Set point Sources/Sinks (river runoff).
 !-----------------------------------------------------------------------
 !
-#  ifdef ANA_PSOURCE
-      CALL ana_psource (ng, tile, iNLM)
-#  else
-      IF (DOMAIN(ng)%SouthWest_Test(tile)) THEN
-#   if defined UV_PSOURCE || defined Q_PSOURCE
-        CALL set_ngfld (ng, iNLM, idRtra, 1, Nsrc(ng), 1,               &
-     &                  1, Nsrc(ng), 1,                                 &
-     &                  SOURCES(ng) % QbarG,                            &
-     &                  SOURCES(ng) % Qbar,                             &
-     &                  update)
-        IF (exit_flag.ne.NoError) RETURN
-
-#    ifdef SOLVE3D
-        DO k=1,N(ng)
-          DO i=1,Nsrc(ng)
-# ifdef CASPIAN_REDUCED_RIVER
-            SOURCES(ng)%Qsrc(i,k)=SOURCES(ng)%Qbar(i)*                  &
-     &                            SOURCES(ng)%Qshape(i,k)*              &
-     &                            0.93_r8
-
+# ifdef ANA_PSOURCE
+      IF (LuvSrc(ng).or.LwSrc(ng).or.ANY(LtracerSrc(:,ng))) THEN
+        CALL ana_psource (ng, tile, iNLM)
+      END IF
 # else
-            SOURCES(ng)%Qsrc(i,k)=SOURCES(ng)%Qbar(i)*                  &
-     &                            SOURCES(ng)%Qshape(i,k)
-# endif
-          END DO
-        END DO
-#    endif
-#   endif
+      IF (DOMAIN(ng)%SouthWest_Test(tile)) THEN
+        IF (LuvSrc(ng).or.LwSrc(ng)) THEN
+          CALL set_ngfld (ng, iNLM, idRtra, 1, Nsrc(ng), 1,             &
+     &                    1, Nsrc(ng), 1,                               &
+     &                    SOURCES(ng) % QbarG,                          &
+     &                    SOURCES(ng) % Qbar,                           &
+     &                    update)
+          IF (exit_flag.ne.NoError) RETURN
 
-#   if defined TS_PSOURCE && defined SOLVE3D
+#  ifdef SOLVE3D
+          DO k=1,N(ng)
+            DO i=1,Nsrc(ng)
+# ifdef CASPIAN_REDUCED_RIVER
+              SOURCES(ng)%Qsrc(i,k)=SOURCES(ng)%Qbar(i)*                &
+     &                              SOURCES(ng)%Qshape(i,k)*            &
+     &                              0.93_r8
+# else
+              SOURCES(ng)%Qsrc(i,k)=SOURCES(ng)%Qbar(i)*                &
+     &                              SOURCES(ng)%Qshape(i,k)
+# endif
+            END DO
+          END DO
+#  endif
+        END IF
+
+#  ifdef SOLVE3D
         DO itrc=1,NT(ng)
           IF (LtracerSrc(itrc,ng)) THEN
             CALL set_ngfld (ng, iNLM, idRtrc(itrc), 1, Nsrc(ng), N(ng), &
@@ -989,9 +988,8 @@
             IF (exit_flag.ne.NoError) RETURN
           END IF
         END DO
-#   endif
-      END IF
 #  endif
+      END IF
 # endif
 !
 !-----------------------------------------------------------------------

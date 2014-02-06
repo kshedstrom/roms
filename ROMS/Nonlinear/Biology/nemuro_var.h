@@ -228,7 +228,6 @@
                 idTbry(inorth,iFeD_)=varid
 # endif
 
-#ifdef TS_PSOURCE
 
 !
 ! Biological tracers point Source/Sinks (river runoff).
@@ -242,4 +241,3 @@
                 idRtrc(iDON_)=varid
               CASE ('idRtrc(iPON_)')
                 idRtrc(iPON_)=varid
-#endif

@@ -28,9 +28,6 @@
 # if defined SEDIMENT && defined SED_MORPH && defined SOLVE3D
       USE mod_sedbed
 # endif
-# if defined UV_PSOURCE || defined Q_PSOURCE
-      USE mod_sources
-# endif
       USE mod_stepping
 !
 !  Imported variable declarations.
@@ -50,11 +47,6 @@
      &                  krhs(ng), kstp(ng), knew(ng),                   &
 # ifdef SOLVE3D
      &                  nstp(ng), nnew(ng),                             &
-# endif
-# if defined UV_PSOURCE || defined Q_PSOURCE
-     &                  Msrc(ng), Nsrc(ng),                             &
-     &                  SOURCES(ng) % Isrc,     SOURCES(ng) % Jsrc,     &
-     &                  SOURCES(ng) % Dsrc,     SOURCES(ng) % Qbar,     &
 # endif
 # ifdef MASKING
      &                  GRID(ng) % pmask,       GRID(ng) % rmask,       &
@@ -147,9 +139,6 @@
 # ifdef SOLVE3D
      &                        nstp, nnew,                               &
 # endif
-# if defined UV_PSOURCE || defined Q_PSOURCE
-     &                        Msrc, Nsrc, Isrc, Jsrc, Dsrc, Qbar,       &
-# endif
 # ifdef MASKING
      &                        pmask, rmask, umask, vmask,               &
 # endif
@@ -223,6 +212,7 @@
 # if defined SEDIMENT && defined SED_MORPH
       USE mod_sediment
 # endif
+      USE mod_sources
 !
       USE exchange_2d_mod
 # ifdef DISTRIBUTE
@@ -245,18 +235,8 @@
 # ifdef SOLVE3D
       integer, intent(in) :: nstp, nnew
 # endif
-# if defined UV_PSOURCE || defined Q_PSOURCE
-      integer, intent(in) :: Msrc, Nsrc
-# endif
 !
 # ifdef ASSUMED_SHAPE
-#  if defined UV_PSOURCE || defined Q_PSOURCE
-      integer, intent(in) :: Isrc(:)
-      integer, intent(in) :: Jsrc(:)
-
-      real(r8), intent(in) :: Dsrc(:)
-      real(r8), intent(in) :: Qbar(:)
-#  endif
 #  ifdef MASKING
       real(r8), intent(in) :: pmask(LBi:,LBj:)
       real(r8), intent(in) :: rmask(LBi:,LBj:)
@@ -370,13 +350,6 @@
 
 # else
 
-#  if defined UV_PSOURCE || defined Q_PSOURCE
-      integer, intent(in) :: Isrc(Msrc)
-      integer, intent(in) :: Jsrc(Msrc)
-
-      real(r8), intent(in) :: Dsrc(Msrc)
-      real(r8), intent(in) :: Qbar(Msrc)
-#  endif
 #  ifdef MASKING
       real(r8), intent(in) :: pmask(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: rmask(LBi:UBi,LBj:UBj)
@@ -493,10 +466,7 @@
 !
       logical :: CORRECTOR_2D_STEP
 
-      integer :: i, j, ptsk
-# if defined UV_PSOURCE || defined Q_PSOURCE
-      integer :: is
-# endif
+      integer :: i, is, j, ptsk
 # ifdef DIAGNOSTICS_UV
       integer :: idiag
 # endif
@@ -795,10 +765,6 @@
       CALL wetdry_tile (ng, tile,                                       &
      &                  LBi, UBi, LBj, UBj,                             &
      &                  IminS, ImaxS, JminS, JmaxS,                     &
-#  ifdef UV_PSOURCE
-     &                  Msrc, Nsrc,                                     &
-     &                  Isrc, Jsrc, Dsrc,                               &
-#  endif
 #  ifdef MASKING
      &                  pmask, rmask, umask, vmask,                     &
 #  endif
@@ -959,21 +925,21 @@
      &                      rzeta(:,:,krhs))
 # endif
       END IF
-
-# ifdef Q_PSOURCE
 !
-!  Apply mass point sources - Volume influx.
+!  Apply mass point sources (volume vertical influx), if any.
 !
-      DO is=1,Nsrc
-        i=Isrc(is)
-        j=Jsrc(is)
-        IF (((IstrR.le.i).and.(i.le.IendR)).and.                        &
-     &      ((JstrR.le.j).and.(j.le.JendR))) THEN
-          zeta(i,j,knew)=zeta(i,j,knew)+Qbar(is)*pm(i,j)*pn(i,j)*       &
-     &                   dtfast(ng)
-        END IF
-      END DO
-# endif
+      IF (LwSrc(ng)) THEN
+        DO is=1,Nsrc(ng)
+          i=SOURCES(ng)%Isrc(is)
+          j=SOURCES(ng)%Jsrc(is)
+          IF (((IstrR.le.i).and.(i.le.IendR)).and.                      &
+     &        ((JstrR.le.j).and.(j.le.JendR))) THEN
+            zeta(i,j,knew)=zeta(i,j,knew)+                              &
+     &                     SOURCES(ng)%Qbar(is)*                        &
+     &                     pm(i,j)*pn(i,j)*dtfast(ng)
+          END IF
+        END DO
+      END IF
 !
 !  Set free-surface lateral boundary conditions.
 !
@@ -2532,10 +2498,9 @@
 # endif
      &                      ubar, vbar, zeta)
       END IF
-# ifdef UV_PSOURCE
 !
 !-----------------------------------------------------------------------
-!  Apply mass point sources.
+!  Apply momentum transport point sources (like river runoff), if any.
 !-----------------------------------------------------------------------
 !
       DO j=Jstr-1,Jend+1
@@ -2547,21 +2512,22 @@
 #  endif
         END DO
       END DO
-      DO is=1,Nsrc
-        i=Isrc(is)
-        j=Jsrc(is)
-        IF (((IstrR.le.i).and.(i.le.IendR)).and.                        &
-     &      ((JstrR.le.j).and.(j.le.JendR))) THEN
-          IF (INT(Dsrc(is)).eq.0) THEN
-            cff=1.0_r8/(on_u(i,j)*0.5_r8*(Dnew(i-1,j)+Dnew(i,j)))
-            ubar(i,j,knew)=Qbar(is)*cff
-          ELSE
-            cff=1.0_r8/(om_v(i,j)*0.5_r8*(Dnew(i,j-1)+Dnew(i,j)))
-            vbar(i,j,knew)=Qbar(is)*cff
+      IF (LuvSrc(ng)) THEN
+        DO is=1,Nsrc(ng)
+          i=SOURCES(ng)%Isrc(is)
+          j=SOURCES(ng)%Jsrc(is)
+          IF (((IstrR.le.i).and.(i.le.IendR)).and.                      &
+     &        ((JstrR.le.j).and.(j.le.JendR))) THEN
+            IF (INT(SOURCES(ng)%Dsrc(is)).eq.0) THEN
+              cff=1.0_r8/(on_u(i,j)*0.5_r8*(Dnew(i-1,j)+Dnew(i,j)))
+              ubar(i,j,knew)=SOURCES(ng)%Qbar(is)*cff
+            ELSE
+              cff=1.0_r8/(om_v(i,j)*0.5_r8*(Dnew(i,j-1)+Dnew(i,j)))
+              vbar(i,j,knew)=SOURCES(ng)%Qbar(is)*cff
+            END IF
           END IF
-        END IF
-      END DO
-# endif
+        END DO
+      END IF
 !
 !-----------------------------------------------------------------------
 !  Exchange boundary information.

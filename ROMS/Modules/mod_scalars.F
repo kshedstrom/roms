@@ -404,10 +404,14 @@
 !
         logical, allocatable :: LtracerCLM(:,:)
 !
-!  Switch indicating which tracer field needs to be processed for
-!  Sources/Sinks terms.
+!  Switches to activate point Source/Sinks in an application:
+!    * Horizontal momentum transport (u or v)
+!    * Vertical mass transport (w)
+!    * Tracer transport
 !
-        logical, allocatable :: LtracerSrc(:,:)
+        logical, allocatable :: LuvSrc(:)            ! momentum
+        logical, allocatable :: LwSrc(:)             ! mass
+        logical, allocatable :: LtracerSrc(:,:)      ! tracers
 !
 !  Execution termination flag.
 !
@@ -1810,6 +1814,8 @@
 
       allocate ( LtracerCLM(MT,Ngrids) )
 
+      allocate ( LuvSrc(Ngrids) )
+      allocate ( LwSrc(Ngrids) )
       allocate ( LtracerSrc(MT,Ngrids) )
 
       allocate ( maxspeed(Ngrids) )
@@ -2369,6 +2375,8 @@
 #ifdef SOLVE3D
         Kdigits(ng)=INT(LOG10(REAL(N (ng),r8)))+1
 #endif
+        LuvSrc(ng)=.FALSE.
+        LwSrc(ng)=.FALSE.
         DO itrc=1,MT
           LtracerCLM(itrc,ng)=.FALSE.
           LtracerSrc(itrc,ng)=.FALSE.

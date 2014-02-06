@@ -850,6 +850,10 @@ Dout(iTvdif) == T T                        ! vertical diffusion
      NBCFILES == 1                          ! number of boundary files
      BRYNAME == /wrkdir/kate/NEP/Files/SODA_2.1.6_bdry_NEP6_1958-2008.nc
 
+! Input Sources/Sinks forcing (like river runoff) file name.
+
+     SSFNAME == ocean_rivers.nc
+
 ! Input forcing NetCDF file name(s).  The USER has the option to enter
 ! several files names per each nested grid.  For example, the USER may
 ! have a different files for wind products, heat fluxes, rivers, tides,
@@ -2106,6 +2110,27 @@ Dout(iTvdif) == T T                        ! vertical diffusion
 !  BRYNAME     Input open boundary data file name.
 !  FWDNAME     Input forward solution fields file name.
 !  ADSNAME     Input adjoint sensitivity functional file name.
+!
+!  Input Sources/Sinks forcing file name:
+!
+!   SSFNAME    River runoff data. This file is now separated from the
+!                regular forcing files to allow manipulations over nested
+!                grids.  A particular nesting grid may or may not have
+!                Sources/Sinks forcing.
+!
+!                For example, in an application with 3 nested grids but
+!                with river forcing in grids 1 and 3 we would have:
+!
+!                    LuvSrc == T F T
+!                LtracerSrc == 2*T 2*F 2*T
+!
+!                   SSFNAME == my_rivers_grid1.nc \
+!                              my_rivers_grid2.nc \
+!                              my_rivers_grid3.nc
+!
+!                Here, "my_rivers_grid2.nc" is a dummy name that will never
+!                be processed in ROMS because of the logical switches are
+!                FALSE the second grid.
 !
 ! Nesting grids connectivity data:
 !

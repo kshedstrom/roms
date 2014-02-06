@@ -43,9 +43,7 @@
 ** UV_LOGDRAG          use to turn ON or OFF logarithmic bottom friction     **
 ** UV_LDRAG            use to turn ON or OFF linear bottom friction          **
 ** UV_QDRAG            use to turn ON or OFF quadratic bottom friction       **
-** UV_PSOURCE          use to turn ON or OFF point Sources/Sinks             **
 ** UV_WAVEDRAG         use to turn ON or OFF extra linear bottom wave drag   **
-** Q_PSOURCE           use to turn ON or OFF mass point Sources              **
 **                                                                           **
 ** OPTION to not allow the bottom stress components to change the direction  **
 ** of bottom momentum (change sign of velocity components.                   **
@@ -91,7 +89,6 @@
 ** SCORRECTION         use if freshwater flux correction                     **
 ** SOLAR_SOURCE        use if solar radiation source term                    **
 ** SRELAXATION         use if salinity relaxation as a freshwater flux       **
-** TS_PSOURCE          use to turn ON or OFF point Sources/Sinks             **
 ** TRC_PSOURCE         use if source of inert passive tracers (dyes, etc)    **
 ** AGE_PASSIVE         use if aging of inert passive tracers                 **
 ** AGE_DISTRIBUTION    use if aging of inert passive tracers                 **
