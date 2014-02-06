@@ -1734,7 +1734,7 @@
               IF (LtracerCLM(itrc,ngc)) THEN
                 Tvalue=Tvalue+                                          &
      &                 dt(ngc)*CLIMA(ngc)%Tnudgcof(Ibc-1,Jbc,itrc)*     &
-     &                 (CLIMA(ngc)%tclm(Ibc-1,Jbc,k,ic)-Tvalue))
+     &                 (CLIMA(ngc)%tclm(Ibc-1,Jbc,k,ic)-Tvalue)
               END IF
 #  endif
 #  ifdef MASKING
@@ -1791,7 +1791,7 @@
               IF (LtracerCLM(itrc,ngc)) THEN
                 Tvalue=Tvalue+                                          &
      &                 dt(ngc)*CLIMA(ngc)%Tnudgcof(Ibc,Jbc,itrc)*       &
-     &                 (CLIMA(ngc)%tclm(Ibc,Jbc,k,ic)-Tvalue))
+     &                 (CLIMA(ngc)%tclm(Ibc,Jbc,k,ic)-Tvalue)
               END IF
 #  endif
 #  ifdef MASKING
@@ -1848,7 +1848,7 @@
               IF (LtracerCLM(itrc,ngc)) THEN
                 Tvalue=Tvalue+                                          &
      &                 dt(ngc)*CLIMA(ngc)%Tnudgcof(Ibc,Jbc-1,itrc)*     &
-     &                 (CLIMA(ngc)%tclm(Ibc,Jbc-1,k,ic)-Tvalue))
+     &                 (CLIMA(ngc)%tclm(Ibc,Jbc-1,k,ic)-Tvalue)
               END IF
 #  endif
 #  ifdef MASKING
@@ -1905,7 +1905,7 @@
               IF (LtracerCLM(itrc,ngc)) THEN
                 Tvalue=Tvalue+                                          &
      &                 dt(ngc)*CLIMA(ngc)%Tnudgcof(Ibc,Jbc,itrc)*       &
-     &                 (CLIMA(ngc)%tclm(Ibc,Jbc,k,ic)-Tvalue))
+     &                 (CLIMA(ngc)%tclm(Ibc,Jbc,k,ic)-Tvalue)
               END IF
 #  endif
 #  ifdef MASKING

@@ -71,8 +71,8 @@
 !  Maximum number of variables in a generic NetCDF file (MV) and
 !  maximum number of variables in information arrays (NV).
 !
-        integer, parameter :: MV = 950
-        integer, parameter :: NV = 950
+        integer, parameter :: MV = 1300
+        integer, parameter :: NV = 1300
 !
 !  Input/output grid-type variables.
 !
@@ -2510,7 +2510,7 @@
                     Iinfo(1,varid,ng)=gtype
                   END DO
                   WRITE (Vname(1,varid),'(a,a)')                        &
-     &                  TRIM(ADJUSTL(Vname(1,idTvar(i)))), '2'
+     &                  TRIM(ADJUSTL(Vname(1,idTvar(i)))), '_2'
                   WRITE (Vname(2,varid),'(a,1x,a)')                     &
      &                  'time-averaged squared',                        &
      &                  TRIM(ADJUSTL(Vname(2,idTvar(i))))
@@ -2537,7 +2537,7 @@
                     Iinfo(1,varid,ng)=gtype
                   END DO
                   WRITE (Vname(1,varid),'(a,a)')                        &
-     &                  'Huon', TRIM(ADJUSTL(Vname(1,idTvar(i))))
+     &                  'Huon_', TRIM(ADJUSTL(Vname(1,idTvar(i))))
                   WRITE (Vname(2,varid),'(a,1x,a,1x,a)')                &
      &                  'time-averaged',                                &
      &                  TRIM(ADJUSTL(Vname(2,idTvar(i)))),              &
@@ -2566,7 +2566,7 @@
                     Iinfo(1,varid,ng)=gtype
                   END DO
                   WRITE (Vname(1,varid),'(a,a)')                        &
-     &                  'u', TRIM(ADJUSTL(Vname(1,idTvar(i))))
+     &                  'u_', TRIM(ADJUSTL(Vname(1,idTvar(i))))
                   WRITE (Vname(2,varid),'(a,1x,a)')                     &
      &                  'time-averaged u-momentum times',               &
      &                  TRIM(ADJUSTL(Vname(2,idTvar(i))))
@@ -2594,7 +2594,7 @@
                     Iinfo(1,varid,ng)=gtype
                   END DO
                   WRITE (Vname(1,varid),'(a,a)')                        &
-     &                  'Hvom', TRIM(ADJUSTL(Vname(1,idTvar(i))))
+     &                  'Hvom_', TRIM(ADJUSTL(Vname(1,idTvar(i))))
                   WRITE (Vname(2,varid),'(a,1x,a,1x,a)')                &
      &                  'time-averaged',                                &
      &                  TRIM(ADJUSTL(Vname(2,idTvar(i)))),              &
@@ -2623,7 +2623,7 @@
                     Iinfo(1,varid,ng)=gtype
                   END DO
                   WRITE (Vname(1,varid),'(a,a)')                        &
-     &                  'v', TRIM(ADJUSTL(Vname(1,idTvar(i))))
+     &                  'v_', TRIM(ADJUSTL(Vname(1,idTvar(i))))
                   WRITE (Vname(2,varid),'(a,1x,a)')                     &
      &                  'time-averaged v-momentum times',               &
      &                  TRIM(ADJUSTL(Vname(2,idTvar(i))))
