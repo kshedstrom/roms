@@ -1758,6 +1758,10 @@
       allocate ( time_code(Ngrids) )
 
       allocate ( ntimes(Ngrids) )
+!     allocate ( first_time(Ngrids) )
+
+!$OMP PARALLEL
+!     allocate ( synchro_flag(Ngrids) )
       allocate ( ntfirst(Ngrids) )
       allocate ( ntstart(Ngrids) )
       allocate ( ntend(Ngrids) )
@@ -2328,9 +2332,7 @@
         NSperiodic(ng)=.FALSE.
         NudgingCoeff(ng)=.FALSE.
         ObcData(ng)=.FALSE.
-        ntfirst(ng)=1
-        ntstart(ng)=1
-        ntend(ng)=0
+!       RefineScale(ng)=0
         gamma2(ng)=-1.0_r8
         Vtransform(ng)=1
         Vstretching(ng)=1
@@ -2398,6 +2400,18 @@
       Tobc_in = IniVal
       Tobc_out = IniVal
 #endif
+!
+!  Initialize thread private variables.
+!
+!$OMP PARALLEL
+      synchro_flag=.FALSE.
+
+      ntfirst=1
+      ntstart=1
+      ntend=0
+      step_counter=0
+!$OMP END PARALLEL
+
 #if defined LMD_SKPP || defined LMD_BKPP
 !
 !  Proportionality coefficient parameterizing boundary layer
@@ -2470,8 +2484,6 @@
 #endif
         LwrtTime(ng)=.TRUE.
         ldefout(ng)=.FALSE.
-
-        synchro_flag(ng)=.FALSE.
 
       END DO
 #ifdef BIOLOGY
