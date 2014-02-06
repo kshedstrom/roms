@@ -297,9 +297,9 @@
 !  physical boundaries.
 !-----------------------------------------------------------------------
 !
-        DO ng=1,Ngrids
+!       DO ng=1,Ngrids
           CALL nesting (ng, iNLM, ndxdy)
-        END DO
+!       END DO
 #endif
 #if defined WTYPE_GRID && defined ANA_WTYPE     && \
    (defined LMD_SKPP   || defined SOLAR_SOURCE)
@@ -308,11 +308,11 @@
 !  Set spatially varying Jerlov water type.
 !-----------------------------------------------------------------------
 !
-        DO ng=1,Ngrids
+!       DO ng=1,Ngrids
           DO tile=first_tile(ng),last_tile(ng),+1
             CALL ana_wtype (ng, tile, iNLM)
           END DO
-        END DO
+!       END DO
 !$OMP BARRIER
 #endif
 !
@@ -545,8 +545,7 @@
 !$OMP BARRIER
 #endif
 
-#if defined ANA_PSOURCE && \
-   (defined UV_PSOURCE  || defined TS_PSOURCE || defined Q_PSOURCE)
+#ifdef ANA_PSOURCE
 !
 !-----------------------------------------------------------------------
 !  Set point Sources/Sinks position, direction, special flag, and mass
@@ -555,10 +554,14 @@
 !  to process internal Land/Sea masking arrays during initialization.
 !-----------------------------------------------------------------------
 !
-      DO tile=first_tile(ng),last_tile(ng),+1
-        CALL ana_psource (ng, tile, iNLM)
-      END DO
+!     DO ng=1,Ngrids
+        IF (LuvSrc(ng).or.LwSrc(ng).or.ANY(LtracerSrc(:,ng))) THEN
+          DO tile=first_tile(ng),last_tile(ng),+1
+            CALL ana_psource (ng, tile, iNLM)
+          END DO
+        END IF
 !$OMP BARRIER
+!     END DO
 #endif
 #endif /* !OFFLINE_FLOATS */
 
@@ -615,11 +618,13 @@
 !
 !  If applicable, read in input data.
 !
-      CALL close_inp (ng, iNLM)
-# ifdef TIMELESS_DATA
-      CALL get_idata (ng)
-# endif
-      CALL get_data (ng)
+!     DO ng=1,Ngrids
+        CALL close_inp (ng, iNLM)
+!$OMP MASTER
+        CALL get_idata (ng)
+        CALL get_data (ng)
+!$OMP END MASTER
+!     END DO
 # ifdef DISTRIBUTE
       CALL mp_bcasti (ng, iNLM, exit_flag)
 # endif
@@ -662,7 +667,7 @@
 !  application time.
 !-----------------------------------------------------------------------
 !
-      DO ng=1,Ngrids
+!     DO ng=1,Ngrids
         IF (SporadicImpulse(ng)) THEN
           FrcRec(ng)=1
 !$OMP MASTER
@@ -674,7 +679,7 @@
 # endif
           IF (exit_flag.ne.NoError) RETURN
         END IF
-      END DO
+!     END DO
 #endif
 
 #if defined ANA_DRAG && defined UV_DRAG_GRID

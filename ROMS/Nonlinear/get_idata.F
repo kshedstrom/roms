@@ -1,5 +1,4 @@
 #include "cppdefs.h"
-#ifdef TIMELESS_DATA
       SUBROUTINE get_idata (ng)
 !
 !svn $Id$
@@ -20,14 +19,12 @@
       USE mod_grid
       USE mod_iounits
       USE mod_ncparam
-# if defined AVERAGES_DETIDE && (defined SSH_TIDES || defined UV_TIDES)
+#if defined AVERAGES_DETIDE && (defined SSH_TIDES || defined UV_TIDES)
       USE mod_netcdf
-# endif
+#endif
       USE mod_parallel
       USE mod_scalars
-# if defined UV_PSOURCE || defined TS_PSOURCE || defined Q_PSOURCE
       USE mod_sources
-# endif
       USE mod_stepping
 # if defined SSH_TIDES || defined UV_TIDES || defined POT_TIDES
       USE mod_tides
@@ -36,10 +33,6 @@
       USE mod_mixing
 # endif
 !
-# if defined ANA_PSOURCE && \
-    (defined UV_PSOURCE  || defined TS_PSOURCE || defined Q_PSOURCE)
-      USE analytical_mod, ONLY : ana_psource
-# endif
       USE nf_fread3d_mod, ONLY : nf_fread3d
 #ifdef SOLVE3D
       USE nf_fread4d_mod, ONLY : nf_fread4d
@@ -59,13 +52,13 @@
       integer :: LBi, UBi, LBj, UBj
       integer :: itrc, is
 
-# if defined AVERAGES_DETIDE && (defined SSH_TIDES || defined UV_TIDES)
+#if defined AVERAGES_DETIDE && (defined SSH_TIDES || defined UV_TIDES)
       integer :: gtype, status, varid, Vsize(4)
 
       real(r8), parameter :: Fscl = 1.0_r8
 
       real(r8) :: Fmin, Fmax, Htime
-# endif
+#endif
       real(r8) :: time_save = 0.0_r8
 !
       SourceFile='get_idata.F'
@@ -77,7 +70,7 @@
       LBj=LBOUND(GRID(ng)%h,DIM=2)
       UBj=UBOUND(GRID(ng)%h,DIM=2)
 
-# if defined AVERAGES_DETIDE && (defined SSH_TIDES || defined UV_TIDES)
+#if defined AVERAGES_DETIDE && (defined SSH_TIDES || defined UV_TIDES)
 !
 !  Set Vsize to zero to deactivate interpolation of input data to model
 !  grid in "nf_fread2d" and "nf_fread3d".
@@ -85,17 +78,18 @@
       DO is=1,4
         Vsize(is)=0
       END DO
-# endif
+#endif
 
-# ifdef PROFILE
+#ifdef PROFILE
 !
 !-----------------------------------------------------------------------
 !  Turn on input data time wall clock.
 !-----------------------------------------------------------------------
 !
       CALL wclock_on (ng, iNLM, 3)
-# endif
-# if defined SSH_TIDES || defined UV_TIDES || defined POT_TIDES
+#endif
+
+#if defined SSH_TIDES || defined UV_TIDES || defined POT_TIDES
 !
 !-----------------------------------------------------------------------
 !  Tide period, amplitude, phase, and currents.
@@ -110,9 +104,9 @@
      &                  TIDES(ng) % Tperiod)
         IF (exit_flag.ne.NoError) RETURN
       END IF
-# endif
+#endif
 
-# ifdef SSH_TIDES
+#ifdef SSH_TIDES
 !
 !  Tidal elevation amplitude and phase. In order to read data as a
 !  function of tidal period, we need to reset the model time variables
@@ -123,30 +117,30 @@
         time(ng)=8640000.0_r8
         tdays(ng)=time(ng)*sec2day
 
-        CALL get_2dfld (ng, iNLM, idTzam, ncFRCid(idTzam,ng),           &
-     &                  nFfiles(ng), FRC(1,ng), update(1),              &
-     &                  LBi, UBi, LBj, UBj, MTC, NTC(ng),               &
-#  ifdef MASKING
-     &                  GRID(ng) % rmask,                               &
-#  endif
-     &                  TIDES(ng) % SSH_Tamp)
-        IF (exit_flag.ne.NoError) RETURN
+          CALL get_2dfld (ng, iNLM, idTzam, ncFRCid(idTzam,ng),         &
+     &                    nFfiles(ng), FRC(1,ng), update(1),            &
+     &                    LBi, UBi, LBj, UBj, MTC, NTC(ng),             &
+# ifdef MASKING
+     &                    GRID(ng) % rmask,                             &
+# endif
+     &                    TIDES(ng) % SSH_Tamp)
+          IF (exit_flag.ne.NoError) RETURN
 
-        CALL get_2dfld (ng, iNLM, idTzph, ncFRCid(idTzph,ng),           &
-     &                  nFfiles(ng), FRC(1,ng), update(1),              &
-     &                  LBi, UBi, LBj, UBj, MTC, NTC(ng),               &
-#  ifdef MASKING
-     &                  GRID(ng) % rmask,                               &
-#  endif
-     &                  TIDES(ng) % SSH_Tphase)
-        IF (exit_flag.ne.NoError) RETURN
+          CALL get_2dfld (ng, iNLM, idTzph, ncFRCid(idTzph,ng),         &
+     &                    nFfiles(ng), FRC(1,ng), update(1),            &
+     &                    LBi, UBi, LBj, UBj, MTC, NTC(ng),             &
+# ifdef MASKING
+     &                    GRID(ng) % rmask,                             &
+# endif
+     &                    TIDES(ng) % SSH_Tphase)
+          IF (exit_flag.ne.NoError) RETURN
 
         time(ng)=time_save
         tdays(ng)=time(ng)*sec2day
       END IF
-# endif
+#endif
 
-# ifdef UV_TIDES
+#ifdef UV_TIDES
 !
 !  Tidal currents angle, phase, major and minor ellipse axis.
 !
@@ -155,41 +149,41 @@
         time(ng)=8640000.0_r8
         tdays(ng)=time(ng)*sec2day
 
-        CALL get_2dfld (ng, iNLM, idTvan, ncFRCid(idTvan,ng),           &
-     &                  nFfiles(ng), FRC(1,ng), update(1),              &
-     &                  LBi, UBi, LBj, UBj, MTC, NTC(ng),               &
-#  ifdef MASKING
-     &                  GRID(ng) % rmask,                               &
-#  endif
-     &                  TIDES(ng) % UV_Tangle)
-        IF (exit_flag.ne.NoError) RETURN
+          CALL get_2dfld (ng, iNLM, idTvan, ncFRCid(idTvan,ng),         &
+     &                    nFfiles(ng), FRC(1,ng), update(1),            &
+     &                    LBi, UBi, LBj, UBj, MTC, NTC(ng),             &
+# ifdef MASKING
+     &                    GRID(ng) % rmask,                             &
+# endif
+     &                    TIDES(ng) % UV_Tangle)
+          IF (exit_flag.ne.NoError) RETURN
 
-        CALL get_2dfld (ng, iNLM, idTvph, ncFRCid(idTvph,ng),           &
-     &                  nFfiles(ng), FRC(1,ng), update(1),              &
-     &                  LBi, UBi, LBj, UBj, MTC, NTC(ng),               &
-#  ifdef MASKING
-     &                  GRID(ng) % rmask,                               &
-#  endif
-     &                  TIDES(ng) % UV_Tphase)
-        IF (exit_flag.ne.NoError) RETURN
+          CALL get_2dfld (ng, iNLM, idTvph, ncFRCid(idTvph,ng),         &
+     &                    nFfiles(ng), FRC(1,ng), update(1),            &
+     &                    LBi, UBi, LBj, UBj, MTC, NTC(ng),             &
+# ifdef MASKING
+     &                    GRID(ng) % rmask,                             &
+# endif
+     &                    TIDES(ng) % UV_Tphase)
+          IF (exit_flag.ne.NoError) RETURN
 
-        CALL get_2dfld (ng, iNLM, idTvma, ncFRCid(idTvma,ng),           &
-     &                  nFfiles(ng), FRC(1,ng), update(1),              &
-     &                  LBi, UBi, LBj, UBj, MTC, NTC(ng),               &
-#  ifdef MASKING
-     &                  GRID(ng) % rmask,                               &
-#  endif
-     &                  TIDES(ng) % UV_Tmajor)
-        IF (exit_flag.ne.NoError) RETURN
+          CALL get_2dfld (ng, iNLM, idTvma, ncFRCid(idTvma,ng),         &
+     &                    nFfiles(ng), FRC(1,ng), update(1),            &
+     &                    LBi, UBi, LBj, UBj, MTC, NTC(ng),             &
+# ifdef MASKING
+     &                    GRID(ng) % rmask,                             &
+# endif
+     &                    TIDES(ng) % UV_Tmajor)
+          IF (exit_flag.ne.NoError) RETURN
 
-        CALL get_2dfld (ng, iNLM, idTvmi, ncFRCid(idTvmi,ng),           &
-     &                  nFfiles(ng), FRC(1,ng), update(1),              &
-     &                  LBi, UBi, LBj, UBj, MTC, NTC(ng),               &
-#  ifdef MASKING
-     &                  GRID(ng) % rmask,                               &
-#  endif
-     &                  TIDES(ng) % UV_Tminor)
-        IF (exit_flag.ne.NoError) RETURN
+          CALL get_2dfld (ng, iNLM, idTvmi, ncFRCid(idTvmi,ng),         &
+     &                    nFfiles(ng), FRC(1,ng), update(1),            &
+     &                    LBi, UBi, LBj, UBj, MTC, NTC(ng),             &
+# ifdef MASKING
+     &                    GRID(ng) % rmask,                             &
+# endif
+     &                    TIDES(ng) % UV_Tminor)
+          IF (exit_flag.ne.NoError) RETURN
 
         time(ng)=time_save
         tdays(ng)=time(ng)*sec2day
@@ -210,9 +204,9 @@
      &                  MIXING(ng) % m2_amp)
         IF (exit_flag.ne.NoError) RETURN
       END IF
-# endif
+#endif
 
-# if defined AVERAGES_DETIDE && (defined SSH_TIDES || defined UV_TIDES)
+#if defined AVERAGES_DETIDE && (defined SSH_TIDES || defined UV_TIDES)
 !
 !-----------------------------------------------------------------------
 !  If detiding and applicable, define additional variable to store
@@ -302,9 +296,9 @@
      &                      0, gtype, Vsize,                            &
      &                      LBi, UBi, LBj, UBj, 0, 2*NTC(ng),           &
      &                      Fscl, Fmin, Fmax,                           &
-#  ifdef MASKING
+# ifdef MASKING
      &                      GRID(ng) % rmask,                           &
-#  endif
+# endif
      &                      TIDES(ng) % zeta_tide)
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
@@ -330,9 +324,9 @@
      &                      0, gtype, Vsize,                            &
      &                      LBi, UBi, LBj, UBj, 0, 2*NTC(ng),           &
      &                      Fscl, Fmin, Fmax,                           &
-#  ifdef MASKING
+# ifdef MASKING
      &                      GRID(ng) % umask,                           &
-#  endif
+# endif
      &                      TIDES(ng) % ubar_tide)
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
@@ -358,9 +352,9 @@
      &                      0, gtype, Vsize,                            &
      &                      LBi, UBi, LBj, UBj, 0, 2*NTC(ng),           &
      &                      Fscl, Fmin, Fmax,                           &
-#  ifdef MASKING
+# ifdef MASKING
      &                      GRID(ng) % vmask,                           &
-#  endif
+# endif
      &                      TIDES(ng) % vbar_tide)
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
@@ -377,7 +371,7 @@
           END IF
         END IF
 
-#  ifdef SOLVE3D
+# ifdef SOLVE3D
 !
 !  Time-accumulated 3D u-momentum tide harmonics.
 !
@@ -388,9 +382,9 @@
      &                      0, gtype, Vsize,                            &
      &                      LBi, UBi, LBj, UBj, 1, N(ng), 0, 2*NTC(ng), &
      &                      Fscl, Fmin, Fmax,                           &
-#   ifdef MASKING
+#  ifdef MASKING
      &                      GRID(ng) % umask,                           &
-#   endif
+#  endif
      &                      TIDES(ng) % u_tide)
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
@@ -416,9 +410,9 @@
      &                      0, gtype, Vsize,                            &
      &                      LBi, UBi, LBj, UBj, 1, N(ng), 0, 2*NTC(ng), &
      &                      Fscl, Fmin, Fmax,                           &
-#   ifdef MASKING
+#  ifdef MASKING
      &                      GRID(ng) % vmask,                           &
-#   endif
+#  endif
      &                      TIDES(ng) % v_tide)
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
@@ -447,9 +441,9 @@
      &                        LBi, UBi, LBj, UBj, 1, N(ng),             &
      &                        0, 2*NTC(ng),                             &
      &                        Fscl, Fmin, Fmax,                         &
-#   ifdef MASKING
+#  ifdef MASKING
      &                        GRID(ng) % rmask,                         &
-#   endif
+#  endif
      &                        TIDES(ng) % t_tide(:,:,:,:,itrc))
             IF (status.ne.nf90_noerr) THEN
               IF (Master) THEN
@@ -467,8 +461,6 @@
             END IF
           END IF
         END DO
-#  endif
-      END IF
 # endif
 # ifdef POT_TIDES
 !
@@ -502,8 +494,9 @@
         tdays(ng)=time(ng)*sec2day
       END IF
 # endif
-# if !defined ANA_PSOURCE && \
-     (defined UV_PSOURCE  || defined TS_PSOURCE || defined Q_PSOURCE)
+#endif
+
+#ifndef ANA_PSOURCE
 !
 !-----------------------------------------------------------------------
 !  Read in point Sources/Sinks position, direction, special flag, and
@@ -511,27 +504,28 @@
 !  U- and V-points.
 !-----------------------------------------------------------------------
 !
-      IF (iic(ng).eq.0) THEN
-        CALL get_ngfld (ng, iNLM, idRxpo, ncFRCid(idRxpo,ng),           &
-     &                  nFfiles(ng), FRC(1,ng), update(1),              &
+      IF ((iic(ng).eq.0).and.                                           &
+     &    (LuvSrc(ng).or.LwSrc(ng).or.ANY(LtracerSrc(:,ng)))) THEN
+        CALL get_ngfld (ng, iNLM, idRxpo, SSF(ng)%ncid,                 &
+     &                  1, SSF(ng), update(1),                          &
      &                  1, Nsrc(ng), 1, 1, 1, Nsrc(ng), 1,              &
      &                  SOURCES(ng) % Xsrc)
         IF (exit_flag.ne.NoError) RETURN
 
-        CALL get_ngfld (ng, iNLM, idRepo, ncFRCid(idRepo,ng),           &
-     &                  nFfiles(ng), FRC(1,ng), update(1),              &
+        CALL get_ngfld (ng, iNLM, idRepo, SSF(ng)%ncid,                 &
+     &                  1, SSF(ng), update(1),                          &
      &                  1, Nsrc(ng), 1, 1, 1, Nsrc(ng), 1,              &
      &                  SOURCES(ng) % Ysrc)
         IF (exit_flag.ne.NoError) RETURN
 
-        CALL get_ngfld (ng, iNLM, idRdir, ncFRCid(idRdir,ng),           &
-     &                  nFfiles(ng), FRC(1,ng), update(1),              &
+        CALL get_ngfld (ng, iNLM, idRdir, SSF(ng)%ncid,                 &
+     &                  1, SSF(ng), update(1),                          &
      &                  1, Nsrc(ng), 1, 1, 1, Nsrc(ng), 1,              &
      &                  SOURCES(ng) % Dsrc)
         IF (exit_flag.ne.NoError) RETURN
 
-        CALL get_ngfld (ng, iNLM, idRvsh, ncFRCid(idRvsh,ng),           &
-     &                  nFfiles(ng), FRC(1,ng), update(1),              &
+        CALL get_ngfld (ng, iNLM, idRvsh, SSF(ng)%ncid,                 &
+     &                  1, SSF(ng), update(1),                          &
      &                  1, Nsrc(ng), N(ng), 1, 1, Nsrc(ng), N(ng),      &
      &                  SOURCES(ng) % Qshape)
         IF (exit_flag.ne.NoError) RETURN
@@ -543,18 +537,18 @@
      &                MAX(1,MIN(NINT(SOURCES(ng)%Ysrc(is)),Mm(ng)+1))
         END DO
       END IF
-# endif
+#endif
 
-# ifdef PROFILE
+#ifdef PROFILE
 !
 !-----------------------------------------------------------------------
 !  Turn off input data time wall clock.
 !-----------------------------------------------------------------------
 !
       CALL wclock_off (ng, iNLM, 3)
-# endif
+#endif
 
-# if defined AVERAGES_DETIDE && (defined SSH_TIDES || defined UV_TIDES)
+#if defined AVERAGES_DETIDE && (defined SSH_TIDES || defined UV_TIDES)
 !
   10  FORMAT (/,' GET_IDATA - error while reading variable: ',a,        &
      &        /,13x,'in input NetCDF file: ',a)
@@ -562,12 +556,7 @@
      &        /,13x,f15.4,2x,f15.4)
   30  FORMAT (16x,'- ',a,/,19x,'(Min = ',1p,e15.8,                      &
      &        ' Max = ',1p,e15.8,')')
-# endif
+#endif
 
       RETURN
       END SUBROUTINE get_idata
-#else
-      SUBROUTINE get_idata
-      RETURN
-      END SUBROUTINE get_idata
-#endif

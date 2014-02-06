@@ -727,8 +727,6 @@
     ( defined LMD_SKPP     && !defined ANA_SRFLUX)   || \
     ( defined SALINITY     && !defined ANA_SSFLUX)   || \
     ( defined SOLAR_SOURCE && !defined ANA_SRFLUX)   || \
-   (( defined TS_PSOURCE   || defined UV_PSOURCE     || \
-      defined Q_PSOURCE)   && !defined ANA_PSOURCE)  || \
     ( defined  SSH_TIDES   || defined UV_TIDES)      || \
     ( defined BBL_MODEL    && (!defined ANA_WWAVE    && \
      !defined WAVES_OCEAN))                          || \
@@ -746,17 +744,6 @@
 #endif
 #ifdef ANA_NCEP
 # undef FRC_FILE
-#endif
-
-/*
-** Check if processing timeless data.
-*/
-
-#if (defined UV_PSOURCE || defined TS_PSOURCE || \
-     defined Q_PSOURCE) || \
-    (defined  SSH_TIDES || defined UV_TIDES) || \
-     defined M2TIDE_DIFF
-# define TIMELESS_DATA
 #endif
 
 /*
