@@ -17,6 +17,7 @@
       USE mod_parallel
       USE mod_grid
       USE mod_iounits
+      USE mod_mixing
       USE mod_ncparam
       USE mod_netcdf
       USE mod_scalars

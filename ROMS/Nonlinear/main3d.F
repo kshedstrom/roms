@@ -144,12 +144,34 @@
 !  Time-step nonlinear 3D primitive equations by the specified time.
 !=======================================================================
 !
-      my_StepTime=0.0_r8
-      MaxDT=MAXVAL(dt)
-
-      STEP_LOOP : DO WHILE (my_StepTime.le.(RunInterval+0.5_r8*MaxDT))
-
-        my_StepTime=my_StepTime+MaxDT
+!  Time-step the 3D kernel for the specified time interval (seconds),
+!  RunInterval.
+!
+      Time_Step=.TRUE.
+!
+      KERNEL_LOOP : DO WHILE (Time_Step)
+!
+!  In nesting applications, the number of nesting layers (NestLayers) is
+!  used to facilitate refinement grids and composite/refinament grids
+!  combinations. Otherwise, the solution it is looped once for a single
+!  grid application (NestLayers = 1).
+!
+        NEST_LAYER : DO nl=1,NestLayers
+!
+!  Determine number of time steps to compute in each nested grid layer
+!  based on the specified time interval (seconds), RunInterval. Non
+!  nesting applications have NestLayers=1. Notice that RunInterval is
+!  set in the calling driver. Its value may span the full period of the
+!  simulation, or a multi-model coupling interval, or just a single
+!  step.
+!
+          CALL ntimesteps (nl, GridsInLayer(nl), iNLM, RunInterval,     &
+     &                     Nsteps, Rsteps)
+          IF (exit_flag.ne.NoError) RETURN
+!
+!  Time-step governing equations for Nsteps.
+!
+          STEP_LOOP : DO istep=1,Nsteps
 !
 !  Set time indices and time clock.
 !
