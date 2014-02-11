@@ -3346,6 +3346,41 @@
 !-----------------------------------------------------------------------
 !  Process input parameters.
 !-----------------------------------------------------------------------
+!
+!  Check if nesting parameters "NestLayers", "GridsInLayer", and
+!  "GridNumber" have been assigned.  The code below is necessary
+!  for compatability with old "ocean.in" input scripts.
+!
+#ifndef NESTING
+      IF (.not.got_NestLayers) THEN
+        NestLayers=1
+        IF (.not.allocated(GridsInLayer)) THEN
+          allocate ( GridsInLayer(NestLayers) )
+        END IF
+        IF (.not.allocated(GridNumber)) THEN
+          allocate ( GridNumber(Ngrids,NestLayers) )
+        END IF
+      END IF
+      GridsInLayer=1              ! In case that users set illegal
+      GridNumber=1                ! values in non-nesting applications
+#else
+      IF (.not.got_NestLayers) THEN
+        IF (Master) THEN
+          WRITE (out,320) 'NestLayers',                                 &
+     &            'Add "NestLayers" keyword after "Ngrids".'
+          exit_flag=5
+          RETURN
+        END IF
+      END IF
+      IF (.not.allocated(GridsInLayer)) THEN
+        IF (Master) THEN
+          WRITE (out,320) 'GridsInLayer',                               &
+     &            'Add "GridsInLayer" keyword after "NestLayers".'
+          exit_flag=5
+          RETURN
+        END IF
+      END IF
+#endif
 
 #if defined BULK_FLUXES && defined NL_BULK_FLUXES
 !
