@@ -149,10 +149,6 @@
 
 #undef  RUNOFF
 
-#define UV_PSOURCE
-#define TS_PSOURCE
-#undef  Q_PSOURCE
-
 #define SOLAR_SOURCE
 #undef  SLP_GRAD
 

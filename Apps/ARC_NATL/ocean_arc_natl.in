@@ -375,16 +375,24 @@ ad_VolCons(north) ==  F                            ! northern boundary
 
       GAMMA2 == 1.0d0
 
+! Logical switches (TRUE/FALSE) to activate horizontal momentum transport
+! point Sources/Sinks (like river runoff transport) and mass point
+! Sources/Sinks (like volume vertical influx), [1:Ngrids].
+ 
+      LuvSrc == T                          ! horizontal momentum transport
+       LwSrc == F                          ! volume vertical influx
+
+! Logical switches (TRUE/FALSE) to activate tracers point Sources/Sinks
+! (like river runoff) and to specify which tracer variables to consider:
+! [1:NAT+NPT,Ngrids].
+! See glossary below for details.
+
+  LtracerSrc == T T                        ! temperature, salinity, inert
+
 ! Logical switches (TRUE/FALSE) to specify which variables to process for
 ! tracers climatology: [1:NAT+NPT,Ngrids]. See glossary below for details.
 
   LtracerCLM == T T                        ! temperature, salinity, inert
-
-! Logical switches (TRUE/FALSE) to specify which variables to consider on
-! tracers point Sources/Sinks (like river runoff): [1:NAT+NPT,Ngrids].
-! See glossary below for details.
-
-  LtracerSrc == T T                        ! temperature, salinity, inert
 
 ! Starting (DstrS) and ending (DendS) day for adjoint sensitivity forcing.
 ! DstrS must be less or equal to DendS. If both values are zero, their
@@ -935,20 +943,20 @@ Dout(iTvdif) == T T                        ! vertical diffusion
 
 ! Input Sources/Sinks forcing (like river runoff) file name.
 
-     SSFNAME == ocean_rivers.nc
+     SSFNAME == /wrkdir/kate/ARC_NATL/Files/ARC_NATL_rivers.nc
 
 ! Input forcing NetCDF file name(s).  The USER has the option to enter
 ! several files names per each nested grid.  For example, the USER may
-! have a different files for wind products, heat fluxes, rivers, tides,
-! etc.  The model will scan the file list and will read the needed data
-! from the first file in the list containing the forcing field. Therefore,
+! have different files for wind products, heat fluxes, tides, etc.
+! The model will scan the file list and will read the needed data from
+! the first file in the list containing the forcing field. Therefore,
 ! the order of the file names is very important.  If multiple forcing
 ! files per grid, enter first all the file names for grid 1, then grid 2,
 ! and so on.  Use a single line per entry with a continuation (\) symbol
 ! at the each entry, except the last one.
 
 
-    NFFILES == 12                          ! number of forcing files
+    NFFILES == 11                          ! number of forcing files
 
     FRCNAME == /wrkdir/kate/Bering/Files/Pair.1948-2006.nc   \
                /wrkdir/kate/Bering/Files/lwrad.1948-2006.nc  \
@@ -960,7 +968,6 @@ Dout(iTvdif) == T T                        ! vertical diffusion
                /wrkdir/kate/Bering/Files/rain.1948-2006.nc  \
                /wrkdir/kate/Bering/Files/sss_fill_2004.nc  \
                /wrkdir/kate/ARC_NATL/Files/runoff_ARC_NATL_daitren_inter_annual_1948-2007.nc \
-               /wrkdir/kate/ARC_NATL/Files/ARC_NATL_rivers.nc \
                /wrkdir/kate/ARC_NATL/Files/ARC_NATL_tides_otps.nc
 
 ! Output NetCDF file names, [1:Ngrids].
@@ -1836,6 +1843,72 @@ Dout(iTvdif) == T T                        ! vertical diffusion
 !  GAMMA2      Slipperiness variable, either 1.0 (free slip) or -1.0 (no slip).
 !
 !------------------------------------------------------------------------------
+!  Point Sources/Sink sources activation switches.
+!------------------------------------------------------------------------------
+!
+!  LuvSrc      Logical switches (T/F) to activate momentum horizontal transport
+!              points Sources/Sinks. Usually it is used to turn on/off river
+!              runoff transport (u or v variables) in an application,
+!              [1:Ngrids].
+!
+!              In nesting applications, turn on only the grids that require
+!              activation and processing of momentum point Sources/Sinks.
+!
+!  LwSrc       Logical switches (T/F) to activate mass points Sources/Sinks.
+!              Usually, it is used to turn on/off volume vertical influx (w)
+!              in an application.
+!
+!              In nesting applications, turn on only the grids that require
+!              activation and processing of mass influx point Sources/Sinks.
+!
+!  LtracerSrc  Logical switches (T/F) to activate tracer variables point
+!              Sources/Sinks. Only NAT active tracers (temperature, salinity)
+!              and NPT inert tracers are activated here:
+!
+!                LtracerSrc(itemp,ng)     for temperature (itemp=1)
+!                LtracerSrc(isalt,ng)     for salinity    (isalt=2)
+!                LtracerSrc(NAT+1,ng)     for inert tracer 1
+!                ...                      ...
+!                LtracerSrc(NAT+NPT,ng)   for inert tracer NPT
+!
+!              Other biological and sediment tracers switches are activated in
+!              their respective input scripts.
+!
+!              In nesting applications, turn on only the grids that require
+!              activation and processing of tracers point Sources/Sinks.
+!
+!              Recall that switches are usually activated to add river runoff
+!              as a point source. At minimum, it is necessary to specify both
+!              temperature and salinity for all rivers.  The other tracers are
+!              optional.
+!
+!              This logical switch REPLACES and ELIMINATES the need to have
+!              or read the variable "river_flag(river)" in the input rivers
+!              forcing NetCDF file:
+!
+!                double river_flag(river)
+!                        river_flag:long_name = "river runoff tracer flag"
+!                        river_flag:option_0 = "all tracers are off"
+!                        river_flag:option_1 = "only temperature"
+!                        river_flag:option_2 = "only salinity"
+!                        river_flag:option_3 = "both temperature and salinity"
+!                        river_flag:units = "nondimensional"
+!
+!              The above variable was too cumbersome and complicated when
+!              additional tracers are considered. However, this change is
+!              backward compatible.
+!
+!              The LtracerSrc switch will be used to activate the reading of
+!              respective tracer variable from input river forcing NetCDF
+!              file. If you want to add other tracer variables (other than
+!              temperature and salinity) as a source for a particular river(s),
+!              you just need to specify such values on those river(s). Then,
+!              set the values to ZERO on the other river(s) that do NOT
+!              require such river forcing for that tracer. Recall that you
+!              need to specify the tracer values for all rivers, even if
+!              their values are zero.
+!
+!------------------------------------------------------------------------------
 !  Tracer climatology processing switches.
 !------------------------------------------------------------------------------
 !
@@ -1858,10 +1931,6 @@ Dout(iTvdif) == T T                        ! vertical diffusion
 !              switches is to control which climatology tracer fields
 !              (specially passive tracers) needs to be processed.  So we
 !              may reduce the memory allocation for such array.
-!
-!------------------------------------------------------------------------------
-!  Tracer point Sources/Sink sources switches.
-!------------------------------------------------------------------------------
 !
 !------------------------------------------------------------------------------
 !  Adjoint sensitivity parameters.

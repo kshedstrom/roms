@@ -70,8 +70,6 @@
 # ifdef SOLVE3D
 #  define ADD_FSOBC
 #  define ADD_M2OBC
-!#  define UV_PSOURCE
-!#  define TS_PSOURCE
 #  define LMD_MIXING
 #  define LMD_RIMIX
 #  undef LMD_SHAPIRO
