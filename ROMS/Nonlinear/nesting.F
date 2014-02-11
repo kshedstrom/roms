@@ -190,12 +190,14 @@
             CALL put_refine (ng, model, tile)
           END DO
 !$OMP BARRIER
+
+# ifndef ONE_WAY
 !
 !  Fine to coarse coupling: two-way nesting.
 !
         ELSE IF (isection.eq.n2way) THEN
 
-# ifdef SOLVE3D
+#  ifdef SOLVE3D
 !
 !  Correct coarse grid tracer values at the refinement grid, ng,
 !  boundary with the refined accumulated fluxes (Hz*u*T/n, Hz*v*T/m).
@@ -206,7 +208,7 @@
             CALL correct_tracer (ngc, ng, model, tile)
           END DO
 !$OMP BARRIER
-# endif
+#  endif
 !
 !  Replace coarse grid 2D state variables with the averaged fine grid
 !  values (two-way coupling).
@@ -235,6 +237,12 @@
           END DO
 !$OMP BARRIER
           IF (exit_flag.ne.NoError) RETURN
+#  endif
+# else
+!
+!  Fine to coarse coupling (two-way nesting) is not activated!
+!
+        ELSE IF (isection.eq.n2way) THEN
 # endif
         END IF
 !
@@ -974,7 +982,7 @@
 !  levels.
 !
           IF (iic(dg).eq.ntstart(dg)) THEN
-            IF (iic(rg).lt.iic(dg)) THEN
+            IF (ng.eq.dg) THEN
               t1=1                     ! coarser grid initial conditions
             ELSE
               t1=2                     ! after coarser grid first step
@@ -995,25 +1003,14 @@
 !  refinement grid. Recall that both refinement and composite grids
 !  are allow and this mapping is for efficient memory usage.
 !
-          ir=RefineDonor(rg)
-!
 !  Extract free-surface.
 !
-          IF (iic(dg).eq.0) THEN
-            CALL get_contact2d (dg, model, tile,                        &
-     &                          r2dvar, Vname(1,idFsur),                &
-     &                          cr, Rcontact(cr)%Npoints, Rcontact,     &
-     &                          LBi, UBi, LBj, UBj,                     &
-     &                          OCEAN(dg) % zeta(:,:,Tindex2d),         &
-     &                          REFINED(ir) % zeta(:,:,t1))
-          ELSE
-            CALL get_contact2d (dg, model, tile,                        &
-     &                          r2dvar, 'Zt_avg1',                      &
-     &                          cr, Rcontact(cr)%Npoints, Rcontact,     &
-     &                          LBi, UBi, LBj, UBj,                     &
-     &                          COUPLING(dg) % Zt_avg1,                 &
-     &                          REFINED(ir) % zeta(:,:,t1))
-          END IF
+          CALL get_contact2d (dg, model, tile,                          &
+     &                        r2dvar, 'Zt_avg1',                        &
+     &                        cr, Rcontact(cr)%Npoints, Rcontact,       &
+     &                        LBi, UBi, LBj, UBj,                       &
+     &                        COUPLING(dg) % Zt_avg1,                   &
+     &                        REFINED(cr) % zeta(:,:,t1))
 !
 !  Extract 2D momentum components (ubar, vbar).
 !
@@ -1022,14 +1019,14 @@
      &                        cr, Ucontact(cr)%Npoints, Ucontact,       &
      &                        LBi, UBi, LBj, UBj,                       &
      &                        OCEAN(dg) % ubar(:,:,Tindex2d),           &
-     &                        REFINED(ir) % ubar(:,:,t1))
+     &                        REFINED(cr) % ubar(:,:,t1))
 
           CALL get_contact2d (dg, model, tile,                          &
      &                        v2dvar, Vname(1,idVbar),                  &
      &                        cr, Vcontact(cr)%Npoints, Vcontact,       &
      &                        LBi, UBi, LBj, UBj,                       &
      &                        OCEAN(dg) % vbar(:,:,Tindex2d),           &
-     &                        REFINED(ir) % vbar(:,:,t1))
+     &                        REFINED(cr) % vbar(:,:,t1))
 
 # ifdef SOLVE3D
 !
@@ -1042,14 +1039,14 @@
      &                        cr, Ucontact(cr)%Npoints, Ucontact,       &
      &                        LBi, UBi, LBj, UBj,                       &
      &                        COUPLING(dg) % DU_avg2,                   &
-     &                        REFINED(ir) % DU_avg2(:,:,t1))
+     &                        REFINED(cr) % DU_avg2(:,:,t1))
 
           CALL get_contact2d (dg, model, tile,                          &
      &                        v2dvar, 'DV_avg2',                        &
      &                        cr, Vcontact(cr)%Npoints, Vcontact,       &
      &                        LBi, UBi, LBj, UBj,                       &
      &                        COUPLING(dg) % DV_avg2,                   &
-     &                        REFINED(ir) % DV_avg2(:,:,t1))
+     &                        REFINED(cr) % DV_avg2(:,:,t1))
 !
 !  Tracer-type variables.
 !
@@ -1059,7 +1056,7 @@
      &                          cr, Rcontact(cr)%Npoints, Rcontact,     &
      &                          LBi, UBi, LBj, UBj, 1, N(dg),           &
      &                          OCEAN(dg) % t(:,:,:,Tindex3d,itrc),     &
-     &                          REFINED(ir) % t(:,:,:,t1,itrc))
+     &                          REFINED(cr) % t(:,:,:,t1,itrc))
           END DO
 !
 !  Extract 3D momentum components (u, v).
@@ -1069,14 +1066,14 @@
      &                        cr, Ucontact(cr)%Npoints, Ucontact,       &
      &                        LBi, UBi, LBj, UBj, 1, N(dg),             &
      &                        OCEAN(dg) % u(:,:,:,Tindex3d),            &
-     &                        REFINED(ir) % u(:,:,:,t1))
+     &                        REFINED(cr) % u(:,:,:,t1))
 
           CALL get_contact3d (dg, model, tile,                          &
      &                        v3dvar, Vname(1,idVvel),                  &
      &                        cr, Vcontact(cr)%Npoints, Vcontact,       &
      &                        LBi, UBi, LBj, UBj, 1, N(dg),             &
      &                        OCEAN(dg) % v(:,:,:,Tindex3d),            &
-     &                        REFINED(ir) % v(:,:,:,t1))
+     &                        REFINED(cr) % v(:,:,:,t1))
 # endif
         END IF
       END DO
@@ -1676,7 +1673,7 @@
 !
 !=======================================================================
 !  Compute vertically integrated horizontal advective tracer flux for
-!  coarser and the finer physical boundary.  Then, correct coarser
+!  coarser at the finer grid physical boundary.  Then, correct coarser
 !  grid tracer values at that boundary.
 !=======================================================================
 !
@@ -3610,10 +3607,10 @@
 !=======================================================================
 !
       USE mod_param
+      USE mod_coupling
       USE mod_grid
       USE mod_nesting
       USE mod_ocean
-      USE mod_nesting
       USE mod_scalars
       USE mod_stepping
 
@@ -3629,8 +3626,9 @@
 !
 !  Local variable declarations.
 !
-      integer :: Ic, Jc
-      integer :: i, ir, irec, j, m, t1, t2
+      logical :: Uboundary, Vboundary
+
+      integer :: i, irec, j, m, t1, t2
 
       real(r8) :: cff, cff1, fac, fac1, fac2
       real(r8) :: my_value
@@ -3670,12 +3668,6 @@
       END IF
 # endif
 !
-!  Get data donor REFINED index structure associated with current
-!  refinement grid. Recall that both refinement and composite grids
-!  are allow and this mapping is for efficient memory usage.
-!
-      ir=RefineDonor(ng)
-!
 !  Free-surface.
 !
       DO m=1,Rcontact(cr)%Npoints
@@ -3684,21 +3676,21 @@
         IF (((IstrT.le.i).and.(i.le.IendT)).and.                        &
      &      ((JstrT.le.j).and.(j.le.JendT))) THEN
           my_value=fac1*(Rcontact(cr)%Hweight(1,m)*                     &
-     &                                REFINED(ir)%zeta(1,m,t1)+         &
+     &                                REFINED(cr)%zeta(1,m,t1)+         &
      &                   Rcontact(cr)%Hweight(2,m)*                     &
-     &                                REFINED(ir)%zeta(2,m,t1)+         &
+     &                                REFINED(cr)%zeta(2,m,t1)+         &
      &                   Rcontact(cr)%Hweight(3,m)*                     &
-     &                                REFINED(ir)%zeta(3,m,t1)+         &
+     &                                REFINED(cr)%zeta(3,m,t1)+         &
      &                   Rcontact(cr)%Hweight(4,m)*                     &
-     &                                REFINED(ir)%zeta(4,m,t1))+        &
+     &                                REFINED(cr)%zeta(4,m,t1))+        &
      &             fac2*(Rcontact(cr)%Hweight(1,m)*                     &
      &                                REFINED(cr)%zeta(1,m,t2)+         &
      &                   Rcontact(cr)%Hweight(2,m)*                     &
-     &                                REFINED(ir)%zeta(2,m,t2)+         &
+     &                                REFINED(cr)%zeta(2,m,t2)+         &
      &                   Rcontact(cr)%Hweight(3,m)*                     &
-     &                                REFINED(ir)%zeta(3,m,t2)+         &
+     &                                REFINED(cr)%zeta(3,m,t2)+         &
      &                   Rcontact(cr)%Hweight(4,m)*                     &
-     &                                REFINED(ir)%zeta(4,m,t2))
+     &                                REFINED(cr)%zeta(4,m,t2))
 # ifdef MASKING
           my_value=my_value*GRID(ng)%rmask(i,j)
 # endif
@@ -3710,6 +3702,7 @@
           OCEAN(ng)%zeta(i,j,1)=my_value
           OCEAN(ng)%zeta(i,j,2)=my_value
           OCEAN(ng)%zeta(i,j,3)=my_value
+          COUPLING(ng)%Zt_avg1(i,j)=my_value
         END IF
       END DO
 !
@@ -3724,21 +3717,21 @@
         IF (((IstrP.le.i).and.(i.le.IendT)).and.                        &
      &      ((JstrT.le.j).and.(j.le.JendT))) THEN
           my_value=fac1*(Ucontact(cr)%Hweight(1,m)*                     &
-     &                                REFINED(ir)%ubar(1,m,t1)+         &
+     &                                REFINED(cr)%ubar(1,m,t1)+         &
      &                   Ucontact(cr)%Hweight(2,m)*                     &
-     &                                REFINED(ir)%ubar(2,m,t1)+         &
+     &                                REFINED(cr)%ubar(2,m,t1)+         &
      &                   Ucontact(cr)%Hweight(3,m)*                     &
-     &                                REFINED(ir)%ubar(3,m,t1)+         &
+     &                                REFINED(cr)%ubar(3,m,t1)+         &
      &                   Ucontact(cr)%Hweight(4,m)*                     &
-     &                                REFINED(ir)%ubar(4,m,t1))+        &
+     &                                REFINED(cr)%ubar(4,m,t1))+        &
      &             fac2*(Ucontact(cr)%Hweight(1,m)*                     &
-     &                                REFINED(ir)%ubar(1,m,t2)+         &
+     &                                REFINED(cr)%ubar(1,m,t2)+         &
      &                   Ucontact(cr)%Hweight(2,m)*                     &
-     &                                REFINED(ir)%ubar(2,m,t2)+         &
+     &                                REFINED(cr)%ubar(2,m,t2)+         &
      &                   Ucontact(cr)%Hweight(3,m)*                     &
-     &                                REFINED(ir)%ubar(3,m,t2)+         &
+     &                                REFINED(cr)%ubar(3,m,t2)+         &
      &                   Ucontact(cr)%Hweight(4,m)*                     &
-     &                                REFINED(ir)%ubar(4,m,t2))
+     &                                REFINED(cr)%ubar(4,m,t2))
 # ifdef MASKING
           my_value=my_value*GRID(ng)%umask(i,j)
 # endif
@@ -3746,10 +3739,12 @@
           my_value=my_value*GRID(ng)%umask_wet(i,j)
 # endif
           DO irec=1,3
-            IF ((irec.ne.indx1(ng)).and.                                &
-     &          ((m.ne.BRY_CONTACT(iwest,cr)%C2Bindex(j)).or.           &
-     &           (m.ne.BRY_CONTACT(ieast,cr)%C2Bindex(j)))) THEN
+            Uboundary=(m.eq.BRY_CONTACT(iwest,cr)%C2Bindex(j)).or.      &
+     &                (m.eq.BRY_CONTACT(ieast,cr)%C2Bindex(j))
+            IF(.not.(Uboundary.and.(irec.eq.indx1(ng)))) THEN
               OCEAN(ng)%ubar(i,j,irec)=my_value
+!!          ELSE                                     ! for debugging
+!!            OCEAN(ng)%ubar(i,j,irec)=0.0_r8        ! purposes
             END IF
           END DO
         END IF
@@ -3766,21 +3761,21 @@
         IF (((IstrT.le.i).and.(i.le.IendT)).and.                        &
      &      ((JstrP.le.j).and.(j.le.JendT))) THEN
           my_value=fac1*(Vcontact(cr)%Hweight(1,m)*                     &
-     &                                REFINED(ir)%vbar(1,m,t1)+         &
+     &                                REFINED(cr)%vbar(1,m,t1)+         &
      &                   Vcontact(cr)%Hweight(2,m)*                     &
-     &                                REFINED(ir)%vbar(2,m,t1)+         &
+     &                                REFINED(cr)%vbar(2,m,t1)+         &
      &                   Vcontact(cr)%Hweight(3,m)*                     &
-     &                                REFINED(ir)%vbar(3,m,t1)+         &
+     &                                REFINED(cr)%vbar(3,m,t1)+         &
      &                   Vcontact(cr)%Hweight(4,m)*                     &
-     &                                REFINED(ir)%vbar(4,m,t1))+        &
+     &                                REFINED(cr)%vbar(4,m,t1))+        &
      &             fac2*(Vcontact(cr)%Hweight(1,m)*                     &
-     &                                REFINED(ir)%vbar(1,m,t2)+         &
+     &                                REFINED(cr)%vbar(1,m,t2)+         &
      &                   Vcontact(cr)%Hweight(2,m)*                     &
-     &                                REFINED(ir)%vbar(2,m,t2)+         &
+     &                                REFINED(cr)%vbar(2,m,t2)+         &
      &                   Vcontact(cr)%Hweight(3,m)*                     &
-     &                                REFINED(ir)%vbar(3,m,t2)+         &
+     &                                REFINED(cr)%vbar(3,m,t2)+         &
      &                   Vcontact(cr)%Hweight(4,m)*                     &
-     &                                REFINED(ir)%vbar(4,m,t2))
+     &                                REFINED(cr)%vbar(4,m,t2))
 # ifdef MASKING
           my_value=my_value*GRID(ng)%vmask(i,j)
 # endif
@@ -3788,10 +3783,12 @@
           my_value=my_value*GRID(ng)%vmask_wet(i,j)
 # endif
           DO irec=1,3
-            IF ((irec.ne.indx1(ng)).and.                                &
-     &          ((m.ne.BRY_CONTACT(isouth,cr)%C2Bindex(i)).or.          &
-     &           (m.ne.BRY_CONTACT(inorth,cr)%C2Bindex(i)))) THEN
+            Vboundary=(m.eq.BRY_CONTACT(isouth,cr)%C2Bindex(i)).or.     &
+     &                (m.eq.BRY_CONTACT(inorth,cr)%C2Bindex(i))
+            IF(.not.(Vboundary.and.(irec.eq.indx1(ng)))) THEN
               OCEAN(ng)%vbar(i,j,irec)=my_value
+!!          ELSE                                     ! for debugging
+!!            OCEAN(ng)%vbar(i,j,irec)=0.0_r8        ! purposes
             END IF
           END DO
         END IF
@@ -3809,7 +3806,7 @@
 !
 !    vbar(:,Jbry,indx1) = DV_avg2(:,Jbry) * pm(:,Jbry) / D(:,Jbry)
 !
-!  We use the latest coarse grid mass flux, REFINED(ir)%DU_avg(1,:,t1),
+!  We use the latest coarse grid mass flux, REFINED(cr)%DU_avg(1,:,t1),
 !  with a linear variation (cff1) to ensure that the sum of the refined
 !  grid fluxes equals the coarse grid flux.
 !-----------------------------------------------------------------------
@@ -3826,8 +3823,10 @@
      &         OCEAN(ng)%zeta(Istr-1,j,indx1(ng))+                      &
      &         GRID(ng)%h(Istr  ,j)+                                    &
      &         OCEAN(ng)%zeta(Istr  ,j,indx1(ng)))
-          cff1=GRID(ng)%on_u(Istr,j)/GRID(dg)%on_u(Ic,Jc)
-          my_value=cff1*REFINED(ir)%DU_avg2(1,m,t1)/cff
+          cff1=GRID(ng)%on_u(Istr,j)/REFINED(cr)%on_u(m)
+          my_value=cff1*REFINED(cr)%DU_avg2(1,m,t2)/cff
+!!        my_value=cff1*(fac1*REFINED(cr)%DU_avg2(1,m,t1)+              &
+!!   &                   fac2*REFINED(cr)%DU_avg2(1,m,t2))/cff
 # ifdef MASKING
           my_value=my_value*GRID(ng)%umask(Istr,j)
 # endif
@@ -3850,8 +3849,10 @@
      &         OCEAN(ng)%zeta(Iend+1,j,indx1(ng))+                      &
      &         GRID(ng)%h(Iend  ,j)+                                    &
      &         OCEAN(ng)%zeta(Iend  ,j,indx1(ng)))
-          cff1=GRID(ng)%on_u(Iend+1,j)/GRID(dg)%on_u(Ic,Jc)
-          my_value=cff1*REFINED(ir)%DU_avg2(1,m,t1)/cff
+          cff1=GRID(ng)%on_u(Iend+1,j)/REFINED(cr)%on_u(m)
+          my_value=cff1*REFINED(cr)%DU_avg2(1,m,t2)/cff
+!!        my_value=cff1*(fac1*REFINED(cr)%DU_avg2(1,m,t1)+              &
+!!   &                   fac2*REFINED(cr)%DU_avg2(1,m,t2))/cff
 # ifdef MASKING
           my_value=my_value*GRID(ng)%umask(Iend+1,j)
 # endif
@@ -3874,8 +3875,10 @@
      &         OCEAN(ng)%zeta(i,Jstr-1,indx1(ng))+                      &
      &         GRID(ng)%h(i,Jstr  )+                                    &
      &         OCEAN(ng)%zeta(i,Jstr  ,indx1(ng)))
-          cff1=GRID(ng)%om_v(i,Jstr)/GRID(dg)%om_v(Ic,Jc)
-          my_value=cff1*REFINED(ir)%DV_avg2(1,m,t1)/cff
+          cff1=GRID(ng)%om_v(i,Jstr)/REFINED(cr)%om_v(m)
+          my_value=cff1*REFINED(cr)%DV_avg2(1,m,t2)/cff
+!!        my_value=cff1*(fac1*REFINED(cr)%DV_avg2(1,m,t1)+              &
+!!   &                   fac2*REFINED(cr)%DV_avg2(1,m,t2))/cff
 # ifdef MASKING
           my_value=my_value*GRID(ng)%vmask(i,Jstr)
 # endif
@@ -3898,8 +3901,10 @@
      &         OCEAN(ng)%zeta(i,Jend+1,indx1(ng))+                      &
      &         GRID(ng)%h(i,Jend  )+                                    &
      &         OCEAN(ng)%zeta(i,Jend  ,indx1(ng)))
-          cff1=GRID(ng)%om_v(i,Jend+1)/GRID(dg)%om_v(Ic,Jc)
-          my_value=cff1*REFINED(ir)%DV_avg2(1,m,t1)/cff
+          cff1=GRID(ng)%om_v(i,Jend+1)/REFINED(cr)%om_v(m)
+          my_value=cff1*REFINED(cr)%DV_avg2(1,m,t2)/cff
+!!        my_value=cff1*(fac1*REFINED(cr)%DV_avg2(1,m,t1)+              &
+!!   &                   fac2*REFINED(cr)%DV_avg2(1,m,t2))/cff
 # ifdef MASKING
           my_value=my_value*GRID(ng)%vmask(i,Jend+1)
 # endif
@@ -3979,7 +3984,7 @@
 !
 !  Local variable declarations.
 !
-      integer :: i, ir, itrc, j, k, m, t1, t2
+      integer :: i, itrc, j, k, m, t1, t2
 
       real(r8) :: fac, fac1, fac2
       real(r8) :: my_value
@@ -4009,12 +4014,6 @@
         t2=nnew(dg)
       END IF
 !
-!  Get data donor REFINED index structure associated with current
-!  refinement grid. Recall that both refinement and composite grids
-!  are allow and this mapping is for efficient memory usage.
-!
-      ir=RefineDonor(ng)
-!
 !  Tracer-type variables.
 !
       DO m=1,Rcontact(cr)%Npoints
@@ -4025,21 +4024,21 @@
           DO itrc=1,NT(ng)
             DO k=1,N(ng)
               my_value=fac1*(Rcontact(cr)%Hweight(1,m)*                 &
-     &                                    REFINED(ir)%t(1,k,m,t1,itrc)+ &
+     &                                    REFINED(cr)%t(1,k,m,t1,itrc)+ &
      &                       Rcontact(cr)%Hweight(2,m)*                 &
-     &                                    REFINED(ir)%t(2,k,m,t1,itrc)+ &
+     &                                    REFINED(cr)%t(2,k,m,t1,itrc)+ &
      &                       Rcontact(cr)%Hweight(3,m)*                 &
-     &                                    REFINED(ir)%t(3,k,m,t1,itrc)+ &
+     &                                    REFINED(cr)%t(3,k,m,t1,itrc)+ &
      &                       Rcontact(cr)%Hweight(4,m)*                 &
-     &                                    REFINED(ir)%t(4,k,m,t1,itrc))+&
+     &                                    REFINED(cr)%t(4,k,m,t1,itrc))+&
      &                 fac2*(Rcontact(cr)%Hweight(1,m)*                 &
-     &                                    REFINED(ir)%t(1,k,m,t2,itrc)+ &
+     &                                    REFINED(cr)%t(1,k,m,t2,itrc)+ &
      &                       Rcontact(cr)%Hweight(2,m)*                 &
-     &                                    REFINED(ir)%t(2,k,m,t2,itrc)+ &
+     &                                    REFINED(cr)%t(2,k,m,t2,itrc)+ &
      &                       Rcontact(cr)%Hweight(3,m)*                 &
-     &                                    REFINED(ir)%t(3,k,m,t2,itrc)+ &
+     &                                    REFINED(cr)%t(3,k,m,t2,itrc)+ &
      &                       Rcontact(cr)%Hweight(4,m)*                 &
-     &                                    REFINED(ir)%t(4,k,m,t2,itrc))
+     &                                    REFINED(cr)%t(4,k,m,t2,itrc))
 #  ifdef MASKING
               my_value=my_value*GRID(ng)%rmask(i,j)
 #  endif
@@ -4060,21 +4059,21 @@
      &      ((JstrT.le.j).and.(j.le.JendT))) THEN
           DO k=1,N(ng)
             my_value=fac1*(Ucontact(cr)%Hweight(1,m)*                   &
-     &                                  REFINED(ir)%u(1,k,m,t1)+        &
+     &                                  REFINED(cr)%u(1,k,m,t1)+        &
      &                     Ucontact(cr)%Hweight(2,m)*                   &
-     &                                  REFINED(ir)%u(2,k,m,t1)+        &
+     &                                  REFINED(cr)%u(2,k,m,t1)+        &
      &                     Ucontact(cr)%Hweight(3,m)*                   &
-     &                                  REFINED(ir)%u(3,k,m,t1)+        &
+     &                                  REFINED(cr)%u(3,k,m,t1)+        &
      &                     Ucontact(cr)%Hweight(4,m)*                   &
-     &                                  REFINED(ir)%u(4,k,m,t1))+       &
+     &                                  REFINED(cr)%u(4,k,m,t1))+       &
      &               fac2*(Ucontact(cr)%Hweight(1,m)*                   &
-     &                                  REFINED(ir)%u(1,k,m,t2)+        &
+     &                                  REFINED(cr)%u(1,k,m,t2)+        &
      &                     Ucontact(cr)%Hweight(2,m)*                   &
-     &                                  REFINED(ir)%u(2,k,m,t2)+        &
+     &                                  REFINED(cr)%u(2,k,m,t2)+        &
      &                     Ucontact(cr)%Hweight(3,m)*                   &
-     &                                  REFINED(ir)%u(3,k,m,t2)+        &
+     &                                  REFINED(cr)%u(3,k,m,t2)+        &
      &                     Ucontact(cr)%Hweight(4,m)*                   &
-     &                                  REFINED(ir)%u(4,k,m,t2))
+     &                                  REFINED(cr)%u(4,k,m,t2))
 #  ifdef MASKING
             my_value=my_value*GRID(ng)%umask(i,j)
 #  endif
@@ -4093,21 +4092,21 @@
      &      ((JstrP.le.j).and.(j.le.JendT))) THEN
           DO k=1,N(ng)
             my_value=fac1*(Vcontact(cr)%Hweight(1,m)*                   &
-     &                                  REFINED(ir)%v(1,k,m,t1)+        &
+     &                                  REFINED(cr)%v(1,k,m,t1)+        &
      &                     Vcontact(cr)%Hweight(2,m)*                   &
-     &                                  REFINED(ir)%v(2,k,m,t1)+        &
+     &                                  REFINED(cr)%v(2,k,m,t1)+        &
      &                     Vcontact(cr)%Hweight(3,m)*                   &
-     &                                  REFINED(ir)%v(3,k,m,t1)+        &
+     &                                  REFINED(cr)%v(3,k,m,t1)+        &
      &                     Vcontact(cr)%Hweight(4,m)*                   &
-     &                                  REFINED(ir)%v(4,k,m,t1))+       &
+     &                                  REFINED(cr)%v(4,k,m,t1))+       &
      &               fac2*(Vcontact(cr)%Hweight(1,m)*                   &
-     &                                  REFINED(ir)%v(1,k,m,t2)+        &
+     &                                  REFINED(cr)%v(1,k,m,t2)+        &
      &                     Vcontact(cr)%Hweight(2,m)*                   &
-     &                                  REFINED(ir)%v(2,k,m,t2)+        &
+     &                                  REFINED(cr)%v(2,k,m,t2)+        &
      &                     Vcontact(cr)%Hweight(3,m)*                   &
-     &                                  REFINED(ir)%v(3,k,m,t2)+        &
+     &                                  REFINED(cr)%v(3,k,m,t2)+        &
      &                     Vcontact(cr)%Hweight(4,m)*                   &
-     &                                  REFINED(ir)%v(4,k,m,t2))
+     &                                  REFINED(cr)%v(4,k,m,t2))
 #  ifdef MASKING
             my_value=my_value*GRID(ng)%vmask(i,j)
 #  endif
