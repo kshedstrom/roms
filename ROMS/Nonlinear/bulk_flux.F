@@ -153,6 +153,7 @@
      &                     ICE(ng) % hi,                                &
 #  ifdef ICE_THERMO
      &                     FORCES(ng) % qai_n,                          &
+     &                     FORCES(ng) % qswi_n,                         &
      &                     ICE(ng) % hsn,                               &
      &                     ICE(ng) % tis,                               &
      &                     ICE(ng) % sfwat,                             &
@@ -237,6 +238,7 @@
      &                           ai, hi,                                &
 #  ifdef ICE_THERMO
      &                           qai_n,                                 &
+     &                           qswi_n,                                &
      &                           hsn, tis, sfwat,                       &
      &                           coef_ice_heat, rhs_ice_heat, snow_n,   &
 #  endif
@@ -345,6 +347,7 @@
       real(r8), intent(in) :: hi(LBi:,LBj:,:)
 #   ifdef ICE_THERMO
       real(r8), intent(out) :: qai_n(LBi:,LBj:)
+      real(r8), intent(out) :: qswi_n(LBi:,LBj:)
       real(r8), intent(in) :: hsn(LBi:,LBj:,:)
       real(r8), intent(in) :: tis(LBi:,LBj:)
       real(r8), intent(in) :: sfwat(LBi:,LBj:,:)
@@ -433,6 +436,7 @@
       real(r8), intent(in) :: hi(LBi:UBi,LBj:UBj,2)
 #   ifdef ICE_THERMO
       real(r8), intent(out) :: qai_n(LBi:UBi,LBj:UBj)
+      real(r8), intent(out) :: qswi_n(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: hsn(LBi:UBi,LBj:UBj,2)
       real(r8), intent(in) :: tis(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: sfwat(LBi:UBi,LBj:UBj,2)
@@ -608,6 +612,9 @@
           rhoSea(i)=rho(i,j,N(ng))+1000.0_r8
           RH=Hair(i,j)
           SRad(i,j)=srflx(i,j)*Hscale
+# if defined ICE_MODEL && defined ICE_THERMO
+          qswi_n(i,j) = SRad(i,j)
+# endif
 # if defined ALBEDO_FILE && defined SHORTWAVE
           SRad(i,j) = SRad(i,j)*(1.0-albedo(i,j))
 # endif
@@ -1127,17 +1134,17 @@
 #   endif
 !
 ! Short-wave radiation to ice
-#   ifdef SOGLOBEC
-          SRad(i,j) = SRad(i,j) * 1.075269_r8
+!#   ifdef SOGLOBEC
+!          SRad(i,j) = SRad(i,j) * 1.075269_r8
 ! This is to take out the ocean albedo out of the shortwave radiation
 !  (1.075 = 1/(1-0.07)) before the ice albedo is applied to it.  I've
 !  just done this for SOGLOBEC and ROSS, but I think this may be a real
 !  bug for everything.
-#   endif
-#   ifdef ROSS
-          SRad(i,j) = SRad(i,j) * 1.075269_r8
-#   endif
-          qswi = (1._r8-albs)*SRad(i,j)
+!#   endif
+!#   ifdef ROSS
+!          SRad(i,j) = SRad(i,j) * 1.075269_r8
+!#   endif
+          qswi = (1._r8-albs)*qswi_n(i,j)
 ! Already in W/m**2
           RHS_Ice(i,j) = RHS_Ice(i,j) + qswi
 
