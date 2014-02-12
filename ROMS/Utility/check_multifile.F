@@ -51,8 +51,8 @@
 !
 !  Get final time string for simulation.
 !
-      Tfinal=time(ng)+ntimes(ng)*dt(ng)
-      CALL time_string(Tfinal, F_code)
+      Tfinal=dstart*day2sec+ntimes(ng)*dt(ng)
+      CALL time_string(tfinal, F_code)
 !
 !-----------------------------------------------------------------------
 !  Input lateral boundary conditions data.
