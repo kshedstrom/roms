@@ -442,6 +442,26 @@
           IF (exit_flag.ne.NoError) RETURN
         END IF
 !
+!  Define vertical (W) velocity.
+!
+        IF (Aout(idWvel,ng)) THEN
+          ncname=FIL(9,ng)%name
+          Vinfo( 1)=Vname(1,idWvel)
+          Vinfo( 2)=Vname(2,idWvel)
+          Vinfo( 3)=Vname(3,idWvel)
+          Vinfo(14)=Vname(4,idWvel)
+          Vinfo(16)='filter level'
+#  if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_rho'
+#  endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idWvel,ng),r8)
+          status=def_var(ng, iNLM, FIL(9,ng)%ncid,                      &
+     &                 FIL(9,ng)%Vid(idWvel),                           &
+     &                 NF_FOUT, nvd4, w3dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+!
 !  Define density anomaly.
 !
         IF (Aout(idDano,ng)) THEN
@@ -1252,6 +1272,9 @@
             ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idOvel))) THEN
               got_var(idOvel)=.TRUE.
               FIL(9,ng)%Vid(idOvel) = var_id(i)
+            ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idWvel))) THEN
+              got_var(idWvel)=.TRUE.
+              FIL(9,ng)%Vid(idWvel) = var_id(i)
             ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idDano))) THEN
               got_var(idDano)=.TRUE.
               FIL(7,ng)%Vid(idDano) = var_id(i)
