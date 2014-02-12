@@ -3,7 +3,7 @@
 **
 ** svn $Id$
 ********************************************************** Hernan G. Arango ***
-** Copyright (c) 2002-2013 The ROMS/TOMS Group                               **
+** Copyright (c) 2002-2014 The ROMS/TOMS Group                               **
 **   Licensed under a MIT/X style license                                    **
 **   See License_ROMS.txt                                                    **
 *******************************************************************************
@@ -43,9 +43,7 @@
 ** UV_LOGDRAG          use to turn ON or OFF logarithmic bottom friction     **
 ** UV_LDRAG            use to turn ON or OFF linear bottom friction          **
 ** UV_QDRAG            use to turn ON or OFF quadratic bottom friction       **
-** UV_PSOURCE          use to turn ON or OFF point Sources/Sinks             **
 ** UV_WAVEDRAG         use to turn ON or OFF extra linear bottom wave drag   **
-** Q_PSOURCE           use to turn ON or OFF mass point Sources              **
 **                                                                           **
 ** OPTION to not allow the bottom stress components to change the direction  **
 ** of bottom momentum (change sign of velocity components.                   **
@@ -91,7 +89,6 @@
 ** SCORRECTION         use if freshwater flux correction                     **
 ** SOLAR_SOURCE        use if solar radiation source term                    **
 ** SRELAXATION         use if salinity relaxation as a freshwater flux       **
-** TS_PSOURCE          use to turn ON or OFF point Sources/Sinks             **
 ** TRC_PSOURCE         use if source of inert passive tracers (dyes, etc)    **
 ** AGE_PASSIVE         use if aging of inert passive tracers                 **
 ** AGE_DISTRIBUTION    use if aging of inert passive tracers                 **
@@ -537,7 +534,9 @@
 ** OPTIONS for grid nesting:                                                 **
 **                                                                           **
 ** NESTING             use to activate grid nesting: composite/refinement    **
+** NO_CORRECT_TRACER   use to avoid two-way correction of boundary tracer    **
 ** ONE_WAY             use if one-way nesting in refinement grids            **
+** TIME_INTERP_FLUX    time interpolate coarse mass flux instead of persist  **
 **                                                                           **
 ** OPTIONS for two-way coupling to other models:                             **
 **                                                                           **
@@ -593,6 +592,7 @@
 ** ICE_UPWIND          use for upwind advection scheme
 ** ICE_BULK_FLUXES     use for ice part of bulk flux computation
 ** ICE_CONVSNOW        use for conversion of flooded snow to ice
+** NO_SCORRECTION_ICE  use for no scorrection under the ice
 ** OUTFLOW_MASK        use for Hibler style outflow cells
 **
 ** OPTION to avoid writing current date and CPP options to NetCDF file       **
@@ -626,6 +626,7 @@
 ** ISOMIP              ISOMIP 2.01 Ice Shelf test case                       **
 ** KELVIN              Kelvin wave test                                      **
 ** LAB_CANYON          Lab Canyon, Polar Coordinates Example                 **
+** LAKE_JERSEY         Lake Jersey Nesting Test Case                         **
 ** LAKE_SIGNELL        Lake Signell Sediment Test Case                       **
 ** LMD_TEST            Test for LMD and KPP                                  **
 ** OVERFLOW            Gravitational/Overflow Example                        **

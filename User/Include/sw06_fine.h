@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2013 The ROMS/TOMS Group                               **
+** Copyright (c) 2002-2014 The ROMS/TOMS Group                               **
 **   Licensed under a MIT/X style license                                    **
 **   See License_ROMS.txt                                                    **
 *******************************************************************************
@@ -53,8 +53,6 @@
 # undef  AVERAGES
 # define MASKING
 # define SPLINES
-# undef  UV_PSOURCE
-# undef  TS_PSOURCE
 # define SOLAR_SOURCE
 
 # define GLS_MIXING
@@ -117,8 +115,6 @@
 # undef  AVERAGES
 # define MASKING
 # define SPLINES
-# undef  UV_PSOURCE
-# undef  TS_PSOURCE
 # define SOLAR_SOURCE
 
 # define GLS_MIXING

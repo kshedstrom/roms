@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2013 The ROMS/TOMS Group
+** Copyright (c) 2002-2014 The ROMS/TOMS Group
 **
 **   Licensed under a MIT/X style license
 **
@@ -40,10 +40,4 @@
 #define ANA_FSOBC
 #define ANA_M2OBC
 
-#define UV_PSOURCE
 #define ANA_PSOURCE
-#define EASTERN_WALL
-#define WESTERN_WALL
-#define NORTHERN_WALL
-#define SOUTH_FSCHAPMAN
-#define SOUTH_M2FLATHER

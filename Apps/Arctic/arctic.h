@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2013 The ROMS/TOMS Group
+** Copyright (c) 2002-2014 The ROMS/TOMS Group
 **
 **   Licensed under a MIT/X style license
 **
@@ -170,8 +170,6 @@
 /* Using Runoff now */
 #ifdef SOLVE3D
 # define RUNOFF
-# undef UV_PSOURCE
-# undef TS_PSOURCE
 #endif
 
 /* tides */

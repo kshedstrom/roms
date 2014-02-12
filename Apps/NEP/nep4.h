@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2013 The ROMS/TOMS Group
+** Copyright (c) 2002-2014 The ROMS/TOMS Group
 **
 **   Licensed under a MIT/X style license
 **
@@ -127,13 +127,6 @@
 #ifdef SOLVE3D
 # undef TCLIMATOLOGY
 # undef TCLM_NUDGING
-#endif
- 
-/* point sources (rivers, line sources) */
- 
-#ifdef SOLVE3D
-# define UV_PSOURCE
-# define TS_PSOURCE
 #endif
  
 /* tides */

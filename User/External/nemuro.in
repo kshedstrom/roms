@@ -2,7 +2,7 @@
 !
 !svn $Id$
 !========================================================= Hernan G. Arango ===
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group                                !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group                                !
 !    Licensed under a MIT/X style license                                     !
 !    See License_ROMS.txt                                                     !
 !==============================================================================
@@ -317,9 +317,9 @@ ad_LBC(isTvar) ==   Per     Clo     Per     Clo \    ! idbio( 1), nanophyto
 
   LtracerCLM == 11*F
 
-! Logical switches (TRUE/FALSE) to specify which variables to consider on
-! tracers point Sources/Sinks (like river runoff): [NBT,Ngrids] values are
-! expected. See glossary below for details.
+! Logical switches (TRUE/FALSE) to activate tracers point Sources/Sinks
+! (like river runoff) and to specify which tracer variables to consider:
+! [NBT,Ngrids] values are expected. See glossary below for details.
 
   LtracerSrc == 11*F
 
@@ -333,6 +333,12 @@ Hout(idTsur) == 11*F    ! ..., NO3_sflux, ...    surface tracer flux
 ! into AVERAGE output file: [1;NBT,Ngrids].
 
 Aout(idTvar) == 11*T    ! ..., NO3, ...          biological tracer
+
+Aout(idTTav) == 11*F    ! ..., NO3_2, ...        quadratic <t*t> tracer terms
+Aout(idUTav) == 11*F    ! ..., u_NO3, ...        quadratic <u*t> tracer terms
+Aout(idVTav) == 11*F    ! ..., v_NO3, ...        quadratic <v*t> tracer terms
+Aout(iHUTav) == 11*F    ! ..., Huon_NO3, ...     tracer volume flux, <Huon*t>
+Aout(iHVTav) == 11*F    ! ..., Hvom_NO3, ...     tracer volume flux, <Hvom*t>
 
 ! Logical switches (TRUE/FALSE) to activate writing of time-averaged,
 ! biological tracer diagnostic terms into DIAGNOSTIC output file:
@@ -772,9 +778,9 @@ Dout(iTvdif) == 11*T    ! ..., NO3_vdiff, ...    vertical diffusion
 !  Tracer point Sources/Sink sources switches.
 !------------------------------------------------------------------------------
 !
-!  LtracerSrc     Logical switches (T/F) to specify which tracer variables
-!                   to consider when the option TS_PSOURCE is activated;
-!                   [1:NBT,1:Ngrids] values are expected.
+!  LtracerSrc     Logical switches (T/F) to activate biological tracer
+!                   variables point Sources/Sinks; [1:NBT,1:Ngrids] values
+!                   are expected.
 !
 !                     LtracerSrc(idbio( 1),ng)    Small Phytoplankton biomass
 !                     LtracerSrc(idbio( 2),ng)    Large Phytoplankton biomass
@@ -788,10 +794,10 @@ Dout(iTvdif) == 11*T    ! ..., NO3_vdiff, ...    vertical diffusion
 !                     LtracerSrc(idbio(10),ng)    Silicate concentration
 !                     LtracerSrc(idbio(11),ng)    Particulate organic silica
 !
-!                   Recall that TS_PSOURCE is usually activated to add river
-!                   runoff as a point source. At minimum, it is necessary to
-!                   specify both temperature and salinity for all rivers. The
-!                   other tracers are optional. The user needs to know the
+!                   Recall that these switches are usually activated to add
+!                   river runoff as a point source. At minimum, it is necessary
+!                   to specify both temperature and salinity for all rivers.
+!                   The other tracers are optional. The user needs to know the
 !                   correspondence between biological variables and indices
 !                   idbio(1:NBT) when activating one or more of these switches.
 !
@@ -853,6 +859,12 @@ Dout(iTvdif) == 11*T    ! ..., NO3_vdiff, ...    vertical diffusion
 !                   are expected:
 !
 !                   Aout(idTvar)               biological tracers
+!
+!                   Aout(idTTav)               quadratic <t*t> tracers terms
+!                   Aout(idUTav)               quadratic <u*t> tracers terms
+!                   Aout(idVTav)               quadratic <v*t> tracers terms
+!                   Aout(iHUTav)               tracer u-volume flux, <Huon*t>
+!                   Aout(iHVTav)               tracer v-volume flux, <Hvom*t>
 !
 !                   The idTvar(idbio(:)) are the same to those in the HISTORY
 !                   file.

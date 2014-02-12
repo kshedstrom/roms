@@ -2,7 +2,7 @@
 !
 !svn $Id$
 !************************************************** Hernan G. Arango ***
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group       Andrew M. Moore   !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !***********************************************************************
@@ -167,10 +167,8 @@
 !$OMP MASTER
         CALL close_inp (ng, iTLM)
         IF (exit_flag.ne.NoError) RETURN
-#ifdef TIMELESS_DATA
         CALL tl_get_idata (ng)
         IF (exit_flag.ne.NoError) RETURN
-#endif
         CALL tl_get_data (ng)
 !$OMP END MASTER
 !$OMP BARRIER

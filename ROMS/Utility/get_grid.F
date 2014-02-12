@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -17,6 +17,7 @@
       USE mod_parallel
       USE mod_grid
       USE mod_iounits
+      USE mod_mixing
       USE mod_ncparam
 # ifdef NESTING
       USE mod_nesting

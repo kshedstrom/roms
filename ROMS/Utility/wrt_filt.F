@@ -3,7 +3,7 @@
       SUBROUTINE wrt_filt (ng, filterLevel)
 !
 !=======================================================================
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
 !================================================== Hernan G. Arango ===
 !                                                                      !
 !  This routine writes fields into filter restart NetCDF files.        !

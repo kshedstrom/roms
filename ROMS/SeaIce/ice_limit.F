@@ -3,7 +3,7 @@
 #if defined ICE_ADVECT || defined ICE_THERMO
 !
 !============================================== W. Paul Budgell =======!
-!  Copyright (c) 2002 ROMS/TOMS Group                                  !
+!  Copyright (c) 2002-2014 ROMS/TOMS Group                                  !
 !============================================== Hernan G. Arango ======!
 !                                                                      !
 !  Limit ice tracer variables, for instance to not allow negative      !
@@ -136,10 +136,10 @@
           hsn(i,j,linew) = MAX(hsn(i,j,linew),0.0_r8)
           sfwat(i,j,linew) = MAX(sfwat(i,j,linew),0.0_r8)
           ti(i,j,linew) = MAX(ti(i,j,linew),-70.0_r8)
-          IF (hi(i,j,linew) .le. min_h(ng)) ai(i,j,linew) = min_a(ng)
-          IF (ai(i,j,linew) .le. min_a(ng)) THEN
-            ai(i,j,linew) = min_a(ng)
-            hi(i,j,linew) = min_h(ng)
+          IF (hi(i,j,linew) .le. 0.0_r8) ai(i,j,linew) = 0.0_r8
+          IF (ai(i,j,linew) .le. 0.0_r8) THEN
+            ai(i,j,linew) = 0.0_r8
+            hi(i,j,linew) = 0.0_r8
             sfwat(i,j,linew) = 0.0_r8
             hsn(i,j,linew) = 0.0_r8
           END IF

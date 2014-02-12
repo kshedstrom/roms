@@ -118,13 +118,6 @@
 # undef TCLM_NUDGING
 #endif
  
-/* point sources (rivers, line sources) */
- 
-#ifdef SOLVE3D
-# undef UV_PSOURCE
-# undef TS_PSOURCE
-#endif
- 
 /* tides */
  
 #undef SSH_TIDES

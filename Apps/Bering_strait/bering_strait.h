@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2013 The ROMS/TOMS Group
+** Copyright (c) 2002-2014 The ROMS/TOMS Group
 **
 **   Licensed under a MIT/X style license
 **
@@ -158,11 +158,9 @@
 /* point sources (rivers, line sources) */
 
 /* Using Runoff instead now */
-#undef UV_PSOURCE
 #undef ANA_PSOURCE
 #ifdef SOLVE3D
 # define RUNOFF
-# undef TS_PSOURCE
 #endif
 
 /* tides */

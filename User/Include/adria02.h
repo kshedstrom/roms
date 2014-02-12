@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2013 The ROMS/TOMS Group                               **
+** Copyright (c) 2002-2014 The ROMS/TOMS Group                               **
 **   Licensed under a MIT/X style license                                    **
 **   See License_ROMS.txt                                                    **
 *******************************************************************************
@@ -17,14 +17,12 @@
 
 #define UV_ADV
 #define UV_COR
-#define UV_PSOURCE
 #define DJ_GRADPS
 #undef  TS_U3HADVECTION
 #undef  TS_SVADVECTION
 #define TS_MPDATA
 #define TS_DIF2
 #define MIX_GEO_TS
-#define TS_PSOURCE
 #define NONLIN_EOS
 #define SALINITY
 #define MASKING

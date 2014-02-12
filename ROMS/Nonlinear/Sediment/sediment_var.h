@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *************************************************** Hernan G. Arango ***
-** Copyright (c) 2002-2013 The ROMS/TOMS Group                        **
+** Copyright (c) 2002-2014 The ROMS/TOMS Group                        **
 **   Licensed under a MIT/X style license                             **
 **   See License_ROMS.txt                                             **
 ************************************************************************
@@ -531,8 +531,6 @@
                 END IF
 
 
-#ifdef TS_PSOURCE
-
 /*
 **  Sediment tracers point Source/Sinks (river runoff).
 */
@@ -585,4 +583,3 @@
                   END DO
                   varid=varid+1
                 END IF
-#endif

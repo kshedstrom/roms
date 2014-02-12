@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -192,8 +192,7 @@
 #  include <ana_perturb.h>
 # endif
 
-# if (defined TS_PSOURCE || defined UV_PSOURCE || defined Q_PSOURCE) && \
-     defined ANA_PSOURCE
+# if defined ANA_PSOURCE
 #  include <ana_psource.h>
 # endif
 

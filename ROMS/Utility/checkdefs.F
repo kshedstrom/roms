@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -431,9 +431,10 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+11)=' ANA_WINDS,'
 #endif
-#if defined ANA_WTYPE
-      IF (Master) WRITE (stdout,20) 'ANA_WTYPE',                         &
-     &   'Analytical Jerlov water type.'
+#if defined ANA_WTYPE && defined WTYPE_GRID    && \
+   (defined LMD_SKPP  || defined SOLAR_SOURCE)
+      IF (Master) WRITE (stdout,20) 'ANA_WTYPE',                        &
+     &   'Analytical spatially varying Jerlov water type index.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+11)=' ANA_WTYPE,'
 #endif
@@ -1401,6 +1402,12 @@
       Coptions(is:is+13)=' !NONLIN_EOS,'
 # endif
 #endif
+#if defined NO_CORRECT_TRACER && defined NESTING && defined SOLVE3D
+      IF (Master) WRITE (stdout,20) 'NO_CORRECT_TRACER',                &
+     &   'Avoid two-way correction of coaser grid boundary tracer.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+19)=' NO_CORRECT_TRACER,'
+#endif
 #ifdef NO_LBC_ATT
       IF (Master) WRITE (stdout,20) 'NO_LBC_ATT',                       &
      &   'Not checking NetCDF global attribute NLM_LBC during restart.'
@@ -1408,10 +1415,10 @@
       Coptions(is:is+12)=' NO_LBC_ATT,'
 #endif
 #if defined NO_READ_GHOST && defined DISTRIBUTE
-      IF (Master) WRITE (stdout,20) 'NO_READ_GRID',                     &
+      IF (Master) WRITE (stdout,20) 'NO_READ_GHOST',                     &
      &   'Not including ghost points during scattering read data.'
       is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+14)=' NO_READ_GRID,'
+      Coptions(is:is+15)=' NO_READ_GHOST,'
 #endif
 #ifdef NO_WRITE_GRID
       IF (Master) WRITE (stdout,20) 'NO_WRITE_GRID',                    &
@@ -1482,7 +1489,7 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+17)=' OFFLINE_BIOLOGY,'
 #endif
-#if defined NESTING && defined ONE_WAY
+#if defined ONE_WAY && defined NESTING
       IF (Master) WRITE (stdout,20) 'ONE_WAY',                          &
      &   'One-way nesting in refinement grids.'
       is=LEN_TRIM(Coptions)+1
@@ -1640,12 +1647,6 @@
      &   'Surface net heat flux correction.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+13)=' QCORRECTION,'
-#endif
-#if defined Q_PSOURCE
-      IF (Master) WRITE (stdout,20) 'Q_PSOURCE',                        &
-     &   'Mass point sources, volume influx.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+11)=' Q_PSOURCE,'
 #endif
 #if defined RUNOFF
       IF (Master) WRITE (stdout,20) 'RUNOFF',                           &
@@ -2048,6 +2049,12 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+13)=' TIDES_ASTRO,'
 #endif
+#if defined TIME_INTERP_FLUX && defined NESTING && defined SOLVE3D
+      IF (Master) WRITE (stdout,20) 'TIME_INTERP_FLUX',                 &
+     &   'Time interpolate coarse 2D mass flux instead of persist.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+18)=' TIME_INTERP_FLUX,'
+#endif
 #if defined TL_AVERAGES && defined TANGENT
       IF (Master) WRITE (stdout,20) 'TL_AVERAGES',                      &
      &   'Writing out time-averaged tangent linear model fields.'
@@ -2257,12 +2264,6 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+10)=' TS_FIXED,'
 #endif
-#if defined TS_PSOURCE && defined SOLVE3D
-      IF (Master) WRITE (stdout,20) 'TS_PSOURCE',                       &
-     &   'Tracers point sources and sinks.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+12)=' TS_PSOURCE,'
-#endif
 #if defined TS_SMAGORINSKY && (defined TS_DIF2 || defined TS_DIF4)
       IF (Master) WRITE (stdout,20) 'TS_SMAGORINSKY',                   &
      &   'Smagorinksy-like time-dependent diffusion coefficients.'
@@ -2361,12 +2362,6 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+10)=' UV_QDRAG,'
       ibbl=ibbl+1
-#endif
-#ifdef UV_PSOURCE
-      IF (Master) WRITE (stdout,20) 'UV_PSOURCE',                       &
-     &   'Mass point sources and sinks.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+12)=' UV_PSOURCE,'
 #endif
 #if defined UV_TIDES
       IF (Master) WRITE (stdout,20) 'UV_TIDES',                         &
@@ -2815,6 +2810,45 @@
  210    FORMAT (/,' CHECKDEFS - cannot activate option: ',a,           &
      &          /,13x,'in serial with partitions or shared-memory...', &
      &          /,13x,'Use distributed-memory (MPI) in parallel runs.')
+      END IF
+#endif
+#ifdef Q_PSOURCE
+!
+!  Stop if activating obsolete mass point Sources/Sinks option. This
+!  capability is now activated with standard input switch "LwSrc".
+!
+      IF (Master) THEN
+        WRITE (stdout,220) uppercase('q_psource'), 'LwSrc'
+ 220    FORMAT (/,' CHECKDEFS - cannot use obsolete option: ',a,        &
+     &          /,13x,'Use instead standard input switch: ',a,          &
+     &          /,13x,'Edit header file or build script!')
+        exit_flag=5
+      END IF
+#endif
+#if defined TS_PSOURCE && defined SOLVE3D
+!
+!  Stop if activating obsolete tracers point Sources/Sinks option. This
+!  capability is now activated with standard input switch "LtracerSrc".
+!
+      IF (Master) THEN
+        WRITE (stdout,230) uppercase('ts_psource'), 'LtracerSrc'
+ 230    FORMAT (/,' CHECKDEFS - cannot use obsolete option: ',a,        &
+     &          /,13x,'Use instead standard input switch: ',a,          &
+     &          /,13x,'Edit header file or build script!')
+        exit_flag=5
+      END IF
+#endif
+#ifdef UV_PSOURCE
+!
+!  Stop if activating obsolete mass point Sources/Sinks option. This
+!  capability is now activated with standard input switch "LwSrc".
+!
+      IF (Master) THEN
+        WRITE (stdout,240) uppercase('uv_psource'), 'LuvSrc'
+ 240    FORMAT (/,' CHECKDEFS - cannot use obsolete option: ',a,        &
+     &          /,13x,'Use instead standard input switch: ',a,          &
+     &          /,13x,'Edit header file or build script!')
+        exit_flag=5
       END IF
 #endif
 

@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2013 The ROMS/TOMS Group
+** Copyright (c) 2002-2014 The ROMS/TOMS Group
 **
 **   Licensed under a MIT/X style license
 **
@@ -190,9 +190,7 @@
 /* Using Runoff instead now */
 #ifdef SOLVE3D
 # define RUNOFF
-# undef UV_PSOURCE
 # undef ANA_PSOURCE
-# undef TS_PSOURCE
 #endif
 
 #define RADIATION_2D

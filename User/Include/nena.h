@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2013 The ROMS/TOMS Group                               **
+** Copyright (c) 2002-2014 The ROMS/TOMS Group                               **
 **   Licensed under a MIT/X style license                                    **
 **   See License_ROMS.txt                                                    **
 *******************************************************************************
@@ -18,11 +18,9 @@
 #define UV_COR
 #define UV_QDRAG
 #define UV_VIS2
-#define UV_PSOURCE
 #define MIX_S_UV
 #define TS_U3HADVECTION
 #define TS_SVADVECTION
-#define TS_PSOURCE
 #define SOLVE3D
 #define SALINITY
 #define NONLIN_EOS

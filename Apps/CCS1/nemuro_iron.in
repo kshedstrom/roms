@@ -304,6 +304,12 @@ Hout(idOPALsed) == T
 Aout(idTvar) == 14*T                       ! biological tracer
 Aout(idTsur) == 14*F                       ! surface tracer flux
 
+Aout(idTTav) == 11*F    ! ..., NO3_2, ...        quadratic <t*t> tracer terms
+Aout(idUTav) == 11*F    ! ..., u_NO3, ...        quadratic <u*t> tracer terms
+Aout(idVTav) == 11*F    ! ..., v_NO3, ...        quadratic <v*t> tracer terms
+Aout(iHUTav) == 11*F    ! ..., Huon_NO3, ...     tracer volume flux, <Huon*t>
+Aout(iHVTav) == 11*F    ! ..., Hvom_NO3, ...     tracer volume flux, <Hvom*t>
+
 ! Logical switches for bio sediment variables.
 Aout(idPONsed) == T
 Aout(idOPALsed) == T
@@ -312,16 +318,16 @@ Aout(idOPALsed) == T
 ! biological tracer diagnostic terms into DIAGNOSTIC output file:
 ! [1:NBT,Ngrids].
 
-Dout(iTrate) == 14*T                       ! time rate of change
-Dout(iThadv) == 14*T                       ! horizontal total advection
-Dout(iTxadv) == 14*T                       ! horizontal XI-advection
-Dout(iTyadv) == 14*T                       ! horizontal ETA-advection
-Dout(iTvadv) == 14*T                       ! vertical advection
-Dout(iThdif) == 14*T                       ! horizontal total diffusion
-Dout(iTxdif) == 14*T                       ! horizontal XI-diffusion
-Dout(iTydif) == 14*T                       ! horizontal ETA-diffusion
-Dout(iTsdif) == 14*T                       ! horizontal S-diffusion
-Dout(iTvdif) == 14*T                       ! vertical diffusion
+Dout(iTrate) == 14*T     ! ..., NO3_rate, ...      time rate of change
+Dout(iThadv) == 14*T     ! ..., NO3_hadv, ...      horizontal total advection
+Dout(iTxadv) == 14*T     ! ..., NO3_xadv, ...      horizontal XI-advection
+Dout(iTyadv) == 14*T     ! ..., NO3_yadv, ...      horizontal ETA-advection
+Dout(iTvadv) == 14*T     ! ..., NO3_vadv, ...      vertical advection
+Dout(iThdif) == 14*T     ! ..., NO3_hdiff, ...     horizontal total diffusion
+Dout(iTxdif) == 14*T     ! ..., NO3_xdiff, ...     horizontal XI-diffusion
+Dout(iTydif) == 14*T     ! ..., NO3_ydiff, ...     horizontal ETA-diffusion
+Dout(iTsdif) == 14*T     ! ..., NO3_sdiff, ...     horizontal S-diffusion
+Dout(iTvdif) == 14*T     ! ..., NO3_vdiff, ...     vertical diffusion
 !
 !  GLOSSARY:
 !  =========
@@ -776,6 +782,12 @@ Dout(iTvdif) == 14*T                       ! vertical diffusion
 !
 !                   Aout(idTvar)               biological tracers
 !
+!                   Aout(idTTav)               quadratic <t*t> tracers terms
+!                   Aout(idUTav)               quadratic <u*t> tracers terms
+!                   Aout(idVTav)               quadratic <v*t> tracers terms
+!                   Aout(iHUTav)               tracer u-volume flux, <Huon*t>
+!                   Aout(iHVTav)               tracer v-volume flux, <Hvom*t>
+
 !                   The idTvar(idbio(:)) are the same to those in the HISTORY
 !                   file.
 !

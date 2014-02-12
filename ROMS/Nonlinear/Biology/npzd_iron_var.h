@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *************************************************** Hernan G. Arango ***
-** Copyright (c) 2002-2013 The ROMS/TOMS Group                        **
+** Copyright (c) 2002-2014 The ROMS/TOMS Group                        **
 **   Licensed under a MIT/X style license                             **
 **   See License_ROMS.txt                                             **
 ************************************************************************
@@ -136,7 +136,6 @@
                 idTbry(inorth,iFdis)=varid
 #endif
 
-#ifdef TS_PSOURCE
 
 /*
 **  Biological tracers point Source/Sinks (river runoff).
@@ -150,10 +149,9 @@
                 idRtrc(iZoop)=varid
               CASE ('idRtrc(iSDet)')
                 idRtrc(iSDet)=varid
-# ifdef IRON_LIMIT
+#ifdef IRON_LIMIT
               CASE ('idRtrc(iFphy)')
                 idRtrc(iFphy)=varid
               CASE ('idRtrc(iFdis)')
                 idRtrc(iFdis)=varid
-# endif
 #endif
