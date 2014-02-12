@@ -1218,8 +1218,8 @@
               DO k=0,N(ng)
                 DO j=JstrR,JendR
                   DO i=IstrR,IendR
-                    AVERAGE(ng)%avgwvel(i,j,k)=                         &
-     &                                  FILTER(ng)%filomega(i,j,k,f)
+                    AVERAGE(ng)%avgw3d(i,j,k)=                          &
+     &                          FILTER(ng)%filomega(i,j,k,f)
                   END DO
                 END DO
               END DO
@@ -1228,7 +1228,8 @@
               DO k=0,N(ng)
                 DO j=JstrR,JendR
                   DO i=IstrR,IendR
-                    AVERAGE(ng)%avgw3d(i,j,k)=FILTER(ng)%filw3d(i,j,k,f)
+                    AVERAGE(ng)%avgwvel(i,j,k)=                         &
+     &                          FILTER(ng)%filw3d(i,j,k,f)
                   END DO
                 END DO
               END DO

@@ -318,7 +318,7 @@
 #   ifdef MASKING
      &                GRID(ng) % rmask,                                 &
 #   endif
-     &                FILTER(ng) % filw3d(:,:,:,tindx))
+     &                FILTER(ng) % filomega(:,:,:,tindx))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
             WRITE (stdout,30) TRIM(Vname(1,idOvel)), tindx, TRIM(ncname)
@@ -329,6 +329,36 @@
         ELSE
           IF (Master) THEN
             WRITE (stdout,40) TRIM(Vname(2,idOvel)), Fmin, Fmax
+          END IF
+        END IF
+      END IF
+!
+!  Read in vertical (W) velocity.
+!
+      ncname=FIL(9,ng)%name
+      IF (Aout(idWvel,ng)) THEN
+        CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idWvel),       &
+     &                       FIL(9,ng)%ncid, varid)
+        IF (exit_flag.ne.NoError) RETURN
+        gtype=w3dvar
+        status=nf_fread3d(ng, iNLM, ncname, FIL(9,ng)%ncid,             &
+     &                Vname(1,idWvel), varid, tindx, gtype,             &
+     &                Vsize, LBi, UBi, LBj, UBj, 0, N(ng),              &
+     &                Fscl, Fmin, Fmax,                                 &
+#   ifdef MASKING
+     &                GRID(ng) % rmask,                                 &
+#   endif
+     &                FILTER(ng) % filw3d(:,:,:,tindx))
+        IF (status.ne.nf90_noerr) THEN
+          IF (Master) THEN
+            WRITE (stdout,30) TRIM(Vname(1,idWvel)), tindx, TRIM(ncname)
+          END IF
+          exit_flag=2
+          ioerror=status
+          RETURN
+        ELSE
+          IF (Master) THEN
+            WRITE (stdout,40) TRIM(Vname(2,idWvel)), Fmin, Fmax
           END IF
         END IF
       END IF
