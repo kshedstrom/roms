@@ -396,9 +396,19 @@
               DO k=0,N(ng)
                 DO j=JstrR,JendR
                   DO i=IstrR,IendR
-                    FILTER(ng)%filw3d(i,j,k,f)=                         &
+                    FILTER(ng)%filomega(i,j,k,f)=                       &
      &                                 OCEAN(ng)%W(i,j,k)*fw(iw)*       &
      &                                 GRID(ng)%pm(i,j)*GRID(ng)%pn(i,j)
+                  END DO
+                END DO
+              END DO
+            END IF
+            IF (Aout(idWvel,ng)) THEN
+              DO k=0,N(ng)
+                DO j=JstrR,JendR
+                  DO i=IstrR,IendR
+                    FILTER(ng)%filw3d(i,j,k,f)=                         &
+     &                                 OCEAN(ng)%wvel(i,j,k)*fw(iw)
                   END DO
                 END DO
               END DO
@@ -768,11 +778,22 @@
                 DO k=0,N(ng)
                   DO j=JstrR,JendR
                     DO i=IstrR,IendR
-                      FILTER(ng)%filw3d(i,j,k,f)=                       &
-     &                                  FILTER(ng)%filw3d(i,j,k,f)+     &
+                      FILTER(ng)%filomega(i,j,k,f)=                     &
+     &                                  FILTER(ng)%filomega(i,j,k,f)+   &
      &                                  OCEAN(ng)%W(i,j,k)*fw(iw)*      &
      &                                  GRID(ng)%pm(i,j)*               &
      &                                  GRID(ng)%pn(i,j)
+                    END DO
+                  END DO
+                END DO
+              END IF
+              IF (Aout(idWvel,ng)) THEN
+                DO k=0,N(ng)
+                  DO j=JstrR,JendR
+                    DO i=IstrR,IendR
+                      FILTER(ng)%filw3d(i,j,k,f)=                       &
+     &                                  FILTER(ng)%filw3d(i,j,k,f)+     &
+     &                                  OCEAN(ng)%W(i,j,k)*fw(iw)
                     END DO
                   END DO
                 END DO
@@ -1194,6 +1215,16 @@
               END IF
             END DO
             IF (Aout(idOvel,ng)) THEN
+              DO k=0,N(ng)
+                DO j=JstrR,JendR
+                  DO i=IstrR,IendR
+                    AVERAGE(ng)%avgwvel(i,j,k)=                         &
+     &                                  FILTER(ng)%filomega(i,j,k,f)
+                  END DO
+                END DO
+              END DO
+            END IF
+            IF (Aout(idWvel,ng)) THEN
               DO k=0,N(ng)
                 DO j=JstrR,JendR
                   DO i=IstrR,IendR

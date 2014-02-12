@@ -42,7 +42,7 @@
       implicit none
 
       integer :: tile
-      integer :: ng, my_ievp, nelas
+      integer :: ig, ng, nl, my_ievp, nelas
       real(r8), parameter :: dt_large = 1.0E+23_r8
 
       NEST_LAYER : DO nl=1,NestLayers

@@ -72,7 +72,7 @@
       logical, allocatable :: Ldiag(:)
 #endif
 
-      integer :: Npts, Nval, i, itrc, ivar, k, ng, status
+      integer :: Npts, Nval, i, itrc, ivar, k, ng, nl, status
       integer :: ifield, ifile, igrid, itracer, nline, max_Ffiles
       integer :: ibcfile, iclmfile
       integer :: Ivalue(1)
