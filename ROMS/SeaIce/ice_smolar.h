@@ -731,30 +731,28 @@ FOOOO
 !
 ! mask ???
 !
-#ifdef FOO
 #ifdef MASKING
-      DO j=J_RANGE
-        DO i=I_RANGE
+  DO j=Jmin,Jmax
+  DO i=Imin,Imax
           aif(i,j)=aif(i,j)*rmask(i,j)
         END DO
       END DO
 #endif
 #ifdef WET_DRY
-      DO j=J_RANGE
-        DO i=I_RANGE
+  DO j=Jmin,Jmax
+  DO i=Imin,Imax
           aif(i,j)=aif(i,j)*rmask_wet(i,j)
         END DO
       END DO
 #endif
 #ifdef ICESHELF
-      DO j=J_RANGE
-        DO i=I_RANGE
+  DO j=Jmin,Jmax
+  DO i=Imin,Jmax
           IF (zice(i,j).ne.0.0_r8) THEN
             aif(i,j) = 0.0_r8
           END IF
         END DO
       END DO
-#endif
 #endif
 
 #ifndef ICE_UPWIND
@@ -849,7 +847,7 @@ FOOOO
           aif(i,j)=aif(i,j)*rmask_wet(i,j)
 #  endif
 #  ifdef ICESHELF
-          IF (zice(i,j).ne.0.) aif(i,j)=0.
+          IF (zice(i,j).ne.0.0_r8) aif(i,j)=0.
 #  endif
         END DO
       END DO
