@@ -156,6 +156,7 @@
 
 #ifdef SOLVE3D
 # define SCORRECTION
+# define NO_SCORRECTION_ICE
 # undef QCORRECTION
 #endif
 
