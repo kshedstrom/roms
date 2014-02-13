@@ -289,6 +289,7 @@
           vmask_io(i,j)=vmask(i,j)
         END DO
       END DO
+# endif
 
 # ifdef OUTFLOW_MASK
 !
