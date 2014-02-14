@@ -361,8 +361,8 @@
       zq=10._r8 ! measurement height of specific humidity [m]
       cpair=1004.7_r8 ! specific heat of dry air (J/K/kg)
 
-      DO j=Jstr-1,JendR
-        DO i=Istr-1,IendR
+      DO j=Jstr-1,JendT
+        DO i=Istr-1,IendT
 # ifdef ICE_THERMO
              IF(ai(i,j,liold).gt.min_a(ng)) THEN
                 sfc_temp = ai(i,j,liold)*tis(i,j) +                     &
@@ -698,29 +698,29 @@
       END DO
 
 # ifdef ICE_MODEL
-      DO j=JstrR,JendR
-        DO i=Istr,IendR
+      DO j=JstrT,JendT
+        DO i=Istr,IendT
           rhoO = 1000._r8 + 0.5_r8*(rho(i,j,N(ng))+rho(i-1,j,N(ng)))
           sustr_aw(i,j) = 0.5_r8*(tau_awx_n(i-1,j)+tau_awx_n(i,j))/rhoO
         END DO
       END DO
 
-      DO j=Jstr,JendR
-        DO i=IstrR,IendR
+      DO j=Jstr,JendT
+        DO i=IstrT,IendT
           rhoO = 1000._r8 + 0.5_r8*(rho(i,j,N(ng))+rho(i,j-1,N(ng)))
           svstr_aw(i,j) = 0.5_r8*(tau_awy_n(i,j-1)+tau_awy_n(i,j))/rhoO
         END DO
       END DO
 # else
-      DO j=JstrR,JendR
-        DO i=Istr,IendR
+      DO j=JstrT,JendT
+        DO i=Istr,IendT
           rhoO = 1000._r8 + 0.5_r8*(rho(i,j,N(ng))+rho(i-1,j,N(ng)))
           sustr(i,j) = 0.5_r8*(tau_awx_n(i-1,j)+tau_awx_n(i,j))/rhoO
         END DO
       END DO
 
-      DO j=Jstr,JendR
-        DO i=IstrR,IendR
+      DO j=Jstr,JendT
+        DO i=IstrT,IendT
           rhoO = 1000._r8 + 0.5_r8*(rho(i,j,N(ng))+rho(i,j-1,N(ng)))
           svstr(i,j) = 0.5_r8*(tau_awy_n(i,j-1)+tau_awy_n(i,j))/rhoO
         END DO

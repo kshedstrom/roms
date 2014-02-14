@@ -311,12 +311,12 @@
 !
       IF (ievp(ng).eq.1) THEN
         DO j=Jstr,Jend
-          DO i=IstrU,Iend
+          DO i=IstrP,Iend
             uie(i,j,1) = ui(i,j,liuol)
             uie(i,j,2) = ui(i,j,liuol)
           END DO
         END DO
-        DO j=JstrV,Jend
+        DO j=JstrP,Jend
           DO i=Istr,Iend
              vie(i,j,1) = vi(i,j,liuol)
              vie(i,j,2) = vi(i,j,liuol)
@@ -327,7 +327,7 @@
              uie(1,j,1) = ui(1,j,liuol)
              uie(1,j,2) = ui(1,j,liuol)
           END DO
-          DO j=JstrV,Jend
+          DO j=JstrP,Jend
              vie(0,j,1) = vi(0,j,liuol)
              vie(0,j,2) = vi(0,j,liuol)
           END DO
@@ -337,13 +337,13 @@
              uie(Lm(ng)+1,j,1) = ui(Lm(ng)+1,j,liuol)
              uie(Lm(ng)+1,j,2) = ui(Lm(ng)+1,j,liuol)
           END DO
-          DO j=JstrV,Jend
+          DO j=JstrP,Jend
              vie(Lm(ng)+1,j,1) = vi(Lm(ng)+1,j,liuol)
              vie(Lm(ng)+1,j,2) = vi(Lm(ng)+1,j,liuol)
           END DO
         ENDIF
         IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
-          DO i=IstrU,Iend
+          DO i=IstrP,Iend
              uie(i,0,1) = ui(i,0,liuol)
              uie(i,0,2) = ui(i,0,liuol)
           END DO
@@ -353,7 +353,7 @@
           END DO
         ENDIF
         IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
-          DO i=IstrU,Iend
+          DO i=IstrP,Iend
              uie(i,Mm(ng)+1,1) = ui(i,Mm(ng)+1,liuol)
              uie(i,Mm(ng)+1,2) = ui(i,Mm(ng)+1,liuol)
           END DO
@@ -405,7 +405,7 @@
 ! u-eqn
 !
       DO j=Jstr,Jend
-        DO i=IstrU,Iend
+        DO i=IstrP,Iend
           uforce = 0._r8
           chux = 0.5_r8*(chu_iw(i-1,j)+chu_iw(i,j))
           masu = 0.5_r8*(hi(i,j,liold)+hi(i-1,j,liold))
@@ -617,7 +617,7 @@
 !
 ! *** momentum equation 
 !
-      DO j=JstrV,Jend
+      DO j=JstrP,Jend
         DO i=Istr,Iend
           vforce = 0._r8
           masv = 0.5_r8*(hi(i,j,liold)+hi(i,j-1,liold))
@@ -850,11 +850,11 @@
 !
       IF(ievp(ng).eq.nevp(ng)) THEN
         DO j=Jstr,Jend
-          DO i=IstrU,Iend
+          DO i=IstrP,Iend
             ui(i,j,liunw) = uie(i,j,lienw)
           END DO
         END DO
-        DO j=JstrV,Jend
+        DO j=JstrP,Jend
           DO i=Istr,Iend
             vi(i,j,liunw) = vie(i,j,lienw)
           END DO
@@ -863,7 +863,7 @@
           DO j=Jstr,Jend
             ui(1,j,liunw) = uie(1,j,lienw)
           END DO
-          DO j=JstrV,Jend
+          DO j=JstrP,Jend
             vi(0,j,liunw) = vie(0,j,lienw)
           END DO
         ENDIF
@@ -871,12 +871,12 @@
           DO j=Jstr,Jend
             ui(Lm(ng)+1,j,liunw) = uie(Lm(ng)+1,j,lienw)
           END DO
-          DO j=JstrV,Jend
+          DO j=JstrP,Jend
             vi(Lm(ng)+1,j,liunw) = vie(Lm(ng)+1,j,lienw)
           END DO
         ENDIF
         IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
-          DO i=IstrU,Iend
+          DO i=IstrP,Iend
             ui(i,0,liunw) = uie(i,0,lienw)
           END DO
           DO i=Istr,Iend
@@ -884,7 +884,7 @@
           END DO
         ENDIF
         IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
-          DO i=IstrU,Iend
+          DO i=IstrP,Iend
             ui(i,Mm(ng)+1,liunw) = uie(i,Mm(ng)+1,lienw)
           END DO
           DO i=Istr,Iend

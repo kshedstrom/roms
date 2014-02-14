@@ -370,8 +370,8 @@ FOOOO
      &                      ICE(ng) % enthalpi                          &
      &                      )
 !
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           ICE(ng)%ti(i,j,linew(ng)) = ICE(ng)%enthalpi(i,j,linew(ng))/  &
        &                  MAX(ICE(ng)%hi(i,j,linew(ng)),1.0E-6_r8)
           IF (ICE(ng)%hi(i,j,linew(ng)).LE.min_h(ng)) THEN
@@ -394,8 +394,8 @@ FOOOO
 !  Advect the ice age.
 ! ---------------------------------------------------------------------
 !
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           ICE(ng)%hage(i,j,liold(ng)) = ICE(ng)%hi(i,j,liold(ng))*      &
      &                       ICE(ng)%ageice(i,j,liold(ng))
           ICE(ng)%hage(i,j,linew(ng)) = ICE(ng)%hi(i,j,linew(ng))*      &
@@ -431,8 +431,8 @@ FOOOO
      &                      ICE(ng) % hage                              &
      &                      )
 !
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           ICE(ng)%ageice(i,j,linew(ng)) = ICE(ng)%hage(i,j,linew(ng))/  &
      &                  MAX(ICE(ng)%hi(i,j,linew(ng)),1.0E-6_r8)
           IF (ICE(ng)%hi(i,j,linew(ng)).LE.min_h(ng)) THEN

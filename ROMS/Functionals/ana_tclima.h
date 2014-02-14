@@ -99,8 +99,8 @@
       END DO
 #elif defined BIO_GOANPZ && defined IRON_LIMIT
 ! Iron - linear from surface value to value at 100m and increase onshore
-      DO i=IstrR,IendR
-        DO j=JstrR,JendR
+      DO i=IstrT,IendT
+        DO j=JstrT,JendT
           val3 = MAX(0.,MIN(1.,(GRID(ng)%h(i,j)-Feinh)/(Feoffh-Feinh)))
           val1 = Feinlo + val3*(Feofflo-Feinlo)
           val2 = Feinhi + val3*(Feoffhi-Feinhi)

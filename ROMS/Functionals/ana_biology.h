@@ -334,8 +334,8 @@
       cff1=20.0_r8/3.0_r8
       cff2= 2.0_r8/3.0_r8
       DO k=1,N(ng)
-        DO j=JstrR,JendR
-          DO i=IstrR,IendR
+        DO j=JstrT,JendT
+          DO i=IstrT,IendT
             temp=t(i,j,k,1,itemp)
             IF (temp.lt.8.0_r8) THEN
               SiO4=30.0_r8
