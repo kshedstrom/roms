@@ -12,7 +12,7 @@
 **  Options for ARCTIC simulation
 */
 
-#define NO_HIS
+#undef NO_HIS
 #define GLOBAL_PERIODIC
 #undef NETCDF4
 #undef PARALLEL_IO
