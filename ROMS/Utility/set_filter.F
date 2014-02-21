@@ -793,7 +793,7 @@
                     DO i=IstrR,IendR
                       FILTER(ng)%filw3d(i,j,k,f)=                       &
      &                                  FILTER(ng)%filw3d(i,j,k,f)+     &
-     &                                  OCEAN(ng)%W(i,j,k)*fw(iw)
+     &                                  OCEAN(ng)%wvel(i,j,k)*fw(iw)
                     END DO
                   END DO
                 END DO
