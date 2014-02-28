@@ -250,6 +250,12 @@
 !
         integer, allocatable :: ntimes(:)
 !
+!  Step counter for current execution time-window.
+!
+        integer, allocatable :: step_counter(:)
+
+!$OMP THREADPRIVATE (step_counter)
+!
 !  Number of time interval divisions for Stochastic Optimals.  It must
 !  a multiple of "ntimes".
 !
@@ -1758,13 +1764,18 @@
       allocate ( time_code(Ngrids) )
 
       allocate ( ntimes(Ngrids) )
-!     allocate ( first_time(Ngrids) )
+      allocate ( first_time(Ngrids) )
 
 !$OMP PARALLEL
-!     allocate ( synchro_flag(Ngrids) )
+      allocate ( synchro_flag(Ngrids) )
       allocate ( ntfirst(Ngrids) )
       allocate ( ntstart(Ngrids) )
       allocate ( ntend(Ngrids) )
+      allocate ( step_counter(Ngrids) )
+      allocate ( tdays(Ngrids) )
+      allocate ( time(Ngrids) )
+      allocate ( time_code(Ngrids) )
+!$OMP END PARALLEL
 
       allocate ( NrecFrc(Ngrids) )
 
