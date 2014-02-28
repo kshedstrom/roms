@@ -1653,6 +1653,12 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+8)=' RUNOFF,'
 #endif
+#if defined RUNOFF_SSH
+      IF (Master) WRITE (stdout,20) 'RUNOFF_SSH',                       &
+     &   'Surface flux of ungauged river runoff affecting SSH.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+12)=' RUNOFF_SSH,'
+#endif
 #if defined GLS_MIXING || defined MY25_MIXING
 # if defined K_C2ADVECTION
       IF (Master) WRITE (stdout,20) 'K_C2ADVECTION',                    &

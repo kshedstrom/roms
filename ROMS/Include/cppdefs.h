@@ -159,6 +159,8 @@
 ** LONGWAVE            use if computing net longwave radiation               **
 ** LONGWAVE_OUT        use if computing outgoing longwave radiation          **
 ** EMINUSP             use if computing E-P                                  **
+** RUNOFF              use if adding runoff as a second rain field           **
+** RUNOFF_SSH          use if adjusting zeta based on runoff field           **
 **                                                                           **
 ** OPTIONS for wave roughness formulation in bulk fluxes:                    **
 **                                                                           **
