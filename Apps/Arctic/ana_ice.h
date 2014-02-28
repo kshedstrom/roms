@@ -1,6 +1,6 @@
       SUBROUTINE ana_ice (ng, tile, model)
 !
-!! svn $Id: ana_cloud.h 75 2007-03-13 13:10:14Z arango $
+!! svn $Id$
 !!======================================================================
 !! Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
 !!   Licensed under a MIT/X style license                              !
@@ -213,7 +213,7 @@
       ENDDO
       DO j=JstrR,JendR
         DO i=IstrR,IendR
-	  IF (t(i,j,N(ng),1,itemp) < -1.4) THEN
+	  IF (t(i,j,N(ng),1,itemp) < -1.6) THEN
            ai(i,j,1) = 1._r8
            hi(i,j,1) = 2._r8
            hsn(i,j,1) = 0.2_r8

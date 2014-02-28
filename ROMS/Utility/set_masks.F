@@ -340,7 +340,6 @@
 #  endif
 # endif
 
-# ifdef UV_PSOURCE
 !
 !  Insure that masks at mass point source locations are set to water
 !  to avoid masking with _FillValue at those locations.

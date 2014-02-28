@@ -3247,12 +3247,6 @@
                 NGCname(i:i)=blank
               END DO
               NGCname=TRIM(ADJUSTL(Cval(Nval)))
-            CASE ('BRYNAME')
-              label='BRY - lateral open boundary conditions'
-              Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles, BRY)
-            CASE ('CLMNAME')
-              label='CLM - climatology fields'
-              Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles, CLM)
             CASE ('SSFNAME')
               label='SSF - Sources/Sinks forcing fields'
               Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles, SSF)
