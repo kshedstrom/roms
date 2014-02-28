@@ -3,7 +3,7 @@
 !
 ! svn $Id$
 !========================================================= Hernan G. Arango ===
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group                                !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group                                !
 !    Licensed under a MIT/X style license                                     !
 !    See License_ROMS.txt                                                     !
 !==============================================================================
@@ -638,11 +638,11 @@ Aout(idV2av) == F       ! vbar2              quadratic <vbar*vbar> term
 Aout(idZZav) == F       ! zeta2              quadratic <zeta*zeta> term
 
   
-Aout(idTTav) == F F     ! temp2, ...         quadratic <t*t> tracer terms
-Aout(idUTav) == F F     ! utemp, ...         quadratic <u*t> tracer terms
-Aout(idVTav) == F F     ! vtemp, ...         quadratic <v*t> tracer terms
-Aout(iHUTav) == F F     ! Huontemp, ...      tracer volume flux, <Huon*t>
-Aout(iHVTav) == F F     ! Hvomtemp, ...      tracer volume flux, <Hvom*t>
+Aout(idTTav) == F F     ! temp_2, ...        quadratic <t*t> tracer terms
+Aout(idUTav) == F F     ! u_temp, ...        quadratic <u*t> tracer terms
+Aout(idVTav) == F F     ! v_temp, ...        quadratic <v*t> tracer terms
+Aout(iHUTav) == F F     ! Huon_temp, ...     tracer volume flux, <Huon*t>
+Aout(iHVTav) == F F     ! Hvom_temp, ...     tracer volume flux, <Hvom*t>
 
 ! Logical switches (TRUE/FALSE) to activate writing of ice prognostic
 ! variables into AVERAGES output file.

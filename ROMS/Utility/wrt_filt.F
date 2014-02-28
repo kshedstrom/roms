@@ -3,7 +3,7 @@
       SUBROUTINE wrt_filt (ng, filterLevel)
 !
 !=======================================================================
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
 !================================================== Hernan G. Arango ===
 !                                                                      !
 !  This routine writes fields into filter restart NetCDF files.        !
@@ -276,10 +276,34 @@
 #  ifdef MASKING
      &                 GRID(ng) % rmask,                                &
 #  endif
-     &                 FILTER(ng) % filw3d(:,:,:,FIL(9,ng)%Rindex))
+     &                 FILTER(ng) % filomega(:,:,:,FIL(9,ng)%Rindex))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
             WRITE (stdout,10) TRIM(Vname(1,idOvel)), FIL(9,ng)%Rindex
+            PRINT *, trim(nf90_strerror(status))
+          END IF
+          exit_flag=3
+          ioerror=status
+          RETURN
+        END IF
+      END IF
+!
+!  Write out vertical (W) velocity
+!
+      IF (Aout(idWvel,ng)) THEN
+        scale=1.0_r8
+        gtype=gfactor*w3dvar
+        status=nf_fwrite3d(ng, iNLM, FIL(9,ng)%ncid,                    &
+     &                 FIL(9,ng)%Vid(idWvel),                           &
+     &                 FIL(9,ng)%Rindex, gtype,                         &
+     &                 LBi, UBi, LBj, UBj, 0, N(ng), scale,             &
+#  ifdef MASKING
+     &                 GRID(ng) % rmask,                                &
+#  endif
+     &                 FILTER(ng) % filw3d(:,:,:,FIL(9,ng)%Rindex))
+        IF (status.ne.nf90_noerr) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,idWvel)), FIL(9,ng)%Rindex
             PRINT *, trim(nf90_strerror(status))
           END IF
           exit_flag=3

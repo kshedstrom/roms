@@ -19,7 +19,8 @@
 !               and salinity).                                         !
 !  filu3d     3D velocity component (m/s) in the XI-direction.         !
 !  filv3d     3D velocity component (m/s) in the ETA-direction.        !
-!  filw3d     S-coordinate [omega*Hz/mn] vertical velocity (m3/s).     !
+!  filomega   S-coordinate [omega*Hz/mn] vertical velocity (m3/s).     !
+!  filw3d     Vertical W-velocity (m/s).                               !
 !                                                                      !
 !  2D Time-filtered ice fields for output purposes.                    !
 !                                                                      !
@@ -50,6 +51,7 @@
           real(r8), pointer :: filv3d(:,:,:,:)
           real(r8), pointer :: filrho(:,:,:,:)
           real(r8), pointer :: filt(:,:,:,:,:)
+          real(r8), pointer :: filomega(:,:,:,:)
           real(r8), pointer :: filw3d(:,:,:,:)
 #  ifdef LMD_SKPP
           real(r8), pointer :: filhsbl(:,:,:)
@@ -226,6 +228,9 @@
         allocate ( FILTER(ng) % filt(LBi:UBi,LBj:UBj,N(ng),NAT,FILN) )
       END IF
       IF (Aout(idOvel,ng)) THEN
+        allocate ( FILTER(ng) % filomega(LBi:UBi,LBj:UBj,0:N(ng),FILN) )
+      END IF
+      IF (Aout(idWvel,ng)) THEN
         allocate ( FILTER(ng) % filw3d(LBi:UBi,LBj:UBj,0:N(ng),FILN) )
       END IF
 #  if defined LMD_MIXING || defined MY25_MIXING || defined GLS_MIXING
@@ -464,12 +469,23 @@
           END DO
         END DO
       END IF
-      IF (Aout(idOvel,ng)) THEN
+      IF (Aout(idWvel,ng)) THEN
         DO if=1,FILN
           DO k=0,N(ng)
             DO j=Jmin,Jmax
               DO i=Imin,Imax
                 FILTER(ng) % filw3d(i,j,k,if) = IniVal
+              END DO
+            END DO
+          END DO
+        END DO
+      END IF
+      IF (Aout(idOvel,ng)) THEN
+        DO if=1,FILN
+          DO k=0,N(ng)
+            DO j=Jmin,Jmax
+              DO i=Imin,Imax
+                FILTER(ng) % filomega(i,j,k,if) = IniVal
               END DO
             END DO
           END DO

@@ -3,7 +3,11 @@
 !
 !svn $Id$
 !========================================================= Hernan G. Arango ===
+<<<<<<< HEAD
 !  Copyright (c) 2002-2013 The ROMS/TOMS Group                                !
+=======
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group                                !
+>>>>>>> 2d7b855317416ca82b80cc5d58e61f4279e59366
 !    Licensed under a MIT/X style license                                     !
 !    See License_ROMS.txt                                                     !
 !==============================================================================
@@ -224,7 +228,11 @@ ad_VolCons(north) ==  F F                          ! northern boundary
 
        NRREC == 0    0
    LcycleRST == T    T
+<<<<<<< HEAD
         NRST == 30   90
+=======
+        NRST == 180  540
+>>>>>>> 2d7b855317416ca82b80cc5d58e61f4279e59366
         NSTA == 1    1
         NFLT == 1    1
        NINFO == 1    1
@@ -232,6 +240,7 @@ ad_VolCons(north) ==  F F                          ! northern boundary
 ! Output history, average, diagnostic files parameters.
 
      LDEFOUT == T    T
+<<<<<<< HEAD
         NHIS == 30   90
      NDEFHIS == 0    0
       NTSAVG == 1    1
@@ -239,11 +248,21 @@ ad_VolCons(north) ==  F F                          ! northern boundary
      NDEFAVG == 0    0
       NTSDIA == 1    1
         NDIA == 30   90
+=======
+        NHIS == 180  540
+     NDEFHIS == 0    0
+      NTSAVG == 1    1
+        NAVG == 180  540
+     NDEFAVG == 0    0
+      NTSDIA == 1    1
+        NDIA == 180  540
+>>>>>>> 2d7b855317416ca82b80cc5d58e61f4279e59366
      NDEFDIA == 0    0
 
 ! Output tangent linear and adjoint models parameters.
 
    LcycleTLM == F    F
+<<<<<<< HEAD
         NTLM == 30   90
      NDEFTLM == 0    0
    LcycleADJ == F    F
@@ -251,6 +270,15 @@ ad_VolCons(north) ==  F F                          ! northern boundary
      NDEFADJ == 0    0
         NSFF == 30   90
         NOBC == 30   90
+=======
+        NTLM == 180  540
+     NDEFTLM == 0    0
+   LcycleADJ == F    F
+        NADJ == 180  540
+     NDEFADJ == 0    0
+        NSFF == 180  540
+        NOBC == 180  540
+>>>>>>> 2d7b855317416ca82b80cc5d58e61f4279e59366
 
 ! GST output and check pointing restart parameters.
 
@@ -363,16 +391,27 @@ ZOS_HSIG_ALPHA == 2*0.5d0                  ! roughness from wave amplitude
 
 ! Mean Density and Brunt-Vaisala frequency.
 
+<<<<<<< HEAD
         RHO0 =  1025.0d0                   ! kg/m3
      BVF_BAK =  1.0d-5                     ! 1/s2
+=======
+        RHO0 =  2*1025.0d0                 ! kg/m3
+     BVF_BAK =  2*1.0d-5                   ! 1/s2
+>>>>>>> 2d7b855317416ca82b80cc5d58e61f4279e59366
 
 ! Time-stamp assigned for model initialization, reference time
 ! origin for tidal forcing, and model reference time for output
 ! NetCDF units attribute.
 
+<<<<<<< HEAD
       DSTART =  0.0d0                      ! days
   TIDE_START =  0.0d0                      ! days
     TIME_REF =  0.0d0                      ! yyyymmdd.dd
+=======
+      DSTART =  2*0.0d0                    ! days
+  TIDE_START =  2*0.0d0                    ! days
+    TIME_REF =  2*0.0d0                    ! yyyymmdd.dd
+>>>>>>> 2d7b855317416ca82b80cc5d58e61f4279e59366
 
 ! Nudging/relaxation time scales, inverse scales will be computed
 ! internally, [1:Ngrids].
@@ -543,7 +582,11 @@ Hout(idUair) == 2*F     ! Uair               surface U-wind component
 Hout(idVair) == 2*F     ! Vair               surface V-wind component
 
 Hout(idTsur) == 2*F 2*F ! shflux, ssflux     surface net heat and salt flux
+<<<<<<< HEAD
 Hout(idLhea) == 2*F     ! latent             latent heat flux
+=======
+Hout(idLhea) == 2*F 2*F ! latent             latent heat flux
+>>>>>>> 2d7b855317416ca82b80cc5d58e61f4279e59366
 Hout(idShea) == 2*F     ! sensible           sensible heat flux
 Hout(idLrad) == 2*F     ! lwrad              longwave radiation flux
 Hout(idSrad) == 2*F     ! swrad              shortwave radiation flux
@@ -771,8 +814,16 @@ Dout(iTvdif) == 2*T 2*T ! temp_vdiff, ...    vertical diffusion
 ! line per entry with a vertical bar (|) symbol after each entry,
 ! except the last one.
 
+<<<<<<< HEAD
      BRYNAME == dogbone_bry.nc
      CLMNAME == dogbone_clm.nc
+=======
+     NCLMFILES == 1                         ! number of climate files
+     CLMNAME == dogbine_clm.nc
+
+     NBCFILES == 1                          ! number of boundary files
+     BRYNAME == dogbine_bry.nc
+>>>>>>> 2d7b855317416ca82b80cc5d58e61f4279e59366
 
 ! Input Sources/Sinks forcing (like river runoff) file name.
 

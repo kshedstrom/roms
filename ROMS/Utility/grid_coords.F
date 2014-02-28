@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -97,7 +97,8 @@
           mc=DRIFTER(ng)%Findex(0)
           IF (DRIFTER(ng)%Findex(0).gt.0) THEN
 #ifdef ARCTIC
-            IF (Jend .lt. 301) THEN
+!            IF (Jend .lt. 340) THEN    ! ARCTIC1
+            IF (Jend .lt. 760) THEN     ! ARCTIC2
 #endif
             CALL hindices (ng, LBi, UBi, LBj, UBj,                      &
      &                     IstrR, Iend+1, JstrR, Jend+1,                &
@@ -276,7 +277,8 @@
         END DO
         IF (mc.gt.0) THEN
 #ifdef ARCTIC
-          IF (Jend .lt. 301) THEN
+!            IF (Jend .lt. 340) THEN    ! ARCTIC1
+            IF (Jend .lt. 760) THEN     ! ARCTIC2
 #endif
           CALL hindices (ng, LBi, UBi, LBj, UBj,                        &
      &                   IstrR, Iend+1, JstrR, Jend+1,                  &

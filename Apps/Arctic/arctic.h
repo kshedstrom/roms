@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2013 The ROMS/TOMS Group
+** Copyright (c) 2002-2014 The ROMS/TOMS Group
 **
 **   Licensed under a MIT/X style license
 **
@@ -12,7 +12,7 @@
 **  Options for ARCTIC simulation
 */
 
-#define NO_HIS
+#undef NO_HIS
 #define GLOBAL_PERIODIC
 #undef NETCDF4
 #undef PARALLEL_IO

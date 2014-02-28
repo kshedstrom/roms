@@ -3,7 +3,7 @@
 **
 ** svn $Id$
 ********************************************************** Hernan G. Arango ***
-** Copyright (c) 2002-2013 The ROMS/TOMS Group                               **
+** Copyright (c) 2002-2014 The ROMS/TOMS Group                               **
 **   Licensed under a MIT/X style license                                    **
 **   See License_ROMS.txt                                                    **
 *******************************************************************************
@@ -157,6 +157,8 @@
 ** LONGWAVE            use if computing net longwave radiation               **
 ** LONGWAVE_OUT        use if computing outgoing longwave radiation          **
 ** EMINUSP             use if computing E-P                                  **
+** RUNOFF              use if adding runoff as a second rain field           **
+** RUNOFF_SSH          use if adjusting zeta based on runoff field           **
 **                                                                           **
 ** OPTIONS for wave roughness formulation in bulk fluxes:                    **
 **                                                                           **
@@ -534,7 +536,9 @@
 ** OPTIONS for grid nesting:                                                 **
 **                                                                           **
 ** NESTING             use to activate grid nesting: composite/refinement    **
+** NO_CORRECT_TRACER   use to avoid two-way correction of boundary tracer    **
 ** ONE_WAY             use if one-way nesting in refinement grids            **
+** TIME_INTERP_FLUX    time interpolate coarse mass flux instead of persist  **
 **                                                                           **
 ** OPTIONS for two-way coupling to other models:                             **
 **                                                                           **
@@ -590,6 +594,7 @@
 ** ICE_UPWIND          use for upwind advection scheme
 ** ICE_BULK_FLUXES     use for ice part of bulk flux computation
 ** ICE_CONVSNOW        use for conversion of flooded snow to ice
+** NO_SCORRECTION_ICE  use for no scorrection under the ice
 ** OUTFLOW_MASK        use for Hibler style outflow cells
 **
 ** OPTION to avoid writing current date and CPP options to NetCDF file       **
@@ -622,6 +627,7 @@
 ** ISOMIP              ISOMIP 2.01 Ice Shelf test case                       **
 ** KELVIN              Kelvin wave test                                      **
 ** LAB_CANYON          Lab Canyon, Polar Coordinates Example                 **
+** LAKE_JERSEY         Lake Jersey Nesting Test Case                         **
 ** LAKE_SIGNELL        Lake Signell Sediment Test Case                       **
 ** LMD_TEST            Test for LMD and KPP                                  **
 ** OVERFLOW            Gravitational/Overflow Example                        **

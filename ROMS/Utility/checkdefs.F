@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -1396,6 +1396,12 @@
       Coptions(is:is+13)=' !NONLIN_EOS,'
 # endif
 #endif
+#if defined NO_CORRECT_TRACER && defined NESTING && defined SOLVE3D
+      IF (Master) WRITE (stdout,20) 'NO_CORRECT_TRACER',                &
+     &   'Avoid two-way correction of coaser grid boundary tracer.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+19)=' NO_CORRECT_TRACER,'
+#endif
 #ifdef NO_LBC_ATT
       IF (Master) WRITE (stdout,20) 'NO_LBC_ATT',                       &
      &   'Not checking NetCDF global attribute NLM_LBC during restart.'
@@ -1403,10 +1409,10 @@
       Coptions(is:is+12)=' NO_LBC_ATT,'
 #endif
 #if defined NO_READ_GHOST && defined DISTRIBUTE
-      IF (Master) WRITE (stdout,20) 'NO_READ_GRID',                     &
+      IF (Master) WRITE (stdout,20) 'NO_READ_GHOST',                     &
      &   'Not including ghost points during scattering read data.'
       is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+14)=' NO_READ_GRID,'
+      Coptions(is:is+15)=' NO_READ_GHOST,'
 #endif
 #ifdef NO_WRITE_GRID
       IF (Master) WRITE (stdout,20) 'NO_WRITE_GRID',                    &
@@ -1477,7 +1483,7 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+17)=' OFFLINE_BIOLOGY,'
 #endif
-#if defined NESTING && defined ONE_WAY
+#if defined ONE_WAY && defined NESTING
       IF (Master) WRITE (stdout,20) 'ONE_WAY',                          &
      &   'One-way nesting in refinement grids.'
       is=LEN_TRIM(Coptions)+1
@@ -1641,6 +1647,12 @@
      &   'Surface flux of ungauged river runoff.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+8)=' RUNOFF,'
+#endif
+#if defined RUNOFF_SSH
+      IF (Master) WRITE (stdout,20) 'RUNOFF_SSH',                       &
+     &   'Surface flux of ungauged river runoff affecting SSH.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+12)=' RUNOFF_SSH,'
 #endif
 #if defined GLS_MIXING || defined MY25_MIXING
 # if defined K_C2ADVECTION
@@ -2036,6 +2048,12 @@
      &   'Compute astronomical (long-period tide) corrections.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+13)=' TIDES_ASTRO,'
+#endif
+#if defined TIME_INTERP_FLUX && defined NESTING && defined SOLVE3D
+      IF (Master) WRITE (stdout,20) 'TIME_INTERP_FLUX',                 &
+     &   'Time interpolate coarse 2D mass flux instead of persist.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+18)=' TIME_INTERP_FLUX,'
 #endif
 #if defined TL_AVERAGES && defined TANGENT
       IF (Master) WRITE (stdout,20) 'TL_AVERAGES',                      &

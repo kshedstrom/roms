@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -249,6 +249,12 @@
 !  is the total of barotropic timesteps.
 !
         integer, allocatable :: ntimes(:)
+!
+!  Step counter for current execution time-window.
+!
+        integer, allocatable :: step_counter(:)
+
+!$OMP THREADPRIVATE (step_counter)
 !
 !  Number of time interval divisions for Stochastic Optimals.  It must
 !  a multiple of "ntimes".
@@ -1767,6 +1773,11 @@
       allocate ( ntfirst(Ngrids) )
       allocate ( ntstart(Ngrids) )
       allocate ( ntend(Ngrids) )
+      allocate ( step_counter(Ngrids) )
+      allocate ( tdays(Ngrids) )
+      allocate ( time(Ngrids) )
+      allocate ( time_code(Ngrids) )
+!$OMP END PARALLEL
 
       allocate ( NrecFrc(Ngrids) )
 
@@ -2336,10 +2347,7 @@
         NSperiodic(ng)=.FALSE.
         NudgingCoeff(ng)=.FALSE.
         ObcData(ng)=.FALSE.
-!        ntfirst(ng)=1
-!        ntstart(ng)=1
-!        ntend(ng)=0
-        RefineScale(ng)=0
+!       RefineScale(ng)=0
         gamma2(ng)=-1.0_r8
         Vtransform(ng)=1
         Vstretching(ng)=1

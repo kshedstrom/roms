@@ -4,7 +4,7 @@
 
 !
 !=====================================================================
-!  Copyright (c) 2000 Rutgers/UCLA                                   !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group
 !================================================ Hernan G. Arango ===
 !                                                                    !
 !  This routine computes the bulk parameterization of surface wind   !
@@ -390,7 +390,7 @@
           tml = TseaK
 
 #ifdef ICE_MODEL
-          fice = max(ai(i,j,liold), min_a(ng))
+          fice = max(ai(i,j,liold), 0.0_r8)
 #else
           fice = icec(i,j)
 #endif
@@ -405,8 +405,8 @@
           hsn_n = 0.2_r8*fice
           sfwat_n = 0._r8
 #endif
-          thki_n = hice_n/(fice+0.01_r8)
-          thksn_n = hsn_n/(fice+0.01_r8)
+          thki_n = hice_n/(MAX(fice,0.01_r8))
+          thksn_n = hsn_n/(MAX(fice,0.01_r8))
 !
           lhtfl = lhflx(i,j)
           shtfl = shflx(i,j)
