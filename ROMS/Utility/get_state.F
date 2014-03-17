@@ -354,6 +354,15 @@
 !
       io_time=INPtime
 !
+!  Set current input time, io_time .  Notice that the model time,
+!  time(ng), is reset above.  This is a THREADPRIVATE variable in
+!  shared-memory and this routine is only processed by the MASTER
+!  thread since it is an I/O routine. Therefore, we need to update
+!  time(ng) somewhere else in a parallel region. This will be done
+!  with io_time variable.
+!
+      io_time=INPtime
+!
 !  Report information.
 !
       lstr=SCAN(ncname,'/',BACK=.TRUE.)+1

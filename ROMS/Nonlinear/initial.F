@@ -541,6 +541,7 @@
 # endif
 !$OMP BARRIER
           IF (exit_flag.ne.NoError) RETURN
+          time(ng)=io_time                   ! needed for shared-memory
         END IF
       END DO
 #endif
