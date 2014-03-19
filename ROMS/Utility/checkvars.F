@@ -926,6 +926,7 @@
         exit_flag=2
         RETURN
       END IF
+#ifdef FOOO
       IF (.not.have_var(idTauiw)) THEN
         IF (Master) WRITE (stdout,10) string,                           &
      &                                TRIM(Vname(1,idTauiw)),           &
@@ -940,6 +941,7 @@
         exit_flag=2
         RETURN
       END IF
+#endif
       IF (.not.have_var(idS0mk)) THEN
         IF (Master) WRITE (stdout,10) string,                           &
      &                                TRIM(Vname(1,idS0mk)),            &

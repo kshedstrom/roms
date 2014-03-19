@@ -238,7 +238,7 @@
 !!            
 
 !
-! Northeast Pacific sponge areas
+! NWGOA sponge areas
 !
       Iwrk = 10
 #  if defined UV_VIS2
@@ -256,6 +256,7 @@
           visc2_p(i,j) = max(cff, visc2_p(i,j))
         END DO
       END DO
+#ifndef NWGOA
       DO i=MAX(Lm(ng)+1-Iwrk,IstrR),IendR
         ifoo = Lm(ng)+1-i
         DO j=MAX(JstrR,ifoo),JendR
@@ -273,6 +274,7 @@
           visc2_p(i+1,j) = max(cff, visc2_p(i+1,j))
         END DO
       END DO
+#endif
 #  endif
 #  ifdef SOLVE3D
 #   if defined TS_DIF2
@@ -289,6 +291,7 @@
             diff2(i,j,itrc) = max(cff, diff2(i,j,itrc))
           END DO
         END DO
+#ifndef NWGOA
         DO i=MAX(Lm(ng)+1-Iwrk,IstrR),IendR
           ifoo = Lm(ng)+1-i
           DO j=MAX(JstrR,ifoo),JendR
@@ -304,6 +307,7 @@
             diff2(i,j,itrc) = max(cff, diff2(i,j,itrc))
           END DO
         END DO
+#endif
       END DO
 #   endif
 #  endif

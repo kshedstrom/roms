@@ -36,11 +36,11 @@
 
 ! Application title.
 
-       TITLE = Arctic and Bering Seas
+       TITLE = Northwest Gulf of Alaska
 
 ! C-preprocessing Flag.
 
-    MyAppCPP = ARCTIC2
+    MyAppCPP = NWGOA
 
 ! Input variable information file name.  This file needs to be processed
 ! first so all information arrays can be initialized properly.
@@ -54,14 +54,14 @@
 ! Grid dimension parameters. See notes below in the Glossary for how to set
 ! these parameters correctly.
 
-          Lm == 688           ! Number of I-direction INTERIOR RHO-points
-          Mm == 1088           ! Number of J-direction INTERIOR RHO-points
+          Lm == 792           ! Number of I-direction INTERIOR RHO-points
+          Mm == 360           ! Number of J-direction INTERIOR RHO-points
            N == 50            ! Number of vertical levels
 
         Nbed =  0             ! Number of sediment bed layers
 
          NAT =  2             ! Number of active tracers (usually, 2)
-         NPT =  4             ! Number of inactive passive tracers
+         NPT =  0             ! Number of inactive passive tracers
          NCS =  0             ! Number of cohesive (mud) sediment tracers
          NNS =  0             ! Number of non-cohesive (sand) sediment tracers
 
@@ -207,8 +207,8 @@ ad_VolCons(north) ==  F                            ! northern boundary
       NAVG == 720
    NDEFAVG == 720
      NTSAVG2 == 1
-       NAVG2 == 54
-    NDEFAVG2 == 1944
+       NAVG2 == 30
+    NDEFAVG2 == 720
       NTSDIA == 1
         NDIA == 10
      NDEFDIA == 0
@@ -234,8 +234,8 @@ ad_VolCons(north) ==  F                            ! northern boundary
 
 ! Harmonic/biharmonic horizontal diffusion of tracer: [1:NAT+NPT,Ngrids].
 
-        TNU2 == 6*5.0d0                         ! m2/s
-        TNU4 == 6*0.0d0                         ! m4/s
+        TNU2 == 2*2.0d0                         ! m2/s
+        TNU4 == 2*0.0d0                         ! m4/s
 
 ! Harmononic/biharmonic, horizontal viscosity coefficient: [Ngrids].
 
@@ -244,7 +244,7 @@ ad_VolCons(north) ==  F                            ! northern boundary
 
 ! Vertical mixing coefficients for active tracers: [1:NAT+NPT,Ngrids]
 
-     AKT_BAK == 6*1.0d-6                        ! m2/s
+     AKT_BAK == 2*1.0d-6                        ! m2/s
 
 ! Vertical mixing coefficient for momentum: [Ngrids].
 
@@ -332,7 +332,7 @@ ad_VolCons(north) ==  F                            ! northern boundary
 ! origin for tidal forcing, and model reference time for output
 ! NetCDF units attribute.
 
-      DSTART =  28856.5d0                  ! days
+      DSTART =  36509.0d0                  ! days
   TIDE_START =  -1.0d0                     ! days
     TIME_REF =  19000101.0d0               ! yyyymmdd.dd
 
@@ -365,13 +365,13 @@ ad_VolCons(north) ==  F                            ! northern boundary
 ! Logical switches (TRUE/FALSE) to specify which variables to process for
 ! tracers climatology: [1:NAT+NPT,Ngrids]. See glossary below for details.
 
-  LtracerCLM == T T F F F F                ! temperature, salinity, inert
+  LtracerCLM == T T                        ! temperature, salinity, inert
 
 ! Logical switches (TRUE/FALSE) to specify which variables to consider on
 ! tracers point Sources/Sinks (like river runoff): [1:NAT+NPT,Ngrids].
 ! See glossary below for details.
 
-  LtracerSrc == F F F F F F                ! temperature, salinity, inert
+  LtracerSrc == F F                        ! temperature, salinity, inert
 
 ! Starting (DstrS) and ending (DendS) day for adjoint sensitivity forcing.
 ! DstrS must be less or equal to DendS. If both values are zero, their
@@ -741,8 +741,8 @@ Dout(iTvdif) == T T                        ! vertical diffusion
 
 ! Input NetCDF file names, [1:Ngrids].
 
-     GRDNAME == /center/w/kate/Arctic2/Files/grid_Arctic_2.nc
-     ININAME == /center/w/kate/Arctic2/Files/SODA_2.1.6_19790101-19790106_ic_ARCTIC2.nc
+     GRDNAME == /center/w/kate/NWGOA/Files/Cook_Inlet_grid_1.nc
+     ININAME == /center/w/kate/NWGOA/Files/nep6_avg_00005_NWGOA.nc
 !     ININAME == arctic_rst.nc
      ITLNAME == ocean_itl.nc
      IRPNAME == ocean_irp.nc
@@ -768,7 +768,7 @@ Dout(iTvdif) == T T                        ! vertical diffusion
      CLMNAME == ocean_clm.nc
 
     NBCFILES == 1                          ! number of boundary files
-     BRYNAME == /center/w/kate/Arctic2/Files/SODA_Arctic2_bdry.nc
+     BRYNAME == /center/w/kate/NWGOA/Files/NWGOA_bdry_01.nc
 
 ! Input forcing NetCDF file name(s).  The USER has the option to enter
 ! several files names per each nested grid.  For example, the USER may
@@ -783,28 +783,27 @@ Dout(iTvdif) == T T                        ! vertical diffusion
 
     NFFILES == 13                          ! number of forcing files
 
-    FRCNAME == /center/w/kate/MERRA/MERRA_Pair_3hours_1979.nc   |
-               /center/w/kate/MERRA/MERRA_Pair_3hours_1980.nc   \
-               /center/w/kate/MERRA/MERRA_Qair_3hours_1979.nc   |
-               /center/w/kate/MERRA/MERRA_Qair_3hours_1980.nc   \
-               /center/w/kate/MERRA/MERRA_Tair_3hours_1979.nc   |
-               /center/w/kate/MERRA/MERRA_Tair_3hours_1980.nc   \
-               /center/w/kate/MERRA/MERRA_rain_3hours_1979.nc   |
-               /center/w/kate/MERRA/MERRA_rain_3hours_1980.nc   \
-               /center/w/kate/MERRA/MERRA_swrad_3hours_1979.nc  |
-               /center/w/kate/MERRA/MERRA_swrad_3hours_1980.nc  \
-               /center/w/kate/MERRA/MERRA_Uwind_3hours_1979.nc  |
-               /center/w/kate/MERRA/MERRA_Uwind_3hours_1980.nc  \
-               /center/w/kate/MERRA/MERRA_Vwind_3hours_1979.nc  |
-               /center/w/kate/MERRA/MERRA_Vwind_3hours_1980.nc  \
-               /center/w/kate/MERRA/MERRA_albedo_daily_1979.nc  |
-               /center/w/kate/MERRA/MERRA_albedo_daily_1980.nc  \
-               /center/w/kate/MERRA/MERRA_lwrad_down_3hours_1979.nc  |
-               /center/w/kate/MERRA/MERRA_lwrad_down_3hours_1980.nc  \
+    FRCNAME == /center/w/kate/MERRA/MERRA_Pair_3hours_1999.nc   |
+               /center/w/kate/MERRA/MERRA_Pair_3hours_2000.nc   \
+               /center/w/kate/MERRA/MERRA_Qair_3hours_1999.nc   |
+               /center/w/kate/MERRA/MERRA_Qair_3hours_2000.nc   \
+               /center/w/kate/MERRA/MERRA_Tair_3hours_1999.nc   |
+               /center/w/kate/MERRA/MERRA_Tair_3hours_2000.nc   \
+               /center/w/kate/MERRA/MERRA_rain_3hours_1999.nc   |
+               /center/w/kate/MERRA/MERRA_rain_3hours_2000.nc   \
+               /center/w/kate/MERRA/MERRA_swrad_3hours_1999.nc  |
+               /center/w/kate/MERRA/MERRA_swrad_3hours_2000.nc  \
+               /center/w/kate/MERRA/MERRA_Uwind_3hours_1999.nc  |
+               /center/w/kate/MERRA/MERRA_Uwind_3hours_2000.nc  \
+               /center/w/kate/MERRA/MERRA_Vwind_3hours_1999.nc  |
+               /center/w/kate/MERRA/MERRA_Vwind_3hours_2000.nc  \
+               /center/w/kate/MERRA/MERRA_albedo_daily_1999.nc  |
+               /center/w/kate/MERRA/MERRA_albedo_daily_2000.nc  \
+               /center/w/kate/MERRA/MERRA_lwrad_down_3hours_1999.nc  |
+               /center/w/kate/MERRA/MERRA_lwrad_down_3hours_2000.nc  \
                /center/w/kate/CORE2/sss_fill_2004.nc \
-               /center/w/kate/Arctic2/Files/runoff_ARCTIC2_daitren_inter_annual_1948-2007.nc \
-               /center/w/kate/Arctic2/Files/fastice_Arctic2.nc \
-               /center/w/kate/Arctic2/Files/Arctic2_tides_otps.nc
+               /center/w/kate/Arctic2/Files/runoff_NWGOA_daitren_clim.nc \
+               /center/w/kate/Arctic2/Files/NWGOA_tides_otps.nc
 
 ! Output NetCDF file names, [1:Ngrids].
 
@@ -823,10 +822,10 @@ Dout(iTvdif) == T T                        ! vertical diffusion
 ! Input ASCII parameter filenames.
 
      APARNAM =  External/assimilation.in
-     SPOSNAM =  /center/w/kate/Arctic2/External/stations_arctic.in
-     FPOSNAM =  /center/w/kate/Arctic2/External/floats_arctic.in
-     IPARNAM =  /center/w/kate/Arctic2/External/ice.in
-     BPARNAM =  /center/w/kate/Arctic2/External/nemuro_iron.in
+     SPOSNAM =  /center/w/kate/NWGOA/External/stations_arctic.in
+     FPOSNAM =  /center/w/kate/NWGOA/External/floats_arctic.in
+     IPARNAM =  /center/w/kate/NWGOA/External/ice.in
+     BPARNAM =  /center/w/kate/NWGOA/External/nemuro_iron.in
      SPARNAM =  External/sediment.in
      USRNAME =  External/MyFile.dat
 
