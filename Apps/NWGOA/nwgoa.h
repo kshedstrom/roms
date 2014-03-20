@@ -9,11 +9,11 @@
 **
 *******************************************************************************
 **
-**  Options for ARCTIC simulation
+**  Options for NWGOA simulation
 */
 
-#define NO_HIS
-#define GLOBAL_PERIODIC
+#undef NO_HIS
+#undef GLOBAL_PERIODIC
 #undef NETCDF4
 #undef PARALLEL_IO
 #undef OFFLINE_FLOATS
@@ -28,11 +28,11 @@
 #ifdef SOLVE3D
 # define SPLINES
 #endif
-#define FLOATS
+#undef FLOATS
 #define STATIONS
-#undef WET_DRY
+#define WET_DRY
 
-#define T_PASSIVE
+#undef T_PASSIVE
 #ifdef T_PASSIVE
 # define ANA_BPFLUX        /* analytical bottom passive tracers fluxes */
 # define ANA_SPFLUX 
@@ -47,9 +47,9 @@
 #ifdef SOLVE3D
 # define  ICE_MODEL
 # ifdef ICE_MODEL
-#  define ANA_ICE
-#  define  OUTFLOW_MASK
-#  define  FASTICE_CLIMATOLOGY
+#  undef ANA_ICE
+#  undef  OUTFLOW_MASK
+#  undef  FASTICE_CLIMATOLOGY
 #  define  ICE_THERMO
 #  define  ICE_MK
 #  undef   ICE_SMOOTH
@@ -172,6 +172,8 @@
 /* Using Runoff now */
 #ifdef SOLVE3D
 # define RUNOFF
+# undef UV_PSOURCE
+# undef TS_PSOURCE
 #endif
 
 /* tides */
@@ -185,7 +187,7 @@
 # define ADD_M2OBC
 # undef RAMP_TIDES
 # define TIDES_ASTRO
-# define POT_TIDES
+# undef POT_TIDES
 
 # undef UV_LDRAG
 # define UV_DRAG_GRID

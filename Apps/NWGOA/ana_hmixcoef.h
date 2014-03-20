@@ -168,14 +168,14 @@
 !!            
 # ifdef UV_VIS2
       cff=visc2(ng)/grdmax(ng)
-      DO j=JstrT,JendT
-        DO i=IstrT,IendT
+      DO j=JstrR,JendR
+        DO i=IstrR,IendR
           visc2_r(i,j)=cff*grdscl(i,j)
         END DO
       END DO
       cff=0.25_r8*cff
-      DO j=JstrP,JendT
-        DO i=IstrP,IendT
+      DO j=Jstr,JendR
+        DO i=Istr,IendR
           visc2_p(i,j)=cff*(grdscl(i,j  )+grdscl(i-1,j  )+              &
      &                      grdscl(i,j-1)+grdscl(i-1,j-1))
         END DO
@@ -183,14 +183,14 @@
 # endif
 # ifdef UV_VIS4
       cff=visc4(ng)/(grdmax(ng)**3)
-      DO j=JstrT,JendT
-        DO i=IstrT,IendT
+      DO j=JstrR,JendR
+        DO i=IstrR,IendR
           visc4_r(i,j)=cff*grdscl(i,j)**3
         END DO
       END DO
       cff=0.25_r8*cff
-      DO j=JstrP,JendT
-        DO i=IstrP,IendT
+      DO j=Jstr,JendR
+        DO i=Istr,IendR
           visc4_p(i,j)=cff*(grdscl(i,j  )**3+grdscl(i-1,j  )**3+        &
      &                      grdscl(i,j-1)**3+grdscl(i-1,j-1)**3)
         END DO
@@ -209,8 +209,8 @@
 # ifdef TS_DIF2
       DO itrc=1,NT(ng)
         cff=tnu2(itrc,ng)/grdmax(ng)
-        DO j=JstrT,JendT
-          DO i=IstrT,IendT
+        DO j=JstrR,JendR
+          DO i=IstrR,IendR
             diff2(i,j,itrc)=cff*grdscl(i,j)
           END DO
         END DO
@@ -219,8 +219,8 @@
 # ifdef TS_DIF4
       DO itrc=1,NT(ng)
         cff=tnu4(itrc,ng)/(grdmax(ng)**3)
-        DO j=JstrT,JendT
-          DO i=IstrT,IendT
+        DO j=JstrR,JendR
+          DO i=IstrR,IendR
             diff4(i,j,itrc)=cff*grdscl(i,j)**3
           END DO
         END DO
@@ -238,7 +238,7 @@
 !!            
 
 !
-! Northeast Pacific sponge areas
+! NWGOA sponge areas
 !
       Iwrk = 10
 #  if defined UV_VIS2
@@ -249,61 +249,65 @@
           visc2_p(i,j) = max(cff, visc2_p(i,j))
         END DO
       END DO
-      DO i=IstrT,MIN(Iwrk,IendT)
-        DO j=JstrT,JendT
+      DO i=IstrR,MIN(Iwrk,IendR)
+        DO j=JstrR,JendR
           cff = 250.*0.5_r8*(1.0_r8+COS(pi*REAL(i,r8)/REAL(Iwrk,r8)))
           visc2_r(i,j) = max(cff, visc2_r(i,j))
           visc2_p(i,j) = max(cff, visc2_p(i,j))
         END DO
       END DO
+#ifndef NWGOA
       DO i=MAX(Lm(ng)+1-Iwrk,IstrR),IendR
         ifoo = Lm(ng)+1-i
-        DO j=MAX(JstrT,ifoo),JendT
+        DO j=MAX(JstrR,ifoo),JendR
           cff = 250.*0.5_r8*(1.0_r8+COS(pi*REAL(ifoo,r8)/REAL(Iwrk,r8)))
           visc2_r(i,j) = max(cff, visc2_r(i,j))
           visc2_p(i+1,j) = max(cff, visc2_p(i+1,j))
         END DO
       END DO
-      DO j=MAX(Mm(ng)+1-Iwrk,JstrT),JendT
+      DO j=MAX(Mm(ng)+1-Iwrk,JstrR),JendR
         ifoo = Mm(ng)+1-j
         itwo = Lm(ng)-Mm(ng)+j
-        DO i=MAX(IstrT,ifoo),MIN(IendT,itwo)
+        DO i=MAX(IstrR,ifoo),MIN(IendR,itwo)
           cff = 250.*0.5_r8*(1.0_r8+COS(pi*REAL(ifoo,r8)/REAL(Iwrk,r8)))
           visc2_r(i,j) = max(cff, visc2_r(i,j))
           visc2_p(i+1,j) = max(cff, visc2_p(i+1,j))
         END DO
       END DO
+#endif
 #  endif
 #  ifdef SOLVE3D
 #   if defined TS_DIF2
       DO itrc=1,NT(ng)
         DO j=JstrR,MIN(Iwrk,JendR)
           cff = 100. * (1.0_r8+COS(pi*REAL(j,r8)/REAL(Iwrk,r8)))
-          DO i=IstrT,IendT
+          DO i=IstrR,IendR
             diff2(i,j,itrc)=max(cff, diff2(i,j,itrc))
           END DO
         END DO
-        DO i=IstrT,MIN(Iwrk,IendT)
-          DO j=MAX(JstrT,i),JendT
+        DO i=IstrR,MIN(Iwrk,IendR)
+          DO j=MAX(JstrR,i),JendR
             cff = 100. * (1.0_r8+COS(pi*REAL(i,r8)/REAL(Iwrk,r8)))
             diff2(i,j,itrc) = max(cff, diff2(i,j,itrc))
           END DO
         END DO
+#ifndef NWGOA
         DO i=MAX(Lm(ng)+1-Iwrk,IstrR),IendR
           ifoo = Lm(ng)+1-i
-          DO j=MAX(JstrT,ifoo),JendT
+          DO j=MAX(JstrR,ifoo),JendR
             cff = 100. * (1.0_r8+COS(pi*REAL(ifoo,r8)/REAL(Iwrk,r8)))
             diff2(i,j,itrc) = max(cff, diff2(i,j,itrc))
           END DO
         END DO
-        DO j=MAX(Mm(ng)+1-Iwrk,JstrT),JendT
+        DO j=MAX(Mm(ng)+1-Iwrk,JstrR),JendR
           ifoo = Mm(ng)+1-j
           itwo = Lm(ng)-Mm(ng)+j
-          DO i=MAX(IstrT,ifoo),MIN(IendT,itwo)
+          DO i=MAX(IstrR,ifoo),MIN(IendR,itwo)
             cff = 100. * (1.0_r8+COS(pi*REAL(ifoo,r8)/REAL(Iwrk,r8)))
             diff2(i,j,itrc) = max(cff, diff2(i,j,itrc))
           END DO
         END DO
+#endif
       END DO
 #   endif
 #  endif

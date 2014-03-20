@@ -311,7 +311,9 @@
               bry_val=BOUNDARY(ng)%ubar_west(j)
 #endif
               cff=1.0_r8/(0.5_r8*(GRID(ng)%h(Istr-1,j)+                 &
-     &                            GRID(ng)%h(Istr  ,j)))
+     &                            zeta(Istr-1,j,know)+                  &
+     &                            GRID(ng)%h(Istr  ,j)+                 &
+     &                            zeta(Istr  ,j,know)))
               cff1=SQRT(g*cff)
               Cx=dt2d*cff1*0.5_r8*(GRID(ng)%pm(Istr-1,j)+               &
      &                             GRID(ng)%pm(Istr  ,j))
@@ -624,7 +626,9 @@
               bry_val=BOUNDARY(ng)%ubar_east(j)
 #endif
               cff=1.0_r8/(0.5_r8*(GRID(ng)%h(Iend  ,j)+                 &
-     &                            GRID(ng)%h(Iend+1,j)))
+     &                            zeta(Iend  ,j,know)+                  &
+     &                            GRID(ng)%h(Iend+1,j)+                 &
+     &                            zeta(Iend+1,j,know)))
               cff1=SQRT(g*cff)
               Cx=dt2d*cff1*0.5_r8*(GRID(ng)%pm(Iend  ,j)+               &
      &                             GRID(ng)%pm(Iend+1,j))

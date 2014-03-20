@@ -1415,10 +1415,16 @@
       Coptions(is:is+12)=' NO_LBC_ATT,'
 #endif
 #if defined NO_READ_GHOST && defined DISTRIBUTE
-      IF (Master) WRITE (stdout,20) 'NO_READ_GHOST',                     &
+      IF (Master) WRITE (stdout,20) 'NO_READ_GHOST',                    &
      &   'Not including ghost points during scattering read data.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+15)=' NO_READ_GHOST,'
+#endif
+#if defined NO_SCORRECTION_ICE
+      IF (Master) WRITE (stdout,20) 'NO_SCORRECTION_ICE',               &
+     &   'Not including SCORRECTION under the ice.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+20)=' NO_SCORRECTION_ICE,'
 #endif
 #ifdef NO_WRITE_GRID
       IF (Master) WRITE (stdout,20) 'NO_WRITE_GRID',                    &
