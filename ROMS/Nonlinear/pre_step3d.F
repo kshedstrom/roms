@@ -269,7 +269,7 @@
 !
 !  Local variable declarations.
 !
-      integer :: i, ibt, indx, is, itrc, j, k, ltrc
+      integer :: i, ibt, ic, indx, is, itrc, j, k, ltrc
 # if defined DIAGNOSTICS_TS || defined DIAGNOSTICS_UV
       integer :: idiag
 # endif
@@ -1173,16 +1173,17 @@
 !  Apply intermediate tracers lateral boundary conditions.
 !=======================================================================
 !
+      ic=0
 #  ifdef OFFLINE_BIOLOGY
       DO ibt=1,NBT
         itrc=idbio(ibt)
 #  else
       DO itrc=1,NT(ng)
 #  endif
-#  ifdef T_PASSIVE
-       IF (itrc.lt.inert(1) .or. itrc.gt.inert(NPT)) THEN
-#  endif
-        CALL t3dbc_tile (ng, tile, itrc,                                &
+        IF (LtracerCLM(itrc,ng).and.LnudgeTCLM(itrc,ng)) THEN
+          ic=ic+1
+        END IF
+        CALL t3dbc_tile (ng, tile, itrc, ic,                            &
      &                   LBi, UBi, LBj, UBj, N(ng), NT(ng),             &
      &                   IminS, ImaxS, JminS, JmaxS,                    &
      &                   nstp, 3,                                       &
