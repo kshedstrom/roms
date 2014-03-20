@@ -469,14 +469,9 @@
 # ifdef DISTRIBUTE
       CALL mp_bcasti (ng, iNLM, exit_flag)
 # endif
-<<<<<<< HEAD
-      IF (exit_flag.ne.NoError) RETURN
-=======
 !$OMP BARRIER
         IF (exit_flag.ne.NoError) RETURN
         time(ng)=io_time                     ! needed for shared-memory
-      END DO
->>>>>>> 731fa81... src:ticket:630
 #else
 !
 !  If restart, read in initial conditions restart NetCDF file.
@@ -502,14 +497,9 @@
           CALL ana_ice (ng, tile, iNLM)
         END DO
 !$OMP BARRIER
-<<<<<<< HEAD
+        IF (exit_flag.ne.NoError) RETURN
+        time(ng)=io_time                   ! needed for shared-memory
       END IF
-=======
-          IF (exit_flag.ne.NoError) RETURN
-          time(ng)=io_time                   ! needed for shared-memory
-        END IF
-      END DO
->>>>>>> 731fa81... src:ticket:630
 #endif
 
 #if (defined W4DPSAS || defined TL_W4DPSAS || \
