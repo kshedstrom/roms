@@ -110,32 +110,28 @@
       nrhs(ng)=1
       nnew(ng)=1
 #ifdef FLOATS
-      nf(ng)=0
-      nfp1(ng)=1
-      nfm1(ng)=4
-      nfm2(ng)=3
-      nfm3(ng)=2
+        nf(ng)=0
+        nfp1(ng)=1
+        nfm1(ng)=4
+        nfm2(ng)=3
+        nfm3(ng)=2
 #endif
 !
+        IniRec(ng)=nrrec(ng)
+        Tindex(ng)=1
+!
+        synchro_flag(ng)=.TRUE.
+        first_time(ng)=0
+        tdays(ng)=dstart
+        time(ng)=tdays(ng)*day2sec
 !$OMP MASTER
-      synchro_flag(ng)=.TRUE.
-      first_time(ng)=0
-      tdays(ng)=dstart
-      time(ng)=tdays(ng)*day2sec
-      ntstart(ng)=INT((time(ng)-dstart*day2sec)/dt(ng))+1
-      ntend(ng)=ntimes(ng)
-      ntfirst(ng)=ntstart(ng)
-      CALL time_string (time(ng), time_code(ng))
+        ntstart(ng)=INT((time(ng)-dstart*day2sec)/dt(ng))+1
+        ntend(ng)=ntimes(ng)
+        ntfirst(ng)=ntstart(ng)
 !$OMP END MASTER
 !$OMP BARRIER
-
-      IniRec=nrrec(ng)
-      Tindex=1
-
-      LBi=LBOUND(GRID(ng)%h,DIM=1)
-      UBi=UBOUND(GRID(ng)%h,DIM=1)
-      LBj=LBOUND(GRID(ng)%h,DIM=2)
-      UBj=UBOUND(GRID(ng)%h,DIM=2)
+        step_counter(ng)=0
+        CALL time_string (time(ng), time_code(ng))
 
 #ifdef PROFILE
 !
@@ -473,7 +469,14 @@
 # ifdef DISTRIBUTE
       CALL mp_bcasti (ng, iNLM, exit_flag)
 # endif
+<<<<<<< HEAD
       IF (exit_flag.ne.NoError) RETURN
+=======
+!$OMP BARRIER
+        IF (exit_flag.ne.NoError) RETURN
+        time(ng)=io_time                     ! needed for shared-memory
+      END DO
+>>>>>>> 731fa81... src:ticket:630
 #else
 !
 !  If restart, read in initial conditions restart NetCDF file.
@@ -499,7 +502,14 @@
           CALL ana_ice (ng, tile, iNLM)
         END DO
 !$OMP BARRIER
+<<<<<<< HEAD
       END IF
+=======
+          IF (exit_flag.ne.NoError) RETURN
+          time(ng)=io_time                   ! needed for shared-memory
+        END IF
+      END DO
+>>>>>>> 731fa81... src:ticket:630
 #endif
 
 #if (defined W4DPSAS || defined TL_W4DPSAS || \
