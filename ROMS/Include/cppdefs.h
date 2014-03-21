@@ -238,6 +238,7 @@
 ** ANA_M3CLIMA         use if analytical 3D momentum climatology             **
 ** ANA_M3OBC           use if analytical 3D momentum boundary conditions     **
 ** ANA_MASK            use if analytical Land/Sea masking                    **
+** ANA_NUDGCOEF        use if analytical climatology nudging coefficients    **
 ** ANA_PAIR            use if analytical surface air pressure                **
 ** ANA_PASSIVE         use if analytical inert tracers initial conditions    **
 ** ANA_PERTURB         use if analytical perturbation of initial conditions  **
@@ -248,6 +249,7 @@
 ** ANA_SMFLUX          use if analytical surface momentum stress             **
 ** ANA_SPFLUX          use if analytical surface passive tracers fluxes      **
 ** ANA_SPINNING        use if analytical time-varying rotation force         **
+** ANA_SPONGE          use if analytical enhanced viscosity/diffusion sponge **
 ** ANA_SRFLUX          use if analytical surface shortwave radiation flux    **
 ** ANA_SSFLUX          use if analytical surface salinity flux               **
 ** ANA_SSH             use if analytical sea surface height                  **
@@ -361,10 +363,6 @@
 **                                                                           **
 ** RADIATION_2D        use if tangential phase speed in radiation conditions **
 **                                                                           **
-** OPTION to impose a sponge layer near the lateral boundary:                **
-**                                                                           **
-** SPONGE              use if enhanced viscosity/diffusion areas             **
-**                                                                           **
 ** OPTIONS for tidal forcing at open boundaries:                             **
 **                                                                           **
 **   The tidal data is processed in terms of tidal components, classified by **
@@ -390,19 +388,11 @@
 **                                                                           **
 ** OPTIONS for reading and processing of climatological fields:              **
 **                                                                           **
-** M2CLIMATOLOGY       use if processing 2D momentum climatology             **
-** M3CLIMATOLOGY       use if processing 3D momentum climatology             **
 ** OCLIMATOLOGY        use if processing 3D vertical momentum climatology    **
 ** AKTCLIMATOLOGY      use if processing 3D vertical salinity diffustion     **
 ** TCLIMATOLOGY        use if processing tracers climatology                 **
 ** BTCLIMATOLOGY       use if processing biological tracers climatology      **
-** ZCLIMATOLOGY        use if processing SSH climatology                     **
 **                                                                           **
-** OPTIONS to nudge climatology data (primarily in sponge areas):            **
-**                                                                           **
-** M2CLM_NUDGING       use if nudging 2D momentum climatology                **
-** M3CLM_NUDGING       use if nudging 3D momentum climatology                **
-** TCLM_NUDGING        use if nudging tracers climatology                    **
 ** BCLM_NUDGING        use if nudging biological tracers climatology         **
 **                                                                           **
 ** ROMS/TOMS driver OPTIONS:                                                 **

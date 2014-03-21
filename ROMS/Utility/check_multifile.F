@@ -199,21 +199,22 @@
         END IF
       END DO
 #endif
-#ifdef CLM_FILE
 !
 !-----------------------------------------------------------------------
 !  Input climatology data.
 !-----------------------------------------------------------------------
 !
-      DO i=1,nCLMfiles(ng)
-        Nfiles=CLM(i,ng)%Nfiles
-        DO ifile=1,Nfiles
-          ncname=CLM(i,ng)%files(ifile)
-          foundit=check_file(ng, model, ncname, Tmin, Tmax, Tscale,     &
-     &                     Lcheck)
-          IF (exit_flag.ne.NoError) RETURN
-          CLM(i,ng)%time_min(ifile)=Tmin
-          CLM(i,ng)%time_max(ifile)=Tmax
+      IF (CLM_FILE(ng)) THEN
+        DO i=1,nCLMfiles(ng)
+          Nfiles=CLM(i,ng)%Nfiles
+          DO ifile=1,Nfiles
+            ncname=CLM(ng)%files(ifile)
+            foundit=check_file(ng, model, ncname, Tmin, Tmax, Tscale,   &
+     &                       Lcheck)
+            IF (exit_flag.ne.NoError) RETURN
+            CLM(i,ng)%time_min(ifile)=Tmin
+            CLM(i,ng)%time_max(ifile)=Tmax
+          END DO
         END DO
 !
 !  Set the appropriate file counter to use during initialization or
@@ -265,11 +266,13 @@
               WRITE (stdout,30) 'Climatology',                          &
      &                          TRIM(CLM(i,ng)%files(Nfiles)),          &
      &                          Tmax_code, F_code
+     &                          TRIM(CLM(ng)%files(Nfiles)),            &
+     &                          Tmax_code, F_code
             END IF
+            exit_flag=4
           END IF
         END IF
-      END DO
-#endif
+      END IF
 
  10   FORMAT (/,' CHECK_MULTIFILE - Error while processing ', a,        &
      &        ' multi-files: ',/,19x,'data does not include',           &
