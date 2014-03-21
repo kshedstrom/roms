@@ -68,16 +68,6 @@
 !  Set 2D momentum climatology.
 !-----------------------------------------------------------------------
 !
-<<<<<<< HEAD
-      DO j=JstrR,JendR
-        DO i=Istr,IendR
-          ubarclm(i,j)=???
-        END DO
-      END DO
-      DO j=Jstr,JendR
-        DO i=IstrR,IendR
-          vbarclm(i,j)=???
-=======
       IF (Lm2CLM(ng)) THEN
         DO j=JstrT,JendT
           DO i=IstrP,IendT
@@ -88,7 +78,6 @@
           DO i=IstrT,IendT
             CLIMA(ng)%vbarclm(i,j)=???
           END DO
->>>>>>> c748248... src:ticket:627
         END DO
 !
 !  Exchange boundary data.

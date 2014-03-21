@@ -749,15 +749,12 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
      FWDNAME == ocean_fwd.nc
      ADSNAME == ocean_ads.nc
 
-<<<<<<< HEAD
-=======
 ! Nesting grids connectivity data: contact points information. This
 ! NetCDF file is special and complex. It is currently generated using
 ! the script "matlab/grid/contact.m" from the Matlab repository.
 
      NGCNAME =  ocean_ngc.nc
 
->>>>>>> c748248... src:ticket:627
 ! Input lateral boundary conditions and climatology file names.  The
 ! USER has the option to split input data time records into several
 ! NetCDF files (see prologue instructions above). If so, use a single
@@ -840,10 +837,6 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
 ! Nested grid parameters.
 !------------------------------------------------------------------------------
 !
-<<<<<<< HEAD
-!  Ngrids      Number of nested grids. It needs to be read at the top of all
-!              other parameters in order to allocate all model variables.
-=======
 ! Ngrids       Number of nested grids. It needs to be read before all other
 !                parameters in order to allocate all model variables.
 !
@@ -898,7 +891,6 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
 !
 !                but it is too inefficient. This information is provided here
 !                to help you configure the order of nested grids.
->>>>>>> c748248... src:ticket:627
 !
 !------------------------------------------------------------------------------
 ! Grid dimension parameters.
@@ -1797,11 +1789,7 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
 !
 ! T0           Background potential temperature (Celsius) constant.
 !
-<<<<<<< HEAD
-!  S0          Background salinity (PSU) constant.
-=======
 ! S0           Background salinity (nondimensional) constant.
->>>>>>> c748248... src:ticket:627
 !
 ! TCOEF        Thermal expansion coefficient in Linear Equation of State.
 !
@@ -2362,8 +2350,6 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
 !
 !  ADSNAME     Input adjoint sensitivity functional file name.
 !
-<<<<<<< HEAD
-=======
 !
 ! Nesting grids connectivity data:
 !
@@ -2381,7 +2367,6 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
 !                for more information.
 !
 !
->>>>>>> c748248... src:ticket:627
 ! Input lateral boundary conditions and climatology file names:
 !
 ! BRYNAME      Input open boundary data file name(s) per nested grid.

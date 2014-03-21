@@ -909,7 +909,6 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
 !
 !                but it is too inefficient. This information is provided here
 !                to help you configure the order of nested grids.
->>>>>>> c748248... src:ticket:627
 !
 !------------------------------------------------------------------------------
 ! Grid dimension parameters.
