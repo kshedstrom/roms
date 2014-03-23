@@ -2029,6 +2029,12 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+18)=' TIME_INTERP_FLUX,'
 #endif
+#if defined TIME_INTERP_FLUX && defined NESTING && defined SOLVE3D
+      IF (Master) WRITE (stdout,20) 'TIME_INTERP_FLUX',                 &
+     &   'Time interpolate coarse 2D mass flux instead of persist.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+18)=' TIME_INTERP_FLUX,'
+#endif
 #if defined TL_AVERAGES && defined TANGENT
       IF (Master) WRITE (stdout,20) 'TL_AVERAGES',                      &
      &   'Writing out time-averaged tangent linear model fields.'
