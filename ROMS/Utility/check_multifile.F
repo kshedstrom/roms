@@ -419,10 +419,18 @@
      &        (INDEX(TRIM(var_Achar(i)),'none').ne.0)) THEN
             Lperpetual=.TRUE.
           END IF
+        ELSE IF (TRIM(var_Aname(i)).eq.'calendar') THEN
+          IF ((Nrec.eq.1).or.                                           &
+     &        (INDEX(TRIM(var_Achar(i)),'none').ne.0)) THEN
+            Lperpetual=.TRUE.
+          END IF
         ELSE IF (TRIM(var_Aname(i)).eq.'cycle_length') THEN
           Lcycle=.TRUE.
         END IF
       END DO
+      IF (Lcycle.or.Lperpetual) THEN
+        Lcheck=.FALSE.
+      END IF
 !
 !  Turn off the checking of time range if cycling, perpectual, or
 !  spectral time axis.
