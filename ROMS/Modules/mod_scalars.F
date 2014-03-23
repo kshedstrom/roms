@@ -142,6 +142,7 @@
 !    dtfast        Size barotropic timestep (s).
 !    dtau          Size of age increment
 !    run_time      Total run time for all nested grids (s).
+!    io_time       Current I/O time (s) processed in "get_state".
 !    tdays         Model time clock (days).
 !    time          Model time clock (s).
 !    time_code     Model time clock (string, Day HH:MM:SS)
@@ -185,6 +186,7 @@
 
         real(r8), allocatable :: dt(:)                   ! seconds
         real(r8), allocatable :: dtfast(:)               ! seconds
+
         real(r8), allocatable :: TimeEnd(:)              ! seconds
         real(r8), allocatable :: AVGtime(:)              ! seconds
         real(r8), allocatable :: AVG2time(:)             ! seconds
@@ -201,6 +203,7 @@
 
         real(r8), dimension(8) :: r_date
         real(r8) :: dstart = 0.0_r8                      ! days
+        real(r8) :: io_time = 0.0_r8                     ! seconds
         real(r8) :: run_time = 0.0_r8                    ! seconds
         real(r8) :: tide_start = 0.0_r8                  ! days
         real(r8) :: time_ref = 0.0_r8                    ! YYYYMMDD.dd
@@ -283,7 +286,7 @@
         integer, allocatable :: ntfirst(:)      ! Forward-Euler step
         integer, allocatable :: ntstart(:)      ! Start step
         integer, allocatable :: ntend(:)        ! End step
-!$OMP THREADPRIVATE (ntfirst, ntstart, ntend)
+!!$OMP THREADPRIVATE (ntfirst, ntstart, ntend)
 !
 !  Adjoint model or tangent linear model impulse forcing time record
 !  counter and number of records available.
@@ -1792,11 +1795,11 @@
       allocate ( ntimes(Ngrids) )
       allocate ( first_time(Ngrids) )
 
-!$OMP PARALLEL
-      allocate ( synchro_flag(Ngrids) )
       allocate ( ntfirst(Ngrids) )
       allocate ( ntstart(Ngrids) )
       allocate ( ntend(Ngrids) )
+!$OMP PARALLEL
+      allocate ( synchro_flag(Ngrids) )
       allocate ( step_counter(Ngrids) )
       allocate ( tdays(Ngrids) )
       allocate ( time(Ngrids) )
