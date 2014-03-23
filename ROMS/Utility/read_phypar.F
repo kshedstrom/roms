@@ -3457,17 +3457,17 @@
 !  for compatability with old "ocean.in" input scripts.
 !
 #ifndef NESTING
-!     IF (.not.got_NestLayers) THEN
-!       NestLayers=1
-!       IF (.not.allocated(GridsInLayer)) THEN
-!         allocate ( GridsInLayer(NestLayers) )
-!       END IF
-!       IF (.not.allocated(GridNumber)) THEN
-!         allocate ( GridNumber(Ngrids,NestLayers) )
-!       END IF
-!     END IF
-!     GridsInLayer=1              ! In case that users set illegal
-!     GridNumber=1                ! values in non-nesting applications
+      IF (.not.got_NestLayers) THEN
+        NestLayers=1
+        IF (.not.allocated(GridsInLayer)) THEN
+          allocate ( GridsInLayer(NestLayers) )
+        END IF
+        IF (.not.allocated(GridNumber)) THEN
+          allocate ( GridNumber(Ngrids,NestLayers) )
+        END IF
+      END IF
+      GridsInLayer=1              ! In case that users set illegal
+      GridNumber=1                ! values in non-nesting applications
 #else
       IF (.not.got_NestLayers) THEN
         IF (Master) THEN
