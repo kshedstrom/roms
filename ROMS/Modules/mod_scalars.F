@@ -125,6 +125,7 @@
 #  endif
 # endif
 #endif
+
 !
 !-----------------------------------------------------------------------
 !  Time stepping indices, variables, and clocks.
@@ -167,7 +168,6 @@
 !    time_ref      Reference time for "units" attribute (YYYYMMDD.dd).
 !    r_text        Model initialization reference text (string).
 !
-
         logical, allocatable :: PerfectRST(:)
         logical, allocatable :: PREDICTOR_2D_STEP(:)
 !$OMP THREADPRIVATE (PREDICTOR_2D_STEP)
@@ -1697,7 +1697,6 @@
       integer :: ng
 
       real(r8), parameter :: IniVal = 0.0_r8
-
 !
 !-----------------------------------------------------------------------
 !  Allocate and initialize variables in module structure.

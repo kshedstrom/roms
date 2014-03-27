@@ -66,39 +66,6 @@
               CASE ('idNPP')
                 idNPP=varid
 # endif
-
-! All over again for climatatology
-              CASE ('idTclm(iLphy)')
-                idTclm(iLphy)=varid
-              CASE ('idTclm(iSphy)')
-                idTclm(iSphy)=varid
-              CASE ('idTclm(iLzoo)')
-                idTclm(iLzoo)=varid
-              CASE ('idTclm(iSzoo)')
-                idTclm(iSzoo)=varid
-              CASE ('idTclm(iPzoo)')
-                idTclm(iPzoo)=varid
-              CASE ('idTclm(iNO3_)')
-                idTclm(iNO3_)=varid
-              CASE ('idTclm(iNH4_)')
-                idTclm(iNH4_)=varid
-              CASE ('idTclm(iPON_)')
-                idTclm(iPON_)=varid
-              CASE ('idTclm(iDON_)')
-                idTclm(iDON_)=varid
-              CASE ('idTclm(iSiOH)')
-                idTclm(iSiOH)=varid
-              CASE ('idTclm(iopal)')
-                idTclm(iopal)=varid
-# ifdef IRON_LIMIT
-              CASE ('idTclm(iFeSp)')
-                idTclm(iFeSp)=varid
-              CASE ('idTclm(iFeLp)')
-                idTclm(iFeLp)=varid
-              CASE ('idTclm(iFeD_)')
-                idTclm(iFeD_)=varid
-# endif
-
 !
 !  Biological tracers open boundary conditions.
 !

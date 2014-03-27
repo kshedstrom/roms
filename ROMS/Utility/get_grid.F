@@ -337,18 +337,12 @@
 # endif
      &                        GRID(ng) % h)
             IF (status.ne.nf90_noerr) THEN
-!             DO j=LBj,UBj
-!               DO i=LBi,UBi
-!                 IF (GRID(ng)%h(i,j) .eq. 0.0) GRID(ng) % h(i,j) = -1.
-!               END DO
-!             END DO
-!           ELSE
               IF (Master) THEN
                 WRITE (stdout,30) 'h', TRIM(ncname)
               END IF
               exit_flag=2
               ioerror=status
-              RETURN
+              EXIT
             END IF
 # ifdef NESTING
             CALL fill_contact(ng, model, tile,                          &
@@ -1857,7 +1851,7 @@
               EXIT
             END IF
             IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
-              CALL exchange_r2d_tile (ng, tile,                         &
+              CALL exchange_u2d_tile (ng, tile,                         &
      &                                LBi, UBi, LBj, UBj,               &
      &                                GRID(ng) % Uscope)
             END IF

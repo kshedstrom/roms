@@ -751,6 +751,12 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+16)=' DIAGNOSTICS_UV,'
 #endif
+#ifdef DIAPAUSE
+      IF (Master) WRITE (stdout,20) 'DIAPAUSE',                   &
+     &   'Floats moving vertically to simulate diapause.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+10)=' DIAPAUSE,'
+#endif
 #if defined DIFF_3DCOEF
       IF (Master) WRITE (stdout,20) 'DIFF_3DCOEF',                      &
      &   'Horizontal, time-dependent 3D diffusion coefficient.'
@@ -1505,12 +1511,6 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+9)=' _OPENMP,'
 #endif
-#ifdef OPP_SUBDOMAIN
-      IF (Master) WRITE (stdout,20) 'OPP_SUBDOMAIN',                    &
-     &   'subdomain optimal observation.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+15)=' OPP_SUBDOMAIN,'
-#endif
 #ifdef OPT_OBSERVATIONS
       IF (Master) WRITE (stdout,20) 'OPT_OBSERVATIONS',                 &
      &   'Optimal Observations Driver.'
@@ -2026,12 +2026,6 @@
 #if defined TIME_INTERP_FLUX && defined NESTING && defined SOLVE3D
       IF (Master) WRITE (stdout,20) 'TIME_INTERP_FLUX',                 &
      &   'Time interpolate coaser grid mass flux in refinement .'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+18)=' TIME_INTERP_FLUX,'
-#endif
-#if defined TIME_INTERP_FLUX && defined NESTING && defined SOLVE3D
-      IF (Master) WRITE (stdout,20) 'TIME_INTERP_FLUX',                 &
-     &   'Time interpolate coarse 2D mass flux instead of persist.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+18)=' TIME_INTERP_FLUX,'
 #endif

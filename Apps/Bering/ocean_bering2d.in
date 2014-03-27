@@ -34,9 +34,34 @@
 ! USER may follow the above guidelines for specifying his/her values.  These  !
 ! parameters are marked by "==" plural symbol after the KEYWORD.              !
 !                                                                             !
+! Multiple NetCDF files are allowed for input field(s).  This is useful when  !
+! splitting input data (climatology,  boundary,  forcing)  time records into  !
+! several files (say monthly, annual, etc). In this case, each multiple file  !
+! entry line needs to be ended by the vertical bar (|) symbol. For example:   !
+!                                                                             !
+!    NFFILES == 7                          ! number of forcing files          !
+!                                                                             !
+!    FRCNAME == my_tides.nc       \                                           !
+!               my_lwrad_year1.nc |                                           !
+!               my_lwrad_year2.nc \                                           !
+!               my_swrad_year1.nc |                                           !
+!               my_swrad_year2.nc \                                           !
+!               my_winds_year1.nc |                                           !
+!               my_winds_year2.nc \                                           !
+!               my_Pair_year1.nc  |                                           !
+!               my_Pair_year2.nc  \                                           !
+!               my_Qair_year1.nc  |                                           !
+!               my_Qair_year2.nc  \                                           !
+!               my_Tair_year1.nc  |                                           !
+!               my_Tair_year2.nc                                              !
+!                                                                             !
+! Notice that NFFILES is 7 and not 13. There are 7 uniquely different fields  !
+! in the file list,  we  DO NOT  count file entries followed by the vertical  !
+! bar symbol.  This is because  multiple file  entries are processed in ROMS  !
+! with derived type structures.                                               !
+!                                                                             !
 !==============================================================================
 !
-
 ! Application title.
 
        TITLE = Bering Sea
@@ -53,7 +78,7 @@
 ! Number of nested grids.
 
       Ngrids =  1
- 
+
 ! Number of grid nesting layers.  This parameter is used to allow refinement
 ! and composite grid combinations.
 
@@ -223,27 +248,37 @@ ad_VolCons(north) ==  F                            ! northern boundary
    LcycleADJ == F
         NADJ == 72
      NDEFADJ == 0
+        NSFF == 72
+        NOBC == 72
 
-! Output check pointing GST restart parameters.
+! GST output and check pointing restart parameters.
 
+   LmultiGST =  F                               ! one eigenvector per file
      LrstGST =  F                               ! GST restart switch
-  MaxIterGST =  500                             ! maximun number of iterations
+  MaxIterGST =  500                             ! maximum number of iterations
         NGST =  10                              ! check pointing interval
 
 ! Relative accuracy of the Ritz values computed in the GST analysis.
 
     Ritz_tol =  1.0d-15
 
-! Harmonic/biharmonic horizontal diffusion of tracer: [1:NAT+NPT,Ngrids].
+! Harmonic/biharmonic horizontal diffusion of tracer for nonlinear model
+! and adjoint-based algorithms: [1:NAT+NPT,Ngrids].
 
         TNU2 == 1.0d0  1.0d0                    ! m2/s
         TNU4 == 2*0.0d0                         ! m4/s
 
-! Harmononic/biharmonic, horizontal viscosity coefficient: [Ngrids].
+     ad_TNU2 == 0.0d0  0.0d0                    ! m2/s
+     ad_TNU4 == 0.0d0  0.0d0                    ! m4/s
 
-       VISC2 == 100.0d0                         ! m2/s
-!       VISC2 == 5000.0d0                        ! m2/s
+! Harmonic/biharmonic, horizontal viscosity coefficient for nonlinear model
+! and adjoint-based algorithms: [Ngrids].
+
+       VISC2 == 100.0d0                          ! m2/s
        VISC4 == 0.0d0                           ! m4/s
+
+    ad_VISC2 == 0.0d0                           ! m2/s
+    ad_VISC4 == 0.0d0                           ! m4/s
 
 ! Logical switches (TRUE/FALSE) to increase/decrease horizontal viscosity
 ! and/or diffusivity in specific areas of the application domain (like
@@ -252,11 +287,15 @@ ad_VolCons(north) ==  F                            ! northern boundary
     LuvSponge == F                              ! horizontal momentum
 LtracerSponge == F F                            ! temperature, salinity, inert
 
-! Vertical mixing coefficients for active tracers: [1:NAT+NPT,Ngrids]
+! Vertical mixing coefficients for tracers in nonlinear model and
+! basic state scale factor in adjoint-based algorithms: [1:NAT+NPT,Ngrids]
 
      AKT_BAK == 1.0d-6 1.0d-6                   ! m2/s
 
-! Vertical mixing coefficient for momentum: [Ngrids].
+  ad_AKT_fac == 1.0d0  1.0d0                    ! nondimensional
+
+! Vertical mixing coefficient for momentum for nonlinear model and
+! basic state scale factor in adjoint-based algorithms: [Ngrids].
 
      AKV_BAK == 1.0d-5                          ! m2/s
 
@@ -282,6 +321,13 @@ LtracerSponge == F F                            ! temperature, salinity, inert
      GLS_C3P == 1.0d0
     GLS_SIGK == 1.0d0
     GLS_SIGP == 1.30d0
+
+! Constants used in surface turbulent kinetic energy flux computation.
+
+  CHARNOK_ALPHA == 1400.0d0         ! Charnok surface roughness
+ ZOS_HSIG_ALPHA == 0.5d0            ! roughness from wave amplitude
+       SZ_ALPHA == 0.25d0           ! roughness from wave dissipation
+      CRGBAN_CW == 100.0d0          ! Craig and Banner wave breaking
 
 ! Constants used in momentum stress computation.
 
@@ -360,7 +406,7 @@ LtracerSponge == F F                            ! temperature, salinity, inert
 ! Logical switches (TRUE/FALSE) to activate horizontal momentum transport
 ! point Sources/Sinks (like river runoff transport) and mass point
 ! Sources/Sinks (like volume vertical influx), [1:Ngrids].
- 
+
       LuvSrc == F                          ! horizontal momentum transport
        LwSrc == F                          ! volume vertical influx
 
@@ -416,33 +462,40 @@ Lstate(isVbar) == F                        ! 2D V-momentum
 Lstate(isUvel) == F                        ! 3D U-momentum
 Lstate(isVvel) == F                        ! 3D V-momentum
 
-! Logical switches (TRUE/FALSE) to specify the adjoint state tracer
-! variables whose sensitivity is required (NT values are expected).
+Lstate(isTvar) == F F                      ! NT tracers
 
-Lstate(isTvar) == F F                      ! tracers
+! Logical switches (TRUE/FALSE) to specify the state variables for
+! which Forcing Singular Vectors or Stochastic Optimals is required.
 
-! Stochastic optimals time decorrelation scale (days) assumed for
+Fstate(isFsur) == F                        ! free-surface
+Fstate(isUbar) == F                        ! 2D U-momentum
+Fstate(isVbar) == F                        ! 2D V-momentum
+Fstate(isUvel) == F                        ! 3D U-momentum
+Fstate(isVvel) == F                        ! 3D V-momentum
+Fstate(isTvar) == F F                      ! NT tracers
+
+Fstate(isUstr) == T                        ! surface U-stress
+Fstate(isVstr) == T                        ! surface V-stress
+Fstate(isTsur) == F F                      ! NT surface tracers flux
+
+! Stochastic Optimals time decorrelation scale (days) assumed for
 ! red noise processes.
 
-    SO_decay == 2.0d0                      ! days
+      SO_decay == 2.0d0                    ! days
 
-! Logical switches (TRUE/FALSE) to specify the state surface forcing
-! variable whose stochastic optimals is required.
-
-SOstate(isUstr) == T                       ! surface u-stress
-SOstate(isVstr) == T                       ! surface v-stress
-
-! Logical switches (TRUE/FALSE) to specify the surface tracer forcing
-! variable whose stochastic optimals is required (NT values are expected).
-
-SOstate(isTsur) == F F                     ! surface tracer flux
-
-! Stochastic optimals surface forcing standard deviation for
+! Stochastic Optimals surface forcing standard deviation for
 ! dimensionalization.
 
-SO_sdev(isUstr) == 1.0d0                   ! surface u-stress
-SO_sdev(isVstr) == 1.0d0                   ! surface v-stress
-SO_sdev(isTsur) == 1.0d0 1.0d0             ! NT surface tracer flux
+SO_sdev(isFsur) == 1.0d0                   ! free-surface
+SO_sdev(isUbar) == 1.0d0                   ! 2D U-momentum
+SO_sdev(isVbar) == 1.0d0                   ! 2D V-momentum
+SO_sdev(isUvel) == 1.0d0                   ! 3D U-momentum
+SO_sdev(isVvel) == 1.0d0                   ! 3D V-momentum
+SO_sdev(isTvar) == 1.0d0 1.0d0             ! NT tracers
+
+SO_sdev(isUstr) == 1.0d0                   ! surface U-stress
+SO_sdev(isVstr) == 1.0d0                   ! surface V-stress
+SO_sdev(isTsur) == 1.0d0 1.0d0             ! NT surface tracers flux
 
 ! Logical switches (TRUE/FALSE) to activate writing of fields into
 ! HISTORY output file.
@@ -567,6 +620,67 @@ Hout(idMtls) == F       ! gls                turbulent length scale
 
 Hout(idBott) == T T T T T T T T T F F F F F F F
 
+! Logical switches (TRUE/FALSE) to activate writing of fields into
+! surface output file.
+
+Hout2(idUvel) == T       ! u                  3D U-velocity
+Hout2(idVvel) == T       ! v                  3D V-velocity
+Hout2(idu3dE) == T       ! u_eastward         3D U-eastward  at RHO-points
+Hout2(idv3dN) == T       ! v_northward        3D V-northward at RHO-points
+Hout2(idUbar) == T       ! ubar               2D U-velocity
+Hout2(idVbar) == T       ! vbar               2D V-velocity
+Hout2(idu2dE) == T       ! ubar_eastward      2D U-eastward  at RHO-points
+Hout2(idv2dN) == T       ! vbar_northward     2D V-northward at RHO-points
+Hout2(idFsur) == T       ! zeta               free-surface
+
+Hout2(idTvar) == T T                        ! temperature and salinity
+
+Hout2(idUair) == T                          ! surface U-wind
+Hout2(idVair) == T                          ! surface V-wind
+Hout2(idUairE) == T                          ! surface U-wind
+Hout2(idVairN) == T                          ! surface V-wind
+Hout2(idUsms) == T                          ! surface U-stress
+Hout2(idVsms) == T                          ! surface V-stress
+
+Hout2(idTsur) == T T                        ! surface net heat and salt flux
+Hout2(idLhea) == T                          ! latent heat flux
+Hout2(idShea) == T                          ! sensible heat flux
+Hout2(idLrad) == T                          ! longwave radiation flux
+Hout2(idSrad) == T                          ! shortwave radiation flux
+Hout2(idEmPf) == F                          ! E-P flux
+Hout2(idevap) == T                          ! evaporation rate
+Hout2(idrain) == T                          ! precipitation rate
+
+! Logical switches (TRUE/FALSE) to activate writing of ice prognostic
+! variables into HISTORY output file.
+Hout2(idUice) == T
+Hout2(idVice) == T
+Hout2(idUiceE) == T
+Hout2(idViceN) == T
+Hout2(idAice) == T
+Hout2(idHice) == T
+Hout2(idTice) == T
+Hout2(idHsno) == T
+Hout2(idTimid) == T
+Hout2(idSfwat) == T
+Hout2(idTauiw) == F
+Hout2(idChuiw) == F
+Hout2(idAgeice) == T
+Hout2(idSig11) == F
+Hout2(idSig12) == F
+Hout2(idSig22) == F
+Hout2(idS0mk) == F
+Hout2(idT0mk) == F
+
+! Logical switches (TRUE/FALSE) to activate writing of extra inert passive
+! tracers other than biological and sediment tracers. An inert passive tracer
+! is one that it is only advected and diffused. Other processes are ignored.
+! These tracers include, for example, dyes, pollutants, oil spills, etc.
+! NPT values are expected. However, these switches can be activated using
+! compact parameter specification.
+
+Hout2(inert) == F                           ! inert passive tracers
+
 ! Logical switches (TRUE/FALSE) to activate writing of time-averaged
 ! fields into AVERAGE output file.
 
@@ -663,55 +777,55 @@ Aout(iHVTav) == F F     ! Hvom_temp, ...     tracer volume flux, <Hvom*t>
 ! Logical switches (TRUE/FALSE) to activate writing of extra inert passive
 ! tracers other than biological and sediment tracers into the AVERAGE file.
 
- Aout(inert) == T                          ! inert passive tracers
+ Aout(inert) == T       ! dye_01, ...        inert passive tracers
 
 ! Logical switches (TRUE/FALSE) to activate writing of time-averaged,
 ! 2D momentum (ubar,vbar) diagnostic terms into DIAGNOSTIC output file.
 
-Dout(M2rate) == T                          ! acceleration
-Dout(M2pgrd) == T                          ! pressure gradient
-Dout(M2fcor) == T                          ! Coriolis force
-Dout(M2hadv) == T                          ! horizontal total advection
-Dout(M2xadv) == T                          ! horizontal XI-advection
-Dout(M2yadv) == T                          ! horizontal ETA-advection
-Dout(M2hrad) == T                          ! horizontal total radiation stress
-Dout(M2hvis) == T                          ! horizontal total viscosity
-Dout(M2xvis) == T                          ! horizontal XI-viscosity
-Dout(M2yvis) == T                          ! horizontal ETA-viscosity
-Dout(M2sstr) == T                          ! surface stress
-Dout(M2bstr) == T                          ! bottom stress
+Dout(M2rate) == T       ! ubar_accel, ...    acceleration
+Dout(M2pgrd) == T       ! ubar_prsgrd, ...   pressure gradient
+Dout(M2fcor) == T       ! ubar_cor, ...      Coriolis force
+Dout(M2hadv) == T       ! ubar_hadv, ...     horizontal total advection
+Dout(M2xadv) == T       ! ubar_xadv, ...     horizontal XI-advection
+Dout(M2yadv) == T       ! ubar_yadv, ...     horizontal ETA-advection
+Dout(M2hrad) == T       ! ubar_hrad, ...     horizontal total radiation stress
+Dout(M2hvis) == T       ! ubar_hvisc, ...    horizontal total viscosity
+Dout(M2xvis) == T       ! ubar_xvisc, ...    horizontal XI-viscosity
+Dout(M2yvis) == T       ! ubar_yvisc, ...    horizontal ETA-viscosity
+Dout(M2sstr) == T       ! ubar_sstr, ...     surface stress
+Dout(M2bstr) == T       ! ubar_bstr, ...     bottom stress
 
 ! Logical switches (TRUE/FALSE) to activate writing of time-averaged,
 ! 3D momentum (u,v) diagnostic terms into DIAGNOSTIC output file.
 
-Dout(M3rate) == T                          ! acceleration
-Dout(M3pgrd) == T                          ! pressure gradient
-Dout(M3fcor) == T                          ! Coriolis force
-Dout(M3hadv) == T                          ! horizontal total advection
-Dout(M3xadv) == T                          ! horizontal XI-advection
-Dout(M3yadv) == T                          ! horizontal ETA-advection
-Dout(M3vadv) == T                          ! vertical advection
-Dout(M3hrad) == T                          ! horizontal total radiation stress
-Dout(M3vrad) == T                          ! vertical radiation stress
-Dout(M3hvis) == T                          ! horizontal total viscosity
-Dout(M3xvis) == T                          ! horizontal XI-viscosity
-Dout(M3yvis) == T                          ! horizontal ETA-viscosity
-Dout(M3vvis) == T                          ! vertical viscosity
+Dout(M3rate) == T       ! u_accel, ...       acceleration
+Dout(M3pgrd) == T       ! u_prsgrd, ...      pressure gradient
+Dout(M3fcor) == T       ! u_cor, ...         Coriolis force
+Dout(M3hadv) == T       ! u_hadv, ...        horizontal total advection
+Dout(M3xadv) == T       ! u_xadv, ...        horizontal XI-advection
+Dout(M3yadv) == T       ! u_yadv, ...        horizontal ETA-advection
+Dout(M3vadv) == T       ! u_vadv, ...        vertical advection
+Dout(M3hrad) == T       ! u_hrad, ...        horizontal total radiation stress
+Dout(M3vrad) == T       ! u_vrad, ...        vertical radiation stress
+Dout(M3hvis) == T       ! u_hvisc, ...       horizontal total viscosity
+Dout(M3xvis) == T       ! u_xvisc, ...       horizontal XI-viscosity
+Dout(M3yvis) == T       ! u_yvisc, ...       horizontal ETA-viscosity
+Dout(M3vvis) == T       ! u_vvisc, ...       vertical viscosity
 
 ! Logical switches (TRUE/FALSE) to activate writing of time-averaged,
 ! active (temperature and salinity) and passive (inert) tracer diagnostic
 ! terms into DIAGNOSTIC output file: [1:NAT+NPT,Ngrids].
 
-Dout(iTrate) == T T                        ! time rate of change
-Dout(iThadv) == T T                        ! horizontal total advection
-Dout(iTxadv) == T T                        ! horizontal XI-advection
-Dout(iTyadv) == T T                        ! horizontal ETA-advection
-Dout(iTvadv) == T T                        ! vertical advection
-Dout(iThdif) == T T                        ! horizontal total diffusion
-Dout(iTxdif) == T T                        ! horizontal XI-diffusion
-Dout(iTydif) == T T                        ! horizontal ETA-diffusion
-Dout(iTsdif) == T T                        ! horizontal S-diffusion
-Dout(iTvdif) == T T                        ! vertical diffusion
+Dout(iTrate) == T T     ! temp_rate, ...     time rate of change
+Dout(iThadv) == T T     ! temp_hadv, ...     horizontal total advection
+Dout(iTxadv) == T T     ! temp_xadv, ...     horizontal XI-advection
+Dout(iTyadv) == T T     ! temp_yadv, ...     horizontal ETA-advection
+Dout(iTvadv) == T T     ! temp_vadv, ...     vertical advection
+Dout(iThdif) == T T     ! temp_hdiff, ...    horizontal total diffusion
+Dout(iTxdif) == T T     ! temp_xdiff, ...    horizontal XI-diffusion
+Dout(iTydif) == T T     ! temp_ydiff, ...    horizontal ETA-diffusion
+Dout(iTsdif) == T T     ! temp_sdiff, ...    horizontal S-diffusion
+Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
 
 ! Generic User parameters, [1:NUSER].
 
@@ -720,9 +834,9 @@ Dout(iTvdif) == T T                        ! vertical diffusion
 
 ! NetCDF-4/HDF5 compression parameters for output files.
 
- NC_SHUFFLE =  1                 ! if non-zero, turn on shuffle filter
- NC_DEFLATE =  1                 ! if non-zero, turn on deflate filter
-  NC_DLEVEL =  1                 ! deflate level [0-9]
+  NC_SHUFFLE =  1                 ! if non-zero, turn on shuffle filter
+  NC_DEFLATE =  1                 ! if non-zero, turn on deflate filter
+   NC_DLEVEL =  1                 ! deflate level [0-9]
 
 ! Input NetCDF file names, [1:Ngrids].
 
@@ -789,10 +903,12 @@ Dout(iTvdif) == T T                        ! vertical diffusion
      GSTNAME == ocean_gst.nc
      RSTNAME == bering_rst.nc
      HISNAME == bering_his.nc
+    HIS2NAME == bering_his2.nc
      TLMNAME == bering_tlm.nc
      TLFNAME == ocean_tlf.nc
      ADJNAME == bering_tlm.nc
      AVGNAME == bering_avg.nc
+    AVG2NAME == bering_avg2.nc
      DIANAME == bering_dia.nc
      STANAME == bering_sta.nc
      FLTNAME == bering_flt.nc
@@ -829,7 +945,7 @@ Dout(iTvdif) == T T                        ! vertical diffusion
 !                be initialized properly in "mod_ncparam.F".
 !
 !------------------------------------------------------------------------------
-! Nested grid parameters.
+! Nested grid parameters (processing order of these parameters is important).
 !------------------------------------------------------------------------------
 !
 ! Ngrids       Number of nested grids. It needs to be read before all other

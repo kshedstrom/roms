@@ -783,18 +783,15 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
 ! line per entry with a vertical bar (|) symbol after each entry,
 ! except the last one.
 
+     NBCFILES == 1                          ! number of boundary files
+     BRYNAME == damee4_bry.nc
+
      NCLMFILES == 1                         ! number of climate files
      CLMNAME == damee4_Lclm_a.nc
-
-     BRYNAME == damee4_bry.nc
-     CLMNAME == damee4_Lclm_b.nc
 
 ! Input climatology nudging coefficients file name.
 
      NUDNAME == damee4_nudgcoef.nc
-
-     NBCFILES == 1                          ! number of boundary files
-     BRYNAME == damee4_bry.nc
 
 ! Input Sources/Sinks forcing (like river runoff) file name.
 

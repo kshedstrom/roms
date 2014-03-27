@@ -65,6 +65,7 @@
 !  Local variable declarations.
 !
       logical, save :: First = .TRUE.
+      logical :: update = .FALSE.
 
       integer :: Fcount
       integer :: ng, thread, tile
@@ -410,8 +411,6 @@
           END DO
 !$OMP BARRIER
         END IF
-      END DO
-!$OMP BARRIER
       END DO
 #endif
 #endif /* OFFLINE_FLOATS */

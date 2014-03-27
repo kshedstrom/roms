@@ -215,8 +215,6 @@
         get_var(idSig11)=.true.
         get_var(idSig22)=.true.
         get_var(idSig12)=.true.
-        get_var(idTauiw)=.true.
-        get_var(idChuiw)=.true.
         get_var(idS0mk)=.true.
         get_var(idT0mk)=.true.
 # endif
@@ -497,10 +495,6 @@
           have_var(idSig22)=.true.
         ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idSig12))) THEN
           have_var(idSig12)=.true.
-        ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idTauiw))) THEN
-          have_var(idTauiw)=.true.
-        ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idChuiw))) THEN
-          have_var(idChuiw)=.true.
         ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idS0mk))) THEN
           have_var(idS0mk)=.true.
         ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idT0mk))) THEN
@@ -926,22 +920,6 @@
         exit_flag=2
         RETURN
       END IF
-#ifdef FOOO
-      IF (.not.have_var(idTauiw)) THEN
-        IF (Master) WRITE (stdout,10) string,                           &
-     &                                TRIM(Vname(1,idTauiw)),           &
-     &                                TRIM(ncname)
-        exit_flag=2
-        RETURN
-      END IF
-      IF (.not.have_var(idChuiw)) THEN
-        IF (Master) WRITE (stdout,10) string,                           &
-     &                                TRIM(Vname(1,idChuiw)),           &
-     &                                TRIM(ncname)
-        exit_flag=2
-        RETURN
-      END IF
-#endif
       IF (.not.have_var(idS0mk)) THEN
         IF (Master) WRITE (stdout,10) string,                           &
      &                                TRIM(Vname(1,idS0mk)),            &

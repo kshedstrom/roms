@@ -3337,6 +3337,47 @@
                 NGCname(i:i)=blank
               END DO
               NGCname=TRIM(ADJUSTL(Cval(Nval)))
+            CASE ('NBCFILES')
+              Npts=load_i(Nval, Rval, Ngrids, nBCfiles)
+              DO ng=1,Ngrids
+                IF (nBCfiles(ng).le.0) THEN 
+                  IF (Master) WRITE (out,260) 'NBCFILES', nBCfiles(ng), &
+     &                            'Must be equal or greater than one.'
+                  exit_flag=4
+                  RETURN
+                END IF
+              END DO
+              max_Ffiles=MAXVAL(nBCfiles)
+              allocate ( BRY(max_Ffiles,Ngrids) )
+              allocate ( BRYids(max_Ffiles,Ngrids) )
+              allocate ( NBCcount(max_Ffiles,Ngrids) )
+              BRYids(1:max_Ffiles,1:Ngrids)=-1
+              NBCcount(1:max_Ffiles,1:Ngrids)=0
+            CASE ('BRYNAME')
+              label='BRY - lateral open boundary conditions'
+              Npts=load_s2d(Nval, Cval, line, label, ibcfile, igrid,    &
+     &                      max_Ffiles, NBCcount, nBCfiles, BRY)
+            CASE ('NCLMFILES')
+              Npts=load_i(Nval, Rval, Ngrids, nCLMfiles)
+              DO ng=1,Ngrids
+                IF (nCLMfiles(ng).le.0) THEN
+                  IF (Master) WRITE (out,260) 'NCLMFILES',              &
+     &               nCLMfiles(ng),                                     &
+     &              'Must be equal or greater than one.'
+                  exit_flag=4
+                  RETURN
+                END IF
+              END DO
+              max_Ffiles=MAXVAL(nCLMfiles)
+              allocate ( CLM(max_Ffiles,Ngrids) )
+              allocate ( CLMids(max_Ffiles,Ngrids) )
+              allocate ( NCLMcount(max_Ffiles,Ngrids) )
+              CLMids(1:max_Ffiles,1:Ngrids)=-1
+              NCLMcount(1:max_Ffiles,1:Ngrids)=0
+            CASE ('CLMNAME')
+              label='CLM - climatology fields'
+              Npts=load_s2d(Nval, Cval, line, label, iclmfile, igrid,   &
+     &                      max_Ffiles, NCLMcount, nCLMfiles, CLM)
             CASE ('NUDNAME')
               label='NUD - nudging coefficients'
               Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles, NUD)
@@ -3363,47 +3404,6 @@
               label='FRC - forcing fields'
               Npts=load_s2d(Nval, Cval, line, label, ifile, igrid,      &
      &                      nFfiles, Ncount, max_Ffiles, FRC)
-            CASE ('NCLMFILES')
-              Npts=load_i(Nval, Rval, Ngrids, nCLMfiles)
-              DO ng=1,Ngrids
-                IF (nCLMfiles(ng).le.0) THEN
-                  IF (Master) WRITE (out,260) 'NCLMFILES',              &
-     &               nCLMfiles(ng),                                     &
-     &              'Must be equal or greater than one.'
-                  exit_flag=4
-                  RETURN
-                END IF
-              END DO
-              max_Ffiles=MAXVAL(nCLMfiles)
-              allocate ( CLM(max_Ffiles,Ngrids) )
-              allocate ( CLMids(max_Ffiles,Ngrids) )
-              allocate ( NCLMcount(max_Ffiles,Ngrids) )
-              CLMids(1:max_Ffiles,1:Ngrids)=-1
-              NCLMcount(1:max_Ffiles,1:Ngrids)=0
-            CASE ('CLMNAME')
-              label='CLM - climatology fields'
-              Npts=load_s2d(Nval, Cval, line, label, iclmfile, igrid,   &
-     &                      max_Ffiles, NCLMcount, nCLMfiles, CLM)
-            CASE ('NBCFILES')
-              Npts=load_i(Nval, Rval, Ngrids, nBCfiles)
-              DO ng=1,Ngrids
-                IF (nBCfiles(ng).le.0) THEN 
-                  IF (Master) WRITE (out,260) 'NBCFILES', nBCfiles(ng), &
-     &                            'Must be equal or greater than one.'
-                  exit_flag=4
-                  RETURN
-                END IF
-              END DO
-              max_Ffiles=MAXVAL(nBCfiles)
-              allocate ( BRY(max_Ffiles,Ngrids) )
-              allocate ( BRYids(max_Ffiles,Ngrids) )
-              allocate ( NBCcount(max_Ffiles,Ngrids) )
-              BRYids(1:max_Ffiles,1:Ngrids)=-1
-              NBCcount(1:max_Ffiles,1:Ngrids)=0
-            CASE ('BRYNAME')
-              label='BRY - lateral open boundary conditions'
-              Npts=load_s2d(Nval, Cval, line, label, ibcfile, igrid,    &
-     &                      max_Ffiles, NBCcount, nBCfiles, BRY)
             CASE ('APARNAM')
               DO i=1,LEN(aparnam)
                 aparnam(i:i)=blank

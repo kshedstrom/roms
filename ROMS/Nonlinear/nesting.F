@@ -39,6 +39,7 @@
 !  nesting          Public interface to time-stepping kernel           !
 !                                                                      !
 !  get_composite    Composite  grid, extract contact points donor data !
+!  get_metrics      Extract grid spacing metrics, on_u and om_v.       !
 !  get_refine       Refinement grid, extract contact points donor data !
 !  put_composite    Composite  grid, fill contact points (interpolate) !
 !  put_refine       Refinement grid, fill contact points (interpolate) !
@@ -104,6 +105,7 @@
       PRIVATE :: get_contact3d
 # endif
       PRIVATE :: get_composite
+      PRIVATE :: get_metrics
       PRIVATE :: get_refine
       PRIVATE :: put_composite
       PRIVATE :: put_refine
@@ -174,9 +176,20 @@
 !
       IF (RefinedGrid(ng)) THEN
 !
+!  Extract grid spacing metrics (on_u and om_v) and load then to
+!  REFINE(:) structure.  These metrics are needed to impose mass
+!  flux at the finer grid physical boundaries.  It need to be done
+!  separately because parallelism partions between all nested grid.
+!
+        IF (isection.eq.ndxdy) THEN
+          DO tile=first_tile(ng),last_tile(ng),+1
+            CALL get_metrics (ng, model, tile)
+          END DO
+!$OMP BARRIER
+!
 !  Extract and store donor grid data at contact points.
 !
-        IF (isection.eq.ngetD) THEN
+        ELSE IF (isection.eq.ngetD) THEN
           DO tile=first_tile(ng),last_tile(ng),+1
             CALL get_refine (ng, model, tile)
           END DO
@@ -219,7 +232,7 @@
 !$OMP BARRIER
           IF (exit_flag.ne.NoError) RETURN
 
-# ifdef SOLVE3D
+#  ifdef SOLVE3D
 !
 !  Update coarse grid depth variables. We have a new coarse grid
 !  adjusted free-surface, Zt_avg1.
@@ -392,8 +405,6 @@
 !
 !  Receiver finer grid number is greater than donor coaser grid number
 !  because of refinement nesting layers.
-
-!  Donor finer grid is in a higher nesting layer.
 !
       IF (rg.gt.dg) THEN
 !
@@ -909,6 +920,113 @@
 
       RETURN
       END SUBROUTINE get_composite
+!
+      SUBROUTINE get_metrics (ng, model, tile)
+!
+!=======================================================================
+!                                                                      !
+!  This routine extracts grid spacing metrics "on_u" and "om_v",       !
+!  which are used to impose mass flux at the finer grid physical       !
+!  boundaries in refinement applications.                              !
+!                                                                      !
+!  The extracted metrics is stored in REFINED structure and are        !
+!  needed in 'put_refine2d'.                                           !
+!                                                                      !
+!  On Input:                                                           !
+!                                                                      !
+!     ng         Refinement grid number (integer)                      !
+!     model      Calling model identifier (integer)                    !
+!     tile       Domain tile partition (integer)                       !
+!                                                                      !
+!  On Output:    (mod_nesting)                                         !
+!                                                                      !
+!     REFINED    Updated contact points structure.                     !
+!                                                                      !
+!=======================================================================
+!
+      USE mod_param
+      USE mod_grid
+      USE mod_nesting
+
+#  ifdef DISTRIBUTE
+!
+      USE distribute_mod, ONLY : mp_collect
+#  endif
+!
+!  Imported variable declarations.
+!
+      integer, intent(in) :: ng, model, tile
+!
+!  Local variable declarations.
+!
+      integer :: cr, dg, i, j, m
+      integer :: Istr, Iend, Jstr, Jend
+      integer :: NpointsU, NpointsV
+
+      real(r8), parameter :: spv = 0.0_r8
+!
+!-----------------------------------------------------------------------
+!  Extract grid spacing metrics.
+!-----------------------------------------------------------------------
+!
+      DO cr=1,Ncontact
+!
+!  Get data donor grid number.
+!
+        dg=Rcontact(cr)%donor_grid
+!
+!  Extract grid spacing at U-points.
+!
+        Istr=BOUNDS(dg) % IstrP(tile)
+        Iend=BOUNDS(dg) % IendT(tile)
+        Jstr=BOUNDS(dg) % JstrT(tile)
+        Jend=BOUNDS(dg) % JendT(tile)
+!
+        NpointsU=Ucontact(cr) % Npoints
+        REFINED(cr) % on_u(1:NpointsU) = spv
+!
+        DO m=1,NpointsU
+          i=Ucontact(cr) % Idg(m)
+          j=Ucontact(cr) % Jdg(m)
+          IF (((Istr.le.i).and.(i.le.Iend)).and.                        &
+     &        ((Jstr.le.j).and.(j.le.Jend))) THEN
+            REFINED(cr) % on_u(m) = GRID(dg) % on_u(i,j)
+          END IF
+        END DO
+!
+!  Extract grid spacing at U-points.
+!
+        Istr=BOUNDS(dg) % IstrT(tile)
+        Iend=BOUNDS(dg) % IendT(tile)
+        Jstr=BOUNDS(dg) % JstrP(tile)
+        Jend=BOUNDS(dg) % JendT(tile)
+!
+        NpointsV=Vcontact(cr) % Npoints
+        REFINED(cr) % om_v(1:NpointsV) = spv
+!
+        DO m=1,NpointsV
+          i=Vcontact(cr) % Idg(m)
+          j=Vcontact(cr) % Jdg(m)
+          IF (((Istr.le.i).and.(i.le.Iend)).and.                        &
+     &        ((Jstr.le.j).and.(j.le.Jend))) THEN
+            REFINED(cr) % om_v(m) = GRID(dg) % om_v(i,j)
+          END IF
+        END DO
+
+# ifdef DISTRIBUTE
+!
+!  Exchange data between all nodes.
+!
+        CALL mp_collect (dg, model, NpointsU, spv,                      &
+     &                   REFINED(cr) % on_u)
+        CALL mp_collect (dg, model, NpointsV, spv,                      &
+     &                   REFINED(cr) % om_v)
+#  endif
+
+      END DO
+
+      RETURN
+      END SUBROUTINE get_metrics
 !
       SUBROUTINE get_refine (ng, model, tile)
 !
@@ -3828,8 +3946,6 @@
       IF (DOMAIN(ng)%Western_Edge(tile)) THEN
         DO j=Jstr,Jend
           m=BRY_CONTACT(iwest,cr)%C2Bindex(j)
-          Ic=Ucontact(cr)%Idg(m)
-          Jc=Ucontact(cr)%Jdg(m)
           cff=0.5_r8*GRID(ng)%on_u(Istr,j)*                             &
               (GRID(ng)%h(Istr-1,j)+                                    &
      &         OCEAN(ng)%zeta(Istr-1,j,indx1(ng))+                      &
@@ -3857,8 +3973,6 @@
       IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
         DO j=Jstr,Jend
           m=BRY_CONTACT(ieast,cr)%C2Bindex(j)
-          Ic=Ucontact(cr)%Idg(m)
-          Jc=Ucontact(cr)%Jdg(m)
           cff=0.5_r8*GRID(ng)%on_u(Iend+1,j)*                           &
      &        (GRID(ng)%h(Iend+1,j)+                                    &
      &         OCEAN(ng)%zeta(Iend+1,j,indx1(ng))+                      &
@@ -3886,8 +4000,6 @@
       IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
         DO i=Istr,Iend
           m=BRY_CONTACT(isouth,cr)%C2Bindex(i)
-          Ic=Vcontact(cr)%Idg(m)
-          Jc=Vcontact(cr)%Jdg(m)
           cff=0.5_r8*GRID(ng)%om_v(i,Jstr)*                             &
      &        (GRID(ng)%h(i,Jstr-1)+                                    &
      &         OCEAN(ng)%zeta(i,Jstr-1,indx1(ng))+                      &
@@ -3915,8 +4027,6 @@
       IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
         DO i=Istr,Iend
           m=BRY_CONTACT(inorth,cr)%C2Bindex(i)
-          Ic=Vcontact(cr)%Idg(m)
-          Jc=Vcontact(cr)%Jdg(m)
           cff=0.5_r8*GRID(ng)%om_v(i,Jend+1)*                           &
      &        (GRID(ng)%h(i,Jend+1)+                                    &
      &         OCEAN(ng)%zeta(i,Jend+1,indx1(ng))+                      &

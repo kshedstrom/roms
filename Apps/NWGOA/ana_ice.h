@@ -213,47 +213,47 @@
       ENDDO
       DO j=JstrR,JendR
         DO i=IstrR,IendR
-	  IF (t(i,j,N(ng),1,itemp) < -1.6) THEN
-           ai(i,j,1) = 1._r8
-           hi(i,j,1) = 2._r8
-           hsn(i,j,1) = 0.2_r8
-           ti(i,j,1) = -5._r8
-	  ELSE
-           ai(i,j,1) = 0._r8
-           hi(i,j,1) = 0._r8
-           hsn(i,j,1) = 0._r8
-           ti(i,j,1) = t(i,j,N(ng),1,itemp)
-	  END IF
-           sfwat(i,j,1) = 0._r8
-	   ageice(i,j,1) = 0._r8
-           sig11(i,j,1) = 0._r8
-           sig22(i,j,1) = 0._r8
-           sig12(i,j,1) = 0._r8
-           ai(i,j,2) = ai(i,j,1)
-           hi(i,j,2) = hi(i,j,1)
-           hsn(i,j,2) = hsn(i,j,1)
-           ti(i,j,2) = ti(i,j,1)
-           sfwat(i,j,2) = sfwat(i,j,1)
-	   ageice(i,j,2) = ageice(i,j,1)
-           sig11(i,j,2) = sig11(i,j,1)
-           sig22(i,j,2) = sig22(i,j,1)
-           sig12(i,j,2) = sig12(i,j,1)
+          IF (t(i,j,N(ng),1,itemp) < -1.6) THEN
+            ai(i,j,1) = 1._r8
+            hi(i,j,1) = 2._r8
+            hsn(i,j,1) = 0.2_r8
+            ti(i,j,1) = -5._r8
+          ELSE
+            ai(i,j,1) = 0._r8
+            hi(i,j,1) = 0._r8
+            hsn(i,j,1) = 0._r8
+            ti(i,j,1) = t(i,j,N(ng),1,itemp)
+          END IF
+          sfwat(i,j,1) = 0._r8
+          ageice(i,j,1) = 0._r8
+          sig11(i,j,1) = 0._r8
+          sig22(i,j,1) = 0._r8
+          sig12(i,j,1) = 0._r8
+          ai(i,j,2) = ai(i,j,1)
+          hi(i,j,2) = hi(i,j,1)
+          hsn(i,j,2) = hsn(i,j,1)
+          ti(i,j,2) = ti(i,j,1)
+          sfwat(i,j,2) = sfwat(i,j,1)
+          ageice(i,j,2) = ageice(i,j,1)
+          sig11(i,j,2) = sig11(i,j,1)
+          sig22(i,j,2) = sig22(i,j,1)
+          sig12(i,j,2) = sig12(i,j,1)
 # ifdef NCEP_FLUXES
-           wg2_d(i,j) = 1._r8
-           cd_d(i,j) = 0.00319_r8
-           ch_d(i,j) = 1.0E-4_r8
-           ce_d(i,j) = 1.0E-4_r8
-           wg2_m(i,j) = 1._r8
-           cd_m(i,j) = 0.00319_r8
-           ch_m(i,j) = 1.0E-4_r8
-           ce_m(i,j) = 1.0E-4_r8
-           rhoa_n(i,j) = 1.4_r8
+          wg2_d(i,j) = 1._r8
+          cd_d(i,j) = 0.00319_r8
+          ch_d(i,j) = 1.0E-4_r8
+          ce_d(i,j) = 1.0E-4_r8
+          wg2_m(i,j) = 1._r8
+          cd_m(i,j) = 0.00319_r8
+          ch_m(i,j) = 1.0E-4_r8
+          ce_m(i,j) = 1.0E-4_r8
+          rhoa_n(i,j) = 1.4_r8
 # endif
-           tis(i,j) = -10._r8
-           s0mk(i,j) = t(i,j,N(ng),1,isalt)
-           t0mk(i,j) = t(i,j,N(ng),1,itemp)
-           utau_iw(i,j) = 0.001_r8
-           chu_iw(i,j) = 0.001125_r8
+          tis(i,j) = -10._r8
+          s0mk(i,j) = t(i,j,N(ng),1,isalt)
+          t0mk(i,j) = t(i,j,N(ng),1,itemp)
+          utau_iw(i,j) = 0.001_r8
+          chu_iw(i,j) = 0.001125_r8
         ENDDO
       ENDDO
 !

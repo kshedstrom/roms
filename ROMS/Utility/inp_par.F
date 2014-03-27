@@ -1736,10 +1736,10 @@
               S(ibry,ifield,igrid)%acquire = .TRUE.
               S(ibry,isFsur,igrid)%acquire = .TRUE.
             CASE ('GRA')
-              S(ibry,ifield,igrid)%gradient  = .TRUE.
+              S(ibry,ifield,igrid)%gradient = .TRUE.
             CASE ('MIX')
-              S(ibry,ifield,igrid)%mixed     = .TRUE.
-              S(ibry,ifield,igrid)%acquire   = .TRUE.
+              S(ibry,ifield,igrid)%mixed   = .TRUE.
+              S(ibry,ifield,igrid)%acquire = .TRUE.
             CASE ('NES')
               S(ibry,ifield,igrid)%nested = .TRUE.
             CASE ('PER')
@@ -2166,12 +2166,6 @@
 !  to separate multi-string values for split input files. User may
 !  split the records for a particular input field into several files.
 !
-!     IF (Master) THEN
-!       print *, 'In load_s2d'
-!       print *, line
-!       print *, label
-!       print *, 'Numbers:', idim, Nfiles, igrid
-!     END IF
       Icont=INDEX(TRIM(line),CHAR(92) ,BACK=.FALSE.)
       Ipipe=INDEX(TRIM(line),CHAR(124),BACK=.FALSE.)
       IF ((Icont.eq.0).and.(Ipipe.eq.0)) THEN

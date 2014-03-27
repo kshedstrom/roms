@@ -36,22 +36,6 @@
                 idTvar(iFdis)=varid
 #endif
 
-! Do it again for climatologies
-              CASE ('idTclm(iNO3_)')
-                idTclm(iNO3_)=varid
-              CASE ('idTclm(iPhyt)')
-                idTclm(iPhyt)=varid
-              CASE ('idTclm(iZoop)')
-                idTclm(iZoop)=varid
-              CASE ('idTclm(iSDet)')
-                idTclm(iSDet)=varid
-#ifdef IRON_LIMIT
-              CASE ('idTclm(iFphy)')
-                idTclm(iFphy)=varid
-              CASE ('idTclm(iFdis)')
-                idTclm(iFdis)=varid
-#endif
-
 #if defined AD_SENSITIVITY   || defined IS4DVAR_SENSITIVITY || \
     defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR   || \
     defined SO_SEMI

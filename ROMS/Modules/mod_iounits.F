@@ -267,24 +267,6 @@
         sposnam(i:i)=blank
       END DO
 
-!
-!-----------------------------------------------------------------------
-!  Initialize file names to blanks.
-!-----------------------------------------------------------------------
-!
-      DO i=1,LEN(Iname)
-        Iname(i:i)=blank
-        Wname(i:i)=blank
-        NGCname(i:i)=blank
-        USRname(i:i)=blank
-        aparnam(i:i)=blank
-        bparnam(i:i)=blank
-        fbionam(i:i)=blank
-        fposnam(i:i)=blank
-        sparnam(i:i)=blank
-        sposnam(i:i)=blank
-      END DO
-
       RETURN
       END SUBROUTINE allocate_iounits
 

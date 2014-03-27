@@ -674,7 +674,47 @@ Hout2(idT0mk) == F
 ! NPT values are expected. However, these switches can be activated using
 ! compact parameter specification.
 
- Hout2(inert) == F                          ! inert passive tracers
+Hout2(inert) == F                          ! inert passive tracers
+
+! Logical switches (TRUE/FALSE) to activate writing of fields into
+! secondary Averages output file.
+
+Aout2(idUvel) == T                          ! 3D U-velocity
+Aout2(idVvel) == T                          ! 3D V-velocity
+Aout2(idu3dE) == T       ! u_eastward         3D U-eastward  at RHO-points
+Aout2(idv3dN) == T       ! v_northward        3D V-northward at RHO-points
+Aout2(idUbar) == T                          ! 2D U-velocity
+Aout2(idVbar) == T                          ! 2D V-velocity
+Aout2(idu2dE) == T       ! ubar_eastward      2D U-eastward  at RHO-points
+Aout2(idv2dN) == T       ! vbar_northward     2D V-northward at RHO-points
+Aout2(idFsur) == T                          ! free-surface
+
+Aout2(idTvar) == T T                        ! temperature and salinity
+
+Aout2(idUair) == T                          ! surface U-wind
+Aout2(idVair) == T                          ! surface V-wind
+Aout2(idUairE) == T      ! Uwind_eastward     surface U-wind
+Aout2(idVairN) == T      ! Vwind_northward    surface V-wind
+Aout2(idUsms) == T                          ! surface U-stress
+Aout2(idVsms) == T                          ! surface V-stress
+
+Aout2(idTsur) == T T                        ! surface net heat and salt flux
+Aout2(idLhea) == T                          ! latent heat flux
+Aout2(idShea) == T                          ! sensible heat flux
+Aout2(idLrad) == T                          ! longwave radiation flux
+Aout2(idSrad) == T                          ! shortwave radiation flux
+Aout2(idEmPf) == F                          ! E-P flux
+Aout2(idevap) == F                          ! evaporation rate
+Aout2(idrain) == F                          ! precipitation rate
+
+! Logical switches (TRUE/FALSE) to activate writing of extra inert passive
+! tracers other than biological and sediment tracers. An inert passive tracer
+! is one that it is only advected and diffused. Other processes are ignored.
+! These tracers include, for example, dyes, pollutants, oil spills, etc.
+! NPT values are expected. However, these switches can be activated using
+! compact parameter specification.
+
+Aout2(inert) == F                           ! inert passive tracers
 
 ! Logical switches (TRUE/FALSE) to activate writing of time-averaged
 ! fields into AVERAGE output file.
@@ -693,6 +733,10 @@ Aout(idFsur) == T       ! zeta               free-surface
 
 Aout(idTvar) == T T     ! temp, salt         temperature and salinity
 
+Aout(idUair) == F       ! Uwind              surface U-wind
+Aout(idVair) == F       ! Vwind              surface V-wind
+Aout(idUairE) == F      ! Uwind_eastward     surface U-wind
+Aout(idVairN) == F      ! Vwind_northward    surface V-wind
 Aout(idUsms) == F       ! sustr              surface U-stress
 Aout(idVsms) == F       ! svstr              surface V-stress
 Aout(idUbms) == F       ! bustr              bottom U-stress
@@ -717,8 +761,6 @@ Aout(idU3Sd) == F       ! u_stokes           3D U-Stokes velocity
 Aout(idV3Sd) == F       ! v_stokes           3D V-Stokes velocity
 
 Aout(idPair) == F       ! Pair               surface air pressure
-Aout(idUair) == F       ! Uair               surface U-wind component
-Aout(idVair) == F       ! Vair               surface V-wind component
 
 Aout(idTsur) == F F     ! shflux, ssflux     surface net heat and salt flux
 Aout(idLhea) == F       ! latent             latent heat flux
