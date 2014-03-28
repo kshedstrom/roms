@@ -6186,15 +6186,17 @@
           END DO
 #endif
           IF (CLM_FILE(ng)) THEN
-            DO ifile=1,CLM(ng)%Nfiles
-              fname=CLM(ng)%files(ifile)
-              IF (.not.find_file(ng, fname, 'CLMNAME')) GO TO 30
-              IF (ifile.eq.1) THEN
-                WRITE (out,230) '        Input Climatology File:  ',    &
-     &                          TRIM(fname)
-              ELSE
-                WRITE (out,'(35x,a)') TRIM(fname)
-              END IF
+            DO i=1,nCLMfiles(ng)
+              DO ifile=1,CLM(i,ng)%Nfiles
+                fname=CLM(i,ng)%files(ifile)
+                IF (.not.find_file(ng, fname, 'CLMNAME')) GO TO 30
+                IF (ifile.eq.1) THEN
+                  WRITE (out,230) '        Input Climatology File:  ',  &
+     &                            TRIM(fname)
+                ELSE
+                  WRITE (out,'(35x,a)') TRIM(fname)
+                END IF
+              END DO
             END DO
           END IF
 #ifndef ANA_NUDGCOEF

@@ -325,7 +325,7 @@
      &                     COS(omega-SSH_Tphase(i,j,itide))
 #   endif
 #   ifdef MASKING
-                ssh(i,j)=ssh(i,j)*rmask(i,j)
+                Etide(i,j)=Etide(i,j)*rmask(i,j)
 #   endif
             END DO
           END DO

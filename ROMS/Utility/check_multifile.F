@@ -266,8 +266,6 @@
               WRITE (stdout,30) 'Climatology',                          &
      &                          TRIM(CLM(i,ng)%files(Nfiles)),          &
      &                          Tmax_code, F_code
-     &                          TRIM(CLM(ng)%files(Nfiles)),            &
-     &                          Tmax_code, F_code
             END IF
             exit_flag=4
           END IF

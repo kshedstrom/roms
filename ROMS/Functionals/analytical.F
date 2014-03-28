@@ -86,8 +86,10 @@
 #  include <ana_aiobc.h>
 # endif
 
-# if defined ANA_BIOLOGY && defined BIOLOGY
-#  include <ana_biology.h>
+# ifdef SOLVE3D
+#  if defined ANA_BIOLOGY && defined BIOLOGY
+#   include <ana_biology.h>
+#  endif
 # endif
 
 # ifdef SOLVE3D
@@ -96,16 +98,20 @@
 #  endif
 # endif
 
-# if defined ANA_CLOUD && defined CLOUDS
-#  include <ana_cloud.h>
+# ifdef SOLVE3D
+#  if defined ANA_CLOUD && defined CLOUDS
+#   include <ana_cloud.h>
+#  endif
 # endif
 
 # ifdef ANA_DIAG
 #  include <ana_diag.h>
 # endif
 
-# if defined ANA_DQDSST && defined QCORRECTION
-#  include <ana_dqdsst.h>
+# ifdef SOLVE3D
+#  if defined ANA_DQDSST && defined QCORRECTION
+#   include <ana_dqdsst.h>
+#  endif
 # endif
 
 # if defined ANA_DRAG && defined UV_DRAG_GRID
@@ -134,10 +140,12 @@
 #  include <ana_IceNH4bc.h>
 # endif
 
-# if defined ANA_HUMIDITY && \
-   (defined BULK_FLUXES || defined ECOSIM || \
-   (defined ANA_SRFLUX  && defined ALBEDO) )
-#  include <ana_humid.h>
+# ifdef SOLVE3D
+#  if defined ANA_HUMIDITY && \
+    (defined BULK_FLUXES || defined ECOSIM || \
+    (defined ANA_SRFLUX  && defined ALBEDO) )
+#   include <ana_humid.h>
+#  endif
 # endif
 
 # if defined ANA_ICE && defined ICE_MODEL
@@ -156,11 +164,11 @@
 #  include <ana_m2obc.h>
 # endif
 
-# ifdef ANA_M3CLIMA
+# if defined ANA_M3CLIMA && defined SOLVE3D
 #  include <ana_m3clima.h>
 # endif
 
-# ifdef ANA_M3OBC
+# if defined ANA_M3OBC && defined SOLVE3D
 #  include <ana_m3obc.h>
 # endif
 
@@ -177,7 +185,7 @@
 # endif
 
 # if defined ANA_PAIR && (defined BULK_FLUXES || defined ECOSIM || \
-                         defined ATM_PRESS)
+                          defined ATM_PRESS)
 #  include <ana_pair.h>
 # endif
 
@@ -193,12 +201,14 @@
 #  include <ana_psource.h>
 # endif
 
-# if defined TRC_PSOURCE  && defined ANA_TRC_PSOURCE
-#  include <ana_trc_psource.h>
-# endif
+# ifdef SOLVE3D
+#  if defined TRC_PSOURCE  && defined ANA_TRC_PSOURCE
+#   include <ana_trc_psource.h>
+#  endif
 
-# if defined ANA_RAIN && defined BULK_FLUXES
-#  include <ana_rain.h>
+#  if defined ANA_RAIN && defined BULK_FLUXES
+#   include <ana_rain.h>
+#  endif
 # endif
 
 # if defined ANA_GRID        && \
@@ -208,8 +218,10 @@
 #  include <ana_scope.h>
 # endif
 
-# if defined ANA_SEDIMENT && (defined SEDIMENT || defined BBL_MODEL)
-#  include <ana_sediment.h>
+# ifdef SOLVE3D
+#  if defined ANA_SEDIMENT && (defined SEDIMENT || defined BBL_MODEL)
+#   include <ana_sediment.h>
+#  endif
 # endif
 
 # ifdef ANA_SMFLUX
@@ -236,34 +248,42 @@
 #  include <ana_ssh.h>
 # endif
 
-# if defined SALINITY    && defined ANA_SSS && \
-   (defined SCORRECTION || defined SRELAXATION)
-#  include <ana_sss.h>
+# ifdef SOLVE3D
+#  if defined SALINITY   && defined ANA_SSS && \
+    (defined SCORRECTION || defined SRELAXATION)
+#   include <ana_sss.h>
+#  endif
 # endif
 
-# if defined ANA_SST && defined QCORRECTION
-#  include <ana_sst.h>
+# ifdef SOLVE3D
+#  if defined ANA_SST && defined QCORRECTION
+#   include <ana_sst.h>
+#  endif
 # endif
 
-# if defined ANA_STFLUX || defined ANA_SSFLUX || defined ANA_SPFLUX
-#  include <ana_stflux.h>
+# ifdef SOLVE3D
+#  if defined ANA_STFLUX || defined ANA_SSFLUX || defined ANA_SPFLUX
+#   include <ana_stflux.h>
+#  endif
 # endif
 
-# if defined ANA_TAIR && \
-   (defined BULK_FLUXES || defined ECOSIM || \
-   (defined ANA_SRFLUX && defined ALBEDO) )
-#  include <ana_tair.h>
+# ifdef SOLVE3D
+#  if defined ANA_TAIR && \
+    (defined BULK_FLUXES || defined ECOSIM || \
+    (defined ANA_SRFLUX && defined ALBEDO) )
+#   include <ana_tair.h>
+#  endif
 # endif
 
-# ifdef ANA_TCLIMA
+# if defined ANA_TCLIMA && defined SOLVE3D
 #  include <ana_tclima.h>
 # endif
 
-# ifdef ANA_TOBC
+# if defined ANA_TOBC && defined SOLVE3D
 #  include <ana_tobc.h>
 # endif
 
-# ifdef ANA_VMIX
+# if defined ANA_VMIX && defined SOLVE3D
 #  include <ana_vmix.h>
 # endif
 
@@ -271,9 +291,11 @@
 #  include <ana_winds.h>
 # endif
 
-# if defined WTYPE_GRID && defined ANA_WTYPE     && \
-    (defined LMD_SKPP   || defined SOLAR_SOURCE)
-#  include <ana_wtype.h>
+# ifdef SOLVE3D
+#  if defined WTYPE_GRID && defined ANA_WTYPE     && \
+     (defined LMD_SKPP   || defined SOLAR_SOURCE)
+#   include <ana_wtype.h>
+#  endif
 # endif
 
 # if defined ANA_WWAVE

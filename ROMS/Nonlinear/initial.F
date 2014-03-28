@@ -117,8 +117,8 @@
         nfm3(ng)=2
 #endif
 !
-        IniRec(ng)=nrrec(ng)
-        Tindex(ng)=1
+        IniRec=nrrec(ng)
+        Tindex=1
 !
         synchro_flag(ng)=.TRUE.
         first_time(ng)=0
@@ -319,16 +319,16 @@
 !-----------------------------------------------------------------------
 !
 #ifdef ANA_NUDGCOEF
-        DO ng=1,Ngrids
+!        DO ng=1,Ngrids
           IF (Lnudging(ng)) THEN
             DO tile=first_tile(ng),last_tile(ng),+1
               CALL ana_nudgcoef (ng, tile, iNLM)
             END DO
 !$OMP BARRIER
           END IF
-        END DO
+!        END DO
 #else
-        DO ng=1,Ngrids
+!        DO ng=1,Ngrids
           IF (Lnudging(ng)) THEN
 !$OMP MASTER
             CALL get_nudgcoef (ng, iNLM)
@@ -339,7 +339,7 @@
 !$OMP BARRIER
             IF (exit_flag.ne.NoError) RETURN
           END IF
-        END DO
+!        END DO
 #endif
       END IF
 !
@@ -365,14 +365,14 @@
 !  analytical functions.
 !-----------------------------------------------------------------------
 !
-      DO ng=1,Ngrids
+!      DO ng=1,Ngrids
         IF (Lsponge(ng)) THEN
           DO tile=first_tile(ng),last_tile(ng),+1
             CALL ana_sponge (ng, tile, iNLM)
           END DO
 !$OMP BARRIER
         END IF
-      END DO
+!      END DO
 !$OMP BARRIER
 #endif
 #endif /* OFFLINE_FLOATS */

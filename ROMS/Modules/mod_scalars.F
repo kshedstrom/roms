@@ -460,7 +460,7 @@
 !
         integer :: InterpFlag = cubic          ! interpolation flag
 !
-!  Shallowest and Deepest levels to apply bottom momemtum stresses as
+!  Shallowest and Deepest levels to apply bottom momentum stresses as
 !  a bodyforce
 !
         integer, allocatable :: levsfrc(:)

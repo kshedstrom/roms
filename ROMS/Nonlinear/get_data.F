@@ -1501,103 +1501,102 @@
           IF (exit_flag.ne.NoError) RETURN
         END IF
       END DO
+# endif
 
-#   if defined BCLIMATOLOGY
+# if defined BCLIMATOLOGY
 ! FC & GH BIO TRACER
       DO i=NAT+1,Nt(ng)
         IF (i==iFeD_ .OR. i==iNO3_ .OR. i==iSiOH) THEN
           CALL get_3dfld (ng, iNLM, idTclm(i), ncCLMid(idTclm(i),ng),   &
      &                    nCLMfiles(ng), CLM(1,ng), update(1),          &
      &                    LBi, UBi, LBj, UBj, 1, N(ng), 2, 1,           &
-#    ifdef MASKING
+#  ifdef MASKING
      &                    GRID(ng) % rmask,                             &
-#    endif
+#  endif
      &                    CLIMA(ng) % tclmG(:,:,:,:,i))
           IF (exit_flag.ne.NoError) RETURN
         END IF
       END DO
-#   endif
+# endif
 
-#   if !defined ANA_AKTCLIMA && defined AKTCLIMATOLOGY
+# if !defined ANA_AKTCLIMA && defined AKTCLIMATOLOGY
       CALL get_3dfld (ng, iNLM, idAclm, ncCLMid(idAclm,ng),             &
      &                nCLMfiles(ng), CLM(1,ng), update(1),              &
      &                LBi, UBi, LBj, UBj, 0, N(ng), 2, 1,               &
-#    ifdef MASKING
+#  ifdef MASKING
      &                GRID(ng) % rmask,                                 &
-#    endif
+#  endif
      &                CLIMA(ng) % AclmG)
       IF (exit_flag.ne.NoError) RETURN
-#   endif
+# endif
 
-#   if (defined BEST_NPZ || defined BIO_GOANPZ) && defined IRON_LIMIT
+# if (defined BEST_NPZ || defined BIO_GOANPZ) && defined IRON_LIMIT
       CALL get_3dfld (ng, iNLM, idTclm(iFe), ncCLMid(idTclm(iFe),ng),   &
      &                nCLMfiles(ng), CLM(1,ng), update(1),              &
      &                LBi, UBi, LBj, UBj, 1, N(ng), 2, 1,               &
-#    ifdef MASKING
+#  ifdef MASKING
      &                GRID(ng) % rmask,                                 &
-#    endif
+#  endif
      &                CLIMA(ng) % tclmG(:,:,:,:,iFe))
       IF (exit_flag.ne.NoError) RETURN
-#   endif
-#    if defined ICE_BIO && defined CLIM_ICE_1D
+# endif
+# if defined ICE_BIO && defined CLIM_ICE_1D
        CALL get_3dfld (ng, iNLM, idTclm(i1CI), ncCLMid(idTclm(i1CI),ng),&
      &                nCLMfiles(ng), CLM(1,ng), update(1),              &
      &                LBi, UBi, LBj, UBj, 1, N(ng), 2, 1,               &
-#    ifdef MASKING
+#  ifdef MASKING
      &                GRID(ng) % rmask,                                 &
-#    endif
+#  endif
      &                CLIMA(ng) % tclmG(:,:,:,:,i1CI))
       IF (exit_flag.ne.NoError) RETURN
-#   endif
-#  endif
-#  if !defined ANA_OCLIMA && defined OCLIMATOLOGY
+# endif
+# if !defined ANA_OCLIMA && defined OCLIMATOLOGY
       CALL get_3dfld (ng, iNLM, idOclm, ncCLMid(idOclm,ng),             &
      &                nCLMfiles(ng), CLM(1,ng), update(1),              &
      &                LBi, UBi, LBj, UBj, 1, N(ng), 2, 1,               &
-#    ifdef MASKING
+#  ifdef MASKING
      &                GRID(ng) % rmask,                                 &
-#    endif
+#  endif
      &                CLIMA(ng) % oclmG)
       IF (exit_flag.ne.NoError) RETURN
-#  endif
+# endif
 
-#  if !defined ANA_AICLIMA && defined AICLIMATOLOGY
+# if !defined ANA_AICLIMA && defined AICLIMATOLOGY
       CALL get_2dfld (ng, iNLM, idAIclm, ncCLMid(idAIclm,ng),           &
      &                nCLMfiles(ng), CLM(1,ng), update(1),              &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &
-#    ifdef MASKING
+#  ifdef MASKING
      &                GRID(ng) % rmask,                                 &
-#    endif
+#  endif
      &                CLIMA(ng) % aiclmG)
       IF (exit_flag.ne.NoError) RETURN
       CALL get_2dfld (ng, iNLM, idHIclm, ncCLMid(idHIclm,ng),           &
      &                nCLMfiles(ng), CLM(1,ng), update(1),              &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &
-#    ifdef MASKING
+#  ifdef MASKING
      &                GRID(ng) % rmask,                                 &
-#    endif
+#  endif
      &                CLIMA(ng) % hiclmG)
       IF (exit_flag.ne.NoError) RETURN
-#  endif
+# endif
 
-#  if !defined ANA_MICLIMA && defined MICLIMATOLOGY
+# if !defined ANA_MICLIMA && defined MICLIMATOLOGY
       CALL get_2dfld (ng, iNLM, idUIclm, ncCLMid(idUIclm,ng),           &
      &                nCLMfiles(ng), CLM(1,ng), update(1),              &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &
-#    ifdef MASKING
+#  ifdef MASKING
      &                GRID(ng) % rmask,                                 &
-#    endif
+#  endif
      &                CLIMA(ng) % uiclmG)
       IF (exit_flag.ne.NoError) RETURN
       CALL get_2dfld (ng, iNLM, idVIclm, ncCLMid(idVIclm,ng),           &
      &                nCLMfiles(ng), CLM(1,ng), update(1),              &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &
-#    ifdef MASKING
+#  ifdef MASKING
      &                GRID(ng) % rmask,                                 &
-#    endif
+#  endif
      &                CLIMA(ng) % viclmG)
       IF (exit_flag.ne.NoError) RETURN
-#  endif
 # endif
 #endif
 

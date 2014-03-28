@@ -616,17 +616,19 @@
 #if !(defined ANA_SSH     || defined ANA_M2CLIMA || \
       defined ANA_M3CLIMA || defined ANA_TCLIMA)
         IF (Lclimatology(ng)) THEN
-          IF (exit_flag.eq.NoError) THEN
-            CALL join_string (CLM(ng)%files, CLM(ng)%Nfiles,            &
-     &                        string,lstr)
-            status=nf90_put_att(ncid, nf90_global, 'clm_file',          &
-     &                          TRIM(CLM(ng)%name))
-            IF (status.ne.nf90_noerr) THEN
-              IF (Master) WRITE (stdout,20) 'clm_file', TRIM(ncname)
-              exit_flag=3
-              ioerror=status
+          DO i=1,nCLMfiles(ng)
+            IF (exit_flag.eq.NoError) THEN
+              CALL join_string (CLM(i,ng)%files, CLM(i,ng)%Nfiles,      &
+     &                          string,lstr)
+              status=nf90_put_att(ncid, nf90_global, 'clm_file',        &
+     &                            TRIM(CLM(i,ng)%name))
+              IF (status.ne.nf90_noerr) THEN
+                IF (Master) WRITE (stdout,20) 'clm_file', TRIM(ncname)
+                exit_flag=3
+                ioerror=status
+              END IF
             END IF
-          END IF
+          END DO
         END IF
 #endif
 
@@ -641,7 +643,7 @@
               ioerror=status
             END IF
           END IF
-        END DO
+        END IF
 #endif
 
 #ifdef FORWARD_READ
