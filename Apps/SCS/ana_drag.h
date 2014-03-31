@@ -145,8 +145,8 @@
 #if defined UV_LDRAG
       cff =  3.0d-04
       h0 = 1000.
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           IF (GRID(ng)%h(i,j) >= h0) THEN
             rdrag(i,j)=cff
           ELSE
@@ -155,8 +155,8 @@
         END DO
       END DO
 #elif defined UV_QDRAG
-      DO j=JstrR,JendR          ! based on Chezy coefficient (g/c^2)
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT          ! based on Chezy coefficient (g/c^2)
+        DO i=IstrT,IendT
           cff=1.6_r8*GRID(ng)%h(i,j)*LOG(GRID(ng)%h(i,j))
 !          cff=1.8_r8*GRID(ng)%h(i,j)*LOG(GRID(ng)%h(i,j))
           rdrag2(i,j)=g/(cff*cff)
@@ -199,8 +199,8 @@
 !  Load bottom roughness length into bottom properties array.
 !-----------------------------------------------------------------------
 !
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           bottom(i,j,izdef)=ZoBot(i,j)
         END DO
       END DO

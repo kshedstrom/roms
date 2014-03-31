@@ -1021,12 +1021,12 @@
 #elif defined WINDBASIN
       DO i=IstrT,IendT
         val1=1;
-        IF ((i-IstrT).lt.(INT(0.03_r8*REAL(IendT-IstrR,r8)))) THEN
+        IF ((i-IstrT).lt.(INT(0.03_r8*REAL(IendT-IstrT,r8)))) THEN
           val1=1.0_r8-(REAL((i-IstrT+1)-                                &
      &                      INT(0.03_r8*REAL(IendT-IstrT,r8)),r8)/      &
      &                 (0.03_r8*REAL(IendT-IstrT,r8)))**2
         END IF
-        IF ((IendT-i).lt.(INT(0.03_r8*REAL(IendR-IstrT,r8)))) THEN
+        IF ((IendT-i).lt.(INT(0.03_r8*REAL(IendT-IstrT,r8)))) THEN
           val1=1.0_r8-(REAL((IendT-i+1)-                                &
      &                      INT(0.03_r8*REAL(IendT-IstrT,r8)),r8)/      &
      &                 (0.03_r8*REAL(IendT-IstrT,r8)))**2

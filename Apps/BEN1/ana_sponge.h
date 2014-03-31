@@ -90,34 +90,34 @@
       Iwrk = 10
 #if defined UV_VIS2
 ! SOUTH
-      DO i=IstrR,IendR
-        DO j=JstrR,MIN(Iwrk,JendR)
+      DO i=IstrT,IendT
+        DO j=JstrT,MIN(Iwrk,JendT)
           cff = 250.*0.5_r8*(1.0_r8+COS(pi*REAL(j,r8)/REAL(Iwrk,r8)))
           MIXING(ng) % visc2_r(i,j) = max(cff, visc2_r(i,j))
           MIXING(ng) % visc2_p(i,j) = max(cff, visc2_p(i,j))
         END DO
       END DO
 ! WEST
-!     DO i=IstrR,MIN(Iwrk,IendR)
-!       DO j=JstrR,JendR
+!     DO i=IstrT,MIN(Iwrk,IendT)
+!       DO j=JstrT,JendT
 !         cff = 250.*0.5_r8*(1.0_r8+COS(pi*REAL(i,r8)/REAL(Iwrk,r8)))
 !         MIXING(ng) % visc2_r(i,j) = max(cff, visc2_r(i,j))
 !         MIXING(ng) % visc2_p(i,j) = max(cff, visc2_p(i,j))
 !       END DO
 !     END DO
 ! EAST
-      DO i=MAX(Lm(ng)+1-Iwrk,IstrR),IendR
+      DO i=MAX(Lm(ng)+1-Iwrk,IstrT),IendT
         ifoo = Lm(ng)+1-i
-        DO j=JstrR,JendR
+        DO j=JstrT,JendT
           cff = 250.*0.5_r8*(1.0_r8+COS(pi*REAL(ifoo,r8)/REAL(Iwrk,r8)))
           MIXING(ng) % visc2_r(i,j) = max(cff, visc2_r(i,j))
           MIXING(ng) % visc2_p(i+1,j) = max(cff, visc2_p(i+1,j))
         END DO
       END DO
 ! NORTH
-!     DO j=MAX(Mm(ng)+1-Iwrk,JstrR),JendR
+!     DO j=MAX(Mm(ng)+1-Iwrk,JstrT),JendT
 !       ifoo = Mm(ng)+1-j
-!       DO i=IstrR,IendR
+!       DO i=IstrT,IendT
 !         cff = 250.*0.5_r8*(1.0_r8+COS(pi*REAL(ifoo,r8)/REAL(Iwrk,r8)))
 !         MIXING(ng) % visc2_r(i,j) = max(cff, visc2_r(i,j))
 !         MIXING(ng) % visc2_p(i+1,j) = max(cff, visc2_p(i+1,j))
@@ -128,31 +128,31 @@
 # if defined TS_DIF2
       DO itrc=1,NT(ng)
 ! SOUTH
-        DO j=JstrR,MIN(Iwrk,JendR)
+        DO j=JstrT,MIN(Iwrk,JendT)
           cff = 100. * (1.0_r8+COS(pi*REAL(j,r8)/REAL(Iwrk,r8)))
-          DO i=IstrR,IendR
+          DO i=IstrT,IendT
             MIXING(ng) % diff2(i,j,itrc)=max(cff, diff2(i,j,itrc))
           END DO
         END DO
 ! WEST
-!       DO i=IstrR,MIN(Iwrk,IendR)
-!         DO j=JstrR,JendR
+!       DO i=IstrT,MIN(Iwrk,IendT)
+!         DO j=JstrT,JendT
 !           cff = 100. * (1.0_r8+COS(pi*REAL(i,r8)/REAL(Iwrk,r8)))
 !           MIXING(ng) % diff2(i,j,itrc) = max(cff, diff2(i,j,itrc))
 !         END DO
 !       END DO
 ! EAST
-        DO i=MAX(Lm(ng)+1-Iwrk,IstrR),IendR
+        DO i=MAX(Lm(ng)+1-Iwrk,IstrT),IendT
           ifoo = Lm(ng)+1-i
-          DO j=JstrR,JendR
+          DO j=JstrT,JendT
             cff = 100. * (1.0_r8+COS(pi*REAL(ifoo,r8)/REAL(Iwrk,r8)))
             MIXING(ng) % diff2(i,j,itrc) = max(cff, diff2(i,j,itrc))
           END DO
         END DO
 ! NORTH
-!       DO j=MAX(Mm(ng)+1-Iwrk,JstrR),JendR
+!       DO j=MAX(Mm(ng)+1-Iwrk,JstrT),JendT
 !         ifoo = Mm(ng)+1-j
-!         DO i=IstrR,IendR
+!         DO i=IstrT,IendT
 !           cff = 100. * (1.0_r8+COS(pi*REAL(ifoo,r8)/REAL(Iwrk,r8)))
 !           MIXING(ng) % diff2(i,j,itrc) = max(cff, diff2(i,j,itrc))
 !         END DO

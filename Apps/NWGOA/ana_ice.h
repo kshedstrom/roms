@@ -195,24 +195,24 @@
 
 #include "set_bounds.h"
 
-      DO j=JstrR,JendR
-        DO i=Istr,IendR
+      DO j=JstrT,JendT
+        DO i=IstrP,IendT
            ui(i,j,1) = 0._r8
            uie(i,j,1) = 0._r8
            ui(i,j,2) = ui(i,j,1)
            uie(i,j,2) = uie(i,j,1)
         ENDDO
       ENDDO
-      DO j=Jstr,JendR
-        DO i=IstrR,IendR
+      DO j=JstrP,JendT
+        DO i=IstrT,IendT
            vi(i,j,1) = 0._r8
            vie(i,j,1) = 0._r8
            vi(i,j,2) = vi(i,j,1)
            vie(i,j,2) = vie(i,j,1)
         ENDDO
       ENDDO
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           IF (t(i,j,N(ng),1,itemp) < -1.6) THEN
             ai(i,j,1) = 1._r8
             hi(i,j,1) = 2._r8
