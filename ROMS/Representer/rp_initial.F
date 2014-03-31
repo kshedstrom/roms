@@ -126,17 +126,18 @@
       nfm3(ng)=2
 # endif
 !
-!$OMP MASTER
       synchro_flag(ng)=.TRUE.
       first_time(ng)=0
       tdays(ng)=dstart
       time(ng)=tdays(ng)*day2sec
+!$OMP MASTER
       ntstart(ng)=INT((time(ng)-dstart*day2sec)/dt(ng))+1
       ntend(ng)=ntimes(ng)
       ntfirst(ng)=ntstart(ng)
-      CALL time_string (time(ng), time_code(ng))
 !$OMP END MASTER
 !$OMP BARRIER
+
+      CALL time_string (time(ng), time_code(ng))
 
       IniRec=nrrec(ng)
       Tindex=1
@@ -275,18 +276,38 @@
 # endif
 !
 !-----------------------------------------------------------------------
-!  If appropriate, set nudging coefficiests time scales.
+!  If appropriate, set spatially varying nudging coefficients time
+!  scales.
 !-----------------------------------------------------------------------
 !
-        DO tile=first_tile(ng),last_tile(ng),+1
-          CALL ana_nudgcoef (ng, tile, iRPM)
-        END DO
+# ifdef ANA_NUDGCOEF
+        IF (Lnudging(ng)) THEN
+          DO tile=first_tile(ng),last_tile(ng),+1
+            CALL ana_nudgcoef (ng, tile, iRPM)
+          END DO
 !$OMP BARRIER
-
+        END IF
+# else
+        IF (Lnudging(ng)) THEN
+!$OMP MASTER
+          CALL get_nudgcoef (ng, iRPM)
+!$OMP END MASTER
+#  ifdef DISTRIBUTE
+          CALL mp_bcasti (ng, iRPM, exit_flag)
+#  endif
+!$OMP BARRIER
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+# endif
       END IF
 !
 !-----------------------------------------------------------------------
-!  Initialize horizontal mixing coefficients.
+!  Initialize horizontal mixing coefficients. If applicable, scale
+!  mixing coefficients according to the grid size (smallest area).
+# ifndef ANA_SPONGE
+!  Also increase their values in sponge areas using the "visc_factor"
+!  and/or "diff_factor" read from input Grid NetCDF file.
+# endif
 !-----------------------------------------------------------------------
 !
       DO tile=first_tile(ng),last_tile(ng),+1
@@ -294,18 +315,19 @@
       END DO
 !$OMP BARRIER
 
-# if defined VISC_GRID || defined DIFF_GRID || defined SPONGE
+# ifdef ANA_SPONGE
 !
 !-----------------------------------------------------------------------
-!  Set horizontal mixing coefficients. Rescale according to the local
-!  grid size. If applicable, increases horizontal mixing in sponge
-!  areas.
+!  Increase horizontal mixing coefficients in sponge areas using
+!  analytical functions.
 !-----------------------------------------------------------------------
 !
-      DO tile=first_tile(ng),last_tile(ng),+1
-        CALL ana_hmixcoef (ng, tile, iRPM)
-      END DO
+      IF (Lsponge(ng)) THEN
+        DO tile=first_tile(ng),last_tile(ng),+1
+          CALL ana_sponge (ng, tile, iRPM)
+        END DO
 !$OMP BARRIER
+      END IF
 # endif
 !
 !-----------------------------------------------------------------------
@@ -424,12 +446,14 @@
       CALL get_state (ng, iRPM, 1, IRP(ng)%name, IniRec, Tindex)
 !$OMP END MASTER
 !$OMP BARRIER
+      time(ng)=io_time                       ! needed for shared-memory
 # else
       IF (nrrec(ng).ne.0) THEN
 !$OMP MASTER
         CALL get_state (ng, iRPM, 1, IRP(ng)name, IniRec, Tindex)
 !$OMP END MASTER
 !$OMP BARRIER
+        time(ng)=io_time                     ! needed for shared-memory
 # ifdef DISTRIBUTE
         CALL mp_bcasti (ng, iNLM, exit_flag)
 # endif

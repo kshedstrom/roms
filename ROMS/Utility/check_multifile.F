@@ -199,21 +199,22 @@
         END IF
       END DO
 #endif
-#ifdef CLM_FILE
 !
 !-----------------------------------------------------------------------
 !  Input climatology data.
 !-----------------------------------------------------------------------
 !
-      DO i=1,nCLMfiles(ng)
-        Nfiles=CLM(i,ng)%Nfiles
-        DO ifile=1,Nfiles
-          ncname=CLM(i,ng)%files(ifile)
-          foundit=check_file(ng, model, ncname, Tmin, Tmax, Tscale,     &
-     &                     Lcheck)
-          IF (exit_flag.ne.NoError) RETURN
-          CLM(i,ng)%time_min(ifile)=Tmin
-          CLM(i,ng)%time_max(ifile)=Tmax
+      IF (CLM_FILE(ng)) THEN
+        DO i=1,nCLMfiles(ng)
+          Nfiles=CLM(i,ng)%Nfiles
+          DO ifile=1,Nfiles
+            ncname=CLM(ng)%files(ifile)
+            foundit=check_file(ng, model, ncname, Tmin, Tmax, Tscale,   &
+     &                       Lcheck)
+            IF (exit_flag.ne.NoError) RETURN
+            CLM(i,ng)%time_min(ifile)=Tmin
+            CLM(i,ng)%time_max(ifile)=Tmax
+          END DO
         END DO
 !
 !  Set the appropriate file counter to use during initialization or
@@ -266,10 +267,10 @@
      &                          TRIM(CLM(i,ng)%files(Nfiles)),          &
      &                          Tmax_code, F_code
             END IF
+            exit_flag=4
           END IF
         END IF
-      END DO
-#endif
+      END IF
 
  10   FORMAT (/,' CHECK_MULTIFILE - Error while processing ', a,        &
      &        ' multi-files: ',/,19x,'data does not include',           &
@@ -331,7 +332,7 @@
 !
 !  Local variable declarations.
 !
-      logical :: foundit
+      logical :: Lcycle, Lperpetual, Lspectral, foundit
 
       integer :: Nrec, TvarID, i, nvdim, nvatt
 
@@ -347,6 +348,9 @@
 !
       foundit=.FALSE.
       Lcheck=.TRUE.
+      Lcycle=.FALSE.
+      Lperpetual=.FALSE.
+      Lspectral =.FALSE.
       Tscale=1.0_r8                        ! seconds
       Tmin=0.0_r8
       Tmax=0.0_r8
@@ -369,7 +373,7 @@
      &            (var_ndim(i).eq.1)) THEN
           TvarName=TRIM(var_name(i))
           foundit=.TRUE.
-          Lcheck=.FALSE.            ! we do not need to check tidal data
+          Lspectral=.TRUE.          ! we do not need to check tidal data
           EXIT
         END IF
       END DO
@@ -393,21 +397,37 @@
 !  Also, set output logical switch 'Lcheck' for the calling to check
 !  the available data time range. For example, we need to check it
 !  there is enough data to finish the simulation.  Notice that for
-!  data with 'cycle_length', Lcheck = FALSE.
+!  data with 'cycle_length', Lcheck = FALSE.  Also,  Lcheck = FALSE
+!  for perpetual time axis: the 'calendar' attribute is 'none' or
+!  the number of records in the time dimension is one (Nrec=1).
 !
       Nrec=var_Dsize(1)              ! time is a 1D array
       DO i=1,nvatt
         IF (TRIM(var_Aname(i)).eq.'units') THEN
           Tunits=TRIM(var_Achar(i))
-          IF (Tunits(1:3).eq.'day') THEN
-            Tscale=day2sec
-          ELSE IF (Tunits(1:4).eq.'hour') THEN
+          IF (INDEX(TRIM(var_Achar(i)),'day').ne.0) THEN
+            Tscale=86400.0_r8
+          ELSE IF (INDEX(TRIM(var_Achar(i)),'hour').ne.0) THEN
             Tscale=3600.0_r8
+          ELSE IF (INDEX(TRIM(var_Achar(i)),'second').ne.0) THEN
+            Tscale=1.0_r8
+          END IF
+        ELSE IF (TRIM(var_Aname(i)).eq.'calendar') THEN
+          IF ((Nrec.eq.1).or.                                           &
+     &        (INDEX(TRIM(var_Achar(i)),'none').ne.0)) THEN
+            Lperpetual=.TRUE.
           END IF
         ELSE IF (TRIM(var_Aname(i)).eq.'cycle_length') THEN
-          Lcheck=.FALSE.
+          Lcycle=.TRUE.
         END IF
       END DO
+!
+!  Turn off the checking of time range if cycling, perpectual, or
+!  spectral time axis.
+!
+      IF (Lcycle.or.Lperpetual.or.Lspectral) THEN
+        Lcheck=.FALSE.
+      END IF
 !
 !  Read in time variable minimum and maximun values (input time units).
 !

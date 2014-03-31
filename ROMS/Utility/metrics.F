@@ -54,13 +54,13 @@
      &                   GRID(ng) % pmask,                              &
      &                   GRID(ng) % rmask,                              &
 #endif
-#ifdef ICESHELF
-     &                   GRID(ng) % zice,                               &
-#endif
      &                   GRID(ng) % angler,                             &
      &                   GRID(ng) % CosAngler,                          &
      &                   GRID(ng) % SinAngler,                          &
 #ifdef SOLVE3D
+# ifdef ICESHELF
+     &                   GRID(ng) % zice,                               &
+# endif
 # if defined SEDIMENT && defined SED_MORPH
      &                   SEDBED(ng) % bed_thick,                        &
 # endif
@@ -108,11 +108,11 @@
 #ifdef MASKING
      &                         pmask, rmask,                            &
 #endif
-#ifdef ICESHELF
-     &                         zice,                                    &
-#endif
      &                         angler, CosAngler, SinAngler,            &
 #ifdef SOLVE3D
+# ifdef ICESHELF
+     &                         zice,                                    &
+# endif
 # if defined SEDIMENT && defined SED_MORPH
      &                         bed_thick,                               &
 # endif
@@ -174,11 +174,11 @@
       real(r8), intent(inout) :: pmask(LBi:,LBj:)
       real(r8), intent(inout) :: rmask(LBi:,LBj:)
 # endif
-# ifdef ICESHELF
-      real(r8), intent(in) :: zice(LBi:,LBj:)
-# endif
       real(r8), intent(inout) :: angler(LBi:,LBj:)
 # ifdef SOLVE3D
+#  ifdef ICESHELF
+      real(r8), intent(in) :: zice(LBi:,LBj:)
+#  endif
 #  if defined SEDIMENT && defined SED_MORPH
       real(r8), intent(in):: bed_thick(LBi:,LBj:,:)
 #  endif
@@ -228,11 +228,11 @@
       real(r8), intent(inout) :: pmask(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: rmask(LBi:UBi,LBj:UBj)
 # endif
-# ifdef ICESHELF
-      real(r8), intent(in) :: zice(LBi:UBi,LBj:UBj)
-# endif
       real(r8), intent(inout) :: angler(LBi:UBi,LBj:UBj)
 # ifdef SOLVE3D
+#  ifdef ICESHELF
+      real(r8), intent(in) :: zice(LBi:UBi,LBj:UBj)
+#  endif
 #  if defined SEDIMENT && defined SED_MORPH
       real(r8), intent(in):: bed_thick(LBi:UBi,LBj:UBj,2)
 #  endif

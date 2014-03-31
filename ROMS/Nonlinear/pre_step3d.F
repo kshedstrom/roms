@@ -269,7 +269,7 @@
 !
 !  Local variable declarations.
 !
-      integer :: i, ibt, indx, is, itrc, j, k, ltrc
+      integer :: i, ibt, ic, indx, is, itrc, j, k, ltrc
 # if defined DIAGNOSTICS_TS || defined DIAGNOSTICS_UV
       integer :: idiag
 # endif
@@ -571,27 +571,32 @@
         cff=(1.0_r8-Gamma)*dt(ng)
       END IF
 
-      iactrc=inert(3)
+      iactrc=inert(2)
       iwctrc=inert(1)
       DO k=1,N(ng)
         DO j=Jstr,Jend
           DO i=Istr,Iend
             t(i,j,k,3,iactrc)=t(i,j,k,3,iactrc)+                        &
      &                           cff*Hz(i,j,k)*t(i,j,k,nstp,iwctrc)
+!  Age in years, as in Spall, 2007, JGR, doi:10.1029/2005JC003364.
+            t(i,j,k,3,inert(3))=t(i,j,k,3,inert(3))+              &
+     &                           cff*3.168808781402895e-08
+            t(i,j,k,3,inert(4))=t(i,j,k,3,inert(4))+              &
+     &                           cff*3.168808781402895e-08
           END DO
         END DO
       END DO
 
-      iactrc=inert(4)
-      iwctrc=inert(2)
-      DO k=1,N(ng)
-        DO j=Jstr,Jend
-          DO i=Istr,Iend
-            t(i,j,k,3,iactrc)=t(i,j,k,3,iactrc)+                        &
-     &                           cff*Hz(i,j,k)*t(i,j,k,nstp,iwctrc)
-          END DO
-        END DO
-      END DO
+!      iactrc=inert(4)
+!      iwctrc=inert(2)
+!      DO k=1,N(ng)
+!        DO j=Jstr,Jend
+!          DO i=Istr,Iend
+!            t(i,j,k,3,iactrc)=t(i,j,k,3,iactrc)+                        &
+!     &                           cff*Hz(i,j,k)*t(i,j,k,nstp,iwctrc)
+!          END DO
+!        END DO
+!      END DO
 #   endif
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #   ifdef AGE_DISTRIBUTION
@@ -1168,16 +1173,17 @@
 !  Apply intermediate tracers lateral boundary conditions.
 !=======================================================================
 !
+      ic=0
 #  ifdef OFFLINE_BIOLOGY
       DO ibt=1,NBT
         itrc=idbio(ibt)
 #  else
       DO itrc=1,NT(ng)
 #  endif
-#  ifdef T_PASSIVE
-       IF (itrc.lt.inert(1) .or. itrc.gt.inert(NPT)) THEN
-#  endif
-        CALL t3dbc_tile (ng, tile, itrc,                                &
+        IF (LtracerCLM(itrc,ng).and.LnudgeTCLM(itrc,ng)) THEN
+          ic=ic+1
+        END IF
+        CALL t3dbc_tile (ng, tile, itrc, ic,                            &
      &                   LBi, UBi, LBj, UBj, N(ng), NT(ng),             &
      &                   IminS, ImaxS, JminS, JmaxS,                    &
      &                   nstp, 3,                                       &

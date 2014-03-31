@@ -185,7 +185,7 @@
             cff=(0.7859_r8+0.03477_r8*Tair(i,j))/                       &
      &          (1.0_r8+0.00412_r8*Tair(i,j))
             e_sat=10.0_r8**cff    ! saturation vapor pressure (hPa=mbar)
-            vap_p=e_sat*Hair(i,j) ! water vapor pressure (hPa=mbar) 
+            vap_p=e_sat*Hair(i,j) ! water vapor pressure (hPa=mbar)
             srflx(i,j)=Rsolar*zenith*zenith*                            &
      &                 (1.0_r8-0.6_r8*cloud(i,j)**3)/                   &
      &                 ((zenith+2.7_r8)*vap_p*1.0E-3_r8+                &

@@ -173,7 +173,7 @@ endif
 #  library to account for calls to objects in other ROMS libraries or
 #  cycling dependencies. These type of dependencies are problematic in
 #  some compilers during linking. This library appears twice at linking
-#  step (beggining and almost the end of ROMS library list).
+#  step (begining and almost the end of ROMS library list).
 #--------------------------------------------------------------------------
 
   libraries  := $(SCRATCH_DIR)/libMODS.a
@@ -254,7 +254,7 @@ clean_list += $(MAKE_MACROS)
 source-dir-to-binary-dir = $(addprefix $(SCRATCH_DIR)/, $(notdir $1))
 
 # $(call source-to-object, source-file-list)
-source-to-object = $(call source-dir-to-binary-dir,       \
+source-to-object = $(call source-dir-to-binary-dir,   \
                    $(subst .F,.o,$1))
 
 # $(call source-to-object, source-file-list)

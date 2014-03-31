@@ -660,12 +660,12 @@
                 DO itrc=1,NAT
                   nl_tnu2(itrc,ng)=Rtracer(itrc,ng)
                 END DO
-# ifdef T_PASSIVE
+#ifdef T_PASSIVE
                 DO i=1,NPT
                   itrc=inert(i)
                   nl_tnu2(itrc,ng)=Rtracer(NAT+i,ng)
                 END DO
-# endif
+#endif
               END DO
             CASE ('TNU4')
               Npts=load_r(Nval, Rval, (NAT+NPT)*Ngrids, Rtracer)
@@ -673,12 +673,12 @@
                 DO itrc=1,NAT
                   nl_tnu4(itrc,ng)=Rtracer(itrc,ng)
                 END DO
-# ifdef T_PASSIVE
+#ifdef T_PASSIVE
                 DO i=1,NPT
                   itrc=inert(i)
                   nl_tnu4(itrc,ng)=Rtracer(NAT+i,ng)
                 END DO
-# endif
+#endif
               END DO
             CASE ('ad_TNU2')
               Npts=load_r(Nval, Rval, (NAT+NPT)*Ngrids, Rtracer)
@@ -687,13 +687,13 @@
                   ad_tnu2(itrc,ng)=Rtracer(itrc,ng)
                   tl_tnu2(itrc,ng)=Rtracer(itrc,ng)
                 END DO
-# ifdef T_PASSIVE
+#ifdef T_PASSIVE
                 DO i=1,NPT
                   itrc=inert(i)
                   ad_tnu2(itrc,ng)=Rtracer(NAT+i,ng)
                   tl_tnu2(itrc,ng)=Rtracer(NAT+i,ng)
                 END DO
-# endif
+#endif
               END DO
             CASE ('ad_TNU4')
               Npts=load_r(Nval, Rval, (NAT+NPT)*Ngrids, Rtracer)
@@ -702,13 +702,13 @@
                   ad_tnu4(itrc,ng)=Rtracer(itrc,ng)
                   tl_tnu4(itrc,ng)=Rtracer(itrc,ng)
                 END DO
-# ifdef T_PASSIVE
+#ifdef T_PASSIVE
                 DO i=1,NPT
                   itrc=inert(i)
                   ad_tnu4(itrc,ng)=Rtracer(NAT+i,ng)
                   tl_tnu4(itrc,ng)=Rtracer(NAT+i,ng)
                 END DO
-# endif
+#endif
               END DO
             CASE ('VISC2')
               Npts=load_r(Nval, Rval, Ngrids, nl_visc2)
@@ -724,6 +724,23 @@
               DO ng=1,Ngrids
                 tl_visc4(ng)=ad_visc4(ng)
               END DO
+            CASE ('LuvSponge')
+              Npts=load_l(Nval, Cval, Ngrids, LuvSponge)
+#ifdef SOLVE3D
+            CASE ('LtracerSponge')
+              Npts=load_l(Nval, Cval, (NAT+NPT)*Ngrids, Ltracer)
+              DO ng=1,Ngrids
+                DO itrc=1,NAT
+                  LtracerSponge(itrc,ng)=Ltracer(itrc,ng)
+                END DO
+# ifdef T_PASSIVE
+                DO i=1,NPT
+                  itrc=inert(i)
+                  LtracerSponge(itrc,ng)=Ltracer(NAT+i,ng)
+                END DO
+# endif
+              END DO
+#endif
             CASE ('AKT_BAK')
               Npts=load_r(Nval, Rval, (NAT+NPT)*Ngrids, Rtracer)
               DO ng=1,Ngrids
@@ -933,7 +950,13 @@
 # endif
               END DO
 #endif
-#if defined SOLVE3D && defined TCLIMATOLOGY
+            CASE ('LsshCLM')
+              Npts=load_l(Nval, Cval, Ngrids, LsshCLM)
+            CASE ('Lm2CLM')
+              Npts=load_l(Nval, Cval, Ngrids, Lm2CLM)
+#ifdef SOLVE3D
+            CASE ('Lm3CLM')
+              Npts=load_l(Nval, Cval, Ngrids, Lm3CLM)
             CASE ('LtracerCLM')
               Npts=load_l(Nval, Cval, (NAT+NPT)*Ngrids, Ltracer)
               DO ng=1,Ngrids
@@ -944,6 +967,25 @@
                 DO i=1,NPT
                   itrc=inert(i)
                   LtracerCLM(itrc,ng)=Ltracer(NAT+i,ng)
+                END DO
+# endif
+              END DO
+#endif
+            CASE ('LnudgeM2CLM')
+              Npts=load_l(Nval, Cval, Ngrids, LnudgeM2CLM)
+#ifdef SOLVE3D
+            CASE ('LnudgeM3CLM')
+              Npts=load_l(Nval, Cval, Ngrids, LnudgeM3CLM)
+            CASE ('LnudgeTCLM')
+              Npts=load_l(Nval, Cval, (NAT+NPT)*Ngrids, Ltracer)
+              DO ng=1,Ngrids
+                DO itrc=1,NAT
+                  LnudgeTCLM(itrc,ng)=Ltracer(itrc,ng)
+                END DO
+# ifdef T_PASSIVE
+                DO i=1,NPT
+                  itrc=inert(i)
+                  LnudgeTCLM(itrc,ng)=Ltracer(NAT+i,ng)
                 END DO
 # endif
               END DO
@@ -3295,12 +3337,50 @@
                 NGCname(i:i)=blank
               END DO
               NGCname=TRIM(ADJUSTL(Cval(Nval)))
-!           CASE ('BRYNAME')
-!             label='BRY - lateral open boundary conditions'
-!             Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles, BRY)
-!           CASE ('CLMNAME')
-!             label='CLM - climatology fields'
-!             Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles, CLM)
+            CASE ('NBCFILES')
+              Npts=load_i(Nval, Rval, Ngrids, nBCfiles)
+              DO ng=1,Ngrids
+                IF (nBCfiles(ng).le.0) THEN 
+                  IF (Master) WRITE (out,260) 'NBCFILES', nBCfiles(ng), &
+     &                            'Must be equal or greater than one.'
+                  exit_flag=4
+                  RETURN
+                END IF
+              END DO
+              max_Ffiles=MAXVAL(nBCfiles)
+              allocate ( BRY(max_Ffiles,Ngrids) )
+              allocate ( BRYids(max_Ffiles,Ngrids) )
+              allocate ( NBCcount(max_Ffiles,Ngrids) )
+              BRYids(1:max_Ffiles,1:Ngrids)=-1
+              NBCcount(1:max_Ffiles,1:Ngrids)=0
+            CASE ('BRYNAME')
+              label='BRY - lateral open boundary conditions'
+              Npts=load_s2d(Nval, Cval, line, label, ibcfile, igrid,    &
+     &                      max_Ffiles, NBCcount, nBCfiles, BRY)
+            CASE ('NCLMFILES')
+              Npts=load_i(Nval, Rval, Ngrids, nCLMfiles)
+              DO ng=1,Ngrids
+                IF (nCLMfiles(ng).le.0) THEN
+                  IF (Master) WRITE (out,260) 'NCLMFILES',              &
+     &               nCLMfiles(ng),                                     &
+     &              'Must be equal or greater than one.'
+                  exit_flag=4
+                  RETURN
+                END IF
+              END DO
+              max_Ffiles=MAXVAL(nCLMfiles)
+              allocate ( CLM(max_Ffiles,Ngrids) )
+              allocate ( CLMids(max_Ffiles,Ngrids) )
+              allocate ( NCLMcount(max_Ffiles,Ngrids) )
+              CLMids(1:max_Ffiles,1:Ngrids)=-1
+              NCLMcount(1:max_Ffiles,1:Ngrids)=0
+            CASE ('CLMNAME')
+              label='CLM - climatology fields'
+              Npts=load_s2d(Nval, Cval, line, label, iclmfile, igrid,   &
+     &                      max_Ffiles, NCLMcount, nCLMfiles, CLM)
+            CASE ('NUDNAME')
+              label='NUD - nudging coefficients'
+              Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles, NUD)
             CASE ('SSFNAME')
               label='SSF - Sources/Sinks forcing fields'
               Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles, SSF)
@@ -3324,47 +3404,6 @@
               label='FRC - forcing fields'
               Npts=load_s2d(Nval, Cval, line, label, ifile, igrid,      &
      &                      nFfiles, Ncount, max_Ffiles, FRC)
-            CASE ('NCLMFILES')
-              Npts=load_i(Nval, Rval, Ngrids, nCLMfiles)
-              DO ng=1,Ngrids
-                IF (nCLMfiles(ng).le.0) THEN
-                  IF (Master) WRITE (out,260) 'NCLMFILES',              &
-     &               nCLMfiles(ng),                                     &
-     &              'Must be equal or greater than one.'
-                  exit_flag=4
-                  RETURN
-                END IF
-              END DO
-              max_Ffiles=MAXVAL(nCLMfiles)
-              allocate ( CLM(max_Ffiles,Ngrids) )
-              allocate ( CLMids(max_Ffiles,Ngrids) )
-              allocate ( NCLMcount(max_Ffiles,Ngrids) )
-              CLMids(1:max_Ffiles,1:Ngrids)=-1
-              NCLMcount(1:max_Ffiles,1:Ngrids)=0
-            CASE ('CLMNAME')
-              label='CLM - climatology fields'
-              Npts=load_s2d(Nval, Cval, line, label, iclmfile, igrid,   &
-     &                      max_Ffiles, NCLMcount, nCLMfiles, CLM)
-            CASE ('NBCFILES')
-              Npts=load_i(Nval, Rval, Ngrids, nBCfiles)
-              DO ng=1,Ngrids
-                IF (nBCfiles(ng).le.0) THEN 
-                  IF (Master) WRITE (out,260) 'NBCFILES', nBCfiles(ng), &
-     &                            'Must be equal or greater than one.'
-                  exit_flag=4
-                  RETURN
-                END IF
-              END DO
-              max_Ffiles=MAXVAL(nBCfiles)
-              allocate ( BRY(max_Ffiles,Ngrids) )
-              allocate ( BRYids(max_Ffiles,Ngrids) )
-              allocate ( NBCcount(max_Ffiles,Ngrids) )
-              BRYids(1:max_Ffiles,1:Ngrids)=-1
-              NBCcount(1:max_Ffiles,1:Ngrids)=0
-            CASE ('BRYNAME')
-              label='BRY - lateral open boundary conditions'
-              Npts=load_s2d(Nval, Cval, line, label, ibcfile, igrid,    &
-     &                      max_Ffiles, NBCcount, nBCfiles, BRY)
             CASE ('APARNAM')
               DO i=1,LEN(aparnam)
                 aparnam(i:i)=blank
@@ -3565,6 +3604,27 @@
           LdefHIS(ng)=.TRUE.
         END IF
 #endif
+!
+!  Set switch to process climatology file.
+!
+#ifndef ANA_SSH
+        IF (LsshCLM(ng)) CLM_FILE(ng)=.TRUE.
+#endif
+#ifndef ANA_M2CLIMA
+        IF (Lm2CLM(ng)) CLM_FILE(ng)=.TRUE.
+#endif
+#ifdef SOLVE3D
+# ifndef ANA_M3CLIMA
+        IF (Lm3CLM(ng)) CLM_FILE(ng)=.TRUE.
+# endif
+# ifndef ANA_TCLIMA
+        IF (ANY(LtracerCLM(:,ng))) CLM_FILE(ng)=.TRUE.
+# endif
+# if defined CLIMA_TS_MIX && (defined TS_DIF2 || defined TS_DIF4)
+        CLM_FILE(ng)=.TRUE.
+# endif
+#endif
+
 #if defined IS4DVAR || defined WEAK_CONSTRAINT
 !
 !  If weak constraint, disallow recycling of the adjoint model.
@@ -4010,7 +4070,39 @@
      &          '(m4/s) for momentum.'
 # endif
 #endif
+          IF (LuvSponge(ng)) THEN
+            WRITE (out,170) LuvSponge(ng), 'LuvSponge',                 &
+     &          'Turning ON  sponge on horizontal momentum.'
+          ELSE
+            WRITE (out,170) LuvSponge(ng), 'LuvSponge',                 &
+     &          'Turning OFF sponge on horizontal momentum.'
+          END IF
 #ifdef SOLVE3D
+          DO i=1,NAT
+            IF (LtracerSponge(i,ng)) THEN
+              WRITE (out,185) LtracerSponge(i,ng), 'LtracerSponge', i,  &
+     &            'Turning ON  sponge on tracer ', i,                   &
+     &            TRIM(Vname(1,idTvar(i)))
+            ELSE
+              WRITE (out,185) LtracerSponge(i,ng), 'LtracerSponge', i,  &
+     &            'Turning OFF sponge on tracer ', i,                   &
+     &            TRIM(Vname(1,idTvar(i)))
+            END IF
+          END DO
+# ifdef T_PASSIVE
+          DO itrc=1,NPT
+            i=inert(itrc)
+            IF (LtracerSponge(i,ng)) THEN
+              WRITE (out,185) LtracerSponge(i,ng), 'LtracerSponge', i,  &
+     &            'Turning ON  sponge on tracer ', i,                   &
+     &            TRIM(Vname(1,idTvar(i)))
+            ELSE
+              WRITE (out,185) LtracerSponge(i,ng), 'LtracerSponge', i,  &
+     &            'Turning OFF sponge on tracer ', i,   &
+     &            TRIM(Vname(1,idTvar(i)))
+            END IF
+          END DO
+# endif
           DO i=1,NAT+NPT
             itrc=i
 # ifdef T_PASSIVE
@@ -4341,18 +4433,92 @@
           END DO
 # endif
 #endif
-#if defined SOLVE3D && defined TCLIMATOLOGY
-          DO itrc=1,NAT
-            WRITE (out,185) LtracerCLM(itrc,ng), 'LtracerCLM', itrc,    &
-     &            'Processing climatology on tracer ', itrc,            &
-     &            TRIM(Vname(1,idTvar(itrc)))
+          IF (LsshCLM(ng)) THEN
+            WRITE (out,170) LsshCLM(ng), 'LsshCLM',                     &
+     &          'Turning ON  processing of SSH climatology.'
+          ELSE
+            WRITE (out,170) LsshCLM(ng), 'LsshCLM',                     &
+     &          'Turning OFF processing of SSH climatology.'
+          END IF
+          IF (Lm2CLM(ng)) THEN
+            WRITE (out,170) Lm2CLM(ng), 'Lm2CLM',                       &
+     &          'Turning ON  processing of 2D momentum climatology.'
+          ELSE
+            WRITE (out,170) Lm2CLM(ng), 'Lm2CLM',                       &
+     &          'Turning OFF processing of 2D momentum climatology.'
+          END IF
+#ifdef SOLVE3D
+          IF (Lm3CLM(ng)) THEN
+            WRITE (out,170) Lm3CLM(ng), 'Lm3CLM',                       &
+     &          'Turning ON  processing of 3D momentum climatology.'
+          ELSE
+            WRITE (out,170) Lm3CLM(ng), 'Lm3CLM',                       &
+     &          'Turning OFF processing of 3D momentum climatology.'
+          END IF
+          DO i=1,NAT
+            IF (LtracerCLM(i,ng)) THEN
+              WRITE (out,185) LtracerCLM(i,ng), 'LtracerCLM', i,        &
+     &            'Turning ON  processing of climatology tracer ', i,   &
+     &            TRIM(Vname(1,idTvar(i)))
+            ELSE
+              WRITE (out,185) LtracerCLM(i,ng), 'LtracerCLM', i,        &
+     &            'Turning OFF processing of climatology tracer ', i,   &
+     &            TRIM(Vname(1,idTvar(i)))
+            END IF
           END DO
 # ifdef T_PASSIVE
-          DO i=1,NPT
-            itrc=inert(i)
-            WRITE (out,185) LtracerCLM(itrc,ng), 'LtracerCLM', itrc,    &
-     &            'Processing climatology on tracer ', itrc,            &
-     &            TRIM(Vname(1,idTvar(itrc)))
+          DO itrc=1,NPT
+            i=inert(itrc)
+            IF (LtracerCLM(i,ng)) THEN
+              WRITE (out,185) LtracerCLM(i,ng), 'LtracerCLM', i,        &
+     &            'Turning ON  processing of climatology tracer ', i,   &
+     &            TRIM(Vname(1,idTvar(i)))
+            ELSE
+              WRITE (out,185) LtracerCLM(i,ng), 'LtracerCLM', i,        &
+     &            'Turning OFF processing of climatology tracer ', i,   &
+     &            TRIM(Vname(1,idTvar(i)))
+            END IF
+          END DO
+# endif
+#endif
+          IF (LnudgeM2CLM(ng)) THEN
+            WRITE (out,170) LnudgeM2CLM(ng), 'LnudgeM2CLM',             &
+     &          'Turning ON  nudging of 2D momentum climatology.'
+          ELSE
+            WRITE (out,170) LnudgeM2CLM(ng), 'LnudgeM2CLM',             &
+     &          'Turning OFF nudging of 2D momentum climatology.'
+          END IF
+#ifdef SOLVE3D
+          IF (LnudgeM3CLM(ng)) THEN
+            WRITE (out,170) LnudgeM3CLM(ng), 'LnudgeM3CLM',             &
+     &          'Turning ON  nudging of 3D momentum climatology.'
+          ELSE
+            WRITE (out,170) LnudgeM3CLM(ng), 'LnudgeM3CLM',             &
+     &          'Turning OFF nudging of 3D momentum climatology.'
+          END IF
+          DO i=1,NAT
+            IF (LnudgeTCLM(i,ng)) THEN
+              WRITE (out,185) LnudgeTCLM(i,ng), 'LnudgeTCLM', i,        &
+     &            'Turning ON  nudging of climatology tracer ', i,      &
+     &            TRIM(Vname(1,idTvar(i)))
+            ELSE
+              WRITE (out,185) LnudgeTCLM(i,ng), 'LnudgeTCLM', i,        &
+     &            'Turning OFF nudging of climatology tracer ', i,      &
+     &            TRIM(Vname(1,idTvar(i)))
+            END IF
+          END DO
+# ifdef T_PASSIVE
+          DO itrc=1,NPT
+            i=inert(itrc)
+            IF (LnudgeTCLM(i,ng)) THEN
+              WRITE (out,185) LnudgeTCLM(i,ng), 'LnudgeTCLM', i,        &
+     &            'Turning ON  nudging of climatology tracer ', i,      &
+     &            TRIM(Vname(1,idTvar(i)))
+            ELSE
+              WRITE (out,185) LnudgeTCLM(i,ng), 'LnudgeTCLM', i,        &
+     &            'Turning OFF nudging of climatology tracer ', i,      &
+     &            TRIM(Vname(1,idTvar(i)))
+            END IF
           END DO
 # endif
 #endif
@@ -6055,7 +6221,7 @@
           IF (LuvSrc(ng).or.LwSrc(ng).or.(ANY(LtracerSrc(:,ng)))) THEN
             fname=SSF(ng)%name
             IF (.not.find_file(ng, fname, 'SSFNAME')) GO TO 30
-            WRITE (out,230) '      Input Sources/Sinks File:  ',          &
+            WRITE (out,230) '      Input Sources/Sinks File:  ',        &
      &                      TRIM(fname)
           END IF
 #endif
@@ -6073,19 +6239,26 @@
             END DO
           END DO
 #endif
-#ifdef CLM_FILE
-          DO i=1,nCLMfiles(ng)
-            DO ifile=1,CLM(i,ng)%Nfiles
-              fname=CLM(i,ng)%files(ifile)
+          IF (CLM_FILE(ng)) THEN
+            DO ifile=1,CLM(ng)%Nfiles
+              fname=CLM(ng)%files(ifile)
               IF (.not.find_file(ng, fname, 'CLMNAME')) GO TO 30
               IF (ifile.eq.1) THEN
                 WRITE (out,230) '        Input Climatology File:  ',    &
-     &                        TRIM(fname)
+     &                          TRIM(fname)
               ELSE
                 WRITE (out,'(35x,a)') TRIM(fname)
               END IF
             END DO
-          END DO
+          END IF
+#ifndef ANA_NUDGCOEF
+          IF (LnudgeM2CLM(ng).or.LnudgeM3CLM(ng).or.                    &
+     &        (ANY(LnudgeTCLM(:,ng)))) THEN
+            fname=NUD(ng)%name
+            IF (.not.find_file(ng, fname, 'NUDNAME')) GO TO 30
+            WRITE (out,230) ' Input Nudge Coefficients File:  ',        &
+     &                      TRIM(fname)
+          END IF
 #endif
 #if defined FORWARD_READ && !(defined FOUR_DVAR || defined PICARD_TEST)
           fname=FWD(ng)%name
@@ -6275,22 +6448,22 @@
      &        'or',/,12x,'change domain partition in input script.')
  110  FORMAT (/,/,' Physical Parameters, Grid: ',i2.2,                  &
      &        /,  ' =============================',/)
- 120  FORMAT (1x,i10,2x,a,t30,a)
- 130  FORMAT (1x,i10,2x,a,t30,a,/,t32,a)
- 140  FORMAT (f11.3,2x,a,t30,a)
- 150  FORMAT (f11.2,2x,a,t30,a)
- 160  FORMAT (f11.3,2x,a,t30,a,/,t32,a)
- 170  FORMAT (10x,l1,2x,a,t30,a)
- 180  FORMAT (10x,l1,2x,a,t30,a,i2.2,':',1x,a)
- 185  FORMAT (10x,l1,2x,a,'(',i2.2,')',t30,a,i2.2,':',1x,a)
- 190  FORMAT (1p,e11.4,2x,a,'(',i2.2,')',t30,a,/,t32,a,i2.2,':',1x,a)
- 195  FORMAT (1p,e11.4,2x,a,t30,a,i2.2,':',1x,a)
- 200  FORMAT (1p,e11.4,2x,a,t30,a)
- 210  FORMAT (1p,e11.4,2x,a,t30,a,/,t32,a)
+ 120  FORMAT (1x,i10,2x,a,t32,a)
+ 130  FORMAT (1x,i10,2x,a,t32,a,/,t34,a)
+ 140  FORMAT (f11.3,2x,a,t32,a)
+ 150  FORMAT (f11.2,2x,a,t32,a)
+ 160  FORMAT (f11.3,2x,a,t32,a,/,t34,a)
+ 170  FORMAT (10x,l1,2x,a,t32,a)
+ 180  FORMAT (10x,l1,2x,a,t32,a,i2.2,':',1x,a)
+ 185  FORMAT (10x,l1,2x,a,'(',i2.2,')',t32,a,i2.2,':',1x,a)
+ 190  FORMAT (1p,e11.4,2x,a,'(',i2.2,')',t32,a,/,t34,a,i2.2,':',1x,a)
+ 195  FORMAT (1p,e11.4,2x,a,t32,a,i2.2,':',1x,a)
+ 200  FORMAT (1p,e11.4,2x,a,t32,a)
+ 210  FORMAT (1p,e11.4,2x,a,t32,a,/,t34,a)
  220  FORMAT (/,' Output/Input Files:',/)
  230  FORMAT (2x,a,a)
  240  FORMAT (/,' Generic User Parameters:',/)
- 250  FORMAT (1p,e11.4,2x,'user(',i2.2,')',t30,                         &
+ 250  FORMAT (1p,e11.4,2x,'user(',i2.2,')',t32,                         &
      &        'User parameter ',i2.2,'.')
  260  FORMAT (/,' READ_PHYPAR - Invalid input parameter, ',a,           &
      &        i4,/,15x,a)

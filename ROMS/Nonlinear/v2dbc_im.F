@@ -58,6 +58,7 @@
 !
       USE mod_param
       USE mod_boundary
+      USE mod_clima
       USE mod_forces
       USE mod_grid
       USE mod_ncparam
@@ -91,7 +92,8 @@
 
       real(r8) :: Ce, Cx, Ze
       real(r8) :: bry_pgr, bry_cor, bry_str, bry_val
-      real(r8):: cff, cff1, cff2, cff3, dt2d, dVde, dVdt, dVdx, tau
+      real(r8) :: cff, cff1, cff2, cff3, dt2d, dVde, dVdt, dVdx
+      real(r8) :: obc_in, obc_out, tau
 
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: grad
 
@@ -133,10 +135,19 @@
               dVde=vbar(i,Jstr+1,kout)-vbar(i,Jstr+2,kout)
 
               IF (LBC(isouth,isVbar,ng)%nudging) THEN
-                IF ((dVdt*dVde).lt.0.0_r8) THEN
-                  tau=M2obc_in(ng,isouth)
+                IF (LnudgeM2CLM(ng)) THEN
+                  obc_out=0.5_r8*                                       &
+     &                    (CLIMA(ng)%M2nudgcof(i,Jstr-1)+               &
+     &                     CLIMA(ng)%M2nudgcof(i,Jstr  ))
+                  obc_in =obcfac(ng)*obc_out
                 ELSE
-                  tau=M2obc_out(ng,isouth)
+                  obc_out=M2obc_out(ng,isouth)
+                  obc_in =M2obc_in (ng,isouth)
+                END IF
+                IF ((dVdt*dVde).lt.0.0_r8) THEN
+                  tau=obc_in
+                ELSE
+                  tau=obc_out
                 END IF
                 tau=tau*dt2d
               END IF
@@ -312,7 +323,9 @@
               bry_val=BOUNDARY(ng)%vbar_south(i)
 #endif
               cff=1.0_r8/(0.5_r8*(GRID(ng)%h(i,Jstr-1)+                 &
-     &                            GRID(ng)%h(i,Jstr  )))
+     &                            zeta(i,Jstr-1,know)+                  &
+     &                            GRID(ng)%h(i,Jstr  )+                 &
+     &                            zeta(i,Jstr  ,know)))
               cff1=SQRT(g*cff)
               Ce=dt2d*cff1*0.5_r8*(GRID(ng)%pn(i,Jstr-1)+               &
      &                             GRID(ng)%pn(i,Jstr  ))
@@ -446,10 +459,19 @@
               dVde=vbar(i,Jend,kout)-vbar(i,Jend-1,kout)
 
               IF (LBC(inorth,isVbar,ng)%nudging) THEN
-                IF ((dVdt*dVde).lt.0.0_r8) THEN
-                  tau=M2obc_in(ng,inorth)
+                IF (LnudgeM2CLM(ng)) THEN
+                  obc_out=0.5_r8*                                       &
+     &                    (CLIMA(ng)%M2nudgcof(i,Jend  )+               &
+     &                     CLIMA(ng)%M2nudgcof(i,Jend+1))
+                  obc_in =obcfac(ng)*obc_out
                 ELSE
-                  tau=M2obc_out(ng,inorth)
+                  obc_out=M2obc_out(ng,inorth)
+                  obc_in =M2obc_in (ng,inorth)
+                END IF
+                IF ((dVdt*dVde).lt.0.0_r8) THEN
+                  tau=obc_in
+                ELSE
+                  tau=obc_out
                 END IF
                 tau=tau*dt2d
               END IF
@@ -625,7 +647,9 @@
               bry_val=BOUNDARY(ng)%vbar_north(i)
 #endif
               cff=1.0_r8/(0.5_r8*(GRID(ng)%h(i,Jend  )+                 &
-     &                            GRID(ng)%h(i,Jend+1)))
+     &                            zeta(i,Jend  ,know)+                  &
+     &                            GRID(ng)%h(i,Jend+1)+                 &
+     &                            zeta(i,Jend+1,know)))
               cff1=SQRT(g*cff)
               Ce=dt2d*cff1*0.5_r8*(GRID(ng)%pn(i,Jend  )+               &
      &                             GRID(ng)%pn(i,Jend+1))
@@ -759,10 +783,19 @@
               dVdx=vbar(Istr,j,kout)-vbar(Istr+1,j,kout)
 
               IF (LBC(iwest,isVbar,ng)%nudging) THEN
-                IF ((dVdt*dVdx).lt.0.0_r8) THEN
-                  tau=M2obc_in(ng,iwest)
+                IF (LnudgeM2CLM(ng)) THEN
+                  obc_out=0.5_r8*                                       &
+     &                    (CLIMA(ng)%M2nudgcof(Istr-1,j-1)+             &
+     &                     CLIMA(ng)%M2nudgcof(Istr-1,j  ))
+                  obc_in =obcfac(ng)*obc_out
                 ELSE
-                  tau=M2obc_out(ng,iwest)
+                  obc_out=M2obc_out(ng,iwest)
+                  obc_in =M2obc_in (ng,iwest)
+                END IF
+                IF ((dVdt*dVdx).lt.0.0_r8) THEN
+                  tau=obc_in
+                ELSE
+                  tau=obc_out
                 END IF
                 tau=tau*dt2d
               END IF
@@ -907,10 +940,19 @@
               dVdx=vbar(Iend,j,kout)-vbar(Iend-1,j,kout)
 
               IF (LBC(ieast,isVbar,ng)%nudging) THEN
-                IF ((dVdt*dVdx).lt.0.0_r8) THEN
-                  tau=M2obc_in(ng,ieast)
+                IF (LnudgeM2CLM(ng)) THEN
+                  obc_out=0.5_r8*                                       &
+     &                    (CLIMA(ng)%M2nudgcof(Iend+1,j-1)+             &
+     &                     CLIMA(ng)%M2nudgcof(Iend+1,j  ))
+                  obc_in =obcfac(ng)*obc_out
                 ELSE
-                  tau=M2obc_out(ng,ieast)
+                  obc_out=M2obc_out(ng,ieast)
+                  obc_in =M2obc_in (ng,ieast)
+                END IF
+                IF ((dVdt*dVdx).lt.0.0_r8) THEN
+                  tau=obc_in
+                ELSE
+                  tau=obc_out
                 END IF
                 tau=tau*dt2d
               END IF

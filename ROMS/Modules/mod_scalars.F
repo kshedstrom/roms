@@ -125,6 +125,7 @@
 #  endif
 # endif
 #endif
+
 !
 !-----------------------------------------------------------------------
 !  Time stepping indices, variables, and clocks.
@@ -142,6 +143,7 @@
 !    dtfast        Size barotropic timestep (s).
 !    dtau          Size of age increment
 !    run_time      Total run time for all nested grids (s).
+!    io_time       Current I/O time (s) processed in "get_state".
 !    tdays         Model time clock (days).
 !    time          Model time clock (s).
 !    time_code     Model time clock (string, Day HH:MM:SS)
@@ -166,7 +168,6 @@
 !    time_ref      Reference time for "units" attribute (YYYYMMDD.dd).
 !    r_text        Model initialization reference text (string).
 !
-
         logical, allocatable :: PerfectRST(:)
         logical, allocatable :: PREDICTOR_2D_STEP(:)
 !$OMP THREADPRIVATE (PREDICTOR_2D_STEP)
@@ -185,6 +186,7 @@
 
         real(r8), allocatable :: dt(:)                   ! seconds
         real(r8), allocatable :: dtfast(:)               ! seconds
+
         real(r8), allocatable :: TimeEnd(:)              ! seconds
         real(r8), allocatable :: AVGtime(:)              ! seconds
         real(r8), allocatable :: AVG2time(:)             ! seconds
@@ -201,6 +203,7 @@
 
         real(r8), dimension(8) :: r_date
         real(r8) :: dstart = 0.0_r8                      ! days
+        real(r8) :: io_time = 0.0_r8                     ! seconds
         real(r8) :: run_time = 0.0_r8                    ! seconds
         real(r8) :: tide_start = 0.0_r8                  ! days
         real(r8) :: time_ref = 0.0_r8                    ! YYYYMMDD.dd
@@ -283,7 +286,7 @@
         integer, allocatable :: ntfirst(:)      ! Forward-Euler step
         integer, allocatable :: ntstart(:)      ! Start step
         integer, allocatable :: ntend(:)        ! End step
-!$OMP THREADPRIVATE (ntfirst, ntstart, ntend)
+!!$OMP THREADPRIVATE (ntfirst, ntstart, ntend)
 !
 !  Adjoint model or tangent linear model impulse forcing time record
 !  counter and number of records available.
@@ -297,7 +300,8 @@
 !  Control switches.
 !-----------------------------------------------------------------------
 !
-!  Switch to proccess nudging coefficients.
+!  Switch to proccess nudging coefficients for radiation open boundary
+!  conditions.
 !
         logical, allocatable :: NudgingCoeff(:)
 !
@@ -399,10 +403,21 @@
         logical, allocatable :: tl_VolCons(:,:)
 #endif
 !
-!  Switch indicating which tracer field needs to be processed for
-!  climatology.
+!  Switches to read and process climatology fields.
 !
-        logical, allocatable :: LtracerCLM(:,:)
+        logical, allocatable :: CLM_FILE(:)          ! Process NetCDF
+        logical, allocatable :: Lclimatology(:)      ! any field
+        logical, allocatable :: LsshCLM(:)           ! free-surface
+        logical, allocatable :: Lm2CLM(:)            ! 2D momentum
+        logical, allocatable :: Lm3CLM(:)            ! 3D momentum
+        logical, allocatable :: LtracerCLM(:,:)      ! tracers
+!
+!  Switched to nudge to climatology fields.
+!
+        logical, allocatable :: Lnudging(:)          ! any field
+        logical, allocatable :: LnudgeM2CLM(:)       ! 2D momentum
+        logical, allocatable :: LnudgeM3CLM(:)       ! 3D momentum
+        logical, allocatable :: LnudgeTCLM(:,:)      ! tracers
 !
 !  Switches to activate point Source/Sinks in an application:
 !    * Horizontal momentum transport (u or v)
@@ -782,6 +797,14 @@
 
         real(r8), allocatable :: ad_Akt_fac(:,:)     ! ADM tracers
         real(r8), allocatable :: tl_Akt_fac(:,:)     ! TLM tracers
+
+!
+!  Switches to increase/decrease horizontal viscosity and/or diffusion
+!  in specific areas of the application domain (like sponge areas).
+!
+        logical, allocatable :: Lsponge(:)
+        logical, allocatable :: LuvSponge(:)         ! viscosity
+        logical, allocatable :: LtracerSponge(:,:)   ! diffusion
 !
 !-----------------------------------------------------------------------
 !  IO parameters.
@@ -1674,7 +1697,6 @@
       integer :: ng
 
       real(r8), parameter :: IniVal = 0.0_r8
-
 !
 !-----------------------------------------------------------------------
 !  Allocate and initialize variables in module structure.
@@ -1772,11 +1794,11 @@
       allocate ( ntimes(Ngrids) )
       allocate ( first_time(Ngrids) )
 
-!$OMP PARALLEL
-      allocate ( synchro_flag(Ngrids) )
       allocate ( ntfirst(Ngrids) )
       allocate ( ntstart(Ngrids) )
       allocate ( ntend(Ngrids) )
+!$OMP PARALLEL
+      allocate ( synchro_flag(Ngrids) )
       allocate ( step_counter(Ngrids) )
       allocate ( tdays(Ngrids) )
       allocate ( time(Ngrids) )
@@ -1811,7 +1833,21 @@
       allocate ( tl_VolCons(4,Ngrids) )
 #endif
 
+      allocate ( Lsponge(Ngrids) )
+      allocate ( LuvSponge(Ngrids) )
+      allocate ( LtracerSponge(MT,Ngrids) )
+
+      allocate ( CLM_FILE(Ngrids) )
+      allocate ( Lclimatology(Ngrids) )
+      allocate ( LsshCLM(Ngrids) )
+      allocate ( Lm2CLM(Ngrids) )
+      allocate ( Lm3CLM(Ngrids) )
       allocate ( LtracerCLM(MT,Ngrids) )
+
+      allocate ( Lnudging(Ngrids) )
+      allocate ( LnudgeM2CLM(Ngrids) )
+      allocate ( LnudgeM3CLM(Ngrids) )
+      allocate ( LnudgeTCLM(MT,Ngrids) )
 
       allocate ( LuvSrc(Ngrids) )
       allocate ( LwSrc(Ngrids) )
@@ -2370,11 +2406,23 @@
 #ifdef SOLVE3D
         Kdigits(ng)=INT(LOG10(REAL(N (ng),r8)))+1
 #endif
+        CLM_FILE(ng)=.FALSE.
+        Lnudging(ng)=.FALSE.
+        LnudgeM2CLM(ng)=.FALSE.
+        LnudgeM3CLM(ng)=.FALSE.
+        Lclimatology(ng)=.FALSE.
+        Lm2CLM(ng)=.FALSE.
+        Lm3CLM(ng)=.FALSE.
+        LsshCLM(ng)=.FALSE.
+        Lsponge(ng)=.FALSE.
+        LuvSponge(ng)=.FALSE.
         LuvSrc(ng)=.FALSE.
         LwSrc(ng)=.FALSE.
         DO itrc=1,MT
+          LnudgeTCLM(itrc,ng)=.FALSE.
           LtracerCLM(itrc,ng)=.FALSE.
           LtracerSrc(itrc,ng)=.FALSE.
+          LtracerSponge(itrc,ng)=.FALSE.
           ad_Akt_fac(itrc,ng)=1.0_r8
           tl_Akt_fac(itrc,ng)=1.0_r8
           ad_tnu2(itrc,ng)=IniVal

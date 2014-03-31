@@ -157,6 +157,8 @@
 ** LONGWAVE            use if computing net longwave radiation               **
 ** LONGWAVE_OUT        use if computing outgoing longwave radiation          **
 ** EMINUSP             use if computing E-P                                  **
+** RUNOFF              use if adding runoff as a second rain field           **
+** RUNOFF_SSH          use if adjusting zeta based on runoff field           **
 **                                                                           **
 ** OPTIONS for wave roughness formulation in bulk fluxes:                    **
 **                                                                           **
@@ -184,6 +186,8 @@
 ** BODYFORCE           use if applying stresses as bodyforces                **
 ** PROFILE             use if time profiling                                 **
 ** AVERAGES            use if writing out NLM time-averaged data             **
+** AVERAGES2           use if writing out secondary time-averaged data       **
+** HISTORY2            use if writing out secondary history data             **
 ** AVERAGES_DETIDE     use if writing out NLM time-averaged detided fields   **
 ** AD_AVERAGES         use if writing out ADM time-averaged data             **
 ** RP_AVERAGES         use if writing out TLM time-averaged data             **
@@ -207,6 +211,7 @@
 ** FLOAT_STICKY        use to reflect/stick floats that hit surface/bottom   **
 ** FLOAT_VWALK         use if vertical random walk                           **
 ** VWALK_FORWARD       use if forward time stepping vertical random walk     **
+** DIAPAUSE            use to simulate diapause                              **
 **                                                                           **
 ** OPTION to activate conservative, parabolic spline reconstruction of       **
 ** vertical derivatives. Notice that there also options (see above) for      **
@@ -236,6 +241,7 @@
 ** ANA_M3CLIMA         use if analytical 3D momentum climatology             **
 ** ANA_M3OBC           use if analytical 3D momentum boundary conditions     **
 ** ANA_MASK            use if analytical Land/Sea masking                    **
+** ANA_NUDGCOEF        use if analytical climatology nudging coefficients    **
 ** ANA_PAIR            use if analytical surface air pressure                **
 ** ANA_PASSIVE         use if analytical inert tracers initial conditions    **
 ** ANA_PERTURB         use if analytical perturbation of initial conditions  **
@@ -246,6 +252,7 @@
 ** ANA_SMFLUX          use if analytical surface momentum stress             **
 ** ANA_SPFLUX          use if analytical surface passive tracers fluxes      **
 ** ANA_SPINNING        use if analytical time-varying rotation force         **
+** ANA_SPONGE          use if analytical enhanced viscosity/diffusion sponge **
 ** ANA_SRFLUX          use if analytical surface shortwave radiation flux    **
 ** ANA_SSFLUX          use if analytical surface salinity flux               **
 ** ANA_SSH             use if analytical sea surface height                  **
@@ -359,10 +366,6 @@
 **                                                                           **
 ** RADIATION_2D        use if tangential phase speed in radiation conditions **
 **                                                                           **
-** OPTION to impose a sponge layer near the lateral boundary:                **
-**                                                                           **
-** SPONGE              use if enhanced viscosity/diffusion areas             **
-**                                                                           **
 ** OPTIONS for tidal forcing at open boundaries:                             **
 **                                                                           **
 **   The tidal data is processed in terms of tidal components, classified by **
@@ -381,6 +384,7 @@
 **                                                                           **
 ** SSH_TIDES           use if imposing tidal elevation                       **
 ** UV_TIDES            use if imposing tidal currents                        **
+** POT_TIDES           use if imposing potential tides                       **
 ** RAMP_TIDES          use if ramping (over one day) tidal forcing           **
 ** FSOBC_REDUCED       use if SSH data and reduced physics conditions        **
 ** ADD_FSOBC           use to add tidal elevation to processed OBC data      **
@@ -388,20 +392,8 @@
 **                                                                           **
 ** OPTIONS for reading and processing of climatological fields:              **
 **                                                                           **
-** M2CLIMATOLOGY       use if processing 2D momentum climatology             **
-** M3CLIMATOLOGY       use if processing 3D momentum climatology             **
 ** OCLIMATOLOGY        use if processing 3D vertical momentum climatology    **
 ** AKTCLIMATOLOGY      use if processing 3D vertical salinity diffustion     **
-** TCLIMATOLOGY        use if processing tracers climatology                 **
-** BTCLIMATOLOGY       use if processing biological tracers climatology      **
-** ZCLIMATOLOGY        use if processing SSH climatology                     **
-**                                                                           **
-** OPTIONS to nudge climatology data (primarily in sponge areas):            **
-**                                                                           **
-** M2CLM_NUDGING       use if nudging 2D momentum climatology                **
-** M3CLM_NUDGING       use if nudging 3D momentum climatology                **
-** TCLM_NUDGING        use if nudging tracers climatology                    **
-** BCLM_NUDGING        use if nudging biological tracers climatology         **
 **                                                                           **
 ** ROMS/TOMS driver OPTIONS:                                                 **
 **                                                                           **

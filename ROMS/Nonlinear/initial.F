@@ -65,6 +65,7 @@
 !  Local variable declarations.
 !
       logical, save :: First = .TRUE.
+      logical :: update = .FALSE.
 
       integer :: Fcount
       integer :: ng, thread, tile
@@ -132,9 +133,12 @@
         first_time(ng)=0
         tdays(ng)=dstart
         time(ng)=tdays(ng)*day2sec
+!$OMP MASTER
         ntstart(ng)=INT((time(ng)-dstart*day2sec)/dt(ng))+1
         ntend(ng)=ntimes(ng)
         ntfirst(ng)=ntstart(ng)
+!$OMP END MASTER
+!$OMP BARRIER
         step_counter(ng)=0
         CALL time_string (time(ng), time_code(ng))
       END DO
@@ -330,6 +334,7 @@
           CALL nesting (ng, iNLM, ndxdy)
         END DO
 #endif
+
 #if defined WTYPE_GRID && defined ANA_WTYPE     && \
    (defined LMD_SKPP   || defined SOLAR_SOURCE)
 !
@@ -346,19 +351,42 @@
 #endif
 !
 !-----------------------------------------------------------------------
-!  If appropriate, set nudging coefficiests time scales.
+!  If appropriate, set spatially varying nudging coefficients time
+!  scales.
 !-----------------------------------------------------------------------
 !
+#ifdef ANA_NUDGCOEF
         DO ng=1,Ngrids
-          DO tile=first_tile(ng),last_tile(ng),+1
-            CALL ana_nudgcoef (ng, tile, iNLM)
-          END DO
+          IF (Lnudging(ng)) THEN
+            DO tile=first_tile(ng),last_tile(ng),+1
+              CALL ana_nudgcoef (ng, tile, iNLM)
+            END DO
 !$OMP BARRIER
+          END IF
         END DO
+#else
+        DO ng=1,Ngrids
+          IF (Lnudging(ng)) THEN
+!$OMP MASTER
+            CALL get_nudgcoef (ng, iNLM)
+!$OMP END MASTER
+# ifdef DISTRIBUTE
+            CALL mp_bcasti (ng, iNLM, exit_flag)
+# endif
+!$OMP BARRIER
+            IF (exit_flag.ne.NoError) RETURN
+          END IF
+        END DO
+#endif
       END IF
 !
 !-----------------------------------------------------------------------
-!  Initialize horizontal mixing coefficients.
+!  Initialize horizontal mixing coefficients. If applicable, scale
+!  mixing coefficients according to the grid size (smallest area).
+#ifndef ANA_SPONGE
+!  Also increase their values in sponge areas using the "visc_factor"
+!  and/or "diff_factor" read from input Grid NetCDF file.
+#endif
 !-----------------------------------------------------------------------
 !
       DO ng=1,Ngrids
@@ -369,19 +397,20 @@
       END DO
 
 #ifndef OFFLINE_FLOATS
-#if defined VISC_GRID || defined DIFF_GRID || defined SPONGE
+#ifdef ANA_SPONGE
 !
 !-----------------------------------------------------------------------
-!  Rescale horizontal mixing coefficients according to the local
-!  grid size. If applicable, increases horizontal mixing in sponge
-!  areas.
+!  Increase horizontal mixing coefficients in sponge areas using
+!  analytical functions.
 !-----------------------------------------------------------------------
 !
       DO ng=1,Ngrids
-        DO tile=first_tile(ng),last_tile(ng),+1
-          CALL ana_hmixcoef (ng, tile, iNLM)
-        END DO
+        IF (Lsponge(ng)) THEN
+          DO tile=first_tile(ng),last_tile(ng),+1
+            CALL ana_sponge (ng, tile, iNLM)
+          END DO
 !$OMP BARRIER
+        END IF
       END DO
 #endif
 #endif /* OFFLINE_FLOATS */
@@ -494,6 +523,7 @@
 # endif
 !$OMP BARRIER
         IF (exit_flag.ne.NoError) RETURN
+        time(ng)=io_time                     ! needed for shared-memory
       END DO
 #else
 !
@@ -510,6 +540,7 @@
 # endif
 !$OMP BARRIER
           IF (exit_flag.ne.NoError) RETURN
+          time(ng)=io_time                   ! needed for shared-memory
         END IF
       END DO
 #endif
@@ -524,6 +555,8 @@
             CALL ana_ice (ng, TILE, iNLM)
           END DO
 !$OMP BARRIER
+          IF (exit_flag.ne.NoError) RETURN
+          time(ng)=io_time                   ! needed for shared-memory
         END IF
       END DO
 #endif

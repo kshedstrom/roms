@@ -219,7 +219,7 @@
            hsn(i,j,1) = 0.2_r8
            ti(i,j,1) = -5._r8
            sfwat(i,j,1) = 0._r8
-	   ageice(i,j,1) = 0._r8
+           ageice(i,j,1) = 0._r8
            sig11(i,j,1) = 0._r8
            sig22(i,j,1) = 0._r8
            sig12(i,j,1) = 0._r8
@@ -228,7 +228,7 @@
            hsn(i,j,2) = hsn(i,j,1)
            ti(i,j,2) = ti(i,j,1)
            sfwat(i,j,2) = sfwat(i,j,1)
-	   ageice(i,j,2) = ageice(i,j,1)
+           ageice(i,j,2) = ageice(i,j,1)
            sig11(i,j,2) = sig11(i,j,1)
            sig22(i,j,2) = sig22(i,j,1)
            sig12(i,j,2) = sig12(i,j,1)
@@ -272,7 +272,7 @@
            hsn(i,j,1) = 0.2_r8
            ti(i,j,1) = -5._r8
            sfwat(i,j,1) = 0._r8
-	   ageice(i,j,1) = 0._r8
+           ageice(i,j,1) = 0._r8
            sig11(i,j,1) = 0._r8
            sig22(i,j,1) = 0._r8
            sig12(i,j,1) = 0._r8
@@ -281,7 +281,7 @@
            hsn(i,j,2) = hsn(i,j,1)
            ti(i,j,2) = ti(i,j,1)
            sfwat(i,j,2) = sfwat(i,j,1)
-	   ageice(i,j,2) = ageice(i,j,1)
+           ageice(i,j,2) = ageice(i,j,1)
            sig11(i,j,2) = sig11(i,j,1)
            sig22(i,j,2) = sig22(i,j,1)
            sig12(i,j,2) = sig12(i,j,1)

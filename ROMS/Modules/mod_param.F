@@ -481,7 +481,7 @@
 !
       integer :: NNS = 0
 
-#if defined FLOATS
+#ifdef FLOATS
 !
 !-----------------------------------------------------------------------
 !  Floats trajectories parameters.
@@ -491,8 +491,6 @@
 !
       integer, parameter :: NFT = 4
 !
-#endif
-#if defined FLOATS
 !  Total number of floats to track.
 !
       integer, allocatable :: Nfloats(:)

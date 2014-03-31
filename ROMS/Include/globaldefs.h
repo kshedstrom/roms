@@ -510,43 +510,6 @@
 #endif
 
 /*
-** Activate switch for processing climatology data.
-*/
-
-# if defined OFFLINE_FLOATS || defined OFFLINE_BIOLOGY
-#  define OFFLINE
-# endif
-
-# if defined OFFLINE
-# define ZCLIMATOLOGY
-# define M2CLIMATOLOGY
-# define TCLIMATOLOGY
-# define M3CLIMATOLOGY
-# define OCLIMATOLOGY
-#endif
-#if (defined  ZCLIMATOLOGY && !defined ANA_SSH)     || \
-    (defined M2CLIMATOLOGY && !defined ANA_M2CLIMA) || \
-    (defined  TCLIMATOLOGY && !defined ANA_TCLIMA)  || \
-    (defined M3CLIMATOLOGY && !defined ANA_M3CLIMA) || \
-    (defined AICLIMATOLOGY && !defined ANA_AICLIMA) || \
-    (defined MICLIMATOLOGY && !defined ANA_MICLIMA) || \
-    (defined CLIMA_TS_MIX  && defined SOLVE3D       && \
-     (defined TS_DIF2      || defined TS_DIF4))
-# define CLM_FILE
-#endif
-
-#if defined M2CLIMATOLOGY || defined M2CLM_NUDGING || \
-    defined M3CLIMATOLOGY || defined M3CLM_NUDGING || \
-    defined TCLIMATOLOGY  || defined TCLM_NUDGING  || \
-    defined ZCLIMATOLOGY  || \
-    defined AICLIMATOLOGY || defined AICLM_NUDGING || \
-    defined MICLIMATOLOGY || defined MICLM_NUDGING || \
-    (defined CLIMA_TS_MIX && defined SOLVE3D       && \
-     (defined TS_DIF2     || defined TS_DIF4))
-# define CLIMATOLOGY
-#endif
-
-/*
 ** Activate internal switch for bottom boundary layer closure.
 */
 
@@ -829,19 +792,19 @@
     defined ANA_HUMIDITY   || defined ANA_INITIAL    || \
     defined ANA_M2CLIMA    || defined ANA_M2OBC      || \
     defined ANA_M3CLIMA    || defined ANA_M3OBC      || \
-    defined ANA_MASK       || defined ANA_PAIR       || \
-    defined ANA_PASSIVE    || defined ANA_PERTURB    || \
-    defined ANA_PSOURCE    || defined ANA_RAIN       || \
-    defined ANA_SEDIMENT   || defined ANA_SMFLUX     || \
-    defined ANA_SPFLUX     || defined ANA_SPINNING   || \
+    defined ANA_MASK       || defined ANA_NUDGCOEF   || \
+    defined ANA_PAIR       || defined ANA_PASSIVE    || \
+    defined ANA_PERTURB    || defined ANA_PSOURCE    || \
+    defined ANA_RAIN       || defined ANA_SEDIMENT   || \
+    defined ANA_SMFLUX     || defined ANA_SPFLUX     || \
+    defined ANA_SPINNING   || defined ANA_SPONGE     || \
     defined ANA_SRFLUX     || defined ANA_SSFLUX     || \
     defined ANA_SSH        || defined ANA_SSS        || \
     defined ANA_SST        || defined ANA_STFLUX     || \
     defined ANA_TAIR       || defined ANA_TCLIMA     || \
     defined ANA_TOBC       || defined ANA_VMIX       || \
     defined ANA_WINDS      || defined ANA_WWAVE      || \
-    defined DIFF_GRID      || defined SPONGE         || \
-    defined VISC_GRID
+    defined DIFF_GRID      || defined VISC_GRID
 # define ANALYTICAL
 #endif
 

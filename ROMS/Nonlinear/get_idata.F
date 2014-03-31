@@ -26,12 +26,12 @@
       USE mod_scalars
       USE mod_sources
       USE mod_stepping
-# if defined SSH_TIDES || defined UV_TIDES || defined POT_TIDES
+#if defined SSH_TIDES || defined UV_TIDES || defined POT_TIDES
       USE mod_tides
-# endif
-# if defined M2TIDE_DIFF
+#endif
+#if defined M2TIDE_DIFF
       USE mod_mixing
-# endif
+#endif
 !
       USE nf_fread3d_mod, ONLY : nf_fread3d
 #ifdef SOLVE3D

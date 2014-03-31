@@ -32,12 +32,15 @@
 #define STATIONS
 #undef WET_DRY
 
-#undef T_PASSIVE
+#define T_PASSIVE
 #ifdef T_PASSIVE
+# define ANA_BPFLUX        /* analytical bottom passive tracers fluxes */
+# define ANA_SPFLUX 
 # define ANA_PASSIVE
 # define TRC_PSOURCE
 # define ANA_TRC_PSOURCE
 # define AGE_PASSIVE
+# define PTOBC
 #endif
 
 /* ice */
@@ -183,7 +186,7 @@
 # define ADD_M2OBC
 # undef RAMP_TIDES
 # define TIDES_ASTRO
-# undef POT_TIDES
+# define POT_TIDES
 
 # undef UV_LDRAG
 # define UV_DRAG_GRID
@@ -216,8 +219,6 @@
 # define BIO_SEDIMENT
 # define NEMURO_SED1
 # undef ANA_BIOLOGY       /* analytical biology initial conditions */
-# define ANA_BPFLUX        /* analytical bottom passive tracers fluxes */
-# define ANA_SPFLUX        /* analytical surface passive tracers fluxes */
 # define IRON_LIMIT        /* Add iron as passive 11th tracer */
 # define IRON_RELAX
 # undef  IRON_RSIN

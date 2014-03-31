@@ -503,9 +503,7 @@
 # if defined DIFF_3DCOEF || defined VISC_3DCOEF
                 CALL hmixing (ng, tile)
 # endif
-# if !defined OCLIMATOLOGY
                 CALL omega (ng, tile)
-# endif
                 CALL wvelocity (ng, tile, nstp(ng))
               END DO
 !$OMP BARRIER

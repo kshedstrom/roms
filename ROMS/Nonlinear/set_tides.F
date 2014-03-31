@@ -27,9 +27,6 @@
 !***********************************************************************
 !
       USE mod_param
-# ifdef CLIMATOLOGY
-      USE mod_clima
-# endif
       USE mod_grid
       USE mod_tides
       USE mod_stepping
@@ -79,13 +76,6 @@
      &                     TIDES(ng) % SinOmega,                        &
      &                     TIDES(ng) % CosOmega,                        &
 # endif
-# ifdef ZCLIMATOLOGY
-     &                     CLIMA(ng) % ssh,                             &
-# endif
-# ifdef M2CLIMATOLOGY
-     &                     CLIMA(ng) % ubarclm,                         &
-     &                     CLIMA(ng) % vbarclm,                         &
-# endif
 # ifdef UV_WAVEDRAG
      &                     TIDES(ng) % sum_ubot,                        &
      &                     TIDES(ng) % sum_vbot,                        &
@@ -125,12 +115,6 @@
 # if defined AVERAGES_DETIDE && (defined SSH_TIDES || defined UV_TIDES)
      &                           SinOmega, CosOmega,                    &
 # endif
-# ifdef ZCLIMATOLOGY
-     &                           ssh,                                   &
-# endif
-# ifdef M2CLIMATOLOGY
-     &                           ubarclm, vbarclm,                      &
-# endif
 # ifdef UV_WAVEDRAG
      &                           sum_ubot, sum_vbot,                    &
      &                           filt_ubot, filt_vbot,                  &
@@ -140,6 +124,7 @@
 !
       USE mod_param
       USE mod_boundary
+      USE mod_clima
       USE mod_ncparam
       USE mod_scalars
 # ifdef TIDES_ASTRO
@@ -198,13 +183,6 @@
       real(r8), intent(inout) :: SinOmega(:)
       real(r8), intent(inout) :: CosOmega(:)
 #  endif
-#  ifdef ZCLIMATOLOGY
-      real(r8), intent(inout) :: ssh(LBi:,LBj:)
-#  endif
-#  ifdef M2CLIMATOLOGY
-      real(r8), intent(inout) :: ubarclm(LBi:,LBj:)
-      real(r8), intent(inout) :: vbarclm(LBi:,LBj:)
-#  endif
 #  ifdef UV_WAVEDRAG
       real(r8), intent(inout) :: sum_ubot(LBi:,LBj:)
       real(r8), intent(inout) :: sum_vbot(LBi:,LBj:)
@@ -243,13 +221,6 @@
       real(r8), intent(inout) :: SinOmega(MTC)
       real(r8), intent(inout) :: CosOmega(MTC)
 #  endif
-#  ifdef ZCLIMATOLOGY
-      real(r8), intent(inout) :: ssh(LBi:UBi,LBj:UBj)
-#  endif
-#  ifdef M2CLIMATOLOGY
-      real(r8), intent(inout) :: ubarclm(LBi:UBi,LBj:UBj)
-      real(r8), intent(inout) :: vbarclm(LBi:UBi,LBj:UBj)
-#  endif
 #  ifdef UV_WAVEDRAG
       real(r8), intent(inout) :: sum_ubot(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: sum_vbot(LBi:UBi,LBj:UBj)
@@ -276,7 +247,7 @@
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: Uwrk
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: Vtide
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: Vwrk
- 
+
 # include "set_bounds.h"
 
 # ifdef DISTRIBUTE
@@ -296,7 +267,7 @@
 !  In refinement nesting applications, tidal forcing is only necessary
 !  in the coarser large scale grid.
 !
-      PROCESS : IF (.not.(RefinedGrid(ng).and.                          &
+      NEEDED : IF (.not.(RefinedGrid(ng).and.                           &
      &                    RefineScale(ng).gt.0)) THEN
 !
 !  Set time-ramping parameter.
@@ -307,9 +278,9 @@
         ramp=1.0_r8
 # endif
 # ifdef TIDES_ASTRO
-          tide_time = time(ng)-tide_start*day2sec
-          call tide_astro(tide_time, Vu_sat, f_sat, latr,               &
-     &                ng, tile, LBi, UBi, LBj, UBj)
+        tide_time = time(ng)-tide_start*day2sec
+        call tide_astro(tide_time, Vu_sat, f_sat, latr,                 &
+     &                  ng, tile, LBi, UBi, LBj, UBj)
 # endif
 # if defined AVERAGES_DETIDE && (defined SSH_TIDES || defined UV_TIDES)
 !
@@ -335,47 +306,53 @@
 !  Add tidal elevation (m) to sea surface height climatology.
 !-----------------------------------------------------------------------
 !
-      cff=2.0_r8*pi*(time(ng)-tide_start*day2sec)
-#  if defined ZCLIMATOLOGY && defined ADD_FSOBC
+        IF (LsshCLM(ng)) THEN
+          Etide(:,:)=0.0_r8
+          cff=2.0_r8*pi*(time(ng)-tide_start*day2sec)
+          DO itide=1,NTC
+            IF (Tperiod(itide).gt.0.0_r8) THEN
+              omega=cff/Tperiod(itide)
+              DO j=JstrR,JendR
+                DO i=IstrR,IendR
+#  ifdef TIDES_ASTRO
+!  Convert Vu_sat from cycles to radians
+                  Etide(i,j)=Etide(i,j)+                                &
+     &                       ramp*f_sat(i,j,itide)*SSH_Tamp(i,j,itide)* &
+     &                       COS(-SSH_Tphase(i,j,itide)+                &
+     &                       2.0_r8*pi*Vu_sat(i,j,itide))
+#  else
+                    Etide(i,j)=Etide(i,j)+                              &
+     &                         ramp*SSH_Tamp(i,j,itide)*                &
+     &                         COS(omega-SSH_Tphase(i,j,itide))
+#  endif
+#  ifdef MASKING
+                    Etide(i,j)=Etide(i,j)*rmask(i,j)
+#  endif
+                END DO
+              END DO
+            END IF
+          END DO
 !
 !  Add sub-tidal forcing and adjust climatology to include tides.
 !
-      DO itide=1,NTC
-        IF (Tperiod(itide).gt.0.0_r8) THEN
-          omega=cff/Tperiod(itide)
           DO j=JstrR,JendR
             DO i=IstrR,IendR
-#   ifdef TIDES_ASTRO
-!  Convert Vu_sat from cycles to radians
-              ssh(i,j)=ssh(i,j)+                                        &
-     &                 ramp*f_sat(i,j,itide)*SSH_Tamp(i,j,itide)*       &
-     &                 COS(-SSH_Tphase(i,j,itide)+                      &
-     &                 2.0_r8*pi*Vu_sat(i,j,itide))
-#   else
-              ssh(i,j)=ssh(i,j)+                                        &
-     &                 ramp*SSH_Tamp(i,j,itide)*                        &
-     &                 COS(omega-SSH_Tphase(i,j,itide))
-#   endif
-#   ifdef MASKING
-              ssh(i,j)=ssh(i,j)*rmask(i,j)
-#   endif
+              CLIMA(ng)%ssh(i,j)=CLIMA(ng)%ssh(i,j)+Etide(i,j)
             END DO
           END DO
-        END IF
-      END DO
-      IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
-        CALL exchange_r2d_tile (ng, tile,                               &
-     &                          LBi, UBi, LBj, UBj,                     &
-     &                          ssh)
-      END IF
-#   ifdef DISTRIBUTE
-        CALL mp_exchange2d (ng, tile, iNLM, 1,                          &
-     &                      LBi, UBi, LBj, UBj,                         &
-     &                      NghostPoints,                               &
-     &                      EWperiodic(ng), NSperiodic(ng),             &
-     &                      ssh)
-#   endif
+          IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
+            CALL exchange_r2d_tile (ng, tile,                           &
+     &                              LBi, UBi, LBj, UBj,                 &
+     &                              CLIMA(ng)%ssh)
+          END IF
+#  ifdef DISTRIBUTE
+          CALL mp_exchange2d (ng, tile, iNLM, 1,                        &
+     &                        LBi, UBi, LBj, UBj,                       &
+     &                        NghostPoints,                             &
+     &                        EWperiodic(ng), NSperiodic(ng),           &
+     &                        CLIMA(ng)%ssh)
 #  endif
+        END IF
 !
 !  If appropriate, load tidal forcing into boundary arrays.  The "zeta"
 !  boundary arrays are important for the Flather or reduced physics
@@ -577,7 +554,7 @@
      &                      ILB, IUB, 1, 1, update,                     &
      &                      BOUNDARY(ng)%zeta_north)
 #  endif
-      END IF
+        END IF
 # endif
 
 # ifdef POT_TIDES
@@ -632,92 +609,96 @@
 # endif
 
 # if defined UV_TIDES
+#  ifdef ADD_M2OBC
 !
 !-----------------------------------------------------------------------
 !  Add tidal currents (m/s) to 2D momentum climatologies.
 !-----------------------------------------------------------------------
 !
-      Utide(:,:)=0.0_r8
-      Vtide(:,:)=0.0_r8
-      cff=2.0_r8*pi*(time(ng)-tide_start*day2sec)
-#  if defined M2CLIMATOLOGY && defined ADD_M2OBC
+        IF (Lm2CLM(ng)) THEN
+          Utide(:,:)=0.0_r8
+          Vtide(:,:)=0.0_r8
+          cff=2.0_r8*pi*(time(ng)-tide_start*day2sec)
+          DO itide=1,NTC
+            IF (Tperiod(itide).gt.0.0_r8) THEN
+#   ifdef TIDES_ASTRO
+              tide_time = time(ng)-tide_start*day2sec
+#   endif
+              omega=cff/Tperiod(itide)
+              DO j=MIN(JstrR,Jstr-1),JendR
+                DO i=MIN(IstrR,Istr-1),IendR
+                  angle=UV_Tangle(i,j,itide)-angler(i,j)
+                  Cangle=COS(angle)
+                  Sangle=SIN(angle)
+#   ifdef TIDES_ASTRO
+                  phase=-UV_Tphase(i,j,itide)
+!  Convert Vu_sat from cycles to radians
+                  phase = phase + 2.0_r8*pi*Vu_sat(i,j,itide)
+#   else
+                  phase=omega-UV_Tphase(i,j,itide)
+#   endif
+                  Cphase=COS(phase)
+                  Sphase=SIN(phase)
+                  Uwrk(i,j)=UV_Tmajor(i,j,itide)*Cangle*Cphase-         &
+     &                      UV_Tminor(i,j,itide)*Sangle*Sphase
+                  Vwrk(i,j)=UV_Tmajor(i,j,itide)*Sangle*Cphase+         &
+     &                      UV_Tminor(i,j,itide)*Cangle*Sphase
+#   ifdef TIDES_ASTRO
+                  Uwrk(i,j) = Uwrk(i,j)*f_sat(i,j,itide)
+                  Vwrk(i,j) = Vwrk(i,j)*f_sat(i,j,itide)
+#   endif
+                END DO
+              END DO
+              DO j=JstrR,JendR
+                DO i=Istr,IendR
+                  Utide(i,j)=Utide(i,j)+                                &
+     &                   ramp*0.5_r8*(Uwrk(i-1,j)+Uwrk(i,j))
+#   ifdef MASKING
+                  Utide(i,j)=Utide(i,j)*umask(i,j)
+#   endif
+                END DO
+              END DO
+              DO j=Jstr,JendR
+                DO i=IstrR,IendR
+                  Vtide(i,j)=(Vtide(i,j)+                               &
+     &                    ramp*0.5_r8*(Vwrk(i,j-1)+Vwrk(i,j)))
+#   ifdef MASKING
+                  Vtide(i,j)=Vtide(i,j)*vmask(i,j)
+#   endif
+                END DO
+              END DO
+            END IF
+          END DO
 !
 !  Add sub-tidal forcing and adjust climatology to include tides.
 !
-      DO itide=1,NTC
-        IF (Tperiod(itide).gt.0.0_r8) THEN
-#   ifdef TIDES_ASTRO
-          tide_time = time(ng)-tide_start*day2sec
-#   endif
-          omega=cff/Tperiod(itide)
-          DO j=MIN(JstrR,Jstr-1),JendR
-            DO i=MIN(IstrR,Istr-1),IendR
-              angle=UV_Tangle(i,j,itide)-angler(i,j)
-              Cangle=COS(angle)
-              Sangle=SIN(angle)
-#   ifdef TIDES_ASTRO
-              phase=-UV_Tphase(i,j,itide)
-!  Convert Vu_sat from cycles to radians
-              phase = phase + 2.0_r8*pi*Vu_sat(i,j,itide)
-#   else
-              phase=omega-UV_Tphase(i,j,itide)
-#   endif
-              Cphase=COS(phase)
-              Sphase=SIN(phase)
-              Uwrk(i,j)=UV_Tmajor(i,j,itide)*Cangle*Cphase-             &
-     &                  UV_Tminor(i,j,itide)*Sangle*Sphase
-              Vwrk(i,j)=UV_Tmajor(i,j,itide)*Sangle*Cphase+             &
-     &                  UV_Tminor(i,j,itide)*Cangle*Sphase
-#   ifdef TIDES_ASTRO
-              Uwrk(i,j) = Uwrk(i,j)*f_sat(i,j,itide)
-              Vwrk(i,j) = Vwrk(i,j)*f_sat(i,j,itide)
-#   endif
-            END DO
-          END DO
           DO j=JstrR,JendR
             DO i=Istr,IendR
-              Utide(i,j)=Utide(i,j)+                                    &
-     &                   ramp*0.5_r8*(Uwrk(i-1,j)+Uwrk(i,j))
-#   ifdef MASKING
-              Utide(i,j)=Utide(i,j)*umask(i,j)
-#   endif
+              CLIMA(ng)%ubarclm(i,j)=CLIMA(ng)%ubarclm(i,j)+Utide(i,j)
             END DO
           END DO
           DO j=Jstr,JendR
             DO i=IstrR,IendR
-              Vtide(i,j)=(Vtide(i,j)+                                   &
-     &                    ramp*0.5_r8*(Vwrk(i,j-1)+Vwrk(i,j)))
-#   ifdef MASKING
-              Vtide(i,j)=Vtide(i,j)*vmask(i,j)
-#   endif
+              CLIMA(ng)%vbarclm(i,j)=CLIMA(ng)%vbarclm(i,j)+Vtide(i,j)
             END DO
           END DO
-        END IF
-      END DO
-      DO j=JstrR,JendR
-        DO i=Istr,IendR
-          ubarclm(i,j)=ubarclm(i,j)+Utide(i,j)
-        END DO
-        DO j=Jstr,JendR
-          DO i=IstrR,IendR
-            vbarclm(i,j)=vbarclm(i,j)+Vtide(i,j)
-          END DO
-        END DO
-        IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
-          CALL exchange_u2d_tile (ng, tile,                             &
-     &                            LBi, UBi, LBj, UBj,                   &
-     &                            ubarclm)
-          CALL exchange_v2d_tile (ng, tile,                             &
-     &                            LBi, UBi, LBj, UBj,                   &
-     &                            vbarclm)
-        END IF
+          IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
+            CALL exchange_u2d_tile (ng, tile,                           &
+     &                              LBi, UBi, LBj, UBj,                 &
+     &                              CLIMA(ng)%ubarclm)
+            CALL exchange_v2d_tile (ng, tile,                           &
+     &                              LBi, UBi, LBj, UBj,                 &
+     &                              CLIMA(ng)%vbarclm)
+          END IF
 #   ifdef DISTRIBUTE
-        CALL mp_exchange2d (ng, tile, iNLM, 2,                          &
-     &                      LBi, UBi, LBj, UBj,                         &
-     &                      NghostPoints,                               &
-     &                      EWperiodic(ng), NSperiodic(ng),             &
-     &                      ubarclm, vbarclm)
+          CALL mp_exchange2d (ng, tile, iNLM, 2,                        &
+     &                        LBi, UBi, LBj, UBj,                       &
+     &                        NghostPoints,                             &
+     &                        EWperiodic(ng), NSperiodic(ng),           &
+     &                        CLIMA(ng)%ubarclm,                        &
+     &                        CLIMA(ng)%vbarclm)
 #   endif
+       END IF
 #  endif
 !
 !  If appropriate, load tidal forcing into boundary arrays.
@@ -1020,7 +1001,7 @@
       END IF PROCESS
 # ifdef UV_WAVEDRAG
       IF ((MOD(iic(ng)-ntstart(ng),nstep_hour).eq.0).and.               &
-     &    (iic(ng).ne.ntstart(ng))) THEN 
+     &    (iic(ng).ne.ntstart(ng))) THEN
 !        IF (MOD(iic(ng)-ntstart(ng),nstep_hour*24).eq.0) THEN
         IF (hour_steps == 24 .or. hour_steps == 0) THEN
 ! At end of day, add in the 25th value, then compute new filt_ubot value,
@@ -1055,6 +1036,7 @@
         END IF
       END IF
 # endif
+      END IF NEEDED
 
       RETURN
       END SUBROUTINE set_tides_tile
