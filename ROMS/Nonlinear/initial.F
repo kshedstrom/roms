@@ -42,6 +42,9 @@
       USE rho_eos_mod, ONLY : rho_eos
       USE set_massflux_mod, ONLY : set_massflux
 #endif
+#ifdef ICE_STRENGTH_QUAD
+      USE ini_strengthcoef_mod, ONLY : ini_strengthcoef
+#endif
 #ifdef MASKING
       USE set_masks_mod, ONLY : set_masks
 #endif
@@ -284,7 +287,16 @@
         DO tile=first_tile(ng),last_tile(ng),+1
           CALL metrics (ng, tile, iNLM)
         END DO
-
+#ifdef ICE_STRENGTH_QUAD
+!
+!-----------------------------------------------------------------------
+!  Compute ice strength as a function of grid size.
+!-----------------------------------------------------------------------
+!
+        DO tile=first_tile(ng),last_tile(ng),+1
+          CALL ini_strengthcoef (ng, tile, iNLM)
+        END DO
+#endif
 #ifdef NESTING
 !
 !-----------------------------------------------------------------------

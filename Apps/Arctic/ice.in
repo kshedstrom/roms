@@ -90,10 +90,14 @@
 
      pstar == 5.0d+03
 
+! Ice strength coefficient in quadratic form [N/m]
+
+     pstar_e == 1.4d+03
+
 ! Ice strength exponential weighting coefficient on concentration
 ! (nondimensional)
 
-     astren == 20.d0
+     astren == 15.d0
 
 ! Maximum shear strength [N/m2]
 

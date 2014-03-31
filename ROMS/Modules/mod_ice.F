@@ -32,6 +32,9 @@
           real(r8), pointer :: coef_ice_heat(:,:)
           real(r8), pointer :: rhs_ice_heat(:,:)
           real(r8), pointer :: pice(:,:)
+#ifdef ICE_STRENGTH_QUAD
+          real(r8), pointer :: pstar_grid(:,:)
+#endif
           real(r8), pointer :: zetai(:,:)
           real(r8), pointer :: eta(:,:)
           real(r8), pointer :: tauaiu(:,:)
@@ -107,6 +110,9 @@
       allocate ( ICE(ng) % coef_ice_heat(LBi:UBi,LBj:UBj) )
       allocate ( ICE(ng) % rhs_ice_heat(LBi:UBi,LBj:UBj) )
       allocate ( ICE(ng) % pice(LBi:UBi,LBj:UBj) )
+#ifdef ICE_STRENGTH_QUAD
+      allocate ( ICE(ng) % pstar_grid(LBi:UBi,LBj:UBj) )
+#endif
       allocate ( ICE(ng) % zetai(LBi:UBi,LBj:UBj) )
       allocate ( ICE(ng) % eta(LBi:UBi,LBj:UBj) )
       allocate ( ICE(ng) % tauaiu(LBi:UBi,LBj:UBj) )
@@ -240,6 +246,9 @@
           ICE(ng) % coef_ice_heat(i,j) = IniVal
           ICE(ng) % rhs_ice_heat(i,j) = IniVal
           ICE(ng) % pice(i,j) = IniVal
+#ifdef ICE_STRENGTH_QUAD
+          ICE(ng) % pstar_grid(i,j) = IniVal
+#endif
           ICE(ng) % zetai(i,j) = IniVal
           ICE(ng) % eta(i,j) = IniVal
           ICE(ng) % tauaiu(i,j) = IniVal

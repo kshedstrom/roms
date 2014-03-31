@@ -90,6 +90,10 @@
 
      pstar == 5.0d+03
 
+! Ice strength coefficient in quadratic form [N/m]
+
+     pstar_e == 1.4d+03
+
 ! Ice strength exponential weighting coefficient on concentration
 ! (nondimensional)
 
