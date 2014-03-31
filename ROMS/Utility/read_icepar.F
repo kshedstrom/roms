@@ -72,6 +72,8 @@
               Npts=load_r(Nval, Rval, Ngrids, rhosnow_wet)
             CASE ('pstar')
               Npts=load_r(Nval, Rval, Ngrids, pstar)
+            CASE ('pstar_e')
+              Npts=load_r(Nval, Rval, Ngrids, pstar_e)
             CASE ('astren')
               Npts=load_r(Nval, Rval, Ngrids, astren)
             CASE ('zetamax')

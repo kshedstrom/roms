@@ -1036,6 +1036,12 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+12)=' ICE_SMOOTH,'
 #endif
+#ifdef ICE_STRENGTH_QUAD
+      IF (Master) WRITE (stdout,20) 'ICE_STRENGTH_QUAD',                &
+     &   'Ice strength a quadratic function of thickness.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+19)=' ICE_STRENGTH_QUAD,'
+#endif
 #ifdef ICE_THERMO
       IF (Master) WRITE (stdout,20) 'ICE_THERMO',                       &
      &   'Include ice thermodynamics.'
@@ -1381,12 +1387,6 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+10)=' NONLINEAR,'
 #endif
-#ifdef OUTFLOW_MASK
-      IF (Master) WRITE (stdout,20) 'OUTFLOW_MASK',                     &
-     &   'Hibler-style outflow ice cells.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+14)=' OUTFLOW_MASK,'
-#endif
 #ifdef SOLVE3D
 # if defined NONLIN_EOS
       IF (Master) WRITE (stdout,20) 'NONLIN_EOS',                       &
@@ -1405,6 +1405,12 @@
      &   'Avoid two-way correction of coaser grid boundary tracer.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+19)=' NO_CORRECT_TRACER,'
+#endif
+#ifdef NO_HIS
+      IF (Master) WRITE (stdout,20) 'NO_HIS',                           &
+     &   'Turn off writing of history files.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+8)=' NO_HIS,'
 #endif
 #ifdef NO_LBC_ATT
       IF (Master) WRITE (stdout,20) 'NO_LBC_ATT',                       &
@@ -1504,6 +1510,12 @@
      &   'Double precision output fields in NetCDF files.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+12)=' OUT_DOUBLE,'
+#endif
+#ifdef OUTFLOW_MASK
+      IF (Master) WRITE (stdout,20) 'OUTFLOW_MASK',                     &
+     &   'Hibler-style outflow ice cells.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+14)=' OUTFLOW_MASK,'
 #endif
 #ifdef _OPENMP
       IF (Master) WRITE (stdout,20) '_OPENMP',                          &

@@ -51,6 +51,9 @@
      &                   ICE(ng) % ai,                                  &
      &                   ICE(ng) % hi,                                  &
      &                   ICE(ng) % pice,                                &
+# ifdef ICE_STRENGTH_QUAD
+     &                   ICE(ng) % pstar_grid,                          &
+# endif
      &                   ICE(ng) % zetai,                               &
      &                   ICE(ng) % eta                                  &
      &                   )
@@ -69,7 +72,11 @@
      &                        mask_outflow,                             &
 # endif
      &                        pm, pn, ui, vi, uie, vie,                 &
-     &                        ai, hi, pice, zetai, eta)
+     &                        ai, hi, pice,                             &
+#ifdef ICE_STRENGTH_QUAD
+     &                        pstar_grid,                               &
+#endif
+     &                        zetai, eta)
 !***********************************************************************
 !
 
@@ -102,6 +109,9 @@
       real(r8), intent(in) :: ai(LBi:,LBj:,:)
       real(r8), intent(in) :: hi(LBi:,LBj:,:)
       real(r8), intent(out) :: pice(LBi:,LBj:)
+#  ifdef ICE_STRENGTH_QUAD
+      real(r8), intent(out) :: pstar_grid(LBi:,LBj:)
+#  endif
       real(r8), intent(out) :: zetai(LBi:,LBj:)
       real(r8), intent(out) :: eta(LBi:,LBj:)
 # else
@@ -117,6 +127,9 @@
       real(r8), intent(in) :: ai(LBi:UBi,LBj:UBj,2)
       real(r8), intent(in) :: hi(LBi:UBi,LBj:UBj,2)
       real(r8), intent(out) :: pice(LBi:UBi,LBj:UBj)
+#  ifdef ICE_STRENGTH_QUAD
+      real(r8), intent(out) :: pstar_grid(LBi:UBi,LBj:UBj)
+#  endif
       real(r8), intent(out) :: zetai(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: eta(LBi:UBi,LBj:UBj)
 # endif
@@ -251,8 +264,13 @@
 ! 
           delta=abs(eone**2+e2r*etwos)
           delta=max(sqrt(delta),epso)
+#ifdef ICE_STRENGTH_QUAD
+          pice(i,j)=pstar_grid(i,j)*hi(i,j,liold)**2                    &
+     &                *exp(-astren(ng)*(1.0_r8-ai(i,j,liold)))
+#else
           pice(i,j)=pstar(ng)*hi(i,j,liold)                             &
      &                *exp(-astren(ng)*(1.0_r8-ai(i,j,liold)))
+#endif
           zetai(i,j)=pice(i,j)/(2.0_r8*delta)
           zmax = 2.5E+8_r8*pice(i,j)
           zetai(i,j)= min(zetai(i,j),zetamax(ng))
