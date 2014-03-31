@@ -2,7 +2,7 @@
 !  ROMS/TOMS IO NetCDF variables.
 !
 !========================================================= Hernan G. Arango ===
-!  Copyright (c) 2002-2010 The ROMS/TOMS Group                                !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group                                !
 !    Licensed under a MIT/X style license                                     !
 !    See License_ROMS.txt                                                     !
 !==============================================================================
@@ -2505,24 +2505,6 @@
   'sst_time'
   'idSSTc'
   'r2dvar'
-  1.0d0
-
-'temp'                                             ! Input
-  'potential temperature climatology'
-  'Celsius'                                        ! [Celsius]
-  'temp, scalar, series'
-  'temp_time'
-  'idTclm(itemp)'
-  'r3dvar'
-  1.0d0
-
-'salt'                                             ! Input
-  'salinity climatology'
-  'nondimensional'                                 ! [PSU]
-  'salt, scalar, series'
-  'salt_time'
-  'idTclm(isalt)'
-  'r3dvar'
   1.0d0
 
 !
@@ -6641,36 +6623,6 @@
   'idTbry(inorth,iFe)'
   'nulvar'
   1.0d0
-
-'Iron'
-  'iron climatology'
-  'micromol Fe m-3'
-  'iron, scalar, series'
-  'ocean_time'
-  'idTclm(iFe)'
-  'r3dvar'
-  1.0d0
-
-!ICE_BIO
-'ice_thick'
-  'ice thickness climatology'
-  'meters'
-  'ice_thick, scalar, series'
-  'ocean_time'
-  'idTclm(i1CI)'
-  'r2dvar'
-  1.0d0
-
-!3DAKT
-'AKt'
-  'AKt from 3D run'
-  'meter2 second-1 '
-  'Akt, scalar, series'
-  'ocean_time'
-  'idTclm(iAKt3)'
-  'r2dvar'
-  1.0d0
-
 
 !------------------------------------------------------------
  'Jel'

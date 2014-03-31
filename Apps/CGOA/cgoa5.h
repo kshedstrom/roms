@@ -146,9 +146,7 @@
  
 /* Using Runoff instead now */
 #ifdef SOLVE3D
-#define RUNOFF
-!# define UV_PSOURCE
-!# define TS_PSOURCE
+# define RUNOFF
 #endif
  
 /* tides */

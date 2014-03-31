@@ -42,13 +42,9 @@
      &                       SOURCES(ng) % Jsrc,                        &
      &                       SOURCES(ng) % Dsrc,                        &
 #ifdef SOLVE3D
-# if defined UV_PSOURCE || defined Q_PSOURCE
      &                       SOURCES(ng) % Qshape,                      &
      &                       SOURCES(ng) % Qsrc,                        &
-# endif
-# ifdef TS_PSOURCE
      &                       SOURCES(ng) % Tsrc,                        &
-# endif
 #endif
      &                       SOURCES(ng) % Qbar)
 !
@@ -77,12 +73,8 @@
      &                             h, on_u, om_v,                       &
      &                             Isrc, Jsrc, Dsrc,                    &
 #ifdef SOLVE3D
-# if defined UV_PSOURCE || defined Q_PSOURCE
      &                             Qshape, Qsrc,                        &
-# endif
-# ifdef TS_PSOURCE
      &                             Tsrc,                                &
-# endif
 #endif
      &                             Qbar)
 !***********************************************************************
@@ -127,13 +119,9 @@
       real(r8), intent(inout) :: Dsrc(:)
       real(r8), intent(inout) :: Qbar(:)
 # ifdef SOLVE3D
-#  if defined UV_PSOURCE || defined Q_PSOURCE
       real(r8), intent(inout) :: Qshape(:,:)
       real(r8), intent(inout) :: Qsrc(:,:)
-#  endif
-#  ifdef TS_PSOURCE
       real(r8), intent(inout) :: Tsrc(:,:,:)
-#  endif
 # endif
 #else
       integer, intent(inout) :: Isrc(Msrc)
@@ -154,13 +142,9 @@
       real(r8), intent(inout) :: Dsrc(Msrc)
       real(r8), intent(inout) :: Qbar(Msrc)
 # ifdef SOLVE3D
-#  if defined UV_PSOURCE || defined Q_PSOURCE
       real(r8), intent(inout) :: Qshape(Msrc,N(ng))
       real(r8), intent(inout) :: Qsrc(Msrc,N(ng))
-#  endif
-#  ifdef TS_PSOURCE
       real(r8), intent(inout) :: Tsrc(Msrc,N(ng),NT(ng))
-#  endif
 # endif
 #endif
 !
@@ -235,7 +219,6 @@
 #endif
       END IF
 
-#if defined UV_PSOURCE || defined Q_PSOURCE
 # ifdef SOLVE3D
 !
 !  If appropriate, set-up nondimensional shape function to distribute
@@ -288,9 +271,8 @@
         END DO
       END IF
 # endif
-#endif
 
-#if defined TS_PSOURCE && defined SOLVE3D
+#if defined SOLVE3D
 !
 !  Set-up tracer (tracer units) point Sources/Sinks.
 !

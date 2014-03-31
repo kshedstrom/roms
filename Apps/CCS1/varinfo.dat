@@ -2,7 +2,7 @@
 !  ROMS/TOMS IO NetCDF variables.
 !
 !========================================================= Hernan G. Arango ===
-!  Copyright (c) 2002-2011 The ROMS/TOMS Group                                !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group                                !
 !    Licensed under a MIT/X style license                                     !
 !    See License_ROMS.txt                                                     !
 !==============================================================================
@@ -2453,24 +2453,6 @@
   'r2dvar'
   1.0d0
 
-'temp'                                             ! Input
-  'potential temperature climatology'
-  'Celsius'                                        ! [Celsius]
-  'temp, scalar, series'
-  'ocean_time'
-  'idTclm(itemp)'
-  'r3dvar'
-  1.0d0
-
-'salt'                                             ! Input
-  'salinity climatology'
-  'nondimensional'                                 ! [PSU]
-  'salt, scalar, series'
-  'ocean_time'
-  'idTclm(isalt)'
-  'r3dvar'
-  1.0d0
-
 !
 !------------------------------------------------------------------------------
 !  Adjoint sensitivy variables.  The units below are the same as the state.
@@ -3262,15 +3244,6 @@
   'r3dvar'
   1.0d0
 
-'NO3'                                              ! Input/Output
-  'nitrate concentration'
-  'millimole_nitrogen meter-3'                     ! [millimole/m3]
-  'NO3, scalar, series'
-  'ocean_time'
-  'idTclm(iNO3_)'
-  'r3dvar'
-  1.0d0
-
 'NO3'                                              ! Input
   'nitrate concentration functional'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
@@ -3286,15 +3259,6 @@
   'NH4, scalar, series'
   'ocean_time'
   'idTvar(iNH4_)'
-  'r3dvar'
-  1.0d0
-
-'NH4'                                              ! Input/Output
-  'ammonium concentration'
-  'millimole_nitrogen meter-3'                     ! [millimole/m3]
-  'NH4, scalar, series'
-  'ocean_time'
-  'idTclm(iNH4_)'
   'r3dvar'
   1.0d0
 
@@ -3316,30 +3280,12 @@
   'r3dvar'
   1.0d0
 
-'PON'                                              ! Input/Output
-  'particulate organic nitrogen concentration'
-  'millimole_nitrogen meter-3'                     ! [millimole/m3]
-  'PON, scalar, series'
-  'ocean_time'
-  'idTclm(iPON_)'
-  'r3dvar'
-  1.0d0
-
 'DON'                                              ! Input/Output
   'dissolved organic nitrogen concentration'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'DON, scalar, series'
   'ocean_time'
   'idTvar(iDON_)'
-  'r3dvar'
-  1.0d0
-
-'DON'                                              ! Input/Output
-  'dissolved organic nitrogen concentration'
-  'millimole_nitrogen meter-3'                     ! [millimole/m3]
-  'DON, scalar, series'
-  'ocean_time'
-  'idTclm(iDON_)'
   'r3dvar'
   1.0d0
 
@@ -3352,30 +3298,12 @@
   'r3dvar'
   1.0d0
 
-'SiOH4'                                            ! Input/Output
-  'silicate concentration'
-  'millimole_silica meter-3'                       ! [millimole/m3]
-  'SiOH4, scalar, series'
-  'ocean_time'
-  'idTclm(iSiOH)'
-  'r3dvar'
-  1.0d0
-
 'opal'                                             ! Input/Output
   'particulate organic silica concentration'
   'millimole_silica meter-3'                       ! [millimole/m3]
   'silica, scalar, series'
   'ocean_time'
   'idTvar(iopal)'
-  'r3dvar'
-  1.0d0
-
-'opal'                                             ! Input/Output
-  'particulate organic silica concentration'
-  'millimole_silica meter-3'                       ! [millimole/m3]
-  'silica, scalar, series'
-  'ocean_time'
-  'idTclm(iopal)'
   'r3dvar'
   1.0d0
 
@@ -3388,15 +3316,6 @@
   'r3dvar'
   1.0d0
 
-'FeSp'                                             ! Input/Output
-  'small phytop. iron concentration'
-  'millimole_iron  meter-3'                        ! [millimole/m3]
-  'iron, scalar, series'
-  'ocean_time'
-  'idTclm(iFeSp)'
-  'r3dvar'
-  1.0d0
-
 'FeLp'                                            ! Input/Output
   'large phytop. iron concentration'
   'millimole_iron  meter-3'                       ! [millimole/m3]
@@ -3406,30 +3325,12 @@
   'r3dvar'
   1.0d0
 
-'FeLp'                                            ! Input/Output
-  'large phytop. iron concentration'
-  'millimole_iron  meter-3'                       ! [millimole/m3]
-  'iron, scalar, series'
-  'ocean_time'
-  'idTclm(iFeLp)'
-  'r3dvar'
-  1.0d0
-
 'FeD'                                             ! Input/Output
   'disolved iron concentration'
   'millimole_iron  meter-3'                       ! [millimole/m3]
   'iron, scalar, series'
   'ocean_time'
   'idTvar(iFeD_)'
-  'r3dvar'
-  1.0d0
-
-'FeD'                                             ! Input/Output
-  'disolved iron concentration'
-  'millimole_iron  meter-3'                       ! [millimole/m3]
-  'iron, scalar, series'
-  'ocean_time'
-  'idTclm(iFeD_)'
   'r3dvar'
   1.0d0
 
@@ -3460,30 +3361,12 @@
   'r3dvar'
   1.0d0
 
-'nanophytoplankton'                                ! Input/Output
-  'nanophytoplankton biomass'
-  'millimole_nitrogen meter-3'                     ! [millimole/m3]
-  'nanophytoplankton, scalar, series'
-  'ocean_time'
-  'idTclm(iSphy)'
-  'r3dvar'
-  1.0d0
-
 'diatom'                                           ! Input/Output
   'diatom biomass'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'diatom, scalar, series'
   'ocean_time'
   'idTvar(iLphy)'
-  'r3dvar'
-  1.0d0
-
-'diatom'                                           ! Input/Output
-  'diatom biomass'
-  'millimole_nitrogen meter-3'                     ! [millimole/m3]
-  'diatom, scalar, series'
-  'ocean_time'
-  'idTclm(iLphy)'
   'r3dvar'
   1.0d0
 
@@ -3514,15 +3397,6 @@
   'r3dvar'
   1.0d0
 
-'microzooplankton'                                 ! Input/Output
-  'microzooplankton biomass'
-  'millimole_nitrogen meter-3'                     ! [millimole/m3]
-  'microzooplankton, scalar, series'
-  'ocean_time'
-  'idTclm(iSzoo)'
-  'r3dvar'
-  1.0d0
-
 'mesozooplankton'                                  ! Input/Output
   'mesozooplankton biomass'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
@@ -3532,30 +3406,12 @@
   'r3dvar'
   1.0d0
 
-'mesozooplankton'                                  ! Input/Output
-  'mesozooplankton biomass'
-  'millimole_nitrogen meter-3'                     ! [millimole/m3]
-  'mesozooplankton, scalar, series'
-  'ocean_time'
-  'idTclm(iLzoo)'
-  'r3dvar'
-  1.0d0
-
 'Pzooplankton'                                     ! Input/Output
   'predator-zooplankton biomass'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'Pzooplankton, scalar, series'
   'ocean_time'
   'idTvar(iPzoo)'
-  'r3dvar'
-  1.0d0
-
-'Pzooplankton'                                     ! Input/Output
-  'predator-zooplankton biomass'
-  'millimole_nitrogen meter-3'                     ! [millimole/m3]
-  'Pzooplankton, scalar, series'
-  'ocean_time'
-  'idTclm(iPzoo)'
   'r3dvar'
   1.0d0
 
@@ -4821,15 +4677,6 @@
   'PO4, scalar, series'
   'ocean_time'
   'idTvar(iPO4_)'
-  'r3dvar'
-  1.0d0
-
-'PO4'                                              ! Input/Output
-  'phosphate concentration'
-  'millimole_PO4 meter-3'                          ! [millimole/m3]
-  'PO4, scalar, series'
-  'ocean_time'
-  'idTclm(iPO4_)'
   'r3dvar'
   1.0d0
 
@@ -6767,36 +6614,6 @@
   'idTbry(inorth,iFe)'
   'nulvar'
   1.0d0
-
-'Iron'
-  'iron climatology'
-  'micromol Fe m-3'
-  'iron, scalar, series'
-  'ocean_time'
-  'idTclm(iFe)'
-  'r3dvar'
-  1.0d0
-
-!ICE_BIO
-'ice_thick'
-  'ice thickness climatology'
-  'meters'
-  'ice_thick, scalar, series'
-  'ocean_time'
-  'idTclm(i1CI)'
-  'r2dvar'
-  1.0d0
-
-!3DAKT
-'AKt'
-  'AKt from 3D run'
-  'meter2 second-1 '
-  'Akt, scalar, series'
-  'ocean_time'
-  'idTclm(iAKt3)'
-  'r2dvar'
-  1.0d0
-
 
 !------------------------------------------------------------
  'Jel'

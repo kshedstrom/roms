@@ -158,11 +158,9 @@
 /* point sources (rivers, line sources) */
 
 /* Using Runoff instead now */
-#undef UV_PSOURCE
 #undef ANA_PSOURCE
 #ifdef SOLVE3D
 # define RUNOFF
-# undef TS_PSOURCE
 #endif
 
 /* tides */
