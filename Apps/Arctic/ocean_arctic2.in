@@ -900,7 +900,7 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
 
      GRDNAME == /center/w/kate/Arctic2/Files/grid_Arctic_2.nc
      ININAME == /center/w/kate/Arctic2/Files/SODA_2.1.6_19790101-19790106_ic_ARCTIC2.nc
-!     ININAME == arctic_rst.nc
+!     ININAME == arctic2_rst.nc
      ITLNAME == ocean_itl.nc
      IRPNAME == ocean_irp.nc
      IADNAME == ocean_iad.nc

@@ -85,7 +85,6 @@
               my_Nsteps(ig)=0
             END IF
           ELSE IF (RefinedGrid(ng).and.(RefineScale(ng).eq.0)) THEN
-          IF (RefinedGrid(ng).and.(RefineScale(ng).eq.0)) THEN
             IF (step_counter(ng).le.(WindowSteps(ig)+1)) THEN
               my_Nsteps(ig)=1
               step_counter(ng)=step_counter(ng)+1

@@ -998,43 +998,42 @@
 #  endif
         END IF
 # endif
-      END IF PROCESS
 # ifdef UV_WAVEDRAG
-      IF ((MOD(iic(ng)-ntstart(ng),nstep_hour).eq.0).and.               &
-     &    (iic(ng).ne.ntstart(ng))) THEN
-!        IF (MOD(iic(ng)-ntstart(ng),nstep_hour*24).eq.0) THEN
-        IF (hour_steps == 24 .or. hour_steps == 0) THEN
+        IF ((MOD(iic(ng)-ntstart(ng),nstep_hour).eq.0).and.             &
+     &      (iic(ng).ne.ntstart(ng))) THEN
+!          IF (MOD(iic(ng)-ntstart(ng),nstep_hour*24).eq.0) THEN
+          IF (hour_steps == 24 .or. hour_steps == 0) THEN
 ! At end of day, add in the 25th value, then compute new filt_ubot value,
 ! and finally add in the first value for the next day.
-          hour_steps = 1
-          DO j=JstrR,JendR
-            DO i=Istr,Iend+1
-              sum_ubot(i,j)=sum_ubot(i,j)+OCEAN(ng)%u(i,j,1,nrhs(ng))
-              filt_ubot(i,j)=0.04_r8*sum_ubot(i,j)
-              sum_ubot(i,j)=OCEAN(ng)%u(i,j,1,nrhs(ng))
+            hour_steps = 1
+            DO j=JstrR,JendR
+              DO i=Istr,Iend+1
+                sum_ubot(i,j)=sum_ubot(i,j)+OCEAN(ng)%u(i,j,1,nrhs(ng))
+                filt_ubot(i,j)=0.04_r8*sum_ubot(i,j)
+                sum_ubot(i,j)=OCEAN(ng)%u(i,j,1,nrhs(ng))
+              END DO
             END DO
-          END DO
-          DO j=Jstr,Jend+1
-            DO i=IstrR,IendR
-              sum_vbot(i,j)=sum_vbot(i,j)+OCEAN(ng)%v(i,j,1,nrhs(ng))
-              filt_vbot(i,j)=0.04_r8*sum_vbot(i,j)
-              sum_vbot(i,j)=OCEAN(ng)%v(i,j,1,nrhs(ng))
+            DO j=Jstr,Jend+1
+              DO i=IstrR,IendR
+                sum_vbot(i,j)=sum_vbot(i,j)+OCEAN(ng)%v(i,j,1,nrhs(ng))
+                filt_vbot(i,j)=0.04_r8*sum_vbot(i,j)
+                sum_vbot(i,j)=OCEAN(ng)%v(i,j,1,nrhs(ng))
+              END DO
             END DO
-          END DO
-        ELSE
-          hour_steps = hour_steps + 1
-          DO j=JstrR,JendR
-            DO i=Istr,Iend+1
-              sum_ubot(i,j)=sum_ubot(i,j)+OCEAN(ng)%u(i,j,1,nrhs(ng))
+          ELSE
+            hour_steps = hour_steps + 1
+            DO j=JstrR,JendR
+              DO i=Istr,Iend+1
+                sum_ubot(i,j)=sum_ubot(i,j)+OCEAN(ng)%u(i,j,1,nrhs(ng))
+              END DO
             END DO
-          END DO
-          DO j=Jstr,Jend+1
-            DO i=IstrR,IendR
-              sum_vbot(i,j)=sum_vbot(i,j)+OCEAN(ng)%v(i,j,1,nrhs(ng))
+            DO j=Jstr,Jend+1
+              DO i=IstrR,IendR
+                sum_vbot(i,j)=sum_vbot(i,j)+OCEAN(ng)%v(i,j,1,nrhs(ng))
+              END DO
             END DO
-          END DO
+          END IF
         END IF
-      END IF
 # endif
       END IF NEEDED
 
