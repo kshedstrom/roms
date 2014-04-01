@@ -1041,7 +1041,7 @@
      &                      ncBRYid(idTbry(iwest,i),ng),                &
      &                      nBCfiles(ng), BRY(1,ng), update(1),         &
      &                      JLB, JUB, N(ng), 2, 0, Mm(ng)+1, N(ng),     &
-     &                      BOUNDARY(ng) % uG_east)
+     &                      BOUNDARY(ng) % tG_west)
             IF (exit_flag.ne.NoError) RETURN
           END IF
         END DO
@@ -1063,7 +1063,7 @@
      &                      ncBRYid(idTbry(isouth,i),ng),               &
      &                      nBCfiles(ng), BRY(1,ng), update(1),         &
      &                      ILB, IUB, N(ng), 2, 0, Lm(ng)+1, N(ng),     &
-     &                      BOUNDARY(ng) % vG_south)
+     &                      BOUNDARY(ng) % tG_south)
             IF (exit_flag.ne.NoError) RETURN
           END IF
         END DO
@@ -1074,7 +1074,7 @@
      &                      ncBRYid(idTbry(inorth,i),ng),               &
      &                      nBCfiles(ng), BRY(1,ng), update(1),         &
      &                      ILB, IUB, N(ng), 2, 0, Lm(ng)+1, N(ng),     &
-     &                      BOUNDARY(ng) % vG_north)
+     &                      BOUNDARY(ng) % tG_north)
             IF (exit_flag.ne.NoError) RETURN
           END IF
         END DO

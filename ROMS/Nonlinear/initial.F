@@ -330,8 +330,11 @@
 !  Compute ice strength as a function of grid size.
 !-----------------------------------------------------------------------
 !
-        DO tile=first_tile(ng),last_tile(ng),+1
-          CALL ini_strengthcoef (ng, tile, iNLM)
+        DO ng=1,Ngrids
+          DO tile=first_tile(ng),last_tile(ng),+1
+            CALL ini_strengthcoef (ng, tile, iNLM)
+          END DO
+!$OMP BARRIER
         END DO
 #endif
 #ifdef NESTING
