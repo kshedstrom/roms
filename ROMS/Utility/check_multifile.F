@@ -122,7 +122,7 @@
      &                            Tmax_code, F_code
               END IF
             END IF
-	  END IF
+          END IF
         END DO
       END IF
 
@@ -208,7 +208,7 @@
         DO i=1,nCLMfiles(ng)
           Nfiles=CLM(i,ng)%Nfiles
           DO ifile=1,Nfiles
-            ncname=CLM(ng)%files(ifile)
+            ncname=CLM(i,ng)%files(ifile)
             foundit=check_file(ng, model, ncname, Tmin, Tmax, Tscale,   &
      &                       Lcheck)
             IF (exit_flag.ne.NoError) RETURN

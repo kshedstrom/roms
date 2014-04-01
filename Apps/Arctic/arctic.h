@@ -12,7 +12,7 @@
 **  Options for ARCTIC simulation
 */
 
-#undef NO_HIS
+#define NO_HIS
 #define GLOBAL_PERIODIC
 #undef NETCDF4
 #undef PARALLEL_IO
@@ -56,7 +56,7 @@
 #  define  ICE_MOMENTUM
 #  define  ICE_MOM_BULK
 #  define  ICE_EVP
-#  define  ICE_STRENGTH_QUAD
+#  undef  ICE_STRENGTH_QUAD
 #  define  ICE_ADVECT
 #  define  ICE_SMOLAR
 #  define  ICE_UPWIND
