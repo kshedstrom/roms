@@ -103,8 +103,8 @@
 !
 !  Initialize.
 !
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           wrk(i,j)=0.0_r8
         END DO
       END DO
@@ -117,13 +117,13 @@
 !
       cff1=1.0_r8/(5.0_r8*86400.0_r8)
       cff2=1.0_r8/(60.0_r8*86400.0_r8)
-      DO j=JstrR,MIN(8,JendR)
-        DO i=IstrR,IendR
+      DO j=JstrT,MIN(8,JendT)
+        DO i=IstrT,IendT
           wrk(i,j)=cff2+REAL(8-j,r8)*(cff1-cff2)/7.0_r8
         END DO
       END DO
-      DO j=MAX(JstrR,Mm(ng)-7),JendR
-        DO i=IstrR,IendR
+      DO j=MAX(JstrT,Mm(ng)-7),JendT
+        DO i=IstrT,IendT
           wrk(i,j)=cff1+REAL(Mm(ng)-j,r8)*(cff2-cff1)/7.0_r8
         END DO
       END DO
@@ -148,18 +148,18 @@
 !
       cff1=1.0_r8/(5.0_r8*86400.0_r8)
       cff2=1.0_r8/(60.0_r8*86400.0_r8)
-      DO j=JstrR,MIN(6,JendR)
-        DO i=IstrR,IendR
+      DO j=JstrT,MIN(6,JendT)
+        DO i=IstrT,IendT
           wrk(i,j)=cff2+REAL(6-j,r8)*(cff1-cff2)/6.0_r8
         END DO
       END DO
-      DO j=MAX(JstrR,Mm(ng)+1-6),JendR
-        DO i=IstrR,IendR
+      DO j=MAX(JstrT,Mm(ng)+1-6),JendT
+        DO i=IstrT,IendT
           wrk(i,j)=cff1+REAL(Mm(ng)+1-j,r8)*(cff2-cff1)/6.0_r8
         END DO
       END DO
-      DO i=IstrR,MIN(6,IendR)
-        DO j=MAX(JstrR,i),MIN(Mm(ng)+1-i,JendR)
+      DO i=IstrT,MIN(6,IendT)
+        DO j=MAX(JstrT,i),MIN(Mm(ng)+1-i,JendT)
           wrk(i,j)=cff2+REAL(6-i,r8)*(cff1-cff2)/6.0_r8
         END DO
       END DO

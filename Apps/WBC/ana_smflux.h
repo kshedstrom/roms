@@ -135,16 +135,16 @@
 # elif defined WBC_3
       val1 = cos(45.*pi/180.)
 # endif
-      DO j=JstrR,JendR
-        DO i=Istr,IendR
+      DO j=JstrT,JendT
+        DO i=IstrP,IendT
           windamp = -0.1_r8*COS(0.5*pi*(yr(i,j)+yr(i-1,j))              &
      &                    /1.e+6_r8)/rho0
           sustr(i,j) = windamp * val1
         END DO
       END DO
 #else
-      DO j=JstrR,JendR
-        DO i=Istr,IendR
+      DO j=JstrT,JendT
+        DO i=IstrP,IendT
           sustr(i,j)=0.0_r8
         END DO
       END DO
@@ -162,8 +162,8 @@
 # elif defined WBC_3
       val1 = -sin(45.*pi/180.)
 # endif
-      DO j=Jstr,JendR
-        DO i=IstrR,IendR
+      DO j=JstrP,JendT
+        DO i=IstrT,IendT
           windamp = -0.1_r8*COS(0.5*pi*(yr(i,j)+yr(i-1,j))              &
      &                  /1.e+6_r8)/rho0
           svstr(i,j) = windamp * val1
@@ -173,8 +173,8 @@
         END DO
       END DO
 #else
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           svstr(i,j)=0.0_r8
         END DO
       END DO

@@ -560,7 +560,7 @@
 
         real(r8), allocatable :: Vtime(:,:,:)
 
-        character (len=5  ) :: version = '3.6  '
+        character (len=5  ) :: version = '3.7  '
         character (len=40 ) :: varnam(MV)
         character (len=44 ) :: date_str
         character (len=46 ) :: Tname(0:NV)
@@ -581,7 +581,7 @@
 !
         logical :: Lanafile
 
-        character (len=256), dimension(49) :: ANANAME
+        character (len=256), dimension(51) :: ANANAME
 
 #ifdef BIOLOGY
 !
@@ -882,7 +882,7 @@
       isBv3d=isVvel                           ! 3D V-variables
       isBw3d=isTvar(1)                        ! 3D W-variables
 #if defined SOLVE3D && (defined GLS_MIXING || defined MY25_MIXING)
-      isMtke=ic+1                             ! turbulent variables
+      isMtke=isTvar(MT)+1                     ! turbulent variables
 #endif
 !
 !  Initialize IO information variables.
@@ -1435,10 +1435,6 @@
               idSSSc=varid
             CASE ('idSSTc')
               idSSTc=varid
-            CASE ('idTclm(itemp)')
-              idTclm(itemp)=varid
-            CASE ('idTclm(isalt)')
-              idTclm(isalt)=varid
 #if defined AD_SENSITIVITY   || defined IS4DVAR_SENSITIVITY || \
     defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR   || \
     defined SO_SEMI

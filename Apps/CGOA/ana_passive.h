@@ -75,8 +75,8 @@
 !
 #if defined  defined CGOA || defined NEP4
       DO k=1,N(ng)
-        DO j=JstrR,JendR
-          DO i=IstrR,IendR
+        DO j=JstrT,JendT
+          DO i=IstrT,IendT
             t(i,j,k,1,inert(1)) = i
             t(i,j,k,1,inert(2)) = j
             t(i,j,k,1,inert(3)) = -1 * GRID(ng) % z_r(i,j,k)

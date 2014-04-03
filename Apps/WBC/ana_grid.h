@@ -301,8 +301,8 @@
 #elif defined WBC_2
       cff = cos(17.0_r8*pi/180._r8)
       val2 = sin(17.0_r8*pi/180._r8)
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           xp(i,j) = 85.5e+3_r8 + dx*REAL(i-1,r8)*cff                    &
      &                 - dy*REAL(j-1,r8)*val2
           xr(i,j) = 85.5e+3_r8 + dx*(REAL(i-1,r8)+0.5_r8)*cff           &
@@ -316,8 +316,8 @@
 #elif defined WBC_3
       cff = cos(45.0_r8*pi/180._r8)
       val2 = sin(45.0_r8*pi/180._r8)
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           xp(i,j) = 512.65e+3_r8 + dx*REAL(i-1,r8)*cff                  &
      &                 - dy*REAL(j-1,r8)*val2
           xr(i,j) = 512.65e+3_r8 + dx*(REAL(i-1,r8)+0.5_r8)*cff         &
@@ -347,8 +347,8 @@
 ! ETA, respectively.
 !-----------------------------------------------------------------------
 !
-#define J_RANGE MIN(JstrR,Jstr-1),MAX(Jend+1,JendR)
-#define I_RANGE MIN(IstrR,Istr-1),MAX(Iend+1,IendR)
+#define J_RANGE MIN(JstrT,Jstr-1),MAX(Jend+1,JendT)
+#define I_RANGE MIN(IstrT,Istr-1),MAX(Iend+1,IendT)
 
       DO j=J_RANGE
         DO i=I_RANGE
@@ -358,8 +358,8 @@
       END DO
 #undef J_RANGE
 #undef I_RANGE
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           pm(i,j)=wrkX(i,j)
           pn(i,j)=wrkY(i,j)
         END DO
@@ -389,8 +389,8 @@
 !  Compute d(1/n)/d(xi) and d(1/m)/d(eta) at RHO-points.
 !-----------------------------------------------------------------------
 !
-      DO j=Jstr,Jend
-        DO i=Istr,Iend
+      DO j=JstrP,JendP
+        DO i=IstrP,IendP
           dndx(i,j)=0.5_r8*((1.0_r8/wrkY(i+1,j  ))-                     &
      &                      (1.0_r8/wrkY(i-1,j  )))
           dmde(i,j)=0.5_r8*((1.0_r8/wrkX(i  ,j+1))-                     &
@@ -430,8 +430,8 @@
         END DO
       END DO
 #else
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           angler(i,j)=0.0_r8
         END DO
       END DO
@@ -461,8 +461,8 @@
 #else
       val1=0.5_r8*Esize
 #endif
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           f(i,j)=f0+beta*(yr(i,j)-val1)
         END DO
       END DO
@@ -487,8 +487,8 @@
 !-----------------------------------------------------------------------
 !
 #if defined MY_APPLICATION
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           h(i,j)=???
         END DO
       END DO
@@ -515,10 +515,10 @@
 ! within each subdomain, then determine global minimum by comparing
 ! these subdomain minima.
 !
-      my_min=h(IstrR,JstrR)
-      my_max=h(IstrR,JstrR)
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      my_min=h(IstrT,JstrT)
+      my_max=h(IstrT,JstrT)
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           my_min=MIN(my_min,h(i,j))
           my_max=MAX(my_max,h(i,j))
         END DO
@@ -558,8 +558,8 @@
 !-----------------------------------------------------------------------
 !
 # ifdef WEDDELL
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           zice(i,j)=???
         END DO
       END DO

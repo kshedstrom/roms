@@ -65,22 +65,22 @@
 !-----------------------------------------------------------------------
 !
       IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
-        DO j=JstrR,JendR
+        DO j=JstrT,JendT
           BOUNDARY(ng)%IceNH4_east(j)=0.0_r8
         END DO
       END IF
       IF (DOMAIN(ng)%Western_Edge(tile)) THEN
-        DO j=JstrR,JendR
+        DO j=JstrT,JendT
           BOUNDARY(ng)%IceNH4_west(j)=0.0_r8
         END DO
       END IF
       IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
-        DO i=IstrR,IendR
+        DO i=IstrT,IendT
           BOUNDARY(ng)%IceNH4_south(i)=0.0_r8
         END DO
       END IF
       IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
-        DO i=IstrR,IendR
+        DO i=IstrT,IendT
           BOUNDARY(ng)%IceNH4_north(i)=0.0_r8
         END DO
       END IF

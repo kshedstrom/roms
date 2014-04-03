@@ -81,26 +81,26 @@
 #if defined CCS1
       ifoo = 10
       DO k=1,N(ng)
-        DO j=JstrR,JendR
-          DO i=IstrR,IendR
+        DO j=JstrT,JendT
+          DO i=IstrT,IendT
             tclm(i,j,k,itemp)=0.0
             tclm(i,j,k,isalt)=0.0
           END DO
         END DO
-        DO j=JstrR,MIN(ifoo,JendR)               ! SOUTH boundary
-          DO i=IstrR,IendR
+        DO j=JstrT,MIN(ifoo,JendT)               ! SOUTH boundary
+          DO i=IstrT,IendT
             tclm(i,j,k,itemp)=BOUNDARY(ng)%t_south(i,k,itemp)
             tclm(i,j,k,isalt)=BOUNDARY(ng)%t_south(i,k,isalt)
           END DO 
         END DO
-        DO j=MAX(JstrR,Mm(ng)+1-ifoo),JendR       ! NORTH boundary
-          DO i=IstrR,IendR
+        DO j=MAX(JstrT,Mm(ng)+1-ifoo),JendT       ! NORTH boundary
+          DO i=IstrT,IendT
             tclm(i,j,k,itemp)=BOUNDARY(ng)%t_north(i,k,itemp)
             tclm(i,j,k,isalt)=BOUNDARY(ng)%t_north(i,k,isalt)
           END DO
         END DO
-        DO i=IstrR,MIN(ifoo,IendR)                ! WEST boundary
-          DO j=JstrR,JendR
+        DO i=IstrT,MIN(ifoo,IendT)                ! WEST boundary
+          DO j=JstrT,JendT
             tclm(i,j,k,itemp)=BOUNDARY(ng)%t_west(j,k,itemp)
             tclm(i,j,k,isalt)=BOUNDARY(ng)%t_west(j,k,isalt)
           END DO

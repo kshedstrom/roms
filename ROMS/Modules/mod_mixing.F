@@ -931,15 +931,9 @@
           END DO
 # endif
 # if defined LMD_SKPP || defined SOLAR_SOURCE
-#   if defined WTYPE_GRID
-          DO i=Imin,Imax
-            MIXING(ng) % Jwtype(i,j) = IniVal
-          END DO
-#   else
           DO i=Imin,Imax
             MIXING(ng) % Jwtype(i,j) = REAL(lmd_Jwt(ng),r8)
           END DO
-#   endif
 # endif
 # if defined LMD_SKPP || defined LMD_BKPP
           DO i=Imin,Imax

@@ -104,6 +104,11 @@
      &                     GRID(ng) % umask,                            &
      &                     GRID(ng) % vmask,                            &
 # endif
+# ifdef WET_DRY
+     &                     GRID(ng) % rmask_wet,                        &
+     &                     GRID(ng) % umask_wet,                        &
+     &                     GRID(ng) % vmask_wet,                        &
+# endif
      &                     MIXING(ng) % alpha,                          &
      &                     MIXING(ng) % beta,                           &
      &                     OCEAN(ng) % rho,                             &
@@ -202,6 +207,9 @@
 # ifdef MASKING
      &                           rmask, umask, vmask,                   &
 # endif
+# ifdef WET_DRY
+     &                           rmask_wet, umask_wet, vmask_wet,       &
+# endif
      &                           alpha, beta, rho, t,                   &
      &                           Hair, Pair, Tair, Uwind, Vwind,        &
 # ifdef CLOUDS
@@ -293,6 +301,11 @@
       real(r8), intent(in) :: umask(LBi:,LBj:)
       real(r8), intent(in) :: vmask(LBi:,LBj:)
 #  endif
+#  ifdef WET_DRY
+      real(r8), intent(in) :: rmask_wet(LBi:,LBj:)
+      real(r8), intent(in) :: umask_wet(LBi:,LBj:)
+      real(r8), intent(in) :: vmask_wet(LBi:,LBj:)
+#  endif
       real(r8), intent(in) :: alpha(LBi:,LBj:)
       real(r8), intent(in) :: beta(LBi:,LBj:)
       real(r8), intent(in) :: rho(LBi:,LBj:,:)
@@ -381,6 +394,11 @@
       real(r8), intent(in) :: rmask(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: umask(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: vmask(LBi:UBi,LBj:UBj)
+#  endif
+#  ifdef WET_DRY
+      real(r8), intent(in) :: rmask_wet(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: umask_wet(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: vmask_wet(LBi:UBi,LBj:UBj)
 #  endif
       real(r8), intent(in) :: alpha(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: beta(LBi:UBi,LBj:UBj)
@@ -996,7 +1014,9 @@
           Hsr=rain(i,j)*wet_bulb*blk_Cpw*                               &
      &        ((TseaC(i)-TairC(i))+(Qsea(i)-Q(i))*Hlv(i,j)/blk_Cpa)
           SHeat(i,j)=(Hs+Hsr)
-# ifdef MASKING
+# ifdef WET_DRY
+          SHeat(i,j)=SHeat(i,j)*rmask_wet(i,j)
+# elif defined MASKING
           SHeat(i,j)=SHeat(i,j)*rmask(i,j)
 # endif
 !
@@ -1013,7 +1033,9 @@
 # ifdef ENHANCED_LHF_TRANSFER
           LHeat(i,j)=LHeat(i,j)*1.07_r8
 # endif
-# ifdef MASKING
+# ifdef WET_DRY
+          LHeat(i,j)=LHeat(i,j)*rmask_wet(i,j)
+# elif defined MASKING
           LHeat(i,j)=LHeat(i,j)*rmask(i,j)
 # endif
 !
@@ -1025,11 +1047,15 @@
 !
           cff=rhoAir(i)*Cd*Wspeed
           Taux(i,j)=(cff*Uwind(i,j)+Taur*SIGN(1.0_r8,Uwind(i,j)))
-# ifdef MASKING
+# ifdef WET_DRY
+          Taux(i,j)=Taux(i,j)*rmask_wet(i,j)
+# elif defined MASKING
           Taux(i,j)=Taux(i,j)*rmask(i,j)
 # endif
           Tauy(i,j)=(cff*Vwind(i,j)+Taur*SIGN(1.0_r8,Vwind(i,j)))
-# ifdef MASKING
+# ifdef WET_DRY
+          Tauy(i,j)=Tauy(i,j)*rmask_wet(i,j)
+# elif defined MASKING
           Tauy(i,j)=Tauy(i,j)*rmask(i,j)
 # endif
 # ifdef ICE_MODEL
@@ -1267,7 +1293,13 @@
           END IF
 #  endif
 # endif
-# ifdef MASKING
+# ifdef WET_DRY
+          stflx(i,j,itemp)=stflx(i,j,itemp)*rmask_wet(i,j)
+#   ifdef EMINUSP
+          evap(i,j)=evap(i,j)*rmask_wet(i,j)
+          stflx(i,j,isalt)=stflx(i,j,isalt)*rmask_wet(i,j)
+#   endif
+# elif defined MASKING
           stflx(i,j,itemp)=stflx(i,j,itemp)*rmask(i,j)
 #   ifdef EMINUSP
           evap(i,j)=evap(i,j)*rmask(i,j)
@@ -1277,7 +1309,9 @@
 # ifdef RUNOFF
           stflx(i,j,isalt) = stflx(i,j,isalt) -                         &
      &                        cff*runoff(i,j)
-#  ifdef MASKING
+#  ifdef WET_DRY
+          stflx(i,j,isalt)=stflx(i,j,isalt)*rmask_wet(i,j)
+#  elif defined MASKING
           stflx(i,j,isalt)=stflx(i,j,isalt)*rmask(i,j)
 #  endif
 # endif
@@ -1347,7 +1381,9 @@
       DO j=JstrR,JendR
         DO i=Istr,IendR
           sustr(i,j)=cff*(Taux(i-1,j)+Taux(i,j))
-# ifdef MASKING
+# ifdef WET_DRY
+          sustr(i,j)=sustr(i,j)*umask_wet(i,j)
+# elif defined MASKING
           sustr(i,j)=sustr(i,j)*umask(i,j)
 # endif
 # ifdef ICE_MODEL
@@ -1359,7 +1395,9 @@
       DO j=Jstr,JendR
         DO i=IstrR,IendR
           svstr(i,j)=cff*(Tauy(i,j-1)+Tauy(i,j))
-# ifdef MASKING
+# ifdef WET_DRY
+          svstr(i,j)=svstr(i,j)*vmask_wet(i,j)
+# elif defined MASKING
           svstr(i,j)=svstr(i,j)*vmask(i,j)
 # endif
 # ifdef ICE_MODEL

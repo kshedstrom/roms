@@ -186,6 +186,8 @@
 ** BODYFORCE           use if applying stresses as bodyforces                **
 ** PROFILE             use if time profiling                                 **
 ** AVERAGES            use if writing out NLM time-averaged data             **
+** AVERAGES2           use if writing out secondary time-averaged data       **
+** HISTORY2            use if writing out secondary history data             **
 ** AVERAGES_DETIDE     use if writing out NLM time-averaged detided fields   **
 ** AD_AVERAGES         use if writing out ADM time-averaged data             **
 ** RP_AVERAGES         use if writing out TLM time-averaged data             **
@@ -209,6 +211,7 @@
 ** FLOAT_STICKY        use to reflect/stick floats that hit surface/bottom   **
 ** FLOAT_VWALK         use if vertical random walk                           **
 ** VWALK_FORWARD       use if forward time stepping vertical random walk     **
+** DIAPAUSE            use to simulate diapause                              **
 **                                                                           **
 ** OPTION to activate conservative, parabolic spline reconstruction of       **
 ** vertical derivatives. Notice that there also options (see above) for      **
@@ -381,6 +384,7 @@
 **                                                                           **
 ** SSH_TIDES           use if imposing tidal elevation                       **
 ** UV_TIDES            use if imposing tidal currents                        **
+** POT_TIDES           use if imposing potential tides                       **
 ** RAMP_TIDES          use if ramping (over one day) tidal forcing           **
 ** FSOBC_REDUCED       use if SSH data and reduced physics conditions        **
 ** ADD_FSOBC           use to add tidal elevation to processed OBC data      **
@@ -390,10 +394,6 @@
 **                                                                           **
 ** OCLIMATOLOGY        use if processing 3D vertical momentum climatology    **
 ** AKTCLIMATOLOGY      use if processing 3D vertical salinity diffustion     **
-** TCLIMATOLOGY        use if processing tracers climatology                 **
-** BTCLIMATOLOGY       use if processing biological tracers climatology      **
-**                                                                           **
-** BCLM_NUDGING        use if nudging biological tracers climatology         **
 **                                                                           **
 ** ROMS/TOMS driver OPTIONS:                                                 **
 **                                                                           **
@@ -610,6 +610,7 @@
 ** CANYON              Coastal form stress Canyon Test                       **
 ** CHANNEL_NECK        Channel with a Constriction                           **
 ** COUPLING_TEST       Two-way Atmosphere-Ocean Coupling Test                **
+** DOGBONE             Idealize nesting grids (Composite and Refinement) Test**
 ** DOUBLE_GYRE         Idealized Double-gyre Example                         **
 ** ESTUARY_TEST        Test Estuary for Sediment                             **
 ** FLT_TEST            Float Tracking Example                                **

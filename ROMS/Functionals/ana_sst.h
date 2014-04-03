@@ -80,8 +80,8 @@
 !  Set sea surface temperature SST (Celsius).
 !-----------------------------------------------------------------------
 !
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           sst(i,j)=???
         END DO
       END DO

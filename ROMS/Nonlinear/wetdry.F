@@ -105,7 +105,7 @@
 !
       integer :: i, is, j
 
-      real(r8) :: cff
+      real(r8) :: cff, cff1, cff2, cff5, cff6, cff7
       real(r8), parameter :: eps = 1.0E-10_r8
 
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: wetdry
@@ -219,12 +219,22 @@
 !
         DO j=JstrR,JendR
           DO i=Istr,IendR
-            umask_wet(i,j)=1.0_r8
+            cff1=wetdry(i-1,j)+wetdry(i,j)
+            IF (cff1.eq.1.0_r8) THEN
+              cff1=wetdry(i-1,j)-wetdry(i,j)
+            END IF
+            cff5=ABS(ABS(cff1)-1.0_r8)
+            cff6=0.5_r8+DSIGN(0.5_r8,DU_avg1(i,j))*cff1
+            umask_wet(i,j)=0.5_r8*cff1*cff5+cff6*(1.0_r8-cff5)
+!
+!  Additional catch here to stop lone ponds.
+!
             IF (DU_avg1(i,j).eq.0.0_r8) THEN
               IF ((wetdry(i-1,j)+wetdry(i,j)).le.1.0_r8) THEN
                 umask_wet(i,j)=0.0_r8
               END IF
             END IF
+            umask_wet(i,j)=umask_wet(i,j)*umask(i,j)
           END DO
         END DO
 !
@@ -232,16 +242,86 @@
 !
         DO j=Jstr,JendR
           DO i=IstrR,IendR
-            vmask_wet(i,j)=1.0_r8
+            cff1=wetdry(i,j-1)+wetdry(i,j)
+            IF (cff1.eq.1.0_r8) THEN
+              cff1=wetdry(i,j-1)-wetdry(i,j)
+            END IF
+            cff5=ABS(ABS(cff1)-1.0_r8)
+            cff6=0.5_r8+DSIGN(0.5_r8,DV_avg1(i,j))*cff1
+            vmask_wet(i,j)=0.5_r8*cff1*cff5+cff6*(1.0_r8-cff5)
+!
+!  Additional catch here to stop lone ponds.
+!
             IF (DV_avg1(i,j).eq.0.0_r8) THEN
               IF ((wetdry(i,j-1)+wetdry(i,j)).le.1.0_r8) THEN
                 vmask_wet(i,j)=0.0_r8
               END IF
             END IF
+            vmask_wet(i,j)=vmask_wet(i,j)*vmask(i,j)
           END DO
         END DO
       END IF
 # endif
+!
+! Set no-slip boundary conditions on land-mask boundaries regardless of
+! supplied value of gamma2. 
+! 
+      IF (iif(ng).gt.nfast(ng)) THEN
+        cff1=1.0_r8
+        cff2=2.0_r8
+        DO j=Jstr,JendR
+          DO i=Istr,IendR
+            IF ((rmask_wet(i-1,j  ).gt.0.5_r8).and.                     &
+     &          (rmask_wet(i  ,j  ).gt.0.5_r8).and.                     &
+     &          (rmask_wet(i-1,j-1).gt.0.5_r8).and.                     &
+     &          (rmask_wet(i  ,j-1).gt.0.5_r8)) THEN
+              pmask_wet(i,j)=1.0_r8
+            ELSE IF ((rmask_wet(i-1,j  ).lt.0.5_r8).and.                &
+     &               (rmask_wet(i  ,j  ).gt.0.5_r8).and.                &
+     &               (rmask_wet(i-1,j-1).gt.0.5_r8).and.                &
+     &               (rmask_wet(i  ,j-1).gt.0.5_r8)) THEN
+              pmask_wet(i,j)=cff1
+            ELSE IF ((rmask_wet(i-1,j  ).gt.0.5_r8).and.                &
+     &               (rmask_wet(i  ,j  ).lt.0.5_r8).and.                &
+     &               (rmask_wet(i-1,j-1).gt.0.5_r8).and.                &
+     &               (rmask_wet(i  ,j-1).gt.0.5_r8)) THEN
+              pmask_wet(i,j)=cff1
+            ELSE IF ((rmask_wet(i-1,j  ).gt.0.5_r8).and.                &
+     &               (rmask_wet(i  ,j  ).gt.0.5_r8).and.                &
+     &               (rmask_wet(i-1,j-1).lt.0.5_r8).and.                &
+     &               (rmask_wet(i  ,j-1).gt.0.5_r8)) THEN
+              pmask_wet(i,j)=cff1
+            ELSE IF ((rmask_wet(i-1,j  ).gt.0.5_r8).and.                &
+     &               (rmask_wet(i  ,j  ).gt.0.5_r8).and.                &
+     &               (rmask_wet(i-1,j-1).gt.0.5_r8).and.                &
+     &               (rmask_wet(i  ,j-1).lt.0.5_r8)) THEN
+              pmask_wet(i,j)=cff1
+            ELSE IF ((rmask_wet(i-1,j  ).gt.0.5_r8).and.                &
+     &               (rmask_wet(i  ,j  ).lt.0.5_r8).and.                &
+     &               (rmask_wet(i-1,j-1).gt.0.5_r8).and.                &
+     &               (rmask_wet(i  ,j-1).lt.0.5_r8)) THEN
+              pmask_wet(i,j)=cff2
+            ELSE IF ((rmask_wet(i-1,j  ).lt.0.5_r8).and.                &
+     &               (rmask_wet(i  ,j  ).gt.0.5_r8).and.                &
+     &               (rmask_wet(i-1,j-1).lt.0.5_r8).and.                &
+     &               (rmask_wet(i  ,j-1).gt.0.5_r8)) THEN
+              pmask_wet(i,j)=cff2
+            ELSE IF ((rmask_wet(i-1,j  ).gt.0.5_r8).and.                &
+     &               (rmask_wet(i  ,j  ).gt.0.5_r8).and.                &
+     &               (rmask_wet(i-1,j-1).lt.0.5_r8).and.                &
+     &               (rmask_wet(i  ,j-1).lt.0.5_r8)) THEN
+              pmask_wet(i,j)=cff2
+            ELSE IF ((rmask_wet(i-1,j  ).lt.0.5_r8).and.                &
+     &               (rmask_wet(i  ,j  ).lt.0.5_r8).and.                &
+     &               (rmask_wet(i-1,j-1).gt.0.5_r8).and.                &
+     &               (rmask_wet(i  ,j-1).gt.0.5_r8)) THEN
+              pmask_wet(i,j)=cff2
+            ELSE
+              pmask_wet(i,j)=0.0_r8
+            END IF
+          END DO
+        END DO
+      END IF
 !
 !  Exchange boundary data.
 !

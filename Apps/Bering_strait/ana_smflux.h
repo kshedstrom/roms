@@ -139,22 +139,22 @@
       j0 = 97
       rad0 = 100._r8
       windamp = 0.0001_r8
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
 ! Weighting j variations more
           radius = sqrt((i-i0)**2 + 1._r8*(j-j0)**2)
           speed(i,j) = windamp*0.5*radius / rad0 *                      &
      &                  (tanh((radius-rad0)/rad0) - 1.0)
         END DO
       END DO
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
 	  winddir = atan2(1._r8*(j-j0),1._r8*(i-i0))
           sustr(i,j)= speed(i,j)*sin(winddir)
         END DO
       END DO
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
 	  winddir = atan2(1._r8*(j-j0),1._r8*(i-i0))
           svstr(i,j)= -speed(i,j)*cos(winddir)
         END DO
@@ -165,29 +165,35 @@
      &                      - tanh((time(ng) - 4*86400._r8)/43200._r8) )
 !! This is in degrees clockwise from north
       winddir = 120*pi/180._r8
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
-          i0 = max(i-1,IstrR)
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
+          i0 = max(i-1,IstrT)
           sustr(i,j)= windamp*sin(winddir + angler(i,j)) *              &
      &                max(mask2(i,j),mask2(i0,j))
         END DO
       END DO
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
-          j0 = max(j-1,JstrR)
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
+          j0 = max(j-1,JstrT)
           svstr(i,j)= windamp*cos(winddir + angler(i,j)) *              &
      &                max(mask2(i,j),mask2(i,j0))
         END DO
       END DO
 #else
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           sustr(i,j)=0.0
         END DO
       END DO
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           svstr(i,j)=0.0
+!          j0 = max(j-1,JstrT)
+!          svstr(i,j)= windamp*cos(winddir + angler(i,j)) *              &
+!     &                max(mask2(i,j),mask2(i,j0))
+#ifdef TL_IOMS
+          tl_svstr(i,j)=Nwind
+#endif
         END DO
       END DO
 #endif

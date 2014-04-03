@@ -137,24 +137,24 @@
 !-----------------------------------------------------------------------
 !
 #if defined MY_APPLICATION
-      DO j=JstrR,JendR
-        DO i=Istr,IendR
+      DO j=JstrT,JendT
+        DO i=IstrP,IendT
           ubar(i,j,1)=???
         END DO
       END DO
-      DO j=Jstr,JendR
-        DO i=IstrR,IendR
+      DO j=JstrP,JendT
+        DO i=IstrT,IendT
           vbar(i,j,1)=???
         END DO
       END DO
 #else
-      DO j=JstrR,JendR
-        DO i=Istr,IendR
+      DO j=JstrT,JendT
+        DO i=IstrP,IendT
           ubar(i,j,1)=0.0_r8
         END DO
       END DO
-      DO j=Jstr,JendR
-        DO i=IstrR,IendR
+      DO j=JstrP,JendT
+        DO i=IstrT,IendT
           vbar(i,j,1)=0.0_r8
         END DO
       END DO
@@ -165,14 +165,14 @@
 !-----------------------------------------------------------------------
 !
 #if defined MY_APPLICATION
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           zeta(i,j,1)=???
         END DO
       END DO
 #else
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           zeta(i,j,1)=0.0_r8
         END DO
       END DO
@@ -186,26 +186,26 @@
 !
 # if defined MY_APPLICATION
       DO k=1,N(ng)
-       DO j=JstrR,JendR
-         DO i=Istr,IendR
+       DO j=JstrT,JendT
+         DO i=IstrP,IendT
             u(i,j,k,1)=???
           END DO
         END DO
-        DO j=Jstr,JendR
-          DO i=IstrR,IendR
+        DO j=JstrP,JendT
+          DO i=IstrT,IendT
             v(i,j,k,1)=???
           END DO
         END DO
       END DO
 # else
       DO k=1,N(ng)
-       DO j=JstrR,JendR
-         DO i=Istr,IendR
+       DO j=JstrT,JendT
+         DO i=IstrP,IendT
             u(i,j,k,1)=0.0_r8
           END DO
         END DO
-        DO j=Jstr,JendR
-          DO i=IstrR,IendR
+        DO j=JstrP,JendT
+          DO i=IstrT,IendT
             v(i,j,k,1)=0.0_r8
           END DO
         END DO
@@ -222,8 +222,8 @@
 # if defined MEDDY
 ! Linear background
       DO k=1,N(ng)
-        DO j=JstrR,JendR
-          DO i=IstrR,IendR
+        DO j=JstrT,JendT
+          DO i=IstrT,IendT
             val1 = -0.02*z_r(i,j,k)
             t(i,j,k,1,itemp)=val1
             t(i,j,k,1,isalt)=0.0
@@ -231,8 +231,8 @@
         END DO
       END DO
       DO k=1,N(ng)
-        DO j=JstrR,JendR
-            DO i=IstrR,IendR
+        DO j=JstrT,JendT
+            DO i=IstrT,IendT
             val1 = sqrt( ((xr(i,j)-40.e+3_r8)/10000.)**2 + &
      &                   ((yr(i,j)-40.e+3_r8)/10000.)**2 + &
      &                   ((z_r(i,j,k) + 500.)/200.)**2 )
@@ -245,8 +245,8 @@
       END DO
 # else
       DO k=1,N(ng)
-        DO j=JstrR,JendR
-          DO i=IstrR,IendR
+        DO j=JstrT,JendT
+          DO i=IstrT,IendT
             t(i,j,k,1,itemp)=T0(ng)
 #  ifdef SALINITY
             t(i,j,k,1,isalt)=S0(ng)

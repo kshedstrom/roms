@@ -106,8 +106,8 @@
 !
 !  Initialize.
 !
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           wrk(i,j)=0.0_r8
         END DO
       END DO
@@ -124,22 +124,22 @@
       cff3=20.0_r8                            !   width of layer in grid points
 
 ! cff3-point wide linearly tapered nudging zone
-      DO j=JstrR,MIN(INT(cff3),JendR)               ! SOUTH boundary
-        DO i=IstrR,IendR
+      DO j=JstrT,MIN(INT(cff3),JendT)               ! SOUTH boundary
+        DO i=IstrT,IendT
           wrk(i,j)=cff2+(cff3-REAL(j,r8))*(cff1-cff2)/cff3
         END DO
       END DO
 ! cff3-point wide linearly tapered nudging zone
-      DO i=IstrR,MIN(INT(cff3),IendR)                ! WEST boundary
-        DO j=JstrR,JendR
+      DO i=IstrT,MIN(INT(cff3),IendT)                ! WEST boundary
+        DO j=JstrT,JendT
           wrk(i,j)=MAX(wrk(i,j),                                        &
      &             cff2+(cff3-REAL(i,r8))*(cff1-cff2)/cff3)
         END DO
       END DO
 
 ! cff3-point wide linearly tapered nudging zone
-      DO i=MAX(IstrR,Lm(ng)+1-INT(cff3)),IendR       ! EAST boundary
-        DO j=MAX(400,JstrR),JendR
+      DO i=MAX(IstrT,Lm(ng)+1-INT(cff3)),IendT       ! EAST boundary
+        DO j=MAX(400,JstrT),JendT
           wrk(i,j)=MAX(wrk(i,j),                                        &
      &             cff1+REAL(Lm(ng)+1-i,r8)*(cff2-cff1)/cff3)
         END DO
@@ -148,23 +148,23 @@
 ! Set the relevant nudging coefficients using the entries in wrk
 !
 # ifdef ZCLM_NUDGING
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           CLIMA(ng)%Znudgcof(i,j)=wrk(i,j)
         END DO
       END DO
 # endif
 # ifdef M2CLM_NUDGING
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           CLIMA(ng)%M2nudgcof(i,j)=wrk(i,j)
         END DO
       END DO
 # endif
 # ifdef SOLVE3D
 #  ifdef TCLM_NUDGING
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           CLIMA(ng)%Tnudgcof(i,j,itemp)=wrk(i,j)
           CLIMA(ng)%Tnudgcof(i,j,isalt)=wrk(i,j)
 #   ifdef BCLM_NUDGING
@@ -176,8 +176,8 @@
       END DO
 #  endif
 #  ifdef M3CLM_NUDGING
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           CLIMA(ng)%M3nudgcof(i,j)=wrk(i,j)
         END DO
       END DO
@@ -196,30 +196,30 @@
       cff3=30.0_r8                            ! width of layer in grid points
 
 ! cff3-point wide linearly tapered nudging zone
-      DO j=JstrR,MIN(INT(cff3),JendR)                ! SOUTH boundary
-        DO i=IstrR,MIN(700,IendR)
+      DO j=JstrT,MIN(INT(cff3),JendT)                ! SOUTH boundary
+        DO i=IstrT,MIN(700,IendT)
           wrk(i,j)=cff2+(cff3-REAL(j,r8))*(cff1-cff2)/cff3
         END DO
-        DO i=MAX(1000,IstrR),IendR
+        DO i=MAX(1000,IstrT),IendT
           wrk(i,j)=cff2+(cff3-REAL(j,r8))*(cff1-cff2)/cff3
         END DO
       END DO
 ! cff3-point wide linearly tapered nudging zone
-      DO j=MAX(JstrR,Mm(ng)+1-INT(cff3)),JendR       ! NORTH boundary
-        DO i=IstrR,IendR
+      DO j=MAX(JstrT,Mm(ng)+1-INT(cff3)),JendT       ! NORTH boundary
+        DO i=IstrT,IendT
           wrk(i,j)=cff1+REAL(Mm(ng)+1-j,r8)*(cff2-cff1)/cff3
         END DO
       END DO
 ! cff3-point wide linearly tapered nudging zone
-      DO i=IstrR,MIN(INT(cff3),IendR)                ! WEST boundary
-        DO j=JstrR,MIN(285,JendR)
+      DO i=IstrT,MIN(INT(cff3),IendT)                ! WEST boundary
+        DO j=JstrT,MIN(285,JendT)
           wrk(i,j)=MAX(wrk(i,j),                                        &
      &             cff2+(cff3-REAL(i,r8))*(cff1-cff2)/cff3)
         END DO
       END DO
 ! cff3-point wide linearly tapered nudging zone
-      DO i=MAX(IstrR,Lm(ng)+1-INT(cff3)),IendR       ! EAST boundary
-        DO j=JstrR,JendR
+      DO i=MAX(IstrT,Lm(ng)+1-INT(cff3)),IendT       ! EAST boundary
+        DO j=JstrT,JendT
           wrk(i,j)=MAX(wrk(i,j),                                        &
      &             cff1+REAL(Lm(ng)+1-i,r8)*(cff2-cff1)/cff3)
         END DO

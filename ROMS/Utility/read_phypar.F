@@ -25,6 +25,9 @@
 #endif
       USE mod_iounits
       USE mod_ncparam
+#ifdef NESTING
+      USE mod_nesting
+#endif
       USE mod_netcdf
       USE mod_scalars
 #if defined SEDIMENT || defined BBL_MODEL
@@ -45,7 +48,8 @@
 !
 !  Local variable declarations.
 !
-      logical :: find_file, got_Ngrids, obc_data
+      logical :: got_Ngrids, got_NestLayers
+      logical :: find_file, obc_data
       logical :: Lvalue(1)
 #if defined SOLVE3D && defined SEDIMENT
       logical :: LreadNCS = .FALSE.
@@ -68,7 +72,7 @@
       logical, allocatable :: Ldiag(:)
 #endif
 
-      integer :: Npts, Nval, i, itrc, ivar, k, ng, status
+      integer :: Npts, Nval, i, itrc, ivar, k, ng, nl, status
       integer :: ifield, ifile, igrid, itracer, nline, max_Ffiles
       integer :: ibcfile, iclmfile
       integer :: Ivalue(1)
@@ -109,6 +113,7 @@
         label(i:i)=blank
       END DO
       got_Ngrids=.FALSE.
+      got_NestLayers=.FALSE.
 !
 !-----------------------------------------------------------------------
 !  Read in physical model parameters. Then, load input data into module.
@@ -168,6 +173,49 @@
                 allocate ( Nfiles(Ngrids) )
                 Nfiles(1:Ngrids)=0
               END IF
+            CASE ('NestLayers')
+              Npts=load_i(Nval, Rval, 1, Ivalue)
+              NestLayers=Ivalue(1)
+              IF (NestLayers.lt.1) THEN
+                IF (Master) WRITE (out,290) 'NestLayers', NestLayers,   &
+     &            'must be greater or equal than one.'
+                exit_flag=5
+                RETURN
+              END IF
+#ifndef NESTING
+              IF (NestLayers.gt.1) THEN
+                IF (Master) WRITE (out,290) 'NestLayers', NestLayers,   &
+     &            'must be equal to one in non-nesting applications.'
+                exit_flag=5
+                RETURN
+              END IF
+#endif
+              got_NestLayers=.TRUE.
+              IF (.not.allocated(GridsInLayer)) THEN
+                allocate ( GridsInLayer(NestLayers) )
+#ifndef NESTING
+                GridsInLayer(1:NestLayers)=1
+#endif
+              END IF
+              IF (.not.allocated(GridNumber)) THEN
+                allocate ( GridNumber(Ngrids,NestLayers) )
+                GridNumber(1:Ngrids,1:NestLayers)=0        ! Important
+              END IF
+            CASE ('GridsInLayer')
+              IF (.not.got_NestLayers) THEN
+                IF (Master) WRITE (out,320) 'NestLayers',               &
+     &            'Add "NestLayers" keyword before GridsInLayer.'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_i(Nval, Rval, NestLayers, GridsInLayer)
+              ng=0
+              DO nl=1,NestLayers
+                DO i=1,GridsInLayer(nl)
+                  ng=ng+1                  ! order of grids are very in
+                  GridNumber(i,nl)=ng      ! nesting applications. See
+                END DO                     ! WikiROMS for details.
+              END DO
             CASE ('Lm')
               IF (.not.got_Ngrids) THEN
                 IF (Master) WRITE (out,320) 'Ngrids',                   &
@@ -3289,6 +3337,47 @@
                 NGCname(i:i)=blank
               END DO
               NGCname=TRIM(ADJUSTL(Cval(Nval)))
+            CASE ('NBCFILES')
+              Npts=load_i(Nval, Rval, Ngrids, nBCfiles)
+              DO ng=1,Ngrids
+                IF (nBCfiles(ng).le.0) THEN 
+                  IF (Master) WRITE (out,260) 'NBCFILES', nBCfiles(ng), &
+     &                            'Must be equal or greater than one.'
+                  exit_flag=4
+                  RETURN
+                END IF
+              END DO
+              max_Ffiles=MAXVAL(nBCfiles)
+              allocate ( BRY(max_Ffiles,Ngrids) )
+              allocate ( BRYids(max_Ffiles,Ngrids) )
+              allocate ( NBCcount(max_Ffiles,Ngrids) )
+              BRYids(1:max_Ffiles,1:Ngrids)=-1
+              NBCcount(1:max_Ffiles,1:Ngrids)=0
+            CASE ('BRYNAME')
+              label='BRY - lateral open boundary conditions'
+              Npts=load_s2d(Nval, Cval, line, label, ibcfile, igrid,    &
+     &                      max_Ffiles, NBCcount, nBCfiles, BRY)
+            CASE ('NCLMFILES')
+              Npts=load_i(Nval, Rval, Ngrids, nCLMfiles)
+              DO ng=1,Ngrids
+                IF (nCLMfiles(ng).le.0) THEN
+                  IF (Master) WRITE (out,260) 'NCLMFILES',              &
+     &               nCLMfiles(ng),                                     &
+     &              'Must be equal or greater than one.'
+                  exit_flag=4
+                  RETURN
+                END IF
+              END DO
+              max_Ffiles=MAXVAL(nCLMfiles)
+              allocate ( CLM(max_Ffiles,Ngrids) )
+              allocate ( CLMids(max_Ffiles,Ngrids) )
+              allocate ( NCLMcount(max_Ffiles,Ngrids) )
+              CLMids(1:max_Ffiles,1:Ngrids)=-1
+              NCLMcount(1:max_Ffiles,1:Ngrids)=0
+            CASE ('CLMNAME')
+              label='CLM - climatology fields'
+              Npts=load_s2d(Nval, Cval, line, label, iclmfile, igrid,   &
+     &                      max_Ffiles, NCLMcount, nCLMfiles, CLM)
             CASE ('NUDNAME')
               label='NUD - nudging coefficients'
               Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles, NUD)
@@ -3315,47 +3404,6 @@
               label='FRC - forcing fields'
               Npts=load_s2d(Nval, Cval, line, label, ifile, igrid,      &
      &                      nFfiles, Ncount, max_Ffiles, FRC)
-            CASE ('NCLMFILES')
-              Npts=load_i(Nval, Rval, Ngrids, nCLMfiles)
-              DO ng=1,Ngrids
-                IF (nCLMfiles(ng).le.0) THEN
-                  IF (Master) WRITE (out,260) 'NCLMFILES',              &
-     &               nCLMfiles(ng),                                     &
-     &              'Must be equal or greater than one.'
-                  exit_flag=4
-                  RETURN
-                END IF
-              END DO
-              max_Ffiles=MAXVAL(nCLMfiles)
-              allocate ( CLM(max_Ffiles,Ngrids) )
-              allocate ( CLMids(max_Ffiles,Ngrids) )
-              allocate ( NCLMcount(max_Ffiles,Ngrids) )
-              CLMids(1:max_Ffiles,1:Ngrids)=-1
-              NCLMcount(1:max_Ffiles,1:Ngrids)=0
-            CASE ('CLMNAME')
-              label='CLM - climatology fields'
-              Npts=load_s2d(Nval, Cval, line, label, iclmfile, igrid,   &
-     &                      max_Ffiles, NCLMcount, nCLMfiles, CLM)
-            CASE ('NBCFILES')
-              Npts=load_i(Nval, Rval, Ngrids, nBCfiles)
-              DO ng=1,Ngrids
-                IF (nBCfiles(ng).le.0) THEN 
-                  IF (Master) WRITE (out,260) 'NBCFILES', nBCfiles(ng), &
-     &                            'Must be equal or greater than one.'
-                  exit_flag=4
-                  RETURN
-                END IF
-              END DO
-              max_Ffiles=MAXVAL(nBCfiles)
-              allocate ( BRY(max_Ffiles,Ngrids) )
-              allocate ( BRYids(max_Ffiles,Ngrids) )
-              allocate ( NBCcount(max_Ffiles,Ngrids) )
-              BRYids(1:max_Ffiles,1:Ngrids)=-1
-              NBCcount(1:max_Ffiles,1:Ngrids)=0
-            CASE ('BRYNAME')
-              label='BRY - lateral open boundary conditions'
-              Npts=load_s2d(Nval, Cval, line, label, ibcfile, igrid,    &
-     &                      max_Ffiles, NBCcount, nBCfiles, BRY)
             CASE ('APARNAM')
               DO i=1,LEN(aparnam)
                 aparnam(i:i)=blank
@@ -3409,17 +3457,17 @@
 !  for compatability with old "ocean.in" input scripts.
 !
 #ifndef NESTING
-!     IF (.not.got_NestLayers) THEN
-!       NestLayers=1
-!       IF (.not.allocated(GridsInLayer)) THEN
-!         allocate ( GridsInLayer(NestLayers) )
-!       END IF
-!       IF (.not.allocated(GridNumber)) THEN
-!         allocate ( GridNumber(Ngrids,NestLayers) )
-!       END IF
-!     END IF
-!     GridsInLayer=1              ! In case that users set illegal
-!     GridNumber=1                ! values in non-nesting applications
+      IF (.not.got_NestLayers) THEN
+        NestLayers=1
+        IF (.not.allocated(GridsInLayer)) THEN
+          allocate ( GridsInLayer(NestLayers) )
+        END IF
+        IF (.not.allocated(GridNumber)) THEN
+          allocate ( GridNumber(Ngrids,NestLayers) )
+        END IF
+      END IF
+      GridsInLayer=1              ! In case that users set illegal
+      GridNumber=1                ! values in non-nesting applications
 #else
       IF (.not.got_NestLayers) THEN
         IF (Master) THEN
@@ -6126,6 +6174,12 @@
           WRITE (out,230) '               Input Grid File:  ',          &
      &                    TRIM(fname)
 #endif
+#ifdef NESTING
+          fname=NGCname
+          IF (.not.find_file(ng, fname, 'NGCNAME')) GO TO 30
+          WRITE (out,230) 'Nesting grid connectivity File:  ',          &
+     &                    TRIM(fname)
+#endif
 #ifdef INI_FILE
 # ifdef NONLINEAR
           fname=INI(ng)%name
@@ -6185,8 +6239,8 @@
             END DO
           END DO
 #endif
-          IF (CLM_FILE(ng)) THEN
-            DO i=1,nCLMfiles(ng)
+          DO i=1,nCLMfiles(ng)
+            IF (CLM_FILE(ng)) THEN
               DO ifile=1,CLM(i,ng)%Nfiles
                 fname=CLM(i,ng)%files(ifile)
                 IF (.not.find_file(ng, fname, 'CLMNAME')) GO TO 30
@@ -6197,8 +6251,8 @@
                   WRITE (out,'(35x,a)') TRIM(fname)
                 END IF
               END DO
-            END DO
-          END IF
+            END IF
+          END DO
 #ifndef ANA_NUDGCOEF
           IF (LnudgeM2CLM(ng).or.LnudgeM3CLM(ng).or.                    &
      &        (ANY(LnudgeTCLM(:,ng)))) THEN

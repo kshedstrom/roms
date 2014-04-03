@@ -40,6 +40,9 @@
       USE mod_forces, ONLY : allocate_forces, initialize_forces
       USE mod_grid, ONLY : allocate_grid, initialize_grid
       USE mod_mixing, ONLY : allocate_mixing, initialize_mixing
+#ifdef NESTING
+      USE mod_nesting, ONLY : allocate_nesting, initialize_nesting
+#endif
 #if defined ASSIMILATION || defined NUDGING
       USE mod_obs, ONLY : allocate_obs, initialize_obs
 #endif
@@ -156,6 +159,17 @@
 !$OMP END MASTER
 !$OMP BARRIER
         END DO
+#ifdef NESTING
+!
+!  Allocate and initialized contact points boundaty structure. It
+!  needs to be delayed to the end because we need "LBC_apply" to
+!  allocated in "mod_boundary" for all nested grid.
+!
+!$OMP MASTER
+        CALL allocate_nesting
+!$OMP END MASTER
+!$OMP BARRIER
+#endif
       END IF
 !
 !-----------------------------------------------------------------------
@@ -163,6 +177,11 @@
 !-----------------------------------------------------------------------
 !
       DO ng=1,Ngrids
+#ifdef NESTING
+        IF (ng.eq.1) THEN
+          CALL initialize_nesting
+        END IF
+#endif
         DO tile=first_tile(ng),last_tile(ng),+1
 #if defined AVERAGES    || \
    (defined AD_AVERAGES && defined ADJOINT) || \

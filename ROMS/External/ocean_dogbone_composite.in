@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !========================================================= Hernan G. Arango ===
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group                                !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group                                !
 !    Licensed under a MIT/X style license                                     !
 !    See License_ROMS.txt                                                     !
 !==============================================================================
@@ -163,6 +163,19 @@ GridsInLayer =  2
                     Clo     Clo     Clo     Clo \       ! temperature,   Grid 2
                     Clo     Clo     Clo     Clo         ! salinity,      Grid 2
 
+! Ice boundary conditions
+
+   LBC(isAice) ==   Per     Clo     Per     Clo         ! ice concentration
+   LBC(isHice) ==   Per     Clo     Per     Clo         ! ice thickness
+   LBC(isHsno) ==   Per     Clo     Per     Clo         ! snow thickness
+   LBC(isTice) ==   Per     Clo     Per     Clo         ! ice temperature
+   LBC(isSfwat)==   Per     Clo     Per     Clo         ! surface water
+   LBC(isSig11)==   Per     Clo     Per     Clo         ! sigma-11
+   LBC(isSig12)==   Per     Clo     Per     Clo         ! sigma-12
+   LBC(isSig22)==   Per     Clo     Per     Clo         ! sigma-22
+   LBC(isUice) ==   Per     Clo     Per     Clo         ! ice U-momentum
+   LBC(isVice) ==   Per     Clo     Per     Clo         ! ice V-momentum
+
 ! Adjoint-based algorithms can have different lateral boundary
 ! conditions keywords.
 
@@ -224,7 +237,7 @@ ad_VolCons(north) ==  F F                          ! northern boundary
 
        NRREC == 0    0
    LcycleRST == T    T
-        NRST == 30   30
+        NRST == 30   30 
         NSTA == 1    1
         NFLT == 1    1
        NINFO == 1    1
@@ -232,25 +245,25 @@ ad_VolCons(north) ==  F F                          ! northern boundary
 ! Output history, average, diagnostic files parameters.
 
      LDEFOUT == T    T
-        NHIS == 30   30
+        NHIS == 30   30 
      NDEFHIS == 0    0
       NTSAVG == 1    1
-        NAVG == 30   30
+        NAVG == 30   30 
      NDEFAVG == 0    0
       NTSDIA == 1    1
-        NDIA == 30   30
+        NDIA == 30   30 
      NDEFDIA == 0    0
 
 ! Output tangent linear and adjoint models parameters.
 
    LcycleTLM == F    F
-        NTLM == 30   30
+        NTLM == 30   30 
      NDEFTLM == 0    0
    LcycleADJ == F    F
-        NADJ == 30   30
+        NADJ == 30   30 
      NDEFADJ == 0    0
-        NSFF == 30   30
-        NOBC == 30   30
+        NSFF == 30   30 
+        NOBC == 30   30 
 
 ! GST output and check pointing restart parameters.
 
@@ -791,8 +804,11 @@ Dout(iTvdif) == 2*T 2*T ! temp_vdiff, ...    vertical diffusion
 ! line per entry with a vertical bar (|) symbol after each entry,
 ! except the last one.
 
-     BRYNAME == dogbone_bry.nc
+     NCLMFILES == 1                         ! number of climate files
      CLMNAME == dogbone_clm.nc
+
+     NBCFILES == 1                          ! number of boundary files
+     BRYNAME == dogbone_bry.nc
 
 ! Input climatology nudging coefficients file name.
 
@@ -1063,6 +1079,19 @@ Dout(iTvdif) == 2*T 2*T ! temp_vdiff, ...    vertical diffusion
 ! LBC(isVvel) 3D V-momentum, [1:4, Ngrids] values are expected.
 ! LBC(isMtke) Mixing TKE,    [1:4, Ngrids] values are expected.
 ! LBC(isTvar) Tracers,       [1:4, 1:NAT+NPT, Ngrids] values are expected.
+!
+! Ice boundary conditions
+!
+!  LBC(isAice) Ice concentration, [1:4, Ngrids] values are expected.
+!  LBC(isHice) Ice thickness,     [1:4, Ngrids] values are expected.
+!  LBC(isHsno) Snow thickness,    [1:4, Ngrids] values are expected.
+!  LBC(isTice) Ice temperature,   [1:4, Ngrids] values are expected.
+!  LBC(isSfwat)Surface water,     [1:4, Ngrids] values are expected.
+!  LBC(isSig11)Sigma-11,          [1:4, Ngrids] values are expected.
+!  LBC(isSig12)Sigma-12,          [1:4, Ngrids] values are expected.
+!  LBC(isSig22)Sigma-22,          [1:4, Ngrids] values are expected.
+!  LBC(isUice) Ice U-momentum,    [1:4, Ngrids] values are expected.
+!  LBC(isVice) Ice V-momentum,    [1:4, Ngrids] values are expected.
 !
 ! Similarly, the adjoint-based algorithms (ADM, TLM, RPM) can have different
 ! lateral boundary conditions keywords:

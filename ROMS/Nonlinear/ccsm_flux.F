@@ -75,6 +75,11 @@ contains
      &                     GRID(ng) % umask,                            &
      &                     GRID(ng) % vmask,                            &
 # endif
+# ifdef WET_DRY
+     &                     GRID(ng) % rmask_wet,                        &
+     &                     GRID(ng) % umask_wet,                        &
+     &                     GRID(ng) % vmask_wet,                        &
+# endif
      &                     OCEAN(ng) % t,                               &
      &                     OCEAN(ng) % u,                               &
      &                     OCEAN(ng) % v,                               &
@@ -173,6 +178,9 @@ contains
 # ifdef MASKING
      &                           rmask, umask, vmask,                   &
 # endif
+# ifdef WET_DRY
+     &                           rmask_wet, umask_wet, vmask_wet,       &
+# endif
      &                           t, u, v,                               &
      &                           Hair, Pair, Tair, Uwind, Vwind,        &
 # if defined CLOUDS
@@ -270,6 +278,11 @@ contains
       real(r8), intent(in) :: umask(LBi:,LBj:)
       real(r8), intent(in) :: vmask(LBi:,LBj:)
 #  endif
+#  ifdef WET_DRY
+      real(r8), intent(in) :: rmask_wet(LBi:,LBj:)
+      real(r8), intent(in) :: umask_wet(LBi:,LBj:)
+      real(r8), intent(in) :: vmask_wet(LBi:,LBj:)
+#  endif
       real(r8), intent(in) :: t(LBi:,LBj:,:,:,:)
       real(r8), intent(in) :: u(LBi:,LBj:,:,:)
       real(r8), intent(in) :: v(LBi:,LBj:,:,:)
@@ -357,6 +370,11 @@ contains
       real(r8), intent(in) :: rmask(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: umask(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: vmask(LBi:UBi,LBj:UBj)
+#  endif
+#  ifdef WET_DRY
+      real(r8), intent(in) :: rmask_wet(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: umask_wet(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: vmask_wet(LBi:UBi,LBj:UBj)
 #  endif
       real(r8), intent(in) :: t(LBi:UBi,LBj:UBj,N(ng),3,NT(ng))
       real(r8), intent(in) :: u(LBi:UBi,LBj:UBj,N(ng),3)
@@ -1007,7 +1025,13 @@ contains
           END IF
 #  endif
 # endif
-# ifdef MASKING
+# ifdef WET_DRY
+          stflx(i,j,itemp)=stflx(i,j,itemp)*rmask_wet(i,j)
+#   ifdef EMINUSP
+          evap(i,j)=evap(i,j)*rmask_wet(i,j)
+          stflx(i,j,isalt)=stflx(i,j,isalt)*rmask_wet(i,j)
+#   endif
+# elif defined MASKING
           stflx(i,j,itemp)=stflx(i,j,itemp)*rmask(i,j)
 #   ifdef EMINUSP
           evap(i,j)=evap(i,j)*rmask(i,j)
@@ -1017,7 +1041,9 @@ contains
 # ifdef RUNOFF
           stflx(i,j,isalt) = stflx(i,j,isalt) -                         &
      &                        cff*runoff(i,j)
-#  ifdef MASKING
+#  ifdef WET_DRY
+          stflx(i,j,isalt)=stflx(i,j,isalt)*rmask_wet(i,j)
+#  elif defined MASKING
           stflx(i,j,isalt)=stflx(i,j,isalt)*rmask(i,j)
 #  endif
 # endif
@@ -1122,7 +1148,9 @@ contains
       DO j=JstrR,JendR
         DO i=Istr,IendR
           sustr(i,j)=Taux(i,j)*Hscale
-# ifdef MASKING
+# ifdef WET_DRY
+          sustr(i,j)=sustr(i,j)*umask_wet(i,j)
+# elif defined MASKING
           sustr(i,j)=sustr(i,j)*umask(i,j)
 # endif
 # ifdef ICE_MODEL
@@ -1134,7 +1162,9 @@ contains
       DO j=Jstr,JendR
         DO i=IstrR,IendR
           svstr(i,j)=Tauy(i,j)*Hscale
-# ifdef MASKING
+# ifdef WET_DRY
+          svstr(i,j)=svstr(i,j)*vmask_wet(i,j)
+# elif defined MASKING
           svstr(i,j)=svstr(i,j)*vmask(i,j)
 # endif
 # ifdef ICE_MODEL

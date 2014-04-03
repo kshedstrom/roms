@@ -67,25 +67,25 @@
 !
       IF (LBC(iwest,isHice,ng)%acquire.and.                             &
      &    DOMAIN(ng)%Western_Edge(tile)) THEN
-        DO j=JstrR,JendR
+        DO j=JstrT,JendT
           BOUNDARY(ng)%hi_west(j)=0.0_r8
         END DO
       END IF
       IF (LBC(ieast,isHice,ng)%acquire.and.                             &
      &    DOMAIN(ng)%Eastern_Edge(tile)) THEN
-        DO j=JstrR,JendR
+        DO j=JstrT,JendT
           BOUNDARY(ng)%hi_east(j)=0.0_r8
         END DO
       END IF
       IF (LBC(isouth,isHice,ng)%acquire.and.                            &
      &    DOMAIN(ng)%Southern_Edge(tile)) THEN
-        DO i=IstrR,IendR
+        DO i=IstrT,IendT
           BOUNDARY(ng)%hi_south(i)=0.0_r8
         END DO
       END IF
       IF (LBC(inorth,isHice,ng)%acquire.and.                            &
      &    DOMAIN(ng)%Northern_Edge(tile)) THEN
-        DO i=IstrR,IendR
+        DO i=IstrT,IendT
           BOUNDARY(ng)%hi_north(i)=0.0_r8
         END DO
       END IF

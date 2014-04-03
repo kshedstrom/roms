@@ -137,8 +137,8 @@
       kappa = sqrt( (f0**2 - sigma**2)/(grav*depth) )
 
 #if defined CIRCLE
-      DO j=JstrR,JendR
-        DO i=Istr,IendR
+      DO j=JstrT,JendT
+        DO i=IstrP,IendT
 ! u-velocity points
 	  IF (umask(i,j) .gt. 0.5) THEN
             theta = atan2(yu(i,j),xu(i,j))
@@ -159,8 +159,8 @@
           END IF
         END DO
       END DO
-      DO j=Jstr,JendR
-        DO i=IstrR,IendR
+      DO j=JstrP,JendT
+        DO i=IstrT,IendT
 ! v-velocity points
 	  IF (vmask(i,j) .gt. 0.5) THEN
             theta = atan2(yv(i,j),xv(i,j))
@@ -182,13 +182,13 @@
         END DO
       END DO
 #else
-      DO j=JstrR,JendR
-        DO i=Istr,IendR
+      DO j=JstrT,JendT
+        DO i=IstrP,IendT
           ubar(i,j,1)=0.0_r8
         END DO
       END DO
-      DO j=Jstr,JendR
-        DO i=IstrR,IendR
+      DO j=JstrP,JendT
+        DO i=IstrT,IendT
           vbar(i,j,1)=0.0_r8
         END DO
       END DO
@@ -199,8 +199,8 @@
 !-----------------------------------------------------------------------
 !
 #if defined CIRCLE
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
 	  IF (rmask(i,j) .gt. 0.5) THEN
             theta = atan2(yr(i,j),xr(i,j))
             rad = sqrt(xr(i,j)**2 + yr(i,j)**2)
@@ -214,8 +214,8 @@
         END DO
       END DO
 #else
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           zeta(i,j,1)=0.0_r8
         END DO
       END DO

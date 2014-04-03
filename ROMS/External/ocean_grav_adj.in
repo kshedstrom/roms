@@ -79,6 +79,15 @@
 
       Ngrids =  1
 
+! Number of grid nesting layers.  This parameter is used to allow refinement
+! and composite grid combinations.
+
+  NestLayers =  1
+
+! Number of grids in each nesting layer [1:NestLayers].
+
+GridsInLayer =  1
+
 ! Grid dimension parameters. See notes below in the Glossary for how to set
 ! these parameters correctly.
 
@@ -386,9 +395,9 @@ LtracerSponge == F F                            ! temperature, salinity, inert
 
           R0 == 1025.0d0                   ! kg/m3
           T0 == 5.0d0                      ! Celsius
-          S0 == 35.0d0                     ! PSU
+          S0 == 35.0d0                     ! nondimensional
        TCOEF == 9.756d-4                   ! 1/Celsius
-       SCOEF == 0.0d0                      ! 1/PSU
+       SCOEF == 0.0d0                      ! nondimensional
 
 ! Slipperiness parameter: 1.0 (free slip) or -1.0 (no slip)
 
@@ -582,7 +591,7 @@ Hout(idMtls) == F       ! gls                turbulent length scale
 ! idBott( 1=isd50)   grain_diameter          mean grain diameter
 ! idBott( 2=idens)   grain_density           mean grain density
 ! idBott( 3=iwsed)   settling_vel            mean settling velocity
-! idBott( 4=itauc)   erosion_stres           critical erosion stress
+! idBott( 4=itauc)   erosion_stress          critical erosion stress
 ! idBott( 5=irlen)   ripple_length           ripple length
 ! idBott( 6=irhgt)   ripple_height           ripple height
 ! idBott( 7=ibwav)   bed_wave_amp            wave excursion amplitude
@@ -848,7 +857,7 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
 !                be initialized properly in "mod_ncparam.F".
 !
 !------------------------------------------------------------------------------
-! Nested grid parameters.
+! Nested grid parameters (processing order of these parameters is important).
 !------------------------------------------------------------------------------
 !
 ! Ngrids       Number of nested grids. It needs to be read before all other
@@ -1807,9 +1816,15 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
 !
 !              Typical values:     R0 = 1027.0  kg/m3
 !                                  T0 = 10.0    Celsius
-!                                  S0 = 35.0    PSU
+!                                  S0 = 35.0    nondimensional
 !                               TCOEF = 1.7d-4  1/Celsius
-!                               SCOEF = 7.6d-4  1/PSU
+!                               SCOEF = 7.6d-4  1/nondimensional
+!
+!              Notice that salinity has NO UNITS, it is nondimensional. Many
+!              people use PSU (Practical Salinity Unit).  However, salinity
+!              has always been defined as a conductivity ratio and does not
+!              have physical units. For details, check the following forum
+!              post:  www.myroms.org/forum/viewtopic.php?f=30&t=294
 !
 ! R0           Background density value (Kg/m3) used in Linear Equation of
 !                State.

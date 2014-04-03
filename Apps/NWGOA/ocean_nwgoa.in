@@ -209,9 +209,9 @@ ad_VolCons(north) ==  F                            ! northern boundary
 !       NTIMES == 3369600
 !       NTIMES == 864
        NTIMES == 21600
-          DT == 120.0d0
+          DT == 15.0d0
 !          DT == 200.0d0
-     NDTFAST == 20
+     NDTFAST == 10
 
 ! Model iteration loops parameters.
 
@@ -232,7 +232,7 @@ ad_VolCons(north) ==  F                            ! northern boundary
 
        NRREC == 0
    LcycleRST == T
-        NRST == 720
+        NRST == 5760
         NSTA == 30
         NFLT == 30
        NINFO == 1
@@ -240,11 +240,11 @@ ad_VolCons(north) ==  F                            ! northern boundary
 ! Output history, average, diagnostic files parameters.
 
      LDEFOUT == T
-       NHIS == 7200
-    NDEFHIS == 7200
+       NHIS == 72000
+    NDEFHIS == 72000
       NTSAVG == 1
-      NAVG == 720
-   NDEFAVG == 720
+      NAVG == 5760
+   NDEFAVG == 5760
      NTSAVG2 == 1
        NAVG2 == 30
     NDEFAVG2 == 720
@@ -958,8 +958,8 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
                /center/w/kate/MERRA/MERRA_lwrad_down_3hours_1999.nc  |
                /center/w/kate/MERRA/MERRA_lwrad_down_3hours_2000.nc  \
                /center/w/kate/CORE2/sss_fill_2004.nc \
-               /center/w/kate/Arctic2/Files/runoff_NWGOA_daitren_clim.nc \
-               /center/w/kate/Arctic2/Files/NWGOA_tides_otps.nc
+               /center/w/kate/NWGOA/Files/runoff_NWGOA_daitren_clim.nc \
+               /center/w/kate/NWGOA/Files/NWGOA_tides_otps.nc
 
 ! Output NetCDF file names, [1:Ngrids].
 
@@ -979,7 +979,7 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
 ! Input ASCII parameter filenames.
 
      APARNAM =  External/assimilation.in
-     SPOSNAM =  /center/w/kate/NWGOA/External/stations_arctic.in
+     SPOSNAM =  /center/w/kate/NWGOA/External/stations_nwgoa.in
      FPOSNAM =  /center/w/kate/NWGOA/External/floats_arctic.in
      IPARNAM =  /center/w/kate/NWGOA/External/ice.in
      BPARNAM =  /center/w/kate/NWGOA/External/nemuro_iron.in

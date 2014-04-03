@@ -26,12 +26,12 @@
       USE mod_scalars
       USE mod_sources
       USE mod_stepping
-# if defined SSH_TIDES || defined UV_TIDES || defined POT_TIDES
+#if defined SSH_TIDES || defined UV_TIDES || defined POT_TIDES
       USE mod_tides
-# endif
-# if defined M2TIDE_DIFF
+#endif
+#if defined M2TIDE_DIFF
       USE mod_mixing
-# endif
+#endif
 !
       USE nf_fread3d_mod, ONLY : nf_fread3d
 #ifdef SOLVE3D
@@ -88,21 +88,24 @@
 !
       CALL wclock_on (ng, iNLM, 3)
 #endif
-
 #if defined SSH_TIDES || defined UV_TIDES || defined POT_TIDES
 !
 !-----------------------------------------------------------------------
-!  Tide period, amplitude, phase, and currents.
+!  Tide period, amplitude, phase, and currents.  In grid refinement,
+!  only the coarser grid (RefineScale(ng)=0) tidal forcing data is
+!  processed and needed.
 !-----------------------------------------------------------------------
 !
 !  Tidal Period.
 !
-      IF (iic(ng).eq.0) THEN
-        CALL get_ngfld (ng, iNLM, idTper, ncFRCid(idTper,ng),           &
-     &                  nFfiles(ng), FRC(1,ng), update(1),              &
-     &                  1, MTC, 1, 1, 1, NTC(ng), 1,                    &
-     &                  TIDES(ng) % Tperiod)
-        IF (exit_flag.ne.NoError) RETURN
+      IF (.not.(RefinedGrid(ng).and.RefineScale(ng).gt.0)) THEN
+        IF (iic(ng).eq.0) THEN
+          CALL get_ngfld (ng, iNLM, idTper, ncFRCid(idTper,ng),         &
+     &                    nFfiles(ng), FRC(1,ng), update(1),            &
+     &                    1, MTC, 1, 1, 1, NTC(ng), 1,                  &
+     &                    TIDES(ng) % Tperiod)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
       END IF
 #endif
 
@@ -112,10 +115,11 @@
 !  function of tidal period, we need to reset the model time variables
 !  temporarily.
 !
-      IF (iic(ng).eq.0) THEN
-        time_save=time(ng)
-        time(ng)=8640000.0_r8
-        tdays(ng)=time(ng)*sec2day
+      IF (.not.(RefinedGrid(ng).and.RefineScale(ng).gt.0)) THEN
+        IF (iic(ng).eq.0) THEN
+          time_save=time(ng)
+          time(ng)=8640000.0_r8
+          tdays(ng)=time(ng)*sec2day
 
           CALL get_2dfld (ng, iNLM, idTzam, ncFRCid(idTzam,ng),         &
      &                    nFfiles(ng), FRC(1,ng), update(1),            &
@@ -135,8 +139,9 @@
      &                    TIDES(ng) % SSH_Tphase)
           IF (exit_flag.ne.NoError) RETURN
 
-        time(ng)=time_save
-        tdays(ng)=time(ng)*sec2day
+          time(ng)=time_save
+          tdays(ng)=time(ng)*sec2day
+        END IF
       END IF
 #endif
 
@@ -144,10 +149,11 @@
 !
 !  Tidal currents angle, phase, major and minor ellipse axis.
 !
-      IF (iic(ng).eq.0) THEN
-        time_save=time(ng)
-        time(ng)=8640000.0_r8
-        tdays(ng)=time(ng)*sec2day
+      IF (.not.(RefinedGrid(ng).and.RefineScale(ng).gt.0)) THEN
+        IF (iic(ng).eq.0) THEN
+          time_save=time(ng)
+          time(ng)=8640000.0_r8
+          tdays(ng)=time(ng)*sec2day
 
           CALL get_2dfld (ng, iNLM, idTvan, ncFRCid(idTvan,ng),         &
      &                    nFfiles(ng), FRC(1,ng), update(1),            &
@@ -185,12 +191,13 @@
      &                    TIDES(ng) % UV_Tminor)
           IF (exit_flag.ne.NoError) RETURN
 
-        time(ng)=time_save
-        tdays(ng)=time(ng)*sec2day
+          time(ng)=time_save
+          tdays(ng)=time(ng)*sec2day
+        END IF
       END IF
-# endif
+#endif
 
-# ifdef M2TIDE_DIFF
+#ifdef M2TIDE_DIFF
 !
 !  Tidal velocity amplitude, M2 only.
 !
@@ -468,30 +475,32 @@
 !  function of tidal period, we need to reset the model time variables
 !  temporarily.
 !
-      IF (iic(ng).eq.0) THEN
-        time_save=time(ng)
-        time(ng)=8640000.0_r8
-        tdays(ng)=time(ng)*sec2day
-        CALL get_2dfld (ng, iNLM, idTpam, ncFRCid(idTpam,ng),           &
-     &                  nFfiles(ng), FRC(1,ng), update(1),              &
-     &                  LBi, UBi, LBj, UBj, MTC, NTC(ng),               &
+      IF (.not.(RefinedGrid(ng).and.RefineScale(ng).gt.0)) THEN
+        IF (iic(ng).eq.0) THEN
+          time_save=time(ng)
+          time(ng)=8640000.0_r8
+          tdays(ng)=time(ng)*sec2day
+          CALL get_2dfld (ng, iNLM, idTpam, ncFRCid(idTpam,ng),         &
+     &                    nFfiles(ng), FRC(1,ng), update(1),            &
+     &                    LBi, UBi, LBj, UBj, MTC, NTC(ng),             &
 #  ifdef MASKING
-     &                  GRID(ng) % rmask,                               &
+     &                    GRID(ng) % rmask,                             &
 #  endif
-     &                  TIDES(ng) % POT_Tamp)
-        IF (exit_flag.ne.NoError) RETURN
+     &                    TIDES(ng) % POT_Tamp)
+          IF (exit_flag.ne.NoError) RETURN
 
-        CALL get_2dfld (ng, iNLM, idTpph, ncFRCid(idTpph,ng),           &
-     &                  nFfiles(ng), FRC(1,ng), update(1),              &
-     &                  LBi, UBi, LBj, UBj, MTC, NTC(ng),               &
+          CALL get_2dfld (ng, iNLM, idTpph, ncFRCid(idTpph,ng),         &
+     &                    nFfiles(ng), FRC(1,ng), update(1),            &
+     &                    LBi, UBi, LBj, UBj, MTC, NTC(ng),             &
 #  ifdef MASKING
-     &                  GRID(ng) % rmask,                               &
+     &                    GRID(ng) % rmask,                             &
 #  endif
-     &                  TIDES(ng) % POT_Tphase)
-        IF (exit_flag.ne.NoError) RETURN
+     &                    TIDES(ng) % POT_Tphase)
+          IF (exit_flag.ne.NoError) RETURN
 
-        time(ng)=time_save
-        tdays(ng)=time(ng)*sec2day
+          time(ng)=time_save
+          tdays(ng)=time(ng)*sec2day
+        END IF
       END IF
 # endif
 #endif

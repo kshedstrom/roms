@@ -448,11 +448,12 @@
         RST(ng)%Rindex=0
         Fcount=RST(ng)%Fcount
         RST(ng)%Nrec(Fcount)=0
-!$OMP PARALLEL
-        CALL initial (ng)
-!$OMP END PARALLEL
-        IF (exit_flag.ne.NoError) RETURN
       END DO
+
+!$OMP PARALLEL
+      CALL initial
+!$OMP END PARALLEL
+      IF (exit_flag.ne.NoError) RETURN
 
 #if defined BALANCE_OPERATOR && defined ZETA_ELLIPTIC
 !
@@ -640,11 +641,12 @@
         INI(ng)%Rindex=Lbck
         Fcount=RST(ng)%Fcount
         RST(ng)%Nrec(Fcount)=0
-!$OMP PARALLEL
-        CALL initial (ng)
-!$OMP END PARALLEL
-        IF (exit_flag.ne.NoError) RETURN
       END DO
+
+!$OMP PARALLEL
+      CALL initial
+!$OMP END PARALLEL
+      IF (exit_flag.ne.NoError) RETURN
 !
 !  Run nonlinear model for the combined assimilation plus forecast
 !  period, t=t0 to t2. Save nonlinear (basic state) tracjectory, xb(t),

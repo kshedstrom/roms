@@ -155,6 +155,7 @@
 !
       foundit=.FALSE.
       QUERY: DO ifile=1,nfiles
+!! Not sure if this is needed
         Fcount=S(ifile)%Fcount
         Fname=S(ifile)%name
 !

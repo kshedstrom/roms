@@ -125,6 +125,7 @@
 #  endif
 # endif
 #endif
+
 !
 !-----------------------------------------------------------------------
 !  Time stepping indices, variables, and clocks.
@@ -167,7 +168,6 @@
 !    time_ref      Reference time for "units" attribute (YYYYMMDD.dd).
 !    r_text        Model initialization reference text (string).
 !
-
         logical, allocatable :: PerfectRST(:)
         logical, allocatable :: PREDICTOR_2D_STEP(:)
 !$OMP THREADPRIVATE (PREDICTOR_2D_STEP)
@@ -180,10 +180,12 @@
         integer, allocatable :: ndtfast(:)
         integer, allocatable :: nfast(:)
 
-        real(r8), allocatable :: dt(:)                   ! seconds
-        real(r8), allocatable :: dtfast(:)               ! seconds
         real(r8), allocatable :: tdays(:)                ! days
         real(r8), allocatable :: time(:)                 ! seconds
+!$OMP THREADPRIVATE (tdays, time)
+
+        real(r8), allocatable :: dt(:)                   ! seconds
+        real(r8), allocatable :: dtfast(:)               ! seconds
 
         real(r8), allocatable :: TimeEnd(:)              ! seconds
         real(r8), allocatable :: AVGtime(:)              ! seconds
@@ -208,6 +210,8 @@
         real(r8) :: days_year = 365.25_r8                 ! days per year
 
         character (len=14), allocatable :: time_code(:)  ! DD HH:MM:SS
+!$OMP THREADPRIVATE (time_code)
+
         character (len=19) :: r_text
 
 #if defined POWER_LAW && defined SOLVE3D
@@ -371,7 +375,7 @@
 !
 !  Composite grid a refined grids switches. They are .FALSE. by default.
 !
-        logical, allocatable :: ComposedGrid(:)
+        logical, allocatable :: CompositeGrid(:,:)
         logical, allocatable :: RefinedGrid(:)
 !
 !  Refinement grid scale factor from donor grid.
@@ -975,6 +979,7 @@
 !  applications.
 !
         logical, allocatable :: synchro_flag(:)
+!$OMP THREADPRIVATE (synchro_flag)
 !
 !  Switch to inialize model with latest time record from initial
 !  (restart/history) NetCDF file.
@@ -1693,7 +1698,6 @@
       integer :: ng
 
       real(r8), parameter :: IniVal = 0.0_r8
-
 !
 !-----------------------------------------------------------------------
 !  Allocate and initialize variables in module structure.
@@ -1816,8 +1820,10 @@
       allocate ( Lsediment(Ngrids) )
       allocate ( Lstations(Ngrids) )
 
-      allocate ( ComposedGrid(Ngrids) )
+      allocate ( CompositeGrid(4,Ngrids) )
       allocate ( RefinedGrid(Ngrids) )
+      allocate ( RefineScale(Ngrids) )
+      allocate ( GetDonorData(Ngrids) )
 
       allocate ( EWperiodic(Ngrids) )
       allocate ( NSperiodic(Ngrids) )
@@ -2316,8 +2322,9 @@
 !
       DO ng=1,Ngrids
         LastRec(ng)=.FALSE.
-        ComposedGrid(ng)=.FALSE.
+        CompositeGrid(1:4,ng)=.FALSE.
         RefinedGrid(ng)=.FALSE.
+        GetDonorData(ng)=.FALSE.
         Lbiology(ng)=.TRUE.
         LcycleADJ(ng)=.FALSE.
         LcycleRST(ng)=.FALSE.
@@ -2382,7 +2389,7 @@
         NSperiodic(ng)=.FALSE.
         NudgingCoeff(ng)=.FALSE.
         ObcData(ng)=.FALSE.
-!       RefineScale(ng)=0
+        RefineScale(ng)=0
         gamma2(ng)=-1.0_r8
         Vtransform(ng)=1
         Vstretching(ng)=1

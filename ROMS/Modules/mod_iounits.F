@@ -249,7 +249,6 @@
       allocate ( nBCfiles(Ngrids) )
       allocate ( nCLMfiles(Ngrids) )
       allocate ( nFfiles(Ngrids) )
-
 !
 !-----------------------------------------------------------------------
 !  Initialize file names to blanks.
@@ -264,6 +263,7 @@
         bparnam(i:i)=blank
         fbionam(i:i)=blank
         fposnam(i:i)=blank
+        iparnam(i:i)=blank
         sparnam(i:i)=blank
         sposnam(i:i)=blank
       END DO

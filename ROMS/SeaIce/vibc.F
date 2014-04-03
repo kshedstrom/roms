@@ -87,13 +87,13 @@
 !
 !  Western edge, implicit upstream radiation condition.
 !
-          DO j=JstrV-1,Jend
+          DO j=JstrP-1,Jend
             grad(Istr-1,j)=vi(Istr-1,j+1,know)-                         &
      &                     vi(Istr-1,j  ,know)
             grad(Istr  ,j)=vi(Istr  ,j+1,know)-                         &
      &                     vi(Istr  ,j  ,know)
           END DO
-          DO j=JstrV,Jend
+          DO j=JstrP,Jend
             dVdt=vi(Istr,j,know)-vi(Istr  ,j,liunw)
             dVdx=vi(Istr,j,liunw)-vi(Istr+1,j,liunw)
             IF (LBC(iwest,isVice,ng)%nudging) THEN
@@ -136,7 +136,7 @@
 !  Western edge, clamped boundary condition.
 !
         ELSE IF (LBC(iwest,isVice,ng)%clamped) THEN
-          DO j=JstrV,Jend
+          DO j=JstrP,Jend
             vi(0,j,liunw)=BOUNDARY(ng)%vi_west(j)
 # ifdef MASKING
             vi(0,j,liunw)=vi(0,j,liunw)*                                &
@@ -151,7 +151,7 @@
 !  Western edge, gradient boundary condition.
 !
         ELSE IF (LBC(iwest,isVice,ng)%gradient) THEN
-          DO j=JstrV,Jend
+          DO j=JstrP,Jend
             vi(0,j,liunw)=vi(1,j,liunw)
 # ifdef MASKING
             vi(0,j,liunw)=vi(0,j,liunw)*                                &
@@ -168,11 +168,11 @@
 !
         ELSE IF (LBC(iwest,isVice,ng)%closed) THEN
           IF (NSperiodic(ng)) THEN
-            Jmin=JstrV
+            Jmin=JstrP
             Jmax=Jend
           ELSE
             Jmin=Jstr
-            Jmax=JendR
+            Jmax=JendT
           END IF
           DO j=Jmin,Jmax
             vi(0,j,liunw)=gamma2(ng)*vi(0,j,liunw)
@@ -197,13 +197,13 @@
 !
 !  Eastern edge, implicit upstream radiation condition.
 !
-          DO j=JstrV-1,Jend
+          DO j=JstrP-1,Jend
             grad(Iend  ,j)=vi(Iend  ,j+1,know)-                         &
      &                     vi(Iend  ,j  ,know)
             grad(Iend+1,j)=vi(Iend+1,j+1,know)-                         &
      &                   vi(Iend+1,j  ,know)
           END DO
-          DO j=JstrV,Jend
+          DO j=JstrP,Jend
             dVdt=vi(Iend,j,know)-vi(Iend  ,j,liunw)
             dVdx=vi(Iend,j,liunw)-vi(Iend-1,j,liunw)
             IF (LBC(ieast,isVice,ng)%nudging) THEN
@@ -246,7 +246,7 @@
 !  Eastern edge, clamped boundary condition.
 !
         ELSE IF (LBC(ieast,isVice,ng)%clamped) THEN
-          DO j=JstrV,Jend
+          DO j=JstrP,Jend
             vi(Lm(ng)+1,j,liunw)=BOUNDARY(ng)%vi_east(j)
 # ifdef MASKING
             vi(Lm(ng)+1,j,liunw)=vi(Lm(ng)+1,j,liunw)*                  &
@@ -261,7 +261,7 @@
 !  Eastern edge, gradient boundary condition.
 !
         ELSE IF (LBC(ieast,isVice,ng)%gradient) THEN
-          DO j=JstrV,Jend
+          DO j=JstrP,Jend
             vi(Lm(ng)+1,j,liunw)=vi(Lm(ng),j,liunw)
 # ifdef MASKING
             vi(Lm(ng)+1,j,liunw)=vi(Lm(ng)+1,j,liunw)*                  &
@@ -278,11 +278,11 @@
 !
         ELSE IF (LBC(ieast,isVice,ng)%closed) THEN
           IF (NSperiodic(ng)) THEN
-            Jmin=JstrV
+            Jmin=JstrP
             Jmax=Jend
           ELSE
             Jmin=Jstr
-            Jmax=JendR
+            Jmax=JendT
           END IF
           DO j=Jmin,Jmax
             vi(Lm(ng)+1,j,liunw)=gamma2(ng)*vi(Lm(ng),j,liunw)

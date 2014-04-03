@@ -103,8 +103,8 @@
 !
 !  Initialize.
 !
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           wrk(i,j)=0.0_r8
         END DO
       END DO
@@ -113,36 +113,36 @@
       cff1=1.0_r8/(5.0_r8*86400.0_r8)
       cff2=0.0_r8
       Iwrk=10
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
          wrk(i,j) = cff2
         END DO
       END DO
 
-      DO j=JstrR,JendR
+      DO j=JstrT,JendT
 ! East
         IF(j.GT.250.AND.j.LT.450) THEN
-          DO i=MAX(IstrR,Lm(ng)+1-Iwrk),MIN(Lm(ng)+1,IendR)
+          DO i=MAX(IstrT,Lm(ng)+1-Iwrk),MIN(Lm(ng)+1,IendT)
             wrk(i,j)=cff1*(1.0_r8+COS(pi*REAL(i,r8)/REAL(Iwrk,r8)))
           END DO
         ENDIF
 ! West
-!        DO i=MAX(IstrR,Lm(ng)+1-Iwrk),IendR
+!        DO i=MAX(IstrT,Lm(ng)+1-Iwrk),IendT
 !          wrk(i,j)=cff1*(1.0_r8+COS(pi*REAL(Lm(ng)+1-i,r8)/            &
 !     &                                 REAL(Iwrk,r8)))
 !        END DO
       END DO
 ! North
-      DO j=MAX(JstrR,Mm(ng)+1-Iwrk),MIN(Mm(ng)+1,JendR)
-        DO i=MAX(IstrR,Mm(ng)+1-j),MIN(Lm(ng)+1-Mm(ng)+1+j,IendR)
+      DO j=MAX(JstrT,Mm(ng)+1-Iwrk),MIN(Mm(ng)+1,JendT)
+        DO i=MAX(IstrT,Mm(ng)+1-j),MIN(Lm(ng)+1-Mm(ng)+1+j,IendT)
           wrk(i,j)=MAX(wrk(i,j),                                        &
      &             cff1*(1.0_r8+COS(pi*REAL(Mm(ng)+1-j,r8)/             &
      &                                 REAL(Iwrk,r8))))
         END DO
       END DO
 ! South
-      DO j=JstrR,MIN(Iwrk,JendR)
-        DO i=IstR,IendR
+      DO j=JstrT,MIN(Iwrk,JendT)
+        DO i=IstR,IendT
           wrk(i,j)=MAX(wrk(i,j),                                        &
      &           cff1*(1.0_r8+COS(pi*REAL(j,r8)/REAL(Iwrk,r8))))
         END DO

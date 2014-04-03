@@ -62,6 +62,10 @@
      &                  GRID(ng) % umask,                               &
      &                  GRID(ng) % vmask,                               &
 #endif
+#ifdef WET_DRY
+     &                  GRID(ng) % umask_wet,                           &
+     &                  GRID(ng) % vmask_wet,                           &
+#endif
      &                  GRID(ng) % om_v,                                &
      &                  GRID(ng) % on_u,                                &
      &                  GRID(ng) % Hz,                                  &
@@ -97,6 +101,9 @@
 #ifdef MASKING
      &                        umask, vmask,                             &
 #endif
+#ifdef WET_DRY
+     &                        umask_wet, vmask_wet,                     &
+#endif
      &                        om_v, on_u,                               &
      &                        Hz, z_r, z_w,                             &
 # ifdef ICESHELF
@@ -130,6 +137,10 @@
       real(r8), intent(in) :: umask(LBi:,LBj:)
       real(r8), intent(in) :: vmask(LBi:,LBj:)
 # endif
+# ifdef WET_DRY
+      real(r8), intent(in) :: umask_wet(LBi:,LBj:)
+      real(r8), intent(in) :: vmask_wet(LBi:,LBj:)
+# endif
       real(r8), intent(in) :: om_v(LBi:,LBj:)
       real(r8), intent(in) :: on_u(LBi:,LBj:)
       real(r8), intent(in) :: Hz(LBi:,LBj:,:)
@@ -156,6 +167,10 @@
 # ifdef MASKING
       real(r8), intent(in) :: umask(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: vmask(LBi:UBi,LBj:UBj)
+# endif
+# ifdef WET_DRY
+      real(r8), intent(in) :: umask_wet(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: vmask_wet(LBi:UBi,LBj:UBj)
 # endif
       real(r8), intent(in) :: om_v(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: on_u(LBi:UBi,LBj:UBj)
@@ -256,11 +271,11 @@
      &                 (z_w(i,j,N(ng))-z_r(i,j,N(ng)))
 #else
           P(i,j,N(ng))=GRho0*z_w(i,j,N(ng))+                            &
+#ifdef ATM_PRESS
+     &                 fac*(Pair(i,j)-OneAtm)+                          &
+#endif
      &                 GRho*(rho(i,j,N(ng))+cff2)*                      &
      &                 (z_w(i,j,N(ng))-z_r(i,j,N(ng)))
-#endif
-#ifdef ATM_PRESS
-	  P(i,j,N(ng)) = P(i,j,N(ng) + fac*(Pair(i,j)-OneAtm)
 #endif
 #ifdef POT_TIDES
           P(i,j,N(ng)) = P(i,j,N(ng)) - g*Ptide(i,j)
@@ -338,6 +353,9 @@
      &                         (rho(i,j,k)-rho(i-1,j,k)-                &
      &                          OneTwelfth*                             &
      &                          (dRx(i,j)+dRx(i-1,j))))))
+#ifdef WET_DRY
+            ru(i,j,k,nrhs)=ru(i,j,k,nrhs)*umask_wet(i,j)
+#endif
 #ifdef DIAGNOSTICS_UV
             DiaRU(i,j,k,nrhs,M3pgrd)=ru(i,j,k,nrhs)
 #endif
@@ -399,6 +417,9 @@
      &                         (rho(i,j,k)-rho(i,j-1,k)-                &
      &                          OneTwelfth*                             &
      &                          (dRx(i,j)+dRx(i,j-1))))))
+#ifdef WET_DRY
+            rv(i,j,k,nrhs)=rv(i,j,k,nrhs)*vmask_wet(i,j)
+#endif
 #ifdef DIAGNOSTICS_UV
             DiaRV(i,j,k,nrhs,M3pgrd)=rv(i,j,k,nrhs)
 #endif

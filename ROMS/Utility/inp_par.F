@@ -143,6 +143,14 @@
       CALL mp_bcasti (1, model, exit_flag)
 #endif
       IF (exit_flag.ne.NoError) RETURN
+#ifdef NESTING
+!
+!  Read in nesting contact points NetCDF file and allocate and
+!  initialize several structures and variables.
+!
+      CALL set_contact (1, model)
+      IF (exit_flag.ne.NoError) RETURN
+#endif
 !
 !-----------------------------------------------------------------------
 !  Set lower and upper bounds indices per domain partition for all
@@ -156,7 +164,7 @@
 #else
       NghostPoints=2
 #endif
-      IF (ANY(ComposedGrid).or.ANY(RefinedGrid)) THEN
+      IF (ANY(CompositeGrid).or.ANY(RefinedGrid)) THEN
         NghostPoints=MAX(3,NghostPoints)
       END IF
 !
@@ -1728,10 +1736,10 @@
               S(ibry,ifield,igrid)%acquire = .TRUE.
               S(ibry,isFsur,igrid)%acquire = .TRUE.
             CASE ('GRA')
-              S(ibry,ifield,igrid)%gradient  = .TRUE.
+              S(ibry,ifield,igrid)%gradient = .TRUE.
             CASE ('MIX')
-              S(ibry,ifield,igrid)%mixed     = .TRUE.
-              S(ibry,ifield,igrid)%acquire   = .TRUE.
+              S(ibry,ifield,igrid)%mixed   = .TRUE.
+              S(ibry,ifield,igrid)%acquire = .TRUE.
             CASE ('NES')
               S(ibry,ifield,igrid)%nested = .TRUE.
             CASE ('PER')
@@ -2158,12 +2166,6 @@
 !  to separate multi-string values for split input files. User may
 !  split the records for a particular input field into several files.
 !
-!     IF (Master) THEN
-!       print *, 'In load_s2d'
-!       print *, line
-!       print *, label
-!       print *, 'Numbers:', idim, Nfiles, igrid
-!     END IF
       Icont=INDEX(TRIM(line),CHAR(92) ,BACK=.FALSE.)
       Ipipe=INDEX(TRIM(line),CHAR(124),BACK=.FALSE.)
       IF ((Icont.eq.0).and.(Ipipe.eq.0)) THEN

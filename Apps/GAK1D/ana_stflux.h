@@ -112,14 +112,14 @@
         CALL caldate (r_date, tdays(ng), year, yday, month, iday, hour)
         cff = -125.0_r8 * COS( (yday-24.5_r8) * 2.4_r8  * pi / 360._r8) &
      &         / (rho0*Cp)
-        DO j=JstrR,JendR
-          DO i=IstrR,IendR
+        DO j=JstrT,JendT
+          DO i=IstrT,IendT
             stflx(i,j,itrc)=cff
           END DO
         END DO
 #else
-        DO j=JstrR,JendR
-          DO i=IstrR,IendR
+        DO j=JstrT,JendT
+          DO i=IstrT,IendT
 # ifdef BL_TEST
             stflx(i,j,itrc)=srflx(i,j)
 #  ifdef TL_IOMS
@@ -146,14 +146,14 @@
         CALL caldate (r_date, tdays(ng), year, yday, month, iday, hour)
         cff = ( -0.025_r8 + 0.025_r8 * &
      &    COS( (yday-61._r8) * 2.0_r8 * pi / 360._r8 ) ) / 86400.0_r8
-        DO j=JstrR,JendR
-          DO i=IstrR,IendR
+        DO j=JstrT,JendT
+          DO i=IstrT,IendT
             stflx(i,j,itrc) = cff
           END DO
         END DO
 #else
-        DO j=JstrR,JendR
-          DO i=IstrR,IendR
+        DO j=JstrT,JendT
+          DO i=IstrT,IendT
             stflx(i,j,itrc)=0.0_r8
 # ifdef TL_IOMS
             tl_stflx(i,j,itrc)=0.0_r8
@@ -167,8 +167,8 @@
 !-----------------------------------------------------------------------
 !
       ELSE
-        DO j=JstrR,JendR
-          DO i=IstrR,IendR
+        DO j=JstrT,JendT
+          DO i=IstrT,IendT
             stflx(i,j,itrc)=0.0_r8
 #ifdef TL_IOMS
             tl_stflx(i,j,itrc)=0.0_r8

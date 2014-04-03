@@ -276,13 +276,13 @@
 !
 !  Southern edge, implicit upstream radiation condition.
 !
-          DO i=IstrU-1,Iend
+          DO i=IstrP-1,Iend
             grad(i,Jstr-1)=ui(i+1,Jstr-1,know)-                         &
      &                     ui(i  ,Jstr-1,know)
             grad(i,Jstr  )=ui(i+1,Jstr  ,know)-                         &
      &                     ui(i  ,Jstr  ,know)
           END DO
-          DO i=IstrU,Iend
+          DO i=IstrP,Iend
             dUdt=ui(i,Jstr,know)-ui(i,Jstr  ,liunw)
             dUde=ui(i,Jstr,liunw)-ui(i,Jstr+1,liunw)
             IF (LBC(isouth,isUice,ng)%nudging) THEN
@@ -325,7 +325,7 @@
 !  Southern edge, clamped boundary condition.
 !
         ELSE IF (LBC(isouth,isUice,ng)%clamped) THEN
-          DO i=IstrU,Iend
+          DO i=IstrP,Iend
             ui(i,0,liunw)=BOUNDARY(ng)%ui_south(i)
 # ifdef MASKING
             ui(i,0,liunw)=ui(i,0,liunw)*                                &
@@ -340,7 +340,7 @@
 !  Southern edge, gradient boundary condition.
 !
         ELSE IF (LBC(isouth,isUice,ng)%gradient) THEN
-          DO i=IstrU,Iend
+          DO i=IstrP,Iend
             ui(i,0,liunw)=ui(i,1,liunw)
 # ifdef MASKING
             ui(i,0,liunw)=ui(i,0,liunw)*                                &
@@ -357,11 +357,11 @@
 !
         ELSE IF (LBC(isouth,isUice,ng)%closed) THEN
           IF (EWperiodic(ng)) THEN
-            Imin=IstrU
+            Imin=IstrP
             Imax=Iend
           ELSE
             Imin=Istr
-            Imax=IendR
+            Imax=IendT
           END IF
           DO i=Imin,Imax
             ui(i,0,liunw)=gamma2(ng)*ui(i,1,liunw)
@@ -386,13 +386,13 @@
 !
 !  Northern edge, implicit upstream radiation condition.
 !
-          DO i=IstrU-1,Iend
+          DO i=IstrP-1,Iend
             grad(i,Jend  )=ui(i+1,Jend  ,know)-                         &
      &                     ui(i  ,Jend  ,know)
             grad(i,Jend+1)=ui(i+1,Jend+1,know)-                         &
      &                     ui(i  ,Jend+1,know)
           END DO
-          DO i=IstrU,Iend
+          DO i=IstrP,Iend
             dUdt=ui(i,Jend,know)-ui(i,Jend  ,liunw)
             dUde=ui(i,Jend,liunw)-ui(i,Jend-1,liunw)
             IF (LBC(inorth,isUice,ng)%nudging) THEN
@@ -436,7 +436,7 @@
 !  Northern edge, clamped boundary condition.
 !
         ELSE IF (LBC(inorth,isUice,ng)%clamped) THEN
-          DO i=IstrU,Iend
+          DO i=IstrP,Iend
             ui(i,Mm(ng)+1,liunw)=BOUNDARY(ng)%ui_north(i)
 # ifdef MASKING
             ui(i,Mm(ng)+1,liunw)=ui(i,Mm(ng)+1,liunw)*                  &
@@ -451,7 +451,7 @@
 !  Northern edge, gradient boundary condition.
 !
         ELSE IF (LBC(inorth,isUice,ng)%gradient) THEN
-          DO i=IstrU,Iend
+          DO i=IstrP,Iend
             ui(i,Mm(ng)+1,liunw)=ui(i,Mm(ng),liunw)
 # ifdef MASKING
             ui(i,Mm(ng)+1,liunw)=ui(i,Mm(ng)+1,liunw)*                  &
@@ -468,11 +468,11 @@
 !
         ELSE IF (LBC(inorth,isUice,ng)%closed) THEN
           IF (EWperiodic(ng)) THEN
-            Imin=IstrU
+            Imin=IstrP
             Imax=Iend
           ELSE
             Imin=Istr
-            Imax=IendR
+            Imax=IendT
           END IF
           DO i=Imin,Imax
             ui(i,Mm(ng)+1,liunw)=gamma2(ng)*ui(i,Mm(ng),liunw)

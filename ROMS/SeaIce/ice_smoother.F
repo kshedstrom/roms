@@ -3,7 +3,7 @@
 #if defined ICE_THERMO && defined ICE_SMOOTH
 !
 !============================================== W. Paul Budgell =======!
-!  Copyright (c) 2002 ROMS/TOMS Group                                  !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
 !============================================== Hernan G. Arango ======!
 !                                                                      !
 !  Smooth the stflx field using a low-order Shapiro filter.            !

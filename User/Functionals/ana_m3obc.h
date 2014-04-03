@@ -73,10 +73,10 @@
      &    LBC(ieast,isVvel,ng)%acquire.and.                             &
      &    DOMAIN(ng)%Eastern_Edge(tile)) THEN
         DO k=1,N(ng)
-          DO j=JstrR,JendR
+          DO j=JstrT,JendT
             BOUNDARY(ng)%u_east(j,k)=???
           END DO
-          DO j=Jstr,JendR
+          DO j=JstrP,JendT
             BOUNDARY(ng)%v_east(j,k)=???
           END DO
         END DO
@@ -86,10 +86,10 @@
      &    LBC(iwest,isVvel,ng)%acquire.and.                             &
      &    DOMAIN(ng)%Western_Edge(tile)) THEN
         DO k=1,N(ng)
-          DO j=JstrR,JendR
+          DO j=JstrT,JendT
             BOUNDARY(ng)%u_west(j,k)=???
           END DO
-          DO j=Jstr,JendR
+          DO j=JstrP,JendT
             BOUNDARY(ng)%v_west(j,k)=???
           END DO
         END DO
@@ -99,10 +99,10 @@
      &    LBC(isouth,isVvel,ng)%acquire.and.                            &
      &    DOMAIN(ng)%Southern_Edge(tile)) THEN
         DO k=1,N(ng)
-          DO i=Istr,IendR
+          DO i=IstrP,IendT
             BOUNDARY(ng)%u_south(i,k)=???
           END DO
-          DO i=IstrR,IendR
+          DO i=IstrT,IendT
             BOUNDARY(ng)%v_south(i,k)=???
           END DO
         END DO
@@ -112,10 +112,10 @@
      &    LBC(inorth,isVvel,ng)%acquire.and.                            &
      &    DOMAIN(ng)%Northern_Edge(tile)) THEN
         DO k=1,N(ng)
-          DO i=Istr,IendR
+          DO i=IstrP,IendT
             BOUNDARY(ng)%u_north(i,k)=???
           END DO
-          DO i=IstrR,IendR
+          DO i=IstrT,IendT
             BOUNDARY(ng)%v_north(i,k)=???
           END DO
         END DO

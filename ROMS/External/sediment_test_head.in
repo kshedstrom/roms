@@ -619,7 +619,6 @@ Dout(STvdif) == T       ! sand_01_vdiff, ...      vertical diffusion
 !                    file, AOUT(idTvar(idsed(i))) with i=1:NCS.
 !
 !                    Aout(idmud)                  suspended concentration
-<<<<<<< HEAD
 !
 !                    Aout(iMTTav)                 quadratic <t*t> tracer terms
 !                    Aout(iMUTav)                 quadratic <u*t> tracer terms
@@ -627,15 +626,6 @@ Dout(STvdif) == T       ! sand_01_vdiff, ...      vertical diffusion
 !                    Aout(MHUTav)                 tracer volume flux, <Huon*t>
 !                    Aout(MHVTav)                 tracer volume flux, <Hvom*t>
 !
-=======
-!
-!                    Aout(iMTTav)                 quadratic <t*t> tracer terms
-!                    Aout(iMUTav)                 quadratic <u*t> tracer terms
-!                    Aout(iMVTav)                 quadratic <v*t> tracer terms
-!                    Aout(MHUTav)                 tracer volume flux, <Huon*t>
-!                    Aout(MHVTav)                 tracer volume flux, <Hvom*t>
-!
->>>>>>> 2d7b855317416ca82b80cc5d58e61f4279e59366
 !                    Aout(iMUbld)                 bed load at U-points
 !                    Aout(iMVbld)                 bed load at V-points
 !

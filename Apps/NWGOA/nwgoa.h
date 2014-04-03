@@ -17,6 +17,7 @@
 #undef NETCDF4
 #undef PARALLEL_IO
 #undef OFFLINE_FLOATS
+#define PERFECT_RESTART
 
 /* general */
 
@@ -56,6 +57,7 @@
 #  define  ICE_MOMENTUM
 #  define  ICE_MOM_BULK
 #  define  ICE_EVP
+#  define  ICE_STRENGTH_QUAD
 #  define  ICE_ADVECT
 #  define  ICE_SMOLAR
 #  define  ICE_UPWIND

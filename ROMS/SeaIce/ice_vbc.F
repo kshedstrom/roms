@@ -3,7 +3,7 @@
 #ifdef ICE_MODEL
 !
 !=======================================================================
-!  Copyright (c) 2002 ROMS/TOMS Group                                  !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
 !================================================== Hernan G. Arango ===
 !                                                                      !
 !  This module sets the ice-water and ice-air stresses for the
@@ -273,7 +273,7 @@
       END DO
 
       DO j=Jstr,Jend
-        DO i=IstrU,Iend
+        DO i=IstrP,Iend
           rhoO = 1000._r8 + 0.5_r8*(rho(i,j,N(ng))+rho(i-1,j,N(ng)))
           aix = 0.5_r8*(ai(i,j,liold)+ai(i-1,j,liold))
           hix = 0.5_r8*(hi(i,j,liold)+hi(i-1,j,liold))
@@ -293,7 +293,7 @@
         END DO
       END DO
 
-      DO j=JstrV,Jend
+      DO j=JstrP,Jend
         DO i=Istr,Iend
           rhoO = 1000._r8 + 0.5_r8*(rho(i,j,N(ng))+rho(i,j-1,N(ng)))
           aiy = 0.5_r8*(ai(i,j,liold)+ai(i,j-1,liold))
@@ -315,11 +315,11 @@
       END DO
 # else
       DO j=Jstr,Jend
-        DO i=IstrU,Iend
+        DO i=IstrP,Iend
            windu(i,j) = 0.5_r8*(Uwind(i-1,j)+Uwind(i,j))
         END DO
       END DO
-      DO j=JstrV,Jend
+      DO j=JstrP,Jend
         DO i=Istr,Iend
            windv(i,j) = 0.5_r8*(Vwind(i,j-1)+Vwind(i,j))
         END DO
@@ -348,7 +348,7 @@
       END DO
 
       DO j=Jstr,Jend
-        DO i=IstrU,Iend
+        DO i=IstrP,Iend
           rhoO = 1000._r8 + 0.5_r8*(rho(i,j,N(ng))+rho(i-1,j,N(ng)))
           aix = 0.5_r8*(ai(i,j,liold)+ai(i-1,j,liold))
           hix = 0.5_r8*(hi(i,j,liold)+hi(i-1,j,liold))
@@ -372,7 +372,7 @@
         END DO
       END DO
 
-      DO j=JstrV,Jend
+      DO j=JstrP,Jend
         DO i=Istr,Iend
           rhoO = 1000._r8 + 0.5_r8*(rho(i,j,N(ng))+rho(i,j-1,N(ng)))
           aiy = 0.5_r8*(ai(i,j,liold)+ai(i,j-1,liold))

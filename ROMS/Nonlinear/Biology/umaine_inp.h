@@ -21,7 +21,9 @@
 !
 !  Local variable declarations.
 !
-      integer :: Npts, Nval, i, itrc, ng, status,ifield
+      integer :: Npts, Nval
+      integer :: iTrcStr, iTrcEnd
+      integer :: i, ifield, igrid, is, itracer, itrc, ng, nline, status
 
       integer :: decode_line, load_i, load_l, load_r,load_lbc
 
@@ -43,8 +45,8 @@
 !
       igrid=1                            ! nested grid counter
       itracer=0                          ! LBC tracer counter
-      iTrcStr=isTvar(idbio(1))           ! first LBC tracer to process
-      iTrcEnd=isTvar(idbio(NBT))         ! last  LBC tracer to process
+      iTrcStr=1                          ! first LBC tracer to process
+      iTrcEnd=NBT                        ! last  LBC tracer to process
       nline=0                            ! LBC multi-line counter
 !-----------------------------------------------------------------------
 !  Read in UMaine CoSiNE biological model parameters.
@@ -675,7 +677,7 @@
 #ifdef TS_PSOURCE
             DO itrc=1,NBT
               i=idbio(itrc)
-              WRITE (out,100) LtracerSrc(i,ng), 'LtracerSrc',           &
+              WRITE (out,150) LtracerSrc(i,ng), 'LtracerSrc',           &
      &              i, 'Processing point sources/Sink on tracer ', i,   &
      &              TRIM(Vname(1,idTvar(i)))
             END DO
@@ -754,6 +756,7 @@
      &        a,i2.2,a)
  130  FORMAT (/,' read_BioPar - variable info not yet loaded, ',a)
  140  FORMAT (10x,l1,2x,a,t30,a,1x,a)
+ 150  FORMAT (10x,l1,2x,a,'(',i2.2,')',t30,a,i2.2,':',1x,a)
 
       RETURN
       END SUBROUTINE read_BioPar

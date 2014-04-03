@@ -3,7 +3,7 @@
 #ifdef ICE_MODEL
 !
 !=======================================================================
-!  Copyright (c) 2002 ROMS/TOMS Group                                  !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
 !================================================== Hernan G. Arango ===
 !                                                                      !
 !  This module computes the magnitude of the shear between the ice
@@ -219,11 +219,11 @@
         enddo
       enddo
       do j=Jstr,Jend
-        do i=IstrU,Iend
+        do i=IstrP,Iend
            uwater(i,j) = uw(i,j)
         enddo
       enddo
-      do j=JstrV,Jend
+      do j=JstrP,Jend
         do i=Istr,Iend
            vwater(i,j) = vw(i,j)
         enddo

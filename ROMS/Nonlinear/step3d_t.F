@@ -43,10 +43,10 @@
       USE mod_grid
       USE mod_mixing
       USE mod_ocean
-      USE mod_stepping
 # if defined TRC_PSOURCE
       USE mod_trc_sources
 # endif
+      USE mod_stepping
 !
 !  Imported variable declarations.
 !
@@ -182,9 +182,6 @@
       USE ice_frazil_mod, ONLY : ice_frazil
 # endif
       USE mod_sources
-# if defined TRC_PSOURCE
-      USE mod_trc_sources
-# endif
 !
       USE exchange_3d_mod, ONLY : exchange_r3d_tile
 # ifdef DISTRIBUTE
@@ -195,6 +192,9 @@
 # endif
 # ifdef TS_MPDATA
       USE mpdata_adiff_mod
+# endif
+# ifdef NESTING
+      USE nesting_mod, ONLY : bry_fluxes
 # endif
       USE t3dbc_mod, ONLY : t3dbc_tile
 # ifdef T_PASSIVE
@@ -330,6 +330,10 @@
 !
 !  Local variable declarations.
 !
+# ifdef NESTING
+      integer :: ILB, IUB, JLB, JUB
+      integer :: dg, cr, rg
+# endif
       integer :: i, ibt, ic, is, itrc, j, k, ltrc
 # ifdef DIAGNOSTICS_TS
       integer :: idiag
@@ -368,6 +372,17 @@
 # endif
 !
 # include "set_bounds.h"
+
+# ifdef NESTING
+!
+!  Notice that the trace flux boundary arrays are dimensioned with the
+!  global dimensions of grid to facilitate processing.
+!
+      ILB=BOUNDS(ng)%LBi(-1)
+      IUB=BOUNDS(ng)%UBi(-1)
+      JLB=BOUNDS(ng)%LBj(-1)
+      JUB=BOUNDS(ng)%UBj(-1)
+# endif
 !
 !-----------------------------------------------------------------------
 !  Time-step horizontal advection term.
@@ -490,18 +505,18 @@
 #  endif
             END DO
           END DO
-          IF (.not.ComposedGrid(ng)) THEN
-            IF (.not.EWperiodic(ng)) THEN
-              IF (DOMAIN(ng)%Western_Edge(tile)) THEN
-                DO j=Jstr,Jend
-                  FX(Istr-1,j)=FX(Istr,j)
-                END DO
-              END IF
-              IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
-                DO j=Jstr,Jend
-                  FX(Iend+2,j)=FX(Iend+1,j)
-                END DO
-              END IF
+          IF (.not.(CompositeGrid(iwest,ng).or.EWperiodic(ng))) THEN
+            IF (DOMAIN(ng)%Western_Edge(tile)) THEN
+              DO j=Jstr,Jend
+                FX(Istr-1,j)=FX(Istr,j)
+              END DO
+            END IF
+          END IF
+          IF (.not.(CompositeGrid(ieast,ng).or.EWperiodic(ng))) THEN
+            IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
+              DO j=Jstr,Jend
+                FX(Iend+2,j)=FX(Iend+1,j)
+              END DO
             END IF
           END IF
 !
@@ -551,18 +566,18 @@
 #  endif
             END DO
           END DO
-          IF (.not.ComposedGrid(ng)) THEN
-            IF (.not.NSperiodic(ng)) THEN
-              IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
-                DO i=Istr,Iend
-                  FE(i,Jstr-1)=FE(i,Jstr)
-                END DO
-              END IF
-              IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
-                DO i=Istr,Iend
-                  FE(i,Jend+2)=FE(i,Jend+1)
-                END DO
-              END IF
+          IF (.not.(CompositeGrid(isouth,ng).or.NSperiodic(ng))) THEN
+            IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
+              DO i=Istr,Iend
+                FE(i,Jstr-1)=FE(i,Jstr)
+              END DO
+            END IF
+          END IF
+          IF (.not.(CompositeGrid(inorth,ng).or.NSperiodic(ng))) THEN
+            IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
+              DO i=Istr,Iend
+                FE(i,Jend+2)=FE(i,Jend+1)
+              END DO
             END IF
           END IF
 !
@@ -683,7 +698,6 @@
              END IF
            END DO
          END IF
->>>>>>> e0fc262... src:ticket:616
 # endif
 !
 # ifdef TS_MPDATA

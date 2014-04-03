@@ -21,7 +21,9 @@
 !
 !  Local variable declarations.
 !
-      integer :: Npts, Nval, i, itrc, ng, status
+      integer :: Npts, Nval
+      integer :: iTrcStr, iTrcEnd
+      integer :: i, ifield, igrid, is, itracer, itrc, ng, nline, status
 
       integer :: decode_line, load_i, load_l, load_r
 
@@ -34,6 +36,16 @@
       character (len=40 ) :: KeyWord
       character (len=256) :: line
       character (len=256), dimension(200) :: Cval
+!
+!-----------------------------------------------------------------------
+!  Initialize.
+!-----------------------------------------------------------------------
+!
+      igrid=1                            ! nested grid counter
+      itracer=0                          ! LBC tracer counter
+      iTrcStr=1                          ! first LBC tracer to process
+      iTrcEnd=NBT                        ! last  LBC tracer to process
+      nline=0                            ! LBC multi-line counter
 !
 ! ==================================================================== !
 ! ==================================================================== !
@@ -558,11 +570,8 @@
      &        /,  ' ============================',/)
   50  FORMAT (1x,i10,2x,a,t28,a)
   60  FORMAT (10x,l1,2x,a,t28,a,i2.2,':',1x,a)
-!  70  FORMAT (f11.3,2x,a,t28,a)
-!  80  FORMAT (f11.3,2x,a,t28,a,/,t30,a)
   90  FORMAT (1p,e11.4,2x,a,'(',i2.2,')',t28,a,/,t30,a,i2.2,':',1x,a)
-! 100  FORMAT (1p,e11.4,2x,a,t28,a)
-! 110  FORMAT (1p,e11.4,2x,a,t28,a,/,t30,a)
+ 100  FORMAT (10x,l1,2x,a,'(',i2.2,')',t30,a,i2.2,':',1x,a)
 
       RETURN
       END SUBROUTINE read_BioPar

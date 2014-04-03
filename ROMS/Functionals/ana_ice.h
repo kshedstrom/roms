@@ -197,30 +197,30 @@
 #include "set_bounds.h"
 
 #ifdef ICE_BASIN
-      DO j=JstrR,JendR
-        DO i=Istr,IendR
+      DO j=JstrT,JendT
+        DO i=Istr,IendT
            ui(i,j,1) = 0._r8
            uie(i,j,1) = 0._r8
            ui(i,j,2) = ui(i,j,1)
            uie(i,j,2) = uie(i,j,1)
         ENDDO
       ENDDO
-      DO j=Jstr,JendR
-        DO i=IstrR,IendR
+      DO j=Jstr,JendT
+        DO i=IstrT,IendT
            vi(i,j,1) = 0._r8
            vie(i,j,1) = 0._r8
            vi(i,j,2) = vi(i,j,1)
            vie(i,j,2) = vie(i,j,1)
         ENDDO
       ENDDO
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
            ai(i,j,1) = 1._r8
            hi(i,j,1) = 2._r8
            hsn(i,j,1) = 0.2_r8
            ti(i,j,1) = -5._r8
            sfwat(i,j,1) = 0._r8
-	   ageice(i,j,1) = 0._r8
+           ageice(i,j,1) = 0._r8
            sig11(i,j,1) = 0._r8
            sig22(i,j,1) = 0._r8
            sig12(i,j,1) = 0._r8
@@ -229,7 +229,7 @@
            hsn(i,j,2) = hsn(i,j,1)
            ti(i,j,2) = ti(i,j,1)
            sfwat(i,j,2) = sfwat(i,j,1)
-	   ageice(i,j,2) = ageice(i,j,1)
+           ageice(i,j,2) = ageice(i,j,1)
            sig11(i,j,2) = sig11(i,j,1)
            sig22(i,j,2) = sig22(i,j,1)
            sig12(i,j,2) = sig12(i,j,1)
@@ -250,30 +250,30 @@
            utau_iw(i,j) = 0.001_r8
            chu_iw(i,j) = 0.001125_r8
 #elif defined ICE_OCEAN_1D
-      DO j=JstrR,JendR
-        DO i=Istr,IendR
+      DO j=JstrT,JendT
+        DO i=Istr,IendT
            ui(i,j,1) = 0.0_r8
            uie(i,j,1) = 0.0_r8
            ui(i,j,2) = ui(i,j,1)
            uie(i,j,2) = uie(i,j,1)
         ENDDO
       ENDDO
-      DO j=Jstr,JendR
-        DO i=IstrR,IendR
+      DO j=Jstr,JendT
+        DO i=IstrT,IendT
            vi(i,j,1) = 0.0_r8
            vie(i,j,1) = 0.0_r8
            vi(i,j,2) = vi(i,j,1)
            vie(i,j,2) = vie(i,j,1)
         ENDDO
       ENDDO
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
            ai(i,j,1) = 0._r8
            hi(i,j,1) = 0._r8
            hsn(i,j,1) = 0.2_r8
            ti(i,j,1) = -5._r8
            sfwat(i,j,1) = 0._r8
-	   ageice(i,j,1) = 0._r8
+           ageice(i,j,1) = 0._r8
            sig11(i,j,1) = 0._r8
            sig22(i,j,1) = 0._r8
            sig12(i,j,1) = 0._r8
@@ -282,7 +282,7 @@
            hsn(i,j,2) = hsn(i,j,1)
            ti(i,j,2) = ti(i,j,1)
            sfwat(i,j,2) = sfwat(i,j,1)
-	   ageice(i,j,2) = ageice(i,j,1)
+           ageice(i,j,2) = ageice(i,j,1)
            sig11(i,j,2) = sig11(i,j,1)
            sig22(i,j,2) = sig22(i,j,1)
            sig12(i,j,2) = sig12(i,j,1)

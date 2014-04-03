@@ -1092,7 +1092,7 @@
 #   endif
 #   if !(defined CORRELATION || defined OPT_OBSERVATIONS)
           fname=OBS(ng)%name
-          IF (.not.find_file(ng, fname, 'OBSNAME')) GO TO 30
+          IF (.not.find_file(ng, fname, 'OBSname')) GO TO 30
           WRITE (out,160) '            Observations File:  ',           &
      &                    TRIM(fname)
 #   endif

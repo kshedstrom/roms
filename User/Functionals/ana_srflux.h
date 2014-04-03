@@ -154,8 +154,8 @@
 # ifdef ALBEDO
       Rsolar=Csolar/(rho0*Cp)
 # endif
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
 !
 !  Local daylight is a function of the declination (Dangle) and hour
 !  angle adjusted for the local meridian (Hangle-lonr(i,j)/15.0).
@@ -185,7 +185,7 @@
             cff=(0.7859_r8+0.03477_r8*Tair(i,j))/                       &
      &          (1.0_r8+0.00412_r8*Tair(i,j))
             e_sat=10.0_r8**cff    ! saturation vapor pressure (hPa=mbar)
-            vap_p=e_sat*Hair(i,j) ! water vapor pressure (hPa=mbar) 
+            vap_p=e_sat*Hair(i,j) ! water vapor pressure (hPa=mbar)
             srflx(i,j)=Rsolar*zenith*zenith*                            &
      &                 (1.0_r8-0.6_r8*cloud(i,j)**3)/                   &
      &                 ((zenith+2.7_r8)*vap_p*1.0E-3_r8+                &
@@ -235,14 +235,14 @@
 !
       cff=1.0_r8/(rho0*cp)
 # if defined MY_APPLICATION
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           srflx(i,j)=???
         END DO
       END DO
 # else
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           srflx(i,j)=0.0_r8
         END DO
       END DO

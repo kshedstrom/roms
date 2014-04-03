@@ -148,14 +148,14 @@
 #ifdef BERING_BOX
 !      val1=1.0E-04_r8
       val1=0.
-      DO j=JstrR,JendR
-        DO i=Istr,IendR
+      DO j=JstrT,JendT
+        DO i=IstrP,IendT
           sustr(i,j)=val1
         END DO
       END DO
 #else
-      DO j=JstrR,JendR
-        DO i=Istr,IendR
+      DO j=JstrT,JendT
+        DO i=IstrP,IendT
           sustr(i,j)=0.0_r8
 # ifdef TL_IOMS
           tl_sustr(i,j)=0.0_r8
@@ -170,8 +170,8 @@
 !-----------------------------------------------------------------------
 !
 #if defined BL_TEST
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrP,JendT
+        DO i=IstrT,IendT
           svstr(i,j)=Nwind
 # ifdef TL_IOMS
           tl_svstr(i,j)=Nwind
@@ -179,8 +179,8 @@
         END DO
       END DO
 #else
-      DO j=Jstr,JendR
-        DO i=IstrR,IendR
+      DO j=JstrP,JendT
+        DO i=IstrT,IendT
           svstr(i,j)=0.0_r8
 # ifdef TL_IOMS
           tl_svstr(i,j)=0.0_r8

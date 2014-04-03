@@ -75,8 +75,8 @@
 !
 #if defined ARCTIC
 !     DO k=1,N(ng)
-!       DO j=JstrR,JendR
-!         DO i=IstrR,IendR
+!       DO j=JstrT,JendT
+!         DO i=IstrT,IendT
 !           t(i,j,k,1,inert(1)) = i
 !           t(i,j,k,1,inert(2)) = j
 !           t(i,j,k,1,inert(3)) = -1 * GRID(ng) % z_r(i,j,k)
@@ -95,8 +95,8 @@
 !     END DO
       DO ip=1,NPT
         DO k=1,N(ng)
-          DO j=JstrR,JendR
-            DO i=IstrR,IendR
+          DO j=JstrT,JendT
+            DO i=IstrT,IendT
               itrc=inert(ip)
               t(i,j,k,1,itrc) = 0.
               t(i,j,k,2,itrc)=t(i,j,k,1,itrc)

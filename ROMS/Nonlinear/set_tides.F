@@ -29,7 +29,7 @@
       USE mod_param
       USE mod_grid
       USE mod_tides
-      USE mod_stepping, ONLY : nrhs
+      USE mod_stepping
 !
 !  Imported variable declarations.
 !
@@ -133,7 +133,7 @@
 # ifdef UV_WAVEDRAG
       USE mod_tides, ONLY : nstep_hour, hour_steps
       USE mod_ocean
-      USE mod_stepping
+      USE mod_stepping, ONLY : nrhs
 # endif
 !
 # ifdef DISTRIBUTE
@@ -247,7 +247,7 @@
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: Uwrk
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: Vtide
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: Vwrk
- 
+
 # include "set_bounds.h"
 
 # ifdef DISTRIBUTE
@@ -278,9 +278,9 @@
         ramp=1.0_r8
 # endif
 # ifdef TIDES_ASTRO
-          tide_time = time(ng)-tide_start*day2sec
-          call tide_astro(tide_time, Vu_sat, f_sat, latr,               &
-     &                ng, tile, LBi, UBi, LBj, UBj)
+        tide_time = time(ng)-tide_start*day2sec
+        call tide_astro(tide_time, Vu_sat, f_sat, latr,                 &
+     &                  ng, tile, LBi, UBi, LBj, UBj)
 # endif
 # if defined AVERAGES_DETIDE && (defined SSH_TIDES || defined UV_TIDES)
 !
@@ -306,37 +306,35 @@
 !  Add tidal elevation (m) to sea surface height climatology.
 !-----------------------------------------------------------------------
 !
-      Etide(:,:)=0.0_r8
-      cff=2.0_r8*pi*(time(ng)-tide_start*day2sec)
-      DO itide=1,NTC
-        IF (Tperiod(itide).gt.0.0_r8) THEN
-          omega=cff/Tperiod(itide)
-          DO j=JstrR,JendR
-            DO i=IstrR,IendR
-#   ifdef TIDES_ASTRO
+        IF (LsshCLM(ng)) THEN
+          Etide(:,:)=0.0_r8
+          cff=2.0_r8*pi*(time(ng)-tide_start*day2sec)
+          DO itide=1,NTC
+            IF (Tperiod(itide).gt.0.0_r8) THEN
+              omega=cff/Tperiod(itide)
+              DO j=JstrR,JendR
+                DO i=IstrR,IendR
+#  ifdef TIDES_ASTRO
 !  Convert Vu_sat from cycles to radians
-              Etide(i,j)=Etide(i,j)+                                    &
-     &                   ramp*f_sat(i,j,itide)*SSH_Tamp(i,j,itide)*     &
-     &                   COS(-SSH_Tphase(i,j,itide)+                    &
-     &                   2.0_r8*pi*Vu_sat(i,j,itide))
-#   else
-                Etide(i,j)=Etide(i,j)+                                  &
-     &                     ramp*SSH_Tamp(i,j,itide)*                    &
-     &                     COS(omega-SSH_Tphase(i,j,itide))
-#   endif
-#   ifdef MASKING
-                Etide(i,j)=Etide(i,j)*rmask(i,j)
-#   endif
-            END DO
+                  Etide(i,j)=Etide(i,j)+                                &
+     &                       ramp*f_sat(i,j,itide)*SSH_Tamp(i,j,itide)* &
+     &                       COS(-SSH_Tphase(i,j,itide)+                &
+     &                       2.0_r8*pi*Vu_sat(i,j,itide))
+#  else
+                    Etide(i,j)=Etide(i,j)+                              &
+     &                         ramp*SSH_Tamp(i,j,itide)*                &
+     &                         COS(omega-SSH_Tphase(i,j,itide))
+#  endif
+#  ifdef MASKING
+                    Etide(i,j)=Etide(i,j)*rmask(i,j)
+#  endif
+                END DO
+              END DO
+            END IF
           END DO
-        END IF
-      END DO
-
-#  ifdef ADD_FSOBC
 !
 !  Add sub-tidal forcing and adjust climatology to include tides.
 !
-        IF (LsshCLM(ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR
               CLIMA(ng)%ssh(i,j)=CLIMA(ng)%ssh(i,j)+Etide(i,j)
@@ -347,15 +345,14 @@
      &                              LBi, UBi, LBj, UBj,                 &
      &                              CLIMA(ng)%ssh)
           END IF
-#   ifdef DISTRIBUTE
+#  ifdef DISTRIBUTE
           CALL mp_exchange2d (ng, tile, iNLM, 1,                        &
      &                        LBi, UBi, LBj, UBj,                       &
      &                        NghostPoints,                             &
      &                        EWperiodic(ng), NSperiodic(ng),           &
      &                        CLIMA(ng)%ssh)
-#   endif
-      END IF
 #  endif
+        END IF
 !
 !  If appropriate, load tidal forcing into boundary arrays.  The "zeta"
 !  boundary arrays are important for the Flather or reduced physics
@@ -612,70 +609,69 @@
 # endif
 
 # if defined UV_TIDES
+#  ifdef ADD_M2OBC
 !
 !-----------------------------------------------------------------------
 !  Add tidal currents (m/s) to 2D momentum climatologies.
 !-----------------------------------------------------------------------
 !
-      Utide(:,:)=0.0_r8
-      Vtide(:,:)=0.0_r8
-      cff=2.0_r8*pi*(time(ng)-tide_start*day2sec)
-      DO itide=1,NTC
-        IF (Tperiod(itide).gt.0.0_r8) THEN
+        IF (Lm2CLM(ng)) THEN
+          Utide(:,:)=0.0_r8
+          Vtide(:,:)=0.0_r8
+          cff=2.0_r8*pi*(time(ng)-tide_start*day2sec)
+          DO itide=1,NTC
+            IF (Tperiod(itide).gt.0.0_r8) THEN
 #   ifdef TIDES_ASTRO
-          tide_time = time(ng)-tide_start*day2sec
+              tide_time = time(ng)-tide_start*day2sec
 #   endif
-          omega=cff/Tperiod(itide)
-          DO j=MIN(JstrR,Jstr-1),JendR
-            DO i=MIN(IstrR,Istr-1),IendR
-              angle=UV_Tangle(i,j,itide)-angler(i,j)
-              Cangle=COS(angle)
-              Sangle=SIN(angle)
+              omega=cff/Tperiod(itide)
+              DO j=MIN(JstrR,Jstr-1),JendR
+                DO i=MIN(IstrR,Istr-1),IendR
+                  angle=UV_Tangle(i,j,itide)-angler(i,j)
+                  Cangle=COS(angle)
+                  Sangle=SIN(angle)
 #   ifdef TIDES_ASTRO
-              phase=-UV_Tphase(i,j,itide)
+                  phase=-UV_Tphase(i,j,itide)
 !  Convert Vu_sat from cycles to radians
-              phase = phase + 2.0_r8*pi*Vu_sat(i,j,itide)
+                  phase = phase + 2.0_r8*pi*Vu_sat(i,j,itide)
 #   else
-              phase=omega-UV_Tphase(i,j,itide)
+                  phase=omega-UV_Tphase(i,j,itide)
 #   endif
-              Cphase=COS(phase)
-              Sphase=SIN(phase)
-              Uwrk(i,j)=UV_Tmajor(i,j,itide)*Cangle*Cphase-             &
-     &                  UV_Tminor(i,j,itide)*Sangle*Sphase
-              Vwrk(i,j)=UV_Tmajor(i,j,itide)*Sangle*Cphase+             &
-     &                  UV_Tminor(i,j,itide)*Cangle*Sphase
+                  Cphase=COS(phase)
+                  Sphase=SIN(phase)
+                  Uwrk(i,j)=UV_Tmajor(i,j,itide)*Cangle*Cphase-         &
+     &                      UV_Tminor(i,j,itide)*Sangle*Sphase
+                  Vwrk(i,j)=UV_Tmajor(i,j,itide)*Sangle*Cphase+         &
+     &                      UV_Tminor(i,j,itide)*Cangle*Sphase
 #   ifdef TIDES_ASTRO
-              Uwrk(i,j) = Uwrk(i,j)*f_sat(i,j,itide)
-              Vwrk(i,j) = Vwrk(i,j)*f_sat(i,j,itide)
+                  Uwrk(i,j) = Uwrk(i,j)*f_sat(i,j,itide)
+                  Vwrk(i,j) = Vwrk(i,j)*f_sat(i,j,itide)
 #   endif
-            END DO
-          END DO
-          DO j=JstrR,JendR
-            DO i=Istr,IendR
-              Utide(i,j)=Utide(i,j)+                                    &
+                END DO
+              END DO
+              DO j=JstrR,JendR
+                DO i=Istr,IendR
+                  Utide(i,j)=Utide(i,j)+                                &
      &                   ramp*0.5_r8*(Uwrk(i-1,j)+Uwrk(i,j))
 #   ifdef MASKING
-              Utide(i,j)=Utide(i,j)*umask(i,j)
+                  Utide(i,j)=Utide(i,j)*umask(i,j)
 #   endif
-            END DO
-          END DO
-          DO j=Jstr,JendR
-            DO i=IstrR,IendR
-              Vtide(i,j)=(Vtide(i,j)+                                   &
+                END DO
+              END DO
+              DO j=Jstr,JendR
+                DO i=IstrR,IendR
+                  Vtide(i,j)=(Vtide(i,j)+                               &
      &                    ramp*0.5_r8*(Vwrk(i,j-1)+Vwrk(i,j)))
 #   ifdef MASKING
-              Vtide(i,j)=Vtide(i,j)*vmask(i,j)
+                  Vtide(i,j)=Vtide(i,j)*vmask(i,j)
 #   endif
-            END DO
+                END DO
+              END DO
+            END IF
           END DO
-        END IF
-      END DO
-
-#  ifdef ADD_M2OBC
 !
 !  Add sub-tidal forcing and adjust climatology to include tides.
 !
-        IF (Lm2CLM(ng)) THEN
           DO j=JstrR,JendR
             DO i=Istr,IendR
               CLIMA(ng)%ubarclm(i,j)=CLIMA(ng)%ubarclm(i,j)+Utide(i,j)
@@ -746,10 +742,16 @@
               DO j=JstrR,JendR
                 Utide(Istr,j)=Utide(Istr,j)+                            &
      &                     ramp*0.5_r8*(Uwrk(Istr-1,j)+Uwrk(Istr,j))
+#  ifdef MASKING
+                Utide(Istr,j)=Utide(Istr,j)*umask(Istr,j)
+#  endif
               END DO
               DO j=Jstr,JendR
                 Vtide(Istr-1,j)=Vtide(Istr-1,j)+                        &
      &                   ramp*0.5_r8*(Vwrk(Istr-1,j-1)+Vwrk(Istr-1,j))
+#  ifdef MASKING
+                Vtide(Istr-1,j)=Vtide(Istr-1,j)*vmask(Istr-1,j)
+#  endif
               END DO
             END IF
           END DO
@@ -819,10 +821,16 @@
               DO j=JstrR,JendR
                 Utide(Iend+1,j)=Utide(Iend+1,j)+                        &
      &                     ramp*0.5_r8*(Uwrk(Iend,j)+Uwrk(Iend+1,j))
+#  ifdef MASKING
+                Utide(Iend+1,j)=Utide(Iend+1,j)*umask(Iend+1,j)
+#  endif
               END DO
               DO j=Jstr,JendR
                 Vtide(Iend+1,j)=Vtide(Iend+1,j)+                        &
      &                 ramp*0.5_r8*(Vwrk(Iend+1,j-1)+Vwrk(Iend+1,j))
+#  ifdef MASKING
+                Vtide(Iend+1,j)=Vtide(Iend+1,j)*vmask(Iend+1,j)
+#  endif
               END DO
             END IF
           END DO
@@ -893,10 +901,16 @@
               DO i=Istr,IendR
                 Utide(i,Jstr-1)=Utide(i,Jstr-1)+                        &
      &                 ramp*0.5_r8*(Uwrk(i-1,Jstr-1)+Uwrk(i,Jstr-1))
+#  ifdef MASKING
+                Utide(i,Jstr-1)=Utide(i,Jstr-1)*umask(i,Jstr-1)
+#  endif
               END DO
               DO i=IstrR,IendR
                 Vtide(i,Jstr)=Vtide(i,Jstr)+                            &
      &                      ramp*0.5_r8*(Vwrk(i,Jstr-1)+Vwrk(i,Jstr))
+#  ifdef MASKING
+                Vtide(i,Jstr)=Vtide(i,Jstr)*vmask(i,Jstr)
+#  endif
               END DO
             END IF
           END DO
@@ -966,10 +980,16 @@
               DO i=Istr,IendR
                 Utide(i,Jend+1)=Utide(i,Jend+1)+                          &
      &                    ramp*0.5_r8*(Uwrk(i-1,Jend+1)+Uwrk(i,Jend+1))
+#  ifdef MASKING
+                Utide(i,Jend+1)=Utide(i,Jend+1)*umask(i,Jend+1)
+#  endif
               END DO
               DO i=IstrR,IendR
                 Vtide(i,Jend+1)=Vtide(i,Jend+1)+                          &
      &                      ramp*0.5_r8*(Vwrk(i,Jend)+Vwrk(i,Jend+1))
+#  ifdef MASKING
+                Vtide(i,Jend+1)=Vtide(i,Jend+1)*vmask(i,Jend+1)
+#  endif
               END DO
             END IF
           END DO
@@ -1003,41 +1023,41 @@
         END IF
 # endif
 # ifdef UV_WAVEDRAG
-      IF ((MOD(iic(ng)-ntstart(ng),nstep_hour).eq.0).and.               &
-     &    (iic(ng).ne.ntstart(ng))) THEN 
-!        IF (MOD(iic(ng)-ntstart(ng),nstep_hour*24).eq.0) THEN
-        IF (hour_steps == 24 .or. hour_steps == 0) THEN
+        IF ((MOD(iic(ng)-ntstart(ng),nstep_hour).eq.0).and.             &
+     &      (iic(ng).ne.ntstart(ng))) THEN
+!          IF (MOD(iic(ng)-ntstart(ng),nstep_hour*24).eq.0) THEN
+          IF (hour_steps == 24 .or. hour_steps == 0) THEN
 ! At end of day, add in the 25th value, then compute new filt_ubot value,
 ! and finally add in the first value for the next day.
-          hour_steps = 1
-          DO j=JstrR,JendR
-            DO i=Istr,Iend+1
-              sum_ubot(i,j)=sum_ubot(i,j)+OCEAN(ng)%u(i,j,1,nrhs(ng))
-              filt_ubot(i,j)=0.04_r8*sum_ubot(i,j)
-              sum_ubot(i,j)=OCEAN(ng)%u(i,j,1,nrhs(ng))
+            hour_steps = 1
+            DO j=JstrR,JendR
+              DO i=Istr,Iend+1
+                sum_ubot(i,j)=sum_ubot(i,j)+OCEAN(ng)%u(i,j,1,nrhs(ng))
+                filt_ubot(i,j)=0.04_r8*sum_ubot(i,j)
+                sum_ubot(i,j)=OCEAN(ng)%u(i,j,1,nrhs(ng))
+              END DO
             END DO
-          END DO
-          DO j=Jstr,Jend+1
-            DO i=IstrR,IendR
-              sum_vbot(i,j)=sum_vbot(i,j)+OCEAN(ng)%v(i,j,1,nrhs(ng))
-              filt_vbot(i,j)=0.04_r8*sum_vbot(i,j)
-              sum_vbot(i,j)=OCEAN(ng)%v(i,j,1,nrhs(ng))
+            DO j=Jstr,Jend+1
+              DO i=IstrR,IendR
+                sum_vbot(i,j)=sum_vbot(i,j)+OCEAN(ng)%v(i,j,1,nrhs(ng))
+                filt_vbot(i,j)=0.04_r8*sum_vbot(i,j)
+                sum_vbot(i,j)=OCEAN(ng)%v(i,j,1,nrhs(ng))
+              END DO
             END DO
-          END DO
-        ELSE
-          hour_steps = hour_steps + 1
-          DO j=JstrR,JendR
-            DO i=Istr,Iend+1
-              sum_ubot(i,j)=sum_ubot(i,j)+OCEAN(ng)%u(i,j,1,nrhs(ng))
+          ELSE
+            hour_steps = hour_steps + 1
+            DO j=JstrR,JendR
+              DO i=Istr,Iend+1
+                sum_ubot(i,j)=sum_ubot(i,j)+OCEAN(ng)%u(i,j,1,nrhs(ng))
+              END DO
             END DO
-          END DO
-          DO j=Jstr,Jend+1
-            DO i=IstrR,IendR
-              sum_vbot(i,j)=sum_vbot(i,j)+OCEAN(ng)%v(i,j,1,nrhs(ng))
+            DO j=Jstr,Jend+1
+              DO i=IstrR,IendR
+                sum_vbot(i,j)=sum_vbot(i,j)+OCEAN(ng)%v(i,j,1,nrhs(ng))
+              END DO
             END DO
-          END DO
+          END IF
         END IF
-      END IF
 # endif
       END IF NEEDED
 

@@ -288,8 +288,8 @@
       cff1=20.0_r8/3.0_r8
       cff2= 2.0_r8/3.0_r8
       DO k=1,N(ng)
-        DO j=JstrR,JendR
-          DO i=IstrR,IendR
+        DO j=JstrT,JendT
+          DO i=IstrT,IendT
             temp=t(i,j,k,1,itemp)
             IF (temp.lt.8.0_r8) THEN
               SiO4=30.0_r8
@@ -334,8 +334,8 @@
       cff1=20.0_r8/3.0_r8
       cff2= 2.0_r8/3.0_r8
       DO k=1,N(ng)
-        DO j=JstrR,JendR
-          DO i=IstrR,IendR
+        DO j=JstrT,JendT
+          DO i=IstrT,IendT
             temp=t(i,j,k,1,itemp)
             IF (temp.lt.8.0_r8) THEN
               SiO4=30.0_r8
@@ -380,8 +380,8 @@
       cff1=20.0_r8/3.0_r8
       cff2= 2.0_r8/3.0_r8
       DO k=1,N(ng)
-        DO j=JstrR,JendR
-          DO i=IstrR,IendR
+        DO j=JstrT,JendT
+          DO i=IstrT,IendT
 #ifdef CGOA_ANABIO
             t(i,j,k,1,iNO3_)=15.0_r8
             t(i,j,k,1,iSphy)=0.1_r8
@@ -442,8 +442,8 @@
 !-----------------------------------------------------------------------
 !
       DO k=1,N(ng)
-        DO j=JstrR,JendR
-          DO i=IstrR,IendR
+        DO j=JstrT,JendT
+          DO i=IstrT,IendT
             t(i,j,k,1,iNO3_)=BioIni(iNO3_,ng)
             t(i,j,k,1,iPhyt)=BioIni(iPhyt,ng)
             t(i,j,k,1,iZoop)=BioIni(iZoop,ng)
@@ -460,8 +460,8 @@
 !-----------------------------------------------------------------------
 !
       DO k=1,N(ng)
-        DO j=JstrR,JendR
-          DO i=IstrR,IendR
+        DO j=JstrT,JendT
+          DO i=IstrT,IendT
             t(i,j,k,1,iNO3_)=BioIni(iNO3_,ng)
             t(i,j,k,1,iPhyt)=BioIni(iPhyt,ng)
             t(i,j,k,1,iZoop)=BioIni(iZoop,ng)
@@ -496,8 +496,8 @@
       cff15=cff5*cff8*cff14                  ! mole N : gram Chl
 
       DO k=N(ng),1,-1
-        DO j=JstrR,JendR
-          DO i=IstrR,IendR
+        DO j=JstrT,JendT
+          DO i=IstrT,IendT
 !
 ! Initialization of surface chlorophyll.
 !
