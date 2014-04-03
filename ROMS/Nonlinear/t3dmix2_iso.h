@@ -43,6 +43,10 @@
      &                   GRID(ng) % umask,                              &
      &                   GRID(ng) % vmask,                              &
 #endif
+#ifdef WET_DRY
+     &                   GRID(ng) % umask_wet,                          &
+     &                   GRID(ng) % vmask_wet,                          &
+#endif
      &                   GRID(ng) % om_v,                               &
      &                   GRID(ng) % on_u,                               &
      &                   GRID(ng) % pm,                                 &
@@ -75,6 +79,9 @@
      &                         nrhs, nnew,                              &
 #ifdef MASKING
      &                         umask, vmask,                            &
+#endif
+#ifdef WET_DRY
+     &                         umask_wet, vmask_wet,                    &
 #endif
      &                         om_v, on_u, pm, pn,                      &
      &                         Hz, z_r,                                 &
@@ -111,6 +118,10 @@
       real(r8), intent(in) :: umask(LBi:,LBj:)
       real(r8), intent(in) :: vmask(LBi:,LBj:)
 # endif
+# ifdef WET_DRY
+      real(r8), intent(in) :: umask_wet(LBi:,LBj:)
+      real(r8), intent(in) :: vmask_wet(LBi:,LBj:)
+# endif
 # ifdef DIFF_3DCOEF
       real(r8), intent(in) :: diff3d_r(LBi:,LBj:,:)
 # else
@@ -134,6 +145,10 @@
 # ifdef MASKING
       real(r8), intent(in) :: umask(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: vmask(LBi:UBi,LBj:UBj)
+# endif
+# ifdef WET_DRY
+      real(r8), intent(in) :: umask_wet(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: vmask_wet(LBi:UBi,LBj:UBj)
 # endif
 # ifdef DIFF_3DCOEF
       real(r8), intent(in) :: diff3d_r(LBi:UBi,LBj:UBj,N(ng))
@@ -206,7 +221,9 @@
             DO j=Jstr,Jend
               DO i=Istr,Iend+1
                 cff=0.5_r8*(pm(i,j)+pm(i-1,j))
-#ifdef MASKING
+# ifdef WET_DRY
+                cff=cff*umask_wet(i,j)
+# elif defined MASKING
                 cff=cff*umask(i,j)
 #endif
                 dRdx(i,j,k2)=cff*(rho(i  ,j,k+1)-                       &
@@ -225,7 +242,9 @@
             DO j=Jstr,Jend+1
               DO i=Istr,Iend
                 cff=0.5_r8*(pn(i,j)+pn(i,j-1))
-#ifdef MASKING
+# ifdef WET_DRY
+                cff=cff*vmask_wet(i,j)
+# elif defined MASKING
                 cff=cff*vmask(i,j)
 #endif
                 dRde(i,j,k2)=cff*(rho(i,j  ,k+1)-                       &

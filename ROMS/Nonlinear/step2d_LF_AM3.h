@@ -1444,6 +1444,9 @@
 #   ifdef MASKING
           cff=cff*pmask(i,j)
 #   endif
+#   ifdef WET_DRY
+          cff=cff*pmask_wet(i,j)
+#   endif
           UFe(i,j)=om_p(i,j)*om_p(i,j)*cff
           VFx(i,j)=on_p(i,j)*on_p(i,j)*cff
         END DO
@@ -1517,6 +1520,9 @@
 #  ifdef MASKING
           cff=cff*pmask(i,j)
 #  endif
+#   ifdef WET_DRY
+          cff=cff*pmask_wet(i,j)
+#   endif
           UFe(i,j)=om_p(i,j)*om_p(i,j)*cff
           VFx(i,j)=on_p(i,j)*on_p(i,j)*cff
         END DO
@@ -1709,6 +1715,9 @@
 #  ifdef MASKING
           cff=cff*pmask(i,j)
 #  endif
+#   ifdef WET_DRY
+          cff=cff*pmask_wet(i,j)
+#   endif
           UFe(i,j)=om_p(i,j)*om_p(i,j)*cff
           VFx(i,j)=on_p(i,j)*on_p(i,j)*cff
         END DO

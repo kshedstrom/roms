@@ -742,10 +742,16 @@
               DO j=JstrR,JendR
                 Utide(Istr,j)=Utide(Istr,j)+                            &
      &                     ramp*0.5_r8*(Uwrk(Istr-1,j)+Uwrk(Istr,j))
+#  ifdef MASKING
+                Utide(Istr,j)=Utide(Istr,j)*umask(Istr,j)
+#  endif
               END DO
               DO j=Jstr,JendR
                 Vtide(Istr-1,j)=Vtide(Istr-1,j)+                        &
      &                   ramp*0.5_r8*(Vwrk(Istr-1,j-1)+Vwrk(Istr-1,j))
+#  ifdef MASKING
+                Vtide(Istr-1,j)=Vtide(Istr-1,j)*vmask(Istr-1,j)
+#  endif
               END DO
             END IF
           END DO
@@ -815,10 +821,16 @@
               DO j=JstrR,JendR
                 Utide(Iend+1,j)=Utide(Iend+1,j)+                        &
      &                     ramp*0.5_r8*(Uwrk(Iend,j)+Uwrk(Iend+1,j))
+#  ifdef MASKING
+                Utide(Iend+1,j)=Utide(Iend+1,j)*umask(Iend+1,j)
+#  endif
               END DO
               DO j=Jstr,JendR
                 Vtide(Iend+1,j)=Vtide(Iend+1,j)+                        &
      &                 ramp*0.5_r8*(Vwrk(Iend+1,j-1)+Vwrk(Iend+1,j))
+#  ifdef MASKING
+                Vtide(Iend+1,j)=Vtide(Iend+1,j)*vmask(Iend+1,j)
+#  endif
               END DO
             END IF
           END DO
@@ -889,10 +901,16 @@
               DO i=Istr,IendR
                 Utide(i,Jstr-1)=Utide(i,Jstr-1)+                        &
      &                 ramp*0.5_r8*(Uwrk(i-1,Jstr-1)+Uwrk(i,Jstr-1))
+#  ifdef MASKING
+                Utide(i,Jstr-1)=Utide(i,Jstr-1)*umask(i,Jstr-1)
+#  endif
               END DO
               DO i=IstrR,IendR
                 Vtide(i,Jstr)=Vtide(i,Jstr)+                            &
      &                      ramp*0.5_r8*(Vwrk(i,Jstr-1)+Vwrk(i,Jstr))
+#  ifdef MASKING
+                Vtide(i,Jstr)=Vtide(i,Jstr)*vmask(i,Jstr)
+#  endif
               END DO
             END IF
           END DO
@@ -962,10 +980,16 @@
               DO i=Istr,IendR
                 Utide(i,Jend+1)=Utide(i,Jend+1)+                          &
      &                    ramp*0.5_r8*(Uwrk(i-1,Jend+1)+Uwrk(i,Jend+1))
+#  ifdef MASKING
+                Utide(i,Jend+1)=Utide(i,Jend+1)*umask(i,Jend+1)
+#  endif
               END DO
               DO i=IstrR,IendR
                 Vtide(i,Jend+1)=Vtide(i,Jend+1)+                          &
      &                      ramp*0.5_r8*(Vwrk(i,Jend)+Vwrk(i,Jend+1))
+#  ifdef MASKING
+                Vtide(i,Jend+1)=Vtide(i,Jend+1)*vmask(i,Jend+1)
+#  endif
               END DO
             END IF
           END DO
