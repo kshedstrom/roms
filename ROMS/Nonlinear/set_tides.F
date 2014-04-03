@@ -364,36 +364,37 @@
 !  This averaging is less important for that type ob boundary
 !  conditions.
 !
-      IF (LBC(iwest,isFsur,ng)%acquire.or.                              &
-     &    LBC(iwest,isUbar,ng)%acquire.or.                              &
-     &    LBC(iwest,isVbar,ng)%acquire) THEN
-        update=.FALSE.
-        IF (DOMAIN(ng)%Western_Edge(tile)) THEN
-          Etide(:,:)=0.0_r8
-          DO itide=1,NTC
-            IF (Tperiod(itide).gt.0.0_r8) THEN
-              omega=cff/Tperiod(itide)
-              DO j=JstrR,JendR
-                DO i=Istr-1,Istr
+        IF (LBC(iwest,isFsur,ng)%acquire.or.                              &
+     &      LBC(iwest,isUbar,ng)%acquire.or.                              &
+     &      LBC(iwest,isVbar,ng)%acquire) THEN
+          update=.FALSE.
+          cff=2.0_r8*pi*(time(ng)-tide_start*day2sec)
+          IF (DOMAIN(ng)%Western_Edge(tile)) THEN
+            Etide(:,:)=0.0_r8
+            DO itide=1,NTC
+              IF (Tperiod(itide).gt.0.0_r8) THEN
+                omega=cff/Tperiod(itide)
+                DO j=JstrR,JendR
+                  DO i=Istr-1,Istr
 #  ifdef TIDES_ASTRO
 !  Convert Vu_sat from cycles to radians
-                  Etide(i,j)=Etide(i,j)+                                &
-     &                     ramp*f_sat(i,j,itide)*SSH_Tamp(i,j,itide)*   &
-     &                     COS(-SSH_Tphase(i,j,itide)+                  &
-     &                     2.0_r8*pi*Vu_sat(i,j,itide))
+                    Etide(i,j)=Etide(i,j)+                              &
+     &                       ramp*f_sat(i,j,itide)*SSH_Tamp(i,j,itide)* &
+     &                       COS(-SSH_Tphase(i,j,itide)+                &
+     &                       2.0_r8*pi*Vu_sat(i,j,itide))
 #  else
-                  Etide(i,j)=Etide(i,j)+                                &
-     &                     ramp*SSH_Tamp(i,j,itide)*                    &
-     &                     COS(omega-SSH_Tphase(i,j,itide))
+                    Etide(i,j)=Etide(i,j)+                              &
+     &                         ramp*SSH_Tamp(i,j,itide)*                &
+     &                         COS(omega-SSH_Tphase(i,j,itide))
 #  endif
 #  ifdef MASKING
-                  Etide(i,j)=Etide(i,j)*rmask(i,j)
+                    Etide(i,j)=Etide(i,j)*rmask(i,j)
 #  endif
+                  END DO
                 END DO
-              END DO
-            END IF
-          END DO
-          DO j=JstrR,JendR
+              END IF
+            END DO
+            DO j=JstrR,JendR
 #  ifdef ADD_FSOBC
               BOUNDARY(ng)%zeta_west(j)=BOUNDARY(ng)%zeta_west(j)+      &
      &                                  0.5_r8*(Etide(Istr-1,j)+        &
@@ -412,36 +413,37 @@
 #  endif
         END IF
 !
-      IF (LBC(ieast,isFsur,ng)%acquire.or.                              &
-     &    LBC(ieast,isUbar,ng)%acquire.or.                              &
-     &    LBC(ieast,isVbar,ng)%acquire) THEN
-        update=.FALSE.
-        IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
-          Etide(:,:)=0.0_r8
-          DO itide=1,NTC
-            IF (Tperiod(itide).gt.0.0_r8) THEN
-              omega=cff/Tperiod(itide)
-              DO j=JstrR,JendR
-                DO i=Iend,Iend+1
+        IF (LBC(ieast,isFsur,ng)%acquire.or.                            &
+     &      LBC(ieast,isUbar,ng)%acquire.or.                            &
+     &      LBC(ieast,isVbar,ng)%acquire) THEN
+          update=.FALSE.
+          cff=2.0_r8*pi*(time(ng)-tide_start*day2sec)
+          IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
+            Etide(:,:)=0.0_r8
+            DO itide=1,NTC
+              IF (Tperiod(itide).gt.0.0_r8) THEN
+                omega=cff/Tperiod(itide)
+                DO j=JstrR,JendR
+                  DO i=Iend,Iend+1
 #  ifdef TIDES_ASTRO
 !  Convert Vu_sat from cycles to radians
-                  Etide(i,j)=Etide(i,j)+                                &
-     &                     ramp*f_sat(i,j,itide)*SSH_Tamp(i,j,itide)*   &
-     &                     COS(-SSH_Tphase(i,j,itide)+                  &
-     &                     2.0_r8*pi*Vu_sat(i,j,itide))
+                    Etide(i,j)=Etide(i,j)+                              &
+     &                       ramp*f_sat(i,j,itide)*SSH_Tamp(i,j,itide)* &
+     &                       COS(-SSH_Tphase(i,j,itide)+                &
+     &                       2.0_r8*pi*Vu_sat(i,j,itide))
 #  else
-                  Etide(i,j)=Etide(i,j)+                                &
-     &                     ramp*SSH_Tamp(i,j,itide)*                    &
-     &                     COS(omega-SSH_Tphase(i,j,itide))
+                    Etide(i,j)=Etide(i,j)+                              &
+     &                         ramp*SSH_Tamp(i,j,itide)*                &
+     &                         COS(omega-SSH_Tphase(i,j,itide))
 #  endif
 #  ifdef MASKING
-                  Etide(i,j)=Etide(i,j)*rmask(i,j)
+                    Etide(i,j)=Etide(i,j)*rmask(i,j)
 #  endif
+                  END DO
                 END DO
-              END DO
-            END IF
-          END DO
-          DO j=JstrR,JendR
+              END IF
+            END DO
+            DO j=JstrR,JendR
 #  ifdef ADD_FSOBC
               BOUNDARY(ng)%zeta_east(j)=BOUNDARY(ng)%zeta_east(j)+      &
      &                                  0.5_r8*(Etide(Iend  ,j)+        &
@@ -460,36 +462,37 @@
 #  endif
         END IF
 !
-      IF (LBC(isouth,isFsur,ng)%acquire.or.                             &
-     &    LBC(isouth,isUbar,ng)%acquire.or.                             &
-     &    LBC(isouth,isVbar,ng)%acquire) THEN
-        update=.FALSE.
-        IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
-          Etide(:,:)=0.0_r8
-          DO itide=1,NTC
-            IF (Tperiod(itide).gt.0.0_r8) THEN
-              omega=cff/Tperiod(itide)
-              DO j=Jstr-1,Jstr
-                DO i=IstrR,IendR
+        IF (LBC(isouth,isFsur,ng)%acquire.or.                           &
+     &      LBC(isouth,isUbar,ng)%acquire.or.                           &
+     &      LBC(isouth,isVbar,ng)%acquire) THEN
+          update=.FALSE.
+          cff=2.0_r8*pi*(time(ng)-tide_start*day2sec)
+          IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
+            Etide(:,:)=0.0_r8
+            DO itide=1,NTC
+              IF (Tperiod(itide).gt.0.0_r8) THEN
+                omega=cff/Tperiod(itide)
+                DO j=Jstr-1,Jstr
+                  DO i=IstrR,IendR
 #  ifdef TIDES_ASTRO
 !  Convert Vu_sat from cycles to radians
-                  Etide(i,j)=Etide(i,j)+                                &
-     &                     ramp*f_sat(i,j,itide)*SSH_Tamp(i,j,itide)*   &
-     &                     COS(-SSH_Tphase(i,j,itide)+                  &
-     &                     2.0_r8*pi*Vu_sat(i,j,itide))
+                    Etide(i,j)=Etide(i,j)+                              &
+     &                       ramp*f_sat(i,j,itide)*SSH_Tamp(i,j,itide)* &
+     &                       COS(-SSH_Tphase(i,j,itide)+                &
+     &                       2.0_r8*pi*Vu_sat(i,j,itide))
 #  else
-                  Etide(i,j)=Etide(i,j)+                                &
-     &                     ramp*SSH_Tamp(i,j,itide)*                    &
-     &                     COS(omega-SSH_Tphase(i,j,itide))
+                    Etide(i,j)=Etide(i,j)+                              &
+     &                         ramp*SSH_Tamp(i,j,itide)*                &
+     &                         COS(omega-SSH_Tphase(i,j,itide))
 #  endif
 #  ifdef MASKING
-                  Etide(i,j)=Etide(i,j)*rmask(i,j)
+                    Etide(i,j)=Etide(i,j)*rmask(i,j)
 #  endif
+                  END DO
                 END DO
-              END DO
-            END IF
-          END DO
-          DO i=IstrR,IendR
+              END IF
+            END DO
+            DO i=IstrR,IendR
 #  ifdef ADD_FSOBC
               BOUNDARY(ng)%zeta_south(i)=BOUNDARY(ng)%zeta_south(i)+    &
      &                                   0.5_r8*(Etide(i,Jstr-1)+       &
@@ -508,36 +511,37 @@
 #  endif
         END IF
 !
-      IF (LBC(inorth,isFsur,ng)%acquire.or.                             &
-     &    LBC(inorth,isUbar,ng)%acquire.or.                             &
-     &    LBC(inorth,isVbar,ng)%acquire) THEN
-        update=.FALSE.
-        IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
-          Etide(:,:)=0.0_r8
-          DO itide=1,NTC
-            IF (Tperiod(itide).gt.0.0_r8) THEN
-              omega=cff/Tperiod(itide)
-              DO j=Jend,Jend+1
-                DO i=IstrR,IendR
+        IF (LBC(inorth,isFsur,ng)%acquire.or.                           &
+     &      LBC(inorth,isUbar,ng)%acquire.or.                           &
+     &      LBC(inorth,isVbar,ng)%acquire) THEN
+          update=.FALSE.
+          cff=2.0_r8*pi*(time(ng)-tide_start*day2sec)
+          IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
+            Etide(:,:)=0.0_r8
+            DO itide=1,NTC
+              IF (Tperiod(itide).gt.0.0_r8) THEN
+                omega=cff/Tperiod(itide)
+                DO j=Jend,Jend+1
+                  DO i=IstrR,IendR
 #  ifdef TIDES_ASTRO
 !  Convert Vu_sat from cycles to radians
-                  Etide(i,j)=Etide(i,j)+                                &
-     &                     ramp*f_sat(i,j,itide)*SSH_Tamp(i,j,itide)*   &
-     &                     COS(-SSH_Tphase(i,j,itide)+                  &
-     &                     2.0_r8*pi*Vu_sat(i,j,itide))
+                    Etide(i,j)=Etide(i,j)+                              &
+     &                       ramp*f_sat(i,j,itide)*SSH_Tamp(i,j,itide)* &
+     &                       COS(-SSH_Tphase(i,j,itide)+                &
+     &                       2.0_r8*pi*Vu_sat(i,j,itide))
 #  else
-                  Etide(i,j)=Etide(i,j)+                                &
-     &                     ramp*SSH_Tamp(i,j,itide)*                    &
-     &                     COS(omega-SSH_Tphase(i,j,itide))
+                    Etide(i,j)=Etide(i,j)+                              &
+     &                         ramp*SSH_Tamp(i,j,itide)*                &
+     &                         COS(omega-SSH_Tphase(i,j,itide))
 #  endif
 #  ifdef MASKING
-                  Etide(i,j)=Etide(i,j)*rmask(i,j)
+                    Etide(i,j)=Etide(i,j)*rmask(i,j)
 #  endif
+                  END DO
                 END DO
-              END DO
-            END IF
-          END DO
-          DO i=IstrR,IendR
+              END IF
+            END DO
+            DO i=IstrR,IendR
 #  ifdef ADD_FSOBC
               BOUNDARY(ng)%zeta_north(i)=BOUNDARY(ng)%zeta_north(i)+    &
      &                                   0.5_r8*(Etide(i,Jend  )+       &
@@ -563,48 +567,49 @@
 !  Compute tidal potential (m) for forcing
 !-----------------------------------------------------------------------
 !
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
-          Ptide(i,j)=0.0_r8
+        DO j=JstrR,JendR
+          DO i=IstrR,IendR
+            Ptide(i,j)=0.0_r8
+          END DO
         END DO
-      END DO
-      cff=2.0_r8*pi*(time(ng)-tide_start*day2sec)
-      DO itide=1,NTC
-        IF (Tperiod(itide).gt.0.0_r8) THEN
+        cff=2.0_r8*pi*(time(ng)-tide_start*day2sec)
+        DO itide=1,NTC
+          IF (Tperiod(itide).gt.0.0_r8) THEN
 #  ifdef TIDES_ASTRO
-          tide_time = time(ng)-tide_start*day2sec
+            tide_time = time(ng)-tide_start*day2sec
 #  endif
-          omega=cff/Tperiod(itide)
-          DO j=JstrR,JendR
-            DO i=IstrR,IendR
+            omega=cff/Tperiod(itide)
+            DO j=JstrR,JendR
+              DO i=IstrR,IendR
 #  ifdef TIDES_ASTRO
 !  Convert Vu_sat from cycles to radians
-              Ptide(i,j)=Ptide(i,j)+                                    &
-     &                   ramp*POT_Tamp(i,j,itide)*                      &
-     &                   COS(-POT_Tphase(i,j,itide)+                    &
-     &                   2.0_r8*pi*Vu_sat(i,j,itide))
+                Ptide(i,j)=Ptide(i,j)+                                  &
+     &                     ramp*POT_Tamp(i,j,itide)*                    &
+     &                     COS(-POT_Tphase(i,j,itide)+                  &
+     &                     2.0_r8*pi*Vu_sat(i,j,itide))
 #  else
-              Ptide(i,j)=Ptide(i,j)+                                    &
-     &                   ramp*POT_Tamp(i,j,itide)*                      &
-     &                   COS(omega-POT_Tphase(i,j,itide))
+                Ptide(i,j)=Ptide(i,j)+                                  &
+     &                     ramp*POT_Tamp(i,j,itide)*                    &
+     &                     COS(omega-POT_Tphase(i,j,itide))
 #  endif
 #  ifdef MASKING
-              Ptide(i,j)=Ptide(i,j)*rmask(i,j)
+                Ptide(i,j)=Ptide(i,j)*rmask(i,j)
 #  endif
+              END DO
             END DO
-          END DO
+          END IF
+        END DO
+        IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
+          CALL exchange_r2d_tile (ng, tile,                             &
+     &                            LBi, UBi, LBj, UBj,                   &
+     &                            Ptide)
         END IF
-      END DO
-      IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
-        CALL exchange_r2d_tile (ng, tile,                                 &
-     &                        LBi, UBi, LBj, UBj,                       &
-     &                        Ptide)
-      END IF
 #  ifdef DISTRIBUTE
-      CALL mp_exchange2d (ng, tile, iNLM, 1,                            &
-     &                    LBi, UBi, LBj, UBj,                           &
-     &                    NghostPoints, EWperiodic(ng), NSperiodic(ng), &
-     &                    Ptide)
+        CALL mp_exchange2d (ng, tile, iNLM, 1,                          &
+     &                      LBi, UBi, LBj, UBj,                         &
+     &                      NghostPoints, EWperiodic(ng),               &
+     &                      NSperiodic(ng),                             &
+     &                      Ptide)
 #  endif
 # endif
 
@@ -703,59 +708,60 @@
 !
 !  If appropriate, load tidal forcing into boundary arrays.
 !
-      IF (LBC(iwest,isUbar,ng)%acquire.and.                             &
-     &    LBC(iwest,isVbar,ng)%acquire) THEN
-        update=.FALSE.
-        IF (DOMAIN(ng)%Western_Edge(tile)) THEN
-          Utide(:,:)=0.0_r8
-          Vtide(:,:)=0.0_r8
-          DO itide=1,NTC
-            IF (Tperiod(itide).gt.0.0_r8) THEN
+        IF (LBC(iwest,isUbar,ng)%acquire.and.                           &
+     &      LBC(iwest,isVbar,ng)%acquire) THEN
+          update=.FALSE.
+          cff=2.0_r8*pi*(time(ng)-tide_start*day2sec)
+          IF (DOMAIN(ng)%Western_Edge(tile)) THEN
+            Utide(:,:)=0.0_r8
+            Vtide(:,:)=0.0_r8
+            DO itide=1,NTC
+              IF (Tperiod(itide).gt.0.0_r8) THEN
 #  ifdef TIDES_ASTRO
-              tide_time = time(ng)-tide_start*day2sec
+                tide_time = time(ng)-tide_start*day2sec
 #  endif
-              omega=cff/Tperiod(itide)
-              DO j=MIN(JstrR,Jstr-1),JendR
-                DO i=Istr-1,Istr
-                  angle=UV_Tangle(i,j,itide)-angler(i,j)
-                  Cangle=COS(angle)
-                  Sangle=SIN(angle)
+                omega=cff/Tperiod(itide)
+                DO j=MIN(JstrR,Jstr-1),JendR
+                  DO i=Istr-1,Istr
+                    angle=UV_Tangle(i,j,itide)-angler(i,j)
+                    Cangle=COS(angle)
+                    Sangle=SIN(angle)
 #  ifdef TIDES_ASTRO
-                  phase=-UV_Tphase(i,j,itide)
+                    phase=-UV_Tphase(i,j,itide)
 !  Convert Vu_sat from cycles to radians
-                  phase = phase + 2.0_r8*pi*Vu_sat(i,j,itide)
+                    phase = phase + 2.0_r8*pi*Vu_sat(i,j,itide)
 #  else
-                  phase=omega-UV_Tphase(i,j,itide)
+                    phase=omega-UV_Tphase(i,j,itide)
 #  endif
-                  Cphase=COS(phase)
-                  Sphase=SIN(phase)
-                  Uwrk(i,j)=UV_Tmajor(i,j,itide)*Cangle*Cphase-         &
-     &                      UV_Tminor(i,j,itide)*Sangle*Sphase
-                  Vwrk(i,j)=UV_Tmajor(i,j,itide)*Sangle*Cphase+         &
-     &                      UV_Tminor(i,j,itide)*Cangle*Sphase
+                    Cphase=COS(phase)
+                    Sphase=SIN(phase)
+                    Uwrk(i,j)=UV_Tmajor(i,j,itide)*Cangle*Cphase-       &
+     &                        UV_Tminor(i,j,itide)*Sangle*Sphase
+                    Vwrk(i,j)=UV_Tmajor(i,j,itide)*Sangle*Cphase+       &
+     &                        UV_Tminor(i,j,itide)*Cangle*Sphase
 #  ifdef TIDES_ASTRO
-                  Uwrk(i,j) = Uwrk(i,j)*f_sat(i,j,itide)
-                  Vwrk(i,j) = Vwrk(i,j)*f_sat(i,j,itide)
+                    Uwrk(i,j) = Uwrk(i,j)*f_sat(i,j,itide)
+                    Vwrk(i,j) = Vwrk(i,j)*f_sat(i,j,itide)
+#  endif
+                  END DO
+                END DO
+                DO j=JstrR,JendR
+                  Utide(Istr,j)=Utide(Istr,j)+                          &
+     &                       ramp*0.5_r8*(Uwrk(Istr-1,j)+Uwrk(Istr,j))
+#  ifdef MASKING
+                  Utide(Istr,j)=Utide(Istr,j)*umask(Istr,j)
 #  endif
                 END DO
-              END DO
-              DO j=JstrR,JendR
-                Utide(Istr,j)=Utide(Istr,j)+                            &
-     &                     ramp*0.5_r8*(Uwrk(Istr-1,j)+Uwrk(Istr,j))
-#  ifdef MASKING
-                Utide(Istr,j)=Utide(Istr,j)*umask(Istr,j)
-#  endif
-              END DO
-              DO j=Jstr,JendR
-                Vtide(Istr-1,j)=Vtide(Istr-1,j)+                        &
+                DO j=Jstr,JendR
+                  Vtide(Istr-1,j)=Vtide(Istr-1,j)+                      &
      &                   ramp*0.5_r8*(Vwrk(Istr-1,j-1)+Vwrk(Istr-1,j))
 #  ifdef MASKING
-                Vtide(Istr-1,j)=Vtide(Istr-1,j)*vmask(Istr-1,j)
+                  Vtide(Istr-1,j)=Vtide(Istr-1,j)*vmask(Istr-1,j)
 #  endif
-              END DO
-            END IF
-          END DO
-          DO j=Jstr,JendR
+                END DO
+              END IF
+            END DO
+            DO j=Jstr,JendR
 #  ifdef ADD_M2OBC
               BOUNDARY(ng)%ubar_west(j)=BOUNDARY(ng)%ubar_west(j)+      &
      &                                  Utide(Istr,j)
@@ -781,60 +787,61 @@
      &                      JLB, JUB, 1, 1, update,                     &
      &                      BOUNDARY(ng)%vbar_west)
 #  endif
-      END IF
-      IF (LBC(ieast,isUbar,ng)%acquire.and.                             &
-     &    LBC(ieast,isVbar,ng)%acquire) THEN
-        update=.FALSE.
-        IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
-          Utide(:,:)=0.0_r8
-          Vtide(:,:)=0.0_r8
-          DO itide=1,NTC
-            IF (Tperiod(itide).gt.0.0_r8) THEN
+        END IF
+        IF (LBC(ieast,isUbar,ng)%acquire.and.                           &
+     &      LBC(ieast,isVbar,ng)%acquire) THEN
+          update=.FALSE.
+          cff=2.0_r8*pi*(time(ng)-tide_start*day2sec)
+          IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
+            Utide(:,:)=0.0_r8
+            Vtide(:,:)=0.0_r8
+            DO itide=1,NTC
+              IF (Tperiod(itide).gt.0.0_r8) THEN
 #  ifdef TIDES_ASTRO
-              tide_time = time(ng)-tide_start*day2sec
+                tide_time = time(ng)-tide_start*day2sec
 #  endif
-              omega=cff/Tperiod(itide)
-              DO j=MIN(JstrR,Jstr-1),JendR
-                DO i=Iend,Iend+1
-                  angle=UV_Tangle(i,j,itide)-angler(i,j)
-                  Cangle=COS(angle)
-                  Sangle=SIN(angle)
+                omega=cff/Tperiod(itide)
+                DO j=MIN(JstrR,Jstr-1),JendR
+                  DO i=Iend,Iend+1
+                    angle=UV_Tangle(i,j,itide)-angler(i,j)
+                    Cangle=COS(angle)
+                    Sangle=SIN(angle)
 #  ifdef TIDES_ASTRO
-                  phase=-UV_Tphase(i,j,itide)
+                    phase=-UV_Tphase(i,j,itide)
 !  Convert Vu_sat from cycles to radians
-                  phase = phase + 2.0_r8*pi*Vu_sat(i,j,itide)
+                    phase = phase + 2.0_r8*pi*Vu_sat(i,j,itide)
 #  else
-                  phase=omega-UV_Tphase(i,j,itide)
+                    phase=omega-UV_Tphase(i,j,itide)
 #  endif
-                  Cphase=COS(phase)
-                  Sphase=SIN(phase)
-                  Uwrk(i,j)=UV_Tmajor(i,j,itide)*Cangle*Cphase-         &
-     &                      UV_Tminor(i,j,itide)*Sangle*Sphase
-                  Vwrk(i,j)=UV_Tmajor(i,j,itide)*Sangle*Cphase+         &
-     &                      UV_Tminor(i,j,itide)*Cangle*Sphase
+                    Cphase=COS(phase)
+                    Sphase=SIN(phase)
+                    Uwrk(i,j)=UV_Tmajor(i,j,itide)*Cangle*Cphase-       &
+     &                        UV_Tminor(i,j,itide)*Sangle*Sphase
+                    Vwrk(i,j)=UV_Tmajor(i,j,itide)*Sangle*Cphase+       &
+     &                        UV_Tminor(i,j,itide)*Cangle*Sphase
 #  ifdef TIDES_ASTRO
-                  Uwrk(i,j) = Uwrk(i,j)*f_sat(i,j,itide)
-                  Vwrk(i,j) = Vwrk(i,j)*f_sat(i,j,itide)
+                    Uwrk(i,j) = Uwrk(i,j)*f_sat(i,j,itide)
+                    Vwrk(i,j) = Vwrk(i,j)*f_sat(i,j,itide)
 #  endif
+                  END DO
                 END DO
-              END DO
-              DO j=JstrR,JendR
-                Utide(Iend+1,j)=Utide(Iend+1,j)+                        &
+                DO j=JstrR,JendR
+                  Utide(Iend+1,j)=Utide(Iend+1,j)+                      &
      &                     ramp*0.5_r8*(Uwrk(Iend,j)+Uwrk(Iend+1,j))
 #  ifdef MASKING
-                Utide(Iend+1,j)=Utide(Iend+1,j)*umask(Iend+1,j)
+                  Utide(Iend+1,j)=Utide(Iend+1,j)*umask(Iend+1,j)
 #  endif
-              END DO
-              DO j=Jstr,JendR
-                Vtide(Iend+1,j)=Vtide(Iend+1,j)+                        &
-     &                 ramp*0.5_r8*(Vwrk(Iend+1,j-1)+Vwrk(Iend+1,j))
+                END DO
+                DO j=Jstr,JendR
+                  Vtide(Iend+1,j)=Vtide(Iend+1,j)+                      &
+     &                   ramp*0.5_r8*(Vwrk(Iend+1,j-1)+Vwrk(Iend+1,j))
 #  ifdef MASKING
-                Vtide(Iend+1,j)=Vtide(Iend+1,j)*vmask(Iend+1,j)
+                  Vtide(Iend+1,j)=Vtide(Iend+1,j)*vmask(Iend+1,j)
 #  endif
-              END DO
-            END IF
-          END DO
-          DO j=JstrR,JendR
+                END DO
+              END IF
+            END DO
+            DO j=JstrR,JendR
 #  ifdef ADD_M2OBC
               BOUNDARY(ng)%ubar_east(j)=BOUNDARY(ng)%ubar_east(j)+      &
      &                                  Utide(Iend+1,j)
@@ -860,61 +867,62 @@
      &                      JLB, JUB, 1, 1, update,                     &
      &                      BOUNDARY(ng)%vbar_east)
 #  endif
-      END IF
+        END IF
 
-      IF (LBC(isouth,isUbar,ng)%acquire.and.                            &
-     &    LBC(isouth,isVbar,ng)%acquire) THEN
-        update=.FALSE.
-        IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
-          Utide(:,:)=0.0_r8
-          Vtide(:,:)=0.0_r8
-          DO itide=1,NTC
-            IF (Tperiod(itide).gt.0.0_r8) THEN
+        IF (LBC(isouth,isUbar,ng)%acquire.and.                          &
+     &      LBC(isouth,isVbar,ng)%acquire) THEN
+          update=.FALSE.
+          cff=2.0_r8*pi*(time(ng)-tide_start*day2sec)
+          IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
+            Utide(:,:)=0.0_r8
+            Vtide(:,:)=0.0_r8
+            DO itide=1,NTC
+              IF (Tperiod(itide).gt.0.0_r8) THEN
 # ifdef TIDES_ASTRO
-              tide_time = time(ng)-tide_start*day2sec
+                tide_time = time(ng)-tide_start*day2sec
 # endif
-              omega=cff/Tperiod(itide)
-              DO j=Jstr-1,Jstr
-                DO i=MIN(IstrR,Istr-1),IendR
-                  angle=UV_Tangle(i,j,itide)-angler(i,j)
-                  Cangle=COS(angle)
-                  Sangle=SIN(angle)
+                omega=cff/Tperiod(itide)
+                DO j=Jstr-1,Jstr
+                  DO i=MIN(IstrR,Istr-1),IendR
+                    angle=UV_Tangle(i,j,itide)-angler(i,j)
+                    Cangle=COS(angle)
+                    Sangle=SIN(angle)
 # ifdef TIDES_ASTRO
-                  phase=-UV_Tphase(i,j,itide)
+                    phase=-UV_Tphase(i,j,itide)
 !  Convert Vu_sat from cycles to radians
-                  phase = phase + 2.0_r8*pi*Vu_sat(i,j,itide)
+                    phase = phase + 2.0_r8*pi*Vu_sat(i,j,itide)
 # else
-                  phase=omega-UV_Tphase(i,j,itide)
+                    phase=omega-UV_Tphase(i,j,itide)
 # endif
-                  Cphase=COS(phase)
-                  Sphase=SIN(phase)
-                  Uwrk(i,j)=UV_Tmajor(i,j,itide)*Cangle*Cphase-         &
-     &                      UV_Tminor(i,j,itide)*Sangle*Sphase
-                  Vwrk(i,j)=UV_Tmajor(i,j,itide)*Sangle*Cphase+         &
-     &                      UV_Tminor(i,j,itide)*Cangle*Sphase
+                    Cphase=COS(phase)
+                    Sphase=SIN(phase)
+                    Uwrk(i,j)=UV_Tmajor(i,j,itide)*Cangle*Cphase-       &
+     &                        UV_Tminor(i,j,itide)*Sangle*Sphase
+                    Vwrk(i,j)=UV_Tmajor(i,j,itide)*Sangle*Cphase+       &
+     &                        UV_Tminor(i,j,itide)*Cangle*Sphase
 # ifdef TIDES_ASTRO
-                  Uwrk(i,j) = Uwrk(i,j)*f_sat(i,j,itide)
-                  Vwrk(i,j) = Vwrk(i,j)*f_sat(i,j,itide)
+                    Uwrk(i,j) = Uwrk(i,j)*f_sat(i,j,itide)
+                    Vwrk(i,j) = Vwrk(i,j)*f_sat(i,j,itide)
 # endif
+                  END DO
                 END DO
-              END DO
-              DO i=Istr,IendR
-                Utide(i,Jstr-1)=Utide(i,Jstr-1)+                        &
+                DO i=Istr,IendR
+                  Utide(i,Jstr-1)=Utide(i,Jstr-1)+                      &
      &                 ramp*0.5_r8*(Uwrk(i-1,Jstr-1)+Uwrk(i,Jstr-1))
 #  ifdef MASKING
-                Utide(i,Jstr-1)=Utide(i,Jstr-1)*umask(i,Jstr-1)
+                  Utide(i,Jstr-1)=Utide(i,Jstr-1)*umask(i,Jstr-1)
 #  endif
-              END DO
-              DO i=IstrR,IendR
-                Vtide(i,Jstr)=Vtide(i,Jstr)+                            &
+                END DO
+                DO i=IstrR,IendR
+                  Vtide(i,Jstr)=Vtide(i,Jstr)+                          &
      &                      ramp*0.5_r8*(Vwrk(i,Jstr-1)+Vwrk(i,Jstr))
 #  ifdef MASKING
-                Vtide(i,Jstr)=Vtide(i,Jstr)*vmask(i,Jstr)
+                  Vtide(i,Jstr)=Vtide(i,Jstr)*vmask(i,Jstr)
 #  endif
-              END DO
-            END IF
-          END DO
-          DO i=IstrR,IendR
+                END DO
+              END IF
+            END DO
+            DO i=IstrR,IendR
 #  ifdef ADD_M2OBC
               BOUNDARY(ng)%ubar_south(i)=BOUNDARY(ng)%ubar_south(i)+    &
      &                                   Utide(i,Jstr-1)
@@ -940,61 +948,62 @@
      &                      ILB, IUB, 1, 1, update,                     &
      &                      BOUNDARY(ng)%vbar_south)
 #  endif
-      END IF
-      IF (LBC(inorth,isUbar,ng)%acquire.and.                            &
-     &    LBC(inorth,isVbar,ng)%acquire) THEN
-        update=.FALSE.
-        IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
-          Utide(:,:)=0.0_r8
-          Vtide(:,:)=0.0_r8
-          DO itide=1,NTC
-            IF (Tperiod(itide).gt.0.0_r8) THEN
+        END IF
+        IF (LBC(inorth,isUbar,ng)%acquire.and.                          &
+     &      LBC(inorth,isVbar,ng)%acquire) THEN
+          update=.FALSE.
+          cff=2.0_r8*pi*(time(ng)-tide_start*day2sec)
+          IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
+            Utide(:,:)=0.0_r8
+            Vtide(:,:)=0.0_r8
+            DO itide=1,NTC
+              IF (Tperiod(itide).gt.0.0_r8) THEN
 # ifdef TIDES_ASTRO
-              tide_time = time(ng)-tide_start*day2sec
+                tide_time = time(ng)-tide_start*day2sec
 # endif
-              omega=cff/Tperiod(itide)
-              DO j=Jend,Jend+1
-                DO i=MIN(IstrR,Istr-1),IendR
-                  angle=UV_Tangle(i,j,itide)-angler(i,j)
-                  Cangle=COS(angle)
-                  Sangle=SIN(angle)
+                omega=cff/Tperiod(itide)
+                DO j=Jend,Jend+1
+                  DO i=MIN(IstrR,Istr-1),IendR
+                    angle=UV_Tangle(i,j,itide)-angler(i,j)
+                    Cangle=COS(angle)
+                    Sangle=SIN(angle)
 # ifdef TIDES_ASTRO
-                  phase=-UV_Tphase(i,j,itide)
+                    phase=-UV_Tphase(i,j,itide)
 !  Convert Vu_sat from cycles to radians
-                  phase = phase + 2.0_r8*pi*Vu_sat(i,j,itide)
+                    phase = phase + 2.0_r8*pi*Vu_sat(i,j,itide)
 # else
-                  phase=omega-UV_Tphase(i,j,itide)
+                    phase=omega-UV_Tphase(i,j,itide)
 # endif
-                  Cphase=COS(phase)
-                  Sphase=SIN(phase)
-                  Uwrk(i,j)=UV_Tmajor(i,j,itide)*Cangle*Cphase-           &
-     &                      UV_Tminor(i,j,itide)*Sangle*Sphase
-                  Vwrk(i,j)=UV_Tmajor(i,j,itide)*Sangle*Cphase+           &
-     &                      UV_Tminor(i,j,itide)*Cangle*Sphase
+                    Cphase=COS(phase)
+                    Sphase=SIN(phase)
+                    Uwrk(i,j)=UV_Tmajor(i,j,itide)*Cangle*Cphase-           &
+     &                        UV_Tminor(i,j,itide)*Sangle*Sphase
+                    Vwrk(i,j)=UV_Tmajor(i,j,itide)*Sangle*Cphase+           &
+     &                        UV_Tminor(i,j,itide)*Cangle*Sphase
 # ifdef TIDES_ASTRO
-                  Uwrk(i,j) = Uwrk(i,j)*f_sat(i,j,itide)
-                  Vwrk(i,j) = Vwrk(i,j)*f_sat(i,j,itide)
+                    Uwrk(i,j) = Uwrk(i,j)*f_sat(i,j,itide)
+                    Vwrk(i,j) = Vwrk(i,j)*f_sat(i,j,itide)
 # endif
+                  END DO
                 END DO
-              END DO
-              DO i=Istr,IendR
-                Utide(i,Jend+1)=Utide(i,Jend+1)+                          &
+                DO i=Istr,IendR
+                  Utide(i,Jend+1)=Utide(i,Jend+1)+                          &
      &                    ramp*0.5_r8*(Uwrk(i-1,Jend+1)+Uwrk(i,Jend+1))
 #  ifdef MASKING
-                Utide(i,Jend+1)=Utide(i,Jend+1)*umask(i,Jend+1)
+                  Utide(i,Jend+1)=Utide(i,Jend+1)*umask(i,Jend+1)
 #  endif
-              END DO
-              DO i=IstrR,IendR
-                Vtide(i,Jend+1)=Vtide(i,Jend+1)+                          &
+                END DO
+                DO i=IstrR,IendR
+                  Vtide(i,Jend+1)=Vtide(i,Jend+1)+                          &
      &                      ramp*0.5_r8*(Vwrk(i,Jend)+Vwrk(i,Jend+1))
 #  ifdef MASKING
-                Vtide(i,Jend+1)=Vtide(i,Jend+1)*vmask(i,Jend+1)
+                  Vtide(i,Jend+1)=Vtide(i,Jend+1)*vmask(i,Jend+1)
 #  endif
-              END DO
-            END IF
-          END DO
+                END DO
+              END IF
+            END DO
 
-          DO i=Istr,IendR
+            DO i=Istr,IendR
 #  ifdef ADD_M2OBC
               BOUNDARY(ng)%ubar_north(i)=BOUNDARY(ng)%ubar_north(i)+    &
      &                                   Utide(i,Jend+1)
