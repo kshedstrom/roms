@@ -854,6 +854,9 @@
       END DO
 #endif
 #ifdef ICE_MODEL
+#if defined SOLVE3D && (defined GLS_MIXING || defined MY25_MIXING)
+      ic=ic+1
+#endif
       isUice=ic+1
       isVice=ic+2
       isAice=ic+3
