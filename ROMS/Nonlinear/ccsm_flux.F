@@ -864,6 +864,7 @@ contains
           albsn=0._r8
           IF (ai(i,j,listp) .gt. min_a(ng)) THEN
             thki_n = ice_thick(i,j)
+            thki_n = MAX(thki_n,0.00001_r8)
             thksn_n = snow_thick(i,j)
             albi=0.082409_r8*LOG(thki_n)+0.485472_r8
             IF (thki_n.GE.1._r8) albi=0.07616_r8*thki_n+0.414492_r8

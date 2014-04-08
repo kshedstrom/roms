@@ -155,7 +155,7 @@
 # ifdef ICE_SMOOTH
             CALL ice_smoother(ng, TILE)
 # endif
-!           CALL ice_limit(ng, TILE)
+            CALL ice_limit(ng, TILE)
           END DO
 !$OMP BARRIER
         END DO

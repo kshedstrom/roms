@@ -2710,6 +2710,10 @@
         idBvar(isTvar(i))=idTvar(i)
         ic=ic+1
       END DO
+# if defined GLS_MIXING || defined MY25_MIXING
+      ic=ic+1
+      idBvar(ic)=idMtke
+# endif
 # ifdef ICE_MODEL
       ic=ic+10
       idBvar(isUice)=idUice
@@ -2722,10 +2726,6 @@
       idBvar(isSig11)=idSig11
       idBvar(isSig12)=idSig12
       idBvar(isSig22)=idSig22
-# endif
-# if defined GLS_MIXING || defined MY25_MIXING
-      ic=ic+1
-      idBvar(ic)=idMtke
 # endif
 #endif
 !

@@ -18,7 +18,7 @@
 #undef PARALLEL_IO
 #undef OFFLINE_FLOATS
 #define PERFECT_RESTART
-#define NO_LBC_ATT
+#undef NO_LBC_ATT
 
 /* general */
 

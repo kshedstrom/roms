@@ -48,9 +48,6 @@
 # ifdef BEST_NPZ
       USE mod_biology
 # endif
-# ifdef BCLIMATOLOGY
-      USE mod_biology
-# endif
       USE mod_clima
       USE mod_forces
       USE mod_grid
@@ -1907,8 +1904,8 @@
           IF (exit_flag.ne.NoError) RETURN
         END IF
       END DO
-#   endif
-#   if defined BCLIMATOLOGY
+#  endif
+#  if defined BCLIMATOLOGY
 ! This is all redundant with new code
 !! FC & GH BIO TRACER
 !      DO itrc=NAT+1,NT(ng)
@@ -1921,9 +1918,9 @@
 !          IF (exit_flag.ne.NoError) RETURN
 !        END IF
 !      END DO
-#   endif
+#  endif
 
-#   ifdef AKT_3D /* use 3dAkt for 1D SEBS model  index was iFe+2 */
+#  ifdef AKT_3D /* use 3dAkt for 1D SEBS model  index was iFe+2 */
 ! Set the Akt
       CALL set_3dfld_tile (ng, tile, iNLM, idTclm(iAKt3),               &
      &                       LBi, UBi, LBj, UBj, 1, N(ng),              &
@@ -1931,9 +1928,9 @@
      &                       CLIMA(ng)%tclm(:,:,:,iAKt3),               &
      &                       update)
 
-#   endif
-#   if defined BEST_NPZ
-#    if defined ICE_BIO && defined CLIM_ICE_1D
+#  endif
+#  if defined BEST_NPZ
+#   if defined ICE_BIO && defined CLIM_ICE_1D
       CALL set_3dfld_tile (ng, tile, iNLM, idTclm(i1CI),                &
      &                       LBi, UBi, LBj, UBj, 1, N(ng),              &
      &                       CLIMA(ng)%tclmG(:,:,:,:,i1CI),             &
@@ -1945,8 +1942,8 @@
      &                  CLIMA(ng)%tclm(i,j,N(ng),i1CI)
         END DO
       END DO
-#    endif
 #   endif
+#  endif
 
 #  if defined OFFLINE
       DO itrc=1,NAT
@@ -1977,6 +1974,50 @@
      &                    OCEAN(ng)%t(:,:,:,i,itrc))
         END DO
       END DO
+#   endif
+#  endif
+
+#  ifdef AICLIMATOLOGY
+#   ifdef ANA_AICLIMA
+        CALL ana_aiclima (ng, tile, iNLM)
+#   else
+        CALL set_2dfld_tile (ng, tile, iNLM, idAIclm,                   &
+     &                       LBi, UBi, LBj, UBj,                        &
+     &                       CLIMA(ng)%aiclmG,                          &
+     &                       CLIMA(ng)%aiclm,                           &
+     &                       update)
+        IF (exit_flag.ne.NoError) RETURN
+#   endif
+#  endif
+#  ifdef HICLIMATOLOGY
+#   ifdef ANA_HICLIMA
+        CALL ana_hiclima (ng, tile, iNLM)
+#   else
+        CALL set_2dfld_tile (ng, tile, iNLM, idHIclm,                   &
+     &                       LBi, UBi, LBj, UBj,                        &
+     &                       CLIMA(ng)%hiclmG,                          &
+     &                       CLIMA(ng)%hiclm,                           &
+     &                       update)
+        IF (exit_flag.ne.NoError) RETURN
+#   endif
+#  endif
+
+#  ifdef MICLIMATOLOGY
+#   ifdef ANA_MICLIMA
+        CALL ana_miclima (ng, tile, iNLM)
+#   else
+        CALL set_2dfld_tile (ng, tile, iNLM, idUIclm,                   &
+     &                       LBi, UBi, LBj, UBj,                        &
+     &                       CLIMA(ng)%uiclmG,                          &
+     &                       CLIMA(ng)%uiclm,                           &
+     &                       update)
+        IF (exit_flag.ne.NoError) RETURN
+        CALL set_2dfld_tile (ng, tile, iNLM, idVIclm,                   &
+     &                       LBi, UBi, LBj, UBj,                        &
+     &                       CLIMA(ng)%viclmG,                          &
+     &                       CLIMA(ng)%viclm,                           &
+     &                       update)
+        IF (exit_flag.ne.NoError) RETURN
 #   endif
 #  endif
 # endif

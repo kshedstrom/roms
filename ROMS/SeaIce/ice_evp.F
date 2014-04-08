@@ -110,7 +110,7 @@
       real(r8), intent(in) :: hi(LBi:,LBj:,:)
       real(r8), intent(out) :: pice(LBi:,LBj:)
 #  ifdef ICE_STRENGTH_QUAD
-      real(r8), intent(out) :: pstar_grid(LBi:,LBj:)
+      real(r8), intent(in) :: pstar_grid(LBi:,LBj:)
 #  endif
       real(r8), intent(out) :: zetai(LBi:,LBj:)
       real(r8), intent(out) :: eta(LBi:,LBj:)
@@ -128,7 +128,7 @@
       real(r8), intent(in) :: hi(LBi:UBi,LBj:UBj,2)
       real(r8), intent(out) :: pice(LBi:UBi,LBj:UBj)
 #  ifdef ICE_STRENGTH_QUAD
-      real(r8), intent(out) :: pstar_grid(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: pstar_grid(LBi:UBi,LBj:UBj)
 #  endif
       real(r8), intent(out) :: zetai(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: eta(LBi:UBi,LBj:UBj)

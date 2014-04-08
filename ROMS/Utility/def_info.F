@@ -112,9 +112,7 @@
 
       character (len=11 ) :: bryatt
       character (len=11 ) :: frcatt
-#ifdef OFFLINE
       character (len=11 ) :: clmatt
-#endif
       character (len=50 ) :: tiling
       character (len=80 ) :: type
       character (len=120) :: Vinfo(Natt)
@@ -601,11 +599,11 @@
             IF (exit_flag.eq.NoError) THEN
               CALL join_string (BRY(i,ng)%files, BRY(i,ng)%Nfiles,      &
      &                          string, lstr)
-              WRITE (frcatt,50) i
-              status=nf90_put_att(ncid, nf90_global, frcatt,            &
+              WRITE (bryatt,50) i
+              status=nf90_put_att(ncid, nf90_global, bryatt,            &
      &                            string(1:lstr))
               IF (status.ne.nf90_noerr) THEN
-                IF (Master) WRITE (stdout,20) TRIM(frcatt), TRIM(ncname)
+                IF (Master) WRITE (stdout,20) TRIM(bryatt), TRIM(ncname)
                 exit_flag=3
                 ioerror=status
               END IF
@@ -619,11 +617,12 @@
           DO i=1,nCLMfiles(ng)
             IF (exit_flag.eq.NoError) THEN
               CALL join_string (CLM(i,ng)%files, CLM(i,ng)%Nfiles,      &
-     &                          string,lstr)
-              status=nf90_put_att(ncid, nf90_global, 'clm_file',        &
-     &                            TRIM(CLM(i,ng)%name))
+     &                          string, lstr)
+              WRITE (clmatt,40) i
+              status=nf90_put_att(ncid, nf90_global, clmatt,            &
+     &                            string(1:lstr))
               IF (status.ne.nf90_noerr) THEN
-                IF (Master) WRITE (stdout,20) 'clm_file', TRIM(ncname)
+                IF (Master) WRITE (stdout,20) TRIM(clmatt), TRIM(ncname)
                 exit_flag=3
                 ioerror=status
               END IF
