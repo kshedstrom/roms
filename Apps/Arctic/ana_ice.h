@@ -213,7 +213,7 @@
       ENDDO
       DO j=JstrT,JendT
         DO i=IstrT,IendT
-          IF (t(i,j,N(ng),1,itemp) < -1.6) THEN
+          IF (t(i,j,N(ng),1,itemp) < -1.4) THEN
             ai(i,j,1) = 1._r8
             hi(i,j,1) = 2._r8
             hsn(i,j,1) = 0.2_r8

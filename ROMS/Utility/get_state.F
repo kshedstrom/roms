@@ -95,7 +95,7 @@
 !
 !  Local variable declarations.
 !
-      logical :: Perfect2D, Perfect3D, foundit
+      logical :: Perfect2D, Perfect3D, foundit, read_ice
 #if defined ADJUST_BOUNDARY || \
     defined ADJUST_WSTRESS  || defined ADJUST_STFLUX
       logical :: get_adjust
@@ -1776,10 +1776,17 @@
           END IF
         END DO
 #  endif
-#  if defined ICE_MODEL && !defined ANA_ICE
+#  ifdef ICE_MODEL
+        read_ice = .true.
+#   ifdef ANA_ICE
+        IF (nrrec(ng).eq.0) THEN
+          read_ice = .false.
+        END IF
+#   endif
 !
 !  Read in 2D ice momentum component (m/s) in the XI-direction.
 !
+      IF (read_ice) THEN
         foundit=find_string(var_name, n_var, TRIM(Vname(1,idUice)),     &
      &                        varid)
           IF (Perfect2D) THEN
@@ -2388,10 +2395,11 @@
             WRITE (stdout,70) TRIM(Vname(2,idT0mk)), Fmin, Fmax
           END IF
         END IF
-#   if defined PERFECT_RESTART && defined ICE_MODEL
+#   ifdef PERFECT_RESTART
 !
 !  Read in surface tracers flux.
 !
+      IF (Perfect2D) THEN
         DO itrc=1,NAT
           IF (get_var(idTsur(itrc))) THEN
             foundit=find_string(var_name, n_var,                        &
@@ -2487,7 +2495,9 @@
             END IF
           END IF
         END IF
+      END IF
 #   endif
+      END IF
 !
 #  endif
 #  ifdef NCEP_FLUXES
