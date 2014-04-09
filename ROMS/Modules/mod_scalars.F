@@ -1749,8 +1749,8 @@
 
       allocate ( dt(Ngrids) )
       allocate ( dtfast(Ngrids) )
-      allocate ( tdays(Ngrids) )
-      allocate ( time(Ngrids) )
+!      allocate ( tdays(Ngrids) )
+!      allocate ( time(Ngrids) )
       allocate ( TimeEnd(Ngrids) )
       allocate ( AVGtime(Ngrids) )
       allocate ( AVG2time(Ngrids) )
@@ -1842,7 +1842,7 @@
       allocate ( Kdigits(Ngrids) )
 #endif
 
-      allocate ( first_time(Ngrids) )
+!      allocate ( first_time(Ngrids) )
 
       allocate ( DXmin(Ngrids) )
       allocate ( DXmax(Ngrids) )
@@ -2019,7 +2019,7 @@
 
       allocate ( nrrec(Ngrids) )
 
-      allocate ( synchro_flag(Ngrids) )
+!      allocate ( synchro_flag(Ngrids) )
       allocate ( LastRec(Ngrids) )
 
       allocate ( LcycleADJ(Ngrids) )
