@@ -587,7 +587,7 @@
 !
       IF (LwrtRST(ng)) THEN
         IF ((iic(ng).gt.ntstart(ng)).and.                               &
-     &      (MOD(iic(ng)-1,nRST(ng)).eq.0)) THEN
+     & ((MOD(iic(ng)-1,nRST(ng)).eq.0) .or. ((iic(ng)-1)==ntimes(ng)))) THEN
           CALL wrt_rst (ng)
           IF (exit_flag.ne.NoError) RETURN
 # ifdef FILTERED_RST
