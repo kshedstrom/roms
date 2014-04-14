@@ -97,23 +97,29 @@
       DO i=IstrT,IendT
         DO j=JstrT,MIN(Iwrk,JendT)
           cff = 250.*0.5_r8*(1.0_r8+COS(pi*REAL(j,r8)/REAL(Iwrk,r8)))
-          MIXING(ng) % visc2_r(i,j) = max(cff, visc2_r(i,j))
-          MIXING(ng) % visc2_p(i,j) = max(cff, visc2_p(i,j))
+          MIXING(ng) % visc2_r(i,j) = max(cff,                          &
+     &                                MIXING(ng) % visc2_r(i,j))
+          MIXING(ng) % visc2_p(i,j) = max(cff,                          &
+     &                                MIXING(ng) % visc2_p(i,j))
         END DO
       END DO
       DO i=IstrT,MIN(Iwrk,IendT)
         DO j=MAX(JstrT,i),JendT
           cff = 250.*0.5_r8*(1.0_r8+COS(pi*REAL(i,r8)/REAL(Iwrk,r8)))
-          MIXING(ng) % visc2_r(i,j) = max(cff, visc2_r(i,j))
-          MIXING(ng) % visc2_p(i,j) = max(cff, visc2_p(i,j))
+          MIXING(ng) % visc2_r(i,j) = max(cff,                          &
+     &                                MIXING(ng) % visc2_r(i,j))
+          MIXING(ng) % visc2_p(i,j) = max(cff,                          &
+     &                                MIXING(ng) % visc2_p(i,j))
         END DO
       END DO
       DO i=MAX(Lm(ng)+1-Iwrk,IstrT),IendT
         ifoo = Lm(ng)+1-i
         DO j=MAX(JstrT,ifoo),JendT
           cff = 250.*0.5_r8*(1.0_r8+COS(pi*REAL(ifoo,r8)/REAL(Iwrk,r8)))
-          MIXING(ng) % visc2_r(i,j) = max(cff, visc2_r(i,j))
-          MIXING(ng) % visc2_p(i+1,j) = max(cff, visc2_p(i+1,j))
+          MIXING(ng) % visc2_r(i,j) = max(cff,                          &
+     &                                MIXING(ng) % visc2_r(i,j))
+          MIXING(ng) % visc2_p(i+1,j) = max(cff,                        &
+     &                                MIXING(ng) % visc2_p(i+1,j))
         END DO
       END DO
 ! Northern side not needed in NEP
@@ -122,8 +128,10 @@
 !        itwo = Lm(ng)-Mm(ng)+j
 !        DO i=MAX(IstrT,ifoo),MIN(IendT,itwo)
 !          cff = 250.*0.5_r8*(1.0_r8+COS(pi*REAL(ifoo,r8)/REAL(Iwrk,r8)))
-!          MIXING(ng) % visc2_r(i,j) = max(cff, visc2_r(i,j))
-!          MIXING(ng) % visc2_p(i+1,j) = max(cff, visc2_p(i+1,j))
+!          MIXING(ng) % visc2_r(i,j) = max(cff,                       &
+!     &                                MIXING(ng) % visc2_r(i,j))
+!          MIXING(ng) % visc2_p(i+1,j) = max(cff,                     &
+!     &                                MIXING(ng) % visc2_p(i+1,j))
 !        END DO
 !      END DO
 #endif
@@ -133,20 +141,23 @@
         DO j=JstrT,MIN(Iwrk,JendT)
           cff = 100. * (1.0_r8+COS(pi*REAL(j,r8)/REAL(Iwrk,r8)))
           DO i=IstrT,IendT
-            MIXING(ng) % diff2(i,j,itrc)=max(cff, diff2(i,j,itrc))
+            MIXING(ng) % diff2(i,j,itrc)=max(cff,                       &
+     &                                MIXING(ng) % diff2(i,j,itrc))
           END DO
         END DO
         DO i=IstrT,MIN(Iwrk,IendT)
           DO j=MAX(JstrT,i),JendT
             cff = 100. * (1.0_r8+COS(pi*REAL(i,r8)/REAL(Iwrk,r8)))
-            MIXING(ng) % diff2(i,j,itrc) = max(cff, diff2(i,j,itrc))
+            MIXING(ng) % diff2(i,j,itrc) = max(cff,                     &
+     &                                MIXING(ng) % diff2(i,j,itrc))
           END DO
         END DO
         DO i=MAX(Lm(ng)+1-Iwrk,IstrT),IendT
           ifoo = Lm(ng)+1-i
           DO j=MAX(JstrT,ifoo),JendT
             cff = 100. * (1.0_r8+COS(pi*REAL(ifoo,r8)/REAL(Iwrk,r8)))
-            MIXING(ng) % diff2(i,j,itrc) = max(cff, diff2(i,j,itrc))
+            MIXING(ng) % diff2(i,j,itrc) = max(cff,                     &
+     &                                MIXING(ng) % diff2(i,j,itrc))
           END DO
         END DO
 ! Not needed for NEP
@@ -155,7 +166,8 @@
 !          itwo = Lm(ng)-Mm(ng)+j
 !          DO i=MAX(IstrT,ifoo),MIN(IendT,itwo)
 !            cff = 100. * (1.0_r8+COS(pi*REAL(ifoo,r8)/REAL(Iwrk,r8)))
-!            MIXING(ng) % diff2(i,j,itrc) = max(cff, diff2(i,j,itrc))
+!            MIXING(ng) % diff2(i,j,itrc) = max(cff,                     &
+!     &                                MIXING(ng) % diff2(i,j,itrc))
 !          END DO
 !        END DO
       END DO

@@ -243,32 +243,32 @@
 !  application grid mask.
 !-----------------------------------------------------------------------
 !
-# if defined PERFECT_RESTART && defined WET_DRY
-      rmask_io(LBi:UBi,LBj:UBj) = 0
-      umask_io(LBi:UBi,LBj:UBj) = 0
-      vmask_io(LBi:UBi,LBj:UBj) = 0
-
-      DO j=JstrP,JendP
-        DO i=IstrP,IendP
-          pmask_io(i,j)=pmask(i,j)
-        END DO
-      END DO
-      DO j=JstrT,JendT
-        DO i=IstrT,IendT
-          rmask_io(i,j)=rmask(i,j) * rmask_wet(i,j)
-        END DO
-      END DO
-      DO j=JstrT,JendT
-        DO i=IstrP,IendT
-          umask_io(i,j)=umask(i,j) * umask_wet(i,j)
-        END DO
-      END DO
-      DO j=JstrP,JendT
-        DO i=IstrT,IendT
-          vmask_io(i,j)=vmask(i,j) * vmask_wet(i,j)
-        END DO
-      END DO
-# else
+!# if defined PERFECT_RESTART && defined WET_DRY
+!!      rmask_io(LBi:UBi,LBj:UBj) = 0
+!!      umask_io(LBi:UBi,LBj:UBj) = 0
+!!      vmask_io(LBi:UBi,LBj:UBj) = 0
+!
+!      DO j=JstrP,JendP
+!        DO i=IstrP,IendP
+!          pmask_io(i,j)=pmask(i,j)
+!        END DO
+!      END DO
+!      DO j=JstrT,JendT
+!        DO i=IstrT,IendT
+!          rmask_io(i,j)=rmask(i,j) * rmask_wet(i,j)
+!        END DO
+!      END DO
+!      DO j=JstrT,JendT
+!        DO i=IstrP,IendT
+!          umask_io(i,j)=umask(i,j) * umask_wet(i,j)
+!        END DO
+!      END DO
+!      DO j=JstrP,JendT
+!        DO i=IstrT,IendT
+!          vmask_io(i,j)=vmask(i,j) * vmask_wet(i,j)
+!        END DO
+!      END DO
+!# else
       DO j=JstrP,JendP
         DO i=IstrP,IendP
           pmask_io(i,j)=pmask(i,j)
@@ -289,7 +289,7 @@
           vmask_io(i,j)=vmask(i,j)
         END DO
       END DO
-# endif
+!# endif
 
 # ifdef OUTFLOW_MASK
 !

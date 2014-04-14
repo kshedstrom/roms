@@ -16,6 +16,12 @@
       USE mod_param
       USE mod_scalars
       USE mod_stepping
+# ifdef WET_DRY
+      USE mod_grid
+# endif
+# ifdef WET_DRY
+      USE set_masks_mod, ONLY : set_avg_masks
+# endif
 !
       implicit none
 
@@ -32,6 +38,17 @@
      &                      IOUT, IUOUT, IEOUT,                         &
 # endif
      &                      KOUT, NOUT)
+
+# ifdef WET_DRY
+      CALL set_avg_masks (ng, tile, iNLM,                               &
+     &                    LBi, UBi, LBj, UBj,                           &
+     &                    IminS, ImaxS, JminS, JmaxS,                   &
+     &                    GRID(ng) % pmask_avg,                         &
+     &                    GRID(ng) % rmask_avg,                         &
+     &                    GRID(ng) % umask_avg,                         &
+     &                    GRID(ng) % vmask_avg)
+# endif
+
 # ifdef PROFILE
       CALL wclock_off (ng, iNLM, 5)
 # endif

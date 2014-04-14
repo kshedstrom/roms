@@ -181,8 +181,10 @@
 #  else
           cff = 100.*0.5_r8*(1.0_r8+COS(pi*REAL(j,r8)/REAL(Iwrk,r8)))
 #  endif
-          MIXING(ng) % visc2_r(i,j) = max(cff, visc2_r(i,j))
-          MIXING(ng) % visc2_p(i,j) = max(cff, visc2_p(i,j))
+          MIXING(ng) % visc2_r(i,j) = max(cff,                          &
+     &                                MIXING(ng) % visc2_r(i,j))
+          MIXING(ng) % visc2_p(i,j) = max(cff,                          &
+     &                                MIXING(ng) % visc2_p(i,j))
         END DO
       END DO
       DO i=IstrT,MIN(Iwrk,IendT)
@@ -192,8 +194,10 @@
 #  else
           cff = 100.*0.5_r8*(1.0_r8+COS(pi*REAL(i,r8)/REAL(Iwrk,r8)))
 # endif
-          MIXING(ng) % visc2_r(i,j) = max(cff, visc2_r(i,j))
-          MIXING(ng) % visc2_p(i,j) = max(cff, visc2_p(i,j))
+          MIXING(ng) % visc2_r(i,j) = max(cff,                          &
+     &                                MIXING(ng) % visc2_r(i,j))
+          MIXING(ng) % visc2_p(i,j) = max(cff,                          &
+     &                                MIXING(ng) % visc2_p(i,j))
         END DO
       END DO
 # endif
@@ -207,7 +211,8 @@
           cff = 30. * (1.0_r8+COS(pi*REAL(j,r8)/REAL(Iwrk,r8)))
 #   endif
           DO i=IstrT,IendT
-            MIXING(ng) % diff2(i,j,itrc)=max(cff, diff2(i,j,itrc))
+            MIXING(ng) % diff2(i,j,itrc)=max(cff,                       &
+     &                                MIXING(ng) % diff2(i,j,itrc))
           END DO
         END DO
         DO i=IstrT,MIN(Iwrk,IendT)
@@ -217,7 +222,8 @@
 #   else
             cff = 30. * (1.0_r8+COS(pi*REAL(i,r8)/REAL(Iwrk,r8)))
 #   endif
-            MIXING(ng) % diff2(i,j,itrc) = max(cff, diff2(i,j,itrc))
+            MIXING(ng) % diff2(i,j,itrc) = max(cff,                     &
+     &                                MIXING(ng) % diff2(i,j,itrc))
           END DO
         END DO
       END DO
