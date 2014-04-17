@@ -527,10 +527,18 @@
      &            ((Jstr.le.j).and.(j.le.Jend+1))) THEN
                 IF (INT(SOURCES(ng)%Dsrc(is)).eq.0) THEN
                   FX(i,j)=Huon(i,j,k)*                                  &
+#  ifdef ONE_TRACER_SOURCE
+     &                    SOURCES(ng)%Tsrc(itrc)
+#  else
      &                    SOURCES(ng)%Tsrc(is,k,itrc)
+#  endif
                 ELSE
                   FE(i,j)=Hvom(i,j,k)*                                  &
+#  ifdef ONE_TRACER_SOURCE
+     &                    SOURCES(ng)%Tsrc(itrc)
+#  else
      &                    SOURCES(ng)%Tsrc(is,k,itrc)
+#  endif
                 END IF
               END IF
             END DO

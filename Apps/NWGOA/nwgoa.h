@@ -175,6 +175,7 @@
 /* Using Runoff now */
 #ifdef SOLVE3D
 # define RUNOFF
+# define ONE_TRACER_SOURCE
 # undef UV_PSOURCE
 # undef TS_PSOURCE
 #endif

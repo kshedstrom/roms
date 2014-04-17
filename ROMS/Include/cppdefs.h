@@ -90,6 +90,7 @@
 ** SOLAR_SOURCE        use if solar radiation source term                    **
 ** SRELAXATION         use if salinity relaxation as a freshwater flux       **
 ** TRC_PSOURCE         use if source of inert passive tracers (dyes, etc)    **
+** ONE_TRACER_SOURCE   use if one value per tracer for all sources           **
 ** AGE_PASSIVE         use if aging of inert passive tracers                 **
 ** AGE_DISTRIBUTION    use if aging of inert passive tracers                 **
 ** WTYPE_GRID          use to turn ON spatially varying Jerlov water type    **

@@ -121,6 +121,10 @@
      &                 GRID(ng) % on_v,                                 &
      &                 GRID(ng) % pm,                                   &
      &                 GRID(ng) % pn,                                   &
+#ifdef WET_DRY
+     &                 GRID(ng)%umask_wet,                              &
+     &                 GRID(ng)%vmask_wet,                              &
+#endif
      &                 FORCES(ng) % bustr,                              &
      &                 FORCES(ng) % bvstr,                              &
      &                 FORCES(ng) % sustr,                              &
@@ -180,6 +184,9 @@
 # endif
      &                       fomn,                                      &
      &                       om_u, om_v, on_u, on_v, pm, pn,            &
+#ifdef WET_DRY
+     &                       umask_wet, vmask_wet,                      &
+#endif
      &                       bustr, bvstr,                              &
      &                       sustr, svstr,                              &
      &                       u, v, W,                                   &
@@ -222,6 +229,10 @@
       real(r8), intent(in) :: on_v(LBi:,LBj:)
       real(r8), intent(in) :: pm(LBi:,LBj:)
       real(r8), intent(in) :: pn(LBi:,LBj:)
+# ifdef WET_DRY
+      real(r8), intent(in) :: umask_wet(LBi:,LBj:)
+      real(r8), intent(in) :: vmask_wet(LBi:,LBj:)
+# endif
       real(r8), intent(in) :: bustr(LBi:,LBj:)
       real(r8), intent(in) :: bvstr(LBi:,LBj:)
       real(r8), intent(in) :: sustr(LBi:,LBj:)
@@ -263,6 +274,10 @@
       real(r8), intent(in) :: on_v(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: pm(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: pn(LBi:UBi,LBj:UBj)
+# ifdef WET_DRY
+      real(r8), intent(in) :: umask_wet(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: vmask_wet(LBi:UBi,LBj:UBj)
+# endif
       real(r8), intent(in) :: bustr(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: bvstr(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: sustr(LBi:UBi,LBj:UBj)
@@ -1531,6 +1546,9 @@
 !  bottom stresses.
 !
         DO i=IstrU,Iend
+#ifdef WET_DRY
+          ru(i,j,1,nrhs)=ru(i,j,1,nrhs)*umask_wet(i,j)
+#endif
           rufrc(i,j)=ru(i,j,1,nrhs)
 # ifdef DIAGNOSTICS_UV
           DiaRUfrc(i,j,3,M2pgrd)=DiaRU(i,j,1,nrhs,M3pgrd)
@@ -1557,6 +1575,9 @@
         END DO
         DO k=2,N(ng)
           DO i=IstrU,Iend
+#ifdef WET_DRY
+            ru(i,j,k,nrhs)=ru(i,j,k,nrhs)*umask_wet(i,j)
+#endif
             rufrc(i,j)=rufrc(i,j)+ru(i,j,k,nrhs)
 # ifdef DIAGNOSTICS_UV
             DiaRUfrc(i,j,3,M2pgrd)=DiaRUfrc(i,j,3,M2pgrd)+              &
@@ -1590,6 +1611,9 @@
           cff1= sustr(i,j)*cff
           cff2=-bustr(i,j)*cff
           rufrc(i,j)=rufrc(i,j)+cff1+cff2
+#ifdef WET_DRY
+          rufrc(i,j)=rufrc(i,j)*umask_wet(i,j)
+#endif
 #  ifdef DIAGNOSTICS_UV
           DiaRUfrc(i,j,3,M2sstr)=cff1
           DiaRUfrc(i,j,3,M2bstr)=cff2
@@ -1598,6 +1622,9 @@
 # endif
         IF (j.ge.JstrV) THEN
           DO i=Istr,Iend
+#ifdef WET_DRY
+            rv(i,j,1,nrhs)=rv(i,j,1,nrhs)*vmask_wet(i,j)
+#endif
             rvfrc(i,j)=rv(i,j,1,nrhs)
 # ifdef DIAGNOSTICS_UV
             DiaRVfrc(i,j,3,M2pgrd)=DiaRV(i,j,1,nrhs,M3pgrd)
@@ -1624,6 +1651,9 @@
           END DO
           DO k=2,N(ng)
             DO i=Istr,Iend
+#ifdef WET_DRY
+              rv(i,j,k,nrhs)=rv(i,j,k,nrhs)*vmask_wet(i,j)
+#endif
               rvfrc(i,j)=rvfrc(i,j)+rv(i,j,k,nrhs)
 # ifdef DIAGNOSTICS_UV
               DiaRVfrc(i,j,3,M2pgrd)=DiaRVfrc(i,j,3,M2pgrd)+            &
@@ -1657,6 +1687,9 @@
             cff1= svstr(i,j)*cff
             cff2=-bvstr(i,j)*cff
             rvfrc(i,j)=rvfrc(i,j)+cff1+cff2
+#ifdef WET_DRY
+            rvfrc(i,j)=rvfrc(i,j)*vmask_wet(i,j)
+#endif
 #  ifdef DIAGNOSTICS_UV
             DiaRVfrc(i,j,3,M2sstr)=cff1
             DiaRVfrc(i,j,3,M2bstr)=cff2

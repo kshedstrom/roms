@@ -444,6 +444,12 @@
 !  Set-up tracer (tracer units) point Sources/Sinks.
 !
 # if defined RIVERPLUME1
+#  ifdef ONE_TRACER_SOURCE
+        IF (DOMAIN(ng)%NorthEast_Test(tile)) THEN
+          SOURCES(ng)%Tsrc(itemp)=T0(ng)
+          SOURCES(ng)%Tsrc(isalt)=0.0_r8
+        END IF
+#  else
         IF (DOMAIN(ng)%NorthEast_Test(tile)) THEN
           DO k=1,N(ng)
             DO is=1,Nsrc(ng)
@@ -452,8 +458,15 @@
             END DO
           END DO
         END IF
+#  endif
 
 # elif defined RIVERPLUME2
+#  ifdef ONE_TRACER_SOURCE
+        IF (DOMAIN(ng)%NorthEast_Test(tile)) THEN
+          SOURCES(ng)%Tsrc(itemp)=T0(ng)
+          SOURCES(ng)%Tsrc(isalt)=S0(ng)
+        END IF
+#  else
         IF (DOMAIN(ng)%NorthEast_Test(tile)) THEN
           DO k=1,N(ng)
             DO is=1,Nsrc(ng)
@@ -462,6 +475,7 @@
             END DO
           END DO
         END IF
+#  endif
 # else
         ana_psource.h: No values provided for Tsrc.
 # endif

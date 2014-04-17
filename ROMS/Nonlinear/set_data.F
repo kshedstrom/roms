@@ -974,11 +974,19 @@
 #  ifdef SOLVE3D
         DO itrc=1,NT(ng)
           IF (LtracerSrc(itrc,ng)) THEN
+#   ifdef ONE_TRACER_SOURCE
+            CALL set_ngfld (ng, iNLM, idRtrc(itrc), 1, 1, 1,            &
+     &                      1, 1, 1,                                    &
+     &                      SOURCES(ng) % TsrcG(:,itrc),                &
+     &                      SOURCES(ng) % Tsrc(itrc),                   &
+     &                      update)
+#   else
             CALL set_ngfld (ng, iNLM, idRtrc(itrc), 1, Nsrc(ng), N(ng), &
      &                      1, Nsrc(ng), N(ng),                         &
      &                      SOURCES(ng) % TsrcG(:,:,:,itrc),            &
      &                      SOURCES(ng) % Tsrc(:,:,itrc),               &
      &                      update)
+#   endif
             IF (exit_flag.ne.NoError) RETURN
           END IF
         END DO
