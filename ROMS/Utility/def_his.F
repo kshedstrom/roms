@@ -2290,7 +2290,7 @@
 #endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idUice,ng),r8)
-          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idUice),      &
+          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idUice),   &
      &                     NF_FOUT, nvd3, u2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -2308,7 +2308,7 @@
 #endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idVice,ng),r8)
-          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idVice),      &
+          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idVice),   &
      &                     NF_FOUT, nvd3, v2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -2326,7 +2326,7 @@
 #endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idUiceE,ng),r8)
-          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idUiceE),   &
+          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idUiceE),  &
      &                   NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -2344,7 +2344,7 @@
 #endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idViceN,ng),r8)
-          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idViceN),   &
+          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idViceN),  &
      &                   NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -2362,7 +2362,7 @@
 #endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idAice,ng),r8)
-          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idAice),      &
+          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idAice),   &
      &                     NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -2380,7 +2380,7 @@
 #endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idHice,ng),r8)
-          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idHice),      &
+          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idHice),   &
      &                     NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
       END IF
@@ -2398,7 +2398,7 @@
 #endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idTice,ng),r8)
-          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idTice),      &
+          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idTice),   &
      &                     NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -2416,7 +2416,7 @@
 #endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idHsno,ng),r8)
-          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idHsno),      &
+          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idHsno),   &
      &                     NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -2434,7 +2434,7 @@
 #endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idSfwat,ng),r8)
-          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idSfwat),     &
+          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idSfwat),  &
      &                     NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -2452,7 +2452,7 @@
 #endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idAgeice,ng),r8)
-          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idAgeice),    &
+          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idAgeice), &
      &                     NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -2470,7 +2470,7 @@
 #endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idIomflx,ng),r8)
-          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idIomflx),    &
+          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idIomflx), &
      &                     NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -2488,7 +2488,7 @@
 #endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idTimid,ng),r8)
-          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idTimid),     &
+          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idTimid),  &
      &                     NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -2506,7 +2506,7 @@
 #endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idSig11,ng),r8)
-          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idSig11),     &
+          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idSig11),  &
      &                     NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -2524,7 +2524,7 @@
 #endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idSig22,ng),r8)
-          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idSig22),     &
+          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idSig22),  &
      &                     NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -2542,7 +2542,7 @@
 #endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idSig12,ng),r8)
-          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idSig12),     &
+          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idSig12),  &
      &                     NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -2560,7 +2560,7 @@
 #endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idTauiw,ng),r8)
-          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idTauiw),     &
+          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idTauiw),  &
      &                     NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -2578,7 +2578,7 @@
 #endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idChuiw,ng),r8)
-          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idChuiw),     &
+          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idChuiw),  &
      &                     NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -2596,7 +2596,7 @@
 #endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idS0mk,ng),r8)
-          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idS0mk),      &
+          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idS0mk),   &
      &                     NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -2614,7 +2614,7 @@
 #endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idT0mk,ng),r8)
-          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idT0mk),      &
+          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idT0mk),   &
      &                     NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -2632,7 +2632,7 @@
 #endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idWfr,ng),r8)
-          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idWfr),       &
+          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idWfr),    &
      &                     NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -2650,7 +2650,7 @@
 #endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idWai,ng),r8)
-          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idWai),       &
+          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idWai),    &
      &                     NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -2668,7 +2668,7 @@
 #endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idWao,ng),r8)
-          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idWao),       &
+          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idWao),    &
      &                     NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -2686,7 +2686,7 @@
 #endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idWio,ng),r8)
-          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idWio),       &
+          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idWio),    &
      &                     NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -2704,7 +2704,7 @@
 #endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idWro,ng),r8)
-          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idWro),       &
+          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idWro),    &
      &                     NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF

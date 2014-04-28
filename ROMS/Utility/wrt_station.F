@@ -1629,6 +1629,56 @@
         IF (exit_flag.ne.NoError) RETURN
       END IF
 # endif
+# ifdef WET_DRY
+!
+!  Write out wet/dry mask at RHO-points.
+!
+      IF (Sout(idRwet,ng)) THEN
+        scale=1.0_r8
+        CALL extract_sta2d (ng, iNLM, Cgrid, idRwet, r2dvar,            &
+     &                      LBi, UBi, LBj, UBj,                         &
+     &                      scale, GRID(ng)%rmask_wet,                  &
+     &                      Nstation(ng), Xpos, Ypos, psta)
+        CALL netcdf_put_fvar (ng, iNLM, STA(ng)%name,                   &
+     &                        TRIM(Vname(1,idRwet)), psta,              &
+     &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
+     &                        ncid = STA(ng)%ncid,                      &
+     &                        varid = STA(ng)%Vid(idRwet))
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
+!
+!  Write out wet/dry mask at U-points.
+!
+      IF (Sout(idUwet,ng)) THEN
+        scale=1.0_r8
+        CALL extract_sta2d (ng, iNLM, Cgrid, idUwet, u2dvar,            &
+     &                      LBi, UBi, LBj, UBj,                         &
+     &                      scale, GRID(ng)%umask_wet,                  &
+     &                      Nstation(ng), Xpos, Ypos, psta)
+        CALL netcdf_put_fvar (ng, iNLM, STA(ng)%name,                   &
+     &                        TRIM(Vname(1,idUwet)), psta,              &
+     &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
+     &                        ncid = STA(ng)%ncid,                      &
+     &                        varid = STA(ng)%Vid(idUwet))
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
+!
+!  Write out wet/dry mask at V-points.
+!
+      IF (Sout(idVwet,ng)) THEN
+        scale=1.0_r8
+        CALL extract_sta2d (ng, iNLM, Cgrid, idVwet, v2dvar,            &
+     &                      LBi, UBi, LBj, UBj,                         &
+     &                      scale, GRID(ng)%vmask_wet,                  &
+     &                      Nstation(ng), Xpos, Ypos, psta)
+        CALL netcdf_put_fvar (ng, iNLM, STA(ng)%name,                   &
+     &                        TRIM(Vname(1,idVwet)), psta,              &
+     &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
+     &                        ncid = STA(ng)%ncid,                      &
+     &                        varid = STA(ng)%Vid(idVwet))
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
+# endif
 # ifdef ICE_MODEL
 !
 !  Write out ice 2D momentum component (m/s) in the XI-direction.

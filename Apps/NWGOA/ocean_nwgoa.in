@@ -107,11 +107,10 @@ GridsInLayer =  1
 ! indices (Istr,Iend) and (Jstr,Jend), [1:Ngrids].
 
 !      NtileI == 1                               ! I-direction partition
-!      NtileI == 2                               ! I-direction partition
-!      NtileI == 6                               ! I-direction partition
-       NtileI == 3                               ! I-direction partition
+       NtileI == 2                               ! I-direction partition
+!      NtileI == 4                               ! I-direction partition
 ! ORDER MATTERS HERE!
-       NtileJ == 32                              ! J-direction partition
+       NtileJ == 16                              ! J-direction partition
 
 ! Set lateral boundary conditions keyword. Notice that a value is expected
 ! for each boundary segment per nested grid for each state variable.
@@ -157,11 +156,7 @@ GridsInLayer =  1
    LBC(isMtke) ==   Clo     Clo     Clo     Clo         ! mixing TKE
 
    LBC(isTvar) ==   RadNud  RadNud  RadNud  RadNud \    ! temperature
-                    RadNud  RadNud  RadNud  RadNud \    ! salinity
-                    Clo     Clo     Clo     Clo    \    ! inert(1)
-                    Clo     Clo     Clo     Clo    \    ! inert(2)
-                    Clo     Clo     Clo     Clo    \    ! inert(3)
-                    Clo     Clo     Clo     Clo         ! inert(4)
+                    RadNud  RadNud  RadNud  RadNud      ! salinity
 
 ! Ice boundary conditions
 
@@ -208,9 +203,9 @@ ad_VolCons(north) ==  F                            ! northern boundary
 
 !       NTIMES == 3369600
 !       NTIMES == 864
-       NTIMES == 21600
-          DT == 15.0d0
-!          DT == 200.0d0
+       NTIMES == 172800
+!          DT == 40.0d0
+          DT == 30.0d0
      NDTFAST == 10
 
 ! Model iteration loops parameters.
@@ -232,22 +227,27 @@ ad_VolCons(north) ==  F                            ! northern boundary
 
        NRREC == 0
    LcycleRST == T
-        NRST == 5760
-        NSTA == 30
-        NFLT == 30
+        NRST == 2880
+        NSTA == 120
+        NFLT == 120
+!        NRST == 2160
+!        NSTA == 90
+!        NFLT == 90
        NINFO == 1
 
 ! Output history, average, diagnostic files parameters.
 
      LDEFOUT == T
-       NHIS == 72000
-    NDEFHIS == 72000
+        NHIS == 72000
+     NDEFHIS == 72000
       NTSAVG == 1
-      NAVG == 5760
-   NDEFAVG == 5760
+!        NAVG == 2160
+!     NDEFAVG == 2160
+        NAVG == 2880
+     NDEFAVG == 2880
      NTSAVG2 == 1
-       NAVG2 == 30
-    NDEFAVG2 == 720
+       NAVG2 == 120
+    NDEFAVG2 == 2880
       NTSDIA == 1
         NDIA == 10
      NDEFDIA == 0
@@ -430,11 +430,18 @@ LtracerSponge == F F                            ! temperature, salinity, inert
 
       GAMMA2 == 1.0d0
 
+! Logical switches (TRUE/FALSE) to activate horizontal momentum transport
+! point Sources/Sinks (like river runoff transport) and mass point
+! Sources/Sinks (like volume vertical influx), [1:Ngrids].
+
+      LuvSrc == T                          ! horizontal momentum transport
+       LwSrc == F                          ! volume vertical influx
+
 ! Logical switches (TRUE/FALSE) to activate tracers point Sources/Sinks
 ! (like river runoff) and to specify which tracer variables to consider:
 ! [1:NAT+NPT,Ngrids].  See glossary below for details.
 
-  LtracerSrc == F F                        ! temperature, salinity, inert
+  LtracerSrc == T T                        ! temperature, salinity, inert
 
 ! Logical switches (TRUE/FALSE) to read and process climatology fields.
 ! See glossary below for details.
@@ -893,7 +900,7 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
 
      GRDNAME == /center/w/kate/NWGOA/Files/Cook_Inlet_grid_1.nc
      ININAME == /center/w/kate/NWGOA/Files/nep6_avg_00005_NWGOA.nc
-!     ININAME == arctic_rst.nc
+!     ININAME == nwgoa_rst.nc
      ITLNAME == ocean_itl.nc
      IRPNAME == ocean_irp.nc
      IADNAME == ocean_iad.nc
@@ -924,7 +931,7 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
 
 ! Input Sources/Sinks forcing (like river runoff) file name.
 
-     SSFNAME == ocean_rivers.nc
+     SSFNAME == /center/w/kate/NWGOA/Files/NWGOA_rivers.nc
 
 ! Input forcing NetCDF file name(s).  The USER has the option to enter
 ! several files names per each nested grid.  For example, the USER may
@@ -937,7 +944,7 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
 ! at the each entry, except the last one.
 
 
-    NFFILES == 13                          ! number of forcing files
+    NFFILES == 12                          ! number of forcing files
 
     FRCNAME == /center/w/kate/MERRA/MERRA_Pair_3hours_1999.nc   |
                /center/w/kate/MERRA/MERRA_Pair_3hours_2000.nc   \
@@ -964,23 +971,23 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
 ! Output NetCDF file names, [1:Ngrids].
 
      GSTNAME == ocean_gst.nc
-     RSTNAME == arctic2_rst.nc
-     HISNAME == arctic2_his.nc
-    HIS2NAME == arctic2_his2.nc
-     TLMNAME == arctic2_tlm.nc
-     TLFNAME == arctic2_tlf.nc
-     ADJNAME == arctic2_tlm.nc
-     AVGNAME == arctic2_avg.nc
-    AVG2NAME == arctic2_avg2.nc
-     DIANAME == arctic2_dia.nc
-     STANAME == arctic2_sta.nc
-     FLTNAME == arctic2_flt.nc
+     RSTNAME == nwgoa_rst.nc
+     HISNAME == nwgoa_his.nc
+    HIS2NAME == nwgoa_his2.nc
+     TLMNAME == nwgoa_tlm.nc
+     TLFNAME == nwgoa_tlf.nc
+     ADJNAME == nwgoa_tlm.nc
+     AVGNAME == nwgoa_avg.nc
+    AVG2NAME == nwgoa_avg2.nc
+     DIANAME == nwgoa_dia.nc
+     STANAME == nwgoa_sta.nc
+     FLTNAME == nwgoa_flt.nc
 
 ! Input ASCII parameter filenames.
 
      APARNAM =  External/assimilation.in
      SPOSNAM =  /center/w/kate/NWGOA/External/stations_nwgoa.in
-     FPOSNAM =  /center/w/kate/NWGOA/External/floats_arctic.in
+     FPOSNAM =  /center/w/kate/NWGOA/External/floats_nwgoa.in
      IPARNAM =  /center/w/kate/NWGOA/External/ice.in
      BPARNAM =  /center/w/kate/NWGOA/External/nemuro_iron.in
      SPARNAM =  External/sediment.in

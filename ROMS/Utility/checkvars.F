@@ -217,6 +217,13 @@
         get_var(idSig12)=.true.
         get_var(idS0mk)=.true.
         get_var(idT0mk)=.true.
+#  ifdef PERFECT_RESTART
+        get_var(idUsms)=.true.
+        get_var(idVsms)=.true.
+        DO itrc=1,NT(ng)
+          get_var(idTsur(itrc))=.TRUE.
+        END DO
+#  endif
 # endif
 # ifdef NCEP_FLUXES
         get_var(idWg2d)=.true.
@@ -502,13 +509,13 @@
         END IF
 #  if defined PERFECT_RESTART
         IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idUsms))) THEN
-          get_var(idUsms)=.true.
+          have_var(idUsms)=.true.
         ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idVsms))) THEN
-          get_var(idVsms)=.true.
+          have_var(idVsms)=.true.
         END IF
         DO itrc=1,NT(ng)
           IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idTsur(itrc)))) THEN
-            get_var(idTsur(itrc))=.TRUE.
+            have_var(idTsur(itrc))=.TRUE.
           END IF
         END DO
 #  endif

@@ -136,13 +136,15 @@
           hsn(i,j,linew) = MAX(hsn(i,j,linew),0.0_r8)
           sfwat(i,j,linew) = MAX(sfwat(i,j,linew),0.0_r8)
           ti(i,j,linew) = MAX(ti(i,j,linew),-70.0_r8)
-          IF (hi(i,j,linew) .le. 0.0_r8) ai(i,j,linew) = 0.0_r8
-          IF (ai(i,j,linew) .le. 0.0_r8) THEN
+          IF (ai(i,j,linew) .le. 0.0_r8 .or. hi(i,j,linew) .le. 0.0_r8) &
+     &       THEN
             ai(i,j,linew) = 0.0_r8
             hi(i,j,linew) = 0.0_r8
             sfwat(i,j,linew) = 0.0_r8
             hsn(i,j,linew) = 0.0_r8
           END IF
+!         if (i==428 .and. j==60) print *, 'in ice_limit',              &
+!    &                 sfwat(i,j,:), ai(i,j,:)
         END DO
       END DO
 

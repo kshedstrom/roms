@@ -69,6 +69,9 @@
      &                      GRID(ng) % umask,                           &
      &                      GRID(ng) % vmask,                           &
 # endif
+# ifdef WET_DRY
+     &                      GRID(ng) % rmask_wet,                       &
+# endif
      &                      GRID(ng) % pm,                              &
      &                      GRID(ng) % pn,                              &
      &                      GRID(ng) % Hz,                              &
@@ -119,6 +122,9 @@
      &                            nrhs, nstp, nnew,                     &
 # ifdef MASKING
      &                            rmask, umask, vmask,                  &
+# endif
+# ifdef WET_DRY
+     &                            rmask_wet,                            &
 # endif
      &                            pm, pn,                               &
      &                            Hz, Huon, Hvom,                       &
@@ -176,6 +182,9 @@
       real(r8), intent(in) :: umask(LBi:,LBj:)
       real(r8), intent(in) :: vmask(LBi:,LBj:)
 #  endif
+#  ifdef WET_DRY
+      real(r8), intent(in) :: rmask_wet(LBi:,LBj:)
+#  endif
       real(r8), intent(in) :: pm(LBi:,LBj:)
       real(r8), intent(in) :: pn(LBi:,LBj:)
       real(r8), intent(in) :: Hz(LBi:,LBj:,:)
@@ -227,6 +236,9 @@
       real(r8), intent(in) :: rmask(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: umask(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: vmask(LBi:UBi,LBj:UBj)
+#  endif
+#  ifdef WET_DRY
+      real(r8), intent(in) :: rmask_wet(LBi:UBi,LBj:UBj)
 #  endif
       real(r8), intent(in) :: pm(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: pn(LBi:UBi,LBj:UBj)
@@ -905,7 +917,11 @@
           IF (itrc.eq.itemp) THEN
             DO k=1,N(ng)-1
               DO i=Istr,Iend
-                FC(i,k)=FC(i,k)+dt(ng)*srflx(i,j)*swdk(i,j,k)
+                FC(i,k)=FC(i,k)+dt(ng)*srflx(i,j)                       &
+#   ifdef WET_DRY
+     &                *rmask_wet(i,j)                                   &
+#   endif
+     &               *swdk(i,j,k)
               END DO
             END DO
           END IF

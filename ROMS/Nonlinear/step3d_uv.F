@@ -1251,6 +1251,9 @@
         DO k=1,N(ng)
           DO i=IstrP,IendT
             Huon(i,j,k)=Huon(i,j,k)-DC(i,k)*FC(i,0)
+#  if defined WET_DRY && defined NO_DRY_TRACER_CHANGE
+            Huon(i,j,k)=Huon(i,j,k)*umask_wet(i,j)
+#  endif
           END DO
         END DO
 !
@@ -1470,6 +1473,9 @@
           DO k=1,N(ng)
             DO i=IstrT,IendT
               Hvom(i,j,k)=Hvom(i,j,k)-DC(i,k)*FC(i,0)
+#  if defined WET_DRY && defined NO_DRY_TRACER_CHANGE
+              Hvom(i,j,k)=Hvom(i,j,k)*vmask_wet(i,j)
+#  endif
             END DO
           END DO
         END IF

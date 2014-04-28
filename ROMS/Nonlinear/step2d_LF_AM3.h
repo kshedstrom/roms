@@ -884,6 +884,12 @@
 # if defined WET_DRY && defined MASKING
           zeta(i,j,knew)=zeta(i,j,knew)+                                &
      &                   (Dcrit(ng)-h(i,j))*(1.0_r8-rmask(i,j))
+!          IF ((zeta(i,j,knew)+1.0e-1_r8).lt.(Dcrit(ng)-h(i,j))) THEN 
+!!            zeta(i,j,knew)=Dcrit(ng)-h(i,j)
+!            print *, 'zeta too low', i, j, zeta(i,j,:),h(i,j),          &
+!     &       umask_wet(i,j), umask_wet(i+1,j), vmask_wet(i,j),          &
+!     &       vmask_wet(i,j+1), rmask_wet(i,j)
+!          END IF
 # endif
         END DO
       END DO
@@ -1869,6 +1875,7 @@
 
 # ifdef SOLVE3D
 #  ifdef WET_DRY
+! From COAWST
       DO j=Jstr,Jend
         DO i=IstrU,Iend
           cff5=ABS(ABS(umask_wet(i,j))-1.0_r8)
@@ -2249,7 +2256,8 @@
 # ifdef MASKING
             ubar(i,j,knew)=ubar(i,j,knew)*umask(i,j)
 # endif
-# if defined WET_DRY && defined COAWST_UVBAR
+# ifdef WET_DRY
+! From COAWST
             cff5=ABS(ABS(umask_wet(i,j))-1.0_r8)
             cff6=0.5_r8+DSIGN(0.5_r8,ubar(i,j,knew))*umask_wet(i,j)
             cff7=0.5_r8*umask_wet(i,j)*cff5+cff6*(1.0_r8-cff5)
@@ -2275,7 +2283,8 @@
 # ifdef MASKING
             vbar(i,j,knew)=vbar(i,j,knew)*vmask(i,j)
 # endif
-# if defined WET_DRY && defined COAWST_UVBAR
+# ifdef WET_DRY
+! From COAWST
             cff5=ABS(ABS(vmask_wet(i,j))-1.0_r8)
             cff6=0.5_r8+DSIGN(0.5_r8,vbar(i,j,knew))*vmask_wet(i,j)
             cff7=0.5_r8*vmask_wet(i,j)*cff5+cff6*(1.0_r8-cff5)

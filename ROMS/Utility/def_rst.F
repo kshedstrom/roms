@@ -1026,9 +1026,9 @@
           END IF
           Vinfo(14)=Vname(4,idTsur(itrc))
           Vinfo(16)=Vname(1,idtime)
-# if defined WRITE_WATER && defined MASKING
+#  if defined WRITE_WATER && defined MASKING
           Vinfo(20)='mask_rho'
-# endif
+#  endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idTsur(itrc),ng),r8)
           status=def_var(ng, iNLM, RST(ng)%ncid,                        &
@@ -1044,9 +1044,9 @@
         Vinfo( 3)=Vname(3,idUsms)
         Vinfo(14)=Vname(4,idUsms)
         Vinfo(16)=Vname(1,idtime)
-#if defined WRITE_WATER && defined MASKING
+#  if defined WRITE_WATER && defined MASKING
         Vinfo(20)='mask_u'
-#endif
+#  endif
         Vinfo(22)='coordinates'
         Aval(5)=REAL(Iinfo(1,idUsms,ng),r8)
         status=def_var(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idUsms),     &
@@ -1060,9 +1060,9 @@
         Vinfo( 3)=Vname(3,idVsms)
         Vinfo(14)=Vname(4,idVsms)
         Vinfo(16)=Vname(1,idtime)
-#if defined WRITE_WATER && defined MASKING
+#  if defined WRITE_WATER && defined MASKING
         Vinfo(20)='mask_v'
-#endif
+#  endif
         Vinfo(22)='coordinates'
         Aval(5)=REAL(Iinfo(1,idVsms,ng),r8)
         status=def_var(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idVsms),     &
