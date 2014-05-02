@@ -55,6 +55,7 @@
      &                  GRID(ng) % umask_wet,   GRID(ng) % umask_io,    &
      &                  GRID(ng) % vmask_wet,   GRID(ng) % vmask_io,    &
 #  ifdef SOLVE3D
+     &                  GRID(ng) % utmask_wet,  GRID(ng) % vtmask_wet,  &
      &                  GRID(ng) % rmask_wet_avg,                       &
 #  endif
 # endif
@@ -139,6 +140,7 @@
      &                        umask_wet, umask_io,                      &
      &                        vmask_wet, vmask_io,                      &
 #  ifdef SOLVE3D
+     &                        utmask_wet, vtmask_wet,                   &
      &                        rmask_wet_avg,                            &
 #  endif
 # endif
@@ -304,7 +306,10 @@
       real(r8), intent(inout) :: rmask_wet(LBi:,LBj:)
       real(r8), intent(inout) :: umask_wet(LBi:,LBj:)
       real(r8), intent(inout) :: vmask_wet(LBi:,LBj:)
+
 #   ifdef SOLVE3D
+      real(r8), intent(inout) :: utmask_wet(LBi:,LBj:)
+      real(r8), intent(inout) :: vtmask_wet(LBi:,LBj:)
       real(r8), intent(inout) :: rmask_wet_avg(LBi:,LBj:)
 #   endif
 #  endif
@@ -410,7 +415,10 @@
       real(r8), intent(inout) :: rmask_wet(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: umask_wet(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: vmask_wet(LBi:UBi,LBj:UBj)
+
 #   ifdef SOLVE3D
+      real(r8), intent(inout) :: utmask_wet(LBi:UBi,LBj:UBj)
+      real(r8), intent(inout) :: vtmask_wet(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: rmask_wet_avg(LBi:UBi,LBj:UBj)
 #   endif
 #  endif
@@ -756,6 +764,7 @@
 #  ifdef SOLVE3D
      &                  DU_avg1, DV_avg1,                               &
      &                  rmask_wet_avg,                                  &
+     &                  utmask_wet, vtmask_wet,                         &
 #  endif
      &                  pmask_wet, pmask_io,                            &
      &                  rmask_wet, rmask_io,                            &

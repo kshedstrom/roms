@@ -46,8 +46,8 @@
      &                   GRID(ng) % vmask,                              &
 #endif
 #ifdef WET_DRY
-     &                   GRID(ng) % umask_wet,                          &
-     &                   GRID(ng) % vmask_wet,                          &
+     &                   GRID(ng) % utmask_wet,                         &
+     &                   GRID(ng) % vtmask_wet,                         &
 #endif
      &                   GRID(ng) % Hz,                                 &
      &                   GRID(ng) % pmon_u,                             &
@@ -81,7 +81,7 @@
      &                         umask, vmask,                            &
 #endif
 #ifdef WET_DRY
-     &                         umask_wet, vmask_wet,                    &
+     &                         utmask_wet, vtmask_wet,                  &
 #endif
      &                         Hz, pmon_u, pnom_v, pm, pn,              &
 #ifdef DIFF_3DCOEF
@@ -117,8 +117,8 @@
       real(r8), intent(in) :: vmask(LBi:,LBj:)
 # endif
 # ifdef WET_DRY
-      real(r8), intent(in) :: umask_wet(LBi:,LBj:)
-      real(r8), intent(in) :: vmask_wet(LBi:,LBj:)
+      real(r8), intent(in) :: utmask_wet(LBi:,LBj:)
+      real(r8), intent(in) :: vtmask_wet(LBi:,LBj:)
 # endif
 # ifdef DIFF_3DCOEF
       real(r8), intent(in) :: diff3d_r(LBi:,LBj:,:)
@@ -143,8 +143,8 @@
       real(r8), intent(in) :: vmask(LBi:UBi,LBj:UBj)
 # endif
 # ifdef WET_DRY
-      real(r8), intent(in) :: umask_wet(LBi:UBi,LBj:UBj)
-      real(r8), intent(in) :: vmask_wet(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: utmask_wet(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: vtmask_wet(LBi:UBi,LBj:UBj)
 # endif
 # ifdef DIFF_3DCOEF
       real(r8), intent(in) :: diff3d_r(LBi:UBi,LBj:UBj,N(ng))
@@ -217,10 +217,11 @@
 #else
      &                (t(i,j,k,nrhs,itrc)-t(i-1,j,k,nrhs,itrc))
 #endif
-# ifdef WET_DRY
-              FX(i,j)=FX(i,j)*umask_wet(i,j)
-# elif defined MASKING
+#ifdef MASKING
               FX(i,j)=FX(i,j)*umask(i,j)
+# ifdef WET_DRY
+              FX(i,j)=FX(i,j)*utmask_wet(i,j)
+# endif
 #endif
             END DO
           END DO
@@ -246,10 +247,11 @@
 #else
      &                (t(i,j,k,nrhs,itrc)-t(i,j-1,k,nrhs,itrc))
 #endif
-# ifdef WET_DRY
-              FE(i,j)=FE(i,j)*vmask_wet(i,j)
-# elif defined MASKING
+#ifdef MASKING
               FE(i,j)=FE(i,j)*vmask(i,j)
+# ifdef WET_DRY
+              FE(i,j)=FE(i,j)*vtmask_wet(i,j)
+# endif
 #endif
             END DO
           END DO

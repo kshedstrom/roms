@@ -28,6 +28,7 @@
 # ifdef SOLVE3D
      &                        DU_avg1, DV_avg1,                         &
      &                        rmask_wet_avg,                            &
+     &                        utmask_wet, vtmask_wet,                   &
 # endif
      &                        pmask_wet, pmask_io,                      &
      &                        rmask_wet, rmask_io,                      &
@@ -75,6 +76,11 @@
       real(r8), intent(out) :: umask_wet(LBi:,LBj:)
       real(r8), intent(out) :: vmask_wet(LBi:,LBj:)
 
+#  ifdef SOLVE3D
+      real(r8), intent(out) :: utmask_wet(LBi:,LBj:)
+      real(r8), intent(out) :: vtmask_wet(LBi:,LBj:)
+#  endif
+
 # else
 
       real(r8), intent(in) :: h(LBi:UBi,LBj:UBj)
@@ -99,6 +105,11 @@
       real(r8), intent(out) :: rmask_wet(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: umask_wet(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: vmask_wet(LBi:UBi,LBj:UBj)
+
+#  ifdef SOLVE3D
+      real(r8), intent(out) :: utmask_wet(LBi:UBi,LBj:UBj)
+      real(r8), intent(out) :: vtmask_wet(LBi:UBi,LBj:UBj)
+#  endif
 # endif
 !
 !  Local variable declarations.
@@ -220,6 +231,12 @@
         DO j=JstrR,JendR
           DO i=Istr,IendR
             cff1=wetdry(i-1,j)+wetdry(i,j)
+#  ifdef SOLVE3D
+            utmask_wet(i,j) = 1.0_r8
+            IF (cff1.lt.2.0_r8) THEN
+              utmask_wet(i,j) = 0.0_r8
+            END IF
+#  endif
             IF (cff1.eq.1.0_r8) THEN
               cff1=wetdry(i-1,j)-wetdry(i,j)
             END IF
@@ -234,7 +251,7 @@
                 umask_wet(i,j)=0.0_r8
               END IF
             END IF
-            umask_wet(i,j)=umask_wet(i,j)*umask(i,j)
+!            umask_wet(i,j)=umask_wet(i,j)*umask(i,j)
           END DO
         END DO
 !
@@ -243,6 +260,12 @@
         DO j=Jstr,JendR
           DO i=IstrR,IendR
             cff1=wetdry(i,j-1)+wetdry(i,j)
+#  ifdef SOLVE3D
+            vtmask_wet(i,j) = 1.0_r8
+            IF (cff1.lt.2.0_r8) THEN
+              vtmask_wet(i,j) = 0.0_r8
+            END IF
+#  endif
             IF (cff1.eq.1.0_r8) THEN
               cff1=wetdry(i,j-1)-wetdry(i,j)
             END IF
@@ -257,7 +280,7 @@
                 vmask_wet(i,j)=0.0_r8
               END IF
             END IF
-            vmask_wet(i,j)=vmask_wet(i,j)*vmask(i,j)
+!            vmask_wet(i,j)=vmask_wet(i,j)*vmask(i,j)
           END DO
         END DO
       END IF
@@ -339,6 +362,12 @@
      &                          LBi, UBi, LBj, UBj,                     &
      &                          vmask_wet)
 # ifdef SOLVE3D
+        CALL exchange_u2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          utmask_wet)
+        CALL exchange_v2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          vtmask_wet)
         CALL exchange_r2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          rmask_wet_avg)
@@ -352,11 +381,11 @@
      &                    EWperiodic(ng), NSperiodic(ng),               &
      &                    pmask_wet, rmask_wet, umask_wet, vmask_wet)
 #  ifdef SOLVE3D
-      CALL mp_exchange2d (ng, tile, iNLM, 1,                            &
+      CALL mp_exchange2d (ng, tile, iNLM, 3,                            &
      &                    LBi, UBi, LBj, UBj,                           &
      &                    NghostPoints,                                 &
      &                    EWperiodic(ng), NSperiodic(ng),               &
-     &                    rmask_wet_avg)
+     &                    utmask_wet, vtmask_wet, rmask_wet_avg)
 #  endif
 # endif
 !

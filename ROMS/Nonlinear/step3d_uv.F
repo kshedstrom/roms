@@ -1,5 +1,6 @@
 #include "cppdefs.h"
       MODULE step3d_uv_mod
+#define NO_DRY_TRACER_CHANGE
 #if defined NONLINEAR && defined SOLVE3D
 !
 !svn $Id$
@@ -59,6 +60,8 @@
 # ifdef WET_DRY
      &                     GRID(ng) % umask_wet,                        &
      &                     GRID(ng) % vmask_wet,                        &
+     &                     GRID(ng) % utmask_wet,                       &
+     &                     GRID(ng) % vtmask_wet,                       &
 # endif
      &                     GRID(ng) % om_v,                             &
      &                     GRID(ng) % on_u,                             &
@@ -116,6 +119,7 @@
 # endif
 # ifdef WET_DRY
      &                           umask_wet, vmask_wet,                  &
+     &                           utmask_wet, vtmask_wet,                &
 # endif
      &                           om_v, on_u, pm, pn,                    &
      &                           Hz, z_r, z_w,                          &
@@ -172,6 +176,8 @@
 #  ifdef WET_DRY
       real(r8), intent(in) :: umask_wet(LBi:,LBj:)
       real(r8), intent(in) :: vmask_wet(LBi:,LBj:)
+      real(r8), intent(inout) :: utmask_wet(LBi:,LBj:)
+      real(r8), intent(inout) :: vtmask_wet(LBi:,LBj:)
 #  endif
       real(r8), intent(in) :: om_v(LBi:,LBj:)
       real(r8), intent(in) :: on_u(LBi:,LBj:)
@@ -224,6 +230,8 @@
 #  ifdef WET_DRY
       real(r8), intent(in) :: umask_wet(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: vmask_wet(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: utmask_wet(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: vtmask_wet(LBi:UBi,LBj:UBj)
 #  endif
       real(r8), intent(in) :: om_v(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: on_u(LBi:UBi,LBj:UBj)
@@ -1024,6 +1032,9 @@
      &                       0.5_r8*(z_w(i-1,j,k)-z_w(i-1,j,k-1)+       &
      &                               z_w(i  ,j,k)-z_w(i  ,j,k-1)))
                 u(i,j,k,nnew)=SOURCES(ng)%Qsrc(is,k)*cff1
+# ifdef WET_DRY
+                utmask_wet(i,j)=1.0_r8
+# endif
               END DO
             ELSE
               DO k=1,N(ng)
@@ -1031,6 +1042,9 @@
      &                       0.5_r8*(z_w(i,j-1,k)-z_w(i,j-1,k-1)+       &
      &                               z_w(i,j  ,k)-z_w(i,j  ,k-1)))
                 v(i,j,k,nnew)=SOURCES(ng)%Qsrc(is,k)*cff1
+# ifdef WET_DRY
+                vtmask_wet(i,j)=1.0_r8
+# endif
               END DO
             END IF
           END IF
@@ -1252,7 +1266,7 @@
           DO i=IstrP,IendT
             Huon(i,j,k)=Huon(i,j,k)-DC(i,k)*FC(i,0)
 #  if defined WET_DRY && defined NO_DRY_TRACER_CHANGE
-            Huon(i,j,k)=Huon(i,j,k)*umask_wet(i,j)
+            Huon(i,j,k)=Huon(i,j,k)*utmask_wet(i,j)
 #  endif
           END DO
         END DO
@@ -1474,7 +1488,7 @@
             DO i=IstrT,IendT
               Hvom(i,j,k)=Hvom(i,j,k)-DC(i,k)*FC(i,0)
 #  if defined WET_DRY && defined NO_DRY_TRACER_CHANGE
-              Hvom(i,j,k)=Hvom(i,j,k)*vmask_wet(i,j)
+              Hvom(i,j,k)=Hvom(i,j,k)*vtmask_wet(i,j)
 #  endif
             END DO
           END DO

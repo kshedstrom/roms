@@ -68,6 +68,10 @@
      &                      GRID(ng) % rmask_wet,                       &
      &                      GRID(ng) % umask_wet,                       &
      &                      GRID(ng) % vmask_wet,                       &
+#  ifdef SOLVE3D
+     &                      GRID(ng) % utmask_wet,                      &
+     &                      GRID(ng) % vtmask_wet,                      &
+#  endif
 # endif
 # ifdef PERFECT_RESTART
 #  ifdef SOLVE3D
@@ -124,6 +128,9 @@
 # endif
 # ifdef WET_DRY
      &                            rmask_wet, umask_wet, vmask_wet,      &
+#  ifdef SOLVE3D
+     &                            utmask_wet, vtmask_wet,               &
+#  endif
 # endif
 # ifdef PERFECT_RESTART
 #  ifdef SOLVE3D
@@ -151,6 +158,7 @@
       USE mod_param
       USE mod_ncparam
       USE mod_scalars
+      USE mod_sources
 # ifdef SOGLOBEC
       USE mod_clima
 # endif
@@ -209,6 +217,10 @@
       real(r8), intent(in) :: rmask_wet(LBi:,LBj:)
       real(r8), intent(inout) :: umask_wet(LBi:,LBj:)
       real(r8), intent(inout) :: vmask_wet(LBi:,LBj:)
+#   ifdef SOLVE3D
+      real(r8), intent(inout) :: utmask_wet(LBi:,LBj:)
+      real(r8), intent(inout) :: vtmask_wet(LBi:,LBj:)
+#   endif
 #  endif
 #  ifdef SOLVE3D
       real(r8), intent(in) :: Hz(LBi:,LBj:,:)
@@ -262,6 +274,10 @@
       real(r8), intent(in) :: rmask_wet(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: umask_wet(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: vmask_wet(LBi:UBi,LBj:UBj)
+#   ifdef SOLVE3D
+      real(r8), intent(inout) :: utmask_wet(LBi:UBi,LBj:UBj)
+      real(r8), intent(inout) :: vtmask_wet(LBi:UBi,LBj:UBj)
+#   endif
 #  endif
 #  ifdef SOLVE3D
       real(r8), intent(in) :: Hz(LBi:UBi,LBj:UBj,N(ng))
@@ -307,7 +323,7 @@
 !
 !  Local variable declarations.
 !
-      integer :: i, ic, itrc, j, k
+      integer :: i, ic, is, itrc, j, k
 # if defined SEDIMENT || defined BBL_MODEL
       integer :: ised
 # endif
@@ -327,6 +343,12 @@
       DO j=JstrT,JendT
         DO i=Istr,IendT
           cff1=rmask_wet(i-1,j)+rmask_wet(i,j)
+#  ifdef SOLVE3D
+          utmask_wet(i,j) = 1.0_r8
+          IF (cff1.lt.2.0_r8) THEN
+            utmask_wet(i,j) = 0.0_r8
+          END IF
+#  endif
           IF (cff1.eq.1.0_r8) THEN
             cff1=rmask_wet(i-1,j)-rmask_wet(i,j)
           END IF
@@ -338,6 +360,12 @@
       DO j=Jstr,JendT
         DO i=IstrT,IendT
           cff1=rmask_wet(i,j-1)+rmask_wet(i,j)
+#  ifdef SOLVE3D
+          vtmask_wet(i,j) = 1.0_r8
+          IF (cff1.lt.2.0_r8) THEN
+            vtmask_wet(i,j) = 0.0_r8
+          END IF
+#  endif
           IF (cff1.eq.1.0_r8) THEN
             cff1=rmask_wet(i,j-1)-rmask_wet(i,j)
           END IF
@@ -346,6 +374,23 @@
           vmask_wet(i,j)=0.5_r8*cff1*cff5+cff6*(1.0_r8-cff5)
         END DO
       END DO
+!
+!  Insure that masks at mass point source locations are set to water.
+!
+        IF (LuvSrc(ng)) THEN
+          DO is=1,Nsrc(ng)
+            i=SOURCES(ng)%Isrc(is)
+            j=SOURCES(ng)%Jsrc(is)
+            IF (((IstrR.le.i).and.(i.le.IendR)).and.                    &
+     &          ((JstrR.le.j).and.(j.le.JendR))) THEN
+              IF (INT(SOURCES(ng)%Dsrc(is)).eq.0) THEN
+                utmask_wet(i,j)=1.0_r8
+              ELSE
+                vtmask_wet(i,j)=1.0_r8
+              END IF
+            END IF
+          END DO
+        END IF
       IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
         CALL exchange_u2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
@@ -360,6 +405,23 @@
      &                    NghostPoints,                                 &
      &                    EWperiodic(ng), NSperiodic(ng),               &
      &                    umask_wet, vmask_wet)
+#  endif
+#  ifdef SOLVE3D
+      IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
+        CALL exchange_u2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          utmask_wet)
+        CALL exchange_v2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          vtmask_wet)
+      END IF
+#   ifdef DISTRIBUTE
+      CALL mp_exchange2d (ng, tile, model, 2,                           &
+     &                    LBi, UBi, LBj, UBj,                           &
+     &                    NghostPoints,                                 &
+     &                    EWperiodic(ng), NSperiodic(ng),               &
+     &                    utmask_wet, vtmask_wet)
+#   endif
 #  endif
 # endif
 
