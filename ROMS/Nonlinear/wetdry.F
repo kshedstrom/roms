@@ -231,7 +231,7 @@
         DO j=JstrR,JendR
           DO i=Istr,IendR
             cff1=wetdry(i-1,j)+wetdry(i,j)
-#  ifdef SOLVE3D
+#  if defined SOLVE3D && defined NO_DRY_TRACER_CHANGE
             utmask_wet(i,j) = 1.0_r8
             IF (cff1.lt.2.0_r8) THEN
               utmask_wet(i,j) = 0.0_r8
@@ -260,7 +260,7 @@
         DO j=Jstr,JendR
           DO i=IstrR,IendR
             cff1=wetdry(i,j-1)+wetdry(i,j)
-#  ifdef SOLVE3D
+#  if defined SOLVE3D && defined NO_DRY_TRACER_CHANGE
             vtmask_wet(i,j) = 1.0_r8
             IF (cff1.lt.2.0_r8) THEN
               vtmask_wet(i,j) = 0.0_r8
@@ -361,13 +361,15 @@
         CALL exchange_v2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          vmask_wet)
-# ifdef SOLVE3D
+# if defined SOLVE3D && defined NO_DRY_TRACER_CHANGE
         CALL exchange_u2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          utmask_wet)
         CALL exchange_v2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          vtmask_wet)
+# endif
+# ifdef SOLVE3D
         CALL exchange_r2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          rmask_wet_avg)
@@ -381,11 +383,19 @@
      &                    EWperiodic(ng), NSperiodic(ng),               &
      &                    pmask_wet, rmask_wet, umask_wet, vmask_wet)
 #  ifdef SOLVE3D
+#   ifdef NO_DRY_TRACER_CHANGE
       CALL mp_exchange2d (ng, tile, iNLM, 3,                            &
      &                    LBi, UBi, LBj, UBj,                           &
      &                    NghostPoints,                                 &
      &                    EWperiodic(ng), NSperiodic(ng),               &
      &                    utmask_wet, vtmask_wet, rmask_wet_avg)
+#   else
+      CALL mp_exchange2d (ng, tile, iNLM, 1,                            &
+     &                    LBi, UBi, LBj, UBj,                           &
+     &                    NghostPoints,                                 &
+     &                    EWperiodic(ng), NSperiodic(ng),               &
+     &                    rmask_wet_avg)
+#   endif
 #  endif
 # endif
 !

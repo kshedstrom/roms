@@ -540,6 +540,7 @@
 ** Nearshore and shallow water model OPTIONS:                                **
 **                                                                           **
 ** WET_DRY             use to activate wetting and drying                    **
+** NO_DRY_TRACER_CHANGE use to prevent tracers in dry cells from updating    **
 ** NEARSHORE_MELLOR05  use to activate radiation stress terms (Mellor 2005). **
 ** NEARSHORE_MELLOR08  use to activate radiation stress terms (Mellor 2008). **
 **                                                                           **

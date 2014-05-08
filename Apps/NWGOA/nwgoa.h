@@ -33,6 +33,7 @@
 #undef FLOATS
 #define STATIONS
 #define WET_DRY
+#undef NO_DRY_TRACER_CHANGE
 
 #undef T_PASSIVE
 #ifdef T_PASSIVE
@@ -93,6 +94,7 @@
 #undef UV_SADVECTION
 
 #ifdef SOLVE3D
+# undef TS_A4HADVECTION
 # define TS_U3HADVECTION
 # define TS_C4VADVECTION
 # undef TS_MPDATA

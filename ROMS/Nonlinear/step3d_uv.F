@@ -1,6 +1,5 @@
 #include "cppdefs.h"
       MODULE step3d_uv_mod
-#define NO_DRY_TRACER_CHANGE
 #if defined NONLINEAR && defined SOLVE3D
 !
 !svn $Id$

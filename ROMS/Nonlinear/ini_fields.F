@@ -343,11 +343,13 @@
       DO j=JstrT,JendT
         DO i=Istr,IendT
           cff1=rmask_wet(i-1,j)+rmask_wet(i,j)
-#  ifdef SOLVE3D
+#  if defined SOLVE3D && defined NO_DRY_TRACER_CHANGE
           utmask_wet(i,j) = 1.0_r8
           IF (cff1.lt.2.0_r8) THEN
             utmask_wet(i,j) = 0.0_r8
           END IF
+#  else
+          utmask_wet(i,j) = umask(i,j)
 #  endif
           IF (cff1.eq.1.0_r8) THEN
             cff1=rmask_wet(i-1,j)-rmask_wet(i,j)
@@ -360,11 +362,13 @@
       DO j=Jstr,JendT
         DO i=IstrT,IendT
           cff1=rmask_wet(i,j-1)+rmask_wet(i,j)
-#  ifdef SOLVE3D
+#  if defined SOLVE3D && defined NO_DRY_TRACER_CHANGE
           vtmask_wet(i,j) = 1.0_r8
           IF (cff1.lt.2.0_r8) THEN
             vtmask_wet(i,j) = 0.0_r8
           END IF
+#  else
+          vtmask_wet(i,j) = vmask(i,j)
 #  endif
           IF (cff1.eq.1.0_r8) THEN
             cff1=rmask_wet(i,j-1)-rmask_wet(i,j)

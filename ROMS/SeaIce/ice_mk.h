@@ -705,7 +705,8 @@
      &         -((1.0_r8-brnfr(i,j))*cpi+brnfr(i,j)*cpw)*ti(i,j,linew)
           IF (temp_top(i,j) .le. tfz)                                   &
      &             wao(i,j) = qao_n(i,j)/(hfus1(i,j)*rhosw)
-          IF (ai(i,j,linew) .le. min_a(ng)) THEN
+          IF (ai(i,j,linew) .le. min_a(ng) .or.                         &
+     &        hi(i,j,linew) .le. min_h(ng)) THEN
             s0mk(i,j) = salt_top(i,j)
             t0mk(i,j) = temp_top(i,j)
             wai(i,j) = 0._r8
