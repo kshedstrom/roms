@@ -191,6 +191,7 @@ Hout(idWai) == T
 Hout(idWao) == T
 Hout(idWio) == T
 Hout(idWro) == T
+Hout(idWdiv) == T
 Hout(idIomflx) == T
 
 ! Logical switches (TRUE/FALSE) to activate writing of ice prognostic
@@ -218,5 +219,6 @@ Aout(idWai) == T
 Aout(idWao) == T
 Aout(idWio) == T
 Aout(idWro) == T
+Aout(idWdiv) == T
 Aout(idIomflx) == T
 

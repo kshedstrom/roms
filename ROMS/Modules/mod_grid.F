@@ -113,6 +113,8 @@
 !
 !  utmask_wet Tracer Wet/Dry mask at U-points (0=dry, 1=wet)           !
 !  vtmask_wet Tracer Wet/Dry mask at V-points (0=dry, 1=wet)           !
+!  umask_diff Diffusion Wet/Dry mask at U-points (0=dry, 1=wet)        !
+!  vmask_diff Diffusion Wet/Dry mask at V-points (0=dry, 1=wet)        !
 #endif
 #if defined UV_LOGDRAG || defined GLS_MIXING || \
     defined BBL_MODEL  || defined SEDIMENT
@@ -278,6 +280,8 @@
           real(r8), pointer :: vmask_wet(:,:)
           real(r8), pointer :: utmask_wet(:,:)
           real(r8), pointer :: vtmask_wet(:,:)
+          real(r8), pointer :: umask_diff(:,:)
+          real(r8), pointer :: vmask_diff(:,:)
 # ifdef SOLVE3D
           real(r8), pointer :: rmask_wet_avg(:,:)
 # endif
@@ -483,6 +487,8 @@
       allocate ( GRID(ng) % vmask_wet(LBi:UBi,LBj:UBj) )
       allocate ( GRID(ng) % utmask_wet(LBi:UBi,LBj:UBj) )
       allocate ( GRID(ng) % vtmask_wet(LBi:UBi,LBj:UBj) )
+      allocate ( GRID(ng) % umask_diff(LBi:UBi,LBj:UBj) )
+      allocate ( GRID(ng) % vmask_diff(LBi:UBi,LBj:UBj) )
 # ifdef SOLVE3D
       allocate ( GRID(ng) % rmask_wet_avg(LBi:UBi,LBj:UBj) )
 # endif
@@ -738,6 +744,8 @@
             GRID(ng) % vmask_wet(i,j) = IniVal
             GRID(ng) % utmask_wet(i,j) = IniVal
             GRID(ng) % vtmask_wet(i,j) = IniVal
+            GRID(ng) % umask_diff(i,j) = IniVal
+            GRID(ng) % vmask_diff(i,j) = IniVal
 # ifdef SOLVE3D
             GRID(ng) % rmask_wet_avg(i,j) = IniVal
 # endif

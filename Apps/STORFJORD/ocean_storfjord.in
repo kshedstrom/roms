@@ -768,32 +768,6 @@ Aout(idDENITsed) == T
 Aout(idPONbur) == T
 Aout(idOPALbur) == T
 
-! Logical switches (TRUE/FALSE) to activate writing of ice prognostic
-! variables into AVERAGES output file.
-Aout(idUice) == T
-Aout(idVice) == T
-Aout(idUiceE) == F
-Aout(idViceN) == F
-Aout(idAice) == T
-Aout(idHice) == T
-Aout(idTice) == T
-Aout(idHsno) == T
-Aout(idTimid) == T
-Aout(idSfwat) == T
-Aout(idTauiw) == F
-Aout(idChuiw) == F
-Aout(idAgeice) == T
-Aout(idSig11) == T
-Aout(idSig12) == T
-Aout(idSig22) == T
-Aout(idS0mk) == T
-Aout(idT0mk) == T
-Aout(idWfr) == T
-Aout(idWai) == T
-Aout(idWao) == T
-Aout(idWio) == T
-Aout(idWro) == T
-
 ! Logical switches (TRUE/FALSE) to activate writing of extra inert passive
 ! tracers other than biological and sediment tracers into the AVERAGE file.
 

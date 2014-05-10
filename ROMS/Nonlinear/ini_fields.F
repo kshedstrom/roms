@@ -71,6 +71,8 @@
 #  ifdef SOLVE3D
      &                      GRID(ng) % utmask_wet,                      &
      &                      GRID(ng) % vtmask_wet,                      &
+     &                      GRID(ng) % umask_diff,                      &
+     &                      GRID(ng) % vmask_diff,                      &
 #  endif
 # endif
 # ifdef PERFECT_RESTART
@@ -130,6 +132,7 @@
      &                            rmask_wet, umask_wet, vmask_wet,      &
 #  ifdef SOLVE3D
      &                            utmask_wet, vtmask_wet,               &
+     &                            umask_diff, vmask_diff,               &
 #  endif
 # endif
 # ifdef PERFECT_RESTART
@@ -220,6 +223,8 @@
 #   ifdef SOLVE3D
       real(r8), intent(inout) :: utmask_wet(LBi:,LBj:)
       real(r8), intent(inout) :: vtmask_wet(LBi:,LBj:)
+      real(r8), intent(inout) :: umask_diff(LBi:,LBj:)
+      real(r8), intent(inout) :: vmask_diff(LBi:,LBj:)
 #   endif
 #  endif
 #  ifdef SOLVE3D
@@ -277,6 +282,8 @@
 #   ifdef SOLVE3D
       real(r8), intent(inout) :: utmask_wet(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: vtmask_wet(LBi:UBi,LBj:UBj)
+      real(r8), intent(inout) :: umask_diff(LBi:UBi,LBj:UBj)
+      real(r8), intent(inout) :: vmask_diff(LBi:UBi,LBj:UBj)
 #   endif
 #  endif
 #  ifdef SOLVE3D
@@ -343,13 +350,19 @@
       DO j=JstrT,JendT
         DO i=Istr,IendT
           cff1=rmask_wet(i-1,j)+rmask_wet(i,j)
-#  if defined SOLVE3D && defined NO_DRY_TRACER_CHANGE
+#  ifdef SOLVE3D
+          umask_diff(i,j) = 1.0_r8
+          IF (cff1.lt.2.0_r8) THEN
+            umask_diff(i,j) = 0.0_r8
+          END IF
+#   ifdef NO_DRY_TRACER_CHANGE
           utmask_wet(i,j) = 1.0_r8
           IF (cff1.lt.2.0_r8) THEN
             utmask_wet(i,j) = 0.0_r8
           END IF
-#  else
+#   else
           utmask_wet(i,j) = umask(i,j)
+#   endif
 #  endif
           IF (cff1.eq.1.0_r8) THEN
             cff1=rmask_wet(i-1,j)-rmask_wet(i,j)
@@ -362,13 +375,19 @@
       DO j=Jstr,JendT
         DO i=IstrT,IendT
           cff1=rmask_wet(i,j-1)+rmask_wet(i,j)
-#  if defined SOLVE3D && defined NO_DRY_TRACER_CHANGE
+#  ifdef SOLVE3D
+          vmask_diff(i,j) = 1.0_r8
+          IF (cff1.lt.2.0_r8) THEN
+            vmask_diff(i,j) = 0.0_r8
+          END IF
+#   ifdef NO_DRY_TRACER_CHANGE
           vtmask_wet(i,j) = 1.0_r8
           IF (cff1.lt.2.0_r8) THEN
             vtmask_wet(i,j) = 0.0_r8
           END IF
-#  else
+#   else
           vtmask_wet(i,j) = vmask(i,j)
+#   endif
 #  endif
           IF (cff1.eq.1.0_r8) THEN
             cff1=rmask_wet(i,j-1)-rmask_wet(i,j)
@@ -387,11 +406,13 @@
             j=SOURCES(ng)%Jsrc(is)
             IF (((IstrR.le.i).and.(i.le.IendR)).and.                    &
      &          ((JstrR.le.j).and.(j.le.JendR))) THEN
+#  ifdef SOLVE3d
               IF (INT(SOURCES(ng)%Dsrc(is)).eq.0) THEN
                 utmask_wet(i,j)=1.0_r8
               ELSE
                 vtmask_wet(i,j)=1.0_r8
               END IF
+#  endif
             END IF
           END DO
         END IF
@@ -418,13 +439,20 @@
         CALL exchange_v2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          vtmask_wet)
+        CALL exchange_u2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          umask_diff)
+        CALL exchange_v2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          vmask_diff)
       END IF
 #   ifdef DISTRIBUTE
-      CALL mp_exchange2d (ng, tile, model, 2,                           &
+      CALL mp_exchange2d (ng, tile, model, 4,                           &
      &                    LBi, UBi, LBj, UBj,                           &
      &                    NghostPoints,                                 &
      &                    EWperiodic(ng), NSperiodic(ng),               &
-     &                    utmask_wet, vtmask_wet)
+     &                    utmask_wet, vtmask_wet,                       &
+     &                    umask_diff, vmask_diff)
 #   endif
 #  endif
 # endif

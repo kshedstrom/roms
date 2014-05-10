@@ -46,8 +46,8 @@
      &                   GRID(ng) % vmask,                              &
 #endif
 #ifdef WET_DRY
-     &                   GRID(ng) % utmask_wet,                         &
-     &                   GRID(ng) % vtmask_wet,                         &
+     &                   GRID(ng) % umask_diff,                         &
+     &                   GRID(ng) % vmask_diff,                         &
 #endif
      &                   GRID(ng) % om_v,                               &
      &                   GRID(ng) % on_u,                               &
@@ -82,7 +82,7 @@
      &                         umask, vmask,                            &
 #endif
 #ifdef WET_DRY
-     &                         utmask_wet, vtmask_wet,                  &
+     &                         umask_diff, vmask_diff,                  &
 #endif
      &                         om_v, on_u, pm, pn,                      &
      &                         Hz, z_r,                                 &
@@ -119,8 +119,8 @@
       real(r8), intent(in) :: vmask(LBi:,LBj:)
 # endif
 # ifdef WET_DRY
-      real(r8), intent(in) :: utmask_wet(LBi:,LBj:)
-      real(r8), intent(in) :: vtmask_wet(LBi:,LBj:)
+      real(r8), intent(in) :: umask_diff(LBi:,LBj:)
+      real(r8), intent(in) :: vmask_diff(LBi:,LBj:)
 # endif
 # ifdef DIFF_3DCOEF
       real(r8), intent(in) :: diff3d_r(LBi:,LBj:,:)
@@ -146,8 +146,8 @@
       real(r8), intent(in) :: vmask(LBi:UBi,LBj:UBj)
 # endif
 # ifdef WET_DRY
-      real(r8), intent(in) :: utmask_wet(LBi:UBi,LBj:UBj)
-      real(r8), intent(in) :: vtmask_wet(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: umask_diff(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: vmask_diff(LBi:UBi,LBj:UBj)
 # endif
 # ifdef DIFF_3DCOEF
       real(r8), intent(in) :: diff3d_r(LBi:UBi,LBj:UBj,N(ng))
@@ -223,7 +223,7 @@
 #ifdef MASKING
                 cff=cff*umask(i,j)
 # ifdef WET_DRY
-                cff=cff*utmask_wet(i,j)
+                cff=cff*umask_diff(i,j)
 # endif
 #endif
                 dZdx(i,j,k2)=cff*(z_r(i  ,j,k+1)-                       &
@@ -250,7 +250,7 @@
 #ifdef MASKING
                 cff=cff*vmask(i,j)
 # ifdef WET_DRY
-                cff=cff*vtmask_wet(i,j)
+                cff=cff*vmask_diff(i,j)
 # endif
 #endif
                 dZde(i,j,k2)=cff*(z_r(i,j  ,k+1)-                       &

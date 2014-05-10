@@ -616,32 +616,6 @@ Hout(idMtls) == F       ! gls                turbulent length scale
 Hout(idPONsed) == T
 Hout(idOPALsed) == T
 
-! Logical switches (TRUE/FALSE) to activate writing of ice prognostic
-! variables into HISTORY output file.
-Hout(idUice) == T
-Hout(idVice) == T
-Hout(idUiceE) == F
-Hout(idViceN) == F
-Hout(idAice) == T
-Hout(idHice) == T
-Hout(idTice) == T
-Hout(idHsno) == T
-Hout(idTimid) == T
-Hout(idSfwat) == T
-Hout(idTauiw) == F
-Hout(idChuiw) == F
-Hout(idAgeice) == T
-Hout(idSig11) == T
-Hout(idSig12) == T
-Hout(idSig22) == T
-Hout(idS0mk) == T
-Hout(idT0mk) == T
-Hout(idWfr) == T
-Hout(idWai) == T
-Hout(idWao) == T
-Hout(idWio) == T
-Hout(idWro) == T
-
 ! Logical switches (TRUE/FALSE) to activate writing of extra inert passive
 ! tracers other than biological and sediment tracers. An inert passive tracer
 ! is one that it is only advected and diffused. Other processes are ignored.
@@ -893,32 +867,6 @@ Aout(iHVTav) == F F     ! Hvom_temp, ...     tracer volume flux, <Hvom*t>
 ! Logical switches for bio sediment variables.
 Aout(idPONsed) == T
 Aout(idOPALsed) == T
-
-! Logical switches (TRUE/FALSE) to activate writing of ice prognostic
-! variables into AVERAGES output file.
-Aout(idUice) == T
-Aout(idVice) == T
-Aout(idUiceE) == F
-Aout(idViceN) == F
-Aout(idAice) == T
-Aout(idHice) == T
-Aout(idTice) == T
-Aout(idHsno) == T
-Aout(idTimid) == T
-Aout(idSfwat) == T
-Aout(idTauiw) == F
-Aout(idChuiw) == F
-Aout(idAgeice) == T
-Aout(idSig11) == T
-Aout(idSig12) == T
-Aout(idSig22) == T
-Aout(idS0mk) == T
-Aout(idT0mk) == T
-Aout(idWfr) == T
-Aout(idWai) == T
-Aout(idWao) == T
-Aout(idWio) == T
-Aout(idWro) == T
 
 ! Logical switches (TRUE/FALSE) to activate writing of extra inert passive
 ! tracers other than biological and sediment tracers into the AVERAGE file.

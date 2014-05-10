@@ -146,6 +146,15 @@
      &                  ICE(ng)%vi,                                     &
      &                  ICE(ng)%hi, LBC(:,isHice,ng))
 !
+! Store ice divergence rate
+!
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
+          ICE(ng)%wdiv(i,j) = (ICE(ng)%hi(i,j,linew(ng))-               &
+       &                       ICE(ng)%hi(i,j,liold(ng)))/dt(ng)
+        ENDDO
+      ENDDO
+!
 ! ---------------------------------------------------------------------
 !  Advect the snow thickness.
 ! ---------------------------------------------------------------------

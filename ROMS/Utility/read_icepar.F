@@ -280,6 +280,13 @@
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Hout(idWro,:))
+            CASE ('Hout(idWdiv)')
+              IF (idWro.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idWdiv'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Hout(idWdiv,:))
 #ifdef AVERAGES
             CASE ('Aout(idUice)')
               IF (idUice.eq.0) THEN
@@ -449,6 +456,13 @@
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Aout(idWro,:))
+            CASE ('Aout(idWdiv)')
+              IF (idWro.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idWdiv'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Aout(idWdiv,:))
 #endif
 #ifdef AVERAGES2
             CASE ('Aout2(idUice)')
@@ -629,6 +643,9 @@
           IF (Hout(idWro,ng)) WRITE (out,70) Hout(idWro,ng),            &
      &       'Hout(idWro)',                                             &
      &       'Write out ice melt runoff rate.'
+          IF (Hout(idWdiv,ng)) WRITE (out,70) Hout(idWdiv,ng),          &
+     &       'Hout(idWdiv)',                                            &
+     &       'Write out ice divergence rate.'
 #ifdef AVERAGES
           IF (Aout(idUice,ng)) WRITE (out,70) Aout(idUice,ng),          &
      &       'Aout(idUice)',                                            &
@@ -702,6 +719,9 @@
           IF (Aout(idWro,ng)) WRITE (out,70) Aout(idWro,ng),            &
      &       'Aout(idWro)',                                             &
      &       'Write out time-averaged ice melt runoff rate.'
+          IF (Aout(idWdiv,ng)) WRITE (out,70) Aout(idWdiv,ng),          &
+     &       'Aout(idWdiv)',                                            &
+     &       'Write out time-averaged ice divergence rate.'
 #endif
 #ifdef AVERAGES2
           IF (Aout2(idUice,ng)) WRITE (out,70) Aout2(idUice,ng),        &
