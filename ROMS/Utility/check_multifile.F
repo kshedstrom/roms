@@ -215,61 +215,61 @@
             CLM(i,ng)%time_min(ifile)=Tmin
             CLM(i,ng)%time_max(ifile)=Tmax
           END DO
-        END DO
 !
 !  Set the appropriate file counter to use during initialization or
 !  restart.
 !
-        Fcount=0
-        IF (Lcheck) THEN
-          DO ifile=1,Nfiles
-            Tmin=Tscale*CLM(i,ng)%time_min(ifile)
-            IF (time(ng).ge.Tmin) THEN
-              Fcount=ifile
-            END IF
-          END DO
-        ELSE
-          Fcount=1
-        END IF
+          Fcount=0
+          IF (Lcheck) THEN
+            DO ifile=1,Nfiles
+              Tmin=Tscale*CLM(i,ng)%time_min(ifile)
+              IF (time(ng).ge.Tmin) THEN
+                Fcount=ifile
+              END IF
+            END DO
+          ELSE
+            Fcount=1
+          END IF
 !
 !  Initialize other structure parameters or issue an error if data does
 !  not include initalization time.
 !
-        IF (Fcount.gt.0) THEN
-          CLM(i,ng)%Fcount=Fcount
-          ncname=CLM(i,ng)%files(Fcount)
-          lstr=LEN_TRIM(ncname)
-          CLM(i,ng)%name=TRIM(ncname)
-          CLM(i,ng)%base=ncname(1:lstr-3)
-        ELSE
-          IF (Master.and.Lcheck) THEN
-            WRITE (stdout,10) 'Climatology', I_code
-            DO ifile=1,Nfiles
-              Tmin=Tscale*CLM(i,ng)%time_min(ifile)
-              Tmax=Tscale*CLM(i,ng)%time_max(ifile)
-              CALL time_string(Tmin, Tmin_code)
-              CALL time_string(Tmax, Tmax_code)
-              WRITE (stdout,20) Tmin_code, Tmax_code,                     &
-     &                          TRIM(CLM(i,ng)%files(ifile))
-            END DO
-          END IF
-          exit_flag=4
-        END IF
-!
-!  Check if there is boundary data to the end of the simulation.
-!
-        IF (Lcheck) THEN
-          Tmax=Tscale*CLM(i,ng)%time_max(Nfiles)
-          IF (Tfinal.gt.Tmax) THEN
-            CALL time_string(Tmax, Tmax_code)
-            IF (Master) THEN
-              WRITE (stdout,30) 'Climatology',                          &
-     &                          TRIM(CLM(i,ng)%files(Nfiles)),          &
-     &                          Tmax_code, F_code
+          IF (Fcount.gt.0) THEN
+            CLM(i,ng)%Fcount=Fcount
+            ncname=CLM(i,ng)%files(Fcount)
+            lstr=LEN_TRIM(ncname)
+            CLM(i,ng)%name=TRIM(ncname)
+            CLM(i,ng)%base=ncname(1:lstr-3)
+          ELSE
+            IF (Master.and.Lcheck) THEN
+              WRITE (stdout,10) 'Climatology', I_code
+              DO ifile=1,Nfiles
+                Tmin=Tscale*CLM(i,ng)%time_min(ifile)
+                Tmax=Tscale*CLM(i,ng)%time_max(ifile)
+                CALL time_string(Tmin, Tmin_code)
+                CALL time_string(Tmax, Tmax_code)
+                WRITE (stdout,20) Tmin_code, Tmax_code,                 &
+     &                            TRIM(CLM(i,ng)%files(ifile))
+              END DO
             END IF
             exit_flag=4
           END IF
-        END IF
+!
+!  Check if there is climatology data to the end of the simulation.
+!
+          IF (Lcheck) THEN
+            Tmax=Tscale*CLM(i,ng)%time_max(Nfiles)
+            IF (Tfinal.gt.Tmax) THEN
+              CALL time_string(Tmax, Tmax_code)
+              IF (Master) THEN
+                WRITE (stdout,30) 'Climatology',                        &
+     &                            TRIM(CLM(i,ng)%files(Nfiles)),        &
+     &                            Tmax_code, F_code
+              END IF
+              exit_flag=4
+            END IF
+          END IF
+        END DO
       END IF
 
  10   FORMAT (/,' CHECK_MULTIFILE - Error while processing ', a,        &

@@ -12,6 +12,7 @@
 **  Options for NWGOA simulation
 */
 
+#define PROFILE
 #undef NO_HIS
 #undef GLOBAL_PERIODIC
 #undef NETCDF4

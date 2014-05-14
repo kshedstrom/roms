@@ -12,6 +12,7 @@
 **  Options for ARCTIC simulation
 */
 
+#define PROFILE
 #define NO_HIS
 #define GLOBAL_PERIODIC
 #undef NETCDF4
@@ -167,8 +168,7 @@
 #endif
 
 #ifdef SOLVE3D
-# undef TCLIMATOLOGY
-# undef TCLM_NUDGING
+# define ANA_NUDGCOEF
 #endif
 
 /* point sources (rivers, line sources) */
