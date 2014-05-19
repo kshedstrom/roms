@@ -1526,7 +1526,7 @@
             END IF
             GotScope(2)=.TRUE.
             IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
-              CALL exchange_r2d_tile (ng, tile,                         &
+              CALL exchange_u2d_tile (ng, tile,                         &
      &                                LBi, UBi, LBj, UBj,               &
      &                                GRID(ng) % Uscope)
             END IF

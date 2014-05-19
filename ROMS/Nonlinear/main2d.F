@@ -117,13 +117,13 @@
 !  simulation, or a multi-model coupling interval, or just a single
 !  step.
 !
-!          CALL ntimesteps (nl, GridsInLayer(nl), iNLM, RunInterval,     &
-!     &                     Nsteps, Rsteps)
-!          IF (exit_flag.ne.NoError) RETURN
+          CALL ntimesteps (nl, GridsInLayer(nl), iNLM, RunInterval,     &
+     &                     Nsteps, Rsteps)
+          IF (exit_flag.ne.NoError) RETURN
 !
 !  Time-step governing equations for Nsteps.
 !
-!          STEP_LOOP : DO istep=1,Nsteps
+          STEP_LOOP : DO istep=1,Nsteps
 !
 !  Set time indices and time clock.
 !
