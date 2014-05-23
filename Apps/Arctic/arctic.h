@@ -12,7 +12,6 @@
 **  Options for ARCTIC simulation
 */
 
-#define PROFILE
 #define NO_HIS
 #define GLOBAL_PERIODIC
 #undef NETCDF4

@@ -954,7 +954,6 @@
 # endif
             END DO
           END DO
-# endif
 # if defined DIAGNOSTICS_UV && defined MASKING
           DO k=1,N(ng)
             DO idiag=1,NDM3d

@@ -86,6 +86,11 @@ Sout(idDENITsed) == T
 Sout(idPONbur) == T
 Sout(idOPALbur) == T
 
+! Switches for wet-dry masks
+Sout(idRwet) == T
+Sout(idUwet) == T
+Sout(idVwet) == T
+
 ! Logical switches (TRUE/FALSE) to activate writing of ice prognostic
 ! variables into HISTORY output file.
 Sout(idUice) == T
@@ -103,7 +108,10 @@ Sout(idSig11) == T
 Sout(idSig12) == T
 Sout(idSig22) == T
 Sout(idWfr) == T
-! These two cause trouble...
+Sout(idWai) == T
+Sout(idWao) == T
+Sout(idWio) == T
+Sout(idWro) == T
 Sout(idS0mk) == T
 Sout(idT0mk) == T
 
@@ -137,7 +145,7 @@ Sout(idBott) == F F F F F F F F F F F F F F F F
 ! essential because the station arrays are dynamically allocated using
 ! these values, [1:Ngrids].
 
-    NSTATION ==  1
+    NSTATION ==  8
 
 ! Station locations for all grids in any desired order.  The horizontal
 ! location for a particular station may be specified in terms of fractional
@@ -149,7 +157,14 @@ Sout(idBott) == F F F F F F F F F F F F F F F F
 
 POS =  GRID  FLAG      X-POS       Y-POS     COMMENT
 
-    1    0    590      318
+    1    0    695      117
+    1    0    685      148
+    1    0    629      325
+    1    0    602      281
+    1    0    592      351
+    1    0    520      322
+    1    0    497      282
+    1    0    474      281
 
 !
 !  GLOSSARY:
