@@ -1393,10 +1393,10 @@
             t(i,j,k,nnew,iactrc)=t(i,j,k,nnew,iactrc)+                  &
      &                           dt(ng)*t(i,j,k,nnew,iwctrc)
 !  Age in years, as in Spall, 2007, JGR, doi:10.1029/2005JC003364.
-            t(i,j,k,nnew,inert(3))=t(i,j,k,nnew,inert(3))+              &
-     &                           dt(ng)*3.168808781402895e-08
-            t(i,j,k,nnew,inert(4))=t(i,j,k,nnew,inert(4))+              &
-     &                           dt(ng)*3.168808781402895e-08
+!            t(i,j,k,nnew,inert(3))=t(i,j,k,nnew,inert(3))+              &
+!     &                           dt(ng)*3.168808781402895e-08
+!            t(i,j,k,nnew,inert(4))=t(i,j,k,nnew,inert(4))+              &
+!     &                           dt(ng)*3.168808781402895e-08
           END DO
         END DO
       END DO

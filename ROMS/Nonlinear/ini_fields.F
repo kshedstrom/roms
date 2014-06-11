@@ -364,12 +364,14 @@
           utmask_wet(i,j) = umask(i,j)
 #   endif
 #  endif
-          IF (cff1.eq.1.0_r8) THEN
-            cff1=rmask_wet(i-1,j)-rmask_wet(i,j)
+          IF (.not.PerfectRST(ng)) THEN
+            IF (cff1.eq.1.0_r8) THEN
+              cff1=rmask_wet(i-1,j)-rmask_wet(i,j)
+            END IF
+            cff5=ABS(ABS(cff1)-1.0_r8)
+            cff6=0.5_r8+DSIGN(0.5_r8,ubar(i,j,kstp))*cff1
+            umask_wet(i,j)=0.5_r8*cff1*cff5+cff6*(1.0_r8-cff5)
           END IF
-          cff5=ABS(ABS(cff1)-1.0_r8)
-          cff6=0.5_r8+DSIGN(0.5_r8,ubar(i,j,kstp))*cff1
-          umask_wet(i,j)=0.5_r8*cff1*cff5+cff6*(1.0_r8-cff5)
         END DO
       END DO
       DO j=Jstr,JendT
@@ -389,48 +391,52 @@
           vtmask_wet(i,j) = vmask(i,j)
 #   endif
 #  endif
-          IF (cff1.eq.1.0_r8) THEN
-            cff1=rmask_wet(i,j-1)-rmask_wet(i,j)
+          IF (.not.PerfectRST(ng)) THEN
+            IF (cff1.eq.1.0_r8) THEN
+              cff1=rmask_wet(i,j-1)-rmask_wet(i,j)
+            END IF
+            cff5=ABS(ABS(cff1)-1.0_r8)
+            cff6=0.5_r8+DSIGN(0.5_r8,vbar(i,j,kstp))*cff1
+            vmask_wet(i,j)=0.5_r8*cff1*cff5+cff6*(1.0_r8-cff5)
           END IF
-          cff5=ABS(ABS(cff1)-1.0_r8)
-          cff6=0.5_r8+DSIGN(0.5_r8,vbar(i,j,kstp))*cff1
-          vmask_wet(i,j)=0.5_r8*cff1*cff5+cff6*(1.0_r8-cff5)
         END DO
       END DO
 !
 !  Insure that masks at mass point source locations are set to water.
 !
-        IF (LuvSrc(ng)) THEN
-          DO is=1,Nsrc(ng)
-            i=SOURCES(ng)%Isrc(is)
-            j=SOURCES(ng)%Jsrc(is)
-            IF (((IstrR.le.i).and.(i.le.IendR)).and.                    &
-     &          ((JstrR.le.j).and.(j.le.JendR))) THEN
+      IF (LuvSrc(ng)) THEN
+        DO is=1,Nsrc(ng)
+          i=SOURCES(ng)%Isrc(is)
+          j=SOURCES(ng)%Jsrc(is)
+          IF (((IstrR.le.i).and.(i.le.IendR)).and.                      &
+     &        ((JstrR.le.j).and.(j.le.JendR))) THEN
 #  ifdef SOLVE3d
-              IF (INT(SOURCES(ng)%Dsrc(is)).eq.0) THEN
-                utmask_wet(i,j)=1.0_r8
-              ELSE
-                vtmask_wet(i,j)=1.0_r8
-              END IF
-#  endif
+            IF (INT(SOURCES(ng)%Dsrc(is)).eq.0) THEN
+              utmask_wet(i,j)=1.0_r8
+            ELSE
+              vtmask_wet(i,j)=1.0_r8
             END IF
-          END DO
-        END IF
-      IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
-        CALL exchange_u2d_tile (ng, tile,                               &
-     &                          LBi, UBi, LBj, UBj,                     &
-     &                          umask_wet)
-        CALL exchange_v2d_tile (ng, tile,                               &
-     &                          LBi, UBi, LBj, UBj,                     &
-     &                          vmask_wet)
-      END IF
-#  ifdef DISTRIBUTE
-      CALL mp_exchange2d (ng, tile, model, 2,                           &
-     &                    LBi, UBi, LBj, UBj,                           &
-     &                    NghostPoints,                                 &
-     &                    EWperiodic(ng), NSperiodic(ng),               &
-     &                    umask_wet, vmask_wet)
 #  endif
+          END IF
+        END DO
+        END IF
+      IF (.not.PerfectRST(ng)) THEN
+        IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
+          CALL exchange_u2d_tile (ng, tile,                             &
+     &                            LBi, UBi, LBj, UBj,                   &
+     &                            umask_wet)
+          CALL exchange_v2d_tile (ng, tile,                             &
+     &                            LBi, UBi, LBj, UBj,                   &
+     &                            vmask_wet)
+        END IF
+#  ifdef DISTRIBUTE
+        CALL mp_exchange2d (ng, tile, model, 2,                         &
+     &                      LBi, UBi, LBj, UBj,                         &
+     &                      NghostPoints,                               &
+     &                      EWperiodic(ng), NSperiodic(ng),             &
+     &                      umask_wet, vmask_wet)
+#  endif
+      END IF
 #  ifdef SOLVE3D
       IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
         CALL exchange_u2d_tile (ng, tile,                               &

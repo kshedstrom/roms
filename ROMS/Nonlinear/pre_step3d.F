@@ -625,10 +625,10 @@
             t(i,j,k,3,iactrc)=t(i,j,k,3,iactrc)+                        &
      &                           cff*Hz(i,j,k)*t(i,j,k,nstp,iwctrc)
 !  Age in years, as in Spall, 2007, JGR, doi:10.1029/2005JC003364.
-            t(i,j,k,3,inert(3))=t(i,j,k,3,inert(3))+              &
-     &                           cff*3.168808781402895e-08
-            t(i,j,k,3,inert(4))=t(i,j,k,3,inert(4))+              &
-     &                           cff*3.168808781402895e-08
+!            t(i,j,k,3,inert(3))=t(i,j,k,3,inert(3))+              &
+!     &                           cff*3.168808781402895e-08
+!            t(i,j,k,3,inert(4))=t(i,j,k,3,inert(4))+              &
+!     &                           cff*3.168808781402895e-08
           END DO
         END DO
       END DO

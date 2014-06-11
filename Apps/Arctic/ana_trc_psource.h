@@ -189,14 +189,14 @@
         DO k=1,N(ng)
           DO is=1,15
             Tsrcpt(is,k,inert(1))=1.
-            Tsrcpt(is,k,inert(3))=0.
+!           Tsrcpt(is,k,inert(3))=0.
           END DO
         END DO
-        DO k=1,N(ng)
-          DO is=16,15+13
-            Tsrcpt(is,k,inert(4))=0.
-          END DO
-        END DO
+!       DO k=1,N(ng)
+!         DO is=16,15+13
+!           Tsrcpt(is,k,inert(4))=0.
+!         END DO
+!       END DO
       END IF
       RETURN
       END SUBROUTINE ana_trc_psource_tile

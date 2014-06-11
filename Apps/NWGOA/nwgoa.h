@@ -12,7 +12,7 @@
 **  Options for NWGOA simulation
 */
 
-#undef NO_HIS
+#define NO_HIS
 #undef GLOBAL_PERIODIC
 #undef NETCDF4
 #undef PARALLEL_IO
@@ -74,7 +74,9 @@
 
 #define NO_WRITE_GRID
 #undef OUT_DOUBLE
-#define RST_SINGLE
+#ifndef PERFECT_RESTART
+# define RST_SINGLE
+#endif
 #define AVERAGES
 #undef AVERAGES2
 #ifdef SOLVE3D

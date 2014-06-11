@@ -157,7 +157,8 @@
 # elif defined UV_QDRAG
       DO j=JstrT,JendT          ! based on Chezy coefficient (g/c^2)
         DO i=IstrT,IendT
-          cff1 = MAX(2.0_r8,GRID(ng)%h(i,j))
+!  Was 2.0, then 5.0
+          cff1 = MAX(13.0_r8,GRID(ng)%h(i,j))
           cff=1.8_r8*cff1*LOG(cff1)
           rdrag2(i,j)=g/(cff*cff)
         END DO

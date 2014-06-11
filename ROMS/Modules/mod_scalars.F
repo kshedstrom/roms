@@ -450,7 +450,11 @@
         real(r8), allocatable :: maxspeed(:)
         real(r8), allocatable :: maxrho(:)
 !
+#ifdef NWGOA
+        real(r8) :: max_speed = 80.0_r8         ! m/s
+#else
         real(r8) :: max_speed = 20.0_r8         ! m/s
+#endif
         real(r8) :: max_rho = 200.0_r8          ! kg/m3
 #ifdef BIOLOGY
         real(r8), allocatable :: maxbio(:,:)
