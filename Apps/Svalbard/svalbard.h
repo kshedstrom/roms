@@ -9,11 +9,11 @@
 **
 *******************************************************************************
 **
-**  Options for NWGOA simulation
+**  Options for ARCTIC simulation
 */
 
-#undef NO_HIS
-#undef GLOBAL_PERIODIC
+#define NO_HIS
+#define GLOBAL_PERIODIC
 #undef NETCDF4
 #undef PARALLEL_IO
 #undef OFFLINE_FLOATS
@@ -32,7 +32,7 @@
 #endif
 #undef FLOATS
 #define STATIONS
-#define WET_DRY
+#undef WET_DRY
 
 #undef T_PASSIVE
 #ifdef T_PASSIVE
@@ -42,6 +42,7 @@
 # define TRC_PSOURCE
 # define ANA_TRC_PSOURCE
 # define AGE_PASSIVE
+# define PTOBC
 #endif
 
 /* ice */
@@ -49,9 +50,9 @@
 #ifdef SOLVE3D
 # define  ICE_MODEL
 # ifdef ICE_MODEL
-#  undef ANA_ICE
+#  define ANA_ICE
 #  undef  OUTFLOW_MASK
-#  undef  FASTICE_CLIMATOLOGY
+#  undef   FASTICE_CLIMATOLOGY
 #  define  ICE_THERMO
 #  define  ICE_MK
 #  undef   ICE_SMOOTH
@@ -63,9 +64,9 @@
 #  define  ICE_SMOLAR
 #  define  ICE_UPWIND
 #  define  ICE_BULK_FLUXES
-#  undef  ANA_AIOBC
-#  undef  ANA_HIOBC
-#  undef  ANA_HSNOBC
+#  define  ANA_AIOBC
+#  define  ANA_HIOBC
+#  define  ANA_HSNOBC
 # endif
 #endif
 
@@ -73,9 +74,7 @@
 
 #define NO_WRITE_GRID
 #undef OUT_DOUBLE
-#ifndef PERFECT_RESTART
-# define RST_SINGLE
-#endif
+#define RST_SINGLE
 #define AVERAGES
 #undef AVERAGES2
 #ifdef SOLVE3D
@@ -95,7 +94,6 @@
 #undef UV_SADVECTION
 
 #ifdef SOLVE3D
-# undef TS_A4HADVECTION
 # define TS_U3HADVECTION
 # define TS_C4VADVECTION
 # undef TS_MPDATA
@@ -114,10 +112,10 @@
 # define DIFF_GRID
 #endif
 
-/* vertical mixing */
-
 #ifdef SOLVE3D
 # define WTYPE_GRID
+
+/* vertical mixing */
 
 # undef LMD_MIXING
 # ifdef LMD_MIXING
@@ -169,32 +167,28 @@
 #endif
 
 #ifdef SOLVE3D
-# undef TCLIMATOLOGY
-# undef TCLM_NUDGING
+# define ANA_NUDGCOEF
 #endif
 
 /* point sources (rivers, line sources) */
 
 /* Using Runoff now */
 #ifdef SOLVE3D
-# undef RUNOFF
-# define ONE_TRACER_SOURCE
-# undef UV_PSOURCE
-# undef TS_PSOURCE
+# define RUNOFF
 #endif
 
 /* tides */
 
 #define LTIDES
 #ifdef LTIDES
-# undef FILTERED
+# define FILTERED
 # define SSH_TIDES
 # define UV_TIDES
 # define ADD_FSOBC
 # define ADD_M2OBC
 # undef RAMP_TIDES
 # define TIDES_ASTRO
-# undef POT_TIDES
+# define POT_TIDES
 
 # undef UV_LDRAG
 # define UV_DRAG_GRID

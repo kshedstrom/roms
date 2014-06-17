@@ -71,8 +71,6 @@
 # endif
 # ifdef WET_DRY
      &                      GRID(ng) % rmask_wet,                       &
-     &                      GRID(ng) % utmask_wet,                      &
-     &                      GRID(ng) % vtmask_wet,                      &
 # endif
      &                      GRID(ng) % pm,                              &
      &                      GRID(ng) % pn,                              &
@@ -126,7 +124,7 @@
      &                            rmask, umask, vmask,                  &
 # endif
 # ifdef WET_DRY
-     &                            rmask_wet, utmask_wet, vtmask_wet,    &
+     &                            rmask_wet,                            &
 # endif
      &                            pm, pn,                               &
      &                            Hz, Huon, Hvom,                       &
@@ -186,8 +184,6 @@
 #  endif
 #  ifdef WET_DRY
       real(r8), intent(in) :: rmask_wet(LBi:,LBj:)
-      real(r8), intent(in) :: utmask_wet(LBi:,LBj:)
-      real(r8), intent(in) :: vtmask_wet(LBi:,LBj:)
 #  endif
       real(r8), intent(in) :: pm(LBi:,LBj:)
       real(r8), intent(in) :: pn(LBi:,LBj:)
@@ -243,8 +239,6 @@
 #  endif
 #  ifdef WET_DRY
       real(r8), intent(in) :: rmask_wet(LBi:UBi,LBj:UBj)
-      real(r8), intent(in) :: utmask_wet(LBi:UBi,LBj:UBj)
-      real(r8), intent(in) :: vtmask_wet(LBi:UBi,LBj:UBj)
 #  endif
       real(r8), intent(in) :: pm(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: pn(LBi:UBi,LBj:UBj)
@@ -368,9 +362,6 @@
           DO j=Jstr,Jend
             DO i=Istr,Iend+1
               FX(i,j)=Huon(i,j,k)*                                      &
-#   if defined WET_DRY && defined NO_DRY_TRACER_CHANGE
-     &                utmask_wet(i,j)*                                  &
-#   endif
      &                0.5_r8*(t(i-1,j,k,nstp,itrc)+                     &
      &                        t(i  ,j,k,nstp,itrc))
             END DO
@@ -378,9 +369,6 @@
           DO j=Jstr,Jend+1
             DO i=Istr,Iend
               FE(i,j)=Hvom(i,j,k)*                                      &
-#   if defined WET_DRY && defined NO_DRY_TRACER_CHANGE
-     &                vtmask_wet(i,j)*                                  &
-#   endif
      &                0.5_r8*(t(i,j-1,k,nstp,itrc)+                     &
      &                        t(i,j  ,k,nstp,itrc))
             END DO
@@ -394,10 +382,6 @@
             DO i=Istr,Iend+1
               cff1=MAX(Huon(i,j,k),0.0_r8)
               cff2=MIN(Huon(i,j,k),0.0_r8)
-#   if defined WET_DRY && defined NO_DRY_TRACER_CHANGE
-              cff1=cff1*utmask_wet(i,j)
-              cff2=cff2*utmask_wet(i,j)
-#   endif
               FX(i,j)=cff1*t(i-1,j,k,nstp,itrc)+                        &
      &                cff2*t(i  ,j,k,nstp,itrc)
             END DO
@@ -406,10 +390,6 @@
             DO i=Istr,Iend
               cff1=MAX(Hvom(i,j,k),0.0_r8)
               cff2=MIN(Hvom(i,j,k),0.0_r8)
-#   if defined WET_DRY && defined NO_DRY_TRACER_CHANGE
-              cff1=cff1*vtmask_wet(i,j)
-              cff2=cff2*vtmask_wet(i,j)
-#   endif
               FE(i,j)=cff1*t(i,j-1,k,nstp,itrc)+                        &
      &                cff2*t(i,j  ,k,nstp,itrc)
             END DO
@@ -482,9 +462,6 @@
      &                 cff2*(grad(i  ,j)-                               &
      &                       grad(i-1,j)))
 #   endif
-#   if defined WET_DRY && defined NO_DRY_TRACER_CHANGE
-              FX(i,j)=FX(i,j)*utmask_wet(i,j)
-#   endif
             END DO
           END DO
 !
@@ -492,9 +469,6 @@
             DO i=Istr,Iend
               FE(i,j)=t(i,j  ,k,nstp,itrc)-                             &
      &                t(i,j-1,k,nstp,itrc)
-#   if defined WET_DRY && defined NO_DRY_TRACER_CHANGE
-              FE(i,j)=FE(i,j)*vmask(i,j)
-#   endif
             END DO
           END DO
           IF (.not.(CompositeGrid(isouth,ng).or.NSperiodic(ng))) THEN
@@ -545,9 +519,6 @@
      &                 t(i,j  ,k,nstp,itrc)-                            &
      &                 cff2*(grad(i,j  )-                               &
      &                       grad(i,j-1)))
-#   endif
-#   if defined WET_DRY && defined NO_DRY_TRACER_CHANGE
-              FE(i,j)=FE(i,j)*vtmask_wet(i,j)
 #   endif
             END DO
           END DO
@@ -693,17 +664,9 @@
           DO i=Istr,Iend
             DC(i,k)=1.0_r8/(Hz(i,j,k)-                                  &
      &                      cff*pm(i,j)*pn(i,j)*                        &
-#   if defined WET_DRY && defined NO_DRY_TRACER_CHANGE
-     &                      (Huon(i+1,j,k)*utmask_wet(i+1,j)-           &
-     &                       Huon(i,j,k)*utmask_wet(i,j)+               &
-     &                       Hvom(i,j+1,k)*vtmask_wet(i,j+1)-           &
-     &                       Hvom(i,j,k)*vtmask_wet(i,j)+               &
-     &                      (W(i,j,k)-W(i,j,k-1))*rmask_wet(i,j)))
-#   else
      &                      (Huon(i+1,j,k)-Huon(i,j,k)+                 &
      &                       Hvom(i,j+1,k)-Hvom(i,j,k)+                 &
      &                      (W(i,j,k)-W(i,j,k-1))))
-#   endif
           END DO
         END DO
 !

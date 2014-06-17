@@ -1406,12 +1406,6 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+19)=' NO_CORRECT_TRACER,'
 #endif
-#ifdef NO_DRY_TRACER_CHANGE
-      IF (Master) WRITE (stdout,20) 'NO_DRY_TRACER_CHANGE',             &
-     &   'Turn off updating of dry cell tracers.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+22)=' NO_DRY_TRACER_CHANGE,'
-#endif
 #ifdef NO_HIS
       IF (Master) WRITE (stdout,20) 'NO_HIS',                           &
      &   'Turn off writing of history files.'

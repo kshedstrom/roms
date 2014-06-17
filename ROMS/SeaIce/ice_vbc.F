@@ -75,6 +75,10 @@
 # ifdef ICE_SHOREFAST
      &                   GRID(ng) % h,                                  &
 # endif
+# ifdef WET_DRY
+     &                   GRID(ng) % umask_wet,                          &
+     &                   GRID(ng) % vmask_wet,                          &
+# endif
      &                   ICE(ng) % utau_iw,                             &
      &                   ICE(ng) % chu_iw,                              &
      &                   ICE(ng) % spd_iw                               &
@@ -105,6 +109,9 @@
 # endif
 # ifdef ICE_SHOREFAST
      &                         h,                                       &
+# endif
+# ifdef WET_DRY
+     &                         umask_wet, vmask_wet,                    &
 # endif
      &                         utau_iw, chu_iw, spd_iw)
 !***********************************************************************
@@ -157,6 +164,10 @@
 #  ifdef ICESHELF
       real(r8), intent(in) :: zice(LBi:,LBj:)
 #  endif
+#  ifdef WET_DRY
+      real(r8), intent(in) :: umask_wet(LBi:,LBj:)
+      real(r8), intent(in) :: vmask_wet(LBi:,LBj:)
+#  endif
 # else
       real(r8), intent(in) :: u(LBi:UBi,LBj:UBj,N(ng),2)
       real(r8), intent(in) :: v(LBi:UBi,LBj:UBj,N(ng),2)
@@ -189,6 +200,10 @@
       real(r8), intent(in) :: z_w(LBi:UBi,LBj:UBj,0:N(ng))
 #  ifdef ICESHELF
       real(r8), intent(in) :: zice(LBi:UBi,LBj:UBj)
+#  endif
+#  ifdef WET_DRY
+      real(r8), intent(in) :: umask_wet(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: vmask_wet(LBi:UBi,LBj:UBj)
 #  endif
 # endif
 !
@@ -280,12 +295,18 @@
           chux = 0.5_r8*(chuiw(i,j)+chuiw(i-1,j))
           tauaiu(i,j) = 0.5_r8*aix*(tau_aix_n(i,j)+tau_aix_n(i-1,j))    &
      &                        /rhoice(ng)
+# ifdef WET_DRY
+          tauaiu(i,j) = tauaiu(i,j)*umask_wet(i,j)
+# endif
 # ifdef ICE_BULK_FLUXES
 #  ifdef ICESHELF
           IF (zice(i,j).eq.0.0_r8) THEN
 #  endif
           sustr(i,j) = aix*chux*(ui(i,j,liuol)-uwater(i,j))             &
      &                 + (1.0_r8-aix)*sustr_aw(i,j)
+#  ifdef WET_DRY
+          sustr(i,j) = sustr(i,j)*umask_wet(i,j)
+#  endif
 #  ifdef ICESHELF
           ENDIF
 #  endif
@@ -301,12 +322,18 @@
           chuy = 0.5_r8*(chuiw(i,j)+chuiw(i,j-1))
           tauaiv(i,j) = 0.5_r8*aiy*(tau_aiy_n(i,j)+tau_aiy_n(i,j-1))    &
      &                        /rhoice(ng)
+# ifdef WET_DRY
+          tauaiv(i,j) = tauaiv(i,j)*vmask_wet(i,j)
+# endif
 # ifdef ICE_BULK_FLUXES
 #  ifdef ICESHELF
           IF (zice(i,j).eq.0.0_r8) THEN
 #  endif
           svstr(i,j) = aiy*chuy*(vi(i,j,liuol)-vwater(i,j))             &
      &                 + (1.0_r8-aiy)*svstr_aw(i,j)
+#  ifdef WET_DRY
+          svstr(i,j) = svstr(i,j)*vmask_wet(i,j)
+#  endif
 #  ifdef ICESHELF
           ENDIF
 #  endif
@@ -365,6 +392,9 @@
 #  endif
           sustr(i,j) = tauiwu + (1.0_r8-aix)*0.5_r8*                    &
      &                 (sustr_aw(i,j)+sustr_aw(i-1,j))
+#  ifdef WET_DRY
+          sustr(i,j) = sustr(i,j)*umask_wet(i,j)
+#  endif
 #  ifdef ICESHELF
           ENDIF
 #  endif
@@ -390,6 +420,9 @@
 #  endif
           svstr(i,j) = tauiwv + (1.0_r8-aiy)*0.5_r8*                    &
      &                 (svstr_aw(i,j)+svstr_aw(i,j-1))
+#  ifdef WET_DRY
+          svstr(i,j) = svstr(i,j)*vmask_wet(i,j)
+#  endif
 #  ifdef ICESHELF
           ENDIF
 #  endif
