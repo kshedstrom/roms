@@ -50,7 +50,6 @@
 #  define  ICE_THERMO
 #  define  ICE_MK
 #  define  ICE_ALB_EC92
-#  undef   ICE_SMOOTH
 #  define  ICE_MOMENTUM
 #  define  ICE_MOM_BULK
 #  define  ICE_EVP

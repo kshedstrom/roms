@@ -360,6 +360,7 @@
             cff5=ABS(ABS(cff1)-1.0_r8)
             cff6=0.5_r8+DSIGN(0.5_r8,ubar(i,j,kstp))*cff1
             umask_wet(i,j)=0.5_r8*cff1*cff5+cff6*(1.0_r8-cff5)
+            umask_wet(i,j)=umask_wet(i,j)*umask(i,j)
           END IF
         END DO
       END DO
@@ -379,6 +380,7 @@
             cff5=ABS(ABS(cff1)-1.0_r8)
             cff6=0.5_r8+DSIGN(0.5_r8,vbar(i,j,kstp))*cff1
             vmask_wet(i,j)=0.5_r8*cff1*cff5+cff6*(1.0_r8-cff5)
+            vmask_wet(i,j)=vmask_wet(i,j)*vmask(i,j)
           END IF
         END DO
       END DO

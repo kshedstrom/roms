@@ -294,6 +294,7 @@
 # ifdef OUTFLOW_MASK
 !
 !  Set outflow mask for the ice model.
+!  The ice strength, etc. get multiplied by this mask.
 !
       DO j=JstrR,JendR
         DO i=IstrR,IendR
@@ -336,10 +337,26 @@
 !          mask_outflow(Lm(ng)+1,j) = cff
 !        END DO
 !      END IF
+! New ARCTIC domain
       IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
         DO i=IstrR,IendR
           mask_outflow(i,Mm(ng)) = cff
           mask_outflow(i,Mm(ng)+1) = cff
+        END DO
+      END IF
+#  elif defined SVALBARD
+      cff = 0.5_r8
+! We want outflow south of Greenland but not north of it.
+      IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
+        DO i=IstrR,MIN(IendR,65)
+          mask_outflow(i,Mm(ng)) = cff
+          mask_outflow(i,Mm(ng)+1) = cff
+        END DO
+      END IF
+      IF (DOMAIN(ng)%Western_Edge(tile)) THEN
+        DO j=JstrR,JendR
+          mask_outflow(0,j) = cff
+          mask_outflow(1,j) = cff
         END DO
       END IF
 #  else

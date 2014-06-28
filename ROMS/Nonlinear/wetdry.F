@@ -165,6 +165,7 @@
             IF (umask_wet(i,j).eq.1.0_r8) THEN
               umask_wet(i,j)=wetdry(i-1,j)-wetdry(i,j)
             END IF
+            umask_wet(i,j)=umask_wet(i,j)*umask(i,j)
           END DO
         END DO
 !
@@ -176,6 +177,7 @@
             IF (vmask_wet(i,j).eq.1.0_r8) THEN
               vmask_wet(i,j)=wetdry(i,j-1)-wetdry(i,j)
             END IF
+            vmask_wet(i,j)=vmask_wet(i,j)*vmask(i,j)
           END DO
         END DO
       END IF
@@ -251,7 +253,7 @@
                 umask_wet(i,j)=0.0_r8
               END IF
             END IF
-!            umask_wet(i,j)=umask_wet(i,j)*umask(i,j)
+            umask_wet(i,j)=umask_wet(i,j)*umask(i,j)
           END DO
         END DO
 !
@@ -280,7 +282,7 @@
                 vmask_wet(i,j)=0.0_r8
               END IF
             END IF
-!            vmask_wet(i,j)=vmask_wet(i,j)*vmask(i,j)
+            vmask_wet(i,j)=vmask_wet(i,j)*vmask(i,j)
           END DO
         END DO
       END IF
@@ -411,12 +413,12 @@
         END DO
         DO j=JstrR,JendR
           DO i=Istr,IendR
-            umask_io(i,j)=umask_wet(i,j)*umask(i,j)
+            umask_io(i,j)=umask_wet(i,j)
           END DO
         END DO
         DO j=Jstr,JendR
           DO i=IstrR,IendR
-            vmask_io(i,j)=vmask_wet(i,j)*vmask(i,j)
+            vmask_io(i,j)=vmask_wet(i,j)
           END DO
         END DO
 !

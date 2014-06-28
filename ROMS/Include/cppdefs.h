@@ -575,7 +575,6 @@
 ** ICE_MODEL           use for sea-ice model
 ** ICE_THERMO          use for thermodynamic component
 ** ICE_MK              use for Mellor-Kantha thermodynamics (no other choice)
-** ICE_SMOOTH          use for smoothing some ice fields
 ** ICE_ALB_EC92        use for albedo computation from Ebert and Curry
 ** ICE_MOMENTUM        use for momentum component
 ** ICE_MOM_BULK        hmmm, some option for ice-water stress computation

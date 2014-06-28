@@ -152,7 +152,6 @@
 
      spec_heat_air = 1004.d0
 
-
 ! Transfer coefficient
 ! (nondimensional)
 

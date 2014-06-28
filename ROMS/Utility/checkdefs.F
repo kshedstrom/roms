@@ -1030,12 +1030,6 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+12)=' ICE_SMOLAR,'
 #endif
-#ifdef ICE_SMOOTH
-      IF (Master) WRITE (stdout,20) 'ICE_SMOOTH',                       &
-     &   'Include smoothing of ice.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+12)=' ICE_SMOOTH,'
-#endif
 #ifdef ICE_STRENGTH_QUAD
       IF (Master) WRITE (stdout,20) 'ICE_STRENGTH_QUAD',                &
      &   'Ice strength a quadratic function of thickness.'

@@ -88,6 +88,9 @@
         DO i=IstrT,IendT
           BOUNDARY(ng)%ai_north(i)=1.0_r8
         END DO
+        DO i=IstrT,MIN(IendT,65)
+          BOUNDARY(ng)%ai_north(i)=0.0_r8
+        END DO
       END IF
       RETURN
       END SUBROUTINE ana_aiobc_tile

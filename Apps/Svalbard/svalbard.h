@@ -51,11 +51,10 @@
 # define  ICE_MODEL
 # ifdef ICE_MODEL
 #  define ANA_ICE
-#  undef  OUTFLOW_MASK
+#  define  OUTFLOW_MASK
 #  undef   FASTICE_CLIMATOLOGY
 #  define  ICE_THERMO
 #  define  ICE_MK
-#  undef   ICE_SMOOTH
 #  define  ICE_MOMENTUM
 #  define  ICE_MOM_BULK
 #  define  ICE_EVP
