@@ -597,12 +597,13 @@
       scale=1.0_r8
       gtype=gfactor*u2dvar
       status=nf_fwrite2d(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idUsms),   &
-     &                     RST(ng)%Rindex, gtype,                       &
-     &                     LBi, UBi, LBj, UBj, scale,                   &
+     &                   RST(ng)%Rindex, gtype,                         &
+     &                   LBi, UBi, LBj, UBj, scale,                     &
 #ifdef MASKING
-     &                     GRID(ng) % umask_io,                         &
+     &                   GRID(ng) % umask_io,                           &
 #endif
-     &                     FORCES(ng) % sustr)
+     &                   FORCES(ng) % sustr,                            &
+     &                   SetFillVal = .FALSE.)
       IF (status.ne.nf90_noerr) THEN
         IF (Master) THEN
           WRITE (stdout,10) TRIM(Vname(1,idUsms)), RST(ng)%Rindex
@@ -617,12 +618,13 @@
       scale=1.0_r8
       gtype=gfactor*v2dvar
       status=nf_fwrite2d(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idVsms),   &
-     &                     RST(ng)%Rindex, gtype,                       &
-     &                     LBi, UBi, LBj, UBj, scale,                   &
+     &                   RST(ng)%Rindex, gtype,                         &
+     &                   LBi, UBi, LBj, UBj, scale,                     &
 #ifdef MASKING
-     &                     GRID(ng) % vmask_io,                         &
+     &                   GRID(ng) % vmask_io,                           &
 #endif
-     &                     FORCES(ng) % svstr)
+     &                   FORCES(ng) % svstr,                            &
+     &                   SetFillVal = .FALSE.)
       IF (status.ne.nf90_noerr) THEN
         IF (Master) THEN
           WRITE (stdout,10) TRIM(Vname(1,idVsms)), RST(ng)%Rindex
