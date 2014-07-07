@@ -233,17 +233,18 @@
           END DO
         END DO
         IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
-          CALL exchange_r2d_tile (ng, tile,                               &
-     &                            LBi, UBi, LBj, UBj,                     &
+          CALL exchange_r2d_tile (ng, tile,                             &
+     &                            LBi, UBi, LBj, UBj,                   &
      &                            FORCES(ng)%nustr)
-          CALL exchange_r2d_tile (ng, tile,                               &
-     &                            LBi, UBi, LBj, UBj,                     &
+          CALL exchange_r2d_tile (ng, tile,                             &
+     &                            LBi, UBi, LBj, UBj,                   &
      &                            FORCES(ng)%nvstr)
         END IF
 #     ifdef DISTRIBUTE
         CALL mp_exchange2d (ng, tile, iNLM, 2,                          &
      &                      LBi, UBi, LBj, UBj,                         &
-     &                      NghostPoints, EWperiodic, NSperiodic,       &
+     &                      NghostPoints,                               &
+     &                      EWperiodic(ng), NSperiodic(ng),             &
      &                      FORCES(ng)%nustr,                           &
      &                      FORCES(ng)%nvstr)
 #     endif
@@ -1781,9 +1782,10 @@
         END IF
 #  ifdef DISTRIBUTE
         CALL mp_exchange3d (ng, tile, iNLM, 1,                          &
-     &                    LBi, UBi, LBj, UBj, 1, 2,                     &
-     &                    NghostPoints, EWperiodic, NSperiodic,         &
-     &                    OCEAN(ng)%zeta)
+     &                      LBi, UBi, LBj, UBj, 1, 2,                   &
+     &                      NghostPoints,                               &
+     &                      EWperiodic(ng), NSperiodic(ng),             &
+     &                      OCEAN(ng)%zeta)
 #  endif
 # endif
       END IF
@@ -1829,9 +1831,10 @@
         END IF
 #  ifdef DISTRIBUTE
         CALL mp_exchange3d (ng, tile, iNLM, 2,                          &
-     &                    LBi, UBi, LBj, UBj, 1, 2,                     &
-     &                    NghostPoints, EWperiodic, NSperiodic,         &
-     &                    OCEAN(ng)%ubar, OCEAN(ng)%vbar)
+     &                      LBi, UBi, LBj, UBj, 1, 2,                   &
+     &                      NghostPoints,                               &
+     &                      EWperiodic(ng), NSperiodic(ng),             &
+     &                      OCEAN(ng)%ubar, OCEAN(ng)%vbar)
 #  endif
 # endif
       END IF
@@ -1882,9 +1885,10 @@
 #   ifdef DISTRIBUTE
         DO i=1,2
           CALL mp_exchange3d (ng, tile, iNLM, 2,                        &
-     &                    LBi, UBi, LBj, UBj, 0, N(ng),                 &
-     &                    NghostPoints, EWperiodic, NSperiodic,         &
-     &                    OCEAN(ng)%u(:,:,:,i),OCEAN(ng)%v(:,:,:,i))
+     &                        LBi, UBi, LBj, UBj, 0, N(ng),             &
+     &                        NghostPoints,                             &
+     &                        EWperiodic(ng), NSperiodic(ng),           &
+     &                        OCEAN(ng)%u(:,:,:,i),OCEAN(ng)%v(:,:,:,i))
       END DO
 #   endif
 
@@ -1977,9 +1981,10 @@
       DO itrc=1,NAT
         DO i=1,2
           CALL mp_exchange3d (ng, tile, iNLM, 1,                        &
-     &                    LBi, UBi, LBj, UBj, 1, N(ng),                 &
-     &                    NghostPoints, EWperiodic, NSperiodic,         &
-     &                    OCEAN(ng)%t(:,:,:,i,itrc))
+     &                        LBi, UBi, LBj, UBj, 1, N(ng),             &
+     &                        NghostPoints,                             &
+     &                        EWperiodic(ng), NSperiodic(ng),           &
+     &                        OCEAN(ng)%t(:,:,:,i,itrc))
         END DO
       END DO
 #   endif
@@ -2062,7 +2067,8 @@
 #   ifdef DISTRIBUTE
       CALL mp_exchange3d (ng, tile, iNLM, 1,                            &
      &                    LBi, UBi, LBj, UBj, 0, N(ng),                 &
-     &                    NghostPoints, EWperiodic, NSperiodic,         &
+     &                    NghostPoints,                                 &
+     &                    EWperiodic(ng), NSperiodic(ng),               &
      &                    OCEAN(ng)%W)
 #   endif
 #  endif
@@ -2099,7 +2105,8 @@
 #   ifdef DISTRIBUTE
       CALL mp_exchange3d (ng, tile, iNLM, 1,                            &
      &                    LBi, UBi, LBj, UBj, 0, N(ng),                 &
-     &                    NghostPoints, EWperiodic, NSperiodic,         &
+     &                    NghostPoints,                                 &
+     &                    EWperiodic(ng), NSperiodic(ng),               &
      &                    MIXING(ng)%Akt(:,:,:,2))
 #   endif
 #  endif
