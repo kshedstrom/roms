@@ -150,9 +150,9 @@ GridsInLayer =  1
 !   LBC(isFsur) ==   Clo     Rad     Rad     Rad         ! free-surface
 !   LBC(isUbar) ==   Clo     Rad     Rad     Rad         ! 2D U-momentum
 !   LBC(isVbar) ==   Clo     Rad     Rad     Rad         ! 2D V-momentum
-   LBC(isFsur) ==   Cha     Cha     Cha     Cha         ! free-surface
-   LBC(isUbar) ==   Fla     Fla     Fla     Fla         ! 2D U-momentum
-   LBC(isVbar) ==   Fla     Fla     Fla     Fla         ! 2D V-momentum
+   LBC(isFsur) ==   Che     Che     Che     Che         ! free-surface
+   LBC(isUbar) ==   Shc     Shc     Shc     Shc         ! 2D U-momentum
+   LBC(isVbar) ==   Shc     Shc     Shc     Shc         ! 2D V-momentum
    LBC(isUvel) ==   RadNud  RadNud  RadNud  RadNud      ! 3D U-momentum
    LBC(isVvel) ==   RadNud  RadNud  RadNud  RadNud      ! 3D V-momentum
    LBC(isMtke) ==   Clo     Clo     Clo     Clo         ! mixing TKE
@@ -203,7 +203,7 @@ ad_VolCons(north) ==  F                            ! northern boundary
 
 ! Time-Stepping parameters.
 
-      NTIMES == 26467200
+      NTIMES == 1728000
           DT == 6.0
      NDTFAST == 1
 
@@ -224,7 +224,7 @@ ad_VolCons(north) ==  F                            ! northern boundary
 
 ! Input/Output parameters.
 
-       NRREC =  -1
+       NRREC =  0
    LcycleRST == T
         NRST == 14400
         NSTA == 600
@@ -233,12 +233,12 @@ ad_VolCons(north) ==  F                            ! northern boundary
 
 ! Output history, average, diagnostic files parameters.
 
-     LDEFOUT == F
+     LDEFOUT == T
         NHIS == 600
      NDEFHIS == 43200
       NTSAVG == 1
-        NAVG == 14400
-     NDEFAVG == 144000
+        NAVG == 72000
+     NDEFAVG == 0
       NTSDIA == 1
         NDIA == 10
      NDEFDIA == 0
@@ -341,8 +341,8 @@ LtracerSponge == F F                            ! temperature, salinity, inert
 
 ! Height (m) of atmospheric measurements for Bulk fluxes parameterization.
 
-      BLK_ZQ == 10.0d0                     ! air humidity
-      BLK_ZT == 10.0d0                     ! air temperature
+      BLK_ZQ == 2.0d0                     ! air humidity
+      BLK_ZT == 2.0d0                     ! air temperature
       BLK_ZW == 10.0d0                     ! winds
 
 ! Minimum depth for wetting and drying.
@@ -376,8 +376,8 @@ LtracerSponge == F F                            ! temperature, salinity, inert
 ! origin for tidal forcing, and model reference time for output
 ! NetCDF units attribute.
 
-      DSTART =  39434.0d0                  ! days
-  TIDE_START =  -693962.0d0                ! days
+      DSTART =  36190.0d0                  ! days
+  TIDE_START =  -1.0d0                ! days
     TIME_REF =  19000101.0d0               ! yyyymmdd.dd
 
 ! Nudging/relaxation time scales, inverse scales will be computed
@@ -883,12 +883,12 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
 ! and so on.  Use a single line per entry with a continuation (\) symbol
 ! at the each entry, except the last one.
 
-     NFFILES == 2                          ! number of forcing files
+     NFFILES == 4                          ! number of forcing files
 
-    FRCNAME == /center/w/kate/MERRA/MERRA_Uwind_3hours_2011.nc |
-               /center/w/kate/MERRA/MERRA_Uwind_3hours_2012.nc \
-               /center/w/kate/MERRA/MERRA_Vwind_3hours_2011.nc |
-               /center/w/kate/MERRA/MERRA_Vwind_3hours_2012.nc
+    FRCNAME == /center/w/kate/CFSR/wnd10m_f.01.1999010100.nc   \
+               /center/w/kate/CFSR/q2m_f.01.1999010100.nc      \
+	       /center/w/kate/CFSR/pressfc_f.01.1999010100.nc  \
+	       /center/w/kate/CFSR/tmp2m_f.01.1999010100.nc
 
 ! Output NetCDF file names, [1:Ngrids].
 
