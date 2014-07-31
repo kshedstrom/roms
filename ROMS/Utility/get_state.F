@@ -2342,59 +2342,6 @@
         END IF
 #endif
 !
-!  Read in salinity of molecular sub-layer under ice
-!
-        foundit=find_string(var_name, n_var, TRIM(Vname(1,idS0mk)),     &
-     &                        varid)
-        gtype=var_flag(varid)*r2dvar
-        status=nf_fread2d(ng, IDmod, ncname, ncINPid,                   &
-     &                Vname(1,idS0mk), varid, InpRec, gtype,            &
-     &                Vsize, LBi, UBi, LBj, UBj,                        &
-     &                Fscl, Fmin, Fmax,                                 &
-#   ifdef MASKING
-     &                GRID(ng) % rmask,                                 &
-#   endif
-     &                ICE(ng) % s0mk)
-        IF (status.ne.nf90_noerr) THEN
-          IF (Master) THEN
-            WRITE (stdout,60) string, TRIM(Vname(1,idS0mk)),            &
-     &                        InpRec, TRIM(ncname)
-          END IF
-          exit_flag=2
-          ioerror=status
-          RETURN
-        ELSE
-          IF (Master) THEN
-            WRITE (stdout,70) TRIM(Vname(2,idS0mk)), Fmin, Fmax
-          END IF
-        END IF
-!
-!  Read in temperature of molecular sub-layer under ice
-!
-        foundit=find_string(var_name, n_var, TRIM(Vname(1,idT0mk)),     &
-     &                        varid)
-        gtype=var_flag(varid)*r2dvar
-        status=nf_fread2d(ng, IDmod, ncname, ncINPid,                   &
-     &                Vname(1,idT0mk), varid, InpRec, gtype,            &
-     &                Vsize, LBi, UBi, LBj, UBj,                        &
-     &                Fscl, Fmin, Fmax,                                 &
-#   ifdef MASKING
-     &                GRID(ng) % rmask,                                 &
-#   endif
-     &                ICE(ng) % t0mk)
-        IF (status.ne.nf90_noerr) THEN
-          IF (Master) THEN
-            WRITE (stdout,60) string, TRIM(Vname(1,idT0mk)),            &
-     &                        InpRec, TRIM(ncname)
-          END IF
-          exit_flag=2
-          ioerror=status
-          RETURN
-        ELSE
-          IF (Master) THEN
-            WRITE (stdout,70) TRIM(Vname(2,idT0mk)), Fmin, Fmax
-          END IF
-        END IF
 #   ifdef PERFECT_RESTART
 !
 !  Read in surface tracers flux.

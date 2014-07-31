@@ -100,9 +100,6 @@ Sout(idSig11) == T
 Sout(idSig12) == T
 Sout(idSig22) == T
 Sout(idWfr) == T
-! These two cause trouble...
-Sout(idS0mk) == T
-Sout(idT0mk) == T
 
 ! Logical switches (TRUE/FALSE) to activate writing of exposed sediment
 ! layer properties into STATIONS output file.  Currently, MBOTP properties

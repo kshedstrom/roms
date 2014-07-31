@@ -702,20 +702,6 @@
                 END DO
               END DO
             END IF
-            IF (Aout(idS0mk,ng)) THEN
-              DO j=JstrR,JendR
-                DO i=IstrR,IendR
-                  FILTER(ng)%fils0mk(i,j,f) = ICE(ng)%s0mk(i,j)*fw(iw)
-                END DO
-              END DO
-            END IF
-            IF (Aout(idT0mk,ng)) THEN
-              DO j=JstrR,JendR
-                DO i=IstrR,IendR
-                  FILTER(ng)%filt0mk(i,j,f) = ICE(ng)%t0mk(i,j)*fw(iw)
-                END DO
-              END DO
-            END IF
             IF (Aout(idWfr,ng)) THEN
               DO j=JstrR,JendR
                 DO i=IstrR,IendR
@@ -1108,22 +1094,6 @@
                   DO i=IstrR,IendR
                     FILTER(ng)%filti(i,j,f)=FILTER(ng)%filti(i,j,f)+    &
      &                                    ICE(ng)%ti(i,j,Iout)*fw(iw)
-                  END DO
-                END DO
-              END IF
-              IF (Aout(idS0mk,ng)) THEN
-                DO j=JstrR,JendR
-                  DO i=IstrR,IendR
-                    FILTER(ng)%fils0mk(i,j,f)=FILTER(ng)%fils0mk(i,j,f)+&
-     &                                    ICE(ng)%s0mk(i,j)*fw(iw)
-                  END DO
-                END DO
-              END IF
-              IF (Aout(idT0mk,ng)) THEN
-                DO j=JstrR,JendR
-                  DO i=IstrR,IendR
-                    FILTER(ng)%filt0mk(i,j,f)=FILTER(ng)%filt0mk(i,j,f)+&
-     &                                    ICE(ng)%t0mk(i,j)*fw(iw)
                   END DO
                 END DO
               END IF
@@ -1538,20 +1508,6 @@
               DO j=JstrR,JendR
                 DO i=IstrR,IendR
                   AVERAGE(ng)%avgAgeice(i,j)=FILTER(ng)%filAgeice(i,j,f)
-                END DO
-              END DO
-            END IF
-            IF (Aout(idS0mk,ng)) THEN
-              DO j=JstrR,JendR
-                DO i=IstrR,IendR
-                  AVERAGE(ng)%avgS0mk(i,j)=FILTER(ng)%fils0mk(i,j,f)
-                END DO
-              END DO
-            END IF
-            IF (Aout(idT0mk,ng)) THEN
-              DO j=JstrR,JendR
-                DO i=IstrR,IendR
-                  AVERAGE(ng)%avgT0mk(i,j)=FILTER(ng)%filt0mk(i,j,f)
                 END DO
               END DO
             END IF

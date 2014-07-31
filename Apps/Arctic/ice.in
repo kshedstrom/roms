@@ -183,8 +183,6 @@ Hout(idAgeice) == T
 Hout(idSig11) == T
 Hout(idSig12) == T
 Hout(idSig22) == T
-Hout(idS0mk) == T
-Hout(idT0mk) == T
 Hout(idWfr) == T
 Hout(idWai) == T
 Hout(idWao) == T
@@ -211,8 +209,6 @@ Aout(idAgeice) == T
 Aout(idSig11) == T
 Aout(idSig12) == T
 Aout(idSig22) == T
-Aout(idS0mk) == T
-Aout(idT0mk) == T
 Aout(idWfr) == T
 Aout(idWai) == T
 Aout(idWao) == T
@@ -239,5 +235,22 @@ Aout2(idAgeice) == T
 Aout2(idSig11) == F
 Aout2(idSig12) == F
 Aout2(idSig22) == F
-Aout2(idS0mk) == F
-Aout2(idT0mk) == F
+
+! Logical switches (TRUE/FALSE) to activate writing of ice prognostic
+! variables into HISTORY output file.
+Hout2(idUice) == T
+Hout2(idVice) == T
+Hout2(idUiceE) == T
+Hout2(idViceN) == T
+Hout2(idAice) == T
+Hout2(idHice) == T
+Hout2(idTice) == T
+Hout2(idHsno) == T
+Hout2(idTimid) == T
+Hout2(idSfwat) == T
+Hout2(idTauiw) == F
+Hout2(idChuiw) == F
+Hout2(idAgeice) == T
+Hout2(idSig11) == F
+Hout2(idSig12) == F
+Hout2(idSig22) == F

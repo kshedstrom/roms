@@ -77,8 +77,6 @@
      &                      ICE(ng) % vi,                               &
      &                      ICE(ng) % coef_ice_heat,                    &
      &                      ICE(ng) % rhs_ice_heat,                     &
-     &                      ICE(ng) % s0mk,                             &
-     &                      ICE(ng) % t0mk,                             &
      &                      ICE(ng) % io_mflux,                         &
 #if defined ICE_BIO && defined BERING_10K
      &                      ICE(ng) % IcePhL,                           &
@@ -123,7 +121,7 @@
      &                        ai, hi, hsn, sfwat, ageice, tis, ti,      &
      &                        enthalpi, hage,                           &
      &                        ui, vi, coef_ice_heat, rhs_ice_heat,      &
-     &                        s0mk, t0mk, io_mflux,                     &
+     &                        io_mflux,                                 &
 #if defined ICE_BIO && defined BERING_10K
      &                        IcePhL, IceNO3, IceNH4,                   &
 #endif
@@ -282,8 +280,6 @@
       real(r8), intent(in)    :: vi(LBi:,LBj:,:)
       real(r8), intent(inout) :: coef_ice_heat(LBi:,LBj:)
       real(r8), intent(inout) :: rhs_ice_heat(LBi:,LBj:)
-      real(r8), intent(inout) :: s0mk(LBi:,LBj:)
-      real(r8), intent(inout) :: t0mk(LBi:,LBj:)
       real(r8), intent(out) :: io_mflux(LBi:,LBj:)
 #if defined ICE_BIO && defined BERING_10K
       real(r8), intent(inout) :: IcePhL(LBi:,LBj:,:)
@@ -337,8 +333,6 @@
       real(r8), intent(in)    :: vi(LBi:UBi,LBj:UBj,2)
       real(r8), intent(inout) :: coef_ice_heat(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: rhs_ice_heat(LBi:UBi,LBj:UBj)
-      real(r8), intent(inout) :: s0mk(LBi:UBi,LBj:UBj)
-      real(r8), intent(inout) :: t0mk(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: io_mflux(LBi:UBi,LBj:UBj)
 #if defined ICE_BIO && defined BERING_10K
       real(r8), intent(inout) :: IcePhL(LBi:UBi,LBj:UBj,2)
@@ -382,6 +376,8 @@
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: t2
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: cht
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: chs
+      real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: t0mk
+      real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: s0mk
 
 #ifdef AICLM_NUDGING
       real(r8) :: cff

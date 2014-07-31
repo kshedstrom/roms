@@ -52,8 +52,6 @@
      &                       FORCES(ng) % rhoa_n,                       &
 #endif
      &                       ICE(ng) % tis,                             &
-     &                       ICE(ng) % s0mk,                            &
-     &                       ICE(ng) % t0mk,                            &
      &                       ICE(ng) % utau_iw,                         &
      &                       ICE(ng) % chu_iw,                          &
 #if defined BERING_10K && defined ICE_BIO
@@ -88,7 +86,7 @@
      &                             wg2_m, cd_m, ch_m, ce_m,             &
      &                             rhoa_n,                              &
 #endif
-     &                             tis, s0mk, t0mk, utau_iw, chu_iw,    &
+     &                             tis, utau_iw, chu_iw,                &
 #if defined BERING_10K && defined ICE_BIO
      &                             IcePhL, IceNO3,                      &
      &                             IceNH4, IceLog,                      &
@@ -137,8 +135,6 @@
       real(r8), intent(inout) :: rhoa_n(LBi:,LBj:)
 # endif
       real(r8), intent(inout) :: tis(LBi:,LBj:)
-      real(r8), intent(inout) :: s0mk(LBi:,LBj:)
-      real(r8), intent(inout) :: t0mk(LBi:,LBj:)
       real(r8), intent(inout) :: utau_iw(LBi:,LBj:)
       real(r8), intent(inout) :: chu_iw(LBi:,LBj:)
 # if defined BERING_10K && defined ICE_BIO
@@ -174,8 +170,6 @@
       real(r8), intent(inout) :: rhoa_n(LBi:UBi,LBj:UBj)
 # endif
       real(r8), intent(inout) :: tis(LBi:UBi,LBj:UBj)
-      real(r8), intent(inout) :: s0mk(LBi:UBi,LBj:UBj)
-      real(r8), intent(inout) :: t0mk(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: utau_iw(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: chu_iw(LBi:UBi,LBj:UBj)
 # if defined BERING_10K && defined ICE_BIO
@@ -250,8 +244,6 @@
           rhoa_n(i,j) = 1.4_r8
 # endif
           tis(i,j) = -10._r8
-          s0mk(i,j) = t(i,j,N(ng),1,isalt)
-          t0mk(i,j) = t(i,j,N(ng),1,itemp)
           utau_iw(i,j) = 0.001_r8
           chu_iw(i,j) = 0.001125_r8
         ENDDO
@@ -349,12 +341,6 @@
      &                        tis)
         CALL exchange_r2d_tile (ng, tile,                               &
      &                        LBi, UBi, LBj, UBj,                       &
-     &                        s0mk)
-        CALL exchange_r2d_tile (ng, tile,                               &
-     &                        LBi, UBi, LBj, UBj,                       &
-     &                        t0mk)
-        CALL exchange_r2d_tile (ng, tile,                               &
-     &                        LBi, UBi, LBj, UBj,                       &
      &                        utau_iw)
         CALL exchange_r2d_tile (ng, tile,                               &
      &                        LBi, UBi, LBj, UBj,                       &
@@ -406,16 +392,11 @@
      &                    EWperiodic(ng), NSperiodic(ng),               &
      &                    rhoa_n)
 # endif
-      CALL mp_exchange2d (ng, tile, model, 4,                           &
+      CALL mp_exchange2d (ng, tile, model, 3,                           &
      &                    LBi, UBi, LBj, UBj,                           &
      &                    NghostPoints,                                 &
      &                    EWperiodic(ng), NSperiodic(ng),               &
-     &                    tis, s0mk, t0mk, utau_iw)
-      CALL mp_exchange2d (ng, tile, model, 1,                           &
-     &                    LBi, UBi, LBj, UBj,                           &
-     &                    NghostPoints,                                 &
-     &                    EWperiodic(ng), NSperiodic(ng),               &
-     &                    chu_iw)
+     &                    tis, utau_iw, chu_iw)
 #endif
 
       RETURN
