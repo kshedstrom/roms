@@ -22,6 +22,7 @@
           real(r8), pointer :: wao(:,:)
           real(r8), pointer :: wio(:,:)
           real(r8), pointer :: wro(:,:)
+          real(r8), pointer :: wsalt(:,:)
           real(r8), pointer :: wdiv(:,:)
           real(r8), pointer :: tis(:,:)
           real(r8), pointer :: ti(:,:,:)
@@ -98,6 +99,7 @@
       allocate ( ICE(ng) % wao(LBi:UBi,LBj:UBj) )
       allocate ( ICE(ng) % wio(LBi:UBi,LBj:UBj) )
       allocate ( ICE(ng) % wro(LBi:UBi,LBj:UBj) )
+      allocate ( ICE(ng) % wsalt(LBi:UBi,LBj:UBj) )
       allocate ( ICE(ng) % wdiv(LBi:UBi,LBj:UBj) )
       allocate ( ICE(ng) % tis(LBi:UBi,LBj:UBj) )
       allocate ( ICE(ng) % ti(LBi:UBi,LBj:UBj,2) )
@@ -229,6 +231,7 @@
           ICE(ng) % wao(i,j) = IniVal
           ICE(ng) % wio(i,j) = IniVal
           ICE(ng) % wro(i,j) = IniVal
+          ICE(ng) % wsalt(i,j) = IniVal
           ICE(ng) % wdiv(i,j) = IniVal
           ICE(ng) % tis(i,j) = IniVal
           ICE(ng) % ti(i,j,1) = IniVal

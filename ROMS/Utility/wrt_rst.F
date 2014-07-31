@@ -1234,37 +1234,19 @@
         RETURN
       END IF
 !
-!  Write out ice-ocean friction velocity
+!  Write out wsalt
 !
       scale=1.0_r8
       gtype=gfactor*r2dvar
-      status=nf_fwrite2d(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idTauiw),  &
+      status=nf_fwrite2d(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idWsalt),  &
      &                 RST(ng)%Rindex, gtype,                           &
      &                 LBi, UBi, LBj, UBj, scale,                       &
 #ifdef MASKING
      &                 GRID(ng) % rmask_io,                             &
 #endif
-     &                 ICE (ng) % utau_iw)
+     &                 ICE (ng) % wsalt)
       IF (OutThread.and.(status.ne.nf90_noerr)) THEN
-        WRITE (stdout,10) TRIM(Vname(1,idTauiw)), RST(ng)%Rindex
-        exit_flag=3
-        ioerror=status
-        RETURN
-      END IF
-!
-!  Write out ice-ocean momentum transfer coefficient
-!
-      scale=1.0_r8
-      gtype=gfactor*r2dvar
-      status=nf_fwrite2d(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idChuiw),  &
-     &                 RST(ng)%Rindex, gtype,                           &
-     &                 LBi, UBi, LBj, UBj, scale,                       &
-#ifdef MASKING
-     &                 GRID(ng) % rmask_io,                             &
-#endif
-     &                 ICE (ng) % chu_iw)
-      IF (OutThread.and.(status.ne.nf90_noerr)) THEN
-        WRITE (stdout,10) TRIM(Vname(1,idChuiw)), RST(ng)%Rindex
+        WRITE (stdout,10) TRIM(Vname(1,idWsalt)), RST(ng)%Rindex
         exit_flag=3
         ioerror=status
         RETURN

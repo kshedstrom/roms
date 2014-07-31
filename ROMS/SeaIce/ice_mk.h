@@ -64,6 +64,7 @@
      &                      ICE(ng) % wao,                              &
      &                      ICE(ng) % wio,                              &
      &                      ICE(ng) % wro,                              &
+     &                      ICE(ng) % wsalt,                            &
      &                      ICE(ng) % ai,                               &
      &                      ICE(ng) % hi,                               &
      &                      ICE(ng) % hsn,                              &
@@ -117,7 +118,7 @@
      &                        aiclm, hiclm, AInudgcof,                  &
 #endif
      &                        z_r, z_w, t,                              &
-     &                        wfr, wai, wao, wio, wro,                  &
+     &                        wfr, wai, wao, wio, wro, wsalt,           &
      &                        ai, hi, hsn, sfwat, ageice, tis, ti,      &
      &                        enthalpi, hage,                           &
      &                        ui, vi, coef_ice_heat, rhs_ice_heat,      &
@@ -159,6 +160,7 @@
 !        t2
 !        hfus1
 !        coa
+!        wsalt = A*wio + (1-A)*wao - a*wro
 !
 !     D1 = BULK SENSIBLE HEAT TRANSFER COEFFICIENT          [J/(K*m**3)]
 !     D2 = LATENT HEAT TRANSFER COEFFICIENT,                [J/(K*m**3)]
@@ -267,6 +269,7 @@
       real(r8), intent(inout) :: wao(LBi:,LBj:)
       real(r8), intent(inout) :: wio(LBi:,LBj:)
       real(r8), intent(inout) :: wro(LBi:,LBj:)
+      real(r8), intent(inout) :: wsalt(LBi:,LBj:)
       real(r8), intent(inout) :: ai(LBi:,LBj:,:)
       real(r8), intent(inout) :: hi(LBi:,LBj:,:)
       real(r8), intent(inout) :: hsn(LBi:,LBj:,:)
@@ -320,6 +323,7 @@
       real(r8), intent(inout) :: wao(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: wio(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: wro(LBi:UBi,LBj:UBj)
+      real(r8), intent(inout) :: wsalt(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: ai(LBi:UBi,LBj:UBj,2)
       real(r8), intent(inout) :: hi(LBi:UBi,LBj:UBj,2)
       real(r8), intent(inout) :: hsn(LBi:UBi,LBj:UBj,2)
@@ -433,17 +437,22 @@
 
 #include "set_bounds.h"
 
+!-----------------------------------------------------------------
+!  calculate those parts of the energy balance which do not depend
+!  on the surface temperature.
+!-----------------------------------------------------------------
+! *** all rho's 0n 1026 kg m-3. cp's on 4.186e+6 j m-3 c-1.
+! *** sigma=5.67e-8 w m-2 k-4 : sigma=sigma*epsilon. m&u used 5.78e-8
+! *** ignore snow effects except change albi to albsn value
+
       DO j=Jstr,Jend
         DO i=Istr,Iend
           temp_top(i,j)=t(i,j,N(ng),nrhs,itemp)
           salt_top(i,j)=t(i,j,N(ng),nrhs,isalt)
           salt_top(i,j) = MIN(MAX(0.0_r8,salt_top(i,j)),40.0_r8)
           dztop(i,j)=z_w(i,j,N(ng))-z_r(i,j,N(ng))
-          stflx(i,j,isalt) = stflx(i,j,isalt)*                          &
-     &          MIN(MAX(t(i,j,N(ng),nrhs,isalt),0.0_r8),60.0_r8)
-#  if defined WET_DRY && defined CASPIAN
-          stflx(i,j,isalt) = stflx(i,j,isalt)*rmask_wet(i,j)
-#  endif
+!         stflx(i,j,isalt) = stflx(i,j,isalt)*                          &
+!    &          MIN(MAX(t(i,j,N(ng),nrhs,isalt),0.0_r8),60.0_r8)
         END DO
       END DO
 
@@ -461,21 +470,51 @@
         END DO
       END DO
 
+!-------------------------------------------------------------!
+!   Solve for s0mk and t0mk based on old Wai, Wio and Wro.
+!-------------------------------------------------------------!
+
+      DO j = Jstr,Jend
+        DO i = Istr,Iend
+          z0 = max(z0ii*ice_thick(i,j),0.01_r8)
+          z0 = min(z0,0.1_r8)
+!
+!     *** Yaglom and Kader formulation for z0t and z0s
+!
+          zdz0 = dztop(i,j)/z0   !WPB
+          zdz0 = MAX(zdz0,3._r8)
+
+!  Was this:
+!         rno = utau(i,j)*0.09_r8/nu
+          rno = utau(i,j)*z0/nu
+          termt = ykf*sqrt(rno)*prt**0.666667_r8
+          terms = ykf*sqrt(rno)*prs**0.666667_r8
+          cht(i,j) = utau(i,j)/(tpr*(log(zdz0)/kappa+termt))
+          chs(i,j) = utau(i,j)/(tpr*(log(zdz0)/kappa+terms))
+        END DO
+      END DO
+
+      DO j = Jstr,Jend
+        DO i = Istr,Iend
+          IF (ai(i,j,linew) .le. min_a(ng) .or.                         &
+     &        hi(i,j,linew) .le. min_h(ng)) THEN
+            s0mk(i,j) = salt_top(i,j)
+            t0mk(i,j) = temp_top(i,j)
+            xtot = wao(i,j)
+          ELSE
+            s0mk(i,j) = (chs(i,j)*salt_top(i,j) - wsalt(i,j)*sice(i,j)) &
+     &         /(chs(i,j) - wsalt(i,j) + stflx(i,j,isalt))
+            s0mk(i,j) = max(s0mk(i,j),0._r8)
+            s0mk(i,j) = min(s0mk(i,j),40._r8)
+
+            t0mk(i,j) = frln*s0mk(i,j)
+
+          END IF
+
 !------------------------------------------------------!
 !   Get incoming long and shortwave radiation
 !------------------------------------------------------!
-!
-! *** all rho's 0n 1026 kg m-3. cp's on 4.186e+6 j m-3 c-1.
-! *** sigma=5.67e-8 w m-2 k-4 : sigma=sigma*epsilon. m&u used 5.78e-8
 ! *** compute sw ,lw & back radiation (see p&w 1979)
-!
-!-----------------------------------------------------------------
-!  calculate those parts of the energy balance which do not depend
-!  on the surface temperature.
-!-----------------------------------------------------------------
-! *** all rho's 0n 1026 kg m-3. cp's on 4.186e+6 j m-3 c-1.
-! *** sigma=5.67e-8 w m-2 k-4 : sigma=sigma*epsilon. m&u used 5.78e-8
-! *** ignore snow effects except change albi to albsn value
 
 !      beregner sno- og is-tykkelse
 !   (compute snow and ice thicknesses)
@@ -674,24 +713,6 @@
 
       DO j = Jstr,Jend
         DO i = Istr,Iend
-          z0 = max(z0ii*ice_thick(i,j),0.01_r8)
-          z0 = min(z0,0.1_r8)
-!
-!     *** Yaglom and Kader formulation for z0t and z0s
-!
-          zdz0 = dztop(i,j)/z0   !WPB
-          zdz0 = MAX(zdz0,3._r8)
-
-          rno = utau(i,j)*0.09_r8/nu
-          termt = ykf*sqrt(rno)*prt**0.666667_r8
-          terms = ykf*sqrt(rno)*prs**0.666667_r8
-          cht(i,j) = utau(i,j)/(tpr*(log(zdz0)/kappa+termt))
-          chs(i,j) = utau(i,j)/(tpr*(log(zdz0)/kappa+terms))
-        END DO
-      END DO
-
-      DO j = Jstr,Jend
-        DO i = Istr,Iend
           tfz = frln*salt_top(i,j)
           wao(i,j) = 0._r8
           wio(i,j) = 0._r8
@@ -699,31 +720,23 @@
           xwai = max(0._r8,wai(i,j))
           hfus1(i,j) = hfus*(1.0_r8-brnfr(i,j))+t0mk(i,j)*cpw           &
      &         -((1.0_r8-brnfr(i,j))*cpi+brnfr(i,j)*cpw)*ti(i,j,linew)
+          IF (ai(i,j,linew) .le. min_a(ng) .or.                         &
+     &        hi(i,j,linew) .le. min_h(ng)) THEN
+            xtot = wao(i,j)
+          ELSE
+            xtot = ai(i,j,linew)*wio(i,j)                               &
+     &              +(1._r8-ai(i,j,linew))*wao(i,j)
+          END IF
           IF (temp_top(i,j) .le. tfz)                                   &
      &             wao(i,j) = qao_n(i,j)/(hfus1(i,j)*rhosw)
           IF (ai(i,j,linew) .le. min_a(ng) .or.                         &
      &        hi(i,j,linew) .le. min_h(ng)) THEN
-            s0mk(i,j) = salt_top(i,j)
-            t0mk(i,j) = temp_top(i,j)
             wai(i,j) = 0._r8
-            xtot = (1._r8-ai(i,j,linew))*wao(i,j)
           ELSE
 
 ! MK89 version
             wio(i,j) = (qio(i,j)/rhosw +                                &
      &               cpw*cht(i,j)*(t0mk(i,j)-temp_top(i,j)))/hfus1(i,j)
-
-            xtot = ai(i,j,linew)*wio(i,j)                               &
-     &              +(1._r8-ai(i,j,linew))*wao(i,j)
-
-            s0mk(i,j) =                                                 &
-     &             (chs(i,j)*salt_top(i,j)+(xwai-wio(i,j))*sice(i,j))   &
-     &                /(chs(i,j)+xwai+wro(i,j)-wio(i,j))
-            s0mk(i,j) = max(s0mk(i,j),0._r8)
-            s0mk(i,j) = min(s0mk(i,j),40._r8)
-
-            t0mk(i,j) = frln*s0mk(i,j)
-
           END IF
 
 #ifdef CASPIAN_XXX
@@ -761,31 +774,25 @@
      &                   +ai(i,j,linew)*qio(i,j)                        &
      &                   -xtot*hfus1(i,j)
 #endif
-#if defined WET_DRY && defined CASPIAN
-          stflx(i,j,itemp) = stflx(i,j,itemp)*rmask_wet(i,j)
-#endif
             END IF
 
 ! Change stflx(i,j,itemp) back to ROMS convention
             stflx(i,j,itemp) = -stflx(i,j,itemp) * rhocpr
 
-#ifdef MASKING
+#ifdef WET_DRY
+            stflx(i,j,itemp) = stflx(i,j,itemp)*rmask_wet(i,j)
+#elif defined MASKING
             stflx(i,j,itemp) = stflx(i,j,itemp)*rmask(i,j)
 #endif
-#ifdef WET_DRY
-!            stflx(i,j,itemp) = stflx(i,j,itemp)*rmask_wet(i,j)
-#endif
 #ifdef ICE_SHOREFAST
-            stflx(i,j,isalt) = stflx(i,j,isalt) +                       &
-     &        (- (xtot-ai(i,j,linew)*xwai)*                             &
-     &          (sice(i,j)-MIN(MAX(s0mk(i,j),0.0_r8),60.0_r8))          &
-     &        - ai(i,j,linew)*wro(i,j)*                                 &
-     &          MIN(MAX(s0mk(i,j),0.0_r8),60.0_r8))*fac_sf
+            stflx(i,j,isalt) = stflx(i,j,isalt)*s0mk(i,j) +             &
+     &        (- (xtot-ai(i,j,linew)*xwai)*(sice(i,j)-s0mk(i,j))        &
+     &         - ai(i,j,linew)*wro(i,j)*s0mk(i,j))                      &
+     &          *fac_sf
 #else
-            stflx(i,j,isalt) = stflx(i,j,isalt)                         &
+            stflx(i,j,isalt) = stflx(i,j,isalt)*s0mk(i,j)               &
      &          - (xtot-ai(i,j,linew)*xwai)*(sice(i,j)-s0mk(i,j))       &
-     &          - ai(i,j,linew)*wro(i,j)*                               &
-     &          MIN(MAX(s0mk(i,j),0.0_r8),60.0_r8)
+     &          - ai(i,j,linew)*wro(i,j)*s0mk(i,j)
 #endif
 
 ! Test for case of rainfall on snow/ice and assume 100% drainage
@@ -798,13 +805,12 @@
 !  io_mflux is ice production rate (+ve for growth)
             io_mflux(i,j) = xtot -ai(i,j,linew)*xwai -                    &
      &                            ai(i,j,linew)*wro(i,j) + wfr(i,j)
-#ifdef MASKING
-            stflx(i,j,isalt) = stflx(i,j,isalt)*rmask(i,j)
-            io_mflux(i,j) = io_mflux(i,j)*rmask(i,j)
-#endif
 #ifdef WET_DRY
             stflx(i,j,isalt) = stflx(i,j,isalt)*rmask_wet(i,j)
             io_mflux(i,j) = io_mflux(i,j)*rmask_wet(i,j)
+#elif defined MASKING
+            stflx(i,j,isalt) = stflx(i,j,isalt)*rmask(i,j)
+            io_mflux(i,j) = io_mflux(i,j)*rmask(i,j)
 #endif
 #ifdef ICESHELF
           ELSE
@@ -914,6 +920,8 @@
           ti(i,j,linew) = MAX(ti(i,j,linew),-70.0_r8)
           if (hi(i,j,linew) .le. 0.0_r8) ai(i,j,linew) = 0.0_r8
           if (ai(i,j,linew) .le. 0.0_r8) hi(i,j,linew) = 0.0_r8
+          wsalt(i,j) = ai(i,j,linew)*(wio(i,j)-wro(i,j)) +              &
+     &                (1.0_r8-ai(i,j,linew))*wao(i,j)
         ENDDO
       ENDDO
 

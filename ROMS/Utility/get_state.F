@@ -2285,24 +2285,23 @@
             WRITE (stdout,70) TRIM(Vname(2,idSig12)), Fmin, Fmax
           END IF
         END IF
-#ifdef FOOO
 !
-!  Read in ice-water friction velocity.
+!  Read in wsalt = A*wio + (1-A)*wao - a*wro
 !
-        foundit=find_string(var_name, n_var, TRIM(Vname(1,idTauiw)),    &
+        foundit=find_string(var_name, n_var, TRIM(Vname(1,idWsalt)),    &
      &                        varid)
         gtype=var_flag(varid)*r2dvar
         status=nf_fread2d(ng, IDmod, ncname, ncINPid,                   &
-     &                Vname(1,idTauiw), varid, InpRec, gtype,           &
+     &                Vname(1,idWsalt), varid, InpRec, gtype,           &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
      &                Fscl, Fmin, Fmax,                                 &
 #   ifdef MASKING
      &                GRID(ng) % rmask,                                 &
 #   endif
-       &                ICE(ng) % utau_iw)
+     &                ICE(ng) % wsalt)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,60) string, TRIM(Vname(1,idTauiw)),            &
+            WRITE (stdout,60) string, TRIM(Vname(1,idWsalt)),           &
      &                        InpRec, TRIM(ncname)
           END IF
           exit_flag=2
@@ -2310,37 +2309,9 @@
           RETURN
         ELSE
           IF (Master) THEN
-            WRITE (stdout,70) TRIM(Vname(2,idTauiw)), Fmin, Fmax
+            WRITE (stdout,70) TRIM(Vname(2,idWsalt)), Fmin, Fmax
           END IF
         END IF
-!
-!  Read in ice-water momentum transfer coefficient.
-!
-        foundit=find_string(var_name, n_var, TRIM(Vname(1,idChuiw)),    &
-     &                        varid)
-        gtype=var_flag(varid)*r2dvar
-        status=nf_fread2d(ng, IDmod, ncname, ncINPid,                   &
-     &                Vname(1,idChuiw), varid, InpRec, gtype,           &
-     &                Vsize, LBi, UBi, LBj, UBj,                        &
-     &                Fscl, Fmin, Fmax,                                 &
-#   ifdef MASKING
-     &                GRID(ng) % rmask,                                 &
-#   endif
-     &                ICE(ng) % chu_iw)
-        IF (status.ne.nf90_noerr) THEN
-          IF (Master) THEN
-            WRITE (stdout,60) string, TRIM(Vname(1,idChuiw)),           &
-     &                        InpRec, TRIM(ncname)
-          END IF
-          exit_flag=2
-          ioerror=status
-          RETURN
-        ELSE
-          IF (Master) THEN
-            WRITE (stdout,70) TRIM(Vname(2,idChuiw)), Fmin, Fmax
-          END IF
-        END IF
-#endif
 !
 #   ifdef PERFECT_RESTART
 !

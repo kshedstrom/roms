@@ -215,6 +215,7 @@
         get_var(idSig11)=.true.
         get_var(idSig22)=.true.
         get_var(idSig12)=.true.
+        get_var(idWsalt)=.true.
 #  ifdef PERFECT_RESTART
         get_var(idUsms)=.true.
         get_var(idVsms)=.true.
@@ -500,6 +501,8 @@
           have_var(idSig22)=.true.
         ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idSig12))) THEN
           have_var(idSig12)=.true.
+        ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idWsalt))) THEN
+          have_var(idWsalt)=.true.
         END IF
 #  if defined PERFECT_RESTART
         IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idUsms))) THEN
@@ -917,6 +920,13 @@
       IF (.not.have_var(idSig12)) THEN
         IF (Master) WRITE (stdout,10) string,                           &
      &                                TRIM(Vname(1,idSig12)),           &
+     &                                TRIM(ncname)
+        exit_flag=2
+        RETURN
+      END IF
+      IF (.not.have_var(idWsalt)) THEN
+        IF (Master) WRITE (stdout,10) string,                           &
+     &                                TRIM(Vname(1,idWsalt)),           &
      &                                TRIM(ncname)
         exit_flag=2
         RETURN
