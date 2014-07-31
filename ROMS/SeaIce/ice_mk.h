@@ -510,6 +510,8 @@
             t0mk(i,j) = frln*s0mk(i,j)
 
           END IF
+        END DO
+      END DO
 
 !------------------------------------------------------!
 !   Get incoming long and shortwave radiation
