@@ -44,6 +44,8 @@
           real(r8), pointer :: uwater(:,:)
           real(r8), pointer :: vwater(:,:)
           real(r8), pointer :: sealev(:,:)
+          real(r8), pointer :: s0mk(:,:)
+          real(r8), pointer :: t0mk(:,:)
           real(r8), pointer :: sig11(:,:,:)
           real(r8), pointer :: sig22(:,:,:)
           real(r8), pointer :: sig12(:,:,:)
@@ -121,6 +123,8 @@
       allocate ( ICE(ng) % uwater(LBi:UBi,LBj:UBj) )
       allocate ( ICE(ng) % vwater(LBi:UBi,LBj:UBj) )
       allocate ( ICE(ng) % sealev(LBi:UBi,LBj:UBj) )
+      allocate ( ICE(ng) % s0mk(LBi:UBi,LBj:UBj) )
+      allocate ( ICE(ng) % t0mk(LBi:UBi,LBj:UBj) )
       allocate ( ICE(ng) % sig11(LBi:UBi,LBj:UBj,2) )
       allocate ( ICE(ng) % sig22(LBi:UBi,LBj:UBj,2) )
       allocate ( ICE(ng) % sig12(LBi:UBi,LBj:UBj,2) )
@@ -256,6 +260,8 @@
           ICE(ng) % uwater(i,j) = IniVal
           ICE(ng) % vwater(i,j) = IniVal
           ICE(ng) % sealev(i,j) = IniVal
+          ICE(ng) % s0mk(i,j) = IniVal
+          ICE(ng) % t0mk(i,j) = IniVal
           ICE(ng) % sig11(i,j,1) = IniVal
           ICE(ng) % sig11(i,j,2) = IniVal
           ICE(ng) % sig22(i,j,1) = IniVal

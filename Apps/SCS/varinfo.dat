@@ -881,15 +881,6 @@
   'r2dvar'
   1.0d0
 
-'wsalt'
-  'ice growth leading to salt flux'
-  'm^3 s-1'
-  'growth rate, scalar, series'
-  'ocean_time'
-  'idWsalt'
-  'r2dvar'
-  1.0d0
-
 'wdiv'
   'rate of ice divergence'
   'm^3 s-1'

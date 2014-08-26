@@ -54,6 +54,8 @@
      &                       FORCES(ng) % rhoa_n,                       &
 #endif
      &                       ICE(ng) % tis,                             &
+     &                       ICE(ng) % s0mk,                            &
+     &                       ICE(ng) % t0mk,                            &
      &                       ICE(ng) % utau_iw,                         &
      &                       ICE(ng) % chu_iw,                          &
 #if defined BERING_10K && defined ICE_BIO
@@ -89,7 +91,7 @@
      &                             wg2_m, cd_m, ch_m, ce_m,             &
      &                             rhoa_n,                              &
 #endif
-     &                             tis, utau_iw, chu_iw,                &
+     &                             tis, s0mk, t0mk, utau_iw, chu_iw,    &
 #if defined BERING_10K && defined ICE_BIO
      &                             IcePhL, IceNO3,                      &
      &                             IceNH4, IceLog,                      &
@@ -139,6 +141,8 @@
       real(r8), intent(inout) :: rhoa_n(LBi:,LBj:)
 # endif
       real(r8), intent(inout) :: tis(LBi:,LBj:)
+      real(r8), intent(inout) :: s0mk(LBi:,LBj:)
+      real(r8), intent(inout) :: t0mk(LBi:,LBj:)
       real(r8), intent(inout) :: utau_iw(LBi:,LBj:)
       real(r8), intent(inout) :: chu_iw(LBi:,LBj:)
 # if defined BERING_10K && defined ICE_BIO
@@ -175,6 +179,8 @@
       real(r8), intent(inout) :: rhoa_n(LBi:UBi,LBj:UBj)
 # endif
       real(r8), intent(inout) :: tis(LBi:UBi,LBj:UBj)
+      real(r8), intent(inout) :: s0mk(LBi:UBi,LBj:UBj)
+      real(r8), intent(inout) :: t0mk(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: utau_iw(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: chu_iw(LBi:UBi,LBj:UBj)
 # if defined BERING_10K && defined ICE_BIO
@@ -244,6 +250,8 @@
           rhoa_n(i,j) = 1.4_r8
 # endif
           tis(i,j) = -10._r8
+          s0mk(i,j) = t(i,j,N(ng),1,isalt)
+          t0mk(i,j) = t(i,j,N(ng),1,itemp)
           utau_iw(i,j) = 0.001_r8
           chu_iw(i,j) = 0.001125_r8
 #elif defined ICE_OCEAN_1D
@@ -296,6 +304,8 @@
           rhoa_n(i,j) = 1.4_r8
 # endif
           tis(i,j) = -10._r8
+          s0mk(i,j) = t(i,j,N(ng),1,isalt)
+          t0mk(i,j) = t(i,j,N(ng),1,itemp)
           utau_iw(i,j) = 0.001_r8
           chu_iw(i,j) = 0.001125_r8
 #elif defined BERING_10K && defined ICE_BIO
@@ -368,45 +378,51 @@
      &                            IceLog(:,:,i))
 # endif
         END DO
-      END IF
 #ifdef NCEP_FLUXES
-      CALL exchange_r2d_tile (ng, tile,                                 &
-     &                        LBi, UBi, LBj, UBj,                       &
-     &                        wg2_d)
-      CALL exchange_r2d_tile (ng, tile,                                 &
-     &                        LBi, UBi, LBj, UBj,                       &
-     &                        cd_d)
-      CALL exchange_r2d_tile (ng, tile,                                 &
-     &                        LBi, UBi, LBj, UBj,                       &
-     &                        ch_d)
-      CALL exchange_r2d_tile (ng, tile,                                 &
-     &                        LBi, UBi, LBj, UBj,                       &
-     &                        ce_d)
-      CALL exchange_r2d_tile (ng, tile,                                 &
-     &                        LBi, UBi, LBj, UBj,                       &
-     &                        wg2_m)
-      CALL exchange_r2d_tile (ng, tile,                                 &
-     &                        LBi, UBi, LBj, UBj,                       &
-     &                        cd_m)
-      CALL exchange_r2d_tile (ng, tile,                                 &
-     &                        LBi, UBi, LBj, UBj,                       &
-     &                        ch_m)
-      CALL exchange_r2d_tile (ng, tile,                                 &
-     &                        LBi, UBi, LBj, UBj,                       &
-     &                        ce_m)
-      CALL exchange_r2d_tile (ng, tile,                                 &
-     &                        LBi, UBi, LBj, UBj,                       &
-     &                        rhoa_n)
+        CALL exchange_r2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          wg2_d)
+        CALL exchange_r2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          cd_d)
+        CALL exchange_r2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          ch_d)
+        CALL exchange_r2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          ce_d)
+        CALL exchange_r2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          wg2_m)
+        CALL exchange_r2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          cd_m)
+        CALL exchange_r2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          ch_m)
+        CALL exchange_r2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          ce_m)
+        CALL exchange_r2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          rhoa_n)
 #endif
-      CALL exchange_r2d_tile (ng, tile,                                 &
-     &                        LBi, UBi, LBj, UBj,                       &
-     &                        tis)
-      CALL exchange_r2d_tile (ng, tile,                                 &
-     &                        LBi, UBi, LBj, UBj,                       &
-     &                        utau_iw)
-      CALL exchange_r2d_tile (ng, tile,                                 &
-     &                        LBi, UBi, LBj, UBj,                       &
-     &                        chu_iw)
+        CALL exchange_r2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          tis)
+        CALL exchange_r2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          s0mk)
+        CALL exchange_r2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          t0mk)
+        CALL exchange_r2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          utau_iw)
+        CALL exchange_r2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          chu_iw)
+      END IF
 
 #ifdef DISTRIBUTE
       CALL mp_exchange3d (ng, tile, model, 4,                           &

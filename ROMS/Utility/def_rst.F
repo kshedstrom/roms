@@ -1922,19 +1922,67 @@
 # endif
         IF (exit_flag.ne.NoError) RETURN
 !
-!  Define wsalt = A*wio + (1-A)*wao - a*wro
+!  Define ice-water friction velocity.
 !
-        Vinfo( 1)=Vname(1,idWsalt)
-        Vinfo( 2)=Vname(2,idWsalt)
-        Vinfo( 3)=Vname(3,idWsalt)
-        Vinfo(14)=Vname(4,idWsalt)
+        Vinfo( 1)=Vname(1,idTauiw)
+        Vinfo( 2)=Vname(2,idTauiw)
+        Vinfo( 3)=Vname(3,idTauiw)
+        Vinfo(14)=Vname(4,idTauiw)
         Vinfo(16)=Vname(1,idtime)
 #if defined WRITE_WATER && defined MASKING
         Vinfo(20)='mask_rho'
 #endif
         Vinfo(22)='coordinates'
-        Aval(5)=REAL(Iinfo(1,idWsalt,ng),r8)
-        status=def_var(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idWsalt),    &
+        Aval(5)=REAL(Iinfo(1,idTauiw,ng),r8)
+        status=def_var(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idTauiw),    &
+     &                 NF_FRST, nvd3, sr2dgrd, Aval, Vinfo, ncname)
+        IF (exit_flag.ne.NoError) RETURN
+!
+!  Define ice-water momentum transfer coefficient.
+!
+        Vinfo( 1)=Vname(1,idChuiw)
+        Vinfo( 2)=Vname(2,idChuiw)
+        Vinfo( 3)=Vname(3,idChuiw)
+        Vinfo(14)=Vname(4,idChuiw)
+        Vinfo(16)=Vname(1,idtime)
+#if defined WRITE_WATER && defined MASKING
+        Vinfo(20)='mask_rho'
+#endif
+        Vinfo(22)='coordinates'
+        Aval(5)=REAL(Iinfo(1,idChuiw,ng),r8)
+        status=def_var(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idChuiw),    &
+     &                 NF_FRST, nvd3, sr2dgrd, Aval, Vinfo, ncname)
+        IF (exit_flag.ne.NoError) RETURN
+!
+!  Define salinity of molecular sub-layer under ice.
+!
+        Vinfo( 1)=Vname(1,idS0mk)
+        Vinfo( 2)=Vname(2,idS0mk)
+        Vinfo( 3)=Vname(3,idS0mk)
+        Vinfo(14)=Vname(4,idS0mk)
+        Vinfo(16)=Vname(1,idtime)
+#if defined WRITE_WATER && defined MASKING
+        Vinfo(20)='mask_rho'
+#endif
+        Vinfo(22)='coordinates'
+        Aval(5)=REAL(Iinfo(1,idS0mk,ng),r8)
+        status=def_var(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idS0mk),     &
+     &                 NF_FRST, nvd3, sr2dgrd, Aval, Vinfo, ncname)
+        IF (exit_flag.ne.NoError) RETURN
+!
+!  Define temperature of molecular sub-layer under ice.
+!
+        Vinfo( 1)=Vname(1,idT0mk)
+        Vinfo( 2)=Vname(2,idT0mk)
+        Vinfo( 3)=Vname(3,idT0mk)
+        Vinfo(14)=Vname(4,idT0mk)
+        Vinfo(16)=Vname(1,idtime)
+#if defined WRITE_WATER && defined MASKING
+        Vinfo(20)='mask_rho'
+#endif
+        Vinfo(22)='coordinates'
+        Aval(5)=REAL(Iinfo(1,idT0mk,ng),r8)
+        status=def_var(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idT0mk),     &
      &                 NF_FRST, nvd3, sr2dgrd, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 #endif
@@ -2484,9 +2532,18 @@
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idSig12))) THEN
             got_var(idSig12)=.TRUE.
             RST(ng)%Vid(idSig12)=var_id(i)
-          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idWsalt))) THEN
-            got_var(idWsalt)=.TRUE.
-            RST(ng)%Vid(idWsalt)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idTauiw))) THEN
+            got_var(idTauiw)=.TRUE.
+            RST(ng)%Vid(idTauiw)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idChuiw))) THEN
+            got_var(idChuiw)=.TRUE.
+            RST(ng)%Vid(idChuiw)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idS0mk))) THEN
+            got_var(idS0mk)=.TRUE.
+            RST(ng)%Vid(idS0mk)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idT0mk))) THEN
+            got_var(idT0mk)=.TRUE.
+            RST(ng)%Vid(idT0mk)=var_id(i)
           END IF
 # endif
 # ifdef NCEP_FLUXES
@@ -2888,8 +2945,26 @@
           exit_flag=3
           RETURN
         END IF
-        IF (.not.got_var(idWsalt)) THEN
-          IF (Master) WRITE (stdout,40) TRIM(Vname(1,idWsalt)),         &
+        IF (.not.got_var(idTauiw)) THEN
+          IF (Master) WRITE (stdout,40) TRIM(Vname(1,idTauiw)),         &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idChuiw)) THEN
+          IF (Master) WRITE (stdout,40) TRIM(Vname(1,idChuiw)),         &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idS0mk)) THEN
+          IF (Master) WRITE (stdout,40) TRIM(Vname(1,idS0mk)),          &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idT0mk)) THEN
+          IF (Master) WRITE (stdout,40) TRIM(Vname(1,idT0mk)),          &
      &                                  TRIM(ncname)
           exit_flag=3
           RETURN

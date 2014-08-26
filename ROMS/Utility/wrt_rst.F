@@ -1234,19 +1234,73 @@
         RETURN
       END IF
 !
-!  Write out wsalt
+!  Write out ice-ocean friction velocity
 !
       scale=1.0_r8
       gtype=gfactor*r2dvar
-      status=nf_fwrite2d(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idWsalt),  &
+      status=nf_fwrite2d(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idTauiw),  &
      &                 RST(ng)%Rindex, gtype,                           &
      &                 LBi, UBi, LBj, UBj, scale,                       &
 #ifdef MASKING
      &                 GRID(ng) % rmask_io,                             &
 #endif
-     &                 ICE (ng) % wsalt)
+     &                 ICE (ng) % utau_iw)
       IF (OutThread.and.(status.ne.nf90_noerr)) THEN
-        WRITE (stdout,10) TRIM(Vname(1,idWsalt)), RST(ng)%Rindex
+        WRITE (stdout,10) TRIM(Vname(1,idTauiw)), RST(ng)%Rindex
+        exit_flag=3
+        ioerror=status
+        RETURN
+      END IF
+!
+!  Write out ice-ocean momentum transfer coefficient
+!
+      scale=1.0_r8
+      gtype=gfactor*r2dvar
+      status=nf_fwrite2d(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idChuiw),  &
+     &                 RST(ng)%Rindex, gtype,                           &
+     &                 LBi, UBi, LBj, UBj, scale,                       &
+#ifdef MASKING
+     &                 GRID(ng) % rmask_io,                             &
+#endif
+     &                 ICE (ng) % chu_iw)
+      IF (OutThread.and.(status.ne.nf90_noerr)) THEN
+        WRITE (stdout,10) TRIM(Vname(1,idChuiw)), RST(ng)%Rindex
+        exit_flag=3
+        ioerror=status
+        RETURN
+      END IF
+!
+!  Write out salinity in molecular sub-layer under ice
+!
+      scale=1.0_r8
+      gtype=gfactor*r2dvar
+      status=nf_fwrite2d(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idS0mk),   &
+     &                 RST(ng)%Rindex, gtype,                           &
+     &                 LBi, UBi, LBj, UBj, scale,                       &
+#ifdef MASKING
+     &                 GRID(ng) % rmask,                                &
+#endif
+     &                 ICE (ng) % s0mk)
+      IF (OutThread.and.(status.ne.nf90_noerr)) THEN
+        WRITE (stdout,10) TRIM(Vname(1,idS0mk)), RST(ng)%Rindex
+        exit_flag=3
+        ioerror=status
+        RETURN
+      END IF
+!
+!  Write out temperature in molecular sub-layer under ice
+!
+      scale=1.0_r8
+      gtype=gfactor*r2dvar
+      status=nf_fwrite2d(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idT0mk),   &
+     &                 RST(ng)%Rindex, gtype,                           &
+     &                 LBi, UBi, LBj, UBj, scale,                       &
+#ifdef MASKING
+     &                 GRID(ng) % rmask,                                &
+#endif
+     &                 ICE (ng) % t0mk)
+      IF (OutThread.and.(status.ne.nf90_noerr)) THEN
+        WRITE (stdout,10) TRIM(Vname(1,idT0mk)), RST(ng)%Rindex
         exit_flag=3
         ioerror=status
         RETURN

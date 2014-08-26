@@ -144,7 +144,7 @@
             ie=LEN_TRIM(line)                 ! last attribute entry
           END IF
           Bstring=TRIM(ADJUSTL(line(is:ie)))  ! extract boundary string
-	  ne=MIN(LEN_TRIM(Bstring), 28)       ! north keyword < 7 chars
+          ne=MIN(LEN_TRIM(Bstring), 28)       ! north keyword < 7 chars
           string(1)=Bstring( 1: 7)            ! west  keyword
           string(2)=Bstring( 8:14)            ! south keyword
           string(3)=Bstring(15:21)            ! east  keyword
