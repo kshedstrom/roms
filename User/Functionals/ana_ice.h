@@ -41,7 +41,6 @@
      &                       ICE(ng) % sig11,                           &
      &                       ICE(ng) % sig22,                           &
      &                       ICE(ng) % sig12,                           &
-     &                       ICE(ng) % wsalt,                           &
 #ifdef NCEP_FLUXES
      &                       FORCES(ng) % wg2_d,                        &
      &                       FORCES(ng) % cd_d,                         &
@@ -85,7 +84,6 @@
      &                             ui, vi, uie, vie, ai, hi, hsn,       &
      &                             ti, sfwat, ageice,                   &
      &                             sig11, sig22, sig12,                 &
-     &                             wsalt,                               &
 #ifdef NCEP_FLUXES
      &                             wg2_d, cd_d, ch_d, ce_d,             &
      &                             wg2_m, cd_m, ch_m, ce_m,             &
@@ -128,7 +126,6 @@
       real(r8), intent(inout) :: sig11(LBi:,LBj:,:)
       real(r8), intent(inout) :: sig22(LBi:,LBj:,:)
       real(r8), intent(inout) :: sig12(LBi:,LBj:,:)
-      real(r8), intent(inout) :: wsalt(LBi:,LBj:)
 # ifdef NCEP_FLUXES
       real(r8), intent(inout) :: wg2_d(LBi:,LBj:)
       real(r8), intent(inout) :: cd_d(LBi:,LBj:)
@@ -166,7 +163,6 @@
       real(r8), intent(inout) :: sig11(LBi:UBi,LBj:UBj,2)
       real(r8), intent(inout) :: sig22(LBi:UBi,LBj:UBj,2)
       real(r8), intent(inout) :: sig12(LBi:UBi,LBj:UBj,2)
-      real(r8), intent(inout) :: wsalt(LBi:UBi,LBj:UBj)
 # ifdef NCEP_FLUXES
       real(r8), intent(inout) :: wg2_d(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: cd_d(LBi:UBi,LBj:UBj)
@@ -228,7 +224,6 @@
           sig11(i,j,1) = 0._r8
           sig22(i,j,1) = 0._r8
           sig12(i,j,1) = 0._r8
-          wsalt(i,j) = 0._r8
           ai(i,j,2) = ai(i,j,1)
           hi(i,j,2) = hi(i,j,1)
           hsn(i,j,2) = hsn(i,j,1)
@@ -282,7 +277,6 @@
           sig11(i,j,1) = 0._r8
           sig22(i,j,1) = 0._r8
           sig12(i,j,1) = 0._r8
-          wsalt(i,j) = 0._r8
           ai(i,j,2) = ai(i,j,1)
           hi(i,j,2) = hi(i,j,1)
           hsn(i,j,2) = hsn(i,j,1)
