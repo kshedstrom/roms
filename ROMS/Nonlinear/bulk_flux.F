@@ -1522,14 +1522,6 @@
      &                    sustr_aw, svstr_aw)
 #  endif
 # endif
-# ifdef KATE_FOO
-      IF (LBi .le. 168 .and. UBi .ge. 168) THEN
-        print *, 'in bulk_flux ', snow_n(168,480), snow_n(169,480),     &
-     &            qai_n(168,480), qai_n(169,480),                       &
-     &            coef_ice_heat(168,480), coef_ice_heat(169,480),       &
-     &            rhs_ice_heat(168,480), rhs_ice_heat(169,480)
-      END IF
-# endif
 
       RETURN
       END SUBROUTINE bulk_flux_tile

@@ -2250,7 +2250,7 @@
 # endif
 # if defined RUNOFF
 !
-!  Write out surface air pressure.
+!  Write out runoff.
 !
       IF (Hout(idRunoff,ng)) THEN
         scale=1.0_r8

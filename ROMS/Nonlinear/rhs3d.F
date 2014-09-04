@@ -36,7 +36,6 @@
       USE mod_mixing
 # endif
       USE mod_ocean
-      USE mod_scalars
       USE mod_stepping
 !
       USE pre_step3d_mod, ONLY : pre_step3d

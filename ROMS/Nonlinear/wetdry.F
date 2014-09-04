@@ -65,6 +65,8 @@
       real(r8), intent(in) :: DU_avg1(LBi:,LBj:)
       real(r8), intent(in) :: DV_avg1(LBi:,LBj:)
       real(r8), intent(inout) :: rmask_wet_avg(LBi:,LBj:)
+      real(r8), intent(out) :: umask_diff(LBi:,LBj:)
+      real(r8), intent(out) :: vmask_diff(LBi:,LBj:)
 #  endif
       real(r8), intent(out) :: pmask_io(LBi:,LBj:)
       real(r8), intent(out) :: rmask_io(LBi:,LBj:)
@@ -75,11 +77,6 @@
       real(r8), intent(out) :: rmask_wet(LBi:,LBj:)
       real(r8), intent(out) :: umask_wet(LBi:,LBj:)
       real(r8), intent(out) :: vmask_wet(LBi:,LBj:)
-
-#  ifdef SOLVE3D
-      real(r8), intent(out) :: umask_diff(LBi:,LBj:)
-      real(r8), intent(out) :: vmask_diff(LBi:,LBj:)
-#  endif
 
 # else
 
@@ -95,6 +92,8 @@
       real(r8), intent(in) :: DU_avg1(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: DV_avg1(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: rmask_wet_avg(LBi:UBi,LBj:UBj)
+      real(r8), intent(out) :: umask_diff(LBi:UBi,LBj:UBj)
+      real(r8), intent(out) :: vmask_diff(LBi:UBi,LBj:UBj)
 #  endif
       real(r8), intent(out) :: pmask_io(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: rmask_io(LBi:UBi,LBj:UBj)
@@ -105,11 +104,6 @@
       real(r8), intent(out) :: rmask_wet(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: umask_wet(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: vmask_wet(LBi:UBi,LBj:UBj)
-
-#  ifdef SOLVE3D
-      real(r8), intent(out) :: umask_diff(LBi:UBi,LBj:UBj)
-      real(r8), intent(out) :: vmask_diff(LBi:UBi,LBj:UBj)
-#  endif
 # endif
 !
 !  Local variable declarations.

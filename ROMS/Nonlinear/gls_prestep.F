@@ -81,7 +81,7 @@
 !***********************************************************************
 !
       USE mod_param
-      USE mod_ncparam
+!      USE mod_ncparam
       USE mod_scalars
 !
       USE exchange_3d_mod, ONLY : exchange_w3d_tile

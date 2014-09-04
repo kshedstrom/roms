@@ -14,7 +14,7 @@
 !  between nested grids. It process the contact region points between  !
 !  data donor and data receiver grids.                                 !
 !                                                                      !
-!  The locations of the spatial interpolation weights in the dgetonor  !
+!  The locations of the spatial interpolation weights in the donor     !
 !  grid with respect the receiver grid contact region at contat        !
 !  point x(Irg,Jrg,Krg) are:                                           !
 !                                                                      !

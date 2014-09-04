@@ -160,7 +160,6 @@
       USE mod_param
       USE mod_ncparam
       USE mod_scalars
-      USE mod_sources
 # ifdef SOGLOBEC
       USE mod_clima
 # endif
@@ -327,7 +326,7 @@
 !
 !  Local variable declarations.
 !
-      integer :: i, ic, is, itrc, j, k
+      integer :: i, ic, itrc, j, k
 # if defined SEDIMENT || defined BBL_MODEL
       integer :: ised
 # endif

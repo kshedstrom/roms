@@ -656,6 +656,17 @@
      &          'Sout(idMtls)',                                         &
      &          'Write out turbulent generic length-scale.'
 #  endif
+#  ifdef WET_DRY
+            IF (Sout(idRwet,ng)) WRITE (out,80) Sout(idRwet,ng),        &
+     &          'Sout(idRwet)',                                         &
+     &          'Write out rho point wet-dry mask.'
+            IF (Sout(idUwet,ng)) WRITE (out,80) Sout(idUwet,ng),        &
+     &          'Sout(idUwet)',                                         &
+     &          'Write out u point wet-dry mask.'
+            IF (Sout(idVwet,ng)) WRITE (out,80) Sout(idVwet,ng),        &
+     &          'Sout(idVwet)',                                         &
+     &          'Write out v point wet-dry mask.'
+#  endif
 #  ifdef ICE_MODEL
           IF (Sout(idUice,ng)) WRITE (out,80) Sout(idUice,ng),          &
      &       'Sout(idUice)',                                            &

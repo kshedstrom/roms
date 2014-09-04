@@ -390,6 +390,8 @@
         integer  :: idTimid        ! interior ice temperature
         integer  :: idTauiw        ! ice-water friction velocity
         integer  :: idChuiw        ! ice-water momentum transfer coefficient
+        integer  :: idS0mk         ! salinity of molecular sub-layer under ice
+        integer  :: idT0mk         ! temperature of molecular sub-layer under ice
         integer  :: idWfr          ! frazil ice growth rate
         integer  :: idWai          ! ice growth/melt rate
         integer  :: idWao          ! ice growth/melt rate
@@ -1824,6 +1826,10 @@
                 idTauiw=varid
               CASE ('idChuiw')
                 idChuiw=varid
+              CASE ('idS0mk')
+                idS0mk=varid
+              CASE ('idT0mk')
+                idT0mk=varid
               CASE ('idWfr')
                 idWfr=varid
               CASE ('idWai')

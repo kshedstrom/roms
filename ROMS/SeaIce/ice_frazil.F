@@ -190,8 +190,8 @@
      &                         + 0.0543_r8 * t(i,j,k,nnew,isalt))
                 delta_wfr = gamma_k * Hz(i,j,k) *                       &
      &                    (rho0 + rho(i,j,k) ) / rhoice(ng)
-                print *, 'ICE_FRAZIL before', t_fr, t(i,j,k,nnew,itemp),& 
-     &               t(i,j,k,nnew,isalt)
+!                print *, 'ICE_FRAZIL before', t_fr, t(i,j,k,nnew,itemp),&
+!     &               t(i,j,k,nnew,isalt)
                 IF ((wfr(i,j) + delta_wfr) > 0) THEN
                   wfr(i,j) = wfr(i,j) + delta_wfr
                 ELSE
@@ -203,8 +203,8 @@
      &                 (Lhat + t(i,j,k,nnew,itemp)*(1.0_r8 - r))
                 t(i,j,k,nnew,isalt) = t(i,j,k,nnew,isalt) *             &
      &                                  (1.0_r8 + gamma_k)
-                print *, 'ICE_FRAZIL after', gamma_k,                   &
-     &               t(i,j,k,nnew,itemp), t(i,j,k,nnew,isalt)
+!                print *, 'ICE_FRAZIL after', gamma_k,                   &
+!     &               t(i,j,k,nnew,itemp), t(i,j,k,nnew,isalt)
               END IF
 # if defined WET_DRY || defined MASKING
             END IF
